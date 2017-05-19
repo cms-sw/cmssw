@@ -31,9 +31,9 @@ trackingPhase2PU140.toReplaceWith(convClusters, _phase2trackClusterRemover.clone
     phase2OTClusters                         = "siPhase2Clusters",
     TrackQuality                             = 'highPurity',
     minNumberOfLayersWithMeasBeforeFiltering = 0,
-    trajectories                             = cms.InputTag("pixelPairStepTracks"),
-    oldClusterRemovalInfo                    = cms.InputTag("pixelPairStepClusters"),
-    overrideTrkQuals                         = cms.InputTag("pixelPairStepSelector","pixelPairStep"),
+    trajectories                             = cms.InputTag("detachedQuadStepTracks"),
+    oldClusterRemovalInfo                    = cms.InputTag("detachedQuadStepClusters"),
+    overrideTrkQuals                         = cms.InputTag("detachedQuadStepSelector","detachedQuadStepTrk"),
     )
 )
 

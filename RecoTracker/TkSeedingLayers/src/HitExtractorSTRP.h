@@ -28,7 +28,7 @@ public:
   virtual ~HitExtractorSTRP(){}
 
   virtual HitExtractor::Hits hits( const TkTransientTrackingRecHitBuilder &ttrhBuilder, const edm::Event& , const edm::EventSetup&) const override;
-  virtual HitExtractorSTRP * clone() const { return new HitExtractorSTRP(*this); }
+  virtual HitExtractorSTRP * clone() const override { return new HitExtractorSTRP(*this); }
 
   void useMatchedHits( const edm::InputTag & m, edm::ConsumesCollector& iC) { hasMatchedHits = true; theMatchedHits = iC.consumes<SiStripMatchedRecHit2DCollection>(m); }
   void useRPhiHits(    const edm::InputTag & m, edm::ConsumesCollector& iC) { hasRPhiHits    = true; theRPhiHits = iC.consumes<SiStripRecHit2DCollection>(m); }

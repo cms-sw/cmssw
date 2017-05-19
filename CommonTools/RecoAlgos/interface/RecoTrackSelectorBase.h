@@ -1,6 +1,7 @@
 #ifndef CommonTools_RecoAlgos_RecoTrackSelectorBase_h
 #define CommonTools_RecoAlgos_RecoTrackSelectorBase_h
 
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -48,6 +49,10 @@ public:
      event.getByToken(vertexToken_, hVtx);
      if (hVtx->empty()) return;
      vertex_ = (*hVtx)[0].position();
+  }
+
+  bool operator()( const reco::TrackRef& tref ) const {
+    return (*this)(*tref);
   }
 
   bool operator()( const reco::Track & t) const {

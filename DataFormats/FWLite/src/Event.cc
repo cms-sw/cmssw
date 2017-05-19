@@ -518,10 +518,8 @@ Event::throwProductNotFoundException(std::type_info const& iType, char const* iM
 fwlite::LuminosityBlock const& Event::getLuminosityBlock() const {
   if (not lumi_) {
     // Branch map pointer not really being shared, owned by event, have to trick Lumi
-    lumi_ = std::shared_ptr<fwlite::LuminosityBlock> (
-             new fwlite::LuminosityBlock(std::shared_ptr<BranchMapReader>(&branchMap_,NoDelete()),
-             runFactory_)
-          );
+    lumi_ = std::make_shared<fwlite::LuminosityBlock> (std::shared_ptr<BranchMapReader>(&branchMap_,NoDelete()),
+             runFactory_);
   }
   edm::RunNumber_t             run  = eventAuxiliary().run();
   edm::LuminosityBlockNumber_t lumi = eventAuxiliary().luminosityBlock();

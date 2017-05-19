@@ -15,7 +15,7 @@
     <rParent name="hgcal:HGCalEE"/>
     <Vector name="WaferName" type="string" nEntries="2">
       hgcalwafer:HGCalEEWaferFine, hgcalwafer:HGCalEEWaferCoarse</Vector>
-    <Vector name="MaterialNames" type="string" nEntries="30">
+    <Vector name="MaterialNames" type="string" nEntries="39">
       materials:Lead, materials:Tungsten, materials:Tungsten, 
       materials:Tungsten, materials:Tungsten, hgcal:WCu, hgcal:WCu, 
       hgcal:WCu, materials:Copper, materials:G10, materials:Air, 
@@ -24,47 +24,53 @@
       materials:Air, materials:Air, materials:Air, materials:Air, 
       materials:Air, materials:Lead, materials:Copper, materials:Kapton,
       materials:M_NEMA FR4 plate,  materials:G10, 
-      materials:M_NEMA FR4 plate</Vector>
-    <Vector name="VolumeNames" type="string" nEntries="30">
+      materials:M_NEMA FR4 plate, materials:Air, materials:Air, materials:Air,
+      materials:Air, materials:Air, materials:Air, materials:Air, 
+      materials:Air, materials:Air</Vector>
+    <Vector name="VolumeNames" type="string" nEntries="39">
       EEAbsorber1, EEAbsorber2, EEAbsorber3, EEAbsorber4, EEAbsorber5, 
       EEAbsorber6, EEAbsorber7, EEAbsorber8, EEHeatShield1, EEPCB1,
       EESensitive, EEAirGap1, EEAirGap2, EEAirGap3, EEAirGap4, EEAirGap5, 
       EEAirGap6, EEAirGap7, EEAirGap8, EEAirGap9, EEAirGap10, EEAirGap11, 
       EEAirGap12, EEAirGap13, EEAbsorber9, EEHeatShield2, EEKapton, 
-      EECoverPlate1, EEPCB2, EECoverPlate2</Vector>
-    <Vector name="Thickness" type="numeric" nEntries="30">
+      EECoverPlate1, EEPCB2, EECoverPlate2, EEAirGap14, EEAirGap15, 
+      EEAirGap16, EEAirGap17, EEAirGap18, EEAirGap19, EEAirGap20, 
+      EEAirGap21, EEAirGap22</Vector>
+    <Vector name="Thickness" type="numeric" nEntries="39">
       25.2*mm, 8.0*mm, 4.0*mm, 2.0*mm, 2.8*mm, 2.2*mm, 1.2*mm, 0.6*mm, 6.0*mm,
-      0.5*mm,  0.10*mm, 3*mm, 3.7*mm, 4*mm, 6*mm, 7*mm, 8*mm, 9*mm, 10*mm, 
-      11*mm, 15*mm, 15.6*mm, 17*mm, 21*mm, 5.6*mm,  
-      12.0*mm, 0.01*mm, 0.5*mm, 1.0*mm, 1.0*mm </Vector>
+      0.5*mm,  0.10*mm, 2.8*mm, 3.7*mm, 3.8*mm, 6*mm, 6.6*mm, 8*mm, 7.6*mm, 
+      1.29*mm, 1.89*mm, 5.89*mm, 5.4*mm, 7.29*mm, 10.49*mm, 5.6*mm,  
+      12.0*mm, 0.01*mm, 0.5*mm, 1.0*mm, 1.0*mm, 6.8*mm, 8.2*mm, 7.2*mm, 
+      8.6*mm, 6.49*mm, 3.5*mm, 8.2*mm,1.29*mm, 6.2*mm </Vector>
     <Vector name="Layers" type="numeric" nEntries="6"> 
-       11, 17, 17, 17, 27, 35</Vector>
+       10, 16, 16, 16, 25, 33</Vector>
     <Vector name="LayerThick" type="numeric" nEntries="6"> 
-      39.12*mm, 54.92*mm, 59.92*mm, 53.12*mm, 80.84*mm, 129.54*mm
+      39.11*mm, 43.8*mm, 47.8*mm, 45.4*mm, 63.8*mm, 106.9*mm
     </Vector> 
-    <Vector name="LayerType" type="numeric" nEntries="124"> 
-      0, 8, 7, 26, 10, 10, 10, 26, 9, 14, 27, 
-      19, 2, 17, 2, 15, 3, 13, 8, 7, 26, 10, 10, 10, 26, 9, 14, 27, 
-      20, 2, 19, 2, 15, 3, 11, 8, 7, 26, 10, 10, 10, 26, 9, 14, 27, 
-      20, 4, 15, 4, 14, 3, 11, 8, 6, 26, 10, 10, 10, 26, 9, 14, 27, 
-      22, 2, 15, 4, 15, 3, 18, 27, 14, 9, 26, 10, 10, 10, 26, 6, 8, 8, 
-      5, 26, 10, 10, 10, 26, 28, 14, 29,  
-      23, 24, 4, 15, 3, 21, 27, 14, 9, 26, 10, 10, 10, 26, 5, 8, 16, 24,
-      4, 14, 24, 4, 16, 3, 12, 8, 5, 26, 10, 10, 10, 26, 9, 14, 27
+    <Vector name="LayerType" type="numeric" nEntries="116"> 
+      0, 8, 7, 26, 10, 10, 10, 9, 14, 27, 
+      19, 2, 17, 2, 15, 3, 13, 8, 7, 26, 10, 10, 10, 9, 14, 27, 
+      20, 2, 33, 2, 15, 3, 11, 8, 7, 26, 10, 10, 10, 9, 14, 27, 
+      34, 4, 30, 4, 32, 3, 11, 8, 6, 26, 10, 10, 10, 9, 14, 27, 
+      22, 2, 36, 4, 32, 3, 37, 27, 14, 9,10, 10, 10, 26, 6, 8, 8, 
+      5, 26, 10, 10, 10, 28, 14, 29,  
+      23, 24, 4, 38, 3, 20, 27, 14, 9, 10, 10, 10, 26, 5, 8, 16, 24,
+      4, 21, 24, 4, 32, 3, 35, 8, 5, 26, 10, 10, 10, 9, 14, 27
     </Vector>
-    <Vector name="LayerSense" type="numeric" nEntries="124">
-      0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0,
-      0, 0, 1, 1, 1, 0, 0, 0, 0,  
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0
+    <Vector name="LayerSense" type="numeric" nEntries="116">
+      0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,1, 1, 1, 0, 0, 0, 0, 
+      0, 0, 1, 1, 1, 0, 0, 0,  
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0
     </Vector>
     <Numeric name="zMinBlock"   value="[hgcal:zminEE]"/>
     <Numeric name="rMaxFine"    value="[rMaxFine]"/>
     <Numeric name="waferW"      value="[hgcal:WaferW]"/>
+    <Numeric name="waferGap"    value="0.0*fm"/>
     <Numeric name="Sectors"     value="12"/>
     <Vector name="SlopeBottom" type="numeric" nEntries="2">
       0.0, 0.0</Vector>

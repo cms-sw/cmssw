@@ -48,6 +48,7 @@ namespace edm {
   class ActivityRegistry;
   class ProductRegistry;
   class ThinnedAssociationsHelper;
+  class WaitingTask;
 
   template <typename T> class OutputModuleCommunicatorT;
   
@@ -132,6 +133,9 @@ namespace edm {
       bool doEvent(EventPrincipal const& ep, EventSetup const& c,
                    ActivityRegistry*,
                    ModuleCallingContext const*);
+      //For now this is a placeholder
+      /*virtual*/ void preActionBeforeRunEventAsync(WaitingTask* iTask, ModuleCallingContext const& iModuleCallingContext, Principal const& iPrincipal) const {}
+
       bool doBeginRun(RunPrincipal const& rp, EventSetup const& c,
                       ModuleCallingContext const*);
       bool doEndRun(RunPrincipal const& rp, EventSetup const& c,

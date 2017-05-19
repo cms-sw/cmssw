@@ -31,8 +31,9 @@ private:
   template<typename T>
   float score (const T & t) const
   {
-
-    return t.chiSquared()-t.foundHits()*bonus+t.lostHits()*penalty 
+   auto bb = (t.dPhiCacheForLoopersReconstruction()==0 && t.foundHits()>8) ? 2*bonus : bonus; //extra bonus for long tracks not loopers
+    if ( t.lastMeasurement().updatedState().globalMomentum().perp2() < 0.81f ) bb*=0.5f; 
+    return t.chiSquared()-t.foundHits()*bb+t.lostHits()*penalty 
       + looperPenalty(t);
   }
 

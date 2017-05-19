@@ -69,7 +69,7 @@ class LMFColoredTable : public LMFDat {
     return getData(id, "VMAX");
   }
 
-  int writeDB() throw(std::runtime_error);
+  int writeDB() noexcept(false);
 
 
  protected:

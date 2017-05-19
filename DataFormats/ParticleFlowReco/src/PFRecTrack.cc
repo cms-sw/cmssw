@@ -52,10 +52,10 @@ std::ostream& reco::operator<<(std::ostream& out,
       << "\tnumber of tracker measurements = " 
       << track.nTrajectoryMeasurements() << std::endl
       <<"\tnumber of points total = "
-      << track.trajectoryPoints_.size()<< std::endl;
+      << track.trajectoryPoints().size()<< std::endl;
 
-  for(unsigned i=0; i<track.trajectoryPoints_.size(); i++) 
-    out<<track.trajectoryPoints_[i]<<std::endl;
+  for(unsigned i=0; i<track.trajectoryPoints().size(); i++) 
+    out<<track.trajectoryPoints()[i]<<std::endl;
 
 
   return out;

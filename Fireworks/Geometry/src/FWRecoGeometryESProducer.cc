@@ -8,6 +8,7 @@
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
+#include "Geometry/HGCalGeometry/interface/FastTimeGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
@@ -29,14 +30,24 @@
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 
 #include "TNamed.h"
-# define ADD_PIXEL_TOPOLOGY( rawid, detUnit )			\
-  const PixelGeomDetUnit* det = dynamic_cast<const PixelGeomDetUnit*>( detUnit ); \
-  if( det )							\
-  {      							\
-    const PixelTopology* topo = &det->specificTopology(); \
-    m_fwGeometry->idToName[rawid].topology[0] = topo->nrows();	\
-    m_fwGeometry->idToName[rawid].topology[1] = topo->ncolumns(); \
-  }								\
+
+void FWRecoGeometryESProducer::ADD_PIXEL_TOPOLOGY( unsigned int rawid, const GeomDet* detUnit ) {                                    
+   const PixelGeomDetUnit* det = dynamic_cast<const PixelGeomDetUnit*>( detUnit ); 
+   if( det )							
+   {      							
+      const PixelTopology* topo = &det->specificTopology(); 
+    
+      std::pair<float,float> pitch = topo->pitch();
+      m_fwGeometry->idToName[rawid].topology[0] = pitch.first;
+      m_fwGeometry->idToName[rawid].topology[1] = pitch.second;
+
+      m_fwGeometry->idToName[rawid].topology[2] = topo->localX(0.f); // offsetX
+      m_fwGeometry->idToName[rawid].topology[3] = topo->localY(0.f); // offsetY
+
+      // big pixels layout
+      m_fwGeometry->idToName[rawid].topology[4] = topo->isItBigPixelInX(80) ? 0 : 1;
+   }
+}
 
 # define ADD_SISTRIP_TOPOLOGY( rawid, detUnit )			\
   const StripGeomDetUnit* det = dynamic_cast<const StripGeomDetUnit*>( detUnit ); \
@@ -78,6 +89,7 @@ FWRecoGeometryESProducer::FWRecoGeometryESProducer( const edm::ParameterSet& pse
   m_tracker = pset.getUntrackedParameter<bool>( "Tracker", true );
   m_muon = pset.getUntrackedParameter<bool>( "Muon", true );
   m_calo = pset.getUntrackedParameter<bool>( "Calo", true );
+  m_timing = pset.getUntrackedParameter<bool>( "Timing", false );
   setWhatProduced( this );
 }
 
@@ -118,6 +130,12 @@ FWRecoGeometryESProducer::produce( const FWRecoGeometryRecord& record )
   {
     record.getRecord<CaloGeometryRecord>().get( m_caloGeom );
     addCaloGeometry();
+  }
+
+  if( m_timing ) {
+    record.getRecord<CaloGeometryRecord>().getRecord<IdealGeometryRecord>().get( "FastTimeBarrel", m_ftlBarrelGeom );
+    record.getRecord<CaloGeometryRecord>().getRecord<IdealGeometryRecord>().get( "SFBX", m_ftlEndcapGeom );
+    addFTLGeometry();
   }
   
   m_fwGeometry->idToName.resize( m_current + 1 );
@@ -520,6 +538,29 @@ FWRecoGeometryESProducer::addCaloGeometry( void )
       const auto& cor = geom->getCorners( *it );
       fillPoints( id, cor.begin(), cor.end() );
     }
+  }
+}
+
+void
+FWRecoGeometryESProducer::addFTLGeometry( void )
+{
+  // do the barrel
+  std::vector<DetId> vid = std::move(m_ftlBarrelGeom->getValidDetIds()); 
+  for( std::vector<DetId>::const_iterator it = vid.begin(),
+	 end = vid.end();
+       it != end; ++it ) {
+    unsigned int id = insert_id( it->rawId());
+    const auto& cor =  m_ftlBarrelGeom->getCorners( *it );      
+    fillPoints( id, cor.begin(), cor.end());    
+  }
+  // do the endcap
+  vid = std::move(m_ftlEndcapGeom->getValidDetIds()); 
+  for( std::vector<DetId>::const_iterator it = vid.begin(),
+	 end = vid.end();
+       it != end; ++it ) {
+    unsigned int id = insert_id( it->rawId());
+    const auto& cor =  m_ftlEndcapGeom->getCorners( *it );      
+    fillPoints( id, cor.begin(), cor.end());    
   }
 }
 

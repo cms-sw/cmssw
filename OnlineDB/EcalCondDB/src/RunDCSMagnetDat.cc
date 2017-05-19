@@ -44,7 +44,7 @@ Tm RunDCSMagnetDat::getTime() const
 
 
 void RunDCSMagnetDat::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
 
 
@@ -53,14 +53,14 @@ void RunDCSMagnetDat::prepareWrite()
 
 
 void RunDCSMagnetDat::writeDB(const EcalLogicID* ecid, const RunDCSMagnetDat* item, RunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
 }
 
 
 
 void RunDCSMagnetDat::fetchData(map< EcalLogicID, RunDCSMagnetDat >* fillMap, RunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
 
   std::cout<<"going to call fetchLastData"<<std::endl;
@@ -85,7 +85,11 @@ ResultSet *RunDCSMagnetDat::getMagnetRset() {
     rset = m_readStmt->executeQuery();
   }
   catch (SQLException e) {
+#if defined(_GLIBCXX_USE_CXX11_ABI) && (_GLIBCXX_USE_CXX11_ABI == 0)
     throw(std::runtime_error("RunDCSMagnetDat::getBarrelRset():  " + e.getMessage() + " " + query));
+#else
+    throw(std::runtime_error("RunDCSMagnetDat::getBarrelRset():  error code " + std::to_string(e.getErrorCode()) + " " + query));
+#endif
   }
   return rset;
 }
@@ -125,7 +129,11 @@ void RunDCSMagnetDat::fillTheMap(ResultSet *rset,
     } 
   }
   catch (SQLException &e) {
+#if defined(_GLIBCXX_USE_CXX11_ABI) && (_GLIBCXX_USE_CXX11_ABI == 0)
     throw(std::runtime_error("RunDCSMagnetDat::fetchData():  "+e.getMessage()));
+#else
+    throw(std::runtime_error("RunDCSMagnetDat::fetchData():  error code " + std::to_string(e.getErrorCode())));
+#endif
   }
 }
 
@@ -143,7 +151,7 @@ int  RunDCSMagnetDat::nowMicroseconds() {
 
 
 void RunDCSMagnetDat::fetchLastData(map< EcalLogicID, RunDCSMagnetDat >* fillMap )
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -169,7 +177,11 @@ void RunDCSMagnetDat::fetchLastData(map< EcalLogicID, RunDCSMagnetDat >* fillMap
 
   } 
   catch (SQLException &e) {
+#if defined(_GLIBCXX_USE_CXX11_ABI) && (_GLIBCXX_USE_CXX11_ABI == 0)
     throw(std::runtime_error("RunDCSMagnetDat::fetchData():  "+e.getMessage()));
+#else
+    throw(std::runtime_error("RunDCSMagnetDat::fetchData():  error code " + std::to_string(e.getErrorCode())));
+#endif
   }
 }
 

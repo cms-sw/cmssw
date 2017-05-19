@@ -26,6 +26,7 @@ namespace reco {
     struct  IsolationVariables;
     struct  ShowerShape;
     struct  MIPVariables;  
+    struct  SaturationInfo;
     
     /// default constructor
     Photon() : RecoCandidate() { pixelSeed_=false; }
@@ -237,6 +238,23 @@ namespace reco {
     float full5x5_r1x5 ()           const {return full5x5_showerShapeBlock_.e1x5/full5x5_showerShapeBlock_.e5x5;}
     float full5x5_r2x5 ()           const {return full5x5_showerShapeBlock_.e2x5/full5x5_showerShapeBlock_.e5x5;}
     float full5x5_r9 ()             const {return full5x5_showerShapeBlock_.e3x3/this->superCluster()->rawEnergy();}      
+
+  //=======================================================
+  // SaturationInfo
+  //=======================================================
+
+    struct SaturationInfo {
+      int nSaturatedXtals;
+      bool isSeedSaturated;
+      SaturationInfo() 
+      : nSaturatedXtals(0), isSeedSaturated(false) {};
+     } ;
+
+    // accessors
+    float nSaturatedXtals() const { return saturationInfo_.nSaturatedXtals; }
+    float isSeedSaturated() const { return saturationInfo_.isSeedSaturated; }
+    const SaturationInfo& saturationInfo() const { return saturationInfo_; }
+    void setSaturationInfo(const SaturationInfo &s) { saturationInfo_ = s; }
 
     //=======================================================
     // Energy Determinations
@@ -516,6 +534,7 @@ namespace reco {
     IsolationVariables isolationR03_;
     ShowerShape        showerShapeBlock_;
     ShowerShape        full5x5_showerShapeBlock_;
+    SaturationInfo saturationInfo_;
     EnergyCorrections eCorrections_; 
     MIPVariables        mipVariableBlock_; 
     PflowIsolationVariables pfIsolation_;

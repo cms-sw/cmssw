@@ -20,10 +20,10 @@ class L1Scalers : public DQMEDAnalyzer {
   virtual ~L1Scalers(){};
   void bookHistograms(DQMStore::IBooker &, edm::Run const &,
                       edm::EventSetup const &) override;
-  void analyze(const edm::Event &e, const edm::EventSetup &c);
+  void analyze(const edm::Event &e, const edm::EventSetup &c) override;
   /// DQM Client Diagnostic should be performed here:
   void endLuminosityBlock(const edm::LuminosityBlock &lumiSeg,
-                          const edm::EventSetup &c);
+                          const edm::EventSetup &c) override;
 
  private:
   int nev_;  // Number of events processed

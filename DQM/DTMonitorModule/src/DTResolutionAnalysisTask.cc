@@ -158,7 +158,7 @@ void DTResolutionAnalysisTask::analyze(const edm::Event& event, const edm::Event
 	if(phiRecHits.size() < thePhiHitsCut) {
 	  continue;
 	}
-	copy(phiRecHits.begin(), phiRecHits.end(), back_inserter(recHits1D_S3));
+        copy(phiRecHits.begin(), phiRecHits.end(), back_inserter(recHits1D_S3));
       } else {
 
       }
@@ -170,7 +170,7 @@ void DTResolutionAnalysisTask::analyze(const edm::Event& event, const edm::Event
 
  	  continue;
 	}
-	copy(zRecHits.begin(), zRecHits.end(), back_inserter(recHits1D_S3));
+        copy(zRecHits.begin(), zRecHits.end(), back_inserter(recHits1D_S3));
       }
 
       // Loop over 1D RecHit inside 4D segment

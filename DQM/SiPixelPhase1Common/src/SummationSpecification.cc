@@ -12,29 +12,25 @@
 #include <set>
 #include <cassert>
 
-// there does not seem to be a standard string tokenizer...
-#include <boost/algorithm/string.hpp>
-
 GeometryInterface::Column 
 SummationSpecification::parse_columns(std::string name, GeometryInterface& geometryInterface) {
-  std::vector<std::string> parts;
-  boost::split(parts, name, boost::is_any_of("|"), boost::token_compress_on);
-  GeometryInterface::Column out = {{0,0}};
-  unsigned int i = 0;
-  for (auto str : parts) {
-    assert(i < out.size() || !"maximum number of alternative columns exceeded");
-    out[i++] = geometryInterface.intern(str); 
-  }
-  return out;
+  return geometryInterface.intern(name); 
 }
 
 
 SummationSpecification::SummationSpecification(const edm::ParameterSet& config, GeometryInterface& geometryInterface) {
   auto spec = config.getParameter<edm::VParameterSet>("spec");
+
   for (auto step : spec) {
     auto s = SummationStep();
     s.type = SummationStep::Type(step.getParameter<int>("type"));
     s.stage = SummationStep::Stage(step.getParameter<int>("stage"));
+	
+    s.nbins = int(step.getParameter<int>("nbins"));
+    s.xmin = int(step.getParameter<int>("xmin"));
+    s.xmax = int(step.getParameter<int>("xmax"));
+
+	
     for (auto c : step.getParameter<std::vector<std::string>>("columns")) {
       s.columns.push_back(parse_columns(c, geometryInterface));
     }

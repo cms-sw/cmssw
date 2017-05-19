@@ -23,31 +23,27 @@ using namespace std;
 using namespace ctfseeding; 
 
 
-TrackingRegion::ctfHits CosmicTrackingRegion::hits(const edm::Event& ev,
-						const edm::EventSetup& es,
+TrackingRegion::ctfHits CosmicTrackingRegion::hits(const edm::EventSetup& es,
 						const  ctfseeding::SeedingLayer* layer) const
 {
   TrackingRegion::ctfHits result;
   TrackingRegion::Hits tmp;
-  hits_(ev, es, *layer, tmp);
+  hits_(es, *layer, tmp);
   result.reserve(tmp.size());
   for ( auto h : tmp) result.emplace_back(*h); // not owned
   return result;
 }
 
-TrackingRegion::Hits CosmicTrackingRegion::hits(const edm::Event& ev,
-						const edm::EventSetup& es,
+TrackingRegion::Hits CosmicTrackingRegion::hits(const edm::EventSetup& es,
 						const SeedingLayerSetsHits::SeedingLayer& layer) const
 {
   TrackingRegion::Hits result;
-  hits_(ev, es, layer, result);
+  hits_(es, layer, result);
   return result;
 }
 
 template <typename T>
-void CosmicTrackingRegion::hits_(
-				 const edm::Event& ev,
-				 const edm::EventSetup& es,
+void CosmicTrackingRegion::hits_(const edm::EventSetup& es,
 				 const T& layer, TrackingRegion::Hits  & result) const
 {
 

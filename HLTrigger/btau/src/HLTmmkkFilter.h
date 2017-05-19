@@ -45,9 +45,9 @@ class HLTmmkkFilter : public HLTFilter {
   ~HLTmmkkFilter();
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
  private:
-  virtual void beginJob();
+  virtual void beginJob() override;
   virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
-  virtual void endJob();
+  virtual void endJob() override;
 
   static int overlap(const reco::Candidate&, const reco::Candidate&);
   static FreeTrajectoryState initialFreeState(const reco::Track &, const MagneticField *);

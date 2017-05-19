@@ -27,7 +27,7 @@
 #include <cstring>
 
 
-class EVTColContainer;
+struct EVTColContainer;
 
 /// The HLTExoticaValidator module is the main module of the
 /// package. It books a vector of auxiliary classes
@@ -48,10 +48,10 @@ protected:
 private:
     virtual void beginJob();
     /// Method called by the framework just before dqmBeginRun()
-    virtual void dqmBeginRun(const edm::Run &iRun, const edm::EventSetup & iSetup);
+    virtual void dqmBeginRun(const edm::Run &iRun, const edm::EventSetup & iSetup) override;
     /// Method called for each event.
-    virtual void analyze(const edm::Event & iEvent, const edm::EventSetup & iSetup);
-    virtual void endRun(const edm::Run & iRun, const edm::EventSetup & iSetup);
+    virtual void analyze(const edm::Event & iEvent, const edm::EventSetup & iSetup) override;
+    virtual void endRun(const edm::Run & iRun, const edm::EventSetup & iSetup) override;
     virtual void endJob();
 
     /// Copy (to be modified) of the input ParameterSet from configuration file.

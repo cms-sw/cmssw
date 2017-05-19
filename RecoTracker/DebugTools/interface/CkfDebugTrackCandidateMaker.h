@@ -19,7 +19,7 @@ namespace cms {
     }
 
     virtual void produce(edm::Event& e, const edm::EventSetup& es) override {produceBase(e,es);}
-    virtual void endJob() {delete dbg; }
+    virtual void endJob() override {delete dbg; }
 
   private:
     virtual TrajectorySeedCollection::const_iterator 
@@ -33,9 +33,9 @@ namespace cms {
 	//theTrajectoryBuilder->setDebugger( dbg);
     };
     
-    void printHitsDebugger(edm::Event& e){dbg->printSimHits(e);};
-    void countSeedsDebugger(){dbg->countSeed();};
-    void deleteAssocDebugger(){dbg->deleteHitAssociator();};
+    void printHitsDebugger(edm::Event& e) override{dbg->printSimHits(e);};
+    void countSeedsDebugger() override{dbg->countSeed();};
+    void deleteAssocDebugger() override{dbg->deleteHitAssociator();};
     void deleteDebugger(){delete dbg;};
     CkfDebugger *  dbg;
     const CkfDebugTrajectoryBuilder* myTrajectoryBuilder;

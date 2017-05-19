@@ -45,6 +45,8 @@ class DTLocalTrigger;
 class L1MuDTChambPhDigi;
 class L1MuDTChambThDigi;
 
+typedef std::array<std::array<std::array<int,13>, 5 > ,6> DTArr3int;
+typedef std::array<std::array<std::array<std::array<int, 3>, 13 >, 5 > ,6> DTArr4int;
 
 class DTLocalTriggerSynchTask: public DQMEDAnalyzer{
 
@@ -64,25 +66,27 @@ class DTLocalTriggerSynchTask: public DQMEDAnalyzer{
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
  ///Beginrun
-  void dqmBeginRun(const edm::Run& , const edm::EventSetup&);
+  void dqmBeginRun(const edm::Run& , const edm::EventSetup&) override;
 
   /// Book the histograms
   void bookHistos(DQMStore::IBooker &, const DTChamberId& dtCh );
 
   /// Analyze
-  void analyze(const edm::Event& event, const edm::EventSetup& context);
+  void analyze(const edm::Event& event, const edm::EventSetup& context) override;
 
   std::string & baseDir() { return baseDirectory; }
+
+  const int wheelArrayShift = 3;
 
  private:
 
   int nevents;
 
-  int phCodeBestTM[6][5][13];
-  int phCodeBXTM[6][5][13][3];
-  int phCodeBestDDU[6][5][13];
-  int thCodeBestDDU[6][5][13];
-  int segHitBest[6][5][13];
+  DTArr3int phCodeBestTM;
+  DTArr4int phCodeBXTM;
+  DTArr3int phCodeBestDDU;
+  DTArr3int thCodeBestDDU;
+  DTArr3int segHitBest;
 
   float bxTime;
   bool rangeInBX;

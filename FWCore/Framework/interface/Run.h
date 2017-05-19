@@ -34,7 +34,7 @@ namespace edm {
   class ModuleCallingContext;
   class ProducerBase;
   class SharedResourcesAcquirer;
-  
+
   namespace stream {
     template< typename T> class ProducingModuleAdaptorBase;
   }
@@ -49,7 +49,7 @@ namespace edm {
     void setConsumer(EDConsumerBase const* iConsumer) {
       provRecorder_.setConsumer(iConsumer);
     }
-    
+
     void setSharedResourcesAcquirer( SharedResourcesAcquirer* iResourceAcquirer) {
       provRecorder_.setSharedResourcesAcquirer(iResourceAcquirer);
     }
@@ -77,7 +77,7 @@ namespace edm {
     CacheIdentifier_t
     cacheIdentifier() const;
 
-    
+
     template <typename PROD>
     bool
     getByLabel(std::string const& label, Handle<PROD>& result) const;
@@ -96,7 +96,7 @@ namespace edm {
     template<typename PROD>
     bool
     getByToken(EDGetToken token, Handle<PROD>& result) const;
-    
+
     template<typename PROD>
     bool
     getByToken(EDGetTokenT<PROD> token, Handle<PROD>& result) const;
@@ -181,9 +181,9 @@ namespace edm {
 
     // The following will call post_insert if T has such a function,
     // and do nothing if T has no such function.
-    typename boost::mpl::if_c<detail::has_postinsert<PROD>::value,
-      DoPostInsert<PROD>,
-      DoNotPostInsert<PROD> >::type maybe_inserter;
+    std::conditional_t<detail::has_postinsert<PROD>::value,
+                       DoPostInsert<PROD>,
+                       DoNotPostInsert<PROD>> maybe_inserter;
     maybe_inserter(product.get());
 
     BranchDescription const& desc =
@@ -249,7 +249,7 @@ namespace edm {
     }
     return true;
   }
-  
+
   template<typename PROD>
   bool
   Run::getByToken(EDGetTokenT<PROD> token, Handle<PROD>& result) const {

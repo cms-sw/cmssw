@@ -63,11 +63,11 @@ namespace cms {
     virtual void StorePileupInformation( std::vector<int> &numInteractionList,
 					 std::vector<int> &bunchCrossingList,
 					 std::vector<float> &TrueInteractionList, 
-					 std::vector<edm::EventID> &eventInfoList, int bunchSpacing){
+					 std::vector<edm::EventID> &eventInfoList, int bunchSpacing) override{
       PileupInfo_ = new PileupMixingContent(numInteractionList, bunchCrossingList, TrueInteractionList, eventInfoList, bunchSpacing);
     }
 
-    virtual PileupMixingContent* getEventPileupInfo() { return PileupInfo_; }
+    virtual PileupMixingContent* getEventPileupInfo() override { return PileupInfo_; }
 
   private:
     void accumulatePixelHits(edm::Handle<std::vector<PSimHit> >,

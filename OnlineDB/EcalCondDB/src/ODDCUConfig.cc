@@ -41,7 +41,7 @@ void ODDCUConfig::setParameters(const std::map<string,string>& my_keys_map){
   
 }
 
-int ODDCUConfig::fetchNextId()  throw(std::runtime_error) {
+int ODDCUConfig::fetchNextId()  noexcept(false) {
 
   int result=0;
   try {
@@ -64,7 +64,7 @@ int ODDCUConfig::fetchNextId()  throw(std::runtime_error) {
 
 
 void ODDCUConfig::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   int next_id=fetchNextId();
@@ -85,7 +85,7 @@ void ODDCUConfig::prepareWrite()
 
 
 void ODDCUConfig::writeDB()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -111,7 +111,7 @@ void ODDCUConfig::writeDB()
 
 
 void ODDCUConfig::fetchData(ODDCUConfig * result)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   result->clear();
@@ -139,7 +139,7 @@ void ODDCUConfig::fetchData(ODDCUConfig * result)
   }
 }
 
-int ODDCUConfig::fetchID()    throw(std::runtime_error)
+int ODDCUConfig::fetchID()    noexcept(false)
 {
   // Return from memory if available
   if (m_ID!=0) {

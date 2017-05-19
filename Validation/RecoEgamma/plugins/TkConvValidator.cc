@@ -146,9 +146,9 @@ TkConvValidator::TkConvValidator( const edm::ParameterSet& pset )
         edm::InputTag("tpSelecForEfficiency"));
     tpSelForFake_Token_ = consumes<TrackingParticleRefVector> (
         edm::InputTag("tpSelecForFakeRate"));
-    hepMC_Token_ = consumes<edm::HepMCProduct>(edm::InputTag("generatorSmeared"));
-    genjets_Token_ = consumes<reco::GenJetCollection>(
-        edm::InputTag("ak4GenJets"));
+    //hepMC_Token_ = consumes<edm::HepMCProduct>(edm::InputTag("generatorSmeared"));
+    //genjets_Token_ = consumes<reco::GenJetCollection>(
+    //    edm::InputTag("ak4GenJets"));
 
     trackAssociator_Token_ = consumes<reco::TrackToTrackingParticleAssociator>(edm::InputTag("trackAssociatorByHitsForConversionValidation"));
   }
@@ -792,7 +792,7 @@ void  TkConvValidator::bookHistograms( DQMStore::IBooker & iBooker, edm::Run con
 
 }
 
-void  TkConvValidator::endRun (edm::Run& r, edm::EventSetup const & theEventSetup) {
+void  TkConvValidator::endRun (edm::Run const& r, edm::EventSetup const & theEventSetup) {
 
   delete thePhotonMCTruthFinder_;
 
@@ -886,8 +886,8 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
   //////////////////// Get the MC truth
   //get simtrack info
-  std::vector<SimTrack> theSimTracks;
-  std::vector<SimVertex> theSimVertices;
+  //std::vector<SimTrack> theSimTracks;
+  //std::vector<SimVertex> theSimVertices;
 
   edm::Handle<SimTrackContainer> SimTk;
   edm::Handle<SimVertexContainer> SimVtx;
@@ -895,32 +895,33 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
   e.getByToken(g4_simVtx_Token_, SimVtx);
 
   bool useTP = parameters_.getParameter<bool>("useTP");
-  TrackingParticleRefVector tpForEfficiency;
-  TrackingParticleRefVector tpForFakeRate;
+  TrackingParticleRefVector dummy;
   edm::Handle<TrackingParticleRefVector> TPHandleForEff;
   edm::Handle<TrackingParticleRefVector> TPHandleForFakeRate;
   if (useTP) {
     e.getByToken(tpSelForEff_Token_, TPHandleForEff);
-    tpForEfficiency = *(TPHandleForEff.product());
     e.getByToken(tpSelForFake_Token_, TPHandleForFakeRate);
-    tpForFakeRate = *(TPHandleForFakeRate.product());
   }
 
+  const TrackingParticleRefVector &tpForEfficiency= useTP? *(TPHandleForEff.product()) : dummy;
+  const TrackingParticleRefVector &tpForFakeRate= useTP? *(TPHandleForFakeRate.product()):dummy;
 
+  const std::vector<SimTrack> &theSimTracks= *SimTk;
+  const std::vector<SimVertex> &theSimVertices= *SimVtx;
 
-  theSimTracks.insert(theSimTracks.end(),SimTk->begin(),SimTk->end());
-  theSimVertices.insert(theSimVertices.end(),SimVtx->begin(),SimVtx->end());
+  //theSimTracks.insert(theSimTracks.end(),SimTk->begin(),SimTk->end());
+  //theSimVertices.insert(theSimVertices.end(),SimVtx->begin(),SimVtx->end());
   std::vector<PhotonMCTruth> mcPhotons=thePhotonMCTruthFinder_->find (theSimTracks,  theSimVertices);
 
-  edm::Handle<edm::HepMCProduct> hepMC;
-  e.getByToken(hepMC_Token_, hepMC);
+  //edm::Handle<edm::HepMCProduct> hepMC;
+  //e.getByToken(hepMC_Token_, hepMC);
   //  const HepMC::GenEvent *myGenEvent = hepMC->GetEvent(); // unused
 
 
   // get generated jets
-  edm::Handle<reco::GenJetCollection> GenJetsHandle;
-  e.getByToken(genjets_Token_, GenJetsHandle);
-  reco::GenJetCollection genJetCollection = *(GenJetsHandle.product());
+  //edm::Handle<reco::GenJetCollection> GenJetsHandle;
+  //e.getByToken(genjets_Token_, GenJetsHandle);
+  //const reco::GenJetCollection &genJetCollection = *(GenJetsHandle.product());
 
   ConversionHitChecker hitChecker;
 
@@ -969,7 +970,7 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       theConvTP_.clear();
       //      std::cout << " TkConvValidator TrackingParticles   TrackingParticleCollection size "<<  trackingParticles.size() <<  "\n";
       //duplicated TP collections for two associations
-      for(TrackingParticleRef tp: tpForEfficiency) {
+      for(const TrackingParticleRef tp: tpForEfficiency) {
 	if ( fabs( tp->vx() - (*mcPho).vertex().x() ) < 0.0001   &&
 	     fabs( tp->vy() - (*mcPho).vertex().y() ) < 0.0001   &&
 	     fabs( tp->vz() - (*mcPho).vertex().z() ) < 0.0001) {
@@ -1424,13 +1425,11 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
 
       theConvTP_.clear();
-      for(TrackingParticleRef tp: tpForFakeRate) {
+      for(const TrackingParticleRef tp: tpForFakeRate) {
 	if ( fabs( tp->vx() - (*mcPho).vertex().x() ) < 0.0001   &&
 	     fabs( tp->vy() - (*mcPho).vertex().y() ) < 0.0001   &&
 	     fabs( tp->vz() - (*mcPho).vertex().z() ) < 0.0001) {
 	  theConvTP_.push_back( tp );
-
-
 	}
       }
 

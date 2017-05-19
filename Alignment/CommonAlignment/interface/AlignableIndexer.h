@@ -20,14 +20,16 @@
  */
 
 #include <map>
+#include <functional>
 
 #include "Alignment/CommonAlignment/interface/StructureType.h"
+#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 #include "CondFormats/Alignment/interface/Definitions.h"
 
 class TrackerTopology;
 namespace align
 {
-  typedef unsigned int (*Counter)(align::ID, const TrackerTopology*);
+  using Counter = std::function<unsigned int(align::ID)>;
 }
 
 class AlignableIndexer
@@ -35,12 +37,15 @@ class AlignableIndexer
   public:
 
   /// Build the counters map.
-  AlignableIndexer() {}
-
-  virtual ~AlignableIndexer() {}
+  AlignableIndexer() = default;
+  AlignableIndexer(const AlignableIndexer&) = default;
+  AlignableIndexer& operator=(const AlignableIndexer&) = default;
+  AlignableIndexer(AlignableIndexer&&) = default;
+  AlignableIndexer& operator=(AlignableIndexer&&) = default;
+  virtual ~AlignableIndexer() = default;
 
   /// Get a counter based on its structure type.
-  virtual align::Counter get( align::StructureType ) const;
+  virtual align::Counter get(align::StructureType, const AlignableObjectId&) const;
 
 protected:
   std::map<align::StructureType, align::Counter> theCounters;

@@ -75,7 +75,7 @@ void TrackerMaterialBudgetComparison(TString detector) {
   if(
      theDetector!="TIB" && theDetector!="TIDF" && theDetector!="TIDB" && theDetector!="InnerServices"
      && theDetector!="TOB" && theDetector!="TEC" && theDetector!="TkStrct" 
-     && theDetector!="PixBar" && theDetector!="PixFwdPlus" && theDetector!="PixFwdMinus" 
+     && theDetector!="PixBar" && theDetector!="PixFwdPlus" && theDetector!="PixFwdMinus" && theDetector!="PixFwd"
      && theDetector!="Tracker" && theDetector!="TrackerSum"
      && theDetector!="Pixel" && theDetector!="Strip"
      && theDetector!="InnerTracker"
@@ -494,7 +494,7 @@ void createPlots(TString plot) {
   can_comparison.Update();
   //  can_comparison.SaveAs( Form( "%s/%s_Comparison_%s.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   //  can_comparison.SaveAs( Form( "%s/%s_Comparison_%s.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
-  //  can_comparison.SaveAs( Form( "%s/%s_Comparison_%s.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  can_comparison.SaveAs( Form( "%s/%s_Comparison_%s.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   can_comparison.SaveAs( Form( "%s/%s_Comparison_%s.png",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   //
   
@@ -502,7 +502,7 @@ void createPlots(TString plot) {
   can_ratio.Update();
   //  can_ratio.SaveAs( Form( "%s/%s_ComparisonRatio_%s.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   //  can_ratio.SaveAs( Form( "%s/%s_ComparisonRatio_%s.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
-  //  can_ratio.SaveAs( Form( "%s/%s_ComparisonRatio_%s.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  can_ratio.SaveAs( Form( "%s/%s_ComparisonRatio_%s.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   can_ratio.SaveAs( Form( "%s/%s_ComparisonRatio_%s.png",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   //
 
@@ -779,7 +779,7 @@ void create2DPlots(TString plot) {
 
   //  can.SaveAs( Form( "%s/%s_ComparisonRatio_%s.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   //  can.SaveAs( Form( "%s/%s_ComparisonRatio_%s.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
-  //  can.SaveAs( Form( "%s/%s_ComparisonRatio_%s.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  can.SaveAs( Form( "%s/%s_ComparisonRatio_%s.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   can.SaveAs( Form( "%s/%s_ComparisonRatio_%s.png",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   //
   if ( isega )

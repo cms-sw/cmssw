@@ -17,8 +17,8 @@ rawTask = cms.EDAnalyzer(
 	#	tags
 	tagFEDs = cms.untracked.InputTag("rawDataCollector"),
 	tagReport = cms.untracked.InputTag("hcalDigis"),
-    calibProcessing = cms.untracked.bool(False),
-	thresh_calib_nobadq = cms.untracked.int32(1000)
+        calibProcessing = cms.untracked.bool(False),
+	thresh_calib_nbadq = cms.untracked.int32(5000)
 )
 
 

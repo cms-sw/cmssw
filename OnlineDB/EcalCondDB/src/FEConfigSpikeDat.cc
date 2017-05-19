@@ -28,7 +28,7 @@ FEConfigSpikeDat::~FEConfigSpikeDat()
 
 
 void FEConfigSpikeDat::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -45,7 +45,7 @@ void FEConfigSpikeDat::prepareWrite()
 
 
 void FEConfigSpikeDat::writeDB(const EcalLogicID* ecid, const FEConfigSpikeDat* item, FEConfigSpikeInfo* iconf)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -70,7 +70,7 @@ void FEConfigSpikeDat::writeDB(const EcalLogicID* ecid, const FEConfigSpikeDat* 
 
 
 void FEConfigSpikeDat::fetchData(map< EcalLogicID, FEConfigSpikeDat >* fillMap, FEConfigSpikeInfo* iconf)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   fillMap->clear();
@@ -111,7 +111,7 @@ void FEConfigSpikeDat::fetchData(map< EcalLogicID, FEConfigSpikeDat >* fillMap, 
 }
 
 void FEConfigSpikeDat::writeArrayDB(const std::map< EcalLogicID, FEConfigSpikeDat >* data, FEConfigSpikeInfo* iconf)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();

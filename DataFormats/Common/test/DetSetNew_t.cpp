@@ -1,4 +1,4 @@
-#include "Utilities/Testing/interface/CppUnit_testdriver.icpp"
+#include "Utilities/Testing/interface/CppUnit_testdriver.icpp" //gives main
 #include "cppunit/extensions/HelperMacros.h"
 
 #include "DataFormats/Common/interface/DetSetNew.h"

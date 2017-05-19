@@ -295,7 +295,7 @@ bool FedRawDataInputSource::checkNextEvent()
           maybeOpenNewLumiSection( event_->lumi() );
 	}
       }
-      if (fileListLoopMode_)
+      if (fileListMode_ || fileListLoopMode_)
         eventRunNumber_=runNumber_;
       else 
         eventRunNumber_=event_->run();
@@ -376,12 +376,6 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
   if (setExceptionState_) threadError();
   if (!currentFile_)
   {
-    if (!streamFileTrackerPtr_) {
-      streamFileTrackerPtr_ = daqDirector_->getStreamFileTracker();
-      nStreams_ = streamFileTrackerPtr_->size();
-      if (nStreams_>10) checkEvery_=nStreams_;
-    }
-
     evf::EvFDaqDirector::FileStatus status = evf::EvFDaqDirector::noFile;
     if (fms_) fms_->setInState(evf::FastMonitoringThread::inWaitInput);
     if (!fileQueue_.try_pop(currentFile_))
@@ -423,7 +417,6 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
     }
     else if (status == evf::EvFDaqDirector::newFile) {
       currentFileIndex_++;
-      daqDirector_->updateFileIndex(currentFileIndex_);
     }
     else
       assert(0);
@@ -707,15 +700,17 @@ void FedRawDataInputSource::read(edm::EventPrincipal& eventPrincipal)
 
   std::unique_ptr<edm::WrapperBase> edp(new edm::Wrapper<FEDRawDataCollection>(std::move(rawData)));
 
-  //FWCore/Sources DaqProvenanceHelper before 7_1_0_pre3
-  //eventPrincipal.put(daqProvenanceHelper_.constBranchDescription_, edp,
-  //                   daqProvenanceHelper_.dummyProvenance_);
-
   eventPrincipal.put(daqProvenanceHelper_.branchDescription(), std::move(edp),
                      daqProvenanceHelper_.dummyProvenance());
 
   eventsThisLumi_++;
   if (fms_) fms_->setInState(evf::FastMonitoringThread::inReadCleanup);
+
+  //resize vector if needed
+  while (streamFileTracker_.size() <= eventPrincipal.streamID())
+      streamFileTracker_.push_back(-1);
+
+  streamFileTracker_[eventPrincipal.streamID()]=currentFileIndex_;
 
   //this old file check runs no more often than every 10 events
   if (!((currentFile_->nProcessed_-1)%(checkEvery_))) {
@@ -725,7 +720,7 @@ void FedRawDataInputSource::read(edm::EventPrincipal& eventPrincipal)
     while (it!=filesToDelete_.end()) {
       bool fileIsBeingProcessed = false;
       for (unsigned int i=0;i<nStreams_;i++) {
-	if (it->first == streamFileTrackerPtr_->at(i)) {
+	if (it->first == streamFileTracker_.at(i)) {
 		fileIsBeingProcessed = true;
 		break;
 	}
@@ -1086,12 +1081,6 @@ void FedRawDataInputSource::readSupervisor()
         assert( eventsInNewFile>=0 );
         assert((eventsInNewFile>0) == (fileSize>0));//file without events must be empty
       }
-      //int eventsInNewFile = fileListMode_ ? -1 : grabNextJsonFile(nextFile);
-      //if (fileListMode_ && fileSize==0) {eventsInNewFile=0;}
-      //if (!fileListMode_) {
-      //  assert( eventsInNewFile>=0 );
-      //  assert((eventsInNewFile>0) == (fileSize>0));//file without events must be empty
-      //}
 
       if (!singleBufferMode_) {
 	//calculate number of needed chunks
@@ -1161,7 +1150,7 @@ void FedRawDataInputSource::readSupervisor()
           readingFilesCount_++;
 	  fileQueue_.push(newInputFile);
 	  cvWakeup_.notify_one();
-	  return;
+	  break;
 	}
 	//in single-buffer mode put single chunk in the file and let the main thread read the file
 	InputChunk * newChunk;

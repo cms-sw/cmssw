@@ -36,10 +36,25 @@ public:
   void twoPathsNoCycleTest();
   void twoPathsWithCycleTest();
 
-  using ModuleDependsOnMap = std::unordered_map<std::string, std::vector<std::string>>;
+  using ModuleDependsOnMap = std::map<std::string, std::vector<std::string>>;
   using PathToModules = std::unordered_map<std::string, std::vector<std::string>>;
   
 private:
+  static unsigned int indexForModule(std::string const& iName,
+                              std::unordered_map<std::string, unsigned int>& modsToIndex,
+                              std::unordered_map<unsigned int, std::string>& indexToMods) {
+    auto found = modsToIndex.find(iName);
+    unsigned int fromIndex;
+    if(found == modsToIndex.end()) {
+      fromIndex = modsToIndex.size();
+      modsToIndex.emplace( iName, fromIndex);
+      indexToMods.emplace(fromIndex, iName);
+    } else {
+      fromIndex = found->second;
+    }
+    return fromIndex;
+  }
+  
   bool testCase( ModuleDependsOnMap const& iModDeps, PathToModules const& iPaths) const {
     using namespace edm::graph;
     
@@ -48,32 +63,23 @@ private:
     std::unordered_map<std::string, unsigned int> modsToIndex;
     std::unordered_map<unsigned int, std::string> indexToMods;
     
+    //We have an artificial case to be the root of the graph
+    const std::string kFinishedProcessing("FinishedProcessing");
+    const unsigned int kFinishedProcessingIndex{0};
+    modsToIndex.emplace(kFinishedProcessing,kFinishedProcessingIndex);
+    indexToMods.emplace(kFinishedProcessingIndex,kFinishedProcessing);
+    
     //Setup the module to index map by using all module names used in both containers
+    //Start with keys from the module dependency to allow control of the numbering scheme
     for(auto const& md : iModDeps) {
-      auto found = modsToIndex.find(md.first);
-      unsigned int fromIndex;
-      if(found == modsToIndex.end()) {
-        fromIndex = modsToIndex.size();
-        modsToIndex.emplace( md.first, fromIndex);
-        indexToMods.emplace(fromIndex, md.first);
-      } else {
-        fromIndex = found->second;
-      }
-      for( auto const& dependsOn: md.second) {
-        auto found = modsToIndex.find(dependsOn);
-        unsigned int toIndex;
-        if(found == modsToIndex.end()) {
-          toIndex =modsToIndex.size();
-          modsToIndex.emplace( dependsOn, toIndex);
-          indexToMods.emplace(toIndex, dependsOn);
-        } else {
-          toIndex = found->second;
-        }
-        edgeToPathMap[std::make_pair(fromIndex, toIndex)].push_back(kDataDependencyIndex);
-      }
+      indexForModule(md.first,modsToIndex,indexToMods);
     }
     
+    
     std::vector<std::vector<unsigned int>> pathIndexToModuleIndexOrder(iPaths.size());
+
+    //Need to be able to quickly look up which paths a module appears on
+    std::unordered_map<unsigned int, std::vector<unsigned int>> moduleIndexToPathIndex;
 
     std::vector<std::string> pathNames;
     std::unordered_map<std::string, unsigned int> pathToIndexMap;
@@ -84,21 +90,55 @@ private:
       auto& pathOrder = pathIndexToModuleIndexOrder[pathIndex];
       pathToIndexMap.emplace(path.first, pathIndex);
       for( auto const& mod: path.second) {
-        auto found = modsToIndex.find(mod);
-        unsigned int index;
-        if(found == modsToIndex.end()) {
-          index =modsToIndex.size();
-          modsToIndex.emplace( mod, index);
-          indexToMods.emplace(index,mod);
-        } else {
-          index = found->second;
-        }
+        unsigned int index =indexForModule(mod,modsToIndex,indexToMods);
         pathOrder.push_back(index);
+        moduleIndexToPathIndex[index].push_back(pathIndex);
 
         if(lastModuleIndex != kInvalidIndex) {
           edgeToPathMap[std::make_pair(index, lastModuleIndex)].push_back(pathIndex);
         }
         lastModuleIndex = index;
+      }
+      pathOrder.push_back(kFinishedProcessingIndex);
+      if(lastModuleIndex != kInvalidIndex) {
+        edgeToPathMap[std::make_pair(kFinishedProcessingIndex, lastModuleIndex)].push_back(pathIndex);
+      }
+    }
+
+    for(auto const& md : iModDeps) {
+      unsigned int fromIndex =indexForModule(md.first,modsToIndex,indexToMods);
+      for( auto const& dependsOn: md.second) {
+        unsigned int toIndex = indexForModule(dependsOn,modsToIndex,indexToMods);
+        
+        //see if all paths containing this module also contain the dependent module earlier in the path
+        // if it does, then treat this only as a path dependency and not a data dependency as this
+        // simplifies the circular dependency checking logic
+
+        auto itPathsFound = moduleIndexToPathIndex.find(fromIndex);
+        bool keepDataDependency = true;
+        if(itPathsFound != moduleIndexToPathIndex.end() and moduleIndexToPathIndex.find(toIndex) != moduleIndexToPathIndex.end()) {
+          keepDataDependency = false;
+          for(auto const pathIndex: itPathsFound->second) {
+            for(auto idToCheck: pathIndexToModuleIndexOrder[pathIndex]) {
+              if(idToCheck == toIndex) {
+                //found dependent module first so check next path
+                break;
+              }
+              if(idToCheck == fromIndex) {
+                //did not find dependent module earlier on path so
+                // must keep data dependency
+                keepDataDependency = true;
+                break;
+              }
+            }
+            if(keepDataDependency) {
+              break;
+            }
+          }
+        }
+        if(keepDataDependency) {
+          edgeToPathMap[std::make_pair(fromIndex, toIndex)].push_back(kDataDependencyIndex);
+        }
       }
     }
 
@@ -132,9 +172,13 @@ void test_throwIfImproperDependencies::onePathNoCycleTest()
   
   {
     //Circular dependency but not connected to any path
+    // NOTE: "A" is on the list since the ROOT of the
+    // tree in the job is actually TriggerResults which
+    // always connects to paths and end paths
     ModuleDependsOnMap md = { {"E", {"F"} },
       {"F", {"G"} },
-      {"G", {"E"} } };
+      {"G", {"E"} },
+      {"A",{}}};
     PathToModules paths = { {"p", {"A", "B", "C" } } };
     
     CPPUNIT_ASSERT( testCase(md,paths));
@@ -204,6 +248,7 @@ void test_throwIfImproperDependencies::twoPathsNoCycleTest()
     }
 
     {
+      //CDJ DEBUG THIS IS NOW FAILING
       PathToModules paths = { {"p1", {"A", "B", "C" } },
                               {"p2", {"B", "A","C"} } };
       
@@ -453,6 +498,25 @@ void test_throwIfImproperDependencies::twoPathsNoCycleTest()
       {"p2", {"A","Z","?","Y","X"}} };
     CPPUNIT_ASSERT( testCase(md,paths));
   }
+  
+  {
+    //Simplified schedule which was failing
+    // The data dependency for 'D" can be met
+    // by the order of modules on path p2
+    ModuleDependsOnMap md = {
+      {"A_TR", {"zEP1","zEP2"}},
+      {"D", {"B"}},
+      {"E", {"D"}},
+      {"zSEP3", {"A_TR"}}
+    };
+    PathToModules paths = {
+      {"p1", {"E","F","zEP1"}},
+      {"p2", {"B","C","D","zEP2"}},
+      {"p3", {"zSEP3","B","zEP3"}} };
+    
+    CPPUNIT_ASSERT( testCase(md,paths));
+  }
+
 }
 
 void test_throwIfImproperDependencies::twoPathsWithCycleTest()
@@ -510,6 +574,17 @@ void test_throwIfImproperDependencies::twoPathsWithCycleTest()
   }
 
   {
+    ModuleDependsOnMap md = { {"A", {"B"} },
+      {"B", {"C"}},
+      {"C", {"D"}},
+      {"D",{"B"}}};
+    PathToModules paths = { {"p1", {"A","EP"} } };
+    
+    CPPUNIT_ASSERT_THROW( testCase(md,paths), cms::Exception);
+  }
+
+  
+  {
     //Simplified schedule which was failing
     ModuleDependsOnMap md = {
       {"B", {"X"}},
@@ -523,6 +598,61 @@ void test_throwIfImproperDependencies::twoPathsWithCycleTest()
     PathToModules paths = {
       {"p1", {"B","A", "X"}},
       {"p2", {"A","Z","?","Y","X"}} };
+    CPPUNIT_ASSERT_THROW( testCase(md,paths), cms::Exception);
+  }
+
+  {
+    ModuleDependsOnMap md = {
+      {"A_TR", {"EP1","EP2"}}, //assigned aTR==0, EP1==1, EP2==2
+      {"C", {"A"}},
+      {"D", {"A"}},
+      {"E",{"D"}},
+      {"BP",{"A_TR"}}
+    };
+    
+    PathToModules paths = {
+      {"p1", {"A","B", "C","EP1"}},
+      {"p2", {"E","EP2"}},
+      {"ep", {"BP","A","D"}}
+    };
+    CPPUNIT_ASSERT_THROW( testCase(md,paths), cms::Exception);
+  }
+  
+  {
+    // The data dependency for 'D" can be met
+    // by the order of modules on path p2
+    // but NOT by path3
+    ModuleDependsOnMap md = {
+      {"A_TR", {"zEP1","zEP2","zEP3"}},
+      {"D", {"B"}},
+      {"E", {"D"}},
+      {"zSEP4", {"A_TR"}}
+    };
+    PathToModules paths = {
+      {"p1", {"E","F","zEP1"}},
+      {"p2", {"Filter", "B","C","D","zEP2"}},
+      {"p3", {"C","D","zEP3"}},
+      {"p4", {"zSEP4","B","zEP4"}} };
+    
+    CPPUNIT_ASSERT_THROW( testCase(md,paths), cms::Exception);
+  }
+
+  {
+    // The data dependency for 'D" can be met
+    // by the order of modules on path p2
+    // but NOT by path3
+    ModuleDependsOnMap md = {
+      {"A_TR", {"zEP1","zEP2","zEP3"}},
+      {"D", {"B"}},
+      {"E", {"D"}},
+      {"zSEP4", {"A_TR"}}
+    };
+    PathToModules paths = {
+      {"p1", {"E","F","zEP1"}},
+      {"p2", {"Filter", "B", "D","zEP2"}},
+      {"p3", {"C","D","zEP3"}},
+      {"p4", {"zSEP4","B","zEP4"}} };
+    
     CPPUNIT_ASSERT_THROW( testCase(md,paths), cms::Exception);
   }
 

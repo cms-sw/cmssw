@@ -87,6 +87,7 @@ DTLocalTriggerBaseTask::DTLocalTriggerBaseTask(const edm::ParameterSet& ps) :
 
   if (processTM) theTypes.push_back("TM");
   if (processDDU) theTypes.push_back("DDU");
+	
 
   if (tpMode) {
     topFolder("TM") = "DT/11-LocalTriggerTP-TM/";
@@ -119,7 +120,7 @@ void DTLocalTriggerBaseTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Ru
 	bookHistos(ibooker, DTChamberId(wh,stat,sect));
       }
     }
-    bookHistos(ibooker, wh);
+    if (processDDU) bookHistos(ibooker, wh);
   }
 }
 
@@ -342,13 +343,9 @@ void DTLocalTriggerBaseTask::bookHistos(DQMStore::IBooker & ibooker, const DTCha
 
   if (processTM && processDDU) {
     // Book TM/DDU Comparison Plots
-    for (int InOut=0; InOut<2;InOut++){
-    if(InOut==0)   
+    // NOt needed In and Out comparison, only IN in DDU....
     ibooker.setCurrentFolder(topFolder("DDU") + "Wheel" + wheel.str() + "/Sector"
 		       + sector.str() + "/Station" + station.str() + "/LocalTriggerPhiIn");
-    else if(InOut==1)
-    ibooker.setCurrentFolder(topFolder("DDU") + "Wheel" + wheel.str() + "/Sector"
-                       + sector.str() + "/Station" + station.str() + "/LocalTriggerPhiOut");
 
 
     string histoTag = "COM_QualDDUvsQualTM";
@@ -361,7 +358,6 @@ void DTLocalTriggerBaseTask::bookHistos(DQMStore::IBooker & ibooker, const DTCha
     trendHistos[rawId] = new DTTimeEvolutionHisto(ibooker,histoTag+chTag,
 						  "Fraction of DDU-TM matches w.r.t. proc evts",
 						  nTimeBins,nLSTimeBin,true,0);
-  } //InOut loop
   }
 
 }
@@ -401,7 +397,6 @@ void DTLocalTriggerBaseTask::runTMAnalysis( std::vector<L1MuDTChambPhDigi> const
     int qual  = iph->code();
     int is1st = iph->Ts2Tag() ? 1 : 0;
     int bx    = iph->bxNum() - is1st;
-
     if (qual <0 || qual>6) continue; // Check that quality is in a valid range
 
     DTChamberId dtChId(wh,st,sec);

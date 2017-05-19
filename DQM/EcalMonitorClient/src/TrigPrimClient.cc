@@ -142,8 +142,8 @@ namespace ecaldqm
     }
     meanFEDEB /= float( nFEDEB ); rmsFEDEB /= float( nFEDEB );
     meanFEDEE /= float( nFEDEE ); rmsFEDEE /= float( nFEDEE );
-    rmsFEDEB   = sqrt( abs(rmsFEDEB - meanFEDEB*meanFEDEB) );
-    rmsFEDEE   = sqrt( abs(rmsFEDEE - meanFEDEE*meanFEDEE) );
+    rmsFEDEB   = sqrt( std::abs(rmsFEDEB - meanFEDEB*meanFEDEB) );
+    rmsFEDEE   = sqrt( std::abs(rmsFEDEE - meanFEDEE*meanFEDEE) );
     // Analyze FED statistics
     float meanFED(0.), rmsFED(0.), nRMS(5.);
     for(unsigned iTT(0); iTT < EcalTrigTowerDetId::kSizeForDenseIndexing; iTT++){

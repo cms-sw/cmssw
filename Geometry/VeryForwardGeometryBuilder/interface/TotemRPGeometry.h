@@ -9,6 +9,7 @@
 #define Geometry_VeryForwardGeometryBuilder_TotemRPGeometry
 
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
+#include "DataFormats/CTPPSDetId/interface/CTPPSDiamondDetId.h"
 #include "CLHEP/Vector/ThreeVector.h"
 #include "CLHEP/Vector/Rotation.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/DetGeomDesc.h"
@@ -66,9 +67,13 @@ class TotemRPGeometry
     /// input is raw ID
     DetGeomDesc *GetDetector(unsigned int) const;
 
-    DetGeomDesc const *GetDetector(const TotemRPDetId & id) const
+    const DetGeomDesc* GetDetector( const TotemRPDetId& id ) const
     {
-      return GetDetector(id.rawId());
+      return GetDetector( id.rawId() );
+    }
+    const DetGeomDesc* GetDetector( const CTPPSDetId& id ) const
+    {
+      return GetDetector( id.rawId() );
     }
 
     /// same as GetDetector

@@ -98,6 +98,20 @@ parser.add_argument('--open',
                     action  = 'store_true',
                     default = defaults.open,
                     help    = 'Run the HLT in "open" mode, overriding all ED/HLTFilters to always pass (overrides "--prescale" and implies "--prescale none")' )
+parser.add_argument('--eras',
+                    dest    = 'eras',
+                    action  = 'store',
+                    type    = str,
+                    default = defaults.eras,
+                    metavar = 'ERAS',
+                    help    = 'Select the defined Eras in HLT configuration (e.g. phase1Pixel)' )
+parser.add_argument('--customise',
+                    dest    = 'customise',
+                    action  = 'store',
+                    type    = str,
+                    default = defaults.customise,
+                    metavar = 'CUSTOMISE',
+                    help    = 'Apply the user-defined customization functions using the format HLTrigger/Configuration/customizeHLTTrackingForPhaseI2017.customizeHLTForPFTrackingPhaseI2017' )
 parser.add_argument('--error-events',
                     dest    = 'errortype',
                     action  = 'store_true',
@@ -141,6 +155,13 @@ parser.add_argument('--max-events',
                     default = defaults.events,
                     metavar = 'EVENTS',
                     help    = 'Run on EVENTS events (-1 for unlimited)' )
+parser.add_argument('--setup',
+                    dest    = 'setup',
+                    action  = 'store',
+                    type    = str,
+                    default = defaults.setup,
+                    metavar = 'STORE',
+                    help    = 'If set, download setup_cff from the specified configuration and load it.' )
 
 group = parser.add_mutually_exclusive_group()
 group.add_argument('--output',
@@ -202,8 +223,6 @@ group.add_argument('--offline',
 parser.add_argument('--help',
                     action  = 'help',
                     help    = 'Show this help message and exit' )
-
-
 
 # parse command line arguments and options
 config = parser.parse_args(namespace = options.HLTProcessOptions())

@@ -39,6 +39,7 @@ namespace edm {
         RunWatcher(edm::ParameterSet const&iPSet): OutputModuleBase(iPSet){}
         RunWatcher(RunWatcher const&) = delete;
         RunWatcher& operator=(RunWatcher const&) = delete;
+        ~RunWatcher() noexcept(false) {};
         
       private:
         virtual void doBeginRun_(RunForOutput const& r) override final;
@@ -53,6 +54,7 @@ namespace edm {
         LuminosityBlockWatcher(edm::ParameterSet const&iPSet): OutputModuleBase(iPSet) {}
         LuminosityBlockWatcher(LuminosityBlockWatcher const&) = delete;
         LuminosityBlockWatcher& operator=(LuminosityBlockWatcher const&) = delete;
+        ~LuminosityBlockWatcher() noexcept(false) {};
         
       private:
         virtual void doBeginLuminosityBlock_(LuminosityBlockForOutput const& lb) override final;
@@ -67,6 +69,7 @@ namespace edm {
         InputFileWatcher(edm::ParameterSet const&iPSet): OutputModuleBase(iPSet) {}
         InputFileWatcher(InputFileWatcher const&) = delete;
         InputFileWatcher& operator=(InputFileWatcher const&) = delete;
+        ~InputFileWatcher() noexcept(false) {};
         
       private:
         void doRespondToOpenInputFile_(FileBlock const&) override final;

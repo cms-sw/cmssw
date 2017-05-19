@@ -27,6 +27,25 @@ public:
 
   virtual ~GlobalTrackingRegionProducer(){}
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+
+    desc.add<bool>("precise", true);
+    desc.add<bool>("useMultipleScattering", false);
+    desc.add<double>("originHalfLength", 21.2);
+    desc.add<double>("originRadius", 0.2);
+    desc.add<double>("originXPos", 0.0);
+    desc.add<double>("originYPos", 0.0);
+    desc.add<double>("originZPos", 0.0);
+    desc.add<double>("ptMin", 0.9);
+
+    // Only for backwards-compatibility
+    edm::ParameterSetDescription descRegion;
+    descRegion.add<edm::ParameterSetDescription>("RegionPSet", desc);
+
+    descriptions.add("globalTrackingRegion", descRegion);
+  }
+
   virtual std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event&, const edm::EventSetup&) const override {
     std::vector<std::unique_ptr<TrackingRegion> > result;
     result.push_back( 

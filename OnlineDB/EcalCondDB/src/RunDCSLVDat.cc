@@ -30,7 +30,7 @@ RunDCSLVDat::~RunDCSLVDat()
 
 
 void RunDCSLVDat::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
 
 
@@ -39,14 +39,14 @@ void RunDCSLVDat::prepareWrite()
 
 
 void RunDCSLVDat::writeDB(const EcalLogicID* ecid, const RunDCSLVDat* item, RunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
 }
 
 
 
 void RunDCSLVDat::fetchData(map< EcalLogicID, RunDCSLVDat >* fillMap, RunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   fetchLastData(fillMap);
 
@@ -64,7 +64,11 @@ ResultSet *RunDCSLVDat::getBarrelRset() {
     rset = m_readStmt->executeQuery();
   }
   catch (SQLException e) {
+#if defined(_GLIBCXX_USE_CXX11_ABI) && (_GLIBCXX_USE_CXX11_ABI == 0)
     throw(std::runtime_error("RunDCSLVDat::getBarrelRset():  " + e.getMessage() + " " + query));
+#else
+    throw(std::runtime_error("RunDCSLVDat::getBarrelRset():  error code " + std::to_string(e.getErrorCode()) + " " + query));
+#endif
   }
   return rset;
 }
@@ -81,7 +85,11 @@ ResultSet *RunDCSLVDat::getEndcapRset() {
     rset = m_readStmt->executeQuery();
   }
   catch (SQLException e) {
+#if defined(_GLIBCXX_USE_CXX11_ABI) && (_GLIBCXX_USE_CXX11_ABI == 0)
     throw(std::runtime_error("RunDCSLVDat::getEndcapRset():  " + e.getMessage() + " " + query));
+#else
+    throw(std::runtime_error("RunDCSLVDat::getEndcapRset():  error code " + std::to_string(e.getErrorCode()) + " " + query));
+#endif
   }
   return rset;
 }
@@ -116,7 +124,11 @@ void RunDCSLVDat::fillTheMap(ResultSet *rset,
     } 
   }
   catch (SQLException &e) {
+#if defined(_GLIBCXX_USE_CXX11_ABI) && (_GLIBCXX_USE_CXX11_ABI == 0)
     throw(std::runtime_error("RunDCSLVDat::fetchData():  "+e.getMessage()));
+#else
+    throw(std::runtime_error("RunDCSLVDat::fetchData():  error code " + std::to_string(e.getErrorCode())));
+#endif
   }
 }
 
@@ -170,7 +182,7 @@ void  RunDCSLVDat::setStatusForEndcaps(RunDCSLVDat &dat, const Tm& sinceTm) {
 }
 
 void RunDCSLVDat::fetchLastData(map< EcalLogicID, RunDCSLVDat >* fillMap )
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -188,6 +200,10 @@ void RunDCSLVDat::fetchLastData(map< EcalLogicID, RunDCSLVDat >* fillMap )
     fillTheMap(rset, fillMap);
   } 
   catch (SQLException &e) {
+#if defined(_GLIBCXX_USE_CXX11_ABI) && (_GLIBCXX_USE_CXX11_ABI == 0)
     throw(std::runtime_error("RunDCSLVDat::fetchData():  "+e.getMessage()));
+#else
+    throw(std::runtime_error("RunDCSLVDat::fetchData():  error code " + std::to_string(e.getErrorCode())));
+#endif
   }
 }

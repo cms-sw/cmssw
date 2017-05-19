@@ -116,7 +116,7 @@ class SimHitShifter : public edm::EDProducer {
 
    private:
       std::string ShiftFileName;
-      virtual void beginJob(const edm::Run&, const edm::EventSetup&) ;
+      virtual void beginJob() override;
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
       virtual void endJob() override ;
     
@@ -277,7 +277,7 @@ SimHitShifter::beginRun(const edm::Run& run, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-SimHitShifter::beginJob(const edm::Run& run, const edm::EventSetup& iSetup)
+SimHitShifter::beginJob()
 {
 
 }

@@ -31,7 +31,7 @@ MonLaserGreenDat::~MonLaserGreenDat()
 
 
 void MonLaserGreenDat::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -49,7 +49,7 @@ void MonLaserGreenDat::prepareWrite()
 
 
 void MonLaserGreenDat::writeDB(const EcalLogicID* ecid, const MonLaserGreenDat* item, MonRunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -79,7 +79,7 @@ void MonLaserGreenDat::writeDB(const EcalLogicID* ecid, const MonLaserGreenDat* 
 
 
 void MonLaserGreenDat::fetchData(std::map< EcalLogicID, MonLaserGreenDat >* fillMap, MonRunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -128,7 +128,7 @@ void MonLaserGreenDat::fetchData(std::map< EcalLogicID, MonLaserGreenDat >* fill
 }
 
 void MonLaserGreenDat::writeArrayDB(const std::map< EcalLogicID, MonLaserGreenDat >* data, MonRunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();

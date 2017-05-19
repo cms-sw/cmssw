@@ -62,7 +62,7 @@ class MuonIdVal : public DQMEDAnalyzer {
    private:
       virtual void beginJob();
       void bookHistograms(DQMStore::IBooker &,  edm::Run const &, edm::EventSetup const &) override;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
       virtual void endJob();
       virtual void Fill(MonitorElement*, float);
 

@@ -19,6 +19,7 @@
 
 // system include files
 #include <memory>
+#include <strstream>
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -30,8 +31,8 @@
 #include "CondFormats/DataRecord/interface/L1TMuonGlobalParamsRcd.h"
 #include "L1Trigger/L1TMuon/interface/L1TMuonGlobalParamsHelper.h"
 #include "L1Trigger/L1TMuon/interface/MicroGMTLUTFactories.h"
-#include "L1Trigger/L1TCommon/interface/TrigSystem.h"
-#include "L1Trigger/L1TCommon/interface/Setting.h"
+#include "L1Trigger/L1TCommon/interface/TriggerSystem.h"
+#include "L1Trigger/L1TCommon/interface/Parameter.h"
 #include "L1Trigger/L1TCommon/interface/Mask.h"
 
 //
@@ -71,11 +72,11 @@ L1TMuonGlobalParamsESProducer::L1TMuonGlobalParamsESProducer(const edm::Paramete
 
    // get configuration from DB
    if (iConfig.getParameter<bool>("configFromXml")) {
-      l1t::TrigSystem trgSys;
+      l1t::TriggerSystem trgSys;
       edm::FileInPath hwXmlFile(iConfig.getParameter<std::string>("hwXmlFile"));
       edm::FileInPath topCfgXmlFile(iConfig.getParameter<std::string>("topCfgXmlFile"));
       // These xml files are for testing the configuration from the online DB 
-      trgSys.configureSystemFromFiles(hwXmlFile.fullPath(), topCfgXmlFile.fullPath(), iConfig.getParameter<std::string>("xmlCfgKey"));
+      trgSys.configureSystemFromFiles(hwXmlFile.fullPath().c_str(), topCfgXmlFile.fullPath().c_str(), iConfig.getParameter<std::string>("xmlCfgKey").c_str());
 
       m_params_helper.loadFromOnline(trgSys, iConfig.getParameter<std::string>("uGmtProcessorId"));
    } else {

@@ -159,7 +159,8 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
                                              recoPrimaryVertex &v);
   void fillResolutionAndPullHistograms(const std::string &,
                                        int,
-                                       recoPrimaryVertex &v);
+                                       recoPrimaryVertex &v,
+                                       bool);
 
   void calculatePurityAndFillHistograms(const std::string&,
                                         std::vector<recoPrimaryVertex>&,
@@ -192,6 +193,8 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
   edm::EDGetTokenT<reco::SimToRecoCollection> simToRecoAssociationToken_;
   edm::EDGetTokenT<reco::RecoToSimCollection> recoToSimAssociationToken_;
   edm::EDGetTokenT<reco::VertexToTrackingVertexAssociator> vertexAssociatorToken_;
+
+  std::vector<bool> errorPrintedForColl_;
 };
 
 #endif  // VALIDATION_RECOVERTEX_INTERFACE_PRIMARYVERTEXANALYZER4PUSLIMMED_H_

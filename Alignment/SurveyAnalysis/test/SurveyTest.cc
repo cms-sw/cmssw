@@ -18,9 +18,13 @@ SurveyTest::SurveyTest(const edm::ParameterSet& cfg):
 
   const Strings& hierarchy = cfg.getParameter<Strings>("hierarch");
 
+  // FIXME: - currently defaulting to RunI as this was the previous behaviour
+  //        - check this, when resurrecting this code in the future
+  AlignableObjectId alignableObjectId{AlignableObjectId::Geometry::General};
+
   for (unsigned int l = 0; l < hierarchy.size(); ++l)
   {
-    theHierarchy.push_back(AlignableObjectId::stringToId(hierarchy[l]) );
+    theHierarchy.push_back(alignableObjectId.stringToId(hierarchy[l]) );
   }
 }
 

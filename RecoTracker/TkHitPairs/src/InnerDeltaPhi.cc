@@ -230,8 +230,8 @@ PixelRecoRange<float> InnerDeltaPhi::phiRange(const Point2D& hitXY,float hitZ,fl
   }
 
 #ifdef USE_VECTORS_HERE 
-  float32x4_t num{dHitmag,dLayer,theROrigin * (dHitmag-dLayer),1.f};
-  float32x4_t den{2*theRCurvature,2*theRCurvature,dHitmag*dLayer,1.f};
+  cms_float32x4_t num{dHitmag,dLayer,theROrigin * (dHitmag-dLayer),1.f};
+  cms_float32x4_t den{2*theRCurvature,2*theRCurvature,dHitmag*dLayer,1.f};
   auto phis = f_asin07f(num/den);
   phis = phis*dLayer/(rLayer*cosCross);
   auto deltaPhi = std::abs(phis[0]-phis[1]);

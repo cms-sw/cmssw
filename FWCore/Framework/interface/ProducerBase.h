@@ -14,7 +14,8 @@ EDProducts into an Event.
 #include <functional>
 #include <unordered_map>
 #include <string>
-#include<vector>
+#include <vector>
+#include <array>
 
 namespace edm {
   class BranchDescription;

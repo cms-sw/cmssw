@@ -30,6 +30,9 @@ using namespace Pythia8;
 #include "Pythia8Plugins/PowhegHooks.h"
 #include "GeneratorInterface/Pythia8Interface/plugins/EmissionVetoHook1.h"
 
+// Resonance scale hook
+#include "GeneratorInterface/Pythia8Interface/plugins/PowhegResHook.h"
+
 //decay filter hook
 #include "GeneratorInterface/Pythia8Interface/interface/ResonanceDecayFilterHook.h"
 
@@ -124,6 +127,9 @@ class Pythia8Hadronizer : public Py8InterfaceBase {
     //
     std::auto_ptr<PowhegHooks> fEmissionVetoHook;
     std::auto_ptr<EmissionVetoHook1> fEmissionVetoHook1;
+    
+    // Resonance scale hook
+    std::auto_ptr<PowhegResHook> fPowhegResHook;
     
     //resonance decay filter hook
     std::auto_ptr<ResonanceDecayFilterHook> fResonanceDecayFilterHook;
@@ -343,6 +349,13 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
     fMultiUserHook->addHook(fEmissionVetoHook.get());
   }
   
+  bool PowhegRes = fMasterGen->settings.flag("POWHEGres:calcScales");
+  if (PowhegRes) {
+    edm::LogInfo("Pythia8Interface") << "Turning on resonance scale setting from CMSSW Pythia8Interface";
+    fPowhegResHook.reset(new PowhegResHook());
+    fMultiUserHook->addHook(fPowhegResHook.get());
+  }
+  
   //adapted from main89.cc in pythia8 examples
   bool internalMatching = fMasterGen->settings.flag("JetMatching:merge");
   bool internalMerging = !(fMasterGen->settings.word("Merging:Process").compare("void")==0);
@@ -453,6 +466,13 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
 
     edm::LogInfo("Pythia8Interface") << "Turning on Emission Veto Hook from pythia8 code";
     fMultiUserHook->addHook(fEmissionVetoHook.get());
+  }
+  
+  bool PowhegRes = fMasterGen->settings.flag("POWHEGres:calcScales");
+  if (PowhegRes) {
+    edm::LogInfo("Pythia8Interface") << "Turning on resonance scale setting from CMSSW Pythia8Interface";
+    fPowhegResHook.reset(new PowhegResHook());
+    fMultiUserHook->addHook(fPowhegResHook.get());
   }
   
   //adapted from main89.cc in pythia8 examples
@@ -639,9 +659,15 @@ bool Pythia8Hadronizer::generatePartonsAndHadronize()
   }
   
   //fill additional weights for systematic uncertainties
-  if (fMasterGen->info.initrwgt) {
+  if (fMasterGen->info.getWeightsDetailedSize() > 0) {
     for (const string &key : fMasterGen->info.initrwgt->weightsKeys) {
       double wgt = (*fMasterGen->info.weights_detailed)[key];
+      event()->weights().push_back(wgt);
+    }
+  }
+  else if (fMasterGen->info.getWeightsCompressedSize() > 0) {
+    for (unsigned int i = 0; i < fMasterGen->info.getWeightsCompressedSize(); i++) {
+      double wgt = fMasterGen->info.getWeightsCompressedValue(i);
       event()->weights().push_back(wgt);
     }
   }

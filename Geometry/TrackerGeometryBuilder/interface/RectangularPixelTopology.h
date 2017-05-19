@@ -185,6 +185,13 @@ public:
   virtual int colsperroc() const { 	 
     return m_COLS_PER_ROC; 	 
   }
+  float xoffset() const {
+    return m_xoffset;
+  }
+  float yoffset() const {
+    return m_yoffset;
+  }
+
 
 private:
 

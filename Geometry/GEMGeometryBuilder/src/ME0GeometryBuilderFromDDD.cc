@@ -41,18 +41,10 @@ ME0Geometry* ME0GeometryBuilderFromDDD::build(const DDCompactView* cview, const 
 {
   std::string attribute = "ReadOutName";
   std::string value     = "MuonME0Hits";
-  DDValue val(attribute, value, 0.0);
 
   // Asking only for the MuonME0's
-  DDSpecificsFilter filter;
-  filter.setCriteria(val, // name & value of a variable 
-		     DDCompOp::matches,
-		     DDLogOp::AND, 
-		     true, // compare strings otherwise doubles
-		     true // use merged-specifics or simple-specifics
-		     );
-  DDFilteredView fview(*cview);
-  fview.addFilter(filter);
+  DDSpecificsMatchesValueFilter filter{DDValue(attribute, value, 0.0)};
+  DDFilteredView fview(*cview,filter);
 
   return this->buildGeometry(fview, muonConstants);
 }
@@ -87,7 +79,7 @@ ME0Geometry* ME0GeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
     ME0DetId rollDetId(me0num.baseNumberToUnitNumber(mbn));
     LogDebug("ME0GeometryBuilderFromDDD") << "ME0 eta partition rawId: " << rollDetId.rawId() << ", detId: " << rollDetId;
 
-    // chamber id for this partition. everything is the same; but partition number is 0.
+    // chamber id for this partition. everything is the same; but partition number is 0 and layer number is 0.
     ME0DetId chamberId(rollDetId.chamberId());
     LogDebug("ME0GeometryBuilderFromDDD") << "ME0 chamber rawId: " << chamberId.rawId() << ", detId: " << chamberId;
 
@@ -148,12 +140,26 @@ ME0Geometry* ME0GeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
     
     BoundPlane* bp = new BoundPlane(pos, rot, bounds);
     ReferenceCountingPointer<BoundPlane> surf(bp);
-    ME0EtaPartition* mep = new ME0EtaPartition(rollDetId, surf, e_p_specs);
+
+    // Set EtaPartition of RollDetId equal to 1
+    ME0DetId rollDetId2(rollDetId.region(),rollDetId.layer(),rollDetId.station(),1);
+    ME0EtaPartition* mep = new ME0EtaPartition(rollDetId2, surf, e_p_specs);
+
+    // For Nick ... build also the layer
+    ME0DetId layerDetId(rollDetId.layerId());
+    ME0Layer* ml = new ME0Layer(layerDetId, surf);
 
     // Add the eta partition to the geometry
     geometry->add(mep);
+    // Add the eta partition to the layer
+    ml->add(mep);
+    // Add the layer to the geometry
+    geometry->add(ml);
+
     // go to next layer
     doSubDets = fview.nextSibling(); 
+
+
   }
   
   

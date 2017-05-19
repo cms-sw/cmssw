@@ -45,8 +45,8 @@ public:
 
     Field(unsigned off, unsigned siz, bool s, bool c, bool h):
       offset(off), size(siz), straight(s), complete(c), has(h), filled(true) {}
-    unsigned offset: 24; // room for 2^24/9 = ~2.8e6 clusters, should be enough
-    unsigned size: 4; // max 9 elements / cluster (2^4=16)
+    unsigned offset: 24; // room for 2^24/9 = ~1.8e6 clusters, should be enough
+    unsigned size: 4; // max 9 elements / cluster (2^4-1=15)
     unsigned straight:1;
     unsigned complete:1;
     unsigned has:1;
@@ -77,7 +77,7 @@ public:
 
   template <typename T>
   void insert(const ClusterRef& cluster, const T& data) {
-    static_assert(T::ArrayType::capacity() <= 16, "T::ArrayType::capacity() more than 16, bit field too narrow");
+    static_assert(T::ArrayType::capacity() <= 15, "T::ArrayType::capacity() more than 15, bit field too narrow");
     checkRef(cluster);
 
     data_[cluster.index()] = Field(sizeData_.size(), data.size.size(), data.isStraight, data.isComplete, data.hasBigPixelsOnlyInside);

@@ -42,7 +42,7 @@ HLTEgammaEtFilterPairs::fillDescriptions(edm::ConfigurationDescriptions& descrip
    descriptions.add("hltEgammaEtFilterPairs", desc);
 }
 
-HLTEgammaEtFilterPairs::~HLTEgammaEtFilterPairs(){}
+HLTEgammaEtFilterPairs::~HLTEgammaEtFilterPairs()= default;
 
 
 // ------------ method called to produce the data  ------------

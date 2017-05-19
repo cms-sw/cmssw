@@ -61,14 +61,8 @@ class APVShotsFilter : public edm::EDFilter {
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void beginJob() ;
       virtual bool filter(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
-      
-      virtual bool beginRun(edm::Run&, edm::EventSetup const&);
-      virtual bool endRun(edm::Run&, edm::EventSetup const&);
-      virtual bool beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-      virtual bool endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
 
   void updateDetCabling( const edm::EventSetup& setup );
       // ----------member data ---------------------------
@@ -238,46 +232,12 @@ APVShotsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    return pass;
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void 
-APVShotsFilter::beginJob()
-{
-}
-
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 APVShotsFilter::endJob() {
 
   edm::LogInfo("APVShotsFilter") << _nevents << " analyzed events";
 
-}
-
-// ------------ method called when starting to processes a run  ------------
-bool 
-APVShotsFilter::beginRun(edm::Run& iRun, edm::EventSetup const&)
-{ 
-  return true;
-}
-
-// ------------ method called when ending the processing of a run  ------------
-bool 
-APVShotsFilter::endRun(edm::Run&, edm::EventSetup const&)
-{
-  return true;
-}
-
-// ------------ method called when starting to processes a luminosity block  ------------
-bool 
-APVShotsFilter::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
-{
-  return true;
-}
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-bool 
-APVShotsFilter::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
-{
-  return true;
 }
 
 #include "FWCore/Framework/interface/ESHandle.h"

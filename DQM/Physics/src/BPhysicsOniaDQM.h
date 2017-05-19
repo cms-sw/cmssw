@@ -35,7 +35,7 @@ class BPhysicsOniaDQM : public DQMEDAnalyzer {
   void bookHistograms(DQMStore::IBooker&, edm::Run const&,
                       edm::EventSetup const&) override;
   /// Get the analysis
-  void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
  private:
   float computeMass(const math::XYZVector& vec1, const math::XYZVector& vec2);

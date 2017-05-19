@@ -37,22 +37,20 @@ void DDHGCalWaferAlgo::initialize(const DDNumericArguments & nArgs,
   angles      = vArgs["Angles"];
   detectorType= dbl_to_int(vArgs["DetectorType"]);
 #ifdef EDM_ML_DEBUG
-  edm::LogInfo("HGCalGeom") << childNames.size() << " children: "
-			    << childNames[0] << "; " << childNames[1]
-			    << " positioned " << positionX.size() 
-			    << " times with cell size " << cellSize;
+  std::cout << childNames.size() << " children: " << childNames[0] << "; "
+	    << childNames[1] << " positioned " << positionX.size() 
+	    << " times with cell size " << cellSize << std::endl;
   for (unsigned int k=0; k<positionX.size(); ++k)
-    edm::LogInfo("HGCalGeom") << "[" << k << "] x " << positionX[k] << " y " 
-			      << positionY[k] << " angle " << angles[k]
-			      << " detector " << detectorType[k];
+    std::cout << "[" << k << "] x " << positionX[k] << " y "  << positionY[k]
+	      << " angle " << angles[k] << " detector " << detectorType[k]
+	      << std::endl;
 #endif
   rotns       = sArgs["RotNameSpace"];
   idNameSpace = DDCurrentNamespace::ns();
   parentName  = parent().name(); 
 #ifdef EDM_ML_DEBUG
-  edm::LogInfo("HGCalGeom") << "DDHGCalWaferAlgo debug: Parent " 
-			    << parentName << " NameSpace " << idNameSpace
-			    << " for Rotation " << rotns;
+  std::cout << "DDHGCalWaferAlgo debug: Parent " << parentName << " NameSpace "
+	    << idNameSpace << " for Rotation " << rotns << std::endl;
 #endif
 }
 
@@ -75,14 +73,13 @@ void DDHGCalWaferAlgo::execute(DDCompactView& cpv) {
       rotation = DDRotation(DDName(rotstr, rotns)); 
       if (!rotation) {
 #ifdef EDM_ML_DEBUG
-	edm::LogInfo("HGCalGeom") << "DDHGCalWaferAlgo: Creating new rotation "
-				  << DDName(rotstr, rotns) << "\t90, " 
-				  << angles[k] << ", 90, " << (angles[k]+90) 
-				  << ", 0, 0";
+	std::cout << "DDHGCalWaferAlgo: Creating new rotation "
+		  << DDName(rotstr, rotns) << "\t90, " << angles[k] << ", 90, "
+		  << (angles[k]+90) << ", 0, 0" << std::endl;
 #endif
         rotation = DDrot(DDName(rotstr, rotns), 90*CLHEP::deg, 
                          angles[k]*CLHEP::deg, 90*CLHEP::deg, 
-                         (90+angles[k])*CLHEP::deg, 0*CLHEP::deg, 0*CLHEP::deg);
+                         (90+angles[k])*CLHEP::deg, 0*CLHEP::deg,0*CLHEP::deg);
       }
     }
     double xpos = dx*positionX[k];
@@ -91,10 +88,9 @@ void DDHGCalWaferAlgo::execute(DDCompactView& cpv) {
     int copy = cellType*1000+k;
     cpv.position(DDName(name,idNameSpace), parentName, copy, tran, rotation);
 #ifdef EDM_ML_DEBUG
-    edm::LogInfo("HGCalGeom") << "DDHGCalWaferAlgo: " 
-			      << DDName(name,idNameSpace) << " number " << copy
-			      << " positioned in " << parentName << " at "
-			      << tran << " with " << rotation;
+    std::cout << "DDHGCalWaferAlgo: " << DDName(name,idNameSpace) << " number "
+	      << copy << " positioned in " << parentName << " at " << tran 
+	      << " with " << rotation << std::endl;
 #endif
   }
 }

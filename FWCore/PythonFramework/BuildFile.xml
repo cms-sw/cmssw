@@ -1,0 +1,7 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/PythonParameterSet"/>
+<use   name="boost"/>
+<use   name="boost_python"/>
+<export>
+  <lib   name="1"/>
+</export>

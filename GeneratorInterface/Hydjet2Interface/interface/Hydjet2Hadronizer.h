@@ -89,8 +89,8 @@ namespace gen
   
     void SetVolEff(double value) {fVolEff = value;}
     double GetVolEff() {return fVolEff;}
-    virtual bool RunDecays() {return (fDecay>0 ? kTRUE : kFALSE);}
-    virtual double GetWeakDecayLimit() {return fWeakDecay;}  
+    virtual bool RunDecays() override {return (fDecay>0 ? kTRUE : kFALSE);}
+    virtual double GetWeakDecayLimit() override {return fWeakDecay;}  
 
     bool IniOfThFreezeoutParameters();
  

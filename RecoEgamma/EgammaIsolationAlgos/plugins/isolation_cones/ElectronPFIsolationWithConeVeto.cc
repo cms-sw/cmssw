@@ -55,7 +55,7 @@ public:
   ElectronPFIsolationWithConeVeto(const ElectronPFIsolationWithConeVeto&) = delete;
   ElectronPFIsolationWithConeVeto& operator=(const ElectronPFIsolationWithConeVeto&) =delete;
   
-  void setConsumes(edm::ConsumesCollector) {}
+  void setConsumes(edm::ConsumesCollector) override {}
 
   bool isInIsolationCone(const reco::CandidatePtr& physob,
 			 const reco::CandidatePtr& other) const override final;

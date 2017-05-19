@@ -56,9 +56,9 @@ public:
   ~HGCalDigiValidation();
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   void fillDigiInfo(digiInfo&   hinfo);
@@ -71,6 +71,7 @@ private:
   std::string       nameDetector_;
   edm::EDGetToken   digiSource_;
   int               verbosity_, SampleIndx_;
+  bool              ifHCAL_;
   int               layers_;
  
   std::map<int, int> OccupancyMap_plus_;

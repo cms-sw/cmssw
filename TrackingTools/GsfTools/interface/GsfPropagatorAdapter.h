@@ -48,7 +48,7 @@ public:
 
 public:
 
-  virtual bool setMaxDirectionChange( float phiMax) {
+  virtual bool setMaxDirectionChange( float phiMax) override {
     return thePropagator->setMaxDirectionChange(phiMax);
   }
 
@@ -60,12 +60,12 @@ public:
     return *thePropagator;
   }
 
-  virtual GsfPropagatorAdapter* clone() const
+  virtual GsfPropagatorAdapter* clone() const override 
   {
     return new GsfPropagatorAdapter(*thePropagator);
   }
 
-  virtual const MagneticField* magneticField() const {
+  virtual const MagneticField* magneticField() const override {
     return thePropagator->magneticField();
   }
 

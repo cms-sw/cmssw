@@ -1,24 +1,23 @@
 #include "CondFormats/Common/interface/SmallWORMDict.h"
-#include <cstring>
+#include <string>
+#include <functional>
+#include <numeric>
 
 namespace cond {
+  using namespace std::placeholders;
 
   SmallWORMDict::SmallWORMDict(){}
   SmallWORMDict::~SmallWORMDict(){}
 
   SmallWORMDict::SmallWORMDict(std::vector<std::string> const & idict) :
-    m_data(std::accumulate(idict.begin(),idict.end(),0,
-			   boost::bind(std::plus<int>(),_1,boost::bind(&std::string::size,_2)))),
+    m_data(std::accumulate(idict.begin(), idict.end(), 0,
+			   [](int a, std::string b) { return a + b.size(); })),
     m_index(idict.size(),1) {
     
     // sort (use index)
     m_index[0]=0; std::partial_sum(m_index.begin(),m_index.end(),m_index.begin());
-    std::sort(m_index.begin(),m_index.end(), 
-	      boost::bind(std::less<std::string>(),
-			  boost::bind<const std::string&>(&std::vector<std::string>::operator[],boost::ref(idict),_1),
-			  boost::bind<const std::string&>(&std::vector<std::string>::operator[],boost::ref(idict),_2)
-			  )
-	      );
+    std::sort(m_index.begin(), m_index.end(),
+        [&idict](unsigned int a, unsigned int b) { return std::less<std::string>()(idict[a], idict[b]); });
 
     //copy
     std::vector<char>::iterator p= m_data.begin();

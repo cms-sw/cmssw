@@ -29,7 +29,7 @@ MonLaserPulseDat::~MonLaserPulseDat()
 
 
 void MonLaserPulseDat::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -47,7 +47,7 @@ void MonLaserPulseDat::prepareWrite()
 
 
 void MonLaserPulseDat::writeDB(const EcalLogicID* ecid, const MonLaserPulseDat* item, MonRunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -76,7 +76,7 @@ void MonLaserPulseDat::writeDB(const EcalLogicID* ecid, const MonLaserPulseDat* 
 
 
 void MonLaserPulseDat::fetchData(std::map< EcalLogicID, MonLaserPulseDat >* fillMap, MonRunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   fillMap->clear();
@@ -122,7 +122,7 @@ void MonLaserPulseDat::fetchData(std::map< EcalLogicID, MonLaserPulseDat >* fill
 }
 
 void MonLaserPulseDat::writeArrayDB(const std::map< EcalLogicID, MonLaserPulseDat >* data, MonRunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();

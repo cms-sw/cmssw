@@ -18,7 +18,6 @@ namespace CLHEP {
 }
 
 namespace sim {
-  class FieldBuilder;
   class ChordFinderSetter;
 }
 
@@ -96,14 +95,6 @@ public:
     return m_physicsList.get();
   }
 
-  // In order to share the ChordFinderSetter (for
-  // G4MonopoleTransportation) with the worker threads, we need a
-  // non-const pointer. Thread-safety is handled inside
-  // ChordFinderStter with TLS. 
-  inline sim::ChordFinderSetter *chordFinderSetterForWorker() const {
-    return m_chordFinderSetter.get();
-  }
-
 private:
   void terminateRun();
   void DumpMagneticField( const G4Field*) const;
@@ -135,7 +126,6 @@ private:
   SimActivityRegistry m_registry;
   SensitiveDetectorCatalog m_catalog;
     
-  sim::FieldBuilder  *m_fieldBuilder;
   std::unique_ptr<sim::ChordFinderSetter> m_chordFinderSetter;
     
   std::string m_FieldFile;

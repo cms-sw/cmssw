@@ -5,7 +5,7 @@ SimplePhoton::SimplePhoton(const reco::Photon &in, unsigned int runNumber, bool 
   run_(runNumber),
   eClass_(-1), 
   r9_(in.full5x5_r9()),
-  scEnergy_(in.superCluster()->rawEnergy() + in.isEB() ? 0 : in.superCluster()->preshowerEnergy()), 
+  scEnergy_(in.superCluster()->rawEnergy() + (in.isEB() ? 0 : in.superCluster()->preshowerEnergy())), 
   scEnergyError_(-999.),  // FIXME???
   regEnergy_(in.getCorrectedEnergy(reco::Photon::P4type::regression2)), 
   regEnergyError_(in.getCorrectedEnergyError(reco::Photon::P4type::regression2)), 

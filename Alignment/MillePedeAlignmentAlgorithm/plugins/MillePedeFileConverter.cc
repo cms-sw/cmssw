@@ -2,6 +2,7 @@
 //         Created:  Thu, 19 Mar 2015 18:12:35 GMT
 
 #include "Alignment/MillePedeAlignmentAlgorithm/plugins/MillePedeFileConverter.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/Common/interface/FileBlobCollection.h"
@@ -14,7 +15,7 @@ MillePedeFileConverter::MillePedeFileConverter(const edm::ParameterSet& iConfig)
       inputFileName_(iConfig.getParameter<std::string>("inputBinaryFile")),
       fileBlobLabel_(iConfig.getParameter<std::string>("fileBlobLabel")) {
   // We define what this producer produces: A FileBlobCollection
-  produces<FileBlobCollection, edm::InLumi>(fileBlobLabel_);
+  produces<FileBlobCollection, edm::Transition::EndLuminosityBlock>(fileBlobLabel_);
 }
 
 MillePedeFileConverter::~MillePedeFileConverter() {}
@@ -27,20 +28,12 @@ void MillePedeFileConverter::endLuminosityBlockProduce(edm::LuminosityBlock& iLu
       << "\".";
   // Preparing the FileBlobCollection:
   auto fileBlobCollection = std::make_unique<FileBlobCollection>();
-  FileBlob fileBlob;
-  try {
-    // Creating the FileBlob:
-    // (The FileBlob will signal problems with the file itself.)
-    fileBlob = FileBlob(inputDir_ + inputFileName_, true);
-  }
-  catch (...) {
-    // When creation of the FileBlob fails:
-    edm::LogError("MillePedeFileActions")
-        << "Error: No FileBlob could be created from the file \""
-        << inputDir_ + inputFileName_ << "\".";
-    throw;
-  }
-  if (fileBlob.size() > 0) {
+
+  // Creating the FileBlob:
+  // (The FileBlob will signal problems with the file itself.)
+  FileBlob fileBlob{inputDir_ + inputFileName_, true};
+
+  if (fileBlob.size() > 0) {	// skip if no data or FileBlob file not found
     // Adding the FileBlob to the lumi:
     fileBlobCollection->addFileBlob(fileBlob);
   }

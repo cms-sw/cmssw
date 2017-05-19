@@ -62,10 +62,10 @@ void EGEnergyCorrector::Initialize(const edm::EventSetup &iSetup, std::string re
       edm::ESHandle<GBRForest> readeree;
       edm::ESHandle<GBRForest> readereevar;
 
-      iSetup.get<GBRWrapperRcd>().get(std::string(TString::Format("%s_EBCorrection",regweights.c_str())),readereb);
-      iSetup.get<GBRWrapperRcd>().get(std::string(TString::Format("%s_EBUncertainty",regweights.c_str())),readerebvar);
-      iSetup.get<GBRWrapperRcd>().get(std::string(TString::Format("%s_EECorrection",regweights.c_str())),readeree);
-      iSetup.get<GBRWrapperRcd>().get(std::string(TString::Format("%s_EEUncertainty",regweights.c_str())),readereevar);
+      iSetup.get<GBRWrapperRcd>().get(regweights + "_EBCorrection", readereb);
+      iSetup.get<GBRWrapperRcd>().get(regweights + "_EBUncertainty", readerebvar);
+      iSetup.get<GBRWrapperRcd>().get(regweights + "_EECorrection", readeree);
+      iSetup.get<GBRWrapperRcd>().get(regweights + "_EEUncertainty", readereevar);
 
       fReadereb = readereb.product();
       fReaderebvariance = readerebvar.product();

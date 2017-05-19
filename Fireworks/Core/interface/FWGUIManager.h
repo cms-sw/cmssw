@@ -21,7 +21,6 @@
 // system include files
 #include <map>
 #include <boost/function.hpp>
-#include <boost/shared_ptr.hpp>
 #include <sigc++/sigc++.h>
 #include "Rtypes.h"
 #include "GuiTypes.h"

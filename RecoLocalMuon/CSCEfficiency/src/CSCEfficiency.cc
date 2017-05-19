@@ -1936,7 +1936,7 @@ CSCEfficiency::~CSCEfficiency(){
   // Write the histos to a file
   theFile->cd();
   //
-  char SpecName[20];
+  char SpecName[60];
   std::vector<float> bins, Efficiency, EffError;
   std::vector<float> eff(2);
 
@@ -1955,7 +1955,7 @@ CSCEfficiency::~CSCEfficiency(){
   std::cout<<" Writing proper histogram structure (patience)..."<<std::endl;
   for(int ec = 0;ec<2;++ec){
     for(int st = 0;st<4;++st){
-      sprintf(SpecName,"Stations__E%d_S%d",ec+1, st+1);
+      snprintf(SpecName, sizeof(SpecName), "Stations__E%d_S%d",ec+1, st+1);
       theFile->cd(SpecName);
       StHist[ec][st].segmentChi2_ndf->Write();
       StHist[ec][st].hitsInSegment->Write();
@@ -1979,7 +1979,7 @@ CSCEfficiency::~CSCEfficiency(){
 	  if(0!=st && 0==rg && iChamber >18){
 	    continue;
 	  }
-	  sprintf(SpecName,"Chambers__E%d_S%d_R%d_Chamber_%d",ec+1, st+1, rg+1,iChamber);
+	  snprintf(SpecName, sizeof(SpecName), "Chambers__E%d_S%d_R%d_Chamber_%d",ec+1, st+1, rg+1,iChamber);
 	  theFile->cd(SpecName);
 	  
 	  ChHist[ec][st][rg][iChamber-FirstCh].EfficientRechits_inSegment->Write();
@@ -2016,7 +2016,7 @@ CSCEfficiency::~CSCEfficiency(){
     }
   }
   //
-  sprintf(SpecName,"AllChambers");
+  snprintf(SpecName, sizeof(SpecName), "AllChambers");
   theFile->mkdir(SpecName);
   theFile->cd(SpecName);
   DataFlow->Write(); 

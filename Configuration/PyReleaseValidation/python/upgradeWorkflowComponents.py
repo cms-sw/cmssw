@@ -9,29 +9,37 @@ upgradeKeys[2017] = [
     '2017PU',
     '2017Design',
     '2017DesignPU',
+    '2018',
+#    '2018PU',
+    '2018Design',
+#    '2018DesignPU',
 ]
 
 upgradeKeys[2023] = [
-    '2023D1',
-    '2023D1PU',
-    '2023D2',
-    '2023D2PU',    
-    '2023D3',    
-    '2023D3PU',
+    '2023D7',
+    '2023D7PU',
+    '2023D10',
+    '2023D10PU',    
     '2023D4',
     '2023D4PU',
-    '2023D1Timing',
-    '2023D1TimingPU',
-    '2023D2Timing',
-    '2023D2TimingPU',
-    '2023D3Timing',
-    '2023D3TimingPU',
-    '2023D4Timing',
-    '2023D4TimingPU',
-    '2023D5',
-    '2023D5PU',
-    '2023D6',
-    '2023D6PU'
+    '2023D8',
+    '2023D8PU',
+    '2023D9',
+    '2023D9PU',
+    '2023D11',
+    '2023D11PU',
+    '2023D12',
+    '2023D12PU',
+    '2023D13',
+    '2023D13PU',
+    '2023D14',
+    '2023D14PU',
+    '2023D15',
+    '2023D15PU',
+    '2023D16',
+    '2023D16PU',
+    '2023D17',
+    '2023D17PU',
 ]
 
 # pre-generation of WF numbers
@@ -40,7 +48,9 @@ numWFStart={
     2023: 20000,
 }
 numWFSkip=200
-numWFConflict = [[25000,26000],[50000,51000]]
+# first two sets are the former D3 WF (now removed as redundant)
+# temporary measure to keep other WF numbers the same
+numWFConflict = [[11000,11200],[11400,11600],[20800,21200],[21600,23200],[25000,26000],[50000,51000]]
 numWFAll={
     2017: [numWFStart[2017]],
     2023: [numWFStart[2023]]
@@ -55,30 +65,68 @@ for year in upgradeKeys:
                 break
         numWFAll[year].append(numWFtmp)
 
-upgradeSteps=[
-    'GenSimFull',
-    'GenSimHLBeamSpotFull',
-    'GenSimHLBeamSpotFull14',
-    'DigiFull',
-    'RecoFullLocal',
-    'RecoFullLocalPU',
-    'RecoFull',
-    'RecoFullGlobal',
-    'RecoFullGlobalPU',
-    'HARVESTFull',
-    'FastSim',
-    'HARVESTFast',
-    'DigiFullPU',
-    'RecoFullPU',
-    'HARVESTFullPU',
-    'RecoFull_trackingOnly',
-    'RecoFull_trackingOnlyPU',
-    'HARVESTFull_trackingOnly',
-    'HARVESTFull_trackingOnlyPU',
-    'HARVESTFullGlobal',
-    'HARVESTFullGlobalPU',
-    'ALCAFull'
-]
+# steps for baseline and for variations
+upgradeSteps={}
+upgradeSteps['baseline'] = {
+    'steps' : [
+        'GenSimFull',
+        'GenSimHLBeamSpotFull',
+        'GenSimHLBeamSpotFull14',
+        'DigiFull',
+        'DigiFullTrigger',
+        'RecoFullLocal',
+        'RecoFull',
+        'RecoFullGlobal',
+        'HARVESTFull',
+        'FastSim',
+        'HARVESTFast',
+        'HARVESTFullGlobal',
+        'ALCAFull',
+    ],
+    'PU' : [
+        'DigiFullTrigger',
+        'RecoFullLocal',
+        'RecoFullGlobal',
+        'DigiFull',
+        'RecoFull',
+        'HARVESTFull',
+        'HARVESTFullGlobal',
+    ],
+    'suffix' : '',
+    'offset' : 0.0,
+}
+upgradeSteps['trackingOnly'] = {
+    'steps' : [
+        'RecoFull',
+        'HARVESTFull',
+        'RecoFullGlobal',
+        'HARVESTFullGlobal',
+    ],
+    'PU' : [],
+    'suffix' : '_trackingOnly',
+    'offset' : 0.1,
+}
+upgradeSteps['Timing'] = {
+    'steps' : upgradeSteps['baseline']['steps'],
+    'PU' : upgradeSteps['baseline']['PU'],
+    'suffix' : '_Timing',
+    'offset' : 0.2,
+}
+upgradeSteps['Neutron'] = {
+    'steps' : [
+        'GenSimFull',
+        'GenSimHLBeamSpotFull',
+        'GenSimHLBeamSpotFull14',
+        'DigiFull',
+        'DigiFullTrigger',
+    ],
+    'PU' : [
+        'DigiFull',
+        'DigiFullTrigger',
+    ],
+    'suffix' : '_Neutron',
+    'offset' : 0.3,
+}
 
 upgradeProperties = {}
 
@@ -86,15 +134,30 @@ upgradeProperties[2017] = {
     '2017' : {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2017_realistic',
-        'HLTmenu': '@relval2016',
+        'HLTmenu': '@relval2017',
         'Era' : 'Run2_2017',
         'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','ALCAFull','HARVESTFull'],
     },
     '2017Design' : {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2017_design',
-        'HLTmenu': '@relval2016',
+        'HLTmenu': '@relval2017',
         'Era' : 'Run2_2017',
+        'BeamSpot': 'GaussSigmaZ4cm',
+        'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
+    },
+    '2018' : {
+        'Geom' : 'DB:Extended',
+        'GT' : 'auto:phase1_2018_realistic',
+        'HLTmenu': '@relval2017',
+        'Era' : 'Run2_2018',
+        'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','ALCAFull','HARVESTFull'],
+    },
+    '2018Design' : {
+        'Geom' : 'DB:Extended',
+        'GT' : 'auto:phase1_2018_design',
+        'HLTmenu': '@relval2017',
+        'Era' : 'Run2_2018',
         'BeamSpot': 'GaussSigmaZ4cm',
         'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
     },
@@ -104,89 +167,125 @@ upgradeProperties[2017]['2017PU'] = deepcopy(upgradeProperties[2017]['2017'])
 upgradeProperties[2017]['2017PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU']
 upgradeProperties[2017]['2017DesignPU'] = deepcopy(upgradeProperties[2017]['2017Design'])
 upgradeProperties[2017]['2017DesignPU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU']
+upgradeProperties[2017]['2018PU'] = deepcopy(upgradeProperties[2017]['2018'])
+upgradeProperties[2017]['2018PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU']
+upgradeProperties[2017]['2018DesignPU'] = deepcopy(upgradeProperties[2017]['2018Design'])
+upgradeProperties[2017]['2018DesignPU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU']
 
 upgradeProperties[2023] = {
-    '2023D1' : {
-        'Geom' : 'Extended2023D1',
+    '2023D7' : {
+        'Geom' : 'Extended2023D7',
         'GT' : 'auto:phase2_realistic',
-        'HLTmenu': '@fake',
+        'HLTmenu': '@fake2',
         'Era' : 'Phase2C1',
-        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFull','RecoFullGlobal','HARVESTFullGlobal'],
-    },    
-    '2023D2' : {
-        'Geom' : 'Extended2023D2',
+        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal','HARVESTFullGlobal'],
+    },
+    '2023D10' : {
+        'Geom' : 'Extended2023D10',
         'GT' : 'auto:phase2_realistic',
-        'HLTmenu': '@fake',
+        'HLTmenu': '@fake2',
         'Era' : 'Phase2C1',
-        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFull','RecoFullGlobal','HARVESTFullGlobal'],
-    },    
-    '2023D3' : {
-        'Geom' : 'Extended2023D3',
-        'GT' : 'auto:phase2_realistic',
-        'HLTmenu': '@fake',
-        'Era' : 'Phase2C2',
-        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFull','RecoFullGlobal', 'HARVESTFullGlobal'],
-    },    
+        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal','HARVESTFullGlobal'],
+    },
     '2023D4' : {
         'Geom' : 'Extended2023D4',
-        'HLTmenu': '@fake',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic',
+        'Era' : 'Phase2C2',
+        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
+    },
+    '2023D8' : {
+        'Geom' : 'Extended2023D8',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic',
+        'Era' : 'Phase2C2_timing_layer',
+        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
+    },
+    '2023D9' : {
+        'Geom' : 'Extended2023D9',
+        'GT' : 'auto:phase2_realistic',
+        'HLTmenu': '@fake2',
+        'Era' : 'Phase2C1',
+        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
+    },
+    '2023D11' : {
+        'Geom' : 'Extended2023D11',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic',
+        'Era' : 'Phase2C2',
+        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFull','RecoFullGlobal', 'HARVESTFullGlobal']
+     },
+    '2023D12' : {
+        'Geom' : 'Extended2023D12',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic',
+        'Era' : 'Phase2C2',
+        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
+     },
+    '2023D13' : {
+        'Geom' : 'Extended2023D13',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic',
+        'Era' : 'Phase2C2',
+        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
+     },
+    '2023D14' : {
+        'Geom' : 'Extended2023D14',
+        'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic',
         'Era' : 'Phase2C2',
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFull','RecoFullGlobal', 'HARVESTFullGlobal'],
-    },
-    '2023D5' : {
-        'Geom' : 'Extended2023D5',
-        'HLTmenu': '@fake',
+     },
+    '2023D15' : {
+        'Geom' : 'Extended2023D15',
+        'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic',
-        'Era' : 'Phase2C2_timing_layer',
-        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFull','RecoFullGlobal', 'HARVESTFullGlobal'],
-    },
-    '2023D6' : {
-        'Geom' : 'Extended2023D6',
+        'Era' : 'Phase2C2',
+        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
+     },
+    '2023D16' : {
+        'Geom' : 'Extended2023D16',
+        'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic',
-        'HLTmenu': '@fake',
-        'Era' : 'Phase2C1',
+        'Era' : 'Phase2C2',
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFull','RecoFullGlobal', 'HARVESTFullGlobal'],
-    }
-
+     },
+    '2023D17' : {
+        'Geom' : 'Extended2023D17',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic',
+        'Era' : 'Phase2C2',
+        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFull','RecoFullGlobal', 'HARVESTFullGlobal'],
+     },
 }
 
 
 
-#Timing (later we can alter geometry, etc, if need be)
-upgradeProperties[2023]['2023D1Timing'] = deepcopy(upgradeProperties[2023]['2023D1'])
-upgradeProperties[2023]['2023D1Timing']['Era'] = 'Phase2C1_timing'
-upgradeProperties[2023]['2023D2Timing'] = deepcopy(upgradeProperties[2023]['2023D2'])
-upgradeProperties[2023]['2023D2Timing']['Era'] = 'Phase2C1_timing'
-upgradeProperties[2023]['2023D3Timing'] = deepcopy(upgradeProperties[2023]['2023D3'])
-upgradeProperties[2023]['2023D3Timing']['Era'] = 'Phase2C2_timing'
-upgradeProperties[2023]['2023D4Timing'] = deepcopy(upgradeProperties[2023]['2023D4'])
-upgradeProperties[2023]['2023D4Timing']['Era'] = 'Phase2C2_timing'
-
 #standard PU sequences
-upgradeProperties[2023]['2023D1PU'] = deepcopy(upgradeProperties[2023]['2023D1'])
-upgradeProperties[2023]['2023D1PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
-upgradeProperties[2023]['2023D2PU'] = deepcopy(upgradeProperties[2023]['2023D2'])
-upgradeProperties[2023]['2023D2PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
-upgradeProperties[2023]['2023D3PU'] = deepcopy(upgradeProperties[2023]['2023D3'])
-upgradeProperties[2023]['2023D3PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
+upgradeProperties[2023]['2023D7PU'] = deepcopy(upgradeProperties[2023]['2023D7'])
+upgradeProperties[2023]['2023D7PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
+upgradeProperties[2023]['2023D10PU'] = deepcopy(upgradeProperties[2023]['2023D10'])
+upgradeProperties[2023]['2023D10PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
 upgradeProperties[2023]['2023D4PU'] = deepcopy(upgradeProperties[2023]['2023D4'])
-upgradeProperties[2023]['2023D4PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
-upgradeProperties[2023]['2023D5PU'] = deepcopy(upgradeProperties[2023]['2023D5'])
-upgradeProperties[2023]['2023D5PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
-upgradeProperties[2023]['2023D6PU'] = deepcopy(upgradeProperties[2023]['2023D6'])
-upgradeProperties[2023]['2023D6PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
-
-
-#Timing PU (for now copy ScenToRun of standard PU)
-upgradeProperties[2023]['2023D1TimingPU'] = deepcopy(upgradeProperties[2023]['2023D1Timing'])
-upgradeProperties[2023]['2023D1TimingPU']['ScenToRun'] = deepcopy(upgradeProperties[2023]['2023D1PU']['ScenToRun'])
-upgradeProperties[2023]['2023D2TimingPU'] = deepcopy(upgradeProperties[2023]['2023D2Timing'])
-upgradeProperties[2023]['2023D2TimingPU']['ScenToRun'] = deepcopy(upgradeProperties[2023]['2023D2PU']['ScenToRun'])
-upgradeProperties[2023]['2023D3TimingPU'] = deepcopy(upgradeProperties[2023]['2023D3Timing'])
-upgradeProperties[2023]['2023D3TimingPU']['ScenToRun'] = deepcopy(upgradeProperties[2023]['2023D3PU']['ScenToRun'])
-upgradeProperties[2023]['2023D4TimingPU'] = deepcopy(upgradeProperties[2023]['2023D4Timing'])
-upgradeProperties[2023]['2023D4TimingPU']['ScenToRun'] = deepcopy(upgradeProperties[2023]['2023D4PU']['ScenToRun'])
+upgradeProperties[2023]['2023D4PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
+upgradeProperties[2023]['2023D8PU'] = deepcopy(upgradeProperties[2023]['2023D8'])
+upgradeProperties[2023]['2023D8PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
+upgradeProperties[2023]['2023D9PU'] = deepcopy(upgradeProperties[2023]['2023D9'])
+upgradeProperties[2023]['2023D9PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
+upgradeProperties[2023]['2023D11PU'] = deepcopy(upgradeProperties[2023]['2023D11'])
+upgradeProperties[2023]['2023D11PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
+upgradeProperties[2023]['2023D12PU'] = deepcopy(upgradeProperties[2023]['2023D12'])
+upgradeProperties[2023]['2023D12PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
+upgradeProperties[2023]['2023D13PU'] = deepcopy(upgradeProperties[2023]['2023D13'])
+upgradeProperties[2023]['2023D13PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
+upgradeProperties[2023]['2023D14PU'] = deepcopy(upgradeProperties[2023]['2023D14'])
+upgradeProperties[2023]['2023D14PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
+upgradeProperties[2023]['2023D15PU'] = deepcopy(upgradeProperties[2023]['2023D15'])
+upgradeProperties[2023]['2023D15PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
+upgradeProperties[2023]['2023D16PU'] = deepcopy(upgradeProperties[2023]['2023D16'])
+upgradeProperties[2023]['2023D16PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
+upgradeProperties[2023]['2023D17PU'] = deepcopy(upgradeProperties[2023]['2023D17'])
+upgradeProperties[2023]['2023D17PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
 
 
 
@@ -246,6 +345,39 @@ upgradeFragments=['FourMuPt_1_200_pythia8_cfi',
                   'QCD_Pt-15To7000_TuneCUETP8M1_Flat_14TeV-pythia8_cff',
                   'H125GGgluonfusion_14TeV_TuneCUETP8M1_cfi',
                   'QCD_Pt_600_800_14TeV_TuneCUETP8M1_cfi',
+                  'UndergroundCosmicSPLooseMu_cfi',
+                  'BeamHalo_13TeV_cfi',
+                  'H200ChargedTaus_Tauola_13TeV_cfi',
+                  'ADDMonoJet_13TeV_d3MD3_TuneCUETP8M1_cfi',
+                  'ZpMM_13TeV_TuneCUETP8M1_cfi',
+                  'QCD_Pt_3000_3500_13TeV_TuneCUETP8M1_cfi',
+                  'WpM_13TeV_TuneCUETP8M1_cfi',
+                  'SingleNuE10_cfi.py',
+                  'TTbarLepton_13TeV_TuneCUETP8M1_cfi',
+                  'WE_13TeV_TuneCUETP8M1_cfi',
+                  'WM_13TeV_TuneCUETP8M1_cfi',
+                  'ZTT_All_hadronic_13TeV_TuneCUETP8M1_cfi',
+                  'PhotonJet_Pt_10_13TeV_TuneCUETP8M1_cfi',
+                  'QQH1352T_13TeV_TuneCUETP8M1_cfi',
+                  'Wjet_Pt_80_120_13TeV_TuneCUETP8M1_cfi',
+                  'Wjet_Pt_3000_3500_13TeV_TuneCUETP8M1_cfi',
+                  'SMS-T1tttt_mGl-1500_mLSP-100_13TeV-pythia8_cfi',
+                  'QCDForPF_13TeV_TuneCUETP8M1_cfi',
+                  'PYTHIA8_PhiToMuMu_TuneCUETP8M1_13TeV_cff',
+                  'RSKKGluon_m3000GeV_13TeV_TuneCUETP8M1_cff',
+                  'ZpMM_2250_13TeV_TuneCUETP8M1_cfi',
+                  'ZpEE_2250_13TeV_TuneCUETP8M1_cfi',
+                  'ZpTT_1500_13TeV_TuneCUETP8M1_cfi',
+                  'Upsilon1SToMuMu_forSTEAM_13TeV_TuneCUETP8M1_cfi',
+                  'EtaBToJpsiJpsi_forSTEAM_TuneCUEP8M1_13TeV_cfi',
+                  'JpsiMuMu_Pt-8_forSTEAM_13TeV_TuneCUETP8M1_cfi',
+                  'BuMixing_BMuonFilter_forSTEAM_13TeV_TuneCUETP8M1_cfi',
+                  'HSCPstop_M_200_TuneCUETP8M1_13TeV_pythia8_cff',
+                  'RSGravitonToGammaGamma_kMpl01_M_3000_TuneCUETP8M1_13TeV_pythia8_cfi',
+                  'WprimeToENu_M-2000_TuneCUETP8M1_13TeV-pythia8_cff',
+                  'DisplacedSUSY_stopToBottom_M_300_1000mm_TuneCUETP8M1_13TeV_pythia8_cff',
+                  'TenE_E_0_200_pythia8_cfi',
+                  'FlatRandomPtAndDxyGunProducer_cfi',
 ]
 
 howMuches={'FourMuPt_1_200_pythia8_cfi':Kby(10,100),
@@ -289,11 +421,11 @@ howMuches={'FourMuPt_1_200_pythia8_cfi':Kby(10,100),
            'MinBias_14TeV_pythia8_TuneCUETP8M1_cfi':Kby(90,100),
            'WM_14TeV_TuneCUETP8M1_cfi':Kby(9,100),
            'ZMM_13TeV_TuneCUETP8M1_cfi':Kby(18,100),
-	       'QCDForPF_14TeV_TuneCUETP8M1_cfi':Kby(9,50),
-	       'DYToLL_M-50_14TeV_pythia8_cff':Kby(9,100),
-	       'DYToTauTau_M-50_14TeV_pythia8_tauola_cff':Kby(9,100),
+           'QCDForPF_14TeV_TuneCUETP8M1_cfi':Kby(9,50),
+           'DYToLL_M-50_14TeV_pythia8_cff':Kby(9,100),
+           'DYToTauTau_M-50_14TeV_pythia8_tauola_cff':Kby(9,100),
            'TTbar_13TeV_TuneCUETP8M1_cfi':Kby(9,50),
-	       'MinBias_13TeV_pythia8_TuneCUETP8M1_cfi':Kby(90,100),
+           'MinBias_13TeV_pythia8_TuneCUETP8M1_cfi':Kby(90,100),
            'ZEE_14TeV_TuneCUETP8M1_cfi':Kby(9,100),
            'QCD_Pt_80_120_13TeV_TuneCUETP8M1_cfi':Kby(9,100),
            'H125GGgluonfusion_13TeV_TuneCUETP8M1_cfi':Kby(9,50),
@@ -302,6 +434,39 @@ howMuches={'FourMuPt_1_200_pythia8_cfi':Kby(10,100),
            'QCD_Pt-15To7000_TuneCUETP8M1_Flat_14TeV-pythia8_cff':Kby(9,50),
            'H125GGgluonfusion_14TeV_TuneCUETP8M1_cfi':Kby(9,50),
            'QCD_Pt_600_800_14TeV_TuneCUETP8M1_cfi':Kby(9,50),
+           'UndergroundCosmicSPLooseMu_cfi':Kby(9,50),
+           'BeamHalo_13TeV_cfi':Kby(9,50),
+           'H200ChargedTaus_Tauola_13TeV_cfi':Kby(9,50),
+           'ADDMonoJet_13TeV_d3MD3_TuneCUETP8M1_cfi':Kby(9,50),
+           'ZpMM_13TeV_TuneCUETP8M1_cfi':Kby(9,50),
+           'QCD_Pt_3000_3500_13TeV_TuneCUETP8M1_cfi':Kby(9,50),
+           'WpM_13TeV_TuneCUETP8M1_cfi':Kby(9,50),
+           'SingleNuE10_cfi.py':Kby(9,50),
+           'TTbarLepton_13TeV_TuneCUETP8M1_cfi':Kby(9,50),
+           'WE_13TeV_TuneCUETP8M1_cfi':Kby(9,50),
+           'WM_13TeV_TuneCUETP8M1_cfi':Kby(9,50),
+           'ZTT_All_hadronic_13TeV_TuneCUETP8M1_cfi':Kby(9,50),
+           'PhotonJet_Pt_10_13TeV_TuneCUETP8M1_cfi':Kby(9,50),
+           'QQH1352T_13TeV_TuneCUETP8M1_cfi':Kby(9,50),
+           'Wjet_Pt_80_120_13TeV_TuneCUETP8M1_cfi':Kby(9,50),
+           'Wjet_Pt_3000_3500_13TeV_TuneCUETP8M1_cfi':Kby(9,50),
+           'SMS-T1tttt_mGl-1500_mLSP-100_13TeV-pythia8_cfi':Kby(9,50),
+           'QCDForPF_13TeV_TuneCUETP8M1_cfi':Kby(9,50),
+           'PYTHIA8_PhiToMuMu_TuneCUETP8M1_13TeV_cff':Kby(9,50),
+           'RSKKGluon_m3000GeV_13TeV_TuneCUETP8M1_cff':Kby(9,50),
+           'ZpMM_2250_13TeV_TuneCUETP8M1_cfi':Kby(9,50),
+           'ZpEE_2250_13TeV_TuneCUETP8M1_cfi':Kby(9,50),
+           'ZpTT_1500_13TeV_TuneCUETP8M1_cfi':Kby(9,50),
+           'Upsilon1SToMuMu_forSTEAM_13TeV_TuneCUETP8M1_cfi':Kby(9,50),
+           'EtaBToJpsiJpsi_forSTEAM_TuneCUEP8M1_13TeV_cfi':Kby(9,50),
+           'JpsiMuMu_Pt-8_forSTEAM_13TeV_TuneCUETP8M1_cfi':Kby(9,50),
+           'BuMixing_BMuonFilter_forSTEAM_13TeV_TuneCUETP8M1_cfi':Kby(900,10000),
+           'HSCPstop_M_200_TuneCUETP8M1_13TeV_pythia8_cff':Kby(9,50),
+           'RSGravitonToGammaGamma_kMpl01_M_3000_TuneCUETP8M1_13TeV_pythia8_cfi':Kby(9,50),
+           'WprimeToENu_M-2000_TuneCUETP8M1_13TeV-pythia8_cff':Kby(9,50),
+           'DisplacedSUSY_stopToBottom_M_300_1000mm_TuneCUETP8M1_13TeV_pythia8_cff':Kby(9,50),
+           'TenE_E_0_200_pythia8_cfi':Kby(9,100),
+           'FlatRandomPtAndDxyGunProducer_cfi':Kby(9,100),
 }
 
 upgradeDatasetFromFragment={'FourMuPt_1_200_pythia8_cfi': 'FourMuPt1_200',
@@ -358,4 +523,37 @@ upgradeDatasetFromFragment={'FourMuPt_1_200_pythia8_cfi': 'FourMuPt1_200',
                             'QCD_Pt-15To7000_TuneCUETP8M1_Flat_14TeV-pythia8_cff' : 'QCD_Pt-15To7000_Flat_14TeV',
                             'H125GGgluonfusion_14TeV_TuneCUETP8M1_cfi' : 'H125GGgluonfusion_14',
                             'QCD_Pt_600_800_14TeV_TuneCUETP8M1_cfi' : 'QCD_Pt_600_800_14',
+                            'UndergroundCosmicSPLooseMu_cfi': 'CosmicsSPLoose',
+                            'BeamHalo_13TeV_cfi': 'BeamHalo_13',
+                            'H200ChargedTaus_Tauola_13TeV_cfi': 'Higgs200ChargedTaus_13',
+                            'ADDMonoJet_13TeV_d3MD3_TuneCUETP8M1_cfi': 'ADDMonoJet_d3MD3_13',
+                            'ZpMM_13TeV_TuneCUETP8M1_cfi': 'ZpMM_13',
+                            'QCD_Pt_3000_3500_13TeV_TuneCUETP8M1_cfi': 'QCD_Pt_3000_3500_13',
+                            'WpM_13TeV_TuneCUETP8M1_cfi': 'WpM_13',
+                            'SingleNuE10_cfi.py': 'NuGun',
+                            'TTbarLepton_13TeV_TuneCUETP8M1_cfi': 'TTbarLepton_13',
+                            'WE_13TeV_TuneCUETP8M1_cfi': 'WE_13',
+                            'WM_13TeV_TuneCUETP8M1_cfi': 'WM_13',
+                            'ZTT_All_hadronic_13TeV_TuneCUETP8M1_cfi': 'ZTT_13',
+                            'PhotonJet_Pt_10_13TeV_TuneCUETP8M1_cfi': 'PhotonJets_Pt_10_13',
+                            'QQH1352T_13TeV_TuneCUETP8M1_cfi': 'QQH1352T_13',
+                            'Wjet_Pt_80_120_13TeV_TuneCUETP8M1_cfi': 'Wjet_Pt_80_120_13',
+                            'Wjet_Pt_3000_3500_13TeV_TuneCUETP8M1_cfi': 'Wjet_Pt_3000_3500_13',
+                            'SMS-T1tttt_mGl-1500_mLSP-100_13TeV-pythia8_cfi': 'SMS-T1tttt_mGl-1500_mLSP-100_13',
+                            'QCDForPF_13TeV_TuneCUETP8M1_cfi': 'QCD_FlatPt_15_3000HS_13',
+                            'PYTHIA8_PhiToMuMu_TuneCUETP8M1_13TeV_cff': 'PhiToMuMu_13',
+                            'RSKKGluon_m3000GeV_13TeV_TuneCUETP8M1_cff': 'RSKKGluon_m3000GeV_13',
+                            'ZpMM_2250_13TeV_TuneCUETP8M1_cfi': 'ZpMM_2250_13',
+                            'ZpEE_2250_13TeV_TuneCUETP8M1_cfi': 'ZpEE_2250_13',
+                            'ZpTT_1500_13TeV_TuneCUETP8M1_cfi': 'ZpTT_1500_13',
+                            'Upsilon1SToMuMu_forSTEAM_13TeV_TuneCUETP8M1_cfi': 'Upsilon1SToMuMu_13',
+                            'EtaBToJpsiJpsi_forSTEAM_TuneCUEP8M1_13TeV_cfi': 'EtaBToJpsiJpsi_13',
+                            'JpsiMuMu_Pt-8_forSTEAM_13TeV_TuneCUETP8M1_cfi': 'JpsiMuMu_Pt-8',
+                            'BuMixing_BMuonFilter_forSTEAM_13TeV_TuneCUETP8M1_cfi': 'BuMixing_13',
+                            'HSCPstop_M_200_TuneCUETP8M1_13TeV_pythia8_cff': 'HSCPstop_M_200_13',
+                            'RSGravitonToGammaGamma_kMpl01_M_3000_TuneCUETP8M1_13TeV_pythia8_cfi': 'RSGravitonToGaGa_13',
+                            'WprimeToENu_M-2000_TuneCUETP8M1_13TeV-pythia8_cff': 'WpToENu_M-2000_13',
+                            'DisplacedSUSY_stopToBottom_M_300_1000mm_TuneCUETP8M1_13TeV_pythia8_cff': 'DisplacedSUSY_stopToBottom_M_300_1000mm_13',
+                            'TenE_E_0_200_pythia8_cfi': 'TenE_0_200',
+                            'FlatRandomPtAndDxyGunProducer_cfi': 'DisplacedMuonsDxy_0_500',
 }

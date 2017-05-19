@@ -50,7 +50,7 @@ std::unique_ptr<SiStripRecHit1D> TkClonerImpl::operator()(SiStripRecHit1D const 
 std::unique_ptr<Phase2TrackerRecHit1D> TkClonerImpl::operator()(Phase2TrackerRecHit1D const & hit, TrajectoryStateOnSurface const& tsos) const {
   const Phase2TrackerCluster1D&  clust = hit.phase2OTCluster();
   const PixelGeomDetUnit & gdu = (const PixelGeomDetUnit &) *(hit.detUnit()) ;
-  auto && params = phase2TrackerCPE->localParameters( clust, gdu );
+  auto && params = phase2TrackerCPE->localParameters( clust, gdu, tsos );
   return std::unique_ptr<Phase2TrackerRecHit1D>{new Phase2TrackerRecHit1D(params.first, params.second, *hit.det(), hit.cluster())};
 }
 
@@ -83,7 +83,7 @@ TrackingRecHit::ConstRecHitPointer TkClonerImpl::makeShared(SiStripRecHit1D cons
 TrackingRecHit::ConstRecHitPointer TkClonerImpl::makeShared(Phase2TrackerRecHit1D const & hit, TrajectoryStateOnSurface const& tsos) const {
   const Phase2TrackerCluster1D&  clust = hit.phase2OTCluster();
   const PixelGeomDetUnit & gdu = (const PixelGeomDetUnit &) *(hit.detUnit()) ;
-  auto && params = phase2TrackerCPE->localParameters( clust, gdu );
+  auto && params = phase2TrackerCPE->localParameters( clust, gdu, tsos );
   return std::unique_ptr<Phase2TrackerRecHit1D>{new Phase2TrackerRecHit1D(params.first, params.second, *hit.det(), hit.cluster())};
 }
 
@@ -119,7 +119,7 @@ namespace {
 std::unique_ptr<SiStripMatchedRecHit2D> TkClonerImpl::operator()(SiStripMatchedRecHit2D const & hit, TrajectoryStateOnSurface const& tsos) const {
     const GeomDet * det = hit.det();
     const GluedGeomDet *gdet = static_cast<const GluedGeomDet *> (det);
-    LocalVector tkDir = (tsos.isValid() ? tsos.localDirection() : 
+    LocalVector tkDir = (tsos.isValid() ? tsos.localParameters().directionNotNormalized() : 
 			 det->surface().toLocal( det->position()-GlobalPoint(0,0,0)));
 
     const SiStripCluster& monoclust   = hit.monoCluster();  

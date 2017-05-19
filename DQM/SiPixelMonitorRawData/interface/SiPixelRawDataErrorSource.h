@@ -57,8 +57,8 @@
 
        typedef edm::DetSet<SiPixelRawDataError>::const_iterator    ErrorIterator;
        
-       virtual void analyze(const edm::Event&, const edm::EventSetup&);
-       virtual void dqmBeginRun(const edm::Run&, edm::EventSetup const&) ;
+       virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+       virtual void dqmBeginRun(const edm::Run&, edm::EventSetup const&) override;
        virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
        virtual void buildStructure(edm::EventSetup const&);

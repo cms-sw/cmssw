@@ -121,15 +121,21 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
 						 innertsos.curvilinearError(), innerId,
     						 seedDir, theTraj->seedRef()));
 
+    // FIXME will remove this obsolete config-param in a future PR 
+    assert(!useSplitting);
 
     reco::TrackExtra & tx = selTrackExtras->back();
     // ---  NOTA BENE: the convention is to sort hits and measurements "along the momentum".
     // This is consistent with innermost and outermost labels only for tracks from LHC collisions
-    Traj2TrackHits t2t(hitBuilder,false);
+    reco::TrackExtra::TrajParams trajParams;
+    reco::TrackExtra::Chi2sFive chi2s; 
+    Traj2TrackHits t2t;
     auto ih = selHits->size();
-    t2t(*theTraj,*selHits,useSplitting);
+    t2t(*theTraj,*selHits,trajParams,chi2s);
     auto ie = selHits->size();
     tx.setHits(rHits,ih,ie-ih);
+    tx.setTrajParams(std::move(trajParams),std::move(chi2s));
+    assert(tx.trajParams().size()==tx.recHitsSize());
     for (;ih<ie; ++ih) {
       auto const & hit = (*selHits)[ih];
       track.appendHitPattern(hit, *ttopo);

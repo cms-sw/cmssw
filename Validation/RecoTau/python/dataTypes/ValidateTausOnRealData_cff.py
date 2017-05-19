@@ -57,8 +57,8 @@ for newAttr in newProcAttributes:
 
 
 produceDenominatorRealData = cms.Sequence(
-      kinematicSelectedPFJets *
-      PFJetsId *
+      cms.ignore(kinematicSelectedPFJets) *
+      cms.ignore(PFJetsId) *
       CleanedPFJets
       )
 

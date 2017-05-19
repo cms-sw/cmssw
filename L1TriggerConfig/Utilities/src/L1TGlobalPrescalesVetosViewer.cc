@@ -1,3 +1,4 @@
+#include <iomanip>
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -13,6 +14,7 @@ class L1TGlobalPrescalesVetosViewer: public edm::EDAnalyzer {
 private:
     int32_t prescale_table_verbosity;
     int32_t bxmask_map_verbosity;
+    int32_t veto_verbosity;
 
     std::string hash(void *buf, size_t len) const ;
 
@@ -22,6 +24,7 @@ public:
     explicit L1TGlobalPrescalesVetosViewer(const edm::ParameterSet& pset) : edm::EDAnalyzer(){
        prescale_table_verbosity = pset.getUntrackedParameter<int32_t>("prescale_table_verbosity", 0);
        bxmask_map_verbosity     = pset.getUntrackedParameter<int32_t>("bxmask_map_verbosity",     0);
+       veto_verbosity           = pset.getUntrackedParameter<int32_t>("veto_verbosity",           0);
     }
 
     virtual ~L1TGlobalPrescalesVetosViewer(void){}
@@ -91,10 +94,24 @@ void L1TGlobalPrescalesVetosViewer::analyze(const edm::Event& iEvent, const edm:
         cout << hash( prescale_table_, sizeof(int)*len_prescale_table_ ) << endl;
     else cout << 0 << endl;
 
+    if( prescale_table_verbosity > 1 ){
+        cout << endl << " Detailed view on the prescales * masks: " << endl;
+        for(size_t col=0; col<ptr->prescale_table_.size(); col++)
+            cout << setw(8) << " Index " << col;
+        cout << endl;
+        size_t nRows = (ptr->prescale_table_)[ 0 ].size();
+        for(size_t row=0; row<nRows; row++){
+            for(size_t col=0; col<ptr->prescale_table_.size(); col++)
+                cout << setw(8) << (ptr->prescale_table_)[ col ][ row ] ;
+            cout << endl;
+        }
+        cout << endl;
+    }
+
     size_t len_bxmask_map_ = 0;
     for(std::map<int, std::vector<int> >::const_iterator it = (ptr->bxmask_map_).begin(); it != (ptr->bxmask_map_).end(); it++){
         len_bxmask_map_ += it->second.size();
-        if( bxmask_map_verbosity > 0 ){
+        if( bxmask_map_verbosity == 1 ){
             int masks[ it->second.size() ];
             for(size_t i=0; i<it->second.size(); i++)
                 masks[ i ] = it->second[i];
@@ -102,6 +119,11 @@ void L1TGlobalPrescalesVetosViewer::analyze(const edm::Event& iEvent, const edm:
             if( it->second.size() )
                 cout << hash( masks, sizeof(int)*it->second.size() ) << endl;
             else cout << 0 << endl;
+        }
+        if( bxmask_map_verbosity > 1 ){
+            cout << "  bxmask_map_[" << it->first << "][" << it->second.size() << "] = ";
+            for(size_t algo=0; algo<it->second.size(); algo++) cout << it->second[algo] << ", ";
+            cout << endl;
         }
     }
     int bxmask_map_[ len_bxmask_map_ ];
@@ -115,11 +137,20 @@ void L1TGlobalPrescalesVetosViewer::analyze(const edm::Event& iEvent, const edm:
     else cout << 0 << endl;
 
     int veto_[ (ptr->veto_).size() ];
-    for(size_t i=0; i<(ptr->veto_).size(); i++) veto_[i] = (ptr->veto_)[i];
+    bool veto_allZeros = true;
+    for(size_t i=0; i<(ptr->veto_).size(); i++){
+        veto_[i] = (ptr->veto_)[i];
+        if( veto_[i] ) veto_allZeros = false;
+    }
     cout << "  veto_[" << (ptr->veto_).size() << "]              = ";
-    if( (ptr->veto_).size() )
-        cout << hash( veto_, sizeof(int)*(ptr->veto_).size() ) << endl;
-    else cout << 0 << endl;
+    if( veto_verbosity == 0 ){
+        if( (ptr->veto_).size() ){
+            cout << hash( veto_, sizeof(int)*(ptr->veto_).size() );
+            if( veto_allZeros ) cout << " (all zeros)" << endl;
+            else cout << endl;
+        } else cout << 0 << endl;
+    } else
+        for(size_t i=0; i<(ptr->veto_).size() ;i++) cout << veto_[i] << endl;
 
     int exp_ints_[ (ptr->exp_ints_).size() ];
     for(size_t i=0; i<(ptr->exp_ints_).size(); i++) exp_ints_[i] = (ptr->exp_ints_)[i];

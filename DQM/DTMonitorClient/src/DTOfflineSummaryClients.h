@@ -33,10 +33,10 @@ public:
   virtual ~DTOfflineSummaryClients();
 
   /// BeginRun
-  void beginRun (const edm::Run& r, const edm::EventSetup& c);
+  void beginRun (const edm::Run& r, const edm::EventSetup& c) override;
 
   /// EndLumi
-  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &);
+  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &) override;
 
   /// EndJob
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;

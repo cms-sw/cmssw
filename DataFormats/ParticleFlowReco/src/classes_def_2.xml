@@ -17,6 +17,12 @@
   <class name="std::vector<reco::PFCluster>"/>
   <class name="edm::Wrapper<std::vector<reco::PFCluster> >"/>
 
+  <class name="reco::HGCalMultiCluster" ClassVersion="3">
+    <version ClassVersion="3" checksum="1942695459"/>
+  </class>
+  <class name="std::vector<reco::HGCalMultiCluster>"/>
+  <class name="edm::Wrapper<std::vector<reco::HGCalMultiCluster> >"/>  
+
   <class name="std::pair<edm::Ptr<reco::CaloCluster>::key_type,edm::Ptr<reco::PFCluster> >"/>
   <class name="reco::PFCluster::EEtoPSAssociation"/>
   <class name="edm::Wrapper<reco::PFCluster::EEtoPSAssociation>"/>

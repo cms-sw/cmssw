@@ -13,11 +13,34 @@
 #  mps_fire.py -h
 
 import Alignment.MillePedeAlignmentAlgorithm.mpslib.Mpslibclass as mpslib
+import Alignment.MillePedeAlignmentAlgorithm.mpslib.tools as mps_tools
 import os
 import sys
+import shutil
+import cPickle
 import subprocess
 import re
 import argparse
+
+def forward_proxy(rundir):
+    """Forward proxy to location visible from the batch system.
+
+    Arguments:
+    - `rundir`: directory for storing the forwarded proxy
+    """
+
+    # check first if proxy is set
+    try:
+        subprocess.check_call(["voms-proxy-info", "--exists"])
+    except subprocess.CalledProcessError:
+        print "Please initialize your proxy before submitting."
+        sys.exit(1)
+
+    local_proxy = subprocess.check_output(["voms-proxy-info", "--path"]).strip()
+    shutil.copyfile(local_proxy, os.path.join(rundir,".user_proxy"))
+
+
+
 
 parser = argparse.ArgumentParser(
         description="Submit jobs that are setup in local mps database to batch system.",
@@ -34,6 +57,9 @@ parser.add_argument("-f", "--force-merge", dest="forceMerge", default=False,
                     action="store_true",
                     help=("force the submission of the Pede job in case some "+
                           "Mille jobs are not in the OK state"))
+parser.add_argument("-p", "--forward-proxy", dest="forwardProxy", default=False,
+                    action="store_true",
+                    help="forward VOMS proxy to batch system")
 args = parser.parse_args(sys.argv[1:])
 
 
@@ -75,6 +101,9 @@ if not args.fireMerge:
     for i in xrange(lib.nJobs):
         if lib.JOBSTATUS[i] == 'SETUP':
             if nSub < args.maxJobs:
+                if args.forwardProxy:
+                    forward_proxy(os.path.join(theJobData,lib.JOBDIR[i]))
+
                 # submit a new job with 'bsub -J ...' and check output
                 # for some reasons LSF wants script with full path
                 submission = 'bsub -J %s %s %s/%s/theScript.sh' % \
@@ -148,11 +177,9 @@ else:
                     os.system('cp -p '+scriptPath+' '+backupScriptPath)
 
                 # get the name of merge cfg file -> either the.py or alignment_merge.py
-                command  = 'cat '+backupScriptPath+' | grep cmsRun | grep "\.py" | head -1 | awk \'{gsub("^.*cmsRun ","");print $1}\''
+                command  = 'cat '+backupScriptPath+' | grep CONFIG_FILE | head -1 | awk -F"/" \'{print $NF}\''
                 mergeCfg = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
-                command  = 'basename '+mergeCfg
-                mergeCfg = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
-                mergeCfg = mergeCfg.replace('\n','')
+                mergeCfg = mergeCfg.strip()
 
                 # make a backup copy of the cfg
                 backupCfgPath  = Path+'/%s.bak' % mergeCfg
@@ -160,9 +187,21 @@ else:
                 if not os.path.isfile(backupCfgPath):
                     os.system('cp -p '+cfgPath+' '+backupCfgPath)
 
+                # retrieve weights configuration
+                with open(os.path.join(Path, ".weights.pkl"), "rb") as f:
+                    weight_conf = cPickle.load(f)
+
+                # blank weights
+                mps_tools.run_checked(["mps_weight.pl", "-c"])
+
+                # apply weights
+                for name,weight in weight_conf:
+                    print " ".join(["mps_weight.pl", "-N", name, weight])
+                    mps_tools.run_checked(["mps_weight.pl", "-N", name, weight])
+
                 # rewrite the mergeCfg using only 'OK' jobs (uses first mille-job as baseconfig)
                 inCfgPath = theJobData+'/'+lib.JOBDIR[0]+'/the.py'
-                command ='mps_merge.py -c '+inCfgPath+' '+Path+'/'+mergeCfg+' '+Path+' '+str(lib.nJobs)
+                command ='mps_merge.py -w -c '+inCfgPath+' '+Path+'/'+mergeCfg+' '+Path+' '+str(lib.nJobs)
                 os.system(command)
 
                 # rewrite theScript.sh using inly 'OK' jobs
@@ -175,7 +214,7 @@ else:
                     os.system('cp -pf '+backupScriptPath+' '+scriptPath)
 
                 # get the name of merge cfg file
-                command  = 'cat '+scriptPath+' | grep cmsRun | grep "\.py" | head -1 | awk \'{gsub("^.*cmsRun ","");print $1}\''
+                command  = "cat "+scriptPath+" | grep '^\s*CONFIG_FILE' | awk -F'=' '{print $2}'"
                 mergeCfg = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
                 command  = 'basename '+mergeCfg
                 mergeCfg = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
@@ -192,6 +231,7 @@ else:
             # submit merge job
             nMerge = i-lib.nJobs  # 'index' of this merge job
             curJobName = 'm'+str(nMerge)+'_'+theJobName
+            if args.forwardProxy: forward_proxy(os.path.dirname(scriptPath))
             submission = 'bsub -J %s %s %s' % (curJobName,resources,scriptPath)
             result = subprocess.check_output(submission, stderr=subprocess.STDOUT, shell=True)
             print '     '+result,
@@ -212,6 +252,3 @@ else:
 
 
 lib.write_db()
-
-
-

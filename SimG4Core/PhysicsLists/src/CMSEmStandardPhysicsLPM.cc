@@ -1,8 +1,10 @@
 #include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysicsLPM.h"
+#include "SimG4Core/PhysicsLists/interface/EmParticleList.h"
+#include "G4EmParameters.hh"
+#include "G4ParticleTable.hh"
 
 #include "G4ParticleDefinition.hh"
 #include "G4LossTableManager.hh"
-#include "G4EmParameters.hh"
 
 #include "G4ComptonScattering.hh"
 #include "G4GammaConversion.hh"
@@ -15,7 +17,6 @@
 #include "G4eCoulombScatteringModel.hh"
 #include "G4WentzelVIModel.hh"
 #include "G4UrbanMscModel.hh"
-#include "G4EmParameters.hh"
 
 #include "G4eIonisation.hh"
 #include "G4eBremsstrahlung.hh"
@@ -140,7 +141,7 @@ void CMSEmStandardPhysicsLPM::ConstructProcess() {
 
   // This EM builder takes default models of Geant4 10 EMV.
   // Multiple scattering by Urban for all particles
-  // except e+e- below 100 MeV for which the Urban93 model is used
+  // except e+e- below 100 MeV for which the Urban model is used
 
   G4PhysicsListHelper* ph = G4PhysicsListHelper::GetPhysicsListHelper();
 
@@ -165,14 +166,14 @@ void CMSEmStandardPhysicsLPM::ConstructProcess() {
   G4double highEnergyLimit = 100*MeV;
 
   G4Region* aRegion = 
-    G4RegionStore::GetInstance()->GetRegion("HcalRegion");
+    G4RegionStore::GetInstance()->GetRegion("HcalRegion",false);
   G4Region* bRegion = 
-    G4RegionStore::GetInstance()->GetRegion("HGCalRegion");
+    G4RegionStore::GetInstance()->GetRegion("HGCalRegion",false);
 
-  aParticleIterator->reset();
-  while( (*aParticleIterator)() ){
-    G4ParticleDefinition* particle = aParticleIterator->value();
-    G4String particleName = particle->GetParticleName();
+  G4ParticleTable* table = G4ParticleTable::GetParticleTable();
+  EmParticleList emList;
+  for(const auto& particleName : emList.PartNames()) {
+    G4ParticleDefinition* particle = table->FindParticle(particleName);
 
     if (particleName == "gamma") {
 

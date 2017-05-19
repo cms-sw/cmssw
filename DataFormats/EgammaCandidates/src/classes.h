@@ -83,6 +83,7 @@ namespace DataFormats_EgammaCandidates {
 
     reco::Photon::FiducialFlags pff ;
     reco::Photon::ShowerShape pss ;
+    reco::Photon::SaturationInfo psi ;
     reco::Photon::IsolationVariables piv ;
     reco::Photon::PflowIsolationVariables ppfiv ;
     reco::Photon::PflowIDVariables ppfid ;
@@ -122,6 +123,7 @@ namespace DataFormats_EgammaCandidates {
     reco::GsfElectron::ClosestCtfTrack gecct ;
     reco::GsfElectron::FiducialFlags geff ;
     reco::GsfElectron::ShowerShape gess ;
+    reco::GsfElectron::SaturationInfo gesi ;
     reco::GsfElectron::IsolationVariables geiv ;
     reco::GsfElectron::ConversionRejection gecr ;
     reco::GsfElectron::Corrections gec ;

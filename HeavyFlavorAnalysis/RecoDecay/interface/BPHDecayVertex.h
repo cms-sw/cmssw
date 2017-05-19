@@ -32,6 +32,8 @@ namespace reco {
 // C++ Headers --
 //---------------
 #include <vector>
+#include <map>
+#include <string>
 
 //              ---------------------
 //              -- Class Interface --
@@ -70,6 +72,9 @@ class BPHDecayVertex: public virtual BPHDecayMomentum {
 
   /// get TransientTrack for a daughter
   reco::TransientTrack* getTransientTrack( const reco::Candidate* cand ) const;
+
+  /// retrieve track search list
+  const std::string& getTrackSearchList( const reco::Candidate* cand ) const;
 
  protected:
 

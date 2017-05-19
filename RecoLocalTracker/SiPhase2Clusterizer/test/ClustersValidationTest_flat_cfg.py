@@ -10,7 +10,7 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.load('Configuration.Geometry.GeometryExtended2023D2Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D10Reco_cff')
 
 # Number of events (-1 = all)
 process.maxEvents = cms.untracked.PSet(
@@ -51,11 +51,3 @@ process.analysis = cms.EDAnalyzer('Phase2TrackerClusterizerValidation',
 process.p = cms.Path(process.analysis)
 
 
-#from SLHCUpgradeSimulations.Configuration.phase2TkFlat import *
-#customise(process)
-
-# Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.combinedCustoms
-from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023flat
-
-#call to customisation function cust_2023flat imported from SLHCUpgradeSimulations.Configuration.combinedCustoms
-process = cust_2023flat(process)

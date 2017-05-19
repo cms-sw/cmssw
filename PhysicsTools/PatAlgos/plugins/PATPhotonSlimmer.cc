@@ -30,13 +30,13 @@ namespace pat {
       explicit PATPhotonSlimmer(const edm::ParameterSet & iConfig);
       virtual ~PATPhotonSlimmer() { }
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+      virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
       virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const  edm::EventSetup&) override final;
 
     private:
       const edm::EDGetTokenT<edm::View<pat::Photon> > src_;
 
-      const StringCutObjectSelector<pat::Photon> dropSuperClusters_, dropBasicClusters_, dropPreshowerClusters_, dropSeedCluster_, dropRecHits_;
+      const StringCutObjectSelector<pat::Photon> dropSuperClusters_, dropBasicClusters_, dropPreshowerClusters_, dropSeedCluster_, dropRecHits_, dropSaturation_;
 
       const edm::EDGetTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef> > > reco2pf_;
       const edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection> > pf2pc_;
@@ -57,6 +57,7 @@ pat::PATPhotonSlimmer::PATPhotonSlimmer(const edm::ParameterSet & iConfig) :
     dropPreshowerClusters_(iConfig.getParameter<std::string>("dropPreshowerClusters")),
     dropSeedCluster_(iConfig.getParameter<std::string>("dropSeedCluster")),
     dropRecHits_(iConfig.getParameter<std::string>("dropRecHits")),
+    dropSaturation_(iConfig.getParameter<std::string>("dropSaturation")),
     reco2pf_(mayConsume<edm::ValueMap<std::vector<reco::PFCandidateRef> > >(iConfig.getParameter<edm::InputTag>("recoToPFMap"))),
     pf2pc_(mayConsume<edm::Association<pat::PackedCandidateCollection>>(iConfig.getParameter<edm::InputTag>("packedPFCandidates"))),
     pc_(mayConsume<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("packedPFCandidates"))),
@@ -122,6 +123,7 @@ pat::PATPhotonSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSet
 	if (dropPreshowerClusters_(photon)) { photon.preshowerClusters_.clear(); }
 	if (dropSeedCluster_(photon)) { photon.seedCluster_.clear(); photon.embeddedSeedCluster_ = false; }
         if (dropRecHits_(photon)) { photon.recHits_ = EcalRecHitCollection(); photon.embeddedRecHits_ = false; }
+        if (dropSaturation_(photon)) { photon.setSaturationInfo(reco::Photon::SaturationInfo()); }
 
         if (linkToPackedPF_) {
             //std::cout << " PAT  photon in  " << src.id() << " comes from " << photon.refToOrig_.id() << ", " << photon.refToOrig_.key() << std::endl;

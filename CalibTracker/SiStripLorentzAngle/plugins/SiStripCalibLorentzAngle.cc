@@ -299,8 +299,8 @@ void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c){
   }
   
   
-  TF1 *fitfunc= new TF1("fitfunc","([4]/[3])*[1]*(TMath::Abs(x-[0]))+[2]",-1,1);
-  TF1 *fitfunc2IT= new TF1("fitfunc2IT","([4]/[3])*[1]*(TMath::Abs(x-[0]))+[2]",-1,1);
+  auto fitfunc= std::make_unique<TF1>("fitfunc","([4]/[3])*[1]*(TMath::Abs(x-[0]))+[2]",-1,1);
+  auto fitfunc2IT= std::make_unique<TF1>("fitfunc2IT","([4]/[3])*[1]*(TMath::Abs(x-[0]))+[2]",-1,1);
  
   std::ofstream NoEntries;
   NoEntries.open(NoEntriesHisto_.c_str());
@@ -427,9 +427,9 @@ void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c){
       fitfunc->FixParameter(3, pitch);
       fitfunc->FixParameter(4, thickness);
       
-      Profiles[name.c_str()]->Fit("fitfunc","E","",ModuleRangeMin, ModuleRangeMax);
+      Profiles[name.c_str()]->Fit(fitfunc.get(),"E","",ModuleRangeMin, ModuleRangeMax);
             
-      FitFunction = Profiles[name.c_str()]->GetFunction("fitfunc");
+      FitFunction = fitfunc.get();
       chi2norm = FitFunction->GetChisquare()/FitFunction->GetNDF();
       
       if(FitFunction->GetParameter(0)>FitCuts_p0 || FitFunction->GetParameter(1)<FitCuts_p1 || FitFunction->GetParameter(2)<FitCuts_p2 || chi2norm>FitCuts_chi2 || FitFunction->GetParError(0)<FitCuts_ParErr_p0){
@@ -443,9 +443,9 @@ void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c){
       fitfunc2IT->FixParameter(4, thickness);
       
       //2nd Iteration
-      Profiles[name.c_str()]->Fit("fitfunc2IT","E","",ModuleRangeMin2IT, ModuleRangeMax2IT);
+      Profiles[name.c_str()]->Fit(fitfunc2IT.get(),"E","",ModuleRangeMin2IT, ModuleRangeMax2IT);
       
-      FitFunction = Profiles[name.c_str()]->GetFunction("fitfunc2IT");
+      FitFunction = fitfunc2IT.get();
       chi2norm = FitFunction->GetChisquare()/FitFunction->GetNDF();
                 
       //2nd Iteration failed
@@ -638,48 +638,49 @@ void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c){
   }
   
   double GaussFitRange=conf_.getParameter<double>("GaussFitRange");
+  auto gaus = std::make_unique<TF1>("gaus","gaus");
   
-  TH1Ds["LA_TIB_1"]->Fit("gaus","","",-GaussFitRange,GaussFitRange);  
-  mean_TIB1 = TH1Ds["LA_TIB_1"]->GetFunction("gaus")->GetParameter(1);
-  float err_mean_TIB1 = TH1Ds["LA_TIB_1"]->GetFunction("gaus")->GetParError(1);
-  float rms_TIB1 = TH1Ds["LA_TIB_1"]->GetFunction("gaus")->GetParameter(2);
-  TH1Ds["LA_TIB_2"]->Fit("gaus","","",-GaussFitRange,GaussFitRange);  
-  mean_TIB2 = TH1Ds["LA_TIB_2"]->GetFunction("gaus")->GetParameter(1);
-  float err_mean_TIB2 = TH1Ds["LA_TIB_2"]->GetFunction("gaus")->GetParError(1);
-  float rms_TIB2 = TH1Ds["LA_TIB_2"]->GetFunction("gaus")->GetParameter(2);
-  TH1Ds["LA_TIB_3"]->Fit("gaus","","",-GaussFitRange,GaussFitRange);  
-  mean_TIB3 = TH1Ds["LA_TIB_3"]->GetFunction("gaus")->GetParameter(1);
-  float err_mean_TIB3 = TH1Ds["LA_TIB_3"]->GetFunction("gaus")->GetParError(1);
-  float rms_TIB3 = TH1Ds["LA_TIB_3"]->GetFunction("gaus")->GetParameter(2);
-  TH1Ds["LA_TIB_4"]->Fit("gaus","","",-GaussFitRange,GaussFitRange);  
-  mean_TIB4 = TH1Ds["LA_TIB_4"]->GetFunction("gaus")->GetParameter(1);
-  float err_mean_TIB4 = TH1Ds["LA_TIB_4"]->GetFunction("gaus")->GetParError(1);
-  float rms_TIB4 = TH1Ds["LA_TIB_4"]->GetFunction("gaus")->GetParameter(2);
+  TH1Ds["LA_TIB_1"]->Fit(gaus.get(),"","",-GaussFitRange,GaussFitRange);  
+  mean_TIB1 = gaus->GetParameter(1);
+  float err_mean_TIB1 = gaus->GetParError(1);
+  float rms_TIB1 = gaus->GetParameter(2);
+  TH1Ds["LA_TIB_2"]->Fit(gaus.get(),"","",-GaussFitRange,GaussFitRange);  
+  mean_TIB2 = gaus->GetParameter(1);
+  float err_mean_TIB2 = gaus->GetParError(1);
+  float rms_TIB2 = gaus->GetParameter(2);
+  TH1Ds["LA_TIB_3"]->Fit(gaus.get(),"","",-GaussFitRange,GaussFitRange);  
+  mean_TIB3 = gaus->GetParameter(1);
+  float err_mean_TIB3 = gaus->GetParError(1);
+  float rms_TIB3 = gaus->GetParameter(2);
+  TH1Ds["LA_TIB_4"]->Fit(gaus.get(),"","",-GaussFitRange,GaussFitRange);  
+  mean_TIB4 = gaus->GetParameter(1);
+  float err_mean_TIB4 = gaus->GetParError(1);
+  float rms_TIB4 = gaus->GetParameter(2);
 
-  TH1Ds["LA_TOB_1"]->Fit("gaus","","",-GaussFitRange,GaussFitRange);  
-  mean_TOB1 = TH1Ds["LA_TOB_1"]->GetFunction("gaus")->GetParameter(1);
-  float err_mean_TOB1 = TH1Ds["LA_TOB_1"]->GetFunction("gaus")->GetParError(1);
-  float rms_TOB1 = TH1Ds["LA_TOB_1"]->GetFunction("gaus")->GetParameter(2);
-  TH1Ds["LA_TOB_2"]->Fit("gaus","","",-GaussFitRange,GaussFitRange);  
-  mean_TOB2 = TH1Ds["LA_TOB_2"]->GetFunction("gaus")->GetParameter(1);
-  float err_mean_TOB2 = TH1Ds["LA_TOB_2"]->GetFunction("gaus")->GetParError(1);
-  float rms_TOB2 = TH1Ds["LA_TOB_2"]->GetFunction("gaus")->GetParameter(2);
-  TH1Ds["LA_TOB_3"]->Fit("gaus","","",-GaussFitRange,GaussFitRange);  
-  mean_TOB3 = TH1Ds["LA_TOB_3"]->GetFunction("gaus")->GetParameter(1);
-  float err_mean_TOB3 = TH1Ds["LA_TOB_3"]->GetFunction("gaus")->GetParError(1);
-  float rms_TOB3 = TH1Ds["LA_TOB_3"]->GetFunction("gaus")->GetParameter(2);
-  TH1Ds["LA_TOB_4"]->Fit("gaus","","",-GaussFitRange,GaussFitRange);  
-  mean_TOB4 = TH1Ds["LA_TOB_4"]->GetFunction("gaus")->GetParameter(1);
-  float err_mean_TOB4 = TH1Ds["LA_TOB_4"]->GetFunction("gaus")->GetParError(1);
-  float rms_TOB4 = TH1Ds["LA_TOB_4"]->GetFunction("gaus")->GetParameter(2);
-  TH1Ds["LA_TOB_5"]->Fit("gaus","","",-GaussFitRange,GaussFitRange);  
-  mean_TOB5 = TH1Ds["LA_TOB_5"]->GetFunction("gaus")->GetParameter(1);
-  float err_mean_TOB5 = TH1Ds["LA_TOB_5"]->GetFunction("gaus")->GetParError(1);
-  float rms_TOB5 = TH1Ds["LA_TOB_5"]->GetFunction("gaus")->GetParameter(2);
-  TH1Ds["LA_TOB_6"]->Fit("gaus","","",-GaussFitRange,GaussFitRange);  
-  mean_TOB6 = TH1Ds["LA_TOB_6"]->GetFunction("gaus")->GetParameter(1);
-  float err_mean_TOB6 = TH1Ds["LA_TOB_6"]->GetFunction("gaus")->GetParError(1);
-  float rms_TOB6 = TH1Ds["LA_TOB_6"]->GetFunction("gaus")->GetParameter(2);
+  TH1Ds["LA_TOB_1"]->Fit(gaus.get(),"","",-GaussFitRange,GaussFitRange);  
+  mean_TOB1 = gaus->GetParameter(1);
+  float err_mean_TOB1 = gaus->GetParError(1);
+  float rms_TOB1 = gaus->GetParameter(2);
+  TH1Ds["LA_TOB_2"]->Fit(gaus.get(),"","",-GaussFitRange,GaussFitRange);  
+  mean_TOB2 = gaus->GetParameter(1);
+  float err_mean_TOB2 = gaus->GetParError(1);
+  float rms_TOB2 = gaus->GetParameter(2);
+  TH1Ds["LA_TOB_3"]->Fit(gaus.get(),"","",-GaussFitRange,GaussFitRange);  
+  mean_TOB3 = gaus->GetParameter(1);
+  float err_mean_TOB3 = gaus->GetParError(1);
+  float rms_TOB3 = gaus->GetParameter(2);
+  TH1Ds["LA_TOB_4"]->Fit(gaus.get(),"","",-GaussFitRange,GaussFitRange);  
+  mean_TOB4 = gaus->GetParameter(1);
+  float err_mean_TOB4 = gaus->GetParError(1);
+  float rms_TOB4 = gaus->GetParameter(2);
+  TH1Ds["LA_TOB_5"]->Fit(gaus.get(),"","",-GaussFitRange,GaussFitRange);  
+  mean_TOB5 = gaus->GetParameter(1);
+  float err_mean_TOB5 = gaus->GetParError(1);
+  float rms_TOB5 = gaus->GetParameter(2);
+  TH1Ds["LA_TOB_6"]->Fit(gaus.get(),"","",-GaussFitRange,GaussFitRange);  
+  mean_TOB6 = gaus->GetParameter(1);
+  float err_mean_TOB6 = gaus->GetParError(1);
+  float rms_TOB6 = gaus->GetParameter(2);
 
 int nlayersTIB = 4;
 float TIBx[4]={1,2,3,4};

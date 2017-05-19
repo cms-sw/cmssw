@@ -246,9 +246,9 @@ LumiProducer::
 LumiProducer::LumiProducer(const edm::ParameterSet& iConfig):m_cachedrun(0),m_isNullRun(false),m_cachesize(0)
 {
   // register your products
-  produces<LumiSummaryRunHeader, edm::InRun>();
-  produces<LumiSummary, edm::InLumi>();
-  produces<LumiDetails, edm::InLumi>();
+  produces<LumiSummaryRunHeader, edm::Transition::EndRun>();
+  produces<LumiSummary, edm::Transition::BeginLuminosityBlock>();
+  produces<LumiDetails, edm::Transition::BeginLuminosityBlock>();
   // set up cache
   std::string connectStr=iConfig.getParameter<std::string>("connect");
   m_cachesize=iConfig.getUntrackedParameter<unsigned int>("ncacheEntries",5);
@@ -420,7 +420,7 @@ LumiProducer::beginRun(edm::Run const& run,edm::EventSetup const &iSetup)
     if( !mydbservice.isAvailable() ){
       throw cms::Exception("Non existing service lumi::service::DBService");
     }
-    coral::ISessionProxy* session=mydbservice->connectReadOnly(m_connectStr);
+    auto session=mydbservice->connectReadOnly(m_connectStr);
     try{
       session->transaction().start(true);
       m_cachedlumidataid=getLumiDataId(session->nominalSchema(),runnumber);
@@ -434,10 +434,8 @@ LumiProducer::beginRun(edm::Run const& run,edm::EventSetup const &iSetup)
       session->transaction().commit();
     }catch(const coral::Exception& er){
       session->transaction().rollback();
-      mydbservice->disconnect(session);
       throw cms::Exception("DatabaseError ")<<er.what();
     }
-    mydbservice->disconnect(session);
   }
   //std::cout<<"end of beginRun "<<runnumber<<std::endl;
 }
@@ -564,7 +562,7 @@ LumiProducer::fillLSCache(unsigned int luminum){
   if( !mydbservice.isAvailable() ){
     throw cms::Exception("Non existing service lumi::service::DBService");
   }
-  coral::ISessionProxy* session=mydbservice->connectReadOnly(m_connectStr);
+  auto session=mydbservice->connectReadOnly(m_connectStr);
   try{
     session->transaction().start(true);
     coral::ISchema& schema=session->nominalSchema();
@@ -804,10 +802,8 @@ LumiProducer::fillLSCache(unsigned int luminum){
     session->transaction().commit();
   }catch(const coral::Exception& er){
     session->transaction().rollback();
-    mydbservice->disconnect(session);
     throw cms::Exception("DatabaseError ")<<er.what();
   }
-  mydbservice->disconnect(session);
 }
 void
 LumiProducer::writeProductsForEntry(edm::LuminosityBlock & iLBlock,unsigned int runnumber,unsigned int luminum){

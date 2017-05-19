@@ -14,6 +14,8 @@ from HLTriggerOffline.B2G.b2gHLTValidation_cff import *
 from HLTriggerOffline.Exotica.ExoticaValidation_cff import *
 from HLTriggerOffline.SMP.SMPValidation_cff import *
 from HLTriggerOffline.Btag.HltBtagValidation_cff import *
+from HLTriggerOffline.Egamma.HLTmultiTrackValidatorGsfTracks_cff import *
+from HLTriggerOffline.Muon.HLTmultiTrackValidatorMuonTracks_cff import *
 
 # offline dqm:
 # from DQMOffline.Trigger.DQMOffline_Trigger_cff.py import *
@@ -31,6 +33,8 @@ hltassociation = cms.Sequence(
     +hltMultiPVValidation
     +egammaSelectors
     +ExoticaValidationProdSeq
+    +hltMultiTrackValidationGsfTracks
+    +hltMultiTrackValidationMuonTracks
     )
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 
@@ -57,6 +61,8 @@ from Configuration.Eras.Modifier_fastSim_cff import fastSim
 if fastSim.isChosen():
     hltassociation.remove(hltMultiTrackValidation)
     hltassociation.remove(hltMultiPVValidation)
+    hltassociation.remove(hltMultiTrackValidationGsfTracks)
+    hltassociation.remove(hltMultiTrackValidationMuonTracks)
 
 hltvalidation_preprod = cms.Sequence(
   HLTTauVal

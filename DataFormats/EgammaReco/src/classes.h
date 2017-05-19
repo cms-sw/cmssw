@@ -43,8 +43,8 @@ namespace DataFormats_EgammaReco {
     edm::Ref<reco::SuperClusterCollection> r3;
     edm::RefProd<reco::SuperClusterCollection> rp3;
     edm::Wrapper<edm::RefVector<reco::SuperClusterCollection> > wrv3;
-
-
+    std::vector<edm::Ref<std::vector<reco::SuperCluster>,reco::SuperCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::SuperCluster>,reco::SuperCluster> > >vr3;
+    edm::Wrapper<std::vector<edm::Ref<std::vector<reco::SuperCluster>,reco::SuperCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::SuperCluster>,reco::SuperCluster> > > > wvr3;
     reco::EgammaTriggerCollection v4;
     edm::Wrapper<reco::EgammaTriggerCollection> w4;
     edm::Ref<reco::EgammaTriggerCollection> r4;

@@ -72,7 +72,12 @@ L1TriggerFEVTDEBUG = cms.PSet(
         'keep *_simCaloStage2Layer1Digis_*_*', 
         'keep *_simCaloStage2Digis_*_*', 
         'keep *_simGmtDigis_*_*', 
+        "keep *_simBmtfDigis_*_*",
+        "keep *_simOmtfDigis_*_*",
+        "keep *_simEmtfDigis_*_*",
+        "keep *_simGmtStage2Digis_*_*",
         'keep *_simGtDigis_*_*', 
+        "keep *_simGtStage2Digis_*_*",
         'keep *_cscTriggerPrimitiveDigis_*_*', 
         'keep *_dtTriggerPrimitiveDigis_*_*', 
         'keep *_rpcTriggerDigis_*_*', 
@@ -96,12 +101,9 @@ L1TriggerFEVTDEBUG = cms.PSet(
 
 def _appendStage2Digis(obj):
     l1Stage2Digis = [
-        'keep *_gtStage2Digis__*', 
-        'keep *_gmtStage2Digis_Muon_*',
-        'keep *_caloStage2Digis_Jet_*',
-        'keep *_caloStage2Digis_Tau_*',
-        'keep *_caloStage2Digis_EGamma_*',
-        'keep *_caloStage2Digis_EtSum_*',
+        'keep *_gtStage2Digis_*_*', 
+        'keep *_gmtStage2Digis_*_*',
+        'keep *_caloStage2Digis_*_*',
         ]
     obj.outputCommands += l1Stage2Digis
 

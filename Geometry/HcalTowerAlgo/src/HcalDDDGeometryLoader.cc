@@ -11,7 +11,7 @@
 
 typedef CaloCellGeometry::CCGFloat CCGFloat ;
 
-//#define DebugLog
+//#define EDM_ML_DEBUG
 
 HcalDDDGeometryLoader::HcalDDDGeometryLoader(const HcalDDDRecConstants* hcons)
   : hcalConstants(hcons) { 
@@ -27,8 +27,7 @@ HcalDDDGeometryLoader::load(const HcalTopology& topo, DetId::Detector det, int s
   HcalSubdetector  hsub        = static_cast<HcalSubdetector>(subdet);
 
 
-  HcalDDDGeometry* gDDD ( new HcalDDDGeometry(topo) );
-  ReturnType geom ( gDDD );
+  HcalDDDGeometry* geom ( new HcalDDDGeometry(topo) );
 
   if ( geom->cornersMgr() == 0 ) {
      const unsigned int count (hcalConstants->numberOfCells(HcalBarrel ) +
@@ -42,15 +41,16 @@ HcalDDDGeometryLoader::load(const HcalTopology& topo, DetId::Detector det, int s
 
   if ( geom->parMgr()     == 0 ) geom->allocatePar( 500, 3 ) ;
 
-  fill (hsub, gDDD, geom );
+  fill (hsub, geom );
+  //fast insertion of valid ids requires sort at end
+  geom->sortValidIds();
   return geom ;
 }
 
 HcalDDDGeometryLoader::ReturnType 
 HcalDDDGeometryLoader::load(const HcalTopology& topo) {
 
-  HcalDDDGeometry* gDDD ( new HcalDDDGeometry(topo) );
-  ReturnType geom ( gDDD );
+  HcalDDDGeometry* geom ( new HcalDDDGeometry(topo) );
 
   if( geom->cornersMgr() == 0 ) {
     const unsigned int count (hcalConstants->numberOfCells(HcalBarrel ) +
@@ -61,80 +61,50 @@ HcalDDDGeometryLoader::load(const HcalTopology& topo) {
   }
   if( geom->parMgr()     == 0 ) geom->allocatePar( 500, 3 ) ;
   
-  fill(HcalBarrel,  gDDD, geom); 
-  fill(HcalEndcap,  gDDD, geom); 
-  fill(HcalForward, gDDD, geom); 
-  fill(HcalOuter,   gDDD, geom);
+  fill(HcalBarrel,  geom); 
+  fill(HcalEndcap,  geom); 
+  fill(HcalForward, geom); 
+  fill(HcalOuter,   geom);
+  //fast insertion of valid ids requires sort at end
+  geom->sortValidIds();
   return geom ;
 }
 
 void HcalDDDGeometryLoader::fill(HcalSubdetector          subdet, 
-				 HcalDDDGeometry*         geometryDDD,
-				 CaloSubdetectorGeometry* geom           ) {
+				 HcalDDDGeometry*         geom ) {
 
   // start by making the new HcalDetIds
   std::vector<HcalCellType> hcalCells = hcalConstants->HcalCellTypes(subdet);
-  geometryDDD->insertCell(hcalCells);
-#ifdef DebugLog
-  LogDebug("HCalGeom") << "HcalDDDGeometryLoader::fill gets " 
-		       << hcalCells.size() << " cells for subdetector " 
-		       << subdet;
+  geom->insertCell(hcalCells);
+#ifdef EDM_ML_DEBUG
+  std::cout << "HcalDDDGeometryLoader::fill gets " << hcalCells.size() 
+	    << " cells for subdetector " << subdet << std::endl;
 #endif			 
   // Make the new HcalDetIds and the cells
 
-  double deg = M_PI/180.;
   std::vector<HcalDetId> hcalIds;
   for (unsigned int i=0; i<hcalCells.size(); i++) {
     int etaRing  = hcalCells[i].etaBin();
+    int iside    = hcalCells[i].zside();
     int depthBin = hcalCells[i].depthSegment();
-    int phiInc   = 4/hcalCells[i].nPhiModule();
-    unsigned int iphi = 1;
-    if (hcalCells[i].unitPhi() == 4) iphi = 3;
-    double  dphi = (hcalCells[i].phiBinWidth())*deg;
-    double   phi =-(hcalCells[i].phiOffset())*deg + 0.5*dphi;
-    std::vector<int>missPlus  = hcalCells[i].missingPhiPlus();
-    std::vector<int>missMinus = hcalCells[i].missingPhiMinus();
-#ifdef DebugLog
-    LogDebug("HCalGeom") << "HcalDDDGeometryLoader: Subdet " << subdet
-                         << " eta " << etaRing << " depth " << depthBin
-                         << " modules " << hcalCells[i].nPhiModule() << " "
-                         << phiInc << " phi " << phi/deg << " " << dphi/deg
-                         << " Missing " << missPlus.size() << "/"
-                         << missMinus.size();
+    double dphi  = hcalCells[i].phiBinWidth();
+    std::vector<std::pair<int,double> > phis = hcalCells[i].phis();
+#ifdef EDM_ML_DEBUG
+    std::cout << "HcalDDDGeometryLoader: Subdet " << subdet << " side "
+	      << iside << " eta " << etaRing << " depth " << depthBin 
+	      << " with " << phis.size() << "modules:" << std::endl;
 #endif
-    for (int k = 0; k < hcalCells[i].nPhiBins(); k++) {
-      bool ok = true;
-      for (unsigned int kk = 0; kk < missPlus.size(); kk++)
-        if (iphi == (unsigned int)(missPlus[kk])) ok = false;
-      if (ok) {
-#ifdef DebugLog
-        LogDebug("HCalGeom") << "HcalDDDGeometryLoader::fill Cell " << i
-                             << " eta " << etaRing << " phi " << iphi << "("
-                             << phi/deg << ", " << dphi/deg << ") depth "
-                             << depthBin;
+    geom->increaseReserve(phis.size());
+    for (unsigned int k = 0; k < phis.size(); k++) {
+#ifdef EDM_ML_DEBUG
+      std::cout << "HcalDDDGeometryLoader::fill Cell " << i << " eta " 
+		<< iside*etaRing << " phi " << phis[k].first << "("
+		<< phis[k].second/CLHEP::deg << ", " << dphi/CLHEP::deg 
+		<< ") depth " << depthBin << std::endl;
 #endif
-        HcalDetId id(subdet, etaRing, iphi, depthBin);
-        hcalIds.push_back(id);
-        makeCell(id,hcalCells[i],phi,dphi,geom) ;
-      }
-      if (hcalCells[i].nHalves() > 1) {
-        ok = true;
-        for (unsigned int kk = 0; kk < missMinus.size(); kk++)
-          if (iphi == (unsigned int)(missMinus[kk])) ok = false;
-        if (ok) {
-#ifdef DebugLog
-          LogDebug("HCalGeom") << "HcalDDDGeometryLoader::fill Cell " << i
-                               << " eta " << -etaRing << " phi " << iphi <<" ("
-                               << phi/deg << ", " << dphi/deg << ") depth "
-                               << depthBin;
-#endif
-          HcalDetId id(subdet, -etaRing, iphi, depthBin);
-          hcalIds.push_back(id);
-  	  makeCell(id,hcalCells[i],phi,dphi,geom) ;
-        }
-      }
-      iphi += phiInc;
-      phi  += dphi;
+      HcalDetId id(subdet, iside*etaRing, phis[k].first, depthBin);
+      hcalIds.push_back(id);
+      makeCell(id,hcalCells[i],phis[k].second,dphi,geom) ;
     }
   }
   
@@ -142,12 +112,10 @@ void HcalDDDGeometryLoader::fill(HcalSubdetector          subdet,
 			   << " is " << hcalIds.size();
 }
 
-void
-HcalDDDGeometryLoader::makeCell( const HcalDetId& detId,
-				 const HcalCellType& hcalCell,
-				 double phi, 
-				 double dphi,
-				 CaloSubdetectorGeometry* geom) const {
+void HcalDDDGeometryLoader::makeCell(const HcalDetId& detId,
+				     const HcalCellType& hcalCell,
+				     double phi, double dphi,
+				     HcalDDDGeometry* geom) const {
 
   // the two eta boundaries of the cell
   double          eta1   = hcalCell.etaMin();
@@ -162,7 +130,7 @@ HcalDDDGeometryLoader::makeCell( const HcalDetId& detId,
   bool isBarrel = (subdet == HcalBarrel || subdet == HcalOuter);
 
   double          z, r, thickness;
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   double          r0, r1, r2;
 #endif
   if (rzType) {
@@ -170,7 +138,7 @@ HcalDDDGeometryLoader::makeCell( const HcalDetId& detId,
     if (isBarrel) {
       z         = r * sinh(eta); // sinh(eta) == 1/tan(theta)
       thickness = (hcalCell.depthMax() - r) * cosh(eta); // cosh(eta) == 1/sin(theta)
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
       r1        = r;
       r2        = hcalCell.depthMax();
       r0        = 0.5*(r1+r2);
@@ -179,17 +147,17 @@ HcalDDDGeometryLoader::makeCell( const HcalDetId& detId,
       z         = r * sinh(eta2);
       thickness = 2. * hcalCell.halfSize();
       r         = z/sinh(std::abs(eta));
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
       r0        = z/sinh(std::abs(eta));
       r1        = z/sinh(std::abs(eta)+0.5*deta);
       r2        = z/sinh(std::abs(eta)-0.5*deta);
 #endif
     }
-#ifdef DebugLog
-    LogDebug("HCalGeom") << "HcalDDDGeometryLoader::makeCell SubDet " << subdet
-			 << " eta = " << eta << " theta = " << theta
-			 << " r = " << r << " thickness = " << thickness
-                         << " r0-r2 (" << r0 << ":" << r1 << ":" << r2 << ")";
+#ifdef EDM_ML_DEBUG
+    std::cout << "HcalDDDGeometryLoader::makeCell SubDet " << subdet
+	      << " eta = " << eta << " theta = " << theta << " r = " << r 
+	      << " thickness = " << thickness << " r0-r2 (" << r0 << ":" 
+	      << r1 << ":" << r2 << ")" << std::endl;
 #endif
   } else {
     z          = hcalCell.depthMin();
@@ -198,15 +166,14 @@ HcalDDDGeometryLoader::makeCell( const HcalDetId& detId,
     z         *= detId.zside(); // get the sign right.
     r          = z * tan(theta);
     thickness /= std::abs(cos(theta));
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
     r0         = z/sinh(std::abs(eta));
     r1         = z/sinh(std::abs(eta)+0.5*deta);
     r2         = z/sinh(std::abs(eta)-0.5*deta);
-    LogDebug("HCalGeom") << "HcalDDDGeometryLoader::makeCell SubDet " << subdet
-                         << " eta = " << eta << " theta = " << theta
-                         << " z = " << z << " r = " << r << " thickness = "
-                         << thickness << " r0-r2 (" << r0 << ":" << r1 << ":"
-                         << r2 << ")";    
+    std::cout << "HcalDDDGeometryLoader::makeCell SubDet " << subdet
+	      << " eta = " << eta << " theta = " << theta << " z = " << z 
+	      << " r = " << r << " thickness = " << thickness << " r0-r2 (" 
+	      << r0 << ":" << r1 << ":" << r2 << ")" << std::endl;    
 #endif
   }
 
@@ -214,11 +181,11 @@ HcalDDDGeometryLoader::makeCell( const HcalDetId& detId,
   double y = r * sin(phi);
   GlobalPoint point(x,y,z);
 
-#ifdef DebugLog
-  LogDebug("HCalGeom") << "HcalDDDGeometryLoader::makeCell for " << detId
-		       << " Point " << point << " deta = " << deta 
-		       << " dphi = " << dphi << " thickness = " << thickness
-		       << " isBarrel = " << isBarrel << " " << rzType;
+#ifdef EDM_ML_DEBUG
+  std::cout << "HcalDDDGeometryLoader::makeCell for " << detId << " Point " 
+	    << point << " deta = " << deta << " dphi = " << dphi 
+	    << " thickness = " << thickness << " isBarrel = " << isBarrel 
+	    << " " << rzType << std::endl;
 #endif
 
   std::vector<CCGFloat> hp ;
@@ -234,7 +201,7 @@ HcalDDDGeometryLoader::makeCell( const HcalDetId& detId,
     hp.push_back(dphi/2.) ;
     hp.push_back(sign*thickness/2.) ;
   }
-  geom->newCell( point, point, point,
+  geom->newCellFast( point, point, point,
 		 CaloCellGeometry::getParmPtr( hp, 
 					       geom->parMgr(), 
 					       geom->parVecVec() ),

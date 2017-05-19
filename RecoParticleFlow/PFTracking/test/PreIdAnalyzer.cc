@@ -20,7 +20,6 @@ class PreIdAnalyzer : public edm::EDAnalyzer {
   virtual void analyze(const edm::Event&, const edm::EventSetup& );
   virtual void beginRun(edm::Run const&, edm::EventSetup const& );
   //  virtual void beginJobAnalyze(const edm::EventSetup & c);
-  virtual void endRun();
  private:
   edm::InputTag PreIdMapLabel_;
   edm::InputTag TrackLabel_;
@@ -139,8 +138,6 @@ void PreIdAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	}
     }
 }
-
-void PreIdAnalyzer::endRun() {;}
 
 
 DEFINE_FWK_MODULE(PreIdAnalyzer);

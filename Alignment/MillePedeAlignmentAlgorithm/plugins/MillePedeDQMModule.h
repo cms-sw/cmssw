@@ -15,19 +15,25 @@
 
 /*** system includes ***/
 #include <array>
+#include <memory>
 
 /*** core framework functionality ***/
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 /*** DQM ***/
-
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+
+/*** Records for ESWatcher ***/
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/PTrackerParametersRcd.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 /*** MillePede ***/
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeFileReader.h"
@@ -43,43 +49,38 @@ class MillePedeDQMModule : public DQMEDHarvester {
     MillePedeDQMModule(const edm::ParameterSet&);
     virtual ~MillePedeDQMModule();
 
-
-
-
-    
     virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &)  override;
-    //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
 
   //========================= PRIVATE METHODS ==================================
   private: //===================================================================
+
+    virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
 
     void bookHistograms(DQMStore::IBooker&);
 
     void fillExpertHistos();
 
     void fillExpertHisto(MonitorElement* histo,
-                         const double cut,
-                         const double sigCut,
-                         const double maxMoveCut,
-                         const double maxErrorCut,
-                         std::array<double, 6> obs,
-                         std::array<double, 6> obsErr);
+			 const std::array<double,6>& cut, 
+			 const std::array<double,6>& sigCut, 
+			 const std::array<double,6>& maxMoveCut, 
+			 const std::array<double,6>& maxErrorCut,
+                         const std::array<double,6>& obs,
+                         const std::array<double,6>& obsErr);
 
-  //========================== PRIVATE DATA ====================================
-  //============================================================================
+    bool setupChanged(const edm::EventSetup&);
+    int getIndexFromString(const std::string& alignableId);
+
+    //========================== PRIVATE DATA ====================================
+    //============================================================================
 
     const edm::ParameterSet mpReaderConfig_;
-    MillePedeFileReader mpReader;
+    std::unique_ptr<AlignableTracker> tracker_;
+    std::unique_ptr<MillePedeFileReader> mpReader_;
 
-    // Signifiance of movement must be above
-    double sigCut_;
-    // Cutoff in micro-meter & micro-rad
-    double Xcut_, tXcut_;
-    double Ycut_, tYcut_;
-    double Zcut_, tZcut_;
-    // maximum movement in micro-meter/rad
-    double maxMoveCut_;
-    double maxErrorCut_;
+    edm::ESWatcher<TrackerTopologyRcd> watchTrackerTopologyRcd_;
+    edm::ESWatcher<IdealGeometryRecord> watchIdealGeometryRcd_;
+    edm::ESWatcher<PTrackerParametersRcd> watchPTrackerParametersRcd_;
 
     // Histograms
     MonitorElement* h_xPos;

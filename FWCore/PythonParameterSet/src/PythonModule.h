@@ -31,7 +31,7 @@ namespace {
   }
 }
 
-BOOST_PYTHON_MODULE(libFWCoreParameterSet)
+BOOST_PYTHON_MODULE(libFWCorePythonParameterSet)
 {
   boost::python::register_exception_translator<cms::Exception>(translator);
 
@@ -152,6 +152,7 @@ BOOST_PYTHON_MODULE(libFWCoreParameterSet)
   boost::python::class_<PythonProcessDesc>("ProcessDesc", boost::python::init<>())
     .def(boost::python::init<std::string>())
     .def("newPSet", &PythonProcessDesc::newPSet)
+  .def("pset", &PythonProcessDesc::pset, boost::python::return_value_policy<boost::python::reference_existing_object>())
     .def("dump", &PythonProcessDesc::dump)
   ;
 }

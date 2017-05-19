@@ -35,7 +35,7 @@ FEConfigWeightInfo::~FEConfigWeightInfo()
 
 
 
-int FEConfigWeightInfo::fetchNextId()  throw(std::runtime_error) {
+int FEConfigWeightInfo::fetchNextId()  noexcept(false) {
 
   int result=0;
   try {
@@ -58,7 +58,7 @@ int FEConfigWeightInfo::fetchNextId()  throw(std::runtime_error) {
 }
 
 void FEConfigWeightInfo::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -98,7 +98,7 @@ void FEConfigWeightInfo::setParameters(const std::map<string,string>& my_keys_ma
 }
 
 void FEConfigWeightInfo::writeDB()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -126,7 +126,7 @@ void FEConfigWeightInfo::writeDB()
 
 
 void FEConfigWeightInfo::fetchData(FEConfigWeightInfo * result)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   result->clear();
@@ -161,7 +161,7 @@ void FEConfigWeightInfo::fetchData(FEConfigWeightInfo * result)
 }
 
 void FEConfigWeightInfo::fetchLastData(FEConfigWeightInfo * result)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   result->clear();
@@ -186,7 +186,7 @@ void FEConfigWeightInfo::fetchLastData(FEConfigWeightInfo * result)
   }
 }
 
-int FEConfigWeightInfo::fetchID()    throw(std::runtime_error)
+int FEConfigWeightInfo::fetchID()    noexcept(false)
 {
   // Return from memory if available
   if (m_ID!=0) {
@@ -221,7 +221,7 @@ int FEConfigWeightInfo::fetchID()    throw(std::runtime_error)
 
 
 void FEConfigWeightInfo::setByID(int id) 
-  throw(std::runtime_error)
+  noexcept(false)
 {
    this->checkConnection();
 

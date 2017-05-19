@@ -64,14 +64,7 @@ public:
     static void fillDescriptions ( edm::ConfigurationDescriptions& descriptions );
 
 private:
-    virtual void beginJob() ;
     virtual void produce( edm::Event&, const edm::EventSetup& );
-    virtual void endJob() ;
-
-    virtual void beginRun( edm::Run&, edm::EventSetup const& );
-    virtual void endRun( edm::Run&, edm::EventSetup const& );
-    virtual void beginLuminosityBlock( edm::LuminosityBlock&, edm::EventSetup const& );
-    virtual void endLuminosityBlock( edm::LuminosityBlock&, edm::EventSetup const& );
 
     std::vector<int> findHadronJets( const reco::GenParticleCollection* genParticles, const reco::JetFlavourInfoMatchingCollection* jetFlavourInfos,
                                      std::vector<int> &hadIndex, std::vector<reco::GenParticle> &hadMothersGenPart, 
@@ -232,38 +225,6 @@ void GenHFHadronMatcher::produce ( edm::Event& evt, const edm::EventSetup& setup
     evt.put(std::move(hadFromTopWeakDecay),"gen"+flavourStr_+"HadFromTopWeakDecay" );
     evt.put(std::move(hadBHadronId),       "gen"+flavourStr_+"HadBHadronId" );
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void GenHFHadronMatcher::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void GenHFHadronMatcher::endJob()
-{
-}
-
-// ------------ method called when starting to processes a run  ------------
-void GenHFHadronMatcher::beginRun ( edm::Run&, edm::EventSetup const& )
-{
-}
-
-// ------------ method called when ending the processing of a run  ------------
-void
-GenHFHadronMatcher::endRun ( edm::Run&, edm::EventSetup const& )
-{
-}
-
-// ------------ method called when starting to processes a luminosity block  ------------
-void GenHFHadronMatcher::beginLuminosityBlock ( edm::LuminosityBlock&, edm::EventSetup const& )
-{
-}
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-void GenHFHadronMatcher::endLuminosityBlock ( edm::LuminosityBlock&, edm::EventSetup const& )
-{
-}
-
 
 
 /**

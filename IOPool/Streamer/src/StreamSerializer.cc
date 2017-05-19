@@ -129,13 +129,24 @@ namespace edm {
                                        ParameterSetID const& selectorConfig,
                                        bool use_compression, int compression_level,
                                        SerializeDataBuffer& data_buffer) {
-    Parentage parentage;
 
     EventSelectionIDVector selectionIDs = event.eventSelectionIDs();
     selectionIDs.push_back(selectorConfig);
     SendEvent se(event.eventAuxiliary(), event.processHistory(), selectionIDs, event.branchListIndexes());
 
     // Loop over EDProducts, fill the provenance, and write.
+
+    // Historical note. I fixed two bugs in the code below in
+    // March 2017. One would have caused any Parentage written
+    // using the Streamer output module to be total nonsense
+    // prior to the fix. The other would have caused seg faults
+    // when the Parentage was dropped in an earlier process.
+
+    // FIX ME. The code below stores the direct parentage of
+    // kept products, but it does not save the parentage of
+    // dropped objects that are ancestors of kept products like
+    // the PoolOutputModule. That information is currently
+    // lost when the streamer output module is used.
 
     for(auto const& selection : *selections_) {
       BranchDescription const& desc = *selection.first;
@@ -146,12 +157,19 @@ namespace edm {
         // Create and write the provenance.
         se.products().push_back(StreamedProduct(desc));
       } else {
-        bool found = ParentageRegistry::instance()->getMapped(result.provenance()->productProvenance()->parentageID(), parentage);
-        assert(found);
-        se.products().push_back(StreamedProduct(result.wrapper(),
-                                                desc,
-                                                result.wrapper() != nullptr,
-                                                &parentage.parents()));
+        if (result.provenance()->productProvenance()) {
+          Parentage const* parentage = ParentageRegistry::instance()->getMapped(result.provenance()->productProvenance()->parentageID());
+          assert(parentage);
+          se.products().push_back(StreamedProduct(result.wrapper(),
+                                                  desc,
+                                                  result.wrapper() != nullptr,
+                                                  &parentage->parents()));
+        } else {
+          se.products().push_back(StreamedProduct(result.wrapper(),
+                                                  desc,
+                                                  result.wrapper() != nullptr,
+                                                  nullptr));
+	}
       }
     }
 

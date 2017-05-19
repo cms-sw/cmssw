@@ -19,7 +19,7 @@ AlignableDTStation::AlignableDTStation( const std::vector<AlignableDTChamber*>& 
   theDTChambers.insert( theDTChambers.end(), dtChambers.begin(), dtChambers.end() );
 
   setSurface( computeSurface() );
-   
+  compConstraintType_ = Alignable::CompConstraintType::POSITION_Z;
 }
       
 

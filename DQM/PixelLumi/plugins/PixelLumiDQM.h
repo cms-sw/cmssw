@@ -55,14 +55,14 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const&) override;
-  virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&);
-  virtual void endRun(edm::Run const&, edm::EventSetup const&);
+  virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
+  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
   virtual void beginLuminosityBlock(edm::LuminosityBlock const&,
-                                    edm::EventSetup const&);
+                                    edm::EventSetup const&) override;
   virtual void endLuminosityBlock(edm::LuminosityBlock const&,
-                                  edm::EventSetup const&);
+                                  edm::EventSetup const&) override;
 
   // This is a kludge method to infer the filled bunches from the cluster count;  
   // notice that this cannot be used with random triggers.

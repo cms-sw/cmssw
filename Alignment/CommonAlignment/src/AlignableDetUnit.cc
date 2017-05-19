@@ -38,6 +38,29 @@ AlignableDetUnit::~AlignableDetUnit()
   delete theAlignmentPositionError;
   delete theSurfaceDeformation;
   delete theCachedSurfaceDeformation;
+  for (auto surface: surfaceDeformationsCache_) delete surface.second;
+}
+
+//__________________________________________________________________________________________________
+void AlignableDetUnit::update(const GeomDetUnit *geomDetUnit)
+{
+  if (!geomDetUnit) {
+    throw cms::Exception("Alignment")
+      << "@SUB=AlignableDetUnit::update\n"
+      << "Trying to update with GeomDetUnit* pointing to 'nullptr'.";
+  }
+
+  Alignable::update(geomDetUnit->geographicalId().rawId(), geomDetUnit->surface());
+
+  if (geomDetUnit->alignmentPositionError()) { // take over APE from geometry
+    // 2nd argument w/o effect:
+    this->setAlignmentPositionError(*(geomDetUnit->alignmentPositionError()), false);
+  }
+
+  if (geomDetUnit->surfaceDeformation()) { // take over surface modification
+    // 2nd argument w/o effect:
+    this->setSurfaceDeformation(geomDetUnit->surfaceDeformation(), false);
+  }
 }
 
 //__________________________________________________________________________________________________
@@ -155,13 +178,22 @@ void AlignableDetUnit::addSurfaceDeformation(const SurfaceDeformation *deformati
 //__________________________________________________________________________________________________
 void AlignableDetUnit::dump() const
 {
+  std::ostringstream parameters;
+  if (theSurfaceDeformation) {
+    parameters << "    surface deformation parameters:";
+    for (const auto& param: theSurfaceDeformation->parameters()) {
+      parameters << " " << param;
+    }
+  } else {
+    parameters << "    no surface deformation parameters";
+  }
 
   edm::LogInfo("AlignableDump") 
     << " AlignableDetUnit has position = " << this->globalPosition() 
     << ", orientation:" << std::endl << this->globalRotation() << std::endl
     << " total displacement and rotation: " << this->displacement() << std::endl
-    << this->rotation();
-
+    << this->rotation() << "\n"
+    << parameters.str();
 }
 
 
@@ -237,6 +269,24 @@ void AlignableDetUnit::cacheTransformation()
 }
 
 //__________________________________________________________________________________________________
+void AlignableDetUnit::cacheTransformation(const align::RunNumber& run)
+{
+  surfacesCache_[run] = theSurface;
+  displacementsCache_[run] = theDisplacement;
+  rotationsCache_[run] = theRotation;
+
+  auto existingCache = surfaceDeformationsCache_.find(run);
+  if (existingCache != surfaceDeformationsCache_.end()) {
+    delete existingCache->second;
+    existingCache->second = 0;
+  }
+
+  if (theSurfaceDeformation) {
+    surfaceDeformationsCache_[run] = theSurfaceDeformation->clone();
+  }
+}
+
+//__________________________________________________________________________________________________
 void AlignableDetUnit::restoreCachedTransformation()
 {
   theSurface = theCachedSurface;
@@ -250,5 +300,29 @@ void AlignableDetUnit::restoreCachedTransformation()
 
   if (theCachedSurfaceDeformation) {
     this->setSurfaceDeformation(theCachedSurfaceDeformation, false);
+  }
+}
+
+//__________________________________________________________________________________________________
+void AlignableDetUnit::restoreCachedTransformation(const align::RunNumber& run)
+{
+  if (surfacesCache_.find(run) == surfacesCache_.end()) {
+    throw cms::Exception("Alignment")
+      << "@SUB=Alignable::restoreCachedTransformation\n"
+      << "Trying to restore cached transformation for a run (" << run
+      << ") that has not been cached.";
+  } else {
+    theSurface = surfacesCache_[run];
+    theDisplacement = displacementsCache_[run];
+    theRotation = rotationsCache_[run];
+
+    if (theSurfaceDeformation) {
+      delete theSurfaceDeformation;
+      theSurfaceDeformation = 0;
+    }
+
+    if (surfaceDeformationsCache_[run]) {
+      this->setSurfaceDeformation(surfaceDeformationsCache_[run], false);
+    }
   }
 }

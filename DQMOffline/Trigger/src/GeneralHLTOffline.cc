@@ -450,14 +450,14 @@ void GeneralHLTOffline::setupHltMatrix(DQMStore::IBooker & iBooker, const std::s
   std::string PD_Folder;
   std::string Path_Folder;
 
-  PD_Folder = TString("HLT/GeneralHLTOffline/"+label);
+  PD_Folder = "HLT/GeneralHLTOffline/" + label;
 
   iBooker.setCurrentFolder(PD_Folder.c_str());
 
   // make it the top level directory, that is on the same dir level as
   // paths
   std::string folderz;
-  folderz = TString("HLT/GeneralHLTOffline/"+label);
+  folderz = "HLT/GeneralHLTOffline/" + label;
   iBooker.setCurrentFolder(folderz.c_str());
 
   std::string dnamez = "cppath_" + label + "_" + hlt_menu_;

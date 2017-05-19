@@ -35,7 +35,7 @@ class SiStripBaselineValidator : public DQMEDAnalyzer
   explicit SiStripBaselineValidator(const edm::ParameterSet&);
   virtual ~SiStripBaselineValidator();
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
   private:

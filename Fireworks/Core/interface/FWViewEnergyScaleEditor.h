@@ -22,7 +22,7 @@
 
 // user include files
 #ifndef __CINT__
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #endif
 #include "TGFrame.h"
 #include "Fireworks/Core/interface/FWParameterSetterEditorBase.h"
@@ -61,7 +61,7 @@ private:
    bool               m_enabled;
 
 #ifndef __CINT__
-   std::vector<boost::shared_ptr<FWParameterSetterBase> > m_setters;
+   std::vector<std::shared_ptr<FWParameterSetterBase> > m_setters;
 #endif
 };
 

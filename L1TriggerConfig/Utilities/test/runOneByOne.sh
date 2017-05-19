@@ -2,31 +2,29 @@
 
 if [ $# -ne 2 ] ; then echo 'Please, provide the 2 arguments: tscKey and rsKey'; exit 2; fi
 
-#source /opt/offline/cmsset_default.sh
-#cd /data/O2O/L1T/v9.0/CMSSW_8_0_18
-#cmsenv
-#cd -
+source /opt/offline/cmsset_default.sh
+cd /opt/offline/slc6_amd64_gcc493/cms/cmssw/CMSSW_8_0_25
+cmsenv
+cd -
 
 DBAuth=/data/O2O/L1T/
+blankDB=/data/O2O/L1T/l1configBlank.db
 
 rm -f l1config.db
 
-if [ -e l1configBlank.db ] ; then
-    echo "Using pre-initialized l1configBlank.db sqlite file";
+if [ -e $blankDB ] ; then
+    echo "Using pre-initialized $blankDB sqlite file";
+    cp $blankDB l1config.db
 else
-    cmsRun ${CMSSW_BASE}/src/CondTools/L1TriggerExt/test/init_cfg.py useO2OTags=1 outputDBConnect=sqlite:./l1configBlank.db outputDBAuth=${DBAuth}
+    cmsRun ${CMSSW_BASE}/src/CondTools/L1TriggerExt/test/init_cfg.py useO2OTags=1 outputDBConnect=sqlite:l1configBlank.db outputDBAuth=${DBAuth}
     initcode=$?
     if [ $initcode -ne 0 ] ; then echo "Failed to initialize sqlite file"; exit 1 ; fi
     cmsRun ${CMSSW_BASE}/src/CondTools/L1TriggerExt/test/L1ConfigWriteSinglePayloadExt_cfg.py objectKey="OMTF_ALGO_EMPTY" objectType=L1TMuonOverlapParams recordName=L1TMuonOverlapParamsO2ORcd useO2OTags=1 outputDBConnect=sqlite:l1configBlank.db outputDBAuth=${DBAuth}
     initcode=$?
     if [ $initcode -ne 0 ] ; then echo "Failed to write OMTF_ALGO_EMPTY in sqlite file" ; exit 1 ; fi
-    cmsRun ${CMSSW_BASE}/src/CondTools/L1TriggerExt/test/L1ConfigWriteSinglePayloadExt_cfg.py objectKey="EMTF_ALGO_EMPTY" objectType=L1TMuonEndCapParams recordName=L1TMuonEndcapParamsO2ORcd useO2OTags=1 outputDBConnect=sqlite:l1configBlank.db outputDBAuth=${DBAuth}
-    initcode=$?
-    if [ $initcode -ne 0 ] ; then echo "Failed to write EMTF_ALGO_EMPTY in sqlite files" ; exit 1 ; fi
-fi
 
-# save some time by restoring an always ready template:
-cp l1configBlank.db l1config.db
+    cp l1configBlank.db l1config.db
+fi
 
 keys=$(cmsRun ${CMSSW_BASE}/src/L1TriggerConfig/Utilities/test/viewTKEonline.py tscKey=$1 rsKey=$2 DBAuth=${DBAuth} 2>/dev/null | grep ' key: ')
 

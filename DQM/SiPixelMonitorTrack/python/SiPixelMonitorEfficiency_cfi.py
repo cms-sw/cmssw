@@ -19,7 +19,7 @@ SiPixelHitEfficiencySource = cms.EDAnalyzer("SiPixelHitEfficiencySource",
     updateEfficiencies = cms.untracked.bool(False), 
     vtxsrc = cms.untracked.string('offlinePrimaryVertices'),
 
-    trajectoryInput = cms.InputTag('generalTracks'),  
+    trajectoryInput = cms.InputTag('refittedForPixelDQM'),  
     applyEdgeCut = cms.untracked.bool(False),
     nSigma_EdgeCut = cms.untracked.double(2.)             
 )

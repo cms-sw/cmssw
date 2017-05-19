@@ -2,6 +2,6 @@
 <use name="Validation/MuonME0Validation"/>
 <use name="DQMServices/Core"/>
 <use name="HepMC"/>
-<library file="Module.cc" name="ValidationMuonME0Plugins">
+<library file="*.cc" name="ValidationMuonME0Plugins">
   <flags EDM_PLUGIN="1"/>
 </library>

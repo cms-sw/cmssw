@@ -145,7 +145,7 @@ private:
    FWBoolParameter   m_showCameraGuide;
    FWBoolParameter   m_useGlobalEnergyScale;
 
-   boost::shared_ptr<FWViewContextMenuHandlerGL>   m_viewContextMenu;
+   std::shared_ptr<FWViewContextMenuHandlerGL>   m_viewContextMenu;
    std::auto_ptr<FWViewContext> m_viewContext;
    std::auto_ptr<FWViewEnergyScale> m_localEnergyScale;
 

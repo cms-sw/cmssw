@@ -12,7 +12,7 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsHits.h"
 #include "RecoTracker/TkHitPairs/interface/LayerHitMapCache.h"
 
-namespace edm { class ParameterSet; class Event; class EventSetup; class ConsumesCollector; }
+namespace edm { class ParameterSet; class Event; class EventSetup; class ConsumesCollector; class ParameterSetDescription;}
 class TrackingRegion;
 class HitPairGeneratorFromLayerPair;
 
@@ -24,6 +24,8 @@ public:
   explicit HitTripletGeneratorFromPairAndLayers(unsigned int maxElement=0);
   explicit HitTripletGeneratorFromPairAndLayers(const edm::ParameterSet& pset);
   virtual ~HitTripletGeneratorFromPairAndLayers();
+
+  static void fillDescriptions(edm::ParameterSetDescription& desc);
 
   void init( std::unique_ptr<HitPairGeneratorFromLayerPair>&& pairs, LayerCacheType* layerCache);
 

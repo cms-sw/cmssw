@@ -8,7 +8,7 @@
 class HLTDynamicPrescaler : public edm::EDFilter {
 public:
   explicit HLTDynamicPrescaler(edm::ParameterSet const & configuration);
-  ~HLTDynamicPrescaler();
+  ~HLTDynamicPrescaler() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   bool filter(edm::Event & event, edm::EventSetup const & setup) override;
 
@@ -22,8 +22,7 @@ HLTDynamicPrescaler::HLTDynamicPrescaler(edm::ParameterSet const & configuration
   m_scale(1) { 
 }
 
-HLTDynamicPrescaler::~HLTDynamicPrescaler() {
-}
+HLTDynamicPrescaler::~HLTDynamicPrescaler() = default;
 
 void
 HLTDynamicPrescaler::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

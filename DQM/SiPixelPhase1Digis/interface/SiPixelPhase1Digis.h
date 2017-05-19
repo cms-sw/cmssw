@@ -20,10 +20,12 @@ class SiPixelPhase1Digis : public SiPixelPhase1Base {
   enum {
     ADC, // digi ADC readouts
     NDIGIS, // number of digis per event and module
+    NDIGISINCLUSIVE, //Total number of digis in BPix and FPix
     NDIGIS_FED, // number of digis per event and FED
+    NDIGIS_FEDtrend, // number of digis per event and FED 
     EVENT, // event frequency
     MAP, // digi hitmap per module
-    DEBUG, // geometry debugging
+    OCCUPANCY, // like map but coarser
 
     MAX_HIST // a sentinel that gives the number of quantities (not a plot).
   };
@@ -34,22 +36,6 @@ class SiPixelPhase1Digis : public SiPixelPhase1Base {
 
   private:
   edm::EDGetTokenT<edm::DetSetVector<PixelDigi>> srcToken_;
-
-};
-
-class SiPixelPhase1DigisHarvester : public SiPixelPhase1Harvester {
-  enum {
-    ADC,
-    NDIGIS,
-    NDIGIS_FED, 
-    EVENT,
-    MAP,
-    DEBUG,
-
-    MAX_HIST
-  };
-  public:
-  explicit SiPixelPhase1DigisHarvester(const edm::ParameterSet& conf);
 
 };
 

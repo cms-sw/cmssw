@@ -24,14 +24,11 @@ class RunConfigDat : public IDataItem {
   inline void setConfigVersion(int ver) { m_configVer = ver; }
 
  private:
-  void prepareWrite() 
-    throw(std::runtime_error);
+  void prepareWrite() noexcept(false);
 
-  void writeDB(const EcalLogicID* ecid, const RunConfigDat* item, RunIOV* iov )
-    throw(std::runtime_error);
+  void writeDB(const EcalLogicID* ecid, const RunConfigDat* item, RunIOV* iov ) noexcept(false);
 
-  void fetchData(std::map< EcalLogicID, RunConfigDat >* fillMap, RunIOV* iov)
-     throw(std::runtime_error);
+  void fetchData(std::map< EcalLogicID, RunConfigDat >* fillMap, RunIOV* iov) noexcept(false);
 
   // User data
   std::string m_configTag;

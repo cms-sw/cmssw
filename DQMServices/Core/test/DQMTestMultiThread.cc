@@ -14,7 +14,7 @@ class DQMTestMultiThread
  public:
   explicit DQMTestMultiThread(const edm::ParameterSet&);
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   virtual void bookHistograms(DQMStore::IBooker&,
                               edm::Run const &,

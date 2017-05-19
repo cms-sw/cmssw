@@ -130,9 +130,9 @@ newProcAttributes = filter( lambda x: (x not in procAttributes) and (x.find('Rea
 for newAttr in newProcAttributes:
     locals()[newAttr] = getattr(proc,newAttr)
 
-produceDenominatorRealElectronsData = cms.Sequence( ElPrimaryVertexFilter * ElBestPV *
-                                                    ( (selectedElectrons * ElectronsFromPV * idElectrons * trackElectrons * isolatedElectrons) +
-                                                      (ElGoodTracks * ElIsoTracks * ElTrackFromPV * ElTrackCands) ) *
+produceDenominatorRealElectronsData = cms.Sequence( cms.ignore(ElPrimaryVertexFilter) * ElBestPV *
+                                                    ( (cms.ignore(selectedElectrons) * ElectronsFromPV * cms.ignore(idElectrons) * cms.ignore(trackElectrons) * cms.ignore(isolatedElectrons)) +
+                                                      (cms.ignore(ElGoodTracks) * ElIsoTracks * ElTrackFromPV * ElTrackCands) ) *
                                                     ZeeCandElectronTrack *
                                                     BestZee *
                                                     ElZLegs 

@@ -1,6 +1,9 @@
 #ifndef CalibratedElectronProducer_h
 #define CalibratedElectronProducer_h
 
+#include <iostream>
+#include <string>
+
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"

@@ -35,7 +35,7 @@ class SiStripLAProfileBooker : public edm::EDAnalyzer
   
   ~SiStripLAProfileBooker();
   
-  void beginRun(const edm::EventSetup& c);
+  void beginRun(edm::Run const&,const edm::EventSetup& c);
   
   void endJob(); 
   

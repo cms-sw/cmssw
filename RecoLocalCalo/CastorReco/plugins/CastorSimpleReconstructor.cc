@@ -1,4 +1,3 @@
-using namespace std;
 #include "CastorSimpleReconstructor.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/Common/interface/EDCollection.h"
@@ -21,6 +20,7 @@ using namespace std;
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
+using namespace std;
 
 CastorSimpleReconstructor::CastorSimpleReconstructor(edm::ParameterSet const& conf):
 reco_(conf.getParameter<int>("firstSample"),conf.getParameter<int>("samplesToAdd"),conf.getParameter<bool>("correctForTimeslew"),

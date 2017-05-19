@@ -85,7 +85,7 @@ public:
   ECALRecHitAnalyzer(const edm::ParameterSet&);
   //~ECALRecHitAnalyzer();
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   //  virtual void beginJob(void) ;
   virtual void dqmbeginRun(const edm::Run&, const edm::EventSetup&) ;
 

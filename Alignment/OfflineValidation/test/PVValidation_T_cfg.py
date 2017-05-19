@@ -148,14 +148,14 @@ process.noscraping = cms.EDFilter("FilterOutScraping",
                                   thresh = cms.untracked.double(0.25)
                                   )
 
-process.load("Alignment.CommonAligment.filterOutLowPt_cfi")
+process.load("Alignment.CommonAlignment.filterOutLowPt_cfi")
 process.filterOutLowPt.applyfilter = True
 process.filterOutLowPt.src = "TRACKTYPETEMPLATE"
 process.filterOutLowPt.numtrack = 0
 process.filterOutLowPt.thresh = 1
 process.filterOutLowPt.ptmin  = PTCUTTEMPLATE
 process.filterOutLowPt.runControl = RUNCONTROLTEMPLATE
-process.filterOutLowPt.runControlNumber = int(runboundary)
+process.filterOutLowPt.runControlNumber = [runboundary]
 
 if isMC:
      process.goodvertexSkim = cms.Sequence(process.noscraping+process.filterOutLowPt)
@@ -189,6 +189,8 @@ else:
 import Alignment.CommonAlignment.tools.trackselectionRefitting as trackselRefit
 process.seqTrackselRefit = trackselRefit.getSequence(process,'TRACKTYPETEMPLATE')
 process.HighPurityTrackSelector.trackQualities = cms.vstring()
+process.HighPurityTrackSelector.pMin     = cms.double(0.)
+process.AlignmentTrackSelector.pMin      = cms.double(0.)
 process.AlignmentTrackSelector.ptMin     = cms.double(0.)
 process.AlignmentTrackSelector.nHitMin2D = cms.uint32(0)
 process.AlignmentTrackSelector.nHitMin   = cms.double(0.)
@@ -219,7 +221,7 @@ if isDA:
                                            askFirstLayerHit = cms.bool(False),
                                            probePt = cms.untracked.double(PTCUTTEMPLATE),
                                            runControl = cms.untracked.bool(RUNCONTROLTEMPLATE),
-                                           runControlNumber = cms.untracked.uint32(int(runboundary)),
+                                           runControlNumber = cms.untracked.vuint32(int(runboundary)),
                                            
                                            TkFilterParameters = cms.PSet(algorithm=cms.string('filter'),                           
                                                                          maxNormalizedChi2 = cms.double(5.0),                        # chi2ndof < 5                  
@@ -227,15 +229,21 @@ if isDA:
                                                                          minSiliconLayersWithHits = cms.int32(5),                    # TK hits > 5  
                                                                          maxD0Significance = cms.double(5.0),                        # fake cut (requiring 1 PXB hit)     
                                                                          minPt = cms.double(0.0),                                    # better for softish events                        
+                                                                         maxEta = cms.double(5.0),                                   # as per recommendation in PR #18330
                                                                          trackQuality = cms.string("any")
                                                                          ),
                                            
-                                           TkClusParameters=cms.PSet(algorithm=cms.string('DA'),
-                                                                     TkDAClusParameters = cms.PSet(coolingFactor = cms.double(0.8),  # moderate annealing speed
-                                                                                                   Tmin = cms.double(4.),            # end of annealing
-                                                                                                   vertexSize = cms.double(0.05),    # ~ resolution / sqrt(Tmin)
+                                           ## MM 04.05.2017 (use settings as in: https://github.com/cms-sw/cmssw/pull/18330)
+                                           TkClusParameters=cms.PSet(algorithm=cms.string('DA_vect'),
+                                                                     TkDAClusParameters = cms.PSet(coolingFactor = cms.double(0.6),  # moderate annealing speed
+                                                                                                   Tmin = cms.double(2.0),           # end of vertex splitting
+                                                                                                   Tpurge = cms.double(2.0),         # cleaning 
+                                                                                                   Tstop = cms.double(0.5),          # end of annealing
+                                                                                                   vertexSize = cms.double(0.006),   # added in quadrature to track-z resolutions
                                                                                                    d0CutOff = cms.double(3.),        # downweight high IP tracks
-                                                                                                   dzCutOff = cms.double(4.)         # outlier rejection after freeze-out (T<Tmin)
+                                                                                                   dzCutOff = cms.double(3.),        # outlier rejection after freeze-out (T<Tmin)   
+                                                                                                   zmerge = cms.double(1e-2),        # merge intermediat clusters separated by less than zmerge
+                                                                                                   uniquetrkweight = cms.double(0.8) # require at least two tracks with this weight at T=Tpurge                                                                    
                                                                                                    )
                                                                      )
                                            )
@@ -255,7 +263,7 @@ else:
                                            askFirstLayerHit = cms.bool(False),
                                            probePt = cms.untracked.double(PTCUTTEMPLATE),
                                            runControl = cms.untracked.bool(RUNCONTROLTEMPLATE),
-                                           runControlNumber = cms.untracked.uint32(int(runboundary)),
+                                           runControlNumber = cms.untracked.vuint32(int(runboundary)),
                                            
                                            TkFilterParameters = cms.PSet(algorithm=cms.string('filter'),                             
                                                                          maxNormalizedChi2 = cms.double(5.0),                        # chi2ndof < 20                  
@@ -263,6 +271,7 @@ else:
                                                                          minSiliconLayersWithHits = cms.int32(5),                    # TK hits > 5                   
                                                                          maxD0Significance = cms.double(5.0),                        # fake cut (requiring 1 PXB hit)
                                                                          minPt = cms.double(0.0),                                    # better for softish events     
+                                                                         maxEta = cms.double(5.0),                                   # as per recommendation in PR #18330
                                                                          trackQuality = cms.string("any")
                                                                          ),
                                         
@@ -276,7 +285,8 @@ else:
 # Path
 ####################################################################
 process.p = cms.Path(process.goodvertexSkim*
-                     process.offlineBeamSpot*
+                     # in case the common refitting sequence is removed
+                     #process.offlineBeamSpot*
                      process.seqTrackselRefit*
                      # in case the navigation shool is removed
                      #process.MeasurementTrackerEvent*

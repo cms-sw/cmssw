@@ -104,7 +104,7 @@ public:
   double genPartPBins[22], genPartEtaBins[5];
   
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 

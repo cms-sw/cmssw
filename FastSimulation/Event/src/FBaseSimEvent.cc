@@ -200,7 +200,7 @@ FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks,
     int motherType = motherId == -1 ? 0 : simTracks[motherId].type();
 
     bool notBremInDetector =
-      (abs(motherType) != 11 && abs(motherType) != 13) ||
+      (abs(motherType) != 11 && std::abs(motherType) != 13) ||
       motherType != track.type() ||
       position.Perp2() < lateVertexPosition ;
 
@@ -394,7 +394,7 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
       unsigned productionMother = productionVertex->particles_in_size();
       if ( productionMother ) {
 	unsigned motherId = (*(productionVertex->particles_in_const_begin()))->pdg_id();
-	if ( abs(motherId) < 1000000 ) 
+	if ( motherId < 1000000 ) 
 	  productionVertexPosition = 
 	    XYZTLorentzVector(productionVertex->position().x()/10.,
 			      productionVertex->position().y()/10.,
@@ -404,7 +404,7 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
     }
     if ( !myFilter->acceptVertex(productionVertexPosition) ) continue;
 
-    int abspdgId = abs(p->pdg_id());
+    int abspdgId = std::abs(p->pdg_id());
     HepMC::GenVertex* endVertex = p->end_vertex();
 
     // Keep only: 

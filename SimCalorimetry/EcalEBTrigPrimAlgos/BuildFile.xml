@@ -1,0 +1,17 @@
+<use   name="DataFormats/EcalRecHit"/>
+<use   name="DataFormats/EcalDigi"/>
+<use   name="DataFormats/EcalDetId"/>
+<use   name="CondFormats/L1TObjects"/>
+<use   name="CondFormats/EcalObjects"/>
+<use   name="CondFormats/DataRecord"/>
+<use   name="Geometry/CaloTopology"/>
+<use   name="Geometry/CaloGeometry"/>
+<use   name="Geometry/Records"/>
+<use   name="Geometry/EcalMapping"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/Utilities"/>
+<use   name="SimCalorimetry/EcalTrigPrimAlgos"/>
+<use   name="clhep"/>
+<export>
+  <lib   name="1"/>
+</export>

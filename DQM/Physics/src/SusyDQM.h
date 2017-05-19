@@ -59,7 +59,7 @@ class SusyDQM : public DQMEDAnalyzer {
                       edm::EventSetup const&) override;
 
  private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual bool goodSusyElectron(const Ele*);
   virtual bool goodSusyMuon(const Mu*);
 

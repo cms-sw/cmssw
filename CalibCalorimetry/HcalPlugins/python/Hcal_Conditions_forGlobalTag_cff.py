@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-## HF Recalibration Parameters
+## Recalibration Parameters
 from DataFormats.HcalCalibObjects.HFRecalibrationParameters_cff import *
 
 hcal_db_producer = cms.ESProducer("HcalDbProducer",
@@ -13,8 +13,12 @@ hcal_db_producer = cms.ESProducer("HcalDbProducer",
 es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
     toGet = cms.untracked.vstring('GainWidths'),
     iLumi = cms.double(-1.),                      # for Upgrade: fb-1
+    HBRecalibration = cms.bool(False),            # True for Upgrade
+    HBreCalibCutoff = cms.double(20.),            # if above is True
+    HBmeanenergies = cms.FileInPath("CalibCalorimetry/HcalPlugins/data/meanenergiesHB.txt"),
     HERecalibration = cms.bool(False),            # True for Upgrade
     HEreCalibCutoff = cms.double(20.),            # if above is True
+    HEmeanenergies = cms.FileInPath("CalibCalorimetry/HcalPlugins/data/meanenergiesHE.txt"),
     HFRecalibration = cms.bool(False),            # True for Upgrade
     HFRecalParameterBlock = HFRecalParameterBlock,
     GainWidthsForTrigPrims = cms.bool(False),     # True Upgrade
@@ -23,6 +27,7 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
     useHFUpgrade = cms.bool(False),
     useHOUpgrade = cms.bool(True),
     testHFQIE10  = cms.bool(False),
+    testHEPlan1  = cms.bool(False),
     killHE = cms.bool(False),
     useLayer0Weight = cms.bool(False),
     hb = cms.PSet(
@@ -35,8 +40,9 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
         qieSlope      = cms.vdouble(0.912,0.917,0.922,0.923),
         mcShape       = cms.int32(125),
         recoShape     = cms.int32(105),
-        photoelectronsToAnalog = cms.double(0.0),
+        photoelectronsToAnalog = cms.double(0.3305),
         darkCurrent   = cms.vdouble(0.0),
+        doRadiationDamage = cms.bool(False),
     ),
     he = cms.PSet(
         pedestal      = cms.double(3.163),
@@ -48,8 +54,9 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
         qieSlope      = cms.vdouble(0.912,0.916,0.920,0.922),
         mcShape       = cms.int32(125),
         recoShape     = cms.int32(105),
-        photoelectronsToAnalog = cms.double(0.0),
+        photoelectronsToAnalog = cms.double(0.3305),
         darkCurrent   = cms.vdouble(0.0),
+        doRadiationDamage = cms.bool(False),
     ),
     hf = cms.PSet(
         pedestal      = cms.double(9.354),
@@ -63,6 +70,7 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
         recoShape     = cms.int32(301),
         photoelectronsToAnalog = cms.double(0.0),
         darkCurrent   = cms.vdouble(0.0),
+        doRadiationDamage = cms.bool(False),
     ),
     ho = cms.PSet(
         pedestal      = cms.double(12.06),
@@ -76,6 +84,7 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
         recoShape     = cms.int32(201),
         photoelectronsToAnalog = cms.double(4.0),
         darkCurrent   = cms.vdouble(0.0),
+        doRadiationDamage = cms.bool(False),
     ),
     hbUpgrade = cms.PSet(
         pedestal      = cms.double(17.3),
@@ -89,6 +98,15 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
         recoShape     = cms.int32(203),
         photoelectronsToAnalog = cms.double(44.0),
         darkCurrent   = cms.vdouble(0.01,0.015),
+        doRadiationDamage = cms.bool(True),
+        radiationDamage = cms.PSet(
+            temperatureBase = cms.double(20),
+            temperatureNew = cms.double(-5),
+            intlumiOffset = cms.double(150),
+            depVsTemp = cms.double(0.0631),
+            intlumiToNeutrons = cms.double(3.67e8),
+            depVsNeutrons = cms.vdouble(5.69e-11,7.90e-11),
+        ),
     ),
     heUpgrade = cms.PSet(
         pedestal      = cms.double(17.3),
@@ -102,6 +120,15 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
         recoShape     = cms.int32(203),
         photoelectronsToAnalog = cms.double(44.0),
         darkCurrent   = cms.vdouble(0.01,0.015),
+        doRadiationDamage = cms.bool(True),
+        radiationDamage = cms.PSet(
+            temperatureBase = cms.double(20),
+            temperatureNew = cms.double(5),
+            intlumiOffset = cms.double(75),
+            depVsTemp = cms.double(0.0631),
+            intlumiToNeutrons = cms.double(2.92e7),
+            depVsNeutrons = cms.vdouble(5.69e-11,7.90e-11),
+        ),
     ),
     hfUpgrade = cms.PSet(
         pedestal      = cms.double(13.33),
@@ -115,8 +142,9 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
         recoShape     = cms.int32(301),
         photoelectronsToAnalog = cms.double(0.0),
         darkCurrent   = cms.vdouble(0.0),
+        doRadiationDamage = cms.bool(False),
     ),
-    # types (in order): HcalHOZecotek, HcalHOHamamatsu, HcalHEHamamatsu1, HcalHEHamamatsu2, HcalHBHamamatsu1, HcalHBHamamatsu2
+    # types (in order): HcalHOZecotek, HcalHOHamamatsu, HcalHEHamamatsu1, HcalHEHamamatsu2, HcalHBHamamatsu1, HcalHBHamamatsu2, HcalHPD
     SiPMCharacteristics = cms.VPSet(
         cms.PSet( pixels = cms.int32(36000), crosstalk = cms.double(0.0), nonlin1 = cms.double(1.0), nonlin2 = cms.double(0.0), nonlin3 = cms.double(0.0) ),
         cms.PSet( pixels = cms.int32(2500), crosstalk = cms.double(0.0), nonlin1 = cms.double(1.0), nonlin2 = cms.double(0.0), nonlin3 = cms.double(0.0) ),
@@ -124,6 +152,7 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
         cms.PSet( pixels = cms.int32(38018), crosstalk = cms.double(0.196), nonlin1 = cms.double(1.00546), nonlin2 = cms.double(6.40239E-6), nonlin3 = cms.double(1.27011E-10) ),
         cms.PSet( pixels = cms.int32(27370), crosstalk = cms.double(0.17), nonlin1 = cms.double(1.00985), nonlin2 = cms.double(7.84089E-6), nonlin3 = cms.double(2.86282E-10) ),
         cms.PSet( pixels = cms.int32(38018), crosstalk = cms.double(0.196), nonlin1 = cms.double(1.00546), nonlin2 = cms.double(6.40239E-6), nonlin3 = cms.double(1.27011E-10) ),
+        cms.PSet( pixels = cms.int32(0), crosstalk = cms.double(0.0), nonlin1 = cms.double(1.0), nonlin2 = cms.double(0.0), nonlin3 = cms.double(0.0) ),
     ),
 )
 

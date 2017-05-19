@@ -111,19 +111,6 @@ public:
         return recoGenParticleTrail_[recoGenParticleTrail_.size()-1];
     }
 
-protected:
-
-    // History cointainers
-    GenVertexTrail genVertexTrail_;
-    GenParticleTrail genParticleTrail_;
-    RecoGenParticleTrail recoGenParticleTrail_;
-    SimVertexTrail simVertexTrail_;
-    SimParticleTrail simParticleTrail_;
-
-    // Helper function to speedup search
-    GenVertexTrailHelper genVertexTrailHelper_;
-    RecoGenParticleTrailHelper recoGenParticleTrailHelper_;
-
     //! Evaluate track history using a TrackingParticleRef.
     /* Return false when the history cannot be determined upto a given depth.
        If not depth is pass to the function no restriction are apply to it.
@@ -151,6 +138,19 @@ protected:
         resetTrails();
         return traceSimHistory(tvr, depth_);
     }
+
+protected:
+
+    // History cointainers
+    GenVertexTrail genVertexTrail_;
+    GenParticleTrail genParticleTrail_;
+    RecoGenParticleTrail recoGenParticleTrail_;
+    SimVertexTrail simVertexTrail_;
+    SimParticleTrail simParticleTrail_;
+
+    // Helper function to speedup search
+    GenVertexTrailHelper genVertexTrailHelper_;
+    RecoGenParticleTrailHelper recoGenParticleTrailHelper_;
 
 private:
 

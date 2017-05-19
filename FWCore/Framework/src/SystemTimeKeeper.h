@@ -37,6 +37,7 @@ namespace edm {
   class PathContext;
   class HLTPathStatus;
   class ModuleCallingContext;
+  class ProcessContext;
   struct TriggerTimingReport;
   namespace service {
     class TriggersNameService;
@@ -48,7 +49,8 @@ namespace edm {
   public:
     SystemTimeKeeper(unsigned int iNumStreams,
                      std::vector<const ModuleDescription*> const& iModules,
-                     service::TriggerNamesService const& iNameService);
+                     service::TriggerNamesService const& iNameService,
+                     ProcessContext const* iProcessContext);
     
     // ---------- const member functions ---------------------
     
@@ -90,6 +92,7 @@ namespace edm {
     const SystemTimeKeeper& operator=(const SystemTimeKeeper&) = delete; // stop default
     
     PathTiming& pathTiming(StreamContext const&, PathContext const&);
+    bool checkBounds(unsigned int id) const;
     
     // ---------- member data --------------------------------
     std::vector<WallclockTimer> m_streamEventTimer;
@@ -103,6 +106,7 @@ namespace edm {
     std::vector<std::vector<std::string>> m_modulesOnPaths;
 
     CPUTimer m_processingLoopTimer;
+    ProcessContext const* m_processContext;
     
     unsigned int m_minModuleID;
     unsigned int m_endPathOffset;

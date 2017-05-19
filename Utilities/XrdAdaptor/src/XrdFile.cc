@@ -284,7 +284,7 @@ XrdFile::readv (IOPosBuffer *into, IOSize n)
     return read(into[0].data(), into[0].size(), into[0].offset());
   }
 
-  std::shared_ptr<std::vector<IOPosBuffer> >cl(new std::vector<IOPosBuffer>);
+  auto cl = std::make_shared<std::vector<IOPosBuffer>>();
 
   // CMSSW may issue large readv's; Xrootd is only able to handle
   // 1024.  Further, the splitting algorithm may slightly increase

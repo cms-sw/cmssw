@@ -5,6 +5,7 @@
 #include "Geometry/CaloGeometry/interface/FlatTrd.h"
 
 class HGCalTopology;
+class HGCalGeometry;
 
 class HGCalGeometryLoader {
 

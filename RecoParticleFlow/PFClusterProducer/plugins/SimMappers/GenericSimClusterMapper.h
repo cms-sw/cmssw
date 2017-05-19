@@ -23,7 +23,7 @@ class GenericSimClusterMapper : public InitialClusteringStepBase {
   void buildClusters(const edm::Handle<reco::PFRecHitCollection>&,
 		     const std::vector<bool>&,
 		     const std::vector<bool>&, 
-		     reco::PFClusterCollection&);
+		     reco::PFClusterCollection&) override;
   
  private:  
   edm::EDGetTokenT<SimClusterCollection> _simClusterToken;

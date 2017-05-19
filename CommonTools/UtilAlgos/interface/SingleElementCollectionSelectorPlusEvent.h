@@ -32,7 +32,7 @@ struct SingleElementCollectionSelectorPlusEvent {
   void select(const edm::Handle<InputCollection> & c, const edm::Event &ev, const edm::EventSetup &) {
     selected_.clear();
     for(size_t idx = 0; idx < c->size(); ++ idx) {
-      if(select_((*c)[idx], ev))
+      if(select_( edm::Ref<InputCollection>(c,idx), ev) ) //(*c)[idx]
 	addRef_(selected_, c, idx);
     }
   }

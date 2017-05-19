@@ -620,7 +620,7 @@ void RecoMuonValidator::dqmBeginRun(const edm::Run& , const EventSetup& eventSet
 //
 //End run
 //
-void RecoMuonValidator::endRun()
+void RecoMuonValidator::endRun(edm::Run const&, edm::EventSetup const&)
 {
   if ( dbe_ && ! outputFileName_.empty() ) dbe_->save(outputFileName_);
 }

@@ -32,7 +32,9 @@ typedefsDict = \
 #Ordered List to search for matched packages
 equivDict = \
      [
-         {'TrackTriggerAssociation' : ['TTClusterAssociationMap','TTStubAssociationMap', '(TTStub|TTCluster).*edm::refhelper::FindForDetSetVector.*Phase2TrackerDigi.*']},
+	 {'TrajectoryState'         : ['TrajectoryStateOnSurface']},
+         {'TrackTriggerAssociation' : ['(TTClusterAssociationMap|TTStubAssociationMap|TTTrackAssociationMap).*Phase2TrackerDigi',
+                                       '(TTStub|TTCluster|TTTrack).*Phase2TrackerDigi']},
          {'L1TCalorimeter'        : ['l1t::CaloTower.*']},
          {'GsfTracking'           : ['reco::GsfTrack(Collection|).*(MomentumConstraint|VertexConstraint)', 'Trajectory.*reco::GsfTrack']},
          {'ParallelAnalysis'      : ['examples::TrackAnalysisAlgorithm']},
@@ -69,6 +71,7 @@ equivDict = \
          {'VertexReco'            : ['reco::Vertex']},
          {'TFWLiteSelectorTest'   : ['tfwliteselectortest']},
          {'PatCandidates'         : ['reco::RecoCandidate','pat::[A-Za-z]+Ref(Vector|)']},
+         {'TauReco'               : ['reco::PFJetRef']},
          {'JetReco'               : ['reco::.*Jet','reco::.*Jet(Collection|Ref)']},
          {'HGCDigi'               : ['HGCSample']},
      ]
@@ -85,14 +88,14 @@ def searchClassDefXml ():
     classNameRE    = re.compile (r'class\s+name\s*=\s*"([^"]*)"')
     spacesRE       = re.compile (r'\s+')
     stdRE          = re.compile (r'std::')
-    srcClassNameRE = re.compile (r'(\w+)/src/classes_def.xml')
+    srcClassNameRE = re.compile (r'(\w+)/src/classes_def.*[.]xml')
     ignoreSrcRE    = re.compile (r'.*/FWCore/Skeletons/scripts/mkTemplates/.+')
     braketRE       = re.compile (r'<.+>')
     print "Searching for 'classes_def.xml' in '%s'." % os.path.join(os.environ.get('CMSSW_BASE'),'src')
     xmlFiles = []
     for srcDir in [os.environ.get('CMSSW_BASE'),os.environ.get('CMSSW_RELEASE_BASE')]:
       if not len(srcDir): continue
-      for xml in commands.getoutput ('cd '+os.path.join(srcDir,'src')+'; find . -name "*classes_def.xml" -follow -print').split ('\n'):
+      for xml in commands.getoutput ('cd '+os.path.join(srcDir,'src')+'; find . -name "*classes_def*.xml" -follow -print').split ('\n'):
         if xml and (not xml in xmlFiles):
           xmlFiles.append(xml)
     if options.showXMLs:

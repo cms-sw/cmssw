@@ -28,8 +28,8 @@ class FEDRawDataCollection;
 class InputSourceDescription;
 class ParameterSet;
 
-class InputFile;
-class InputChunk;
+struct InputFile;
+struct  InputChunk;
 
 namespace evf {
 class FastMonitoringService;
@@ -42,8 +42,8 @@ class DataPointDefinition;
 
 class FedRawDataInputSource: public edm::RawInputSource {
 
-friend class InputFile;
-friend class InputChunk;
+friend struct InputFile;
+friend struct InputChunk;
 
 public:
   explicit FedRawDataInputSource(edm::ParameterSet const&,edm::InputSourceDescription const&);
@@ -165,7 +165,7 @@ private:
   std::list<std::pair<int,InputFile*>> filesToDelete_;
   std::list<std::pair<int,std::string>> fileNamesToDelete_;
   std::mutex fileDeleteLock_;
-  std::vector<int> *streamFileTrackerPtr_ = nullptr;
+  std::vector<int> streamFileTracker_;
   unsigned int nStreams_ = 0;
   unsigned int checkEvery_ = 10;
 

@@ -16,7 +16,7 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
-#include "SimDataFormats/CaloTest/interface/HcalTestNumbering.h"
+#include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
 
 #include <algorithm>
 #include <boost/foreach.hpp>
@@ -24,6 +24,8 @@
 using namespace hgc_digi;
 
 namespace {
+  
+  constexpr std::array<double,3> occupancyGuesses = { { 0.5,0.2,0.2 } };
 
   float getPositionDistance(const HGCalGeometry* geom, const DetId& id) {
     return geom->getPosition(id).mag();
@@ -52,14 +54,11 @@ namespace {
   DetId simToReco(const HcalGeometry* geom, unsigned simid) {
     DetId result(0);
     const auto& topo     = geom->topology();
-    const auto& dddConst = topo.dddConstants();
+    const auto* dddConst = topo.dddConstants();
+    HcalDetId id = HcalHitRelabeller::relabel(simid,dddConst);
 
-    int subdet, z, depth0, eta0, phi0, lay;
-    HcalTestNumbering::unpackHcalIndex(simid, subdet, z, depth0, eta0, phi0, lay);
-    int sign = (z==0) ? (-1):(1);
-    HcalDDDRecConstants::HcalID id = dddConst->getHCID(subdet, eta0, phi0, lay, depth0);
-    if (subdet==int(HcalEndcap)) {
-      result = HcalDetId(HcalEndcap,sign*id.eta,id.phi,id.depth);    
+    if (id.subdet()==int(HcalEndcap)) {
+      result = id;    
     }
 
     return result;
@@ -99,7 +98,9 @@ HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps,
                            edm::ConsumesCollector& iC) :
   simHitAccumulator_( new HGCSimHitDataAccumulator() ),
   mySubDet_(ForwardSubdetector::ForwardEmpty),
-  refSpeed_(0.1*CLHEP::c_light) //[CLHEP::c_light]=mm/ns convert to cm/ns
+  refSpeed_(0.1*CLHEP::c_light), //[CLHEP::c_light]=mm/ns convert to cm/ns
+  averageOccupancies_(occupancyGuesses),
+  nEvents_(1)
 {
   //configure from cfg
   hitCollection_     = ps.getParameter< std::string >("hitCollection");
@@ -133,6 +134,22 @@ HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps,
 //
 void HGCDigitizer::initializeEvent(edm::Event const& e, edm::EventSetup const& es) 
 {
+  // reserve memory for a full detector
+  unsigned idx = std::numeric_limits<unsigned>::max();
+  switch(mySubDet_) {
+  case ForwardSubdetector::HGCEE:
+    idx = 0;
+    break;
+  case ForwardSubdetector::HGCHEF:
+    idx = 1;
+    break;
+  case ForwardSubdetector::HGCHEB:
+    idx = 2;
+    break;
+  default:
+    break;
+  }
+  simHitAccumulator_->reserve( averageOccupancies_[idx]*validIds_.size() );
 }
 
 //
@@ -142,7 +159,30 @@ void HGCDigitizer::finalizeEvent(edm::Event& e, edm::EventSetup const& es, CLHEP
   const CaloSubdetectorGeometry* theGeom = ( nullptr == gHGCal_ ? 
 					     static_cast<const CaloSubdetectorGeometry*>(gHcal_) : 
 					     static_cast<const CaloSubdetectorGeometry*>(gHGCal_)  );
-
+  
+  ++nEvents_;
+  unsigned idx = std::numeric_limits<unsigned>::max();
+  switch(mySubDet_) {
+  case ForwardSubdetector::HGCEE:
+    idx = 0;
+    break;
+  case ForwardSubdetector::HGCHEF:
+    idx = 1;
+    break;
+  case ForwardSubdetector::HGCHEB:
+    idx = 2;
+    break;
+  default:
+    break;
+  }
+  // release memory for unfilled parts of hash table
+  if( validIds_.size()*averageOccupancies_[idx] > simHitAccumulator_->size() ) {
+    simHitAccumulator_->reserve(simHitAccumulator_->size());
+  }
+  //update occupancy guess
+  const double thisOcc = simHitAccumulator_->size()/((double)validIds_.size());
+  averageOccupancies_[idx] = (averageOccupancies_[idx]*(nEvents_-1) + thisOcc)/nEvents_;
+  
   if( producesEEDigis() ) 
     {
       std::unique_ptr<HGCEEDigiCollection> digiResult(new HGCEEDigiCollection() );
@@ -269,7 +309,6 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
   
   //loop over sorted hits
   nchits = hitRefs.size();
-  simHitAccumulator_->reserve(simHitAccumulator_->size() + nchits);
   for(int i=0; i<nchits; ++i) {
     const int hitidx   = std::get<0>(hitRefs[i]);
     const uint32_t id  = std::get<1>(hitRefs[i]);
@@ -331,7 +370,6 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
 	}
     }
   }
-  simHitAccumulator_->reserve(simHitAccumulator_->size());
   hitRefs.clear();
 }
 

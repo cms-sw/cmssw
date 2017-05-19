@@ -78,7 +78,7 @@ namespace gen {
     const std::string &gridpackPath() const { return gridpackPaths_[std::max(randomIndex_,0)]; }
     
     void randomizeIndex(edm::LuminosityBlock const& lumi, CLHEP::HepRandomEngine* rengine);
-    void generateLHE(edm::LuminosityBlock const& lumi, CLHEP::HepRandomEngine* rengine);
+    void generateLHE(edm::LuminosityBlock const& lumi, CLHEP::HepRandomEngine* rengine, unsigned int ncpu);
     void cleanLHE();
 
   protected:

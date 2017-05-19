@@ -36,7 +36,7 @@ TestTrackHits::TestTrackHits(const edm::ParameterSet& iConfig):
 
 TestTrackHits::~TestTrackHits(){}
 
-void TestTrackHits::beginRun(edm::Run & run, const edm::EventSetup& iSetup)
+void TestTrackHits::beginRun(edm::Run const& run, const edm::EventSetup& iSetup) 
 {
   iSetup.get<TrackerDigiGeometryRecord>().get(theG);
   iSetup.get<IdealMagneticFieldRecord>().get(theMF);  

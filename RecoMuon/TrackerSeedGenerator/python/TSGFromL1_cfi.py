@@ -1,14 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 hltL3TrajectorySeedFromL1 = cms.EDProducer("TSGFromL1Muon",
-    FilterPSet = cms.PSet(
-        nSigmaInvPtTolerance = cms.double(2.0),
-        nSigmaTipMaxTolerance = cms.double(3.0),
-        ComponentName = cms.string('PixelTrackFilterByKinematics'),
-        chi2 = cms.double(1000.0),
-        ptMin = cms.double(10.0),
-        tipMax = cms.double(0.1)
-    ),
+    Filter = cms.InputTag("pixelTrackFilterByKinematicsForTSGFromL1"),
     FitterPSet = cms.PSet(
         cotThetaErrorScale = cms.double(1.0),
         tipErrorScale = cms.double(1.0),
@@ -30,7 +23,6 @@ hltL3TrajectorySeedFromL1 = cms.EDProducer("TSGFromL1Muon",
     ),
     L1MuonLabel = cms.InputTag("hltL1extraParticles"),
     CleanerPSet = cms.PSet(
-        ComponentName = cms.string('PixelTrackCleanerBySharedHits'),
         diffRelPtCut = cms.double(0.2),
         deltaEtaCut = cms.double(0.01)
     ),

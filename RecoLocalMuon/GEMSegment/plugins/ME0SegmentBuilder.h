@@ -33,7 +33,7 @@ class ME0SegmentBuilder {
   /// Destructor
   ~ME0SegmentBuilder();
 
-  /** Find rechits in each ensemble of 6 ME0 layers, build ME0Segment's ,
+  /** Find rechits in each ensemble of all ME0 layers, build ME0Segment's ,
    *  and fill into output collection.
    */
   void build(const ME0RecHitCollection* rechits, ME0SegmentCollection& oc);

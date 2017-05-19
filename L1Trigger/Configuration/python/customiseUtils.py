@@ -66,7 +66,7 @@ def L1TGlobalDigisSummary(process):
         'L1TGlobalSummary',
         AlgInputTag = cms.InputTag("gtStage2Digis"),
         ExtInputTag = cms.InputTag("gtStage2Digis"),
-        DumpTrigResults = cms.bool(True), # per event dump of trig results
+        DumpTrigResults = cms.bool(False), # per event dump of trig results
         DumpTrigSummary = cms.bool(True), # pre run dump of trig results
         )
     process.l1tglobalsummary = cms.Path(process.l1tGlobalSummary)
@@ -81,15 +81,15 @@ def L1TGlobalMenuXML(process):
 
 def L1TGlobalSimDigisSummary(process):
     print "L1T INFO:  will dump a summary of simulated L1T Global output to screen."    
-    process.l1tGlobalSummary = cms.EDAnalyzer(
+    process.l1tSimGlobalSummary = cms.EDAnalyzer(
         'L1TGlobalSummary',
         AlgInputTag = cms.InputTag("simGtStage2Digis"),
         ExtInputTag = cms.InputTag("simGtStage2Digis"),
         DumpTrigResults = cms.bool(False), # per event dump of trig results
         DumpTrigSummary = cms.bool(True), # pre run dump of trig results
         )
-    process.l1tglobalsummary = cms.Path(process.l1tGlobalSummary)
-    process.schedule.append(process.l1tglobalsummary)
+    process.l1tsimglobalsummary = cms.Path(process.l1tSimGlobalSummary)
+    process.schedule.append(process.l1tsimglobalsummary)
     return process
 
 def L1TAddInfoOutput(process):

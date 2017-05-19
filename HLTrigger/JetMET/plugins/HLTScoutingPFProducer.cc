@@ -42,12 +42,12 @@ Description: Producer for ScoutingPFJets from reco::PFJet objects, ScoutingVerte
 class HLTScoutingPFProducer : public edm::global::EDProducer<> {
     public:
         explicit HLTScoutingPFProducer(const edm::ParameterSet&);
-        ~HLTScoutingPFProducer();
+        ~HLTScoutingPFProducer() override;
 
         static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
     private:
-        virtual void produce(edm::StreamID sid, edm::Event & iEvent, edm::EventSetup const & setup) const override final;
+        void produce(edm::StreamID sid, edm::Event & iEvent, edm::EventSetup const & setup) const final;
 
         const edm::EDGetTokenT<reco::PFJetCollection> pfJetCollection_;
         const edm::EDGetTokenT<reco::JetTagCollection> pfJetTagCollection_;
@@ -85,14 +85,12 @@ HLTScoutingPFProducer::HLTScoutingPFProducer(const edm::ParameterSet& iConfig):
     //register products
     produces<ScoutingPFJetCollection>();
     produces<ScoutingParticleCollection>();
-    produces<ScoutingVertexCollection>();
     produces<double>("rho");
     produces<double>("pfMetPt");
     produces<double>("pfMetPhi");
 }
 
-HLTScoutingPFProducer::~HLTScoutingPFProducer()
-{ }
+HLTScoutingPFProducer::~HLTScoutingPFProducer() = default;
 
 // ------------ method called to produce the data  ------------
 void HLTScoutingPFProducer::produce(edm::StreamID sid, edm::Event & iEvent, edm::EventSetup const & setup) const
@@ -100,15 +98,15 @@ void HLTScoutingPFProducer::produce(edm::StreamID sid, edm::Event & iEvent, edm:
     using namespace edm;
 
     //get vertices
-    Handle<reco::VertexCollection> vertexCollection;
-    std::unique_ptr<ScoutingVertexCollection> outVertices(new ScoutingVertexCollection());
-    if(iEvent.getByToken(vertexCollection_, vertexCollection)){
+     Handle<reco::VertexCollection> vertexCollection;
+     std::unique_ptr<ScoutingVertexCollection> outVertices(new ScoutingVertexCollection());
+     if(iEvent.getByToken(vertexCollection_, vertexCollection)){
         for(auto &vtx : *vertexCollection){
             outVertices->emplace_back(
-                    vtx.x(), vtx.y(), vtx.z(), vtx.zError()
+    				      vtx.x(), vtx.y(), vtx.z(), vtx.zError(), vtx.xError(), vtx.yError(), vtx.tracksSize(), vtx.chi2(), vtx.ndof(), vtx.isValid()
                     );
         }
-    }
+      }
 
     //get rho
     Handle<double> rho;
@@ -215,7 +213,6 @@ void HLTScoutingPFProducer::produce(edm::StreamID sid, edm::Event & iEvent, edm:
     }
 
     //put output
-    iEvent.put(std::move(outVertices));
     iEvent.put(std::move(outPFCandidates));
     iEvent.put(std::move(outPFJets));
     iEvent.put(std::move(outRho), "rho");

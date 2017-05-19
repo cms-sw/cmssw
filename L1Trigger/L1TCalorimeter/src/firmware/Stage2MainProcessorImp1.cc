@@ -94,7 +94,7 @@ void l1t::Stage2MainProcessorFirmwareImp1::processEvent(const std::vector<l1t::C
   m_demuxTauAlgo->processEvent( mpTaus, taus );
   m_demuxJetAlgo->processEvent( mpJets, jets );
   m_demuxSumsAlgo->processEvent( mpSums, etSums );
-  
+
 }
 
 

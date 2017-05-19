@@ -36,11 +36,12 @@ corrCaloMetType2 = cms.EDProducer(
     )
 
 ##____________________________________________________________________________||
-correctionTermsCaloMet = cms.Sequence(
-    ak4CaloL2L3CorrectorChain + # NOTE: use "ak4CaloL2L3CorrectorChain" for MC / "ak4CaloL2L3ResidualCorrectorChain" for Data
-    corrCaloMetType1 +
-    muCaloMetCorr +
+correctionTermsCaloMetTask = cms.Task(
+    ak4CaloL2L3CorrectorTask, # NOTE: use "ak4CaloL2L3CorrectorTask" for MC / "ak4CaloL2L3ResidualCorrectorTask" for Data
+    ak4CaloL2L3ResidualCorrectorTask,
+    corrCaloMetType1,
+    muCaloMetCorr,
     corrCaloMetType2
     )
 
-##____________________________________________________________________________||
+correctionTermsCaloMet = cms.Sequence(correctionTermsCaloMetTask)

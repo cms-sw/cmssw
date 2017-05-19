@@ -25,7 +25,6 @@ using namespace std;
 using namespace edm;
 
 DeDxHitInfoProducer::DeDxHitInfoProducer(const edm::ParameterSet& iConfig):
-   useTrajectory     ( iConfig.getParameter<bool>    ("useTrajectory")  ),
    usePixel          ( iConfig.getParameter<bool>    ("usePixel")       ),
    useStrip          ( iConfig.getParameter<bool>    ("useStrip")       ),
    MeVperADCPixel    ( iConfig.getParameter<double>  ("MeVperADCPixel") ),
@@ -41,7 +40,6 @@ DeDxHitInfoProducer::DeDxHitInfoProducer(const edm::ParameterSet& iConfig):
    produces<reco::DeDxHitInfoAss >();
 
    m_tracksTag = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"));
-   m_trajTrackAssociationTag   = consumes<TrajTrackAssociationCollection>(iConfig.getParameter<edm::InputTag>("trajectoryTrackAssociation"));
 
    if(!usePixel && !useStrip)
    edm::LogError("DeDxHitsProducer") << "No Pixel Hits NOR Strip Hits will be saved.  Running this module is useless";
@@ -70,54 +68,31 @@ void DeDxHitInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   iEvent.getByToken(m_tracksTag,trackCollectionHandle);
   const TrackCollection& trackCollection(*trackCollectionHandle.product());
 
-  Handle<TrajTrackAssociationCollection> trajTrackAssociationHandle;
-  if(useTrajectory)iEvent.getByToken(m_trajTrackAssociationTag, trajTrackAssociationHandle);
-
   // creates the output collection
   auto resultdedxHitColl = std::make_unique<reco::DeDxHitInfoCollection>();
 
   std::vector<int> indices;
 
-  TrajTrackAssociationCollection::const_iterator cit;
-  if(useTrajectory)cit = trajTrackAssociationHandle->begin();
   for(unsigned int j=0;j<trackCollection.size();j++){            
      const reco::Track& track = trackCollection[j];
 
      //track selection
      if(track.pt()<minTrackPt ||  std::abs(track.eta())>maxTrackEta ||track.numberOfValidHits()<minTrackHits){
-        cit++;
         indices.push_back(-1);
         continue;
      }
 
      reco::DeDxHitInfo hitDeDxInfo;
- 
-     if(useTrajectory){  //trajectory allows to take into account the local direction of the particle on the module sensor --> muc much better 'dx' measurement
-        const edm::Ref<std::vector<Trajectory> > traj = cit->key; cit++;
-        const vector<TrajectoryMeasurement> & measurements = traj->measurements();
-        for(vector<TrajectoryMeasurement>::const_iterator it = measurements.begin(); it!=measurements.end(); it++){
-           const TrajectoryStateOnSurface& trajState=it->updatedState();
-           if( !trajState.isValid()) continue;
-     
-           const TrackingRecHit* recHit=(*it->recHit()).hit();
-           if(!recHit)continue;
-           const LocalVector& trackDirection = trajState.localDirection();
-           float cosine = trackDirection.z()/trackDirection.mag();           
-
-           processHit(recHit, trajState.localMomentum().mag(), cosine, hitDeDxInfo, trajState.localPosition());
-        }
-
-     }else{ //assume that the particles trajectory is a straight line originating from the center of the detector  (can be improved)
+     auto const & trajParams = track.extra()->trajParams();
+     auto hb = track.recHitsBegin();
         for(unsigned int h=0;h<track.recHitsSize();h++){
-           const TrackingRecHit* recHit = &(*(track.recHit(h)));
-           auto const & thit = static_cast<BaseTrackerRecHit const&>(*recHit);
-           if(!thit.isValid())continue;//make sure it's a tracker hit
+           auto recHit = *(hb+h);
+           if(!recHit->isValid()) continue;
 
-           const GlobalVector& ModuleNormal = recHit->detUnit()->surface().normalVector();         
-           float cosine = (track.px()*ModuleNormal.x()+track.py()*ModuleNormal.y()+track.pz()*ModuleNormal.z())/track.p();
+           auto trackDirection = trajParams[h].direction();
+           float cosine = trackDirection.z()/trackDirection.mag();
  
-           processHit(recHit, track.p(), cosine, hitDeDxInfo, LocalPoint(0.0,0.0));
-        } 
+           processHit(recHit, track.p(), cosine, hitDeDxInfo, trajParams[h].position());
      }
 
      indices.push_back(resultdedxHitColl->size());

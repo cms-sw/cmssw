@@ -49,7 +49,7 @@ process.generator = cms.EDFilter("Pythia8HadronizerFilter",
 )
 
 process.selection = cms.EDFilter("ComphepSingletopFilterPy8",
-    pTSep = cms.double(9999999), # 99999999 - tq, 0 -tqb
+    pTSep = cms.double(99999999), # 99999999 - tq, 0 -tqb
 )
 
 

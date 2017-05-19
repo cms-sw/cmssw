@@ -18,7 +18,10 @@
 
 #include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
 #include <Validation/HcalDigis/interface/HcalDigisValidation.h>
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
 
 HcalDigisValidation::HcalDigisValidation(const edm::ParameterSet& iConfig) {
 
@@ -36,6 +39,7 @@ HcalDigisValidation::HcalDigisValidation(const edm::ParameterSet& iConfig) {
     mode_ = iConfig.getUntrackedParameter<std::string > ("mode", "multi");
     dirName_ = iConfig.getUntrackedParameter<std::string > ("dirName", "HcalDigisV/HcalDigiTask");
     testNumber_= iConfig.getParameter<bool>("TestNumber");
+    hep17_     = iConfig.getParameter<bool>("hep17");
 
     // register for data access
     if (iConfig.exists("simHits"))
@@ -134,7 +138,7 @@ void HcalDigisValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const &
     HistLim tp_hl_ntp(640, -20, 3180);
     HistLim tp_hl_ntp_sub(404, -20, 2000);
     HistLim tp_hl_ieta(85, -42.5, 42.5);
-    HistLim tp_hl_iphi(72,-0.5,71.5);
+    HistLim tp_hl_iphi(74,-0.5,73.5);
     
 
     book1D(ib,"HcalDigiTask_tp_et", tp_hl_et);
@@ -183,6 +187,7 @@ void HcalDigisValidation::booking(DQMStore::IBooker &ib, const std::string bsubd
     HistLim sime(200, 0., 1.0);
 
     HistLim digiAmp(360, -100., 7100.);
+    HistLim digiAmpWide(360, -10000., 710000.);
     HistLim ratio(2000, -100., 3900.);
     HistLim sumAmp(100, -500., 1500.);
 
@@ -271,18 +276,35 @@ void HcalDigisValidation::booking(DQMStore::IBooker &ib, const std::string bsubd
 
         sprintf(histo, "HcalDigiTask_signal_amplitude_%s", sub);
         book1D(ib, histo, digiAmp);
+
+        if(hep17_ && bsubdet=="HE"){
+           sprintf(histo, "HcalDigiTask_signal_amplitude_HEP17");
+           book1D(ib, histo, digiAmpWide);
+	}
 	//
 	for (int depth = 1; depth <= maxDepth_[isubdet]; depth++) {
 	  sprintf(histo, "HcalDigiTask_signal_amplitude_depth%d_%s", depth, sub);
 	  book1D(ib, histo, digiAmp);
+           if(hep17_ && bsubdet=="HE"){
+              sprintf(histo, "HcalDigiTask_signal_amplitude_depth%d_HEP17", depth);
+	      book1D(ib, histo, digiAmpWide);
+	   }
         }
 
         sprintf(histo, "HcalDigiTask_signal_amplitude_vs_bin_all_depths_%s", sub);
         book2D(ib, histo, nbin, digiAmp);
+        if(hep17_ && bsubdet=="HE"){
+           sprintf(histo, "HcalDigiTask_signal_amplitude_vs_bin_all_depths_HEP17");
+           book2D(ib, histo, nbin, digiAmpWide);
+	}
 
 	for (int depth = 1; depth <= maxDepth_[isubdet]; depth++) {
 	  sprintf(histo, "HcalDigiTask_all_amplitudes_vs_bin_1D_depth%d_%s", depth, sub);
 	  book1D(ib, histo, nbin);
+	  if(hep17_ && bsubdet=="HE"){
+             sprintf(histo, "HcalDigiTask_all_amplitudes_vs_bin_1D_depth%d_HEP17", depth);
+             book1D(ib, histo, nbin);
+	  }
         }
 
         sprintf(histo, "HcalDigiTask_bin_5_frac_%s", sub);
@@ -599,19 +621,13 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
             for (std::vector<PCaloHit>::const_iterator simhits = simhitResult->begin(); simhits != simhitResult->end(); ++simhits) {
 
                 unsigned int id_ = simhits->id();
-                int sub, depth, ieta, iphi;
-                if (testNumber_) {
-                  int z, lay;
-                  HcalTestNumbering::unpackHcalIndex(id_, sub, z, depth, ieta, iphi, lay);
-                  int sign = (z==0) ? (-1):(1);
-                  ieta     *= sign;
-                } else {
-                  HcalDetId id = HcalDetId(id_);
-                  sub       = id.subdet(); 
-                  depth        = id.depth();
-                  ieta          = id.ieta();
-                  iphi          = id.iphi();
-                }
+                int sub, ieta, iphi;
+                HcalDetId hid;
+                if (testNumber_) hid = HcalHitRelabeller::relabel(id_,hcons);
+                else hid = HcalDetId(id_);
+                sub      = hid.subdet(); 
+                ieta     = hid.ieta();
+                iphi     = hid.iphi();
 
                 double en = simhits->energy();
 
@@ -816,18 +832,13 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
 
                 unsigned int id_ = simhits->id();
                 int sub, depth, ieta, iphi;
-                if (testNumber_) {
-                  int z, lay;
-                  HcalTestNumbering::unpackHcalIndex(id_, sub, z, depth, ieta, iphi, lay);
-                  int sign = (z==0) ? (-1):(1);
-                  ieta     *= sign;
-                } else {
-                  HcalDetId id = HcalDetId(id_);
-                  sub       = id.subdet(); 
-                  depth        = id.depth();
-                  ieta          = id.ieta();
-                  iphi          = id.iphi();
-                }
+                HcalDetId hid;
+                if (testNumber_) hid = HcalHitRelabeller::relabel(id_,hcons);
+                else hid = HcalDetId(id_);
+                sub      = hid.subdet();
+                depth    = hid.depth();
+                ieta     = hid.ieta();
+                iphi     = hid.iphi();
 
                 if(depth > maxDepth_[isubdet] && sub == isubdet){
 	        	edm::LogWarning("HcalDetId") << "HcalDetID(SimHit) presents conflicting information. Depth: " << depth << ", iphi: " << iphi << ", ieta: " << ieta << ". Max depth from geometry is: " << maxDepth_[isubdet] << ". TestNumber = " << testNumber_;
@@ -930,20 +941,14 @@ template<class dataFrameType> void HcalDigisValidation::reco(const edm::Event& i
             for (std::vector<PCaloHit>::const_iterator simhits = simhitResult->begin(); simhits != simhitResult->end(); ++simhits) {
 
                 unsigned int id_ = simhits->id();
-                int sub, depth, ieta, iphi;
-                if (testNumber_) {
-                  int z, lay;
-                  HcalTestNumbering::unpackHcalIndex(id_, sub, z, depth, ieta, iphi, lay);
-                  int sign = (z==0) ? (-1):(1);
-                  ieta     *= sign;
-                } else {
-                  HcalDetId id = HcalDetId(id_);
-                  sub          = id.subdet();
-                  depth        = id.depth();
-                  ieta         = id.ieta();
-                  iphi         = id.iphi();
-                }
-              
+                int sub, ieta, iphi;
+                HcalDetId hid;
+                if (testNumber_) hid = HcalHitRelabeller::relabel(id_,hcons);
+                else hid = HcalDetId(id_);
+                sub      = hid.subdet();
+                ieta     = hid.ieta();
+                iphi     = hid.iphi();
+
                 double en = simhits->energy();
 
                 if (en > emax_Sim && sub == isubdet) {
@@ -979,6 +984,10 @@ template<class dataFrameType> void HcalDigisValidation::reco(const edm::Event& i
         int iphi = cell.iphi();
         int ieta = cell.ieta();
         int sub = cell.subdet();
+
+        //Is this in HEP17
+        bool isHEP17 = (iphi>=63)&&(iphi<=66)&&(ieta>0)&&(sub == 2); 
+
 
         if(depth > maxDepth_[isubdet] && sub == isubdet){
 		edm::LogWarning("HcalDetId") << "HcalDetID presents conflicting information. Depth: " << depth << ", iphi: " << iphi << ", ieta: " << ieta << ". Max depth from geometry is: " << maxDepth_[isubdet] << ". TestNumber = " << testNumber_;
@@ -1053,13 +1062,33 @@ template<class dataFrameType> void HcalDigisValidation::reco(const edm::Event& i
 
                 if (val > 100.) {
 		  fill1D("HcalDigiTask_ADC0_adc_depth" + str(depth) + "_" + subdet_, noiseADC);
-		  strtmp = "HcalDigiTask_all_amplitudes_vs_bin_1D_depth" + str(depth) + "_" + subdet_;
-		  fill1D(strtmp, double(ii), val);
+                  if(hep17_){
+                     if(!isHEP17){
+      		        strtmp = "HcalDigiTask_all_amplitudes_vs_bin_1D_depth" + str(depth) + "_" + subdet_;
+		        fill1D(strtmp, double(ii), val);
+                     } else {
+		        strtmp = "HcalDigiTask_all_amplitudes_vs_bin_1D_depth" + str(depth) + "_HEP17";
+		        fill1D(strtmp, double(ii), val);
+                     }
+                  } else {
+		     strtmp = "HcalDigiTask_all_amplitudes_vs_bin_1D_depth" + str(depth) + "_" + subdet_;
+		     fill1D(strtmp, double(ii), val);
+                  }
                 }
 
                 if (closen == 1) {
-		  strtmp = "HcalDigiTask_signal_amplitude_vs_bin_all_depths_" + subdet_;
-		  fill2D(strtmp, double(ii), val);
+                  if(hep17_){
+                     if(!isHEP17){
+		        strtmp = "HcalDigiTask_signal_amplitude_vs_bin_all_depths_" + subdet_;
+		        fill2D(strtmp, double(ii), val);
+                     }else{
+		        strtmp = "HcalDigiTask_signal_amplitude_vs_bin_all_depths_HEP17";
+		        fill2D(strtmp, double(ii), val);
+                     }
+                  } else {
+   		     strtmp = "HcalDigiTask_signal_amplitude_vs_bin_all_depths_" + subdet_;
+		     fill2D(strtmp, double(ii), val);
+                  } 
                 }
 
 
@@ -1125,11 +1154,26 @@ template<class dataFrameType> void HcalDigisValidation::reco(const edm::Event& i
 	      strtmp = "HcalDigiTask_bin_6_7_frac_" + subdet_;
 	      fill1D(strtmp, fBin67);
             }
-	    
-            strtmp = "HcalDigiTask_signal_amplitude_" + subdet_;
-            fill1D(strtmp, v_ampl[0]);
-            strtmp = "HcalDigiTask_signal_amplitude_depth" + str(depth) + "_" + subdet_;
-            fill1D(strtmp, v_ampl[depth]);
+
+
+            if(hep17_){	    
+               if(!isHEP17){
+                  strtmp = "HcalDigiTask_signal_amplitude_" + subdet_;
+                  fill1D(strtmp, v_ampl[0]);
+                  strtmp = "HcalDigiTask_signal_amplitude_depth" + str(depth) + "_" + subdet_;
+                  fill1D(strtmp, v_ampl[depth]);
+               } else {
+                  strtmp = "HcalDigiTask_signal_amplitude_HEP17";
+                  fill1D(strtmp, v_ampl[0]);
+                  strtmp = "HcalDigiTask_signal_amplitude_depth" + str(depth) + "_HEP17";
+                  fill1D(strtmp, v_ampl[depth]);
+               }
+	    }else{
+               strtmp = "HcalDigiTask_signal_amplitude_" + subdet_;
+               fill1D(strtmp, v_ampl[0]);
+               strtmp = "HcalDigiTask_signal_amplitude_depth" + str(depth) + "_" + subdet_;
+               fill1D(strtmp, v_ampl[depth]);
+	    }
         }
     } // End of CYCLE OVER CELLS =============================================
 
@@ -1149,18 +1193,13 @@ template<class dataFrameType> void HcalDigisValidation::reco(const edm::Event& i
 
                 unsigned int id_ = simhits->id();
                 int sub, depth, ieta, iphi;
-                if (testNumber_) {
-                  int z, lay;
-                  HcalTestNumbering::unpackHcalIndex(id_, sub, z, depth, ieta, iphi, lay);
-                  int sign = (z==0) ? (-1):(1);
-                  ieta     *= sign;
-                } else {
-                  HcalDetId id = HcalDetId(id_);
-                  sub       = id.subdet();
-                  depth        = id.depth();
-                  ieta          = id.ieta();
-                  iphi          = id.iphi();
-                }
+                HcalDetId hid;
+                if (testNumber_) hid = HcalHitRelabeller::relabel(id_,hcons);
+                else hid = HcalDetId(id_);
+                sub      = hid.subdet();
+                depth    = hid.depth();
+                ieta     = hid.ieta();
+                iphi     = hid.iphi();
 
                 if(depth > maxDepth_[isubdet] && sub == isubdet){
 	        	edm::LogWarning("HcalDetId") << "HcalDetID(SimHit) presents conflicting information. Depth: " << depth << ", iphi: " << iphi << ", ieta: " << ieta << ". Max depth from geometry is: " << maxDepth_[isubdet] << ". TestNumber = " << testNumber_;

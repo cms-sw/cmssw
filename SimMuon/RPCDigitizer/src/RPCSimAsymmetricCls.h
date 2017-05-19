@@ -45,7 +45,7 @@ class RPCSimAsymmetricCls : public RPCSim
   unsigned int slice(float posX); //??? CLHEP::HepRandomEngine*);
 
  private:
-  void init(){};
+  void init() override{};
  private:
   double aveEff;
   double aveCls;
@@ -56,6 +56,7 @@ class RPCSimAsymmetricCls : public RPCSim
   double sspeed;
   double lbGate;
   bool rpcdigiprint;
+  bool   eledig;
   
   int N_hits;
   int nbxing;

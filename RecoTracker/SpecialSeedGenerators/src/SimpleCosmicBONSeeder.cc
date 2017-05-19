@@ -188,9 +188,9 @@ bool SimpleCosmicBONSeeder::triplets(const edm::Event& e, const edm::EventSetup&
     for(SeedingLayerSetsHits::LayerSetIndex layerIndex=0; layerIndex < layers.size(); ++layerIndex) {
         SeedingLayerSetsHits::SeedingLayerSet ls = layers[layerIndex];
         /// ctfseeding SeedinHits and their iterators
-        auto innerHits  = region_.hits(e, es, ls[0]);
-        auto middleHits = region_.hits(e, es, ls[1]);
-        auto outerHits  = region_.hits(e, es, ls[2]);
+        auto innerHits  = region_.hits(es, ls[0]);
+        auto middleHits = region_.hits(es, ls[1]);
+        auto outerHits  = region_.hits(es, ls[2]);
 
         if (tripletsVerbosity_ > 0) {
             std::cout << "GenericTripletGenerator iLss = " << seedingLayersToString(ls)

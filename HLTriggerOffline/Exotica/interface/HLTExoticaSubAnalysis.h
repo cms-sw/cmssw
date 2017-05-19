@@ -58,7 +58,7 @@
 #include<cstring>
 
 /// Class to manage all object collections from a centralized place.
-class EVTColContainer;
+struct EVTColContainer;
 
 /// This class is the main workhorse of the package.
 /// It makes the histograms for one given analysis, taking care

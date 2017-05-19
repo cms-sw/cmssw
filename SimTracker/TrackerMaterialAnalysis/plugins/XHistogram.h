@@ -5,7 +5,7 @@
 #include <vector>
 #include <iostream>
 #include <stdexcept>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <TH2F.h>
 #include <TH2I.h>
@@ -25,10 +25,10 @@ protected:
   size_t m_yBins;
   size_t m_size;
 
-  std::vector< boost::shared_ptr<Histogram> > m_histograms;
-  boost::shared_ptr<Histogram> m_normalization;
-  boost::shared_ptr<ColorMap>  m_colormap;
-  boost::shared_ptr<Histogram> m_dummy;
+  std::vector< std::shared_ptr<Histogram> > m_histograms;
+  std::shared_ptr<Histogram> m_normalization;
+  std::shared_ptr<ColorMap>  m_colormap;
+  std::shared_ptr<Histogram> m_dummy;
 
 public:
   /// default CTOR 
@@ -132,7 +132,7 @@ protected:
   std::vector<position> splitSegment( Range x, Range y ) const;
 
   /// check the weights passed as an std::vector have the correct size
-  void check_weight(const std::vector<double> & weight) throw (std::invalid_argument)
+  void check_weight(const std::vector<double> & weight) noexcept(false)
   {
     // run time check for vector size
     if (weight.size() != m_size)

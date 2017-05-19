@@ -34,7 +34,6 @@ void TTClusterBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, co
       if(!tTopo->isLower(detid) ) continue; // loop on the stacks: choose the lower arbitrarily
       DetId lowerDetid = detid;
       DetId upperDetid = tTopo->partnerDetId(detid);
-      DetId stackDetid = tTopo->stack(detid);
 
       /// Temp vectors containing the vectors of the                                                                                                        
       /// hits used to build each cluster                                                                                                                  
@@ -57,7 +56,7 @@ void TTClusterBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, co
 	edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > >::FastFiller lowerOutputFiller( *ttClusterDSVForOutput, lowerDetid ); 
       for ( unsigned int i = 0; i < lowerHits.size(); i++ )
 	{
-	  TTCluster< Ref_Phase2TrackerDigi_ > temp( lowerHits.at(i), stackDetid, 0, storeLocalCoord );
+	  TTCluster< Ref_Phase2TrackerDigi_ > temp( lowerHits.at(i), lowerDetid, 0, storeLocalCoord );
 	  lowerOutputFiller.push_back( temp );
 	}
       if ( lowerOutputFiller.empty() )
@@ -67,7 +66,7 @@ void TTClusterBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, co
        edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > >::FastFiller upperOutputFiller( *ttClusterDSVForOutput, upperDetid );
      for ( unsigned int i = 0; i < upperHits.size(); i++ )
        {
-	 TTCluster< Ref_Phase2TrackerDigi_ > temp( upperHits.at(i), stackDetid, 1, storeLocalCoord );
+	 TTCluster< Ref_Phase2TrackerDigi_ > temp( upperHits.at(i), upperDetid, 1, storeLocalCoord );
 	 upperOutputFiller.push_back( temp );
        }
      if ( upperOutputFiller.empty() )

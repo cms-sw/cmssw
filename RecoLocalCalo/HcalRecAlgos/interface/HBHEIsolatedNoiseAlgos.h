@@ -117,8 +117,9 @@ class ObjectValidator : public ObjectValidatorAbs
 
   uint32_t HcalAcceptSeverityLevel_; // severity level to accept HCAL hits
   uint32_t EcalAcceptSeverityLevel_; // severity level to accept ECAL hits
-  bool UseHcalRecoveredHits_; // whether or not to use recovered HCAL hits
-  bool UseEcalRecoveredHits_; // whether or not to use recovered HCAL hits
+  bool UseHcalRecoveredHits_;  // whether or not to use recovered HCAL hits
+  bool UseEcalRecoveredHits_;  // whether or not to use recovered HCAL hits
+  bool UseAllCombinedRechits_; // whether to use all "Plan 1" combined rechits
 
   double MinValidTrackPt_; // minimum valid track pT
   double MinValidTrackPtBarrel_; // minimum valid track pT in the Barrel

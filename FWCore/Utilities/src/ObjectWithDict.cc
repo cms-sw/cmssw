@@ -4,7 +4,9 @@
 #include "FWCore/Utilities/interface/MemberWithDict.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 
+#ifndef _LIBCPP_VERSION
 #include <cxxabi.h>
+#endif
 
 namespace edm {
 
@@ -74,9 +76,13 @@ namespace edm {
     }
 
     if (to.hasBase(from)) { // down cast
+#ifndef _LIBCPP_VERSION
       // use the internal dynamic casting of the compiler (e.g. libstdc++.so)
       void* address = abi::__dynamic_cast(address_, static_cast<abi::__class_type_info const*>(&from.typeInfo()), static_cast<abi::__class_type_info const*>(&to.typeInfo()), -1);
       return ObjectWithDict(to, address);
+#else
+      return ObjectWithDict(to, address_);
+#endif
     }
 
     if (from.hasBase(to)) { // up cast

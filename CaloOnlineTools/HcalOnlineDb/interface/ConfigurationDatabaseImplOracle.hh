@@ -24,34 +24,34 @@ class ConfigurationDatabaseImplOracle: public hcal::ConfigurationDatabaseImpl {
 		ConfigurationDatabaseImplOracle();
 		virtual ~ConfigurationDatabaseImplOracle();
 		virtual bool canHandleMethod(const std::string& method) const;
-		virtual void connect(const std::string& accessor) throw (hcal::exception::ConfigurationDatabaseException);
+		virtual void connect(const std::string& accessor) noexcept(false);
 		virtual void disconnect();
 	
 		virtual void getLUTs(const std::string& tag, int crate, int slot,  
 			std::map<hcal::ConfigurationDatabase::LUTId, hcal::ConfigurationDatabase::LUT >& LUTs) 
-							throw (hcal::exception::ConfigurationDatabaseException);
+							noexcept(false);
 
 		virtual void getLUTChecksums(const std::string& tag, 
 			std::map<hcal::ConfigurationDatabase::LUTId, hcal::ConfigurationDatabase::MD5Fingerprint>& checksums) 
-							throw (hcal::exception::ConfigurationDatabaseException);
+							noexcept(false);
 
 		virtual void getPatterns(const std::string& tag, int crate, int slot, 
 			std::map<hcal::ConfigurationDatabase::PatternId, hcal::ConfigurationDatabase::HTRPattern >& patterns) 
-							throw (hcal::exception::ConfigurationDatabaseException);
+							noexcept(false);
 
 		virtual void getRBXdata(const std::string& tag, const std::string& rbx,
                                         hcal::ConfigurationDatabase::RBXdatumType dtype,
                                         std::map<hcal::ConfigurationDatabase::RBXdatumId, hcal::ConfigurationDatabase::RBXdatum>& RBXdata)
-                                                        throw (hcal::exception::ConfigurationDatabaseException);
+                                                        noexcept(false);
 
 	        virtual void getZSThresholds(const std::string& tag, int crate, int slot,
                                         std::map<hcal::ConfigurationDatabase::ZSChannelId, int>& thresholds)
-                                        throw (hcal::exception::ConfigurationDatabaseException);
+                                        noexcept(false);
 
 	        virtual void getHLXMasks(const std::string& tag, int crate, int slot,
                                         std::map<hcal::ConfigurationDatabase::FPGAId,
                                                         hcal::ConfigurationDatabase::HLXMasks>& masks)
-                                        throw (hcal::exception::ConfigurationDatabaseException);
+                                        noexcept(false);
 
   // added by Gena Kukartsev
   virtual oracle::occi::Connection * getConnection( void );
@@ -87,12 +87,12 @@ class ConfigurationDatabaseImplOracle: public hcal::ConfigurationDatabaseImpl {
 #endif
 
   		void getLUTs_real(const std::string& tag, int crate, std::map<hcal::ConfigurationDatabase::LUTId, 
-				hcal::ConfigurationDatabase::LUT >& LUTs) throw (hcal::exception::ConfigurationDatabaseException);
+				hcal::ConfigurationDatabase::LUT >& LUTs) noexcept(false);
   		void getPatterns_real(const std::string& tag, int crate, std::map<hcal::ConfigurationDatabase::PatternId, 
-				hcal::ConfigurationDatabase::HTRPattern >& patterns) throw (hcal::exception::ConfigurationDatabaseException);
+				hcal::ConfigurationDatabase::HTRPattern >& patterns) noexcept(false);
                 void getHLXMasks_real(const std::string& tag, int crate,
                                 std::map<hcal::ConfigurationDatabase::FPGAId, hcal::ConfigurationDatabase::HLXMasks>& masks)
-                                                throw (hcal::exception::ConfigurationDatabaseException);
+                                                noexcept(false);
 
 		struct LUTCache {
 		    void clear() {

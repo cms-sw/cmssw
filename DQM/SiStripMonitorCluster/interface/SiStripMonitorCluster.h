@@ -40,9 +40,9 @@ class SiStripMonitorCluster : public DQMEDAnalyzer {
  public:
   explicit SiStripMonitorCluster(const edm::ParameterSet&);
   ~SiStripMonitorCluster();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) ;
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
   
   struct ModMEs{ // MEs for one single detector module
 
@@ -71,6 +71,8 @@ class SiStripMonitorCluster : public DQMEDAnalyzer {
     MonitorElement* LayerLocalOccupancy = 0;
     MonitorElement* LayerLocalOccupancyTrend = 0;
     MonitorElement* LayerNumberOfClusterProfile = 0;
+    MonitorElement* LayerNumberOfClusterPerRingTrend = 0;
+    MonitorElement* LayerNumberOfClusterTrend = 0;
     MonitorElement* LayerClusterWidthProfile = 0;
     MonitorElement* LayerClusWidthVsAmpTH2 = 0;
     MonitorElement* LayerClusterPosition = 0;
@@ -87,6 +89,7 @@ class SiStripMonitorCluster : public DQMEDAnalyzer {
     MonitorElement* SubDetClusterChargeTH1 = 0;
     MonitorElement* SubDetClusterWidthTH1 = 0;
     MonitorElement* SubDetClusWidthVsAmpTH2 = 0;
+    MonitorElement* SubDetNumberOfClusterPerLayerTrend = 0;
   };
 
   struct ClusterProperties { // Cluster Properties

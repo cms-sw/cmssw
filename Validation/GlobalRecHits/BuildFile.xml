@@ -10,6 +10,7 @@
 <use   name="CalibFormats/HcalObjects"/>
 <use   name="Geometry/Records"/>
 <use   name="Geometry/CaloGeometry"/>
+<use   name="Geometry/HcalTowerAlgo"/>
 <use   name="DataFormats/HcalRecHit"/>
 <use   name="DataFormats/SiStripDigi"/>
 <use   name="DataFormats/SiStripDetId"/>

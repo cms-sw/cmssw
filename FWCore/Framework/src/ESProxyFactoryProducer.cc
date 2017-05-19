@@ -2,7 +2,7 @@
 //
 // Package:     Framework
 // Class  :     ESProxyFactoryProducer
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -45,7 +45,7 @@ ESProxyFactoryProducer::ESProxyFactoryProducer() : record2Factories_()
 //    // do actual copying here;
 // }
 
-ESProxyFactoryProducer::~ESProxyFactoryProducer()
+ESProxyFactoryProducer::~ESProxyFactoryProducer() noexcept(false)
 {
 }
 
@@ -71,7 +71,7 @@ ESProxyFactoryProducer::registerProxies(const EventSetupRecordKey& iRecord,
    typedef Record2Factories::iterator Iterator;
    std::pair< Iterator, Iterator > range = record2Factories_.equal_range(iRecord);
    for(Iterator it = range.first; it != range.second; ++it) {
-      
+
       std::shared_ptr<DataProxy> proxy(it->second.factory_->makeProxy().release());
       if(nullptr != proxy.get()) {
          iProxies.push_back(KeyedProxies::value_type((*it).second.key_,
@@ -89,13 +89,13 @@ ESProxyFactoryProducer::registerFactoryWithKey(const EventSetupRecordKey& iRecor
       assert(false && "Factor pointer was null");
       ::exit(1);
    }
-   
+
    usingRecordWithKey(iRecord);
-   
+
    std::shared_ptr<ProxyFactoryBase> temp(iFactory.release());
    FactoryInfo info(temp->makeKey(iLabel),
                     temp);
-   
+
    //has this already been registered?
    std::pair<Record2Factories::const_iterator,Record2Factories::const_iterator> range =
       record2Factories_.equal_range(iRecord);
@@ -109,12 +109,12 @@ ESProxyFactoryProducer::registerFactoryWithKey(const EventSetupRecordKey& iRecor
       throw cms::Exception("IdenticalProducts")<<"Producer has been asked to produce "<<info.key_.type().name()
       <<" \""<<info.key_.name().value()<<"\" multiple times.\n Please modify the code.";
    }
-                                               
+
    record2Factories_.insert(Record2Factories::value_type(iRecord,
                                                          std::move(info)));
 }
 
-void 
+void
 ESProxyFactoryProducer::newInterval(const EventSetupRecordKey& iRecordType,
                                    const ValidityInterval& /*iInterval*/)
 {

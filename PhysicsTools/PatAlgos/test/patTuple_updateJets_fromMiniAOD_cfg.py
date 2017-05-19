@@ -3,8 +3,7 @@
 
 ## import skeleton process
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
-## switch to uncheduled mode
-process.options.allowUnscheduled = cms.untracked.bool(True)
+
 #process.Tracer = cms.Service("Tracer")
 
 ## uncomment the following line to update different jet collections
@@ -18,6 +17,7 @@ from RecoJets.Configuration.RecoPFJets_cff import ak8PFJetsCHSSoftDropMass
 process.oldJetMass = ak8PFJetsCHSSoftDropMass.clone(
   src = cms.InputTag("slimmedJets"),
   matched = cms.InputTag("slimmedJets") )
+patAlgosToolsTask.add(process.oldJetMass)
 
 updateJetCollection(
    process,
@@ -50,8 +50,8 @@ process.updatedPatJetsReappliedJEC.userData.userFloats.src = []
 updateJetCollection(
    process,
    labelName = 'SoftDropSubjets',
-   jetSource = cms.InputTag('slimmedJetsAK8PFCHSSoftDropPacked:SubJets'),
-   jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
+   jetSource = cms.InputTag('slimmedJetsAK8PFPuppiSoftDropPacked:SubJets'),
+   jetCorrections = ('AK4PFPuppi', cms.vstring(['L2Relative', 'L3Absolute']), 'None'),
    btagDiscriminators = ['pfCombinedSecondaryVertexV2BJetTags', 'pfCombinedInclusiveSecondaryVertexV2BJetTags'],
    explicitJTA = True,          # needed for subjet b tagging
    svClustering = False,        # needed for subjet b tagging (IMPORTANT: Needs to be set to False to disable ghost-association which does not work with slimmed jets)

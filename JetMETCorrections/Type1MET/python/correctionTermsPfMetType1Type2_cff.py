@@ -6,7 +6,7 @@ from JetMETCorrections.Configuration.JetCorrectors_cff import *
 ##____________________________________________________________________________||
 # select PFCandidates ("unclustered energy") not within jets
 # for Type 2 MET correction
-from CommonTools.ParticleFlow.TopProjectors.pfNoJet_cfi import pfNoJet
+from CommonTools.ParticleFlow.TopProjectors.pfNoJet_cfi import pfNoJet as _pfNoJet
 # the new TopProjectors now work with Ptrs
 # a conversion is needed if objects are not available
 # add them upfront of the sequence
@@ -22,7 +22,7 @@ from RecoParticleFlow.PFProducer.pfLinker_cff import particleFlowPtrs
 # FIXME: THIS IS A WASTE, BUT NOT CLEAR HOW TO FIX IT CLEANLY: the module
 # downstream operates with View<reco::Candidate>, I wish one could read
 # it from std::vector<PFCandidateFwdPtr> directly
-pfCandsNotInJetsPtrForMetCorr = pfNoJet.clone(
+pfCandsNotInJetsPtrForMetCorr = _pfNoJet.clone(
     topCollection = cms.InputTag('pfJetsPtrForMetCorr'),
     bottomCollection = cms.InputTag('particleFlowPtrs')
 )
@@ -66,16 +66,16 @@ corrPfMetType2 = cms.EDProducer(
     )
 
 ##____________________________________________________________________________||
-correctionTermsPfMetType1Type2 = cms.Sequence(
-    pfJetsPtrForMetCorr +
-    particleFlowPtrs +
-    pfCandsNotInJetsPtrForMetCorr +
-    pfCandsNotInJetsForMetCorr +
-    pfCandMETcorr +
-    ak4PFCHSL1FastL2L3ResidualCorrectorChain + #Data full chain
-    ak4PFCHSL1FastL2L3Corrector + #MC last corrector, previous are already in the data chain
-    corrPfMetType1 +
+correctionTermsPfMetType1Type2Task = cms.Task(
+    pfJetsPtrForMetCorr,
+    particleFlowPtrs,
+    pfCandsNotInJetsPtrForMetCorr,
+    pfCandsNotInJetsForMetCorr,
+    pfCandMETcorr,
+    ak4PFCHSL1FastL2L3ResidualCorrectorTask, #Data full chain
+    ak4PFCHSL1FastL2L3CorrectorTask, #MC last corrector, previous are already in the data chain
+    corrPfMetType1,
     corrPfMetType2
     )
 
-##____________________________________________________________________________||
+correctionTermsPfMetType1Type2 = cms.Sequence(correctionTermsPfMetType1Type2Task)

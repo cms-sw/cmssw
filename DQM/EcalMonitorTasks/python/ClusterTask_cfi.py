@@ -69,14 +69,14 @@ ecalClusterTask = cms.untracked.PSet(
             kind = cms.untracked.string('TProfile'),
             otype = cms.untracked.string('Ecal3P'),
             btype = cms.untracked.string('ProjEta'),
-            description = cms.untracked.string('Projection of the mean size (number of crystals) of the basic clusters.')
+            description = cms.untracked.string('Eta-projection of the number of crystals in basic clusters.')
         ),
         BCSizeMapProjPhi = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sClusterTask/%(prefix)sCLT BC size projection phi%(suffix)s'),
             kind = cms.untracked.string('TProfile'),
             otype = cms.untracked.string('Ecal3P'),
             btype = cms.untracked.string('ProjPhi'),
-            description = cms.untracked.string('Projection of the mean size (number of crystals) of the basic clusters.')
+            description = cms.untracked.string('Phi-projection of the number of crystals in basic clusters.')
         ),
         BCSize = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sClusterTask/%(prefix)sCLT BC size'),
@@ -88,7 +88,7 @@ ecalClusterTask = cms.untracked.PSet(
                 low = cms.untracked.double(0.0)
             ),
             btype = cms.untracked.string('User'),
-            description = cms.untracked.string('Distribution of the basic cluster size (number of crystals).')
+            description = cms.untracked.string('Distribution of the number of crystals in basic clusters.')
         ),
         BCE = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sClusterTask/%(prefix)sCLT BC energy'),
@@ -108,7 +108,7 @@ ecalClusterTask = cms.untracked.PSet(
             kind = cms.untracked.string('TProfile2D'),
             otype = cms.untracked.string('Ecal3P'),
             btype = cms.untracked.string('SuperCrystal'),
-            description = cms.untracked.string('2D distribution of the mean size (number of crystals) of the basic clusters.')
+            description = cms.untracked.string('2D distribution of the mean number of crystals in basic clusters.')
         ),
         BCNum = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sClusterTask/%(prefix)sCLT BC number'),

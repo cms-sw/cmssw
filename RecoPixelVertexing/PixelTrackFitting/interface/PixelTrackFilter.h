@@ -1,20 +1,21 @@
-#ifndef PixelTrackFitting_PixelTrackFilter_H
-#define PixelTrackFitting_PixelTrackFilter_H
+#ifndef RecoPixelVertexing_PixelTrackFitting_PixelTrackFilter_H
+#define RecoPixelVertexing_PixelTrackFitting_PixelTrackFilter_H
 
-namespace reco { class Track; }
-namespace edm { class Event; class EventSetup; class ConsumesCollector;}
-class TrackingRecHit;
+#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilterBase.h"
 
-#include <vector>
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include <memory>
 
 class PixelTrackFilter {
 public:
-  virtual ~PixelTrackFilter() {}
-  typedef std::vector<const TrackingRecHit *> Hits;
-  virtual void update(const edm::Event& ev, const edm::EventSetup& es) = 0;
-  virtual bool operator()(const reco::Track*) const {return false;}
-  virtual bool operator()(const reco::Track*, const Hits&) const {return false;} 
-  virtual bool operator()(const reco::Track*, const Hits&, const TrackerTopology *tTopo) const {return false;} 
+  PixelTrackFilter() {}
+  explicit PixelTrackFilter(std::unique_ptr<PixelTrackFilterBase> filter): filter_(std::move(filter)) {}
+
+  void swap(PixelTrackFilter& o) { std::swap(filter_, o.filter_); }
+
+  bool operator()(const reco::Track *track, const PixelTrackFilterBase::Hits& hits) const { return (*filter_)(track, hits); }
+
+private:
+  std::unique_ptr<PixelTrackFilterBase> filter_;
 };
+
 #endif

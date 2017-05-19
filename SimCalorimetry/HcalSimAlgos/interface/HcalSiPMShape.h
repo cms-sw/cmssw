@@ -15,10 +15,9 @@ public:
 
   virtual double operator() (double time) const;
 
-  virtual double timeToRise() const {return 3.5;}
+  virtual double timeToRise() const {return 0.0;}
 
 protected:
-  virtual double analyticPulseShape(double t, unsigned int signalShape) const;
   void computeShape(unsigned int signalShape);
 
 private:

@@ -20,7 +20,7 @@
 #include "FWCore/Utilities/interface/CRC16.h"
 
 
-CSCTFPacker::CSCTFPacker(const edm::ParameterSet &conf):edm::EDProducer(){
+CSCTFPacker::CSCTFPacker(const edm::ParameterSet &conf):edm::one::EDProducer<>(){
 	// "Readout" configuration
 	zeroSuppression = conf.getParameter<bool>("zeroSuppression");
 	nTBINs          = conf.getParameter<int> ("nTBINs");

@@ -33,7 +33,7 @@ ODTowersToByPassInfo::~ODTowersToByPassInfo()
 
 
 
-int ODTowersToByPassInfo::fetchNextId()  throw(std::runtime_error) {
+int ODTowersToByPassInfo::fetchNextId()  noexcept(false) {
 
   int result=0;
   try {
@@ -56,7 +56,7 @@ int ODTowersToByPassInfo::fetchNextId()  throw(std::runtime_error) {
 }
 
 void ODTowersToByPassInfo::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -95,7 +95,7 @@ void ODTowersToByPassInfo::setParameters(const std::map<string,string>& my_keys_
 }
 
 void ODTowersToByPassInfo::writeDB()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -128,7 +128,7 @@ void ODTowersToByPassInfo::writeDB()
 
 
 void ODTowersToByPassInfo::fetchData(ODTowersToByPassInfo * result)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   result->clear();
@@ -180,7 +180,7 @@ void ODTowersToByPassInfo::fetchData(ODTowersToByPassInfo * result)
   }
 }
 
-int ODTowersToByPassInfo::fetchID()    throw(std::runtime_error)
+int ODTowersToByPassInfo::fetchID()    noexcept(false)
 {
   // Return from memory if available
   if (m_ID!=0) {

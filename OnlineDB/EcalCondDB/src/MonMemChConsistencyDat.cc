@@ -31,7 +31,7 @@ MonMemChConsistencyDat::~MonMemChConsistencyDat()
 
 
 void MonMemChConsistencyDat::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -49,7 +49,7 @@ void MonMemChConsistencyDat::prepareWrite()
 
 
 void MonMemChConsistencyDat::writeDB(const EcalLogicID* ecid, const MonMemChConsistencyDat* item, MonRunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -79,7 +79,7 @@ void MonMemChConsistencyDat::writeDB(const EcalLogicID* ecid, const MonMemChCons
 
 
 void MonMemChConsistencyDat::fetchData(std::map< EcalLogicID, MonMemChConsistencyDat >* fillMap, MonRunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   fillMap->clear();
@@ -127,7 +127,7 @@ void MonMemChConsistencyDat::fetchData(std::map< EcalLogicID, MonMemChConsistenc
 }
 
 void MonMemChConsistencyDat::writeArrayDB(const std::map< EcalLogicID, MonMemChConsistencyDat >* data, MonRunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();

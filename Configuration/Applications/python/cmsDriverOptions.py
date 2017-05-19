@@ -263,6 +263,8 @@ def OptionsFromItems(items):
     # options incompatible with fastsim
     if options.fast and not options.scenario == "pp":
         raise Exception("ERROR: the --option fast is only compatible with the default scenario (--scenario=pp)")
+    if options.fast and 'HLT' in options.trimmedStep:
+        raise Exception("ERROR: the --option fast is incompatible with HLT (HLT is no longer available in FastSim)")
 
     return options
 

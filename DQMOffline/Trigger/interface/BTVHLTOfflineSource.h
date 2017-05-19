@@ -50,7 +50,7 @@ class BTVHLTOfflineSource : public DQMEDAnalyzer {
   ~BTVHLTOfflineSource();
 
  private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void bookHistograms(DQMStore::IBooker &, edm::Run const & run, edm::EventSetup const & c) override;
   virtual void dqmBeginRun(edm::Run const& run, edm::EventSetup const& c) override;
 

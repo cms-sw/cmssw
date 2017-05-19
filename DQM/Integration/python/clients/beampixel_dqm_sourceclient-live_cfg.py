@@ -28,15 +28,22 @@ process.dqmSaver.tag = "BeamPixel"
 
 
 #----------------------------
+# Conditions
+#----------------------------
+# Use this to run locally (for testing purposes), choose the right GT
+#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+#from Configuration.AlCa.GlobalTag import GlobalTag
+#process.GlobalTag = GlobalTag(process.GlobalTag, "auto:run2_data", "")
+# Otherwise use this
+process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
+
+
+#----------------------------
 # Sub-system Configuration
 #----------------------------
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
-process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
-# Use this to run locally (for testing purposes), choose the right GT
-#from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-#process.GlobalTag = GlobalTag(process.GlobalTag, "74X_dataRun2_Prompt_v0", "")
 
 
 #----------------------------
@@ -115,19 +122,17 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     #----------------------------
     # Pixel-Tracks&Vertices Config
     #----------------------------
-    from RecoTracker.TkTrackingRegions.GlobalTrackingRegion_cfi import *
-    process.RegionPSetBlock.RegionPSet.originRadius = cms.double(0.4)
-
     process.load("RecoPixelVertexing.Configuration.RecoPixelVertexing_cff")
-    process.PixelTrackReconstructionBlock.RegionFactoryPSet = cms.PSet(RegionPSetBlock, ComponentName = cms.string("GlobalTrackingRegion"))
-    process.pixelVertices.TkFilterParameters.minPt = process.pixelTracks.RegionFactoryPSet.RegionPSet.ptMin
+    process.pixelVertices.TkFilterParameters.minPt = cms.double(0.9)
+
+    from RecoTracker.TkTrackingRegions.globalTrackingRegion_cfi import globalTrackingRegion
+    process.pixelTracksTrackingRegions = globalTrackingRegion.clone(RegionPSet = dict(originRadius = cms.double(0.4)))
 
     from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import *
     process.PixelLayerTriplets.BPix.HitProducer = cms.string("siPixelRecHitsPreSplitting")
     process.PixelLayerTriplets.FPix.HitProducer = cms.string("siPixelRecHitsPreSplitting")
 
-    from RecoPixelVertexing.PixelTrackFitting.PixelTracks_cff import *
-    process.pixelTracks.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet.clusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCachePreSplitting")
+    process.pixelTracksHitTriplets.SeedComparitorPSet.clusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCachePreSplitting")
 
 
     #----------------------------
@@ -214,17 +219,18 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.PixelLayerTriplets.BPix.HitProducer = cms.string("siPixelRecHitsPreSplitting")
     process.PixelLayerTriplets.FPix.HitProducer = cms.string("siPixelRecHitsPreSplitting")
 
-    process.hiPixel3PrimTracks.FilterPSet.VertexCollection     = cms.InputTag("hiSelectedVertexPreSplitting")
-    process.hiPixel3PrimTracks.FilterPSet.clusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCachePreSplitting")
+    process.hiPixel3PrimTracksFilter = process.hiFilter.clone(VertexCollection     = cms.InputTag("hiSelectedVertexPreSplitting"),
+                                                              clusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCachePreSplitting"))
 
-    process.hiPixel3PrimTracks.RegionFactoryPSet.ComponentName               = cms.string('GlobalTrackingRegionWithVerticesProducer')
-    process.hiPixel3PrimTracks.RegionFactoryPSet.RegionPSet.VertexCollection = cms.InputTag("hiSelectedVertexPreSplitting")
-    process.hiPixel3PrimTracks.RegionFactoryPSet.RegionPSet.ptMin            = cms.double(0.9)
+    process.hiPixel3PrimTracks.Filter               = cms.InputTag("hiPixel3PrimTracksFilter")
+    process.hiPixel3PrimTracks.ComponentName        = cms.string("GlobalTrackingRegionWithVerticesProducer")
+    process.hiPixel3PrimTracks.VertexCollection     = cms.InputTag("hiSelectedVertexPreSplitting")
+    process.hiPixel3PrimTracks.ptMin                = cms.double(0.9)
+    process.hiPixel3PrimTracks.clusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCachePreSplitting")
 
-    process.hiPixel3PrimTracks.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet.clusterShapeCacheSrc = cms.InputTag('siPixelClusterShapeCachePreSplitting')
+    process.hiPixel3ProtoTracksPreSplitting.originRadius = cms.double(0.4)
 
-    process.hiPixel3ProtoTracksPreSplitting.RegionFactoryPSet.RegionPSet.originRadius = 0.4
-    process.hiPixelAdaptiveVertexPreSplitting.vertexCollections.useBeamConstraint     = False
+    process.hiPixelAdaptiveVertexPreSplitting.vertexCollections.useBeamConstraint = cms.bool(False)
 
 
     #----------------------------
@@ -236,6 +242,8 @@ if (process.runType.getRunType() == process.runType.hi_run):
                                               process.siPixelClusterShapeCachePreSplitting*
                                               process.hiPixelVerticesPreSplitting*
                                               process.PixelLayerTriplets*
+                                              process.pixelFitterByHelixProjections*
+                                              process.hiPixel3PrimTracksFilter*
                                               process.hiPixel3PrimTracks)
 
 

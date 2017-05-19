@@ -63,8 +63,8 @@ bool MuScleFitMuonSelector::selGlobalMuon(const pat::Muon* aMuon)
     aMuon->muonID("TrackerMuonArbitrated") &&
     aMuon->muonID("TMLastStationAngTight") &&
     p.pixelLayersWithMeasurement() > 1 &&
-    fabs(iTrack->dxy()) < 3.0 &&  //should be done w.r.t. PV!
-    fabs(iTrack->dz()) < 15.0 //should be done w.r.t. PV!
+    std::abs(iTrack->dxy()) < 3.0 &&  //should be done w.r.t. PV!
+    std::abs(iTrack->dz()) < 15.0 //should be done w.r.t. PV!
   );
 }
 
@@ -79,8 +79,8 @@ bool MuScleFitMuonSelector::selTrackerMuon(const pat::Muon* aMuon)
     aMuon->muonID("TrackerMuonArbitrated") &&
     aMuon->muonID("TMLastStationAngTight") &&
     p.pixelLayersWithMeasurement() > 1 &&
-    fabs(iTrack->dxy()) < 3.0 && //should be done w.r.t. PV!
-    fabs(iTrack->dz()) < 15.0 //should be done w.r.t. PV!
+    std::abs(iTrack->dxy()) < 3.0 && //should be done w.r.t. PV!
+    std::abs(iTrack->dz()) < 15.0 //should be done w.r.t. PV!
   );
 }
 
@@ -379,7 +379,7 @@ GenMuonPair MuScleFitMuonSelector::findGenMuFromRes( const edm::HepMCProduct* ev
   //Loop on generated particles
   for (HepMC::GenEvent::particle_const_iterator part=Evt->particles_begin();
        part!=Evt->particles_end(); part++) {
-    if (fabs((*part)->pdg_id())==13 && (*part)->status()==1) {
+    if (std::abs((*part)->pdg_id())==13 && (*part)->status()==1) {
       bool fromRes = false;
       unsigned int motherPdgId = 0;
       for (HepMC::GenVertex::particle_iterator mother = (*part)->production_vertex()->particles_begin(HepMC::ancestors);
@@ -423,8 +423,8 @@ GenMuonPair MuScleFitMuonSelector::findGenMuFromRes( const reco::GenParticleColl
   //Loop on generated particles
   if( debug_>0 ) std::cout << "Starting loop on " << genParticles->size() << " genParticles" << std::endl;
   for( reco::GenParticleCollection::const_iterator part=genParticles->begin(); part!=genParticles->end(); ++part ) {
-    if (debug_>0) std::cout<<"genParticle has pdgId = "<<fabs(part->pdgId())<<" and status = "<<part->status()<<std::endl;
-    if (fabs(part->pdgId())==13){// && part->status()==3) {
+    if (debug_>0) std::cout<<"genParticle has pdgId = "<<std::abs(part->pdgId())<<" and status = "<<part->status()<<std::endl;
+    if (std::abs(part->pdgId())==13){// && part->status()==3) {
       bool fromRes = false;
       unsigned int motherPdgId = part->mother()->pdgId();
       if( debug_>0 ) {
@@ -472,7 +472,7 @@ std::pair<lorentzVector, lorentzVector> MuScleFitMuonSelector::findSimMuFromRes(
   std::pair<lorentzVector, lorentzVector> simMuFromRes;
   for( edm::SimTrackContainer::const_iterator simTrack=simTracks->begin(); simTrack!=simTracks->end(); ++simTrack ) {
     //Chose muons
-    if (fabs((*simTrack).type())==13) {
+    if (std::abs((*simTrack).type())==13) {
       //If tracks from IP than find mother
       if ((*simTrack).genpartIndex()>0) {
 	HepMC::GenParticle* gp = evtMC->GetEvent()->barcode_to_particle ((*simTrack).genpartIndex());

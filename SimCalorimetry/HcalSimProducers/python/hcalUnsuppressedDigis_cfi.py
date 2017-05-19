@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from SimCalorimetry.HcalSimProducers.hcalSimParameters_cfi import *
+from DataFormats.HcalCalibObjects.HFRecalibrationParameters_cff import *
 
 # make a block so other modules, such as the data mixing module, can
 # also run simulation
@@ -21,16 +22,33 @@ hcalSimBlock = cms.PSet(
     hitsProducer = cms.string('g4SimHits'),
     DelivLuminosity = cms.double(0),
     TestNumbering = cms.bool(False),
+    doNeutralDensityFilter = cms.bool(True),
+    HBDarkening = cms.bool(False),
     HEDarkening = cms.bool(False),
     HFDarkening = cms.bool(False),
-    minFCToDelay=cms.double(5.) # old TC model! set to 5 for the new one
+    minFCToDelay=cms.double(5.), # old TC model! set to 5 for the new one
+    debugCaloSamples=cms.bool(False),
+    ignoreGeantTime=cms.bool(False),
+    # settings for SimHit test injection
+    injectTestHits = cms.bool(False),
+    # if no time is specified for injected hits, t = 0 will be used
+    # (recommendation: enable "ignoreGeantTime" in that case to set t = tof)
+    # otherwise, need 1 time value per energy value
+    injectTestHitsEnergy = cms.vdouble(),
+    injectTestHitsTime = cms.vdouble(),
+    # format for cells: subdet, ieta, iphi, depth
+    # multiple quadruplets can be specified
+    # if instead only 1 value is given, 
+    # it will be interpreted as an entire subdetector
+    injectTestHitsCells = cms.vint32(),
+    HFRecalParameterBlock = HFRecalParameterBlock,
 )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toModify( hcalSimBlock, hitsProducer=cms.string('famosSimHits') )
 
-from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
-phase2_hcal.toModify( hcalSimBlock, TestNumbering = cms.bool(True) )
+from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
+run2_HCAL_2017.toModify( hcalSimBlock, TestNumbering = cms.bool(True) )
 
 # remove HE processing for phase 2, completely put in HGCal land
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal

@@ -2,7 +2,7 @@
 #define __L1Trigger_L1THGCal_HGCalTriggerBackendProcessor_h__
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 
 #include "DataFormats/L1THGCal/interface/HGCFETriggerDigi.h"
@@ -31,12 +31,16 @@ class HGCalTriggerBackendProcessor {
  public:
   typedef std::unique_ptr<HGCalTriggerBackendAlgorithmBase> algo_ptr;
 
-  HGCalTriggerBackendProcessor(const edm::ParameterSet& conf);
+  HGCalTriggerBackendProcessor(const edm::ParameterSet& conf, edm::ConsumesCollector&&cc);
 
-  void setProduces(edm::EDProducer& prod) const;
+  void setGeometry(const HGCalTriggerGeometryBase* const geom);
+
+  void setProduces(edm::stream::EDProducer<>& prod) const;
 
   void run(const l1t::HGCFETriggerDigiCollection& coll,
-           const std::unique_ptr<HGCalTriggerGeometryBase>& geom);
+	   const edm::EventSetup& es,
+           edm::Event&e
+	   );
 
   void putInEvent(edm::Event& evt);
 

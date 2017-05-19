@@ -24,6 +24,7 @@
 #include "SimG4Core/MagneticField/interface/FieldBuilder.h"
 #include "SimG4Core/MagneticField/interface/ChordFinderSetter.h"
 #include "SimG4Core/MagneticField/interface/Field.h"
+#include "SimG4Core/MagneticField/interface/CMSFieldManager.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -136,7 +137,7 @@ RunManager::RunManager(edm::ParameterSet const & p, edm::ConsumesCollector&& iC)
       m_pSteppingAction(p.getParameter<edm::ParameterSet>("SteppingAction")),
       m_g4overlap(p.getParameter<edm::ParameterSet>("G4CheckOverlap")),
       m_G4Commands(p.getParameter<std::vector<std::string> >("G4Commands")),
-      m_p(p), m_fieldBuilder(nullptr), m_chordFinderSetter(nullptr)
+      m_p(p), m_chordFinderSetter(nullptr)
 {    
   m_UIsession.reset(new CustomUIsession());
   m_kernel = new G4RunManagerKernel();
@@ -213,13 +214,13 @@ void RunManager::initG4(const edm::EventSetup & es)
       es.get<IdealMagneticFieldRecord>().get(pMF);
       const GlobalPoint g(0.,0.,0.);
 
-      m_chordFinderSetter = new sim::ChordFinderSetter();
-      m_fieldBuilder = new sim::FieldBuilder(&(*pMF), m_pField);
-      G4TransportationManager * tM = 
+      sim::FieldBuilder fieldBuilder(pMF.product(), m_pField);
+      CMSFieldManager* fieldManager = new CMSFieldManager();
+      G4TransportationManager * tM =
 	G4TransportationManager::GetTransportationManager();
-      m_fieldBuilder->build( tM->GetFieldManager(),
-			     tM->GetPropagatorInField(),
-                             m_chordFinderSetter);
+      tM->SetFieldManager(fieldManager);
+      fieldBuilder.build( fieldManager, tM->GetPropagatorInField());
+
       if("" != m_FieldFile) { 
 	DumpMagneticField(tM->GetFieldManager()->GetDetectorField()); 
       }
@@ -283,6 +284,7 @@ void RunManager::initG4(const edm::EventSetup & es)
 
   int verb = std::max(m_pPhysics.getUntrackedParameter<int>("Verbosity",0),
 		      m_p.getParameter<int>("SteppingVerbosity"));
+  m_kernel->SetVerboseLevel(verb);
 
   m_physicsList->SetDefaultCutValue(m_pPhysics.getParameter<double>("DefaultCutValue")*CLHEP::cm);
   m_physicsList->SetCutsWithDefault();
@@ -333,6 +335,8 @@ void RunManager::initG4(const edm::EventSetup & es)
 
   if("" != m_WriteFile) {
     G4GDMLParser gdml;
+    gdml.SetRegionExport(true);
+    gdml.SetEnergyCutsExport(true);
     gdml.Write(m_WriteFile, world->GetWorldVolume(), true);
   }
 

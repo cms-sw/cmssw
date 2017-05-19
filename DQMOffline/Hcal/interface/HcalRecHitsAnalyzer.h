@@ -62,7 +62,7 @@ class HcalRecHitsAnalyzer : public DQMEDAnalyzer {
   virtual void analyze(edm::Event const& ev, edm::EventSetup const& c) override;
   virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   //virtual void beginRun(edm::Run const& run, edm::EventSetup const& c) override;
-  virtual void dqmBeginRun(const edm::Run& run, const edm::EventSetup& c);
+  virtual void dqmBeginRun(const edm::Run& run, const edm::EventSetup& c) override;
  private:
   
   virtual void fillRecHitsTmp(int subdet_, edm::Event const& ev);
@@ -75,6 +75,7 @@ class HcalRecHitsAnalyzer : public DQMEDAnalyzer {
   std::string ecalselector_;
   std::string eventype_;
   std::string sign_;
+  bool hep17_;
   std::string mc_;
   bool        famos_;
 
@@ -105,6 +106,8 @@ class HcalRecHitsAnalyzer : public DQMEDAnalyzer {
   int iz;
   int imc;
 
+  //Hcal topology
+  const HcalTopology* theHcalTopology;
   // for checking the status of ECAL and HCAL channels stored in the DB 
   const HcalChannelQuality* theHcalChStatus;
   // calculator of severety level for HCAL
@@ -134,7 +137,14 @@ class HcalRecHitsAnalyzer : public DQMEDAnalyzer {
   std::vector<MonitorElement*> emap;
 
   std::vector<MonitorElement*> emean_vs_ieta_HB;
+  std::vector<MonitorElement*> emean_vs_ieta_HBM0;
+  std::vector<MonitorElement*> emean_vs_ieta_HBM3;
   std::vector<MonitorElement*> emean_vs_ieta_HE;
+  std::vector<MonitorElement*> emean_vs_ieta_HEM0;
+  std::vector<MonitorElement*> emean_vs_ieta_HEM3;
+  std::vector<MonitorElement*> emean_vs_ieta_HEP17;
+  std::vector<MonitorElement*> emean_vs_ieta_HEP17M0;
+  std::vector<MonitorElement*> emean_vs_ieta_HEP17M3;
   std::vector<MonitorElement*> emean_vs_ieta_HF;
   MonitorElement              *emean_vs_ieta_HO;
 
@@ -143,10 +153,10 @@ class HcalRecHitsAnalyzer : public DQMEDAnalyzer {
   std::vector<MonitorElement*> occupancy_map_HF;
   MonitorElement              *occupancy_map_HO;
 
-  std::vector<MonitorElement*> occupancy_vs_ieta_HB;
-  std::vector<MonitorElement*> occupancy_vs_ieta_HE;
-  std::vector<MonitorElement*> occupancy_vs_ieta_HF;
-  MonitorElement              *occupancy_vs_ieta_HO;
+  std::vector<MonitorElement*> nrechits_vs_iphi_HBP, nrechits_vs_iphi_HBM;
+  std::vector<MonitorElement*> nrechits_vs_iphi_HEP, nrechits_vs_iphi_HEM;
+  std::vector<MonitorElement*> nrechits_vs_iphi_HFP, nrechits_vs_iphi_HFM;
+  MonitorElement              *nrechits_vs_iphi_HOP, *nrechits_vs_iphi_HOM;
 
   // for single monoenergetic particles - cone collection profile vs ieta.
   MonitorElement* meEnConeEtaProfile;
@@ -164,8 +174,26 @@ class HcalRecHitsAnalyzer : public DQMEDAnalyzer {
 
   // energy of rechits
   MonitorElement* meRecHitsEnergyHB;
+  MonitorElement* meRecHitsEnergyHBM0;
+  MonitorElement* meRecHitsEnergyHBM3;
+  MonitorElement* meRecHitsEnergyM2vM0HB;
+  MonitorElement* meRecHitsEnergyM3vM0HB;
+  MonitorElement* meRecHitsEnergyM3vM2HB;
+  MonitorElement* meRecHitsM2Chi2HB;
+
   MonitorElement* meRecHitsEnergyHE;
+  MonitorElement* meRecHitsEnergyHEM0;
+  MonitorElement* meRecHitsEnergyHEM3;
+  std::vector<MonitorElement*> meRecHitsEnergyHEP17;
+  std::vector<MonitorElement*> meRecHitsEnergyHEP17M0;
+  std::vector<MonitorElement*> meRecHitsEnergyHEP17M3;
+  MonitorElement* meRecHitsEnergyM2vM0HE;
+  MonitorElement* meRecHitsEnergyM3vM0HE;
+  MonitorElement* meRecHitsEnergyM3vM2HE;
+  MonitorElement* meRecHitsM2Chi2HE;
+
   MonitorElement* meRecHitsEnergyHO;
+
   MonitorElement* meRecHitsEnergyHF;
 
   MonitorElement* meTE_Low_HB;
@@ -173,12 +201,14 @@ class HcalRecHitsAnalyzer : public DQMEDAnalyzer {
   MonitorElement* meTE_High_HB;
   MonitorElement* meTEprofileHB_Low;
   MonitorElement* meTEprofileHB;
+  MonitorElement* meLog10Chi2profileHB;
   MonitorElement* meTEprofileHB_High;
 
   MonitorElement* meTE_Low_HE;
   MonitorElement* meTE_HE;
   MonitorElement* meTEprofileHE_Low;
   MonitorElement* meTEprofileHE;
+  MonitorElement* meLog10Chi2profileHE;
 
   MonitorElement* meTE_HO;
   MonitorElement* meTE_High_HO;
@@ -246,6 +276,9 @@ class HcalRecHitsAnalyzer : public DQMEDAnalyzer {
   std::vector<int>      ciphi;
   std::vector<int>      cdepth;
   std::vector<double>   cen;
+  std::vector<double>   cenM0;
+  std::vector<double>   cenM3;
+  std::vector<double>   cchi2;
   std::vector<double>   ceta;
   std::vector<double>   cphi;
   std::vector<double>   ctime;

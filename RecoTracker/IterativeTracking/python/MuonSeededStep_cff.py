@@ -14,6 +14,8 @@ muonSeededSeedsInOut = RecoTracker.SpecialSeedGenerators.inOutSeedsFromTrackerMu
 )
 ### This is also needed for seeding
 from RecoTracker.SpecialSeedGenerators.outInSeedsFromStandaloneMuons_cfi import hitCollectorForOutInMuonSeeds
+from Configuration.Eras.Modifier_tracker_apv_vfp30_2016_cff import tracker_apv_vfp30_2016 as _tracker_apv_vfp30_2016
+_tracker_apv_vfp30_2016.toModify(hitCollectorForOutInMuonSeeds, MinPtForHitRecoveryInGluedDet=1e9)
 
 ###### EVENT-SETUP STUFF #######
 ###---------- Trajectory Cleaner, deciding how overlapping track candidates are arbitrated  ----------------
@@ -50,6 +52,8 @@ _muonSeededMeasurementEstimatorForOutInBase = _Chi2MeasurementEstimator.clone(
     MaxChi2 = cms.double(30.0), ## was 30 ## TO BE TUNED
     nSigma  = cms.double(3.),    ## was 3  ## TO BE TUNED
 )
+from Configuration.Eras.Modifier_tracker_apv_vfp30_2016_cff import tracker_apv_vfp30_2016 as _tracker_apv_vfp30_2016
+_tracker_apv_vfp30_2016.toModify(_muonSeededMeasurementEstimatorForOutInBase, MinPtForHitRecoveryInGluedDet=1e9)
 muonSeededMeasurementEstimatorForOutIn = _muonSeededMeasurementEstimatorForOutInBase.clone(
     MaxSagitta = cms.double(-1.) 
 )
@@ -232,12 +236,15 @@ muonSeededTracksOutInSelector = RecoTracker.FinalTrackSelectors.multiTrackSelect
 muonSeededStepCoreInOut = cms.Sequence(
     muonSeededSeedsInOut + muonSeededTrackCandidatesInOut + muonSeededTracksInOut
 )
-muonSeededStepCore = cms.Sequence(
-    muonSeededStepCoreInOut +
+muonSeededStepCoreOutIn = cms.Sequence(
     muonSeededSeedsOutIn + muonSeededTrackCandidatesOutIn + muonSeededTracksOutIn
 )
+muonSeededStepCore = cms.Sequence(
+    muonSeededStepCoreInOut +
+    muonSeededStepCoreOutIn
+)
 #Phase2 : just muon Seed InOut is used in this moment
-trackingPhase2PU140.toReplaceWith(muonSeededStepCore, muonSeededStepCoreInOut)
+#trackingPhase2PU140.toReplaceWith(muonSeededStepCore, muonSeededStepCoreInOut)
 muonSeededStepExtraInOut = cms.Sequence(
     muonSeededTracksInOutClassifier
 )
@@ -256,7 +263,8 @@ trackingPhase1PU70.toReplaceWith(muonSeededStepExtra, cms.Sequence(
     muonSeededTracksOutInSelector
 ))
 trackingPhase2PU140.toReplaceWith(muonSeededStepExtra, cms.Sequence(
-    muonSeededStepExtraInOut
+    muonSeededStepExtraInOut +
+    muonSeededTracksOutInSelector
 ))
 
 muonSeededStep = cms.Sequence(

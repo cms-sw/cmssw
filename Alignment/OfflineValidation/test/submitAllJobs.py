@@ -93,7 +93,7 @@ class BetterConfigParser(ConfigParser.ConfigParser):
             if "local"+section.title() in self.sections():
                 for option in self.options( "local"+section.title() ):
                     result[option] = self.get( "local"+section.title(),option )
-        except ConfigParser.NoSectionError, section:
+        except ConfigParser.NoSectionError as section:
             msg = ("%s in configuration files. This section is mandatory."
                    %(str(section).replace(":", "", 1)))
             #raise AllInOneError(msg)
@@ -105,7 +105,7 @@ class BetterConfigParser(ConfigParser.ConfigParser):
         for option in demandPars:
             try:
                 result[option] = self.get( section, option )
-            except ConfigParser.NoOptionError, globalSectionError:
+            except ConfigParser.NoOptionError as globalSectionError:
                 globalSection = str( globalSectionError ).split( "'" )[-2]
                 splittedSectionName = section.split( ":" )
                 if len( splittedSectionName ) > 1:
@@ -116,7 +116,7 @@ class BetterConfigParser(ConfigParser.ConfigParser):
                 if self.has_section( localSection ):
                     try:
                         result[option] = self.get( localSection, option )
-                    except ConfigParser.NoOptionError, option:
+                    except ConfigParser.NoOptionError as option:
                         msg = ("%s. This option is mandatory."
                                %(str(option).replace(":", "", 1).replace(
                                    "section",

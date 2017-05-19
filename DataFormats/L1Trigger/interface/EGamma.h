@@ -45,6 +45,7 @@ namespace l1t {
     void setFootprintEt(short int fp);  // raw footprint
     void setNTT(short int ntt);         // n towers above threshold
     void setShape(short int s);         // cluster shape variable
+    void setTowerHoE(short int HoE);         // H/E as computed in Layer-1
 
     short int towerIEta() const;
     short int towerIPhi() const;
@@ -53,6 +54,7 @@ namespace l1t {
     short int footprintEt() const;
     short int nTT() const;
     short int shape() const;
+    short int towerHoE() const;
 
   private:
 
@@ -65,6 +67,7 @@ namespace l1t {
     short int footprintEt_;
     short int nTT_;
     short int shape_;
+    short int towerHoE_;
 
   };
 

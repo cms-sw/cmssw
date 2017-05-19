@@ -37,6 +37,10 @@ process.fastTimerServiceClient.scalLumiME = cms.PSet(
     xmax   = cms.double(20000)
 )
 
+# ThroughputService client
+process.load("HLTrigger.Timer.throughputServiceClient_cfi")
+process.throughputServiceClient.dqmPath = "HLT/Throughput"
+
 # PS column VS lumi
 process.load('DQM.HLTEvF.dqmCorrelationClient_cfi')
 process.psColumnVsLumi = process.dqmCorrelationClient.clone(
@@ -68,4 +72,4 @@ process.load('DQM.HLTEvF.psMonitorClient_cfi')
 process.psChecker = process.psMonitorClient.clone()
 
 
-process.p = cms.EndPath( process.fastTimerServiceClient + process.psColumnVsLumi + process.psChecker + process.dqmEnv + process.dqmSaver )
+process.p = cms.EndPath( process.fastTimerServiceClient + process.throughputServiceClient + process.psColumnVsLumi + process.psChecker + process.dqmEnv + process.dqmSaver )

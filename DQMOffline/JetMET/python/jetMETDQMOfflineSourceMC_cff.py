@@ -58,9 +58,16 @@ dqmAk4PFCHSL1FastL2L3CorrectorChain = cms.Sequence(
     dqmAk4PFCHSL1FastL2L3Corrector
 )
 
-jetPreDQMSeq=cms.Sequence(ak4CaloL2RelativeCorrector*ak4CaloL3AbsoluteCorrector*
-                          ak4PFL1FastjetCorrector*ak4PFL2RelativeCorrector*ak4PFL3AbsoluteCorrector*
-                          ak4PFCHSL1FastjetCorrector*ak4PFCHSL2RelativeCorrector*ak4PFCHSL3AbsoluteCorrector)
+jetPreDQMTask = cms.Task(ak4CaloL2RelativeCorrector,
+                         ak4CaloL3AbsoluteCorrector,
+                         ak4PFL1FastjetCorrector,
+                         ak4PFL2RelativeCorrector,
+                         ak4PFL3AbsoluteCorrector,
+                         ak4PFCHSL1FastjetCorrector,
+                         ak4PFCHSL2RelativeCorrector,
+                         ak4PFCHSL3AbsoluteCorrector
+)
+jetPreDQMSeq = cms.Sequence(jetPreDQMTask)
 
 from JetMETCorrections.Type1MET.correctedMet_cff import pfMetT1
 from JetMETCorrections.Type1MET.correctionTermsPfMetType0PFCandidate_cff import *
@@ -83,7 +90,7 @@ caloMetDQMAnalyzerMC=caloMetDQMAnalyzer.clone(JetCorrections    = cms.InputTag("
 pfMetDQMAnalyzerMC=pfMetDQMAnalyzer.clone(JetCorrections      = cms.InputTag("dqmAk4PFL1FastL2L3Corrector"))
 pfMetT1DQMAnalyzerMC=pfMetT1DQMAnalyzer.clone(JetCorrections    = cms.InputTag("dqmAk4PFCHSL1FastL2L3Corrector"))
 
-jetMETDQMOfflineSource = cms.Sequence(goodOfflinePrimaryVerticesDQM*AnalyzeSUSYDQM*QGTagger*
+jetMETDQMOfflineSource = cms.Sequence(cms.ignore(goodOfflinePrimaryVerticesDQM)*AnalyzeSUSYDQM*QGTagger*
                                       pileupJetIdCalculatorCHSDQM*pileupJetIdEvaluatorCHSDQM*
                                       pileupJetIdCalculatorDQM*pileupJetIdEvaluatorDQM*
                                       jetPreDQMSeq*

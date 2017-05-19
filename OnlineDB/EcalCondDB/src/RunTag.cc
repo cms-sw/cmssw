@@ -78,7 +78,7 @@ void RunTag::setRunTypeDef(const RunTypeDef& runTypeDef)
 
 
 int RunTag::fetchID()
-  throw(std::runtime_error)
+  noexcept(false)
 {
 
 
@@ -125,7 +125,7 @@ int RunTag::fetchID()
 
 
 void RunTag::setByID(int id) 
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -160,7 +160,7 @@ void RunTag::setByID(int id)
 
 
 int RunTag::writeDB()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   // see if this data is already in the DB
   if (this->fetchID()) { 
@@ -202,7 +202,7 @@ int RunTag::writeDB()
 
 
 void RunTag::fetchAllTags( std::vector<RunTag>* fillVec)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   try {
@@ -225,7 +225,7 @@ void RunTag::fetchAllTags( std::vector<RunTag>* fillVec)
 
 
 void RunTag::fetchParentIDs(int* locID, int* runTypeID)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   // get the location
   m_locDef.setConnection(m_env, m_conn);

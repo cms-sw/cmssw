@@ -82,7 +82,6 @@ namespace edm {
     switch (state) {
       case Worker::Fail:
       {
-        ++timesFailed_;
         rc = false;
         break;
       }
@@ -127,7 +126,7 @@ namespace edm {
       worker_->doWorkAsync<T>(iTask,ep, es,streamID, parentContext, context);
     } else {
       ParentContext parentContext(context);
-      worker_->doWorkAsync<T>(iTask,ep, es,streamID, parentContext, context);
+      worker_->doWorkNoPrefetchingAsync<T>(iTask,ep, es,streamID, parentContext, context);
     }
   }
   

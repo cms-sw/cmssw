@@ -9,8 +9,10 @@
 #include "CondFormats/DataRecord/interface/EcalWeightXtalGroupsRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTBWeightsRcd.h"
 
-#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
-#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
+#include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 
 EcalUncalibRecHitWorkerWeights::EcalUncalibRecHitWorkerWeights(const edm::ParameterSet&ps, edm::ConsumesCollector& c) :
   EcalUncalibRecHitWorkerBaseClass(ps,c)
@@ -92,9 +94,15 @@ EcalUncalibRecHitWorkerWeights::run( const edm::Event & evt,
         }
 */
         if (detid.subdetId()==EcalEndcap) {
-                result.push_back(uncalibMaker_endcap_.makeRecHit(*itdg, pedVec, pedRMSVec, gainRatios, weights, testbeamEEShape));
+                EcalUncalibratedRecHit rhit = (uncalibMaker_endcap_.makeRecHit(*itdg, pedVec, pedRMSVec, gainRatios, weights, testbeamEEShape));
+                if( ((EcalDataFrame)(*itdg)).hasSwitchToGain6()  ) rhit.setFlagBit( EcalUncalibratedRecHit::kHasSwitchToGain6 );
+	            if( ((EcalDataFrame)(*itdg)).hasSwitchToGain1()  ) rhit.setFlagBit( EcalUncalibratedRecHit::kHasSwitchToGain1 );
+                result.emplace_back(rhit);
         } else {
-                result.push_back(uncalibMaker_barrel_.makeRecHit(*itdg, pedVec, pedRMSVec, gainRatios, weights, testbeamEBShape));
+                EcalUncalibratedRecHit rhit = (uncalibMaker_endcap_.makeRecHit(*itdg, pedVec, pedRMSVec, gainRatios, weights, testbeamEBShape));
+                if( ((EcalDataFrame)(*itdg)).hasSwitchToGain6()  ) rhit.setFlagBit( EcalUncalibratedRecHit::kHasSwitchToGain6 );
+	            if( ((EcalDataFrame)(*itdg)).hasSwitchToGain1()  ) rhit.setFlagBit( EcalUncalibratedRecHit::kHasSwitchToGain1 );
+                result.emplace_back(rhit);
         }
         return true;
 }

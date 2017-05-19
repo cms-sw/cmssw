@@ -31,7 +31,7 @@ namespace pos{
   public:
     PixelFEDTestDAC(std::string filename);
     PixelFEDTestDAC(std::vector< std::vector<std::string> > &);
-    std::string mode() {return mode_;}
+    std::string mode() const {return mode_;}
     std::vector<unsigned int> dacs() {return dacs_;}
     virtual void writeXMLHeader(  pos::PixelConfigKey key, 
 				  int version, 

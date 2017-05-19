@@ -20,8 +20,8 @@
 #include "CondFormats/L1TObjects/interface/DTTFBitArray.h"
 
 #include "L1Trigger/L1TCommon/interface/XmlConfigReader.h"
-#include "L1Trigger/L1TCommon/interface/TrigSystem.h"
-#include "L1Trigger/L1TCommon/interface/Setting.h"
+#include "L1Trigger/L1TCommon/interface/TriggerSystem.h"
+#include "L1Trigger/L1TCommon/interface/Parameter.h"
 #include "L1Trigger/L1TCommon/interface/Mask.h"
 
 #include "CondFormats/L1TObjects/interface/L1MuDTQualPatternLut.h"
@@ -38,7 +38,7 @@ public:
 	~L1TMuonBarrelParamsHelper() {};
 
 	void configFromPy(std::map<std::string, int>& allInts, std::map<std::string, bool>& allBools, std::map<std::string, std::vector<std::string> > allMasks, unsigned int fwVersion, const std::string& AssLUTpath);
-	void configFromDB(l1t::TrigSystem& trgSys);
+	void configFromDB(l1t::TriggerSystem& trgSys);
 
 
 
@@ -111,7 +111,6 @@ public:
   L1MuDTEtaPatternLut  l1mudttfetaplut;
 
 private:
-	l1t::TrigSystem m_trgSys;
 
 	int load_pt(std::vector<LUT>& , std::vector<int>&, unsigned short int, std::string);
 	int load_phi(std::vector<LUT>& , unsigned short int, unsigned short int, std::string);

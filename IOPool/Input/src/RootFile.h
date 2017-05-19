@@ -39,7 +39,7 @@ namespace edm {
   class BranchID;
   class BranchIDListHelper;
   class ProductProvenanceRetriever;
-  class DaqProvenanceHelper;
+  struct DaqProvenanceHelper;
   class DuplicateChecker;
   class EventSkipperByID;
   class ProcessHistoryRegistry;
@@ -55,6 +55,7 @@ namespace edm {
   class MakeProvenanceReader {
   public:
     virtual std::unique_ptr<ProvenanceReaderBase> makeReader(RootTree& eventTree, DaqProvenanceHelper const* daqProvenanceHelper) const = 0;
+    virtual ~MakeProvenanceReader() = default;
   };
 
   class RootFile {
@@ -116,11 +117,11 @@ namespace edm {
                processingMode, runHelper,
                false, productSelectorRules, inputType, branchIDListHelper,
                thinnedAssociationsHelper, associationsFromSecondary,
-               nullptr, dropDescendantsOfDroppedProducts, processHistoryRegistry,  
+               nullptr, dropDescendantsOfDroppedProducts, processHistoryRegistry,
                indexesIntoFiles, currentIndexIntoFile, orderedProcessHistoryIDs,
                bypassVersionCheck, labelRawDataLikeMC,
                false, enablePrefetching) {}
-               
+
     RootFile(std::string const& fileName,
              ProcessConfiguration const& processConfiguration,
              std::string const& logicalFileName,
@@ -141,11 +142,11 @@ namespace edm {
                nullptr, false, -1, -1, nStreams, treeCacheSize, treeMaxVirtualSize,
                InputSource::RunsLumisAndEvents, runHelper,
                false, productSelectorRules, inputType, nullptr, nullptr,
-               nullptr, nullptr, false, processHistoryRegistry,  
+               nullptr, nullptr, false, processHistoryRegistry,
                indexesIntoFiles, currentIndexIntoFile, orderedProcessHistoryIDs,
                bypassVersionCheck, false,
                false, enablePrefetching) {}
-               
+
     ~RootFile();
 
     RootFile(RootFile const&) = delete; // Disallow copying and moving
@@ -227,7 +228,7 @@ namespace edm {
     std::shared_ptr<LuminosityBlockAuxiliary> fillLumiAuxiliary();
     std::shared_ptr<RunAuxiliary> fillRunAuxiliary();
     std::string const& newBranchToOldBranch(std::string const& newBranch) const;
-    void markBranchToBeDropped(bool dropDescendants, BranchID const& branchID, std::set<BranchID>& branchesToDrop) const;
+    void markBranchToBeDropped(bool dropDescendants, BranchDescription const& branch, std::set<BranchID>& branchesToDrop, std::map<BranchID, BranchID> const& droppedToKeptAlias) const;
     void dropOnInput(ProductRegistry& reg, ProductSelectorRules const& rules, bool dropDescendants, InputType inputType);
     void readParentageTree(InputType inputType);
     void readEntryDescriptionTree(EntryDescriptionMap& entryDescriptionMap, InputType inputType); // backward compatibility

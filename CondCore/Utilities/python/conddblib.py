@@ -5,7 +5,7 @@ __author__ = 'Miguel Ojeda'
 __copyright__ = 'Copyright 2013, CERN'
 __credits__ = ['Giacomo Govi', 'Miguel Ojeda', 'Andreas Pfeiffer']
 __license__ = 'Unknown'
-__maintainer__ = 'Miguel Ojeda'
+__maintainer__ = 'Giacomo Govi'
 __email__ = 'mojedasa@cern.ch'
 
 
@@ -23,6 +23,20 @@ dbreader_user_name = 'cms_cond_general_r'
 dbwriter_user_name = 'cms_cond_general_w'
 devdbwriter_user_name = 'cms_test_conditions'
 logger = logging.getLogger(__name__)
+
+# frontier services
+PRO ='PromptProd'
+ARC ='FrontierArc'
+INT ='FrontierInt'
+DEV ='FrontierPrep'
+# oracle read only services
+ORAPRO = 'cms_orcon_adg'
+ORAARC = 'cmsarc_lb'
+# oracle masters
+ORAINT = 'cms_orcoff_int'
+ORADEV = 'cms_orcoff_prep'
+ONLINEORAPRO = 'cms_orcon_prod'
+ONLINEORAINT = 'cmsintr_lb'
 
 # Set initial level to WARN.  This so that log statements don't occur in
 # the absense of explicit logging being enabled.
@@ -181,8 +195,6 @@ def fq_name( schema_name, table_name ):
     return name
 
 db_models = {}
-ora_types = {}
-sqlite_types = {} 
 
 class _Col(Enum):
     nullable = 0
@@ -239,9 +251,6 @@ def getSchema(tp):
         return tp.__table_args__['schema']
     return None
 
-# notice: the GT table names are _LOWERCASE_. When turned to uppercase, the sqlalchemy ORM queries on GLOBAL_TAG and GLOBAL_TAG_MAP
-# dont work ( probably clashes with a GLOBAL keyword in their code?  
-
 class Tag:
     __tablename__       = 'TAG'
     columns             = { 'name': (sqlalchemy.String(name_length),_Col.pk), 
@@ -270,13 +279,11 @@ class IOV:
     columns             = { 'tag_name':(DbRef(Tag,'name'),_Col.pk),    
                             'since':(sqlalchemy.BIGINT,_Col.pk),
                             'insertion_time':(sqlalchemy.TIMESTAMP,_Col.pk),
-                            'payload_hash':(DbRef(Payload,'hash'),_Col.pk) }
+                            'payload_hash':(DbRef(Payload,'hash'),_Col.notNull) }
 
 
-# the string  'GLOBAL' being a keyword in sqlalchemy ( upper case ), when used in the model cause the two GT tables to be unreadable ( bug ) 
-# the only choice is to use lower case names, and rename the tables in sqlite after creation!!
 class GlobalTag:
-    __tablename__       = 'global_tag'
+    __tablename__       = 'GLOBAL_TAG'
     columns             = { 'name':(sqlalchemy.String(name_length),_Col.pk),
                             'validity': (sqlalchemy.BIGINT,_Col.notNull),
                             'description':(sqlalchemy.String(description_length),_Col.notNull),
@@ -285,7 +292,7 @@ class GlobalTag:
                             'snapshot_time':(sqlalchemy.TIMESTAMP,_Col.notNull) }
 
 class GlobalTagMap:
-    __tablename__       = 'global_tag_map'
+    __tablename__       = 'GLOBAL_TAG_MAP'
     columns             = { 'global_tag_name':(DbRef(GlobalTag,'name'),_Col.pk),
                             'record':(sqlalchemy.String(name_length),_Col.pk),
                             'label':(sqlalchemy.String(name_length),_Col.pk),
@@ -303,20 +310,22 @@ class TagLog:
                             'command':(sqlalchemy.String(500),_Col.notNull),
                             'user_text':(sqlalchemy.String(4000),_Col.notNull) }
 
+class RunInfo:
+    __tablename__       = 'RUN_INFO'
+    columns             = { 'run_number':(sqlalchemy.BIGINT,_Col.pk),
+                            'start_time':(sqlalchemy.TIMESTAMP,_Col.notNull),
+                            'end_time':(sqlalchemy.TIMESTAMP,_Col.notNull) }
+
 
 # CondDB object
 class Connection(object):
 
-    def __init__(self, url, init=False):
+    def __init__(self, url):
         # Workaround to avoid creating files if not present.
         # Python's sqlite3 module does not use sqlite3_open_v2(),
         # and therefore we cannot disable SQLITE_OPEN_CREATE.
         # Only in the case of creating a new database we skip the check.
         if url.drivername == 'sqlite':
-
-            #if not init and url.database is not None and not os.path.isfile(url.database):
-            #    # url.database is None if opening a in-memory DB, e.g. 'sqlite://'
-            #    raise Exception('SQLite database %s not found.' % url.database)
 
             self.engine = sqlalchemy.create_engine(url)
 
@@ -360,6 +369,8 @@ class Connection(object):
         self.get_dbtype(TagLog)
         self.get_dbtype(GlobalTag)
         self.get_dbtype(GlobalTagMap)
+        self.get_dbtype(RunInfo)
+        self._is_valid = self.is_valid()
 
     def get_dbtype(self,theType):
         basename = theType.__name__
@@ -372,6 +383,7 @@ class Connection(object):
         s = self._session()
         s.get_dbtype = self.get_dbtype
         s._is_sqlite = self._is_sqlite
+        s._url = self._url
         return s
 
     @property
@@ -402,9 +414,7 @@ class Connection(object):
         '''Tests whether the current DB looks like a valid CMS Conditions one.
         '''
         engine_connection = self.engine.connect()
-        #ret = all([self.engine.dialect.has_table(engine_connection, table.__tablename__) for table in [Tag, IOV, Payload, GlobalTag, GlobalTagMap]])
         # temporarely avoid the check on the GT tables - there are releases in use where C++ does not create these tables.
-        #ret = all([self.engine.dialect.has_table(engine_connection, table.__tablename__,table.__table_args__['schema']) for table in [Tag, IOV, Payload]])
         _Tag = self.get_dbtype(Tag)
         _IOV = self.get_dbtype(IOV)
         _Payload = self.get_dbtype(Payload) 
@@ -419,81 +429,89 @@ class Connection(object):
         if drop:
             logging.debug('Dropping tables...')
             self.metadata.drop_all(self.engine)
+            self._is_valid = False
         else:
-            if self.is_valid():
-                raise Exception('Looks like the database is already a valid CMS Conditions one.')
+            if not self._is_valid:
+                logging.debug('Creating tables...')
+                self.get_dbtype(Tag).__table__.create(bind = self.engine)
+                self.get_dbtype(Payload).__table__.create(bind = self.engine)
+                self.get_dbtype(IOV).__table__.create(bind = self.engine)
+                self.get_dbtype(TagLog).__table__.create(bind = self.engine)
+                self.get_dbtype(GlobalTag).__table__.create(bind = self.engine)
+                self.get_dbtype(GlobalTagMap).__table__.create(bind = self.engine)
+                self._is_valid = True
 
-        logging.debug('Creating tables...')
-        self.get_dbtype(Tag).__table__.create(bind = self.engine)
-        self.get_dbtype(Payload).__table__.create(bind = self.engine)
-        self.get_dbtype(IOV).__table__.create(bind = self.engine)
-        self.get_dbtype(TagLog).__table__.create(bind = self.engine)
-        self.get_dbtype(GlobalTag).__table__.create(bind = self.engine)
-        self.get_dbtype(GlobalTagMap).__table__.create(bind = self.engine)
-        #self.metadata.create_all(self.engine)
-        if self.is_sqlite:
-            # horrible hack, but no choice because of the sqlalchemy bug ( see comment in the model) 
-            import sqlite3
-            import string
-            conn = sqlite3.connect( self._url.database )
-            c = conn.cursor()
-            stmt = string.Template('ALTER TABLE $before RENAME TO $after')
-            c.execute( stmt.substitute( before=GlobalTag.__tablename__, after='TMP0' ) )
-            c.execute( stmt.substitute( before='TMP0', after=GlobalTag.__tablename__.upper() ) )
-            c.execute( stmt.substitute( before=GlobalTagMap.__tablename__, after='TMP1' ) )
-            c.execute( stmt.substitute( before='TMP1', after=GlobalTagMap.__tablename__.upper() ) )
-            conn.commit()
-            conn.close()
-        # TODO: Create indexes
-        #logger.debug('Creating indexes...')
-
+def getSessionOnMasterDB( session1, session2 ):
+    key = '%s/%s' 
+    sessiondict = { }
+    sessiondict[key %(session1._url.drivername,session1._url.host)] = session1
+    sessiondict[key %(session2._url.drivername,session2._url.host)] = session2
+    masterkey = key %('oracle',ONLINEORAPRO)
+    if masterkey in sessiondict.keys():
+        return sessiondict[masterkey]
+    adgkey = key %('oracle',ORAPRO)
+    if adgkey in sessiondict.keys():
+        return sessiondict[adgkey]
+    frontierkey = key %('frontier',PRO)
+    if frontierkey in sessiondict.keys():
+        return sessiondict[frontierkey]
+    # default case: frontier on pro
+    conn = Connection(make_url())
+    session = conn.session()
+    # is it required?
+    session._conn = conn
+    return session
 
 # Connection helpers
 def _getCMSFrontierConnectionString(database):
     import subprocess
     return subprocess.Popen(['cmsGetFnConnect', 'frontier://%s' % database], stdout = subprocess.PIPE).communicate()[0].strip()
 
-
-def _getCMSFrontierSQLAlchemyConnectionString(database, schema = 'cms_conditions'):
-    import urllib
-    return 'oracle+frontier://@%s/%s' % (urllib.quote_plus(_getCMSFrontierConnectionString(database)), schema)
-
-
-def _getCMSOracleSQLAlchemyConnectionString(database, schema = 'cms_conditions'):
-    return 'oracle://%s@%s' % (schema, database)
-
+def _getCMSSQLAlchemyConnectionString(technology,service,schema_name):
+    if technology == 'frontier':
+        import urllib
+        return '%s://@%s/%s' % ('oracle+frontier', urllib.quote_plus(_getCMSFrontierConnectionString(service)), schema_name )
+    elif technology == 'oracle':
+        return '%s://%s@%s' % (technology, schema_name, service)
 
 # Entry point
-
 def make_url(database='pro',read_only = True):
+    if database.startswith('sqlite:') or database.startswith('sqlite_file:'):
+        ignore, database = database.split(':',1)
 
-    #schema = 'cms_conditions'  # set the default
     if ':' in database and '://' not in database: # check if we really got a shortcut like "pro:<schema>" (and not a url like proto://...), if so, disentangle
-       database, schema = database.split(':')
+        database, schema = database.split(':')
 
-    # Lazy in order to avoid calls to cmsGetFnConnect
-    mapping = {
-        'pro_R':           lambda: _getCMSFrontierSQLAlchemyConnectionString('PromptProd', schema_name),
-        'arc_R':           lambda: _getCMSFrontierSQLAlchemyConnectionString('FrontierArc', schema_name),
-        'int_R':           lambda: _getCMSFrontierSQLAlchemyConnectionString('FrontierInt', schema_name),
-        'dev_R':           lambda: _getCMSFrontierSQLAlchemyConnectionString('FrontierPrep', schema_name),
-
-        'orapro_R':        lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcon_adg', dbreader_user_name),
-        'oraarc_R':        lambda: _getCMSOracleSQLAlchemyConnectionString('cmsarc_lb', dbreader_user_name),
-        'oraint_R':        lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcoff_int', dbreader_user_name),
-        'oraint_W':        lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcoff_int', dbwriter_user_name),
-        'oradev_R':        lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcoff_prep', dbreader_user_name),
-        'oradev_W':        lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcoff_prep', devdbwriter_user_name),
-
-        'onlineorapro_R':  lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcon_prod', dbreader_user_name),
-        'onlineorapro_W':  lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcon_prod', dbwriter_user_name),
-        'onlineoraint_R':  lambda: _getCMSOracleSQLAlchemyConnectionString('cmsintr_lb', dbreader_user_name),
-        'onlineoraint_W':  lambda: _getCMSOracleSQLAlchemyConnectionString('cmsintr_lb', dbwriter_user_name),
+    officialdbs = { 
+        # frontier 
+        'pro' :         ('frontier','PromptProd',             { 'R': schema_name }, ),
+        'arc' :         ('frontier','FrontierArc',            { 'R': schema_name }, ),
+        'int' :         ('frontier','FrontierInt',            { 'R': schema_name }, ),
+        'dev' :         ('frontier','FrontierPrep',           { 'R': schema_name }, ),
+        # oracle adg
+        'orapro':       ('oracle',         'cms_orcon_adg',   { 'R': dbreader_user_name }, ),
+        'oraarc':       ('oracle',         'cmsarc_lb',       { 'R': dbreader_user_name }, ),
+        # oracle masters
+        'oraint':       ('oracle',         'cms_orcoff_int',  { 'R': dbreader_user_name,
+                                                                'W': dbwriter_user_name }, ),
+        'oradev':       ('oracle',         'cms_orcoff_prep', { 'R': dbreader_user_name,
+                                                                'W': devdbwriter_user_name }, ),
+        'onlineorapro': ('oracle',         'cms_orcon_prod',  { 'R': dbreader_user_name,
+                                                                'W': dbwriter_user_name }, ),
+        'onlineoraint': ('oracle',         'cmsintr_lb',      { 'R': dbreader_user_name,
+                                                                'W': dbwriter_user_name }, ),
     }
 
-    key = database + ('_R' if read_only else '_W')
-    if key in mapping:
-        database = mapping[key]()
+    if database in officialdbs.keys():
+        key = ('R' if read_only else 'W')
+        mapping = officialdbs[database]
+        tech = mapping[0]
+        service = mapping[1]
+        schema_dict = mapping[2]
+        if key in schema_dict.keys():
+            database = _getCMSSQLAlchemyConnectionString(tech,service,schema_dict[key])
+        else:
+            raise Exception("Read-only database %s://%s cannot be accessed in update mode." %(tech,service))
 
     logging.debug('connection string set to "%s"' % database)
 
@@ -503,7 +521,7 @@ def make_url(database='pro',read_only = True):
         url = sqlalchemy.engine.url.make_url('sqlite:///%s' % database)
     return url
 
-def connect(url, init=False, authPath=None, verbose=0):
+def connect(url, authPath=None, verbose=0):
     '''Returns a Connection instance to the CMS Condition DB.
 
     See database_help for the description of the database parameter.
@@ -515,31 +533,36 @@ def connect(url, init=False, authPath=None, verbose=0):
         2 = In addition, results of the queries (all rows and the column headers).
     '''
 
-    if url.drivername == 'oracle' and url.password is None:
-        if authPath is None:
-            if authPathEnvVar in os.environ:
-                authPath = os.environ[authPathEnvVar]
-        authFile = None
-        if authPath is not None:
-            authFile = os.path.join(authPath,'.netrc')
-        if authFile is not None:
-            entryKey = url.host+"/"+url.username
-            logging.debug('Looking up credentials for %s in file %s ' %(entryKey,authFile) )
-            import netrc
-            try:
-                # Try to find the netrc entry
-                (username, account, password) = netrc.netrc( authFile ).authenticators(entryKey)
-                url.password = password
-            except IOError as e:
-                logging.error('.netrc file expected in %s has not been found or cannot be open.' %authPath)
-                raise e
-            except TypeError as e:
-                logging.error('The .netrc file in %s is invalid, or the targeted entry has not been found.' %authPath)
-            except Exception as e:
-                logging.error('Problem with .netrc file in %s: %s' %(authPath,str(e)))     
-        else:
-            import getpass
-            url.password = getpass.getpass('Password for %s: ' % str(url))
+    if url.drivername == 'oracle':
+        if url.username is None:
+            logging.error('Could not resolve the username for the connection %s. Please provide a connection in the format oracle://[user]:[pass]@[host]' %url )
+            raise Exception('Connection format error: %s' %url )
+        if url.password is None:
+            if authPath is None:
+                if authPathEnvVar in os.environ:
+                    authPath = os.environ[authPathEnvVar]
+            authFile = None
+            if authPath is not None:
+                authFile = os.path.join(authPath,'.netrc')
+            if authFile is not None:
+                entryKey = url.host.lower()+"/"+url.username.lower()
+                logging.debug('Looking up credentials for %s in file %s ' %(entryKey,authFile) )
+                import netrc
+                params = netrc.netrc( authFile ).authenticators(entryKey)
+                if params is not None:
+                    (username, account, password) = params
+                    url.password = password
+                else:
+                    msg = 'The entry %s has not been found in the .netrc file.' %entryKey
+                    raise TypeError(msg)
+            else:
+                import getpass
+                pwd = getpass.getpass('Password for %s: ' % str(url))
+                if pwd is None or pwd == '':
+                    pwd = getpass.getpass('Password for %s: ' % str(url))
+                    if pwd is None or pwd == '':
+                        raise Exception('Empty password provided, bailing out...')
+                url.password = pwd
 
     if verbose >= 1:
         logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
@@ -547,7 +570,7 @@ def connect(url, init=False, authPath=None, verbose=0):
     if verbose >= 2:
         logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
 
-    return Connection(url, init=init)
+    return Connection(url)
 
 
 def _exists(session, primary_key, value):

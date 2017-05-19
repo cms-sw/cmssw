@@ -120,7 +120,6 @@ void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const Tracki
 	   double preY = seedState.globalPosition().y();
 
 	   // Check SimTrack
-	   TrackingRecHit* aTrackingRecHit;
 	   FreeTrajectoryState simtrack_trackerstate;
 	   for( unsigned icomb = 0;icomb < recHitCombinations->size();++icomb){
 	       const auto & recHitCombination = (*recHitCombinations)[icomb];
@@ -153,8 +152,8 @@ void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const Tracki
 	       for( const auto & recHitRef : recHitCombination ) {
 		   theSeedHits = TrajectorySeedHitCandidate(recHitRef.get(),tTopo);
 		   if( itm->recHit()->hit()->geographicalId().rawId() == theSeedHits.hit()->geographicalId().rawId() ) {
-		       aTrackingRecHit = theSeedHits.hit()->clone();
-	               TransientTrackingRecHit::ConstRecHitPointer recHit = theTTRHBuilder->build(aTrackingRecHit);
+	               auto aTrackingRecHit = std::unique_ptr<TrackingRecHit>(theSeedHits.hit()->clone());
+	               TransientTrackingRecHit::ConstRecHitPointer recHit = theTTRHBuilder->build(aTrackingRecHit.get());
 	               if( !recHit ) continue;
 	               TrajectoryStateOnSurface updatedTSOS = updator()->update(seedState, *(recHit));
 	               if( updatedTSOS.isValid() && passSelection(updatedTSOS) ) {

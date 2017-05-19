@@ -69,7 +69,7 @@ public:
   explicit MuonIsolationDQM(const edm::ParameterSet&);
   ~MuonIsolationDQM();
   
-  void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 private:

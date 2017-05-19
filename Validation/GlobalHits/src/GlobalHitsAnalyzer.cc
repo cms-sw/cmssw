@@ -9,9 +9,14 @@
 #include "Validation/GlobalHits/interface/GlobalHitsAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
+#include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
+
 GlobalHitsAnalyzer::GlobalHitsAnalyzer(const edm::ParameterSet& iPSet) :
   fName(""), verbosity(0), frequency(0), vtxunit(0), label(""), 
-  getAllProvenances(false), printProvenanceInfo(false),
+  getAllProvenances(false), printProvenanceInfo(false), testNumber(false),
   G4VtxSrc_Token_( consumes<edm::SimVertexContainer>((iPSet.getParameter<edm::InputTag>("G4VtxSrc"))) ),
   G4TrkSrc_Token_( consumes<edm::SimTrackContainer>(iPSet.getParameter<edm::InputTag>("G4TrkSrc")) ),
   count(0)
@@ -30,6 +35,7 @@ GlobalHitsAnalyzer::GlobalHitsAnalyzer(const edm::ParameterSet& iPSet) :
     m_Prov.getUntrackedParameter<bool>("GetAllProvenances");
   printProvenanceInfo = 
     m_Prov.getUntrackedParameter<bool>("PrintProvenanceInfo");
+  testNumber = iPSet.getUntrackedParameter<bool>("testNumber");
 
   //get Labels to use to extract information
   PxlBrlLowSrc_ = iPSet.getParameter<edm::InputTag>("PxlBrlLowSrc");
@@ -267,7 +273,7 @@ GlobalHitsAnalyzer::GlobalHitsAnalyzer(const edm::ParameterSet& iPSet) :
 
 GlobalHitsAnalyzer::~GlobalHitsAnalyzer() {}
 
-void GlobalHitsAnalyzer::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &, edm::EventSetup const &) {
+void GlobalHitsAnalyzer::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &run, edm::EventSetup const &es) {
   // book histograms
   Char_t hname[200];
   Char_t htitle[200];
@@ -1840,7 +1846,11 @@ void GlobalHitsAnalyzer::fillHCal(const edm::Event& iEvent,
     return;
   }
   const CaloGeometry& theCalo(*theCaloGeometry);
-    
+
+  edm::ESHandle<HcalDDDRecConstants> pHRNDC;
+  iSetup.get<HcalRecNumberingRecord>().get( pHRNDC );
+  const HcalDDDRecConstants* hcons = &(*pHRNDC);
+
   // iterator to access containers
   edm::PCaloHitContainer::const_iterator itHit;
 
@@ -1863,9 +1873,13 @@ void GlobalHitsAnalyzer::fillHCal(const edm::Event& iEvent,
 	 itHit != HCalContainer->end(); ++itHit) {
       
       ++i;
-      
-      // create a DetId from the detUnitId
-      DetId theDetUnitId(itHit->id());
+
+      // create a DetId from the detUnitId      
+      DetId theDetUnitId;
+      unsigned int id_ = itHit->id();
+      if(testNumber) theDetUnitId = HcalHitRelabeller::relabel(id_,hcons);
+      else theDetUnitId = id_;
+
       int detector = theDetUnitId.det();
       int subdetector = theDetUnitId.subdetId();
       

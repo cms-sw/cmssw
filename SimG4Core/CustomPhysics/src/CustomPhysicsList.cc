@@ -26,14 +26,14 @@ CustomPhysicsList::CustomPhysicsList(std::string name, const edm::ParameterSet &
   :  G4VPhysicsConstructor(name) 
 {  
   myConfig = p;
-    dfactor = p.getParameter<double>("dark_factor");
+  dfactor = p.getParameter<double>("dark_factor");
   edm::FileInPath fp = p.getParameter<edm::FileInPath>("particlesDef");
   fHadronicInteraction = p.getParameter<bool>("rhadronPhysics");
 
   particleDefFilePath = fp.fullPath();
   edm::LogInfo("SimG4CoreCustomPhysics") 
     << "CustomPhysicsList: Path for custom particle definition file: \n"
-    <<particleDefFilePath;
+    <<particleDefFilePath << "\n" << "      dark_factor= " << dfactor;
 }
 
 CustomPhysicsList::~CustomPhysicsList() {
@@ -54,19 +54,15 @@ void CustomPhysicsList::ConstructProcess() {
   
   G4PhysicsListHelper* ph = G4PhysicsListHelper::GetPhysicsListHelper();
 
-  aParticleIterator->reset();
-  G4ParticleDefinition* particle;
-
-  while((*aParticleIterator)()) {
-    particle = aParticleIterator->value();
-    if(CustomParticleFactory::isCustomParticle(particle)) {
-      CustomParticle* cp = dynamic_cast<CustomParticle*>(particle);
+  for(auto particle : CustomParticleFactory::GetCustomParticles()) {
+    CustomParticle* cp = dynamic_cast<CustomParticle*>(particle);
+    if(cp) {
       G4ProcessManager* pmanager = particle->GetProcessManager();
       edm::LogInfo("SimG4CoreCustomPhysics") 
 	<<"CustomPhysicsList: " << particle->GetParticleName()
 	<<"  PDGcode= " << particle->GetPDGEncoding()
 	<< "  Mass= " << particle->GetPDGMass()/GeV  <<" GeV.";
-      if(cp && pmanager) {
+      if(pmanager) {
 	if(particle->GetPDGCharge() != 0.0) {
 	  ph->RegisterProcess(new G4hMultipleScattering, particle);
 	  ph->RegisterProcess(new G4hIonisation, particle);

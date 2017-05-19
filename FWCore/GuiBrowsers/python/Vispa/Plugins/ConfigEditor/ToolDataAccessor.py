@@ -155,7 +155,7 @@ class ToolDataAccessor(BasicDataAccessor):
             process=self.configDataAccessor().process()
             try:
                 process.disableRecording()
-                exec value
+                exec(value)
                 process.enableRecording()
                 process.resetModified()
                 process.resetModifiedObjects()
@@ -167,7 +167,7 @@ class ToolDataAccessor(BasicDataAccessor):
         elif isinstance(value,str):
             # for e.g. cms.InputTag
             try:
-                exec "value="+value
+                exec("value="+value)
             except:
                 pass
         if name!="comment":

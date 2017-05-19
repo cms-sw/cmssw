@@ -17,6 +17,7 @@
 #include "FWCore/Framework/src/ModuleHolder.h"
 #include "FWCore/Framework/src/ModuleRegistry.h"
 #include "FWCore/Framework/src/TriggerResultInserter.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -72,7 +73,7 @@ namespace edm {
       bool postCalled = false;
       std::shared_ptr<TriggerResultInserter> returnValue;
       try {
-        maker::ModuleHolderT<TriggerResultInserter> holder(std::make_shared<TriggerResultInserter>(*trig_pset, iPrealloc.numberOfStreams()),static_cast<Maker const*>(nullptr));
+        maker::ModuleHolderT<TriggerResultInserter> holder(std::shared_ptr<TriggerResultInserter>(new TriggerResultInserter(*trig_pset, iPrealloc.numberOfStreams())),static_cast<Maker const*>(nullptr));
         holder.setModuleDescription(md);
         holder.registerProductsAndCallbacks(&preg);
         returnValue =holder.module();
@@ -373,6 +374,7 @@ namespace edm {
                      ProductRegistry& preg,
                      BranchIDListHelper& branchIDListHelper,
                      ThinnedAssociationsHelper& thinnedAssociationsHelper,
+                     SubProcessParentageHelper const* subProcessParentageHelper,
                      ExceptionToActionTable const& actions,
                      std::shared_ptr<ActivityRegistry> areg,
                      std::shared_ptr<ProcessConfiguration> processConfiguration,
@@ -459,7 +461,7 @@ namespace edm {
       }
     });
     // Now that the output workers are filled in, set any output limits or information.
-    limitOutput(proc_pset, branchIDListHelper.branchIDLists());
+    limitOutput(proc_pset, branchIDListHelper.branchIDLists(), subProcessParentageHelper);
 
     // Sanity check: make sure nobody has added a worker after we've
     // already relied on the WorkerManager being full.
@@ -522,7 +524,8 @@ namespace edm {
       summaryTimeKeeper_ = std::make_unique<SystemTimeKeeper>(
                                                     prealloc.numberOfStreams(),
                                                     modDesc,
-                                                    tns);
+                                                    tns,
+                                                    processContext);
       auto timeKeeperPtr = summaryTimeKeeper_.get();
 
       areg->watchPreModuleEvent(timeKeeperPtr, &SystemTimeKeeper::startModuleEvent);
@@ -547,7 +550,9 @@ namespace edm {
 
 
   void
-  Schedule::limitOutput(ParameterSet const& proc_pset, BranchIDLists const& branchIDLists) {
+  Schedule::limitOutput(ParameterSet const& proc_pset,
+                        BranchIDLists const& branchIDLists,
+                        SubProcessParentageHelper const* subProcessParentageHelper) {
     std::string const output("output");
 
     ParameterSet const& maxEventsPSet = proc_pset.getUntrackedParameterSet("maxEvents", ParameterSet());
@@ -572,7 +577,7 @@ namespace edm {
     }
 
     for (auto& c : all_output_communicators_) {
-      OutputModuleDescription desc(branchIDLists, maxEventsOut);
+      OutputModuleDescription desc(branchIDLists, maxEventsOut, subProcessParentageHelper);
       if (vMaxEventsOut != 0 && !vMaxEventsOut->empty()) {
         std::string const& moduleLabel = c->description().moduleLabel();
         try {
@@ -616,6 +621,9 @@ namespace edm {
       // The trigger report (pass/fail etc.):
 
       LogVerbatim("FwkSummary") << "";
+      if(streamSchedules_[0]->context().processContext()->isSubProcess()) {
+        LogVerbatim("FwkSummary") << "TrigReport Process: "<<streamSchedules_[0]->context().processContext()->processName();
+      }
       LogVerbatim("FwkSummary") << "TrigReport " << "---------- Event  Summary ------------";
       if(!tr.trigPathSummaries.empty()) {
         LogVerbatim("FwkSummary") << "TrigReport"
@@ -944,12 +952,12 @@ namespace edm {
     streamSchedules_[iStreamID]->endStream();
   }
   
-  void Schedule::processOneEvent(unsigned int iStreamID,
-                                 EventPrincipal& ep,
-                                 EventSetup const& es,
-                                 bool cleaningUpAfterException) {
+  void Schedule::processOneEventAsync(WaitingTaskHolder iTask,
+                                      unsigned int iStreamID,
+                                      EventPrincipal& ep,
+                                      EventSetup const& es) {
     assert(iStreamID<streamSchedules_.size());
-    streamSchedules_[iStreamID]->processOneEvent(ep,es,cleaningUpAfterException);
+    streamSchedules_[iStreamID]->processOneEventAsync(std::move(iTask),ep,es);
   }
   
   void Schedule::preForkReleaseResources() {
@@ -1101,6 +1109,7 @@ namespace edm {
     for(auto& s: streamSchedules_) {
       s->getTriggerReport(rep);
     }
+    sort_all(rep.workerSummaries);
   }
 
   void

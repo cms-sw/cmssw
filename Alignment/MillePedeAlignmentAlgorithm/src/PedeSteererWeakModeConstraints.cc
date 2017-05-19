@@ -80,7 +80,8 @@ PedeSteererWeakModeConstraints::PedeSteererWeakModeConstraints(AlignableTracker 
                                                                ) :
   myLabels_(labels),
   myConfig_(config),
-  steerFile_(sf)
+  steerFile_(sf),
+  alignableObjectId_{AlignableObjectId::commonObjectIdProvider(aliTracker, nullptr)}
 {
   unsigned int psetnr = 0;
   std::set<std::string> steerFilePrefixContainer;
@@ -195,7 +196,7 @@ PedeSteererWeakModeConstraints::createAlignablesDataStructure()
 	  edm::LogWarning("Alignment")
 	    << "@SUB=PedeSteererWeakModeConstraints::createAlignablesDataStructure"
 	    << "Some but not all component branches "
-	    << AlignableObjectId::idToString(iHLS.first->alignableObjectId())
+	    << alignableObjectId_.idToString(iHLS.first->alignableObjectId())
 	    << " with params!";
 	}
       } else {
@@ -203,7 +204,7 @@ PedeSteererWeakModeConstraints::createAlignablesDataStructure()
 	  edm::LogWarning("Alignment")
 	    << "@SUB=PedeSteererWeakModeConstraints::createAlignablesDataStructure"
 	    << "Some but not all daughters of "
-	    << AlignableObjectId::idToString(iHLS.first->alignableObjectId())
+	    << alignableObjectId_.idToString(iHLS.first->alignableObjectId())
 	    << " with params!";
 	}
       }
@@ -238,7 +239,7 @@ PedeSteererWeakModeConstraints::createAlignablesDataStructure()
           throw cms::Exception("Alignment")
             << "[PedeSteererWeakModeConstraints::createAlignablesDataStructure]"
             << " Sanity check failed. Alignable defined as active sub-component, "
-            << " but in fact its not a daugther of " << AlignableObjectId::idToString(iHLS.first->alignableObjectId());
+            << " but in fact its not a daugther of " << alignableObjectId_.idToString(iHLS.first->alignableObjectId());
         }
       }
 
@@ -247,7 +248,7 @@ PedeSteererWeakModeConstraints::createAlignablesDataStructure()
       } else {
         edm::LogInfo("Alignment") << "@SUB=PedeSteererWeakModeConstraints"
                                   << "No sub-components for "
-                                  << AlignableObjectId::idToString(iHLS.first->alignableObjectId())
+                                  << alignableObjectId_.idToString(iHLS.first->alignableObjectId())
                                   << " at (" << iHLS.first->globalPosition().x()
 				  << ","<< iHLS.first->globalPosition().y()
 				  << "," << iHLS.first->globalPosition().z()
@@ -256,7 +257,7 @@ PedeSteererWeakModeConstraints::createAlignablesDataStructure()
       if(aliDaughts.size() == 0) {
         edm::LogWarning("Alignment") << "@SUB=PedeSteererWeakModeConstraints::createAlignablesDataStructure"
                                      << "No active sub-alignables found for "
-                                     << AlignableObjectId::idToString(iHLS.first->alignableObjectId())
+                                     << alignableObjectId_.idToString(iHLS.first->alignableObjectId())
                                      << " at (" << iHLS.first->globalPosition().x() << ","<< iHLS.first->globalPosition().y() << "," << iHLS.first->globalPosition().z() << ").";
       }
 
@@ -427,7 +428,7 @@ PedeSteererWeakModeConstraints::checkSelectionShiftParameter(const Alignable *al
           throw cms::Exception("Alignment")
             << "[PedeSteererWeakModeConstraints::checkSelectionShiftParameter]"
             << " Can not access selected alignment variables of alignable "
-            <<  AlignableObjectId::idToString(ali->alignableObjectId())
+            <<  alignableObjectId_.idToString(ali->alignableObjectId())
             << "at (" << ali->globalPosition().x() << ","<< ali->globalPosition().y() << "," << ali->globalPosition().z()<< ") "
             << "for parameter number " << (iParameter+1) << ".";
         }
@@ -530,7 +531,7 @@ PedeSteererWeakModeConstraints::getX0(const std::pair<Alignable*, std::list<Alig
         //     << "@SUB=PedeSteererWeakModeConstraints::ConstructConstraints"
         //     << " Weak mode constraints are only supported for alignables which have"
         //     << " just one label. However, e.g. alignable"
-        //     << " " << AlignableObjectId::idToString(ali->alignableObjectId())
+        //     << " " << alignableObjectId_.idToString(ali->alignableObjectId())
         //     << "at (" << ali->globalPosition().x() << ","<< ali->globalPosition().y() << "," << ali->globalPosition().z()<< "), "
         //     << " was configured to have >1 label. Remove e.g. IOV-dependence for this (and other) alignables which are used in the constraint.";
         // }
@@ -655,9 +656,9 @@ PedeSteererWeakModeConstraints::constructConstraints(const std::vector<Alignable
               edm::LogWarning("PedeSteererWeakModeConstraints")
                 << "@SUB=PedeSteererWeakModeConstraints::getCoefficient"
                 << "Coefficient of alignable "
-                <<  AlignableObjectId::idToString(ali->alignableObjectId())
+                <<  alignableObjectId_.idToString(ali->alignableObjectId())
                 << " at (" << ali->globalPosition().x() << ","<< ali->globalPosition().y() << "," << ali->globalPosition().z()<< ") "
-                << " in subdet " << AlignableObjectId::idToString(iHLS.first->alignableObjectId())
+                << " in subdet " << alignableObjectId_.idToString(iHLS.first->alignableObjectId())
                 << " for parameter " << localindex << " equal to zero. This alignable is used in the constraint"
                 << " '" << it.constraintName_ << "'. The id is: alignable->geomDetId().rawId() = "
                 << ali->geomDetId().rawId() << ".";
@@ -745,7 +746,7 @@ PedeSteererWeakModeConstraints::makeLevelsFilenames(std::set<std::string> &steer
   for(const auto& ali: alis) {
     std::stringstream n;
     n << steerFile_ << "_" << steerFilePrefix //<< "_" << name
-      << "_" << AlignableObjectId::idToString(ali->alignableObjectId())
+      << "_" << alignableObjectId_.idToString(ali->alignableObjectId())
       << "_" << ali->id() << "_" << ali->alignableObjectId() << ".txt";
 
     levelsFilenames.push_back(std::make_pair(ali, n.str()));

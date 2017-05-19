@@ -9,13 +9,11 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ESWatcher.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CondFormats/RPCObjects/interface/RPCEMap.h"
-#include "CondFormats/DataRecord/interface/RPCEMapRcd.h"
 #include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"
 
 #include "EventFilter/RPCRawToDigi/interface/RPCRecordFormatter.h"
@@ -33,7 +31,6 @@ using namespace rpcrawtodigi;
 typedef uint64_t Word64;
 
 RPCPackingModule::RPCPackingModule( const ParameterSet& pset ) 
-  : eventCounter_(0)
 {
   
   dataLabel_ = consumes<RPCDigiCollection>(pset.getParameter<edm::InputTag>("InputLabel"));
@@ -49,18 +46,13 @@ RPCPackingModule::~RPCPackingModule()
 
 
 void RPCPackingModule::produce( edm::Event& ev,
-                              const edm::EventSetup& es)
+                                const edm::EventSetup& es)
 {
-  eventCounter_++;
-  LogInfo("RPCPackingModule") << "[RPCPackingModule::produce] " 
-                              << "event counter: " << eventCounter_;
-
   Handle< RPCDigiCollection > digiCollection;
   ev.getByToken(dataLabel_,digiCollection);
   LogDebug("") << DebugDigisPrintout()(digiCollection.product());
 
-  static edm::ESWatcher<RPCEMapRcd> recordWatcher; 
-  if(recordWatcher.check(es)) {
+  if(recordWatcher_.check(es)) {
     delete theCabling;
     LogTrace("") << "record has CHANGED!!, initialise readout map!";
     ESHandle<RPCEMap> readoutMapping;
@@ -87,7 +79,7 @@ void RPCPackingModule::produce( edm::Event& ev,
 }
 
 
-FEDRawData * RPCPackingModule::rawData( int fedId, unsigned int lvl1_ID, const RPCDigiCollection * digis, const RPCRecordFormatter & formatter)
+FEDRawData * RPCPackingModule::rawData( int fedId, unsigned int lvl1_ID, const RPCDigiCollection * digis, const RPCRecordFormatter & formatter) const
 {
   //
   // get merged records

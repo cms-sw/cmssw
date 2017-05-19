@@ -21,12 +21,13 @@ class SortedKeysDict(dict):
     def __repr__(self):
         meat = ', '.join([ '%s: %s' % (repr(key), repr(val)) for key,val in self.iteritems() ])
         return '{' + meat + '}'
-
     def __iter__(self):
         for key in self.list:
             yield key
     def __setitem__(self, key, value):
         dict.__setitem__(self, key, value)
+        if not hasattr(self,'list'):
+          self.list = list()
         if not key in self.list:
             self.list.append(key)
     def __delitem__(self, key):

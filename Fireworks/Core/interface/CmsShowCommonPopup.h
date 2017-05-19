@@ -2,7 +2,7 @@
 #define Fireworks_Core_CmsShowCommonPopup_h
 
 #ifndef __CINT__
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #endif
 #include "GuiTypes.h"
 #include "TGFrame.h"
@@ -64,7 +64,7 @@ private:
    FWColorSelect* m_colorSelectWidget[kFWGeomColorSize];
    FWColorSelect* m_colorRnrCtxHighlightWidget;   
    FWColorSelect* m_colorRnrCtxSelectWidget;
-   std::vector<boost::shared_ptr<FWParameterSetterBase> > m_setters;
+   std::vector<std::shared_ptr<FWParameterSetterBase> > m_setters;
 #endif
    TGComboBox     *m_combo;  
 };

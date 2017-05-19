@@ -61,11 +61,13 @@ class HcalOfflineHarvesting : public hcaldqm::DQHarvester
 			nSummary=4
 		};
 
+		std::vector<Summary> _summaryList;
+
 		//	vector of Summary Generators and marks of being present
 		//	by default all false
-		std::vector<hcaldqm::DQClient*> _vsumgen;
-		std::vector<bool> _vmarks;
-		std::vector<std::string> _vnames;
+		std::map<Summary, hcaldqm::DQClient*> _sumgen;
+		std::map<Summary, bool> _summarks;
+		std::map<Summary, std::string> _sumnames;
 		
 		//	reportSummaryMap
 		MonitorElement *_reportSummaryMap;

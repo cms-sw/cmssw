@@ -110,7 +110,7 @@ class CSCMonitorModule: public DQMEDAnalyzer, public cscdqm::MonitorObjectProvid
 
   public:
 
-    bool getCSCDetId(const unsigned int crateId, const unsigned int dmbId, CSCDetId& detId) const { 
+    bool getCSCDetId(const unsigned int crateId, const unsigned int dmbId, CSCDetId& detId) const override  {
       // Check parameter values
       if (crateId < MIN_CRATE_ID || crateId > MAX_CRATE_ID || dmbId < MIN_DMB_SLOT || dmbId > MAX_DMB_SLOT) {
         return false;
@@ -119,7 +119,7 @@ class CSCMonitorModule: public DQMEDAnalyzer, public cscdqm::MonitorObjectProvid
       return (detId.rawId() != 0);
     }
 
-    cscdqm::MonitorObject *bookMonitorObject (const cscdqm::HistoBookRequest& p_req); 
+    cscdqm::MonitorObject *bookMonitorObject (const cscdqm::HistoBookRequest& p_req) override;
 
   /** 
    * EDAnalyzer Implementation
@@ -130,9 +130,9 @@ class CSCMonitorModule: public DQMEDAnalyzer, public cscdqm::MonitorObjectProvid
     void beginJob() { }
     // void beginRun(const edm::Run& r, const edm::EventSetup& c);
     void setup() { }
-    void analyze(const edm::Event& e, const edm::EventSetup& c);
-    void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) { }
-    void endRun(const edm::Run& r, const edm::EventSetup& c) { }
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+    void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) override  { }
+    void endRun(const edm::Run& r, const edm::EventSetup& c) override { }
     void endJob() { }
     void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 

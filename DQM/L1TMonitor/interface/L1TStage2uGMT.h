@@ -23,8 +23,8 @@ class L1TStage2uGMT : public DQMEDAnalyzer {
 
  protected:
 
-  virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
-  virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
+  virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
+  virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
   virtual void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 
@@ -91,6 +91,8 @@ class L1TStage2uGMT : public DQMEDAnalyzer {
   MonitorElement* ugmtMuonhwPt;
   MonitorElement* ugmtMuonhwEta;
   MonitorElement* ugmtMuonhwPhi;
+  MonitorElement* ugmtMuonhwEtaAtVtx;
+  MonitorElement* ugmtMuonhwPhiAtVtx;
   MonitorElement* ugmtMuonhwCharge;
   MonitorElement* ugmtMuonhwChargeValid;
   MonitorElement* ugmtMuonhwQual;
@@ -99,20 +101,30 @@ class L1TStage2uGMT : public DQMEDAnalyzer {
   MonitorElement* ugmtMuonPt;
   MonitorElement* ugmtMuonEta;
   MonitorElement* ugmtMuonPhi;
+  MonitorElement* ugmtMuonEtaAtVtx;
+  MonitorElement* ugmtMuonPhiAtVtx;
   MonitorElement* ugmtMuonCharge;
 
   MonitorElement* ugmtMuonPhiBmtf;
   MonitorElement* ugmtMuonPhiOmtf;
   MonitorElement* ugmtMuonPhiEmtf;
+  MonitorElement* ugmtMuonPhiAtVtxBmtf;
+  MonitorElement* ugmtMuonPhiAtVtxOmtf;
+  MonitorElement* ugmtMuonPhiAtVtxEmtf;
 
   MonitorElement* ugmtMuonPtvsEta;
   MonitorElement* ugmtMuonPtvsPhi;
   MonitorElement* ugmtMuonPhivsEta;
+  MonitorElement* ugmtMuonPtvsEtaAtVtx;
+  MonitorElement* ugmtMuonPtvsPhiAtVtx;
+  MonitorElement* ugmtMuonPhiAtVtxvsEtaAtVtx;
 
   MonitorElement* ugmtMuonBXvsLink;
   MonitorElement* ugmtMuonBXvshwPt;
   MonitorElement* ugmtMuonBXvshwEta;
   MonitorElement* ugmtMuonBXvshwPhi;
+  MonitorElement* ugmtMuonBXvshwEtaAtVtx;
+  MonitorElement* ugmtMuonBXvshwPhiAtVtx;
   MonitorElement* ugmtMuonBXvshwCharge;
   MonitorElement* ugmtMuonBXvshwChargeValid;
   MonitorElement* ugmtMuonBXvshwQual;

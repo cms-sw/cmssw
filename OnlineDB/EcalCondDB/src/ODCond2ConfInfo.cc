@@ -42,7 +42,7 @@ ODCond2ConfInfo::~ODCond2ConfInfo()
 
 
 
-int ODCond2ConfInfo::fetchNextId()  throw(std::runtime_error) {
+int ODCond2ConfInfo::fetchNextId()  noexcept(false) {
 
   int result=0;
   try {
@@ -64,7 +64,7 @@ int ODCond2ConfInfo::fetchNextId()  throw(std::runtime_error) {
 
 }
 
-void ODCond2ConfInfo::fetchParents()  throw(std::runtime_error) {
+void ODCond2ConfInfo::fetchParents()  noexcept(false) {
 
 
 
@@ -107,7 +107,7 @@ void ODCond2ConfInfo::fetchParents()  throw(std::runtime_error) {
 }
 
 void ODCond2ConfInfo::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -152,7 +152,7 @@ void ODCond2ConfInfo::setParameters(const std::map<string,string>& my_keys_map){
 
 
 void ODCond2ConfInfo::writeDB()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -185,7 +185,7 @@ void ODCond2ConfInfo::writeDB()
 
 
 void ODCond2ConfInfo::fetchData(ODCond2ConfInfo * result)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   result->clear();
@@ -231,7 +231,7 @@ void ODCond2ConfInfo::fetchData(ODCond2ConfInfo * result)
   }
 }
 
-int ODCond2ConfInfo::fetchID()    throw(std::runtime_error)
+int ODCond2ConfInfo::fetchID()    noexcept(false)
 {
   // Return from memory if available
   if (m_ID!=0) {

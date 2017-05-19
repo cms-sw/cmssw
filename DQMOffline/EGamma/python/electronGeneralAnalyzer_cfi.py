@@ -21,4 +21,5 @@ dqmElectronGeneralAnalysis = cms.EDAnalyzer("ElectronGeneralAnalyzer",
 
 )
 
-
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+phase2_hgcal.toModify( dqmElectronGeneralAnalysis, ElectronCollection = cms.InputTag("ecalDrivenGsfElectrons") )

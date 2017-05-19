@@ -42,7 +42,7 @@ class LHERunInfoProduct;
 	virtual void readRun_(edm::RunPrincipal& runPrincipal) override;
 	virtual void readLuminosityBlock_(edm::LuminosityBlockPrincipal& lumiPrincipal) override;
 	virtual void readEvent_(edm::EventPrincipal& eventPrincipal) override;
-        virtual void produce(edm::Event&) {}
+        virtual void produce(edm::Event&) override {}
 
 	void nextEvent();
 

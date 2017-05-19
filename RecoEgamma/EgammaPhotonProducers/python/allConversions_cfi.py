@@ -61,3 +61,6 @@ allConversions = cms.EDProducer('ConversionProducer',
     AllowSingleLeg = cms.bool(False), #Allow single track conversion
     AllowRightBC = cms.bool(False) #Require second leg matching basic cluster
 )
+
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+phase2_hgcal.toModify( allConversions, bypassPreselGsf = cms.bool(False) )

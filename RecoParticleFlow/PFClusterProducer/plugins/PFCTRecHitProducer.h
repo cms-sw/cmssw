@@ -20,6 +20,7 @@
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "Geometry/CaloTopology/interface/CaloTowerConstituentsMap.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitNavigatorBase.h"
 #include "DataFormats/HcalRecHit/interface/HFRecHit.h"
@@ -41,7 +42,7 @@ class dso_hidden PFCTRecHitProducer final : public edm::stream::EDProducer<> {
 				    const edm::EventSetup & es) override;
   
   void produce(edm::Event& iEvent, 
-	       const edm::EventSetup& iSetup);
+	       const edm::EventSetup& iSetup) override;
 
 
   reco::PFRecHit*  createHcalRecHit( const DetId& detid, 
@@ -57,7 +58,7 @@ class dso_hidden PFCTRecHitProducer final : public edm::stream::EDProducer<> {
   const HcalChannelQuality* theHcalChStatus;
   const EcalChannelStatus* theEcalChStatus;
   const CaloTowerConstituentsMap* theTowerConstituentsMap;
-
+  const HcalTopology* theHcalTopology;
 
   // ----------access to event data
   edm::EDGetTokenT<HBHERecHitCollection> hcalToken_;

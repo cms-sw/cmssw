@@ -1,7 +1,7 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <algorithm>
+#include <iostream>
 
 #include <Math/Transform3D.h>
 #include <Math/EulerAngles.h>
@@ -11,20 +11,25 @@ typedef CaloCellGeometry::Pt3D     Pt3D     ;
 typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
 typedef CaloCellGeometry::Tr3D     Tr3D     ;
 
+//#define EDM_ML_DEBUG
+
 HcalGeometry::HcalGeometry(const HcalTopology& topology) :
-  m_topology( topology ) {
+  m_topology(topology), m_mergePosition(topology.getMergePositionFlag()) {
   init();
 }
   
 HcalGeometry::~HcalGeometry() {}
 
 void HcalGeometry::init() {
-  edm::LogInfo("HcalGeometry") << "HcalGeometry::init() "
+  if (!m_topology.withSpecialRBXHBHE()) m_mergePosition = false;
+#ifdef EDM_ML_DEBUG
+  std::cout << "HcalGeometry: " << "HcalGeometry::init() "
 			       << " HBSize " << m_topology.getHBSize() 
 			       << " HESize " << m_topology.getHESize() 
 			       << " HOSize " << m_topology.getHOSize() 
-			       << " HFSize " << m_topology.getHFSize();
-    
+			       << " HFSize " << m_topology.getHFSize() << std::endl;
+#endif
+
   m_hbCellVec = HBCellVec( m_topology.getHBSize() ) ;
   m_heCellVec = HECellVec( m_topology.getHESize() ) ;
   m_hoCellVec = HOCellVec( m_topology.getHOSize() ) ;
@@ -111,12 +116,13 @@ DetId HcalGeometry::getClosestCell(const GlobalPoint& r) const {
     //    HcalDetId bestId(bc,etabin,phibin,((fabs(r.z())>=z_short)?(2):(1)));
     // above line is no good with finite precision
     HcalDetId bestId(bc,etabin,phibin,((fabs(r.z()) - z_short >-0.1)?(2):(1)));
-    return bestId;
+    return correctId(bestId);
   } else {
 
     //Now do depth if required
-    int dbin = 1;
-    double pointrz=0, drz=99999.;
+    int zside = (r.z() > 0) ? 1 : -1;
+    int dbin  = m_topology.dddConstants()->getMinDepth(((int)(bc)-1),etaring,phibin,zside);
+    double pointrz(0), drz(99999.);
     HcalDetId currentId(bc, etabin, phibin, dbin);
     if (bc == HcalBarrel) pointrz = r.mag();
     else                  pointrz = std::abs(r.z());
@@ -137,10 +143,44 @@ DetId HcalGeometry::getClosestCell(const GlobalPoint& r) const {
       }
     }
     
-    return bestId;
+    return correctId(bestId);
   }
 }
 
+GlobalPoint HcalGeometry::getPosition(const DetId& id) const {
+  if (!m_mergePosition) {
+    return (getGeometry(id)->getPosition());
+  } else {
+    return (getGeometry(m_topology.idFront(id))->getPosition());
+  }
+}
+
+GlobalPoint HcalGeometry::getBackPosition(const DetId& id) const {
+  if (!m_mergePosition) {
+    return (getGeometry(id)->getBackPoint());
+  } else {
+    std::vector<HcalDetId> ids;
+    m_topology.unmergeDepthDetId(HcalDetId(id),ids);
+    return (getGeometry(ids.back())->getBackPoint());
+  }
+}
+
+CaloCellGeometry::CornersVec HcalGeometry::getCorners(const DetId& id) const {
+  if (!m_mergePosition) {
+    return (getGeometry(id)->getCorners());
+  } else {
+    std::vector<HcalDetId> ids;
+    m_topology.unmergeDepthDetId(HcalDetId(id),ids);
+    CaloCellGeometry::CornersVec mcorners;
+    CaloCellGeometry::CornersVec mcf = getGeometry(ids.front())->getCorners();
+    CaloCellGeometry::CornersVec mcb = getGeometry(ids.back())->getCorners();
+    for (unsigned int k=0; k<4; ++k) {
+      mcorners[k]   = mcf[k];
+      mcorners[k+4] = mcb[k+4];
+    }
+    return mcorners;
+  }
+}
 
 int HcalGeometry::etaRing(HcalSubdetector bc, double abseta) const {
   return m_topology.etaRing(bc, abseta);
@@ -344,7 +384,7 @@ void HcalGeometry::localCorners(Pt3DVec&        lc,
    }
 }
 
-void HcalGeometry::newCell(const GlobalPoint& f1 ,
+unsigned int HcalGeometry::newCellImpl(const GlobalPoint& f1 ,
 			   const GlobalPoint& f2 ,
 			   const GlobalPoint& f3 ,
 			   const CCGFloat*    parm ,
@@ -355,11 +395,13 @@ void HcalGeometry::newCell(const GlobalPoint& f1 ,
   const HcalDetId hid ( detId ) ;
   unsigned int din=m_topology.detId2denseId(detId);
 
-  edm::LogInfo("HcalGeometry") << " newCell subdet "
+#ifdef EDM_ML_DEBUG
+  std::cout << "HcalGeometry: " << " newCell subdet "
  	    << detId.subdetId() << ", raw ID " 
  	    << detId.rawId() << ", hid " << hid << ", din " 
- 	    << din << ", index ";
-  
+ 	    << din << ", index " << std::endl;
+#endif
+
   if (hid.subdet()==HcalBarrel) {
     m_hbCellVec.at( din ) = IdealObliquePrism( f1, cornersMgr(), parm ) ;
   } else if (hid.subdet()==HcalEndcap) {
@@ -378,7 +420,30 @@ void HcalGeometry::newCell(const GlobalPoint& f1 ,
     m_hfCellVec.at( index ) = IdealZPrism( f1, cornersMgr(), parm,  hid.depth()==1 ? IdealZPrism::EM : IdealZPrism::HADR ) ;
   }
 
+  return din;
+}
+
+void HcalGeometry::newCell(const GlobalPoint& f1 ,
+               const GlobalPoint& f2 ,
+               const GlobalPoint& f3 ,
+               const CCGFloat*    parm ,
+               const DetId&       detId) {
+
+  unsigned int din = newCellImpl(f1,f2,f3,parm,detId);
+
   addValidID( detId ) ;
+  m_dins.push_back( din );
+}
+
+void HcalGeometry::newCellFast(const GlobalPoint& f1 ,
+               const GlobalPoint& f2 ,
+               const GlobalPoint& f3 ,
+               const CCGFloat*    parm ,
+               const DetId&       detId) {
+
+  unsigned int din = newCellImpl(f1,f2,f3,parm,detId);
+
+  m_validIds.push_back( detId ) ;
   m_dins.push_back( din );
 }
 
@@ -474,3 +539,22 @@ void HcalGeometry::getSummary( CaloSubdetectorGeometry::TrVec&  tVec,
     }
   }
 }
+
+DetId HcalGeometry::correctId(const DetId& id) const {
+
+  if (m_mergePosition) {
+    HcalDetId hid(id);
+    return ((DetId)(m_topology.mergedDepthDetId(hid)));
+  } else {
+    return id;
+  }
+}
+
+void HcalGeometry::increaseReserve(unsigned int extra) {
+  m_validIds.reserve(m_validIds.size()+extra);
+}
+
+void HcalGeometry::sortValidIds() {
+  std::sort(m_validIds.begin(),m_validIds.end());
+}
+

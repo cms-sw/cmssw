@@ -22,7 +22,7 @@
 #include <vector>
 #include <string>
 #ifndef __CINT__
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #endif
 // user include files
 #include "TGTextEntry.h"
@@ -70,7 +70,7 @@ private:
 
    UInt_t           m_listHeight;
 #ifndef __CINT__
-   std::vector<std::pair<boost::shared_ptr<std::string>, std::string> > m_options;
+   std::vector<std::pair<std::shared_ptr<std::string>, std::string> > m_options;
 #endif
 };
 

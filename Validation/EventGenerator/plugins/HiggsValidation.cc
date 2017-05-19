@@ -85,7 +85,7 @@ void HiggsValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iS
   bool filled = false;
   for(HepMC::GenEvent::particle_const_iterator iter = myGenEvent->particles_begin(); 
       iter!= myGenEvent->particles_end() && !filled; ++iter) {
-    if(particle_id == fabs((*iter)->pdg_id())){
+    if(particle_id == std::abs((*iter)->pdg_id())){
       std::vector<HepMC::GenParticle*> decayprod;
       int channel = findHiggsDecayChannel(*iter,decayprod);
       HiggsDecayChannels->Fill(channel,weight);

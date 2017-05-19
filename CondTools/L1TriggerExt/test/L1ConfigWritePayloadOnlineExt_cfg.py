@@ -19,6 +19,26 @@ options.register('rsKey',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "RS key")
+options.register('onlineDBConnect',
+                 'oracle://CMS_OMDS_LB/CMS_TRG_R', #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "Connection string for online DB")
+options.register('onlineDBAuth',
+                 '.', #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "Authentication path for online DB")
+options.register('protoDBConnect',
+                 'oracle://cms_orcon_prod/CMS_CONDITIONS', #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "Connection string for prototypes' DB")
+options.register('protoDBAuth',
+                 '.', #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "Authentication path for prototypes' DB")
 options.register('outputDBConnect',
                  'sqlite_file:l1config.db', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -58,7 +78,12 @@ options.register('subsystemLabels',
                  'uGT,uGTrs,uGMT,CALO,BMTF,OMTF,EMTF', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
-                 "Coma separated list of specific payloads to be processed")
+                 "Comma-separated list of specific payloads to be processed")
+options.register('tagUpdate',
+                 '', #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "Comma-separated list of column-separated pairs relating type to a new tagBase")
 
 options.parseArguments()
 
@@ -66,11 +91,12 @@ options.parseArguments()
 process.load("CondTools.L1TriggerExt.L1SubsystemKeysOnlineExt_cfi")
 process.L1SubsystemKeysOnlineExt.tscKey = cms.string( options.tscKey )
 process.L1SubsystemKeysOnlineExt.rsKey  = cms.string( options.rsKey )
-process.L1SubsystemKeysOnlineExt.onlineAuthentication = cms.string( options.outputDBAuth )
+process.L1SubsystemKeysOnlineExt.onlineDB = cms.string( options.onlineDBConnect )
+process.L1SubsystemKeysOnlineExt.onlineAuthentication = cms.string( options.onlineDBAuth )
 
 process.load("CondTools.L1TriggerExt.L1ConfigTSCKeysExt_cff")
-from CondTools.L1TriggerExt.L1ConfigTSCKeysExt_cff import setTSCKeysDBAuth
-setTSCKeysDBAuth( process, options.outputDBAuth )
+from CondTools.L1TriggerExt.L1ConfigTSCKeysExt_cff import setTSCKeysDB
+setTSCKeysDB( process, options.onlineDBConnect, options.onlineDBAuth )
 
 process.load("CondTools.L1TriggerExt.L1TriggerKeyOnlineExt_cfi")
 #process.L1TriggerKeyOnlineExt.subsystemLabels = cms.vstring(
@@ -86,13 +112,20 @@ process.L1TriggerKeyOnlineExt.subsystemLabels = cms.vstring( options.subsystemLa
 
 # Generate configuration data from OMDS
 process.load("CondTools.L1TriggerExt.L1ConfigTSCPayloadsExt_cff")
-from CondTools.L1TriggerExt.L1ConfigTSCPayloadsExt_cff import setTSCPayloadsDBAuth
-setTSCPayloadsDBAuth( process, options.outputDBAuth )
+from CondTools.L1TriggerExt.L1ConfigTSCPayloadsExt_cff import setTSCPayloadsDB
+setTSCPayloadsDB( process, options.onlineDBConnect, options.onlineDBAuth, options.protoDBConnect, options.protoDBAuth )
 
 # Define CondDB tags
 from CondTools.L1TriggerExt.L1CondEnumExt_cfi import L1CondEnumExt
 from CondTools.L1TriggerExt.L1O2OTagsExt_cfi import initL1O2OTagsExt
 initL1O2OTagsExt()
+
+# Override the tag bases if instructed to do so
+if options.tagUpdate :
+    for type2tagBase in options.tagUpdate.split(',') :
+        (t,tagBase) = type2tagBase.split(':')
+        index = L1CondEnumExt.__dict__[t]
+        initL1O2OTagsExt.tagBaseVec[index] = tagBase
 
 # writer modules
 from CondTools.L1TriggerExt.L1CondDBPayloadWriterExt_cff import initPayloadWriterExt

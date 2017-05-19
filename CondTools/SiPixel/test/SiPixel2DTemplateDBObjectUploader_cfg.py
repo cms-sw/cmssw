@@ -83,7 +83,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 process.uploader = cms.EDAnalyzer("SiPixel2DTemplateDBObjectUploader",
                                   siPixelTemplateCalibrations = files_to_upload,
                                   theTemplateBaseString = cms.string(template_base),
-                                  Version = cms.double("17.0"),
+                                  Version = cms.double(17.0),
                                   MagField = cms.double(MagFieldValue),
                                   templateIds = theTemplateIds
 )

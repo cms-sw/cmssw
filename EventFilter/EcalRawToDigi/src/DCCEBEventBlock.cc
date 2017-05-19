@@ -164,7 +164,7 @@ void DCCEBEventBlock::unpack(const uint64_t * buffer, size_t numbBytes, unsigned
   
     // Unpack SRP block
     if(srChStatus_ != CH_TIMEOUT &&  srChStatus_ != CH_DISABLED){
-      STATUS = srpBlock_->unpack(&data_,&dwToEnd_);
+      STATUS = srpBlock_->unpack(&data_,&dwToEnd_,SRP_NUMBFLAGS);
       if ( STATUS == BLOCK_UNPACKED ){ ignoreSR = false; }
     }
     
@@ -319,7 +319,7 @@ void DCCEBEventBlock::unpack(const uint64_t * buffer, size_t numbBytes, unsigned
 int DCCEBEventBlock::unpackTCCBlocks(){
 
     if(tccChStatus_[0] != CH_TIMEOUT && tccChStatus_[0] != CH_DISABLED)
-      return tccBlock_->unpack(&data_,&dwToEnd_);
+      return tccBlock_->unpack(&data_,&dwToEnd_,0);
     else return BLOCK_UNPACKED;
 
 }

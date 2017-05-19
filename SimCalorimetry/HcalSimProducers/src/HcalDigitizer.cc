@@ -1,5 +1,4 @@
 #include "SimCalorimetry/HcalSimProducers/interface/HcalDigitizer.h"
-#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameterMap.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalShapes.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalElectronicsSim.h"
@@ -30,9 +29,10 @@
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
 #include <boost/foreach.hpp>
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
-#include "SimDataFormats/CaloTest/interface/HcalTestNumbering.h"
+#include "DataFormats/HcalDetId/interface/HcalTestNumbering.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/HcalDigi/interface/HcalQIENum.h"
+#include "CondFormats/DataRecord/interface/HBHEDarkeningRecord.h"
 
 //#define DebugLog
 
@@ -42,9 +42,9 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   theParameterMap(new HcalSimParameterMap(ps)),
   theShapes(new HcalShapes()),
   theHBHEResponse(new CaloHitResponse(theParameterMap, theShapes)),
-  theHBHESiPMResponse(new HcalSiPMHitResponse(theParameterMap, theShapes, ps.getParameter<bool>("HcalPreMixStage1"))),
+  theHBHESiPMResponse(new HcalSiPMHitResponse(theParameterMap, theShapes, ps.getParameter<bool>("HcalPreMixStage1"), true)),
   theHOResponse(new CaloHitResponse(theParameterMap, theShapes)),   
-  theHOSiPMResponse(new HcalSiPMHitResponse(theParameterMap, theShapes)),
+  theHOSiPMResponse(new HcalSiPMHitResponse(theParameterMap, theShapes, ps.getParameter<bool>("HcalPreMixStage1"), false)),
   theHFResponse(new CaloHitResponse(theParameterMap, theShapes)),
   theHFQIE10Response(new CaloHitResponse(theParameterMap, theShapes)),
   theZDCResponse(new CaloHitResponse(theParameterMap, theShapes)),
@@ -85,11 +85,20 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   hfgeo(true),
   doHFWindow_(ps.getParameter<bool>("doHFWindow")),
   killHE_(ps.getParameter<bool>("killHE")),
+  debugCS_(ps.getParameter<bool>("debugCaloSamples")),
+  ignoreTime_(ps.getParameter<bool>("ignoreGeantTime")),
+  injectTestHits_(ps.getParameter<bool>("injectTestHits")),
   hitsProducer_(ps.getParameter<std::string>("hitsProducer")),
   theHOSiPMCode(ps.getParameter<edm::ParameterSet>("ho").getParameter<int>("siPMCode")),
   deliveredLumi(0.),
-  m_HEDarkening(0),
-  m_HFRecalibration(0)
+  agingFlagHB(ps.getParameter<bool>("HBDarkening")),
+  agingFlagHE(ps.getParameter<bool>("HEDarkening")),
+  m_HBDarkening(nullptr),
+  m_HEDarkening(nullptr),
+  m_HFRecalibration(nullptr),
+  injectedHitsEnergy_(ps.getParameter<std::vector<double>>("injectTestHitsEnergy")),
+  injectedHitsTime_(ps.getParameter<std::vector<double>>("injectTestHitsTime")),
+  injectedHitsCells_(ps.getParameter<std::vector<int>>("injectTestHitsCells"))
 {
   iC.consumes<std::vector<PCaloHit> >(edm::InputTag(hitsProducer_, "ZDCHITS"));
   iC.consumes<std::vector<PCaloHit> >(edm::InputTag(hitsProducer_, "HcalHits"));
@@ -100,7 +109,6 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   bool PreMix2 = ps.getParameter<bool>("HcalPreMixStage2");  // special threshold/pedestal treatment
   bool doEmpty = ps.getParameter<bool>("doEmpty");
   deliveredLumi     = ps.getParameter<double>("DelivLuminosity");
-  bool agingFlagHE = ps.getParameter<bool>("HEDarkening");
   bool agingFlagHF = ps.getParameter<bool>("HFDarkening");
   double minFCToDelay= ps.getParameter<double>("minFCToDelay");
 
@@ -136,7 +144,6 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
     theHODigitizer = new HODigitizer(theHOResponse, theHOElectronicsSim, doEmpty);
   }
   if(doHOSiPM) {
-    theHOSiPMResponse = new HcalSiPMHitResponse(theParameterMap, theShapes);
     theHOSiPMResponse->setHitFilter(&theHOSiPMHitFilter);
     theHOSiPMDigitizer = new HODigitizer(theHOSiPMResponse, theHOElectronicsSim, doEmpty);
   }
@@ -172,7 +179,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
 
   testNumbering_ = ps.getParameter<bool>("TestNumbering");
 //  std::cout << "Flag to see if Hit Relabeller to be initiated " << testNumbering_ << std::endl;
-  if (testNumbering_) theRelabeller=new HcalHitRelabeller(ps);
+  if (testNumbering_) theRelabeller=new HcalHitRelabeller(ps.getParameter<bool>("doNeutralDensityFilter"));
 
   if(ps.getParameter<bool>("doIonFeedback") && theHBHEResponse) {
     theIonFeedback = new HPDIonFeedbackSim(ps, theShapes);
@@ -182,8 +189,29 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
     }
   }
 
-  if(agingFlagHE) m_HEDarkening = new HEDarkening();
-  if(agingFlagHF) m_HFRecalibration = new HFRecalibration(ps.getParameter<edm::ParameterSet>("HFRecalParameterBlock"));
+  //option to save CaloSamples as event product for debugging
+  if(debugCS_){
+    if(theHBHEDigitizer)      theHBHEDigitizer->setDebugCaloSamples(true);
+    if(theHBHEQIE11Digitizer) theHBHEQIE11Digitizer->setDebugCaloSamples(true);
+    if(theHODigitizer)        theHODigitizer->setDebugCaloSamples(true);
+    if(theHOSiPMDigitizer)    theHOSiPMDigitizer->setDebugCaloSamples(true);
+    if(theHFDigitizer)        theHFDigitizer->setDebugCaloSamples(true);
+    if(theHFQIE10Digitizer)   theHFQIE10Digitizer->setDebugCaloSamples(true);
+    theZDCDigitizer->setDebugCaloSamples(true);
+  }
+
+  //option to ignore Geant time distribution in SimHits, for debugging
+  if(ignoreTime_){
+    theHBHEResponse->setIgnoreGeantTime(ignoreTime_);
+    theHBHESiPMResponse->setIgnoreGeantTime(ignoreTime_);
+    theHOResponse->setIgnoreGeantTime(ignoreTime_);
+    theHOSiPMResponse->setIgnoreGeantTime(ignoreTime_);
+    theHFResponse->setIgnoreGeantTime(ignoreTime_);
+    theHFQIE10Response->setIgnoreGeantTime(ignoreTime_);
+    theZDCResponse->setIgnoreGeantTime(ignoreTime_);
+  }
+
+  if(agingFlagHF) m_HFRecalibration.reset(new HFRecalibration(ps.getParameter<edm::ParameterSet>("HFRecalParameterBlock")));
 }
 
 
@@ -217,6 +245,8 @@ HcalDigitizer::~HcalDigitizer() {
   delete theHBHEQIE11Amplifier;
   delete theCoderFactory;
   if (theRelabeller)           delete theRelabeller;
+  if(theTimeSlewSim) delete theTimeSlewSim;
+  if(theIonFeedback) delete theIonFeedback;
 }
 
 
@@ -297,13 +327,14 @@ void HcalDigitizer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > const
   // Step A: pass in inputs, and accumulate digis
   if(isHCAL) {
     std::vector<PCaloHit> hcalHitsOrig = *hcalHandle.product();
+    if(injectTestHits_) hcalHitsOrig = injectedHits_;
     std::vector<PCaloHit> hcalHits;
     hcalHits.reserve(hcalHitsOrig.size());
 
     //evaluate darkening before relabeling
     if (testNumbering_) {
-      if(m_HEDarkening || m_HFRecalibration){
-	darkening(hcalHitsOrig);
+      if(m_HBDarkening || m_HEDarkening || m_HFRecalibration){
+        darkening(hcalHitsOrig);
       }
       // Relabel PCaloHits if necessary
       edm::LogInfo("HcalDigitizer") << "Calling Relabeller";
@@ -323,8 +354,8 @@ void HcalDigitizer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > const
         continue;
       }
       else if( killHE_ && hid.subdet()==HcalEndcap ) {
-	// remove HE hits if asked for (phase 2)
-	continue;
+        // remove HE hits if asked for (phase 2)
+        continue;
       }
       else {
 #ifdef DebugLog
@@ -376,7 +407,7 @@ void HcalDigitizer::accumulate(edm::Event const& e, edm::EventSetup const& event
   edm::InputTag hcalTag(hitsProducer_, "HcalHits");
   edm::Handle<std::vector<PCaloHit> > hcalHandle;
   e.getByLabel(hcalTag, hcalHandle);
-  isHCAL = hcalHandle.isValid();
+  isHCAL = hcalHandle.isValid() or injectTestHits_;
 
   edm::ESHandle<HcalTopology> htopo;
   eventSetup.get<HcalRecNumberingRecord>().get(htopo);
@@ -421,7 +452,8 @@ void HcalDigitizer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSet
   std::unique_ptr<QIE11DigiCollection> hbheQIE11Result(
     new QIE11DigiCollection(
       theHBHEQIE11DetIds.size()>0 ? 
-      theParameterMap->simParameters(theHBHEQIE11DetIds[0]).readoutFrameSize() : 
+      ((HcalSiPMHitResponse *)theHBHESiPMResponse)->getReadoutFrameSize(theHBHEQIE11DetIds[0]) :
+//      theParameterMap->simParameters(theHBHEQIE11DetIds[0]).readoutFrameSize() : 
       QIE11DigiCollection::MAXSAMPLES
     )
   );
@@ -468,6 +500,25 @@ void HcalDigitizer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSet
   e.put(std::move(hfQIE10Result), "HFQIE10DigiCollection");
   e.put(std::move(hbheQIE11Result), "HBHEQIE11DigiCollection");
 
+  if(debugCS_){
+    std::unique_ptr<CaloSamplesCollection> csResult(new CaloSamplesCollection());
+    //smush together all the results
+    if(theHBHEDigitizer)      csResult->insert(csResult->end(),theHBHEDigitizer->getCaloSamples().begin(),theHBHEDigitizer->getCaloSamples().end());
+    if(theHBHEQIE11Digitizer) csResult->insert(csResult->end(),theHBHEQIE11Digitizer->getCaloSamples().begin(),theHBHEQIE11Digitizer->getCaloSamples().end());
+    if(theHODigitizer)        csResult->insert(csResult->end(),theHODigitizer->getCaloSamples().begin(),theHODigitizer->getCaloSamples().end());
+    if(theHOSiPMDigitizer)    csResult->insert(csResult->end(),theHOSiPMDigitizer->getCaloSamples().begin(),theHOSiPMDigitizer->getCaloSamples().end());
+    if(theHFDigitizer)        csResult->insert(csResult->end(),theHFDigitizer->getCaloSamples().begin(),theHFDigitizer->getCaloSamples().end());
+    if(theHFQIE10Digitizer)   csResult->insert(csResult->end(),theHFQIE10Digitizer->getCaloSamples().begin(),theHFQIE10Digitizer->getCaloSamples().end());
+    csResult->insert(csResult->end(),theZDCDigitizer->getCaloSamples().begin(),theZDCDigitizer->getCaloSamples().end());
+    e.put(std::move(csResult),"HcalSamples");
+  }
+
+  if(injectTestHits_){
+    std::unique_ptr<edm::PCaloHitContainer> pcResult(new edm::PCaloHitContainer());
+    pcResult->insert(pcResult->end(),injectedHits_.begin(),injectedHits_.end());
+    e.put(std::move(pcResult),"HcalHits");
+  }
+
 #ifdef DebugLog
   std::cout << std::endl << "========>  HcalDigitizer e.put " << std::endl <<  std::endl;
 #endif
@@ -478,6 +529,17 @@ void HcalDigitizer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSet
 void HcalDigitizer::beginRun(const edm::EventSetup & es) {
   checkGeometry(es);
   theShapes->beginRun(es);
+
+  if (agingFlagHB) {
+    edm::ESHandle<HBHEDarkening> hdark;
+    es.get<HBHEDarkeningRecord>().get("HB",hdark);
+    m_HBDarkening = &*hdark;
+  }
+  if (agingFlagHE) {
+    edm::ESHandle<HBHEDarkening> hdark;
+    es.get<HBHEDarkeningRecord>().get("HE",hdark);
+    m_HEDarkening = &*hdark;
+  }
 }
 
 
@@ -510,7 +572,7 @@ void  HcalDigitizer::updateGeometry(const edm::EventSetup & eventSetup) {
   theHFResponse->setGeometry(theGeometry);
   theHFQIE10Response->setGeometry(theGeometry);
   theZDCResponse->setGeometry(theGeometry);
-  if(theRelabeller) theRelabeller->setGeometry(theGeometry,theRecNumber);
+  if(theRelabeller) theRelabeller->setGeometry(theRecNumber);
 
   const std::vector<DetId>& hbCells = theGeometry->getValidDetIds(DetId::Hcal, HcalBarrel);
   const std::vector<DetId>& heCells = theGeometry->getValidDetIds(DetId::Hcal, HcalEndcap);
@@ -545,6 +607,36 @@ void  HcalDigitizer::updateGeometry(const edm::EventSetup & eventSetup) {
   buildHFQIECells(hfCells,eventSetup);
   
   theZDCDigitizer->setDetIds(zdcCells);
+
+  //fill test hits collection if desired and empty
+  if(injectTestHits_ && injectedHits_.size()==0 && injectedHitsCells_.size()>0 && injectedHitsEnergy_.size()>0){
+    //make list of specified cells if desired
+    std::vector<DetId> testCells;
+    if(injectedHitsCells_.size()>=4){
+      testCells.reserve(injectedHitsCells_.size()/4);
+      for(unsigned ic = 0; ic < injectedHitsCells_.size(); ic += 4){
+        if(ic+4 > injectedHitsCells_.size()) break;
+        testCells.push_back(HcalDetId((HcalSubdetector)injectedHitsCells_[ic],injectedHitsCells_[ic+1],
+                            injectedHitsCells_[ic+2],injectedHitsCells_[ic+3]));
+      }
+    }
+    else{
+      int testSubdet = injectedHitsCells_[0];
+      if(testSubdet==HcalBarrel) testCells = hbCells;
+      else if(testSubdet==HcalEndcap) testCells = heCells;
+      else if(testSubdet==HcalForward) testCells = hfCells;
+      else if(testSubdet==HcalOuter) testCells = hoCells;
+      else throw cms::Exception("Configuration") << "Unknown subdet " << testSubdet << " for HCAL test hit injection";
+    }
+    bool useHitTimes = (injectedHitsTime_.size()==injectedHitsEnergy_.size());
+    injectedHits_.reserve(testCells.size()*injectedHitsEnergy_.size());
+    for(unsigned ih = 0; ih < injectedHitsEnergy_.size(); ++ih){
+      double tmp = useHitTimes ? injectedHitsTime_[ih] : 0.;
+      for(auto& aCell: testCells){
+        injectedHits_.emplace_back(aCell,injectedHitsEnergy_[ih],tmp);
+      }
+    }
+  }
 }
 
 void HcalDigitizer::buildHFQIECells(const std::vector<DetId>& allCells, const edm::EventSetup & eventSetup) {
@@ -700,18 +792,21 @@ void HcalDigitizer::darkening(std::vector<PCaloHit>& hcalHits) {
     bool darkened = false;
     float dweight = 1.;
 	
-    if(det==int(HcalEndcap) && m_HEDarkening){
-      //HE darkening
-      dweight = m_HEDarkening->degradation(deliveredLumi,ieta,lay-2);//NB:diff. layer count
+    if(det==int(HcalBarrel) && m_HBDarkening){
+      //HB darkening
+      dweight = m_HBDarkening->degradation(deliveredLumi,ieta,lay);
       darkened = true;
-    } else if(det==int(HcalForward) && m_HFRecalibration){
+    }
+    else if(det==int(HcalEndcap) && m_HEDarkening){
+      //HE darkening
+      dweight = m_HEDarkening->degradation(deliveredLumi,ieta,lay);
+      darkened = true;
+    }
+    else if(det==int(HcalForward) && m_HFRecalibration){
       //HF darkening - approximate: invert recalibration factor
       dweight = 1.0/m_HFRecalibration->getCorr(ieta,depth,deliveredLumi);
       darkened = true;
     }
-	
-    //create new hit with darkened energy
-    //if(darkened) hcalHits[ii] = PCaloHit(hcalHits[ii].energyEM()*dweight,hcalHits[ii].energyHad()*dweight,hcalHits[ii].time(),hcalHits[ii].geantTrackId(),hcalHits[ii].id());
 	
     //reset hit energy
     if(darkened) hcalHits[ii].setEnergy(hcalHits[ii].energy()*dweight);	

@@ -125,6 +125,7 @@ RPCPatternsParser::RPCPatternsParser()
 
 
 RPCPatternsParser::~RPCPatternsParser() {
+   cms::concurrency::xercesTerminate();
 }
 
 void RPCPatternsParser::parse(std::string fileName)

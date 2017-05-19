@@ -29,10 +29,10 @@ namespace edm {
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
   private:
-    virtual bool checkNextEvent();
-    virtual void skip(int toSkip);
+    virtual bool checkNextEvent() override;
+    virtual void skip(int toSkip) override;
     virtual void genuineCloseFile() override;
-    virtual void reset_();
+    virtual void reset_() override;
 
     std::shared_ptr<EventSkipperByID const> eventSkipperByID() const {return get_underlying_safe(eventSkipperByID_);}
     std::shared_ptr<EventSkipperByID>& eventSkipperByID() {return get_underlying_safe(eventSkipperByID_);}
@@ -45,4 +45,3 @@ namespace edm {
 } //end-of-namespace-def
 
 #endif
-

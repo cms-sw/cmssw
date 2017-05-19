@@ -31,8 +31,7 @@ TrackerParametersESModule::fillDescriptions( edm::ConfigurationDescriptions & de
 TrackerParametersESModule::ReturnType
 TrackerParametersESModule::produce( const PTrackerParametersRcd& iRecord )
 {
-  //edm::LogInfo("TrackerParametersESModule")
-  std::cout <<  "TrackerParametersESModule::produce(const PTrackerParametersRcd& iRecord)" << std::endl;
+  edm::LogInfo("TrackerParametersESModule") <<  "TrackerParametersESModule::produce(const PTrackerParametersRcd& iRecord)" << std::endl;
   edm::ESTransientHandle<DDCompactView> cpv;
   iRecord.getRecord<IdealGeometryRecord>().get( cpv );
     

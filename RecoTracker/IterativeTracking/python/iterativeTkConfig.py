@@ -4,7 +4,7 @@
 import FWCore.ParameterSet.Config as cms
 
 _defaultEraName = ""
-_nonDefaultEraNames = ["trackingLowPU", "trackingPhase1", "trackingPhase1PU70", "trackingPhase2PU140"]
+_nonDefaultEraNames = ["trackingLowPU", "trackingPhase1", "trackingPhase1QuadProp", "trackingPhase1PU70", "trackingPhase2PU140"]
 
 # name, postfix, era
 _defaultEra = (_defaultEraName, "", None)
@@ -47,6 +47,7 @@ _iterations_trackingPhase1 = [
     "TobTecStep",
     "JetCoreRegionalStep",
 ]
+_iterations_trackingPhase1QuadProp = _iterations_trackingPhase1
 _iterations_trackingPhase1PU70 = [
     "InitialStep",
     "HighPtTripletStep",
@@ -69,9 +70,10 @@ _iterations_muonSeeded = [
     "MuonSeededStepInOut",
     "MuonSeededStepOutIn",
 ]
-#Phase2 : just muon Seed InOut is used in this moment
+#Phase2
 _iterations_muonSeeded_trackingPhase2PU140 = [
     "MuonSeededStepInOut",
+    "MuonSeededStepOutIn",
 ]
 _multipleSeedProducers = {
     "MixedTripletStep": ["A", "B"],
@@ -81,6 +83,7 @@ _multipleSeedProducers_trackingLowPU = {
     "MixedTripletStep": ["A", "B"],
 }
 _multipleSeedProducers_trackingPhase1 = _multipleSeedProducers
+_multipleSeedProducers_trackingPhase1QuadProp = _multipleSeedProducers_trackingPhase1
 _multipleSeedProducers_trackingPhase1PU70 = _multipleSeedProducers_trackingLowPU
 _multipleSeedProducers_trackingPhase2PU140 = {}
 _oldStyleHasSelector = set([

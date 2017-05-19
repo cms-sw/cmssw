@@ -84,7 +84,7 @@ class B2GDQM : public DQMEDAnalyzer {
   virtual ~B2GDQM();
 
  protected:
-  virtual void analyze(edm::Event const& e, edm::EventSetup const& eSetup);
+  virtual void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
 
   virtual void analyzeJets(edm::Event const& e, edm::EventSetup const& eSetup);
   virtual void analyzeSemiMu(edm::Event const& e,

@@ -103,7 +103,7 @@ class ZToMuMuGammaAnalyzer : public DQMEDAnalyzer
   explicit ZToMuMuGammaAnalyzer(const edm::ParameterSet&);
   virtual ~ZToMuMuGammaAnalyzer();
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;                                
-  virtual void analyze( const edm::Event&, const edm::EventSetup&);
+  virtual void analyze( const edm::Event&, const edm::EventSetup&) override;
 
  private:
   edm::EDGetTokenT<std::vector<reco::Photon> > photon_token_;

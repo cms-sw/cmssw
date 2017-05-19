@@ -1713,8 +1713,8 @@ void HcalLogicalMapGenerator::buildCALIBMap(const HcalTopology* topo,
           
           (ieta==0) ? iphi=((iwedge*idphi)+71-idphi)%72 : iphi=(((iwedge/2)*idphi)+71-idphi)%72;
           //nothing on htr_fi=4 for the top
-          do {
-            if (iside==0&&ifb==3) break;
+          //do {
+	  if (iside==0&&ifb==3) continue; // adjust logic since no longer inside loop
             CALIBLogicalMapEntry caliblmapentry(
 						ifi_ch, ihtr_fi, ispigot, ifed, icrate, ihtr, fpga,
 						det, ieta, iphi, ich_type, 
@@ -1727,7 +1727,7 @@ void HcalLogicalMapGenerator::buildCALIBMap(const HcalTopology* topo,
 	    const HcalGenericDetId hgdi(caliblmapentry.getDetId());	  
 	    const unsigned int hashedId=topo->detId2denseIdCALIB(hgdi);
 	    if (hgdi.genericSubdet()==HcalGenericDetId::HcalGenCalibration) HxCalibHash2Entry.at(hashedId)=CALIBEntries.size();
-	  } while (ifb!=ifb);
+	  //} while (ifb!=ifb);
         }
       }
     }

@@ -19,7 +19,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -52,9 +52,9 @@ class SeedToTrackProducer : public edm::one::EDProducer<> {
       ~SeedToTrackProducer();
 
    private:
-      virtual void beginJob();
+      virtual void beginJob() override;
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob();
+      virtual void endJob() override;
       virtual TrajectoryStateOnSurface seedTransientState(const TrajectorySeed&);
       // ----------member data ---------------------------
     

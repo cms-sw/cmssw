@@ -188,7 +188,7 @@ FlavourHistograms2D<T, G>::FlavourHistograms2D (TString baseNameTitle_ , TString
 						unsigned int mc, bool createProfile, DQMStore::IGetter & iget) :
   // BaseFlavourHistograms2D () ,
   // theVariable ( variable_ ) ,
-  theMaxDimension(-1), theIndexToPlot(-1), theBaseNameTitle ( baseNameTitle_ ) , theBaseNameDescription ( baseNameDescription_ ) ,
+  theMaxDimension(-1), theIndexToPlot(-1), theBaseNameTitle ( baseNameTitle_.Data() ) , theBaseNameDescription ( baseNameDescription_.Data() ) ,
   theNBinsX ( nBinsX_ ) , theNBinsY (nBinsY_), 
   theLowerBoundX ( lowerBoundX_ ) , theUpperBoundX ( upperBoundX_ ) ,
   theLowerBoundY ( lowerBoundY_ ) , theUpperBoundY ( upperBoundY_ ) ,
@@ -291,7 +291,7 @@ FlavourHistograms2D<T, G>::FlavourHistograms2D (TString baseNameTitle_ , TString
 						int nBinsY_ , double lowerBoundY_ , double upperBoundY_ ,
 						bool statistics_ , std::string folder, 
 						unsigned int mc, bool createProfile, DQMStore::IBooker & ibook) :
-  theMaxDimension(-1), theIndexToPlot(-1), theBaseNameTitle ( baseNameTitle_ ) , theBaseNameDescription ( baseNameDescription_ ) ,
+  theMaxDimension(-1), theIndexToPlot(-1), theBaseNameTitle ( baseNameTitle_.Data() ) , theBaseNameDescription ( baseNameDescription_.Data() ) ,
   theNBinsX ( nBinsX_ ) , theNBinsY (nBinsY_), 
   theLowerBoundX ( lowerBoundX_ ) , theUpperBoundX ( upperBoundX_ ) ,
   theLowerBoundY ( lowerBoundY_ ) , theUpperBoundY ( upperBoundY_ ) ,

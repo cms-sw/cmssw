@@ -717,16 +717,16 @@ unsigned int PixelLumiDQM::calculateBunchMask(std::vector<float> &e, unsigned in
       double bin = e[i];
       dist.Fill(bin);
     }  
-    dist.Fit("gaus","","",fmax(0.,ave-(maxc-ave)/5.),maxc);
-    TF1 *fit = dist.GetFunction("gaus");
-    mean = fit->GetParameter("Mean");
-    sigma = fit->GetParameter("Sigma");
+    TF1 fit("plgaus","gaus");
+    dist.Fit(&fit,"","",fmax(0.,ave-(maxc-ave)/5.),maxc);
+    mean = fit.GetParameter("Mean");
+    sigma = fit.GetParameter("Sigma");
   }
   std::cout << "Bunch mask will use mean" << mean << " sigma " << sigma << std::endl;
   // Active BX defined as those which have nclus within fixed standard deviations of peak.
   for(unsigned int i = 1; i<= nbins; i++){
     double bin = e[i];
-    if(bin>0. && abs(bin-mean)<5.*(sigma)){ mask[i]=true; active_count++;}
+    if(bin>0. && std::abs(bin-mean)<5.*(sigma)){ mask[i]=true; active_count++;}
   }
   std::cout << "Bunch mask finds " << active_count << " active bunch crossings " << std::endl;
   //   std::cout << "this is the full bx mask " ;

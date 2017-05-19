@@ -119,8 +119,10 @@ const reco::Candidate* BPHDecayMomentum::getDaug(
   // return a simple particle from the name
   // return null pointer if not found
   string::size_type pos = name.find( "/" );
-  if ( pos != string::npos ) return getComp( name.substr( 0, pos ) )
-                                  ->getDaug( name.substr( pos + 1 ) );
+  if ( pos != string::npos ) {
+    const BPHRecoCandidate* comp = getComp( name.substr( 0, pos ) ).get();
+    return ( comp == 0 ? 0 : comp->getDaug( name.substr( pos + 1 ) ) );
+  }
   map<const string,
       const reco::Candidate*>::const_iterator iter = dMap.find( name );
   return ( iter != dMap.end() ? iter->second : 0 );
@@ -130,6 +132,11 @@ const reco::Candidate* BPHDecayMomentum::getDaug(
 BPHRecoConstCandPtr BPHDecayMomentum::getComp( const string& name ) const {
   // return a previously reconstructed particle from the name
   // return null pointer if not found
+  string::size_type pos = name.find( "/" );
+  if ( pos != string::npos ) {
+    const BPHRecoCandidate* comp = getComp( name.substr( 0, pos ) ).get();
+    return ( comp == 0 ? 0 : comp->getComp( name.substr( pos + 1 ) ) );
+  }
   map<const string,
       BPHRecoConstCandPtr>::const_iterator iter = cMap.find( name );
   return ( iter != cMap.end() ? iter->second : 0 );

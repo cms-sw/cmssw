@@ -46,6 +46,8 @@ public:
     pset.addParameter("Tmin", vectorDate(2009, 12, 7,  12,  0, 0, 000));
     pset.addParameter("Tmax", vectorDate(2009, 12, 8, 9, 0, 0, 000));
     pset.addParameter("TSetMin", vectorDate(2007, 11, 26, 0, 0, 0, 0));
+    pset.addParameter<uint32_t>("DeltaTmin", 2);
+    pset.addParameter<uint32_t>("MaxIOVlength", 90);
     pset.addParameter("DetIdListFile", std::string("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"));
     pset.addParameter("ExcludedDetIdListFile", std::string(""));
     pset.addParameter("HighVoltageOnThreshold", 0.97);

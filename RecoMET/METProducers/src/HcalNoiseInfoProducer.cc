@@ -20,6 +20,7 @@
 #include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
 using namespace reco;
 
@@ -158,6 +159,11 @@ HcalNoiseInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   HcalNoiseRBXArray rbxarray;
   HcalNoiseSummary &summary=*result2;
 
+  // Get topology class to use later
+  edm::ESHandle<HcalTopology> topo;
+  iSetup.get<HcalRecNumberingRecord>().get(topo);
+  theHcalTopology_ = topo.product();
+  
   // fill them with the various components
   // digi assumes that rechit information is available
   if(fillRecHits_)    fillrechits(iEvent, iSetup, rbxarray, summary);
@@ -380,7 +386,8 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
     edm::RefVector<HBHERecHitCollection> &rechits=hpd.rechits_;
     for(edm::RefVector<HBHERecHitCollection>::const_iterator rit=rechits.begin();
 	rit!=rechits.end(); ++rit, ++counter) {
-      if((*rit)->id() == digi.id()) {
+      const HcalDetId & detid = (*rit)->idFront();
+      if(DetId(detid) == digi.id()) {
 	if(counter==0) isBig=isBig5=true;  // digi is also the highest energy rechit
 	if(counter<5) isBig5=true;         // digi is one of 5 highest energy rechits
 	isRBX=true;
@@ -552,7 +559,8 @@ HcalNoiseInfoProducer::fillrechits(edm::Event& iEvent, const edm::EventSetup& iS
     const HBHERecHit &rechit=(*it);
 
     // skip bad rechits (other than those flagged by the isolated noise, triangle, flat, and spike algorithms)
-    const DetId id = rechit.detid();
+    const DetId id = rechit.idFront();
+
     uint32_t recHitFlag = rechit.flags();
     uint32_t isolbitset = (1 << HcalCaloFlagLabels::HBHEIsolatedNoise);
     uint32_t flatbitset = (1 << HcalCaloFlagLabels::HBHEFlatNoise);

@@ -373,7 +373,7 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
       if(PTracks_BX[j/3][bx][j%3].phi) {//no track
 	AllTracks_PreCancel.push_back(PTracks_BX[j/3][bx][j%3]);
 	if (PTracks_BX[j/3][bx][j%3].theta == 0)
-	  std::cout << "PTrack_BX theta = 0" << std::endl;
+	  LogTrace("L1TMuonEndCapTrackProducer") << "PTrack_BX theta = 0" << std::endl;
       }
       
     }
@@ -432,7 +432,7 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
       tempTrack.deltas = AllTracks[fbest].deltas;
       std::vector<int> ps, ts;
 
-      if (tempTrack.theta == 0) std::cout << "Track has theta 0" << std::endl;
+      if (tempTrack.theta == 0) LogTrace("L1TMuonEndCapTrackProducer") << "Track has theta 0" << std::endl;
       
       l1t::EMTFTrackExtra thisTrack;
       thisTrack.set_phi_loc_int ( AllTracks[fbest].phi           );
@@ -499,12 +499,12 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
 	  }
 	  
 	  if ( thisHit.Station() < 0 ) {
-	    std::cout << "!@#$ Converted hit with station " << A->TP().detId<CSCDetId>().station() << ", CSC_ID " << A->TP().getCSCData().cscID
+	    LogTrace("L1TMuonEndCapTrackProducer") << "!@#$ Converted hit with station " << A->TP().detId<CSCDetId>().station() << ", CSC_ID " << A->TP().getCSCData().cscID
 		      << ", sector index " << A->SectorIndex() << ", subsector " << A->Sub()
 		      << ", wire " << A->Wire() << ", strip " << A->Strip() << ", BX " << A->TP().getCSCData().bx - 6 
 		      << ", neighbor " << A->IsNeighbor() << " has no match" << std::endl;
 	    for (uint iHit = 0; iHit < OutputHits->size(); iHit++) 
-	      std::cout << "!@#$ Option " << iHit+1 << " with endcap " << OutputHits->at(iHit).Endcap() 
+	      LogTrace("L1TMuonEndCapTrackProducer") << "!@#$ Option " << iHit+1 << " with endcap " << OutputHits->at(iHit).Endcap() 
 			<< ", station " << OutputHits->at(iHit).Station() << ", CSC_ID " << OutputHits->at(iHit).CSC_ID() 
 			<< ", ring " << OutputHits->at(iHit).Ring() << ", chamber " << OutputHits->at(iHit).Chamber()
 			<< ", wire " << OutputHits->at(iHit).Wire() << ", strip " << OutputHits->at(iHit).Strip()
@@ -593,7 +593,7 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
 	   ( mode == 13 && (eHits_in_station[0] != 1 || eHits_in_station[1] != 1 || eHits_in_station[2] != 0 || eHits_in_station[3] != 1) ) ||
 	   ( mode == 11 && (eHits_in_station[0] != 1 || eHits_in_station[1] != 0 || eHits_in_station[2] != 1 || eHits_in_station[3] != 1) ) ||
 	   ( mode ==  7 && (eHits_in_station[0] != 0 || eHits_in_station[1] != 1 || eHits_in_station[2] != 1 || eHits_in_station[3] != 1) ) )
-	std::cout << "Mode " << mode << " track has " << eHits_in_station[0] << " / " << eHits_in_station[1] << " / "
+	LogTrace("L1TMuonEndCapTrackProducer") << "Mode " << mode << " track has " << eHits_in_station[0] << " / " << eHits_in_station[1] << " / "
 		  << eHits_in_station[2] << " / " << eHits_in_station[3] << " EMTF hits in stations 1 / 2 / 3 / 4" << std::endl;
       
       tempTrack.phis = ps;

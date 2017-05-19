@@ -80,7 +80,7 @@ class GlobalHitsAnalyzer : public DQMEDAnalyzer
 
   explicit GlobalHitsAnalyzer(const edm::ParameterSet&);
   virtual ~GlobalHitsAnalyzer();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 
  protected:
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
@@ -105,6 +105,7 @@ class GlobalHitsAnalyzer : public DQMEDAnalyzer
   std::string label;
   bool getAllProvenances;
   bool printProvenanceInfo;
+  bool testNumber;
 
   bool validHepMCevt;
   bool validG4VtxContainer;

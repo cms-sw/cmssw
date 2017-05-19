@@ -14,7 +14,7 @@ class ThreeThresholdAlgorithm final : public StripClusterizerAlgorithm {
   void clusterizeDetUnit(const    edm::DetSet<SiStripDigi> &, output_t::TSFastFiller &) const override;
   void clusterizeDetUnit(const edmNew::DetSet<SiStripDigi> &, output_t::TSFastFiller &) const override;
 
-  Det stripByStripBegin(uint32_t id) const;
+  Det stripByStripBegin(uint32_t id) const override;
 
   // LazyGetter interface
   void stripByStripAdd(State & state, uint16_t strip, uint8_t adc, std::vector<SiStripCluster>& out) const override;

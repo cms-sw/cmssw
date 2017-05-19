@@ -151,6 +151,7 @@ RequestManager::initialize(std::weak_ptr<RequestManager> self)
   for (int idx=0; idx<retries; idx++)
   {
     file.reset(new XrdCl::File());
+    file->SetProperty("ReadRecovery", "false");
     auto opaque = prepareOpaqueString();
     std::string new_filename = m_name + (opaque.size() ? ((m_name.find("?") == m_name.npos) ? "?" : "&") + opaque : "");
     SyncHostResponseHandler handler;
@@ -233,7 +234,7 @@ RequestManager::initialize(std::weak_ptr<RequestManager> self)
   timespec ts;
   GET_CLOCK_MONOTONIC(ts);
 
-  std::shared_ptr<Source> source(new Source(ts, std::move(file), excludeString));
+  auto source = std::make_shared<Source>(ts, std::move(file), excludeString);
   {
     std::lock_guard<std::recursive_mutex> sentry(m_source_mutex);
     auto oldList = m_activeSources;
@@ -700,7 +701,7 @@ XrdAdaptor::RequestManager::handle(std::shared_ptr<std::vector<IOPosBuffer> > io
 
     if (activeSources.size() == 1)
     {
-        std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr(new XrdAdaptor::ClientRequest(*this, iolist));
+        auto c_ptr = std::make_shared<XrdAdaptor::ClientRequest>(*this, iolist);
         checkSources(now, c_ptr->getSize(), activeSources,inactiveSources);
         activeSources[0]->handle(c_ptr);
         return c_ptr->get_future();
@@ -719,15 +720,15 @@ XrdAdaptor::RequestManager::handle(std::shared_ptr<std::vector<IOPosBuffer> > io
     }
 
     assert(iolist.get());
-    std::shared_ptr<std::vector<IOPosBuffer> > req1(new std::vector<IOPosBuffer>);
-    std::shared_ptr<std::vector<IOPosBuffer> > req2(new std::vector<IOPosBuffer>);
+    auto req1 = std::make_shared<std::vector<IOPosBuffer>>();
+    auto req2 = std::make_shared<std::vector<IOPosBuffer>>();
     splitClientRequest(*iolist, *req1, *req2, activeSources);
 
     checkSources(now, req1->size() + req2->size(), activeSources, inactiveSources);
     // CheckSources may have removed a source
     if (activeSources.size() == 1)
     {
-        std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr(new XrdAdaptor::ClientRequest(*this, iolist));
+        auto c_ptr = std::make_shared<XrdAdaptor::ClientRequest>(*this, iolist);
         activeSources[0]->handle(c_ptr);
         return c_ptr->get_future();
     }
@@ -1187,6 +1188,7 @@ XrdAdaptor::RequestManager::OpenHandler::open()
     std::string new_name = manager.m_name + ((manager.m_name.find("?") == manager.m_name.npos) ? "?" : "&") + opaque;
     edm::LogVerbatim("XrdAdaptorInternal") << "Trying to open URL: " << new_name;
     m_file.reset(new XrdCl::File());
+    m_file->SetProperty("ReadRecovery", "false");
     m_outstanding_open = true;
 
     // Always make sure we release m_file and set m_outstanding_open to false on error.

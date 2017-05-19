@@ -53,14 +53,14 @@ class ODTCCEEConfig : public IODConfig {
 
   
  private:
-  void prepareWrite()  throw(std::runtime_error);
-  void writeDB()       throw(std::runtime_error);
+  void prepareWrite()  noexcept(false);
+  void writeDB()       noexcept(false);
   void clear();
-  void fetchData(ODTCCEEConfig * result)     throw(std::runtime_error);
-  int fetchID()  throw(std::runtime_error);
+  void fetchData(ODTCCEEConfig * result)     noexcept(false);
+  int fetchID()  noexcept(false);
 
 
-  int fetchNextId() throw(std::runtime_error);
+  int fetchNextId() noexcept(false);
 
   // User data
   int m_ID;

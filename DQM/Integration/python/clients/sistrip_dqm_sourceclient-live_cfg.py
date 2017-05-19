@@ -355,7 +355,7 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     process.PixelLayerTriplets.BPix.HitProducer = cms.string('siPixelRecHitsPreSplitting')
     process.PixelLayerTriplets.FPix.HitProducer = cms.string('siPixelRecHitsPreSplitting')
     from RecoPixelVertexing.PixelTrackFitting.PixelTracks_cff import *
-    process.pixelTracks.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet.clusterShapeCacheSrc = cms.InputTag('siPixelClusterShapeCachePreSplitting')
+    process.pixelTracksHitTriplets.SeedComparitorPSet.clusterShapeCacheSrc = 'siPixelClusterShapeCachePreSplitting'
 
     process.RecoForDQM_TrkReco = cms.Sequence(process.offlineBeamSpot*process.MeasurementTrackerEventPreSplitting*process.siPixelClusterShapeCachePreSplitting*process.recopixelvertexing*process.InitialStepPreSplitting)
 
@@ -575,9 +575,12 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.load("RecoHI.HiTracking.LowPtTracking_PbPb_cff")
     process.PixelLayerTriplets.BPix.HitProducer = cms.string('siPixelRecHitsPreSplitting')
     process.PixelLayerTriplets.FPix.HitProducer = cms.string('siPixelRecHitsPreSplitting')
-    process.hiPixel3ProtoTracks.FilterPSet.siPixelRecHits = cms.InputTag("siPixelRecHitsPreSplitting")
+
+    process.hiProtoTrackFilter.siPixelRecHits = "siPixelRecHitsPreSplitting"
     process.hiPixel3ProtoTracks.RegionFactoryPSet.RegionPSet.siPixelRecHits = cms.InputTag("siPixelRecHitsPreSplitting")
-    process.hiPixel3PrimTracks.FilterPSet.clusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCachePreSplitting")
+
+    process.hiFilter.clusterShapeCacheSrc = "siPixelClusterShapeCachePreSplitting"
+
     process.hiPrimTrackCandidates.MeasurementTrackerEvent = cms.InputTag("MeasurementTrackerEventPreSplitting")
     process.hiGlobalPrimTracks.MeasurementTrackerEvent = cms.InputTag("MeasurementTrackerEventPreSplitting")
     process.multFilter.inputTag = cms.InputTag("siPixelClustersPreSplitting")

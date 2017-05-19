@@ -31,7 +31,7 @@ public:
   // Operations
 
   void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, 
-                               edm::LuminosityBlock const &, edm::EventSetup const &);
+                               edm::LuminosityBlock const &, edm::EventSetup const &) override;
 
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 

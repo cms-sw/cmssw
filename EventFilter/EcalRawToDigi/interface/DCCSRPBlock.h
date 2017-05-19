@@ -37,7 +37,7 @@ class DCCSRPBlock : public DCCDataBlockPrototype {
     DCCSRPBlock( DCCDataUnpacker * u,EcalElectronicsMapper * m, DCCEventBlock * e, bool unpack);
 	 
     void display(std::ostream & o); 
-
+    using DCCDataBlockPrototype::unpack;
     int unpack(const uint64_t ** data, unsigned int * dwToEnd, unsigned int numbFlags = SRP_NUMBFLAGS);     	 
 
     unsigned short srFlag(unsigned int feChannel){ return srFlags_[feChannel-1]; }

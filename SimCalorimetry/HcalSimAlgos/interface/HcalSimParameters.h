@@ -11,7 +11,6 @@ class HcalSimParameters : public CaloSimParameters
 {
 public:
   HcalSimParameters(double simHitToPhotoelectrons,
-                    const std::vector<double> & photoelectronsToAnalog,
                     double samplingFactor, double timePhase,
                     int readoutFrameSize, int binOfMaximum,
                     bool doPhotostatistics, bool syncPhase,
@@ -54,7 +53,6 @@ private:
   const HcalSiPMCharacteristics* theSiPMcharacteristics;
   int theFirstRing;
   std::vector<double> theSamplingFactors;
-  std::vector<double> thePE2fCByRing;
   bool theSiPMSmearing;
   bool doTimeSmear_;
   HcalTimeSmearSettings theSmearSettings;

@@ -36,7 +36,7 @@ namespace edm {
   class ModuleCallingContext;
   class ProducerBase;
   class SharedResourcesAcquirer;
-  
+
   namespace stream {
     template< typename T> class ProducingModuleAdaptorBase;
   }
@@ -54,7 +54,7 @@ namespace edm {
     /**\return Reusable index which can be used to separate data for different simultaneous LuminosityBlocks.
      */
     LuminosityBlockIndex index() const;
-    
+
     /**If you are caching data from the LuminosityBlock, you should also keep
      this number.  If this number changes then you know that
      the data you have cached is invalid.
@@ -64,10 +64,10 @@ namespace edm {
     typedef unsigned long CacheIdentifier_t;
     CacheIdentifier_t
     cacheIdentifier() const;
-    
+
     //Used in conjunction with EDGetToken
     void setConsumer(EDConsumerBase const* iConsumer);
-    
+
     void setSharedResourcesAcquirer( SharedResourcesAcquirer* iResourceAcquirer);
 
     template <typename PROD>
@@ -84,11 +84,11 @@ namespace edm {
     template <typename PROD>
     bool
     getByLabel(InputTag const& tag, Handle<PROD>& result) const;
-    
+
     template<typename PROD>
     bool
     getByToken(EDGetToken token, Handle<PROD>& result) const;
-    
+
     template<typename PROD>
     bool
     getByToken(EDGetTokenT<PROD> token, Handle<PROD>& result) const;
@@ -170,9 +170,9 @@ namespace edm {
 
     // The following will call post_insert if T has such a function,
     // and do nothing if T has no such function.
-    typename boost::mpl::if_c<detail::has_postinsert<PROD>::value,
-      DoPostInsert<PROD>,
-      DoNotPostInsert<PROD> >::type maybe_inserter;
+    std::conditional_t<detail::has_postinsert<PROD>::value,
+                       DoPostInsert<PROD>,
+                       DoNotPostInsert<PROD>> maybe_inserter;
     maybe_inserter(product.get());
 
     BranchDescription const& desc =
@@ -223,7 +223,7 @@ namespace edm {
     }
     return true;
   }
-  
+
   template<typename PROD>
   bool
   LuminosityBlock::getByToken(EDGetToken token, Handle<PROD>& result) const {
@@ -238,7 +238,7 @@ namespace edm {
     }
     return true;
   }
-  
+
   template<typename PROD>
   bool
   LuminosityBlock::getByToken(EDGetTokenT<PROD> token, Handle<PROD>& result) const {

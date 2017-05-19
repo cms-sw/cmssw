@@ -63,10 +63,10 @@ void HitQuadrupletGeneratorFromLayerPairForPhotonConversion::hitPairs(const Trac
 #endif
 
   /*get hit sorted in phi for each layer: NB: doesn't apply any region cut*/
-  const RecHitsSortedInPhi & innerHitsMap = theLayerCache(innerLayerObj, region, event, es);
+  const RecHitsSortedInPhi & innerHitsMap = theLayerCache(innerLayerObj, region, es);
   if (innerHitsMap.empty()) return;
  
-  const RecHitsSortedInPhi& outerHitsMap = theLayerCache(outerLayerObj, region, event, es);
+  const RecHitsSortedInPhi& outerHitsMap = theLayerCache(outerLayerObj, region, es);
   if (outerHitsMap.empty()) return;
   /*----------------*/
 

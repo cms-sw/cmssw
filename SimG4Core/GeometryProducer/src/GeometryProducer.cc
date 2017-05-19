@@ -13,6 +13,7 @@
 #include "SimG4Core/Geometry/interface/G4LogicalVolumeToDDLogicalPartMap.h"
 #include "SimG4Core/Geometry/interface/SensitiveDetectorCatalog.h"
 #include "SimG4Core/MagneticField/interface/FieldBuilder.h"
+#include "SimG4Core/MagneticField/interface/CMSFieldManager.h"
 #include "SimG4Core/MagneticField/interface/Field.h"
 #include "SimG4Core/Application/interface/SimTrackManager.h"
 
@@ -42,7 +43,7 @@ void createWatchers(const edm::ParameterSet& iP, SimActivityRegistry& iReg,
     for(std::vector<ParameterSet>::iterator itWatcher = watchers.begin();
 	itWatcher != watchers.end(); ++itWatcher) 
     {
-	std::auto_ptr<SimWatcherMakerBase> 
+	std::unique_ptr<SimWatcherMakerBase> 
 	    maker(SimWatcherFactory::get()->create(itWatcher->getParameter<std::string> ("type")));
 	if(maker.get()==nullptr) { 
 	  throw cms::Exception("SimG4CoreGeometryProducer", 
@@ -87,19 +88,19 @@ void GeometryProducer::updateMagneticField( edm::EventSetup const& es) {
        const GlobalPoint g(0.,0.,0.);
        edm::LogInfo("GeometryProducer") << "B-field(T) at (0,0,0)(cm): " << pMF->inTesla(g);
 
-       m_fieldBuilder = std::auto_ptr<sim::FieldBuilder>(new sim::FieldBuilder(&(*pMF), m_pField));
-
-           G4TransportationManager * tM = G4TransportationManager::GetTransportationManager();
-        // update field here ...          
-        m_fieldBuilder->build( tM->GetFieldManager(),tM->GetPropagatorInField());
-
-        edm::LogInfo("GeometryProducer") << "Magentic field updated";
+       sim::FieldBuilder fieldBuilder(pMF.product(), m_pField);
+       CMSFieldManager* fieldManager = new CMSFieldManager();
+       G4TransportationManager * tM = G4TransportationManager::GetTransportationManager();
+       tM->SetFieldManager(fieldManager);
+       fieldBuilder.build( fieldManager, tM->GetPropagatorInField());
+       edm::LogInfo("GeometryProducer") << "Magentic field is built";
     }
 }
  
-void GeometryProducer::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const& es) {
-       // mag field can change in new lumi section
-       updateMagneticField( es );
+void GeometryProducer::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&) 
+{
+  // mag field cannot be change in new lumi section - this is commented out
+  //     updateMagneticField( es );
 }
 
 void GeometryProducer::beginRun(const edm::Run &, const edm::EventSetup&)

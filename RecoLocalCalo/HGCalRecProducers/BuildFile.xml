@@ -2,6 +2,7 @@
 <use   name="FWCore/Framework"/>
 <use   name="Geometry/HGCalGeometry"/>
 <use   name="clhep"/>
+<use   name="RecoLocalCalo/HGCalRecAlgos"/>
 <export>
   <lib   name="1"/>
 </export>

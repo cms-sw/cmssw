@@ -96,7 +96,7 @@ process.output = cms.OutputModule("PoolOutputModule",
 # Paths
 process.rechits = cms.Sequence(process.siPixelRecHits*process.siStripMatchedRecHits)
 process.vtxreco = cms.Sequence(process.offlineBeamSpot * process.trackerlocalreco * process.hiPixelVertices)
-process.pxlreco = cms.Sequence(process.vtxreco * process.hiPixel3PrimTracks)
+process.pxlreco = cms.Sequence(process.vtxreco * process.hiPixel3PrimTracksSequence)
 process.trkreco = cms.Sequence(process.offlineBeamSpot * process.trackerlocalreco * process.heavyIonTracking)
 
 process.reco        = cms.Sequence(process.RawToDigi * process.trkreco)

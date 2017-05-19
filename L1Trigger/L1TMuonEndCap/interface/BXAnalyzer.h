@@ -7,6 +7,10 @@
 //////Author M. Carver, UF
 //////
 
+#ifndef ADD_BXAnalyzer
+#define ADD_BXAnalyzer
+
+
 #include "L1Trigger/L1TMuonEndCap/interface/EmulatorClasses.h"
 #include "L1Trigger/L1TMuonEndCap/interface/PhiMemoryImage.h"
 
@@ -27,7 +31,7 @@ std::vector<std::vector<ConvertedHit>> GroupBX(std::vector<ConvertedHit> ConvHit
     if((diff < 3) && (diff > -1))
       output[2].push_back(*i);
     
-    if(fabs(diff) < 2)
+    if(std::abs(diff) < 2)
       output[1].push_back(*i);
   }
 
@@ -127,3 +131,5 @@ PatternOutput DeleteDuplicatePatterns(std::vector<PatternOutput> Pout){
   return output;
   
 }
+
+#endif

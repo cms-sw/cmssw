@@ -5,6 +5,11 @@ __source__ = "$Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python
 
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.Modules import _Module
+
+# The following import is provided for backward compatibility reasons.
+# The function used to be defined in this file.
+from FWCore.ParameterSet.MassReplace import massReplaceInputTag as MassReplaceInputTag
+
 import sys
 import re
 import collections
@@ -65,7 +70,6 @@ defaultOptions.outputCommands = None
 defaultOptions.inputEventContent = ''
 defaultOptions.dropDescendant = False
 defaultOptions.relval = None
-defaultOptions.slhc = None
 defaultOptions.profile = None
 defaultOptions.isRepacked = False
 defaultOptions.restoreRNDSeeds = False
@@ -171,13 +175,6 @@ def filesFromDASQuery(query,option="",s=None):
 		print "found parent files:",sec
 	return (prim,sec)
 
-def MassReplaceInputTag(aProcess,oldT="rawDataCollector",newT="rawDataRepacker"):
-	from PhysicsTools.PatAlgos.tools.helpers import massSearchReplaceAnyInputTag
-	for s in aProcess.paths_().keys():
-		massSearchReplaceAnyInputTag(getattr(aProcess,s),oldT,newT)
-	for s in aProcess.endpaths_().keys():
-		massSearchReplaceAnyInputTag(getattr(aProcess,s),oldT,newT)
-
 def anyOf(listOfKeys,dict,opt=None):
 	for k in listOfKeys:
 		if k in dict:
@@ -248,7 +245,6 @@ class ConfigBuilder(object):
         else:
             self.process = process
         self.imports = []
-        self.importsUnsch = []
         self.define_Configs()
         self.schedule = list()
 
@@ -263,6 +259,7 @@ class ConfigBuilder(object):
         self.additionalOutputs = {}
 
         self.productionFilterSequence = None
+        self.labelsToAssociate=[]
 	self.nextScheduleIsConditional=False
 	self.conditionalPaths=[]
 	self.excludedPaths=[]
@@ -315,18 +312,14 @@ class ConfigBuilder(object):
         self.process.load(includeFile)
         return sys.modules[includeFile]
 
-    def loadAndRemember(self, includeFile,unsch=0):
+    def loadAndRemember(self, includeFile):
         """helper routine to load am memorize imports"""
         # we could make the imports a on-the-fly data method of the process instance itself
         # not sure if the latter is a good idea
         includeFile = includeFile.replace('/','.')
-	if unsch==0:
-		self.imports.append(includeFile)
-		self.process.load(includeFile)
-		return sys.modules[includeFile]
-	else:
-		self.importsUnsch.append(includeFile)
-		return 0#sys.modules[includeFile]
+        self.imports.append(includeFile)
+        self.process.load(includeFile)
+        return sys.modules[includeFile]
 
     def executeAndRemember(self, command):
         """helper routine to remember replace statements"""
@@ -343,9 +336,6 @@ class ConfigBuilder(object):
             else:
                     self.process.options = cms.untracked.PSet( )
 
-	    if self._options.runUnscheduled:
-		    self.process.options.allowUnscheduled=cms.untracked.bool(True)
-		    
             self.addedObjects.append(("","options"))
 
             if self._options.lazy_download:
@@ -423,6 +413,10 @@ class ConfigBuilder(object):
 			   for line in textOfFiles:
 				   for fileName in [x for x in line.split() if '.lhe' in x]:
 					   self.process.source.fileNames.append(location+article+'/'+fileName)
+			   #check first if list of LHE files is loaded (not empty)
+			   if len(line)<2:
+				   print 'Issue to load LHE files, please check and try again.'
+				   sys.exit(-1)
 			   if len(args)>2:
 				   self.process.source.skipEvents = cms.untracked.uint32(int(args[2]))
 		   else:
@@ -445,7 +439,10 @@ class ConfigBuilder(object):
 	if self._options.dasquery!='':
                self.process.source=cms.Source("PoolSource", fileNames = cms.untracked.vstring(),secondaryFileNames = cms.untracked.vstring())
 	       filesFromDASQuery(self._options.dasquery,self._options.dasoption,self.process.source)
-
+	       
+	       if ('HARVESTING' in self.stepMap.keys() or 'ALCAHARVEST' in self.stepMap.keys()) and (not self._options.filetype == "DQM"):
+		       self.process.source.processingMode = cms.untracked.string("RunsAndLumis")
+		       
 	##drop LHEXMLStringProduct on input to save memory if appropriate
 	if 'GEN' in self.stepMap.keys():
         	if self._options.inputCommands:
@@ -613,6 +610,7 @@ class ConfigBuilder(object):
 
         for i,(streamType,tier) in enumerate(zip(streamTypes,tiers)):
 		if streamType=='': continue
+		if streamType == 'ALCARECO' and not 'ALCAPRODUCER' in self._options.step: continue
 		if streamType=='DQMIO': streamType='DQM'
                 theEventContent = getattr(self.process, streamType+"EventContent")
                 if i==0:
@@ -806,9 +804,6 @@ class ConfigBuilder(object):
         self.additionalCommands.append('from Configuration.AlCa.GlobalTag import GlobalTag')
         self.additionalCommands.append('process.GlobalTag = GlobalTag(process.GlobalTag, %s, %s)' % (repr(self._options.conditions), repr(self._options.custom_conditions)))
 
-	if self._options.slhc:
-		self.loadAndRemember("SLHCUpgradeSimulations/Geometry/fakeConditions_%s_cff"%(self._options.slhc,))
-		
 
     def addCustomise(self,unsch=0):
         """Include the customise code """
@@ -948,6 +943,8 @@ class ConfigBuilder(object):
 
 	if "DIGIPREMIX" in self.stepMap.keys():
             self.DIGIDefaultCFF="Configuration/StandardSequences/Digi_PreMix_cff"
+            self.DIGI2RAWDefaultCFF="Configuration/StandardSequences/DigiToRawPreMixing_cff"
+            self.L1EMDefaultCFF="Configuration/StandardSequences/SimL1EmulatorPreMix_cff"
 
         self.ALCADefaultSeq=None
 	self.LHEDefaultSeq='externalLHEProducer'
@@ -1111,13 +1108,6 @@ class ConfigBuilder(object):
 	if self._options.isData:
 		self._options.pileup=None
 
-	if self._options.slhc:
-		self.GeometryCFF='SLHCUpgradeSimulations.Geometry.%s_cmsSimIdealGeometryXML_cff'%(self._options.slhc,)
-		if 'stdgeom' not in self._options.slhc:
-			self.SimGeometryCFF='SLHCUpgradeSimulations.Geometry.%s_cmsSimIdealGeometryXML_cff'%(self._options.slhc,)
-		self.DIGIDefaultCFF='SLHCUpgradeSimulations/Geometry/Digi_%s_cff'%(self._options.slhc,)
-		if self._options.pileup!=defaultOptions.pileup:
-			self._options.pileup='SLHC_%s_%s'%(self._options.pileup,self._options.slhc)
 
 	self.REDIGIDefaultSeq=self.DIGIDefaultSeq
 
@@ -1187,11 +1177,11 @@ class ConfigBuilder(object):
     # prepare_STEPNAME modifies self.process and what else's needed.
     #----------------------------------------------------------------------------
 
-    def loadDefaultOrSpecifiedCFF(self, sequence,defaultCFF,unsch=0):
+    def loadDefaultOrSpecifiedCFF(self, sequence,defaultCFF):
             if ( len(sequence.split('.'))==1 ):
-                    l=self.loadAndRemember(defaultCFF,unsch)
+                    l=self.loadAndRemember(defaultCFF)
             elif ( len(sequence.split('.'))==2 ):
-                    l=self.loadAndRemember(sequence.split('.')[0],unsch)
+                    l=self.loadAndRemember(sequence.split('.')[0])
                     sequence=sequence.split('.')[1]
             else:
                     print "sub sequence configuration must be of the form dir/subdir/cff.a+b+c or cff.a"
@@ -1236,7 +1226,6 @@ class ConfigBuilder(object):
 
     def prepare_ALCA(self, sequence = None, workflow = 'full'):
         """ Enrich the process with alca streams """
-	print 'DL enriching',workflow,sequence
         alcaConfig=self.loadDefaultOrSpecifiedCFF(sequence,self.ALCADefaultCFF)
         sequence = sequence.split('.')[-1]
 
@@ -1552,10 +1541,7 @@ class ConfigBuilder(object):
 		self.loadAndRemember('HLTrigger/Configuration/HLT_%s_cff'       % sequence)
 
         if self._options.isMC:
-		if self._options.fast:
-			self._options.customisation_file.append("HLTrigger/Configuration/customizeHLTforMC.customizeHLTforFastSim")
-		else:
-			self._options.customisation_file.append("HLTrigger/Configuration/customizeHLTforMC.customizeHLTforFullSim")
+		self._options.customisation_file.append("HLTrigger/Configuration/customizeHLTforMC.customizeHLTforMC")
 
 	if self._options.name != 'HLT':
 		self.additionalCommands.append('from HLTrigger.Configuration.CustomConfigs import ProcessName')
@@ -1665,16 +1651,24 @@ class ConfigBuilder(object):
 
     def prepare_PAT(self, sequence = "miniAOD"):
         ''' Enrich the schedule with PAT '''
-	self.prepare_PATFILTER(self)
-        self.loadDefaultOrSpecifiedCFF(sequence,self.PATDefaultCFF,1) #this is unscheduled
-	if not self._options.runUnscheduled:	
-		raise Exception("MiniAOD production can only run in unscheduled mode, please run cmsDriver with --runUnscheduled")
+        self.prepare_PATFILTER(self)
+        self.loadDefaultOrSpecifiedCFF(sequence,self.PATDefaultCFF)
+        self.labelsToAssociate.append('patTask')
+        if not self._options.runUnscheduled:
+               raise Exception("MiniAOD production can only run in unscheduled mode, please run cmsDriver with --runUnscheduled")
         if self._options.isData:
-            self._options.customisation_file_unsch.append("PhysicsTools/PatAlgos/slimming/miniAOD_tools.miniAOD_customizeAllData")
+            self._options.customisation_file_unsch.insert(0,"PhysicsTools/PatAlgos/slimming/miniAOD_tools.miniAOD_customizeAllData")
         else:
-            self._options.customisation_file_unsch.append("PhysicsTools/PatAlgos/slimming/miniAOD_tools.miniAOD_customizeAllMC")
+            self._options.customisation_file_unsch.insert(0,"PhysicsTools/PatAlgos/slimming/miniAOD_tools.miniAOD_customizeAllMC")
             if self._options.fast:
-                self._options.customisation_file_unsch.append("PhysicsTools/PatAlgos/slimming/metFilterPaths_cff.miniAOD_customizeMETFiltersFastSim")
+                self._options.customisation_file_unsch.insert(1,"PhysicsTools/PatAlgos/slimming/metFilterPaths_cff.miniAOD_customizeMETFiltersFastSim")
+
+	if self._options.hltProcess:
+	     if len(self._options.customise_commands) > 1:
+		     self._options.customise_commands = self._options.customise_commands + " \n"
+	     self._options.customise_commands = self._options.customise_commands + "process.patTrigger.processName = \""+self._options.hltProcess+"\""
+#            self.renameHLTprocessInSequence(sequence)
+
         return
 
     def prepare_EI(self, sequence = None):
@@ -2160,6 +2154,15 @@ class ConfigBuilder(object):
 
 	self.pythonCfgCode += result
 
+        for labelToAssociate in self.labelsToAssociate:
+                self.process.schedule.associate(getattr(self.process, labelToAssociate))
+                self.pythonCfgCode += 'process.schedule.associate(process.' + labelToAssociate + ')\n'
+
+        from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
+        associatePatAlgosToolsTask(self.process)
+        self.pythonCfgCode+="from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask\n"
+        self.pythonCfgCode+="associatePatAlgosToolsTask(process)\n"
+
 	if self._options.nThreads is not "1":
 		self.pythonCfgCode +="\n"
 		self.pythonCfgCode +="#Setup FWK for multithreaded\n"
@@ -2201,21 +2204,20 @@ class ConfigBuilder(object):
 		from FWCore.ParameterSet.Utilities import convertToUnscheduled
 		self.process=convertToUnscheduled(self.process)
 
-		#now add the unscheduled stuff
-		for module in self.importsUnsch:
-			self.process.load(module)
-			self.pythonCfgCode += ("process.load('"+module+"')\n")
-
-		#and clean the unscheduled stuff	
-		self.pythonCfgCode+="from FWCore.ParameterSet.Utilities import cleanUnscheduled\n"
-		self.pythonCfgCode+="process=cleanUnscheduled(process)\n"
-
-		from FWCore.ParameterSet.Utilities import cleanUnscheduled
-		self.process=cleanUnscheduled(self.process)
-
 		self.pythonCfgCode += self.addCustomise(1)
 
 	self.pythonCfgCode += self.addCustomiseCmdLine()
+
+        # Temporary hack to put the early delete customization after
+        # everything else
+        #
+        # FIXME: remove when no longer needed
+        self.pythonCfgCode += "\n# Add early deletion of temporary data products to reduce peak memory need\n"
+        self.pythonCfgCode += "from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDelete\n"
+        self.pythonCfgCode += "process = customiseEarlyDelete(process)\n"
+        self.pythonCfgCode += "# End adding early deletion\n"
+        from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDelete
+        self.process = customiseEarlyDelete(self.process)
 
 
 	# make the .io file

@@ -752,7 +752,7 @@ CommandLineParser::_getSectionFiles (const SVec &inputList, SVec &outputList,
 void 
 CommandLineParser::_finishDefaultOptions (std::string tag)
 {
-   if (! m_optionsType & kEventContOpt)
+  if (! (m_optionsType & kEventContOpt) )
    {
       // nothing to see here, folks
       return;

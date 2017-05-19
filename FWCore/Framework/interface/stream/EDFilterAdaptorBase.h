@@ -36,6 +36,7 @@ namespace edm {
 
   class ModuleCallingContext;
   class ActivityRegistry;
+  class WaitingTask;
   
   namespace maker {
     template<typename T> class ModuleHolderT;
@@ -70,6 +71,9 @@ namespace edm {
       bool doEvent(EventPrincipal const& ep, EventSetup const& c,
                    ActivityRegistry*,
                    ModuleCallingContext const*) ;
+      //For now this is a placeholder
+      /*virtual*/ void preActionBeforeRunEventAsync(WaitingTask* iTask, ModuleCallingContext const& iModuleCallingContext, Principal const& iPrincipal) const {}
+
     };
   }
 }

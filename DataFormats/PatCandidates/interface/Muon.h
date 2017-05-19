@@ -180,6 +180,29 @@ namespace pat {
       /// ecalIso() and hcalIso
       float caloIso()  const { return ecalIso()+hcalIso(); }
 
+      /// returns PUPPI isolations			
+      float puppiChargedHadronIso() const {return puppiChargedHadronIso_; }
+      float puppiNeutralHadronIso() const {return puppiNeutralHadronIso_; }
+      float puppiPhotonIso() const {return puppiPhotonIso_; }
+      /// returns PUPPINoLeptons isolations
+      float puppiNoLeptonsChargedHadronIso() const {return puppiNoLeptonsChargedHadronIso_; }
+      float puppiNoLeptonsNeutralHadronIso() const {return puppiNoLeptonsNeutralHadronIso_; }
+      float puppiNoLeptonsPhotonIso() const {return puppiNoLeptonsPhotonIso_; }
+      /// sets PUPPI isolations
+      void setIsolationPUPPI(float chargedhadrons, float neutralhadrons, float photons)
+      {  
+         puppiChargedHadronIso_ = chargedhadrons;
+         puppiNeutralHadronIso_ = neutralhadrons;
+         puppiPhotonIso_ = photons;
+      }
+      /// sets PUPPINoLeptons isolations
+      void setIsolationPUPPINoLeptons(float chargedhadrons, float neutralhadrons, float photons)
+      {  
+         puppiNoLeptonsChargedHadronIso_ = chargedhadrons;
+         puppiNoLeptonsNeutralHadronIso_ = neutralhadrons;
+         puppiNoLeptonsPhotonIso_ = photons;
+      }
+      
       /// Muon High Level Selection
       /// The user can choose to cache this info so they can drop the
       /// global tracks. If the global track is present these should
@@ -299,6 +322,14 @@ namespace pat {
       float  ip_[IpTypeSize];        // dB and edB are the impact parameter at the primary vertex,
       float  eip_[IpTypeSize];       // and its uncertainty as recommended by the tracking group
 
+      /// PUPPI isolations
+      float puppiChargedHadronIso_;
+      float puppiNeutralHadronIso_;
+      float puppiPhotonIso_;
+      /// PUPPINoLeptons isolations
+      float puppiNoLeptonsChargedHadronIso_;
+      float puppiNoLeptonsNeutralHadronIso_;
+      float puppiNoLeptonsPhotonIso_;
 
       float pfEcalEnergy_;
   };

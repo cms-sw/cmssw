@@ -952,18 +952,15 @@ ValidateGeometry::validatePixelTopology(const TrackerGeometry::DetContainer& det
       { 
         int nrows = rpt->nrows();
         int ncolumns = rpt->ncolumns();
-        
-        assert(parameters[0] == nrows);
-        assert(parameters[1] == ncolumns);
-        
+                
         for ( int row = 1; row <= nrows; ++row )
         {
           for ( int column = 1; column <= ncolumns; ++column )
           {
             LocalPoint localPoint = rpt->localPosition(MeasurementPoint(row, column));
 
-            pixelLocalXs.push_back(localPoint.x() - fireworks::pixelLocalX(row, nrows));
-            pixelLocalYs.push_back(localPoint.y() - fireworks::pixelLocalY(column, ncolumns));
+            pixelLocalXs.push_back(localPoint.x() - fireworks::pixelLocalX(row, parameters));
+            pixelLocalYs.push_back(localPoint.y() - fireworks::pixelLocalY(column, parameters));
            }
         }
       }

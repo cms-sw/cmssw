@@ -47,8 +47,9 @@ HGCalGeometry* HGCalGeometryLoader::build (const HGCalTopology& topology) {
     int zside  = mytr.zp;
     int layer  = mytr.lay;
 #ifdef EDM_ML_DEBUG
-    std::cout << "HGCalGeometryLoader:: Z:Layer:Sector:Subsector " << zside
-	      << ":" << layer <<std::endl;
+    unsigned int kount(0);
+    std::cout << "HGCalGeometryLoader:: Z:Layer " << zside << ":" << layer 
+	      << std::endl;
 #endif
     if (topology.geomMode() == HGCalGeometryMode::Square) {
       int sector = mytr.sec;
@@ -76,6 +77,9 @@ HGCalGeometry* HGCalGeometryLoader::build (const HGCalTopology& topology) {
 	  params[11]= vol.cellSize;
 	  buildGeom(params, ht3d, detId, geom);
 	  counter++;
+#ifdef EDM_ML_DEBUG
+	  ++kount;
+#endif
 	  break;
 	}
       }
@@ -91,8 +95,9 @@ HGCalGeometry* HGCalGeometryLoader::build (const HGCalTopology& topology) {
 	  const HepGeom::Transform3D ht3d (mytr.hr, h3v);
 #ifdef EDM_ML_DEBUG
 	  std::cout << "HGCalGeometryLoader:: Wafer:Type " << wafer << ":" 
-		    << type << " transf " << ht3d.getTranslation() << " and " 
-		    << ht3d.getRotation();
+		    << type << " DetId " << HGCalDetId(detId) << std::hex
+		    << " " << detId.rawId() << std::dec << " transf " 
+		    << ht3d.getTranslation() << " and " << ht3d.getRotation();
 #endif
 	  HGCalParameters::hgtrap vol = topology.dddConstants().getModule(wafer,true,true);
 	  params[0] = vol.dz;
@@ -105,15 +110,22 @@ HGCalGeometry* HGCalGeometryLoader::build (const HGCalTopology& topology) {
 
 	  buildGeom(params, ht3d, detId, geom);
 	  counter++;
+#ifdef EDM_ML_DEBUG
+	  ++kount;
+#endif
 	}
       }
     }
+#ifdef EDM_ML_DEBUG
+    std::cout << kount << " modules found in Layer " << layer << " Z "
+	      << zside << std::endl;
+#endif
   }
 
   geom->sortDetIds();
 
   if (counter != numberExpected) {
-    std::cerr << "inconsistent # of cells: expected " << numberExpected << ":"
+    std::cerr << "Inconsistent # of cells: expected " << numberExpected << ":"
 	      << numberOfCells << " , inited " << counter << std::endl;
     assert( counter == numberOfCells ) ;
   }

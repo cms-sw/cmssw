@@ -215,16 +215,22 @@ if isDA:
                                                                          minPixelLayersWithHits = cms.int32(2),                      # PX hits > 2                       
                                                                          minSiliconLayersWithHits = cms.int32(5),                    # TK hits > 5  
                                                                          maxD0Significance = cms.double(5.0),                        # fake cut (requiring 1 PXB hit)     
-                                                                         minPt = cms.double(0.0),                                    # better for softish events                        
+                                                                         minPt = cms.double(0.0),                                    # better for softish events
+                                                                         maxEta = cms.double(5.0),                                   # as per recommendation in PR #18330
                                                                          trackQuality = cms.string("any")
                                                                          ),
                                            
-                                           TkClusParameters=cms.PSet(algorithm=cms.string('DA'),
-                                                                     TkDAClusParameters = cms.PSet(coolingFactor = cms.double(0.8),  # moderate annealing speed
-                                                                                                   Tmin = cms.double(4.),            # end of annealing
-                                                                                                   vertexSize = cms.double(0.05),    # ~ resolution / sqrt(Tmin)
+                                           ## MM 04.05.2017 (use settings as in: https://github.com/cms-sw/cmssw/pull/18330)
+                                           TkClusParameters=cms.PSet(algorithm=cms.string('DA_vect'),
+                                                                     TkDAClusParameters = cms.PSet(coolingFactor = cms.double(0.6),  # moderate annealing speed
+                                                                                                   Tmin = cms.double(2.0),           # end of vertex splitting
+                                                                                                   Tpurge = cms.double(2.0),         # cleaning 
+                                                                                                   Tstop = cms.double(0.5),          # end of annealing
+                                                                                                   vertexSize = cms.double(0.006),   # added in quadrature to track-z resolutions
                                                                                                    d0CutOff = cms.double(3.),        # downweight high IP tracks
-                                                                                                   dzCutOff = cms.double(4.)         # outlier rejection after freeze-out (T<Tmin)
+                                                                                                   dzCutOff = cms.double(3.),        # outlier rejection after freeze-out (T<Tmin)   
+                                                                                                   zmerge = cms.double(1e-2),        # merge intermediat clusters separated by less than zmerge
+                                                                                                   uniquetrkweight = cms.double(0.8) # require at least two tracks with this weight at T=Tpurge
                                                                                                    )
                                                                      )
                                            )
@@ -251,7 +257,8 @@ else:
                                                                          minPixelLayersWithHits=cms.int32(2),                        # PX hits > 2                   
                                                                          minSiliconLayersWithHits = cms.int32(5),                    # TK hits > 5                   
                                                                          maxD0Significance = cms.double(5.0),                        # fake cut (requiring 1 PXB hit)
-                                                                         minPt = cms.double(0.0),                                    # better for softish events     
+                                                                         minPt = cms.double(0.0),                                    # better for softish events    
+                                                                         maxEta = cms.double(5.0),                                   # as per recommendation in PR #18330 
                                                                          trackQuality = cms.string("any")
                                                                          ),
                                         

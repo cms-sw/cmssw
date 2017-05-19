@@ -30,6 +30,7 @@ namespace hcaldqm
 				virtual void initialize(HashType htype) {_htype = htype;}
 
 				//	get hash
+				using Mapper::getHash;
 				virtual uint32_t getHash(HcalDetId const& did) const
 				{return hash_did[_htype](did);}
 				virtual uint32_t getHash(HcalElectronicsId const& eid) const
@@ -38,6 +39,7 @@ namespace hcaldqm
 				{return hash_tid[_htype-nHashType_eid-1](tid);}
 
 				//	get name of the hashed element
+				using Mapper::getName;
 				virtual std::string getName(HcalDetId const &did) const
 				{return hashfunctions::name_did[_htype](did);}
 				virtual std::string getName(HcalElectronicsId const& eid) const

@@ -1,4 +1,4 @@
-#include "RecoEgamma/ElectronIdentification/plugins/ElectronMVAEstimatorRun2Phys14NonTrig.h"
+#include "RecoEgamma/ElectronIdentification/interface/ElectronMVAEstimatorRun2Phys14NonTrig.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
@@ -184,7 +184,7 @@ createSingleReader(const int iCategory, const edm::FileInPath &weightFile) {
   //
   // Book the method and set up the weights file
   //
-  std::unique_ptr<TMVA::IMethod> temp( tmpTMVAReader.BookMVA(_MethodName , weightFile.fullPath() ) );
+  tmpTMVAReader.BookMVA(_MethodName , weightFile.fullPath());
   
   return std::make_unique<const GBRForest>(dynamic_cast<TMVA::MethodBDT*>(tmpTMVAReader.FindMVA(_MethodName) ) );
 }

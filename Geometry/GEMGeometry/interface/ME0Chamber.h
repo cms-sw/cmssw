@@ -63,6 +63,11 @@ public:
   /// Retunr numbers of eta partitions
   int nEtaPartitions() const;
 
+  //For a line fit in the chamber frame, compute: global phi position extrapolated
+  //to the last layer - that extrapolated to the inner layer
+  float computeDeltaPhi(const LocalPoint& position, const LocalVector& direction ) const;
+
+
 
 private:
 

@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from Configuration.StandardSequences.Reconstruction_cff import *
+
 from L1Trigger.L1TNtuples.l1EventTree_cfi import *
 from L1Trigger.L1TNtuples.l1RecoTree_cfi import *
 from L1Trigger.L1TNtuples.l1JetRecoTree_cfi import *

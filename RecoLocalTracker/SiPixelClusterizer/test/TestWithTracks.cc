@@ -124,10 +124,10 @@ class TestWithTracks : public edm::EDAnalyzer {
   
   explicit TestWithTracks(const edm::ParameterSet& conf);  
   virtual ~TestWithTracks();
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-  virtual void beginRun(const edm::EventSetup& iSetup);
-  virtual void beginJob();
-  virtual void endJob();
+  virtual void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  virtual void beginJob() override;
+  virtual void endJob() override;
   
  private:
   edm::ParameterSet conf_;
@@ -218,7 +218,7 @@ TestWithTracks::TestWithTracks(edm::ParameterSet const& conf)
 TestWithTracks::~TestWithTracks() { }  
 
 // ------------ method called at the begining   ------------
-void TestWithTracks::beginRun(const edm::EventSetup& iSetup) {
+void TestWithTracks::beginRun(edm::Run const&, const edm::EventSetup& iSetup) {
   cout << "BeginRun, Verbosity =  " <<PRINT<<endl;
 }
 

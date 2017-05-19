@@ -64,18 +64,18 @@ return true;
 
 bool operator == (const l1t::CaloParams::TowerParams &a1, const l1t::CaloParams::TowerParams &a2){
     return (
-      a1.lsbH_ == a1.lsbH_ && 
-      a1.lsbE_ == a1.lsbE_ &&
-      a1.lsbSum_ == a1.lsbSum_ &&
-      a1.nBitsH_ == a1.nBitsH_ &&
-      a1.nBitsE_ == a1.nBitsE_ &&
-      a1.nBitsSum_ == a1.nBitsSum_ &&
-      a1.nBitsRatio_ == a1.nBitsRatio_ &&
-      a1.maskH_ == a1.maskH_ &&
-      a1.maskE_ == a1.maskE_ &&
-      a1.maskSum_ == a1.maskSum_ &&
-      a1.maskRatio_ == a1.maskRatio_ &&
-      a1.doEncoding_ == a1.doEncoding_ );
+      a1.lsbH_ == a2.lsbH_ && 
+      a1.lsbE_ == a2.lsbE_ &&
+      a1.lsbSum_ == a2.lsbSum_ &&
+      a1.nBitsH_ == a2.nBitsH_ &&
+      a1.nBitsE_ == a2.nBitsE_ &&
+      a1.nBitsSum_ == a2.nBitsSum_ &&
+      a1.nBitsRatio_ == a2.nBitsRatio_ &&
+      a1.maskH_ == a2.maskH_ &&
+      a1.maskE_ == a2.maskE_ &&
+      a1.maskSum_ == a2.maskSum_ &&
+      a1.maskRatio_ == a2.maskRatio_ &&
+      a1.doEncoding_ == a2.doEncoding_ );
 }
 
 bool operator == (const l1t::LUT& b1, const l1t::LUT& b2){

@@ -11,9 +11,15 @@
 #include "CondFormats/AlignmentRecord/interface/HcalAlignmentRcd.h"
 #include "Geometry/Records/interface/HcalGeometryRecord.h"
 
+class HcalFlexiHardcodeGeometryLoader;
+class HcalHardcodeGeometryLoader;
+
 class HcalGeometry : public CaloSubdetectorGeometry {
 
 public:
+
+  friend class HcalFlexiHardcodeGeometryLoader;
+  friend class HcalHardcodeGeometryLoader;
   
   typedef std::vector<IdealObliquePrism> HBCellVec ;
   typedef std::vector<IdealObliquePrism> HECellVec ;
@@ -50,6 +56,9 @@ public:
   virtual CaloSubdetectorGeometry::DetIdSet getCells( const GlobalPoint& r,
 						      double             dR ) const ;
 
+  GlobalPoint                   getPosition(const DetId& id) const;
+  GlobalPoint                   getBackPosition(const DetId& id) const;
+  CaloCellGeometry::CornersVec  getCorners(const DetId& id) const;
 
   static std::string producerTag() { return "HCAL" ; }
   
@@ -116,6 +125,23 @@ protected:
 
 private:
 
+  //returns din
+  unsigned int newCellImpl( const GlobalPoint& f1 ,
+			const GlobalPoint& f2 ,
+			const GlobalPoint& f3 ,
+			const CCGFloat*    parm,
+			const DetId&       detId     ) ;
+
+  //can only be used by friend classes, to ensure sorting is done at the end
+  void newCellFast( const GlobalPoint& f1 ,
+			const GlobalPoint& f2 ,
+			const GlobalPoint& f3 ,
+			const CCGFloat*    parm,
+			const DetId&       detId     ) ;
+
+  void increaseReserve(unsigned int extra);
+  void sortValidIds();
+
   void fillDetIds() const ;
 
   void init() ;
@@ -123,8 +149,10 @@ private:
   /// helper methods for getClosestCell
   int etaRing(HcalSubdetector bc, double abseta) const;
   int phiBin(HcalSubdetector bc, int etaring, double phi) const;
+  DetId correctId(const DetId& id) const ;
 
   const HcalTopology& m_topology;
+  bool                m_mergePosition;
   
   mutable edm::AtomicPtrCache<std::vector<DetId>> m_hbIds ;
   mutable edm::AtomicPtrCache<std::vector<DetId>> m_heIds ;

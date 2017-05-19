@@ -25,8 +25,16 @@ from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase2_tracker.toReplaceWith(pixeltrackerlocalreco,
   cms.Sequence(
           siPhase2Clusters +
-          phase2ITPixelClusters +
           siPixelClustersPreSplitting +
           siPixelRecHitsPreSplitting
+  )
+)
+phase2_tracker.toModify(clusterSummaryProducer,
+  doStrips = False,
+  stripClusters = ''
+)
+phase2_tracker.toReplaceWith(trackerlocalreco,
+  cms.Sequence(
+          pixeltrackerlocalreco*clusterSummaryProducer
   )
 )

@@ -40,6 +40,8 @@ namespace citk {
 			      const edm::EventSetup&) override final;
 
     void produce(edm::Event&, const edm::EventSetup&) override final;
+
+    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
     
   private:  
     // datamembers
@@ -170,6 +172,35 @@ namespace citk {
 	ev.put(std::move(the_product),_product_names[i][j]);
       }
     }
+  }
+
+// ParameterSet description for module
+void PFIsolationSumProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {  
+    edm::ParameterSetDescription iDesc;
+    iDesc.setComment("isolation sum producer");
+
+    iDesc.add<edm::InputTag>("srcToIsolate", edm::InputTag("no default"))->setComment("calculate isolation for this collection");
+    iDesc.add<edm::InputTag>("srcForIsolationCone", edm::InputTag("no default"))->setComment("collection for the isolation calculation: like particleFlow ");
+
+    edm::ParameterSetDescription descIsoConeDefinitions;
+    descIsoConeDefinitions.add<std::string>("isolationAlgo", "no default");
+    descIsoConeDefinitions.add<double>("coneSize", 0.3);
+    descIsoConeDefinitions.add<std::string>("isolateAgainst", "no default");
+    descIsoConeDefinitions.add<std::vector<unsigned>>("miniAODVertexCodes", {2,3});
+    descIsoConeDefinitions.addOptional<double>("VetoConeSizeBarrel", 0.0);
+    descIsoConeDefinitions.addOptional<double>("VetoConeSizeEndcaps", 0.0);
+    descIsoConeDefinitions.addOptional<int>("vertexIndex",0);
+    descIsoConeDefinitions.addOptional<edm::InputTag>("particleBasedIsolation",edm::InputTag("no default"))->setComment("map for footprint removal that is used for photons");
+
+
+    std::vector<edm::ParameterSet> isolationConeDefinitions;
+    edm::ParameterSet chargedHadrons, neutralHadrons,photons;
+    isolationConeDefinitions.push_back(chargedHadrons);
+    isolationConeDefinitions.push_back(neutralHadrons);
+    isolationConeDefinitions.push_back(photons);
+    iDesc.addVPSet("isolationConeDefinitions", descIsoConeDefinitions, isolationConeDefinitions);
+
+    descriptions.add("CITKPFIsolationSumProducer", iDesc);
   }
 }
 

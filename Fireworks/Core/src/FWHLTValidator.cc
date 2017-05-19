@@ -22,7 +22,7 @@
 
 void
 FWHLTValidator::fillOptions(const char* iBegin, const char* iEnd,
-			    std::vector<std::pair<boost::shared_ptr<std::string>, std::string> >& oOptions) const
+			    std::vector<std::pair<std::shared_ptr<std::string>, std::string> >& oOptions) const
 {
    oOptions.clear();
    std::string part(iBegin,iEnd);
@@ -51,7 +51,7 @@ FWHLTValidator::fillOptions(const char* iBegin, const char* iEnd,
    for(std::vector<std::string>::const_iterator trigger = m_triggerNames.begin();
        trigger != m_triggerNames.end(); ++trigger)
      if(part == trigger->substr(0,part_size) ) {
-       oOptions.push_back(std::make_pair(boost::shared_ptr<std::string>(new std::string(*trigger)),
+       oOptions.push_back(std::make_pair(std::make_shared<std::string>(*trigger),
 					 trigger->substr(part_size,trigger->size()-part_size)));
      }
 }

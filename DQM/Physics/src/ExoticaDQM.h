@@ -109,7 +109,7 @@ public:
 
 protected:
 
-  virtual void analyze(edm::Event const& e, edm::EventSetup const& eSetup);
+  virtual void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
 
   //Resonances
   virtual void analyzeDiJets(edm::Event const& e);

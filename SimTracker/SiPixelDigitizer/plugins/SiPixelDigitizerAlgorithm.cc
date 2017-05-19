@@ -1939,12 +1939,12 @@ void SiPixelDigitizerAlgorithm::module_killing_DB(uint32_t detID) {
       
       for(std::vector<GlobalPixel>::const_iterator it = badrocpositions.begin(); it != badrocpositions.end(); ++it){
 	if(it->row >= 80 && ip.first >= 80 ){
-	  if((fabs(ip.second - it->col) < 26) ) {i->second.set(0.);}
+	  if((std::abs(ip.second - it->col) < 26) ) {i->second.set(0.);}
           else if(it->row==120 && ip.second-it->col==26){i->second.set(0.);}
           else if(it->row==119 && it->col-ip.second==26){i->second.set(0.);}
 	}
 	else if(it->row < 80 && ip.first < 80 ){
-	  if((fabs(ip.second - it->col) < 26) ){i->second.set(0.);}
+	  if((std::abs(ip.second - it->col) < 26) ){i->second.set(0.);}
           else if(it->row==40 && ip.second-it->col==26){i->second.set(0.);}
           else if(it->row==39 && it->col-ip.second==26){i->second.set(0.);}
        }

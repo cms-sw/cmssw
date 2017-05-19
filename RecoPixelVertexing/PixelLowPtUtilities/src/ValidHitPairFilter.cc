@@ -48,20 +48,11 @@ float spin(float ph)
 }
 
 /*****************************************************************************/
-ValidHitPairFilter::ValidHitPairFilter
-  (const edm::ParameterSet& ps, edm::ConsumesCollector& iC)
-{
-}
-
-/*****************************************************************************/
-ValidHitPairFilter::~ValidHitPairFilter()
-{
-}
-/*****************************************************************************/
-void ValidHitPairFilter::update(const edm::Event& ev, const edm::EventSetup& es) {
+ValidHitPairFilter::ValidHitPairFilter(const edm::EventSetup& es) {
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopo;
-  es.get<TrackerTopologyRcd>().get(tTopo);
+  edm::ESHandle<TrackerTopology> tTopoHand;
+  es.get<TrackerTopologyRcd>().get(tTopoHand);
+  tTopo = tTopoHand.product();
 
 
   // Get tracker
@@ -138,7 +129,12 @@ void ValidHitPairFilter::update(const edm::Event& ev, const edm::EventSetup& es)
 }
 
 /*****************************************************************************/
-int ValidHitPairFilter::getLayer(const TrackingRecHit & recHit, const TrackerTopology *tTopo) const
+ValidHitPairFilter::~ValidHitPairFilter()
+{
+}
+
+/*****************************************************************************/
+int ValidHitPairFilter::getLayer(const TrackingRecHit & recHit) const
 {
   DetId id(recHit.geographicalId());
 
@@ -211,8 +207,7 @@ FreeTrajectoryState ValidHitPairFilter::getTrajectory
 vector<const GeomDet *> ValidHitPairFilter::getCloseDets
   (int il,
    float rz, const vector<float>& rzB,
-   float ph, const vector<float>& phB,
-   const TrackerTopology *tTopo) const
+   float ph, const vector<float>& phB) const
 {
   vector<int> rzVec, phVec;
 
@@ -269,8 +264,7 @@ vector<const GeomDet *> ValidHitPairFilter::getCloseDets
 
 /*****************************************************************************/
 bool ValidHitPairFilter::operator() 
-  (const reco::Track * track, const vector<const TrackingRecHit *>& recHits,
-   const TrackerTopology *tTopo) const
+  (const reco::Track * track, const vector<const TrackingRecHit *>& recHits) const
 {
   bool hasGap = true;
 
@@ -285,8 +279,8 @@ bool ValidHitPairFilter::operator()
     LocalError le(tol*tol, tol*tol, tol*tol);
 
     // determine missing layers
-    vector<int> missingLayers = getMissingLayers(getLayer(*(recHits[0]),tTopo),
-                                                 getLayer(*(recHits[1]),tTopo));
+    vector<int> missingLayers = getMissingLayers(getLayer(*(recHits[0])),
+                                                 getLayer(*(recHits[1])));
 
     for(vector<int>::const_iterator missingLayer = missingLayers.begin();
                                     missingLayer!= missingLayers.end();
@@ -329,7 +323,7 @@ bool ValidHitPairFilter::operator()
 
         // check close dets
         vector<const GeomDet *> closeDets =
-          getCloseDets(il, rz ,rzBounds[il], phi,phBounds[il], tTopo);
+          getCloseDets(il, rz ,rzBounds[il], phi,phBounds[il]);
 
         for(vector<const GeomDet *>::const_iterator det = closeDets.begin();
                                                     det!= closeDets.end();

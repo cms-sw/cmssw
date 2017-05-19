@@ -40,6 +40,7 @@ namespace edm {
   class ActivityRegistry;
   class ProductRegistry;
   class ThinnedAssociationsHelper;
+  class WaitingTask;
 
   namespace maker {
     template<typename T> class ModuleHolderT;
@@ -107,6 +108,9 @@ namespace edm {
     bool doEvent(EventPrincipal const& ep, EventSetup const& c,
                  ActivityRegistry* act,
                  ModuleCallingContext const* mcc);
+    //Needed by WorkerT but not supported
+    void preActionBeforeRunEventAsync(WaitingTask* iTask, ModuleCallingContext const& iModuleCallingContext, Principal const& iPrincipal) const {}
+
     bool doBeginRun(RunPrincipal const& rp, EventSetup const& c,
                     ModuleCallingContext const* mcc);
     bool doEndRun(RunPrincipal const& rp, EventSetup const& c,

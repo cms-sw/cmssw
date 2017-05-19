@@ -87,16 +87,16 @@ void DrellYanValidation::analyze(const edm::Event& iEvent,const edm::EventSetup&
   std::vector<const HepMC::GenParticle*> allproducts; 
 
   //requires status 1 for leptons and neutrinos (except tau)
-  int requiredstatus = (abs(_flavor) == 11 || abs(_flavor) == 12 || abs(_flavor) ==13 || abs(_flavor) ==14 || abs(_flavor) ==16) ? 1 : 3;
+  int requiredstatus = (std::abs(_flavor) == 11 || std::abs(_flavor) == 12 || std::abs(_flavor) ==13 || std::abs(_flavor) ==14 || std::abs(_flavor) ==16) ? 1 : 3;
 
-  bool vetotau = true; //(abs(_flavor) == 11 || abs(_flavor) == 12 || abs(_flavor) ==13 || abs(_flavor) ==14 || abs(_flavor) ==16) ? true : false;  
+  bool vetotau = true; //(std::abs(_flavor) == 11 || std::abs(_flavor) == 12 || std::abs(_flavor) ==13 || std::abs(_flavor) ==14 || std::abs(_flavor) ==16) ? true : false;  
 
   for(HepMC::GenEvent::particle_const_iterator iter = myGenEvent->particles_begin(); iter != myGenEvent->particles_end(); ++iter) {
     if (vetotau) {
-      if ((*iter)->status()==3 && abs((*iter)->pdg_id() == 15) ) return; 
+      if ((*iter)->status()==3 && std::abs((*iter)->pdg_id()) == 15)  return; 
     }
     if((*iter)->status()==requiredstatus) {
-      if(abs((*iter)->pdg_id())==_flavor)
+      if(std::abs((*iter)->pdg_id())==_flavor)
 	allproducts.push_back(*iter);
     }
   }

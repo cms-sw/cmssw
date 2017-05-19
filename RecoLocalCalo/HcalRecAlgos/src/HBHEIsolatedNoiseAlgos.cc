@@ -21,6 +21,8 @@ Original Author: John Paul Chou (Brown University)
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/HcalRecHit/interface/HBHERecHitAuxSetter.h"
+#include "DataFormats/HcalRecHit/interface/CaloRecHitAuxSetter.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -50,6 +52,7 @@ ObjectValidator::ObjectValidator(const edm::ParameterSet& iConfig)
   EcalAcceptSeverityLevel_ = iConfig.getParameter<uint32_t>("EcalAcceptSeverityLevel");
   UseHcalRecoveredHits_ = iConfig.getParameter<bool>("UseHcalRecoveredHits");
   UseEcalRecoveredHits_ = iConfig.getParameter<bool>("UseEcalRecoveredHits");
+  UseAllCombinedRechits_ = iConfig.getParameter<bool>("UseAllCombinedRechits");
 
   MinValidTrackPt_ = iConfig.getParameter<double>("MinValidTrackPt");
   MinValidTrackPtBarrel_ = iConfig.getParameter<double>("MinValidTrackPtBarrel");
@@ -72,6 +75,10 @@ ObjectValidator::~ObjectValidator()
 bool ObjectValidator::validHit(const HBHERecHit& hit) const
 {
   assert(theHcalSevLvlComputer_!=0 && theHcalChStatus_!=0);
+
+  if (UseAllCombinedRechits_)
+      if (CaloRecHitAuxSetter::getBit(hit.auxPhase1(), HBHERecHitAuxSetter::OFF_COMBINED))
+          return true;
 
   // require the hit to pass a certain energy threshold
   if(hit.id().subdet()==HcalBarrel && hit.energy()<HBThreshold_) return false;

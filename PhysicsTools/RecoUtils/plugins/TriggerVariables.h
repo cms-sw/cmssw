@@ -66,7 +66,7 @@ class HLTBitComputer : public VariableComputer {
     for (unsigned int iT=0;iT!=validTriggerNames_.size();++iT){
       TString tname(validTriggerNames_[iT]);
       tname.ReplaceAll("HLT_","");//remove the "HLT_" prefix
-      declare(std::string(tname), iC);
+      declare(std::string(static_cast<const char *>(tname)), iC);
     }
   }
     ~HLTBitComputer(){}
@@ -80,7 +80,7 @@ class HLTBitComputer : public VariableComputer {
 	TString tname(validTriggerNames_[iT]);
 	tname.ReplaceAll("HLT_","");
 	double r=trh->accept(triggerNames.triggerIndex(validTriggerNames_[iT]));
-	assign(std::string(tname),r);
+	assign(std::string(static_cast<const char *>(tname)),r);
       }
 
     }

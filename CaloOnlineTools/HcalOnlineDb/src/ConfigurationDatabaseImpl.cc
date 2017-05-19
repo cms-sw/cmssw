@@ -70,50 +70,50 @@ ConfigurationDatabaseImpl::ConfigurationDatabaseImpl() : m_logger(&std::cout) {
     }
   }
 
-  std::vector<std::string> ConfigurationDatabaseImpl::getValidTags() throw (hcal::exception::ConfigurationDatabaseException) {
+  std::vector<std::string> ConfigurationDatabaseImpl::getValidTags() noexcept(false) {
     XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,"Not implemented");
   }
-  ConfigurationDatabase::ApplicationConfig ConfigurationDatabaseImpl::getApplicationConfig(const std::string& tag, const std::string& classname, int instance) throw (hcal::exception::ConfigurationDatabaseException) {
-    XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,"Not implemented");
-  }
-
-  std::string ConfigurationDatabaseImpl::getConfigurationDocument(const std::string& tag) throw (hcal::exception::ConfigurationDatabaseException) {
+  ConfigurationDatabase::ApplicationConfig ConfigurationDatabaseImpl::getApplicationConfig(const std::string& tag, const std::string& classname, int instance) noexcept(false) {
     XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,"Not implemented");
   }
 
-  unsigned int ConfigurationDatabaseImpl::getFirmwareChecksum(const std::string& board, unsigned int version) throw (hcal::exception::ConfigurationDatabaseException) {
+  std::string ConfigurationDatabaseImpl::getConfigurationDocument(const std::string& tag) noexcept(false) {
+    XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,"Not implemented");
+  }
+
+  unsigned int ConfigurationDatabaseImpl::getFirmwareChecksum(const std::string& board, unsigned int version) noexcept(false) {
     XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,"Not implemented");
   }
   
-  void ConfigurationDatabaseImpl::getFirmwareMCS(const std::string& board, unsigned int version, std::vector<std::string>& mcsLines) throw (hcal::exception::ConfigurationDatabaseException) {
+  void ConfigurationDatabaseImpl::getFirmwareMCS(const std::string& board, unsigned int version, std::vector<std::string>& mcsLines) noexcept(false) {
     XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,"Not implemented");
   }
-  void ConfigurationDatabaseImpl::getLUTs(const std::string& tag,int crate, int slot, std::map<ConfigurationDatabase::LUTId, ConfigurationDatabase::LUT >& LUTs) throw (hcal::exception::ConfigurationDatabaseException) {
+  void ConfigurationDatabaseImpl::getLUTs(const std::string& tag,int crate, int slot, std::map<ConfigurationDatabase::LUTId, ConfigurationDatabase::LUT >& LUTs) noexcept(false) {
     XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,"Not implemented");
   }
-  void ConfigurationDatabaseImpl::getLUTChecksums(const std::string& tag, std::map<ConfigurationDatabase::LUTId, ConfigurationDatabase::MD5Fingerprint>& checksums) throw (hcal::exception::ConfigurationDatabaseException) {
+  void ConfigurationDatabaseImpl::getLUTChecksums(const std::string& tag, std::map<ConfigurationDatabase::LUTId, ConfigurationDatabase::MD5Fingerprint>& checksums) noexcept(false) {
     XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,"Not implemented");
   }
-  void ConfigurationDatabaseImpl::getPatterns(const std::string& tag, int crate, int slot, std::map<ConfigurationDatabase::PatternId, ConfigurationDatabase::HTRPattern>& patterns) throw (hcal::exception::ConfigurationDatabaseException) {
+  void ConfigurationDatabaseImpl::getPatterns(const std::string& tag, int crate, int slot, std::map<ConfigurationDatabase::PatternId, ConfigurationDatabase::HTRPattern>& patterns) noexcept(false) {
     XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,"Not implemented");
   }
-  void ConfigurationDatabaseImpl::getZSThresholds(const std::string& tag, int crate, int slot, std::map<ConfigurationDatabase::ZSChannelId, int>& thresholds) throw (hcal::exception::ConfigurationDatabaseException) {
+  void ConfigurationDatabaseImpl::getZSThresholds(const std::string& tag, int crate, int slot, std::map<ConfigurationDatabase::ZSChannelId, int>& thresholds) noexcept(false) {
     XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,"Not implemented");
   }
-  void ConfigurationDatabaseImpl::getHLXMasks(const std::string& tag, int crate, int slot, std::map<ConfigurationDatabase::FPGAId, ConfigurationDatabase::HLXMasks>& masks) throw (hcal::exception::ConfigurationDatabaseException) {
+  void ConfigurationDatabaseImpl::getHLXMasks(const std::string& tag, int crate, int slot, std::map<ConfigurationDatabase::FPGAId, ConfigurationDatabase::HLXMasks>& masks) noexcept(false) {
     XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,"Not implemented");
   }
   void ConfigurationDatabaseImpl::getRBXdata(const std::string& tag,
 					     const std::string& rbx,
 					     ConfigurationDatabase::RBXdatumType dtype,
 					     std::map<ConfigurationDatabase::RBXdatumId, ConfigurationDatabase::RBXdatum>& RBXdata) 
-    throw (hcal::exception::ConfigurationDatabaseException) {
+    noexcept(false) {
     XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,"Not implemented");
   }
   void ConfigurationDatabaseImpl::getRBXpatterns(const std::string& tag,
 						 const std::string& rbx,
 						 std::map<ConfigurationDatabase::RBXdatumId, ConfigurationDatabase::RBXpattern>& patterns)
-    throw (hcal::exception::ConfigurationDatabaseException) {
+    noexcept(false) {
     XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,"Not implemented");
   }
 

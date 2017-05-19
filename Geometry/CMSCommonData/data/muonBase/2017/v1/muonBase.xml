@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<!-- 2006-09-19 Michael Case:   This file defines the LogicalParts
+     necessary to build the Muon Barrel.  This is kept separate from
+     the placement of the LPs in their parents, again, to allow
+     isolation of the sub-graph with MUON as root.
+     -->
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<SolidSection label="muonBase.xml">
+		<Polycone name="MUON" startPhi="0*deg" deltaPhi="360*deg">
+			<ZSection z="-[cms:MuonBeamZ2]" rMin="[cms:MERmin3]" rMax="[cavernData:CMSR4]"/>
+			<ZSection z="-[cms:TotemMuonZ2]" rMin="[cms:MERmin3]" rMax="[cavernData:CMSR4]"/>
+			<ZSection z="-[cms:TotemMuonZ2]" rMin="[cms:TotemMuonR2]" rMax="[cavernData:CMSR4]"/>
+			<ZSection z="-[cms:TotemMuonZ1]" rMin="[cms:TotemMuonR2]" rMax="[cavernData:CMSR4]"/>
+			<ZSection z="-[cms:TotemMuonZ1]" rMin="[cms:TotemMuonR1]" rMax="[cavernData:CMSR4]"/>
+			<ZSection z="-[cms:MEndcapZ1]" rMin="[cms:MERmin2]" rMax="[cavernData:CMSR4]"/>
+			<ZSection z="-[cms:MBarZ]" rMin="[cms:MERmin1]" rMax="[cavernData:CMSR4]"/>
+			<ZSection z="-[cms:MEndcapZ0]" rMin="[cms:MERmin1]" rMax="[cavernData:CMSR4]"/>
+			<ZSection z="-[cms:MuonBeamZ0]" rMin="[cms:MuonBeamR0]" rMax="[cavernData:CMSR4]"/>
+			<ZSection z="-[cms:CalorBeamZ2]" rMin="[cms:CalorBeamR2]" rMax="[cavernData:CMSR4]"/>
+			<ZSection z="-[cms:CalorBeamZ2]" rMin="[cms:CalorMuonR]" rMax="[cavernData:CMSR4]"/>
+			<ZSection z="[cms:CalorBeamZ2]" rMin="[cms:CalorMuonR]" rMax="[cavernData:CMSR4]"/>
+			<ZSection z="[cms:CalorBeamZ2]" rMin="[cms:CalorBeamR2]" rMax="[cavernData:CMSR4]"/>
+			<ZSection z="[cms:MuonBeamZ0]" rMin="[cms:MuonBeamR0]" rMax="[cavernData:CMSR4]"/>
+			<ZSection z="[cms:MEndcapZ0]" rMin="[cms:MERmin1]" rMax="[cavernData:CMSR4]"/>
+			<ZSection z="[cms:MBarZ]" rMin="[cms:MERmin1]" rMax="[cavernData:CMSR4]"/>
+			<ZSection z="[cms:MEndcapZ1]" rMin="[cms:MERmin2]" rMax="[cavernData:CMSR4]"/>
+			<ZSection z="[cms:TotemMuonZ1]" rMin="[cms:TotemMuonR1]" rMax="[cavernData:CMSR4]"/>
+			<ZSection z="[cms:TotemMuonZ1]" rMin="[cms:TotemMuonR2]" rMax="[cavernData:CMSR4]"/>
+			<ZSection z="[cms:TotemMuonZ2]" rMin="[cms:TotemMuonR2]" rMax="[cavernData:CMSR4]"/>
+			<ZSection z="[cms:TotemMuonZ2]" rMin="[cms:MERmin3]" rMax="[cavernData:CMSR4]"/>
+			<ZSection z="[cms:MuonBeamZ2]" rMin="[cms:MERmin3]" rMax="[cavernData:CMSR4]"/>
+		</Polycone>
+		<Tubs name="MB" rMin="[cms:MBarRmin]" rMax="[cavernData:CMSR4]" dz="[cms:MBarZ]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="MBWheel" rMin="[cms:MBarRmin]" rMax="[cavernData:CMSR4]" dz="[cms:MBRingZ]" startPhi="0*deg" deltaPhi="360*deg"/>
+	</SolidSection>
+	<LogicalPartSection label="muonBase.xml">
+		<LogicalPart name="MUON" category="unspecified">
+			<rSolid name="MUON"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="MB" category="unspecified">
+			<rSolid name="MB"/>
+			<rMaterial name="materials:M_B_Air"/>
+		</LogicalPart>
+		<LogicalPart name="MBWheel_0" category="unspecified">
+			<rSolid name="MBWheel"/>
+			<rMaterial name="materials:M_B_Air"/>
+		</LogicalPart>
+		<LogicalPart name="MBWheel_1P" category="unspecified">
+			<rSolid name="MBWheel"/>
+			<rMaterial name="materials:M_B_Air"/>
+		</LogicalPart>
+		<LogicalPart name="MBWheel_2P" category="unspecified">
+			<rSolid name="MBWheel"/>
+			<rMaterial name="materials:M_B_Air"/>
+		</LogicalPart>
+		<LogicalPart name="MBWheel_1N" category="unspecified">
+			<rSolid name="MBWheel"/>
+			<rMaterial name="materials:M_B_Air"/>
+		</LogicalPart>
+		<LogicalPart name="MBWheel_2N" category="unspecified">
+			<rSolid name="MBWheel"/>
+			<rMaterial name="materials:M_B_Air"/>
+		</LogicalPart>
+	</LogicalPartSection>
+</DDDefinition>

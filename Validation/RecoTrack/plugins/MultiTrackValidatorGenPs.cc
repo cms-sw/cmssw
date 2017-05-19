@@ -402,7 +402,7 @@ void MultiTrackValidatorGenPs::analyze(const edm::Event& event, const edm::Event
       
     } // End of for(View<Track>::size_type i=0; i<trackCollection->size(); ++i){
     
-    histoProducerAlgo_->fill_trackBased_histos(w,at,rT,st);
+    histoProducerAlgo_->fill_trackBased_histos(w,at,rT,rT,st);
     
     edm::LogVerbatim("TrackValidator") << "Total Simulated: " << st << "\n"
                                        << "Total Associated (genToReco): " << ats << "\n"

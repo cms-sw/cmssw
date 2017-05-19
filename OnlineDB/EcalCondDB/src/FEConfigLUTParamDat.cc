@@ -30,7 +30,7 @@ FEConfigLUTParamDat::~FEConfigLUTParamDat()
 
 
 void FEConfigLUTParamDat::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -48,7 +48,7 @@ void FEConfigLUTParamDat::prepareWrite()
 
 
 void FEConfigLUTParamDat::writeDB(const EcalLogicID* ecid, const FEConfigLUTParamDat* item, FEConfigLUTInfo* iconf)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -75,7 +75,7 @@ void FEConfigLUTParamDat::writeDB(const EcalLogicID* ecid, const FEConfigLUTPara
 
 
 void FEConfigLUTParamDat::fetchData(map< EcalLogicID, FEConfigLUTParamDat >* fillMap, FEConfigLUTInfo* iconf)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   fillMap->clear();
@@ -122,7 +122,7 @@ void FEConfigLUTParamDat::fetchData(map< EcalLogicID, FEConfigLUTParamDat >* fil
 }
 
 void FEConfigLUTParamDat::writeArrayDB(const std::map< EcalLogicID, FEConfigLUTParamDat >* data, FEConfigLUTInfo* iconf)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();

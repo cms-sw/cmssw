@@ -1,5 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
+def dropPatTrigger(outputCommands):
+    print 'dropping patTrigger'
+    outputCommands.append("drop *_*patTrigger*_*_*")
+    outputCommands.append("drop *_*PatTrigger*_*_*")
+
 def dropSimDigis(outputCommands):
     outputCommands.append("drop *_sim*Digis*_*_*")
     outputCommands.append("drop *_gmtDigis*_*_*")

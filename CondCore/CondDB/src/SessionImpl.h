@@ -4,6 +4,7 @@
 #include "CondCore/CondDB/interface/Types.h"
 #include "IOVSchema.h"
 #include "GTSchema.h"
+#include "RunInfoSchema.h"
 //
 #include "RelationalAccess/ConnectionService.h"
 #include "RelationalAccess/ISessionProxy.h"
@@ -30,7 +31,8 @@ namespace cond {
       bool iovDbOpen = false;
       bool gtDbExists = false;
       bool gtDbOpen = false;
-      bool isOra = false;
+      bool runInfoDbExists = false;
+      bool runInfoDbOpen = true;
       size_t clients = 0;
     };
     
@@ -53,11 +55,11 @@ namespace cond {
 
       void openIovDb( FailureOnOpeningPolicy policy = THROW );
       void openGTDb( FailureOnOpeningPolicy policy = THROW );
+      void openRunInfoDb();
       void openDb();
       IIOVSchema& iovSchema();
       IGTSchema& gtSchema();
-      // only for the bridging...
-      bool isOra();
+      IRunInfoSchema& runInfoSchema();
       
     public:
       // allows for session shared among more services. To be changed to unique_ptr when we stop needing this feature.
@@ -67,6 +69,7 @@ namespace cond {
       std::unique_ptr<ITransaction> transaction;
       std::unique_ptr<IIOVSchema> iovSchemaHandle; 
       std::unique_ptr<IGTSchema> gtSchemaHandle; 
+      std::unique_ptr<IRunInfoSchema> runInfoSchemaHandle; 
     };
 
   }

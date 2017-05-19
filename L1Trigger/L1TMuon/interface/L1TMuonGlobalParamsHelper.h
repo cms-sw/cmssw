@@ -17,8 +17,8 @@
 
 //this is temp hack to avoid ALCA/DB signoff requirement for now:
 #include "L1Trigger/L1TMuon/interface/L1TMuonGlobalParams_PUBLIC.h"
-#include "L1Trigger/L1TCommon/interface/TrigSystem.h"
-#include "L1Trigger/L1TCommon/interface/Setting.h"
+#include "L1Trigger/L1TCommon/interface/TriggerSystem.h"
+#include "L1Trigger/L1TCommon/interface/Parameter.h"
 #include "L1Trigger/L1TCommon/interface/Mask.h"
 
 class L1TMuonGlobalParamsHelper : public L1TMuonGlobalParams_PUBLIC {
@@ -234,7 +234,7 @@ public:
   void setSortRankLUTFactors(unsigned ptFactor, unsigned qualFactor) { pnodes_[sortRank].uparams_.push_back(ptFactor); pnodes_[sortRank].uparams_.push_back(qualFactor); }
 
   // set parameters with a trigSystem object built from the online DB
-  void loadFromOnline(l1t::TrigSystem& trgSys, const std::string& processorId = "");
+  void loadFromOnline(l1t::TriggerSystem& trgSys, const std::string& processorId = "");
 
   // print parameters to stream:
   void print(std::ostream&) const;

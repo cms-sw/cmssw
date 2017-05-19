@@ -10,7 +10,7 @@
 #include <sstream>
 
 // core framework functionality
-#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -20,6 +20,8 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 // alignment
+#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
+
 class Alignable;
 
 
@@ -66,20 +68,23 @@ class TrackerGeometryAnalyzer : public edm::EDAnalyzer {
   //===========================================================================
 
     // config-file parameters
-    bool analyzeAlignables_;
-    bool printTrackerStructure_;
-    int  maxPrintDepth_;
-    bool analyzeGeometry_;
-    bool analyzePXB_;
-    bool analyzePXE_;
-    bool analyzeTIB_;
-    bool analyzeTID_;
-    bool analyzeTOB_;
-    bool analyzeTEC_;
+    const bool analyzeAlignables_;
+    const bool printTrackerStructure_;
+    const int  maxPrintDepth_;
+    const bool analyzeGeometry_;
+    const bool analyzePXB_;
+    const bool analyzePXE_;
+    const bool analyzeTIB_;
+    const bool analyzeTID_;
+    const bool analyzeTOB_;
+    const bool analyzeTEC_;
 
     // topology and geometry
     const TrackerTopology* trackerTopology;
     const TrackerGeometry* trackerGeometry;
+
+    // alignable object ID provider
+    AlignableObjectId alignableObjectId_;
 
     // counter for detUnits
     int numPXBDetUnits = 0;

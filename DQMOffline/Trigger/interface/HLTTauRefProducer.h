@@ -1,15 +1,15 @@
 /*HLTTauRefProducer
-Producer that creates LorentzVector Collections
-from offline reconstructed quantities to be used
-in Offline Trigger DQM etc
+  Producer that creates LorentzVector Collections
+  from offline reconstructed quantities to be used
+  in Offline Trigger DQM etc
 */
 
 #ifndef HLTTauRefProducer_h
 #define HLTTauRefProducer_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -49,24 +49,23 @@ in Offline Trigger DQM etc
 #include <vector>
 #include <string>
 
-class HLTTauRefProducer : public edm::EDProducer {
-  
+class HLTTauRefProducer : public edm::global::EDProducer<> {
 public:
-  explicit HLTTauRefProducer(const edm::ParameterSet&);
-  ~HLTTauRefProducer();
 
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-  
- private:
-  typedef math::XYZTLorentzVectorD LorentzVector;
-  typedef std::vector<LorentzVector> LorentzVectorCollection;
-  
+  explicit HLTTauRefProducer(const edm::ParameterSet&);
+
+  void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
+
+private:
+
+  using LorentzVector = math::XYZTLorentzVectorD;
+  using LorentzVectorCollection = std::vector<LorentzVector>;
+
   edm::EDGetTokenT<reco::PFTauCollection> PFTaus_;
-  std::vector<edm::EDGetTokenT<reco::PFTauDiscriminator> > PFTauDis_;
+  std::vector<edm::EDGetTokenT<reco::PFTauDiscriminator>> PFTauDis_;
   bool doPFTaus_;
   double ptMinPFTau_;
-  
-  
+
   edm::EDGetTokenT<reco::GsfElectronCollection> Electrons_;
   bool doElectrons_;
   edm::EDGetTokenT<reco::ElectronIDAssociationCollection> e_idAssocProd_;
@@ -81,7 +80,8 @@ public:
   double e_maxIsoDR_;
   double e_isoMaxSumPt_;
   bool doElecFromZ_;
-  double e_zMmin_,e_zMmax_;
+  double e_zMmin_;
+  double e_zMmax_;
   double e_FromZet_;
 
   edm::EDGetTokenT<reco::PhotonCollection> Photons_;
@@ -89,11 +89,9 @@ public:
   double photonEcalIso_;
   double ptMinPhoton_;
 
-
   edm::EDGetTokenT<reco::MuonCollection> Muons_;
   bool doMuons_;
   double ptMinMuon_;
-
 
   edm::EDGetTokenT<reco::CaloJetCollection> Jets_;
   bool doJets_;
@@ -108,17 +106,15 @@ public:
   bool doMET_;
   double ptMinMET_;
 
-  double etaMax;
+  double etaMax_;
 
-  void doPFTaus(edm::Event&,const edm::EventSetup&);
-  void doMuons(edm::Event&,const edm::EventSetup&);
-  void doElectrons(edm::Event&,const edm::EventSetup&);
-  void doElectronsFromZ(edm::Event&,const edm::EventSetup&,std::unique_ptr<LorentzVectorCollection>&);
-  double ElectronTrkIsolation(const reco::TrackCollection*, const reco::GsfElectron&);
-  void doJets(edm::Event&,const edm::EventSetup&);
-  void doPhotons(edm::Event&,const edm::EventSetup&);
-  void doTowers(edm::Event&,const edm::EventSetup&);
-  void doMET(edm::Event&,const edm::EventSetup&);
+  void doPFTaus(edm::Event&) const;
+  void doMuons(edm::Event&) const;
+  void doElectrons(edm::Event&) const;
+  void doJets(edm::Event&) const;
+  void doPhotons(edm::Event&) const;
+  void doTowers(edm::Event&) const;
+  void doMET(edm::Event&) const;
 };
 
 #endif

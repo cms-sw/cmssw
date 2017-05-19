@@ -1,29 +1,37 @@
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerBackendProcessor.h"
 
 HGCalTriggerBackendProcessor::
-HGCalTriggerBackendProcessor(const edm::ParameterSet& conf) {
+HGCalTriggerBackendProcessor(const edm::ParameterSet& conf, edm::ConsumesCollector&& cc) {
   const std::vector<edm::ParameterSet> be_confs = 
     conf.getParameterSetVector("algorithms");
   for( const auto& algo_cfg : be_confs ) {
     const std::string& algo_name = 
       algo_cfg.getParameter<std::string>("AlgorithmName");
     HGCalTriggerBackendAlgorithmBase* algo = 
-      HGCalTriggerBackendAlgorithmFactory::get()->create(algo_name,algo_cfg);
+      HGCalTriggerBackendAlgorithmFactory::get()->create(algo_name,algo_cfg,cc);
     algorithms_.emplace_back(algo);
   }
 }
 
-void HGCalTriggerBackendProcessor::setProduces(edm::EDProducer& prod) const {
+void HGCalTriggerBackendProcessor::setGeometry(const HGCalTriggerGeometryBase* const geom) {
+  for( const auto& algo : algorithms_ ) {
+    algo->setGeometry(geom);
+  }
+}
+
+
+void HGCalTriggerBackendProcessor::setProduces(edm::stream::EDProducer<>& prod) const {
   for( const auto& algo : algorithms_ ) {
     algo->setProduces(prod);
   }
 }
 
-void HGCalTriggerBackendProcessor::
-run(const l1t::HGCFETriggerDigiCollection& coll,
-    const std::unique_ptr<HGCalTriggerGeometryBase>& geom) {
+void HGCalTriggerBackendProcessor::run(const l1t::HGCFETriggerDigiCollection& coll, 
+		const edm::EventSetup& es,
+		edm::Event &e
+		) {
   for( auto& algo : algorithms_ ) {
-    algo->run(coll,geom);
+    algo->run(coll, es,e);
   }
 }
 

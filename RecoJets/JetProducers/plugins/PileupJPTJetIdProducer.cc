@@ -28,11 +28,6 @@ public:
 private:
 	virtual void produce(edm::Event&, const edm::EventSetup&);
       
-	virtual void beginRun(edm::Run&, edm::EventSetup const&);
-	virtual void endRun(edm::Run&, edm::EventSetup const&);
-	virtual void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-	virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-
 	edm::InputTag jets_;
         edm::EDGetTokenT<edm::View<reco::JPTJet> > input_token_;
              bool allowMissingInputs_;
@@ -120,30 +115,6 @@ PileupJPTJetIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     idflagfiller.fill();
     iEvent.put(std::move(idflagout),"JPTPUId");
        
-}
-
-// ------------------------------------------------------------------------------------------
-void 
-PileupJPTJetIdProducer::beginRun(edm::Run&, edm::EventSetup const&)
-{
-}
-
-// ------------------------------------------------------------------------------------------
-void 
-PileupJPTJetIdProducer::endRun(edm::Run&, edm::EventSetup const&)
-{
-}
-
-// ------------------------------------------------------------------------------------------
-void 
-PileupJPTJetIdProducer::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
-{
-}
-
-// ------------------------------------------------------------------------------------------
-void 
-PileupJPTJetIdProducer::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
-{
 }
 
 //define this as a plug-in

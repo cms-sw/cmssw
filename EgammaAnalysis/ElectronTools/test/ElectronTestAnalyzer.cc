@@ -71,9 +71,9 @@ public:
   
   
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  virtual void beginJob() override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob() override;
   virtual void myBindVariables();
   virtual void myVar(const reco::GsfElectron& ele,
 		     const reco::Vertex& vertex,
@@ -349,7 +349,7 @@ ElectronTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     if(abs(genPtcl.pdgId())==11 &&
        genPtcl.status()==1       &&
        ptmc > 10.               &&
-       fabs(etamc) < 2.5 ){
+       std::abs(etamc) < 2.5 ){
 
 
       for (unsigned int j=0; j<theEGamma.size();j++) {
@@ -519,7 +519,7 @@ void ElectronTestAnalyzer::myVar(const reco::GsfElectron& ele,
   myMVAVar_phiwidth        =  ele.superCluster()->phiWidth();
   myMVAVar_e1x5e5x5        =  (ele.e5x5()) !=0. ? 1.-(ele.e1x5()/ele.e5x5()) : -1. ;
   myMVAVar_R9              =  myEcalCluster.e3x3(*(ele.superCluster()->seed())) / ele.superCluster()->rawEnergy();
-  myMVAVar_nbrems          =  fabs(ele.numberOfBrems());
+  myMVAVar_nbrems          =  std::abs(ele.numberOfBrems());
 
   myMVAVar_HoE             =  ele.hadronicOverEm();
   myMVAVar_EoP             =  ele.eSuperClusterOverP();
@@ -598,12 +598,12 @@ void ElectronTestAnalyzer::myBindVariables() {
   if(myMVAVar_fbrem < -1.)
     myMVAVar_fbrem = -1.;
 
-  myMVAVar_deta = fabs(myMVAVar_deta);
+  myMVAVar_deta = std::abs(myMVAVar_deta);
   if(myMVAVar_deta > 0.06)
     myMVAVar_deta = 0.06;
 
 
-  myMVAVar_dphi = fabs(myMVAVar_dphi);
+  myMVAVar_dphi = std::abs(myMVAVar_dphi);
   if(myMVAVar_dphi > 0.6)
     myMVAVar_dphi = 0.6;
 
@@ -618,12 +618,12 @@ void ElectronTestAnalyzer::myBindVariables() {
     myMVAVar_eleEoPout = 20.;
 
 
-  myMVAVar_detacalo = fabs(myMVAVar_detacalo);
+  myMVAVar_detacalo = std::abs(myMVAVar_detacalo);
   if(myMVAVar_detacalo > 0.2)
     myMVAVar_detacalo = 0.2;
 
 
-  myMVAVar_dphicalo = fabs(myMVAVar_dphicalo);
+  myMVAVar_dphicalo = std::abs(myMVAVar_dphicalo);
   if(myMVAVar_dphicalo > 0.4)
     myMVAVar_dphicalo = 0.4;
 
@@ -657,7 +657,7 @@ void ElectronTestAnalyzer::myBindVariables() {
 bool ElectronTestAnalyzer::trainTrigPresel(const reco::GsfElectron& ele) {
 
   bool myTrigPresel = false;
-  if(fabs(ele.superCluster()->eta()) < 1.479) {
+  if(std::abs(ele.superCluster()->eta()) < 1.479) {
     if(ele.sigmaIetaIeta() < 0.014 &&
        ele.hadronicOverEm() < 0.15 &&
        ele.dr03TkSumPt()/ele.pt() < 0.2 &&
@@ -680,7 +680,7 @@ bool ElectronTestAnalyzer::trainTrigPresel(const reco::GsfElectron& ele) {
   return myTrigPresel;
 }
 void
-ElectronTestAnalyzer::beginJob(const edm::EventSetup&)
+ElectronTestAnalyzer::beginJob()
 {
 
   ev = 0;
@@ -731,30 +731,30 @@ ElectronTestAnalyzer::evaluate_mvas(const edm::Event& iEvent, const edm::EventSe
     } else if (iE->closestCtfTrackRef().isNonnull()) {
       electronTrackZ = iE->closestCtfTrackRef()->dz(pvCol->at(0).position());
     }
-    if(fabs(electronTrackZ) > 0.2)  continue;
+    if(std::abs(electronTrackZ) > 0.2)  continue;
 
 
-    if(fabs(iE->superCluster()->eta())<1.479) {
+    if(std::abs(iE->superCluster()->eta())<1.479) {
       if(iE->pt() > 20) {
         if(iE->sigmaIetaIeta()       > 0.01)  continue;
-        if(fabs(iE->deltaEtaSuperClusterTrackAtVtx()) > 0.007) continue;
-        if(fabs(iE->deltaPhiSuperClusterTrackAtVtx()) > 0.8)  continue;
+        if(std::abs(iE->deltaEtaSuperClusterTrackAtVtx()) > 0.007) continue;
+        if(std::abs(iE->deltaPhiSuperClusterTrackAtVtx()) > 0.8)  continue;
         if(iE->hadronicOverEm()       > 0.15)  continue;
       } else {
         if(iE->sigmaIetaIeta()       > 0.012)  continue;
-        if(fabs(iE->deltaEtaSuperClusterTrackAtVtx()) > 0.007) continue;
-        if(fabs(iE->deltaPhiSuperClusterTrackAtVtx()) > 0.8)  continue;
+        if(std::abs(iE->deltaEtaSuperClusterTrackAtVtx()) > 0.007) continue;
+        if(std::abs(iE->deltaPhiSuperClusterTrackAtVtx()) > 0.8)  continue;
         if(iE->hadronicOverEm()       > 0.15) continue;
       }
     } else {
       if(iE->pt() > 20) {
         if(iE->sigmaIetaIeta()       > 0.03)  continue;
-        if(fabs(iE->deltaEtaSuperClusterTrackAtVtx()) > 0.010) continue;
-        if(fabs(iE->deltaPhiSuperClusterTrackAtVtx()) > 0.8)  continue;
+        if(std::abs(iE->deltaEtaSuperClusterTrackAtVtx()) > 0.010) continue;
+        if(std::abs(iE->deltaPhiSuperClusterTrackAtVtx()) > 0.8)  continue;
       } else {
         if(iE->sigmaIetaIeta()       > 0.032)  continue;
-        if(fabs(iE->deltaEtaSuperClusterTrackAtVtx()) > 0.010) continue;
-        if(fabs(iE->deltaPhiSuperClusterTrackAtVtx()) > 0.8)  continue;
+        if(std::abs(iE->deltaEtaSuperClusterTrackAtVtx()) > 0.010) continue;
+        if(std::abs(iE->deltaPhiSuperClusterTrackAtVtx()) > 0.8)  continue;
       }
     }
     IdentifiedElectrons.push_back(*iE);

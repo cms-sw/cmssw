@@ -34,7 +34,7 @@ FEConfigSpikeInfo::~FEConfigSpikeInfo()
 
 
 
-int FEConfigSpikeInfo::fetchNextId()  throw(std::runtime_error) {
+int FEConfigSpikeInfo::fetchNextId()  noexcept(false) {
 
   int result=0;
   try {
@@ -57,7 +57,7 @@ int FEConfigSpikeInfo::fetchNextId()  throw(std::runtime_error) {
 }
 
 void FEConfigSpikeInfo::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -96,7 +96,7 @@ void FEConfigSpikeInfo::setParameters(const std::map<string,string>& my_keys_map
 }
 
 void FEConfigSpikeInfo::writeDB()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -123,7 +123,7 @@ void FEConfigSpikeInfo::writeDB()
 
 
 void FEConfigSpikeInfo::fetchData(FEConfigSpikeInfo * result)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   result->clear();
@@ -157,7 +157,7 @@ void FEConfigSpikeInfo::fetchData(FEConfigSpikeInfo * result)
 }
 
 void FEConfigSpikeInfo::fetchLastData(FEConfigSpikeInfo * result)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   result->clear();
@@ -181,7 +181,7 @@ void FEConfigSpikeInfo::fetchLastData(FEConfigSpikeInfo * result)
   }
 }
 
-int FEConfigSpikeInfo::fetchID()    throw(std::runtime_error)
+int FEConfigSpikeInfo::fetchID()    noexcept(false)
 {
   // Return from memory if available
   if (m_ID!=0) {
@@ -216,7 +216,7 @@ int FEConfigSpikeInfo::fetchID()    throw(std::runtime_error)
 
 
 void FEConfigSpikeInfo::setByID(int id) 
-  throw(std::runtime_error)
+  noexcept(false)
 {
    this->checkConnection();
 

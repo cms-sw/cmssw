@@ -192,8 +192,7 @@ namespace funct {
       inline static const A& a(const F& f, const G& g, const H& h) { return f; }
       inline static const B& b(const F& f, const G& g, const H& h) { return h; }
       inline static const C& c(const F& f, const G& g, const H& h) { return g; }
-      enum { value = ::boost::type_traits::ice_not<
-	     ::boost::is_same<AB, base>::value>::value };
+      enum { value = not ::boost::is_same<AB, base>::value };
     };
     struct prod2 { 
       typedef G A; typedef H B; typedef F C;
@@ -202,8 +201,7 @@ namespace funct {
       inline static const A& a(const F& f, const G& g, const H& h) { return g; }
       inline static const B& b(const F& f, const G& g, const H& h) { return h; }
       inline static const C& c(const F& f, const G& g, const H& h) { return f; }
-      enum { value = ::boost::type_traits::ice_not<
-	     ::boost::is_same<AB, base>::value>::value };
+      enum { value = not ::boost::is_same<AB, base>::value };
     };
     
     typedef typename 

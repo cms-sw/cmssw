@@ -14,9 +14,12 @@ class PrimaryVertexValidation(GenericValidationData):
                  outputBaseName  = "PrimaryVertexValidation"):
         defaults = {
             "pvvalidationreference": ("/store/caf/user/musich/Alignment/TkAlPrimaryVertexValidation/Reference/PrimaryVertexValidation_test_pvvalidation_mc_design_mc_48bins.root"),
+            "ttrhbuilder":"WithAngleAndTemplate",
+            "doBPix":"True",
+            "doFPix":"True"
             }
         
-        mandatories = ["isda","ismc","runboundary","trackcollection","vertexcollection","lumilist","ptCut","runControl","numberOfBins"]
+        mandatories = ["isda","ismc","runboundary","trackcollection","vertexcollection","lumilist","ptCut","etaCut","runControl","numberOfBins"]
         self.configBaseName  = configBaseName
         self.scriptBaseName  = scriptBaseName
         self.crabCfgBaseName = crabCfgBaseName
@@ -52,6 +55,7 @@ class PrimaryVertexValidation(GenericValidationData):
         if alignment == None:
             alignment = self.alignmentToValidate
         repMap = GenericValidationData.getRepMap(self, alignment) 
+          
         repMap.update({
             "nEvents": self.general["maxevents"],
             "TrackCollection": self.general["trackcollection"],
@@ -84,10 +88,20 @@ class PrimaryVertexValidation(GenericValidationData):
         """
         repMap = self.getRepMap()
 
-        if validationsSoFar  != "":
-            validationsSoFar += ','
-            validationsSoFar += "root://eoscms//eos/cms%(finalResultFile)s=%(title)s"%repMap
+        if validationsSoFar == "":
+            validationsSoFar = (' loadFileList("root://eoscms//eos/cms%(finalResultFile)s",'
+                                '"PVValidation","%(title)s", %(color)s, %(style)s);\n')%repMap
         else:
-            validationsSoFar += "root://eoscms//eos/cms%(finalResultFile)s=%(title)s"%repMap
+            validationsSoFar += ('  loadFileList("root://eoscms//eos/cms%(finalResultFile)s",'
+                                 '"PVValidation","%(title)s", %(color)s, %(style)s);\n')%repMap
+
         return validationsSoFar
+
+
+        # if validationsSoFar  != "":
+        #     validationsSoFar += ','
+        #     validationsSoFar += "root://eoscms//eos/cms%(finalResultFile)s=%(title)s"%repMap
+        # else:
+        #     validationsSoFar += "root://eoscms//eos/cms%(finalResultFile)s=%(title)s"%repMap
+        # return validationsSoFar
     

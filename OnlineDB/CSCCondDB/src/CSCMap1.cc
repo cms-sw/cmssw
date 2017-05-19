@@ -4,7 +4,7 @@
   /**
    * Constructor for cscmap1
    */
-  cscmap1::cscmap1 () throw (oracle::occi::SQLException)
+  cscmap1::cscmap1 () noexcept(false)
   {
     std::string db_user;
     std::string db_pass;
@@ -20,7 +20,7 @@
   /**
    * Destructor for cscmap1.
    */
-  cscmap1::~cscmap1 () throw (oracle::occi::SQLException)
+  cscmap1::~cscmap1 () noexcept(false)
   {
     env->terminateConnection (con);
     oracle::occi::Environment::terminateEnvironment (env);

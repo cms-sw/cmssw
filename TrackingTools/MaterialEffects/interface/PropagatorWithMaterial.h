@@ -62,7 +62,7 @@ private:
 
 public:
   /// Limit on change in azimuthal angle
-  virtual bool setMaxDirectionChange( float phiMax) {
+  virtual bool setMaxDirectionChange( float phiMax)  override{
     return theGeometricalPropagator->setMaxDirectionChange(phiMax);
   }
   /// Propagation direction
@@ -89,10 +89,10 @@ public:
     return *theMEUpdator;
   }
 
-  virtual const MagneticField* magneticField() const {return field;}
+  virtual const MagneticField* magneticField() const override {return field;}
 
 
-  virtual PropagatorWithMaterial* clone() const
+  virtual PropagatorWithMaterial* clone() const override
     {
       return new PropagatorWithMaterial(*this);
     }

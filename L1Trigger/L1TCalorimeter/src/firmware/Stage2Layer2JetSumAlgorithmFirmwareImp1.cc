@@ -92,6 +92,9 @@ void l1t::Stage2Layer2JetSumAlgorithmFirmwareImp1::processEvent(const std::vecto
 
     }
 
+    if(ht>65535) ht=65535; // ht saturation
+    
+
     math::XYZTLorentzVector p4;
     
     l1t::EtSum htSumHt(p4,l1t::EtSum::EtSumType::kTotalHt,ht,0,0,0);
@@ -109,7 +112,7 @@ void l1t::Stage2Layer2JetSumAlgorithmFirmwareImp1::processEvent(const std::vecto
     htsums.push_back(htSumHtHF);
     htsums.push_back(htSumHxHF);
     htsums.push_back(htSumHyHF);
-    
+
   }
 }
 

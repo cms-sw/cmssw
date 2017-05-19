@@ -21,8 +21,8 @@ using namespace std;
 MuonME0DetLayerGeometryBuilder::~MuonME0DetLayerGeometryBuilder() {
 }
 
-
 // Builds the forward (first) and backward (second) layers - NOTE: Currently just one layer, all 'front'
+// Builds chambers (for segments) only, me0RecHits not used in track finding
 pair<vector<DetLayer*>, vector<DetLayer*> > 
 MuonME0DetLayerGeometryBuilder::buildEndcapLayers(const ME0Geometry& geo) {
   
@@ -31,25 +31,18 @@ MuonME0DetLayerGeometryBuilder::buildEndcapLayers(const ME0Geometry& geo) {
   LogTrace(metname) << "Starting endcaplayers ";
   for (int endcap = -1; endcap<=1; endcap+=2) {
     int iendcap = (endcap==1) ? 0 : 1; // +1: forward, -1: backward
-
-    for(int layer = ME0DetId::minLayerId+1; layer <= ME0DetId::maxLayerId; ++layer) { 
-      vector<int> rolls;      
-      //std::vector<int> rings;
-      std::vector<int> chambers;
-      for(int roll = ME0DetId::minRollId+1; roll <= ME0DetId::maxRollId; ++roll) {
-	rolls.push_back(roll);
-      }
-      for(int chamber = ME0DetId::minChamberId+1; chamber <= ME0DetId::maxChamberId; chamber++ ){
-	chambers.push_back(chamber);
-      }
+    int layer = 0;// only need to make layer 0 for segments
+    vector<int> rolls, chambers;      
+    rolls.push_back(0);
+    for(int chamber = ME0DetId::minChamberId+1; chamber <= ME0DetId::maxChamberId; chamber++ )
+      chambers.push_back(chamber);
     
-      LogTrace(metname) << "Encap =  " << endcap
-	   << "Chambers =  " << chambers.size()
-	   << "Rolls =  " << rolls.size();
-      MuRingForwardLayer* ringLayer = buildLayer(endcap, layer, chambers, rolls, geo);          
+    LogTrace(metname) << "Encap =  " << endcap
+		      << "Chambers =  " << chambers.size()
+		      << "Rolls =  " << rolls.size();
+    MuRingForwardLayer* ringLayer = buildLayer(endcap, layer, chambers, rolls, geo);          
 
-      if (ringLayer) result[iendcap].push_back(ringLayer);
-    }
+    if (ringLayer) result[iendcap].push_back(ringLayer);
   }
   pair<vector<DetLayer*>, vector<DetLayer*> > res_pair(result[0], result[1]); 
 

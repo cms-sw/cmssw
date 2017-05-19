@@ -70,7 +70,7 @@ void HLTConfigData::extract()
 
    // Extract globaltag
    globalTag_="";
-   const ParameterSet* GlobalTagPSet(0);
+   const ParameterSet* GlobalTagPSet(nullptr);
    if (processPSet_->exists("GlobalTag")) {
      GlobalTagPSet = &(processPSet_->getParameterSet("GlobalTag"));
    } else if (processPSet_->exists("PoolDBESSource@GlobalTag")) {
@@ -255,10 +255,10 @@ void HLTConfigData::extract()
    unsigned int stage1(0),stage2(0);
    if (processPSet_->existsAs<std::vector<std::string>>("@all_modules")) {
      const std::vector<std::string>& allModules(processPSet_->getParameter<std::vector<std::string>>("@all_modules"));
-     for (unsigned int i=0; i<allModules.size(); i++) {
-       if ((moduleType(allModules[i]) == "HLTLevel1GTSeed") or (moduleType(allModules[i]) == "L1GlobalTrigger")){
+     for (auto const & allModule : allModules) {
+       if ((moduleType(allModule) == "HLTLevel1GTSeed") or (moduleType(allModule) == "L1GlobalTrigger")){
 	 stage1 += 1;
-       } else if ((moduleType(allModules[i]) == "HLTL1TSeed") or (moduleType(allModules[i]) == "L1TGlobalProducer")){
+       } else if ((moduleType(allModule) == "HLTL1TSeed") or (moduleType(allModule) == "L1TGlobalProducer")){
 	 stage2 += 1;
        }
      }

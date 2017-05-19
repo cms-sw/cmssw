@@ -1,7 +1,7 @@
 #include "Geometry/CaloTopology/interface/HGCalTopology.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 
-//#define DebugLog
+//#define EDM_ML_DEBUG
 
 HGCalTopology::HGCalTopology(const HGCalDDDConstants& hdcons, 
 			     ForwardSubdetector subdet,
@@ -19,7 +19,7 @@ HGCalTopology::HGCalTopology(const HGCalDDDConstants& hdcons,
     kHGeomHalf_ = sectors_*layers_;
   }
   kSizeForDenseIndexing = (unsigned int)(2*kHGhalf_);
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   std::cout << "HGCalTopology initialized for subdetector " << subdet_ 
 	    << " having half-chamber flag " << half_ << " with " << sectors_
 	    << " Sectors " << layers_ << " Layers " << cells_
@@ -83,6 +83,11 @@ uint32_t HGCalTopology::detId2denseGeomId(const DetId& id) const {
   } else {
     idx = (uint32_t)(((id_.zside > 0) ? kHGeomHalf_ : 0) +
 		     ((isubsec*layers_+id_.iLay-1)*sectors_+id_.iSec));
+#ifdef EDM_ML_DEBUG
+    std::cout << "I/P " << id_.zside << ":" << id_.iLay << ":" << id_.iSec 
+	      << ":" << isubsec << " Constants " << kHGeomHalf_ << ":" 
+	      << layers_ << ":" << sectors_ << " o/p " << idx << std::endl;
+#endif
   }
   return idx;
 }
@@ -146,14 +151,15 @@ HGCalTopology::DecodedDetId HGCalTopology::geomDenseId2decId(const uint32_t& hi)
 HGCalTopology::DecodedDetId HGCalTopology::decode(const DetId& startId) const {
 
   HGCalTopology::DecodedDetId id_;
-  if (mode_ == HGCalGeometryMode::Hexagon) {
-      HGCalDetId id(startId);
-      id_.iCell  = id.cell();
-      id_.iLay   = id.layer();
-      id_.iSec   = id.wafer();
-      id_.iSubSec= id.waferType();
-      id_.zside  = id.zside();
-      id_.subdet = id.subdetId();
+  if ((mode_ == HGCalGeometryMode::Hexagon) || 
+      (mode_ == HGCalGeometryMode::HexagonFull)) {
+    HGCalDetId id(startId);
+    id_.iCell  = id.cell();
+    id_.iLay   = id.layer();
+    id_.iSec   = id.wafer();
+    id_.iSubSec= id.waferType();
+    id_.zside  = id.zside();
+    id_.subdet = id.subdetId();
   } else if (subdet_ == HGCEE) {
     HGCEEDetId id(startId);
     id_.iCell  = id.cell();
@@ -178,7 +184,8 @@ DetId HGCalTopology::encode(const HGCalTopology::DecodedDetId& id_) const {
 
   int isubsec= (id_.iSubSec > 0) ? 1 : 0;
   DetId id;
-  if (mode_ == HGCalGeometryMode::Hexagon) {
+  if ((mode_ == HGCalGeometryMode::Hexagon) ||
+      (mode_ == HGCalGeometryMode::HexagonFull)) {
     id = HGCalDetId(subdet_,id_.zside,id_.iLay,isubsec,id_.iSec,id_.iCell).rawId();
   } else if (subdet_ == HGCEE) {
     id = HGCEEDetId(subdet_,id_.zside,id_.iLay,id_.iSec,isubsec,id_.iCell).rawId();

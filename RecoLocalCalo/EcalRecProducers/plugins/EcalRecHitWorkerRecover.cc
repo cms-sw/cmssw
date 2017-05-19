@@ -22,7 +22,7 @@
 EcalRecHitWorkerRecover::EcalRecHitWorkerRecover(const edm::ParameterSet&ps, edm::ConsumesCollector&  c) :
   EcalRecHitWorkerBaseClass(ps,c)
 {
-        rechitMaker_ = new EcalRecHitSimpleAlgo();
+        rechitMaker_ = std::make_unique<EcalRecHitSimpleAlgo>();
         // isolated channel recovery
         singleRecoveryMethod_    = ps.getParameter<std::string>("singleChannelRecoveryMethod");
         singleRecoveryThreshold_ = ps.getParameter<double>("singleChannelRecoveryThreshold");

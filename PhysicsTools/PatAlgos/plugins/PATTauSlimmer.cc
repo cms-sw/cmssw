@@ -22,7 +22,7 @@ namespace pat {
     explicit PATTauSlimmer(const edm::ParameterSet & iConfig);
     virtual ~PATTauSlimmer() { }
     
-    virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+    virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
     virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const  edm::EventSetup&) override final;
     
   private:

@@ -23,7 +23,7 @@ public:
    FWMuonProxyBuilder( void ) {}
    virtual ~FWMuonProxyBuilder( void ) {}
 
-   virtual void setItem(const FWEventItem* iItem);
+   virtual void setItem(const FWEventItem* iItem) override;
 
    REGISTER_PROXYBUILDER_METHODS();
 

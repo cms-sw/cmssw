@@ -27,14 +27,14 @@ namespace hcaldqm
 				{}
 				virtual ~Mapper() {}
 
-				virtual uint32_t getHash(HcalDetId const&) {return 0;}
-				virtual uint32_t getHash(HcalElectronicsId const&) {return 0;}
-				virtual uint32_t getHash(HcalTrigTowerDetId const&) {return 0;}
+				virtual uint32_t getHash(HcalDetId const&) const{return 0;}
+				virtual uint32_t getHash(HcalElectronicsId const&) const {return 0;}
+				virtual uint32_t getHash(HcalTrigTowerDetId const&) const {return 0;}
 
-				virtual std::string getName(HcalDetId const&) {return "";}
-				virtual std::string getName(HcalElectronicsId const&) 
+				virtual std::string getName(HcalDetId const&) const {return "";}
+				virtual std::string getName(HcalElectronicsId const&) const 
 				{return "";}
-				virtual std::string getName(HcalTrigTowerDetId const&)
+				virtual std::string getName(HcalTrigTowerDetId const&) const
 				{return "";}
 
 			protected:

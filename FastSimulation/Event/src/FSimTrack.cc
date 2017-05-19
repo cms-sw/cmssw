@@ -127,7 +127,7 @@ std::ostream& operator <<(std::ostream& o , const FSimTrack& t) {
     << std::setw(6) << std::setprecision(1) << vertex1.x() << " " 
     << std::setw(6) << std::setprecision(1) << vertex1.y() << " " 
     << std::setw(6) << std::setprecision(1) << vertex1.z() << " "
-    << std::setw(4) << t.mother().id() << " ";
+    << std::setw(4) << (t.noMother() ? -1 :t.mother().id()) << " ";
   
   if ( !t.noEndVertex() ) {
     XYZTLorentzVector vertex2 = t.endVertex().position();

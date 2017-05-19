@@ -6,22 +6,43 @@
 ##  Then calls mps_setup.pl for all datasets.
 ##
 ##  Usage:
-##     mps_alisetup.py [-h] [-v] myconfig.ini
+##     mps_alisetup.py [-h] [-v] [-w] myconfig.ini
 ##
 
 import argparse
 import os
 import re
-import importlib
 import subprocess
 import ConfigParser
 import sys
+import cPickle
 import itertools
 import collections
 import Alignment.MillePedeAlignmentAlgorithm.mpslib.Mpslibclass as mpslib
 import Alignment.MillePedeAlignmentAlgorithm.mpslib.tools as mps_tools
+import Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.iniparser as mpsv_iniparser
+import Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.trackerTree as mpsv_trackerTree
 from Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.helper import checked_out_MPS
 from functools import reduce
+
+
+def handle_process_call(command, verbose = False):
+    """
+    Wrapper around subprocess calls which treats output depending on verbosity
+    level.
+
+    Arguments:
+    - `command`: list of command items
+    - `verbose`: flag to turn on verbosity
+    """
+
+    call_method = subprocess.check_call if verbose else subprocess.check_output
+    try:
+        call_method(command, stderr=subprocess.STDOUT)
+    except subprocess.CalledProcessError as e:
+        print "" if verbose else e.output
+        print "Failed to execute command:", " ".join(command)
+        sys.exit(1)
 
 
 def get_weight_configs(config):
@@ -76,35 +97,26 @@ def get_weight_configs(config):
     return configs
 
 
-def create_input_db(cfg, run_number):
+def create_input_db(cms_process, run_number):
     """
     Create sqlite file with single-IOV tags and use it to override the GT. If
     the GT is already customized by the user, the customization has higher
     priority. Returns a snippet to be appended to the configuration file
 
     Arguments:
-    - `cfg`: path to python configuration
+    - `cms_process`: cms.Process object
     - `run_number`: run from which to extract the alignment payloads
     """
-
-    sys.path.append(os.path.dirname(cfg))
-    cache_stdout = sys.stdout
-    sys.stdout = open(os.devnull, "w") # suppress unwanted output
-    __configuration = \
-        importlib.import_module(os.path.splitext(os.path.basename(cfg))[0])
-    sys.stdout = cache_stdout
 
     run_number = int(run_number)
     if not run_number > 0:
         print "'FirstRunForStartGeometry' must be positive, but is", run_number
         sys.exit(1)
 
-    global_tag = __configuration.process.GlobalTag.globaltag.value()
     input_db_name = os.path.abspath("alignment_input.db")
-    tags = mps_tools.create_single_iov_db(global_tag, run_number, input_db_name)
-
-    for condition in __configuration.process.GlobalTag.toGet.value():
-        if condition.record.value() in tags: del tags[condition.record.value()]
+    tags = mps_tools.create_single_iov_db(
+        check_iov_definition(cms_process, run_number),
+        run_number, input_db_name)
 
     result = ""
     for record,tag in tags.iteritems():
@@ -117,8 +129,166 @@ def create_input_db(cfg, run_number):
                    "       record = \""+record+"\",\n"
                    "       tag = \""+tag["tag"]+"\")\n")
 
-    os.remove(cfg+"c")
     return result
+
+
+def check_iov_definition(cms_process, first_run):
+    """
+    Check consistency of input alignment payloads and IOV definition.
+    Returns a dictionary with the information needed to override possibly
+    problematic input taken from the global tag.
+
+    Arguments:
+    - `cms_process`: cms.Process object containing the CMSSW configuration
+    - `first_run`: first run for start geometry
+    """
+
+    print "Checking consistency of IOV definition..."
+    iovs = mps_tools.make_unique_runranges(cms_process.AlignmentProducer)
+
+    inputs = {
+        "TrackerAlignmentRcd": None,
+        "TrackerSurfaceDeformationRcd": None,
+        "TrackerAlignmentErrorExtendedRcd": None,
+    }
+
+    for condition in cms_process.GlobalTag.toGet.value():
+        if condition.record.value() in inputs:
+            inputs[condition.record.value()] = {
+                "tag": condition.tag.value(),
+                "connect": ("pro"
+                            if not condition.hasParameter("connect")
+                            else condition.connect.value())
+            }
+
+    inputs_from_gt = [record for record in inputs if inputs[record] is None]
+    inputs.update(mps_tools.get_tags(cms_process.GlobalTag.globaltag.value(),
+                                     inputs_from_gt))
+
+
+    if first_run != iovs[0]:     # simple consistency check
+        if iovs[0] == 1 and len(iovs) == 1:
+            print "Single IOV output detected in configuration and",
+            print "'FirstRunForStartGeometry' is not 1."
+            print "Creating single IOV output from input conditions in run",
+            print str(first_run)+"."
+            for inp in inputs: inputs[inp]["problematic"] = True
+        else:
+            print "Value of 'FirstRunForStartGeometry' has to match first",
+            print "defined output IOV:",
+            print first_run, "!=", iovs[0]
+            sys.exit(1)
+
+
+    for inp in inputs.itervalues():
+        inp["iovs"] = mps_tools.get_iovs(inp["connect"], inp["tag"])
+
+    # check consistency of input with output
+    problematic_gt_inputs = {}
+    input_indices = {key: len(value["iovs"]) -1
+                     for key,value in inputs.iteritems()}
+    for iov in reversed(iovs):
+        for inp in inputs:
+            if inputs[inp].pop("problematic", False):
+                problematic_gt_inputs[inp] = inputs[inp]
+            if inp in problematic_gt_inputs: continue
+            if input_indices[inp] < 0:
+                print "First output IOV boundary at run", iov,
+                print "is before the first input IOV boundary at",
+                print inputs[inp]["iovs"][0], "for '"+inp+"'."
+                print "Please check your run range selection."
+                sys.exit(1)
+            input_iov = inputs[inp]["iovs"][input_indices[inp]]
+            if iov < input_iov:
+                if inp in inputs_from_gt:
+                    problematic_gt_inputs[inp] = inputs[inp]
+                    print "Found problematic input taken from global tag."
+                    print "Input IOV boundary at run",input_iov,
+                    print "for '"+inp+"' is within output IOV starting with",
+                    print "run", str(iov)+"."
+                    print "Deriving an alignment with coarse IOV granularity",
+                    print "starting from finer granularity leads to wrong",
+                    print "results."
+                    print "A single IOV input using the IOV of",
+                    print "'FirstRunForStartGeometry' ("+str(first_run)+") is",
+                    print "automatically created and used."
+                    continue
+                print "Found input IOV boundary at run",input_iov,
+                print "for '"+inp+"' which is within output IOV starting with",
+                print "run", str(iov)+"."
+                print "Deriving an alignment with coarse IOV granularity",
+                print "starting from finer granularity leads to wrong results."
+                print "Please check your run range selection."
+                sys.exit(1)
+            elif iov == input_iov:
+                input_indices[inp] -= 1
+
+    # check consistency of 'TrackerAlignmentRcd' with other inputs
+    input_indices = {key: len(value["iovs"]) -1
+                     for key,value in inputs.iteritems()
+                     if (key != "TrackerAlignmentRcd")
+                     and (inp not in problematic_gt_inputs)}
+    for iov in reversed(inputs["TrackerAlignmentRcd"]["iovs"]):
+        for inp in input_indices:
+            input_iov = inputs[inp]["iovs"][input_indices[inp]]
+            if iov < input_iov:
+                print "Found input IOV boundary at run",input_iov,
+                print "for '"+inp+"' which is within 'TrackerAlignmentRcd'",
+                print "IOV starting with run", str(iov)+"."
+                print "Deriving an alignment with inconsistent IOV boundaries",
+                print "leads to wrong results."
+                print "Please check your input IOVs."
+                sys.exit(1)
+            elif iov == input_iov:
+                input_indices[inp] -= 1
+
+    print "IOV consistency check successful."
+    print "-"*60
+
+    return problematic_gt_inputs
+
+
+def create_mass_storage_directory(mps_dir_name, general_options):
+    """Create MPS mass storage directory where, e.g., mille binaries are stored.
+
+    Arguments:
+    - `mps_dir_name`: campaign name
+    - `general_options`: general options dictionary
+    """
+
+    # set directory on eos
+    mss_dir = general_options.get("massStorageDir",
+                                  "/store/caf/user/"+os.environ["USER"])
+    mss_dir = os.path.join(mss_dir, "MPproduction", mps_dir_name)
+
+    cmd = ["/afs/cern.ch/project/eos/installation/cms/bin/eos.select",
+           "mkdir", "-p", mss_dir]
+
+    # create directory
+    if not general_options.get("testMode", False):
+        try:
+            with open(os.devnull, "w") as dump:
+                subprocess.check_call(cmd, stdout = dump, stderr = dump)
+        except subprocess.CalledProcessError:
+            print "Failed to create mass storage directory:", mss_dir
+            sys.exit(1)
+
+    return mss_dir
+
+
+def create_tracker_tree(global_tag, first_run):
+    """Method to create hidden 'TrackerTree.root'.
+
+    Arguments:
+    - `global_tag`: global tag from which the tracker geometry is taken
+    - `first_run`: run to specify IOV within `global_tag`
+    """
+
+    config = mpsv_iniparser.ConfigData()
+    config.jobDataPath = "."    # current directory
+    config.globalTag = global_tag
+    config.firstRun = first_run
+    return mpsv_trackerTree.check(config)
 
 # ------------------------------------------------------------------------------
 # set up argument parser and config parser
@@ -172,13 +342,6 @@ else:
     print currentDir
     sys.exit(1)
 
-# set directory on eos
-mssDir = '/store/caf/user/'+os.environ['USER']+'/MPproduction/'+mpsdirname
-
-# create directory on eos if it doesn't exist already
-eos = '/afs/cern.ch/project/eos/installation/cms/bin/eos.select'
-os.system(eos+' mkdir -p '+mssDir)
-
 
 
 #------------------------------------------------------------------------------
@@ -191,7 +354,7 @@ for var in ["classInf","pedeMem","jobname", "FirstRunForStartGeometry"]:
         generalOptions[var] = config.get('general',var)
     except ConfigParser.NoOptionError:
         print "No", var, "found in [general] section. Please check ini-file."
-        raise SystemExit
+        sys.exit(1)
 
 # check if datasetdir is given
 generalOptions['datasetdir'] = ''
@@ -204,12 +367,15 @@ else:
     print "Be sure to give a full path in inputFileList."
 
 # check for default options
-for var in ['globaltag','configTemplate','json']:
+for var in ("globaltag", "configTemplate", "json", "massStorageDir", "testMode"):
     try:
         generalOptions[var] = config.get('general',var)
     except ConfigParser.NoOptionError:
-        print 'No default', var, 'given in [general] section.'
+        if var == "testMode": continue
+        print "No '" + var + "' given in [general] section."
 
+# create mass storage directory
+mssDir = create_mass_storage_directory(mpsdirname, generalOptions)
 
 
 pedesettings = ([x.strip() for x in config.get("general", "pedesettings").split(",")]
@@ -225,10 +391,10 @@ if args.weight:
     # do some basic checks
     if not os.path.isdir("jobData"):
         print "No jobData-folder found. Properly set up the alignment before using the -w option."
-        raise SystemExit
+        sys.exit(1)
     if not os.path.exists("mps.db"):
         print "No mps.db found. Properly set up the alignment before using the -w option."
-        raise SystemExit
+        sys.exit(1)
 
     # check if default configTemplate is given
     try:
@@ -236,7 +402,7 @@ if args.weight:
     except ConfigParser.NoOptionError:
         print 'No default configTemplate given in [general] section.'
         print 'When using -w, a default configTemplate is needed to build a merge-config.'
-        raise SystemExit
+        sys.exit(1)
 
     # check if default globaltag is given
     try:
@@ -244,22 +410,47 @@ if args.weight:
     except ConfigParser.NoOptionError:
         print "No default 'globaltag' given in [general] section."
         print "When using -w, a default configTemplate is needed to build a merge-config."
-        raise SystemExit
+        sys.exit(1)
+
+    try:
+        first_run = config.get("general", "FirstRunForStartGeometry")
+    except ConfigParser.NoOptionError:
+        print "Missing mandatory option 'FirstRunForStartGeometry' in [general] section."
+        sys.exit(1)
+
+    for section in config.sections():
+        if section.startswith("dataset:"):
+            try:
+                collection = config.get(section, "collection")
+                break
+            except ConfigParser.NoOptionError:
+                print "Missing mandatory option 'collection' in section ["+section+"]."
+                sys.exit(1)
 
     try:
         with open(configTemplate,"r") as f:
             tmpFile = f.read()
     except IOError:
         print "The config-template '"+configTemplate+"' cannot be found."
-        raise SystemExit
+        sys.exit(1)
 
     tmpFile = re.sub('setupGlobaltag\s*\=\s*[\"\'](.*?)[\"\']',
                      'setupGlobaltag = \"'+globalTag+'\"',
                      tmpFile)
+    tmpFile = re.sub('setupCollection\s*\=\s*[\"\'](.*?)[\"\']',
+                     'setupCollection = \"'+collection+'\"',
+                     tmpFile)
+    tmpFile = re.sub(re.compile("setupRunStartGeometry\s*\=\s*.*$", re.M),
+                     "setupRunStartGeometry = "+first_run,
+                     tmpFile)
 
     thisCfgTemplate = "tmp.py"
-    with open(thisCfgTemplate, "w") as f:
-        f.write(tmpFile)
+    with open(thisCfgTemplate, "w") as f: f.write(tmpFile)
+
+    cms_process = mps_tools.get_process_object(thisCfgTemplate)
+
+    overrideGT = create_input_db(cms_process, first_run)
+    with open(thisCfgTemplate, "a") as f: f.write(overrideGT)
 
     for setting in pedesettings:
         print
@@ -271,38 +462,57 @@ if args.weight:
         for weight_conf in weight_confs:
             print "-"*60
             # blank weights
-            os.system("mps_weight.pl -c > /dev/null")
+            handle_process_call(["mps_weight.pl", "-c"])
 
             for name,weight in weight_conf:
-                os.system("mps_weight.pl -N "+name+" "+weight)
+                handle_process_call(["mps_weight.pl", "-N", name, weight], True)
 
             # create new mergejob
-            os.system("mps_setupm.pl")
+            handle_process_call(["mps_setupm.pl"], True)
 
             # read mps.db to find directory of new mergejob
             lib = mpslib.jobdatabase()
             lib.read_db()
 
+            # short cut for jobm path
+            jobm_path = os.path.join("jobData", lib.JOBDIR[-1])
+
             # delete old merge-config
-            command = "rm -f jobData/"+lib.JOBDIR[-1]+"/alignment_merge.py"
-            print command
-            os.system(command)
+            command = [
+                "rm", "-f",
+                os.path.join(jobm_path, "alignment_merge.py")]
+            handle_process_call(command, args.verbose)
 
             # create new merge-config
-            command = ("mps_merge.py -w "+thisCfgTemplate+" jobData/"+
-                       lib.JOBDIR[-1]+"/alignment_merge.py jobData/"+
-                       lib.JOBDIR[-1]+" "+str(lib.nJobs))
-            if setting is not None: command += " -a "+setting
-            print command
-            if args.verbose:
-                subprocess.call(command, stderr=subprocess.STDOUT, shell=True)
-            else:
-                with open(os.devnull, 'w') as FNULL:
-                    subprocess.call(command, stdout=FNULL,
-                                    stderr=subprocess.STDOUT, shell=True)
+            command = [
+                "mps_merge.py",
+                "-w", thisCfgTemplate,
+                os.path.join(jobm_path, "alignment_merge.py"),
+                jobm_path,
+                str(lib.nJobs),
+            ]
+            if setting is not None: command.extend(["-a", setting])
+            print " ".join(command)
+            handle_process_call(command, args.verbose)
+            create_tracker_tree(globalTag, first_run)
+
+            # store weights configuration
+            with open(os.path.join(jobm_path, ".weights.pkl"), "wb") as f:
+                cPickle.dump(weight_conf, f, 2)
+
 
     # remove temporary file
-    os.system("rm "+thisCfgTemplate)
+    handle_process_call(["rm", thisCfgTemplate])
+
+    if overrideGT.strip() != "":
+        print "="*60
+        msg = ("Overriding global tag with single-IOV tags extracted from '{}' "
+               "for run number '{}'.".format(generalOptions["globaltag"],
+                                             first_run))
+        print msg
+        print "-"*60
+        print overrideGT
+
     sys.exit()
 
 
@@ -326,7 +536,7 @@ for section in config.sections():
                 datasetOptions[var] = config.get(section,var)
             except ConfigParser.NoOptionError:
                 print 'No', var, 'found in', section+'. Please check ini-file.'
-                raise SystemExit
+                sys.exit(1)
 
         # get globaltag and configTemplate. If none in section, try to get default from [general] section.
         for var in ['configTemplate','globaltag']:
@@ -338,7 +548,7 @@ for section in config.sections():
                 except KeyError:
                     print "No",var,"found in ["+section+"]",
                     print "and no default in [general] section."
-                    raise SystemExit
+                    sys.exit(1)
 
         # extract non-essential options
         datasetOptions['cosmicsZeroTesla'] = False
@@ -383,11 +593,11 @@ for section in config.sections():
                         datasetOptions['njobs'] += 1
         except IOError:
             print 'Inputfilelist', datasetOptions['inputFileList'], 'does not exist.'
-            raise SystemExit
+            sys.exit(1)
         if datasetOptions['njobs'] == 0:
             print 'Number of jobs is 0. There may be a problem with the inputfilelist:'
             print datasetOptions['inputFileList']
-            raise SystemExit
+            sys.exit(1)
 
         # Check if njobs gets overwritten in .ini-file
         if config.has_option(section,'njobs'):
@@ -405,11 +615,14 @@ for section in config.sections():
                 tmpFile = INFILE.read()
         except IOError:
             print 'The config-template called',datasetOptions['configTemplate'],'cannot be found.'
-            raise SystemExit
+            sys.exit(1)
 
         tmpFile = re.sub('setupGlobaltag\s*\=\s*[\"\'](.*?)[\"\']',
                          'setupGlobaltag = \"'+datasetOptions['globaltag']+'\"',
                          tmpFile)
+        tmpFile = re.sub(re.compile("setupRunStartGeometry\s*\=\s*.*$", re.M),
+                         "setupRunStartGeometry = "+
+                         generalOptions["FirstRunForStartGeometry"], tmpFile)
         tmpFile = re.sub('setupCollection\s*\=\s*[\"\'](.*?)[\"\']',
                          'setupCollection = \"'+datasetOptions['collection']+'\"',
                          tmpFile)
@@ -436,30 +649,34 @@ for section in config.sections():
 
 
         # Set mps_setup append option for datasets following the first one
-        append = ' -a'
+        append = "-a"
         if firstDataset:
             append = ''
             firstDataset = False
             configTemplate = tmpFile
-            overrideGT = create_input_db(thisCfgTemplate,
+            cms_process = mps_tools.get_process_object(thisCfgTemplate)
+            overrideGT = create_input_db(cms_process,
                                          generalOptions["FirstRunForStartGeometry"])
 
         with open(thisCfgTemplate, "a") as f: f.write(overrideGT)
 
 
         # create mps_setup command
-        command = 'mps_setup.pl -m%s -M %s -N %s %s %s %s %d %s %s %s cmscafuser:%s' % (
-              append,
-              generalOptions['pedeMem'],
-              datasetOptions['name'],
-              milleScript,
-              thisCfgTemplate,
-              datasetOptions['inputFileList'],
-              datasetOptions['njobs'],
-              generalOptions['classInf'],
-              generalOptions['jobname'],
-              pedeScript,
-              mssDir)
+        command = ["mps_setup.pl",
+                   "-m",
+                   append,
+                   "-M", generalOptions["pedeMem"],
+                   "-N", datasetOptions["name"],
+                   milleScript,
+                   thisCfgTemplate,
+                   datasetOptions["inputFileList"],
+                   str(datasetOptions["njobs"]),
+                   generalOptions["classInf"],
+                   generalOptions["jobname"],
+                   pedeScript,
+                   "cmscafuser:"+mssDir]
+        command = filter(lambda x: len(x.strip()) > 0, command)
+
         # Some output:
         print 'Submitting dataset:', datasetOptions['name']
         print 'Baseconfig:        ', datasetOptions['configTemplate']
@@ -473,18 +690,13 @@ for section in config.sections():
         print 'Inputfilelist:     ', datasetOptions['inputFileList']
         if datasetOptions['json'] != '':
             print 'Jsonfile:          ', datasetOptions['json']
-        print 'Pass to mps_setup: ', command
+        print 'Pass to mps_setup: ', " ".join(command)
 
         # call the command and toggle verbose output
-        if args.verbose:
-            subprocess.call(command, stderr=subprocess.STDOUT, shell=True)
-        else:
-            with open(os.devnull, 'w') as FNULL:
-                subprocess.call(command, stdout=FNULL,
-                                stderr=subprocess.STDOUT, shell=True)
+        handle_process_call(command, args.verbose)
 
         # remove temporary file
-        os.system("rm "+thisCfgTemplate)
+        handle_process_call(["rm", thisCfgTemplate])
 
 if firstDataset:
     print "No dataset section defined in '{0}'".format(aligmentConfig)
@@ -502,45 +714,55 @@ for setting in pedesettings:
     for weight_conf in weight_confs:
         print "-"*60
         # blank weights
-        os.system("mps_weight.pl -c > /dev/null")
+        handle_process_call(["mps_weight.pl", "-c"])
 
         for name,weight in weight_conf:
-            os.system("mps_weight.pl -N "+name+" "+weight)
+            handle_process_call(["mps_weight.pl", "-N", name, weight], True)
 
-        if firstPedeConfig:
-            firstPedeConfig = False
-        else:
+        if not firstPedeConfig:
             # create new mergejob
-            os.system("mps_setupm.pl")
+            handle_process_call(["mps_setupm.pl"], True)
 
         # read mps.db to find directory of new mergejob
         lib = mpslib.jobdatabase()
         lib.read_db()
 
+        # short cut for jobm path
+        jobm_path = os.path.join("jobData", lib.JOBDIR[-1])
+
         # delete old merge-config
-        command = "rm -f jobData/"+lib.JOBDIR[-1]+"/alignment_merge.py"
-        print command
-        os.system(command)
+        command = ["rm", "-f", os.path.join(jobm_path, "alignment_merge.py")]
+        handle_process_call(command, args.verbose)
 
         thisCfgTemplate = "tmp.py"
         with open(thisCfgTemplate, "w") as f:
             f.write(configTemplate+overrideGT)
 
         # create new merge-config
-        command = ("mps_merge.py -w "+thisCfgTemplate+" jobData/"+lib.JOBDIR[-1]+
-                   "/alignment_merge.py jobData/"+lib.JOBDIR[-1]+" "+
-                   str(lib.nJobs))
-        if setting is not None: command += " -a "+setting
-        print command
-        if args.verbose:
-            subprocess.call(command, stderr=subprocess.STDOUT, shell=True)
-        else:
-            with open(os.devnull, 'w') as FNULL:
-                subprocess.call(command, stdout=FNULL,
-                                stderr=subprocess.STDOUT, shell=True)
+        command = [
+            "mps_merge.py",
+            "-w", thisCfgTemplate,
+            os.path.join(jobm_path, "alignment_merge.py"),
+            jobm_path,
+            str(lib.nJobs),
+        ]
+        if setting is not None: command.extend(["-a", setting])
+        print " ".join(command)
+        handle_process_call(command, args.verbose)
+        tracker_tree_path = create_tracker_tree(datasetOptions["globaltag"],
+                                                generalOptions["FirstRunForStartGeometry"])
+        if firstPedeConfig:
+            os.symlink(tracker_tree_path,
+                       os.path.abspath(os.path.join(jobm_path,
+                                                    ".TrackerTree.root")))
+            firstPedeConfig = False
+
+        # store weights configuration
+        with open(os.path.join(jobm_path, ".weights.pkl"), "wb") as f:
+            cPickle.dump(weight_conf, f, 2)
 
     # remove temporary file
-    os.system("rm "+thisCfgTemplate)
+    handle_process_call(["rm", thisCfgTemplate])
 
 if overrideGT.strip() != "":
     print "="*60

@@ -7,7 +7,7 @@ int main(int, char ** /*argv*/) try {
   initTest();
 
   std::unique_ptr<Storage> s = StorageFactory::get()->open(
-      "http://opendata.cern.ch/eos/opendata/cms/Run2011A/PhotonHad/AOD"
+      "http://cern.ch/cmsbuild/cms/Run2011A/PhotonHad/AOD"
       "/12Oct2013-v1/00000/024938EB-3445-E311-A72B-002590593920.root");
   assert(s);
 

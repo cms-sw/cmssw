@@ -1,5 +1,41 @@
 import FWCore.ParameterSet.Config as cms
 
+def _resolPull(prefix):
+    return [
+        "{pfx}_ResolX_vs_PU '#sigma(x) vs PU' {pfx}_ResolX_vs_PU".format(pfx=prefix),
+        "{pfx}_ResolY_vs_PU '#sigma(y) vs PU' {pfx}_ResolY_vs_PU".format(pfx=prefix),
+        "{pfx}_ResolZ_vs_PU '#sigma(z) vs PU' {pfx}_ResolZ_vs_PU".format(pfx=prefix),
+        "{pfx}_ResolPt2_vs_PU '#sigma(p_{{T}}^{{2}}) vs PU' {pfx}_ResolPt2_vs_PU".format(pfx=prefix),
+        "{pfx}_PullX_vs_PU 'Pull x vs PU' {pfx}_PullX_vs_PU".format(pfx=prefix),
+        "{pfx}_PullY_vs_PU 'Pull y vs PU' {pfx}_PullY_vs_PU".format(pfx=prefix),
+        "{pfx}_PullZ_vs_PU 'Pull z vs PU' {pfx}_PullZ_vs_PU".format(pfx=prefix),
+
+        "{pfx}_ResolX_vs_NumTracks '#sigma(x) vs NumTracks' {pfx}_ResolX_vs_NumTracks".format(pfx=prefix),
+        "{pfx}_ResolY_vs_NumTracks '#sigma(y) vs NumTracks' {pfx}_ResolY_vs_NumTracks".format(pfx=prefix),
+        "{pfx}_ResolZ_vs_NumTracks '#sigma(z) vs NumTracks' {pfx}_ResolZ_vs_NumTracks".format(pfx=prefix),
+        "{pfx}_ResolPt2_vs_NumTracks '#sigma(p_{{T}}^{{2}}) vs NumTracks' {pfx}_ResolPt2_vs_NumTracks".format(pfx=prefix),
+        "{pfx}_PullX_vs_NumTracks 'Pull x vs NumTracks' {pfx}_PullX_vs_NumTracks".format(pfx=prefix),
+        "{pfx}_PullY_vs_NumTracks 'Pull y vs NumTracks' {pfx}_PullY_vs_NumTracks".format(pfx=prefix),
+        "{pfx}_PullZ_vs_NumTracks 'Pull z vs NumTracks' {pfx}_PullZ_vs_NumTracks".format(pfx=prefix),
+
+        "{pfx}_ResolX_vs_Z '#sigma(x) vs z' {pfx}_ResolX_vs_Z".format(pfx=prefix),
+        "{pfx}_ResolY_vs_Z '#sigma(y) vs z' {pfx}_ResolY_vs_Z".format(pfx=prefix),
+        "{pfx}_ResolZ_vs_Z '#sigma(z) vs z' {pfx}_ResolZ_vs_Z".format(pfx=prefix),
+        "{pfx}_ResolPt2_vs_Z '#sigma(p_{{T}}^{{2}}) vs z' {pfx}_ResolPt2_vs_Z".format(pfx=prefix),
+        "{pfx}_PullX_vs_Z 'Pull x vs z' {pfx}_PullX_vs_Z".format(pfx=prefix),
+        "{pfx}_PullY_vs_Z 'Pull y vs z' {pfx}_PullY_vs_Z".format(pfx=prefix),
+        "{pfx}_PullZ_vs_Z 'Pull z vs z' {pfx}_PullZ_vs_Z".format(pfx=prefix),
+
+        "{pfx}_ResolX_vs_Pt '#sigma(x) vs p_{{T}}' {pfx}_ResolX_vs_Pt".format(pfx=prefix),
+        "{pfx}_ResolY_vs_Pt '#sigma(y) vs p_{{T}}' {pfx}_ResolY_vs_Pt".format(pfx=prefix),
+        "{pfx}_ResolZ_vs_Pt '#sigma(z) vs p_{{T}}' {pfx}_ResolZ_vs_Pt".format(pfx=prefix),
+        "{pfx}_ResolPt2_vs_Pt '#sigma(p_{{T}}^{{2}}) vs p_{{T}}' {pfx}_ResolZ_vs_Pt".format(pfx=prefix),
+        "{pfx}_PullX_vs_Pt 'Pull x vs p_{{T}}' {pfx}_PullX_vs_Pt".format(pfx=prefix),
+        "{pfx}_PullY_vs_Pt 'Pull y vs p_{{T}}' {pfx}_PullY_vs_Pt".format(pfx=prefix),
+        "{pfx}_PullZ_vs_Pt 'Pull z vs p_{{T}}' {pfx}_PullZ_vs_Pt".format(pfx=prefix),
+    ]
+
+
 postProcessorVertex = cms.EDAnalyzer("DQMGenericClient",
                                      subDirs = cms.untracked.vstring("Vertexing/PrimaryVertexV/*"),
                                      efficiency = cms.vstring(
@@ -43,36 +79,9 @@ postProcessorVertex = cms.EDAnalyzer("DQMGenericClient",
                                          "PV_effic_vs_Z 'PV reco+tag efficiency vs Z' GenPVAssoc2RecoPVMatched_Z GenPVAssoc2RecoPV_Z",
                                      ),
                                      resolution = cms.vstring(
-                                         "RecoAllAssoc2GenMatched_ResolX_vs_PU '#sigma(x) vs PU' RecoAllAssoc2GenMatched_ResolX_vs_PU",
-                                         "RecoAllAssoc2GenMatched_ResolY_vs_PU '#sigma(y) vs PU' RecoAllAssoc2GenMatched_ResolY_vs_PU",
-                                         "RecoAllAssoc2GenMatched_ResolZ_vs_PU '#sigma(z) vs PU' RecoAllAssoc2GenMatched_ResolZ_vs_PU",
-                                         "RecoAllAssoc2GenMatched_ResolPt2_vs_PU '#sigma(p_{T}^{2}) vs PU' RecoAllAssoc2GenMatched_ResolPt2_vs_PU",
-                                         "RecoAllAssoc2GenMatched_ResolX_vs_NumTracks '#sigma(x) vs NumTracks' RecoAllAssoc2GenMatched_ResolX_vs_NumTracks",
-                                         "RecoAllAssoc2GenMatched_ResolY_vs_NumTracks '#sigma(y) vs NumTracks' RecoAllAssoc2GenMatched_ResolY_vs_NumTracks",
-                                         "RecoAllAssoc2GenMatched_ResolZ_vs_NumTracks '#sigma(z) vs NumTracks' RecoAllAssoc2GenMatched_ResolZ_vs_NumTracks",
-                                         "RecoAllAssoc2GenMatched_ResolPt2_vs_NumTracks '#sigma(p_{T}^{2}) vs NumTracks' RecoAllAssoc2GenMatched_ResolPt2_vs_NumTracks",
-                                         "RecoAllAssoc2GenMatched_ResolX_vs_Z '#sigma(x) vs z' RecoAllAssoc2GenMatched_ResolX_vs_Z",
-                                         "RecoAllAssoc2GenMatched_ResolY_vs_Z '#sigma(y) vs z' RecoAllAssoc2GenMatched_ResolY_vs_Z",
-                                         "RecoAllAssoc2GenMatched_ResolZ_vs_Z '#sigma(z) vs z' RecoAllAssoc2GenMatched_ResolZ_vs_Z",
-                                         "RecoAllAssoc2GenMatched_ResolPt2_vs_Z '#sigma(p_{T}^{2}) vs z' RecoAllAssoc2GenMatched_ResolPt2_vs_Z",
-                                         "RecoAllAssoc2GenMatched_ResolX_vs_Pt '#sigma(x) vs p_{T}' RecoAllAssoc2GenMatched_ResolX_vs_Pt",
-                                         "RecoAllAssoc2GenMatched_ResolY_vs_Pt '#sigma(y) vs p_{T}' RecoAllAssoc2GenMatched_ResolY_vs_Pt",
-                                         "RecoAllAssoc2GenMatched_ResolZ_vs_Pt '#sigma(z) vs p_{T}' RecoAllAssoc2GenMatched_ResolZ_vs_Pt",
-                                         "RecoAllAssoc2GenMatchedMerged_ResolX_vs_PU '#sigma(x) vs PU' RecoAllAssoc2GenMatchedMerged_ResolX_vs_PU",
-                                         "RecoAllAssoc2GenMatchedMerged_ResolY_vs_PU '#sigma(y) vs PU' RecoAllAssoc2GenMatchedMerged_ResolY_vs_PU",
-                                         "RecoAllAssoc2GenMatchedMerged_ResolZ_vs_PU '#sigma(z) vs PU' RecoAllAssoc2GenMatchedMerged_ResolZ_vs_PU",
-                                         "RecoAllAssoc2GenMatchedMerged_ResolPt2_vs_PU '#sigma(p_{T}^{2}) vs PU' RecoAllAssoc2GenMatchedMerged_ResolPt2_vs_PU",
-                                         "RecoAllAssoc2GenMatchedMerged_ResolX_vs_NumTracks '#sigma(x) vs NumTracks' RecoAllAssoc2GenMatchedMerged_ResolX_vs_NumTracks",
-                                         "RecoAllAssoc2GenMatchedMerged_ResolY_vs_NumTracks '#sigma(y) vs NumTracks' RecoAllAssoc2GenMatchedMerged_ResolY_vs_NumTracks",
-                                         "RecoAllAssoc2GenMatchedMerged_ResolZ_vs_NumTracks '#sigma(z) vs NumTracks' RecoAllAssoc2GenMatchedMerged_ResolZ_vs_NumTracks",
-                                         "RecoAllAssoc2GenMatchedMerged_ResolPt2_vs_NumTracks '#sigma(p_{T}^{2}) vs NumTracks' RecoAllAssoc2GenMatchedMerged_ResolPt2_vs_NumTracks",
-                                         "RecoAllAssoc2GenMatchedMerged_ResolX_vs_Z '#sigma(x) vs z' RecoAllAssoc2GenMatchedMerged_ResolX_vs_Z",
-                                         "RecoAllAssoc2GenMatchedMerged_ResolY_vs_Z '#sigma(y) vs z' RecoAllAssoc2GenMatchedMerged_ResolY_vs_Z",
-                                         "RecoAllAssoc2GenMatchedMerged_ResolZ_vs_Z '#sigma(z) vs z' RecoAllAssoc2GenMatchedMerged_ResolZ_vs_Z",
-                                         "RecoAllAssoc2GenMatchedMerged_ResolX_vs_Pt '#sigma(x) vs p_{T}' RecoAllAssoc2GenMatchedMerged_ResolX_vs_Pt",
-                                         "RecoAllAssoc2GenMatchedMerged_ResolY_vs_Pt '#sigma(y) vs p_{T}' RecoAllAssoc2GenMatchedMerged_ResolY_vs_Pt",
-                                         "RecoAllAssoc2GenMatchedMerged_ResolZ_vs_Pt '#sigma(z) vs p_{T}' RecoAllAssoc2GenMatchedMerged_ResolZ_vs_Pt",
-                                         "RecoAllAssoc2GenMatchedMerged_ResolPt2_vs_Z '#sigma(p_{T}^{2}) vs z' RecoAllAssoc2GenMatchedMerged_ResolPt2_vs_Z",
+                                         _resolPull("RecoAllAssoc2GenMatched") +
+                                         _resolPull("RecoAllAssoc2GenMatchedMerged") +
+                                         _resolPull("RecoPVAssoc2GenPVMatched")
                                      ),
                                      outputFileName = cms.untracked.string(""),
                                      verbose = cms.untracked.uint32(5)

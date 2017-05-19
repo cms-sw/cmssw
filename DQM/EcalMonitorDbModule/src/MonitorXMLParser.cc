@@ -391,7 +391,7 @@ void MonitorXMLParser::handleElement( xercesc::DOMElement* element ){
 
 // - - - - - - - - - - - - - - - - - - -
 
-void MonitorXMLParser::load() throw( std::runtime_error ) {
+void MonitorXMLParser::load() noexcept(false) {
 
   parser_->setValidationScheme( xercesc::XercesDOMParser::Val_Never );
   parser_->setDoNamespaces( false );

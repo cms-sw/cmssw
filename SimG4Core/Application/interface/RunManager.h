@@ -30,7 +30,6 @@ namespace CLHEP {
 }
 
 namespace sim {
-  class FieldBuilder;
   class ChordFinderSetter;
 }
 
@@ -160,7 +159,6 @@ private:
   std::vector<std::shared_ptr<SimProducer> > m_producers;
     
   std::unique_ptr<SimTrackManager> m_trackManager;
-  sim::FieldBuilder             *m_fieldBuilder;
   sim::ChordFinderSetter        *m_chordFinderSetter;
     
   edm::ESWatcher<IdealGeometryRecord> idealGeomRcdWatcher_;

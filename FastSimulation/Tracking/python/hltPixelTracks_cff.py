@@ -2,29 +2,31 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoTracker.TkTrackingRegions.GlobalTrackingRegion_cfi import *
 
+# Note: naming convention of pixel track filter needs to follow HLT,
+# current it is set to what gets used in customizeHLTforCMSSW
+from RecoPixelVertexing.PixelTrackFitting.pixelFitterByHelixProjections_cfi import pixelFitterByHelixProjections as _pixelFitterByHelixProjections
+hltPixelTracksFitter = _pixelFitterByHelixProjections.clone()
+
+from RecoPixelVertexing.PixelTrackFitting.pixelTrackFilterByKinematics_cfi import pixelTrackFilterByKinematics as _pixelTrackFilterByKinematics
+hltPixelTracksFilter = _pixelTrackFilterByKinematics.clone()
+
 hltPixelTracks = cms.EDProducer("PixelTracksProducer",
-    FitterPSet = cms.PSet(
-        ComponentName = cms.string('PixelFitterByHelixProjections'),
-        TTRHBuilder = cms.string('WithoutRefit')
-    ),
+    Fitter = cms.InputTag("hltPixelTracksFitter"),
     SeedProducer = cms.InputTag("hltPixelTripletSeeds"),
     RegionFactoryPSet = cms.PSet(
         RegionPSetBlock,
         ComponentName = cms.string('GlobalRegionProducer')
     ),
-    FilterPSet = cms.PSet(
-        nSigmaInvPtTolerance = cms.double(0.0),
-        nSigmaTipMaxTolerance = cms.double(0.0),
-        ComponentName = cms.string('PixelTrackFilterByKinematics'),
-        chi2 = cms.double(1000.0),
-        ptMin = cms.double(0.1),
-        tipMax = cms.double(1.0)
-    )
+    Filter = cms.InputTag("hltPixelTracksFilter"),
 )
 
-hltPixelTracksReg = hltPixelTracks.clone()
-hltPixelTracksReg.FilterPSet.ptMin = 0.1
-hltPixelTracksReg.FilterPSet.chi2 = 50.
+hltPixelTracksRegFilter = hltPixelTracksFilter.clone(
+    ptMin = 0.1,
+    chi2 = 50.,
+)
+hltPixelTracksReg = hltPixelTracks.clone(
+    Filter = "hltPixelTracksRegFilter",
+)
 hltPixelTracksReg.RegionFactoryPSet.ComponentName = "CandidateSeededTrackingRegionsProducer"
 hltPixelTracksReg.RegionFactoryPSet.RegionPSet = cms.PSet( 
     precise = cms.bool( True ),
@@ -44,6 +46,6 @@ hltPixelTracksReg.RegionFactoryPSet.RegionPSet = cms.PSet(
     nSigmaZBeamSpot = cms.double( 4.0 ),
     whereToUseMeasurementTracker = cms.string("Never"))
 
-hltPixelTracksForHighMult = hltPixelTracks.clone()
-hltPixelTracksForHighMult.FilterPSet.ptMin = 0.4
+hltPixelTracksForHighMultFilter = hltPixelTracksFilter.clone(ptMin = 0.4)
+hltPixelTracksForHighMult = hltPixelTracks.clone(Filter = "hltPixelTracksForHighMultFilter")
 

@@ -8,13 +8,14 @@
   <class name="edm::DetSetVector<TotemRPDigi>"/>
   <class name="edm::Wrapper<edm::DetSet<TotemRPDigi> >"/>
   <class name="edm::Wrapper<edm::DetSetVector<TotemRPDigi> >"/>
-
+  
   <class name="TotemTriggerCounters" ClassVersion="2">
     <version ClassVersion="2" checksum="719923071"/>
   </class>
   <class name="edm::Wrapper<TotemTriggerCounters>"/>
 
-  <class name="TotemVFATStatus" ClassVersion="3">
+  <class name="TotemVFATStatus" ClassVersion="4">
+   <version ClassVersion="4" checksum="1562789855"/>
     <version ClassVersion="2" checksum="3003040825"/>
     <version ClassVersion="3" checksum="1439138260"/>
   </class>
@@ -33,4 +34,35 @@
   </class>
   <class name="std::vector<TotemFEDInfo>"/>
   <class name="edm::Wrapper<std::vector<TotemFEDInfo>>"/>
+
+  <class name="CTPPSDiamondDigi" ClassVersion="3">
+    <version ClassVersion="3" checksum="2494057280"/>
+  </class>
+  
+  <class name="edm::DetSet<CTPPSDiamondDigi>"/>
+  <class name="std::vector<edm::DetSet<CTPPSDiamondDigi> >"/>
+  <class name="std::vector<CTPPSDiamondDigi>"/>
+  <class name="edm::DetSetVector<CTPPSDiamondDigi>"/>
+  <class name="edm::Wrapper<edm::DetSet<CTPPSDiamondDigi> >"/>
+  <class name="edm::Wrapper<edm::DetSetVector<CTPPSDiamondDigi> >"/>
+
+  <class name="HPTDCErrorFlags" ClassVersion="3">
+    <version ClassVersion="3" checksum="508529379"/>
+  </class>
+  
+  <class name="CTPPSPixelDigi" ClassVersion="3">
+    <version ClassVersion="3" checksum="125589380"/>
+  </class>
+  <class name="CTPPSPixelDigiCollection" ClassVersion="3">
+    <version ClassVersion="3" checksum="913646850"/>
+  </class>
+  <class name="edm::DetSet<CTPPSPixelDigi>"/>
+  <class name="std::vector<CTPPSPixelDigi>"/>
+  <class name="edm::DetSetVector<CTPPSPixelDigi>"/>
+  <class name="std::vector<edm::DetSet<CTPPSPixelDigi> >"/>
+  <class name="edm::Wrapper< edm::DetSet<CTPPSPixelDigi> >" splitLevel="0"/>
+  <class name="edm::Wrapper< std::vector<edm::DetSet<CTPPSPixelDigi> > >" splitLevel="0"/>
+  <class name="edm::Wrapper< edm::DetSetVector<CTPPSPixelDigi> >" splitLevel="0"/>
+  <class name="edm::Wrapper<CTPPSPixelDigiCollection>" splitLevel="0"/>
+
 </lcgdict>

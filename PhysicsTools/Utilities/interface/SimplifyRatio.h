@@ -185,8 +185,7 @@ namespace funct {
       inline static const A& a(const F& f, const G& g, const H& h) { return f; }
       inline static const B& b(const F& f, const G& g, const H& h) { return h; }
       inline static const C& c(const F& f, const G& g, const H& h) { return g; }
-      enum { value = ::boost::type_traits::ice_not<
-	     ::boost::is_same<AB, base>::value>::value };
+      enum { value = not ::boost::is_same<AB, base>::value };
     };
     struct prod2 { 
       typedef G A; typedef H B; typedef F C;
@@ -195,8 +194,7 @@ namespace funct {
       inline static const A& a(const F& f, const G& g, const H& h) { return g; }
       inline static const B& b(const F& f, const G& g, const H& h) { return h; }
       inline static const C& c(const F& f, const G& g, const H& h) { return f; }
-      enum { value = ::boost::type_traits::ice_not<
-	     ::boost::is_same<AB, base>::value>::value };
+      enum { value = not ::boost::is_same<AB, base>::value };
     };
     
     typedef typename 
@@ -254,8 +252,7 @@ namespace funct {
       inline static const A& a(const F& f, const G& g, const H& h) { return f; }
       inline static const B& b(const F& f, const G& g, const H& h) { return h; }
       inline static const C& c(const F& f, const G& g, const H& h) { return g; }
-      enum { value = ::boost::type_traits::ice_not<
-	     ::boost::is_same<AB, base>::value>::value };
+      enum { value = not ::boost::is_same<AB, base>::value };
     };
     struct prod2 { 
       typedef G A; typedef H B; typedef F C;
@@ -264,8 +261,7 @@ namespace funct {
       inline static const A& a(const F& f, const G& g, const H& h) { return g; }
       inline static const B& b(const F& f, const G& g, const H& h) { return h; }
       inline static const C& c(const F& f, const G& g, const H& h) { return f; }
-      enum { value = ::boost::type_traits::ice_not<
-	     ::boost::is_same<AB, base>::value>::value };
+      enum { value = not ::boost::is_same<AB, base>::value };
     };
     
     typedef typename 
@@ -314,17 +310,14 @@ namespace funct {
     struct ratio1 { 
       typedef RATIO_S(A, C) base;
       typedef RATIO(A, C) type;
-      enum { value = ::boost::type_traits::ice_not<
-	     ::boost::is_same<type, base>::value>::value };
+      enum { value = not ::boost::is_same<type, base>::value };
     };
     struct ratio2 { 
       typedef RATIO_S(B, C) base;
       typedef RATIO(B, C) type;
-      enum { value = ::boost::type_traits::ice_not<
-	     ::boost::is_same<type, base>::value>::value };
+      enum { value = not ::boost::is_same<type, base>::value };
     };
-    typedef AuxSumRatio<A, B, C, 
-			::boost::type_traits::ice_or<ratio1::value, ratio2::value>::value> aux;
+    typedef AuxSumRatio<A, B, C, ratio1::value or ratio2::value> aux;
     typedef typename aux::type type;
     COMBINE(SUM_S(A, B), C, aux::combine(_1, _2));
   };

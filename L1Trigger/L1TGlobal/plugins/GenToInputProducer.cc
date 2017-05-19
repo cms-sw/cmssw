@@ -1,4 +1,4 @@
-///
+////
 /// \class l1t::GenToInputProducer
 ///
 /// Description: Create Input Collections for the GT from MC gen particles.  Allows testing of emulation.
@@ -293,15 +293,22 @@ GenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
     int iso  = gRandom->Integer(4)%2;//1;
     int charge = ( mcParticle.charge()<0 ) ? 1 : 0;
     int chargeValid = 1;
-    int mip = 1;
+    int tfMuIdx = 0;
     int tag = 1;
+    bool debug = false;
+    int isoSum = 0;
+    int dPhi = 0;
+    int dEta = 0;
+    int rank = 0;
+    int hwEtaAtVtx = eta;
+    int hwPhiAtVtx = phi;
 
     // Eta outside of acceptance
     if( eta>=9999 ) continue;
 
     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *p4 = new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
 
-    l1t::Muon mu(*p4, pt, eta, phi, qual, charge, chargeValid, iso, mip, tag);
+    l1t::Muon mu(*p4, pt, eta, phi, qual, charge, chargeValid, iso, tfMuIdx, tag, debug, isoSum, dPhi, dEta, rank, hwEtaAtVtx, hwPhiAtVtx);
     muonVec.push_back(mu);
   }
 
@@ -450,7 +457,11 @@ GenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
 // Scale down ETTem as an estimate
    pt  = convertPtToHW( sumEt*0.6, 2047, PtStep_ );
-   l1t::EtSum etEmTotal(*p4, l1t::EtSum::EtSumType::kTotalEtEm,pt, 0, 0, 0); 
+   l1t::EtSum etEmTotal(*p4, l1t::EtSum::EtSumType::kTotalEtEm,pt, 0, 0, 0);
+
+   //ccla Generate uniform distribution of tower counts
+   int nTowers=4095*gRandom->Rndm();
+   l1t::EtSum towerCounts(*p4, l1t::EtSum::EtSumType::kTowerCount,nTowers, 0, 0, 0);
 
    pt  = convertPtToHW( sumEt*0.9, 2047, PtStep_ );
    l1t::EtSum htTotal(*p4, l1t::EtSum::EtSumType::kTotalHt,pt, 0, 0, 0); 
@@ -513,6 +524,7 @@ GenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
    etsumVec.push_back(htmiss);
    etsumVec.push_back(hfM1);
    etsumVec.push_back(etmissHF);
+   etsumVec.push_back(towerCounts);
  
 // Fill in some external conditions for testing
    if((iEvent.id().event())%2 == 0 ) {

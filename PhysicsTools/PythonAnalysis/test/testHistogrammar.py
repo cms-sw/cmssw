@@ -19,8 +19,7 @@ for d in data:
     histogram.fill(d)
 
 # quick plotting convenience method using matplotlib (if the user has this installed)
-#looks like this interface soon changes to histogram.plot.matplotlib
-ax = histogram.matplotlib(name="hello world!")
+ax = histogram.plot.matplotlib(name="hello world!")
 
 pyplot.savefig('histogrammar.png')
 

@@ -40,10 +40,12 @@ using namespace edm;
 //
 SystemTimeKeeper::SystemTimeKeeper(unsigned int iNumStreams,
                                    std::vector<const ModuleDescription*> const& iModules,
-                                   service::TriggerNamesService const& iNamesService):
+                                   service::TriggerNamesService const& iNamesService,
+                                   ProcessContext const* iProcessContext):
 m_streamEventTimer(iNumStreams),
 m_streamPathTiming(iNumStreams),
 m_modules(iModules),
+m_processContext(iProcessContext),
 m_minModuleID(0),
 m_numberOfEvents(0)
 {
@@ -120,6 +122,16 @@ SystemTimeKeeper::pathTiming(StreamContext const& iStream,
   return m_streamPathTiming[iStream.streamID().value()][iPath.pathID()+offset];
 }
 
+//NOTE: Have to check bounds rather than ProcessContext on the
+// module callbacks because the ProcessContext could be for a
+// SubProcess which requested an usncheduled execution of a
+// module in a parent process. In that case the ProcessContext
+// is for the SubProcess but the module is is for the parent process.
+inline bool
+SystemTimeKeeper::checkBounds(unsigned int id) const {
+  return id >= m_minModuleID and id <m_modules.size()+ m_minModuleID;
+}
+
 
 
 void
@@ -136,67 +148,77 @@ SystemTimeKeeper::stopEvent(StreamContext const& iContext) {
 void
 SystemTimeKeeper::startPath(StreamContext const& iStream,
                             PathContext const& iPath) {
-  auto& timing = pathTiming(iStream,iPath);
-  timing.m_timer.start();
+  if(m_processContext == iStream.processContext()) {
+    auto& timing = pathTiming(iStream,iPath);
+    timing.m_timer.start();
+  }
 }
 
 void
 SystemTimeKeeper::stopPath(StreamContext const& iStream,
                            PathContext const& iPath,
                            HLTPathStatus const& iStatus) {
-  auto& timing = pathTiming(iStream,iPath);
-  timing.m_timer.stop();
-  
-  //mark all modules up to and including the decision module as being visited
-  auto& modsOnPath = timing.m_moduleTiming;
-  for(unsigned int i = 0; i< iStatus.index()+1;++i) {
-    ++modsOnPath[i].m_timesVisited;
+  if(m_processContext == iStream.processContext()) {
+
+    auto& timing = pathTiming(iStream,iPath);
+    timing.m_timer.stop();
+    
+    //mark all modules up to and including the decision module as being visited
+    auto& modsOnPath = timing.m_moduleTiming;
+    for(unsigned int i = 0; i< iStatus.index()+1;++i) {
+      ++modsOnPath[i].m_timesVisited;
+    }
   }
 }
 
 
 void
 SystemTimeKeeper::startModuleEvent(StreamContext const& iStream, ModuleCallingContext const& iModule) {
-  auto& mod =
-  m_streamModuleTiming[iStream.streamID().value()][iModule.moduleDescription()->id()-m_minModuleID];
-  mod.m_timer.start();
-  ++(mod.m_timesRun);
-  
+  if(checkBounds(iModule.moduleDescription()->id())) {
+    auto& mod =
+    m_streamModuleTiming[iStream.streamID().value()][iModule.moduleDescription()->id()-m_minModuleID];
+    mod.m_timer.start();
+    ++(mod.m_timesRun);
+  }
 }
 void SystemTimeKeeper::stopModuleEvent(StreamContext const& iStream,
                                        ModuleCallingContext const& iModule) {
-  auto& mod =
-  m_streamModuleTiming[iStream.streamID().value()][iModule.moduleDescription()->id()-m_minModuleID];
-  auto times = mod.m_timer.stop();
-  
-  if(iModule.type() == ParentContext::Type::kPlaceInPath ) {
-    auto place = iModule.placeInPathContext();
+  if(checkBounds(iModule.moduleDescription()->id())) {
+    auto& mod =
+    m_streamModuleTiming[iStream.streamID().value()][iModule.moduleDescription()->id()-m_minModuleID];
+    auto times = mod.m_timer.stop();
     
-    auto& modTiming = pathTiming(iStream,*(place->pathContext())).m_moduleTiming[place->placeInPath()];
-    modTiming.m_realTime += times;
+    if(iModule.type() == ParentContext::Type::kPlaceInPath ) {
+      auto place = iModule.placeInPathContext();
+      
+      auto& modTiming = pathTiming(iStream,*(place->pathContext())).m_moduleTiming[place->placeInPath()];
+      modTiming.m_realTime += times;
+    }
   }
-
 }
 void SystemTimeKeeper::pauseModuleEvent(StreamContext const& iStream,
                                         ModuleCallingContext const& iModule) {
-  auto& mod =
-  m_streamModuleTiming[iStream.streamID().value()][iModule.moduleDescription()->id()-m_minModuleID];
-  auto times = mod.m_timer.stop();
-  
-  if(iModule.type() == ParentContext::Type::kPlaceInPath ) {
-    auto place = iModule.placeInPathContext();
+  if(checkBounds(iModule.moduleDescription()->id())) {
+    auto& mod =
+    m_streamModuleTiming[iStream.streamID().value()][iModule.moduleDescription()->id()-m_minModuleID];
+    auto times = mod.m_timer.stop();
     
-    auto& modTiming = pathTiming(iStream,*(place->pathContext())).m_moduleTiming[place->placeInPath()];
-    modTiming.m_realTime += times;
+    if(iModule.type() == ParentContext::Type::kPlaceInPath ) {
+      auto place = iModule.placeInPathContext();
+      
+      auto& modTiming = pathTiming(iStream,*(place->pathContext())).m_moduleTiming[place->placeInPath()];
+      modTiming.m_realTime += times;
+    }
   }
-
 }
 void
 SystemTimeKeeper::restartModuleEvent(StreamContext const& iStream,
                                      ModuleCallingContext const& iModule) {
-  auto& mod =
-  m_streamModuleTiming[iStream.streamID().value()][iModule.moduleDescription()->id()-m_minModuleID];
-  mod.m_timer.start();
+  if(checkBounds(iModule.moduleDescription()->id())) {
+    auto& mod =
+    m_streamModuleTiming[iStream.streamID().value()][iModule.moduleDescription()->id()-m_minModuleID];
+    mod.m_timer.start();
+  }
 }
 
 void

@@ -885,7 +885,7 @@ def re_upload( options ):
 def upload(options, arguments):
     results = uploadAllFiles(options, arguments)
 
-    if not results.has_key('status'):
+    if 'status' not in results:
         print 'Unexpected error.'
         return -1
     ret = results['status']

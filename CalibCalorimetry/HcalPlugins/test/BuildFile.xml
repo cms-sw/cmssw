@@ -1,6 +1,14 @@
 <environment>
+  <use name="Geometry/CaloTopology"/>
+  <use name="Geometry/Records"/>
+  <use name="CondFormats/DataRecord"/>
+  <use name="CondFormats/HcalObjects"/>
   <use   name="CalibFormats/HcalObjects"/>
+  <use   name="CalibCalorimetry/HcalAlgos"/>
   <library   file="HcalDbAnalyzer.cc" name="HcalDbAnalyzer">
     <flags   EDM_PLUGIN="1"/>
+  </library>
+  <library file="HBHEDarkeningAnalyzer.cc" name="HBHEDarkeningAnalyzer">
+    <flags EDM_PLUGIN="1"/>
   </library>
 </environment>

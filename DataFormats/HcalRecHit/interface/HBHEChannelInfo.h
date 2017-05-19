@@ -19,17 +19,19 @@ public:
     static const unsigned MAXSAMPLES = 10;
 
     inline HBHEChannelInfo()
-      : rawCharge_{0.}, pedestal_{0.}, pedestalWidth_{0.}, gain_{0.}, gainWidth_{0.}, riseTime_{0.f}, adc_{0},
-          hasTimeInfo_(false) {clear();}
+      : rawCharge_{0.}, pedestal_{0.}, pedestalWidth_{0.},
+        gain_{0.}, gainWidth_{0.}, riseTime_{0.f}, adc_{0},
+        dFcPerADC_{0.f}, hasTimeInfo_(false) {clear();}
 
     inline explicit HBHEChannelInfo(const bool hasTimeFromTDC)
-      : rawCharge_{0.}, pedestal_{0.}, pedestalWidth_{0.}, gain_{0.}, gainWidth_{0.}, riseTime_{0.f}, adc_{0},
-          hasTimeInfo_(hasTimeFromTDC) {clear();}
+      : rawCharge_{0.}, pedestal_{0.}, pedestalWidth_{0.},
+        gain_{0.}, gainWidth_{0.}, riseTime_{0.f}, adc_{0},
+        dFcPerADC_{0.f}, hasTimeInfo_(hasTimeFromTDC) {clear();}
 
     inline void clear()
     {
         id_ = HcalDetId(0U);
-	recoShape_ = 0;
+        recoShape_ = 0;
         nSamples_ = 0;
         soi_ = 0;
         capid_ = 0;
@@ -43,7 +45,7 @@ public:
 
     inline void setChannelInfo(const HcalDetId& detId, const int recoShape, const unsigned nSamp,
                                const unsigned iSoi, const int iCapid,
-			       const double darkCurrent, const double fcByPE, const double lambda,
+                               const double darkCurrent, const double fcByPE, const double lambda,
                                const bool linkError, const bool capidError,
                                const bool dropThisChannel)
     {
@@ -65,18 +67,19 @@ public:
 
     // For speed, the "setSample" function does not perform bounds checking
     inline void setSample(const unsigned ts, const uint8_t rawADC,
-                          const double q,
-			  const double ped, const double pedWidth,
-			  const double g, const double gainWidth,
-			  const float t)
+                          const float differentialChargeGain, const double q,
+                          const double ped, const double pedWidth,
+                          const double g, const double gainWidth,
+                          const float t)
     {
         rawCharge_[ts] = q;
         riseTime_[ts] = t;
         adc_[ts] = rawADC;
-	pedestal_[ts] = ped;
-	gain_[ts] = g;
-	pedestalWidth_[ts] = pedWidth;
-	gainWidth_[ts] = gainWidth;
+        dFcPerADC_[ts] = differentialChargeGain;
+        pedestal_[ts] = ped;
+        gain_[ts] = g;
+        pedestalWidth_[ts] = pedWidth;
+        gainWidth_[ts] = gainWidth;
     }
 
     // Inspectors
@@ -103,6 +106,7 @@ public:
     inline const double* gain() const {return gain_;}
     inline const double* gainWidth() const {return gainWidth_;}
     inline const uint8_t* adc() const {return adc_;}
+    inline const float* dFcPerADC() const {return dFcPerADC_;}
     inline const float* riseTime() const
         {if (hasTimeInfo_) return riseTime_; else return nullptr;}
 
@@ -117,9 +121,9 @@ public:
     inline double tsEnergy(const unsigned ts) const
         {return (rawCharge_[ts] - pedestal_[ts])*gain_[ts];}
     inline uint8_t tsAdc(const unsigned ts) const {return adc_[ts];}
+    inline float tsDFcPerADC(const unsigned ts) const {return dFcPerADC_[ts];}
     inline float tsRiseTime(const unsigned ts) const
         {return hasTimeInfo_ ? riseTime_[ts] : HcalSpecialTimes::UNKNOWN_T_NOTDC;}
-
 
     // Signal rise time measurement for the SOI, if available
     inline float soiRiseTime() const
@@ -223,6 +227,10 @@ private:
 
     // Raw QIE ADC values
     uint8_t adc_[MAXSAMPLES];
+
+    // Differential fC/ADC gain. Needed for proper determination
+    // of the ADC quantization error.
+    float dFcPerADC_[MAXSAMPLES];
 
     // Reco Shapes
     int32_t recoShape_;

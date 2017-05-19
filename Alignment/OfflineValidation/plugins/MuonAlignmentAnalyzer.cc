@@ -837,7 +837,7 @@ void MuonAlignmentAnalyzer::endJob(){
 
 
 
-        char binLabel[15];
+        char binLabel[40];
 
         for(unsigned int i=0 ; i<unitsLocalX.size() ; i++)
         {

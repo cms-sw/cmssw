@@ -2,7 +2,8 @@ import inspect
 
 class _ConfigureComponent(object):
     """Denotes a class that can be used by the Processes class"""
-    pass
+    def _isTaskComponent(self):
+        return False
 
 class PrintOptions(object):
     def __init__(self):
@@ -74,6 +75,22 @@ class _SimpleParameterTypeBase(_ParameterTypeBase):
         if isinstance(other,_SimpleParameterTypeBase):
             return self._value != other._value
         return self._value != other
+    def __lt__(self,other):
+        if isinstance(other,_SimpleParameterTypeBase):
+            return self._value < other._value
+        return self._value < other
+    def __le__(self,other):
+        if isinstance(other,_SimpleParameterTypeBase):
+            return self._value <= other._value
+        return self._value <= other
+    def __gt__(self,other):
+        if isinstance(other,_SimpleParameterTypeBase):
+            return self._value > other._value
+        return self._value > other
+    def __ge__(self,other):
+        if isinstance(other,_SimpleParameterTypeBase):
+            return self._value >= other._value
+        return self._value >= other
 
 
 class UsingBlock(_SimpleParameterTypeBase):
@@ -98,7 +115,7 @@ class UsingBlock(_SimpleParameterTypeBase):
         #if value == '\0':
         #    value = ''
         parameterSet.addString(self.isTracked(), myname, value)
-    def dumpPython(self, options):
+    def dumpPython(self, options=PrintOptions()):
         if options.isCfg:
             return "process."+self.value()
         else:
@@ -464,7 +481,7 @@ class _Labelable(object):
         return str(self.__label)
     def dumpSequenceConfig(self):
         return str(self.__label)
-    def dumpSequencePython(self):
+    def dumpSequencePython(self, options=PrintOptions()):
         return 'process.'+str(self.__label)
     def _findDependencies(self,knownDeps,presentDeps):
         #print 'in labelled'

@@ -29,5 +29,5 @@ from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase2_tracker.toModify(siPixelClusters, # FIXME
   src = cms.InputTag('simSiPixelDigis', "Pixel"),
   MissCalibrate = False,
-  ElectronPerADCGain = cms.double(135.) # it can be changed to something else (e.g. 600e) if needed
+  ElectronPerADCGain = cms.double(600.) # it can be changed to something else (e.g. 135e) if needed
 )

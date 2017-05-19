@@ -108,13 +108,13 @@ private:
     /// exclusion status for algorithm with bit i
     bool excludedAlgo(const int&) const;
 
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 protected:
     
     virtual void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) override;
-    virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
-    virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
+    virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
+    virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
     //virtual void analyze(DQMStore::IBooker &ibooker, const edm::Event&, const edm::EventSetup&);
 
 private:

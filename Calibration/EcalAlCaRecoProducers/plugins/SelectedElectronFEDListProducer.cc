@@ -306,7 +306,7 @@ void SelectedElectronFEDListProducer<TEle,TCand>::produce(edm::Event & iEvent, c
       module.DetId  = (*itTracker)->geographicalId().rawId();
       const std::vector<sipixelobjects::CablingPathToDetUnit> path2det = PixelCabling_->pathToDetUnit(module.DetId);
       module.Fed = path2det[0].fed;
-      assert(module.Fed<40);
+
       pixelModuleVector_.push_back(module);
     }
     std::sort(pixelModuleVector_.begin(),pixelModuleVector_.end());

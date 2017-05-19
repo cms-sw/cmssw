@@ -38,8 +38,8 @@ MTVHistoProducerAlgoForTrackerBlock = cms.PSet(
     nintHit = cms.int32(81),
     #                               
     minPu = cms.double(-0.5),                            
-    maxPu = cms.double(199.5),
-    nintPu = cms.int32(100),
+    maxPu = cms.double(259.5),
+    nintPu = cms.int32(130),
     #
     minLayers = cms.double(-0.5),                            
     maxLayers = cms.double(25.5),
@@ -56,6 +56,8 @@ MTVHistoProducerAlgoForTrackerBlock = cms.PSet(
     minDz = cms.double(-30),
     maxDz = cms.double(30),
     nintDz = cms.int32(60),
+    #
+    dxyDzZoom = cms.double(25),
     #
     # dE/dx
     minDeDx = cms.double(0.),
@@ -89,7 +91,7 @@ MTVHistoProducerAlgoForTrackerBlock = cms.PSet(
 
     minTracks = cms.double(0),
     maxTracks = cms.double(2000),
-    nintTracks = cms.int32(100),
+    nintTracks = cms.int32(200),
 
     # PV z coordinate (to be kept in synch with PrimaryVertexAnalyzer4PUSlimmed)
     minPVz = cms.double(-60),

@@ -5,6 +5,7 @@ from DrawingUtilities import Cell, TriggerCell, Module
 subdet = 4
 layer  = 12
 zside  = 1
+version = 'V8'
 inputFileName = "../test_triggergeom.root"
 outputFileName = "moduleMap.root"
 ####################
@@ -155,7 +156,7 @@ for id,module in modules.items():
 
 
 canvas.Write()
-canvas.Print("moduleMap_{0}_{1}.png".format(subdet,layer))
+canvas.Print("moduleMap_{0}_{1}_{2}.png".format(version,subdet,layer))
 
 
 inputFile.Close()

@@ -20,18 +20,19 @@
 //----------------------------------------------------------------------------------------------------
 
 /**
- *\brief Prints the DAQ mapping loaded by DAQMappingSourceXML.
+ *\brief Prints the DAQ mapping loaded by TotemDAQMappingESSourceXML.
  **/
 class PrintTotemDAQMapping : public edm::one::EDAnalyzer<>
 {
   public:
-    PrintTotemDAQMapping(const edm::ParameterSet &ps) {}
+    PrintTotemDAQMapping(const edm::ParameterSet &ps);
     ~PrintTotemDAQMapping() {}
 
   private:
-    virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-    virtual void analyze(const edm::Event &e, const edm::EventSetup &es) {}
-    virtual void endJob() {}
+    /// label of the CTPPS sub-system
+    std::string subSystemName;
+
+    virtual void analyze(const edm::Event &e, const edm::EventSetup &es) override;
 };
 
 using namespace std;
@@ -39,20 +40,34 @@ using namespace edm;
 
 //----------------------------------------------------------------------------------------------------
 
-void PrintTotemDAQMapping::beginRun(edm::Run const&, edm::EventSetup const& es)
+PrintTotemDAQMapping::PrintTotemDAQMapping(const edm::ParameterSet &ps) :
+  subSystemName(ps.getUntrackedParameter<string>("subSystem"))
+{
+}
+
+//----------------------------------------------------------------------------------------------------
+
+void PrintTotemDAQMapping::analyze(const edm::Event&, edm::EventSetup const& es)
 {
   // get mapping
   ESHandle<TotemDAQMapping> mapping;
-  es.get<TotemReadoutRcd>().get(mapping);
+  es.get<TotemReadoutRcd>().get(subSystemName, mapping);
 
   // get analysis mask to mask channels
   ESHandle<TotemAnalysisMask> analysisMask;
-  es.get<TotemReadoutRcd>().get(analysisMask);
+  es.get<TotemReadoutRcd>().get(subSystemName, analysisMask);
 
+  // print mapping
+  printf("* DAQ mapping\n");
   for (const auto &p : mapping->VFATMapping)
-  {
-    cout << p.first << " -> " << p.second << endl;
-  }
+    cout << "    " << p.first << " -> " << p.second << endl;
+
+  // print mapping
+  printf("* mask\n");
+  for (const auto &p : analysisMask->analysisMask)
+    cout << "    " << p.first
+      << ": fullMask=" << p.second.fullMask
+      << ", number of masked channels " << p.second.maskedChannels.size() << endl;
 }
 
 //----------------------------------------------------------------------------------------------------

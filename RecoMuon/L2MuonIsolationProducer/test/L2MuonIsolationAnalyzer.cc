@@ -66,7 +66,7 @@ void L2MuonIsolationAnalyzer::beginJob(){
 
   hEffVsEtArray.clear();
   char chnam[256];
-  char chtit[256];
+  char chtit[1000];
   for (unsigned int j=0; j<theConeCases.size() ; j++) {
       for (unsigned int k=0; k<theCuts.size() ; k++) {
             snprintf(chnam,sizeof(chnam),"effVsEt-%.2d-%.2d", j, k);

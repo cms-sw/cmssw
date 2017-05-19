@@ -6,6 +6,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/Sources/interface/EventSkipperByID.h"
+#include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
@@ -207,6 +208,13 @@ bool DQMStreamerReader::prepareNextFile() {
 
   for (;;) {
     fiterator_.update_state();
+
+    if (edm::shutdown_flag.load()) {
+      fiterator_.logFileAction("Shutdown flag was set, shutting down.");
+
+      closeFile_("shutdown flag is set");
+      return false;
+    }
 
     // check for end of run file and force quit
     if (flagEndOfRunKills_ && (fiterator_.state() != State::OPEN)) {

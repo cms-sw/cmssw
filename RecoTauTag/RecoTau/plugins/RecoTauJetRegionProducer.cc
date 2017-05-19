@@ -50,6 +50,8 @@ class RecoTauJetRegionProducer : public edm::stream::EDProducer<>
   edm::EDGetTokenT<reco::CandidateView> Jets_token;
   edm::EDGetTokenT<JetToPFCandidateAssociation> pfCandAssocMap_token;
 
+  double minJetPt_;
+  double maxJetAbsEta_;
   double deltaR2_;
 
   int verbosity_;
@@ -68,6 +70,8 @@ RecoTauJetRegionProducer::RecoTauJetRegionProducer(const edm::ParameterSet& cfg)
   
   double deltaR = cfg.getParameter<double>("deltaR"); 
   deltaR2_ = deltaR*deltaR;
+  minJetPt_ = ( cfg.exists("minJetPt") ) ? cfg.getParameter<double>("minJetPt") : -1.0;
+  maxJetAbsEta_ = ( cfg.exists("maxJetAbsEta") ) ? cfg.getParameter<double>("maxJetAbsEta") : 99.0;
   
   verbosity_ = ( cfg.exists("verbosity") ) ?
     cfg.getParameter<int>("verbosity") : 0;
@@ -106,8 +110,18 @@ void RecoTauJetRegionProducer::produce(edm::Event& evt, const edm::EventSetup& e
   // Get the association map matching jets to PFCandidates
   // (needed for recinstruction of boosted taus)
   edm::Handle<JetToPFCandidateAssociation> jetToPFCandMap;
+  std::vector<std::unordered_set<unsigned> > fastJetToPFCandMap;
   if ( pfCandAssocMapSrc_.label() != "" ) {
     evt.getByToken(pfCandAssocMap_token, jetToPFCandMap);
+    fastJetToPFCandMap.resize(nJets);
+    for ( size_t ijet = 0; ijet < nJets; ++ijet ) {
+      // Get a ref to jet
+      const reco::PFJetRef& jetRef = jets[ijet];
+      const auto& pfCandsMappedToJet = (*jetToPFCandMap)[jetRef];
+      for ( const auto& pfCandMappedToJet : pfCandsMappedToJet ) {
+	fastJetToPFCandMap[ijet].emplace(pfCandMappedToJet.key());
+      }
+    }
   }
 
   // Get the original product, so we can match against it - otherwise the
@@ -136,36 +150,31 @@ void RecoTauJetRegionProducer::produce(edm::Event& evt, const edm::EventSetup& e
   // -1 indicates no match.
   std::vector<int> matchInfo(nOriginalJets, -1);
   newJets->reserve(nJets);
+  size_t nNewJets = 0;
   for ( size_t ijet = 0; ijet < nJets; ++ijet ) {
     // Get a ref to jet
-    reco::PFJetRef jetRef = jets[ijet];
+    const reco::PFJetRef& jetRef = jets[ijet];
+    if(jetRef->pt() - minJetPt_ < 1e-5) continue;
+    if(std::abs(jetRef->eta()) - maxJetAbsEta_ > -1e-5) continue;
     // Make an initial copy.
     newJets->emplace_back(*jetRef);
     reco::PFJet& newJet = newJets->back();
     // Clear out all the constituents
     newJet.clearDaughters();
     // Loop over all the PFCands
-    for ( std::vector<PFCandPtr>::const_iterator pfCand = pfCands.begin();
-	  pfCand != pfCands.end(); ++pfCand ) {
+    for ( const auto& pfCand : pfCands ) {
       bool isMappedToJet = false;
-      if ( pfCandAssocMapSrc_.label() != "" ) {
+      if ( jetToPFCandMap.isValid() ) {
 	auto temp = jetToPFCandMap->find(jetRef);
 	if( temp == jetToPFCandMap->end() ) {
 	  edm::LogWarning("WeirdCandidateMap") << "Candidate map for jet " << jetRef.key() << " is empty!";
 	  continue;
 	}
-	edm::RefVector<reco::PFCandidateCollection> pfCandsMappedToJet = (*jetToPFCandMap)[jetRef];
-	for ( edm::RefVector<reco::PFCandidateCollection>::const_iterator pfCandMappedToJet = pfCandsMappedToJet.begin();
-	      pfCandMappedToJet != pfCandsMappedToJet.end(); ++pfCandMappedToJet ) {
-	  if ( reco::deltaR2(**pfCandMappedToJet, **pfCand) < 1.e-8 ) {
-	    isMappedToJet = true;
-	    break;
-	  }
-	}
+	isMappedToJet = fastJetToPFCandMap[ijet].count(pfCand.key());
       } else {
 	isMappedToJet = true;
       }
-      if ( reco::deltaR2(*jetRef, **pfCand) < deltaR2_ && isMappedToJet ) newJet.addDaughter(*pfCand);
+      if ( reco::deltaR2(*jetRef, *pfCand) < deltaR2_ && isMappedToJet ) newJet.addDaughter(pfCand);
     }
     if ( verbosity_ ) {
       std::cout << "jet #" << ijet << ": Pt = " << jetRef->pt() << ", eta = " << jetRef->eta() << ", phi = " << jetRef->eta() << ","
@@ -179,7 +188,9 @@ void RecoTauJetRegionProducer::produce(edm::Event& evt, const edm::EventSetup& e
     }
     // Match the index of the jet we just made to the index into the original
     // collection.
-    matchInfo[jetRef.key()] = ijet;
+    //matchInfo[jetRef.key()] = ijet;
+    matchInfo[jetRef.key()] = nNewJets;
+    nNewJets++;
   }
 
   // Put our new jets into the event

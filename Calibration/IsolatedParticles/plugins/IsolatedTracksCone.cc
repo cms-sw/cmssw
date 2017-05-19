@@ -921,7 +921,7 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent,
   
 
 
-void IsolatedTracksCone::beginJob(const edm::EventSetup&) {
+void IsolatedTracksCone::beginJob() {
 
   //   hbScale = 120.0;
   //   heScale = 135.0;

@@ -115,7 +115,7 @@ void TTClusterAlgorithm_official< Ref_Phase2TrackerDigi_ >::Cluster( std::vector
         }
 
         /// Skip non-contiguous column
-        if ( fabs( mapIter1DCbCR1->first.first - lastCol ) != 1 )
+        if ( std::abs( (int)(mapIter1DCbCR1->first.first) - (int)lastCol ) != 1 )
         {
           ++mapIter1DCbCR1;
           continue;

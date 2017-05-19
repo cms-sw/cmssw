@@ -11,7 +11,7 @@
 #include <iostream>
 
 //ME0DigiPreReco::ME0DigiPreReco (float x, float y, float ex, float ey, float corr, float tof) :
-ME0DigiPreReco::ME0DigiPreReco (float x, float y, float ex, float ey, float corr, float tof, int pdgid, bool prompt) :
+ME0DigiPreReco::ME0DigiPreReco (float x, float y, float ex, float ey, float corr, float tof, int pdgid, int prompt) :
   x_(x),
   y_(y),
   ex_(ex),

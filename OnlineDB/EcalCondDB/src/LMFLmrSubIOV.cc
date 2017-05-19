@@ -1,5 +1,8 @@
 #include "OnlineDB/EcalCondDB/interface/LMFLmrSubIOV.h"
 
+#include <ctime>
+#include <string>
+
 void LMFLmrSubIOV::init() {
   m_className = "LMFLmrSubIOV";
 
@@ -109,23 +112,47 @@ std::string LMFLmrSubIOV::writeDBSql(Statement *stmt) {
   return sql;
 }
 
-void LMFLmrSubIOV::getParameters(ResultSet *rset) {
+void LMFLmrSubIOV::getParameters(ResultSet *rset) noexcept(false) {
   m_lmfIOV = rset->getInt(1);
   for (int i = 0; i < 3; i++) {
     oracle::occi::Date t = rset->getDate(i + 2);
+#if defined(_GLIBCXX_USE_CXX11_ABI) && (_GLIBCXX_USE_CXX11_ABI == 0)
     m_t[i].setToString(t.toText("YYYY-MM-DD HH24:MI:SS"));
+#else
+    int year = 0;
+    unsigned int month = 0;
+    unsigned int day = 0;
+    unsigned int hour = 0;
+    unsigned int min = 0;
+    unsigned int seconds = 0;
+    t.getDate(year, month, day, hour, min, seconds);
+    const std::tm tt = {
+      .tm_sec = static_cast<int>(seconds),
+      .tm_min = static_cast<int>(min),
+      .tm_hour = static_cast<int>(hour),
+      .tm_mday = static_cast<int>(day),
+      .tm_mon = static_cast<int>(month),
+      .tm_year = year - 1900
+    };
+    char tt_str[30] = { 0 };
+    if (std::strftime(tt_str, sizeof(tt_str), "%F %T", &tt)) {
+      m_t[i].setToString(std::string(tt_str));
+    } else {
+      throw std::runtime_error("LMFLmrSubIOV::writeDBSql: failed to generate the date string");
+    }
+#endif
   }
 }
 
 std::list<int> LMFLmrSubIOV::getIOVIDsLaterThan(const Tm &t) 
-  throw(std::runtime_error) {
+  noexcept(false) {
   Tm tinf;
   tinf.setToString("9999-12-31 23:59:59");
   return getIOVIDsLaterThan(t, tinf, 0);
 }
 
 std::list<int> LMFLmrSubIOV::getIOVIDsLaterThan(const Tm &t, int howmany) 
-  throw(std::runtime_error) {
+  noexcept(false) {
   Tm tinf;
   tinf.setToString("9999-12-31 23:59:59");
   return getIOVIDsLaterThan(t, tinf, howmany);
@@ -133,13 +160,13 @@ std::list<int> LMFLmrSubIOV::getIOVIDsLaterThan(const Tm &t, int howmany)
 
 std::list<int> LMFLmrSubIOV::getIOVIDsLaterThan(const Tm &tmin,
 						const Tm &tmax) 
-  throw(std::runtime_error) {
+  noexcept(false) {
   return getIOVIDsLaterThan(tmin, tmax, 0);
 }
 
 std::list<int> LMFLmrSubIOV::getIOVIDsLaterThan(const Tm &tmin, const Tm &tmax,
 						int howMany) 
-  throw(std::runtime_error) {
+  noexcept(false) {
   Tm tinf;
   tinf.setToString("9999-12-31 23:59:59");
   std::string sql = "SELECT * FROM (SELECT LMR_SUB_IOV_ID "  
@@ -188,8 +215,13 @@ std::list<int> LMFLmrSubIOV::getIOVIDsLaterThan(const Tm &tmin, const Tm &tmax,
       m_conn->terminateStatement(stmt);
     }
     catch (oracle::occi::SQLException e) {
+#if defined(_GLIBCXX_USE_CXX11_ABI) && (_GLIBCXX_USE_CXX11_ABI == 0)
       throw(std::runtime_error(m_className + "::getLmrSubIOVLaterThan: " +
 			       e.getMessage()));
+#else
+      throw(std::runtime_error(m_className + "::getLmrSubIOVLaterThan: error code " +
+			       std::to_string(e.getErrorCode())));
+#endif
     }
   } else {
     throw(std::runtime_error(m_className + "::getLmrSubIOVLaterThan: " +

@@ -27,14 +27,9 @@ process.source = cms.Source("EmptySource",
 )
 
 process.listIds = cms.EDAnalyzer("ListIds",
-                                materials = cms.untracked.vstring("materials:Silicon", "tracker:SenSi", "pixel:SenSi"),
+                                materials = cms.untracked.vstring("materials:Silicon", "tracker:tkLayout_SenSi"),
                                 printMaterial = cms.untracked.bool(True)
                                 )
 process.path = cms.Path(process.listIds)
 
-# Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.combinedCustoms
-from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023tilted4021
-
-#call to customisation function cust_2023tilted imported from SLHCUpgradeSimulations.Configuration.combinedCustoms
-process = cust_2023tilted4021(process)
 

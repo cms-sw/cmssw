@@ -192,7 +192,7 @@ void ODLaserConfig::setParameters(const std::map<string,string>& my_keys_map){
   
 }
 
-int ODLaserConfig::fetchNextId()  throw(std::runtime_error) {
+int ODLaserConfig::fetchNextId()  noexcept(false) {
 
   int result=0;
   try {
@@ -215,7 +215,7 @@ int ODLaserConfig::fetchNextId()  throw(std::runtime_error) {
 
 
 void ODLaserConfig::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   int next_id=fetchNextId();
@@ -295,7 +295,7 @@ void ODLaserConfig::prepareWrite()
 
 
 void ODLaserConfig::writeDB()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -406,7 +406,7 @@ void ODLaserConfig::writeDB()
 
 
 void ODLaserConfig::fetchData(ODLaserConfig * result)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   result->clear();
@@ -511,7 +511,7 @@ void ODLaserConfig::fetchData(ODLaserConfig * result)
   }
 }
 
-int ODLaserConfig::fetchID()    throw(std::runtime_error)
+int ODLaserConfig::fetchID()    noexcept(false)
 {
   // Return from memory if available
   if (m_ID!=0) {

@@ -475,7 +475,8 @@ void ElectronSeedGenerator::seedsFromTrajectorySeeds
   for ( s = pixelSeeds.begin() ; s != pixelSeeds.end() ; s++ )
    {
     reco::ElectronSeed seed(s->seed()) ;
-    seed.setCaloCluster(cluster,s->hitsMask(),s->subDet2(),s->subDet1(),hoe1,hoe2) ;
+    seed.setCaloCluster(cluster);
+    seed.initTwoHitSeed(s->hitsMask());
     addSeed(seed,&*s,positron,out) ;
    }
  }
@@ -487,7 +488,7 @@ void ElectronSeedGenerator::addSeed
    reco::ElectronSeedCollection & out )
  {
   if (!info)
-   { out.push_back(seed) ; return ; }
+    { out.emplace_back(seed) ; return ; }
 
   if (positron)
    { seed.setPosAttributes(info->dRz2(),info->dPhi2(),info->dRz1(),info->dPhi1()) ; }
@@ -496,7 +497,7 @@ void ElectronSeedGenerator::addSeed
   reco::ElectronSeedCollection::iterator resItr ;
   for ( resItr=out.begin() ; resItr!=out.end() ; ++resItr )
    {
-    if ( (seed.caloCluster()==resItr->caloCluster()) &&
+    if ( (seed.caloCluster().key()==resItr->caloCluster().key()) &&
          (seed.hitsMask()==resItr->hitsMask()) &&
          equivalent(seed,*resItr) )
      {
@@ -578,7 +579,7 @@ void ElectronSeedGenerator::addSeed
      }
    }
 
-  out.push_back(seed) ;
+  out.emplace_back(seed) ;
  }
 
 bool ElectronSeedGenerator::prepareElTrackSeed

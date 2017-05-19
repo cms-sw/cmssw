@@ -3,20 +3,20 @@
 #define DQMMESSAGELOGGER_H
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/FWLite/interface/Event.h"
 #include "FWCore/MessageLogger/interface/ErrorSummaryEntry.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <vector>
 #include <string>
 #include <map>
 
-class DQMStore;
 class MonitorElement;
 
-class DQMMessageLogger : public edm::EDAnalyzer {
+class DQMMessageLogger : public DQMEDAnalyzer {
  public:
 
   /// Constructor
@@ -25,25 +25,18 @@ class DQMMessageLogger : public edm::EDAnalyzer {
   /// Destructor
   virtual ~DQMMessageLogger();
   
-  /// Inizialize parameters for histo binning
-  void beginJob();
-
   /// Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&);
 
+ protected:
 
-  /// collate categories in summary plots
-  void endRun(const edm::Run & r, const edm::EventSetup & c);
-
-  /// Save the histos
-  void endJob();
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
  private:
 
 
   // ----------member data ---------------------------
   
-  DQMStore* theDbe;
   // Switch for verbosity
   std::string metname;
   

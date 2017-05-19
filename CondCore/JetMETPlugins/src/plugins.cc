@@ -19,7 +19,7 @@
 #include "CondFormats/DataRecord/interface/JetResolutionRcd.h"
 #include "CondFormats/DataRecord/interface/JetResolutionScaleFactorRcd.h"
 
-REGISTER_PLUGIN(JetCorrectionsRecord, JetCorrectorParametersCollection);
+REGISTER_PLUGIN_INIT(JetCorrectionsRecord, JetCorrectorParametersCollection, JetCorrectorParametersInitializeTransients);
 REGISTER_PLUGIN(METCorrectionsRecord, METCorrectorParametersCollection);
 REGISTER_PLUGIN(MEtXYcorrectRecord, MEtXYcorrectParametersCollection);
 

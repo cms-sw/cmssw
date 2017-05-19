@@ -4,6 +4,8 @@
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
 #include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -35,6 +37,44 @@ public:
   }
 
   virtual ~GlobalTrackingRegionProducerFromBeamSpot(){}
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    {
+      edm::ParameterSetDescription desc;
+
+      desc.add<bool>("precise", true);
+      desc.add<bool>("useMultipleScattering", false);
+      desc.add<double>("nSigmaZ", 4.0);
+      desc.add<double>("originHalfLength", 0.0); // this is the default in constructor
+      desc.add<double>("originRadius", 0.2);
+      desc.add<double>("ptMin", 0.9);
+      desc.add<edm::InputTag>("beamSpot", edm::InputTag("offlineBeamSpot"));
+
+      // Only for backwards-compatibility
+      edm::ParameterSetDescription descRegion;
+      descRegion.add<edm::ParameterSetDescription>("RegionPSet", desc);
+
+      descriptions.add("globalTrackingRegionFromBeamSpot", descRegion);
+    }
+
+    {
+      edm::ParameterSetDescription desc;
+
+      desc.add<bool>("precise", true);
+      desc.add<bool>("useMultipleScattering", false);
+      desc.add<double>("nSigmaZ", 0.0); // this is the default in constructor
+      desc.add<double>("originHalfLength", 21.2);
+      desc.add<double>("originRadius", 0.2);
+      desc.add<double>("ptMin", 0.9);
+      desc.add<edm::InputTag>("beamSpot", edm::InputTag("offlineBeamSpot"));
+
+      // Only for backwards-compatibility
+      edm::ParameterSetDescription descRegion;
+      descRegion.add<edm::ParameterSetDescription>("RegionPSet", desc);
+
+      descriptions.add("globalTrackingRegionFromBeamSpotFixedZ", descRegion);
+    }
+  }
 
   virtual std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event&ev, const edm::EventSetup&) const override {
     std::vector<std::unique_ptr<TrackingRegion> > result;

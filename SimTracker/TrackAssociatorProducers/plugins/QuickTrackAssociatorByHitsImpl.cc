@@ -84,8 +84,8 @@ namespace
 		return collection[index];
 	}
 
-  template <typename T>
-  void fillKeys(std::unordered_set<T>& keys, const edm::RefVector<TrackingParticleCollection>& collection) {
+  void fillKeys(edm::IndexSet& keys, const edm::RefVector<TrackingParticleCollection>& collection) {
+    keys.reserve(collection.size());
     for(const auto& ref: collection) {
       keys.insert(ref.key());
     }
@@ -296,8 +296,12 @@ template<typename T_TPCollection,typename iter> std::vector<std::pair<edm::Ref<T
 	{
 		const TrackingParticle* pTrackingParticle=getTrackingParticleAt( trackingParticles, i );
 
-		// Ignore TrackingParticles with no hits
-		if( pTrackingParticle->numberOfHits()==0 ) continue;
+		// Historically there was a requirement that pTrackingParticle->numberOfHits() > 0
+		// However, in TrackingTruthAccumulator, the numberOfHits is calculated from a subset
+		// of the SimHits of the SimTracks of a TrackingParticle (essentially limiting the
+		// processType and particleType to those of the "first" hit, and particleType to the pdgId of the SimTrack).
+		// But, here the association between tracks and TrackingParticles is done with *all* the hits of
+		// TrackingParticle, so we should not rely on the numberOfHits() calculated with a subset of SimHits.
 
 		double numberOfAssociatedHits=0;
 		// Loop over all of the sim track identifiers and see if any of them are part of this TrackingParticle. If they are, add
@@ -327,7 +331,7 @@ template<typename T_TPCollection,typename iter> std::vector< std::pair<edm::Ref<
 	// TrackingParticleRefVector overloads). The trackingParticles
 	// parameter is still ignored since looping over it on every call
 	// would be expensive, but the keys of the TrackingParticleRefs are
-	// cached to an unordered_set (trackingParticleKeys) which is used
+	// cached to an IndexSet (trackingParticleKeys) which is used
 	// as a fast search structure.
 
 	// The pairs in this vector have a Ref to the associated TrackingParticle as "first" and the weighted number of associated clusters as "second"
@@ -353,11 +357,15 @@ template<typename T_TPCollection,typename iter> std::vector< std::pair<edm::Ref<
 
 				const TrackingParticleRef trackingParticle=(ip->second);
 
-                                if(trackingParticleKeys && trackingParticleKeys->find(trackingParticle.key()) == trackingParticleKeys->end())
+                                if(trackingParticleKeys && !trackingParticleKeys->has(trackingParticle.key()))
                                   continue;
 
-				// Ignore TrackingParticles with no hits
-				if( trackingParticle->numberOfHits() == 0 ) continue;
+				// Historically there was a requirement that pTrackingParticle->numberOfHits() > 0
+				// However, in TrackingTruthAccumulator, the numberOfHits is calculated from a subset
+				// of the SimHits of the SimTracks of a TrackingParticle (essentially limiting the
+				// processType and particleType to those of the "first" hit, and particleType to the pdgId of the SimTrack).
+				// But, here the association between tracks and TrackingParticles is done with *all* the hits of
+				// TrackingParticle, so we should not rely on the numberOfHits() calculated with a subset of SimHits.
 
 				/* Alternative implementation to avoid the use of lmap... memory slightly improved but slightly slower...
 				 std::pair<edm::Ref<TrackingParticleCollection>,size_t> tpIntPair(trackingParticle, 1);

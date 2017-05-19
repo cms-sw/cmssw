@@ -35,7 +35,7 @@ FEConfigLUTInfo::~FEConfigLUTInfo()
 
 
 
-int FEConfigLUTInfo::fetchNextId()  throw(std::runtime_error) {
+int FEConfigLUTInfo::fetchNextId()  noexcept(false) {
 
   int result=0;
   try {
@@ -58,7 +58,7 @@ int FEConfigLUTInfo::fetchNextId()  throw(std::runtime_error) {
 }
 
 void FEConfigLUTInfo::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -98,7 +98,7 @@ void FEConfigLUTInfo::setParameters(const std::map<string,string>& my_keys_map){
 }
 
 void FEConfigLUTInfo::writeDB()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -126,7 +126,7 @@ void FEConfigLUTInfo::writeDB()
 
 
 void FEConfigLUTInfo::fetchData(FEConfigLUTInfo * result)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   result->clear();
@@ -161,7 +161,7 @@ void FEConfigLUTInfo::fetchData(FEConfigLUTInfo * result)
 }
 
 void FEConfigLUTInfo::fetchLastData(FEConfigLUTInfo * result)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   result->clear();
@@ -186,7 +186,7 @@ void FEConfigLUTInfo::fetchLastData(FEConfigLUTInfo * result)
   }
 }
 
-int FEConfigLUTInfo::fetchID()    throw(std::runtime_error)
+int FEConfigLUTInfo::fetchID()    noexcept(false)
 {
   // Return from memory if available
   if (m_ID!=0) {
@@ -221,7 +221,7 @@ int FEConfigLUTInfo::fetchID()    throw(std::runtime_error)
 
 
 void FEConfigLUTInfo::setByID(int id) 
-  throw(std::runtime_error)
+  noexcept(false)
 {
    this->checkConnection();
 

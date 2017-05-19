@@ -26,6 +26,7 @@ clean_up () {
 #LSF signals according to http://batch.web.cern.ch/batch/lsf-return-codes.html
 trap clean_up HUP INT TERM SEGV USR2 XCPU XFSZ IO
 
+export X509_USER_PROXY=${RUNDIR}/.user_proxy
 
 # The batch job directory (will vanish after job end):
 BATCH_DIR=$(pwd)
@@ -66,7 +67,7 @@ if [ "$MSSDIRPOOL" != "cmscafuser" ]; then
   rfcp millePedeMonitor*root $MSSDIR/millePedeMonitorISN.root
 else
   MSSCAFDIR=`echo $MSSDIR | perl -pe 's/\/castor\/cern.ch\/cms//gi'`
-  
+  ${EOS} mkdir -p ${MSSCAFDIR}	# ensure the directory exists
   echo "xrdcp -f milleBinaryISN.dat.gz ${EOSPREFIX}${MSSCAFDIR}/milleBinaryISN.dat.gz > /dev/null"
   xrdcp -f milleBinaryISN.dat.gz    ${EOSPREFIX}${MSSCAFDIR}/milleBinaryISN.dat.gz  > /dev/null
   xrdcp -f treeFile*root         ${EOSPREFIX}${MSSCAFDIR}/treeFileISN.root > /dev/null

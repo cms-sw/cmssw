@@ -34,16 +34,16 @@ namespace reco {
 
     double isolation() const { return isolation_; }
     
-
-    friend std::ostream& operator<<( std::ostream& out, 
-				     const IsolatedPFCandidate& c );
-  
   private:
 
 /*     PFCandidateRef parent_; */
 
     double isolation_;
   };
+
+  std::ostream& operator<<( std::ostream& out, 
+                            const IsolatedPFCandidate& c );
+  
 
 
 }

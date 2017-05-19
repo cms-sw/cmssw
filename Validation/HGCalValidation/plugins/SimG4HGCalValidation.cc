@@ -17,7 +17,7 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include "SimDataFormats/ValidationFormats/interface/PHGCalValidInfo.h"
 #include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
-#include "SimDataFormats/CaloTest/interface/HcalTestNumbering.h"
+#include "DataFormats/HcalDetId/interface/HcalTestNumbering.h"
 #include "SimG4CMS/Calo/interface/HGCNumberingScheme.h"
 
 #include "FWCore/Framework/interface/Event.h"

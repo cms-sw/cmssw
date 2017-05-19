@@ -21,7 +21,7 @@ Implementation:
 
 
 // system include files
-//#include <memory>
+#include <memory>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -62,11 +62,11 @@ private:
 	edm::InputTag jets_, vertexes_, jetids_, rho_;
 	std::string jec_;
 	bool runMvas_, produceJetIds_, inputIsCorrected_, applyJec_;
-	std::vector<std::pair<std::string, PileupJetIdAlgo *> > algos_;
+	std::vector<std::pair<std::string, std::unique_ptr<PileupJetIdAlgo>> > algos_;
 	
 	bool residualsFromTxt_;
 	edm::FileInPath residualsTxt_;
-	FactorizedJetCorrector *jecCor_;
+        std::unique_ptr<FactorizedJetCorrector> jecCor_;
 	std::vector<JetCorrectorParameters> jetCorPars_;
 
         edm::EDGetTokenT<edm::View<reco::Jet> > input_jet_token_;

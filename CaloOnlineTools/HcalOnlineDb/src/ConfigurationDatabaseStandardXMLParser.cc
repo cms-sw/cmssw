@@ -172,7 +172,7 @@ XERCES_CPP_NAMESPACE_USE
     }
   }
 
-void ConfigurationDatabaseStandardXMLParser::parse(const std::string& xmlDocument, std::map<std::string,std::string>& parameters, std::vector<std::string>& items, std::string& encoding) throw (hcal::exception::ConfigurationDatabaseException) {
+void ConfigurationDatabaseStandardXMLParser::parse(const std::string& xmlDocument, std::map<std::string,std::string>& parameters, std::vector<std::string>& items, std::string& encoding) noexcept(false) {
   // uses XERCES SAX2 parser
   std::list<Item> theItems;
   ConfigurationDBHandler handler(theItems);
@@ -201,7 +201,7 @@ void ConfigurationDatabaseStandardXMLParser::parse(const std::string& xmlDocumen
 
 
 
-void ConfigurationDatabaseStandardXMLParser::parseMultiple(const std::string& xmlDocument, std::list<Item>& items) throw (hcal::exception::ConfigurationDatabaseException) {
+void ConfigurationDatabaseStandardXMLParser::parseMultiple(const std::string& xmlDocument, std::list<Item>& items) noexcept(false) {
   // uses XERCES SAX2 parser
   ConfigurationDBHandler handler(items);
     

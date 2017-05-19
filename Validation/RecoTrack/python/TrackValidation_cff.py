@@ -14,6 +14,7 @@ from SimTracker.TrackerHitAssociation.tpClusterProducer_cfi import *
 from SimTracker.VertexAssociation.VertexAssociatorByPositionAndTracks_cfi import *
 from CommonTools.RecoAlgos.trackingParticleRefSelector_cfi import trackingParticleRefSelector as _trackingParticleRefSelector
 from CommonTools.RecoAlgos.trackingParticleConversionRefSelector_cfi import trackingParticleConversionRefSelector as _trackingParticleConversionRefSelector
+from SimTracker.TrackHistory.trackingParticleBHadronRefSelector_cfi import trackingParticleBHadronRefSelector as _trackingParticleBHadronRefSelector
 from SimGeneral.TrackingAnalysis.trackingParticleNumberOfLayersProducer_cff import *
 from CommonTools.RecoAlgos.recoChargedRefCandidateToTrackRefProducer_cfi import recoChargedRefCandidateToTrackRefProducer as _recoChargedRefCandidateToTrackRefProducer
 
@@ -176,16 +177,29 @@ def _setForEra(module, eraName, era, **kwargs):
 def _getSeedingLayers(seedProducers):
     import RecoTracker.IterativeTracking.iterativeTk_cff as _iterativeTk_cff
 
+    def _findSeedingLayers(name):
+        prod = getattr(_iterativeTk_cff, name)
+        if hasattr(prod, "triplets"):
+            if hasattr(prod, "layerList"): # merger
+                return prod.layerList.refToPSet_.value()
+            return _findSeedingLayers(prod.triplets.getModuleLabel())
+        elif hasattr(prod, "doublets"):
+            return _findSeedingLayers(prod.doublets.getModuleLabel())
+        return prod.seedingLayers.getModuleLabel()
+
     seedingLayersMerged = []
     for seedName in seedProducers:
         seedProd = getattr(_iterativeTk_cff, seedName)
-        if not hasattr(seedProd, "OrderedHitsFactoryPSet"):
+        if hasattr(seedProd, "OrderedHitsFactoryPSet"):
+            if hasattr(seedProd, "SeedMergerPSet"):
+                seedingLayersName = seedProd.SeedMergerPSet.layerList.refToPSet_.value()
+            else:
+                seedingLayersName = seedProd.OrderedHitsFactoryPSet.SeedingLayers.getModuleLabel()
+        elif hasattr(seedProd, "seedingHitSets"):
+            seedingLayersName = _findSeedingLayers(seedProd.seedingHitSets.getModuleLabel())
+        else:
             continue
 
-        if hasattr(seedProd, "SeedMergerPSet"):
-            seedingLayersName = seedProd.SeedMergerPSet.layerList.refToPSet_.value()
-        else:
-            seedingLayersName = seedProd.OrderedHitsFactoryPSet.SeedingLayers.getModuleLabel()
         seedingLayers = getattr(_iterativeTk_cff, seedingLayersName).layerList.value()
         for layerSet in seedingLayers:
             if layerSet not in seedingLayersMerged:
@@ -318,6 +332,9 @@ trackingParticlesElectron = _trackingParticleRefSelector.clone(
     ptMin = 0,
 )
 
+# Select B-hadron TPs
+trackingParticlesBHadron = _trackingParticleBHadronRefSelector.clone()
+
 ## MTV instances
 trackValidator = Validation.RecoTrack.MultiTrackValidator_cfi.multiTrackValidator.clone(
     useLogPt = cms.untracked.bool(True),
@@ -365,7 +382,6 @@ trackValidatorFromPVAllTP = trackValidatorFromPV.clone(
     label_tp_fake = trackValidator.label_tp_fake.value(),
     label_tp_effic_refvector = False,
     label_tp_fake_refvector = False,
-    associators = trackValidator.associators.value(),
     doSimPlots = False,
     doSimTrackPlots = False,
 )
@@ -375,7 +391,7 @@ trackValidatorAllTPEffic = trackValidator.clone(
     dirName = "Tracking/TrackAllTPEffic/",
     label = [x for x in trackValidator.label.value() if "Pt09" not in x],
     doSimPlots = False,
-    doRecoTrackPlots = False, # Fake rate of all tracks vs. all TPs is already included in trackValidator
+    doRecoTrackPlots = True, # Fake rate of all tracks vs. all TPs is already included in trackValidator, but we want the reco plots for other reasons
     doPVAssociationPlots = False,
 )
 trackValidatorAllTPEffic.histoProducerAlgoBlock.generalTpSelector.signalOnly = False
@@ -418,6 +434,20 @@ trackValidatorGsfTracks = trackValidatorConversion.clone(
     label_tp_effic = "trackingParticlesElectron",
 )
 
+# for B-hadrons
+trackValidatorBHadron = trackValidator.clone(
+    dirName = "Tracking/TrackBHadron/",
+    label_tp_effic = "trackingParticlesBHadron",
+    label_tp_effic_refvector = True,
+    doSimPlots = True,
+    doRecoTrackPlots = False, # Fake rate is defined wrt. all TPs, and that is already included in trackValidator
+    dodEdxPlots = False,
+)
+for _eraName, _postfix, _era in _relevantEras:
+    _setForEra(trackValidatorBHadron, _eraName, _era,
+               label = ["generalTracks", locals()["_generalTracksHp"+_postfix], "cutsRecoTracksBtvLike"]
+    )
+
 
 # the track selectors
 tracksValidationSelectors = cms.Sequence(
@@ -448,7 +478,7 @@ tracksPreValidation = cms.Sequence(
 )
 fastSim.toReplaceWith(tracksPreValidation, tracksPreValidation.copyAndExclude([
     trackingParticlesElectron,
-    trackingParticlesConversion
+    trackingParticlesConversion,
 ]))
 
 tracksValidation = cms.Sequence(
@@ -460,7 +490,10 @@ tracksValidation = cms.Sequence(
     trackValidatorConversion +
     trackValidatorGsfTracks
 )
-fastSim.toReplaceWith(tracksValidation, tracksValidation.copyAndExclude([trackValidatorConversion, trackValidatorGsfTracks]))
+fastSim.toReplaceWith(tracksValidation, tracksValidation.copyAndExclude([
+    trackValidatorConversion,
+    trackValidatorGsfTracks,
+]))
 
 ### Then define stuff for standalone mode (i.e. MTV with RECO+DIGI input)
 
@@ -507,7 +540,13 @@ trackValidatorAllTPEfficStandalone = trackValidatorAllTPEffic.clone(
 
 trackValidatorConversionStandalone = trackValidatorConversion.clone( label = [x for x in trackValidatorConversion.label if x != "convStepTracks"])
 
+trackValidatorBHadronStandalone = trackValidatorBHadron.clone(label = [x for x in trackValidatorStandalone.label if "Pt09" not in x])
+
 # sequences
+tracksPreValidationStandalone = tracksPreValidation.copy()
+tracksPreValidationStandalone += trackingParticlesBHadron
+fastSim.toReplaceWith(tracksPreValidationStandalone, tracksPreValidation)
+
 tracksValidationSelectorsStandalone = cms.Sequence(
     tracksValidationSelectorsByOriginalAlgoStandalone +
     tracksValidationSelectorsByAlgoMaskStandalone +
@@ -524,14 +563,15 @@ _trackValidatorsBase = cms.Sequence(
     trackValidatorFromPVAllTPStandalone +
     trackValidatorAllTPEfficStandalone +
     trackValidatorConversionStandalone +
-    trackValidatorGsfTracks
+    trackValidatorGsfTracks +
+    trackValidatorBHadronStandalone
 )
 trackValidatorsStandalone = _trackValidatorsBase.copy()
 fastSim.toModify(trackValidatorsStandalone, lambda x: x.remove(trackValidatorConversionStandalone) )
 
 tracksValidationStandalone = cms.Sequence(
     ak4PFL1FastL2L3CorrectorChain +
-    tracksPreValidation +
+    tracksPreValidationStandalone +
     tracksValidationSelectorsStandalone +
     trackValidatorsStandalone
 )
@@ -573,8 +613,10 @@ for _eraName, _postfix, _era in _relevantErasAndFastSim:
 
 trackValidatorConversionTrackingOnly = trackValidatorConversion.clone(label = [x for x in trackValidatorConversion.label if x not in ["ckfInOutTracksFromConversions", "ckfOutInTracksFromConversions"]])
 
+trackValidatorBHadronTrackingOnly = trackValidatorBHadron.clone(label = [x for x in trackValidatorTrackingOnly.label if "Pt09" not in x])
+
 # sequences
-tracksPreValidationTrackingOnly = tracksPreValidation.copy()
+tracksPreValidationTrackingOnly = tracksPreValidationStandalone.copy()
 tracksPreValidationTrackingOnly.replace(tracksValidationSelectors, tracksValidationSelectorsTrackingOnly)
 
 trackValidatorsTrackingOnly = _trackValidatorsBase.copy()
@@ -585,7 +627,9 @@ trackValidatorsTrackingOnly += (
 )
 trackValidatorsTrackingOnly.replace(trackValidatorConversionStandalone, trackValidatorConversionTrackingOnly)
 trackValidatorsTrackingOnly.remove(trackValidatorGsfTracks)
+trackValidatorsTrackingOnly.replace(trackValidatorBHadronStandalone, trackValidatorBHadronTrackingOnly)
 fastSim.toModify(trackValidatorsTrackingOnly, lambda x: x.remove(trackValidatorConversionTrackingOnly))
+fastSim.toModify(trackValidatorsTrackingOnly, lambda x: x.remove(trackValidatorBHadronTrackingOnly))
 
 
 tracksValidationTrackingOnly = cms.Sequence(

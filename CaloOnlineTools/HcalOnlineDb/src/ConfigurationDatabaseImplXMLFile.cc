@@ -16,7 +16,7 @@ ConfigurationDatabaseImplXMLFile::~ConfigurationDatabaseImplXMLFile() {
 }
 bool ConfigurationDatabaseImplXMLFile::canHandleMethod(const std::string& method) const { return method=="xmlfile"; }
 
-void ConfigurationDatabaseImplXMLFile::connect(const std::string& accessor) throw (hcal::exception::ConfigurationDatabaseException) {
+void ConfigurationDatabaseImplXMLFile::connect(const std::string& accessor) noexcept(false) {
   // open file and copy into a string
   std::string theFile=accessor;
   std::string::size_type i=theFile.find("://");
@@ -130,7 +130,7 @@ std::map<std::string, std::string> ConfigurationDatabaseImplXMLFile::parseWhere(
 }
 
 /*
-hcal::ConfigurationDatabaseIterator* ConfigurationDatabaseImplXMLFile::query(const std::string& sector, const std::string& draftSelect, const std::string& draftWhere) throw (hcal::exception::ConfigurationDatabaseException) { 
+hcal::ConfigurationDatabaseIterator* ConfigurationDatabaseImplXMLFile::query(const std::string& sector, const std::string& draftSelect, const std::string& draftWhere) noexcept(false) { 
 
   std::map<std::string,std::string> whereMap=parseWhere(draftWhere);
   if (sector=="PATTERN") whereMap["PATTERN_SPEC_NAME"]=whereMap["TAG"];
@@ -144,11 +144,11 @@ hcal::ConfigurationDatabaseIterator* ConfigurationDatabaseImplXMLFile::query(con
 }
 */
 
-unsigned int ConfigurationDatabaseImplXMLFile::getFirmwareChecksum(const std::string& board, unsigned int version) throw (hcal::exception::ConfigurationDatabaseException) {
+unsigned int ConfigurationDatabaseImplXMLFile::getFirmwareChecksum(const std::string& board, unsigned int version) noexcept(false) {
   XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,"Unsupported");
 }
 
-void ConfigurationDatabaseImplXMLFile::getFirmwareMCS(const std::string& board, unsigned int version, std::vector<std::string>& mcsLines) throw (hcal::exception::ConfigurationDatabaseException) {
+void ConfigurationDatabaseImplXMLFile::getFirmwareMCS(const std::string& board, unsigned int version, std::vector<std::string>& mcsLines) noexcept(false) {
 
   std::string key=::toolbox::toString("%s:%x",board.c_str(),version);
 
@@ -165,11 +165,11 @@ void ConfigurationDatabaseImplXMLFile::getFirmwareMCS(const std::string& board, 
 
 }
 
-void ConfigurationDatabaseImplXMLFile::getLUTChecksums(const std::string& tag, std::map<hcal::ConfigurationDatabase::LUTId, hcal::ConfigurationDatabase::MD5Fingerprint>& checksums) throw (hcal::exception::ConfigurationDatabaseException) {
+void ConfigurationDatabaseImplXMLFile::getLUTChecksums(const std::string& tag, std::map<hcal::ConfigurationDatabase::LUTId, hcal::ConfigurationDatabase::MD5Fingerprint>& checksums) noexcept(false) {
   XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,"Unsupported");
 }
 
-void ConfigurationDatabaseImplXMLFile::getLUTs(const std::string& tag, int crate, int slot, std::map<hcal::ConfigurationDatabase::LUTId, hcal::ConfigurationDatabase::LUT >& LUTs) throw (hcal::exception::ConfigurationDatabaseException) {
+void ConfigurationDatabaseImplXMLFile::getLUTs(const std::string& tag, int crate, int slot, std::map<hcal::ConfigurationDatabase::LUTId, hcal::ConfigurationDatabase::LUT >& LUTs) noexcept(false) {
   LUTs.clear();
 
   for (int tb=0; tb<=1; tb++) 
@@ -233,7 +233,7 @@ void ConfigurationDatabaseImplXMLFile::getLUTs(const std::string& tag, int crate
       }
 }
 
-void ConfigurationDatabaseImplXMLFile::getZSThresholds(const std::string& tag, int crate, int slot, std::map<hcal::ConfigurationDatabase::ZSChannelId, int>& thresholds) throw (hcal::exception::ConfigurationDatabaseException) {
+void ConfigurationDatabaseImplXMLFile::getZSThresholds(const std::string& tag, int crate, int slot, std::map<hcal::ConfigurationDatabase::ZSChannelId, int>& thresholds) noexcept(false) {
   thresholds.clear();
   for (int tb=0; tb<=1; tb++) {
 
@@ -265,7 +265,7 @@ void ConfigurationDatabaseImplXMLFile::getZSThresholds(const std::string& tag, i
   }
 }
 
-void ConfigurationDatabaseImplXMLFile::getPatterns(const std::string& tag, int crate, int slot, std::map<hcal::ConfigurationDatabase::PatternId, hcal::ConfigurationDatabase::HTRPattern >& patterns) throw (hcal::exception::ConfigurationDatabaseException) {
+void ConfigurationDatabaseImplXMLFile::getPatterns(const std::string& tag, int crate, int slot, std::map<hcal::ConfigurationDatabase::PatternId, hcal::ConfigurationDatabase::HTRPattern >& patterns) noexcept(false) {
   patterns.clear();
   for (int tb=0; tb<=1; tb++) 
     for (int fiber=1; fiber<=8; fiber++) {

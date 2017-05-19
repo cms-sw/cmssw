@@ -5,7 +5,6 @@ selectedDeDxHarm = {}
 from RecoTracker.DeDx.dedxEstimators_cff import dedxHarmonic2
 dedxDQMHarm2SP = dedxHarmonic2.clone()
 dedxDQMHarm2SP.tracks                     = cms.InputTag("generalTracks")
-dedxDQMHarm2SP.trajectoryTrackAssociation = cms.InputTag("generalTracks")
 dedxDQMHarm2SP.UseStrip = cms.bool(True)
 dedxDQMHarm2SP.UsePixel = cms.bool(True)
 

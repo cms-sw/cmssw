@@ -52,8 +52,8 @@
 
        typedef edm::DetSet<PixelDigi>::const_iterator    DigiIterator;
        
-       virtual void analyze(const edm::Event&, const edm::EventSetup&);
-       virtual void dqmBeginRun(const edm::Run&, edm::EventSetup const&) ;
+       virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+       virtual void dqmBeginRun(const edm::Run&, edm::EventSetup const&) override;
        virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
        virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;

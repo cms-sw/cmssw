@@ -43,10 +43,10 @@ class HLTBTagPerformanceAnalyzer : public DQMEDAnalyzer {
 		public:
 			explicit HLTBTagPerformanceAnalyzer(const edm::ParameterSet&);
 			~HLTBTagPerformanceAnalyzer();
-			void dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
+			void dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) override;
 
 		private:
-			virtual void analyze(const edm::Event&, const edm::EventSetup&);
+			virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 			void bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & iRun,edm::EventSetup const &  iSetup ) override;
 
 		struct JetRefCompare :
@@ -85,6 +85,8 @@ class HLTBTagPerformanceAnalyzer : public DQMEDAnalyzer {
 		// Histogram handler
 		std::vector< std::map<std::string, MonitorElement *> > H1_;
 		std::vector< std::map<std::string, MonitorElement *> > H2_;
+		std::vector< std::map<std::string, MonitorElement *> > H2Eta_;
+		std::vector< std::map<std::string, MonitorElement *> > H2Phi_;
 
 		// Other variables
 		edm::EDConsumerBase::Labels label;

@@ -106,6 +106,7 @@ namespace edm {
     void insertEntryForIndex(unsigned int index);
     std::vector<std::string> const& branchNames() const {return branchNames_;}
     DelayedReader* rootDelayedReader() const;
+    DelayedReader* resetAndGetRootDelayedReader() const;
     template <typename T>
     void fillAux(T*& pAux) {
       auxBranch_->SetAddress(&pAux);

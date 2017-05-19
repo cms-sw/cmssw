@@ -102,7 +102,7 @@ void L1EmulatorErrorFlagClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore:
     }
 }
 
-void L1EmulatorErrorFlagClient::dqmEndLuminosityBlock(DQMStore::IGetter &igetter,
+void L1EmulatorErrorFlagClient::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter &igetter,
         const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& evSetup) {
 
     // reset the summary content values

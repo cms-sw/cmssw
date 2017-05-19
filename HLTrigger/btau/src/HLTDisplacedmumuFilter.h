@@ -15,9 +15,9 @@ class HLTDisplacedmumuFilter : public HLTFilter {
     explicit HLTDisplacedmumuFilter(const edm::ParameterSet&);
     ~HLTDisplacedmumuFilter();
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);	
-    virtual void beginJob() ;
+    virtual void beginJob() override ;
     virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
-    virtual void endJob() ;
+    virtual void endJob() override ;
 
   private:
     bool fastAccept_;

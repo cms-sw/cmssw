@@ -96,7 +96,7 @@ HcalOnlineHarvesting::HcalOnlineHarvesting(edm::ParameterSet const& ps) :
 			hcaldqm::hashfunctions::fdepth,
 			new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
 			new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 		_cKnownBadChannels_depth.book(ib, _emap, _subsystem);
 		for (uintCompactMap::const_iterator it=_xQuality.begin();
 			it!=_xQuality.end(); ++it)
@@ -109,21 +109,23 @@ HcalOnlineHarvesting::HcalOnlineHarvesting(edm::ParameterSet const& ps) :
 
 	int ifed=0;
 	hcaldqm::flag::Flag fTotal("Status", hcaldqm::flag::fNCDAQ);
-	for (std::vector<uint32_t>::const_iterator it=_vhashFEDs.begin();
-		it!=_vhashFEDs.end(); ++it)
-	{
-		HcalElectronicsId eid(*it);
-		hcaldqm::flag::Flag fSum("Status", hcaldqm::flag::fNCDAQ);
-		for (uint32_t im=0; im<_vmarks.size(); im++)
-			if (_vmarks[im])
-			{
-				int x = _vcSummaryvsLS[im].getBinContent(eid, _currentLS);
-				hcaldqm::flag::Flag flag("Status", (hcaldqm::flag::State)x);
-				fSum+=flag;
-			}
-		_reportSummaryMap->setBinContent(_currentLS, ifed+1, int(fSum._state));
-		ifed++;
-		fTotal+=fSum;
+	if (_ptype != fOffline) { // hidefed2crate
+		for (std::vector<uint32_t>::const_iterator it=_vhashFEDs.begin();
+			it!=_vhashFEDs.end(); ++it)
+		{
+			HcalElectronicsId eid(*it);
+			hcaldqm::flag::Flag fSum("Status", hcaldqm::flag::fNCDAQ);
+			for (uint32_t im=0; im<_vmarks.size(); im++)
+				if (_vmarks[im])
+				{
+					int x = _vcSummaryvsLS[im].getBinContent(eid, _currentLS);
+					hcaldqm::flag::Flag flag("Status", (hcaldqm::flag::State)x);
+					fSum+=flag;
+				}
+			_reportSummaryMap->setBinContent(_currentLS, ifed+1, int(fSum._state));
+			ifed++;
+			fTotal+=fSum;
+		}
 	}
 
 	// update the Run Summary

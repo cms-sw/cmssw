@@ -35,6 +35,7 @@ class BenchmarkTree : public TTree {
  public:
   BenchmarkTree( const char* name,
 			const char* title);
+  using TTree::Fill;
   void Fill( const BenchmarkTreeEntry& entry );
   
  private:

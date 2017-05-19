@@ -38,7 +38,7 @@ class QcdPhotonsDQM : public DQMEDAnalyzer {
     edm::Run const &, edm::EventSetup const &) override;
 
   /// Get the analysis
-  void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
  private:
   // ----------member data ---------------------------

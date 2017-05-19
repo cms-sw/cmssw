@@ -10,6 +10,7 @@ void EGamma::clear_extended(){
   footprintEt_ = 0;
   nTT_ = 0;
   shape_ = 0;
+  towerHoE_ = 0;
 }
 
 EGamma::EGamma( const LorentzVector& p4,
@@ -67,6 +68,10 @@ void EGamma::setShape(short int s) {
   shape_ = s;
 }
 
+void EGamma::setTowerHoE(short int HoE) {
+  towerHoE_ = HoE;
+}
+
 short int EGamma::towerIEta() const {
   return towerIEta_;
 }
@@ -93,4 +98,8 @@ short int EGamma::nTT() const {
 
 short int EGamma::shape() const {
   return shape_;
+}
+
+short int EGamma::towerHoE() const {
+  return towerHoE_;
 }

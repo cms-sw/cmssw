@@ -551,7 +551,7 @@ void BPHHistoSpecificDecay::fillDescriptions(
    desc.add<string>(   "buCandsLabel", "" );
    desc.add<string>(   "bdCandsLabel", "" );
    desc.add<string>(   "bsCandsLabel", "" );
-   descriptions.add( "process.bphHistoSpecificDecay", desc );
+   descriptions.add( "bphHistoSpecificDecay", desc );
    return;
 }
 
