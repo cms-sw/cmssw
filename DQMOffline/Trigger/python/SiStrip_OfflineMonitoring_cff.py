@@ -151,7 +151,6 @@ HLTSiStripMonitorTrack.Cluster_src       = cms.InputTag('hltSiStripRawToClusters
 HLTSiStripMonitorTrack.Trend_On          = cms.bool(True)
 HLTSiStripMonitorTrack.TopFolderName     = cms.string('HLT/SiStrip')
 HLTSiStripMonitorTrack.Mod_On            = cms.bool(False)
-HLTSiStripMonitorTrack.Digi_On           = cms.bool(False)
 sistripMonitorHLTsequence = cms.Sequence(
     HLTSiStripMonitorCluster
     * hltTrackRefitterForSiStripMonitorTrack
