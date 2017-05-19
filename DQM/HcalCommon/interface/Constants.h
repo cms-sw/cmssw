@@ -41,8 +41,21 @@ namespace hcaldqm
 			{29, 1120},
 			{32, 1122},
 			{38, 1134},
+			{3, 724},
+			{7, 726},
+			{6, 728},
+			{13, 730},
 		};
+
 		std::map<unsigned int, unsigned int> const fed2crate_map = {
+			{724, 3},
+			{725, 3},
+			{726, 7},
+			{727, 7},
+			{728, 6},
+			{729, 6},
+			{730, 13},
+			{731, 13},
 			{1100, 24},
 			{1101, 24},
 			{1102, 20},
@@ -70,6 +83,14 @@ namespace hcaldqm
 			{1134, 38},
 			{1135, 38},	
 		};
+
+		std::vector<unsigned int> const fedList = {724,725,726,727,728,729,730,731,1100,1101,1102,1103,1104,1105,1106,1107,1108,1109,1110,1111,1112,1113,1114,1115,1116,1117,1118,1119,1120,1121,1122,1123,1134,1135};
+		std::vector<unsigned int> const fedListuTCA = {1100,1101,1102,1103,1104,1105,1106,1107,1108,1109,1110,1111,1112,1113,1114,1115,1116,1117,1118,1119,1120,1121,1122,1123,1134,1135};
+		std::vector<unsigned int> const fedListVME = {724,725,726,727,728,729,730,731};
+		std::vector<unsigned int> const crateList = {3,6,7,13,20,21,22,24,25,29,30,31,32,34,35,37,38};
+		std::vector<unsigned int> const crateListuTCA = {20,21,22,24,25,29,30,31,32,34,35,37,38};
+		std::vector<unsigned int> const crateListVME = {3,6,7,13};
+
 		int const FED_uTCA_MAX_REAL = 50;
 
 		//	FEDs use the first 50 uTCA FED numbers only everywhere
