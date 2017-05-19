@@ -46,7 +46,6 @@ private:
   double timeJitter_;
   double averageNoiseRate_;
   double signalPropagationSpeed_;
-  bool cosmics_;
   int bxwidth_;
   int minBunch_;
   int maxBunch_;
@@ -56,24 +55,25 @@ private:
   bool fixedRollRadius_;
   bool simulateIntrinsicNoise_;
   bool simulateElectronBkg_;
-  //params for pol3 model of electron bkg for GE1/1 and GE2/1:
-  double GE11ElecBkgParam0;
-  double GE11ElecBkgParam1;
-  double GE11ElecBkgParam2;
-  double GE21ElecBkgParam0;
-  double GE21ElecBkgParam1;
-  double GE21ElecBkgParam2;
-  //params for pol3 model of neutral bkg for GE1/1 and GE2/1:
-  double GE11ModNeuBkgParam0;
-  double GE11ModNeuBkgParam1;
-  double GE11ModNeuBkgParam2;
-  double GE21ModNeuBkgParam0;
-  double GE21ModNeuBkgParam1;
-  double GE21ModNeuBkgParam2;
-    
   double instLumi_;
   double rateFact_;
   const double referenceInstLumi_; 
+
+  //params for pol3 model of electron bkg for GE1/1 and GE2/1:
+  double GE11ElecBkgParam0_;
+  double GE11ElecBkgParam1_;
+  double GE11ElecBkgParam2_;
+  double GE21ElecBkgParam0_;
+  double GE21ElecBkgParam1_;
+  double GE21ElecBkgParam2_;
+  //params for pol3 model of neutral bkg for GE1/1 and GE2/1:
+  double GE11ModNeuBkgParam0_;
+  double GE11ModNeuBkgParam1_;
+  double GE11ModNeuBkgParam2_;
+  double GE21ModNeuBkgParam0_;
+  double GE21ModNeuBkgParam1_;
+  double GE21ModNeuBkgParam2_;
+    
 };
 #endif
 

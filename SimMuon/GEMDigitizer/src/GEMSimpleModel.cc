@@ -9,13 +9,6 @@
 #include <cmath>
 #include <utility>
 #include <map>
-#include "TMath.h"       /* exp */
-
-namespace
-{
-  // "magic" parameter for cosmics
-  const double COSMIC_PAR(37.62);
-}
 
 GEMSimpleModel::GEMSimpleModel(const edm::ParameterSet& config) :
 GEMDigiModel(config)
@@ -25,7 +18,6 @@ GEMDigiModel(config)
 , timeJitter_(config.getParameter<double> ("timeJitter"))
 , averageNoiseRate_(config.getParameter<double> ("averageNoiseRate"))
 , signalPropagationSpeed_(config.getParameter<double> ("signalPropagationSpeed"))
-, cosmics_(config.getParameter<bool> ("cosmics"))
 , bxwidth_(config.getParameter<int> ("bxwidth"))
 , minBunch_(config.getParameter<int> ("minBunch"))
 , maxBunch_(config.getParameter<int> ("maxBunch"))
@@ -37,26 +29,19 @@ GEMDigiModel(config)
 , instLumi_(config.getParameter<double>("instLumi"))
 , rateFact_(config.getParameter<double>("rateFact"))
 , referenceInstLumi_(config.getParameter<double>("referenceInstLumi"))
+, GE11ElecBkgParam0_(config.getParameter<double>("GE11ElecBkgParam0"))
+, GE11ElecBkgParam1_(config.getParameter<double>("GE11ElecBkgParam1"))
+, GE11ElecBkgParam2_(config.getParameter<double>("GE11ElecBkgParam2"))
+, GE21ElecBkgParam0_(config.getParameter<double>("GE21ElecBkgParam0"))
+, GE21ElecBkgParam1_(config.getParameter<double>("GE21ElecBkgParam1"))
+, GE21ElecBkgParam2_(config.getParameter<double>("GE21ElecBkgParam2"))
+, GE11ModNeuBkgParam0_(config.getParameter<double>("GE11ModNeuBkgParam0"))
+, GE11ModNeuBkgParam1_(config.getParameter<double>("GE11ModNeuBkgParam1"))
+, GE11ModNeuBkgParam2_(config.getParameter<double>("GE11ModNeuBkgParam2"))
+, GE21ModNeuBkgParam0_(config.getParameter<double>("GE11ModNeuBkgParam0"))
+, GE21ModNeuBkgParam1_(config.getParameter<double>("GE11ModNeuBkgParam1"))
+, GE21ModNeuBkgParam2_(config.getParameter<double>("GE11ModNeuBkgParam2"))
 {
-  //Electron Rate: model L=5x10^{34}cm^{-2}s^{-1}
-  //params for pol3 model of electron bkg for GE1/1:
-  GE11ElecBkgParam0 = 406.249;
-  GE11ElecBkgParam1 = -2.90939;
-  GE11ElecBkgParam2 = 0.00548191;
-  //params for pol3 model of electron bkg for GE2/1:
-  GE21ElecBkgParam0 = 97.0505;
-  GE21ElecBkgParam1 = -0.452612;
-  GE21ElecBkgParam2 = 0.000550599;
-  
-  //Neutral Rate: model L=5x10^{34}cm^{-2}s^{-1}
-  //params for pol3 model of neutral bkg for GE1/1:
-  GE11ModNeuBkgParam0 = 5710.23;
-  GE11ModNeuBkgParam1 = -43.3928;
-  GE11ModNeuBkgParam2 = 0.0863681;
-  //params for pol3 model of neutral bkg for GE2/1:
-  GE21ModNeuBkgParam0 = 1440.44;
-  GE21ModNeuBkgParam1 = -7.48607;
-  GE21ModNeuBkgParam2 = 0.0103078;
 }
 
 GEMSimpleModel::~GEMSimpleModel()
@@ -90,7 +75,7 @@ void GEMSimpleModel::simulateSignal(const GEMEtaPartition* roll, const edm::PSim
     if (std::abs(hit.particleType()) != 13) //consider all non muon particles with gem efficiency to electrons
     {
       if (partMom <= 1.95e-03)
-        elecEff = 1.7e-05 * TMath::Exp(2.1 * partMom * 1000.);
+        elecEff = 1.7e-05 * std::exp(2.1 * partMom * 1000.);
       if (partMom > 1.95e-03 && partMom < 10.e-03)
         elecEff = 1.34 * log(7.96e-01 * partMom * 1000. - 5.75e-01)
             / (1.34 + log(7.96e-01 * partMom * 1000. - 5.75e-01));
@@ -151,7 +136,7 @@ int GEMSimpleModel::getSimHitBx(const PSimHit* simhit, CLHEP::HepRandomEngine* e
   const float simhitTime(tof + averageShapingTime_ + randomResolutionTime + averagePropagationTime + randomJitterTime);
   float referenceTime = 0.;
   referenceTime = timeCalibrationOffset_ + halfStripLength / signalPropagationSpeedTrue + averageShapingTime_;
-  const float timeDifference(cosmics_ ? (simhitTime - referenceTime) / COSMIC_PAR : simhitTime - referenceTime);
+  const float timeDifference(simhitTime - referenceTime);
   // assign the bunch crossing
   bx = static_cast<int> (std::round((timeDifference) / bxwidth_));
 
@@ -194,13 +179,13 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll, CLHEP::HepRandom
   if (gemId.station() == 1)
   {
     //simulate neutral background for GE1/1
-    averageNeutralNoiseRatePerRoll = (GE11ModNeuBkgParam0
-				      + GE11ModNeuBkgParam1 * rollRadius
-				      + GE11ModNeuBkgParam2 * rollRadius * rollRadius);    //simulate electron background for GE1/1
+    averageNeutralNoiseRatePerRoll = (GE11ModNeuBkgParam0_
+				      + GE11ModNeuBkgParam1_ * rollRadius
+				      + GE11ModNeuBkgParam2_ * rollRadius * rollRadius);    //simulate electron background for GE1/1
     if (simulateElectronBkg_)
-      averageNoiseElectronRatePerRoll = (GE11ElecBkgParam0
-					 + GE11ElecBkgParam1 * rollRadius
-					 + GE11ElecBkgParam2 * rollRadius * rollRadius);
+      averageNoiseElectronRatePerRoll = (GE11ElecBkgParam0_
+					 + GE11ElecBkgParam1_ * rollRadius
+					 + GE11ElecBkgParam2_ * rollRadius * rollRadius);
 
     // Scale up/down for desired instantaneous lumi (reference is 5E34, double from config is in units of 1E34)
     averageNoiseRatePerRoll = averageNeutralNoiseRatePerRoll + averageNoiseElectronRatePerRoll;
@@ -209,14 +194,14 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll, CLHEP::HepRandom
   if (gemId.station() == 2)
   {
     //simulate neutral background for GE2/1
-    averageNeutralNoiseRatePerRoll = (GE21ModNeuBkgParam0
-				      + GE21ModNeuBkgParam1 * rollRadius
-				      + GE21ModNeuBkgParam2 * rollRadius * rollRadius);
+    averageNeutralNoiseRatePerRoll = (GE21ModNeuBkgParam0_
+				      + GE21ModNeuBkgParam1_ * rollRadius
+				      + GE21ModNeuBkgParam2_ * rollRadius * rollRadius);
     //simulate electron background for GE2/1
     if (simulateElectronBkg_)
-      averageNoiseElectronRatePerRoll = (GE21ElecBkgParam0
-					 + GE21ElecBkgParam1 * rollRadius
-					 + GE21ElecBkgParam2 * rollRadius * rollRadius);
+      averageNoiseElectronRatePerRoll = (GE21ElecBkgParam0_
+					 + GE21ElecBkgParam1_ * rollRadius
+					 + GE21ElecBkgParam2_ * rollRadius * rollRadius);
 
     // Scale up/down for desired instantaneous lumi (reference is 5E34, double from config is in units of 1E34)
     averageNoiseRatePerRoll = averageNeutralNoiseRatePerRoll + averageNoiseElectronRatePerRoll;
