@@ -170,6 +170,7 @@ def customiseFor18832(process):
     for producer in producers_by_type(process, "FastjetJetProducer"):
         if hasattr(producer, "doOutputJets"): del producer.doOutputJets
         if hasattr(producer, "sumRecHits"): del producer.sumRecHits
+        if hasattr(producer, "puCenters"): del producer.puCenters
     return process
 
 # CMSSW version specific customizations

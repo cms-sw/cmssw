@@ -228,8 +228,6 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig) {
 		fjRangeDef_ = RangeDefPtr( new fastjet::RangeDefinition(rhoEtaMax) );
 	} 
 
-	if( doFastJetNonUniform_ ) puCenters_ = iConfig.getParameter<vector<double> >("puCenters"); 	/// where is this used? 
-
 	// make the "produces" statements
 	makeProduces( moduleLabel_, jetCollInstanceName_ );
 	produces<vector<double> >("rhos");

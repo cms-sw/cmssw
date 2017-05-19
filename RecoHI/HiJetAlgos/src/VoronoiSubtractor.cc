@@ -186,4 +186,13 @@ void VoronoiSubtractor::calculateOrphanInput(vector<fastjet::PseudoJet> & orphan
    LogDebug("VoronoiSubtractor")<<"do nothing...\n";
 }
 
+// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
+void PileUpSubtractor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
+	edm::ParameterSetDescription desc;
+	desc.add<bool> ("dropZeros", 	false);
+	desc.add<bool> ("addNegative", 	false);
+	desc.add<bool> ("addNegativesFromCone", 	false);
+	desc.add<double> ("infinitesimalPt", 0.005);
+	descriptions.addDefault(desc);
+}
