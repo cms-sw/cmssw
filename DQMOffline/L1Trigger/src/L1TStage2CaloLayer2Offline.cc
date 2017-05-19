@@ -38,7 +38,9 @@ L1TStage2CaloLayer2Offline::L1TStage2CaloLayer2Offline(const edm::ParameterSet& 
         metEfficiencyBins_(ps.getParameter < std::vector<double> > ("metEfficiencyBins")),
         mhtEfficiencyBins_(ps.getParameter < std::vector<double> > ("mhtEfficiencyBins")),
         ettEfficiencyBins_(ps.getParameter < std::vector<double> > ("ettEfficiencyBins")),
-        httEfficiencyBins_(ps.getParameter < std::vector<double> > ("httEfficiencyBins"))
+        httEfficiencyBins_(ps.getParameter < std::vector<double> > ("httEfficiencyBins")),
+        h_energySum_controlPlots_(),
+        h_jets_controlPlots_()
 {
   edm::LogInfo("L1TStage2CaloLayer2Offline") << "Constructor "
       << "L1TStage2CaloLayer2Offline::L1TStage2CaloLayer2Offline " << std::endl;
@@ -191,6 +193,16 @@ void L1TStage2CaloLayer2Offline::fillEnergySums(edm::Event const& e, const unsig
   double resolutionHTT = recoHTT > 0 ? (l1HTT - recoHTT) / recoHTT : outOfBounds;
 
   using namespace dqmoffline::l1t;
+  // control plots
+  fillWithinLimits(h_energySum_controlPlots_["L1MET"], l1MET);
+  fillWithinLimits(h_energySum_controlPlots_["L1MHT"], l1MHT);
+  fillWithinLimits(h_energySum_controlPlots_["L1ETT"], l1ETT);
+  fillWithinLimits(h_energySum_controlPlots_["L1HTT"], l1HTT);
+  fillWithinLimits(h_energySum_controlPlots_["OfflineMET"], recoMET);
+  fillWithinLimits(h_energySum_controlPlots_["OfflineMHT"], recoMHT);
+  fillWithinLimits(h_energySum_controlPlots_["OfflineETT"], recoETT);
+  fillWithinLimits(h_energySum_controlPlots_["OfflineHTT"], recoHTT);
+
   fill2DWithinLimits(h_L1METvsCaloMET_, recoMET, l1MET);
   fill2DWithinLimits(h_L1MHTvsRecoMHT_, recoMHT, l1MHT);
   fill2DWithinLimits(h_L1METTvsCaloETT_, recoETT, l1ETT);
@@ -306,6 +318,9 @@ void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned in
   // eta
   fill2DWithinLimits(h_L1JetEtavsCaloJetEta_, recoEta, l1Eta);
   fillWithinLimits(h_resolutionJetEta_, resolutionEta);
+  // control plots
+  fillWithinLimits(h_jets_controlPlots_["L1JetET"], l1Et);
+  fillWithinLimits(h_jets_controlPlots_["OfflineJetET"], recoEt);
 
   if (std::abs(recoEta) <= 1.479) { // barrel
     // et
@@ -406,6 +421,22 @@ void L1TStage2CaloLayer2Offline::bookEnergySumHistos(DQMStore::IBooker & ibooker
 
   h_nVertex_ = ibooker.book1D("nVertex", "Number of event vertices in collection", 40, -0.5, 39.5);
 
+  // energy sums control plots (monitor beyond the limits of the 2D histograms)
+  h_energySum_controlPlots_["L1MET"] = ibooker.book1D("L1MET", "L1 E_{T}^{miss}; L1 E_{T}^{miss} (GeV); events", 500,
+      -0.5, 4999.5);
+  h_energySum_controlPlots_["L1MHT"] = ibooker.book1D("L1MHT", "L1 MHT; L1 MHT (GeV); events", 500, -0.5, 4999.5);
+  h_energySum_controlPlots_["L1ETT"] = ibooker.book1D("L1ETT", "L1 ETT; L1 ETT (GeV); events", 500, -0.5, 4999.5);
+  h_energySum_controlPlots_["L1HTT"] = ibooker.book1D("L1HTT", "L1 HTT; L1 HTT (GeV); events", 500, -0.5, 4999.5);
+
+  h_energySum_controlPlots_["OfflineMET"] = ibooker.book1D("OfflineMET",
+      "Offline E_{T}^{miss}; Offline E_{T}^{miss} (GeV); events", 500, -0.5, 4999.5);
+  h_energySum_controlPlots_["OfflineMHT"] = ibooker.book1D("OfflineMHT", "Offline MHT; Offline MHT (GeV); events", 500,
+      -0.5, 4999.5);
+  h_energySum_controlPlots_["OfflineETT"] = ibooker.book1D("OfflineETT", "Offline ETT; Offline ETT (GeV); events", 500,
+      -0.5, 4999.5);
+  h_energySum_controlPlots_["OfflineHTT"] = ibooker.book1D("OfflineHTT", "Offline HTT; Offline HTT (GeV); events", 500,
+      -0.5, 4999.5);
+
   // energy sums reco vs L1
   h_L1METvsCaloMET_ = ibooker.book2D("L1METvsCaloMET",
       "L1 E_{T}^{miss} vs Offline E_{T}^{miss};Offline E_{T}^{miss} (GeV);L1 E_{T}^{miss} (GeV)", 500, -0.5, 499.5, 500,
@@ -485,6 +516,10 @@ void L1TStage2CaloLayer2Offline::bookJetHistos(DQMStore::IBooker & ibooker)
 {
   ibooker.cd();
   ibooker.setCurrentFolder(histFolder_.c_str());
+  // jets control plots (monitor beyond the limits of the 2D histograms)
+  h_jets_controlPlots_["L1JetET"] = ibooker.book1D("L1JetET", "L1 Jet E_{T}; L1 Jet E_{T} (GeV); events", 500, 0, 5e3);
+  h_jets_controlPlots_["OfflineJetET"] = ibooker.book1D("OfflineJetET",
+      "Offline Jet E_{T}; Offline Jet E_{T} (GeV); events", 500, 0, 5e3);
   // jet reco vs L1
   h_L1JetETvsCaloJetET_HB_ = ibooker.book2D("L1JetETvsCaloJetET_HB",
       "L1 Jet E_{T} vs Offline Jet E_{T} (HB); Offline Jet E_{T} (GeV); L1 Jet E_{T} (GeV)", 300, 0, 300, 300, 0, 300);

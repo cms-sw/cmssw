@@ -111,6 +111,9 @@ private:
   // Histograms
   MonitorElement* h_nVertex_;
 
+  // energy sums control plots
+  std::map<std::string, MonitorElement*> h_energySum_controlPlots_;
+
   // energy sums reco vs L1
   MonitorElement* h_L1METvsCaloMET_;
   MonitorElement* h_L1MHTvsRecoMHT_;
@@ -138,6 +141,9 @@ private:
   std::map<double, MonitorElement*> h_efficiencyMHT_total_;
   std::map<double, MonitorElement*> h_efficiencyETT_total_;
   std::map<double, MonitorElement*> h_efficiencyHTT_total_;
+
+  // jets control plots
+  std::map<std::string, MonitorElement*> h_jets_controlPlots_;
 
   // jet reco vs L1
   MonitorElement* h_L1JetETvsCaloJetET_HB_;
