@@ -40,15 +40,17 @@ calib_parValues = cms.PSet( cellLSB =  cms.double( triggerCellLsbBeforeCompressi
                              fCperMIPfh = fCperMIPfh,
                              dEdXweights = layerWeights,
                              thickCorr = thicknessCorrection
-                             )
+                            )
 C2d_parValues = cms.PSet( seeding_threshold = cms.double(5), # MipT
                           clustering_threshold = cms.double(2), # MipT
                           dR_cluster = cms.double(3.), # in cm
                           clusterType = cms.string('NNC2d') # clustering type: dRC2d--> Geometric-dR clustering; NNC2d-->Nearest Neighbors clustering
-                         )
+                          )
 
-C3d_parValues = cms.PSet( dR_multicluster = cms.double(0.01) )
-
+C3d_parValues = cms.PSet( dR_multicluster = cms.double(0.01), # dR in normalized plane used to clusterize C2d
+                          minPt_multicluster = cms.double(0.0), # minimum pt of the multicluster
+                          calibSF_multicluster = cms.double(1.084)
+                          )
 cluster_algo =  cms.PSet( AlgorithmName = cms.string('HGCClusterAlgoThreshold'),
                           FECodec = fe_codec.clone(),
                           HGCalEESensitive_tag = cms.string('HGCalEESensitive'),

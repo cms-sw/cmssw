@@ -22,7 +22,8 @@ public:
 private:
     
     double dr_;
-
+    double ptC3dThreshold_;
+    double calibSF_;
 };
 
 #endif
