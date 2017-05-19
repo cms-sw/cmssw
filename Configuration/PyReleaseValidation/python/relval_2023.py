@@ -13,11 +13,11 @@ from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgra
 #just define all of them
 
 #2023 WFs to run in IB (TTbar, TTbar+Timing)
-numWFIB = [20034.0,20034.2] #2023D10
-numWFIB.extend([20434.0,20434.2]) #2023D11
-numWFIB.extend([20434.1]) #2023D11 special tracking workflow
-numWFIB.extend([21234.0,21234.2]) #2023D14
-numWFIB.extend([23234.0,23234.2]) #2023D16
-numWFIB.extend([23634.0,23634.2]) #2023D17
+numWFIB = [20434.0,20434.2] #2023D10
+numWFIB.extend([24034.0,24034.2]) #2023D11
+numWFIB.extend([24034.1]) #2023D11 special tracking workflow
+numWFIB.extend([26234.0,26234.2]) #2023D14
+numWFIB.extend([27034.0,27034.2]) #2023D16
+numWFIB.extend([27434.0,27434.2]) #2023D17
 for numWF in numWFIB:
     workflows[numWF] = _upgrade_workflows[numWF]
