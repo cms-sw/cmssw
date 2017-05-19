@@ -18,6 +18,8 @@ upgradeKeys[2017] = [
 upgradeKeys[2023] = [
     '2023D10',
     '2023D10PU',    
+    '2023D18',
+    '2023D18PU',
     '2023D11',
     '2023D11PU',
     '2023D14',
@@ -26,17 +28,19 @@ upgradeKeys[2023] = [
     '2023D16PU',
     '2023D17',
     '2023D17PU',
+    '2023D18',
+    '2023D18PU'
 ]
 
 # pre-generation of WF numbers
 numWFStart={
     2017: 10000,
-    2023: 20000,
+    2023: 20400,#GB: since the WF numbers are appended from this and I want to skip this one I increased this number to the new actual one 
 }
 numWFSkip=200
 # first two sets are the former D3 WF (now removed as redundant)
 # temporary measure to keep other WF numbers the same
-numWFConflict = [[11000,11200],[11400,11600],[20800,21200],[21600,23200],[25000,26000],[50000,51000]]
+numWFConflict = [[11000,11200],[11400,19800],[20000,20400],[20800,24000],[24400,26200],[26600,27000],[50000,51000]]
 numWFAll={
     2017: [numWFStart[2017]],
     2023: [numWFStart[2023]]
@@ -45,8 +49,10 @@ numWFAll={
 for year in upgradeKeys:
     for i in range(1,len(upgradeKeys[year])):
         numWFtmp = numWFAll[year][i-1] + numWFSkip
+	print numWFAll[year][i-1]
+	print numWFtmp
         for conflict in numWFConflict:
-            if numWFtmp>=conflict[0] and numWFtmp<conflict[1]:
+	    if numWFtmp>=conflict[0] and numWFtmp<conflict[1]:
                 numWFtmp = conflict[1]
                 break
         numWFAll[year].append(numWFtmp)
@@ -166,6 +172,13 @@ upgradeProperties[2023] = {
         'Era' : 'Phase2C1',
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal','HARVESTFullGlobal'],
     },
+    '2023D18' : {
+        'Geom' : 'Extended2023D18',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic',
+        'Era' : 'Phase2C2_timing_layer',
+        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFull','RecoFullGlobal', 'HARVESTFullGlobal'],
+    },
     '2023D9' : {
         'Geom' : 'Extended2023D9',
         'GT' : 'auto:phase2_realistic',
@@ -208,6 +221,8 @@ upgradeProperties[2023] = {
 #standard PU sequences
 upgradeProperties[2023]['2023D10PU'] = deepcopy(upgradeProperties[2023]['2023D10'])
 upgradeProperties[2023]['2023D10PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
+upgradeProperties[2023]['2023D18PU'] = deepcopy(upgradeProperties[2023]['2023D18'])
+upgradeProperties[2023]['2023D18PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
 upgradeProperties[2023]['2023D11PU'] = deepcopy(upgradeProperties[2023]['2023D11'])
 upgradeProperties[2023]['2023D11PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
 upgradeProperties[2023]['2023D14PU'] = deepcopy(upgradeProperties[2023]['2023D14'])
@@ -216,6 +231,8 @@ upgradeProperties[2023]['2023D16PU'] = deepcopy(upgradeProperties[2023]['2023D16
 upgradeProperties[2023]['2023D16PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
 upgradeProperties[2023]['2023D17PU'] = deepcopy(upgradeProperties[2023]['2023D17'])
 upgradeProperties[2023]['2023D17PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
+upgradeProperties[2023]['2023D18PU'] = deepcopy(upgradeProperties[2023]['2023D18'])
+upgradeProperties[2023]['2023D18PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
 
 
 
