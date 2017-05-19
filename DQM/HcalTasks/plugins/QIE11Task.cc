@@ -153,7 +153,6 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 	for (int iChan = 0; iChan < 4; ++iChan) {
 		char aux[100];
 		sprintf(aux, "/IEta%d_IPhi%d", timingChannels[iChan].first, timingChannels[iChan].second);
-		std::cout << "[debug] aux = " << aux << std::endl;
 		_cTimingRatio_vs_LS[iChan].book(ib, _emap, _filter_timingChannels[iChan], _subsystem, aux);
 		_cTDCTime_vs_LS[iChan].book(ib, _emap, _filter_timingChannels[iChan], _subsystem, aux);
 	}
