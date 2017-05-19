@@ -48,6 +48,7 @@ namespace edm {
     , purge_mode (false)						// changeLog 32
     , count (false)							// changeLog 32
     , m_messageBeingSent(false)
+    , m_waitingThreshold(100)
     {
     }
     
@@ -223,8 +224,10 @@ namespace edm {
         }
         m_messageBeingSent.store(false);
       } else {
-        obj.release();
-        m_waitingMessages.push(errorobj_p);
+        if(m_waitingMessages.unsafe_size() < m_waitingThreshold) {
+          obj.release();
+          m_waitingMessages.push(errorobj_p);
+        }
       }
     }
     
@@ -253,6 +256,9 @@ namespace edm {
         << "The message logger has been configured multiple times";
         clean_slate_configuration = false;				// Change Log 22
       }
+      m_waitingThreshold = getAparameter<unsigned int>(*job_pset_p,
+                                                      "waiting_threshold",
+                                                      100);
       configure_ordinary_destinations();				// Change Log 16
       configure_statistics();					// Change Log 16
       
