@@ -6,41 +6,106 @@ namespace hcaldqm
 	{
 		int getValue_FED(HcalElectronicsId const& eid)
 		{
-			int v = 0;
-			if (eid.isVMEid())
-				v = eid.dccid();
-			else
-			  v = utilities::crate2fed(eid.crateId(),eid.slot())-FED_uTCA_MIN + 
-					constants::FED_VME_NUM;
-			return v;
+			//int v = 0;
+			//if (eid.isVMEid())
+			//	v = eid.dccid();
+			//else
+			//  v = utilities::crate2fed(eid.crateId(),eid.slot())-FED_uTCA_MIN + 
+			//		constants::FED_VME_NUM;
+			//return v;
+			unsigned int fed = utilities::crate2fed(eid.crateId(), eid.slot());
+			int index = -1;
+			auto it = fedList.begin();
+			for (; it != fedList.end(); ++it) {
+				if (*it == fed) {
+					index = std::distance(fedList.begin(), it);
+					break;
+				}
+			}
+			return index;
 		}
 
 		int getValue_FEDuTCA(HcalElectronicsId const& eid)
 		{
-		  return utilities::crate2fed(eid.crateId(),eid.slot())-FED_uTCA_MIN;
+		  //return utilities::crate2fed(eid.crateId(),eid.slot());
+			unsigned int fed = utilities::crate2fed(eid.crateId(), eid.slot());
+			int index = -1;
+			auto it = fedListuTCA.begin();
+			for (; it != fedListuTCA.end(); ++it) {
+				if (*it == fed) {
+					index = std::distance(fedListuTCA.begin(), it);
+					break;
+				}
+			}
+			return index;
+
 		}
 
 		int getValue_FEDVME(HcalElectronicsId const& eid)
 		{
-			return eid.dccid();
+			//return eid.dccid();
+			//return utilities::crate2fed(eid.crateId(),eid.slot());
+			unsigned int fed = utilities::crate2fed(eid.crateId(), eid.slot());
+			int index = -1;
+			auto it = fedListVME.begin();
+			for (; it != fedListVME.end(); ++it) {
+				if (*it == fed) {
+					index = std::distance(fedListVME.begin(), it);
+					break;
+				}
+			}
+			return index;
+			
 		}
 
 		int getValue_Crate(HcalElectronicsId const& eid)
 		{
-			int c = eid.crateId();
-			if (eid.isUTCAid())
-				c = CRATE_VME_NUM + eid.crateId()-CRATE_uTCA_MIN;
-			return c;
+			//int c = eid.crateId();
+			//if (eid.isUTCAid())
+			//	c = CRATE_VME_NUM + eid.crateId()-CRATE_uTCA_MIN;
+			//return c;
+			unsigned int crate = eid.crateId();
+			int index = -1;
+			auto it = crateList.begin();
+			for (; it != crateList.end(); ++it) {
+				if (*it == crate) {
+					index = std::distance(crateList.begin(), it);
+					break;
+				}
+			}
+			return index;
 		}
 
 		int getValue_CrateuTCA(HcalElectronicsId const& eid)
 		{
-			return eid.crateId()-CRATE_uTCA_MIN;
+			//return eid.crateId()-CRATE_uTCA_MIN;
+			//return eid.crateId();
+			unsigned int crate = eid.crateId();
+			int index = -1;
+			auto it = crateListuTCA.begin();
+			for (; it != crateListuTCA.end(); ++it) {
+				if (*it == crate) {
+					index = std::distance(crateListuTCA.begin(), it);
+					break;
+				}
+			}
+			return index;
 		}
 
 		int getValue_CrateVME(HcalElectronicsId const& eid)
 		{
-			return eid.crateId();
+			//return eid.crateId();
+			unsigned int crate = eid.crateId();
+			int index = -1;
+			auto it = crateListVME.begin();
+			for (; it != crateListVME.end(); ++it) {
+				if (*it == crate) {
+					index = std::distance(crateListVME.begin(), it);
+					break;
+				}
+			}
+			return index;
+			
 		}
 
 		int getValue_SlotuTCA(HcalElectronicsId const& eid)

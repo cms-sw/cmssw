@@ -17,7 +17,12 @@ namespace hcaldqm
 		{
 
             //  uTCA Crate is split in half
-            uint16_t slot = fed%2==0 ? SLOT_uTCA_MIN : SLOT_uTCA_MIN+6;
+            uint16_t slot = 0;
+            if (fed <= FED_VME_MAX) {
+            	slot = fed%2==0 ? SLOT_uTCA_MIN : SLOT_uTCA_MIN+6;
+            } else {
+            	slot = fed%2==0 ? SLOT_uTCA_MIN : SLOT_uTCA_MIN+6;
+            }
             std::pair<uint16_t, uint16_t> crate_slot = std::make_pair<uint16_t, uint16_t>(0,0);
             if (constants::fed2crate_map.find(fed) != constants::fed2crate_map.end()) {
             	crate_slot = std::make_pair<uint16_t const, uint16_t const>((uint16_t const)constants::fed2crate_map.at(fed),
@@ -32,8 +37,14 @@ namespace hcaldqm
 			int fed = 0;
 			if (constants::crate2fed_map.find(crate) != constants::crate2fed_map.end()) {
 				fed = constants::crate2fed_map.at(crate);
-				if (slot > 6 && (20 <= crate && crate <= 37))  //needed to handle dual fed readout
-				  ++fed;
+				if (fed <= FED_VME_MAX && fed > 0) {
+					if (slot > 10 && (crate==3 || crate==6 || crate==7)) {
+						++fed;
+					}
+				} else {
+					if (slot > 6 && (20 <= crate && crate <= 37))  //needed to handle dual fed readout
+				  		++fed;
+				  }
 			}
 			return fed;
 		}
@@ -162,16 +173,9 @@ namespace hcaldqm
 
 		bool isFEDHBHE(HcalElectronicsId const& eid)
 		{
-			if (eid.isVMEid())
-			{
-				int fed = eid.dccid()+FED_VME_MIN;	
-				if (fed>=700 && fed<=717)
-					return true;
-				else
-					return false;
-			}
-			else
-			{
+			if (eid.isVMEid()) {
+				return false;
+			} else {
 			  int fed = crate2fed(eid.crateId(),eid.slot());
 				if (fed>=1100 && fed<1118)
 					return true;
