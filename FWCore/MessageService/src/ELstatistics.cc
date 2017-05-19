@@ -406,14 +406,6 @@ ELstring  ELstatistics::formSummary( ELmap_stats & stats )  {
 }  // formSummary()
 
 
-void  ELstatistics::summary( ELdestControl & dest, const ELstring & title )  {
-
-  dest.summarization( title, formSummary(stats) );
-  updatedStats = false;
-
-}  // summary()
-
-
 void  ELstatistics::summary( std::ostream & os, const ELstring & title )  {
 
   os << title << std::endl << formSummary(stats) << std::flush;
@@ -429,15 +421,6 @@ void  ELstatistics::summary( )  {
   updatedStats = false;
 
 }  // summary()
-
-
-void  ELstatistics::summary( ELstring & s, const ELstring & title )  {
-
-  s = title + '\n' + formSummary(stats);
-  updatedStats = false;
-
-}  // summary()
-
 
 void  ELstatistics::noTerminationSummary()  { printAtTermination = false; }
 

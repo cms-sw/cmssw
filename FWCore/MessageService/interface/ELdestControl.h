@@ -98,9 +98,6 @@ public:
 
   // -----  Active methods invoked by the framework:
   //
-  void summary( ELdestControl & dest, const char * title="" );
-  void summary( std::ostream  & os  , const char * title="" );
-  void summary( ELstring      & s   , const char * title="" );
   void summary( );
   void summaryForJobReport( std::map<std::string, double> & sm);
 
