@@ -535,6 +535,8 @@ void FastjetJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
 	descFastjetJetProducer.add<unsigned int>("maxProblematicHcalCells",	9999999 );
 	descFastjetJetProducer.add<unsigned int>("maxRecoveredEcalCells",	9999999 );
 	descFastjetJetProducer.add<unsigned int>("maxRecoveredHcalCells",	9999999 );
+	vector<double>  puCentersDefault;
+	descFastjetJetProducer.add<vector<double>>("puCenters", 	puCentersDefault);
 	///// From PileUpSubstractor
 	descFastjetJetProducer.add<double> ("puPtMin", 	10.);
 	descFastjetJetProducer.add<double> ("nSigmaPU", 	1.);
