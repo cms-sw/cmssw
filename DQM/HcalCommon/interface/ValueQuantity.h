@@ -213,7 +213,7 @@ namespace hcaldqm
 			{ffC_generic_10000,10000},
 			{ffC_generic_400000,400000},	
 			{fDualAnodeAsymmetry,1.},
-			{fTimingRatio,2.},	
+			{fTimingRatio,2.5},	
 			{fQIE10fC_100000Coarse,100000},
 		};
 		const std::map<ValueQuantityType, int> nbins_value = {
@@ -263,7 +263,7 @@ namespace hcaldqm
 			{ffC_generic_10000,10000},
 			{ffC_generic_400000,10000},	
 			{fDualAnodeAsymmetry,40},
-			{fTimingRatio,40},
+			{fTimingRatio,50},
 			{fQIE10fC_100000Coarse,1000},
 		};
 		class ValueQuantity : public Quantity
