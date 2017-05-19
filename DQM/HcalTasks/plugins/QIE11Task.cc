@@ -113,15 +113,20 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 
 	for (int iChan = 0; iChan < 4; ++iChan) {
-		_cTimingRatio_vs_LS[iChan].initialize(_name, "TimingRatio_vs_LS", 
+		_cTimingRatio_vs_LS[iChan].initialize(_name, "TimingRatioVsLS", 
 			hcaldqm::hashfunctions::fdepth, 
 			new hcaldqm::quantity::LumiSection(_maxLS),
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTimingRatio),
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
-		_cTDCTime_vs_LS[iChan].initialize(_name, "TDCTime_vs_LS", 
+		_cTDCTime_vs_LS[iChan].initialize(_name, "TDCTimeVsLS", 
 			hcaldqm::hashfunctions::fdepth, 
 			new hcaldqm::quantity::LumiSection(_maxLS),
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTime_ns_250),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
+		_cQSOIp1_vs_QSOI[iChan].initialize(_name, "QsoiPlus1VsQsoi", 
+			hcaldqm::hashfunctions::fdepth, 
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_100000Coarse),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_100000Coarse),
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 	}
 
@@ -155,6 +160,7 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 		sprintf(aux, "/IEta%d_IPhi%d", timingChannels[iChan].first, timingChannels[iChan].second);
 		_cTimingRatio_vs_LS[iChan].book(ib, _emap, _filter_timingChannels[iChan], _subsystem, aux);
 		_cTDCTime_vs_LS[iChan].book(ib, _emap, _filter_timingChannels[iChan], _subsystem, aux);
+		_cQSOIp1_vs_QSOI[iChan].book(ib, _emap, _filter_timingChannels[iChan], _subsystem, aux);
 	}
 
 	_ehashmap.initialize(_emap, electronicsmap::fD2EHashMap, _filter_C34);
@@ -238,6 +244,7 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 				}
 				double qsoi = hcaldqm::utilities::adc2fCDBMinusPedestal<QIE11DataFrame>(_dbService, digi_fC, did, frame, isoi);
 				double qsoiPlus1 = hcaldqm::utilities::adc2fCDBMinusPedestal<QIE11DataFrame>(_dbService, digi_fC, did, frame, isoi+1);
+				_cQSOIp1_vs_QSOI[iChan].fill(HcalDetId(did), qsoi, qsoiPlus1);
 				double ratio = 0.;
 				if (qsoi > 0) {
 					ratio = qsoiPlus1 / qsoi;
