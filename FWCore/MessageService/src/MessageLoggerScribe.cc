@@ -951,18 +951,19 @@ void
        
     if (statistics_destination_is_real)	{			// change log 24
       // attach the statistics destination, keeping a control handle to it:
-      ELdestControl dest_ctrl;
-      dest_ctrl = admin_p->attach( std::make_shared<ELstatistics>(*os_p) );
-      statisticsDestControls.push_back(dest_ctrl);
+      auto stat = std::make_shared<ELstatistics>(*os_p);
+      admin_p->attach( stat );
+      statisticsDestControls.push_back(stat);
       bool reset = getAparameter<bool>(stat_pset, "reset", false);
       statisticsResets.push_back(reset);
     
       // now configure this destination:
+      ELdestControl dest_ctrl(stat);
       configure_dest(dest_ctrl, psetname);
 
       // and suppress the desire to do an extra termination summary just because
       // of end-of-job info messages
-      dest_ctrl.noTerminationSummary();
+      stat->noTerminationSummary();
     }
      
   }  // for [it = statistics.begin() to end()]
@@ -990,8 +991,8 @@ void
   MessageLoggerScribe::triggerStatisticsSummaries() {
     assert (statisticsDestControls.size() == statisticsResets.size());
     for (unsigned int i = 0; i != statisticsDestControls.size(); ++i) {
-      statisticsDestControls[i].summary( );
-      if (statisticsResets[i]) statisticsDestControls[i].wipe( );
+      statisticsDestControls[i]->summary( );
+      if (statisticsResets[i]) statisticsDestControls[i]->wipe( );
     }
 }
 
@@ -1002,7 +1003,7 @@ void
   if (statisticsDestControls.empty()) {
     sm["NoStatisticsDestinationsConfigured"] = 0.0;
   } else {
-    statisticsDestControls[0].summaryForJobReport(sm);
+    statisticsDestControls[0]->summaryForJobReport(sm);
   }
 }
 

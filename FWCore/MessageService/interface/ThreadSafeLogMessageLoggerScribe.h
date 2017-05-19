@@ -32,8 +32,8 @@ namespace service {
 //
 // -----------------------------------------------------------------------
 
-class ThreadQueue;
 class ELadministrator;
+class ELstatistics;
 
 class ThreadSafeLogMessageLoggerScribe : public AbstractMLscribe
 {
@@ -100,7 +100,7 @@ private:
   edm::propagate_const<std::shared_ptr<PSet>> job_pset_p;
   std::map<String, edm::propagate_const<std::ostream*>> stream_ps;
   std::vector<String> 	  	      ordinary_destination_filenames;
-  std::vector<ELdestControl>          statisticsDestControls;
+  std::vector<std::shared_ptr<ELstatistics>> statisticsDestControls;
   std::vector<bool>                   statisticsResets;
   bool				      clean_slate_configuration;
   value_ptr<MessageLoggerDefaults>    messageLoggerDefaults;
