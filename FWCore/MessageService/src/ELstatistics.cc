@@ -152,13 +152,6 @@ ELstatistics::~ELstatistics()  {
 // Methods invoked by the ELadministrator
 // ----------------------------------------------------------------------
 
-ELstatistics *
-ELstatistics::clone() const  {
-
-  return  new ELstatistics( *this );
-
-}  // clone()
-
 static  std::string summarizeContext(const std::string& c)
   {
     if ( c.substr (0,4) != "Run:" ) return c;

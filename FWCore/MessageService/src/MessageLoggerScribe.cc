@@ -213,7 +213,7 @@ namespace service {
 
 MessageLoggerScribe::MessageLoggerScribe(std::shared_ptr<ThreadQueue> queue)
 : admin_p   ( new ELadministrator() )
-, early_dest( admin_p->attach(ELoutput(std::cerr, false)) )
+, early_dest( admin_p->attach(std::make_shared<ELoutput>(std::cerr, false)) )
 , file_ps   ( )
 , job_pset_p( )
 , extern_dests( )
@@ -835,7 +835,7 @@ void
     // attach the current destination, keeping a control handle to it:
     ELdestControl dest_ctrl;
     if( actual_filename == "cout" )  {
-      dest_ctrl = admin_p->attach( ELoutput(std::cout) );
+      dest_ctrl = admin_p->attach( std::make_shared<ELoutput>(std::cout) );
       stream_ps["cout"] = &std::cout;
     }
     else if( actual_filename == "cerr" )  {
@@ -846,7 +846,7 @@ void
     else  {
       auto os_sp = std::make_shared<std::ofstream>(actual_filename.c_str());
       file_ps.push_back(os_sp);
-      dest_ctrl = admin_p->attach( ELoutput(*os_sp) );
+      dest_ctrl = admin_p->attach( std::make_shared<ELoutput>(*os_sp) );
       stream_ps[actual_filename] = os_sp.get();
     }
 
@@ -982,7 +982,7 @@ void
     if (statistics_destination_is_real)	{			// change log 24
       // attach the statistics destination, keeping a control handle to it:
       ELdestControl dest_ctrl;
-      dest_ctrl = admin_p->attach( ELstatistics(*os_p) );
+      dest_ctrl = admin_p->attach( std::make_shared<ELstatistics>(*os_p) );
       statisticsDestControls.push_back(dest_ctrl);
       bool reset = getAparameter<bool>(stat_pset, "reset", false);
       statisticsResets.push_back(reset);
@@ -1011,8 +1011,8 @@ void
 
   for( auto& dest : extern_dests)
   {
-    ELdestination *  dest_p = dest->dest_p().get();
-    ELdestControl  dest_ctrl = admin_p->attach( *dest_p );
+    auto  dest_p = std::move(edm::get_underlying(dest->dest_p()));
+    ELdestControl  dest_ctrl = admin_p->attach( std::move(dest_p) );
 
     // configure the newly-attached destination:
     configure_dest( dest_ctrl, dest->name() );

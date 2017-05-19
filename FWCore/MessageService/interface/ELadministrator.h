@@ -94,7 +94,7 @@ public:
   
   // ---  furnish/recall destinations:
   //
-  ELdestControl attach( const ELdestination & sink );
+  ELdestControl attach( std::shared_ptr<ELdestination> sink );
 
   // ---  handle severity information:
   //
