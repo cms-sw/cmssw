@@ -187,7 +187,6 @@
 #include "FWCore/MessageService/interface/ELadministrator.h"
 #include "FWCore/MessageService/interface/ELoutput.h"
 #include "FWCore/MessageService/interface/ELstatistics.h"
-#include "FWCore/MessageService/interface/NamedDestination.h"
 #include "FWCore/MessageService/interface/ThreadQueue.h"
 
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
@@ -216,7 +215,6 @@ MessageLoggerScribe::MessageLoggerScribe(std::shared_ptr<ThreadQueue> queue)
 , early_dest( admin_p->attach(std::make_shared<ELoutput>(std::cerr, false)) )
 , file_ps   ( )
 , job_pset_p( )
-, extern_dests( )
 , clean_slate_configuration( true )
 , active( true )
 , singleThread (queue.get() == 0)				// changeLog 36
@@ -230,7 +228,6 @@ MessageLoggerScribe::MessageLoggerScribe(std::shared_ptr<ThreadQueue> queue)
 MessageLoggerScribe::~MessageLoggerScribe()
 {
   admin_p->finish();
-  assert( extern_dests.empty() );  // nothing to do
 }
 
 
@@ -332,30 +329,6 @@ void
 	// finally, release the scoped lock by letting it go out of scope 
 	break;
       }
-    }
-    case MessageLoggerQ::EXTERN_DEST: {
-      try {
-	extern_dests.push_back( static_cast<NamedDestination *>(operand) );
-	configure_external_dests();
-      }
-      catch(cms::Exception& e)				// change log 21
-	{
-	  std::cerr << "MessageLoggerScribe caught a cms::Exception "
-	       << "during extern dest configuration:\n"
-	       << e.what() << "\n"
-	       << "This is a serious problem, and the extern dest " 
-	       << "will not be produced.\n"
-	       << "However, the rest of the logger continues to run.\n";
-	}
-      catch(...)						// change log 21
-	{
-	  std::cerr << "MessageLoggerScribe caught unkonwn exception type\n"
-	       << "during extern dest configuration. "
-	       << "This is a serious problem, and the extern dest " 
-	       << "will not be produced.\n"
-	       << "The rest of the logger will attempt to continue to run.\n";
-	}
-      break;
     }
     case MessageLoggerQ::SUMMARIZE: {
       assert( operand == 0 );
@@ -477,9 +450,6 @@ void
   }
   configure_ordinary_destinations();				// Change Log 16
   configure_statistics();					// Change Log 16
-
-  configure_external_dests();
-
 }  // MessageLoggerScribe::configure_errorlog()
 
 
@@ -998,29 +968,6 @@ void
   }  // for [it = statistics.begin() to end()]
 
 } // configure_statistics
-
-void
-  MessageLoggerScribe::configure_external_dests()
-{
-  if( ! job_pset_p )  
-  {
-//  extern_dests.clear();				
-//  change log 12, removed by change log 13
-    return;
-  }
-
-  for( auto& dest : extern_dests)
-  {
-    auto  dest_p = std::move(edm::get_underlying(dest->dest_p()));
-    ELdestControl  dest_ctrl = admin_p->attach( std::move(dest_p) );
-
-    // configure the newly-attached destination:
-    configure_dest( dest_ctrl, dest->name() );
-    delete dest;  // dispose of our (copy of the) NamedDestination
-  }
-  extern_dests.clear();
- 
-}  // MessageLoggerScribe::configure_external_dests
 
 void
   MessageLoggerScribe::parseCategories (std::string const & s,
