@@ -428,8 +428,8 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
     // if third sub-condition is false, effectively there will no overlap removal
     if (!reqObjResult) {
         LogDebug("L1TGlobal") << "\n"
-                << "    First two sub-conditions true and third sub-condtion false for object requirements."
-                << "    Evaluate correlation requirements. Effectively no overlap removal.\n" << std::endl;
+                << "    Third sub-condtion false for object requirements."
+                << "    Algorithm returning false.\n" << std::endl;
 	return false;
     } else {
         LogDebug("L1TGlobal") << "\n"
