@@ -44,6 +44,12 @@ hbheprereco = cms.EDProducer(
     # collection will not include such channels even if this flag is set.
     saveDroppedInfos = cms.bool(False),
 
+    # Parameters which define how we calculate the charge for the basic SiPM
+    # nonlinearity correction. To sum up the charge in all time slices
+    # (e.g., for cosmics), set sipmQTSShift to -100 and sipmQNTStoSum to 200.
+    sipmQTSShift = cms.int32(0),
+    sipmQNTStoSum = cms.int32(3),
+
     # Configure the reconstruction algorithm
     algorithm = cms.PSet(
         # Parameters for "Method 3" (non-keyword arguments have to go first)
