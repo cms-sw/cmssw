@@ -10,7 +10,7 @@ dqmInfoEcal = cms.EDAnalyzer("DQMEventInfo",
 
 ecalMultiftAnalyzer = cms.EDAnalyzer('ECALMultifitAnalyzer_HI',
                                      recoPhotonSrc         = cms.InputTag('photons'),
-                                     recoJetSrc            = cms.InputTag('akVs4CaloJets'),
+                                     recoJetSrc            = cms.InputTag('akPu4CaloJets'),
                                      RecHitCollection_EB   = cms.InputTag('ecalRecHit:EcalRecHitsEB'),
                                      RecHitCollection_EE   = cms.InputTag('ecalRecHit:EcalRecHitsEE'),
                                      rechitEnergyThreshold = cms.double(5.0),
