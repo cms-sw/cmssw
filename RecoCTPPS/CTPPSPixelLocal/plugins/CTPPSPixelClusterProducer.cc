@@ -29,9 +29,9 @@ void CTPPSPixelClusterProducer::produce(edm::Event& iEvent, const edm::EventSetu
   iSetup.get<CTPPSPixelAnalysisMaskRcd>().get("RPix",aMask);
   
 // get calibration DB
-#ifndef _DAQ_
+
  theGainCalibrationDB.getDB(iEvent,iSetup);
-#endif
+
   edm::DetSetVector<CTPPSPixelCluster>  output;
 
 // run clusterisation
@@ -50,11 +50,9 @@ void CTPPSPixelClusterProducer::run(const edm::DetSetVector<CTPPSPixelDigi> &inp
     {
       edm::DetSet<CTPPSPixelCluster> &ds_cluster = output.find_or_insert(ds_digi.id);
 
-#ifdef _DAQ_
-      clusterizer_.buildClusters(ds_digi.id, ds_digi.data, ds_cluster.data, mask);
-#else
-clusterizer_.buildClusters(ds_digi.id, ds_digi.data, ds_cluster.data, theGainCalibrationDB.getCalibs(), mask);
-#endif
+
+      clusterizer_.buildClusters(ds_digi.id, ds_digi.data, ds_cluster.data, theGainCalibrationDB.getCalibs(), mask);
+
       if(verbosity_){
 	unsigned int cluN=0;
 	for(std::vector<CTPPSPixelCluster>::iterator iit = ds_cluster.data.begin(); iit != ds_cluster.data.end(); iit++){

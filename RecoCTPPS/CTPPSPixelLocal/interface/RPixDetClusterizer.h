@@ -7,8 +7,6 @@
 #ifndef RecoCTPPS_CTPPSPixelCluster_DET_CLUSTERIZER_H
 #define RecoCTPPS_CTPPSPixelCluster_DET_CLUSTERIZER_H
 
-//#define _DAQ_
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -16,15 +14,11 @@
 #include "DataFormats/CTPPSDigi/interface/CTPPSPixelDigi.h"
 #include "DataFormats/CTPPSDigi/interface/CTPPSPixelDigiCollection.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSPixelCluster.h"
-#ifndef _DAQ_
+
 #include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelGainCalibrations.h"
 #include "RecoCTPPS/CTPPSPixelLocal/interface/CTPPSPixelGainCalibrationDBService.h"
-#endif
-#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelAnalysisMask.h"
 
-#ifdef _DAQ_
-#include "CondTools/CTPPS/interface/CTPPSPixelDAQCalibration.h"
-#endif
+#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelAnalysisMask.h"
 
 #include <vector>
 #include <set>
@@ -56,14 +50,10 @@ class RPixDetClusterizer{
 public:
 
   RPixDetClusterizer(edm::ParameterSet const& conf);
-#ifdef _DAQ_
-CTPPSPixelDAQCalibration * theDAQcalibration;
- void buildClusters(unsigned int detId, const std::vector<CTPPSPixelDigi> &digi, std::vector<CTPPSPixelCluster> &clusters, const CTPPSPixelAnalysisMask*  mask);
-  int calibrate(unsigned int, int, int, int);
-#else
+
   void buildClusters(unsigned int detId, const std::vector<CTPPSPixelDigi> &digi, std::vector<CTPPSPixelCluster> &clusters, const CTPPSPixelGainCalibrations * pcalibration, const CTPPSPixelAnalysisMask*  mask);
   int calibrate(unsigned int, int, int, int ,const CTPPSPixelGainCalibrations * pcalibration);
-#endif
+
 
   void make_cluster( RPixCalibDigi aSeed,  std::vector<CTPPSPixelCluster> &clusters );
   ~RPixDetClusterizer();

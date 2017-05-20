@@ -20,75 +20,12 @@ ElectronADCGain_ = conf.getParameter<double>("ElectronADCGain");
 VcaltoElectronGain_ = conf.getParameter<int>("VCaltoElectronGain");
 VcaltoElectronOffset_ = conf.getParameter<int>("VCaltoElectronOffset");
 doSingleCalibration_ = conf.getParameter<bool>("doSingleCalibration");
-#ifdef _DAQ_
- CalibrationFile_ = conf.getParameter<std::string>("CalibrationFile");
-theDAQcalibration =  new CTPPSPixelDAQCalibration(conf);
-theDAQcalibration->setDAQCalibrationFile(CalibrationFile_);
-#endif
+
 }
 
 RPixDetClusterizer::~RPixDetClusterizer(){}
 
-#ifdef _DAQ_
-void RPixDetClusterizer::buildClusters(unsigned int detId, const std::vector<CTPPSPixelDigi> &digi, std::vector<CTPPSPixelCluster> &clusters, const CTPPSPixelAnalysisMask* maskera)
 
-{
-
-  std::map<uint32_t, CTPPSPixelROCAnalysisMask> mask = maskera->analysisMask;
-  std::map<uint32_t, CTPPSPixelROCAnalysisMask>::iterator mask_it = mask.find(detId); 
-
-  std::set<std::pair<unsigned char, unsigned char> > maskedPixels;
-  if( mask_it != mask.end()) maskedPixels = mask_it->second.maskedPixels;
-
-
-  if(verbosity_) edm::LogInfo("RPixDetClusterizer")<<detId<<" received digi.size()="<<digi.size();
-
-// creating a set of CTPPSPixelDigi's and fill it
-
-  rpix_digi_set_.clear();
-  rpix_digi_set_.insert(digi.begin(),digi.end());
-
-// calibrate digis here
-  calib_rpix_digi_set_.clear();
-  for( std::set<CTPPSPixelDigi>::iterator RPdit = rpix_digi_set_.begin(); RPdit != rpix_digi_set_.end();++RPdit){
-
-    if((*RPdit).row() > maxRow || (*RPdit).column() > maxCol)
-       throw cms::Exception("CTPPSDigiOutofRange") 
-	 << " row = " << (*RPdit).row() << "  column = "<< (*RPdit).column();
-
-    unsigned char row = (*RPdit).row();
-    unsigned char column = (*RPdit).column();
-    unsigned short adc = (*RPdit).adc();
-    unsigned short electrons = 0;
-    std::pair<unsigned char, unsigned char> pixel = std::make_pair(row,column);
-
-// check if pixel is noisy or dead (i.e. in the mask)
-    const bool is_in = maskedPixels.find(pixel) != maskedPixels.end();
-    if(!is_in){
-//calibrate digi and store the new ones
-    electrons = calibrate(detId,adc,row,column);
-    RPixCalibDigi calibDigi(row,column,adc,electrons);
-    calib_rpix_digi_set_.insert(calibDigi);
-    }
-  }
-  if(verbosity_) edm::LogInfo("RPixDetClusterizer")<<" RPix set size = "<<calib_rpix_digi_set_.size();
-
-// storing the seeds
-  SeedVector_.clear();
-  for (const auto &rpcd : calib_rpix_digi_set_){
-    if(rpcd.electrons() > SeedADCThreshold_*ElectronADCGain_){
-      SeedVector_.push_back(rpcd);
-    }
-  }
-  if(verbosity_) edm::LogInfo("RPixDetClusterizer")<<" SeedVector size = "<<SeedVector_.size();
-
-// Looping on the seeds to make a cluster around the seed
-  for(std::vector<RPixCalibDigi>::iterator SeedIt = SeedVector_.begin(); SeedIt!=SeedVector_.end();++SeedIt){
-    make_cluster( *SeedIt, clusters);
-  }
-
-}
-#else
 void RPixDetClusterizer::buildClusters(unsigned int detId, const std::vector<CTPPSPixelDigi> &digi, std::vector<CTPPSPixelCluster> &clusters, const CTPPSPixelGainCalibrations * pcalibrations,const CTPPSPixelAnalysisMask* maskera)
 {
 
@@ -146,7 +83,7 @@ void RPixDetClusterizer::buildClusters(unsigned int detId, const std::vector<CTP
   }
 
 }
-#endif
+
 
 void RPixDetClusterizer::make_cluster(RPixCalibDigi aSeed,  std::vector<CTPPSPixelCluster> &clusters ){
 
@@ -196,7 +133,7 @@ void RPixDetClusterizer::make_cluster(RPixCalibDigi aSeed,  std::vector<CTPPSPix
   clusters.push_back(cluster);
 
 }
-#ifndef _DAQ_
+
 int RPixDetClusterizer::calibrate(unsigned int detId, int adc, int row, int col, const CTPPSPixelGainCalibrations *pcalibrations){
 
   float gain=0;
@@ -236,35 +173,4 @@ int RPixDetClusterizer::calibrate(unsigned int detId, int adc, int row, int col,
   return electrons;
 
 }
-#else 
-int RPixDetClusterizer::calibrate(unsigned int detId, int adc, int row, int col)
-{
 
-  float gain=0;
-  float pedestal=0;
-  float electrons=0;
-
-
-//detId = 2014314496; //just one plane in test DB file 
-
-  if(!doSingleCalibration_){
-    theDAQcalibration->getDAQCalibration(detId,row,col,gain,pedestal);
-
-    float vcal = (adc - pedestal)*gain;
-    electrons = int(vcal*VcaltoElectronGain_ + VcaltoElectronOffset_);
-    if(verbosity_) edm::LogInfo("RPixCalibration") << "calibrate:  adc = " << adc << " electrons = " << electrons << " gain = " << gain << " pedestal = " << pedestal ;
-  }else{
-    gain = ElectronADCGain_;
-    pedestal = 0;
-    electrons = int(adc*gain-pedestal);
-    if(verbosity_) edm::LogInfo("RPixCalibration") << "calibrate:  adc = " << adc << " electrons = " << electrons << " ElectronADCGain = " << gain << " pedestal = " << pedestal ;
-  }
-  if (electrons<0) {
-    edm::LogInfo("RPixCalibration") << "RPixDetClusterizer::calibrate: *** electrons < 0 *** --> " << electrons << "  --> electrons = 0";
-    electrons = 0;
-  }
-
-  return electrons;
-
-}
-#endif
