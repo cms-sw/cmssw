@@ -13,6 +13,7 @@ public:
 
   virtual address_t calculate_address(const EMTFTrack& track) const;
   virtual float calculate_pt_xml(const address_t& address);
+  virtual float calculate_pt_xml(const EMTFTrack& track);
 
 private:
 };

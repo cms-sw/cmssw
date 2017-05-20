@@ -3,44 +3,73 @@
 #include "L1Trigger/L1TMuonEndCap/interface/PtLutVarCalc.h"
 #include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngineAux2017.hh"
 
+// From here down, exact copy of code used for training BDT: EMTFPtAssign2017/src/PtLutVarCalc.cc
+
 PtAssignmentEngineAux2017 ENG;
 
-int CalcTrackTheta( unsigned short theta, int st1_ring2, short mode ) {
+
+int CalcTrackTheta( const int th1, const int th2, const int th3, const int th4,
+		    const int st1_ring2, const int mode, const bool BIT_COMP ) {
+
+  int theta = -99;
+
+  if      ( (mode % 8) / 4 > 0 ) // Has station 2 hit
+    theta = th2;
+  else if ( (mode % 4) / 2 > 0 ) // Has station 3 hit
+    theta = th3;
+  else if ( (mode % 2) > 0 ) // Has station 4 hit
+    theta = th4;
+
+  assert( theta > 0 );
+
+  if (BIT_COMP) {
     int nBits = (mode == 15 ? 4 : 5);
     theta = ENG.getTheta(theta, st1_ring2, nBits);
-    return theta;
+  }
+
+  return theta;
 }
 
-void CalcDeltaPhis( short& dPh12,   short& dPh13,    short& dPh14,   short& dPh23,    short& dPh24,   short& dPh34, short& dPhSign,
-                    short& dPhSum4, short& dPhSum4A, short& dPhSum3, short& dPhSum3A, short& outStPh,
-                    unsigned short mode ) {
 
-    if (mode >= 8) {                   // First hit is station 1
-       if      ( (mode % 8) / 4 > 0 )   // Has station 2 hit
-         dPhSign = (dPh12 >= 0 ? +1 : -1);
-       else if ( (mode % 4) / 2 > 0 )   // Has station 3 hit
-         dPhSign = (dPh13 >= 0 ? +1 : -1);
-       else if ( (mode % 2) > 0 )       // Has station 4 hit
-         dPhSign = (dPh14 >= 0 ? +1 : -1);
-     } else if ( (mode % 8) / 4 > 0 ) { // First hit is station 2
-       if      ( (mode % 4) / 2 > 0 )   // Has station 3 hit
-         dPhSign = (dPh23 >= 0 ? +1 : -1);
-       else if ( (mode % 2) > 0 )       // Has station 4 hit
-         dPhSign = (dPh24 >= 0 ? +1 : -1);
-     } else if ( (mode % 4) / 2 > 0 ) { // First hit is station 3
-       if      ( (mode % 2) > 0 )       // Has station 4 hit
-         dPhSign = (dPh34 >= 0 ? +1 : -1);
-    }
+void CalcDeltaPhis( int& dPh12, int& dPh13, int& dPh14, int& dPh23, int& dPh24, int& dPh34, int& dPhSign,
+		    int& dPhSum4, int& dPhSum4A, int& dPhSum3, int& dPhSum3A, int& outStPh,
+		    const int ph1, const int ph2, const int ph3, const int ph4, const int mode, const bool BIT_COMP ) {
 
-    assert(dPhSign != 0);
+  dPh12 = ph2 - ph1;
+  dPh13 = ph3 - ph1;
+  dPh14 = ph4 - ph1;
+  dPh23 = ph3 - ph2;
+  dPh24 = ph4 - ph2;
+  dPh34 = ph4 - ph3;
+  dPhSign = 0;
 
-    dPh12 *= dPhSign;
-    dPh13 *= dPhSign;
-    dPh14 *= dPhSign;
-    dPh23 *= dPhSign;
-    dPh24 *= dPhSign;
-    dPh34 *= dPhSign;
+  if (mode >= 8) {                   // First hit is station 1
+    if      ( (mode % 8) / 4 > 0 )   // Has station 2 hit
+      dPhSign = (dPh12 >= 0 ? +1 : -1);
+    else if ( (mode % 4) / 2 > 0 )   // Has station 3 hit
+      dPhSign = (dPh13 >= 0 ? +1 : -1);
+    else if ( (mode % 2) > 0 )       // Has station 4 hit
+      dPhSign = (dPh14 >= 0 ? +1 : -1);
+  } else if ( (mode % 8) / 4 > 0 ) { // First hit is station 2
+    if      ( (mode % 4) / 2 > 0 )   // Has station 3 hit
+      dPhSign = (dPh23 >= 0 ? +1 : -1);
+    else if ( (mode % 2) > 0 )       // Has station 4 hit
+      dPhSign = (dPh24 >= 0 ? +1 : -1);
+  } else if ( (mode % 4) / 2 > 0 ) { // First hit is station 3
+    if      ( (mode % 2) > 0 )       // Has station 4 hit
+      dPhSign = (dPh34 >= 0 ? +1 : -1);
+  }
 
+  assert(dPhSign != 0);
+
+  dPh12 *= dPhSign;
+  dPh13 *= dPhSign;
+  dPh14 *= dPhSign;
+  dPh23 *= dPhSign;
+  dPh24 *= dPhSign;
+  dPh34 *= dPhSign;
+
+  if (BIT_COMP) {
     int nBitsA = 7;
     int nBitsB = 7;
     int nBitsC = 7;
@@ -79,43 +108,28 @@ void CalcDeltaPhis( short& dPh12,   short& dPh13,    short& dPh14,   short& dPh2
     default:  break;
     }
 
+  } // End conditional: if (BIT_COMP)
+
 
   // Compute summed quantities
-  if (mode == 15) {
-    dPhSum4  = dPh12 + dPh13 + dPh14 + dPh23 + dPh24 + dPh34;
-    dPhSum4A = abs(dPh12) + abs(dPh13) + abs(dPh14) + abs(dPh23) + abs(dPh24) + abs(dPh34);
-    int devSt1 = abs(dPh12) + abs(dPh13) + abs(dPh14);
-    int devSt2 = abs(dPh12) + abs(dPh23) + abs(dPh24);
-    int devSt3 = abs(dPh13) + abs(dPh23) + abs(dPh34);
-    int devSt4 = abs(dPh14) + abs(dPh24) + abs(dPh34);
-    
-    if      (devSt4 > devSt3 && devSt4 > devSt2 && devSt4 > devSt1)  outStPh = 4;
-    else if (devSt3 > devSt4 && devSt3 > devSt2 && devSt3 > devSt1)  outStPh = 3;
-    else if (devSt2 > devSt4 && devSt2 > devSt3 && devSt2 > devSt1)  outStPh = 2;
-    else if (devSt1 > devSt4 && devSt1 > devSt3 && devSt1 > devSt2)  outStPh = 1;
-    else                                                             outStPh = 0;
-    
-    if      (outStPh == 4) {
-      dPhSum3  = dPh12 + dPh13 + dPh23;
-      dPhSum3A = abs(dPh12) + abs(dPh13) + abs(dPh23);
-    } else if (outStPh == 3) {
-      dPhSum3  = dPh12 + dPh14 + dPh24;
-      dPhSum3A = abs(dPh12) + abs(dPh14) + abs(dPh24);
-    } else if (outStPh == 2) {
-      dPhSum3  = dPh13 + dPh14 + dPh34;
-      dPhSum3A = abs(dPh13) + abs(dPh14) + abs(dPh34);
-    } else {
-      dPhSum3  = dPh23 + dPh24 + dPh34;
-      dPhSum3A = abs(dPh23) + abs(dPh24) + abs(dPh34);
-    }
-  }
+  if (mode == 15) CalcDeltaPhiSums( dPhSum4, dPhSum4A, dPhSum3, dPhSum3A, outStPh,
+				    dPh12,  dPh13,  dPh14,  dPh23,  dPh24,  dPh34 );
 
 } // End function: CalcDeltaPhis()
 
 
 
-void CalcDeltaThetas( short& dTh12, short& dTh13, short& dTh14, short& dTh23, short& dTh24, short& dTh34, short mode ) {
+void CalcDeltaThetas( int& dTh12, int& dTh13, int& dTh14, int& dTh23, int& dTh24, int& dTh34,
+		      const int th1, const int th2, const int th3, const int th4, const int mode, const bool BIT_COMP ) {
   
+  dTh12 = th2 - th1;
+  dTh13 = th3 - th1;
+  dTh14 = th4 - th1;
+  dTh23 = th3 - th2;
+  dTh24 = th4 - th2;
+  dTh34 = th4 - th3;
+
+  if (BIT_COMP) {
     int nBits = (mode == 15 ? 2 : 3);
 
     dTh12 = ENG.getdTheta(dTh12, nBits);
@@ -124,6 +138,7 @@ void CalcDeltaThetas( short& dTh12, short& dTh13, short& dTh14, short& dTh23, sh
     dTh23 = ENG.getdTheta(dTh23, nBits);
     dTh24 = ENG.getdTheta(dTh24, nBits);
     dTh34 = ENG.getdTheta(dTh34, nBits);
+  } // End conditional: if (BIT_COMP)
 
 } // CalcDeltaThetas()
 
@@ -143,12 +158,16 @@ void CalcBends( int& bend1, int& bend2, int& bend3, int& bend4,
     if (mode == 7 || mode == 11 || mode > 12)
       nBits = 2;
 
-    bend1 = ENG.getCLCT( pat1, endcap, dPhSign, nBits );
-    bend2 = ENG.getCLCT( pat2, endcap, dPhSign, nBits );
-    bend3 = ENG.getCLCT( pat3, endcap, dPhSign, nBits );
-    bend4 = ENG.getCLCT( pat4, endcap, dPhSign, nBits );
+    if (  mode      / 8 > 0 ) // Has station 1 hit
+      bend1 = ENG.getCLCT( pat1, endcap, dPhSign, nBits );
+    if ( (mode % 8) / 4 > 0 ) // Has station 2 hit
+      bend2 = ENG.getCLCT( pat2, endcap, dPhSign, nBits );
+    if ( (mode % 4) / 2 > 0 ) // Has station 3 hit
+      bend3 = ENG.getCLCT( pat3, endcap, dPhSign, nBits );
+    if ( (mode % 2)     > 0 ) // Has station 4 hit
+      bend4 = ENG.getCLCT( pat4, endcap, dPhSign, nBits );
   } // End conditional: if (BIT_COMP)
-
+  
 } // End function: CalcBends()
 
 void CalcRPCs( int& RPC1, int& RPC2, int& RPC3, int& RPC4,
@@ -226,3 +245,35 @@ int CalcBendFromPattern( const int pattern, const int endcap ) {
   return bend;
 }
 
+
+void CalcDeltaPhiSums( int& dPhSum4, int& dPhSum4A, int& dPhSum3, int& dPhSum3A, int& outStPh,
+		       const int dPh12, const int dPh13, const int dPh14, const int dPh23, const int dPh24, const int dPh34 ) {
+
+    dPhSum4  = dPh12 + dPh13 + dPh14 + dPh23 + dPh24 + dPh34;
+    dPhSum4A = abs(dPh12) + abs(dPh13) + abs(dPh14) + abs(dPh23) + abs(dPh24) + abs(dPh34);
+    int devSt1 = abs(dPh12) + abs(dPh13) + abs(dPh14);
+    int devSt2 = abs(dPh12) + abs(dPh23) + abs(dPh24);
+    int devSt3 = abs(dPh13) + abs(dPh23) + abs(dPh34);
+    int devSt4 = abs(dPh14) + abs(dPh24) + abs(dPh34);
+    
+    if      (devSt4 > devSt3 && devSt4 > devSt2 && devSt4 > devSt1)  outStPh = 4;
+    else if (devSt3 > devSt4 && devSt3 > devSt2 && devSt3 > devSt1)  outStPh = 3;
+    else if (devSt2 > devSt4 && devSt2 > devSt3 && devSt2 > devSt1)  outStPh = 2;
+    else if (devSt1 > devSt4 && devSt1 > devSt3 && devSt1 > devSt2)  outStPh = 1;
+    else                                                             outStPh = 0;
+    
+    if      (outStPh == 4) {
+      dPhSum3  = dPh12 + dPh13 + dPh23;
+      dPhSum3A = abs(dPh12) + abs(dPh13) + abs(dPh23);
+    } else if (outStPh == 3) {
+      dPhSum3  = dPh12 + dPh14 + dPh24;
+      dPhSum3A = abs(dPh12) + abs(dPh14) + abs(dPh24);
+    } else if (outStPh == 2) {
+      dPhSum3  = dPh13 + dPh14 + dPh34;
+      dPhSum3A = abs(dPh13) + abs(dPh14) + abs(dPh34);
+    } else {
+      dPhSum3  = dPh23 + dPh24 + dPh34;
+      dPhSum3A = abs(dPh23) + abs(dPh24) + abs(dPh34);
+    }
+
+} // End function: void CalcDeltaPhiSums()

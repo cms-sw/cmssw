@@ -19,14 +19,20 @@ PtAssignmentEngine::~PtAssignmentEngine() {
 }
 
 void PtAssignmentEngine::read(const std::string& xml_dir) {
-  //std::string xml_dir_full = "L1Trigger/L1TMuon/data/emtf_luts/" + xml_dir + "/ModeVariables/trees";
-  std::string xml_dir_full = "L1Trigger/L1TMuonEndCap/data/emtf_luts/" + xml_dir + "/ModeVariables/trees";
+  // std::string xml_dir_full = "L1Trigger/L1TMuon/data/emtf_luts/" + xml_dir + "/ModeVariables/trees";
+  // std::string xml_dir_full = "L1Trigger/L1TMuonEndCap/data/emtf_luts/" + xml_dir + "/ModeVariables/trees";
+  std::string xml_dir_full = "/afs/cern.ch/work/a/abrinke1/public/EMTF/PtAssign2017/XMLs/2017_05_08_for_emulator";
 
   for (unsigned i = 0; i < allowedModes_.size(); ++i) {
-    int mode_inv = allowedModes_.at(i);  // inverted mode because reasons
+    int mode_inv = allowedModes_.at(i);  // inverted mode because reasons (Change for 2017? - AWB 20.05.17)
     std::stringstream ss;
-    ss << xml_dir_full << "/" << mode_inv;
-    forests_.at(mode_inv).loadForestFromXML(ss.str().c_str(), 64);
+    // ss << xml_dir_full << "/" << mode_inv;
+    // forests_.at(mode_inv).loadForestFromXML(ss.str().c_str(), 64);
+    if (mode_inv > 12 || mode_inv == 11 || mode_inv == 7)
+      ss << xml_dir_full << "/f_MODE_" << mode_inv << "_logPtTarg_invPtWgt_bitCompr_RPC";
+    else
+      ss << xml_dir_full << "/f_MODE_" << mode_inv << "_logPtTarg_invPtWgt_bitCompr_noRPC";
+    forests_.at(mode_inv).loadForestFromXML(ss.str().c_str(), 400);
   }
   return;
 }
@@ -94,6 +100,14 @@ float PtAssignmentEngine::calculate_pt(const address_t& address) {
   } else {
     pt = calculate_pt_xml(address);
   }
+
+  return pt;
+}
+
+float PtAssignmentEngine::calculate_pt(const EMTFTrack& track) {
+  float pt = 0.;
+
+  pt = calculate_pt_xml(track);
 
   return pt;
 }

@@ -25,7 +25,7 @@ void PrimitiveConversion::configure(
   lut_     = lut;
 
   verbose_ = verbose;
-  endcap_  = endcap;
+  endcap_  = endcap; // 1 for ME+, 2 for ME-
   sector_  = sector;
   bx_      = bx;
 

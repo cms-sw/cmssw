@@ -38,8 +38,8 @@ import FWCore.PythonUtilities.LumiList as LumiList
 # process.source.lumisToProcess = LumiList.LumiList(filename = 'goodList.json').getVLuminosityBlockRange()
 
 ## Message Logger and Event range
-process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(1000)
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100000) )
+process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(1)
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(False))
 
 process.options = cms.untracked.PSet(
@@ -75,8 +75,12 @@ process.source = cms.Source(
 
 eos_cmd = '/afs/cern.ch/project/eos/installation/pro/bin/eos.select'
 
-## 2017 Cosmics, with RPC!
-in_dir_name = '/store/express/Commissioning2017/ExpressCosmics/FEVT/Express-v1/000/291/622/00000/'
+## 2017 Collisions, with RPC!
+# in_dir_name = '/eos/cms/tier0/store/data/Commissioning2017/L1Accept/RAW/v1/000/293/765/00000/'
+in_dir_name = '/eos/cms/tier0/store/data/Commissioning2017/MinimumBias/RAW/v1/000/293/765/00000/'
+
+# ## 2017 Cosmics, with RPC!
+# in_dir_name = '/store/express/Commissioning2017/ExpressCosmics/FEVT/Express-v1/000/291/622/00000/'
 
 # ## ZeroBias, IsolatedBunch data
 # in_dir_name = '/store/data/Run2016H/ZeroBiasIsolatedBunch0/RAW/v1/000/282/650/00000/'
@@ -89,10 +93,15 @@ in_dir_name = '/store/express/Commissioning2017/ExpressCosmics/FEVT/Express-v1/0
 #in_dir_name = in_dir_name+'crab_200-pt-muon-skim_from-zmumu-skim-cmssw-8013__SingleMuon_ZMu-2016C_v2/160710_225057/0001/'
 #in_dir_name = in_dir_name+'crab_200-pt-muon-skim_from-zmumu-skim-cmssw-8013__SingleMuon_ZMu-2016D_v2/160710_225023/0000/'
 
+iFile = 0
 for in_file_name in subprocess.check_output([eos_cmd, 'ls', in_dir_name]).splitlines():
     if not ('.root' in in_file_name): continue
-    #if ( int(in_file_name.split('RECO_')[1].split('.roo')[0]) < 755 ): continue
-    readFiles.extend( cms.untracked.vstring(in_dir_name+in_file_name) )
+    iFile += 1
+    # if iFile < 10: continue  ## Skip earliest files in run
+    # readFiles.extend( cms.untracked.vstring(in_dir_name+in_file_name) )
+    in_dir_name_T0 = in_dir_name.replace('/eos/cms/tier0/', 'root://cms-xrd-tzero.cern.ch//')
+    print in_dir_name_T0
+    readFiles.extend( cms.untracked.vstring(in_dir_name_T0+in_file_name) )
 
 # readFiles.extend([
 #         #'file:/afs/cern.ch/work/a/abrinke1/public/EMTF/Run2016G/RAW/279024/52622B4D-B265-E611-8099-FA163E326094.root'
@@ -118,6 +127,7 @@ process.simEmtfDigis.spPCParams16.FixZonePhi     = cms.bool(True)
 process.simEmtfDigis.spPCParams16.UseNewZones    = cms.bool(False)
 process.simEmtfDigis.spPCParams16.ZoneBoundaries = cms.vint32(0,41,49,87,127)
 #process.simEmtfDigis.spPCParams16.ZoneBoundaries = cms.vint32(0,36,54,96,127)
+process.simEmtfDigis.spPCParams16.FixME11Edges   = cms.bool(True)  ## Better coordinates in ME1/1 - AWB 16.05.17
 
 process.simEmtfDigis.spPRParams16.UseSymmetricalPatterns = cms.bool(True)
 
@@ -136,10 +146,11 @@ process.simEmtfDigis.CSCInputBXShift = cms.int32(-6)
 process.simEmtfDigis.RPCInputBXShift = cms.int32(0)
 process.simEmtfDigis.verbosity       = cms.untracked.int32(0)
 
+process.simEmtfDigis.Era = cms.string('Run2_2017')
 
 process.L1TMuonSeq = cms.Sequence(
     process.muonCSCDigis + ## Unpacked CSC LCTs from TMB
-    process.csctfDigis + ## Necessary for legacy studies, or if you use csctfDigis as input
+    # process.csctfDigis + ## Necessary for legacy studies, or if you use csctfDigis as input
     process.muonRPCDigis +
     ## process.esProd + ## What do we loose by not having this? - AWB 18.04.16
     process.emtfStage2Digis +
@@ -172,7 +183,8 @@ outCommands = cms.untracked.vstring(
 process.out = cms.OutputModule("PoolOutputModule", 
                                # fileName = cms.untracked.string("EMTF_Tree_highPt200MuonSkim_2016D_debug.root"),
                                # fileName = cms.untracked.string("EMTF_Tree_ZeroBias_IsoBunch_282650_SingleHit_test.root"),
-                               fileName = cms.untracked.string("EMTF_Tree_Cosmics_291622_RPC_test.root"),
+                               # fileName = cms.untracked.string("EMTF_Tree_Cosmics_291622_RPC_test.root"),
+                               fileName = cms.untracked.string("EMTF_Tree_Collisions_293765_RPC_test_pT.root"),
                                outputCommands = outCommands
                                )
 

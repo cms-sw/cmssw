@@ -18,6 +18,7 @@ namespace l1t {
     uint64_t address;
     uint16_t mode;
     uint16_t theta;
+    uint16_t st1_ring2;
     uint16_t eta;
     uint16_t delta_ph [6]; // index: 0=12, 1=13, 2=14, 3=23, 4=24, 5=34
     uint16_t delta_th [6]; // ^

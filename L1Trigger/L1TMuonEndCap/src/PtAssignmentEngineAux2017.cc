@@ -1,81 +1,21 @@
 #include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngineAux2017.hh"
-#include <iostream> // KK: couts below will bring David's attention!
+#include <iostream> 
 #include <cassert>
 #include <cmath>
 
-// // ModeVariables is a 2D arrary indexed by [TrackMode(13 Total Listed Below)][VariableNumber(20 Total Constructed Above)]
-// // Variable numbering
-// // 0 = dPhi12
-// // 1 = dPhi13
-// // 2 = dPhi14
-// // 3 = dPhi23
-// // 4 = dPhi24
-// // 5 = dPhi34
-// // 6 = dEta12
-// // 7 = dEta13
-// // 8 = dEta14
-// // 9 = dEta23
-// // 10 = dEta24
-// // 11 = dEta34
-// // 12 = CLCT1
-// // 13 = CLCT2
-// // 14 = CLCT3
-// // 15 = CLCT4
-// // 16 = CSCID1
-// // 17 = CSCID2
-// // 18 = CSCID3
-// // 19 = CSCID4
-// // 20 = FR1
-// // 21 = FR2
-// // 22 = FR3
-// // 23 = FR4
-
-// // Bobby's Scheme3 (or "SchemeC"), with 30 bit compression //
-// //3:TrackEta:dPhi12:dEta12:CLCT1:CLCT2:FR1
-// //4:Single Station Track Not Possible
-// //5:TrackEta:dPhi13:dEta13:CLCT1:CLCT3:FR1
-// //6:TrackEta:dPhi23:dEta23:CLCT2:CLCT3:FR2
-// //7:TrackEta:dPhi12:dPhi23:dEta13:CLCT1:FR1
-// //8:Single Station Track Not Possible
-// //9:TrackEta:dPhi14:dEta14:CLCT1:CLCT4:FR1
-// //10:TrackEta:dPhi24:dEta24:CLCT2:CLCT4:FR2
-// //11:TrackEta:dPhi12:dPhi24:dEta14:CLCT1:FR1
-// //12:TrackEta:dPhi34:dEta34:CLCT3:CLCT4:FR3
-// //13:TrackEta:dPhi13:dPhi34:dEta14:CLCT1:FR1
-// //14:TrackEta:dPhi23:dPhi34:dEta24:CLCT2
-// //15:TrackEta:dPhi12:dPhi23:dPhi34:FR1
-
-// static const int ModeVariables_Scheme3[13][6] =
-// {
-//     {0,6,12,13,20,-999},              // 3
-//     {-999,-999,-999,-999,-999,-999},  // 4
-//     {1,7,12,14,20,-999},              // 5
-//     {3,9,13,14,21,-999},              // 6
-//     {0,3,7,12,20,-999},               // 7
-//     {-999,-999,-999,-999,-999,-999},  // 8
-//     {2,8,12,15,20,-999},              // 9
-//     {4,10,13,15,21,-999},             // 10
-//     {0,4,8,12,20,-999},               // 11
-//     {5,11,14,15,22,-999},             // 12
-//     {1,5,8,16,20,-999},               // 13
-//     {3,5,10,13,-999,-999},            // 14
-//     {0,3,5,20,-999,-999}              // 15
-// };
+// From here down, exact copy of code used for training BDT: EMTFPtAssign2017/src/PtLutVarCalc.cc
 
 
 // Arrays that map the integer dPhi --> dPhi-units. 1/60th of a degree per unit; 255 units --> 4.25 degrees, 511 --> 8.52 degrees
 
 // 256 max units----
-
 // For use in dPhi34 in mode 15.  Derived manually from dPhiNLBMap_5bit_256Max for now; should generate algorithmically. - AWB 17.03.17
 static const int dPhiNLBMap_4bit_256Max[16] = {0, 1, 2, 3, 4, 6, 8, 10, 12, 16, 20, 25, 31, 46, 68, 136};
 
 // For use in dPhi23, dPhi24, and dPhi34 in 3- and 4-station modes (7, 11, 13, 14, 15), except for dPhi23 in mode 7 and dPhi34 in mode 15
 static const int dPhiNLBMap_5bit_256Max[32] = { 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15, 
 					       16, 17, 19, 20, 21, 23, 25, 28, 31, 34, 39, 46, 55, 68, 91, 136};
-
 // 512 max units----
-
 // For use in all dPhiAB (where "A" and "B" are the first two stations in the track) in all modes
 static const int dPhiNLBMap_7bit_512Max[128] =  {  0,   1,   2,   3,   4,   5,   6,   7,   8,   9,  10,  11,  12,  13,  14,  15, 
 						  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,  30,  31, 
@@ -86,9 +26,6 @@ static const int dPhiNLBMap_7bit_512Max[128] =  {  0,   1,   2,   3,   4,   5,  
 						 115, 118, 121, 124, 127, 131, 135, 138, 143, 147, 152, 157, 162, 168, 174, 181, 
 						 188, 196, 204, 214, 224, 235, 247, 261, 276, 294, 313, 336, 361, 391, 427, 470};
 
-// const int (*PtAssignmentEngineAux2017::getModeVariables() const)[6] {
-//   return ModeVariables_Scheme3;
-// }
 
 int PtAssignmentEngineAux2017::getNLBdPhi(int dPhi, int bits, int max) const {
   assert( (bits == 4 && max == 256) || 
@@ -219,6 +156,7 @@ int PtAssignmentEngineAux2017::getdPhiFromBin(int dPhiBin, int bits, int max) co
 
 
 int PtAssignmentEngineAux2017::getCLCT(int clct, int endcap, int dPhiSign, int bits) const {
+  // std::cout << "Inside getCLCT: clct = " << clct << ", endcap = " << endcap << ", dPhiSign = " << dPhiSign << ", bits = " << bits << std::endl;
   assert( clct >= 0 && clct <= 10 && abs(endcap) == 1 && 
 	  abs(dPhiSign) == 1 && (bits == 2 || bits == 3) );
 
@@ -279,6 +217,42 @@ int PtAssignmentEngineAux2017::getCLCT(int clct, int endcap, int dPhiSign, int b
 } // End function: int PtAssignmentEngineAux2017::getCLCT()
 
 
+int PtAssignmentEngineAux2017::unpackCLCT(int clct, int endcap, int dPhiSign, int bits) const {
+  assert(bits == 2 || bits == 3);
+  assert(clct >= 0 && clct < pow(2, bits));
+  assert(abs(dPhiSign) == 1);
+
+  // Convention here: endcap == +/-1, dPhiSign = +/-1.
+  int clct_ = -1;
+  int sign_ = -1 * endcap * dPhiSign;  // CLCT bend is with dPhi in ME-, opposite in ME+
+
+  if (bits == 2) {
+    switch (clct) {
+    case 1: clct_ = 10;                  break;
+    case 2: clct_ = (sign_ > 0 ? 9 : 8); break;
+    case 0: clct_ = (sign_ > 0 ? 7 : 6); break;
+    case 3: clct_ = (sign_ > 0 ? 4 : 5); break;
+    default: break;
+    } 
+  } else if (bits == 3) {
+    switch (clct) {
+    case 4: clct_ = 10;                  break;
+    case 5: clct_ = (sign_ > 0 ? 9 : 8); break;
+    case 3: clct_ = (sign_ > 0 ? 8 : 9); break;
+    case 6: clct_ = (sign_ > 0 ? 7 : 6); break;
+    case 2: clct_ = (sign_ > 0 ? 6 : 7); break;
+    case 7: clct_ = (sign_ > 0 ? 5 : 4); break;
+    case 1: clct_ = (sign_ > 0 ? 4 : 5); break;
+    case 0: clct_ =  0;                  break;
+    default: break;
+    }
+  }
+
+  assert(clct_ >= 0 && clct_ <= 10);
+  return clct_;
+} // End function: int PtAssignmentEngineAux2017::unpackCLCT()
+
+
 int PtAssignmentEngineAux2017::getdTheta(int dTheta, int bits) const {
   assert( bits == 2 || bits == 3 );
 
@@ -306,7 +280,7 @@ int PtAssignmentEngineAux2017::getdTheta(int dTheta, int bits) const {
       dTheta_ = 2;
     else if (dTheta == -1)
       dTheta_ = 3;
-    if      (dTheta ==  0)
+    else if (dTheta ==  0)
       dTheta_ = 4;
     else if (dTheta == +1)
       dTheta_ = 5;
@@ -321,7 +295,39 @@ int PtAssignmentEngineAux2017::getdTheta(int dTheta, int bits) const {
 } // End function: int PtAssignmentEngineAux2017::getdTheta()
 
 
+int PtAssignmentEngineAux2017::unpackdTheta(int dTheta, int bits) const {
+  assert( bits == 2 || bits == 3 );
+  int dTheta_ = -99;
+
+  if        (bits == 2) { // For use in mode 15
+    switch (dTheta) {
+    case 2: dTheta_ =  0; break;
+    case 1: dTheta_ = -2; break;
+    case 0: dTheta_ = -3; break;
+    case 3: dTheta_ =  3; break;
+    default: break;
+    }
+  } else if (bits == 3) { // For use in all 2- and 3-station modes (all modes except 15)
+    switch (dTheta) {
+    case 0: dTheta_ = -4; break;
+    case 1: dTheta_ = -3; break;
+    case 2: dTheta_ = -2; break;
+    case 3: dTheta_ = -1; break;
+    case 4: dTheta_ =  0; break;
+    case 5: dTheta_ =  1; break;
+    case 6: dTheta_ =  2; break;
+    case 7: dTheta_ =  3; break;
+    default: break;
+    }
+  }
+  
+  assert(dTheta_ >= -4 && dTheta_ <= 3);
+  return (dTheta_);
+} // End function: int PtAssignmentEngineAux2017::unpackdTheta(int dTheta, int bits)
+
+
 int PtAssignmentEngineAux2017::getTheta(int theta, int st1_ring2, int bits) const {
+  std::cout << "Inside getTheta: theta = " << theta << ", st1_ring2 = " << st1_ring2 << ", bits = " << bits << std::endl;
   assert( theta >= 5 && theta < 128 && 
 	  (st1_ring2 == 0 || st1_ring2 == 1) && 
 	  (bits == 4 || bits == 5) );
@@ -333,14 +339,14 @@ int PtAssignmentEngineAux2017::getTheta(int theta, int st1_ring2, int bits) cons
     if (st1_ring2 == 0) {
       // Should never fail with dTheta < 4 windows ... should change to using ME1 for track theta - AWB 17.03.17
       if (theta > 58) {
-	std::cout << "\n\n*** Bizzare case of mode 15 track with ME1/1 LCT and track theta = " << theta << std::endl;
+	// std::cout << "\n\n*** Bizzare case of mode 15 track with ME1/1 LCT and track theta = " << theta << std::endl;
       }     
       theta_ = (std::min( std::max(theta, 5), 58) - 5) / 9;
     }
     else if (st1_ring2 == 1) {
       // Should rarely fail with dTheta < 4 windows ... should change to using ME1 for track theta - AWB 17.03.17
       if (theta < 44 || theta > 88) {
-	std::cout << "\n\n*** Bizzare case of mode 15 track with ME1/2 LCT and track theta = " << theta << std::endl;
+	// std::cout << "\n\n*** Bizzare case of mode 15 track with ME1/2 LCT and track theta = " << theta << std::endl;
       }
       theta_ = ((std::min( std::max(theta, 44), 88) - 44) / 9) + 6;
     }
@@ -361,6 +367,50 @@ int PtAssignmentEngineAux2017::getTheta(int theta, int st1_ring2, int bits) cons
 } // End function: int PtAssignmentEngineAux2017::getTheta()
 
 
+void PtAssignmentEngineAux2017::unpackTheta(int& theta, int& st1_ring2, int bits) const {
+  assert(bits == 4 || bits == 5);
+  assert(theta >= 0 && theta < pow(2, bits));
+
+  // For use in mode 15
+  if (bits == 4) {
+    if (theta < 6) {
+      st1_ring2 = 0;
+      theta = (theta * 9) + 5;
+    } else {
+      st1_ring2 = 1;
+      theta = ((theta - 6) * 9) + 44;
+    }
+  } else if (bits == 5) {
+    if (theta < 15) {
+      st1_ring2 = 0;
+      theta = (theta * 4) + 1;
+    } else {
+      st1_ring2 = 1;
+      theta = ((theta - 6) * 4) + 1;
+    }
+  }
+
+  assert(theta >= 5 && theta <= 104);
+
+} // End function: void PtAssignmentEngineAux2017::unpackTheta()
+
+
+int PtAssignmentEngineAux2017::unpackSt1Ring2(int theta, int bits) const {
+  assert(bits == 4 || bits == 5);
+  assert(theta >= 0 && theta < pow(2, bits));
+
+  // For use in mode 15
+  if (bits == 4) {
+    if (theta < 6) return 0;
+    else           return 1;
+  } else {
+    if (theta < 15) return 0;
+    else            return 1;
+  }
+
+} // End function: void PtAssignmentEngineAux2017::unpackSt1Ring2()
+
+
 // // Need to re-check / verify this - AWB 17.03.17
 // // front-rear LUTs
 // // [sector[0]][station 0-4][chamber id]
@@ -375,3 +425,143 @@ int PtAssignmentEngineAux2017::getTheta(int theta, int st1_ring2, int bits) cons
 //   bool isFront = bits & (1<<chamber);
 //   return isFront;
 // }
+
+
+int PtAssignmentEngineAux2017::get2bRPC(int clctA, int clctB, int clctC) const {
+
+  int rpc_2b = -99;
+
+  if      (clctA == 0) rpc_2b = 0; 
+  else if (clctC == 0) rpc_2b = 1; 
+  else if (clctB == 0) rpc_2b = 2; 
+  else                 rpc_2b = 3; 
+
+  assert (rpc_2b >= 0 && rpc_2b < 4);
+  return (rpc_2b);
+} // End function: int PtAssignmentEngineAux2017::get2bRPC()
+
+
+void PtAssignmentEngineAux2017::unpack2bRPC(int rpc_2b, int& clctA, int& clctB, int& clctC) const {
+
+  assert(rpc_2b >= 0 && rpc_2b < 4);
+
+  // If uninitialized, set to straightest-pattern CSC LCTs
+  if (clctA <= 0) clctA = 10;
+  if (clctB <= 0) clctB = 10;
+  if (clctC <= 0) clctC = 10;
+
+  if      (rpc_2b == 0) clctA = 0;
+  else if (rpc_2b == 1) clctC = 0;
+  else if (rpc_2b == 2) clctB = 0;
+
+} // End function: int PtAssignmentEngineAux2017::unpack2bRPC()
+
+
+int PtAssignmentEngineAux2017::get8bMode15(int theta, int st1_ring2, int endcap, int sPhiAB,
+					   int clctA, int clctB, int clctC, int clctD) const {
+
+  if (st1_ring2) theta = (std::min( std::max(theta, 44), 88) - 44) / 9;
+  else           theta = (std::min( std::max(theta,  5), 58) -  5) / 9;
+  assert(theta >= 0 && theta < 10);
+
+  int clctA_2b = getCLCT(clctA, endcap, sPhiAB, 2);
+
+  int nRPC = (clctA == 0) + (clctB == 0) + (clctC == 0) + (clctD == 0);
+  int rpc_word, rpc_clct, th_rpc_clct;
+
+  if (st1_ring2) {
+    if      (nRPC >= 2 && clctA == 0 && clctB == 0) rpc_word =  0; 
+    else if (nRPC >= 2 && clctA == 0 && clctC == 0) rpc_word =  1; 
+    else if (nRPC >= 2 && clctA == 0 && clctD == 0) rpc_word =  2; 
+    else if (nRPC == 1 && clctA == 0              ) rpc_word =  3; 
+    else if (nRPC >= 2 && clctD == 0 && clctB == 0) rpc_word =  4; 
+    else if (nRPC >= 2 && clctD == 0 && clctC == 0) rpc_word =  8; 
+    else if (nRPC >= 2 && clctB == 0 && clctC == 0) rpc_word = 12; 
+    else if (nRPC == 1 && clctD == 0              ) rpc_word = 16; 
+    else if (nRPC == 1 && clctB == 0              ) rpc_word = 20; 
+    else if (nRPC == 1 && clctC == 0              ) rpc_word = 24; 
+    else                                            rpc_word = 28;
+    rpc_clct    = rpc_word + clctA_2b;
+    th_rpc_clct = (theta*32) + rpc_clct + 64;
+  } else {
+    if      (theta >= 3 && clctD == 1) rpc_word = 0; 
+    else if (theta >= 3 && clctC == 1) rpc_word = 1;             
+    else if (theta >= 3              ) rpc_word = 2;             
+    else                               rpc_word = 3;
+    rpc_clct    = rpc_word*4 + clctA_2b;
+    th_rpc_clct = ((theta % 3)*16) + rpc_clct;
+  }
+
+  assert(th_rpc_clct >= 0 && th_rpc_clct < pow(2, 8));
+  return (th_rpc_clct);
+
+} // End function: int PtAssignmentEngineAux2017::get8bMode15()
+
+
+void PtAssignmentEngineAux2017::unpack8bMode15( int mode15_8b, int& theta, int& st1_ring2, int endcap, int sPhiAB, 
+						int& clctA, int& clctB, int& clctC, int& clctD) const {
+
+  assert(mode15_8b >= 0 && mode15_8b < pow(2, 8));
+  assert(abs(endcap) == 1 && abs(sPhiAB) == 1);
+
+  // If uninitialized, set to straightest-pattern CSC LCTs
+  if (clctA <= 0) clctA = 10;
+  if (clctB <= 0) clctB = 10;
+  if (clctC <= 0) clctC = 10;
+  if (clctD <= 0) clctD = 10;
+
+  if (mode15_8b >= 64) st1_ring2 = 1;
+  else                 st1_ring2 = 0;
+
+  int rpc_clct, rpc_word, clctA_2b, nRPC = -1;
+
+  if (st1_ring2) {
+
+    rpc_clct = (mode15_8b % 32);
+    theta    = (mode15_8b - 64 - rpc_clct) / 32; 
+    theta   += 6;
+
+    if (rpc_clct < 4) clctA_2b = 0;
+    else              clctA_2b = (rpc_clct % 4);
+    rpc_word = rpc_clct - clctA_2b;
+
+    // if (clctA_2b != 0) clctA = unpackCLCT(clctA_2b, endcap, sPhiAB, 2);
+    clctA = clctA_2b;
+
+    switch (rpc_word) {
+    case  0: nRPC = 2; clctA = 0; clctB = 0; break;
+    case  1: nRPC = 2; clctA = 0; clctC = 0; break;
+    case  2: nRPC = 2; clctA = 0; clctD = 0; break;
+    case  3: nRPC = 1; clctA = 0;            break;
+    case  4: nRPC = 2; clctD = 0; clctB = 0; break;
+    case  8: nRPC = 2; clctD = 0; clctC = 0; break;
+    case 12: nRPC = 2; clctB = 0; clctC = 0; break;
+    case 16: nRPC = 1; clctD = 0;            break;
+    case 20: nRPC = 1; clctB = 0;            break;
+    case 24: nRPC = 1; clctC = 0;            break;
+    case 28: nRPC = 0;                       break;
+    default: break;
+    }
+  } // End conditional: if (st1_ring2)
+  else {
+
+    rpc_clct  = (mode15_8b % 16);
+    theta     = (mode15_8b - rpc_clct) / 16;
+    clctA_2b  = (rpc_clct % 4);
+    clctA     = clctA_2b;
+    rpc_word  = (rpc_clct - clctA_2b) / 4;
+
+    switch(rpc_word) {
+    case 0: nRPC = 1; theta += 3; clctD = 1; break;
+    case 1: nRPC = 1; theta += 3; clctC = 1; break;
+    case 2: nRPC = 0; theta += 3;            break;
+    case 3: nRPC = 0;                        break;
+    default: break;
+    }
+  }
+
+  std::cout << "Input word = " << mode15_8b << ", st1_ring2 = " << st1_ring2 << ", theta = " << theta << ", clctA = " << clctA << std::endl;
+
+  assert(nRPC >= 0);
+
+} // End function: void PtAssignmentEngineAux2017::unpack8bMode15()

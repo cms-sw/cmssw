@@ -14,236 +14,594 @@ const PtAssignmentEngineAux2017& PtAssignmentEngine2017::aux() const {
 PtAssignmentEngine::address_t PtAssignmentEngine2017::calculate_address(const EMTFTrack& track) const {
     address_t address = 0;
 
-    EMTFPtLUT ptlut = track.PtLUT(); //KK: Who sets ptlut.address field?
+    EMTFPtLUT data = track.PtLUT();
+    
+    int mode   = track.Mode();
+    int theta  = track.Theta_fp();
+    int endcap = track.Endcap();
+    int nHits  = (mode / 8) + ((mode % 8) / 4) + ((mode % 4) / 2) + ((mode % 2) / 1);
+    assert(nHits > 1 && nHits < 5);
+    
+    // 'A' is first station in the track, 'B' the second, etc.
+    int mode_ID = -1;
+    int iA = -1, iB = -1, iC = -1, iD = -1;
+    int iAB, iAC, iAD, iBC, iCD;
 
-    short dPh12 = ptlut.delta_ph[0] * ptlut.sign_ph[0];
-    short dPh13 = ptlut.delta_ph[1] * ptlut.sign_ph[1];
-    short dPh14 = ptlut.delta_ph[2] * ptlut.sign_ph[2];
-    short dPh23 = ptlut.delta_ph[3] * ptlut.sign_ph[3];
-    short dPh24 = ptlut.delta_ph[4] * ptlut.sign_ph[4];
-    short dPh34 = ptlut.delta_ph[5] * ptlut.sign_ph[5];
+    switch (mode) { // Indices for quantities by station or station pair
+    case 15: mode_ID = 0b1  ; iA = 0; iB = 1; iC = 2; iD = 3; break;
+    case 14: mode_ID = 0b11 ; iA = 0; iB = 1; iC = 2; break;
+    case 13: mode_ID = 0b10 ; iA = 0; iB = 1; iC = 3; break;
+    case 11: mode_ID = 0b01 ; iA = 0; iB = 2; iC = 3; break;
+    case  7: mode_ID = 0b1  ; iA = 1; iB = 2; iC = 3; break;
+    case 12: mode_ID = 0b111; iA = 0; iB = 1; break;
+    case 10: mode_ID = 0b110; iA = 0; iB = 2; break;
+    case  9: mode_ID = 0b101; iA = 0; iB = 3; break;
+    case  6: mode_ID = 0b100; iA = 1; iB = 2; break;
+    case  5: mode_ID = 0b011; iA = 1; iB = 3; break;
+    case  3: mode_ID = 0b010; iA = 2; iB = 3; break;
+    default: break;
+    }
+    iAB = (iA >= 0 && iB >= 0) ? iA + iB - (iA == 0) : -1;
+    iAC = (iA >= 0 && iC >= 0) ? iA + iC - (iA == 0) : -1;
+    iAD = (iA >= 0 && iD >= 0) ? 2                   : -1;
+    iBC = (iB >= 0 && iC >= 0) ? iB + iC             : -1;
+    iCD = (iC >= 0 && iD >= 0) ? 5                   : -1;
 
-    short dPhSign=0, dPhSum4=0, dPhSum4A=0, dPhSum3=0, dPhSum3A=0, outStPh=0;
+    
+    // Fill variable info from pT LUT data
+    int st1_ring2, dTheta;
+    int dPhiAB, dPhiBC, dPhiCD;
+    int sPhiAB, sPhiBC, sPhiCD;
+    int frA, frB;
+    int clctA, clctB, clctC, clctD;
+    int mode15_8b; // Combines track theta, stations with RPC hits, and station 1 bend information
+    int rpc_2b;    // Identifies which stations have RPC hits in 3-station tracks
 
-    // compress dPhis
-    CalcDeltaPhis( dPh12, dPh13, dPh14, dPh23, dPh24, dPh34, dPhSign,
-                   dPhSum4, dPhSum4A, dPhSum3, dPhSum3A, outStPh,
-                   ptlut.mode );
-
-    short dTh12 = ptlut.delta_th[0] * ptlut.sign_th[0];
-    short dTh13 = ptlut.delta_th[1] * ptlut.sign_th[1];
-    short dTh14 = ptlut.delta_th[2] * ptlut.sign_th[2];
-    short dTh23 = ptlut.delta_th[3] * ptlut.sign_th[3];
-    short dTh24 = ptlut.delta_th[4] * ptlut.sign_th[4];
-    short dTh34 = ptlut.delta_th[5] * ptlut.sign_th[5];
-   
-    // compress dThetas
-    CalcDeltaThetas( dTh12, dTh13, dTh14, dTh23, dTh24, dTh34, ptlut.mode );
-
-
-    EMTFHitCollection hits = track.Hits();
-    EMTFHit stub[5];
-    for(unsigned int h=0; h<hits.size(); h++){
-        if( hits[h].Station()<1 || hits[h].Station()>4 ){
-            continue;
-        }
-        stub[ hits[h].Station() ] = hits[h];
+    st1_ring2 = data.st1_ring2;
+    if        (nHits == 4) {
+      dPhiAB = data.delta_ph[iAB];
+      dPhiBC = data.delta_ph[iBC];
+      dPhiCD = data.delta_ph[iCD];
+      sPhiAB = data.sign_ph[iAB];
+      sPhiBC = (data.sign_ph[iBC] == sPhiAB);
+      sPhiCD = (data.sign_ph[iCD] == sPhiAB);
+      dTheta = data.delta_th[iAD] * (data.sign_th[iAD] ? 1 : -1);
+      frA    = data.fr      [iA];
+      clctA  = data.cpattern[iA];
+      clctB  = data.cpattern[iB];
+      clctC  = data.cpattern[iC];
+      clctD  = data.cpattern[iD];
+    } else if (nHits == 3) {
+      dPhiAB = data.delta_ph[iAB];
+      dPhiBC = data.delta_ph[iBC];
+      sPhiAB = data.sign_ph[iAB];
+      sPhiBC = (data.sign_ph[iBC] == sPhiAB);
+      dTheta = data.delta_th[iAC] * (data.sign_th[iAC] ? 1 : -1);
+      frA    = data.fr      [iA];
+      frB    = data.fr      [iB];
+      clctA  = data.cpattern[iA];
+      clctB  = data.cpattern[iB];
+      clctC  = data.cpattern[iC];
+    } else if (nHits == 2) {
+      dPhiAB = data.delta_ph[iAB];
+      sPhiAB = data.sign_ph[iAB];
+      dTheta = data.delta_th[iAB] * (data.sign_th[iAB] ? 1 : -1);
+      frA    = data.fr      [iA];
+      frB    = data.fr      [iB];
+      clctA  = data.cpattern[iA];
+      clctB  = data.cpattern[iB];
     }
 
 
-    int st1_ring2 = (stub[1].Station()==1 ? (stub[1].Ring() == 2) : -99);
+    // Convert variables to words for pT LUT address
+    if        (nHits == 4) {
+      dPhiAB = aux().getNLBdPhiBin ( dPhiAB, 7, 512 );
+      dPhiBC = aux().getNLBdPhiBin ( dPhiBC, 5, 256 );
+      dPhiCD = aux().getNLBdPhiBin ( dPhiCD, 4, 256 );
+      dTheta = aux().getdTheta     ( dTheta, 2 );
+      mode15_8b = aux().get8bMode15( theta, st1_ring2, endcap, (sPhiAB == 1 ? 1 : -1), clctA, clctB, clctC, clctD );
+    } else if (nHits == 3) {
+      dPhiAB = aux().getNLBdPhiBin( dPhiAB, 7, 512 );
+      dPhiBC = aux().getNLBdPhiBin( dPhiBC, 5, 256 );
+      dTheta = aux().getdTheta    ( dTheta, 3 );
+      clctA  = aux().getCLCT      ( clctA, endcap, (sPhiAB == 1 ? 1 : -1), 2 );
+      rpc_2b = aux().get2bRPC     ( clctA, clctB, clctC );
+      theta  = aux().getTheta     ( theta, st1_ring2, 5 );
+    } else if (nHits == 2) {
+      dPhiAB = aux().getNLBdPhiBin( dPhiAB, 7, 512 );
+      dTheta = aux().getdTheta    ( dTheta, 3 );
+      clctA  = aux().getCLCT      ( clctA, endcap, (sPhiAB == 1 ? 1 : -1), 3 );
+      clctB  = aux().getCLCT      ( clctB, endcap, (sPhiAB == 1 ? 1 : -1), 3 );
+      theta  = aux().getTheta     ( theta, st1_ring2, 5 );
+    }
 
-    int theta = CalcTrackTheta( ptlut.theta, st1_ring2, ptlut.mode );
-
-    int clct1 = (stub[1].Station()==1 ? stub[1].Pattern() : -99);
-    int clct2 = (stub[2].Station()==2 ? stub[2].Pattern() : -99);
-    int clct3 = (stub[3].Station()==3 ? stub[3].Pattern() : -99);
-    int clct4 = (stub[4].Station()==4 ? stub[4].Pattern() : -99);
-
-    short theta_rpc_clct1 = 0; // CalcThetaRPCclct1(theta,clct1,clct2,clct3,clct4); //KK do be implemented
-
-    int sign23 = (dPh12*dPh13>=0 ? 0 : 1);
-    int sign34 = (dPh12*dPh34>=0 ? 0 : 1);
-
-    switch (ptlut.mode) {
-        case 3:   // 1-2
-        break;
-        case 5:   // 1-3
-        break;
-        case 9:   // 1-4
-        break;
-        case 6:   // 2-3
-        break;
-        case 10:  // 2-4
-        break;
-        case 12:  // 3-4
-        break;
-        case 7:   // 1-2-3
-        break;
-        case 11:  // 1-2-4
-        break;
-        case 13:  // 1-3-4
-        break;
-        case 14:  // 2-3-4
-        break;
-        case 15:  // 1-2-3-4
-            address |= (dPh12      & ((1<<7)-1)) << (0);
-            address |= (dPh23      & ((1<<5)-1)) << (0+7);
-            address |= (dPh34      & ((1<<5)-1)) << (0+7+5);
-            address |= (sign23     & ((1<<1)-1)) << (0+7+5+5);
-            address |= (sign34     & ((1<<1)-1)) << (0+7+5+5+1);
-            address |= (dTh14      & ((1<<2)-1)) << (0+7+5+5+1+1);
-            address |= (theta_rpc_clct1 & ((1<<8)-1)) << (0+7+5+5+1+1+2);
-            address |= (0x1        & ((1<<1)-1)) << (0+7+5+5+1+1+2+8);
-        break;
-        default:
-        break;
+    
+    // Form the pT LUT address
+    if      (nHits == 4) {
+      address |= (dPhiAB    & ((1<<7)-1)) << (0);
+      address |= (dPhiBC    & ((1<<5)-1)) << (0+7);
+      address |= (dPhiCD    & ((1<<4)-1)) << (0+7+5);
+      address |= (sPhiBC    & ((1<<1)-1)) << (0+7+5+4);
+      address |= (sPhiCD    & ((1<<1)-1)) << (0+7+5+4+1);
+      address |= (dTheta    & ((1<<2)-1)) << (0+7+5+4+1+1);
+      address |= (frA       & ((1<<1)-1)) << (0+7+5+4+1+1+2);
+      address |= (mode15_8b & ((1<<8)-1)) << (0+7+5+4+1+1+2+1);
+      address |= (mode_ID   & ((1<<1)-1)) << (0+7+5+4+1+1+2+1+8);
+      assert(address < pow(2, 30) && address >= pow(2, 29));
+    } 
+    else if (nHits == 3) {
+      address |= (dPhiAB    & ((1<<7)-1)) << (0);
+      address |= (dPhiBC    & ((1<<5)-1)) << (0+7);
+      address |= (sPhiBC    & ((1<<1)-1)) << (0+7+5);
+      address |= (dTheta    & ((1<<3)-1)) << (0+7+5+1);
+      address |= (frA       & ((1<<1)-1)) << (0+7+5+1+3);
+      int bit = 0;
+      if (mode != 7) { 
+	address |= (frB     & ((1<<1)-1)) << (0+7+5+1+3+1); bit = 1;
+      }
+      address |= (clctA     & ((1<<2)-1)) << (0+7+5+1+3+1+bit);
+      address |= (rpc_2b    & ((1<<2)-1)) << (0+7+5+1+3+1+bit+2);
+      address |= (theta     & ((1<<5)-1)) << (0+7+5+1+3+1+bit+2+2);
+      std::cout << "\nJust added in theta = " << theta << std::endl;
+      if (mode != 7) {
+	address |= (mode_ID & ((1<<2)-1)) << (0+7+5+1+3+1+bit+2+2+5); assert(address < pow(2, 29) && address >= pow(2, 27));
+      } else {
+	address |= (mode_ID & ((1<<1)-1)) << (0+7+5+1+3+1+bit+2+2+5); assert(address < pow(2, 27) && address >= pow(2, 26));
+      }
+    } 
+    else if (nHits == 2) { 
+      address |= (dPhiAB    & ((1<<7)-1)) << (0);
+      address |= (dTheta    & ((1<<3)-1)) << (0+7);
+      address |= (frA       & ((1<<1)-1)) << (0+7+3);
+      address |= (frB       & ((1<<1)-1)) << (0+7+3+1);
+      address |= (clctA     & ((1<<3)-1)) << (0+7+3+1+1);
+      address |= (clctB     & ((1<<3)-1)) << (0+7+3+1+1+3);
+      address |= (theta     & ((1<<5)-1)) << (0+7+3+1+1+3+3);
+      address |= (mode_ID   & ((1<<3)-1)) << (0+7+3+1+1+3+3+5);
+      assert(address < pow(2, 26) && address >= pow(2, 24));
     }
 
     return address;
-}
+} // End function: PtAssignmentEngine2017::calculate_address()
 
+
+// Calculate XML pT from address
 float PtAssignmentEngine2017::calculate_pt_xml(const address_t& address) {
-    float pt = 0.;
 
-    if(address == 0)  // invalid address
-        return -1;  // return pt;
-
-    int mode = ((address >> (30-1)) ? 15 : 0);
-
-    auto contain = [](const std::vector<int>& vec, int elem) {
-        return (std::find(vec.begin(), vec.end(), elem) != vec.end());
-    };
-
-    bool is_good_mode = contain(allowedModes_, mode);
-
-    if(!is_good_mode)  // invalid mode
-        return -1;  // return pt;
-
-    int theta     = 0;
-    int St1_ring2 = 0;
-    int dPhi12    = 0;
-    int dPhi23    = 0;
-    int dPhi34    = 0;
-    int dPhi13    = 0;
-    int dPhi14    = 0;
-    int dPhi24    = 0;
-    int FR1       = 0;
-    int bend_1    = 0;
-    int dPhiSum4  = 0;
-    int dPhiSum4A = 0;
-    int dPhiSum3  = 0;
-    int dPhiSum3A = 0;
-    int outStPhi  = 0;
-    int dTh_14    = 0;
-    int RPC_1     = 0;
-    int RPC_2     = 0;
-    int RPC_3     = 0;
-    int RPC_4     = 0;
-
-    switch (mode) {
-        case 3:   // 1-2
-        break;
-        case 5:   // 1-3
-        break;
-        case 9:   // 1-4
-        break;
-        case 6:   // 2-3
-        break;
-        case 10:  // 2-4
-        break;
-        case 12:  // 3-4
-        break;
-        case 7:   // 1-2-3
-        break;
-        case 11:  // 1-2-4
-        break;
-        case 13:  // 1-3-4
-        break;
-        case 14:  // 2-3-4
-        break;
-        case 15: {  // 1-2-3-4
-            int sign23 = 0;
-            int sign34 = 0;
-            int theta_rpc_clct1 = 0;
-
-            dPhi12    = (address >> (0))                    & ((1<<7)-1);
-            dPhi23    = (address >> (0+7))                  & ((1<<5)-1);
-            dPhi34    = (address >> (0+7+5))                & ((1<<5)-1);
-            sign23    = (address >> (0+7+5+5))              & ((1<<1)-1);
-            sign34    = (address >> (0+7+5+5+1))            & ((1<<1)-1);
-            dTh_14    = (address >> (0+7+5+5+1+1))          & ((1<<2)-1);
-            theta_rpc_clct1 = (address >> (0+7+5+5+1+1+2))  & ((1<<8)-1);
-            // decode the word above into the RPC1,2,3,4 ...
-            RPC_1 = theta_rpc_clct1;
-
-            // signs should be consistend with the above notations
-            dPhi23 *= (sign23?1:-1);
-            dPhi34 *= (sign34?1:-1);
-            // need an equivalent of CalcDeltaPhis, for now port pieces of code from
-            // https://github.com/abrinke1/EMTFPtAssign2017/blob/b14f84bd532f613098ceb8dab1546eb2353499f8/src/PtLutVarCalc.cc#L100
-            dPhi13 = dPhi12 + dPhi23;
-            dPhi14 = dPhi13 + dPhi34;
-            dPhi24 = dPhi23 + dPhi34;
-            dPhiSum4  = dPhi12 + dPhi13 + dPhi14 + dPhi23 + dPhi24 + dPhi34;
-            dPhiSum4A = abs(dPhi12) + abs(dPhi13) + abs(dPhi14) + abs(dPhi23) + abs(dPhi24) + abs(dPhi34);
-            int devSt1 = abs(dPhi12) + abs(dPhi13) + abs(dPhi14);
-            int devSt2 = abs(dPhi12) + abs(dPhi23) + abs(dPhi24);
-            int devSt3 = abs(dPhi13) + abs(dPhi23) + abs(dPhi34);
-            int devSt4 = abs(dPhi14) + abs(dPhi24) + abs(dPhi34);
-    
-            if      (devSt4 > devSt3 && devSt4 > devSt2 && devSt4 > devSt1)  outStPhi = 4;
-            else if (devSt3 > devSt4 && devSt3 > devSt2 && devSt3 > devSt1)  outStPhi = 3;
-            else if (devSt2 > devSt4 && devSt2 > devSt3 && devSt2 > devSt1)  outStPhi = 2;
-            else if (devSt1 > devSt4 && devSt1 > devSt3 && devSt1 > devSt2)  outStPhi = 1;
-            else                                                             outStPhi = 0;
-    
-            if      (outStPhi == 4) {
-                dPhiSum3  = dPhi12 + dPhi13 + dPhi23;
-                dPhiSum3A = abs(dPhi12) + abs(dPhi13) + abs(dPhi23);
-            } else if (outStPhi == 3) {
-                dPhiSum3  = dPhi12 + dPhi14 + dPhi24;
-                dPhiSum3A = abs(dPhi12) + abs(dPhi14) + abs(dPhi24);
-            } else if (outStPhi == 2) {
-                dPhiSum3  = dPhi13 + dPhi14 + dPhi34;
-                dPhiSum3A = abs(dPhi13) + abs(dPhi14) + abs(dPhi34);
-            } else {
-                dPhiSum3  = dPhi23 + dPhi24 + dPhi34;
-                dPhiSum3A = abs(dPhi23) + abs(dPhi24) + abs(dPhi34);
-            }
-        } break;
-        default:
-        break;
+  float pt  = 0.;
+  int nHits = -1, mode = -1;
+  
+  assert(address < pow(2, 30));
+  if      (address >= pow(2, 29)) { nHits = 4; mode = 15; }
+  else if (address >= pow(2, 27)) { nHits = 3;            }
+  else if (address >= pow(2, 26)) { nHits = 3; mode =  7; } 
+  else if (address >= pow(2, 24)) { nHits = 2;            }
+  else return pt;
+  
+  // Variables to unpack from the pT LUT address
+  int mode_ID, theta, dTheta;
+  int dPhiAB, dPhiBC = -1, dPhiCD = -1;
+  int sPhiAB, sPhiBC = -1, sPhiCD = -1;
+  int frA, frB = -1;
+  int clctA, clctB, clctC, clctD;
+  int endcap = 1; sPhiAB = 1;  // Assume positive endcap and dPhiAB for unpacking CLCT bend
+  int mode15_8b; // Combines track theta, stations with RPC hits, and station 1 bend information
+  int rpc_2b;    // Identifies which stations have RPC hits in 3-station tracks
+  
+  
+  // Unpack variable words from the pT LUT address
+  if      (nHits == 4) {
+    dPhiAB    = (address >> (0) 		& ((1<<7)-1));
+    dPhiBC    = (address >> (0+7) 		& ((1<<5)-1));
+    dPhiCD    = (address >> (0+7+5) 		& ((1<<4)-1));
+    sPhiBC    = (address >> (0+7+5+4)           & ((1<<1)-1));
+    sPhiCD    = (address >> (0+7+5+4+1)         & ((1<<1)-1));
+    dTheta    = (address >> (0+7+5+4+1+1)       & ((1<<2)-1));
+    frA       = (address >> (0+7+5+4+1+1+2) 	& ((1<<1)-1));
+    mode15_8b = (address >> (0+7+5+4+1+1+2+1)   & ((1<<8)-1));
+    mode_ID   = (address >> (0+7+5+4+1+1+2+1+8) & ((1<<1)-1));
+    assert(address < pow(2, 30));
+  } 
+  else if (nHits == 3) {
+    dPhiAB    = (address >> (0)	                    & ((1<<7)-1));
+    dPhiBC    = (address >> (0+7)	            & ((1<<5)-1));
+    sPhiBC    = (address >> (0+7+5)	            & ((1<<1)-1));
+    dTheta    = (address >> (0+7+5+1)	            & ((1<<3)-1));
+    frA       = (address >> (0+7+5+1+3)             & ((1<<1)-1));
+    int bit = 0;
+    if (mode != 7) { 
+      frB     = (address >> (0+7+5+1+3+1)           & ((1<<1)-1)); bit = 1;
     }
-
-    // KK: sequence of variables here should exaclty match <Variables> block produced by TMVA
-
-    std::vector<int> predictors = {
-            theta, St1_ring2, dPhi12, dPhi23, dPhi34, dPhi13, dPhi14, dPhi24, FR1, bend_1,
-            dPhiSum4, dPhiSum4A, dPhiSum3, dPhiSum3A, outStPhi, dTh_14, RPC_1, RPC_2, RPC_3, RPC_4
-    };
-
-    std::vector<Double_t> tree_data(predictors.cbegin(),predictors.cend());
-
-    auto tree_event = std::make_unique<emtf::Event>();
-    tree_event->predictedValue = 0;
-    tree_event->data = tree_data;
-
-    forests_.at(mode).predictEvent(tree_event.get(), 400);
-
-    float log2pt = tree_event->predictedValue;  // is actually log2(pT)
-
-    if (verbose_ > 1) {
-        std::cout << "mode_inv: " << mode << " log2(pT[GeV]): " << log2pt << std::endl;
-        std::cout << "dPhi12: " << dPhi12 << " dPhi13: " << dPhi13 << " dPhi14: " << dPhi14
-            << " dPhi23: " << dPhi23 << " dPhi24: " << dPhi24 << " dPhi34: " << dPhi34 << std::endl;
-        std::cout << " dTheta14: " << dTh_14 << std::endl;
-        std::cout << "FR1: " << FR1 << std::endl;
+    clctA     = (address >> (0+7+5+1+3+1+bit)	    & ((1<<2)-1));
+    rpc_2b    = (address >> (0+7+5+1+3+1+bit+2)     & ((1<<2)-1));
+    theta     = (address >> (0+7+5+1+3+1+bit+2+2)   & ((1<<5)-1));
+    std::cout << "\nJust read out theta = " << theta << std::endl;
+    if (mode != 7) {
+      mode_ID = (address >> (0+7+5+1+3+1+bit+2+2+5) & ((1<<2)-1)); assert(address < pow(2, 29));
+    } else {
+      mode_ID = (address >> (0+7+5+1+3+1+bit+2+2+5) & ((1<<1)-1)); assert(address < pow(2, 27));
     }
+  }
+  else if (nHits == 2) { 
+    dPhiAB    = (address >> (0)               & ((1<<7)-1));
+    dTheta    = (address >> (0+7)	      & ((1<<3)-1));
+    frA       = (address >> (0+7+3)	      & ((1<<1)-1));
+    frB       = (address >> (0+7+3+1)	      & ((1<<1)-1));
+    clctA     = (address >> (0+7+3+1+1)	      & ((1<<3)-1));
+    clctB     = (address >> (0+7+3+1+1+3)     & ((1<<3)-1));
+    theta     = (address >> (0+7+3+1+1+3+3)   & ((1<<5)-1));
+    mode_ID   = (address >> (0+7+3+1+1+3+3+5) & ((1<<3)-1));
+    assert(address < pow(2, 26));
+  }
+  
+  // Infer track mode (and stations with hits) from mode_ID
+  if (nHits == 3 && mode != 7) {
+    switch (mode_ID) {
+    case 0b11: mode = 14; break;
+    case 0b10: mode = 13; break;
+    case 0b01: mode = 11; break;
+    default: break;
+    }
+  } else if (nHits == 2) {
+    switch (mode_ID) {
+    case 0b111: mode = 12; break;
+    case 0b110: mode = 10; break;
+    case 0b101: mode =  9; break;
+    case 0b100: mode =  6; break;
+    case 0b011: mode =  5; break;
+    case 0b010: mode =  3; break;
+    default: break;
+    }
+  }
 
-    assert(log2pt > 0);
+  assert(mode > 0);
 
-    pt = pow(2,log2pt);
+  // Un-compress words from address
+  // For most variables (e.g. theta, dTheta, CLCT) don't need to unpack, since compressed version was used in training 
+  int St1_ring2;
+  if        (nHits == 4) {
+    dPhiAB = aux().getdPhiFromBin ( dPhiAB, 7, 512 );
+    dPhiBC = aux().getdPhiFromBin ( dPhiBC, 5, 256 );
+    dPhiCD = aux().getdPhiFromBin ( dPhiCD, 4, 256 );
+    // dTheta = aux().unpackdTheta   ( dTheta, 2 );
+    aux().unpack8bMode15 ( mode15_8b, theta, St1_ring2, endcap, (sPhiAB == 1 ? 1 : -1), clctA, clctB, clctC, clctD );
+  } else if (nHits == 3) {
+    dPhiAB = aux().getdPhiFromBin( dPhiAB, 7, 512 );
+    dPhiBC = aux().getdPhiFromBin( dPhiBC, 5, 256 );
+    // dTheta = aux().unpackdTheta  ( dTheta, 3 );
+    // clctA  = aux().unpackCLCT    ( clctA, endcap, (sPhiAB == 1 ? 1 : -1), 2 );
+    aux().unpack2bRPC    ( rpc_2b, clctA, clctB, clctC );
+    // aux().unpackTheta    ( theta, St1_ring2, 5 );
+    St1_ring2 = aux().unpackSt1Ring2( theta, 5 );
+  } else if (nHits == 2) {
+    dPhiAB = aux().getdPhiFromBin( dPhiAB, 7, 512 );
+    // dTheta = aux().unpackdTheta ( dTheta, 3 );
+    // clctA  = aux().unpackCLCT   ( clctA, endcap, (sPhiAB == 1 ? 1 : -1), 3 );
+    // clctB  = aux().unpackCLCT   ( clctB, endcap, (sPhiAB == 1 ? 1 : -1), 3 );
+    // aux().unpackTheta    ( theta, St1_ring2, 5 );
+    St1_ring2 = aux().unpackSt1Ring2( theta, 5 );
+  }
 
+
+  // Fill vectors of variables for XMLs
+  // KK: sequence of variables here should exaclty match <Variables> block produced by TMVA
+  std::vector<int> predictors;
+  
+  // Variables for input to XMLs
+  int dPhi_12, dPhi_13, dPhi_14, dPhi_23, dPhi_24, dPhi_34;
+  int dPhiSum4, dPhiSum4A, dPhiSum3, dPhiSum3A, outStPhi;
+  int dTh_12, dTh_13, dTh_14, dTh_23, dTh_24, dTh_34;
+  int FR_1, FR_2, FR_3, FR_4;
+  int bend_1, bend_2, bend_3, bend_4;
+  int RPC_1, RPC_2, RPC_3, RPC_4;
+
+  // Convert words into variables for XMLs
+  if        (mode == 15) {
+    dPhi_12 = dPhiAB; 
+    dPhi_23 = dPhiBC * (sPhiBC == 1 ? 1 : -1);   
+    dPhi_34 = dPhiCD * (sPhiCD == 1 ? 1 : -1);
+    dPhi_13 = dPhi_12 + dPhi_23; 
+    dPhi_14 = dPhi_13 + dPhi_34; 
+    dPhi_24 = dPhi_23 + dPhi_34;
+    CalcDeltaPhiSums( dPhiSum4, dPhiSum4A, dPhiSum3, dPhiSum3A, outStPhi,
+		      dPhi_12, dPhi_13, dPhi_14, dPhi_23, dPhi_24, dPhi_34 );
+    dTh_14  = dTheta;
+    FR_1    = frA;
+    bend_1  = clctA;
+    RPC_1   = (clctA == 0); 
+    RPC_2   = (clctB == 0); 
+    RPC_3   = (clctC == 0); 
+    RPC_4   = (clctD == 0);
+
+    predictors = { theta, St1_ring2, dPhi_12, dPhi_23, dPhi_34, dPhi_13, dPhi_14, dPhi_24, FR_1, bend_1,
+		   dPhiSum4, dPhiSum4A, dPhiSum3, dPhiSum3A, outStPhi, dTh_14, RPC_1, RPC_2, RPC_3, RPC_4 };
+  } 
+  else if (mode == 14) {
+    dPhi_12 = dPhiAB; 
+    dPhi_23 = dPhiBC * (sPhiBC == 1 ? 1 : -1); 
+    dPhi_13 = dPhi_12 + dPhi_23;
+    dTh_13  = dTheta;
+    FR_1    = frA;
+    FR_2    = frB;
+    bend_1  = clctA;
+    RPC_1   = (clctA == 0); 
+    RPC_2   = (clctB == 0); 
+    RPC_3   = (clctC == 0);
+    predictors = { theta, St1_ring2, dPhi_12, dPhi_23, dPhi_13, FR_1, FR_2, bend_1, dTh_13, RPC_1, RPC_2, RPC_3 };
+  } else if (mode == 13) {
+    dPhi_12 = dPhiAB; 
+    dPhi_24 = dPhiBC * (sPhiBC == 1 ? 1 : -1); 
+    dPhi_14 = dPhi_12 + dPhi_24;
+    dTh_14  = dTheta;
+    FR_1    = frA;
+    FR_2    = frB;
+    bend_1  = clctA;
+    RPC_1   = (clctA == 0); 
+    RPC_2   = (clctB == 0); 
+    RPC_4   = (clctC == 0);
+    predictors = { theta, St1_ring2, dPhi_12, dPhi_24, dPhi_14, FR_1, FR_2, bend_1, dTh_14, RPC_1, RPC_2, RPC_4 };
+  } else if (mode == 11) {
+    dPhi_13 = dPhiAB; 
+    dPhi_34 = dPhiBC * (sPhiBC == 1 ? 1 : -1); 
+    dPhi_14 = dPhi_13 + dPhi_34;
+    dTh_14  = dTheta;
+    FR_1    = frA;
+    FR_3    = frB;
+    bend_1  = clctA;
+    RPC_1   = (clctA == 0); 
+    RPC_3   = (clctB == 0); 
+    RPC_4   = (clctC == 0);
+    predictors = { theta, St1_ring2, dPhi_13, dPhi_34, dPhi_14, FR_1, FR_3, bend_1, dTh_14, RPC_1, RPC_3, RPC_4 };
+  } else if (mode ==  7) {
+    dPhi_23 = dPhiAB; 
+    dPhi_34 = dPhiBC * (sPhiBC == 1 ? 1 : -1); 
+    dPhi_24 = dPhi_23 + dPhi_34;
+    dTh_24  = dTheta;
+    FR_2    = frA;
+    bend_2  = clctA;
+    RPC_2   = (clctA == 0); 
+    RPC_3   = (clctB == 0); 
+    RPC_4   = (clctC == 0);
+    predictors = { theta, dPhi_23, dPhi_34, dPhi_24, FR_2, bend_2, dTh_24, RPC_2, RPC_3, RPC_4 };
+  } else if (mode == 12) {
+    dPhi_12 = dPhiAB; 
+    dTh_12  = dTheta;
+    FR_1    = frA;
+    FR_2    = frB;
+    bend_1  = clctA;
+    bend_2  = clctB;
+    RPC_1   = (clctA == 0); RPC_2 = (clctB == 0);
+    predictors = { theta, St1_ring2, dPhi_12, FR_1, FR_2, bend_1, bend_2, dTh_12, RPC_1, RPC_2 };
+  } else if (mode == 10) {
+    dPhi_13 = dPhiAB; 
+    dTh_13  = dTheta;
+    FR_1    = frA;
+    FR_3    = frB;
+    bend_1  = clctA;
+    bend_3  = clctB;
+    RPC_1   = (clctA == 0); 
+    RPC_3   = (clctB == 0);
+    predictors = { theta, St1_ring2, dPhi_13, FR_1, FR_3, bend_1, bend_3, dTh_13, RPC_1, RPC_3 };
+  } else if (mode ==  9) {
+    dPhi_14 = dPhiAB; 
+    dTh_14  = dTheta;
+    FR_1    = frA;
+    FR_4    = frB;
+    bend_1  = clctA;
+    bend_4  = clctB;
+    RPC_1   = (clctA == 0); 
+    RPC_4   = (clctB == 0);
+    predictors = { theta, St1_ring2, dPhi_14, FR_1, FR_4, bend_1, bend_4, dTh_14, RPC_1, RPC_4 };
+  } else if (mode ==  6) {
+    dPhi_23 = dPhiAB; 
+    dTh_23  = dTheta;
+    FR_2    = frA;
+    FR_3    = frB;
+    bend_2  = clctA;
+    bend_3  = clctB;
+    RPC_2   = (clctA == 0); 
+    RPC_3   = (clctB == 0);
+    predictors = { theta, dPhi_23, FR_2, FR_3, bend_2, bend_3, dTh_23, RPC_2, RPC_3 };
+  } else if (mode ==  5) {
+    dPhi_24 = dPhiAB; 
+    dTh_24  = dTheta;
+    FR_2    = frA;
+    FR_4    = frB;
+    bend_2  = clctA;
+    bend_4  = clctB;
+    RPC_2   = (clctA == 0); 
+    RPC_4   = (clctB == 0);
+    predictors = { theta, dPhi_24, FR_2, FR_4, bend_2, bend_4, dTh_24, RPC_2, RPC_4 };
+  } else if (mode ==  3) {
+    dPhi_34 = dPhiAB; 
+    dTh_34  = dTheta;
+    FR_3    = frA;
+    FR_4    = frB;
+    bend_3  = clctA;
+    bend_4  = clctB;
+    RPC_3   = (clctA == 0); 
+    RPC_4   = (clctB == 0);
+    predictors = { theta, dPhi_34, FR_3, FR_4, bend_3, bend_4, dTh_34, RPC_3, RPC_4 };
+  } else assert (false);
+
+  // Retreive pT from XMLs
+  std::vector<Double_t> tree_data(predictors.cbegin(),predictors.cend());
+  
+  auto tree_event = std::make_unique<emtf::Event>();
+  tree_event->predictedValue = 0;
+  tree_event->data = tree_data;
+  
+  forests_.at(mode).predictEvent(tree_event.get(), 400);
+  
+  // Adjust this for different XMLs
+  float log2pt = tree_event->predictedValue;  // is actually log2(pT)
+  
+  pt = pow(2,log2pt);
+
+  std::cout << "\nFrom addrs: mode " << mode << " track has inputs: ";
+  for (int i = 0; i < int(predictors.size()); i++)
+    std::cout << predictors.at(i) << ", ";
+  std::cout << "output pT: " << pt << std::endl;
+  
+  return pt;
+
+} // End function: float PtAssignmentEngine2017::calculate_pt_xml(const address_t& address)
+
+  
+// Calculate XML pT directly from track quantities, without forming an address
+float PtAssignmentEngine2017::calculate_pt_xml(const EMTFTrack& track) {
+  float pt = 0.;
+  
+  EMTFPtLUT data = track.PtLUT();
+  
+  auto contain = [](const std::vector<int>& vec, int elem) {
+    return (std::find(vec.begin(), vec.end(), elem) != vec.end());
+  };
+
+  int endcap = track.Endcap();
+  int mode   = track.Mode();
+  int theta  = track.Theta_fp();
+  std::cout << "\nTrue track Theta_fp() = " << theta << std::endl;
+  if (mode == 15) {
+    std::cout << "True station 1 pattern = " << track.Hits().at(0).Pattern() << ", data = " << data.cpattern[0] << ", isRPC = " << track.Hits().at(0).Is_RPC() << std::endl;
+    std::cout << "True station 2 pattern = " << track.Hits().at(1).Pattern() << ", data = " << data.cpattern[1] << ", isRPC = " << track.Hits().at(1).Is_RPC() << std::endl;
+  }  
+  int phi    = track.Phi_fp();
+  if (!contain(allowedModes_, mode))
     return pt;
-}
+
+  // Which stations have hits
+  int st1 = (mode >= 8);
+  int st2 = ((mode % 8) >= 4);
+  int st3 = ((mode % 4) >= 2);
+  int st4 = ((mode % 2) == 1);
+  
+  // Variables for input to XMLs
+  int dPhi_12, dPhi_13, dPhi_14, dPhi_23, dPhi_24, dPhi_34, dPhiSign;
+  int dPhiSum4, dPhiSum4A, dPhiSum3, dPhiSum3A, outStPhi;
+  int dTh_12, dTh_13, dTh_14, dTh_23, dTh_24, dTh_34;
+  int FR_1, FR_2, FR_3, FR_4;
+  int bend_1, bend_2, bend_3, bend_4;
+  int RPC_1, RPC_2, RPC_3, RPC_4;
+  int St1_ring2 = data.st1_ring2;
+  
+  int  ph1 = -99,  ph2 = -99,  ph3 = -99,  ph4 = -99;
+  int  th1 = -99,  th2 = -99,  th3 = -99,  th4 = -99;
+  int pat1 = -99, pat2 = -99, pat3 = -99, pat4 = -99;
+  
+  // Compute the original phi and theta coordinates
+  if        (st2) {
+    ph2 = phi;
+    th2 = theta;
+    if (st1) ph1 = ph2 - data.delta_ph[0]*(data.sign_ph[0] ? 1 : -1);
+    if (st1) th1 = th2 - data.delta_th[0]*(data.sign_th[0] ? 1 : -1);
+    if (st3) ph3 = ph2 + data.delta_ph[3]*(data.sign_ph[3] ? 1 : -1);
+    if (st3) th3 = th2 + data.delta_th[3]*(data.sign_th[3] ? 1 : -1);
+    if (st4) ph4 = ph2 + data.delta_ph[4]*(data.sign_ph[4] ? 1 : -1);
+    if (st4) th4 = th2 + data.delta_th[4]*(data.sign_th[4] ? 1 : -1);
+  } else if (st3) {
+    ph3 = phi;
+    th3 = theta;
+    if (st1) ph1 = ph3 - data.delta_ph[1]*(data.sign_ph[1] ? 1 : -1);
+    if (st1) th1 = th3 - data.delta_th[1]*(data.sign_th[1] ? 1 : -1);
+    if (st4) ph4 = ph3 + data.delta_ph[5]*(data.sign_ph[5] ? 1 : -1);
+    if (st4) th4 = th3 + data.delta_th[5]*(data.sign_th[5] ? 1 : -1);
+  } else if (st4) {
+    ph4 = phi;
+    th4 = theta;
+    if (st1) ph1 = ph4 - data.delta_ph[2]*(data.sign_ph[2] ? 1 : -1);
+    if (st1) th1 = th4 - data.delta_th[2]*(data.sign_th[2] ? 1 : -1);
+  }
+
+  if (st1) pat1 = data.cpattern[0];
+  if (st2) pat2 = data.cpattern[1];
+  if (st3) pat3 = data.cpattern[2];
+  if (st4) pat4 = data.cpattern[3];
+  
+  // BEGIN: Identical (almost) to BDT training code in EMTFPtAssign2017/PtRegression_Apr_2017.C
+  
+  theta = CalcTrackTheta( th1, th2, th3, th4, St1_ring2, mode, true );
+  
+  CalcDeltaPhis( dPhi_12, dPhi_13, dPhi_14, dPhi_23, dPhi_24, dPhi_34, dPhiSign,
+		 dPhiSum4, dPhiSum4A, dPhiSum3, dPhiSum3A, outStPhi,
+		 ph1, ph2, ph3, ph4, mode, true );
+  
+  CalcDeltaThetas( dTh_12, dTh_13, dTh_14, dTh_23, dTh_24, dTh_34,
+		   th1, th2, th3, th4, mode, true );
+  
+  FR_1 = (st1 ? data.fr[0] : -99);
+  FR_2 = (st2 ? data.fr[1] : -99);
+  FR_3 = (st3 ? data.fr[2] : -99);
+  FR_4 = (st4 ? data.fr[3] : -99);
+  
+  CalcBends( bend_1, bend_2, bend_3, bend_4,
+	     pat1, pat2, pat3, pat4,
+	     dPhiSign, endcap, mode, true );
+  
+  FR_1 = (st1 ? data.fr[0] : -99);
+  FR_2 = (st2 ? data.fr[1] : -99);
+  FR_3 = (st3 ? data.fr[2] : -99);
+  FR_4 = (st4 ? data.fr[3] : -99);
+
+  RPC_1 = (st1 ? (pat1 == 0) : -99);
+  RPC_2 = (st2 ? (pat2 == 0) : -99);
+  RPC_3 = (st3 ? (pat3 == 0) : -99);
+  RPC_4 = (st4 ? (pat4 == 0) : -99);
+
+  CalcRPCs( RPC_1, RPC_2, RPC_3, RPC_4, mode, true );
+  
+  // END: Identical (almost) to BDT training code in EMTFPtAssign2017/PtRegression_Apr_2017.C
+  
+  
+  // Fill vectors of variables for XMLs
+  // KK: sequence of variables here should exaclty match <Variables> block produced by TMVA
+  std::vector<int> predictors;
+  switch (mode) {
+  case 15: // 1-2-3-4
+    predictors = { theta, St1_ring2, dPhi_12, dPhi_23, dPhi_34, dPhi_13, dPhi_14, dPhi_24, FR_1, bend_1,
+		   dPhiSum4, dPhiSum4A, dPhiSum3, dPhiSum3A, outStPhi, dTh_14, RPC_1, RPC_2, RPC_3, RPC_4 };
+    break;
+  case 14: // 1-2-3
+    predictors = { theta, St1_ring2, dPhi_12, dPhi_23, dPhi_13, FR_1, FR_2, bend_1, dTh_13, RPC_1, RPC_2, RPC_3 }; break;
+  case 13: // 1-2-4
+    predictors = { theta, St1_ring2, dPhi_12, dPhi_24, dPhi_14, FR_1, FR_2, bend_1, dTh_14, RPC_1, RPC_2, RPC_4 }; break;
+  case 11: // 1-3-4
+    predictors = { theta, St1_ring2, dPhi_13, dPhi_34, dPhi_14, FR_1, FR_3, bend_1, dTh_14, RPC_1, RPC_3, RPC_4 }; break;
+  case  7: // 2-3-4
+    predictors = { theta,            dPhi_23, dPhi_34, dPhi_24, FR_2,       bend_2, dTh_24, RPC_2, RPC_3, RPC_4 }; break;
+  case 12: // 1-2
+    predictors = { theta, St1_ring2, dPhi_12, FR_1, FR_2, bend_1, bend_2, dTh_12, RPC_1, RPC_2 }; break;
+  case 10: // 1-3
+    predictors = { theta, St1_ring2, dPhi_13, FR_1, FR_3, bend_1, bend_3, dTh_13, RPC_1, RPC_3 }; break;
+  case  9: // 1-4
+    predictors = { theta, St1_ring2, dPhi_14, FR_1, FR_4, bend_1, bend_4, dTh_14, RPC_1, RPC_4 }; break;
+  case  6: // 2-3
+    predictors = { theta,            dPhi_23, FR_2, FR_3, bend_2, bend_3, dTh_23, RPC_2, RPC_3 }; break;
+  case  5: // 2-4
+    predictors = { theta,            dPhi_24, FR_2, FR_4, bend_2, bend_4, dTh_24, RPC_2, RPC_4 }; break;
+  case  3: // 3-4
+    predictors = { theta,            dPhi_34, FR_3, FR_4, bend_3, bend_4, dTh_34, RPC_3, RPC_4 }; break;
+  }
+
+  std::vector<Double_t> tree_data(predictors.cbegin(),predictors.cend());
+  
+  auto tree_event = std::make_unique<emtf::Event>();
+  tree_event->predictedValue = 0;
+  tree_event->data = tree_data;
+  
+  forests_.at(mode).predictEvent(tree_event.get(), 400);
+  
+  // Adjust this for different XMLs
+  float log2pt = tree_event->predictedValue;  // is actually log2(pT)
+  
+  pt = pow(2,log2pt);
+  
+  std::cout << "From track: mode " << mode << " track has inputs: ";
+  for (int i = 0; i < int(predictors.size()); i++)
+    std::cout << predictors.at(i) << ", ";
+  std::cout << "output pT: " << pt << std::endl;
+  
+  return pt;
+
+} // End function: float PtAssignmentEngine2017::calculate_pt_xml(const EMTFTrack& track)
+

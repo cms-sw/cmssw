@@ -113,13 +113,13 @@ void AngleCalculation::calculate_angles(EMTFTrack& track) const {
 
   // Keep track of which pair is valid
   std::array<bool, NUM_STATION_PAIRS> best_dtheta_valid_arr;
-  std::array<bool, NUM_STATION_PAIRS> best_has_rpc_arr;
+  std::array<bool, NUM_STATION_PAIRS> best_has_rpc_arr; // Not used - should remove (AWB 21.05.17)
 
   // Initialize
   best_dtheta_arr      .fill(invalid_dtheta);
-  best_dtheta_sign_arr .fill(0);
+  best_dtheta_sign_arr .fill(1);
   best_dphi_arr        .fill(invalid_dphi);
-  best_dphi_sign_arr   .fill(1);  // dphi sign reversed w.r.t dtheta
+  best_dphi_sign_arr   .fill(1);
   best_phi_arr         .fill(0);
   best_theta_arr       .fill(0);
   best_dtheta_valid_arr.fill(false);
@@ -145,7 +145,7 @@ void AngleCalculation::calculate_angles(EMTFTrack& track) const {
           int thA = conv_hitA.Theta_fp();
           int thB = conv_hitB.Theta_fp();
           int dth = abs_diff(thA, thB);
-          int dth_sign = (thA > thB);  // sign
+          int dth_sign = (thA <= thB);  // sign
           assert(thA != 0 && thB != 0);
           assert(dth < invalid_dtheta);
 
@@ -153,7 +153,7 @@ void AngleCalculation::calculate_angles(EMTFTrack& track) const {
             best_dtheta_arr.at(ipair) = dth;
             best_dtheta_sign_arr.at(ipair) = dth_sign;
             best_dtheta_valid_arr.at(ipair) = true;
-            //best_has_rpc_arr.at(ipair) = has_rpc;  // FW doesn't check whether a segment is CSC or RPC
+            // best_has_rpc_arr.at(ipair) = has_rpc;  // FW doesn't check whether a segment is CSC or RPC, should remove - AWB 21.05.17
 
             // first 3 pairs, use station B
             // last 3 pairs, use station A
@@ -164,7 +164,7 @@ void AngleCalculation::calculate_angles(EMTFTrack& track) const {
           int phA = conv_hitA.Phi_fp();
           int phB = conv_hitB.Phi_fp();
           int dph = abs_diff(phA, phB);
-          int dph_sign = (phA <= phB);  // sign reversed according to Matt's oral request 2016-04-27 (affects only pT/charge assignment)
+          int dph_sign = (phA <= phB);
 
           if (best_dphi_arr.at(ipair) >= dph) {
             best_dphi_arr.at(ipair) = dph;
@@ -352,19 +352,16 @@ void AngleCalculation::calculate_angles(EMTFTrack& track) const {
   for (int i = 0; i < NUM_STATION_PAIRS; ++i) {
     ptlut_data.delta_ph[i] = best_dphi_arr.at(i);
     ptlut_data.sign_ph[i]  = best_dphi_sign_arr.at(i);
-    if (best_has_rpc_arr.at(i) && best_dtheta_arr.at(i) != invalid_dtheta) {  // Automatically set to 0 for RPCs
-      ptlut_data.delta_th[i] = 0;
-      ptlut_data.sign_th[i]  = 0;
-    } else {
-      ptlut_data.delta_th[i] = best_dtheta_arr.at(i);
-      ptlut_data.sign_th[i]  = best_dtheta_sign_arr.at(i);
-    }
+    ptlut_data.delta_th[i] = best_dtheta_arr.at(i);
+    ptlut_data.sign_th[i]  = best_dtheta_sign_arr.at(i);
   }
 
   for (int i = 0; i < NUM_STATIONS; ++i) {
     const auto& v = st_conv_hits.at(i);
     ptlut_data.cpattern[i] = v.empty() ? 0 : v.front().Pattern();  // Automatically set to 0 for RPCs
     ptlut_data.fr[i]       = v.empty() ? 0 : isFront(v.front().Station(), v.front().Ring(), v.front().Chamber(), v.front().Subsystem());
+    if (i == 0)
+      ptlut_data.st1_ring2 = v.empty() ? 0 : (v.front().Station() == 1 && v.front().Ring() == 2);
   }
 
   for (int i = 0; i < NUM_STATIONS+1; ++i) {  // 'bt' arrays use 5-station convention

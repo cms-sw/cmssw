@@ -67,12 +67,12 @@ PtAssignmentEngine::address_t PtAssignmentEngine2016::calculate_address(const EM
     return (sign == 1) ? (var * 1) : (var * -1);
   };
 
-  dTheta12 = aux().getdTheta(get_signed_int(dTheta12, 1-dTheta12Sign));  // sign reversed
-  dTheta13 = aux().getdTheta(get_signed_int(dTheta13, 1-dTheta13Sign));
-  dTheta14 = aux().getdTheta(get_signed_int(dTheta14, 1-dTheta14Sign));
-  dTheta23 = aux().getdTheta(get_signed_int(dTheta23, 1-dTheta23Sign));
-  dTheta24 = aux().getdTheta(get_signed_int(dTheta24, 1-dTheta24Sign));
-  dTheta34 = aux().getdTheta(get_signed_int(dTheta34, 1-dTheta34Sign));
+  dTheta12 = aux().getdTheta(get_signed_int(dTheta12, dTheta12Sign));
+  dTheta13 = aux().getdTheta(get_signed_int(dTheta13, dTheta13Sign));
+  dTheta14 = aux().getdTheta(get_signed_int(dTheta14, dTheta14Sign));
+  dTheta23 = aux().getdTheta(get_signed_int(dTheta23, dTheta23Sign));
+  dTheta24 = aux().getdTheta(get_signed_int(dTheta24, dTheta24Sign));
+  dTheta34 = aux().getdTheta(get_signed_int(dTheta34, dTheta34Sign));
 
   bool use_FRLUT = true;
   if (use_FRLUT) {
@@ -680,3 +680,11 @@ float PtAssignmentEngine2016::calculate_pt_xml(const address_t& address) {
   assert(pt > 0);
   return pt;
 }
+
+
+// Not implemented for 2016
+float PtAssignmentEngine2016::calculate_pt_xml(const EMTFTrack& track) {
+  float pt = 0.;
+
+  return pt;
+} 
