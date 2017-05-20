@@ -138,8 +138,8 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
                 if (hwIsoEnergy < 0) hwIsoEnergy = 0; // just in case the cluster is outside the window? should be very rare
                 
                 isolBit =      (((hwIsoEnergy < (params_->tauIsolationLUT()->data(LUTaddress))) || (params_->tauIsolationLUT()->data(LUTaddress)>255)) ? 1 : 0);
-		int isolBit2 = (((hwIsoEnergy < (params_->tauIsolationLUT2()->data(LUTaddress))) || (params_->tauIsolationLUT2()->data(LUTaddress)>255)) ? 1 : 0);
-		isolBit += (isolBit2 << 1);
+		//int isolBit2 = (((hwIsoEnergy < (params_->tauIsolationLUT2()->data(LUTaddress))) || (params_->tauIsolationLUT2()->data(LUTaddress)>255)) ? 1 : 0);
+		//isolBit += (isolBit2 << 1);
                 tau.setHwIso(isolBit);
 
                 // development vars
@@ -434,8 +434,8 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
                 if (hwIsoEnergy < 0) hwIsoEnergy = 0; // just in case the cluster is outside the window? should be very rare
 
                 isolBit =      (((hwIsoEnergy < (params_->tauIsolationLUT()->data(LUTaddress))) || (params_->tauIsolationLUT()->data(LUTaddress)>255)) ? 1 : 0);
-		int isolBit2 = (((hwIsoEnergy < (params_->tauIsolationLUT2()->data(LUTaddress))) || (params_->tauIsolationLUT2()->data(LUTaddress)>255)) ? 1 : 0);
-		isolBit += (isolBit2 << 1);
+		//int isolBit2 = (((hwIsoEnergy < (params_->tauIsolationLUT2()->data(LUTaddress))) || (params_->tauIsolationLUT2()->data(LUTaddress)>255)) ? 1 : 0);
+		//isolBit += (isolBit2 << 1);
                 tau.setHwIso(isolBit);
 
                 // development vars
@@ -590,7 +590,8 @@ bool l1t::Stage2Layer2TauAlgorithmFirmwareImp1::compareTowers (l1t::CaloTower TT
     return (TT1.hwPhi() < TT2.hwPhi()); // towers towards S are favored (remember: N --> smaller phi, S --> larger phi)
 }
 
-bool l1t::Stage2Layer2TauAlgorithmFirmwareImp1::is3x3Maximum (const l1t::CaloTower& tower, const std::vector<CaloTower>& towers, l1t::CaloStage2Nav& caloNav)
+bool l1t::Stage2Layer2TauAlgorithmFirmwareImp1::is3x3Maximum (const l1t::CaloTower& tower, const std::vector<CaloTower>& towers, l1t::CaloStage2Nav& 
+caloNav)
 {
     int iEta = tower.hwEta();
     int iPhi = tower.hwPhi();
@@ -628,7 +629,8 @@ bool l1t::Stage2Layer2TauAlgorithmFirmwareImp1::is3x3Maximum (const l1t::CaloTow
     return (!vetoTT); // negate because I ask if is a local maxima
 }
 
-std::vector<l1t::CaloCluster*> l1t::Stage2Layer2TauAlgorithmFirmwareImp1::makeSecClusters (const std::vector<l1t::CaloTower>& towers, std::vector<int> & sites, const l1t::CaloCluster& mainCluster, l1t::CaloStage2Nav& caloNav)
+std::vector<l1t::CaloCluster*> l1t::Stage2Layer2TauAlgorithmFirmwareImp1::makeSecClusters (const std::vector<l1t::CaloTower>& towers, 
+std::vector<int> & sites, const l1t::CaloCluster& mainCluster, l1t::CaloStage2Nav& caloNav)
 {
     int neigEta [8] = {0, -1,  0,  1, -1,  0,  1,  0};
     int neigPhi [8] = {3,  2,  2,  2, -2, -2, -2, -3};
@@ -816,7 +818,8 @@ unsigned int l1t::Stage2Layer2TauAlgorithmFirmwareImp1::calibLutIndex (int ieta,
     return address;
 }
 
-int l1t::Stage2Layer2TauAlgorithmFirmwareImp1::calibratedPt(const l1t::CaloCluster& clus, const std::vector<l1t::CaloTower>& towers, int hwPt, bool isMerged)
+int l1t::Stage2Layer2TauAlgorithmFirmwareImp1::calibratedPt(const l1t::CaloCluster& clus, const std::vector<l1t::CaloTower>& towers, int hwPt, bool 
+isMerged)
 {
     // get seed tower
   const l1t::CaloTower& seedTT = l1t::CaloTools::getTower(towers, CaloTools::caloEta(clus.hwEta()), clus.hwPhi());
@@ -887,6 +890,7 @@ unsigned int l1t::Stage2Layer2TauAlgorithmFirmwareImp1::isoLutIndex(int Et, int 
 
     return address;
 }
+
 
 
 
