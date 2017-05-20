@@ -22,6 +22,8 @@ Severity    # Occurrences   Total Occurrences
 Info                    1                   1
 Error                   2                   2
 
+dropped waiting message count 0
+
 =============================================
 
 MessageLogger Summary
@@ -44,6 +46,8 @@ Severity    # Occurrences   Total Occurrences
 --------    -------------   -----------------
 Info                    1                   1
 Error                   3                   3
+
+dropped waiting message count 0
 
 =============================================
 
@@ -68,9 +72,13 @@ Severity    # Occurrences   Total Occurrences
 Info                    1                   1
 Error                   4                   4
 
+dropped waiting message count 0
+
 =============================================
 
 MessageLogger Summary
 
 Severity    # Occurrences   Total Occurrences
 --------    -------------   -----------------
+
+dropped waiting message count 0
