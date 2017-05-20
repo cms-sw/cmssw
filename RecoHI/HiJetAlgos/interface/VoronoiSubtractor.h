@@ -4,10 +4,13 @@
 #include "RecoJets/JetProducers/interface/PileUpSubtractor.h"
 #include "DataFormats/HeavyIonEvent/interface/VoronoiBackground.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 class VoronoiSubtractor : public PileUpSubtractor {
  public:
   VoronoiSubtractor(const edm::ParameterSet& iConfig, edm::ConsumesCollector && iC);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
     virtual void setupGeometryMap(edm::Event& iEvent,const edm::EventSetup& iSetup);
     virtual void calculatePedestal(std::vector<fastjet::PseudoJet> const & coll);
     virtual void subtractPedestal(std::vector<fastjet::PseudoJet> & coll);
