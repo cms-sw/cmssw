@@ -32,7 +32,7 @@ namespace pat {
           pfIsolationDR03_(pat::PFIsolation()),
           miniIsolation_(pat::PFIsolation()), 
           matchedCaloJetEmEnergy_(0.), matchedCaloJetHadEnergy_(0.),
-          dz_(0.), dxy_(0.), dzError_(0.), dxyError_(0.), trackQuality_(0),
+          dz_(0.), dxy_(0.), dzError_(0.), dxyError_(0.), fromPV_(-1), trackQuality_(0),
           dEdxStrip_(0), dEdxPixel_(0), hitPattern_(reco::HitPattern()),
           crossedEcalIds_(std::vector<DetId>()), crossedHcalIds_(std::vector<HcalDetId>()),
           crossedEcalStatus_(std::vector<EcalChannelStatusCode>()),
@@ -42,7 +42,7 @@ namespace pat {
         explicit StoppedTrack(const PFIsolation &iso, const PFIsolation &miniiso, float caloJetEm, float caloJetHad,
                               const LorentzVector &p4, int charge, int id,
                               float dz, float dxy, float dzError, float dxyError,
-                              const reco::HitPattern &hp, float dEdxS, float dEdxP, int tkQual,
+                              const reco::HitPattern &hp, float dEdxS, float dEdxP, int fromPV, int tkQual,
                               const std::vector<DetId> & ecalid, const std::vector<HcalDetId> & hcalid,
                               const std::vector<EcalChannelStatusCode> &ecalst,
                               const std::vector<HcalChannelStatus> & hcalst, 
@@ -51,7 +51,7 @@ namespace pat {
           pfIsolationDR03_(iso), miniIsolation_(miniiso), 
           matchedCaloJetEmEnergy_(caloJetEm), matchedCaloJetHadEnergy_(caloJetHad),
           dz_(dz), dxy_(dxy), dzError_(dzError), dxyError_(dxyError),
-          trackQuality_(tkQual), dEdxStrip_(dEdxS), dEdxPixel_(dEdxP), 
+          fromPV_(fromPV), trackQuality_(tkQual), dEdxStrip_(dEdxS), dEdxPixel_(dEdxP), 
           hitPattern_(hp), crossedEcalIds_(ecalid), crossedHcalIds_(hcalid),
           crossedEcalStatus_(ecalst), crossedHcalStatus_(hcalst),
           packedCandRef_(pcref) {}
@@ -69,6 +69,8 @@ namespace pat {
         float dzError() const { return dzError_; }
         float dxy() const { return dxy_; }
         float dxyError() const { return dxyError_; }
+
+        int fromPV() const { return fromPV_; }
 
         bool isHighPurityTrack() const 
           {  return (trackQuality_ & (1 << reco::TrackBase::highPurity)) >> reco::TrackBase::highPurity; }
@@ -96,6 +98,7 @@ namespace pat {
         float matchedCaloJetEmEnergy_;  //energy of nearest calojet within a given dR;
         float matchedCaloJetHadEnergy_;
         float dz_, dxy_, dzError_, dxyError_;        
+        int fromPV_;  //only stored for packedPFCandidates
         int trackQuality_;
         float dEdxStrip_, dEdxPixel_; //in MeV/mm
 
