@@ -40,28 +40,28 @@ public:
     MonitorElement* SimTrackPt;  
     MonitorElement* SimTrackEta;  
     MonitorElement* SimTrackPhi;  
-    MonitorElement* SimTrackPtP;  
-    MonitorElement* SimTrackEtaP;  
-    MonitorElement* SimTrackPhiP;  
-    MonitorElement* SimTrackPtS;  
-    MonitorElement* SimTrackEtaS;  
-    MonitorElement* SimTrackPhiS;  
     MonitorElement* MatchedTrackPt;
     MonitorElement* MatchedTrackPhi;
     MonitorElement* MatchedTrackEta;
-    MonitorElement* MatchedTrackPtP;
-    MonitorElement* MatchedTrackPhiP;
-    MonitorElement* MatchedTrackEtaP;
-    MonitorElement* MatchedTrackPtS;
-    MonitorElement* MatchedTrackPhiS;
-    MonitorElement* MatchedTrackEtaS;
-    MonitorElement* SimHitElossP;  
-    MonitorElement* SimHitElossS;  
+    MonitorElement* MissedHitTrackPt;
+    MonitorElement* MissedHitTrackPhi;
+    MonitorElement* MissedHitTrackEta;
+    MonitorElement* MissedDigiTrackPt;
+    MonitorElement* MissedDigiTrackPhi;
+    MonitorElement* MissedDigiTrackEta;
+    MonitorElement* MissedDigiSimHitElossP;
+    MonitorElement* MissedDigiSimHitElossS;
+    MonitorElement* MatchedSimHitElossP;  
+    MonitorElement* MatchedSimHitElossS;  
     MonitorElement* SimHitDx;
     MonitorElement* SimHitDy;
     MonitorElement* SimHitDz;
     MonitorElement* BunchXTimeBin;
     MonitorElement* FractionOfOOTDigis;
+    MonitorElement* MissedDigiLocalXposVsYPos;
+    MonitorElement* MissedDigiTimeWindow;
+    int nHits;
+    int nDigis;
   };
 
 private:
@@ -69,12 +69,15 @@ private:
   MonitorElement* nSimulatedTracks;  
   MonitorElement* nSimulatedTracksP;  
   MonitorElement* nSimulatedTracksS;  
+
   MonitorElement* SimulatedTrackPt;  
   MonitorElement* SimulatedTrackEta;  
   MonitorElement* SimulatedTrackPhi;  
+
   MonitorElement* SimulatedTrackPtP;  
   MonitorElement* SimulatedTrackEtaP;  
   MonitorElement* SimulatedTrackPhiP;  
+
   MonitorElement* SimulatedTrackPtS;  
   MonitorElement* SimulatedTrackEtaS;  
   MonitorElement* SimulatedTrackPhiS;  
@@ -89,7 +92,6 @@ private:
   MonitorElement* SimulatedTOFPhiMap;
   MonitorElement* SimulatedTOFRMap;
   MonitorElement* SimulatedTOFZMap;
-
   float etaCut_;
   float ptCut_;
 
