@@ -6,7 +6,7 @@ L1TkElectrons = cms.EDProducer("L1TkElectronTrackProducer",
         L1EGammaInputTag = cms.InputTag("simCaloStage2Digis",""),
         ETmin = cms.double( -1.0 ),             # Only the L1EG objects that have ET > ETmin in GeV
                                                 # are considered. ETmin < 0 means that no cut is applied.
-     	L1TrackInputTag = cms.InputTag("TTTracksFromTracklet"),
+     	L1TrackInputTag = cms.InputTag("TTTracksFromTracklet", "Level1TTTracks"),
         # Quality cuts on Track and Track L1EG matching criteria                                
         TrackChi2           = cms.double(1e10), # minimum Chi2 to select tracks
         TrackMinPt          = cms.double(10.0), # minimum Pt to select tracks                                     

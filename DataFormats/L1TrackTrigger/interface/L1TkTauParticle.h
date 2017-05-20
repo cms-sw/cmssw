@@ -7,6 +7,7 @@
 // Class  :     L1TkTauParticle
 //
 
+#include "DataFormats/L1Trigger/interface/L1Candidate.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/Ptr.h"
 
@@ -14,9 +15,8 @@
 
 #include "DataFormats/L1TrackTrigger/interface/L1TkEmParticle.h"
 
-#include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
+#include "DataFormats/L1Trigger/interface/Tau.h"
 
-#include "DataFormats/L1Trigger/interface/Jet.h"
 
 namespace l1t {
          
@@ -25,13 +25,13 @@ namespace l1t {
          
       public:
 
-     typedef TTTrack< Ref_Phase2TrackerDigi_ >  L1TTTrackType;
-     typedef std::vector< L1TTTrackType > L1TTTrackCollection;
-     
+    typedef TTTrack< Ref_Phase2TrackerDigi_ >  L1TTTrackType;
+    typedef std::vector< L1TTTrackType > L1TTTrackCollection;
+           
          L1TkTauParticle();
 
 	 L1TkTauParticle( const LorentzVector& p4,
-			    const edm::Ref< JetBxCollection >& tauCaloRef,   // null for stand-alone TkTaus
+			    const edm::Ref< TauBxCollection >& tauCaloRef,   // null for stand-alone TkTaus
 			    const edm::Ptr< L1TTTrackType >& trkPtr,
                             const edm::Ptr< L1TTTrackType >& trkPtr2,	// null for tau -> 1 prong
                             const edm::Ptr< L1TTTrackType >& trkPtr3,	// null for tau -> 1 prong
@@ -41,7 +41,7 @@ namespace l1t {
 
          // ---------- const member functions ---------------------
 
-         const edm::Ref< JetBxCollection >& gettauCaloRef() const
+         const edm::Ref< TauBxCollection >& gettauCaloRef() const
 	  { return tauCaloRef_  ; }
 
          const edm::Ptr< L1TTTrackType >& getTrkPtr() const
@@ -64,7 +64,7 @@ namespace l1t {
 
       private:
 
-	 edm::Ref< JetBxCollection > tauCaloRef_ ;
+	 edm::Ref< TauBxCollection > tauCaloRef_ ;
 
          edm::Ptr< L1TTTrackType > trkPtr_ ;
          edm::Ptr< L1TTTrackType > trkPtr2_ ;

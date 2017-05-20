@@ -15,7 +15,7 @@ L1TkElectronParticle::L1TkElectronParticle()
 }
 
 L1TkElectronParticle::L1TkElectronParticle( const LorentzVector& p4,
-         const edm::Ref< l1t::EGammaBxCollection >& egRef,
+         const edm::Ref< EGammaBxCollection >& egRef,
          const edm::Ptr< L1TTTrackType >& trkPtr,
 	 float tkisol )
    : L1TkEmParticle( p4, egRef, tkisol) ,

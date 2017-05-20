@@ -90,18 +90,17 @@
   <class name="edm::Wrapper<l1t::L1TkHTMissParticle>"/>
   <class name="edm::Wrapper<std::vector<l1t::L1TkHTMissParticle> >"/>
 
-<!--
+
   <class name="l1t::L1TkMuonParticle" ClassVersion="12">
-   <version ClassVersion="12" checksum="3928490091"/>
-   <version ClassVersion="11" checksum="2650978663"/>
-   <version ClassVersion="10" checksum="1626250068"/>
+   <version ClassVersion="13" checksum="1571385768"/>
+   <version ClassVersion="12" checksum="1571385768"/>
   </class>
   <class name="std::vector<l1t::L1TkMuonParticle>"/>
   <class name="edm::Wrapper<std::vector<l1t::L1TkMuonParticle> >"/>
   <class name="edm::Ref<std::vector<l1t::L1TkMuonParticle>,l1t::L1TkMuonParticle,edm::refhelper::FindUsingAdvance<std::vector<l1t::L1TkMuonParticle>,l1t::L1TkMuonParticle> >"/>
--->
-  <class name="l1t::L1TkTauParticle" ClassVersion="13">
-   <version ClassVersion="13" checksum="3745919721"/>
+
+  <class name="l1t::L1TkTauParticle" ClassVersion="14">
+   <version ClassVersion="14" checksum="916039889"/>
   </class>
   <class name="std::vector<l1t::L1TkTauParticle>"/>
   <class name="edm::Wrapper<std::vector<l1t::L1TkTauParticle> >"/>

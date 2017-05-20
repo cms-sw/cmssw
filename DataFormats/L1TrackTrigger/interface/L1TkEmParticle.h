@@ -32,7 +32,7 @@ namespace l1t {
 
          // ---------- const member functions ---------------------
 
-	 const edm::Ref< l1t::EGammaBxCollection >& getEGRef() const
+	 const edm::Ref< EGammaBxCollection >& getEGRef() const
 	 { return egRef_ ; }
 
 	 float getTrkIsol() const { return TrkIsol_ ; } 
@@ -46,7 +46,7 @@ namespace l1t {
 
       private:
 
-	 edm::Ref< l1t::EGammaBxCollection > egRef_ ;
+	 edm::Ref< EGammaBxCollection > egRef_ ;
 	 float TrkIsol_;
 
     };

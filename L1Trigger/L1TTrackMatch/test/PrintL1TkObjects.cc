@@ -52,6 +52,10 @@
 #include "DataFormats/L1TrackTrigger/interface/L1TkJetParticleFwd.h"
 #include "DataFormats/L1TrackTrigger/interface/L1TkHTMissParticle.h"
 #include "DataFormats/L1TrackTrigger/interface/L1TkHTMissParticleFwd.h"
+#include "DataFormats/L1TrackTrigger/interface/L1TkMuonParticle.h"
+#include "DataFormats/L1TrackTrigger/interface/L1TkMuonParticleFwd.h"
+#include "DataFormats/L1TrackTrigger/interface/L1TkTauParticle.h"
+#include "DataFormats/L1TrackTrigger/interface/L1TkTauParticleFwd.h"
 
 #include "TFile.h"
 #include "TH1F.h"
@@ -104,15 +108,20 @@ private:
   // for L1TkEmParticles
   const edm::EDGetTokenT< L1TkJetParticleCollection >  tkJetToken;
 
-  // for L1TkElectrons
+  // for L1TkHTMiss
   const edm::EDGetTokenT< L1TkHTMissParticleCollection > tkHTMissToken;
 
   // for L1TkJetParticles
   const edm::EDGetTokenT< L1TkEmParticleCollection > tkPhotonToken;
 
-  // for L1TkHTMParticle
+  // for L1TkElectron
   const edm::EDGetTokenT< L1TkElectronParticleCollection > tkElecToken;
 
+  // for L1TkMuon
+  const edm::EDGetTokenT< L1TkMuonParticleCollection > tkMuonToken;
+
+  // for L1TkTau
+  const edm::EDGetTokenT< L1TkTauParticleCollection > tkTauToken;
 };
 
 //
@@ -133,7 +142,9 @@ PrintL1TkObjects::PrintL1TkObjects(const edm::ParameterSet& iConfig) :
    tkJetToken(consumes<L1TkJetParticleCollection>(iConfig.getParameter<edm::InputTag>("L1TkJetsInputTag"))),
    tkHTMissToken(consumes<L1TkHTMissParticleCollection>(iConfig.getParameter<edm::InputTag>("L1TkHTMInputTag"))),
    tkPhotonToken(consumes<L1TkEmParticleCollection>(iConfig.getParameter<edm::InputTag>("L1TkPhotonsInputTag"))),
-   tkElecToken(consumes<L1TkElectronParticleCollection>(iConfig.getParameter<edm::InputTag>("L1TkElectronsInputTag")))
+   tkElecToken(consumes<L1TkElectronParticleCollection>(iConfig.getParameter<edm::InputTag>("L1TkElectronsInputTag"))),
+   tkMuonToken(consumes<L1TkMuonParticleCollection>(iConfig.getParameter<edm::InputTag>("L1TkMuonsInputTag"))),
+   tkTauToken(consumes<L1TkTauParticleCollection>(iConfig.getParameter<edm::InputTag>("L1TkTausInputTag")))
 {
    //now do what ever initialization is needed
 
@@ -371,6 +382,46 @@ PrintL1TkObjects::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     }
  }
 
+        //  
+        // ----------------------------------------------------------------------
+        // retrieve the L1TkMuons
+        //
+
+ edm::Handle<L1TkMuonParticleCollection> L1TkMuonsHandle;
+ iEvent.getByToken(tkMuonToken, L1TkMuonsHandle);
+ std::vector<L1TkMuonParticle>::const_iterator muIter;
+
+ if ( L1TkMuonsHandle.isValid() ) {
+    std::cout << " -----   L1TkMuonPaticle objects ---- " << std::endl;
+    for (muIter = L1TkMuonsHandle -> begin(); muIter != L1TkMuonsHandle->end(); ++muIter) {
+        float pt = muIter -> pt();
+        float eta = muIter -> eta();
+        float phi = muIter -> phi();
+        float zvtx = muIter -> getTrkzVtx();
+        std::cout << " a muon candidate pt eta phi " << pt << " " << eta << " " << phi << " zvertex = " << zvtx << std::endl;
+    }
+ }
+
+        //  
+        // ----------------------------------------------------------------------
+        // retrieve the L1TkMuons
+        //
+
+ edm::Handle<L1TkTauParticleCollection> L1TkTausHandle;
+ iEvent.getByToken(tkTauToken,L1TkTausHandle);
+ std::vector<L1TkTauParticle>::const_iterator tauIter;
+
+ if ( L1TkTausHandle.isValid() ) {
+    std::cout << " -----   L1TkTauPaticle objects ---- " << std::endl;
+    for (tauIter = L1TkTausHandle -> begin(); tauIter != L1TkTausHandle->end(); ++tauIter) {
+        float pt = tauIter -> pt();
+        float eta = tauIter -> eta();
+        float phi = tauIter -> phi();
+        float zvtx = tauIter -> getTrkzVtx();
+        std::cout << " a tai candidate pt eta phi " << pt << " " << eta << " " << phi << " zvertex = " << zvtx << std::endl;
+
+    }
+ }
 
 
 }

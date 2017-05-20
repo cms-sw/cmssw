@@ -1,5 +1,5 @@
-#ifndef L1TTTrigger_L1TauParticleFwd_h
-#define L1TTTrigger_L1TauParticleFwd_h
+#ifndef L1TkTrigger_L1TauParticleFwd_h
+#define L1TkTrigger_L1TauParticleFwd_h
 
 // -*- C++ -*-
 //

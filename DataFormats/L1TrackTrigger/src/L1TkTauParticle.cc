@@ -7,7 +7,7 @@
 #include "DataFormats/L1TrackTrigger/interface/L1TkTauParticle.h"
 
 
-using namespace l1t ;
+using namespace l1t;
 
 
 L1TkTauParticle::L1TkTauParticle()
@@ -15,7 +15,7 @@ L1TkTauParticle::L1TkTauParticle()
 }
 
 L1TkTauParticle::L1TkTauParticle( const LorentzVector& p4,
-	 const edm::Ref< JetBxCollection > &tauCaloRef,
+	 const edm::Ref< TauBxCollection > &tauCaloRef,
          const edm::Ptr< L1TTTrackType >& trkPtr,
          const edm::Ptr< L1TTTrackType >& trkPtr2,
          const edm::Ptr< L1TTTrackType >& trkPtr3,
@@ -35,10 +35,6 @@ L1TkTauParticle::L1TkTauParticle( const LorentzVector& p4,
  }
 }
 
-int L1TkTauParticle::bx() const {
- int dummy = 0;
- return dummy;
-}
 
 
 

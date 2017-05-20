@@ -157,31 +157,7 @@ process.endjob_step = cms.EndPath(process.endOfProcess)
 
 # Now we produce L1TkEmParticles and L1TkElectrons
 
-
-process.load("L1Trigger.L1TTrackMatch.L1TkElectronTrackProducer_cfi")
-process.L1TkElectrons.L1TrackInputTag = cms.InputTag("TTTracksFromTracklet","Level1TTTracks" )
-process.pL1TkElectrons = cms.Path( process.L1TkElectrons )
-
-process.load("L1Trigger.L1TTrackMatch.L1TkEmParticleProducer_cfi")
-process.L1TkPhotons.L1TrackInputTag = cms.InputTag("TTTracksFromTracklet","Level1TTTracks" )
-process.pL1TkPhotons = cms.Path( process.L1TkPhotons )
-
-process.load("L1Trigger.L1TTrackMatch.L1TkJetProducer_cfi")
-process.L1TkJets.L1TrackInputTag = cms.InputTag("TTTracksFromTracklet","Level1TTTracks" )
-process.pL1TkJets = cms.Path( process.L1TkJets)
-
-process.load("L1Trigger.L1TTrackMatch.L1TkPrimaryVertexProducer_cfi")
-process.L1TkPrimaryVertex.L1TrackInputTag = cms.InputTag("TTTracksFromTracklet","Level1TTTracks" )
-process.pL1TkPrimaryVertex = cms.Path( process.L1TkPrimaryVertex )
-
-process.load("L1Trigger.L1TTrackMatch.L1TkEtMissProducer_cfi")
-process.L1TkEtMiss.L1TrackInputTag = cms.InputTag("TTTracksFromTracklet","Level1TTTracks" )
-process.pL1TrkMET = cms.Path( process.L1TkEtMiss )
-
-process.load("L1Trigger.L1TTrackMatch.L1TkHTMissProducer_cfi")
-process.L1TkHTMissVtx.L1TrackInputTag = cms.InputTag("TTTracksFromTracklet","Level1TTTracks" )
-process.pL1TkHTMissVtx = cms.Path( process.L1TkHTMissVtx)
-
+process.load("L1Trigger.L1TTrackMatch.L1TkObjectProducers_cff")
 process.pL1TkObjects = cms.Path(process.L1TkElectrons + process.L1TkPhotons + process.L1TkJets + process.L1TkPrimaryVertex + process.L1TkEtMiss + process.L1TkHTMissVtx)
 
 
