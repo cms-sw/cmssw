@@ -39,7 +39,7 @@
 
 
 EcalUncalibRecHitWorkerAnalFit::EcalUncalibRecHitWorkerAnalFit(const edm::ParameterSet& ps, edm::ConsumesCollector& c) :
-  EcalUncalibRecHitWorkerBaseClass( ps ,c)
+  EcalUncalibRecHitWorkerRunOneDigiBase( ps ,c)
 {
 }
 
