@@ -81,7 +81,6 @@ public:
   void useFullContext();         void useContext();
   void separateTime();           void attachTime();
   void separateEpilogue();       void attachEpilogue();
-  void noTerminationSummary();
   int  setLineLength(int len);	 int  getLineLength() const;
 
   void filterModule    ( ELstring const & moduleName );
@@ -89,7 +88,6 @@ public:
   void respondToModule ( ELstring const & moduleName );
   void ignoreModule    ( ELstring const & moduleName );
 
-  ELdestControl & clearSummary();
   ELdestControl & wipe();
   ELdestControl & zero();
 
@@ -98,14 +96,6 @@ public:
 
   // -----  Active methods invoked by the framework:
   //
-  void summary( ELdestControl & dest, const char * title="" );
-  void summary( std::ostream  & os  , const char * title="" );
-  void summary( ELstring      & s   , const char * title="" );
-  void summary( );
-  void summaryForJobReport( std::map<std::string, double> & sm);
-
-  std::map<ELextendedID , StatsCount> statisticsMap() const;
-
   bool log( edm::ErrorObj & msg );  // Backdoor to log a formed message
                                             // to only this destination.
 				       
@@ -114,10 +104,6 @@ public:
   void flush(); 				       
   
   // -----  Helper methods invoked by other ErrorLogger classes
-
-  void summarization( const ELstring & title
-                            , const ELstring & sumLines
-                            );
 
   ELstring getNewline() const;
 

@@ -21,22 +21,6 @@ caloTowers = cms.EDProducer("CaloTowerCandidateCreator",
     et = cms.double(0.0)
 )
 
-## background for HF/Voronoi-style subtraction
-voronoiBackgroundCalo = cms.EDProducer('VoronoiBackgroundProducer',
-                                       src = cms.InputTag('towerMaker'),
-                                       tableLabel = cms.string("UETable_Calo"),
-                                       doEqualize = cms.bool(False),
-                                       equalizeThreshold0 = cms.double(5.0),
-                                       equalizeThreshold1 = cms.double(35.0),
-                                       equalizeR = cms.double(0.4),
-				       useTextTable = cms.bool(False),
-				       jetCorrectorFormat = cms.bool(True),
-                                       isCalo = cms.bool(True),
-                                       etaBins = cms.int32(15),
-                                       fourierOrder = cms.int32(5)
-                                       )
-
-
 ## Noise reducing PU subtraction algos
 
 ## Iterative Cone
@@ -93,23 +77,6 @@ akPu7CaloJets = cms.EDProducer(
 akPu7CaloJets.radiusPU = 0.7
 
 
-## HF/Vornoi background subtracton algos
-
-akVs5CaloJets = akPu5CaloJets.clone(
-    subtractorName = cms.string("VoronoiSubtractor"),
-    bkg = cms.InputTag("voronoiBackgroundCalo"),
-    dropZeros = cms.bool(True),
-    doAreaFastjet = False
-    )
-
-#
-akVs1CaloJets = akVs5CaloJets.clone(rParam       = cms.double(0.1))
-akVs2CaloJets = akVs5CaloJets.clone(rParam       = cms.double(0.2))
-akVs3CaloJets = akVs5CaloJets.clone(rParam       = cms.double(0.3))
-akVs4CaloJets = akVs5CaloJets.clone(rParam       = cms.double(0.4))
-akVs6CaloJets = akVs5CaloJets.clone(rParam       = cms.double(0.6))
-akVs7CaloJets = akVs5CaloJets.clone(rParam       = cms.double(0.7))
-
 akPu5CaloJets.puPtMin = cms.double(10)
 akPu1CaloJets = akPu5CaloJets.clone(rParam       = cms.double(0.1), puPtMin = 4)
 akPu2CaloJets = akPu5CaloJets.clone(rParam       = cms.double(0.2), puPtMin = 4)
@@ -139,9 +106,7 @@ ak7CaloJets = ak5CaloJets.clone(rParam       = cms.double(0.7))
 hiRecoJets = cms.Sequence(
     caloTowersRec*caloTowers*
     iterativeConePu5CaloJets*
-    akPu3CaloJets*akPu4CaloJets*akPu5CaloJets*
-    voronoiBackgroundCalo*
-    akVs2CaloJets*akVs3CaloJets*akVs4CaloJets*akVs5CaloJets
+    akPu3CaloJets*akPu4CaloJets*akPu5CaloJets
     )
 
 ## Extended Sequence
@@ -150,8 +115,6 @@ hiRecoAllJets = cms.Sequence(
     *ak1CaloJets*ak2CaloJets*ak3CaloJets*ak4CaloJets*ak5CaloJets*ak6CaloJets*ak7CaloJets
     *akPu1CaloJets*akPu2CaloJets*akPu3CaloJets*akPu4CaloJets*akPu5CaloJets*akPu6CaloJets*akPu7CaloJets*
     ktPu4CaloJets*ktPu6CaloJets
-    *voronoiBackgroundCalo
-    *akVs1CaloJets*akVs2CaloJets*akVs3CaloJets*akVs4CaloJets*akVs5CaloJets*akVs6CaloJets*akVs7CaloJets    
     )
 
 
