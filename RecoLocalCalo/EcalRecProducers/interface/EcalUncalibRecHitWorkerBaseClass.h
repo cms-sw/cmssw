@@ -22,7 +22,9 @@ class EcalUncalibRecHitWorkerBaseClass {
   
   virtual void set(const edm::EventSetup& es) = 0;
   virtual void set(const edm::Event& evt) {}
-  virtual bool run(const edm::Event& evt, const EcalDigiCollection::const_iterator & digi, EcalUncalibratedRecHitCollection & result) = 0;
+
+  virtual void run(const edm::Event& evt, const EcalDigiCollection & digis, EcalUncalibratedRecHitCollection & result) = 0;
+
   virtual edm::ParameterSetDescription getAlgoDescription() = 0;
 };
 
