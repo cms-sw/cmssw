@@ -153,7 +153,6 @@ int RPixDetClusterizer::calibrate(unsigned int detId, int adc, int row, int col,
       float vcal = (adc - pedestal)*gain;
       electrons = int(vcal*VcaltoElectronGain_ + VcaltoElectronOffset_);
 
-      std::cout << " FFF   gain "<<  gain <<"  pedestal "<< pedestal << "  adc "<< adc  << "  vcal " << vcal << "  electrons "<<electrons << std::endl;
     }
     else{
       gain = ElectronADCGain_;
