@@ -7,6 +7,8 @@ namespace {
   constexpr int max16bits = 65535;
   constexpr int maxCol = 155;
   constexpr int maxRow = 159;
+  constexpr double highRangeCal = 1800.;
+  constexpr double lowRangeCal = 260.;
 }
 
 
@@ -146,10 +148,12 @@ int RPixDetClusterizer::calibrate(unsigned int detId, int adc, int row, int col,
     CTPPSPixelGainCalibration DetCalibs = pcalibrations->getGainCalibration(detId);
 
     if(DetCalibs.getId() != 0){
-      gain = DetCalibs.getGain(col,row);
+      gain = DetCalibs.getGain(col,row)*highRangeCal/lowRangeCal;
       pedestal = DetCalibs.getPed(col,row);
       float vcal = (adc - pedestal)*gain;
       electrons = int(vcal*VcaltoElectronGain_ + VcaltoElectronOffset_);
+
+      std::cout << " FFF   gain "<<  gain <<"  pedestal "<< pedestal << "  adc "<< adc  << "  vcal " << vcal << "  electrons "<<electrons << std::endl;
     }
     else{
       gain = ElectronADCGain_;
