@@ -134,7 +134,7 @@ void L1TStage2CaloLayer2DEClient::book(DQMStore::IBooker &ibooker) {
     "METRatio","Data/Emul of MET; iE_{T}; Events",
     4096, -0.5, 4095.5);
   METPhiComp_ = ibooker.book1D(
-    "METPhiRatio","Data/Emul of MET #phi; MET i#Phi; Events",
+    "METPhiRatio","Data/Emul of MET #phi; MET i#phi; Events",
     1008, -0.5, 1007.5);
   METHFComp_ = ibooker.book1D(
     "METHFRatio","Data/Emul of METHF; METHF iE_{T}; Events",
@@ -660,20 +660,27 @@ void L1TStage2CaloLayer2DEClient::processHistograms(DQMStore::IGetter &igetter){
     METRatio->Divide(metNum, metDen);
   }
 
-  /*
+  // This causes CMSSW to segfault with a complaint that ROOT cannot divide two
+  // histograms with different number of bins. Checking the contents of the data
+  // and emulator histograms, using both GetNbinsX() and GetSize(), it can be
+  // seen that the reported number of bins is the same. This needs more
+  // investigation.
+
   // MET Phi
-  dataHist_ = igetter.get(input_dir_data_+"/Energy-Sums/"+"METPhi");
-  emulHist_ = igetter.get(input_dir_emul_+"/Energy-Sums/"+"METPhi");
+  // dataHist_ = igetter.get(input_dir_data_+"/Energy-Sums/"+"METPhi");
+  // emulHist_ = igetter.get(input_dir_emul_+"/Energy-Sums/"+"METPhi");
 
-  if (dataHist_ && emulHist_){
-    TH1F *metphiNum = dataHist_->getTH1F();
-    TH1F *metphiDen = emulHist_->getTH1F();
+  // if (dataHist_ && emulHist_){
+  //   TH1F * metphiNum = dataHist_->getTH1F();
+  //   TH1F * metphiDen = emulHist_->getTH1F();
 
-    TH1F *METPhiRatio = METPhiComp_->getTH1F();
+  //   TH1F * METPhiRatio = METPhiComp_->getTH1F();
 
-    METPhiRatio->Divide(metphiNum, metphiDen);
-  }
-  */
+  //   std::cout << "data met " << metphiNum->GetNbinsX() << std::endl;
+  //   std::cout << "emul met " << metphiDen->GetNbinsX() << std::endl;
+
+  //   METPhiRatio->Divide(metphiNum, metphiDen);
+  // }
 
   // METHF
   dataHist_ = igetter.get(input_dir_data_+"/Energy-Sums/"+"METHFRank");
@@ -688,24 +695,23 @@ void L1TStage2CaloLayer2DEClient::processHistograms(DQMStore::IGetter &igetter){
     METHFRatio->Divide(methfNum, methfDen);
   }
 
-  /*
-  // METHF Phi
-  dataHist_ = igetter.get(input_dir_data_+"/Energy-Sums/"+"METHFPhi");
-  emulHist_ = igetter.get(input_dir_emul_+"/Energy-Sums/"+"METHFPhi");
+  // // METHF Phi
+  // dataHist_ = igetter.get(input_dir_data_+"/Energy-Sums/"+"METHFPhi");
+  // emulHist_ = igetter.get(input_dir_emul_+"/Energy-Sums/"+"METHFPhi");
 
-  if (dataHist_ && emulHist_){
-    TH1F *methfphiNum = dataHist_->getTH1F();
-    TH1F *methfphiDen = emulHist_->getTH1F();
+  // if (dataHist_ && emulHist_){
+  //   TH1F *methfphiNum = dataHist_->getTH1F();
+  //   TH1F *methfphiDen = emulHist_->getTH1F();
 
-    TH1F *METHFPhiRatio = METHFPhiComp_->getTH1F();
+  //   TH1F *METHFPhiRatio = METHFPhiComp_->getTH1F();
 
-    METHFPhiRatio->Divide(methfphiNum, methfphiDen);
-  }
-  */
+  //   METHFPhiRatio->Divide(methfphiNum, methfphiDen);
+  // }
 
   // MHT
   dataHist_ = igetter.get(input_dir_data_+"/Energy-Sums/"+"MHTRank");
   emulHist_ = igetter.get(input_dir_emul_+"/Energy-Sums/"+"MHTRank");
+
 
   if (dataHist_ && emulHist_){
     TH1F *mhtNum = dataHist_->getTH1F();
@@ -715,6 +721,19 @@ void L1TStage2CaloLayer2DEClient::processHistograms(DQMStore::IGetter &igetter){
 
     MHTRatio->Divide(mhtNum, mhtDen);
   }
+
+  // // MHT Phi
+  // dataHist_ = igetter.get(input_dir_data_+"/Energy-Sums/"+"MHTPhi");
+  // emulHist_ = igetter.get(input_dir_emul_+"/Energy-Sums/"+"MHTPhi");
+
+  // if (dataHist_ && emulHist_){
+  //   TH1F * mhtphiNum = dataHist_->getTH1F();
+  //   TH1F * mhtphiDen = emulHist_->getTH1F();
+
+  //   TH1F * MHTPhiRatio = METHFPhiComp_->getTH1F();
+
+  //   MHTPhiRatio->Divide(mhtphiNum, mhtphiDen);
+  // }
 
   // MHTHF
   dataHist_ = igetter.get(input_dir_data_+"/Energy-Sums/"+"MHTHFRank");
@@ -729,19 +748,19 @@ void L1TStage2CaloLayer2DEClient::processHistograms(DQMStore::IGetter &igetter){
     MHTHFRatio->Divide(mhthfNum, mhthfDen);
   }
 
-  /*
-  // MHTHF Phi
-  dataHist_ = igetter.get(input_dir_data_+"/Energy-Sums/"+"MHTHFPhi");
-  emulHist_ = igetter.get(input_dir_emul_+"/Energy-Sums/"+"MHTHFPhi");
+  // // MHTHF Phi
+  // dataHist_ = igetter.get(input_dir_data_+"/Energy-Sums/"+"MHTHFPhi");
+  // emulHist_ = igetter.get(input_dir_emul_+"/Energy-Sums/"+"MHTHFPhi");
 
-  if (dataHist_ && emulHist_){
-    TH1F *mhthfphiNum = dataHist_->getTH1F();
-    TH1F *mhthfphiDen = emulHist_->getTH1F();
+  // if (dataHist_ && emulHist_){
+  //   TH1F *mhthfphiNum = dataHist_->getTH1F();
+  //   TH1F *mhthfphiDen = emulHist_->getTH1F();
 
-    TH1F *MHTHFPhiRatio = MHTHFPhiComp_->getTH1F();
+  //   TH1F *MHTHFPhiRatio = MHTHFPhiComp_->getTH1F();
 
-    MHTHFPhiRatio->Divide(mhthfphiNum, mhthfphiDen);
-    }*/
+  //   std::cout << "dividing mhthf phi" << std::endl;
+  //   MHTHFPhiRatio->Divide(mhthfphiNum, mhthfphiDen);
+  // }
 
   // ETT
   dataHist_ = igetter.get(input_dir_data_+"/Energy-Sums/"+"ETTRank");
