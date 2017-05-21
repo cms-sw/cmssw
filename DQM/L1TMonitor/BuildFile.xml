@@ -39,7 +39,4 @@
 <use   name="root"/>
 <use   name="boost"/>
 
-<export>
-  <flags   EDM_PLUGIN="1"/>
-  <lib name="DQML1TMonitor"/>
-</export>
+<flags   EDM_PLUGIN="1"/>
