@@ -131,9 +131,7 @@ do
     echo "get the run status from DQMFile"
     runStatus=-1
     runStatus="$(${pathTools}getRunStatusFromDQMFile.py ${file_path}/$dqmFileName $Run_numb runIsComplete | wc -l)"
-    echo 'Tools in:'
-    echo $pathTools
-
+    
     if [[ ${runStatus} == 0 ]] 
 	then 
 	echo ${Run_numb} >> ${curdir}/runsNotComplete_tmp.txt
