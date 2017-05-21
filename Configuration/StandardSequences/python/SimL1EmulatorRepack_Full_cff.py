@@ -49,12 +49,14 @@ else:
 
     # Second, Re-Emulate the entire L1T
 
-    # Legacy trigger primitive emulations still running in 2016 trigger:
-    # NOTE:  2016 HCAL HF TPs require a new emulation, which is not yet available...    
     from SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff import *
     simHcalTriggerPrimitiveDigis.inputLabel = cms.VInputTag(
         cms.InputTag('unpackHcal'),
         cms.InputTag('unpackHcal')
+    )
+    simHcalTriggerPrimitiveDigis.inputUpgradeLabel = cms.VInputTag(
+        cms.InputTag('unpackHcal'),     # upgrade HBHE
+        cms.InputTag('unpackHcal')      # upgrade HF
     )
 
     from L1Trigger.Configuration.SimL1Emulator_cff import *
