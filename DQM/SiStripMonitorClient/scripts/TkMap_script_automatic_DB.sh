@@ -29,6 +29,13 @@ DataOflineDir=''
 for Run_numb in $@;
 do
 
+#2017 - Commissioning period                                                                                                                               
+    if [ $Run_numb > 290123 ]; then
+
+        DataLocalDir='Data2017'
+        DataOfflineDir='Commissioning2017'
+    else
+
     if [ $Run_numb -gt 284500 ]; then
 
         DataLocalDir='Data2016'
@@ -84,6 +91,7 @@ do
     fi
     fi
     fi
+    fi
     #loop over datasets
     #if Cosmics, do StreamExpressCosmics as well
 
@@ -123,6 +131,9 @@ do
     echo "get the run status from DQMFile"
     runStatus=-1
     runStatus="$(${pathTools}getRunStatusFromDQMFile.py ${file_path}/$dqmFileName $Run_numb runIsComplete | wc -l)"
+    echo 'Tools in:'
+    echo $pathTools
+
     if [[ ${runStatus} == 0 ]] 
 	then 
 	echo ${Run_numb} >> ${curdir}/runsNotComplete_tmp.txt
@@ -171,6 +182,7 @@ do
 
     cp ${WORKINGDIR}/DQM/SiStripMonitorClient/scripts/DeadROCCounter.py .
     cp ${WORKINGDIR}/DQM/SiStripMonitorClient/scripts/DeadROCCounter_Phase1.py .
+    cp ${CMSSW_BASE}/src/DQM/SiStripMonitorClient/data/FinalLegendTrans.png .
 
 # Determine the GlobalTag name used to process the data and the DQM
 
@@ -188,21 +200,21 @@ do
     fi
 
 #Temporary fix to remove hidden ASCII characters
-    GLOBALTAG=`echo $GLOBALTAG | cut -c 9-${#GLOBALTAG}`
-#    GLOBALTAG=`sed -i 's/[\d128-\d255]//g' <<< "${GLOBALTAG}"`
-#    GLOBALTAG=`echo $GLOBALTAG | sed 's/[\d128-\d255]//'`
-#    echo `expr length $GLOBALTAG`
-
+#    GLOBALTAG=`echo $GLOBALTAG | cut -c 9-${#GLOBALTAG}`
+    
     echo " Creating the TrackerMap.... "
 
     detIdInfoFileName=`echo "file://TkDetIdInfo_Run${Run_numb}_${thisDataset}.root"`
 
-    #cmsRun ${CMSSW_BASE}/src/DQM/SiStripMonitorClient/test/SiStripDQM_OfflineTkMap_Template_cfg_DB.py print globalTag=${GLOBALTAG} runNumber=${Run_numb} dqmFile=${file_path}/$dqmFileName  # update GlobalTag
     cmsRun ${CMSSW_BASE}/src/DQM/SiStripMonitorClient/test/SiStripDQM_OfflineTkMap_Template_cfg_DB.py print globalTag=${GLOBALTAG} runNumber=${Run_numb} dqmFile=${file_path}/$dqmFileName  detIdInfoFile=${detIdInfoFileName} # update GlobalTag
 
 # rename bad module list file
 
      mv QTBadModules.log QualityTest_run${Run_numb}.txt
+
+# put color legend in the TrackerMap     
+    /usr/bin/python ${CMSSW_BASE}/src/DQM/SiStripMonitorClient/scripts/LegendToQT.py QTestAlarm.png FinalLegendTrans.png
+    mv result.png QTestAlarm.png
 
     if [ $thisDataset == "Cosmics" ]; then  # should I add StreamExpressCosmics too
 	cat ${CMSSW_BASE}/src/DQM/SiStripMonitorClient/data/index_template_TKMap_cosmics.html | sed -e "s@RunNumber@$Run_numb@g" > index.html
@@ -226,6 +238,7 @@ do
        if [ "$thisDataset" == "Cosmics" ]; then
            python ../../DQM/SiStripMonitorClient/scripts/findBadModT9.py -p $sefile -s /data/users/event_display/${DataLocalDir}/Cosmics/${nnn}/${Run_numb}/StreamExpressCosmics/${sefile}
        else
+
 
            python ../../DQM/SiStripMonitorClient/scripts/findBadModT9.py -p $sefile -s /data/users/event_display/${DataLocalDir}/Beam/${nnn}/${Run_numb}/StreamExpress/${sefile}
 
@@ -273,6 +286,7 @@ do
     cmsRun ${CMSSW_BASE}/src/DQM/SiStripMonitorClient/test/mergeBadChannel_Template_cfg.py globalTag=${GLOBALTAG} runNumber=${Run_numb} dqmFile=${file_path}/$dqmFileName
     mv MergedBadComponents.log MergedBadComponents_run${Run_numb}.txt
 
+
     rm -f *.xml
     rm -f *svg
 
@@ -281,11 +295,13 @@ do
     rm *.root
 
     echo "countig dead pixel ROCs" 
-    if [ $DataLocalDir=="Data2016" -o $DataLocalDir=="Data2015" -o $DataLocalDir=="Data2013" -o $DataLocalDir=="Data2016" ]; then 
-       ./DeadROCCounter.py ${file_path}/$dqmFileName
-    else 
+    if [ $DataLocalDir=="Data2017" ]; then
+       echo "PHASE I PIXEL"
        ./DeadROCCounter_Phase1.py ${file_path}/$dqmFileName
+    else 
+       ./DeadROCCounter.py ${file_path}/$dqmFileName
     fi
+
     rm -f DeadROCCounter.py
     rm -f DeadROCCounter_Phase1.py
 
