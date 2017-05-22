@@ -66,7 +66,7 @@ messageLoggerPSet (ParameterSet const & pset)
   std::string thresh = check<std::string> 
      	( pset, "MessageLogger", "threshold" );
   if (!thresh.empty()) validateThreshold(thresh, "MessageLogger");
-  unsigned int waitThresh = check<unsigned int>
+  check<unsigned int>
   ( pset, "MessageLogger", "waiting_threshold");
   
   // Nested PSets
