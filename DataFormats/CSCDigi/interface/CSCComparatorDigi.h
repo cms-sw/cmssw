@@ -46,6 +46,9 @@ public:
   /// Get the associated halfstrip number for this comparator digi. Counts from 0.
   int getHalfStrip() const;
 
+  /// Return the fractional half-strip. Counts from 0.25
+  float getFractionalStrip() const;
+
   /** Return vector of the bin numbers for which time bins are ON.
    * e.g. if bits 0 and 13 fired, then this vector will contain the values 0 and 13
    */

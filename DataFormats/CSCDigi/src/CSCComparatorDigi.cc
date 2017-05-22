@@ -74,6 +74,11 @@ int CSCComparatorDigi::getHalfStrip() const {
   return (getStrip() - 1) * 2 + getComparator();
 }
 
+// Return the fractional half-strip
+float CSCComparatorDigi::getFractionalStrip() const {
+  return getStrip() + getComparator()/2. - 3/4.;
+}
+
 std::vector<int> CSCComparatorDigi::getTimeBinsOn() const {
   std::vector<int> tbins;
   uint16_t tbit = timeBinWord_;
