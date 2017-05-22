@@ -1,32 +1,30 @@
 /** \class HLTriggerJSONMonitoring
- *  
+ *
  * See header file for documentation
  *
- * 
+ *
  *  \author Aram Avetisyan
- * 
+ *
  */
 
-#include "HLTrigger/JSONMonitoring/interface/HLTriggerJSONMonitoring.h"
+#include <fstream>
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "EventFilter/Utilities/interface/FastMonitoringService.h"
 
-#include <fstream>
+#include "HLTriggerJSONMonitoring.h"
+
 using namespace jsoncollector;
+
 
 HLTriggerJSONMonitoring::HLTriggerJSONMonitoring(const edm::ParameterSet& ps) :
   triggerResults_(ps.getParameter<edm::InputTag>("triggerResults")),
   triggerResultsToken_(consumes<edm::TriggerResults>(triggerResults_))
 {
-
-                                                     
 }
 
 HLTriggerJSONMonitoring::~HLTriggerJSONMonitoring() = default;
@@ -46,22 +44,22 @@ HLTriggerJSONMonitoring::analyze(const edm::Event& iEvent, const edm::EventSetup
   using namespace edm;
 
   processed_++;
-  
-  //Get hold of TriggerResults  
+
+  //Get hold of TriggerResults
   Handle<TriggerResults> HLTR;
   if (not iEvent.getByToken(triggerResultsToken_, HLTR) or not HLTR.isValid()){
     LogDebug("HLTriggerJSONMonitoring") << "HLT TriggerResults with label ["+triggerResults_.encode()+"] not found!" << std::endl;
     return;
   }
 
-  //Decision for each HLT path   
+  //Decision for each HLT path
   const unsigned int n(hltNames_.size());
   for (unsigned int i=0; i<n; i++) {
     if (HLTR->wasrun(i))                     hltWasRun_[i]++;
     if (HLTR->accept(i))                     hltAccept_[i]++;
     if (HLTR->wasrun(i) && !HLTR->accept(i)) hltReject_[i]++;
     if (HLTR->error(i))                      hltErrors_[i]++;
-    //Count L1 seeds and Prescales   
+    //Count L1 seeds and Prescales
     const int index(static_cast<int>(HLTR->index(i)));
     if (HLTR->accept(i)) {
       if (index >= posL1s_[i]) hltL1s_[i]++;
@@ -72,10 +70,10 @@ HLTriggerJSONMonitoring::analyze(const edm::Event& iEvent, const edm::EventSetup
     }
   }
 
-  //Decision for each HLT dataset     
+  //Decision for each HLT dataset
   std::vector<bool> acceptedByDS(hltIndex_.size(), false);
-  for (unsigned int ds=0; ds < hltIndex_.size(); ds++) {  // ds = index of dataset       
-    for (unsigned int p=0; p<hltIndex_[ds].size(); p++) {   // p = index of path with dataset ds       
+  for (unsigned int ds=0; ds < hltIndex_.size(); ds++) {  // ds = index of dataset
+    for (unsigned int p=0; p<hltIndex_[ds].size(); p++) {   // p = index of path with dataset ds
       if (acceptedByDS[ds]>0 || HLTR->accept(hltIndex_[ds][p]) ) {
 	acceptedByDS[ds] = true;
       }
@@ -83,12 +81,12 @@ HLTriggerJSONMonitoring::analyze(const edm::Event& iEvent, const edm::EventSetup
     if (acceptedByDS[ds]) hltDatasets_[ds]++;
   }
 
-}//End analyze function     
+}//End analyze function
 
 void
 HLTriggerJSONMonitoring::resetRun(bool changed){
 
-  //Update trigger and dataset names, clear L1 names and counters   
+  //Update trigger and dataset names, clear L1 names and counters
   if (changed){
     hltNames_        = hltConfig_.triggerNames();
     datasetNames_    = hltConfig_.datasetNames();
@@ -99,7 +97,7 @@ HLTriggerJSONMonitoring::resetRun(bool changed){
   const unsigned int d  = datasetNames_.size();
 
   if (changed) {
-    //Resize per-path counters   
+    //Resize per-path counters
     hltWasRun_.resize(n);
     hltL1s_.resize(n);
     hltPre_.resize(n);
@@ -107,11 +105,11 @@ HLTriggerJSONMonitoring::resetRun(bool changed){
     hltReject_.resize(n);
     hltErrors_.resize(n);
 
-    //Resize per-dataset counter    
+    //Resize per-dataset counter
     hltDatasets_.resize(d);
-    //Resize htlIndex     
+    //Resize htlIndex
     hltIndex_.resize(d);
-    //Set-up hltIndex          
+    //Set-up hltIndex
     for (unsigned int ds = 0; ds < d; ds++) {
       unsigned int size = datasetContents_[ds].size();
       hltIndex_[ds].reserve(size);
@@ -122,7 +120,7 @@ HLTriggerJSONMonitoring::resetRun(bool changed){
 	}
       }
     }
-    //Find the positions of seeding and prescaler modules     
+    //Find the positions of seeding and prescaler modules
     posL1s_.resize(n);
     posPre_.resize(n);
     for (unsigned int i = 0; i < n; ++i) {
@@ -139,14 +137,14 @@ HLTriggerJSONMonitoring::resetRun(bool changed){
     }
   }
   resetLumi();
-}//End resetRun function                  
+}//End resetRun function
 
 void
 HLTriggerJSONMonitoring::resetLumi(){
-  //Reset total number of events     
+  //Reset total number of events
   processed_ = 0;
 
-  //Reset per-path counters 
+  //Reset per-path counters
   for (unsigned int i = 0; i < hltWasRun_.size(); i++) {
     hltWasRun_[i] = 0;
     hltL1s_[i]    = 0;
@@ -155,23 +153,23 @@ HLTriggerJSONMonitoring::resetLumi(){
     hltReject_[i] = 0;
     hltErrors_[i] = 0;
   }
-  //Reset per-dataset counter         
+  //Reset per-dataset counter
   for (unsigned int & hltDataset : hltDatasets_) {
     hltDataset = 0;
   }
 
-}//End resetLumi function  
+}//End resetLumi function
 
 void
 HLTriggerJSONMonitoring::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 {
-  //Get the run directory from the EvFDaqDirector                
+  //Get the run directory from the EvFDaqDirector
   if (edm::Service<evf::EvFDaqDirector>().isAvailable()) baseRunDir_ = edm::Service<evf::EvFDaqDirector>()->baseRunDir();
   else                                                   baseRunDir_ = ".";
 
   std::string monPath = baseRunDir_ + "/";
 
-  //Initialize hltConfig_     
+  //Initialize hltConfig_
   bool changed = true;
   if (hltConfig_.init(iRun, iSetup, triggerResults_.process(), changed)) resetRun(changed);
   else{
@@ -186,15 +184,15 @@ HLTriggerJSONMonitoring::beginRun(edm::Run const& iRun, edm::EventSetup const& i
     runCache()->wroteFiles = true;
 
     unsigned int nRun = iRun.run();
-    
-    //Create definition file for HLT Rates                 
+
+    //Create definition file for HLT Rates
     std::stringstream ssHltJsd;
     ssHltJsd << "run" << std::setfill('0') << std::setw(6) << nRun << "_ls0000";
     ssHltJsd << "_streamHLTRates_pid" << std::setfill('0') << std::setw(5) << getpid() << ".jsd";
     stHltJsd_ = ssHltJsd.str();
 
     writeHLTDefJson(baseRunDir_ + "/" + stHltJsd_);
-        
+
     //Write ini files
     //HLT
     Json::Value hltIni;
@@ -212,18 +210,18 @@ HLTriggerJSONMonitoring::beginRun(edm::Run const& iRun, edm::EventSetup const& i
 
     hltIni["Path-Names"]    = hltNamesVal;
     hltIni["Dataset-Names"] = datasetNamesVal;
-    
+
     std::string && result = writer.write(hltIni);
-  
+
     std::stringstream ssHltIni;
     ssHltIni << "run" << std::setfill('0') << std::setw(6) << nRun << "_ls0000_streamHLTRates_pid" << std::setfill('0') << std::setw(5) << getpid() << ".ini";
-    
+
     std::ofstream outHltIni( monPath + ssHltIni.str() );
     outHltIni<<result;
     outHltIni.close();
   }
 
-}//End beginRun function        
+}//End beginRun function
 
 void HLTriggerJSONMonitoring::beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup& iSetup){ resetLumi(); }
 
@@ -251,12 +249,12 @@ HLTriggerJSONMonitoring::globalBeginLuminosityBlockSummary(const edm::Luminosity
   iSummary->streamHLTMergeType  = "";
 
   return iSummary;
-}//End globalBeginLuminosityBlockSummary function  
+}//End globalBeginLuminosityBlockSummary function
 
 void
 HLTriggerJSONMonitoring::endLuminosityBlockSummary(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iEventSetup, hltJson::lumiVars* iSummary) const{
 
-  //Whichever stream gets there first does the initialiazation 
+  //Whichever stream gets there first does the initialiazation
   if (iSummary->hltWasRun->value().size() == 0){
     iSummary->processed->update(processed_);
 
@@ -274,7 +272,7 @@ HLTriggerJSONMonitoring::endLuminosityBlockSummary(const edm::LuminosityBlock& i
 
     iSummary->stHltJsd   = stHltJsd_;
     iSummary->baseRunDir = baseRunDir_;
-    
+
     iSummary->streamHLTDestination = runCache()->streamHLTDestination;
     iSummary->streamHLTMergeType   = runCache()->streamHLTMergeType;
   }
@@ -295,7 +293,7 @@ HLTriggerJSONMonitoring::endLuminosityBlockSummary(const edm::LuminosityBlock& i
     }
   }
 
-}//End endLuminosityBlockSummary function                                             
+}//End endLuminosityBlockSummary function
 
 
 void
@@ -320,7 +318,7 @@ HLTriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBl
     gethostname(hostname,32);
     std::string sourceHost(hostname);
 
-    //Get the output directory                                        
+    //Get the output directory
     std::string monPath = iSummary->baseRunDir + "/";
 
     std::stringstream sOutDef;
@@ -367,13 +365,13 @@ HLTriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBl
     hltJsnInputFiles.update("");
 
     //Create special DAQ JSON file for L1 and HLT rates pseudo-streams
-    //Only three variables are different between the files: 
+    //Only three variables are different between the files:
     //the file list, the file size and the Adler32 value
     IntJ daqJsnProcessed   = iSummary->processed->value().at(0);
     IntJ daqJsnAccepted    = daqJsnProcessed;
-    IntJ daqJsnErrorEvents = 0;                  
-    IntJ daqJsnRetCodeMask = 0;                 
-    IntJ daqJsnHLTErrorEvents = 0;                  
+    IntJ daqJsnErrorEvents = 0;
+    IntJ daqJsnRetCodeMask = 0;
+    IntJ daqJsnHLTErrorEvents = 0;
 
     //write out HLT metadata jsn
     Json::Value hltDaqJsn;
@@ -403,7 +401,7 @@ HLTriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBl
     outHltDaqJsn.close();
   }
 
-  //Delete the individual HistoJ pointers   
+  //Delete the individual HistoJ pointers
   delete iSummary->processed;
 
   delete iSummary->hltWasRun;
@@ -415,10 +413,10 @@ HLTriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBl
 
   delete iSummary->hltDatasets;
 
-  //Note: Do not delete the iSummary pointer. The framework does something with it later on    
-  //      and deleting it results in a segmentation fault.  
+  //Note: Do not delete the iSummary pointer. The framework does something with it later on
+  //      and deleting it results in a segmentation fault.
 
-  //Reninitalize HistoJ pointers to nullptr   
+  //Reninitalize HistoJ pointers to nullptr
   iSummary->processed   = nullptr;
 
   iSummary->hltWasRun   = nullptr;
@@ -430,7 +428,7 @@ HLTriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBl
 
   iSummary->hltDatasets = nullptr;
 
-}//End globalEndLuminosityBlockSummary function     
+}//End globalEndLuminosityBlockSummary function
 
 
 void
@@ -440,7 +438,7 @@ HLTriggerJSONMonitoring::writeHLTDefJson(std::string path){
   outfile << "{" << std::endl;
   outfile << "   \"data\" : [" << std::endl;
   outfile << "      {" ;
-  outfile << " \"name\" : \"Processed\"," ;  //***  
+  outfile << " \"name\" : \"Processed\"," ;  //***
   outfile << " \"type\" : \"integer\"," ;
   outfile << " \"operation\" : \"histo\"}," << std::endl;
 
@@ -483,4 +481,10 @@ HLTriggerJSONMonitoring::writeHLTDefJson(std::string path){
   outfile << "}" << std::endl;
 
   outfile.close();
-}//End writeHLTDefJson function                    
+}//End writeHLTDefJson function
+
+
+// declare as a framework plugin
+#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(HLTriggerJSONMonitoring);
