@@ -3,6 +3,7 @@
 <use   name="DataFormats/L1Trigger"/>
 <use   name="DataFormats/DetId"/>
 <use   name="DataFormats/ForwardDetId"/>
+<use   name="DataFormats/GeometryVector"/>
 <use   name="FWCore/Utilities"/>
 <use   name="rootrflx"/>
 <export>
