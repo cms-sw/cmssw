@@ -46,6 +46,9 @@ class CSCComparatorDigiFitter
   /* option to discretize the fitted stub phi */
   void setStripBits(int bits) {nStripBits_ = bits;}
 
+  /* use key layer radius */
+  void useKeyRadius(bool useKeyRadius) {useKeyRadius_ = useKeyRadius;}
+  
   /* fit a straight line to the digis */
   void fit(const CSCDetId& ch_id, const CSCCorrelatedLCTDigi&, const CSCComparatorDigiCollection&);
   void getFitResults(std::vector<float>& fit_phis, std::vector<float>& fit_zs, float keyRadius);
@@ -76,6 +79,7 @@ class CSCComparatorDigiFitter
   std::vector<float> ephis_;
   std::vector<float> ezs_;
   float radius_;
+  bool useKeyRadius_;
 };
 
 #endif
