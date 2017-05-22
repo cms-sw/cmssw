@@ -80,7 +80,7 @@ seqALCARECOHcalCalPedestal = cms.Sequence(hcalCalibPedestalHLT*
 
 import RecoLocalCalo.HcalRecProducers.hfprereco_cfi
 hfprerecoPedestal = RecoLocalCalo.HcalRecProducers.hfprereco_cfi.hfprereco.clone(
-    digiLabel = cms.InputTag("hcalDigiAlaMB"),
+    digiLabel = cms.InputTag("hcalDigiAlCaMB"),
     dropZSmarkedPassed = cms.bool(False),
     tsFromDB = cms.bool(False),
     sumAllTimeSlices = cms.bool(False),
