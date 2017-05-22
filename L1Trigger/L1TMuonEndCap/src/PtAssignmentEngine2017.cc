@@ -104,8 +104,8 @@ PtAssignmentEngine::address_t PtAssignmentEngine2017::calculate_address(const EM
       dPhiAB = aux().getNLBdPhiBin( dPhiAB, 7, 512 );
       dPhiBC = aux().getNLBdPhiBin( dPhiBC, 5, 256 );
       dTheta = aux().getdTheta    ( dTheta, 3 );
+      rpc_2b = aux().get2bRPC     ( clctA, clctB, clctC ); // Have to use un-compressed CLCT words
       clctA  = aux().getCLCT      ( clctA, endcap, (sPhiAB == 1 ? 1 : -1), 2 );
-      rpc_2b = aux().get2bRPC     ( clctA, clctB, clctC );
       theta  = aux().getTheta     ( theta, st1_ring2, 5 );
     } else if (nHits == 2) {
       dPhiAB = aux().getNLBdPhiBin( dPhiAB, 7, 512 );
@@ -142,7 +142,6 @@ PtAssignmentEngine::address_t PtAssignmentEngine2017::calculate_address(const EM
       address |= (clctA     & ((1<<2)-1)) << (0+7+5+1+3+1+bit);
       address |= (rpc_2b    & ((1<<2)-1)) << (0+7+5+1+3+1+bit+2);
       address |= (theta     & ((1<<5)-1)) << (0+7+5+1+3+1+bit+2+2);
-      std::cout << "\nJust added in theta = " << theta << std::endl;
       if (mode != 7) {
 	address |= (mode_ID & ((1<<2)-1)) << (0+7+5+1+3+1+bit+2+2+5); assert(address < pow(2, 29) && address >= pow(2, 27));
       } else {
@@ -166,27 +165,28 @@ PtAssignmentEngine::address_t PtAssignmentEngine2017::calculate_address(const EM
 
 
 // Calculate XML pT from address
-float PtAssignmentEngine2017::calculate_pt_xml(const address_t& address) {
+float PtAssignmentEngine2017::calculate_pt_xml(const address_t& address) const {
 
-  float pt  = 0.;
+  float pt_xml  = 0.;
   int nHits = -1, mode = -1;
-  
+
   assert(address < pow(2, 30));
   if      (address >= pow(2, 29)) { nHits = 4; mode = 15; }
   else if (address >= pow(2, 27)) { nHits = 3;            }
   else if (address >= pow(2, 26)) { nHits = 3; mode =  7; } 
   else if (address >= pow(2, 24)) { nHits = 2;            }
-  else return pt;
+  else return pt_xml;
   
   // Variables to unpack from the pT LUT address
   int mode_ID, theta, dTheta;
   int dPhiAB, dPhiBC = -1, dPhiCD = -1;
   int sPhiAB, sPhiBC = -1, sPhiCD = -1;
   int frA, frB = -1;
-  int clctA, clctB, clctC, clctD;
+  int clctA, clctB = -1;
+  int rpcA, rpcB, rpcC, rpcD;
   int endcap = 1; sPhiAB = 1;  // Assume positive endcap and dPhiAB for unpacking CLCT bend
-  int mode15_8b; // Combines track theta, stations with RPC hits, and station 1 bend information
-  int rpc_2b;    // Identifies which stations have RPC hits in 3-station tracks
+  int mode15_8b = -1; // Combines track theta, stations with RPC hits, and station 1 bend information
+  int rpc_2b = -1; // Identifies which stations have RPC hits in 3-station tracks
   
   
   // Unpack variable words from the pT LUT address
@@ -215,7 +215,6 @@ float PtAssignmentEngine2017::calculate_pt_xml(const address_t& address) {
     clctA     = (address >> (0+7+5+1+3+1+bit)	    & ((1<<2)-1));
     rpc_2b    = (address >> (0+7+5+1+3+1+bit+2)     & ((1<<2)-1));
     theta     = (address >> (0+7+5+1+3+1+bit+2+2)   & ((1<<5)-1));
-    std::cout << "\nJust read out theta = " << theta << std::endl;
     if (mode != 7) {
       mode_ID = (address >> (0+7+5+1+3+1+bit+2+2+5) & ((1<<2)-1)); assert(address < pow(2, 29));
     } else {
@@ -258,19 +257,19 @@ float PtAssignmentEngine2017::calculate_pt_xml(const address_t& address) {
 
   // Un-compress words from address
   // For most variables (e.g. theta, dTheta, CLCT) don't need to unpack, since compressed version was used in training 
-  int St1_ring2;
+  int St1_ring2 = -1;
   if        (nHits == 4) {
     dPhiAB = aux().getdPhiFromBin ( dPhiAB, 7, 512 );
     dPhiBC = aux().getdPhiFromBin ( dPhiBC, 5, 256 );
     dPhiCD = aux().getdPhiFromBin ( dPhiCD, 4, 256 );
     // dTheta = aux().unpackdTheta   ( dTheta, 2 );
-    aux().unpack8bMode15 ( mode15_8b, theta, St1_ring2, endcap, (sPhiAB == 1 ? 1 : -1), clctA, clctB, clctC, clctD );
+    aux().unpack8bMode15 ( mode15_8b, theta, St1_ring2, endcap, (sPhiAB == 1 ? 1 : -1), clctA, rpcA, rpcB, rpcC, rpcD );
   } else if (nHits == 3) {
     dPhiAB = aux().getdPhiFromBin( dPhiAB, 7, 512 );
     dPhiBC = aux().getdPhiFromBin( dPhiBC, 5, 256 );
     // dTheta = aux().unpackdTheta  ( dTheta, 3 );
     // clctA  = aux().unpackCLCT    ( clctA, endcap, (sPhiAB == 1 ? 1 : -1), 2 );
-    aux().unpack2bRPC    ( rpc_2b, clctA, clctB, clctC );
+    aux().unpack2bRPC    ( rpc_2b, rpcA, rpcB, rpcC );
     // aux().unpackTheta    ( theta, St1_ring2, 5 );
     St1_ring2 = aux().unpackSt1Ring2( theta, 5 );
   } else if (nHits == 2) {
@@ -308,10 +307,10 @@ float PtAssignmentEngine2017::calculate_pt_xml(const address_t& address) {
     dTh_14  = dTheta;
     FR_1    = frA;
     bend_1  = clctA;
-    RPC_1   = (clctA == 0); 
-    RPC_2   = (clctB == 0); 
-    RPC_3   = (clctC == 0); 
-    RPC_4   = (clctD == 0);
+    RPC_1   = rpcA;
+    RPC_2   = rpcB;
+    RPC_3   = rpcC;
+    RPC_4   = rpcD;
 
     predictors = { theta, St1_ring2, dPhi_12, dPhi_23, dPhi_34, dPhi_13, dPhi_14, dPhi_24, FR_1, bend_1,
 		   dPhiSum4, dPhiSum4A, dPhiSum3, dPhiSum3A, outStPhi, dTh_14, RPC_1, RPC_2, RPC_3, RPC_4 };
@@ -324,9 +323,9 @@ float PtAssignmentEngine2017::calculate_pt_xml(const address_t& address) {
     FR_1    = frA;
     FR_2    = frB;
     bend_1  = clctA;
-    RPC_1   = (clctA == 0); 
-    RPC_2   = (clctB == 0); 
-    RPC_3   = (clctC == 0);
+    RPC_1   = rpcA; 
+    RPC_2   = rpcB; 
+    RPC_3   = rpcC;
     predictors = { theta, St1_ring2, dPhi_12, dPhi_23, dPhi_13, FR_1, FR_2, bend_1, dTh_13, RPC_1, RPC_2, RPC_3 };
   } else if (mode == 13) {
     dPhi_12 = dPhiAB; 
@@ -336,9 +335,9 @@ float PtAssignmentEngine2017::calculate_pt_xml(const address_t& address) {
     FR_1    = frA;
     FR_2    = frB;
     bend_1  = clctA;
-    RPC_1   = (clctA == 0); 
-    RPC_2   = (clctB == 0); 
-    RPC_4   = (clctC == 0);
+    RPC_1   = rpcA; 
+    RPC_2   = rpcB; 
+    RPC_4   = rpcC;
     predictors = { theta, St1_ring2, dPhi_12, dPhi_24, dPhi_14, FR_1, FR_2, bend_1, dTh_14, RPC_1, RPC_2, RPC_4 };
   } else if (mode == 11) {
     dPhi_13 = dPhiAB; 
@@ -348,9 +347,9 @@ float PtAssignmentEngine2017::calculate_pt_xml(const address_t& address) {
     FR_1    = frA;
     FR_3    = frB;
     bend_1  = clctA;
-    RPC_1   = (clctA == 0); 
-    RPC_3   = (clctB == 0); 
-    RPC_4   = (clctC == 0);
+    RPC_1   = rpcA; 
+    RPC_3   = rpcB; 
+    RPC_4   = rpcC;
     predictors = { theta, St1_ring2, dPhi_13, dPhi_34, dPhi_14, FR_1, FR_3, bend_1, dTh_14, RPC_1, RPC_3, RPC_4 };
   } else if (mode ==  7) {
     dPhi_23 = dPhiAB; 
@@ -359,9 +358,9 @@ float PtAssignmentEngine2017::calculate_pt_xml(const address_t& address) {
     dTh_24  = dTheta;
     FR_2    = frA;
     bend_2  = clctA;
-    RPC_2   = (clctA == 0); 
-    RPC_3   = (clctB == 0); 
-    RPC_4   = (clctC == 0);
+    RPC_2   = rpcA; 
+    RPC_3   = rpcB; 
+    RPC_4   = rpcC;
     predictors = { theta, dPhi_23, dPhi_34, dPhi_24, FR_2, bend_2, dTh_24, RPC_2, RPC_3, RPC_4 };
   } else if (mode == 12) {
     dPhi_12 = dPhiAB; 
@@ -370,7 +369,8 @@ float PtAssignmentEngine2017::calculate_pt_xml(const address_t& address) {
     FR_2    = frB;
     bend_1  = clctA;
     bend_2  = clctB;
-    RPC_1   = (clctA == 0); RPC_2 = (clctB == 0);
+    RPC_1   = (clctA == 0); 
+    RPC_2   = (clctB == 0);
     predictors = { theta, St1_ring2, dPhi_12, FR_1, FR_2, bend_1, bend_2, dTh_12, RPC_1, RPC_2 };
   } else if (mode == 10) {
     dPhi_13 = dPhiAB; 
@@ -431,26 +431,30 @@ float PtAssignmentEngine2017::calculate_pt_xml(const address_t& address) {
   tree_event->predictedValue = 0;
   tree_event->data = tree_data;
   
-  forests_.at(mode).predictEvent(tree_event.get(), 400);
+  // forests_.at(mode).predictEvent(tree_event.get(), 400);
+  emtf::Forest &forest = const_cast<emtf::Forest&>(forests_.at(mode));
+  forest.predictEvent(tree_event.get(), 400);
   
-  // Adjust this for different XMLs
-  float log2pt = tree_event->predictedValue;  // is actually log2(pT)
-  
-  pt = pow(2,log2pt);
+  // // Adjust this for different XMLs
+  // float log2_pt = tree_event->predictedValue;
+  // pt_xml = pow(2, fmax(0.0, log2_pt)); // Protect against negative values
 
-  std::cout << "\nFrom addrs: mode " << mode << " track has inputs: ";
-  for (int i = 0; i < int(predictors.size()); i++)
-    std::cout << predictors.at(i) << ", ";
-  std::cout << "output pT: " << pt << std::endl;
+  float inv_pt = tree_event->predictedValue;
+  pt_xml = 1.0 / fmax(0.001, inv_pt); // Protect against negative values
+
+  // std::cout << "From addrs: mode " << mode << " track has inputs: ";
+  // for (int i = 0; i < int(predictors.size()); i++)
+  //   std::cout << predictors.at(i) << ", ";
+  // std::cout << "output pT: " << pt_xml << std::endl;
   
-  return pt;
+  return pt_xml;
 
 } // End function: float PtAssignmentEngine2017::calculate_pt_xml(const address_t& address)
 
   
 // Calculate XML pT directly from track quantities, without forming an address
-float PtAssignmentEngine2017::calculate_pt_xml(const EMTFTrack& track) {
-  float pt = 0.;
+float PtAssignmentEngine2017::calculate_pt_xml(const EMTFTrack& track) const {
+  float pt_xml = 0.;
   
   EMTFPtLUT data = track.PtLUT();
   
@@ -461,14 +465,9 @@ float PtAssignmentEngine2017::calculate_pt_xml(const EMTFTrack& track) {
   int endcap = track.Endcap();
   int mode   = track.Mode();
   int theta  = track.Theta_fp();
-  std::cout << "\nTrue track Theta_fp() = " << theta << std::endl;
-  if (mode == 15) {
-    std::cout << "True station 1 pattern = " << track.Hits().at(0).Pattern() << ", data = " << data.cpattern[0] << ", isRPC = " << track.Hits().at(0).Is_RPC() << std::endl;
-    std::cout << "True station 2 pattern = " << track.Hits().at(1).Pattern() << ", data = " << data.cpattern[1] << ", isRPC = " << track.Hits().at(1).Is_RPC() << std::endl;
-  }  
   int phi    = track.Phi_fp();
   if (!contain(allowedModes_, mode))
-    return pt;
+    return pt_xml;
 
   // Which stations have hits
   int st1 = (mode >= 8);
@@ -491,21 +490,29 @@ float PtAssignmentEngine2017::calculate_pt_xml(const EMTFTrack& track) {
   
   // Compute the original phi and theta coordinates
   if        (st2) {
-    ph2 = phi;
-    th2 = theta;
+    ph2 = phi;   // Track phi is from station 2 (if it exists), otherwise 3 or 4
+    th2 = theta; // Likewise for track theta
     if (st1) ph1 = ph2 - data.delta_ph[0]*(data.sign_ph[0] ? 1 : -1);
     if (st1) th1 = th2 - data.delta_th[0]*(data.sign_th[0] ? 1 : -1);
     if (st3) ph3 = ph2 + data.delta_ph[3]*(data.sign_ph[3] ? 1 : -1);
-    if (st3) th3 = th2 + data.delta_th[3]*(data.sign_th[3] ? 1 : -1);
-    if (st4) ph4 = ph2 + data.delta_ph[4]*(data.sign_ph[4] ? 1 : -1);
-    if (st4) th4 = th2 + data.delta_th[4]*(data.sign_th[4] ? 1 : -1);
+    // Important that phi be from adjacent station pairs (see note below)
+    if (st3 && st4) ph4 = ph3 + data.delta_ph[5]*(data.sign_ph[5] ? 1 : -1);
+    else if   (st4) ph4 = ph2 + data.delta_ph[4]*(data.sign_ph[4] ? 1 : -1);
+    // Important that theta be from first-last station pair, not adjacent pairs: delta_th values are "best" for each pair, but 
+    // thanks to duplicated CSC LCTs, are not necessarily consistent (or physical) between pairs or between delta_th and delta_ph.
+    // This is an artifact of the firmware implementation of deltas: see src/AngleCalculation.cc.
+    if (st1 && st3) th3 = th1 + data.delta_th[1]*(data.sign_th[1] ? 1 : -1);
+    else if   (st3) th3 = th2 + data.delta_th[3]*(data.sign_th[3] ? 1 : -1);
+    if (st1 && st4) th4 = th1 + data.delta_th[2]*(data.sign_th[2] ? 1 : -1); 
+    else if   (st4) th4 = th2 + data.delta_th[4]*(data.sign_th[4] ? 1 : -1); 
   } else if (st3) {
     ph3 = phi;
     th3 = theta;
     if (st1) ph1 = ph3 - data.delta_ph[1]*(data.sign_ph[1] ? 1 : -1);
     if (st1) th1 = th3 - data.delta_th[1]*(data.sign_th[1] ? 1 : -1);
     if (st4) ph4 = ph3 + data.delta_ph[5]*(data.sign_ph[5] ? 1 : -1);
-    if (st4) th4 = th3 + data.delta_th[5]*(data.sign_th[5] ? 1 : -1);
+    if (st1 && st4) th4 = th1 + data.delta_th[2]*(data.sign_th[2] ? 1 : -1);
+    else if   (st4) th4 = th3 + data.delta_th[5]*(data.sign_th[5] ? 1 : -1);
   } else if (st4) {
     ph4 = phi;
     th4 = theta;
@@ -517,9 +524,9 @@ float PtAssignmentEngine2017::calculate_pt_xml(const EMTFTrack& track) {
   if (st2) pat2 = data.cpattern[1];
   if (st3) pat3 = data.cpattern[2];
   if (st4) pat4 = data.cpattern[3];
-  
+
   // BEGIN: Identical (almost) to BDT training code in EMTFPtAssign2017/PtRegression_Apr_2017.C
-  
+
   theta = CalcTrackTheta( th1, th2, th3, th4, St1_ring2, mode, true );
   
   CalcDeltaPhis( dPhi_12, dPhi_13, dPhi_14, dPhi_23, dPhi_24, dPhi_34, dPhiSign,
@@ -548,7 +555,7 @@ float PtAssignmentEngine2017::calculate_pt_xml(const EMTFTrack& track) {
   RPC_3 = (st3 ? (pat3 == 0) : -99);
   RPC_4 = (st4 ? (pat4 == 0) : -99);
 
-  CalcRPCs( RPC_1, RPC_2, RPC_3, RPC_4, mode, true );
+  CalcRPCs( RPC_1, RPC_2, RPC_3, RPC_4, mode, St1_ring2, true );
   
   // END: Identical (almost) to BDT training code in EMTFPtAssign2017/PtRegression_Apr_2017.C
   
@@ -589,19 +596,23 @@ float PtAssignmentEngine2017::calculate_pt_xml(const EMTFTrack& track) {
   tree_event->predictedValue = 0;
   tree_event->data = tree_data;
   
-  forests_.at(mode).predictEvent(tree_event.get(), 400);
+  // forests_.at(mode).predictEvent(tree_event.get(), 400);
+  emtf::Forest &forest = const_cast<emtf::Forest&>(forests_.at(mode));
+  forest.predictEvent(tree_event.get(), 400);
   
-  // Adjust this for different XMLs
-  float log2pt = tree_event->predictedValue;  // is actually log2(pT)
+  // // Adjust this for different XMLs
+  // float log2_pt = tree_event->predictedValue;
+  // pt_xml = pow(2, fmax(0.0, log2_pt)); // Protect against negative values
+
+  float inv_pt = tree_event->predictedValue;
+  pt_xml = 1.0 / fmax(0.001, inv_pt); // Protect against negative values
+
+  // std::cout << "From track: mode " << mode << " track has inputs: ";
+  // for (int i = 0; i < int(predictors.size()); i++)
+  //   std::cout << predictors.at(i) << ", ";
+  // std::cout << "output pT: " << pt_xml << std::endl;
   
-  pt = pow(2,log2pt);
-  
-  std::cout << "From track: mode " << mode << " track has inputs: ";
-  for (int i = 0; i < int(predictors.size()); i++)
-    std::cout << predictors.at(i) << ", ";
-  std::cout << "output pT: " << pt << std::endl;
-  
-  return pt;
+  return pt_xml;
 
 } // End function: float PtAssignmentEngine2017::calculate_pt_xml(const EMTFTrack& track)
 

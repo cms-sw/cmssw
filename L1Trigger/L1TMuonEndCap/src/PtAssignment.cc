@@ -52,7 +52,7 @@ void PtAssignment::process(
       xmlpt   = pt_assign_engine_->calculate_pt(address);
 
       // Temporary check of address packing / unpacking - AWB 20.05.17
-      assert( fabs(xmlpt - pt_assign_engine_->calculate_pt(track)) < 0.01 );
+      assert( fabs(xmlpt - pt_assign_engine_->calculate_pt(track)) < 0.001 );
 
       pt      = (xmlpt < 0.) ? 1. : xmlpt;  // Matt used fabs(-1) when mode is invalid
       pt *= 1.4;  // multiply by 1.4 to keep efficiency above 90% when the L1 trigger pT cut is applied

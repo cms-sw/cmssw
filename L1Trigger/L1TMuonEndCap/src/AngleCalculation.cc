@@ -360,8 +360,8 @@ void AngleCalculation::calculate_angles(EMTFTrack& track) const {
     const auto& v = st_conv_hits.at(i);
     ptlut_data.cpattern[i] = v.empty() ? 0 : v.front().Pattern();  // Automatically set to 0 for RPCs
     ptlut_data.fr[i]       = v.empty() ? 0 : isFront(v.front().Station(), v.front().Ring(), v.front().Chamber(), v.front().Subsystem());
-    if (i == 0)
-      ptlut_data.st1_ring2 = v.empty() ? 0 : (v.front().Station() == 1 && v.front().Ring() == 2);
+    if (i == 0) 
+      ptlut_data.st1_ring2 = v.empty() ? 0 : (v.front().Station() == 1 && (v.front().Ring() == 2 || v.front().Ring() == 3));
   }
 
   for (int i = 0; i < NUM_STATIONS+1; ++i) {  // 'bt' arrays use 5-station convention

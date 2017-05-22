@@ -156,7 +156,6 @@ int PtAssignmentEngineAux2017::getdPhiFromBin(int dPhiBin, int bits, int max) co
 
 
 int PtAssignmentEngineAux2017::getCLCT(int clct, int endcap, int dPhiSign, int bits) const {
-  // std::cout << "Inside getCLCT: clct = " << clct << ", endcap = " << endcap << ", dPhiSign = " << dPhiSign << ", bits = " << bits << std::endl;
   assert( clct >= 0 && clct <= 10 && abs(endcap) == 1 && 
 	  abs(dPhiSign) == 1 && (bits == 2 || bits == 3) );
 
@@ -164,10 +163,11 @@ int PtAssignmentEngineAux2017::getCLCT(int clct, int endcap, int dPhiSign, int b
   int clct_ = 0;
   int sign_ = -1 * endcap * dPhiSign;  // CLCT bend is with dPhi in ME-, opposite in ME+
 
-  if (clct < 2) {
-    // std::cout << "\n\n*** In endcap " << endcap << ", CLCT = " << clct << std::endl;
-    clct = 2;
-  }
+  // // Why do we default to 2, rather than 0? - AWB 17.03.17
+  // if (clct < 2) {
+  //   // std::cout << "\n\n*** In endcap " << endcap << ", CLCT = " << clct << std::endl;
+  //   clct = 2;
+  // }
 
   // CLCT pattern can be converted into |bend| x sign as follows:
   // |bend| = (10 + (pattern % 2) - pattern) / 2
@@ -178,7 +178,7 @@ int PtAssignmentEngineAux2017::getCLCT(int clct, int endcap, int dPhiSign, int b
   // For use in all 3- and 4-station modes (7, 11, 13, 14, 15)
   // Bends [-4, -3, -2] --> 0, [-1, 0] --> 1, [+1] --> 2, [+2, +3, +4] --> 3
   if (bits == 2) {
-    assert(clct >= 2);
+    // assert(clct >= 2);
     switch (clct) {
     case 10: clct_ = 1;                  break;
     case  9: clct_ = (sign_ > 0 ? 1 : 2); break;
@@ -327,7 +327,6 @@ int PtAssignmentEngineAux2017::unpackdTheta(int dTheta, int bits) const {
 
 
 int PtAssignmentEngineAux2017::getTheta(int theta, int st1_ring2, int bits) const {
-  std::cout << "Inside getTheta: theta = " << theta << ", st1_ring2 = " << st1_ring2 << ", bits = " << bits << std::endl;
   assert( theta >= 5 && theta < 128 && 
 	  (st1_ring2 == 0 || st1_ring2 == 1) && 
 	  (bits == 4 || bits == 5) );
@@ -441,33 +440,30 @@ int PtAssignmentEngineAux2017::get2bRPC(int clctA, int clctB, int clctC) const {
 } // End function: int PtAssignmentEngineAux2017::get2bRPC()
 
 
-void PtAssignmentEngineAux2017::unpack2bRPC(int rpc_2b, int& clctA, int& clctB, int& clctC) const {
+void PtAssignmentEngineAux2017::unpack2bRPC(int rpc_2b, int& rpcA, int& rpcB, int& rpcC) const {
 
   assert(rpc_2b >= 0 && rpc_2b < 4);
+  
+  rpcA = 0; rpcB = 0; rpcC = 0;
 
-  // If uninitialized, set to straightest-pattern CSC LCTs
-  if (clctA <= 0) clctA = 10;
-  if (clctB <= 0) clctB = 10;
-  if (clctC <= 0) clctC = 10;
-
-  if      (rpc_2b == 0) clctA = 0;
-  else if (rpc_2b == 1) clctC = 0;
-  else if (rpc_2b == 2) clctB = 0;
+  if      (rpc_2b == 0) rpcA = 1;
+  else if (rpc_2b == 1) rpcC = 1;
+  else if (rpc_2b == 2) rpcB = 1;
 
 } // End function: int PtAssignmentEngineAux2017::unpack2bRPC()
 
 
 int PtAssignmentEngineAux2017::get8bMode15(int theta, int st1_ring2, int endcap, int sPhiAB,
 					   int clctA, int clctB, int clctC, int clctD) const {
-
+  
   if (st1_ring2) theta = (std::min( std::max(theta, 44), 88) - 44) / 9;
   else           theta = (std::min( std::max(theta,  5), 58) -  5) / 9;
   assert(theta >= 0 && theta < 10);
-
+  
   int clctA_2b = getCLCT(clctA, endcap, sPhiAB, 2);
-
+  
   int nRPC = (clctA == 0) + (clctB == 0) + (clctC == 0) + (clctD == 0);
-  int rpc_word, rpc_clct, th_rpc_clct;
+  int rpc_word, rpc_clct, mode15_8b;
 
   if (st1_ring2) {
     if      (nRPC >= 2 && clctA == 0 && clctB == 0) rpc_word =  0; 
@@ -481,34 +477,30 @@ int PtAssignmentEngineAux2017::get8bMode15(int theta, int st1_ring2, int endcap,
     else if (nRPC == 1 && clctB == 0              ) rpc_word = 20; 
     else if (nRPC == 1 && clctC == 0              ) rpc_word = 24; 
     else                                            rpc_word = 28;
-    rpc_clct    = rpc_word + clctA_2b;
-    th_rpc_clct = (theta*32) + rpc_clct + 64;
+    rpc_clct  = rpc_word + clctA_2b;
+    mode15_8b = (theta*32) + rpc_clct + 64;
   } else {
-    if      (theta >= 3 && clctD == 1) rpc_word = 0; 
-    else if (theta >= 3 && clctC == 1) rpc_word = 1;             
+    if      (theta >= 3 && clctD == 0) rpc_word = 0; 
+    else if (theta >= 3 && clctC == 0) rpc_word = 1;             
     else if (theta >= 3              ) rpc_word = 2;             
     else                               rpc_word = 3;
-    rpc_clct    = rpc_word*4 + clctA_2b;
-    th_rpc_clct = ((theta % 3)*16) + rpc_clct;
+    rpc_clct  = rpc_word*4 + clctA_2b;
+    mode15_8b = ((theta % 3)*16) + rpc_clct;
   }
 
-  assert(th_rpc_clct >= 0 && th_rpc_clct < pow(2, 8));
-  return (th_rpc_clct);
+  assert(mode15_8b >= 0 && mode15_8b < pow(2, 8));
+  return (mode15_8b);
 
 } // End function: int PtAssignmentEngineAux2017::get8bMode15()
 
 
 void PtAssignmentEngineAux2017::unpack8bMode15( int mode15_8b, int& theta, int& st1_ring2, int endcap, int sPhiAB, 
-						int& clctA, int& clctB, int& clctC, int& clctD) const {
+						int& clctA, int& rpcA, int& rpcB, int& rpcC, int& rpcD) const {
 
   assert(mode15_8b >= 0 && mode15_8b < pow(2, 8));
   assert(abs(endcap) == 1 && abs(sPhiAB) == 1);
 
-  // If uninitialized, set to straightest-pattern CSC LCTs
-  if (clctA <= 0) clctA = 10;
-  if (clctB <= 0) clctB = 10;
-  if (clctC <= 0) clctC = 10;
-  if (clctD <= 0) clctD = 10;
+  rpcA = 0; rpcB = 0; rpcC = 0; rpcD = 0;
 
   if (mode15_8b >= 64) st1_ring2 = 1;
   else                 st1_ring2 = 0;
@@ -529,16 +521,16 @@ void PtAssignmentEngineAux2017::unpack8bMode15( int mode15_8b, int& theta, int& 
     clctA = clctA_2b;
 
     switch (rpc_word) {
-    case  0: nRPC = 2; clctA = 0; clctB = 0; break;
-    case  1: nRPC = 2; clctA = 0; clctC = 0; break;
-    case  2: nRPC = 2; clctA = 0; clctD = 0; break;
-    case  3: nRPC = 1; clctA = 0;            break;
-    case  4: nRPC = 2; clctD = 0; clctB = 0; break;
-    case  8: nRPC = 2; clctD = 0; clctC = 0; break;
-    case 12: nRPC = 2; clctB = 0; clctC = 0; break;
-    case 16: nRPC = 1; clctD = 0;            break;
-    case 20: nRPC = 1; clctB = 0;            break;
-    case 24: nRPC = 1; clctC = 0;            break;
+    case  0: nRPC = 2; rpcA = 1; rpcB = 1; break;
+    case  1: nRPC = 2; rpcA = 1; rpcC = 1; break;
+    case  2: nRPC = 2; rpcA = 1; rpcD = 1; break;
+    case  3: nRPC = 1; rpcA = 1;            break;
+    case  4: nRPC = 2; rpcD = 1; rpcB = 1; break;
+    case  8: nRPC = 2; rpcD = 1; rpcC = 1; break;
+    case 12: nRPC = 2; rpcB = 1; rpcC = 1; break;
+    case 16: nRPC = 1; rpcD = 1;            break;
+    case 20: nRPC = 1; rpcB = 1;            break;
+    case 24: nRPC = 1; rpcC = 1;            break;
     case 28: nRPC = 0;                       break;
     default: break;
     }
@@ -548,19 +540,19 @@ void PtAssignmentEngineAux2017::unpack8bMode15( int mode15_8b, int& theta, int& 
     rpc_clct  = (mode15_8b % 16);
     theta     = (mode15_8b - rpc_clct) / 16;
     clctA_2b  = (rpc_clct % 4);
-    clctA     = clctA_2b;
     rpc_word  = (rpc_clct - clctA_2b) / 4;
 
+    // if (clctA_2b != 0) clctA = unpackCLCT(clctA_2b, endcap, sPhiAB, 2);
+    clctA = clctA_2b;
+
     switch(rpc_word) {
-    case 0: nRPC = 1; theta += 3; clctD = 1; break;
-    case 1: nRPC = 1; theta += 3; clctC = 1; break;
-    case 2: nRPC = 0; theta += 3;            break;
-    case 3: nRPC = 0;                        break;
+    case 0: nRPC = 1; theta += 3; rpcD = 1; break;
+    case 1: nRPC = 1; theta += 3; rpcC = 1; break;
+    case 2: nRPC = 0; theta += 3;           break;
+    case 3: nRPC = 0;                       break;
     default: break;
     }
   }
-
-  std::cout << "Input word = " << mode15_8b << ", st1_ring2 = " << st1_ring2 << ", theta = " << theta << ", clctA = " << clctA << std::endl;
 
   assert(nRPC >= 0);
 

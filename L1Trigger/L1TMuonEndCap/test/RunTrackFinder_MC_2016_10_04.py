@@ -10,7 +10,7 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process('reL1T',eras.Run2_2016)
+process = cms.Process('reL1T', eras.Run2_2016)
 
 ## Import standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -37,12 +37,13 @@ process.load("RecoMuon.TrackingTools.MuonTrackLoader_cff")
 
 ## Message Logger and Event range
 process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(100)
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(5000) )
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(False))
 
 ## Global Tags
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '80X_mcRun2_asymptotic_v14', '') ## Different than in data ("auto:run2_data"?)
+## process.GlobalTag = GlobalTag(process.GlobalTag, '80X_mcRun2_asymptotic_v14', '') ## Different than in data ("auto:run2_data"?)
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '') ## Different than in data ("auto:run2_data"?)
 
 # ## Event Setup Producer
 process.load('L1Trigger.L1TMuonEndCap.fakeEmtfParams_cff') ## Why does this file have "fake" in the name? - AWB 18.04.16
@@ -117,7 +118,7 @@ process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")
 
 # Path and EndPath definitions
 
-## Defined in Configuration/StandardSequences/python/SimL1EmulatorRepack_FullMC_cff.py
+# ## Defined in Configuration/StandardSequences/python/SimL1EmulatorRepack_FullMC_cff.py
 # process.L1RePack_step = cms.Path(process.SimL1Emulator)
 SimL1Emulator_AWB = cms.Sequence(process.unpackRPC+process.unpackCSC)
 process.L1RePack_step = cms.Path(SimL1Emulator_AWB)
@@ -135,9 +136,10 @@ process.simEmtfDigis.MinBX = cms.int32(-3)
 process.simEmtfDigis.MaxBX = cms.int32(+3)
 
 process.simEmtfDigis.spPCParams16.FixZonePhi     = cms.bool(True)
-process.simEmtfDigis.spPCParams16.UseNewZones    = cms.bool(True)
-#process.simEmtfDigis.spPCParams16.ZoneBoundaries = cms.vint32(0,41,49,87,127)
-process.simEmtfDigis.spPCParams16.ZoneBoundaries = cms.vint32(0,36,54,96,127)
+process.simEmtfDigis.spPCParams16.UseNewZones    = cms.bool(False)
+process.simEmtfDigis.spPCParams16.ZoneBoundaries = cms.vint32(0,41,49,87,127)
+#process.simEmtfDigis.spPCParams16.ZoneBoundaries = cms.vint32(0,36,54,96,127)
+process.simEmtfDigis.spPCParams16.FixME11Edges   = cms.bool(True)  ## Better coordinates in ME1/1 - AWB 16.05.17
 
 process.simEmtfDigis.spPRParams16.UseSymmetricalPatterns = cms.bool(True)
 
@@ -151,10 +153,12 @@ process.simEmtfDigis.spPAParams16.BugNegPt        = cms.bool(False)
 process.simEmtfDigis.CSCInput        = cms.InputTag('simCscTriggerPrimitiveDigis','MPCSORTED')
 process.simEmtfDigis.RPCInput        = cms.InputTag('simMuonRPCDigis')
 process.simEmtfDigis.CSCEnable       = cms.bool(True)
-process.simEmtfDigis.RPCEnable       = cms.bool(False)
+process.simEmtfDigis.RPCEnable       = cms.bool(True)
 process.simEmtfDigis.CSCInputBXShift = cms.int32(-6)
 process.simEmtfDigis.RPCInputBXShift = cms.int32(0)
 process.simEmtfDigis.verbosity       = cms.untracked.int32(0)
+
+process.simEmtfDigis.Era = cms.string('Run2_2017')
 
 # RawToDigi_AWB = cms.Sequence(process.muonCSCDigis+process.muonRPCDigis+process.csctfDigis)
 RawToDigi_AWB = cms.Sequence(process.simCscTriggerPrimitiveDigis+process.muonCSCDigis+process.muonRPCDigis+process.csctfDigis+process.simEmtfDigis)
@@ -204,7 +208,7 @@ outCommands = cms.untracked.vstring(
 process.treeOut = cms.OutputModule("PoolOutputModule", 
                                    # fileName = cms.untracked.string("EMTF_MC_Tree_RelValNuGun_UP15_1k.root"),
                                    # fileName = cms.untracked.string("EMTF_MC_Tree_tau_to_3_mu_RPC_debug.root"),
-                                   fileName = cms.untracked.string("EMTF_MC_Tree_SingleMu_noRPC_SingleHit_test.root"),
+                                   fileName = cms.untracked.string("EMTF_MC_Tree_SingleMu_RPC_test.root"),
                                    outputCommands = outCommands
                                    )
 

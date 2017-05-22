@@ -275,7 +275,7 @@ PtAssignmentEngine::address_t PtAssignmentEngine2016::calculate_address(const EM
   return address;
 }
 
-float PtAssignmentEngine2016::calculate_pt_xml(const address_t& address) {
+float PtAssignmentEngine2016::calculate_pt_xml(const address_t& address) const {
   float pt = 0.;
 
   if (address == 0)  // invalid address
@@ -652,7 +652,9 @@ float PtAssignmentEngine2016::calculate_pt_xml(const address_t& address) {
   tree_event->predictedValue = 0;  // must explicitly initialize
   tree_event->data = tree_data;
 
-  forests_.at(mode_inv).predictEvent(tree_event.get(), 64);
+  // forests_.at(mode_inv).predictEvent(tree_event.get(), 64);
+  emtf::Forest &forest = const_cast<emtf::Forest&>(forests_.at(mode_inv));
+  forest.predictEvent(tree_event.get(), 64);
 
   float tmp_pt = tree_event->predictedValue;  // is actually 1/pT
 
@@ -683,7 +685,7 @@ float PtAssignmentEngine2016::calculate_pt_xml(const address_t& address) {
 
 
 // Not implemented for 2016
-float PtAssignmentEngine2016::calculate_pt_xml(const EMTFTrack& track) {
+float PtAssignmentEngine2016::calculate_pt_xml(const EMTFTrack& track) const {
   float pt = 0.;
 
   return pt;

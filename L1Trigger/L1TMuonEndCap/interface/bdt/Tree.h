@@ -53,7 +53,8 @@ class Tree
         void getSplitValues(std::vector<std::vector<Double_t>>& v);
         void getSplitValuesRecursive(Node* node, std::vector<std::vector<Double_t>>& v);
 
-        Double_t getBoostWeight(void) const { return boostWeight; }
+        Double_t getBoostWeight(void) const   { return boostWeight; }
+        void     setBoostWeight(Double_t wgt) { boostWeight =  wgt; }
 
     private:
         Node *rootNode;

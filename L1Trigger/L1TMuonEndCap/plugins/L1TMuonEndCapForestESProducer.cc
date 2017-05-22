@@ -9,7 +9,7 @@
 #include "CondFormats/L1TObjects/interface/L1TMuonEndCapForest.h"
 #include "CondFormats/DataRecord/interface/L1TMuonEndCapForestRcd.h"
 
-#include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine2016.hh"
+#include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine.hh"
 #include "L1Trigger/L1TMuonEndCap/interface/bdt/Node.h"
 #include "L1Trigger/L1TMuonEndCap/interface/bdt/Tree.h"
 #include "L1Trigger/L1TMuonEndCap/interface/bdt/Forest.h"
@@ -87,8 +87,8 @@ L1TMuonEndCapForest::DTree L1TMuonEndCapForestESProducer::traverse(emtf::Node* n
 L1TMuonEndCapForestESProducer::ReturnType
 L1TMuonEndCapForestESProducer::produce(const L1TMuonEndCapForestRcd& iRecord)
 {
-   // piggiback on the PtAssignmentEngine class to read the XMLs in
-   PtAssignmentEngine2016 pt_assign_engine_;
+   // piggyback on the PtAssignmentEngine class to read the XMLs in
+   PtAssignmentEngine pt_assign_engine_;
    pt_assign_engine_.read(bdtXMLDir);
    // get a hold on the forests; copy to non-const locals
    std::array<emtf::Forest, 16> forests = pt_assign_engine_.getForests();
@@ -102,6 +102,8 @@ L1TMuonEndCapForestESProducer::produce(const L1TMuonEndCapForestRcd& iRecord)
        pEMTFForest->forest_map_[mode] = i;
        // convert emtf::Forest into the L1TMuonEndCapForest::DForest
        emtf::Forest& forest = forests.at(mode);
+       // Store boostWeight (initial pT value of tree 0) as an integer: boostWeight x 1 million
+       pEMTFForest->forest_map_[mode+16] = forest.getTree(0)->getBoostWeight() * 1000000;
        L1TMuonEndCapForest::DForest cond_forest;
        for(unsigned int j=0; j<forest.size(); j++)
            cond_forest.push_back( traverse( forest.getTree(j)->getRootNode() ) );

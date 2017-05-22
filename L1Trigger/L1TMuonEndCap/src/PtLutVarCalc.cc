@@ -171,7 +171,7 @@ void CalcBends( int& bend1, int& bend2, int& bend3, int& bend4,
 } // End function: CalcBends()
 
 void CalcRPCs( int& RPC1, int& RPC2, int& RPC3, int& RPC4,
-	       const int mode, const bool BIT_COMP ) {
+	       const int mode, const int st1_ring2, const bool BIT_COMP ) {
 
   if (BIT_COMP) {
     int nRPC = (RPC1 == 1) + (RPC2 == 1) + (RPC3 == 1) + (RPC4 == 1);
@@ -186,6 +186,8 @@ void CalcRPCs( int& RPC1, int& RPC2, int& RPC3, int& RPC4,
 	} else if (RPC1 == 1 && RPC3 == 1) {
 	  RPC4 = 0;
 	} else if (RPC4 == 1 && RPC2 == 1) {
+	  RPC3 = 0;
+	} else if (RPC3 == 1 && RPC4 == 1 && !st1_ring2) {
 	  RPC3 = 0;
 	}
       } else if (mode == 14) {

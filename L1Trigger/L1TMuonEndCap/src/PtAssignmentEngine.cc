@@ -21,18 +21,28 @@ PtAssignmentEngine::~PtAssignmentEngine() {
 void PtAssignmentEngine::read(const std::string& xml_dir) {
   // std::string xml_dir_full = "L1Trigger/L1TMuon/data/emtf_luts/" + xml_dir + "/ModeVariables/trees";
   // std::string xml_dir_full = "L1Trigger/L1TMuonEndCap/data/emtf_luts/" + xml_dir + "/ModeVariables/trees";
-  std::string xml_dir_full = "/afs/cern.ch/work/a/abrinke1/public/EMTF/PtAssign2017/XMLs/2017_05_08_for_emulator";
+  // std::string xml_dir_full = "/afs/cern.ch/work/a/abrinke1/public/EMTF/PtAssign2017/XMLs/2017_05_08_for_emulator";
+  std::string xml_dir_full = "/afs/cern.ch/work/a/abrinke1/public/EMTF/PtAssign2017/XMLs/2017_05_10_for_emulator";
 
   for (unsigned i = 0; i < allowedModes_.size(); ++i) {
     int mode_inv = allowedModes_.at(i);  // inverted mode because reasons (Change for 2017? - AWB 20.05.17)
     std::stringstream ss;
+
     // ss << xml_dir_full << "/" << mode_inv;
     // forests_.at(mode_inv).loadForestFromXML(ss.str().c_str(), 64);
-    if (mode_inv > 12 || mode_inv == 11 || mode_inv == 7)
-      ss << xml_dir_full << "/f_MODE_" << mode_inv << "_logPtTarg_invPtWgt_bitCompr_RPC";
+
+    // if (mode_inv > 12 || mode_inv == 11 || mode_inv == 7)
+    //   ss << xml_dir_full << "/f_MODE_" << mode_inv << "_logPtTarg_invPtWgt_bitCompr_RPC";
+    // else
+    //   ss << xml_dir_full << "/f_MODE_" << mode_inv << "_logPtTarg_invPtWgt_bitCompr_noRPC";
+
+    if (mode_inv != 12)
+      ss << xml_dir_full << "/f_MODE_" << mode_inv << "_invPtTarg_invPtWgt_bitCompr_RPC_BDTG_AWB_Sq.weights";
     else
-      ss << xml_dir_full << "/f_MODE_" << mode_inv << "_logPtTarg_invPtWgt_bitCompr_noRPC";
+      ss << xml_dir_full << "/f_MODE_" << mode_inv << "_invPtTarg_invPtWgt_bitCompr_RPC_BDTG_AWB.weights";
+
     forests_.at(mode_inv).loadForestFromXML(ss.str().c_str(), 400);
+
   }
   return;
 }
@@ -48,6 +58,11 @@ void PtAssignmentEngine::load(const L1TMuonEndCapForest *payload) {
     if (index == payload->forest_map_.end())  continue;
 
     forests_.at(mode_inv).loadFromCondPayload(payload->forest_coll_[index->second]);
+    
+    // boostWeight set in plugins/L1TMuonEndCapForestESProducer.cc
+    // For 2017 only - should make configurable based on "Era" - AWB 22.05.17
+    double boostWeight_ = payload->forest_map_.find(mode_inv+16)->second / 1000000.;  
+    forests_.at(mode_inv).getTree(0)->setBoostWeight( boostWeight_ );
 
     //for(int t=0; t<64; t++){
     //  emtf::Tree* tree = forests_.at(mode_inv).getTree(t);
@@ -92,7 +107,7 @@ const PtAssignmentEngineAux& PtAssignmentEngine::aux() const {
   return instance;
 }
 
-float PtAssignmentEngine::calculate_pt(const address_t& address) {
+float PtAssignmentEngine::calculate_pt(const address_t& address) const {
   float pt = 0.;
 
   if (readPtLUTFile_) {
@@ -104,7 +119,7 @@ float PtAssignmentEngine::calculate_pt(const address_t& address) {
   return pt;
 }
 
-float PtAssignmentEngine::calculate_pt(const EMTFTrack& track) {
+float PtAssignmentEngine::calculate_pt(const EMTFTrack& track) const {
   float pt = 0.;
 
   pt = calculate_pt_xml(track);
@@ -112,7 +127,7 @@ float PtAssignmentEngine::calculate_pt(const EMTFTrack& track) {
   return pt;
 }
 
-float PtAssignmentEngine::calculate_pt_lut(const address_t& address) {
+float PtAssignmentEngine::calculate_pt_lut(const address_t& address) const {
   // LUT outputs 'gmt_pt', so need to convert back to 'xmlpt'
   int gmt_pt = ptlut_reader_.lookup(address);
   float pt = aux().getPtFromGMTPt(gmt_pt);
