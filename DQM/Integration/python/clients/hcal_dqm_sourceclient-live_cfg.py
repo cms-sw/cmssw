@@ -11,7 +11,12 @@ import os, sys, socket, string
 #	Standard CMSSW Imports/Definitions
 #-------------------------------------
 import FWCore.ParameterSet.Config as cms
-process			= cms.Process('HCALDQM')
+from Configuration.StandardSequences.Eras import eras
+process			= cms.Process('HCALDQM', 
+    eras.run2_HCAL_2017, 
+    eras.run2_HF_2017,
+    eras.run2_HEPlan1_2017
+)
 subsystem		= 'Hcal'
 cmssw			= os.getenv("CMSSW_VERSION").split("_")
 debugstr		= "### HcalDQM::cfg::DEBUG: "
@@ -97,8 +102,8 @@ process.emulTPDigis.numberOfPresamplesHF = cms.int32(1)
 process.hcalDigis.InputLabel = rawTag
 
 # Exclude the laser FEDs. They contaminate the QIE10/11 digi collections. 
-process.hcalDigis.FEDs = cms.untracked.vint32(724,725,726,727,728,729,730,710,1100,1101,1102,1103,1104,1105,1106,1107,1108,1109,1110,1111,1112,1113,1114,1115,1116,1117,1118,1119,1120,1121,1122,1123)
-
+from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
+run2_HCAL_2017.toModify(process.hcalDigis, FEDs=cms.untracked.vint32(724,725,726,727,728,729,730,710,1100,1101,1102,1103,1104,1105,1106,1107,1108,1109,1110,1111,1112,1113,1114,1115,1116,1117,1118,1119,1120,1121,1122,1123))
 
 #-------------------------------------
 #	Hcal DQM Tasks and Harvesters import
