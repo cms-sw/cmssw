@@ -13,6 +13,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
+#include <boost/algorithm/string/replace.hpp>
 
 #include <iostream>
 #include <string>
@@ -119,6 +120,12 @@ void HLTMuonMatchAndPlot::beginRun(DQMStore::IBooker & iBooker,
 
   for (size_t i = 0; i < 2; i++) {
 
+    if (isLastFilter_) 
+      iBooker.setCurrentFolder(baseDir + pathSansSuffix);
+    else 
+      iBooker.setCurrentFolder(baseDir + pathSansSuffix + "/" + moduleLabel_);
+
+
     string suffix = EFFICIENCY_SUFFIXES[i];
 
     book1D(iBooker, "efficiencyEta_" + suffix, "eta", ";#eta;");
@@ -152,12 +159,7 @@ void HLTMuonMatchAndPlot::beginRun(DQMStore::IBooker & iBooker,
     book1D(iBooker, "massVsVertexJpsi_" + suffix, "NVertex", ";NVertex");
     book1D(iBooker, "massVsDZZ_" + suffix,  "z0", ";z0;");
 
-    book1D(iBooker, "MR_massVsPtZ_" + suffix, "pt", ";p_{T}");
-    book1D(iBooker, "MR_massVsPtJpsi_" + suffix, "pt", ";p_{T}");
-    book1D(iBooker, "MR_massVsVertexZ_" + suffix, "NVertex", ";NVertex");
-    book1D(iBooker, "MR_massVsVertexJpsi_" + suffix, "NVertexFine", ";NVertex");
-    book1D(iBooker, "MR_massVsDZZ_" + suffix,  "z0Fine", ";z0;");
-
+    
 
     book1D(iBooker, "Refefficiency_Eta_Mu1_" + suffix, "etaCoarse", ";#eta;");
     book1D(iBooker, "Refefficiency_Eta_Mu2_" + suffix, "etaCoarse", ";#eta;");
@@ -169,6 +171,9 @@ void HLTMuonMatchAndPlot::beginRun(DQMStore::IBooker & iBooker,
     book2D(iBooker, "Refefficiency_Eta_"+suffix, "etaCoarse", "etaCoarse", ";#eta;#eta");
     book2D(iBooker, "Refefficiency_Pt_"+suffix, "ptCoarse", "ptCoarse", ";p_{T};p_{T}");
     // book1D(iBooker, "Refefficiency_DZ_Mu2_" + suffix,  "z0", ";z0;");
+    
+    string MRbaseDir = boost::replace_all_copy<string>(baseDir, "HLT/Muon","HLT/Muon/MR");
+    iBooker.setCurrentFolder(MRbaseDir + pathSansSuffix + "/");
 
     book1D(iBooker, "MR_Refefficiency_TurnOn_Mu1_" + suffix, "pt", ";p_{T};");
     book1D(iBooker, "MR_Refefficiency_TurnOn_Mu2_" + suffix, "pt", ";p_{T};");
@@ -176,6 +181,13 @@ void HLTMuonMatchAndPlot::beginRun(DQMStore::IBooker & iBooker,
     book1D(iBooker, "MR_Refefficiency_DZ_Mu_" + suffix,  "z0Fine", ";z0;");
     // book1D(iBooker, "MR_Refefficiency_DZ_Mu2_" + suffix,  "z0Fine", ";z0;");
     book2D(iBooker, "MR_Refefficiency_Pt_"+suffix, "pt", "pt", ";p_{T};p_{T}");
+    
+    book1D(iBooker, "MR_massVsPtZ_" + suffix, "pt", ";p_{T}");
+    book1D(iBooker, "MR_massVsPtJpsi_" + suffix, "pt", ";p_{T}");
+    book1D(iBooker, "MR_massVsVertexZ_" + suffix, "NVertex", ";NVertex");
+    book1D(iBooker, "MR_massVsVertexJpsi_" + suffix, "NVertexFine", ";NVertex");
+    book1D(iBooker, "MR_massVsDZZ_" + suffix,  "z0Fine", ";z0;");
+
   }
   
 }
@@ -392,6 +404,7 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>   & allMuons,
       passTrigger = passTrigger || (trigNames.triggerName(hltIndex).find(requiredTriggers_[i]) != std::string::npos && triggerResults->wasrun(hltIndex) && triggerResults->accept(hltIndex));
     }
   }
+
   int nMatched = 0;
   for (size_t i = 0; i < matches.size(); ++i){
     if (matches[i] < targetMuons.size()) nMatched++;
