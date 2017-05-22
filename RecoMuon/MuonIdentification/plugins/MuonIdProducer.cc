@@ -73,7 +73,7 @@ muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
    arbClean_ = iConfig.getParameter<bool>("runArbitrationCleaner"); // muon mesh
 
    // Load TrackDetectorAssociator parameters
-   edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
+   const edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
    edm::ConsumesCollector iC = consumesCollector();
    parameters_.loadParameters( parameters, iC );
 
@@ -84,8 +84,8 @@ muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
 
    if (fillCaloCompatibility_){
       // Load MuonCaloCompatibility parameters
-      parameters = iConfig.getParameter<edm::ParameterSet>("MuonCaloCompatibility");
-      muonCaloCompatibility_.configure( parameters );
+      const auto caloParams = iConfig.getParameter<edm::ParameterSet>("MuonCaloCompatibility");
+      muonCaloCompatibility_.configure( caloParams );
    }
 
    if (fillIsolation_){
