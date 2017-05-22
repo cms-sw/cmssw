@@ -30,6 +30,9 @@
 
 #include <vector>
 
+typedef std::vector<CSCComparatorDigi> CSCComparatorDigiContainer;
+typedef std::vector<std::pair<CSCDetId, CSCComparatorDigiContainer> > CSCComparatorDigiContainerIds;
+
 class CSCComparatorDigiFitter
 {
  public:
@@ -37,7 +40,11 @@ class CSCComparatorDigiFitter
   CSCComparatorDigiFitter() {}
   ~CSCComparatorDigiFitter() {}
 
+  /* CSC trigger geometry */
   void setGeometry(const CSCGeometry* csc_g) {cscGeometry_= csc_g;}
+
+  /* option to discretize the fitted stub phi */
+  void setStripBits(int bits) {nStripBits_ = bits;}
 
   /* fit a straight line to the digis */
   void fit(const CSCDetId& ch_id, const CSCCorrelatedLCTDigi&, const CSCComparatorDigiCollection&);
@@ -45,21 +52,30 @@ class CSCComparatorDigiFitter
   
  private:
   
+  /* collect the comparator digis that match the pattern */
+  void matchingComparatorDigisLCT(const CSCDetId& ch_id, const CSCCorrelatedLCTDigi&, const CSCComparatorDigiCollection&);
+  
+  /* collect the coordinates of comparators */
+  void getComparatorDigiCoordinates(const CSCDetId& ch_id, const CSCCorrelatedLCTDigi& stub);
+  
   /* is this comparator in the LCT pattern? */
-  bool comparatorInLCTPattern(int keyStrip, int pattern, int layer, int halfStrip);
+  bool comparatorInLCTPattern(int keyStrip, int pattern, int layer, int halfStrip) const;
 
-  void calculateAlphaBeta(const std::vector<float>& v, 
-			  const std::vector<float>& w, 
-			  const std::vector<float>& ev, 
-			  const std::vector<float>& ew, 
-			  float& alpha, float& beta);
+  // calculate slope and intercept of fit
+  void calculateSlopeIntercept(float& alpha, float& beta);
   
   /* width of the CSC half strips in this detId  */
-  float cscHalfStripWidth(const CSCDetId& id);
-
-  float getFractionalStrip(const CSCComparatorDigi&);
+  float cscHalfStripWidth(const CSCDetId& id) const;
 
   const CSCGeometry* cscGeometry_;
+  int nStripBits_;
+
+  CSCComparatorDigiContainerIds compDigisIds_;
+  std::vector<float> phis_;
+  std::vector<float> zs_;
+  std::vector<float> ephis_;
+  std::vector<float> ezs_;
+  float radius_;
 };
 
 #endif
