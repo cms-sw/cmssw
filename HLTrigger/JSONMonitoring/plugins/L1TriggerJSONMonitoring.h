@@ -1,15 +1,15 @@
 #ifndef JSONMonitoring_L1TriggerJSONMonitoring_h
 #define JSONMonitoring_L1TriggerJSONMonitoring_h
 
-/** \class L1TriggerJSONMonitoring         
- *     
- *  
+/** \class L1TriggerJSONMonitoring
+ *
+ *
  *  Description: This class prints JSON files with L1 trigger info.
- *          
- *  Created:  Fri, 11 Mar 2016     
- *       
- *  \author Aram Avetisyan   
- * 
+ *
+ *  Created:  Fri, 11 Mar 2016
+ *
+ *  \author Aram Avetisyan
+ *
  */
 
 #include "FWCore/Framework/interface/Event.h"
@@ -27,7 +27,7 @@
 #include "EventFilter/Utilities/interface/EvFDaqDirector.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"          
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
 #include "DataFormats/L1TGlobal/interface/GlobalExtBlk.h"
@@ -38,21 +38,21 @@
 #include <atomic>
 
 namespace l1Json {
-  //Struct for storing variables that must be written and reset every lumi section 
+  //Struct for storing variables that must be written and reset every lumi section
   struct lumiVars {
 
     unsigned int prescaleIndex; // Prescale index for each lumi section
 
-    std::string baseRunDir; //Base directory from EvFDaqDirector 
+    std::string baseRunDir; //Base directory from EvFDaqDirector
 
     jsoncollector::HistoJ<unsigned int> *processed;               // # of events processed
-    jsoncollector::HistoJ<unsigned int> *L1AlgoAccept;            // # of events accepted by L1T[i]  
-    jsoncollector::HistoJ<unsigned int> *L1AlgoAcceptPhysics;     // # of Physics events accepted by L1T[i]  
-    jsoncollector::HistoJ<unsigned int> *L1AlgoAcceptCalibration; // # of Calibration events accepted by L1T[i]  
-    jsoncollector::HistoJ<unsigned int> *L1AlgoAcceptRandom;      // # of Random events accepted by L1T[i]  
-    jsoncollector::HistoJ<unsigned int> *L1Global;                // Global # of Phyics, Cailibration and Random L1 triggers 
-    
-    std::string stL1Jsd;                 //Definition file name for JSON with L1 rates            
+    jsoncollector::HistoJ<unsigned int> *L1AlgoAccept;            // # of events accepted by L1T[i]
+    jsoncollector::HistoJ<unsigned int> *L1AlgoAcceptPhysics;     // # of Physics events accepted by L1T[i]
+    jsoncollector::HistoJ<unsigned int> *L1AlgoAcceptCalibration; // # of Calibration events accepted by L1T[i]
+    jsoncollector::HistoJ<unsigned int> *L1AlgoAcceptRandom;      // # of Random events accepted by L1T[i]
+    jsoncollector::HistoJ<unsigned int> *L1Global;                // Global # of Phyics, Cailibration and Random L1 triggers
+
+    std::string stL1Jsd;                 //Definition file name for JSON with L1 rates
     std::string streamL1Destination;
     std::string streamL1MergeType;
   };
@@ -63,11 +63,11 @@ namespace l1Json {
     mutable std::string streamL1Destination;
     mutable std::string streamL1MergeType;
   };
-}//End l1Json namespace   
+}//End l1Json namespace
 
-// 
+//
 // class declaration
-// 
+//
 class L1TriggerJSONMonitoring : public edm::stream::EDAnalyzer <edm::RunCache<l1Json::runVars>, edm::LuminosityBlockSummaryCache<l1Json::lumiVars>>
 {
  public:
@@ -90,8 +90,8 @@ class L1TriggerJSONMonitoring : public edm::stream::EDAnalyzer <edm::RunCache<l1
     rv->wroteFiles = false;
     return rv;
   }
-  
-  static void globalEndRun(edm::Run const& iRun, edm::EventSetup const&, RunContext const* iContext){ } 
+
+  static void globalEndRun(edm::Run const& iRun, edm::EventSetup const&, RunContext const* iContext){ }
 
   void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 
@@ -109,32 +109,32 @@ class L1TriggerJSONMonitoring : public edm::stream::EDAnalyzer <edm::RunCache<l1
                                               LuminosityBlockContext const*,
                                               l1Json::lumiVars*);
 
-  void resetLumi(); //Reset all counters 
+  void resetLumi(); //Reset all counters
 
-  void writeL1DefJson(std::string path);       
+  void writeL1DefJson(std::string path);
 
-  //Variables from cfg and associated tokens 
-  edm::InputTag level1Results_;                                  // Input tag for L1 Global collection   
-  edm::EDGetTokenT<GlobalAlgBlkBxCollection> level1ResultsToken_; // Token for L1 Global collection 
+  //Variables from cfg and associated tokens
+  edm::InputTag level1Results_;                                  // Input tag for L1 Global collection
+  edm::EDGetTokenT<GlobalAlgBlkBxCollection> level1ResultsToken_; // Token for L1 Global collection
 
-  //Variables that change at most once per run 
+  //Variables that change at most once per run
   std::string baseRunDir_; //Base directory from EvFDaqDirector
 
-  std::vector<std::string> L1AlgoNames_;  // name of each L1 algorithm trigger      
-  std::vector<int> L1AlgoBitNumber_;      // bit number of each L1 algo trigger     
-  std::vector<std::string> L1GlobalType_; // experimentType: Physics, Calibration, Random  
+  std::vector<std::string> L1AlgoNames_;  // name of each L1 algorithm trigger
+  std::vector<int> L1AlgoBitNumber_;      // bit number of each L1 algo trigger
+  std::vector<std::string> L1GlobalType_; // experimentType: Physics, Calibration, Random
 
-  std::string stL1Jsd_;                   //Definition file name for JSON with L1 rates           
+  std::string stL1Jsd_;                   //Definition file name for JSON with L1 rates
 
-  //Variables that need to be reset at lumi section boundaries 
-  unsigned int              processed_;      // # of events processed 
+  //Variables that need to be reset at lumi section boundaries
+  unsigned int              processed_;      // # of events processed
   unsigned int              prescaleIndex_;  //Prescale index for each lumi section
 
-  std::vector<unsigned int> L1AlgoAccept_;            // # of events accepted by L1T[i]  
-  std::vector<unsigned int> L1AlgoAcceptPhysics_;     // # of Physics events accepted by L1T[i]  
-  std::vector<unsigned int> L1AlgoAcceptCalibration_; // # of Calibration events accepted by L1T[i]  
-  std::vector<unsigned int> L1AlgoAcceptRandom_;      // # of Random events accepted by L1T[i]  
-  std::vector<unsigned int> L1Global_;                // Global # of Physics, Calibration and Random L1 triggers 
+  std::vector<unsigned int> L1AlgoAccept_;            // # of events accepted by L1T[i]
+  std::vector<unsigned int> L1AlgoAcceptPhysics_;     // # of Physics events accepted by L1T[i]
+  std::vector<unsigned int> L1AlgoAcceptCalibration_; // # of Calibration events accepted by L1T[i]
+  std::vector<unsigned int> L1AlgoAcceptRandom_;      // # of Random events accepted by L1T[i]
+  std::vector<unsigned int> L1Global_;                // Global # of Physics, Calibration and Random L1 triggers
 
   //Variables for confirming that prescale index did not change
   unsigned int oldLumi;
