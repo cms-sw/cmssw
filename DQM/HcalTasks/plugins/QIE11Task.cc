@@ -125,8 +125,8 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 		_cQSOIp1_vs_QSOI[iChan].initialize(_name, "QsoiPlus1VsQsoi", 
 			hcaldqm::hashfunctions::fdepth, 
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_100000Coarse),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_100000Coarse),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_10000),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_10000),
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 	}
 
