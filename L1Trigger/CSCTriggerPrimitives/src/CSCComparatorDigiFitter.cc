@@ -3,9 +3,7 @@
 #include "DataFormats/Math/interface/normalizedPhi.h"
 
 #include "TF1.h"
-#include "TFitResultPtr.h"
 #include "TGraphErrors.h"
-#include "TFormula.h"
 
 namespace{
 
