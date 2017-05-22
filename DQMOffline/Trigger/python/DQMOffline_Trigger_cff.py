@@ -1,5 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
+# online trigger objects monitoring
+from DQM.HLTEvF.HLTObjectsMonitor_cfi import *
+
 # lumi
 from DQMOffline.Trigger.DQMOffline_LumiMontiroring_cff import *
 # Egamma
@@ -96,7 +99,8 @@ offlineHLTSource = cms.Sequence(
     smpMonitorHLT *
     topMonitorHLT *
     btagMonitorHLT *
-    bphMonitorHLT
+    bphMonitorHLT *
+    hltObjectsMonitor
     )
 
 # offline DQM for the HLTMonitoring stream
