@@ -67,6 +67,7 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
   virtual void beginJob();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob();
+  bool isBFieldConsistentWithMode(const edm::EventSetup& iSetup) const;
   bool isHit2D(const TrackingRecHit &hit) const;
   bool hasFirstLayerPixelHits(const reco::TransientTrack track);
   std::pair<bool,bool> pixelHitsCheck(const reco::TransientTrack track);
