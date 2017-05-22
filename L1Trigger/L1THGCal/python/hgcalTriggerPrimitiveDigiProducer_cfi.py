@@ -22,6 +22,7 @@ triggerCellTruncationBits = 0
 fe_codec = cms.PSet( CodecName  = cms.string('HGCalTriggerCellThresholdCodec'),
                      CodecIndex = cms.uint32(2),
                      MaxCellsInModule = cms.uint32(116),
+                     #  MaxCellsInModule = cms.uint32(288),
                      DataLength = cms.uint32(16),
                      linLSB = cms.double(triggerCellLsbBeforeCompression),
                      triggerCellTruncationBits = cms.uint32(triggerCellTruncationBits),
