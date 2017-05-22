@@ -41,20 +41,20 @@ akPu4PFJets = akPu5PFJets.clone(rParam       = cms.double(0.4), puPtMin = 20)
 akPu6PFJets = akPu5PFJets.clone(rParam       = cms.double(0.6), puPtMin = 30)
 akPu7PFJets = akPu5PFJets.clone(rParam       = cms.double(0.7), puPtMin = 35)
 
-kt4PFJets = cms.EDProducer(
+kt4PFJetsForRho = cms.EDProducer(
     "FastjetJetProducer",
     HiPFJetParameters,
     AnomalousCellParameters,
     jetAlgorithm = cms.string("Kt"),
     rParam       = cms.double(0.4)
 )
-kt4PFJets.src = cms.InputTag('particleFlowTmp')
-kt4PFJets.doAreaFastjet = cms.bool(True)
-kt4PFJets.jetPtMin      = cms.double(0.0)
-kt4PFJets.GhostArea     = cms.double(0.005)
+kt4PFJetsForRho.src = cms.InputTag('particleFlowTmp')
+kt4PFJetsForRho.doAreaFastjet = cms.bool(True)
+kt4PFJetsForRho.jetPtMin      = cms.double(0.0)
+kt4PFJetsForRho.GhostArea     = cms.double(0.005)
 
 hiFJRhoProducer = cms.EDProducer('HiFJRhoProducer',
-                                 jetSource = cms.InputTag('kt4PFJets'),
+                                 jetSource = cms.InputTag('kt4PFJetsForRho'),
                                  nExcl = cms.int32(2),
                                  etaMaxExcl = cms.double(2.),
                                  ptMinExcl = cms.double(20.),
@@ -88,7 +88,7 @@ akCs3PFJets = akCs4PFJets.clone(rParam       = cms.double(0.3))
 hiRecoPFJets = cms.Sequence(
     PFTowers
     *akPu3PFJets*akPu4PFJets*akPu5PFJets
-    *kt4PFJets*hiFJRhoProducer
+    *kt4PFJetsForRho*hiFJRhoProducer
     *akCs3PFJets*akCs4PFJets
     )
 

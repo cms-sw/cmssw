@@ -11,7 +11,7 @@ RecoHiJetsRECO = cms.PSet(
                                             'keep *_akPu5PFJets_*_*',
                                             'keep *_akCs3PFJets_*_*',
                                             'keep *_akCs4PFJets_*_*',
-                                            'keep *_kt4PFJets_*_*',
+                                            'keep *_kt4PFJetsForRho_*_*',
                                             'keep *_*HiGenJets_*_*',
                                             'keep *_PFTowers_*_*',
                                             'keep *_hiFJRhoProducer_*_*'
