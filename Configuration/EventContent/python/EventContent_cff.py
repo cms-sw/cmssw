@@ -806,7 +806,7 @@ RAWMINIAODEventContent.outputCommands.extend(RAWEventContent.outputCommands)
 RAWMINIAODEventContent.outputCommands.extend(MicroEventContent.outputCommands)
 RAWMINIAODSIMEventContent.outputCommands.extend(RAWEventContent.outputCommands)
 RAWMINIAODSIMEventContent.outputCommands.extend(MicroEventContentMC.outputCommands)
-
+RAWMINIAODSIMEventContent.outputCommands.extend(SimG4CoreHLTAODSIM.outputCommands)
 #
 #
 # RAWSIM Data Tier definition
@@ -823,7 +823,7 @@ RAWAODSIMEventContent = cms.PSet(
 RAWAODSIMEventContent.outputCommands.extend(AODSIMEventContent.outputCommands)
 RAWAODSIMEventContent.outputCommands.extend(L1TriggerRAW.outputCommands)
 RAWAODSIMEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
-
+RAWAODSIMEventContent.outputCommands.extend(SimG4CoreHLTAODSIM.outputCommands)
 
 # in fastsim, normal digis are edaliases of simdigis
 # drop the simdigis to avoid complaints from the outputmodule related to duplicated branches
