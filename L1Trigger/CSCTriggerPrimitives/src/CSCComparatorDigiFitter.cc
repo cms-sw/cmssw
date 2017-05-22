@@ -5,7 +5,11 @@
 #include "TF1.h"
 #include "TGraphErrors.h"
 
-namespace{
+namespace
+{
+  // CSC LCT patterns
+  // the number quotes the distance to the center
+  // 999 is invalid
 
   std::vector<std::vector<int> > pat0delta {  
     { 999, 999, 999, 999, 999, 999, 999, 999, 999, 999, 999}, 
@@ -15,16 +19,16 @@ namespace{
 	    {999, 999, 999, 999, 999, 999, 999, 999, 999}, 
 	      {999, 999, 999, 999, 999, 999, 999, 999, 999, 999, 999} 
   }; 
-
+  
   std::vector<std::vector<int> > pat1delta {  
     { -5,   -4,   -3,   -2,   -1,   0,   1,   2,   3,   4,   5}, 
       {-2,   -1,   0,   1,   2}, 
 	{0},             // pid=1: layer-OR trigger 
 	  {-2,   -1,   0,   1,   2}, 
 	    { -4,   -3,   -2,   -1,   0,   1,   2,   3,   4}, 
-	      { -5,   -4,   -3,   -2,   -1,   0,   1,   2,   3,   4,   5}, 
-		}; 
-
+	      { -5,   -4,   -3,   -2,   -1,   0,   1,   2,   3,   4,   5}
+  }; 
+  
   std::vector<std::vector<int> > pat2delta {  
     { 999, 999, 999, 999, 999, 999, 999, 999,   3,   4,   5}, 
       {999, 999, 999,   1,   2}, 
@@ -110,13 +114,13 @@ namespace{
 
   std::vector< std::vector<std::vector<int> > > patIndexToPatternDelta { 
     pat0delta, pat1delta, pat2delta, pat3delta, pat4delta, pat5delta, pat6delta, pat7delta, pat8delta, pat9delta, patAdelta 
-      }; 
+  }; 
 }
 
 void CSCComparatorDigiFitter::matchingComparatorDigisLCT(const CSCDetId& ch_id, const CSCCorrelatedLCTDigi& stub, const CSCComparatorDigiCollection& hCSCComparators)
 {
   // fetch the CSC comparator digis in this chamber
-  for (int iLayer=1; iLayer<=6; ++iLayer){
+  for (int iLayer=1; iLayer<=6; ++iLayer) {
     const CSCDetId layerId(ch_id.endcap(), ch_id.station(), ch_id.ring(), ch_id.chamber(), iLayer);
     
     // get the digis per layer
@@ -149,8 +153,8 @@ void CSCComparatorDigiFitter::getComparatorDigiCoordinates(const CSCDetId& ch_id
   float radius_ = 0.0;
 
   // loop on all matching digis
-  for (const auto& p: compDigisIds_){
-    auto detId = p.first;
+  for (const auto& p: compDigisIds_) {
+    const auto& detId = p.first;
 
     float phi_tmp = 0.0;
     float radius_tmp = 0.0;
@@ -160,7 +164,7 @@ void CSCComparatorDigiFitter::getComparatorDigiCoordinates(const CSCDetId& ch_id
     if (p.second.size()==0) continue;
 
     // loop on all matching digis in this layer
-    for (const auto& hit: p.second){
+    for (const auto& hit: p.second) {
       const float fractional_strip = hit.getFractionalStrip();
       const auto& layer_geo = cscChamber->layer(detId.layer())->geometry();
       const float wire = layer_geo->middleWireOfGroup(stub.getKeyWG() + 1);
@@ -170,6 +174,7 @@ void CSCComparatorDigiFitter::getComparatorDigiCoordinates(const CSCDetId& ch_id
       const GlobalPoint& csc_gp = cscGeometry_->idToDet(detId)->surface().toGlobal(csc_intersect);
       const float gpphi = csc_gp.phi();
 
+      // normalize phi values according to first one
       if (phis_.size()>0 and gpphi>0 and phis_[0]<0 and  (gpphi-phis_[0])>M_PI)
         phi_tmp += (gpphi-2*M_PI);
       else if (phis_.size()>0 and gpphi<0 and phis_[0]>0 and (gpphi-phis_[0])<-M_PI)
@@ -202,6 +207,7 @@ void CSCComparatorDigiFitter::fit(const CSCDetId& ch_id, const CSCCorrelatedLCTD
   // second, get the coordinates
   getComparatorDigiCoordinates(ch_id, stub);
 
+  // get radius of the stub from key layer
   const CSCDetId key_id(ch_id.endcap(), ch_id.station(), ch_id.ring(), ch_id.chamber(), CSCConstants::KEY_CLCT_LAYER);
   const float fractional_strip = stub.getFractionalStrip();
 
@@ -210,11 +216,15 @@ void CSCComparatorDigiFitter::fit(const CSCDetId& ch_id, const CSCCorrelatedLCTD
 
   // LCT::getKeyWG() also starts from 0
   const float wire = layer_geo->middleWireOfGroup(stub.getKeyWG() + 1);
-
   const LocalPoint& csc_intersect = layer_geo->intersectionOfStripAndWire(fractional_strip, wire);
   const GlobalPoint& csc_gp = cscGeometry_->idToDet(key_id)->surface().toGlobal(csc_intersect);
-  radius_ = csc_gp.perp();
 
+  // get radius from key layer
+  if (useKeyRadius_)
+    radius_ = radius_/phis_.size();
+  else
+    radius_ = csc_gp.perp();
+  
   float alpha = -99., beta = 0.;
   // do a fit to the comparator digis
   calculateSlopeIntercept(alpha, beta);
@@ -262,10 +272,12 @@ void CSCComparatorDigiFitter::calculateSlopeIntercept(float& alpha, float& beta)
 float
 CSCComparatorDigiFitter::cscHalfStripWidth(const CSCDetId& id) const
 {
+  // number of strips and chamber width for each chamber type
   // ME1a ME1b ME12 ME13 ME21 ME22 ME31 ME32 ME41 ME42
   const std::vector<int> strips = {48,64,80,64, 80,80,80,80,80,80};
   const std::vector<float> degrees = {10.,10.,10.,10.,20.,10.,20.,10.,20.,10.};
   int index = id.iChamberType()-1;
+
   // half strip width
   return degrees[index] * M_PI/180. / (2. * strips[index]);
 }
