@@ -42,6 +42,9 @@ class CSCCorrelatedLCTDigi
   /// return the key halfstrip from 0,159
   int getStrip()   const { return strip; }
 
+  /// return the fractional strip. counts from 0.25
+  float getFractionalStrip() const;
+
   /// return pattern
   int getPattern() const { return pattern; }
 
