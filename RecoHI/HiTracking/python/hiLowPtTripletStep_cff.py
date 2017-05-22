@@ -97,7 +97,6 @@ hiLowPtTripletStepPixelTracks = cms.EDProducer("PixelTrackProducer",
 
     # Ordered Hits
     SeedingHitSets = cms.InputTag("hiLowPtTripletStepTracksHitTriplets"),
-    #SeedingHitSets = cms.InputTag("hiLowPtTripletStepTracksHitTripletsCA"),
 	
     # Fitter
     Fitter = cms.InputTag("pixelFitterByHelixProjections"),
@@ -225,6 +224,6 @@ hiLowPtTripletStep = cms.Sequence(hiLowPtTripletStepClusters*
                                         hiLowPtTripletStepQual
                                         )
 hiLowPtTripletStep_Phase1 = hiLowPtTripletStep.copy()
-hiLowPtTripletStep_Phase1.replace(hiLowPtTripletStepTracksHitDoublets, hiLowPtTripletStepTracksHitDoubletsCA)# 'CA' can be removed
-hiLowPtTripletStep_Phase1.replace(hiLowPtTripletStepTracksHitTriplets, hiLowPtTripletStepTracksHitTripletsCA)# 'CA' can be removed
+hiLowPtTripletStep_Phase1.replace(hiLowPtTripletStepTracksHitDoublets, hiLowPtTripletStepTracksHitDoubletsCA)
+hiLowPtTripletStep_Phase1.replace(hiLowPtTripletStepTracksHitTriplets, hiLowPtTripletStepTracksHitTripletsCA)
 trackingPhase1QuadProp.toReplaceWith(hiLowPtTripletStep, hiLowPtTripletStep_Phase1)

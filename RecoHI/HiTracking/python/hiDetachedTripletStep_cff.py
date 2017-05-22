@@ -95,7 +95,6 @@ hiDetachedTripletStepPixelTracks = cms.EDProducer("PixelTrackProducer",
 
     # Ordered Hits
     SeedingHitSets = cms.InputTag("hiDetachedTripletStepTracksHitTriplets"),
-    #SeedingHitSets = cms.InputTag("hiDetachedTripletStepTracksHitTripletsCA"),
 	
     # Fitter
     Fitter = cms.InputTag("pixelFitterByHelixProjections"),
@@ -223,7 +222,7 @@ hiDetachedTripletStep = cms.Sequence(hiDetachedTripletStepClusters*
                                      hiDetachedTripletStepSelector*
                                      hiDetachedTripletStepQual)
 hiDetachedTripletStep_Phase1 = hiDetachedTripletStep.copy()
-hiDetachedTripletStep_Phase1.replace(hiDetachedTripletStepTracksHitDoublets, hiDetachedTripletStepTracksHitDoubletsCA)# 'CA' can be removed
-hiDetachedTripletStep_Phase1.replace(hiDetachedTripletStepTracksHitTriplets, hiDetachedTripletStepTracksHitTripletsCA)# 'CA' can be removed
+hiDetachedTripletStep_Phase1.replace(hiDetachedTripletStepTracksHitDoublets, hiDetachedTripletStepTracksHitDoubletsCA)
+hiDetachedTripletStep_Phase1.replace(hiDetachedTripletStepTracksHitTriplets, hiDetachedTripletStepTracksHitTripletsCA)
 trackingPhase1QuadProp.toReplaceWith(hiDetachedTripletStep, hiDetachedTripletStep_Phase1)
 

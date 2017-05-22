@@ -53,58 +53,19 @@ hiDetachedQuadStepTrackingRegions = _globalTrackingRegionWithVertices.clone(Regi
     originRadius = 1.5 # 1.5 for pp
 
 ))
-hiDetachedQuadStepTracksHitDoublets = _hitPairEDProducer.clone(
+hiDetachedQuadStepTracksHitDoubletsCA = _hitPairEDProducer.clone(
     clusterCheck = "",
     seedingLayers = "hiDetachedQuadStepSeedLayers",
     trackingRegions = "hiDetachedQuadStepTrackingRegions",
     maxElement = 0,
     produceIntermediateHitDoublets = True,
-)
-import RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi
-hiDetachedQuadStepTracksHitTriplets = _pixelTripletHLTEDProducer.clone(
-    doublets = "hiDetachedQuadStepTracksHitDoublets",
-    extraHitRPhitolerance = 0.0,
-    extraHitRZtolerance = 0.0,
-    maxElement = 1000000,
-    SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor.clone(),
-    produceSeedingHitSets = True,
-    produceIntermediateHitTriplets = True,
-)
-
-from RecoPixelVertexing.PixelTriplets.pixelQuadrupletMergerEDProducer_cfi import pixelQuadrupletMergerEDProducer as _pixelQuadrupletMergerEDProducer
-from RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff import *
-_hiDetachedQuadStepTracksHitQuadrupletsMerging = _pixelQuadrupletMergerEDProducer.clone(
-    triplets = "hiDetachedQuadStepTracksHitTriplets",
-    layerList = dict(refToPSet_ = cms.string("PixelSeedMergerQuadruplets")),
-)
-
-hiDetachedQuadStepTracksHitQuadruplets = _pixelQuadrupletEDProducer.clone(
-    triplets = "hiDetachedQuadStepTracksHitTriplets",
-    extraHitRZtolerance = hiDetachedQuadStepTracksHitTriplets.extraHitRZtolerance,
-    extraHitRPhitolerance = hiDetachedQuadStepTracksHitTriplets.extraHitRPhitolerance,
-    maxChi2 = dict(
-        pt1    = 0.8, pt2    = 2,
-        value1 = 500, value2 = 100,
-        enabled = True,
-    ),
-    extraPhiTolerance = dict(
-        pt1    = 0.4, pt2    = 1,
-        value1 = 0.2, value2 = 0.05,
-        enabled = True,
-    ),
-    useBendingCorrection = True,
-    fitFastCircle = True,
-    fitFastCircleChi2Cut = True,
-    SeedComparitorPSet = hiDetachedQuadStepTracksHitTriplets.SeedComparitorPSet
+    layerPairs = [0,1,2]
 )
 
 from RecoPixelVertexing.PixelTriplets.caHitQuadrupletEDProducer_cfi import caHitQuadrupletEDProducer as _caHitQuadrupletEDProducer
-hiDetachedQuadStepTracksHitDoubletsCA = hiDetachedQuadStepTracksHitDoublets.clone()
-hiDetachedQuadStepTracksHitDoubletsCA.layerPairs = [0,1,2]
-
 hiDetachedQuadStepTracksHitQuadrupletsCA = _caHitQuadrupletEDProducer.clone(
     doublets = "hiDetachedQuadStepTracksHitDoubletsCA",
-    extraHitRPhitolerance = hiDetachedQuadStepTracksHitTriplets.extraHitRPhitolerance,
+    extraHitRPhitolerance = 0.0,
     maxChi2 = dict(
         pt1    = 0.8, pt2    = 2,
         value1 = 500, value2 = 100,
@@ -127,7 +88,6 @@ hiDetachedQuadStepPixelTracks = cms.EDProducer("PixelTrackProducer",
     passLabel  = cms.string('Pixel detached tracks with vertex constraint'),
 
     # Ordered Hits
-    #SeedingHitSets = cms.InputTag("hiDetachedQuadStepTracksHitQuadruplets"),
     SeedingHitSets = cms.InputTag("hiDetachedQuadStepTracksHitQuadrupletsCA"),
 	
     # Fitter
@@ -246,9 +206,8 @@ hiDetachedQuadStepQual = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.tra
 hiDetachedQuadStep = cms.Sequence(hiDetachedQuadStepClusters*
                                      hiDetachedQuadStepSeedLayers*
                                      hiDetachedQuadStepTrackingRegions*
-                                     hiDetachedQuadStepTracksHitDoubletsCA* # 'CA' can be removed
-                                     hiDetachedQuadStepTracksHitTriplets*
-                                     hiDetachedQuadStepTracksHitQuadrupletsCA* # 'CA' can be removed
+                                     hiDetachedQuadStepTracksHitDoubletsCA* 
+                                     hiDetachedQuadStepTracksHitQuadrupletsCA* 
 				     pixelFitterByHelixProjections*
                                      hiDetachedQuadStepPixelTracksFilter*
                                      hiDetachedQuadStepPixelTracks*

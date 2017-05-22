@@ -37,36 +37,6 @@ hiPixel3PrimTracksHitTriplets = _pixelTripletHLTEDProducer.clone(
     produceIntermediateHitTriplets = True,
 )
 
-
-# pixelQuadrupletMerger is not in use here. pp use it for trackingPhase1PU70
-from RecoPixelVertexing.PixelTriplets.pixelQuadrupletMergerEDProducer_cfi import pixelQuadrupletMergerEDProducer as _pixelQuadrupletMergerEDProducer
-from RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff import *
-_hiPixel3PrimTracksHitQuadrupletsMerging = _pixelQuadrupletMergerEDProducer.clone(
-    triplets = "hiPixel3PrimTracksHitTriplets",
-    layerList = dict(refToPSet_ = cms.string("PixelSeedMergerQuadruplets")),
-)
-####
-
-hiPixel3PrimTracksHitQuadruplets = _pixelQuadrupletEDProducer.clone(
-    triplets = "hiPixel3PrimTracksHitTriplets",
-    extraHitRZtolerance = hiPixel3PrimTracksHitTriplets.extraHitRZtolerance,
-    extraHitRPhitolerance = hiPixel3PrimTracksHitTriplets.extraHitRPhitolerance,
-    maxChi2 = dict(
-        pt1    = 0.8, pt2    = 2,
-        value1 = 200, value2 = 100,
-        enabled = True,
-    ),
-    extraPhiTolerance = dict(
-        pt1    = 0.6, pt2    = 1,
-        value1 = 0.15, value2 = 0.1,
-        enabled = True,
-    ),
-    useBendingCorrection = True,
-    fitFastCircle = True,
-    fitFastCircleChi2Cut = True,
-    SeedComparitorPSet = hiPixel3PrimTracksHitTriplets.SeedComparitorPSet
-)
-
 from RecoPixelVertexing.PixelTriplets.caHitQuadrupletEDProducer_cfi import caHitQuadrupletEDProducer as _caHitQuadrupletEDProducer
 hiPixel3PrimTracksHitDoubletsCA = hiPixel3PrimTracksHitDoublets.clone()
 hiPixel3PrimTracksHitDoubletsCA.layerPairs = [0,1,2]
@@ -93,7 +63,6 @@ hiPixel3PrimTracks = cms.EDProducer("PixelTrackProducer",
 
     # Ordered Hits
     SeedingHitSets = cms.InputTag("hiPixel3PrimTracksHitTriplets"),
-    #SeedingHitSets = cms.InputTag("hiPixel3PrimTracksHitQuadruplets"),
 	
     # Fitter
     Fitter = cms.InputTag("pixelFitterByHelixProjections"),
@@ -119,6 +88,6 @@ hiPixel3PrimTracksSequence = cms.Sequence(
 
 #phase 1 changes
 hiPixel3PrimTracksSequence_Phase1 = hiPixel3PrimTracksSequence.copy()
-hiPixel3PrimTracksSequence_Phase1.replace(hiPixel3PrimTracksHitDoublets,hiPixelLayerQuadruplets+hiPixel3PrimTracksHitDoubletsCA)#can remove 'CA' to get regular seeds
-hiPixel3PrimTracksSequence_Phase1.replace(hiPixel3PrimTracksHitTriplets,hiPixel3PrimTracksHitTriplets+hiPixel3PrimTracksHitQuadrupletsCA)#can remove 'CA' to get regular seeds
+hiPixel3PrimTracksSequence_Phase1.replace(hiPixel3PrimTracksHitDoublets,hiPixelLayerQuadruplets+hiPixel3PrimTracksHitDoubletsCA)
+hiPixel3PrimTracksSequence_Phase1.replace(hiPixel3PrimTracksHitTriplets,hiPixel3PrimTracksHitQuadrupletsCA)
 trackingPhase1QuadProp.toReplaceWith(hiPixel3PrimTracksSequence,hiPixel3PrimTracksSequence_Phase1)
