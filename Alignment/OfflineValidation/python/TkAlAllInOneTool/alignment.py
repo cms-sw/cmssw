@@ -1,6 +1,7 @@
 import configTemplates
 from helperFunctions import replaceByMap, parsecolor, parsestyle
 import os
+import re
 from TkAlExceptions import AllInOneError
 
 class Alignment:
@@ -28,7 +29,7 @@ class Alignment:
             raise AllInOneError("section %s not found. Please define the "
                                   "alignment!"%section)
         config.checkInput(section,
-                          knownSimpleOptions = ['globaltag', 'style', 'color', 'title'],
+                          knownSimpleOptions = ['globaltag', 'style', 'color', 'title', 'mp', 'hp', 'sm'],
                           knownKeywords = ['condition'])
         self.name = name
         if config.exists(section,"title"):
@@ -65,12 +66,60 @@ class Alignment:
             return True
         else:
             return False
-        
-        
+
     def __getConditions( self, theConfig, theSection ):
         conditions = []
         for option in theConfig.options( theSection ):
-            if option.startswith( "condition " ):
+            if option == "mp":
+                condPars = theConfig.get(theSection, option).split(",")
+                if len(condPars) > 1:
+                    raise AllInOneError("Only one argument accepted for mp (should be the job number)")
+                number, = condPars
+                folder = "/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/MP/MPproduction/{}{}/".format(option, number)
+                if not os.path.exists(folder):
+                    raise AllInOneError(folder+" does not exist.")
+                dbfile = os.path.join(folder, "jobData/jobm/alignments_MP.db")
+                if not os.path.exists(dbfile):
+                    raise AllInOneError("No file {}.  Maybe your alignment folder is corrupted?".format(dbfile))
+                conditions.append({"rcdName": "TrackerAlignmentRcd",
+                                   "connectString": "sqlite_file:"+dbfile,
+                                   "tagName": "Alignments",
+                                   "labelName": ""})
+                conditions.append({"rcdName": "TrackerSurfaceDeformationRcd",
+                                   "connectString": "sqlite_file:"+dbfile,
+                                   "tagName": "Deformations",
+                                   "labelName": ""})
+
+            elif option in ("hp", "sm"):
+                condPars = theConfig.get(theSection, option).split(",")
+                condPars = [_.strip() for _ in condPars]
+                if len(condPars) == 1:
+                    number, = condPars
+                    iteration = None
+                elif len(condPars) == 2:
+                    number, iteration = condPars
+                else:
+                    raise AllInOneError("Up to 2 arguments accepted for {} (job number, and optionally iteration)".format(option))
+                folder = "/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/HipPy/alignments/{}{}".format(option, number)
+                if not os.path.exists(folder):
+                    raise AllInOneError(folder+" does not exist.")
+                if iteration is None:
+                    for filename in os.listdir(folder):
+                        match = re.match("alignments_iter([0-9]*).db", filename)
+                        if match:
+                            if iteration is None or int(match.group(1)) > iteration:
+                                iteration = int(match.group(1))
+                    if iteration is None:
+                        raise AllInOneError("No alignments in {}".format(folder))
+                dbfile = os.path.join(folder, "alignments_iter{}.db".format(iteration))
+                if not os.path.exists(dbfile):
+                    raise AllInOneError("No file {}.".format(dbfile))
+                conditions.append({"rcdName": "TrackerAlignmentRcd",
+                                   "connectString": "sqlite_file:"+dbfile,
+                                   "tagName": "Alignments",
+                                   "labelName": ""})
+
+            elif option.startswith( "condition " ):
                 rcdName = option.split( "condition " )[1]
                 condPars = theConfig.get( theSection, option ).split( "," )
                 if len(condPars) == 1:
