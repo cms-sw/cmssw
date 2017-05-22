@@ -36,6 +36,7 @@
 #include "TVectorD.h"
 
 // CMSSW includes
+#include "CondFormats/RunInfo/interface/RunInfo.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
@@ -59,6 +60,7 @@
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateClosestToPoint.h"
+
 
 const int PrimaryVertexValidation::nMaxtracks_;
 
@@ -136,6 +138,14 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   using namespace reco;
   using namespace IPTools;
 
+  if (!isBFieldConsistentWithMode(iSetup)) {
+    edm::LogWarning("PrimaryVertexValidation") << "*********************************************************************************\n" 
+					       << "* The configuration (ptOfProbe > " << ptOfProbe_ << "GeV) is not correctly set for current value of magnetic field \n" 
+					       << "* Switching it to 0. !!! \n"
+					       << "*********************************************************************************"<< std::endl;
+    ptOfProbe_=0.;
+  }
+
   if(nBins_!=24){ 
     edm::LogInfo("PrimaryVertexValidation")<<"Using: "<<nBins_<<" bins plots";
   }
@@ -190,10 +200,14 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   if( (pDD->isThere(GeomDetEnumerators::P1PXB)) || 
       (pDD->isThere(GeomDetEnumerators::P1PXEC)) ) {
     isPhase1_ = true;
-    edm::LogInfo("PrimaryVertexValidation")<<" pixel phase1 setup ";
+    if (debug_){
+      edm::LogInfo("PrimaryVertexValidation")<<" pixel phase1 setup ";
+    }
   } else {
     isPhase1_ = false;
-    edm::LogInfo("PrimaryVertexValidation")<<" pixel phase0 setup ";
+    if (debug_){
+      edm::LogInfo("PrimaryVertexValidation")<<" pixel phase0 setup ";
+    }
   }
 
   if(isPhase1_){
@@ -648,18 +662,20 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 	      double z0 = traj.perigeeParameters().longitudinalImpactParameter();
 	      double z0_error = traj.perigeeError().longitudinalImpactParameterError();
 
-	      edm::LogInfo("PrimaryVertexValidation")<< "my_dx:"   << my_dx  
-						     << " my_dy:"  << my_dy  
-						     << " my_dxy:" << my_dxy
-						     << " my_dx2:" << my_dx2  
-						     << " my_dy2:" << my_dy2
-						     << " d0: "    << d0
-						     << " dxyFromVtx:" << dxyFromMyVertex << "\n"
-						     << " ============================== "<< "\n"
-						     << "diff1:"    << std::abs(d0) - std::abs(my_dxy) << "\n"
-						     << "diff2:"    << std::abs(d0) - std::abs(dxyFromMyVertex) << "\n"
-						     << "diff3:"    << (my_dx - my_dx2) << " " << (my_dy - my_dy2) << "\n" 
-						     << std::endl;	
+	      if(debug_){
+		edm::LogInfo("PrimaryVertexValidation")<< "my_dx:"   << my_dx  
+						       << " my_dy:"  << my_dy  
+						       << " my_dxy:" << my_dxy
+						       << " my_dx2:" << my_dx2  
+						       << " my_dy2:" << my_dy2
+						       << " d0: "    << d0
+						       << " dxyFromVtx:" << dxyFromMyVertex << "\n"
+						       << " ============================== "<< "\n"
+						       << "diff1:"    << std::abs(d0) - std::abs(my_dxy) << "\n"
+						       << "diff2:"    << std::abs(d0) - std::abs(dxyFromMyVertex) << "\n"
+						       << "diff3:"    << (my_dx - my_dx2) << " " << (my_dy - my_dy2) << "\n" 
+						       << std::endl;	
+	      }
 
 	      // define IPs
 	     
@@ -1954,6 +1970,20 @@ void PrimaryVertexValidation::endJob()
   fillMap(n_dzMeanMap  ,n_dzResidualsMap,"mean"); 
   fillMap(n_dzWidthMap ,n_dzResidualsMap,"width");
 
+}
+
+//*************************************************************
+bool PrimaryVertexValidation::isBFieldConsistentWithMode(const edm::EventSetup& iSetup) const
+//*************************************************************
+{
+  edm::ESHandle<RunInfo> runInfo;
+  iSetup.get<RunInfoRcd>().get(runInfo);
+  
+  double average_current = runInfo.product()->m_avg_current;
+  bool isOn = (average_current > 2000.);
+  bool is0T = (ptOfProbe_==0.);
+  
+  return ( (isOn && !is0T) || (!isOn && is0T) );
 }
 
 //*************************************************************
