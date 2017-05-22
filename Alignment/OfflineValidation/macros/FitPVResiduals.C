@@ -262,7 +262,10 @@ Double_t tp0Fit( Double_t *x, Double_t *par5 );
 std::pair<params::measurement, params::measurement  > fitStudentTResiduals(TH1 *hist);
 
 void FillTrendPlot(TH1F* trendPlot, TH1F* residualsPlot[100], params::estimator firPar_, TString var_,Int_t nbins);
-void FillMap(TH2F* trendMap, TH1F* residualsMapPlot[48][48], params::estimator fitPar_);
+//void FillMap(TH2F* trendMap, TH1F* residualsMapPlot[48][48], params::estimator fitPar_);
+
+void FillMap(TH2F* trendMap,std::vector<std::vector<TH1F*> >residualsMapPlot, params::estimator fitPar_);
+
 std::pair<TH2F*,TH2F*> trimTheMap(TH2 *hist);
 
 void MakeNiceTrendPlotStyle(TH1 *hist,Int_t color,Int_t style);
@@ -290,7 +293,8 @@ void setStyle();
 
 ofstream outfile("FittedDeltaZ.txt");
 
-const Int_t nBins_  = 48;
+//const Int_t nBins_  = 48;
+Int_t nBins_  = 48;
 Float_t _boundMin   = -0.5;
 Float_t _boundSx    = (nBins_/4.)-0.5;
 Float_t _boundDx    = 3*(nBins_/4.)-0.5;
@@ -425,8 +429,7 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
     cout<<"FitPVResiduals::FitPVResiduals(): label["<<j<<"] "<<LegLabels[j]<<endl;
     
   }
-
-  
+ 
   //
   // initialize all the histograms to be taken from file
   //
@@ -460,8 +463,10 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
   TH1F* dzNormMapResiduals[nFiles_][nBins_][nBins_]; 
 
   TH1F* theEtaHistos[nFiles_];
+  TH1F* thebinsHistos[nFiles_];
   double theEtaMax_[nFiles_];
-  
+  double theNBINS[nFiles_];
+
   TTimeStamp initialization_done;
 
   if(isDebugMode){
@@ -471,16 +476,26 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
   }
 
   for(Int_t i=0;i<nFiles_;i++){
-    
+
     fins[i]->cd("PVValidation/EventFeatures/");
+
     if(fins[i]->GetListOfKeys()->Contains("PVValidation/EventFeatures/etaMax")){
-      theEtaHistos[i] = (TH1F*)fins[i]->Get("PVValidation/EventFeatures/etaMax");
+      gDirectory->GetObject("etaMax",theEtaHistos[i]);
       theEtaMax_[i]   = theEtaHistos[i]->GetBinContent(1);
     } else {
       theEtaMax_[i]   = 2.5;
     }
-    
-    for(Int_t j=0;j<nBins_;j++){
+    	
+    if(gDirectory->GetListOfKeys()->Contains("nbins")){
+      gDirectory->GetObject("nbins",thebinsHistos[i]);
+      theNBINS[i] = thebinsHistos[i]->GetBinContent(1);
+      std::cout<<"File n. "<<i<<" has theNBINS["<<i<<"] = "<< theNBINS[i]<<std::endl;
+    } else {
+      theNBINS[i] = 48.;
+      std::cout<<"File n. "<<i<<" getting the default n. of bins: "<< theNBINS[i]<<std::endl;
+    }
+
+    for(Int_t j=0;j<theNBINS[i];j++){
       
       if(stdres){
 	// DCA absolute residuals
@@ -521,7 +536,7 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
 
 	if(do2DMaps) {
 
-	  for(Int_t k=0;k<nBins_;k++){
+	  for(Int_t k=0;k<theNBINS[i];k++){
 	  
 	    /*
 	    dxyMapResiduals[i][j][k] = (TH1F*)fins[i]->Get(Form("PVValidation/Abs_DoubleDiffResiduals/histo_dxy_eta_plot%i_phi_plot%i",j,k));	  
@@ -560,7 +575,7 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
 	// double differential residuals
 	if(do2DMaps) {
 	  
-	  for(Int_t k=0;k<nBins_;k++){
+	  for(Int_t k=0;k<theNBINS[i];k++){
 
 	    // absolute residuals
 	    dxyMapResiduals[i][j][k] = (TH1F*)fins[i]->Get(Form("PVValidation/Abs_DoubleDiffResiduals/histo_dxy_eta_plot%i_phi_plot%i",j,k));
@@ -598,7 +613,21 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
     std::cout<<"FitPVResiduals::FitPVResiduals(): the eta range is ["<< -etaRange << " ; " << etaRange <<"]"<< std::endl;
     std::cout<<"======================================================"<<std::endl;
   }
- 
+
+  // checks if all nbins ranges coincide
+  // if not, exits
+  if(check(theNBINS,nFiles_)){
+    std::cout<<"======================================================"<<std::endl;
+    std::cout<<"FitPVResiduals::FitPVResiduals(): the number of bins is different"<<std::endl;
+    std::cout<<"exiting..."<<std::endl;
+    return;
+  } else {
+    nBins_ = theNBINS[0];
+    std::cout<<"======================================================"<<std::endl;
+    std::cout<<"FitPVResiduals::FitPVResiduals(): the number of bins is: "<< nBins_ << std::endl;
+    std::cout<<"======================================================"<<std::endl;
+  }
+
   Double_t highedge=nBins_-0.5;
   Double_t lowedge=-0.5;
   
@@ -804,16 +833,57 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
 	timer.Continue();
       }
 
-      FillMap(dxyMeanMap[i]      ,dxyMapResiduals[i]    ,params::MEAN); 
-      FillMap(dxyWidthMap[i]     ,dxyMapResiduals[i]    ,params::WIDTH);
-      FillMap(dzMeanMap[i]       ,dzMapResiduals[i]     ,params::MEAN); 
-      FillMap(dzWidthMap[i]      ,dzMapResiduals[i]     ,params::WIDTH);
-      
-      FillMap(dxyNormMeanMap[i]  ,dxyNormMapResiduals[i],params::MEAN); 
-      FillMap(dxyNormWidthMap[i] ,dxyNormMapResiduals[i],params::WIDTH);
-      FillMap(dzNormMeanMap[i]   ,dzNormMapResiduals[i] ,params::MEAN); 
-      FillMap(dzNormWidthMap[i]  ,dzNormMapResiduals[i] ,params::WIDTH);
+      std::vector<std::vector<TH1F*> > v_dxyAbsMap; //(nBins_, std::vector<TH1F*>(nBins_));
+      std::vector<std::vector<TH1F*> > v_dzAbsMap;
+      std::vector<std::vector<TH1F*> > v_dxyNormMap;
+      std::vector<std::vector<TH1F*> > v_dzNormMap;
+ 
+      for (Int_t index1=0;index1<nBins_;index1++){
 
+	std::vector<TH1F*> a_temp_vec_xy;
+	std::vector<TH1F*> n_temp_vec_xy;
+	std::vector<TH1F*> a_temp_vec_z;
+	std::vector<TH1F*> n_temp_vec_z;
+
+	for (Int_t index2=0;index2<nBins_;index2++){
+
+	  if(isDebugMode)
+	    std::cout<<index1<<" "<<index2<<" " << (dxyMapResiduals[i][index1][index2])->GetName() 
+		     << " "<<  (dxyMapResiduals[i][index1][index2])->GetEntries() << std::endl;
+
+	  a_temp_vec_xy.push_back(dxyMapResiduals[i][index1][index2]);
+	  n_temp_vec_xy.push_back(dxyNormMapResiduals[i][index1][index2]);
+	  a_temp_vec_z.push_back(dzMapResiduals[i][index1][index2]);
+	  n_temp_vec_z.push_back(dzNormMapResiduals[i][index1][index2]);
+
+	}
+
+	v_dxyAbsMap.push_back(a_temp_vec_xy);
+	v_dzAbsMap.push_back(a_temp_vec_z); 
+	v_dxyNormMap.push_back(n_temp_vec_xy);
+	v_dzNormMap.push_back( n_temp_vec_z);
+      }
+     
+      FillMap(dxyMeanMap[i]      ,v_dxyAbsMap  ,params::MEAN);
+      FillMap(dxyWidthMap[i]     ,v_dxyAbsMap  ,params::WIDTH);
+      FillMap(dzMeanMap[i]       ,v_dzAbsMap   ,params::MEAN); 
+      FillMap(dzWidthMap[i]      ,v_dzAbsMap   ,params::WIDTH);
+                                                  
+      FillMap(dxyNormMeanMap[i]  ,v_dxyNormMap ,params::MEAN); 
+      FillMap(dxyNormWidthMap[i] ,v_dxyNormMap ,params::WIDTH);
+      FillMap(dzNormMeanMap[i]   ,v_dzNormMap  ,params::MEAN); 
+      FillMap(dzNormWidthMap[i]  ,v_dzNormMap  ,params::WIDTH);
+
+      // FillMap(dxyMeanMap[i]      ,dxyMapResiduals[i]     ,params::MEAN);
+      // FillMap(dxyWidthMap[i]     ,dxyMapResiduals[i]    ,params::WIDTH);
+      // FillMap(dzMeanMap[i]       ,dzMapResiduals[i]     ,params::MEAN); 
+      // FillMap(dzWidthMap[i]      ,dzMapResiduals[i]     ,params::WIDTH);
+      
+      // FillMap(dxyNormMeanMap[i]  ,dxyNormMapResiduals[i],params::MEAN); 
+      // FillMap(dxyNormWidthMap[i] ,dxyNormMapResiduals[i],params::WIDTH);
+      // FillMap(dzNormMeanMap[i]   ,dzNormMapResiduals[i] ,params::MEAN); 
+      // FillMap(dzNormWidthMap[i]  ,dzNormMapResiduals[i] ,params::WIDTH);
+     
       if(isDebugMode){
 	timer.Stop();
 	std::cout<<"check point 5-"<< i << " " << timer.CpuTime() << " " << timer.RealTime() << std::endl;
@@ -2355,7 +2425,7 @@ void FillMap_old(TH2F* trendMap, TH1F* residualsMapPlot[48][48], params::estimat
 }
 
 //*************************************************************
-void FillMap(TH2F* trendMap, TH1F* residualsMapPlot[48][48], params::estimator fitPar_)
+void FillMap(TH2F* trendMap, std::vector<std::vector<TH1F* > >residualsMapPlot, params::estimator fitPar_)
 //*************************************************************
 {
  
