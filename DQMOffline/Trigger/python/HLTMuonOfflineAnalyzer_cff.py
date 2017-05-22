@@ -74,7 +74,7 @@ globalAnalyzerRef.hltPathsToCheck = cms.vstring(
     "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v",
     "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v")
 globalAnalyzerRef.requiredTriggers = cms.untracked.vstring(
-    "HLT_Mu17_TrkIsoVVL_v6")
+    "HLT_Mu17_TrkIsoVVL_v")
 
 #globalAnalyzerRef.probeParams = cms.PSet()
 
