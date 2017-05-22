@@ -98,7 +98,6 @@ highPtTripletStepSeeds = _seedCreatorFromRegionConsecutiveHitsEDProducer.clone(
 )
 
 trackingPhase1QuadProp.toModify(highPtTripletStepHitDoublets, layerPairs = [0]) # layer pair (0,1)
-#trackingPhase2PU140.toModify(highPtTripletStepHitDoublets, layerPairs = [0]) # layer pair (0,1)
 _highPtTripletStepHitTriplets_propagation = _pixelTripletHLTEDProducer.clone(
     doublets = "highPtTripletStepHitDoublets",
     produceSeedingHitSets = True,
