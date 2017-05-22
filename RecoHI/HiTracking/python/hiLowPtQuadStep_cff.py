@@ -51,59 +51,21 @@ hiLowPtQuadStepTrackingRegions = _globalTrackingRegionWithVertices.clone(RegionP
     useFoundVertices = True,
     originRadius = 0.02 #0.02 for pp
 ))
-hiLowPtQuadStepTracksHitDoublets = _hitPairEDProducer.clone(
+hiLowPtQuadStepTracksHitDoubletsCA = _hitPairEDProducer.clone(
     clusterCheck = "",
     seedingLayers = "hiLowPtQuadStepSeedLayers",
     trackingRegions = "hiLowPtQuadStepTrackingRegions",
     maxElement = 0,
     produceIntermediateHitDoublets = True,
+    layerPairs = [0,1,2]
 )
+
 import RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi
-hiLowPtQuadStepTracksHitTriplets = _pixelTripletHLTEDProducer.clone(
-    doublets = "hiLowPtQuadStepTracksHitDoublets",
-    extraHitRPhitolerance = 0.0,
-    extraHitRZtolerance = 0.0,
-    maxElement = 1000000,
-    SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor.clone(),
-    produceSeedingHitSets = True,
-    produceIntermediateHitTriplets = True,
-)
-
-from RecoPixelVertexing.PixelTriplets.pixelQuadrupletMergerEDProducer_cfi import pixelQuadrupletMergerEDProducer as _pixelQuadrupletMergerEDProducer
-from RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff import *
-_hiLowPtQuadStepTracksHitQuadrupletsMerging = _pixelQuadrupletMergerEDProducer.clone(
-    triplets = "hiLowPtQuadStepTracksHitTriplets",
-    layerList = dict(refToPSet_ = cms.string("PixelSeedMergerQuadruplets")),
-)
-
-hiLowPtQuadStepTracksHitQuadruplets = _pixelQuadrupletEDProducer.clone(
-    triplets = "hiLowPtQuadStepTracksHitTriplets",
-    extraHitRZtolerance = hiLowPtQuadStepTracksHitTriplets.extraHitRZtolerance,
-    extraHitRPhitolerance = hiLowPtQuadStepTracksHitTriplets.extraHitRPhitolerance,
-    maxChi2 = dict(
-        pt1    = 0.8, pt2    = 2,
-        value1 = 2000, value2 = 100,
-        enabled = True,
-    ),
-    extraPhiTolerance = dict(
-        pt1    = 0.3, pt2    = 1,
-        value1 = 0.4, value2 = 0.05,
-        enabled = True,
-    ),
-    useBendingCorrection = True,
-    fitFastCircle = True,
-    fitFastCircleChi2Cut = True,
-    SeedComparitorPSet = hiLowPtQuadStepTracksHitTriplets.SeedComparitorPSet
-)
-
 from RecoPixelVertexing.PixelTriplets.caHitQuadrupletEDProducer_cfi import caHitQuadrupletEDProducer as _caHitQuadrupletEDProducer
-hiLowPtQuadStepTracksHitDoubletsCA = hiLowPtQuadStepTracksHitDoublets.clone()
-hiLowPtQuadStepTracksHitDoubletsCA.layerPairs = [0,1,2]
-
 hiLowPtQuadStepTracksHitQuadrupletsCA = _caHitQuadrupletEDProducer.clone(
     doublets = "hiLowPtQuadStepTracksHitDoubletsCA",
-    extraHitRPhitolerance = hiLowPtQuadStepTracksHitTriplets.extraHitRPhitolerance,
-    SeedComparitorPSet = hiLowPtQuadStepTracksHitTriplets.SeedComparitorPSet,
+    extraHitRPhitolerance = 0.0,
+    SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor.clone(,
     maxChi2 = dict(
         pt1    = 0.7, pt2    = 2,
         value1 = 1000, value2 = 150,
@@ -127,7 +89,6 @@ hiLowPtQuadStepPixelTracks = cms.EDProducer("PixelTrackProducer",
     passLabel  = cms.string('Pixel detached tracks with vertex constraint'),
 
     # Ordered Hits
-    #SeedingHitSets = cms.InputTag("hiLowPtQuadStepTracksHitQuadruplets"),
     SeedingHitSets = cms.InputTag("hiLowPtQuadStepTracksHitQuadrupletsCA"),
 	
     # Fitter
@@ -246,9 +207,8 @@ hiLowPtQuadStepQual = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackL
 hiLowPtQuadStep = cms.Sequence(hiLowPtQuadStepClusters*
                                      hiLowPtQuadStepSeedLayers*
                                      hiLowPtQuadStepTrackingRegions*
-                                     hiLowPtQuadStepTracksHitDoubletsCA* # 'CA' can be removed
-                                     hiLowPtQuadStepTracksHitTriplets*
-                                     hiLowPtQuadStepTracksHitQuadrupletsCA* # 'CA' can be removed
+                                     hiLowPtQuadStepTracksHitDoubletsCA* 
+                                     hiLowPtQuadStepTracksHitQuadrupletsCA* 
 				     pixelFitterByHelixProjections*
                                      hiLowPtQuadStepPixelTracksFilter*
                                      hiLowPtQuadStepPixelTracks*

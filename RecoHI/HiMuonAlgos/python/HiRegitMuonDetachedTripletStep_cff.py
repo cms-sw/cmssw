@@ -29,15 +29,6 @@ hiRegitMuDetachedTripletStepTrackingRegions = HiTrackingRegionFactoryFromSTAMuon
 from RecoTracker.IterativeTracking.DetachedTripletStep_cff import *
 
 # NEW CLUSTERS (remove previously used clusters)
-"""
-#Problem with this setup is because in pp, the iteration before detachedTriplet is detachedQuadruplets. 
-hiRegitMuDetachedTripletStepClusters = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepClusters.clone(
-    trajectories          = cms.InputTag("hiRegitMuPixelLessStepTracks"),
-    overrideTrkQuals      = cms.InputTag('hiRegitMuPixelLessStepSelector','hiRegitMuPixelLessStep'),
-    trackClassifier       = cms.InputTag(''),
-    TrackQuality          = cms.string('tight')
-)
-"""
 from RecoLocalTracker.SubCollectionProducers.trackClusterRemover_cfi import trackClusterRemover as _trackClusterRemover
 hiRegitMuDetachedTripletStepClusters = _trackClusterRemover.clone(
     maxChi2                                  = 9.0,

@@ -50,30 +50,20 @@ hiHighPtTripletStepTrackingRegions = _globalTrackingRegionWithVertices.clone(Reg
     useFoundVertices = True,
     originRadius = 0.02 #0.02 for pp
 ))
-hiHighPtTripletStepTracksHitDoublets = _hitPairEDProducer.clone(
+hiHighPtTripletStepTracksHitDoubletsCA = _hitPairEDProducer.clone(
     clusterCheck = "",
     seedingLayers = "hiHighPtTripletStepSeedLayers",
     trackingRegions = "hiHighPtTripletStepTrackingRegions",
     maxElement = 0,
     produceIntermediateHitDoublets = True,
-)
-hiHighPtTripletStepTracksHitTriplets = _pixelTripletHLTEDProducer.clone(
-    doublets = "hiHighPtTripletStepTracksHitDoublets",
-    extraHitRPhitolerance = 0.0,
-    extraHitRZtolerance = 0.0,
-    maxElement = 1000000,
-    SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor.clone(),
-    produceSeedingHitSets = True,
+    layerPairs = [0,1]
 )
 
 from RecoPixelVertexing.PixelTriplets.caHitTripletEDProducer_cfi import caHitTripletEDProducer as _caHitTripletEDProducer
-hiHighPtTripletStepTracksHitDoubletsCA = hiHighPtTripletStepTracksHitDoublets.clone()
-hiHighPtTripletStepTracksHitDoubletsCA.layerPairs = [0,1]
-
 hiHighPtTripletStepTracksHitTripletsCA = _caHitTripletEDProducer.clone(
     doublets = "hiHighPtTripletStepTracksHitDoubletsCA",
-    extraHitRPhitolerance = hiHighPtTripletStepTracksHitTriplets.extraHitRPhitolerance,
-    SeedComparitorPSet = hiHighPtTripletStepTracksHitTriplets.SeedComparitorPSet,
+    extraHitRPhitolerance = 0.0,
+    SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor.clone(),
     maxChi2 = dict(
         pt1    = 0.8, pt2    = 8,
         value1 = 100, value2 = 6,
@@ -95,7 +85,6 @@ hiHighPtTripletStepPixelTracks = cms.EDProducer("PixelTrackProducer",
     passLabel  = cms.string('Pixel detached tracks with vertex constraint'),
 
     # Ordered Hits
-    #SeedingHitSets = cms.InputTag("hiHighPtTripletStepTracksHitTriplets"),
     SeedingHitSets = cms.InputTag("hiHighPtTripletStepTracksHitTripletsCA"),
 	
     # Fitter
@@ -214,8 +203,8 @@ hiHighPtTripletStepQual = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.tr
 hiHighPtTripletStep = cms.Sequence(hiHighPtTripletStepClusters*
                                      hiHighPtTripletStepSeedLayers*
                                      hiHighPtTripletStepTrackingRegions*
-                                     hiHighPtTripletStepTracksHitDoubletsCA* # 'CA' can be removed
-                                     hiHighPtTripletStepTracksHitTripletsCA* # 'CA' can be removed
+                                     hiHighPtTripletStepTracksHitDoubletsCA* 
+                                     hiHighPtTripletStepTracksHitTripletsCA* 
 				     pixelFitterByHelixProjections*
                                      hiHighPtTripletStepPixelTracksFilter*
                                      hiHighPtTripletStepPixelTracks*
