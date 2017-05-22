@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 hltObjectsMonitor = cms.EDAnalyzer('HLTObjectsMonitor',
     TopFolder = cms.string("HLT/Objects"),
-    debug = cms.untracked.bool(True),
-#    debug = cms.untracked.bool(False),
+#    debug = cms.untracked.bool(True),
+    debug = cms.untracked.bool(False),
     TriggerResults    = cms.InputTag("TriggerResults","","HLT"),
     TriggerSummary    = cms.InputTag("hltTriggerSummaryAOD","","HLT"),
     beamspot          = cms.InputTag("hltOnlineBeamSpot"),
