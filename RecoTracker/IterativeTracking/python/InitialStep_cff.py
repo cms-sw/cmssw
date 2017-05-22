@@ -140,8 +140,6 @@ trackingPhase2PU140.toReplaceWith(initialStepSeeds, _initialStepSeedsConsecutive
         seedingHitSets = "initialStepHitQuadruplets"
 ))
 
-#trackingPhase2PU140.toModify(initialStepSeeds, seedingHitSets = "initialStepHitQuadruplets")
-
 
 # building
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
@@ -221,8 +219,6 @@ trackingPhase2PU140.toModify(initialStepTrajectoryBuilder,
     minNrOfHitsForRebuild = 1,
     keepOriginalIfRebuildFails = True,
 )
-
-#trackingPhase2PU140.toModify(initialStepTrajectoryBuilder, maxCand = 7, minNrOfHitsForRebuild = 1)
 
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 initialStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
@@ -370,5 +366,4 @@ _InitialStep_Phase1 = _InitialStep_Phase1QuadProp.copyAndExclude([initialStepHit
 trackingPhase1.toReplaceWith(InitialStep, _InitialStep_Phase1)
 _InitialStep_trackingPhase2 = _InitialStep_LowPU.copy()
 _InitialStep_trackingPhase2.replace(initialStepHitTriplets, initialStepHitQuadruplets)
-#_InitialStep_trackingPhase2.replace(initialStepHitTriplets, initialStepHitTriplets*initialStepHitQuadruplets)
 trackingPhase2PU140.toReplaceWith(InitialStep, _InitialStep_trackingPhase2)

@@ -105,7 +105,6 @@ _highPtTripletStepHitTriplets_propagation = _pixelTripletHLTEDProducer.clone(
     SeedComparitorPSet = highPtTripletStepHitTriplets.SeedComparitorPSet,
 )
 trackingPhase1QuadProp.toReplaceWith(highPtTripletStepHitTriplets, _highPtTripletStepHitTriplets_propagation)
-#trackingPhase2PU140.toReplaceWith(highPtTripletStepHitTriplets, _highPtTripletStepHitTriplets_propagation)
 
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff as _TrajectoryFilter_cff
