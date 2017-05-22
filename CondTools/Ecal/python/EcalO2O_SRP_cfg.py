@@ -2,10 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("ProcessOne")
 
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
-#process.CondDBCommon.connect = 'oracle://cms_orcon_prod/CMS_COND_34X_ECAL'
-#process.CondDBCommon.DBParameters.authenticationPath = '/nfshome0/popcondev/conddb'
-process.CondDBCommon.connect = 'sqlite_file:EcalSRSettings_v00_beam10.db'
+process.load("CondCore.CondDB.CondDB_cfi")
+#process.CondDB.connect = 'oracle://cms_orcon_prod/CMS_COND_34X_ECAL'
+#process.CondDB.DBParameters.authenticationPath = '/nfshome0/popcondev/conddb'
+process.CondDB.connect = 'sqlite_file:EcalSRSettings.db'
 
 
 process.MessageLogger = cms.Service("MessageLogger",
@@ -21,24 +21,24 @@ process.source = cms.Source("EmptyIOVSource",
 )
 
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
-    process.CondDBCommon,
+    process.CondDB,
     timetype = cms.untracked.string('runnumber'),
     toGet = cms.VPSet(
         cms.PSet(
             record = cms.string('EcalSRSettingsRcd'),
-            tag = cms.string('EcalSRSettings_beam2010_v01_offline')
+            tag = cms.string('EcalSRSettings_v01_offline')
         )
     )
 )
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-    process.CondDBCommon,
+    process.CondDB,
     logconnect = cms.untracked.string('sqlite_file:DBLog.db'),
     timetype = cms.untracked.string('runnumber'),
     toPut = cms.VPSet(
         cms.PSet(
             record = cms.string('EcalSRSettingsRcd'),
-            tag = cms.string('EcalSRSettings_beam2010_v01_offline')
+            tag = cms.string('EcalSRSettings_v01_offline')
         )
     )
 )

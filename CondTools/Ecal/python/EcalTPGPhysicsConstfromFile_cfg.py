@@ -1,12 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("ProcessOne")
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.CondDBCommon.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb/'
+process.load("CondCore.CondDB.CondDB_cfi")
+#process.load("CondCore.DBCommon.CondDBCommon_cfi")
+#process.CondDB.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb/'
 #
 # Choose the output database
 #
-process.CondDBCommon.connect = 'sqlite_file:EcalTPGPhysicsConst.db'
+process.CondDB.connect = 'sqlite_file:EcalTPGPhysicsConst.db'
 
 process.MessageLogger = cms.Service("MessageLogger",
   debugModules = cms.untracked.vstring('*'),
@@ -21,7 +22,7 @@ process.source = cms.Source("EmptyIOVSource",
 )
 
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
-  process.CondDBCommon,
+  process.CondDB,
   timetype = cms.untracked.string('runnumber'),
   toGet = cms.VPSet(
     cms.PSet(
@@ -32,7 +33,7 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
  )
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-  process.CondDBCommon,
+  process.CondDB,
   logconnect = cms.untracked.string('sqlite_file:DBLog.db'),
   timetype = cms.untracked.string('runnumber'),
   toPut = cms.VPSet(
