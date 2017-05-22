@@ -434,6 +434,13 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
   // initialize all the histograms to be taken from file
   //
 
+  // integrated residuals
+  TH1F *dxyRefit[nFiles_];
+  TH1F *dzRefit[nFiles_];
+
+  TH1F *dxySigRefit[nFiles_];
+  TH1F *dzSigRefit[nFiles_];
+
   // dca absolute residuals
   TH1F* dxyPhiResiduals[nFiles_][nBins_];
   TH1F* dxyEtaResiduals[nFiles_][nBins_];
@@ -494,6 +501,16 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
       theNBINS[i] = 48.;
       std::cout<<"File n. "<<i<<" getting the default n. of bins: "<< theNBINS[i]<<std::endl;
     }
+
+    // get the non-differential residuals plots
+
+    fins[i]->cd("PVValidation/ProbeTrackFeatures");
+    
+    gDirectory->GetObject("h_probedxyRefitV",dxyRefit[i]);  
+    gDirectory->GetObject("h_probedzRefitV",dzRefit[i]);   
+                        
+    gDirectory->GetObject("h_probeRefitVSigXY",dxySigRefit[i]);
+    gDirectory->GetObject("h_probeRefitVSigZ",dzSigRefit[i]);
 
     for(Int_t j=0;j<theNBINS[i];j++){
       
@@ -910,6 +927,12 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
       MakeNiceMapStyle(t_dzNormMeanMap[i]); 
       MakeNiceMapStyle(t_dzNormWidthMap[i]);  
     }
+
+    MakeNiceTrendPlotStyle(dxyRefit[i],colors[i],markers[i]);
+    MakeNiceTrendPlotStyle(dzRefit[i],colors[i],markers[i]);
+    MakeNiceTrendPlotStyle(dxySigRefit[i],colors[i],markers[i]);
+    MakeNiceTrendPlotStyle(dzSigRefit[i],colors[i],markers[i]);
+    
   }
   
   TTimeStamp filling2D_done;
@@ -929,6 +952,13 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
 
   theStrDate.ReplaceAll(" ","");
   theStrAlignment.ReplaceAll(" ","_");
+
+  // non-differential
+  TCanvas *BareResiduals = new TCanvas("BareResiduals","BareResiduals",1200,1200);
+  arrangeBiasCanvas(BareResiduals,dxyRefit,dxySigRefit,dzRefit,dzSigRefit,nFiles_,LegLabels,theDate,true);
+
+  BareResiduals->SaveAs("ResidualsCanvas_"+theStrDate+theStrAlignment+".pdf");
+  BareResiduals->SaveAs("ResidualsCanvas_"+theStrDate+theStrAlignment+".png");
 
   // DCA absolute
   
@@ -965,6 +995,7 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
 
   // delete all news
 
+  delete BareResiduals;
   delete dxyPhiTrend;
   delete dzPhiTrend; 
   delete dxyEtaTrend;
@@ -1226,6 +1257,9 @@ void arrangeBiasCanvas(TCanvas *canv,TH1F* dxyPhiMeanTrend[100],TH1F* dzPhiMeanT
 
 	    if( theTitle.Contains("Norm")){
 	      dBiasTrend[k][i]->GetYaxis()->SetRangeUser(std::min(-0.48,absmin[k]-safeDelta/2.),std::max(0.48,absmax[k]+safeDelta/2.));
+	    } else if ( theTitle.Contains("h_probe")) {
+	      TGaxis::SetMaxDigits(4);   
+	      dBiasTrend[k][i]->GetYaxis()->SetRangeUser(0.,theExtreme+(safeDelta*2.));
 	    } else {
 	      dBiasTrend[k][i]->GetYaxis()->SetRangeUser(-theExtreme-(safeDelta/2.),theExtreme+(safeDelta/2.));
 	    } 
@@ -2894,8 +2928,12 @@ void makeNewXAxis (TH1F *h)
     axmin = -TMath::Pi();
     axmax = TMath::Pi();
     ndiv = 510;
+  } else if (myTitle.Contains("h_probe")){
+    ndiv = 505;
+    axmin = h->GetXaxis()->GetXmin();
+    axmax = h->GetXaxis()->GetXmax();
   } else  {
-    std::cout<<"unrecognized variable"<<std::endl;
+    std::cout<<"unrecognized variable for histogram title: "<<myTitle<<std::endl;
   }
   
   // Remove the current axis
