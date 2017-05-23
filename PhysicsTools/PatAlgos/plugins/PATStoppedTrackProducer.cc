@@ -256,10 +256,10 @@ void pat::PATStoppedTrackProducer::produce(edm::Event& iEvent, const edm::EventS
 
         // convert to specific hcal DetIds and fill status vector
         std::vector<HcalDetId> crossedHcalIds;
-        std::vector<HcalChannelStatus> crossedHcalStatus;
+        std::vector<uint32_t> crossedHcalStatus;
         for(auto const & did : trackDetInfo.crossedHcalIds){
             crossedHcalIds.push_back(HcalDetId(did));
-            crossedHcalStatus.push_back(*(hcalQ->getValues(did.rawId())));
+            crossedHcalStatus.push_back(hcalQ->getValues(did.rawId())->getValue());
         }
         // fill ecal status vector
         std::vector<EcalChannelStatusCode> crossedEcalStatus;
@@ -275,6 +275,10 @@ void pat::PATStoppedTrackProducer::produce(edm::Event& iEvent, const edm::EventS
 
     }
 
+/* Below is needed for merging of StoppedTracks/IsolatedTracks.
+   Not merging for now, but leaving here for future use. */
+
+/*
     // there are some number of pfcandidates with no associated track
     // (mostly electrons, with a handful of muons)
     // here we find these and store. Track-specific variables get some default values
@@ -336,14 +340,8 @@ void pat::PATStoppedTrackProducer::produce(edm::Event& iEvent, const edm::EventS
                                              charge, pdgId, dz, dxy, dzError, dxyError,
                                              hp, dEdxStrip, dEdxPixel, fromPV, trackQuality, 
                                              ecalIds, hcalIds, ecalStatus, hcalStatus, refToCand));
-
-
-        //     std::cout << "\nNULLTRACKPT0" << " " << pfcand.pdgId() <<  std::endl;
-        //     if(pfcand.pt() > 5)
-        //         std::cout << "\nNULLTRACKPT5" << " " << pfcand.pdgId() <<  std::endl;
-        //     if(pfcand.pt() > 20)
-        //         std::cout << "\nNULLTRACKPT20" << " " << pfcand.pdgId() <<  std::endl;
     }
+*/
 
     iEvent.put(std::move(outPtrP));
 }

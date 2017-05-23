@@ -36,7 +36,7 @@ namespace pat {
           dEdxStrip_(0), dEdxPixel_(0), hitPattern_(reco::HitPattern()),
           crossedEcalIds_(std::vector<DetId>()), crossedHcalIds_(std::vector<HcalDetId>()),
           crossedEcalStatus_(std::vector<EcalChannelStatusCode>()),
-          crossedHcalStatus_(std::vector<HcalChannelStatus>()), 
+          crossedHcalStatus_(std::vector<uint32_t>()),
           packedCandRef_(PackedCandidateRef()) {}
 
         explicit StoppedTrack(const PFIsolation &iso, const PFIsolation &miniiso, float caloJetEm, float caloJetHad,
@@ -45,7 +45,7 @@ namespace pat {
                               const reco::HitPattern &hp, float dEdxS, float dEdxP, int fromPV, int tkQual,
                               const std::vector<DetId> & ecalid, const std::vector<HcalDetId> & hcalid,
                               const std::vector<EcalChannelStatusCode> &ecalst,
-                              const std::vector<HcalChannelStatus> & hcalst, 
+                              const std::vector<uint32_t> & hcalst,
                               const PackedCandidateRef &pcref) :
           LeafCandidate(charge, p4, Point(0.,0.,0.), id),
           pfIsolationDR03_(iso), miniIsolation_(miniiso), 
@@ -88,7 +88,14 @@ namespace pat {
         const std::vector<HcalDetId>& crossedHcalIds() const { return crossedHcalIds_; }
 
         const std::vector<EcalChannelStatusCode>& crossedEcalStatus() const { return crossedEcalStatus_; }
-        const std::vector<HcalChannelStatus>&     crossedHcalStatus() const { return crossedHcalStatus_; }
+        // HcalChannelStatus duplicates DetId info.
+        // Only store the status code value, and here construct the full object
+        std::vector<HcalChannelStatus> crossedHcalStatus() const {
+            std::vector<HcalChannelStatus> status;
+            for(unsigned int i=0; i<crossedHcalIds_.size(); i++)
+                status.push_back(HcalChannelStatus(crossedHcalIds_[i].rawId(), crossedHcalStatus_[i]));
+            return status;
+        }
 
         const PackedCandidateRef& packedCandRef() const { return packedCandRef_; }
 
@@ -107,7 +114,7 @@ namespace pat {
         std::vector<DetId> crossedEcalIds_;
         std::vector<HcalDetId> crossedHcalIds_;
         std::vector<EcalChannelStatusCode> crossedEcalStatus_;
-        std::vector<HcalChannelStatus> crossedHcalStatus_;
+        std::vector<uint32_t> crossedHcalStatus_;
 
         PackedCandidateRef packedCandRef_;
 
