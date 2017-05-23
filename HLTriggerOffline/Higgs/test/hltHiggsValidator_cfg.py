@@ -15,6 +15,7 @@ process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 ##############################################################################
 
 hltProcessName = "HLT"
+#hltProcessName = "MYHLT"
 process.hltHiggsValidator.hltProcessName = hltProcessName
 #process.hltHiggsValidator.HWW.hltPathsToCheck = cms.vstring(
 #		"HLT_Photon26",
@@ -31,18 +32,24 @@ from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = cms.string(autoCond['startup'])
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(-1) #-1
 )
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
         #'file:/afs/cern.ch/user/d/duarte/scratch0/step2_RAW2DIGI_RECO.root',
-        'file:/afs/cern.ch/user/s/sdonato/AFSwork/public/TTbar-GEN-SIM-RECO-new.root'
+        #'file:/afs/cern.ch/user/s/sdonato/AFSwork/public/TTbar-GEN-SIM-RECO-new.root'
         #'file:/afs/cern.ch/user/s/sdonato/AFSwork/public/forJasper/ZnnHbb_GEN_SIM_RECO_trigger.root'
+        #'/store/relval/CMSSW_9_1_0_pre1/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_90X_mcRun2_asymptotic_v5-v1/00000/0ED77E6C-BD10-E711-8002-0CC47A4D7678.root'
+     #   '/store/relval/CMSSW_9_1_0_pre1/RelValTTbar_13/GEN-SIM-RECO/PU25ns_90X_mcRun2_asymptotic_v5-v1/00000/266463C3-C310-E711-AABF-0CC47A4C8E5E.root'
+        '/store/relval/CMSSW_9_1_0_pre3/RelValTTbar_13/GEN-SIM-RECO/91X_upgrade2017_design_IdealBS_v3_resub-v1/10000/58486B7A-B12F-E711-89E4-0025905B85EE.root'
+        
     ),
     secondaryFileNames = cms.untracked.vstring(
-        #'file:/afs/cern.ch/user/d/duarte/scratch0/H130GGgluonfusion_cfi_py_GEN_SIM_DIGI_L1_DIGI2RAW_HLT.root',
-        #'file:/afs/cern.ch/work/j/jlauwers/hlt/CMSSW_7_2_0_pre1/src/GEN-SIM-RAW/0090828A-AC71-E311-A488-7845C4FC36D7.root'
+        '/store/relval/CMSSW_9_1_0_pre3/RelValTTbar_13/GEN-SIM-DIGI-RAW/91X_upgrade2017_design_IdealBS_v3_resub-v1/10000/0CFE027A-A62F-E711-BEE9-0CC47A4D7640.root',
+        '/store/relval/CMSSW_9_1_0_pre3/RelValTTbar_13/GEN-SIM-DIGI-RAW/91X_upgrade2017_design_IdealBS_v3_resub-v1/10000/46FB77AA-A62F-E711-859E-0025905A6138.root',
+        '/store/relval/CMSSW_9_1_0_pre3/RelValTTbar_13/GEN-SIM-DIGI-RAW/91X_upgrade2017_design_IdealBS_v3_resub-v1/10000/6E411A8B-A62F-E711-A432-0CC47A78A3F8.root',
+        '/store/relval/CMSSW_9_1_0_pre3/RelValTTbar_13/GEN-SIM-DIGI-RAW/91X_upgrade2017_design_IdealBS_v3_resub-v1/10000/BAF02D68-A62F-E711-97B2-0025905A60E0.root',
     )
 )
 
@@ -77,3 +84,4 @@ process.analyzerpath = cms.Path(
 )
 
 process.outpath = cms.EndPath(process.out)
+
