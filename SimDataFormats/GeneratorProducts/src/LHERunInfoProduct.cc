@@ -257,18 +257,25 @@ bool LHERunInfoProduct::mergeProduct(const LHERunInfoProduct &other)
       if(header->tag()=="MGRunCard" || header->tag() == "mgruncard" || header->tag() == ""){
         bool header_compatible = false;
         for (unsigned int iter_runcard = 0; iter_runcard < runcard_v2.size(); iter_runcard++){
-          // this is relevant for MG5_aMG@NLO in LO mode
+          
           std::vector<std::string> runcard_v1 = header->lines();
-          runcard_v1.erase( std::remove_if( runcard_v1.begin(), runcard_v1.end(), [](const std::string& x) { return x.find("iseed") != std::string::npos; } ), runcard_v1.end() );        
-          runcard_v1.erase( std::remove_if( runcard_v1.begin(), runcard_v1.end(), [](const std::string& x) { return x.find("Random") != std::string::npos; } ), runcard_v1.end() );        
-          runcard_v1.erase( std::remove_if( runcard_v1.begin(), runcard_v1.end(), [](const std::string& x) { return x.find(".log") != std::string::npos; } ), runcard_v1.end() );        
-          runcard_v1.erase( std::remove_if( runcard_v1.begin(), runcard_v1.end(), [](const std::string& x) { return x.find(".dat") != std::string::npos; } ), runcard_v1.end() );        
-          runcard_v1.erase( std::remove_if( runcard_v1.begin(), runcard_v1.end(), [](const std::string& x) { return x.find(".lhe") != std::string::npos; } ), runcard_v1.end() );        
-          runcard_v2[iter_runcard].erase( std::remove_if( runcard_v2[iter_runcard].begin(), runcard_v2[iter_runcard].end(), [](const std::string& x) { return x.find("iseed") != std::string::npos; } ), runcard_v2[iter_runcard].end() );
-          runcard_v2[iter_runcard].erase( std::remove_if( runcard_v2[iter_runcard].begin(), runcard_v2[iter_runcard].end(), [](const std::string& x) { return x.find("Random") != std::string::npos; } ), runcard_v2[iter_runcard].end() );
-          runcard_v2[iter_runcard].erase( std::remove_if( runcard_v2[iter_runcard].begin(), runcard_v2[iter_runcard].end(), [](const std::string& x) { return x.find(".log") != std::string::npos; } ), runcard_v2[iter_runcard].end() );
-          runcard_v2[iter_runcard].erase( std::remove_if( runcard_v2[iter_runcard].begin(), runcard_v2[iter_runcard].end(), [](const std::string& x) { return x.find(".dat") != std::string::npos; } ), runcard_v2[iter_runcard].end() );
-          runcard_v2[iter_runcard].erase( std::remove_if( runcard_v2[iter_runcard].begin(), runcard_v2[iter_runcard].end(), [](const std::string& x) { return x.find(".lhe") != std::string::npos; } ), runcard_v2[iter_runcard].end() );
+          runcard_v1.erase( std::remove_if( runcard_v1.begin(), runcard_v1.end(), [](const std::string& x) {
+                                                  return x.find("iseed") != std::string::npos
+                                                  || x.find("Random") != std::string::npos
+                                                  || x.find(".log") != std::string::npos
+                                                  || x.find(".dat") != std::string::npos
+                                                  || x.find(".lhe") != std::string::npos; 
+                                                  } ), 
+                            runcard_v1.end() );        
+          runcard_v2[iter_runcard].erase( std::remove_if( runcard_v2[iter_runcard].begin(), runcard_v2[iter_runcard].end(), [](const std::string& x) { 
+                                                  return x.find("iseed") != std::string::npos
+                                                  || x.find("Random") != std::string::npos
+                                                  || x.find(".log") != std::string::npos
+                                                  || x.find(".dat") != std::string::npos 
+                                                  || x.find(".lhe") != std::string::npos; 
+                                                  } ), 
+                            runcard_v2[iter_runcard].end() );
+          
           if(std::equal(runcard_v1.begin(), runcard_v1.end(), runcard_v2[iter_runcard].begin())){
             header_compatible = true;
             break;
