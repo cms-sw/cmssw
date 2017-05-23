@@ -18,19 +18,6 @@ l1caloparProtodb = cms.ESSource("PoolDBESSource",
 L1TCaloParamsOnlineProd = cms.ESProducer("L1TCaloParamsOnlineProd",
     onlineAuthentication = cms.string('.'),
     forceGeneration = cms.bool(False),
-    onlineDB = cms.string('oracle://CMS_OMDS_LB/CMS_TRG_R'),
-
-    layer1HOverE        = cms.string(''), #cms.string("layer1HOverE"),
-    egBypassExtHOverE   = cms.string(''), #cms.string("egammaBypassExtHOverE"),
-    egIsoLUT2           = cms.string(''), #cms.string("egammaIsoLUT2"),
-    etSumBypassMetPUS   = cms.string(''), #cms.string("etSumBypassMetPUS"),
-    etSumBypassEttPUS   = cms.string(''), #cms.string("etSumBypassEttPUS"),
-    etSumBypassEcalSumPUS = cms.string(''), #cms.string("etSumBypassEcalSumPUS"),
-    etSumMetPUSType     = cms.string(''), #cms.string("etSumMetPUSType"),
-    etSumEttPUSType     = cms.string(''), #cms.string("etSumEttPUSType"),
-    etSumEcalSumPUSType = cms.string(''), #cms.string("etSumEcalSumPUSType"),
-    etSumMetPUSLUT      = cms.string(''), #cms.string("METX_energyCalibPUSLUT"),
-    etSumEttPUSLUT      = cms.string(''), #cms.string("ET_energyCalibPUSLUT"),
-    etSumEcalSumPUSLUT  = cms.string('') #cms.string("ecalET_energyCalibPUSLUT")
+    onlineDB = cms.string('oracle://CMS_OMDS_LB/CMS_TRG_R')
 )
 

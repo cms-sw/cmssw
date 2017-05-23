@@ -18,20 +18,6 @@ using namespace XERCES_CPP_NAMESPACE;
 
 class L1TCaloParamsOnlineProd : public L1ConfigOnlineProdBaseExt<L1TCaloParamsO2ORcd,l1t::CaloParams> {
 private:
-    // a configurable dictionaries for yet unknown XML name attributes
-    //  if empty, parameter is not queried
-    std::string layer1HOverE;
-    std::string egBypassExtHOverE;
-    std::string egIsoLUT2;
-    std::string etSumBypassMetPUS;
-    std::string etSumBypassEttPUS;
-    std::string etSumBypassEcalSumPUS;
-    std::string etSumMetPUSType;
-    std::string etSumEttPUSType;
-    std::string etSumEcalSumPUSType;
-    std::string etSumMetPUSLUT;
-    std::string etSumEttPUSLUT;
-    std::string etSumEcalSumPUSLUT;
 
     bool readCaloLayer1OnlineSettings(l1t::CaloParamsHelper& paramsHelper, std::map<std::string, l1t::Parameter>& conf, std::map<std::string, 
 l1t::Mask>& );
@@ -80,9 +66,6 @@ std::map<std::string, l1t::Mask>& ) {
   if( conf.find("layer1HFScalePhiBins") != conf.end() )
       paramsHelper.setLayer1HFScalePhiBins  (conf["layer1HFScalePhiBins"]  .getVector<unsigned int>());
 
-  if( layer1HOverE.length() && conf.find(layer1HOverE) != conf.end() )
-      paramsHelper.setLayer1HOverELUT( l1t::convertToLUT( conf["layer1HOverE"].getVector<int>() ) );
-
   return true;
 }
 
@@ -107,19 +90,22 @@ std::map<std::string, l1t::Mask>& ) {
     "egammaRelaxationThreshold",
     "egammaMaxEta",
     "egammaEnergyCalibLUT",
-    "egammaIsoLUT",
+    "egammaIsoLUT1",
+    "egammaIsoLUT2",
     "tauMaxEta",
     "tauEnergyCalibLUT",
     "tauIsoLUT1",
     "tauIsoLUT2",
     "towerCountThreshold",
     "towerCountMaxEta",
-    "ET_towerThreshold",
-    "MET_towerThreshold",
+    "ET_towerThresholdLUT",
+    "MET_towerThresholdLUT",
+    "ecalET_towerThresholdLUT",
     "jetBypassPileUpSub",
     "egammaBypassCuts",
     "egammaHOverECut_iEtaLT15",
-    "egammaHOverECut_iEtaGTEq15"
+    "egammaHOverECut_iEtaGTEq15",
+    "egammaBypassExtendedHOverE"
   };
   for (const auto param : expectedParams) {
     if ( conf.find(param) == conf.end() ) {
@@ -152,9 +138,9 @@ std::map<std::string, l1t::Mask>& ) {
   etSumEtaMax.push_back(conf["HTMHT_maxJetEta"].getValue<int>());
   etSumEtaMax.push_back(conf["towerCountMaxEta"].getValue<int>());
   
-  etSumEtThresh.push_back(conf["ET_towerThreshold"].getValue<int>()/2); // ETT tower threshold
+  etSumEtThresh.push_back(0); //conf["ET_towerThreshold"].getValue<int>()/2); // ETT tower threshold
   etSumEtThresh.push_back(conf["HT_jetThreshold"].getValue<int>()/2);
-  etSumEtThresh.push_back(conf["MET_towerThreshold"].getValue<int>()/2); // ETM tower threshold
+  etSumEtThresh.push_back(0); //conf["MET_towerThreshold"].getValue<int>()/2); // ETM tower threshold
   etSumEtThresh.push_back(conf["MHT_jetThreshold"].getValue<int>()/2);
   etSumEtThresh.push_back(conf["ET_towerThreshold"].getValue<int>()/2);
 
@@ -165,12 +151,9 @@ std::map<std::string, l1t::Mask>& ) {
 
   paramsHelper.setJetCalibrationLUT ( l1t::convertToLUT( conf["jetEnergyCalibLUT"].getVector<uint32_t>() ) );
 
-  if( etSumEttPUSLUT.length() )
-      paramsHelper.setEtSumEttPUSLUT    ( l1t::convertToLUT( conf[etSumEttPUSLUT].getVector<int>() ) );
-  if( etSumEcalSumPUSLUT.length() )
-      paramsHelper.setEtSumEcalSumPUSLUT( l1t::convertToLUT( conf[etSumEcalSumPUSLUT].getVector<int>() ) );
-  if( etSumMetPUSLUT.length() )
-      paramsHelper.setEtSumMetPUSLUT    ( l1t::convertToLUT( conf[etSumMetPUSLUT].getVector<int>() ) );
+  paramsHelper.setEtSumMetPUSLUT    ( l1t::convertToLUT( conf["MET_towerThresholdLUT"].getVector<int>() ) );
+  paramsHelper.setEtSumEttPUSLUT    ( l1t::convertToLUT( conf["ET_towerThresholdLUT"].getVector<int>() ) );
+  paramsHelper.setEtSumEcalSumPUSLUT( l1t::convertToLUT( conf["ecalET_towerThresholdLUT"].getVector<int>() ) );
 
   paramsHelper.setEtSumEttCalibrationLUT    ( l1t::convertToLUT( conf["ET_energyCalibLUT"].getVector<int>() ) );
   paramsHelper.setEtSumEcalSumCalibrationLUT( l1t::convertToLUT( conf["ecalET_energyCalibLUT"].getVector<int>() ) );
@@ -179,7 +162,8 @@ std::map<std::string, l1t::Mask>& ) {
   paramsHelper.setEgMaxPtHOverE((conf["egammaRelaxationThreshold"].getValue<int>())/2.);
   paramsHelper.setEgEtaCut((conf["egammaMaxEta"].getValue<int>()));
   paramsHelper.setEgCalibrationLUT  ( l1t::convertToLUT( conf["egammaEnergyCalibLUT"].getVector<int>() ) );
-  paramsHelper.setEgIsolationLUT    ( l1t::convertToLUT( conf["egammaIsoLUT"].getVector<int>() ) );
+  paramsHelper.setEgIsolationLUT    ( l1t::convertToLUT( conf["egammaIsoLUT1"].getVector<int>() ) );
+  paramsHelper.setEgIsolationLUT2   ( l1t::convertToLUT( conf["egammaIsoLUT2"].getVector<int>() ) );
 
   paramsHelper.setIsoTauEtaMax((conf["tauMaxEta"].getValue<int>()));
 
@@ -187,50 +171,14 @@ std::map<std::string, l1t::Mask>& ) {
   paramsHelper.setTauIsolationLUT  ( l1t::convertToLUT( conf["tauIsoLUT1"].getVector<int>() ) );
   paramsHelper.setTauIsolationLUT2 ( l1t::convertToLUT( conf["tauIsoLUT2"].getVector<int>() ) );
 
-  if( egBypassExtHOverE.length() )
-      paramsHelper.setEtSumEttPUSLUT( l1t::convertToLUT( conf[egBypassExtHOverE].getVector<int>() ) );
-
-  if( egIsoLUT2.length() )
-      paramsHelper.setEgIsolationLUT2( l1t::convertToLUT( conf[egIsoLUT2].getVector<int>() ) );
-
-  if( etSumBypassMetPUS.length() )
-      paramsHelper.setEtSumBypassMetPUS( conf[etSumBypassMetPUS].getValue<unsigned int>() );
-
-  if( etSumBypassEttPUS.length() )
-      paramsHelper.setEtSumBypassEttPUS( conf[etSumBypassEttPUS].getValue<unsigned int>() );
-
-  if( etSumBypassEcalSumPUS.length() )
-      paramsHelper.setEtSumBypassEcalSumPUS( conf[etSumBypassEcalSumPUS].getValue<unsigned int>() );
-
-  if( etSumBypassEttPUS.length() )
-      paramsHelper.setEtSumBypassEttPUS( conf[etSumBypassEttPUS].getValue<unsigned int>() );
-
-  if( etSumMetPUSType.length() )
-      paramsHelper.setEtSumMetPUSType( conf[etSumMetPUSType].getValueAsStr() );
-
-  if( etSumEttPUSType.length() )
-      paramsHelper.setEtSumEttPUSType( conf[etSumEttPUSType].getValueAsStr() );
-
-  if( etSumEcalSumPUSType.length() )
-      paramsHelper.setEtSumEcalSumPUSType( conf[etSumEcalSumPUSType].getValueAsStr() );
+  paramsHelper.setEgBypassExtHOverE( conf["egammaBypassExtendedHOverE"].getValue<bool>() );
 
   return true;
 }
 
 L1TCaloParamsOnlineProd::L1TCaloParamsOnlineProd(const edm::ParameterSet& iConfig) : 
-L1ConfigOnlineProdBaseExt<L1TCaloParamsO2ORcd,l1t::CaloParams>(iConfig) {
-    layer1HOverE        = iConfig.getParameter<std::string>("layer1HOverE"); //"layer1HOverE";
-    egBypassExtHOverE   = iConfig.getParameter<std::string>("egBypassExtHOverE"); //"egammaBypassExtHOverE";
-    egIsoLUT2           = iConfig.getParameter<std::string>("egIsoLUT2"); //"egammaIsoLUT2";
-    etSumBypassMetPUS   = iConfig.getParameter<std::string>("etSumBypassMetPUS"); //"etSumBypassMetPUS";
-    etSumBypassEttPUS   = iConfig.getParameter<std::string>("etSumBypassEttPUS"); //"etSumBypassEttPUS";
-    etSumBypassEcalSumPUS = iConfig.getParameter<std::string>("etSumBypassEcalSumPUS"); //"etSumBypassEcalSumPUS"
-    etSumMetPUSType     = iConfig.getParameter<std::string>("etSumMetPUSType"); //"etSumMetPUSType";
-    etSumEttPUSType     = iConfig.getParameter<std::string>("etSumEttPUSType"); //"etSumEttPUSType ";
-    etSumEcalSumPUSType = iConfig.getParameter<std::string>("etSumEcalSumPUSType"); //"etSumEcalSumPUSType ";
-    etSumMetPUSLUT      = iConfig.getParameter<std::string>("etSumMetPUSLUT"); //"METX_energyCalibPUSLUT";
-    etSumEttPUSLUT      = iConfig.getParameter<std::string>("etSumEttPUSLUT"); //"ET_energyCalibPUSLUT";
-    etSumEcalSumPUSLUT  = iConfig.getParameter<std::string>("etSumEcalSumPUSLUT"); //"ecalET_energyCalibPUSLUT";
+    L1ConfigOnlineProdBaseExt<L1TCaloParamsO2ORcd,l1t::CaloParams>(iConfig)
+{
 }
 
 std::shared_ptr<l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const std::string& objectKey, const L1TCaloParamsO2ORcd& record) {
