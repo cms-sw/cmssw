@@ -216,7 +216,7 @@ public:
       double x = std::cos(phiPoints[i]);
       double y = std::sin(phiPoints[i]);
       double theta = 2*std::atan(std::exp(-etaPoints[i]));
-      double z = (x*x+y*y)/std::tan(theta);
+      double z = 1./std::tan(theta);
 
       GlobalVector direction( x,y,z );
 	
