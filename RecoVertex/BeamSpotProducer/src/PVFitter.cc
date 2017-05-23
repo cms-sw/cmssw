@@ -126,9 +126,13 @@ void PVFitter::readEvent(const edm::Event& iEvent)
               }
               if (sumPt < minSumPt_) continue;
           }
-          catch (...)
+          catch (cms::Exception & ex) //(...)
           {
               edm::LogInfo("") << "Needed track collection not found. Skipping cut on sumPt.";
+			  //std::cerr << "Needed track collection not found. Skipping cut on sumPt.\n";
+			  //std::cerr << ex;
+			  //std::cerr << ex.what();
+			  //std::cerr << ex.explainSelf();
           }
  
           hPVx->Fill( pv->x(), pv->z() );
@@ -373,9 +377,9 @@ bool PVFitter::runFitter() {
       upar.Add("x"     , estX       , errX	     , -10.	    , 10.	    ); // 0
       upar.Add("y"     , estY       , errY	     , -10.	    , 10.	    ); // 1
       upar.Add("z"     , estZ       , errZ	     , -30.	    , 30.	    ); // 2
-      upar.Add("ex"    , 0.010	    , 0.0001  	 , 0.   	, 10. 	    ); // 3
+      upar.Add("ex"    , 0.015	    , 0.01  	 , 0.   	, 10. 	    ); // 3
       upar.Add("corrxy", 0.   	    , 0.02  	 , -1.  	, 1.  	    ); // 4
-      upar.Add("ey"    , 0.010	    , 0.0001  	 , 0.   	, 10. 	    ); // 5
+      upar.Add("ey"    , 0.015	    , 0.01  	 , 0.   	, 10. 	    ); // 5
       upar.Add("dxdz"  , 0.   	    , 0.0002	 , -0.1 	, 0.1 	    ); // 6
       upar.Add("dydz"  , 0.   	    , 0.0002	 , -0.1 	, 0.1 	    ); // 7
       upar.Add("ez"    , 1.   	    , 0.1   	 , 0.   	, 30. 	    ); // 8
