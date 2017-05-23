@@ -443,7 +443,6 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>   & allMuons,
     // }
 
     if (track0 && track1){
-      cout << track0->dz(beamSpot->position()) - track1->dz(beamSpot->position()) << endl;
       hists_["Refefficiency_DZ_Mu_denom"]->Fill(track0->dz(beamSpot->position()) - track1->dz(beamSpot->position()));
       hists_["MR_Refefficiency_DZ_Mu_denom"]->Fill(track0->dz(beamSpot->position()) - track1->dz(beamSpot->position()));
     }
