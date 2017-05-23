@@ -20,8 +20,8 @@ hiGeneralTracksNoRegitMu = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.t
     copyExtras = True,
     makeReKeyedSeeds = cms.untracked.bool(False)
     )
-from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
-trackingPhase1QuadProp.toModify(hiGeneralTracksNoRegitMu,
+from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
+trackingPhase1.toModify(hiGeneralTracksNoRegitMu,
     TrackProducers = (cms.InputTag('hiGlobalPrimTracks'),
                       cms.InputTag('hiLowPtQuadStepTracks'),
                       cms.InputTag('hiHighPtTripletStepTracks'),
@@ -78,7 +78,7 @@ hiGeneralTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListM
     copyExtras = True,
     makeReKeyedSeeds = cms.untracked.bool(False)
 )
-trackingPhase1QuadProp.toModify(hiGeneralTracks,
+trackingPhase1.toModify(hiGeneralTracks,
     TrackProducers = (cms.InputTag('hiGlobalPrimTracks'),
                       cms.InputTag('hiLowPtQuadStepTracks'),
                       cms.InputTag('hiHighPtTripletStepTracks'),

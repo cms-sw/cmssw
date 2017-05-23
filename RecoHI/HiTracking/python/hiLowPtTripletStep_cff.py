@@ -107,8 +107,8 @@ hiLowPtTripletStepPixelTracks = cms.EDProducer("PixelTrackProducer",
     # Cleaner
     Cleaner = cms.string("trackCleaner")
 )
-from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
-trackingPhase1QuadProp.toModify(hiLowPtTripletStepPixelTracks,
+from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
+trackingPhase1.toModify(hiLowPtTripletStepPixelTracks,
     SeedingHitSets = cms.InputTag("hiLowPtTripletStepTracksHitTripletsCA")
 )
 
@@ -226,4 +226,4 @@ hiLowPtTripletStep = cms.Sequence(hiLowPtTripletStepClusters*
 hiLowPtTripletStep_Phase1 = hiLowPtTripletStep.copy()
 hiLowPtTripletStep_Phase1.replace(hiLowPtTripletStepTracksHitDoublets, hiLowPtTripletStepTracksHitDoubletsCA)
 hiLowPtTripletStep_Phase1.replace(hiLowPtTripletStepTracksHitTriplets, hiLowPtTripletStepTracksHitTripletsCA)
-trackingPhase1QuadProp.toReplaceWith(hiLowPtTripletStep, hiLowPtTripletStep_Phase1)
+trackingPhase1.toReplaceWith(hiLowPtTripletStep, hiLowPtTripletStep_Phase1)
