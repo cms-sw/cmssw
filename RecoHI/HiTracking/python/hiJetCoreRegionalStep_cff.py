@@ -51,8 +51,8 @@ hiJetCoreRegionalStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
         HitProducer = cms.string('siPixelRecHits'),
     )
 )
-from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
-trackingPhase1QuadProp.toModify(hiJetCoreRegionalStepSeedLayers, layerList = cms.vstring('BPix1+BPix2+BPix3',
+from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
+trackingPhase1.toModify(hiJetCoreRegionalStepSeedLayers, layerList = cms.vstring('BPix1+BPix2+BPix3',
     'BPix2+BPix3+BPix4',
     'BPix1+BPix3+BPix4',
     'BPix1+BPix2+BPix4',

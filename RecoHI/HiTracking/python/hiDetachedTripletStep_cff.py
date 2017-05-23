@@ -105,8 +105,8 @@ hiDetachedTripletStepPixelTracks = cms.EDProducer("PixelTrackProducer",
     # Cleaner
     Cleaner = cms.string("trackCleaner")
 )
-from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
-trackingPhase1QuadProp.toModify(hiDetachedTripletStepPixelTracks,
+from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
+trackingPhase1.toModify(hiDetachedTripletStepPixelTracks,
     SeedingHitSets = cms.InputTag("hiDetachedTripletStepTracksHitTripletsCA")
 )
 
@@ -224,5 +224,5 @@ hiDetachedTripletStep = cms.Sequence(hiDetachedTripletStepClusters*
 hiDetachedTripletStep_Phase1 = hiDetachedTripletStep.copy()
 hiDetachedTripletStep_Phase1.replace(hiDetachedTripletStepTracksHitDoublets, hiDetachedTripletStepTracksHitDoubletsCA)
 hiDetachedTripletStep_Phase1.replace(hiDetachedTripletStepTracksHitTriplets, hiDetachedTripletStepTracksHitTripletsCA)
-trackingPhase1QuadProp.toReplaceWith(hiDetachedTripletStep, hiDetachedTripletStep_Phase1)
+trackingPhase1.toReplaceWith(hiDetachedTripletStep, hiDetachedTripletStep_Phase1)
 

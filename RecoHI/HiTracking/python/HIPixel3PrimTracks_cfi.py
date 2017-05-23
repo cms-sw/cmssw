@@ -24,8 +24,8 @@ hiPixel3PrimTracksHitDoublets = _hitPairEDProducer.clone(
     maxElement = 0,
     produceIntermediateHitDoublets = True,
 )
-from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
-trackingPhase1QuadProp.toModify(hiPixel3PrimTracksHitDoublets,
+from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
+trackingPhase1.toModify(hiPixel3PrimTracksHitDoublets,
     seedingLayers = "hiPixelLayerQuadruplets"
 )
 
@@ -73,7 +73,7 @@ hiPixel3PrimTracks = cms.EDProducer("PixelTrackProducer",
     # Cleaner
     Cleaner = cms.string("trackCleaner")
 )
-trackingPhase1QuadProp.toModify(hiPixel3PrimTracks,
+trackingPhase1.toModify(hiPixel3PrimTracks,
     SeedingHitSets = cms.InputTag("hiPixel3PrimTracksHitQuadrupletsCA"),
 )
 
@@ -90,4 +90,4 @@ hiPixel3PrimTracksSequence = cms.Sequence(
 hiPixel3PrimTracksSequence_Phase1 = hiPixel3PrimTracksSequence.copy()
 hiPixel3PrimTracksSequence_Phase1.replace(hiPixel3PrimTracksHitDoublets,hiPixelLayerQuadruplets+hiPixel3PrimTracksHitDoubletsCA)
 hiPixel3PrimTracksSequence_Phase1.replace(hiPixel3PrimTracksHitTriplets,hiPixel3PrimTracksHitQuadrupletsCA)
-trackingPhase1QuadProp.toReplaceWith(hiPixel3PrimTracksSequence,hiPixel3PrimTracksSequence_Phase1)
+trackingPhase1.toReplaceWith(hiPixel3PrimTracksSequence,hiPixel3PrimTracksSequence_Phase1)
