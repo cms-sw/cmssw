@@ -68,7 +68,8 @@ public:
     edm::ParameterSet points = regPSet.getParameter<edm::ParameterSet>("points");
     etaPoints = points.getParameter<std::vector<double>>("eta");
     phiPoints = points.getParameter<std::vector<double>>("phi");
-    if (!(etaPoints.size() == phiPoints.size()))  edm::LogError ("PointSeededTrackingRegionsProducer")<<"same number of eta and phi coordinates must be specified";
+    //if (!(etaPoints.size() == phiPoints.size()))  edm::Exception ("PointSeededTrackingRegionsProducer")<<"same number of eta and phi coordinates must be specified";
+    if (!(etaPoints.size() == phiPoints.size()))  throw edm::Exception(edm::errors::Configuration) << "The parameters 'eta' and 'phi' must have the same size";;
     m_maxNRegions      = regPSet.getParameter<int>("maxNRegions");
     token_beamSpot     = iC.consumes<reco::BeamSpot>(regPSet.getParameter<edm::InputTag>("beamSpot"));
     m_maxNVertices     = 1;
@@ -109,6 +110,16 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
 
+/*    edm::ParameterSetDescription descPoints;
+    descPoints.add<double>("eta", 0.0);
+    descPoints.add<double>("phi", 0.0);
+    std::vector<edm::ParameterSet> vDefaults;
+    edm::ParameterSet vDefaults1;
+    vDefaults1.addParameter<double>("eta", 0.0);
+    vDefaults1.addParameter<double>("phi", 0.0);
+    vDefaults.push_back(vDefaults1);
+    desc.addVPSet("points", descPoints,vDefaults);
+  */ 
     edm::ParameterSetDescription descPoints;
     descPoints.add<std::vector<double>> ("eta", {0.} ); 
     descPoints.add<std::vector<double>> ("phi", {0.} ); 
@@ -202,10 +213,10 @@ public:
     int n_regions = 0;
     for(size_t i = 0; i < n_points && n_regions < m_maxNRegions; ++i ) {
 
-      double x = TMath::Cos(phiPoints[i]);
-      double y = TMath::Sin(phiPoints[i]);
-      double theta = 2*TMath::ATan(TMath::Exp(-etaPoints[i]));
-      double z = (x*x+y*y)/TMath::Tan(theta);
+      double x = std::cos(phiPoints[i]);
+      double y = std::sin(phiPoints[i]);
+      double theta = 2*std::atan(std::exp(-etaPoints[i]));
+      double z = (x*x+y*y)/std::tan(theta);
 
       GlobalVector direction( x,y,z );
 	
@@ -227,6 +238,7 @@ public:
         ++n_regions;
       }
     }
+    //std::cout<<"n_seeded_regions = "<<n_regions<<std::endl;
     edm::LogInfo ("PointSeededTrackingRegionsProducer") << "produced "<<n_regions<<" regions";
     
     return result;
