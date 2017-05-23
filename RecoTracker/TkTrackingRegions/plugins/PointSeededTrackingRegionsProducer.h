@@ -64,9 +64,11 @@ public:
     else if (modeString == "VerticesSigma") m_mode = VERTICES_SIGMA;
     else  edm::LogError ("PointSeededTrackingRegionsProducer")<<"Unknown mode string: "<<modeString;
 
-    // basic inputs
-    points = regPSet.getParameter<std::vector<edm::ParameterSet>>("points");
- 
+    // basic inputsi
+    edm::ParameterSet points = regPSet.getParameter<edm::ParameterSet>("points");
+    etaPoints = points.getParameter<std::vector<double>>("eta");
+    phiPoints = points.getParameter<std::vector<double>>("phi");
+    if (!(etaPoints.size() == phiPoints.size()))  edm::LogError ("PointSeededTrackingRegionsProducer")<<"same number of eta and phi coordinates must be specified";
     m_maxNRegions      = regPSet.getParameter<int>("maxNRegions");
     token_beamSpot     = iC.consumes<reco::BeamSpot>(regPSet.getParameter<edm::InputTag>("beamSpot"));
     m_maxNVertices     = 1;
@@ -108,15 +110,10 @@ public:
     edm::ParameterSetDescription desc;
 
     edm::ParameterSetDescription descPoints;
-    descPoints.add<double>("eta", 0.0);
-    descPoints.add<double>("phi", 0.0);
-    std::vector<edm::ParameterSet> vDefaults;
-    edm::ParameterSet vDefaults1;
-    vDefaults1.addParameter<double>("eta", 0.0);
-    vDefaults1.addParameter<double>("phi", 0.0);
-    vDefaults.push_back(vDefaults1);
-    desc.addVPSet("points", descPoints,vDefaults);
-  
+    descPoints.add<std::vector<double>> ("eta", {0.} ); 
+    descPoints.add<std::vector<double>> ("phi", {0.} ); 
+    desc.add<edm::ParameterSetDescription>("points", descPoints);
+	
     desc.add<std::string>("mode", "BeamSpotFixed");
     desc.add<int>("maxNRegions", 10);
     desc.add<edm::InputTag>("beamSpot", edm::InputTag("hltOnlineBeamSpot"));
@@ -201,17 +198,13 @@ public:
 
     // create tracking regions (maximum MaxNRegions of them) in directions of the
     // points of interest
-    size_t n_points = points.size();
-    double eta_input, phi_input;
+    size_t n_points = etaPoints.size();
     int n_regions = 0;
     for(size_t i = 0; i < n_points && n_regions < m_maxNRegions; ++i ) {
 
-      eta_input          = points[i].getParameter<double>("eta");
-      phi_input          = points[i].getParameter<double>("phi");
- 
-      double x = TMath::Cos(phi_input);
-      double y = TMath::Sin(phi_input);
-      double theta = 2*TMath::ATan(TMath::Exp(-eta_input));
+      double x = TMath::Cos(phiPoints[i]);
+      double y = TMath::Sin(etaPoints[i]);
+      double theta = 2*TMath::ATan(TMath::Exp(-etaPoints[i]));
       double z = (x*x+y*y)/TMath::Tan(theta);
 
       GlobalVector direction( x,y,z );
@@ -234,7 +227,6 @@ public:
         ++n_regions;
       }
     }
-    //std::cout<<"n_seeded_regions = "<<n_regions<<std::endl;
     edm::LogInfo ("PointSeededTrackingRegionsProducer") << "produced "<<n_regions<<" regions";
     
     return result;
@@ -249,7 +241,8 @@ private:
   edm::EDGetTokenT<reco::BeamSpot> token_beamSpot; 
   int m_maxNVertices;
 
-  std::vector<edm::ParameterSet> points;
+  std::vector<double> etaPoints;
+  std::vector<double> phiPoints;
 
   float m_ptMin;
   float m_originRadius;
