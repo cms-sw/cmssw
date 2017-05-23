@@ -203,7 +203,7 @@ public:
     for(size_t i = 0; i < n_points && n_regions < m_maxNRegions; ++i ) {
 
       double x = TMath::Cos(phiPoints[i]);
-      double y = TMath::Sin(etaPoints[i]);
+      double y = TMath::Sin(phiPoints[i]);
       double theta = 2*TMath::ATan(TMath::Exp(-etaPoints[i]));
       double z = (x*x+y*y)/TMath::Tan(theta);
 
