@@ -236,13 +236,11 @@ bool LHERunInfoProduct::mergeProduct(const LHERunInfoProduct &other)
     // make a list of headers contained in the second file
     std::vector<std::vector<std::string> > runcard_v2;
     std::vector<std::string> runcard_v2_header;
-    for(std::vector<LHERunInfoProduct::Header>::const_iterator
-      header2 = headers_.begin();
-      header2 != headers_.end(); ++header2) {
+    for(auto header2 : headers_) {
         // fill a vector with the relevant header tags that can be not equal but sill compatible
-        if(header2->tag()=="MGRunCard" || header2->tag() == "mgruncard" || header2->tag() == ""){
-          runcard_v2.push_back(header2->lines());
-          runcard_v2_header.push_back(header2->tag());
+        if(header2.tag()=="MGRunCard" || header2.tag() == "mgruncard" || header2.tag() == ""){
+          runcard_v2.push_back(header2.lines());
+          runcard_v2_header.push_back(header2.tag());
         }
     }
     
