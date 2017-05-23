@@ -25,6 +25,8 @@ METMonitor::METMonitor( const edm::ParameterSet& iConfig ) :
   , met_variable_binning_ ( iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("metBinning") )
   , met_binning_          ( getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("metPSet")    ) )
   , ls_binning_           ( getHistoLSPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("lsPSet")     ) )
+  , ht_variable_binning_ ( iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("htBinning") )
+  , ht_binning_          ( getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("htPSet")    ) )
   , num_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet"),consumesCollector(), *this))
   , den_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("denGenericTriggerEventPSet"),consumesCollector(), *this))
   , metSelection_ ( iConfig.getParameter<std::string>("metSelection") )
@@ -36,6 +38,12 @@ METMonitor::METMonitor( const edm::ParameterSet& iConfig ) :
   , nmuons_     ( iConfig.getParameter<int>("nmuons" )     )
 {
 
+  htME_.numerator   = nullptr;
+  htME_.denominator = nullptr;
+  htME_variableBinning_.numerator   = nullptr;
+  htME_variableBinning_.denominator = nullptr;
+  htVsLS_.numerator   = nullptr;
+  htVsLS_.denominator = nullptr;
   metME_.numerator   = nullptr;
   metME_.denominator = nullptr;
   metME_variableBinning_.numerator   = nullptr;
@@ -126,6 +134,18 @@ void METMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   std::string currentFolder = folderName_ ;
   ibooker.setCurrentFolder(currentFolder.c_str());
 
+  histname = "ht"; histtitle = "HT";
+  bookME(ibooker,htME_,histname,histtitle,ht_binning_.nbins,ht_binning_.xmin, ht_binning_.xmax);
+  setMETitle(htME_,"HT [GeV]","events / [GeV]");
+
+  histname = "ht_variable"; histtitle = "HT";
+  bookME(ibooker,htME_variableBinning_,histname,histtitle,ht_variable_binning_);
+  setMETitle(htME_variableBinning_,"HT [GeV]","events / [GeV]");
+
+  histname = "htVsLS"; histtitle = "HT vs LS";
+  bookME(ibooker,htVsLS_,histname,histtitle,ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax,ht_binning_.xmin, ht_binning_.xmax);
+  setMETitle(htVsLS_,"LS","HT [GeV]");
+
   histname = "met"; histtitle = "PFMET";
   bookME(ibooker,metME_,histname,histtitle,met_binning_.nbins,met_binning_.xmin, met_binning_.xmax);
   setMETitle(metME_,"PF MET [GeV]","events / [GeV]");
@@ -161,7 +181,8 @@ void METMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   iEvent.getByToken( metToken_, metHandle );
   reco::PFMET pfmet = metHandle->front();
   if ( ! metSelection_( pfmet ) ) return;
-  
+
+  float ht = 0.0; 
   float met = pfmet.pt();
   float phi = pfmet.phi();
 
@@ -170,7 +191,10 @@ void METMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   std::vector<reco::PFJet> jets;
   if ( int(jetHandle->size()) < njets_ ) return;
   for ( auto const & j : *jetHandle ) {
-    if ( jetSelection_( j ) ) jets.push_back(j);
+    if ( jetSelection_( j ) ) {
+      jets.push_back(j);
+      ht += j.pt();
+    }
   }
   if ( int(jets.size()) < njets_ ) return;
   
@@ -193,17 +217,23 @@ void METMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   if ( int(muons.size()) < nmuons_ ) return;
 
   // filling histograms (denominator)  
+  htME_.denominator -> Fill(ht);
+  htME_variableBinning_.denominator -> Fill(ht);
   metME_.denominator -> Fill(met);
   metME_variableBinning_.denominator -> Fill(met);
   metPhiME_.denominator -> Fill(phi);
 
   int ls = iEvent.id().luminosityBlock();
+  htVsLS_.denominator -> Fill(ls, ht);
   metVsLS_.denominator -> Fill(ls, met);
   
   // applying selection for numerator
   if (num_genTriggerEventFlag_->on() && ! num_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
 
   // filling histograms (num_genTriggerEventFlag_)  
+  htME_.numerator -> Fill(ht);
+  htME_variableBinning_.numerator -> Fill(ht);
+  htVsLS_.numerator -> Fill(ls, ht);
   metME_.numerator -> Fill(met);
   metME_variableBinning_.numerator -> Fill(met);
   metPhiME_.numerator -> Fill(phi);
@@ -261,8 +291,12 @@ void METMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   edm::ParameterSetDescription metPSet;
   fillHistoPSetDescription(metPSet);
   histoPSet.add<edm::ParameterSetDescription>("metPSet", metPSet);
+  edm::ParameterSetDescription htPSet;
+  fillHistoPSetDescription(htPSet);
+  histoPSet.add<edm::ParameterSetDescription>("htPSet", htPSet);
   std::vector<double> bins = {0.,20.,40.,60.,80.,90.,100.,110.,120.,130.,140.,150.,160.,170.,180.,190.,200.,220.,240.,260.,280.,300.,350.,400.,450.,1000.};
   histoPSet.add<std::vector<double> >("metBinning", bins);
+  histoPSet.add<std::vector<double> >("htBinning", bins);
 
   edm::ParameterSetDescription lsPSet;
   fillHistoLSPSetDescription(lsPSet);
