@@ -19,7 +19,7 @@ hltMuonEfficiencies = cms.EDAnalyzer("DQMGenericClient",
         "Refefficiency_Vertex 'Reference efficiency; NVertex; N(pass) / N' Refefficiency_Vertex_numer Refefficiency_Vertex_denom",
         "Refefficiency_TurnOn_Mu1 'Reference efficiency; Pt; N(pass) / N' Refefficiency_TurnOn_Mu1_numer Refefficiency_TurnOn_Mu1_denom",
         "Refefficiency_TurnOn_Mu2 'Reference efficiency; Pt; N(pass) / N' Refefficiency_TurnOn_Mu2_numer Refefficiency_TurnOn_Mu2_denom",
-        "Refefficiency_DZ_Mu_Vertex 'Reference efficiency; d_{z}; N(pass) / N' Refefficiency_DZ_Mu_numer Refefficiency_DZ_Mu_denom",
+        "Refefficiency_DZ_Mu 'Reference efficiency; d_{z}; N(pass) / N' Refefficiency_DZ_Mu_numer Refefficiency_DZ_Mu_denom",
 
         ),
                                      
