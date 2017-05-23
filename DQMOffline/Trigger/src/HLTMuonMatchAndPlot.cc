@@ -160,28 +160,29 @@ void HLTMuonMatchAndPlot::beginRun(DQMStore::IBooker & iBooker,
     book1D(iBooker, "massVsDZZ_" + suffix,  "z0", ";z0;");
 
     
-
-    book1D(iBooker, "Refefficiency_Eta_Mu1_" + suffix, "etaCoarse", ";#eta;");
-    book1D(iBooker, "Refefficiency_Eta_Mu2_" + suffix, "etaCoarse", ";#eta;");
-    book1D(iBooker, "Refefficiency_TurnOn_Mu1_" + suffix, "ptCoarse", ";p_{T};");
-    book1D(iBooker, "Refefficiency_TurnOn_Mu2_" + suffix, "ptCoarse", ";p_{T};");
-    book1D(iBooker, "Refefficiency_Vertex_" + suffix, "NVertex", ";NVertex;");
-    book1D(iBooker, "Refefficiency_DZ_Mu_" + suffix,  "z0", ";z0;");
-
-    book2D(iBooker, "Refefficiency_Eta_"+suffix, "etaCoarse", "etaCoarse", ";#eta;#eta");
-    book2D(iBooker, "Refefficiency_Pt_"+suffix, "ptCoarse", "ptCoarse", ";p_{T};p_{T}");
-    // book1D(iBooker, "Refefficiency_DZ_Mu2_" + suffix,  "z0", ";z0;");
-    
+    if (requiredTriggers_.size() > 0){
+      book1D(iBooker, "Refefficiency_Eta_Mu1_" + suffix, "etaCoarse", ";#eta;");
+      book1D(iBooker, "Refefficiency_Eta_Mu2_" + suffix, "etaCoarse", ";#eta;");
+      book1D(iBooker, "Refefficiency_TurnOn_Mu1_" + suffix, "ptCoarse", ";p_{T};");
+      book1D(iBooker, "Refefficiency_TurnOn_Mu2_" + suffix, "ptCoarse", ";p_{T};");
+      book1D(iBooker, "Refefficiency_Vertex_" + suffix, "NVertex", ";NVertex;");
+      book1D(iBooker, "Refefficiency_DZ_Mu_" + suffix,  "z0", ";z0;");
+      
+      book2D(iBooker, "Refefficiency_Eta_"+suffix, "etaCoarse", "etaCoarse", ";#eta;#eta");
+      book2D(iBooker, "Refefficiency_Pt_"+suffix, "ptCoarse", "ptCoarse", ";p_{T};p_{T}");
+      // book1D(iBooker, "Refefficiency_DZ_Mu2_" + suffix,  "z0", ";z0;");
+    }
     string MRbaseDir = boost::replace_all_copy<string>(baseDir, "HLT/Muon","HLT/Muon/MR");
     iBooker.setCurrentFolder(MRbaseDir + pathSansSuffix + "/");
 
-    book1D(iBooker, "MR_Refefficiency_TurnOn_Mu1_" + suffix, "pt", ";p_{T};");
-    book1D(iBooker, "MR_Refefficiency_TurnOn_Mu2_" + suffix, "pt", ";p_{T};");
-    book1D(iBooker, "MR_Refefficiency_Vertex_" + suffix, "NVertexFine", ";NVertex;");
-    book1D(iBooker, "MR_Refefficiency_DZ_Mu_" + suffix,  "z0Fine", ";z0;");
-    // book1D(iBooker, "MR_Refefficiency_DZ_Mu2_" + suffix,  "z0Fine", ";z0;");
-    book2D(iBooker, "MR_Refefficiency_Pt_"+suffix, "pt", "pt", ";p_{T};p_{T}");
-    
+    if (requiredTriggers_.size() > 0){
+      book1D(iBooker, "MR_Refefficiency_TurnOn_Mu1_" + suffix, "pt", ";p_{T};");
+      book1D(iBooker, "MR_Refefficiency_TurnOn_Mu2_" + suffix, "pt", ";p_{T};");
+      book1D(iBooker, "MR_Refefficiency_Vertex_" + suffix, "NVertexFine", ";NVertex;");
+      book1D(iBooker, "MR_Refefficiency_DZ_Mu_" + suffix,  "z0Fine", ";z0;");
+      // book1D(iBooker, "MR_Refefficiency_DZ_Mu2_" + suffix,  "z0Fine", ";z0;");
+      book2D(iBooker, "MR_Refefficiency_Pt_"+suffix, "pt", "pt", ";p_{T};p_{T}");
+    }
     book1D(iBooker, "MR_massVsPtZ_" + suffix, "pt", ";p_{T}");
     book1D(iBooker, "MR_massVsPtJpsi_" + suffix, "pt", ";p_{T}");
     book1D(iBooker, "MR_massVsVertexZ_" + suffix, "NVertex", ";NVertex");
@@ -442,6 +443,7 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>   & allMuons,
     // }
 
     if (track0 && track1){
+      cout << track0->dz(beamSpot->position()) - track1->dz(beamSpot->position()) << endl;
       hists_["Refefficiency_DZ_Mu_denom"]->Fill(track0->dz(beamSpot->position()) - track1->dz(beamSpot->position()));
       hists_["MR_Refefficiency_DZ_Mu_denom"]->Fill(track0->dz(beamSpot->position()) - track1->dz(beamSpot->position()));
     }

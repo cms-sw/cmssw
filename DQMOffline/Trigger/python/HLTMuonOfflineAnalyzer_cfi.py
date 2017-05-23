@@ -10,6 +10,7 @@ hltMuonOfflineAnalyzer = cms.EDAnalyzer("HLTMuonOfflineAnalyzer",
 
     ## HLT paths passing any one of these regular expressions will be included
     hltPathsToCheck = cms.vstring(
+      "HLT_L2Mu10",
       "HLT_Mu17_TrkIsoVVL_v",
       "HLT_Mu45_eta2p1_v1",
       "HLT_Mu50_v",
@@ -82,8 +83,8 @@ hltMuonOfflineAnalyzer = cms.EDAnalyzer("HLTMuonOfflineAnalyzer",
         NVertexFine= cms.untracked.vdouble( 40,  1,   50),
         eta        = cms.untracked.vdouble( 20,  -2.40,   2.40),
         phi        = cms.untracked.vdouble( 20,  -3.14,   3.14),
-        z0         = cms.untracked.vdouble( 10, -15.00,  15.00),
-        z0Fine     = cms.untracked.vdouble( 20, -15.00,  15.00),
+        z0         = cms.untracked.vdouble( 10, -0.15,  0.15),
+        z0Fine     = cms.untracked.vdouble( 20, -0.15,  0.15),
         d0         = cms.untracked.vdouble( 10,  -0.50,   0.50),
         zMass      = cms.untracked.vdouble( 50,  65.00, 115.00),
         jpsiMass   = cms.untracked.vdouble( 60,   0.00,   6.00),
