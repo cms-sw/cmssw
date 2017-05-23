@@ -68,7 +68,6 @@ public:
     edm::ParameterSet points = regPSet.getParameter<edm::ParameterSet>("points");
     etaPoints = points.getParameter<std::vector<double>>("eta");
     phiPoints = points.getParameter<std::vector<double>>("phi");
-    //if (!(etaPoints.size() == phiPoints.size()))  edm::Exception ("PointSeededTrackingRegionsProducer")<<"same number of eta and phi coordinates must be specified";
     if (!(etaPoints.size() == phiPoints.size()))  throw edm::Exception(edm::errors::Configuration) << "The parameters 'eta' and 'phi' must have the same size";;
     m_maxNRegions      = regPSet.getParameter<int>("maxNRegions");
     token_beamSpot     = iC.consumes<reco::BeamSpot>(regPSet.getParameter<edm::InputTag>("beamSpot"));
@@ -110,16 +109,6 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
 
-/*    edm::ParameterSetDescription descPoints;
-    descPoints.add<double>("eta", 0.0);
-    descPoints.add<double>("phi", 0.0);
-    std::vector<edm::ParameterSet> vDefaults;
-    edm::ParameterSet vDefaults1;
-    vDefaults1.addParameter<double>("eta", 0.0);
-    vDefaults1.addParameter<double>("phi", 0.0);
-    vDefaults.push_back(vDefaults1);
-    desc.addVPSet("points", descPoints,vDefaults);
-  */ 
     edm::ParameterSetDescription descPoints;
     descPoints.add<std::vector<double>> ("eta", {0.} ); 
     descPoints.add<std::vector<double>> ("phi", {0.} ); 
@@ -238,7 +227,6 @@ public:
         ++n_regions;
       }
     }
-    //std::cout<<"n_seeded_regions = "<<n_regions<<std::endl;
     edm::LogInfo ("PointSeededTrackingRegionsProducer") << "produced "<<n_regions<<" regions";
     
     return result;
