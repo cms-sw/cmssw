@@ -116,25 +116,22 @@ void PVFitter::readEvent(const edm::Event& iEvent)
 
           if (pv->tracksSize() < minVtxTracks_ ) continue;
 
-          try
+          const auto& testTrack = pv->trackRefAt(0);
+          if(testTrack.isNull() || !testTrack.isAvailable())
+          {
+              edm::LogInfo("") << "Track collection not found. Skipping cut on sumPt.";
+          }
+          else
           {
               double sumPt=0;
               for(auto iTrack = pv->tracks_begin(); iTrack != pv->tracks_end(); ++iTrack)
               {
-                const auto pt = (*iTrack)->pt();
-                sumPt += pt;
+                  const auto pt = (*iTrack)->pt();
+                  sumPt += pt;
               }
               if (sumPt < minSumPt_) continue;
           }
-          catch (cms::Exception & ex) //(...)
-          {
-              edm::LogInfo("") << "Needed track collection not found. Skipping cut on sumPt.";
-			  //std::cerr << "Needed track collection not found. Skipping cut on sumPt.\n";
-			  //std::cerr << ex;
-			  //std::cerr << ex.what();
-			  //std::cerr << ex.explainSelf();
-          }
- 
+
           hPVx->Fill( pv->x(), pv->z() );
           hPVy->Fill( pv->y(), pv->z() );
 
