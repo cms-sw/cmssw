@@ -129,23 +129,8 @@ void HGCClusterAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection & c
             
             if( triggercell.hwPt() > 0 )
             {
-                
-                HGCalDetId detid(triggercell.detId());
-                int subdet = detid.subdetId();
-                int cellThickness = 0;
-                
-                if( subdet == HGCEE ){ 
-                    cellThickness = hgceeTopoHandle_->dddConstants().waferTypeL( (unsigned int)detid.wafer() );
-                }
-                else if( subdet == HGCHEF ){
-                    cellThickness = hgchefTopoHandle_->dddConstants().waferTypeL( (unsigned int)detid.wafer() );
-                }
-                else if( subdet == HGCHEB ){
-                    edm::LogWarning("DataNotFound") << "ATTENTION: the BH trigger cells are not yet implemented";
-                }
-
                 l1t::HGCalTriggerCell calibratedtriggercell( triggercell );
-                calibration_.calibrateInGeV( calibratedtriggercell, cellThickness ); 
+                calibration_.calibrateInGeV( calibratedtriggercell); 
                 if(calibratedtriggercell.mipPt()<clustering_threshold_) continue;
                 trgcell_product_->push_back( 0, calibratedtriggercell );
             }           

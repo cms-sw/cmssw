@@ -71,7 +71,6 @@ class HGCalTriggerCellThresholdCodecImpl
         uint32_t triggerCellSaturationBits_;
         int      TCThreshold_ADC_;
         double    TCThreshold_fC_;
-        bool equalize_thicknesses_;
         std::vector<double> thickness_corrections_;
 
 };
