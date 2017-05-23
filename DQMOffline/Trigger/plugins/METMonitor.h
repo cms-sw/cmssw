@@ -37,6 +37,8 @@
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 
+#include "DQMOffline/Trigger/plugins/HTMonitor.h"
+
 class GenericTriggerEventFlag;
 
 struct MEbinning {
@@ -89,7 +91,12 @@ private:
   std::vector<double> met_variable_binning_;
   MEbinning           met_binning_;
   MEbinning           ls_binning_;
+  std::vector<double> ht_variable_binning_;
+  MEbinning           ht_binning_;
 
+  METME htME_;
+  METME htME_variableBinning_;
+  METME htVsLS_;
   METME metME_;
   METME metME_variableBinning_;
   METME metVsLS_;
