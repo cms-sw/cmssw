@@ -37,6 +37,7 @@ void HGCalTriggerGeometryImp1::initialize(const es_info& esInfo)
     edm::LogWarning("HGCalTriggerGeometry") << "WARNING: This HGCal trigger geometry is incomplete.\n"\
                                             << "WARNING: Only the EE part is covered.\n"\
                                             << "WARNING: There is no neighbor information.\n";
+    setCellInfo(esInfo);
     //
     // read trigger cell mapping file
     std::ifstream l1tCellsMappingStream(l1tCellsMapping_.fullPath());

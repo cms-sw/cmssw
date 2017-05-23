@@ -38,6 +38,7 @@ class HGCalTriggerGeometryBase
         const std::string& eeSDName() const { return ee_sd_name_; } 
         const std::string& fhSDName() const { return fh_sd_name_; } 
         const std::string& bhSDName() const { return bh_sd_name_; } 
+        const es_info& cellInfo() const {return es_info_;}
 
         // non-const access to the geometry class
         virtual void initialize( const es_info& ) = 0;
@@ -62,6 +63,9 @@ class HGCalTriggerGeometryBase
 
         virtual bool validTriggerCell( const unsigned trigger_cell_id) const = 0;
 
+    protected:
+        void setCellInfo(const es_info& es) {es_info_=es;}
+
 
     private:
         const std::string name_;
@@ -69,6 +73,7 @@ class HGCalTriggerGeometryBase
         const std::string fh_sd_name_;
         const std::string bh_sd_name_;  
 
+        es_info es_info_;
 
 };
 
