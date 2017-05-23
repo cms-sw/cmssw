@@ -19,10 +19,12 @@ thicknessCorrection = recocalibparam.HGCalRecHit.thicknessCorrection
 triggerCellLsbBeforeCompression = 100./1024.
 triggerCellTruncationBits = 0
 
+# 
+
 fe_codec = cms.PSet( CodecName  = cms.string('HGCalTriggerCellThresholdCodec'),
                      CodecIndex = cms.uint32(2),
-                     MaxCellsInModule = cms.uint32(116),
-                     #  MaxCellsInModule = cms.uint32(288),
+                     #  MaxCellsInModule = cms.uint32(116),
+                     MaxCellsInModule = cms.uint32(288),
                      DataLength = cms.uint32(16),
                      linLSB = cms.double(triggerCellLsbBeforeCompression),
                      triggerCellTruncationBits = cms.uint32(triggerCellTruncationBits),
@@ -33,7 +35,8 @@ fe_codec = cms.PSet( CodecName  = cms.string('HGCalTriggerCellThresholdCodec'),
                      adcnBits = adcNbits,
                      tdcsaturation = tdcSaturation_fC,
                      tdcnBits = tdcNbits,
-                     tdcOnsetfC = tdcOnset_fC
+                     tdcOnsetfC = tdcOnset_fC,
+                     equalizeThickness = cms.bool(True),
                      )
 
 calib_parValues = cms.PSet( cellLSB =  cms.double( triggerCellLsbBeforeCompression*(2**triggerCellTruncationBits) ),

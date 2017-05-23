@@ -42,6 +42,7 @@ void HGCalTriggerGeometryHexImp1::initialize(const es_info& esInfo)
     edm::LogWarning("HGCalTriggerGeometry") << "WARNING: This HGCal trigger geometry is incomplete.\n"\
                                             << "WARNING: There is no neighbor information.\n";
 
+    setCellInfo(esInfo);
     fillMaps(esInfo);
     buildTriggerCellsAndModules(esInfo);
 

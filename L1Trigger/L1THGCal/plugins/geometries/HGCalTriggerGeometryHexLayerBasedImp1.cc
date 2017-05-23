@@ -40,8 +40,6 @@ class HGCalTriggerGeometryHexLayerBasedImp1 : public HGCalTriggerGeometryBase
         edm::FileInPath l1tCellsMapping_;
         edm::FileInPath l1tModulesMapping_;
 
-        es_info es_info_;
-
         // module related maps
         std::unordered_map<unsigned, unsigned> wafer_to_module_;
         std::unordered_multimap<unsigned, unsigned> module_to_wafers_;
@@ -87,7 +85,7 @@ void
 HGCalTriggerGeometryHexLayerBasedImp1::
 initialize(const es_info& esInfo)
 {
-    es_info_ = esInfo;
+    setCellInfo(esInfo);
     fillMaps(esInfo);
     fillInvalidTriggerCells(esInfo);
 
@@ -251,7 +249,7 @@ getTriggerCellPosition(const unsigned trigger_cell_det_id) const
     for(const auto& cell : cell_ids)
     {
         HGCalDetId cellDetId(cell);
-        triggerCellVector += (cellDetId.subdetId()==ForwardSubdetector::HGCEE ? es_info_.geom_ee->getPosition(cellDetId) :  es_info_.geom_fh->getPosition(cellDetId)).basicVector();
+        triggerCellVector += (cellDetId.subdetId()==ForwardSubdetector::HGCEE ? cellInfo().geom_ee->getPosition(cellDetId) :  cellInfo().geom_fh->getPosition(cellDetId)).basicVector();
     }
     return GlobalPoint( triggerCellVector/cell_ids.size() );
 
@@ -267,7 +265,7 @@ getModulePosition(const unsigned module_det_id) const
     for(const auto& cell : cell_ids)
     {
         HGCalDetId cellDetId(cell);
-        moduleVector += (cellDetId.subdetId()==ForwardSubdetector::HGCEE ? es_info_.geom_ee->getPosition(cellDetId) :  es_info_.geom_fh->getPosition(cellDetId)).basicVector();
+        moduleVector += (cellDetId.subdetId()==ForwardSubdetector::HGCEE ? cellInfo().geom_ee->getPosition(cellDetId) :  cellInfo().geom_fh->getPosition(cellDetId)).basicVector();
     }
     return GlobalPoint( moduleVector/cell_ids.size() );
 }
@@ -321,7 +319,7 @@ void
 HGCalTriggerGeometryHexLayerBasedImp1::
 fillInvalidTriggerCells(const es_info& esInfo)
 {
-    unsigned n_layers_ee = es_info_.topo_ee->dddConstants().layers(true);
+    unsigned n_layers_ee = cellInfo().topo_ee->dddConstants().layers(true);
     for(unsigned layer=1; layer<=n_layers_ee; layer++)
     {
         for(const auto& wafer_module : wafer_to_module_)
@@ -399,10 +397,10 @@ validCellId(unsigned subdet, unsigned cell_id) const
     switch(subdet)
     {
         case ForwardSubdetector::HGCEE:
-            is_valid = es_info_.topo_ee->valid(cell_id);
+            is_valid = cellInfo().topo_ee->valid(cell_id);
             break;
         case ForwardSubdetector::HGCHEF:
-            is_valid = es_info_.topo_fh->valid(cell_id);
+            is_valid = cellInfo().topo_fh->valid(cell_id);
             break;
         default:
             is_valid = false;
@@ -422,10 +420,10 @@ detIdWaferType(unsigned subdet, short wafer) const
         // HGCalDetId::waferType() returns -1=coarse, 1=fine
         // Convert to HGCalDetId waferType
         case ForwardSubdetector::HGCEE:
-            wafer_type = (es_info_.topo_ee->dddConstants().waferTypeT(wafer)==2?-1:1);
+            wafer_type = (cellInfo().topo_ee->dddConstants().waferTypeT(wafer)==2?-1:1);
             break;
         case ForwardSubdetector::HGCHEF:
-            wafer_type = (es_info_.topo_fh->dddConstants().waferTypeT(wafer)==2?-1:1);
+            wafer_type = (cellInfo().topo_fh->dddConstants().waferTypeT(wafer)==2?-1:1);
             break;
         default:
             break;
