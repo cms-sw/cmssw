@@ -4,45 +4,43 @@
 HGCalTriggerCellCalibration::HGCalTriggerCellCalibration(const edm::ParameterSet& beCodecConfig){
     
     LSB_ = beCodecConfig.getParameter<double>("cellLSB"); 
-    fCperMIP_ee_ = beCodecConfig.getParameter<std::vector<double>>("fCperMIPee");
-    fCperMIP_fh_ = beCodecConfig.getParameter<std::vector<double>>("fCperMIPfh");
+    fCperMIP_ = beCodecConfig.getParameter<double>("fCperMIP");
     dEdX_weights_ = beCodecConfig.getParameter<std::vector<double>>("dEdXweights");
-    thickCorr_ = beCodecConfig.getParameter<std::vector<double>>("thickCorr");
+    thickCorr_ = beCodecConfig.getParameter<double>("thickCorr");
     
 
-    for(auto corr : thickCorr_){
-        if(corr <= 0){
-            edm::LogWarning("DivisionByZero") << "WARNING: the cell-thickness correction factor is zero or negative. It won't be applied to correct trigger cell energies.";
-        }
 
+    if(fCperMIP_ <= 0){
+        edm::LogWarning("DivisionByZero") << "WARNING: the MIP->fC correction factor is zero or negative. It won't be applied to correct trigger cell energies.";
     }
+    if(thickCorr_ <= 0){
+        edm::LogWarning("DivisionByZero") << "WARNING: the cell-thickness correction factor is zero or negative. It won't be applied to correct trigger cell energies.";
+    }
+
 }
 
 
-void HGCalTriggerCellCalibration::calibrateInMipT(l1t::HGCalTriggerCell& trgCell, int cellThickness)
+void HGCalTriggerCellCalibration::calibrateInMipT(l1t::HGCalTriggerCell& trgCell)
 {
     
     HGCalDetId trgdetid( trgCell.detId() );
-    int subdet = trgdetid.subdetId();
 
     /* get the hardware pT in ADC counts: */
     int hwPt = trgCell.hwPt();
 
-    /* set the lowest signal bit and convert in charge amplitude: */
+    // Convert ADC to charge in fC
     double amplitude = hwPt * LSB_;  
 
+    // The responses of the different cell thicknesses have been equalized
+    // to the 200um response in the front-end. So there is only one global
+    // fCperMIP and thickCorr here
     /* convert the charge amplitude in MIP: */
-    if( subdet == HGCEE ){ 
-        amplitude = amplitude / fCperMIP_ee_.at(cellThickness-1);
-    }else if( subdet == HGCHEF ){
-        amplitude = amplitude / fCperMIP_fh_.at(cellThickness-1);
-    }else if( subdet == HGCHEB ){
-        edm::LogWarning("DataNotFound") << "WARNING: the BH trgCells are not yet implemented";
+    double trgCellMipP = amplitude;
+    if( fCperMIP_ > 0 ){
+        trgCellMipP /= fCperMIP_; 
     }
 
     /* compute the transverse-mip */
-    double trgCellMipP = amplitude;
-     
     double trgCellMipPt = trgCellMipP/cosh( trgCell.eta() ); 
 
     /* setting pT [mip] */
@@ -50,7 +48,7 @@ void HGCalTriggerCellCalibration::calibrateInMipT(l1t::HGCalTriggerCell& trgCell
 } 
 
 
-void HGCalTriggerCellCalibration::calibrateMipTinGeV(l1t::HGCalTriggerCell& trgCell, int cellThickness )
+void HGCalTriggerCellCalibration::calibrateMipTinGeV(l1t::HGCalTriggerCell& trgCell)
 {
     const double MevToGeV(0.001);
 
@@ -69,8 +67,8 @@ void HGCalTriggerCellCalibration::calibrateMipTinGeV(l1t::HGCalTriggerCell& trgC
     double trgCellE = mipP * dEdX_weights_.at(trgCellLayer) * MevToGeV;
 
     /* correct for the cell-thickness */
-    if( thickCorr_.at( cellThickness-1 ) > 0 ){
-        trgCellE = trgCellE / thickCorr_.at( cellThickness-1 ); 
+    if( thickCorr_ > 0 ){
+        trgCellE /= thickCorr_; 
     }
 
     /* assign the new energy to the four-vector of the trigger cell */
@@ -84,14 +82,14 @@ void HGCalTriggerCellCalibration::calibrateMipTinGeV(l1t::HGCalTriggerCell& trgC
 
 }
 
-void HGCalTriggerCellCalibration::calibrateInGeV(l1t::HGCalTriggerCell& trgCell, int cellThickness)
+void HGCalTriggerCellCalibration::calibrateInGeV(l1t::HGCalTriggerCell& trgCell)
 {
 
     /* calibrate from ADC count to transverse mip */
-    calibrateInMipT(trgCell, cellThickness);
+    calibrateInMipT(trgCell);
 
     /* calibrate from mip count to GeV */
-    calibrateMipTinGeV(trgCell, cellThickness);
+    calibrateMipTinGeV(trgCell);
 
 }
  

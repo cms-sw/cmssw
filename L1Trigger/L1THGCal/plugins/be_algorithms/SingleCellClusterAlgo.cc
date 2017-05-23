@@ -50,18 +50,8 @@ class SingleCellClusterAlgo : public Algorithm<FECODEC>
                     {
                         
                         HGCalDetId detid(triggercell.detId());
-                        int subdet = detid.subdetId();
-                        int cellThickness = 0;
-                        
-                        if( subdet == HGCEE ){ 
-                            cellThickness = (hgceeTopoHandle_)->dddConstants().waferTypeL((unsigned int)detid.wafer() );
-                        }else if( subdet == HGCHEF ){
-                            cellThickness = (hgchefTopoHandle_)->dddConstants().waferTypeL((unsigned int)detid.wafer() );
-                        }else if( subdet == HGCHEB ){
-                            edm::LogWarning("DataNotFound") << "ATTENTION: the BH trgCells are not yet implemented !! ";
-                        }
                         l1t::HGCalTriggerCell calibratedtriggercell(triggercell);
-                        calibration_.calibrateInGeV(calibratedtriggercell, cellThickness);     
+                        calibration_.calibrateInGeV(calibratedtriggercell);     
                         cluster_product_->push_back(0,calibratedtriggercell);
                     }
                 }

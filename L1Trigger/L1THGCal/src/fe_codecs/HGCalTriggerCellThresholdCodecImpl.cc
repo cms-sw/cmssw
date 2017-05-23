@@ -14,7 +14,6 @@ HGCalTriggerCellThresholdCodecImpl(const edm::ParameterSet& conf) :
     tdcOnsetfC_(conf.getParameter<double>("tdcOnsetfC")),
     triggerCellTruncationBits_(conf.getParameter<uint32_t>("triggerCellTruncationBits")),
     TCThreshold_fC_(conf.getParameter<double>("TCThreshold_fC")),
-    equalize_thicknesses_(conf.getParameter<bool>("EqualizeThicknesses")),
     thickness_corrections_(conf.getParameter<std::vector<double>>("ThicknessCorrections"))
 {
     adcLSB_ =  adcsaturation_/pow(2.,adcnBits_);
@@ -173,23 +172,20 @@ triggerCellSums(const HGCalTriggerGeometryBase& geometry,  const std::vector<std
         payload.insert( std::make_pair(triggercellid, 0) ); // do nothing if key exists already
         uint32_t value = frame.second; 
         // equalize value among cell thicknesses
-        if(equalize_thicknesses_)
+        int thickness = 0;
+        switch(cellid.subdetId())
         {
-            int thickness = 0;
-            switch(cellid.subdetId())
-            {
-                case ForwardSubdetector::HGCEE:
-                    thickness = geometry.cellInfo().topo_ee->dddConstants().waferTypeL(cellid.wafer())-1;
-                    break;
-                case ForwardSubdetector::HGCHEF:
-                    thickness = geometry.cellInfo().topo_fh->dddConstants().waferTypeL(cellid.wafer())-1;
-                    break;
-                default:
-                    break;
-            };
-          double thickness_correction = thickness_corrections_.at(thickness);
-          value = (double)value*thickness_correction;
-        }
+            case ForwardSubdetector::HGCEE:
+                thickness = geometry.cellInfo().topo_ee->dddConstants().waferTypeL(cellid.wafer())-1;
+                break;
+            case ForwardSubdetector::HGCHEF:
+                thickness = geometry.cellInfo().topo_fh->dddConstants().waferTypeL(cellid.wafer())-1;
+                break;
+            default:
+                break;
+        };
+        double thickness_correction = thickness_corrections_.at(thickness);
+        value = (double)value*thickness_correction;
         payload[triggercellid] += value; // 32 bits integer should be largely enough 
 
     }
