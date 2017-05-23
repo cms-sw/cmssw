@@ -11,7 +11,7 @@ tdcNbits = digiparam.hgceeDigitizer.digiCfg.feCfg.tdcNbits
 tdcOnset_fC = digiparam.hgceeDigitizer.digiCfg.feCfg.tdcOnset_fC
 # Reco calibration parameters
 fCPerMIPee = recoparam.HGCalUncalibRecHit.HGCEEConfig.fCPerMIP
-fCperMIPfh = recoparam.HGCalUncalibRecHit.HGCHEFConfig.fCPerMIP
+fCPerMIPfh = recoparam.HGCalUncalibRecHit.HGCHEFConfig.fCPerMIP
 layerWeights = recocalibparam.HGCalRecHit.layerWeights
 thicknessCorrection = recocalibparam.HGCalRecHit.thicknessCorrection
 
@@ -19,7 +19,16 @@ thicknessCorrection = recocalibparam.HGCalRecHit.thicknessCorrection
 triggerCellLsbBeforeCompression = 100./1024.
 triggerCellTruncationBits = 0
 
-# 
+# Equalization in the frontend of the sensor responses to 200um sensors
+equalize_thicknesses = False
+frontend_thickness_corrections = [1./(c1*c2) for c1,c2 in zip(fCPerMIPee,thicknessCorrection)]
+c200 = frontend_thickness_corrections[1]
+frontend_thickness_corrections = [c/c200 for c in frontend_thickness_corrections]
+if equalize_thicknesses:
+    # Correct backend corrections
+    fCPerMIPee = cms.vdouble([fCPerMIPee[1]]*3)
+    fCPerMIPfh = cms.vdouble([fCPerMIPfh[1]]*3)
+    thicknessCorrection = cms.vdouble([thicknessCorrection[1]]*3)
 
 fe_codec = cms.PSet( CodecName  = cms.string('HGCalTriggerCellThresholdCodec'),
                      CodecIndex = cms.uint32(2),
@@ -36,12 +45,13 @@ fe_codec = cms.PSet( CodecName  = cms.string('HGCalTriggerCellThresholdCodec'),
                      tdcsaturation = tdcSaturation_fC,
                      tdcnBits = tdcNbits,
                      tdcOnsetfC = tdcOnset_fC,
-                     equalizeThickness = cms.bool(True),
+                     EqualizeThicknesses = cms.bool(equalize_thicknesses),
+                     ThicknessCorrections = cms.vdouble(frontend_thickness_corrections)
                      )
 
 calib_parValues = cms.PSet( cellLSB =  cms.double( triggerCellLsbBeforeCompression*(2**triggerCellTruncationBits) ),
                              fCperMIPee = fCPerMIPee,
-                             fCperMIPfh = fCperMIPfh,
+                             fCperMIPfh = fCPerMIPfh,
                              dEdXweights = layerWeights,
                              thickCorr = thicknessCorrection
                             )
