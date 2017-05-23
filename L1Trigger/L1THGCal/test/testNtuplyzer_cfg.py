@@ -63,6 +63,8 @@ process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].C2d_para
 process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].C2d_parameters.dR_cluster = cms.double(3.)
 # Adjust the dR in the projected (x/z, y/z) plane
 process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].C3d_parameters.dR_multicluster = cms.double(0.01)
+# Adjust the minimum pt required to produce a C3d
+process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].C3d_parameters.minPt_multicluster = cms.double(0.)
 
 trgCells_algo_all =  cms.PSet( AlgorithmName = cms.string('SingleCellClusterAlgoBestChoice'),
                                FECodec = process.hgcalTriggerPrimitiveDigiProducer.FECodec,
