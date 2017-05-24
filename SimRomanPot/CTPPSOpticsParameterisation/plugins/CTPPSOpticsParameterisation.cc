@@ -28,8 +28,12 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 
+#include "DataFormats/Common/interface/View.h"
+
+#include "SimDataFormats/CTPPS/interface/CTPPSSimProtonTrack.h"
 #include "SimDataFormats/CTPPS/interface/CTPPSSimHit.h"
-#include "SimRomanPot/CTPPSOpticsParameterisation/ProtonReconstructionAlgorithm.h"
+
+#include "SimRomanPot/CTPPSOpticsParameterisation/interface/ProtonReconstructionAlgorithm.h"
 
 class CTPPSOpticsParameterisation : public edm::stream::EDProducer<> {
   public:
@@ -48,28 +52,25 @@ class CTPPSOpticsParameterisation : public edm::stream::EDProducer<> {
     //virtual void beginLuminosityBlock( const edm::LuminosityBlock&, const edm::EventSetup& ) override;
     //virtual void endLuminosityBlock( const edm::LuminosityBlock&, const edm::EventSetup& ) override;
 
-    void BuildTrackCollection( LHCSector, double, double, double, double, double, const map<unsigned int, LHCOpticsApproximator*>&, TrackDataCollection& );
+    //void BuildTrackCollection( LHCSector, double, double, double, double, double, const map<unsigned int, LHCOpticsApproximator*>&, TrackDataCollection& );
+
+    edm::EDGetTokenT< edm::View<CTPPSSimProtonTrack> > tracks45Token_, tracks56Token_;
 
     edm::ParameterSet beamConditions_;
-    bool simulateVertexX_, simulateVertexY_;
-    bool simulateScatteringAngleX_, simulateScatteringAngleY_;
-    bool simulateBeamDivergence_;
-    bool simulateXi_;
-    bool simulateDetectorsResolution_;
+    //bool simulateDetectorsResolution_;
 
     edm::FileInPath opticsFileBeam1_, opticsFileBeam2_;
     std::vector<edm::ParameterSet> detectorsList_;
 
-    std::unique_ptr<ProtonReconstructionAlgorithm> prAlgorithm_;
+    std::unique_ptr<ProtonReconstructionAlgorithm> prAlgo45_;
+    std::unique_ptr<ProtonReconstructionAlgorithm> prAlgo56_;
 };
 
 CTPPSOpticsParameterisation::CTPPSOpticsParameterisation( const edm::ParameterSet& iConfig ) :
+  tracks45Token_( consumes< edm::View<CTPPSSimProtonTrack> >( iConfig.getParameter<edm::InputTag>( "beam2ParticlesTag" ) ) ),
+  tracks56Token_( consumes< edm::View<CTPPSSimProtonTrack> >( iConfig.getParameter<edm::InputTag>( "beam1ParticlesTag" ) ) ),
   beamConditions_( iConfig.getParameter<edm::ParameterSet>( "beamConditions" ) ),
-  simulateVertexX_( iConfig.getParameter<bool>( "simulateVertexX" ) ), simulateVertexY_( iConfig.getParameter<bool>( "simulateVertexY" ) ),
-  simulateScatteringAngleX_( iConfig.getParameter<bool>( "simulateScatteringAngleX" ) ), simulateScatteringAngleY_( iConfig.getParameter<bool>( "simulateScatteringAngleY" ) ),
-  simulateBeamDivergence_( iConfig.getParameter<bool>( "simulateBeamDivergence" ) ),
-  simulateXi_( iConfig.getParameter<bool>( "simulateXi" ) ),
-  simulateDetectorsResolution_( iConfig.getParameter<bool>( "simulateDetectorsResolution" ) ),
+  //simulateDetectorsResolution_( iConfig.getParameter<bool>( "simulateDetectorsResolution" ) ),
   opticsFileBeam1_( iConfig.getParameter<edm::FileInPath>( "opticsFileBeam1" ) ),
   opticsFileBeam2_( iConfig.getParameter<edm::FileInPath>( "opticsFileBeam2" ) ),
   detectorsList_( iConfig.getParameter< std::vector<edm::ParameterSet> >( "detectorsList" ) )
@@ -79,18 +80,20 @@ CTPPSOpticsParameterisation::CTPPSOpticsParameterisation( const edm::ParameterSe
   // load optics
   std::map<unsigned int, LHCOpticsApproximator*> optics_45, optics_56; // map: RP id --> optics
 
-  TFile *f_in_optics_beam1 = TFile::Open(file_optics_beam1.c_str());
+  TFile *f_in_optics_beam1 = TFile::Open( opticsFileBeam1_.fullPath().c_str() );
   optics_56[102] = (LHCOpticsApproximator *) f_in_optics_beam1->Get("ip5_to_station_150_h_1_lhcb1");
   optics_56[103] = (LHCOpticsApproximator *) f_in_optics_beam1->Get("ip5_to_station_150_h_2_lhcb1");
 
-  TFile *f_in_optics_beam2 = TFile::Open(file_optics_beam2.c_str());
+  TFile *f_in_optics_beam2 = TFile::Open( opticsFileBeam2_.fullPath().c_str() );
   optics_45[2] = (LHCOpticsApproximator *) f_in_optics_beam2->Get("ip5_to_station_150_h_1_lhcb2");
   optics_45[3] = (LHCOpticsApproximator *) f_in_optics_beam2->Get("ip5_to_station_150_h_2_lhcb2");
 
   // initialise proton reconstruction
   ProtonReconstruction protonReconstruction;
-  if ( prAlgorithm_->Init( opticsFileBeam1_.fullPath(), opticsFileBeam2_.fullPath() )!=0 )
-    throw cms::Exception("CTPPSOpticsParameterisation") << "Failed to initialise the reconstruction algorithm";
+  if ( prAlgo45_->Init( opticsFileBeam2_.fullPath() )!=0 )
+    throw cms::Exception("CTPPSOpticsParameterisation") << "Failed to initialise the reconstruction algorithm for beam 1";
+  if ( prAlgo56_->Init( opticsFileBeam1_.fullPath() )!=0 )
+    throw cms::Exception("CTPPSOpticsParameterisation") << "Failed to initialise the reconstruction algorithm for beam 2";
 
 }
 
@@ -103,22 +106,16 @@ CTPPSOpticsParameterisation::~CTPPSOpticsParameterisation()
 void
 CTPPSOpticsParameterisation::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-/* This is an event example
-  //Read 'ExampleData' from the Event
-  Handle<ExampleData> pIn;
-  iEvent.getByLabel("example",pIn);
-
-*/
   std::unique_ptr< std::vector<CTPPSSimHit> > pOut( new std::vector<CTPPSSimHit> );
 
-/* this is an EventSetup example
-  //Read SetupData from the SetupRecord in the EventSetup
-  ESHandle<SetupData> pSetup;
-  iSetup.get<SetupRecord>().get(pSetup);
-*/
-  // run reconstruction
-  ProtonData proton_45 = prAlgorithm_->Reconstruct(sector45, tracks_45);
-  ProtonData proton_56 = prAlgorithm_->Reconstruct(sector45, tracks_56);
+  //Read 'ExampleData' from the Event
+  edm::Handle< edm::View<CTPPSSimProtonTrack> > tracks_45, tracks_56;
+  iEvent.getByToken( tracks45Token_, tracks_45 );
+  iEvent.getByToken( tracks56Token_, tracks_56 );
+
+  /*// run reconstruction
+  ProtonData proton_45 = prAlgo45_->Reconstruct(sector45, tracks_45);
+  ProtonData proton_56 = prAlgo56_->Reconstruct(sector45, tracks_56);
 
   if ( proton_45.isValid() ) {
     const double de_vtx_x = proton_45.vtx_x - vtx_x;
@@ -170,7 +167,7 @@ CTPPSOpticsParameterisation::produce( edm::Event& iEvent, const edm::EventSetup&
     p_de_th_x_vs_xi_56->Fill(xi_56, de_th_x);
     p_de_th_y_vs_xi_56->Fill(xi_56, de_th_y);
     p_de_xi_vs_xi_56->Fill(xi_56, de_xi);
-  }
+  }*/
 
   iEvent.put( std::move( pOut ) );
 }
@@ -181,7 +178,7 @@ CTPPSOpticsParameterisation::produce( edm::Event& iEvent, const edm::EventSetup&
 /// xi is positive for diffractive protons, thus proton momentum p = (1 - xi) * p_nom
 /// horizontal component of proton momentum: p_x = th_x * (1 - xi) * p_nom
 
-void
+/*void
 CTPPSOpticsParameterisation::BuildTrackCollection( LHCSector sector, double vtx_x, double vtx_y, double th_x, double th_y, double xi, const map<unsigned int, LHCOpticsApproximator*> &optics, TrackDataCollection &tracks )
 {
   // settings
@@ -227,69 +224,7 @@ CTPPSOpticsParameterisation::BuildTrackCollection( LHCSector sector, double vtx_
 
     tracks[it.first] = td;
   }
-}
-
-void
-CTPPSOpticsParameterisation::generateEvent()
-{
-  // generate vertex
-  double vtx_x = 0., vtx_y = 0.;
-
-  if ( simulateVertexX_ ) vtx_x += gRandom->Gaus() * beamConditions.si_vtx;
-  if ( simulateVertexY_ ) vtx_y += gRandom->Gaus() * beamConditions.si_vtx;
-
-  // generate scattering angles (physics)
-  double th_x_45_phys = 0., th_y_45_phys = 0.;
-  double th_x_56_phys = 0., th_y_56_phys = 0.;
-
-  if ( simulateScatteringAngleX_ ) {
-    th_x_45_phys += gRandom->Gaus() * si_th_phys;
-    th_x_56_phys += gRandom->Gaus() * si_th_phys;
-  }
-
-  if ( simulateScatteringAngleY_ ) {
-    th_y_45_phys += gRandom->Gaus() * si_th_phys;
-    th_y_56_phys += gRandom->Gaus() * si_th_phys;
-  }
-
-  // generate beam divergence, calculate complete angle
-  double th_x_45 = th_x_45_phys, th_y_45 = th_y_45_phys;
-  double th_x_56 = th_x_56_phys, th_y_56 = th_y_56_phys;
-
-  if ( simulateBeamDivergence_ ) {
-    th_x_45 += gRandom->Gaus() * beamConditions.si_beam_div;
-    th_y_45 += gRandom->Gaus() * beamConditions.si_beam_div;
-
-    th_x_56 += gRandom->Gaus() * beamConditions.si_beam_div;
-    th_y_56 += gRandom->Gaus() * beamConditions.si_beam_div;
-  }
-
-  // generate xi
-  double xi_45 = 0, xi_56 = 0;
-  if ( simulateXi_ ) {
-    xi_45 = xi_min + gRandom->Rndm() * (xi_max - xi_min);
-    xi_56 = xi_min + gRandom->Rndm() * (xi_max - xi_min);
-  }
-
-  // proton transport
-  TrackDataCollection tracks_45;
-  BuildTrackCollection(sector45, vtx_x, vtx_y, th_x_45, th_y_45, xi_45, optics_45, tracks_45);
-
-  TrackDataCollection tracks_56;
-  BuildTrackCollection(sector56, vtx_x, vtx_y, th_x_56, th_y_56, xi_56, optics_56, tracks_56);
-
-  /*// simulate detector resolution
-  if ( simulateDetectorsResolution_ ) {
-    for (auto &it : tracks_45) {
-      it.second.x += gRandom->Gaus() * si_det;
-      it.second.y += gRandom->Gaus() * si_det;
-    }
-    for (auto &it : tracks_56) {
-      it.second.x += gRandom->Gaus() * si_det;
-      it.second.y += gRandom->Gaus() * si_det;
-    }
-  }*/
-}
+}*/
 
 // ------------ method called once each stream before processing any runs, lumis or events  ------------
 void

@@ -1,4 +1,4 @@
-#include "SimDataFormats/CTPPS/interface/CTPPSSimProton.h"
+#include "SimDataFormats/CTPPS/interface/CTPPSSimProtonTrack.h"
 #include "SimDataFormats/CTPPS/interface/CTPPSSimHit.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include <vector>
@@ -7,9 +7,9 @@ namespace SimDataFormats_CTPPS
 {
   struct dictionary
   {
-    CTPPSSimProton csp;
-    std::vector<CTPPSSimProton> vec_csp;
-    edm::Wrapper< std::vector<CTPPSSimProton> > wrp_vec_csp;
+    CTPPSSimProtonTrack csp;
+    std::vector<CTPPSSimProtonTrack> vec_csp;
+    edm::Wrapper< std::vector<CTPPSSimProtonTrack> > wrp_vec_csp;
 
     CTPPSSimHit csh;
     std::vector<CTPPSSimHit> vec_csh;

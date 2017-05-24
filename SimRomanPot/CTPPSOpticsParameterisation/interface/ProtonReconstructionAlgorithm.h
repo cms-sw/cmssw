@@ -1,12 +1,14 @@
 #ifndef SimRomanPot_CTPPSOpticsParameterisation_ProtonReconstructionAlgorithm_h
 #define SimRomanPot_CTPPSOpticsParameterisation_ProtonReconstructionAlgorithm_h
 
-#include "TFile.h"
-#include "TSpline.h"
-#include "Fit/Fitter.h"
+#include "DataFormats/Common/interface/PtrVector.h"
 
 #include "SimRomanPot/CTPPSOpticsParameterisation/interface/LHCOpticsApproximator.h"
 #include "SimDataFormats/CTPPS/interface/CTPPSSimProtonTrack.h"
+
+#include "TFile.h"
+#include "TSpline.h"
+#include "Fit/Fitter.h"
 
 #include <map>
 #include <string>
@@ -20,8 +22,8 @@ class ProtonReconstructionAlgorithm
     ProtonReconstructionAlgorithm() {}
     ~ProtonReconstructionAlgorithm();
 
-    int Init(const std::string &optics_file_beam1, const std::string &optics_file_beam2);
-    CTPPSSimProtonTrack Reconstruct(LHCSector sector, const TrackDataCollection &tracks) const;
+    int Init( const std::string& optics_file_beam );
+    CTPPSSimProtonTrack Reconstruct( const edm::PtrVector<CTPPSSimProtonTrack>& tracks ) const;
 
   private:
     /// optics data associated with 1 RP

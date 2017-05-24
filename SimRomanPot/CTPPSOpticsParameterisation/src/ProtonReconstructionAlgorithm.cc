@@ -14,17 +14,12 @@ ProtonReconstructionAlgorithm::~ProtonReconstructionAlgorithm()
 }
 
 int
-ProtonReconstructionAlgorithm::Init(const std::string &optics_file_beam1, const std::string &optics_file_beam2)
+ProtonReconstructionAlgorithm::Init( const std::string& optics_file )
 {
-  TFile *f_in_optics_beam1 = TFile::Open(optics_file_beam1.c_str());
-  if (f_in_optics_beam1 == NULL) {
-    printf("ERROR in ProtonReconstruction::Init > Can't open file '%s'.\n", optics_file_beam1.c_str());
-    return 1;
-  }
-
-  TFile *f_in_optics_beam2 = TFile::Open(optics_file_beam2.c_str());
-  if (f_in_optics_beam2 == NULL) {
-    printf("ERROR in ProtonReconstruction::Init > Can't open file '%s'.\n", optics_file_beam2.c_str());
+  // load optics approximation
+  TFile *f_in_optics = TFile::Open( optics_file.c_str() );
+  if (f_in_optics == NULL) {
+    printf("ERROR in ProtonReconstruction::Init > Can't open file '%s'.\n", optics_file.c_str());
     return 1;
   }
 
@@ -46,11 +41,6 @@ ProtonReconstructionAlgorithm::Init(const std::string &optics_file_beam1, const 
     if ((rpId / 100) == 0) sector = sector45;
     if ((rpId / 100) == 1) sector = sector56;
 
-    // load optics approximation
-    TFile *f_in_optics = NULL;
-    if (sector == sector45) f_in_optics = f_in_optics_beam2;
-    if (sector == sector56)
-    f_in_optics = f_in_optics_beam1;
 
     LHCOpticsApproximator *of_orig = (LHCOpticsApproximator *) f_in_optics->Get(ofName.c_str());
 
@@ -134,8 +124,7 @@ ProtonReconstructionAlgorithm::Init(const std::string &optics_file_beam1, const 
   fitter->SetFCN(4, *chiSquareCalculator, pStart, 0, true);
 
   // clean up
-  delete f_in_optics_beam1;
-  delete f_in_optics_beam2;
+  delete f_in_optics;
 
   return 0;
 }
@@ -143,15 +132,15 @@ ProtonReconstructionAlgorithm::Init(const std::string &optics_file_beam1, const 
 //----------------------------------------------------------------------------------------------------
 
 CTPPSSimProtonTrack
-ProtonReconstructionAlgorithm::Reconstruct(LHCSector /* sector */, const TrackDataCollection &tracks) const
+ProtonReconstructionAlgorithm::Reconstruct( const edm::PtrVector<CTPPSSimProtonTrack>& tracks ) const
 {
   CTPPSSimProtonTrack pd;
 
   // need at least two tracks
-  if (tracks.size() < 2) return pd;
+  if ( tracks.size()<2 ) return pd;
 
   // check optics is available for all tracks
-  for (const auto &it : tracks) {
+  for ( const auto &it : tracks ) {
     auto oit = m_rp_optics.find(it.first);
     if (oit == m_rp_optics.end()) {
       printf("ERROR in ProtonReconstruction::Reconstruct > optics not available for RP %u.\n", it.first);

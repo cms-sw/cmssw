@@ -1,17 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-from SimRomanPot.CTPPSOpticsParameterisation.lhcBeamConditions_cff import lhcBeamConditions_2017PreTS2
-
 ctppsOpticsParameterisation = cms.EDProducer('CTPPSOpticsParameterisation',
-    beamConditions = lhcBeamConditions_2017PreTS2,
-
-    simulateVertexX = cms.bool(True),
-    simulateVertexY = cms.bool(True),
-    simulateScatteringAngleX = cms.bool(True),
-    simulateScatteringAngleY = cms.bool(True),
-    simulateBeamDivergence = cms.bool(True),
-    simulateXi = cms.bool(True),
-    simulateDetectorsResolution = cms.bool(False),
+    beam1ParticlesTag = cms.InputTag('lhcBeamProducer', 'sector56'),
+    beam2ParticlesTag = cms.InputTag('lhcBeamProducer', 'sector45'),
 
     opticsFileBeam1 = cms.FileInPath('parametrisations/version4-vale1/beam1/parametrization_6500GeV_0p4_185_reco.root'),
     opticsFileBeam2 = cms.FileInPath('parametrisations/version4-vale1/beam2/parametrization_6500GeV_0p4_185_reco.root'),
