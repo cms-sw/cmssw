@@ -2,7 +2,6 @@
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/EgammaCandidates "/>
 <use   name="DataFormats/EgammaReco "/>
-<use   name="DataFormats/EgammaCandidates "/>
 <use   name="DataFormats/MuonReco"/>
 <use   name="DataFormats/TrackReco"/>
 <use   name="DataFormats/TrajectorySeed"/>
