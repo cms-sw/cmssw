@@ -14,7 +14,7 @@
 class CombinedSVSoftLeptonComputer : public CombinedSVComputer {
     public:
 	explicit CombinedSVSoftLeptonComputer(const edm::ParameterSet &params);
-	
+        virtual ~CombinedSVSoftLeptonComputer() = default;	
 	double flipSoftLeptonValue(double value) const;
 	
 	template <class IPTI,class SVTI>
