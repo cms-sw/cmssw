@@ -16,6 +16,7 @@ namespace edm {
  */
 class HcalTPGScale {
 public:
+  virtual ~HcalTPGScale() = default;
   /** \brief nominal ET value of this sample/code as to be used in
       RCT LUT creation */
   virtual double et_RCT(const HcalTrigTowerDetId& id, const
