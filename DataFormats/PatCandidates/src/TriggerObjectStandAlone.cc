@@ -335,11 +335,11 @@ void TriggerObjectStandAlone::packFilterLabels(const std::vector<std::string> &n
     std::vector<uint16_t> indices;
     indices.reserve(filterLabels_.size());
    
-    auto start = names.begin(), fail = names.end();
+    auto nStart = names.begin(), nEnd = names.end();
     for (unsigned int i = 0, n = filterLabels_.size(); i < n; ++i) {
-        auto match = std::lower_bound(names.begin(), names.end(), filterLabels_[i]);
-        if (match != fail && *match == filterLabels_[i]) {
-            indices.push_back(match - start);
+        auto match = std::lower_bound(nStart, nEnd, filterLabels_[i]);
+        if (match != nEnd && *match == filterLabels_[i]) {
+            indices.push_back(match - nStart);
         } else {
             static std::atomic<int> _warn(0);
             if(++_warn < 5) edm::LogWarning("TriggerObjectStandAlone::packFilterLabels()") << "Warning: can't resolve '" << filterLabels_[i] << "' to a label index. idx: " << i <<std::endl;
@@ -406,13 +406,6 @@ std::vector<std::string>  const* TriggerObjectStandAlone::allLabels(edm::Paramet
          return &iter->second;
       }
 
-      // Look for the parameter set containing the trigger names in the parameter
-      // set registry using the ID from TriggerResults as the key used to find it.
-    //  edm::ProcessConfiguration config;
-     // history.getConfigurationForProcess(processName,config); 
-	
-      //if (0!=(pset=psetRegistry->getMapped(config.parameterSetID()))) {
-
       auto   triggerNames= event.triggerNames(res); //this also ensure that the registry is filled
       edm::pset::Registry* psetRegistry = edm::pset::Registry::instance();
       edm::ParameterSet const* pset=0;
@@ -421,7 +414,6 @@ std::vector<std::string>  const* TriggerObjectStandAlone::allLabels(edm::Paramet
 	using namespace edm;
    	using namespace trigger;
 
-//   	const ParameterSet& HLTPSet(pset->getParameterSet("@trigger_paths"));
 
  	const unsigned int n(triggerNames.size());
 	std::set<std::string> saveTags;
