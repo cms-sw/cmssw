@@ -214,7 +214,7 @@ class Alignment:
                                    "labelName": condPars[2].strip()})
 
         rcdnames = collections.Counter(condition["rcdName"] for condition in conditions)
-        if max(rcdnames.values()) >= 2:
+        if rcdnames and max(rcdnames.values()) >= 2:
             raise AllInOneError("Some conditions are specified multiple times (possibly through mp or hp options)!\n"
                                 + ", ".join(rcdname for rcdname, count in rcdnames.iteritems() if count >= 2))
             
