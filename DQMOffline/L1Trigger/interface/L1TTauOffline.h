@@ -167,9 +167,6 @@ private:
   double DistancePhi(const reco::Candidate & c1, const reco::Candidate & c2);
   double calcDeltaPhi(double phi1, double phi2);
 
-  void fillTaus(edm::Event const& e, const unsigned int nVertex);
-  bool findTagAndProbePair(edm::Handle<reco::GsfElectronCollection> const& electrons);
-
   math::XYZPoint PVPoint_;
 
   HLTConfigProvider m_hltConfig;

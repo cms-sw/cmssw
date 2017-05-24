@@ -124,13 +124,6 @@ void L1TTauOffline::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const &
 
   //book at beginRun
   bookTauHistos(ibooker);
-
-  // vector<int>::const_iterator l1tPtCutsIt  = m_L1tPtCuts.begin();
-  // vector<int>::const_iterator l1tPtCutsEnd = m_L1tPtCuts.end();
-
-  // for (; l1tPtCutsIt!=l1tPtCutsEnd; ++ l1tPtCutsIt) {
-  //   bookEfficiencyHistos(ibooker, (*l1tPtCutsIt));
-  // } 
  
   vector<string>::const_iterator trigNamesIt  = triggerPath_.begin();
   vector<string>::const_iterator trigNamesEnd = triggerPath_.end();
@@ -261,12 +254,10 @@ void L1TTauOffline::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
     for (auto threshold : tauEfficiencyThresholds_) 
       {
 	std::string str_threshold = std::to_string(int(threshold));
-	// for (; l1tPtCutsIt!=l1tPtCutsEnd; ++ l1tPtCutsIt) {
       
 	int l1tPtCut = 0;
 	std::istringstream ss(str_threshold);
 	ss >> l1tPtCut;
-	// int l1tPtCut = (*l1tPtCutsIt);
 	bool l1tAboveCut = (l1tPt >= l1tPtCut);
 
 	stringstream ptCutToTag; ptCutToTag << l1tPtCut;
@@ -321,248 +312,11 @@ void L1TTauOffline::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
 		  h_efficiencyIsoTauET_EB_EE_pass_[threshold]->Fill(pt);
 		}
 
-	    }
-
-	
-	  // m_EfficiencyHistos[l1tPtCut]["EffvsPt_passIso_Den"]->Fill(pt);
-	  // if (eta<0) m_EfficiencyHistos[l1tPtCut]["EffvsPt_passIso_Etaneg_Den"]->Fill(pt);
-	  // if (eta>=0) m_EfficiencyHistos[l1tPtCut]["EffvsPt_passIso_Etapos_Den"]->Fill(pt);
-	  // if (fabs(eta)<1.5) m_EfficiencyHistos[l1tPtCut]["EffvsPt_passIso_Barrel_Den"]->Fill(pt);
-	  // if (fabs(eta)>=1.5) m_EfficiencyHistos[l1tPtCut]["EffvsPt_passIso_Endcaps_Den"]->Fill(pt);
-	  // m_EfficiencyHistos[l1tPtCut]["EffvsPt_passNoIso_Den"]->Fill(pt);
-	  // if (eta<0) m_EfficiencyHistos[l1tPtCut]["EffvsPt_passNoIso_Etaneg_Den"]->Fill(pt);
-	  // if (eta>=0) m_EfficiencyHistos[l1tPtCut]["EffvsPt_passNoIso_Etapos_Den"]->Fill(pt);
-	  // if (fabs(eta)<1.5) m_EfficiencyHistos[l1tPtCut]["EffvsPt_passNoIso_Barrel_Den"]->Fill(pt);
-	  // if (fabs(eta)>=1.5) m_EfficiencyHistos[l1tPtCut]["EffvsPt_passNoIso_Endcaps_Den"]->Fill(pt);
-	  // if (l1tAboveCut && tauL1tPairsIt->l1tIso()>0.5){
-	  //    m_EfficiencyHistos[l1tPtCut]["EffvsPt_passIso_Num"]->Fill(pt);
-	  //    if (eta<0) m_EfficiencyHistos[l1tPtCut]["EffvsPt_passIso_Etaneg_Num"]->Fill(pt);
-	  //    if (eta>=0) m_EfficiencyHistos[l1tPtCut]["EffvsPt_passIso_Etapos_Num"]->Fill(pt);
-	  //    if (fabs(eta)<1.5) m_EfficiencyHistos[l1tPtCut]["EffvsPt_passIso_Barrel_Num"]->Fill(pt);
-	  //    if (fabs(eta)>=1.5) m_EfficiencyHistos[l1tPtCut]["EffvsPt_passIso_Endcaps_Num"]->Fill(pt);
-	  // }
-	  // if (l1tAboveCut){
-	  //    m_EfficiencyHistos[l1tPtCut]["EffvsPt_passNoIso_Num"]->Fill(pt);
-	  //    if (eta<0) m_EfficiencyHistos[l1tPtCut]["EffvsPt_passNoIso_Etaneg_Num"]->Fill(pt);
-	  //    if (eta>=0) m_EfficiencyHistos[l1tPtCut]["EffvsPt_passNoIso_Etapos_Num"]->Fill(pt);
-	  //    if (fabs(eta)<1.5) m_EfficiencyHistos[l1tPtCut]["EffvsPt_passNoIso_Barrel_Num"]->Fill(pt);
-	  //    if (fabs(eta)>=1.5) m_EfficiencyHistos[l1tPtCut]["EffvsPt_passNoIso_Endcaps_Num"]->Fill(pt);
-	  // }
-
-	  // if (pt > 35) {
-	  //     m_EfficiencyHistos[l1tPtCut]["EffvsPhi_passIso_Den"]->Fill(phi);
-	  //     m_EfficiencyHistos[l1tPtCut]["EffvsEta_passIso_Den"]->Fill(eta);
-	  //     m_EfficiencyHistos[l1tPtCut]["EffvsPhi_passNoIso_Den"]->Fill(phi);
-	  //     m_EfficiencyHistos[l1tPtCut]["EffvsEta_passNoIso_Den"]->Fill(eta);
-	  //     if (l1tAboveCut) {
-	  //        m_EfficiencyHistos[l1tPtCut]["EffvsPhi_passNoIso_Num"]->Fill(phi);
-	  //        m_EfficiencyHistos[l1tPtCut]["EffvsEta_passNoIso_Num"]->Fill(eta);
-	  //     }
-	  //     if (l1tAboveCut && tauL1tPairsIt->l1tIso()){
-	  //        m_EfficiencyHistos[l1tPtCut]["EffvsPhi_passIso_Num"]->Fill(phi);
-	  //        m_EfficiencyHistos[l1tPtCut]["EffvsEta_passIso_Num"]->Fill(eta);
-	  //     }
-	  // }
-
+	    }	
 	}
       }
   }//loop over tau-L1 pairs
  
-}
-
-//{
-  // edm::LogInfo("L1TTauOffline") << "L1TTauOffline::analyze" << std::endl;
-
-  // edm::Handle < reco::VertexCollection > vertexHandle;
-  // e.getByToken(thePVCollection_, vertexHandle);
-  // if (!vertexHandle.isValid()) {
-  //   edm::LogError("L1TTauOffline") << "invalid collection: vertex " << std::endl;
-  //   return;
-  // }
-
-  // unsigned int nVertex = vertexHandle->size();
-  // dqmoffline::l1t::fillWithinLimits(h_nVertex_, nVertex);
-
-  // // L1T
-  // fillElectrons(e, nVertex);
-  // fillPhotons(e, nVertex);
-//}
-
-void L1TTauOffline::fillTaus(edm::Event const& e, const unsigned int nVertex)
-{
-//   edm::Handle<l1t::TauBxCollection> l1Tau;
-//   e.getByToken(stage2CaloLayer2TauToken_, l1Tau);
-
-//   edm::Handle < reco::GsfElectronCollection > gsfElectrons;
-//   e.getByToken(theGsfElectronCollection_, gsfElectrons);
-
-//   if (!gsfElectrons.isValid()) {
-//     edm::LogError("L1TTauOffline") << "invalid collection: GSF electrons " << std::endl;
-//     return;
-//   }
-//   if (gsfElectrons->size() == 0) {
-//     LogDebug("L1TTauOffline") << "empty collection: GSF electrons " << std::endl;
-//     return;
-//   }
-//   if (!l1Tau.isValid()) {
-//     //edm::LogError("L1TTauOffline") << "invalid collection: L1 Tau " << std::endl;
-//     return;
-//   }
-//   if (!findTagAndProbePair(gsfElectrons)) {
-//     LogDebug("L1TTauOffline") << "Could not find a tag & probe pair" << std::endl;
-//     return; //continue to next event
-//   }
-
-//   auto probeElectron = probeElectron_;
-
-//   // find corresponding L1 EG
-//   double minDeltaR = 0.3;
-//   l1t::Tau closestL1Tau;
-//   bool foundMatch = false;
-
-//   int bunchCrossing = 0;
-//   for (auto egamma = l1Tau->begin(bunchCrossing); egamma != l1Tau->end(bunchCrossing); ++egamma) {
-//     double currentDeltaR = deltaR(egamma->eta(), egamma->phi(), probeElectron.eta(), probeElectron.phi());
-//     if (currentDeltaR > minDeltaR) {
-//       continue;
-//     } else {
-//       minDeltaR = currentDeltaR;
-//       closestL1Tau = *egamma;
-//       foundMatch = true;
-//     }
-
-//   }
-
-//   if (!foundMatch) {
-//     LogDebug("L1TTauOffline") << "Could not find a matching L1 Tau " << std::endl;
-//     return;
-//   }
-
-//   double recoEt = probeElectron.et();
-//   double recoEta = probeElectron.eta();
-//   double recoPhi = probeElectron.phi();
-
-//   double l1Et = closestL1Tau.et();
-//   double l1Eta = closestL1Tau.eta();
-//   double l1Phi = closestL1Tau.phi();
-
-//   // if no reco value, relative resolution does not make sense -> sort to overflow
-//   double outOfBounds = 9999;
-//   double resolutionEt = recoEt > 0 ? (l1Et - recoEt) / recoEt : outOfBounds;
-//   double resolutionEta = std::abs(recoEta) > 0 ? (l1Eta - recoEta) / recoEta : outOfBounds;
-//   double resolutionPhi = std::abs(recoPhi) > 0 ? (l1Phi - recoPhi) / recoPhi : outOfBounds;
-
-//   using namespace dqmoffline::l1t;
-//   // eta
-//   fill2DWithinLimits(h_L1TauEtavsElectronEta_, recoEta, l1Eta);
-//   fillWithinLimits(h_resolutionElectronEta_, resolutionEta);
-
-//   if (std::abs(recoEta) <= 1.479) { // barrel
-//     // et
-//     fill2DWithinLimits(h_L1TauETvsElectronET_EB_, recoEt, l1Et);
-//     fill2DWithinLimits(h_L1TauETvsElectronET_EB_EE_, recoEt, l1Et);
-//     //resolution
-//     fillWithinLimits(h_resolutionElectronET_EB_, resolutionEt);
-//     fillWithinLimits(h_resolutionElectronET_EB_EE_, resolutionEt);
-//     // phi
-//     fill2DWithinLimits(h_L1TauPhivsElectronPhi_EB_, recoPhi, l1Phi);
-//     fill2DWithinLimits(h_L1TauPhivsElectronPhi_EB_EE_, recoPhi, l1Phi);
-//     // resolution
-//     fillWithinLimits(h_resolutionElectronPhi_EB_, resolutionPhi);
-//     fillWithinLimits(h_resolutionElectronPhi_EB_EE_, resolutionPhi);
-
-//     // turn-ons
-//     for (auto threshold : electronEfficiencyThresholds_) {
-//       fillWithinLimits(h_efficiencyElectronET_EB_total_[threshold], recoEt);
-//       fillWithinLimits(h_efficiencyElectronET_EB_EE_total_[threshold], recoEt);
-//       if (l1Et > threshold) {
-//         fillWithinLimits(h_efficiencyElectronET_EB_pass_[threshold], recoEt);
-//         fillWithinLimits(h_efficiencyElectronET_EB_EE_pass_[threshold], recoEt);
-//       }
-//     }
-//   } else { // end-cap
-//     // et
-//     fill2DWithinLimits(h_L1TauETvsElectronET_EE_, recoEt, l1Et);
-//     fill2DWithinLimits(h_L1TauETvsElectronET_EB_EE_, recoEt, l1Et);
-//     //resolution
-//     fillWithinLimits(h_resolutionElectronET_EE_, resolutionEt);
-//     fillWithinLimits(h_resolutionElectronET_EB_EE_, resolutionEt);
-//     // phi
-//     fill2DWithinLimits(h_L1TauPhivsElectronPhi_EE_, recoPhi, l1Phi);
-//     fill2DWithinLimits(h_L1TauPhivsElectronPhi_EB_EE_, recoPhi, l1Phi);
-//     // resolution
-//     fillWithinLimits(h_resolutionElectronPhi_EE_, resolutionPhi);
-//     fillWithinLimits(h_resolutionElectronPhi_EB_EE_, resolutionPhi);
-
-//     // turn-ons
-//     for (auto threshold : electronEfficiencyThresholds_) {
-//       fillWithinLimits(h_efficiencyElectronET_EE_total_[threshold], recoEt);
-//       fillWithinLimits(h_efficiencyElectronET_EB_EE_total_[threshold], recoEt);
-//       if (l1Et > threshold) {
-//         fillWithinLimits(h_efficiencyElectronET_EE_pass_[threshold], recoEt);
-//         fillWithinLimits(h_efficiencyElectronET_EB_EE_pass_[threshold], recoEt);
-//       }
-//     }
-//   }
-}
-
-/**
- * From https://cds.cern.ch/record/2202966/files/DP2016_044.pdf slide 8
- * Filter on
- * HLT_Ele30WP60_Ele8_Mass55 (TODO)
- * HLT_Ele30WP60_SC4_Mass55 (TODO)
- * Seeded by L1SingleEG, unprescaled required
- *
- * Tag & probe selection
- * Electron required to be within ECAL fiducial volume (|η|<1.4442 ||
- * 1.566<|η|<2.5).
- * 60 < m(ee) < 120 GeV.
- * Opposite charge requirement.
- * Tag required to pass medium electron ID and ET > 30 GeV.
- * Probe required to pass loose electron ID.
- *
- * @param electrons
- * @return
- */
-bool L1TTauOffline::findTagAndProbePair(edm::Handle<reco::GsfElectronCollection> const& electrons)
-{
-  // bool foundBoth(false);
-  // auto nElectrons = electrons->size();
-  // if (nElectrons < 2)
-  //   return false;
-
-  // for (auto tagElectron : *electrons) {
-  //   for (auto probeElectron : *electrons) {
-  //     if (tagElectron.p4() == probeElectron.p4())
-  //       continue;
-
-  //     auto combined(tagElectron.p4() + probeElectron.p4());
-  //     auto tagAbsEta = std::abs(tagElectron.eta());
-  //     auto probeAbsEta = std::abs(probeElectron.eta());
-
-  //     // EB-EE transition region
-  //     bool isEBEEGap = tagElectron.isEBEEGap() || probeElectron.isEBEEGap();
-  //     bool passesEta = !isEBEEGap && tagAbsEta < 2.5 && probeAbsEta < 2.5;
-  //     bool passesCharge = tagElectron.charge() == -probeElectron.charge();
-
-  //     // https://github.com/ikrav/cmssw/blob/egm_id_80X_v1/RecoEgamma/ElectronIdentification/plugins/cuts/GsfEleFull5x5SigmaIEtaIEtaCut.cc#L45
-  //     bool tagPassesMediumID = passesMediumEleId(tagElectron) && tagElectron.et() > 30.;
-  //     bool probePassesLooseID = passesLooseEleId(probeElectron);
-  //     bool passesInvariantMass = combined.M() > 60 && combined.M() < 120;
-
-  //     if (passesEta && passesInvariantMass && passesCharge && tagPassesMediumID && probePassesLooseID) {
-  //       foundBoth = true;
-  //       tagElectron_ = tagElectron;
-  //       probeElectron_ = probeElectron;
-  //       // plot tag & probe invariant mass
-  //       dqmoffline::l1t::fillWithinLimits(h_tagAndProbeMass_, combined.M());
-  //       break;
-  //     }
-  //   }
-
-  // }
-  // return foundBoth;
-  return false;
 }
 
 //
