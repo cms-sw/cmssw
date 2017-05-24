@@ -1,3 +1,11 @@
+/** 
+ *  @file     L1TauOffline.cc
+ *  @authors  Olivier Davignon (University of Bristol), Cécile Caillol (University of Wisconsin - Madison)
+ *  @date     24/05/2017  
+ *  @version  1.0 
+ *  
+ */
+
 #include "DQMOffline/L1Trigger/interface/L1TTauOffline.h"
 #include "DQMOffline/L1Trigger/interface/L1TFillWithinLimits.h"
 
@@ -66,8 +74,7 @@ double TauL1TPair::dR() {
 // -------------------------------------- Constructor --------------------------------------------
 //
 L1TTauOffline::L1TTauOffline(const edm::ParameterSet& ps) :
-        theTauCollection_(
-            consumes < reco::PFTauCollection > (ps.getUntrackedParameter < edm::InputTag > ("tauInputTag"))),
+        theTauCollection_(consumes < reco::PFTauCollection > (ps.getUntrackedParameter < edm::InputTag > ("tauInputTag"))),
 	AntiMuInputTag_(consumes<reco::PFTauDiscriminator>(ps.getUntrackedParameter<edm::InputTag>("antiMuInputTag"))),
 	AntiEleInputTag_(consumes<reco::PFTauDiscriminator>(ps.getUntrackedParameter<edm::InputTag>("antiEleInputTag"))),
 	DecayModeFindingInputTag_(consumes<reco::PFTauDiscriminator>(ps.getUntrackedParameter<edm::InputTag>("decayModeFindingInputTag"))),
@@ -76,21 +83,15 @@ L1TTauOffline::L1TTauOffline(const edm::ParameterSet& ps) :
 	MetInputTag_(consumes<reco::PFMETCollection>(ps.getUntrackedParameter<edm::InputTag>("metInputTag"))),
 	VtxInputTag_(consumes<reco::VertexCollection>(ps.getUntrackedParameter<edm::InputTag>("vtxInputTag"))),
 	BsInputTag_(consumes<reco::BeamSpot>(ps.getUntrackedParameter<edm::InputTag>("bsInputTag"))),
-
         triggerEvent_(consumes < trigger::TriggerEvent > (ps.getUntrackedParameter < edm::InputTag > ("trigInputTag"))),
 	trigProcess_(ps.getUntrackedParameter<string>("trigProcess")),
         triggerResults_(consumes < edm::TriggerResults > (ps.getUntrackedParameter < edm::InputTag > ("trigProcess_token"))),
-        //triggerFilter_(ps.getParameter < edm::InputTag > ("TriggerFilter")),
         triggerPath_(ps.getUntrackedParameter < vector<std::string> > ("triggerNames")),
         histFolder_(ps.getParameter < std::string > ("histFolder")),
         efficiencyFolder_(histFolder_ + "/efficiency_raw"),
-        stage2CaloLayer2TauToken_(
-            consumes < l1t::TauBxCollection > (ps.getUntrackedParameter < edm::InputTag > ("l1tInputTag"))),
+        stage2CaloLayer2TauToken_(consumes < l1t::TauBxCollection > (ps.getUntrackedParameter < edm::InputTag > ("l1tInputTag"))),
         tauEfficiencyThresholds_(ps.getParameter < std::vector<double> > ("tauEfficiencyThresholds")),
-        tauEfficiencyBins_(ps.getParameter < std::vector<double> > ("tauEfficiencyBins")),
-	
-        tagMuon_(),
-        probeTau_()
+        tauEfficiencyBins_(ps.getParameter < std::vector<double> > ("tauEfficiencyBins"))
 {
   edm::LogInfo("L1TTauOffline") << "Constructor " << "L1TTauOffline::L1TTauOffline " << std::endl;
 }
