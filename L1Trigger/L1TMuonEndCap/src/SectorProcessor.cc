@@ -82,8 +82,6 @@ void SectorProcessor::configure(
 // Refer to docs/EMTF_FW_LUT_versions_2016_draft2.xlsx
 void SectorProcessor::configure_by_fw_version(unsigned fw_version) {
 
-  std::cout << "Looking at FW version " << fw_version << std::endl;
-
   if (fw_version == 0 || fw_version == 12345)  // fw_version '12345' is from the fake conditions
     return;
 
