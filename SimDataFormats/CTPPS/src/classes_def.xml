@@ -1,0 +1,7 @@
+<lcgdict>
+  <class name="CTPPSSimHit" ClassVersion="10">
+    <version ClassVersion="10" checksum="3098665692"/>
+  </class>
+  <class name="std::vector<CTPPSSimHit>" />
+  <class name="edm::Wrapper< std::vector<CTPPSSimHit> >" />
+</lcgdict>
