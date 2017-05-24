@@ -947,6 +947,12 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 
 		//	Explicit check on the DetIds present in the Collection
 		HcalDetId const& did = digi.detid();
+
+		// Require subdet == HF. In 2017, calibration channels are included in QIE10DigiCollection :( 
+		if (!did.subdet()==HcalForward) {
+			continue;
+		}
+
 		uint32_t rawid = _ehashmap.lookup(did);
 		if (rawid==0) {
 			meUnknownIds1LS->Fill(1); 
@@ -956,6 +962,8 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		HcalElectronicsId const& eid(rawid);
 		if (did.subdet()==HcalForward)
 			rawidValid = did.rawId();
+
+		std::cout << "[DigiTask::_process] DEBUG : Looking up adc2fC" << std::endl;
 
 		CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<QIE10DataFrame>(_dbService, did, digi);
 		double sumQ = hcaldqm::utilities::sumQDB<QIE10DataFrame>(_dbService, digi_fC, did, digi, 0, digi.samples()-1);
