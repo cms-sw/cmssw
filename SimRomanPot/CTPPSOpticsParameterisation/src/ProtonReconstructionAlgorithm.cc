@@ -1,102 +1,20 @@
-#ifndef _proton_reconstruction_h_
-#define _proton_reconstruction_h_
+#include "SimRomanPot/CTPPSOpticsParameterisation/interface/ProtonReconstructionAlgorithm.h"
 
-#include "TFile.h"
-#include "TSpline.h"
-#include "Fit/Fitter.h"
-
-#include "LHCOpticsApproximator.h"
-
-#include <map>
-#include <string>
-#include <cmath>
-
-#include "track_lite.h"
-#include "beam_conditions.h"
-
-//----------------------------------------------------------------------------------------------------
-
-struct ProtonData
+ProtonReconstructionAlgorithm::~ProtonReconstructionAlgorithm()
 {
-	bool valid = false;
+  for (auto &it : m_rp_optics) {
+    delete it.second.optics;
+    delete it.second.s_xi_vs_x;
+    delete it.second.s_y0_vs_xi;
+    delete it.second.s_v_y_vs_xi;
+    delete it.second.s_L_y_vs_xi;
+  }
+  if (chiSquareCalculator) delete chiSquareCalculator;
+  if (fitter) delete fitter;
+}
 
-	double vtx_x = 0., vtx_y = 0.;	// m
-
-	double th_x = 0., th_y = 0.;	// rad
-
-	double xi = 0.;					// 1, positive when energy loss
-	double xi_unc = 0.;
-
-	void Print() const
-	{
-		printf("valid=%i, vtx_x=%.3f mm, vtx_y=%.3f mm, th_x=%.1f urad, th_y=%.1f urad, xi=%.3f\n",
-			valid, vtx_x*1E3, vtx_y*1E3, th_x*1E6, th_y*1E6, xi);
-	}
-};
-
-//----------------------------------------------------------------------------------------------------
-//----------------------------------------------------------------------------------------------------
-
-class ProtonReconstruction
-{
-	public:
-
-		ProtonReconstruction() {}
-
-		int Init(const std::string &optics_file_beam1, const std::string &optics_file_beam2);
-
-		ProtonData Reconstruct(LHCSector sector, const TrackDataCollection &tracks) const;
-
-		~ProtonReconstruction()
-		{
-			for (auto &it : m_rp_optics)
-			{
-				delete it.second.optics;
-				delete it.second.s_xi_vs_x;
-				delete it.second.s_y0_vs_xi;
-				delete it.second.s_v_y_vs_xi;
-				delete it.second.s_L_y_vs_xi;
-			}
-
-			if (chiSquareCalculator)
-				delete chiSquareCalculator;
-
-			if (fitter)
-				delete fitter;
-		}
-
-	private:
-		/// optics data associated with 1 RP
-		struct RPOpticsData
-		{
-			LHCOpticsApproximator *optics;
-			TSpline3 *s_xi_vs_x, *s_y0_vs_xi, *s_v_y_vs_xi, *s_L_y_vs_xi;
-		};
-
-		/// map: RP id --> optics data
-		std::map<unsigned int, RPOpticsData> m_rp_optics;
-
-		/// class for calculation of chi^2
-		class ChiSquareCalculator
-		{
-			public:
-				const TrackDataCollection *tracks;
-				const std::map<unsigned int, RPOpticsData> *m_rp_optics;
-
-				ChiSquareCalculator() {}
-
-				double operator() (const double *parameters) const;
-		};
-
-		ChiSquareCalculator *chiSquareCalculator = NULL;
-
-		// fitter object
-		ROOT::Fit::Fitter *fitter = NULL;
-};
-
-//----------------------------------------------------------------------------------------------------
-
-int ProtonReconstruction::Init(const std::string &optics_file_beam1, const std::string &optics_file_beam2)
+int
+ProtonReconstructionAlgorithm::Init(const std::string &optics_file_beam1, const std::string &optics_file_beam2)
 {
 	TFile *f_in_optics_beam1 = TFile::Open(optics_file_beam1.c_str());
 	if (f_in_optics_beam1 == NULL)
@@ -234,7 +152,8 @@ int ProtonReconstruction::Init(const std::string &optics_file_beam1, const std::
 
 //----------------------------------------------------------------------------------------------------
 
-double ProtonReconstruction::ChiSquareCalculator::operator() (const double *parameters) const
+double
+ProtonReconstructionAlgorithm::ChiSquareCalculator::operator() (const double *parameters) const
 {
 	// extract proton parameters
 	const double &xi = parameters[0];
@@ -306,7 +225,8 @@ double ProtonReconstruction::ChiSquareCalculator::operator() (const double *para
 
 //----------------------------------------------------------------------------------------------------
 
-ProtonData ProtonReconstruction::Reconstruct(LHCSector /* sector */, const TrackDataCollection &tracks) const
+ProtonData
+ProtonReconstructionAlgorithm::Reconstruct(LHCSector /* sector */, const TrackDataCollection &tracks) const
 {
 	// by default invalid proton
 	ProtonData pd;
@@ -391,5 +311,3 @@ ProtonData ProtonReconstruction::Reconstruct(LHCSector /* sector */, const Track
 
 	return pd;
 }
-
-#endif

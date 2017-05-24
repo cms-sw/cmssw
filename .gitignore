@@ -5,11 +5,3 @@ __init__.py
 .#*
 #*#
 *~
-*.root
-*.pdf
-
-#parametrisation
-#simulations
-
-#test_reconstruction
-#get_optical_functions
