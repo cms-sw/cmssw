@@ -57,6 +57,8 @@ unsigned int ConditionHelper::get_pt_lut_version() const {
 }
 
 unsigned int ConditionHelper::get_pc_lut_version() const {
-  //return params_->PrimConvVersion_;  // not yet implemented
-  return 0;
+  // Not yet implemented in O2O; default to coordinate LUTs from beginning of 2017
+  return 2;
+  // Requires change to CondFormats/L1TObjects/interface/L1TMuonEndCapParams.h
+  // return params_->PrimConvVersion_;  
 }

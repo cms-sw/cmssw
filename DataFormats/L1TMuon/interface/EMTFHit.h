@@ -29,8 +29,8 @@ namespace l1t {
       pattern(-99), bend(-99), valid(-99), sync_err(-99), bc0(-99), bx(-99), stub_num(-99),
       phi_fp(-99), theta_fp(-99), phzvl(-99), ph_hit(-99), zone_hit(-99), zone_code(-99),
       fs_segment(-99), fs_zone_code(-99), bt_station(-99), bt_segment(-99),
-      phi_loc(-99), phi_glob(-99), theta(-99), eta(-99),
-      phi_sim(-99), theta_sim(-99), eta_sim(-99),
+      phi_loc(-99), phi_glob(-999), theta(-99), eta(-99),
+      phi_sim(-999), theta_sim(-99), eta_sim(-99),
       is_CSC(-99), is_RPC(-99), is_GEM(-99), subsystem(-99)
       {};
 

@@ -114,8 +114,6 @@ namespace l1t {
 	CSCCorrelatedLCTDigiCollection* res_LCT;
 	res_LCT = static_cast<EMTFCollections*>(coll)->getEMTFLCTs();
 
-	// if (ME_.Format_errors() > 0) goto write; // Temporarily disable for DQM operation - AWB 09.04.16
-
 	////////////////////////////
 	// Unpack the ME Data Record
 	////////////////////////////
@@ -179,7 +177,6 @@ namespace l1t {
 	      duplicate_hit_exists = true;
 	  }
 	}
-	// write: // Temporarily disable for DQM operation - AWB 09.04.16
 
 	(res->at(iOut)).push_ME(ME_);
 	res_hit->push_back(Hit_);

@@ -1,5 +1,6 @@
 #include <string>
 #include <vector>
+#include <iostream>
 
 #include "DQM/L1TMonitor/interface/L1TStage2EMTF.h"
 
@@ -178,10 +179,10 @@ void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
     rpcHitBX->setBinLabel(13 - ybin, "RE+" + rpc_label[ybin - 1], 2);
   }
   
-  rpcHitOccupancy = ibooker.book2D("rpcHitOccupancy", "RPC Chamber Occupancy", 54, 1, 55, 12, -6, 6);
+  rpcHitOccupancy = ibooker.book2D("rpcHitOccupancy", "RPC Chamber Occupancy", 36, 1, 37, 12, -6, 6);
   rpcHitOccupancy->setAxisTitle("Sector", 1);
   for (int bin = 1; bin < 7; bin++){
-    rpcHitOccupancy->setBinLabel(bin*9 - 8, std::to_string(bin), 1);
+    rpcHitOccupancy->setBinLabel(bin*6 - 5, std::to_string(bin), 1);
   }
   for (int i = 1; i < 7; i++){
     rpcHitOccupancy->setBinLabel(i, "RE-" + rpc_label[i - 1], 2);
@@ -330,23 +331,23 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
       }
     }
     offset = (EventHeader->Sector() == 6 ? 0:EventHeader->Sector()) * 9;
-    if (CO.ME1n_3() == 1) mpcLinkErrors->Fill(3 + offset, endcap * 5.5, (int) CO.ME1n_3());
-    if (CO.ME1n_6() == 1) mpcLinkErrors->Fill(6 + offset, endcap * 5.5, (int) CO.ME1n_6());
-    if (CO.ME1n_9() == 1) mpcLinkErrors->Fill(9 + offset, endcap * 5.5, (int) CO.ME1n_9());
-    if (CO.ME2n_3() == 1) mpcLinkErrors->Fill(3 + offset, endcap * 5.5, (int) CO.ME2n_3());
-    if (CO.ME2n_9() == 1) mpcLinkErrors->Fill(9 + offset, endcap * 5.5, (int) CO.ME2n_9());
-    if (CO.ME3n_3() == 1) mpcLinkErrors->Fill(3 + offset, endcap * 5.5, (int) CO.ME3n_3());
-    if (CO.ME3n_9() == 1) mpcLinkErrors->Fill(9 + offset, endcap * 5.5, (int) CO.ME3n_9());
-    if (CO.ME4n_3() == 1) mpcLinkErrors->Fill(3 + offset, endcap * 5.5, (int) CO.ME4n_3());
+    if (CO.ME1n_3() == 1) mpcLinkErrors->Fill(1 + offset, endcap * 5.5, (int) CO.ME1n_3());
+    if (CO.ME1n_6() == 1) mpcLinkErrors->Fill(2 + offset, endcap * 5.5, (int) CO.ME1n_6());
+    if (CO.ME1n_9() == 1) mpcLinkErrors->Fill(3 + offset, endcap * 5.5, (int) CO.ME1n_9());
+    if (CO.ME2n_3() == 1) mpcLinkErrors->Fill(4 + offset, endcap * 5.5, (int) CO.ME2n_3());
+    if (CO.ME2n_9() == 1) mpcLinkErrors->Fill(5 + offset, endcap * 5.5, (int) CO.ME2n_9());
+    if (CO.ME3n_3() == 1) mpcLinkErrors->Fill(6 + offset, endcap * 5.5, (int) CO.ME3n_3());
+    if (CO.ME3n_9() == 1) mpcLinkErrors->Fill(7 + offset, endcap * 5.5, (int) CO.ME3n_9());
+    if (CO.ME4n_3() == 1) mpcLinkErrors->Fill(8 + offset, endcap * 5.5, (int) CO.ME4n_3());
     if (CO.ME4n_9() == 1) mpcLinkErrors->Fill(9 + offset, endcap * 5.5, (int) CO.ME4n_9());
-    if (CO.ME1n_3() == 0) mpcLinkGood->Fill(3 + offset, endcap * 5.5);
-    if (CO.ME1n_6() == 0) mpcLinkGood->Fill(6 + offset, endcap * 5.5);
-    if (CO.ME1n_9() == 0) mpcLinkGood->Fill(9 + offset, endcap * 5.5);
-    if (CO.ME2n_3() == 0) mpcLinkGood->Fill(3 + offset, endcap * 5.5);
-    if (CO.ME2n_9() == 0) mpcLinkGood->Fill(9 + offset, endcap * 5.5);
-    if (CO.ME3n_3() == 0) mpcLinkGood->Fill(3 + offset, endcap * 5.5);
-    if (CO.ME3n_9() == 0) mpcLinkGood->Fill(9 + offset, endcap * 5.5);
-    if (CO.ME4n_3() == 0) mpcLinkGood->Fill(3 + offset, endcap * 5.5);
+    if (CO.ME1n_3() == 0) mpcLinkGood->Fill(1 + offset, endcap * 5.5);
+    if (CO.ME1n_6() == 0) mpcLinkGood->Fill(2 + offset, endcap * 5.5);
+    if (CO.ME1n_9() == 0) mpcLinkGood->Fill(3 + offset, endcap * 5.5);
+    if (CO.ME2n_3() == 0) mpcLinkGood->Fill(4 + offset, endcap * 5.5);
+    if (CO.ME2n_9() == 0) mpcLinkGood->Fill(5 + offset, endcap * 5.5);
+    if (CO.ME3n_3() == 0) mpcLinkGood->Fill(6 + offset, endcap * 5.5);
+    if (CO.ME3n_9() == 0) mpcLinkGood->Fill(7 + offset, endcap * 5.5);
+    if (CO.ME4n_3() == 0) mpcLinkGood->Fill(8 + offset, endcap * 5.5);
     if (CO.ME4n_9() == 0) mpcLinkGood->Fill(9 + offset, endcap * 5.5);
   }
 
@@ -436,9 +437,9 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
       if (Hit->Neighbor() == false){
         rpcHitPhi[hist_index]->Fill(Hit->Phi_fp() / 4);
         rpcHitTheta[hist_index]->Fill(Hit->Theta_fp() / 4);
-        rpcChamberPhi[hist_index]->Fill(Hit->PC_chamber(), Hit->Phi_fp() / 4);
-        rpcChamberTheta[hist_index]->Fill(Hit->PC_chamber(), Hit->Theta_fp() / 4);
-        rpcHitOccupancy->Fill((Hit->PC_sector() - 1) * 9 + Hit->PC_chamber(), hist_index - 5.5);
+        rpcChamberPhi[hist_index]->Fill(chamber, Hit->Phi_fp() / 4);
+        rpcChamberTheta[hist_index]->Fill(chamber, Hit->Theta_fp() / 4);
+        rpcHitOccupancy->Fill((Hit->Sector_RPC() - 1) * 6 + Hit->Subsector(), hist_index - 5.5);
       }
     }
   }
@@ -474,6 +475,8 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
     emtfTrackQualityVsMode->Fill(mode, quality);
     if (mode == 15) emtfTrackPhiHighQuality->Fill(phi_glob_rad);
    }
+
+  std::cout << "Checkpoint Three" << endl << endl;
 
   // Regional Muon Candidates
   edm::Handle<l1t::RegionalMuonCandBxCollection> MuonBxCollection;

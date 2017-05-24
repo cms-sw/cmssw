@@ -143,8 +143,6 @@ namespace l1t {
 	res_cand = static_cast<EMTFCollections*>(coll)->getRegionalMuonCands();
 	RegionalMuonCand mu_;
 	
-	// if (SP_.Format_errors() > 0) goto write; // Temporarily disable for DQM operation - AWB 09.04.16
-
 	///////////////////////////////////
 	// Unpack the SP Output Data Record
 	///////////////////////////////////
@@ -332,8 +330,6 @@ namespace l1t {
 	//   std::cout << "***********************************************************" << std::endl;
 	//   std::cout << "" << std::endl;
 	// }
-
-	// write: // Temporarily disable for DQM operation - AWB 09.04.16
 
 	(res->at(iOut)).push_SP(SP_);
 

@@ -79,11 +79,6 @@ TrackFinder::TrackFinder(const edm::ParameterSet& iConfig, edm::ConsumesCollecto
   auto bugGMTPhi          = spPAParams16.getParameter<bool>("BugGMTPhi");
 
   try {
-    // Configure sector processor LUT
-    //sector_processor_lut_.read(coordLUTDir);  // deprecated, load using pc_lut_version from Conditions
-
-    // Configure pT assignment engine
-    //pt_assign_engine_.read(bdtXMLDir);  // deprecated, load from Conditions
 
     // Configure sector processors
     for (int endcap = MIN_ENDCAP; endcap <= MAX_ENDCAP; ++endcap) {

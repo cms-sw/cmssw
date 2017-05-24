@@ -32,12 +32,11 @@ L1TMuonEndCapParamsESProducer::L1TMuonEndCapParamsESProducer(const edm::Paramete
 {
    setWhatProduced(this);
 
-   params.PtAssignVersion_ = iConfig.getParameter<int>("PtAssignVersion");
-   params.firmwareVersion_ = iConfig.getParameter<int>("firmwareVersion");
-   params.PhiMatchWindowSt1_ = iConfig.getParameter<int>("St1MatchWindow");
-   params.PhiMatchWindowSt2_ = iConfig.getParameter<int>("St2MatchWindow");
-   params.PhiMatchWindowSt3_ = iConfig.getParameter<int>("St3MatchWindow");
-   params.PhiMatchWindowSt4_ = iConfig.getParameter<int>("St4MatchWindow");
+   params.PtAssignVersion_   = iConfig.getParameter<int>("PtAssignVersion");
+   params.firmwareVersion_   = iConfig.getParameter<int>("firmwareVersion");
+   // Not yet implemented in O2O
+   // params.PrimConvVersion_   = iConfig.getParameter<int>("PrimConvVersion");
+
 }
 
 

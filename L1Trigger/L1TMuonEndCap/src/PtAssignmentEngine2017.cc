@@ -27,6 +27,13 @@ float PtAssignmentEngine2017::scale_pt(const float pt, const int mode) const {
   return pt_scale;
 }
 
+float PtAssignmentEngine2017::unscale_pt(const float pt, const int mode) const {
+  float pt_unscale = 1 / (1.15 + 0.01*pt);
+  pt_unscale = fmax( pt_unscale, 0.7/1.15 );
+
+  return pt_unscale;
+}
+
 
 PtAssignmentEngine::address_t PtAssignmentEngine2017::calculate_address(const EMTFTrack& track) const {
     address_t address = 0;
@@ -378,47 +385,6 @@ float PtAssignmentEngine2017::calculate_pt_xml(const address_t& address) const {
   float inv_pt = tree_event->predictedValue;
   pt_xml = 1.0 / fmax(0.001, inv_pt); // Protect against negative values
 
-  // if (mode == 11 && pt_xml > 50) {
-
-  //   std::cout << "\nFrom addrs: mode " << mode << " track has inputs: ";
-  //   for (int i = 0; i < int(predictors.size()); i++)
-  //     std::cout << predictors.at(i) << ", ";
-  //   std::cout << "output pT: " << pt_xml << std::endl;
-    
-    // std::cout << "  * ADDRESS = ";
-    // for (int j = 0; j < 30; j++) {
-    //   std::cout << ((address >> (29 - j)) & 0x1);
-    //   if ((j % 5) == 4) std::cout << "  ";
-    // }
-    // std::cout << std::endl;
-    // std::cout << "    - Yields pT = " << pt_xml << std::endl;
-    
-  //   std::cout << "  * dPhiAB  = " << ((address >>  0) & int(pow(2, 7) - 1)) << std::endl;
-  //   std::cout << "  * dPhiBC  = " << ((address >>  7) & int(pow(2, 5) - 1)) << std::endl;
-  //   std::cout << "  * sPhiBC  = " << ((address >> 12) & int(pow(2, 1) - 1)) << std::endl;
-  //   std::cout << "  * dTheta  = " << ((address >> 13) & int(pow(2, 3) - 1)) << std::endl;
-  //   std::cout << "  * frA     = " << ((address >> 16) & int(pow(2, 1) - 1)) << std::endl;
-  //   std::cout << "  * frB     = " << ((address >> 17) & int(pow(2, 1) - 1)) << std::endl;
-  //   std::cout << "  * clctA   = " << ((address >> 18) & int(pow(2, 2) - 1)) << std::endl;
-  //   std::cout << "  * rpc_2b  = " << ((address >> 20) & int(pow(2, 2) - 1)) << std::endl;
-  //   std::cout << "  * theta   = " << ((address >> 22) & int(pow(2, 5) - 1)) << std::endl;
-  //   std::cout << "  * mode_ID = " << ((address >> 27) & int(pow(2, 2) - 1)) << std::endl;
-  //   std::cout << "  * empty   = " << ((address >> 29) & int(pow(2, 1) - 1)) << std::endl;
-    
-  //   int bit = 1;
-  //   assert( (address >> (0)	                  & ((1<<7)-1)) == ((address >>  0) & int(pow(2, 7) - 1)) );
-  //   assert( (address >> (0+7)	                  & ((1<<5)-1)) == ((address >>  7) & int(pow(2, 5) - 1)) );
-  //   assert( (address >> (0+7+5)	                  & ((1<<1)-1)) == ((address >> 12) & int(pow(2, 1) - 1)) );
-  //   assert( (address >> (0+7+5+1)	          & ((1<<3)-1)) == ((address >> 13) & int(pow(2, 3) - 1)) );
-  //   assert( (address >> (0+7+5+1+3)               & ((1<<1)-1)) == ((address >> 16) & int(pow(2, 1) - 1)) );
-  //   assert( (address >> (0+7+5+1+3+1)             & ((1<<1)-1)) == ((address >> 17) & int(pow(2, 1) - 1)) );
-  //   assert( (address >> (0+7+5+1+3+1+bit)	  & ((1<<2)-1)) == ((address >> 18) & int(pow(2, 2) - 1)) );
-  //   assert( (address >> (0+7+5+1+3+1+bit+2)       & ((1<<2)-1)) == ((address >> 20) & int(pow(2, 2) - 1)) );
-  //   assert( (address >> (0+7+5+1+3+1+bit+2+2)     & ((1<<5)-1)) == ((address >> 22) & int(pow(2, 5) - 1)) );
-  //   assert( (address >> (0+7+5+1+3+1+bit+2+2+5)   & ((1<<2)-1)) == ((address >> 27) & int(pow(2, 2) - 1)) );
-  //   assert( (address >> (0+7+5+1+3+1+bit+2+2+5+2) & ((1<<1)-1)) == ((address >> 29) & int(pow(2, 1) - 1)) );
-  // }
-
   return pt_xml;
 
 } // End function: float PtAssignmentEngine2017::calculate_pt_xml(const address_t& address)
@@ -542,9 +508,9 @@ float PtAssignmentEngine2017::calculate_pt_xml(const EMTFTrack& track) const {
     break;
   case 14: // 1-2-3
     predictors = { theta, St1_ring2, dPhi_12, dPhi_23, dPhi_13, FR_1, FR_2, bend_1, dTh_13, RPC_1, RPC_2, RPC_3 }; break;
-  case 13: // 1-2-4                  SHOULD BE 12, 14, 24
+  case 13: // 1-2-4
     predictors = { theta, St1_ring2, dPhi_12, dPhi_14, dPhi_24, FR_1, FR_2, bend_1, dTh_14, RPC_1, RPC_2, RPC_4 }; break;
-  case 11: // 1-3-4                  SHOULD BE 34, 13, 14         
+  case 11: // 1-3-4
     predictors = { theta, St1_ring2, dPhi_34, dPhi_13, dPhi_14, FR_1, FR_3, bend_1, dTh_14, RPC_1, RPC_3, RPC_4 }; break;
   case  7: // 2-3-4                  
     predictors = { theta,            dPhi_23, dPhi_34, dPhi_24, FR_2,       bend_2, dTh_24, RPC_2, RPC_3, RPC_4 }; break;
@@ -578,34 +544,6 @@ float PtAssignmentEngine2017::calculate_pt_xml(const EMTFTrack& track) const {
 
   float inv_pt = tree_event->predictedValue;
   pt_xml = 1.0 / fmax(0.001, inv_pt); // Protect against negative values
-
-  // if (mode == 11 && pt_xml > 50) {
-  //   std::cout << "From track: mode " << mode << " track has inputs: ";
-  //   for (int i = 0; i < int(predictors.size()); i++)
-  //     std::cout << predictors.at(i) << ", ";
-  //   std::cout << "output pT: " << pt_xml << std::endl;
-
-  //   std::cout << "  * ADDRESS = ";
-  //   for (int j = 0; j < 30; j++) {
-  //     std::cout << ((track.PtLUT().address >> (29 - j)) & 0x1);
-  //     if ((j % 5) == 4) std::cout << "  ";
-  //   }
-  //   std::cout << std::endl;
-
-  //   std::cout << "  * mode         = " << track.Mode()            << std::endl;
-  //   std::cout << "  * theta        = " << track.Theta_fp()        << std::endl;
-  //   std::cout << "  * st1_ring2    = " << track.PtLUT().st1_ring2 << std::endl;
-  //   for (int j = 0; j < 6; j++) {
-  //     std::cout << "  * delta_ph[" << j << "]  = " << track.PtLUT().delta_ph[j] << std::endl;
-  //     std::cout << "  * delta_th[" << j << "]  = " << track.PtLUT().delta_th[j] << std::endl;
-  //     std::cout << "  * sign_ph[" << j << "]   = " << track.PtLUT().sign_ph[j] << std::endl;
-  //     std::cout << "  * sign_th[" << j << "]   = " << track.PtLUT().sign_th[j] << std::endl;
-  //   }
-  //   for (int j = 0; j < 4; j++) {
-  //     std::cout << "  * cpattern[" << j << "]  = " << track.PtLUT().cpattern[j] << std::endl;
-  //     std::cout << "  * fr[" << j << "]        = " << track.PtLUT().fr[j] << std::endl;
-  //   }
-  // }
 
   return pt_xml;
 

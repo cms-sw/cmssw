@@ -36,7 +36,8 @@ public:
 
   const PtAssignmentEngineAux& aux() const;
 
-  virtual float scale_pt(const float pt, const int mode) const;
+  virtual float scale_pt  (const float pt, const int mode = 15) const;
+  virtual float unscale_pt(const float pt, const int mode = 15) const;
 
   virtual address_t calculate_address(const EMTFTrack& track) const { return 0; }
 

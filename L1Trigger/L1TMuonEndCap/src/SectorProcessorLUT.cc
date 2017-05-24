@@ -22,11 +22,15 @@ void SectorProcessorLUT::read(unsigned pc_lut_version) {
   if (version_ == pc_lut_version)  return;
 
   std::string coord_lut_dir = "";
-  if (pc_lut_version == 0)
-    // coord_lut_dir = "ph_lut_v1";
-    coord_lut_dir = "ph_lut_v2";  // 2017 default, need to O2O - AWB 17.05.17
+  if      (pc_lut_version == 1)
+    coord_lut_dir = "ph_lut_v1";  // All year 2016, need to O2O - AWB 24.05.17
+  else if (pc_lut_version == 2)
+    coord_lut_dir = "ph_lut_v2";  // Beginning of 2017, need to O2O - AWB 24.05.17
+  else 
+    throw cms::Exception("SectorProcessorLUT")
+      << "Trying to use pt_lut_version = " << pc_lut_version << ", does not exist!";
 
-  //std::string coord_lut_path = "L1Trigger/L1TMuon/data/emtf_luts/" + coord_lut_dir + "/";
+  
   std::string coord_lut_path = "L1Trigger/L1TMuonEndCap/data/emtf_luts/" + coord_lut_dir + "/";
 
   read_file(coord_lut_path+"ph_init_neighbor.txt",     ph_init_neighbor_);

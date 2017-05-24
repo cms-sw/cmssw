@@ -39,7 +39,7 @@ import FWCore.PythonUtilities.LumiList as LumiList
 
 ## Message Logger and Event range
 process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(1000)
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )  ## ~10k / 1 minute per file
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000000) )  ## ~10k / 1 minute per file
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(False))
 
 process.options = cms.untracked.PSet(
@@ -78,7 +78,10 @@ eos_cmd = '/afs/cern.ch/project/eos/installation/pro/bin/eos.select'
 ## 2017 Cosmics, with RPC!
 # in_dir_name = '/store/express/Commissioning2017/ExpressCosmics/FEVT/Express-v1/000/291/781/00000/'
 # in_dir_name = '/store/express/Commissioning2017/ExpressCosmics/FEVT/Express-v1/000/291/891/00000/'
-in_dir_name = '/store/express/Commissioning2017/ExpressCosmics/FEVT/Express-v1/000/292/080/00000/'
+# in_dir_name = '/store/express/Commissioning2017/ExpressCosmics/FEVT/Express-v1/000/292/080/00000/'
+# in_dir_name = '/store/express/Commissioning2017/ExpressCosmics/FEVT/Express-v1/000/292/497/00000/'
+# in_dir_name = '/store/express/Commissioning2017/ExpressCosmics/FEVT/Express-v1/000/293/111/00000/'
+in_dir_name = '/store/express/Commissioning2017/ExpressCosmics/FEVT/Express-v1/000/293/580/00000/'
 
 # ## ZeroBias, IsolatedBunch data
 # in_dir_name = '/store/data/Run2016H/ZeroBiasIsolatedBunch0/RAW/v1/000/282/650/00000/'
@@ -96,7 +99,7 @@ for in_file_name in subprocess.check_output([eos_cmd, 'ls', in_dir_name]).splitl
     if not ('.root' in in_file_name): continue
     #if ( int(in_file_name.split('RECO_')[1].split('.roo')[0]) < 755 ): continue
     nFiles += 1
-    if (nFiles % 4 != 0): continue ## Only process every 4th file
+    ## if (nFiles % 10 != 0): continue ## Only process every 10th file
     readFiles.extend( cms.untracked.vstring(in_dir_name+in_file_name) )    
 
 # readFiles.extend([
@@ -145,7 +148,7 @@ process.out = cms.OutputModule("PoolOutputModule",
                                # fileName = cms.untracked.string("EMTF_Tree_highPt200MuonSkim_2016D_debug.root"),
                                # fileName = cms.untracked.string("EMTF_Tree_ZeroBias_IsoBunch_282650_SingleHit_test.root"),
                                # fileName = cms.untracked.string(out_dir+"EMTF_Unpacked_Cosmics_291891_RPC_all_files.root"),
-                               fileName = cms.untracked.string(out_dir+"EMTF_Unpacked_Cosmics_292080_RPC_every_4th_file.root"),
+                               fileName = cms.untracked.string(out_dir+"EMTF_Unpacked_Cosmics_293580_RPC_100k.root"),
                                outputCommands = outCommands
                                )
 

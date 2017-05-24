@@ -38,8 +38,8 @@ import FWCore.PythonUtilities.LumiList as LumiList
 # process.source.lumisToProcess = LumiList.LumiList(filename = 'goodList.json').getVLuminosityBlockRange()
 
 ## Message Logger and Event range
-process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(1)
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
+process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(100)
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(4000) )
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(False))
 
 process.options = cms.untracked.PSet(
@@ -48,20 +48,14 @@ process.options = cms.untracked.PSet(
 
 ## Global Tags
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '') ## Good for 2015/2016 data/MC? - AWB 18.04.16
-# process.GlobalTag = GlobalTag(process.GlobalTag, 'GR_P_V56', '') ## Used for anything? - AWB 18.04.16
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 
-## Event Setup Producer
-process.load('L1Trigger.L1TMuonEndCap.fakeEmtfParams_cff') ## Why does this file have "fake" in the name? - AWB 18.04.16
-                                                           ## for the data we should rely on the global tag mechanism - KK 2016.04.28
-process.esProd = cms.EDAnalyzer("EventSetupRecordDataGetter",
-                                toGet = cms.VPSet(
-        ## Apparently L1TMuonEndcapParamsRcd doesn't exist in CondFormats/DataRecord/src/ (Important? - AWB 18.04.16)
-        cms.PSet(record = cms.string('L1TMuonEndcapParamsRcd'),
-                 data = cms.vstring('L1TMuonEndcapParams'))
-        ),
-                                verbose = cms.untracked.bool(True)
-                                )
+## Default parameters for firmware version, pT LUT XMLs, and coordinate conversion LUTs
+process.load('L1Trigger.L1TMuonEndCap.fakeEmtfParams_cff') 
+
+## Un-comment out this line to choose the GlobalTag settings rather than fakeEmtfParams settings
+## e.g., comment out this line to use default FW version rather than true FW version in data
+process.es_prefer_GlobalTag = cms.ESPrefer("PoolDBESSource","GlobalTag")
 
 
 readFiles = cms.untracked.vstring()
@@ -75,15 +69,15 @@ process.source = cms.Source(
 
 eos_cmd = '/afs/cern.ch/project/eos/installation/pro/bin/eos.select'
 
-## 2017 Collisions, with RPC!
-# in_dir_name = '/eos/cms/tier0/store/data/Commissioning2017/L1Accept/RAW/v1/000/293/765/00000/'
-in_dir_name = '/eos/cms/tier0/store/data/Commissioning2017/MinimumBias/RAW/v1/000/293/765/00000/'
+# ## 2017 Collisions, with RPC!
+# # in_dir_name = '/eos/cms/tier0/store/data/Commissioning2017/L1Accept/RAW/v1/000/293/765/00000/'
+# in_dir_name = '/eos/cms/tier0/store/data/Commissioning2017/MinimumBias/RAW/v1/000/293/765/00000/'
 
 # ## 2017 Cosmics, with RPC!
 # in_dir_name = '/store/express/Commissioning2017/ExpressCosmics/FEVT/Express-v1/000/291/622/00000/'
 
-# ## ZeroBias, IsolatedBunch data
-# in_dir_name = '/store/data/Run2016H/ZeroBiasIsolatedBunch0/RAW/v1/000/282/650/00000/'
+## ZeroBias, IsolatedBunch data
+in_dir_name = '/store/data/Run2016H/ZeroBiasIsolatedBunch0/RAW/v1/000/282/650/00000/'
 
 # ## SingleMu, Z-->mumu, high pT RECO muon
 #in_dir_name = '/store/group/dpg_trigger/comm_trigger/L1Trigger/Data/Collisions/SingleMuon/Skims/200-pt-muon-skim_from-zmumu-skim-cmssw-8013/SingleMuon/'
@@ -97,11 +91,11 @@ iFile = 0
 for in_file_name in subprocess.check_output([eos_cmd, 'ls', in_dir_name]).splitlines():
     if not ('.root' in in_file_name): continue
     iFile += 1
-    # if iFile < 10: continue  ## Skip earliest files in run
-    # readFiles.extend( cms.untracked.vstring(in_dir_name+in_file_name) )
-    in_dir_name_T0 = in_dir_name.replace('/eos/cms/tier0/', 'root://cms-xrd-tzero.cern.ch//')
-    print in_dir_name_T0
-    readFiles.extend( cms.untracked.vstring(in_dir_name_T0+in_file_name) )
+    # if iFile < 3: continue  ## Skip earliest files in run
+    readFiles.extend( cms.untracked.vstring(in_dir_name+in_file_name) )
+    # in_dir_name_T0 = in_dir_name.replace('/eos/cms/tier0/', 'root://cms-xrd-tzero.cern.ch//')
+    # print in_dir_name_T0
+    # readFiles.extend( cms.untracked.vstring(in_dir_name_T0+in_file_name) )
 
 # readFiles.extend([
 #         #'file:/afs/cern.ch/work/a/abrinke1/public/EMTF/Run2016G/RAW/279024/52622B4D-B265-E611-8099-FA163E326094.root'
@@ -150,7 +144,7 @@ process.simEmtfDigis.Era = cms.string('Run2_2017')
 
 process.L1TMuonSeq = cms.Sequence(
     process.muonCSCDigis + ## Unpacked CSC LCTs from TMB
-    # process.csctfDigis + ## Necessary for legacy studies, or if you use csctfDigis as input
+    process.csctfDigis + ## Necessary for legacy studies, or if you use csctfDigis as input
     process.muonRPCDigis +
     ## process.esProd + ## What do we loose by not having this? - AWB 18.04.16
     process.emtfStage2Digis +
@@ -179,12 +173,14 @@ outCommands = cms.untracked.vstring(
 
     )
 
+# out_dir = "/afs/cern.ch/work/a/abrinke1/public/EMTF/Commissioning/2017/"
+out_dir = "./"
 
 process.out = cms.OutputModule("PoolOutputModule", 
                                # fileName = cms.untracked.string("EMTF_Tree_highPt200MuonSkim_2016D_debug.root"),
-                               # fileName = cms.untracked.string("EMTF_Tree_ZeroBias_IsoBunch_282650_SingleHit_test.root"),
+                               fileName = cms.untracked.string(out_dir+"EMTF_Tree_ZeroBias_IsoBunch_282650_RPC_newPtFix_test.root"),
                                # fileName = cms.untracked.string("EMTF_Tree_Cosmics_291622_RPC_test.root"),
-                               fileName = cms.untracked.string("EMTF_Tree_Collisions_293765_RPC_test_pT.root"),
+                               # fileName = cms.untracked.string("EMTF_Tree_Collisions_293765_RPC_test_pT.root"),
                                outputCommands = outCommands
                                )
 

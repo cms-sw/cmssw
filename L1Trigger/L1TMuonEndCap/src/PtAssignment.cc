@@ -50,8 +50,8 @@ void PtAssignment::process(
       address = pt_assign_engine_->calculate_address(track);
       xmlpt   = pt_assign_engine_->calculate_pt(address);
 
-      // Temporary check of address packing / unpacking - AWB 20.05.17
-      assert( fabs(xmlpt - pt_assign_engine_->calculate_pt(track)) < 0.001 );
+      // // Un-comment to check address packing / unpacking
+      // assert( fabs(xmlpt - pt_assign_engine_->calculate_pt(track)) < 0.001 );
 
       pt  = (xmlpt < 0.) ? 1. : xmlpt;  // Matt used fabs(-1) when mode is invalid
       pt *= pt_assign_engine_->scale_pt(pt, track.Mode());  // Multiply by some factor to achieve 90% efficiency at threshold

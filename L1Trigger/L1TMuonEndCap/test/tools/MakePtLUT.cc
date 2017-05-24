@@ -8,7 +8,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine2016.hh"
+// #include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine2016.hh"
+#include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine2017.hh"
 #include "L1Trigger/L1TMuonEndCap/interface/PtLUTWriter.hh"
 
 #include "helper.hh"
@@ -54,7 +55,8 @@ private:
 #define PTLUT_SIZE (1<<30)
 
 MakePtLUT::MakePtLUT(const edm::ParameterSet& iConfig) :
-    pt_assign_engine_(new PtAssignmentEngine2016()),
+    // pt_assign_engine_(new PtAssignmentEngine2016()),
+    pt_assign_engine_(new PtAssignmentEngine2017()),
     ptlut_writer_(),
     config_(iConfig),
     verbose_(iConfig.getUntrackedParameter<int>("verbosity")),
@@ -75,7 +77,7 @@ MakePtLUT::MakePtLUT(const edm::ParameterSet& iConfig) :
 
   ptlut_writer_.set_version(ptlut_ver);
 
-  pt_assign_engine_->read(bdtXMLDir);
+  // pt_assign_engine_->read(bdtXMLDir);
   pt_assign_engine_->configure(
     verbose_,
     readPtLUTFile, fixMode15HighPt,
@@ -100,6 +102,11 @@ void MakePtLUT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 void MakePtLUT::makeLUT() {
+
+  // Load XMLs inside function; location hard-coded
+  std::cout << "Inside makeLUT() - loading XMLs" << std::endl;
+  pt_assign_engine_->read("");
+
   std::cout << "Calculating pT for " << PTLUT_SIZE << " addresses, please sit tight..." << std::endl;
 
   PtLUTWriter::address_t address = 0;
@@ -109,14 +116,15 @@ void MakePtLUT::makeLUT() {
   int gmt_pt = 0;
 
   for (; address<PTLUT_SIZE; ++address) {
-    show_progress_bar(address, PTLUT_SIZE);
+    if (address % (PTLUT_SIZE / 1000) == 0)
+      show_progress_bar(address, PTLUT_SIZE);
 
     //int mode_inv = (address >> (30-4)) & ((1<<4)-1);
 
     // floats
     xmlpt   = pt_assign_engine_->calculate_pt(address);
     pt      = (xmlpt < 0.) ? 1. : xmlpt;  // Matt used fabs(-1) when mode is invalid
-    pt *= 1.4;  // multiply by 1.4 to keep efficiency above 90% when the L1 trigger pT cut is applied
+    pt *= pt_assign_engine_->scale_pt(pt);  // Multiply by some factor to achieve 90% efficiency at threshold
 
     // integers
     gmt_pt = (pt * 2) + 1;

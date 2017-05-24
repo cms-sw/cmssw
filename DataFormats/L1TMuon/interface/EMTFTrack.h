@@ -41,8 +41,8 @@ namespace l1t {
       mode(-99), mode_CSC(0), mode_RPC(0), mode_neighbor(0), mode_inv(-99),
       rank(-99), winner(-99), charge(-99), bx(-99), first_bx(-99), second_bx(-99),
       pt(-99), pt_XML(-99), zone(-99), ph_num(-99), ph_q(-99),
-      theta_fp(-99), theta(-99), eta(-99), phi_fp(-99), phi_loc(-99), phi_glob(-99),
-      gmt_pt(-99), gmt_phi(-99), gmt_eta(-99), gmt_quality(-99), gmt_charge(-99), gmt_charge_valid(-99),
+      theta_fp(-99), theta(-99), eta(-99), phi_fp(-99), phi_loc(-99), phi_glob(-999),
+      gmt_pt(-99), gmt_phi(-999), gmt_eta(-999), gmt_quality(-99), gmt_charge(-99), gmt_charge_valid(-99),
       track_num(-99), numHits(-99) 
       {};
     

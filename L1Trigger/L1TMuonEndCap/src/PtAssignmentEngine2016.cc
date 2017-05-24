@@ -20,6 +20,11 @@ float PtAssignmentEngine2016::scale_pt(const float pt, const int mode) const {
   return pt_scale;
 }
 
+float PtAssignmentEngine2016::unscale_pt(const float pt, const int mode) const {
+  float pt_unscale = 1. / 1.4;
+  return pt_unscale;
+}
+
 
 
 PtAssignmentEngine::address_t PtAssignmentEngine2016::calculate_address(const EMTFTrack& track) const {

@@ -81,7 +81,16 @@ void SectorProcessor::configure(
 
 // Refer to docs/EMTF_FW_LUT_versions_2016_draft2.xlsx
 void SectorProcessor::configure_by_fw_version(unsigned fw_version) {
+
+  std::cout << "Looking at FW version " << fw_version << std::endl;
+
   if (fw_version == 0 || fw_version == 12345)  // fw_version '12345' is from the fake conditions
+    return;
+
+  // For now, no switches later than FW version 47864 (end-of-year 2016)
+  // Beggining in late 2016, "fw_version" in O2O populated with timestamp, rather than FW version
+  // tm fw_time = gmtime(fw_version);  (See https://linux.die.net/man/3/gmtime)
+  if (fw_version > 50000)
     return;
 
   // ___________________________________________________________________________
