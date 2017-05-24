@@ -63,6 +63,10 @@ hiDetachedTripletStepTracksHitDoublets = _hitPairEDProducer.clone(
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
 hiDetachedTripletStepTracksHitTriplets = _pixelTripletHLTEDProducer.clone(
     doublets = "hiDetachedTripletStepTracksHitDoublets",
+    extraHitRPhitolerance = 0.0,
+    extraHitRZtolerance = 0.0,
+    maxElement = 1000000,
+    SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor.clone(),
     produceSeedingHitSets = True,
 )
 
