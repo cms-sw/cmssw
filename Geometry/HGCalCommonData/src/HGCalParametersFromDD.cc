@@ -59,7 +59,7 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
   DDSpecificsMatchesValueFilter filter{val};
   DDFilteredView fv(*cpv,filter);
   bool ok = fv.firstChild();
-  int  mode(0);
+  HGCalGeometryMode::WaferMode mode(HGCalGeometryMode::Polyhedra);
 
   if (ok) {
     DDsvalues_type sv(fv.mergedSpecifics());
@@ -80,7 +80,7 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
       bool ok2 = fv2.firstChild();
       if (ok2) {
 	DDsvalues_type sv2(fv2.mergedSpecifics());
-	mode = getGeometryMode("WaferMode", sv2, false);
+	mode = (HGCalGeometryMode::WaferMode)(getGeometryMode("WaferMode", sv2, false));
 #ifdef EDM_ML_DEBUG
 	std::cout << "WaferMode " << mode << ":" << HGCalGeometryMode::Polyhedra
 		  << ":" << HGCalGeometryMode::ExtrudedPolygon << std::endl;

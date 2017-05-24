@@ -13,7 +13,6 @@
 #include "DetectorDescription/Core/interface/DDVectorGetter.h"
 #include "DetectorDescription/RegressionTest/interface/DDErrorDetection.h"
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
-#include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
@@ -216,7 +215,7 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
 					      const DDCompactView* cpv,
 					      const std::string & sdTag2,
 					      const std::string & sdTag3,
-					      int mode) {
+					      HGCalGeometryMode::WaferMode mode) {
  
   DDFilteredView fv = _fv;
   bool dodet(true);
@@ -325,7 +324,7 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
 	  wafers.emplace_back(cell);
 	  if ( names.count(name) == 0 ) {
 	    std::vector<double> zv, rv;
-	    if (mode == static_cast<int>(HGCalGeometryMode::Polyhedra)) {
+	    if (mode == HGCalGeometryMode::Polyhedra) {
 	      const DDPolyhedra & polyhedra = static_cast<DDPolyhedra>(sol);
 	      zv = polyhedra.zVec();
 	      rv = polyhedra.rMaxVec();
