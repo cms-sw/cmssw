@@ -63,6 +63,8 @@ namespace l1t {
       double etaAtVtx = 0.,
       double phiAtVtx = 0.);
 
+    Muon( const Muon& );
+
     ~Muon();    
 
     // set values
