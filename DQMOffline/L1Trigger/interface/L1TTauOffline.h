@@ -195,9 +195,6 @@ private:
   std::vector<double> tauEfficiencyThresholds_;
   std::vector<double> tauEfficiencyBins_; 
 
-  reco::Muon tagMuon_;
-  reco::PFTau probeTau_;
-
   std::vector<const reco::Muon*>  m_TightMuons;
   std::vector<const reco::PFTau*>  m_ProbeTaus;
   std::vector<TauL1TPair>  m_TauL1tPairs;
