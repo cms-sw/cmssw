@@ -20,10 +20,10 @@ process.load(
 process.load("DQMServices.Core.DQM_cfg")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 
-process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+process.MessageLogger.cerr.FwkReport.reportEvery = 1
 
 process.maxEvents = cms.untracked.PSet(
-    input=cms.untracked.int32(-1)
+    input=cms.untracked.int32(50)
 )
 
 # Input source
@@ -34,21 +34,22 @@ process.maxEvents = cms.untracked.PSet(
 # xrdcp root://xrootd-cms.infn.it/$f TEST.root
 # echo "file://$PWD/TEST.root" > fileList.local
 # or use fileList.global
-with open('fileList.local') as f:
-    fileList = f.readlines()
+#with open('fileList.local') as f:
+#    fileList = f.readlines()
 # das_client.py --limit 0 --query "file dataset=/RelValTTbarLepton_13/CMSSW_8_1_0_pre12-81X_mcRun2_asymptotic_v8-v1/GEN-SIM-DIGI-RAW-HLTDEBUG" > fileListRAW.global
 # export xrdfile=`head -1 fileListRAW.global`
 # xrdcp root://xrootd-cms.infn.it/$xrdfile TEST_RAW.root
 # echo "file://$PWD/TEST_RAW.root" > fileListRAW.local
 # or use fileListRAW.global
-with open('fileListRAW.local') as f:
-    fileListRAW = f.readlines()
+#with open('fileListRAW.local') as f:
+#    fileListRAW = f.readlines()
 process.source = cms.Source(
     "PoolSource",
 #     fileNames=cms.untracked.vstring(fileList[0]),
 #     secondaryFileNames=cms.untracked.vstring(fileListRAW),
     fileNames=cms.untracked.vstring(
-        'file:///vagrant/workspace/DQMOffline/src/doubleEG/009E5CBE-AE87-E611-9122-0025905A60C6.root'),
+        '/store/data/Run2016H/SingleMuon/RAW-RECO/MuTau-PromptReco-v2/000/282/092/00001/B89AA967-FB8A-E611-9A09-FA163E845EAD.root'),
+        #'file:///vagrant/workspace/DQMOffline/src/doubleEG/009E5CBE-AE87-E611-9122-0025905A60C6.root'),
 )
 
 process.options = cms.untracked.PSet(
@@ -74,6 +75,7 @@ process.raw2digi_step = cms.Path(process.RawToDigi)
 
 process.load('DQMOffline.L1Trigger.L1TStage2CaloLayer2Offline_cfi')
 process.load('DQMOffline.L1Trigger.L1TEGammaOffline_cfi')
+process.load('DQMOffline.L1Trigger.L1TTauOffline_cfi')
 
 if os.environ.get('DEBUG', False):
     process.MessageLogger.cout.threshold=cms.untracked.string('DEBUG')
@@ -85,7 +87,9 @@ process.dqmoffline_step = cms.Path(
     process.l1tStage2CaloLayer2OfflineDQMEmu +
     process.l1tStage2CaloLayer2OfflineDQM +
     process.l1tEGammaOfflineDQM +
-    process.l1tEGammaOfflineDQMEmu
+    process.l1tEGammaOfflineDQMEmu +
+    process.l1tTauOfflineDQM +
+    process.l1tTauOfflineDQMEmu
 )
 process.DQMoutput_step = cms.EndPath(process.DQMoutput)
 # Schedule definition
