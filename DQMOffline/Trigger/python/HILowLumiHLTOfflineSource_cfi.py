@@ -931,9 +931,10 @@ def getHILowPU2017Triggers():
     ret.append(hltHICaloJet120)
 
     hltHIPFJet120 = hltHICaloJet120.clone(partialPathName = cms.string("HLT_AK4PFJet120_v"),
-                                  triggerSelection = cms.string("HLT_AK4PFJet120_v*"),
-                                  dqmhistolabel = cms.string("hltHIPFJet120")
-                                  )
+                                          triggerSelection = cms.string("HLT_AK4PFJet120_v*"),
+                                          dqmhistolabel = cms.string("hltHIPFJet120"),
+                                          partialFilterName = cms.string("hltSingleAK4PFJet"),
+                                          )
     ret.append(hltHIPFJet120)
 
     photonThresh = ['10', '20', '30', '40', '50', '60']
