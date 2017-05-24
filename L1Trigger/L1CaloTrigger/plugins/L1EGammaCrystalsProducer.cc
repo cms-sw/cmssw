@@ -267,22 +267,19 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
 
          // SOI_compressedEt() Compressed ET, integer representing increments of 500 MeV
          // Cut requires 500 MeV TP
-         if ( hit.SOI_compressedEt() > 0 ) // SOI_compressedEt() Compressed ET for the "Sample of Interest"
-           // Need to use proper decompression here https://github.com/cms-sw/cmssw/blob/CMSSW_9_0_X/L1Trigger/L1TCaloLayer1/src/L1TCaloLayer1FetchLUTs.cc#L97-L114
-         {
-            //std::cout << "  -- HCAL TP: " << hit.SOI_compressedEt() << std::endl;
-            //auto cell = geometryHelper.getHcalGeometry()->getGeometry(hit.id());
-            //std::cout << "Hit ID: " << hit.id() << std::endl;
+         if ( hit.SOI_compressedEt() == 0 ) continue; // SOI_compressedEt() Compressed ET for the "Sample of Interest"
+         // Need to use proper decompression here https://github.com/cms-sw/cmssw/blob/CMSSW_9_0_X/L1Trigger/L1TCaloLayer1/src/L1TCaloLayer1FetchLUTs.cc#L97-L114
 
-            // Check if the detId is in the current geometry setup
-            // so that L1EG doesn't crash
-            if (!hbGeometry->present( hit.id()) ) {
-              std::cout << " -- Hcal hit DetID not present in HCAL Geom: " << hit.id() << std::endl;
-              continue;
-            }
-            else {
-              std::cout << " -- YES: Hcal hit DetID is present in HCAL Geom: " << hit.id() << std::endl;
-            }
+         //std::cout << "  -- HCAL TP: " << hit.SOI_compressedEt() << std::endl;
+         //auto cell = geometryHelper.getHcalGeometry()->getGeometry(hit.id());
+         //std::cout << "Hit ID: " << hit.id() << std::endl;
+
+         // Check if the detId is in the current geometry setup
+         // so that L1EG doesn't crash
+         if (!(hcTopology_->validHT(hit.id()))) {
+           std::cout << " -- Hcal hit DetID not present in HCAL Geom: " << hit.id() << std::endl;
+           continue;
+         }
 
          // Get the detId associated with the HCAL TP
          // if no detIds associated, skip
