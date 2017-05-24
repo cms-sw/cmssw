@@ -174,10 +174,31 @@ hiLowPtTripletStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProd
 import RecoHI.HiTracking.hiMultiTrackSelector_cfi
 hiLowPtTripletStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiTrackSelector.clone(
     src='hiLowPtTripletStepTracks',
-    useAnyMVA = cms.bool(False),
+    useAnyMVA = cms.bool(True),
     GBRForestLabel = cms.string('HIMVASelectorIter5'),
     GBRForestVars = cms.vstring(['chi2perdofperlayer', 'dxyperdxyerror', 'dzperdzerror', 'relpterr', 'nhits', 'nlayers', 'eta']),
     trackSelectors= cms.VPSet(
+    RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiLooseMTS.clone(
+    name = 'hiLowPtTripletStepLoose',
+    useMVA = cms.bool(False)
+    ), #end of pset
+    RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
+    name = 'hiLowPtTripletStepTight',
+    preFilterName = 'hiLowPtTripletStepLoose',
+    useMVA = cms.bool(True),
+    minMVA = cms.double(-0.58)
+    ),
+    RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
+    name = 'hiLowPtTripletStep',
+    preFilterName = 'hiLowPtTripletStepTight',
+    useMVA = cms.bool(True),
+    minMVA = cms.double(0.35)
+    ),
+    ) #end of vpset
+    ) #end of clone
+from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
+trackingPhase1.toModify(hiLowPtTripletStepSelector, useAnyMVA = cms.bool(False))
+trackingPhase1.toModify(hiLowPtTripletStepSelector, trackSelectors= cms.VPSet(
     RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiLooseMTS.clone(
     name = 'hiLowPtTripletStepLoose',
     useMVA = cms.bool(False)
@@ -195,7 +216,7 @@ hiLowPtTripletStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiT
     minMVA = cms.double(0.35)
     ),
     ) #end of vpset
-    ) #end of clone
+)
 
 
 import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
