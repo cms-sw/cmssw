@@ -12,11 +12,7 @@ import os, sys, socket, string
 #-------------------------------------
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
-process			= cms.Process('HCALDQM', 
-    eras.run2_HCAL_2017, 
-    eras.run2_HF_2017,
-    eras.run2_HEPlan1_2017
-)
+process			= cms.Process('HCALDQM')
 subsystem		= 'Hcal'
 cmssw			= os.getenv("CMSSW_VERSION").split("_")
 debugstr		= "### HcalDQM::cfg::DEBUG: "
