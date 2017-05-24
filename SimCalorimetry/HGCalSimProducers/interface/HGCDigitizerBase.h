@@ -33,7 +33,7 @@ class HGCDigitizerBase {
      @short CTOR
   */
   HGCDigitizerBase(const edm::ParameterSet &ps); 
-      
+  virtual ~HGCDigitizerBase() = default; 
  /**
     @short steer digitization mode
  */
