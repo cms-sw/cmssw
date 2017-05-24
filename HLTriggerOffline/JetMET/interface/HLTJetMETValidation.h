@@ -45,7 +45,7 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-
+#include "DataFormats/Math/interface/deltaR.h"
 #include <vector>
 #include <string>
 #include "TPRegexp.h"
@@ -68,6 +68,9 @@ class HLTJetMETValidation : public DQMEDAnalyzer {
   void getHLTResults(const edm::TriggerResults&,
                      const edm::TriggerNames & triggerNames);
 
+  bool isHEM17(double eta, double phi);
+  bool isHEP17(double eta, double phi);
+  bool isHEP18(double eta, double phi);
   /// InputTag of TriggerEventWithRefs to analyze
   edm::EDGetTokenT<trigger::TriggerEventWithRefs> triggerEventObject_;
   edm::EDGetTokenT<reco::PFJetCollection> PFJetAlgorithm;
@@ -115,6 +118,15 @@ class HLTJetMETValidation : public DQMEDAnalyzer {
   std::vector<MonitorElement*> _meGenMETTrgLow;  
 
   MonitorElement *_triggerResults;
+  MonitorElement *TestJetResponse;
+  MonitorElement *_meHLTGenJetRes[7];
+  MonitorElement *_meHLTGenJetResVsGenJetPt;
+  MonitorElement *_meHLTGenJetResHEP17[7];
+  MonitorElement *_meHLTGenJetResVsGenJetPtHEP17;
+  MonitorElement *_meHLTGenJetResHEM17[7];
+  MonitorElement *_meHLTGenJetResVsGenJetPtHEM17;
+  MonitorElement *_meHLTGenJetResHEP18[7];
+  MonitorElement *_meHLTGenJetResVsGenJetPtHEP18;
 
   //Define Numbers 
   int evtCnt;
