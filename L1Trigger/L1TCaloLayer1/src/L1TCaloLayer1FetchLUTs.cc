@@ -24,10 +24,12 @@
 #include "L1TCaloLayer1FetchLUTs.hh"
 #include "UCTLogging.hh"
 
+using namespace l1tcalo;
+
 bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup, 
-			    std::vector< std::vector< std::vector< std::vector < uint32_t > > > > &eLUT,
-			    std::vector< std::vector< std::vector< std::vector < uint32_t > > > > &hLUT,
-                            std::vector< std::vector< std::vector< uint32_t > > > &hfLUT,
+			    std::vector< std::array< std::array< std::array<uint32_t, nEtBins>, nCalSideBins >, nCalEtaBins> > &eLUT,
+			    std::vector< std::array< std::array< std::array<uint32_t, nEtBins>, nCalSideBins >, nCalEtaBins> > &hLUT,
+                            std::vector< std::array< std::array<uint32_t, nEtBins>, nHfEtaBins > > &hfLUT,
                             std::vector<unsigned int> &ePhiMap,
                             std::vector<unsigned int> &hPhiMap,
                             std::vector<unsigned int> &hfPhiMap,
@@ -68,8 +70,15 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
   //   So, index = phiBin*etBin*28+etBin*28+ieta
   auto ecalScaleETBins = caloParams.layer1ECalScaleETBins();
   auto ecalScalePhiBins = caloParams.layer1ECalScalePhiBins();
-  auto epos = std::max_element(ecalScalePhiBins.begin(), ecalScalePhiBins.end());
-  auto numEcalPhiBins = ecalScalePhiBins[std::distance(ecalScalePhiBins.begin(), epos)]+1;
+  if ( ecalScalePhiBins.empty() ) {
+    // Backwards-compatibility (no phi binning)
+    ecalScalePhiBins.resize(36, 0);
+  }
+  else if ( ecalScalePhiBins.size() % 36 != 0 ) {
+    edm::LogError("L1TCaloLayer1FetchLUTs") << "caloParams.layer1ECalScaleETBins().size() is not multiple of 36 !!";
+    return false;
+  }
+  size_t numEcalPhiBins = (*std::max_element(ecalScalePhiBins.begin(), ecalScalePhiBins.end())) + 1;
   auto ecalSF = caloParams.layer1ECalScaleFactors();
   if ( ecalSF.size() != ecalScaleETBins.size()*numEcalPhiBins*28 ) {
     edm::LogError("L1TCaloLayer1FetchLUTs") << "caloParams.layer1ECalScaleFactors().size() != caloParams.layer1ECalScaleETBins().size()*numEcalPhiBins*28 !!";
@@ -77,8 +86,14 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
   }
   auto hcalScaleETBins = caloParams.layer1HCalScaleETBins();
   auto hcalScalePhiBins = caloParams.layer1HCalScalePhiBins();
-  auto hpos = std::max_element(hcalScalePhiBins.begin(), hcalScalePhiBins.end());
-  auto numHcalPhiBins = hcalScalePhiBins[std::distance(hcalScalePhiBins.begin(), hpos)]+1;
+  if ( hcalScalePhiBins.empty() ) {
+    hcalScalePhiBins.resize(36, 0);
+  }
+  else if ( hcalScalePhiBins.size() % 36 != 0 ) {
+    edm::LogError("L1TCaloLayer1FetchLUTs") << "caloParams.layer1HCalScaleETBins().size() is not multiple of 36 !!";
+    return false;
+  }
+  size_t numHcalPhiBins = (*std::max_element(hcalScalePhiBins.begin(), hcalScalePhiBins.end())) + 1;
   auto hcalSF = caloParams.layer1HCalScaleFactors();
   if ( hcalSF.size() != hcalScaleETBins.size()*numHcalPhiBins*28 ) {
     edm::LogError("L1TCaloLayer1FetchLUTs") << "caloParams.layer1HCalScaleFactors().size() != caloParams.layer1HCalScaleETBins().size()*numHcalPhiBins*28 !!";
@@ -92,8 +107,14 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
   //   So, index = phiBin*etBin*12+etBin*12+ieta
   auto hfScaleETBins = caloParams.layer1HFScaleETBins();
   auto hfScalePhiBins = caloParams.layer1HFScalePhiBins();
-  auto hfpos = std::max_element(hfScalePhiBins.begin(), hfScalePhiBins.end());
-  auto numHFPhiBins = hfScalePhiBins[std::distance(hfScalePhiBins.begin(), hfpos)]+1;
+  if ( hfScalePhiBins.empty() ) {
+    hfScalePhiBins.resize(36, 0);
+  }
+  else if ( hfScalePhiBins.size() % 36 != 0 ) {
+    edm::LogError("L1TCaloLayer1FetchLUTs") << "caloParams.layer1HFScaleETBins().size() is not multiple of 36 !!";
+    return false;
+  }
+  size_t numHFPhiBins = (*std::max_element(hfScalePhiBins.begin(), hfScalePhiBins.end())) + 1;
   auto hfSF = caloParams.layer1HFScaleFactors();
   if ( hfSF.size() != hfScaleETBins.size()*numHFPhiBins*12 ) {
     edm::LogError("L1TCaloLayer1FetchLUTs") << "caloParams.layer1HFScaleFactors().size() != caloParams.layer1HFScaleETBins().size()*numHFPhiBins*12 !!";
@@ -130,10 +151,10 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
 
   // Make ECal LUT
   for(uint32_t phiBin=0; phiBin<numEcalPhiBins; phiBin++) {
-    std::vector< std::vector< std::vector< uint32_t > > > phiLUT(28, std::vector< std::vector< uint32_t > >(2, std::vector< uint32_t >(256)));
+    std::array< std::array< std::array<uint32_t, nEtBins>, nCalSideBins>, nCalEtaBins> phiLUT; 
     eLUT.push_back(phiLUT);
-    for(uint32_t etaBin = 0; etaBin < 28; etaBin++) {
-      for(uint32_t fb = 0; fb < 2; fb++) {
+    for(uint32_t etaBin = 0; etaBin < nCalEtaBins; etaBin++) {
+      for(uint32_t fb = 0; fb < nCalSideBins; fb++) {
         for(uint32_t ecalInput = 0; ecalInput <= 0xFF; ecalInput++) {
 	  uint32_t value = ecalInput;
 	  if(useECALLUT) {
@@ -170,9 +191,9 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
 
   // Make HCal LUT
   for(uint32_t phiBin=0; phiBin<numHcalPhiBins; phiBin++) {
-    std::vector< std::vector< std::vector< uint32_t > > > phiLUT(28, std::vector< std::vector< uint32_t > >(2, std::vector< uint32_t >(256)));
+    std::array< std::array< std::array<uint32_t, nEtBins>, nCalSideBins>, nCalEtaBins> phiLUT; 
     hLUT.push_back(phiLUT);
-    for(uint32_t etaBin = 0; etaBin < 28; etaBin++) {
+    for(uint32_t etaBin = 0; etaBin < nCalEtaBins; etaBin++) {
       int caloEta = etaBin+1;
       int iPhi = 3;
       auto pos = std::find(hcalScalePhiBins.begin(), hcalScalePhiBins.end(), phiBin);
@@ -187,7 +208,7 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
           iPhi = (index-18)*4+1;
         }
       }
-      for(uint32_t fb = 0; fb < 2; fb++) {
+      for(uint32_t fb = 0; fb < nCalSideBins; fb++) {
         for(uint32_t hcalInput = 0; hcalInput <= 0xFF; hcalInput++) {
           uint32_t value = hcalInput;
           if(useHCALLUT) {
@@ -225,9 +246,9 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
 
   // Make HF LUT
   for(uint32_t phiBin=0; phiBin<numHFPhiBins; phiBin++) {
-    std::vector< std::vector< uint32_t > > phiLUT(12, std::vector< uint32_t >(256));
+    std::array< std::array<uint32_t, nEtBins>, nHfEtaBins> phiLUT; 
     hfLUT.push_back(phiLUT);
-    for(uint32_t etaBin = 0; etaBin < 12; etaBin++) {
+    for(uint32_t etaBin = 0; etaBin < nHfEtaBins; etaBin++) {
       int caloEta = etaBin+30;
       int iPhi = 3;
       auto pos = std::find(hfScalePhiBins.begin(), hfScalePhiBins.end(), phiBin);
@@ -235,14 +256,14 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
         auto index = std::distance(hfScalePhiBins.begin(),pos);
         if (index<18) {
           caloEta*=-1;
-          iPhi = index*4+1;
+          iPhi = index*4-1;
         }
         else {
-          iPhi = (index-18)*4+1;
+          iPhi = (index-18)*4-1;
         }
-        if (abs(caloEta) == 41 && iPhi<3) iPhi = 3;
+        if (iPhi < 0) iPhi = 71;
       }
-      for(uint32_t etCode = 0; etCode < 256; etCode++) {
+      for(uint32_t etCode = 0; etCode < nEtBins; etCode++) {
         uint32_t value = etCode;
         if(useHFLUT) {
           

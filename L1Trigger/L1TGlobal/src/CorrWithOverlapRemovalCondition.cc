@@ -1297,7 +1297,7 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
                     phi1Phy = 0.5*(binEdges.second + binEdges.first);			
                     binEdges = m_gtScales->getJETScales().etaBins.at(etaBin1);
                     eta1Phy = 0.5*(binEdges.second + binEdges.first);		
-                    //CRASHES HERE:
+                    
                     binEdges = m_gtScales->getJETScales().etBins.at(etBin1);
                     et1Phy = 0.5*(binEdges.second + binEdges.first);
                     lutObj1 = "JET";
