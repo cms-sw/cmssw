@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from Validation.HGCalValidation.hgcalRechitStudyEE_cfi import *
+from Validation.HGCalValidation.hgcalRecHitStudyEE_cfi import *
 
 hgcalRecHitStudyFH = hgcalRecHitStudyEE.clone(
     DetectorName  = cms.string("HGCalHESiliconSensitive"),
