@@ -9,6 +9,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
@@ -62,10 +64,11 @@ public:
     else if (modeString == "VerticesSigma") m_mode = VERTICES_SIGMA;
     else  edm::LogError ("PointSeededTrackingRegionsProducer")<<"Unknown mode string: "<<modeString;
 
-    // basic inputs
-    edm::ParameterSet point_input = regPSet.getParameter<edm::ParameterSet>("point_input");
-    eta_input          = point_input.getParameter<double>("eta");
-    phi_input          = point_input.getParameter<double>("phi");
+    // basic inputsi
+    edm::ParameterSet points = regPSet.getParameter<edm::ParameterSet>("points");
+    etaPoints = points.getParameter<std::vector<double>>("eta");
+    phiPoints = points.getParameter<std::vector<double>>("phi");
+    if (!(etaPoints.size() == phiPoints.size()))  throw edm::Exception(edm::errors::Configuration) << "The parameters 'eta' and 'phi' must have the same size";;
     m_maxNRegions      = regPSet.getParameter<int>("maxNRegions");
     token_beamSpot     = iC.consumes<reco::BeamSpot>(regPSet.getParameter<edm::InputTag>("beamSpot"));
     m_maxNVertices     = 1;
@@ -102,6 +105,47 @@ public:
   }
   
   virtual ~PointSeededTrackingRegionsProducer() {}
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+
+    edm::ParameterSetDescription descPoints;
+    descPoints.add<std::vector<double>> ("eta", {0.} ); 
+    descPoints.add<std::vector<double>> ("phi", {0.} ); 
+    desc.add<edm::ParameterSetDescription>("points", descPoints);
+	
+    desc.add<std::string>("mode", "BeamSpotFixed");
+    desc.add<int>("maxNRegions", 10);
+    desc.add<edm::InputTag>("beamSpot", edm::InputTag("hltOnlineBeamSpot"));
+    desc.add<edm::InputTag>("vertexCollection", edm::InputTag("hltPixelVertices"));
+    desc.add<int>("maxNVertices", 1);
+
+    desc.add<double>("ptMin", 0.9);
+    desc.add<double>("originRadius", 0.2);
+    desc.add<double>("zErrorBeamSpot", 24.2);
+    desc.add<double>("deltaEta", 0.5);
+    desc.add<double>("deltaPhi", 0.5);
+    desc.add<bool>("precise", true);
+
+    desc.add<double>("nSigmaZVertex", 3.);
+    desc.add<double>("zErrorVetex", 0.2);
+    desc.add<double>("nSigmaZBeamSpot", 4.);
+
+    desc.add<std::string>("whereToUseMeasurementTracker", "ForSiStrips");
+    desc.add<edm::InputTag>("measurementTrackerName", edm::InputTag(""));
+ 
+    desc.add<bool>("searchOpt", false); 
+
+    // Only for backwards-compatibility
+    edm::ParameterSetDescription descRegion;
+    descRegion.add<edm::ParameterSetDescription>("RegionPSet", desc);
+    //edm::ParameterSetDescription descPoint;
+    //descPoint.add<edm::ParameterSetDescription>("point_input", desc);
+
+
+    descriptions.add("pointSeededTrackingRegion", descRegion);
+  }
+
     
 
   virtual std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& e, const edm::EventSetup& es) const override
@@ -154,14 +198,14 @@ public:
 
     // create tracking regions (maximum MaxNRegions of them) in directions of the
     // points of interest
-    size_t n_points = 1;
+    size_t n_points = etaPoints.size();
     int n_regions = 0;
     for(size_t i = 0; i < n_points && n_regions < m_maxNRegions; ++i ) {
 
-      double x = TMath::Cos(phi_input);
-      double y = TMath::Sin(phi_input);
-      double theta = 2*TMath::ATan(TMath::Exp(-eta_input));
-      double z = (x*x+y*y)/TMath::Tan(theta);
+      double x = std::cos(phiPoints[i]);
+      double y = std::sin(phiPoints[i]);
+      double theta = 2*std::atan(std::exp(-etaPoints[i]));
+      double z = 1./std::tan(theta);
 
       GlobalVector direction( x,y,z );
 	
@@ -183,7 +227,6 @@ public:
         ++n_regions;
       }
     }
-    //std::cout<<"n_seeded_regions = "<<n_regions<<std::endl;
     edm::LogInfo ("PointSeededTrackingRegionsProducer") << "produced "<<n_regions<<" regions";
     
     return result;
@@ -196,8 +239,10 @@ private:
   int m_maxNRegions;
   edm::EDGetTokenT<reco::VertexCollection> token_vertex; 
   edm::EDGetTokenT<reco::BeamSpot> token_beamSpot; 
-  double eta_input, phi_input;
   int m_maxNVertices;
+
+  std::vector<double> etaPoints;
+  std::vector<double> phiPoints;
 
   float m_ptMin;
   float m_originRadius;
