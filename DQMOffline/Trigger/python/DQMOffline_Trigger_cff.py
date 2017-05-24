@@ -54,6 +54,8 @@ from DQMOffline.Trigger.heavyionUCCDQM_cfi import *
 import DQMServices.Components.DQMEnvironment_cfi
 dqmEnvHLT= DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
 dqmEnvHLT.subSystemFolder = 'HLT'
+# EGM
+from DQMOffline.Trigger.EgammaMonitoring_cff import *
 # EXO
 from DQMOffline.Trigger.ExoticaMonitoring_cff import *
 
@@ -89,6 +91,7 @@ offlineHLTSource = cms.Sequence(
     eventshapeDQMSequence *
     HeavyIonUCCDQMSequence *
     hotlineDQMSequence *
+    egammaMonitorHLT * 
     exoticaMonitorHLT *
     susyMonitorHLT *
     b2gMonitorHLT *
