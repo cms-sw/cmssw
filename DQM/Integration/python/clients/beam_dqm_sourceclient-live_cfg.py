@@ -229,6 +229,8 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
         process.dqmBeamMonitor.PVFitter.errorScale = 1.22 #keep checking this with new release expected close to 1.2
  
         process.tracking_FirstStep  = cms.Sequence(process.siPixelDigis* 
+                                                   process.siStripDigis *
+                                                   process.striptrackerlocalreco *
                                                    process.offlineBeamSpot*
                                                    process.siPixelClustersPreSplitting*
                                                    process.siPixelRecHitsPreSplitting*
