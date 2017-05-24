@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # lumi from scalers
-hltScalersRawToDigi = cms.EDProducer( "ScalersRawToDigi",
+hltScalersRawToDigi4DQM = cms.EDProducer( "ScalersRawToDigi",
     scalersInputTag = cms.InputTag( "rawDataCollector" )
 )
 hltLumiMonitor = cms.EDAnalyzer( "LumiMonitor",
@@ -27,12 +27,12 @@ hltLumiMonitor = cms.EDAnalyzer( "LumiMonitor",
     ),
     minNumberOfPixelsPerCluster = cms.int32( 2 ),
     FolderName = cms.string( "HLT/LumiMonitoring" ),
-    scalers = cms.InputTag( "hltScalersRawToDigi" ),
+    scalers = cms.InputTag( "hltScalersRawToDigi4DQM" ),
     pixelClusters = cms.InputTag( "hltSiPixelClusters" ),
     doPixelLumi = cms.bool( False )
 )
 
 lumiMonitorHLTsequence = cms.Sequence(
-    hltScalersRawToDigi +
+    hltScalersRawToDigi4DQM +
     hltLumiMonitor
 )
