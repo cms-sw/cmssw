@@ -10,6 +10,18 @@ const PtAssignmentEngineAux2016& PtAssignmentEngine2016::aux() const {
   return instance;
 }
 
+float PtAssignmentEngine2016::scale_pt(const float pt, const int mode) const {
+
+  // Scaling to achieve 90% efficency at any given L1 pT threshold
+  // For 2016, was a flat scaling factor of 1.4
+
+  float pt_scale = 1.4;
+
+  return pt_scale;
+}
+
+
+
 PtAssignmentEngine::address_t PtAssignmentEngine2016::calculate_address(const EMTFTrack& track) const {
   address_t address = 0;
 

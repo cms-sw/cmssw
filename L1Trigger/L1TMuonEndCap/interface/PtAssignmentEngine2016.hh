@@ -11,6 +11,7 @@ public:
 
   const PtAssignmentEngineAux2016& aux() const;
 
+  virtual float scale_pt(const float pt, const int mode) const;
   virtual address_t calculate_address(const EMTFTrack& track) const;
   virtual float calculate_pt_xml(const address_t& address) const;
   virtual float calculate_pt_xml(const EMTFTrack& track) const;

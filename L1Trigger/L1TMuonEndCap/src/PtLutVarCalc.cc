@@ -170,15 +170,27 @@ void CalcBends( int& bend1, int& bend2, int& bend3, int& bend4,
   
 } // End function: CalcBends()
 
-void CalcRPCs( int& RPC1, int& RPC2, int& RPC3, int& RPC4,
-	       const int mode, const int st1_ring2, const bool BIT_COMP ) {
+void CalcRPCs( int& RPC1, int& RPC2, int& RPC3, int& RPC4, const int mode,
+	       const int st1_ring2, const int theta, const bool BIT_COMP ) {
 
   if (BIT_COMP) {
+
+    // Mask some invalid locations for RPC hits
+    // theta is assumed to be the compressed, mode 15 version
+    if (mode == 15 && !st1_ring2) {
+      RPC1 = 0;
+      RPC2 = 0;
+      if (theta < 3) {
+	RPC3 = 0;
+	RPC4 = 0;
+      }
+    }
+
     int nRPC = (RPC1 == 1) + (RPC2 == 1) + (RPC3 == 1) + (RPC4 == 1);
     
     // In 3- and 4-station modes, only specify some combinations of RPCs
     if (nRPC >= 2) {
-
+      
       if        (mode == 15) {
 	if        (RPC1 == 1 && RPC2 == 1) {
 	  RPC3 = 0;

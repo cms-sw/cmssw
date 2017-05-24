@@ -41,6 +41,7 @@ void PtAssignmentEngine::read(const std::string& xml_dir) {
     else
       ss << xml_dir_full << "/f_MODE_" << mode_inv << "_invPtTarg_invPtWgt_bitCompr_RPC_BDTG_AWB.weights";
 
+    std::cout << "Loading forests from " << ss.str().c_str() << std::endl;
     forests_.at(mode_inv).loadForestFromXML(ss.str().c_str(), 400);
 
   }
@@ -105,6 +106,10 @@ void PtAssignmentEngine::configure_details() {
 const PtAssignmentEngineAux& PtAssignmentEngine::aux() const {
   static const PtAssignmentEngineAux instance;
   return instance;
+}
+
+float PtAssignmentEngine::scale_pt(const float pt, const int mode) const {
+  return scale_pt(pt, mode);
 }
 
 float PtAssignmentEngine::calculate_pt(const address_t& address) const {

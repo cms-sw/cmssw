@@ -444,7 +444,7 @@ int PrimitiveSelection::select_csc(const TriggerPrimitive& muon_primitive) const
     assert(1 <= tp_station && tp_station <= 4);
     assert(1 <= tp_csc_ID && tp_csc_ID <= 9);
     assert(tp_data.strip < 160);
-    //assert(tp_data.keywire < 112);
+    // assert(tp_data.keywire < 112);
     assert(tp_data.keywire < 128);
     assert(tp_data.valid == true);
     assert(tp_data.pattern <= 10);

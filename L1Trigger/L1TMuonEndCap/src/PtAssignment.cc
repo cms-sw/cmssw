@@ -12,7 +12,6 @@ void PtAssignment::configure(
 ) {
   assert(pt_assign_engine != nullptr);
 
-  //pt_assign_engine_ = pt_assign_engine;
   pt_assign_engine_ = const_cast<PtAssignmentEngine*>(pt_assign_engine);
 
   verbose_ = verbose;
@@ -54,8 +53,8 @@ void PtAssignment::process(
       // Temporary check of address packing / unpacking - AWB 20.05.17
       assert( fabs(xmlpt - pt_assign_engine_->calculate_pt(track)) < 0.001 );
 
-      pt      = (xmlpt < 0.) ? 1. : xmlpt;  // Matt used fabs(-1) when mode is invalid
-      pt *= 1.4;  // multiply by 1.4 to keep efficiency above 90% when the L1 trigger pT cut is applied
+      pt  = (xmlpt < 0.) ? 1. : xmlpt;  // Matt used fabs(-1) when mode is invalid
+      pt *= pt_assign_engine_->scale_pt(pt, track.Mode());  // Multiply by some factor to achieve 90% efficiency at threshold
     }
 
     int gmt_pt = aux().getGMTPt(pt);            // Encode integer pT in GMT format

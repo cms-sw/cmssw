@@ -125,7 +125,6 @@ void PrimitiveConversion::convert_csc(
   conv_hit.set_endcap      ( (tp_endcap == 2) ? -1 : tp_endcap );
   conv_hit.set_station     ( tp_station );
   conv_hit.set_ring        ( tp_ring );
-  //conv_hit.set_roll        ( tp_roll );
   conv_hit.set_chamber     ( tp_chamber );
   conv_hit.set_sector      ( tp_sector );
   conv_hit.set_subsector   ( tp_subsector );
@@ -147,8 +146,6 @@ void PrimitiveConversion::convert_csc(
 
   conv_hit.set_valid       ( tp_data.valid );
   conv_hit.set_strip       ( tp_data.strip );
-  //conv_hit.set_strip_low   ( tp_data.strip_low );
-  //conv_hit.set_strip_hi    ( tp_data.strip_hi );
   conv_hit.set_wire        ( tp_data.keywire );
   conv_hit.set_quality     ( tp_data.quality );
   conv_hit.set_pattern     ( tp_data.pattern );
@@ -395,7 +392,6 @@ void PrimitiveConversion::convert_csc_details(EMTFHit& conv_hit) const {
   // ___________________________________________________________________________
   // Zone codes and other segment IDs
 
-  //int zone_hit     = ((fph + (1<<4)) >> 5);
   int zone_code    = get_zone_code(conv_hit, th);
   int phzvl        = get_phzvl(conv_hit, zone_code);
 
@@ -445,7 +441,7 @@ void PrimitiveConversion::convert_rpc(
   int tp_station   = tp_detId.station();    // 1 - 4
   int tp_ring      = tp_detId.ring();       // 2 - 3 (increasing theta)
   int tp_roll      = tp_detId.roll();       // 1 - 3 (decreasing theta; aka A - C; space between rolls is 9 - 15 in theta_fp)
-  //int tp_layer     = tp_detId.layer();
+  int tp_layer     = tp_detId.layer();
 
   int tp_bx        = tp_data.bx;
   int tp_strip     = ((tp_data.strip_low + tp_data.strip_hi) / 2);  // in full-strip unit
@@ -500,9 +496,6 @@ void PrimitiveConversion::convert_rpc(
     int fph = emtf::calc_phi_loc_int(glob_phi, sector_, 11);
     int th  = emtf::calc_theta_int(glob_theta, conv_hit.Endcap(), 5);
 
-    // std::cout << "RPC hit sector (RPC) = " << conv_hit.Sector() << " (" << conv_hit.Sector_RPC() << "), subsector (RPC) = " << conv_hit.Subsector()
-    // 	      << " (" << conv_hit.Subsector_RPC() << ") glob_phi = " << glob_phi << ", fph = " << fph << ", fph = " << fph << std::endl;
-
     assert(0 <= fph && fph < 1250);
     assert(0 <=  th &&  th < 32);
     assert(th != 0b11111);  // RPC hit valid when data is not all ones
@@ -531,8 +524,8 @@ void PrimitiveConversion::convert_rpc_details(EMTFHit& conv_hit) const {
   const int pc_chamber = conv_hit.PC_chamber();
   const int pc_segment = conv_hit.PC_segment();
 
-  //const int fw_endcap  = (endcap_-1);
-  //const int fw_sector  = (sector_-1);
+  // const int fw_endcap  = (endcap_-1);
+  // const int fw_sector  = (sector_-1);
   const int fw_station = (conv_hit.Station() == 1) ? (is_neighbor ? 0 : pc_station) : conv_hit.Station();
 
   int fw_cscid = pc_chamber;
@@ -544,10 +537,6 @@ void PrimitiveConversion::convert_rpc_details(EMTFHit& conv_hit) const {
     // station 2,3,4 have 2 neighbor chambers: 10,11 in rings 1,2
     csc_nID = (pc_chamber < 3) ? (pc_chamber + 12) : ( ((pc_chamber - 1) % 2) + 9);
     csc_nID += 1;
-
-    //if (tp_station == 1) {  // neighbor ME1
-    //  assert(tp_subsector == 2);
-    //}
 
     fw_cscid = csc_nID - 1;
   }
@@ -615,7 +604,7 @@ void PrimitiveConversion::convert_gem(
   int tp_station   = tp_detId.station();
   int tp_ring      = tp_detId.ring();
   int tp_roll      = tp_detId.roll();
-  //int tp_layer     = tp_detId.layer();
+  int tp_layer     = tp_detId.layer();
   int tp_chamber   = tp_detId.chamber();
 
   int tp_bx        = tp_data.bx;
