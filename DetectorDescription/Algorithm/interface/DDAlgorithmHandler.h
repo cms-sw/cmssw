@@ -38,7 +38,7 @@ class DDAlgorithmHandler
 
  
  private:
-  DDAlgorithm * algo_;   //!< the wrapped algorithm object
+  std::unique_ptr<DDAlgorithm> algo_;   //!< the wrapped algorithm object
   std::string algoname_; //!< name of the algorithm object
   DDLogicalPart parent_; //!< parent logical part 
 };
