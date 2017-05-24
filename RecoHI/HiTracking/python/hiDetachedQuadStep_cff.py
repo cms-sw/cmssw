@@ -167,10 +167,34 @@ hiDetachedQuadStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProd
 import RecoHI.HiTracking.hiMultiTrackSelector_cfi
 hiDetachedQuadStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiTrackSelector.clone(
     src='hiDetachedQuadStepTracks',
-    useAnyMVA = cms.bool(False), 
+    useAnyMVA = cms.bool(True), 
     GBRForestLabel = cms.string('HIMVASelectorIter10'),#FIXME MVA for new iteration
     GBRForestVars = cms.vstring(['chi2perdofperlayer', 'nhits', 'nlayers', 'eta']),
     trackSelectors= cms.VPSet(
+    RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiLooseMTS.clone(
+    name = 'hiDetachedQuadStepLoose',
+    applyAdaptedPVCuts = cms.bool(False),
+    useMVA = cms.bool(False),
+    ), #end of pset
+    RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
+    name = 'hiDetachedQuadStepTight',
+    preFilterName = 'hiDetachedQuadStepLoose',
+    applyAdaptedPVCuts = cms.bool(True),
+    useMVA = cms.bool(True),
+    minMVA = cms.double(-0.2)
+    ),
+    RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
+    name = 'hiDetachedQuadStep',
+    preFilterName = 'hiDetachedQuadStepTight',
+    applyAdaptedPVCuts = cms.bool(True),
+    useMVA = cms.bool(True),
+    minMVA = cms.double(-0.09)
+    ),
+    ) #end of vpset
+    ) #end of clone
+from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
+trackingPhase1.toModify(hiDetachedQuadStepSelector, useAnyMVA = cms.bool(False))
+trackingPhase1.toModify(hiDetachedQuadStepSelector, trackSelectors= cms.VPSet(
     RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiLooseMTS.clone(
     name = 'hiDetachedQuadStepLoose',
     applyAdaptedPVCuts = cms.bool(False),
@@ -191,7 +215,7 @@ hiDetachedQuadStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiT
     minMVA = cms.double(-0.09)
     ),
     ) #end of vpset
-    ) #end of clone
+)
 
 import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
 hiDetachedQuadStepQual = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
