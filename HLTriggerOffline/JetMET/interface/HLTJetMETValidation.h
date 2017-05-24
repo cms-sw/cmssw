@@ -77,7 +77,7 @@ class HLTJetMETValidation : public DQMEDAnalyzer {
   edm::EDGetTokenT<edm::TriggerResults> HLTriggerResults;
 
   //Just a tag for better file organization
-  std::string triggerTag_, patternJetTrg_, patternMetTrg_, patternMuTrg_;
+  std::string triggerProcessName_, triggerTag_, patternJetTrg_, patternMetTrg_, patternMuTrg_;
 
   std::vector<MonitorElement*> _meHLTJetPt;
   std::vector<MonitorElement*> _meHLTJetPtTrgMC;
