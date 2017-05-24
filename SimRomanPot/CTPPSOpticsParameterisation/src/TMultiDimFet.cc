@@ -1,9 +1,9 @@
 // @(#)root/hist:$Name: v5-12-00e $:$Id: TMultiDimFit.cxx,v 1.26 2006/05/26 09:27:12 brun Exp $
 // Author: Christian Holm Christensen 07/11/2000
 
+#include "SimRomanPot/CTPPSOpticsParameterisation/interface/TMultiDimFet.h"
 
 #include "Riostream.h"
-#include "TMultiDimFet.h"
 #include "TMath.h"
 #include "TH1.h"
 #include "TH2.h"
@@ -2130,7 +2130,6 @@ void TMultiDimFet::PrintPolynomialsSpecial(Option_t *option) const
    //   M        Pretty print formula
    //
    Int_t i = 0;
-   Int_t j = 0;
 
    TString opt(option);
    opt.ToLower();

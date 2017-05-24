@@ -1,5 +1,5 @@
-#ifndef LHC_OPTICS_APPROXIMATOR__
-#define LHC_OPTICS_APPROXIMATOR__
+#ifndef SimRomanPot_CTPPSOpticsParameterisation_LHCOpticsApproximator_h
+#define SimRomanPot_CTPPSOpticsParameterisation_LHCOpticsApproximator_h
 
 #include <string>
 #include <iostream>
@@ -10,8 +10,6 @@
 #include "TFile.h"
 
 #include "TMultiDimFet.h"
-
-
 
 struct MadKinematicDescriptor
 {
@@ -31,11 +29,7 @@ struct MadKinematicDescriptor
   }
 };
 
-
-
 class LHCApertureApproximator;
-
-
 
 /**
 class finds the parametrisation of MADX proton transport and transports the protons according to it

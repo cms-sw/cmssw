@@ -1,10 +1,10 @@
-#include "LHCOpticsApproximator.h"
+#include "SimRomanPot/CTPPSOpticsParameterisation/interface/LHCOpticsApproximator.h"
+
+#include <memory>
 #include <vector>
 #include <iostream>
 #include "TROOT.h"
 #include "TMath.h"
-#include <boost/shared_ptr.hpp>
-#include "CurrentMemoryUsage.h"
 
 ClassImp(LHCOpticsApproximator);
 ClassImp(LHCApertureApproximator);
@@ -106,7 +106,7 @@ bool LHCOpticsApproximator::Transport(double *in, double *out, bool check_apertu
 
   if (check_apertures)
   {
-    for(int i=0; i<apertures_.size(); i++)
+    for( unsigned short i=0; i<apertures_.size(); i++ )
     {
       res = res && apertures_[i].CheckAperture(in);
     }
@@ -212,6 +212,7 @@ LHCOpticsApproximator & LHCOpticsApproximator::operator=(const LHCOpticsApproxim
     nominal_beam_energy_ = org.nominal_beam_energy_;
     nominal_beam_momentum_ = org.nominal_beam_momentum_;
   }
+  return *this;
 }
 
 
@@ -219,8 +220,6 @@ void LHCOpticsApproximator::Train(TTree *inp_tree, std::string data_prefix, poly
 {
   if(inp_tree==NULL)
     return;
-
-  PrintCurrentMemoryUsage("Train, begin");
 
   InitializeApproximators(mode, max_degree_x, max_degree_tx, max_degree_y, max_degree_ty, common_terms);
   std::cout<<this->GetName()<<" is being trained..."<<std::endl;
@@ -292,7 +291,6 @@ void LHCOpticsApproximator::Train(TTree *inp_tree, std::string data_prefix, poly
     inp_tree->SetBranchStatus(s_out_lab.c_str(),0);
   }
 
-  PrintCurrentMemoryUsage("Train, before setting data");
   //set input and output variables for fitting
   for(Long64_t i=0; i<entries; ++i)
   {
@@ -308,7 +306,6 @@ void LHCOpticsApproximator::Train(TTree *inp_tree, std::string data_prefix, poly
 
   std::cout<<"Optical functions parametrizations from "<<s_begin_<<" to "<<s_end_<<std::endl;
   PrintInputRange();
-  PrintCurrentMemoryUsage("Train, before fitting");
   for(int i=0; i<4; i++)
   {
     double best_precision=0.0;
@@ -321,7 +318,6 @@ void LHCOpticsApproximator::Train(TTree *inp_tree, std::string data_prefix, poly
   }
 
   trained_ = true;
-  PrintCurrentMemoryUsage("Train, function end");
 }
 
 
@@ -533,7 +529,7 @@ void LHCOpticsApproximator::SetTermsManually(TMultiDimFet &approximator, variabl
   }
 
   Int_t powers[term_literals.size()];
-  for(int i=0; i<term_literals.size(); ++i)
+  for( unsigned short i=0; i<term_literals.size(); ++i )
   {
     powers[i] = term_literals[i];
   }
@@ -543,7 +539,6 @@ void LHCOpticsApproximator::SetTermsManually(TMultiDimFet &approximator, variabl
 
 void LHCOpticsApproximator::Test(TTree *inp_tree, TFile *f_out, std::string data_prefix, std::string base_out_dir)
 {
-  PrintCurrentMemoryUsage("Test, begin");
   if(inp_tree==NULL || f_out==NULL)
     return;
 
@@ -603,7 +598,6 @@ void LHCOpticsApproximator::Test(TTree *inp_tree, TFile *f_out, std::string data
   inp_tree->SetBranchAddress(s_out_lab.c_str(), &(out_var[5]) );
   inp_tree->SetBranchAddress(valid_out_lab.c_str(), &(out_var[6]) );
 
-  PrintCurrentMemoryUsage("Test, before allocating the histograms");
   //test histogramms
   TH1D *err_hists[4];
   TH2D *err_inp_cor_hists[4][5];
@@ -630,14 +624,12 @@ void LHCOpticsApproximator::Test(TTree *inp_tree, TFile *f_out, std::string data
     FillErrorDataCorHistograms(errors, out_var, err_out_cor_hists);
   }
 
-  PrintCurrentMemoryUsage("Test, before writing the histograms");
   WriteHistograms(err_hists, err_inp_cor_hists, err_out_cor_hists, f_out, base_out_dir);
   std::cout<<"Histograms have been written."<<std::endl;
 
   DeleteErrorHists(err_hists);
   DeleteErrorCorHistograms(err_inp_cor_hists);
   DeleteErrorCorHistograms(err_out_cor_hists);
-  PrintCurrentMemoryUsage("Test, end of function");
 }
 
 
@@ -986,7 +978,6 @@ void LHCOpticsApproximator::PrintCoordinateOpticalFunctions(TMultiDimFet &parame
 	const std::vector<std::string> &input_vars) const
 {
   double in[5];
-  double out;
   double d_out_d_in[5];
   double d_par = 1e-5;
   double bias = 0;
