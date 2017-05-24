@@ -79,11 +79,16 @@ void L1TEfficiencyPlotHandler::book(DQMStore::IBooker &ibooker, DQMStore::IGette
     return;
   }
 
-  double min = numH->GetXaxis()->GetXmin();
-  double max = numH->GetXaxis()->GetXmax();
+  // double min = numH->GetXaxis()->GetXmin();
+  // double max = numH->GetXaxis()->GetXmax();
 
   ibooker.setCurrentFolder(outputDir_);
-  h_efficiency_ = ibooker.book1D(plotName_, plotName_, nBinsNum, min, max);
+
+  std::vector<float> Bins;
+  for(Int_t i = 1 ; i <= nBinsNum ; ++i) Bins.push_back(numH->GetBinLowEdge(i));
+  Bins.push_back(numH->GetBinLowEdge(nBinsNum)+numH->GetBinWidth(nBinsNum));
+  float* BinArray = &(Bins[0]);
+  h_efficiency_ = ibooker.book1D(plotName_, plotName_, nBinsNum, BinArray);
 
 }
 

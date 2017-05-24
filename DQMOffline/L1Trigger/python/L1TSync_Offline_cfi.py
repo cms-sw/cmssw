@@ -50,6 +50,18 @@ l1tSync_Offline = cms.EDAnalyzer("L1TSync_Offline",
         algo            = cms.string(""),
         CertMinEvents   = cms.int32(20),
       ),
+      Tau = cms.PSet(
+        monitor         = cms.bool(True),
+        doAutoSelection = cms.bool(True),
+        algo            = cms.string(""),
+        CertMinEvents   = cms.int32(20),
+      ),
+      IsoTau = cms.PSet( 
+        monitor         = cms.bool(True),
+        doAutoSelection = cms.bool(True),
+        algo            = cms.string(""),
+        CertMinEvents   = cms.int32(20),
+      ),
       Jet = cms.PSet(
         monitor         = cms.bool(True),
         doAutoSelection = cms.bool(True),
