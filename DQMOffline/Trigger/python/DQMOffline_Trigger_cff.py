@@ -4,8 +4,9 @@ import FWCore.ParameterSet.Config as cms
 from DQMOffline.Trigger.DQMOffline_LumiMontiroring_cff import *
 # Egamma
 from DQMOffline.Trigger.HLTGeneralOffline_cfi import *
-
+# Egamma
 from DQMOffline.Trigger.EgHLTOfflineSource_cfi import *
+from DQMOffline.Trigger.EgammaMonitoring_cff import *
 # Muon
 from DQMOffline.Trigger.MuonOffline_Trigger_cff import *
 # Top
@@ -94,6 +95,7 @@ offlineHLTSource = cms.Sequence(
     eventshapeDQMSequence *
     HeavyIonUCCDQMSequence *
     hotlineDQMSequence *
+    egammaMonitorHLT * 
     exoticaMonitorHLT *
     susyMonitorHLT *
     b2gMonitorHLT *
