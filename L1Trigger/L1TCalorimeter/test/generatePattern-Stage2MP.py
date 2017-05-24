@@ -4,10 +4,21 @@
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
 # with command line options: SingleElectronPt10_cfi.py -s GEN,SIM,DIGI,L1 --pileup=NoPileUp --geometry DB --conditions=auto:startup -n 1 --no_exec
 import FWCore.ParameterSet.Config as cms
+import os
 
 # options
 import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing('analysis')
+options.register('filename',
+                 "rx_summary",
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "Filename string")
+options.register('outDir',
+                 "mpRxFiles",
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "Output directory for buffer files")
 options.register('mpPayloadFrames',
                  40,
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -19,7 +30,7 @@ options.register('mpHeaderFrames',
                  VarParsing.VarParsing.varType.int,
                  "N header frames per event")
 options.register('mpClearFrames',
-                 1,
+                 13,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "N clear frames between events")
@@ -64,7 +75,14 @@ options.parseArguments()
 if (options.maxEvents == -1):
     options.maxEvents = 1
 
-process = cms.Process('L1')
+# make output directory if it doesn't already exist
+try:
+    os.stat(options.outDir)
+except:
+    print 'Output directory does not exist. Creating directory: ' + options.outDir
+    os.mkdir(options.outDir)
+
+process = cms.Process('L1Emulator')
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -83,6 +101,9 @@ process.load('Configuration.StandardSequences.Digi_cff')
 process.load('Configuration.StandardSequences.SimL1Emulator_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+
+# import of standard configurations
+process.load('Configuration.StandardSequences.RawToDigi_cff')
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(options.maxEvents)
@@ -144,18 +165,27 @@ process.load("CommonTools.UtilAlgos.TFileService_cfi")
 process.TFileService.fileName = cms.string('l1tCalo_2016_histos.root')
 
 # upgrade calo stage 2
-process.load('L1Trigger.L1TCalorimeter.caloStage2Params_cfi')
+process.load('L1Trigger.L1TCalorimeter.caloStage2Params_2017_v1_4_cfi')
 process.caloStage2Params.towerEncoding    = cms.bool(True)
-process.load('L1Trigger.L1TCalorimeter.L1TCaloStage2_cff')
-process.caloStage2Layer1Digis.ecalToken = cms.InputTag("simEcalTriggerPrimitiveDigis")
-process.caloStage2Layer1Digis.hcalToken = cms.InputTag("simHcalTriggerPrimitiveDigis")
+process.load('L1Trigger.L1TCalorimeter.simCaloStage2Layer1Digis_cfi')
+process.load('L1Trigger.L1TCalorimeter.simCaloStage2Digis_cfi')
+process.simCaloStage2Layer1Digis.ecalToken = cms.InputTag("ecalDigis:EcalTriggerPrimitives")
+process.simCaloStage2Layer1Digis.hcalToken = cms.InputTag("hcalDigis")
 
 process.load('L1Trigger.L1TCalorimeter.l1tStage2InputPatternWriter_cfi')
-process.l1tStage2InputPatternWriter.filename = cms.untracked.string("pattern.txt")
+process.l1tStage2InputPatternWriter.filename = cms.untracked.string(options.filename)
+process.l1tStage2InputPatternWriter.outDir = cms.untracked.string(options.outDir)
+process.l1tStage2InputPatternWriter.mpPayloadFrames = cms.untracked.uint32(options.mpPayloadFrames)
+process.l1tStage2InputPatternWriter.mpHeaderFrames = cms.untracked.uint32(options.mpHeaderFrames)
+process.l1tStage2InputPatternWriter.mpClearFrames = cms.untracked.uint32(options.mpClearFrames)
 
 # Path and EndPath definitions
-process.L1simulation_step = cms.Path(process.L1TCaloStage2
-                                     +process.l1tStage2InputPatternWriter)
+process.path = cms.Path(
+    process.ecalDigis
+    +process.hcalDigis
+    +process.simCaloStage2Layer1Digis
+    +process.simCaloStage2Digis
+    +process.l1tStage2InputPatternWriter)
 
 if (options.edm):
     process.output_step = cms.EndPath(process.output)
