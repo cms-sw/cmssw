@@ -950,7 +950,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			HcalDetId const& did = digi.detid();
 
 			// Require subdet == HF. In 2017, calibration channels are included in QIE10DigiCollection :( 
-			if (!did.subdet()==HcalForward) {
+			if (did.subdet() != HcalForward) {
 				continue;
 			}
 
