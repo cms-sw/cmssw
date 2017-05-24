@@ -22,49 +22,12 @@ using namespace baconhep;
 // the trigger can evolve and obtain a different trigger object name, but we still want this to 
 // be associated with the same leg (e.g. the trailing electron in a dielectron trigger)
 //
-TTrigger::TTrigger(const std::string iFileName) { 
-  std::ifstream lFile(iFileName.c_str());
-  assert(lFile.is_open());
+TTrigger::TTrigger() { 
 
-  int         lTrigIndex    = -1;  // bacon trigger bits index
-  int         lTrigObjIndex = -1;  // bacon trigger object bits index
-  std::string lLastTrigName = "";  // keep track of when new trigger name is encountered
-  int         lLastLeg      = -1;  // keep track of when new trigger object leg is encountered
-
-  while(lFile.good()) { 
-    std::string pTrigName; 
-    std::string pFilterName;
-    int         pLeg;
-
-    lFile >> pTrigName;
-
-    // allow C++ style comments in HLT file
-    if(pTrigName.find("//") != std::string::npos) {
-      lFile.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-      continue;
-    }
-
-    // ignore empty lines
-    if(pTrigName == "") continue;
-
-    lFile >> pFilterName >> pLeg;
-
-    if(lLastTrigName != pTrigName) {
-      lTrigIndex++;
-      fRecords.push_back(baconhep::TriggerRecord(pTrigName,lTrigIndex));
-      lTrigObjIndex++;
-
-    } else if(lLastLeg != pLeg) {
-      lTrigObjIndex++;
-    }
-
-    fRecords.back().objectMap.push_back(std::pair<std::string, int>(pFilterName,lTrigObjIndex));
-    lLastTrigName = pTrigName;
-    lLastLeg      = pLeg;
-
-    // ignore all trailing stuff
-    lFile.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-  }
+  fRecords.push_back(baconhep::TriggerRecord("HLT_IsoMu24_v*",0));
+  //fRecords.push_back(baconhep::TriggerRecord("HLT_IsoMu27_v*",0));
+  fRecords.back().objectMap.push_back(std::pair<std::string, int>("hltL3crIsoL1sMu22L1f0L2f10QL3f24QL3trkIsoFiltered0p09",0));
+  //fRecords.back().objectMap.push_back(std::pair<std::string, int>("hltL3crIsoL1sMu22Or25L1f0L2f10QL3f27QL3trkIsoFiltered0p09",0));    
 }
 
 //--------------------------------------------------------------------------------------------------

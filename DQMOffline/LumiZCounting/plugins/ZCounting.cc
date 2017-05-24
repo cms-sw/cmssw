@@ -24,7 +24,6 @@ using namespace baconhep;
 // -------------------------------------- Constructor --------------------------------------------
 //
 ZCounting::ZCounting(const edm::ParameterSet& iConfig):
-  fHLTFile           (iConfig.getUntrackedParameter<std::string>("TriggerFile","HLT")),
   fHLTObjTag         (iConfig.getParameter<edm::InputTag>("TriggerEvent")),
   fHLTTag            (iConfig.getParameter<edm::InputTag>("TriggerResults")),
   fPVName            (iConfig.getUntrackedParameter<std::string>("edmPVName","offlinePrimaryVertices")),
@@ -87,7 +86,8 @@ void ZCounting::dqmBeginRun(edm::Run const &, edm::EventSetup const &)
   edm::LogInfo("ZCounting") <<  "ZCounting::beginRun" << std::endl;
 
   // Triggers
-  setTriggers();
+  fTrigger = new baconhep::TTrigger();
+  
 }
 //
 // -------------------------------------- bookHistos --------------------------------------------
@@ -406,13 +406,7 @@ void ZCounting::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::Eve
 //
 // -------------------------------------- functions --------------------------------------------
 //
-void ZCounting::setTriggers()
-{
-  std::string cmssw_base_src = getenv("CMSSW_BASE"); cmssw_base_src+="/src/";
-  fTrigger = new baconhep::TTrigger(cmssw_base_src + fHLTFile);
-}
 
-//--------------------------------------------------------------------------------------------------
 void ZCounting::initHLT(const edm::TriggerResults& result, const edm::TriggerNames& triggerNames)
 {
   for(unsigned int irec=0; irec<fTrigger->fRecords.size(); irec++) {
@@ -443,12 +437,14 @@ void ZCounting::initHLT(const edm::TriggerResults& result, const edm::TriggerNam
 bool ZCounting::isMuonTrigger(baconhep::TTrigger triggerMenu, TriggerBits hltBits)
 {
   return triggerMenu.pass("HLT_IsoMu24_v*",hltBits);
+  //return triggerMenu.pass("HLT_IsoMu27_v*",hltBits);
 }
 
 //--------------------------------------------------------------------------------------------------
 bool ZCounting::isMuonTriggerObj(baconhep::TTrigger triggerMenu, TriggerObjects hltMatchBits)
 {
   return triggerMenu.passObj("HLT_IsoMu24_v*","hltL3crIsoL1sMu22L1f0L2f10QL3f24QL3trkIsoFiltered0p09",hltMatchBits);
+  //return triggerMenu.passObj("HLT_IsoMu27_v*","hltL3crIsoL1sMu22Or25L1f0L2f10QL3f27QL3trkIsoFiltered0p09",hltMatchBits);
 }
 //--------------------------------------------------------------------------------------------------
 bool ZCounting::passMuonID(const reco::Muon& muon, const reco::Vertex& vtx, const std::string idType)
