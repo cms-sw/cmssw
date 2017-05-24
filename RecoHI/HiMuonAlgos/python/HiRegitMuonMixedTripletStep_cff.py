@@ -125,10 +125,33 @@ import RecoHI.HiTracking.hiMultiTrackSelector_cfi
 hiRegitMuMixedTripletStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiTrackSelector.clone(
     src                 = 'hiRegitMuMixedTripletStepTracks',
     vertices            = cms.InputTag("hiSelectedVertex"),
-    useAnyMVA = cms.bool(False),
+    useAnyMVA = cms.bool(True),
     GBRForestLabel = cms.string('HIMVASelectorIter7'),
     GBRForestVars = cms.vstring(['chi2perdofperlayer', 'nhits', 'nlayers', 'eta']),
     trackSelectors= cms.VPSet(
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
+           name = 'hiRegitMuMixedTripletStepLoose',
+           min_nhits = cms.uint32(8)
+            ),
+        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
+            name = 'hiRegitMuMixedTripletStepTight',
+            preFilterName = 'hiRegitMuMixedTripletStepLoose',
+            min_nhits = cms.uint32(8),
+            useMVA = cms.bool(True),
+            minMVA = cms.double(-0.2)
+            ),
+        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
+            name = 'hiRegitMuMixedTripletStep',
+            preFilterName = 'hiRegitMuMixedTripletStepTight',
+            min_nhits = cms.uint32(8),
+            useMVA = cms.bool(True),
+            minMVA = cms.double(-0.09)
+            )
+        ) #end of vpset
+    ) #end of clone
+from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
+trackingPhase1.toModify(hiRegitMuMixedTripletStepSelector, useAnyMVA = cms.bool(False))
+trackingPhase1.toModify(hiRegitMuMixedTripletStepSelector, trackSelectors= cms.VPSet(
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
            name = 'hiRegitMuMixedTripletStepLoose',
            min_nhits = cms.uint32(8)
@@ -148,7 +171,7 @@ hiRegitMuMixedTripletStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.h
             minMVA = cms.double(-0.09)
             )
         ) #end of vpset
-    ) #end of clone
+)
 
 hiRegitMuonMixedTripletStep = cms.Sequence(hiRegitMuMixedTripletStepClusters*
                                          hiRegitMuMixedTripletStepSeedLayersA*
