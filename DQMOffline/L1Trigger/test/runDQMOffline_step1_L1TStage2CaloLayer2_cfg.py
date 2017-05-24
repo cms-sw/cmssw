@@ -20,10 +20,10 @@ process.load(
 process.load("DQMServices.Core.DQM_cfg")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 
-process.MessageLogger.cerr.FwkReport.reportEvery = 1
+process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 process.maxEvents = cms.untracked.PSet(
-    input=cms.untracked.int32(50)
+    #input=cms.untracked.int32(50)
 )
 
 # Input source
