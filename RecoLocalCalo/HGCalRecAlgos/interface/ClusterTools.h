@@ -34,7 +34,7 @@ namespace hgcal {
 
     float getClusterHadronFraction(const reco::CaloCluster&) const;
 
-    math::XYZPoint getMultiClusterPosition(const reco::HGCalMultiCluster&, double vz = 0.) const;
+    math::XYZPoint getMultiClusterPosition(const reco::HGCalMultiCluster&) const;
 
     int getLayer(const DetId) const;
 
