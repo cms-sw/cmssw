@@ -19,69 +19,95 @@ process.source = cms.Source("EmptySource",
 process.mywriter = cms.EDAnalyzer(
   "ProducePFCalibrationObject",
   write = cms.untracked.bool(False),
-  toWrite = cms.VPSet(
-            cms.PSet(fType      = cms.untracked.string("PFfa_BARREL"), 
-                     formula    = cms.untracked.string("[0]+([1]+[2]/sqrt(x))*exp(-x/[3])-[4]*exp(-x*x/[5])"),
+ toWrite = cms.VPSet(
+            cms.PSet(fType      = cms.untracked.string("PFfa_BARREL"),
+                     formula    = cms.untracked.string("[0]+((([1]+([2]/sqrt(x)))*exp(-(x^[6]/[3])))-([4]*exp(-(x^[7]/[5]))))"),
                      limits     = cms.untracked.vdouble(1., 1000.),
-                     parameters = cms.untracked.vdouble(1.15665, 0.165627, 0.827718, 231.339, 2.45332, 29.6603,  ) 
+                     parameters = cms.untracked.vdouble(-13.9219, 14.9124, 5.38578, 0.861981, -0.00759275, 3.73563e-23, -1.17946, -13.3644)
                     ),
-            cms.PSet(fType      = cms.untracked.string("PFfb_BARREL"), 
-                     formula    = cms.untracked.string("[0]+([1]+[2]/sqrt(x))*exp(-x/[3])-[4]*exp(-x*x/[5])"),
+            cms.PSet(fType      = cms.untracked.string("PFfb_BARREL"),
+                     formula    = cms.untracked.string("[0]+((([1]+([2]/sqrt(x)))*exp(-(x^[6]/[3])))-([4]*exp(-(x^[7]/[5]))))"),
                      limits     = cms.untracked.vdouble(1., 1000.),
-                     parameters = cms.untracked.vdouble(0.994603, 0.13632, -0.758013, 183.627, 1, 39.6784,  ) 
+                     parameters = cms.untracked.vdouble(2.18802, 0.522053, -4.67354, 1.2109e+06, 1.75318, 0.187919, -9241.43, -0.607392, )
                     ),
-            cms.PSet(fType      = cms.untracked.string("PFfc_BARREL"), 
-                     formula    = cms.untracked.string("[0]+([1]+[2]/sqrt(x))*exp(-x/[3])-[4]*exp(-x*x/[5])"),
+            cms.PSet(fType      = cms.untracked.string("PFfc_BARREL"),
+                     formula    = cms.untracked.string("[0]+((([1]+([2]/sqrt(x)))*exp(-(x^[6]/[3])))-([4]*exp(-(x^[7]/[5]))))"),
                      limits     = cms.untracked.vdouble(1., 1000.),
-                     parameters = cms.untracked.vdouble(0.956544, 0.0857207, -0.44347, 63.3479, 1.24174, 12.322,  ) 
+                     parameters = cms.untracked.vdouble(1.46854, 0.830152, -5.86601, 2.08229, 0.575016, 0.0291232, 0.364802, -1.50142)
                     ),
-            cms.PSet(fType      = cms.untracked.string("PFfaEta_BARREL"), 
+            cms.PSet(fType      = cms.untracked.string("PFfaEta_BARRELEH"),
                      formula    = cms.untracked.string("[0]+[1]*exp(-x/[2])"),
                      limits     = cms.untracked.vdouble(1., 1000.),
-                     parameters = cms.untracked.vdouble(0.014664, -0.0426776, 431.054,  ) 
+                     parameters = cms.untracked.vdouble(0.0185555, -0.0470674, 396.959)
                     ),
-            cms.PSet(fType      = cms.untracked.string("PFfbEta_BARREL"), 
+            cms.PSet(fType      = cms.untracked.string("PFfbEta_BARRELEH"),
                      formula    = cms.untracked.string("[0]+[1]*exp(-x/[2])"),
                      limits     = cms.untracked.vdouble(1., 1000.),
-                     parameters = cms.untracked.vdouble(0.00975451, 0.102247, 436.21,  ) 
+                     parameters = cms.untracked.vdouble(0.0396458, 0.114128, 251.405)
                     ),
-            cms.PSet(fType      = cms.untracked.string("PFfa_ENDCAP"), 
-                     formula    = cms.untracked.string("[0]+([1]+[2]/sqrt(x))*exp(-x/[3])-[4]*exp(-x*x/[5])"),
+            cms.PSet(fType      = cms.untracked.string("PFfaEta_BARRELH"),
+                     formula    = cms.untracked.string("[0]+[1]*x"),
                      limits     = cms.untracked.vdouble(1., 1000.),
-                     parameters = cms.untracked.vdouble(1.1272, 0.258536, 0.808071, 214.039, 2, 47.2602,  ) 
+                     parameters = cms.untracked.vdouble(0.00434994, -5.16564e-06)
                     ),
-            cms.PSet(fType      = cms.untracked.string("PFfb_ENDCAP"), 
-                     formula    = cms.untracked.string("[0]+([1]+[2]/sqrt(x))*exp(-x/[3])-[4]*exp(-x*x/[5])"),
-                     limits     = cms.untracked.vdouble(1., 1000.),
-                     parameters = cms.untracked.vdouble(0.982824, 0.0977533, 0.155416, 240.379, 1.2, 78.3083,  ) 
-                    ),
-            cms.PSet(fType      = cms.untracked.string("PFfc_ENDCAP"), 
-                     formula    = cms.untracked.string("[0]+([1]+[2]/sqrt(x))*exp(-x/[3])-[4]*exp(-x*x/[5])"),
-                     limits     = cms.untracked.vdouble(1., 1000.),
-                     parameters = cms.untracked.vdouble(0.950244, 0.00564779, 0.227162, 207.786, 1.32824, 22.1825,  ) 
-                    ),
-            cms.PSet(fType      = cms.untracked.string("PFfaEta_ENDCAP"), 
+            cms.PSet(fType      = cms.untracked.string("PFfbEta_BARRELH"),
                      formula    = cms.untracked.string("[0]+[1]*exp(-x/[2])"),
                      limits     = cms.untracked.vdouble(1., 1000.),
-                     parameters = cms.untracked.vdouble(-0.000582903, -0.000482148, 209.466,  ) 
+                     parameters = cms.untracked.vdouble(-0.0232604, 0.0937525, 34.9935)
                     ),
-            cms.PSet(fType      = cms.untracked.string("PFfbEta_ENDCAP"), 
+
+            cms.PSet(fType      = cms.untracked.string("PFfa_ENDCAP"),
+                     formula    = cms.untracked.string("[0]+((([1]+([2]/sqrt(x)))*exp(-(x^[6]/[3])))-([4]*exp(-(x^[7]/[5]))))"),
+                     limits     = cms.untracked.vdouble(1., 1000.),
+                     parameters = cms.untracked.vdouble(0.962468, 11.9536, -27.7088, 0.755474, 0.0791012, 2.6901e-11, 0.158734, -6.92163)
+                    ),
+            cms.PSet(fType      = cms.untracked.string("PFfb_ENDCAP"),
+                     formula    = cms.untracked.string("[0]+((([1]+([2]/sqrt(x)))*exp(-(x^[6]/[3])))-([4]*exp(-(x^[7]/[5]))))"),
+                     limits     = cms.untracked.vdouble(1., 1000.),
+                     parameters = cms.untracked.vdouble(-0.43671, 2.90096, -5.10099, 1.20771, -1.30656, 0.0189607, 0.270027, -2.30372)
+                    ),
+            cms.PSet(fType      = cms.untracked.string("PFfc_ENDCAP"),
+                     formula    = cms.untracked.string("[0]+((([1]+([2]/sqrt(x)))*exp(-(x^[6]/[3])))-([4]*exp(-(x^[7]/[5]))))"),
+                     limits     = cms.untracked.vdouble(1., 1000.),
+                     parameters = cms.untracked.vdouble(1.11623, 1.66795, -5.49393, 7.73734, 0.259307, 0.0708707, 0.950338, -0.922411)
+                    ),
+            cms.PSet(fType      = cms.untracked.string("PFfaEta_ENDCAPEH"),
+                     formula    = cms.untracked.string("[0]+[1]*exp(-x/[2])"),
+                     limits     = cms.untracked.vdouble(1., 1000.),
+                     parameters = cms.untracked.vdouble(384.307, -384.305, 1.14535e+07)
+                    ),
+            cms.PSet(fType      = cms.untracked.string("PFfbEta_ENDCAPEH"),
+                     formula    = cms.untracked.string("[0]+[1]*exp(-x/[2])"),
+                     limits     = cms.untracked.vdouble(1., 1000.),
+                     parameters = cms.untracked.vdouble(0.0282454, -0.107485, 96.1833)
+                    ),
+
+            cms.PSet(fType      = cms.untracked.string("PFfaEta_ENDCAPH"),
                      formula    = cms.untracked.string("[0]+[1]*exp(-x/[2])+[3]*[3]*exp(-x*x/([4]*[4]))"),
                      limits     = cms.untracked.vdouble(1., 1000.),
-                     parameters = cms.untracked.vdouble(0.0267319, -0.554552, 1.71188, 0.235834, -135.431,  ) 
+                     parameters = cms.untracked.vdouble(-0.0106029, -0.692207, 0.0542991, -0.171435, -61.2277)
                     ),
-            ),
+            cms.PSet(fType      = cms.untracked.string("PFfbEta_ENDCAPH"),
+                     formula    = cms.untracked.string("[0]+[1]*exp(-x/[2])+[3]*[3]*exp(-x*x/([4]*[4]))"),
+                     limits     = cms.untracked.vdouble(1., 1000.),
+                     parameters = cms.untracked.vdouble(0.0514927, -0.291726, 5.32989, 0.309057, -103.359)
+                    ),
+
   read = cms.untracked.bool(True),
   toRead = cms.untracked.vstring("PFfa_BARREL",
-                                 "PFfa_ENDCAP",
                                  "PFfb_BARREL",
-                                 "PFfb_ENDCAP",
                                  "PFfc_BARREL",
+                                 "PFfaEta_BARRELEH",
+                                 "PFfbEta_BARRELEH",
+                                 "PFfaEta_BARRELH",
+                                 "PFfbEta_BARRELH",
+                                 "PFfa_ENDCAP",
+                                 "PFfb_ENDCAP",
                                  "PFfc_ENDCAP",
-                                 "PFfaEta_BARREL",
-                                 "PFfaEta_ENDCAP",
-                                 "PFfbEta_BARREL",
-                                 "PFfbEta_ENDCAP") # same strings as fType
+                                 "PFfaEta_ENDCAPEH",
+                                 "PFfbEta_ENDCAPEH",
+                                 "PFfaEta_ENDCAPH",
+                                 "PFfbEta_ENDCAPH") # same strings as fType
 )
 
 
