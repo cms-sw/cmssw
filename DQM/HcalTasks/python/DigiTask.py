@@ -31,6 +31,9 @@ digiTask = cms.EDAnalyzer(
 from Configuration.Eras.Modifier_Run2_2016 import Run2_2016
 Run2_2016.toModify(digiTask, qie10InConditions=cms.untracked.bool(False))
 
+from Configuration.Eras.Modifier_Run2_2016_HIPM import Run2_2016_HIPM
+Run2_2016_HIPM.toModify(digiTask, qie10InConditions=cms.untracked.bool(False))
+
 
 
 
