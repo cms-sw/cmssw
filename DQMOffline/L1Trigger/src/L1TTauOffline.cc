@@ -1,5 +1,5 @@
 /** 
- *  @file     L1TauOffline.cc
+ *  @file     L1TTauOffline.cc
  *  @authors  Olivier Davignon (University of Bristol), Cécile Caillol (University of Wisconsin - Madison)
  *  @date     24/05/2017  
  *  @version  1.0 
