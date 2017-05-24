@@ -138,6 +138,8 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     # Pixel-Tracks&Vertices Reco
     #----------------------------
     process.reconstructionStep = cms.Sequence(process.siPixelDigis*
+                                              process.siStripDigis *
+                                              process.striptrackerlocalreco *
                                               process.offlineBeamSpot*
                                               process.siPixelClustersPreSplitting*
                                               process.siPixelRecHitsPreSplitting*
