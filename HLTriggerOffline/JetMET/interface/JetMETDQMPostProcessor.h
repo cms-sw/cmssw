@@ -18,12 +18,15 @@ class JetMETDQMPostProcessor : public DQMEDHarvester{
   
   TProfile* dividehistos(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, const std::string& numName, const std::string& denomName, const std::string& outName, const std::string& label, const std::string& titel);
 
+  TProfile* profilehistos(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, const std::string& histName, const std::string& outName, const std::string& label, const std::string& titel);
+
  private:
-  std::string subDir_, patternJetTrg_, patternMetTrg_;
+  std::string subDir_, patternJetTrg_, patternMetTrg_,JetResponse_;
 
   void Efficiency(int passing, int total, double level, double &mode, double &lowerBound, double &upperBound);
 
   TH1F *getHistogram(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, const std::string &histoPath);
+  TH2F *get2DHistogram(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, const std::string &histoPath);
 
 };
 

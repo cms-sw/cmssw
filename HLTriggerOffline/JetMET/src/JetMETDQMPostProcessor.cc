@@ -20,6 +20,7 @@ JetMETDQMPostProcessor::JetMETDQMPostProcessor(const edm::ParameterSet& pset)
   subDir_ = pset.getUntrackedParameter<std::string>("subDir");
   patternJetTrg_ = pset.getUntrackedParameter<std::string>("PatternJetTrg","");
   patternMetTrg_ = pset.getUntrackedParameter<std::string>("PatternMetTrg","");
+  JetResponse_   = pset.getUntrackedParameter<std::string>("JetResponseTag","");
 }
 
 void JetMETDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter)
@@ -30,6 +31,7 @@ void JetMETDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGe
 
   bool isJetDir = false;
   bool isMetDir = false;
+  bool isJetRespDir = false;
 
   TPRegexp patternJet(patternJetTrg_);
   TPRegexp patternMet(patternMetTrg_);
@@ -48,9 +50,11 @@ void JetMETDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGe
 
     isJetDir = false;
     isMetDir = false;
+    isJetRespDir = false;
 
-    if (TString(*dir).Contains(patternJet)) isJetDir = true;
-    if (TString(*dir).Contains(patternMet)) isMetDir = true;
+    if (TString(*dir).Contains(patternJet))   isJetDir = true;
+    if (TString(*dir).Contains(patternMet))   isMetDir = true;
+    if (TString(*dir).Contains(JetResponse_)) isJetRespDir = true;
     
     if (isMetDir) {
 
@@ -85,6 +89,14 @@ void JetMETDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGe
       dividehistos(ibooker, igetter, "_meHLTJetEtaTrg", "_meHLTJetEtaTrgLow", "_meTurnOnhJetEta", "HLT Jet EtaLow", "HLT Jet Eta Turn-On Data");
       dividehistos(ibooker, igetter, "_meHLTJetPhiTrgMC", "_meHLTJetPhi", "_meTurnOnhJetPhi", "HLT Jet Phi", "HLT Jet Phi Turn-On RelVal");
       dividehistos(ibooker, igetter, "_meHLTJetPhiTrg", "_meHLTJetPhiTrgLow", "_meTurnOnhJetPhi", "HLT Jet PhiLow", "HLT Jet Phi Turn-On Data");
+
+    }
+    if (isJetRespDir){
+      //HLTJets
+      profilehistos(ibooker, igetter, "_meHLTGenJetResVsGenJetPt",  "JetResponseProfile", "GenJet Pt[GeV]", "Jet Response");
+      profilehistos(ibooker, igetter, "_meHLTGenJetResVsGenJetPtHEP17",  "JetResponseHEP17Profile", "GenJet Pt[GeV]", "Jet Response(HEP17)");
+      profilehistos(ibooker, igetter, "_meHLTGenJetResVsGenJetPtHEM17",  "JetResponseHEM17Profile", "GenJet Pt[GeV]", "Jet Response(HEM17)");
+      profilehistos(ibooker, igetter, "_meHLTGenJetResVsGenJetPtHEP18",  "JetResponseHEP18Profile", "GenJet Pt[GeV]", "Jet Response(HEP18)");
 
     }
     
@@ -138,6 +150,25 @@ JetMETDQMPostProcessor::dividehistos(DQMStore::IBooker & ibooker, DQMStore::IGet
   return out;
 }
 
+TProfile* 
+JetMETDQMPostProcessor::profilehistos(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, const std::string& histName, const std::string& outName, const std::string& label, const std::string& titel)
+{
+  //ibooker.pwd();
+  //std::cout << "In dividehistos: " << ibooker.pwd() << std::endl;
+  
+
+  TH2F* hSrc = get2DHistogram(ibooker, igetter, ibooker.pwd()+"/"+histName);
+  if (hSrc == NULL)
+    edm::LogWarning("JetMETDQMPostProcessor") << "hSrcerator histogram " << ibooker.pwd()+"/"+histName << " does not exist";
+  TProfile* profile(hSrc->ProfileX());  
+  profile->GetXaxis()->SetTitle(label.c_str());
+//  ibooker.bookProfile(outName, profile->get());
+std::unique_ptr<TProfile> test(hSrc->ProfileX());
+test->SetTitle(titel.c_str());
+//test->SetLabel(label.c_str());
+ibooker.bookProfile(outName, test.get());
+  return profile;
+}
 //----------------------------------------------------------------------
 TH1F *
 JetMETDQMPostProcessor::getHistogram(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, const std::string &histoPath)
@@ -149,7 +180,16 @@ JetMETDQMPostProcessor::getHistogram(DQMStore::IBooker & ibooker, DQMStore::IGet
   else
     return NULL;
 }
-
+TH2F *
+JetMETDQMPostProcessor::get2DHistogram(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, const std::string &histoPath)
+{
+  ibooker.pwd();
+  MonitorElement *monElement = igetter.get(histoPath);
+  if (monElement != NULL)
+    return monElement->getTH2F();
+  else
+    return NULL;
+}
 //----------------------------------------------------------------------
 void
 JetMETDQMPostProcessor::Efficiency(int passing, int total, double level, double &mode, double &lowerBound, double &upperBound)
