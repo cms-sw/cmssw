@@ -6,7 +6,6 @@
 <use name="DQMServices/Core"/>
 <use name="DataFormats/CLHEP"/>
 <use name="DQMOffline/LumiZCounting"/>
-<flags CXXFLAGS="-g -Wall"/>
 <library file="*.cc" name="ZCountingPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>

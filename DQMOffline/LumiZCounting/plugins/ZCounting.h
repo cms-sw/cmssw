@@ -61,15 +61,11 @@ private:
   bool passMuonID(const reco::Muon& muon, const reco::Vertex& vtx, const std::string idType);
   bool passMuonIso(const reco::Muon& muon, const std::string isoType, const float isoCut);
 
-  // specify trigger paths of interest
-  void setTriggers();
-
   // initialization from HLT menu; needs to be called on every change in HLT menu
   void initHLT(const edm::TriggerResults&, const edm::TriggerNames&);
 
   // EDM object collection names
   edm::ParameterSetID fTriggerNamesID;
-  std::string         fHLTFile;
   edm::InputTag       fHLTObjTag;
   edm::InputTag       fHLTTag;
   edm::EDGetTokenT<trigger::TriggerEvent> fHLTObjTag_token;
@@ -83,6 +79,7 @@ private:
 
   // bacon fillers
   baconhep::TTrigger        *fTrigger;
+  //std::unique_ptr<baconhep::TTrigger> *fTrigger;
 
   std::string IDType_;
   std::string IsoType_;

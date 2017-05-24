@@ -9,7 +9,7 @@ namespace baconhep
   class TTrigger 
   {
     public:
-      TTrigger(const std::string iFileName);
+      TTrigger();
       ~TTrigger(){}
 
       // Methods

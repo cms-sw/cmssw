@@ -21,22 +21,12 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 process.GlobalTag.globaltag = '80X_dataRun2_2016SeptRepro_v3'
 
 # trigger filter
-import os
-cmssw_base = os.environ['CMSSW_BASE']
-hlt_filename = "DQMOffline/LumiZCounting/data/HLT_50nsGRun"
 process.load('HLTrigger/HLTfilters/hltHighLevel_cfi')
 process.hltHighLevel.throw = cms.bool(False)
 process.hltHighLevel.HLTPaths = cms.vstring()
 
 
 from CondCore.CondDB.CondDB_cfi import *
-
-hlt_file = open(cmssw_base + "/src/" + hlt_filename, "r")
-for line in hlt_file.readlines():
-  line = line.strip()              # strip preceding and trailing whitespaces
-  if (line[0:3] == 'HLT'):         # assumes typical lines begin with HLT path name (e.g. HLT_Mu15_v1)
-    hlt_path = line.split()[0]
-    process.hltHighLevel.HLTPaths.extend(cms.untracked.vstring(hlt_path))
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.source = cms.Source("PoolSource",
@@ -64,7 +54,6 @@ process.options = cms.untracked.PSet(
   )
 
 process.zcounting = cms.EDAnalyzer('ZCounting',
-                                 TriggerFile     = cms.untracked.string(hlt_filename),
                                  TriggerEvent    = cms.InputTag('hltTriggerSummaryAOD','','HLT'),
                                  TriggerResults  = cms.InputTag('TriggerResults','','HLT'),
 				 edmPVName       = cms.untracked.string('offlinePrimaryVertices'),
