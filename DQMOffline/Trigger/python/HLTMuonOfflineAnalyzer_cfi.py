@@ -10,7 +10,6 @@ hltMuonOfflineAnalyzer = cms.EDAnalyzer("HLTMuonOfflineAnalyzer",
 
     ## HLT paths passing any one of these regular expressions will be included
     hltPathsToCheck = cms.vstring(
-      "HLT_L2Mu10",
       "HLT_Mu17_TrkIsoVVL_v",
       "HLT_Mu45_eta2p1_v1",
       "HLT_Mu50_v",
