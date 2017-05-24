@@ -6,6 +6,7 @@
 #include "EventFilter/L1TRawToDigi/plugins/UnpackerFactory.h"
 
 #include "EventFilter/L1TRawToDigi/plugins/implementations_stage2/MuonUnpacker.h"
+#include "EventFilter/L1TRawToDigi/plugins/implementations_stage2/IntermediateMuonUnpacker.h"
 
 #include "GMTSetup.h"
 
@@ -82,7 +83,8 @@ namespace l1t {
             res[iLink] = gmt_in_unp;
 
          // internal muons
-         auto gmt_imd_unp = UnpackerFactory::get()->make("stage2::IntermediateMuonUnpacker");
+         auto gmt_imd_unp = static_pointer_cast<l1t::stage2::IntermediateMuonUnpacker>(UnpackerFactory::get()->make("stage2::IntermediateMuonUnpacker"));
+         gmt_imd_unp->setAlgoVersion(fw);
          for (int oLink = 49; oLink < 63; oLink += 2)
             res[oLink] = gmt_imd_unp;
 
