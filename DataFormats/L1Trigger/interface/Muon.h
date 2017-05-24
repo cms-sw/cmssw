@@ -58,6 +58,8 @@ namespace l1t {
       double etaAtVtx = 0.,
       double phiAtVtx = 0.);
 
+    Muon( const Muon& );
+
     ~Muon();    
 
     // set values
@@ -96,7 +98,7 @@ namespace l1t {
 
     inline bool debug() const { return debug_; };
     
-  private:
+  protected:
     
     // additional hardware quantities common to L1 global jet
     int hwCharge_;

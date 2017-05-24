@@ -14,5 +14,9 @@ simGmtStage2Digis = cms.EDProducer('L1TMuonProducer',
     triggerTowerInput = cms.InputTag("simGmtCaloSumDigis", "TriggerTowerSums"),
     autoBxRange = cms.bool(True), # if True the output BX range is calculated from the inputs and 'bxMin' and 'bxMax' are ignored
     bxMin = cms.int32(-2),
-    bxMax = cms.int32(2)
+    bxMax = cms.int32(2),
+    runPhase2 = cms.bool(False)
 )
+
+from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
+phase2_muon.toModify( simGmtStage2Digis, runPhase2 =cms.bool(True) )

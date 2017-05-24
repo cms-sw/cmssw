@@ -100,6 +100,19 @@
   <class name="l1t::MuonVectorRef"/>
   <class name="edm::Wrapper<l1t::MuonVectorRef>"/>
 
+  <class name="l1t::MuonPhase2" ClassVersion="10">
+   <version ClassVersion="10" checksum="3306982079"/>
+  </class>
+  <class name="l1t::MuonPhase2BxCollection"/>
+  <class name="std::vector<l1t::MuonPhase2>"/>
+  <class name="edm::Wrapper<l1t::MuonPhase2BxCollection>"/>
+  <class name="l1t::MuonPhase2Ref"/>
+  <class name="edm::Wrapper<l1t::MuonPhase2Ref>"/>
+  <class name="l1t::MuonPhase2RefVector"/>
+  <class name="edm::Wrapper<l1t::MuonPhase2RefVector>"/>
+  <class name="l1t::MuonPhase2VectorRef"/>
+  <class name="edm::Wrapper<l1t::MuonPhase2VectorRef>"/>
+
   <class name="l1t::CaloSpare" ClassVersion="13">
    <version ClassVersion="13" checksum="50826133"/>
    <version ClassVersion="12" checksum="3118488206"/>

@@ -27,6 +27,7 @@
 #include "DataFormats/L1Trigger/interface/EtSum.h"
 #include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/Muon.h"
+#include "DataFormats/L1Trigger/interface/MuonPhase2.h"
 #include "DataFormats/L1Trigger/interface/Tau.h"
 #include "DataFormats/L1Trigger/interface/CaloSpare.h"
 #include "DataFormats/L1Trigger/interface/L1DataEmulResult.h"
@@ -42,6 +43,7 @@ namespace DataFormats_L1Trigger {
     l1t::EtSumBxCollection  etSumBxColl;
     l1t::JetBxCollection    jetBxColl;
     l1t::MuonBxCollection   muonBxColl;
+    l1t::MuonPhase2BxCollection   muonPhase2BxColl;
     l1t::TauBxCollection    tauBxColl;
     l1t::CaloSpareBxCollection caloSpareColl;
     l1t::L1DataEmulResultBxCollection deResult;
@@ -51,6 +53,7 @@ namespace DataFormats_L1Trigger {
     edm::Wrapper<l1t::EtSumBxCollection>  w_etSumBxColl;
     edm::Wrapper<l1t::JetBxCollection>    w_jetBxColl;
     edm::Wrapper<l1t::MuonBxCollection>   w_muonBxColl;
+    edm::Wrapper<l1t::MuonPhase2BxCollection>   w_muonPhase2BxColl;
     edm::Wrapper<l1t::TauBxCollection>    w_tauBxColl;
     edm::Wrapper<l1t::CaloSpareBxCollection> w_caloSpareColl;
     edm::Wrapper<l1t::L1DataEmulResultBxCollection>   w_deResult;
@@ -60,6 +63,7 @@ namespace DataFormats_L1Trigger {
     std::vector<l1t::EtSum> v_etSumBx;
     std::vector<l1t::Jet> v_jetBx;
     std::vector<l1t::Muon> v_muonBx;
+    std::vector<l1t::MuonPhase2> v_muonPhase2Bx;
     std::vector<l1t::Tau> v_tauBx;
     std::vector<l1t::CaloSpare> v_caloSparseBx;
     std::vector<l1t::L1DataEmulResult> v_deResult;
@@ -102,6 +106,13 @@ namespace DataFormats_L1Trigger {
     edm::Wrapper<l1t::MuonRef>   w_refMuon_;
     edm::Wrapper<l1t::MuonRefVector>   w_refVecMuon_;
     edm::Wrapper<l1t::MuonVectorRef>   w_vecRefMuon_;
+
+    l1t::MuonPhase2Ref   refMuonPhase2_;
+    l1t::MuonPhase2RefVector   refVecMuonPhase2_;
+    l1t::MuonPhase2VectorRef   vecRefMuonPhase2_;
+    edm::Wrapper<l1t::MuonPhase2Ref>   w_refMuonPhase2_;
+    edm::Wrapper<l1t::MuonPhase2RefVector>   w_refVecMuonPhase2_;
+    edm::Wrapper<l1t::MuonPhase2VectorRef>   w_vecRefMuonPhase2_;
 
     l1t::TauRef   refTau_;
     l1t::TauRefVector   refVecTau_;
