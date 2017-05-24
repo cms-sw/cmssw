@@ -34,15 +34,15 @@ process.maxEvents = cms.untracked.PSet(
 # xrdcp root://xrootd-cms.infn.it/$f TEST.root
 # echo "file://$PWD/TEST.root" > fileList.local
 # or use fileList.global
-#with open('fileList.local') as f:
-#    fileList = f.readlines()
+with open('fileList.local') as f:
+    fileList = f.readlines()
 # das_client.py --limit 0 --query "file dataset=/RelValTTbarLepton_13/CMSSW_8_1_0_pre12-81X_mcRun2_asymptotic_v8-v1/GEN-SIM-DIGI-RAW-HLTDEBUG" > fileListRAW.global
 # export xrdfile=`head -1 fileListRAW.global`
 # xrdcp root://xrootd-cms.infn.it/$xrdfile TEST_RAW.root
 # echo "file://$PWD/TEST_RAW.root" > fileListRAW.local
 # or use fileListRAW.global
-#with open('fileListRAW.local') as f:
-#    fileListRAW = f.readlines()
+with open('fileListRAW.local') as f:
+    fileListRAW = f.readlines()
 process.source = cms.Source(
     "PoolSource",
 #     fileNames=cms.untracked.vstring(fileList[0]),
