@@ -171,6 +171,8 @@ class DigiTask : public hcaldqm::DQTask
 
 		hcaldqm::Container2D _cSummaryvsLS_FED; // online only
 		hcaldqm::ContainerSingle2D _cSummaryvsLS; // online only
+
+		bool _qie10InConditions; // Flag to protect against QIE10 digis not in conditions in 2016.
 };
 
 #endif

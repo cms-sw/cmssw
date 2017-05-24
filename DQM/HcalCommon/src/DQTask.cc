@@ -74,7 +74,6 @@ namespace hcaldqm
 		}
 
 		//	get the Channel Quality Status for all the channels
-		std::cout << "[DQTask::bookHistograms] DEBUG : get channel quality statuses" << std::endl;
 		edm::ESHandle<HcalChannelQuality> hcq;
 		es.get<HcalChannelQualityRcd>().get("withTopo", hcq);
 		const HcalChannelQuality *cq = hcq.product();
