@@ -1,4 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-demo = cms.EDProducer('CTPPSOpticsParameterisation'
+from SimRomanPot.CTPPSOpticsParameterisation.lhcBeamConditions_cff import lhcBeamConditions_2017PreTS2
+
+ctppsOpticsParameterisation = cms.EDProducer('CTPPSOpticsParameterisation',
+    beamConditions = lhcBeamConditions_2017PreTS2,
 )
