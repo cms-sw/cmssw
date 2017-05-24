@@ -75,13 +75,18 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
   std::pair<Double_t,Double_t> getMAD(TH1F *histo);
   std::pair<std::pair<Double_t,Double_t>, std::pair<Double_t,Double_t> > fitResiduals(TH1 *hist);
   void fillTrendPlot(TH1F* trendPlot, TH1F *residualsPlot[100], TString fitPar_, TString var_);
+  void fillTrendPlotByIndex(TH1F* trendPlot,std::map<unsigned int, TH1*>& h, TString fitPar_, TString var_); 
+
   static bool vtxSort( const reco::Vertex &  a, const reco::Vertex & b );
   bool passesTrackCuts(const reco::Track & track, const reco::Vertex & vertex,std::string qualityString_, double dxyErrMax_,double dzErrMax_, double ptErrMax_);
+
+  std::map<unsigned int, TH1*> bookResidualsHistogram(TFileDirectory dir,unsigned int theNOfBins,TString resType,TString varType); 
   std::map<std::string, TH1*> bookVertexHistograms(TFileDirectory dir);
   void fillTrackHistos(std::map<std::string, TH1*> & h, const std::string & ttype, const reco::TransientTrack *tt, const reco::Vertex & v,const reco::BeamSpot & beamSpot, double fBfield);
   void add(std::map<std::string, TH1*>& h, TH1* hist);
   void fill(std::map<std::string, TH1*>& h, std::string s, double x);
   void fill(std::map<std::string, TH1*>& h, std::string s, double x, double y);
+  void fillByIndex(std::map<unsigned int, TH1*>& h, unsigned int index, double x); 
   void fillMap(TH2F* trendMap, TH1F* residualsMapPlot[100][100], TString fitPar_);
   
   inline double square(double x){
@@ -97,7 +102,7 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
 
   // setting of the number of plots 
   static const int nMaxBins_ = 100; // maximum number of bookable histograms
-
+  
   // Output 
   bool storeNtuple_;
   bool lightNtupleSwitch_;   // switch to keep only info for daily validation     
@@ -105,6 +110,9 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
   
   // requirements on the vertex
   double vertexZMax_;
+
+  // integrated lumi (if info available)
+  double intLumi_;
 
   // requirements on the probe
   bool    askFirstLayerHit_;  // ask hit in the first layer of pixels
@@ -131,9 +139,13 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
 
   static const int nMaxtracks_ = 1000;
   static const int cmToum = 10000;
+  static const int nPtBins_ = 48;
 
   float phiSect_;
   float etaSect_;
+
+  //                          0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20  21  22  23  24  25  26  27  28  29  30  31  32  33  34  35  36   37  38   39  40  41  42  43  44  45   46  47  48
+  const Double_t mypT_bins[49] = {0.5,0.6,0.7,0.8,0.9,1.0,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2.0,2.1,2.2,2.3,2.4,2.5,2.6,2.7,2.8,2.9,3.0,3.1,3.2,3.3,3.4,3.5,3.6,3.7,3.8,3.9,4.0,4.1,4.25,4.5,4.75,5.0,5.5,6.0,7.0,8.0,9.0,11.0,14.0,20.}; 
 
   // event-related quantities
   int nTracks_;
@@ -274,7 +286,7 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
   TH1F* n_dzResidualsMap[nMaxBins_][nMaxBins_];
   TH1F* n_d3DResidualsMap[nMaxBins_][nMaxBins_];
   
-  // ---- trends as function of phi
+  // ---- trends as function of phi and eta
   
   TH1F* a_dxyPhiMeanTrend;
   TH1F* a_dxyPhiWidthTrend;
@@ -295,6 +307,28 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
   TH1F* n_dxyEtaWidthTrend;
   TH1F* n_dzEtaMeanTrend;
   TH1F* n_dzEtaWidthTrend;
+
+  // ---- trends as a function of pT
+  
+  TH1F* a_dxypTMeanTrend;
+  TH1F* a_dxypTWidthTrend;
+  TH1F* a_dzpTMeanTrend;
+  TH1F* a_dzpTWidthTrend;
+
+  TH1F* a_dxypTCentralMeanTrend;
+  TH1F* a_dxypTCentralWidthTrend;
+  TH1F* a_dzpTCentralMeanTrend;
+  TH1F* a_dzpTCentralWidthTrend;
+
+  TH1F* n_dxypTMeanTrend;
+  TH1F* n_dxypTWidthTrend;
+  TH1F* n_dzpTMeanTrend;
+  TH1F* n_dzpTWidthTrend;
+
+  TH1F* n_dxypTCentralMeanTrend;
+  TH1F* n_dxypTCentralWidthTrend;
+  TH1F* n_dzpTCentralMeanTrend;
+  TH1F* n_dzpTCentralWidthTrend;
 
   // ---- medians and MAD
 
@@ -435,6 +469,9 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
   TH1F* h_nClus;
   TH1F* h_nOfflineVertices;
   TH1F* h_runNumber;
+  TH1F* h_lumiFromConfig;
+  TH1I* h_runFromConfig;
+  TH1I* h_runFromEvent;
   TH1F* h_xOfflineVertex;
   TH1F* h_yOfflineVertex;
   TH1F* h_zOfflineVertex;
@@ -509,6 +546,18 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
   TH1F* h_recoVtxSumPt_;   
 
   std::map<std::string, TH1*> hDA;
+  
+  // histograms for the plots as function of pT
+
+  std::map<unsigned int,TH1*> h_dxy_pT_;
+  std::map<unsigned int,TH1*> h_dz_pT_;
+  std::map<unsigned int,TH1*> h_norm_dxy_pT_;
+  std::map<unsigned int,TH1*> h_norm_dz_pT_;
+
+  std::map<unsigned int,TH1*> h_dxy_Central_pT_;
+  std::map<unsigned int,TH1*> h_dz_Central_pT_;
+  std::map<unsigned int,TH1*> h_norm_dxy_Central_pT_;
+  std::map<unsigned int,TH1*> h_norm_dz_Central_pT_;   
 
 };
 

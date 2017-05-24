@@ -70,6 +70,7 @@ PrimaryVertexValidation::PrimaryVertexValidation(const edm::ParameterSet& iConfi
   lightNtupleSwitch_(iConfig.getParameter<bool>("isLightNtuple")),
   useTracksFromRecoVtx_(iConfig.getParameter<bool>("useTracksFromRecoVtx")),
   vertexZMax_(iConfig.getUntrackedParameter<double>("vertexZMax",99.)),
+  intLumi_(iConfig.getUntrackedParameter<double>("intLumi",0.)),
   askFirstLayerHit_(iConfig.getParameter<bool>("askFirstLayerHit")),
   doBPix_(iConfig.getUntrackedParameter<bool>("doBPix",true)),
   doFPix_(iConfig.getUntrackedParameter<bool>("doFPix",true)),
@@ -409,6 +410,11 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   
   RunNumber_=iEvent.eventAuxiliary().run();
   h_runNumber->Fill(RunNumber_);
+
+  if(h_runFromEvent->GetEntries()==0){
+    h_runFromEvent->SetBinContent(1,RunNumber_);
+  }
+
   LuminosityBlockNumber_=iEvent.eventAuxiliary().luminosityBlock();
   EventNumber_=iEvent.eventAuxiliary().id().event();
     
@@ -697,6 +703,35 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 	      float tracketa = theTrack.eta();
 	      float trackpt  = theTrack.pt();
 
+	      
+	      // filling the pT-binned distributions
+
+	      for(int ipTBin=0; ipTBin<nPtBins_; ipTBin++){
+		
+		float pTF = mypT_bins[ipTBin];
+		float pTL = mypT_bins[ipTBin+1];
+		
+		//std::cout<<"ipTBin:"<<ipTBin<< " "<<mypT_bins[ipTBin]<< " < pT < "<<mypT_bins[ipTBin+1]<<std::endl;
+		
+		if( fabs(tracketa)<1.5 && (trackpt >= pTF && trackpt < pTL) ){
+		  
+		  //std::cout<<"passes this cut: "<<mypT_bins[ipTBin]<<std::endl;
+		  fillByIndex(h_dxy_pT_,ipTBin,dxyFromMyVertex*cmToum);
+		  fillByIndex(h_dz_pT_,ipTBin,dzFromMyVertex*cmToum);
+		  fillByIndex(h_norm_dxy_pT_,ipTBin,dxyFromMyVertex/s_ip2dpv_err);
+		  fillByIndex(h_norm_dz_pT_,ipTBin,dzFromMyVertex/dz_err);
+		  
+		  if(fabs(tracketa)<1.){
+		    
+		    //std::cout<<"passes tight eta cut: "<<mypT_bins[ipTBin]<<std::endl;
+		    fillByIndex(h_dxy_Central_pT_,ipTBin,dxyFromMyVertex*cmToum);
+		    fillByIndex(h_dz_Central_pT_,ipTBin,dzFromMyVertex*cmToum);
+		    fillByIndex(h_norm_dxy_Central_pT_,ipTBin,dxyFromMyVertex/s_ip2dpv_err);
+		    fillByIndex(h_norm_dz_Central_pT_,ipTBin,dzFromMyVertex/dz_err);
+		  }
+		}
+	      }
+	      
 	      // checks on the probe track quality
 	      if(trackpt >= ptOfProbe_ && fabs(tracketa)<= etaOfProbe_){
 
@@ -1054,6 +1089,17 @@ void PrimaryVertexValidation::beginJob()
 
   TH1F::SetDefaultSumw2(kTRUE);
 
+  h_lumiFromConfig    = EventFeatures.make<TH1F>("h_lumiFromConfig","luminosity from config;;luminosity of present run",1,-0.5,0.5);
+  h_lumiFromConfig->SetBinContent(1,intLumi_);
+
+  h_runFromConfig     = EventFeatures.make<TH1I>("h_runFromConfig","run number from config;;run number (from configuration)",
+						 runControlNumbers_.size(),0.,runControlNumbers_.size());
+  for(unsigned int r=0;r<runControlNumbers_.size();r++){
+    h_runFromConfig->SetBinContent(r+1,runControlNumbers_[r]);
+  }
+  
+  h_runFromEvent      = EventFeatures.make<TH1I>("h_runFromEvent","run number from config;;run number (from event)",1,-0.5,0.5);
+
   h_nTracks           = EventFeatures.make<TH1F>("h_nTracks","number of tracks per event;n_{tracks}/event;n_{events}",300,-0.5,299.5);	     
   h_nClus             = EventFeatures.make<TH1F>("h_nClus","number of track clusters;n_{clusters}/event;n_{events}",50,-0.5,49.5);	     
   h_nOfflineVertices  = EventFeatures.make<TH1F>("h_nOfflineVertices","number of offline reconstructed vertices;n_{vertices}/event;n_{events}",50,-0.5,49.5);  
@@ -1091,9 +1137,9 @@ void PrimaryVertexValidation::beginJob()
   h_probeQoverP_     = ProbeFeatures.make<TH1F>("h_probeQoverP","q/p of probe track; track Q/p (GeV^{-1});tracks",200,-1.,1.);
   h_probedzRecoV_    = ProbeFeatures.make<TH1F>("h_probedzRecoV","d_{z}(V_{offline}) of probe track;track d_{z}(V_{off}) (cm);tracks",200,-1.,1.);  
   h_probedxyRecoV_   = ProbeFeatures.make<TH1F>("h_probedxyRecoV","d_{xy}(V_{offline}) of probe track;track d_{xy}(V_{off}) (cm);tracks",200,-1.,1.);      
-  h_probedzRefitV_   = ProbeFeatures.make<TH1F>("h_probedzRefitV","d_{z}(V_{refit}) of probe track;track d_{z}(V_{fit}) (cm);tracks",200,-1.,1.);
+  h_probedzRefitV_   = ProbeFeatures.make<TH1F>("h_probedzRefitV","d_{z}(V_{refit}) of probe track;track d_{z}(V_{fit}) (cm);tracks",200,-0.5,0.5);
   h_probesignIP2DRefitV_ = ProbeFeatures.make<TH1F>("h_probesignIPRefitV","ip_{2D}(V_{refit}) of probe track;track ip_{2D}(V_{fit}) (cm);tracks",200,-1.,1.);
-  h_probedxyRefitV_  = ProbeFeatures.make<TH1F>("h_probedxyRefitV","d_{xy}(V_{refit}) of probe track;track d_{xy}(V_{fit}) (cm);tracks",200,-1.,1.); 
+  h_probedxyRefitV_  = ProbeFeatures.make<TH1F>("h_probedxyRefitV","d_{xy}(V_{refit}) of probe track;track d_{xy}(V_{fit}) (cm);tracks",200,-0.5,0.5); 
 
   h_probez0RefitV_   = ProbeFeatures.make<TH1F>("h_probez0RefitV","z_{0}(V_{refit}) of probe track;track z_{0}(V_{fit}) (cm);tracks",200,-1.,1.);
   h_probed0RefitV_   = ProbeFeatures.make<TH1F>("h_probed0RefitV","d_{0}(V_{refit}) of probe track;track d_{0}(V_{fit}) (cm);tracks",200,-1.,1.);
@@ -1187,6 +1233,36 @@ void PrimaryVertexValidation::beginJob()
 
   TFileDirectory AbsDoubleDiffRes   = fs->mkdir("Abs_DoubleDiffResiduals");
   TFileDirectory NormDoubleDiffRes  = fs->mkdir("Norm_DoubleDiffResiduals");
+  
+  // book residuals vs pT histograms
+  
+  TFileDirectory AbsTranspTRes  = fs->mkdir("Abs_Transv_pT_Residuals"); 
+  h_dxy_pT_      = bookResidualsHistogram(AbsTranspTRes,48,"dxy","pT");	       
+
+  TFileDirectory AbsLongpTRes   = fs->mkdir("Abs_Long_pT_Residuals"); 
+  h_dz_pT_       = bookResidualsHistogram(AbsLongpTRes,48,"dz","pT");		       
+
+  TFileDirectory NormTranspTRes = fs->mkdir("Norm_Transv_pT_Residuals"); 
+  h_norm_dxy_pT_ = bookResidualsHistogram(NormTranspTRes,48,"norm_dxy","pT");	       
+
+  TFileDirectory NormLongpTRes  = fs->mkdir("Norm_Long_pT_Residuals"); 
+  h_norm_dz_pT_  = bookResidualsHistogram(NormLongpTRes,48,"norm_dz","pT");	       
+
+  // book residuals vs pT histograms in central region (|eta|<1.0)
+               
+  TFileDirectory AbsTranspTCentralRes  = fs->mkdir("Abs_Transv_pTCentral_Residuals"); 
+  h_dxy_Central_pT_ = bookResidualsHistogram(AbsTranspTCentralRes,48,"dxy","pTCentral");       
+
+  TFileDirectory AbsLongpTCentralRes   = fs->mkdir("Abs_Long_pTCentral_Residuals"); 
+  h_dz_Central_pT_  = bookResidualsHistogram(AbsLongpTCentralRes,48,"dz","pTCentral");	       
+
+  TFileDirectory NormTranspTCentralRes = fs->mkdir("Norm_Transv_pTCentral_Residuals"); 
+  h_norm_dxy_Central_pT_ = bookResidualsHistogram(NormTranspTCentralRes,48,"norm_dxy","pTCentral");  
+
+  TFileDirectory NormLongpTCentralRes  = fs->mkdir("Norm_Long_pTCentral_Residuals"); 
+  h_norm_dz_Central_pT_  = bookResidualsHistogram(NormLongpTCentralRes,48,"norm_dz","pTCentral");   
+
+  // book residuals as function of phi and eta
 
   for ( int i=0; i<nBins_; ++i ) {
 
@@ -1483,6 +1559,72 @@ void PrimaryVertexValidation::beginJob()
 						 "width(d_{z}/#sigma_{d_{z}}) vs #eta sector;#eta (sector);width(d_{z}/#sigma_{d_{z}})",
 						 nBins_,lowedge,highedge);                        
   
+
+  // means and widhts vs pT and pTCentral
+  
+  a_dxypTMeanTrend  = MeanTrendsDir.make<TH1F> ("means_dxy_pT",
+						"#LT d_{xy} #GT vs pT;p_{T} [GeV];#LT d_{xy} #GT [#mum]",
+						48,mypT_bins); 
+  
+  a_dxypTWidthTrend = WidthTrendsDir.make<TH1F>("widths_dxy_pT",
+						"#sigma_{d_{xy}} vs pT;p_{T} [GeV];#sigma_{d_{xy}} [#mum]",
+						48,mypT_bins);
+  
+  a_dzpTMeanTrend   = MeanTrendsDir.make<TH1F> ("means_dz_pT",
+						"#LT d_{z} #GT vs pT;p_{T} [GeV];#LT d_{z} #GT [#mum]",
+						48,mypT_bins); 
+  
+  a_dzpTWidthTrend  = WidthTrendsDir.make<TH1F>("widths_dz_pT","#sigma_{d_{z}} vs pT;p_{T} [GeV];#sigma_{d_{z}} [#mum]",
+						48,mypT_bins);
+  
+  a_dxypTCentralMeanTrend  = MeanTrendsDir.make<TH1F> ("means_dxy_pTCentral",
+						       "#LT d_{xy} #GT vs p_{T};p_{T}(|#eta|<1.) [GeV];#LT d_{xy} #GT [#mum]",
+						       48,mypT_bins);
+  
+  a_dxypTCentralWidthTrend = WidthTrendsDir.make<TH1F>("widths_dxy_pTCentral",
+						       "#sigma_{d_{xy}} vs p_{T};p_{T}(|#eta|<1.) [GeV];#sigma_{d_{xy}} [#mum]",
+						       48,mypT_bins);
+  
+  a_dzpTCentralMeanTrend   = MeanTrendsDir.make<TH1F> ("means_dz_pTCentral",
+						       "#LT d_{z} #GT vs p_{T};p_{T}(|#eta|<1.) [GeV];#LT d_{z} #GT [#mum]"
+						       ,48,mypT_bins); 
+  
+  a_dzpTCentralWidthTrend  = WidthTrendsDir.make<TH1F>("widths_dz_pTCentral",
+						       "#sigma_{d_{z}} vs p_{T};p_{T}(|#eta|<1.) [GeV];#sigma_{d_{z}} [#mum]",
+						       48,mypT_bins);
+  
+  n_dxypTMeanTrend  = MeanTrendsDir.make<TH1F> ("norm_means_dxy_pT",
+						"#LT d_{xy}/#sigma_{d_{xy}} #GT vs pT;p_{T} [GeV];#LT d_{xy}/#sigma_{d_{xy}} #GT",
+						48,mypT_bins);
+  
+  n_dxypTWidthTrend = WidthTrendsDir.make<TH1F>("norm_widths_dxy_pT",
+						"width(d_{xy}/#sigma_{d_{xy}}) vs pT;p_{T} [GeV]; width(d_{xy}/#sigma_{d_{xy}})",
+						48,mypT_bins);
+  
+  n_dzpTMeanTrend   = MeanTrendsDir.make<TH1F> ("norm_means_dz_pT",
+						"#LT d_{z}/#sigma_{d_{z}} #GT vs pT;p_{T} [GeV];#LT d_{z}/#sigma_{d_{z}} #GT",
+						48,mypT_bins); 
+  
+  n_dzpTWidthTrend  = WidthTrendsDir.make<TH1F>("norm_widths_dz_pT",
+						"width(d_{z}/#sigma_{d_{z}}) vs pT;p_{T} [GeV];width(d_{z}/#sigma_{d_{z}})",
+						48,mypT_bins);
+  
+  n_dxypTCentralMeanTrend  = MeanTrendsDir.make<TH1F> ("norm_means_dxy_pTCentral",
+						       "#LT d_{xy}/#sigma_{d_{xy}} #GT vs p_{T};p_{T}(|#eta|<1.) [GeV];#LT d_{xy}/#sigma_{d_{z}} #GT",
+						       48,mypT_bins);
+  
+  n_dxypTCentralWidthTrend = WidthTrendsDir.make<TH1F>("norm_widths_dxy_pTCentral",
+						       "width(d_{xy}/#sigma_{d_{xy}}) vs p_{T};p_{T}(|#eta|<1.) [GeV];width(d_{xy}/#sigma_{d_{z}})",
+						       48,mypT_bins);
+  
+  n_dzpTCentralMeanTrend   = MeanTrendsDir.make<TH1F> ("norm_means_dz_pTCentral",
+						       "#LT d_{z}/#sigma_{d_{z}} #GT vs p_{T};p_{T}(|#eta|<1.) [GeV];#LT d_{z}/#sigma_{d_{z}} #GT",
+						       48,mypT_bins);  
+  
+  n_dzpTCentralWidthTrend  = WidthTrendsDir.make<TH1F>("norm_widths_dz_pTCentral",
+						       "width(d_{z}/#sigma_{d_{z}}) vs p_{T};p_{T}(|#eta|<1.) [GeV];width(d_{z}/#sigma_{d_{z}})",
+						       48,mypT_bins); 
+
   // 2D maps
 
   a_dxyMeanMap       =  Mean2DMapsDir.make<TH2F>  ("means_dxy_map",
@@ -1936,6 +2078,28 @@ void PrimaryVertexValidation::endJob()
   fillTrendPlot(n_dzEtaMeanTrend  ,n_dzEtaResiduals ,"mean","eta"); 
   fillTrendPlot(n_dzEtaWidthTrend ,n_dzEtaResiduals ,"width","eta");
     
+  // vs ladder and module
+
+  fillTrendPlotByIndex(a_dxypTMeanTrend ,h_dxy_pT_,"mean","phi");  
+  fillTrendPlotByIndex(a_dxypTWidthTrend,h_dxy_pT_,"width","phi");
+  fillTrendPlotByIndex(a_dzpTMeanTrend  ,h_dz_pT_,"mean","phi");   
+  fillTrendPlotByIndex(a_dzpTWidthTrend ,h_dz_pT_,"width","phi");  
+  
+  fillTrendPlotByIndex(a_dxypTCentralMeanTrend ,h_dxy_Central_pT_,"mean","eta"); 
+  fillTrendPlotByIndex(a_dxypTCentralWidthTrend,h_dxy_Central_pT_,"width","eta");
+  fillTrendPlotByIndex(a_dzpTCentralMeanTrend  ,h_dz_Central_pT_,"mean","eta"); 
+  fillTrendPlotByIndex(a_dzpTCentralWidthTrend ,h_dz_Central_pT_,"width","eta");
+  
+  fillTrendPlotByIndex(n_dxypTMeanTrend ,h_norm_dxy_pT_,"mean","phi"); 
+  fillTrendPlotByIndex(n_dxypTWidthTrend,h_norm_dxy_pT_,"width","phi");
+  fillTrendPlotByIndex(n_dzpTMeanTrend  ,h_norm_dz_pT_,"mean","phi"); 
+  fillTrendPlotByIndex(n_dzpTWidthTrend ,h_norm_dz_pT_,"width","phi");
+  
+  fillTrendPlotByIndex(n_dxypTCentralMeanTrend ,h_norm_dxy_Central_pT_,"mean","eta"); 
+  fillTrendPlotByIndex(n_dxypTCentralWidthTrend,h_norm_dxy_Central_pT_,"width","eta");
+  fillTrendPlotByIndex(n_dzpTCentralMeanTrend  ,h_norm_dz_Central_pT_,"mean","eta"); 
+  fillTrendPlotByIndex(n_dzpTCentralWidthTrend ,h_norm_dz_Central_pT_,"width","eta");
+
   // medians and MADs	  
   
   fillTrendPlot(a_dxyPhiMedianTrend,a_dxyPhiResiduals,"median","phi");  
@@ -2214,6 +2378,41 @@ void PrimaryVertexValidation::fillTrendPlot(TH1F* trendPlot, TH1F* residualsPlot
 }
 
 //*************************************************************
+void PrimaryVertexValidation::fillTrendPlotByIndex(TH1F* trendPlot,std::map<unsigned int, TH1*>& h, TString fitPar_, TString var_)
+//*************************************************************
+{  
+  for(auto iterator = h.begin(); iterator != h.end(); iterator++) {
+    
+    unsigned int bin = (iterator->first)+1;
+    std::pair<std::pair<Double_t,Double_t>, std::pair<Double_t,Double_t>  > myFit = fitResiduals(iterator->second);
+    
+    if(fitPar_=="mean"){
+      float mean_      = myFit.first.first;
+      float meanErr_   = myFit.first.second;
+      trendPlot->SetBinContent(bin,mean_);
+      trendPlot->SetBinError(bin,meanErr_);
+    } else if (fitPar_=="width"){
+      float width_     = myFit.second.first;
+      float widthErr_  = myFit.second.second;
+      trendPlot->SetBinContent(bin,width_);
+      trendPlot->SetBinError(bin,widthErr_);
+    } else if (fitPar_=="median"){
+      float median_    = getMedian((TH1F*)iterator->second).first;
+      float medianErr_ = getMedian((TH1F*)iterator->second).second;
+      trendPlot->SetBinContent(bin,median_);
+      trendPlot->SetBinError(bin,medianErr_);
+    } else if (fitPar_=="mad"){
+      float mad_       = getMAD((TH1F*)iterator->second).first; 
+      float madErr_    = getMAD((TH1F*)iterator->second).second;
+      trendPlot->SetBinContent(bin,mad_);
+      trendPlot->SetBinError(bin,madErr_);
+    } else {
+      std::cout<<"PrimaryVertexValidation::fillTrendPlot() "<<fitPar_<<" unknown estimator!"<<std::endl;
+    }
+  }
+}
+
+//*************************************************************
 void PrimaryVertexValidation::fillMap(TH2F* trendMap, TH1F* residualsMapPlot[100][100], TString fitPar_)
 //*************************************************************
 {
@@ -2347,6 +2546,37 @@ std::map<std::string, TH1*> PrimaryVertexValidation::bookVertexHistograms(TFileD
     h["trackQuality_"+types[t]] = dir.make<TH1F>(("trackQuality_"+types[t]).c_str(),"track quality;track quality;tracks", 7, -1., 6.);
   }
 
+  return h;
+  
+}
+
+//*************************************************************
+// Generic booker function
+//*************************************************************
+std::map<unsigned int, TH1*> PrimaryVertexValidation::bookResidualsHistogram(TFileDirectory dir,
+									     unsigned int theNOfBins,
+									     TString resType,
+									     TString varType){
+  TH1F::SetDefaultSumw2(kTRUE);
+  
+  Double_t up   = 1000;
+  Double_t down = -up;
+  
+  if(resType.Contains("norm")){
+    up = up*(1/100);
+    down = down*(1/100);
+  }
+  
+  std::map<unsigned int, TH1*> h;
+  
+  const char* auxResType = (resType.ReplaceAll("_","")).Data();
+  
+  for(unsigned int i=0; i<theNOfBins;i++){
+    h[i] = dir.make<TH1F>(Form("histo_%s_%s_plot%i",resType.Data(),varType.Data(),i),
+			  Form("%s vs %s - bin %i;%s;tracks",auxResType,varType.Data(),i,auxResType),
+			  500,down,up); 
+  }
+  
   return h;
   
 }
@@ -2495,6 +2725,15 @@ void PrimaryVertexValidation::fill(std::map<std::string, TH1*>& h, std::string s
     return;
   }
   h[s]->Fill(x,y);
+}
+
+//*************************************************************
+void PrimaryVertexValidation::fillByIndex(std::map<unsigned int, TH1*>& h, unsigned int index, double x)
+//*************************************************************
+{
+  if(h.count(index)!=0){
+    h[index]->Fill(x);
+  }
 }
 
 //define this as a plug-in
