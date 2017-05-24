@@ -93,13 +93,9 @@ void PixelTrackProducer::store(edm::Event& ev, const TracksWithTTRHs& tracksWith
     unsigned int nHits = tracks->at(k).numberOfValidHits();
     theTrackExtra.setHits(hitCollProd, cc, nHits);
     cc +=nHits;
-    reco::TrackExtra::TrajParams trajParams;
     AlgebraicVector5 v = AlgebraicVector5(0,0,0,0,0);
-    reco::TrackExtra::Chi2sFive chi2s;
-    for (unsigned int i = 0; i < nHits; ++i){
-	chi2s.push_back(0);
-	trajParams.push_back(LocalTrajectoryParameters(v,1.));
-    }
+    reco::TrackExtra::TrajParams trajParams(nHits,LocalTrajectoryParameters(v,1.));
+    reco::TrackExtra::Chi2sFive chi2s(nHits,0);
     theTrackExtra.setTrajParams(std::move(trajParams),std::move(chi2s));
     trackExtras->push_back(theTrackExtra);
   }
