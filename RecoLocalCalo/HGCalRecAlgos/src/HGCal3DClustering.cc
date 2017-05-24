@@ -56,7 +56,6 @@ std::vector<reco::HGCalMultiCluster> HGCal3DClustering::makeClusters(const reco:
   for (unsigned int i = 0; i <= 2*maxlayer+1; ++i) {
     KDTreeBox bounds(minpos[i][0],maxpos[i][0],
 		     minpos[i][1],maxpos[i][1]);
-
     hit_kdtree[i].build(points[i],bounds);
   }
   std::vector<int> vused(es.size(),0);

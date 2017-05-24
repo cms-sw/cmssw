@@ -236,12 +236,10 @@ struct Hexel {
                 tools(tools_in)
         {
                 const GlobalPoint position( std::move( tools->getPosition( detid ) ) );
-
                 weight = hit.energy();
                 x = position.x();
                 y = position.y();
                 z = position.z();
-
         }
         Hexel() :
                 x(0.),y(0.),z(0.),isHalfCell(false),
@@ -268,7 +266,7 @@ std::vector< std::vector<KDNode> > current_v;
 
 std::vector<size_t> sort_by_delta(const std::vector<KDNode> &v){
         std::vector<size_t> idx(v.size());
-        for (size_t i = 0; i != idx.size(); ++i) idx[i] = i;
+        std::iota (std::begin(idx), std::end(idx), 0);
         sort(idx.begin(), idx.end(),
              [&v](size_t i1, size_t i2) {
                         return v[i1].data.delta > v[i2].data.delta;
