@@ -13,6 +13,7 @@ BPHMonitor::BPHMonitor( const edm::ParameterSet& iConfig ) :
   folderName_             ( iConfig.getParameter<std::string>("FolderName") )
   , muoToken_             ( mayConsume<reco::MuonCollection>       (iConfig.getParameter<edm::InputTag>("muons")     ) )  
   , bsToken_              ( mayConsume<reco::BeamSpot>             (iConfig.getParameter<edm::InputTag>("beamSpot")))
+  , trToken_              ( mayConsume<reco::TrackCollection>             (iConfig.getParameter<edm::InputTag>("tracks")))
   , phi_binning_          ( getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("phiPSet")    ) )
   , pt_binning_          ( getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("ptPSet")    ) )
   , eta_binning_          ( getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("etaPSet")    ) )
@@ -22,7 +23,14 @@ BPHMonitor::BPHMonitor( const edm::ParameterSet& iConfig ) :
   , den_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("denGenericTriggerEventPSet"),consumesCollector(), *this))
   , muoSelection_ ( iConfig.getParameter<std::string>("muoSelection") )
   , muoSelection_ref ( iConfig.getParameter<std::string>("muoSelection_ref") )
+  , muoSelection_tag ( iConfig.getParameter<std::string>("muoSelection_tag") )
+  , muoSelection_probe ( iConfig.getParameter<std::string>("muoSelection_probe") )
   , nmuons_     ( iConfig.getParameter<int>("nmuons" )     )
+  , tnp_     ( iConfig.getParameter<int>("tnp" )     )
+  , trOrMu_     ( iConfig.getParameter<int>("trOrMu" )     )
+  , trSelection_ ( iConfig.getParameter<std::string>("muoSelection") )
+  , trSelection_ref ( iConfig.getParameter<std::string>("muoSelection_ref") )
+
 {
 
   muPhi_.numerator   = nullptr;
@@ -35,6 +43,7 @@ BPHMonitor::BPHMonitor( const edm::ParameterSet& iConfig ) :
   mud0_.denominator   = nullptr;
   muz0_.numerator   = nullptr;
   muz0_.denominator = nullptr;
+
 }
 
 BPHMonitor::~BPHMonitor()
@@ -111,30 +120,31 @@ void BPHMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
 				 edm::EventSetup const & iSetup) 
 {  
   
-  std::string histname, histtitle;
+  std::string histname, histtitle, istnp, trMu;
 
-  std::string currentFolder = folderName_ ;
+  if (tnp_) istnp = "Tag_and_Probe/"; else istnp = "";
+  std::string currentFolder = folderName_ + istnp;
   ibooker.setCurrentFolder(currentFolder.c_str());
-  
-  histname = "muPt"; histtitle = "mu_P_{t}";
+  if (trOrMu_) trMu = "tr";else trMu = "mu";
+  histname = trMu+"Pt"; histtitle = trMu+"_P_{t}";
   bookME(ibooker,muPt_,histname,histtitle, pt_binning_.nbins, pt_binning_.xmin, pt_binning_.xmax);
-  setMETitle(muPt_,"Mu_Pt[GeV]","events/1GeV");
+  setMETitle(muPt_,trMu+"_Pt[GeV]","events/1GeV");
 
-  histname = "muPhi"; histtitle = "muPhi";
+  histname =trMu+"Phi"; histtitle =trMu+"Phi";
   bookME(ibooker,muPhi_,histname,histtitle, phi_binning_.nbins, phi_binning_.xmin, phi_binning_.xmax);
-  setMETitle(muPhi_," mu_#phi","events / 0.1 rad");
+  setMETitle(muPhi_,trMu+"_#phi","events / 0.1 rad");
 
-  histname = "muEta"; histtitle = "mu_Eta";
+  histname =trMu+"Eta"; histtitle = trMu+"_Eta";
   bookME(ibooker,muEta_,histname,histtitle, eta_binning_.nbins,eta_binning_.xmin, eta_binning_.xmax);
-  setMETitle(muEta_," mu_#eta","events/ ");
+  setMETitle(muEta_,trMu+"_#eta","events/ ");
 
-  histname = "mu_d0"; histtitle = "mu_d0";
+  histname =trMu+ "_d0"; histtitle =trMu+ "_d0";
   bookME(ibooker,mud0_,histname,histtitle, d0_binning_.nbins,d0_binning_.xmin, d0_binning_.xmax);
-  setMETitle(mud0_," mu_d0","events/bin ");
+  setMETitle(mud0_,trMu+"_d0","events/bin ");
 
-  histname = "mu_z0"; histtitle = "mu_z0";
+  histname = trMu+"_z0"; histtitle =trMu+"_z0";
   bookME(ibooker,muz0_,histname,histtitle, z0_binning_.nbins,z0_binning_.xmin, z0_binning_.xmax);
-  setMETitle(muz0_," mu_z0","events/bin ");
+  setMETitle(muz0_,trMu+"_z0","events/bin ");
 
   // Initialize the GenericTriggerEventFlag
   if ( num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on() ) num_genTriggerEventFlag_->initRun( iRun, iSetup );
@@ -146,17 +156,77 @@ void BPHMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "TLorentzVector.h"
 void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)  {
 
-//  edm::Handle<reco::BeamSpot> const& beamSpot;
-  // Filter out events if Trigger Filtering is requested
-  if (den_genTriggerEventFlag_->on() && ! den_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
-
-  
   edm::Handle<reco::BeamSpot> beamSpot;
   iEvent.getByToken( bsToken_,  beamSpot);
   edm::Handle<reco::MuonCollection> muoHandle;
   iEvent.getByToken( muoToken_, muoHandle );
+    
+
+//  edm::Handle<reco::BeamSpot> const& beamSpot;
+  // Filter out events if Trigger Filtering is requested
+  if (tnp_>0) {
+  if (num_genTriggerEventFlag_->on() && ! num_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
+  std::vector<reco::Muon> tagMuons;
+  std::vector<reco::Muon> probeMuons;
+  for ( auto const & m : *muoHandle ) {
+  if ( muoSelection_tag( m ) ) tagMuons.push_back(m);
+  }
+  for (int i = 0; i<int(tagMuons.size());i++){
+    for ( auto const & m : *muoHandle ) { 
+      if ((tagMuons[i].pt() - m.pt())<=0.01)continue;//not the same  
+      if ((tagMuons[i].p4()+m.p4()).M() >2.596&& (tagMuons[i].p4()+m.p4()).M() <3.596){//near to J/psi mass
+      muPhi_.denominator->Fill(m.phi());
+      muEta_.denominator->Fill(m.eta());
+      muPt_.denominator ->Fill(m.pt());
+      if (muoSelection_probe( m )){
+        muPhi_.numerator->Fill(m.phi());
+        muEta_.numerator->Fill(m.eta());
+        muPt_.numerator ->Fill(m.pt());
+
+        }
+
+      }      
+
+    }
+      
+  }
+    
+
+  }  
+  else{
+    if (trOrMu_){
+      edm::Handle<reco::TrackCollection> trHandle;
+      iEvent.getByToken( trToken_, trHandle );
+  for (auto const & t : *trHandle) {
+    if(!trSelection_ref(t))continue;
+    muPhi_.denominator->Fill(t.phi());
+    muEta_.denominator->Fill(t.eta());
+    muPt_.denominator ->Fill(t.pt());
+  }
+  if (num_genTriggerEventFlag_->on() && ! num_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
+  for (auto const & t : *trHandle) {
+    if(!trSelection_(t))continue;
+    muPhi_.numerator->Fill(t.phi());
+    muEta_.numerator->Fill(t.eta());
+    muPt_.numerator ->Fill(t.pt());
+  }
+
+//  
+
+  
+    }
+
+  else{
+  if (den_genTriggerEventFlag_->on() && ! den_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
+
+//  std::vector<reco::Muon> tagMuons;
+//  for ( auto const & m : *muoHandle ) {
+//    if ( muoSelection_tag( m ) ) tagMuons.push_back(m);
+//  }
+
 
   for (auto const & m : *muoHandle) {
     if(!muoSelection_ref(m))continue;
@@ -173,7 +243,6 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
       muz0_.denominator ->Fill(z0);
     }
   } 
-  // applying selection for numerator
   if (num_genTriggerEventFlag_->on() && ! num_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
   for (auto const & m : *muoHandle) {
     if(!muoSelection_(m))continue;
@@ -190,11 +259,9 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
       muz0_.numerator ->Fill(z0);
     }
   }
-	
-  // filling histograms (num_genTriggerEventFlag_)  
-
+}	
 }
-
+}
 void BPHMonitor::fillHistoPSetDescription(edm::ParameterSetDescription & pset)
 {
   pset.add<int>   ( "nbins");
@@ -211,14 +278,17 @@ void BPHMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
 {
   edm::ParameterSetDescription desc;
   desc.add<std::string>  ( "FolderName", "HLT/BPH/" );
-
   desc.add<edm::InputTag>( "tracks",  edm::InputTag("generalTracks") );
   desc.add<edm::InputTag>( "offlinePVs",     edm::InputTag("offlinePrimaryVertices") );
   desc.add<edm::InputTag>( "beamSpot",edm::InputTag("offlineBeamSpot") );
   desc.add<edm::InputTag>( "muons",    edm::InputTag("muons") );
   desc.add<std::string>("muoSelection", "abs(eta)<1.4 & isPFMuon & isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0");
   desc.add<std::string>("muoSelection_ref", "isPFMuon & isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0");
+  desc.add<std::string>("muoSelection_tag",  "isGlobalMuon && isPFMuon && isTrackerMuon && abs(eta) < 2.4 && innerTrack.hitPattern.numberOfValidPixelHits > 0 && innerTrack.hitPattern.trackerLayersWithMeasurement > 5 && globalTrack.hitPattern.numberOfValidMuonHits > 0 && globalTrack.normalizedChi2 < 10");//tight selection for tag muon
+  desc.add<std::string>("muoSelection_probe", "isPFMuon & isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0");
   desc.add<int>("nmuons",     1);
+  desc.add<int>( "tnp", 0 );
+  desc.add<int>( "trOrMu", 0 );//if =0, track param monitoring
 
   edm::ParameterSetDescription genericTriggerEventPSet;
   genericTriggerEventPSet.add<bool>("andOr");

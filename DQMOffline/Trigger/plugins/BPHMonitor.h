@@ -25,6 +25,8 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/TrackExtra.h"
+#include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
 
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
@@ -80,6 +82,7 @@ private:
 
   edm::EDGetTokenT<reco::MuonCollection>        muoToken_;
   edm::EDGetTokenT<reco::BeamSpot>        bsToken_;
+  edm::EDGetTokenT<reco::TrackCollection>       trToken_;
 
   MEbinning           phi_binning_;
   MEbinning           pt_binning_;
@@ -99,7 +102,13 @@ private:
   GenericTriggerEventFlag* den_genTriggerEventFlag_;
   StringCutObjectSelector<reco::Muon,true>        muoSelection_;
   StringCutObjectSelector<reco::Muon,true>        muoSelection_ref;
+  StringCutObjectSelector<reco::Muon,true>        muoSelection_tag;
+  StringCutObjectSelector<reco::Muon,true>        muoSelection_probe;
   int nmuons_;
+  int tnp_;
+  int trOrMu_;
+  StringCutObjectSelector<reco::Track,true>        trSelection_;
+  StringCutObjectSelector<reco::Track,true>        trSelection_ref;
 
 };
 

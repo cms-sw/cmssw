@@ -4,6 +4,7 @@ from DQMOffline.Trigger.bphMonitoring_cfi import bphMonitoring
 
 hltBPHmonitoring = bphMonitoring.clone()
 hltBPHmonitoring.FolderName = cms.string('HLT/BPH/Dimuon_10_Jpsi_Barrel/')
+hltBPHmonitoring.tnp = cms.int32(1)
 hltBPHmonitoring.histoPSet.ptPSet = cms.PSet(
   nbins = cms.int32 (  200  ),
   xmin  = cms.double(   -0.5),
@@ -42,7 +43,7 @@ hltBPHmonitoring.numGenericTriggerEventPSet.hltInputTag   = cms.InputTag( "Trigg
 hltBPHmonitoring.numGenericTriggerEventPSet.hltPaths      = cms.vstring("HLT_Dimuon10_Jpsi_Barrel") # HLT_ZeroBias_v*
 hltBPHmonitoring.numGenericTriggerEventPSet.hltDBKey      = cms.string("diMu10")
 hltBPHmonitoring.numGenericTriggerEventPSet.errorReplyHlt = cms.bool( False )
-hltBPHmonitoring.numGenericTriggerEventPSet.verbosityLevel = cms.uint32(1)
+hltBPHmonitoring.numGenericTriggerEventPSet.verbosityLevel = cms.uint32(0)
 
 hltBPHmonitoring.denGenericTriggerEventPSet.andOr         = cms.bool( False )
 hltBPHmonitoring.denGenericTriggerEventPSet.dcsInputTag   = cms.InputTag( "scalersRawToDigi" )
@@ -50,5 +51,5 @@ hltBPHmonitoring.denGenericTriggerEventPSet.hltPaths  = cms.vstring( "HLT_Dimuon
 hltBPHmonitoring.denGenericTriggerEventPSet.dcsPartitions = cms.vint32 ( 0,1,2,3,5,6,7,8,9,12,13,14,15,16,17,20,22,24, 25, 26, 27, 28, 29 ) # 24-27: strip, 28-29: pixel, we should add all other detectors !TODO
 hltBPHmonitoring.denGenericTriggerEventPSet.andOrDcs      = cms.bool( False )
 hltBPHmonitoring.denGenericTriggerEventPSet.errorReplyDcs = cms.bool( True )
-hltBPHmonitoring.denGenericTriggerEventPSet.verbosityLevel = cms.uint32(1)
+hltBPHmonitoring.denGenericTriggerEventPSet.verbosityLevel = cms.uint32(0)
 
