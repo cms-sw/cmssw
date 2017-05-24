@@ -60,14 +60,14 @@ seqALCARECOHcalCalMinBiasNoHLT = cms.Sequence(hcalDigiAlCaMB*gtDigisAlCaMB*hbher
 
 import RecoLocalCalo.HcalRecProducers.hfprereco_cfi
 hfprerecoNoise = RecoLocalCalo.HcalRecProducers.hfprereco_cfi.hfprereco.clone(
-    digiLabel = cms.InputTag("hcalDigiAlaMB"),
+    digiLabel = cms.InputTag("hcalDigiAlCaMB"),
     dropZSmarkedPassed = cms.bool(False),
     tsFromDB = cms.bool(False),
     sumAllTimeSlices = cms.bool(False),
     forceSOI = cms.int32(0)
 )
 hfprerecoMBNZS = RecoLocalCalo.HcalRecProducers.hfprereco_cfi.hfprereco.clone(
-    digiLabel = cms.InputTag("hcalDigiAlaMB"),
+    digiLabel = cms.InputTag("hcalDigiAlCaMB"),
     dropZSmarkedPassed = cms.bool(False),
     tsFromDB = cms.bool(False),
     sumAllTimeSlices = cms.bool(True),
