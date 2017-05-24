@@ -200,7 +200,7 @@ double HGCalImagingAlgo::calculateLocalDensity(std::vector<KDNode> &nd, KDTree &
 			 nd[i].dims[1]-delta_c,nd[i].dims[1]+delta_c);
     std::vector<KDNode> found;
     lp.search(search_box,found);
-    unsigned int found_size = found.size();
+    const unsigned int found_size = found.size();
     for(unsigned int j = 0; j < found_size; j++){
       if(distance(nd[i].data,found[j].data) < delta_c){
 	    nd[i].data.rho += found[j].data.weight;
@@ -277,7 +277,7 @@ int HGCalImagingAlgo::findAndAssignClusters(std::vector<KDNode> &nd,KDTree &lp, 
   std::vector<size_t> rs = sorted_indices(nd); // indices sorted by decreasing rho
   std::vector<size_t> ds = sort_by_delta(nd); // sort in decreasing distance to higher
 
-  unsigned int nd_size = nd.size();
+  const unsigned int nd_size = nd.size();
   for(unsigned int i=0; i < nd_size; ++i){
 
     if(nd[ds[i]].data.delta < delta_c) break; // no more cluster centers to be looked at
@@ -337,7 +337,7 @@ int HGCalImagingAlgo::findAndAssignClusters(std::vector<KDNode> &nd,KDTree &lp, 
       std::vector<KDNode> found;
       lp.search(search_box,found);
 
-      unsigned int found_size = found.size();
+      const unsigned int found_size = found.size();
       for(unsigned int j = 0; j < found_size; j++){ // start from 0 here instead of 1
 	    //check if the hit is not within d_c of another cluster
 	    if(found[j].data.clusterIndex!=-1){
@@ -490,10 +490,10 @@ void HGCalImagingAlgo::shareEnergy(const std::vector<KDNode>& incluster,
   while( iter++ < iterMax && diff > stoppingTolerance*toleranceScaling ) {
     for( unsigned i = 0; i < incluster.size(); ++i ) {
       const Hexel& ihit = incluster[i].data;
-      double fraction(0.0), fracTot(0.0), d2(0.0);
+      double fracTot(0.0);
       for( unsigned j = 0; j < seeds.size(); ++j ) {
-	fraction = 0.0;
-	d2 = ( std::pow(ihit.x - centroids[j].x(),2.0) +
+	double fraction = 0.0;
+	double d2 = ( std::pow(ihit.x - centroids[j].x(),2.0) +
 	       std::pow(ihit.y - centroids[j].y(),2.0) +
 	       std::pow(ihit.z - centroids[j].z(),2.0)   )/sigma2;
 	dist2[j] = d2;
@@ -561,16 +561,15 @@ void HGCalImagingAlgo::computeThreshold() {
 	  // no need to do it twice
 	  if(rhtools_.zside(detid)<0) continue;
 	  int layer = rhtools_.getLayerWithOffset(detid);
-
 	  float thickness = rhtools_.getSiThickness(detid);
-      int thickIndex = -1;
+	  int thickIndex = -1;
 	  if( thickness>99. && thickness<101.) thickIndex=0;
 	  else if( thickness>199. && thickness<201. ) thickIndex=1;
 	  else if( thickness>299. && thickness<301. ) thickIndex=2;
 	  else assert( thickIndex>0 && "ERROR - silicon thickness has a nonsensical value" );
 	  float sigmaNoise = 0.001 * fcPerEle * nonAgedNoises[thickIndex] * dEdXweights[layer] / (fcPerMip[thickIndex] * thicknessCorrection[thickIndex]);
 	  thresholds[layer-1][wafer]=sigmaNoise*ecut;
-      v_sigmaNoise[layer-1][wafer] = sigmaNoise;
+	  v_sigmaNoise[layer-1][wafer] = sigmaNoise;
 	}
     }
 

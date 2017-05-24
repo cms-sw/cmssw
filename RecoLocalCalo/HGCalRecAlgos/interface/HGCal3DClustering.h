@@ -23,7 +23,7 @@ public:
   {
   }
 
- HGCal3DClustering(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes, std::vector<double> radii_in, uint32_t min_clusters) :
+ HGCal3DClustering(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes, const std::vector<double>& radii_in, uint32_t min_clusters) :
   radii(radii_in),
   minClusters(min_clusters),
   points(2*(maxlayer+1)),
