@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from DQM.HLTEvF.HLTObjectsMonitor_EGM_cfi import *
-
 hltObjectsMonitor = cms.EDAnalyzer('HLTObjectsMonitor',
     TopFolder = cms.string("HLT/Objects"),
 #    debug = cms.untracked.bool(True),
@@ -355,82 +353,6 @@ hltObjectsMonitor = cms.EDAnalyzer('HLTObjectsMonitor',
            doPlotDZ     = cms.untracked.bool(False),
            doPlotDiMass = cms.untracked.bool(False),
        ),
-#       jetAK8 = cms.PSet(
-       cms.PSet(
-           pathNAME = cms.string("HLT_AK8PFJet360_TrimMass30"),
-           moduleNAME = cms.string("hltAK8SinglePFJet360TrimModMass30"),
-           label  = cms.string("PF jet (AK8)"),
-           xTITLE = cms.string("PF jet (AK8)"),
-           etaBINNING  = cms.vdouble(-2.5,-2.0,-1.5,-1.0,-0.5,0.,0.5,1.0,1.5,2.0,2.5),
-           ptBINNING   = cms.vdouble(0.,10.,20.,30.,40.,50.,60.,70.,80.,90.,100.,110.,120.,130.,140.,150.,160.,170.,180.,190.,200.,210.,220.,230.,240.,250.,300.,310.,320.,330.,340.,350.,360.,370.,380.,390.,400.,410.,420.,430.,440.,450.,460.,470.,480.,490.,500.,510.,520.,530.,540.,550.),
-           phiBINNING  = cms.vdouble(-3.2,-3.,-2.8,-2.6,-2.4,-2.2,-2.0,-1.8,-1.6,-1.4,-1.2,-1.0,-0.8,-0.6,-0.4,-0.2,0.,0.2,0.4,0.6,0.8,1.0,1.2,1.4,1.6,1.8,2.0,2.2,2.4,2.6,2.8,3.0,3.2),
-           massBINNING = cms.vdouble(0.,20.,40.,60.,70.,80.,90.,100.,110.,120.,130.,140.,150.,160.,170.,180.,190.,200.,210.),
-           dxyBINNING    = cms.vdouble(),
-           dzBINNING     = cms.vdouble(),
-           dimassBINNING = cms.vdouble(),
-           displayInPrimary_eta      = cms.bool(True),
-           displayInPrimary_phi      = cms.bool(True),
-           displayInPrimary_pt       = cms.bool(True),
-           displayInPrimary_mass     = cms.bool(True),
-           displayInPrimary_csv      = cms.bool(False),
-           displayInPrimary_etaVSphi = cms.bool(True),
-           displayInPrimary_pt_HEP17 = cms.bool(True),
-           displayInPrimary_pt_HEM17 = cms.bool(True),
-           displayInPrimary_MR       = cms.bool(False),
-           displayInPrimary_RSQ      = cms.bool(False),
-           displayInPrimary_dxy      = cms.bool(False),
-           displayInPrimary_dz       = cms.bool(False),
-           displayInPrimary_dimass   = cms.bool(False),                      
-           doPlot2D    = cms.untracked.bool(True),
-           doPlotETA   = cms.untracked.bool(True),
-           doPlotMASS  = cms.untracked.bool(True),
-           doPlotHEP17 = cms.untracked.bool(True),
-           doPlotCSV   = cms.untracked.bool(False),
-           doCALO      = cms.untracked.bool(False),
-           doPF        = cms.untracked.bool(False),
-           doPlotRazor = cms.untracked.bool(False),
-           doPlotDXY    = cms.untracked.bool(False),
-           doPlotDZ     = cms.untracked.bool(False),
-           doPlotDiMass = cms.untracked.bool(False),
-       ),
-#       tau = cms.PSet(
-       cms.PSet(
-           pathNAME = cms.string("HLT_DoubleMediumCombinedIsoPFTau40_Trk1_eta2p1_Reg"),
-           moduleNAME = cms.string("hltDoublePFTau40TrackPt1MediumIsolationDz02Reg"),
-           label  = cms.string("PF tau"),
-           xTITLE = cms.string("PF tau"),
-           etaBINNING  = cms.vdouble(-2.5,-2.0,-1.5,-1.0,-0.5,0.,0.5,1.0,1.5,2.0,2.5),
-           ptBINNING   = cms.vdouble(0.,10.,20.,30.,40.,50.,60.,70.,80.,90.,100.,110.,120.,130.,140.,150.,160.,170.,180.,190.,200.),
-           phiBINNING  = cms.vdouble(-3.2,-3.,-2.8,-2.6,-2.4,-2.2,-2.0,-1.8,-1.6,-1.4,-1.2,-1.0,-0.8,-0.6,-0.4,-0.2,0.,0.2,0.4,0.6,0.8,1.0,1.2,1.4,1.6,1.8,2.0,2.2,2.4,2.6,2.8,3.0,3.2),
-           massBINNING = cms.vdouble(),
-           dxyBINNING = cms.vdouble(),
-           dzBINNING  = cms.vdouble(),
-           dimassBINNING = cms.vdouble(0.,2.0,4.0,6.0,8.0,10.,12.,14.,20.,40.,60.,70.,80.,84.,86.,88.,90.,92.,94.,96.,100.,120.,140.,160.,200.),
-           displayInPrimary_eta      = cms.bool(True),
-           displayInPrimary_phi      = cms.bool(True),
-           displayInPrimary_pt       = cms.bool(True),
-           displayInPrimary_mass     = cms.bool(False),
-           displayInPrimary_csv      = cms.bool(False),
-           displayInPrimary_etaVSphi = cms.bool(True),
-           displayInPrimary_pt_HEP17 = cms.bool(True),
-           displayInPrimary_pt_HEM17 = cms.bool(True),
-           displayInPrimary_MR       = cms.bool(False),
-           displayInPrimary_RSQ      = cms.bool(False),
-           displayInPrimary_dxy      = cms.bool(False),
-           displayInPrimary_dz       = cms.bool(False),
-           displayInPrimary_dimass   = cms.bool(True),                      
-           doPlot2D    = cms.untracked.bool(True),
-           doPlotETA   = cms.untracked.bool(True),
-           doPlotMASS  = cms.untracked.bool(False),
-           doPlotHEP17 = cms.untracked.bool(True),
-           doPlotCSV   = cms.untracked.bool(False),
-           doCALO      = cms.untracked.bool(False),
-           doPF        = cms.untracked.bool(False),
-           doPlotRazor = cms.untracked.bool(False),
-           doPlotDXY    = cms.untracked.bool(False),
-           doPlotDZ     = cms.untracked.bool(False),
-           doPlotDiMass = cms.untracked.bool(True),           
-       ),
 #       caloMET = cms.PSet(
        cms.PSet(
            pathNAME = cms.string("HLT_MET60_IsoTrk35_Loose"),
@@ -700,4 +622,10 @@ hltObjectsMonitor = cms.EDAnalyzer('HLTObjectsMonitor',
     ),
 )
 
+from DQM.HLTEvF.HLTObjectsMonitor_EGM_cfi import *
+from DQM.HLTEvF.HLTObjectsMonitor_JME_cfi import *
+from DQM.HLTEvF.HLTObjectsMonitor_TAU_cfi import *
+
 hltObjectsMonitor.plots.extend(egmObjects)
+hltObjectsMonitor.plots.extend(jmeObjects)
+hltObjectsMonitor.plots.extend(tauObjects)
