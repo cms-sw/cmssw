@@ -367,8 +367,17 @@ void TopMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
 
   edm::ParameterSetDescription histoPSet;
   edm::ParameterSetDescription metPSet;
+  edm::ParameterSetDescription phiPSet;
+  edm::ParameterSetDescription etaPSet;
+  edm::ParameterSetDescription ptPSet;
   fillHistoPSetDescription(metPSet);
+  fillHistoPSetDescription(phiPSet);
+  fillHistoPSetDescription(ptPSet);
+  fillHistoPSetDescription(etaPSet);
   histoPSet.add<edm::ParameterSetDescription>("metPSet", metPSet);
+  histoPSet.add<edm::ParameterSetDescription>("etaPSet", etaPSet);
+  histoPSet.add<edm::ParameterSetDescription>("phiPSet", phiPSet);
+  histoPSet.add<edm::ParameterSetDescription>("ptPSet", ptPSet);
   std::vector<double> bins = {0.,20.,40.,60.,80.,90.,100.,110.,120.,130.,140.,150.,160.,170.,180.,190.,200.,220.,240.,260.,280.,300.,350.,400.,450.,1000.};
   histoPSet.add<std::vector<double> >("metBinning", bins);
 

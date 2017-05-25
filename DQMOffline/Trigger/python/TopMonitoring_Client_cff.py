@@ -18,4 +18,5 @@ topEfficiency = cms.EDAnalyzer("DQMGenericClient",
 )
 
 topClient = cms.Sequence(
+    topEfficiency
 )
