@@ -205,6 +205,14 @@ bool HeaderLess::operator() (const LHERunInfoProduct::Header &a,
 	return iter2 != b.end();
 }
 
+static std::vector<std::string> checklist{"iseed","Random",".log",".dat",".lhe"};
+static std::vector<std::string> tag_checklist{"","Alpgen","MGGridCard","MGRunCard","mgruncard","MadSpin","madspin"};
+
+bool LHERunInfoProduct::find_if_checklist(const std::string x, std::vector<std::string> checklist) {
+    return checklist.end() != std::find_if(checklist.begin(),checklist.end(),[&](const std::string& y)
+                                            { return x.find(y) != std::string::npos; } );
+}
+
 bool LHERunInfoProduct::isTagComparedInMerge(const std::string& tag) {
         return !(tag == "" || tag.find("Alpgen") == 0 || tag == "MGGridCard" || tag=="MGRunCard" || tag == "mgruncard" || tag=="MadSpin" || tag=="madspin");
 }
@@ -259,33 +267,24 @@ bool LHERunInfoProduct::mergeProduct(const LHERunInfoProduct &other)
         for (unsigned int iter_runcard = 0; iter_runcard < runcard_v2.size(); iter_runcard++){
           
           std::vector<std::string> runcard_v1 = header->lines();
-          runcard_v1.erase( std::remove_if( runcard_v1.begin(), runcard_v1.end(), [](const std::string& x) {
-                                                  return x.find("iseed") != std::string::npos
-                                                  || x.find("Random") != std::string::npos
-                                                  || x.find(".log") != std::string::npos
-                                                  || x.find(".dat") != std::string::npos
-                                                  || x.find(".lhe") != std::string::npos; 
-                                                  } ), 
-                            runcard_v1.end() );        
-          runcard_v2[iter_runcard].erase( std::remove_if( runcard_v2[iter_runcard].begin(), runcard_v2[iter_runcard].end(), [](const std::string& x) { 
-                                                  return x.find("iseed") != std::string::npos
-                                                  || x.find("Random") != std::string::npos
-                                                  || x.find(".log") != std::string::npos
-                                                  || x.find(".dat") != std::string::npos 
-                                                  || x.find(".lhe") != std::string::npos; 
-                                                  } ), 
-                            runcard_v2[iter_runcard].end() );
+          runcard_v1.erase( std::remove_if( runcard_v1.begin(), runcard_v1.end(), 
+                                            [&](const std::string& x){ return find_if_checklist(x,checklist); } ), 
+                                            runcard_v1.end() );
+          runcard_v2[iter_runcard].erase( std::remove_if( runcard_v2[iter_runcard].begin(), runcard_v2[iter_runcard].end(), 
+                                            [&](const std::string& x){ return find_if_checklist(x,checklist); } ), 
+                                            runcard_v2[iter_runcard].end() );
           
           if(std::equal(runcard_v1.begin(), runcard_v1.end(), runcard_v2[iter_runcard].begin())){
             header_compatible = true;
             break;
-          }else{
           }
         }
         if(header_compatible) continue;
       }
       
-			if(isTagComparedInMerge(header->tag())) {
+			if( !find_if_checklist(header->tag(),tag_checklist)
+        // aka isTagComparedInMerge
+        ){ 
 				failed = true;
 			} else {
 				addHeader(*header);	
