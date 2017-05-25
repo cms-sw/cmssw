@@ -36,7 +36,7 @@ hltTOPmonitoring.electrons = cms.InputTag("gedGsfElectrons") # while pfIsolatedE
 hltTOPmonitoring.muons     = cms.InputTag("muons") # while pfIsolatedMuonsEI are reco::PFCandidate !
 
 hltTOPmonitoring.HTdefinition = cms.string('pt>30 & abs(eta)<2.5')
-hltTOPmonitoring.leptJetDeltaRmin = cms.string('0.4')
+hltTOPmonitoring.leptJetDeltaRmin = cms.double(0.4)
 
 hltTOPmonitoring.numGenericTriggerEventPSet.andOr         = cms.bool( False )
 #hltTOPmonitoring.numGenericTriggerEventPSet.dbLabel       = cms.string("ExoDQMTrigger") # it does not exist yet, we should consider the possibility of using the DB, but as it is now it will need a label per path !
