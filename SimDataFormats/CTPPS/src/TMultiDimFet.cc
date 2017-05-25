@@ -1,4 +1,6 @@
-#include "SimRomanPot/CTPPSOpticsParameterisation/interface/TMultiDimFet.h"
+#include "SimDataFormats/CTPPS/interface/TMultiDimFet.h"
+
+ClassImp( TMultiDimFet );
 
 void
 TMultiDimFet::FindParameterization( double precision )

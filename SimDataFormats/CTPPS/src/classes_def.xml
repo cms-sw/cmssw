@@ -1,4 +1,13 @@
 <lcgdict>
+  <class name="LHCOpticsApproximator" ClassVersion="11">
+    <version ClassVersion="11" checksum="3586453489"/>
+  </class>
+  <class name="LHCApertureApproximator" ClassVersion="11">
+    <version ClassVersion="11" checksum="1367444731"/>
+  </class>
+  <class name="TMultiDimFet" ClassVersion="1">
+    <version ClassVersion="1" checksum="466014908"/>
+  </class>
   <!-- protons as simulated upstream -->
   <class name="CTPPSSimProtonTrack" ClassVersion="11">
     <version ClassVersion="11" checksum="2308881548"/>

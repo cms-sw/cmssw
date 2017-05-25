@@ -21,6 +21,8 @@ class TMultiDimFet : public TMultiDimFit
 
   private:
     int fMaxFunctionsTimesNVariables;
+
+  ClassDef( TMultiDimFet, 1 );
 };
 
 #endif

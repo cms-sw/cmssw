@@ -1,6 +1,7 @@
 <use name="root" />
 <use name="FWCore/ParameterSet" />
 <use name="DataFormats/CTPPSDetId" />
+<use name="SimDataFormats/CTPPS" />
 <use name="CommonTools/Utils" />
 <export>
   <lib name="1" />

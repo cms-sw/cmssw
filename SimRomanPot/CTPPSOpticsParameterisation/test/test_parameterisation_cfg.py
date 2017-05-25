@@ -1,26 +1,32 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("OWNPARTICLES")
+process = cms.Process('HLT')
 
-process.load("FWCore.MessageService.MessageLogger_cfi")
+process.load('FWCore.MessageService.MessageLogger_cfi')
+process.load("Configuration.StandardSequences.Services_cff")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
-
-process.source = cms.Source("PoolSource",
-    # replace 'myfile.root' with the source file you want to use
-    fileNames = cms.untracked.vstring(
-        'file:myfile.root'
-    )
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(10),
 )
 
-process.myProducerLabel = cms.EDProducer('CTPPSOpticsParameterisation'
+process.source = cms.Source('EmptySource')
+
+process.load('SimRomanPot.CTPPSOpticsParameterisation.lhcBeamProducer_cfi')
+process.load('SimRomanPot.CTPPSOpticsParameterisation.ctppsOpticsParameterisation_cfi')
+
+process.out = cms.OutputModule('PoolOutputModule',
+    fileName = cms.untracked.string('ctppsSim.root')
 )
 
-process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('myOutputFile.root')
+process.RandomNumberGeneratorService.lhcBeamProducer = cms.PSet(
+    initialSeed = cms.untracked.uint32(1),
+    #engineName = cms.untracked.string('TRandom3'),
 )
 
-  
-process.p = cms.Path(process.myProducerLabel)
+ 
+process.p = cms.Path(
+    process.lhcBeamProducer
+    * process.ctppsOpticsParameterisation
+)
 
 process.e = cms.EndPath(process.out)

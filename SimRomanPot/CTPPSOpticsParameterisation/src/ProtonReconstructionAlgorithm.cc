@@ -4,10 +4,8 @@ ProtonReconstructionAlgorithm::ProtonReconstructionAlgorithm( const edm::Paramet
   beamConditions_( beam_conditions )
 {
   // load optics approximation
-  TFile *f_in_optics = TFile::Open( optics_file.c_str() );
-  if (f_in_optics == NULL) {
-    throw cms::Exception("ProtonReconstructionAlgorithm") << "Can't open file " << optics_file.c_str();
-  }
+  TFile* f_in_optics = TFile::Open( optics_file.c_str() );
+  if ( f_in_optics==NULL ) throw cms::Exception("ProtonReconstructionAlgorithm") << "Can't open file " << optics_file.c_str();
 
   // build RP id, optics object name association
   std::map<unsigned int, std::string> nameMap = {
@@ -20,18 +18,18 @@ ProtonReconstructionAlgorithm::ProtonReconstructionAlgorithm( const edm::Paramet
   // build optics data for each object
   for (const auto &it : nameMap) {
     const unsigned int& rpId = it.first;
-    const TotemRPDetId pot_id( rpId*10 );
+    const TotemRPDetId pot_id( TotemRPDetId::decToRawId( rpId*10 ) );
 
     const std::string &ofName = it.second;
 
-    LHCOpticsApproximator *of_orig = (LHCOpticsApproximator *) f_in_optics->Get(ofName.c_str());
+    std::cout << "retrieving " << ofName.c_str() << " in " << optics_file << std::endl;
 
-    if (of_orig == NULL) {
-      throw cms::Exception("ProtonReconstructionAlgorithm") << "Can't load object " << ofName;
-    }
+    LHCOpticsApproximator* of_orig = dynamic_cast<LHCOpticsApproximator*>( f_in_optics->Get( ofName.c_str() ) );
+
+    if (of_orig == NULL) throw cms::Exception("ProtonReconstructionAlgorithm") << "Can't load object " << ofName;
 
     RPOpticsData rpod;
-    rpod.optics = new LHCOpticsApproximator(* of_orig);
+    rpod.optics = new LHCOpticsApproximator( *of_orig );
 
     // build auxiliary optical functions
     double crossing_angle = 0.;
@@ -214,7 +212,7 @@ ProtonReconstructionAlgorithm::ChiSquareCalculator::operator() ( const double* p
   for (auto &it : *tracks) {
     double crossing_angle = 0.;
     double vtx0_y = 0.;
-    const TotemRPDetId detid( it.potId() );
+    const TotemRPDetId detid( TotemRPDetId::decToRawId( it.potId() ) );
 
     // determine LHC sector from RP id
     if ( detid.arm()==0 ) {

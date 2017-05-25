@@ -32,9 +32,9 @@
 
 #include "SimDataFormats/CTPPS/interface/CTPPSSimProtonTrack.h"
 #include "SimDataFormats/CTPPS/interface/CTPPSSimHit.h"
+#include "SimDataFormats/CTPPS/interface/LHCOpticsApproximator.h"
+#include "SimDataFormats/CTPPS/interface/LHCApertureApproximator.h"
 
-#include "SimRomanPot/CTPPSOpticsParameterisation/interface/LHCOpticsApproximator.h"
-#include "SimRomanPot/CTPPSOpticsParameterisation/interface/LHCApertureApproximator.h"
 #include "SimRomanPot/CTPPSOpticsParameterisation/interface/ProtonReconstructionAlgorithm.h"
 
 class CTPPSOpticsParameterisation : public edm::stream::EDProducer<> {
@@ -188,7 +188,7 @@ CTPPSOpticsParameterisation::transportProtonTrack( const CTPPSSimProtonTrack& in
   // transport the proton into each pot
   for ( const auto& rp : detectorPackages_ ) {
     const unsigned int raw_detid = rp.getParameter<unsigned int>( "rpId" );
-    const TotemRPDetId detid( raw_detid*10 ); //FIXME workaround for strips in 2016
+    const TotemRPDetId detid( TotemRPDetId::decToRawId( raw_detid*10 ) ); //FIXME workaround for strips in 2016
 
     // convert physics kinematics to the LHC reference frame
     double th_x = in_trk.direction().x();
