@@ -20,6 +20,7 @@ hltMuonEfficiencies = cms.EDAnalyzer("DQMGenericClient",
         "Refefficiency_TurnOn_Mu1 'Reference efficiency; Pt; N(pass) / N' Refefficiency_TurnOn_Mu1_numer Refefficiency_TurnOn_Mu1_denom",
         "Refefficiency_TurnOn_Mu2 'Reference efficiency; Pt; N(pass) / N' Refefficiency_TurnOn_Mu2_numer Refefficiency_TurnOn_Mu2_denom",
         "Refefficiency_DZ_Mu 'Reference efficiency; d_{z}; N(pass) / N' Refefficiency_DZ_Mu_numer Refefficiency_DZ_Mu_denom",
+        "Refefficiency_DZ_Vertex 'Reference efficiency; d_{z}; N(pass) / N' Refefficiency_DZ_Vertex_numer Refefficiency_DZ_Vertex_denom",
 
         ),
                                      
@@ -88,6 +89,7 @@ hltMuonRefEfficiencies = cms.EDAnalyzer("HLTMuonRefMethod",
                                                                                 "Refefficiency_DZ_Mu",
                                                                                 "Refefficiency_Pt",
                                                                                 "Refefficiency_Eta",
+                                                                                "Refefficiency_DZ_Mu",
                                                                                 ),
                                         refEff         = cms.untracked.vstring( 'TPefficiencyEtaZ',
                                                                                 'TPefficiencyEtaZ',
@@ -96,6 +98,7 @@ hltMuonRefEfficiencies = cms.EDAnalyzer("HLTMuonRefMethod",
                                                                                 'TPefficiencyDZZ',
                                                                                 'TPefficiencyPtZ',
                                                                                 "TPefficiencyEtaZ",
+                                                                                'TPefficiencyDZZ',
                                                                                 ),
                                         
                                         )
@@ -110,11 +113,13 @@ hltMuonRefEfficienciesMR = cms.EDAnalyzer("HLTMuonRefMethod",
                                                                                   "MR_Refefficiency_TurnOn_Mu2",
                                                                                   "MR_Refefficiency_DZ_Mu",
                                                                                   "MR_Refefficiency_Pt"
+                                                                                  "MR_Refefficiency_DZ_Mu",
                                                                                   ),
                                           refEff         = cms.untracked.vstring( 'MR_TPefficiencyPtZ', 
                                                                                   'MR_TPefficiencyPtZ',
                                                                                   'MR_TPefficiencyDZZ',
-                                                                                  'MR_TPefficiencyPtZ'
+                                                                                  'MR_TPefficiencyPtZ',
+                                                                                  'MR_TPefficiencyDZZ',
                                                                                   ),
                                           
                                           )
