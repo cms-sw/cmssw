@@ -629,7 +629,7 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
           }
           else if (colls.qie11->samples() != ns) {
               // This is horrible
-              edm::LogError("Invalid Data") << "Collection has " << colls.qie11->samples() << " samples per digi, raw data has " << ns << "!";
+              edm::LogError("Invalid Data") << "QIE11 Collection has " << colls.qie11->samples() << " samples per digi, raw data has " << ns << "!";
               return;
           }
 
@@ -671,7 +671,7 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
 	}
 	else if (colls.qie10ZDC->samples() != ns) {
 	  // This is horrible
-	  edm::LogError("Invalid Data") << "Collection has " << colls.qie10ZDC->samples() << " samples per digi, raw data has " << ns << "!";
+	  edm::LogError("Invalid Data") << "QIE10ZDC Collection has " << colls.qie10ZDC->samples() << " samples per digi, raw data has " << ns << "!";
 	  return;
 	}
 	
@@ -680,7 +680,7 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
 	}
 	else if (colls.qie10->samples() != ns) {
 	  // This is horrible
-	  edm::LogError("Invalid Data") << "Collection has " << colls.qie10->samples() << " samples per digi, raw data has " << ns << "!";
+	  edm::LogError("Invalid Data") << "QIE10 Collection has " << colls.qie10->samples() << " samples per digi, raw data has " << ns << "!";
 	  return;
 	}
 
