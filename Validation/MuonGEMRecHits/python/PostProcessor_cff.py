@@ -1,4 +1,4 @@
 import FWCore.ParameterSet.Config as cms
 
-gemRecHitHarvesting = cms.EDAnalyzer("MuonGEMRecHitsHarvestor")
+gemRecHitHarvesting = cms.EDProducer("MuonGEMRecHitsHarvestor")
 MuonGEMRecHitsPostProcessors = cms.Sequence( gemRecHitHarvesting ) 

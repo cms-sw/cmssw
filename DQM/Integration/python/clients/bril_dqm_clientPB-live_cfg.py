@@ -29,7 +29,7 @@ if process.dqmRunConfig.type.value() == "production":
 # remove EventInfo
 process.dqmEnv.eventInfoFolder = 'EventInfo/Random'
 
-process.BrilClient = cms.EDAnalyzer("BrilClient")
+process.BrilClient = cms.EDProducer("BrilClient")
 
 process.bril_path = cms.Path(process.BrilClient)
 process.p = cms.EndPath(process.dqmEnv + process.dqmSaver)

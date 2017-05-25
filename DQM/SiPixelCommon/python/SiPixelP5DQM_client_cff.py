@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 #Client:
-sipixelEDAClientP5 = cms.EDAnalyzer("SiPixelEDAClient",
+sipixelEDAClientP5 = cms.EDProducer("SiPixelEDAClient",
     EventOffsetForInit = cms.untracked.int32(10),
     ActionOnLumiSection = cms.untracked.bool(True), ## do not set to False, otherwise Summary histos not filled!
     ActionOnRunEnd = cms.untracked.bool(True),
@@ -14,9 +14,9 @@ sipixelEDAClientP5 = cms.EDAnalyzer("SiPixelEDAClient",
 )
 
 #DataCertification:
-sipixelDaqInfo = cms.EDAnalyzer("SiPixelDaqInfo")
-sipixelDcsInfo = cms.EDAnalyzer("SiPixelDcsInfo")
-sipixelCertification = cms.EDAnalyzer("SiPixelCertification")
+sipixelDaqInfo = cms.EDProducer("SiPixelDaqInfo")
+sipixelDcsInfo = cms.EDProducer("SiPixelDcsInfo")
+sipixelCertification = cms.EDProducer("SiPixelCertification")
 
 #Predefined Sequences:
 PixelP5DQMClient = cms.Sequence(sipixelEDAClientP5)

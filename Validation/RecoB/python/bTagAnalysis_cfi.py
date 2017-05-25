@@ -20,7 +20,7 @@ bTagValidation = cms.EDAnalyzer("BTagPerformanceAnalyzerMC",
                                 )
 
 
-bTagHarvestMC = cms.EDAnalyzer("BTagPerformanceHarvester",
+bTagHarvestMC = cms.EDProducer("BTagPerformanceHarvester",
                                bTagCommonBlock,
                                produceEps = cms.bool(False),
                                producePs = cms.bool(False),

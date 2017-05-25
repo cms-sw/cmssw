@@ -43,7 +43,7 @@ def _layers(suffix, quant, histoPostfix):
         "effic_vs_{0}_TEC9  'TEC Layer9 Efficiency vs {1}'  Hits{2}_valid_TEC_Subdet9  Hits{2}_total_TEC_Subdet9" .format(suffix, quant, histoPostfix),
     ]
 
-trackingEffFromHitPattern = cms.EDAnalyzer("DQMGenericClient",
+trackingEffFromHitPattern = cms.EDProducer("DQMGenericClient",
                                            subDirs = cms.untracked.vstring(
         "Tracking/TrackParameters/generalTracks/HitEffFromHitPattern*",
         "Tracking/TrackParameters/highPurityTracks/pt_1/HitEffFromHitPattern*",

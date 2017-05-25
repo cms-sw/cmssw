@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-hltExoticaPostProcessor  = cms.EDAnalyzer("DQMGenericClient",
+hltExoticaPostProcessor  = cms.EDProducer("DQMGenericClient",
     subDirs           = cms.untracked.vstring('HLT/Exotica/*'),
     verbose           = cms.untracked.uint32(2),
     outputFileName    = cms.untracked.string(''),

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-dtOccupancyTest = cms.EDAnalyzer("DTOccupancyTest",
+dtOccupancyTest = cms.EDProducer("DTOccupancyTest",
                                  testPulseMode = cms.untracked.bool(False),
                                  runOnAllHitsOccupancies = cms.untracked.bool(True),
                                  runOnNoiseOccupancies = cms.untracked.bool(False),

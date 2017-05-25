@@ -59,7 +59,7 @@ process.hltBtagTriggerSelection = cms.EDFilter( "TriggerResultsFilter",
 process.hltBtagJetsbyRef.jets = cms.InputTag(fileini.jets)
 
 #define VertexValidationVertices for the vertex DQM validation
-process.VertexValidationVertices= cms.EDAnalyzer("HLTVertexPerformanceAnalyzer",
+process.VertexValidationVertices= cms.EDProducer("HLTVertexPerformanceAnalyzer",
 	SimVertexCollection = cms.InputTag("g4SimHits"),
 	TriggerResults = cms.InputTag('TriggerResults','',fileini.processname),
 	HLTPathNames = cms.vstring(fileini.vertex_pathes),
@@ -67,7 +67,7 @@ process.VertexValidationVertices= cms.EDAnalyzer("HLTVertexPerformanceAnalyzer",
 )
 
 #define bTagValidation for the b-tag DQM validation (distribution plot)
-process.bTagValidation = cms.EDAnalyzer("HLTBTagPerformanceAnalyzer",
+process.bTagValidation = cms.EDProducer("HLTBTagPerformanceAnalyzer",
 	TriggerResults = cms.InputTag('TriggerResults','',fileini.processname),
 	HLTPathNames = cms.vstring(fileini.btag_pathes),
 	JetTag = fileini.btag_modules,
@@ -83,7 +83,7 @@ process.bTagValidation = cms.EDAnalyzer("HLTBTagPerformanceAnalyzer",
 )
 
 #define bTagPostValidation for the b-tag DQM validation (efficiency and mistagrate plot)
-process.bTagPostValidation = cms.EDAnalyzer("HLTBTagHarvestingAnalyzer",
+process.bTagPostValidation = cms.EDProducer("HLTBTagHarvestingAnalyzer",
 	HLTPathNames = fileini.btag_pathes,
 	histoName	= fileini.btag_modules_string,
 	minTag	= cms.double(0.6),

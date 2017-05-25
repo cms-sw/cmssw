@@ -70,7 +70,7 @@ process.dqmPath = cms.Path(
 # E/gamma HLT specific DQM configuration
 #----------------------------------------
 
-process.post=cms.EDAnalyzer("EmDQMPostProcessor",
+process.post=cms.EDProducer("EmDQMPostProcessor",
                             subDir = cms.untracked.string("HLT/HLTEgammaValidation"),
                             dataSet = cms.untracked.string("unknown"),
     )

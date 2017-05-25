@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-muTrackResidualsTest = cms.EDAnalyzer("MuonTrackResidualsTest",
+muTrackResidualsTest = cms.EDProducer("MuonTrackResidualsTest",
     sigmaTestName = cms.untracked.string('ResidualsSigmaInRange'),
     meanTestName = cms.untracked.string('ResidualsMeanInRange'),
     # number of luminosity block to analyse

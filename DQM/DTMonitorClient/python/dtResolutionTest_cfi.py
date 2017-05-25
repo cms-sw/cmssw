@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-resolutionTest = cms.EDAnalyzer("DTResolutionTest",
+resolutionTest = cms.EDProducer("DTResolutionTest",
     runningStandalone = cms.untracked.bool(True),
     diagnosticPrescale = cms.untracked.int32(1),
     calibModule = cms.untracked.bool(True),

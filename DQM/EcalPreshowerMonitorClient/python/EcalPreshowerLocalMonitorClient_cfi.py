@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-ecalPreshowerLocalMonitorClient = cms.EDAnalyzer('EcalPreshowerMonitorClient',	
+ecalPreshowerLocalMonitorClient = cms.EDProducer('EcalPreshowerMonitorClient',	
                                             LookupTable = cms.untracked.FileInPath('EventFilter/ESDigiToRaw/data/ES_lookup_table.dat'),
                                             enableCleanup = cms.untracked.bool(False),
                                             enabledClients = cms.untracked.vstring('Pedestal'),

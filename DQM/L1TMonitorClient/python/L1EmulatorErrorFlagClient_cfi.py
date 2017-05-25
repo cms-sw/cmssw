@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-l1EmulatorErrorFlagClient = cms.EDAnalyzer("L1EmulatorErrorFlagClient",
+l1EmulatorErrorFlagClient = cms.EDProducer("L1EmulatorErrorFlagClient",
     #
     # for each L1 system, give:
     #     - SystemLabel:  system label

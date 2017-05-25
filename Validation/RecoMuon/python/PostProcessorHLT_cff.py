@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-postProcessorMuonMultiTrackHLT = cms.EDAnalyzer("DQMGenericClient",
+postProcessorMuonMultiTrackHLT = cms.EDProducer("DQMGenericClient",
     subDirs = cms.untracked.vstring("HLT/Muon/MultiTrack/*"),
     efficiency = cms.vstring(
     "effic 'Efficiency vs #eta' num_assoc(simToReco)_eta num_simul_eta",
@@ -48,7 +48,7 @@ postProcessorMuonMultiTrackHLT = cms.EDAnalyzer("DQMGenericClient",
     outputFileName = cms.untracked.string("")
 )
 
-postProcessorMuonMultiTrackHLTComp = cms.EDAnalyzer(
+postProcessorMuonMultiTrackHLTComp = cms.EDProducer(
     "DQMGenericClient",
     subDirs = cms.untracked.vstring("HLT/Muon/MultiTrack/"), 
     efficiency = cms.vstring(
@@ -63,7 +63,7 @@ postProcessorMuonMultiTrackHLTComp = cms.EDAnalyzer(
     outputFileName = cms.untracked.string("")
     )
 
-postProcessorMuonMultiTrackHLTCompFS = cms.EDAnalyzer(
+postProcessorMuonMultiTrackHLTCompFS = cms.EDProducer(
     "DQMGenericClient",
     subDirs = cms.untracked.vstring("HLT/Muon/MultiTrack/"), 
     efficiency = cms.vstring(

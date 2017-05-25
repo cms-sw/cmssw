@@ -33,7 +33,7 @@ process.FEVT = cms.OutputModule("PoolOutputModule",
      fileName = cms.untracked.string("HcalValHarvestingEDM.root")
 )
 
-process.hcalTowerAnalyzer = cms.EDAnalyzer("CaloTowersValidation",
+process.hcalTowerAnalyzer = cms.EDProducer("CaloTowersValidation",
     outputFile               = cms.untracked.string('CaloTowersValidationRelVal.root'),
     CaloTowerCollectionLabel = cms.untracked.InputTag('towerMaker'),
 
@@ -42,7 +42,7 @@ process.hcalTowerAnalyzer = cms.EDAnalyzer("CaloTowersValidation",
     useAllHistos             = cms.untracked.bool(False)                         
 )
 
-process.hcalNoiseRates = cms.EDAnalyzer('NoiseRates',
+process.hcalNoiseRates = cms.EDProducer('NoiseRates',
     outputFile   = cms.untracked.string('NoiseRatesRelVal.root'),
     rbxCollName  = cms.untracked.InputTag('hcalnoise'),
 
@@ -51,7 +51,7 @@ process.hcalNoiseRates = cms.EDAnalyzer('NoiseRates',
     useAllHistos = cms.untracked.bool(False)                         
 )
 
-process.hcalRecoAnalyzer = cms.EDAnalyzer("HcalRecHitsValidation",
+process.hcalRecoAnalyzer = cms.EDProducer("HcalRecHitsValidation",
     outputFile                = cms.untracked.string('HcalRecHitValidationRelVal.root'),
     HBHERecHitCollectionLabel = cms.untracked.InputTag("hbhereco"),
     HFRecHitCollectionLabel   = cms.untracked.InputTag("hfreco"),
@@ -70,17 +70,17 @@ cmssw_version = os.environ.get('CMSSW_VERSION','CMSSW_X_Y_Z')
 Workflow = '/HcalValidation/'+'Harvesting/'+str(cmssw_version)
 process.dqmSaver.workflow = Workflow
 
-process.calotowersClient = cms.EDAnalyzer("CaloTowersClient", 
+process.calotowersClient = cms.EDProducer("CaloTowersClient", 
      outputFile = cms.untracked.string('CaloTowersHarvestingME.root'),
      DQMDirName = cms.string("/") # root directory
 )
 
-process.noiseratesClient = cms.EDAnalyzer("NoiseRatesClient", 
+process.noiseratesClient = cms.EDProducer("NoiseRatesClient", 
      outputFile = cms.untracked.string('NoiseRatesHarvestingME.root'),
      DQMDirName = cms.string("/") # root directory
 )
 
-process.hcalrechitsClient = cms.EDAnalyzer("HcalRecHitsClient", 
+process.hcalrechitsClient = cms.EDProducer("HcalRecHitsClient", 
      outputFile = cms.untracked.string('HcalRecHitsHarvestingME.root'),
      DQMDirName = cms.string("/") # root directory
 )
