@@ -7,13 +7,13 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-// Reco candidates (might not need)
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
@@ -22,7 +22,6 @@
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 
 
-// Geometry and topology
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
@@ -34,12 +33,7 @@
 #include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/Muon.h"
 
-#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
-#include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
-#include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
-
 #include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
-
 #include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 /**************************************************************
@@ -74,6 +68,7 @@ private:
 class EtaPhiRegionDataBase {
 public:
   EtaPhiRegionDataBase(){}
+  virtual ~EtaPhiRegionDataBase() = default;
   virtual void getEtaPhiRegions(const edm::Event&,std::vector<EtaPhiRegion>&)const=0;
 };
 
@@ -145,6 +140,9 @@ HLTCaloObjInRegionsProducer<CaloObjType,CaloObjCollType>::HLTCaloObjInRegionsPro
 
   outputProductNames_=para.getParameter<std::vector<std::string>>("outputProductNames");
   inputCollTags_=para.getParameter<std::vector<edm::InputTag>>("inputCollTags");
+  if(outputProductNames_.size()!=inputCollTags_.size()){
+    throw cms::Exception("InvalidConfiguration") <<" error outputProductNames and inputCollTags must be the same size, they are "<<outputProductNames_.size()<<" vs "<<inputCollTags_.size();
+  }
   for (unsigned int collNr=0; collNr<inputCollTags_.size(); collNr++) { 
     inputTokens_.push_back(consumes<CaloObjCollType>(inputCollTags_[collNr]));
     produces<CaloObjCollType> (outputProductNames_[collNr]);
@@ -224,7 +222,7 @@ makeFilteredColl(const edm::Handle<CaloObjCollType>& inputColl,
   
   auto outputColl = std::make_unique<CaloObjCollType>();
   if(!inputColl->empty()){
-    const CaloSubdetectorGeometry* subDetGeom=caloGeomHandle->getSubdetectorGeometry(inputColl->front().id());
+    const CaloSubdetectorGeometry* subDetGeom=caloGeomHandle->getSubdetectorGeometry(inputColl->begin()->id());
     if(!regions.empty()){
       for(const CaloObjType& obj : *inputColl){
 	const CaloCellGeometry* objGeom = subDetGeom->getGeometry(obj.id());
@@ -232,7 +230,7 @@ makeFilteredColl(const edm::Handle<CaloObjCollType>& inputColl,
 	  //wondering what to do here
 	  //something is very very wrong
 	  //given HLT should never crash or throw, decided to log an error and 
-	  edm::LogError("HLTCaloObjInRegionsProducer") << "for an object of type "<<typeid(CaloObjType).name()<<" the geometry returned null for id "<<obj.id()<<" in HLTCaloObjsInRegion, this shouldnt be possible and something has gone wrong, auto accepting hit";
+	  edm::LogError("HLTCaloObjInRegionsProducer") << "for an object of type "<<typeid(CaloObjType).name()<<" the geometry returned null for id "<<DetId(obj.id()).rawId()<<" in HLTCaloObjsInRegion, this shouldnt be possible and something has gone wrong, auto accepting hit";
 	  outputColl->push_back(obj);
 	}
 	float eta = objGeom->getPosition().eta();
@@ -298,8 +296,6 @@ void EtaPhiRegionData<CandCollType>::getEtaPhiRegions(const edm::Event& event,st
 }
 
 
-typedef HLTCaloObjInRegionsProducer<HBHEDataFrame> HLTHcalDigisInRegionsProducer;
-DEFINE_FWK_MODULE(HLTHcalDigisInRegionsProducer);
 
 #endif
 

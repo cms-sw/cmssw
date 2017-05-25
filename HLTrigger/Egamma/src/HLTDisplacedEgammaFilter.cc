@@ -48,7 +48,7 @@ HLTDisplacedEgammaFilter::HLTDisplacedEgammaFilter(const edm::ParameterSet& iCon
 
 }
 
-HLTDisplacedEgammaFilter::~HLTDisplacedEgammaFilter(){}
+HLTDisplacedEgammaFilter::~HLTDisplacedEgammaFilter()= default;
 
 void
 HLTDisplacedEgammaFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -85,9 +85,6 @@ HLTDisplacedEgammaFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& i
     filterproduct.addCollectionTag(l1EGTag_);
   }
 
-  // Ref to Candidate object to be recorded in filter object
-   edm::Ref<reco::RecoEcalCandidateCollection> ref;
-
   // get hold of filtered candidates
   //edm::Handle<reco::HLTFilterObjectWithRefs> recoecalcands;
   edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
@@ -110,9 +107,8 @@ HLTDisplacedEgammaFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& i
   // look at all candidates,  check cuts and add to filter object
   int n(0);
 
-  for (unsigned int i=0; i<recoecalcands.size(); i++) {
+  for (auto const & ref : recoecalcands) {
 
-    ref = recoecalcands[i] ;
     if ( EBOnly &&  std::abs( ref->eta() ) >= 1.479  ) continue ;
 
 
@@ -129,16 +125,16 @@ HLTDisplacedEgammaFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& i
     // seed Time
     std::pair<DetId, float> maxRH = EcalClusterTools::getMaximum( *SCseed, rechits );
     DetId seedCrystalId = maxRH.first;
-    EcalRecHitCollection::const_iterator seedRH = rechits->find(seedCrystalId);
+    auto seedRH = rechits->find(seedCrystalId);
     float seedTime = (float)seedRH->time();
     if ( seedTime < seedTimeMin || seedTime > seedTimeMax ) continue ;
 
     //Track Veto
 
     int nTrk = 0 ;
-    for (reco::TrackCollection::const_iterator it = tracks->begin(); it != tracks->end(); it++ )  {
-        if ( it->pt() < trkPtCut ) continue ;
-        LorentzVector trkP4( it->px(), it->py(), it->pz(), it->p() ) ;
+    for (auto const & it : *tracks)  {
+        if ( it.pt() < trkPtCut ) continue ;
+        LorentzVector trkP4( it.px(), it.py(), it.pz(), it.p() ) ;
         double dR =  ROOT::Math::VectorUtil::DeltaR( trkP4 , ref->p4()  ) ;
         if ( dR < trkdRCut )  nTrk++ ;
         if ( nTrk > maxTrkCut ) break ;

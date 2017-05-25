@@ -102,9 +102,7 @@ HLTMuonL2FromL1TPreFilter::HLTMuonL2FromL1TPreFilter(const edm::ParameterSet& iC
   }
 }
 
-HLTMuonL2FromL1TPreFilter::~HLTMuonL2FromL1TPreFilter()
-{
-}
+HLTMuonL2FromL1TPreFilter::~HLTMuonL2FromL1TPreFilter() = default;
 
 void
 HLTMuonL2FromL1TPreFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -167,7 +165,7 @@ bool HLTMuonL2FromL1TPreFilter::hltFilter(edm::Event& iEvent, const edm::EventSe
 
   // look at all allMuons,  check cuts and add to filter object
   int n = 0;
-  for(RecoChargedCandidateCollection::const_iterator cand=allMuons->begin(); cand!=allMuons->end(); cand++){
+  for(auto cand=allMuons->begin(); cand!=allMuons->end(); cand++){
     TrackRef mu = cand->get<TrackRef>();
 
     // check if this muon passed previous level
@@ -242,7 +240,7 @@ bool HLTMuonL2FromL1TPreFilter::hltFilter(edm::Event& iEvent, const edm::EventSe
       <<'\t'<<"isFired"
       <<endl;
     ss<<"-----------------------------------------------------------------------------------------------------------------------"<<endl;
-    for (RecoChargedCandidateCollection::const_iterator cand = allMuons->begin(); cand != allMuons->end(); cand++) {
+    for (auto cand = allMuons->begin(); cand != allMuons->end(); cand++) {
       TrackRef mu = cand->get<TrackRef>();
       ss<<setprecision(2)
         <<cand-allMuons->begin()

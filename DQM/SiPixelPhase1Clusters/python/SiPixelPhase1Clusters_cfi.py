@@ -8,7 +8,7 @@ SiPixelPhase1ClustersCharge = DefaultHistoDigiCluster.clone(
   xlabel = "Charge (electrons)",
 
   specs = VPSet(
-    #StandardSpecification2DProfile,
+    StandardSpecification2DProfile,
     StandardSpecificationPixelmapProfile,
     StandardSpecificationTrend,
     StandardSpecifications1D,
@@ -22,7 +22,7 @@ SiPixelPhase1ClustersSize = DefaultHistoDigiCluster.clone(
   range_min = 0, range_max = 30, range_nbins = 30,
   xlabel = "size[pixels]",
   specs = VPSet(
-    #StandardSpecification2DProfile,
+    StandardSpecification2DProfile,
     StandardSpecificationPixelmapProfile,
     StandardSpecificationTrend,
     StandardSpecifications1D,
@@ -181,12 +181,12 @@ SiPixelPhase1ClustersReadoutCharge = DefaultHistoReadout.clone(
   xlabel = "Charge (electrons)",
   specs = VPSet(
     Specification(PerReadout).groupBy("PXBarrel/Shell/Sector").save(),
-    Specification(PerReadout).groupBy("PXForward/HalfCylinder").save(),
+    Specification(PerReadout).groupBy("PXForward/HalfCylinder").save()
 
-    Specification(PerReadout).groupBy("PXBarrel/Shell/Sector/OnlineBlock")
-                             .groupBy("PXBarrel/Shell/Sector", "EXTEND_Y").save(),
-    Specification(PerReadout).groupBy("PXForward/HalfCylinder/OnlineBlock")
-                             .groupBy("PXForward/HalfCylinder", "EXTEND_Y").save(),
+    #Specification(PerReadout).groupBy("PXBarrel/Shell/Sector/OnlineBlock")
+    #                         .groupBy("PXBarrel/Shell/Sector", "EXTEND_Y").save(),
+    #Specification(PerReadout).groupBy("PXForward/HalfCylinder/OnlineBlock")
+    #                         .groupBy("PXForward/HalfCylinder", "EXTEND_Y").save(),
   )
 )
 
@@ -211,6 +211,26 @@ SiPixelPhase1ClustersReadoutNClusters = DefaultHistoReadout.clone(
   )
 )
 
+SiPixelPhase1ClustersPixelToStripRatio = DefaultHistoDigiCluster.clone(
+  name = "cluster_ratio",
+  title = "Pixel to Strip clusters ratio",
+  
+  xlabel = "ratio",
+  dimensions = 1,
+  
+  specs = VPSet(
+    Specification().groupBy("PXAll").save(100, 0, 1), 
+    Specification().groupBy("PXAll/Lumisection")
+                   .reduce("MEAN") 
+                   .groupBy("PXAll", "EXTEND_X")
+                   .save(),
+    Specification().groupBy("PXAll/BX")
+                   .reduce("MEAN") 
+                   .groupBy("PXAll", "EXTEND_X")
+                   .save(),
+  )
+)
+
 SiPixelPhase1ClustersConf = cms.VPSet(
   SiPixelPhase1ClustersCharge,
   SiPixelPhase1ClustersSize,
@@ -225,7 +245,8 @@ SiPixelPhase1ClustersConf = cms.VPSet(
   SiPixelPhase1ClustersPositionYZ,
   SiPixelPhase1ClustersSizeVsEta,
   SiPixelPhase1ClustersReadoutCharge,
-  SiPixelPhase1ClustersReadoutNClusters
+  SiPixelPhase1ClustersReadoutNClusters,
+  SiPixelPhase1ClustersPixelToStripRatio
 )
 
 ## Uncomment to add trigger event flag settings
@@ -236,7 +257,8 @@ SiPixelPhase1ClustersTriggers = cms.VPSet(
 )
 
 SiPixelPhase1ClustersAnalyzer = cms.EDAnalyzer("SiPixelPhase1Clusters",
-        src = cms.InputTag("siPixelClusters"),
+        pixelSrc = cms.InputTag("siPixelClusters"),
+        stripSrc = cms.InputTag("siStripClusters"),
         histograms = SiPixelPhase1ClustersConf,
         geometry = SiPixelPhase1Geometry,
         triggerflag = SiPixelPhase1ClustersTriggers,

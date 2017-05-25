@@ -16,7 +16,8 @@
   <class name="pat::Lepton<reco::BaseTau>" />
 
   <!-- PAT Objects, and embedded data  -->
-  <class name="pat::Electron"  ClassVersion="35">
+  <class name="pat::Electron"  ClassVersion="36">
+   <version ClassVersion="36" checksum="199321903"/>
    <version ClassVersion="35" checksum="482655666"/>
    <version ClassVersion="34" checksum="3720919820"/>
    <version ClassVersion="33" checksum="459924678"/>
@@ -58,7 +59,9 @@
   </ioread>
 
 
-  <class name="pat::Muon"  ClassVersion="19">
+  <class name="pat::Muon"  ClassVersion="21">
+   <version ClassVersion="21" checksum="1539691612"/>
+   <version ClassVersion="20" checksum="357097717"/>
    <version ClassVersion="19" checksum="2754486523"/>
    <version ClassVersion="18" checksum="1163602263"/>
    <version ClassVersion="17" checksum="1509153359"/>
@@ -80,7 +83,8 @@
     <![CDATA[ cachedIP_ = onfile.cachedIP_[1] + 2*onfile.cachedIP_[2] + 4*onfile.cachedIP_[3] + 8*onfile.cachedIP_[4]; ]]>
   </ioread>
 
-  <class name="pat::Tau"  ClassVersion="17">
+  <class name="pat::Tau"  ClassVersion="18">
+   <version ClassVersion="18" checksum="3279584614"/>
    <version ClassVersion="17" checksum="2561486007"/>
    <version ClassVersion="16" checksum="2793593983"/>
    <field name="isolationTracksTransientRefVector_" transient="true"/>
@@ -100,6 +104,15 @@
    <version ClassVersion="11" checksum="3100353428"/>
    <version ClassVersion="10" checksum="2244564938"/>
   </class>
+
+  <class name="pat::IsolatedTrack" ClassVersion="3">
+   <version ClassVersion="3" checksum="550880582"/>
+  </class>
+
+  <class name="pat::PFIsolation" ClassVersion="3">
+    <version ClassVersion="3" checksum="2961562419" />
+  </class>
+
   <!--NOTE: the declaration of AtomicPtrCache are a temporary work around until ROOT 6 where they will not be needed -->
    <class name="edm::AtomicPtrCache<reco::TrackRefVector>">
      <field name="m_data" transient="true"/>
@@ -286,9 +299,13 @@
   <class name="pat::Conversion"  ClassVersion="11">
    <version ClassVersion="11" checksum="1239840459"/>
   </class>
-
-  <class name="pat::PackedCandidate" ClassVersion="28">
-    <version ClassVersion="28" checksum="1956349111"/>  
+  <class name="pat::PackedCandidate::PackedCovariance" ClassVersion="3">
+   <version ClassVersion="3" checksum="3320406063"/>
+  </class>
+  <class name="pat::PackedCandidate" ClassVersion="30">
+   <version ClassVersion="30" checksum="3338823671"/>
+   <version ClassVersion="29" checksum="649303924"/>
+   <version ClassVersion="28" checksum="1956349111"/>
     <version ClassVersion="27" checksum="2418936168"/>
     <version ClassVersion="26" checksum="2986327792"/>
     <version ClassVersion="25" checksum="3654469025"/>
@@ -315,15 +332,10 @@
     <field name="dtrkpt_" transient="true" />
     <field name="dphi_" transient="true" />
     <field name="deta_" transient="true" />
-    <field name="dxydxy_" transient="true" />
-    <field name="dzdz_" transient="true" />
-    <field name="dxydz_" transient="true" />
-    <field name="dlambdadz_" transient="true" />
-    <field name="dphidxy_" transient="true" />
-    <field name="dphidphi_" transient="true" />
-    <field name="detadeta_" transient="true" />
-    <field name="dptdpt_" transient="true" />
     <field name="track_" transient="true" />
+    <field name="m_" transient="true" />
+    <!--- <field name="covariance_load_flag" transient="true"/> -->
+   <!--- <field name="covarianceParameterization_" transient="true" />-->
   </class>
   <ioread sourceClass="pat::PackedCandidate"  version="[1-]" targetClass="pat::PackedCandidate" source="" target="p4_">
     <![CDATA[delete p4_.exchange(nullptr);
@@ -341,6 +353,21 @@
     <![CDATA[delete track_.exchange(nullptr);
     ]]>
   </ioread>
+  <ioread sourceClass="pat::PackedCandidate" source="uint16_t packedCovarianceDxyDxy_; uint16_t packedCovarianceDxyDz_; uint16_t packedCovarianceDzDz_;   int8_t packedCovarianceDlambdaDz_; int8_t packedCovarianceDphiDxy_;  int8_t packedCovarianceDptDpt_; int8_t packedCovarianceDetaDeta_;  int8_t packedCovarianceDphiDphi_ " version="[-28]" targetClass="pat::PackedCandidate"
+   target="packedCovariance_" embed="false" >
+   <![CDATA[
+            packedCovariance_.dxydxy = onfile.packedCovarianceDxyDxy_;
+            packedCovariance_.dxydz = onfile.packedCovarianceDxyDz_;
+	    packedCovariance_.dzdz = onfile.packedCovarianceDzDz_;
+	    packedCovariance_.dlambdadz = onfile.packedCovarianceDlambdaDz_;
+	    packedCovariance_.dphidxy = onfile.packedCovarianceDphiDxy_;
+            packedCovariance_.dptdpt = onfile.packedCovarianceDptDpt_;
+            packedCovariance_.detadeta = onfile.packedCovarianceDetaDeta_;
+            packedCovariance_.dphidphi = onfile.packedCovarianceDphiDphi_;
+   ]]>
+   </ioread>
+
+
 
   <class name="pat::PackedGenParticle" ClassVersion="12">
     <version ClassVersion="12" checksum="2626711017"/>
@@ -373,6 +400,7 @@
   <class name="edm::Ptr<pat::Jet>" />
   <class name="edm::Ptr<pat::MET>" />
   <class name="edm::Ptr<pat::Conversion>" />
+  <class name="edm::Ptr<pat::PackedCandidate>" />
 
   <class name="edm::FwdPtr<pat::PackedCandidate>" />
   <class name="std::vector<edm::FwdPtr<pat::PackedCandidate> >" />
@@ -395,6 +423,7 @@
   <class name="std::vector<pat::Hemisphere>" />
   <class name="std::vector<pat::Conversion>" />
   <class name="std::vector<pat::PackedCandidate>"/>
+  <class name="std::vector<pat::IsolatedTrack>"/>
   <class name="std::vector<pat::PackedGenParticle>"/>
 
   <!-- PAT Object Collection Iterators -->
@@ -429,6 +458,7 @@
   <class name="edm::Wrapper<std::vector<pat::Hemisphere> >" />
   <class name="edm::Wrapper<std::vector<pat::Conversion> >" />
   <class name="edm::Wrapper<std::vector<pat::PackedCandidate> >"/>
+  <class name="edm::Wrapper<std::vector<pat::IsolatedTrack> >"/>
   <class name="edm::Wrapper<std::vector<pat::PackedGenParticle> >"/>
 
   <!-- PAT Object References -->
@@ -536,6 +566,7 @@
 
   <class name="std::pair<pat::TauRef, float>"/>
   <class name="std::vector<std::pair<pat::TauRef, float> >" />
+  <class name="edm::RefProd<std::vector<pat::Tau> >"/>
 
   </selection>
  <exclusion>

@@ -42,20 +42,15 @@ DDLRotationByAxis::processElement( const std::string& name, const std::string& n
     DDRotationMatrix* ddr = new DDRotationMatrix(R);
     if (atts.find("name") == atts.end())
     {
-      //how do we make up a ddname! damn_it!
-      //          DDXMLElement * myRealParent = DDLElementRegistry::instance()->getElement(parent());
-      DDXMLElement * myRealParent = myRegistry_->getElement(parent());
+      auto myRealParent = myRegistry_->getElement(parent());
       DDName pName = myRealParent->getDDName(nmspace);
       std::string tn = pName.name() + std::string("Rotation");
       std::vector<std::string> names;
       names.push_back("name");
-      //no need, used already names.push_back("axis");
-      //no need, used already names.push_back("angle");
 
       std::vector<std::string> values;
       values.push_back(tn);
-      //no need, used already values.push_back(atts.find("axis")->second);
-      //no need, used already values.push_back(atts.find("angle")->second);
+
       clear();
       loadAttributes(name, names, values, nmspace, cpv);
     }

@@ -23,13 +23,14 @@ _mod2del.append(_reco.offlineBeamSpot)
 _reco.globalreco.remove(_reco.offlineBeamSpot) # temporary removing this by hand, cause the usual removal (see end of this file) doesn't seem work
 
 ###########################################
-# no castor, zdc, Totem RP in FastSim
+# no castor, zdc, Totem/CTPPS RP in FastSim
 ###########################################
 _reco.localreco.remove(_reco.castorreco)
 _reco.globalreco.remove(_reco.CastorFullReco)
 _reco.hcalLocalRecoSequence.remove(_reco.zdcreco)
 _reco.localreco.remove(_reco.totemRPLocalReconstruction)
 _reco.localreco.remove(_reco.ctppsDiamondLocalReconstruction)
+_reco.localreco.remove(_reco.ctppsLocalTrackLiteProducer)
 
 ##########################################
 # Calo rechits

@@ -168,19 +168,19 @@ public:
   
   /** Returns the GBL input
    */
-  std::vector<std::pair<std::vector<gbl::GblPoint>, TMatrixD> >& gblInput() { return theGblInput; }
+  std::vector<std::pair<std::vector<gbl::GblPoint>, Eigen::MatrixXd> >& gblInput() { return theGblInput; }
 
   /** Returns the GBL external derivatives.
    */
-  const TMatrixD& gblExtDerivatives() const { return theGblExtDerivatives; }
+  const Eigen::MatrixXd& gblExtDerivatives() const { return theGblExtDerivatives; }
 
   /** Returns the GBL external derivatives.
    */
-  const TVectorD& gblExtMeasurements() const { return theGblExtMeasurements; }
+  const Eigen::VectorXd& gblExtMeasurements() const { return theGblExtMeasurements; }
 
   /** Returns the GBL external derivatives.
    */
-  const TVectorD& gblExtPrecisions() const { return theGblExtPrecisions; }
+  const Eigen::VectorXd& gblExtPrecisions() const { return theGblExtPrecisions; }
   
 
   /** Returns the set of 'track'-parameters.
@@ -252,14 +252,14 @@ protected:
 // CHK for TwoBodyD.  transformation local to trajectory parameter at refTsos
   AlgebraicMatrix     theInnerLocalToTrajectory;
 // CHK GBL input:     list of (list of points on trajectory and transformation at inner (first) point)
-  std::vector<std::pair<std::vector<gbl::GblPoint>, TMatrixD> > theGblInput;
+  std::vector<std::pair<std::vector<gbl::GblPoint>, Eigen::MatrixXd> > theGblInput;
   int                           theNomField;
 // CHK GBL TBD:       virtual (mass) measurement
-  TMatrixD            theGblExtDerivatives;
-  TVectorD            theGblExtMeasurements;
-  TVectorD            theGblExtPrecisions;    
+  Eigen::MatrixXd     theGblExtDerivatives;
+  Eigen::VectorXd     theGblExtMeasurements;
+  Eigen::VectorXd     theGblExtPrecisions;
     
-  static const unsigned int nMeasPerHit = 2;
+  static constexpr unsigned int nMeasPerHit{2};
 };
 
 #endif // REFERENCE_TRAJECTORY_BASE_H

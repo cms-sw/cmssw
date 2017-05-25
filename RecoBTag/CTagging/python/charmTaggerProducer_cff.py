@@ -7,6 +7,9 @@ charmTagsComputerCvsB = charmTagsComputerCvsL.clone(
    variables = c_vs_b_vars_vpset
    )
 
+from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
+phase1Pixel.toModify(charmTagsComputerCvsB, weightFile = cms.FileInPath('RecoBTag/CTagging/data/c_vs_b_PhaseI.xml'))
+
 #
 # Negative tagger
 #

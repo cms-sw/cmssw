@@ -36,12 +36,43 @@ void ME0DigisValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run co
   me0_strip_dg_den_eta_tot = ibooker.book1D( "me0_strip_dg_den_eta_tot", "Denominator; #eta; Entries", 12, 1.8, 3.0);
   me0_strip_dg_num_eta_tot = ibooker.book1D( "me0_strip_dg_num_eta_tot", "Numerator; #eta; Entries", 12, 1.8, 3.0);
     
-  float bins[] = {62.3, 68.2, 74.1, 81.1, 88.2, 96.6, 104.9, 115.1, 125.2, 137.3, 149.5};
+  float bins[] = {62.3, 70.0, 77.7, 87.1, 96.4, 108.2, 119.9, 134.7, 149.5};
   int binnum = sizeof(bins)/sizeof(float) - 1;
     
-  me0_strip_dg_bkg_rad_tot = ibooker.book1D( "me0_strip_dg_bkg_radius_tot", "Total neutron background; Radius; Entries", binnum, bins);
-  me0_strip_dg_bkgElePos_rad = ibooker.book1D( "me0_strip_dg_bkgElePos_radius", "Neutron background: electrons+positrons; Radius; Entries", binnum, bins);
-  me0_strip_dg_bkgNeutral_rad = ibooker.book1D( "me0_strip_dg_bkgNeutral_radius", "Neutron background: gammas+neutrons; Radius; Entries", binnum, bins);
+  me0_strip_dg_bkg_rad_tot = ibooker.book1D( "me0_strip_dg_bkg_radius_tot", "Total neutron background; Radius [cm]; Entries", binnum, bins);
+  me0_strip_dg_bkgElePos_rad = ibooker.book1D( "me0_strip_dg_bkgElePos_radius", "Neutron background: electrons+positrons; Radius [cm]; Entries", binnum, bins);
+  me0_strip_dg_bkgNeutral_rad = ibooker.book1D( "me0_strip_dg_bkgNeutral_radius", "Neutron background: gammas+neutrons; Radius [cm]; Entries", binnum, bins);
+    
+  me0_strip_exp_bkg_rad_tot = ibooker.book1D( "me0_strip_exp_bkg_radius_tot", "Total expected neutron background; Radius [cm]; Hit Rate [Hz/cm^{2}]", binnum, bins);
+  me0_strip_exp_bkgElePos_rad = ibooker.book1D( "me0_strip_exp_bkgElePos_radius", "Expected neutron background: electrons+positrons; Radius [cm]; Hit Rate [Hz/cm^{2}]", binnum, bins);
+  me0_strip_exp_bkgNeutral_rad = ibooker.book1D( "me0_strip_exp_bkgNeutral_radius", "Expected neutron background: gammas+neutrons; Radius [cm]; Hit Rate [Hz/cm^{2}]", binnum, bins);
+    
+  std::vector<double> neuBkg, eleBkg;
+  neuBkg.push_back(899644.0);     neuBkg.push_back(-30841.0);     neuBkg.push_back(441.28);
+  neuBkg.push_back(-3.3405);      neuBkg.push_back(0.0140588);    neuBkg.push_back(-3.11473e-05); neuBkg.push_back(2.83736e-08);
+  eleBkg.push_back(4.68590e+05);  eleBkg.push_back(-1.63834e+04); eleBkg.push_back(2.35700e+02);
+  eleBkg.push_back(-1.77706e+00); eleBkg.push_back(7.39960e-03);  eleBkg.push_back(-1.61448e-05); eleBkg.push_back(1.44368e-08);
+    
+  for(int i = 1; i < me0_strip_exp_bkgNeutral_rad->getTH1F()->GetSize(); i++){
+      
+    double pos = me0_strip_exp_bkgNeutral_rad->getTH1F()->GetBinCenter(i);
+    double neutral = 0;
+    double charged = 0;
+      
+    double pos_helper = 1.0;
+    for(int j = 0; j < 7; ++j) {
+        
+      neutral += neuBkg[j]*pos_helper;
+      charged += eleBkg[j]*pos_helper;
+      pos_helper *= pos;
+
+    }
+      
+    me0_strip_exp_bkgNeutral_rad->setBinContent(i, neutral);
+    me0_strip_exp_bkgElePos_rad->setBinContent(i, charged);
+    me0_strip_exp_bkg_rad_tot->setBinContent(i, neutral+charged);
+        
+  }
 
   for( unsigned int region_num = 0 ; region_num < nregion ; region_num++ ) {
       me0_strip_dg_zr_tot[region_num] = BookHistZR(ibooker,"me0_strip_dg_tot","Digi",region_num);
@@ -114,7 +145,7 @@ void ME0DigisValidation::analyze(const edm::Event& e,
     int region = (int) id.region();
     int layer = (int) id.layer();
     int chamber = (int) id.chamber();
-//    int roll = (int) id.roll();
+    int roll = (int) id.roll();
 
     ME0DigiPreRecoCollection::const_iterator digiItr;
     for (digiItr = (*cItr ).second.first; digiItr != (*cItr ).second.second; ++digiItr)
@@ -164,7 +195,7 @@ void ME0DigisValidation::analyze(const edm::Event& e,
             int region_sh = id.region();
             int layer_sh = id.layer();
             int chamber_sh = id.chamber();
-//            int roll_sh = id.roll();
+            int roll_sh = id.roll();
             
             int region_sh_num = 0 ;
             if ( region_sh == -1 ) region_sh_num = 0 ;
@@ -180,12 +211,14 @@ void ME0DigisValidation::analyze(const edm::Event& e,
                 me0_strip_dg_den_eta_tot->Fill(fabs(gp_sh.eta()));
             }
             
-            if(!(region == region_sh && layer == layer_sh && chamber == chamber_sh /*&& roll == roll_sh*/)) continue;
+            if(!(region == region_sh && layer == layer_sh && chamber == chamber_sh && roll == roll_sh)) continue;
             
             float dx_loc = lp_sh.x()-lp.x();
             float dy_loc = lp_sh.y()-lp.y();
-            
-            if(!(fabs(dx_loc) < 3*sigma_x_ && fabs(dy_loc) < 3*sigma_y_)) continue;
+            float dphi_glob = gp_sh.phi()-gp.phi();
+            float deta_glob = gp_sh.eta()-gp.eta();
+
+            if(!(fabs(dphi_glob) < 3*sigma_x_ && fabs(deta_glob) < 3*sigma_y_)) continue;
             
             float timeOfFlight_sh = hits->tof();
             const LocalPoint centralLP(0., 0., 0.);
@@ -193,8 +226,6 @@ void ME0DigisValidation::analyze(const edm::Event& e,
             float centralTOF(centralGP.mag() / 29.98); //speed of light
             float timeOfFlight_sh_corr = timeOfFlight_sh - centralTOF;
             
-            float dphi_glob = gp_sh.phi()-gp.phi();
-        
             me0_strip_dg_dx_local_Muon[region_num][layer_num]->Fill(dx_loc);
             me0_strip_dg_dy_local_Muon[region_num][layer_num]->Fill(dy_loc);
             me0_strip_dg_dphi_global_Muon[region_num][layer_num]->Fill(dphi_glob);

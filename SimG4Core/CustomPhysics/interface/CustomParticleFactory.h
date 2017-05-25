@@ -4,7 +4,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimG4Core/CustomPhysics/interface/CustomParticle.h"
-#include <set>
+#include <vector>
 #include <string>
 
 class G4DecayTable;
@@ -16,7 +16,7 @@ class CustomParticleFactory {
 
  public:
   static void loadCustomParticles(const std::string & filePath);
-  static bool isCustomParticle(G4ParticleDefinition *particle);
+  static const std::vector<G4ParticleDefinition *>& GetCustomParticles();
 
  private:
 
@@ -26,7 +26,7 @@ class CustomParticleFactory {
   static G4DecayTable* getAntiDecayTable(int pdgId, G4DecayTable *theDecayTable);
 
   static bool loaded;
-  static std::set<G4ParticleDefinition *> m_particles;
+  static std::vector<G4ParticleDefinition *> m_particles;
 
   static std::string ToLower(std::string str);  
   

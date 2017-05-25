@@ -24,6 +24,7 @@ enumerators and the returned values of the above methods are summarized in the t
 | `TEC` | `TEC` | `TEC` | `false` | `true` | `false` | `true` |
 | `PixelPhase1Barrel` | `P1PXB` | `PixelBarrel` | `true` | `false` | `true` | `false` |
 | `PixelPhase1EndCap` | `P1PXEC` | `PixelEndcap` | `true` | `false` | `false` | `true` |
+| `PixelPhase2Barrel` | `P2PXB` | `PixelBarrel` | `true` | `false` | `true` | `false` |
 | `PixelPhase2EndCap` | `P2PXEC` | `PixelEndcap` | `true` | `false` | `false` | `true` |
 | `OTPhase2Barrel` | `P2OTB` | `TOB` | `true` | `false` | `true` | `false` |
 | `OTPhase2EndCap` | `P2OTEC` | `TID` | `true` | `false` | `false` | `true` |
@@ -62,7 +63,7 @@ of these methods for the three scenarios available so far are described in the t
  
 | `DetId::subDetId()` | `TrackerGeometry::geomDetSubDetector(subdet)` | `TrackerGeometry::numberOfLayers(subdet)` |
 |--------|--------|-------|
-| 1 | `GeomDetEnumerators::P1PXB` | 4 |
+| 1 | `GeomDetEnumerators::P2PXB` | 4 |
 | 2 | `GeomDetEnumerators::P2PXEC` | 10 |
 | 3 | `GeomDetEnumerators::invalidDet` | 0 |
 | 4 | `GeomDetEnumerators::P2OTEC` | 5 |

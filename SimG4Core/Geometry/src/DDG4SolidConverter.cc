@@ -21,12 +21,14 @@ DDG4SolidConverter::DDG4SolidConverter() {
   convDispatch_[ddpolycone_rrz]   = DDG4SolidConverter::polycone_rrz;
   convDispatch_[ddpolycone_rz]    = DDG4SolidConverter::polycone_rz;
   convDispatch_[ddpolyhedra_rrz]  = DDG4SolidConverter::polyhedra_rrz;
-  convDispatch_[ddpolyhedra_rz]   = DDG4SolidConverter::polyhedra_rz;   
+  convDispatch_[ddpolyhedra_rz]   = DDG4SolidConverter::polyhedra_rz;
+  convDispatch_[ddextrudedpolygon]= DDG4SolidConverter::extrudedpolygon;
   convDispatch_[ddtorus]          = DDG4SolidConverter::torus;   
   convDispatch_[ddreflected]      = DDG4SolidConverter::reflected;
   convDispatch_[ddunion]          = DDG4SolidConverter::unionsolid;
   convDispatch_[ddintersection]   = DDG4SolidConverter::intersection;
   convDispatch_[ddsubtraction]    = DDG4SolidConverter::subtraction;
+  convDispatch_[ddmultiunion]     = DDG4SolidConverter::multiunion;
   convDispatch_[ddpseudotrap]     = DDG4SolidConverter::pseudotrap;
   convDispatch_[ddtrunctubs]      = DDG4SolidConverter::trunctubs;
   convDispatch_[ddsphere]         = DDG4SolidConverter::sphere;   
@@ -230,6 +232,25 @@ G4VSolid * DDG4SolidConverter::polyhedra_rrz(const DDSolid & solid) {
 			 &(rmax_p[0]));  
 }
 
+#include "G4ExtrudedSolid.hh"
+G4VSolid * DDG4SolidConverter::extrudedpolygon(const DDSolid & solid) {
+  LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: extr_pgon = " << solid;
+  std::vector<double> x = static_cast<DDExtrudedPolygon>(solid).xVec();
+  std::vector<double> y = static_cast<DDExtrudedPolygon>(solid).yVec();
+  std::vector<double> z = static_cast<DDExtrudedPolygon>(solid).zVec();
+  std::vector<double> zx = static_cast<DDExtrudedPolygon>(solid).zxVec();
+  std::vector<double> zy = static_cast<DDExtrudedPolygon>(solid).zyVec();
+  std::vector<double> zs = static_cast<DDExtrudedPolygon>(solid).zscaleVec();
+
+  std::vector<G4TwoVector> polygon;
+  std::vector<G4ExtrudedSolid::ZSection> zsections;
+  for( unsigned int it = 0; it < x.size(); ++it )
+    polygon.emplace_back( x[it], y[it] );
+  for( unsigned int it = 0; it < z.size(); ++it )
+    zsections.emplace_back( z[it], G4TwoVector(zx[it], zy[it]), zs[it] );
+  return new G4ExtrudedSolid( solid.name().name(), polygon, zsections );
+}
+
 #include "G4Torus.hh"
 G4VSolid * DDG4SolidConverter::torus(const DDSolid & solid) {
   LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: torus = " << solid; 
@@ -339,6 +360,33 @@ G4VSolid * DDG4SolidConverter::intersection(const DDSolid & solid) {
   return us;	   
 }
 
+#if defined(G4GEOM_USE_USOLIDS)
+
+#include "G4MultiUnion.hh"
+G4VSolid * DDG4SolidConverter::multiunion( const DDSolid & solid ) {
+  G4MultiUnion* munion = new G4MultiUnion( G4String( solid.name().name()));
+  DDMultiUnionSolid ms( solid );
+  std::vector<DDSolid> solids = ms.solids();
+  // FIXME: need to use G4GEOM_USE_USOLIDS
+  if( ms ) {
+    for( auto i : solids ) {
+      G4VSolid* gs = DDG4SolidConverter().convert( solids[i]);
+      G4RotationMatrix rotm = G4RotationMatrix();
+      G4ThreeVector position1 = G4ThreeVector( 0., 0., 1. );
+      G4Transform3D tr1 = G4Transform3D( rotm, position1 );
+      munion->AddNode( gs, tr1 );
+    }
+  }
+  return munion;
+}
+
+#else
+
+G4VSolid * DDG4SolidConverter::multiunion( const DDSolid & solid ) {
+  return nullptr;
+}
+
+#endif // G4GEOM_USE_USOLIDS
 
 #include "G4Trd.hh"
 G4VSolid * DDG4SolidConverter::pseudotrap(const DDSolid & solid) {

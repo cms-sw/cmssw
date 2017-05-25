@@ -166,7 +166,7 @@ void TrackerGeometryIntoNtuples::analyze(const edm::Event& iEvent, const edm::Ev
         const TrackerTopology* const tTopo = tTopoHandle.product();
 
 
-	edm::LogInfo("beginJob") << "Begin Job" << std::endl;
+	edm::LogInfo("beginJob") << "Begin Job";
 	
 	//accessing the initial geometry
 	edm::ESHandle<GeometricDet> theGeometricDet;

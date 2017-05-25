@@ -2,7 +2,9 @@
 #define BOUNDARYINFORMATION_H_
 
 // system include files
+#include <vector>
 
+#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
 //using namespace edm;

@@ -1,16 +1,6 @@
 PrimaryVertexValidationTemplate="""
-import FWCore.ParameterSet.Config as cms
-import sys
- 
 isDA = .oO[isda]Oo.
 isMC = .oO[ismc]Oo.
-
-process = cms.Process("PrimaryVertexValidation") 
-
-###################################################################
-# Event source and run selection
-###################################################################
-.oO[datasetDefinition]Oo.
 
 ###################################################################
 #  Runs and events
@@ -31,42 +21,11 @@ else:
           import FWCore.PythonUtilities.LumiList as LumiList
           process.source.lumisToProcess = LumiList.LumiList(filename ='.oO[lumilist]Oo.').getVLuminosityBlockRange()
 
-###################################################################
-# Messages
-###################################################################
-process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.destinations = ['cout', 'cerr']
-process.MessageLogger.cerr.FwkReport.reportEvery = 1000
-
 ####################################################################
 # Produce the Transient Track Record in the event
 ####################################################################
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 
-####################################################################
-# Get the Magnetic Field
-####################################################################
-process.load("Configuration.StandardSequences..oO[magneticField]Oo._cff")
-
-###################################################################
-# Geometry load
-###################################################################
-process.load("Configuration.Geometry.GeometryRecoDB_cff")
-
-####################################################################
-# Get the BeamSpot
-####################################################################
-process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
-
-####################################################################
-# Get the GlogalTag
-####################################################################
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '.oO[GlobalTag]Oo.', '')
-
-.oO[condLoad]Oo.
-     
 ####################################################################
 # Load and Configure event selection
 ####################################################################
@@ -97,34 +56,6 @@ else:
      process.goodvertexSkim = cms.Sequence(process.primaryVertexFilter + process.noscraping + process.filterOutLowPt)
 
 ####################################################################
-# Load and Configure Measurement Tracker Event 
-# (would be needed in case NavigationSchool is set != from null
-####################################################################
-#process.load("RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi") 
-#process.MeasurementTrackerEvent.pixelClusterProducer = '.oO[TrackCollection]Oo.'
-#process.MeasurementTrackerEvent.stripClusterProducer = '.oO[TrackCollection]Oo.'
-#process.MeasurementTrackerEvent.inactivePixelDetectorLabels = cms.VInputTag()
-#process.MeasurementTrackerEvent.inactiveStripDetectorLabels = cms.VInputTag()
-
-####################################################################
-# Load and Configure TrackRefitter
-####################################################################
-process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
-import RecoTracker.TrackProducer.TrackRefitters_cff
-process.TrackRefitter = RecoTracker.TrackProducer.TrackRefitter_cfi.TrackRefitter.clone()
-process.TrackRefitter.src = ".oO[TrackCollection]Oo."
-process.TrackRefitter.TrajectoryInEvent = True
-process.TrackRefitter.NavigationSchool = ''
-process.TrackRefitter.TTRHBuilder = ".oO[ttrhbuilder]Oo."
-
-####################################################################
-# Output file
-####################################################################
-process.TFileService = cms.Service("TFileService",
-                                   fileName=cms.string(".oO[outputFile]Oo.")
-                                  )                                    
-
-####################################################################
 # Deterministic annealing clustering
 ####################################################################
 if isDA:
@@ -151,15 +82,21 @@ if isDA:
                                                                          minSiliconLayersWithHits = cms.int32(5),                    # TK hits > 5  
                                                                          maxD0Significance = cms.double(5.0),                        # fake cut (requiring 1 PXB hit)     
                                                                          minPt = cms.double(0.0),                                    # better for softish events                        
+                                                                         maxEta = cms.double(5.0),                                   # as per recommendation in PR #18330
                                                                          trackQuality = cms.string("any")
                                                                          ),
                                            
-                                           TkClusParameters=cms.PSet(algorithm=cms.string('DA'),
-                                                                     TkDAClusParameters = cms.PSet(coolingFactor = cms.double(0.8),  # moderate annealing speed
-                                                                                                   Tmin = cms.double(4.),            # end of annealing
-                                                                                                   vertexSize = cms.double(0.05),    # ~ resolution / sqrt(Tmin)
+                                           ## MM 04.05.2017 (use settings as in: https://github.com/cms-sw/cmssw/pull/18330)
+                                           TkClusParameters=cms.PSet(algorithm=cms.string('DA_vect'),
+                                                                     TkDAClusParameters = cms.PSet(coolingFactor = cms.double(0.6),  # moderate annealing speed
+                                                                                                   Tmin = cms.double(2.0),           # end of vertex splitting
+                                                                                                   Tpurge = cms.double(2.0),         # cleaning 
+                                                                                                   Tstop = cms.double(0.5),          # end of annealing
+                                                                                                   vertexSize = cms.double(0.006),   # added in quadrature to track-z resolutions
                                                                                                    d0CutOff = cms.double(3.),        # downweight high IP tracks
-                                                                                                   dzCutOff = cms.double(4.)         # outlier rejection after freeze-out (T<Tmin)
+                                                                                                   dzCutOff = cms.double(3.),        # outlier rejection after freeze-out (T<Tmin)   
+                                                                                                   zmerge = cms.double(1e-2),        # merge intermediat clusters separated by less than zmerge
+                                                                                                   uniquetrkweight = cms.double(0.8) # require at least two tracks with this weight at T=Tpurge
                                                                                                    )
                                                                      )
                                            )
@@ -191,6 +128,7 @@ else:
                                                                          minSiliconLayersWithHits = cms.int32(5),                    # TK hits > 5                   
                                                                          maxD0Significance = cms.double(5.0),                        # fake cut (requiring 1 PXB hit)
                                                                          minPt = cms.double(0.0),                                    # better for softish events     
+                                                                         maxEta = cms.double(5.0),                                   # as per recommendation in PR #18330
                                                                          trackQuality = cms.string("any")
                                                                          ),
                                         
@@ -200,15 +138,15 @@ else:
                                                                        )
                                            )
 
+"""
+
 ####################################################################
-# Path
 ####################################################################
+PVValidationPath="""
 process.p = cms.Path(process.goodvertexSkim*
                      process.offlineBeamSpot*
-                     #process.MeasurementTrackerEvent*
                      process.TrackRefitter*
                      process.PVValidation)
-
 """
 
 ####################################################################
@@ -237,7 +175,7 @@ rfmkdir -p .oO[logdir]Oo.
 rm -f .oO[logdir]Oo./*.stdout
 rm -f .oO[logdir]Oo./*.stderr
 
-if [[ $HOSTNAME = lxplus[0-9]*\.cern\.ch ]] # check for interactive mode
+if [[ $HOSTNAME = lxplus[0-9]*[.a-z0-9]* ]] # check for interactive mode
 then
     rfmkdir -p .oO[workdir]Oo.
     rm -f .oO[workdir]Oo./*
@@ -344,12 +282,12 @@ root -x -b -q TkAlPrimaryVertexValidationPlot.C++
 
 for PdfOutputFile in $(ls *pdf ); do                                                                                                                                  
     xrdcp -f ${PdfOutputFile}  root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./plots/                                                                         
-    rfcp ${PdfOutputFile}  .oO[datadir]Oo.                                                                                                                               
+    rfcp ${PdfOutputFile}  .oO[datadir]Oo./.oO[PlotsDirName]Oo.
 done 
 
 for PngOutputFile in $(ls *png ); do
     xrdcp -f ${PngOutputFile}  root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./plots/
-    rfcp ${PngOutputFile}  .oO[datadir]Oo.
+    rfcp ${PngOutputFile}  .oO[datadir]Oo./.oO[PlotsDirName]Oo.
 done
 
 """
@@ -361,9 +299,6 @@ PrimaryVertexPlotTemplate="""
 /****************************************
 This can be run directly in root, or you
  can run ./TkAlMerge.sh in this directory
-It can be run as is, or adjusted to fit
- for misalignments or to only make
- certain plots
 ****************************************/
 
 #include "Alignment/OfflineValidation/macros/FitPVResiduals.C"
@@ -390,7 +325,7 @@ void TkAlPrimaryVertexValidationPlot()
                       .oO[w_dzEtaNormMax]Oo.       // width of dz  vs Eta (norm)
 		      );
 
- .oO[PrimaryVertexPlotInstantiation]Oo.
+ .oO[PlottingInstantiation]Oo.
   FitPVResiduals("",.oO[stdResiduals]Oo.,.oO[doMaps]Oo.,"",.oO[autoLimits]Oo.);
 }
 """

@@ -34,7 +34,7 @@ HLTMinDPhiMETFilter::HLTMinDPhiMETFilter(const edm::ParameterSet& iConfig) : HLT
 }
 
 // Destructor
-HLTMinDPhiMETFilter::~HLTMinDPhiMETFilter() {}
+HLTMinDPhiMETFilter::~HLTMinDPhiMETFilter() = default;
 
 // Fill descriptions
 void HLTMinDPhiMETFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

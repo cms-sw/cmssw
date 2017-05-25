@@ -78,7 +78,7 @@ SiStripApvGain * SiStripGainFromAsciiFile::getNewObject(){
     nApvPair=reader.getNumberOfApvsAndStripLength(*it).first/2;
     
     ss << "Looking at detid " << *it << " nApvPairs  " << nApvPair << std::endl;
-    __gnu_cxx::hash_map< unsigned int,ModuleGain>::const_iterator iter=GainsMap.find(*it);    
+    auto iter=GainsMap.find(*it);    
     if (iter!=GainsMap.end()){
       MG = iter->second;
       ss << " " <<  MG.apv[0] << " " <<  MG.apv[1] << " " <<  MG.apv[2] <<  " " <<  MG.apv[3] << " " <<  MG.apv[4] << " " <<  MG.apv[5] << std::endl;

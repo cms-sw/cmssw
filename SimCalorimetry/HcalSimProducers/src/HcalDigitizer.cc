@@ -32,6 +32,7 @@
 #include "DataFormats/HcalDetId/interface/HcalTestNumbering.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/HcalDigi/interface/HcalQIENum.h"
+#include "CondFormats/DataRecord/interface/HBHEDarkeningRecord.h"
 
 //#define DebugLog
 
@@ -90,8 +91,11 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   hitsProducer_(ps.getParameter<std::string>("hitsProducer")),
   theHOSiPMCode(ps.getParameter<edm::ParameterSet>("ho").getParameter<int>("siPMCode")),
   deliveredLumi(0.),
-  m_HEDarkening(0),
-  m_HFRecalibration(0),
+  agingFlagHB(ps.getParameter<bool>("HBDarkening")),
+  agingFlagHE(ps.getParameter<bool>("HEDarkening")),
+  m_HBDarkening(nullptr),
+  m_HEDarkening(nullptr),
+  m_HFRecalibration(nullptr),
   injectedHitsEnergy_(ps.getParameter<std::vector<double>>("injectTestHitsEnergy")),
   injectedHitsTime_(ps.getParameter<std::vector<double>>("injectTestHitsTime")),
   injectedHitsCells_(ps.getParameter<std::vector<int>>("injectTestHitsCells"))
@@ -105,7 +109,6 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   bool PreMix2 = ps.getParameter<bool>("HcalPreMixStage2");  // special threshold/pedestal treatment
   bool doEmpty = ps.getParameter<bool>("doEmpty");
   deliveredLumi     = ps.getParameter<double>("DelivLuminosity");
-  bool agingFlagHE = ps.getParameter<bool>("HEDarkening");
   bool agingFlagHF = ps.getParameter<bool>("HFDarkening");
   double minFCToDelay= ps.getParameter<double>("minFCToDelay");
 
@@ -208,8 +211,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
     theZDCResponse->setIgnoreGeantTime(ignoreTime_);
   }
 
-  if(agingFlagHE) m_HEDarkening = new HEDarkening();
-  if(agingFlagHF) m_HFRecalibration = new HFRecalibration(ps.getParameter<edm::ParameterSet>("HFRecalParameterBlock"));
+  if(agingFlagHF) m_HFRecalibration.reset(new HFRecalibration(ps.getParameter<edm::ParameterSet>("HFRecalParameterBlock")));
 }
 
 
@@ -331,7 +333,7 @@ void HcalDigitizer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > const
 
     //evaluate darkening before relabeling
     if (testNumbering_) {
-      if(m_HEDarkening || m_HFRecalibration){
+      if(m_HBDarkening || m_HEDarkening || m_HFRecalibration){
         darkening(hcalHitsOrig);
       }
       // Relabel PCaloHits if necessary
@@ -527,6 +529,17 @@ void HcalDigitizer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSet
 void HcalDigitizer::beginRun(const edm::EventSetup & es) {
   checkGeometry(es);
   theShapes->beginRun(es);
+
+  if (agingFlagHB) {
+    edm::ESHandle<HBHEDarkening> hdark;
+    es.get<HBHEDarkeningRecord>().get("HB",hdark);
+    m_HBDarkening = &*hdark;
+  }
+  if (agingFlagHE) {
+    edm::ESHandle<HBHEDarkening> hdark;
+    es.get<HBHEDarkeningRecord>().get("HE",hdark);
+    m_HEDarkening = &*hdark;
+  }
 }
 
 
@@ -779,18 +792,21 @@ void HcalDigitizer::darkening(std::vector<PCaloHit>& hcalHits) {
     bool darkened = false;
     float dweight = 1.;
 	
-    if(det==int(HcalEndcap) && m_HEDarkening){
-      //HE darkening
-      dweight = m_HEDarkening->degradation(deliveredLumi,ieta,lay-2);//NB:diff. layer count
+    if(det==int(HcalBarrel) && m_HBDarkening){
+      //HB darkening
+      dweight = m_HBDarkening->degradation(deliveredLumi,ieta,lay);
       darkened = true;
-    } else if(det==int(HcalForward) && m_HFRecalibration){
+    }
+    else if(det==int(HcalEndcap) && m_HEDarkening){
+      //HE darkening
+      dweight = m_HEDarkening->degradation(deliveredLumi,ieta,lay);
+      darkened = true;
+    }
+    else if(det==int(HcalForward) && m_HFRecalibration){
       //HF darkening - approximate: invert recalibration factor
       dweight = 1.0/m_HFRecalibration->getCorr(ieta,depth,deliveredLumi);
       darkened = true;
     }
-	
-    //create new hit with darkened energy
-    //if(darkened) hcalHits[ii] = PCaloHit(hcalHits[ii].energyEM()*dweight,hcalHits[ii].energyHad()*dweight,hcalHits[ii].time(),hcalHits[ii].geantTrackId(),hcalHits[ii].id());
 	
     //reset hit energy
     if(darkened) hcalHits[ii].setEnergy(hcalHits[ii].energy()*dweight);	

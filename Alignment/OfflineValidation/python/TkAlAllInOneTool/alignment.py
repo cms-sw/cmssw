@@ -1,34 +1,43 @@
+import collections
+import os
+import re
+
 import configTemplates
 from helperFunctions import replaceByMap, parsecolor, parsestyle
-import os
 from TkAlExceptions import AllInOneError
 
-class Alignment:
+class Alignment(object):
+    condShorts = {
+        "TrackerAlignmentErrorExtendedRcd": {
+            "zeroAPE_phase0": {
+                "connectString":("frontier://FrontierProd"
+                                         "/CMS_CONDITIONS"),
+                "tagName": "TrackerIdealGeometryErrorsExtended210_mc",
+                "labelName": ""
+            },
+            "zeroAPE_phase1": {
+                "connectString":("frontier://FrontierProd"
+                                         "/CMS_CONDITIONS"),
+                "tagName": "TrackerAlignmentErrorsExtended_Upgrade2017_design_v0",
+                "labelName": ""
+            },
+        },
+        "TrackerSurfaceDeformationRcd": {
+            "zeroDeformations": {
+                "connectString":("frontier://FrontierProd"
+                                         "/CMS_CONDITIONS"),
+                "tagName": "TrackerSurfaceDeformations_zero",
+                "labelName": ""
+            },
+        },
+    }
     def __init__(self, name, config, runGeomComp = "1"):
-        self.condShorts = {
-            "TrackerAlignmentErrorExtendedRcd": {
-                "zeroAPE": {
-                    "connectString":("frontier://FrontierProd"
-                                             "/CMS_CONDITIONS"),
-                    "tagName": "TrackerIdealGeometryErrorsExtended210_mc",
-                    "labelName": ""
-                }
-            },
-            "TrackerSurfaceDeformationRcd": {
-                "zeroDeformations": {
-                    "connectString":("frontier://FrontierProd"
-                                             "/CMS_CONDITIONS"),
-                    "tagName": "TrackerSurfaceDeformations_zero",
-                    "labelName": ""
-                }
-            },
-        }
         section = "alignment:%s"%name
         if not config.has_section( section ):
             raise AllInOneError("section %s not found. Please define the "
                                   "alignment!"%section)
         config.checkInput(section,
-                          knownSimpleOptions = ['globaltag', 'style', 'color', 'title'],
+                          knownSimpleOptions = ['globaltag', 'style', 'color', 'title', 'mp', 'mp_alignments', 'mp_deformations', 'hp', 'sm'],
                           knownKeywords = ['condition'])
         self.name = name
         if config.exists(section,"title"):
@@ -65,12 +74,106 @@ class Alignment:
             return True
         else:
             return False
-        
-        
+
     def __getConditions( self, theConfig, theSection ):
         conditions = []
         for option in theConfig.options( theSection ):
-            if option.startswith( "condition " ):
+            if option in ("mp", "mp_alignments", "mp_deformations"):
+                condPars = theConfig.get(theSection, option).split(",")
+                condPars = [_.strip() for _ in condPars]
+                if len(condPars) == 1:
+                    number, = condPars
+                    jobm = None
+                elif len(condPars) == 2:
+                    number, jobm = condPars
+                else:
+                    raise AllInOneError("Up to 2 arguments accepted for {} (job number, and optionally jobm index)".format(option))
+
+                if option == "mp":
+                    alignments = True
+                    deformations = True
+                elif option == "mp_alignments":
+                    alignments = True
+                    deformations = False
+                    option = "mp"
+                elif option == "mp_deformations":
+                    alignments = False
+                    deformations = True
+                    option = "mp"
+                else:
+                    assert False
+
+                folder = "/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/MP/MPproduction/{}{}/".format(option, number)
+                if not os.path.exists(folder):
+                    raise AllInOneError(folder+" does not exist.")
+                folder = os.path.join(folder, "jobData")
+                jobmfolders = set()
+                if jobm is None:
+                    for filename in os.listdir(folder):
+                        if re.match("jobm([0-9]*)", filename) and os.path.isdir(os.path.join(folder, filename)):
+                            jobmfolders.add(filename)
+                    if len(jobmfolders) == 0:
+                        raise AllInOneError("No jobm or jobm(number) folder in {}".format(folder))
+                    elif len(jobmfolders) == 1:
+                        folder = os.path.join(folder, jobmfolders.pop())
+                    else:
+                        raise AllInOneError(
+                                            "Multiple jobm or jobm(number) folders in {}\n".format(folder)
+                                            + ", ".join(jobmfolders) + "\n"
+                                            + "Please specify 0 for jobm, or a number for one of the others."
+                                           )
+                elif jobm == "0":
+                    folder = os.path.join(folder, "jobm")
+                    if os.path.exists(folder + "0"):
+                        raise AllInOneError("Not set up to handle a folder named jobm0")
+                else:
+                    folder = os.path.join(folder, "jobm{}".format(jobm))
+
+                dbfile = os.path.join(folder, "alignments_MP.db")
+                if not os.path.exists(dbfile):
+                    raise AllInOneError("No file {}.  Maybe your alignment folder is corrupted, or maybe you specified the wrong jobm?".format(dbfile))
+
+                if alignments:
+                    conditions.append({"rcdName": "TrackerAlignmentRcd",
+                                       "connectString": "sqlite_file:"+dbfile,
+                                       "tagName": "Alignments",
+                                       "labelName": ""})
+                if deformations:
+                    conditions.append({"rcdName": "TrackerSurfaceDeformationRcd",
+                                       "connectString": "sqlite_file:"+dbfile,
+                                       "tagName": "Deformations",
+                                       "labelName": ""})
+
+            elif option in ("hp", "sm"):
+                condPars = theConfig.get(theSection, option).split(",")
+                condPars = [_.strip() for _ in condPars]
+                if len(condPars) == 1:
+                    number, = condPars
+                    iteration = None
+                elif len(condPars) == 2:
+                    number, iteration = condPars
+                else:
+                    raise AllInOneError("Up to 2 arguments accepted for {} (job number, and optionally iteration)".format(option))
+                folder = "/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/HipPy/alignments/{}{}".format(option, number)
+                if not os.path.exists(folder):
+                    raise AllInOneError(folder+" does not exist.")
+                if iteration is None:
+                    for filename in os.listdir(folder):
+                        match = re.match("alignments_iter([0-9]*).db", filename)
+                        if match:
+                            if iteration is None or int(match.group(1)) > iteration:
+                                iteration = int(match.group(1))
+                    if iteration is None:
+                        raise AllInOneError("No alignments in {}".format(folder))
+                dbfile = os.path.join(folder, "alignments_iter{}.db".format(iteration))
+                if not os.path.exists(dbfile):
+                    raise AllInOneError("No file {}.".format(dbfile))
+                conditions.append({"rcdName": "TrackerAlignmentRcd",
+                                   "connectString": "sqlite_file:"+dbfile,
+                                   "tagName": "Alignments",
+                                   "labelName": ""})
+
+            elif option.startswith( "condition " ):
                 rcdName = option.split( "condition " )[1]
                 condPars = theConfig.get( theSection, option ).split( "," )
                 if len(condPars) == 1:
@@ -85,6 +188,10 @@ class Alignment:
                             self.condShorts[rcdName][shorthand]["connectString"],
                             self.condShorts[rcdName][shorthand]["tagName"],
                             self.condShorts[rcdName][shorthand]["labelName"]]
+                    elif rcdName == "TrackerAlignmentErrorExtendedRcd" and condPars[0] == "zeroAPE":
+                        raise AllInOneError("Please specify either zeroAPE_phase0 or zeroAPE_phase1")
+                        #can probably make zeroAPE an alias of zeroAPE_phase1 at some point,
+                        #but not sure if now is the time
                     else:
                         msg = ("In section [%s]: '%s' is used with '%s', "
                                "which is an unknown shorthand for '%s'. Either "
@@ -115,6 +222,13 @@ class Alignment:
                                    "connectString": condPars[0].strip(),
                                    "tagName": condPars[1].strip(),
                                    "labelName": condPars[2].strip()})
+
+        rcdnames = collections.Counter(condition["rcdName"] for condition in conditions)
+        if rcdnames and max(rcdnames.values()) >= 2:
+            raise AllInOneError("Some conditions are specified multiple times (possibly through mp or hp options)!\n"
+                                + ", ".join(rcdname for rcdname, count in rcdnames.iteritems() if count >= 2))
+            
+
         return conditions
 
     def __testDbExist(self, dbpath):

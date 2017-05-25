@@ -10,22 +10,6 @@ PFTowers = cms.EDProducer("ParticleTowerProducer",
                           useHF = cms.bool(False)
                           )
 
-## background for HF/Voronoi-style subtraction
-voronoiBackgroundPF = cms.EDProducer('VoronoiBackgroundProducer',
-                                     src = cms.InputTag('particleFlowTmp'),
-                                     tableLabel = cms.string("UETable_PF"),
-                                     doEqualize = cms.bool(False),
-                                     equalizeThreshold0 = cms.double(5.0),
-                                     equalizeThreshold1 = cms.double(35.0),
-                                     equalizeR = cms.double(0.3),
-                                     # its different than calojets (R=0.4)!
-				     useTextTable = cms.bool(False),
-				     jetCorrectorFormat = cms.bool(True),
-                                     isCalo = cms.bool(False),
-                                     etaBins = cms.int32(15),
-                                     fourierOrder = cms.int32(5)                                     
-                                     )
-
 
 
 ak5PFJets = cms.EDProducer(
@@ -48,23 +32,6 @@ akPu5PFJets = ak5PFJets.clone(
     )
 
 
-akVs5PFJets = ak5PFJets.clone(
-    doPVCorrection = False,
-    doPUOffsetCorr = True,
-    subtractorName = cms.string("VoronoiSubtractor"),
-    bkg = cms.InputTag("voronoiBackgroundPF"),
-    src = cms.InputTag('particleFlowTmp'),
-    dropZeros = cms.bool(True),
-    doAreaFastjet = False,
-    puPtMin = cms.double(0)
-    )
-
-akVs1PFJets = akVs5PFJets.clone(rParam       = cms.double(0.1))
-akVs2PFJets = akVs5PFJets.clone(rParam       = cms.double(0.2))
-akVs3PFJets = akVs5PFJets.clone(rParam       = cms.double(0.3))
-akVs4PFJets = akVs5PFJets.clone(rParam       = cms.double(0.4))
-akVs6PFJets = akVs5PFJets.clone(rParam       = cms.double(0.6))
-akVs7PFJets = akVs5PFJets.clone(rParam       = cms.double(0.7))
 
 akPu5PFJets.puPtMin = cms.double(25)
 akPu1PFJets = akPu5PFJets.clone(rParam       = cms.double(0.1), puPtMin = 10)
@@ -78,7 +45,5 @@ akPu7PFJets = akPu5PFJets.clone(rParam       = cms.double(0.7), puPtMin = 35)
 hiRecoPFJets = cms.Sequence(
     PFTowers
     *akPu3PFJets*akPu4PFJets*akPu5PFJets
-    *voronoiBackgroundPF
-    *akVs3PFJets*akVs4PFJets*akVs5PFJets
     )
 

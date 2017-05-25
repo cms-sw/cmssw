@@ -14,6 +14,7 @@
 
 #include "DataFormats/ParticleFlowCandidate/interface/IsolatedPFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/IsolatedPFCandidate.h"
+#include "DataFormats/PatCandidates/interface/PFIsolation.h"
 
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
@@ -25,6 +26,7 @@
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/EmptyGroupDescription.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
@@ -34,6 +36,8 @@
 #include "TMath.h"
 
 #include "FWCore/Utilities/interface/transform.h"
+
+#include "PhysicsTools/PatUtils/interface/MiniIsolation.h"
 
 #include <vector>
 #include <memory>
@@ -90,6 +94,17 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) : useUserDat
   if (addResolutions_) {
     resolutionLoader_ = pat::helper::KinResolutionsLoader(iConfig.getParameter<edm::ParameterSet>("resolutions"));
   }
+  // puppi
+  addPuppiIsolation_ = iConfig.getParameter<bool>("addPuppiIsolation");
+  if(addPuppiIsolation_){
+    PUPPIIsolation_charged_hadrons_ = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("puppiIsolationChargedHadrons"));
+    PUPPIIsolation_neutral_hadrons_ = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("puppiIsolationNeutralHadrons"));
+    PUPPIIsolation_photons_ = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("puppiIsolationPhotons"));
+    //puppiNoLeptons
+    PUPPINoLeptonsIsolation_charged_hadrons_ = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("puppiNoLeptonsIsolationChargedHadrons"));
+    PUPPINoLeptonsIsolation_neutral_hadrons_ = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("puppiNoLeptonsIsolationNeutralHadrons"));
+    PUPPINoLeptonsIsolation_photons_ = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("puppiNoLeptonsIsolationPhotons"));
+  }
   // read isoDeposit labels, for direct embedding
   readIsolationLabels(iConfig, "isoDeposits", isoDepositLabels_, isoDepositTokens_);
   // read isolation value labels, for direct embedding
@@ -104,6 +119,16 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) : useUserDat
     beamLineToken_ = consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamLineSrc"));
     pvToken_ = consumes<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("pvSrc"));
   }
+
+  //for mini-isolation calculation
+  computeMiniIso_ = iConfig.getParameter<bool>("computeMiniIso");
+  miniIsoParams_ = iConfig.getParameter<std::vector<double> >("miniIsoParams");
+  if(computeMiniIso_ && miniIsoParams_.size() != 9){
+      throw cms::Exception("ParameterError") << "miniIsoParams must have exactly 9 elements.\n";
+  }
+  if(computeMiniIso_)
+      pcToken_ = consumes<pat::PackedCandidateCollection >(iConfig.getParameter<edm::InputTag>("pfCandsForMiniIso"));
+
   // produces vector of muons
   produces<std::vector<Muon> >();
 }
@@ -124,6 +149,11 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
   edm::Handle<edm::View<reco::Muon> > muons;
   iEvent.getByToken(muonToken_, muons);
 
+  
+  edm::Handle<pat::PackedCandidateCollection> pc;
+  if(computeMiniIso_)
+      iEvent.getByToken(pcToken_, pc);
+
   // get the ESHandle for the transient track builder,
   // if needed for high level selection embedding
   edm::ESHandle<TransientTrackBuilder> trackBuilder;
@@ -142,6 +172,25 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
     iEvent.getByToken(isolationValueTokens_[j], isolationValues[j]);
   }
 
+  //value maps for puppi isolation
+  edm::Handle<edm::ValueMap<float>> PUPPIIsolation_charged_hadrons;
+  edm::Handle<edm::ValueMap<float>> PUPPIIsolation_neutral_hadrons;
+  edm::Handle<edm::ValueMap<float>> PUPPIIsolation_photons;
+  //value maps for puppiNoLeptons isolation
+  edm::Handle<edm::ValueMap<float>> PUPPINoLeptonsIsolation_charged_hadrons;
+  edm::Handle<edm::ValueMap<float>> PUPPINoLeptonsIsolation_neutral_hadrons;
+  edm::Handle<edm::ValueMap<float>> PUPPINoLeptonsIsolation_photons;
+  if(addPuppiIsolation_){
+    //puppi
+    iEvent.getByToken(PUPPIIsolation_charged_hadrons_, PUPPIIsolation_charged_hadrons);
+    iEvent.getByToken(PUPPIIsolation_neutral_hadrons_, PUPPIIsolation_neutral_hadrons);
+    iEvent.getByToken(PUPPIIsolation_photons_, PUPPIIsolation_photons);  
+    //puppiNoLeptons
+    iEvent.getByToken(PUPPINoLeptonsIsolation_charged_hadrons_, PUPPINoLeptonsIsolation_charged_hadrons);
+    iEvent.getByToken(PUPPINoLeptonsIsolation_neutral_hadrons_, PUPPINoLeptonsIsolation_neutral_hadrons);
+    iEvent.getByToken(PUPPINoLeptonsIsolation_photons_, PUPPINoLeptonsIsolation_photons);  
+  }
+  
   // prepare the MC genMatchTokens_
   GenAssociations  genMatches(genMatchTokens_.size());
   if (addGenMatch_) {
@@ -244,6 +293,23 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
       if( embedPFCandidate_ ) aMuon.embedPFCandidate();
       fillMuon( aMuon, muonBaseRef, pfBaseRef, genMatches, deposits, isolationValues );
 
+      if(computeMiniIso_) 
+          setMuonMiniIso(aMuon, pc.product());
+
+      if (addPuppiIsolation_) {
+	aMuon.setIsolationPUPPI((*PUPPIIsolation_charged_hadrons)[muonBaseRef],
+				(*PUPPIIsolation_neutral_hadrons)[muonBaseRef],
+				(*PUPPIIsolation_photons)[muonBaseRef]);
+	
+	aMuon.setIsolationPUPPINoLeptons((*PUPPINoLeptonsIsolation_charged_hadrons)[muonBaseRef],
+					 (*PUPPINoLeptonsIsolation_neutral_hadrons)[muonBaseRef],
+					 (*PUPPINoLeptonsIsolation_photons)[muonBaseRef]);
+      }
+      else {
+	aMuon.setIsolationPUPPI(-999., -999.,-999.);
+	aMuon.setIsolationPUPPINoLeptons(-999., -999.,-999.);
+      }
+      
       if (embedPfEcalEnergy_) {
         aMuon.setPfEcalEnergy(pfmu.ecalEnergy());
       }
@@ -282,6 +348,16 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 
       Muon aMuon(muonRef);
       fillMuon( aMuon, muonRef, muonBaseRef, genMatches, deposits, isolationValues);
+      if(computeMiniIso_)
+          setMuonMiniIso(aMuon, pc.product());
+      if (addPuppiIsolation_) {
+	aMuon.setIsolationPUPPI((*PUPPIIsolation_charged_hadrons)[muonRef], (*PUPPIIsolation_neutral_hadrons)[muonRef], (*PUPPIIsolation_photons)[muonRef]);
+	aMuon.setIsolationPUPPINoLeptons((*PUPPINoLeptonsIsolation_charged_hadrons)[muonRef], (*PUPPINoLeptonsIsolation_neutral_hadrons)[muonRef], (*PUPPINoLeptonsIsolation_photons)[muonRef]);
+      }
+      else {
+	aMuon.setIsolationPUPPI(-999., -999.,-999.);
+	aMuon.setIsolationPUPPINoLeptons(-999., -999.,-999.);
+      }
 
       // Isolation
       if (isolator_.enabled()) {
@@ -443,6 +519,15 @@ void PATMuonProducer::fillMuon( Muon& aMuon, const MuonBaseRef& muonRef, const r
   }
 }
 
+void PATMuonProducer::setMuonMiniIso(Muon& aMuon, const PackedCandidateCollection *pc)
+{
+  pat::PFIsolation miniiso = pat::getMiniPFIsolation(pc, aMuon.p4(),
+                                                     miniIsoParams_[0], miniIsoParams_[1], miniIsoParams_[2],
+                                                     miniIsoParams_[3], miniIsoParams_[4], miniIsoParams_[5],
+                                                     miniIsoParams_[6], miniIsoParams_[7], miniIsoParams_[8]);
+  aMuon.setMiniPFIsolation(miniiso);
+}
+
 // ParameterSet description for module
 void PATMuonProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
 {
@@ -483,6 +568,11 @@ void PATMuonProducer::fillDescriptions(edm::ConfigurationDescriptions & descript
                  edm::ParameterDescription<std::vector<edm::InputTag> >("genParticleMatch", emptySourceVector, true)
 		 )->setComment("input with MC match information");
 
+  // mini-iso
+  iDesc.add<bool>("computeMiniIso", false)->setComment("whether or not to compute and store electron mini-isolation");
+  iDesc.add<edm::InputTag>("pfCandsForMiniIso", edm::InputTag("packedPFCandidates"))->setComment("collection to use to compute mini-iso");
+  iDesc.add<std::vector<double> >("miniIsoParams", std::vector<double>())->setComment("mini-iso parameters to use for muons");
+
   pat::helper::KinResolutionsLoader::fillDescription(iDesc);
 
   // IsoDeposit configurables
@@ -512,6 +602,15 @@ void PATMuonProducer::fillDescriptions(edm::ConfigurationDescriptions & descript
   isolationValuesPSet.addOptional<edm::InputTag>("pfPhotons");
   iDesc.addOptional("isolationValues", isolationValuesPSet);
 
+  iDesc.ifValue(edm::ParameterDescription<bool>("addPuppiIsolation", false, true),
+		true >> (edm::ParameterDescription<edm::InputTag>("puppiIsolationChargedHadrons", edm::InputTag("muonPUPPIIsolation","h+-DR030-ThresholdVeto000-ConeVeto000"), true) and
+			 edm::ParameterDescription<edm::InputTag>("puppiIsolationNeutralHadrons", edm::InputTag("muonPUPPIIsolation","h0-DR030-ThresholdVeto000-ConeVeto001"), true) and 
+			 edm::ParameterDescription<edm::InputTag>("puppiIsolationPhotons", edm::InputTag("muonPUPPIIsolation","gamma-DR030-ThresholdVeto000-ConeVeto001"), true) and
+			 edm::ParameterDescription<edm::InputTag>("puppiNoLeptonsIsolationChargedHadrons", edm::InputTag("muonPUPPINoLeptonsIsolation","h+-DR030-ThresholdVeto000-ConeVeto000"), true) and 
+			 edm::ParameterDescription<edm::InputTag>("puppiNoLeptonsIsolationNeutralHadrons", edm::InputTag("muonPUPPINoLeptonsIsolation","h0-DR030-ThresholdVeto000-ConeVeto001"), true) and 
+			 edm::ParameterDescription<edm::InputTag>("puppiNoLeptonsIsolationPhotons", edm::InputTag("muonPUPPINoLeptonsIsolation","gamma-DR030-ThresholdVeto000-ConeVeto001"), true))  or
+		false >> edm::EmptyGroupDescription());
+  
   // Efficiency configurables
   edm::ParameterSetDescription efficienciesPSet;
   efficienciesPSet.setAllowAnything(); // TODO: the pat helper needs to implement a description.

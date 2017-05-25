@@ -9,7 +9,8 @@
 // Original Author: Marcel Schneider
 
 #include "DQM/SiPixelPhase1Common/interface/SiPixelPhase1Base.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 class SiPixelPhase1RecHits : public SiPixelPhase1Base {
   enum {
@@ -22,12 +23,14 @@ class SiPixelPhase1RecHits : public SiPixelPhase1Base {
     CLUSTER_PROB
   };
 
+  bool onlyValid_;
+
   public:
   explicit SiPixelPhase1RecHits(const edm::ParameterSet& conf);
   void analyze(const edm::Event&, const edm::EventSetup&);
 
   private:
-  edm::EDGetTokenT<SiPixelRecHitCollection> srcToken_;
+    edm::EDGetTokenT<reco::TrackCollection> srcToken_;
 };
 
 #endif

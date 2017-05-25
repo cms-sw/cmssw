@@ -1,15 +1,17 @@
 #include "SimG4Core/PhysicsLists/interface/CMSEmNoDeltaRay.h"
-#include "SimG4Core/PhysicsLists/interface/UrbanMscModel93.h"
+#include "SimG4Core/PhysicsLists/interface/EmParticleList.h"
+#include "G4EmParameters.hh"
+#include "G4ParticleTable.hh"
 
 #include "G4ParticleDefinition.hh"
 #include "G4ProcessManager.hh"
 #include "G4LossTableManager.hh"
-#include "G4EmProcessOptions.hh"
 #include "G4RegionStore.hh"
 
 #include "G4ComptonScattering.hh"
 #include "G4GammaConversion.hh"
 #include "G4PhotoElectricEffect.hh"
+#include "G4UrbanMscModel.hh"
 
 #include "G4hMultipleScattering.hh"
 #include "G4eMultipleScattering.hh"
@@ -61,11 +63,18 @@
 #include "G4Alpha.hh"
 #include "G4GenericIon.hh"
 
+#include "G4BuilderType.hh"
 #include "G4SystemOfUnits.hh"
 
 CMSEmNoDeltaRay::CMSEmNoDeltaRay(const G4String& name, G4int ver, std::string reg):
   G4VPhysicsConstructor(name), verbose(ver), region(reg) {
-  G4LossTableManager::Instance();
+  G4EmParameters* param = G4EmParameters::Instance();
+  param->SetDefaults();
+  param->SetVerbose(verbose);
+  param->SetApplyCuts(true);
+  param->SetMscRangeFactor(0.2);
+  param->SetMscStepLimitType(fMinimal);
+  SetPhysicsType(bElectromagnetic);
 }
 
 CMSEmNoDeltaRay::~CMSEmNoDeltaRay() {}
@@ -124,11 +133,11 @@ void CMSEmNoDeltaRay::ConstructProcess() {
     reg = regStore->GetRegion(region, true);
   }
 
-  aParticleIterator->reset();
-  while( (*aParticleIterator)() ){
-    G4ParticleDefinition* particle = aParticleIterator->value();
+  G4ParticleTable* table = G4ParticleTable::GetParticleTable();
+  EmParticleList emList;
+  for(const auto& particleName : emList.PartNames()) {
+    G4ParticleDefinition* particle = table->FindParticle(particleName);
     G4ProcessManager* pmanager = particle->GetProcessManager();
-    G4String particleName = particle->GetParticleName();
     if(verbose > 1)
       G4cout << "### " << GetPhysicsName() << " instantiates for " 
 	     << particleName << " at " << particle << G4endl;
@@ -141,12 +150,10 @@ void CMSEmNoDeltaRay::ConstructProcess() {
 
     } else if (particleName == "e-") {
 
-      //      G4eIonisation* eioni = new G4eIonisation();
-      //      eioni->SetStepFunction(0.8, 1.0*mm);
       G4eMultipleScattering* msc = new G4eMultipleScattering;
       msc->SetStepLimitType(fMinimal);
       if (reg != 0) {
-	UrbanMscModel93* msc_el  = new UrbanMscModel93();
+	G4UrbanMscModel* msc_el  = new G4UrbanMscModel();
 	msc_el->SetRangeFactor(0.04);
 	msc->AddEmModel(0,msc_el,reg);
       }
@@ -161,7 +168,7 @@ void CMSEmNoDeltaRay::ConstructProcess() {
       G4eMultipleScattering* msc = new G4eMultipleScattering;
       msc->SetStepLimitType(fMinimal);
       if (reg != 0) {
-	UrbanMscModel93* msc_pos  = new UrbanMscModel93();
+	G4UrbanMscModel* msc_pos  = new G4UrbanMscModel();
 	msc_pos->SetRangeFactor(0.04);
 	msc->AddEmModel(0,msc_pos,reg);
       }
@@ -228,12 +235,4 @@ void CMSEmNoDeltaRay::ConstructProcess() {
       pmanager->AddProcess(new G4hhIonisation,        -1, 2, 2);
     }
   }
-
-  // Setup options
-  //
-  G4EmProcessOptions opt;
-  opt.SetVerbose(verbose);
-  // ApplyCuts
-  //
-  opt.SetApplyCuts(true);
 }

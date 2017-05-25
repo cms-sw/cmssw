@@ -41,8 +41,7 @@ HLTL1MuonSelector::HLTL1MuonSelector(const edm::ParameterSet& iConfig) :
 }
 
 // destructor
-HLTL1MuonSelector::~HLTL1MuonSelector(){
-}
+HLTL1MuonSelector::~HLTL1MuonSelector()= default;
 
 void
 HLTL1MuonSelector::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

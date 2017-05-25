@@ -76,10 +76,12 @@ namespace edm {
                       EventPrincipal const& principal);
 
     void doBeginRun(RunPrincipal const& principal, IOVSyncValue const& ts);
+    void doBeginRunAsync(WaitingTaskHolder iHolder, RunPrincipal const& principal, IOVSyncValue const& ts);
 
     void doEndRun(RunPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException);
 
     void doBeginLuminosityBlock(LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts);
+    void doBeginLuminosityBlockAsync(WaitingTaskHolder iHolder, LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts);
 
     void doEndLuminosityBlock(LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException);
 
@@ -87,12 +89,29 @@ namespace edm {
     void doBeginStream(unsigned int);
     void doEndStream(unsigned int);
     void doStreamBeginRun(unsigned int iID, RunPrincipal const& principal, IOVSyncValue const& ts);
+    void doStreamBeginRunAsync(WaitingTaskHolder iHolder,
+                               unsigned int iID,
+                               RunPrincipal const& principal,
+                               IOVSyncValue const& ts);
 
     void doStreamEndRun(unsigned int iID, RunPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException);
+    void doStreamEndRunAsync(WaitingTaskHolder iHolder,
+                             unsigned int iID, RunPrincipal const& principal,
+                             IOVSyncValue const& ts,
+                             bool cleaningUpAfterException);
 
     void doStreamBeginLuminosityBlock(unsigned int iID, LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts);
+    void doStreamBeginLuminosityBlockAsync(WaitingTaskHolder iHolder,
+                                           unsigned int iID,
+                                           LuminosityBlockPrincipal const& principal,
+                                           IOVSyncValue const& ts);
 
     void doStreamEndLuminosityBlock(unsigned int iID, LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException);
+    void doStreamEndLuminosityBlockAsync(WaitingTaskHolder iHolder,
+                                         unsigned int iID,
+                                         LuminosityBlockPrincipal const& principal,
+                                         IOVSyncValue const& ts,
+                                         bool cleaningUpAfterException);
 
 
     // Write the luminosity block

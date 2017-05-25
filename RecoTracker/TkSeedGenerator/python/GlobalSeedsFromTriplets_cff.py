@@ -24,7 +24,3 @@ globalSeedsFromTriplets = RecoTracker.TkSeedGenerator.SeedGeneratorFromRegionHit
 #     GeneratorPSet = cms.PSet(PixelTripletLargeTipGenerator)
     )
 )
-from Configuration.Eras.Modifier_trackingPhase1PU70_cff import trackingPhase1PU70
-trackingPhase1PU70.toModify(globalSeedsFromTriplets,
-    OrderedHitsFactoryPSet = dict(GeneratorPSet = dict(maxElement = 0)),
-)

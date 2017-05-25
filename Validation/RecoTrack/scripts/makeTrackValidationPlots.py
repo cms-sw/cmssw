@@ -61,10 +61,10 @@ def main(opts):
         }
 
     trk = [trackingPlots.plotter]
-    other = [trackingPlots.timePlotter, vertexPlots.plotter]
+    other = [trackingPlots.timePlotter, vertexPlots.plotter, trackingPlots.plotterHLT]
     if opts.extended:
         trk.append(trackingPlots.plotterExt)
-        other.append(vertexPlots.plotterExt)
+        other.extend([vertexPlots.plotterExt, trackingPlots.plotterHLTExt])
     val.doPlots(trk, plotterDrawArgs=drawArgs, **kwargs_tracking)
     val.doPlots(other, plotterDrawArgs=drawArgs)
     print
