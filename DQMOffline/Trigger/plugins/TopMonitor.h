@@ -99,6 +99,11 @@ private:
   METME metVsLS_;
   METME metPhiME_;
 
+  METME jetVsLS_;
+  METME muVsLS_;
+  METME eleVsLS_;
+  METME htVsLS_;
+
   MEbinning           phi_binning_;
   MEbinning           pt_binning_;
   MEbinning           eta_binning_;
@@ -131,6 +136,7 @@ private:
   int nelectrons_;
   int nmuons_;
   double leptJetDeltaRmin_;
+  double HTcut_;
 
 };
 
