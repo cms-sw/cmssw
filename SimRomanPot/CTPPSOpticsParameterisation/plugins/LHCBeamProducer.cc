@@ -49,11 +49,6 @@ class LHCBeamProducer : public edm::stream::EDProducer<> {
     virtual void produce( edm::Event&, const edm::EventSetup& ) override;
     virtual void endStream() override;
 
-    //virtual void beginRun( const edm::Run&, const edm::EventSetup& ) override;
-    //virtual void endRun( const edm::Run&, const edm::EventSetup& ) override;
-    //virtual void beginLuminosityBlock( const edm::LuminosityBlock&, const edm::EventSetup& ) override;
-    //virtual void endLuminosityBlock( const edm::LuminosityBlock&, const edm::EventSetup& ) override;
-
     CTPPSSimProtonTrack shoot( CLHEP::HepRandomEngine* );
 
     unsigned int numProtons_;
@@ -158,34 +153,6 @@ void
 LHCBeamProducer::endStream()
 {}
 
-// ------------ method called when starting to processes a run  ------------
-/*
-void
-LHCBeamProducer::beginRun( const edm::Run&, const edm::EventSetup& )
-{}
-*/
- 
-// ------------ method called when ending the processing of a run  ------------
-/*
-void
-LHCBeamProducer::endRun( const edm::Run&, const edm::EventSetup& )
-{}
-*/
- 
-// ------------ method called when starting to processes a luminosity block  ------------
-/*
-void
-LHCBeamProducer::beginLuminosityBlock( const edm::LuminosityBlock&, const edm::EventSetup& )
-{}
-*/
- 
-// ------------ method called when ending the processing of a luminosity block  ------------
-/*
-void
-LHCBeamProducer::endLuminosityBlock( const edm::LuminosityBlock&, const edm::EventSetup& )
-{}
-*/
- 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
 LHCBeamProducer::fillDescriptions( edm::ConfigurationDescriptions& descriptions )

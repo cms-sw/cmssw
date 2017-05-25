@@ -2,7 +2,6 @@
 #include "TTimeStamp.h"
 #include "TRandom3.h"
 #include "TNtupleD.h"
-#include "TNtupleDcorr.h"
 
 #include "FitData.h"
 #include <boost/shared_ptr.hpp>
@@ -799,14 +798,13 @@ TTree *MADParamGenerator::CreateSamplesTree(TFile *f, std::string out_prefix,
 	}
 
 	f->cd();
-	return new TNtupleDcorr("transport_samples", "transport_samples",
-			varlist.c_str());
+	return new TNtupleD("transport_samples", "transport_samples", varlist.c_str());
 }
 
 TTree *MADParamGenerator::CreateAccelAcceptTree(TFile *f, std::string name) {
 	std::string varlist = "x:theta_x:y:theta_y:ksi:mad_accept:par_accept";
 	f->cd();
-	return new TNtupleDcorr(name.c_str(), name.c_str(), varlist.c_str());
+	return new TNtupleD(name.c_str(), name.c_str(), varlist.c_str());
 }
 
 TTree *MADParamGenerator::CreateLostParticlesTree(TFile *lost_particles_file) {

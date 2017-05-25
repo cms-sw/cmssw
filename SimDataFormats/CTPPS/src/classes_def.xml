@@ -1,24 +1,30 @@
 <lcgdict>
-  <class name="LHCOpticsApproximator" ClassVersion="11">
-    <version ClassVersion="11" checksum="3586453489"/>
+  <class name="LHCOpticsApproximator" ClassVersion="1">
+    <version ClassVersion="1" checksum="1974952999"/>
   </class>
-  <class name="LHCApertureApproximator" ClassVersion="11">
-    <version ClassVersion="11" checksum="1367444731"/>
+  <class name="LHCApertureApproximator" ClassVersion="1">
+    <version ClassVersion="1" checksum="2314677677"/>
   </class>
   <class name="TMultiDimFet" ClassVersion="1">
-    <version ClassVersion="1" checksum="466014908"/>
+    <version ClassVersion="1" checksum="2981266364"/>
   </class>
   <!-- protons as simulated upstream -->
   <class name="CTPPSSimProtonTrack" ClassVersion="11">
     <version ClassVersion="11" checksum="2308881548"/>
   </class>
-  <class name="std::vector<CTPPSSimProtonTrack>" />
-  <class name="edm::Wrapper< std::vector<CTPPSSimProtonTrack> >" />
+  <class name="std::vector<CTPPSSimProtonTrack>"/>
+  <class name="edm::View<CTPPSSimProtonTrack>"/>
+  <class name="edm::Ptr<CTPPSSimProtonTrack>"/>
+  <class name="std::vector< edm::Ptr<CTPPSSimProtonTrack> >"/>
+  <class name="edm::Wrapper< std::vector<CTPPSSimProtonTrack> >"/>
 
   <!-- hits as observed in RPs -->
   <class name="CTPPSSimHit" ClassVersion="11">
     <version ClassVersion="11" checksum="2472350513"/>
   </class>
-  <class name="std::vector<CTPPSSimHit>" />
-  <class name="edm::Wrapper< std::vector<CTPPSSimHit> >" />
+  <class name="std::vector<CTPPSSimHit>"/>
+  <class name="edm::View<CTPPSSimHit>"/>
+  <class name="edm::Ptr<CTPPSSimHit>"/>
+  <class name="std::vector< edm::Ptr<CTPPSSimHit> >"/>
+  <class name="edm::Wrapper< std::vector<CTPPSSimHit> >"/>
 </lcgdict>
