@@ -282,7 +282,7 @@ bool LHERunInfoProduct::mergeProduct(const LHERunInfoProduct &other)
         if(header_compatible) continue;
       }
       
-			if( !isTagComparedInMerge(header->tag()) ){ 
+			if(isTagComparedInMerge(header->tag())){ 
 				failed = true;
 			} else {
 				addHeader(*header);	
