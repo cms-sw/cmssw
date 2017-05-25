@@ -77,6 +77,7 @@ DefaultHistoTrack.topFolderName=cms.string( "TrackTimingPixelPhase1/Phase1_Track
 # PixelPhase1 Real data raw to digi
 process.load("EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi")
 process.siPixelDigis.IncludeErrors = True
+process.siPixelDigis.UsePhase1 = True
 
 # PixelPhase1 Local Reconstruction
 process.load("RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi")
