@@ -5,9 +5,9 @@ topEfficiency = cms.EDAnalyzer("DQMGenericClient",
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
-        "effic_muPhi       'mu efficiency vs phi; mu phi [rad]; efficiency' muPhi_numerator       muPhi_denominator",
-        "effic_muEta       'mu efficiency vs eta; mu eta [rad]; efficiency' muEta_numerator       muEta_denominator",
-        "effic_muPt       'mu efficiency vs pt; mu pt [GeV]; efficiency' muPt_numerator       muPt_denominator",
+        "effic_muPhi       'mu efficiency vs phi; muon phi ; efficiency' muPhi_numerator       muPhi_denominator",
+        "effic_muEta       'mu efficiency vs eta; muon eta ; efficiency' muEta_numerator       muEta_denominator",
+        "effic_muPt       'mu efficiency vs pt; muon pt [GeV]; efficiency' muPt_numerator       muPt_denominator",
         "effic_elePhi       'electron efficiency vs phi; electron phi ; efficiency' elePhi_numerator       elePhi_denominator",
         "effic_eleEta       'electron efficiency vs eta; electron eta ; efficiency' eleEta_numerator       eleEta_denominator",
         "effic_elePt       'electron efficiency vs pt; electron pt [GeV]; efficiency' elePt_numerator       elePt_denominator",
