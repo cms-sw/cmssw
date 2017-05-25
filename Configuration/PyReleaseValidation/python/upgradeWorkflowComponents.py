@@ -33,7 +33,7 @@ upgradeKeys[2023] = [
 # pre-generation of WF numbers
 numWFStart={
     2017: 10000,
-    2023: 20000,
+    2023: 20000,#GB: since the WF numbers are appended from this and I want to skip this one I increased this number to the new actual one 
 }
 numWFSkip=200
 # first two sets are the former D3 WF (now removed as redundant)
@@ -44,21 +44,14 @@ numWFAll={
     2023: []
 }
 
-
 for year in upgradeKeys:
-    i=0
-    for j in range(0,len(upgradeKeys[year])):
-	skipIt=True
-	while skipIt:
-	    skipIt=False
-	    numWFtmp = numWFStart[year] + i*numWFSkip
-	    for conflict in numWFConflict:
-	        if numWFtmp>=conflict[0] and numWFtmp<conflict[1]:
-		    skipIt=True
-		    break
-	    i=i+1
+    for i in range(0,len(upgradeKeys[year])):
+        numWFtmp = numWFStart[year] if i==0 else (numWFAll[year][i-1] + numWFSkip)
+	for conflict in numWFConflict:
+	    if numWFtmp>=conflict[0] and numWFtmp<conflict[1]:
+                numWFtmp = conflict[1]
+                break
         numWFAll[year].append(numWFtmp)
-    
 
 # steps for baseline and for variations
 upgradeSteps={}
