@@ -17,7 +17,7 @@ qTesterMET = cms.EDAnalyzer("QualityTester",
  )
 
 ################# Data Certification #########################
-dataCertificationJetMET = cms.EDAnalyzer('DataCertificationJetMET',
+dataCertificationJetMET = cms.EDProducer('DataCertificationJetMET',
                               fileName       = cms.untracked.string(""),
                               refFileName    = cms.untracked.string(""),
                               OutputFile     = cms.untracked.bool(False),

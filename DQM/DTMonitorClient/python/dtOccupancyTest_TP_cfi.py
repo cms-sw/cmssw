@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-dtTPmonitorTest = cms.EDAnalyzer("DTOccupancyTest",
+dtTPmonitorTest = cms.EDProducer("DTOccupancyTest",
                                  testPulseMode = cms.untracked.bool(True),
                                  runOnAllHitsOccupancies = cms.untracked.bool(False),
                                  runOnNoiseOccupancies = cms.untracked.bool(False),

@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from DQMOffline.EGamma.photonAnalyzer_cfi import *
 
 
-dqmElectronOfflineClient = cms.EDAnalyzer("ElectronOfflineClient",
+dqmElectronOfflineClient = cms.EDProducer("ElectronOfflineClient",
 
     Verbosity = cms.untracked.int32(0),
     FinalStep = cms.string("AtJobEnd"),

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-rpcEventSummary = cms.EDAnalyzer("RPCEventSummary",
+rpcEventSummary = cms.EDProducer("RPCEventSummary",
                                  EventInfoPath = cms.untracked.string('RPC/EventInfo'),
                                  PrescaleFactor = cms.untracked.int32(5),
                                  MinimumRPCEvents = cms.untracked.int32(10000),

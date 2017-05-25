@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-hltMuonPostProcessor  = cms.EDAnalyzer("DQMGenericClient",
+hltMuonPostProcessor  = cms.EDProducer("DQMGenericClient",
     subDirs           = cms.untracked.vstring('HLT/Muon/Distributions/*'),
     verbose           = cms.untracked.uint32(0),
     outputFileName    = cms.untracked.string(''),

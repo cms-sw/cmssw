@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 #print "please remember to switch off gen jet efficiency plots in client"
-fsqClient = cms.EDAnalyzer("DQMGenericClient",
+fsqClient = cms.EDProducer("DQMGenericClient",
     subDirs        = cms.untracked.vstring("HLT/FSQ/HLT_DiPFJetAve*", "HLT/FSQ/HLT_PixelTracks_Multiplicity*",\
                                            "HLT/FSQ/HLT_ZeroBias_SinglePixelTrack*", \
                                            "HLT/FSQ/HLT_PFJet*", "HLT/FSQ/HLT_DiPFJet*" ),

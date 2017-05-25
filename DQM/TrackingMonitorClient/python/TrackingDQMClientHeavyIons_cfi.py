@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-hiTrackingDqmClientHeavyIons = cms.EDAnalyzer("TrackingDQMClientHeavyIons",
+hiTrackingDqmClientHeavyIons = cms.EDProducer("TrackingDQMClientHeavyIons",
                                               FolderName = cms.string('Tracking/TrackParameters/GeneralProperties')
                                               )

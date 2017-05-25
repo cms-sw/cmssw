@@ -6,7 +6,7 @@ bTagAnalysis = cms.EDAnalyzer("BTagPerformanceAnalyzerOnData",
                               bTagCommonBlock,
                               )
 
-bTagHarvest = cms.EDAnalyzer("BTagPerformanceHarvester",
+bTagHarvest = cms.EDProducer("BTagPerformanceHarvester",
                              bTagCommonBlock,
                              produceEps = cms.bool(False),
                              producePs = cms.bool(False),

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-postProcessorV0 = cms.EDAnalyzer("DQMGenericClient",
+postProcessorV0 = cms.EDProducer("DQMGenericClient",
     subDirs = cms.untracked.vstring("Vertexing/V0V/*"),
     efficiency = cms.vstring(
        "K0sEffVsR 'K^{0}_{S} efficiency vs R (radial)' K0sEffVsR_num K0sEffVsR_denom", 

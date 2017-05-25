@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-postProcessorMuonMultiTrack = cms.EDAnalyzer("DQMGenericClient",
+postProcessorMuonMultiTrack = cms.EDProducer("DQMGenericClient",
     subDirs = cms.untracked.vstring("Muons/RecoMuonV/MultiTrack/*"),
     efficiency = cms.vstring(
     "effic 'Efficiency vs #eta' num_assoc(simToReco)_eta num_simul_eta",
@@ -49,7 +49,7 @@ postProcessorMuonMultiTrack = cms.EDAnalyzer("DQMGenericClient",
 )
 
 
-postProcessorMuonMultiTrackComp = cms.EDAnalyzer("DQMGenericClient",
+postProcessorMuonMultiTrackComp = cms.EDProducer("DQMGenericClient",
     subDirs = cms.untracked.vstring("Muons/RecoMuonV/MultiTrack/"),
     efficiency = cms.vstring(
     "Eff_GlbTk_Eta_mabh 'Eff_{GLB,TK} vs #eta' extractedGlobalMuons/effic probeTrks/effic",
@@ -63,7 +63,7 @@ postProcessorMuonMultiTrackComp = cms.EDAnalyzer("DQMGenericClient",
     outputFileName = cms.untracked.string("")
 )
 
-postProcessorMuonMultiTrackCompFS = cms.EDAnalyzer("DQMGenericClient",
+postProcessorMuonMultiTrackCompFS = cms.EDProducer("DQMGenericClient",
     subDirs = cms.untracked.vstring("Muons/RecoMuonV/MultiTrack/"),
     efficiency = cms.vstring(
     "Eff_GlbTk_Eta_mabh 'Eff_{GLB,TK} vs #eta' extractedGlobalMuons/effic probeTrks/effic",
@@ -78,7 +78,7 @@ postProcessorMuonMultiTrackCompFS = cms.EDAnalyzer("DQMGenericClient",
 )
 
 
-postProcessorRecoMuon = cms.EDAnalyzer("DQMGenericClient",
+postProcessorRecoMuon = cms.EDProducer("DQMGenericClient",
     subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc"),
     #efficiencies and fractions
     efficiency = cms.vstring("EffP   'Efficiency vs p'     P   SimP  ",
@@ -133,7 +133,7 @@ postProcessorRecoMuon_StaPF = postProcessorRecoMuon.clone()
 postProcessorRecoMuon_StaPF.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_StaPF")
 
 #not sure about this one, which types are monitored
-postProcessorRecoMuonComp = cms.EDAnalyzer(
+postProcessorRecoMuonComp = cms.EDProducer(
     "DQMGenericClient",
     subDirs = cms.untracked.vstring("Muons/RecoMuonV/"),
     efficiency = cms.vstring(
@@ -150,7 +150,7 @@ postProcessorRecoMuonComp = cms.EDAnalyzer(
     outputFileName = cms.untracked.string("")
 )
 
-postProcessorRecoMuonCompPF = cms.EDAnalyzer(
+postProcessorRecoMuonCompPF = cms.EDProducer(
     "DQMGenericClient",
     subDirs = cms.untracked.vstring("Muons/RecoMuonV/"),
     efficiency = cms.vstring(

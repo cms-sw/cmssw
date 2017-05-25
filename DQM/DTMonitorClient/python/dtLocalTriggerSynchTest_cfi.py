@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-triggerSynchTest = cms.EDAnalyzer("DTLocalTriggerSynchTest",
+triggerSynchTest = cms.EDProducer("DTLocalTriggerSynchTest",
     # prescale factor (in luminosity blocks) to perform client analysis
     diagnosticPrescale = cms.untracked.int32(1),
     # run in online environment

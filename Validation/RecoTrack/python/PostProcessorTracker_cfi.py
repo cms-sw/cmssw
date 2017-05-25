@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-postProcessorTrack = cms.EDAnalyzer("DQMGenericClient",
+postProcessorTrack = cms.EDProducer("DQMGenericClient",
     subDirs = cms.untracked.vstring("Tracking/Track/*", "Tracking/TrackFromPV/*", "Tracking/TrackFromPVAllTP/*", "Tracking/TrackAllTPEffic/*", "Tracking/TrackConversion/*", "Tracking/TrackGsf/*", "Tracking/TrackBHadron/*"),
     efficiency = cms.vstring(
     "effic 'Efficiency vs #eta' num_assoc(simToReco)_eta num_simul_eta",
@@ -220,7 +220,7 @@ postProcessorTrack = cms.EDAnalyzer("DQMGenericClient",
 # nrec/nsim makes sense only for
 # - all tracks vs. all in-time TrackingParticles
 # - PV tracks vs. signal TrackingParticles
-postProcessorTrackNrecVsNsim = cms.EDAnalyzer("DQMGenericClient",
+postProcessorTrackNrecVsNsim = cms.EDProducer("DQMGenericClient",
     subDirs = cms.untracked.vstring("Tracking/TrackFromPV/*", "Tracking/TrackAllTPEffic/*"),
     efficiency = cms.vstring(
         "nrecPerNsim 'Tracks/TrackingParticles vs #eta' num_reco2_eta num_simul_eta simpleratio",
@@ -230,7 +230,7 @@ postProcessorTrackNrecVsNsim = cms.EDAnalyzer("DQMGenericClient",
     resolution = cms.vstring()
 )
 
-postProcessorTrackSummary = cms.EDAnalyzer("DQMGenericClient",
+postProcessorTrackSummary = cms.EDProducer("DQMGenericClient",
     subDirs = cms.untracked.vstring("Tracking/Track", "Tracking/TrackFromPV", "Tracking/TrackFromPVAllTP", "Tracking/TrackAllTPEffic", "Tracking/TrackConversion", "Tracking/TrackGsf", "Tracking/TrackBHadron"),
     efficiency = cms.vstring(
     "effic_vs_coll 'Efficiency vs track collection' num_assoc(simToReco)_coll num_simul_coll",

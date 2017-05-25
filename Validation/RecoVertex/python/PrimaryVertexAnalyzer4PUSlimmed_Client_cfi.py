@@ -36,7 +36,7 @@ def _resolPull(prefix):
     ]
 
 
-postProcessorVertex = cms.EDAnalyzer("DQMGenericClient",
+postProcessorVertex = cms.EDProducer("DQMGenericClient",
                                      subDirs = cms.untracked.vstring("Vertexing/PrimaryVertexV/*"),
                                      efficiency = cms.vstring(
                                          "effic_vs_NumVertices 'Efficiency vs NumVertices' GenAllAssoc2RecoMatched_NumVertices GenAllAssoc2Reco_NumVertices",

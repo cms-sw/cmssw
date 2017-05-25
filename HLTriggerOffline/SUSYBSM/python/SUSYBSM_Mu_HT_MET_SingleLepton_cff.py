@@ -43,7 +43,7 @@ SUSY_HLT_Mu15_HT350_MET50_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
                                                  )
 
 
-SUSY_HLT_Mu15_HT350_MET50_SingleLepton_POSTPROCESSING = cms.EDAnalyzer('DQMGenericClient',
+SUSY_HLT_Mu15_HT350_MET50_SingleLepton_POSTPROCESSING = cms.EDProducer('DQMGenericClient',
                                                                 subDirs = cms.untracked.vstring('HLT/SUSYBSM/HLT_Mu15_IsoVVVL_PFHT350_PFMET50_v'),
                                                                 efficiency = cms.vstring(
         "leptonTurnOn_eff ';Offline Muon p_{T} [GeV];#epsilon' leptonTurnOn_num leptonTurnOn_den",
@@ -95,7 +95,7 @@ SUSY_HLT_Mu15_HT400_MET50_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
                                                  )
 
 
-SUSY_HLT_Mu15_HT400_MET50_SingleLepton_POSTPROCESSING = cms.EDAnalyzer('DQMGenericClient',
+SUSY_HLT_Mu15_HT400_MET50_SingleLepton_POSTPROCESSING = cms.EDProducer('DQMGenericClient',
                                                                 subDirs = cms.untracked.vstring('HLT/SUSYBSM/HLT_Mu15_IsoVVVL_PFHT400_PFMET50_v'),
                                                                 efficiency = cms.vstring(
         "leptonTurnOn_eff ';Offline Muon p_{T} [GeV];#epsilon' leptonTurnOn_num leptonTurnOn_den",
