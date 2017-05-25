@@ -43,7 +43,8 @@ std::map<std::string, l1t::Mask>& ) {
     // Optional params
     //"layer1ECalScalePhiBins",
     //"layer1HCalScalePhiBins",
-    //"layer1HFScalePhiBins"
+    //"layer1HFScalePhiBins",
+    //"layer1SecondStageLUT"
   };
   for (const auto param : expectedParams) {
     if ( conf.find(param) == conf.end() ) {
@@ -65,6 +66,8 @@ std::map<std::string, l1t::Mask>& ) {
       paramsHelper.setLayer1HCalScalePhiBins(conf["layer1HCalScalePhiBins"].getVector<unsigned int>());
   if( conf.find("layer1HFScalePhiBins") != conf.end() )
       paramsHelper.setLayer1HFScalePhiBins  (conf["layer1HFScalePhiBins"]  .getVector<unsigned int>());
+  if( conf.find("layer1SecondStageLUT") != conf.end() )
+      paramsHelper.setLayer1SecondStageLUT( l1t::convertToLUT( conf["layer1SecondStageLUT"]  .getVector<unsigned int>()) );
 
   return true;
 }

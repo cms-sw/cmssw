@@ -335,7 +335,7 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
   edm::FileInPath layer1HOverELUTFile = conf.getParameter<edm::FileInPath>("layer1HOverELUTFile");
   std::ifstream layer1HOverELUTStream(layer1HOverELUTFile.fullPath());
   std::shared_ptr<LUT> layer1HOverELUT( new LUT(layer1HOverELUTStream) );
-  m_params_helper.setLayer1HOverELUT(*layer1HOverELUT);
+  m_params_helper.setLayer1SecondStageLUT(*layer1HOverELUT);
    
   m_params = (CaloParams)m_params_helper;
 
