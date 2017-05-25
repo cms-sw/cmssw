@@ -33,7 +33,7 @@ upgradeKeys[2023] = [
 # pre-generation of WF numbers
 numWFStart={
     2017: 10000,
-    2023: 20000,#GB: since the WF numbers are appended from this and I want to skip this one I increased this number to the new actual one 
+    2023: 20000,
 }
 numWFSkip=200
 # first two sets are the former D3 WF (now removed as redundant)
