@@ -1,18 +1,22 @@
 import FWCore.ParameterSet.Config as cms
 
-from SimRomanPot.CTPPSOpticsParameterisation.lhcBeamConditions_cff import lhcBeamConditions_2017PreTS2
-from SimRomanPot.CTPPSOpticsParameterisation.ctppsDetectorPackages_cff import ctppsDetectorPackages_2017PreTS2
+from SimRomanPot.CTPPSOpticsParameterisation.lhcBeamConditions_cff import lhcBeamConditions_2016PreTS2
 
 lhcBeamProducer = cms.EDProducer('LHCBeamProducer',
-    beamConditions = lhcBeamConditions_2017PreTS2,
+    numProtons = cms.uint32(1), # number of protons to generate in each event
+
+    beamConditions = lhcBeamConditions_2016PreTS2,
 
     simulateVertexX = cms.bool(True),
     simulateVertexY = cms.bool(True),
+
     simulateScatteringAngleX = cms.bool(True),
     simulateScatteringAngleY = cms.bool(True),
-    simulateBeamDivergence = cms.bool(True),
-    simulateXi = cms.bool(True),
-    simulateDetectorsResolution = cms.bool(False),
+    scatteringAngle = cms.double(25.e-6), # in rad
 
-    detectorPackages = ctppsDetectorPackages_2017PreTS2,
+    simulateBeamDivergence = cms.bool(True),
+
+    simulateXi = cms.bool(True),
+    minXi = cms.double(0.03),
+    maxXi = cms.double(0.17),
 )

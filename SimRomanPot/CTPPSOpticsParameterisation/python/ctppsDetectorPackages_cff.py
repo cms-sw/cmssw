@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # list of detector packages to simulate
-detectorPackages_2017PreTS2 = cms.VPSet(
+detectorPackages_2016PreTS2 = cms.VPSet(
     cms.PSet(
         potId = cms.uint32(2),
         scatteringAngle = cms.double(25.e-6), # physics scattering angle, rad

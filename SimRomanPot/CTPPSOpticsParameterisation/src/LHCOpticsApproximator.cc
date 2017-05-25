@@ -1,4 +1,5 @@
 #include "SimRomanPot/CTPPSOpticsParameterisation/interface/LHCOpticsApproximator.h"
+#include "SimRomanPot/CTPPSOpticsParameterisation/interface/LHCApertureApproximator.h"
 
 #include <memory>
 #include <vector>
@@ -6,11 +7,54 @@
 #include "TROOT.h"
 #include "TMath.h"
 
-ClassImp(LHCOpticsApproximator);
-ClassImp(LHCApertureApproximator);
+LHCOpticsApproximator::LHCOpticsApproximator( std::string name, std::string title, TMultiDimFet::EMDFPolyType polynom_type, std::string beam_direction, double nominal_beam_energy ) :
+  x_parametrisation( 5, polynom_type, "k" ), theta_x_parametrisation( 5, polynom_type, "k" ),
+  y_parametrisation( 5, polynom_type, "k" ), theta_y_parametrisation( 5, polynom_type, "k" )
+{
+  Init();
+
+  if ( beam_direction == "lhcb1" ) beam = lhcb1;
+  else if ( beam_direction == "lhcb2" ) beam = lhcb2;
+  else beam = lhcb1;
+
+  nominal_beam_energy_ = nominal_beam_energy;
+  nominal_beam_momentum_ = TMath::Sqrt( nominal_beam_energy_*nominal_beam_energy_-0.938272029*0.938272029 );
+}
 
 
-void LHCOpticsApproximator::Init()
+LHCOpticsApproximator::LHCOpticsApproximator()
+{
+  Init();
+  beam = lhcb1;
+  nominal_beam_energy_ = 7000;
+  nominal_beam_momentum_ = TMath::Sqrt(nominal_beam_energy_*nominal_beam_energy_ - 0.938272029*0.938272029);
+}
+
+LHCOpticsApproximator::LHCOpticsApproximator( const LHCOpticsApproximator& org ) :
+  /*TNamed(org), */
+  x_parametrisation( org.x_parametrisation ), theta_x_parametrisation( org.theta_x_parametrisation ), y_parametrisation( org.y_parametrisation ), theta_y_parametrisation( org.theta_y_parametrisation )
+{
+  Init();
+  s_begin_ = org.s_begin_;
+  s_end_ = org.s_end_;
+  trained_ = org.trained_;
+  apertures_ = org.apertures_;
+  beam = org.beam;
+  nominal_beam_energy_ = org.nominal_beam_energy_;
+  nominal_beam_momentum_ = org.nominal_beam_momentum_;
+}
+
+
+LHCOpticsApproximator&
+LHCOpticsApproximator::operator=( const LHCOpticsApproximator& org )
+{
+  if ( this!=&org ) *this = org;
+  return *this;
+}
+
+
+void
+LHCOpticsApproximator::Init()
 {
   out_polynomials.clear();
   apertures_.clear();
@@ -20,105 +64,61 @@ void LHCOpticsApproximator::Init()
   out_polynomials.push_back(&theta_y_parametrisation);
 
   coord_names.clear();
-  coord_names.push_back("x");
-  coord_names.push_back("theta_x");
-  coord_names.push_back("y");
-  coord_names.push_back("theta_y");
-  coord_names.push_back("ksi");
+  coord_names.push_back( "x" );
+  coord_names.push_back( "theta_x" );
+  coord_names.push_back( "y" );
+  coord_names.push_back( "theta_y" );
+  coord_names.push_back( "ksi" );
 
   s_begin_ = 0.0;
   s_end_ = 0.0;
   trained_ = false;
 }
 
-
-LHCOpticsApproximator::LHCOpticsApproximator(std::string name, std::string title, TMultiDimFet::EMDFPolyType polynom_type, std::string beam_direction, double nominal_beam_energy)
-: x_parametrisation(5, polynom_type, "k"),
-  theta_x_parametrisation(5, polynom_type, "k"),
-  y_parametrisation(5, polynom_type, "k"),
-  theta_y_parametrisation(5, polynom_type, "k")
+bool
+LHCOpticsApproximator::Transport( double *in, double *out, bool check_apertures, bool invert_beam_coord_sytems )
 {
-//  std::cout<<"LHCOpticsApproximator(std::string name, std::string title, TMultiDimFet::EMDFPolyType polynom_type) entered"<<std::endl;
-  this->SetName(name.c_str());
-  this->SetTitle(title.c_str());
-  Init();
+  if ( in == NULL || out == NULL || !trained_ ) return false; //FIXME throw exception?
 
-  if(beam_direction == "lhcb1")
-    beam = lhcb1;
-  else if(beam_direction == "lhcb2")
-    beam = lhcb2;
-  else
-    beam = lhcb1;
-
-  nominal_beam_energy_ = nominal_beam_energy;
-  nominal_beam_momentum_ = TMath::Sqrt(nominal_beam_energy_*nominal_beam_energy_ - 0.938272029*0.938272029);
-//  std::cout<<"LHCOpticsApproximator(std::string name, std::string title, TMultiDimFet::EMDFPolyType polynom_type) left"<<std::endl;
-}
-
-
-LHCOpticsApproximator::LHCOpticsApproximator()
-{
-//  std::cout<<"LHCOpticsApproximator::LHCOpticsApproximator() entered"<<std::endl;
-  Init();
-  beam = lhcb1;
-  nominal_beam_energy_ = 7000;
-  nominal_beam_momentum_ = TMath::Sqrt(nominal_beam_energy_*nominal_beam_energy_ - 0.938272029*0.938272029);
-//  std::cout<<"LHCOpticsApproximator::LHCOpticsApproximator() left"<<std::endl;
-}
-
-
-
-bool LHCOpticsApproximator::Transport(double *in, double *out, bool check_apertures, bool invert_beam_coord_sytems)
-{
-  if (in == NULL || out == NULL || !trained_)
-    return false;
-
-  bool res = CheckInputRange(in);
-
+  bool res = CheckInputRange( in );
   double in_corrected[5];
 
-  if (beam == lhcb1 || !invert_beam_coord_sytems)
-  {
+  if ( beam == lhcb1 || !invert_beam_coord_sytems ) {
     in_corrected[0] = in[0];
     in_corrected[1] = in[1];
     in_corrected[2] = in[2];
     in_corrected[3] = in[3];
     in_corrected[4] = in[4];
-    out[0] = x_parametrisation.Eval(in_corrected);
-    out[1] = theta_x_parametrisation.Eval(in_corrected);
-    out[2] = y_parametrisation.Eval(in_corrected);
-    out[3] = theta_y_parametrisation.Eval(in_corrected);
+    out[0] = x_parametrisation.Eval( in_corrected );
+    out[1] = theta_x_parametrisation.Eval( in_corrected );
+    out[2] = y_parametrisation.Eval( in_corrected );
+    out[3] = theta_y_parametrisation.Eval( in_corrected );
     out[4] = in[4];
   }
-  else
-  {
+  else {
     in_corrected[0] = -in[0];
     in_corrected[1] = -in[1];
     in_corrected[2] = in[2];
     in_corrected[3] = in[3];
     in_corrected[4] = in[4];
-    out[0] = -x_parametrisation.Eval(in_corrected);
-    out[1] = -theta_x_parametrisation.Eval(in_corrected);
-    out[2] = y_parametrisation.Eval(in_corrected);
-    out[3] = theta_y_parametrisation.Eval(in_corrected);
+    out[0] = -x_parametrisation.Eval( in_corrected );
+    out[1] = -theta_x_parametrisation.Eval( in_corrected );
+    out[2] = y_parametrisation.Eval( in_corrected );
+    out[3] = theta_y_parametrisation.Eval( in_corrected );
     out[4] = in[4];
   }
 
-  if (check_apertures)
-  {
-    for( unsigned short i=0; i<apertures_.size(); i++ )
-    {
-      res = res && apertures_[i].CheckAperture(in);
+  if ( check_apertures ) {
+    for ( unsigned short i=0; i<apertures_.size(); i++ ) {
+      res = res && apertures_[i].CheckAperture( in );
     }
   }
 
   return res;
 }
 
-
-
-bool LHCOpticsApproximator::Transport(const MadKinematicDescriptor *in, MadKinematicDescriptor *out, bool check_apertures,
-	bool invert_beam_coord_sytems)
+/*bool
+LHCOpticsApproximator::Transport( const MadKinematicDescriptor *in, MadKinematicDescriptor *out, bool check_apertures, bool invert_beam_coord_sytems )
 {
   if (in == NULL || out == NULL || !trained_)
     return false;
@@ -142,10 +142,8 @@ bool LHCOpticsApproximator::Transport(const MadKinematicDescriptor *in, MadKinem
   return res;
 }
 
-
-
-bool LHCOpticsApproximator::Transport_m_GeV(double in_pos[3], double in_momentum[3], double out_pos[3], double out_momentum[3],
-	double z2_z1_dist, bool check_apertures, bool invert_beam_coord_sytems)
+bool
+LHCOpticsApproximator::Transport_m_GeV( double in_pos[3], double in_momentum[3], double out_pos[3], double out_momentum[3], double z2_z1_dist, bool check_apertures, bool invert_beam_coord_sytems )
 {
   double in[5];
   double out[5];
@@ -174,55 +172,15 @@ bool LHCOpticsApproximator::Transport_m_GeV(double in_pos[3], double in_momentum
   out_momentum[2] = TMath::Sign(out_momentum[2], in_momentum[2]);
 
   return res;
-}
+}*/
 
-
-
-LHCOpticsApproximator::LHCOpticsApproximator(const LHCOpticsApproximator &org) : TNamed(org), x_parametrisation(org.x_parametrisation), theta_x_parametrisation(org.theta_x_parametrisation), y_parametrisation(org.y_parametrisation), theta_y_parametrisation(org.theta_y_parametrisation)
+void
+LHCOpticsApproximator::Train( TTree *inp_tree, std::string data_prefix, polynomials_selection mode, int max_degree_x, int max_degree_tx, int max_degree_y, int max_degree_ty, bool common_terms, double *prec )
 {
-//  std::cout<<"LHCOpticsApproximator::LHCOpticsApproximator(const LHCOpticsApproximator &org) entered"<<std::endl;
-    void Init();
-    s_begin_ = org.s_begin_;
-    s_end_ = org.s_end_;
-    trained_ = org.trained_;
-    apertures_ = org.apertures_;
-    beam = org.beam;
-    nominal_beam_energy_ = org.nominal_beam_energy_;
-    nominal_beam_momentum_ = org.nominal_beam_momentum_;
-//  std::cout<<"LHCOpticsApproximator::LHCOpticsApproximator(const LHCOpticsApproximator &org) left"<<std::endl;
-}
-
-
-LHCOpticsApproximator & LHCOpticsApproximator::operator=(const LHCOpticsApproximator &org)
-{
-  if(this!=&org)
-  {
-    void Init();
-    TNamed::operator=(org);
-    s_begin_ = org.s_begin_;
-    s_end_ = org.s_end_;
-    trained_ = org.trained_;
-
-    x_parametrisation = org.x_parametrisation;
-    theta_x_parametrisation = org.theta_x_parametrisation;
-    y_parametrisation = org.y_parametrisation;
-    theta_y_parametrisation = org.theta_y_parametrisation;
-    apertures_ = org.apertures_;
-    beam = org.beam;
-    nominal_beam_energy_ = org.nominal_beam_energy_;
-    nominal_beam_momentum_ = org.nominal_beam_momentum_;
-  }
-  return *this;
-}
-
-
-void LHCOpticsApproximator::Train(TTree *inp_tree, std::string data_prefix, polynomials_selection mode, int max_degree_x, int max_degree_tx, int max_degree_y, int max_degree_ty, bool common_terms, double *prec)
-{
-  if(inp_tree==NULL)
-    return;
+  if( inp_tree==NULL ) return;
 
   InitializeApproximators(mode, max_degree_x, max_degree_tx, max_degree_y, max_degree_ty, common_terms);
-  std::cout<<this->GetName()<<" is being trained..."<<std::endl;
+  //std::cout<<this->GetName()<<" is being trained..."<<std::endl;
 
   //in-variables
   //x_in, theta_x_in, y_in, theta_y_in, ksi_in, s_in
@@ -305,16 +263,16 @@ void LHCOpticsApproximator::Train(TTree *inp_tree, std::string data_prefix, poly
   }
 
   std::cout<<"Optical functions parametrizations from "<<s_begin_<<" to "<<s_end_<<std::endl;
-  PrintInputRange();
+  //PrintInputRange();
   for(int i=0; i<4; i++)
   {
     double best_precision=0.0;
     if(prec)
       best_precision = prec[i];
     out_polynomials[i]->FindParameterization(best_precision);
-    std::cout<<"Out variable "<<coord_names[i]<<" polynomial"<<std::endl;
-    out_polynomials[i]->PrintPolynomialsSpecial("M");
-    std::cout<<std::endl;
+    //std::cout<<"Out variable "<<coord_names[i]<<" polynomial"<<std::endl;
+    //out_polynomials[i]->PrintPolynomialsSpecial("M");
+    //std::cout<<std::endl;
   }
 
   trained_ = true;
@@ -537,7 +495,7 @@ void LHCOpticsApproximator::SetTermsManually(TMultiDimFet &approximator, variabl
 }
 
 
-void LHCOpticsApproximator::Test(TTree *inp_tree, TFile *f_out, std::string data_prefix, std::string base_out_dir)
+/*void LHCOpticsApproximator::Test(TTree *inp_tree, TFile *f_out, std::string data_prefix, std::string base_out_dir)
 {
   if(inp_tree==NULL || f_out==NULL)
     return;
@@ -630,182 +588,170 @@ void LHCOpticsApproximator::Test(TTree *inp_tree, TFile *f_out, std::string data
   DeleteErrorHists(err_hists);
   DeleteErrorCorHistograms(err_inp_cor_hists);
   DeleteErrorCorHistograms(err_out_cor_hists);
-}
+}*/
 
-
-void LHCOpticsApproximator::AllocateErrorHists(TH1D *err_hists[4])
+/*
+void
+LHCOpticsApproximator::AllocateErrorHists( TH1D* err_hists[4] )
 {
   std::vector<std::string> error_labels;
-  error_labels.push_back("x error");
-  error_labels.push_back("theta_x error");
-  error_labels.push_back("y error");
-  error_labels.push_back("theta_y error");
+  error_labels.push_back( "x error" );
+  error_labels.push_back( "theta_x error" );
+  error_labels.push_back( "y error" );
+  error_labels.push_back( "theta_y error" );
 
-  for(int i=0; i<4; ++i)
-  {
-    err_hists[i] = new TH1D(error_labels[i].c_str(), error_labels[i].c_str(), 100, -0.0000000001, 0.0000000001);
-    err_hists[i]->SetXTitle(error_labels[i].c_str());
-    err_hists[i]->SetYTitle("counts");
-    err_hists[i]->SetDirectory(0);
-    err_hists[i]->SetCanExtend(TH1::kAllAxes);
+  for( int i=0; i<4; ++i ) {
+    err_hists[i] = new TH1D( error_labels[i].c_str(), error_labels[i].c_str(), 100, -0.0000000001, 0.0000000001 );
+    err_hists[i]->SetXTitle( error_labels[i].c_str() );
+    err_hists[i]->SetYTitle( "counts" );
+    err_hists[i]->SetDirectory( 0 );
+    err_hists[i]->SetCanExtend( TH1::kAllAxes );
   }
-}
+}*/
 
-
-void LHCOpticsApproximator::TestAperture(TTree *inp_tree, TTree *out_tree)  //x, theta_x, y, theta_y, ksi, mad_accepted, parametriz_accepted
+/*void
+LHCOpticsApproximator::TestAperture(TTree *inp_tree, TTree *out_tree)  //x, theta_x, y, theta_y, ksi, mad_accepted, parametriz_accepted
 {
-  if(inp_tree==NULL || out_tree==NULL)
-    return;
+  if ( inp_tree==NULL || out_tree==NULL ) return;
 
   Long64_t entries = inp_tree->GetEntries();
   double entry[7];
   double parametrization_out[5];
 
-  inp_tree->SetBranchAddress("x", &(entry[0]) );
-  inp_tree->SetBranchAddress("theta_x", &(entry[1]) );
-  inp_tree->SetBranchAddress("y", &(entry[2]) );
-  inp_tree->SetBranchAddress("theta_y", &(entry[3]) );
-  inp_tree->SetBranchAddress("ksi", &(entry[4]) );
-  inp_tree->SetBranchAddress("mad_accept", &(entry[5]) );
-  inp_tree->SetBranchAddress("par_accept", &(entry[6]) );
+  inp_tree->SetBranchAddress( "x",          &( entry[0] ) );
+  inp_tree->SetBranchAddress( "theta_x",    &( entry[1] ) );
+  inp_tree->SetBranchAddress( "y",          &( entry[2] ) );
+  inp_tree->SetBranchAddress( "theta_y",    &( entry[3] ) );
+  inp_tree->SetBranchAddress( "ksi",        &( entry[4] ) );
+  inp_tree->SetBranchAddress( "mad_accept", &( entry[5] ) );
+  inp_tree->SetBranchAddress( "par_accept", &( entry[6] ) );
 
-  out_tree->SetBranchAddress("x", &(entry[0]) );
-  out_tree->SetBranchAddress("theta_x", &(entry[1]) );
-  out_tree->SetBranchAddress("y", &(entry[2]) );
-  out_tree->SetBranchAddress("theta_y", &(entry[3]) );
-  out_tree->SetBranchAddress("ksi", &(entry[4]) );
-  out_tree->SetBranchAddress("mad_accept", &(entry[5]) );
-  out_tree->SetBranchAddress("par_accept", &(entry[6]) );
+  out_tree->SetBranchAddress( "x",          &( entry[0] ) );
+  out_tree->SetBranchAddress( "theta_x",    &( entry[1] ) );
+  out_tree->SetBranchAddress( "y",          &( entry[2] ) );
+  out_tree->SetBranchAddress( "theta_y",    &( entry[3] ) );
+  out_tree->SetBranchAddress( "ksi",        &( entry[4] ) );
+  out_tree->SetBranchAddress( "mad_accept", &( entry[5] ) );
+  out_tree->SetBranchAddress( "par_accept", &( entry[6] ) );
 
 //  int ind=0;
-  for(Long64_t i=0; i<entries; i++)
-  {
-    inp_tree->GetEntry(i);
+  for ( Long64_t i=0; i<entries; i++ ) {
+    inp_tree->GetEntry( i );
 //    for(int j=0; j<7; j++)
 //      std::cout<<entry[j]<<" ";
 //    std::cout<<std::endl;
 
-    bool res = Transport(entry, parametrization_out, true);
+    bool res = Transport( entry, parametrization_out, true );
 //    for(int j=0; j<5; j++)
 //      std::cout<<parametrization_out[j]<<" ";
 //    std::cout<<"TestAperture "<<res<<std::endl;
 
-    if( res )
-      entry[6] = 1.0;
-    else
-      entry[6] = 0.0;
+    if ( res ) entry[6] = 1.0;
+    else entry[6] = 0.0;
 
     out_tree->Fill();
 //    if(ind++>300)
 //      exit(0);
   }
-}
+}*/
 
-
-void LHCOpticsApproximator::AllocateErrorInputCorHists(TH2D *err_inp_cor_hists[4][5])
+/*void
+LHCOpticsApproximator::AllocateErrorInputCorHists( TH2D* err_inp_cor_hists[4][5] )
 {
   std::vector<std::string> error_labels;
   std::vector<std::string> data_labels;
 
-  error_labels.push_back("x error");
-  error_labels.push_back("theta_x error");
-  error_labels.push_back("y error");
-  error_labels.push_back("theta_y error");
+  error_labels.push_back( "x error" );
+  error_labels.push_back( "theta_x error" );
+  error_labels.push_back( "y error" );
+  error_labels.push_back( "theta_y error" );
 
-  data_labels.push_back("x input");
-  data_labels.push_back("theta_x input");
-  data_labels.push_back("y input");
-  data_labels.push_back("theta_y input");
-  data_labels.push_back("ksi input");
+  data_labels.push_back( "x input" );
+  data_labels.push_back( "theta_x input" );
+  data_labels.push_back( "y input" );
+  data_labels.push_back( "theta_y input" );
+  data_labels.push_back( "ksi input" );
 
-  for(int eri=0; eri<4; ++eri)
-  {
-    for(int dati=0; dati<5; ++dati)
-    {
+  for ( int eri=0; eri<4; ++eri ) {
+    for ( int dati=0; dati<5; ++dati ) {
       std::string name = error_labels[eri] + " vs. " + data_labels[dati];
       std::string title = name;
-      err_inp_cor_hists[eri][dati] = new TH2D(name.c_str(), title.c_str(), 100,-0.0000000001,0.0000000001,100,-0.0000000001,0.0000000001);
-      err_inp_cor_hists[eri][dati]->SetXTitle(error_labels[eri].c_str());
-      err_inp_cor_hists[eri][dati]->SetYTitle(data_labels[dati].c_str());
-      err_inp_cor_hists[eri][dati]->SetDirectory(0);
-      err_inp_cor_hists[eri][dati]->SetCanExtend(TH2::kAllAxes);
+      err_inp_cor_hists[eri][dati] = new TH2D( name.c_str(), title.c_str(), 100, -1.e-10, 1.e-10, 100, -1.e-10, 1.e-10 );
+      err_inp_cor_hists[eri][dati]->SetXTitle( error_labels[eri].c_str() );
+      err_inp_cor_hists[eri][dati]->SetYTitle( data_labels[dati].c_str() );
+      err_inp_cor_hists[eri][dati]->SetDirectory( 0 );
+      err_inp_cor_hists[eri][dati]->SetCanExtend( TH2::kAllAxes );
     }
   }
-}
+}*/
 
-void LHCOpticsApproximator::AllocateErrorOutputCorHists(TH2D *err_out_cor_hists[4][5])
+/*void
+LHCOpticsApproximator::AllocateErrorOutputCorHists( TH2D* err_out_cor_hists[4][5] )
 {
   std::vector<std::string> error_labels;
   std::vector<std::string> data_labels;
 
-  error_labels.push_back("x error");
-  error_labels.push_back("theta_x error");
-  error_labels.push_back("y error");
-  error_labels.push_back("theta_y error");
+  error_labels.push_back( "x error" );
+  error_labels.push_back( "theta_x error" );
+  error_labels.push_back( "y error" );
+  error_labels.push_back( "theta_y error" );
 
-  data_labels.push_back("x output");
-  data_labels.push_back("theta_x output");
-  data_labels.push_back("y output");
-  data_labels.push_back("theta_y output");
-  data_labels.push_back("ksi output");
+  data_labels.push_back( "x output" );
+  data_labels.push_back( "theta_x output" );
+  data_labels.push_back( "y output" );
+  data_labels.push_back( "theta_y output" );
+  data_labels.push_back( "ksi output" );
 
-  for(int eri=0; eri<4; ++eri)
-  {
-    for(int dati=0; dati<5; ++dati)
-    {
+  for ( int eri=0; eri<4; ++eri ) {
+    for( int dati=0; dati<5; ++dati ) {
       std::string name = error_labels[eri] + " vs. " + data_labels[dati];
       std::string title = name;
-      err_out_cor_hists[eri][dati] = new TH2D(name.c_str(), title.c_str(), 100,-0.0000000001,0.0000000001,100,-0.0000000001,0.0000000001);
-      err_out_cor_hists[eri][dati]->SetXTitle(error_labels[eri].c_str());
-      err_out_cor_hists[eri][dati]->SetYTitle(data_labels[dati].c_str());
-      err_out_cor_hists[eri][dati]->SetDirectory(0);
-      err_out_cor_hists[eri][dati]->SetCanExtend(TH2::kAllAxes);
+      err_out_cor_hists[eri][dati] = new TH2D( name.c_str(), title.c_str(), 100,-0.0000000001,0.0000000001,100,-0.0000000001,0.0000000001 );
+      err_out_cor_hists[eri][dati]->SetXTitle( error_labels[eri].c_str() );
+      err_out_cor_hists[eri][dati]->SetYTitle( data_labels[dati].c_str() );
+      err_out_cor_hists[eri][dati]->SetDirectory( 0 );
+      err_out_cor_hists[eri][dati]->SetCanExtend( TH2::kAllAxes );
     }
   }
-}
+}*/
 
-
-void LHCOpticsApproximator::FillErrorHistograms(double errors[4], TH1D *err_hists[4])
+/*void
+LHCOpticsApproximator::FillErrorHistograms( double errors[4], TH1D *err_hists[4] )
 {
-  for(int i=0; i<4; ++i)
-  {
-    err_hists[i]->Fill(errors[i]);
+  for( int i=0; i<4; ++i ) {
+    err_hists[i]->Fill( errors[i] );
   }
-}
+}*/
 
-
-void LHCOpticsApproximator::FillErrorDataCorHistograms(double errors[4], double var[5], TH2D *err_cor_hists[4][5])
+/*void
+LHCOpticsApproximator::FillErrorDataCorHistograms( double errors[4], double var[5], TH2D *err_cor_hists[4][5] )
 {
-  for(int eri=0; eri<4; ++eri)
-  {
-    for(int dati=0; dati<5; ++dati)
-    {
-      err_cor_hists[eri][dati]->Fill(errors[eri], var[dati]);
+  for ( int eri=0; eri<4; ++eri ) {
+    for ( int dati=0; dati<5; ++dati ) {
+      err_cor_hists[eri][dati]->Fill( errors[eri], var[dati] );
     }
   }
-}
+}*/
 
-
-void LHCOpticsApproximator::DeleteErrorHists(TH1D *err_hists[4])
+/*void
+LHCOpticsApproximator::DeleteErrorHists( TH1D *err_hists[4] )
 {
-  for(int i=0; i<4; ++i)
-  {
+  for ( int i=0; i<4; ++i ) {
     delete err_hists[i];
   }
-}
+}*/
 
-void LHCOpticsApproximator::DeleteErrorCorHistograms(TH2D *err_cor_hists[4][5])
+/*void
+LHCOpticsApproximator::DeleteErrorCorHistograms( TH2D *err_cor_hists[4][5] )
 {
-  for(int eri=0; eri<4; ++eri)
-  {
-    for(int dati=0; dati<5; ++dati)
-    {
+  for ( int eri=0; eri<4; ++eri ) {
+    for ( int dati=0; dati<5; ++dati ) {
       delete err_cor_hists[eri][dati];
     }
   }
-}
+}*/
 
-
+/*
 void LHCOpticsApproximator::WriteHistograms(TH1D *err_hists[4], TH2D *err_inp_cor_hists[4][5], TH2D *err_out_cor_hists[4][5], TFile *f_out, std::string base_out_dir)
 {
   if(f_out==NULL)
@@ -873,7 +819,7 @@ void LHCOpticsApproximator::PrintInputRange() const
   }
   std::cout<<std::endl;
 }
-
+*/
 
 bool LHCOpticsApproximator::CheckInputRange(double *in, bool invert_beam_coord_sytems) const
 {
@@ -910,62 +856,11 @@ bool LHCOpticsApproximator::CheckInputRange(double *in, bool invert_beam_coord_s
 
 void LHCOpticsApproximator::AddRectEllipseAperture(const LHCOpticsApproximator &in, double rect_x, double rect_y, double r_el_x, double r_el_y)
 {
-  apertures_.push_back(LHCApertureApproximator(in, rect_x, rect_y, r_el_x, r_el_y, LHCApertureApproximator::RECTELLIPSE));
+  apertures_.emplace_back( in, rect_x, rect_y, r_el_x, r_el_y, LHCApertureApproximator::RECTELLIPSE );
 }
 
 
-//////////////////////////////////////////////////////////////////
-
-LHCApertureApproximator::LHCApertureApproximator()
-{
-  rect_x_ = rect_y_ = r_el_x_ = r_el_y_ = 0.0;
-  ap_type_ = NO_APERTURE;
-}
-
-
-
-LHCApertureApproximator::LHCApertureApproximator(const LHCOpticsApproximator &in, double rect_x, double rect_y, double r_el_x, double r_el_y,
-        aperture_type type) : LHCOpticsApproximator(in)
-{
-  rect_x_ = rect_x;
-  rect_y_ = rect_y;
-  r_el_x_ = r_el_x;
-  r_el_y_ = r_el_y;
-  ap_type_ = type;
-}
-
-
-
-bool LHCApertureApproximator::CheckAperture(double *in, bool invert_beam_coord_sytems)
-{
-  double out[5];
-  bool result = Transport(in, out, false, invert_beam_coord_sytems);
-
-  if (ap_type_==RECTELLIPSE)
-  {
-    result = result && out[0]<rect_x_ && out[0]>-rect_x_ && out[2]<rect_y_ && out[2]>-rect_y_ &&
-        ( out[0]*out[0]/(r_el_x_*r_el_x_) + out[2]*out[2]/(r_el_y_*r_el_y_) < 1 );
-  }
-
-  return result;
-}
-
-/*
-bool LHCApertureApproximator::CheckAperture(MadKinematicDescriptor *in)  //x, thx. y, thy, ksi
-{
-  MadKinematicDescriptor out;
-  bool result = Transport(in, &out);
-  if(ap_type_==RECTELLIPSE)
-  {
-
-    result = result && out.x<rect_x_ && out.x>-rect_x_ && out.y<rect_y_ && out.y>-rect_y_ &&
-        ( out.x*out.x/(r_el_x_*r_el_x_) + out.y*out.y/(r_el_y_*r_el_y_) < 1 );
-  }
-  return result;
-}
-*/
-
-void LHCOpticsApproximator::PrintOpticalFunctions() const
+/*void LHCOpticsApproximator::PrintOpticalFunctions() const
 {
   std::cout<<std::endl<<"Linear terms of optical functions:"<<std::endl;
   for(int i=0; i<4; i++)
@@ -1008,11 +903,9 @@ void LHCOpticsApproximator::PrintCoordinateOpticalFunctions(TMultiDimFet &parame
     std::cout<<" + "<<d_out_d_in[i]<<"*"<<input_vars[i];
   }
   std::cout<<std::endl;
-}
+}*/
 
-
-
-//real angles in the matrix, MADX convention used only for input
+/*//real angles in the matrix, MADX convention used only for input
 void LHCOpticsApproximator::GetLineariasedTransportMatrixX(
     double mad_init_x, double mad_init_thx, double mad_init_y, double mad_init_thy, 
     double mad_init_xi, TMatrixD &transp_matrix, double d_mad_x, double d_mad_thx)
@@ -1054,9 +947,11 @@ void LHCOpticsApproximator::GetLineariasedTransportMatrixX(
 
 
 //real angles in the matrix, MADX convention used only for input
-void LHCOpticsApproximator::GetLineariasedTransportMatrixY(
-    double mad_init_x, double mad_init_thx, double mad_init_y, double mad_init_thy, 
-    double mad_init_xi, TMatrixD &transp_matrix, double d_mad_y, double d_mad_thy)
+void
+LHCOpticsApproximator::GetLineariasedTransportMatrixY( double mad_init_x, double mad_init_thx,
+                                                       double mad_init_y, double mad_init_thy, 
+                                                       double mad_init_xi, TMatrixD &transp_matrix,
+                                                       double d_mad_y, double d_mad_thy )
 {
   double MADX_momentum_correction_factor = 1.0 + mad_init_xi;
   transp_matrix.ResizeTo(2,2);
@@ -1091,12 +986,13 @@ void LHCOpticsApproximator::GetLineariasedTransportMatrixY(
   transp_matrix(1,0) = (thy2_dy-thy1)/(d_mad_y*MADX_momentum_correction_factor);
   transp_matrix(0,1) = MADX_momentum_correction_factor*(y2_dthy-y1)/d_mad_thy;
   transp_matrix(1,1) = (thy2_dthy-thy1)/d_mad_thy;
-}
+}*/
 
 //MADX convention used only for input
-double LHCOpticsApproximator::GetDx(
-    double mad_init_x, double mad_init_thx, double mad_init_y, double mad_init_thy, 
-    double mad_init_xi, double d_mad_xi)
+double
+LHCOpticsApproximator::GetDx( double mad_init_x, double mad_init_thx,
+                              double mad_init_y, double mad_init_thy, 
+                              double mad_init_xi, double d_mad_xi )
 {
   double in[5];
   in[0] = mad_init_x;
@@ -1120,9 +1016,10 @@ double LHCOpticsApproximator::GetDx(
 
 //MADX convention used only for input
 //angular dispersion
-double LHCOpticsApproximator::GetDxds(
-    double mad_init_x, double mad_init_thx, double mad_init_y, double mad_init_thy, 
-    double mad_init_xi, double d_mad_xi)
+double
+LHCOpticsApproximator::GetDxds( double mad_init_x, double mad_init_thx,
+                                double mad_init_y, double mad_init_thy, 
+                                double mad_init_xi, double d_mad_xi )
 {
   double MADX_momentum_correction_factor = 1.0 + mad_init_xi;
   double in[5];
@@ -1144,3 +1041,39 @@ double LHCOpticsApproximator::GetDxds(
   
   return dispersion;
 }
+
+//==================================================================================================================
+
+LHCApertureApproximator::LHCApertureApproximator() :
+  LHCOpticsApproximator(), rect_x_( 0. ), rect_y_( 0. ), r_el_x_( 0. ), r_el_y_( 0. ), ap_type_( NO_APERTURE )
+{}
+
+LHCApertureApproximator::LHCApertureApproximator( const LHCOpticsApproximator& in, double rect_x, double rect_y, double r_el_x, double r_el_y, aperture_type type ) :
+  LHCOpticsApproximator( in ), rect_x_( rect_x ), rect_y_( rect_y ), r_el_x_( r_el_x ), r_el_y_( r_el_y ), ap_type_( type )
+{}
+
+bool
+LHCApertureApproximator::CheckAperture( double *in, bool invert_beam_coord_sytems )
+{
+  double out[5];
+  bool result = Transport( in, out, false, invert_beam_coord_sytems );
+
+  if ( ap_type_==RECTELLIPSE ) {
+    result = result && out[0]<rect_x_ && out[0]>-rect_x_ && out[2]<rect_y_ && out[2]>-rect_y_ && ( out[0]*out[0]/(r_el_x_*r_el_x_) + out[2]*out[2]/(r_el_y_*r_el_y_) < 1 );
+  }
+
+  return result;
+}
+
+/*
+bool
+LHCApertureApproximator::CheckAperture(MadKinematicDescriptor *in)  //x, thx. y, thy, ksi
+{
+  MadKinematicDescriptor out;
+  bool result = Transport( in, &out );
+  if ( ap_type_==RECTELLIPSE ) {
+    result = result && out.x<rect_x_ && out.x>-rect_x_ && out.y<rect_y_ && out.y>-rect_y_ && ( out.x*out.x/(r_el_x_*r_el_x_) + out.y*out.y/(r_el_y_*r_el_y_) < 1 );
+  }
+  return result;
+}
+*/

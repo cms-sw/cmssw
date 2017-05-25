@@ -1,10 +1,16 @@
 #ifndef SimRomanPot_CTPPSOpticsParameterisation_ProtonReconstructionAlgorithm_h
 #define SimRomanPot_CTPPSOpticsParameterisation_ProtonReconstructionAlgorithm_h
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include "DataFormats/Common/interface/PtrVector.h"
 
 #include "SimRomanPot/CTPPSOpticsParameterisation/interface/LHCOpticsApproximator.h"
+#include "SimRomanPot/CTPPSOpticsParameterisation/interface/LHCApertureApproximator.h"
+
 #include "SimDataFormats/CTPPS/interface/CTPPSSimProtonTrack.h"
+#include "SimDataFormats/CTPPS/interface/CTPPSSimHit.h"
 
 #include "TFile.h"
 #include "TSpline.h"
@@ -19,11 +25,10 @@ enum LHCSector { unknownSector, sector45, sector56 };
 class ProtonReconstructionAlgorithm
 {
   public:
-    ProtonReconstructionAlgorithm() {}
+    ProtonReconstructionAlgorithm( const edm::ParameterSet& beam_conditions, const std::string& optics_file_beam );
     ~ProtonReconstructionAlgorithm();
 
-    int Init( const std::string& optics_file_beam );
-    CTPPSSimProtonTrack Reconstruct( const edm::PtrVector<CTPPSSimProtonTrack>& tracks ) const;
+    CTPPSSimProtonTrack Reconstruct( const std::vector<CTPPSSimHit>& tracks ) const;
 
   private:
     /// optics data associated with 1 RP
@@ -38,17 +43,22 @@ class ProtonReconstructionAlgorithm
     /// class for calculation of chi^2
     class ChiSquareCalculator {
       public:
-        ChiSquareCalculator() {}
+        ChiSquareCalculator( const edm::ParameterSet& bc ) : beamConditions_( bc ) {}
         double operator() ( const double* ) const;
 
-        const TrackDataCollection *tracks;
+        const std::vector<CTPPSSimHit>* tracks;
         const std::map<unsigned int, RPOpticsData>* m_rp_optics;
+
+      private:
+        edm::ParameterSet beamConditions_;
     };
 
     ChiSquareCalculator *chiSquareCalculator = NULL;
 
     // fitter object
-    ROOT::Fit::Fitter *fitter = NULL;
+    std::unique_ptr<ROOT::Fit::Fitter> fitter_;
+
+    edm::ParameterSet beamConditions_;
 };
 
 #endif

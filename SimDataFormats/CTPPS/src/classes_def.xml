@@ -1,14 +1,14 @@
 <lcgdict>
   <!-- protons as simulated upstream -->
-  <class name="CTPPSSimProtonTrack" ClassVersion="10">
-    <version ClassVersion="10" checksum="2246649399"/>
+  <class name="CTPPSSimProtonTrack" ClassVersion="11">
+    <version ClassVersion="11" checksum="2308881548"/>
   </class>
   <class name="std::vector<CTPPSSimProtonTrack>" />
   <class name="edm::Wrapper< std::vector<CTPPSSimProtonTrack> >" />
 
   <!-- hits as observed in RPs -->
-  <class name="CTPPSSimHit" ClassVersion="10">
-    <version ClassVersion="10" checksum="3098665692"/>
+  <class name="CTPPSSimHit" ClassVersion="11">
+    <version ClassVersion="11" checksum="2472350513"/>
   </class>
   <class name="std::vector<CTPPSSimHit>" />
   <class name="edm::Wrapper< std::vector<CTPPSSimHit> >" />

@@ -33,6 +33,8 @@
 #include "SimDataFormats/CTPPS/interface/CTPPSSimProtonTrack.h"
 #include "SimDataFormats/CTPPS/interface/CTPPSSimHit.h"
 
+#include "SimRomanPot/CTPPSOpticsParameterisation/interface/LHCOpticsApproximator.h"
+#include "SimRomanPot/CTPPSOpticsParameterisation/interface/LHCApertureApproximator.h"
 #include "SimRomanPot/CTPPSOpticsParameterisation/interface/ProtonReconstructionAlgorithm.h"
 
 class CTPPSOpticsParameterisation : public edm::stream::EDProducer<> {
@@ -53,48 +55,42 @@ class CTPPSOpticsParameterisation : public edm::stream::EDProducer<> {
     //virtual void endLuminosityBlock( const edm::LuminosityBlock&, const edm::EventSetup& ) override;
 
     //void BuildTrackCollection( LHCSector, double, double, double, double, double, const map<unsigned int, LHCOpticsApproximator*>&, TrackDataCollection& );
+    void transportProtonTrack( const CTPPSSimProtonTrack&, std::vector<CTPPSSimHit>& );
 
-    edm::EDGetTokenT< edm::View<CTPPSSimProtonTrack> > tracks45Token_, tracks56Token_;
+    edm::EDGetTokenT< edm::View<CTPPSSimProtonTrack> > tracksToken_;
 
     edm::ParameterSet beamConditions_;
     //bool simulateDetectorsResolution_;
 
     edm::FileInPath opticsFileBeam1_, opticsFileBeam2_;
-    std::vector<edm::ParameterSet> detectorsList_;
+    std::vector<edm::ParameterSet> detectorPackages_;
 
     std::unique_ptr<ProtonReconstructionAlgorithm> prAlgo45_;
     std::unique_ptr<ProtonReconstructionAlgorithm> prAlgo56_;
+
+    std::map<unsigned int,LHCOpticsApproximator*> optics_;
 };
 
 CTPPSOpticsParameterisation::CTPPSOpticsParameterisation( const edm::ParameterSet& iConfig ) :
-  tracks45Token_( consumes< edm::View<CTPPSSimProtonTrack> >( iConfig.getParameter<edm::InputTag>( "beam2ParticlesTag" ) ) ),
-  tracks56Token_( consumes< edm::View<CTPPSSimProtonTrack> >( iConfig.getParameter<edm::InputTag>( "beam1ParticlesTag" ) ) ),
+  tracksToken_( consumes< edm::View<CTPPSSimProtonTrack> >( iConfig.getParameter<edm::InputTag>( "beamParticlesTag" ) ) ),
   beamConditions_( iConfig.getParameter<edm::ParameterSet>( "beamConditions" ) ),
   //simulateDetectorsResolution_( iConfig.getParameter<bool>( "simulateDetectorsResolution" ) ),
   opticsFileBeam1_( iConfig.getParameter<edm::FileInPath>( "opticsFileBeam1" ) ),
   opticsFileBeam2_( iConfig.getParameter<edm::FileInPath>( "opticsFileBeam2" ) ),
-  detectorsList_( iConfig.getParameter< std::vector<edm::ParameterSet> >( "detectorsList" ) )
+  detectorPackages_( iConfig.getParameter< std::vector<edm::ParameterSet> >( "detectorPackages" ) ),
+  // reconstruction algorithms
+  prAlgo45_( std::make_unique<ProtonReconstructionAlgorithm>( beamConditions_, opticsFileBeam2_.fullPath() ) ),
+  prAlgo56_( std::make_unique<ProtonReconstructionAlgorithm>( beamConditions_, opticsFileBeam1_.fullPath() ) )
 {
   produces< std::vector<CTPPSSimHit> >();
 
   // load optics
-  std::map<unsigned int, LHCOpticsApproximator*> optics_45, optics_56; // map: RP id --> optics
-
   TFile *f_in_optics_beam1 = TFile::Open( opticsFileBeam1_.fullPath().c_str() );
-  optics_56[102] = (LHCOpticsApproximator *) f_in_optics_beam1->Get("ip5_to_station_150_h_1_lhcb1");
-  optics_56[103] = (LHCOpticsApproximator *) f_in_optics_beam1->Get("ip5_to_station_150_h_2_lhcb1");
-
+  optics_[102] = (LHCOpticsApproximator *) f_in_optics_beam1->Get("ip5_to_station_150_h_1_lhcb1");
+  optics_[103] = (LHCOpticsApproximator *) f_in_optics_beam1->Get("ip5_to_station_150_h_2_lhcb1");
   TFile *f_in_optics_beam2 = TFile::Open( opticsFileBeam2_.fullPath().c_str() );
-  optics_45[2] = (LHCOpticsApproximator *) f_in_optics_beam2->Get("ip5_to_station_150_h_1_lhcb2");
-  optics_45[3] = (LHCOpticsApproximator *) f_in_optics_beam2->Get("ip5_to_station_150_h_2_lhcb2");
-
-  // initialise proton reconstruction
-  ProtonReconstruction protonReconstruction;
-  if ( prAlgo45_->Init( opticsFileBeam2_.fullPath() )!=0 )
-    throw cms::Exception("CTPPSOpticsParameterisation") << "Failed to initialise the reconstruction algorithm for beam 1";
-  if ( prAlgo56_->Init( opticsFileBeam1_.fullPath() )!=0 )
-    throw cms::Exception("CTPPSOpticsParameterisation") << "Failed to initialise the reconstruction algorithm for beam 2";
-
+  optics_[2] = (LHCOpticsApproximator *) f_in_optics_beam2->Get("ip5_to_station_150_h_1_lhcb2");
+  optics_[3] = (LHCOpticsApproximator *) f_in_optics_beam2->Get("ip5_to_station_150_h_2_lhcb2");
 }
 
 
@@ -108,13 +104,17 @@ CTPPSOpticsParameterisation::produce( edm::Event& iEvent, const edm::EventSetup&
 {
   std::unique_ptr< std::vector<CTPPSSimHit> > pOut( new std::vector<CTPPSSimHit> );
 
-  //Read 'ExampleData' from the Event
-  edm::Handle< edm::View<CTPPSSimProtonTrack> > tracks_45, tracks_56;
-  iEvent.getByToken( tracks45Token_, tracks_45 );
-  iEvent.getByToken( tracks56Token_, tracks_56 );
+  edm::Handle< edm::View<CTPPSSimProtonTrack> > tracks;
+  iEvent.getByToken( tracksToken_, tracks );
 
-  /*// run reconstruction
-  ProtonData proton_45 = prAlgo45_->Reconstruct(sector45, tracks_45);
+  // run reconstruction
+  for ( const auto& trk : *tracks ) {
+    std::vector<CTPPSSimHit> hits;
+    transportProtonTrack( trk, hits );
+    //FIXME add an association map proton track <-> sim hits
+    std::cout << "---> "  << hits.size() << " hits" << std::endl;
+  }
+  /*ProtonData proton_45 = prAlgo45_->Reconstruct(sector45, tracks_45);
   ProtonData proton_56 = prAlgo56_->Reconstruct(sector45, tracks_56);
 
   if ( proton_45.isValid() ) {
@@ -178,53 +178,44 @@ CTPPSOpticsParameterisation::produce( edm::Event& iEvent, const edm::EventSetup&
 /// xi is positive for diffractive protons, thus proton momentum p = (1 - xi) * p_nom
 /// horizontal component of proton momentum: p_x = th_x * (1 - xi) * p_nom
 
-/*void
-CTPPSOpticsParameterisation::BuildTrackCollection( LHCSector sector, double vtx_x, double vtx_y, double th_x, double th_y, double xi, const map<unsigned int, LHCOpticsApproximator*> &optics, TrackDataCollection &tracks )
+void
+CTPPSOpticsParameterisation::transportProtonTrack( const CTPPSSimProtonTrack& in_trk, std::vector<CTPPSSimHit>& out_hits )
 {
   // settings
-  const bool check_appertures = true;
+  const bool check_apertures = true;
   const bool invert_beam_coord_sytems = true;
 
-  // start with no tracks
-  tracks.clear();
+  // transport the proton into each pot
+  for ( const auto& rp : detectorPackages_ ) {
+    const unsigned int raw_detid = rp.getParameter<unsigned int>( "rpId" );
+    const TotemRPDetId detid( raw_detid*10 ); //FIXME workaround for strips in 2016
 
-  // convert physics kinematics to the LHC reference frame
-  if (sector == sector45) {
-    th_x += beamConditions.half_crossing_angle_45;
-    vtx_y += beamConditions.vtx0_y_45;
-  }
+    // convert physics kinematics to the LHC reference frame
+    double th_x = in_trk.direction().x();
+    double vtx_y = in_trk.vertex().y();
+    if ( detid.arm()==0 ) {
+      th_x += beamConditions_.getParameter<double>( "halfCrossingAngleSector45" );
+      vtx_y += beamConditions_.getParameter<double>( "yOffsetSector45" );
+    }
 
-  if (sector == sector56) {
-    th_x += beamConditions.half_crossing_angle_56;
-    vtx_y += beamConditions.vtx0_y_56;
-  }
+    if ( detid.arm()==1 ) {
+      th_x += beamConditions_.getParameter<double>( "halfCrossingAngleSector56" );
+      vtx_y += beamConditions_.getParameter<double>( "yOffsetSector56" );
+    }
 
-  // transport proton to each RP
-  for (const auto it : optics) {
-    double kin_in[5];
-    kin_in[0] = vtx_x;
-    kin_in[1] = th_x * (1. - xi);
-    kin_in[2] = vtx_y;
-    kin_in[3] = th_y * (1. - xi);
-    kin_in[4] = - xi;
-
+    // transport proton to its corresponding RP
+    double kin_in[5] = { in_trk.vertex().x(), th_x * ( 1.-in_trk.xi() ), vtx_y, in_trk.vertex().y() * ( 1.-in_trk.xi() ), -in_trk.xi() };
     double kin_out[5];
-    bool proton_trasported = it.second->Transport(kin_in, kin_out, check_appertures, invert_beam_coord_sytems);
+
+    bool proton_transported = optics_[raw_detid]->Transport( kin_in, kin_out, check_apertures, invert_beam_coord_sytems );
 
     // stop if proton not transportable
-    if (!proton_trasported) continue;
+    if ( !proton_transported ) return;
 
     // add track
-    TrackData td;
-    td.valid = true;
-    td.x = kin_out[0];
-    td.y = kin_out[2];
-    td.x_unc = 12E-6;
-    td.y_unc = 12E-6;
-
-    tracks[it.first] = td;
+    out_hits.emplace_back( detid, Local2DPoint( kin_out[0], kin_out[2] ), Local2DPoint( 12.e-6, 12.e-6 ) );
   }
-}*/
+}
 
 // ------------ method called once each stream before processing any runs, lumis or events  ------------
 void

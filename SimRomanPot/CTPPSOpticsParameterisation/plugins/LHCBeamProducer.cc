@@ -54,14 +54,19 @@ class LHCBeamProducer : public edm::stream::EDProducer<> {
     //virtual void beginLuminosityBlock( const edm::LuminosityBlock&, const edm::EventSetup& ) override;
     //virtual void endLuminosityBlock( const edm::LuminosityBlock&, const edm::EventSetup& ) override;
 
+    CTPPSSimProtonTrack shoot( CLHEP::HepRandomEngine* );
+
+    unsigned int numProtons_;
     edm::ParameterSet beamConditions_;
+
     bool simulateVertexX_, simulateVertexY_;
+
     bool simulateScatteringAngleX_, simulateScatteringAngleY_;
+    double thetaPhys_;
+
     bool simulateBeamDivergence_;
+
     bool simulateXi_;
-
-    std::vector<edm::ParameterSet> detectorPackages_;
-
     double minXi_;
     double maxXi_;
 
@@ -70,14 +75,17 @@ class LHCBeamProducer : public edm::stream::EDProducer<> {
 };
 
 LHCBeamProducer::LHCBeamProducer( const edm::ParameterSet& iConfig ) :
+  numProtons_( iConfig.getParameter<unsigned int>( "numProtons" ) ),
   beamConditions_( iConfig.getParameter<edm::ParameterSet>( "beamConditions" ) ),
   simulateVertexX_( iConfig.getParameter<bool>( "simulateVertexX" ) ),
   simulateVertexY_( iConfig.getParameter<bool>( "simulateVertexY" ) ),
   simulateScatteringAngleX_( iConfig.getParameter<bool>( "simulateScatteringAngleX" ) ),
   simulateScatteringAngleY_( iConfig.getParameter<bool>( "simulateScatteringAngleY" ) ),
+  thetaPhys_( iConfig.getParameter<double>( "scatteringAngle" ) ),
   simulateBeamDivergence_( iConfig.getParameter<bool>( "simulateBeamDivergence" ) ),
   simulateXi_( iConfig.getParameter<bool>( "simulateXi" ) ),
-  detectorPackages_( iConfig.getParameter< std::vector<edm::ParameterSet> >( "detectorPackages" ) )
+  minXi_( iConfig.getParameter<double>( "minXi" ) ),
+  maxXi_( iConfig.getParameter<double>( "maxXi" ) )
 {
   produces< std::vector<CTPPSSimProtonTrack> >();
 
@@ -99,6 +107,18 @@ LHCBeamProducer::produce( edm::Event& iEvent, const edm::EventSetup& )
 
   std::unique_ptr< std::vector<CTPPSSimProtonTrack> > pOut( new std::vector<CTPPSSimProtonTrack> );
 
+  for ( unsigned int i=0; i<numProtons_; i++ ) {
+    pOut->push_back( shoot( rnd ) );
+  }
+
+  iEvent.put( std::move( pOut ) );
+}
+
+//----------------------------------------------------------------------------------------------------
+
+CTPPSSimProtonTrack
+LHCBeamProducer::shoot( CLHEP::HepRandomEngine* rnd )
+{
   // generate vertex
   double vtx_x = 0., vtx_y = 0.;
 
@@ -107,39 +127,26 @@ LHCBeamProducer::produce( edm::Event& iEvent, const edm::EventSetup& )
 
   const Local3DPoint vtx( vtx_x, vtx_y, 0. );
 
-  for ( const auto& rp : detectorPackages_ ) {
-    const TotemRPDetId detid( rp.getParameter<unsigned int>( "rpId" )*10 ); //FIXME workaround for strips in 2016
-    const float theta_phys = rp.getParameter<double>( "scatteringAngle" ),
-                min_xi = rp.getParameter<double>( "minXi" ),
-                max_xi = rp.getParameter<double>( "maxXi" );
+  // generate scattering angles (physics)
+  double th_x_phys = 0., th_y_phys = 0.;
 
-    // generate scattering angles (physics)
-    double th_x_phys = 0., th_y_phys = 0.;
+  if ( simulateScatteringAngleX_ ) th_x_phys += CLHEP::RandGauss::shoot( rnd ) * thetaPhys_;
+  if ( simulateScatteringAngleY_ ) th_y_phys += CLHEP::RandGauss::shoot( rnd ) * thetaPhys_;
 
-    if ( simulateScatteringAngleX_ ) th_x_phys += CLHEP::RandGauss::shoot( rnd ) * theta_phys;
-    if ( simulateScatteringAngleY_ ) th_y_phys += CLHEP::RandGauss::shoot( rnd ) * theta_phys;
+  // generate beam divergence, calculate complete angle
+  double th_x = th_x_phys, th_y = th_y_phys;
 
-    // generate beam divergence, calculate complete angle
-    double th_x = th_x_phys, th_y = th_y_phys;
-
-    if ( simulateBeamDivergence_ ) {
-      th_x += CLHEP::RandGauss::shoot( rnd ) * beamDivergence_;
-      th_y += CLHEP::RandGauss::shoot( rnd ) * beamDivergence_;
-    }
-
-    // generate xi
-    double xi = 0.;
-    if ( simulateXi_ ) {
-      xi = min_xi + CLHEP::RandFlat::shoot( rnd ) * ( max_xi-min_xi );
-    }
-
-    pOut->emplace_back( detid, vtx, Local3DVector( th_x, th_y, 0. ), xi );
+  if ( simulateBeamDivergence_ ) {
+    th_x += CLHEP::RandGauss::shoot( rnd ) * beamDivergence_;
+    th_y += CLHEP::RandGauss::shoot( rnd ) * beamDivergence_;
   }
 
-  iEvent.put( std::move( pOut ) );
-}
+  // generate xi
+  double xi = 0.;
+  if ( simulateXi_ ) xi = minXi_ + CLHEP::RandFlat::shoot( rnd ) * ( maxXi_-minXi_ );
 
-//----------------------------------------------------------------------------------------------------
+  return CTPPSSimProtonTrack( vtx, Local3DVector( th_x, th_y, 0. ), xi );
+}
 
 // ------------ method called once each stream before processing any runs, lumis or events  ------------
 void

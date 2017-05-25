@@ -1,7 +1,8 @@
 <use name="FWCore/Framework" />
 <use name="FWCore/PluginManager" />
 <use name="FWCore/ParameterSet" />
-<use name="CLHEP/Random" />
 <use name="CommonTools/Utils" />
 <use name="DataFormats/CTPPSDetId" />
+<use name="SimRomanPot/CTPPSOpticsParameterisation" />
+<use name="rootcore" />
 <flags EDM_PLUGIN="1" />
