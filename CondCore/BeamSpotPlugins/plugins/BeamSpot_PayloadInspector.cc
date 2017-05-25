@@ -30,7 +30,7 @@ namespace {
   };
   class BeamSpot_x : public cond::payloadInspector::TimeHistoryPlot<BeamSpotObjects,std::pair<double,double> > {
   public:
-    BeamSpot_x(): cond::payloadInspector::TimeHistoryPlot<BeamSpotObjects,std::pair<double,double> >( "x vs run number", "x"){
+    BeamSpot_x(): cond::payloadInspector::TimeHistoryPlot<BeamSpotObjects,std::pair<double,double> >( "x vs time", "x"){
     }
 
     std::pair<double,double> getFromPayload( BeamSpotObjects& payload ){
@@ -40,7 +40,7 @@ namespace {
 
   class BeamSpot_y : public cond::payloadInspector::TimeHistoryPlot<BeamSpotObjects,std::pair<double,double> >{
   public:
-    BeamSpot_y(): cond::payloadInspector::TimeHistoryPlot<BeamSpotObjects,std::pair<double,double> >( "y vs run number", "y"){
+    BeamSpot_y(): cond::payloadInspector::TimeHistoryPlot<BeamSpotObjects,std::pair<double,double> >( "y vs time", "y"){
     }
 
     std::pair<double,double> getFromPayload( BeamSpotObjects& payload ){

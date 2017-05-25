@@ -48,6 +48,7 @@ namespace edm {
                       ParameterSetID const& parameterSetID,
                       TypeWithDict const& theTypeWithDict,
                       bool produced = true,
+                      bool availableOnlyAtEndTransition = false,
                       std::set<std::string> const& aliases = std::set<std::string>());
 
     BranchDescription(BranchDescription const& aliasForBranch,
@@ -86,6 +87,7 @@ namespace edm {
     void setDropped(bool isDropped) {transient_.dropped_ = isDropped;}
     bool onDemand() const {return transient_.onDemand_;}
     void setOnDemand(bool isOnDemand) {transient_.onDemand_ = isOnDemand;}
+    bool availableOnlyAtEndTransition() const {return transient_.availableOnlyAtEndTransition_; }
     bool transient() const {return transient_.transient_;}
     void setTransient(bool isTransient) {transient_.transient_ = isTransient;}
     TypeWithDict const& wrappedType() const {return transient_.wrappedType_;}
@@ -135,6 +137,20 @@ namespace edm {
       // The wrapped class name, which is currently derivable fron the other attributes.
       std::string wrappedName_;
 
+      // A TypeWithDict object for the wrapped object
+      TypeWithDict wrappedType_;
+
+      // A TypeWithDict object for the unwrapped object
+      TypeWithDict unwrappedType_;
+
+      // The split level of the branch, as marked
+      // in the data dictionary.
+      int splitLevel_;
+
+      // The basket size of the branch, as marked
+      // in the data dictionary.
+      int basketSize_;
+      
       // Was this branch produced in this process rather than in a previous process
       bool produced_;
 
@@ -151,19 +167,8 @@ namespace edm {
       // in the data dictionary
       bool transient_;
 
-      // A TypeWithDict object for the wrapped object
-      TypeWithDict wrappedType_;
-
-      // A TypeWithDict object for the unwrapped object
-      TypeWithDict unwrappedType_;
-
-      // The split level of the branch, as marked
-      // in the data dictionary.
-      int splitLevel_;
-
-      // The basket size of the branch, as marked
-      // in the data dictionary.
-      int basketSize_;
+      // if Run or Lumi based, can only get at end transition
+      bool availableOnlyAtEndTransition_;
     };
 
   private:

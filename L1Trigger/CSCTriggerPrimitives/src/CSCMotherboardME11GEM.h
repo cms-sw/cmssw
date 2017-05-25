@@ -14,6 +14,7 @@
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCMotherboard.h"
 #include "DataFormats/GEMDigi/interface/GEMPadDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMCoPadDigiCollection.h"
+#include "L1Trigger/CSCTriggerPrimitives/src/GEMCoPadProcessor.h"
 
 class CSCGeometry;
 class CSCChamber;
@@ -81,6 +82,9 @@ class CSCMotherboardME11GEM : public CSCMotherboard
   std::vector<CSCCorrelatedLCTDigi> readoutLCTs(enum ME11Part me1ab);
   std::vector<GEMCoPadDigi> readoutCoPads();
 
+  /** additional processor for GEMs */
+  std::unique_ptr<GEMCoPadProcessor> coPadProcessor;
+
   /// set CSC and GEM geometries for the matching needs
   void setCSCGeometry(const CSCGeometry *g) { csc_g = g; }
   void setGEMGeometry(const GEMGeometry *g) { gem_g = g; }
@@ -125,12 +129,8 @@ class CSCMotherboardME11GEM : public CSCMotherboard
   void correlateLCTsGEM(CSCCLCTDigi bestCLCT, CSCCLCTDigi secondCLCT, GEMPadDigi gemPad, int roll,
 			CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2, int me);
 
-  void buildCoincidencePads(const GEMPadDigiCollection* out_pads, 
-			    GEMCoPadDigiCollection& out_co_pads,
-			    CSCDetId csc_id);
-
   void retrieveGEMPads(const GEMPadDigiCollection* pads, unsigned id);
-  void retrieveGEMCoPads(const GEMCoPadDigiCollection* pads, unsigned id);
+  void retrieveGEMCoPads();
 
   void createGEMRollEtaLUT(bool isEven);
 
@@ -196,10 +196,6 @@ class CSCMotherboardME11GEM : public CSCMotherboard
   bool debug_gem_matching;
   bool debug_luts;
   bool debug_gem_dphi;
-
-  //  deltas used to construct GEM coincidence pads
-  int maxDeltaBXInCoPad_;
-  int maxDeltaPadInCoPad_;
 
   //  deltas used to match to GEM pads
   int maxDeltaBXPad_;

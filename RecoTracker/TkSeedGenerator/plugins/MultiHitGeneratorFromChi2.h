@@ -18,6 +18,8 @@
 #include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
 #include "DataFormats/TrackingRecHit/interface/mayown_ptr.h"
 
+#include "MagneticField/UniformEngine/interface/UniformMagneticField.h"
+
 
 #include <utility>
 #include <vector>
@@ -97,6 +99,7 @@ private:
   float extraPhiKDBox;
   float dphi;
   const MagneticField* bfield;
+  UniformMagneticField ufield = 0.;
   float nomField;
   double nSigmaRZ, nSigmaPhi, fnSigmaRZ;
   bool chi2VsPtCut;

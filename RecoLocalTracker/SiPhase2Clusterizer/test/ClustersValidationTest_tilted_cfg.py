@@ -10,7 +10,7 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.load('Configuration.Geometry.GeometryExtended2023D1Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D4Reco_cff')
 
 # Number of events (-1 = all)
 process.maxEvents = cms.untracked.PSet(
@@ -24,8 +24,7 @@ process.source = cms.Source('PoolSource',
 
 # TAG
 from Configuration.AlCa.GlobalTag import GlobalTag
-#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
 # Output
 process.TFileService = cms.Service('TFileService',
@@ -49,13 +48,3 @@ process.analysis = cms.EDAnalyzer('Phase2TrackerClusterizerValidation',
 
 # Processes to run
 process.p = cms.Path(process.analysis)
-
-
-#from SLHCUpgradeSimulations.Configuration.phase2TkFlat import *
-#customise(process)
-
-# Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.combinedCustoms
-from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023tilted
-
-#call to customisation function cust_2023tilted imported from SLHCUpgradeSimulations.Configuration.combinedCustoms
-process = cust_2023tilted(process)

@@ -30,8 +30,7 @@ HLTStreamFilter::makeHLTFilterDescription(edm::ParameterSetDescription& desc) {
   desc.add<bool>("saveTags",true);
 }
 
-HLTStreamFilter::~HLTStreamFilter()
-{ }
+HLTStreamFilter::~HLTStreamFilter() = default;
 
 bool HLTStreamFilter::filter(edm::Event & event, const edm::EventSetup & setup) {
   std::unique_ptr<trigger::TriggerFilterObjectWithRefs> filterproduct( new trigger::TriggerFilterObjectWithRefs(path(event), module(event)) );

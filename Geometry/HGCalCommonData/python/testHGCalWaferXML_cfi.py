@@ -5,7 +5,7 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/CMSCommonData/data/rotations.xml',
         'Geometry/HGCalCommonData/test/cms.xml',
         'Geometry/HGCalCommonData/test/hgcal.xml',
-        'Geometry/HGCalCommonData/data/v7/hgcalwafer.xml'),
+        'Geometry/HGCalCommonData/data/hgcalwafer/v8/hgcalwafer.xml'),
     rootNodeName = cms.string('cms:OCMS')
 )
 

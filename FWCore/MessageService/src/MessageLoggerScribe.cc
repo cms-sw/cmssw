@@ -187,7 +187,6 @@
 #include "FWCore/MessageService/interface/ELadministrator.h"
 #include "FWCore/MessageService/interface/ELoutput.h"
 #include "FWCore/MessageService/interface/ELstatistics.h"
-#include "FWCore/MessageService/interface/NamedDestination.h"
 #include "FWCore/MessageService/interface/ThreadQueue.h"
 
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
@@ -213,10 +212,9 @@ namespace service {
 
 MessageLoggerScribe::MessageLoggerScribe(std::shared_ptr<ThreadQueue> queue)
 : admin_p   ( new ELadministrator() )
-, early_dest( admin_p->attach(ELoutput(std::cerr, false)) )
+, early_dest( admin_p->attach(std::make_shared<ELoutput>(std::cerr, false)) )
 , file_ps   ( )
 , job_pset_p( )
-, extern_dests( )
 , clean_slate_configuration( true )
 , active( true )
 , singleThread (queue.get() == 0)				// changeLog 36
@@ -230,7 +228,6 @@ MessageLoggerScribe::MessageLoggerScribe(std::shared_ptr<ThreadQueue> queue)
 MessageLoggerScribe::~MessageLoggerScribe()
 {
   admin_p->finish();
-  assert( extern_dests.empty() );  // nothing to do
 }
 
 
@@ -332,30 +329,6 @@ void
 	// finally, release the scoped lock by letting it go out of scope 
 	break;
       }
-    }
-    case MessageLoggerQ::EXTERN_DEST: {
-      try {
-	extern_dests.push_back( static_cast<NamedDestination *>(operand) );
-	configure_external_dests();
-      }
-      catch(cms::Exception& e)				// change log 21
-	{
-	  std::cerr << "MessageLoggerScribe caught a cms::Exception "
-	       << "during extern dest configuration:\n"
-	       << e.what() << "\n"
-	       << "This is a serious problem, and the extern dest " 
-	       << "will not be produced.\n"
-	       << "However, the rest of the logger continues to run.\n";
-	}
-      catch(...)						// change log 21
-	{
-	  std::cerr << "MessageLoggerScribe caught unkonwn exception type\n"
-	       << "during extern dest configuration. "
-	       << "This is a serious problem, and the extern dest " 
-	       << "will not be produced.\n"
-	       << "The rest of the logger will attempt to continue to run.\n";
-	}
-      break;
     }
     case MessageLoggerQ::SUMMARIZE: {
       assert( operand == 0 );
@@ -477,9 +450,6 @@ void
   }
   configure_ordinary_destinations();				// Change Log 16
   configure_statistics();					// Change Log 16
-
-  configure_external_dests();
-
 }  // MessageLoggerScribe::configure_errorlog()
 
 
@@ -835,7 +805,7 @@ void
     // attach the current destination, keeping a control handle to it:
     ELdestControl dest_ctrl;
     if( actual_filename == "cout" )  {
-      dest_ctrl = admin_p->attach( ELoutput(std::cout) );
+      dest_ctrl = admin_p->attach( std::make_shared<ELoutput>(std::cout) );
       stream_ps["cout"] = &std::cout;
     }
     else if( actual_filename == "cerr" )  {
@@ -846,7 +816,7 @@ void
     else  {
       auto os_sp = std::make_shared<std::ofstream>(actual_filename.c_str());
       file_ps.push_back(os_sp);
-      dest_ctrl = admin_p->attach( ELoutput(*os_sp) );
+      dest_ctrl = admin_p->attach( std::make_shared<ELoutput>(*os_sp) );
       stream_ps[actual_filename] = os_sp.get();
     }
 
@@ -981,46 +951,24 @@ void
        
     if (statistics_destination_is_real)	{			// change log 24
       // attach the statistics destination, keeping a control handle to it:
-      ELdestControl dest_ctrl;
-      dest_ctrl = admin_p->attach( ELstatistics(*os_p) );
-      statisticsDestControls.push_back(dest_ctrl);
+      auto stat = std::make_shared<ELstatistics>(*os_p);
+      admin_p->attach( stat );
+      statisticsDestControls.push_back(stat);
       bool reset = getAparameter<bool>(stat_pset, "reset", false);
       statisticsResets.push_back(reset);
     
       // now configure this destination:
+      ELdestControl dest_ctrl(stat);
       configure_dest(dest_ctrl, psetname);
 
       // and suppress the desire to do an extra termination summary just because
       // of end-of-job info messages
-      dest_ctrl.noTerminationSummary();
+      stat->noTerminationSummary();
     }
      
   }  // for [it = statistics.begin() to end()]
 
 } // configure_statistics
-
-void
-  MessageLoggerScribe::configure_external_dests()
-{
-  if( ! job_pset_p )  
-  {
-//  extern_dests.clear();				
-//  change log 12, removed by change log 13
-    return;
-  }
-
-  for( auto& dest : extern_dests)
-  {
-    ELdestination *  dest_p = dest->dest_p().get();
-    ELdestControl  dest_ctrl = admin_p->attach( *dest_p );
-
-    // configure the newly-attached destination:
-    configure_dest( dest_ctrl, dest->name() );
-    delete dest;  // dispose of our (copy of the) NamedDestination
-  }
-  extern_dests.clear();
- 
-}  // MessageLoggerScribe::configure_external_dests
 
 void
   MessageLoggerScribe::parseCategories (std::string const & s,
@@ -1043,8 +991,8 @@ void
   MessageLoggerScribe::triggerStatisticsSummaries() {
     assert (statisticsDestControls.size() == statisticsResets.size());
     for (unsigned int i = 0; i != statisticsDestControls.size(); ++i) {
-      statisticsDestControls[i].summary( );
-      if (statisticsResets[i]) statisticsDestControls[i].wipe( );
+      statisticsDestControls[i]->summary( 0 );
+      if (statisticsResets[i]) statisticsDestControls[i]->wipe( );
     }
 }
 
@@ -1055,7 +1003,7 @@ void
   if (statisticsDestControls.empty()) {
     sm["NoStatisticsDestinationsConfigured"] = 0.0;
   } else {
-    statisticsDestControls[0].summaryForJobReport(sm);
+    statisticsDestControls[0]->summaryForJobReport(sm);
   }
 }
 

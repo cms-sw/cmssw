@@ -19,7 +19,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
-
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 /*#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalImpactPointExtrapolator.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -44,8 +44,11 @@ namespace pat {
             bool candsOrdering(pat::PackedCandidate i,pat::PackedCandidate j) const {
                 if (std::abs(i.charge()) == std::abs(j.charge())) {
                     if(i.charge()!=0){
-                        if(i.pt() > minPtForTrackProperties_ and j.pt() <= minPtForTrackProperties_ ) return true;
-                        if(i.pt() <= minPtForTrackProperties_ and j.pt() > minPtForTrackProperties_ ) return false;
+                        if(i.hasTrackDetails() and ! j.hasTrackDetails() ) return true;
+                        if(! i.hasTrackDetails() and  j.hasTrackDetails() ) return false;
+                        if(i.covarianceSchema() >  j.covarianceSchema() ) return true;
+                        if(i.covarianceSchema() <  j.covarianceSchema() ) return false;
+
                   }
                    if(i.vertexRef() == j.vertexRef()) 
                       return i.eta() > j.eta();
@@ -79,10 +82,14 @@ namespace pat {
             const edm::EDGetTokenT<edm::ValueMap<reco::CandidatePtr> >    PuppiCandsMap_;
             const edm::EDGetTokenT<std::vector< reco::PFCandidate >  >    PuppiCands_;
             const edm::EDGetTokenT<std::vector< reco::PFCandidate >  >    PuppiCandsNoLep_;
-            std::vector< edm::EDGetTokenT<edm::View<reco::CompositePtrCandidate> > > SVWhiteLists_;
+            std::vector< edm::EDGetTokenT<edm::View<reco::Candidate> > > SVWhiteLists_;
+            const bool storeChargedHadronIsolation_;
+            const edm::EDGetTokenT<edm::ValueMap<bool> >            ChargedHadronIsolation_;
 
+            const double minPtForChargedHadronProperties_;
             const double minPtForTrackProperties_;
-           
+            const int covarianceVersion_;
+            const std::vector<int> covariancePackingSchemas_;
             // for debugging
             float calcDxy(float dx, float dy, float phi) const {
                 return - dx * std::sin(phi) + dy * std::cos(phi);
@@ -107,12 +114,17 @@ pat::PATPackedCandidateProducer::PATPackedCandidateProducer(const edm::Parameter
   PuppiCandsMap_(usePuppi_ ? consumes<edm::ValueMap<reco::CandidatePtr> >(iConfig.getParameter<edm::InputTag>("PuppiSrc")) : edm::EDGetTokenT<edm::ValueMap<reco::CandidatePtr> >() ),
   PuppiCands_(usePuppi_ ? consumes<std::vector< reco::PFCandidate > >(iConfig.getParameter<edm::InputTag>("PuppiSrc")) : edm::EDGetTokenT<std::vector< reco::PFCandidate > >() ),
   PuppiCandsNoLep_(usePuppi_ ? consumes<std::vector< reco::PFCandidate > >(iConfig.getParameter<edm::InputTag>("PuppiNoLepSrc")) : edm::EDGetTokenT<std::vector< reco::PFCandidate > >()),
-  minPtForTrackProperties_(iConfig.getParameter<double>("minPtForTrackProperties"))
+  storeChargedHadronIsolation_(!iConfig.getParameter<edm::InputTag>("chargedHadronIsolation").encode().empty()),
+  ChargedHadronIsolation_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("chargedHadronIsolation"))),
+  minPtForChargedHadronProperties_(iConfig.getParameter<double>("minPtForChargedHadronProperties")),
+  minPtForTrackProperties_(iConfig.getParameter<double>("minPtForTrackProperties")),
+  covarianceVersion_(iConfig.getParameter<int >("covarianceVersion")),
+  covariancePackingSchemas_(iConfig.getParameter<std::vector<int> >("covariancePackingSchemas"))
 {
   std::vector<edm::InputTag> sv_tags = iConfig.getParameter<std::vector<edm::InputTag> >("secondaryVerticesForWhiteList");
   for(auto itag : sv_tags){
     SVWhiteLists_.push_back(
-      consumes<edm::View< reco::CompositePtrCandidate > >(itag)
+      consumes<edm::View< reco::Candidate > >(itag)
       );
   }
 
@@ -159,17 +171,30 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
     const edm::Association<reco::VertexCollection> &  associatedPV=*(assoHandle.product());
     const edm::ValueMap<int>  &  associationQuality=*(assoQualityHandle.product());
            
+    edm::Handle<edm::ValueMap<bool> > chargedHadronIsolationHandle;
+    if(storeChargedHadronIsolation_)
+      iEvent.getByToken(ChargedHadronIsolation_,chargedHadronIsolationHandle);
 
     std::set<unsigned int> whiteList;
+    std::set<reco::TrackRef> whiteListTk;
     for(auto itoken : SVWhiteLists_) {
-      edm::Handle<edm::View<reco::CompositePtrCandidate > > svWhiteListHandle;
+      edm::Handle<edm::View<reco::Candidate > > svWhiteListHandle;
       iEvent.getByToken(itoken, svWhiteListHandle);
-      const edm::View<reco::CompositePtrCandidate > &  svWhiteList=*(svWhiteListHandle.product());
+      const edm::View<reco::Candidate > &  svWhiteList=*(svWhiteListHandle.product());
       for(unsigned int i=0; i<svWhiteList.size();i++) {
+	//Whitelist via Ptrs
         for(unsigned int j=0; j< svWhiteList[i].numberOfSourceCandidatePtrs(); j++) {
           const edm::Ptr<reco::Candidate> & c = svWhiteList[i].sourceCandidatePtr(j);
           if(c.id() == cands.id()) whiteList.insert(c.key());
+
         }
+	//Whitelist via RecoCharged
+	for(auto dau = svWhiteList[i].begin(); dau != svWhiteList[i].end() ; dau++){
+            const reco::RecoChargedCandidate * chCand=dynamic_cast<const reco::RecoChargedCandidate *>(&(*dau));
+	    if(chCand!=nullptr) {
+		whiteListTk.insert(chCand->track());
+	    }
+	}
       }
     }
  
@@ -230,6 +255,7 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
 
           outPtrP->push_back( pat::PackedCandidate(cand.polarP4(), vtx, ptTrk, etaAtVtx, phiAtVtx, cand.pdgId(), PVRefProd, PV.key()));
           outPtrP->back().setAssociationQuality(pat::PackedCandidate::PVAssociationQuality(qualityMap[quality]));
+          outPtrP->back().setCovarianceVersion(covarianceVersion_);
           if(cand.trackRef().isNonnull() && PVOrig->trackWeight(cand.trackRef()) > 0.5 && quality == 7) {
                   outPtrP->back().setAssociationQuality(pat::PackedCandidate::UsedInFitTight);
           }
@@ -237,9 +263,21 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
           outPtrP->back().setLostInnerHits( lostHits );
           if(outPtrP->back().pt() > minPtForTrackProperties_ || 
 	     outPtrP->back().ptTrk() > minPtForTrackProperties_ ||
-	     whiteList.find(ic)!=whiteList.end()) {
-            outPtrP->back().setTrackProperties(*ctrack);
+	     whiteList.find(ic)!=whiteList.end() || 
+             (cand.trackRef().isNonnull() &&  whiteListTk.find(cand.trackRef())!=whiteListTk.end())
+	    ) {
+            if(abs(outPtrP->back().pdgId())==22) {outPtrP->back().setTrackProperties(*ctrack,covariancePackingSchemas_[4],covarianceVersion_);}
+            else { 
+                if( ctrack->hitPattern().numberOfValidPixelHits() >0) { outPtrP->back().setTrackProperties(*ctrack,covariancePackingSchemas_[0],covarianceVersion_);} //high quality 
+                  else {  outPtrP->back().setTrackProperties(*ctrack,covariancePackingSchemas_[1],covarianceVersion_);} 
+             }
+            
             //outPtrP->back().setTrackProperties(*ctrack,tsos.curvilinearError());
+          } else {
+            if(outPtrP->back().pt() > 0.5 ){ 
+                if(ctrack->hitPattern().numberOfValidPixelHits() >0)  outPtrP->back().setTrackProperties(*ctrack,covariancePackingSchemas_[2],covarianceVersion_); //low quality, with pixels
+                  else       outPtrP->back().setTrackProperties(*ctrack,covariancePackingSchemas_[3],covarianceVersion_); //low quality, without pixels
+            }
           }
 
           // these things are always for the CKF track
@@ -258,10 +296,20 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
           outPtrP->back().setAssociationQuality(pat::PackedCandidate::PVAssociationQuality(pat::PackedCandidate::UsedInFitTight));
         }
 
-	// neutrals
+	// neutrals and isolated charged hadrons
+
+        bool isIsolatedChargedHadron = false;
+        if(storeChargedHadronIsolation_) {
+          const edm::ValueMap<bool>  &  chargedHadronIsolation=*(chargedHadronIsolationHandle.product());
+          isIsolatedChargedHadron=((cand.pt()>minPtForChargedHadronProperties_)&&(chargedHadronIsolation[reco::PFCandidateRef(cands,ic)]));
+          outPtrP->back().setIsIsolatedChargedHadron(isIsolatedChargedHadron);
+        }
 
 	if(abs(cand.pdgId()) == 1 || abs(cand.pdgId()) == 130) {
 	  outPtrP->back().setHcalFraction(cand.hcalEnergy()/(cand.ecalEnergy()+cand.hcalEnergy()));
+        } else if(isIsolatedChargedHadron) {
+          outPtrP->back().setRawCaloFraction((cand.rawEcalEnergy()+cand.rawHcalEnergy())/cand.energy());
+          outPtrP->back().setHcalFraction(cand.rawHcalEnergy()/(cand.rawEcalEnergy()+cand.rawHcalEnergy()));
 	} else {
 	  outPtrP->back().setHcalFraction(0);
 	}

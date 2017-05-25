@@ -49,9 +49,7 @@ HLTRHemisphere::HLTRHemisphere(const edm::ParameterSet& iConfig) :
    produces<std::vector<math::XYZTLorentzVector> >();
 }
 
-HLTRHemisphere::~HLTRHemisphere()
-{
-}
+HLTRHemisphere::~HLTRHemisphere() = default;
 
 void
 HLTRHemisphere::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -98,9 +96,9 @@ HLTRHemisphere::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // look at all objects, check cuts and add to filter object
    int n(0);
    vector<math::XYZTLorentzVector> JETS;
-   for (unsigned int i=0; i<jets->size(); i++) {
-     if(std::abs(jets->at(i).eta()) < max_Eta_ && jets->at(i).pt() >= min_Jet_Pt_){
-       JETS.push_back(jets->at(i).p4());
+   for (auto const & i : *jets) {
+     if(std::abs(i.eta()) < max_Eta_ && i.pt() >= min_Jet_Pt_){
+       JETS.push_back(i.p4());
        n++;
      }
    }

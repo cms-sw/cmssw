@@ -36,8 +36,16 @@ def create_single_iov_db(inputs, run_number, output_db):
     for record,tag in inputs.iteritems():
         result[record] = {"connect": "sqlite_file:"+output_db,
                           "tag": "_".join([tag["tag"], tag["since"]])}
+
+        if tag["connect"] == "pro":
+            source_connect = "frontier://FrontierProd/CMS_CONDITIONS"
+        elif tag["connect"] == "dev":
+            source_connect = "frontier://FrontierPrep/CMS_CONDITIONS"
+        else:
+            source_connect = tag["connect"]
+
         cmd = ("conddb_import",
-               "-f", "frontier://PromptProd/cms_conditions",
+               "-f", source_connect,
                "-c", result[record]["connect"],
                "-i", tag["tag"],
                "-t", result[record]["tag"],
@@ -50,16 +58,20 @@ def create_single_iov_db(inputs, run_number, output_db):
     return result
 
 
-def run_checked(cmd):
+def run_checked(cmd, suppress_stderr = False):
     """Run `cmd` and exit in case of failures.
 
     Arguments:
     - `cmd`: list containing the strings of the command
+    - `suppress_stderr`: suppress output from stderr
     """
 
     try:
         with open(os.devnull, "w") as devnull:
-            subprocess.check_call(cmd, stdout = devnull)
+            if suppress_stderr:
+                subprocess.check_call(cmd, stdout = devnull, stderr = devnull)
+            else:
+                subprocess.check_call(cmd, stdout = devnull)
     except subprocess.CalledProcessError as e:
         print "Problem in running the following command:"
         print " ".join(e.cmd)
@@ -76,8 +88,12 @@ def get_process_object(cfg):
     sys.path.append(os.path.dirname(cfg)) # add location to python path
     cache_stdout = sys.stdout
     sys.stdout = open(os.devnull, "w")    # suppress unwanted output
-    __configuration = \
-        importlib.import_module(os.path.splitext(os.path.basename(cfg))[0])
+    try:
+        __configuration = \
+            importlib.import_module(os.path.splitext(os.path.basename(cfg))[0])
+    except Exception as e:
+        print "Problem detected in configuration file '{0}'.".format(cfg)
+        raise e
     sys.stdout = cache_stdout
     sys.path.pop()                        # clean up python path again
     try:
@@ -117,6 +133,15 @@ def get_tags(global_tag, records):
 
     if len(records) == 0: return {} # avoid useless DB query
 
+    # check for auto GT
+    if global_tag.startswith("auto:"):
+        import Configuration.AlCa.autoCond as AC
+        try:
+            global_tag = AC.autoCond[global_tag.split("auto:")[-1]]
+        except KeyError:
+            print "Unsupported auto GT:", global_tag
+            sys.exit(1)
+
     # setting up the DB session
     con = conddb.connect(url = conddb.make_url())
     session = con.session()
@@ -142,6 +167,8 @@ def get_iovs(db, tag):
     """
 
     db = db.replace("sqlite_file:", "").replace("sqlite:", "")
+    db = db.replace("frontier://FrontierProd/CMS_CONDITIONS", "pro")
+    db = db.replace("frontier://FrontierPrep/CMS_CONDITIONS", "dev")
 
     con = conddb.connect(url = conddb.make_url(db))
     session = con.session()

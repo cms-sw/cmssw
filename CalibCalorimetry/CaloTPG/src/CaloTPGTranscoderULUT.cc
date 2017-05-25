@@ -34,15 +34,13 @@ void CaloTPGTranscoderULUT::loadHCALCompress(HcalLutMetadata const& lutMetadata,
         throw cms::Exception("CaloTPGTranscoderULUT") << "Topology not set! Use CaloTPGTranscoderULUT::setup(...) first!";
     }
 
-    std::array<unsigned int, OUTPUT_LUT_SIZE> analytical10BITLUT;
-    std::array<unsigned int, OUTPUT_LUT_SIZE> analytical11BITLUT;
+    std::array<unsigned int, OUTPUT_LUT_SIZE> analyticalLUT;
     std::array<unsigned int, OUTPUT_LUT_SIZE> linearRctLUT;
     std::array<unsigned int, OUTPUT_LUT_SIZE> linearNctLUT;
 
     // Compute compression LUT
     for (unsigned int i=0; i < OUTPUT_LUT_SIZE; i++) {
-	analytical10BITLUT[i] = (unsigned int)(sqrt(14.94*log(1.+i/14.94)*i) + 0.5);
-	analytical11BITLUT[i] = (unsigned int)(sqrt(5.32*log(1.+i/5.32)*i) + 0.5);
+	analyticalLUT[i] = min((unsigned int)(sqrt(14.94*log(1.+i/14.94)*i) + 0.5), TPGMAX - 1);
 	linearRctLUT[i] = min((unsigned int)(i/rct_factor_), TPGMAX - 1);
 	linearNctLUT[i] = min((unsigned int)(i/nct_factor_), TPGMAX - 1);
     }
@@ -76,12 +74,9 @@ void CaloTPGTranscoderULUT::loadHCALCompress(HcalLutMetadata const& lutMetadata,
         for (unsigned int i = 0; i < threshold; ++i)
            outputLUT_[index][i] = 0;
 
-        if (isHBHE and lutsize == REDUCE10BIT) {
+        if (isHBHE) {
            for (unsigned int i = threshold; i < lutsize; ++i)
-              outputLUT_[index][i] = analytical10BITLUT[i];
-        } else if (isHBHE) {
-           for (unsigned int i = threshold; i < lutsize; ++i)
-              outputLUT_[index][i] = analytical11BITLUT[i];
+              outputLUT_[index][i] = analyticalLUT[i];
         } else {
            for (unsigned int i = threshold; i < lutsize; ++i)
               outputLUT_[index][i] = version == 0 ? linearRctLUT[i] : linearNctLUT[i];

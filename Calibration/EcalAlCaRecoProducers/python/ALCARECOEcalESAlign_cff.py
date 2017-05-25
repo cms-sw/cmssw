@@ -1,5 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
+import HLTrigger.HLTfilters.hltHighLevel_cfi
+ALCARECOEcalESAlignHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
+    andOr = True, # choose logical OR between Triggerbits
+    eventSetupPathsKey = 'EcalESAlign',
+    throw = False # tolerate triggers stated above, but not available
+)
+
 # this imports the module that produces a reduced collections for ES alignment
 #from Calibration.EcalAlCaRecoProducers.EcalAlCaESAlignTrackReducer_cfi import *
 
@@ -28,5 +35,5 @@ esMinTrackNumberFilter = cms.EDFilter("TrackCountFilter",
 
 EcalESAlignTracksSkimSeq = cms.Sequence( esSelectedTracks * ecalAlCaESAlignTrackReducer * esMinTrackNumberFilter) 
 
-seqEcalESAlign = cms.Sequence(EcalESAlignTracksSkimSeq)
+seqEcalESAlign = cms.Sequence(ALCARECOEcalESAlignHLT * EcalESAlignTracksSkimSeq)
 

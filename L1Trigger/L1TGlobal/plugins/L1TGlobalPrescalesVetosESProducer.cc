@@ -51,7 +51,7 @@ using namespace l1t;
 class L1TGlobalPrescalesVetosESProducer : public edm::ESProducer {
 public:
   L1TGlobalPrescalesVetosESProducer(const edm::ParameterSet&);
-  ~L1TGlobalPrescalesVetosESProducer();
+  ~L1TGlobalPrescalesVetosESProducer() override;
 
   typedef std::shared_ptr<L1TGlobalPrescalesVetos> ReturnType;
 
@@ -133,19 +133,14 @@ L1TGlobalPrescalesVetosESProducer::L1TGlobalPrescalesVetosESProducer(const edm::
   // Prescales
   std::ifstream input_prescale;
   input_prescale.open( m_prescaleFile );
-  if( !input_prescale ){
-    LogTrace("L1TGlobalPrescalesVetosESProducer")
-      << "\nCould not find file: " << m_prescaleFile
-      << "\nFilling the prescale vectors with prescale 1"
-      << std::endl;
+  if (not m_prescaleFile.empty() and not input_prescale) {
+    edm::LogError("L1TGlobalPrescalesVetosESProducer")
+      << "\nCould not find prescale file: " << m_prescaleFile
+      << "\nDeafulting to a single prescale column, with all prescales set to 1 (unprescaled)";
 
-    for( int col=0; col < 1; col++ ){
-      prescales.push_back(std::vector<int>());
-      for( unsigned int iBit = 0; iBit < m_numberPhysTriggers; ++iBit ){
-	int inputDefaultPrescale = 1;
-	prescales[col].push_back(inputDefaultPrescale);
-      }
-    }
+    const int inputDefaultPrescale = 1;
+    // by default, fill a single prescale column
+    prescales.push_back(std::vector<int>(m_numberPhysTriggers, inputDefaultPrescale));
   }
   else {
     while( !input_prescale.eof() ){
@@ -176,11 +171,11 @@ L1TGlobalPrescalesVetosESProducer::L1TGlobalPrescalesVetosESProducer(const edm::
     if( NumPrescaleSets > 0 ){
       // Fill default prescale set
       for( int iSet=0; iSet<NumPrescaleSets; iSet++ ){
-	prescales.push_back(std::vector<int>());
-	for( int iBit = 0; iBit < NumAlgos_prescale; ++iBit ){
-	  int inputDefaultPrescale = 0; // only prescales that are set in the block below are used
-	  prescales[iSet].push_back(inputDefaultPrescale);
-	}
+        prescales.push_back(std::vector<int>());
+        for( int iBit = 0; iBit < NumAlgos_prescale; ++iBit ){
+          int inputDefaultPrescale = 0; // only prescales that are set in the block below are used
+          prescales[iSet].push_back(inputDefaultPrescale);
+        }
       }
 
       for(auto &col : prescaleColumns){
@@ -201,17 +196,15 @@ L1TGlobalPrescalesVetosESProducer::L1TGlobalPrescalesVetosESProducer(const edm::
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   // finor mask
-  // Setting mask to default 1 (unmask)
-  for( unsigned int iAlg=0; iAlg < m_numberPhysTriggers; iAlg++ )
-    triggerMasks.push_back(1);
-
+  // set all masks to 1 (unmasked) by default
+  triggerMasks.insert(triggerMasks.end(), m_numberPhysTriggers, 1);
+  
   std::ifstream input_mask_finor;
   input_mask_finor.open( m_finormaskFile );
-  if( !input_mask_finor ){
-    LogTrace("L1TGlobalPrescalesVetosESProducer")
-      << "\nCould not find file: " << m_finormaskFile
-      << "\nFilling the finor mask vectors with 1 (unmask)"
-      << std::endl;
+  if (not m_finormaskFile.empty() and not input_mask_finor) {
+    edm::LogError("L1TGlobalPrescalesVetosESProducer")
+      << "\nCould not find finor mask file: " << m_finormaskFile
+      << "\nDeafulting the finor mask for all triggers to 1 (unmasked)";
   }
   else {
     while( !input_mask_finor.eof() ){
@@ -247,16 +240,15 @@ L1TGlobalPrescalesVetosESProducer::L1TGlobalPrescalesVetosESProducer(const edm::
 
   // veto mask
   // Setting veto mask to default 0 (no veto)
-  for( unsigned int iAlg=0; iAlg < m_numberPhysTriggers; iAlg++ )
+  for (unsigned int iAlg=0; iAlg < m_numberPhysTriggers; iAlg++)
     triggerVetoMasks.push_back(0);
   
   std::ifstream input_mask_veto;
   input_mask_veto.open( m_vetomaskFile );
-  if( !input_mask_veto ){
-    LogTrace("L1TGlobalPrescalesVetosESProducer")
-      << "\nCould not find file: " << m_vetomaskFile
-      << "\nFilling the veto mask vectors with 1 (unmask)"
-      << std::endl;
+  if (not m_vetomaskFile.empty() and not input_mask_veto) {
+    edm::LogError("L1TGlobalPrescalesVetosESProducer")
+      << "\nCould not find veto mask file: " << m_vetomaskFile
+      << "\nDeafulting the veto mask for all triggers to 1 (unmasked)";
   }
   else {
     while( !input_mask_veto.eof() ){
@@ -291,11 +283,10 @@ L1TGlobalPrescalesVetosESProducer::L1TGlobalPrescalesVetosESProducer(const edm::
   // Algo bx mask
   std::ifstream input_mask_algobx;
   input_mask_algobx.open( m_algobxmaskFile );
-  if( !input_mask_algobx ){
-    LogTrace("L1TGlobalPrescalesVetosESProducer")
-      << "\nCould not find file: " << m_algobxmaskFile
-      << "\nNot filling map"
-      << std::endl;
+  if (not m_algobxmaskFile.empty() and not input_mask_algobx) {
+    edm::LogError("L1TGlobalPrescalesVetosESProducer")
+      << "\nCould not find bx mask file: " << m_algobxmaskFile
+      << "\nNot filling the bx mask map";
   }
   else {
     while( !input_mask_algobx.eof() ){
@@ -331,8 +322,8 @@ L1TGlobalPrescalesVetosESProducer::L1TGlobalPrescalesVetosESProducer(const edm::
 
 
   // Set prescales to zero if masked
-  for( unsigned int iSet=0; iSet < prescales.size(); iSet++ ){
-    for( unsigned int iBit=0; iBit < prescales[iSet].size(); iBit++ ){
+  for(auto & prescale : prescales){
+    for( unsigned int iBit=0; iBit < prescale.size(); iBit++ ){
       // Add protection in case prescale table larger than trigger mask size
       if( iBit >= triggerMasks.size() ){
 	    edm::LogWarning("L1TGlobal")
@@ -341,7 +332,7 @@ L1TGlobalPrescalesVetosESProducer::L1TGlobalPrescalesVetosESProducer(const edm::
 	      << std::endl;
       }
       else {
-	prescales[iSet][iBit] *= triggerMasks[iBit];
+	prescale[iBit] *= triggerMasks[iBit];
       }
     }
   }
@@ -396,8 +387,8 @@ L1TGlobalPrescalesVetosESProducer::produce(const L1TGlobalPrescalesVetosRcd& iRe
     for( auto& it: m_initialTriggerAlgoBxMaskAlgoTrig ){
       LogDebug("L1TGlobal") << " bx = " << it.first << " : iAlg =";
       std::vector<int> masked = it.second;
-      for( unsigned int iAlg=0; iAlg < masked.size(); iAlg++ ){
-	LogDebug("L1TGlobal") << " " << masked[iAlg];
+      for(int & iAlg : masked){
+	LogDebug("L1TGlobal") << " " << iAlg;
       }
       LogDebug("L1TGlobal") << " " << std::endl;
     }

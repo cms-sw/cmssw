@@ -59,10 +59,8 @@ void compareAlignments(TString namesandlabels="readFromFile", TString legendhead
       if( currentFile != NULL && !currentFile->IsZombie() ){
         FileList->Add( currentFile  );  // 2
         if ( currentFile->Get("TrackerOfflineValidationStandalone/Pixel/P1PXBBarrel_1") ) {
-          cout << "phase 1" << endl;
           phases.push_back(1);
         } else if ( currentFile->Get("TrackerOfflineValidationStandalone/Pixel/TPBBarrel_1") ) {
-          cout << "phase 0" << endl;
           phases.push_back(0);
         } else {
           cout << "Unknown phase for file " << aFileLegPair->At(0)->GetName() << endl;
@@ -75,7 +73,7 @@ void compareAlignments(TString namesandlabels="readFromFile", TString legendhead
             theColors.push_back(atoi(formatedLegendEntry->At(1)->GetName()));
 
             if(formatedLegendEntry->GetEntries() > 2)
-              theStyles.push_back(atoi(formatedLegendEntry->At(2)->GetName()));
+              theStyles.push_back(atoi(formatedLegendEntry->At(2)->GetName())%100);
             else
               theStyles.push_back( formatCounter );
           }else{

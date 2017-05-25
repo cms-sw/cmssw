@@ -15,6 +15,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 
 class L1TMP7ZeroSupp : public DQMEDAnalyzer {
@@ -23,6 +25,7 @@ class L1TMP7ZeroSupp : public DQMEDAnalyzer {
 
   L1TMP7ZeroSupp(const edm::ParameterSet& ps);
   virtual ~L1TMP7ZeroSupp();
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  protected:
 
@@ -57,7 +60,7 @@ class L1TMP7ZeroSupp : public DQMEDAnalyzer {
   std::string monitorDir_;
   bool verbose_;
 
-  unsigned int maxMasks_;
+  static const unsigned int maxMasks_;
 
   std::vector<unsigned int> definedMaskCapIds_;
 

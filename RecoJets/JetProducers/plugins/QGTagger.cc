@@ -1,7 +1,6 @@
 #include <memory>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -47,12 +46,11 @@ QGTagger::QGTagger(const edm::ParameterSet& iConfig) :
     produces<edm::ValueMap<float>>("qgLikelihoodSmearedAll");
   }
   qgLikelihood = new QGLikelihoodCalculator();
-  weStillNeedToCheckJetCandidates = true;
 }
 
 
 /// Produce qgLikelihood using {mult, ptD, -log(axis2)}
-void QGTagger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
+void QGTagger::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   std::vector<float>* qgProduct 		= new std::vector<float>;
   std::vector<float>* axis2Product 		= new std::vector<float>;
   std::vector<int>*   multProduct 		= new std::vector<int>;
@@ -76,11 +74,17 @@ void QGTagger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
     systrcdhandle.get(systLabel, QGLSystColl);
   }
 
+  bool weStillNeedToCheckJetCandidates = true;
+  bool weAreUsingPackedCandidates = false;
   for(auto jet = jets->begin(); jet != jets->end(); ++jet){
+    if(weStillNeedToCheckJetCandidates) {
+      weAreUsingPackedCandidates = isPackedCandidate(&*jet);
+      weStillNeedToCheckJetCandidates = false;
+    }
     float pt = (useJetCorr ? jet->pt()*jetCorr->correction(*jet) : jet->pt());
 
     float ptD, axis2; int mult;
-    std::tie(mult, ptD, axis2) = calcVariables(&*jet, vertexCollection);
+    std::tie(mult, ptD, axis2) = calcVariables(&*jet, vertexCollection, weAreUsingPackedCandidates);
 
     float qgValue;
     if(mult > 2) qgValue = qgLikelihood->computeQGLikelihood(QGLParamsColl, pt, jet->eta(), *rho, {(float) mult, ptD, -std::log(axis2)});
@@ -109,7 +113,7 @@ void QGTagger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
 }
 
 /// Function to put product into event
-template <typename T> void QGTagger::putInEvent(std::string name, const edm::Handle<edm::View<reco::Jet>>& jets, std::vector<T>* product, edm::Event& iEvent){
+template <typename T> void QGTagger::putInEvent(const std::string& name, const edm::Handle<edm::View<reco::Jet>>& jets, std::vector<T>* product, edm::Event& iEvent) const {
   auto out = std::make_unique<edm::ValueMap<T>>();
   typename edm::ValueMap<T>::Filler filler(*out);
   filler.insert(jets, product->begin(), product->end());
@@ -120,25 +124,24 @@ template <typename T> void QGTagger::putInEvent(std::string name, const edm::Han
 
 
 /// Function to tell us if we are using packedCandidates, only test for first candidate
-bool QGTagger::isPackedCandidate(const reco::Candidate* candidate){
-  if(weStillNeedToCheckJetCandidates){
-    if(typeid(pat::PackedCandidate)==typeid(*candidate)) weAreUsingPackedCandidates = true;
-    else if(typeid(reco::PFCandidate)==typeid(*candidate)) weAreUsingPackedCandidates = false;
+bool QGTagger::isPackedCandidate(const reco::Jet* jet) const {
+  for(auto candidate : jet->getJetConstituentsQuick()){
+    if(typeid(pat::PackedCandidate)==typeid(*candidate)) return true;
+    else if(typeid(reco::PFCandidate)==typeid(*candidate)) return false;
     else throw cms::Exception("WrongJetCollection", "Jet constituents are not particle flow candidates");
-    weStillNeedToCheckJetCandidates = false;
   }
-  return weAreUsingPackedCandidates;
+  return false;
 }
 
 
 /// Calculation of axis2, mult and ptD
-std::tuple<int, float, float> QGTagger::calcVariables(const reco::Jet *jet, edm::Handle<reco::VertexCollection>& vC){
+std::tuple<int, float, float> QGTagger::calcVariables(const reco::Jet *jet, edm::Handle<reco::VertexCollection>& vC, bool weAreUsingPackedCandidates) const {
   float sum_weight = 0., sum_deta = 0., sum_dphi = 0., sum_deta2 = 0., sum_dphi2 = 0., sum_detadphi = 0., sum_pt = 0.;
   int mult = 0;
 
   //Loop over the jet constituents
   for(auto daughter : jet->getJetConstituentsQuick()){
-    if(isPackedCandidate(daughter)){											//packed candidate situation
+    if(weAreUsingPackedCandidates){											//packed candidate situation
       auto part = static_cast<const pat::PackedCandidate*>(daughter);
 
       if(part->charge()){

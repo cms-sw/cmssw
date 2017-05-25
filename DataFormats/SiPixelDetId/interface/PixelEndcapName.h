@@ -5,13 +5,13 @@
  * Endcap Module name (as in PixelDatabase) for endcaps
  */
 #include "DataFormats/SiPixelDetId/interface/PixelModuleName.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 
 #include <string>
 #include <iostream>
 
 class DetId;
+class TrackerTopology;
 
 class PixelEndcapName : public PixelModuleName {
 public:

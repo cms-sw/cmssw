@@ -286,6 +286,8 @@ do
     else 
        ./DeadROCCounter_Phase1.py ${file_path}/$dqmFileName
     fi
+    rm -f DeadROCCounter.py
+    rm -f DeadROCCounter_Phase1.py
 
 #    mkdir -p /data/users/event_display/${DataLocalDir}/${dest}/${nnn}/${Run_numb}/$thisDataset #2> /dev/null
 #    cp -r ${Run_numb}/$thisDataset /data/users/event_display/Data2011/${dest}/${nnn}/${Run_numb}/

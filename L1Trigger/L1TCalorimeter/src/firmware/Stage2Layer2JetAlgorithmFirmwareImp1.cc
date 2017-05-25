@@ -61,7 +61,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::processEvent(const std::vector<l
 
   // jets accumulated sort
   accuSort(jets);
- 
+
 }
 
 
@@ -456,6 +456,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibrate(std::vector<l1t::Jet> 
 
       //Check jet is above the calibration threshold, if not do nothing
       if(jet->hwPt() < calibThreshold) continue;
+      if(jet->hwPt() >= 0xFFFF) continue;
 
       int etaBin = CaloTools::regionEta( jet->hwEta() );
 
@@ -473,8 +474,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibrate(std::vector<l1t::Jet> 
       double ptPhys = jet->hwPt() * params_->jetLsb();
       double correction = calibFit(ptPhys, params);
 
-      math::XYZTLorentzVector p4;
-      *jet = l1t::Jet( p4, correction*jet->hwPt(), jet->hwEta(), jet->hwPhi(), 0);
+      jet->setHwPt(correction*jet->hwPt());
 
     }
 
@@ -491,6 +491,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibrate(std::vector<l1t::Jet> 
     for(std::vector<l1t::Jet>::iterator jet = jets.begin(); jet!=jets.end(); jet++){
 
       if(jet->hwPt() < calibThreshold) continue;
+      if(jet->hwPt() >= 0xFFFF) continue;
 
       int etaBin = CaloTools::regionEta( jet->hwEta() );
 
@@ -503,8 +504,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibrate(std::vector<l1t::Jet> 
       double correction = params[6];
       if (ptPhys>params[7]) correction = calibFit(ptPhys, params);
 
-      math::XYZTLorentzVector p4;
-      *jet = l1t::Jet( p4, correction*jet->hwPt(), jet->hwEta(), jet->hwPhi(), 0);
+      jet->setHwPt(correction*jet->hwPt());
 
     }
 
@@ -521,6 +521,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibrate(std::vector<l1t::Jet> 
     for(std::vector<l1t::Jet>::iterator jet = jets.begin(); jet!=jets.end(); jet++){
 
       if(jet->hwPt() < calibThreshold) continue;
+      if(jet->hwPt() >= 0xFFFF) continue;
 
       int etaBin = CaloTools::bin16Eta( jet->hwEta() );
 
@@ -536,8 +537,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibrate(std::vector<l1t::Jet> 
       else if (ptPhys>params[10]) correction = params[9];
       else correction = calibFitErr(ptPhys, params); 
 
-      math::XYZTLorentzVector p4;
-      *jet = l1t::Jet( p4, correction*jet->hwPt(), jet->hwEta(), jet->hwPhi(), 0);
+      jet->setHwPt(correction*jet->hwPt());
 
     }
 
@@ -573,7 +573,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibrate(std::vector<l1t::Jet> 
       // handles -ve numbers correctly
       int8_t addend = (addPlusMult>>10);
       unsigned int jetPtCorr = ((jet->hwPt()*multiplier)>>9) + addend;
-     
+
       if(jetPtCorr < 0xFFFF) {
 	jet->setHwPt(jetPtCorr);
       }

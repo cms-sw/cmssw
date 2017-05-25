@@ -33,11 +33,11 @@
 class HLTCaloTowerFilter : public HLTFilter {
 public:
   explicit HLTCaloTowerFilter(const edm::ParameterSet&);
-  ~HLTCaloTowerFilter();
+  ~HLTCaloTowerFilter() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+  bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
   // ----------member data ---------------------------
   edm::EDGetTokenT<CaloTowerCollection> inputToken_;
@@ -102,8 +102,8 @@ HLTCaloTowerFilter::hltFilter(edm::Event& event, const edm::EventSetup& setup, t
 
   // look at all objects, check cuts and add to filter object
   unsigned int n = 0;
-  for (CaloTowerCollection::const_iterator i = caloTowers->begin(); i != caloTowers->end(); ++i) {
-    if ( (i->pt() >= min_Pt_) and ( (max_Eta_ < 0.0) or (std::abs(i->eta()) <= max_Eta_) ) )
+  for (auto const & i : *caloTowers) {
+    if ( (i.pt() >= min_Pt_) and ( (max_Eta_ < 0.0) or (std::abs(i.eta()) <= max_Eta_) ) )
       ++n;
       //edm::Ref<CaloTowerCollection> ref(towers, std::distance(caloTowers->begin(), i));
       //filterproduct.addObject(TriggerJet, ref);

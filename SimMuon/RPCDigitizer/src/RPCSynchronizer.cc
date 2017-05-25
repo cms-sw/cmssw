@@ -43,7 +43,7 @@ RPCSynchronizer::RPCSynchronizer(const edm::ParameterSet& config){
   cosmics = config.getParameter<bool>("cosmics");
   irpc_timing_res = config.getParameter<double>("IRPC_time_resolution");
   irpc_electronics_jitter = config.getParameter<double>("IRPC_electronics_jitter");
-  
+  N_BX = config.getParameter<int>("BX_range");
   //"magic" parameter for cosmics
   cosmicPar=37.62;
 
@@ -127,7 +127,7 @@ int RPCSynchronizer::getSimHitBx(const PSimHit* simhit, CLHEP::HepRandomEngine* 
     double sup_time = 0;
     
     
-    for(int n = -5; n <= 5; ++n){
+    for(int n = -N_BX; n <= N_BX; ++n){
       
       if(cosmics){
 	inf_time = (-lbGate/2 + n*LHCGate )/cosmicPar;
@@ -237,7 +237,7 @@ int RPCSynchronizer::getSimHitBxAndTimingForIRPC(const PSimHit* simhit, CLHEP::H
     double sup_time = 0;
     
     
-    for(int n = -5; n <= 5; ++n){
+    for(int n = -N_BX; n <= N_BX; ++n){
       
       if(cosmics){
 	inf_time = (-lbGate/2 + n*LHCGate )/cosmicPar;

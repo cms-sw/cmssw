@@ -29,9 +29,11 @@ TPComparisonTask::TPComparisonTask(edm::ParameterSet const& ps):
 	edm::ESHandle<HcalElectronicsMap> item;
 	es.get<HcalElectronicsMapRcd>().get("full", item);
 	_emap = item.product();
-	std::vector<int> vFEDs = hcaldqm::utilities::getFEDList(_emap);
-	std::vector<int> vFEDsVME = hcaldqm::utilities::getFEDVMEList(_emap);
-	std::vector<int> vFEDsuTCA = hcaldqm::utilities::getFEDuTCAList(_emap);
+	if (_ptype != fOffline) { // hidefed2crate
+		std::vector<int> vFEDs = hcaldqm::utilities::getFEDList(_emap);
+		std::vector<int> vFEDsVME = hcaldqm::utilities::getFEDVMEList(_emap);
+		std::vector<int> vFEDsuTCA = hcaldqm::utilities::getFEDuTCAList(_emap);
+	}
 	std::vector<uint32_t> vhashVME;
 	std::vector<uint32_t> vhashuTCA;
 	vhashVME.push_back(HcalElectronicsId(constants::FIBERCH_MIN,
@@ -62,36 +64,39 @@ TPComparisonTask::TPComparisonTask(edm::ParameterSet const& ps):
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fEtCorr_256),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fEtCorr_256),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
-	_cMsn_FEDVME.initialize(_name, "Missing",
-		hcaldqm::hashfunctions::fFED,
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSLBSLBCh),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
-	_cMsn_FEDuTCA.initialize(_name, "Missing",
-		hcaldqm::hashfunctions::fFED,
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCATPFiberChuTCATP),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
-	_cEtMsm_FEDVME.initialize(_name, "EtMsm",
-		hcaldqm::hashfunctions::fFED,
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSLBSLBCh),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
-	_cEtMsm_FEDuTCA.initialize(_name, "EtMsm",
-		hcaldqm::hashfunctions::fFED,
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCATPFiberChuTCATP),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
-	_cFGMsm_FEDVME.initialize(_name, "FGMsm",
-		hcaldqm::hashfunctions::fFED,
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSLBSLBCh),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
-	_cFGMsm_FEDuTCA.initialize(_name, "FGMsm",
-		hcaldqm::hashfunctions::fFED,
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCATPFiberChuTCATP),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
+
+	if (_ptype != fOffline) { // hidefed2crate
+		_cMsn_FEDVME.initialize(_name, "Missing",
+			hcaldqm::hashfunctions::fFED,
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSLBSLBCh),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
+		_cMsn_FEDuTCA.initialize(_name, "Missing",
+			hcaldqm::hashfunctions::fFED,
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCATPFiberChuTCATP),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
+		_cEtMsm_FEDVME.initialize(_name, "EtMsm",
+			hcaldqm::hashfunctions::fFED,
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSLBSLBCh),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
+		_cEtMsm_FEDuTCA.initialize(_name, "EtMsm",
+			hcaldqm::hashfunctions::fFED,
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCATPFiberChuTCATP),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
+		_cFGMsm_FEDVME.initialize(_name, "FGMsm",
+			hcaldqm::hashfunctions::fFED,
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSLBSLBCh),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
+		_cFGMsm_FEDuTCA.initialize(_name, "FGMsm",
+			hcaldqm::hashfunctions::fFED,
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCATPFiberChuTCATP),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
+	}
 
 	_cMsnuTCA.initialize(_name, "Missing", 
 		new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTieta),
@@ -118,12 +123,14 @@ TPComparisonTask::TPComparisonTask(edm::ParameterSet const& ps):
 		_cFG_TTSubdet[i].book(ib, _emap, _subsystem, aux);
 	}
 	_cEtall_TTSubdet.book(ib, _emap, _subsystem);
-	_cMsn_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
-	_cEtMsm_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
-	_cFGMsm_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
-	_cMsn_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
-	_cEtMsm_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
-	_cFGMsm_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
+	if (_ptype != fOffline) { // hidefed2crate
+		_cMsn_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
+		_cEtMsm_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
+		_cFGMsm_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
+		_cMsn_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
+		_cEtMsm_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
+		_cFGMsm_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
+	}
 
 	_cMsnuTCA.book(ib, _subsystem, std::string("uTCA"));
 	_cMsnVME.book(ib, _subsystem, std::string("VME"));
@@ -186,7 +193,9 @@ TPComparisonTask::TPComparisonTask(edm::ParameterSet const& ps):
 		{
 			//	missing from VME collection
 			_cMsnVME.fill(tid);
-			_cMsn_FEDVME.fill(eid2);
+			if (_ptype != fOffline) { // hidefed2crate
+				_cMsn_FEDVME.fill(eid2);
+			}
 			for (int i=0; i<it1->size(); i++)
 			{
 				_cEtall_TTSubdet.fill(tid, 
@@ -210,15 +219,19 @@ TPComparisonTask::TPComparisonTask(edm::ParameterSet const& ps):
 				if (it1->sample(i).compressedEt()!=
 					it2->sample(i).compressedEt())
 				{
-					_cEtMsm_FEDuTCA.fill(eid1);
-					_cEtMsm_FEDVME.fill(eid2);
+					if (_ptype != fOffline) { // hidefed2crate
+						_cEtMsm_FEDuTCA.fill(eid1);
+						_cEtMsm_FEDVME.fill(eid2);
+					}
 					_cEtMsm.fill(tid);
 				}
 				if (it1->sample(i).fineGrain()!=
 					it2->sample(i).fineGrain())
 				{
-					_cFGMsm_FEDuTCA.fill(eid1);
-					_cFGMsm_FEDVME.fill(eid2);
+					if (_ptype != fOffline) { // hidefed2crate
+						_cFGMsm_FEDuTCA.fill(eid1);
+						_cFGMsm_FEDVME.fill(eid2);
+					}
 					_cFGMsm.fill(tid);
 				}
 			}
@@ -240,7 +253,9 @@ TPComparisonTask::TPComparisonTask(edm::ParameterSet const& ps):
 		{
 			HcalElectronicsId eid1 = HcalElectronicsId(
 				_ehashmapuTCA.lookup(tid));
-			_cMsn_FEDuTCA.fill(eid1);
+			if (_ptype != fOffline) { // hidefed2crate
+				_cMsn_FEDuTCA.fill(eid1);
+			}
 			_cMsnuTCA.fill(tid);
 			for (int i=0; i<it2->size(); i++)
 			{

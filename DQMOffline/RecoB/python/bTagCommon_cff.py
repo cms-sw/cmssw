@@ -97,6 +97,46 @@ bTagCommonBlock = cms.PSet(
             label = cms.InputTag("pfCombinedMVAV2BJetTags"),
             folder = cms.string("combMVAv2")
         ), 
+        cms.PSet(
+            bTagGenericAnalysisBlock,
+            label = cms.InputTag("pfDeepCSVJetTags:probb"),
+            folder = cms.string("deepCSV_probb")
+        ),
+        cms.PSet(
+            bTagGenericAnalysisBlock,
+            label = cms.InputTag("pfDeepCSVJetTags:probc"),
+            folder = cms.string("deepCSV_probc")
+        ),
+        cms.PSet(
+            bTagGenericAnalysisBlock,
+            label = cms.InputTag("pfDeepCSVJetTags:probudsg"),
+            folder = cms.string("deepCSV_probudsg")
+        ),
+        cms.PSet(
+            bTagGenericAnalysisBlock,
+            label = cms.InputTag("pfDeepCSVJetTags:probbb"),
+            folder = cms.string("deepCSV_probbb")
+        ),
+        #cms.PSet(
+        #    bTagGenericAnalysisBlock,
+        #    label = cms.InputTag("pfDeepCMVAJetTags:probb"),
+        #    folder = cms.string("deepCMVA_probb")
+        #),
+        #cms.PSet(
+        #    bTagGenericAnalysisBlock,
+        #    label = cms.InputTag("pfDeepCMVAJetTags:probc"),
+        #    folder = cms.string("deepCMVA_probc")
+        #),
+        #cms.PSet(
+        #    bTagGenericAnalysisBlock,
+        #    label = cms.InputTag("pfDeepCMVAJetTags:probudsg"),
+        #    folder = cms.string("deepCMVA_probudsg")
+        #),
+        #cms.PSet(
+        #    bTagGenericAnalysisBlock,
+        #    label = cms.InputTag("pfDeepCMVAJetTags:probbb"),
+        #    folder = cms.string("deepCMVA_probbb")
+        #),
        cms.PSet(
             bTagSoftLeptonAnalysisBlock,
             label = cms.InputTag("softPFMuonBJetTags"),

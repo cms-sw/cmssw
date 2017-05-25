@@ -37,9 +37,7 @@ process.out.outputCommands += ['keep *_updatedPatJetsAK4PFCHS_*_*',
 #pileupJetID
 
 process.load('RecoJets.JetProducers.PileupJetID_cfi')
-patAlgosToolsTask.add(process.pileupJetId)
-patAlgosToolsTask.add(process.pileupJetIdCalculator)
-patAlgosToolsTask.add(process.pileupJetIdEvaluator)
+patAlgosToolsTask.add(process.pileUpJetIDTask)
 process.pileupJetIdCalculator.jets=cms.InputTag("slimmedJets")
 process.pileupJetIdCalculator.inputIsCorrected=True
 process.pileupJetIdCalculator.applyJec=True

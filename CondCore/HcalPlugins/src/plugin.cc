@@ -42,12 +42,25 @@ namespace cond {
 
 }
 
+namespace {
+  struct InitHcalElectronicsMap {void operator()(HcalElectronicsMap& e){ e.initialize();}};
+}
+namespace {
+  struct InitHcalDcsMap {void operator()(HcalDcsMap& e){ e.initialize();}};
+}
+namespace {
+  struct InitHcalFrontEndMap {void operator()(HcalFrontEndMap& e){ e.initialize();}};
+}
+namespace {
+  struct InitHcalSiPMCharacteristics {void operator()(HcalSiPMCharacteristics& e){ e.initialize();}};
+}
+
 REGISTER_PLUGIN(HcalPedestalsRcd,HcalPedestals);
 REGISTER_PLUGIN(HcalPedestalWidthsRcd,HcalPedestalWidths);
 REGISTER_PLUGIN(HcalGainsRcd,HcalGains);
 REGISTER_PLUGIN(HcalGainWidthsRcd,HcalGainWidths);
-REGISTER_PLUGIN(HcalElectronicsMapRcd,HcalElectronicsMap);
-REGISTER_PLUGIN(HcalFrontEndMapRcd,HcalFrontEndMap);
+REGISTER_PLUGIN_INIT(HcalElectronicsMapRcd,HcalElectronicsMap,InitHcalElectronicsMap);
+REGISTER_PLUGIN_INIT(HcalFrontEndMapRcd,HcalFrontEndMap,InitHcalFrontEndMap);
 REGISTER_PLUGIN(HcalChannelQualityRcd,HcalChannelQuality);
 REGISTER_PLUGIN(HcalQIEDataRcd,HcalQIEData);
 REGISTER_PLUGIN(HcalQIETypesRcd,HcalQIETypes);
@@ -60,8 +73,8 @@ REGISTER_PLUGIN(HcalTimeCorrsRcd,HcalTimeCorrs);
 REGISTER_PLUGIN(HcalL1TriggerObjectsRcd,HcalL1TriggerObjects);
 REGISTER_PLUGIN(HcalValidationCorrsRcd,HcalValidationCorrs);
 REGISTER_PLUGIN(HcalLutMetadataRcd,HcalLutMetadata);
-REGISTER_PLUGIN(HcalDcsRcd, HcalDcsValues);
-REGISTER_PLUGIN(HcalDcsMapRcd,HcalDcsMap);
+REGISTER_PLUGIN(HcalDcsRcd,HcalDcsValues);
+REGISTER_PLUGIN_INIT(HcalDcsMapRcd,HcalDcsMap,InitHcalDcsMap);
 REGISTER_PLUGIN(HcalRecoParamsRcd,HcalRecoParams);
 REGISTER_PLUGIN(HcalLongRecoParamsRcd,HcalLongRecoParams);
 REGISTER_PLUGIN(HcalZDCLowGainFractionsRcd,HcalZDCLowGainFractions);
@@ -74,7 +87,7 @@ REGISTER_PLUGIN(HcalOOTPileupCorrectionMapCollRcd,OOTPileupCorrectionMapColl);
 REGISTER_PLUGIN(HcalInterpolatedPulseCollRcd,HcalInterpolatedPulseColl);
 REGISTER_PLUGIN(HBHENegativeEFilterRcd,HBHENegativeEFilter);
 REGISTER_PLUGIN(HcalSiPMParametersRcd,HcalSiPMParameters);
-REGISTER_PLUGIN(HcalSiPMCharacteristicsRcd,HcalSiPMCharacteristics);
+REGISTER_PLUGIN_INIT(HcalSiPMCharacteristicsRcd,HcalSiPMCharacteristics,InitHcalSiPMCharacteristics);
 REGISTER_PLUGIN(HcalTPParametersRcd,HcalTPParameters);
 REGISTER_PLUGIN(HcalTPChannelParametersRcd,HcalTPChannelParameters);
 REGISTER_PLUGIN(HFPhase1PMTParamsRcd,HcalItemCollById<HFPhase1PMTData>);

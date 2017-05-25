@@ -11,6 +11,7 @@
 #include <DataFormats/MuonData/interface/MuonDigiCollection.h>
 
 typedef MuonDigiCollection<ME0DetId, ME0DigiPreReco> ME0DigiPreRecoCollection;
+typedef MuonDigiCollection<ME0DetId, int > ME0DigiPreRecoMap;
 
 #endif
 

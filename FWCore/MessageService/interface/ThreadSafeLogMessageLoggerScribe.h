@@ -32,8 +32,8 @@ namespace service {
 //
 // -----------------------------------------------------------------------
 
-class ThreadQueue;
 class ELadministrator;
+class ELstatistics;
 
 class ThreadSafeLogMessageLoggerScribe : public AbstractMLscribe
 {
@@ -71,7 +71,6 @@ private:
   void  configure_dest( ELdestControl & dest_ctrl		
                       , String const &  filename
 		      );
-  void  configure_external_dests( );
 
   template <class T>						// ChangeLog 11
   T getAparameter ( PSet const& p, std::string const & id, T const & def ) 
@@ -99,10 +98,9 @@ private:
   ELdestControl                       early_dest;
   std::vector<edm::propagate_const<std::shared_ptr<std::ofstream>>> file_ps;
   edm::propagate_const<std::shared_ptr<PSet>> job_pset_p;
-  std::vector<NamedDestination     *> extern_dests;
   std::map<String, edm::propagate_const<std::ostream*>> stream_ps;
   std::vector<String> 	  	      ordinary_destination_filenames;
-  std::vector<ELdestControl>          statisticsDestControls;
+  std::vector<std::shared_ptr<ELstatistics>> statisticsDestControls;
   std::vector<bool>                   statisticsResets;
   bool				      clean_slate_configuration;
   value_ptr<MessageLoggerDefaults>    messageLoggerDefaults;
@@ -111,6 +109,8 @@ private:
   std::atomic<int>  count;			// changeLog 9
   std::atomic<bool> m_messageBeingSent;
   tbb::concurrent_queue<ErrorObj*> m_waitingMessages;
+  size_t m_waitingThreshold;
+  std::atomic<unsigned long> m_tooManyWaitingMessagesCount;
   
 };  // ThreadSafeLogMessageLoggerScribe
 

@@ -250,7 +250,7 @@ namespace edm {
 
         std::vector<InputFile> inputFiles_;
         tbb::concurrent_vector<InputFile> inputFilesSecSource_;
-        std::vector<OutputFile> outputFiles_;
+        tbb::concurrent_vector<OutputFile> outputFiles_;
         std::map<std::string, long long> readBranches_;
         std::map<std::string, long long> readBranchesSecFile_;
         tbb::concurrent_unordered_map<std::string, AtomicLongLong> readBranchesSecSource_;

@@ -14,7 +14,7 @@ SiPixelPhase1DigisADC = DefaultHistoDigiCluster.clone(
     StandardSpecificationTrend,
     StandardSpecificationTrend2D,
     StandardSpecificationPixelmapProfile,# ROC level map
-    #StandardSpecification2DProfile, # module level map
+    StandardSpecification2DProfile, # module level map
     StandardSpecifications1D
   )
 )
@@ -82,6 +82,7 @@ SiPixelPhase1DigisNdigisPerFEDtrend = DefaultHisto.clone(
   range_max = 1000,
   range_nbins = 200,
   dimensions = 0,
+  enabled = False,
   specs = VPSet(
   Specification().groupBy("FED/Event") #produce the mean number of digis per event and FED per lumisection
                    .reduce("COUNT")
@@ -179,7 +180,7 @@ SiPixelPhase1DigisConf = cms.VPSet(
 )
 
 SiPixelPhase1DigisAnalyzer = cms.EDAnalyzer("SiPixelPhase1Digis",
-        src = cms.InputTag("simSiPixelDigis"), 
+        src = cms.InputTag("siPixelDigis"), 
         histograms = SiPixelPhase1DigisConf,
         geometry = SiPixelPhase1Geometry
 )

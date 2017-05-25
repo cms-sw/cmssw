@@ -25,7 +25,7 @@ HLTPixelIsolTrackFilter::HLTPixelIsolTrackFilter(const edm::ParameterSet& iConfi
   hltGTseedToken_ = consumes<trigger::TriggerFilterObjectWithRefs>(hltGTseedlabel_);
 }
 
-HLTPixelIsolTrackFilter::~HLTPixelIsolTrackFilter(){}
+HLTPixelIsolTrackFilter::~HLTPixelIsolTrackFilter()= default;
 
 
 void
@@ -74,15 +74,15 @@ bool HLTPixelIsolTrackFilter::hltFilter(edm::Event& iEvent, const edm::EventSetu
   l1trigobj->getObjects(trigger::TriggerL1CenJet, l1jetobjref);
   l1trigobj->getObjects(trigger::TriggerL1ForJet, l1forjetobjref);
 
-  for (unsigned int p=0; p<l1tauobjref.size(); p++)
-    if (l1tauobjref[p]->pt() > ptTriggered)
-      ptTriggered = l1tauobjref[p]->pt();
-  for (unsigned int p=0; p<l1jetobjref.size(); p++)
-    if (l1jetobjref[p]->pt() > ptTriggered)
-      ptTriggered = l1jetobjref[p]->pt();
-  for (unsigned int p=0; p<l1forjetobjref.size(); p++)
-    if (l1forjetobjref[p]->pt() > ptTriggered)
-      ptTriggered = l1forjetobjref[p]->pt();
+  for (auto & p : l1tauobjref)
+    if (p->pt() > ptTriggered)
+      ptTriggered = p->pt();
+  for (auto & p : l1jetobjref)
+    if (p->pt() > ptTriggered)
+      ptTriggered = p->pt();
+  for (auto & p : l1forjetobjref)
+    if (p->pt() > ptTriggered)
+      ptTriggered = p->pt();
 
   int n=0;
   for (unsigned int i=0; i<recotrackcands->size(); i++) {
