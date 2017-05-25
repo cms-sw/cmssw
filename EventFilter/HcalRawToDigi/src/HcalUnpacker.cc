@@ -123,6 +123,7 @@ namespace HcalUnpacker_impl {
     digi.setReadoutIds(eid);
     int error_flags=i.errFlags();
     int capid0=i.capid0();
+    int flavor = i.flavor();
 
     bool isCapRotating=!(error_flags&0x1);
     bool fiberErr=(error_flags&0x2);
@@ -134,19 +135,33 @@ namespace HcalUnpacker_impl {
 
     // what is my sample number?
     int ncurr=0,ntaken=0;
-    for (++i; i!=iend && !i.isHeader(); ++i) {
-      int capidn=(isCapRotating)?((capid0+ncurr)%4):(capid0);
+    if(flavor==5){
+      for (++i; i!=iend && !i.isHeader(); ++i) {
+        int capidn=(isCapRotating)?((capid0+ncurr)%4):(capid0);
       
-      HcalQIESample s(i.adc(),capidn,fiber,fiberchan,dataValid,fiberErr);
+        HcalQIESample s(i.adc(),capidn,fiber,fiberchan,dataValid,fiberErr);
       
-      if (ncurr>=startSample && ncurr<=endSample) {
-	digi.setSample(ntaken,s);
-	++ntaken;
+        if (ncurr>=startSample && ncurr<=endSample) {
+          digi.setSample(ntaken,s);
+          ++ntaken;
+        }
+        ncurr++;
       }
-      ncurr++;
+      digi.setSize(ntaken);
     }
-    digi.setSize(ntaken);
+    else if(flavor==7){ //similar to VME flavor 6, used for premix in MC
+      for (++i; i!=iend && !i.isHeader(); ++i) {
+        if (ncurr>=startSample && ncurr<=endSample) {
+          HcalQIESample sample(i.adc(),i.capid(),fiber,fiberchan,i.dataValid(),i.errFlags());
+          digi.setSample(ntaken,sample);
+          ++ntaken;
+        }
+        ncurr++;
+      }
+      digi.setSize(ntaken);
+    }
   }
+
 }
 
 
@@ -705,7 +720,7 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
 #endif
 	}
       }
-      else if (i.flavor()==0x5) { // Old-style digis
+      else if (i.flavor()==5 || (i.flavor()==7 && i.technicalDataType()==15)) { // Old-style digis
 	int ifiber=((i.channelid()>>2)&0x1F);
 	int ichan=(i.channelid()&0x3);
 	HcalElectronicsId eid(crate,slot,ifiber,ichan, false);

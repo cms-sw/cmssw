@@ -3,7 +3,9 @@
 
 static const int HEADER_LENGTH_16BIT=2*sizeof(uint64_t)/sizeof(uint16_t);
 
-HcalUHTRData::const_iterator::const_iterator(const uint16_t* ptr, const uint16_t* limit) : m_ptr(ptr), m_limit(limit), m_stepclass(0) {
+HcalUHTRData::const_iterator::const_iterator(const uint16_t* ptr, const uint16_t* limit) : 
+  m_ptr(ptr), m_limit(limit), m_stepclass(0), m_technicalDataType(0)
+{
   if (isHeader()) determineMode();
 }
 
@@ -33,21 +35,38 @@ void HcalUHTRData::const_iterator::determineMode() {
   m_stepclass=0;
   if (m_flavor==5) { m_stepclass=1; m_microstep=0; }
   else if (m_flavor == 2) { m_stepclass=2; }
+  if (m_flavor==7) { m_technicalDataType = technicalDataType(); }
+}
+
+int HcalUHTRData::const_iterator::errFlags() const {
+  if ((m_flavor==7 && m_technicalDataType==15) && !isHeader()) return ((*m_ptr)>>11)&0x1;
+  else return ((*m_ptr)>>10)&0x3;
+}
+
+bool HcalUHTRData::const_iterator::dataValid() const {
+  if ((m_flavor==7 && m_technicalDataType==15) && !isHeader()) return ((*m_ptr)>>10)&0x1;
+  else return !(errFlags()&0x2);
+}
+
+int HcalUHTRData::const_iterator::technicalDataType() const {
+  if (m_flavor==7) return ((*m_ptr)>>8)&0xF;
+  else return 0;
 }
 
 uint8_t HcalUHTRData::const_iterator::adc() const {
-  if (m_flavor==0x5 && m_microstep==0) return ((*m_ptr)>>8)&0x7F;
+  if (m_flavor==5 && m_microstep==0) return ((*m_ptr)>>8)&0x7F;
+  else if (m_flavor==7 && m_technicalDataType==15) return (*m_ptr)&0x7F;
   else return (*m_ptr)&0xFF;
 }
 
 uint8_t HcalUHTRData::const_iterator::le_tdc() const {
-  if (m_flavor==0x5) return 0x80;
+  if (m_flavor==5 || (m_flavor==7 && m_technicalDataType==15)) return 0x80;
   else if (m_flavor == 2) return (m_ptr[1]&0x3F);
   else return (((*m_ptr)&0x3F00)>>8);
 }
 
 bool HcalUHTRData::const_iterator::soi() const {
-  if (m_flavor==0x5) return false;
+  if (m_flavor==5 || (m_flavor==7 && m_technicalDataType==15)) return false;
   else if (m_flavor == 2) return (m_ptr[0]&0x2000);
   else return (((*m_ptr)&0x4000));
 }
@@ -59,6 +78,9 @@ uint8_t HcalUHTRData::const_iterator::te_tdc() const {
 
 uint8_t HcalUHTRData::const_iterator::capid() const {
   if (m_flavor==2) return(m_ptr[1]>>12)&0x3;
+  else if (m_flavor==7 && m_technicalDataType==15) {
+    return ((*m_ptr)>>8)&0x3;
+  }
   else if (m_flavor == 1 || m_flavor == 0) {
     // For flavor 0,1 we only get the first capid in the header, and so we need
     // to count the number of data rows and figure out which cap we want,

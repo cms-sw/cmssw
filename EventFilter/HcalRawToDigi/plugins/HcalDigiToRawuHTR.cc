@@ -64,6 +64,7 @@ private:
   edm::Handle<HcalTrigPrimDigiCollection> tpDigiCollection;
 
   edm::InputTag qie10Tag_, qie11Tag_, hbheqie8Tag_, hfqie8Tag_, trigTag_;
+  bool premix_;
 };
 
 HcalDigiToRawuHTR::HcalDigiToRawuHTR(const edm::ParameterSet& iConfig) :
@@ -73,7 +74,8 @@ HcalDigiToRawuHTR::HcalDigiToRawuHTR(const edm::ParameterSet& iConfig) :
   qie11Tag_(iConfig.getParameter<edm::InputTag>("QIE11")),
   hbheqie8Tag_(iConfig.getParameter<edm::InputTag>("HBHEqie8")),
   hfqie8Tag_(iConfig.getParameter<edm::InputTag>("HFqie8")),
-  trigTag_(iConfig.getParameter<edm::InputTag>("TP"))
+  trigTag_(iConfig.getParameter<edm::InputTag>("TP")),
+  premix_(iConfig.getParameter<bool>("premix"))
 {
   produces<FEDRawDataCollection>("");
   tok_QIE10DigiCollection_ = consumes<HcalDataFrameContainer<QIE10DataFrame> >(qie10Tag_);
@@ -174,7 +176,7 @@ void HcalDigiToRawuHTR::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       if( ! uhtrs.exist(uhtrIndex) ){
 	uhtrs.newUHTR( uhtrIndex , presamples );
       }
-      uhtrs.addChannel(uhtrIndex,qiedf,readoutMap,_verbosity);
+      uhtrs.addChannel(uhtrIndex,qiedf,readoutMap,premix_,_verbosity);
     }
   }
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -195,7 +197,7 @@ void HcalDigiToRawuHTR::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       if( ! uhtrs.exist(uhtrIndex) ){
 	uhtrs.newUHTR( uhtrIndex , presamples );
       }
-      uhtrs.addChannel(uhtrIndex,qiedf,readoutMap,_verbosity);
+      uhtrs.addChannel(uhtrIndex,qiedf,readoutMap,premix_,_verbosity);
     }
   }
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -280,6 +282,7 @@ void HcalDigiToRawuHTR::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.add<edm::InputTag>("HBHEqie8", edm::InputTag("simHcalDigis"));
   desc.add<edm::InputTag>("HFqie8", edm::InputTag("simHcalDigis"));
   desc.add<edm::InputTag>("TP", edm::InputTag("simHcalTriggerPrimitiveDigis"));
+  desc.add<bool>("premix", false);
   descriptions.add("hcalDigiToRawuHTR",desc);
   descriptions.addDefault(desc);
 }

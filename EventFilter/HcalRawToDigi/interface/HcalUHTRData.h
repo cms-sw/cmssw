@@ -41,11 +41,13 @@ class HcalUHTRData {
   public:
     const_iterator(const uint16_t* ptr, const uint16_t* limit=0);
     
-    bool isHeader() const { return ((*m_ptr)&0x8000)!=0; }    
-    int flavor() const { return ((*m_ptr)>>12)&0x7; }    
-    int errFlags() const { return ((*m_ptr)>>10)&0x3; }    
-    int capid0() const { return ((*m_ptr)>>8)&0x3; }    
-    int channelid() const { return ((*m_ptr))&0xFF; }    
+    bool isHeader() const { return ((*m_ptr)&0x8000)!=0; }
+    int flavor() const { return ((*m_ptr)>>12)&0x7; }
+    int errFlags() const;
+    bool dataValid() const;
+    int capid0() const { return ((*m_ptr)>>8)&0x3; }
+    int channelid() const { return ((*m_ptr))&0xFF; }
+    int technicalDataType() const;
 
     uint16_t value() const { return *m_ptr; }
 
@@ -72,7 +74,8 @@ class HcalUHTRData {
     int m_microstep;
     int m_stepclass;
     int m_flavor;
-  };    
+    int m_technicalDataType;
+  };
 
   const_iterator begin() const;
   const_iterator end() const;
