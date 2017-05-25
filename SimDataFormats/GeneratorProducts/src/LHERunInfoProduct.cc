@@ -206,7 +206,7 @@ bool HeaderLess::operator() (const LHERunInfoProduct::Header &a,
 }
 
 static std::vector<std::string> checklist{"iseed","Random",".log",".dat",".lhe"};
-static std::vector<std::string> tag_checklist{"","Alpgen","MGGridCard","MGRunCard","mgruncard","MadSpin","madspin"};
+static std::vector<std::string> tag_comparison_checklist{"","MGRunCard","mgruncard"};
 
 bool LHERunInfoProduct::find_if_checklist(const std::string x, std::vector<std::string> checklist) {
     return checklist.end() != std::find_if(checklist.begin(),checklist.end(),[&](const std::string& y)
@@ -246,7 +246,7 @@ bool LHERunInfoProduct::mergeProduct(const LHERunInfoProduct &other)
     std::vector<std::string> runcard_v2_header;
     for(auto header2 : headers_) {
         // fill a vector with the relevant header tags that can be not equal but sill compatible
-        if(header2.tag()=="MGRunCard" || header2.tag() == "mgruncard" || header2.tag() == ""){
+        if(find_if_checklist(header2.tag(),tag_comparison_checklist)){
           runcard_v2.push_back(header2.lines());
           runcard_v2_header.push_back(header2.tag());
         }
@@ -262,7 +262,7 @@ bool LHERunInfoProduct::mergeProduct(const LHERunInfoProduct &other)
 				continue;
 			}
             
-      if(header->tag()=="MGRunCard" || header->tag() == "mgruncard" || header->tag() == ""){
+      if(find_if_checklist(header->tag(),tag_comparison_checklist)){
         bool header_compatible = false;
         for (unsigned int iter_runcard = 0; iter_runcard < runcard_v2.size(); iter_runcard++){
           
@@ -282,9 +282,7 @@ bool LHERunInfoProduct::mergeProduct(const LHERunInfoProduct &other)
         if(header_compatible) continue;
       }
       
-			if( !find_if_checklist(header->tag(),tag_checklist)
-        // aka isTagComparedInMerge
-        ){ 
+			if(isTagComparedInMerge(header->tag())){ 
 				failed = true;
 			} else {
 				addHeader(*header);	
