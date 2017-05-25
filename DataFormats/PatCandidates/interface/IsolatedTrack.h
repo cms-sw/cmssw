@@ -34,26 +34,26 @@ namespace pat {
           matchedCaloJetEmEnergy_(0.), matchedCaloJetHadEnergy_(0.),
           dz_(0.), dxy_(0.), dzError_(0.), dxyError_(0.), fromPV_(-1), trackQuality_(0),
           dEdxStrip_(0), dEdxPixel_(0), hitPattern_(reco::HitPattern()),
-          crossedEcalIds_(std::vector<DetId>()), crossedHcalIds_(std::vector<HcalDetId>()),
           crossedEcalStatus_(std::vector<EcalChannelStatusCode>()),
           crossedHcalStatus_(std::vector<uint32_t>()),
+          deltaEta_(0), deltaPhi_(0),
           packedCandRef_(PackedCandidateRef()) {}
 
         explicit IsolatedTrack(const PFIsolation &iso, const PFIsolation &miniiso, float caloJetEm, float caloJetHad,
-                              const LorentzVector &p4, int charge, int id,
-                              float dz, float dxy, float dzError, float dxyError,
-                              const reco::HitPattern &hp, float dEdxS, float dEdxP, int fromPV, int tkQual,
-                              const std::vector<DetId> & ecalid, const std::vector<HcalDetId> & hcalid,
-                              const std::vector<EcalChannelStatusCode> &ecalst,
-                              const std::vector<uint32_t> & hcalst,
-                              const PackedCandidateRef &pcref) :
+                               const LorentzVector &p4, int charge, int id,
+                               float dz, float dxy, float dzError, float dxyError,
+                               const reco::HitPattern &hp, float dEdxS, float dEdxP, int fromPV, int tkQual,
+                               const std::vector<EcalChannelStatusCode> &ecalst,
+                               const std::vector<uint32_t> & hcalst, int dEta, int dPhi,
+                               const PackedCandidateRef &pcref) :
           LeafCandidate(charge, p4, Point(0.,0.,0.), id),
           pfIsolationDR03_(iso), miniIsolation_(miniiso), 
           matchedCaloJetEmEnergy_(caloJetEm), matchedCaloJetHadEnergy_(caloJetHad),
           dz_(dz), dxy_(dxy), dzError_(dzError), dxyError_(dxyError),
           fromPV_(fromPV), trackQuality_(tkQual), dEdxStrip_(dEdxS), dEdxPixel_(dEdxP), 
-          hitPattern_(hp), crossedEcalIds_(ecalid), crossedHcalIds_(hcalid),
+          hitPattern_(hp), 
           crossedEcalStatus_(ecalst), crossedHcalStatus_(hcalst),
+          deltaEta_(dEta), deltaPhi_(dPhi),
           packedCandRef_(pcref) {}
 
         ~IsolatedTrack() {}
@@ -84,18 +84,11 @@ namespace pat {
         float dEdxStrip() const { return dEdxStrip_; }
         float dEdxPixel() const { return dEdxPixel_; }
 
-        const std::vector<DetId>&     crossedEcalIds() const { return crossedEcalIds_; }
-        const std::vector<HcalDetId>& crossedHcalIds() const { return crossedHcalIds_; }
-
         const std::vector<EcalChannelStatusCode>& crossedEcalStatus() const { return crossedEcalStatus_; }
-        // HcalChannelStatus duplicates DetId info.
-        // Only store the status code value, and here construct the full object
-        const std::vector<HcalChannelStatus> crossedHcalStatus() const {
-            std::vector<HcalChannelStatus> status;
-            for(unsigned int i=0; i<crossedHcalIds_.size(); i++)
-                status.push_back(HcalChannelStatus(crossedHcalIds_[i].rawId(), crossedHcalStatus_[i]));
-            return status;
-        }
+        const std::vector<uint32_t> crossedHcalStatus() const { return crossedHcalStatus_; }
+
+        float deltaEta() const { return float(deltaEta_)/250*0.5; }
+        float deltaPhi() const { return float(deltaPhi_)/250*0.5; }
 
         const PackedCandidateRef& packedCandRef() const { return packedCandRef_; }
 
@@ -111,10 +104,9 @@ namespace pat {
 
         reco::HitPattern hitPattern_;
 
-        std::vector<DetId> crossedEcalIds_;
-        std::vector<HcalDetId> crossedHcalIds_;
         std::vector<EcalChannelStatusCode> crossedEcalStatus_;
-        std::vector<uint32_t> crossedHcalStatus_;
+        std::vector<uint32_t> crossedHcalStatus_; // just the "code" part of HcalChannelStatus
+        int deltaEta_, deltaPhi_; // difference in eta/phi between initial traj and intersection w/ ecal
 
         PackedCandidateRef packedCandRef_;
 

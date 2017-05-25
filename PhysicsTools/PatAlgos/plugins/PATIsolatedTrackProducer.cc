@@ -267,11 +267,18 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
             crossedEcalStatus.push_back(*(ecalS->find(did.rawId())));
         }
 
+        int deltaEta = int((trackDetInfo.trkGlobPosAtEcal.eta() - gentk.eta())/0.5 * 250);
+        int deltaPhi = int((trackDetInfo.trkGlobPosAtEcal.phi() - gentk.phi())/0.5 * 250);
+        if(deltaEta < -250) deltaEta = -250;
+        if(deltaEta > 250)  deltaEta = 250;
+        if(deltaPhi < -250) deltaPhi = -250;
+        if(deltaPhi > 250)  deltaPhi = 250;
+
         outPtrP->push_back(pat::IsolatedTrack(isolationDR03, miniIso, caloJetEm, caloJetHad, p4,
-                                             charge, pdgId, dz, dxy, dzError, dxyError,
-                                             gentk.hitPattern(), dEdxStrip, dEdxPixel, fromPV, trackQuality, 
-                                             trackDetInfo.crossedEcalIds, crossedHcalIds,
-                                             crossedEcalStatus, crossedHcalStatus, refToCand));
+                                              charge, pdgId, dz, dxy, dzError, dxyError,
+                                              gentk.hitPattern(), dEdxStrip, dEdxPixel, fromPV, trackQuality,
+                                              crossedEcalStatus, crossedHcalStatus,
+                                              deltaEta, deltaPhi, refToCand));
 
     }
 
@@ -331,11 +338,13 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
         std::vector<HcalDetId> hcalIds;
         std::vector<EcalChannelStatusCode> ecalStatus;
         std::vector<uint32_t> hcalStatus;
+        int deltaEta=0;
+        int deltaPhi=0;
 
         outPtrP->push_back(pat::IsolatedTrack(isolationDR03, miniIso, caloJetEm, caloJetHad, p4,
-                                             charge, pdgId, dz, dxy, dzError, dxyError,
-                                             hp, dEdxStrip, dEdxPixel, fromPV, trackQuality, 
-                                             ecalIds, hcalIds, ecalStatus, hcalStatus, refToCand));
+                                              charge, pdgId, dz, dxy, dzError, dxyError,
+                                              hp, dEdxStrip, dEdxPixel, fromPV, trackQuality,
+                                              ecalStatus, hcalStatus, deltaEta, deltaPhi, refToCand));
     }
 
     iEvent.put(std::move(outPtrP));
