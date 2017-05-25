@@ -12,7 +12,17 @@ dummy.jetSelection = cms.string('pt>20 & abs(eta)<2.4')
 dummy.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Ele30_eta2p1_WPTight_Gsf_CentralPFJet35_EleCleaned')
 dummy.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Ele30_eta2p1_WPTight_Gsf_CentralPFJet35_EleCleaned')
 
+test = hltTOPmonitoring.clone()
+test.FolderName = cms.string('HLT/TOP/test/')
+test.nmuons = cms.int32(0)
+test.nelectrons = cms.int32(1)
+test.njets = cms.int32(1)
+test.eleSelection = cms.string('pt>15 & abs(eta)<2.4')
+test.jetSelection = cms.string('pt>20 & abs(eta)<2.4')
+test.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Ele30_eta2p1_WPTight_Gsf_CentralPFJet35_EleCleaned')
+test.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Ele30_eta2p1_WPTight_Gsf_v*')
 
 topMonitorHLT = cms.Sequence(
     dummy
+    + test
 )
