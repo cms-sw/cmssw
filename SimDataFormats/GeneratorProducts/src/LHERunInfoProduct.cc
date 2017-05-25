@@ -206,7 +206,6 @@ bool HeaderLess::operator() (const LHERunInfoProduct::Header &a,
 }
 
 static std::vector<std::string> checklist{"iseed","Random",".log",".dat",".lhe"};
-static std::vector<std::string> tag_checklist{"","Alpgen","MGGridCard","MGRunCard","mgruncard","MadSpin","madspin"};
 static std::vector<std::string> tag_comparison_checklist{"","MGRunCard","mgruncard"};
 
 bool LHERunInfoProduct::find_if_checklist(const std::string x, std::vector<std::string> checklist) {
@@ -217,10 +216,6 @@ bool LHERunInfoProduct::find_if_checklist(const std::string x, std::vector<std::
 bool LHERunInfoProduct::isTagComparedInMerge(const std::string& tag) {
         return !(tag == "" || tag.find("Alpgen") == 0 || tag == "MGGridCard" || tag=="MGRunCard" || tag == "mgruncard" || tag=="MadSpin" || tag=="madspin");
 }
-
-// bool LHERunInfoProduct::isTagComparedInMerge(const std::string& tag) {
-        // return !find_if_checklist(tag,tag_checklist);
-// }
 
 bool LHERunInfoProduct::mergeProduct(const LHERunInfoProduct &other)
 {
@@ -287,9 +282,7 @@ bool LHERunInfoProduct::mergeProduct(const LHERunInfoProduct &other)
         if(header_compatible) continue;
       }
       
-			if( !find_if_checklist(header->tag(),tag_checklist)
-        // aka isTagComparedInMerge
-        ){ 
+			if( !isTagComparedInMerge(header->tag()) ){ 
 				failed = true;
 			} else {
 				addHeader(*header);	
