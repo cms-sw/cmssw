@@ -14,6 +14,7 @@ topEfficiency = cms.EDAnalyzer("DQMGenericClient",
         "effic_jetPhi       'jet efficiency vs phi; jet phi ; efficiency' jetPhi_numerator       jetPhi_denominator",
         "effic_jetEta       'jet efficiency vs eta; jet eta ; efficiency' jetEta_numerator       jetEta_denominator",
         "effic_jetPt       'jet efficiency vs pt; jet pt [GeV]; efficiency' jetPt_numerator       jetPt_denominator",
+        "effic_eventHT       'efficiency vs event HT; event HT [GeV]; efficiency' eventHT_numerator       eventHT_denominator",
     ),
 )
 

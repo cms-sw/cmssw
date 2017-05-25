@@ -24,11 +24,19 @@ hltTOPmonitoring.histoPSet.etaPSet = cms.PSet(
   xmin  = cms.double(   -2.4),
   xmax  = cms.double(2.4),
 )
+hltTOPmonitoring.histoPSet.htPSet = cms.PSet(
+  nbins = cms.int32 (  200  ),
+  xmin  = cms.double(   -0.5),
+  xmax  = cms.double(500),
+)
 
 hltTOPmonitoring.met       = cms.InputTag("pfMetEI") # pfMet
 hltTOPmonitoring.jets      = cms.InputTag("pfJetsEI") # ak4PFJets, ak4PFJetsCHS
 hltTOPmonitoring.electrons = cms.InputTag("gedGsfElectrons") # while pfIsolatedElectronsEI are reco::PFCandidate !
 hltTOPmonitoring.muons     = cms.InputTag("muons") # while pfIsolatedMuonsEI are reco::PFCandidate !
+
+hltTOPmonitoring.HTdefinition = cms.string('pt>30 & abs(eta)<2.5')
+hltTOPmonitoring.leptJetDeltaRmin = cms.string('0.4')
 
 hltTOPmonitoring.numGenericTriggerEventPSet.andOr         = cms.bool( False )
 #hltTOPmonitoring.numGenericTriggerEventPSet.dbLabel       = cms.string("ExoDQMTrigger") # it does not exist yet, we should consider the possibility of using the DB, but as it is now it will need a label per path !

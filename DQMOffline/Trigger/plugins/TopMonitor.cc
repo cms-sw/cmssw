@@ -23,15 +23,18 @@ TopMonitor::TopMonitor( const edm::ParameterSet& iConfig ) :
   , phi_binning_          ( getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("phiPSet")    ) )
   , pt_binning_           ( getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("ptPSet")    ) )
   , eta_binning_          ( getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("etaPSet")    ) )
+  , HT_binning_           ( getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("htPSet")    ) )
   , num_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet"),consumesCollector(), *this))
   , den_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("denGenericTriggerEventPSet"),consumesCollector(), *this))
   , metSelection_ ( iConfig.getParameter<std::string>("metSelection") )
   , jetSelection_ ( iConfig.getParameter<std::string>("jetSelection") )
   , eleSelection_ ( iConfig.getParameter<std::string>("eleSelection") )
   , muoSelection_ ( iConfig.getParameter<std::string>("muoSelection") )
+  , HTdefinition_ ( iConfig.getParameter<std::string>("HTdefinition") )
   , njets_      ( iConfig.getParameter<int>("njets" )      )
   , nelectrons_ ( iConfig.getParameter<int>("nelectrons" ) )
   , nmuons_     ( iConfig.getParameter<int>("nmuons" )     )
+  , leptJetDeltaRmin_     ( iConfig.getParameter<double>("leptJetDeltaRmin" )     )
 {
 
   metME_.numerator   = nullptr;
@@ -195,6 +198,10 @@ void TopMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   bookME(ibooker,jetEta_,histname,histtitle, eta_binning_.nbins,eta_binning_.xmin, eta_binning_.xmax);
   setMETitle(jetEta_," jet #eta","events");
 
+  histname = "eventHT"; histtitle = "event HT";
+  bookME(ibooker,eventHT_,histname,histtitle, HT_binning_.nbins,HT_binning_.xmin, HT_binning_.xmax);
+  setMETitle(eventHT_," event HT [GeV]","events");
+
 
   // Initialize the GenericTriggerEventFlag
   if ( num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on() ) num_genTriggerEventFlag_->initRun( iRun, iSetup );
@@ -237,27 +244,36 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   }
   if ( int(muons.size()) < nmuons_ ) return;
 
+  double eventHT = 0.;
+
   edm::Handle<reco::PFJetCollection> jetHandle;
   iEvent.getByToken( jetToken_, jetHandle );
   std::vector<reco::PFJet> jets;
   if ( int(jetHandle->size()) < njets_ ) return;
   for ( auto const & j : *jetHandle ) {
+      if ( HTdefinition_ ( j ) ){
+          eventHT += j.pt();
+      }
       if ( jetSelection_( j ) ){
           bool isJetOverlappedWithLepton = false;
           TLorentzVector jp4; jp4.SetPtEtaPhiE(j.pt(),j.eta(),j.phi(),j.energy());
-          for (auto const m : muons){
-              TLorentzVector mp4; mp4.SetPtEtaPhiE(m.pt(),m.eta(),m.phi(),m.energy());
-              if (mp4.DeltaR(jp4)<0.4){
-                  isJetOverlappedWithLepton=true;
-                  break;
+          if(nmuons_>0){
+              for (auto const m : muons){
+                  TLorentzVector mp4; mp4.SetPtEtaPhiE(m.pt(),m.eta(),m.phi(),m.energy());
+                  if (mp4.DeltaR(jp4)<leptJetDeltaRmin_){
+                      isJetOverlappedWithLepton=true;
+                      break;
+                  }
               }
           }
           if (isJetOverlappedWithLepton) continue;
-          for (auto const e : electrons){
-              TLorentzVector ep4; ep4.SetPtEtaPhiE(e.pt(),e.eta(),e.phi(),e.energy());
-              if (ep4.DeltaR(jp4)<0.4){
-                  isJetOverlappedWithLepton=true;
-                  break;
+          if(nelectrons_>0){
+              for (auto const e : electrons){
+                  TLorentzVector ep4; ep4.SetPtEtaPhiE(e.pt(),e.eta(),e.phi(),e.energy());
+                  if (ep4.DeltaR(jp4)<leptJetDeltaRmin_){
+                      isJetOverlappedWithLepton=true;
+                      break;
+                  }
               }
           }
           if (isJetOverlappedWithLepton) continue;
@@ -271,6 +287,7 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   metME_.denominator -> Fill(met);
   metME_variableBinning_.denominator -> Fill(met);
   metPhiME_.denominator -> Fill(phi);
+  eventHT_.denominator -> Fill(eventHT);
 
   int ls = iEvent.id().luminosityBlock();
   metVsLS_.denominator -> Fill(ls, met);
@@ -300,6 +317,7 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   metME_variableBinning_.numerator -> Fill(met);
   metPhiME_.numerator -> Fill(phi);
   metVsLS_.numerator -> Fill(ls, met);
+  eventHT_.numerator -> Fill(eventHT);
 
   if (muons.size()>0 && nmuons_>0){
       muPhi_.numerator  -> Fill(muons.at(0).phi());
@@ -344,9 +362,11 @@ void TopMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   desc.add<std::string>("jetSelection", "pt > 0");
   desc.add<std::string>("eleSelection", "pt > 0");
   desc.add<std::string>("muoSelection", "pt > 0");
+  desc.add<std::string>("HTdefinition", "pt > 0");
   desc.add<int>("njets",      0);
   desc.add<int>("nelectrons", 0);
   desc.add<int>("nmuons",     0);
+  desc.add<double>("leptJetDeltaRmin", 0);
 
   edm::ParameterSetDescription genericTriggerEventPSet;
   genericTriggerEventPSet.add<bool>("andOr");
@@ -370,14 +390,17 @@ void TopMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   edm::ParameterSetDescription phiPSet;
   edm::ParameterSetDescription etaPSet;
   edm::ParameterSetDescription ptPSet;
+  edm::ParameterSetDescription htPSet;
   fillHistoPSetDescription(metPSet);
   fillHistoPSetDescription(phiPSet);
   fillHistoPSetDescription(ptPSet);
   fillHistoPSetDescription(etaPSet);
+  fillHistoPSetDescription(htPSet);
   histoPSet.add<edm::ParameterSetDescription>("metPSet", metPSet);
   histoPSet.add<edm::ParameterSetDescription>("etaPSet", etaPSet);
   histoPSet.add<edm::ParameterSetDescription>("phiPSet", phiPSet);
   histoPSet.add<edm::ParameterSetDescription>("ptPSet", ptPSet);
+  histoPSet.add<edm::ParameterSetDescription>("htPSet", htPSet);
   std::vector<double> bins = {0.,20.,40.,60.,80.,90.,100.,110.,120.,130.,140.,150.,160.,170.,180.,190.,200.,220.,240.,260.,280.,300.,350.,400.,450.,1000.};
   histoPSet.add<std::vector<double> >("metBinning", bins);
 

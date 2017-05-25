@@ -102,6 +102,7 @@ private:
   MEbinning           phi_binning_;
   MEbinning           pt_binning_;
   MEbinning           eta_binning_;
+  MEbinning           HT_binning_;
 
   METME muPhi_;
   METME muEta_;
@@ -115,6 +116,8 @@ private:
   METME jetEta_;
   METME jetPt_;
 
+  METME eventHT_;
+
   GenericTriggerEventFlag* num_genTriggerEventFlag_;
   GenericTriggerEventFlag* den_genTriggerEventFlag_;
 
@@ -122,9 +125,12 @@ private:
   StringCutObjectSelector<reco::PFJet,true   >    jetSelection_;
   StringCutObjectSelector<reco::GsfElectron,true> eleSelection_;
   StringCutObjectSelector<reco::Muon,true>        muoSelection_;
+  StringCutObjectSelector<reco::PFJet,true   >    HTdefinition_;
+
   int njets_;
   int nelectrons_;
   int nmuons_;
+  double leptJetDeltaRmin_;
 
 };
 
