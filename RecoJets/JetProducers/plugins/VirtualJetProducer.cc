@@ -6,7 +6,9 @@
 //            04/21/2009 Philipp Schieferdecker <philipp.schieferdecker@cern.ch>
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "RecoJets/JetProducers/plugins/VirtualJetProducer.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "RecoJets/JetProducers/interface/VirtualJetProducer.h"
 #include "RecoJets/JetProducers/interface/BackgroundEstimator.h"
 #include "RecoJets/JetProducers/interface/VirtualJetProducerHelper.h"
 
@@ -51,6 +53,7 @@
 #include <vdt/vdtMath.h>
 
 using namespace std;
+using namespace edm;
 
 
 namespace reco {
@@ -116,178 +119,128 @@ void VirtualJetProducer::makeProduces( std::string alias, std::string tag )
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig)
-  : moduleLabel_   (iConfig.getParameter<string>       ("@module_label"))
-  , src_           (iConfig.getParameter<edm::InputTag>("src"))
-  , srcPVs_        (iConfig.getParameter<edm::InputTag>("srcPVs"))
-  , jetType_       (iConfig.getParameter<string>       ("jetType"))
-  , jetAlgorithm_  (iConfig.getParameter<string>       ("jetAlgorithm"))
-  , rParam_        (iConfig.getParameter<double>       ("rParam"))
-  , inputEtMin_    (iConfig.getParameter<double>       ("inputEtMin"))
-  , inputEMin_     (iConfig.getParameter<double>       ("inputEMin"))
-  , jetPtMin_      (iConfig.getParameter<double>       ("jetPtMin"))
-  , doPVCorrection_(iConfig.getParameter<bool>         ("doPVCorrection"))
-  , restrictInputs_(false)
-  , maxInputs_(99999999)
-  , doAreaFastjet_ (iConfig.getParameter<bool>         ("doAreaFastjet"))
-  , useExplicitGhosts_(false)
-  , doAreaDiskApprox_       (false)
-  , doRhoFastjet_  (iConfig.getParameter<bool>         ("doRhoFastjet"))
-  , voronoiRfact_           (-9)
-  , doPUOffsetCorr_(iConfig.getParameter<bool>         ("doPUOffsetCorr"))
-  , puWidth_(0)
-  , nExclude_(0)
-  , jetCollInstanceName_ ("")
-  , writeCompound_ ( false )
-  , verbosity_(0)
-  , fromHTTTopJetProducer_(0)
-{
-  anomalousTowerDef_ = std::auto_ptr<AnomalousTower>(new AnomalousTower(iConfig));
+VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig) {
 
-  //
-  // additional parameters to think about:
-  // - overlap threshold (set to 0.75 for the time being)
-  // - p parameter for generalized kT (set to -2 for the time being)
-  // - fastjet PU subtraction parameters (not yet considered)
-  //
-  if (jetAlgorithm_=="SISCone") {
-    fjPlugin_ = PluginPtr( new fastjet::SISConePlugin(rParam_,0.75,0,0.0,false,
-                                                      fastjet::SISConePlugin::SM_pttilde) );
-    fjJetDefinition_= JetDefPtr( new fastjet::JetDefinition(&*fjPlugin_) );
-  }
-  else if (jetAlgorithm_=="IterativeCone") {
-    fjPlugin_ = PluginPtr(new fastjet::CMSIterativeConePlugin(rParam_,1.0));
-    fjJetDefinition_= JetDefPtr(new fastjet::JetDefinition(&*fjPlugin_));
-  }
-  else if (jetAlgorithm_=="CDFMidPoint") {
-    fjPlugin_ = PluginPtr(new fastjet::CDFMidPointPlugin(rParam_,0.75));
-    fjJetDefinition_= JetDefPtr(new fastjet::JetDefinition(&*fjPlugin_));
-  }
-  else if (jetAlgorithm_=="ATLASCone") {
-    fjPlugin_ = PluginPtr(new fastjet::ATLASConePlugin(rParam_));
-    fjJetDefinition_= JetDefPtr(new fastjet::JetDefinition(&*fjPlugin_));
-  }
-  else if (jetAlgorithm_=="Kt")
-    fjJetDefinition_= JetDefPtr(new fastjet::JetDefinition(fastjet::kt_algorithm,rParam_));
-  else if (jetAlgorithm_=="CambridgeAachen")
-    fjJetDefinition_= JetDefPtr(new fastjet::JetDefinition(fastjet::cambridge_algorithm,
-                                                           rParam_) );
-  else if (jetAlgorithm_=="AntiKt")
-    fjJetDefinition_= JetDefPtr( new fastjet::JetDefinition(fastjet::antikt_algorithm,rParam_) );
-  else if (jetAlgorithm_=="GeneralizedKt")
-    fjJetDefinition_= JetDefPtr( new fastjet::JetDefinition(fastjet::genkt_algorithm,
-                                                            rParam_,-2) );
-  else
-    throw cms::Exception("Invalid jetAlgorithm")
-      <<"Jet algorithm for VirtualJetProducer is invalid, Abort!\n";
-  
-  jetTypeE=JetType::byName(jetType_);
+	moduleLabel_   		= iConfig.getParameter<string> ("@module_label");
+	jetType_       		= iConfig.getParameter<string> 	("jetType");
+	jetAlgorithm_  		= iConfig.getParameter<string>  ("jetAlgorithm");
+	rParam_        		= iConfig.getParameter<double>  ("rParam");
+	inputEtMin_    		= iConfig.getParameter<double>  ("inputEtMin");
+	inputEMin_     		= iConfig.getParameter<double>  ("inputEMin");
+	jetPtMin_      		= iConfig.getParameter<double>  ("jetPtMin");
+	doPVCorrection_		= iConfig.getParameter<bool>    ("doPVCorrection");
+	doAreaFastjet_ 		= iConfig.getParameter<bool>    ("doAreaFastjet");
+	doRhoFastjet_  		= iConfig.getParameter<bool>    ("doRhoFastjet");
+	jetCollInstanceName_ 	= iConfig.getParameter<string>	("jetCollInstanceName");
+	doPUOffsetCorr_		= iConfig.getParameter<bool>	("doPUOffsetCorr");
+	puSubtractorName_  	= iConfig.getParameter<string>	("subtractorName");
+	useExplicitGhosts_ 	= iConfig.getParameter<bool>	("useExplicitGhosts");  // use explicit ghosts in the fastjet clustering sequence?
+	doAreaDiskApprox_ 	= iConfig.getParameter<bool>	("doAreaDiskApprox");
+	voronoiRfact_     	= iConfig.getParameter<double>	("voronoiRfact"); 	// Voronoi-based area calculation allows for an empirical scale factor
+	rhoEtaMax		= iConfig.getParameter<double>	("Rho_EtaMax"); 		// do fasjet area / rho calcluation? => accept corresponding parameters
+	ghostEtaMax 		= iConfig.getParameter<double>	("Ghost_EtaMax");
+	activeAreaRepeats 	= iConfig.getParameter<int> 	("Active_Area_Repeats");
+	ghostArea 		= iConfig.getParameter<double> 	("GhostArea");
+	restrictInputs_ 	= iConfig.getParameter<bool>	("restrictInputs"); 	// restrict inputs to first "maxInputs" towers?
+	maxInputs_      	= iConfig.getParameter<unsigned int>("maxInputs");
+	writeCompound_ 		= iConfig.getParameter<bool>	("writeCompound"); 	// Check to see if we are writing compound jets for substructure and jet grooming
+	doFastJetNonUniform_ 	= iConfig.getParameter<bool>   	("doFastJetNonUniform");
+	puWidth_ 		= iConfig.getParameter<double>	("puWidth");
+	nExclude_ 		= iConfig.getParameter<unsigned int>("nExclude");
+	useDeterministicSeed_ 	= iConfig.getParameter<bool>	("useDeterministicSeed");
+	minSeed_ 		= iConfig.getParameter<unsigned int>("minSeed");
+	verbosity_ 		= iConfig.getParameter<int>	("verbosity");
 
-  if ( iConfig.exists("jetCollInstanceName") ) {
-    jetCollInstanceName_ = iConfig.getParameter<string>("jetCollInstanceName");
-  }
+	anomalousTowerDef_ = auto_ptr<AnomalousTower>(new AnomalousTower(iConfig));
 
-  if ( doPUOffsetCorr_ ) {
+	input_vertex_token_ = consumes<reco::VertexCollection>(iConfig.getParameter<InputTag>("srcPVs"));
+	input_candidateview_token_ = consumes<reco::CandidateView>(iConfig.getParameter<edm::InputTag>("src"));
+	input_candidatefwdptr_token_ = consumes<vector<edm::FwdPtr<reco::PFCandidate> > >(iConfig.getParameter<edm::InputTag>("src"));
+	input_packedcandidatefwdptr_token_ = consumes<vector<edm::FwdPtr<pat::PackedCandidate> > >(iConfig.getParameter<edm::InputTag>("src"));
+	//
+	// additional parameters to think about:
+	// - overlap threshold (set to 0.75 for the time being)
+	// - p parameter for generalized kT (set to -2 for the time being)
+	// - fastjet PU subtraction parameters (not yet considered)
+	//
+	if (jetAlgorithm_=="Kt") 
+		fjJetDefinition_= JetDefPtr(new fastjet::JetDefinition(fastjet::kt_algorithm,rParam_));
 
-     if(iConfig.exists("subtractorName")) puSubtractorName_  =  iConfig.getParameter<string> ("subtractorName");
-     else puSubtractorName_ = std::string();
-     
-     if(puSubtractorName_.empty()){
-       edm::LogWarning("VirtualJetProducer") << "Pile Up correction on; however, pile up type is not specified. Using default... \n";
-       subtractor_ =  boost::shared_ptr<PileUpSubtractor>(new PileUpSubtractor(iConfig, consumesCollector()));
-     }else{
-       subtractor_ =  boost::shared_ptr<PileUpSubtractor>(PileUpSubtractorFactory::get()->create( puSubtractorName_, iConfig, consumesCollector()));
-     }
-  }
+	else if (jetAlgorithm_=="CambridgeAachen")
+		fjJetDefinition_= JetDefPtr(new fastjet::JetDefinition(fastjet::cambridge_algorithm,rParam_) );
 
-  // use explicit ghosts in the fastjet clustering sequence?
-  if ( iConfig.exists("useExplicitGhosts") ) {
-    useExplicitGhosts_ = iConfig.getParameter<bool>("useExplicitGhosts");
-  }
+	else if (jetAlgorithm_=="AntiKt")
+		fjJetDefinition_= JetDefPtr( new fastjet::JetDefinition(fastjet::antikt_algorithm,rParam_) );
 
-  // do approximate disk-based area calculation => warn if conflicting request
-  if (iConfig.exists("doAreaDiskApprox")) {
-    doAreaDiskApprox_ = iConfig.getParameter<bool>("doAreaDiskApprox");
-    if (doAreaDiskApprox_ && doAreaFastjet_)
-      throw cms::Exception("Conflicting area calculations") << "Both the calculation of jet area via fastjet and via an analytical disk approximation have been requested. Please decide on one.\n";
+	else if (jetAlgorithm_=="GeneralizedKt") 
+		fjJetDefinition_= JetDefPtr( new fastjet::JetDefinition(fastjet::genkt_algorithm,rParam_,-2) );
 
-  }
-  // turn off jet collection output for speed
-  // Voronoi-based area calculation allows for an empirical scale factor
-  if (iConfig.exists("voronoiRfact"))
-    voronoiRfact_     = iConfig.getParameter<double>("voronoiRfact");
+	else if (jetAlgorithm_=="SISCone") {
 
+		fjPlugin_ = PluginPtr( new fastjet::SISConePlugin(rParam_,0.75,0,0.0,false,fastjet::SISConePlugin::SM_pttilde) );
+		fjJetDefinition_= JetDefPtr( new fastjet::JetDefinition(&*fjPlugin_) );
 
-  // do fasjet area / rho calcluation? => accept corresponding parameters
-  if ( doAreaFastjet_ || doRhoFastjet_ ) {
-    // Eta range of jets to be considered for Rho calculation
-    // Should be at most (jet acceptance - jet radius)
-    double rhoEtaMax=iConfig.getParameter<double>("Rho_EtaMax");
-    // default Ghost_EtaMax should be 5
-    double ghostEtaMax = iConfig.getParameter<double>("Ghost_EtaMax");
-    // default Active_Area_Repeats 1
-    int    activeAreaRepeats = iConfig.getParameter<int> ("Active_Area_Repeats");
-    // default GhostArea 0.01
-    double ghostArea = iConfig.getParameter<double> ("GhostArea");
-    if (voronoiRfact_ <= 0) {
-      fjActiveArea_     = ActiveAreaSpecPtr(new fastjet::GhostedAreaSpec(ghostEtaMax,activeAreaRepeats,ghostArea));
-      fjActiveArea_->set_fj2_placement(true);
-      if ( ! useExplicitGhosts_ ) {
-	fjAreaDefinition_ = AreaDefinitionPtr( new fastjet::AreaDefinition(fastjet::active_area, *fjActiveArea_ ) );
-      } else {
-	fjAreaDefinition_ = AreaDefinitionPtr( new fastjet::AreaDefinition(fastjet::active_area_explicit_ghosts, *fjActiveArea_ ) );
-      }
-    }
-    fjRangeDef_ = RangeDefPtr( new fastjet::RangeDefinition(rhoEtaMax) );
-  } 
+	} else if (jetAlgorithm_=="IterativeCone") {
 
-  // restrict inputs to first "maxInputs" towers?
-  if ( iConfig.exists("restrictInputs") ) {
-    restrictInputs_ = iConfig.getParameter<bool>("restrictInputs");
-    maxInputs_      = iConfig.getParameter<unsigned int>("maxInputs");
-  }
- 
+		fjPlugin_ = PluginPtr(new fastjet::CMSIterativeConePlugin(rParam_,1.0));
+		fjJetDefinition_= JetDefPtr(new fastjet::JetDefinition(&*fjPlugin_));
 
-  string alias=iConfig.getUntrackedParameter<string>("alias",moduleLabel_);
+	} else if (jetAlgorithm_=="CDFMidPoint") {
 
+		fjPlugin_ = PluginPtr(new fastjet::CDFMidPointPlugin(rParam_,0.75));
+		fjJetDefinition_= JetDefPtr(new fastjet::JetDefinition(&*fjPlugin_));
 
-  // Check to see if we are writing compound jets for substructure
-  // and jet grooming
-  if ( iConfig.exists("writeCompound") ) {
-    writeCompound_ = iConfig.getParameter<bool>("writeCompound");
-  }
+	} else if (jetAlgorithm_=="ATLASCone") {
 
-  // make the "produces" statements
-  makeProduces( alias, jetCollInstanceName_ );
+		fjPlugin_ = PluginPtr(new fastjet::ATLASConePlugin(rParam_));
+		fjJetDefinition_= JetDefPtr(new fastjet::JetDefinition(&*fjPlugin_));
 
-  doFastJetNonUniform_ = false;
-  if(iConfig.exists("doFastJetNonUniform")) doFastJetNonUniform_ = iConfig.getParameter<bool>   ("doFastJetNonUniform");
-  if(doFastJetNonUniform_){
-    puCenters_ = iConfig.getParameter<std::vector<double> >("puCenters");
-    puWidth_ = iConfig.getParameter<double>("puWidth");
-    nExclude_ = iConfig.getParameter<unsigned int>("nExclude");
-  }
+	} else {
+		throw cms::Exception("Invalid jetAlgorithm") <<"Jet algorithm for VirtualJetProducer is invalid, Abort!\n";
+	}
 
-  useDeterministicSeed_ = false;
-  minSeed_ = 0;
-  if ( iConfig.exists("useDeterministicSeed") ) {
-    useDeterministicSeed_ = iConfig.getParameter<bool>("useDeterministicSeed");
-    minSeed_ =              iConfig.getParameter<unsigned int>("minSeed");
-  }
-  
-  if ( iConfig.exists("verbosity" ) ) {
-    verbosity_ = iConfig.getParameter<int>("verbosity");
-  }
-  
-  produces<std::vector<double> >("rhos");
-  produces<std::vector<double> >("sigmas");
-  produces<double>("rho");
-  produces<double>("sigma");
+	jetTypeE=JetType::byName(jetType_);
 
-  if (!srcPVs_.label().empty()) input_vertex_token_ = consumes<reco::VertexCollection>(srcPVs_);
-  input_candidateview_token_ = consumes<reco::CandidateView>(src_);
-  input_candidatefwdptr_token_ = consumes<std::vector<edm::FwdPtr<reco::PFCandidate> > >(src_);
-  input_packedcandidatefwdptr_token_ = consumes<std::vector<edm::FwdPtr<pat::PackedCandidate> > >(src_);
+	if ( doPUOffsetCorr_  ) {
+		if(puSubtractorName_.empty()){
+			LogWarning("VirtualJetProducer") << "Pile Up correction on; however, pile up type is not specified. Using default... \n";
+			subtractor_ =  boost::shared_ptr<PileUpSubtractor>(new PileUpSubtractor(iConfig, consumesCollector()));
+		} else subtractor_ =  boost::shared_ptr<PileUpSubtractor>(
+				PileUpSubtractorFactory::get()->create( puSubtractorName_, iConfig, consumesCollector()));
+	}
+
+	// do approximate disk-based area calculation => warn if conflicting request
+	if (doAreaDiskApprox_ && doAreaFastjet_)
+		throw cms::Exception("Conflicting area calculations") << "Both the calculation of jet area via fastjet and via an analytical disk approximation have been requested. Please decide on one.\n";
+
+	if ( doAreaFastjet_ || doRhoFastjet_ ) {
+
+		if (voronoiRfact_ <= 0) {
+			fjActiveArea_     = ActiveAreaSpecPtr(new fastjet::GhostedAreaSpec(ghostEtaMax,activeAreaRepeats,ghostArea));
+			fjActiveArea_->set_fj2_placement(true);
+
+			if ( !useExplicitGhosts_ ) {
+				fjAreaDefinition_ = AreaDefinitionPtr( new fastjet::AreaDefinition(fastjet::active_area, *fjActiveArea_ ) );
+			} else {
+				fjAreaDefinition_ = AreaDefinitionPtr( new fastjet::AreaDefinition(fastjet::active_area_explicit_ghosts, *fjActiveArea_ ) );
+			}
+		}
+		fjRangeDef_ = RangeDefPtr( new fastjet::RangeDefinition(rhoEtaMax) );
+	} 
+
+	if( doFastJetNonUniform_ ) puCenters_ 		= iConfig.getParameter<vector<double> >("puCenters"); 	/// where is this used? 
+
+	// make the "produces" statements
+	makeProduces( moduleLabel_, jetCollInstanceName_ );
+	produces<vector<double> >("rhos");
+	produces<vector<double> >("sigmas");
+	produces<double>("rho");
+	produces<double>("sigma");
+
+	/*input_candidateview_token_ = consumes<reco::CandidateView>(src_);
+	input_vertex_token_ = consumes<reco::VertexCollection>(srcPVs_);
+	input_candidatefwdptr_token_ = consumes<vector<edm::FwdPtr<reco::PFCandidate> > >(src_);
+	input_packedcandidatefwdptr_token_ = consumes<vector<edm::FwdPtr<pat::PackedCandidate> > >(src_);*/
   
 }
 
@@ -892,3 +845,48 @@ void VirtualJetProducer::writeCompoundJets(  edm::Event & iEvent, edm::EventSetu
   }
 
 }
+
+// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
+void VirtualJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
+	edm::ParameterSetDescription desc;
+	desc.add<string> ("@module_label",	"" );
+	desc.add<edm::InputTag>("src",		edm::InputTag("particleFlow") );
+	desc.add<edm::InputTag>("srcPVs",	edm::InputTag("") );
+	desc.add<string>("jetType",		"PFJet" );
+	desc.add<string>("jetAlgorithm",	"AntiKt" );
+	desc.add<double>("rParam",		0.4 );
+	desc.add<double>("inputEtMin",		0.0 );
+	desc.add<double>("inputEMin",		0.0 );
+	desc.add<double>("jetPtMin",		5. );
+	desc.add<bool> 	("doPVCorrection",	false );
+	desc.add<bool> 	("doAreaFastjet",	false );
+	desc.add<bool>  ("doRhoFastjet",	false );
+	desc.add<string>("jetCollInstanceName", ""	);
+	desc.add<bool> 	("doPUOffsetCorr", 	false	);
+	desc.add<string>("subtractorName", 	""	);
+	desc.add<bool> 	("useExplicitGhosts", 	false	);
+	desc.add<bool> 	("doAreaDiskApprox", 	false 	);
+	desc.add<double>("voronoiRfact", 	-0.9 	);
+	desc.add<double>("Rho_EtaMax", 	 	4.4 	);
+	desc.add<double>("Ghost_EtaMax",	5. 	);
+	desc.add<int> 	("Active_Area_Repeats",	1 	);
+	desc.add<double>("GhostArea",	 	0.01 	);
+	desc.add<bool> 	("restrictInputs", 	false 	);
+	desc.add<unsigned int> 	("maxInputs", 	1 	);
+	desc.add<bool> 	("writeCompound", 	false 	);
+	desc.add<bool> 	("doFastJetNonUniform", false 	);
+	desc.add<bool> 	("useDeterministicSeed",false 	);
+	desc.add<unsigned int> 	("minSeed", 	14327 	);
+	desc.add<int> 	("verbosity", 		0 	);
+	desc.add<double>("puWidth",	 	0. 	);
+	desc.add<unsigned int>("nExclude", 	0 	);
+	desc.add<unsigned int>("maxBadEcalCells", 	9999999	);
+	desc.add<unsigned int>("maxBadHcalCells",	9999999 );
+	desc.add<unsigned int>("maxProblematicEcalCells",	9999999 );
+	desc.add<unsigned int>("maxProblematicHcalCells",	9999999 );
+	desc.add<unsigned int>("maxRecoveredEcalCells",	9999999 );
+	desc.add<unsigned int>("maxRecoveredHcalCells",	9999999 );
+	descriptions.addDefault(desc);
+}
+

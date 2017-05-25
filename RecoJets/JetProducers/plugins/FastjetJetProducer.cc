@@ -6,7 +6,9 @@
 //            04/21/2009 Philipp Schieferdecker <philipp.schieferdecker@cern.ch>
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "RecoJets/JetProducers/plugins/FastjetJetProducer.h"
+#include "RecoJets/JetProducers/interface/FastjetJetProducer.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
@@ -48,6 +50,7 @@
 //#include <fstream>
 
 using namespace std;
+using namespace edm;
 
 
 
@@ -56,178 +59,78 @@ using namespace std;
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig)
-  : VirtualJetProducer( iConfig ),
-    useMassDropTagger_(false),
-    useFiltering_(false),
-    useDynamicFiltering_(false),
-    useTrimming_(false),
-    usePruning_(false),
-    useCMSBoostedTauSeedingAlgorithm_(false),
-    useKtPruning_(false),
-    useConstituentSubtraction_(false),
-    useSoftDrop_(false),
-    correctShape_(false),
-    muCut_(-1.0),
-    yCut_(-1.0),
-    rFilt_(-1.0),
-    rFiltFactor_(-1.0),
-    nFilt_(-1),
-    trimPtFracMin_(-1.0),
-    zCut_(-1.0),
-    RcutFactor_(-1.0),
-    csRho_EtaMax_(-1.0),
-    csRParam_(-1.0),
-    beta_(-1.0),
-    R0_(-1.0),
-    gridMaxRapidity_(-1.0), // For fixed-grid rho
-    gridSpacing_(-1.0)  // For fixed-grid rho
+FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig):
+	VirtualJetProducer( iConfig )
 {
+	useOnlyVertexTracks_ = iConfig.getParameter<bool>("UseOnlyVertexTracks");
+	useOnlyOnePV_ 	= iConfig.getParameter<bool>("UseOnlyOnePV");
+	dzTrVtxMax_          = iConfig.getParameter<double>("DzTrVtxMax");
+	dxyTrVtxMax_          = iConfig.getParameter<double>("DxyTrVtxMax");
+	minVtxNdof_ = iConfig.getParameter<int>("MinVtxNdof");
+	maxVtxZ_ = iConfig.getParameter<double>("MaxVtxZ");
 
-  if ( iConfig.exists("UseOnlyVertexTracks") )
-    useOnlyVertexTracks_ = iConfig.getParameter<bool>("UseOnlyVertexTracks");
-  else 
-    useOnlyVertexTracks_ = false;
+	useMassDropTagger_ = iConfig.getParameter<bool>("useMassDropTagger");
+	muCut_ = iConfig.getParameter<double>("muCut");
+	yCut_ = iConfig.getParameter<double>("yCut");
+
+	useFiltering_ = iConfig.getParameter<bool>("useFiltering");
+	rFilt_ = iConfig.getParameter<double>("rFilt");
+	nFilt_ = iConfig.getParameter<int>("nFilt");
+	useDynamicFiltering_ = iConfig.getParameter<bool>("useDynamicFiltering");
+	rFiltFactor_ = iConfig.getParameter<double>("rFiltFactor");
+
+	useTrimming_ = iConfig.getParameter<bool>("useTrimming");
+	//rFilt_ = iConfig.getParameter<double>("rFilt"); 	//// duplicate parameter
+	trimPtFracMin_ = iConfig.getParameter<double>("trimPtFracMin");
+
+	usePruning_ = iConfig.getParameter<bool>("usePruning");
+	zCut_ = iConfig.getParameter<double>("zcut");
+	RcutFactor_ = iConfig.getParameter<double>("rcut_factor");
+	nFilt_ = iConfig.getParameter<int>("nFilt");
+	useKtPruning_ = iConfig.getParameter<bool>("useKtPruning");
+
+	useCMSBoostedTauSeedingAlgorithm_ = iConfig.getParameter<bool>("useCMSBoostedTauSeedingAlgorithm");
+	subjetPtMin_ = iConfig.getParameter<double>("subjetPtMin");
+	muMin_ = iConfig.getParameter<double>("muMin");
+	muMax_ = iConfig.getParameter<double>("muMax");
+	yMin_ = iConfig.getParameter<double>("yMin");
+	yMax_ = iConfig.getParameter<double>("yMax");
+	dRMin_ = iConfig.getParameter<double>("dRMin");
+	dRMax_ = iConfig.getParameter<double>("dRMax");
+	maxDepth_ = iConfig.getParameter<int>("maxDepth");
+
+
+	useConstituentSubtraction_ = iConfig.getParameter<bool>("useConstituentSubtraction");
+	csRho_EtaMax_ = iConfig.getParameter<double>("csRho_EtaMax");
+	csRParam_ = iConfig.getParameter<double>("csRParam");
+
+	useSoftDrop_ = iConfig.getParameter<bool>("useSoftDrop");
+	zCut_ = iConfig.getParameter<double>("zcut");
+	beta_ = iConfig.getParameter<double>("beta");
+	R0_ = iConfig.getParameter<double>("R0");
+
+	correctShape_ = iConfig.getParameter<bool>("correctShape");
+	gridMaxRapidity_ = iConfig.getParameter<double>("gridMaxRapidity");
+	gridSpacing_ = iConfig.getParameter<double>("gridSpacing");
+
+	input_chrefcand_token_ = consumes<edm::View<reco::RecoChargedRefCandidate> >(iConfig.getParameter<edm::InputTag>("src"));
+
+	if ( useFiltering_ ||
+			useTrimming_ ||
+			usePruning_ ||
+			useMassDropTagger_ ||
+			useCMSBoostedTauSeedingAlgorithm_ ||
+			useConstituentSubtraction_ ||
+			useSoftDrop_ ||
+			correctShape_
+	   ) useExplicitGhosts_ = true;
+
+	if ( useConstituentSubtraction_ && ( fjAreaDefinition_.get() == 0 ) ) 
+		throw cms::Exception("AreaMustBeSet") << "Logic error. The area definition must be set if you use constituent subtraction." << std::endl;
+
+	if ( useSoftDrop_ && usePruning_ ) 
+		throw cms::Exception("PruningAndSoftDrop") << "Logic error. Soft drop is a generalized pruning, do not run them together." << std::endl;  /// Can't use these together
   
-  if ( iConfig.exists("UseOnlyOnePV") )
-    useOnlyOnePV_        = iConfig.getParameter<bool>("UseOnlyOnePV");
-  else
-    useOnlyOnePV_ = false;
-
-  if ( iConfig.exists("DzTrVtxMax") )
-    dzTrVtxMax_          = iConfig.getParameter<double>("DzTrVtxMax");
-  else
-    dzTrVtxMax_ = 999999.;
-  if ( iConfig.exists("DxyTrVtxMax") )
-    dxyTrVtxMax_          = iConfig.getParameter<double>("DxyTrVtxMax");
-  else
-    dxyTrVtxMax_ = 999999.;
-  if ( iConfig.exists("MinVtxNdof") )
-    minVtxNdof_ = iConfig.getParameter<int>("MinVtxNdof");
-  else
-    minVtxNdof_ = 5;
-  if ( iConfig.exists("MaxVtxZ") )
-    maxVtxZ_ = iConfig.getParameter<double>("MaxVtxZ");
-  else
-    maxVtxZ_ = 15;
-
-
-  if ( iConfig.exists("useFiltering") ||
-       iConfig.exists("useTrimming") ||
-       iConfig.exists("usePruning") ||
-       iConfig.exists("useMassDropTagger") ||
-       iConfig.exists("useCMSBoostedTauSeedingAlgorithm") ||
-       iConfig.exists("useConstituentSubtraction") ||
-       iConfig.exists("useSoftDrop")
-       ) {
-    useMassDropTagger_=false;
-    useFiltering_=false;
-    useDynamicFiltering_=false;
-    useTrimming_=false;
-    usePruning_=false;
-    useCMSBoostedTauSeedingAlgorithm_=false;
-    useKtPruning_=false;
-    useConstituentSubtraction_=false;
-    useSoftDrop_ = false;
-    rFilt_=-1.0;
-    rFiltFactor_=-1.0;
-    nFilt_=-1;
-    trimPtFracMin_=-1.0;
-    zCut_=-1.0;
-    RcutFactor_=-1.0;
-    muCut_=-1.0;
-    yCut_=-1.0;
-    subjetPtMin_ = -1.0;
-    muMin_ = -1.0;
-    muMax_ = -1.0;
-    yMin_ = -1.0;
-    yMax_ = -1.0;
-    dRMin_ = -1.0;
-    dRMax_ = -1.0;
-    maxDepth_ = -1;
-    csRho_EtaMax_ = -1.0;
-    csRParam_ = -1.0;
-    beta_ = -1.0;
-    R0_ = -1.0;
-    useExplicitGhosts_ = true;
-
-    if ( iConfig.exists("useMassDropTagger") ) {
-      useMassDropTagger_ = iConfig.getParameter<bool>("useMassDropTagger");
-      muCut_ = iConfig.getParameter<double>("muCut");
-      yCut_ = iConfig.getParameter<double>("yCut");
-    }
-
-    if ( iConfig.exists("useFiltering") ) {
-      useFiltering_ = iConfig.getParameter<bool>("useFiltering");
-      rFilt_ = iConfig.getParameter<double>("rFilt");
-      nFilt_ = iConfig.getParameter<int>("nFilt");
-      if ( iConfig.exists("useDynamicFiltering") ) {
-        useDynamicFiltering_ = iConfig.getParameter<bool>("useDynamicFiltering");
-        rFiltFactor_ = iConfig.getParameter<double>("rFiltFactor");
-        if ( useDynamicFiltering_ )
-          rFiltDynamic_ = DynamicRfiltPtr(new DynamicRfilt(rFilt_, rFiltFactor_));
-      }
-    }
-  
-    if ( iConfig.exists("useTrimming") ) {
-      useTrimming_ = iConfig.getParameter<bool>("useTrimming");
-      rFilt_ = iConfig.getParameter<double>("rFilt");
-      trimPtFracMin_ = iConfig.getParameter<double>("trimPtFracMin");
-    }
-
-    if ( iConfig.exists("usePruning") ) {
-      usePruning_ = iConfig.getParameter<bool>("usePruning");
-      zCut_ = iConfig.getParameter<double>("zcut");
-      RcutFactor_ = iConfig.getParameter<double>("rcut_factor");
-      nFilt_ = iConfig.getParameter<int>("nFilt");
-      if ( iConfig.exists("useKtPruning") )
-        useKtPruning_ = iConfig.getParameter<bool>("useKtPruning");
-    }
-
-    if ( iConfig.exists("useCMSBoostedTauSeedingAlgorithm") ) {
-      useCMSBoostedTauSeedingAlgorithm_ = iConfig.getParameter<bool>("useCMSBoostedTauSeedingAlgorithm");
-      subjetPtMin_ = iConfig.getParameter<double>("subjetPtMin");
-      muMin_ = iConfig.getParameter<double>("muMin");
-      muMax_ = iConfig.getParameter<double>("muMax");
-      yMin_ = iConfig.getParameter<double>("yMin");
-      yMax_ = iConfig.getParameter<double>("yMax");
-      dRMin_ = iConfig.getParameter<double>("dRMin");
-      dRMax_ = iConfig.getParameter<double>("dRMax");
-      maxDepth_ = iConfig.getParameter<int>("maxDepth");
-    }
-
-    if ( iConfig.exists("useConstituentSubtraction") ) {
-
-      if ( fjAreaDefinition_.get() == 0 ) {
-	throw cms::Exception("AreaMustBeSet") << "Logic error. The area definition must be set if you use constituent subtraction." << std::endl;
-      }
-
-      useConstituentSubtraction_ = iConfig.getParameter<bool>("useConstituentSubtraction");
-      csRho_EtaMax_ = iConfig.getParameter<double>("csRho_EtaMax");
-      csRParam_ = iConfig.getParameter<double>("csRParam");
-    }
-
-    if ( iConfig.exists("useSoftDrop") ) {
-      if ( usePruning_ ) {   /// Can't use these together
-	throw cms::Exception("PruningAndSoftDrop") << "Logic error. Soft drop is a generalized pruning, do not run them together." << std::endl;
-      }
-      useSoftDrop_ = iConfig.getParameter<bool>("useSoftDrop");
-      zCut_ = iConfig.getParameter<double>("zcut");
-      beta_ = iConfig.getParameter<double>("beta");
-      R0_ = iConfig.getParameter<double>("R0");
-    }
-
-  }
-
-  if ( iConfig.exists("correctShape") ) {
-    correctShape_ = iConfig.getParameter<bool>("correctShape");
-    gridMaxRapidity_ = iConfig.getParameter<double>("gridMaxRapidity");
-    gridSpacing_ = iConfig.getParameter<double>("gridSpacing");
-    useExplicitGhosts_ = true;
-  }
-
-  input_chrefcand_token_ = consumes<edm::View<reco::RecoChargedRefCandidate> >(src_);
-
 }
 
 
@@ -520,6 +423,94 @@ void FastjetJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup cons
 
 }
 
+//______________________________________________________________________________
+void FastjetJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
+	edm::ParameterSetDescription descFastjetJetProducer;
+	descFastjetJetProducer.add<bool>("useMassDropTagger",	false);
+	descFastjetJetProducer.add<bool>("useFiltering",	false);
+	descFastjetJetProducer.add<bool>("useDynamicFiltering",	false);
+	descFastjetJetProducer.add<bool>("useTrimming",	false);
+	descFastjetJetProducer.add<bool>("usePruning",	false);
+	descFastjetJetProducer.add<bool>("useCMSBoostedTauSeedingAlgorithm",	false);
+	descFastjetJetProducer.add<bool>("useKtPruning",	false);
+	descFastjetJetProducer.add<bool>("useConstituentSubtraction",	false);
+	descFastjetJetProducer.add<bool>("useSoftDrop",	false);
+	descFastjetJetProducer.add<bool>("correctShape",	false);
+	descFastjetJetProducer.add<bool>("UseOnlyVertexTracks",	false);
+	descFastjetJetProducer.add<bool>("UseOnlyOnePV",	false);
+	descFastjetJetProducer.add<double>("muCut",	-1.0);
+	descFastjetJetProducer.add<double>("yCut",	-1.0);
+	descFastjetJetProducer.add<double>("rFilt",	-1.0);
+	descFastjetJetProducer.add<double>("rFiltFactor",	-1.0);
+	descFastjetJetProducer.add<double>("trimPtFracMin",	-1.0);
+	descFastjetJetProducer.add<double>("zcut",	-1.0);
+	descFastjetJetProducer.add<double>("rcut_factor",	-1.0);
+	descFastjetJetProducer.add<double>("csRho_EtaMax",	-1.0);
+	descFastjetJetProducer.add<double>("csRParam",	-1.0);
+	descFastjetJetProducer.add<double>("beta",	-1.0);
+	descFastjetJetProducer.add<double>("R0",	-1.0);
+	descFastjetJetProducer.add<double>("gridMaxRapidity",	-1.0); // For fixed-grid rho
+	descFastjetJetProducer.add<double>("gridSpacing",	-1.0);  // For fixed-grid rho
+	descFastjetJetProducer.add<double>("DzTrVtxMax",	999999.);  
+	descFastjetJetProducer.add<double>("DxyTrVtxMax",	999999.);  
+	descFastjetJetProducer.add<double>("MaxVtxZ",	15.0);  
+	descFastjetJetProducer.add<double>("subjetPtMin",	-1.0);
+	descFastjetJetProducer.add<double>("muMin",	-1.0);
+	descFastjetJetProducer.add<double>("muMax",	-1.0);
+	descFastjetJetProducer.add<double>("yMin",	-1.0);
+	descFastjetJetProducer.add<double>("yMax",	-1.0);
+	descFastjetJetProducer.add<double>("dRMin",	-1.0);
+	descFastjetJetProducer.add<double>("dRMax",	-1.0);
+	descFastjetJetProducer.add<int>("maxDepth",	-1);
+	descFastjetJetProducer.add<int>("nFilt",	-1);
+	descFastjetJetProducer.add<int>("MinVtxNdof",	5);
+	///// From VirtualJetProducer
+	descFastjetJetProducer.add<string> ("@module_label",	"" );
+	descFastjetJetProducer.add<InputTag>("src",	InputTag("particleFlow") );
+	descFastjetJetProducer.add<bool>("doAreaFastjet",	false );
+	descFastjetJetProducer.add<double>("Rho_EtaMax", 	4.4 	);
+	descFastjetJetProducer.add<double>("rParam",		0.4 );
+	descFastjetJetProducer.add<string>("jetAlgorithm",	"AntiKt" );
+	descFastjetJetProducer.add<InputTag>("srcPVs",	InputTag("") );
+	descFastjetJetProducer.add<string>("jetType",		"PFJet" );
+	descFastjetJetProducer.add<double>("inputEtMin", 	0.0 );
+	descFastjetJetProducer.add<double>("inputEMin",		0.0 );
+	descFastjetJetProducer.add<double>("jetPtMin",		5. );
+	descFastjetJetProducer.add<bool>("doPVCorrection",	false );
+	descFastjetJetProducer.add<bool>("doRhoFastjet",	false );
+	descFastjetJetProducer.add<string>("jetCollInstanceName", ""	);
+	descFastjetJetProducer.add<bool>("doPUOffsetCorr", 	false	);
+	descFastjetJetProducer.add<string>("subtractorName", 	""	);
+	descFastjetJetProducer.add<bool>("useExplicitGhosts", 	false	);
+	descFastjetJetProducer.add<bool>("doAreaDiskApprox", 	false 	);
+	descFastjetJetProducer.add<double>("voronoiRfact", 	-0.9 	);
+	descFastjetJetProducer.add<double>("Ghost_EtaMax",	5. 	);
+	descFastjetJetProducer.add<int>("Active_Area_Repeats",	1 	);
+	descFastjetJetProducer.add<double>("GhostArea",	 	0.01 	);
+	descFastjetJetProducer.add<bool>("restrictInputs", 	false 	);
+	descFastjetJetProducer.add<unsigned int>("maxInputs", 	1 	);
+	descFastjetJetProducer.add<bool>("writeCompound", 	false 	);
+	descFastjetJetProducer.add<bool>("doFastJetNonUniform", false 	);
+	descFastjetJetProducer.add<bool>("useDeterministicSeed",false 	);
+	descFastjetJetProducer.add<unsigned int>("minSeed", 	14327 	);
+	descFastjetJetProducer.add<int>("verbosity", 		0 	);
+	descFastjetJetProducer.add<double>("puWidth",	 	0. 	);
+	descFastjetJetProducer.add<unsigned int>("nExclude", 	0 	);
+	descFastjetJetProducer.add<unsigned int>("maxBadEcalCells", 	9999999	);
+	descFastjetJetProducer.add<unsigned int>("maxBadHcalCells",	9999999 );
+	descFastjetJetProducer.add<unsigned int>("maxProblematicEcalCells",	9999999 );
+	descFastjetJetProducer.add<unsigned int>("maxProblematicHcalCells",	9999999 );
+	descFastjetJetProducer.add<unsigned int>("maxRecoveredEcalCells",	9999999 );
+	descFastjetJetProducer.add<unsigned int>("maxRecoveredHcalCells",	9999999 );
+	///// From PileUpSubstractor
+	descFastjetJetProducer.add<double> ("puPtMin", 	10.);
+	descFastjetJetProducer.add<double> ("nSigmaPU", 	1.);
+	descFastjetJetProducer.add<double> ("radiusPU", 	0.5);
+	/////////////////////
+	descriptions.addDefault(descFastjetJetProducer);
+
+}
 
 
 ////////////////////////////////////////////////////////////////////////////////

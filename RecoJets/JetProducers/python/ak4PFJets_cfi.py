@@ -1,13 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoJets.JetProducers.PFJetParameters_cfi import *
-from RecoJets.JetProducers.AnomalousCellParameters_cfi import *
-
-ak4PFJets = cms.EDProducer(
-    "FastjetJetProducer",
-    PFJetParameters,
-    AnomalousCellParameters,
-    jetAlgorithm = cms.string("AntiKt"),
-    rParam       = cms.double(0.4)
-    )
+ak4PFJets = cms.EDProducer( "FastjetJetProducer",
+		src 		= cms.InputTag('particleFlow'),     	## just needed to not change several files
+		doAreaFastjet	= cms.bool(False),   			## just needed to not change several files
+    		jetPtMin   	= cms.double(5.0), 			## just needed to not change several files
+		jetAlgorithm 	= cms.string("AntiKt"),
+		rParam       	= cms.double(0.4)
+		)
 

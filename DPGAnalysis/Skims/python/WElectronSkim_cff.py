@@ -154,8 +154,8 @@ WEnuHltFilter = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
 #recompute rho
 import RecoJets.Configuration.RecoPFJets_cff
 kt6PFJetsForRhoCorrectionWElectronSkim = RecoJets.Configuration.RecoPFJets_cff.kt6PFJets.clone(
-    doRhoFastjet = True,
-    Rho_EtaMax = 2.5
+    doRhoFastjet = cms.bool(True),
+    Rho_EtaMax = cms.double(2.5)
 )
 
 

@@ -63,23 +63,22 @@
 //
 
 class CATopJetTagger : public edm::global::EDProducer<> {
- public:
-  explicit CATopJetTagger(const edm::ParameterSet&);
-  ~CATopJetTagger();
-  
-  
- private:
-  virtual void produce( edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
-  
-  // ----------member data ---------------------------
-  
-  const edm::InputTag   src_;
-  
-  const double      TopMass_;
-  const double      WMass_;
-  const bool        verbose_;
+	public:
+		explicit CATopJetTagger(const edm::ParameterSet&);
+		~CATopJetTagger();
 
-  const edm::EDGetTokenT<edm::View<reco::Jet> > input_jet_token_;
+	private:
+		virtual void produce( edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+
+	// ----------member data ---------------------------
+
+	const edm::InputTag   src_;
+
+	const double      TopMass_;
+	const double      WMass_;
+	const bool        verbose_;
+
+	const edm::EDGetTokenT<edm::View<reco::Jet> > input_jet_token_;
 
 };
 

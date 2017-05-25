@@ -24,25 +24,25 @@ from RecoJets.JetProducers.ak4PFJetsPuppi_cfi import ak4PFJetsPuppi
 from RecoJets.JetProducers.ak8PFJetsPuppi_cfi import ak8PFJetsPuppi
 from RecoJets.JetProducers.ak4PFJetsSK_cfi import ak4PFJetsSK
 
-sisCone7PFJets = sisCone5PFJets.clone( rParam = 0.7 )
-ak7PFJets = ak5PFJets.clone( rParam = 0.7 )
-ak8PFJets = ak5PFJets.clone( rParam = 0.8 )
-gk7PFJets = gk5PFJets.clone( rParam = 0.7 )
-kt6PFJets = kt4PFJets.clone( rParam = 0.6 )
-ca8PFJets = ca4PFJets.clone( rParam = 0.8 )
+sisCone7PFJets = sisCone5PFJets.clone( rParam = cms.double(0.7) )
+ak7PFJets = ak5PFJets.clone( rParam = cms.double(0.7) )
+ak8PFJets = ak5PFJets.clone( rParam = cms.double(0.8) )
+gk7PFJets = gk5PFJets.clone( rParam = cms.double(0.7) )
+kt6PFJets = kt4PFJets.clone( rParam = cms.double(0.6) )
+ca8PFJets = ca4PFJets.clone( rParam = cms.double(0.8) )
 
 #compute areas for Fastjet PU subtraction  
-kt6PFJets.doRhoFastjet = True
-kt6PFJets.doAreaFastjet = True
+kt6PFJets.doRhoFastjet = cms.bool( True )
+kt6PFJets.doAreaFastjet = cms.bool( True )
 #use active areas and not Voronoi tessellation for the moment
-kt6PFJets.voronoiRfact = 0.9
-ak4PFJets.doAreaFastjet = True
-ak5PFJets.doAreaFastjet = True
-ak5PFJetsTrimmed.doAreaFastjet = True
-ak7PFJets.doAreaFastjet = True
-ak8PFJets.doAreaFastjet = True
-ak8PFJetsPuppi.doAreaFastjet = True
-ak4PFJetsSK.doAreaFastjet = True
+kt6PFJets.voronoiRfact = cms.double(0.9)
+ak4PFJets.doAreaFastjet = cms.bool( True )
+ak5PFJets.doAreaFastjet = cms.bool( True )
+ak5PFJetsTrimmed.doAreaFastjet = cms.bool( True )
+ak7PFJets.doAreaFastjet = cms.bool( True )
+ak8PFJets.doAreaFastjet = cms.bool( True )
+ak8PFJetsPuppi.doAreaFastjet = cms.bool( True )
+ak4PFJetsSK.doAreaFastjet = cms.bool( True )
 
 kt6PFJetsCentralChargedPileUp = kt6PFJets.clone(
     src = cms.InputTag("pfPileUpAllChargedParticles"),
@@ -112,33 +112,33 @@ ak5PFJetsCHSSoftDrop = ak5PFJetsSoftDrop.clone(
 
     
 ak4PFJetsCHS = ak5PFJetsCHS.clone(
-    rParam = 0.4,
-    jetPtMin = 5.0
+    rParam = cms.double(0.4),
+    jetPtMin = cms.double(5.0)
     )    
 
 ak8PFJetsCHS = ak5PFJetsCHS.clone(
-    rParam = 0.8,
-    jetPtMin = 50.0
+    rParam = cms.double(0.8),
+    jetPtMin = cms.double(50.0)
     )
 
 ak8PFJetsCHSPruned = ak5PFJetsCHSPruned.clone(
-    rParam = 0.8,
-    jetPtMin = 100.0
+    rParam = cms.double(0.8),
+    jetPtMin = cms.double(100.0)
     )
 
 ak8PFJetsCHSFiltered = ak5PFJetsCHSFiltered.clone(
-    rParam = 0.8,
-    jetPtMin = 15.0
+    rParam = cms.double(0.8),
+    jetPtMin = cms.double(15.0)
     )
 
 ak8PFJetsCHSTrimmed = ak5PFJetsCHSTrimmed.clone(
-    rParam = 0.8,
-    jetPtMin = 15.0
+    rParam = cms.double(0.8),
+    jetPtMin = cms.double(15.0)
     )
 
 ak8PFJetsCHSSoftDrop = ak5PFJetsCHSSoftDrop.clone(
-    rParam = 0.8,
-    jetPtMin = 100.0,
+    rParam = cms.double(0.8),
+    jetPtMin = cms.double(100.0),
     R0 = 0.8
     )
 
@@ -175,15 +175,15 @@ ca8PFJetsCHSSoftDrop = ak8PFJetsCHSSoftDrop.clone(
 ca15PFJetsCHSMassDropFiltered = ak5PFJetsMassDropFiltered.clone(
     jetAlgorithm = cms.string("CambridgeAachen"),
     src = cms.InputTag("pfNoPileUpJME"),
-    rParam = 1.5,
-    jetPtMin=100.0
+    rParam = cms.double(1.5),
+    jetPtMin = cms.double(100.0)
     )
 
 ca15PFJetsCHSFiltered = ak5PFJetsFiltered.clone(
     jetAlgorithm = cms.string("CambridgeAachen"),
     src = cms.InputTag("pfNoPileUpJME"),
-    rParam = 1.5,
-    jetPtMin=100.0
+    rParam = cms.double(1.5),
+    jetPtMin = cms.double(100.0)
     )
 
 cmsTopTagPFJetsCHS.src = cms.InputTag("ak8PFJetsCHSConstituents", "constituents")
