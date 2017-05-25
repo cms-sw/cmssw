@@ -387,8 +387,8 @@ public:
 
      header |= (fiberchan & QIE11HeaderSpec::MASK_FIBERCHAN)<<QIE11HeaderSpec::OFFSET_FIBERCHAN;
      header |= (fiber & QIE11HeaderSpec::MASK_FIBER)<<QIE11HeaderSpec::OFFSET_FIBER;
-     header |= (capid0 & QIE11HeaderSpec::MASK_CAPID)<<QIE8HeaderSpec::OFFSET_CAPID;
-     header |= (0x0 & QIE11HeaderSpec::MASK_FIBERERR)<<QIE8HeaderSpec::OFFSET_FIBERERR;
+     header |= (capid0 & QIE11HeaderSpec::MASK_CAPID)<<QIE11HeaderSpec::OFFSET_CAPID;
+     header |= (0x0 & QIE11HeaderSpec::MASK_FIBERERR)<<QIE11HeaderSpec::OFFSET_FIBERERR;
      header |= (0x0 & QIE11HeaderSpec::MASK_FLAVOR)<<QIE11HeaderSpec::OFFSET_FLAVOR; //flavor
      header |= (0x1 & QIE11HeaderSpec::MASK_HEADER_BIT)<<QIE11HeaderSpec::OFFSET_HEADER_BIT;
 
