@@ -203,10 +203,9 @@ def getFullTrackVPSet():
         )
         ret.append(hltFullTrack)
 
-    thresholds3 = [80,100,130,150]
+    thresholds3 = [85,105,135,155]
     for t in thresholds3:
         partialPathName = "HLT_FullTracks_Multiplicity"+str(t)+"_v"
-#        partialPathName = "HLT_FullTracks_Multiplicity80_v"
         hltFullTrackMult =  cms.PSet(
             triggerSelection = cms.string(partialPathName+"*"),
             handlerType = cms.string("FromHLT"),
@@ -907,6 +906,75 @@ def getPAMBVPSet():
 
     return ret
 
+#Note that jet triggers up to Jet100 are pre-covered; need to handle Jets120 and photon
+def getHILowPU2017Triggers():
+    ret=cms.VPSet()
+    partialPathName = "HLT_AK4CaloJet120_v"
+    hltHICaloJet120 =  cms.PSet(
+        triggerSelection = cms.string(partialPathName+"*"),
+        handlerType = cms.string("FromHLT"),
+        partialPathName = cms.string(partialPathName),
+        partialFilterName  = cms.string("hltSingleAK4CaloJet"),
+        dqmhistolabel  = cms.string("hltHICaloJet120"),
+        mainDQMDirname = cms.untracked.string(dirname),
+        singleObjectsPreselection = cms.string("1==1"),
+        singleObjectDrawables =  cms.VPSet(
+            cms.PSet (name = cms.string("pt"), expression = cms.string("pt"), bins = cms.int32(58), min = cms.double(10), max = cms.double(300)),
+            cms.PSet (name = cms.string("eta"), expression = cms.string("eta"), bins = cms.int32(100), min = cms.double(-5), max = cms.double(5)),
+            cms.PSet (name = cms.string("phi"), expression = cms.string("phi"), bins = cms.int32(100), min = cms.double(-3.15), max = cms.double(3.15))
+        ),
+        combinedObjectSelection =  cms.string("1==1"),
+        combinedObjectSortCriteria = cms.string("at(0).pt"),
+        combinedObjectDimension = cms.int32(1),
+        combinedObjectDrawables =  cms.VPSet()
+    )
+    ret.append(hltHICaloJet120)
+
+    hltHIPFJet120 = hltHICaloJet120.clone(partialPathName = cms.string("HLT_AK4PFJet120_v"),
+                                          triggerSelection = cms.string("HLT_AK4PFJet120_v*"),
+                                          dqmhistolabel = cms.string("hltHIPFJet120"),
+                                          partialFilterName = cms.string("hltSingleAK4PFJet"),
+                                          )
+    ret.append(hltHIPFJet120)
+
+    photonThresh = ['10', '20', '30', '40', '50', '60']
+    photonThresh2 = ['20', '30', '40', '50', '60']
+
+    for thresh in photonThresh:
+        inString = 'HLT_HISinglePhoton' + thresh + '_Eta3p1ForPPRef_v'
+        inStringAsterisk = 'HLT_HISinglePhoton' + thresh + '_Eta3p1ForPPRef_v*'
+        inStringHistoLabel = 'hltHIPhoton' + thresh
+
+        temp = hltHICaloJet120.clone(partialPathName = cms.string(inString),
+                                     triggerSelection = cms.string(inStringAsterisk),
+                                     dqmhistolabel = cms.string(inStringHistoLabel),
+                                     partialFilterName  = cms.string("hltHIPhoton"),
+                                     singleObjectDrawables =  cms.VPSet(cms.PSet (name = cms.string("pt"), expression = cms.string("pt"), bins = cms.int32(58), min = cms.double(10), max = cms.double(300)),
+                                                                        cms.PSet (name = cms.string("eta"), expression = cms.string("eta"), bins = cms.int32(100), min = cms.double(-3), max = cms.double(3)),
+                                                                        cms.PSet (name = cms.string("phi"), expression = cms.string("phi"), bins = cms.int32(100), min = cms.double(-3.15), max = cms.double(3.15))
+                                                                        )
+                                     )
+        ret.append(temp)
+
+    for thresh in photonThresh2:
+        inString = 'HLT_Photon' + thresh + '_HoverELoose_v'
+        inStringAsterisk = 'HLT_Photon' + thresh + '_HoverELoose_v*'
+        inStringHistoLabel = 'hltPhoton' + thresh
+        filterName = "hltEG" + thresh + "EtFilterLoose"
+
+        temp = hltHICaloJet120.clone(partialPathName = cms.string(inString),
+                                     triggerSelection = cms.string(inStringAsterisk),
+                                     dqmhistolabel = cms.string(inStringHistoLabel),
+                                     partialFilterName  = cms.string(filterName),
+                                     singleObjectDrawables =  cms.VPSet(cms.PSet (name = cms.string("pt"), expression = cms.string("pt"), bins = cms.int32(58), min = cms.double(10), max = cms.double(300)),
+                                                                        cms.PSet (name = cms.string("eta"), expression = cms.string("eta"), bins = cms.int32(100), min = cms.double(-3), max = cms.double(3)),
+                                                                        cms.PSet (name = cms.string("phi"), expression = cms.string("phi"), bins = cms.int32(100), min = cms.double(-3.15), max = cms.double(3.15))
+                                                                        )
+                                     )
+        ret.append(temp)
+
+    return ret
+
 def getHILowLumi():
     ret = cms.VPSet()
     ret.extend(getHILowLumiTriggers())
@@ -915,6 +983,7 @@ def getHILowLumi():
     ret.extend(getPAHighMultHighPtVPSet())
     ret.extend(getPAMBVPSet())
     ret.extend(getPAHighPtVPSet())
+    ret.extend(getHILowPU2017Triggers())
     return ret
 
 dirname = "HLT/HI/"
