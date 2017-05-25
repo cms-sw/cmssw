@@ -11,12 +11,12 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-        input = cms.untracked.int32(100)
+        input = cms.untracked.int32(200)
         )
 
 process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('clu_info'),
-    clu_info = cms.untracked.PSet( threshold = cms.untracked.string('INFO'))
+    destinations = cms.untracked.vstring('cclu_info'),
+    cclu_info = cms.untracked.PSet( threshold = cms.untracked.string('INFO'))
 )
 process.source = cms.Source("EmptyIOVSource",
     timetype = cms.string('runnumber'),
@@ -88,23 +88,22 @@ process.source = cms.Source("NewEventStreamFileReader",
 
 
 from CondCore.CondDB.CondDB_cfi import *
-process.CTPPSPixelGainCalibrationRcd = cms.ESSource("PoolDBESSource",
+process.PoolDBESSource = cms.ESSource("PoolDBESSource",
         CondDB.clone(
 connect = cms.string('sqlite_file:/eos/cms/store/group/dpg_ctpps/comm_ctpps/ctppspixnew3.db')),
-
-     toGet = cms.VPSet(cms.PSet(
+    toGet = cms.VPSet(cms.PSet(
         record = cms.string('CTPPSPixelGainCalibrationsRcd'),
         tag = cms.string("CTPPSPixelGainCalibNew_v3")
-        ),
-                      cms.PSet(
-            record = cms.string('CTPPSPixelDAQMappingRcd'),
-            tag = cms.string("PixelDAQMapping_v1"),
-            label = cms.untracked.string("RPix")
-            ),
-                      cms.PSet(
-            record = cms.string('CTPPSPixelAnalysisMaskRcd'),
-            tag = cms.string("PixelAnalysisMask_v1"),
-            label = cms.untracked.string("RPix")
+    ),
+      cms.PSet(
+        record = cms.string('CTPPSPixelDAQMappingRcd'),
+        tag = cms.string("PixelDAQMapping_v1"),
+        label = cms.untracked.string("RPix")
+      ),
+      cms.PSet(
+        record = cms.string('CTPPSPixelAnalysisMaskRcd'),
+        tag = cms.string("PixelAnalysisMask_v1"),
+        label = cms.untracked.string("RPix")
       )
 
 
@@ -115,26 +114,22 @@ connect = cms.string('sqlite_file:/eos/cms/store/group/dpg_ctpps/comm_ctpps/ctpp
 # raw-to-digi conversion
 process.load("EventFilter.CTPPSRawToDigi.ctppsRawToDigi_cff")
 
-# local RP reconstruction chain with standard settings
-#process.load('Geometry.VeryForwardGeometry.geometryRP_cfi')
-#process.load("RecoCTPPS.Configuration.recoCTPPS_cff")
 
 ############
 process.o1 = cms.OutputModule("PoolOutputModule",
         outputCommands = cms.untracked.vstring('keep *'),
-        fileName = cms.untracked.string('simevent_CTPPS_CLU_DB_real.root')
+        fileName = cms.untracked.string('simevent_CTPPS_CLU_DB_real_2.root')
         )
 
-process.load("RecoCTPPS.CTPPSPixelLocal.CTPPSPixelClusterizer_cfi")
+process.load("RecoCTPPS.Configuration.recoCTPPS_cff")
 
 
-process.mixedigi_step = cms.Path(process.ctppsPixelDigis*process.clusterProd
-#*process.rechitProd
-)
+process.ALL = cms.Path(process.ctppsRawToDigi*process.recoCTPPS)
+
 
 process.outpath = cms.EndPath(process.o1)
 
-process.schedule = cms.Schedule(process.mixedigi_step,process.outpath)
+process.schedule = cms.Schedule(process.ALL,process.outpath)
 
 # filter all path with the production filter sequence
 for path in process.paths:
