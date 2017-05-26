@@ -55,7 +55,7 @@ process.path = cms.Path(
     process.ctppsDiamondRawToDigi *
     process.ctppsDiamondRecHits *
     process.ctppsDiamondLocalTracks *
-    process.ctppsDQM 
+    process.ctppsDQM
 )
 
 process.end_path = cms.EndPath(
