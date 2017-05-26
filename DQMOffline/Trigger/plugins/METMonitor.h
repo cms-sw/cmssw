@@ -101,6 +101,10 @@ private:
   METME metME_variableBinning_;
   METME metVsLS_;
   METME metPhiME_;
+  METME deltaphimetj1ME_;
+  METME deltaphimetj1VsLS_;
+  METME deltaphij1j2ME_;
+  METME deltaphij1j2VsLS_;
 
   GenericTriggerEventFlag* num_genTriggerEventFlag_;
   GenericTriggerEventFlag* den_genTriggerEventFlag_;

@@ -14,8 +14,6 @@ hltHTmonitoring.jets      = cms.InputTag("pfJetsEI") # ak4PFJets, ak4PFJetsCHS
 hltHTmonitoring.electrons = cms.InputTag("gedGsfElectrons") # while pfIsolatedElectronsEI are reco::PFCandidate !
 hltHTmonitoring.muons     = cms.InputTag("muons") # while pfIsolatedMuonsEI are reco::PFCandidate !
 
-hltHTmonitoring.jetSelection      = cms.string("pt > 0") # configurable pt to calculate HT
-
 hltHTmonitoring.numGenericTriggerEventPSet.andOr         = cms.bool( False )
 #hltHTmonitoring.numGenericTriggerEventPSet.dbLabel       = cms.string("ExoDQMTrigger") # it does not exist yet, we should consider the possibility of using the DB, but as it is now it will need a label per path !
 hltHTmonitoring.numGenericTriggerEventPSet.andOrHlt      = cms.bool(True)# True:=OR; False:=AND
@@ -31,4 +29,4 @@ hltHTmonitoring.denGenericTriggerEventPSet.dcsPartitions = cms.vint32 ( 24, 25, 
 hltHTmonitoring.denGenericTriggerEventPSet.andOrDcs      = cms.bool( False )
 hltHTmonitoring.denGenericTriggerEventPSet.errorReplyDcs = cms.bool( True )
 hltHTmonitoring.denGenericTriggerEventPSet.verbosityLevel = cms.uint32(1)
-
+hltHTmonitoring.denGenericTriggerEventPSet.hltPaths      = cms.vstring("");
