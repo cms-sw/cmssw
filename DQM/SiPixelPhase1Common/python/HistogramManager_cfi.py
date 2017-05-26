@@ -27,6 +27,9 @@ SiPixelPhase1Geometry = cms.PSet(
   onlineblock = cms.int32(20),    # #LS after which histograms are reset
   n_onlineblocks = cms.int32(100),  # #blocks to keep for histograms with history
 
+  # lumiblock -  for coarse temporal splitting 
+  lumiblock = cms.int32(5),       # Number of LS to include in a block
+
   # other geometry parameters (n_layers, n_ladders per layer, etc.) are inferred.
   # there are lots of geometry assuptions in the code.
 )
