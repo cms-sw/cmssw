@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 topEfficiency = cms.EDAnalyzer("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/TOP/*"),
+    subDirs        = cms.untracked.vstring("HLT/TopHLTOffline/TopMonitor/*"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(

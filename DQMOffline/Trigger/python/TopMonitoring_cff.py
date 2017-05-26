@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from DQMOffline.Trigger.TopMonitor_cfi import hltTOPmonitoring
 
 dummy = hltTOPmonitoring.clone()
-dummy.FolderName = cms.string('HLT/TOP/dummy/')
+dummy.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/dummy/')
 dummy.nmuons = cms.uint32(0)
 dummy.nelectrons = cms.uint32(1)
 dummy.njets = cms.uint32(2)
@@ -13,7 +13,7 @@ dummy.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Ele30_eta2p1_WPTigh
 dummy.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Ele30_eta2p1_WPTight_Gsf_CentralPFJet35_EleCleaned')
 
 test = hltTOPmonitoring.clone()
-test.FolderName = cms.string('HLT/TOP/test/')
+test.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/test/')
 test.nmuons = cms.uint32(0)
 test.nelectrons = cms.uint32(1)
 test.njets = cms.uint32(2)
