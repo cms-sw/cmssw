@@ -94,6 +94,8 @@ private:
   MEbinning           ls_binning_;
 
   PhotonME photonME_;
+  PhotonME photonEtaME_;
+  PhotonME photonPhiME_;
   PhotonME photonME_variableBinning_;
   PhotonME photonVsLS_;
 
