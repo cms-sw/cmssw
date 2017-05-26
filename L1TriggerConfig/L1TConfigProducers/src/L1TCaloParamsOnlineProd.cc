@@ -5,7 +5,7 @@
 
 #include "CondTools/L1TriggerExt/interface/L1ConfigOnlineProdBaseExt.h"
 #include "CondFormats/L1TObjects/interface/CaloParams.h"
-#include "CondFormats/DataRecord/interface/L1TCaloStage2ParamsRcd.h"
+#include "CondFormats/DataRecord/interface/L1TCaloParamsRcd.h"
 #include "CondFormats/DataRecord/interface/L1TCaloParamsO2ORcd.h"
 #include "L1Trigger/L1TCommon/interface/TriggerSystem.h"
 #include "L1Trigger/L1TCommon/interface/XmlConfigParser.h"
