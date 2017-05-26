@@ -125,7 +125,7 @@ pat::PATMuonSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
             mu.setPFIsolation("pfIsoMeanDRProfileR04",zero);
             mu.setPFIsolation("pfIsoSumDRProfileR04",zero);
         }
-        if (dropPfP4_(mu)) mu.setPFP4(reco::Particle::LorentzVector());
+        if (mu.isPFMuon() && dropPfP4_(mu)) mu.setPFP4(reco::Particle::LorentzVector());
         if (slimCaloVars_(mu) && mu.isEnergyValid()) {
             reco::MuonEnergy ene = mu.calEnergy();
             if (ene.tower)   ene.tower = MiniFloatConverter::reduceMantissaToNbitsRounding<12>(ene.tower);
