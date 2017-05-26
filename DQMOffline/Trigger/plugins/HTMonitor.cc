@@ -6,12 +6,13 @@
 
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 
+#include "DataFormats/Math/interface/deltaPhi.h"
 
-/*double MAX_PHI = 3.2;
-int N_PHI = 64;
+double MAXedge_PHI = 3.2;
+int Nbin_PHI = 64;
 const MEHTbinning phi_binning_{
-  N_PHI, -MAX_PHI, MAX_PHI
-  };*/
+  Nbin_PHI, -MAXedge_PHI, MAXedge_PHI
+  };
 // -----------------------------
 //  constructors and destructor
 // -----------------------------
@@ -42,7 +43,15 @@ HTMonitor::HTMonitor( const edm::ParameterSet& iConfig ) :
   htME_variableBinning_.denominator = nullptr;
   htVsLS_.numerator   = nullptr;
   htVsLS_.denominator = nullptr;
-  
+  deltaphimetj1ME_.numerator   = nullptr;
+  deltaphimetj1ME_.denominator = nullptr;
+  deltaphimetj1VsLS_.numerator   = nullptr;
+  deltaphimetj1VsLS_.denominator = nullptr;
+  deltaphij1j2ME_.numerator   = nullptr;
+  deltaphij1j2ME_.denominator = nullptr;
+  deltaphij1j2VsLS_.numerator   = nullptr;
+  deltaphij1j2VsLS_.denominator = nullptr;
+
 }
 
 HTMonitor::~HTMonitor()
@@ -136,6 +145,22 @@ void HTMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   bookME(ibooker,htVsLS_,histname,histtitle,ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax,ht_binning_.xmin, ht_binning_.xmax);
   setHTitle(htVsLS_,"LS","HT [GeV]");
 
+  histname = "deltaphi_metjet1"; histtitle = "DPHI_METJ1";
+  bookME(ibooker,deltaphimetj1ME_,histname,histtitle,phi_binning_.nbins, phi_binning_.xmin, phi_binning_.xmax);
+  setHTitle(deltaphimetj1ME_,"delta phi (met, j1)","events / 0.1 rad");
+
+  histname = "deltaphiVsLS_metjet1"; histtitle = "DPHI_METJ1 vs LS";
+  bookME(ibooker,deltaphimetj1VsLS_,histname,histtitle,ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax,phi_binning_.xmin, phi_binning_.xmax);
+  setHTitle(deltaphimetj1VsLS_,"LS","delta phi(met, j1)");
+
+  histname = "deltaphi_jet1jet2"; histtitle = "DPHI_J1J2";
+  bookME(ibooker,deltaphij1j2ME_,histname,histtitle,phi_binning_.nbins, phi_binning_.xmin, phi_binning_.xmax);
+  setHTitle(deltaphij1j2ME_,"delta phi (j1, j2)","events / 0.1 rad");
+
+  histname = "deltaphiVsLS_jet1jet2"; histtitle = "DPHI_J1J2 vs LS";
+  bookME(ibooker,deltaphij1j2VsLS_,histname,histtitle,ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax,phi_binning_.xmin, phi_binning_.xmax);
+  setHTitle(deltaphij1j2VsLS_,"LS","delta phi(j1, j2)");
+
   // Initialize the GenericTriggerEventFlag
   if ( num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on() ) num_genTriggerEventFlag_->initRun( iRun, iSetup );
   if ( den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on() ) den_genTriggerEventFlag_->initRun( iRun, iSetup );
@@ -163,6 +188,7 @@ void HTMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
   edm::Handle<reco::PFJetCollection> jetHandle; //add a configurable jet collection & jet pt selection
   iEvent.getByToken( jetToken_, jetHandle );
   std::vector<reco::PFJet> jets;
+  jets.clear();
   if ( int(jetHandle->size()) < njets_ ) return;
   for ( auto const & j : *jetHandle ) {
     if ( jetSelection_( j ) ) {
@@ -171,10 +197,17 @@ void HTMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
     }
   }
   if ( int(jets.size()) < njets_ ) return;
+
+  float deltaPhi_met_j1 = 10.0;
+  float deltaPhi_j1_j2 = 10.0;
+
+  if (int(jets.size()) >= 1) deltaPhi_met_j1 = fabs( deltaPhi( pfmet.phi(),  jets[0].phi() ));
+  if (int(jets.size()) >= 2) deltaPhi_j1_j2 = fabs( deltaPhi( jets[0].phi(),  jets[1].phi() ));
   
   edm::Handle<reco::GsfElectronCollection> eleHandle;
   iEvent.getByToken( eleToken_, eleHandle );
   std::vector<reco::GsfElectron> electrons;
+  electrons.clear();
   if ( int(eleHandle->size()) < nelectrons_ ) return;
   for ( auto const & e : *eleHandle ) {
     if ( eleSelection_( e ) ) electrons.push_back(e);
@@ -185,6 +218,7 @@ void HTMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
   iEvent.getByToken( muoToken_, muoHandle );
   if ( int(muoHandle->size()) < nmuons_ ) return;
   std::vector<reco::Muon> muons;
+  muons.clear();
   for ( auto const & m : *muoHandle ) {
     if ( muoSelection_( m ) ) muons.push_back(m);
   }
@@ -193,10 +227,14 @@ void HTMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
   // filling histograms (denominator)  
   htME_.denominator -> Fill(ht);
   htME_variableBinning_.denominator -> Fill(ht);
+  deltaphimetj1ME_.denominator -> Fill(deltaPhi_met_j1);
+  deltaphij1j2ME_.denominator -> Fill(deltaPhi_j1_j2);
 
   int ls = iEvent.id().luminosityBlock();
   htVsLS_.denominator -> Fill(ls, ht);
-  
+  deltaphimetj1VsLS_.denominator-> Fill(ls, deltaPhi_met_j1); 
+  deltaphij1j2VsLS_.denominator -> Fill(ls, deltaPhi_j1_j2);
+
   // applying selection for numerator
   if (num_genTriggerEventFlag_->on() && ! num_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
 
@@ -204,6 +242,10 @@ void HTMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
   htME_.numerator -> Fill(ht);
   htME_variableBinning_.numerator -> Fill(ht);
   htVsLS_.numerator -> Fill(ls, ht);
+  deltaphimetj1ME_.numerator  -> Fill(deltaPhi_met_j1); 
+  deltaphimetj1VsLS_.numerator -> Fill(ls, deltaPhi_met_j1);
+  deltaphij1j2ME_.numerator  -> Fill(deltaPhi_j1_j2); 
+  deltaphij1j2VsLS_.numerator -> Fill(ls, deltaPhi_j1_j2);
 
 }
 
