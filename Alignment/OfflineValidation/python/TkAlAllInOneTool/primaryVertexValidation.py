@@ -86,6 +86,10 @@ class PrimaryVertexValidation(GenericValidationData, ValidationWithPlots):
                 '"PVValidation","%(title)s", %(color)s, %(style)s);\n')%repMap
 
     @classmethod
+    def runPlots(cls, validations):
+        return configTemplates.PrimaryVertexPlotExecution
+
+    @classmethod
     def plottingscriptname(cls):
         return "TkAlPrimaryVertexValidationPlot.C"
 
