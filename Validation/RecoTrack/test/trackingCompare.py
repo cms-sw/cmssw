@@ -7,6 +7,20 @@ from Validation.RecoTrack.plotting.validation import SimpleValidation, SimpleSam
 import Validation.RecoTrack.plotting.trackingPlots as trackingPlots
 import Validation.RecoVertex.plotting.vertexPlots as vertexPlots
 
+# Below is an example on how to make plots for custom
+# track+TrackingParticle selections (e.g. selecting a specific eta-phi
+# region). Track selection is handled by defining custom track
+# "quality" (string in the track collection names), TrackingParticle
+# selection by MTV instances having the same string as their postfix.
+# See python/customiseMTVForBPix123Holes.py for a customise function
+# setting up the MTV instances for CMSSW job.
+#
+#trackingPlots._additionalTrackQualities.extend(["L1L2", "L2L3"])
+#for pfix in ["L1L2", "L2L3"]:
+#    trackingPlots._appendTrackingPlots("Track"+pfix, "", trackingPlots._simBasedPlots+trackingPlots._recoBasedPlots)
+#    trackingPlots._appendTrackingPlots("TrackSeeding"+pfix, "", trackingPlots._seedingBuildingPlots, seeding=True)
+#    trackingPlots._appendTrackingPlots("TrackBuilding"+pfix, "", trackingPlots._seedingBuildingPlots)
+
 outputDir = "plots" # Plot output directory
 description = "Short description of your comparison"
 
