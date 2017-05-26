@@ -39,6 +39,7 @@
 #include <fstream>
 #include <iostream>
 #include <iomanip>
+#include <math.h>
 
 //
 // class declaration
@@ -66,6 +67,7 @@ private:
   edm::EDGetToken m_towerToken;
 
   std::string filename_;
+  std::string outDir_;
 
   // constants
   unsigned nChan_;  // number of channels per quad
@@ -75,6 +77,7 @@ private:
   unsigned nPayloadFrames_;
   unsigned nClearFrames_;
   unsigned nFrame_;
+  unsigned nEvents_;
   
   // data arranged by link and frame
   std::vector< std::vector<int> > data_;
@@ -105,15 +108,17 @@ L1TStage2InputPatternWriter::L1TStage2InputPatternWriter(const edm::ParameterSet
   // register what you consume and keep token for later access:
   m_towerToken   = consumes<l1t::CaloTowerBxCollection>  (iConfig.getParameter<edm::InputTag>("towerToken"));
 
-  filename_ = iConfig.getUntrackedParameter<std::string>("filename", "pattern.txt");
+  filename_ = iConfig.getUntrackedParameter<std::string>("filename");
+  outDir_ = iConfig.getUntrackedParameter<std::string>("outDir");
 
-  nChan_ = iConfig.getUntrackedParameter<unsigned>("nChanPerQuad", 4);
-  nQuad_ = iConfig.getUntrackedParameter<unsigned>("nQuads", 18);
+  nChan_ = 4;
+  nQuad_ = 18;
 
-  nHeaderFrames_ = iConfig.getUntrackedParameter<unsigned>("nHeaderFrames", 1);
-  nPayloadFrames_ = iConfig.getUntrackedParameter<unsigned>("nPayloadFrames", 39);
-  nClearFrames_ = iConfig.getUntrackedParameter<unsigned>("nClearFrames", 6);
+  nHeaderFrames_ = iConfig.getUntrackedParameter<unsigned>("mpHeaderFrames");
+  nPayloadFrames_ = iConfig.getUntrackedParameter<unsigned>("mpPayloadFrames");
+  nClearFrames_ = iConfig.getUntrackedParameter<unsigned>("mpClearFrames");
   nFrame_ = 0;
+  nEvents_ = 0;
 
   nLink_ = nChan_ * nQuad_;
   data_.resize(nLink_);
@@ -141,6 +146,9 @@ L1TStage2InputPatternWriter::analyze(const edm::Event& iEvent, const edm::EventS
 {
   using namespace edm;
   
+  //count events
+  nEvents_++;
+
   // get towers
   Handle< BXVector<l1t::CaloTower> > towHandle;
   iEvent.getByToken(m_towerToken,towHandle);
@@ -178,8 +186,6 @@ L1TStage2InputPatternWriter::analyze(const edm::Event& iEvent, const edm::EventS
     nFrame_++;
 
   }
-
-
 
   // loop over frames
   for ( unsigned iFrame=0; iFrame<nPayloadFrames_; ++iFrame ) {
@@ -265,52 +271,81 @@ void
 L1TStage2InputPatternWriter::endJob() 
 {
 
+  //frames per event
+  unsigned int framesPerEv = nHeaderFrames_ + nPayloadFrames_ + nClearFrames_;
+
+  //events per file
+  unsigned int evPerFile = floor(1024/framesPerEv);
+
+  //frames per file
+  unsigned int framesPerFile = framesPerEv*evPerFile;
+
+  //number of output files
+  unsigned int nOutFiles = ceil(nEvents_/evPerFile);
+
   LogDebug("L1TDebug") << "Read " << nFrame_ << " frames" << std::endl;
+  LogDebug("L1TDebug") << "Read " << nEvents_ << " events" << std::endl;
+  LogDebug("L1TDebug") << "Writing " << nOutFiles << " files" << std::endl;
+  LogDebug("L1TDebug") << "Output directory: ./" << outDir_ << "/" << std::endl;
+  
+  //files
+  std::vector< std::ofstream > outFiles(nOutFiles);
+    
+  //make output files and write to them
+  for(uint itFile=0; itFile<nOutFiles; ++itFile){
+    std::stringstream outFilename;
+    outFilename << outDir_ << "/" << filename_ << "_" << itFile << ".txt";
+    outFiles[itFile] = std::ofstream(outFilename.str());
+    LogDebug("L1TDebug") << "Writing to file: ./" << outFilename.str() << std::endl;
+    std::cout << "Writing to file: ./" << outFilename.str() << std::endl;
 
-  // write file
-  std::ofstream file( filename_ );
-
-  file << "Board MP7_TEST" << std::endl;
-
-  // quad/chan numbers
-  file << " Quad/Chan : ";
-  for ( unsigned i=0; i<nQuad_; ++i ) {
-    for ( unsigned j=0; j<nChan_; ++j ) {
-      file << "   q" << i << "c" << j << "   ";
-    }
-  }
-  file << std::endl;
-
-  // link numbers
-  file << "      Link : ";
-  for ( unsigned i=0; i<nQuad_; ++i ) {
-    for ( unsigned j=0; j<nChan_; ++j ) {
-      file << "    " << (i*nChan_)+j << "       ";
-    }
-  }
-
-  file << std::endl;
-
-  // then the data
-  for ( unsigned iFrame=0; iFrame<nFrame_; ++iFrame ) {
-    file << "Frame " << std::dec << std::setw(4) << std::setfill('0') << iFrame << " : ";
-    for ( unsigned iQuad=0; iQuad<nQuad_; ++iQuad ) {
-      for ( unsigned iChan=0; iChan<nChan_; ++iChan ) {
-	unsigned iLink = (iQuad*nChan_)+iChan;
-	if (iLink<data_.size() && iFrame<data_.at(iLink).size()) {
-	  file << std::hex << ::std::setw(1) << dataValid_.at(iFrame) << "v" << std::hex << std::setw(8) << std::setfill('0') << data_.at(iLink).at(iFrame) << " ";
-	}
-	else {
-	  std::cerr << "Out of range : " << iLink << ", " << iFrame << std::endl;
-	}
+    outFiles[itFile] << "Board MP7_TEST" << std::endl;
+    
+    // quad/chan numbers
+    outFiles[itFile] << " Quad/Chan :  ";
+    for ( unsigned i=0; i<nQuad_; ++i ) {
+      for ( unsigned j=0; j<nChan_; ++j ) {
+	outFiles[itFile] << "  q" << setfill('0') << setw(2) << i << "c" << j << "    ";
       }
     }
-    file << std::endl;
-  }
+    outFiles[itFile] << std::endl;
 
-  file.close();
+    // link numbers
+    outFiles[itFile] << "      Link : ";
+    for ( unsigned i=0; i<nQuad_; ++i ) {
+      for ( unsigned j=0; j<nChan_; ++j ) {
+	outFiles[itFile] << "    " << setfill('0') << setw(2) << (i*nChan_)+j << "     ";
+      }
+    }
+
+    outFiles[itFile] << std::endl;
+
+    // then the data
+    unsigned iFileFrame=0;
+    for ( unsigned iFrame=itFile*framesPerFile; iFrame<(itFile*framesPerFile+framesPerFile); ++iFrame ) {
+      if( iFrame <= nFrame_ ){
+	outFiles[itFile] << "Frame " << std::dec << std::setw(4) << std::setfill('0') << iFileFrame << " : ";
+	for ( unsigned iQuad=0; iQuad<nQuad_; ++iQuad ) {
+	  for ( unsigned iChan=0; iChan<nChan_; ++iChan ) {
+	    unsigned iLink = (iQuad*nChan_)+iChan;
+	    if (iLink<data_.size() && iFrame<data_.at(iLink).size()) {
+	      outFiles[itFile] << std::hex << ::std::setw(1) << dataValid_.at(iFrame) << "v" << std::hex << std::setw(8) << std::setfill('0') << data_.at(iLink).at(iFrame) << " ";
+	    }
+	    else {
+	      std::cerr << "Out of range : " << iLink << ", " << iFrame << std::endl;
+	    }
+	  }
+	}
+      }
+      outFiles[itFile] << std::endl;
+      iFileFrame++;
+    }
+    outFiles[itFile].close();
+  }
   
 }
+
+
 
 // ------------ method called when starting to processes a run  ------------
 /*
