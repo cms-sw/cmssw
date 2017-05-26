@@ -1,6 +1,6 @@
 #include <algorithm>
 #include "L1Trigger/L1TMuon/interface/deprecate/DTBunchCrossingCleaner.h"
-#include "L1Trigger/L1TMuon/interface/deprecate/MuonTriggerPrimitive.h"
+#include "L1Trigger/L1TMuon/interface/MuonTriggerPrimitive.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"

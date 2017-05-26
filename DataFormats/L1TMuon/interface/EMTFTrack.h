@@ -4,202 +4,203 @@
 #ifndef __l1t_EMTFTrack_h__
 #define __l1t_EMTFTrack_h__
 
+#include <cstdint>
 #include <vector>
-#include <boost/cstdint.hpp>
- 
-#include "DataFormats/GeometryVector/interface/Pi.h"
+#include <cmath>
+
 #include "DataFormats/L1TMuon/interface/EMTFHit.h"
+#include "DataFormats/L1TMuon/interface/EMTFRoad.h"
 #include "DataFormats/L1TMuon/interface/EMTF/SP.h"
 
-
 namespace l1t {
+  
+  struct EMTFPtLUT {
+    uint64_t address;
+    uint16_t mode;
+    uint16_t theta;
+    uint16_t st1_ring2;
+    uint16_t eta;
+    uint16_t delta_ph [6]; // index: 0=12, 1=13, 2=14, 3=23, 4=24, 5=34
+    uint16_t delta_th [6]; // ^
+    uint16_t sign_ph  [6]; // ^
+    uint16_t sign_th  [6]; // ^
+    uint16_t cpattern [4]; // index: 0=ME1, 1=ME2, 2=ME3, 3=ME4
+    uint16_t fr       [4]; // ^
+    uint16_t bt_vi    [5]; // index: 0=ME1sub1, 1=ME1sub2, 2=ME2, 3=ME3, 4=ME4
+    uint16_t bt_hi    [5]; // ^
+    uint16_t bt_ci    [5]; // ^
+    uint16_t bt_si    [5]; // ^
+  };
+  
+  
   class EMTFTrack {
   public:
     
   EMTFTrack() :
-    // Using -999 instead of -99 b/c this seems most common in the emulator.  Unfortunate. - AWB 17.03.16
-    endcap(-999), sector(-999), sector_GMT(-999), sector_index(-999), mode(-999), mode_LUT(-999), quality(-999), bx(-999),
-      pt(-999), pt_GMT(-999), pt_LUT_addr(0), eta(-999), eta_GMT(-999), eta_LUT(-999), phi_loc_int(-999), 
-      phi_loc_deg(-999), phi_loc_rad(-999), phi_GMT(-999), phi_glob_deg(-999), phi_glob_rad(-999), 
-      charge(-999), charge_GMT(-999), charge_valid(-999), dPhi_12(-999), dPhi_13(-999), dPhi_14(-999), 
-      dPhi_23(-999), dPhi_24(-999), dPhi_34(-999), dTheta_12(-999), dTheta_13(-999), dTheta_14(-999), 
-      dTheta_23(-999), dTheta_24(-999), dTheta_34(-999), clct_1(-999), clct_2(-999), clct_3(-999), clct_4(-999), 
-      fr_1(-999), fr_2(-999), fr_3(-999), fr_4(-999), track_num(-999), has_neighbor(-999), all_neighbor(-999), numHits(0)
+    endcap(-99), sector(-99), sector_idx(-99), 
+      mode(-99), mode_CSC(0), mode_RPC(0), mode_neighbor(0), mode_inv(-99),
+      rank(-99), winner(-99), charge(-99), bx(-99), first_bx(-99), second_bx(-99),
+      pt(-99), pt_XML(-99), zone(-99), ph_num(-99), ph_q(-99),
+      theta_fp(-99), theta(-99), eta(-99), phi_fp(-99), phi_loc(-99), phi_glob(-999),
+      gmt_pt(-99), gmt_phi(-999), gmt_eta(-999), gmt_quality(-99), gmt_charge(-99), gmt_charge_valid(-99),
+      track_num(-99), numHits(-99) 
       {};
     
     virtual ~EMTFTrack() {};
-
-    // float pi = 3.141592653589793238;
-
+    
+    typedef unsigned int uint;
+    
     void ImportSP( const emtf::SP _SP, int _sector );
-    void ImportPtLUT( int _mode, unsigned long _address );
-
-    void set_Hits(EMTFHitCollection bits)       { _Hits = bits;                numHits = _Hits.size(); }
-    void push_Hit(EMTFHit bits)                 { _Hits.push_back(bits);       numHits = _Hits.size(); }
-    void set_HitIndices(std::vector<uint> bits) { _HitIndices = bits;          numHits = _HitIndices.size(); }
-    void push_HitIndex(uint bits)               { _HitIndices.push_back(bits); numHits = _HitIndices.size(); }
-
-    int NumHits()            const { return numHits; }
-    EMTFHitCollection Hits()       { return _Hits; }
-    std::vector<uint> HitIndices() { return _HitIndices; }
-    const EMTFHitCollection * PtrHits()       const { return &_Hits; }
-    const std::vector<uint> * PtrHitIndices() const { return &_HitIndices; }
+    // void ImportPtLUT( int _mode, unsigned long _address );
     
-    void set_endcap        (int  bits) { endcap       = bits; }
-    void set_sector        (int  bits) { sector       = bits; }
-    void set_sector_GMT    (int  bits) { sector_GMT   = bits; }
-    void set_sector_index  (int  bits) { sector_index = bits; }
-    void set_mode          (int  bits) { mode         = bits; }
-    void set_mode_LUT      (int  bits) { mode_LUT     = bits; }
-    void set_quality       (int  bits) { quality      = bits; }
-    void set_bx            (int  bits) { bx           = bits; }
-    void set_pt            (float val) { pt           = val;  }
-    void set_pt_GMT        (int  bits) { pt_GMT       = bits; }
-    void set_pt_LUT_addr (unsigned long  bits)  { pt_LUT_addr   = bits; }
-    void set_eta           (float val) { eta          = val;  }
-    void set_eta_GMT       (int  bits) { eta_GMT      = bits; }
-    void set_eta_LUT       (int  bits) { eta_LUT      = bits; }
-    void set_phi_loc_int   (int  bits) { phi_loc_int  = bits; }
-    void set_phi_loc_deg   (float val) { phi_loc_deg  = val;  }
-    void set_phi_loc_rad   (float val) { phi_loc_rad  = val;  }
-    void set_phi_GMT       (int  bits) { phi_GMT      = bits; }
-    void set_phi_glob_deg  (float val) { (val < 180) ? phi_glob_deg = val : phi_glob_deg = val - 360;  }
-    void set_phi_glob_rad  (float val) { (val < Geom::pi() ) ? phi_glob_rad = val : phi_glob_rad = val - 2*Geom::pi(); }
-    void set_charge        (int  bits) { charge       = bits; }
-    void set_charge_GMT    (int  bits) { charge_GMT   = bits; }
-    void set_charge_valid  (int  bits) { charge_valid = bits; }
-    void set_dPhi_12       (int  bits) { dPhi_12      = bits; }
-    void set_dPhi_13       (int  bits) { dPhi_13      = bits; }
-    void set_dPhi_14       (int  bits) { dPhi_14      = bits; }
-    void set_dPhi_23       (int  bits) { dPhi_23      = bits; }
-    void set_dPhi_24       (int  bits) { dPhi_24      = bits; }
-    void set_dPhi_34       (int  bits) { dPhi_34      = bits; }
-    void set_dTheta_12     (int  bits) { dTheta_12    = bits; }
-    void set_dTheta_13     (int  bits) { dTheta_13    = bits; }
-    void set_dTheta_14     (int  bits) { dTheta_14    = bits; }
-    void set_dTheta_23     (int  bits) { dTheta_23    = bits; }
-    void set_dTheta_24     (int  bits) { dTheta_24    = bits; }
-    void set_dTheta_34     (int  bits) { dTheta_34    = bits; }
-    void set_clct_1        (int  bits) { clct_1       = bits; }
-    void set_clct_2        (int  bits) { clct_2       = bits; }
-    void set_clct_3        (int  bits) { clct_3       = bits; }
-    void set_clct_4        (int  bits) { clct_4       = bits; }
-    void set_fr_1          (int  bits) { fr_1         = bits; }
-    void set_fr_2          (int  bits) { fr_2         = bits; }
-    void set_fr_3          (int  bits) { fr_3         = bits; }
-    void set_fr_4          (int  bits) { fr_4         = bits; }
-    void set_track_num     (int  bits) { track_num    = bits; }
-    void set_has_neighbor  (int  bits) { has_neighbor = bits; }
-    void set_all_neighbor  (int  bits) { all_neighbor = bits; }
 
-    
-    int   Endcap()        const { return  endcap;       }
-    int   Sector()        const { return  sector;       }
-    int   Sector_GMT()    const { return  sector_GMT;   }
-    int   Sector_index()  const { return  sector_index; }
-    int   Mode()          const { return  mode;         }
-    int   Mode_LUT()      const { return  mode_LUT;     }
-    int   Quality()       const { return  quality;      }
-    int   BX()            const { return  bx;           }
-    float Pt()            const { return  pt;           }
-    int   Pt_GMT()        const { return  pt_GMT;       }
-    unsigned long Pt_LUT_addr() const { return  pt_LUT_addr;      }
-    float Eta()           const { return  eta;          }
-    int   Eta_GMT()       const { return  eta_GMT;      }
-    int   Eta_LUT()       const { return  eta_LUT;      }
-    int   Phi_loc_int()   const { return  phi_loc_int;  }
-    float Phi_loc_deg()   const { return  phi_loc_deg;  }
-    float Phi_loc_rad()   const { return  phi_loc_rad;  }
-    int   Phi_GMT()       const { return  phi_GMT;      }
-    float Phi_glob_deg()  const { return  phi_glob_deg; }
-    float Phi_glob_rad()  const { return  phi_glob_rad; }
-    int   Charge()        const { return  charge;       }
-    int   Charge_GMT()    const { return  charge_GMT;   }
-    int   Charge_valid()  const { return  charge_valid; }
-    int   DPhi_12()       const { return dPhi_12;       }
-    int   DPhi_13()       const { return dPhi_13;       }
-    int   DPhi_14()       const { return dPhi_14;       }
-    int   DPhi_23()       const { return dPhi_23;       }
-    int   DPhi_24()       const { return dPhi_24;       }
-    int   DPhi_34()       const { return dPhi_34;       }
-    int   DTheta_12()     const { return dTheta_12;     }
-    int   DTheta_13()     const { return dTheta_13;     }
-    int   DTheta_14()     const { return dTheta_14;     }
-    int   DTheta_23()     const { return dTheta_23;     }
-    int   DTheta_24()     const { return dTheta_24;     }
-    int   DTheta_34()     const { return dTheta_34;     }
-    int   CLCT_1()        const { return clct_1;        }
-    int   CLCT_2()        const { return clct_2;        }
-    int   CLCT_3()        const { return clct_3;        }
-    int   CLCT_4()        const { return clct_4;        }
-    int   FR_1()          const { return fr_1;          }
-    int   FR_2()          const { return fr_2;          }
-    int   FR_3()          const { return fr_3;          }
-    int   FR_4()          const { return fr_4;          }
-    int   Track_num()     const { return track_num;     }
-    int   Has_neighbor()  const { return has_neighbor;  }
-    int   All_neighbor()  const { return all_neighbor;  }
+    void clear_Hits() { 
+      _Hits.clear();  numHits = 0;
+      mode_CSC = 0;  mode_RPC = 0;  mode_neighbor = 0;
+    }
+    void push_Hit(const EMTFHit& hit) {
+      _Hits.push_back( hit );  
+      numHits = _Hits.size();  
+      mode_CSC      += ( hit.Is_CSC()   ? pow(2, 4 - hit.Station()) : 0 ); 
+      mode_RPC      += ( hit.Is_RPC()   ? pow(2, 4 - hit.Station()) : 0 ); 
+      mode_neighbor += ( hit.Neighbor() ? pow(2, 4 - hit.Station()) : 0 ); 
+    }
+    void set_Hits(const EMTFHitCollection& hits) {
+      clear_Hits();
+      for (const auto& hit : hits)
+	push_Hit( hit );
+    }
 
-    
+    void set_HitIdx(const std::vector<uint>& bits) { _HitIdx = bits;          }
+    void clear_HitIdx()                            { _HitIdx.clear();         }
+    void push_HitIdx(uint bits)                    { _HitIdx.push_back(bits); }
+
+    int NumHits              () const { return numHits; }
+    EMTFHitCollection Hits   () const { return _Hits;   }
+    std::vector<uint> HitIdx () const { return _HitIdx; }
+
+    void set_Road(const EMTFRoad& bits) { _Road    = bits; }
+    void set_RoadIdx(uint bits)         { _RoadIdx = bits; }
+    EMTFRoad Road              () const { return _Road;    }
+    uint RoadIdx               () const { return _RoadIdx; }
+
+    void set_PtLUT(EMTFPtLUT bits)     { _PtLUT = bits; }
+    EMTFPtLUT PtLUT           () const { return _PtLUT; }
+
+    void set_endcap       (int  bits) { endcap       = bits; }
+    void set_sector       (int  bits) { sector       = bits; }
+    void set_sector_idx   (int  bits) { sector_idx   = bits; }
+    void set_mode         (int  bits) { mode         = bits; }
+    void set_mode_inv     (int  bits) { mode_inv     = bits; }
+    void set_rank         (int  bits) { rank         = bits; }
+    void set_winner       (int  bits) { winner       = bits; }
+    void set_charge       (int  bits) { charge       = bits; }
+    void set_bx           (int  bits) { bx           = bits; }
+    void set_first_bx     (int  bits) { first_bx     = bits; }
+    void set_second_bx    (int  bits) { second_bx    = bits; }
+    void set_pt           (float val) { pt           = val;  }
+    void set_pt_XML       (float val) { pt_XML       = val;  }
+    void set_zone         (int  bits) { zone         = bits; }
+    void set_ph_num       (int  bits) { ph_num       = bits; }
+    void set_ph_q         (int  bits) { ph_q         = bits; }
+    void set_theta_fp     (int  bits) { theta_fp     = bits; }
+    void set_theta        (float val) { theta        = val;  }
+    void set_eta          (float val) { eta          = val;  }
+    void set_phi_fp       (int  bits) { phi_fp       = bits; }
+    void set_phi_loc      (float val) { phi_loc      = val;  }
+    void set_phi_glob     (float val) { phi_glob     = val;  }
+    void set_gmt_pt       (int  bits) { gmt_pt       = bits; }
+    void set_gmt_phi      (int  bits) { gmt_phi      = bits; }
+    void set_gmt_eta      (int  bits) { gmt_eta      = bits; }
+    void set_gmt_quality  (int  bits) { gmt_quality  = bits; }
+    void set_gmt_charge   (int  bits) { gmt_charge   = bits; }
+    void set_gmt_charge_valid (int  bits) { gmt_charge_valid = bits; }
+    void set_track_num    (int  bits) { track_num    = bits; }
+
+
+    int   Endcap       () const { return endcap      ; }
+    int   Sector       () const { return sector      ; }
+    int   Sector_idx   () const { return sector_idx  ; }
+    int   Mode         () const { return mode        ; }
+    int   Mode_CSC     () const { return mode_CSC    ; }
+    int   Mode_RPC     () const { return mode_RPC    ; }
+    int   Mode_neighbor() const { return mode_neighbor; }
+    int   Mode_inv     () const { return mode_inv    ; }
+    int   Rank         () const { return rank        ; }
+    int   Winner       () const { return winner      ; }
+    int   Charge       () const { return charge      ; }
+    int   BX           () const { return bx          ; }
+    int   First_BX     () const { return first_bx    ; }
+    int   Second_BX    () const { return second_bx   ; }
+    float Pt           () const { return pt          ; }
+    float Pt_XML       () const { return pt_XML      ; }
+    int   Zone         () const { return zone        ; }
+    int   Ph_num       () const { return ph_num      ; }
+    int   Ph_q         () const { return ph_q        ; }
+    int   Theta_fp     () const { return theta_fp    ; }
+    float Theta        () const { return theta       ; }
+    float Eta          () const { return eta         ; }
+    int   Phi_fp       () const { return phi_fp      ; }
+    float Phi_loc      () const { return phi_loc     ; }
+    float Phi_glob     () const { return phi_glob    ; }
+    int   GMT_pt       () const { return gmt_pt      ; }
+    int   GMT_phi      () const { return gmt_phi     ; }
+    int   GMT_eta      () const { return gmt_eta     ; }
+    int   GMT_quality  () const { return gmt_quality ; }
+    int   GMT_charge   () const { return gmt_charge  ; }
+    int   GMT_charge_valid () const { return gmt_charge_valid; }
+    int   Track_num    () const { return track_num   ; }
+
+
   private:
-    
-    EMTFHitCollection _Hits;
-    std::vector<uint>  _HitIndices;
 
-    int   endcap;       // -1 or 1.  Filled in emulator from hit. 
-    int   sector;       //  1 -  6.  Filled in emulator from hit.
-    int   sector_GMT;   //  0 -  5.  Filled in emulator from hit.
-    int   sector_index; //  0 - 11.  Filled in emulator from hit.
-    int   mode;         //  0 - 15.  Filled in emulator.
-    int   mode_LUT;     //  0 - 15.  Filled in emulator.
-    int   quality;      //  0 - 15.  Filled in emultaor.
-    int   bx;           //  
-    float pt;           //  ? -  ?.  Filled in emulator.
-    int   pt_GMT;       //  ? -  ?.  Filled in emulator.
-    float pt_XML;       //  ? -  ?.  Filled in emulator.
-    unsigned long pt_LUT_addr; // ? - ?.  Filled in emulator.
-    float eta;          //  ? -  ?.  Filled in emulator.
-    int   eta_GMT;      //  ? -  ?.  Filled in emulator.
-    int   eta_LUT;      //  ? -  ?.  Filled in emulator.
-    int   phi_loc_int;  //  ? -  ?.  Filled in emulator.
-    float phi_loc_deg;  //  ? -  ?.  Filled in emulator.
-    float phi_loc_rad;  //  ? -  ?.  Filled in emulator.
-    int   phi_GMT;      //  ? -  ?.  Filled in emulator.
-    float phi_glob_deg; //  ? -  ?.  Filled in emulator.
-    float phi_glob_rad; //  ? -  ?.  Filled in emulator.
-    int   charge;       // -1 or 1.  Filled in emulator.
-    int   charge_GMT;   //  0 or 1.  Filled in emulator.
-    int   charge_valid; //  0 or 1.  Filled in emulator.
-    int   dPhi_12;
-    int   dPhi_13;
-    int   dPhi_14;
-    int   dPhi_23;
-    int   dPhi_24;
-    int   dPhi_34;
-    int   dTheta_12;
-    int   dTheta_13;
-    int   dTheta_14;
-    int   dTheta_23;
-    int   dTheta_24;
-    int   dTheta_34;
-    int   clct_1;
-    int   clct_2;
-    int   clct_3;
-    int   clct_4;
-    int   fr_1;
-    int   fr_2;
-    int   fr_3;
-    int   fr_4;
-    int   track_num;
-    int   has_neighbor;
-    int   all_neighbor;
-    int   numHits;
-    
+    EMTFHitCollection _Hits;
+    std::vector<uint> _HitIdx;
+
+    EMTFRoad _Road;
+    uint     _RoadIdx;
+
+    EMTFPtLUT _PtLUT;
+
+    int   endcap      ; //    +/-1.  For ME+ and ME-.
+    int   sector      ; //  1 -  6.
+    int   sector_idx  ; //  0 - 11.  0 - 5 for ME+, 6 - 11 for ME-.
+    int   mode        ; //  0 - 15.
+    int   mode_CSC    ; //  0 - 15, CSC-only
+    int   mode_RPC    ; //  0 - 15, RPC-only
+    int   mode_neighbor; // 0 - 15, only neighbor hits
+    int   mode_inv    ; // 15 -  0.
+    int   rank        ; //  0 - 127  (Range? - AWB 03.03.17)
+    int   winner      ; //  0 -  2.  (Range? - AWB 03.03.17)
+    int   charge      ; //    +/-1.  For physical charge (reversed from GMT convention)
+    int   bx          ; // -3 - +3.
+    int   first_bx    ; // -3 - +3.
+    int   second_bx   ; // -3 - +3.
+    float pt          ; //  0 - 255
+    float pt_XML      ; //  0 - 999
+    int   zone        ; //  0 -  3.
+    int   ph_num      ;
+    int   ph_q        ;
+    int   theta_fp    ; //  0 - 127
+    float theta       ; //  0 - 90.
+    float eta         ; //  +/-2.5.
+    int   phi_fp      ; // 0 - 4920
+    float phi_loc     ; // -22 - 60  (Range? - AWB 03.03.17)
+    float phi_glob    ; //  +/-180.
+    int   gmt_pt      ;
+    int   gmt_phi     ;
+    int   gmt_eta     ;
+    int   gmt_quality ;
+    int   gmt_charge  ;
+    int   gmt_charge_valid;
+    int   track_num   ; //  0 - ??.  (Range? - AWB 03.03.17)
+    int   numHits     ; //  1 -  4.
+
   }; // End of class EMTFTrack
-  
+
   // Define a vector of EMTFTrack
   typedef std::vector<EMTFTrack> EMTFTrackCollection;
-  
+
 } // End of namespace l1t
 
 #endif /* define __l1t_EMTFTrack_h__ */

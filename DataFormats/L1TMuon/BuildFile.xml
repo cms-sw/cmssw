@@ -5,6 +5,7 @@
 <use name="DataFormats/CSCDigi"/>
 <use name="DataFormats/L1DTTrackFinder"/>
 <use name="DataFormats/RPCDigi"/>
+<use name="DataFormats/GEMDigi"/>
 <use name="DataFormats/MuonDetId"/>
 <use name="DataFormats/L1CSCTrackFinder"/>
 <use name="DataFormats/Common"/>

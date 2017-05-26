@@ -13,7 +13,7 @@
 
 #include <iostream>
 
-#include "L1Trigger/L1TMuon/interface/deprecate/MuonTriggerPrimitive.h"
+#include "L1Trigger/L1TMuon/interface/MuonTriggerPrimitive.h"
 
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"

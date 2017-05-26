@@ -1,0 +1,31 @@
+<environment>
+  <bin name="TestL1TriggerL1TMuonEndCap" file="unittests/TestDriver.cpp">
+    <flags TEST_RUNNER_ARGS=" /bin/bash L1Trigger/L1TMuonEndCap/test/unittests runtests.sh"/>
+    <use name="FWCore/Utilities"/>
+  </bin>
+
+  <bin name="TestPhiMemoryImage" file="unittests/TestPhiMemoryImage.cpp">
+    <use name="L1Trigger/L1TMuonEndCap"/>
+    <use name="cppunit"/>
+  </bin>
+
+  <bin name="TestTrackTools" file="unittests/TestTrackTools.cpp">
+    <use name="L1Trigger/L1TMuonEndCap"/>
+    <use name="cppunit"/>
+  </bin>
+</environment>
+
+
+<environment>
+  <export>
+  </export>
+
+  <library file="tools/*.cc" name="L1TriggerL1TMuonEndCap_tools">
+    <use name="L1Trigger/L1TMuonEndCap"/>
+    <use name="Geometry/DTGeometry"/>
+    <use name="Geometry/RPCGeometry"/>
+    <use name="Geometry/CSCGeometry"/>
+    <use name="root"/>
+    <flags EDM_PLUGIN="1"/>
+  </library>
+</environment>

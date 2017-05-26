@@ -1,8 +1,30 @@
+// Code to unpack the "ME Data Record"
+
 #include "EventFilter/L1TRawToDigi/plugins/UnpackerFactory.h"
 
 #include "EMTFCollections.h"
 #include "EMTFUnpackerTools.h"
-#include "EMTFBlockME.h"
+
+// This is the "header" - no EMTFBlockME.h file is needed
+namespace l1t {
+  namespace stage2 {
+    namespace emtf {
+      
+      class MEBlockUnpacker : public Unpacker { // "MEBlockUnpacker" inherits from "Unpacker"
+      public:
+	virtual int  checkFormat(const Block& block);
+	virtual bool unpack(const Block& block, UnpackerCollections *coll) override; // Apparently it's always good to use override in C++
+	// virtual bool packBlock(const Block& block, UnpackerCollections *coll) override;
+      };
+      
+      // class MEBlockPacker : public Packer { // "MEBlockPacker" inherits from "Packer"
+      // public:
+      // 	virtual bool unpack(const Block& block, UnpackerCollections *coll) override; // Apparently it's always good to use override in C++
+      // };
+      
+    }
+  }
+}
 
 namespace l1t {
   namespace stage2 {
@@ -92,8 +114,6 @@ namespace l1t {
 	CSCCorrelatedLCTDigiCollection* res_LCT;
 	res_LCT = static_cast<EMTFCollections*>(coll)->getEMTFLCTs();
 
-	// if (ME_.Format_Errors() > 0) goto write; // Temporarily disable for DQM operation - AWB 09.04.16
-
 	////////////////////////////
 	// Unpack the ME Data Record
 	////////////////////////////
@@ -124,12 +144,7 @@ namespace l1t {
 
 	// ME_.set_dataword     ( uint64_t dataword);
 
-	
-	// Fill the EMTFHit
-	Hit_.ImportME( ME_ );
-	Hit_.set_endcap ( ((res->at(iOut)).PtrEventHeader()->Endcap() == 1) ? 1 : -1 );
-	// Hit_.set_layer();
-	
+	// Convert specially-encoded ME quantities
 	std::vector<int> conv_vals = convert_ME_location( ME_.Station(), ME_.CSC_ID(), 
 							  (res->at(iOut)).PtrEventHeader()->Sector() );
 	Hit_.set_station   ( conv_vals.at(0) );
@@ -137,17 +152,10 @@ namespace l1t {
 	Hit_.set_sector    ( conv_vals.at(2) );
 	Hit_.set_subsector ( conv_vals.at(3) );
 	Hit_.set_neighbor  ( conv_vals.at(4) );
-	
-	Hit_.set_sector_index ( (Hit_.Endcap() == 1) 
-				? (res->at(iOut)).PtrEventHeader()->Sector() - 1
-				: (res->at(iOut)).PtrEventHeader()->Sector() + 5 );
 
-	Hit_.set_ring       ( calc_ring( Hit_.Station(), Hit_.CSC_ID(), Hit_.Strip() ) );
-	Hit_.set_chamber    ( calc_chamber( Hit_.Station(), Hit_.Sector(), 
-					    Hit_.Subsector(), Hit_.Ring(), Hit_.CSC_ID() ) );
+	// Fill the EMTFHit
+	ImportME( Hit_, ME_, (res->at(iOut)).PtrEventHeader()->Endcap(), (res->at(iOut)).PtrEventHeader()->Sector() );
 
-	Hit_.SetCSCDetId   ( Hit_.CreateCSCDetId() );
-	Hit_.SetCSCLCTDigi ( Hit_.CreateCSCCorrelatedLCTDigi() );
 
 	// Set the stub number for this hit
 	// Each chamber can send up to 2 stubs per BX
@@ -169,7 +177,6 @@ namespace l1t {
 	      duplicate_hit_exists = true;
 	  }
 	}
-	// write: // Temporarily disable for DQM operation - AWB 09.04.16
 
 	(res->at(iOut)).push_ME(ME_);
 	res_hit->push_back(Hit_);

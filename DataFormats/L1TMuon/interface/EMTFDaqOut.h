@@ -97,7 +97,7 @@ namespace l1t {
     const emtf::EventTrailer*  PtrEventTrailer()  const { return & EventTrailer;  }
     const emtf::MTF7Trailer*   PtrMTF7Trailer()   const { return & MTF7Trailer;   }
     const emtf::AMC13Trailer*  PtrAMC13Trailer()  const { return & AMC13Trailer;  }
-    int                        Format_Errors()    const { return format_errors;   }
+    int                        Format_errors()    const { return format_errors;   }
     uint64_t                   Dataword()         const { return dataword;        }
     
   private:
