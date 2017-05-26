@@ -109,17 +109,17 @@ private:
   MEbinning           eta_binning_;
   MEbinning           HT_binning_;
 
-  METME muPhi_;
-  METME muEta_;
-  METME muPt_;
+  std::vector<METME> muPhi_;
+  std::vector<METME> muEta_;
+  std::vector<METME> muPt_;
 
-  METME elePhi_;
-  METME eleEta_;
-  METME elePt_;
+  std::vector<METME> elePhi_;
+  std::vector<METME> eleEta_;
+  std::vector<METME> elePt_;
 
-  METME jetPhi_;
-  METME jetEta_;
-  METME jetPt_;
+  std::vector<METME> jetPhi_;
+  std::vector<METME> jetEta_;
+  std::vector<METME> jetPt_;
 
   METME eventHT_;
 
@@ -132,9 +132,9 @@ private:
   StringCutObjectSelector<reco::Muon,true>        muoSelection_;
   StringCutObjectSelector<reco::PFJet,true   >    HTdefinition_;
 
-  int njets_;
-  int nelectrons_;
-  int nmuons_;
+  unsigned int njets_;
+  unsigned int nelectrons_;
+  unsigned int nmuons_;
   double leptJetDeltaRmin_;
   double HTcut_;
 
