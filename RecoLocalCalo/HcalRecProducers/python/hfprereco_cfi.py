@@ -32,7 +32,7 @@ import FWCore.ParameterSet.Config as cms
 # is accumulated using all time slices in the data frame.
 #
 hfprereco = cms.EDProducer("HFPreReconstructor",
-    digiLabel = cms.InputTag("hcalDigis"),
+    digiLabel = cms.InputTag("hcalDigis","HFQIE10DigiCollection"),
     dropZSmarkedPassed = cms.bool(True),
     tsFromDB = cms.bool(False),
     sumAllTimeSlices = cms.bool(False),
