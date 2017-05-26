@@ -18,6 +18,7 @@ using namespace XERCES_CPP_NAMESPACE;
 
 class L1TCaloParamsOnlineProd : public L1ConfigOnlineProdBaseExt<L1TCaloParamsO2ORcd,l1t::CaloParams> {
 private:
+    unsigned int exclusiveLayer; // 0 - process calol1 and calol2, 1 - only calol1, 2 - only calol2
 
     bool readCaloLayer1OnlineSettings(l1t::CaloParamsHelper& paramsHelper, std::map<std::string, l1t::Parameter>& conf, std::map<std::string, 
 l1t::Mask>& );
@@ -182,6 +183,7 @@ std::map<std::string, l1t::Mask>& ) {
 L1TCaloParamsOnlineProd::L1TCaloParamsOnlineProd(const edm::ParameterSet& iConfig) : 
     L1ConfigOnlineProdBaseExt<L1TCaloParamsO2ORcd,l1t::CaloParams>(iConfig)
 {
+    exclusiveLayer = iConfig.getParameter<uint32_t>("exclusiveLayer");
 }
 
 std::shared_ptr<l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const std::string& objectKey, const L1TCaloParamsO2ORcd& record) {
@@ -209,12 +211,16 @@ std::shared_ptr<l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const std::s
     std::string calol2_hw_payload;
     std::map<std::string,std::string> calol2_algo_payloads;  // key -> XML payload
     try {
+
         std::map<std::string,std::string> topKeys =
             l1t::OnlineDBqueryHelper::fetch( {"CALOL1_KEY","CALOL2_KEY"},
                                              "L1_TRG_CONF_KEYS",
                                              tscKey,
                                              m_omdsReader
                                            );
+
+      if( exclusiveLayer == 0 || exclusiveLayer == 1 ){
+
         calol1_top_key = topKeys["CALOL1_KEY"];
 
         calol1_algo_key = l1t::OnlineDBqueryHelper::fetch( {"ALGO"},
@@ -228,6 +234,9 @@ std::shared_ptr<l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const std::s
                                                                 calol1_algo_key,
                                                                 m_omdsReader
                                                              ) ["CONF"];
+      }
+
+      if( exclusiveLayer == 0 || exclusiveLayer == 2 ){
 
         calol2_top_key = topKeys["CALOL2_KEY"];
 
@@ -261,31 +270,35 @@ std::shared_ptr<l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const std::s
                                                  key.second,
                                                  m_omdsReader
                                                ) ["CONF"];
+      }
 
     } catch ( std::runtime_error &e ) {
         edm::LogError( "L1-O2O: L1TCaloParamsOnlineProd" ) << e.what();
         throw std::runtime_error("Broken key");
     }
 
-    // for debugging purposes dump the configs to local files
-    for(auto &conf : calol2_algo_payloads){ 
-        std::ofstream output(std::string("/tmp/").append(conf.first.substr(0,conf.first.find("/"))).append(".xml"));
-        output<<conf.second;
-        output.close();
-    }
-    { 
+    if( exclusiveLayer == 0 || exclusiveLayer == 2 ){
+        // for debugging purposes dump the configs to local files
+        for(auto &conf : calol2_algo_payloads){ 
+            std::ofstream output(std::string("/tmp/").append(conf.first.substr(0,conf.first.find("/"))).append(".xml"));
+            output<<conf.second;
+            output.close();
+        }
         std::ofstream output(std::string("/tmp/").append(calol2_hw_key.substr(0,calol2_hw_key.find("/"))).append(".xml"));
         output << calol2_hw_payload;
         output.close();
     }
+    if( exclusiveLayer == 0 || exclusiveLayer == 1 )
     { 
         std::ofstream output(std::string("/tmp/").append(calol1_algo_key.substr(0,calol1_algo_key.find("/"))).append(".xml"));
         output << calol1_algo_payload;
         output.close();
     }
 
+    l1t::CaloParamsHelper m_params_helper( *(baseSettings.product()) );
 
 
+  if( exclusiveLayer == 0 || exclusiveLayer == 1 ){
     l1t::XmlConfigParser xmlReader1;
     xmlReader1.readDOMFromString( calol1_algo_payload );
 
@@ -297,6 +310,12 @@ std::shared_ptr<l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const std::s
     std::map<std::string, l1t::Parameter> calol1_conf = calol1.getParameters("processors");
     std::map<std::string, l1t::Mask>      calol1_rs   ;//= calol1.getMasks   ("processors");
 
+    if( !readCaloLayer1OnlineSettings(m_params_helper, calol1_conf, calol1_rs) )
+        throw std::runtime_error("Parsing error for CaloLayer1");
+  }
+
+
+  if( exclusiveLayer == 0 || exclusiveLayer == 2 ){
     l1t::TriggerSystem calol2;
 
     l1t::XmlConfigParser xmlReader2;
@@ -314,13 +333,11 @@ std::shared_ptr<l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const std::s
     // Perhaps layer 2 has to look at settings for demux and mp separately? // => No demux settings required
     std::map<std::string, l1t::Parameter> calol2_conf = calol2.getParameters("MP1");
     std::map<std::string, l1t::Mask>      calol2_rs   ;//= calol2.getMasks   ("processors");
-    
-    l1t::CaloParamsHelper m_params_helper( *(baseSettings.product()) );
 
-    if( !readCaloLayer1OnlineSettings(m_params_helper, calol1_conf, calol1_rs) )
-        throw std::runtime_error("Parsing error for CaloLayer1");
     if( !readCaloLayer2OnlineSettings(m_params_helper, calol2_conf, calol2_rs) )
         throw std::runtime_error("Parsing error for CaloLayer2");
+  }
+    
 
     std::shared_ptr< l1t::CaloParams > retval = std::make_shared< l1t::CaloParams >( m_params_helper ) ;
     return retval;
