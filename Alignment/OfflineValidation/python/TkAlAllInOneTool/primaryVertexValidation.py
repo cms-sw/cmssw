@@ -99,4 +99,4 @@ class PrimaryVertexValidation(GenericValidationData, ValidationWithPlots):
 
     @classmethod
     def plotsdirname(cls):
-        return "PVPlots"
+        return "PrimaryVertexValidation"
