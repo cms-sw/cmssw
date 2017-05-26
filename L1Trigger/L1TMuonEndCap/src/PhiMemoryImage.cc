@@ -1,4 +1,4 @@
-#include "L1Trigger/L1TMuonEndCap/interface/PhiMemoryImage.hh"
+#include "L1Trigger/L1TMuonEndCap/interface/PhiMemoryImage.h"
 
 #include <stdexcept>
 #include <iostream>

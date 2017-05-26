@@ -1,5 +1,5 @@
-#ifndef L1TMuonEndCap_PhiMemoryImage_hh
-#define L1TMuonEndCap_PhiMemoryImage_hh
+#ifndef L1TMuonEndCap_PhiMemoryImage_h
+#define L1TMuonEndCap_PhiMemoryImage_h
 
 #include <cstdint>
 #include <iosfwd>

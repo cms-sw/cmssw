@@ -1,10 +1,10 @@
-#ifndef L1TMuonEndCap_MicroGMTConverter_hh
-#define L1TMuonEndCap_MicroGMTConverter_hh
+#ifndef L1TMuonEndCap_MicroGMTConverter_h
+#define L1TMuonEndCap_MicroGMTConverter_h
 
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
 
-#include "L1Trigger/L1TMuonEndCap/interface/Common.hh"
+#include "L1Trigger/L1TMuonEndCap/interface/Common.h"
 
 
 class MicroGMTConverter {

@@ -1,4 +1,4 @@
-#include "L1Trigger/L1TMuonEndCap/interface/MicroGMTConverter.hh"
+#include "L1Trigger/L1TMuonEndCap/interface/MicroGMTConverter.h"
 
 
 MicroGMTConverter::MicroGMTConverter() {

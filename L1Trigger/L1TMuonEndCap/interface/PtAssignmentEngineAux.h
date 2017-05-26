@@ -1,5 +1,5 @@
-#ifndef L1TMuonEndCap_PtAssignmentEngineAux_hh
-#define L1TMuonEndCap_PtAssignmentEngineAux_hh
+#ifndef L1TMuonEndCap_PtAssignmentEngineAux_h
+#define L1TMuonEndCap_PtAssignmentEngineAux_h
 
 #include <cassert>
 #include <cstdint>

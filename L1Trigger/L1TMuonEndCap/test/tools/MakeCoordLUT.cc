@@ -32,7 +32,7 @@
 //#include "L1Trigger/CSCCommonTrigger/interface/CSCPatternLUT.h"
 //#include "L1Trigger/CSCTrackFinder/interface/CSCSectorReceiverLUT.h"
 
-#include "helper.hh"
+#include "helper.h"
 
 
 class MakeCoordLUT : public edm::EDAnalyzer {

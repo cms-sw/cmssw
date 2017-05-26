@@ -1,4 +1,4 @@
-#include "L1Trigger/L1TMuonEndCap/interface/SingleHitTrack.hh"
+#include "L1Trigger/L1TMuonEndCap/interface/SingleHitTrack.h"
 
 void SingleHitTrack::configure(
     int verbose, int endcap, int sector, int bx,

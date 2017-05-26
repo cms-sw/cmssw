@@ -1,11 +1,11 @@
-#include "L1Trigger/L1TMuonEndCap/interface/PrimitiveSelection.hh"
+#include "L1Trigger/L1TMuonEndCap/interface/PrimitiveSelection.h"
 
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
 
-#include "helper.hh"  // adjacent_cluster
+#include "helper.h"  // adjacent_cluster
 
 #define NUM_CSC_CHAMBERS 6*9   // 18 in ME1; 9 in ME2,3,4; 9 from neighbor sector.
                                // Arranged in FW as 6 stations, 9 chambers per station.

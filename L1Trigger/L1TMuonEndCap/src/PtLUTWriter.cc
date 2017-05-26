@@ -1,4 +1,4 @@
-#include "L1Trigger/L1TMuonEndCap/interface/PtLUTWriter.hh"
+#include "L1Trigger/L1TMuonEndCap/interface/PtLUTWriter.h"
 
 #include <fstream>
 #include <iostream>

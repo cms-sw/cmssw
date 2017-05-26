@@ -1,5 +1,5 @@
-#include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine2017.hh"
-#include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngineAux2017.hh"
+#include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine2017.h"
+#include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngineAux2017.h"
 #include "L1Trigger/L1TMuonEndCap/interface/PtLutVarCalc.h"
 
 #include <cassert>

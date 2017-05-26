@@ -1,8 +1,8 @@
-#ifndef L1TMuonEndCap_PtAssignmentEngine2016_hh
-#define L1TMuonEndCap_PtAssignmentEngine2016_hh
+#ifndef L1TMuonEndCap_PtAssignmentEngine2016_h
+#define L1TMuonEndCap_PtAssignmentEngine2016_h
 
-#include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine.hh"
-#include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngineAux2016.hh"
+#include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine.h"
+#include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngineAux2016.h"
 
 class PtAssignmentEngine2016: public PtAssignmentEngine {
 public:

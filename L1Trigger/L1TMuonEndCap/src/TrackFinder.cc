@@ -1,11 +1,11 @@
-#include "L1Trigger/L1TMuonEndCap/interface/TrackFinder.hh"
-#include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine2016.hh"
-#include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine2017.hh"
+#include "L1Trigger/L1TMuonEndCap/interface/TrackFinder.h"
+#include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine2016.h"
+#include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine2017.h"
 
 #include <iostream>
 #include <sstream>
 
-#include "L1Trigger/L1TMuonEndCap/interface/EMTFSubsystemCollector.hh"
+#include "L1Trigger/L1TMuonEndCap/interface/EMTFSubsystemCollector.h"
 
 
 TrackFinder::TrackFinder(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iConsumes) :
@@ -157,7 +157,7 @@ void TrackFinder::process(
   // Reload pT LUT if necessary
   pt_assign_engine_->load(&(condition_helper_.getForest()));
 
-  // MIN/MAX ENDCAP and TRIGSECTOR set in interface/Common.hh
+  // MIN/MAX ENDCAP and TRIGSECTOR set in interface/Common.h
   for (int endcap = MIN_ENDCAP; endcap <= MAX_ENDCAP; ++endcap) {
     for (int sector = MIN_TRIGSECTOR; sector <= MAX_TRIGSECTOR; ++sector) {
       const int es = (endcap - MIN_ENDCAP) * (MAX_TRIGSECTOR - MIN_TRIGSECTOR + 1) + (sector - MIN_TRIGSECTOR);

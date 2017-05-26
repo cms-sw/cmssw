@@ -1,23 +1,25 @@
-#ifndef L1TMuonEndCap_PtLUTReader_hh
-#define L1TMuonEndCap_PtLUTReader_hh
+#ifndef L1TMuonEndCap_PtLUTWriter_h
+#define L1TMuonEndCap_PtLUTWriter_h
 
 #include <cstdint>
 #include <string>
 #include <vector>
 
 
-class PtLUTReader {
+class PtLUTWriter {
 public:
-  explicit PtLUTReader();
-  ~PtLUTReader();
+  explicit PtLUTWriter();
+  ~PtLUTWriter();
 
   typedef uint16_t               content_t;
   typedef uint64_t               address_t;
   typedef std::vector<content_t> table_t;
 
-  void read(const std::string& lut_full_path);
+  void write(const std::string& lut_full_path) const;
 
-  content_t lookup(const address_t& address) const;
+  void push_back(const content_t& pt);
+
+  void set_version(content_t ver) { version_ = ver; }
 
   content_t get_version() const { return version_; }
 

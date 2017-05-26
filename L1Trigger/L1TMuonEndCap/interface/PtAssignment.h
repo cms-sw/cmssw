@@ -1,7 +1,7 @@
-#ifndef L1TMuonEndCap_PtAssignment_hh
-#define L1TMuonEndCap_PtAssignment_hh
+#ifndef L1TMuonEndCap_PtAssignment_h
+#define L1TMuonEndCap_PtAssignment_h
 
-#include "L1Trigger/L1TMuonEndCap/interface/Common.hh"
+#include "L1Trigger/L1TMuonEndCap/interface/Common.h"
 
 
 class PtAssignmentEngine;

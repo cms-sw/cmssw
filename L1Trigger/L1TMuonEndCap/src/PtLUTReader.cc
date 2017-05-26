@@ -1,4 +1,4 @@
-#include "L1Trigger/L1TMuonEndCap/interface/PtLUTReader.hh"
+#include "L1Trigger/L1TMuonEndCap/interface/PtLUTReader.h"
 
 #include <fstream>
 #include <iostream>

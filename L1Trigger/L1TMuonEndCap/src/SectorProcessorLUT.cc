@@ -1,4 +1,4 @@
-#include "L1Trigger/L1TMuonEndCap/interface/SectorProcessorLUT.hh"
+#include "L1Trigger/L1TMuonEndCap/interface/SectorProcessorLUT.h"
 
 #include <cassert>
 #include <iostream>

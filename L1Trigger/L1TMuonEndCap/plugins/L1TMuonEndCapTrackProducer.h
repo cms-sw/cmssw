@@ -12,8 +12,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "L1Trigger/L1TMuonEndCap/interface/TrackFinder.hh"
-#include "L1Trigger/L1TMuonEndCap/interface/MicroGMTConverter.hh"
+#include "L1Trigger/L1TMuonEndCap/interface/TrackFinder.h"
+#include "L1Trigger/L1TMuonEndCap/interface/MicroGMTConverter.h"
 
 
 // Class declaration

@@ -1,4 +1,4 @@
-#include "L1Trigger/L1TMuonEndCap/interface/EMTFSubsystemCollector.hh"
+#include "L1Trigger/L1TMuonEndCap/interface/EMTFSubsystemCollector.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -7,7 +7,7 @@
 // Specialized for CSC
 template<>
 void EMTFSubsystemCollector::extractPrimitives(
-    CSCTag tag, // Defined in interface/EMTFSubsystemTag.hh, maps to CSCCorrelatedLCTDigi
+    CSCTag tag, // Defined in interface/EMTFSubsystemTag.h, maps to CSCCorrelatedLCTDigi
     const edm::Event& iEvent,
     const edm::EDGetToken& token,
     TriggerPrimitiveCollection& out
@@ -31,7 +31,7 @@ void EMTFSubsystemCollector::extractPrimitives(
 // Specialized for RPC
 template<>
 void EMTFSubsystemCollector::extractPrimitives(
-    RPCTag tag, // Defined in interface/EMTFSubsystemTag.hh, maps to RPCDigi
+    RPCTag tag, // Defined in interface/EMTFSubsystemTag.h, maps to RPCDigi
     const edm::Event& iEvent,
     const edm::EDGetToken& token,
     TriggerPrimitiveCollection& out
@@ -58,7 +58,7 @@ void EMTFSubsystemCollector::extractPrimitives(
 // Specialized for GEM
 template<>
 void EMTFSubsystemCollector::extractPrimitives(
-    GEMTag tag, // Defined in interface/EMTFSubsystemTag.hh, maps to GEMPadDigi
+    GEMTag tag, // Defined in interface/EMTFSubsystemTag.h, maps to GEMPadDigi
     const edm::Event& iEvent,
     const edm::EDGetToken& token,
     TriggerPrimitiveCollection& out

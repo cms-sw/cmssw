@@ -1,5 +1,5 @@
-#ifndef L1TMuonEndCap_TrackFinder_hh
-#define L1TMuonEndCap_TrackFinder_hh
+#ifndef L1TMuonEndCap_TrackFinder_h
+#define L1TMuonEndCap_TrackFinder_h
 
 #include <memory>
 #include <string>
@@ -11,7 +11,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "L1Trigger/L1TMuonEndCap/interface/SectorProcessor.hh"
+#include "L1Trigger/L1TMuonEndCap/interface/SectorProcessor.h"
 
 
 class TrackFinder {

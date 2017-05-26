@@ -1,5 +1,5 @@
-#ifndef L1TMuonEndCap_SectorProcessorLUT_hh
-#define L1TMuonEndCap_SectorProcessorLUT_hh
+#ifndef L1TMuonEndCap_SectorProcessorLUT_h
+#define L1TMuonEndCap_SectorProcessorLUT_h
 
 #include <cstdint>
 #include <string>

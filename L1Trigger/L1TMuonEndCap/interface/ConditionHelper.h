@@ -1,5 +1,5 @@
-#ifndef L1TMuonEndCap_ConditionHelper_hh
-#define L1TMuonEndCap_ConditionHelper_hh
+#ifndef L1TMuonEndCap_ConditionHelper_h
+#define L1TMuonEndCap_ConditionHelper_h
 
 #include "FWCore/Framework/interface/ESHandle.h"
 

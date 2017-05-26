@@ -1,5 +1,5 @@
-#ifndef L1TMuonEndCap_PtAssignmentEngine_hh
-#define L1TMuonEndCap_PtAssignmentEngine_hh
+#ifndef L1TMuonEndCap_PtAssignmentEngine_h
+#define L1TMuonEndCap_PtAssignmentEngine_h
 
 #include <cstdint>
 #include <cstdlib>
@@ -8,9 +8,9 @@
 #include <vector>
 #include <array>
 
-#include "L1Trigger/L1TMuonEndCap/interface/Common.hh"
-#include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngineAux.hh"
-#include "L1Trigger/L1TMuonEndCap/interface/PtLUTReader.hh"
+#include "L1Trigger/L1TMuonEndCap/interface/Common.h"
+#include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngineAux.h"
+#include "L1Trigger/L1TMuonEndCap/interface/PtLUTReader.h"
 #include "L1Trigger/L1TMuonEndCap/interface/bdt/Forest.h"
 
 

@@ -1,6 +1,6 @@
-#include "L1Trigger/L1TMuonEndCap/interface/BestTrackSelection.hh"
+#include "L1Trigger/L1TMuonEndCap/interface/BestTrackSelection.h"
 
-#include "helper.hh"  // to_hex, to_binary
+#include "helper.h"  // to_hex, to_binary
 
 
 void BestTrackSelection::configure(

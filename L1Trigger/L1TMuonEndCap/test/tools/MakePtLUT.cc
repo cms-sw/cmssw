@@ -8,12 +8,12 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-// #include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine2016.hh"
-#include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine2017.hh"
-#include "L1Trigger/L1TMuonEndCap/interface/PtLUTWriter.hh"
+// #include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine2016.h"
+#include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine2017.h"
+#include "L1Trigger/L1TMuonEndCap/interface/PtLUTWriter.h"
 
-#include "helper.hh"
-#include "progress_bar.hh"
+#include "helper.h"
+#include "progress_bar.h"
 
 
 class MakePtLUT : public edm::EDAnalyzer {

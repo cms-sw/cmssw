@@ -1,5 +1,5 @@
-#ifndef L1TMuonEndCap_Common_hh
-#define L1TMuonEndCap_Common_hh
+#ifndef L1TMuonEndCap_Common_h
+#define L1TMuonEndCap_Common_h
 
 #include "DataFormats/L1TMuon/interface/EMTFHit.h"
 #include "DataFormats/L1TMuon/interface/EMTFRoad.h"
@@ -9,7 +9,7 @@
 #include "L1Trigger/L1TMuon/interface/MuonTriggerPrimitive.h"
 #include "L1Trigger/L1TMuon/interface/MuonTriggerPrimitiveFwd.h"
 
-#include "L1Trigger/L1TMuonEndCap/interface/EMTFSubsystemTag.hh"
+#include "L1Trigger/L1TMuonEndCap/interface/EMTFSubsystemTag.h"
 
 
 // Resolve namespaces

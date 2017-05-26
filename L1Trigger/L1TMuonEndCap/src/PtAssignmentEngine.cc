@@ -1,4 +1,4 @@
-#include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine.hh"
+#include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine.h"
 
 #include <cassert>
 #include <iostream>

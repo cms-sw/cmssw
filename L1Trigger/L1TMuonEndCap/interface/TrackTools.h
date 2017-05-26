@@ -1,5 +1,5 @@
-#ifndef L1TMuonEndCap_TrackTools_hh
-#define L1TMuonEndCap_TrackTools_hh
+#ifndef L1TMuonEndCap_TrackTools_h
+#define L1TMuonEndCap_TrackTools_h
 
 #include <cmath>
 #include <assert.h>

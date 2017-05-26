@@ -1,12 +1,12 @@
-#include "L1Trigger/L1TMuonEndCap/interface/PrimitiveConversion.hh"
+#include "L1Trigger/L1TMuonEndCap/interface/PrimitiveConversion.h"
 
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
 
-#include "L1Trigger/L1TMuonEndCap/interface/SectorProcessorLUT.hh"
-#include "L1Trigger/L1TMuonEndCap/interface/TrackTools.hh"
+#include "L1Trigger/L1TMuonEndCap/interface/SectorProcessorLUT.h"
+#include "L1Trigger/L1TMuonEndCap/interface/TrackTools.h"
 
 
 void PrimitiveConversion::configure(

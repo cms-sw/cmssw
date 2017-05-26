@@ -11,7 +11,7 @@
 #include "DataFormats/L1TMuon/interface/EMTFDaqOut.h"
 #include "DataFormats/L1TMuon/interface/EMTFHit.h"
 #include "DataFormats/L1TMuon/interface/EMTFTrack.h"
-#include "L1Trigger/L1TMuonEndCap/interface/TrackTools.hh"
+#include "L1Trigger/L1TMuonEndCap/interface/TrackTools.h"
 
 namespace l1t {
   namespace stage2 {

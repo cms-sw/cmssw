@@ -1,6 +1,6 @@
-#include "L1Trigger/L1TMuonEndCap/interface/PtAssignment.hh"
+#include "L1Trigger/L1TMuonEndCap/interface/PtAssignment.h"
 
-#include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine.hh"
+#include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine.h"
 
 
 void PtAssignment::configure(

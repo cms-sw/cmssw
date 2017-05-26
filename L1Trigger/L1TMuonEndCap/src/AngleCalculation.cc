@@ -1,7 +1,7 @@
-#include "L1Trigger/L1TMuonEndCap/interface/AngleCalculation.hh"
+#include "L1Trigger/L1TMuonEndCap/interface/AngleCalculation.h"
 
-#include "L1Trigger/L1TMuonEndCap/interface/TrackTools.hh"
-#include "helper.hh"  // to_hex, to_binary
+#include "L1Trigger/L1TMuonEndCap/interface/TrackTools.h"
+#include "helper.h"  // to_hex, to_binary
 
 namespace {
   static const int bw_fph = 13;  // bit width of ph, full precision

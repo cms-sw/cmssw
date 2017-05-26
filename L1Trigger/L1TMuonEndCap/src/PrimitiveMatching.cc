@@ -1,6 +1,6 @@
-#include "L1Trigger/L1TMuonEndCap/interface/PrimitiveMatching.hh"
+#include "L1Trigger/L1TMuonEndCap/interface/PrimitiveMatching.h"
 
-#include "helper.hh"  // to_hex, to_binary
+#include "helper.h"  // to_hex, to_binary
 
 namespace {
   static const int bw_fph = 13;  // bit width of ph, full precision

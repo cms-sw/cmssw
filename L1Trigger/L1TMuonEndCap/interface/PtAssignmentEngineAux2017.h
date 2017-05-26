@@ -1,5 +1,5 @@
-#ifndef L1TMuonEndCap_PtAssignmentEngineAux2017_hh
-#define L1TMuonEndCap_PtAssignmentEngineAux2017_hh
+#ifndef L1TMuonEndCap_PtAssignmentEngineAux2017_h
+#define L1TMuonEndCap_PtAssignmentEngineAux2017_h
 
 class PtAssignmentEngineAux2017 {
 public:

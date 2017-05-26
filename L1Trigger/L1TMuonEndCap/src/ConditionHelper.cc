@@ -1,4 +1,4 @@
-#include "L1Trigger/L1TMuonEndCap/interface/ConditionHelper.hh"
+#include "L1Trigger/L1TMuonEndCap/interface/ConditionHelper.h"
 
 #include "CondFormats/L1TObjects/interface/L1TMuonEndCapParams.h"
 #include "CondFormats/DataRecord/interface/L1TMuonEndcapParamsRcd.h"
@@ -6,7 +6,7 @@
 #include "CondFormats/L1TObjects/interface/L1TMuonEndCapForest.h"
 #include "CondFormats/DataRecord/interface/L1TMuonEndCapForestRcd.h"
 
-#include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine.hh"
+#include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 

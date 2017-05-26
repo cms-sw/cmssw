@@ -1,6 +1,6 @@
-#include "L1Trigger/L1TMuonEndCap/interface/PatternRecognition.hh"
+#include "L1Trigger/L1TMuonEndCap/interface/PatternRecognition.h"
 
-#include "helper.hh"  // to_hex, to_binary
+#include "helper.h"  // to_hex, to_binary
 
 namespace {
   static const int padding_w_st1 = 15;

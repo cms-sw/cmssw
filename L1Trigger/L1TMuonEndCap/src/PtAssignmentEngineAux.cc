@@ -1,4 +1,4 @@
-#include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngineAux.hh"
+#include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngineAux.h"
 
 // _____________________________________________________________________________
 static const int GMT_eta_from_theta[128] = {

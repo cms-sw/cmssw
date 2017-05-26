@@ -1,4 +1,4 @@
-#include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngineAux2016.hh"
+#include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngineAux2016.h"
 
 //ModeVariables is a 2D arrary indexed by [TrackMode(13 Total Listed Below)][VariableNumber(20 Total Constructed Above)]
 // Variable numbering

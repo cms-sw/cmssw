@@ -1,7 +1,7 @@
 #include "Utilities/Testing/interface/CppUnit_testdriver.icpp"
 #include "cppunit/extensions/HelperMacros.h"
 
-#include "L1Trigger/L1TMuonEndCap/interface/PhiMemoryImage.hh"
+#include "L1Trigger/L1TMuonEndCap/interface/PhiMemoryImage.h"
 
 
 class TestPhiMemoryImage: public CppUnit::TestFixture

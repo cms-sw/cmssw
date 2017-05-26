@@ -11,10 +11,10 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "L1Trigger/L1TMuonEndCap/interface/PtLUTReader.hh"
+#include "L1Trigger/L1TMuonEndCap/interface/PtLUTReader.h"
 
-#include "helper.hh"
-#include "progress_bar.hh"
+#include "helper.h"
+#include "progress_bar.h"
 
 
 class ComparePtLUT : public edm::EDAnalyzer {

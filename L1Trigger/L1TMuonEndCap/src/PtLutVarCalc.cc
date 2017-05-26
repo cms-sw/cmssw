@@ -1,7 +1,7 @@
 #include <assert.h>
 #include <cstdlib>
 #include "L1Trigger/L1TMuonEndCap/interface/PtLutVarCalc.h"
-#include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngineAux2017.hh"
+#include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngineAux2017.h"
 
 // From here down, exact copy of code used for training BDT: EMTFPtAssign2017/src/PtLutVarCalc.cc
 

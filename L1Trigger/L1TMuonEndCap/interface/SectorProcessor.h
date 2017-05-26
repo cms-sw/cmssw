@@ -1,27 +1,27 @@
-#ifndef L1TMuonEndCap_SectorProcessor_hh
-#define L1TMuonEndCap_SectorProcessor_hh
+#ifndef L1TMuonEndCap_SectorProcessor_h
+#define L1TMuonEndCap_SectorProcessor_h
 
 #include <deque>
 #include <map>
 #include <string>
 #include <vector>
 
-#include "L1Trigger/L1TMuonEndCap/interface/Common.hh"
+#include "L1Trigger/L1TMuonEndCap/interface/Common.h"
 
-//#include "L1Trigger/L1TMuonEndCap/interface/GeometryTranslator.hh"
-#include "L1Trigger/L1TMuonEndCap/interface/ConditionHelper.hh"
+//#include "L1Trigger/L1TMuonEndCap/interface/GeometryTranslator.h"
+#include "L1Trigger/L1TMuonEndCap/interface/ConditionHelper.h"
 
-#include "L1Trigger/L1TMuonEndCap/interface/SectorProcessorLUT.hh"
-#include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine.hh"
+#include "L1Trigger/L1TMuonEndCap/interface/SectorProcessorLUT.h"
+#include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine.h"
 
-#include "L1Trigger/L1TMuonEndCap/interface/PrimitiveSelection.hh"
-#include "L1Trigger/L1TMuonEndCap/interface/PrimitiveConversion.hh"
-#include "L1Trigger/L1TMuonEndCap/interface/PatternRecognition.hh"
-#include "L1Trigger/L1TMuonEndCap/interface/PrimitiveMatching.hh"
-#include "L1Trigger/L1TMuonEndCap/interface/AngleCalculation.hh"
-#include "L1Trigger/L1TMuonEndCap/interface/BestTrackSelection.hh"
-#include "L1Trigger/L1TMuonEndCap/interface/PtAssignment.hh"
-#include "L1Trigger/L1TMuonEndCap/interface/SingleHitTrack.hh"
+#include "L1Trigger/L1TMuonEndCap/interface/PrimitiveSelection.h"
+#include "L1Trigger/L1TMuonEndCap/interface/PrimitiveConversion.h"
+#include "L1Trigger/L1TMuonEndCap/interface/PatternRecognition.h"
+#include "L1Trigger/L1TMuonEndCap/interface/PrimitiveMatching.h"
+#include "L1Trigger/L1TMuonEndCap/interface/AngleCalculation.h"
+#include "L1Trigger/L1TMuonEndCap/interface/BestTrackSelection.h"
+#include "L1Trigger/L1TMuonEndCap/interface/PtAssignment.h"
+#include "L1Trigger/L1TMuonEndCap/interface/SingleHitTrack.h"
 
 
 class SectorProcessor {

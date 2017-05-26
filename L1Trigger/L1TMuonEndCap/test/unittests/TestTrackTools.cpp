@@ -1,7 +1,7 @@
 #include "Utilities/Testing/interface/CppUnit_testdriver.icpp"
 #include "cppunit/extensions/HelperMacros.h"
 
-#include "L1Trigger/L1TMuonEndCap/interface/TrackTools.hh"
+#include "L1Trigger/L1TMuonEndCap/interface/TrackTools.h"
 
 
 class TestTrackTools: public CppUnit::TestFixture

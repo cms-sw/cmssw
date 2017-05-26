@@ -1,4 +1,4 @@
-#include "L1Trigger/L1TMuonEndCap/interface/SectorProcessor.hh"
+#include "L1Trigger/L1TMuonEndCap/interface/SectorProcessor.h"
 
 
 SectorProcessor::SectorProcessor() {
