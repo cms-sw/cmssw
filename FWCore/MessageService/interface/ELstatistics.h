@@ -68,15 +68,12 @@ public:
   // -----  Methods invoked by the ELadministrator:
   //
 public:
-  virtual
-  ELstatistics *
-  clone() const;
     // Used by attach() to put the destination on the ELadministrators list
 		//-| There is a note in Design Notes about semantics
 		//-| of copying a destination onto the list:  ofstream
 		//-| ownership is passed to the new copy.
 
-  virtual bool log( const edm::ErrorObj & msg );
+  virtual bool log( const edm::ErrorObj & msg ) override;
 
   // output( const ELstring & item, const ELseverityLevel & sev )
   // from base class
@@ -87,23 +84,21 @@ public:
   static void noteGroupedCategory(std::string const & cat);  // 8/16/07 mf 
 
 
+  void summary( unsigned long overfullWaitCount );
+  void noTerminationSummary();
+  void summaryForJobReport (std::map<std::string, double> & sm);
+  virtual void wipe() override;
+
   // -----  Methods invoked through the ELdestControl handle:
   //
 protected:
-  virtual void clearSummary();
+  void clearSummary();
 
-  virtual void wipe();
-  virtual void zero();
+  virtual void zero() override;
 
-  virtual void summary( ELdestControl & dest, const ELstring & title="" );
-  virtual void summary( std::ostream  & os  , const ELstring & title="" );
-  virtual void summary( ELstring      & s   , const ELstring & title="" );
-  virtual void summary( );
-  void noTerminationSummary();
 
-  virtual std::map<ELextendedID,StatsCount> statisticsMap() const;
+  std::map<ELextendedID,StatsCount> statisticsMap() const;
 
-  virtual void summaryForJobReport (std::map<std::string, double> & sm);
   
   // summarization( const ELstring & sumLines, const ELstring & sumLines )
   // from base class
@@ -125,8 +120,10 @@ protected:
   //
 private:
   std::string dualLogName(std::string const & s);
-  ELstatistics & operator=( const ELstatistics & orig );  // verboten
+  ELstatistics & operator=( const ELstatistics & orig ) = delete;  // verboten
 
+  void summary( std::ostream & os, const ELstring & title );
+  
 };  // ELstatistics
 
 

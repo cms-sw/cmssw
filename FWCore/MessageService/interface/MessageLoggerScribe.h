@@ -81,6 +81,7 @@ namespace service {
 
 class ThreadQueue;
 class ELadministrator;
+class ELstatistics;
 
 class MessageLoggerScribe : public AbstractMLscribe
 {
@@ -120,7 +121,6 @@ private:
   void  configure_dest( ELdestControl & dest_ctrl		
                       , String const &  filename
 		      );
-  void  configure_external_dests( );
 
 #define VALIDATE_ELSEWHERE					// ChangeLog 11
 
@@ -222,10 +222,9 @@ private:
   ELdestControl                       early_dest;
   std::vector<edm::propagate_const<std::shared_ptr<std::ofstream>>> file_ps;
   edm::propagate_const<std::shared_ptr<PSet>> job_pset_p;
-  std::vector<NamedDestination     *> extern_dests;
   std::map<String,edm::propagate_const<std::ostream*>> stream_ps;
   std::vector<String> 	  	      ordinary_destination_filenames;
-  std::vector<ELdestControl>          statisticsDestControls;
+  std::vector<std::shared_ptr<ELstatistics>>          statisticsDestControls;
   std::vector<bool>                   statisticsResets;
   bool				      clean_slate_configuration;
   value_ptr<MessageLoggerDefaults>    messageLoggerDefaults;

@@ -304,13 +304,6 @@ ELoutput::~ELoutput()  {
 // Methods invoked by the ELadministrator:
 // ----------------------------------------------------------------------
 
-ELoutput *
-ELoutput::clone() const  {
-
-  return new ELoutput( *this );
-
-} // clone()
-
 //#define THRESHTRACE
 //#define ELoutputTRACE_LOG
 
@@ -642,40 +635,6 @@ void ELoutput::attachTime()    { wantTimeSeparate = false; }
 
 void ELoutput::separateEpilogue()  { wantEpilogueSeparate = true;  }
 void ELoutput::attachEpilogue()    { wantEpilogueSeparate = false; }
-
-
-// ----------------------------------------------------------------------
-// Summary output:
-// ----------------------------------------------------------------------
-
-void ELoutput::summarization(
-  const ELstring & fullTitle
-, const ELstring & sumLines
-)  {
-  const int titleMaxLength( 40 );
-
-  // title:
-  //
-  ELstring title( fullTitle, 0, titleMaxLength );
-  int q = (lineLength - title.length() - 2) / 2;
-  ELstring line(q, '=');
-  emitToken( "", true );
-  emitToken( line );
-  emitToken( " " );
-  emitToken( title );
-  emitToken( " " );
-  emitToken( line, true );
-
-  // body:
-  //
-  *os << sumLines;
-
-  // finish:
-  //
-  emitToken( "", true );
-  emitToken( ELstring(lineLength, '='), true );
-
-}  // summarization()
 
 
 // ----------------------------------------------------------------------
