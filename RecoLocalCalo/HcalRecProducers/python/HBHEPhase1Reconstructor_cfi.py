@@ -15,7 +15,7 @@ hbheprereco = cms.EDProducer(
 
     # Label for the input QIE11DigiCollection, and flag indicating
     # whether we should process this collection
-    digiLabelQIE11 = cms.InputTag("hcalDigis","HBHEQIE11DigiCollection"),
+    digiLabelQIE11 = cms.InputTag("hcalDigis"),
     processQIE11 = cms.bool(True),
 
     # Get the "sample of interest" index from DB?
@@ -90,3 +90,6 @@ hbheprereco = cms.EDProducer(
 
 # Disable the "triangle peak fit" and the corresponding HBHETriangleNoise flag
 hbheprereco.pulseShapeParametersQIE8.TrianglePeakTS = cms.uint32(10000)
+
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toModify(hbheprereco, digiLabelQIE11 = cms.InputTag("hcalDigis","HBHEQIE11DigiCollection"))
