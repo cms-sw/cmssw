@@ -104,6 +104,8 @@ private:
   METME eleVsLS_;
   METME htVsLS_;
 
+  METME jetEtaPhi_; // for HEP17 monitoring
+
   MEbinning           phi_binning_;
   MEbinning           pt_binning_;
   MEbinning           eta_binning_;

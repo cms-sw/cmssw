@@ -51,6 +51,7 @@ TopMonitor::TopMonitor( const edm::ParameterSet& iConfig ) :
     muVsLS_ = empty ; 
     eleVsLS_ = empty ; 
     htVsLS_ = empty ; 
+    jetEtaPhi_ = empty; // for HEP17 monitoring
 
     for (unsigned int iMu=0; iMu<nmuons_; ++iMu){
         muPhi_.push_back(empty);
@@ -263,6 +264,11 @@ void TopMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   bookME(ibooker,eventHT_,histname,histtitle, HT_binning_.nbins,HT_binning_.xmin, HT_binning_.xmax);
   setMETitle(eventHT_," event HT [GeV]","events");
 
+  histname = "jetEtaPhi"; histtitle = "jet #eta-#phi";
+  bookME(ibooker,jetEtaPhi_,histname,histtitle,10,-2.5,2.5,18,-3.1415,3.1415); // for HEP17 monitoring
+  setMETitle(eventHT_,"jet #eta","jet #phi");
+
+
   // Initialize the GenericTriggerEventFlag
   if ( num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on() ) num_genTriggerEventFlag_->initRun( iRun, iSetup );
   if ( den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on() ) den_genTriggerEventFlag_->initRun( iRun, iSetup );
@@ -408,6 +414,10 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
       jetPt_.at(iJet).denominator   -> Fill(jets.at(iJet).pt() );
   }
 
+  if (jets.size() > 0){
+      jetEtaPhi_.denominator -> Fill (jets.at(0).eta(), jets.at(0).phi()); // for HEP17 monitorning
+  }
+
   // applying selection for numerator
   if (num_genTriggerEventFlag_->on() && ! num_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
 
@@ -441,6 +451,11 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
       jetEta_.at(iJet).numerator  -> Fill(jets.at(iJet).eta());
       jetPt_.at(iJet).numerator   -> Fill(jets.at(iJet).pt() );
   }
+
+  if (jets.size() > 0){
+      jetEtaPhi_.numerator -> Fill (jets.at(0).eta(), jets.at(0).phi()); // for HEP17 monitorning
+  }
+
 
 }
 
