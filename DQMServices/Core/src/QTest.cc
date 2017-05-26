@@ -287,6 +287,107 @@ float Comp2RefChi2::runTest(const MonitorElement *me)
 }
 
 //-------------------------------------------------------//
+//-----------------  Comp2Ref2DChi2 ---------------------//
+//-------------------------------------------------------//
+float Comp2Ref2DChi2::runTest(const MonitorElement *me)
+{
+  if (!me) 
+    return -1;
+  if (!me->getRootObject() || !me->getRefRootObject()) 
+    return -1;
+  if (minEntries_ != 0 && me->getEntries() < minEntries_)
+    return -1;
+
+  TH2* h=0;
+  TH2* ref_=0;
+ 
+  if (verbose_>1) 
+    std::cout << "QTest:" << getAlgoName() << "::runTest called on " 
+              << me-> getFullname() << "\n";
+  //-- TH2F
+  if (me->kind()==MonitorElement::DQM_KIND_TH2F)
+  { 
+    h = me->getTH2F(); // access Test histo
+    ref_ = me->getRefTH2F(); //access Ref histo
+  } 
+  //-- TH2S
+  else if (me->kind()==MonitorElement::DQM_KIND_TH2S)
+  { 
+    h = me->getTH2S(); // access Test histo
+    ref_ = me->getRefTH2S(); //access Ref histo
+  } 
+  //-- TH2D
+  else if (me->kind()==MonitorElement::DQM_KIND_TH2D)
+  { 
+    h = me->getTH2D(); // access Test histo
+    ref_ = me->getRefTH2D(); //access Ref histo
+  } 
+  //-- TProfile
+  else if (me->kind()==MonitorElement::DQM_KIND_TPROFILE2D)
+  {
+    h = me->getTProfile2D(); // access Test histo
+    ref_ = me->getRefTProfile2D(); //access Ref histo
+  } 
+  else
+  { 
+    if (verbose_>0) 
+      std::cout << "QTest::Comp2Ref2DChi2"
+                << " ME does not contain TH2F/TH2S/TH2D/TProfile2D, exiting\n"; 
+    return -1;
+  } 
+
+  //-- isInvalid ? - Check consistency in number of channels
+  int ncx1  = h->GetXaxis()->GetNbins(); 
+  int ncx2  = ref_->GetXaxis()->GetNbins();
+  int ncy1  = h->GetYaxis()->GetNbins(); 
+  int ncy2  = ref_->GetYaxis()->GetNbins();
+  if ( ( ncx1 !=  ncx2) || ( ncy1 !=  ncy2) )
+  {
+    if (verbose_>0) 
+      std::cout << "QTest:Comp2Ref2DChi2"
+                << " different number of channels! ("
+                << ncx1 << ", " << ncx2 << "), ("
+                << ncy1 << ", " << ncy2 << "), exiting\n";
+    return -1;
+  } 
+
+  //--  QUALITY TEST itself 
+  //reset Results
+  Ndof_ = 0; chi2_ = -1.;
+
+  //check that the histograms are not empty
+  int i_start = h->GetXaxis()->GetFirst();
+  int i_end   = h->GetXaxis()->GetLast();
+  int j_start = h->GetYaxis()->GetFirst();
+  int j_end   = h->GetYaxis()->GetLast();
+  if (h->Integral(i_start, i_end, j_start, j_end) == 0)
+  {
+    if (verbose_>0) 
+      std::cout << "QTest:Comp2Ref2DChi2"
+                << " Test Histogram " << h->GetName() 
+		<< " is empty, exiting\n";
+    return -1;
+  }
+  if (ref_->Integral(i_start, i_end, j_start, j_end) == 0)
+  {
+    if (verbose_>0) 
+      std::cout << "QTest:Comp2Ref2DChi2"
+                << " Ref Histogram " << ref_->GetName() 
+                << " is empty, exiting\n";
+    return -1;
+  }
+
+  //use the chi2 test for 2D histograms defined in ROOT
+  int igood = 0;
+  double pValue = h->Chi2TestX(ref_, chi2_, Ndof_, igood, "");
+
+  if (chi2_==-1. && Ndof_==0)
+    return -1;
+
+  return pValue;
+}
+
+//-------------------------------------------------------//
 //-----------------  Comp2RefKolmogorov    --------------//
 //-------------------------------------------------------//
 

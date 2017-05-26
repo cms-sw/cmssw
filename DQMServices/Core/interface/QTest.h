@@ -13,6 +13,7 @@
 //#include "DQMServices/Core/interface/DQMStore.h"
 
 class Comp2RefChi2;			typedef Comp2RefChi2 Comp2RefChi2ROOT;
+class Comp2Ref2DChi2;			typedef Comp2Ref2DChi2 Comp2Ref2DChi2ROOT;
 class Comp2RefKolmogorov;		typedef Comp2RefKolmogorov Comp2RefKolmogorovROOT;
 class Comp2RefEqualH;			typedef Comp2RefEqualH Comp2RefEqualHROOT;
 class ContentsXRange;			typedef ContentsXRange ContentsXRangeROOT;
@@ -188,6 +189,34 @@ public:
     setAlgoName(getAlgoName()); 
   }
   static std::string getAlgoName(void) { return "Comp2RefChi2"; }
+  float runTest(const MonitorElement*me);
+  
+protected:
+
+  void setMessage(void) 
+  {
+    std::ostringstream message;
+    message << "chi2/Ndof = " << chi2_ << "/" << Ndof_
+	    << ", minimum needed statistics = " << minEntries_
+	    << " warning threshold = " << this->warningProb_
+	    << " error threshold = " << this->errorProb_;
+    message_ = message.str();
+  }
+
+  // # of degrees of freedom and chi^2 for test
+  int Ndof_; double chi2_;
+};
+
+//===================== Comp2Ref2DChi2 =================//
+// comparison to reference using the 2D chi^2 algorithm
+class Comp2Ref2DChi2 : public SimpleTest
+{
+public:
+  Comp2Ref2DChi2(const std::string &name) :SimpleTest(name)
+  { 
+    setAlgoName(getAlgoName()); 
+  }
+  static std::string getAlgoName(void) { return "Comp2Ref2DChi2"; }
   float runTest(const MonitorElement*me);
   
 protected:

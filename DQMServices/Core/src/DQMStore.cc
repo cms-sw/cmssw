@@ -609,6 +609,7 @@ DQMStore::initializeFrom(const edm::ParameterSet& pset) {
   }
 
   initQCriterion<Comp2RefChi2>(qalgos_);
+  initQCriterion<Comp2Ref2DChi2>(qalgos_);
   initQCriterion<Comp2RefKolmogorov>(qalgos_);
   initQCriterion<ContentsXRange>(qalgos_);
   initQCriterion<ContentsYRange>(qalgos_);
