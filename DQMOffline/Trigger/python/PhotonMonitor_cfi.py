@@ -23,7 +23,8 @@ hltPhotonmonitoring.numGenericTriggerEventPSet.hltPaths      = cms.vstring("HLT_
 hltPhotonmonitoring.numGenericTriggerEventPSet.errorReplyHlt = cms.bool( False )
 hltPhotonmonitoring.numGenericTriggerEventPSet.verbosityLevel = cms.uint32(1)
 
-hltPhotonmonitoring.denGenericTriggerEventPSet.andOr         = cms.bool( True )
+hltPhotonmonitoring.denGenericTriggerEventPSet.andOr         = cms.bool( False )
+hltPhotonmonitoring.denGenericTriggerEventPSet.andOrHlt        = cms.bool( True )
 hltPhotonmonitoring.denGenericTriggerEventPSet.hltInputTag   = cms.InputTag( "TriggerResults::HLT" )
 hltPhotonmonitoring.denGenericTriggerEventPSet.hltPaths      = cms.vstring("HLT_PFJet40_v*","HLT_PFJet60_v*","HLT_PFJet80_v*") # HLT_ZeroBias_v*
 hltPhotonmonitoring.denGenericTriggerEventPSet.errorReplyHlt = cms.bool( False )
