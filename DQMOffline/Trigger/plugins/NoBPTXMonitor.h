@@ -28,12 +28,8 @@
 //DataFormats
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 class GenericTriggerEventFlag;
 
@@ -84,16 +80,35 @@ private:
 
   std::vector<double> jetE_variable_binning_;
   NoBPTXbinning           jetE_binning_;
+  NoBPTXbinning           jetEta_binning_;
+  NoBPTXbinning           jetPhi_binning_;
   std::vector<double> muonPt_variable_binning_;
   NoBPTXbinning           muonPt_binning_;
+  NoBPTXbinning           muonEta_binning_;
+  NoBPTXbinning           muonPhi_binning_;
   NoBPTXbinning           ls_binning_;
+  NoBPTXbinning           bx_binning_;
 
   NoBPTXME jetENoBPTX_;
   NoBPTXME jetENoBPTX_variableBinning_;
   NoBPTXME jetEVsLS_;
+  NoBPTXME jetEVsBX_;
+  NoBPTXME jetEtaNoBPTX_;
+  NoBPTXME jetEtaVsLS_;
+  NoBPTXME jetEtaVsBX_;
+  NoBPTXME jetPhiNoBPTX_;
+  NoBPTXME jetPhiVsLS_;
+  NoBPTXME jetPhiVsBX_;
   NoBPTXME muonPtNoBPTX_;
   NoBPTXME muonPtNoBPTX_variableBinning_;
   NoBPTXME muonPtVsLS_;
+  NoBPTXME muonPtVsBX_;
+  NoBPTXME muonEtaNoBPTX_;
+  NoBPTXME muonEtaVsLS_;
+  NoBPTXME muonEtaVsBX_;
+  NoBPTXME muonPhiNoBPTX_;
+  NoBPTXME muonPhiVsLS_;
+  NoBPTXME muonPhiVsBX_;
 
   GenericTriggerEventFlag* num_genTriggerEventFlag_;
   GenericTriggerEventFlag* den_genTriggerEventFlag_;

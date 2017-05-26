@@ -9,11 +9,34 @@ hltNoBPTXmonitoring.histoPSet.jetEPSet = cms.PSet(
     xmin  = cms.double(-0.5),
     xmax  = cms.double(999.5),
     )
+hltNoBPTXmonitoring.histoPSet.jetEtaPSet = cms.PSet(
+    nbins = cms.int32(100),
+    xmin  = cms.double(-5.),
+    xmax  = cms.double(5.),
+    )
+hltNoBPTXmonitoring.histoPSet.jetPhiPSet = cms.PSet(
+    nbins = cms.int32(64),
+    xmin  = cms.double(-3.2),
+    xmax  = cms.double(3.2),
+    )
 hltNoBPTXmonitoring.histoPSet.muonPtPSet = cms.PSet(
     nbins = cms.int32(100),
     xmin  = cms.double(-0.5),
     xmax  = cms.double(999.5),
     )
+hltNoBPTXmonitoring.histoPSet.muonEtaPSet = cms.PSet(
+    nbins = cms.int32(100),
+    xmin  = cms.double(-5.),
+    xmax  = cms.double(5.),
+    )
+hltNoBPTXmonitoring.histoPSet.muonPhiPSet = cms.PSet(
+    nbins = cms.int32(64),
+    xmin  = cms.double(-3.2),
+    xmax  = cms.double(3.2),
+    )
+hltNoBPTXmonitoring.histoPSet.bxPSet = cms.PSet(
+    nbins = cms.int32(3600),
+)
 hltNoBPTXmonitoring.jets      = cms.InputTag("ak4CaloJets")
 hltNoBPTXmonitoring.muons     = cms.InputTag("displacedStandAloneMuons")
 
