@@ -251,6 +251,10 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 
   edm::Handle<reco::PFMETCollection> metHandle;
   iEvent.getByToken( metToken_, metHandle );
+  if (!metHandle.isValid()){
+      edm::LogWarning("TopMonitor") << "MET handle not valid \n";
+      return;
+  }
   reco::PFMET pfmet = metHandle->front();
   if ( ! metSelection_( pfmet ) ) return;
   
@@ -259,6 +263,10 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 
   edm::Handle<reco::GsfElectronCollection> eleHandle;
   iEvent.getByToken( eleToken_, eleHandle );
+  if (!eleHandle.isValid()){
+      edm::LogWarning("TopMonitor") << "Electron handle not valid \n";
+      return;
+  }
   std::vector<reco::GsfElectron> electrons;
   if ( int(eleHandle->size()) < nelectrons_ ) return;
   for ( auto const & e : *eleHandle ) {
@@ -268,6 +276,10 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   
   edm::Handle<reco::MuonCollection> muoHandle;
   iEvent.getByToken( muoToken_, muoHandle );
+  if (!muoHandle.isValid()){
+      edm::LogWarning("TopMonitor") << "Muon handle not valid \n";
+      return;
+  }
   if ( int(muoHandle->size()) < nmuons_ ) return;
   std::vector<reco::Muon> muons;
   for ( auto const & m : *muoHandle ) {
@@ -279,6 +291,10 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 
   edm::Handle<reco::PFJetCollection> jetHandle;
   iEvent.getByToken( jetToken_, jetHandle );
+  if (!jetHandle.isValid()){
+      edm::LogWarning("TopMonitor") << "Jet handle not valid \n";
+      return;
+  }
   std::vector<reco::PFJet> jets;
   if ( int(jetHandle->size()) < njets_ ) return;
   for ( auto const & j : *jetHandle ) {
