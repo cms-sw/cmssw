@@ -1,0 +1,4 @@
+
+# in: /afs/cern.ch/work/m/mather/cmsswService/CodeUpdate/CMSSW_9_2_0_patch2/src/cmssw/HLTriggerOffline/Top going to execute cd 10024.0_TTbar_13+TTbar_13TeV_TuneCUETP8M1_2017_GenSimFull+DigiFull_2017+RecoFull_2017+ALCAFull_2017+HARVESTFull_2017
+ cmsDriver.py TTbar_13TeV_TuneCUETP8M1_cfi  --conditions auto:phase1_2017_realistic -n 10 --era Run2_2017 --eventcontent FEVTDEBUG --relval 9000,50 -s GEN,SIM --datatier GEN-SIM --beamspot Realistic50ns13TeVCollision --geometry DB:Extended --fileout file:step1.root  > step1_TTbar_13+TTbar_13TeV_TuneCUETP8M1_2017_GenSimFull+DigiFull_2017+RecoFull_2017+ALCAFull_2017+HARVESTFull_2017.log  2>&1
+ 
