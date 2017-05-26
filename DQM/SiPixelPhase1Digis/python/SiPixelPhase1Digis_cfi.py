@@ -82,11 +82,11 @@ SiPixelPhase1DigisNdigisPerFEDtrend = DefaultHisto.clone(
   range_max = 1000,
   range_nbins = 200,
   dimensions = 0,
-  enabled = False,
+  #enabled = False,
   specs = VPSet(
   Specification().groupBy("FED/Event") #produce the mean number of digis per event and FED per lumisection
                    .reduce("COUNT")
-                   .groupBy("FED/Lumisection")
+                   .groupBy("FED/LumiBlock")
                    .reduce("MEAN")
                    .groupBy("FED", "EXTEND_X")
                    .groupBy("", "EXTEND_Y")
