@@ -129,24 +129,30 @@ pat::PATMuonSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
         if (slimCaloVars_(mu) && mu.isEnergyValid()) {
             reco::MuonEnergy ene = mu.calEnergy();
             if (ene.tower)   ene.tower = MiniFloatConverter::reduceMantissaToNbitsRounding<12>(ene.tower);
-            if (ene.towerS9) ene.towerS9 = MiniFloatConverter::reduceMantissaToNbitsRounding<12>(ene.tower);
+            if (ene.towerS9) ene.towerS9 = MiniFloatConverter::reduceMantissaToNbitsRounding<12>(ene.towerS9);
             if (ene.had)     ene.had = MiniFloatConverter::reduceMantissaToNbitsRounding<12>(ene.had);
-            if (ene.hadS9)  ene.hadS9 = MiniFloatConverter::reduceMantissaToNbitsRounding<12>(ene.had);
-            if (ene.hadMax) ene.hadMax = MiniFloatConverter::reduceMantissaToNbitsRounding<12>(ene.had);
+            if (ene.hadS9)  ene.hadS9 = MiniFloatConverter::reduceMantissaToNbitsRounding<12>(ene.hadS9);
+            if (ene.hadMax) ene.hadMax = MiniFloatConverter::reduceMantissaToNbitsRounding<12>(ene.hadMax);
             if (ene.em)    ene.em = MiniFloatConverter::reduceMantissaToNbitsRounding<12>(ene.em);
-            if (ene.emS25) ene.emS25 = MiniFloatConverter::reduceMantissaToNbitsRounding<12>(ene.em);
-            if (ene.emMax) ene.emMax = MiniFloatConverter::reduceMantissaToNbitsRounding<12>(ene.em);
+            if (ene.emS25) ene.emS25 = MiniFloatConverter::reduceMantissaToNbitsRounding<12>(ene.emS25);
+            if (ene.emMax) ene.emMax = MiniFloatConverter::reduceMantissaToNbitsRounding<12>(ene.emMax);
             if (ene.hcal_time)   ene.hcal_time = MiniFloatConverter::reduceMantissaToNbitsRounding<12>(ene.hcal_time);
             if (ene.hcal_timeError)   ene.hcal_timeError = MiniFloatConverter::reduceMantissaToNbitsRounding<12>(ene.hcal_timeError);
             if (ene.ecal_time)   ene.ecal_time = MiniFloatConverter::reduceMantissaToNbitsRounding<12>(ene.ecal_time);
             if (ene.ecal_timeError)   ene.ecal_timeError = MiniFloatConverter::reduceMantissaToNbitsRounding<12>(ene.ecal_timeError);
-            ene.ecal_position = math::XYZPointF(MiniFloatConverter::reduceMantissaToNbitsRounding<14>(ene.ecal_position.X()), MiniFloatConverter::reduceMantissaToNbitsRounding<14>(ene.ecal_position.Y()), MiniFloatConverter::reduceMantissaToNbitsRounding<14>(ene.ecal_position.Z()));
-            ene.hcal_position = math::XYZPointF(MiniFloatConverter::reduceMantissaToNbitsRounding<12>(ene.hcal_position.X()), MiniFloatConverter::reduceMantissaToNbitsRounding<12>(ene.hcal_position.Y()), MiniFloatConverter::reduceMantissaToNbitsRounding<12>(ene.hcal_position.Z()));
+            ene.ecal_position = math::XYZPointF(MiniFloatConverter::reduceMantissaToNbitsRounding<14>(ene.ecal_position.X()),
+						MiniFloatConverter::reduceMantissaToNbitsRounding<14>(ene.ecal_position.Y()),
+						MiniFloatConverter::reduceMantissaToNbitsRounding<14>(ene.ecal_position.Z()));
+            ene.hcal_position = math::XYZPointF(MiniFloatConverter::reduceMantissaToNbitsRounding<12>(ene.hcal_position.X()),
+						MiniFloatConverter::reduceMantissaToNbitsRounding<12>(ene.hcal_position.Y()), 
+						MiniFloatConverter::reduceMantissaToNbitsRounding<12>(ene.hcal_position.Z()));
             mu.setCalEnergy(ene);
         }
         if (slimKinkVars_(mu) && mu.isQualityValid()) {
             reco::MuonQuality qual = mu.combinedQuality();
-            qual.tkKink_position = math::XYZPointF(MiniFloatConverter::reduceMantissaToNbitsRounding<12>(qual.tkKink_position.X()), MiniFloatConverter::reduceMantissaToNbitsRounding<12>(qual.tkKink_position.Y()), MiniFloatConverter::reduceMantissaToNbitsRounding<12>(qual.tkKink_position.Z()));
+            qual.tkKink_position = math::XYZPointF(MiniFloatConverter::reduceMantissaToNbitsRounding<12>(qual.tkKink_position.X()),
+						   MiniFloatConverter::reduceMantissaToNbitsRounding<12>(qual.tkKink_position.Y()),
+						   MiniFloatConverter::reduceMantissaToNbitsRounding<12>(qual.tkKink_position.Z()));
             mu.setCombinedQuality(qual);
         }
         if (slimCaloMETCorr_(mu) && mu.caloMETMuonCorrs().type() != reco::MuonMETCorrectionData::NotUsed) {
