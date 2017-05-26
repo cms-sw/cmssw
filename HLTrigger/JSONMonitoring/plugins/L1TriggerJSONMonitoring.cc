@@ -140,6 +140,10 @@ private:
     ""                 // 15 - reserved
   }};
 
+  // special values for prescale index checks
+  static constexpr const int kPrescaleUndefined = -2;
+  static constexpr const int kPrescaleConflict  = -1;
+
   // FIXME use this
   static constexpr const char* streamName_ = "streamL1Rates";
 
@@ -203,7 +207,7 @@ L1TriggerJSONMonitoring::globalBeginRun(edm::Run const& run, edm::EventSetup con
     for (auto const& algo: menuHandle->getAlgorithmMap())
       triggerNames[algo.second.getIndex()] = algo.first;
   } else {
-    // edm::LogWarning...
+    edm::LogWarning("L1TriggerJSONMonitoring") << "L1TUtmTriggerMenu not found in the EventSetup.\nThe Level 1 Trigger rate monitoring will not include the rigger names.";
   }
 
   // write the per-run .jsd file
@@ -234,7 +238,7 @@ L1TriggerJSONMonitoring::analyze(edm::StreamID sid, edm::Event const& event, edm
   if (eventType < tcdsTriggerTypes_.size())
     ++stream.tcdsAccept[eventType];
   else
-    edm::LogWarning("L1TriggerJSONMonitoring") << "Unexpected event eventType " << eventType;
+    edm::LogWarning("L1TriggerJSONMonitoring") << "Unexpected event type " << eventType;
 
   // get hold of TriggerResults
   edm::Handle<GlobalAlgBlkBxCollection> handle;
@@ -270,9 +274,17 @@ L1TriggerJSONMonitoring::analyze(edm::StreamID sid, edm::Event const& event, edm
     }
   }
 
-  // store the prescale column index
-  // FIXME add a check for conflicting values
-  stream.prescaleIndex = results.getPreScColumn();
+  // check for conflicting values in the prescale column index, and store it
+  int prescaleIndex = results.getPreScColumn();
+  if (stream.prescaleIndex == kPrescaleUndefined) {
+    stream.prescaleIndex = prescaleIndex;
+  } else if (stream.prescaleIndex == kPrescaleConflict) {
+    // do nothing
+  } else if (stream.prescaleIndex != prescaleIndex) {
+    edm::LogWarning("L1TriggerJSONMonitoring") <<
+      "Prescale index changed from " << stream.prescaleIndex << " to " << prescaleIndex << " inside lumisection " << event.luminosityBlock();
+    stream.prescaleIndex = kPrescaleConflict;
+  }
 }
 
 
@@ -297,8 +309,7 @@ L1TriggerJSONMonitoring::globalBeginLuminosityBlockSummary(edm::LuminosityBlock 
   for (unsigned int i = 0; i < GlobalAlgBlk::maxPhysicsTriggers; ++i) lumidata->l1tAcceptCalibration.update(0);
   for (unsigned int i = 0; i < GlobalAlgBlk::maxPhysicsTriggers; ++i) lumidata->l1tAcceptRandom.update(0);
   for (unsigned int i = 0; i < tcdsTriggerTypes_.size(); ++i)         lumidata->tcdsAccept.update(0);
-  // FIXME add a check for conflicting values
-  lumidata->prescaleIndex = -1;
+  lumidata->prescaleIndex = kPrescaleUndefined;
 
   return lumidata;
 }
@@ -316,8 +327,7 @@ L1TriggerJSONMonitoring::streamBeginLuminosityBlock(edm::StreamID sid, edm::Lumi
   stream.l1tAcceptCalibration.assign(GlobalAlgBlk::maxPhysicsTriggers, 0);
   stream.l1tAcceptRandom.assign(GlobalAlgBlk::maxPhysicsTriggers, 0);
   stream.tcdsAccept.assign(tcdsTriggerTypes_.size(), 0);
-  // FIXME add a check for conflicting values
-  stream.prescaleIndex = -1;
+  stream.prescaleIndex = kPrescaleUndefined;
 }
 
 // called when a Stream has finished processing a LuminosityBlock, after streamEndLuminosityBlock
@@ -335,8 +345,12 @@ L1TriggerJSONMonitoring::streamEndLuminosityBlockSummary(edm::StreamID sid, edm:
   }
   for (unsigned int i = 0; i < tcdsTriggerTypes_.size(); ++i)
     lumidata->tcdsAccept.value()[i] += stream.tcdsAccept[i];
-  // FIXME add a check for conflicting values
-  lumidata->prescaleIndex = stream.prescaleIndex;
+
+  // check for conflicting values in the prescale column index
+  if (lumidata->prescaleIndex == kPrescaleUndefined)
+    lumidata->prescaleIndex = stream.prescaleIndex;
+  else if (lumidata->prescaleIndex != stream.prescaleIndex)
+    lumidata->prescaleIndex = kPrescaleConflict;
 }
 
 // called after the streamEndLuminosityBlockSummary method for all Streams have finished processing a given LuminosityBlock
