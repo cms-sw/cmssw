@@ -9,12 +9,12 @@ process.MessageLogger.debugModules = cms.untracked.vstring('*')
 process.source = cms.Source("EmptySource", firstRun = cms.untracked.uint32(3))
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 
-process.load("L1Trigger.L1TCalorimeter.caloStage2Params_2016_v3_3_cfi")
+process.load("L1Trigger.L1TCalorimeter.caloStage2Params_2017_v1_7_cfi")
 
 process.getter = cms.EDAnalyzer("EventSetupRecordDataGetter",
    toGet = cms.VPSet(
        cms.PSet(
-           record = cms.string('L1TCaloStage2ParamsRcd'),
+           record = cms.string('L1TCaloParamsRcd'),
            data   = cms.vstring('CaloParams')
        )
    ),
@@ -29,7 +29,7 @@ outputDB = cms.Service("PoolDBOutputService",
                        CondDB,
                        toPut   = cms.VPSet(
                            cms.PSet(
-                               record = cms.string('L1TCaloStage2ParamsRcd'),
+                               record = cms.string('L1TCaloParamsRcd'),
                                tag = cms.string('L1TCaloParamsPrototype_Stage2v0_hlt')
                            )
                        )
