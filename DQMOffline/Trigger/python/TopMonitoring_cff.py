@@ -30,7 +30,6 @@ test2.njets = cms.uint32(2)
 test2.eleSelection = cms.string('pt>15 & abs(eta)<2.4')
 test2.jetSelection = cms.string('pt>20 & abs(eta)<2.4')
 test2.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Ele30_eta2p1_WPTight_Gsf_CentralPFJet35_EleCleaned')
-test2.useReferenceTrigger = cms.bool(False)
 
 #ATHER
 topSingleMuonHLTValidation = hltTOPmonitoring.clone()
