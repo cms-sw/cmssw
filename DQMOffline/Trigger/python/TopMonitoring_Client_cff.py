@@ -42,7 +42,7 @@ topEfficiency_eleHT = cms.EDAnalyzer("DQMGenericClient",
 
 #ATHER
 topEfficiency_singleMu = cms.EDAnalyzer("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/TopHLTOffline/TopMonitor/Top/SingleLepton/SingleMuon/*"),
+    subDirs        = cms.untracked.vstring("HLT/TopHLTOffline/TopMonitor/Top/SingleLepton/SingleMuon/"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages                                                                                                        
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
@@ -63,7 +63,7 @@ topEfficiency_singleMu = cms.EDAnalyzer("DQMGenericClient",
 
 
 topEfficiency_diElec = cms.EDAnalyzer("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/TopHLTOffline/TopMonitor/Top/DiLepton/DiElectron/*"),
+    subDirs        = cms.untracked.vstring("HLT/TopHLTOffline/TopMonitor/Top/DiLepton/DiElectron/"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
                                       
     resolution     = cms.vstring(),
@@ -89,7 +89,7 @@ topEfficiency_diElec = cms.EDAnalyzer("DQMGenericClient",
 
 
 topEfficiency_diMu = cms.EDAnalyzer("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/TopHLTOffline/TopMonitor/Top/DiLepton/DiMuon/*"),
+    subDirs        = cms.untracked.vstring("HLT/TopHLTOffline/TopMonitor/Top/DiLepton/DiMuon/"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
                                       
     resolution     = cms.vstring(),
@@ -114,7 +114,7 @@ topEfficiency_diMu = cms.EDAnalyzer("DQMGenericClient",
 
 
 topEfficiency_ElecMu = cms.EDAnalyzer("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/TopHLTOffline/TopMonitor/Top/DiLepton/ElecMuon/*"),
+    subDirs        = cms.untracked.vstring("HLT/TopHLTOffline/TopMonitor/Top/DiLepton/ElecMuon/"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
                                       
     resolution     = cms.vstring(),
@@ -139,7 +139,7 @@ topEfficiency_ElecMu = cms.EDAnalyzer("DQMGenericClient",
 
 
 singleTopEfficiency_singleMu = cms.EDAnalyzer("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/TopHLTOffline/TopMonitor/SingleTop/SingleMuon/*"),
+    subDirs        = cms.untracked.vstring("HLT/TopHLTOffline/TopMonitor/SingleTop/SingleMuon/"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
                                       
     resolution     = cms.vstring(),
