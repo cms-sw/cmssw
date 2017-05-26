@@ -78,10 +78,12 @@ hltMuonOfflineAnalyzer = cms.EDAnalyzer("HLTMuonOfflineAnalyzer",
     ## Both 1D and 2D plots use the binnings defined here
     binParams = cms.untracked.PSet(
         ## parameters for fixed-width plots
-        NVertex    = cms.untracked.vdouble( 20,  1,   50),
-        NVertexFine= cms.untracked.vdouble( 40,  1,   50),
+        NVertex    = cms.untracked.vdouble( 20,  1,   60),
+        NVertexFine= cms.untracked.vdouble( 40,  1,   60),
         eta        = cms.untracked.vdouble( 20,  -2.40,   2.40),
         phi        = cms.untracked.vdouble( 20,  -3.14,   3.14),
+        phiHEP2017 = cms.untracked.vdouble( -3.14, -2.512, -1.884, -1.256, -0.827, -0.52,
+                                             0.  ,  0.52 ,  0.827,  1.256,  1.884,  2.512, 3.14),
         z0         = cms.untracked.vdouble( 10, -0.15,  0.15),
         z0Fine     = cms.untracked.vdouble( 20, -0.15,  0.15),
         d0         = cms.untracked.vdouble( 10,  -0.50,   0.50),
@@ -119,7 +121,7 @@ hltMuonOfflineAnalyzer = cms.EDAnalyzer("HLTMuonOfflineAnalyzer",
     ),
 
     ## Only events passing all these triggers will be considered
-    requiredTriggers = cms.untracked.vstring(),
+    requiredTriggers   = cms.untracked.vstring(),
 
     ## This collection is used to fill most distributions
     targetParams = cms.PSet(
