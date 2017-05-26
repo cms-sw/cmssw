@@ -55,6 +55,7 @@ hltMuonEfficienciesMR = cms.EDAnalyzer("DQMGenericClient",
     commands       = cms.vstring(),
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
+        "MR_efficiencyPhiVsEta 'Efficiency to Match Reco Muons to Trigger Objects; #eta^{reco}; #phi^{reco}' MR_efficiencyPhiVsEta_numer MR_efficiencyPhiVsEta_denom",
         "MR_TPefficiencyPtZ 'Tag & Probe efficiency; p_{T}; N(tt) / N(tp)' MR_massVsPtZ_numer MR_massVsPtZ_denom",
         "MR_TPefficiencyDZZ 'Tag & Probe efficiency; DZ; N(tt) / N(tp)' MR_massVsDZZ_numer MR_massVsDZZ_denom",
         "MR_Refefficiency_Pt 'Reference efficiency; Pt; Pt' MR_Refefficiency_Pt_numer MR_Refefficiency_Pt_denom",
