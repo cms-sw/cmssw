@@ -14,6 +14,6 @@ topHLTriggerOfflineDQM = cms.Sequence(
         *topSingleElectronHLTOfflineDQM
         *SingleTopSingleMuonHLTOfflineDQM
         *SingleTopSingleElectronHLTOfflineDQM	
-        *topEleJetsHLTOfflineDQM
+        # *topEleJetsHLTOfflineDQM
         )
 
