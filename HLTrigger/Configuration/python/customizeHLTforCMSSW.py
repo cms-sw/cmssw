@@ -163,6 +163,17 @@ def customiseFor18429(process):
 
      return process
 
+# Updating FastjetJetProducer (and related producers) with fillDescriptions
+def customiseFor18832(process):
+	for producer in producers_by_type(process, "FastjetJetProducer"):
+		if hasattr(producer, "doOutputJets"): del producer.doOutputJets
+		if hasattr(producer, "addNegative"): del producer.addNegative
+		if hasattr(producer, "addNegativesFromCone"): del producer.addNegativesFromCone
+		if hasattr(producer, "dropZeros"): del producer.dropZeros
+		if hasattr(producer, "infinitesimalPt"): del producer.infinitesimalPt
+		#if hasattr(producer, "sumRecHits"): del producer.sumRecHits
+	return process
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
@@ -177,5 +188,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # process = customiseFor12718(process)
     process = customiseFor18429(process)
     process = customiseFor18559(process)
+    process = customiseFor18832(process)
 
     return process
