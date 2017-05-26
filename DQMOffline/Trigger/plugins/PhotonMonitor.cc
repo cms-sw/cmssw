@@ -153,12 +153,13 @@ void PhotonMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSe
   reco::PFMET pfmet = metHandle->front();
   if ( ! metSelection_( pfmet ) ) return;
   
-  //  float met = pfmet.pt();
+    float met = pfmet.pt();
   //  float phi = pfmet.phi();
 
   edm::Handle<reco::PFJetCollection> jetHandle;
   iEvent.getByToken( jetToken_, jetHandle );
   std::vector<reco::PFJet> jets;
+  jets.clear();
   if ( int(jetHandle->size()) < njets_ ) return;
   for ( auto const & j : *jetHandle ) {
     if ( jetSelection_( j ) ) jets.push_back(j);
@@ -186,24 +187,28 @@ void PhotonMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSe
   }
   if ( int(photons.size()) < nphotons_ ) return;
   
+
   // filling histograms (denominator)  
-
-  
-  photonME_.denominator -> Fill(photons[0].pt());
-  photonME_variableBinning_.denominator -> Fill(photons[0].pt());
-
-
-  int ls = iEvent.id().luminosityBlock();
-  photonVsLS_.denominator -> Fill(ls, photons[0].pt());
-  
+      int ls = iEvent.id().luminosityBlock();
+      if(photons.size()>0)
+	
+	{
+	  photonME_.denominator -> Fill(photons[0].pt());
+	  photonME_variableBinning_.denominator -> Fill(photons[0].pt());
+	  photonVsLS_.denominator -> Fill(ls, photons[0].pt());
+	}
+      
   // applying selection for numerator
   if (num_genTriggerEventFlag_->on() && ! num_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
 
   // filling histograms (num_genTriggerEventFlag_)  
-  photonME_.numerator -> Fill(photons[0].pt());
-  photonME_variableBinning_.numerator -> Fill(photons[0].pt());
-
-
+  if(photons.size()>0)
+    {
+      photonME_.numerator -> Fill(photons[0].pt());
+      photonME_variableBinning_.numerator -> Fill(photons[0].pt());
+      photonVsLS_.numerator -> Fill(ls, photons[0].pt());
+      
+    }
 
 }
 
@@ -231,6 +236,7 @@ void PhotonMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptio
   desc.add<std::string>("jetSelection", "pt > 0");
   desc.add<std::string>("eleSelection", "pt > 0");
   desc.add<std::string>("photonSelection", "pt > 145 && eta<1.4442 && hadTowOverEm<0.0597 && full5x5_sigmaIetaIeta()<0.01031 && chargedHadronIso<1.295");
+  //desc.add<std::string>("photonSelection", "pt > 145");
   desc.add<int>("njets",      0);
   desc.add<int>("nelectrons", 0);
   desc.add<int>("nphotons",     0);
