@@ -93,6 +93,10 @@ private:
   HTME htME_;
   HTME htME_variableBinning_;
   HTME htVsLS_;
+  HTME deltaphimetj1ME_;
+  HTME deltaphimetj1VsLS_;
+  HTME deltaphij1j2ME_;
+  HTME deltaphij1j2VsLS_;
 
   GenericTriggerEventFlag* num_genTriggerEventFlag_;
   GenericTriggerEventFlag* den_genTriggerEventFlag_;
