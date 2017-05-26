@@ -556,28 +556,28 @@ def _trackingSubFoldersFallbackFromPV(subfolder):
 def _trackingSubFoldersFallbackConversion(subfolder):
     return subfolder.replace("quickAssociatorByHits", "quickAssociatorByHitsConversion")
 
+# Additional "quality" flags than highPurity. In a separate list to
+# allow customization.
+_additionalTrackQualities = [
+    "Pt09",
+    "ByOriginalAlgo",
+    "ByAlgoMask"
+]
 def _mapCollectionToAlgoQuality(collName):
     if "Hp" in collName:
         quality = "highPurity"
     else:
         quality = ""
-    hasPtCut = "Pt09" in collName
     collNameNoQuality = collName.replace("Hp", "")
-    if "Pt09" in collName:
-        quality += "Pt09"
-        collNameNoQuality = collNameNoQuality.replace("Pt09", "")
-    if "ByOriginalAlgo" in collName:
-        quality += "ByOriginalAlgo"
-        collNameNoQuality = collNameNoQuality.replace("ByOriginalAlgo", "")
-    if "ByAlgoMask" in collName:
-        quality += "ByAlgoMask"
-        collNameNoQuality = collNameNoQuality.replace("ByAlgoMask", "")
+    for qual in _additionalTrackQualities:
+        if qual in collName:
+            quality += qual
+            collNameNoQuality = collNameNoQuality.replace(qual, "")
+
     collNameNoQuality = collNameNoQuality.replace("Tracks", "", 1) # make summary naming consistent with iteration folders
     collNameLow = collNameNoQuality.lower().replace("frompv2", "").replace("frompv", "").replace("frompvalltp", "").replace("alltp", "")
 
     if collNameLow.find("seed") == 0:
-        if quality != "":
-            raise Exception("Assumption of empty quality for seeds failed, got quality '%s'" % quality)
         collNameLow = collNameLow[4:]
         if collNameLow == "initialstepseedspresplitting":
             collNameLow = "initialsteppresplittingseeds"
@@ -587,7 +587,7 @@ def _mapCollectionToAlgoQuality(collName):
             collNameLow = "muonseededstepoutinseeds"
 
         i_seeds = collNameLow.index("seeds")
-        quality = collNameLow[i_seeds:]
+        quality = collNameLow[i_seeds:]+quality
 
         collNameLow = collNameLow[:i_seeds]
 
