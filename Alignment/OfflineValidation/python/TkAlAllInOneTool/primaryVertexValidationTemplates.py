@@ -286,10 +286,8 @@ echo  -----------------------
 PrimaryVertexPlotExecution="""
 #make primary vertex validation plots
 
-cp .oO[Alignment/OfflineValidation]Oo./macros/CMS_lumi.C .
-cp .oO[Alignment/OfflineValidation]Oo./macros/CMS_lumi.h .
-rfcp .oO[PrimaryVertexPlotScriptPath]Oo. .
-root -x -b -q TkAlPrimaryVertexValidationPlot.C++
+rfcp .oO[plottingscriptpath]Oo. .
+root -x -b -q .oO[plottingscriptname]Oo.++
 
 for PdfOutputFile in $(ls *pdf ); do                                                                                                                                  
     xrdcp -f ${PdfOutputFile}  root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./plots/                                                                         
