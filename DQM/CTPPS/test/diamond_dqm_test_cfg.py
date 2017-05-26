@@ -48,14 +48,33 @@ process.dqmSaver.path = ""
 process.dqmSaver.tag = "CTPPS"
 
 
-process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(
-      *(
-'/store/data/Run2016H/HLTPhysics/RAW/v1/000/283/885/00000/008F3821-3C9D-E611-BD53-FA163E866791.root',
+# raw data source
+process.source = cms.Source("NewEventStreamFileReader",
+  fileNames = cms.untracked.vstring(
+    #'file:/afs/cern.ch/user/j/jkaspar/public/run273062_ls0001-2_stream.root'
+        '/store/t0streamer/Data/Physics/000/294/737/run294737_ls0011_streamPhysics_StorageManager.dat',
+        '/store/t0streamer/Data/Physics/000/294/737/run294737_ls0012_streamPhysics_StorageManager.dat',
+        '/store/t0streamer/Data/Physics/000/294/737/run294737_ls0013_streamPhysics_StorageManager.dat',
+        '/store/t0streamer/Data/Physics/000/294/737/run294737_ls0014_streamPhysics_StorageManager.dat',
+        '/store/t0streamer/Data/Physics/000/294/737/run294737_ls0015_streamPhysics_StorageManager.dat',
+        '/store/t0streamer/Data/Physics/000/294/737/run294737_ls0016_streamPhysics_StorageManager.dat',
+        '/store/t0streamer/Data/Physics/000/294/737/run294737_ls0017_streamPhysics_StorageManager.dat',
+        '/store/t0streamer/Data/Physics/000/294/737/run294737_ls0018_streamPhysics_StorageManager.dat',
+        '/store/t0streamer/Data/Physics/000/294/737/run294737_ls0019_streamPhysics_StorageManager.dat',
+        '/store/t0streamer/Data/Physics/000/294/737/run294737_ls0020_streamPhysics_StorageManager.dat',
+        '/store/t0streamer/Data/Physics/000/294/737/run294737_ls0021_streamPhysics_StorageManager.dat',
+        '/store/t0streamer/Data/Physics/000/294/737/run294737_ls0022_streamPhysics_StorageManager.dat',
+        '/store/t0streamer/Data/Physics/000/294/737/run294737_ls0023_streamPhysics_StorageManager.dat',
+        '/store/t0streamer/Data/Physics/000/294/737/run294737_ls0024_streamPhysics_StorageManager.dat',
+        '/store/t0streamer/Data/Physics/000/294/737/run294737_ls0025_streamPhysics_StorageManager.dat',
+        '/store/t0streamer/Data/Physics/000/294/737/run294737_ls0026_streamPhysics_StorageManager.dat',
+        '/store/t0streamer/Data/Physics/000/294/737/run294737_ls0027_streamPhysics_StorageManager.dat',
+        '/store/t0streamer/Data/Physics/000/294/737/run294737_ls0028_streamPhysics_StorageManager.dat',
+        '/store/t0streamer/Data/Physics/000/294/737/run294737_ls0029_streamPhysics_StorageManager.dat',
+        '/store/t0streamer/Data/Physics/000/294/737/run294737_ls0030_streamPhysics_StorageManager.dat',
+  )
 )
 
-    )
-)
 
 # raw-to-digi conversion
 process.load("EventFilter.CTPPSRawToDigi.ctppsRawToDigi_cff")
