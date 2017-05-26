@@ -6,7 +6,15 @@ isMC = .oO[ismc]Oo.
 #  Runs and events
 ###################################################################
 runboundary = .oO[runboundary]Oo.
-process.source.firstRun = cms.untracked.uint32(int(runboundary))
+isMultipleRuns=False
+if(isinstance(runboundary, (list, tuple))):
+     isMultipleRuns=True
+     print "Multiple Runs are selected"
+       
+if(isMultipleRuns):
+     process.source.firstRun = cms.untracked.uint32(int(runboundary[0]))
+else:
+     process.source.firstRun = cms.untracked.uint32(int(runboundary)) 
 
 ###################################################################
 # JSON Filtering
@@ -48,7 +56,10 @@ process.load("Alignment.CommonAlignment.filterOutLowPt_cfi")
 process.filterOutLowPt.src = ".oO[TrackCollection]Oo."
 process.filterOutLowPt.ptmin = .oO[ptCut]Oo.
 process.filterOutLowPt.runControl = .oO[runControl]Oo.
-process.filterOutLowPt.runControlNumber = [runboundary]
+if(isMultipleRuns):
+     process.filterOutLowPt.runControlNumber.extend((runboundary))
+else:
+     process.filterOutLowPt.runControlNumber = [runboundary]
                                 
 if isMC:
      process.goodvertexSkim = cms.Sequence(process.noscraping + process.filterOutLowPt)
@@ -74,7 +85,7 @@ if isDA:
                                            doFPix   = cms.untracked.bool(.oO[doFPix]Oo.),
                                            numberOfBins = cms.untracked.int32(.oO[numberOfBins]Oo.),
                                            runControl = cms.untracked.bool(.oO[runControl]Oo.),
-                                           runControlNumber = cms.untracked.vuint32(int(.oO[runboundary]Oo.)),
+                                           runControlNumber = cms.untracked.vuint32(runboundary),
                                            
                                            TkFilterParameters = cms.PSet(algorithm=cms.string('filter'),                           
                                                                          maxNormalizedChi2 = cms.double(5.0),                        # chi2ndof < 5                  
