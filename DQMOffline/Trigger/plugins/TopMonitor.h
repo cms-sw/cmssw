@@ -137,7 +137,6 @@ private:
   unsigned int nmuons_;
   double leptJetDeltaRmin_;
   double HTcut_;
-  bool useReferenceTrigger_;
 
 };
 
