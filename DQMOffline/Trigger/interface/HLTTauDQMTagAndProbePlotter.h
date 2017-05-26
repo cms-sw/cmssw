@@ -52,6 +52,9 @@ private:
 
   MonitorElement *h_num_phi;
   MonitorElement *h_den_phi;
+
+  MonitorElement *h_num_etaphi;
+  MonitorElement *h_den_etaphi;
 };
 
 #endif

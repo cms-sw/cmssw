@@ -62,6 +62,10 @@ def makePFTauAnalyzer(monitorModule):
         _addEfficiencies(level, [("Et", "p_{T}"),
                                  ("Eta", "#eta"),
                                  ("Phi", "#phi")], "%sTrigMuon%sEff", "muon")
+
+    m1.efficiency.append("L3EtaPhiEfficiency 'eta phi eff; #eta; #phi' helpers/L3TrigTauEtaPhiEffNum helpers/L3TrigTauEtaPhiEffDenom")
+    m1.efficiency.append("tauEtaPhiEfficiency 'eta phi eff; #eta; #phi' helpers/tauEtaPhiEffNum helpers/tauEtaPhiEffDenom")
+
     return (m1, m2)
 
 

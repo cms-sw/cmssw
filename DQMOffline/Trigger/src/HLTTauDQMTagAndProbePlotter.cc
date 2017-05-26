@@ -56,6 +56,10 @@ void HLTTauDQMTagAndProbePlotter::bookHistograms(DQMStore::IBooker &iBooker,edm:
   if(xvariable != "met"){
   h_num_eta = iBooker.book1D(xvariable+"EtaEffNum",    "", nbinsEta_, etamin_, etamax_);
   h_den_eta = iBooker.book1D(xvariable+"EtaEffDenom",    "", nbinsEta_, etamin_, etamax_);
+
+  h_num_etaphi = iBooker.book2D(xvariable+"EtaPhiEffNum",    "", nbinsEta_, etamin_, etamax_, nbinsPhi_, phimin_, phimax_);
+  h_den_etaphi = iBooker.book2D(xvariable+"EtaPhiEffDenom",    "", nbinsEta_, etamin_, etamax_, nbinsPhi_, phimin_, phimax_);
+  h_den_etaphi->getTH2F()->SetOption("COL");                 
   }
 
   h_num_phi = iBooker.book1D(xvariable+"PhiEffNum",    "", nbinsPhi_, phimin_, phimax_);
@@ -82,8 +86,10 @@ void HLTTauDQMTagAndProbePlotter::analyze(edm::Event const& iEvent, edm::EventSe
     if (den_genTriggerEventFlag_->on() && ! den_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
 
     h_den_pt->Fill(offlineObject.pt());
-    if(xvariable != "met")
-    h_den_eta->Fill(offlineObject.eta());
+    if(xvariable != "met"){
+      h_den_eta->Fill(offlineObject.eta());
+      h_den_etaphi->Fill(offlineObject.eta(),offlineObject.phi());
+    }
     h_den_phi->Fill(offlineObject.phi());
 
 
@@ -91,8 +97,10 @@ void HLTTauDQMTagAndProbePlotter::analyze(edm::Event const& iEvent, edm::EventSe
     if (num_genTriggerEventFlag_->on() && ! num_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
 
     h_num_pt->Fill(offlineObject.pt());
-    if(xvariable != "met")
-    h_num_eta->Fill(offlineObject.eta());
+    if(xvariable != "met"){
+      h_num_eta->Fill(offlineObject.eta());
+      h_num_etaphi->Fill(offlineObject.eta(),offlineObject.phi());
+    }
     h_num_phi->Fill(offlineObject.phi());
 
 
