@@ -262,8 +262,6 @@ Double_t tp0Fit( Double_t *x, Double_t *par5 );
 std::pair<params::measurement, params::measurement  > fitStudentTResiduals(TH1 *hist);
 
 void FillTrendPlot(TH1F* trendPlot, TH1F* residualsPlot[100], params::estimator firPar_, TString var_,Int_t nbins);
-//void FillMap(TH2F* trendMap, TH1F* residualsMapPlot[48][48], params::estimator fitPar_);
-
 void FillMap(TH2F* trendMap,std::vector<std::vector<TH1F*> >residualsMapPlot, params::estimator fitPar_);
 
 std::pair<TH2F*,TH2F*> trimTheMap(TH2 *hist);
@@ -293,7 +291,6 @@ void setStyle();
 
 ofstream outfile("FittedDeltaZ.txt");
 
-//const Int_t nBins_  = 48;
 Int_t nBins_  = 48;
 const Int_t nPtBins_ = 48;
 Float_t _boundMin   = -0.5;
@@ -954,16 +951,6 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
       FillMap(dxyNormWidthMap[i] ,v_dxyNormMap ,params::WIDTH);
       FillMap(dzNormMeanMap[i]   ,v_dzNormMap  ,params::MEAN); 
       FillMap(dzNormWidthMap[i]  ,v_dzNormMap  ,params::WIDTH);
-
-      // FillMap(dxyMeanMap[i]      ,dxyMapResiduals[i]     ,params::MEAN);
-      // FillMap(dxyWidthMap[i]     ,dxyMapResiduals[i]    ,params::WIDTH);
-      // FillMap(dzMeanMap[i]       ,dzMapResiduals[i]     ,params::MEAN); 
-      // FillMap(dzWidthMap[i]      ,dzMapResiduals[i]     ,params::WIDTH);
-      
-      // FillMap(dxyNormMeanMap[i]  ,dxyNormMapResiduals[i],params::MEAN); 
-      // FillMap(dxyNormWidthMap[i] ,dxyNormMapResiduals[i],params::WIDTH);
-      // FillMap(dzNormMeanMap[i]   ,dzNormMapResiduals[i] ,params::MEAN); 
-      // FillMap(dzNormWidthMap[i]  ,dzNormMapResiduals[i] ,params::WIDTH);
      
       if(isDebugMode){
 	timer.Stop();

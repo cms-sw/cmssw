@@ -147,7 +147,7 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
     ptOfProbe_=0.;
   }
 
-  if(nBins_!=24){ 
+  if(nBins_!=24 && debug_){ 
     edm::LogInfo("PrimaryVertexValidation")<<"Using: "<<nBins_<<" bins plots";
   }
   
@@ -711,11 +711,13 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 		float pTF = mypT_bins[ipTBin];
 		float pTL = mypT_bins[ipTBin+1];
 		
-		//std::cout<<"ipTBin:"<<ipTBin<< " "<<mypT_bins[ipTBin]<< " < pT < "<<mypT_bins[ipTBin+1]<<std::endl;
+		if(debug_)
+		  edm::LogInfo("PrimaryVertexValidation")<<"ipTBin:"<<ipTBin<< " "<<mypT_bins[ipTBin]<< " < pT < "<<mypT_bins[ipTBin+1]<<std::endl;
 		
 		if( fabs(tracketa)<1.5 && (trackpt >= pTF && trackpt < pTL) ){
 		  
-		  //std::cout<<"passes this cut: "<<mypT_bins[ipTBin]<<std::endl;
+		  if(debug_)
+		    edm::LogInfo("PrimaryVertexValidation")<<"passes this cut: "<<mypT_bins[ipTBin]<<std::endl;
 		  fillByIndex(h_dxy_pT_,ipTBin,dxyFromMyVertex*cmToum);
 		  fillByIndex(h_dz_pT_,ipTBin,dzFromMyVertex*cmToum);
 		  fillByIndex(h_norm_dxy_pT_,ipTBin,dxyFromMyVertex/s_ip2dpv_err);
@@ -723,7 +725,8 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 		  
 		  if(fabs(tracketa)<1.){
 		    
-		    //std::cout<<"passes tight eta cut: "<<mypT_bins[ipTBin]<<std::endl;
+		    if(debug_)
+		      edm::LogInfo("PrimaryVertexValidation")<<"passes tight eta cut: "<<mypT_bins[ipTBin]<<std::endl;
 		    fillByIndex(h_dxy_Central_pT_,ipTBin,dxyFromMyVertex*cmToum);
 		    fillByIndex(h_dz_Central_pT_,ipTBin,dzFromMyVertex*cmToum);
 		    fillByIndex(h_norm_dxy_Central_pT_,ipTBin,dxyFromMyVertex/s_ip2dpv_err);
