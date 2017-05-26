@@ -35,6 +35,8 @@ hltTOPmonitoring.jets      = cms.InputTag("pfJetsEI") # ak4PFJets, ak4PFJetsCHS
 hltTOPmonitoring.electrons = cms.InputTag("gedGsfElectrons") # while pfIsolatedElectronsEI are reco::PFCandidate !
 hltTOPmonitoring.muons     = cms.InputTag("muons") # while pfIsolatedMuonsEI are reco::PFCandidate !
 
+hltTOPmonitoring.useReferenceTrigger = cms.bool(True)
+
 hltTOPmonitoring.HTdefinition = cms.string('pt>30 & abs(eta)<2.5')
 hltTOPmonitoring.leptJetDeltaRmin = cms.double(0.4)
 

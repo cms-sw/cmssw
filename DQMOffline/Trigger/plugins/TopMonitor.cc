@@ -36,6 +36,7 @@ TopMonitor::TopMonitor( const edm::ParameterSet& iConfig ) :
   , nmuons_     ( iConfig.getParameter<unsigned int>("nmuons" )     )
   , leptJetDeltaRmin_     ( iConfig.getParameter<double>("leptJetDeltaRmin" )     )
   , HTcut_     ( iConfig.getParameter<double>("HTcut" )     )
+  , useReferenceTrigger_     ( iConfig.getParameter<bool>("useReferenceTrigger" )     )
 {
 
     METME empty;
@@ -275,8 +276,10 @@ void TopMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)  {
 
-  // Filter out events if Trigger Filtering is requested
-  if (den_genTriggerEventFlag_->on() && ! den_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
+    // Filter out events if Trigger Filtering is requested
+  if (useReferenceTrigger_){
+      if (den_genTriggerEventFlag_->on() && ! den_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
+  }
 
   edm::Handle<reco::PFMETCollection> metHandle;
   iEvent.getByToken( metToken_, metHandle );
@@ -475,6 +478,7 @@ void TopMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   desc.add<unsigned int>("nmuons",     0);
   desc.add<double>("leptJetDeltaRmin", 0);
   desc.add<double>("HTcut", 0);
+  desc.add<bool>("useReferenceTrigger", true);
 
   edm::ParameterSetDescription genericTriggerEventPSet;
   genericTriggerEventPSet.add<bool>("andOr");
