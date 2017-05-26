@@ -24,6 +24,8 @@ CTPPSPixelDAQCalibration::CTPPSPixelDAQCalibration(edm::ParameterSet const& conf
 //  CalibrationFile_ = std::string("Gain_Fed_1294_Run_99.root");
 
   fp = new TFile(CalibrationFile_.c_str());
+
+
 }
 
 // CTPPSPixelDAQCalibration::CTPPSPixelDAQCalibration(const CTPPSPixelDAQCalibration& rhs)
@@ -33,11 +35,14 @@ CTPPSPixelDAQCalibration::CTPPSPixelDAQCalibration(edm::ParameterSet const& conf
 
 CTPPSPixelDAQCalibration::~CTPPSPixelDAQCalibration()
 {
+  fp->Close();
+
+  delete fp;
 }
 
 void CTPPSPixelDAQCalibration::getDAQCalibration(unsigned int detid, int row, int col, float &gain, float &pedestal){
 
-  CTPPSPixelIndices * modulepixels = new CTPPSPixelIndices(156,160);
+  CTPPSPixelIndices modulepixels(156,160);
   int plane = int((detid>>16) & 0X7);
   int arm = int((detid>>24)& 0X1);
   int station = int((detid>>22)& 0X3);
@@ -49,37 +54,51 @@ void CTPPSPixelDAQCalibration::getDAQCalibration(unsigned int detid, int row, in
   if (arm==0) sector=45;
   if (arm==1) sector=56;
 
-//  std::cout << "arm = " << arm << "  rp = " << pot  << "  station = "  << station << "  plane = " << plane << std::endl;
 
-  if (modulepixels->transformToROC(col,row,roc,colROC,rowROC)==0){
+  if (modulepixels.transformToROC(col,row,roc,colROC,rowROC)==0){
 
 // TOTEM RP numbering scheme (https://indico.cern.ch/event/626748/contributions/2531619/attachments/1438891/2214488/FRavera_CTPPSGM_April2017.pdf) 
 
    sprintf(pathgains,"CTPPS/CTPPS_SEC%d/CTPPS_SEC%d_RP%d%d%d/CTPPS_SEC%d_RP%d%d%d_PLN%d/CTPPS_SEC%d_RP%d%d%d_PLN%d_ROC%d_Slope2D",sector,sector,arm,station,pot,sector,arm,station,pot,plane,sector,arm,station,pot,plane,roc);
    sprintf(pathpedestals,"CTPPS/CTPPS_SEC%d/CTPPS_SEC%d_RP%d%d%d/CTPPS_SEC%d_RP%d%d%d_PLN%d/CTPPS_SEC%d_RP%d%d%d_PLN%d_ROC%d_Intercept2D",sector,sector,arm,station,pot,sector,arm,station,pot,plane,sector,arm,station,pot,plane,roc);
+   gain = 0; pedestal = 0;
+   TH2F* gainshisto ;
+   TH2F *pedestalshisto;
+
 
    if(!(gainshisto = (TH2F*)fp->Get(pathgains))) {
-    std::cout << pathgains << " not found." << std::endl;
+  
     gain=0;
    }
 
    if(!(pedestalshisto = (TH2F*)fp->Get(pathpedestals))) {
-    std::cout << pathpedestals << " not found." << std::endl;
+  
     pedestal=0;
+   }
 
-    return;
+   float slope = 0; 
+   if(!gainshisto){
+     slope=0;}
+   else{
+     slope = (gainshisto->GetBinContent(colROC+1,rowROC+1));
+   }
+   if (slope==0.){
+     gain = 0.;
+   }else{
+     gain = 1./slope;
+   }
+   if(!pedestalshisto){
+     pedestal =0;
+   }else{
+     pedestal = float(pedestalshisto->GetBinContent(colROC+1,rowROC+1));
+   }
+  delete gainshisto; delete pedestalshisto;
+  }else{
+  //  std::cout << "** Module to ROC pixel transformation failed!! **" << std::endl;
   }
- float slope = float(gainshisto->GetBinContent(colROC+1,rowROC+1));
- if (slope==0.){
-  gain = 0.;
- }else{
-  gain = 1./slope;
- }
- pedestal = float(pedestalshisto->GetBinContent(colROC+1,rowROC+1));
 
- }else{
-  std::cout << "** Module to ROC pixel transformation failed!! **" << std::endl;
- }
+  
 
+  return;
 }
 //DEFINE_FWK_MODULE( CTPPSPixelDAQCalibration);

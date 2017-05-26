@@ -29,8 +29,6 @@ class CTPPSPixelDAQCalibration
       std::string CalibrationFile_;
       const CTPPSPixelDAQCalibration& operator=(const CTPPSPixelDAQCalibration&); // stop default
       TFile * fp;
-      TH2F * gainshisto;
-      TH2F * pedestalshisto;
 
 };
 
