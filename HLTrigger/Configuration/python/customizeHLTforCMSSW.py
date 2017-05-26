@@ -171,7 +171,6 @@ def customiseFor18832(process):
 		if hasattr(producer, "addNegativesFromCone"): del producer.addNegativesFromCone
 		if hasattr(producer, "dropZeros"): del producer.dropZeros
 		if hasattr(producer, "infinitesimalPt"): del producer.infinitesimalPt
-		#if hasattr(producer, "sumRecHits"): del producer.sumRecHits
 	return process
 
 # CMSSW version specific customizations
