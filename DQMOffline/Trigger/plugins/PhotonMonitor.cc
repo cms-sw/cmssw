@@ -6,6 +6,11 @@
 
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 
+double MAX_PHI1 = 3.2;
+int N_PHI1 = 64;
+const MEbinning phi_binning_1{
+  N_PHI1, -MAX_PHI1, MAX_PHI1
+    };
 
 // -----------------------------
 //  constructors and destructor
@@ -37,6 +42,10 @@ PhotonMonitor::PhotonMonitor( const edm::ParameterSet& iConfig ) :
   photonME_variableBinning_.denominator = nullptr;
   photonVsLS_.numerator   = nullptr;
   photonVsLS_.denominator = nullptr;
+  photonEtaME_.numerator   = nullptr;
+  photonEtaME_.denominator = nullptr;
+  photonPhiME_.numerator   = nullptr;
+  photonPhiME_.denominator = nullptr;
 
   
 }
@@ -132,6 +141,16 @@ void PhotonMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   bookME(ibooker,photonVsLS_,histname,histtitle,ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax,photon_binning_.xmin, photon_binning_.xmax);
   setTitle(photonVsLS_,"LS","Photon pT [GeV]");
 
+  histname = "photon_phi"; histtitle = "Photon phi";
+  bookME(ibooker,photonPhiME_,histname,histtitle, phi_binning_1.nbins, phi_binning_1.xmin, phi_binning_1.xmax);
+  setTitle(photonPhiME_,"Photon #phi","events / 0.1 rad");
+
+
+  histname = "photon_eta"; histtitle = "Photon eta";
+  bookME(ibooker,photonEtaME_,histname,histtitle, phi_binning_1.nbins, phi_binning_1.xmin, phi_binning_1.xmax);
+  setTitle(photonEtaME_,"Photon #eta","events / 0.1");
+
+  
 
   // Initialize the GenericTriggerEventFlag
   if ( num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on() ) num_genTriggerEventFlag_->initRun( iRun, iSetup );
@@ -153,7 +172,7 @@ void PhotonMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSe
   reco::PFMET pfmet = metHandle->front();
   if ( ! metSelection_( pfmet ) ) return;
   
-    float met = pfmet.pt();
+  //float met = pfmet.pt();
   //  float phi = pfmet.phi();
 
   edm::Handle<reco::PFJetCollection> jetHandle;
@@ -195,6 +214,8 @@ void PhotonMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSe
 	{
 	  photonME_.denominator -> Fill(photons[0].pt());
 	  photonME_variableBinning_.denominator -> Fill(photons[0].pt());
+	  photonPhiME_.denominator->Fill(photons[0].phi());
+	  photonEtaME_.denominator->Fill(photons[0].eta());
 	  photonVsLS_.denominator -> Fill(ls, photons[0].pt());
 	}
       
@@ -206,6 +227,8 @@ void PhotonMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSe
     {
       photonME_.numerator -> Fill(photons[0].pt());
       photonME_variableBinning_.numerator -> Fill(photons[0].pt());
+      photonPhiME_.numerator->Fill(photons[0].phi());
+      photonEtaME_.numerator->Fill(photons[0].eta());
       photonVsLS_.numerator -> Fill(ls, photons[0].pt());
       
     }
