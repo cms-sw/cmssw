@@ -124,6 +124,7 @@ namespace l1t {
     std::map< ObjectType, TH1F* > hhad_;
     std::map< ObjectType, TH1F* > hratio_;
     std::map< ObjectType, TH2F* > hetaphi_;
+    std::map< ObjectType, TH1F* > hiso_;
 
     TFileDirectory evtDispDir_;
 
@@ -402,6 +403,7 @@ namespace l1t {
           heta_.at(MPEG)->Fill( itr->hwEta() );
           hphi_.at(MPEG)->Fill( itr->hwPhi() );
           hetaphi_.at(MPEG)->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
+	  hiso_.at(MPEG)->Fill( itr->hwIso() );
 
           text << "MP EG : " << " BX=" << ibx << " ipt=" << itr->hwPt() << " ieta=" << itr->hwEta() << " iphi=" << itr->hwPhi() << std::endl;
 
@@ -545,7 +547,8 @@ namespace l1t {
           heta_.at(EG)->Fill( itr->hwEta() );
           hphi_.at(EG)->Fill( itr->hwPhi() );
           hetaphi_.at(EG)->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
-
+	  hiso_.at(EG)->Fill( itr->hwIso() );
+	  
 	  text << "EG : " << " BX=" << ibx << " ipt=" << itr->hwPt() << " ieta=" << itr->hwEta() << " iphi=" << itr->hwPhi() << std::endl;
 
           if (m_doEvtDisp) hEvtDemuxEG->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
@@ -701,11 +704,13 @@ namespace l1t {
         heta_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("eta", "", 227, -113.5, 113.5) ));
         hphi_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("phi", "", 144, -0.5, 143.5) ));
         hetaphi_.insert( std::pair< ObjectType, TH2F* >(*itr, dirs_.at(*itr).make<TH2F>("etaphi", "", 227, -113.5, 113.5, 144, -0.5, 143.5) ));
+	if(*itr==EG) hiso_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("iso", "", 4, -0.5, 3.5) ));
       }
       else if (*itr==Tower || *itr==Cluster || *itr==MPEG || *itr==MPJet || *itr==MPTau) {
         heta_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("eta", "", 83, -41.5, 41.5) ));
         hphi_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("phi", "", 72, 0.5, 72.5) ));
         hetaphi_.insert( std::pair< ObjectType, TH2F* >(*itr, dirs_.at(*itr).make<TH2F>("etaphi", "", 83, -41.5, 41.5, 72, .5, 72.5) ));
+	if(*itr==MPEG) hiso_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("iso", "", 4, -0.5, 3.5) ));
       }
       else if (*itr==SumMET || *itr==SumMETHF || *itr==SumMHT || *itr==SumMHTHF) {
         hphi_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("phi", "", 1008, -0.5, 1007.5) ));

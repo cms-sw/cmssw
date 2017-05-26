@@ -11,6 +11,7 @@
 //   J. Troconiz              UAM Madrid
 //   Modifications:
 //   G. Flouris               U. Ioannina
+//   G Karathanasis           U. Athens
 //--------------------------------------------------
 
 //-----------------------
@@ -173,6 +174,9 @@ void L1MuBMAssignmentUnit::PhiAU(const edm::EventSetup& c) {
   int phi_precision = 4096 >> sh_phi;
   const double k = 57.2958/0.625/static_cast<float>(phi_precision);
   double phi_f = static_cast<double>(phi2);
+   int bit_div_phi=static_cast<int>(phi2)%4;
+    if (bit_div_phi<0) bit_div_phi+=4;
+   phi_f=phi_f-std::abs(bit_div_phi);
   int phi_8 = static_cast<int>(floor(phi_f*k));
 
   if ( second == 0 && first ) {
@@ -192,7 +196,7 @@ void L1MuBMAssignmentUnit::PhiAU(const edm::EventSetup& c) {
   phi_8 += sectordiff*48;
 
   int phi = phi_8 + 24;
-  if (phi >  55) phi =  55;
+  if (phi >  60) phi =  60;
   if (phi < -8) phi = -8;
 
   m_sp.track(m_id)->setPhi(phi); // Regional
