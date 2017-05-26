@@ -82,7 +82,7 @@ topSingleMuonHLTValidation.eleSelection = cms.string('pt>30 & abs(eta)<2.5 & (dr
 topSingleMuonHLTValidation.muoSelection = cms.string('pt>26 & abs(eta)<2.1 & (pfIsolationR04.sumChargedHadronPt+pfIsolationR04.sumPhotonEt+pfIsolationR04.sumNeutralHadronEt)/pt < 0.12')
 topSingleMuonHLTValidation.jetSelection = cms.string('pt>20 & abs(eta)<2.5')
 topSingleMuonHLTValidation.numGenericTriggerEventPSet.hltPaths = cms.vstring(['HLT_Mu20_v*', 'HLT_TkMu20_v*' , 'HLT_Mu27_v*', 'HLT_TkMu27_v*', 'HLT_TkMu50_v*', 'HLT_Mu50_v*', 'HLT_IsoMu24_eta2p1_v*', 'HLT_IsoMu24_v*', 'HLT_IsoMu27_v*', 'HLT_IsoMu20_v*', 'HLT_IsoTkMu24_eta2p1_v*', 'HLT_IsoTkMu24_v*', 'HLT_IsoTkMu27_v*', 'HLT_IsoTkMu20_v*'])
-topSingleMuonHLTValidation.useReferenceTrigger = cms.bool(False)
+
 
 
 topDiElectronHLTValidation = hltTOPmonitoring.clone()
@@ -94,7 +94,7 @@ topDiElectronHLTValidation.eleSelection = cms.string('pt>20 & abs(eta)<2.5  & (d
 topDiElectronHLTValidation.muoSelection = cms.string('pt>20 & abs(eta)<2.4 & (pfIsolationR04.sumChargedHadronPt+pfIsolationR04.sumPhotonEt+pfIsolationR04.sumNeutralHadronEt)/pt < 0.12')   
 topDiElectronHLTValidation.jetSelection = cms.string('pt>30 & abs(eta)<2.5')
 topDiElectronHLTValidation.numGenericTriggerEventPSet.hltPaths = cms.vstring(['HLT_Ele12_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v*'])
-topDiElectronHLTValidation.useReferenceTrigger = cms.bool(False)
+
 
 
 topDiMuonHLTValidation = hltTOPmonitoring.clone()
@@ -106,7 +106,7 @@ topDiMuonHLTValidation.eleSelection = cms.string('pt>20 & abs(eta)<2.5  & (dr03T
 topDiMuonHLTValidation.muoSelection = cms.string('pt>20 & abs(eta)<2.4 & (pfIsolationR04.sumChargedHadronPt+pfIsolationR04.sumPhotonEt+pfIsolationR04.sumNeutralHadronEt)/pt < 0.12')  
 topDiMuonHLTValidation.jetSelection = cms.string('pt>30 & abs(eta)<2.5')
 topDiMuonHLTValidation.numGenericTriggerEventPSet.hltPaths = cms.vstring(['HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v*', 'HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v*','HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v*'])
-topDiMuonHLTValidation.useReferenceTrigger = cms.bool(False)
+
 
 
 topElecMuonHLTValidation = hltTOPmonitoring.clone()
@@ -118,7 +118,7 @@ topElecMuonHLTValidation.eleSelection = cms.string('pt>20 & abs(eta)<2.5 & (dr03
 topElecMuonHLTValidation.muoSelection = cms.string('pt>20 & abs(eta)<2.4 & (pfIsolationR04.sumChargedHadronPt+pfIsolationR04.sumPhotonEt+pfIsolationR04.sumNeutralHadronEt)/pt < 0.12')           
 topElecMuonHLTValidation.jetSelection = cms.string('pt>30 & abs(eta)<2.5')
 topElecMuonHLTValidation.numGenericTriggerEventPSet.hltPaths = cms.vstring(['HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v*','HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v*'])
-topElecMuonHLTValidation.useReferenceTrigger = cms.bool(False)
+
 
 
 singleTopSingleMuonHLTValidation = hltTOPmonitoring.clone()
@@ -130,7 +130,7 @@ singleTopSingleMuonHLTValidation.eleSelection = cms.string('pt>30 & abs(eta)<2.5
 singleTopSingleMuonHLTValidation.muoSelection = cms.string('pt>26 & abs(eta)<2.1 & (pfIsolationR04.sumChargedHadronPt+pfIsolationR04.sumPhotonEt+pfIsolationR04.sumNeutralHadronEt)/pt < 0.12')
 singleTopSingleMuonHLTValidation.jetSelection = cms.string('pt>40 & abs(eta)<5.0')
 singleTopSingleMuonHLTValidation.numGenericTriggerEventPSet.hltPaths = cms.vstring(['HLT_Mu20_v*', 'HLT_TkMu20_v*' , 'HLT_Mu27_v*', 'HLT_TkMu27_v*', 'HLT_TkMu50_v*', 'HLT_Mu50_v*', 'HLT_IsoMu24_eta2p1_v*', 'HLT_IsoMu24_v*', 'HLT_IsoMu27_v*', 'HLT_IsoMu20_v*', 'HLT_IsoTkMu24_eta2p1_v*', 'HLT_IsoTkMu24_v*', 'HLT_IsoTkMu27_v*', 'HLT_IsoTkMu20_v*'])
-singleTopSingleMuonHLTValidation.useReferenceTrigger = cms.bool(False)
+
 
 
 topMonitorHLT = cms.Sequence(
