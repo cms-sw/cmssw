@@ -256,3 +256,76 @@ Begin processing the 2nd record. Run 1, Event 2, LumiSection 1 at 26-May-2017 20
 Begin processing the 3rd record. Run 1, Event 3, LumiSection 1 at 26-May-2017 20:29:53.954 CEST
 Begin processing the 4th record. Run 1, Event 4, LumiSection 1 at 26-May-2017 20:30:08.828 CEST
 Begin processing the 5th record. Run 1, Event 5, LumiSection 1 at 26-May-2017 20:30:41.522 CEST
+Begin processing the 6th record. Run 1, Event 6, LumiSection 1 at 26-May-2017 20:31:06.740 CEST
+Begin processing the 7th record. Run 1, Event 7, LumiSection 1 at 26-May-2017 20:31:38.848 CEST
+Begin processing the 8th record. Run 1, Event 8, LumiSection 1 at 26-May-2017 20:32:31.857 CEST
+Begin processing the 9th record. Run 1, Event 9, LumiSection 1 at 26-May-2017 20:33:04.304 CEST
+Begin processing the 10th record. Run 1, Event 10, LumiSection 1 at 26-May-2017 20:33:39.506 CEST
+
+ *-------  PYTHIA Event and Cross Section Statistics  -------------------------------------------------------------*
+ |                                                                                                                 |
+ | Subprocess                                    Code |            Number of events       |      sigma +- delta    |
+ |                                                    |       Tried   Selected   Accepted |     (estimated) (mb)   |
+ |                                                    |                                   |                        |
+ |-----------------------------------------------------------------------------------------------------------------|
+ |                                                    |                                   |                        |
+ | g g -> t tbar                                  601 |         119          7          7 |   4.513e-07  8.616e-08 |
+ | q qbar -> t tbar                               602 |          19          3          3 |   7.002e-08  2.310e-08 |
+ |                                                    |                                   |                        |
+ | sum                                                |         138         10         10 |   5.214e-07  8.921e-08 |
+ |                                                                                                                 |
+ *-------  End PYTHIA Event and Cross Section Statistics ----------------------------------------------------------*
+
+ *-------  PYTHIA Error and Warning Messages Statistics  ----------------------------------------------------------* 
+ |                                                                                                                 | 
+ |  times   message                                                                                                | 
+ |                                                                                                                 | 
+ |      0   no errors or warnings to report                                                                        | 
+ |                                                                                                                 | 
+ *-------  End PYTHIA Error and Warning Messages Statistics  ------------------------------------------------------* 
+
+ *-------  PYTHIA Event and Cross Section Statistics  -------------------------------------------------------------*
+ |                                                                                                                 |
+ | Subprocess                                    Code |            Number of events       |      sigma +- delta    |
+ |                                                    |       Tried   Selected   Accepted |     (estimated) (mb)   |
+ |                                                    |                                   |                        |
+ |-----------------------------------------------------------------------------------------------------------------|
+ |                                                    |                                   |                        |
+ | g g -> t tbar                                  601 |         119          7          7 |   4.513e-07  8.616e-08 |
+ | q qbar -> t tbar                               602 |          19          3          3 |   7.002e-08  2.310e-08 |
+ |                                                    |                                   |                        |
+ | sum                                                |         138         10         10 |   5.214e-07  8.921e-08 |
+ |                                                                                                                 |
+ *-------  End PYTHIA Event and Cross Section Statistics ----------------------------------------------------------*
+
+ *-------  PYTHIA Error and Warning Messages Statistics  ----------------------------------------------------------* 
+ |                                                                                                                 | 
+ |  times   message                                                                                                | 
+ |                                                                                                                 | 
+ |      0   no errors or warnings to report                                                                        | 
+ |                                                                                                                 | 
+ *-------  End PYTHIA Error and Warning Messages Statistics  ------------------------------------------------------* 
+
+------------------------------------
+GenXsecAnalyzer:
+------------------------------------
+Before Filtrer: total cross section = 5.214e+02 +- 8.921e+01 pb
+Filter efficiency (taking into account weights)= (10) / (10) = 1.000e+00 +- 0.000e+00
+Filter efficiency (event-level)= (10) / (10) = 1.000e+00 +- 0.000e+00
+After filter: final cross section = 5.214e+02 +- 8.921e+01 pb
+
+=============================================
+
+MessageLogger Summary
+
+ type     category        sev    module        subroutine        count    total
+ ---- -------------------- -- ---------------- ----------------  -----    -----
+    1 GenXSecAnalyzer      -w GenXSecAnalyzer:                       5        5
+
+ type    category    Examples: run/evt        run/evt          run/evt
+ ---- -------------------- ---------------- ---------------- ----------------
+    1 GenXSecAnalyzer      PostGlobalEndRun PostGlobalEndRun PostGlobalEndRun
+
+Severity    # Occurrences   Total Occurrences
+--------    -------------   -----------------
+Warning                 5                   5
