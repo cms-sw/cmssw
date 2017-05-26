@@ -145,5 +145,5 @@ topMonitorHLT = cms.Sequence(
     + topDiMuonHLTValidation
     + topElecMuonHLTValidation
     + singleTopSingleMuonHLTValidation
-    + singleTopSingleElectronHLTValidation
+
     )
