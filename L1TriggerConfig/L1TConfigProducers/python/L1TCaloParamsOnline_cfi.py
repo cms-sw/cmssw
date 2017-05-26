@@ -9,7 +9,7 @@ l1caloparProtodb = cms.ESSource("PoolDBESSource",
        CondDB,
        toGet   = cms.VPSet(
             cms.PSet(
-                 record = cms.string('L1TCaloStage2ParamsRcd'),
+                 record = cms.string('L1TCaloParamsRcd'),
                  tag = cms.string("L1TCaloParamsPrototype_Stage2v0_hlt")
             )
        )
