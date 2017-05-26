@@ -57,6 +57,9 @@ HLTL1MuonNoL2Selector::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<double>("L1MinPt",-1.);
   desc.add<double>("L1MaxEta",5.0);
   desc.add<unsigned int>("L1MinQuality",0);
+  // # OBSOLETE - these parameters are ignored, they are left only not to break old configurations
+  // they will not be printed in the generated cfi.py file
+  desc.addOptionalNode(edm::ParameterDescription<edm::InputTag>("L1CandTag", edm::InputTag(""), false), false)->setComment("This parameter is obsolete and will be ignored.");
   desc.add<bool>("CentralBxOnly", true);
   descriptions.add("hltL1MuonNoL2Selector",desc);
 }
