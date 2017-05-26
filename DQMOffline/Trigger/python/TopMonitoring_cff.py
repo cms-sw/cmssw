@@ -34,4 +34,5 @@ test2.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Ele30_eta2p1_WPTigh
 topMonitorHLT = cms.Sequence(
     dummy
     + test
+    + test2
 )
