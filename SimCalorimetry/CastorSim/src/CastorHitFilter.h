@@ -6,6 +6,7 @@
 #include "DataFormats/HcalDetId/interface/HcalCastorDetId.h"
 
 class CastorHitFilter : public CaloVHitFilter {
+  virtual ~CastorHitFilter() = default;
   virtual bool accepts(const PCaloHit & hit) const {
     DetId detId(hit.id());
     return (detId.det()==DetId::Calo && detId.subdetId()==HcalCastorDetId::SubdetectorId);

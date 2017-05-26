@@ -14,6 +14,7 @@ class HcalDbService;
 
 class HcalZeroSuppressionAlgo {
 public:
+  virtual ~HcalZeroSuppressionAlgo() = default;
   void suppress(const HBHEDigiCollection& input, HBHEDigiCollection& output);
   void suppress(const HODigiCollection& input, HODigiCollection& output);
   void suppress(const HFDigiCollection& input, HFDigiCollection& output);

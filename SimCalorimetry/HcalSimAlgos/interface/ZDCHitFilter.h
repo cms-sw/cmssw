@@ -6,6 +6,7 @@
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
 
 class ZDCHitFilter : public CaloVHitFilter {
+  virtual ~ZDCHitFilter() = default;
   virtual bool accepts(const PCaloHit & hit) const {
     DetId detId(hit.id());
     return (detId.det()==DetId::Calo && detId.subdetId()==HcalZDCDetId::SubdetectorId);
