@@ -12,14 +12,12 @@ using namespace std    ;
 using namespace edm    ;
 using namespace trigger;
 
-std::pair<PFJetCollection,PFJetCollection> Categorise(PFJetCollection CaloL2jets, double pt1, double pt2, double Mjj)
+std::pair<PFJetCollection,PFJetCollection> categorise(PFJetCollection CaloL2jets, double pt1, double pt2, double Mjj)
 {
-
-int A=0;
-    std::pair<PFJetCollection,PFJetCollection> output;
-   unsigned int i1 = 0;
-   unsigned int i2 = 0;
-    double mjj = -9999;
+    std::pair<PFJetCollection,PFJetCollection> Output;
+    unsigned int i1 = 0;
+    unsigned int i2 = 0;
+    double mjj = 0;
     if (CaloL2jets.size()>1){
     for (unsigned int i = 0; i < CaloL2jets.size()-1; i++)
         for (unsigned int j = i+1; j < CaloL2jets.size(); j++)
@@ -30,24 +28,21 @@ int A=0;
         
         if ((myJet1.p4()+myJet2.p4()).M()>mjj){
             
-         mjj =(myJet1.p4()+myJet2.p4()).M();
+            mjj =(myJet1.p4()+myJet2.p4()).M();
             i1 = i;
             i2 = j;
         }
     }
-        //std::cout<<"mjj:= "<<mjj<<"; i1,i2: = "<<i1<<" "<<i2<<std::endl;
         
-        
-            
             const PFJet &  myJet1 = (CaloL2jets)[i1];
             const PFJet &  myJet2 = (CaloL2jets)[i2];
         
         if ((myJet1.p4().Pt() >= pt1) && (myJet2.p4().Pt() > pt2) && (mjj > Mjj))
         {
             
-            output.first.push_back(myJet1);
-            output.first.push_back(myJet2);
-            A++;
+            Output.first.push_back(myJet1);
+            Output.first.push_back(myJet2);
+            
 	}
         
         if ((myJet1.p4().Pt() < pt1) && (myJet1.p4().Pt() > pt2) && (myJet2.p4().Pt() > pt2) && (mjj > Mjj))
@@ -55,22 +50,22 @@ int A=0;
             
             const PFJet &  myJetTest = (CaloL2jets)[0];
          if (myJetTest.p4().Pt()>90){   
-            output.second.push_back(myJet1);
-            output.second.push_back(myJet2);
-            output.second.push_back(myJetTest);
-            A+=2;   
+            Output.second.push_back(myJet1);
+            Output.second.push_back(myJet2);
+            Output.second.push_back(myJetTest);
+             
 		}
         }
         
     }
-    //std::cout<<" "<<A<<std::endl;
-            return output;
+    
+            return Output;
         
 }
 
 L1PFJetsMatching::L1PFJetsMatching(const edm::ParameterSet& iConfig):
-  jetSrc    ( consumes<PFJetCollection>                     (iConfig.getParameter<InputTag>("JetSrc"      ) ) ),
-  jetTrigger( consumes<trigger::TriggerFilterObjectWithRefs>(iConfig.getParameter<InputTag>("L1JetTrigger") ) ),
+  jetSrc_    ( consumes<PFJetCollection>                     (iConfig.getParameter<InputTag>("JetSrc"      ) ) ),
+  jetTrigger_( consumes<trigger::TriggerFilterObjectWithRefs>(iConfig.getParameter<InputTag>("L1JetTrigger") ) ),
   pt1_Min   ( iConfig.getParameter<double>("pt1_Min")),
   pt2_Min   ( iConfig.getParameter<double>("pt2_Min")),
   mjj_Min   ( iConfig.getParameter<double>("mjj_Min"))
@@ -84,17 +79,17 @@ void L1PFJetsMatching::produce(edm::StreamID iSId, edm::Event& iEvent, const edm
 {
     
   unique_ptr<PFJetCollection> caloL2jets(new PFJetCollection);
-    std::pair<PFJetCollection,PFJetCollection> Output;
+    std::pair<PFJetCollection,PFJetCollection> output;
     
   double deltaR    = 1.0;
   double matchingR = 0.5;
   
   // Getting HLT jets to be matched
   edm::Handle<PFJetCollection > caloJets;
-  iEvent.getByToken( jetSrc, caloJets );
+  iEvent.getByToken( jetSrc_, caloJets );
         
   edm::Handle<trigger::TriggerFilterObjectWithRefs> l1TriggeredJets;
-  iEvent.getByToken(jetTrigger,l1TriggeredJets);
+  iEvent.getByToken(jetTrigger_,l1TriggeredJets);
                 
   //l1t::TauVectorRef jetCandRefVec;
   l1t::JetVectorRef jetCandRefVec;
@@ -110,28 +105,18 @@ void L1PFJetsMatching::produce(edm::StreamID iSId, edm::Event& iEvent, const edm
     //  if ((iJet<3) && (iL1Jet==0))  std::cout<<myJet.p4().Pt()<<" ";
       deltaR = ROOT::Math::VectorUtil::DeltaR(myJet.p4().Vect(), (jetCandRefVec[iL1Jet]->p4()).Vect());
       if(deltaR < matchingR ) {
-       
-        //if(myJet.pt() > mEt_Min) {
-            caloL2jets->push_back(myJet);
-       // }
+        caloL2jets->push_back(myJet);
         break;
       }
     }
   }  
    
+    output= categorise(*caloL2jets,pt1_Min,pt2_Min, mjj_Min);
+    unique_ptr<PFJetCollection> output1(new PFJetCollection(output.first));
+    unique_ptr<PFJetCollection> output2(new PFJetCollection(output.second));
     
-    
-    
-    Output= Categorise(*caloL2jets,pt1_Min,pt2_Min, mjj_Min);
-    unique_ptr<PFJetCollection> Output1(new PFJetCollection(Output.first));
-    unique_ptr<PFJetCollection> Output2(new PFJetCollection(Output.second));
-    //unique_ptr<std::pair<PFJetCollection,PFJetCollection>> Output(new std::pair<PFJetCollection,PFJetCollection>);
-    //std::cout<<"Storing the event: "<<std::endl;
-   
-    
-    iEvent.put(std::move(Output1),"TwoJets");
-    iEvent.put(std::move(Output2),"ThreeJets");
-    
+    iEvent.put(std::move(output1),"TwoJets");
+    iEvent.put(std::move(output2),"ThreeJets");
 
 }
 

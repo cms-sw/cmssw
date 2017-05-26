@@ -27,8 +27,8 @@ class L1PFJetsMatching: public edm::global::EDProducer<> {
 
  private:
     
-  const edm::EDGetTokenT<reco::PFJetCollection> jetSrc;
-  const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> jetTrigger;
+  const edm::EDGetTokenT<reco::PFJetCollection> jetSrc_;
+  const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> jetTrigger_;
   const double pt1_Min;
   const double pt2_Min;
   const double mjj_Min;
