@@ -7,6 +7,10 @@ higDiphotonHLTOfflineSource = cms.EDAnalyzer(
     # HLT paths passing any one of these regular expressions will be included
     hltPathsToCheck = cms.vstring(
         "HLT_Diphoton30_22_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass95_v",
+        "HLT_Diphoton30_22_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90_v",
+        "HLT_Diphoton30_22_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90_v",
+        "HLT_Diphoton30_22_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90_v",
+        "HLT_Diphoton30_22_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90_v",
     ),
     # Location of plots in DQM
     dirname = cms.untracked.string("HLT/Higgs/Diphoton"), 
