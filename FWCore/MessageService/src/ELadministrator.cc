@@ -124,11 +124,11 @@ void ELadministrator::log(edm::ErrorObj & msg) {
 // ELadministrator functionality:
 // ----------------------------------------------------------------------
 
-ELdestControl ELadministrator::attach( std::shared_ptr<ELdestination> sink )  {
+std::shared_ptr<ELdestination> ELadministrator::attach( std::shared_ptr<ELdestination> sink )  {
 
   sinks_.push_back( sink );
-  return ELdestControl( sink );
-
+  return sink;
+  
 }  // attach()
 
 ELseverityLevel  ELadministrator::checkSeverity()  {

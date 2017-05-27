@@ -29,7 +29,6 @@
 #include <fstream>
 
 #include "FWCore/MessageService/interface/ELdestination.h"
-#include "FWCore/MessageService/interface/ELdestControl.h"
 
 // Possible Traces:
 // #define ELdestinationCONSTRUCTOR_TRACE
@@ -91,6 +90,49 @@ bool ELdestination::log( const edm::ErrorObj &)  { return false; }
 static const ELstring hereMsg = "available via this destination";
 static const ELstring noosMsg = "No ostream";
 static const ELstring notELoutputMsg = "This destination is not an ELoutput";
+
+// ----------------------------------------------------------------------
+// Behavior control methods invoked by the framework
+// ----------------------------------------------------------------------
+
+void ELdestination::setThreshold( const ELseverityLevel & sv )  {
+  threshold = sv;
+}
+
+
+void ELdestination::setTraceThreshold( const ELseverityLevel & sv )  {
+  traceThreshold = sv;
+}
+
+
+void ELdestination::setLimit( const ELstring & s, int n )  {
+  limits.setLimit( s, n );
+}
+
+
+void ELdestination::setInterval
+( const ELseverityLevel & sv, int interval )  {
+  limits.setInterval( sv, interval );
+}
+
+void ELdestination::setInterval( const ELstring & s, int interval )  {
+  limits.setInterval( s, interval );
+}
+
+
+void ELdestination::setLimit( const ELseverityLevel & sv, int n )  {
+  limits.setLimit( sv, n );
+}
+
+
+void ELdestination::setTimespan( const ELstring & s, int n )  {
+  limits.setTimespan( s, n );
+}
+
+
+void ELdestination::setTimespan( const ELseverityLevel & sv, int n )  {
+  limits.setTimespan( sv, n );
+}
 
 
 void ELdestination::wipe()  { limits.wipe(); }
