@@ -1,5 +1,6 @@
 import os
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 process = cms.Process("TEST")
 
@@ -126,12 +127,12 @@ cmssw_version = os.environ.get('CMSSW_VERSION','CMSSW_X_Y_Z')
 Workflow = '/HcalValidation/'+'Harvesting/'+str(cmssw_version)
 process.dqmSaver.workflow = Workflow
 
-process.calotowersClient = cms.EDAnalyzer("CaloTowersClient", 
+process.calotowersClient = DQMEDHarvester("CaloTowersClient", 
      outputFile = cms.untracked.string('CaloTowersHarvestingME.root'),
      DQMDirName = cms.string("/") # root directory
 )
 
-process.hcalrechitsClient = cms.EDAnalyzer("HcalRecHitsClient", 
+process.hcalrechitsClient = DQMEDHarvester("HcalRecHitsClient", 
      outputFile = cms.untracked.string('HcalRecHitsHarvestingME_ZS.root'),
      DQMDirName = cms.string("/") # root directory
 )

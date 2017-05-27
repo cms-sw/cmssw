@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 SUSY_HLT_InclusiveMET_HBHE_BeamHaloCleaned = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
@@ -87,7 +88,7 @@ SUSY_HLT_InclusiveType1PFMET_HBHE_BeamHaloCleaned = cms.EDAnalyzer("SUSY_HLT_Inc
 
 
 
-SUSY_HLT_InclusiveMET_HBHE_BeamHaloCleaned_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSY_HLT_InclusiveMET_HBHE_BeamHaloCleaned_POSTPROCESSING = DQMEDHarvester("DQMGenericClient",
   subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFMET170_HBHE_BeamHaloCleaned_v"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",
@@ -96,7 +97,7 @@ SUSY_HLT_InclusiveMET_HBHE_BeamHaloCleaned_POSTPROCESSING = cms.EDAnalyzer("DQMG
   resolution = cms.vstring("")
 )
 
-SUSY_HLT_InclusiveMET_Default_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSY_HLT_InclusiveMET_Default_POSTPROCESSING = DQMEDHarvester("DQMGenericClient",
   subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFMET170_v"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",
@@ -105,7 +106,7 @@ SUSY_HLT_InclusiveMET_Default_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient"
   resolution = cms.vstring("")
 )
 
-SUSY_HLT_InclusiveMET_HBHECleaned_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSY_HLT_InclusiveMET_HBHECleaned_POSTPROCESSING = DQMEDHarvester("DQMGenericClient",
   subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFMET170_HBHECleaned_v"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",
@@ -114,7 +115,7 @@ SUSY_HLT_InclusiveMET_HBHECleaned_POSTPROCESSING = cms.EDAnalyzer("DQMGenericCli
   resolution = cms.vstring("")
 )
 
-SUSY_HLT_InclusiveMET_BeamHaloCleaned_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSY_HLT_InclusiveMET_BeamHaloCleaned_POSTPROCESSING = DQMEDHarvester("DQMGenericClient",
   subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFMET170_BeamHaloCleaned_v"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",
@@ -124,7 +125,7 @@ SUSY_HLT_InclusiveMET_BeamHaloCleaned_POSTPROCESSING = cms.EDAnalyzer("DQMGeneri
 )
 
 
-SUSY_HLT_InclusiveMET_NotCleaned_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSY_HLT_InclusiveMET_NotCleaned_POSTPROCESSING = DQMEDHarvester("DQMGenericClient",
   subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFMET170_NotCleaned_v"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",
@@ -133,7 +134,7 @@ SUSY_HLT_InclusiveMET_NotCleaned_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClie
   resolution = cms.vstring("")
 )
 
-SUSY_HLT_InclusiveType1PFMET_HBHE_BeamHaloCleaned_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSY_HLT_InclusiveType1PFMET_HBHE_BeamHaloCleaned_POSTPROCESSING = DQMEDHarvester("DQMGenericClient",
   subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFMETTypeOne190_HBHE_BeamHaloCleaned_v"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",

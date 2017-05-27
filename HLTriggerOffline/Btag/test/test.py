@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 process = cms.Process("HLTBTAG")
 
 from PhysicsTools.PatAlgos.tools.coreTools import *	
@@ -83,7 +84,7 @@ process.bTagValidation = cms.EDAnalyzer("HLTBTagPerformanceAnalyzer",
 )
 
 #define bTagPostValidation for the b-tag DQM validation (efficiency and mistagrate plot)
-process.bTagPostValidation = cms.EDAnalyzer("HLTBTagHarvestingAnalyzer",
+process.bTagPostValidation = DQMEDHarvester("HLTBTagHarvestingAnalyzer",
 	HLTPathNames = fileini.btag_pathes,
 	histoName	= fileini.btag_modules_string,
 	minTag	= cms.double(0.6),
