@@ -6,6 +6,7 @@
 ## $4 is the IOV file
 ## $5 is the common config. file name
 ## $6 is the align config file name
+## $7 is the track selection config
 
 # setup environment: have call script from Package/Subpackage dir
 cd ../..
@@ -18,7 +19,7 @@ set odir = `cd $2; pwd` # get full output path
 set errfile = "$odir/ERROR"
 
 # configure all of the scripts
-scripts/configureHippy.pl $odir $3 $4 $5 $6
+scripts/configureHippy.pl $odir $3 $4 $5 $6 $7
 
 if ( -f $errfile ) then
    echo "$errfile exists! Please fix the errors and re-run."

@@ -87,8 +87,8 @@ process.AlignmentProducer.algoConfig.apeParam = cms.VPSet(
                   apeSPar = cms.vdouble(0.01, 0.0, 20.0), # 100 micron
                      Selector = cms.PSet(
                        alignParams = cms.vstring(
-                                'TrackerTPBHalfBarrel,111111',
-                                'TrackerTPEHalfCylinder,111111',
+                                'TrackerP1PXBHalfBarrel,111111',
+                                'TrackerP1PXECHalfCylinder,111111',
                          )
                       )
                   ),
@@ -114,7 +114,7 @@ process.AlignmentProducer.algoConfig.apeParam = cms.VPSet(
 #                       alignParams = cms.vstring(
 #                               'TrackerTIDEndcap,111111',
 #                               'TrackerTECEndcap,111111',
-#                               'TrackerTPEHalfCylinder,111111'
+#                               'TrackerP1PXECHalfCylinder,111111'
 #                         )
 #                      )
 #                  ),
