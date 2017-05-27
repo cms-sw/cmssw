@@ -78,8 +78,8 @@ hltMuonOfflineAnalyzer = cms.EDAnalyzer("HLTMuonOfflineAnalyzer",
     ## Both 1D and 2D plots use the binnings defined here
     binParams = cms.untracked.PSet(
         ## parameters for fixed-width plots
-        NVertex    = cms.untracked.vdouble( 20,  1,   60),
-        NVertexFine= cms.untracked.vdouble( 40,  1,   60),
+        NVertex    = cms.untracked.vdouble( 1,10,15,20,25,30,35,40,45,50,55,60,65,70,100),
+        NVertexFine= cms.untracked.vdouble( 1,5,10,12.5,15,17.5,20,22.5,25,27.5,30,32.5,35,37.5,40,42.5,45,47.5,50,52.5,55,57.5,60,62.5,65,67.5,70,85,100),
         eta        = cms.untracked.vdouble( 20,  -2.40,   2.40),
         phi        = cms.untracked.vdouble( 20,  -3.14,   3.14),
         phiHEP17   = cms.untracked.vdouble( -3.14,-2.4,-1.8,-1.0,-0.4,0.0,0.4,1.0,1.8,2.4,3.14),
