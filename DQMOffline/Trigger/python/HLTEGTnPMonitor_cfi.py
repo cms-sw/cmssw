@@ -22,8 +22,6 @@ ecalBarrelAndEndcapEtaCut = cms.PSet(
     rangeVar=cms.string("scEta"),
     allowedRanges=cms.vstring("-1.4442:1.4442","-2.5:-1.556","1.556:2.5"),
     )
-        
-
 hcalPosEtaCut= cms.PSet(
     rangeVar=cms.string("scEta"),
     allowedRanges=cms.vstring("1.3:1.4442","1.556:2.5"),
@@ -38,11 +36,10 @@ hcalPhi17Cut = cms.PSet(
     )
 
 
-
 tagAndProbeConfigEle27WPTight = cms.PSet(
-    trigEvent = cms.InputTag("hltTriggerSummaryAOD","","HLTX"),
+    trigEvent = cms.InputTag("hltTriggerSummaryAOD","","HLT"),
     objColl = cms.InputTag("gedGsfElectrons"),
-    trigResults = cms.InputTag("TriggerResults","","HLTX"),
+    trigResults = cms.InputTag("TriggerResults","","HLT"),
     tagVIDCuts = cms.InputTag("egHLTDQMSelection"),
     probeVIDCuts = cms.InputTag("egHLTDQMSelection"),
     tagTrigger = cms.string("HLT_Ele27_WPTight_Gsf_v*"),
@@ -307,25 +304,25 @@ egammaStdFiltersToMonitor= cms.VPSet(
   
  
 
-egHLTDQMOfflineTnPSource = cms.EDAnalyzer("HLTTagAndProbeOfflineSource",
-                                          histCollections = cms.VPSet(
+egHLTDQMOfflineTnPSource = cms.EDAnalyzer("HLTEleTagAndProbeOfflineSource",
+                                          tagAndProbeCollections = cms.VPSet(
         cms.PSet( 
             tagAndProbeConfigEle27WPTight,
             histConfigs = egammaStdHistConfigs,
             baseHistName = cms.string("ele27Tag_"),
-            histCollConfigs = egammaStdFiltersToMonitor,
+            filterConfigs = egammaStdFiltersToMonitor,
         ),
         cms.PSet(
             tagAndProbeConfigEle27WPTightHEM17,
             histConfigs = egammaStdHistConfigs,
             baseHistName = cms.string("ele27Tag_HEM17_"),
-            histCollConfigs = egammaStdFiltersToMonitor,
+            filterConfigs = egammaStdFiltersToMonitor,
         ),
         cms.PSet(
             tagAndProbeConfigEle27WPTightHEP17,
             histConfigs = egammaStdHistConfigs,
             baseHistName = cms.string("ele27Tag_HEP17_"),
-            histCollConfigs = egammaStdFiltersToMonitor,
+            filterConfigs = egammaStdFiltersToMonitor,
         ),
            
         )
