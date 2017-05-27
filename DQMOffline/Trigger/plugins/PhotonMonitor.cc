@@ -127,6 +127,10 @@ void PhotonMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   bookME(ibooker,photonME_variableBinning_,histname,histtitle,photon_variable_binning_);
   setTitle(photonME_variableBinning_,"Photon pT [GeV]","events / [GeV]");
 
+  histname = "photon_eta"; histtitle = "Photon eta";
+  bookME(ibooker,photonEtaME_,histname,histtitle, phi_binning_1.nbins, phi_binning_1.xmin, phi_binning_1.xmax);
+  setTitle(photonEtaME_,"Photon #eta","events / 0.1");
+
   histname = "photonVsLS"; histtitle = "photon pt vs LS";
   bookME(ibooker,photonVsLS_,histname,histtitle,ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax,photon_binning_.xmin, photon_binning_.xmax);
   setTitle(photonVsLS_,"LS","Photon pT [GeV]");
@@ -250,6 +254,7 @@ void PhotonMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptio
   edm::ParameterSetDescription histoPSet;
   edm::ParameterSetDescription metPSet;
   fillHistoPSetDescription(metPSet);
+  
   histoPSet.add<edm::ParameterSetDescription>("photonPSet", metPSet);
   std::vector<double> bins = {0.,20.,40.,60.,80.,90.,100.,110.,120.,130.,140.,150.,160.,170.,180.,190.,200.,220.,240.,260.,280.,300.,350.,400.,450.,1000.};
   histoPSet.add<std::vector<double> >("photonBinning", bins);
