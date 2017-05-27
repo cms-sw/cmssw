@@ -24,17 +24,19 @@ DiphotonMass90_monitoring = hltPhotonmonitoring.clone()
 DiphotonMass90_monitoring.FolderName = cms.string('HLT/Photon/diphotonMass90/')
 DiphotonMass90_monitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Diphoton30_22_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90_v*")
 DiphotonMass90_monitoring.nphotons = cms.int32(2)
+DiphotonMass90_monitoring.photonSelection = cms.string("(pt > 20 && eta<1.4442 && hadTowOverEm<0.12 && full5x5_sigmaIetaIeta()<0.015 && full5x5_r9>.5)||(pt > 20 && eta<2.5 && eta>1.5556 && hadTowOverEm<0.12 && full5x5_sigmaIetaIeta()<0.035 && full5x5_r9>.8)")
 
 DiphotonMass95_monitoring = hltPhotonmonitoring.clone()
 DiphotonMass95_monitoring.FolderName = cms.string('HLT/Photon/diphotonMass95/')
 DiphotonMass95_monitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Diphoton30_22_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass95_v*")
 DiphotonMass95_monitoring.nphotons = cms.int32(2)
+DiphotonMass95_monitoring.photonSelection = cms.string("(pt > 20 && eta<1.4442 && hadTowOverEm<0.12 && full5x5_sigmaIetaIeta()<0.015 && full5x5_r9>.5)||(pt > 20 && eta<2.5 && eta>1.5556 && hadTowOverEm<0.12 && full5x5_sigmaIetaIeta()<0.035 && full5x5_r9>.8)")
 
 DiphotonMass55AND_monitoring = hltPhotonmonitoring.clone()
 DiphotonMass55AND_monitoring.FolderName = cms.string('HLT/Photon/diphotonMass55AND/')
 DiphotonMass55AND_monitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_PixelVeto_Mass55_v*")
 DiphotonMass55AND_monitoring.nphotons = cms.int32(2)
-
+DiphotonMass55AND_monitoring.photonSelection = cms.string("(pt > 20 && eta<1.4442 && hadTowOverEm<0.12 && full5x5_sigmaIetaIeta()<0.015 && full5x5_r9>.5)||(pt > 20 && eta<2.5 && eta>1.5556 && hadTowOverEm<0.12 && full5x5_sigmaIetaIeta()<0.035 && full5x5_r9>.8)")
 
 higgsHLTDiphotonMonitoring = cms.Sequence(
     DiphotonMass90_monitoring
