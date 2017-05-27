@@ -29,10 +29,10 @@ HLTDQMObjSelector<ObjType,ObjCollType>::HLTDQMObjSelector(const edm::ParameterSe
 }
 
 template<typename ObjType,typename ObjCollType>
-void HLTDQMObjSelector<ObjType,ObjCollType>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-
+void HLTDQMObjSelector<ObjType,ObjCollType>::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
+{
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("objs", edm::InputTag("gedGsfElectrons"));
+  desc.add<edm::InputTag>("objs", edm::InputTag(""));
   desc.add<std::string>("selection","et > 5");
   descriptions.add("hltDQMObjSelector", desc);
 }
