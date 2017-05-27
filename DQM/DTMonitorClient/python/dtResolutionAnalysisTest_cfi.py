@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-dtResolutionAnalysisTest = cms.EDAnalyzer("DTResolutionAnalysisTest",
+dtResolutionAnalysisTest = DQMEDHarvester("DTResolutionAnalysisTest",
                                           diagnosticPrescale = cms.untracked.int32(1),
                                           maxGoodMeanValue = cms.untracked.double(0.005),
                                           minBadMeanValue = cms.untracked.double(0.015),

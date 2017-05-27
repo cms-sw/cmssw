@@ -1,4 +1,5 @@
 from HLTriggerOffline.HeavyFlavor.heavyFlavorValidationHarvesting_cfi import *
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 hfv1 = heavyFlavorValidationHarvesting.clone(
   MyDQMrootFolder = cms.untracked.string('HLT/HeavyFlavor/HLT/HLT_DoubleMu4_3_Bs_v')
@@ -109,7 +110,7 @@ hfvDoubleMu0 = heavyFlavorValidationHarvesting.clone(
   MyDQMrootFolder = cms.untracked.string('HLT/HeavyFlavor/HLT/HLT_DoubleMu0')
 )
 
-combiner = cms.EDAnalyzer('PlotCombiner',
+combiner = DQMEDHarvester('PlotCombiner',
   MyDQMrootFolder = cms.untracked.string('HLT/HeavyFlavor/HLT'),
   Plots = cms.untracked.VPSet(
     cms.untracked.PSet(
