@@ -32,6 +32,7 @@ DiphotonMass95_monitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT
 DiphotonMass95_monitoring.nphotons = cms.int32(2)
 DiphotonMass95_monitoring.photonSelection = cms.string("(pt > 20 && eta<1.4442 && hadTowOverEm<0.12 && full5x5_sigmaIetaIeta()<0.015 && full5x5_r9>.5)||(pt > 20 && eta<2.5 && eta>1.5556 && hadTowOverEm<0.12 && full5x5_sigmaIetaIeta()<0.035 && full5x5_r9>.8)")
 
+
 DiphotonMass55AND_monitoring = hltPhotonmonitoring.clone()
 DiphotonMass55AND_monitoring.FolderName = cms.string('HLT/Photon/diphotonMass55AND/')
 DiphotonMass55AND_monitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_PixelVeto_Mass55_v*")
@@ -42,4 +43,8 @@ higgsHLTDiphotonMonitoring = cms.Sequence(
     DiphotonMass90_monitoring
     + DiphotonMass55AND_monitoring
 )
+
+
+
+
 
