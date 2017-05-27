@@ -18,6 +18,7 @@ public:
     return hit.clone(*this, tsos);
   }
 
+ virtual ~TkCloner() {}
 #ifndef __GCCXML__
   TrackingRecHit::ConstRecHitPointer makeShared(TrackingRecHit::ConstRecHitPointer const & hit, TrajectoryStateOnSurface const& tsos) const {
     return hit->canImproveWithTrack() ?  hit->cloneSH(*this, tsos) : hit;
