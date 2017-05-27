@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 from DQM.SiPixelPhase1Common.HistogramManager_cfi import *
 
 SiPixelPhase1RecHitsNRecHits = DefaultHistoTrack.clone(
@@ -97,7 +98,7 @@ SiPixelPhase1RecHitsAnalyzer = cms.EDAnalyzer("SiPixelPhase1RecHits",
 
 )
 
-SiPixelPhase1RecHitsHarvester = cms.EDAnalyzer("SiPixelPhase1Harvester",
+SiPixelPhase1RecHitsHarvester = DQMEDHarvester("SiPixelPhase1Harvester",
         histograms = SiPixelPhase1RecHitsConf,
         geometry = SiPixelPhase1Geometry
 )

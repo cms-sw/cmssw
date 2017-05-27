@@ -1,10 +1,11 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 ################# Postprocessing #########################
-METPostprocessing = cms.EDAnalyzer('METTesterPostProcessor')  
+METPostprocessing = DQMEDHarvester('METTesterPostProcessor')  
 
 ################ Postprocessing Harvesting #########################
-METPostprocessingHarvesting = cms.EDAnalyzer('METTesterPostProcessorHarvesting',
+METPostprocessingHarvesting = DQMEDHarvester('METTesterPostProcessorHarvesting',
                     METTypeRECO = cms.InputTag("PfMetT1"),
                     METTypeMiniAOD = cms.InputTag("slimmedMETs")
                    )  
