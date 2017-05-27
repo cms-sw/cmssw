@@ -38,6 +38,9 @@ class MyBatchManager:
       self.parser.add_option("--iovs", "--iovfile", dest="iovfile", type="string",
                                 help="IOV list to read",
                                 default=None)
+      self.parser.add_option("--trkselcfg", "--trackselectionconfig", dest="trkselcfg", type="string",
+                                help="Track selection config location",
+                                default="python")
       self.parser.add_option("-f", "--force", action="store_true",
                                 dest="force", default=False,
                                 help="Don't ask any questions, just over-write")
@@ -71,13 +74,14 @@ class MyBatchManager:
          self.opt.iovfile
          )
       else:
-         jobcmd = 'scripts/iterator_py {} {} {} {} {} {}'.format(
+         jobcmd = 'scripts/iterator_py {} {} {} {} {} {} {}'.format(
          self.opt.niter,
          self.opt.outputdir,
          self.opt.lstfile,
          self.opt.iovfile,
          self.opt.commoncfg,
-         self.opt.aligncfg
+         self.opt.aligncfg,
+         self.opt.trkselcfg
          )
       ret = os.system( jobcmd )
       if( ret != 0 ):

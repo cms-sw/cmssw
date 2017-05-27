@@ -9,6 +9,7 @@ $datafile1 = $ARGV[1];
 $iovrange = $ARGV[2];
 $incommoncfg = $ARGV[3];
 $inaligncfg = $ARGV[4];
+$intrkselcfg = $ARGV[5];
 
 open (datafile1) or die "Can't open the file!";
 @dataFileInput1 = <datafile1>;
@@ -61,7 +62,7 @@ foreach $data1 ( @dataFileInput1 ) {
    ($dataskim,$path,$suffix) = fileparse($datafile,,qr"\..[^.]*$");
 
    system( "
-   cp python/$dataskim\TrackSelection_cff_py.txt $odir/.;
+   cp $intrkselcfg/$dataskim\TrackSelection_cff_py.txt $odir/.;
    " );
 
 

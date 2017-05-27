@@ -58,7 +58,7 @@ from CondCore.CondDB.CondDB_cfi import *
 process.AlignmentProducer.applyDbAlignment = True
 
 process.AlignmentProducer.checkDbAlignmentValidity=False
-process.AlignmentProducer.algoConfig.multiIOV= True
+process.AlignmentProducer.algoConfig.multiIOV=True
 process.AlignmentProducer.algoConfig.IOVrange=cms.vuint32(<iovs>)
 
 # TEC disk 1-9 in +z half : 470311204,470327588,470343972,470360388,470376772,470393156,470409572,470425956,470442372
@@ -76,45 +76,62 @@ process.AlignmentProducer.algoConfig.fillTrackMonitoring=False
 
 process.AlignmentProducer.ParameterBuilder.Selector = cms.PSet(
     alignParams = cms.vstring(
-#        'TrackerTPBHalfBarrel,111111',
-#        'TrackerTPEHalfCylinder,111111',
+        'TrackerP1PXBModule,101101',
+#        'TrackerP1PXBLadder,111111',
+#        'TrackerP1PXBLayer,111111',
+#        'TrackerP1PXBHalfBarrel,111111',
+#        'TrackerP1PXBBarrel,111111',
+
+
+        'TrackerP1PXECModule,111111',
+#        'TrackerP1PXECPanel,111111',
+#        'TrackerP1PXECBlade,111111',
+#        'TrackerP1PXECHalfDisk,111111',
+#        'TrackerP1PXECHalfCylinder,111111',
+#        'TrackerP1PXECEndcap,111111',
+
+
+#        'TrackerTIBModuleUnit,101111',
+        'TrackerTIBModule,101111',
+#        'TrackerTIBString,111111',
+#        'TrackerTIBSurface,111111',
+#        'TrackerTIBHalfShell,111111',
+#        'TrackerTIBLayer,111111',
 #        'TrackerTIBHalfBarrel,111111',
-#        'TrackerTOBHalfBarrel,111111',
+#        'TrackerTIBBarrel,111111',
+
+
+#        'TrackerTIDModuleUnit,111111',
+        'TrackerTIDModule,110111',
+#        'TrackerTIDSide,111111',
+#        'TrackerTIDRing,111111',
+#        'TrackerTIDDisk,111111',
 #        'TrackerTIDEndcap,111111',
+
+
+#        'TrackerTOBModuleUnit,101111',
+        'TrackerTOBModule,101111',
+#        'TrackerTOBRod,111111',
+#        'TrackerTOBLayer,111111',
+#        'TrackerTOBHalfBarrel,111111',
+#        'TrackerTOBBarrel,111111',
+
+
+#        'TrackerTECModuleUnit,111111',
+        'TrackerTECModule,110111',
+#        'TrackerTECRing,111111'
+#        'TrackerTECPetal,111111'
+#        'TrackerTECSide,111111'
+#        'TrackerTECDisk,111111'
 #        'TrackerTECEndcap,111111',
 
-      'TrackerTPBModule,101101',
-      'TrackerTPEModule,111111',
 
-# Do either one of these, use Module usually
-#      'TrackerTIBModuleUnit,101111',
-#      'TrackerTOBModuleUnit,101111',
-#      'TrackerTIDModuleUnit,111111',
-#      'TrackerTECModuleUnit,111111'
-
-      'TrackerTIBModule,101111',
-      'TrackerTOBModule,101111',
-      'TrackerTIDModule,110111',
-      'TrackerTECModule,110111'
-
-#      'TrackerTPBLadder,111111',
-#      'TrackerTPEPanel,111111',
-#      'TrackerTIBString,111111',
-#      'TrackerTOBRod,111111',
-#      'TrackerTIDRing,111111',
-#      'TrackerTECPetal,111111'
-
-#      'TrackerTPBLayer,111111',
-#      'TrackerTPEHalfDisk,111111',
-#      'TrackerTIBLayer,111111',
-#      'TrackerTOBLayer,111111',
-#      'TrackerTIDDisk,111111',
+#        'TIDDets,001000,endCapDS', 
+#        'TIDDets,001000,endCapSS', 
 
 
 #        'TECDets,111111,endCapDS', 
-#        'TIDDets,001000,endCapDS', 
 #        'TECDets,111111,endCapSS', 
-#        'TIDDets,001000,endCapSS', 
 #        'TECDets,111111,TECRing1',
 #        'TECDets,111111,TECRing2',
 #        'TECDets,111111,TECRing3',
