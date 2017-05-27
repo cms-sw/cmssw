@@ -13,7 +13,7 @@ public:
   // doesn't take ownership of the pointer
   CaloShapes(const CaloVShape * shape) : theShape(shape) {}
   virtual const CaloVShape * shape(const DetId & detId) const {return theShape;}
-
+  virtual ~CaloShapes() = default;
 private:
   const CaloVShape * theShape;
 };

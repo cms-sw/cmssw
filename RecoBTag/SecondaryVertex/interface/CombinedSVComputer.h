@@ -42,7 +42,7 @@
 class CombinedSVComputer {
     public:
 	explicit CombinedSVComputer(const edm::ParameterSet &params);
-
+        virtual ~CombinedSVComputer() = default;
 	virtual reco::TaggingVariableList
 	operator () (const reco::TrackIPTagInfo &ipInfo,
 	             const reco::SecondaryVertexTagInfo &svInfo) const;

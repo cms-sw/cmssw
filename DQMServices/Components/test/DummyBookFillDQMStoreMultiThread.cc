@@ -21,6 +21,7 @@
 namespace {
 class FillerBase {
  public:
+  virtual ~FillerBase() = default;
   virtual void fill() = 0;
   virtual void reset() = 0;
 };

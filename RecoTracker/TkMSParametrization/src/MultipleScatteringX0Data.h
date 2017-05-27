@@ -13,6 +13,7 @@ class TH2F;
 
 class dso_hidden SumX0AtEtaDataProvider{ 
 public: virtual float sumX0atEta(float eta, float r) const = 0; 
+        virtual ~SumX0AtEtaDataProvider() {}
 }; 
 
 class dso_hidden MultipleScatteringX0Data : public SumX0AtEtaDataProvider {
