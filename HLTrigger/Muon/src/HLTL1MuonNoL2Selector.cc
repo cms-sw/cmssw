@@ -53,11 +53,13 @@ HLTL1MuonNoL2Selector::fillDescriptions(edm::ConfigurationDescriptions& descript
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("InputObjects",edm::InputTag(""));
   desc.add<edm::InputTag>("L2CandTag",edm::InputTag("hltL2MuonCandidates"));
-  desc.add<edm::InputTag>("L1CandTag",edm::InputTag(""));
   desc.add<edm::InputTag>("SeedMapTag",edm::InputTag("hltL2Muons"));
   desc.add<double>("L1MinPt",-1.);
   desc.add<double>("L1MaxEta",5.0);
   desc.add<unsigned int>("L1MinQuality",0);
+  // # OBSOLETE - these parameters are ignored, they are left only not to break old configurations
+  // they will not be printed in the generated cfi.py file
+  desc.addOptionalNode(edm::ParameterDescription<edm::InputTag>("L1CandTag", edm::InputTag(""), false), false)->setComment("This parameter is obsolete and will be ignored.");
   desc.add<bool>("CentralBxOnly", true);
   descriptions.add("hltL1MuonNoL2Selector",desc);
 }
@@ -92,9 +94,9 @@ void HLTL1MuonNoL2Selector::produce(edm::StreamID, edm::Event& iEvent, const edm
       unsigned int quality = it->hwQual();
       float pt    =  it->pt();
       float eta   =  it->eta();
-
+      
       if ( pt < theL1MinPt_ || std::abs(eta) > theL1MaxEta_  || quality <= theL1MinQuality_) continue;
-
+      
       // Loop over L2's to find whether the L1 fired this L2. 
       bool isTriggeredByL1=false;
       for (auto const & cand : *L2cands) {
@@ -107,9 +109,11 @@ void HLTL1MuonNoL2Selector::produce(edm::StreamID, edm::Event& iEvent, const edm
 	    break;
 	  }
 	}
-	if (!isTriggeredByL1) {
-	  output->push_back( ibx, *it);
-	}
+	if (isTriggeredByL1) break; // if I found a L2 I do not need to loop on the rest.
+      }
+      // Once we loop on all L2 decide:
+      if (!isTriggeredByL1) {
+	output->push_back( ibx, *it);
       }
     }
   } // loop over L1
