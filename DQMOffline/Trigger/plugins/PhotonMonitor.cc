@@ -254,7 +254,7 @@ void PhotonMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptio
   edm::ParameterSetDescription histoPSet;
   edm::ParameterSetDescription metPSet;
   fillHistoPSetDescription(metPSet);
-  
+
   histoPSet.add<edm::ParameterSetDescription>("photonPSet", metPSet);
   std::vector<double> bins = {0.,20.,40.,60.,80.,90.,100.,110.,120.,130.,140.,150.,160.,170.,180.,190.,200.,220.,240.,260.,280.,300.,350.,400.,450.,1000.};
   histoPSet.add<std::vector<double> >("photonBinning", bins);
