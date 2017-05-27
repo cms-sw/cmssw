@@ -8,6 +8,7 @@
 <use   name="DataFormats/HLTReco"/>
 <use   name="DataFormats/MuonReco"/>
 <use   name="DataFormats/EgammaReco"/>
+<use   name="DataFormats/EgammaCandidates"/>
 <use   name="DataFormats/TrackReco"/>
 <use   name="DataFormats/TrajectorySeed"/>
 <use   name="DataFormats/BTauReco"/>

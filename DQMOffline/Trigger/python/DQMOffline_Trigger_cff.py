@@ -42,6 +42,7 @@ from DQMOffline.Trigger.SiPixel_OfflineMonitoring_cff import *
 # photon jet
 from DQMOffline.Trigger.HigPhotonJetHLTOfflineSource_cfi import * 
 
+
 #hotline 
 from DQMOffline.Trigger.hotlineDQM_cfi import *
 
@@ -77,25 +78,25 @@ offlineHLTSource = cms.Sequence(
     hltResults *
     lumiMonitorHLTsequence *
     egHLTOffDQMSource *
-    muonFullOfflineDQM *
-    HLTTauDQMOffline *
-    jetMETHLTOfflineAnalyzer * 
-    fsqHLTOfflineSourceSequence *
-    HILowLumiHLTOfflineSourceSequence *
-    hltInclusiveVBFSource *
+    #muonFullOfflineDQM *
+    #HLTTauDQMOffline *
+    #jetMETHLTOfflineAnalyzer * 
+    #fsqHLTOfflineSourceSequence *
+    #HILowLumiHLTOfflineSourceSequence *
+    #hltInclusiveVBFSource *
     higPhotonJetHLTOfflineSource*
     dqmEnvHLT *
-    topHLTriggerOfflineDQM *
+    #topHLTriggerOfflineDQM *
     eventshapeDQMSequence *
-    HeavyIonUCCDQMSequence *
-    hotlineDQMSequence *
+    #HeavyIonUCCDQMSequence *
+    #hotlineDQMSequence *
     exoticaMonitorHLT *
-    susyMonitorHLT *
-    b2gMonitorHLT *
+    #susyMonitorHLT *
+    #b2gMonitorHLT *
     higgsMonitorHLT *
-    smpMonitorHLT *
-    topMonitorHLT *
-    btagMonitorHLT *
+    #smpMonitorHLT *
+    #topMonitorHLT *
+    #btagMonitorHLT *
     bphMonitorHLT
     )
 
