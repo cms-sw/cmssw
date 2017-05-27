@@ -17,11 +17,8 @@
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 
-
-#include "DQMOffline/Trigger/interface/HLTTagAndProbeEff.h"
+#include "DQMOffline/Trigger/interface/HLTDQMTagAndProbeEff.h"
 
 
 
@@ -29,37 +26,65 @@
 #include <string>
 
 
+template <typename ObjType,typename ObjCollType> 
 class HLTTagAndProbeOfflineSource : public DQMEDAnalyzer {
  public:
   explicit HLTTagAndProbeOfflineSource(const edm::ParameterSet&);
   ~HLTTagAndProbeOfflineSource()=default;
+  HLTTagAndProbeOfflineSource(const HLTTagAndProbeOfflineSource&)=delete; 
+  HLTTagAndProbeOfflineSource& operator=(const HLTTagAndProbeOfflineSource&)=delete; 
+  
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void bookHistograms(DQMStore::IBooker &, edm::Run const & run, edm::EventSetup const & c) override;
   virtual void dqmBeginRun(edm::Run const& run, edm::EventSetup const& c) override{}
 
 private:
-  std::vector<HLTTagAndProbeEff<reco::GsfElectron,reco::GsfElectronCollection> > tagAndProbeEffs_;
+  std::vector<HLTDQMTagAndProbeEff<ObjType,ObjCollType> > tagAndProbeEffs_;
 
 };
 
-HLTTagAndProbeOfflineSource::HLTTagAndProbeOfflineSource(const edm::ParameterSet& config)
+template <typename ObjType,typename ObjCollType> 
+HLTTagAndProbeOfflineSource<ObjType,ObjCollType>::
+HLTTagAndProbeOfflineSource(const edm::ParameterSet& config)
 {
-  auto histCollConfigs =  config.getParameter<std::vector<edm::ParameterSet> >("histCollections");
+  auto histCollConfigs =  config.getParameter<std::vector<edm::ParameterSet> >("tagAndProbeCollections");
   for(auto& histCollConfig : histCollConfigs){
-    tagAndProbeEffs_.emplace_back(HLTTagAndProbeEff<reco::GsfElectron,reco::GsfElectronCollection>(histCollConfig,consumesCollector()));
+    tagAndProbeEffs_.emplace_back(HLTDQMTagAndProbeEff<ObjType,ObjCollType>(histCollConfig,consumesCollector()));
   }
-
 }
-void HLTTagAndProbeOfflineSource::bookHistograms(DQMStore::IBooker& iBooker,const edm::Run& run,const edm::EventSetup& setup)
+
+
+template <typename ObjType,typename ObjCollType> 
+void HLTTagAndProbeOfflineSource<ObjType,ObjCollType>::
+fillDescriptions(edm::ConfigurationDescriptions& descriptions)
+{
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("objs", edm::InputTag(""));
+  desc.addVPSet("tagAndProbeCollections",
+		HLTDQMTagAndProbeEff<ObjType,ObjCollType>::makePSetDescription(),
+		std::vector<edm::ParameterSet>());
+  descriptions.add("hltTagAndProbeOfflineSource", desc);
+  
+}
+
+template <typename ObjType,typename ObjCollType> 
+void HLTTagAndProbeOfflineSource<ObjType,ObjCollType>::
+bookHistograms(DQMStore::IBooker& iBooker,const edm::Run& run,const edm::EventSetup& setup)
 {
   for(auto& tpEff : tagAndProbeEffs_) tpEff.bookHists(iBooker);
 }
 
-void HLTTagAndProbeOfflineSource::analyze(const edm::Event& event, const edm::EventSetup& setup)
+template <typename ObjType,typename ObjCollType> 
+void HLTTagAndProbeOfflineSource<ObjType,ObjCollType>::
+analyze(const edm::Event& event,const edm::EventSetup& setup)
 {
   for(auto& tpEff : tagAndProbeEffs_) tpEff.fill(event,setup);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(HLTTagAndProbeOfflineSource);
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+using HLTEleTagAndProbeOfflineSource = HLTTagAndProbeOfflineSource<reco::GsfElectron,reco::GsfElectronCollection>;
+DEFINE_FWK_MODULE(HLTEleTagAndProbeOfflineSource);
