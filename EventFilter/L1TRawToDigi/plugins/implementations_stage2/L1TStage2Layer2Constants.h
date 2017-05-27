@@ -8,6 +8,8 @@ namespace l1t {
 
     namespace layer2 {
 
+      extern signed int fedId;
+
       namespace mp {
 
 	extern unsigned int offsetBoardId;
@@ -25,6 +27,8 @@ namespace l1t {
 	extern unsigned int nTauPerLink;
 	extern unsigned int nJetPerLink;
 	extern unsigned int nEtSumPerLink;
+
+	extern unsigned int amcSlotNum;
       
       }
 
