@@ -1,9 +1,10 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 from DQMOffline.Trigger.HLTTauDQMOffline_cfi import *
 
 def makeInclusiveAnalyzer(monitorModule):
-    m1 = cms.EDAnalyzer("DQMGenericClient",
+    m1 = DQMEDHarvester("DQMGenericClient",
         subDirs        = cms.untracked.vstring(monitorModule.DQMBaseFolder.value()+"/"+monitorModule.PathSummaryPlotter.DQMFolder.value()),
         verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
         outputFileName = cms.untracked.string(''),
@@ -14,7 +15,7 @@ def makeInclusiveAnalyzer(monitorModule):
         ),
     )
 
-    m2 = cms.EDAnalyzer("HLTTauPostProcessor",
+    m2 = DQMEDHarvester("HLTTauPostProcessor",
         DQMBaseFolder = cms.untracked.string(monitorModule.DQMBaseFolder.value())
     )
 
