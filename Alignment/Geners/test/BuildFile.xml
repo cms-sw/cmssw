@@ -20,5 +20,5 @@
 
 <bin  file="GenersTestHelper_t.cc">
    <use  name="FWCore/Utilities"/>
-   <flags   TEST_RUNNER_ARGS=" /bin/tcsh Alignment/Geners/test test_cdump.csh"/>
+   <flags   TEST_RUNNER_ARGS=" /bin/bash Alignment/Geners/test test_cdump.sh"/>
 </bin>
