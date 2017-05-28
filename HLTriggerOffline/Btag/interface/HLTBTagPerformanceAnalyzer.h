@@ -84,7 +84,9 @@ class HLTBTagPerformanceAnalyzer : public DQMEDAnalyzer {
 
 		// Histogram handler
 		std::vector< std::map<std::string, MonitorElement *> > H1_;
+		std::vector< std::map<std::string, std::map<std::string, MonitorElement *> > > H1mod_;
 		std::vector< std::map<std::string, MonitorElement *> > H2_;
+		std::vector< std::map<std::string, std::map<std::string, MonitorElement *> > > H2mod_;
 		std::vector< std::map<std::string, MonitorElement *> > H2Eta_;
 		std::vector< std::map<std::string, MonitorElement *> > H2Phi_;
 
@@ -94,6 +96,7 @@ class HLTBTagPerformanceAnalyzer : public DQMEDAnalyzer {
 		std::vector<std::string> JetTagCollection_Label;
 		std::string hlTriggerResults_Label;
 		std::string hltConfigProvider_Label;
+		std::vector<std::string> modules_;
 
 };
 
