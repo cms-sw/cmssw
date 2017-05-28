@@ -3,6 +3,7 @@
 
 #include <array>
 #include <cmath>
+#include <numeric>
 
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
