@@ -258,10 +258,17 @@ def getSequence(process, collection,
 
     if momentumConstraint is not None:
         for mod in options["TrackRefitter"]:
-            options["TrackRefitter"][mod].update({
-                "constraint": "momentum",
-                "srcConstr": momentumConstraint
-                })
+            momconstrspecs = momentumConstraint.split(',')
+            if len(momconstrspecs)==1:
+                options["TrackRefitter"][mod].update({
+                    "constraint": "momentum",
+                    "srcConstr": momconstrspecs[0]
+                    })
+            else:
+                options["TrackRefitter"][mod].update({
+                    "constraint": momconstrspecs[1],
+                    "srcConstr": momconstrspecs[0]
+                    })
 
 
 

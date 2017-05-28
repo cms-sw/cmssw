@@ -7,6 +7,7 @@
 ## $5 is the common config. file name
 ## $6 is the align config file name
 ## $7 is the track selection config
+## $8 Dry run option (0 by default)
 
 # setup environment: have call script from Package/Subpackage dir
 cd ../..
@@ -27,8 +28,11 @@ else
   cp scripts/runControl.csh $odir/main/
 
   # submit parallel jobs
-  scripts/submitJobs_py $1 $2 $4
-
-  # create DB objects
-  cp $odir/main/IOAlignedPositions*.root $odir/main/IOIteration*.root $odir/
+  if (  $8 == 0 ) then
+    scripts/submitJobs_py $1 $2 $4
+    # create DB objects
+    cp $odir/main/IOAlignedPositions*.root $odir/main/IOIteration*.root $odir/
+  else
+    echo "Dry run setup complete"
+  endif
 endif

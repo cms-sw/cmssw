@@ -47,6 +47,9 @@ class MyBatchManager:
       self.parser.add_option("--resubmit", action="store_true",
                                 dest="resubmit", default=False,
                                 help="Resubmit a job from the last iteration")
+      self.parser.add_option("--dry", dest="dryRun", type="int",
+                                default=0,
+                                help="Do not submit jobs, just set up the cfg files")
       (self.opt,self.args) = self.parser.parse_args()
 
       self.mkdir(self.opt.outputdir)
@@ -74,14 +77,17 @@ class MyBatchManager:
          self.opt.iovfile
          )
       else:
-         jobcmd = 'scripts/iterator_py {} {} {} {} {} {} {}'.format(
+         if self.opt.dryRun > 0:
+            print 'Dry run option is enabled. Will not submit jobs to the queue'
+         jobcmd = 'scripts/iterator_py {} {} {} {} {} {} {} {}'.format(
          self.opt.niter,
          self.opt.outputdir,
          self.opt.lstfile,
          self.opt.iovfile,
          self.opt.commoncfg,
          self.opt.aligncfg,
-         self.opt.trkselcfg
+         self.opt.trkselcfg,
+         self.opt.dryRun
          )
       ret = os.system( jobcmd )
       if( ret != 0 ):

@@ -25,7 +25,8 @@ process.load("Alignment.CommonAlignmentProducer.AlignmentProducer_cff")
 
 # loading DB constants
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "80X_dataRun2_Prompt_v15_forTkAlNovCamp_multiIOV_v1"
+process.GlobalTag.globaltag = "92X_dataRun2_Express_v2"
+#process.GlobalTag.globaltag = "92X_dataRun2_Prompt_v2"
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 10000
@@ -76,14 +77,14 @@ process.AlignmentProducer.algoConfig.fillTrackMonitoring=False
 
 process.AlignmentProducer.ParameterBuilder.Selector = cms.PSet(
     alignParams = cms.vstring(
-        'TrackerP1PXBModule,101101',
+        'TrackerP1PXBModule,101111',
 #        'TrackerP1PXBLadder,111111',
 #        'TrackerP1PXBLayer,111111',
 #        'TrackerP1PXBHalfBarrel,111111',
 #        'TrackerP1PXBBarrel,111111',
 
 
-        'TrackerP1PXECModule,111111',
+        'TrackerP1PXECModule,110111',
 #        'TrackerP1PXECPanel,111111',
 #        'TrackerP1PXECBlade,111111',
 #        'TrackerP1PXECHalfDisk,111111',
@@ -102,7 +103,7 @@ process.AlignmentProducer.ParameterBuilder.Selector = cms.PSet(
 
 
 #        'TrackerTIDModuleUnit,111111',
-        'TrackerTIDModule,110111',
+        'TrackerTIDModule,100111',
 #        'TrackerTIDSide,111111',
 #        'TrackerTIDRing,111111',
 #        'TrackerTIDDisk,111111',
@@ -110,7 +111,7 @@ process.AlignmentProducer.ParameterBuilder.Selector = cms.PSet(
 
 
 #        'TrackerTOBModuleUnit,101111',
-        'TrackerTOBModule,101111',
+        'TrackerTOBModule,100111',
 #        'TrackerTOBRod,111111',
 #        'TrackerTOBLayer,111111',
 #        'TrackerTOBHalfBarrel,111111',
@@ -118,12 +119,12 @@ process.AlignmentProducer.ParameterBuilder.Selector = cms.PSet(
 
 
 #        'TrackerTECModuleUnit,111111',
-        'TrackerTECModule,110111',
-#        'TrackerTECRing,111111'
-#        'TrackerTECPetal,111111'
-#        'TrackerTECSide,111111'
-#        'TrackerTECDisk,111111'
-#        'TrackerTECEndcap,111111',
+        'TrackerTECModule,100111',
+#        'TrackerTECRing,111111',
+#        'TrackerTECPetal,111111',
+#        'TrackerTECSide,111111',
+#        'TrackerTECDisk,110111',
+#        'TrackerTECEndcap,001000',
 
 
 #        'TIDDets,001000,endCapDS', 
