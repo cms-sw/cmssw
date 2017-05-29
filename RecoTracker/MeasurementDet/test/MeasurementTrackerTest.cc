@@ -32,6 +32,9 @@
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
+#include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
+
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 
 namespace {
 
@@ -103,7 +106,9 @@ void MeasurementTrackerTest::analyze(const edm::Event& iEvent, const edm::EventS
 
   //use negative sigma=-3.0 in order to use a more conservative definition of isInside() for Bounds classes.
   Chi2MeasurementEstimator estimator(30.,-3.0,0.5,2.0,0.5,1.e12);  // same as defauts....
-
+  
+  KFUpdator kfu;
+  LocalError he(0.01*0.01,0,0.02*0.02);
 
   for (float tl = 0.1f; tl<3.0f; tl+=0.5f) {
 
@@ -135,14 +140,24 @@ void MeasurementTrackerTest::analyze(const edm::Event& iEvent, const edm::EventS
 				                  err, *startingPlane);
   auto tsos = startingStateP;
 
-  auto layer = searchGeom.idToLayer(dus[firstBarrel]->geographicalId());
-
+  // auto layer = searchGeom.idToLayer(dus[firstBarrel]->geographicalId());
+  const DetLayer* layer = searchGeom.pixelBarrelLayers().front();
+  {
+    auto it = layer;
+   std::cout << "first layer " << (it->isBarrel() ? " Barrel" : " Forward") << " layer " << it->seqNum() << " SubDet " << it->subDetector()<< std::endl;
+  }
   auto const & detWithState = layer->compatibleDets(tsos,ANprop,estimator);
   if(!detWithState.size()) { std::cout << "no det on first layer" << std::endl; continue;}
   auto did = detWithState.front().first->geographicalId();
   std::cout << "arrived at " << int(did) << std::endl;
   tsos = detWithState.front().second;
   std::cout << tsos.globalPosition() << ' ' << tsos.localError().positionError() << std::endl;
+
+  SiPixelRecHit::ClusterRef pref;
+  SiPixelRecHit   hitpx(tsos.localPosition(),he,1.,*detWithState.front().first,pref);
+  tsos = kfu.update(tsos, hitpx);
+  std::cout << tsos.globalPosition() << ' ' << tsos.localError().positionError() << std::endl;
+
 
   for (auto il=1; il<4;	++il) {
   if (!layer) break;
