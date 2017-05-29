@@ -40,6 +40,10 @@ class DTResidualCalibration: public edm::EDAnalyzer{
  protected:
 
  private:
+
+  unsigned int nevent;
+  unsigned int segmok,segmbad;
+
   float segmentToWireDistance(const DTRecHit1D& recHit1D, const DTRecSegment4D& segment); 
   // Book a set of histograms for a given super-layer/layer
   void bookHistos(DTSuperLayerId slId);
