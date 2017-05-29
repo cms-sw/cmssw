@@ -143,27 +143,33 @@ void GEMTrackMatch::buildLUT(const int maxChamberId)
   edm::LogInfo("GEMTrackMatch")<<"max chamber "<<maxChamberId<<"\n";
 
   std::vector<int> pos_ids, neg_ids;
-  std::vector<float> phis;
+  std::vector<float> phis_neg;
+  std::vector<float> phis_pos;
+  LocalPoint  lCentre( 0., 0., 0. );
 
   for(auto it : gem_geom_->chambers()) {
     if(it->id().region()>0) {
       pos_ids.push_back(it->id().rawId());
       edm::LogInfo("GEMTrackMatch")<<"added id = "<<it->id()<<" = "<<it->id().rawId()<<" to pos ids"<<std::endl;
+      const BoundPlane& bSurface(it->surface());
+      GlobalPoint gCentre(bSurface.toGlobal(lCentre));
+      int cphi(static_cast<int>(gCentre.phi().degrees()));
+      phis_pos.push_back(cphi);
+      edm::LogInfo("GEMTrackMatch")<<"added phi = "<<cphi<<" to phi pos vector"<<std::endl;
     }
     else if(it->id().region()<0) {
       neg_ids.push_back(it->id().rawId());
       edm::LogInfo("GEMTrackMatch")<<"added id = "<<it->id()<<" = "<<it->id().rawId()<<" to neg ids"<<std::endl;
       const BoundPlane& bSurface(it->surface());
-      LocalPoint  lCentre( 0., 0., 0. );
       GlobalPoint gCentre(bSurface.toGlobal(lCentre));
       int cphi(static_cast<int>(gCentre.phi().degrees()));
       if (cphi < 0) cphi += 360;
-      phis.push_back(cphi);
-      edm::LogInfo("GEMTrackMatch")<<"added phi = "<<cphi<<" to phi vector"<<std::endl;
+      phis_neg.push_back(cphi);
+      edm::LogInfo("GEMTrackMatch")<<"added phi = "<<cphi<<" to phi neg vector"<<std::endl;
     }
   }
-  positiveLUT_ = std::make_pair(phis,pos_ids);
-  negativeLUT_ = std::make_pair(phis,neg_ids);
+  positiveLUT_ = std::make_pair(phis_pos,pos_ids);
+  negativeLUT_ = std::make_pair(phis_neg,neg_ids);
 }
 
 
