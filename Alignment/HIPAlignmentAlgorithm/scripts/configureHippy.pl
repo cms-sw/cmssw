@@ -44,15 +44,30 @@ $success*=replace( "$odir/common_cff_py.txt", "<iovs>", "$iovstr" );
 
 foreach $data1 ( @dataFileInput1 ) {
 
+   chomp $data1;
+
+   my @dataspecs = split(',', $data1);
    $data1 =~ m/\,/;
    $datafile = $`;
    $flag1 = $';
    $flag1 =~ m/$/;
    $flag = $`;
-   #$flag = $';
+   $flagopts = $';
+   $datafile = $dataspecs[0];
+   $flag = $dataspecs[1];
+   $flagopts = "NOOPTS";
+   if (defined($dataspecs[2])){
+      print "A flag option is defined.\n";
+      $flagopts = $dataspecs[2];
+   }
+   else{
+      print "No flag option is defined.\n";
+   }
 
    print "Output directory: $odir \n";
    print "Datafile: $datafile \n";
+   print "Flag: $flag \n";
+   print "Flag options: $flagopts \n";
 
    # open datafile, get skim name
    open (datafile) or die "Can't open the file!";
@@ -95,6 +110,7 @@ foreach $data1 ( @dataFileInput1 ) {
       $jsuccess*=replace( "$odir/job$j/align_cfg.py", "<FILE>", "$data" );
       $jsuccess*=replace( "$odir/job$j/align_cfg.py", "<PATH>", "$odir/job$j" );
       $jsuccess*=replace( "$odir/job$j/align_cfg.py", "<SKIM>", "$dataskim" );
+      $jsuccess*=replace( "$odir/job$j/align_cfg.py", "<FLAGOPTS>", "$flagopts" );
       $jsuccess*=replace( "$odir/job$j/align_cfg.py", "<FLAG>", "$flag" );
       # $success*=replaces for runScript
       $jsuccess*=replace( "$odir/job$j/runScript.csh", "<ODIR>", "$odir/job$j" );
