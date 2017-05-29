@@ -86,7 +86,6 @@ void DTTTrigResidualCorrection::setES(const EventSetup& setup) {
   ESHandle<DTMtime> mTimeHandle;
   setup.get<DTMtimeRcd>().get(mTimeHandle);
   mTimeMap_ = &*mTimeHandle;
-
 }
 
 DTTTrigData DTTTrigResidualCorrection::correction(const DTSuperLayerId& slId) {
@@ -108,31 +107,12 @@ DTTTrigData DTTTrigResidualCorrection::correction(const DTSuperLayerId& slId) {
   double fitSigma = -1.;
   if(useFit_){
     LogTrace("Calibration") << "[DTTTrigResidualCorrection]: Fitting histogram " << residualHisto.GetName(); 
-    const bool originalFit = false; // FIXME: Include this option in fitter class
-    if(originalFit){
-       RooRealVar x("x","residual",-1.,1.);
-       RooRealVar mean("mean","mean",residualHisto.GetMean(),-0.3,0.3);
-       RooRealVar sigma1("sigma1","sigma1",0.,0.5);
-       RooRealVar sigma2("sigma2","sigma2",0.,0.5);
+    int nSigmas = 2;
 
-       RooRealVar frac("frac","frac",0.,1.);
+    DTResidualFitResult fitResult = fitter_->fitResiduals(residualHisto,nSigmas);
+    fitMean = fitResult.fitMean;
+    fitSigma = fitResult.fitSigma;
 
-       RooGaussian myg1("myg1","Gaussian distribution",x,mean,sigma1);
-       RooGaussian myg2("myg2","Gaussian distribution",x,mean,sigma2);
-
-       RooAddPdf myg("myg","myg",RooArgList(myg1,myg2),RooArgList(frac));
-
-       RooDataHist hdata("hdata","Binned data",RooArgList(x),&residualHisto);
-       myg.fitTo(hdata,RooFit::Minos(0),RooFit::Range(-0.2,0.2));
-
-       fitMean = mean.getVal();
-       fitSigma = sigma1.getVal();
-    } else{
-       int nSigmas = 2;
-       DTResidualFitResult fitResult = fitter_->fitResiduals(residualHisto,nSigmas);
-       fitMean = fitResult.fitMean;
-       fitSigma = fitResult.fitSigma;  
-    }
     LogTrace("Calibration") << "[DTTTrigResidualCorrection]: \n"
                             << "   Fit Mean      = " << fitMean << "\n"
                             << "   Fit Sigma     = " << fitSigma;
@@ -178,9 +158,9 @@ const TH1F* DTTTrigResidualCorrection::getHisto(const DTSuperLayerId& slId) {
 string DTTTrigResidualCorrection::getHistoName(const DTSuperLayerId& slId) {
 
   int step = 3;
-  stringstream wheel; wheel << slId.wheel();	
-  stringstream station; station << slId.station();	
-  stringstream sector; sector << slId.sector();	
+  stringstream wheel; wheel << slId.wheel();
+  stringstream station; station << slId.station();
+  stringstream sector; sector << slId.sector();
   stringstream superLayer; superLayer << slId.superlayer();
   stringstream Step; Step << step;
 
