@@ -73,6 +73,8 @@ globalAnalyzerRef.targetParams = globalMuonParams
 globalAnalyzerRef.hltPathsToCheck = cms.vstring(
     "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v",
     "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v",
+    "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v",
+    "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v",
     "HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v",
     "HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v")
 globalAnalyzerRef.requiredTriggers = cms.untracked.vstring(
@@ -86,6 +88,8 @@ trackerAnalyzerRef.targetParams = trackerMuonParams
 trackerAnalyzerRef.hltPathsToCheck = cms.vstring(
     "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v",
     "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v",
+    "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v",
+    "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v",
     "HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v",
     "HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v")
 trackerAnalyzerRef.requiredTriggers = cms.untracked.vstring(
@@ -98,6 +102,8 @@ tightAnalyzerRef.targetParams = tightMuonParams
 tightAnalyzerRef.hltPathsToCheck = cms.vstring(
     "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v",
     "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v",
+    "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v",
+    "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v",
     "HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v",
     "HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v")
 tightAnalyzerRef.requiredTriggers = cms.untracked.vstring(
@@ -110,6 +116,8 @@ looseAnalyzerRef.targetParams = looseMuonParams
 looseAnalyzerRef.hltPathsToCheck = cms.vstring(
     "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v",
     "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v",
+    "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v",
+    "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v",
     "HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v",
     "HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v")
 looseAnalyzerRef.requiredTriggers = cms.untracked.vstring(

@@ -202,6 +202,10 @@ void HLTMuonMatchAndPlot::beginRun(DQMStore::IBooker & iBooker,
     book1D(iBooker, "MR_massVsVertexZ_" + suffix, "NVertex", ";NVertex");
     book1D(iBooker, "MR_massVsVertexJpsi_" + suffix, "NVertexFine", ";NVertex");
     book1D(iBooker, "MR_massVsDZZ_" + suffix,  "z0Fine", ";z0;");
+    book1D(iBooker, "MR_massVsEtaZ_" + suffix, "etaFine", ";#eta");
+    book1D(iBooker, "MR_massVsEtaJpsi_" + suffix, "etaFine", ";#eta");
+    book1D(iBooker, "MR_massVsPhiZ_" + suffix, "phiFine", ";#phi");
+    book1D(iBooker, "MR_massVsPhiJpsi_" + suffix, "phiFine", ";#phi");
 
   }
   
@@ -358,6 +362,8 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>   & allMuons,
         if(mass > 60 && mass < 120) {
           if(muon.pt() < targetptCutZ_) continue;
           hists_["massVsEtaZ_denom"]->Fill(theProbe.eta());
+          hists_["MR_massVsEtaZ_denom"]->Fill(theProbe.eta());
+          hists_["MR_massVsPhiZ_denom"]->Fill(theProbe.phi());
           hists_["massVsPtZ_denom"]->Fill(theProbe.pt());
 	  hists_["MR_massVsPtZ_denom"]->Fill(theProbe.pt());
           hists_["massVsVertexZ_denom"]->Fill(vertices->size());
@@ -375,6 +381,8 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>   & allMuons,
 	  hists_["efficiencyDeltaR_denom" ]->Fill(vMuon.DeltaR(vProbe));
           if(matches[k] < targetMuons.size()) {
             hists_["massVsEtaZ_numer"]->Fill(theProbe.eta());
+            hists_["MR_massVsEtaZ_numer"]->Fill(theProbe.eta());
+            hists_["MR_massVsPhiZ_numer"]->Fill(theProbe.phi());
             hists_["massVsPtZ_numer"]->Fill(theProbe.pt());
 	    hists_["MR_massVsPtZ_numer"]->Fill(theProbe.pt());
             hists_["massVsVertexZ_numer"]->Fill(vertices->size());
@@ -390,12 +398,14 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>   & allMuons,
         if(mass > 1 && mass < 4) {
           if(muon.pt() < targetptCutJpsi_) continue;
           hists_["massVsEtaJpsi_denom"]->Fill(theProbe.eta());
+	  hists_["MR_massVsEtaJpsi_denom"]->Fill(theProbe.eta());
           hists_["massVsPtJpsi_denom"]->Fill(theProbe.pt());
 	  hists_["MR_massVsPtJpsi_denom"]->Fill(theProbe.pt());
           hists_["massVsVertexJpsi_denom"]->Fill(vertices->size());
 	  hists_["MR_massVsVertexJpsi_denom"]->Fill(vertices->size());
           if(matches[k] < targetMuons.size()) {
             hists_["massVsEtaJpsi_numer"]->Fill(theProbe.eta());
+	    hists_["MR_massVsEtaJpsi_numer"]->Fill(theProbe.eta());
             hists_["massVsPtJpsi_numer"]->Fill(theProbe.pt());
 	    hists_["MR_massVsPtJpsi_numer"]->Fill(theProbe.pt());
             hists_["massVsVertexJpsi_numer"]->Fill(vertices->size());
