@@ -41,7 +41,6 @@ namespace cms
      // calls VirtualJetProducer::inputTowers
     //virtual void inputTowers();
 
-    double csRho_EtaMax_;       /// for constituent subtraction : maximum rapidity for ghosts
     double csRParam_;           /// for constituent subtraction : R parameter for KT alg in jet median background estimator
     double csAlpha_;            /// for HI constituent subtraction : alpha (power of pt in metric)
 
