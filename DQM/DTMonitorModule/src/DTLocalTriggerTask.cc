@@ -47,11 +47,9 @@ DTLocalTriggerTask::DTLocalTriggerTask(const edm::ParameterSet& ps) :
   detailedAnalysis = ps.getUntrackedParameter<bool>("detailedAnalysis", false);
   doTMTheta       = ps.getUntrackedParameter<bool>("enableTMTheta", false);
   tm_Token_       = consumes<L1MuDTChambPhContainer>(
-      edm::InputTag(ps.getUntrackedParameter<string>("tm_label", "dttpgprod")));
-  tmTh_label_     = ps.getUntrackedParameter<edm::InputTag>("tmTh_label");
-  tmTh_Token_       = consumes<L1MuDTChambThContainer>(edm::InputTag(tmTh_label_));
-
-  //cout << "[DTLocalTriggerTask] ThetaTriggerLabel=" << tmTh_label_ << endl;
+      edm::InputTag(ps.getUntrackedParameter<string>("tm_label", "twinMuxStage2Digis:PhIn")));
+  tmTh_Token_       = consumes<L1MuDTChambThContainer>(
+	edm::InputTag(ps.getUntrackedParameter<string>("tmTh_label","twinMuxStage2Digis:ThIn")));
 
   ros_Token_       = consumes<DTLocalTriggerCollection>(
       edm::InputTag(ps.getUntrackedParameter<string>("ros_label", "dtunpacker")));

@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-postProcessorL1Gen = cms.EDAnalyzer("DQMGenericClient",
+postProcessorL1Gen = DQMEDHarvester("DQMGenericClient",
     subDirs = cms.untracked.vstring("L1T/L1TriggerVsGen/"),
     efficiency = cms.vstring(
        "Muon_Eff_Pt 'L1 efficiency vs p_{T}' Muon_Eff_Pt_Nomin Muon_Eff_Pt_Denom", 

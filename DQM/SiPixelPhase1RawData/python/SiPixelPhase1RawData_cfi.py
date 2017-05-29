@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 from DQM.SiPixelPhase1Common.HistogramManager_cfi import *
 
 
@@ -97,7 +98,7 @@ SiPixelPhase1RawDataAnalyzer = cms.EDAnalyzer("SiPixelPhase1RawData",
         geometry = SiPixelPhase1Geometry
 )
 
-SiPixelPhase1RawDataHarvester = cms.EDAnalyzer("SiPixelPhase1Harvester",
+SiPixelPhase1RawDataHarvester = DQMEDHarvester("SiPixelPhase1Harvester",
         histograms = SiPixelPhase1RawDataConf,
         geometry = SiPixelPhase1Geometry
 )

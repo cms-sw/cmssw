@@ -4,6 +4,7 @@
 #include <TH3D.h>
 #include <iostream>
 #include <unordered_map>
+#include <array>
 #include <TKey.h>
 class CompressionElement {
     public:

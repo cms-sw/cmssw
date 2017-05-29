@@ -14,7 +14,7 @@ class BasePartonSelector
 {
   public:
     BasePartonSelector();
-    ~BasePartonSelector();
+    virtual ~BasePartonSelector();
 
     virtual void run(const edm::Handle<reco::GenParticleCollection> & particles,
                      std::unique_ptr<reco::GenParticleRefVector> & partons);

@@ -1,8 +1,9 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 from DQM.L1TMonitorClient.L1TOccupancyTestParameters_cff import *
 
-l1tOccupancyClient = cms.EDAnalyzer("L1TOccupancyClient",
+l1tOccupancyClient = DQMEDHarvester("L1TOccupancyClient",
   verbose = cms.bool(False),
   testParams = cms.VPSet(
     #---------------------------------------------

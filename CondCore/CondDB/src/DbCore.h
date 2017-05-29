@@ -83,62 +83,59 @@ namespace cond {
   };
 
   // functions ( specilized for specific types ) for adding data in AttributeList buffers
-  namespace {
-    template<typename T> void f_add_attribute( coral::AttributeList& data, const std::string& attributeName, const T& param, bool init=true ){
-      if(init) data.extend<T>( attributeName );
-      data[ attributeName ].data<T>() = param;
-    }
-
-    template<> void f_add_attribute( coral::AttributeList& data, const std::string& attributeName, const cond::Binary& param, bool init ){
-      if(init) data.extend<coral::Blob>( attributeName );
-      data[ attributeName ].bind( param.get() );
-    }
-
-    template<> void f_add_attribute( coral::AttributeList& data, const std::string& attributeName, const boost::posix_time::ptime& param, bool init ){
-      if(init) data.extend<coral::TimeStamp>( attributeName );
-      data[ attributeName ].data<coral::TimeStamp>() = coral::TimeStamp(param);
-    }
-
-    template<> void f_add_attribute( coral::AttributeList& data, const std::string& attributeName, const cond::TimeType& param, bool init ){
-      if(init) data.extend<std::string>( attributeName );
-      data[ attributeName ].data<std::string>() = cond::time::timeTypeName( param );
-    }
-
-    template<> void f_add_attribute( coral::AttributeList& data, const std::string& attributeName, const cond::SynchronizationType& param, bool init ){
-      if(init) data.extend<std::string>( attributeName );
-      data[ attributeName ].data<std::string>() = synchronizationTypeNames( param );
-    }
-
-    // function for adding into an AttributeList buffer data for a specified column. Performs type checking.
-    template<typename Column, typename P> void f_add_column_data( coral::AttributeList& data, const P& param, bool init=true ){
-      static_assert_is_same_decayed<typename Column::type,P>();
-      f_add_attribute( data, Column::name, param, init );
-    }
-
-    // function for adding into an AttributeList buffer data for a specified condition. Performs type checking.
-    template<typename Column, typename P> void f_add_condition_data( coral::AttributeList& data, std::string& whereClause, const P& value, const std::string condition = "="){
-      static_assert_is_same_decayed<typename Column::type,P>();
-      std::stringstream varId;
-      unsigned int id = data.size();
-      varId << Column::name <<"_"<<id;
-      if( !whereClause.empty() ) whereClause += " AND ";
-      whereClause += Column::fullyQualifiedName() + " " + condition + " :" + varId.str() + " ";
-      f_add_attribute( data, varId.str(), value );
-    }
-
-    // function for appending conditions to a where clause
-    template<typename C1, typename C2> void f_add_condition( std::string& whereClause, const std::string condition = "="){
-      if( !whereClause.empty() ) whereClause += " AND ";
-      whereClause += C1::fullyQualifiedName() + " " + condition + " " + C2::fullyQualifiedName() + " ";
-    }
-
+  template<typename T> inline void f_add_attribute( coral::AttributeList& data, const std::string& attributeName, const T& param, bool init=true ){
+    if(init) data.extend<T>( attributeName );
+    data[ attributeName ].data<T>() = param;
   }
 
+  template<> inline void f_add_attribute( coral::AttributeList& data, const std::string& attributeName, const cond::Binary& param, bool init ){
+    if(init) data.extend<coral::Blob>( attributeName );
+    data[ attributeName ].bind( param.get() );
+  }
+
+  template<> inline void f_add_attribute( coral::AttributeList& data, const std::string& attributeName, const boost::posix_time::ptime& param, bool init ){
+    if(init) data.extend<coral::TimeStamp>( attributeName );
+    data[ attributeName ].data<coral::TimeStamp>() = coral::TimeStamp(param);
+  }
+
+  template<> inline void f_add_attribute( coral::AttributeList& data, const std::string& attributeName, const cond::TimeType& param, bool init ){
+    if(init) data.extend<std::string>( attributeName );
+    data[ attributeName ].data<std::string>() = cond::time::timeTypeName( param );
+  }
+
+  template<> inline void f_add_attribute( coral::AttributeList& data, const std::string& attributeName, const cond::SynchronizationType& param, bool init ){
+    if(init) data.extend<std::string>( attributeName );
+    data[ attributeName ].data<std::string>() = synchronizationTypeNames( param );
+  }
+  
+  // function for adding into an AttributeList buffer data for a specified column. Performs type checking.
+  template<typename Column, typename P> inline void f_add_column_data( coral::AttributeList& data, const P& param, bool init=true ){
+    static_assert_is_same_decayed<typename Column::type,P>();
+    f_add_attribute( data, Column::name, param, init );
+  }
+  
+  // function for adding into an AttributeList buffer data for a specified condition. Performs type checking.
+  template<typename Column, typename P> inline void f_add_condition_data( coral::AttributeList& data, std::string& whereClause, const P& value, const std::string condition = "="){
+    static_assert_is_same_decayed<typename Column::type,P>();
+    std::stringstream varId;
+    unsigned int id = data.size();
+    varId << Column::name <<"_"<<id;
+    if( !whereClause.empty() ) whereClause += " AND ";
+    whereClause += Column::fullyQualifiedName() + " " + condition + " :" + varId.str() + " ";
+    f_add_attribute( data, varId.str(), value );
+  }
+  
+  // function for appending conditions to a where clause
+  template<typename C1, typename C2> inline void f_add_condition( std::string& whereClause, const std::string condition = "="){
+    if( !whereClause.empty() ) whereClause += " AND ";
+    whereClause += C1::fullyQualifiedName() + " " + condition + " " + C2::fullyQualifiedName() + " ";
+  }
+  
   // buffer for data to be inserted into a table
   // maybe better only leave the template set methods ( no class template )
   template<typename... Columns> class RowBuffer {
   private:
-
+    
     template<typename Params, int n, typename T1, typename... Ts>    
     void _set(const Params & params, bool init=true) {
       f_add_column_data<T1>( m_data, std::get<n>( params ), init );

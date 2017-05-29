@@ -250,18 +250,48 @@ double EcalUncalibRecHitWorkerMultiFit::timeCorrection(
 }
 
 
-
-bool
+void
 EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
-                const EcalDigiCollection::const_iterator & itdg,
+                const EcalDigiCollection & digis,
                 EcalUncalibratedRecHitCollection & result )
 {
+    if (digis.empty())
+      return;
+
+    // assume all digis come from the same subdetector (either barrel or endcap)
+    DetId detid(digis.begin()->id());
+    bool barrel = (detid.subdetId()==EcalBarrel);
+
+    multiFitMethod_.setSimplifiedNoiseModelForGainSwitch(simplifiedNoiseModelForGainSwitch_);
+    if (barrel) {
+        multiFitMethod_.setDoPrefit(doPrefitEB_);
+        multiFitMethod_.setPrefitMaxChiSq(prefitMaxChiSqEB_);
+        multiFitMethod_.setDynamicPedestals(dynamicPedestalsEB_);
+        multiFitMethod_.setMitigateBadSamples(mitigateBadSamplesEB_);
+        multiFitMethod_.setGainSwitchUseMaxSample(gainSwitchUseMaxSampleEB_);
+        multiFitMethod_.setSelectiveBadSampleCriteria(selectiveBadSampleCriteriaEB_);
+        multiFitMethod_.setAddPedestalUncertainty(addPedestalUncertaintyEB_);        
+    } else {
+        multiFitMethod_.setDoPrefit(doPrefitEE_);
+        multiFitMethod_.setPrefitMaxChiSq(prefitMaxChiSqEE_);
+        multiFitMethod_.setDynamicPedestals(dynamicPedestalsEE_);
+        multiFitMethod_.setMitigateBadSamples(mitigateBadSamplesEE_);
+        multiFitMethod_.setGainSwitchUseMaxSample(gainSwitchUseMaxSampleEE_);
+        multiFitMethod_.setSelectiveBadSampleCriteria(selectiveBadSampleCriteriaEE_);
+        multiFitMethod_.setAddPedestalUncertainty(addPedestalUncertaintyEE_);
+    }
+        
+    FullSampleVector fullpulse(FullSampleVector::Zero());
+    FullSampleMatrix fullpulsecov(FullSampleMatrix::Zero());
+
+    result.reserve(result.size() + digis.size());
+    for (auto itdg = digis.begin(); itdg != digis.end(); ++itdg)
+    {
         DetId detid(itdg->id());
 
-        const EcalSampleMask  *sampleMask_ = sampleMaskHand_.product();                
+        const EcalSampleMask *sampleMask_ = sampleMaskHand_.product();                
         
         // intelligence for recHit computation
-        EcalUncalibratedRecHit uncalibRecHit;
         float offsetTime = 0;
         
         const EcalPedestals::Item * aped = 0;
@@ -270,96 +300,79 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
         const EcalPulseShapes::Item * aPulse = 0;
         const EcalPulseCovariances::Item * aPulseCov = 0;
 
-        multiFitMethod_.setSimplifiedNoiseModelForGainSwitch(simplifiedNoiseModelForGainSwitch_);
-        
-        if (detid.subdetId()==EcalEndcap) {
-                unsigned int hashedIndex = EEDetId(detid).hashedIndex();
-                aped      = &peds->endcap(hashedIndex);
-                aGain     = &gains->endcap(hashedIndex);
-                gid       = &grps->endcap(hashedIndex);
-                aPulse    = &pulseshapes->endcap(hashedIndex);
-                aPulseCov = &pulsecovariances->endcap(hashedIndex);
-                multiFitMethod_.setDoPrefit(doPrefitEE_);
-		multiFitMethod_.setPrefitMaxChiSq(prefitMaxChiSqEE_);
-                multiFitMethod_.setDynamicPedestals(dynamicPedestalsEE_);
-                multiFitMethod_.setMitigateBadSamples(mitigateBadSamplesEE_);
-                multiFitMethod_.setGainSwitchUseMaxSample(gainSwitchUseMaxSampleEE_);
-                multiFitMethod_.setSelectiveBadSampleCriteria(selectiveBadSampleCriteriaEE_);
-                multiFitMethod_.setAddPedestalUncertainty(addPedestalUncertaintyEE_);
-		offsetTime = offtime->getEEValue();
+        if (barrel) {
+            unsigned int hashedIndex = EBDetId(detid).hashedIndex();
+            aped       = &peds->barrel(hashedIndex);
+            aGain      = &gains->barrel(hashedIndex);
+            gid        = &grps->barrel(hashedIndex);
+            aPulse     = &pulseshapes->barrel(hashedIndex);
+            aPulseCov  = &pulsecovariances->barrel(hashedIndex);
+            offsetTime = offtime->getEBValue();
         } else {
-                unsigned int hashedIndex = EBDetId(detid).hashedIndex();
-                aped      = &peds->barrel(hashedIndex);
-                aGain     = &gains->barrel(hashedIndex);
-                gid       = &grps->barrel(hashedIndex);
-                aPulse    = &pulseshapes->barrel(hashedIndex);
-                aPulseCov = &pulsecovariances->barrel(hashedIndex);
-                multiFitMethod_.setDoPrefit(doPrefitEB_);
-		multiFitMethod_.setPrefitMaxChiSq(prefitMaxChiSqEB_);
-                multiFitMethod_.setDynamicPedestals(dynamicPedestalsEB_);
-                multiFitMethod_.setMitigateBadSamples(mitigateBadSamplesEB_);
-                multiFitMethod_.setGainSwitchUseMaxSample(gainSwitchUseMaxSampleEB_);
-                multiFitMethod_.setSelectiveBadSampleCriteria(selectiveBadSampleCriteriaEB_);
-                multiFitMethod_.setAddPedestalUncertainty(addPedestalUncertaintyEB_);        
-		offsetTime = offtime->getEBValue();
+            unsigned int hashedIndex = EEDetId(detid).hashedIndex();
+            aped       = &peds->endcap(hashedIndex);
+            aGain      = &gains->endcap(hashedIndex);
+            gid        = &grps->endcap(hashedIndex);
+            aPulse     = &pulseshapes->endcap(hashedIndex);
+            aPulseCov  = &pulsecovariances->endcap(hashedIndex);
+            offsetTime = offtime->getEEValue();
         }
 
-        double pedVec[3] = { aped->mean_x12, aped->mean_x6, aped->mean_x1 };
-        double pedRMSVec[3] = { aped->rms_x12, aped->rms_x6, aped->rms_x1};
+        double pedVec[3]     = { aped->mean_x12, aped->mean_x6, aped->mean_x1 };
+        double pedRMSVec[3]  = { aped->rms_x12,  aped->rms_x6,  aped->rms_x1 };
         double gainRatios[3] = { 1., aGain->gain12Over6(), aGain->gain6Over1()*aGain->gain12Over6()};
 
-        FullSampleVector fullpulse(FullSampleVector::Zero());
-        FullSampleMatrix fullpulsecov(FullSampleMatrix::Zero());
         for (int i=0; i<EcalPulseShape::TEMPLATESAMPLES; ++i)
-          fullpulse(i+7) = aPulse->pdfval[i];
+            fullpulse(i+7) = aPulse->pdfval[i];
     
         for(int i=0; i<EcalPulseShape::TEMPLATESAMPLES;i++)
         for(int j=0; j<EcalPulseShape::TEMPLATESAMPLES;j++)
-          fullpulsecov(i+7,j+7) = aPulseCov->covval[i][j];
-       
+            fullpulsecov(i+7,j+7) = aPulseCov->covval[i][j];
         
 	// compute the right bin of the pulse shape using time calibration constants
 	EcalTimeCalibConstantMap::const_iterator it = itime->find( detid );
 	EcalTimeCalibConstant itimeconst = 0;
 	if( it != itime->end() ) {
-		  itimeconst = (*it);
+            itimeconst = (*it);
 	} else {
-		  edm::LogError("EcalRecHitError") << "No time intercalib const found for xtal "
-		  << detid.rawId()
-		  << "! something wrong with EcalTimeCalibConstants in your DB? ";
+            edm::LogError("EcalRecHitError") << "No time intercalib const found for xtal "
+            << detid.rawId()
+            << "! something wrong with EcalTimeCalibConstants in your DB? ";
 	}
 
         // === amplitude computation ===
         int leadingSample = ((EcalDataFrame)(*itdg)).lastUnsaturatedSample();
 
         if ( leadingSample == 4 ) { // saturation on the expected max sample
-	       uncalibRecHit = EcalUncalibratedRecHit( (*itdg).id(), 4095*12, 0, 0, 0);
-               uncalibRecHit.setFlagBit( EcalUncalibratedRecHit::kSaturated );
-	       // do not propagate the default chi2 = -1 value to the calib rechit (mapped to 64), set it to 0 when saturation
-               uncalibRecHit.setChi2(0);
+            result.emplace_back((*itdg).id(), 4095*12, 0, 0, 0);
+            auto & uncalibRecHit = result.back();
+            uncalibRecHit.setFlagBit( EcalUncalibratedRecHit::kSaturated );
+	    // do not propagate the default chi2 = -1 value to the calib rechit (mapped to 64), set it to 0 when saturation
+            uncalibRecHit.setChi2(0);
         } else if ( leadingSample >= 0 ) { // saturation on other samples: cannot extrapolate from the fourth one
-               int gainId = ((EcalDataFrame)(*itdg)).sample(5).gainId();
-               if (gainId==0) gainId=3;
-               auto pedestal = pedVec[gainId-1];
-               auto gainratio = gainRatios[gainId-1];
-               double amplitude = ((double)(((EcalDataFrame)(*itdg)).sample(5).adc()) - pedestal) * gainratio;
-               uncalibRecHit = EcalUncalibratedRecHit( (*itdg).id(), amplitude, 0, 0, 0);
-               uncalibRecHit.setFlagBit( EcalUncalibratedRecHit::kSaturated );
-               // do not propagate the default chi2 = -1 value to the calib rechit (mapped to 64), set it to 0 when saturation
-               uncalibRecHit.setChi2(0);
+            int gainId = ((EcalDataFrame)(*itdg)).sample(5).gainId();
+            if (gainId==0) gainId=3;
+            auto pedestal = pedVec[gainId-1];
+            auto gainratio = gainRatios[gainId-1];
+            double amplitude = ((double)(((EcalDataFrame)(*itdg)).sample(5).adc()) - pedestal) * gainratio;
+            result.emplace_back((*itdg).id(), amplitude, 0, 0, 0);
+            auto & uncalibRecHit = result.back();
+            uncalibRecHit.setFlagBit( EcalUncalibratedRecHit::kSaturated );
+            // do not propagate the default chi2 = -1 value to the calib rechit (mapped to 64), set it to 0 when saturation
+            uncalibRecHit.setChi2(0);
         } else {
-                // multifit
-                bool barrel = detid.subdetId()==EcalBarrel;
-                const SampleMatrixGainArray &noisecors = noisecor(barrel);
-                                
-                uncalibRecHit = multiFitMethod_.makeRecHit(*itdg, aped, aGain, noisecors,fullpulse,fullpulsecov,activeBX);
-                
-                // === time computation ===
-                if(timealgo_==ratioMethod) {
-                  // ratio method
-                  constexpr float clockToNsConstant = 25.;
-                  constexpr float invClockToNs = 1/clockToNsConstant;
-                  if (detid.subdetId()==EcalEndcap) {
+            // multifit
+            const SampleMatrixGainArray &noisecors = noisecor(barrel);
+            
+            result.push_back(multiFitMethod_.makeRecHit(*itdg, aped, aGain, noisecors, fullpulse, fullpulsecov, activeBX));
+            auto & uncalibRecHit = result.back();
+            
+            // === time computation ===
+            if (timealgo_ == ratioMethod) {
+                // ratio method
+                constexpr float clockToNsConstant = 25.;
+                constexpr float invClockToNs = 1./clockToNsConstant;
+                if (not barrel) {
                     ratioMethod_endcap_.init( *itdg, *sampleMask_, pedVec, pedRMSVec, gainRatios );
                     ratioMethod_endcap_.computeTime( EEtimeFitParameters_, EEtimeFitLimits_, EEamplitudeFitParameters_ );
                     ratioMethod_endcap_.computeAmplitude( EEamplitudeFitParameters_);
@@ -396,7 +409,7 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
                         {  uncalibRecHit.setFlagBit( EcalUncalibratedRecHit::kOutOfTime ); }
                     }
 
-                  } else {
+                } else {
                     ratioMethod_barrel_.init( *itdg, *sampleMask_, pedVec, pedRMSVec, gainRatios );
                     ratioMethod_barrel_.fixMGPAslew(*itdg);
                     ratioMethod_barrel_.computeTime( EBtimeFitParameters_, EBtimeFitLimits_, EBamplitudeFitParameters_ );
@@ -407,7 +420,7 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
                                                                 timeCorrBias_->EBTimeCorrAmplitudeBins, timeCorrBias_->EBTimeCorrShiftBins);
                     
                     uncalibRecHit.setJitter( crh.timeMax - 5 + theTimeCorrectionEB);
-                    uncalibRecHit.setJitterError( std::sqrt(std::pow(crh.timeError,2) + std::pow(EBtimeConstantTerm_,2)/std::pow(clockToNsConstant,2)) );
+                    uncalibRecHit.setJitterError( std::hypot(crh.timeError, EBtimeConstantTerm_ / clockToNsConstant) );
 
                     // consider flagging as kOutOfTime only if above noise
                     if (uncalibRecHit.amplitude() > pedRMSVec[0] * amplitudeThreshEB_){
@@ -431,118 +444,57 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
                       float sigmat        = std::sqrt( nterm*nterm  + cterm*cterm   );
                       if ( ( correctedTime > sigmat*outOfTimeThreshP )   ||
                            ( correctedTime < -sigmat*outOfTimeThreshM )) 
-                        {   uncalibRecHit.setFlagBit( EcalUncalibratedRecHit::kOutOfTime );  }
+                        {
+                            uncalibRecHit.setFlagBit( EcalUncalibratedRecHit::kOutOfTime );
+                        }
                     }
 
-                  }
-                } else if(timealgo_==weightsMethod) {
-                  //  weights method on the PU subtracted pulse shape
-                  std::vector<double> amplitudes;
-                  for(unsigned int ibx=0; ibx<activeBX.size(); ++ibx) amplitudes.push_back(uncalibRecHit.outOfTimeAmplitude(ibx));
-                  
-                  EcalTBWeights::EcalTDCId tdcid(1);
-                  EcalTBWeights::EcalTBWeightMap const & wgtsMap = wgts->getMap();
-                  EcalTBWeights::EcalTBWeightMap::const_iterator wit;
-                  wit = wgtsMap.find( std::make_pair(*gid,tdcid) );
-                  if( wit == wgtsMap.end() ) {
+                }
+            } else if (timealgo_ == weightsMethod) {
+                //  weights method on the PU subtracted pulse shape
+                std::vector<double> amplitudes;
+                for(unsigned int ibx=0; ibx<activeBX.size(); ++ibx) amplitudes.push_back(uncalibRecHit.outOfTimeAmplitude(ibx));
+                
+                EcalTBWeights::EcalTDCId tdcid(1);
+                EcalTBWeights::EcalTBWeightMap const & wgtsMap = wgts->getMap();
+                EcalTBWeights::EcalTBWeightMap::const_iterator wit;
+                wit = wgtsMap.find( std::make_pair(*gid,tdcid) );
+                if( wit == wgtsMap.end() ) {
                     edm::LogError("EcalUncalibRecHitError") << "No weights found for EcalGroupId: " 
                                                             << gid->id() << " and  EcalTDCId: " << tdcid
                                                             << "\n  skipping digi with id: " << detid.rawId();
-                    
-                    return false;
-                  }
-                  const EcalWeightSet& wset = wit->second; // this is the EcalWeightSet
-                  
-                  const EcalWeightSet::EcalWeightMatrix& mat1 = wset.getWeightsBeforeGainSwitch();
-                  const EcalWeightSet::EcalWeightMatrix& mat2 = wset.getWeightsAfterGainSwitch();
-                  
-                  weights[0] = &mat1;
-                  weights[1] = &mat2;
-                  
-                  double timerh;
-                  if (detid.subdetId()==EcalEndcap) { 
-                    timerh = weightsMethod_endcap_.time( *itdg, amplitudes, aped, aGain, fullpulse, weights);
-                  } else {
-                    timerh = weightsMethod_barrel_.time( *itdg, amplitudes, aped, aGain, fullpulse, weights);
-                  }
-                  uncalibRecHit.setJitter( timerh );
-                  uncalibRecHit.setJitterError( 0. ); // not computed with weights
-                }  else { // no time method;
-                  uncalibRecHit.setJitter( 0. );
-                  uncalibRecHit.setJitterError( 0. );                  
+                    result.pop_back();
+                    continue;
                 }
+                const EcalWeightSet& wset = wit->second; // this is the EcalWeightSet
+                
+                const EcalWeightSet::EcalWeightMatrix& mat1 = wset.getWeightsBeforeGainSwitch();
+                const EcalWeightSet::EcalWeightMatrix& mat2 = wset.getWeightsAfterGainSwitch();
+                
+                weights[0] = &mat1;
+                weights[1] = &mat2;
+                
+                double timerh;
+                if (detid.subdetId()==EcalEndcap) { 
+                    timerh = weightsMethod_endcap_.time( *itdg, amplitudes, aped, aGain, fullpulse, weights);
+                } else {
+                    timerh = weightsMethod_barrel_.time( *itdg, amplitudes, aped, aGain, fullpulse, weights);
+                }
+                uncalibRecHit.setJitter( timerh );
+                uncalibRecHit.setJitterError( 0. ); // not computed with weights
+            }  else { // no time method;
+                uncalibRecHit.setJitter( 0. );
+                uncalibRecHit.setJitterError( 0. );                  
+            }
         }
 
 	// set flags if gain switch has occurred
+        auto & uncalibRecHit = result.back();
 	if( ((EcalDataFrame)(*itdg)).hasSwitchToGain6()  ) uncalibRecHit.setFlagBit( EcalUncalibratedRecHit::kHasSwitchToGain6 );
 	if( ((EcalDataFrame)(*itdg)).hasSwitchToGain1()  ) uncalibRecHit.setFlagBit( EcalUncalibratedRecHit::kHasSwitchToGain1 );
 
-        // set quality flags based on chi2 of the the fit
-        /*
-        if(detid.subdetId()==EcalEndcap) { 
-          if(kPoorRecoFlagEE_ && uncalibRecHit.chi2()>chi2ThreshEE_) {
-          bool samplesok = true;
-          for (int sample =0; sample < EcalDataFrame::MAXSAMPLES; ++sample) {
-            if (!sampleMask_->useSampleEE(sample)) {
-              samplesok = false;
-              break;
-            }
-          }
-          if (samplesok) uncalibRecHit.setFlagBit(EcalUncalibratedRecHit::kPoorReco);
-          }
-        } else {
-          if(kPoorRecoFlagEB_ && uncalibRecHit.chi2()>chi2ThreshEB_) {
-          bool samplesok = true;
-          for (int sample =0; sample < EcalDataFrame::MAXSAMPLES; ++sample) {
-            if (!sampleMask_->useSampleEB(sample)) {
-              samplesok = false;
-              break;
-            }
-          }
-          if (samplesok) uncalibRecHit.setFlagBit(EcalUncalibratedRecHit::kPoorReco);
-          }
-        }
-        */
-
-        // put the recHit in the collection
-        if (detid.subdetId()==EcalEndcap) {
-                result.push_back( uncalibRecHit );
-        } else {
-                result.push_back( uncalibRecHit );
-        }
-
-        return true;
+    }
 }
-
-/*
-const SampleMatrix &EcalUncalibRecHitWorkerMultiFit::noisecor(bool barrel, int gain) const {
-  if (barrel) {
-    if (gain==6) {
-      return noisecorEBg6;
-    }
-    else if (gain==1) {
-      return noisecorEBg1;
-    }
-    else {
-      return noisecorEBg12;
-    }    
-  }
-  else {
-    if (gain==6) {
-      return noisecorEEg6;
-    }
-    else if (gain==1) {
-      return noisecorEEg1;
-    }
-    else {
-      return noisecorEEg12;
-    }        
-  }
-  
-  return noisecorEBg12;
-  
-}
-*/
 
 edm::ParameterSetDescription 
 EcalUncalibRecHitWorkerMultiFit::getAlgoDescription() {

@@ -59,6 +59,7 @@ void error(std::ostream & out, const std::string & message) {
 
 class HLTConfigInterface {
 public:
+  virtual ~HLTConfigInterface()  = default;
   virtual std::string const & processName() const = 0;
   virtual unsigned int size() const = 0;
   virtual unsigned int size(unsigned int trigger) const = 0;
@@ -87,7 +88,7 @@ public:
       }
     }
   }
-
+  virtual ~HLTConfigDataEx()  = default;
   std::string const & processName() const override {
     return data_.processName();
   }
@@ -150,7 +151,7 @@ public:
       config_(config),
       index_(index)
     { }
-
+    virtual ~View()  = default;
     std::string const & processName() const override;
     unsigned int size() const override;
     unsigned int size(unsigned int trigger) const override;

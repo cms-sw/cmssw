@@ -107,6 +107,19 @@ public:
 
 
 
+  /** Constructor from FTS: just a wrapper
+   */
+  explicit BasicTrajectoryState( const FreeTrajectoryState& fts):
+    theFreeState(fts),
+    theLocalError(InvalidError()),
+    theLocalParameters(),
+    theLocalParametersValid(false),
+    theValid(true),
+    theWeight(1.)
+    {}
+
+
+
 
   /** Constructor from local parameters, errors and surface. For surfaces 
    *  with material the side of the surface should be specified explicitely. 

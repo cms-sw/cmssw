@@ -22,7 +22,7 @@
 #include <map>
 #include <string>
 #include <vector>
-
+#include <array>
 // user include files
 #include "FWCore/Framework/interface/ProductResolverIndexAndSkipBit.h"
 #include "FWCore/ServiceRegistry/interface/ConsumesInfo.h"
