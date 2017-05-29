@@ -20,6 +20,7 @@
 #include "CalibMuon/DTCalibration/plugins/DTTTrigOffsetCalibration.h"
 #include "CalibMuon/DTCalibration/plugins/DTVDriftSegmentCalibration.h"
 #include "CalibMuon/DTCalibration/plugins/DTResidualCalibration.h"
+#include "CalibMuon/DTCalibration/plugins/DTResidualHistory.h"
 
 // #include "CalibMuon/DTCalibration/plugins/DTFakeTTrigESProducer.h"
  #include "CalibMuon/DTCalibration/plugins/DTFakeT0ESProducer.h"
@@ -59,6 +60,7 @@ DEFINE_FWK_MODULE(DTNoiseCalibration);
 DEFINE_FWK_MODULE(DTTTrigOffsetCalibration);
 DEFINE_FWK_MODULE(DTVDriftSegmentCalibration);
 DEFINE_FWK_MODULE(DTResidualCalibration);
+DEFINE_FWK_MODULE(DTResidualHistory);
 
 // DEFINE_FWK_EVENTSETUP_SOURCE(DTFakeTTrigESProducer);
 DEFINE_FWK_EVENTSETUP_SOURCE(DTFakeT0ESProducer);
