@@ -34,7 +34,8 @@
 using namespace std;
 using namespace HepMC;
 
- ComphepSingletopFilterPy8::ComphepSingletopFilterPy8(const edm::ParameterSet& iConfig)
+ ComphepSingletopFilterPy8::ComphepSingletopFilterPy8(const edm::ParameterSet& iConfig):
+ token_(consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")),"unsmeared")))
 {	
 	ptsep = iConfig.getParameter<double>("pTSep");
 }
@@ -60,8 +61,11 @@ void ComphepSingletopFilterPy8::endJob()
 
 bool ComphepSingletopFilterPy8::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  
+  
 edm::Handle<edm::HepMCProduct> evt;
-iEvent.getByLabel("generator","unsmeared", evt);
+//iEvent.getByLabel("generator","unsmeared", evt);
+iEvent.getByToken(token_, evt);
 const HepMC::GenEvent * myEvt = evt->GetEvent();
 
 int id_bdec=0, id_lJet=0, id_b_from_top=0, id_lep = 0;
