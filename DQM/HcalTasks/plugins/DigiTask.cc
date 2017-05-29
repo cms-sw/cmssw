@@ -1091,7 +1091,6 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 
 	if (rawidValid!=0)
 	{
-		std::cout << "[debug] Filling _cOccupancyvsLS_Subdet with " << HcalDetId(rawidValid) << ", " << _currentLS << ", " << numChs << std::endl;
 		_cOccupancyvsLS_Subdet.fill(HcalDetId(rawidValid), _currentLS, 
 			numChs);
 		_cOccupancyCutvsLS_Subdet.fill(HcalDetId(rawidValid), 
