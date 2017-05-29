@@ -207,6 +207,8 @@ void SiPixelEDAClient::dqmEndLuminosityBlock(DQMStore::IBooker & iBooker, DQMSto
   
   edm::LogInfo("SiPixelEDAClient") << "====================================================== " << endl << " ===> Iteration # " << nLumiSecs_ << " " << lumiSeg.luminosityBlock() << endl  << "====================================================== " << endl;
 
+  if(Tier0Flag_) sipixelActionExecutor_->normaliseAvDigiOccVsLumi(iBooker,iGetter,nLumiSecs_);
+
   bool init=true;  
   if(actionOnLumiSec_ && nLumiSecs_ % 1 == 0 ){
 
