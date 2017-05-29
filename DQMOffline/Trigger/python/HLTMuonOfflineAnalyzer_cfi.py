@@ -10,6 +10,8 @@ hltMuonOfflineAnalyzer = cms.EDAnalyzer("HLTMuonOfflineAnalyzer",
 
     ## HLT paths passing any one of these regular expressions will be included
     hltPathsToCheck = cms.vstring(
+      "HLT_Mu8_v",
+      "HLT_TkMu17_v",
       "HLT_Mu17_TrkIsoVVL_v",
       "HLT_Mu45_eta2p1_v1",
       "HLT_Mu50_v",
@@ -98,6 +100,11 @@ hltMuonOfflineAnalyzer = cms.EDAnalyzer("HLTMuonOfflineAnalyzer",
         ## parameters for variable-width plots
         etaCoarse = cms.untracked.vdouble(-2.4, -2.1, -1.6, -1.2, -0.8, 0.0,
                                            0.8,  1.2,  1.6,  2.1,  2.4),
+        etaFine = cms.untracked.vdouble(-2.4,-2.1,-1.6,-1.2,-0.9,-0.3,
+                                         -0.2,0.2,0.3,0.9,1.2,1.6,2.1,2.4),
+        phiFine = cms.untracked.vdouble(-3.14,-(11.0/12.0)*3.14,-(9.0/12.0)*3.14,-(7.0/12.0)*3.14,-(5.0/12.0)*3.14,-
+(3.0/12.0)*3.14,-(1.0/12.0)*3.14,(1.0/12.0)*3.14,(3.0/12.0)*3.14,(5.0/12.0)*3.14,(7.0/12.0)*3.14,
+(9.0/12.0)*3.14,(11.0/12.0)*3.14,3.14),
         ptCoarse = cms.untracked.vdouble(10.0, 20.0, 40.0, 60.0, 80.0, 100.0, 200.0),
         ptFine   = cms.untracked.vdouble(10.0,15.0, 20.0,30.0, 40.0,50.0, 60.0,70.0, 80.0,90.0, 100.0,150., 200.0),
         pt = cms.untracked.vdouble(  0.0,   2.0,   4.0, 
