@@ -4,7 +4,7 @@
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
 HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) 
-  : TopFolderName_           ( conf.getParameter<std::string>("TopFolderName") )
+  : topFolderName_           ( conf.getParameter<std::string>("TopFolderName") )
 {
 
   // DQM ROOT output
@@ -123,7 +123,7 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf)
 
     Char_t histo[200];
 
-    ibooker.setCurrentFolder(TopFolderName_);
+    ibooker.setCurrentFolder(topFolderName_);
 
     // General counters (drawn)
 
@@ -574,40 +574,27 @@ void HcalRecHitsAnalyzer::analyze(edm::Event const& ev, edm::EventSetup const& c
 
   // ECAL 
   if(ecalselector_ == "yes" && (subdet_ == 1 || subdet_ == 2 || subdet_ == 5)) {
+
     Handle<EBRecHitCollection> rhitEB;
-
-
-    EcalRecHitCollection::const_iterator RecHit;
-    EcalRecHitCollection::const_iterator RecHitEnd;
-
     if ( ev.getByToken(tok_EB_, rhitEB) ) {
-
-      RecHit = rhitEB.product()->begin();  
-      RecHitEnd = rhitEB.product()->end();  
       
-      for (; RecHit != RecHitEnd ; ++RecHit) {
+      for ( const auto & recHit : rhitEB.product() ) {
 	
-	double en  = RecHit->energy();
+	double en  = recHit->energy();
 	eEcal  += en;
 	eEcalB += en;
-	
-	
-      }
+      }      
     }
+  
     
     Handle<EERecHitCollection> rhitEE;
- 
     if ( ev.getByToken(tok_EE_, rhitEE) ) {
-      
-      RecHit = rhitEE.product()->begin();  
-      RecHitEnd = rhitEE.product()->end();  
-      
-      for (; RecHit != RecHitEnd ; ++RecHit) {
+    
+      for ( const auto & recHit : rhitEE.product() ) {
 	
-	double en   = RecHit->energy();
+	double en   = recHit->energy();
 	eEcal  += en;
 	eEcalE += en;
-	
 	
       }
     }
