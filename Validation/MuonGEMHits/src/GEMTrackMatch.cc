@@ -96,8 +96,8 @@ void GEMTrackMatch::FillWithTrigger( MonitorElement* hist[4][3][3], bool array[3
 std::pair<double,double> GEMTrackMatch::getEtaRange( int station, int chamber )
 {
   if( gem_geom_ != nullptr) {
-    auto& ch = gem_geom_->regions()[0]->stations()[station-1]->rings()[0]->superChambers()[chamber-1]->chambers()[0];
-    auto& roll1 = ch->etaPartitions()[0]; //.begin();
+    auto& ch = gem_geom_->chambers().front();
+    auto& roll1 = ch->etaPartitions().front(); //.begin();
     auto& roll2 = ch->etaPartitions()[ch->nEtaPartitions()-1];
     const BoundPlane& bSurface1(roll1->surface());
     const BoundPlane& bSurface2(roll2->surface());
@@ -139,24 +139,28 @@ bool GEMTrackMatch::isSimTrackGood(const SimTrack &t)
 
 void GEMTrackMatch::buildLUT(const int maxChamberId)
 {
-
+  edm::LogInfo("GEMTrackMatch")<<"GEMTrackMatch::buildLUT"<<std::endl;
   edm::LogInfo("GEMTrackMatch")<<"max chamber "<<maxChamberId<<"\n";
 
-  std::vector<int> pos_ids;
-  pos_ids.push_back(GEMDetId(1,1,1,1,maxChamberId,useRoll_).rawId());
-
-  std::vector<int> neg_ids;
-  neg_ids.push_back(GEMDetId(-1,1,1,1,maxChamberId,useRoll_).rawId());
-
-  // VK: I would really suggest getting phis from GEMGeometry
-
+  std::vector<int> pos_ids, neg_ids;
   std::vector<float> phis;
-  phis.push_back(0.);
-  for(int i=1; i<maxChamberId+1; ++i)
-  {
-    pos_ids.push_back(GEMDetId(1,1,1,1,i,useRoll_).rawId());
-    neg_ids.push_back(GEMDetId(-1,1,1,1,i,useRoll_).rawId());
-    phis.push_back(i*10.);
+
+  for(auto it : gem_geom_->chambers()) {
+    if(it->id().region()>0) {
+      pos_ids.push_back(it->id().rawId());
+      edm::LogInfo("GEMTrackMatch")<<"added id = "<<it->id()<<" = "<<it->id().rawId()<<" to pos ids"<<std::endl;
+    }
+    else if(it->id().region()<0) {
+      neg_ids.push_back(it->id().rawId());
+      edm::LogInfo("GEMTrackMatch")<<"added id = "<<it->id()<<" = "<<it->id().rawId()<<" to neg ids"<<std::endl;
+      const BoundPlane& bSurface(it->surface());
+      LocalPoint  lCentre( 0., 0., 0. );
+      GlobalPoint gCentre(bSurface.toGlobal(lCentre));
+      int cphi(static_cast<int>(gCentre.phi().degrees()));
+      if (cphi < 0) cphi += 360;
+      phis.push_back(cphi);
+      edm::LogInfo("GEMTrackMatch")<<"added phi = "<<cphi<<" to phi vector"<<std::endl;
+    }
   }
   positiveLUT_ = std::make_pair(phis,pos_ids);
   negativeLUT_ = std::make_pair(phis,neg_ids);
@@ -165,17 +169,13 @@ void GEMTrackMatch::buildLUT(const int maxChamberId)
 
 void GEMTrackMatch::setGeometry(const GEMGeometry& geom)
 {
+  edm::LogInfo("GEMTrackMatch")<<"GEMTrackMatch :: setGeometry"<<std::endl;
   gem_geom_ = &geom;
-  bool isEvenOK = true;
-  bool isOddOK  = true;
-  useRoll_=1;
-  if ( geom.etaPartition( GEMDetId(1,1,1,1,1,1) ) == nullptr) isOddOK = false;
-  if ( geom.etaPartition( GEMDetId(1,1,1,1,2,1) ) == nullptr) isEvenOK = false;
-  if ( !isEvenOK || !isOddOK) useRoll_=2;
-
-  const auto top_chamber = static_cast<const GEMEtaPartition*>(geom.idToDetUnit(GEMDetId(1,1,1,1,1,useRoll_))); 
-  const int nEtaPartitions(geom.chamber(GEMDetId(1,1,1,1,1,useRoll_))->nEtaPartitions());
-  const auto bottom_chamber = static_cast<const GEMEtaPartition*>(geom.idToDetUnit(GEMDetId(1,1,1,1,1,nEtaPartitions)));
+  GEMDetId chId(gem_geom_->chambers().front()->id());
+  useRoll_ = 1;
+  const auto top_chamber = static_cast<const GEMEtaPartition*>(geom.idToDetUnit(GEMDetId(chId.region(),chId.ring(),chId.station(),chId.layer(),chId.chamber(),useRoll_)));
+  const int nEtaPartitions(gem_geom_->chambers().front()->nEtaPartitions());
+  const auto bottom_chamber = static_cast<const GEMEtaPartition*>(geom.idToDetUnit(GEMDetId(chId.region(),chId.ring(),chId.station(),chId.layer(),chId.chamber(),nEtaPartitions)));
   const float top_half_striplength = top_chamber->specs()->specificTopology().stripLength()/2.;
   const float bottom_half_striplength = bottom_chamber->specs()->specificTopology().stripLength()/2.;
   const LocalPoint lp_top(0., top_half_striplength, 0.);
@@ -187,6 +187,7 @@ void GEMTrackMatch::setGeometry(const GEMGeometry& geom)
   chamberHeight_ = gp_top.perp() - gp_bottom.perp();
 
   const int maxChamberId = geom.regions()[0]->stations()[0]->superChambers().size();
+  edm::LogInfo("GEMTrackMatch")<<"GEMTrackMatch :: setGeometry --> Calling buildLUT"<<std::endl;
   buildLUT(maxChamberId);
 }  
 
