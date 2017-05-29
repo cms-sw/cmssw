@@ -58,7 +58,7 @@ namespace cms
 
     if(calculateSignificance_)
       {
-	reco::METCovMatrix sigcov = getMETCovMatrix(event, setup, *input);
+	reco::METCovMatrix sigcov = getMETCovMatrix(event, setup, input);
 	pfmet.setSignificanceMatrix(sigcov);
       }
 
@@ -71,7 +71,7 @@ namespace cms
 
 
 
-  reco::METCovMatrix PFMETProducer::getMETCovMatrix(const edm::Event& event, const edm::EventSetup& setup, const edm::View<reco::Candidate>& candInput) const {
+  reco::METCovMatrix PFMETProducer::getMETCovMatrix(const edm::Event& event, const edm::EventSetup& setup, const edm::Handle<edm::View<reco::Candidate> >& candInput) const {
 
 	// leptons
 	std::vector< edm::Handle<reco::CandidateView> > leptons;
