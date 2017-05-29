@@ -224,7 +224,7 @@ void PhotonMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSe
     {
       subphotonME_.denominator -> Fill(photons[1].pt());
       subphotonEtaME_.denominator -> Fill(photons[1].eta());
-      diphotonMassME_.denominator -> Fill(2*photons[0].pt()*photons[1].pt()*(cosh(photons[0].eta()-photons[1].eta())-cos(photons[0].phi()-photons[1].phi())));
+      diphotonMassME_.denominator -> Fill(sqrt(2*photons[0].pt()*photons[1].pt()*(cosh(photons[0].eta()-photons[1].eta())-cos(photons[0].phi()-photons[1].phi()))));
     }
   
   int ls = iEvent.id().luminosityBlock();
@@ -242,7 +242,7 @@ void PhotonMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSe
     {
       subphotonME_.numerator -> Fill(photons[1].pt());
       subphotonEtaME_.numerator -> Fill(photons[1].eta());
-      diphotonMassME_.numerator -> Fill(2*photons[0].pt()*photons[1].pt()*(cosh(photons[0].eta()-photons[1].eta())-cos(photons[0].phi()-photons[1].phi())));
+      diphotonMassME_.numerator -> Fill(sqrt(2*photons[0].pt()*photons[1].pt()*(cosh(photons[0].eta()-photons[1].eta())-cos(photons[0].phi()-photons[1].phi()))));
     }
 }
 
