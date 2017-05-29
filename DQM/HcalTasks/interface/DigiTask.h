@@ -145,8 +145,8 @@ class DigiTask : public hcaldqm::DQTask
 		hcaldqm::Container2D _cOccupancyCutvsiphivsLS_SubdetPM; // online only
 
 		//	Occupancy w/o and w/ a Cut vs BX and vs LS
-		hcaldqm::ContainerProf1D _cOccupancyvsLS_SubdetPM;
-		hcaldqm::ContainerProf1D _cOccupancyCutvsLS_SubdetPM;	// online only
+		hcaldqm::ContainerProf1D _cOccupancyvsLS_Subdet;
+		hcaldqm::ContainerProf1D _cOccupancyCutvsLS_Subdet;	// online only
 		hcaldqm::ContainerProf1D _cOccupancyCutvsBX_Subdet;	// online only
 
 		//	#Time Samples for a digi. Used for Summary generation
