@@ -23,7 +23,7 @@ PhotonMVAEstimatorRun2Spring16NonTrig::PhotonMVAEstimatorRun2Spring16NonTrig(con
   const std::vector <std::string> weightFileNames
     = conf.getParameter<std::vector<std::string> >("weightFileNames");
 
-  if( (int)(weightFileNames.size()) != nCategories )
+  if( weightFileNames.size() != nCategories )
     throw cms::Exception("MVA config failure: ")
       << "wrong number of weightfiles" << std::endl;
 
@@ -33,7 +33,7 @@ PhotonMVAEstimatorRun2Spring16NonTrig::PhotonMVAEstimatorRun2Spring16NonTrig(con
   // everything else comes from the xml weight files).
    
   // Create a TMVA reader object for each category
-  for(int i=0; i<nCategories; i++){
+  for(uint i=0; i<nCategories; i++){
 
     // Use unique_ptr so that all readers are properly cleaned up
     // when the vector clear() is called in the destructor
