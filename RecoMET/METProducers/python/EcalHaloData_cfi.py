@@ -13,7 +13,7 @@ EcalHaloData= cms.EDProducer("EcalHaloDataProducer",
                              # Higher Level Reco
                              SuperClusterLabel = cms.InputTag("correctedHybridSuperClusters"),
 #                             SuperClusterLabel = cms.InputTag("cosmicSuperClusters","CosmicBarrelSuperClusters"),
-                             PhotonLabel = cms.InputTag("photons"),
+                             PhotonLabel = cms.InputTag(""),
                              
                              EBRecHitEnergyThresholdParam = cms.double(0.3),
                              EERecHitEnergyThresholdParam = cms.double(0.3),
