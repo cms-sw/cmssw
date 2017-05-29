@@ -10,7 +10,6 @@ using namespace cms;
 
 CSJetProducer::CSJetProducer(edm::ParameterSet const& conf):
   VirtualJetProducer( conf ),
-  csRho_EtaMax_(-1.0),
   csRParam_(-1.0),
   csAlpha_(0.)
 {
@@ -18,6 +17,7 @@ CSJetProducer::CSJetProducer(edm::ParameterSet const& conf):
   etaToken_ = consumes<std::vector<double>>(conf.getParameter<edm::InputTag>( "etaMap" ));
   rhoToken_ = consumes<std::vector<double>>(conf.getParameter<edm::InputTag>( "rho" ));
   rhomToken_ = consumes<std::vector<double>>(conf.getParameter<edm::InputTag>( "rhom" ));
+  csRParam_ = conf.getParameter<double>("csRParam");
   csAlpha_ = conf.getParameter<double>("csAlpha");
 }
 
@@ -50,7 +50,7 @@ void CSJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup const& iS
   fjJets_.clear();
   std::vector<fastjet::PseudoJet> tempJets = fastjet::sorted_by_pt(fjClusterSeq_->inclusive_jets(jetPtMin_));
 
-  //Get local rho and rhomo map
+  //Get local rho and rhom map
   edm::Handle<std::vector<double>> etaRanges;
   edm::Handle<std::vector<double>> rhoRanges;
   edm::Handle<std::vector<double>> rhomRanges;
@@ -59,16 +59,25 @@ void CSJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup const& iS
   iEvent.getByToken(rhoToken_, rhoRanges);
   iEvent.getByToken(rhomToken_, rhomRanges);
 
+  //Check if size of eta and background density vectors is the same
+  unsigned int bkgVecSize = etaRanges->size();
+  if(bkgVecSize<1) { throw cms::Exception("WrongBkgInput") << "Producer needs vector with background estimates\n"; }
+  if(bkgVecSize != (rhoRanges->size()+1) || bkgVecSize != (rhomRanges->size()+1) ) {
+    throw cms::Exception("WrongBkgInput") << "Size of etaRanges (" << bkgVecSize << ") and rhoRanges (" << rhoRanges->size() << ") and/or rhomRanges (" << rhomRanges->size() << ") vectors inconsistent\n";
+  }
+
+  
   //Starting from here re-implementation of constituent subtraction
   //source: http://fastjet.hepforge.org/svn/contrib/contribs/ConstituentSubtractor/tags/1.0.0/ConstituentSubtractor.cc
   //some minor modifications with respect to original
   //main change: eta-dependent rho within the jet
-  for ( std::vector<fastjet::PseudoJet>::const_iterator ijet = tempJets.begin(), ijetEnd = tempJets.end(); ijet != ijetEnd; ++ijet ) {
+
+  for(fastjet::PseudoJet ijet : tempJets ) {
   
     //----------------------------------------------------------------------
     // sift ghosts and particles in the input jet
     std::vector<fastjet::PseudoJet> particles, ghosts;
-    fastjet::SelectorIsPureGhost().sift(ijet->constituents(), ghosts, particles);
+    fastjet::SelectorIsPureGhost().sift(ijet.constituents(), ghosts, particles);
     unsigned long nGhosts=ghosts.size();
     unsigned long nParticles=particles.size();
     if(nParticles==0) continue; //don't subtract ghost jets
@@ -77,15 +86,15 @@ void CSJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup const& iS
     std::vector<double> rho;
     std::vector<double> rhom;
     for (unsigned int j=0;j<nGhosts; j++) {
-
+      
       if(ghosts[j].eta()<=etaRanges->at(0)) {
         rho.push_back(rhoRanges->at(0));
         rhom.push_back(rhomRanges->at(0));
-      } else if(ghosts[j].eta()>=etaRanges->at(etaRanges->size()-1)) {
-        rho.push_back(rhoRanges->at(rhoRanges->size()-1));
-        rhom.push_back(rhomRanges->at(rhomRanges->size()-1));
+      } else if(ghosts[j].eta()>=etaRanges->at(bkgVecSize-1)) {
+        rho.push_back(rhoRanges->at(bkgVecSize-2));
+        rhom.push_back(rhomRanges->at(bkgVecSize-2));
       } else {
-        for(int ie = 0; ie<(int)(etaRanges->size()-1); ie++) {
+        for(int ie = 0; ie<(int)(bkgVecSize-1); ie++) {
           if(ghosts[j].eta()>=etaRanges->at(ie) && ghosts[j].eta()<etaRanges->at(ie+1)) {
             rho.push_back(rhoRanges->at(ie));
             rhom.push_back(rhomRanges->at(ie));
@@ -98,8 +107,7 @@ void CSJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup const& iS
 
     //----------------------------------------------------------------------
     // computing and sorting the distances, deltaR
-    bool useMaxDeltaR = false;
-    if (csRParam_>0) useMaxDeltaR = true;
+    bool useMaxDeltaR = (csRParam_>0);
     double maxDeltaR_squared=pow(csRParam_,2); 
     double alpha_times_two= csAlpha_*2.;
     std::vector<std::pair<double,int> > deltaRs;  // the first element is deltaR, the second element is only the index in the vector used for sorting
