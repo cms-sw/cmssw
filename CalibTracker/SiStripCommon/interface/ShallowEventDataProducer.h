@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/Scalers/interface/LumiScalers.h" 
 #include <string>
 
 class ShallowEventDataProducer : public edm::EDProducer {
@@ -12,6 +13,7 @@ class ShallowEventDataProducer : public edm::EDProducer {
  private: 
   void produce( edm::Event &, const edm::EventSetup & );
 	edm::EDGetTokenT< L1GlobalTriggerReadoutRecord > trig_token_;
+	edm::EDGetTokenT< LumiScalersCollection > scalerToken_; 
 };
 
 #endif

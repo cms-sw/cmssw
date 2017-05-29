@@ -8,7 +8,8 @@
 EcalUncalibRecHitMultiFitAlgo::EcalUncalibRecHitMultiFitAlgo() : 
   _computeErrors(true),
   _doPrefit(false),
-  _prefitMaxChiSq(1.0) { 
+  _prefitMaxChiSq(1.0),
+  _gainSwitchUseMaxSample(false){
     
   _singlebx.resize(1);
   _singlebx << 0;
@@ -27,9 +28,12 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
   const unsigned int nsample = EcalDataFrame::MAXSAMPLES;
   
   double maxamplitude = -std::numeric_limits<double>::max();
-  
+  const unsigned int iSampleMax = 5;  
+  const unsigned int iFullPulseMax = 9;
+
   double pedval = 0.;
   double pedrms = 0.;
+  int iGainSwitch = 0;
   
   SampleVector amplitudes;
   for(unsigned int iSample = 0; iSample < nsample; iSample++) {
@@ -38,7 +42,7 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
     
     double amplitude = 0.;
     int gainId = sample.gainId();
-    
+   
     double pedestal = 0.;
     double pederr = 0.;
     double gainratio = 1.;
@@ -58,6 +62,7 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
       pederr = aped->rms_x6;
       gainratio = aGain->gain12Over6();
     }
+    if ( (gainId != 1) && (iSample==4 || iSample==5 || iSample==6) ) iGainSwitch = 1;
 
     amplitude = ((double)(sample.adc()) - pedestal) * gainratio;
     
@@ -68,8 +73,7 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
         
     amplitudes[iSample] = amplitude;
     
-    if (amplitude>maxamplitude) {
-    //if (iSample==5) {
+    if (iSample==iSampleMax) {
       maxamplitude = amplitude;
       pedval = pedestal;
       pedrms = pederr*gainratio;
@@ -79,7 +83,22 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
   
   double amplitude, amperr, chisq;
   bool status = false;
-  
+
+  // for legacy re-reco of 2016 data, max-sample can be used for EB w/o impact on data/MC consistency
+  // in case of gain switch, just use max-sample
+  if(iGainSwitch && _gainSwitchUseMaxSample) {
+    double maxpulseamplitude = maxamplitude / fullpulse[iFullPulseMax];
+    EcalUncalibratedRecHit rh( dataFrame.id(), maxpulseamplitude, pedval, 0., 0., flags );
+    rh.setAmplitudeError(0.);
+    for (unsigned int ipulse=0; ipulse<_pulsefunc.BXs().rows(); ++ipulse) {
+      int bx = _pulsefunc.BXs().coeff(ipulse);
+      if (bx!=0) {
+        rh.setOutOfTimeAmplitude(bx+5, 0.0);
+      }
+    }
+    return rh;
+  }
+    
   //optimized one-pulse fit for hlt
   bool usePrefit = false;
   if (_doPrefit) {

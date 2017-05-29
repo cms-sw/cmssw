@@ -92,10 +92,10 @@ void TotemRPLocalTrackFitter::produce(edm::Event& e, const edm::EventSetup& setu
 
   // run fit for each RP
   DetSetVector<TotemRPLocalTrack> output;
-  
+
   for (const auto &rpv : *input)
   {
-    det_id_type rpId =  rpv.detId();
+    CTPPSDetId rpId(rpv.detId());
 
     // is U-V association unique?
     unsigned int n_U=0, n_V=0;

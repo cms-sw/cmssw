@@ -71,6 +71,8 @@ class SiStripMonitorCluster : public DQMEDAnalyzer {
     MonitorElement* LayerLocalOccupancy = 0;
     MonitorElement* LayerLocalOccupancyTrend = 0;
     MonitorElement* LayerNumberOfClusterProfile = 0;
+    MonitorElement* LayerNumberOfClusterPerRingTrend = 0;
+    MonitorElement* LayerNumberOfClusterTrend = 0;
     MonitorElement* LayerClusterWidthProfile = 0;
     MonitorElement* LayerClusWidthVsAmpTH2 = 0;
     MonitorElement* LayerClusterPosition = 0;
@@ -88,6 +90,7 @@ class SiStripMonitorCluster : public DQMEDAnalyzer {
     MonitorElement* SubDetClusterChargeTH1 = 0;
     MonitorElement* SubDetClusterWidthTH1 = 0;
     MonitorElement* SubDetClusWidthVsAmpTH2 = 0;
+    MonitorElement* SubDetNumberOfClusterPerLayerTrend = 0;
   };
 
   struct ClusterProperties { // Cluster Properties

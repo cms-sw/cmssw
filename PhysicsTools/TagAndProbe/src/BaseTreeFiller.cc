@@ -2,10 +2,14 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
+
 #include "PhysicsTools/TagAndProbe/interface/ColinsSoperVariables.h"
 
 #include <TList.h>
 #include <TObjString.h>
+
+#include <iostream>
+using namespace std;
 
 tnp::ProbeVariable::~ProbeVariable() {}
 
@@ -43,41 +47,60 @@ tnp::BaseTreeFiller::BaseTreeFiller(const char *name, const edm::ParameterSet& i
         weight_ = iConfig.getParameter<double>("eventWeight");
     } else if (iConfig.existsAs<edm::InputTag>("eventWeight")) {
         weightMode_ = External;
-        weightSrcToken_ = iC.consumes<double>(iConfig.getParameter<edm::InputTag>("eventWeight"));
+        weightSrcToken_ = iC.consumes<GenEventInfoProduct>(iConfig.getParameter<edm::InputTag>("eventWeight"));
     } else {
         weightMode_ = None;
     }
     if (weightMode_ != None) {
         tree_->Branch("weight", &weight_, "weight/F");
+	tree_->Branch("totWeight", &totWeight_, "totWeight/F");
     }
+
     storePUweight_ = iConfig.existsAs<edm::InputTag>("PUWeightSrc") ? true: false;
-    if(storePUweight_) {
-      PUweightSrcToken_   = iC.consumes<double>(iConfig.getParameter<edm::InputTag>("PUWeightSrc")); 
+    if(storePUweight_) {      
+      PUweightSrcToken_   = iC.consumes<double>(iConfig.getParameter<edm::InputTag>("PUWeightSrc"));
       tree_->Branch("PUweight", &PUweight_, "PUweight/F");
-    }
+    }    
+    
+    if( iConfig.existsAs<edm::InputTag>("pileupInfoTag") )  
+      pileupInfoToken_= iC.consumes<std::vector<PileupSummaryInfo> >(iConfig.getParameter<edm::InputTag>("pileupInfoTag"));
 
     addRunLumiInfo_ = iConfig.existsAs<bool>("addRunLumiInfo") ? iConfig.getParameter<bool>("addRunLumiInfo") : false;
     if (addRunLumiInfo_) {
          tree_->Branch("run",  &run_,  "run/i");
          tree_->Branch("lumi", &lumi_, "lumi/i");
          tree_->Branch("event", &event_, "event/l");
+	 tree_->Branch("truePU", &truePU_, "truePU/I");
     }
     addEventVariablesInfo_ = iConfig.existsAs<bool>("addEventVariablesInfo") ? iConfig.getParameter<bool>("addEventVariablesInfo") : false;
     if (addEventVariablesInfo_) {
-      recVtxsToken_ = iC.consumes<reco::VertexCollection>(edm::InputTag("offlinePrimaryVertices"));
-      beamSpotToken_ = iC.consumes<reco::BeamSpot>(edm::InputTag("offlineBeamSpot"));
-      metToken_ = iC.consumes<reco::CaloMETCollection>(edm::InputTag("met"));
-      tcmetToken_ = iC.consumes<reco::METCollection>(edm::InputTag("tcMet"));
-      pfmetToken_ = iC.consumes<reco::PFMETCollection>(edm::InputTag("pfMet"));
-      tree_->Branch("event_nPV"        ,&mNPV_                 ,"mNPV/I");
-      tree_->Branch("event_met_calomet"    ,&mMET_                ,"mMET/F");
-      tree_->Branch("event_met_calosumet"  ,&mSumET_              ,"mSumET/F");
-      tree_->Branch("event_met_calometsignificance",&mMETSign_    ,"mMETSign/F");
-      tree_->Branch("event_met_tcmet"    ,&mtcMET_                ,"mtcMET/F");
-      tree_->Branch("event_met_tcsumet"  ,&mtcSumET_              ,"mtcSumET/F");
-      tree_->Branch("event_met_tcmetsignificance",&mtcMETSign_    ,"mtcMETSign/F");
+      /// FC (EGM) - add possibility to customize collections (can run other miniAOD)
+      edm::InputTag bsIT    = iConfig.existsAs<edm::InputTag>("beamSpot") ?  iConfig.getParameter<edm::InputTag>("beamSpot") : edm::InputTag("offlineBeamSpot");
+      edm::InputTag vtxIT   = iConfig.existsAs<edm::InputTag>("vertexCollection") ?  iConfig.getParameter<edm::InputTag>("vertexCollection") : edm::InputTag("offlinePrimaryVertices");
+      edm::InputTag pfMetIT = iConfig.existsAs<edm::InputTag>("pfMet") ?  iConfig.getParameter<edm::InputTag>("pfMet") : edm::InputTag("pfMet");
+      edm::InputTag tcMetIT = iConfig.existsAs<edm::InputTag>("tcMet") ?  iConfig.getParameter<edm::InputTag>("tcMet") : edm::InputTag("tcMet");
+      edm::InputTag clMetIT = iConfig.existsAs<edm::InputTag>("clMet") ?  iConfig.getParameter<edm::InputTag>("clMet") : edm::InputTag("met");
+ 
+      recVtxsToken_      = iC.consumes<reco::VertexCollection>(vtxIT);
+      beamSpotToken_     = iC.consumes<reco::BeamSpot>(bsIT);
+      pfmetToken_        = iC.mayConsume<reco::PFMETCollection>(pfMetIT);
+      pfmetTokenMiniAOD_ = iC.mayConsume<pat::METCollection>(pfMetIT);
+      addCaloMet_ = iConfig.existsAs<bool>("addCaloMet") ? iConfig.getParameter<bool>("addCaloMet") : true;      
+      tree_->Branch("event_nPV"             ,&mNPV_                 ,"mNPV/I");
+      if( addCaloMet_ ) {
+	metToken_   = iC.mayConsume<reco::CaloMETCollection>(clMetIT);
+	tcmetToken_ = iC.mayConsume<reco::METCollection>(    tcMetIT);
+	tree_->Branch("event_met_calomet"    ,&mMET_                ,"mMET/F");
+	tree_->Branch("event_met_calosumet"  ,&mSumET_              ,"mSumET/F");
+	tree_->Branch("event_met_calometsignificance",&mMETSign_    ,"mMETSign/F");
+	tree_->Branch("event_met_tcmet"    ,&mtcMET_                ,"mtcMET/F");
+	tree_->Branch("event_met_tcsumet"  ,&mtcSumET_              ,"mtcSumET/F");
+	tree_->Branch("event_met_tcmetsignificance",&mtcMETSign_    ,"mtcMETSign/F");
+      }      
       tree_->Branch("event_met_pfmet"    ,&mpfMET_                ,"mpfMET/F");
+      tree_->Branch("event_met_pfphi"    ,&mpfPhi_                ,"mpfPhi/F");
       tree_->Branch("event_met_pfsumet"  ,&mpfSumET_              ,"mpfSumET/F");
+      
       tree_->Branch("event_met_pfmetsignificance",&mpfMETSign_    ,"mpfMETSign/F");
       tree_->Branch("event_PrimaryVertex_x"  ,&mPVx_              ,"mPVx/F");
       tree_->Branch("event_PrimaryVertex_y"  ,&mPVy_              ,"mPVy/F");
@@ -86,6 +109,13 @@ tnp::BaseTreeFiller::BaseTreeFiller(const char *name, const edm::ParameterSet& i
       tree_->Branch("event_BeamSpot_y"       ,&mBSy_              ,"mBSy/F");
       tree_->Branch("event_BeamSpot_z"       ,&mBSz_              ,"mBSz/F");
     }
+
+    addRho_ = iConfig.existsAs<edm::InputTag>("rho") ? true : false;
+    if (addRho_) {
+      rhoToken_ = iC.consumes<double>(iConfig.getParameter<edm::InputTag>("rho"));
+      tree_->Branch("event_rho"    ,&rho_   ,"rho/F");
+    }
+    
 
     ignoreExceptions_ = iConfig.existsAs<bool>("ignoreExceptions") ? iConfig.getParameter<bool>("ignoreExceptions") : false;
 }
@@ -96,7 +126,7 @@ tnp::BaseTreeFiller::BaseTreeFiller(BaseTreeFiller &main, const edm::ParameterSe
   tree_(0)
 {
     addRunLumiInfo_ = main.addRunLumiInfo_;
-    storePUweight_ = main.storePUweight_;
+    storePUweight_  = main.storePUweight_;
     addBranches_(main.tree_, iConfig, iC, branchNamePrefix);
 }
 
@@ -145,6 +175,14 @@ void tnp::BaseTreeFiller::init(const edm::Event &iEvent) const {
     lumi_ = iEvent.id().luminosityBlock();
     event_ = iEvent.id().event();
 
+    truePU_ = 0;
+    if (!iEvent.isRealData() and !pileupInfoToken_.isUninitialized()) {
+      edm::Handle<std::vector<PileupSummaryInfo> > PupInfo;
+      iEvent.getByToken(pileupInfoToken_, PupInfo);
+      truePU_ = PupInfo->begin()->getTrueNumInteractions();
+    }
+
+    totWeight_ = 1.;
     for (std::vector<tnp::ProbeVariable>::const_iterator it = vars_.begin(), ed = vars_.end(); it != ed; ++it) {
         it->init(iEvent);
     }
@@ -152,17 +190,22 @@ void tnp::BaseTreeFiller::init(const edm::Event &iEvent) const {
         it->init(iEvent);
     }
     if (weightMode_ == External) {
-        edm::Handle<double> weight;
-        iEvent.getByToken(weightSrcToken_, weight);
-        weight_ = *weight;
+      // edm::Handle<double> weight;
+      //        iEvent.getByToken(weightSrcToken_, weight);
+      //        weight_ = *weight;
+	edm::Handle<GenEventInfoProduct> weight;
+	iEvent.getByToken(weightSrcToken_, weight);
+	weight_ = weight->weight();
+	totWeight_ *= weight_;
     }
 
     ///// ********** Pileup weight: needed for MC re-weighting for PU ************* 
-     edm::Handle<std::vector<float> > weightPU;
-     if(storePUweight_) {
-       bool isPresent = iEvent.getByToken(PUweightSrcToken_, weightPU);
-       if(isPresent) PUweight_ = (*weightPU).at(0);
-       else PUweight_ = 1.0;
+    PUweight_ = 1;
+    if(storePUweight_  and !PUweightSrcToken_.isUninitialized() ) {
+      edm::Handle<double> weightPU;
+      bool isPresent = iEvent.getByToken(PUweightSrcToken_, weightPU);
+      if(isPresent) PUweight_ = float(*weightPU);
+      totWeight_ *= PUweight_;
      }
      
     if (addEventVariablesInfo_) {
@@ -188,7 +231,6 @@ void tnp::BaseTreeFiller::init(const edm::Event &iEvent) const {
           }
         }
 
-
         //////////// Beam spot //////////////
         edm::Handle<reco::BeamSpot> beamSpot;
         iEvent.getByToken(beamSpotToken_, beamSpot);
@@ -196,7 +238,7 @@ void tnp::BaseTreeFiller::init(const edm::Event &iEvent) const {
         mBSy_ = beamSpot->position().Y();
         mBSz_ = beamSpot->position().Z();
 
-
+	if( addCaloMet_) {
         ////////////// CaloMET //////
         edm::Handle<reco::CaloMETCollection> met;
         iEvent.getByToken(metToken_,met);
@@ -210,7 +252,7 @@ void tnp::BaseTreeFiller::init(const edm::Event &iEvent) const {
           mSumET_ = (*met)[0].sumEt();
           mMETSign_ = (*met)[0].significance();
         }
-
+	
         /////// TcMET information /////
         edm::Handle<reco::METCollection> tcmet;
         iEvent.getByToken(tcmetToken_, tcmet);
@@ -224,29 +266,49 @@ void tnp::BaseTreeFiller::init(const edm::Event &iEvent) const {
           mtcSumET_ = (*tcmet)[0].sumEt();
           mtcMETSign_ = (*tcmet)[0].significance();
         }
-
+	}
+	
         /////// PfMET information /////
         edm::Handle<reco::PFMETCollection> pfmet;
         iEvent.getByToken(pfmetToken_, pfmet);
-        if (pfmet->size() == 0) {
-          mpfMET_   = -1;
-          mpfSumET_ = -1;
-          mpfMETSign_ = -1;
-        }
-        else {
-          mpfMET_   = (*pfmet)[0].et();
-          mpfSumET_ = (*pfmet)[0].sumEt();
-          mpfMETSign_ = (*pfmet)[0].significance();
-        }
+	if(  pfmet.isValid() ) {	  
+	  if (pfmet->size() == 0) {
+	    mpfMET_   = -1;
+	    mpfSumET_ = -1;
+	    mpfMETSign_ = -1;
+	  }
+	  else {
+	    mpfMET_   = (*pfmet)[0].et();
+	    mpfPhi_   = (*pfmet)[0].phi();
+	    mpfSumET_ = (*pfmet)[0].sumEt();
+	    mpfMETSign_ = (*pfmet)[0].significance();
+	  }
+	} else {
+	  edm::Handle<pat::METCollection> pfmet2;
+	  iEvent.getByToken(pfmetTokenMiniAOD_, pfmet2);
+	  const pat::MET &met = pfmet2->front();
+	  mpfMET_     = met.pt();
+	  mpfPhi_     = met.phi();
+	  mpfSumET_   = met.sumEt();
+	  mpfMETSign_ = met.significance();
+	}
+       
+	if (addRho_) {
+	  edm::Handle<double> rhos;
+	  iEvent.getByToken(rhoToken_, rhos);
+	  rho_ = (float) *rhos;
+	}
     }
-
+ 
+    
 }
 
 void tnp::BaseTreeFiller::fill(const reco::CandidateBaseRef &probe) const {
     for (std::vector<tnp::ProbeVariable>::const_iterator it = vars_.begin(), ed = vars_.end(); it != ed; ++it) {
-        if (ignoreExceptions_)  {
+      if (ignoreExceptions_)  {
             try{ it->fill(probe); } catch(cms::Exception &ex ){}
         } else {
+	  
             it->fill(probe);
         }
     }

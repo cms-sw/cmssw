@@ -31,6 +31,8 @@ AlCaRecoMatrix = {'AlCaLumiPixels' : 'LumiPixels',
                   # 'TestEnablesEcalHcal' : 'HcalCalPedestal'
                   }
 
+# this matrix will be used for the legacy reprocessing of the 2016 2016B-H dataset;
+# with the exception of ZeroBias, it was also used for the 23Sept16 reprocessing of 2016B-G 
 AlCaRecoMatrixRereco = {'AlCaLumiPixels' : 'LumiPixels',
                         'Charmonium'     : 'TkAlJpsiMuMu',
                         'Commissioning'  : 'TkAlMinBias+SiStripCalMinBias+HcalCalIsoTrk+HcalCalIsolatedBunchSelector',
@@ -50,7 +52,7 @@ AlCaRecoMatrixRereco = {'AlCaLumiPixels' : 'LumiPixels',
                         'SingleMu'       : 'MuAlCalIsolatedMu+MuAlOverlaps+TkAlMuonIsolated+DtCalib+MuAlZMuMu+HcalCalHO',
                         'SingleMuon'     : 'TkAlMuonIsolated+DtCalib+MuAlCalIsolatedMu+MuAlOverlaps+MuAlZMuMu+HcalCalIterativePhiSym+HcalCalHO',
                         'SinglePhoton'   : 'HcalCalGammaJet',
-                        'ZeroBias'       : 'SiStripCalZeroBias+TkAlMinBias+LumiPixelsMinBias+SiStripCalMinBias',
+                        'ZeroBias'       : 'SiStripCalZeroBias+TkAlMinBias+LumiPixelsMinBias+SiStripCalMinBias+SiStripCalMinBiasAfterAbortGap',
                         'HcalNZS'        : 'HcalCalMinBias'
                         }
 

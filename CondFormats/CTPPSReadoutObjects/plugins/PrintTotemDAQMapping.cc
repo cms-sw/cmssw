@@ -20,7 +20,7 @@
 //----------------------------------------------------------------------------------------------------
 
 /**
- *\brief Prints the DAQ mapping loaded by DAQMappingSourceXML.
+ *\brief Prints the DAQ mapping loaded by TotemDAQMappingESSourceXML.
  **/
 class PrintTotemDAQMapping : public edm::one::EDAnalyzer<>
 {
@@ -29,9 +29,7 @@ class PrintTotemDAQMapping : public edm::one::EDAnalyzer<>
     ~PrintTotemDAQMapping() {}
 
   private:
-    virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-    virtual void analyze(const edm::Event &e, const edm::EventSetup &es) {}
-    virtual void endJob() {}
+    virtual void analyze(const edm::Event &e, const edm::EventSetup &es) override;
 };
 
 using namespace std;
@@ -39,7 +37,7 @@ using namespace edm;
 
 //----------------------------------------------------------------------------------------------------
 
-void PrintTotemDAQMapping::beginRun(edm::Run const&, edm::EventSetup const& es)
+void PrintTotemDAQMapping::analyze(const edm::Event&, edm::EventSetup const& es)
 {
   // get mapping
   ESHandle<TotemDAQMapping> mapping;
@@ -49,10 +47,17 @@ void PrintTotemDAQMapping::beginRun(edm::Run const&, edm::EventSetup const& es)
   ESHandle<TotemAnalysisMask> analysisMask;
   es.get<TotemReadoutRcd>().get(analysisMask);
 
+  // print mapping
+  printf("* DAQ mapping\n");
   for (const auto &p : mapping->VFATMapping)
-  {
-    cout << p.first << " -> " << p.second << endl;
-  }
+    cout << "    " << p.first << " -> " << p.second << endl;
+
+  // print mapping
+  printf("* mask\n");
+  for (const auto &p : analysisMask->analysisMask)
+    cout << "    " << p.first
+      << ": fullMask=" << p.second.fullMask
+      << ", number of masked channels " << p.second.maskedChannels.size() << endl;
 }
 
 //----------------------------------------------------------------------------------------------------

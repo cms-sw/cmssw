@@ -145,7 +145,7 @@ void TotemRPUVPatternFinder::recognizeAndSelect(TotemRPUVPattern::ProjectionType
 
     set<unsigned int> planes;
     for (const auto &ds : p.getHits())
-        planes.insert(TotemRPDetId::rawToDecId(ds.detId()) % 10);
+        planes.insert(TotemRPDetId(ds.detId()).plane());
 
     if (planes.size() < planes_required)
       p.setFittable(false);
@@ -188,10 +188,11 @@ void TotemRPUVPatternFinder::produce(edm::Event& event, const edm::EventSetup& e
 
   for (auto &ids : *input)
   {
-    unsigned int detId = TotemRPDetId::rawToDecId(ids.detId());
-    unsigned int rpId = TotemRPDetId::rpOfDet(detId);
-    unsigned int plane = detId % 10;
-    bool uDir = TotemRPDetId::isStripsCoordinateUDirection(detId);
+    TotemRPDetId detId(ids.detId());
+    unsigned int plane = detId.plane();
+    bool uDir = detId.isStripsCoordinateUDirection();
+
+    CTPPSDetId rpId = detId.getRPId();
 
     RPData &data = rpData[rpId];
 
@@ -213,7 +214,7 @@ void TotemRPUVPatternFinder::produce(edm::Event& event, const edm::EventSetup& e
   // track recognition pot by pot
   for (auto it : rpData)
   {
-    unsigned int rpId = it.first;
+    CTPPSDetId rpId(it.first);
     RPData &data = it.second;
 
     // merge default and exceptional settings (if available)

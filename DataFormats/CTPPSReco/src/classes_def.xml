@@ -1,4 +1,7 @@
 <lcgdict>
+
+<!-- strips objects -->
+
   <class name="TotemRPCluster" ClassVersion="2">
     <version ClassVersion="2" checksum="386147628"/>
   </class>
@@ -21,14 +24,58 @@
   <class name="TotemRPUVPattern" ClassVersion="2">
     <version ClassVersion="2" checksum="3530058029"/>
   </class>
+  <class name="edm::DetSet<TotemRPUVPattern>"/>
+  <class name="std::vector<TotemRPUVPattern>"/>
+  <class name="std::vector<edm::DetSet<TotemRPUVPattern> >"/>
   <class name="edm::DetSetVector<TotemRPUVPattern>"/>
-  <class name="edm::Wrapper<edm::DetSetVector<TotemRPUVPattern>>"/>
+  <class name="edm::Wrapper< edm::DetSetVector<TotemRPUVPattern> >"/>
 
   <class name="TotemRPLocalTrack" ClassVersion="2">
     <version ClassVersion="2" checksum="3328119645"/>
   </class>
+  <class name="edm::DetSet<TotemRPLocalTrack>"/>
+  <class name="std::vector<TotemRPLocalTrack>"/>
+  <class name="std::vector<edm::DetSet<TotemRPLocalTrack> >"/>
   <class name="edm::DetSetVector<TotemRPLocalTrack>"/>
-  <class name="edm::Wrapper<edm::DetSetVector<TotemRPLocalTrack>>"/>
+  <class name="edm::Wrapper< edm::DetSetVector<TotemRPLocalTrack> >"/>
   <class name="edm::DetSetVector<TotemRPLocalTrack::FittedRecHit>"/>
-  <class name="edm::Wrapper<edm::DetSetVector<TotemRPLocalTrack::FittedRecHit>>"/>
+  <class name="edm::Wrapper< edm::DetSetVector<TotemRPLocalTrack::FittedRecHit> >"/>
+  <class name="std::vector<edm::DetSet<TotemRPLocalTrack::FittedRecHit> >"/>
+  <class name="std::vector<TotemRPLocalTrack::FittedRecHit>"/>
+
+<!-- diamonds objects -->
+
+  <class name="CTPPSDiamondRecHit" ClassVersion="4">
+    <version ClassVersion="3" checksum="2377257106"/>
+    <version ClassVersion="4" checksum="2150979176"/>
+  </class>
+  <class name="edm::Ptr<CTPPSDiamondRecHit>"/>
+  <class name="edm::Wrapper<CTPPSDiamondRecHit>"/>
+  <class name="std::vector<CTPPSDiamondRecHit>"/>
+  <class name="std::vector< edm::DetSet<CTPPSDiamondRecHit> >"/>
+  <class name="edm::DetSet<CTPPSDiamondRecHit>"/>
+  <class name="edm::DetSetVector<CTPPSDiamondRecHit>"/>
+  <class name="edm::Wrapper< edm::DetSetVector<CTPPSDiamondRecHit> >"/>
+  <class name="edm::Wrapper< std::vector<CTPPSDiamondRecHit> >"/>
+
+  <class name="CTPPSDiamondLocalTrack" ClassVersion="3">
+    <version ClassVersion="3" checksum="2739193553"/>
+  </class>
+  <class name="edm::Ptr<CTPPSDiamondLocalTrack>"/>
+  <class name="edm::Wrapper<CTPPSDiamondLocalTrack>"/>
+  <class name="std::vector<CTPPSDiamondLocalTrack>"/>
+  <class name="edm::DetSet<CTPPSDiamondLocalTrack>"/>
+  <class name="std::vector< edm::DetSet<CTPPSDiamondLocalTrack> >"/>
+  <class name="edm::Wrapper< std::vector<CTPPSDiamondLocalTrack> >"/>
+  <class name="edm::DetSetVector<CTPPSDiamondLocalTrack>"/>
+  <class name="edm::Wrapper< edm::DetSetVector<CTPPSDiamondLocalTrack> >"/>
+
+<!-- common objects -->
+
+  <class name="CTPPSLocalTrackLite" ClassVersion="3">
+    <version ClassVersion="3" checksum="3838813906"/>
+  </class>
+  <class name="std::vector<CTPPSLocalTrackLite>"/>
+  <class name="edm::Wrapper<CTPPSLocalTrackLite>"/>
+  <class name="edm::Wrapper< std::vector<CTPPSLocalTrackLite> >"/>
 </lcgdict>

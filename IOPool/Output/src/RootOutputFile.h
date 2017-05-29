@@ -117,6 +117,7 @@ namespace edm {
     IndexIntoFile::EntryNumber_t lumiEntryNumber_;
     IndexIntoFile::EntryNumber_t runEntryNumber_;
     IndexIntoFile indexIntoFile_;
+    unsigned long nEventsInLumi_;
     edm::propagate_const<TTree*> metaDataTree_;
     edm::propagate_const<TTree*> parameterSetsTree_;
     edm::propagate_const<TTree*> parentageTree_;

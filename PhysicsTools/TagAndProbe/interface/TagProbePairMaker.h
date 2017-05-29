@@ -33,7 +33,7 @@ namespace tnp {
             TagProbePairs run(const edm::Event &iEvent) const ;
         private:
             edm::EDGetTokenT<reco::CandidateView> srcToken_;
-            enum Arbitration { None, OneProbe, BestMass, Random2, NonDuplicate, OnePair };
+            enum Arbitration { None, OneProbe, BestMass, Random2, NonDuplicate, OnePair, HighestPt };
             Arbitration arbitration_;
             double arbitrationMass_;
             void arbitrate(TagProbePairs &pairs) const ;

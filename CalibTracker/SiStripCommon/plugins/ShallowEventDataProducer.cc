@@ -1,17 +1,21 @@
 #include "CalibTracker/SiStripCommon/interface/ShallowEventDataProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h" 
 
 ShallowEventDataProducer::ShallowEventDataProducer(const edm::ParameterSet& iConfig) {
   produces <unsigned int> ( "run"      );
   produces <unsigned int> ( "event"    );
   produces <unsigned int> ( "bx"       );
-  produces <unsigned int> ( "lumi"       );
+  produces <unsigned int> ( "lumi"     );
+  produces <float>        ( "instLumi" );
+  produces <float>        ( "PU"       );
   produces <std::vector<bool> > ( "TrigTech" );
   produces <std::vector<bool> > ( "TrigPh" );
-	trig_token_ = consumes<L1GlobalTriggerReadoutRecord>(
-		iConfig.getParameter<edm::InputTag>("trigRecord")
-		);
+
+  trig_token_   = consumes<L1GlobalTriggerReadoutRecord>(iConfig.getParameter<edm::InputTag>("trigRecord"));
+  scalerToken_  = consumes< LumiScalersCollection >(iConfig.getParameter<edm::InputTag>("lumiScalers"));
+
 }
 
 void ShallowEventDataProducer::
@@ -49,11 +53,30 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   std::auto_ptr<std::vector<bool> >  TrigTech(new std::vector<bool>(TrigTech_));
   std::auto_ptr<std::vector<bool> > TrigPh(new std::vector<bool>(TrigPh_));
+  
+  // Luminosity informations
+  edm::Handle< LumiScalersCollection > lumiScalers;
+  float instLumi_=0; float PU_=0;
+  iEvent.getByToken(scalerToken_, lumiScalers);
+  if(lumiScalers.isValid()){ 
+    if (lumiScalers->begin() != lumiScalers->end()) {
+      instLumi_ = lumiScalers->begin()->instantLumi();
+      PU_       = lumiScalers->begin()->pileup();
+    }
+  } else {
+    edm::LogInfo("ShallowEventDataProducer") 
+      << "LumiScalers collection not found in the event; will write dummy values";
+  }
+  
+  auto instLumi = std::make_unique<float>(instLumi_);
+  auto PU       = std::make_unique<float>(PU_);
 
   iEvent.put( run,      "run"   );
   iEvent.put( event,    "event" );
   iEvent.put( bx,       "bx" );
-  iEvent.put( lumi,       "lumi" );
+  iEvent.put( lumi,     "lumi" );
   iEvent.put( TrigTech, "TrigTech" );
   iEvent.put( TrigPh,   "TrigPh" );
+  iEvent.put(std::move(instLumi), "instLumi");
+  iEvent.put(std::move(PU),       "PU");
 }

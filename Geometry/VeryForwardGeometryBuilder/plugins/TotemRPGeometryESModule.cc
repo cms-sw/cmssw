@@ -27,14 +27,13 @@
 
 #include "Geometry/Records/interface/VeryForwardMisalignedGeometryRecord.h"
 #include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
-#include "Geometry/Records/interface/VeryForwardMeasuredGeometryRecord.h"
-#include "CondFormats/AlignmentRecord/interface/RPMeasuredAlignmentRecord.h"
 #include "CondFormats/AlignmentRecord/interface/RPRealAlignmentRecord.h"
 #include "CondFormats/AlignmentRecord/interface/RPMisalignedAlignmentRecord.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/DetGeomDesc.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/TotemRPGeometry.h"
 #include "DataFormats/CTPPSAlignment/interface/RPAlignmentCorrectionsData.h"
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
+
 #include "Geometry/VeryForwardGeometryBuilder/interface/DDDTotemRPConstruction.h"
 
 #include <TMatrixD.h>
@@ -56,10 +55,7 @@ class  TotemRPGeometryESModule : public edm::ESProducer
     TotemRPGeometryESModule(const edm::ParameterSet &p);
     virtual ~TotemRPGeometryESModule(); 
 
-    std::auto_ptr<DDCompactView> produceMeasuredDDCV(const VeryForwardMeasuredGeometryRecord &);
-
-    std::auto_ptr<DetGeomDesc> produceMeasuredGD(const VeryForwardMeasuredGeometryRecord &);
-    std::auto_ptr<TotemRPGeometry> produceMeasuredTG(const VeryForwardMeasuredGeometryRecord &);
+    std::auto_ptr<DetGeomDesc> produceIdealGD(const IdealGeometryRecord &);
 
     std::auto_ptr<DetGeomDesc> produceRealGD(const VeryForwardRealGeometryRecord &);
     std::auto_ptr<TotemRPGeometry> produceRealTG(const VeryForwardRealGeometryRecord &);
@@ -70,8 +66,8 @@ class  TotemRPGeometryESModule : public edm::ESProducer
   protected:
     unsigned int verbosity;
 
-    void ApplyAlignments(const edm::ESHandle<DetGeomDesc> &measuredGD, const edm::ESHandle<RPAlignmentCorrectionsData> &alignments, DetGeomDesc* &newGD);
-    void ApplyAlignments(const edm::ESHandle<DDCompactView> &ideal_ddcv, const edm::ESHandle<RPAlignmentCorrectionsData> &alignments, DDCompactView *&measured_ddcv);
+    void ApplyAlignments(const edm::ESHandle<DetGeomDesc> &idealGD, const edm::ESHandle<RPAlignmentCorrectionsData> &alignments,
+      DetGeomDesc* &newGD);
 };
 
 
@@ -85,9 +81,7 @@ TotemRPGeometryESModule::TotemRPGeometryESModule(const edm::ParameterSet &p)
 {
   verbosity = p.getUntrackedParameter<unsigned int>("verbosity", 1);  
 
-  setWhatProduced(this, &TotemRPGeometryESModule::produceMeasuredDDCV);
-  setWhatProduced(this, &TotemRPGeometryESModule::produceMeasuredGD);
-  setWhatProduced(this, &TotemRPGeometryESModule::produceMeasuredTG);
+  setWhatProduced(this, &TotemRPGeometryESModule::produceIdealGD);
 
   setWhatProduced(this, &TotemRPGeometryESModule::produceRealGD);
   setWhatProduced(this, &TotemRPGeometryESModule::produceRealTG);
@@ -121,13 +115,14 @@ void TotemRPGeometryESModule::ApplyAlignments(const ESHandle<DetGeomDesc> &ideal
     bufferNew.pop_front();
 
     // Is it sensor? If yes, apply full sensor alignments
-    if (! pD->name().name().compare(DDD_TOTEM_RP_DETECTOR_NAME))
+    if ( pD->name().name().compare( DDD_TOTEM_RP_DETECTOR_NAME) == 0
+      or pD->name().name().compare( DDD_CTPPS_DIAMONDS_DETECTOR_NAME ) == 0 )
     {
-      unsigned int decId = TotemRPDetId::rawToDecId(pD->geographicalID().rawId());
+      unsigned int plId = pD->geographicalID();
 
       if (alignments.isValid())
       {
-        const RPAlignmentCorrectionData& ac = alignments->GetFullSensorCorrection(decId);
+        const RPAlignmentCorrectionData& ac = alignments->GetFullSensorCorrection(plId);
         pD->ApplyAlignment(ac);
       }
     }
@@ -135,8 +130,8 @@ void TotemRPGeometryESModule::ApplyAlignments(const ESHandle<DetGeomDesc> &ideal
     // Is it RP box? If yes, apply RP alignments
     if (! pD->name().name().compare(DDD_TOTEM_RP_PRIMARY_VACUUM_NAME))
     {
-      unsigned int rpId = pD->copyno();
-
+      unsigned int rpId = pD->geographicalID();
+      
       if (alignments.isValid())
       {
         const RPAlignmentCorrectionData& ac = alignments->GetRPCorrection(rpId);
@@ -159,300 +154,13 @@ void TotemRPGeometryESModule::ApplyAlignments(const ESHandle<DetGeomDesc> &ideal
   }
 }
 
-
 //----------------------------------------------------------------------------------------------------
 
-// Copies ideal_ddcv to measured_ddcv, applying the alignments if any
-// WARNING: (TODO?) does not handle the "old" geometry
-class MeasuredGeometryProducer {
-    private:
-        const DDCompactView &idealCV;
-        const RPAlignmentCorrectionsData *const alignments;
-        DDLogicalPart root;
-        DDCompactView *measuredCV;
-
-        // -- Expanded view utilits ------------
-        // WTF WARNING
-        // DDExpandView's constructor sets DDRotation::StoreT to readonly
-        //
-        // Any newExpandedView() call will set this value before calling the constructor
-        // Any delExpandedView() call will the restore StoreT state to _the_last_ set value
-        static bool evRotationStoreState;
-
-        // Allocate new ExpandedView and set it to point at the LogicalPart
-        //
-        // The LogicalPart _must_ be in the CompactView
-        // Only name and ns of the LogicalPart are taken into account
-        static DDExpandedView *newExpandedView(const DDCompactView &compactView, const DDLogicalPart &part) {
-            evRotationStoreState = DDRotation::StoreT::instance().readOnly();
-            DDExpandedView *expandedView = new DDExpandedView(compactView);
-            // traverse the tree until name and ns are mached
-            const string &name = part.name().name();
-            const string &ns = part.name().ns();
-            bool noMatch = true;
-
-            noMatch = false;
-            noMatch |= expandedView->logicalPart().name().name().compare(name);
-            noMatch |= expandedView->logicalPart().name().ns().compare(ns);
-            while (noMatch) {
-                expandedView->next();
-                noMatch = false;
-                noMatch |= expandedView->logicalPart().name().name().compare(name);
-                noMatch |= expandedView->logicalPart().name().ns().compare(ns);
-            }
-            return expandedView;
-        }
-
-        // Deallocate the ExpandedView
-        //
-        // Returns NULL
-        static DDExpandedView *delExpandedView(DDExpandedView *expandedView) {
-            delete expandedView;
-            DDRotation::StoreT::instance().setReadOnly(evRotationStoreState);
-            return NULL;
-        }
-
-        // -- Transformation matrix utils ------
-
-        // Standard 4x4 tranformation matrixes are used for the alignments:
-        //
-        //  | R R R x |
-        //  | R R R y |
-        //  | R R R z |
-        //  | 0 0 0 1 |
-        //
-        // where R are parameters of rotation matrix and x,y,z are translation parametres.
-        // (Rotation and translation must be applied in this very order, as is done in CMSSW).
-        // Such matrixes can be easily used to compose the transformations, 
-        // e.g to describe transformation C: "first do A, then do B", multiply
-        //      C = B * A
-        // All tranformation matrixes are invertible.
-
-        // Creates transformation matrix according to rotation and translation (applied in this order)
-        static void translRotToTransform(const DDTranslation &translation,const DDRotationMatrix &rotation,
-                TMatrixD &transform) {
-            // set rotation
-            double values[9];
-            rotation.GetComponents(values);
-            for (int i = 0; i < 9; ++i) {
-                transform[i / 3][i % 3] = values[i];
-            }
-            // set translation
-            transform[0][3] = translation.X();
-            transform[1][3] = translation.Y();
-            transform[2][3] = translation.Z();
-            transform[3][3] = 1.;
-        }
-
-        // sets rotation and translation (applied in this order) from transformation matrix 
-        static void translRotFromTransform(DDTranslation &translation, DDRotationMatrix &rotation,
-                const TMatrixD &transform) {
-            // set rotation
-            double values[9];
-            for (int i = 0; i < 9; ++i) {
-                values[i] = transform[i / 3][i % 3];
-            }
-            rotation.SetComponents(values, values + 9);
-            // set translation
-            translation.SetXYZ(transform[0][3], transform[1][3], transform[2][3]);
-        }
-
-        // Gets global transform of given LogicalPart in given CompactView (uses ExpandedView to calculate)
-        static void getGlobalTransform(const DDLogicalPart &part, const DDCompactView &compactView, TMatrixD &transform) {
-            DDExpandedView *expandedView = newExpandedView(compactView, part);
-            translRotToTransform(expandedView->translation(), expandedView->rotation(), transform);
-            expandedView = delExpandedView(expandedView);
-        }
-
-        // -- Misc. utils ----------------------
-
-        // true if part's name maches DDD_TOTEM_RP_PRIMARY_VACUUM_NAME
-        static inline bool isRPBox(const DDLogicalPart &part) {
-            return (! part.name().name().compare(DDD_TOTEM_RP_PRIMARY_VACUUM_NAME));
-        }
-
-        // true if part's name maches DDD_TOTEM_RP_DETECTOR_NAME
-        static inline bool isDetector(const DDLogicalPart &part) {
-            return (! part.name().name().compare(DDD_TOTEM_RP_DETECTOR_NAME));
-        }
-
-        // Extracts RP id from object namespace - object must be RP_Box, or RP_Hybrid (NOT RP_Silicon_Detector)
-        static inline int getRPIdFromNamespace(const DDLogicalPart &part) {
-            int nsLength = part.name().ns().length();
-            return atoi(part.name().ns().substr(nsLength - 3, nsLength).c_str());
-        }
-
-        // Creates Detector id from RP id and Detector no
-        static inline int getDetectorId(const int rpId, const int detNo) {
-            return rpId * 10 + detNo;
-        }
-
-        // -------------------------------------
-
-        // Applies alignment (translation and rotation) to transformation matrix
-        //
-        // translation = alignmentTranslation + translation
-        // rotation    = alignmentRotation + rotation
-        static void applyCorrectionToTransform(const RPAlignmentCorrectionData &correction, TMatrixD &transform) {
-            DDTranslation translation;
-            DDRotationMatrix rotation;
-
-            translRotFromTransform(translation, rotation, transform);
-
-            translation = correction.getTranslation() + translation;
-            rotation    = correction.getRotationMatrix() * rotation;
-
-            translRotToTransform(translation, rotation, transform);
-        }
-
-        // Applies relative alignments to Detector rotation and translation
-        void applyCorrection(const DDLogicalPart &parent, const DDLogicalPart &child, const RPAlignmentCorrectionData &correction,
-                DDTranslation &translation, DDRotationMatrix &rotation, const bool useMeasuredParent = true) {
-            TMatrixD C(4,4);    // child relative transform
-            TMatrixD iP(4,4);   // ideal parent global transform
-            TMatrixD mP(4,4);   // measured parent global transform
-            TMatrixD F(4,4);    // final child transform
-
-            translRotToTransform(translation, rotation, C);
-
-            if (useMeasuredParent) 
-                getGlobalTransform(parent, *measuredCV, mP);
-            else 
-                getGlobalTransform(parent, idealCV, mP);
-            getGlobalTransform(parent, idealCV, iP);
-
-            // global final transform
-            F = iP * C;
-            applyCorrectionToTransform(correction, F);
-            // relative final transform
-            mP.Invert();
-            F = mP * F;
-
-            translRotFromTransform(translation, rotation, F);
-        }
-
-        void positionEverythingButDetectors(void) {
-            DDCompactView::graph_type::const_iterator it = idealCV.graph().begin_iter();
-            DDCompactView::graph_type::const_iterator itEnd = idealCV.graph().end_iter();
-            for (; it != itEnd; ++it) {
-                if (!isDetector(it->to())) {
-                    const DDLogicalPart from    = it->from();
-                    const DDLogicalPart to      = it->to();
-                    const int           copyNo      = it->edge()->copyno_;
-                    const DDDivision    &division   = it->edge()->division();
-                    DDTranslation       translation(it->edge()->trans());
-                    DDRotationMatrix    &rotationMatrix = *(new DDRotationMatrix(it->edge()->rot()));
-
-                    if (isRPBox(to)) {
-                        const int rpId = getRPIdFromNamespace(to);
-                        if (alignments != NULL) {
-                            const RPAlignmentCorrectionData correction = alignments->GetRPCorrection(rpId);
-                            applyCorrection(from, to, correction,
-                                    translation, rotationMatrix, false);
-                        }
-                    }
-
-                    const DDRotation rotation = DDanonymousRot(&rotationMatrix);
-                    measuredCV->position(to, from, copyNo, translation, rotation, &division);
-                }
-            }
-        }
-
-        void positionDetectors(void) {
-            DDCompactView::graph_type::const_iterator it = idealCV.graph().begin_iter();
-            DDCompactView::graph_type::const_iterator itEnd = idealCV.graph().end_iter();
-            for (; it != itEnd; ++it) {
-                if (isDetector(it->to())) {
-                    const DDLogicalPart from    = it->from();
-                    const DDLogicalPart to      = it->to();
-                    const int           copyNo      = it->edge()->copyno_;
-                    const DDDivision    &division   = it->edge()->division();
-                    DDTranslation       translation(it->edge()->trans());
-                    DDRotationMatrix    &rotationMatrix = *(new DDRotationMatrix(it->edge()->rot()));
-
-                    const int rpId  = getRPIdFromNamespace(from);
-                    const int detId = getDetectorId(rpId, copyNo);
-                    if (alignments != NULL) {
-                        const RPAlignmentCorrectionData correction = alignments->GetFullSensorCorrection(detId);
-                        applyCorrection(from, to, correction, 
-                                translation, rotationMatrix);
-                    }
-
-                    const DDRotation rotation = DDanonymousRot(&rotationMatrix);
-                    measuredCV->position(to, from, copyNo, translation, rotation, &division);
-                }
-            }
-        }
-
-    public:
-        MeasuredGeometryProducer(const edm::ESHandle<DDCompactView> &idealCV,
-                const edm::ESHandle<RPAlignmentCorrectionsData> &alignments) : idealCV(*idealCV), alignments(alignments.isValid() ? &(*alignments) : NULL) {
-            root = this->idealCV.root();
-        }
-
-        DDCompactView *&produce() {
-            // create DDCompactView for measured geometry
-            // notice that this class is not responsible for deleting this object
-            measuredCV = new DDCompactView(root);
-            // CMSSW/DetectorDescription graph interface sucks, so instead of doing a one bfs
-            // we go over the tree twice (this is needed, as final detector postions are
-            // dependent on new positions of RP units).
-            positionEverythingButDetectors();
-            positionDetectors();
-            return measuredCV;
-        }
-};
-bool MeasuredGeometryProducer::evRotationStoreState;
-
-void TotemRPGeometryESModule::ApplyAlignments(const edm::ESHandle<DDCompactView> &ideal_ddcv,
-        const edm::ESHandle<RPAlignmentCorrectionsData> &alignments, DDCompactView *&measured_ddcv)
-{
-    MeasuredGeometryProducer producer(ideal_ddcv, alignments);
-    measured_ddcv = producer.produce(); 
-    return;
-}
-
-//----------------------------------------------------------------------------------------------------
-
-auto_ptr<DDCompactView> TotemRPGeometryESModule::produceMeasuredDDCV(const VeryForwardMeasuredGeometryRecord &iRecord)
-{
-  // get the ideal DDCompactView from EventSetup
-  edm::ESHandle<DDCompactView> idealCV;
-  iRecord.getRecord<IdealGeometryRecord>().get("XMLIdealGeometryESSource_CTPPS", idealCV);
-
-  // load alignments
-  edm::ESHandle<RPAlignmentCorrectionsData> alignments;
-  try {
-    iRecord.getRecord<RPMeasuredAlignmentRecord>().get(alignments);
-  } catch (...) {}
-
-  if (alignments.isValid())
-  {
-    if (verbosity)
-    {
-      LogVerbatim("TotemRPGeometryESModule::produceMeasuredDDCV")
-        << ">> TotemRPGeometryESModule::produceMeasuredDDCV > Measured geometry: "
-        << alignments->GetRPMap().size() << " RP and "
-        << alignments->GetSensorMap().size() << " sensor alignments applied.";
-    }
-  } else {
-    if (verbosity)
-      LogVerbatim("TotemRPGeometryESModule::produceMeasuredDDCV")
-        << ">> TotemRPGeometryESModule::produceMeasuredDDCV > Measured geometry: No alignments applied.";
-  }
-
-  DDCompactView *measuredCV = NULL;
-  ApplyAlignments(idealCV, alignments, measuredCV);
-  return auto_ptr<DDCompactView>(measuredCV);
-}
-
-//----------------------------------------------------------------------------------------------------
-
-auto_ptr<DetGeomDesc> TotemRPGeometryESModule::produceMeasuredGD(const VeryForwardMeasuredGeometryRecord &iRecord)
+std::auto_ptr<DetGeomDesc> TotemRPGeometryESModule::produceIdealGD(const IdealGeometryRecord &iRecord)
 {
   // get the DDCompactView from EventSetup
   edm::ESHandle<DDCompactView> cpv;
-  iRecord.get(cpv);
+  iRecord.get("XMLIdealGeometryESSource_CTPPS", cpv);
   
   // construct the tree of DetGeomDesc
   DDDTotemRPContruction worker;
@@ -463,9 +171,9 @@ auto_ptr<DetGeomDesc> TotemRPGeometryESModule::produceMeasuredGD(const VeryForwa
 
 auto_ptr<DetGeomDesc> TotemRPGeometryESModule::produceRealGD(const VeryForwardRealGeometryRecord &iRecord)
 {
-  // get the input (= measured) GeometricalDet
-  edm::ESHandle<DetGeomDesc> measuredGD;
-  iRecord.getRecord<VeryForwardMeasuredGeometryRecord>().get(measuredGD);
+  // get the input GeometricalDet
+  edm::ESHandle<DetGeomDesc> idealGD;
+  iRecord.getRecord<IdealGeometryRecord>().get(idealGD);
 
   // load alignments
   edm::ESHandle<RPAlignmentCorrectionsData> alignments;
@@ -476,7 +184,7 @@ auto_ptr<DetGeomDesc> TotemRPGeometryESModule::produceRealGD(const VeryForwardRe
   {
     if (verbosity)
       LogVerbatim("TotemRPGeometryESModule::produceRealGD")
-        << ">> TotemRPGeometryESModule::produceRealGD > Measured geometry: "
+        << ">> TotemRPGeometryESModule::produceRealGD > Real geometry: "
         << alignments->GetRPMap().size() << " RP and "
         << alignments->GetSensorMap().size() << " sensor alignments applied.";
   } else {
@@ -486,17 +194,17 @@ auto_ptr<DetGeomDesc> TotemRPGeometryESModule::produceRealGD(const VeryForwardRe
   }
 
   DetGeomDesc* newGD = NULL;
-  ApplyAlignments(measuredGD, alignments, newGD);
-  return auto_ptr<DetGeomDesc>(newGD);
+  ApplyAlignments(idealGD, alignments, newGD);
+  return std::auto_ptr<DetGeomDesc>(newGD);
 }
 
 //----------------------------------------------------------------------------------------------------
 
 auto_ptr<DetGeomDesc> TotemRPGeometryESModule::produceMisalignedGD(const VeryForwardMisalignedGeometryRecord &iRecord)
 {
-  // get the input (= measured) GeometricalDet
-  edm::ESHandle<DetGeomDesc> measuredGD;
-  iRecord.getRecord<VeryForwardMeasuredGeometryRecord>().get(measuredGD);
+  // get the input GeometricalDet
+  edm::ESHandle<DetGeomDesc> idealGD;
+  iRecord.getRecord<IdealGeometryRecord>().get(idealGD);
 
   // load alignments
   edm::ESHandle<RPAlignmentCorrectionsData> alignments;
@@ -507,7 +215,7 @@ auto_ptr<DetGeomDesc> TotemRPGeometryESModule::produceMisalignedGD(const VeryFor
   {
     if (verbosity)
       LogVerbatim("TotemRPGeometryESModule::produceMisalignedGD")
-        << ">> TotemRPGeometryESModule::produceMisalignedGD > Measured geometry: "
+        << ">> TotemRPGeometryESModule::produceMisalignedGD > Misaligned geometry: "
         << alignments->GetRPMap().size() << " RP and "
         << alignments->GetSensorMap().size() << " sensor alignments applied.";
   } else {
@@ -517,24 +225,13 @@ auto_ptr<DetGeomDesc> TotemRPGeometryESModule::produceMisalignedGD(const VeryFor
   }
 
   DetGeomDesc* newGD = NULL;
-  ApplyAlignments(measuredGD, alignments, newGD);
-  return auto_ptr<DetGeomDesc>(newGD);
+  ApplyAlignments(idealGD, alignments, newGD);
+  return std::auto_ptr<DetGeomDesc>(newGD);
 }
 
 //----------------------------------------------------------------------------------------------------
 
-auto_ptr<TotemRPGeometry> TotemRPGeometryESModule::produceMeasuredTG(const VeryForwardMeasuredGeometryRecord &iRecord)
-{
-  edm::ESHandle<DetGeomDesc> gD;
-  iRecord.get(gD);
-  
-  std::auto_ptr<TotemRPGeometry> rpG( new TotemRPGeometry(gD.product()) );
-  return rpG;
-}
-
-//----------------------------------------------------------------------------------------------------
-
-auto_ptr<TotemRPGeometry> TotemRPGeometryESModule::produceRealTG(const VeryForwardRealGeometryRecord &iRecord)
+std::auto_ptr<TotemRPGeometry> TotemRPGeometryESModule::produceRealTG(const VeryForwardRealGeometryRecord &iRecord)
 {
   edm::ESHandle<DetGeomDesc> gD;
   iRecord.get(gD);

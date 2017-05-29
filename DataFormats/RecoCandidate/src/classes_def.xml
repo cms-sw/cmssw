@@ -61,6 +61,9 @@
 
   <class name="std::vector<reco::RecoEcalCandidate>"/>
   <class name="edm::Wrapper<std::vector<reco::RecoEcalCandidate> >"/>
+
+  <class name="edm::Wrapper<edm::RefVector<std::vector<reco::RecoEcalCandidate> > >"/>
+
   <class name="edm::Ref<std::vector<reco::RecoEcalCandidate>,reco::RecoEcalCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoEcalCandidate>,reco::RecoEcalCandidate> >"/>
   <class name="edm::RefProd<std::vector<reco::RecoEcalCandidate> >"/>
   <class name="edm::RefVector<std::vector<reco::RecoEcalCandidate>,reco::RecoEcalCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoEcalCandidate>,reco::RecoEcalCandidate> >"/>

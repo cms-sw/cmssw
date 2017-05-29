@@ -10,7 +10,7 @@
 #define RECORDS_VeryForwardRealGeometryRecord_H
 
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
-#include "Geometry/Records/interface/VeryForwardMeasuredGeometryRecord.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "boost/mpl/vector.hpp"
 
@@ -21,7 +21,7 @@
  * \brief Event setup record containing the real (actual) geometry information.
  **/
 class VeryForwardRealGeometryRecord : public edm::eventsetup::DependentRecordImplementation
-						   <VeryForwardRealGeometryRecord, boost::mpl::vector<VeryForwardMeasuredGeometryRecord, RPRealAlignmentRecord /*, ... */> >
+						   <VeryForwardRealGeometryRecord, boost::mpl::vector<IdealGeometryRecord, RPRealAlignmentRecord /*, ... */> >
 {
 };
 

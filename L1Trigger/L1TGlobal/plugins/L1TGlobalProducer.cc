@@ -400,7 +400,7 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
     }
     else{
       // Set Prescale factors to initial dummy values
-      m_prescaleSet = 1;
+      m_prescaleSet = 0;
       m_prescaleFactorsAlgoTrig = &m_initialPrescaleFactorsAlgoTrig;
       m_triggerMaskAlgoTrig = &m_initialTriggerMaskAlgoTrig;
       m_triggerMaskVetoAlgoTrig = &m_initialTriggerMaskVetoAlgoTrig;
@@ -523,22 +523,18 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
     }
     LogDebug("L1TGlobalProducer") << "HW BxCross " << bxCrossHw << std::endl;  
 
-
     // get the prescale factor from the configuration for now
-    // Prescale set indexed by zero internally, but externally indexed by 1
-    unsigned int pfAlgoSetIndex = m_prescaleSet-1;
+    // prescale set index counts from zero
+    unsigned int pfAlgoSetIndex = m_prescaleSet;
 
-    // Require that prescale set be positive
-    if( m_prescaleSet<=0 ) pfAlgoSetIndex = 0;
-
-    if( pfAlgoSetIndex > (*m_prescaleFactorsAlgoTrig).size()-1 ){
-      LogTrace("L1TGlobalProducer")
+    auto max = (*m_prescaleFactorsAlgoTrig).size()-1;
+    if (pfAlgoSetIndex > max) {
+      edm::LogWarning("L1TGlobalProducer")
 	<< "\nAttempting to access prescale algo set: " << m_prescaleSet
-	<< "\nNumber of prescale algo sets available: " << (*m_prescaleFactorsAlgoTrig).size()
+	<< "\nNumber of prescale algo sets available: 0.." << max
 	<< "Setting former to latter."
 	<< std::endl;
-
-      pfAlgoSetIndex = (*m_prescaleFactorsAlgoTrig).size()-1;
+      pfAlgoSetIndex = max;
     }
 
     const std::vector<int>& prescaleFactorsAlgoTrig = (*m_prescaleFactorsAlgoTrig).at(pfAlgoSetIndex);

@@ -17,21 +17,25 @@
  * 
  * The internal representation has the following structure:
  * \verbatim
- * |                               32 bits raw position                                 |
- * | 12 bits | 2 bits |  3 bits   |  5 bits   |  2 bits   | 4 bits |       4 bits       |
- * |  empty  | empty  | SubSystem | TOTFED ID | OptoRx ID | GOH ID | index within fiber |
- * |         |   (this part is encoded in OptoRx header)  |                             |
+ * |                   32 bits raw position                    |
+ * | 12 bits | 2 bits |  10 bits | 4 bits |       4 bits       |
+ * |  empty  | empty  |  FED ID  | GOH ID | index within fiber |
  * \endverbatim
- * According to the convention SubSystemId goes from 1 to 6, TOTFEDId from 1 to 21 and OptoRx from 1 to 3.
+ *
+ * In the old (TOTEM only) scheme, the FED ID was further split
+ * \verbatim
+ * |  3 bits   |  5 bits   |  2 bits   |
+ * | SubSystem | TOTFED ID | OptoRx ID |
+ * \endverbatim
+ * IMPORTANT: This splitting is only supported for backward compatibility and should not be used anymore.
  **/
 class TotemFramePosition
 {
   public:
-    /// the official enumeration of DAQ subsystems
-    enum SubSystemType {ssNone=0, ssT1=1, ssT2=2, ssRP=3, ssTrigger=4, ssTTC=5, ssFEC=6};
-
     static const unsigned int offsetIdxInFiber = 0, maskIdxInFiber = 0xF;
     static const unsigned int offsetGOHId = 4, maskGOHId = 0xF;
+    static const unsigned int offsetFEDId = 8, maskFEDId = 0x3FF;
+
     static const unsigned int offsetOptoRxId = 8, maskOptoRxId = 0x3;
     static const unsigned int offsetTOTFEDId = 10, maskTOTFEDId = 0x1F;
     static const unsigned int offsetSubSystemId = 15, maskSubSystemId = 0x7;
@@ -51,32 +55,43 @@ class TotemFramePosition
     {
     }
 
-    unsigned short getSubSystemId() const { return (rawPosition >> offsetSubSystemId) & maskSubSystemId; }
-    unsigned short getTOTFEDId() const    { return (rawPosition >> offsetTOTFEDId) & maskTOTFEDId;}
-    unsigned short getOptoRxId() const    { return (rawPosition >> offsetOptoRxId) & maskOptoRxId; }
+    /// recomended getters and setters
+
+    unsigned short getFEDId() const
+    {
+      return (rawPosition >> offsetFEDId) & maskFEDId;
+    }
+
+    void setFEDId(unsigned short v)
+    { v &= maskFEDId; rawPosition &= 0xFFFFFFFF - (maskFEDId << offsetFEDId); rawPosition |= (v << offsetFEDId); }
+
     unsigned short getGOHId() const       { return (rawPosition >> offsetGOHId) & maskGOHId; }
-    unsigned short getIdxInFiber() const  { return (rawPosition >> offsetIdxInFiber) & maskIdxInFiber; }
-    
-    void setSubSystemId(unsigned short v)
-    { v &= maskSubSystemId; rawPosition &= 0xFFFFFFFF - (maskSubSystemId << offsetSubSystemId); rawPosition |= (v << offsetSubSystemId); }
-
-    void setTOTFEDId(unsigned short v)
-    { v &= maskTOTFEDId; rawPosition &= 0xFFFFFFFF - (maskTOTFEDId << offsetTOTFEDId); rawPosition |= (v << offsetTOTFEDId); }
-
-    void setOptoRxId(unsigned short v)
-    { v &= maskOptoRxId; rawPosition &= 0xFFFFFFFF - (maskOptoRxId << offsetOptoRxId); rawPosition |= (v << offsetOptoRxId); }
 
     void setGOHId(unsigned short v)
     { v &= maskGOHId; rawPosition &= 0xFFFFFFFF - (maskGOHId << offsetGOHId); rawPosition |= (v << offsetGOHId); }
 
+    unsigned short getIdxInFiber() const  { return (rawPosition >> offsetIdxInFiber) & maskIdxInFiber; }
+    
     void setIdxInFiber(unsigned short v)
     { v &= maskIdxInFiber; rawPosition &= 0xFFFFFFFF - (maskIdxInFiber << offsetIdxInFiber); rawPosition |= (v << offsetIdxInFiber); }
 
-    void setAllIDs(unsigned short SubSystemId, unsigned short TOTFEDId, unsigned short OptoRxId, unsigned short GOHId, unsigned short IdxInFiber)
-    {
-      rawPosition = (IdxInFiber<<offsetIdxInFiber | GOHId<<offsetGOHId | OptoRxId<<offsetOptoRxId
-        | TOTFEDId<<offsetTOTFEDId | SubSystemId<<offsetSubSystemId);
-    }
+
+    /// the getters and setters below are deprecated
+
+    unsigned short getSubSystemId() const { return (rawPosition >> offsetSubSystemId) & maskSubSystemId; }
+ 
+    void setSubSystemId(unsigned short v)
+    { v &= maskSubSystemId; rawPosition &= 0xFFFFFFFF - (maskSubSystemId << offsetSubSystemId); rawPosition |= (v << offsetSubSystemId); }
+
+    unsigned short getTOTFEDId() const    { return (rawPosition >> offsetTOTFEDId) & maskTOTFEDId;}
+
+    void setTOTFEDId(unsigned short v)
+    { v &= maskTOTFEDId; rawPosition &= 0xFFFFFFFF - (maskTOTFEDId << offsetTOTFEDId); rawPosition |= (v << offsetTOTFEDId); }
+
+    unsigned short getOptoRxId() const    { return (rawPosition >> offsetOptoRxId) & maskOptoRxId; }
+
+    void setOptoRxId(unsigned short v)
+    { v &= maskOptoRxId; rawPosition &= 0xFFFFFFFF - (maskOptoRxId << offsetOptoRxId); rawPosition |= (v << offsetOptoRxId); }
 
     /// don't use this method unless you have a good reason
     unsigned int getRawPosition() const
@@ -84,7 +99,6 @@ class TotemFramePosition
       return rawPosition;
     }
 
-  public:
     bool operator < (const TotemFramePosition &pos) const
     {
       return (rawPosition < pos.rawPosition);
@@ -100,15 +114,6 @@ class TotemFramePosition
     /// GOH ID, index within fiber in this order
     friend std::ostream& operator << (std::ostream& s, const TotemFramePosition &fp);
     
-    /// XML sub-system tags
-    static const std::string tagSSNone; 
-    static const std::string tagSSTrigger; 
-    static const std::string tagSST1; 
-    static const std::string tagSST2;
-    static const std::string tagSSRP;
-    static const std::string tagSSTTC;
-    static const std::string tagSSFEC;
-
     /// prints XML formatted DAQ channel to stdout
     void printXML();
 
@@ -120,12 +125,7 @@ class TotemFramePosition
     /// returns true if all attributes have been set
     static bool checkXMLAttributeFlag(unsigned char flag)
     {
-      return ((flag == 0x1f) | (flag == 0x20) | (flag == 0x40));
-    }
-
-    unsigned short getFullOptoRxId() const
-    {
-      return (rawPosition >> 8) & 0xFFF;
+      return (flag == 0x1f);
     }
 
   protected:

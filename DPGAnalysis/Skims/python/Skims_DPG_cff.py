@@ -5,6 +5,11 @@ skimContent = FEVTEventContent.clone()
 skimContent.outputCommands.append("drop *_MEtoEDMConverter_*_*")
 skimContent.outputCommands.append("drop *_*_*_SKIM")
 
+from Configuration.EventContent.EventContent_cff import RAWMINIAODEventContent
+skimMiniAODContent = RAWMINIAODEventContent.clone()
+skimMiniAODContent.outputCommands.append("drop *_MEtoEDMConverter_*_*")
+skimMiniAODContent.outputCommands.append("drop *_*_*_SKIM")
+
 ###### HCAL DPG Skims #########
 
 from DPGAnalysis.Skims.SinglePhotonJetPlusHOFilter_cff import *
@@ -423,9 +428,9 @@ SKIMStreamMuTau = cms.FilteredStream(
     responsible = 'Tau POG',
     name = 'MuTau',
     paths = ( MuTauPath ),
-    content = skimContent.outputCommands,
+    content = skimMiniAODContent.outputCommands,
     selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('RAW-RECO')
+    dataTier = cms.untracked.string('USER')
     )
 
 ##########################
