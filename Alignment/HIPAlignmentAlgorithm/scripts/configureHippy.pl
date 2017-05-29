@@ -47,12 +47,6 @@ foreach $data1 ( @dataFileInput1 ) {
    chomp $data1;
 
    my @dataspecs = split(',', $data1);
-   $data1 =~ m/\,/;
-   $datafile = $`;
-   $flag1 = $';
-   $flag1 =~ m/$/;
-   $flag = $`;
-   $flagopts = $';
    $datafile = $dataspecs[0];
    $flag = $dataspecs[1];
    $flagopts = "NOOPTS";
