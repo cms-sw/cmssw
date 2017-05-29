@@ -84,11 +84,13 @@ void L1TEfficiencyPlotHandler::book(DQMStore::IBooker &ibooker, DQMStore::IGette
 
   ibooker.setCurrentFolder(outputDir_);
 
-  std::vector<float> Bins;
-  for(Int_t i = 1 ; i <= nBinsNum ; ++i) Bins.push_back(numH->GetBinLowEdge(i));
-  Bins.push_back(numH->GetBinLowEdge(nBinsNum)+numH->GetBinWidth(nBinsNum));
-  float* BinArray = &(Bins[0]);
-  h_efficiency_ = ibooker.book1D(plotName_, plotName_, nBinsNum, BinArray);
+  std::vector<float> bins;
+  for(int i = 1 ; i <= nBinsNum ; ++i) {
+    bins.push_back(numH->GetBinLowEdge(i));
+  }
+  bins.push_back(numH->GetBinLowEdge(nBinsNum)+numH->GetBinWidth(nBinsNum));
+  float* binArray = &(bins[0]);
+  h_efficiency_ = ibooker.book1D(plotName_, plotName_, nBinsNum, binArray);
 
 }
 
