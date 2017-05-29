@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 #this is the config to define t&p based DQM offline monitoring for e/gamma
 
-etBinsStd=cms.vdouble(5,10,15,20,25,30,35,40,45,50,60,80,100,150,200,250,300,350,400)
+etBinsStd=cms.vdouble(5,10,12.5,15,17.5,20,22.5,25,30,35,40,45,50,60,80,100,150,200,250,300,350,400)
 scEtaBinsStd = cms.vdouble(-2.5,-2.4,-2.3,-2.2,-2.1,-2.0,-1.9,-1.8,-1.7,-1.566,-1.4442,-1.3,-1.2,-1.1,-1.0,-0.9,-0.8,-0.7,-0.6,-0.5,-0.4,-0.3,-0.2,-0.1,0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1,1.1,1.2,1.3,1.4442,1.566,1.7,1.8,1.9,2.0,2.1,2.2,2.3,2.4,2.5)
 phiBinsStd = cms.vdouble(-3.32,-2.97,-2.62,-2.27,-1.92,-1.57,-1.22,-0.87,-0.52,-0.18,0.18,0.52,0.87,1.22,1.57,1.92,2.27,2.62,2.97,3.32)
 
@@ -39,17 +39,32 @@ hcalPhi17Cut = cms.PSet(
 tagAndProbeConfigEle27WPTight = cms.PSet(
     trigEvent = cms.InputTag("hltTriggerSummaryAOD","","HLT"),
     objColl = cms.InputTag("gedGsfElectrons"),
-    trigResults = cms.InputTag("TriggerResults","","HLT"),
-    tagVIDCuts = cms.InputTag("egHLTDQMSelection"),
-    probeVIDCuts = cms.InputTag("egHLTDQMSelection"),
-    tagTrigger = cms.string("HLT_Ele27_WPTight_Gsf_v*"),
-    tagFilters = cms.vstring("hltEle27WPTightGsfTrackIsoFilter"),
+    tagVIDCuts = cms.InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-Summer16-80X-V1-tight"),
+    probeVIDCuts = cms.InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-Summer16-80X-V1-tight"),
+    sampleTrigRequirements = cms.PSet(
+        hltInputTag = cms.InputTag("TriggerResults","","HLT"),
+        hltPaths = cms.vstring("HLT_Ele27_WPTight_Gsf_v*","HLT_Ele32_WPTight_Gsf_v*","HLT_Ele35_WPTight_Gsf_v*"
+                               "HLT_Ele38_WPTight_Gsf_v*",
+                               "HLT_Ele27_WPTight_Gsf_L1DoubleEG_v*","HLT_Ele32_WPTight_Gsf_L1DoubleEG_v*",
+                               )
+        ),
+    #it is intended that these are the filters of the triggers listed for sampleTrigRequirements
+    tagFilters = cms.vstring("hltEle27WPTightGsfTrackIsoFilter",
+                             "hltEle32noerWPTightGsfTrackIsoFilter"
+                             "hltEle35noerWPTightGsfTrackIsoFilter"
+                             "hltEle38noerWPTightGsfTrackIsoFilter"
+                             "hltEle27L1DoubleEGWPTightGsfTrackIsoFilter",
+                             "hltEle32L1DoubleEGWPTightGsfTrackIsoFilter" ),
+    tagFiltersORed = cms.bool(True),
     tagRangeCuts = cms.VPSet(ecalBarrelEtaCut),
     probeFilters = cms.vstring(),
+    probeFiltersORed = cms.bool(False),
     probeRangeCuts = cms.VPSet(ecalBarrelAndEndcapEtaCut),
     minMass = cms.double(70.0),
     maxMass = cms.double(110.0),
     requireOpSign = cms.bool(False),
+  
+    
     ) 
 
 
@@ -113,15 +128,6 @@ egammaStdHistConfigs = cms.VPSet(
     
     )
 
-egammaTestFiltersToMonitor = cms.VPSet(
-    cms.PSet(
-        folderName = cms.string("HLT/EGTagAndProbeEffs/HLT_Ele5_WPLoose_Gsf"),
-        rangeCuts = cms.VPSet(etRangeCut.clone(allowedRanges=cms.vstring("5:99999")),),
-        filterName = cms.string("hltEle5CaloIdLGsfTrkIdVLDPhiFilter"),
-        histTitle = cms.string("hltEle5CaloIdLGsfTrkIdVLDPhiFilter"),
-        tagExtraFilter = cms.string(""),
-        ),
-    )
 egammaStdFiltersToMonitor= cms.VPSet(
     cms.PSet(
         folderName = cms.string("HLT/EGTagAndProbeEffs/HLT_DoubleEle33_CaloIdL_MW"),
@@ -216,6 +222,13 @@ egammaStdFiltersToMonitor= cms.VPSet(
         tagExtraFilter = cms.string(""),
         ),
     cms.PSet(
+        folderName = cms.string("HLT/EGTagAndProbeEffs/HLT_Ele35_WPTight_Gsf"),
+        rangeCuts = cms.VPSet(etRangeCut.clone(allowedRanges=cms.vstring("42:99999")),),
+        filterName = cms.string("hltEle35noerWPTightGsfTrackIsoFilter"),
+        histTitle = cms.string(""),
+        tagExtraFilter = cms.string(""),
+        ),
+    cms.PSet(
         folderName = cms.string("HLT/EGTagAndProbeEffs/HLT_Ele38_WPTight_Gsf"),
         rangeCuts = cms.VPSet(etRangeCut.clone(allowedRanges=cms.vstring("42:99999")),),
         filterName = cms.string("hltEle38noerWPTightGsfTrackIsoFilter"),
@@ -223,9 +236,16 @@ egammaStdFiltersToMonitor= cms.VPSet(
         tagExtraFilter = cms.string(""),
         ),
     cms.PSet(
-        folderName = cms.string("HLT/EGTagAndProbeEffs/HLT_Ele40_WPTight_Gsf"),
-        rangeCuts = cms.VPSet(etRangeCut.clone(allowedRanges=cms.vstring("45:99999")),),
-        filterName = cms.string("hltEle40noerWPTightGsfTrackIsoFilter"),
+        folderName = cms.string("HLT/EGTagAndProbeEffs/HLT_Ele27_WPTight_Gsf_L1DoubleEG"),
+        rangeCuts = cms.VPSet(etRangeCut.clone(allowedRanges=cms.vstring("30:99999")),),
+        filterName = cms.string("hltEle27L1DoubleEGWPTightGsfTrackIsoFilter"),
+        histTitle = cms.string(""),
+        tagExtraFilter = cms.string(""),
+        ),
+    cms.PSet(
+        folderName = cms.string("HLT/EGTagAndProbeEffs/HLT_Ele32_WPTight_Gsf_L1DoubleEG"),
+        rangeCuts = cms.VPSet(etRangeCut.clone(allowedRanges=cms.vstring("35:99999")),),
+        filterName = cms.string("hltEle32L1DoubleEGWPTightGsfTrackIsoFilter"),
         histTitle = cms.string(""),
         tagExtraFilter = cms.string(""),
         ),
@@ -283,7 +303,7 @@ egammaStdFiltersToMonitor= cms.VPSet(
         rangeCuts = cms.VPSet(etRangeCut.clone(allowedRanges=cms.vstring("220:99999")),),
         filterName = cms.string("hltEG200HEFilter"),
         histTitle = cms.string(""),
-         tagExtraFilter = cms.string(""),
+        tagExtraFilter = cms.string(""),
         ), 
     cms.PSet(
         folderName = cms.string("HLT/EGTagAndProbeEffs/HLT_CaloJet500"),
@@ -309,28 +329,37 @@ egHLTDQMOfflineTnPSource = cms.EDAnalyzer("HLTEleTagAndProbeOfflineSource",
         cms.PSet( 
             tagAndProbeConfigEle27WPTight,
             histConfigs = egammaStdHistConfigs,
-            baseHistName = cms.string("ele27Tag_"),
+            baseHistName = cms.string("eleWPTightTag_"),
             filterConfigs = egammaStdFiltersToMonitor,
         ),
         cms.PSet(
             tagAndProbeConfigEle27WPTightHEM17,
             histConfigs = egammaStdHistConfigs,
-            baseHistName = cms.string("ele27Tag_HEM17_"),
+            baseHistName = cms.string("eleWPTightTag-HEM17_"),
             filterConfigs = egammaStdFiltersToMonitor,
         ),
         cms.PSet(
             tagAndProbeConfigEle27WPTightHEP17,
             histConfigs = egammaStdHistConfigs,
-            baseHistName = cms.string("ele27Tag_HEP17_"),
+            baseHistName = cms.string("eleWPTightTag-HEP17_"),
             filterConfigs = egammaStdFiltersToMonitor,
         ),
            
         )
                                          )
 
-#will be replaced by  VID asap
-egHLTDQMSelection = cms.EDProducer("HLTDQMGsfEleSelector",
-                                   objs=cms.InputTag("gedGsfElectrons"),
-                                   selection=cms.string("et>5 && hcalOverEcal<0.298 && full5x5_sigmaIetaIeta<0.011 && abs(deltaEtaSeedClusterTrackAtVtx)<0.00477 && abs(deltaPhiSuperClusterTrackAtVtx)<0.222")
-                                   )
+from RecoEgamma.ElectronIdentification.egmGsfElectronIDs_cff import egmGsfElectronIDs
 
+egmGsfElectronIDsForDQM = egmGsfElectronIDs.clone()
+egmGsfElectronIDsForDQM.physicsObjectsIDs = cms.VPSet()
+egmGsfElectronIDsForDQM.physicsObjectSrc == cms.InputTag('gedGsfElectrons')
+#note: be careful here to when selecting new ids that the vid tools dont do extra setup for them
+#for example the HEEP cuts need an extra producer which vid tools automatically handles
+from PhysicsTools.SelectorUtils.tools.vid_id_tools import setupVIDSelection
+my_id_modules = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Summer16_80X_V1_cff']
+for id_module_name in my_id_modules: 
+    idmod= __import__(id_module_name, globals(), locals(), ['idName','cutFlow'])
+    for name in dir(idmod):
+        item = getattr(idmod,name)
+        if hasattr(item,'idName') and hasattr(item,'cutFlow'):
+            setupVIDSelection(egmGsfElectronIDsForDQM,item)
