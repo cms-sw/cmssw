@@ -1,6 +1,7 @@
 import Alignment.CommonAlignment.tools.trackselectionRefitting as TrackRefitterSequencer
 
-if "momconstr" in strflaglower:
+strTBDConstrainer=None
+if "momconstr" in strflagoptslower:
   process.load("RecoTracker.TrackProducer.TwoBodyDecayMomConstraintProducer_cff")
   process.TwoBodyDecayMomConstraint.src = "AlignmentTrackSelector"
   process.TwoBodyDecayMomConstraint.primaryMass = cms.double(9.46)
@@ -9,21 +10,9 @@ if "momconstr" in strflaglower:
   process.TwoBodyDecayMomConstraint.rescaleError = cms.double(1.0)
   process.TwoBodyDecayMomConstraint.chi2Cut = cms.double(99999.)
   #process.TwoBodyDecayMomConstraint.EstimatorParameters.RobustificationConstant = cms.double(1.0)
+  strTBDConstrainer="TwoBodyDecayMomConstraint,momentum"
 
-  process.TrackRefitterSequence = TrackRefitterSequencer.getSequence(
-    process,
-    "ALCARECOTkAlUpsilonMuMu",
-    TTRHBuilder = "WithAngleAndTemplate",
-    usePixelQualityFlag = None, # Keep default behavior ("WithAngleAndTemplate" -> True, "WithTrackAngle" -> False)
-    openMassWindow = False,
-    cosmicsDecoMode = False,
-    cosmicsZeroTesla = False,
-    momentumConstraint = "TwoBodyDecayMomConstraint,momentum", # Should be a momentum constraint object
-    cosmicTrackSplitting = False,
-    use_d0cut = True
-    )
-
-elif "full" in strflaglower:
+elif "fullconstr" in strflagoptslower:
   process.load("RecoTracker.TrackProducer.TwoBodyDecayConstraintProducer_cff")
   process.TwoBodyDecayConstraint.src = "AlignmentTrackSelector"
   process.TwoBodyDecayConstraint.primaryMass = cms.double(9.46)
@@ -32,39 +21,26 @@ elif "full" in strflaglower:
   process.TwoBodyDecayConstraint.rescaleError = cms.double(1.0)
   process.TwoBodyDecayConstraint.chi2Cut = cms.double(99999.)
   #process.TwoBodyDecayConstraint.EstimatorParameters.RobustificationConstant = cms.double(1.0)
+  strTBDConstrainer="TwoBodyDecayConstraint,trackParameters"
 
-  process.TrackRefitterSequence = TrackRefitterSequencer.getSequence(
-    process,
-    "ALCARECOTkAlUpsilonMuMu",
-    TTRHBuilder = "WithAngleAndTemplate",
-    usePixelQualityFlag = None, # Keep default behavior ("WithAngleAndTemplate" -> True, "WithTrackAngle" -> False)
-    openMassWindow = False,
-    cosmicsDecoMode = False,
-    cosmicsZeroTesla = False,
-    momentumConstraint = "TwoBodyDecayConstraint,trackParameters", # Should be a momentum constraint object
-    cosmicTrackSplitting = False,
-    use_d0cut = True
-    )
-
-else:
-  process.TrackRefitterSequence = TrackRefitterSequencer.getSequence(
-    process,
-    "ALCARECOTkAlUpsilonMuMu",
-    TTRHBuilder = "WithAngleAndTemplate",
-    usePixelQualityFlag = None, # Keep default behavior ("WithAngleAndTemplate" -> True, "WithTrackAngle" -> False)
-    openMassWindow = False,
-    cosmicsDecoMode = False,
-    cosmicsZeroTesla = False,
-    momentumConstraint = None, # Should be a momentum constraint object
-    cosmicTrackSplitting = False,
-    use_d0cut = True
-    )
+process.TrackRefitterSequence = TrackRefitterSequencer.getSequence(
+  process,
+  "ALCARECOTkAlUpsilonMuMu",
+  TTRHBuilder = strTTRHBuilder,
+  usePixelQualityFlag = None, # Keep default behavior ("WithAngleAndTemplate" -> True, "WithTrackAngle" -> False)
+  openMassWindow = False,
+  cosmicsDecoMode = False,
+  cosmicsZeroTesla = False,
+  momentumConstraint = strTBDConstrainer, # Should be a momentum constraint object
+  cosmicTrackSplitting = False,
+  use_d0cut = True
+  )
 
 # Override TrackRefitterSequencer defaults
 process.AlignmentTrackSelector.pMin    = 0.0
-process.AlignmentTrackSelector.ptMin   = 4.0
-process.AlignmentTrackSelector.etaMin  = -2.5
-process.AlignmentTrackSelector.etaMax  = 2.5
+process.AlignmentTrackSelector.ptMin   = 3.0
+process.AlignmentTrackSelector.etaMin  = -3.0
+process.AlignmentTrackSelector.etaMax  = 3.0
 process.AlignmentTrackSelector.nHitMin = 4
 process.AlignmentTrackSelector.TwoBodyDecaySelector.daughterMass = 0.105658
 process.AlignmentTrackSelector.TwoBodyDecaySelector.minXMass = 9.2

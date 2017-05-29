@@ -1,13 +1,13 @@
 import Alignment.CommonAlignment.tools.trackselectionRefitting as TrackRefitterSequencer
 
-decoMode = ("deco" in strflaglower)
-isZeroTesla = ("0T" in strflaglower)
-useCosTrSpl = ("TrSpl" in strflaglower)
+decoMode = ("deco" in strflagoptslower)
+isZeroTesla = ("0t" in strflagoptslower or "zerotesla" in strflagoptslower)
+useCosTrSpl = ("trspl" in strflagoptslower or "tracksplitting" in strflagoptslower)
 
 process.TrackRefitterSequence = TrackRefitterSequencer.getSequence(
   process,
   "ALCARECOTkAlCosmicsInCollisions",
-  TTRHBuilder = "WithAngleAndTemplate",
+  TTRHBuilder = strTTRHBuilder,
   usePixelQualityFlag = None, # Keep default behavior ("WithAngleAndTemplate" -> True, "WithTrackAngle" -> False)
   openMassWindow = False,
   cosmicsDecoMode = decoMode,
