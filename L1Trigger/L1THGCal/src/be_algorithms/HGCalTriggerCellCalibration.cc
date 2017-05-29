@@ -40,11 +40,8 @@ void HGCalTriggerCellCalibration::calibrateInMipT(l1t::HGCalTriggerCell& trgCell
         edm::LogWarning("DataNotFound") << "WARNING: the BH trgCells are not yet implemented";
     }
 
-    /* correct the charge amplitude for the sensor thickness */
+    /* compute the transverse-mip */
     double trgCellMipP = amplitude;
-    if( thickCorr_.at( cellThickness-1 ) > 0 ){
-        trgCellMipP = trgCellMipP / thickCorr_.at( cellThickness-1 ); 
-    }
      
     double trgCellMipPt = trgCellMipP/cosh( trgCell.eta() ); 
 
@@ -53,7 +50,7 @@ void HGCalTriggerCellCalibration::calibrateInMipT(l1t::HGCalTriggerCell& trgCell
 } 
 
 
-void HGCalTriggerCellCalibration::calibrateMipTinGeV(l1t::HGCalTriggerCell& trgCell )
+void HGCalTriggerCellCalibration::calibrateMipTinGeV(l1t::HGCalTriggerCell& trgCell, int cellThickness )
 {
     const double MevToGeV(0.001);
 
@@ -68,16 +65,21 @@ void HGCalTriggerCellCalibration::calibrateMipTinGeV(l1t::HGCalTriggerCell& trgC
             trgCellLayer = trgCellLayer + 28;
     }
    
-    //weight the amplitude by the absorber coefficient in MeV/mip + bring it in GeV
+    /* weight the amplitude by the absorber coefficient in MeV/mip + bring it in GeV */
     double trgCellE = mipP * dEdX_weights_.at(trgCellLayer) * MevToGeV;
 
-    //assign the new energy to the four-vector of the trigger cell
+    /* correct for the cell-thickness */
+    if( thickCorr_.at( cellThickness-1 ) > 0 ){
+        trgCellE = trgCellE / thickCorr_.at( cellThickness-1 ); 
+    }
+
+    /* assign the new energy to the four-vector of the trigger cell */
     math::PtEtaPhiMLorentzVector calibP4(trgCellE/cosh( trgCell.eta() ), 
                                          trgCell.eta(), 
                                          trgCell.phi(), 
                                          trgCell.p4().M() );
     
-    // overwriting the 4p with the calibrated 4p     
+    /* overwriting the 4p with the calibrated 4p */     
     trgCell.setP4( calibP4 );
 
 }
@@ -89,7 +91,7 @@ void HGCalTriggerCellCalibration::calibrateInGeV(l1t::HGCalTriggerCell& trgCell,
     calibrateInMipT(trgCell, cellThickness);
 
     /* calibrate from mip count to GeV */
-    calibrateMipTinGeV(trgCell);
+    calibrateMipTinGeV(trgCell, cellThickness);
 
 }
  

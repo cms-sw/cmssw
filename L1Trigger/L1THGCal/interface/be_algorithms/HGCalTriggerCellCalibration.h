@@ -20,7 +20,7 @@ public:
   
     HGCalTriggerCellCalibration(const edm::ParameterSet &conf);    
     void calibrateInMipT(l1t::HGCalTriggerCell&, int cellThickness);
-    void calibrateMipTinGeV(l1t::HGCalTriggerCell&); 
+    void calibrateMipTinGeV(l1t::HGCalTriggerCell&, int cellThickness); 
     void calibrateInGeV(l1t::HGCalTriggerCell&, int cellThickness); 
     void print();
 
