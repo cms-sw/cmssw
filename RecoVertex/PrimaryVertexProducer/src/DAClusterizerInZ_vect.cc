@@ -193,7 +193,7 @@ double DAClusterizerInZ_vect::update(double beta, track_t & gtracks,
     if (!useRho0)
       sumpi += gtracks._pi[itrack];
     
-    if (gtracks._Z_sum[itrack] > 0) {
+    if (gtracks._Z_sum[itrack] > 1.e-100) {
       kernel_calc_normalization(itrack, gtracks, gvertices);
     }
   }
