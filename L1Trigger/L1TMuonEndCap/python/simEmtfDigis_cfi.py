@@ -99,7 +99,7 @@ simEmtfDigisMC = cms.EDProducer("L1TMuonEndCapTrackProducer",
         Bug9BitDPhi     = cms.bool(False),
         BugMode7CLCT    = cms.bool(False),
         BugNegPt        = cms.bool(False),
-        BugGMTPhi       = cms.bool(True),
+        BugGMTPhi       = cms.bool(False),
     ),
 
 )

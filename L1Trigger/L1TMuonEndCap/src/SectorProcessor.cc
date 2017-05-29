@@ -88,8 +88,12 @@ void SectorProcessor::configure_by_fw_version(unsigned fw_version) {
   // For now, no switches later than FW version 47864 (end-of-year 2016)
   // Beggining in late 2016, "fw_version" in O2O populated with timestamp, rather than FW version
   // tm fw_time = gmtime(fw_version);  (See https://linux.die.net/man/3/gmtime)
-  if (fw_version > 50000)
+  if (fw_version >= 50000) {
+    // Default settings for 2017
+    fixME11Edges_ = true;
+    bugGMTPhi_    = false;
     return;
+  }
 
   // ___________________________________________________________________________
   // Versions
@@ -185,9 +189,13 @@ void SectorProcessor::configure_by_fw_version(unsigned fw_version) {
 
   // ___________________________________________________________________________
   // Other settings
-  useNewZones_        = false;
-  fixME11Edges_       = false;
-  bugGMTPhi_          = true;
+  if (fw_version < 50000) {
+    // Default settings for 2016
+    useNewZones_        = false;
+    fixME11Edges_       = false;
+    bugGMTPhi_          = true;
+  }
+
 }
 
 void SectorProcessor::process(
