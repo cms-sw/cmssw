@@ -56,7 +56,7 @@ def setupAllVIDIdsInModule(process,id_module_name,setupFunction,patProducer=None
             setupFunction(process,item,patProducer,addUserData,task)
 
 # Supported data formats defined via "enum"
-from PhysicsTools.SelectorUtils.tools.auxiliary_cff import DataFormat
+from PhysicsTools.SelectorUtils.tools.DataFormat import DataFormat
 
 ####
 # Electrons

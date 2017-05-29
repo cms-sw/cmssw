@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from PhysicsTools.SelectorUtils.tools.auxiliary_cff import DataFormat
+from PhysicsTools.SelectorUtils.tools.DataFormat import DataFormat
 
 def loadEgmIdSequence(process, dataFormat):
     process.load("RecoEgamma.PhotonIdentification.egmPhotonIDs_cfi")
