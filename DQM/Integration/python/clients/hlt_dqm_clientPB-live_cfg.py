@@ -48,9 +48,9 @@ process.psColumnVsLumi = process.dqmCorrelationClient.clone(
       xminX  = cms.double(    0.),
       xmaxX  = cms.double(20000.),
       doYaxis = cms.bool( False ),
-      nbinsY = cms.int32 (   8),
+      nbinsY = cms.int32 (   20),
       xminY  = cms.double(   0.),
-      xmaxY  = cms.double(   8.),
+      xmaxY  = cms.double(   20.),
    ),
    me1 = cms.PSet(
       folder   = cms.string("HLT/LumiMonitoring"),
