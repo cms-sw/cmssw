@@ -221,6 +221,10 @@ void compHwEmu (
   TH1D* hwMPSumEtx = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/mpsummetx/et");
   TH1D* emMPSumEtx = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/mpsummetx/et");
 
+  // ETx Sat
+  TH1D* hwMPSumEtxSat = (TH1D*) new TH1D(*hwMPSumEtx);
+  TH1D* emMPSumEtxSat = (TH1D*) new TH1D(*emMPSumEtx);
+
   // ETxHF
   TH1D* hwMPSumEtxHF = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/mpsummetxhf/et");
   TH1D* emMPSumEtxHF = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/mpsummetxhf/et");
@@ -228,6 +232,10 @@ void compHwEmu (
   // ETy
   TH1D* hwMPSumEty = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/mpsummety/et");
   TH1D* emMPSumEty = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/mpsummety/et");
+
+  // ETy Sat
+  TH1D* hwMPSumEtySat = (TH1D*) new TH1D(*hwMPSumEty);
+  TH1D* emMPSumEtySat = (TH1D*) new TH1D(*emMPSumEty);
 
   // ETyHF
   TH1D* hwMPSumEtyHF = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/mpsummetyhf/et");
@@ -553,7 +561,7 @@ void compHwEmu (
     );
 
   create_plot(
-    hwMPSumEtx, emMPSumEtx, runNo, dataset,
+    hwMPSumEtxSat, emMPSumEtxSat, runNo, dataset,
     "Sum iE_{T,x}", "MPSums/MPSumEtxSat.pdf", 1000, 13, -2200000000, 2200000000
     );
 
@@ -570,7 +578,7 @@ void compHwEmu (
     );
 
    create_plot(
-    hwMPSumEty, emMPSumEty, runNo, dataset,
+    hwMPSumEtySat, emMPSumEtySat, runNo, dataset,
     "Sum iE_{T,y}", "MPSums/MPSumEtySat.pdf", 1000, 13, -2200000000, 2200000000
     );
 
