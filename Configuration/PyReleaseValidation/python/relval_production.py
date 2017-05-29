@@ -17,6 +17,10 @@ workflows[1003]=['', ['RunMinBias2012A','RECODDQM','HARVESTDDQM']]
 workflows[1004] = [ '',['RunHI2011','TIER0EXPHI','ALCAEXPHI','ALCAHARVD1HI','ALCAHARVD2HI','ALCAHARVD3HI','ALCAHARVD5HI']]
 
 workflows[1010] =  ['',['TestEnableEcalHCAL2016H','TIER0EXPTE', 'ALCAEXPTE', 'ALCAHARVDTE']]
+workflows[1020] =  ['',['AlCaLumiPixels2016H','TIER0PROMPTLP']]
+
+
+
 ## MC production test
 #workflows[1100] = [ '',[]]
 

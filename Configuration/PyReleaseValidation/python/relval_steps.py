@@ -58,13 +58,15 @@ steps['HighMet2011A']={'INPUT':InputInfo(dataSet='/Jet/Run2011A-HighMET-08Nov201
 
 steps['RunCosmics2011A']={'INPUT':InputInfo(dataSet='/Cosmics/Run2011A-v1/RAW',label='cos2011A',run=[160960],events=100000,location='STD')}
 Run2011A=[165121]
-Run2016H=[281014, 281040, 281110, 281007]
+Run2016HTE=[281014, 281040, 281110, 281007]
+Run2016HALP=[283383]
 steps['RunMinBias2011A']={'INPUT':InputInfo(dataSet='/MinimumBias/Run2011A-v1/RAW',label='mb2011A',run=Run2011A,events=100000,location='STD')}
 steps['RunMu2011A']={'INPUT':InputInfo(dataSet='/SingleMu/Run2011A-v1/RAW',label='mu2011A',run=Run2011A,events=100000)}
 steps['RunElectron2011A']={'INPUT':InputInfo(dataSet='/SingleElectron/Run2011A-v1/RAW',label='electron2011A',run=Run2011A,events=100000)}
 steps['RunPhoton2011A']={'INPUT':InputInfo(dataSet='/Photon/Run2011A-v1/RAW',label='photon2011A',run=Run2011A,events=100000)}
 steps['RunJet2011A']={'INPUT':InputInfo(dataSet='/Jet/Run2011A-v1/RAW',label='jet2011A',run=Run2011A,events=100000)}
-steps['TestEnableEcalHCAL2016H']={'INPUT':InputInfo(dataSet='/TestEnablesEcalHcal/Run2016H-v1/RAW',label='te2016H',run=Run2016H,events=100000,location='STD')}
+steps['TestEnableEcalHCAL2016H']={'INPUT':InputInfo(dataSet='/TestEnablesEcalHcal/Run2016H-v1/RAW',label='te2016H',run=Run2016HTE,events=100000,location='STD')}
+steps['AlCaLumiPixels2016H']={'INPUT':InputInfo(dataSet='/AlCaLumiPixels1/Run2016H-v1/RAW',label='alcalp2016H',run=Run2016HALP,events=100000,location='STD')}
 
 
 Run2011B=[177719]
@@ -1164,6 +1166,15 @@ steps['TIER0EXPTE']={'-s': 'ALCAPRODUCER:PromptCalibProdEcalPedestals',
                      '--scenario': 'pp',
                      #'--customise':'Configuration/DataProcessing/RecoTLR.customiseExpress',
                      }
+steps['TIER0PROMPTLP']={'-s': 'ALCA:AlCaPCCZeroBias+AlCaPCCRandom',
+                        '--conditions': 'auto:run2_data',
+                        '--datatier':'ALCARECO',
+                        '--eventcontent':'ALCARECO',
+                        '--data': '',
+                        '--scenario': 'pp',
+                        # '--customise':'Configuration/DataProcessing/RecoTLR.customiseExpress',
+                        }
+
 
 steps['RECOCOSD']=merge([{'--scenario':'cosmics',
                           '-s':'RAW2DIGI,L1Reco,RECO,DQM,ALCA:DtCalib',
