@@ -12,7 +12,6 @@ class L1TStage2CaloLayer2DEClient: public DQMEDHarvester {
   L1TStage2CaloLayer2DEClient(const edm::ParameterSet&);
   
   virtual ~L1TStage2CaloLayer2DEClient();
-  
  protected:
   
   virtual void dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter)override;
@@ -22,11 +21,11 @@ class L1TStage2CaloLayer2DEClient: public DQMEDHarvester {
   
   void book(DQMStore::IBooker &ibooker);
   void processHistograms(DQMStore::IGetter &igetter);
-  
+
   std::string monitor_dir_;
   std::string input_dir_data_;
   std::string input_dir_emul_;
-  
+
   MonitorElement* CenJetRankComp_;
   MonitorElement* CenJetEtaComp_;
   MonitorElement* CenJetPhiComp_;
@@ -46,9 +45,25 @@ class L1TStage2CaloLayer2DEClient: public DQMEDHarvester {
   MonitorElement* TauEtaComp_;
   MonitorElement* TauPhiComp_;
   MonitorElement* METComp_;
+  MonitorElement* METPhiComp_;
+  MonitorElement* METHFComp_;
+  MonitorElement* METHFPhiComp_;
   MonitorElement* MHTComp_;
+  MonitorElement* MHTPhiComp_;
+  MonitorElement* MHTHFComp_;
+  MonitorElement* MHTHFPhiComp_;
   MonitorElement* ETTComp_;
   MonitorElement* HTTComp_;
+  MonitorElement* MinBiasHFP0Comp_;
+  MonitorElement* MinBiasHFM0Comp_;
+  MonitorElement* MinBiasHFP1Comp_;
+  MonitorElement* MinBiasHFM1Comp_;
+  MonitorElement* ETTEMComp_;
+  MonitorElement* TowerCountComp_;
+  
+  MonitorElement* SummaryPlot_;
+
+  void addObjToSummary(DQMStore::IGetter & getter, TH1F * hist, std::string objPath, const char * binLabel);
 };
 
 #endif
