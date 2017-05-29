@@ -194,17 +194,6 @@ void SiPixelPhase1Summary::fillSummaries(DQMStore::IBooker & iBooker, DQMStore::
 
 	if ((me->getQReports()).size()!=0) summaryMap_[name]->setBinContent(i+1,j+1,(me->getQReports())[0]->getQTresult());
 	else summaryMap_[name]->setBinContent(i+1,j+1,-1);
-	
-	//Keeping this for now in a comment. Will remove soon
-	/*
-	if (me->hasError()) {
-	  //If there is an error, fill with 0
-	  summaryMap_[name]->setBinContent(i+1,j+1,0);
-	} //Do we want to include warnings here?
-	else if (me->hasWarning()){
-	  summaryMap_[name]->setBinContent(i+1,j+1,0.5);
-	}
-	*/
       }  
     }    
   }
