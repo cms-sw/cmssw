@@ -6,7 +6,7 @@
 #include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
 
 HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) 
-  : TopFolderName_ (conf.getParameter<std::string>("TopFolderName"))
+  : topFolderName_ (conf.getParameter<std::string>("TopFolderName"))
 {
   // DQM ROOT output
   outputFile_ = conf.getUntrackedParameter<std::string>("outputFile", "myfile.root");
@@ -65,7 +65,7 @@ void HcalRecHitsValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const
 
   Char_t histo[200];
 
-  ib.setCurrentFolder(TopFolderName_);
+  ib.setCurrentFolder(topFolderName_);
 
     //======================= Now various cases one by one ===================
 
