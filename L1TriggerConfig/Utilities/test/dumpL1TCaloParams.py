@@ -56,7 +56,7 @@ if len(options.topKey) :
     process.load("CondTools.L1TriggerExt.L1TriggerKeyOnlineExt_cfi")
     process.L1TriggerKeyOnlineExt.subsystemLabels = cms.vstring('CALO')
     # include the system-specific subkeys ESProducer (generates CALO labeled L1TriggerKey)
-    process.load("L1TriggerConfig.L1TCaloParamsProducers.L1TCaloParamsObjectKeysOnline_cfi")
+    process.load("L1TriggerConfig.L1TConfigProducers.L1TCaloParamsObjectKeysOnline_cfi")
     process.L1TCaloParamsObjectKeysOnlineProd.onlineAuthentication = cms.string( options.DBAuth )
 else :
     # instantiate manually the system-specific L1TriggerKey using the subsystemKey option
@@ -71,8 +71,9 @@ else :
     )
 
 # Online produced for the payload 
-process.load("L1TriggerConfig.L1TCaloParamsProducers.L1TCaloParamsOnline_cfi")
+process.load("L1TriggerConfig.L1TConfigProducers.L1TCaloParamsOnline_cfi")
 process.L1TCaloParamsOnlineProd.onlineAuthentication = cms.string( options.DBAuth )
+process.l1caloparProtodb.DBParameters.authenticationPath = cms.untracked.string( options.DBAuth )
 
 process.getter = cms.EDAnalyzer("EventSetupRecordDataGetter",
    toGet = cms.VPSet(cms.PSet(

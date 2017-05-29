@@ -56,7 +56,7 @@ if len(options.topKey) :
     process.load("CondTools.L1TriggerExt.L1TriggerKeyOnlineExt_cfi")
     process.L1TriggerKeyOnlineExt.subsystemLabels = cms.vstring('OMTF')
     # include the system-specific subkeys ESProducer (generates OMTF labeled L1TriggerKey)
-    process.load("L1TriggerConfig.L1TMuonOverlapParamsProducers.L1TMuonOverlapObjectKeysOnline_cfi")
+    process.load("L1TriggerConfig.L1TConfigProducers.L1TMuonOverlapObjectKeysOnline_cfi")
     process.L1TMuonOverlapObjectKeysOnline.onlineAuthentication = cms.string( options.DBAuth )
 else :
     # instantiate manually the system-specific L1TriggerKey using the subsystemKey option
@@ -71,7 +71,7 @@ else :
     )
 
 # This online produced should never be called if the rest of the O2O machinery works as expected
-process.load("L1TriggerConfig.L1TMuonOverlapParamsProducers.L1TMuonOverlapParamsOnline_cfi")
+process.load("L1TriggerConfig.L1TConfigProducers.L1TMuonOverlapParamsOnline_cfi")
 
 process.load('CondTools.L1TriggerExt.L1CondDBPayloadWriterExt_cfi')
 process.L1TMuonOverlapParamsOnlineProd.onlineAuthentication = cms.string( options.DBAuth )

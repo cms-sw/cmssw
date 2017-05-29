@@ -56,7 +56,7 @@ if len(options.topKey) :
     process.load("CondTools.L1TriggerExt.L1TriggerKeyOnlineExt_cfi")
     process.L1TriggerKeyOnlineExt.subsystemLabels = cms.vstring('EMTF')
     # include the system-specific subkeys ESProducer (generates EMTF labeled L1TriggerKey)
-    process.load("L1TriggerConfig.L1TMuonEndcapParamsProducers.L1TMuonEndcapObjectKeysOnline_cfi")
+    process.load("L1TriggerConfig.L1TConfigProducers.L1TMuonEndcapObjectKeysOnline_cfi")
     process.L1TMuonEndcapObjectKeysOnline.onlineAuthentication = cms.string( options.DBAuth )
 else :
     # instantiate manually the system-specific L1TriggerKey using the subsystemKey option
@@ -71,7 +71,7 @@ else :
     )
 
 # This online produced should never be called if the rest of the O2O machinery works as expected
-process.load("L1TriggerConfig.L1TMuonEndcapParamsProducers.L1TMuonEndcapParamsOnline_cfi")
+process.load("L1TriggerConfig.L1TConfigProducers.L1TMuonEndcapParamsOnline_cfi")
 process.L1TMuonEndcapParamsOnlineProd.onlineAuthentication = cms.string( options.DBAuth )
 
 process.load('CondTools.L1TriggerExt.L1CondDBPayloadWriterExt_cfi')

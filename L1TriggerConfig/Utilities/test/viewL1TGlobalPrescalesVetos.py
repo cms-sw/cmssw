@@ -6,7 +6,7 @@ process.MessageLogger.cout.placeholder = cms.untracked.bool(False)
 process.MessageLogger.cout.threshold = cms.untracked.string('DEBUG')
 process.MessageLogger.debugModules = cms.untracked.vstring('*')
 
-process.source = cms.Source("EmptySource", firstRun = cms.untracked.uint32(3))
+process.source = cms.Source("EmptySource", firstRun = cms.untracked.uint32(275772))
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 
 #process.load('L1Trigger.L1TGlobal.PrescalesVetos_cff')
@@ -18,7 +18,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 from CondCore.DBCommon.CondDBSetup_cfi import CondDBSetup
 process.l1conddb = cms.ESSource("PoolDBESSource",
        CondDBSetup,
-       connect = cms.string('sqlite:./o2o/l1config.db'),
+       connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
        toGet   = cms.VPSet(
             cms.PSet(
                  record = cms.string('L1TGlobalPrescalesVetosRcd'),
@@ -28,8 +28,8 @@ process.l1conddb = cms.ESSource("PoolDBESSource",
 )
 
 process.l1gpv = cms.EDAnalyzer("L1TGlobalPrescalesVetosViewer",
-    prescale_table_verbosity = cms.untracked.int32(1),
-    bxmask_map_verbosity     = cms.untracked.int32(1)
+    prescale_table_verbosity = cms.untracked.int32(2),
+    bxmask_map_verbosity     = cms.untracked.int32(0)
 )
 
 process.p = cms.Path(process.l1gpv)
