@@ -141,8 +141,8 @@ hltMuonOfflineAnalyzer = cms.EDAnalyzer("HLTMuonOfflineAnalyzer",
         d0Cut = cms.untracked.double(2.0),
         z0Cut = cms.untracked.double(25.0),
         ## cuts
-        recoCuts = cms.untracked.string("isGlobalMuon && abs(eta) < 2.0"),
-        hltCuts  = cms.untracked.string("abs(eta) < 2.0"),
+        recoCuts = cms.untracked.string("isGlobalMuon && abs(eta) < 2.4"),
+        hltCuts  = cms.untracked.string("abs(eta) < 2.4"),
     ),
 
 )
