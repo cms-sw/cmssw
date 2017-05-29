@@ -8,7 +8,7 @@
 class CMSEmStandardPhysicsLPM : public G4VPhysicsConstructor {
 
 public:
-  CMSEmStandardPhysicsLPM(const G4String& name, G4int ver);
+  CMSEmStandardPhysicsLPM(G4int ver);
   virtual ~CMSEmStandardPhysicsLPM();
 
   virtual void ConstructParticle();
