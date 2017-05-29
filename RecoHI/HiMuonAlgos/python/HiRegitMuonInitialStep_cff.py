@@ -35,6 +35,9 @@ hiRegitMuInitialStepHitDoublets = RecoTracker.IterativeTracking.InitialStep_cff.
     trackingRegions = "hiRegitMuInitialStepTrackingRegions",
     clusterCheck = "hiRegitMuClusterCheck"
 )
+from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
+trackingPhase1.toModify(hiRegitMuInitialStepHitDoublets, layerPairs = [0])
+
 hiRegitMuInitialStepHitTriplets = RecoTracker.IterativeTracking.InitialStep_cff.initialStepHitTriplets.clone(
     doublets = "hiRegitMuInitialStepHitDoublets"
 )
