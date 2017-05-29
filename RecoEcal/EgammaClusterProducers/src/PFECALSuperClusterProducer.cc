@@ -51,7 +51,7 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
 
   superClusterAlgo_.setUseRegression(iConfig.getParameter<bool>("useRegression")); 
 
-  isOOTCollection_ = (iConfig.existsAs<bool>("isOOTCollection") ? iConfig.getParameter<bool>("isOOTCollection") : false);
+  isOOTCollection_ = iConfig.getParameter<bool>("isOOTCollection");
   superClusterAlgo_.setIsOOTCollection(isOOTCollection_);
 
   superClusterAlgo_.setTokens(iConfig,consumesCollector());
