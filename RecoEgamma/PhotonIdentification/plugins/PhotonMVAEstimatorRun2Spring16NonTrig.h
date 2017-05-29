@@ -26,7 +26,7 @@ class PhotonMVAEstimatorRun2Spring16NonTrig : public AnyMVAEstimatorRun2Base{
 
   // Define here the number and the meaning of the categories
   // for this specific MVA
-  const int nCategories = 2;
+  const uint nCategories = 2;
   enum mvaCategories {
     UNDEFINED = -1,
     CAT_EB  = 0,

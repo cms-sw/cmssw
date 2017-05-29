@@ -109,8 +109,7 @@ int PhotonMVAEstimatorRun2Spring16NonTrig::findCategory( const edm::Ptr<reco::Ca
 
   if ( std::abs(eta) < ebeeSplit)  
     iCategory = CAT_EB;
-
-  if (std::abs(eta) >= ebeeSplit) 
+  else
     iCategory = CAT_EE;
 
   return iCategory;
