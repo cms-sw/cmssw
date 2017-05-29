@@ -10,9 +10,7 @@ process.load("DQM.Integration.config.inputsource_cfi")
 #process.load("DQM.Integration.config.fileinputsource_cfi")
 
 process.maxEvents = cms.untracked.PSet(
-#    input = cms.untracked.int32(100)
-    input = cms.untracked.int32(5000)
-#    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(100)
 )
 
 process.load("DQM.Integration.config.environment_cfi")
