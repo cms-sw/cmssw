@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-SiStripGainsPCLHarvester = cms.EDAnalyzer(
+SiStripGainsPCLHarvester = DQMEDHarvester(
     "SiStripGainsPCLHarvester",
     Record              = cms.untracked.string('SiStripApvGainRcd'),
     CalibrationLevel    = cms.untracked.int32(0), # 0==APV, 1==Laser, 2==module

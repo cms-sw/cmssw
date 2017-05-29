@@ -90,9 +90,15 @@ class PhotonMonitor : public DQMEDAnalyzer
 
 
   std::vector<double> photon_variable_binning_;
+  std::vector<double> diphoton_mass_binning_;
+  
   MEbinning           photon_binning_;
   MEbinning           ls_binning_;
-
+  
+  PhotonME subphotonEtaME_;
+  PhotonME subphotonME_;
+  PhotonME diphotonMassME_;
+  PhotonME photonEtaME_;
   PhotonME photonME_;
   PhotonME photonME_variableBinning_;
   PhotonME photonVsLS_;

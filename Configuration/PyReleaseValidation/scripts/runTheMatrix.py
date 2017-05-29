@@ -61,10 +61,9 @@ if __name__ == '__main__':
                      10042.0, #2017 ZMM
                      10024.0, #2017 ttbar
                      10824.0, #2018 ttbar
-                     21234.0, #2023D4 ttbar (TDR baseline Tracker)
-                     23234.0, #2023D8 ttbar (HGCal + timing)
-                     24434.0, #2023D12 ttbar (TDR baseline Muon/Barrel)
-                     26634.0, #2023D15 ttbar (TDR baseline Muon/Barrel + HGCal v8)
+                     20434.0, #2023D10 to exercise tracktrigger but will be removed 
+                     27434.0, #2023D17 ttbar (TDR baseline Muon/Barrel)
+                     23234.0, #2023D18 to exercise timing layer
                      ],
         'jetmc': [5.1, 13, 15, 25, 38, 39], #MC
         'metmc' : [5.1, 15, 25, 37, 38, 39], #MC

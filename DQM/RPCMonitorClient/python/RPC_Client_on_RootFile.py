@@ -7,6 +7,7 @@
 #################################################################
 
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 process = cms.Process("RPCDQMClientTest")
 
@@ -57,7 +58,7 @@ process.qTesterRPC = cms.EDAnalyzer("QualityTester",
 
 
 ################# Open Root file and provide MEs ############
-process.ReadMeFromFile = cms.EDAnalyzer("ReadMeFromFile",
+process.ReadMeFromFile = DQMEDHarvester("ReadMeFromFile",
 #InputFile = cms.untracked.string('/afs/cern.ch/user/d/dlomidze/scratch0/CMSSW_3_0_0_pre3/src/DQM/RPCMonitorClient/python/DQM_V0001_RPC_R000069800.root')
 InputFile = cms.untracked.string('rfio:/castor/cern.ch/user/d/dlomidze/RPC/GlobalRuns/CosmicsCommissioning08-PromptReco-v2RECO/70664/root/Merge_tot.root')
 #InputFile = cms.untracked.string('rfio:/castor/cern.ch/user/d/dlomidze/DQM_150.000_RPCEvents.root')                                       
@@ -67,14 +68,14 @@ InputFile = cms.untracked.string('rfio:/castor/cern.ch/user/d/dlomidze/RPC/Globa
 
 
 ################# RPC Client Modules #######################
-process.RPCDeadChannelTest = cms.EDAnalyzer("RPCDeadChannelTest")
-process.RPCOccupancyTest = cms.EDAnalyzer("RPCOccupancyTest")
-process.RPCClusterSizeTest = cms.EDAnalyzer("RPCClusterSizeTest")
-process.RPCChamberQuality = cms.EDAnalyzer("RPCChamberQuality")
-#process.RPCDCSDataSimulator = cms.EDAnalyzer("RPCDCSDataSimulator")
-process.RPCMultiplicityTest = cms.EDAnalyzer("RPCMultiplicityTest")
-process.RPCOccupancyChipTest = cms.EDAnalyzer("RPCOccupancyChipTest");
-process.RPCNoisyStripTest = cms.EDAnalyzer("RPCNoisyStripTest");
+process.RPCDeadChannelTest = DQMEDHarvester("RPCDeadChannelTest")
+process.RPCOccupancyTest = DQMEDHarvester("RPCOccupancyTest")
+process.RPCClusterSizeTest = DQMEDHarvester("RPCClusterSizeTest")
+process.RPCChamberQuality = DQMEDHarvester("RPCChamberQuality")
+#process.RPCDCSDataSimulator = DQMEDHarvester("RPCDCSDataSimulator")
+process.RPCMultiplicityTest = DQMEDHarvester("RPCMultiplicityTest")
+process.RPCOccupancyChipTest = DQMEDHarvester("RPCOccupancyChipTest");
+process.RPCNoisyStripTest = DQMEDHarvester("RPCNoisyStripTest");
 
 #process.p = cms.Path(process.ReadMeFromFile*process.qTesterRPC*process.RPCClusterSizeTest*process.RPCDeadChannelTest*process.RPCOccupancyTest*process.RPCDCSDataSimulator*process.RPCMultiplicityTest*process.RPCChamberQuality*process.dqmSaver)
 

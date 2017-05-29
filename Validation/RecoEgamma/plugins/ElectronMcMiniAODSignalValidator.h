@@ -30,9 +30,9 @@ class ElectronMcSignalValidatorMiniAOD : public ElectronDqmAnalyzerBase {
       edm::EDGetTokenT<edm::View<reco::GenParticle> > mcTruthCollection_; // prunedGenParticles
       edm::EDGetTokenT<pat::ElectronCollection> electronToken_; // slimmedElectrons
 
-      edm::EDGetTokenT<edm::ValueMap<float> > ValueMaps_ChargedHadrons_;
-      edm::EDGetTokenT<edm::ValueMap<float> > ValueMaps_NeutralHadrons_;
-      edm::EDGetTokenT<edm::ValueMap<float> > ValueMaps_Photons_;
+      edm::EDGetTokenT<edm::ValueMap<float> > pfSumChargedHadronPtTmp_;
+      edm::EDGetTokenT<edm::ValueMap<float> > pfSumNeutralHadronEtTmp_;
+      edm::EDGetTokenT<edm::ValueMap<float> > pfSumPhotonEtTmp_;/**/
       float pt_;
  
       double maxPt_;
@@ -101,19 +101,19 @@ class ElectronMcSignalValidatorMiniAOD : public ElectronDqmAnalyzerBase {
     MonitorElement *h1_ele_fbrem_mAOD_endcaps;
 
 	// -- pflow over pT
-	MonitorElement *h1_ele_chargedHadronRelativeIso_mAOD;
-	MonitorElement *h1_ele_chargedHadronRelativeIso_mAOD_barrel;
+    MonitorElement *h1_ele_chargedHadronRelativeIso_mAOD;
+    MonitorElement *h1_ele_chargedHadronRelativeIso_mAOD_barrel;
     MonitorElement *h1_ele_chargedHadronRelativeIso_mAOD_endcaps;
-	MonitorElement *h1_ele_neutralHadronRelativeIso_mAOD;
-	MonitorElement *h1_ele_neutralHadronRelativeIso_mAOD_barrel;
+    MonitorElement *h1_ele_neutralHadronRelativeIso_mAOD;
+    MonitorElement *h1_ele_neutralHadronRelativeIso_mAOD_barrel;
     MonitorElement *h1_ele_neutralHadronRelativeIso_mAOD_endcaps;
-	MonitorElement *h1_ele_photonRelativeIso_mAOD;
-	MonitorElement *h1_ele_photonRelativeIso_mAOD_barrel;
+    MonitorElement *h1_ele_photonRelativeIso_mAOD;
+    MonitorElement *h1_ele_photonRelativeIso_mAOD_barrel;
     MonitorElement *h1_ele_photonRelativeIso_mAOD_endcaps;
 
-	MonitorElement *h1_ele_chargedHadronRelativeIso_mAOD_recomp;
-	MonitorElement *h1_ele_neutralHadronRelativeIso_mAOD_recomp;
-    MonitorElement *h1_ele_photonRelativeIso_mAOD_recomp;    
+    MonitorElement *h1_ele_chargedHadronRelativeIso_mAOD_recomp;
+    MonitorElement *h1_ele_neutralHadronRelativeIso_mAOD_recomp;
+    MonitorElement *h1_ele_photonRelativeIso_mAOD_recomp; 
 };
 
 #endif
