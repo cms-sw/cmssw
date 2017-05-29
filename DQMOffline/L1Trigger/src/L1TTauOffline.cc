@@ -199,19 +199,6 @@ void L1TTauOffline::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
   reco::PFTauCollection::const_iterator tauIt  = taus->begin();
   reco::PFTauCollection::const_iterator tauEnd = taus->end();
 
-  for(; tauIt!=tauEnd; ++tauIt) {
-
-    // float eta = tauIt->eta();
-    // float phi = tauIt->phi();
-    // float pt  = tauIt->pt();
-
-
-    // m_EfficiencyHistos[0]["RecoEtaNEW_Histo"]->Fill(eta);	
-    // m_EfficiencyHistos[0]["RecoPhiNEW_Histo"]->Fill(phi);	
-    // m_EfficiencyHistos[0]["RecoPtNEW_Histo"]->Fill(pt);	
-    
-
-  }
   vector<l1t::Tau> l1tContainer;
   
   for (auto tau = l1tCands->begin(0); tau != l1tCands->end(0); ++tau) {
@@ -220,19 +207,6 @@ void L1TTauOffline::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
 
   vector<l1t::Tau>::const_iterator l1tIt = l1tContainer.begin();;				
   vector<l1t::Tau>::const_iterator l1tEnd = l1tContainer.end();				
-    
-  for(; l1tIt!=l1tEnd; ++l1tIt) {
-
-    // float eta = l1tIt->eta();
-    // float phi = l1tIt->phi();
-    // float pt  = l1tIt->pt();
-
-    // m_EfficiencyHistos[0]["L1TEtaNEW_Histo"]->Fill(eta);	
-    // m_EfficiencyHistos[0]["L1TPhiNEW_Histo"]->Fill(phi);	
-    // m_EfficiencyHistos[0]["L1TPtNEW_Histo"]->Fill(pt);
-    
-
-  }
 
   vector<TauL1TPair>::const_iterator tauL1tPairsIt  = m_TauL1tPairs.begin();
   vector<TauL1TPair>::const_iterator tauL1tPairsEnd = m_TauL1tPairs.end(); 
@@ -245,7 +219,6 @@ void L1TTauOffline::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
 
     // unmatched gmt cands have l1tPt = -1.	
     float l1tPt  = tauL1tPairsIt->l1tPt();
-    // cout<<pt<<" "<<l1tPt<<endl;
 
     vector<int>::const_iterator l1tPtCutsIt  = m_L1tPtCuts.begin();
     vector<int>::const_iterator l1tPtCutsEnd = m_L1tPtCuts.end();
@@ -540,17 +513,7 @@ void L1TTauOffline::getTauL1tPairs(edm::Handle<l1t::TauBxCollection> & l1tCands)
   vector<l1t::Tau>::const_iterator l1tIt;					
   vector<l1t::Tau>::const_iterator l1tEnd = l1tContainer.end();				
   
-  for (; probeTauIt!=probeTauEnd; ++probeTauIt) {
-
-    // float eta = (*probeTauIt)->eta();		
-    // float phi = (*probeTauIt)->phi();		
-    // float pt  = (*probeTauIt)->pt();
-    
-
-    // m_EfficiencyHistos[0]["ProbeTauEta_Histo"]->Fill(eta);	
-    // m_EfficiencyHistos[0]["ProbeTauPhi_Histo"]->Fill(phi);	
-    // m_EfficiencyHistos[0]["ProbeTauPt_Histo"]->Fill(pt);
-    
+  for (; probeTauIt!=probeTauEnd; ++probeTauIt) {    
     
     TauL1TPair pairBestCand((*probeTauIt),0);    
     l1tIt = l1tContainer.begin();
@@ -566,8 +529,6 @@ void L1TTauOffline::getTauL1tPairs(edm::Handle<l1t::TauBxCollection> & l1tCands)
 
     m_TauL1tPairs.push_back(pairBestCand);
   
-    //m_ControlHistos["TauL1tDeltaR"]->Fill(pairBestCand.dR());
-
   }
 
 }
@@ -587,21 +548,12 @@ void L1TTauOffline::getTightMuons(edm::Handle<reco::MuonCollection> & muons, edm
   int nb_mu=0;
 
   for(; muonIt2!=muonEnd2; ++muonIt2) {
-    // cout<<"eta = "<<muonIt2->eta()<<endl;
-    // cout<<"muonIt2->pt() = "<<muonIt2->pt()<<endl;
-    // cout<<"muon::isLooseMuon((*muonIt2)) = "<< muon::isLooseMuon((*muonIt2))<<endl;
-    // cout<<"iso = "<<(muonIt2->pfIsolationR04().sumChargedHadronPt+max(muonIt2->pfIsolationR04().sumNeutralHadronEt+muonIt2->pfIsolationR04().sumPhotonEt-0.5*muonIt2->pfIsolationR04().sumPUPt,0.0))/muonIt2->pt()<<endl;
     if (fabs(muonIt2->eta())< 2.4 && muonIt2->pt()>10 && muon::isLooseMuon((*muonIt2)) && (muonIt2->pfIsolationR04().sumChargedHadronPt+max(muonIt2->pfIsolationR04().sumNeutralHadronEt+muonIt2->pfIsolationR04().sumPhotonEt-0.5*muonIt2->pfIsolationR04().sumPUPt,0.0))/muonIt2->pt()<0.3) {
       ++nb_mu;
     }
   }
   bool foundTightMu=false;
   for(; muonIt!=muonEnd; ++muonIt) {
-    // cout<<"eta = "<<muonIt->eta()<<endl;
-    // cout<<"muonIt->pt() = "<<muonIt->pt()<<endl;
-    // cout<<"muon::isLooseMuon((*muonIt)) = "<< muon::isLooseMuon((*muonIt))<<endl;
-    // cout<<"iso = "<<(muonIt->pfIsolationR04().sumChargedHadronPt+max(muonIt->pfIsolationR04().sumNeutralHadronEt+muonIt->pfIsolationR04().sumPhotonEt-0.5*muonIt->pfIsolationR04().sumPUPt,0.0))/muonIt->pt()<<endl;
-    //if(0) continue;//HERE!!!!
     if (!matchHlt(trigEvent,&(*muonIt))) continue;
     float muiso=(muonIt->pfIsolationR04().sumChargedHadronPt+max(muonIt->pfIsolationR04().sumNeutralHadronEt+muonIt->pfIsolationR04().sumPhotonEt-0.5*muonIt->pfIsolationR04().sumPUPt,0.0))/muonIt->pt();
 
@@ -610,26 +562,12 @@ void L1TTauOffline::getTightMuons(edm::Handle<reco::MuonCollection> & muons, edm
       if (mt<30){
          m_TightMuons.push_back(&(*muonIt));
          foundTightMu=true;
-         // m_EfficiencyHistos[0]["TagMuonEta_Histo"]->Fill(muonIt->eta());
-         // m_EfficiencyHistos[0]["TagMuonPhi_Histo"]->Fill(muonIt->phi());
-         // m_EfficiencyHistos[0]["TagMuonPt_Histo"]->Fill(muonIt->pt());
       } 
     }
   }
-  // m_ControlHistos["NTightVsAll"]->Fill(muons->size(),m_TightMuons.size());
   vector<const reco::Muon*>::const_iterator tightMuIt  = m_TightMuons.begin();
   vector<const reco::Muon*>::const_iterator tightMuEnd  = m_TightMuons.end();
   
-  for(; tightMuIt!=tightMuEnd; ++tightMuIt) {
-    // float eta = (*tightMuIt)->eta();
-    // float phi = (*tightMuIt)->phi();
-    // float pt  = (*tightMuIt)->pt();
-
-    // m_EfficiencyHistos[0]["RecoEtaNEWtight_Histo"]->Fill(eta);	
-    // m_EfficiencyHistos[0]["RecoPhiNEWtight_Histo"]->Fill(phi);	
-    // m_EfficiencyHistos[0]["RecoPtNEWtight_Histo"]->Fill(pt);
-    
-  }
 }
 
 void L1TTauOffline::getProbeTaus(const edm::Event & iEvent,edm::Handle<reco::PFTauCollection> & taus, edm::Handle<reco::MuonCollection> & muons, const reco::Vertex & vertex) {
@@ -655,24 +593,11 @@ void L1TTauOffline::getProbeTaus(const edm::Event & iEvent,edm::Handle<reco::PFT
 	TLorentzVector mytau;
 	mytau.SetPtEtaPhiE(tauIt->pt(),tauIt->eta(),tauIt->phi(),tauIt->energy());
 
-	// cout<<"fabs(tauIt->charge()) = "<<fabs(tauIt->charge())<<endl;
-	// cout<<"fabs(tauIt->eta()) = "<<fabs(tauIt->eta())<<endl;
-	// cout<<"tauIt->pt() = "<<tauIt->pt()<<endl;
-	// cout<<"(*antimu)[tauCandidate] = "<<(*antimu)[tauCandidate]<<endl;
-	// cout<<"(*antiele)[tauCandidate] = "<<(*antiele)[tauCandidate]<<endl;
-	// cout<<"(*dmf)[tauCandidate] = "<<(*dmf)[tauCandidate]<<endl;
-	// cout<<"(*comb3T)[tauCandidate] = "<<(*comb3T)[tauCandidate]<<endl;
-	// cout<<"mymu.DeltaR(mytau) = "<<mymu.DeltaR(mytau)<<endl;
-	// cout<<"(mymu+mytau).M() = "<<(mymu+mytau).M()<<endl;
-	// cout<<"m_TightMuons[0]->charge()*tauIt->charge() = "<<m_TightMuons[0]->charge()*tauIt->charge()<<endl;
-
         if (fabs(tauIt->charge())==1 && fabs(tauIt->eta())< 2.1 && tauIt->pt()>20 && (*antimu)[tauCandidate] > 0.5 && (*antiele)[tauCandidate] > 0.5 && (*dmf)[tauCandidate] > 0.5 && (*comb3T)[tauCandidate] > 0.5) {
 	    if (mymu.DeltaR(mytau)>0.5 && (mymu+mytau).M()>40 && (mymu+mytau).M()<80 && m_TightMuons[0]->charge()*tauIt->charge()<0){
                m_ProbeTaus.push_back(&(*tauIt));
-	       // cout<<"********** tau found ************"<<endl;
 	    }
         }
-	// cout<<"--"<<endl;
      }
   }
 }
