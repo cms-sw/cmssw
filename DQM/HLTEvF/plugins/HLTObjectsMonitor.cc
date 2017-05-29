@@ -49,6 +49,7 @@ struct hltPlot {
   std::pair<MonitorElement*,bool> phiME;
   std::pair<MonitorElement*,bool> ptME;
   std::pair<MonitorElement*,bool> massME;
+  std::pair<MonitorElement*,bool> energyME;
   std::pair<MonitorElement*,bool> csvME;
   std::pair<MonitorElement*,bool> etaVSphiME;
   std::pair<MonitorElement*,bool> ptMEhep17;
@@ -79,6 +80,7 @@ struct hltPlot {
   bool doPlot2D;
   bool doPlotETA;
   bool doPlotMASS;
+  bool doPlotENERGY;
   bool doPlotHEP17;
   bool doPlotCSV;
   bool doCALO;
@@ -163,6 +165,7 @@ class HLTObjectsMonitor : public DQMEDAnalyzer {
       // ----------member data ---------------------------
 
   std::string TopFolder_;
+  std::string label_;
   std::string processName_;
   std::vector<edm::ParameterSet> plotPSETS_;
 
@@ -210,6 +213,7 @@ HLTObjectsMonitor::getPlotPSet(edm::ParameterSet pset) {
       std::make_pair<MonitorElement*,bool>(nullptr,pset.getParameter<bool>("displayInPrimary_phi")      ),
       std::make_pair<MonitorElement*,bool>(nullptr,pset.getParameter<bool>("displayInPrimary_pt")       ),
       std::make_pair<MonitorElement*,bool>(nullptr,pset.getParameter<bool>("displayInPrimary_mass")     ),
+      std::make_pair<MonitorElement*,bool>(nullptr,pset.getParameter<bool>("displayInPrimary_energy")   ),
       std::make_pair<MonitorElement*,bool>(nullptr,pset.getParameter<bool>("displayInPrimary_csv")      ),
       std::make_pair<MonitorElement*,bool>(nullptr,pset.getParameter<bool>("displayInPrimary_etaVSphi") ),
       std::make_pair<MonitorElement*,bool>(nullptr,pset.getParameter<bool>("displayInPrimary_pt_HEP17")  ),      
@@ -237,6 +241,7 @@ HLTObjectsMonitor::getPlotPSet(edm::ParameterSet pset) {
       pset.getUntrackedParameter<bool>("doPlot2D",     false ),
       pset.getUntrackedParameter<bool>("doPlotETA",    true  ),
       pset.getUntrackedParameter<bool>("doPlotMASS",   false ),
+      pset.getUntrackedParameter<bool>("doPlotENERGY", false ),
       pset.getUntrackedParameter<bool>("doPlotHEP17",  true  ),
       pset.getUntrackedParameter<bool>("doPlotCSV",    false ),
       pset.getUntrackedParameter<bool>("doCALO",       false ),
@@ -273,6 +278,7 @@ bool HLTObjectsMonitor::isHEM17(double eta, double phi) {
 //
 HLTObjectsMonitor::HLTObjectsMonitor(const edm::ParameterSet& iConfig)
   : TopFolder_   ( iConfig.getParameter<std::string>("TopFolder")                 )
+  , label_       ( iConfig.getParameter<std::string>("label")                     )
   , processName_ ( iConfig.getParameter<std::string>("processName")               )
   , plotPSETS_   ( iConfig.getParameter<std::vector<edm::ParameterSet> >("plots") )
   , debug_       ( iConfig.getUntrackedParameter<bool>("debug",false)             )
@@ -392,11 +398,12 @@ HLTObjectsMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	double RSQ = 0.;
 	for ( const auto & key : keys ) {
 	  
-	  double pt   = objects[key].pt();
-	  double eta  = objects[key].eta();
-	  double phi  = objects[key].phi();
-	  double mass = objects[key].mass(); 
-	  int    id   = objects[key].id();
+	  double pt     = objects[key].pt();
+	  double eta    = objects[key].eta();
+	  double phi    = objects[key].phi();
+	  double mass   = objects[key].mass(); 
+	  double energy = objects[key].energy(); 
+	  int    id     = objects[key].id();
 	  if ( debug_ )
 	    std::cout << "object ID " << id << " mass: " << mass << std::endl;
 	  
@@ -432,7 +439,8 @@ HLTObjectsMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	      }
 	    }
 	  }
-	  if ( plot.doPlotMASS ) plot.massME.first->Fill(mass);
+	  if ( plot.doPlotMASS   ) plot.massME.first->Fill(mass);
+	  if ( plot.doPlotENERGY ) plot.energyME.first->Fill(energy);
 	  if ( plot.doPlot2D ) plot.etaVSphiME.first->Fill(eta,phi);
 	  if ( plot.doPlotHEP17 ) {
 	    if ( isHEP17(eta,phi) ) plot.ptMEhep17.first->Fill(pt);
@@ -582,7 +590,7 @@ void HLTObjectsMonitor::bookHistograms(DQMStore::IBooker & ibooker, edm::Run con
 
   ibooker.setCurrentFolder(TopFolder_);
 
-  std::string name  = "eventsPerPath";
+  std::string name  = "eventsPerPath_"+label_;
   std::string title = " events per path";
   int nbins = hltPlots_.size();
   eventsPlot_ = ibooker.book1D(name,title,nbins,-0.5,double(nbins)-0.5);
@@ -673,6 +681,22 @@ void HLTObjectsMonitor::bookHistograms(DQMStore::IBooker & ibooker, edm::Run con
 
       plot.massME.first = ibooker.book1D(name,title,nbins,arr);
       plot.massME.first->setAxisTitle(plot.xTITLE+" mass [GeV]");
+    }
+
+    if ( plot.doPlotENERGY ) {
+      if ( plot.energyME.second )
+	ibooker.setCurrentFolder(mainFolder_);
+      else
+	ibooker.setCurrentFolder(backupFolder_);
+      
+      name  = plot.label+"_energy";
+      title = plot.pathNAME+" energy";
+      int nbins = (plot.ptBINNING).size()-1;
+      std::vector<float> fbinning((plot.ptBINNING).begin(),(plot.ptBINNING).end());
+      float* arr = &fbinning[0];
+
+      plot.energyME.first = ibooker.book1D(name,title,nbins,arr);
+      plot.energyME.first->setAxisTitle(plot.xTITLE+" energy [GeV]");
     }
 
     if ( plot.doPlotCSV ) {
