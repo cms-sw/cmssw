@@ -27,7 +27,6 @@
 
 
 
-#include "FWCore/Common/interface/TriggerNames.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -36,7 +35,6 @@
 
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/Common/interface/Ref.h"
 
@@ -44,6 +42,7 @@
 #include "DQMOffline/Trigger/interface/VarRangeCutColl.h"
 #include "DQMOffline/Trigger/interface/HLTDQMFilterTnPEffHists.h"
 
+#include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 
 #include <vector>
 #include <string>
@@ -64,6 +63,7 @@ public:
   
   static edm::ParameterSetDescription makePSetDescription();
   
+  void beginRun(const edm::Run& run,const edm::EventSetup& setup);
   void bookHists(DQMStore::IBooker& iBooker);
   void fill(const edm::Event& event,const edm::EventSetup& setup);
   
@@ -71,13 +71,13 @@ private:
   std::vector<edm::Ref<ObjCollType> >
   getPassingRefs(const edm::Handle<ObjCollType>& objCollHandle,
 		 const trigger::TriggerEvent& trigEvt,
-		 const std::vector<std::string>& filterNames,
+		 const std::vector<std::string>& filterNames, 
+		 const bool orFilters,
 		 const edm::Handle<edm::ValueMap<bool> >& vidHandle,
 		 const VarRangeCutColl<ObjType>& rangeCuts);
 private:
   edm::EDGetTokenT<ObjCollType> objToken_;
   edm::EDGetTokenT<trigger::TriggerEvent> trigEvtToken_;
-  edm::EDGetTokenT<edm::TriggerResults> trigResultsToken_;
   edm::EDGetTokenT<edm::ValueMap<bool> >tagVIDToken_;
   edm::EDGetTokenT<edm::ValueMap<bool> >probeVIDToken_;
   
@@ -86,9 +86,11 @@ private:
   std::string tagTrigger_;
 	    
   std::vector<std::string> tagFilters_;
+  bool tagFiltersORed_;//true=ORed, false=ANDed
   VarRangeCutColl<ObjType> tagRangeCuts_;
 
   std::vector<std::string> probeFilters_;
+  bool probeFiltersORed_;//true=ORed, false=ANDed
   VarRangeCutColl<ObjType> probeRangeCuts_;
 
   float minMass_;
@@ -97,28 +99,31 @@ private:
 
   std::vector<edm::ParameterSet> histConfigs_;
   std::vector<HLTDQMFilterTnPEffHists<ObjType> > filterHists_;
-    
+  
+  GenericTriggerEventFlag sampleTrigRequirements_;
+
 };
 
 template <typename ObjType,typename ObjCollType> 
 HLTDQMTagAndProbeEff<ObjType,ObjCollType>::HLTDQMTagAndProbeEff(const edm::ParameterSet& pset,edm::ConsumesCollector && cc):
   tagRangeCuts_(pset.getParameter<std::vector<edm::ParameterSet> >("tagRangeCuts")),
-  probeRangeCuts_(pset.getParameter<std::vector<edm::ParameterSet> >("probeRangeCuts"))
+  probeRangeCuts_(pset.getParameter<std::vector<edm::ParameterSet> >("probeRangeCuts")),
+  sampleTrigRequirements_(pset.getParameter<edm::ParameterSet>("sampleTrigRequirements"),cc)
 {
   edm::InputTag trigEvtTag = pset.getParameter<edm::InputTag>("trigEvent");
 
   objToken_ = cc.consumes<ObjCollType>(pset.getParameter<edm::InputTag>("objColl"));
   trigEvtToken_ = cc.consumes<trigger::TriggerEvent>(trigEvtTag);
-  trigResultsToken_ = cc.consumes<edm::TriggerResults>(pset.getParameter<edm::InputTag>("trigResults"));
   tagVIDToken_ = cc.consumes<edm::ValueMap<bool> >(pset.getParameter<edm::InputTag>("tagVIDCuts"));
   probeVIDToken_ = cc.consumes<edm::ValueMap<bool> >(pset.getParameter<edm::InputTag>("probeVIDCuts"));
 
   hltProcess_ = trigEvtTag.process();
 
-  tagTrigger_ = pset.getParameter<std::string>("tagTrigger");
-
   tagFilters_ = pset.getParameter<std::vector<std::string> >("tagFilters");
+  tagFiltersORed_ = pset.getParameter<bool>("tagFiltersORed");
   probeFilters_ = pset.getParameter<std::vector<std::string> >("probeFilters");
+  probeFiltersORed_ = pset.getParameter<bool>("tagFiltersORed");
+  
   
   minMass_ = pset.getParameter<double>("minMass");
   maxMass_ = pset.getParameter<double>("maxMass");
@@ -132,7 +137,6 @@ HLTDQMTagAndProbeEff<ObjType,ObjCollType>::HLTDQMTagAndProbeEff(const edm::Param
   for(auto& config: filterConfigs){
     filterHists_.emplace_back(HLTDQMFilterTnPEffHists<ObjType>(config,baseHistName,hltProcess_));
   }
-
 }
 
 template <typename ObjType,typename ObjCollType> 
@@ -144,39 +148,48 @@ makePSetDescription()
   desc.addVPSet("probeRangeCuts",VarRangeCut<ObjType>::makePSetDescription(),std::vector<edm::ParameterSet>());
   desc.add<edm::InputTag>("trigEvent",edm::InputTag("hltTriggerSummaryAOD","","HLT"));
   desc.add<edm::InputTag>("objColl",edm::InputTag());
-  desc.add<edm::InputTag>("trigResults",edm::InputTag("TriggerResults","","HLT"));
   desc.add<edm::InputTag>("tagVIDCuts",edm::InputTag());
   desc.add<edm::InputTag>("probeVIDCuts",edm::InputTag());
-  desc.add<std::string>("tagTrigger","");
   desc.add<std::vector<std::string> >("tagFilters",std::vector<std::string>());
   desc.add<std::vector<std::string> >("probeFilters",std::vector<std::string>());
+  desc.add<bool>("tagFiltersORed",true);//default to OR probe filters (use case is multiple tag triggers, eg Ele27, Ele32, Ele35 tight etc)
+  desc.add<bool>("probeFiltersORed",false); //default to AND probe filters (cant think why you would want to OR them but made if configurable just in case)
   desc.add<double>("minMass");
   desc.add<double>("maxMass");
   desc.add<bool>("requireOpSign");
   desc.addVPSet("histConfigs",HLTDQMFilterTnPEffHists<ObjType>::makePSetDescriptionHistConfigs(),std::vector<edm::ParameterSet>()); 
   desc.addVPSet("filterConfigs",HLTDQMFilterTnPEffHists<ObjType>::makePSetDescription(),std::vector<edm::ParameterSet>()); 
   desc.add<std::string>("baseHistName");
+
+  edm::ParameterSetDescription trigEvtFlagDesc;
+  trigEvtFlagDesc.add<bool>("andOr",false);
+  trigEvtFlagDesc.add<unsigned int>("verbosityLevel",1);
+  trigEvtFlagDesc.add<bool>("andOrDcs", false);  
+  trigEvtFlagDesc.add<edm::InputTag>("dcsInputTag", edm::InputTag("scalersRawToDigi") );
+  trigEvtFlagDesc.add<std::vector<int> >("dcsPartitions",{24,25,26,27,28,29});
+  trigEvtFlagDesc.add<bool>("errorReplyDcs", true);
+  trigEvtFlagDesc.add<std::string>("dbLabel","");
+  trigEvtFlagDesc.add<bool>("andOrHlt", true); //true = OR, false = and
+  trigEvtFlagDesc.add<edm::InputTag>("hltInputTag", edm::InputTag("TriggerResults::HLT") );
+  trigEvtFlagDesc.add<std::vector<std::string> >("hltPaths",{});
+  trigEvtFlagDesc.add<std::string>("hltDBKey","");
+  trigEvtFlagDesc.add<bool>("errorReplyHlt",false);
+  desc.add<edm::ParameterSetDescription>("sampleTrigRequirements",trigEvtFlagDesc);
+  
   return desc;
 }
 
 template <typename ObjType,typename ObjCollType> 
-std::vector<edm::Ref<ObjCollType> > HLTDQMTagAndProbeEff<ObjType,ObjCollType>::
-getPassingRefs(const edm::Handle<ObjCollType>& objCollHandle,
-	       const trigger::TriggerEvent& trigEvt,
-	       const std::vector<std::string>& filterNames,
-	       const edm::Handle<edm::ValueMap<bool> >& vidHandle,
-	       const VarRangeCutColl<ObjType>& rangeCuts)
+void HLTDQMTagAndProbeEff<ObjType,ObjCollType>::bookHists(DQMStore::IBooker& iBooker)
 {
-  std::vector<edm::Ref<ObjCollType> > passingRefs;
-  for(size_t objNr=0;objNr<objCollHandle->size();objNr++){
-    edm::Ref<ObjCollType> ref(objCollHandle,objNr);
-    if(rangeCuts(*ref) && 
-       hltdqm::passTrig(ref->eta(),ref->phi(),trigEvt,filterNames,hltProcess_) && 
-       (vidHandle.isValid()==false || (*vidHandle)[ref]==true)){
-      passingRefs.push_back(ref);
-    }
-  }
-  return passingRefs;
+  for(auto& filterHist:  filterHists_) filterHist.bookHists(iBooker,histConfigs_);
+}
+
+template <typename ObjType,typename ObjCollType> 
+void HLTDQMTagAndProbeEff<ObjType,ObjCollType>::
+beginRun(const edm::Run& run,const edm::EventSetup& setup)
+{
+  if(sampleTrigRequirements_.on()) sampleTrigRequirements_.initRun(run,setup);
 }
 
 
@@ -185,24 +198,23 @@ void HLTDQMTagAndProbeEff<ObjType,ObjCollType>::fill(const edm::Event& event,con
 {
   auto objCollHandle = getHandle(event,objToken_); 
   auto trigEvtHandle = getHandle(event,trigEvtToken_);
-  auto trigResultsHandle = getHandle(event,trigResultsToken_);
   auto tagVIDHandle = getHandle(event,tagVIDToken_);
   auto probeVIDHandle = getHandle(event,probeVIDToken_);
 
   //we need the object collection and trigger info at the minimum
-  if(!objCollHandle.isValid() || !trigEvtHandle.isValid() || !trigResultsHandle.isValid()) return;
+  if(!objCollHandle.isValid() || !trigEvtHandle.isValid()) return;
 
-  //now check if the tag trigger fired, return if not
-  //if no trigger specified it passes
-  const edm::TriggerNames& trigNames = event.triggerNames(*trigResultsHandle);
-  if(hltdqm::passTrig(tagTrigger_,trigNames,*trigResultsHandle)==false) return;
+  //if GenericTriggerEventFlag is "off", it'll return true regardless
+  //if so if its off, we auto pass which is the behaviour we wish to have
+  //if its null, we auto fail (because that shouldnt happen)
+  if(sampleTrigRequirements_.accept(event,setup)==false) return;
   
   std::vector<edm::Ref<ObjCollType> > tagRefs = getPassingRefs(objCollHandle,*trigEvtHandle,
-							       tagFilters_,
+							       tagFilters_,tagFiltersORed_,
 							       tagVIDHandle,tagRangeCuts_);
 
   std::vector<edm::Ref<ObjCollType> > probeRefs = getPassingRefs(objCollHandle,*trigEvtHandle,
-								 probeFilters_,
+								 probeFilters_,probeFiltersORed_,
 								 probeVIDHandle,probeRangeCuts_);
 
   for(auto& tagRef : tagRefs){
@@ -221,9 +233,23 @@ void HLTDQMTagAndProbeEff<ObjType,ObjCollType>::fill(const edm::Event& event,con
 }
 
 template <typename ObjType,typename ObjCollType> 
-void HLTDQMTagAndProbeEff<ObjType,ObjCollType>::bookHists(DQMStore::IBooker& iBooker)
+std::vector<edm::Ref<ObjCollType> > HLTDQMTagAndProbeEff<ObjType,ObjCollType>::
+getPassingRefs(const edm::Handle<ObjCollType>& objCollHandle,
+	       const trigger::TriggerEvent& trigEvt,
+	       const std::vector<std::string>& filterNames,
+	       const bool orFilters,
+	       const edm::Handle<edm::ValueMap<bool> >& vidHandle,
+	       const VarRangeCutColl<ObjType>& rangeCuts)
 {
-  for(auto& filterHist:  filterHists_) filterHist.bookHists(iBooker,histConfigs_);
+  std::vector<edm::Ref<ObjCollType> > passingRefs;
+  for(size_t objNr=0;objNr<objCollHandle->size();objNr++){
+    edm::Ref<ObjCollType> ref(objCollHandle,objNr);
+    if(rangeCuts(*ref) && 
+       hltdqm::passTrig(ref->eta(),ref->phi(),trigEvt,filterNames,orFilters,hltProcess_) && 
+       (vidHandle.isValid()==false || (*vidHandle)[ref]==true)){
+      passingRefs.push_back(ref);
+    }
+  }
+  return passingRefs;
 }
-
 #endif
