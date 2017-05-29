@@ -6,6 +6,11 @@
 
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 
+double MAX_PHI1 = 3.2;
+int N_PHI1 = 64;
+const MEbinning phi_binning_1{
+  N_PHI1, -MAX_PHI1, MAX_PHI1
+    };
 
 // -----------------------------
 //  constructors and destructor
@@ -18,6 +23,7 @@ PhotonMonitor::PhotonMonitor( const edm::ParameterSet& iConfig ) :
   , eleToken_             ( mayConsume<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons") ) )   
   , photonToken_             ( mayConsume<reco::PhotonCollection>      (iConfig.getParameter<edm::InputTag>("photons")      ) )   
   , photon_variable_binning_ ( iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("photonBinning") )
+  , diphoton_mass_binning_ ( iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("massBinning") )
   , photon_binning_          ( getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("photonPSet")    ) )
   , ls_binning_           ( getHistoLSPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("lsPSet")     ) )
   , num_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet"),consumesCollector(), *this))
@@ -35,6 +41,8 @@ PhotonMonitor::PhotonMonitor( const edm::ParameterSet& iConfig ) :
   photonME_.denominator = nullptr;
   photonME_variableBinning_.numerator   = nullptr;
   photonME_variableBinning_.denominator = nullptr;
+  diphotonMassME_.numerator   = nullptr;
+  diphotonMassME_.denominator = nullptr;
   photonVsLS_.numerator   = nullptr;
   photonVsLS_.denominator = nullptr;
 
@@ -135,6 +143,21 @@ void PhotonMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   bookME(ibooker,photonVsLS_,histname,histtitle,ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax,photon_binning_.xmin, photon_binning_.xmax);
   setTitle(photonVsLS_,"LS","Photon pT [GeV]");
 
+  //for diphotons
+
+  histname = "diphoton_mass"; histtitle = "Diphoton mass";
+  bookME(ibooker,diphotonMassME_,histname,histtitle, diphoton_mass_binning_);
+  setTitle(diphotonMassME_,"Diphoton mass","events / 0.1");
+
+  histname = "subphoton_pt"; histtitle = "subphoton PT";
+  bookME(ibooker,subphotonME_,histname,histtitle,photon_binning_.nbins,photon_binning_.xmin, photon_binning_.xmax);
+  setTitle(subphotonME_,"subPhoton pT [GeV]","events / [GeV]");
+
+  histname = "subphoton_eta"; histtitle = "subPhoton eta";
+  bookME(ibooker,subphotonEtaME_,histname,histtitle, phi_binning_1.nbins, phi_binning_1.xmin, phi_binning_1.xmax);
+  setTitle(subphotonEtaME_,"subPhoton #eta","events / 0.1");
+
+
 
   // Initialize the GenericTriggerEventFlag
   if ( num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on() ) num_genTriggerEventFlag_->initRun( iRun, iSetup );
@@ -189,11 +212,21 @@ void PhotonMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSe
   
   // filling histograms (denominator)  
 
-  
   photonME_.denominator -> Fill(photons[0].pt());
   photonME_variableBinning_.denominator -> Fill(photons[0].pt());
 
+  photonME_.denominator -> Fill(photons[0].pt());
+  photonEtaME_.denominator -> Fill(photons[0].eta());
+  photonME_variableBinning_.denominator -> Fill(photons[0].pt());
 
+  if(nphotons_>1) 
+    //filling diphoton histograms
+    {
+      subphotonME_.denominator -> Fill(photons[1].pt());
+      subphotonEtaME_.denominator -> Fill(photons[1].eta());
+      diphotonMassME_.denominator -> Fill(2*photons[0].pt()*photons[1].pt()*(cosh(photons[0].eta()-photons[1].eta())-cos(photons[0].phi()-photons[1].phi())));
+    }
+  
   int ls = iEvent.id().luminosityBlock();
   photonVsLS_.denominator -> Fill(ls, photons[0].pt());
   
@@ -202,8 +235,15 @@ void PhotonMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSe
 
   // filling histograms (num_genTriggerEventFlag_)  
   photonME_.numerator -> Fill(photons[0].pt());
+  photonEtaME_.numerator -> Fill(photons[0].eta());
   photonME_variableBinning_.numerator -> Fill(photons[0].pt());
-
+  if(nphotons_>1) 
+    //filling diphoton histograms
+    {
+      subphotonME_.numerator -> Fill(photons[1].pt());
+      subphotonEtaME_.numerator -> Fill(photons[1].eta());
+      diphotonMassME_.numerator -> Fill(2*photons[0].pt()*photons[1].pt()*(cosh(photons[0].eta()-photons[1].eta())-cos(photons[0].phi()-photons[1].phi())));
+    }
 }
 
 void PhotonMonitor::fillHistoPSetDescription(edm::ParameterSetDescription & pset)
@@ -254,10 +294,11 @@ void PhotonMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptio
   edm::ParameterSetDescription histoPSet;
   edm::ParameterSetDescription metPSet;
   fillHistoPSetDescription(metPSet);
-
   histoPSet.add<edm::ParameterSetDescription>("photonPSet", metPSet);
   std::vector<double> bins = {0.,20.,40.,60.,80.,90.,100.,110.,120.,130.,140.,150.,160.,170.,180.,190.,200.,220.,240.,260.,280.,300.,350.,400.,450.,1000.};
   histoPSet.add<std::vector<double> >("photonBinning", bins);
+  std::vector<double> massbins = {90.,91.,92.,93.,94.,95.,96.,97.,98.,99.,100.,101.,102.,103.,104.,105.,106.,107.,108.,109.,110.,115.,120.,130.,150.,200.};
+  histoPSet.add<std::vector<double> >("massBinning", massbins);
 
   edm::ParameterSetDescription lsPSet;
   fillHistoLSPSetDescription(lsPSet);
