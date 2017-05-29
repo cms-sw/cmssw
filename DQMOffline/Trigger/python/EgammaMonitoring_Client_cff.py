@@ -12,8 +12,9 @@ def makeEGEffHistDef(baseName,filterName):
             "{0}_{1}_vsSCEtaPhi_eff '{1} Efficiency vs SC #eta/#phi;#eta_{{SC}};#phi [rad];' {0}_{1}_vsSCEtaPhi_pass {0}_{1}_vsSCEtaPhi_tot".format(baseName,filterName)]
             
 def makeAllEGEffHistDefs():
-    baseNames=["ele27Tag","ele27Tag_HEM17","ele27Tag_HEP17"]
-    filterNames=["hltEle33CaloIdLMWPMS2Filter","hltDiEle33CaloIdLMWPMS2UnseededFilter","hltEG300erFilter","hltEG70HEFilter","hltDiEG70HEUnseededFilter","hltEG85HEFilter","hltDiEG85HEUnseededFilter","hltEG30EIso15HE30EcalIsoLastFilter","hltEG18EIso15HE30EcalIsoUnseededFilter","hltEle23Ele12CaloIdLTrackIdLIsoVLTrackIsoLeg1Filter","hltEle23Ele12CaloIdLTrackIdLIsoVLTrackIsoLeg2Filter","hltEle27WPTightGsfTrackIsoFilter","hltEle32noerWPTightGsfTrackIsoFilter","hltEle38noerWPTightGsfTrackIsoFilter","hltEle40noerWPTightGsfTrackIsoFilter","hltEG33L1EG26HEFilter","hltEG50HEFilter","hltEG75HEFilter","hltEG90HEFilter","hltEG120HEFilter","hltEG150HEFilter","hltEG175HEFilter","hltEG200HEFilter","hltSingleCaloJet500","hltSingleCaloJet550"]
+    baseNames=["eleWPTightTag","eleWPTightTag-HEP17","eleWPTightTag-HEM17"]
+    filterNames=["hltEle33CaloIdLMWPMS2Filter","hltDiEle33CaloIdLMWPMS2UnseededFilter","hltEG300erFilter","hltEG70HEFilter","hltDiEG70HEUnseededFilter","hltEG85HEFilter","hltDiEG85HEUnseededFilter","hltEG30EIso15HE30EcalIsoLastFilter","hltEG18EIso15HE30EcalIsoUnseededFilter","hltEle23Ele12CaloIdLTrackIdLIsoVLTrackIsoLeg1Filter","hltEle23Ele12CaloIdLTrackIdLIsoVLTrackIsoLeg2Filter","hltEle27WPTightGsfTrackIsoFilter","hltEle32noerWPTightGsfTrackIsoFilter","hltEle35noerWPTightGsfTrackIsoFilter","hltEle38noerWPTightGsfTrackIsoFilter","hltEle27L1DoubleEGWPTightGsfTrackIsoFilter","hltEle32L1DoubleEGWPTightGsfTrackIsoFilter","hltEG33L1EG26HEFilter","hltEG50HEFilter","hltEG75HEFilter","hltEG90HEFilter","hltEG120HEFilter","hltEG150HEFilter","hltEG175HEFilter","hltEG200HEFilter","hltSingleCaloJet500","hltSingleCaloJet550"]
+
 
     histDefs=[]
     for baseName in baseNames:
@@ -22,14 +23,13 @@ def makeAllEGEffHistDefs():
     return histDefs
 
 
-egTPEffClient = cms.EDAnalyzer("DQMGenericClient",
-                                subDirs        = cms.untracked.vstring("HLT/EGTagAndProbeEffs/*"),
-                                verbose        = cms.untracked.uint32(2), # Set to 2 for all messages
-                                resolution     = cms.vstring(),
-                                efficiency     = cms.vstring(),
-                                efficiencyProfile = cms.untracked.vstring()
-                                
-                                )
+egTPEffClient = cms.EDProducer("DQMGenericClient",
+                               subDirs        = cms.untracked.vstring("HLT/EGTagAndProbeEffs/*"),
+                               verbose        = cms.untracked.uint32(0), 
+                               resolution     = cms.vstring(),
+                               efficiency     = cms.vstring(),
+                               efficiencyProfile = cms.untracked.vstring()
+                               )
 egTPEffClient.efficiency.extend(makeAllEGEffHistDefs())
 
 egammaClient = cms.Sequence(

@@ -27,13 +27,24 @@ namespace hltdqm {
     }
     return false;
   }
+
+  //empty filters is auto pass
   bool passTrig(const float objEta,float objPhi, const trigger::TriggerEvent& trigEvt,
-		const std::vector<std::string>& filterNames,const std::string& processName){
-    for(auto& filterName : filterNames){
-      if(passTrig(objEta,objPhi,trigEvt,filterName,processName)==false) return false;
+		const std::vector<std::string>& filterNames,bool orFilters,const std::string& processName){
+    if(orFilters){
+      if(filterNames.empty()) return true; //auto pass if empty filters
+      for(auto& filterName : filterNames){
+	if(passTrig(objEta,objPhi,trigEvt,filterName,processName)==true) return true;
+      }
+      return false;
+    }else{   
+      for(auto& filterName : filterNames){
+	if(passTrig(objEta,objPhi,trigEvt,filterName,processName)==false) return false;
+      }
+      return true;
     }
-    return true;
   }
+
    //inspired by https://github.com/cms-sw/cmssw/blob/fc4f8bbe1258790e46e2d554aacea15c3e5d9afa/HLTrigger/HLTfilters/src/HLTHighLevel.cc#L124-L165
    //triggers are ORed together
    //empty pattern is auto pass
