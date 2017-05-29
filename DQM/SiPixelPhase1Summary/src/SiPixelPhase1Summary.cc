@@ -97,6 +97,11 @@ void SiPixelPhase1Summary::dqmEndLuminosityBlock(DQMStore::IBooker & iBooker, DQ
 //------------------------------------------------------------------
 void SiPixelPhase1Summary::dqmEndJob(DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter)
 {
+  if (firstLumi){ //Book the plots in the (maybe possible?) case that they aren't booked in the dqmEndLuminosityBlock method
+    bookSummaries(iBooker);
+    bookTrendPlots(iBooker);
+    firstLumi = false;
+  }
   if (runOnEndJob_){
     fillSummaries(iBooker,iGetter);
     if (!runOnEndLumi_) fillTrendPlots(iBooker,iGetter); //If we're filling these plots at the end lumi step, it doesn't really make sense to also do them at the end job
@@ -192,6 +197,10 @@ void SiPixelPhase1Summary::fillSummaries(DQMStore::IBooker & iBooker, DQMStore::
 	  continue; // Ignore non-existing MEs, as this can cause the whole thing to crash
 	}
 
+	if (!summaryMap_[name]){
+	  edm::LogWarning("SiPixelPhase1Summary") << "Summary map " << name << " is not available !!";
+	  continue; // Based on reported errors it seems possible that we're trying to access a non-existant summary map, so if the map doesn't exist but we're trying to access it here we'll skip it instead.
+	}
 	if ((me->getQReports()).size()!=0) summaryMap_[name]->setBinContent(i+1,j+1,(me->getQReports())[0]->getQTresult());
 	else summaryMap_[name]->setBinContent(i+1,j+1,-1);
       }  
