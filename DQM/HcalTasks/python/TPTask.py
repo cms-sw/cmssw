@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-fgbits = [1 for x in range(5)]
+fgbits = [0 for x in range(5)]
 fgbits.append(0)
 
 tpTask = cms.EDAnalyzer(
