@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 from DQM.DTMonitorModule.dtChamberEfficiency_Cosmics_cfi import *
-from DQM.DTMonitorModule.dtDCSByLumiTask_cfi import *
 from DQM.DTMonitorModule.dtSegmentTask_cfi import *
+from DQM.DTMonitorModule.dtDCSByLumiTask_cfi import *
 from DQM.DTMonitorModule.dtRunConditionVar_cfi import *
 dtSegmentAnalysisMonitor.detailedAnalysis = True
 dtSegmentAnalysisMonitor.slideTimeBins = False
@@ -13,6 +13,21 @@ from DQM.DTMonitorModule.dtResolutionTask_cfi import *
 dqmInfoDT = cms.EDAnalyzer("DQMEventInfo",
                          subSystemFolder = cms.untracked.string('DT')
                          )
+
+# DT digitization and reconstruction
+# Switched to TwinMux
+from EventFilter.L1TXRawToDigi.twinMuxStage2Digis_cfi import *
+twinMuxStage2Digis.DTTM7_FED_Source = 'rawDataCollector'
+
+from EventFilter.DTRawToDigi.dtunpackerDDUGlobal_cfi import *
+#from EventFilter.DTRawToDigi.dtunpackerDDULocal_cfi import *
+dtunpacker.readOutParameters.performDataIntegrityMonitor = True
+dtunpacker.readOutParameters.rosParameters.performDataIntegrityMonitor = True
+dtunpacker.readOutParameters.debug = False
+dtunpacker.readOutParameters.rosParameters.debug = False
+dtunpacker.inputLabel = 'rawDataCollector'
+
+unpackers = cms.Sequence(dtunpacker + twinMuxStage2Digis )
 
 
 dtDataIntegrityUnpacker = cms.EDProducer("DTUnpackingModule",
@@ -41,12 +56,13 @@ DTDataIntegrityTask.processingMode = "Offline"
 
 from DQM.DTMonitorModule.dtTriggerEfficiencyTask_cfi import *
 
-dtSourcesCosmics = cms.Sequence(dtDataIntegrityUnpacker  +
-                                DTDataIntegrityTask +
-                                dtDCSByLumiMonitor + 
-                                dtRunConditionVar + 
-                                dtSegmentAnalysisMonitor +
-                                dtResolutionAnalysisMonitor +
-                                dtEfficiencyMonitor +
-                                dtTriggerEfficiencyMonitor +
-                                dqmInfoDT)
+dtSourcesCosmics = cms.Sequence(#dtDataIntegrityUnpacker  +
+			 unpackers  +
+                         DTDataIntegrityTask +
+                         dtDCSByLumiMonitor + 
+                         dtRunConditionVar + 
+                         dtSegmentAnalysisMonitor +
+                         dtResolutionAnalysisMonitor +
+                         dtEfficiencyMonitor +
+                         dtTriggerEfficiencyMonitor +
+                         dqmInfoDT)
