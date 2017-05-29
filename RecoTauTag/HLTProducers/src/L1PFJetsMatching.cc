@@ -19,23 +19,23 @@ std::pair<PFJetCollection,PFJetCollection> categorise(PFJetCollection PFMatchedJ
     unsigned int i2 = 0;
     double mjj = 0;
     if (PFMatchedJets.size()>1){
-    for (unsigned int i = 0; i < PFMatchedJets.size()-1; i++)
-        for (unsigned int j = i+1; j < PFMatchedJets.size(); j++)
-    {
-        const PFJet &  myJet1 = (PFMatchedJets)[i];
-        const PFJet &  myJet2 = (PFMatchedJets)[j];
+        for (unsigned int i = 0; i < PFMatchedJets.size()-1; i++)
+            for (unsigned int j = i+1; j < PFMatchedJets.size(); j++)
+            {
+                const PFJet &  myJet1 = (PFMatchedJets)[i];
+                const PFJet &  myJet2 = (PFMatchedJets)[j];
+                
+                
+                if ((myJet1.p4()+myJet2.p4()).M()>mjj){
+                    
+                    mjj =(myJet1.p4()+myJet2.p4()).M();
+                    i1 = i;
+                    i2 = j;
+                }
+            }
         
-        
-        if ((myJet1.p4()+myJet2.p4()).M()>mjj){
-            
-            mjj =(myJet1.p4()+myJet2.p4()).M();
-            i1 = i;
-            i2 = j;
-        }
-    }
-        
-            const PFJet &  myJet1 = (PFMatchedJets)[i1];
-            const PFJet &  myJet2 = (PFMatchedJets)[i2];
+        const PFJet &  myJet1 = (PFMatchedJets)[i1];
+        const PFJet &  myJet2 = (PFMatchedJets)[i2];
         
         if ((myJet1.p4().Pt() >= pt1) && (myJet2.p4().Pt() > pt2) && (mjj > Mjj))
         {
@@ -43,24 +43,24 @@ std::pair<PFJetCollection,PFJetCollection> categorise(PFJetCollection PFMatchedJ
             Output.first.push_back(myJet1);
             Output.first.push_back(myJet2);
             
-	}
+        }
         
         if ((myJet1.p4().Pt() < pt1) && (myJet1.p4().Pt() > pt2) && (myJet2.p4().Pt() > pt2) && (mjj > Mjj))
         {
             
             const PFJet &  myJetTest = (PFMatchedJets)[0];
-         if (myJetTest.p4().Pt()>pt1){
-            Output.second.push_back(myJet1);
-            Output.second.push_back(myJet2);
-            Output.second.push_back(myJetTest);
-             
-		}
+            if (myJetTest.p4().Pt()>pt1){
+                Output.second.push_back(myJet1);
+                Output.second.push_back(myJet2);
+                Output.second.push_back(myJetTest);
+                
+            }
         }
         
     }
     
-            return Output;
-        
+    return Output;
+    
 }
 
 L1PFJetsMatching::L1PFJetsMatching(const edm::ParameterSet& iConfig):
