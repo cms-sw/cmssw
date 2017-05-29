@@ -4,26 +4,13 @@
 
 #include "L1Trigger/L1TCommon/interface/XmlConfigReader.h"
 #include "L1Trigger/L1TCommon/interface/TrigSystem.h"
+#include "Utilities/Xerces/interface/XercesStrUtils.h"
 
 #include "xercesc/util/PlatformUtils.hpp"
 
 XERCES_CPP_NAMESPACE_USE
 
 using namespace l1t;
-
-inline std::string _toString(XMLCh const* toTranscode) {
-    char *c = xercesc::XMLString::transcode(toTranscode);
-    std::string retval = c;
-    xercesc::XMLString::release(&c);
-    return retval;
-}
-
-
-inline XMLCh* _toDOMS(std::string temp) {
-  XMLCh* buff = XMLString::transcode(temp.c_str());
-  return  buff;
-}
-
 
 XmlConfigReader::XmlConfigReader() :
   kTagHw(nullptr),
@@ -226,10 +213,10 @@ void XmlConfigReader::readElement(const DOMElement* element, TrigSystem& aTrigSy
 void XmlConfigReader::readHwDescription(const DOMElement* element, TrigSystem& aTrigSystem, const std::string& sysId)
 {
   // if sysId == "" set the systemId of the trigsystem from the xml sytem id
-  if (sysId != "" && sysId != _toString(element->getAttribute(kAttrId))) {
+  if (sysId != "" && sysId != cms::xerces::toString(element->getAttribute(kAttrId))) {
     return;
   }
-  aTrigSystem.setSystemId(_toString(element->getAttribute(kAttrId)));
+  aTrigSystem.setSystemId(cms::xerces::toString(element->getAttribute(kAttrId)));
 
   // handle processors
   DOMNodeList* processors = element->getElementsByTagName(kTagProcessor);
@@ -238,7 +225,7 @@ void XmlConfigReader::readHwDescription(const DOMElement* element, TrigSystem& a
     DOMNode* currentNode = processors->item(xx);
     if (currentNode->getNodeType() &&  currentNode->getNodeType() == DOMNode::ELEMENT_NODE) { //no null and is element
       DOMElement* currentElement = static_cast<DOMElement*>( currentNode );
-      std::string procStr = _toString(currentElement->getAttribute(kAttrId));
+      std::string procStr = cms::xerces::toString(currentElement->getAttribute(kAttrId));
 
       DOMNodeList* roles = currentElement->getElementsByTagName(kTagRole);
       // roles of this processor (should be only one)
@@ -246,7 +233,7 @@ void XmlConfigReader::readHwDescription(const DOMElement* element, TrigSystem& a
         DOMNodeList* roleChilds = roles->item(i)->getChildNodes();
         for (XMLSize_t j = 0; j < roleChilds->getLength(); ++j) {
           if (roleChilds->item(j)->getNodeType() == DOMNode::TEXT_NODE) {
-            aTrigSystem.addProcRole(procStr, _toString(roleChilds->item(j)->getNodeValue()));
+            aTrigSystem.addProcRole(procStr, cms::xerces::toString(roleChilds->item(j)->getNodeValue()));
           }
         }
       }
@@ -257,7 +244,7 @@ void XmlConfigReader::readHwDescription(const DOMElement* element, TrigSystem& a
         DOMNodeList* crateChilds = crates->item(i)->getChildNodes();
         for (XMLSize_t j = 0; j < crateChilds->getLength(); ++j) {
           if (crateChilds->item(j)->getNodeType() == DOMNode::TEXT_NODE) {
-            aTrigSystem.addProcCrate(procStr, _toString(crateChilds->item(j)->getNodeValue()));
+            aTrigSystem.addProcCrate(procStr, cms::xerces::toString(crateChilds->item(j)->getNodeValue()));
           }
         }
       }
@@ -268,7 +255,7 @@ void XmlConfigReader::readHwDescription(const DOMElement* element, TrigSystem& a
         DOMNodeList* slotChilds = slots->item(i)->getChildNodes();
         for (XMLSize_t j = 0; j < slotChilds->getLength(); ++j) {
           if (slotChilds->item(j)->getNodeType() == DOMNode::TEXT_NODE) {
-            aTrigSystem.addProcSlot(procStr, _toString(slotChilds->item(j)->getNodeValue()));
+            aTrigSystem.addProcSlot(procStr, cms::xerces::toString(slotChilds->item(j)->getNodeValue()));
           }
         }
       }
@@ -283,7 +270,7 @@ void XmlConfigReader::readHwDescription(const DOMElement* element, TrigSystem& a
     DOMNode* currentNode = daqttcs->item(xx);
     if (currentNode->getNodeType() &&  currentNode->getNodeType() == DOMNode::ELEMENT_NODE) { //no null and is element
       DOMElement* currentElement = static_cast<DOMElement*>( currentNode );
-      std::string daqttcStr = _toString(currentElement->getAttribute(kAttrId));
+      std::string daqttcStr = cms::xerces::toString(currentElement->getAttribute(kAttrId));
 
       DOMNodeList* roles = currentElement->getElementsByTagName(kTagRole);
       // roles of this DAQ TTC manager (should be only one)
@@ -291,7 +278,7 @@ void XmlConfigReader::readHwDescription(const DOMElement* element, TrigSystem& a
         DOMNodeList* roleChilds = roles->item(i)->getChildNodes();
         for (XMLSize_t j = 0; j < roleChilds->getLength(); ++j) {
           if (roleChilds->item(j)->getNodeType() == DOMNode::TEXT_NODE) {
-            aTrigSystem.addDaqRole(daqttcStr, _toString(roleChilds->item(j)->getNodeValue()));
+            aTrigSystem.addDaqRole(daqttcStr, cms::xerces::toString(roleChilds->item(j)->getNodeValue()));
           }
         }
       }
@@ -302,7 +289,7 @@ void XmlConfigReader::readHwDescription(const DOMElement* element, TrigSystem& a
         DOMNodeList* crateChilds = crates->item(i)->getChildNodes();
         for (XMLSize_t j = 0; j < crateChilds->getLength(); ++j) {
           if (crateChilds->item(j)->getNodeType() == DOMNode::TEXT_NODE) {
-            aTrigSystem.addDaqCrate(daqttcStr, _toString(crateChilds->item(j)->getNodeValue()));
+            aTrigSystem.addDaqCrate(daqttcStr, cms::xerces::toString(crateChilds->item(j)->getNodeValue()));
           }
         }
       }
@@ -318,7 +305,7 @@ void XmlConfigReader::readHwDescription(const DOMElement* element, TrigSystem& a
       if (elem->getNodeType() == DOMNode::ELEMENT_NODE) {
         if (XMLString::equals(elem->getTagName(), kTagExclude)) {
           // found an excluded board
-          std::string id = _toString(elem->getAttribute(kAttrId));
+          std::string id = cms::xerces::toString(elem->getAttribute(kAttrId));
           aTrigSystem.disableDaqProc(id); // handle in the same way as disabled ids in the run-settings
         }
       }
@@ -333,12 +320,12 @@ void XmlConfigReader::readContext(const DOMElement* element, const std::string& 
   if (systemId == "") {
     systemId = aTrigSystem.systemId();
   }
-  if (_toString(element->getAttribute(kAttrId)) == systemId) {
+  if (cms::xerces::toString(element->getAttribute(kAttrId)) == systemId) {
     DOMNodeList* contextElements = element->getElementsByTagName(kTagContext);
 
     for (XMLSize_t i = 0; i < contextElements->getLength(); ++i) {
       DOMElement* contextElement = static_cast<DOMElement*>(contextElements->item(i));
-      std::string contextId = _toString(contextElement->getAttribute(kAttrId));
+      std::string contextId = cms::xerces::toString(contextElement->getAttribute(kAttrId));
 
       for (DOMElement* elem = static_cast<DOMElement*>(contextElement->getFirstChild()); elem; elem = static_cast<DOMElement*>(elem->getNextSibling())) {
         if (elem->getNodeType() == DOMNode::ELEMENT_NODE) {
@@ -358,7 +345,7 @@ void XmlConfigReader::readContext(const DOMElement* element, const std::string& 
                 DOMNodeList* colChilds = colElements->item(j)->getChildNodes();
                 for (XMLSize_t k = 0; k < colChilds->getLength(); ++k) {
                   if (colChilds->item(k)->getNodeType() == DOMNode::TEXT_NODE) {
-///                    columnsStr = _toString(colChilds->item(k)->getNodeValue());
+///                    columnsStr = cms::xerces::toString(colChilds->item(k)->getNodeValue());
 ///                    pruneString(columnsStr);
                     char *cStr = xercesc::XMLString::transcode( colChilds->item(k)->getNodeValue() );
                     columnsStr = pruneString( cStr );
@@ -374,7 +361,7 @@ void XmlConfigReader::readContext(const DOMElement* element, const std::string& 
                 DOMNodeList* colTypesChilds = colTypesElements->item(j)->getChildNodes();
                 for (XMLSize_t k = 0; k < colTypesChilds->getLength(); ++k) {
                   if (colTypesChilds->item(k)->getNodeType() == DOMNode::TEXT_NODE) {
-///                    typesStr = _toString(colTypesChilds->item(k)->getNodeValue());
+///                    typesStr = cms::xerces::toString(colTypesChilds->item(k)->getNodeValue());
 ///                    pruneString(typesStr);
                     char *tStr = xercesc::XMLString::transcode( colTypesChilds->item(k)->getNodeValue() );
                     typesStr = pruneString( tStr );
@@ -390,7 +377,7 @@ void XmlConfigReader::readContext(const DOMElement* element, const std::string& 
                 DOMNodeList* rowChilds = rowElements->item(j)->getChildNodes();
                 for (XMLSize_t k = 0; k < rowChilds->getLength(); ++k) {
                   if (rowChilds->item(k)->getNodeType() == DOMNode::TEXT_NODE) {
-///                    std::string rowStr = _toString(rowChilds->item(k)->getNodeValue());
+///                    std::string rowStr = cms::xerces::toString(rowChilds->item(k)->getNodeValue());
 ///                    pruneString(rowStr);
 ///                    rowStrs.push_back(rowStr);
                     char *rStr = xercesc::XMLString::transcode( rowChilds->item(k)->getNodeValue() );
@@ -407,7 +394,7 @@ void XmlConfigReader::readContext(const DOMElement* element, const std::string& 
               DOMNodeList* valNodes = elem->getChildNodes();
               for (XMLSize_t j = 0; j < valNodes->getLength(); ++j) {
                 if (valNodes->item(j)->getNodeType() == DOMNode::TEXT_NODE) {
-                  value += _toString(valNodes->item(j)->getNodeValue());
+                  value += cms::xerces::toString(valNodes->item(j)->getNodeValue());
                 }
               }
 
@@ -424,13 +411,13 @@ void XmlConfigReader::readContext(const DOMElement* element, const std::string& 
 
           } else if (XMLString::equals(elem->getTagName(), kTagMask)) {
             // found a Mask
-            std::string id = _toString(elem->getAttribute(kAttrId));
+            std::string id = cms::xerces::toString(elem->getAttribute(kAttrId));
             //std::cout << "Mask element node with id attribute " << id << std::endl;
             aTrigSystem.addMask(id, contextId);
 
           } else if (XMLString::equals(elem->getTagName(), kTagDisable)) {
             // found a disable
-            std::string id = _toString(elem->getAttribute(kAttrId));
+            std::string id = cms::xerces::toString(elem->getAttribute(kAttrId));
             aTrigSystem.disableDaqProc(id);
           }
         }
@@ -465,7 +452,7 @@ DOMElement* XmlConfigReader::getKeyElement(const std::string& key)
 
     for (XMLSize_t i = 0; i < keyElements->getLength(); ++i) {
       DOMElement* keyElement = static_cast<DOMElement*>(keyElements->item(i));
-      if (_toString(keyElement->getAttribute(kAttrId)) == key) { // we found the key we were looking for
+      if (cms::xerces::toString(keyElement->getAttribute(kAttrId)) == key) { // we found the key we were looking for
         return keyElement;
       }
     }
@@ -481,7 +468,7 @@ void XmlConfigReader::buildGlobalDoc(const std::string& key, const std::string& 
     DOMNodeList* loadElements = keyElement->getElementsByTagName(kTagLoad);
     for (XMLSize_t i = 0; i < loadElements->getLength(); ++i) {
       DOMElement* loadElement = static_cast<DOMElement*>(loadElements->item(i));
-      std::string fileName = _toString(loadElement->getAttribute(kAttrModule));
+      std::string fileName = cms::xerces::toString(loadElement->getAttribute(kAttrModule));
       if (fileName.find("/") != 0) { // load element has a relative path
         // build an absolute path with directory of top xml file
         size_t pos;
@@ -506,7 +493,7 @@ void XmlConfigReader::buildGlobalDoc(const std::string& key, const std::string& 
 void XmlConfigReader::appendNodesFromSubDoc(DOMNode* parentNode, DOMDocument* subDoc)
 {
   DOMElement* subDocRootElement = subDoc->getDocumentElement();
-  //std::cout << "root element tag: " << _toString(subDocRootElement->getTagName()) << std::endl;
+  //std::cout << "root element tag: " << cms::xerces::toString(subDocRootElement->getTagName()) << std::endl;
   if (XMLString::equals(subDocRootElement->getTagName(), kTagAlgo) || XMLString::equals(subDocRootElement->getTagName(), kTagRunSettings)) {
     DOMNode* importedNode = doc_->importNode(subDocRootElement, true);
     parentNode->appendChild(importedNode);
