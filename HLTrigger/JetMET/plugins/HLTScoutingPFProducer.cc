@@ -105,7 +105,7 @@ void HLTScoutingPFProducer::produce(edm::StreamID sid, edm::Event & iEvent, edm:
     if(iEvent.getByToken(vertexCollection_, vertexCollection)){
         for(auto &vtx : *vertexCollection){
             outVertices->emplace_back(
-                    vtx.x(), vtx.y(), vtx.z(), vtx.zError()
+				      vtx.x(), vtx.y(), vtx.z(), vtx.zError(), vtx.xError(), vtx.yError(), vtx.tracksSize(), vtx.chi2(), vtx.ndof()
                     );
         }
     }
