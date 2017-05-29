@@ -143,8 +143,8 @@ void GEMTrackMatch::buildLUT(const int maxChamberId)
   edm::LogInfo("GEMTrackMatch")<<"max chamber "<<maxChamberId<<"\n";
 
   std::vector<int> pos_ids, neg_ids;
-  std::vector<float> phis_neg;
   std::vector<float> phis_pos;
+  std::vector<float> phis_neg;
   LocalPoint  lCentre( 0., 0., 0. );
 
   for(auto it : gem_geom_->chambers()) {
