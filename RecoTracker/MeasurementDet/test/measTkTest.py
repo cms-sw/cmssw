@@ -37,8 +37,9 @@ process.load("MagneticField.Engine.autoMagneticFieldProducer_cfi")
 process.AutoMagneticFieldESProducer.valueOverride = 18000
 
 
-process.myTest  = cms.EDAnalyzer("MeasurementTrackerUpdator",
- measurementTrackerName= cms.string('')     
+process.myTest  = cms.EDAnalyzer("MeasurementTrackerTest",
+ measurementTracker = cms.string(''),
+ navigationSchool   = cms.string('SimpleNavigationSchool')
 )
 process.p1 = cms.Path(process.myTest)
 
