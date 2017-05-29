@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    MeasurementTrackerUpdator
-// Class:      MeasurementTrackerUpdator
+// Package:    MeasurementTrackerTest
+// Class:      MeasurementTrackerTest
 // 
-/**\class MeasurementTrackerUpdator MeasurementTrackerUpdator.cc RecoTracker/MeasurementTrackerUpdator/src/MeasurementTrackerUpdator.cc
+/**\class MeasurementTrackerTest MeasurementTrackerTest.cc RecoTracker/MeasurementTrackerTest/src/MeasurementTrackerTest.cc
 
  Description: <one line class summary>
 
@@ -36,42 +36,44 @@
 
 #include <RecoTracker/MeasurementDet/interface/MeasurementTracker.h>
 #include <RecoTracker/Record/interface/CkfComponentsRecord.h>
-//#include <RecoTracker/Record/interface/MeasurementTrackerRecord.h>
+#include "TrackingTools/DetLayers/interface/NavigationSchool.h"
+#include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
+
 
 //class definition
-class MeasurementTrackerUpdator : public edm::EDAnalyzer {
+class MeasurementTrackerTest : public edm::EDAnalyzer {
 public:
-  explicit MeasurementTrackerUpdator(const edm::ParameterSet&);
-  ~MeasurementTrackerUpdator();
+  explicit MeasurementTrackerTest(const edm::ParameterSet&);
+  ~MeasurementTrackerTest();
 
 
 private:
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   std::string theMeasurementTrackerName;
+  std::string theNavigationSchoolName;
 };
 
 
-MeasurementTrackerUpdator::MeasurementTrackerUpdator(const edm::ParameterSet& iConfig): 
-  theMeasurementTrackerName(iConfig.getParameter<std::string>("measurementTrackerName")){}
+MeasurementTrackerTest::MeasurementTrackerTest(const edm::ParameterSet& iConfig): 
+   theMeasurementTrackerName(iConfig.getParameter<std::string>("measurementTracker"))
+  ,theNavigationSchoolName(iConfig.getParameter<std::string>("navigationSchool")){}
 
-MeasurementTrackerUpdator::~MeasurementTrackerUpdator() {}
+MeasurementTrackerTest::~MeasurementTrackerTest() {}
 
-void MeasurementTrackerUpdator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void MeasurementTrackerTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
   
   //get the measurementtracker
   edm::ESHandle<MeasurementTracker> measurementTracker;
+  edm::ESHandle<NavigationSchool>   navSchool;
 
-  edm::LogInfo("MeasurementTrackerUpdator")<<"from CkfComponentRecord";
   iSetup.get<CkfComponentsRecord>().get(theMeasurementTrackerName, measurementTracker);
-
-  //update it to trigger the possible unpacking so that it is decoupled from the hosting module
-  //measurementTracker->update(iEvent);
+  iSetup.get<NavigationSchoolRecord>().get(theNavigationSchoolName, navSchool);
 
 }
 
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(MeasurementTrackerUpdator);
+DEFINE_FWK_MODULE(MeasurementTrackerTest);
