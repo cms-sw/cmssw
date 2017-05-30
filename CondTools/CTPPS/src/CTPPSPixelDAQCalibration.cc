@@ -20,18 +20,12 @@ CTPPSPixelDAQCalibration::CTPPSPixelDAQCalibration(edm::ParameterSet const& conf
 {
   CalibrationFile_ = conf.getParameter<std::string>("CalibrationFile");
 
-// To be removed
-//  CalibrationFile_ = std::string("Gain_Fed_1294_Run_99.root");
 
   fp = new TFile(CalibrationFile_.c_str());
 
 
 }
 
-// CTPPSPixelDAQCalibration::CTPPSPixelDAQCalibration(const CTPPSPixelDAQCalibration& rhs)
-// {
-//    // do actual copying here;
-// }
 
 CTPPSPixelDAQCalibration::~CTPPSPixelDAQCalibration()
 {
@@ -57,7 +51,7 @@ void CTPPSPixelDAQCalibration::getDAQCalibration(unsigned int detid, int row, in
 
   if (modulepixels.transformToROC(col,row,roc,colROC,rowROC)==0){
 
-// TOTEM RP numbering scheme (https://indico.cern.ch/event/626748/contributions/2531619/attachments/1438891/2214488/FRavera_CTPPSGM_April2017.pdf) 
+/// TOTEM RP numbering scheme (https://indico.cern.ch/event/626748/contributions/2531619/attachments/1438891/2214488/FRavera_CTPPSGM_April2017.pdf) 
 
    sprintf(pathgains,"CTPPS/CTPPS_SEC%d/CTPPS_SEC%d_RP%d%d%d/CTPPS_SEC%d_RP%d%d%d_PLN%d/CTPPS_SEC%d_RP%d%d%d_PLN%d_ROC%d_Slope2D",sector,sector,arm,station,pot,sector,arm,station,pot,plane,sector,arm,station,pot,plane,roc);
    sprintf(pathpedestals,"CTPPS/CTPPS_SEC%d/CTPPS_SEC%d_RP%d%d%d/CTPPS_SEC%d_RP%d%d%d_PLN%d/CTPPS_SEC%d_RP%d%d%d_PLN%d_ROC%d_Intercept2D",sector,sector,arm,station,pot,sector,arm,station,pot,plane,sector,arm,station,pot,plane,roc);
@@ -93,9 +87,8 @@ void CTPPSPixelDAQCalibration::getDAQCalibration(unsigned int detid, int row, in
      pedestal = float(pedestalshisto->GetBinContent(colROC+1,rowROC+1));
    }
   delete gainshisto; delete pedestalshisto;
-  }else{
-  //  std::cout << "** Module to ROC pixel transformation failed!! **" << std::endl;
   }
+
 
   
 

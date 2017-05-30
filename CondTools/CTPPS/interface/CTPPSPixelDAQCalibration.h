@@ -25,9 +25,8 @@ class CTPPSPixelDAQCalibration
       char pathpedestals[200];
 
    private:
-//      CTPPSPixelDAQCalibration(const CTPPSPixelDAQCalibration&); 
       std::string CalibrationFile_;
-      const CTPPSPixelDAQCalibration& operator=(const CTPPSPixelDAQCalibration&); // stop default
+      const CTPPSPixelDAQCalibration& operator=(const CTPPSPixelDAQCalibration&); 
       TFile * fp;
 
 };
