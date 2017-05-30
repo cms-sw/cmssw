@@ -1,6 +1,6 @@
 #include <string>
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -38,24 +38,24 @@
 
 namespace pat {
 
-    class PATIsolatedTrackProducer : public edm::EDProducer {
+    class PATIsolatedTrackProducer : public edm::stream::EDProducer<> {
       public:
           typedef pat::IsolatedTrack::LorentzVector LorentzVector;
 
           explicit PATIsolatedTrackProducer(const edm::ParameterSet&);
           ~PATIsolatedTrackProducer();
 
-          virtual void produce(edm::Event&, const edm::EventSetup&);
+          virtual void produce(edm::Event&, const edm::EventSetup&) override;
         
           // compute iso/miniiso
           void getIsolation(const LorentzVector& p4, const pat::PackedCandidateCollection* pc, int pc_idx,
-                            pat::PFIsolation &iso, pat::PFIsolation &miniiso);
+                            pat::PFIsolation &iso, pat::PFIsolation &miniiso) const;
 
-          float getDeDx(const reco::DeDxHitInfo *hitInfo, bool doPixel, bool doStrip);
+          float getDeDx(const reco::DeDxHitInfo *hitInfo, bool doPixel, bool doStrip) const ;
 
           TrackDetMatchInfo getTrackDetMatchInfo(const edm::Event&, const edm::EventSetup&, const reco::Track&);
 
-          void getCaloJetEnergy(const LorentzVector&, const reco::CaloJetCollection*, float&, float&);
+          void getCaloJetEnergy(const LorentzVector&, const reco::CaloJetCollection*, float&, float&) const;
 
       private:             
           const edm::EDGetTokenT<pat::PackedCandidateCollection>    pc_;
@@ -120,33 +120,40 @@ pat::PATIsolatedTrackProducer::~PATIsolatedTrackProducer() {}
 
 void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
+    // packedPFCandidate collection
     edm::Handle<pat::PackedCandidateCollection> pc_h;
     iEvent.getByToken( pc_, pc_h );
     const pat::PackedCandidateCollection *pc = pc_h.product();
 
+    // lostTracks collection
     edm::Handle<pat::PackedCandidateCollection> lt_h;
     iEvent.getByToken( lt_, lt_h );
 
+    // generalTracks collection
     edm::Handle<reco::TrackCollection> gt_h;
     iEvent.getByToken( gt_, gt_h );
     const reco::TrackCollection *generalTracks = gt_h.product();
 
-
+    // generalTracks-->packedPFCandidate association
     edm::Handle<edm::Association<pat::PackedCandidateCollection> > gt2pc;
     iEvent.getByToken(gt2pc_, gt2pc);
 
+    // generalTracks-->lostTracks association
     edm::Handle<edm::Association<pat::PackedCandidateCollection> > gt2lt;
     iEvent.getByToken(gt2lt_, gt2lt);
 
+    // packedPFCandidates-->particleFlow(reco::PFCandidate) association
     edm::Handle<edm::Association<reco::PFCandidateCollection> > pc2pf;
     iEvent.getByToken(pc2pf_, pc2pf);
 
     edm::Handle<reco::CaloJetCollection> caloJets;
     iEvent.getByToken(caloJets_, caloJets);
 
+    // associate generalTracks with their DeDx data (estimator for strip dE/dx)
     edm::Handle<edm::ValueMap<reco::DeDxData> > gt2dedx;
     iEvent.getByToken(gt2dedx_, gt2dedx);
 
+    // associate generalTracks with their DeDx hit info (used to estimate pixel dE/dx)
     edm::Handle<reco::DeDxHitInfoAss> gt2dedxHitInfo;
     iEvent.getByToken(gt2dedxHitInfo_, gt2dedxHitInfo);
 
@@ -166,16 +173,12 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
         reco::TrackRef tkref = reco::TrackRef(gt_h, igt);
         pat::PackedCandidateRef pcref = (*gt2pc)[tkref];
         pat::PackedCandidateRef ltref = (*gt2lt)[tkref];
-        bool isInPackedCands = (pcref.isNonnull() && pcref.id()==pc_h.id());
-        bool isInLostTracks  = (ltref.isNonnull() && ltref.id()==lt_h.id());
 
-        // apparently this happens when a neutral pfcand is associated with a charged track
-        // if(isInPackedCands && isInLostTracks){
-        //     std::cout << "THIS SHOULDN'T HAPPEN " << iEvent.eventAuxiliary().event() << " " <<
-        //         tkref.key() << " " << tkref.get()->pt() << " " <<
-        //         pcref.key() << " " << pcref.get()->pt() << " " <<
-        //         ltref.key() << " " << ltref.get()->pt() << std::endl;
-        // }
+        // Determine if this general track is associated with anything in packedPFCandidates or lostTracks
+        // Sometimes, a track gets associated w/ a neutral pfCand.
+        // In this case, ignore the pfCand and take from lostTracks
+        bool isInPackedCands = (pcref.isNonnull() && pcref.id()==pc_h.id() && pcref.get()->charge()!=0);
+        bool isInLostTracks  = (ltref.isNonnull() && ltref.id()==lt_h.id());
 
         LorentzVector p4;
         pat::PackedCandidateRef refToCand;
@@ -184,7 +187,7 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
         int pfCandInd; //to avoid counting packedPFCands in their own isolation
 
         // get the four-momentum and charge
-        if(isInPackedCands && pcref.get()->charge() != 0){
+        if(isInPackedCands){
             p4 = pcref.get()->p4();
             charge = pcref.get()->charge();
             pfCandInd = pcref.key();
@@ -218,7 +221,7 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
             continue;
 
         // get the rest after the pt/iso cuts. Saves some runtime
-        if(isInPackedCands && pcref.get()->charge() != 0){
+        if(isInPackedCands){
             pdgId = pcref.get()->pdgId();
             dz = pcref.get()->dz();
             dxy = pcref.get()->dxy();
@@ -349,14 +352,14 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
 
 
 void pat::PATIsolatedTrackProducer::getIsolation(const LorentzVector& p4, 
-                                                const pat::PackedCandidateCollection *pc, int pc_idx,
-                                                pat::PFIsolation &iso, pat::PFIsolation &miniiso)
+                                                 const pat::PackedCandidateCollection *pc, int pc_idx,
+                                                 pat::PFIsolation &iso, pat::PFIsolation &miniiso) const
 {
         float chiso=0, nhiso=0, phiso=0, puiso=0;   // standard isolation
         float chmiso=0, nhmiso=0, phmiso=0, pumiso=0;  // mini isolation
         float miniDR = std::max(miniIsoParams_[0], std::min(miniIsoParams_[1], miniIsoParams_[2]/p4.pt()));
         for(pat::PackedCandidateCollection::const_iterator pf_it = pc->begin(); pf_it != pc->end(); pf_it++){
-            if(pf_it - pc->begin() == pc_idx)  //don't count itself
+            if(int(pf_it - pc->begin()) == pc_idx)  //don't count itself
                 continue;
             int id = std::abs(pf_it->pdgId());
             bool fromPV = (pf_it->fromPV()>1 || fabs(pf_it->dz()) < pfIsolation_DZ_);
@@ -396,7 +399,7 @@ void pat::PATIsolatedTrackProducer::getIsolation(const LorentzVector& p4,
 }
 
 // get the estimated DeDx in either the pixels or strips (or both)
-float pat::PATIsolatedTrackProducer::getDeDx(const reco::DeDxHitInfo *hitInfo, bool doPixel, bool doStrip)
+float pat::PATIsolatedTrackProducer::getDeDx(const reco::DeDxHitInfo *hitInfo, bool doPixel, bool doStrip) const
 {
     if(hitInfo == NULL){
         return -1;
@@ -405,8 +408,6 @@ float pat::PATIsolatedTrackProducer::getDeDx(const reco::DeDxHitInfo *hitInfo, b
     std::vector<float> charge_vec;
     for(unsigned int ih=0; ih<hitInfo->size(); ih++){
 
-        // only use pixels. Am i doing this right?
-        // if(hitInfo->pixelCluster(ih) == nullptr) continue;
         bool isPixel = (hitInfo->pixelCluster(ih) != nullptr);
         bool isStrip = (hitInfo->stripCluster(ih) != nullptr);
 
@@ -444,8 +445,8 @@ float pat::PATIsolatedTrackProducer::getDeDx(const reco::DeDxHitInfo *hitInfo, b
 }
 
 TrackDetMatchInfo pat::PATIsolatedTrackProducer::getTrackDetMatchInfo(const edm::Event& iEvent, 
-                                                                     const edm::EventSetup& iSetup,
-                                                                     const reco::Track& track)
+                                                                      const edm::EventSetup& iSetup,
+                                                                      const reco::Track& track)
 {
     edm::ESHandle<MagneticField> bField;
     iSetup.get<IdealMagneticFieldRecord>().get(bField);
@@ -457,9 +458,9 @@ TrackDetMatchInfo pat::PATIsolatedTrackProducer::getTrackDetMatchInfo(const edm:
 }
 
 void pat::PATIsolatedTrackProducer::getCaloJetEnergy(const LorentzVector& p4, const reco::CaloJetCollection* cJets,
-                                                     float &caloJetEm, float& caloJetHad)
+                                                     float &caloJetEm, float& caloJetHad) const
 {
-    float nearestDR = 1.0;
+    float nearestDR = 999;
     int ind = -1;
     for(unsigned int i=0; i<cJets->size(); i++){
         float dR = deltaR(cJets->at(i).p4(), p4);
