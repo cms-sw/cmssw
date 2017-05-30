@@ -39,7 +39,7 @@ SimMuonAOD = cms.PSet(
     outputCommands = cms.untracked.vstring()
 )
 
-from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017_MCTest
+from Configuration.Eras.Modifier_run2_GEM_2017_MCTest_cff import run2_GEM_2017_MCTest
 run2_GEM_2017_MCTest.toModify( SimMuonFEVTDEBUG, outputCommands = SimMuonFEVTDEBUG.outputCommands + ['keep *_simMuonGEMDigis_*_*',
                                                                                               'keep *_simMuonGEMPadDigis_*_*',
                                                                                               'keep *_simMuonGEMPadDigiClusters_*_*'] )
