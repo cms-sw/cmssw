@@ -1555,51 +1555,42 @@ def _stepModuleMap():
         ("Other", getProp("other"))
     ])
 
-class TrackingTimingTable:
-    def __init__(self):
-        self._purpose = PlotPurpose.Timing
-        self._page = "timing"
-        self._section = "timing"
+class TimePerEventPlot:
+    def __init__(self, name, timeHisto):
+        self._name = name
+        self._timeHisto = timeHisto
+        self._eventsHisto = "path time_real"
+        self._cache = {}
 
-    def getPurpose(self):
-        return self._purpose
+    def __str__(self):
+        return self._name
 
-    def getPage(self):
-        return self._page
+    def _create(self, tdirectory):
+        timeTh1 = plotting._getOrCreateObject(tdirectory, self._timeHisto)
+        if timeTh1 is None:
+            return None
 
-    def getSection(self, dqmSubFolder):
-        return self._section
+        eventsTh1 = plotting._getOrCreateObject(tdirectory, self._eventsHisto)
+        if eventsTh1 is None:
+            return None
+        nevents = eventsTh1.GetEntries()
+        if nevents == 0:
+            return None
+
+        ret = timeTh1.Clone(self._name)
+        xaxis = ret.GetXaxis()
+        for i in xrange(1, ret.GetNbinsX()+1):
+            ret.SetBinContent(i, ret.GetBinContent(i)/nevents)
+            ret.SetBinError(i, ret.GetBinError(i)/nevents)
+            xaxis.SetBinLabel(i, xaxis.GetBinLabel(i).replace(" (unscheduled)", ""))
+        return ret
 
     def create(self, tdirectory):
-        h = tdirectory.Get("reconstruction_step_module_average")
-        totalReco = None
-        if h:
-            totalReco = "%.1f" % h.Integral()
+        path = tdirectory.GetPath()
+        if path not in self._cache:
+            self._cache[path] = self._create(tdirectory)
+        return self._cache[path]
 
-        creator = AggregateBins("iteration", "reconstruction_step_module_average", _iterModuleMap(includeConvStep=False), ignoreMissingBins=True)
-        h = creator.create(tdirectory)
-        totalTracking = None
-        if h:
-            totalTracking = "%.1f" % h.Integral()
-
-        creator = AggregateBins("iteration", "reconstruction_step_module_average", _iterModuleMap(onlyConvStep=True), ignoreMissingBins=True)
-        h = creator.create(tdirectory)
-        totalConvStep = None
-        if h:
-            totalConvStep = "%.1f" % h.Integral()
-
-        return [
-            totalReco,
-            totalTracking,
-            totalConvStep,
-        ]
-
-    def headers(self):
-        return [
-            "Average reco time / event (ms)",
-            "Average tracking (w/o convStep) time / event (ms)",
-            "Average convStep time / event (ms)",
-        ]
 class TimePerTrackPlot:
     def __init__(self, name, timeHisto, selectedTracks=False):
         self._name = name
@@ -1664,51 +1655,138 @@ class TimePerTrackPlot:
 
         return res
 
+_time_per_event_cpu = TimePerEventPlot("timePerEvent", "module_time_thread_total")
+_time_per_event_real = TimePerEventPlot("timePerEvent", "module_time_real_total")
+
+class TrackingTimingTable:
+    def __init__(self):
+        self._purpose = PlotPurpose.Timing
+        self._page = "timing"
+        self._section = "timing"
+
+    def getPurpose(self):
+        return self._purpose
+
+    def getPage(self):
+        return self._page
+
+    def getSection(self, dqmSubFolder):
+        return self._section
+
+    def _getValues(self, tdirectory, histo):
+        h = tdirectory.Get(histo)
+        totalReco = None
+        if h:
+            totalReco = "%.1f" % h.Integral()
+
+        creator = AggregateBins("iteration", histo, _iterModuleMap(includeConvStep=False), ignoreMissingBins=True)
+        h = creator.create(tdirectory)
+        totalTracking = None
+        if h:
+            totalTracking = "%.1f" % h.Integral()
+
+        creator = AggregateBins("iteration", histo, _iterModuleMap(onlyConvStep=True), ignoreMissingBins=True)
+        h = creator.create(tdirectory)
+        totalConvStep = None
+        if h:
+            totalConvStep = "%.1f" % h.Integral()
+
+        return [
+            totalReco,
+            totalTracking,
+            totalConvStep,
+        ]
+
+    def create(self, tdirectory):
+        cpuValues = self._getValues(tdirectory, _time_per_event_cpu)
+        realValues = self._getValues(tdirectory, _time_per_event_real)
+
+        return cpuValues + realValues
+
+    def headers(self):
+        return [
+            "Average reco CPU time / event (ms)",
+            "Average tracking (w/o convStep) CPU time / event (ms)",
+            "Average convStep CPU time / event (ms)",
+            "Average reco real time / event (ms)",
+            "Average tracking (w/o convStep) real time / event (ms)",
+            "Average convStep real time / event (ms)",
+        ]
+
 _common = {
     "drawStyle": "P",
     "xbinlabelsize": 10,
     "xbinlabeloption": "d"
 }
-_time_per_iter = AggregateBins("iteration", "reconstruction_step_module_average", _iterModuleMap(), ignoreMissingBins=True, originalOrder=True)
-_timing_summary = PlotGroup("summary", [
-    Plot(_time_per_iter,
-         ytitle="Average processing time (ms)", title="Average processing time / event", legendDx=-0.4, **_common),
-    Plot(AggregateBins("iteration_fraction", "reconstruction_step_module_average", _iterModuleMap(), ignoreMissingBins=True, originalOrder=True),
-         ytitle="Fraction", title="", normalizeToUnitArea=True, **_common),
-    #
-    Plot(AggregateBins("step", "reconstruction_step_module_average", _stepModuleMap(), ignoreMissingBins=True),
-         ytitle="Average processing time (ms)", title="Average processing time / event", **_common),
-    Plot(AggregateBins("step_fraction", "reconstruction_step_module_average", _stepModuleMap(), ignoreMissingBins=True),
-         ytitle="Fraction", title="", normalizeToUnitArea=True, **_common),
-    #
-    Plot(TimePerTrackPlot("iteration_track", _time_per_iter, selectedTracks=False),
-         ytitle="Average time / built track (ms)", title="Average time / built track", **_common),
-    Plot(TimePerTrackPlot("iteration_trackhp", _time_per_iter, selectedTracks=True),
-         ytitle="Average time / selected track (ms)", title="Average time / selected HP track by algoMask", **_common),
-#    Plot(AggregateBins("iterative_norm", "reconstruction_step_module_average", _iterModuleMap), ytitle="Average processing time", title="Average processing time / event (normalized)", drawStyle="HIST", xbinlabelsize=0.03, normalizeToUnitArea=True)
-#    Plot(AggregateBins("iterative_norm", "reconstruction_step_module_average", _iterModuleMap, normalizeTo="ak7CaloJets"), ytitle="Average processing time / ak7CaloJets", title="Average processing time / event (normalized to ak7CaloJets)", drawStyle="HIST", xbinlabelsize=0.03)
 
+_time_per_iter_cpu = AggregateBins("iteration", _time_per_event_cpu, _iterModuleMap(), ignoreMissingBins=True, originalOrder=True)
+_time_per_iter_real = AggregateBins("iteration", _time_per_event_real, _iterModuleMap(), ignoreMissingBins=True, originalOrder=True)
+
+_timing_summaryCPU = PlotGroup("summaryCPU", [
+    Plot(_time_per_iter_cpu,
+         ytitle="Average CPU time (ms)", title="Average CPU time / event", legendDx=-0.4, **_common),
+    Plot(AggregateBins("iteration_fraction", _time_per_event_cpu, _iterModuleMap(), ignoreMissingBins=True, originalOrder=True),
+         ytitle="Fraction", title="", normalizeToUnitArea=True, **_common),
+    #
+    Plot(AggregateBins("step", _time_per_event_cpu, _stepModuleMap(), ignoreMissingBins=True),
+         ytitle="Average CPU time (ms)", title="Average CPU time / event", **_common),
+    Plot(AggregateBins("step_fraction", _time_per_event_cpu, _stepModuleMap(), ignoreMissingBins=True),
+         ytitle="Fraction", title="", normalizeToUnitArea=True, **_common),
+    #
+    Plot(TimePerTrackPlot("iteration_track", _time_per_iter_cpu, selectedTracks=False),
+         ytitle="Average CPU time / built track (ms)", title="Average CPU time / built track", **_common),
+    Plot(TimePerTrackPlot("iteration_trackhp", _time_per_iter_cpu, selectedTracks=True),
+         ytitle="Average CPU time / selected track (ms)", title="Average CPU time / selected HP track by algoMask", **_common),
     ],
 )
-_timing_iterations = PlotGroup("iterations", [
-    Plot(AggregateBins(i.name(), "reconstruction_step_module_average", collections.OrderedDict(i.modules()), ignoreMissingBins=True),
-         ytitle="Average processing time (ms)", title=i.name(), **_common)
+_timing_summaryReal = PlotGroup("summaryReal", [
+    Plot(_time_per_iter_real,
+         ytitle="Average real time (ms)", title="Average real time / event", legendDx=-0.4, **_common),
+    Plot(AggregateBins("iteration_fraction", _time_per_event_real, _iterModuleMap(), ignoreMissingBins=True, originalOrder=True),
+         ytitle="Fraction", title="", normalizeToUnitArea=True, **_common),
+    #
+    Plot(AggregateBins("step", _time_per_event_real, _stepModuleMap(), ignoreMissingBins=True),
+         ytitle="Average real time (ms)", title="Average real time / event", **_common),
+    Plot(AggregateBins("step_fraction", _time_per_event_real, _stepModuleMap(), ignoreMissingBins=True),
+         ytitle="Fraction", title="", normalizeToUnitArea=True, **_common),
+    #
+    Plot(TimePerTrackPlot("iteration_track", _time_per_iter_real, selectedTracks=False),
+         ytitle="Average real time / built track (ms)", title="Average real time / built track", **_common),
+    Plot(TimePerTrackPlot("iteration_trackhp", _time_per_iter_real, selectedTracks=True),
+         ytitle="Average real time / selected track (ms)", title="Average real time / selected HP track by algoMask", **_common),
+    ],
+)
+
+_timing_iterationsCPU = PlotGroup("iterationsCPU", [
+    Plot(AggregateBins(i.name(), _time_per_event_cpu, collections.OrderedDict(i.modules()), ignoreMissingBins=True),
+         ytitle="Average CPU time (ms)", title=i.name(), **_common)
     for i in _iterations
 ],
                                ncols=4, legend=False
 )
-_pixelTiming = PlotGroup("pixelTiming", [
-    Plot(AggregateBins("pixel", "reconstruction_step_module_average", {"pixelTracks": ["pixelTracks"]}), ytitle="Average processing time [ms]", title="Average processing time / event", drawStyle="HIST")
-])
+_timing_iterationsReal = PlotGroup("iterationsReal", [
+    Plot(AggregateBins(i.name(), _time_per_event_real, collections.OrderedDict(i.modules()), ignoreMissingBins=True),
+         ytitle="Average real time (ms)", title=i.name(), **_common)
+    for i in _iterations
+],
+                               ncols=4, legend=False
+)
+
+# TODO: to be updated to new FastTimerService format later
+#_pixelTiming = PlotGroup("pixelTiming", [
+#    Plot(AggregateBins("pixel", "reconstruction_step_module_average", {"pixelTracks": ["pixelTracks"]}), ytitle="Average processing time [ms]", title="Average processing time / event", drawStyle="HIST")
+#])
 
 _timeFolders = [
-    "DQMData/Run 1/DQM/Run summary/TimerService/Paths",
-    "DQMData/Run 1/DQM/Run summary/TimerService/process RECO/Paths",
+#    "DQMData/Run 1/DQM/Run summary/TimerService/process RECO paths/path reconstruction_step",
+    "DQMData/Run 1/DQM/Run summary/TimerService/process RECO paths/path prevalidation_step", # because of unscheduled, it's actually prevalidation_step that has all the tracking modules?
 ]
 timePlotter = Plotter()
 timePlotter.append("timing", _timeFolders, PlotFolder(
-    _timing_summary,
-    _timing_iterations,
+    _timing_summaryCPU,
+    _timing_iterationsCPU,
+    _timing_summaryReal,
+    _timing_iterationsReal,
     # _pixelTiming,
     loopSubFolders=False, purpose=PlotPurpose.Timing, page="timing"
 ))
