@@ -12,11 +12,11 @@
 
 namespace APVGain {
     int subdetectorId(uint32_t);
-    int subdetectorId(const char*);
+    int subdetectorId(std::string);
     int subdetectorSide(uint32_t,const TrackerTopology*);
-    int subdetectorSide(const char*);
+    int subdetectorSide(std::string);
     int subdetectorPlane(uint32_t,const TrackerTopology*);
-    int subdetectorPlane(const char*);
+    int subdetectorPlane(std::string);
 
     std::vector<std::pair<std::string,std::string>> monHnames(std::vector<std::string>,bool,const char* tag);
 
