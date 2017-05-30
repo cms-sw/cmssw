@@ -37,7 +37,7 @@ class L1ITMuonBarrelPrimitiveProducer  {
 
 public:
   inline L1ITMuonBarrelPrimitiveProducer(std::unique_ptr<MBLTContainer> _mbltContainer);
-  inline ~L1ITMuonBarrelPrimitiveProducer();
+  inline virtual ~L1ITMuonBarrelPrimitiveProducer();
   inline virtual std::unique_ptr<L1MuDTChambPhContainer> produce( const edm::EventSetup&);
 
 private:
