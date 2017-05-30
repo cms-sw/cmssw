@@ -51,6 +51,7 @@ Surface::RotationType rotation( const GlobalVector& zDir)
 
 
 struct MSData {
+  int stid;
   int lid;
   float z;
   float uerr;
@@ -58,7 +59,7 @@ struct MSData {
 };
 inline
 std::ostream & operator<<(std::ostream & os, MSData d) {
-  os <<  d.z<<':'<<d.uerr<<'/'<<d.verr<<'|'<<d.lid;
+  os <<  d.stid<<'>' <<d.lid <<'|'<<d.z<<':'<<d.uerr<<'/'<<d.verr;
   return os;
 }
 
@@ -128,6 +129,8 @@ void MSGalore::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   for (decltype(fsz) i=0;i<fsz-1;++i) layers[i+bsz-1]=searchGeom.posPixelForwardLayers()[i];
   */
 
+  for (int from=0; from<3; ++from) {
+  std::cout << "from layer "<< from << std::endl; 
   for (float tl = 0.0f; tl<12.0f; tl+=0.1f) {
 
   float p = 1.0f;
@@ -144,11 +147,13 @@ void MSGalore::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   std::vector<MSData> mserr[3];
 
-  float lastz=0;
+  float lastzz=-18;
+  float lastbz=-18;
   bool goFw=false;
-  bool fail=false;
   std::string loc=" Barrel";
-  for (float zz=-18; zz<18.1; zz+=0.1) {
+  for (int iz=0;iz<2; ++iz) {
+  if (iz>0) goFw=true;
+  for (float zz=lastzz; zz<18.1; zz+=0.1) {
   float z = zz;
   GlobalPoint startingPosition(0,0,z);
 
@@ -165,6 +170,7 @@ void MSGalore::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   DetLayer const * layer = searchGeom.pixelBarrelLayers()[0];
   if (goFw) layer = searchGeom.posPixelForwardLayers()[0];
+  int stid = layer->seqNum();
   /*
   {
     auto it = layer;
@@ -173,27 +179,20 @@ void MSGalore::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
  */
   auto const & detWithState = layer->compatibleDets(tsos,ANprop,estimator);
   if(!detWithState.size()) {
-    if (fail && lastz>15.f) goFw=true; 
     // std::cout << "no det on first layer" << layer->seqNum() << std::endl;
-    fail=true;
     continue;
   }
-  fail=false;
   tsos = detWithState.front().second;
   // std::cout << "arrived at " << int(detWithState.front().first->geographicalId()) << ' ' << tsos.globalPosition() << ' ' << tsos.localError().positionError() << std::endl;
 
-  // constrain it to this location (relevant for layer other than very first)
-  //  SiPixelRecHit::ClusterRef pref;
-  // SiPixelRecHit   hitpx(tsos.localPosition(),he,1.,*detWithState.front().first,pref);
-  // tsos = kfu.update(tsos, hitpx);
-  // std::cout << tsos.globalPosition() << ' ' << tsos.localError().positionError() << std::endl;
-  
   // for barrel
   float z1 = tsos.globalPosition().z();
-  if (goFw) loc = " Forward";
+  if (goFw) {
+    loc = " Forward";
+    z1 = tsos.globalPosition().perp();
+  }
+  for (int il=1; il<4;	++il) {
 
-  for (auto il=1; il<4;	++il) {
-  if (!layer) break;
   auto const & compLayers = (*navSchool).nextLayers(*layer,*tsos.freeState(),alongMomentum);
   layer = nullptr;
   for(auto it : compLayers){
@@ -201,7 +200,7 @@ void MSGalore::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   //this should never happen. but better protect for it
 	   std::cout <<"a detlayer with no components: I cannot figure out a DetId from this layer. please investigate." << std::endl;
 	   continue;
-        }
+     }
     //std::cout << il << (it->isBarrel() ? " Barrel" : " Forward") << " layer " << it->seqNum() << " SubDet " << it->subDetector()<< std::endl;
     auto const & detWithState = it->compatibleDets(tsos,ANprop,estimator);
     if(!detWithState.size()) { 
@@ -213,24 +212,44 @@ void MSGalore::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     //std::cout << "arrived at " << int(did) << std::endl;
     tsos = detWithState.front().second;
     // std::cout << tsos.globalPosition() << ' ' << tsos.localError().positionError() << std::endl;
-    float xerr = std::sqrt(tsos.localError().matrix()(3,3));
-    float zerr = std::sqrt(tsos.localError().matrix()(4,4));
-   //  std::cout << tanlmd << ' ' << z1 << ' ' << it->seqNum() << ':' << xerr <<'/'<<zerr << std::endl;    
-    if (mserr[il-1].empty()) mserr[il-1].emplace_back(MSData{it->seqNum(),z1,xerr,zerr});
-    else if ( std::abs(xerr-mserr[il-1].back().uerr)>0.1f*xerr || std::abs(zerr-mserr[il-1].back().verr)>0.1f*zerr) mserr[il-1].emplace_back(MSData{it->seqNum(),z1,xerr,zerr});
-    if (!goFw) lastz=z1;
+
+    if (from==il) {
+      // std::cout << tsos.globalPosition() << ' ' << tsos.globalDirection() << ' ' << tsos.localError().positionError() << std::endl;
+      // constrain it to this location (relevant for layer other than very first)
+      SiPixelRecHit::ClusterRef pref;
+      SiPixelRecHit   hitpx(tsos.localPosition(),he,1.,*detWithState.front().first,pref);
+      tsos = kfu.update(tsos, hitpx);
+      // std::cout << tsos.globalPosition() << ' ' << tsos.globalDirection() << ' ' << tsos.localError().positionError() << std::endl;
+      z1 = layer->isBarrel() ? tsos.globalPosition().z() : tsos.globalPosition().perp();
+      stid = layer->seqNum();
+    }
+
+    //if (il>from) 
+    {
+      float xerr = std::sqrt(tsos.localError().matrix()(3,3));
+      float zerr = std::sqrt(tsos.localError().matrix()(4,4));
+      //  std::cout << tanlmd << ' ' << z1 << ' ' << it->seqNum() << ':' << xerr <<'/'<<zerr << std::endl;    
+      if (mserr[il-1].empty()) mserr[il-1].emplace_back(MSData{stid,it->seqNum(),z1,xerr,zerr});
+      else if ( stid!=mserr[il-1].back().stid ||  std::abs(xerr-mserr[il-1].back().uerr)>0.1f*xerr || std::abs(zerr-mserr[il-1].back().verr)>0.1f*zerr) mserr[il-1].emplace_back(MSData{stid,it->seqNum(),z1,xerr,zerr});
+    }
     break;
-  }
+   }
+   if (!layer) break;
+   if (!goFw) lastbz=z1;
+   lastzz=zz;
+
+
   } // layer loop
-  } // loop on z
+  }} // loop on z
    if (mserr[0].empty()) continue;
-   std::cout << "tl " << tanlmd << loc << std::endl;
+   std::cout << "tl " << tanlmd << loc << ' ' <<from<< std::endl;
    for (auto il=0; il<3; ++il) { std::cout << il << ' ';
    for ( auto const & e : mserr[il]) std::cout << e << '-' <<e.uerr/sinth <<'/'<<e.verr/sinth <<' ';
    std::cout << std::endl;
-   }
-   std::cout << tanlmd << ' ' << lastz << std::endl;
+  }
+   std::cout << tanlmd << ' ' << lastbz << std::endl;
   } // loop  on tanLa
+ } // loop on from
 }
 
 //define this as a plug-in
