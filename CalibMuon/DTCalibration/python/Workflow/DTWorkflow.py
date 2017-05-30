@@ -127,9 +127,8 @@ class DTWorkflow(CLIHelper, CrabHelper):
         tools.prependPaths(self.process, seqname)
 
     def add_raw_option(self):
-        if self.options.datasettype == "MC" and self.options.run_on_RAW:
-            getattr(self.process, self.digilabel).inputLabel = 'rawDataCollector'
-            tools.prependPaths(self.process,self.digilabel)
+        getattr(self.process, self.digilabel).inputLabel = 'rawDataCollector'
+        tools.prependPaths(self.process,self.digilabel)
 
     def add_local_t0_db(self, local=False):
         """ Add a local t0 database as input. Use the option local is used
