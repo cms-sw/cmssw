@@ -17,8 +17,6 @@
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
 #include "DataFormats/Math/interface/deltaR.h"
-#include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
@@ -73,11 +71,12 @@ namespace pat {
           const float pT_cut_noIso_;  // above this pT, don't apply any iso cut
           const float pfIsolation_DR_;  // isolation radius
           const float pfIsolation_DZ_;  // used in determining if pfcand is from PV or PU
-          const std::vector<double> miniIsoParams_;
           const float absIso_cut_;  // save if ANY of absIso, relIso, or miniRelIso pass the cuts 
           const float relIso_cut_;
           const float miniRelIso_cut_;
           const float caloJet_DR_;  // save energy of nearest calojet within caloJet_DR_
+
+          std::vector<double> miniIsoParams_;
 
           TrackDetectorAssociator trackAssociator_;
           TrackAssociatorParameters trackAssocParameters_;
@@ -94,15 +93,14 @@ pat::PATIsolatedTrackProducer::PATIsolatedTrackProducer(const edm::ParameterSet&
   caloJets_(consumes<reco::CaloJetCollection>(iConfig.getParameter<edm::InputTag>("caloJets"))),
   gt2dedx_(consumes<edm::ValueMap<reco::DeDxData> >(iConfig.getParameter<edm::InputTag>("dEdxInfo"))),
   gt2dedxHitInfo_(consumes<reco::DeDxHitInfoAss>(iConfig.getParameter<edm::InputTag>("dEdxHitInfo"))),
-  pT_cut_(iConfig.getParameter<double>("pT_cut")),
-  pT_cut_noIso_(iConfig.getParameter<double>("pT_cut_noIso")),
-  pfIsolation_DR_(iConfig.getParameter<double>("pfIsolation_DR")),
-  pfIsolation_DZ_(iConfig.getParameter<double>("pfIsolation_DZ")),
-  miniIsoParams_(iConfig.getParameter<std::vector<double> >("miniIsoParams")),
-  absIso_cut_(iConfig.getParameter<double>("absIso_cut")),
-  relIso_cut_(iConfig.getParameter<double>("relIso_cut")),
-  miniRelIso_cut_(iConfig.getParameter<double>("miniRelIso_cut")),
-  caloJet_DR_(iConfig.getParameter<double>("caloJet_DR"))
+  pT_cut_         (iConfig.getParameter<double>("pT_cut")),
+  pT_cut_noIso_   (iConfig.getParameter<double>("pT_cut_noIso")),
+  pfIsolation_DR_ (iConfig.getParameter<double>("pfIsolation_DR")),
+  pfIsolation_DZ_ (iConfig.getParameter<double>("pfIsolation_DZ")),
+  absIso_cut_     (iConfig.getParameter<double>("absIso_cut")),
+  relIso_cut_     (iConfig.getParameter<double>("relIso_cut")),
+  miniRelIso_cut_ (iConfig.getParameter<double>("miniRelIso_cut")),
+  caloJet_DR_     (iConfig.getParameter<double>("caloJet_DR"))
 {
     // TrackAssociator parameters
     edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
@@ -110,6 +108,10 @@ pat::PATIsolatedTrackProducer::PATIsolatedTrackProducer(const edm::ParameterSet&
     trackAssocParameters_.loadParameters( parameters, iC );
 
     trackAssociator_.useDefaultPropagator();
+
+    miniIsoParams_ = iConfig.getParameter<std::vector<double> >("miniIsoParams");
+    if(miniIsoParams_.size() != 3)
+        throw cms::Exception("ParameterError") << "miniIsoParams must have exactly 3 elements.\n";
 
     produces< pat::IsolatedTrackCollection > ();
 }
@@ -254,14 +256,11 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
         // get the associated ecal/hcal detectors
         TrackDetMatchInfo trackDetInfo = getTrackDetMatchInfo(iEvent, iSetup, gentk);
 
-        // convert to specific hcal DetIds and fill status vector
-        std::vector<HcalDetId> crossedHcalIds;
+        // fill ecal/hcal status vectors
         std::vector<uint32_t> crossedHcalStatus;
         for(auto const & did : trackDetInfo.crossedHcalIds){
-            crossedHcalIds.push_back(HcalDetId(did));
             crossedHcalStatus.push_back(hcalQ->getValues(did.rawId())->getValue());
         }
-        // fill ecal status vector
         std::vector<EcalChannelStatusCode> crossedEcalStatus;
         for(auto const & did : trackDetInfo.crossedEcalIds){
             crossedEcalStatus.push_back(*(ecalS->find(did.rawId())));
@@ -334,8 +333,6 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
         reco::HitPattern hp;
         float dEdxPixel=-1, dEdxStrip=-1;
         int trackQuality=0;
-        std::vector<DetId> ecalIds;
-        std::vector<HcalDetId> hcalIds;
         std::vector<EcalChannelStatusCode> ecalStatus;
         std::vector<uint32_t> hcalStatus;
         int deltaEta=0;

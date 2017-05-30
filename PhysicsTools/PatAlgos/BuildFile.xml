@@ -10,7 +10,6 @@
 <use   name="DataFormats/TauReco"/>
 <use   name="DataFormats/TrackReco"/>
 <use   name="DataFormats/VertexReco"/>
-<use   name="DataFormats/DetId"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/ServiceRegistry"/>
