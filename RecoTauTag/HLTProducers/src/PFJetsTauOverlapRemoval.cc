@@ -13,8 +13,8 @@ using namespace edm    ;
 using namespace trigger;
 
 PFJetsTauOverlapRemoval::PFJetsTauOverlapRemoval(const edm::ParameterSet& iConfig):
-  tauSrc    ( consumes<trigger::TriggerFilterObjectWithRefs>(iConfig.getParameter<InputTag>("TauSrc"      ) ) ),
-  PFJetSrc( consumes<PFJetCollection>(iConfig.getParameter<InputTag>("PFJetSrc") ) )
+  tauSrc_    ( consumes<trigger::TriggerFilterObjectWithRefs>(iConfig.getParameter<InputTag>("TauSrc"      ) ) ),
+  pfJetSrc_  ( consumes<PFJetCollection>(iConfig.getParameter<InputTag>("PFJetSrc") ) )
 {  
   produces<PFJetCollection>();
 }
@@ -25,14 +25,14 @@ void PFJetsTauOverlapRemoval::produce(edm::StreamID iSId, edm::Event& iEvent, co
     
   unique_ptr<PFJetCollection> cleanedPFJets(new PFJetCollection);
     
-  double deltaR    = 1.0;
-  double matchingR = 0.5;
+  double deltaR2   = 1.0;
+  double matchingR2 = 0.25;
   
   edm::Handle<trigger::TriggerFilterObjectWithRefs> tauJets;
-  iEvent.getByToken( tauSrc, tauJets );
+  iEvent.getByToken( tauSrc_, tauJets );
   
   edm::Handle<PFJetCollection> PFJets;
-  iEvent.getByToken(PFJetSrc,PFJets);
+  iEvent.getByToken(pfJetSrc_,PFJets);
                 
   trigger::VRpftau taus; 
   tauJets->getObjects(trigger::TriggerTau,taus);
@@ -41,8 +41,8 @@ void PFJetsTauOverlapRemoval::produce(edm::StreamID iSId, edm::Event& iEvent, co
     for(unsigned int iTau = 0; iTau < taus.size(); iTau++){  
       for(unsigned int iJet = 0; iJet < PFJets->size(); iJet++){
         const PFJet &  myPFJet = (*PFJets)[iJet];
-        deltaR = ROOT::Math::VectorUtil::DeltaR((taus[iTau])->p4().Vect(), myPFJet.p4().Vect());
-        if(deltaR > matchingR) cleanedPFJets->push_back(myPFJet);
+        deltaR2 = ROOT::Math::VectorUtil::DeltaR2((taus[iTau])->p4().Vect(), myPFJet.p4().Vect());
+        if(deltaR2 > matchingR2) cleanedPFJets->push_back(myPFJet);
         break;
       }
     }
@@ -51,8 +51,8 @@ void PFJetsTauOverlapRemoval::produce(edm::StreamID iSId, edm::Event& iEvent, co
     for(unsigned int iTau = 0; iTau < taus.size(); iTau++){  
       for(unsigned int iJet = 0; iJet < PFJets->size()-1; iJet++){
         const PFJet &  myPFJet = (*PFJets)[iJet];
-        deltaR = ROOT::Math::VectorUtil::DeltaR((taus[iTau])->p4().Vect(), myPFJet.p4().Vect());
-        if(deltaR > matchingR) cleanedPFJets->push_back(myPFJet);
+        deltaR2 = ROOT::Math::VectorUtil::DeltaR2((taus[iTau])->p4().Vect(), myPFJet.p4().Vect());
+        if(deltaR2 > matchingR2) cleanedPFJets->push_back(myPFJet);
         break;
       }
     }
