@@ -22,5 +22,7 @@ private:
 	edm::EDGetTokenT<reco::BeamSpot> theBeamSpotTag;
 	edm::EDGetTokenT<reco::VertexCollection> theMedianVertexCollection;
 	edm::EDGetTokenT<reco::VertexCollection> theAdaptiveVertexCollection;
+        edm::EDGetTokenT<reco::VertexCollection> theFinalAdaptiveVertexCollection;
+	bool theUseFinalAdapativeVertexCollection;
 };
 #endif

@@ -18,7 +18,7 @@ hiFirstStepGoodPrimaryVertices = cms.EDFilter("PrimaryVertexObjectFilter",
              maxZ = cms.double(15.0),
              maxRho = cms.double(2.0)
      ),
-     src=cms.InputTag('hiSelectedVertex')
+     src=cms.InputTag('hiSelectedPixelVertex')
 )
 
 # SEEDING LAYERS

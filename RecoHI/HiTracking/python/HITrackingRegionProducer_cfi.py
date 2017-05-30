@@ -11,7 +11,7 @@ hiTrackingRegionWithVertex = _globalTrackingRegionWithVertices.clone(RegionPSet 
     useMultipleScattering = cms.bool(False),
     useFakeVertices       = cms.bool(False),
     useFoundVertices = cms.bool(True),
-    VertexCollection = cms.InputTag("hiSelectedVertex"),		
+    VertexCollection = cms.InputTag("hiSelectedPixelVertex"),		
     useFixedError = cms.bool(True),
     fixedError    = cms.double(0.2),
     sigmaZVertex  = cms.double(3.0)		
@@ -27,7 +27,7 @@ HiLowPtTrackingRegionWithVertexBlock = cms.PSet(
     useMultipleScattering = cms.bool(False),
     useFakeVertices       = cms.bool(False),
     useFoundVertices = cms.bool(True),
-    VertexCollection = cms.InputTag("hiSelectedVertex"),
+    VertexCollection = cms.InputTag("hiSelectedPixelVertex"),
     useFixedError = cms.bool(True),
     fixedError    = cms.double(0.2),
     sigmaZVertex  = cms.double(3.0)
@@ -57,7 +57,7 @@ from RecoHI.HiTracking.hiTrackingRegionFromClusterVtx_cfi import hiTrackingRegio
 from RecoTauTag.HLTProducers.TauRegionalPixelSeedGenerator_cfi import tauRegionalPixelSeedGenerator
 HiTrackingRegionFactoryFromJetsBlock = tauRegionalPixelSeedGenerator.RegionFactoryPSet
 HiTrackingRegionFactoryFromJetsBlock.RegionPSet.JetSrc = cms.InputTag("iterativeConePu5CaloJets")
-HiTrackingRegionFactoryFromJetsBlock.RegionPSet.vertexSrc = cms.InputTag("hiSelectedVertex")
+HiTrackingRegionFactoryFromJetsBlock.RegionPSet.vertexSrc = cms.InputTag("hiSelectedPixelVertex")
 
 # limited stand-alone muon-seeded tracking region
 from RecoMuon.TrackingTools.MuonServiceProxy_cff import MuonServiceProxy
@@ -66,7 +66,7 @@ from RecoHI.HiMuonAlgos.HiTrackingRegionEDProducer_cfi import HiTrackingRegionED
 HiTrackingRegionFactoryFromSTAMuonsEDProducer = _HiTrackingRegionEDProducer.clone(
     MuonSrc = "standAloneMuons:UpdatedAtVtx",
     MuonTrackingRegionBuilder = MuonTrackingRegionCommon.MuonTrackingRegionBuilder.clone(
-        vertexCollection = "hiSelectedVertex",
+        vertexCollection = "hiSelectedPixelVertex",
         UseVertex = True,
         Rescale_Dz = 5.0,
     ),
