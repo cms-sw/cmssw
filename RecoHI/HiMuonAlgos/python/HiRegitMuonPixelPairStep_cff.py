@@ -120,6 +120,29 @@ hiRegitMuPixelPairStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMu
             ),
         ) #end of vpset
 )
+from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
+trackingPhase1.toModify(hiRegitMuPixelPairStepSelector, useAnyMVA = cms.bool(False))
+trackingPhase1.toModify(hiRegitMuPixelPairStepSelector, trackSelectors= cms.VPSet(
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
+           name = 'hiRegitMuPixelPairStepLoose',
+           min_nhits = cms.uint32(8)
+            ), #end of pset
+        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
+            name = 'hiRegitMuPixelPairStepTight',
+            preFilterName = 'hiRegitMuPixelPairStepLoose',
+            min_nhits = cms.uint32(8),
+            useMVA = cms.bool(False),
+            minMVA = cms.double(-0.58)
+            ),
+        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
+            name = 'hiRegitMuPixelPairStep',
+            preFilterName = 'hiRegitMuPixelPairStepTight',
+            min_nhits = cms.uint32(8),
+            useMVA = cms.bool(False),
+            minMVA = cms.double(0.77)
+            ),
+        ) #end of vpset
+)
 
 hiRegitMuonPixelPairStep = cms.Sequence(hiRegitMuPixelPairStepClusters*
                                         hiRegitMuPixelPairStepSeedLayers*
