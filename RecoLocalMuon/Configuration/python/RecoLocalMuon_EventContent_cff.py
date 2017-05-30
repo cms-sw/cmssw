@@ -32,7 +32,7 @@ def _updateOutput( era, outputPSets, commands):
    for o in outputPSets:
       era.toModify( o, outputCommands = o.outputCommands + commands )
 
-from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017_MCTest
+from Configuration.Eras.Modifier_run2_GEM_2017_MCTest_cff import run2_GEM_2017_MCTest
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 _outputs = [RecoLocalMuonFEVT, RecoLocalMuonRECO, RecoLocalMuonAOD]
