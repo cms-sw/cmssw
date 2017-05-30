@@ -82,6 +82,8 @@ class TrackAnalyzer
 	
         edm::ParameterSet const* conf_;
 
+        std::string stateName_;
+
         bool doTrackerSpecific_;
         bool doAllPlots_;
         bool doBSPlots_;
