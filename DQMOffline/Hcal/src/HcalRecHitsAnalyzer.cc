@@ -578,9 +578,9 @@ void HcalRecHitsAnalyzer::analyze(edm::Event const& ev, edm::EventSetup const& c
     Handle<EBRecHitCollection> rhitEB;
     if ( ev.getByToken(tok_EB_, rhitEB) ) {
       
-      for ( const auto & recHit : rhitEB.product() ) {
+      for ( const auto & recHit : *(rhitEB.product()) ) {
 	
-	double en  = recHit->energy();
+	double en  = recHit.energy();
 	eEcal  += en;
 	eEcalB += en;
       }      
@@ -590,9 +590,9 @@ void HcalRecHitsAnalyzer::analyze(edm::Event const& ev, edm::EventSetup const& c
     Handle<EERecHitCollection> rhitEE;
     if ( ev.getByToken(tok_EE_, rhitEE) ) {
     
-      for ( const auto & recHit : rhitEE.product() ) {
+      for ( const auto & recHit : *(rhitEE.product()) ) {
 	
-	double en   = recHit->energy();
+	double en   = recHit.energy();
 	eEcal  += en;
 	eEcalE += en;
 	
