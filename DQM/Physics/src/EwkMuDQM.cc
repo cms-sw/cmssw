@@ -307,6 +307,9 @@ void EwkMuDQM::bookHistograms(DQMStore::IBooker & ibooker,
   phPt_ = ibooker.book1D("phPt", "Photon transverse momentum [GeV]", 100, 0.,1000.);
   snprintf(chtitle, 255, "Photon pseudorapidity (pT>%4.1f)", ptThrForPhoton_);
   phEta_ = ibooker.book1D("phEta", chtitle, 100, -2.5, 2.5);
+
+ibooker.cd();
+
 }
 
 void EwkMuDQM::endRun(const Run& r, const EventSetup& iSet) {}
