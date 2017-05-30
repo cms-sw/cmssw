@@ -117,7 +117,7 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
                                             minVxDoF           = cms.double(10.0),
                                             minVxWgt           = cms.double(0.5),
                                             fileName           = cms.string("/nfshome0/dqmdev/BeamMonitorDQM/BeamPixelResults.txt"))
-    if process.dqmSaver.producer.value() is "Playback":
+    if process.dqmRunConfig.type.value() is "playback":
         process.pixelVertexDQM.fileName = cms.string("/nfshome0/dqmdev/BeamMonitorDQM/BeamPixelResults.txt")
     else:
         process.pixelVertexDQM.fileName = cms.string("/nfshome0/dqmpro/BeamMonitorDQM/BeamPixelResults.txt")
@@ -127,7 +127,6 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     #----------------------------
     # Pixel-Tracks&Vertices Config
     #----------------------------
-    process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
     process.load("RecoPixelVertexing.PixelTrackFitting.PixelTracks_2017_cff")
     process.load("RecoVertex.PrimaryVertexProducer.OfflinePixel3DPrimaryVertices_cfi")
     process.recopixelvertexing = cms.Sequence(process.pixelTracksSequence + process.pixelVertices)
@@ -138,9 +137,8 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     # Pixel-Tracks&Vertices Reco
     #----------------------------
     process.reconstructionStep = cms.Sequence(process.siPixelDigis*
-                                              process.siStripDigis *
-                                              process.striptrackerlocalreco *
-                                              process.offlineBeamSpot*
+                                              process.siStripDigis*
+                                              process.striptrackerlocalreco*
                                               process.siPixelClustersPreSplitting*
                                               process.siPixelRecHitsPreSplitting*
                                               process.siPixelClusterShapeCachePreSplitting*
@@ -204,7 +202,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
                                             minVxDoF           = cms.double(10.0),
                                             minVxWgt           = cms.double(0.5),
                                             fileName           = cms.string("/nfshome0/dqmdev/BeamMonitorDQM/BeamPixelResults.txt"))
-    if process.dqmSaver.producer.value() is "Playback":
+    if process.dqmRunConfig.type.value() is "playback":
         process.pixelVertexDQM.fileName = cms.string("/nfshome0/dqmdev/BeamMonitorDQM/BeamPixelResults.txt")
     else:
         process.pixelVertexDQM.fileName = cms.string("/nfshome0/dqmpro/BeamMonitorDQM/BeamPixelResults.txt")
