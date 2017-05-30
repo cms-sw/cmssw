@@ -14,14 +14,14 @@ namespace l1slhc
   class L1EGCrystalCluster : public reco::LeafCandidate {
     public:
       L1EGCrystalCluster() : LeafCandidate(), hovere_(0.), iso_(0.), PUcorrPt_(0.), bremStrength_(0.),
-            e2x2_(0.), e2x5_(0.), e3x5_(0.), e5x5_(0.), electronWP98_(0.), photonWP90_(0.) {};
+            e2x2_(0.), e2x5_(0.), e3x5_(0.), e5x5_(0.), electronWP98_(0.), photonWP80_(0.) {};
 
       L1EGCrystalCluster(const PolarLorentzVector& p4, float hovere, float iso, DetId seedCrystal, 
             float PUcorrPt = 0., float bremStrength = 0., float e2x2 = 0., float e2x5 = 0.,
-            float e3x5 = 0., float e5x5 = 0., bool electronWP98 = false, bool photonWP90 = false) :
+            float e3x5 = 0., float e5x5 = 0., bool electronWP98 = false, bool photonWP80 = false) :
                     LeafCandidate(0, p4), hovere_(hovere), iso_(iso), seedCrystal_(seedCrystal),
                     PUcorrPt_(PUcorrPt), bremStrength_(bremStrength), e2x2_(e2x2), e2x5_(e2x5),
-                    e3x5_(e3x5), e5x5_(e5x5), electronWP98_(electronWP98), photonWP90_(photonWP90) {};
+                    e3x5_(e3x5), e5x5_(e5x5), electronWP98_(electronWP98), photonWP80_(photonWP80) {};
 
       virtual ~L1EGCrystalCluster() {};
       inline float hovere() const { return hovere_; };
@@ -43,7 +43,7 @@ namespace l1slhc
       inline float e3x5() const { return e3x5_; };
       inline float e5x5() const { return e5x5_; };
       inline float electronWP98() const { return electronWP98_; };
-      inline float photonWP90() const { return photonWP90_; };
+      inline float photonWP80() const { return photonWP80_; };
 
       // The index range depends on the algorithm eta,phi window, currently 3x5
       // The pt should always be ordered.
@@ -70,8 +70,8 @@ namespace l1slhc
       float e5x5_;
       // 98% efficient electron WP, for electrons above 35 GeV
       bool electronWP98_;
-      // 90% efficienct photon WP, for photons above 35 GeV
-      bool photonWP90_;
+      // 80% efficienct photon WP, for photons above 35 GeV
+      bool photonWP80_;
       // Crystal pt (in order of strength) for all crystals in the cluster
       std::vector<float> crystalPt_;
       // For investigating novel algorithm parameters

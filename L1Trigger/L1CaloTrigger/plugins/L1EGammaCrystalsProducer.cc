@@ -77,9 +77,9 @@ class L1EGCrystalClusterProducer : public edm::EDProducer {
 
    private:
       virtual void produce(edm::Event&, const edm::EventSetup&);
-      bool cluster_passes_cuts(const l1slhc::L1EGCrystalCluster& cluster) const;
-      bool cluster_passes_electronWP98(float &cluster_pt, float &iso, float &e2x5, float &e5x5) const;
-      bool cluster_passes_photonWP90(float &cluster_pt, float &iso, float &e2x5, float &e5x5, float &e2x2) const;
+      bool cluster_passes_base_cuts(const l1slhc::L1EGCrystalCluster& cluster) const;
+      bool cluster_passes_photonWP80(float &cluster_pt, float &cluster_eta, float &iso, float &e2x5, float &e5x5, float &e2x2) const;
+      bool cluster_passes_electronWP98(float &cluster_pt, float &cluster_eta, float &iso, float &e2x5, float &e5x5) const;
 
       double EtminForStore;
       double EcalTpEtMin;
@@ -391,7 +391,7 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
       float e5x5 = 0.;
       float e3x5 = 0.;
       bool electronWP98;
-      bool photonWP90;
+      bool photonWP80;
       std::vector<float> crystalPt;
       std::map<int, float> phiStrip;
       //std::cout << " -- iPhi: " << ehit.id.iphi() << std::endl;
@@ -646,15 +646,15 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
 
 
       // Check if cluster passes electron or photon WPs
-      electronWP98 = cluster_passes_electronWP98( correctedTotalPt, ECalIsolation, e2x5, e5x5);
-      photonWP90 = cluster_passes_photonWP90( correctedTotalPt, ECalIsolation, e2x5, e5x5, e2x2);
-
+      float cluster_eta = weightedPosition.eta();
+      electronWP98 = cluster_passes_electronWP98( correctedTotalPt, cluster_eta, ECalIsolation, e2x5, e5x5);
+      photonWP80 = cluster_passes_photonWP80( correctedTotalPt, cluster_eta, ECalIsolation, e2x5, e5x5, e2x2);
 
       
       // Form a l1slhc::L1EGCrystalCluster
       reco::Candidate::PolarLorentzVector p4(correctedTotalPt, weightedPosition.eta(), weightedPosition.phi(), 0.);
       l1slhc::L1EGCrystalCluster cluster(p4, hovere, ECalIsolation, centerhit.id, totalPtPUcorr, bremStrength,
-            e2x2, e2x5, e3x5, e5x5, electronWP98, photonWP90);
+            e2x2, e2x5, e3x5, e5x5, electronWP98, photonWP80);
       // Save pt array
       cluster.SetCrystalPtInfo(crystalPt);
       params["crystalCount"] = crystalPt.size();
@@ -663,7 +663,7 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
 
 
       // Save clusters with some cuts
-      if ( cluster_passes_cuts(cluster) )
+      if ( cluster_passes_base_cuts(cluster) )
       {
          // Optional min. Et cut
          if ( cluster.pt() >= EtminForStore ) {
@@ -678,49 +678,50 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
    iEvent.put(std::move(L1EGCollectionWithCuts), "L1EGCollectionWithCuts" );
 }
 
-bool
-L1EGCrystalClusterProducer::cluster_passes_electronWP98(float &cluster_pt, float &iso, float &e2x5, float &e5x5) const {
-   // These cuts have been optimized based on SLHC 62X
-   // They will be re-optimized once there are suitable
-   // MC samples available in 90X Phase-2 campaign
-   //
-   // This cut reaches a 98% efficiency for electrons
-   // for offline pt > 35 GeV
-
-   if ( ( -0.92 + 0.18 * TMath::Exp( -0.04  * cluster_pt )) > (e2x5 / e5x5) ) return false;
-   if ( (  0.99 + 5.6  * TMath::Exp( -0.061 * cluster_pt )) < iso ) return false;
-
-   // Passes cuts
-   return true;
-}
 
 bool
-L1EGCrystalClusterProducer::cluster_passes_photonWP90(float &cluster_pt, float &iso, float &e2x5, float &e5x5, float &e2x2) const {
-   // These cuts have been optimized based on SLHC 62X
-   // They will be re-optimized once there are suitable
-   // MC samples available in 90X Phase-2 campaign
-   //
-   // This cut reaches a 90% efficiency for photons
-   // for offline pt > 35 GeV
+L1EGCrystalClusterProducer::cluster_passes_photonWP80(float &cluster_pt, float &cluster_eta, float &iso, float &e2x5, float &e5x5, float &e2x2) const {
+   // These cuts have been optimized based on 92X
+   // This cut reaches an 80% efficiency for photons
+   // for offline pt > 30 GeV
 
-   if ( ( -0.92 + 0.18 * TMath::Exp( -0.04  * cluster_pt )) > (e2x5 / e5x5) ) return false;
-   if ( (  0.99 + 5.6  * TMath::Exp( -0.061 * cluster_pt )) < iso ) return false;
-   if ( ( e2x2 / e2x5) < 0.9 ) return false;
+   if ( fabs(cluster_eta) < 1.479 )
+   {
+      if ( !( 0.94 + 0.052 * TMath::Exp( -0.044 * cluster_pt ) < (e2x5 / e5x5)) ) return false;
+      if ( !(( 0.85 + -0.0080 * cluster_pt ) > iso ) ) return false;
+      if ( ( e2x2 / e2x5) < 0.95 ) return false;
 
-   // Passes cuts
-   return true;
+      // Passes cuts
+      return true;
+   }
+   return false; // out of eta range
 }
 
 
 bool
-L1EGCrystalClusterProducer::cluster_passes_cuts(const l1slhc::L1EGCrystalCluster& cluster) const {
+L1EGCrystalClusterProducer::cluster_passes_electronWP98(float &cluster_pt, float &cluster_eta, float &iso, float &e2x5, float &e5x5) const {
+   // Replica of below just passed arguments differently
+   if ( fabs(cluster_eta) < 1.479 )
+   {
+      if ( !( 0.94 + 0.052 * TMath::Exp( -0.044 * cluster_pt ) < (e2x5 / e5x5)) ) return false;
+      if ( !(( 0.85 + -0.0080 * cluster_pt ) > iso ) ) return false;
+
+      // Passes cuts
+      return true;
+   }
+   return false; // out of eta range
+}
+
+
+bool
+L1EGCrystalClusterProducer::cluster_passes_base_cuts(const l1slhc::L1EGCrystalCluster& cluster) const {
    //return true;
    
    // Currently this producer is optimized based on cluster isolation and shower shape
-   // the previous H/E cut has been removed for the moment.
    // The following cut is based off of what was shown in the Phase-2 meeting
-   // 23 June 2016.  Only the barrel is considered.  And track isolation
-   // is not included.
+   // 23 May 2017 from CMSSW 92X
+   // Optimization based on min ECAL TP ET = 500 MeV for inclusion
+   // Only the barrel is considered
    if ( fabs(cluster.eta()) < 1.479 )
    {
       //std::cout << "Starting passing check" << std::endl;
@@ -728,18 +729,14 @@ L1EGCrystalClusterProducer::cluster_passes_cuts(const l1slhc::L1EGCrystalCluster
       float clusterE2x5 = cluster.GetExperimentalParam("E2x5");
       float clusterE5x5 = cluster.GetExperimentalParam("E5x5");
       float cluster_iso = cluster.isolation();
-      bool passIso = false;
-      bool passShowerShape = false;
-      
-      if ( ( -0.92 + 0.18 * TMath::Exp( -0.04 * cluster_pt ) < (clusterE2x5 / clusterE5x5)) ) {
-      passShowerShape = true; }
-      if ( (( 0.99 + 5.6 * TMath::Exp( -0.061 * cluster_pt )) > cluster_iso ) ) {
-          passIso = true; }
-      if ( passShowerShape && passIso ) {
-          //std::cout << " --- Passed!" << std::endl;
-      return true; }
+     
+      if ( !( 0.94 + 0.052 * TMath::Exp( -0.044 * cluster_pt ) < (clusterE2x5 / clusterE5x5)) )
+         return false;
+      if ( !(( 0.85 + -0.0080 * cluster_pt ) > cluster_iso ) )
+         return false;
+      return true; // cluster passes all cuts
    }
-   return false;
+   return false; // out of eta range
 }
 
 DEFINE_FWK_MODULE(L1EGCrystalClusterProducer);
