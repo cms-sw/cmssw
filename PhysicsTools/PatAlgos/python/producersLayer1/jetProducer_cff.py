@@ -18,3 +18,19 @@ makePatJetsTask = cms.Task(
     patJets
     )
 makePatJets = cms.Sequence(makePatJetsTask)
+
+from RecoBTag.ImpactParameter.pfImpactParameterTagInfos_cfi import * #pfImpactParameterTagInfos
+from RecoBTag.SecondaryVertex.pfSecondaryVertexTagInfos_cfi import * #pfSecondaryVertexTagInfos
+from RecoBTag.SecondaryVertex.pfInclusiveSecondaryVertexFinderTagInfos_cfi import * #pfInclusiveSecondaryVertexFinderTagInfos
+from RecoBTag.Combined.deepFlavour_cff import * #pfDeepFlavourTask
+
+makeDeepCSVForMiniAOD = pfDeepFlavourTask.copy()
+makeDeepCSVForMiniAOD.add(pfImpactParameterTagInfos)
+makeDeepCSVForMiniAOD.add(pfSecondaryVertexTagInfos)
+makeDeepCSVForMiniAOD.add(pfInclusiveSecondaryVertexFinderTagInfos)
+makeDeepCSVForMiniAOD.add(patJets)
+
+makePatJetsAndDeepCSVTask = makePatJets.copy()
+makePatJetsAndDeepCSVTask.replace(patJets, makeDeepCSVForMiniAOD)
+run2_miniAOD_80XLegacy.toReplaceWith(makePatJetsTask, makePatJetsAndDeepCSVTask)
+
