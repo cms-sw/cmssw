@@ -143,6 +143,27 @@ hiPixelPairStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiTrac
     ),
     ) #end of vpset
     ) #end of clone
+from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
+trackingPhase1.toModify(hiPixelPairStepSelector, useAnyMVA = cms.bool(False))
+trackingPhase1.toModify(hiPixelPairStepSelector, trackSelectors= cms.VPSet(
+    RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiLooseMTS.clone(
+    name = 'hiPixelPairStepLoose',
+    useMVA = cms.bool(False)
+    ), #end of pset
+    RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
+    name = 'hiPixelPairStepTight',
+    preFilterName = 'hiPixelPairStepLoose',
+    useMVA = cms.bool(False),
+    minMVA = cms.double(-0.58)
+    ),
+    RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
+    name = 'hiPixelPairStep',
+    preFilterName = 'hiPixelPairStepTight',
+    useMVA = cms.bool(False),
+    minMVA = cms.double(0.77)
+    ),
+    ) #end of vpset
+)
 
 
 
