@@ -37,28 +37,75 @@ void PFJetsTauOverlapRemoval::produce(edm::StreamID iSId, edm::Event& iEvent, co
   trigger::VRpftau taus; 
   tauJets->getObjects(trigger::TriggerTau,taus);
 
-  if(PFJets->size() == 2 || PFJets->size() > 3){
-    for(unsigned int iTau = 0; iTau < taus.size(); iTau++){  
-      for(unsigned int iJet = 0; iJet < PFJets->size(); iJet++){
-        const PFJet &  myPFJet = (*PFJets)[iJet];
-        deltaR2 = ROOT::Math::VectorUtil::DeltaR2((taus[iTau])->p4().Vect(), myPFJet.p4().Vect());
-        if(deltaR2 > matchingR2) cleanedPFJets->push_back(myPFJet);
-        break;
-      }
-    }
-  }
-  else if(PFJets->size() == 3){
-    for(unsigned int iTau = 0; iTau < taus.size(); iTau++){  
-      for(unsigned int iJet = 0; iJet < PFJets->size()-1; iJet++){
-        const PFJet &  myPFJet = (*PFJets)[iJet];
-        deltaR2 = ROOT::Math::VectorUtil::DeltaR2((taus[iTau])->p4().Vect(), myPFJet.p4().Vect());
-        if(deltaR2 > matchingR2) cleanedPFJets->push_back(myPFJet);
-        break;
-      }
-    }
-    if(PFJets->size() > 2) cleanedPFJets->push_back((*PFJets)[2]);
-  }
+//  if(PFJets->size() == 2){
+//    for(unsigned int iJet = 0; iJet < PFJets->size(); iJet++){
+//      bool isMatched = false;  
+//      for(unsigned int iTau = 0; iTau < taus.size(); iTau++){  
+//        const PFJet &  myPFJet = (*PFJets)[iJet];
+//        deltaR2 = ROOT::Math::VectorUtil::DeltaR2((taus[iTau])->p4().Vect(), myPFJet.p4().Vect());
+//        if(deltaR2 < matchingR2){
+//          isMatched = true;
+//          break;
+//        }
+//      if(isMatched == false) cleanedPFJets->push_back(myPFJet);
+//      }
+//    }
+//  }
+  
  
+  //trying something new - combining both cases in one taking only first two jets for matching
+  //and then keeping third or highest pt jet
+  
+  for(unsigned int iJet = 0; iJet < 3; iJet++){
+    bool isMatched = false;  
+    for(unsigned int iTau = 0; iTau < taus.size(); iTau++){  
+      const PFJet &  myPFJet = (*PFJets)[iJet];
+      deltaR2 = ROOT::Math::VectorUtil::DeltaR2((taus[iTau])->p4().Vect(), myPFJet.p4().Vect());
+      if(deltaR2 < matchingR2){
+        isMatched = true;
+        break;
+      }
+    }
+    if(isMatched == false) cleanedPFJets->push_back(myPFJet);
+  }
+
+  cleanedPFJets->push_back((*PFJets)[2]);
+  
+  
+
+
+
+//  else if(PFJets->size() == 3){
+//    for(unsigned int iJet = 0; iJet < PFJets->size()-1; iJet++){
+//      bool isMatched = false;  
+//      for(unsigned int iTau = 0; iTau < taus.size(); iTau++){  
+//        const PFJet &  myPFJet = (*PFJets)[iJet];
+//        deltaR2 = ROOT::Math::VectorUtil::DeltaR2((taus[iTau])->p4().Vect(), myPFJet.p4().Vect());
+//        if(deltaR2 < matchingR2){
+//          isMatched = true;
+//          break;
+//        }
+//      if(isMatched == false) cleanedPFJets->push_back(myPFJet);
+//      }
+//    }
+//    cleanedPFJets->push_back((*PFJets)[2]);
+//  }
+// 
+//  else if(PFJets->size() == 3){
+//    for(unsigned int iJet = 0; iJet < PFJets->size()-1; iJet++){
+//      bool isMatched = false;  
+//      for(unsigned int iTau = 0; iTau < taus.size(); iTau++){  
+//        const PFJet &  myPFJet = (*PFJets)[iJet];
+//        deltaR2 = ROOT::Math::VectorUtil::DeltaR2((taus[iTau])->p4().Vect(), myPFJet.p4().Vect());
+//        if(deltaR2 < matchingR2){
+//          isMatched = true;
+//          break;
+//        }
+//      if(isMatched == false) cleanedPFJets->push_back(myPFJet);
+//      }
+//    }
+//    cleanedPFJets->push_back((*PFJets)[2]);
+//  }
   
   iEvent.put(std::move(cleanedPFJets));
 }
