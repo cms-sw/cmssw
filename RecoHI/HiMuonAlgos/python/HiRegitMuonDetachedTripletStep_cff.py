@@ -29,12 +29,18 @@ hiRegitMuDetachedTripletStepTrackingRegions = HiTrackingRegionFactoryFromSTAMuon
 from RecoTracker.IterativeTracking.DetachedTripletStep_cff import *
 
 # NEW CLUSTERS (remove previously used clusters)
-hiRegitMuDetachedTripletStepClusters = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepClusters.clone(
-    trajectories          = cms.InputTag("hiRegitMuPixelLessStepTracks"),
-    overrideTrkQuals      = cms.InputTag('hiRegitMuPixelLessStepSelector','hiRegitMuPixelLessStep'),
-    trackClassifier       = cms.InputTag(''),
-    TrackQuality          = cms.string('tight')
+from RecoLocalTracker.SubCollectionProducers.trackClusterRemover_cfi import trackClusterRemover as _trackClusterRemover
+hiRegitMuDetachedTripletStepClusters = _trackClusterRemover.clone(
+    maxChi2                                  = 9.0,
+    pixelClusters                            = "siPixelClusters",
+    stripClusters                            = "siStripClusters",
+    trajectories          		     = cms.InputTag("hiRegitMuPixelLessStepTracks"),
+    overrideTrkQuals      		     = cms.InputTag('hiRegitMuPixelLessStepSelector','hiRegitMuPixelLessStep'),
+    TrackQuality                             = 'tight',
+    trackClassifier       		     = cms.InputTag(''),
+    minNumberOfLayersWithMeasBeforeFiltering = 0
 )
+
 
 # SEEDING LAYERS
 hiRegitMuDetachedTripletStepSeedLayers =  RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepSeedLayers.clone()
@@ -111,7 +117,29 @@ hiRegitMuDetachedTripletStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cf
             )
         ) #end of vpset
     )
-
+from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
+trackingPhase1.toModify(hiRegitMuDetachedTripletStepSelector, useAnyMVA = cms.bool(False))
+trackingPhase1.toModify(hiRegitMuDetachedTripletStepSelector, trackSelectors= cms.VPSet(
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
+           name = 'hiRegitMuDetachedTripletStepLoose',
+           min_nhits = cms.uint32(8)
+            ),
+        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
+            name = 'hiRegitMuDetachedTripletStepTight',
+            preFilterName = 'hiRegitMuDetachedTripletStepLoose',
+            min_nhits = cms.uint32(8),
+            useMVA = cms.bool(False),
+            minMVA = cms.double(-0.2)
+            ),
+        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
+            name = 'hiRegitMuDetachedTripletStep',
+            preFilterName = 'hiRegitMuDetachedTripletStepTight',
+            min_nhits = cms.uint32(8),
+            useMVA = cms.bool(False),
+            minMVA = cms.double(-0.09)
+            )
+        )
+)
 
 hiRegitMuonDetachedTripletStep = cms.Sequence(hiRegitMuDetachedTripletStepClusters*
                                               hiRegitMuDetachedTripletStepSeedLayers*
