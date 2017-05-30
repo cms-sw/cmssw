@@ -26,7 +26,7 @@ namespace gen {
       public:
          
 	 Py8InterfaceBase( edm::ParameterSet const& ps );
-	 ~Py8InterfaceBase() {}
+	 virtual ~Py8InterfaceBase() {}
 	 
          virtual bool generatePartonsAndHadronize() = 0;
          bool decay() { return true; } // NOT used - let's call it "design imperfection"
