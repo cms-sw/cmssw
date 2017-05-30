@@ -260,9 +260,10 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
         TrackDetMatchInfo trackDetInfo = getTrackDetMatchInfo(iEvent, iSetup, gentk);
 
         // fill ecal/hcal status vectors
-        std::vector<uint32_t> crossedHcalStatus;
+        std::vector<HcalChannelStatus> crossedHcalStatus;
         for(auto const & did : trackDetInfo.crossedHcalIds){
-            crossedHcalStatus.push_back(hcalQ->getValues(did.rawId())->getValue());
+            // create an HcalChannelStatus with DetId set to 0 to reduce size
+            crossedHcalStatus.push_back(HcalChannelStatus(0, hcalQ->getValues(did.rawId())->getValue()));
         }
         std::vector<EcalChannelStatusCode> crossedEcalStatus;
         for(auto const & did : trackDetInfo.crossedEcalIds){
@@ -337,7 +338,7 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
         float dEdxPixel=-1, dEdxStrip=-1;
         int trackQuality=0;
         std::vector<EcalChannelStatusCode> ecalStatus;
-        std::vector<uint32_t> hcalStatus;
+        std::vector<HcalChannelStatus> hcalStatus;
         int deltaEta=0;
         int deltaPhi=0;
 
@@ -475,8 +476,7 @@ void pat::PATIsolatedTrackProducer::getCaloJetEnergy(const LorentzVector& p4, co
         caloJetHad = 0;
     }else{
         caloJetEm = cJets->at(ind).emEnergyInEB() + cJets->at(ind).emEnergyInEE() + cJets->at(ind).emEnergyInHF();
-        caloJetHad = cJets->at(ind).hadEnergyInHB() + cJets->at(ind).hadEnergyInHE() + 
-            cJets->at(ind).hadEnergyInHF() + cJets->at(ind).hadEnergyInHO();
+        caloJetHad = cJets->at(ind).hadEnergyInHB() + cJets->at(ind).hadEnergyInHE() + cJets->at(ind).hadEnergyInHF();
     }
 
 }

@@ -33,7 +33,7 @@ namespace pat {
           dz_(0.), dxy_(0.), dzError_(0.), dxyError_(0.), fromPV_(-1), trackQuality_(0),
           dEdxStrip_(0), dEdxPixel_(0), hitPattern_(reco::HitPattern()),
           crossedEcalStatus_(std::vector<EcalChannelStatusCode>()),
-          crossedHcalStatus_(std::vector<uint32_t>()),
+          crossedHcalStatus_(std::vector<HcalChannelStatus>()),
           deltaEta_(0), deltaPhi_(0),
           packedCandRef_(PackedCandidateRef()) {}
 
@@ -42,7 +42,7 @@ namespace pat {
                                float dz, float dxy, float dzError, float dxyError,
                                const reco::HitPattern &hp, float dEdxS, float dEdxP, int fromPV, int tkQual,
                                const std::vector<EcalChannelStatusCode> &ecalst,
-                               const std::vector<uint32_t> & hcalst, int dEta, int dPhi,
+                               const std::vector<HcalChannelStatus> & hcalst, int dEta, int dPhi,
                                const PackedCandidateRef &pcref) :
           LeafCandidate(charge, p4, Point(0.,0.,0.), id),
           pfIsolationDR03_(iso), miniIsolation_(miniiso), 
@@ -83,7 +83,8 @@ namespace pat {
         float dEdxPixel() const { return dEdxPixel_; }
 
         const std::vector<EcalChannelStatusCode>& crossedEcalStatus() const { return crossedEcalStatus_; }
-        const std::vector<uint32_t> crossedHcalStatus() const { return crossedHcalStatus_; }
+        const std::vector<HcalChannelStatus>& crossedHcalStatus() const { return crossedHcalStatus_; }
+
 
         float deltaEta() const { return float(deltaEta_)/250*0.5; }
         float deltaPhi() const { return float(deltaPhi_)/250*0.5; }
@@ -103,10 +104,10 @@ namespace pat {
         reco::HitPattern hitPattern_;
 
         std::vector<EcalChannelStatusCode> crossedEcalStatus_;
-        std::vector<uint32_t> crossedHcalStatus_; // just the "code" part of HcalChannelStatus
+        std::vector<HcalChannelStatus> crossedHcalStatus_;
         int deltaEta_, deltaPhi_; // difference in eta/phi between initial traj and intersection w/ ecal
 
-        PackedCandidateRef packedCandRef_;
+        PackedCandidateRef packedCandRef_; // stored only for packedPFCands/lostTracks. NULL for generalTracks
 
     };
 
