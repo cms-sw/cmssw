@@ -162,9 +162,9 @@ SiStripGainsPCLHarvester::gainQualityMonitor(DQMStore::IBooker& ibooker_, const 
   std::vector<std::pair<std::string,std::string>> cnames = APVGain::monHnames(VChargeHisto,doChargeMonitorPerPlane,"newG2");
   for (unsigned int i=0;i<cnames.size();i++){
     MonitorElement* monitor = ibooker_.book1DD( (cnames[i]).first, (cnames[i]).second.c_str(), 100   , 0. , 1000. );
-    int id    = APVGain::subdetectorId((cnames[i]).first.c_str());
-    int side  = APVGain::subdetectorSide((cnames[i]).first.c_str());
-    int plane = APVGain::subdetectorPlane((cnames[i]).first.c_str());
+    int id    = APVGain::subdetectorId((cnames[i]).first);
+    int side  = APVGain::subdetectorSide((cnames[i]).first);
+    int plane = APVGain::subdetectorPlane((cnames[i]).first);
     new_charge_histos.push_back( APVGain::APVmon(id,side,plane,monitor) );
   }
 

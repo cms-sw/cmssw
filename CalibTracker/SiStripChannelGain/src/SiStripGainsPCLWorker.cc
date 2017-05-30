@@ -527,9 +527,9 @@ SiStripGainsPCLWorker::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
   for (unsigned int i=0;i<hnames.size();i++){
     std::string htag = (hnames[i]).first + stag;
     MonitorElement* monitor = ibooker.book1DD( htag.c_str(), (hnames[i]).second.c_str(), 100   , 0. , 1000. );
-    int id    = APVGain::subdetectorId((hnames[i]).first.c_str());
-    int side  = APVGain::subdetectorSide((hnames[i]).first.c_str());
-    int plane = APVGain::subdetectorPlane((hnames[i]).first.c_str());
+    int id    = APVGain::subdetectorId((hnames[i]).first);
+    int side  = APVGain::subdetectorSide((hnames[i]).first);
+    int plane = APVGain::subdetectorPlane((hnames[i]).first);
     Charge_1[elepos].push_back( APVGain::APVmon(id,side,plane,monitor) );
   }
 
@@ -537,9 +537,9 @@ SiStripGainsPCLWorker::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
   for (unsigned int i=0;i<hnames.size();i++){
     std::string htag = (hnames[i]).first + stag;
     MonitorElement* monitor = ibooker.book1DD( htag.c_str(), (hnames[i]).second.c_str(), 100   , 0. , 1000. );
-    int id    = APVGain::subdetectorId((hnames[i]).first.c_str());
-    int side  = APVGain::subdetectorSide((hnames[i]).first.c_str());
-    int plane = APVGain::subdetectorPlane((hnames[i]).first.c_str());
+    int id    = APVGain::subdetectorId((hnames[i]).first);
+    int side  = APVGain::subdetectorSide((hnames[i]).first);
+    int plane = APVGain::subdetectorPlane((hnames[i]).first);
     Charge_2[elepos].push_back( APVGain::APVmon(id,side,plane,monitor) );
   }
 
@@ -547,9 +547,9 @@ SiStripGainsPCLWorker::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
   for (unsigned int i=0;i<hnames.size();i++){
     std::string htag = (hnames[i]).first + stag;
     MonitorElement* monitor = ibooker.book1DD( htag.c_str(), (hnames[i]).second.c_str(), 100   , 0. , 1000. );
-    int id    = APVGain::subdetectorId((hnames[i]).first.c_str());
-    int side  = APVGain::subdetectorSide((hnames[i]).first.c_str());
-    int plane = APVGain::subdetectorPlane((hnames[i]).first.c_str());
+    int id    = APVGain::subdetectorId((hnames[i]).first);
+    int side  = APVGain::subdetectorSide((hnames[i]).first);
+    int plane = APVGain::subdetectorPlane((hnames[i]).first);
     Charge_3[elepos].push_back( APVGain::APVmon(id,side,plane,monitor) );
   }
 
@@ -557,9 +557,9 @@ SiStripGainsPCLWorker::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
   for (unsigned int i=0;i<hnames.size();i++){
     std::string htag = (hnames[i]).first + stag;
     MonitorElement* monitor = ibooker.book1DD( htag.c_str(), (hnames[i]).second.c_str(), 100   , 0. , 1000. );
-    int id    = APVGain::subdetectorId((hnames[i]).first.c_str());
-    int side  = APVGain::subdetectorSide((hnames[i]).first.c_str());
-    int plane = APVGain::subdetectorPlane((hnames[i]).first.c_str());
+    int id    = APVGain::subdetectorId((hnames[i]).first);
+    int side  = APVGain::subdetectorSide((hnames[i]).first);
+    int plane = APVGain::subdetectorPlane((hnames[i]).first);
     Charge_4[elepos].push_back( APVGain::APVmon(id,side,plane,monitor) );
   }
 

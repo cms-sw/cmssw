@@ -31,8 +31,8 @@ int APVGain::subdetectorId(uint32_t det_id) {
  * The char * string is expected to have a 3 char descriptor of the subdetector
  * type in front.
  */
-int APVGain::subdetectorId(const char* tag) {
-    std::string d = std::string(tag).substr(0,3);
+int APVGain::subdetectorId(std::string tag) {
+    std::string d = tag.substr(0,3);
     if ( d.compare("TIB")==0 ) return 3;
     if ( d.compare("TID")==0 ) return 4;
     if ( d.compare("TOB")==0 ) return 5;
@@ -47,12 +47,7 @@ int APVGain::subdetectorId(const char* tag) {
  *   2 - for positive side
  */
 int APVGain::subdetectorSide(uint32_t det_id, const TrackerTopology* topo) {
-    int id = APVGain::subdetectorId( det_id );
-    if( topo ) {
-        if (id==StripSubdetector::TID) return topo->tidSide( det_id );
-        if (id==StripSubdetector::TEC) return topo->tecSide( det_id );
-    }
-    return 0;
+    return topo->side( det_id );
 }
 
 
@@ -65,10 +60,9 @@ int APVGain::subdetectorSide(uint32_t det_id, const TrackerTopology* topo) {
  *   The char * descriptor is expected to have either "minus" or "plus"
  *   string to specify the sign. If no sign spec is found 0 is returned.
  */
-int APVGain::subdetectorSide(const char* tag) {
-    std::string t = std::string(tag);
-    std::size_t m = t.find("minus");
-    std::size_t p = t.find("plus");
+int APVGain::subdetectorSide(std::string tag) {
+    std::size_t m = tag.find("minus");
+    std::size_t p = tag.find("plus");
     if (m!=std::string::npos) return 1;
     if (p!=std::string::npos) return 2;
     return 0;
@@ -97,13 +91,12 @@ int APVGain::subdetectorPlane(uint32_t det_id, const TrackerTopology* topo) {
  * The char * string is expected to have the subdetector plane put at its
  * end after an "_" char.
  */
-int APVGain::subdetectorPlane(const char* tag) {
-   std::string s = std::string(tag);
-   std::size_t p = (s.find("layer")!=std::string::npos)? s.find("layer") : s.find("wheel");
+int APVGain::subdetectorPlane(std::string tag) {
+   std::size_t p = (tag.find("layer")!=std::string::npos)? tag.find("layer") : tag.find("wheel");
    if (p!=std::string::npos) {
-       std::size_t start = s.find("_",p+1) + 1;
-       std::size_t stop  = s.find('_',start);
-       std::string plane = s.substr(start,stop-start);
+       std::size_t start = tag.find("_",p+1) + 1;
+       std::size_t stop  = tag.find('_',start);
+       std::string plane = tag.substr(start,stop-start);
        return atoi( plane.c_str());
    }
    return 0;
@@ -144,6 +137,10 @@ std::vector<std::pair<std::string,std::string>>
 APVGain::monHnames(std::vector<std::string> VH, bool allPlanes, const char* tag) {
 
     std::vector<std::pair<std::string,std::string>> out;
+    int re = (allPlanes)? 34 + VH.size() : VH.size();
+    out.reserve( re );
+
+
     std::string Tag = tag;
     if (Tag.length())  Tag = "__" + Tag;
 
@@ -152,19 +149,22 @@ APVGain::monHnames(std::vector<std::string> VH, bool allPlanes, const char* tag)
 
     if (allPlanes) {
         // Names of monitoring histogram for TIB layers
-        for(unsigned int i=1;i<5;i++) {
+        int TIBlayers = 4;  //number of TIB layers.
+        for(int i=1; i<=TIBlayers; i++) {
             h_tag = "TIB_layer_" + std::to_string(i) + Tag;
             h_tit = h_tag; std::replace(h_tit.begin(),h_tit.end(),'_',' ');
             out.push_back(std::pair<std::string,std::string>(h_tag,h_tit));
         }
         // Names of monitoring histogram for TOB layers
-        for(unsigned int i=1;i<7;i++) {
+        int TOBlayers = 6;  //number of TOB layers
+        for(int i=1; i<=TOBlayers; i++) {
             h_tag = "TOB_layer_" + std::to_string(i) + Tag;
             h_tit = h_tag; std::replace(h_tit.begin(),h_tit.end(),'_',' ');
             out.push_back(std::pair<std::string,std::string>(h_tag,h_tit));
         }
         // Names of monitoring histogram for TID wheels
-        for(int i=-3;i<4;i++) {
+        int TIDwheels = 3;  //number of TID wheels
+        for(int i=-TIDwheels; i<=TIDwheels; i++) {
             if (i==0) continue;
             if (i<0)  h_tag = "TIDminus_wheel_" + std::to_string(i) + Tag;
             else      h_tag = "TIDplus_wheel_" + std::to_string(i) + Tag;
@@ -172,7 +172,8 @@ APVGain::monHnames(std::vector<std::string> VH, bool allPlanes, const char* tag)
             out.push_back(std::pair<std::string,std::string>(h_tag,h_tit));
         }
         // Names of monitoring histogram for TEC wheels
-        for(int i=-9;i<10;i++) {
+        int TECwheels = 9;  //number of TEC wheels
+        for(int i=-TECwheels; i<=TECwheels; i++) {
             if (i==0) continue;
             if (i<0) h_tag = "TECminus_wheel_" + std::to_string(i) + Tag;
             else     h_tag = "TECplus_wheel_" + std::to_string(i) + Tag;
