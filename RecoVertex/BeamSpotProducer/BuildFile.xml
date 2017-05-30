@@ -15,7 +15,6 @@
 <use   name="FWCore/Utilities"/>
 <use   name="clhep"/>
 <use   name="rootcore"/>
-<use   name="rootminuit2"/>
 <use   name="rootminuit"/>
 <export>
   <lib   name="1"/>
