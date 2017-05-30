@@ -13,34 +13,30 @@ def LoadEgmIdSequence(process, dataFormat):
     # Load the producer for MVA IDs. Make sure it is also added to the sequence!
     process.load("RecoEgamma.PhotonIdentification.PhotonMVAValueMapProducer_cfi")
     process.load("RecoEgamma.PhotonIdentification.PhotonRegressionValueMapProducer_cfi")
-
+    
     # Load sequences for isolations computed with CITK for both AOD and miniAOD cases
+    process.egmPhotonIDSequence = cms.Sequence()
+    # The isolation piece is different depending on the input format
     if dataFormat== DataFormat.AOD:
         process.load("RecoEgamma.EgammaIsolationAlgos.egmPhotonIsolationAOD_cff")
         #if particleFlowTmpPtrs was not create we should create it
         if not hasattr(process, "particleFlowTmpPtrs"):
-          process.particleFlowTmpPtrs = cms.EDProducer("PFCandidateFwdPtrProducer",
-          src = cms.InputTag('particleFlow')
-          )
-          process.egmPhotonIDSequence = cms.Sequence(process.particleFlowTmpPtrs
-                                                   * process.egmPhotonIsolationAODSequence 
-                                                   * process.photonIDValueMapProducer 
-                                                   * process.photonMVAValueMapProducer 
-                                                   * process.egmPhotonIDs 
-                                                   * process.photonRegressionValueMapProducer )
+            process.particleFlowTmpPtrs = cms.EDProducer("PFCandidateFwdPtrProducer",
+                                                         src = cms.InputTag('particleFlow')
+                                                         )
+            isoSequence = cms.Sequence(process.particleFlowTmpPtrs +
+                                       process.egmPhotonIsolationAODSequence)
         else :
-          process.egmPhotonIDSequence = cms.Sequence(process.egmPhotonIsolationAODSequence 
-                                                   * process.photonIDValueMapProducer 
-                                                   * process.photonMVAValueMapProducer 
-                                                   * process.egmPhotonIDs 
-                                                   * process.photonRegressionValueMapProducer )
+            isoSequence = cms.Sequence(process.egmPhotonIsolationAODSequence)
 
     elif dataFormat== DataFormat.MiniAOD:
         process.load("RecoEgamma.EgammaIsolationAlgos.egmPhotonIsolationMiniAOD_cff")
-        process.egmPhotonIDSequence = cms.Sequence(process.egmPhotonIsolationMiniAODSequence 
-                                                   * process.photonIDValueMapProducer 
-                                                   * process.photonMVAValueMapProducer 
-                                                   * process.egmPhotonIDs 
-                                                   * process.photonRegressionValueMapProducer )
+        isoSequence = cms.Sequence(process.egmPhotonIsolationMiniAODSequence)
     else:
         raise Exception('InvalidVIDDataFormat', 'The requested data format is different from AOD or MiniAOD')
+    # Add everything together
+    process.egmPhotonIDSequence = cms.Sequence( isoSequence + 
+                                                process.photonIDValueMapProducer +
+                                                process.photonMVAValueMapProducer +
+                                                process.egmPhotonIDs +
+                                                process.photonRegressionValueMapProducer)
