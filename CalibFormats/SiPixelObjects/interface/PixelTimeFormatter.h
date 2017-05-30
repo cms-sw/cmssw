@@ -34,6 +34,8 @@ namespace pos{
      std::cout << "[PixelTimeFormatter::PixelTimeFormatter()]\t\t    Time counter started for " << origin_ << std::endl ;
      startTime_ = getImSecTime() ;
     }
+
+    virtual ~PixelTimeFormatter() = default;
     
     void stopTimer(void) 
     {
