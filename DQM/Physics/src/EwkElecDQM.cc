@@ -266,6 +266,9 @@ void EwkElecDQM::bookHistograms(DQMStore::IBooker & ibooker,
   jet_eta_before_ = ibooker.book1D("JETETA1_BEFORECUTS", chtitle, 20, -5, 5);
   jet_eta_after_ = ibooker.book1D("JETETA1_AFTERCUTS", chtitle, 20, -5, 5);
 
+
+ibooker.cd();
+
 }
 
 void EwkElecDQM::endRun(const Run& r, const EventSetup&) {
