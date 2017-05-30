@@ -28,6 +28,17 @@ TopMonitor::TopMonitor( const edm::ParameterSet& iConfig ) :
   , jetPt_variable_binning_ ( iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("jetPtBinning") )
   , muPt_variable_binning_ ( iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("muPtBinning") )
   , elePt_variable_binning_ ( iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("elePtBinning") )
+  , jetEta_variable_binning_ ( iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("jetEtaBinning") )
+  , muEta_variable_binning_ ( iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("muEtaBinning") )
+  , eleEta_variable_binning_ ( iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("eleEtaBinning") )
+  , HT_variable_binning_2D_ ( iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("HTBinning2D") )
+  , jetPt_variable_binning_2D_ ( iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("jetPtBinning2D") )
+  , muPt_variable_binning_2D_ ( iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("muPtBinning2D") )
+  , elePt_variable_binning_2D_ ( iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("elePtBinning2D") )
+  , jetEta_variable_binning_2D_ ( iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("jetEtaBinning2D") )
+  , muEta_variable_binning_2D_ ( iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("muEtaBinning2D") )
+  , eleEta_variable_binning_2D_ ( iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("eleEtaBinning2D") )
+  , phi_variable_binning_2D_ ( iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("phiBinning2D") )
   , num_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet"),consumesCollector(), *this))
   , den_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("denGenericTriggerEventPSet"),consumesCollector(), *this))
   , metSelection_ ( iConfig.getParameter<std::string>("metSelection") )
@@ -55,11 +66,14 @@ TopMonitor::TopMonitor( const edm::ParameterSet& iConfig ) :
     muVsLS_ = empty ; 
     eleVsLS_ = empty ; 
     htVsLS_ = empty ; 
-    jetEtaPhi_ = empty; // for HEP17 monitoring
+    jetEtaPhi_HEP17_ = empty; // for HEP17 monitoring
 
     jetMulti_ = empty;
     eleMulti_ = empty;
     muMulti_ = empty;
+
+    elePt_jetPt_ = empty;
+    elePt_eventHT_ = empty;
 
     for (unsigned int iMu=0; iMu<nmuons_; ++iMu){
         muPhi_.push_back(empty);
@@ -67,6 +81,8 @@ TopMonitor::TopMonitor( const edm::ParameterSet& iConfig ) :
         muPt_.push_back(empty);
         muEta_variableBinning_.push_back(empty);
         muPt_variableBinning_.push_back(empty);
+        muPtEta_.push_back(empty);
+        muEtaPhi_.push_back(empty);
     }
     for (unsigned int iEle=0; iEle<nelectrons_; ++iEle){
         elePhi_.push_back(empty);
@@ -74,6 +90,8 @@ TopMonitor::TopMonitor( const edm::ParameterSet& iConfig ) :
         elePt_.push_back(empty);
         eleEta_variableBinning_.push_back(empty);
         elePt_variableBinning_.push_back(empty);
+        elePtEta_.push_back(empty);
+        eleEtaPhi_.push_back(empty);
     }
     for (unsigned int iJet=0; iJet<njets_; ++iJet){
         jetPhi_.push_back(empty);
@@ -81,6 +99,8 @@ TopMonitor::TopMonitor( const edm::ParameterSet& iConfig ) :
         jetPt_.push_back(empty);
         jetEta_variableBinning_.push_back(empty);
         jetPt_variableBinning_.push_back(empty);
+        jetPtEta_.push_back(empty);
+        jetEtaPhi_.push_back(empty);
     }
 
 }
@@ -228,6 +248,17 @@ void TopMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
       bookME(ibooker,muPhi_.at(iMu),histname,histtitle, phi_binning_.nbins, phi_binning_.xmin, phi_binning_.xmax);
       setMETitle(muPhi_.at(iMu)," muon #phi","events");
 
+      histname = "muPtEta_"; histtitle = "muon p_{T} - #eta - ";
+      histname.append(index); histtitle.append(index);
+      bookME(ibooker,muPtEta_.at(iMu),histname,histtitle, muPt_variable_binning_2D_, muEta_variable_binning_2D_);
+      setMETitle(muPtEta_.at(iMu),"muon p_{T} [GeV]","muon #eta");
+
+      histname = "muEtaPhi_"; histtitle = "muon #eta - #phi - ";
+      histname.append(index); histtitle.append(index);
+      bookME(ibooker,muEtaPhi_.at(iMu),histname,histtitle, muEta_variable_binning_2D_, phi_variable_binning_2D_);
+      setMETitle(muEtaPhi_.at(iMu),"muon p_{T} [GeV]","muon #eta");
+
+
   }
 
   if ((elePt_.size()!=nelectrons_) || (eleEta_.size()!=nelectrons_) || (elePhi_.size()!=nelectrons_)){
@@ -258,6 +289,17 @@ void TopMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
       histname.append(index); histtitle.append(index);
       bookME(ibooker,elePhi_.at(iEle),histname,histtitle, phi_binning_.nbins, phi_binning_.xmin, phi_binning_.xmax);
       setMETitle(elePhi_.at(iEle)," electron #phi","events");
+
+      histname = "elePtEta_"; histtitle = "electron p_{T} - #eta - ";
+      histname.append(index); histtitle.append(index);
+      bookME(ibooker,elePtEta_.at(iEle),histname,histtitle, elePt_variable_binning_2D_, eleEta_variable_binning_2D_);
+      setMETitle(elePtEta_.at(iEle),"electron p_{T} [GeV]","electron #eta");
+
+      histname = "eleEtaPhi_"; histtitle = "electron #eta - #phi - ";
+      histname.append(index); histtitle.append(index);
+      bookME(ibooker,eleEtaPhi_.at(iEle),histname,histtitle, eleEta_variable_binning_2D_, phi_variable_binning_2D_);
+      setMETitle(eleEtaPhi_.at(iEle),"electron p_{T} [GeV]","electron #eta");
+
 
   }
 
@@ -290,6 +332,18 @@ void TopMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
       bookME(ibooker,jetPhi_.at(iJet),histname,histtitle, phi_binning_.nbins, phi_binning_.xmin, phi_binning_.xmax);
       setMETitle(jetPhi_.at(iJet)," jet #phi","events");
 
+      histname = "jetPtEta_"; histtitle = "jet p_{T} - #eta - ";
+      histname.append(index); histtitle.append(index);
+      bookME(ibooker,jetPtEta_.at(iJet),histname,histtitle, jetPt_variable_binning_2D_, jetEta_variable_binning_2D_);
+      setMETitle(jetPtEta_.at(iJet),"jet p_{T} [GeV]","jet #eta");
+
+      histname = "jetEtaPhi_"; histtitle = "jet #eta - #phi - ";
+      histname.append(index); histtitle.append(index);
+      bookME(ibooker,jetEtaPhi_.at(iJet),histname,histtitle, jetEta_variable_binning_2D_, phi_variable_binning_2D_);
+      setMETitle(jetEtaPhi_.at(iJet),"jet p_{T} [GeV]","jet #eta");
+
+
+
   }
 
   histname = "eventHT"; histtitle = "event HT";
@@ -299,8 +353,8 @@ void TopMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   bookME(ibooker,eventHT_variableBinning_,histname,histtitle, HT_variable_binning_);
   setMETitle(eventHT_variableBinning_,"event HT [GeV]","events");
 
-  histname = "jetEtaPhi"; histtitle = "jet #eta-#phi";
-  bookME(ibooker,jetEtaPhi_,histname,histtitle,10,-2.5,2.5,18,-3.1415,3.1415); // for HEP17 monitoring
+  histname = "jetEtaPhi_HEP17"; histtitle = "jet #eta-#phi for HEP17";
+  bookME(ibooker,jetEtaPhi_HEP17_,histname,histtitle,10,-2.5,2.5,18,-3.1415,3.1415); // for HEP17 monitoring
   setMETitle(eventHT_,"jet #eta","jet #phi");
 
   histname = "jetMulti"; histtitle = "jet multiplicity";
@@ -314,6 +368,15 @@ void TopMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   histname = "muMulti"; histtitle = "muon multiplicity";
   bookME(ibooker,muMulti_,histname,histtitle, 6,-.5, 5.5);
   setMETitle(muMulti_,"muon multiplicity","events");
+
+
+  histname = "elePt_jetPt"; histtitle = "electron pt vs jet pt";
+  bookME(ibooker,elePt_jetPt_,histname,histtitle, elePt_variable_binning_2D_, jetPt_variable_binning_2D_);
+  setMETitle(elePt_jetPt_,"leading electron pt","leading jet pt");
+
+  histname = "elePt_eventHT"; histtitle = "electron pt vs event HT";
+  bookME(ibooker,elePt_eventHT_,histname,histtitle, elePt_variable_binning_2D_, HT_variable_binning_2D_);
+  setMETitle(elePt_eventHT_,"leading electron pt","event HT");
 
 
   // Initialize the GenericTriggerEventFlag
@@ -430,8 +493,14 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   muMulti_.denominator -> Fill(muons.size());
 
   if (nmuons_ > 0)     muVsLS_.denominator -> Fill(ls, muons.at(0).pt());
-  if (nelectrons_ > 0) eleVsLS_.denominator -> Fill(ls, electrons.at(0).pt());
   if (njets_ > 0)      jetVsLS_.denominator -> Fill(ls, jets.at(0).pt());
+  if (nelectrons_ > 0) {
+      eleVsLS_.denominator -> Fill(ls, electrons.at(0).pt());
+      elePt_eventHT_.denominator -> Fill (electrons.at(0).pt(), eventHT);
+      if (njets_>0) elePt_jetPt_.denominator -> Fill (electrons.at(0).pt(), jets.at(0).pt());
+  }
+
+
 
   if ((muPt_.size()!=nmuons_) || (muEta_.size()!=nmuons_) || (muPhi_.size()!=nmuons_)){
       edm::LogWarning("TopMonitor") << "Number of histograms does not match with number of required muons \n";
@@ -454,6 +523,8 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
       muPt_.at(iMu).denominator   -> Fill(muons.at(iMu).pt() );
       muEta_variableBinning_.at(iMu).denominator  -> Fill(muons.at(iMu).eta());
       muPt_variableBinning_.at(iMu).denominator   -> Fill(muons.at(iMu).pt() );
+      muPtEta_.at(iMu).denominator   -> Fill(muons.at(iMu).pt(), muons.at(iMu).eta() );
+      muEtaPhi_.at(iMu).denominator   -> Fill(muons.at(iMu).eta(), muons.at(iMu).phi() );
   }
   for (unsigned int iEle=0; iEle<electrons.size(); ++iEle){
       if (iEle>=nelectrons_) break;
@@ -462,6 +533,8 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
       elePt_.at(iEle).denominator   -> Fill(electrons.at(iEle).pt() );
       eleEta_variableBinning_.at(iEle).denominator  -> Fill(electrons.at(iEle).eta());
       elePt_variableBinning_.at(iEle).denominator   -> Fill(electrons.at(iEle).pt() );
+      elePtEta_.at(iEle).denominator   -> Fill(electrons.at(iEle).pt(), electrons.at(iEle).eta() );
+      eleEtaPhi_.at(iEle).denominator   -> Fill(electrons.at(iEle).eta(), electrons.at(iEle).phi() );
   }
   for (unsigned int iJet=0; iJet<jets.size(); ++iJet){
       if (iJet>=njets_) break;
@@ -470,10 +543,12 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
       jetPt_.at(iJet).denominator   -> Fill(jets.at(iJet).pt() );
       jetEta_variableBinning_.at(iJet).denominator  -> Fill(jets.at(iJet).eta());
       jetPt_variableBinning_.at(iJet).denominator   -> Fill(jets.at(iJet).pt() );
+      jetPtEta_.at(iJet).denominator   -> Fill(jets.at(iJet).pt(), jets.at(iJet).eta() );
+      jetEtaPhi_.at(iJet).denominator   -> Fill(jets.at(iJet).eta(), jets.at(iJet).phi() );
   }
 
   if (jets.size() > 0){
-      jetEtaPhi_.denominator -> Fill (jets.at(0).eta(), jets.at(0).phi()); // for HEP17 monitorning
+      jetEtaPhi_HEP17_.denominator -> Fill (jets.at(0).eta(), jets.at(0).phi()); // for HEP17 monitorning
   }
 
   // applying selection for numerator
@@ -489,8 +564,12 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   eventHT_variableBinning_.numerator -> Fill(eventHT);
 
   if (nmuons_ > 0)     muVsLS_.numerator -> Fill(ls, muons.at(0).pt());
-  if (nelectrons_ > 0) eleVsLS_.numerator -> Fill(ls, electrons.at(0).pt());
   if (njets_ > 0)      jetVsLS_.numerator -> Fill(ls, jets.at(0).pt());
+  if (nelectrons_ > 0) {
+      eleVsLS_.numerator -> Fill(ls, electrons.at(0).pt());
+      elePt_eventHT_.numerator -> Fill (electrons.at(0).pt(), eventHT);
+      if (njets_>0) elePt_jetPt_.numerator -> Fill (electrons.at(0).pt(), jets.at(0).pt());
+  }
 
   jetMulti_.numerator -> Fill(jets.size());
   eleMulti_.numerator -> Fill(electrons.size());
@@ -503,6 +582,8 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
       muPt_.at(iMu).numerator   -> Fill(muons.at(iMu).pt() );
       muEta_variableBinning_.at(iMu).numerator  -> Fill(muons.at(iMu).eta());
       muPt_variableBinning_.at(iMu).numerator   -> Fill(muons.at(iMu).pt() );
+      muPtEta_.at(iMu).numerator   -> Fill(muons.at(iMu).pt(), muons.at(iMu).eta() );
+      muEtaPhi_.at(iMu).numerator   -> Fill(muons.at(iMu).eta(), muons.at(iMu).phi() );
   }
   for (unsigned int iEle=0; iEle<electrons.size(); ++iEle){
       if (iEle>=nelectrons_) break;
@@ -511,6 +592,8 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
       elePt_.at(iEle).numerator   -> Fill(electrons.at(iEle).pt() );
       eleEta_variableBinning_.at(iEle).numerator  -> Fill(electrons.at(iEle).eta());
       elePt_variableBinning_.at(iEle).numerator   -> Fill(electrons.at(iEle).pt() );
+      elePtEta_.at(iEle).numerator   -> Fill(electrons.at(iEle).pt(), electrons.at(iEle).eta() );
+      eleEtaPhi_.at(iEle).numerator   -> Fill(electrons.at(iEle).eta(), electrons.at(iEle).phi() );
   }
   for (unsigned int iJet=0; iJet<jets.size(); ++iJet){
       if (iJet>=njets_) break;
@@ -519,10 +602,12 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
       jetPt_.at(iJet).numerator   -> Fill(jets.at(iJet).pt() );
       jetEta_variableBinning_.at(iJet).numerator  -> Fill(jets.at(iJet).eta());
       jetPt_variableBinning_.at(iJet).numerator   -> Fill(jets.at(iJet).pt() );
+      jetPtEta_.at(iJet).numerator   -> Fill(jets.at(iJet).pt(), jets.at(iJet).eta() );
+      jetEtaPhi_.at(iJet).numerator   -> Fill(jets.at(iJet).eta(), jets.at(iJet).phi() );
   }
 
   if (jets.size() > 0){
-      jetEtaPhi_.numerator -> Fill (jets.at(0).eta(), jets.at(0).phi()); // for HEP17 monitorning
+      jetEtaPhi_HEP17_.numerator -> Fill (jets.at(0).eta(), jets.at(0).phi()); // for HEP17 monitorning
   }
 
 
@@ -596,13 +681,25 @@ void TopMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   std::vector<double> bins = {0.,20.,40.,60.,80.,90.,100.,110.,120.,130.,140.,150.,160.,170.,180.,190.,200.,220.,240.,260.,280.,300.,350.,400.,450.,1000.};
   std::vector<double> eta_bins = {-3.,-2.5,-2.,-1.5,-1.,-.5,0.,.5,1.,1.5,2.,2.5,3.};
   histoPSet.add<std::vector<double> >("metBinning", bins);
+  histoPSet.add<std::vector<double> >("HTBinning", bins);
   histoPSet.add<std::vector<double> >("jetPtBinning", bins);
   histoPSet.add<std::vector<double> >("elePtBinning", bins);
   histoPSet.add<std::vector<double> >("muPtBinning", bins);
-  histoPSet.add<std::vector<double> >("HTBinning", bins);
   histoPSet.add<std::vector<double> >("jetEtaBinning", eta_bins);
   histoPSet.add<std::vector<double> >("eleEtaBinning", eta_bins);
   histoPSet.add<std::vector<double> >("muEtaBinning", eta_bins);
+
+  std::vector<double> bins_2D = {0.,40.,80.,100.,120.,140.,160.,180.,200.,240.,280.,350.,450.,1000.};
+  std::vector<double> eta_bins_2D = {-3.,-2.,-1.,0.,1.,2.,3.};
+  std::vector<double> phi_bins_2D = {-3.1415,-2.5132,-1.8849,-1.2566,-0.6283,0,0.6283,1.2566,1.8849,2.5132,3.1415};
+  histoPSet.add<std::vector<double> >("HTBinning2D", bins_2D);
+  histoPSet.add<std::vector<double> >("jetPtBinning2D", bins_2D);
+  histoPSet.add<std::vector<double> >("elePtBinning2D", bins_2D);
+  histoPSet.add<std::vector<double> >("muPtBinning2D", bins_2D);
+  histoPSet.add<std::vector<double> >("jetEtaBinning2D", eta_bins_2D);
+  histoPSet.add<std::vector<double> >("eleEtaBinning2D", eta_bins_2D);
+  histoPSet.add<std::vector<double> >("muEtaBinning2D", eta_bins_2D);
+  histoPSet.add<std::vector<double> >("phiBinning2D", phi_bins_2D);
 
   edm::ParameterSetDescription lsPSet;
   fillHistoLSPSetDescription(lsPSet);
