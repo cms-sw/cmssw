@@ -56,6 +56,8 @@ _legendDy_4rows = 0.09
 # be fixed later with (large) reorganization of how things work.
 #_trackingNumberOfEventsHistogram = "DQMData/Run 1/Tracking/Run summary/Track/general_trackingParticleRecoAsssociation/tracks"
 
+_trackingIterationOrderHistogram = "DQMData/Run 1/Tracking/Run summary/TrackBuilding/num_reco_coll"
+
 def _makeEffFakeDupPlots(postfix, quantity, unit="", common={}, effopts={}, fakeopts={}):
     p = postfix
     q = quantity
@@ -1655,6 +1657,57 @@ class TimePerTrackPlot:
 
         return res
 
+class TrackingIterationOrder:
+    def __init__(self):
+        self._cache = {}
+
+    def _findOrder(self, f):
+        h = f.Get(_trackingIterationOrderHistogram)
+        if not h:
+            return None
+        xaxis = h.GetXaxis()
+        def _edit(s):
+            # remove "Tracks" from the track producer name to get the iteration name
+            # muonSeeded iterations do not have "Step" in the producer name, so add it here
+            return s.replace("Tracks", "").replace("muonSeeded", "muonSeededStep")
+        return [_edit(xaxis.GetBinLabel(i)) for i in xrange(1, h.GetNbinsX()+1)]
+
+    def __call__(self, tdirectory, labels):
+        ret = range(0, len(labels))
+        f = tdirectory.GetFile()
+        if not f:
+            return ret
+
+        if not f.GetName() in self._cache:
+            r = self._findOrder(f)
+            if r is None:
+                return ret
+            self._cache[f.GetName()] = r
+        order = self._cache[f.GetName()]
+
+        # O(N^2) I know, but we're talking about O(10) elements...
+        orderIndices = []
+        for l in order:
+            try:
+                orderIndices.append(labels.index(l))
+            except ValueError:
+                pass
+        ret = []
+        for i, l in enumerate(labels):
+            if l in order:
+                try:
+                    found = orderIndices.index(i)
+                    if found == 0:
+                        ret.append(i)
+                    else:
+                        ret.append(orderIndices[0])
+                except ValueError:
+                    ret.append(orderIndices[0])
+                orderIndices.pop(0)
+            else:
+                ret.append(i)
+        return ret
+
 _time_per_event_cpu = TimePerEventPlot("timePerEvent", "module_time_thread_total")
 _time_per_event_real = TimePerEventPlot("timePerEvent", "module_time_real_total")
 
@@ -1719,13 +1772,14 @@ _common = {
     "xbinlabeloption": "d"
 }
 
-_time_per_iter_cpu = AggregateBins("iteration", _time_per_event_cpu, _iterModuleMap(), ignoreMissingBins=True, originalOrder=True)
-_time_per_iter_real = AggregateBins("iteration", _time_per_event_real, _iterModuleMap(), ignoreMissingBins=True, originalOrder=True)
+_iteration_reorder = TrackingIterationOrder()
+_time_per_iter_cpu = AggregateBins("iteration", _time_per_event_cpu, _iterModuleMap(), ignoreMissingBins=True, reorder=_iteration_reorder)
+_time_per_iter_real = AggregateBins("iteration", _time_per_event_real, _iterModuleMap(), ignoreMissingBins=True, reorder=_iteration_reorder)
 
 _timing_summaryCPU = PlotGroup("summaryCPU", [
     Plot(_time_per_iter_cpu,
          ytitle="Average CPU time (ms)", title="Average CPU time / event", legendDx=-0.4, **_common),
-    Plot(AggregateBins("iteration_fraction", _time_per_event_cpu, _iterModuleMap(), ignoreMissingBins=True, originalOrder=True),
+    Plot(AggregateBins("iteration_fraction", _time_per_event_cpu, _iterModuleMap(), ignoreMissingBins=True, reorder=_iteration_reorder),
          ytitle="Fraction", title="", normalizeToUnitArea=True, **_common),
     #
     Plot(AggregateBins("step", _time_per_event_cpu, _stepModuleMap(), ignoreMissingBins=True),
@@ -1742,7 +1796,7 @@ _timing_summaryCPU = PlotGroup("summaryCPU", [
 _timing_summaryReal = PlotGroup("summaryReal", [
     Plot(_time_per_iter_real,
          ytitle="Average real time (ms)", title="Average real time / event", legendDx=-0.4, **_common),
-    Plot(AggregateBins("iteration_fraction", _time_per_event_real, _iterModuleMap(), ignoreMissingBins=True, originalOrder=True),
+    Plot(AggregateBins("iteration_fraction", _time_per_event_real, _iterModuleMap(), ignoreMissingBins=True, reorder=_iteration_reorder),
          ytitle="Fraction", title="", normalizeToUnitArea=True, **_common),
     #
     Plot(AggregateBins("step", _time_per_event_real, _stepModuleMap(), ignoreMissingBins=True),
