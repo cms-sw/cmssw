@@ -106,6 +106,15 @@ private:
   std::vector<double> muEta_variable_binning_;
   std::vector<double> eleEta_variable_binning_;
 
+  std::vector<double> HT_variable_binning_2D_;
+  std::vector<double> jetPt_variable_binning_2D_;
+  std::vector<double> muPt_variable_binning_2D_;
+  std::vector<double> elePt_variable_binning_2D_;
+  std::vector<double> jetEta_variable_binning_2D_;
+  std::vector<double> muEta_variable_binning_2D_;
+  std::vector<double> eleEta_variable_binning_2D_;
+  std::vector<double> phi_variable_binning_2D_;
+
   METME metME_;
   METME metME_variableBinning_;
   METME metVsLS_;
@@ -116,12 +125,14 @@ private:
   METME eleVsLS_;
   METME htVsLS_;
 
-  METME jetEtaPhi_; // for HEP17 monitoring
-
+  METME jetEtaPhi_HEP17_; // for HEP17 monitoring
 
   METME jetMulti_;
   METME eleMulti_;
   METME muMulti_;
+
+  METME elePt_jetPt_;
+  METME elePt_eventHT_;
 
   std::vector<METME> muPhi_;
   std::vector<METME> muEta_;
@@ -142,6 +153,15 @@ private:
   std::vector<METME> muEta_variableBinning_;
   std::vector<METME> eleEta_variableBinning_;
   std::vector<METME> jetEta_variableBinning_;
+
+  //2D distributions
+  std::vector<METME> jetPtEta_;
+  std::vector<METME> jetEtaPhi_;
+  std::vector<METME> elePtEta_;
+  std::vector<METME> eleEtaPhi_;
+  std::vector<METME> muPtEta_;
+  std::vector<METME> muEtaPhi_;
+
 
   METME eventHT_;
   METME eventHT_variableBinning_;
