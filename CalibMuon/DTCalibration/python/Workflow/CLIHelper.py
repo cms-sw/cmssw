@@ -86,7 +86,9 @@ class CLIHelper(object):
         submission_opts_group.add_argument("--run-on-RAW", action = "store_true",
             help="Flag if run on RAW dataset")
         submission_opts_group.add_argument("--globaltag",
-        help="global tag identifier (with the '::All' string, if necessary)")
+            help="global tag identifier (with the '::All' string, if necessary)")
+        submission_opts_group.add_argument("--histoRange",
+            help="Range or residual histogram, default is 0.4cm")
         submission_opts_group.add_argument("--runselection", default = [], nargs="+",
             help="run list or range")
         submission_opts_group.add_argument("--filesPerJob", default = 5,

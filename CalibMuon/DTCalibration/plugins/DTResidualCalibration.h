@@ -53,6 +53,7 @@ class DTResidualCalibration: public edm::EDAnalyzer{
   void fillHistos(DTLayerId slId, float distance, float residualOnDistance);
 
   DTSegmentSelector select_;
+  double histRange_;
   edm::InputTag segment4DLabel_;
   std::string rootBaseDir_;
 
