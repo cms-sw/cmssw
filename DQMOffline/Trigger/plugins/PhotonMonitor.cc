@@ -162,7 +162,7 @@ void PhotonMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   // Initialize the GenericTriggerEventFlag
   if ( num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on() ) num_genTriggerEventFlag_->initRun( iRun, iSetup );
   if ( den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on() ) den_genTriggerEventFlag_->initRun( iRun, iSetup );
-
+  
 }
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -213,9 +213,12 @@ void PhotonMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSe
   // filling histograms (denominator)  
 
   photonME_.denominator -> Fill(photons[0].pt());
+<<<<<<< HEAD
   photonME_variableBinning_.denominator -> Fill(photons[0].pt());
 
   photonME_.denominator -> Fill(photons[0].pt());
+=======
+>>>>>>> 98d406870764c11e17481b62e21a8463834a5650
   photonEtaME_.denominator -> Fill(photons[0].eta());
   photonME_variableBinning_.denominator -> Fill(photons[0].pt());
 
@@ -244,6 +247,11 @@ void PhotonMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSe
       subphotonEtaME_.numerator -> Fill(photons[1].eta());
       diphotonMassME_.numerator -> Fill(sqrt(2*photons[0].pt()*photons[1].pt()*(cosh(photons[0].eta()-photons[1].eta())-cos(photons[0].phi()-photons[1].phi()))));
     }
+<<<<<<< HEAD
+=======
+
+  
+>>>>>>> 98d406870764c11e17481b62e21a8463834a5650
 }
 
 void PhotonMonitor::fillHistoPSetDescription(edm::ParameterSetDescription & pset)
@@ -294,6 +302,10 @@ void PhotonMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptio
   edm::ParameterSetDescription histoPSet;
   edm::ParameterSetDescription metPSet;
   fillHistoPSetDescription(metPSet);
+<<<<<<< HEAD
+=======
+  
+>>>>>>> 98d406870764c11e17481b62e21a8463834a5650
   histoPSet.add<edm::ParameterSetDescription>("photonPSet", metPSet);
   std::vector<double> bins = {0.,20.,40.,60.,80.,90.,100.,110.,120.,130.,140.,150.,160.,170.,180.,190.,200.,220.,240.,260.,280.,300.,350.,400.,450.,1000.};
   histoPSet.add<std::vector<double> >("photonBinning", bins);

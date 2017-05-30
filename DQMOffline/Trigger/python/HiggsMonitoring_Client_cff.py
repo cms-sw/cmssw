@@ -15,7 +15,6 @@ diphotonEfficiency = cms.EDAnalyzer("DQMGenericClient",
         "eff_photon_vs_LS 'Photon pt efficiency vs LS; LS' photonVsLS_numerator photonVsLS_denominator"
     ),
                                     )
-
 higgsClient = cms.Sequence(
     diphotonEfficiency
-    )
+)
