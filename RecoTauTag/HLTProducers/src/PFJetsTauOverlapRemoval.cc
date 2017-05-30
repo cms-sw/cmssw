@@ -18,7 +18,7 @@ PFJetsTauOverlapRemoval::~PFJetsTauOverlapRemoval(){ }
 void PFJetsTauOverlapRemoval::produce(edm::StreamID iSId, edm::Event& iEvent, const edm::EventSetup& iES) const
 {
     
-  unique_ptr<reco::PFJetCollection> cleanedPFJets(new reco::PFJetCollection);
+    std::unique_ptr<reco::PFJetCollection> cleanedPFJets(new reco::PFJetCollection);
     
   double deltaR2   = 1.0;
   double matchingR2 = 0.25;  
