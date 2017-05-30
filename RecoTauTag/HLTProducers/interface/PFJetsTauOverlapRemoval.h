@@ -28,8 +28,8 @@ class PFJetsTauOverlapRemoval: public edm::global::EDProducer<> {
 
  private:
     
-  const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> tauSrc;
-  const edm::EDGetTokenT<reco::PFJetCollection> PFJetSrc;
+  const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> tauSrc_;
+  const edm::EDGetTokenT<reco::PFJetCollection> pfJetSrc_;
 
 };
 #endif
