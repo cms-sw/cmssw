@@ -117,9 +117,9 @@ void MeasurementTrackerTest::analyze(const edm::Event& iEvent, const edm::EventS
   float tanlmd = tl; // 0.1f;
   auto sinth2 = 1.f/(1.f+tanlmd*tanlmd);
   auto sinth = std::sqrt(sinth2);
-  auto costh = tanlmd/sinth;
+  auto costh = tanlmd*sinth;
 
-  std::cout << sinth << ' ' << costh << std::endl;
+  std::cout << tanlmd << ' ' << sinth << ' ' << costh << std::endl;
 
   GlobalVector startingMomentum(p*std::sin(phi)*sinth,p*std::cos(phi)*sinth,p*costh);
   float z = 0.1f;
