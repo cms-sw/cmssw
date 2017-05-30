@@ -495,9 +495,9 @@ void SiStripGainFromCalibTree::bookDQMHistos(const char* dqm_dir, const char* ta
     for (unsigned int i=0;i<hnames.size();i++){
         std::string htag = (hnames[i]).first + stag;
         MonitorElement* monitor = dbe->book1DD( htag.c_str(), (hnames[i]).second.c_str(), 100   , 0. , 1000. );
-        int id    = APVGain::subdetectorId((hnames[i]).first.c_str());
-        int side  = APVGain::subdetectorSide((hnames[i]).first.c_str());
-        int plane = APVGain::subdetectorPlane((hnames[i]).first.c_str());
+        int id    = APVGain::subdetectorId((hnames[i]).first);
+        int side  = APVGain::subdetectorSide((hnames[i]).first);
+        int plane = APVGain::subdetectorPlane((hnames[i]).first);
         Charge_1[elepos].push_back( APVGain::APVmon(id,side,plane,monitor) );
     }
 
@@ -505,9 +505,9 @@ void SiStripGainFromCalibTree::bookDQMHistos(const char* dqm_dir, const char* ta
     for (unsigned int i=0;i<hnames.size();i++){
         std::string htag = (hnames[i]).first + stag;
         MonitorElement* monitor = dbe->book1DD( htag.c_str(), (hnames[i]).second.c_str(), 100   , 0. , 1000. );
-        int id    = APVGain::subdetectorId((hnames[i]).first.c_str());
-        int side  = APVGain::subdetectorSide((hnames[i]).first.c_str());
-        int plane = APVGain::subdetectorPlane((hnames[i]).first.c_str());
+        int id    = APVGain::subdetectorId((hnames[i]).first);
+        int side  = APVGain::subdetectorSide((hnames[i]).first);
+        int plane = APVGain::subdetectorPlane((hnames[i]).first);
         Charge_2[elepos].push_back( APVGain::APVmon(id,side,plane,monitor) );
     }
 
@@ -515,9 +515,9 @@ void SiStripGainFromCalibTree::bookDQMHistos(const char* dqm_dir, const char* ta
     for (unsigned int i=0;i<hnames.size();i++){
         std::string htag = (hnames[i]).first + stag;
         MonitorElement* monitor = dbe->book1DD( htag.c_str(), (hnames[i]).second.c_str(), 100   , 0. , 1000. );
-        int id    = APVGain::subdetectorId((hnames[i]).first.c_str());
-        int side  = APVGain::subdetectorSide((hnames[i]).first.c_str());
-        int plane = APVGain::subdetectorPlane((hnames[i]).first.c_str());
+        int id    = APVGain::subdetectorId((hnames[i]).first);
+        int side  = APVGain::subdetectorSide((hnames[i]).first);
+        int plane = APVGain::subdetectorPlane((hnames[i]).first);
         Charge_3[elepos].push_back( APVGain::APVmon(id,side,plane,monitor) );
     }
 
@@ -525,9 +525,9 @@ void SiStripGainFromCalibTree::bookDQMHistos(const char* dqm_dir, const char* ta
     for (unsigned int i=0;i<hnames.size();i++){
         std::string htag = (hnames[i]).first + stag;
         MonitorElement* monitor = dbe->book1DD( htag.c_str(), (hnames[i]).second.c_str(), 100   , 0. , 1000. );
-        int id    = APVGain::subdetectorId((hnames[i]).first.c_str());
-        int side  = APVGain::subdetectorSide((hnames[i]).first.c_str());
-        int plane = APVGain::subdetectorPlane((hnames[i]).first.c_str());
+        int id    = APVGain::subdetectorId((hnames[i]).first);
+        int side  = APVGain::subdetectorSide((hnames[i]).first);
+        int plane = APVGain::subdetectorPlane((hnames[i]).first);
         Charge_4[elepos].push_back( APVGain::APVmon(id,side,plane,monitor) );
     }
 
@@ -590,11 +590,10 @@ void SiStripGainFromCalibTree::bookDQMHistos(const char* dqm_dir, const char* ta
 
         std::vector<std::pair<std::string,std::string>> hnames=APVGain::monHnames(VChargeHisto,doChargeMonitorPerPlane,"newG2");
         for (unsigned int i=0;i<hnames.size();i++){
-            const char* name = (hnames[i]).first.c_str();
-            MonitorElement* monitor = dbe->book1DD( name, (hnames[i]).second.c_str(), 100   , 0. , 1000. );
-            int id    = APVGain::subdetectorId(name);
-            int side  = APVGain::subdetectorSide(name);
-            int plane = APVGain::subdetectorPlane(name);
+            MonitorElement* monitor = dbe->book1DD( (hnames[i]).first.c_str(), (hnames[i]).second.c_str(), 100   , 0. , 1000. );
+            int id    = APVGain::subdetectorId((hnames[i]).first);
+            int side  = APVGain::subdetectorSide((hnames[i]).first);
+            int plane = APVGain::subdetectorPlane((hnames[i]).first);
             newCharge.push_back( APVGain::APVmon(id,side,plane,monitor) );
         }
 
