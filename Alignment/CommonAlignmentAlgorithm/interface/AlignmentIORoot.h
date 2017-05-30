@@ -17,7 +17,7 @@ class AlignmentIORoot : public AlignmentIO
 {
 
   public:
-
+  virtual ~AlignmentIORoot() = default;
   /// write AlignmentParameters 
   void writeAlignmentParameters (const align::Alignables& alivec, 
 				 const char* filename, int iter, bool validCheck, int& ierr );
