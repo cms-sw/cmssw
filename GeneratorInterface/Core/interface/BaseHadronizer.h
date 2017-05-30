@@ -47,7 +47,7 @@ namespace gen {
   class BaseHadronizer {
   public:
     BaseHadronizer( edm::ParameterSet const& ps );
-    ~BaseHadronizer() {}
+    virtual ~BaseHadronizer() noexcept (false) {}
 
     // GenRunInfo and GenEvent passing
     GenRunInfoProduct &getGenRunInfo() { return genRunInfo_; }
