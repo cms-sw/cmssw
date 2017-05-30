@@ -25,6 +25,7 @@ using namespace dqm;
 
 TrackAnalyzer::TrackAnalyzer(const edm::ParameterSet& iConfig) 
     : conf_( nullptr )
+    , stateName_                       (iConfig.getParameter<std::string>("MeasurementState") )
     , doTrackerSpecific_               ( iConfig.getParameter<bool>("doTrackerSpecific") )
     , doAllPlots_                      ( iConfig.getParameter<bool>("doAllPlots") )
     , doBSPlots_                       ( iConfig.getParameter<bool>("doBeamSpotPlots") )
@@ -181,22 +182,21 @@ void TrackAnalyzer::initHisto(DQMStore::IBooker & ibooker, const edm::EventSetup
   // ---------------------------------------------------------------------------------//
   if (doMeasurementStatePlots_ || doAllPlots_) {
 
-    std::string StateName = iConfig.getParameter<std::string>("MeasurementState");
     
-    if (StateName == "All") {
+    if (stateName_ == "All") {
       bookHistosForState("OuterSurface", ibooker);
       bookHistosForState("InnerSurface", ibooker);
       bookHistosForState("ImpactPoint" , ibooker);
     } else if (
-	       StateName != "OuterSurface" && 
-	       StateName != "InnerSurface" && 
-	       StateName != "ImpactPoint" &&
-	       StateName != "default" 
+	       stateName_ != "OuterSurface" && 
+	       stateName_ != "InnerSurface" && 
+	       stateName_ != "ImpactPoint" &&
+	       stateName_ != "default" 
 	       ) {
       bookHistosForState("default", ibooker);
 
     } else {
-      bookHistosForState(StateName, ibooker);
+      bookHistosForState(stateName_, ibooker);
     }
     conf_ = nullptr;
   }
@@ -1235,21 +1235,20 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   }
 
   if (doMeasurementStatePlots_ || doAllPlots_){
-    std::string StateName = conf_->getParameter<std::string>("MeasurementState");
 
-    if (StateName == "All") {
+    if (stateName_ == "All") {
       fillHistosForState(iSetup, track, std::string("OuterSurface"));
       fillHistosForState(iSetup, track, std::string("InnerSurface"));
       fillHistosForState(iSetup, track, std::string("ImpactPoint"));
     } else if ( 
-	       StateName != "OuterSurface" && 
-	       StateName != "InnerSurface" && 
-	       StateName != "ImpactPoint" &&
-	       StateName != "default" 
+	       stateName_ != "OuterSurface" && 
+	       stateName_ != "InnerSurface" && 
+	       stateName_ != "ImpactPoint" &&
+	       stateName_ != "default" 
 	       ) {
       fillHistosForState(iSetup, track, std::string("default"));
     } else {
-      fillHistosForState(iSetup, track, StateName);
+      fillHistosForState(iSetup, track, stateName_);
     }
   }
   
