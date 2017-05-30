@@ -22,8 +22,6 @@
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "TrackingTools/TrajectoryParametrization/interface/TrajectoryStateExceptions.h"
 
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
-
 /// vvv DEBUG
 // #include <iostream>
 
@@ -297,7 +295,9 @@ public:
  }
 
 public:
-  virtual std::vector<TrajectoryStateOnSurface> components() const =0;
+  using Components = std::vector<TrajectoryStateOnSurface>;
+  virtual Components const & components() const =0;
+  virtual bool singleState() const=0;
 
 private:
 

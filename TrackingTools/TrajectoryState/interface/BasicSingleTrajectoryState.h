@@ -18,7 +18,10 @@ public:
     return build<BasicSingleTrajectoryState>(*this);
   }
 
-  std::vector<TrajectoryStateOnSurface> components() const override;
+  using	Components = BasicTrajectoryState::Components;
+
+  Components const & components() const override;
+  bool singleState() const override { return true;}
 
 
 };

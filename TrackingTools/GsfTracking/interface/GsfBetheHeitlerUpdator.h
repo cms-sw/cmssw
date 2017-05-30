@@ -6,10 +6,6 @@
 #include "DataFormats/Math/interface/approx_exp.h"
 #include "DataFormats/Math/interface/approx_log.h"
 
-
-
-#include "TrackingTools/GsfTracking/interface/Triplet.h"
-
 #include <iosfwd>
 #include <string>
 
@@ -69,7 +65,7 @@ public:
   GsfBetheHeitlerUpdator (const std::string fileName, const int correctionFlag);
 
 private:
-  typedef Triplet<float,float,float> GSContainer;
+  struct GSContainer {float *first, *second, *third;};
 
   /// Computation: generates vectors of weights, means and standard deviations
   virtual void compute (const TrajectoryStateOnSurface&, const PropagationDirection, Effect[]) const;
@@ -83,13 +79,13 @@ private:
 
  
   /// Filling of mixture (in terms of z=E/E0)
-  void getMixtureParameters (const float, GSContainer[]) const;
+  void getMixtureParameters (const float, GSContainer &) const;
   /// Correction for weight of component 1
-  void correctWeights (GSContainer[]) const;
+  void correctWeights (GSContainer&) const;
   /// Correction for mean of component 1
-  float correctedFirstMean (const float, const GSContainer[]) const;
+  float correctedFirstMean (const float, const GSContainer &) const;
   /// Correction for variance of component 1
-  float correctedFirstVar (const float,const GSContainer[]) const;
+  float correctedFirstVar (const float,const GSContainer &) const;
   
 
 private:

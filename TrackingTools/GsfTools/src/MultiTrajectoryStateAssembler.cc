@@ -1,5 +1,5 @@
 #include "TrackingTools/GsfTools/interface/MultiTrajectoryStateAssembler.h"
-
+#include "TrackingTools/GsfTools/interface/GetComponents.h"
 #include "TrackingTools/GsfTools/interface/BasicMultiTrajectoryState.h"
 #include "TrackingTools/GsfTools/src/TrajectoryStateLessWeight.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -16,23 +16,10 @@ MultiTrajectoryStateAssembler::MultiTrajectoryStateAssembler () :
   //
   sortStates = false;
   minValidFraction = 0.01;
-  minFractionalWeight = 1.e-6;
-  //   //
-  //   // Timers
-  //   //
-  //   if ( theTimerAdd==0 ) {
-  //     theTimerAdd = 
-  //       &(*TimingReport::current())[string("MultiTrajectoryStateAssembler::addState")]; 
-  //     theTimerAdd->switchCPU(false);
-  //     theTimerComb = 
-  //       &(*TimingReport::current())[string("MultiTrajectoryStateAssembler::combinedState")]; 
-  //     theTimerComb->switchCPU(false);
-  //   }
+  minFractionalWeight = 1.e-6; // 4;
 }  
 
 void MultiTrajectoryStateAssembler::addState (const TrajectoryStateOnSurface tsos) {
-  //   // Timer
-  //   TimeMe t(*theTimerAdd,false);
   //
   // refuse to add states after combination has been done
   //
@@ -47,7 +34,8 @@ void MultiTrajectoryStateAssembler::addState (const TrajectoryStateOnSurface tso
   //
   // Add components (i.e. state to be added can be single or multi state)
   //
-  MultiTSOS components(tsos.components());
+  GetComponents comps(tsos);
+  MultiTSOS components(comps());
   addStateVector(components);
 }
 
@@ -92,8 +80,6 @@ void MultiTrajectoryStateAssembler::addInvalidState (const double weight) {
 }
 
 TrajectoryStateOnSurface MultiTrajectoryStateAssembler::combinedState () {
-  //   // Timer
-  //   TimeMe t(*theTimerComb,false);
   //
   // Prepare resulting state vector
   //
@@ -110,8 +96,6 @@ TrajectoryStateOnSurface MultiTrajectoryStateAssembler::combinedState () {
 }
 
 TrajectoryStateOnSurface MultiTrajectoryStateAssembler::combinedState (const float newWeight) {
-  //   // Timer
-  //   TimeMe t(*theTimerComb,false);
   //
   // Prepare resulting state vector
   //
@@ -136,12 +120,12 @@ MultiTrajectoryStateAssembler::prepareCombinedState () {
   // Check for minimum fraction of valid states
   //
   double allWeights(theValidWeightSum+theInvalidWeightSum);
-  if ( theInvalidWeightSum>0. && (theValidWeightSum/allWeights)<minValidFraction )  return false;
+  if ( theInvalidWeightSum>0. && theValidWeightSum <minValidFraction*allWeights )  return false;
   //
   // remaining part to be done only once
   //
   if ( combinationDone )  return true;
-  else  combinationDone = true;
+  combinationDone = true;
   //
   // Remove states with negligible weights
   //
@@ -171,16 +155,15 @@ MultiTrajectoryStateAssembler::reweightedCombinedState (const double newWeight) 
   //
   MultiTSOS reweightedStates;
   reweightedStates.reserve(theStates.size());
-  for ( MultiTSOS::const_iterator i=theStates.begin();
-	i!=theStates.end(); i++ ) {
-    double oldWeight = i->weight();
-    reweightedStates.push_back(TrajectoryStateOnSurface(factor*oldWeight,
-                                                        i->localParameters(),
-							i->localError(),
-							i->surface(),
-							&(i->globalParameters().magneticField()),
-							i->surfaceSide()
-						       ));
+  for (auto const & is : theStates) {
+    auto oldWeight = is.weight();
+    reweightedStates.emplace_back(factor*oldWeight,
+                                                        is.localParameters(),
+							is.localError(),
+							is.surface(),
+							&(is.globalParameters().magneticField()),
+							is.surfaceSide()
+	                          );
   }
   return TSOS((BasicTrajectoryState *)(new BasicMultiTrajectoryState(reweightedStates)));
 }
@@ -191,70 +174,52 @@ MultiTrajectoryStateAssembler::removeSmallWeights()
   //
   // check total weight
   //
-  double totalWeight(theInvalidWeightSum+theValidWeightSum);
+  auto totalWeight(theInvalidWeightSum+theValidWeightSum);
   if ( totalWeight == 0. ) {
     theStates.clear();
     return;
   }
-  //
-  // Loop until no more states are removed
-  //
-  bool redo;
-  do {
-    redo = false;
-    for ( MultiTSOS::iterator i=theStates.begin();
-	  i!=theStates.end(); i++ ) {
-      if ( (*i).weight()/totalWeight < minFractionalWeight ) {
-	theStates.erase(i);
-	redo = true;
-	break;
-      }
-    }
-  } while (redo);
+  theStates.erase(std::remove_if(theStates.begin(),theStates.end(),
+                  [&](MultiTSOS::value_type const & s){ return s.weight() < minFractionalWeight*totalWeight;}),
+                 theStates.end());
 }
 
 void
 MultiTrajectoryStateAssembler::removeWrongPz () {
-  //   edm::LogDebug("MultiTrajectoryStateAssembler") 
-  //     << "MultiTrajectoryStateAssembler: found at least one state with inconsistent pz\n"
-  //     << "  #state / weights before cleaning = " << theStates.size()
-  //     << " / " << theValidWeightSum
-  //     << " / " << theInvalidWeightSum;
+   LogDebug("GsfTrackFitters")
+       << "MultiTrajectoryStateAssembler: found at least one state with inconsistent pz\n"
+       << "  #state / weights before cleaning = " << theStates.size()
+       << " / " << theValidWeightSum
+       << " / " << theInvalidWeightSum;
   //
   // Calculate average pz
   //
   double meanPz(0.);
-  for ( MultiTSOS::const_iterator is=theStates.begin();
-	is!=theStates.end(); is++ ) {
-    meanPz += is->weight()*is->localParameters().pzSign();
-    //     edm::LogDebug("MultiTrajectoryStateAssembler") 
-    //       << "  weight / pz / global position = " << is->weight() 
-    //       << " " << is->localParameters().pzSign() 
-    //       << " " << is->globalPosition();
-  }
+  for (auto const & is : theStates)
+    meanPz += is.weight()*is.localParameters().pzSign();
   meanPz /= theValidWeightSum;
   //
   // Now keep only states compatible with the average pz
   //
-  //   double oldValidWeight(theValidWeightSum);
   theValidWeightSum = 0.;
   MultiTSOS oldStates(theStates);
   theStates.clear();
-  for ( MultiTSOS::const_iterator is=oldStates.begin();
-	is!=oldStates.end(); is++ ) {
-    if ( meanPz*is->localParameters().pzSign()>=0. ) {
-      theValidWeightSum += is->weight();
-      theStates.push_back(*is);
+  for (auto const & is :oldStates) {
+    if ( meanPz*is.localParameters().pzSign()>=0. ) {
+      theValidWeightSum += is.weight();
+      theStates.push_back(std::move(is));
     }
     else {
-      theInvalidWeightSum += is->weight();
+      theInvalidWeightSum += is.weight();
+        LogDebug("GsfTrackFitters")
+          << "removing  weight / pz / global position = " << is.weight()
+          << " " << is.localParameters().pzSign()
+          << " " << is.globalPosition();
+
     }
   }
-  //   edm::LogDebug("MultiTrajectoryStateAssembler") 
-  //     << "  #state / weights after cleaning = " << theStates.size()
-  //     << " / " << theValidWeightSum
-  //     << " / " << theInvalidWeightSum;
+  LogDebug("GsfTrackFitters") 
+       << "  #state / weights after cleaning = " << theStates.size()
+       << " / " << theValidWeightSum
+       << " / " << theInvalidWeightSum;
 }
-
-// TimingReport::Item * MultiTrajectoryStateAssembler::theTimerAdd(0);
-// TimingReport::Item * MultiTrajectoryStateAssembler::theTimerComb(0);

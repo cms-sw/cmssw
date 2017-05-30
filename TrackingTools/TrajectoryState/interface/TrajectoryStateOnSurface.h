@@ -129,9 +129,12 @@ public:
     unsharedData().rescaleError(factor);
   }
 
-  std::vector<TrajectoryStateOnSurface> components() const {
+  using	Components = BasicTrajectoryState::Components;
+  Components const & components() const {
     return data().components();
   }
+  bool singleState() const { return data().singleState();}
+
 
   /// Position relative to material, defined relative to momentum vector.
   SurfaceSide surfaceSide() const {

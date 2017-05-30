@@ -50,7 +50,7 @@ AnalyticalImpactPointExtrapolator::extrapolateFullState (const TrajectoryStateOn
   //
   TrajectoryStateOnSurface singleState = 
     extrapolateSingleState(*tsos.freeTrajectoryState(),vertex);
-  if ( !singleState.isValid() || tsos.components().size()==1 )  return singleState;
+  if ( !singleState.isValid() || tsos.singleState() )  return singleState;
   //
   // propagate multiTsos to plane found above
   //

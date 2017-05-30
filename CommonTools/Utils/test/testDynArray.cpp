@@ -55,16 +55,21 @@ int main(int s, char **) {
   assert(c.size()==sn);
   assert(c.front().i==0);
   assert(c.back().i==int(sn-1));
+  c[1].k=3.14;
 
-  c = std::move(a);  
+  a = std::move(c);  
 
-  assert(c.size()==n);
-  assert(a.empty());
-  assert(c[1].k==0.3);
+  assert(a.size()==sn);
+  assert(c.empty());
+  assert(a[1].k==3.14);
 
-  auto cmp = [](int i, int j){return i<j;};
+  std::swap(a,b);
+  assert(b.size()==sn);
+  assert(a.size()==n);
+
 
   unInitDynArray(int,sn,qst); // queue storage
+  auto cmp = [](int i, int j){return i<j;};
   std::priority_queue<int,DynArray<int>,decltype(cmp)> qq(cmp,std::move(qst));
   assert(qq.empty());
   for(int i=0;i<int(sn);++i) qq.push(i+1);
