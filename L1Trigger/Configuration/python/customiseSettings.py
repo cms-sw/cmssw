@@ -1,6 +1,18 @@
 import os.path
 import FWCore.ParameterSet.Config as cms
 
+def L1TSettingsToCaloStage2Params_2017_v1_9_inconsistent(process):
+    process.load("L1Trigger.L1TCalorimeter.caloStage2Params_2017_v1_9_inconsistent_cfi")
+    return process
+
+def L1TSettingsToCaloStage2Params_2017_v1_9_inconsistent_mean(process):
+    process.load("L1Trigger.L1TCalorimeter.caloStage2Params_2017_v1_9_inconsistent_mean_cfi")
+    return process
+
+def L1TSettingsToCaloStage2Params_2017_v1_8(process):
+    process.load("L1Trigger.L1TCalorimeter.caloStage2Params_2017_v1_8_cfi")
+    return process
+
 def L1TSettingsToCaloStage2Params_2017_v1_7_2(process):
     process.load("L1Trigger.L1TCalorimeter.caloStage2Params_2017_v1_7_2_cfi")
     return process
