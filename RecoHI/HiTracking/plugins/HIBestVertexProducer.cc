@@ -19,6 +19,8 @@ HIBestVertexProducer::HIBestVertexProducer
   theMedianVertexCollection(consumes<reco::VertexCollection>(ps.getParameter<edm::InputTag>("medianVertexCollection"))),
   theAdaptiveVertexCollection(consumes<reco::VertexCollection>(ps.getParameter<edm::InputTag>("adaptiveVertexCollection")))
 {
+  theUseFinalAdapativeVertexCollection  = (ps.existsAs<bool>("useFinalAdapativeVertexCollection") ? ps.getParameter<bool>("useFinalAdapativeVertexCollection") : false);
+  if(theUseFinalAdapativeVertexCollection) theFinalAdaptiveVertexCollection = consumes<reco::VertexCollection>(ps.getParameter<edm::InputTag>("finalAdaptiveVertexCollection"));
   produces<reco::VertexCollection>();
 }
 
@@ -53,68 +55,93 @@ void HIBestVertexProducer::produce
   if(vertices1->size()==0)
     LogError("HeavyIonVertexing") << "adaptive vertex collection is empty!" << endl;
 
-  if(vertices1->begin()->zError()<3) { 
-  
-    reco::VertexCollection::const_iterator vertex1 = vertices1->begin();
-    newVertexCollection->push_back(*vertex1);
+//** Final vertex collection if needed **//
+  bool hasFinalVertex = false;
+  if(theUseFinalAdapativeVertexCollection){
+    edm::Handle<reco::VertexCollection> vc0;
+    ev.getByToken(theFinalAdaptiveVertexCollection, vc0);
+    const reco::VertexCollection *vertices0 = vc0.product();
+    if(vertices0->size()==0)
+      LogError("HeavyIonVertexing") << "final adaptive vertex collection is empty!" << endl;
 
-    LogInfo("HeavyIonVertexing") << "adaptive vertex:\n vz = (" 
-				 << vertex1->x() << ", " << vertex1->y() << ", " << vertex1->z() << ")" 
-				 << "\n error = ("
-				 << vertex1->xError() << ", " << vertex1->yError() << ", " 
-				 << vertex1->zError() << ")" << endl;
-  } else {
+  //if using final vertex and has a good vertex, use it
+    if(vertices0->begin()->zError()<3){
+      hasFinalVertex = true;
+      reco::VertexCollection::const_iterator vertex0 = vertices0->begin();
+      newVertexCollection->push_back(*vertex0);
+      LogInfo("HeavyIonVertexing") << "adaptive vertex:\n vz = (" 
+				 << vertex0->x() << ", " << vertex0->y() << ", " << vertex0->z() << ")" 
+ 				 << "\n error = ("
+                                 << vertex0->xError() << ", " << vertex0->yError() << ", " 
+				 << vertex0->zError() << ")" << endl;			
+    }
+  }
+
+  //otherwise use the pixel track adaptive vertex if it is good
+  if(!hasFinalVertex){
+    if(vertices1->begin()->zError()<3) { 
     
-    //** Get fast median vertex **/
-    edm::Handle<reco::VertexCollection> vc2;
-    ev.getByToken(theMedianVertexCollection, vc2);
-    const reco::VertexCollection * vertices2 = vc2.product();
-    
-    //** Get beam spot position and error **/
-    reco::BeamSpot beamSpot;
-    edm::Handle<reco::BeamSpot> beamSpotHandle;
-    ev.getByToken(theBeamSpotTag, beamSpotHandle);
+      reco::VertexCollection::const_iterator vertex1 = vertices1->begin();
+      newVertexCollection->push_back(*vertex1);
 
-    if( beamSpotHandle.isValid() ) 
-      beamSpot = *beamSpotHandle;
-    else
-      LogError("HeavyIonVertexing") << "no beamspot found "  << endl;
-
-    if(vertices2->size() > 0) { 
+      LogInfo("HeavyIonVertexing") << "adaptive vertex:\n vz = (" 
+          			 << vertex1->x() << ", " << vertex1->y() << ", " << vertex1->z() << ")" 
+          			 << "\n error = ("
+          			 << vertex1->xError() << ", " << vertex1->yError() << ", " 
+          			 << vertex1->zError() << ")" << endl;
+    } else {
       
-      reco::VertexCollection::const_iterator vertex2 = vertices2->begin();
-      reco::Vertex::Error err;
-      err(0,0)=pow(beamSpot.BeamWidthX(),2);
-      err(1,1)=pow(beamSpot.BeamWidthY(),2);
-      err(2,2)=pow(vertex2->zError(),2);
-      reco::Vertex newVertex(reco::Vertex::Point(beamSpot.x0(),beamSpot.y0(),vertex2->z()),
-			     err, 0, 1, 1);
-      newVertexCollection->push_back(newVertex);  
-
-      LogInfo("HeavyIonVertexing") << "median vertex + beamspot: \n position = (" 
-				   << newVertex.x() << ", " << newVertex.y() << ", " << newVertex.z() << ")" 
-				   << "\n error = ("
-				   << newVertex.xError() << ", " << newVertex.yError() << ", " 
-				   << newVertex.zError() << ")" << endl;
+      //** Get fast median vertex **/
+      edm::Handle<reco::VertexCollection> vc2;
+      ev.getByToken(theMedianVertexCollection, vc2);
+      const reco::VertexCollection * vertices2 = vc2.product();
       
-    } else { 
-      
-      reco::Vertex::Error err;
-      err(0,0)=pow(beamSpot.BeamWidthX(),2);
-      err(1,1)=pow(beamSpot.BeamWidthY(),2);
-      err(2,2)=pow(beamSpot.sigmaZ(),2);
-      reco::Vertex newVertex(beamSpot.position(), 
-			     err, 0, 0, 1);
-      newVertexCollection->push_back(newVertex);  
+      //** Get beam spot position and error **/
+      reco::BeamSpot beamSpot;
+      edm::Handle<reco::BeamSpot> beamSpotHandle;
+      ev.getByToken(theBeamSpotTag, beamSpotHandle);
 
-      LogInfo("HeavyIonVertexing") << "beam spot: \n position = (" 
-				   << newVertex.x() << ", " << newVertex.y() << ", " << newVertex.z() << ")" 
-				   << "\n error = ("
-				   << newVertex.xError() << ", " << newVertex.yError() << ", " 
-				   << newVertex.zError() << ")" << endl;
+      if( beamSpotHandle.isValid() ) 
+        beamSpot = *beamSpotHandle;
+      else
+        LogError("HeavyIonVertexing") << "no beamspot found "  << endl;
+
+      if(vertices2->size() > 0) { 
+        
+        reco::VertexCollection::const_iterator vertex2 = vertices2->begin();
+        reco::Vertex::Error err;
+        err(0,0)=pow(beamSpot.BeamWidthX(),2);
+        err(1,1)=pow(beamSpot.BeamWidthY(),2);
+        err(2,2)=pow(vertex2->zError(),2);
+        reco::Vertex newVertex(reco::Vertex::Point(beamSpot.x0(),beamSpot.y0(),vertex2->z()),
+          		     err, 0, 1, 1);
+        newVertexCollection->push_back(newVertex);  
+
+        LogInfo("HeavyIonVertexing") << "median vertex + beamspot: \n position = (" 
+          			   << newVertex.x() << ", " << newVertex.y() << ", " << newVertex.z() << ")" 
+          			   << "\n error = ("
+          			   << newVertex.xError() << ", " << newVertex.yError() << ", " 
+          			   << newVertex.zError() << ")" << endl;
+        
+      } else { 
+        
+        reco::Vertex::Error err;
+        err(0,0)=pow(beamSpot.BeamWidthX(),2);
+        err(1,1)=pow(beamSpot.BeamWidthY(),2);
+        err(2,2)=pow(beamSpot.sigmaZ(),2);
+        reco::Vertex newVertex(beamSpot.position(), 
+          		     err, 0, 0, 1);
+        newVertexCollection->push_back(newVertex);  
+
+        LogInfo("HeavyIonVertexing") << "beam spot: \n position = (" 
+          			   << newVertex.x() << ", " << newVertex.y() << ", " << newVertex.z() << ")" 
+          			   << "\n error = ("
+          			   << newVertex.xError() << ", " << newVertex.yError() << ", " 
+          			   << newVertex.zError() << ")" << endl;
+        
+      }
       
     }
-    
   }
   
   // put new vertex collection into event
