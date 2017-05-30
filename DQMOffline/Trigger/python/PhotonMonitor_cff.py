@@ -26,6 +26,7 @@ Photon60_DisplacedIdL_monitoring.denGenericTriggerEventPSet.hltPaths = cms.vstri
 Photon60_DisplacedIdL_monitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Photon60_R9Id90_CaloIdL_IsoL_DisplacedIdL_v*")
 
 Photon60_DisplacedIdL_PFJet350MinPFJet15_monitoring = Photon60_DisplacedIdL_monitoring.clone()
+Photon60_DisplacedIdL_PFJet350MinPFJet15_monitoring.denGenericTriggerEventPSet.andOrHlt = cms.bool(False)
 Photon60_DisplacedIdL_PFJet350MinPFJet15_monitoring.FolderName = cms.string('HLT/Photon/Photon60_DisplacedIdL_PFJet350MinPFJet15/')
 Photon60_DisplacedIdL_PFJet350MinPFJet15_monitoring.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Photon60_R9Id90_CaloIdL_IsoL_v*","HLT_PFHT350MinPFJet15_v*")
 Photon60_DisplacedIdL_PFJet350MinPFJet15_monitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Photon60_R9Id90_CaloIdL_IsoL_DisplacedIdL_PFHT350MinPFJet15_v*")
