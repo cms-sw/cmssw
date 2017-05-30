@@ -22,6 +22,9 @@
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentExtendedCorrelationsStore.h"
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 
+#include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
+#include "Geometry/CommonTopologies/interface/SurfaceDeformationFactory.h"
+
 //__________________________________________________________________________________________________
 AlignmentParameterStore::AlignmentParameterStore( const align::Alignables &alis,
 						  const edm::ParameterSet& config ) :
