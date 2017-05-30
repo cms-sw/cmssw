@@ -81,6 +81,7 @@ ctppsDiamondRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
 
 
 # ---------- pixels ----------
+## this part needed only for direct access to xmls. No DB use.
 #ctppsPixelDAQMappingESSourceXML = cms.ESSource("CTPPSPixelDAQMappingESSourceXML",
 #  verbosity = cms.untracked.uint32(0),
 #  subSystem= cms.untracked.string("RPix"),

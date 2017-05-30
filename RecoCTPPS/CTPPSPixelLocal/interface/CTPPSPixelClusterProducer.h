@@ -44,18 +44,18 @@ public:
  
   ~CTPPSPixelClusterProducer();
 
- virtual void produce(edm::Event&, const edm::EventSetup&) override;
-#ifndef _DAQ_
-  CTPPSPixelGainCalibrationDBService theGainCalibrationDB;
-#endif
-private:
- edm::ParameterSet param_;
- int verbosity_;
- 
- edm::InputTag src_;
- edm::EDGetTokenT<edm::DetSetVector<CTPPSPixelDigi>> tokenCTPPSPixelDigi_;
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
- RPixDetClusterizer clusterizer_;
+  CTPPSPixelGainCalibrationDBService theGainCalibrationDB;
+
+private:
+  edm::ParameterSet param_;
+  int verbosity_;
+ 
+  edm::InputTag src_;
+  edm::EDGetTokenT<edm::DetSetVector<CTPPSPixelDigi>> tokenCTPPSPixelDigi_;
+
+  RPixDetClusterizer clusterizer_;
   
   void run(const edm::DetSetVector<CTPPSPixelDigi> &input, edm::DetSetVector<CTPPSPixelCluster> &output, const CTPPSPixelAnalysisMask *mask);
  
