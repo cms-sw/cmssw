@@ -4,6 +4,22 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("MAGNETICFIELDTEST")
 
+#Adding SimpleMemoryCheck service:
+process.SimpleMemoryCheck=cms.Service("SimpleMemoryCheck",
+                                   ignoreTotal=cms.untracked.int32(1),
+                                   oncePerEventMode=cms.untracked.bool(True)
+)
+
+process.Timing = cms.Service("Timing"
+    ,summaryOnly = cms.untracked.bool(True)
+)
+
+process.options = cms.untracked.PSet(
+    wantSummary = cms.untracked.bool(True)
+)
+
+
+
 process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
