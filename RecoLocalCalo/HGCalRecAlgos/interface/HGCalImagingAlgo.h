@@ -20,7 +20,7 @@
 #include <string>
 #include <vector>
 #include <set>
-
+#include <numeric>
 
 #include "KDTreeLinkerAlgoT.h"
 
