@@ -140,8 +140,7 @@ std::vector<std::shared_ptr<GoldenPattern>> XMLConfigReader::readPatterns(const 
   
   XMLPlatformUtils::Initialize();
 
-  auto const &xmlGP = cms::xerces::uStr("GP");
-  std::array<cms::xerces::ZStr<short unsigned int>, 4> xmliPt= {{cms::xerces::uStr("iPt1"),cms::xerces::uStr("iPt2"),cms::xerces::uStr("iPt3"),cms::xerces::uStr("iPt4") }};
+  std::array<const char*, 4> xmliPt= {{"iPt1","iPt2","iPt3","iPt4" }};
 
   {
     XercesDOMParser parser;
@@ -152,7 +151,7 @@ std::vector<std::shared_ptr<GoldenPattern>> XMLConfigReader::readPatterns(const 
     xercesc::DOMDocument* doc = parser.getDocument();
     assert(doc);
     
-    unsigned int nElem = doc->getElementsByTagName(xmlGP.ptr())->getLength();
+    unsigned int nElem = doc->getElementsByTagName(cms::xerces::uStr("GP").ptr())->getLength();
     if(nElem<1){
       edm::LogError("critical")<<"Problem parsing XML file "<<patternsFile<<std::endl;
       edm::LogError("critical")<<"No GoldenPattern items: GP found"<<std::endl;
@@ -164,13 +163,13 @@ std::vector<std::shared_ptr<GoldenPattern>> XMLConfigReader::readPatterns(const 
     unsigned int iGPNumber=0;
     
     for(unsigned int iItem=0;iItem<nElem;++iItem){
-      aNode = doc->getElementsByTagName(xmlGP.ptr())->item(iItem);
+      aNode = doc->getElementsByTagName(cms::xerces::uStr("GP").ptr())->item(iItem);
       aGPElement = static_cast<DOMElement *>(aNode);
       
       std::unique_ptr<GoldenPattern> aGP;
       for(unsigned int index = 1;index<5;++index){
 	///Patterns XML format backward compatibility. Can use both packed by 4, or by 1 XML files.      
-	if(aGPElement->getAttributeNode(xmliPt[index-1].ptr())) {
+	if(aGPElement->getAttributeNode(cms::xerces::uStr(xmliPt[index-1]).ptr())) {
 	  aGP = buildGP(aGPElement, aConfig, index, iGPNumber);
 	  if(aGP){	  
 	    aGPs.emplace_back(std::move(aGP));
@@ -191,9 +190,9 @@ std::vector<std::shared_ptr<GoldenPattern>> XMLConfigReader::readPatterns(const 
     // Reset the documents vector pool and release all the associated memory back to the system.
     parser.resetDocumentPool();
   }
-
+  
   XMLPlatformUtils::Terminate();
-
+  
   return aGPs;
 }
 //////////////////////////////////////////////////

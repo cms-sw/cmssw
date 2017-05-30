@@ -58,13 +58,10 @@ class XMLConfigReader{
   std::string eventsFile;   //XML file with events
 
   std::unique_ptr<GoldenPattern> buildGP(xercesc::DOMElement* aGPElement,
-			  const L1TMuonOverlapParams & aConfig,
-			  unsigned int index=0,
-			  unsigned int aGPNumber=999);
+					 const L1TMuonOverlapParams & aConfig,
+					 unsigned int index=0,
+					 unsigned int aGPNumber=999);
   
-  //  xercesc::XercesDOMParser *parser;
-  //  xercesc::DOMDocument* doc;
-
   ///Cache with GPs read.
   std::vector<std::shared_ptr<GoldenPattern>> aGPs;
 
