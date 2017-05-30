@@ -90,9 +90,21 @@ private:
   edm::EDGetTokenT<reco::GsfElectronCollection> eleToken_;
   edm::EDGetTokenT<reco::MuonCollection>        muoToken_;
 
-  std::vector<double> met_variable_binning_;
   MEbinning           met_binning_;
   MEbinning           ls_binning_;
+  MEbinning           phi_binning_;
+  MEbinning           pt_binning_;
+  MEbinning           eta_binning_;
+  MEbinning           HT_binning_;
+
+  std::vector<double> met_variable_binning_;
+  std::vector<double> HT_variable_binning_;
+  std::vector<double> jetPt_variable_binning_;
+  std::vector<double> muPt_variable_binning_;
+  std::vector<double> elePt_variable_binning_;
+  std::vector<double> jetEta_variable_binning_;
+  std::vector<double> muEta_variable_binning_;
+  std::vector<double> eleEta_variable_binning_;
 
   METME metME_;
   METME metME_variableBinning_;
@@ -106,10 +118,10 @@ private:
 
   METME jetEtaPhi_; // for HEP17 monitoring
 
-  MEbinning           phi_binning_;
-  MEbinning           pt_binning_;
-  MEbinning           eta_binning_;
-  MEbinning           HT_binning_;
+
+  METME jetMulti_;
+  METME eleMulti_;
+  METME muMulti_;
 
   std::vector<METME> muPhi_;
   std::vector<METME> muEta_;
@@ -123,7 +135,16 @@ private:
   std::vector<METME> jetEta_;
   std::vector<METME> jetPt_;
 
+  std::vector<METME> muPt_variableBinning_;
+  std::vector<METME> elePt_variableBinning_;
+  std::vector<METME> jetPt_variableBinning_;
+
+  std::vector<METME> muEta_variableBinning_;
+  std::vector<METME> eleEta_variableBinning_;
+  std::vector<METME> jetEta_variableBinning_;
+
   METME eventHT_;
+  METME eventHT_variableBinning_;
 
   GenericTriggerEventFlag* num_genTriggerEventFlag_;
   GenericTriggerEventFlag* den_genTriggerEventFlag_;
@@ -142,4 +163,4 @@ private:
 
 };
 
-#endif // METMONITOR_H
+#endif // TOPMONITOR_H
