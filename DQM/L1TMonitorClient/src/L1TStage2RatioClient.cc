@@ -71,6 +71,8 @@ void L1TStage2RatioClient::processHistograms(DQMStore::IGetter& igetter)
     }
      
     hRatio->Divide(hNum, hDen, 1, 1, errOption.c_str());
+
+    delete hDen;
   }
 }
 
