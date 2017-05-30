@@ -942,7 +942,7 @@ class CutEfficiency:
 
 class AggregateBins:
     """Class to create a histogram by aggregating bins of another histogram to a bin of the resulting histogram."""
-    def __init__(self, name, histoName, mapping, normalizeTo=None, scale=None, renameBin=None, ignoreMissingBins=False, minExistingBins=None, originalOrder=False):
+    def __init__(self, name, histoName, mapping, normalizeTo=None, scale=None, renameBin=None, ignoreMissingBins=False, minExistingBins=None, originalOrder=False, reorder=None):
         """Constructor.
 
         Arguments:
@@ -955,6 +955,7 @@ class AggregateBins:
         scale       -- Optional number for scaling the histogram (passed to ROOT.TH1.Scale())
         renameBin   -- Optional function (string -> string) to rename the bins of the input histogram
         originalOrder -- Boolean for using the order of bins in the histogram (default False)
+        reorder     -- Optional function to reorder the bins
 
         Mapping structure (mapping):
 
@@ -971,6 +972,9 @@ class AggregateBins:
         self._ignoreMissingBins = ignoreMissingBins
         self._minExistingBins = minExistingBins
         self._originalOrder = originalOrder
+        self._reorder = reorder
+        if self._originalOrder and self._reorder is not None:
+            raise Exception("reorder is not None and originalOrder is True, please set only one of them")
 
     def __str__(self):
         """String representation, returns the name"""
@@ -1025,6 +1029,10 @@ class AggregateBins:
                 tmpLab.append(binLabels[fromIndex])
             binValues = tmpVal
             binLabels = tmpLab
+        if self._reorder is not None:
+            order = self._reorder(tdirectory, binLabels)
+            binValues = [binValues[i] for i in order]
+            binLabels = [binLabels[i] for i in order]
 
         if self._minExistingBins is not None and (len(binValues)-binValues.count(None)) < self._minExistingBins:
             return None
