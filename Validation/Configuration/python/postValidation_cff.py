@@ -116,7 +116,7 @@ _phase2_postValidation += hgcalPostProcessor
 _phase2_postValidation += MuonME0DigisPostProcessors
 _phase2_postValidation += MuonME0SegPostProcessors
 
-from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017_MCTest
+from Configuration.Eras.Modifier_run2_GEM_2017_MCTest_cff import run2_GEM_2017_MCTest
 run2_GEM_2017_MCTest.toReplaceWith( postValidation, _run3_postValidation )
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 run3_GEM.toReplaceWith( postValidation, _run3_postValidation )

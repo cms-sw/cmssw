@@ -173,7 +173,7 @@ _run3_globalValidation += gemSimValid
 _phase2_globalValidation = _run3_globalValidation.copy()
 _phase2_globalValidation += me0SimValid
 
-from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017_MCTest
+from Configuration.Eras.Modifier_run2_GEM_2017_MCTest_cff import run2_GEM_2017_MCTest
 run2_GEM_2017_MCTest.toReplaceWith( globalValidation, _run3_globalValidation )
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 run3_GEM.toReplaceWith( globalValidation, _run3_globalValidation )
