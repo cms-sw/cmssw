@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+import CondTools.Ecal.db_credentials as auth
 
 process = cms.Process("ProcessOne")
 
@@ -31,6 +32,8 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     )
 )
 
+db_service,db_user,db_pwd = auth.get_readOnly_db_credentials()
+
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     process.CondDB,
     logconnect = cms.untracked.string('sqlite_file:DBLog.db'),
@@ -50,10 +53,10 @@ process.Test1 = cms.EDAnalyzer("ExTestEcalSRPAnalyzer",
     Source = cms.PSet(
         firstRun = cms.string('160970'),
         lastRun = cms.string('100000000'),
-        OnlineDBUser = cms.string('cms_ecal_r'),
         debug = cms.bool(True),
-        OnlineDBPassword = cms.string('xxxxx'),
-        OnlineDBSID = cms.string('cms_orcon_prod'),
+     OnlineDBSID = cms.string(db_service),
+     OnlineDBUser = cms.string(db_user),
+     OnlineDBPassword = cms.string( db_pwd ),
         location = cms.string('P5_Co'),
         runtype = cms.string('Physics'), 
         gentag = cms.string('global'),

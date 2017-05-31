@@ -1,4 +1,6 @@
 import FWCore.ParameterSet.Config as cms
+import CondTools.Ecal.conddb_init as conddb_init
+import CondTools.Ecal.db_credentials as auth
 
 process = cms.Process("ProcessOne")
 
@@ -21,6 +23,12 @@ process.load("CondCore.CondDB.CondDB_cfi")
 
 process.CondDB.connect = 'sqlite_file:EcalADCToGeV.db'
 
+process.CondDB.DBParameters.authenticationPath = ''
+
+process.CondDB.connect = conddb_init.options.destinationDatabase
+
+db_service,db_user,db_pwd = auth.get_readOnly_db_credentials()
+
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
   process.CondDB, 
   logconnect = cms.untracked.string('sqlite_file:log.db'),   
@@ -42,10 +50,9 @@ process.Test1 = cms.EDAnalyzer("ExTestEcalADCToGeVAnalyzer",
     FileHighField = cms.string('ADCToGeV_Bon.xml'),
     firstRun = cms.string('207149'),
     lastRun = cms.string('10000000'),
-#     OnlineDBSID = cms.string('cms_omds_lb'),
-    OnlineDBSID = cms.string('cms_orcon_adg'), # test on lxplus
-    OnlineDBUser = cms.string('cms_ecal_r'),
-    OnlineDBPassword = cms.string('3c4l_r34d3r'),
+     OnlineDBSID = cms.string(db_service),
+     OnlineDBUser = cms.string(db_user),
+     OnlineDBPassword = cms.string( db_pwd ),
     LocationSource = cms.string('P5'),
     Location = cms.string('P5_Co'),
     GenTag = cms.string('GLOBAL'),

@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+import CondTools.Ecal.db_credentials as auth
 
 process = cms.Process("ProcessOne")
 process.load("CondCore.CondDB.CondDB_cfi")
@@ -15,6 +16,8 @@ process.source = cms.Source("EmptyIOVSource",
   timetype = cms.string('runnumber'),
   interval = cms.uint64(1)
 )
+
+db_service,db_user,db_pwd = auth.get_readOnly_db_credentials()
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
   process.CondDB,
@@ -47,9 +50,9 @@ process.Test1 = cms.EDAnalyzer("ExTestEcalPedestalsAnalyzer",
   Source = cms.PSet(
     GenTag = cms.string('***'),
     RunTag = cms.string('***'),
-    OnlineDBUser = cms.string('***'),
-    OnlineDBPassword = cms.string('***'),
-    OnlineDBSID = cms.string('***'),
+        OnlineDBUser = cms.string(db_user),
+        OnlineDBPassword = cms.string(db_pwd),
+        OnlineDBSID = cms.string(db_service),
     Location = cms.string('***'),
     LocationSource = cms.string('File'),
 #    filename = cms.untracked.string('/afs/cern.ch/user/s/shervin/public/forJean/6a9a2818932fce79d8222768ba4f2ad3f60f894c_-0.1_-0.1.dat'),
