@@ -227,6 +227,7 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
         process.pixelTracksTrackingRegions.RegionPSet.originHalfLength = 3
         process.pixelTracksTrackingRegions.RegionPSet.originXPos = 0.08
         process.pixelTracksTrackingRegions.RegionPSet.originYPos = -0.03
+        process.pixelTracksTrackingRegions.RegionPSet.originZPos = 1.
         process.pixelVertices.TkFilterParameters.minPt = process.pixelTracksTrackingRegions.RegionPSet.ptMin
 
         process.dqmBeamMonitor.PVFitter.errorScale = 1.22 #keep checking this with new release expected close to 1.2
