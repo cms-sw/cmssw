@@ -30,7 +30,6 @@
 #include "DetectorDescription/Core/interface/DDNumberingScheme.h"
 #include "DetectorDescription/Core/interface/DDPartSelection.h"
 #include "DetectorDescription/Core/interface/DDPosData.h"
-#include "DetectorDescription/Core/interface/DDQuery.h"
 #include "DetectorDescription/Core/interface/DDScope.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
@@ -383,15 +382,6 @@ void tutorial()
       }//<- moreFilterCriteria
     }//<- morFilters
    
-    DDScope scope;
-    DDQuery query(ccv);
-    std::vector<DDSpecificsFilter*>::size_type loop=0;
-    for(; loop < vecF.size(); ++loop) {
-      DDFilter * filter = vecF[loop];  
-      const DDFilter & fi = *filter;
-      query.addFilter( fi );
-    }  
-    std::cout << "The Scope is now: " << std::endl << scope << std::endl;
     std::string ans;
     ans = "";
     DDCompactView aaaaa;
@@ -460,20 +450,6 @@ void tutorial()
 	}
       }  
     }
-    std::cout << "exec a query based on the filter(s) (y/n) ?";
-    std::cin >> ans;
-    if (ans=="y") {
-      const std::vector<DDExpandedNode> & res = query.exec();  
-      std::cout << "the query results in " << res.size() << " nodes." << std::endl;
-      if (res.size()) {
-	std::cout << " the first node is:" << std::endl
-		  << "  " << res[0] << " transl=" << res[0].absTranslation() << std::endl;
-	std::cout << " the last node is:" << std::endl
-		  << "  " << res.back() << " transl=" << res.back().absTranslation() << std::endl << std::endl;	   
-      }
-    
-    }
-  
     std::cout << "iterate the FilteredView (y/n)";
     std::cin >> ans;
     DDCompactView compactview;
@@ -592,12 +568,6 @@ void tutorial()
     //std::cout << fv.history().back() << std::endl;
     std::cout << "Nodes: " << cc << std::endl;
     std::cout << "Using navigation the filtered-view has " << fv_count << " nodes." << std::endl;
-   
-    loop=0;
-    for(; loop<vecF.size(); ++loop) {
-      delete vecF[loop]; // delete the filters
-      vecF[loop]=0;
-    } 
   }
 
   /*

@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-dtRunConditionVarClient = cms.EDAnalyzer("DTRunConditionVarClient",
+dtRunConditionVarClient = DQMEDHarvester("DTRunConditionVarClient",
 
    minRangeVDrift  = cms.untracked.double(-1.),
    maxRangeVDrift  = cms.untracked.double(1.), 

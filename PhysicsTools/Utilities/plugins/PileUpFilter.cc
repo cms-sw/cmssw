@@ -73,7 +73,7 @@ PileUpFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& i
       // only use the in-time pileup
       if (pileup.getBunchCrossing() == 0) {
 	// use the per-event in-time pileup
-	double pu = pileup.getPU_NumInteractions();
+	double pu = pileup.getTrueNumInteractions();
 	if ( pu >= minPU_ and pu < maxPU_ ) pass = true;
       }
     }

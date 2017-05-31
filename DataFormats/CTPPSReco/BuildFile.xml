@@ -1,5 +1,7 @@
 <use name="DataFormats/Common"/>
+<use name="DataFormats/CTPPSDigi"/>
 <use name="root"/>
+<use name="rootmath"/>
 
 <export>
   <lib name="1"/>
