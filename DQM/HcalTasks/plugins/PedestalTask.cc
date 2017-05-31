@@ -597,6 +597,7 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 		// IF A CHANNEL IS MISSING FOR THIS LS
 		if (n1LS==0)
 		{
+			std::cout << "[debug] n1LS == 0 for did " << did << std::endl;
 			_cMissing1LS_depth.fill(did);
 			_cMissingvsLS_Subdet.fill(did, _currentLS);
 			if (_ptype != fOffline) { // hidefed2crate
@@ -888,6 +889,10 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 	{
 		const QIE11DataFrame digi = static_cast<const QIE11DataFrame>(*it);
 		HcalDetId const& did = digi.detid();
+		// Require barrel or endcap. As of 2017, some calibration channels are ending up in this collection.
+		if ((did.subdet() != HcalEndcap) && (did.subdet() != HcalBarrel)) {
+			continue;
+		}
 		int digiSizeToUse = floor(digi.samples()/constants::CAPS_NUM)*
 			constants::CAPS_NUM-1;
 		did.subdet()==HcalBarrel ? nHB++ : nHE++;
@@ -940,6 +945,9 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 	{
 		const QIE10DataFrame digi = static_cast<const QIE10DataFrame>(*it);
 		HcalDetId did = digi.detid();
+		if (!(did.subdet() == HcalForward)) {
+			continue;
+		}
 		int digiSizeToUse = floor(digi.samples()/constants::CAPS_NUM)*
 			constants::CAPS_NUM-1;
 		nHF++;
