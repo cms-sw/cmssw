@@ -134,6 +134,13 @@ private:
   METME elePt_jetPt_;
   METME elePt_eventHT_;
 
+  METME ele1Pt_ele2Pt_;
+  METME ele1Eta_ele2Eta_;
+  METME mu1Pt_mu2Pt_;
+  METME mu1Eta_mu2Eta_;
+  METME elePt_muPt_;
+  METME eleEta_muEta_;
+
   std::vector<METME> muPhi_;
   std::vector<METME> muEta_;
   std::vector<METME> muPt_;
