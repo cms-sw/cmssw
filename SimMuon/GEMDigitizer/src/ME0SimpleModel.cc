@@ -217,23 +217,23 @@ void ME0SimpleModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::HepRandom
     const int time_hit(static_cast<int>(CLHEP::RandFlat::shoot(engine, nBxing)) + minBunch_);
     if (doNoiseCLS_)
     {
-      std::vector < std::pair<int, int> > cluster_;
-      cluster_.emplace_back(centralStrip, time_hit);
+      std::vector < std::pair<int, int> > cluster;
+      cluster.emplace_back(centralStrip, time_hit);
       int clusterSize((CLHEP::RandFlat::shoot(engine)) <= 0.53 ? 1 : 2);
       if (clusterSize == 2)
       {
         if(CLHEP::RandFlat::shoot(engine) < 0.5)
         {
           if (CLHEP::RandFlat::shoot(engine) < averageEfficiency_ && (centralStrip - 1 > 0))
-            cluster_.emplace_back(centralStrip - 1, time_hit);
+            cluster.emplace_back(centralStrip - 1, time_hit);
         }
         else
         {
           if (CLHEP::RandFlat::shoot(engine) < averageEfficiency_ && (centralStrip + 1 <= nstrips))
-            cluster_.emplace_back(centralStrip + 1, time_hit);
+            cluster.emplace_back(centralStrip + 1, time_hit);
         }
       }
-      for (const auto& digi : cluster_)
+      for (const auto& digi : cluster)
       {
 	strips_.emplace(digi);
       }
@@ -262,9 +262,9 @@ std::vector<std::pair<int, int> > ME0SimpleModel::simulateClustering(const ME0Et
   double deltaX = pointSimHit.x() - pointDigiHit.x();
 
   // Add central digi to cluster vector
-  std::vector < std::pair<int, int> > cluster_;
-  cluster_.clear();
-  cluster_.emplace_back(centralStrip, bx);
+  std::vector < std::pair<int, int> > cluster;
+  cluster.clear();
+  cluster.emplace_back(centralStrip, bx);
 
   //simulate cross talk
   int clusterSize((CLHEP::RandFlat::shoot(engine)) <= 0.53 ? 1 : 2);
@@ -273,13 +273,13 @@ std::vector<std::pair<int, int> > ME0SimpleModel::simulateClustering(const ME0Et
     if (deltaX <= 0)
     {
       if (CLHEP::RandFlat::shoot(engine) < averageEfficiency_ && (centralStrip - 1 > 0))
-	cluster_.emplace_back(centralStrip - 1, bx);
+	cluster.emplace_back(centralStrip - 1, bx);
 	}
     else
     {
       if (CLHEP::RandFlat::shoot(engine) < averageEfficiency_ && (centralStrip + 1 <= nstrips))
-	cluster_.emplace_back(centralStrip + 1, bx);
+	cluster.emplace_back(centralStrip + 1, bx);
     }
   }
-  return cluster_;
+  return cluster;
 }
