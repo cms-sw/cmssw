@@ -12,6 +12,31 @@ const MEbinning phi_binning_1{
   N_PHI1, -MAX_PHI1, MAX_PHI1
     };
 
+
+double MAX_ETA = 1.4442;
+int N_ETA = 34;
+const MEbinning eta_binning_{
+  N_ETA, -MAX_ETA, MAX_ETA
+    };
+
+
+
+double MAX_r9 = 1;
+double MIN_r9 = 0;
+int N_r9 = 50;
+const MEbinning r9_binning_{
+  N_r9, MIN_r9, MAX_r9
+    };
+
+
+
+double MAX_hoe = 0.02;
+double MIN_hoe= 0;
+int N_r9 = 50;
+const MEbinning hoe_binning_{
+  N_r9, MIN_hoe, MAX_hoe
+    };
+
 // -----------------------------
 //  constructors and destructor
 // -----------------------------
@@ -46,7 +71,12 @@ PhotonMonitor::PhotonMonitor( const edm::ParameterSet& iConfig ) :
   photonEtaME_.denominator = nullptr;
   photonPhiME_.numerator   = nullptr;
   photonPhiME_.denominator = nullptr;
-
+  photonEtaPhiME_.numerator   = nullptr;       
+  photonEtaPhiME_.denominator = nullptr;
+  photonr9ME_.numerator   = nullptr;       
+  photonr9ME_.denominator = nullptr;
+  photonHoverEME_.numerator   = nullptr;       
+  photonHoverEME_.denominator = nullptr;
   
 }
 
@@ -147,10 +177,22 @@ void PhotonMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
 
 
   histname = "photon_eta"; histtitle = "Photon eta";
-  bookME(ibooker,photonEtaME_,histname,histtitle, phi_binning_1.nbins, phi_binning_1.xmin, phi_binning_1.xmax);
-  setTitle(photonEtaME_,"Photon #eta","events / 0.1");
+  bookME(ibooker,photonEtaME_,histname,histtitle, eta_binning_.nbins, eta_binning_.xmin,eta_binning_.xmax);
+  setTitle(photonEtaME_,"Photon #eta","events");
 
-  
+
+  histname = "photon_r9"; histtitle = "Photon r9";
+  bookME(ibooker,photonr9ME_,histname,histtitle, r9_binning_.nbins, r9_binning_.xmin, r9_binning_.xmax);
+  setTitle(photonr9ME_,"Photon r9","events");
+
+
+  histname = "photon_hoE"; histtitle = "Photon hoverE";
+  bookME(ibooker,photonHoverEME_,histname,histtitle, hoe_binning_.nbins, hoe_binning_.xmin, hoe_binning_.xmax);
+  setTitle(photonHoverEME_,"Photon hoE","events");
+
+  histname = "photon_etaphi"; histtitle = "Photon eta-phi"; 
+  bookME(ibooker,photonEtaPhiME_,histname,histtitle, eta_binning_.nbins, eta_binning_.xmin, eta_binning_.xmax,phi_binning_1.nbins, phi_binning_1.xmin, phi_binning_1.xmax);
+  setTitle(photonEtaPhiME_,"#eta","#phi"); 
 
   // Initialize the GenericTriggerEventFlag
   if ( num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on() ) num_genTriggerEventFlag_->initRun( iRun, iSetup );
@@ -217,6 +259,9 @@ void PhotonMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSe
 	  photonPhiME_.denominator->Fill(photons[0].phi());
 	  photonEtaME_.denominator->Fill(photons[0].eta());
 	  photonVsLS_.denominator -> Fill(ls, photons[0].pt());
+	  photonEtaPhiME_.denominator -> Fill(photons[0].eta(), photons[0].phi()); 
+	  photonr9ME_.denominator->Fill(photons[0].r9());
+	  photonHoverEME_.denominator->Fill(photons[0].hadTowOverEm());
 	}
       
   // applying selection for numerator
@@ -230,6 +275,10 @@ void PhotonMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSe
       photonPhiME_.numerator->Fill(photons[0].phi());
       photonEtaME_.numerator->Fill(photons[0].eta());
       photonVsLS_.numerator -> Fill(ls, photons[0].pt());
+      photonEtaPhiME_.numerator -> Fill(photons[0].eta(), photons[0].phi());
+      photonr9ME_.numerator->Fill(photons[0].r9());
+      photonHoverEME_.numerator->Fill(photons[0].hadTowOverEm());
+      
       
     }
 
