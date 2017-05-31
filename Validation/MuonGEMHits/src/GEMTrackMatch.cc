@@ -145,7 +145,7 @@ void GEMTrackMatch::buildLUT(const int maxChamberId)
   std::vector<int> pos_ids, neg_ids;
   std::vector<float> phis_pos;
   std::vector<float> phis_neg;
-  LocalPoint  lCentre( 0., 0., 0. );
+  LocalPoint lCentre( 0., 0., 0. );
 
   for(auto it : gem_geom_->chambers()) {
     if(it->id().region()>0) {
@@ -154,6 +154,7 @@ void GEMTrackMatch::buildLUT(const int maxChamberId)
       const BoundPlane& bSurface(it->surface());
       GlobalPoint gCentre(bSurface.toGlobal(lCentre));
       int cphi(static_cast<int>(gCentre.phi().degrees()));
+      if (cphi < 0) cphi += 360;
       phis_pos.push_back(cphi);
       edm::LogInfo("GEMTrackMatch")<<"added phi = "<<cphi<<" to phi pos vector"<<std::endl;
     }
