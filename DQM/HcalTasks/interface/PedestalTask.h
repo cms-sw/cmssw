@@ -67,7 +67,7 @@ class PedestalTask : public hcaldqm::DQTask
 		hcaldqm::electronicsmap::ElectronicsMap _ehashmap;
 		hcaldqm::filter::HashFilter _filter_uTCA;
 		hcaldqm::filter::HashFilter _filter_VME;
-		hcaldqm::filter::HashFilter _filter_C36;
+		hcaldqm::filter::HashFilter _filter_C38;
 
 		//	thresholds
 		double _thresh_mean, _thresh_rms, _thresh_badm, _thresh_badr;

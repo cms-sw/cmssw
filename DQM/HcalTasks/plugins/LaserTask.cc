@@ -409,6 +409,9 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 	{
 		const QIE11DataFrame digi = static_cast<const QIE11DataFrame>(*it);
 		HcalDetId const& did = digi.detid();
+		if (did.subdet() != HcalEndcap) {
+			continue;
+		}
 		uint32_t rawid = _ehashmap.lookup(did);
 		HcalElectronicsId const& eid(rawid);
 
@@ -496,6 +499,9 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 	{
 		const QIE10DataFrame digi = (const QIE10DataFrame)(*it);
 		HcalDetId did = digi.detid();
+		if (did.subdet() != HcalForward) {
+			continue;
+		}
 		HcalElectronicsId eid = HcalElectronicsId(_ehashmap.lookup(did));
 
 		CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<QIE10DataFrame>(_dbService, did, digi);

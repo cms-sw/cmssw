@@ -185,6 +185,10 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 	{
 		QIE11DataFrame frame = static_cast<QIE11DataFrame>((*cqie11)[i]);
 		DetId did = frame.detid();
+		if (HcalDetId(frame.detid()).subdet() != HcalEndcap) {
+			continue;
+		}
+
 		HcalElectronicsId eid = HcalElectronicsId(_ehashmap.lookup(did));
 		if (!eid.rawId()) {
 		  continue;

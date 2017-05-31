@@ -346,6 +346,9 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 	{
 		const QIE11DataFrame digi = static_cast<const QIE11DataFrame>(*it);
 		HcalDetId const& did = digi.detid();
+		if (did.subdet() != HcalEndcap) {
+			continue;
+		}
 		uint32_t rawid = _ehashmap.lookup(did);
 		if (!rawid) {
 			char unknown_id_string[50];
@@ -410,6 +413,9 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 	{
 		const QIE10DataFrame digi = static_cast<const QIE10DataFrame>(*it);
 		HcalDetId did = digi.detid();
+		if (did.subdet() != HcalForward) {
+			continue;
+		}
 		HcalElectronicsId eid = HcalElectronicsId(_ehashmap.lookup(did));
 		//double sumQ = hcaldqm::utilities::sumQ_v10<QIE10DataFrame>(digi, 2.5, 0, digi.samples()-1);
 		CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<QIE10DataFrame>(_dbService, did, digi);
