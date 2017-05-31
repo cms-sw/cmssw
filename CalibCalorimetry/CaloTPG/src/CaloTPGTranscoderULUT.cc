@@ -77,7 +77,7 @@ void CaloTPGTranscoderULUT::loadHCALCompress(HcalLutMetadata const& lutMetadata,
         if (isHBHE) {
            for (unsigned int i = threshold; i < lutsize; ++i)
               outputLUT_[index][i] = analyticalLUT[i];
-        } else {
+	} else {
            for (unsigned int i = threshold; i < lutsize; ++i)
               outputLUT_[index][i] = version == 0 ? linearRctLUT[i] : linearNctLUT[i];
         }
@@ -112,6 +112,7 @@ void CaloTPGTranscoderULUT::loadHCALCompress(HcalLutMetadata const& lutMetadata,
 	    }
 	}
     }
+
 }
 
 HcalTriggerPrimitiveSample CaloTPGTranscoderULUT::hcalCompress(const HcalTrigTowerDetId& id, unsigned int sample, int fineGrain) const {
@@ -264,5 +265,5 @@ void CaloTPGTranscoderULUT::setup(HcalLutMetadata const& lutMetadata, HcalTrigTo
     }
     else {
 	throw cms::Exception("Not Implemented") << "setup of CaloTPGTranscoderULUT from text files";
-   }
+    }
 }
