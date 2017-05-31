@@ -157,6 +157,8 @@ METME  DiMudR_   ;
   int tnp_;
   int trOrMu_;
   int nofset_;
+  double maxmass_;
+  double minmass_;
   StringCutObjectSelector<reco::Track,true>        trSelection_;
   StringCutObjectSelector<reco::Track,true>        trSelection_ref;
 
