@@ -14,6 +14,7 @@
   <use   name="DataFormats/TrackReco"/>
   <use   name="DataFormats/Candidate"/>
   <use   name="DataFormats/HeavyIonEvent"/>
+  <use   name="DataFormats/HepMCCandidate"/>
   <use   name="PhysicsTools/PatUtils"/>
   <use   name="CondFormats/JetMETObjects"/>
   <use   name="CommonTools/CandAlgos"/>
@@ -22,6 +23,7 @@
   <use   name="TrackingTools/TransientTrack"/>
   <use   name="SimDataFormats/Track"/>
   <use   name="SimDataFormats/Vertex"/>
+  <use   name="SimDataFormats/JetMatching"/>
   <use   name="SimGeneral/HepPDTRecord"/>
   <use   name="RecoMET/METAlgorithms"/>
   <use   name="RecoEgamma/EgammaTools"/>
