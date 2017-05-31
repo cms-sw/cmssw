@@ -378,18 +378,15 @@ workflows[1363] = ['', ['VBFHToBB_M125_Pow_py8_Evt_13','DIGIUP15','RECOUP15','HA
 
 ### HI test ###
 
-###  Run I cond.
-#workflows[140] = ['',['HydjetQ_MinBias_2760GeV','DIGIHI2011','RECOHI2011','HARVESTHI2011']]
-workflows[140.1] = ['',['QCD_Pt_80_120_13_HI','DIGIHI','RECOHI','HARVESTHI']]
-workflows[140.2] = ['',['PhotonJets_Pt_10_13_HI','DIGIHI','RECOHI','HARVESTHI']]
-#workflows[140.3] = ['',['ZMM_13_HI','DIGIHI','RECOHI','HARVESTHI']]
-workflows[140.4] = ['',['ZEEMM_13_HI','DIGIHI','RECOHI','HARVESTHI']]
-
-# legacy: 141 => B0; 143 => B3 ; 144 => B5 
-#workflows[142] = ['',['HydjetQ_B8_2760GeV','DIGIHI','RECOHI','HARVESTHI','MINIAODMCUP15HI']]
-
-### Run II cond.
-workflows[145] = ['',['HydjetQ_MinBias_5020GeV','DIGIHI','RECOHI','HARVESTHI']]
+### Run I cond., 2011
+workflows[140] = ['',['HydjetQ_B12_5020GeV_2011','DIGIHI2011','RECOHI2011','HARVESTHI2011']]
+### Run II cond., 2015
+workflows[145] = ['',['HydjetQ_B12_5020GeV_2015','DIGIHI2015','RECOHI2015','HARVESTHI2015']]
+### Run II cond., 2018
+workflows[150] = ['',['HydjetQ_B12_5020GeV_2018','DIGIHI2018','RECOHI2018','HARVESTHI2018']]
+workflows[150.1] = ['',['QCD_Pt_80_120_13_HI','DIGIHI2018','RECOHI2018','HARVESTHI2018']]
+workflows[150.2] = ['',['PhotonJets_Pt_10_13_HI','DIGIHI2018','RECOHI2018','HARVESTHI2018']]
+workflows[150.3] = ['',['ZEEMM_13_HI','DIGIHI2018','RECOHI2018','HARVESTHI2018']]
 
 ### pPb test ###
 workflows[280]= ['',['AMPT_PPb_5020GeV_MinimumBias','DIGI','RECO','HARVEST']]

@@ -40,8 +40,6 @@ siPixelClusterShapeCachePreSplitting = siPixelClusterShapeCache.clone(
     )
 
 caloReco = cms.Sequence(ecalLocalRecoSequence*hcalLocalRecoSequence)
-hbhereco = hbheprereco.clone()
-hcalLocalRecoSequence.replace(hbheprereco,hbhereco)
 muonReco = cms.Sequence(trackerlocalreco+MeasurementTrackerEventPreSplitting+siPixelClusterShapeCachePreSplitting+muonlocalreco)
 localReco = cms.Sequence(bunchSpacingProducer*offlineBeamSpot*muonReco*caloReco*castorreco)
 
