@@ -26,7 +26,7 @@ initialStepTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.
 # tracks
 initialStepTracks = _standard.initialStepTracks.clone(TTRHBuilder = 'WithoutRefit')
 
-firstStepPrimaryVerticesBeforeMixing =  _standard.firstStepPrimaryVertices.clone()
+firstStepPrimaryVerticesBeforeMixing =  _standard.firstStepPrimaryVerticesUnsorted.clone()
 
 # final selection
 initialStepClassifier1 = _standard.initialStepClassifier1.clone()
