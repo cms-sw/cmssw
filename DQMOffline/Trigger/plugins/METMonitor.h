@@ -102,9 +102,7 @@ private:
   METME metVsLS_;
   METME metPhiME_;
   METME deltaphimetj1ME_;
-  METME deltaphimetj1VsLS_;
   METME deltaphij1j2ME_;
-  METME deltaphij1j2VsLS_;
 
   GenericTriggerEventFlag* num_genTriggerEventFlag_;
   GenericTriggerEventFlag* den_genTriggerEventFlag_;
@@ -113,6 +111,7 @@ private:
   StringCutObjectSelector<reco::PFJet,true   >    jetSelection_;
   StringCutObjectSelector<reco::GsfElectron,true> eleSelection_;
   StringCutObjectSelector<reco::Muon,true>        muoSelection_;
+  StringCutObjectSelector<reco::PFJet,true   >    jetSelection_HT_;
   int njets_;
   int nelectrons_;
   int nmuons_;
