@@ -75,6 +75,14 @@ TopMonitor::TopMonitor( const edm::ParameterSet& iConfig ) :
     elePt_jetPt_ = empty;
     elePt_eventHT_ = empty;
 
+    ele1Pt_ele2Pt_ = empty;
+    ele1Eta_ele2Eta_ = empty;
+    mu1Pt_mu2Pt_ = empty;
+    mu1Eta_mu2Eta_ = empty;
+    elePt_muPt_ = empty;
+    eleEta_muEta_ = empty;
+
+
     for (unsigned int iMu=0; iMu<nmuons_; ++iMu){
         muPhi_.push_back(empty);
         muEta_.push_back(empty);
@@ -210,6 +218,37 @@ void TopMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
       bookME(ibooker,eleVsLS_,histname,histtitle,ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax,pt_binning_.xmin, pt_binning_.xmax);
       setMETitle(eleVsLS_,"LS","electron pt [GeV]");
   }
+
+  if ( (nmuons_ > 0) && (nelectrons_ > 0)){
+      histname = "elePt_muPt"; histtitle = "electron pt vs muon pt";
+      bookME(ibooker,elePt_muPt_,histname,histtitle, elePt_variable_binning_2D_, muPt_variable_binning_2D_);      
+      setMETitle(elePt_muPt_,"electron pt [GeV]","muon pt [GeV]");
+
+      histname = "eleEta_muEta"; histtitle = "electron #eta vs muon #eta";
+      bookME(ibooker,eleEta_muEta_,histname,histtitle, eleEta_variable_binning_2D_, muEta_variable_binning_2D_);      
+      setMETitle(eleEta_muEta_,"electron #eta","muon #eta");
+  }
+
+  if ( nelectrons_ > 1 ){
+      histname = "ele1Pt_ele2Pt"; histtitle = "electron-1 pt vs electron-2 pt";
+      bookME(ibooker,ele1Pt_ele2Pt_,histname,histtitle, elePt_variable_binning_2D_, elePt_variable_binning_2D_);      
+      setMETitle(ele1Pt_ele2Pt_,"electron-1 pt [GeV]","electron-2 pt [GeV]");
+
+      histname = "ele1Eta_ele2Eta"; histtitle = "electron-1 #eta vs electron-2 #eta";
+      bookME(ibooker,ele1Eta_ele2Eta_,histname,histtitle, eleEta_variable_binning_2D_, eleEta_variable_binning_2D_);      
+      setMETitle(ele1Eta_ele2Eta_,"electron-1 #eta","electron-2 #eta");
+  }
+
+  if ( nmuons_ > 1 ) {
+      histname = "mu1Pt_mu2Pt"; histtitle = "muon-1 pt vs muon-2 pt";
+      bookME(ibooker,mu1Pt_mu2Pt_,histname,histtitle, muPt_variable_binning_2D_, muPt_variable_binning_2D_);      
+      setMETitle(mu1Pt_mu2Pt_,"muon-1 pt [GeV]","muon-2 pt [GeV]");
+
+      histname = "mu1Eta_mu2Eta"; histtitle = "muon-1 #eta vs muon-2 #eta";
+      bookME(ibooker,mu1Eta_mu2Eta_,histname,histtitle, muEta_variable_binning_2D_, muEta_variable_binning_2D_);      
+      setMETitle(mu1Eta_mu2Eta_,"muon-1 #eta","muon-2 #eta");
+  }
+
 
   histname = "htVsLS"; histtitle = "event HT vs LS";
   bookME(ibooker,htVsLS_,histname,histtitle,ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax,pt_binning_.xmin, pt_binning_.xmax);
@@ -492,12 +531,26 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   eleMulti_.denominator -> Fill(electrons.size());
   muMulti_.denominator -> Fill(muons.size());
 
-  if (nmuons_ > 0)     muVsLS_.denominator -> Fill(ls, muons.at(0).pt());
+  if (nmuons_ > 0){
+      muVsLS_.denominator -> Fill(ls, muons.at(0).pt());
+      if (nmuons_>1) {
+          mu1Pt_mu2Pt_.denominator->Fill(muons.at(0).pt(),muons.at(1).pt());
+          mu1Eta_mu2Eta_.denominator->Fill(muons.at(0).eta(),muons.at(1).eta());
+      }
+  }
   if (njets_ > 0)      jetVsLS_.denominator -> Fill(ls, jets.at(0).pt());
   if (nelectrons_ > 0) {
       eleVsLS_.denominator -> Fill(ls, electrons.at(0).pt());
       elePt_eventHT_.denominator -> Fill (electrons.at(0).pt(), eventHT);
       if (njets_>0) elePt_jetPt_.denominator -> Fill (electrons.at(0).pt(), jets.at(0).pt());
+      if (nmuons_>0) {
+          elePt_muPt_.denominator->Fill(electrons.at(0).pt(),muons.at(0).pt());
+          eleEta_muEta_.denominator->Fill(electrons.at(0).eta(),muons.at(0).eta());
+      }
+      if (nelectrons_>1) {
+          ele1Pt_ele2Pt_.denominator->Fill(electrons.at(0).pt(),electrons.at(1).pt());
+          ele1Eta_ele2Eta_.denominator->Fill(electrons.at(0).eta(),electrons.at(1).eta());
+      }
   }
 
 
@@ -563,12 +616,26 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   eventHT_.numerator -> Fill(eventHT);
   eventHT_variableBinning_.numerator -> Fill(eventHT);
 
-  if (nmuons_ > 0)     muVsLS_.numerator -> Fill(ls, muons.at(0).pt());
+  if (nmuons_ > 0){
+     muVsLS_.numerator -> Fill(ls, muons.at(0).pt());
+      if (nmuons_>1) {
+          mu1Pt_mu2Pt_.numerator->Fill(muons.at(0).pt(),muons.at(1).pt());
+          mu1Eta_mu2Eta_.numerator->Fill(muons.at(0).eta(),muons.at(1).eta());
+      }
+  }
   if (njets_ > 0)      jetVsLS_.numerator -> Fill(ls, jets.at(0).pt());
   if (nelectrons_ > 0) {
       eleVsLS_.numerator -> Fill(ls, electrons.at(0).pt());
       elePt_eventHT_.numerator -> Fill (electrons.at(0).pt(), eventHT);
       if (njets_>0) elePt_jetPt_.numerator -> Fill (electrons.at(0).pt(), jets.at(0).pt());
+      if (nmuons_>0) {
+          elePt_muPt_.numerator->Fill(electrons.at(0).pt(),muons.at(0).pt());
+          eleEta_muEta_.numerator->Fill(electrons.at(0).eta(),muons.at(0).eta());
+      }
+      if (nelectrons_>1) {
+          ele1Pt_ele2Pt_.numerator->Fill(electrons.at(0).pt(),electrons.at(1).pt());
+          ele1Eta_ele2Eta_.numerator->Fill(electrons.at(0).eta(),electrons.at(1).eta());
+      }
   }
 
   jetMulti_.numerator -> Fill(jets.size());
