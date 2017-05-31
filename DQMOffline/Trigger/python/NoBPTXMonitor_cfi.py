@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from DQMOffline.Trigger.NoBPTXMonitoring_cfi import NoBPTXMonitoring
 
 hltNoBPTXmonitoring = NoBPTXMonitoring.clone()
-hltNoBPTXmonitoring.FolderName = cms.string('HLT/NoBPTX/Jets/')
+hltNoBPTXmonitoring.FolderName = cms.string('HLT/NoBPTX/JetE60/')
 hltNoBPTXmonitoring.histoPSet.jetEPSet = cms.PSet(
     nbins = cms.int32(100),
     xmin  = cms.double(-0.5),
