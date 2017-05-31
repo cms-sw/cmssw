@@ -73,21 +73,16 @@ process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 #process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
 
 # Change Beam Monitor variables
-if process.dqmRunConfig.type.value() is "playback":
-  process.dqmBeamMonitor.BeamFitter.WriteAscii = False
-  process.dqmBeamMonitor.BeamFitter.AsciiFileName = '/nfshome0/yumiceva/BeamMonitorDQM/BeamFitResults.txt'
-  process.dqmBeamMonitor.BeamFitter.WriteDIPAscii = True
-  process.dqmBeamMonitor.BeamFitter.DIPFileName = '/nfshome0/dqmdev/BeamMonitorDQM/BeamFitResults.txt'
-else:
+if process.dqmRunConfig.type.value() is "production":
   process.dqmBeamMonitor.BeamFitter.WriteAscii = True
   process.dqmBeamMonitor.BeamFitter.AsciiFileName = '/nfshome0/yumiceva/BeamMonitorDQM/BeamFitResults.txt'
   process.dqmBeamMonitor.BeamFitter.WriteDIPAscii = True
   process.dqmBeamMonitor.BeamFitter.DIPFileName = '/nfshome0/dqmpro/BeamMonitorDQM/BeamFitResults.txt'
-  #process.dqmBeamMonitor.BeamFitter.SaveFitResults = False
-  #process.dqmBeamMonitor.BeamFitter.OutputFileName = '/nfshome0/yumiceva/BeamMonitorDQM/BeamFitResults.root'
-  #process.dqmBeamMonitorBx.BeamFitter.WriteAscii = False
-  #process.dqmBeamMonitorBx.BeamFitter.AsciiFileName = '/nfshome0/yumiceva/BeamMonitorDQM/BeamFitResults_Bx.txt'
-
+else:
+  process.dqmBeamMonitor.BeamFitter.WriteAscii = False
+  process.dqmBeamMonitor.BeamFitter.AsciiFileName = '/nfshome0/yumiceva/BeamMonitorDQM/BeamFitResults.txt'
+  process.dqmBeamMonitor.BeamFitter.WriteDIPAscii = True
+  process.dqmBeamMonitor.BeamFitter.DIPFileName = '/nfshome0/dqmdev/BeamMonitorDQM/BeamFitResults.txt'
 
 ## TKStatus
 process.dqmTKStatus = cms.EDAnalyzer("TKStatus",
