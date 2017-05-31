@@ -62,6 +62,7 @@
        bool runOnEndJob_;
 
     private:
+       enum trendPlots { offline,fpix,bpix };
        edm::ParameterSet conf_;
        edm::InputTag src_;
        bool firstLumi;
@@ -71,8 +72,8 @@
        std::map<std::string,std::string> summaryPlotName_;
 
        //The dead and innefficient roc trend plot
-       std::map<std::string,MonitorElement*>  deadROCTrends_;
-       std::map<std::string,MonitorElement*> ineffROCTrends_;
+       std::map<trendPlots,MonitorElement*>  deadROCTrends_;
+       std::map<trendPlots,MonitorElement*> ineffROCTrends_;
 
        //book the summary plots
        void bookSummaries(DQMStore::IBooker & iBooker);
