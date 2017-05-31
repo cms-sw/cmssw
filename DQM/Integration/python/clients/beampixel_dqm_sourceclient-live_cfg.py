@@ -87,10 +87,9 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     process.load("RecoLocalTracker.Configuration.RecoLocalTracker_cff")
     process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
     from RecoPixelVertexing.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *
-    process.siPixelClusterShapeCachePreSplitting = siPixelClusterShapeCache.clone(
-        src = 'siPixelClustersPreSplitting'
-    )
+    process.siPixelClusterShapeCachePreSplitting = siPixelClusterShapeCache.clone(src = "siPixelClustersPreSplitting")
     process.load("RecoLocalTracker.SiPixelRecHits.PixelCPEGeneric_cfi")
+
 
     #----------------------------
     # pixelVertexDQM Config
@@ -134,12 +133,13 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     process.pixelVertices.TkFilterParameters.minPt = cms.double(0.9)
     process.pixelTracksTrackingRegions.RegionPSet.originRadius = 0.4
 
+    
     #----------------------------
     # Pixel-Tracks&Vertices Reco
     #----------------------------
     process.reconstructionStep = cms.Sequence(process.siPixelDigis*
-                                              process.siStripDigis *
-                                              process.striptrackerlocalreco *
+                                              process.siStripDigis*
+                                              process.striptrackerlocalreco*
                                               process.offlineBeamSpot*
                                               process.siPixelClustersPreSplitting*
                                               process.siPixelRecHitsPreSplitting*
