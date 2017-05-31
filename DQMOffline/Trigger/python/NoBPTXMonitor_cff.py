@@ -2,12 +2,21 @@ import FWCore.ParameterSet.Config as cms
 
 from DQMOffline.Trigger.NoBPTXMonitor_cfi import hltNoBPTXmonitoring
 
-hltNoBPTXMuonsMonitoring = hltNoBPTXmonitoring.clone()
-hltNoBPTXMuonsMonitoring.FolderName = cms.string('HLT/NoBPTX/Muons/')
-hltNoBPTXMuonsMonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_L2Mu40_NoVertex_3Sta_NoBPTX3BX_v*") #HLT_ZeroBias_v*
+hltNoBPTXJetE70Monitoring = hltNoBPTXmonitoring.clone()
+hltNoBPTXJetE70Monitoring.FolderName = cms.string('HLT/NoBPTX/JetE70/')
+hltNoBPTXJetE70Monitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_UncorrectedJetE70_NoBPTX3BX_v*") #HLT_ZeroBias_v*
+
+hltNoBPTXL2Mu40Monitoring = hltNoBPTXmonitoring.clone()
+hltNoBPTXL2Mu40Monitoring.FolderName = cms.string('HLT/NoBPTX/L2Mu40/')
+hltNoBPTXL2Mu40Monitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_L2Mu40_NoVertex_3Sta_NoBPTX3BX_v*") #HLT_ZeroBias_v*
+
+hltNoBPTXL2Mu45Monitoring = hltNoBPTXmonitoring.clone()
+hltNoBPTXL2Mu45Monitoring.FolderName = cms.string('HLT/NoBPTX/L2Mu45/')
+hltNoBPTXL2Mu45Monitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_L2Mu45_NoVertex_3Sta_NoBPTX3BX_v*") #HLT_ZeroBias_v*
 
 exoHLTNoBPTXmonitoring = cms.Sequence(
     hltNoBPTXmonitoring
-    + hltNoBPTXMuonsMonitoring
+    + hltNoBPTXJetE70Monitoring
+    + hltNoBPTXL2Mu40Monitoring
+    + hltNoBPTXL2Mu45Monitoring
 )
-
