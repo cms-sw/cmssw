@@ -42,14 +42,14 @@ void SiPixelPhase1Digis::analyze(const edm::Event& iEvent, const edm::EventSetup
       histo[NDIGIS    ].fill(DetId(it->detId()), &iEvent); // count
       histo[NDIGISINCLUSIVE].fill(DetId(it->detId()), &iEvent); // count
       histo[NDIGIS_FED].fill(DetId(it->detId()), &iEvent); 
-      histo[NDIGIS_FEDtrend].fill(DetId(it->detId()), &iEvent);  
+//      histo[NDIGIS_FEDtrend].fill(DetId(it->detId()), &iEvent);  
     }
   }
   if (hasDigis) histo[EVENT].fill(DetId(0), &iEvent);
   histo[NDIGIS    ].executePerEventHarvesting(&iEvent);
   histo[NDIGISINCLUSIVE].executePerEventHarvesting(&iEvent);
   histo[NDIGIS_FED].executePerEventHarvesting(&iEvent); 
-  histo[NDIGIS_FEDtrend].executePerEventHarvesting(&iEvent);
+//  histo[NDIGIS_FEDtrend].executePerEventHarvesting(&iEvent);
 }
 
 DEFINE_FWK_MODULE(SiPixelPhase1Digis);
