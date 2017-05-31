@@ -42,7 +42,7 @@ class MyBatchManager:
                                 help="Track selection config location",
                                 default="python")
       self.parser.add_option("--notify", "--sendto", dest="sendto", type="string",
-                                help="Email addresses (comma-separated)to notify when job is complete.",
+                                help="Email addresses (comma-separated) to notify when job is complete.",
                                 default=None)
       self.parser.add_option("-f", "--force", action="store_true",
                                 dest="force", default=False,
