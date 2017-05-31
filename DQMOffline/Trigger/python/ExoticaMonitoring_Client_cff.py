@@ -16,7 +16,7 @@ metEfficiency = DQMEDHarvester("DQMGenericClient",
   
 )
 
-photonEfficiency = cms.EDAnalyzer("DQMGenericClient",
+photonEfficiency = DQMEDHarvester("DQMGenericClient",
     subDirs        = cms.untracked.vstring("HLT/Photon/*"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
