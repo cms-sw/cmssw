@@ -218,7 +218,6 @@ void ME0SimpleModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::HepRandom
     if (doNoiseCLS_)
     {
       std::vector < std::pair<int, int> > cluster_;
-      cluster_.clear();
       cluster_.emplace_back(centralStrip, time_hit);
       int clusterSize((CLHEP::RandFlat::shoot(engine)) <= 0.53 ? 1 : 2);
       if (clusterSize == 2)

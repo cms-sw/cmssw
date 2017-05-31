@@ -24,6 +24,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(	
 #    'file:/afs/cern.ch/work/m/mileva/CMSSW_9_1_X_2017-03-29-2300/src/step2_newBkgTest.root'
+    'file:/afs/cern.ch/work/m/mdyulend/work_cms1/CMSSW_9_2_X_2017-05-28-2300/src/20010.0_FourMuExtendedPt1_200+FourMuExtendedPt_1_200_pythia8_2023D7_GenSimHLBeamSpotFull+DigiFullTrigger_2023D7+RecoFullGlobal_2023D7+HARVESTFullGlobal_2023D7/step2.root'
     )
 )
 
