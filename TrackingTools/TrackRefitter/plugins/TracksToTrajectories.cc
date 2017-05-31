@@ -121,7 +121,7 @@ void TracksToTrajectories::produce(Event& event, const EventSetup& setup){
   theTrackTransformer->setServices(setup);
   
   // Collection of Trajectory
-  unique_ptr<vector<Trajectory> > trajectoryCollection(new vector<Trajectory>);
+  auto trajectoryCollection = std::make_unique<vector<Trajectory>>();
   
   // Get the reference
   RefProd<vector<Trajectory> > trajectoryCollectionRefProd 
@@ -132,18 +132,17 @@ void TracksToTrajectories::produce(Event& event, const EventSetup& setup){
   event.getByToken(theTracksToken, tracks);
   
   // Association map between Trajectory and Track
-  unique_ptr<TrajTrackAssociationCollection> trajTrackMap(new TrajTrackAssociationCollection(trajectoryCollectionRefProd, tracks));
+  auto trajTrackMap = std::make_unique<TrajTrackAssociationCollection>(trajectoryCollectionRefProd, tracks);
   
   Ref<vector<Trajectory> >::key_type trajectoryIndex = 0;
   reco::TrackRef::key_type trackIndex = 0;
 
   // Loop over the Rec tracks
-  for (reco::TrackCollection::const_iterator newTrack = tracks->begin(); 
-       newTrack != tracks->end(); ++newTrack) {
+  for (auto const & newTrack : *tracks ) {
     
     ++(globalCache()->theNTracks);
 
-    vector<Trajectory> trajectoriesSM = theTrackTransformer->transform(*newTrack);
+    auto const & trajectoriesSM = theTrackTransformer->transform(newTrack);
     
     if(!trajectoriesSM.empty()){
       // Load the trajectory in the Trajectory Container

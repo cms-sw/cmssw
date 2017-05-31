@@ -110,8 +110,6 @@ class DTLocalTriggerTask: public DQMEDAnalyzer{
 
  private:
 
-  edm::InputTag tmTh_label_;
-
   edm::EDGetTokenT<L1MuDTChambPhContainer> tm_Token_;
   edm::EDGetTokenT<L1MuDTChambThContainer> tmTh_Token_;    
   edm::EDGetTokenT<DTLocalTriggerCollection> ros_Token_;

@@ -4,7 +4,7 @@
 #include "FWCore/Utilities/interface/value_ptr.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 
-#include "FWCore/MessageService/interface/ELdestControl.h"
+#include "FWCore/MessageService/interface/ELdestination.h"
 #include "FWCore/MessageService/interface/MessageLoggerDefaults.h"
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
 #include "FWCore/MessageLogger/interface/AbstractMLscribe.h"
@@ -81,6 +81,7 @@ namespace service {
 
 class ThreadQueue;
 class ELadministrator;
+class ELstatistics;
 
 class MessageLoggerScribe : public AbstractMLscribe
 {
@@ -117,10 +118,9 @@ private:
   void  configure_errorlog( );
   void  configure_ordinary_destinations( );			// Change Log 3
   void  configure_statistics( );				// Change Log 3
-  void  configure_dest( ELdestControl & dest_ctrl		
+  void  configure_dest( std::shared_ptr<ELdestination> dest_ctrl
                       , String const &  filename
 		      );
-  void  configure_external_dests( );
 
 #define VALIDATE_ELSEWHERE					// ChangeLog 11
 
@@ -219,13 +219,12 @@ private:
   
   // --- data:
   edm::propagate_const<std::shared_ptr<ELadministrator>> admin_p;
-  ELdestControl                       early_dest;
+  std::shared_ptr<ELdestination>                       early_dest;
   std::vector<edm::propagate_const<std::shared_ptr<std::ofstream>>> file_ps;
   edm::propagate_const<std::shared_ptr<PSet>> job_pset_p;
-  std::vector<NamedDestination     *> extern_dests;
   std::map<String,edm::propagate_const<std::ostream*>> stream_ps;
   std::vector<String> 	  	      ordinary_destination_filenames;
-  std::vector<ELdestControl>          statisticsDestControls;
+  std::vector<std::shared_ptr<ELstatistics>>          statisticsDestControls;
   std::vector<bool>                   statisticsResets;
   bool				      clean_slate_configuration;
   value_ptr<MessageLoggerDefaults>    messageLoggerDefaults;

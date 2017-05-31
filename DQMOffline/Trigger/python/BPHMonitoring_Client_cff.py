@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
-
-bphEfficiency = cms.EDProducer("DQMGenericClient",
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
+bphEfficiency = DQMEDHarvester("DQMGenericClient",
     subDirs        = cms.untracked.vstring("HLT/BPH/*"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),

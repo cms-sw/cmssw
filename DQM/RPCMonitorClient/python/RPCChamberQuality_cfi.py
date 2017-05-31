@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-rpcChamberQuality = cms.EDAnalyzer("RPCChamberQuality",
+rpcChamberQuality = DQMEDHarvester("RPCChamberQuality",
                                    OfflineDQM = cms.untracked.bool(True),
                                    PrescaleFactor  = cms.untracked.int32(5),
                                    NumberOfEndcapDisks  = cms.untracked.int32(4),
@@ -9,7 +10,7 @@ rpcChamberQuality = cms.EDAnalyzer("RPCChamberQuality",
                                    )
 
 
-rpcMuonChamberQuality = cms.EDAnalyzer("RPCChamberQuality",
+rpcMuonChamberQuality = DQMEDHarvester("RPCChamberQuality",
                                        OfflineDQM = cms.untracked.bool(True),
                                        PrescaleFactor  = cms.untracked.int32(5),
                                        NumberOfEndcapDisks  = cms.untracked.int32(4),

@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 # this might also go into te Common config,as we do not reference it
 from DQM.SiPixelPhase1Common.HistogramManager_cfi import *
@@ -82,6 +83,7 @@ SiPixelPhase1DigisNdigisPerFEDtrend = DefaultHisto.clone(
   range_max = 1000,
   range_nbins = 200,
   dimensions = 0,
+  enabled = False,
   specs = VPSet(
   Specification().groupBy("FED/Event") #produce the mean number of digis per event and FED per lumisection
                    .reduce("COUNT")
@@ -120,8 +122,8 @@ SiPixelPhase1DigisHitmap = DefaultHistoDigiCluster.clone(
   dimensions = 0,
   specs = VPSet(
     Specification(PerModule).groupBy("PXBarrel/Shell/PXLayer/SignedLadder/PXModuleName/row/col")
-                   .groupBy("PXBarrel/Shell/PXLayer/SignedLadder/PXModuleName/row", "EXTEND_Y")
-                   .groupBy("PXBarrel/Shell/PXLayer/SignedLadder/PXModuleName", "EXTEND_X")
+                   .groupBy("PXBarrel/Shell/PXLayer/SignedLadder/PXModuleName/row", "EXTEND_X")
+                   .groupBy("PXBarrel/Shell/PXLayer/SignedLadder/PXModuleName", "EXTEND_Y")
                    .save(),
     Specification(PerModule).groupBy("PXBarrel/Shell/PXLayer/SignedLadder/PXModuleName/col")
                    .groupBy("PXBarrel/Shell/PXLayer/SignedLadder/PXModuleName", "EXTEND_X")
@@ -130,8 +132,8 @@ SiPixelPhase1DigisHitmap = DefaultHistoDigiCluster.clone(
                    .groupBy("PXBarrel/Shell/PXLayer/SignedLadder/PXModuleName", "EXTEND_X")
                    .save(),
     Specification(PerModule).groupBy("PXForward/HalfCylinder/PXRing/PXDisk/SignedBlade/PXModuleName/row/col")
-                   .groupBy("PXForward/HalfCylinder/PXRing/PXDisk/SignedBlade/PXModuleName/row", "EXTEND_Y")
-                   .groupBy("PXForward/HalfCylinder/PXRing/PXDisk/SignedBlade/PXModuleName", "EXTEND_X")
+                   .groupBy("PXForward/HalfCylinder/PXRing/PXDisk/SignedBlade/PXModuleName/row", "EXTEND_X")
+                   .groupBy("PXForward/HalfCylinder/PXRing/PXDisk/SignedBlade/PXModuleName", "EXTEND_Y")
                    .save(),
     Specification(PerModule).groupBy("PXForward/HalfCylinder/PXRing/PXDisk/SignedBlade/PXModuleName/col")
                    .groupBy("PXForward/HalfCylinder/PXRing/PXDisk/SignedBlade/PXModuleName", "EXTEND_X")
@@ -184,7 +186,7 @@ SiPixelPhase1DigisAnalyzer = cms.EDAnalyzer("SiPixelPhase1Digis",
         geometry = SiPixelPhase1Geometry
 )
 
-SiPixelPhase1DigisHarvester = cms.EDAnalyzer("SiPixelPhase1Harvester",
+SiPixelPhase1DigisHarvester = DQMEDHarvester("SiPixelPhase1Harvester",
         histograms = SiPixelPhase1DigisConf,
         geometry = SiPixelPhase1Geometry
 )

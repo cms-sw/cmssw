@@ -285,8 +285,8 @@ edm::ESProducts< std::shared_ptr<TotemDAQMapping>, std::shared_ptr<TotemAnalysis
 {
   assert(currentBlockValid);
 
-  std::shared_ptr<TotemDAQMapping> mapping(new TotemDAQMapping());
-  std::shared_ptr<TotemAnalysisMask> mask(new TotemAnalysisMask());
+  auto mapping = std::make_shared<TotemDAQMapping>();
+  auto mask = std::make_shared<TotemAnalysisMask>();
 
   // initialize Xerces
   try

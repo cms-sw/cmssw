@@ -33,8 +33,11 @@ hiRegitMuInitialStepSeedLayers =  RecoTracker.IterativeTracking.InitialStep_cff.
 hiRegitMuInitialStepHitDoublets = RecoTracker.IterativeTracking.InitialStep_cff.initialStepHitDoublets.clone(
     seedingLayers = "hiRegitMuInitialStepSeedLayers",
     trackingRegions = "hiRegitMuInitialStepTrackingRegions",
-    clusterCheck = "hiRegitMuClusterCheck",
+    clusterCheck = "hiRegitMuClusterCheck"
 )
+from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
+trackingPhase1.toModify(hiRegitMuInitialStepHitDoublets, layerPairs = [0])
+
 hiRegitMuInitialStepHitTriplets = RecoTracker.IterativeTracking.InitialStep_cff.initialStepHitTriplets.clone(
     doublets = "hiRegitMuInitialStepHitDoublets"
 )
@@ -104,6 +107,29 @@ hiRegitMuInitialStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMult
             ),
         ) #end of vpset
     )
+from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
+trackingPhase1.toModify(hiRegitMuInitialStepSelector, useAnyMVA = cms.bool(False))
+trackingPhase1.toModify(hiRegitMuInitialStepSelector, trackSelectors= cms.VPSet(
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
+           name = 'hiRegitMuInitialStepLoose',
+           min_nhits = cms.uint32(8)
+            ), #end of pset
+        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
+            name = 'hiRegitMuInitialStepTight',
+            preFilterName = 'hiRegitMuInitialStepLoose',
+            min_nhits = cms.uint32(8),
+            useMVA = cms.bool(False),
+            minMVA = cms.double(-0.38)
+            ),
+        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
+            name = 'hiRegitMuInitialStep',
+            preFilterName = 'hiRegitMuInitialStepTight',
+            min_nhits = cms.uint32(8),
+            useMVA = cms.bool(False),
+            minMVA = cms.double(-0.77)
+            ),
+        )
+)
 
 hiRegitMuonInitialStep = cms.Sequence(hiRegitMuInitialStepSeedLayers*
                                       hiRegitMuInitialStepTrackingRegions*

@@ -121,7 +121,7 @@ namespace cond {
     class PlotBase {
     public:
       PlotBase();
-
+      virtual ~PlotBase() = default;
       // required in the browser to find corresponding tags
       std::string payloadType() const;
 
@@ -185,7 +185,7 @@ namespace cond {
 	m_plotAnnotations.m[PlotAnnotations::YAXIS_K] = yLabel;
         m_plotAnnotations.m[PlotAnnotations::PAYLOAD_TYPE_K] = cond::demangledName( typeid(PayloadType) );
       }
-
+      virtual ~Plot2D() = default;
       std::string serializeData(){
 	return serialize( m_plotAnnotations, m_plotData);
       }
@@ -215,7 +215,7 @@ namespace cond {
         m_plotAnnotations.m[PlotAnnotations::ZAXIS_K] = zLabel;
         m_plotAnnotations.m[PlotAnnotations::PAYLOAD_TYPE_K] = cond::demangledName( typeid(PayloadType) );
       }
-
+      virtual ~Plot3D() = default;
       std::string serializeData(){
 	return serialize( m_plotAnnotations, m_plotData);
       }
@@ -241,7 +241,7 @@ namespace cond {
       HistoryPlot( const std::string& title, const std::string& yLabel ) : 
 	Base( "History", title, "iov_since" , yLabel ){
       }
-
+      virtual ~HistoryPlot() = default;
       bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override {
 	for( auto iov : iovs ) {
 	  std::shared_ptr<PayloadType> payload = Base::fetchPayload( std::get<1>(iov) );
@@ -264,7 +264,7 @@ namespace cond {
       RunHistoryPlot( const std::string& title, const std::string& yLabel ) :
         Base( "RunHistory", title, "iov_since" , yLabel ){
       }
-
+      virtual ~RunHistoryPlot() = default;
       bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override {
         // for the lumi iovs we need to count the number of lumisections in every runs
 	std::map<cond::Time_t,unsigned int> runs;
@@ -333,7 +333,7 @@ namespace cond {
       TimeHistoryPlot( const std::string& title, const std::string& yLabel ) : 
 	Base( "TimeHistory", title, "iov_since" , yLabel ){
       }
-
+      virtual ~TimeHistoryPlot() = default;
       bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override {
 	cond::persistency::RunInfoProxy runInfo;
 	if(  Base::tagTimeType()==cond::lumiid ||  Base::tagTimeType()==cond::runnumber){
@@ -388,7 +388,7 @@ namespace cond {
       ScatterPlot( const std::string& title, const std::string& xLabel, const std::string& yLabel ) :
 	Base( "Scatter", title, xLabel , yLabel ){
       }
-
+      virtual ~ScatterPlot() = default;
       bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override {
 	for( auto iov : iovs ) {
 	  std::shared_ptr<PayloadType> payload = Base::fetchPayload( std::get<1>(iov) );
@@ -412,7 +412,7 @@ namespace cond {
       Histogram1D( const std::string& title, const std::string& xLabel, size_t nbins, float min, float max ):
 	Base( "Histo1D", title, xLabel , "entries" ),m_nbins(nbins),m_min(min),m_max(max){
       }
-
+      virtual ~Histogram1D() = default;
       // 
       void init(){
 	Base::m_plotData.clear();
@@ -469,6 +469,7 @@ namespace cond {
 	Base( "Histo2D", title, xLabel , yLabel, "entries" ),m_nxbins( nxbins), m_xmin(xmin),m_xmax(xmax),m_nybins(nybins),m_ymin(ymin),m_ymax(ymax){
       }
 
+      virtual ~Histogram2D() = default;
       //
       void init(){
 	Base::m_plotData.clear();
