@@ -163,7 +163,7 @@ void GEMCoPadDigiValidation::analyze(const edm::Event& e,
       else {
         edm::LogError("GEMCoPadDigiValidation")<<"region : "<<re<<std::endl;
       }
-      int binX = (chamber-1)*2+(la-1);
+      int binX = (chamber-1)*2+la;
       int binY = nroll;
       int station_num = st-1;
 
@@ -176,7 +176,7 @@ void GEMCoPadDigiValidation::analyze(const edm::Event& e,
       histname_suffix = getSuffixName( re, st ) ;
       TString dcEta_histname = TString::Format("copad_dcEta%s",histname_suffix.Data());
       theCoPad_dcEta[dcEta_histname.Hash()]->Fill( binX, binY); 
-      theCoPad_dcEta[dcEta_histname.Hash()]->Fill( binX+1, binY); 
+      theCoPad_dcEta[dcEta_histname.Hash()]->Fill( binX+1, binY);
 
       // Fill detail plots.
       if ( detailPlot_) {
