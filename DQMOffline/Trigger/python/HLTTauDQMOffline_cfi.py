@@ -300,6 +300,7 @@ hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
             etamin      = cms.double(-2.5),
             etamax      = cms.double(2.5),
             nPhiBins    = cms.int32(20),
+            phimin      = cms.double(-3.14),
             phimax      = cms.double(3.14),
             numerator   = TriggerSelectionParameters(cms.vstring('HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_TightID_CrossL1_v*')),
             denominator = TriggerSelectionParameters(cms.vstring('HLT_IsoMu24_eta2p1_v*'))
