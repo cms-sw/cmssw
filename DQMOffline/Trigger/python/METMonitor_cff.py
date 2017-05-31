@@ -161,6 +161,51 @@ PFHT800_PFMET85_PFMHT85_METmonitoring = hltMETmonitoring.clone()
 PFHT800_PFMET85_PFMHT85_METmonitoring.FolderName = cms.string('HLT/MET/PFHT800_PFMET85_PFMHT85/')
 PFHT800_PFMET85_PFMHT85_METmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFHT800_PFMET85_PFMHT85_IDTight_v*")
 
+#HLT_PFHT890
+HLT_PFHT890_METmonitoring = hltMETmonitoring.clone()
+HLT_PFHT890_METmonitoring.FolderName = cms.string('HLT/MET/HLT_PFHT890/')
+HLT_PFHT890_METmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFHT890_v*")
+
+#HLT_PFHT780
+HLT_PFHT780_METmonitoring = hltMETmonitoring.clone()
+HLT_PFHT780_METmonitoring.FolderName = cms.string('HLT/MET/HLT_PFHT780/')
+HLT_PFHT780_METmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFHT780_v*")
+
+#HLT_PFHT680
+HLT_PFHT680_METmonitoring = hltMETmonitoring.clone()
+HLT_PFHT680_METmonitoring.FolderName = cms.string('HLT/MET/HLT_PFHT680/')
+HLT_PFHT680_METmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFHT680_v*")
+
+#HLT_PFHT590
+HLT_PFHT590_METmonitoring = hltMETmonitoring.clone()
+HLT_PFHT590_METmonitoring.FolderName = cms.string('HLT/MET/HLT_PFHT590/')
+HLT_PFHT590_METmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFHT590_v*")
+
+#HLT_PFHT510
+HLT_PFHT510_METmonitoring = hltMETmonitoring.clone()
+HLT_PFHT510_METmonitoring.FolderName = cms.string('HLT/MET/HLT_PFHT510/')
+HLT_PFHT510_METmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFHT510_v*")
+
+#HLT_PFHT430
+HLT_PFHT430_METmonitoring = hltMETmonitoring.clone()
+HLT_PFHT430_METmonitoring.FolderName = cms.string('HLT/MET/HLT_PFHT430/')
+HLT_PFHT430_METmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFHT430_v*")
+
+#HLT_PFHT370
+HLT_PFHT370_METmonitoring = hltMETmonitoring.clone()
+HLT_PFHT370_METmonitoring.FolderName = cms.string('HLT/MET/HLT_PFHT370/')
+HLT_PFHT370_METmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFHT370_v*")
+
+#HLT_PFHT250
+HLT_PFHT250_METmonitoring = hltMETmonitoring.clone()
+HLT_PFHT250_METmonitoring.FolderName = cms.string('HLT/MET/HLT_PFHT250/')
+HLT_PFHT250_METmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFHT250_v*")
+
+#HLT_PFHT180
+HLT_PFHT180_METmonitoring = hltMETmonitoring.clone()
+HLT_PFHT180_METmonitoring.FolderName = cms.string('HLT/MET/HLT_PFHT180/')
+HLT_PFHT180_METmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFHT180_v*")
+
 exoHLTMETmonitoring = cms.Sequence(
     PFMET110_PFMHT110_IDTight_METmonitoring
     + PFMET120_PFMHT120_IDTight_METmonitoring
@@ -187,5 +232,14 @@ exoHLTMETmonitoring = cms.Sequence(
     + PFMETNoMu90_PFMHTNoMu90_METmonitoring
     + MET200_METmonitoring
     + MonoCentralPFJet80_PFMETNoMu90_PFMHTNoMu90_METmonitoring
+    + PFHT890_METmonitoring
+    + PFHT780_METmonitoring
+    + PFHT680_METmonitoring
+    + PFHT590_METmonitoring
+    + PFHT510_METmonitoring
+    + PFHT430_METmonitoring
+    + PFHT370_METmonitoring
+    + PFHT250_METmonitoring
+    + PFHT180_METmonitoring
 )
 
