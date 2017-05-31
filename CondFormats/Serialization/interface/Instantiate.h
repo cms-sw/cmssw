@@ -2,6 +2,8 @@
 
 #include "CondFormats/Serialization/interface/Archive.h"
 
+#include <boost/serialization/export.hpp>
+
 // Instantiate serialization code. It works with template
 // arguments as well (use one for each specialization)
 #define COND_SERIALIZATION_INSTANTIATE(...) \
