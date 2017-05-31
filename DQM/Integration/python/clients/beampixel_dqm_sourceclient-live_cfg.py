@@ -117,30 +117,31 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
                                             minVxDoF           = cms.double(10.0),
                                             minVxWgt           = cms.double(0.5),
                                             fileName           = cms.string("/nfshome0/dqmdev/BeamMonitorDQM/BeamPixelResults.txt"))
-    if process.dqmSaver.producer.value() is "Playback":
-        process.pixelVertexDQM.fileName = cms.string("/nfshome0/dqmdev/BeamMonitorDQM/BeamPixelResults.txt")
-    else:
+    if process.dqmRunConfig.type.value() is "production":
         process.pixelVertexDQM.fileName = cms.string("/nfshome0/dqmpro/BeamMonitorDQM/BeamPixelResults.txt")
+    else:
+        process.pixelVertexDQM.fileName = cms.string("/nfshome0/dqmdev/BeamMonitorDQM/BeamPixelResults.txt")
     print "[beampixel_dqm_sourceclient-live_cfg]::saving DIP file into " + str(process.pixelVertexDQM.fileName)
 
 
     #----------------------------
     # Pixel-Tracks&Vertices Config
     #----------------------------
-    process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
     process.load("RecoPixelVertexing.PixelTrackFitting.PixelTracks_2017_cff")
     process.load("RecoVertex.PrimaryVertexProducer.OfflinePixel3DPrimaryVertices_cfi")
     process.recopixelvertexing = cms.Sequence(process.pixelTracksSequence + process.pixelVertices)
     process.pixelVertices.TkFilterParameters.minPt = cms.double(0.9)
     process.pixelTracksTrackingRegions.RegionPSet.originRadius = 0.4
-
+    process.pixelTracksTrackingRegions.RegionPSet.originHalfLength = 3
+    process.pixelTracksTrackingRegions.RegionPSet.originXPos = 0.08
+    process.pixelTracksTrackingRegions.RegionPSet.originYPos = -0.03
+    process.pixelTracksTrackingRegions.RegionPSet.originZPos = 1.
     #----------------------------
     # Pixel-Tracks&Vertices Reco
     #----------------------------
     process.reconstructionStep = cms.Sequence(process.siPixelDigis*
-                                              process.siStripDigis *
-                                              process.striptrackerlocalreco *
-                                              process.offlineBeamSpot*
+                                              process.siStripDigis*
+                                              process.striptrackerlocalreco*
                                               process.siPixelClustersPreSplitting*
                                               process.siPixelRecHitsPreSplitting*
                                               process.siPixelClusterShapeCachePreSplitting*
@@ -204,10 +205,10 @@ if (process.runType.getRunType() == process.runType.hi_run):
                                             minVxDoF           = cms.double(10.0),
                                             minVxWgt           = cms.double(0.5),
                                             fileName           = cms.string("/nfshome0/dqmdev/BeamMonitorDQM/BeamPixelResults.txt"))
-    if process.dqmSaver.producer.value() is "Playback":
-        process.pixelVertexDQM.fileName = cms.string("/nfshome0/dqmdev/BeamMonitorDQM/BeamPixelResults.txt")
-    else:
+    if process.dqmRunConfig.type.value() is "production":
         process.pixelVertexDQM.fileName = cms.string("/nfshome0/dqmpro/BeamMonitorDQM/BeamPixelResults.txt")
+    else:
+        process.pixelVertexDQM.fileName = cms.string("/nfshome0/dqmdev/BeamMonitorDQM/BeamPixelResults.txt")
     print "[beampixel_dqm_sourceclient-live_cfg]::saving DIP file into " + str(process.pixelVertexDQM.fileName)
 
 

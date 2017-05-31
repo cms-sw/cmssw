@@ -73,21 +73,16 @@ process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 #process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
 
 # Change Beam Monitor variables
-if process.dqmRunConfig.type.value() is "playback":
-  process.dqmBeamMonitor.BeamFitter.WriteAscii = False
-  process.dqmBeamMonitor.BeamFitter.AsciiFileName = '/nfshome0/yumiceva/BeamMonitorDQM/BeamFitResults.txt'
-  process.dqmBeamMonitor.BeamFitter.WriteDIPAscii = True
-  process.dqmBeamMonitor.BeamFitter.DIPFileName = '/nfshome0/dqmdev/BeamMonitorDQM/BeamFitResults.txt'
-else:
+if process.dqmRunConfig.type.value() is "production":
   process.dqmBeamMonitor.BeamFitter.WriteAscii = True
   process.dqmBeamMonitor.BeamFitter.AsciiFileName = '/nfshome0/yumiceva/BeamMonitorDQM/BeamFitResults.txt'
   process.dqmBeamMonitor.BeamFitter.WriteDIPAscii = True
   process.dqmBeamMonitor.BeamFitter.DIPFileName = '/nfshome0/dqmpro/BeamMonitorDQM/BeamFitResults.txt'
-  #process.dqmBeamMonitor.BeamFitter.SaveFitResults = False
-  #process.dqmBeamMonitor.BeamFitter.OutputFileName = '/nfshome0/yumiceva/BeamMonitorDQM/BeamFitResults.root'
-  #process.dqmBeamMonitorBx.BeamFitter.WriteAscii = False
-  #process.dqmBeamMonitorBx.BeamFitter.AsciiFileName = '/nfshome0/yumiceva/BeamMonitorDQM/BeamFitResults_Bx.txt'
-
+else:
+  process.dqmBeamMonitor.BeamFitter.WriteAscii = False
+  process.dqmBeamMonitor.BeamFitter.AsciiFileName = '/nfshome0/yumiceva/BeamMonitorDQM/BeamFitResults.txt'
+  process.dqmBeamMonitor.BeamFitter.WriteDIPAscii = True
+  process.dqmBeamMonitor.BeamFitter.DIPFileName = '/nfshome0/dqmdev/BeamMonitorDQM/BeamFitResults.txt'
 
 ## TKStatus
 process.dqmTKStatus = cms.EDAnalyzer("TKStatus",
@@ -224,6 +219,10 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
         process.load("RecoVertex.PrimaryVertexProducer.OfflinePixel3DPrimaryVertices_cfi")
         process.recopixelvertexing = cms.Sequence(process.pixelTracksSequence + process.pixelVertices)
         process.pixelTracksTrackingRegions.RegionPSet.originRadius = 0.4
+        process.pixelTracksTrackingRegions.RegionPSet.originHalfLength = 3
+        process.pixelTracksTrackingRegions.RegionPSet.originXPos = 0.08
+        process.pixelTracksTrackingRegions.RegionPSet.originYPos = -0.03
+        process.pixelTracksTrackingRegions.RegionPSet.originZPos = 1.
         process.pixelVertices.TkFilterParameters.minPt = process.pixelTracksTrackingRegions.RegionPSet.ptMin
 
         process.dqmBeamMonitor.PVFitter.errorScale = 1.22 #keep checking this with new release expected close to 1.2
