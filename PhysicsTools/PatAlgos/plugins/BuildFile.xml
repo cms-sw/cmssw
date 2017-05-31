@@ -10,6 +10,7 @@
   <use   name="HLTrigger/HLTcore"/>
   <use   name="DataFormats/PatCandidates"/>
   <use   name="DataFormats/BTauReco"/>
+  <use   name="DataFormats/HepMCCandidate"/>
   <use   name="DataFormats/JetReco"/>
   <use   name="DataFormats/TrackReco"/>
   <use   name="DataFormats/Candidate"/>
@@ -20,6 +21,7 @@
   <use   name="JetMETCorrections/Objects"/>
   <use   name="JetMETCorrections/JetCorrector"/>
   <use   name="TrackingTools/TransientTrack"/>
+  <use   name="SimDataFormats/JetMatching"/>
   <use   name="SimDataFormats/Track"/>
   <use   name="SimDataFormats/Vertex"/>
   <use   name="SimGeneral/HepPDTRecord"/>
