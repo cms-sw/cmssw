@@ -146,24 +146,24 @@ void SiPixelPhase1Summary::bookSummaries(DQMStore::IBooker & iBooker){
 void SiPixelPhase1Summary::bookTrendPlots(DQMStore::IBooker & iBooker){
   //We need different plots depending on if we're online (runOnEndLumi) or offline (!runOnEndLumi)
   if (runOnEndLumi_){
-    deadROCTrends_["bpix"] = iBooker.book1D("deadRocTrendBPix","BPIX dead ROC trend",500,0.,5000);
-    deadROCTrends_["bpix"]->setAxisTitle("Lumisection",1);
-    deadROCTrends_["fpix"] = iBooker.book1D("deadRocTrendFPix","FPIX dead ROC trend",500,0.,5000);
-    deadROCTrends_["fpix"]->setAxisTitle("Lumisection",1);
-    ineffROCTrends_["bpix"] = iBooker.book1D("ineffRocTrendBPix","BPIX inefficient ROC trend",500,0.,5000);
-    ineffROCTrends_["bpix"]->setAxisTitle("Lumisection",1);
-    ineffROCTrends_["fpix"] = iBooker.book1D("ineffRocTrendFPix","FPIX inefficient ROC trend",500,0.,5000);
-    ineffROCTrends_["fpix"]->setAxisTitle("Lumisection",1);
+    deadROCTrends_[bpix] = iBooker.book1D("deadRocTrendBPix","BPIX dead ROC trend",500,0.,5000);
+    deadROCTrends_[bpix]->setAxisTitle("Lumisection",1);
+    deadROCTrends_[fpix] = iBooker.book1D("deadRocTrendFPix","FPIX dead ROC trend",500,0.,5000);
+    deadROCTrends_[fpix]->setAxisTitle("Lumisection",1);
+    ineffROCTrends_[bpix] = iBooker.book1D("ineffRocTrendBPix","BPIX inefficient ROC trend",500,0.,5000);
+    ineffROCTrends_[bpix]->setAxisTitle("Lumisection",1);
+    ineffROCTrends_[fpix] = iBooker.book1D("ineffRocTrendFPix","FPIX inefficient ROC trend",500,0.,5000);
+    ineffROCTrends_[fpix]->setAxisTitle("Lumisection",1);
   }
   else {
-    deadROCTrends_["offline"] = iBooker.book1D("deadRocTotal","N dead ROCs",2,0,2);
-    deadROCTrends_["offline"]->setBinLabel(1,"Barrel");
-    deadROCTrends_["offline"]->setBinLabel(2,"Endcap");
-    deadROCTrends_["offline"]->setAxisTitle("Subdetector",1);
-    ineffROCTrends_["offline"] = iBooker.book1D("ineffRocTotal","N inefficient ROCs",2,0,2); 
-    ineffROCTrends_["offline"]->setBinLabel(1,"Barrel");
-    ineffROCTrends_["offline"]->setBinLabel(2,"Endcap");
-    ineffROCTrends_["offline"]->setAxisTitle("Subdetector",1);
+    deadROCTrends_[offline] = iBooker.book1D("deadRocTotal","N dead ROCs",2,0,2);
+    deadROCTrends_[offline]->setBinLabel(1,"Barrel");
+    deadROCTrends_[offline]->setBinLabel(2,"Endcap");
+    deadROCTrends_[offline]->setAxisTitle("Subdetector",1);
+    ineffROCTrends_[offline] = iBooker.book1D("ineffRocTotal","N inefficient ROCs",2,0,2); 
+    ineffROCTrends_[offline]->setBinLabel(1,"Barrel");
+    ineffROCTrends_[offline]->setBinLabel(2,"Endcap");
+    ineffROCTrends_[offline]->setAxisTitle("Subdetector",1);
 
   }
   
@@ -281,16 +281,16 @@ void SiPixelPhase1Summary::fillTrendPlots(DQMStore::IBooker & iBooker, DQMStore:
   } // Close layers/ring loop
   
   if (!runOnEndLumi_) { //offline
-    deadROCTrends_["offline"]->setBinContent(1,18944-nFilledROCsBPix);
-    deadROCTrends_["offline"]->setBinContent(2,10752-nFilledROCsFPix);
-    ineffROCTrends_["offline"]->setBinContent(1,nFilledROCsBPix-hiEffROCsBPix);
-    ineffROCTrends_["offline"]->setBinContent(2,nFilledROCsFPix-hiEffROCsFPix);
+    deadROCTrends_[offline]->setBinContent(1,18944-nFilledROCsBPix);
+    deadROCTrends_[offline]->setBinContent(2,10752-nFilledROCsFPix);
+    ineffROCTrends_[offline]->setBinContent(1,nFilledROCsBPix-hiEffROCsBPix);
+    ineffROCTrends_[offline]->setBinContent(2,nFilledROCsFPix-hiEffROCsFPix);
   }
   else { //online
-    deadROCTrends_["fpix"]->setBinContent(lumiSec/10,10752-nFilledROCsFPix);
-    deadROCTrends_["bpix"]->setBinContent(lumiSec/10,18944-nFilledROCsBPix);
-    ineffROCTrends_["fpix"]->setBinContent(lumiSec/10,nFilledROCsFPix-hiEffROCsFPix);
-    ineffROCTrends_["bpix"]->setBinContent(lumiSec/10,nFilledROCsBPix-hiEffROCsBPix);
+    deadROCTrends_[fpix]->setBinContent(lumiSec/10,10752-nFilledROCsFPix);
+    deadROCTrends_[bpix]->setBinContent(lumiSec/10,18944-nFilledROCsBPix);
+    ineffROCTrends_[fpix]->setBinContent(lumiSec/10,nFilledROCsFPix-hiEffROCsFPix);
+    ineffROCTrends_[bpix]->setBinContent(lumiSec/10,nFilledROCsBPix-hiEffROCsBPix);
   }
 
 }
