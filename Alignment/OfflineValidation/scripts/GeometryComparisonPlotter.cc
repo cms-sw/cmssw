@@ -1244,7 +1244,7 @@ void GeometryComparisonPlotter::MakeTables (vector<TString> x, // axes to combin
 	else if (_module_plot_option == "good") tableCaption = "Means and standard deviations of "+_alignment_name+" - "+_reference_name+" for each subdetector, only good modules used.";
 	else if (_module_plot_option == "list") tableCaption = "Means and standard deviations of "+_alignment_name+" - "+_reference_name+" for each subdetector, good modules and those in given list used.";
 	
-	WriteTable(x,NB_SUBLEVELS*NB_Z_SLICES*NB_X_SLICES,meanValue,RMS,"0",tableCaption,tableFileName);
+	WriteTable(y,NB_SUBLEVELS*NB_Z_SLICES*NB_X_SLICES,meanValue,RMS,"0",tableCaption,tableFileName);
 		
 		
 	//~ // table using  Gaussian fit, round to integers in µm etc.
@@ -1254,7 +1254,7 @@ void GeometryComparisonPlotter::MakeTables (vector<TString> x, // axes to combin
 	else if (_module_plot_option == "list") tableCaption = "Means and standard deviations for Gaussian fit of "+_alignment_name+" - "+_reference_name+" for each subdetector, good modules and those in given list used.";
 	
 	
-	WriteTable(x,NB_SUBLEVELS*NB_Z_SLICES*NB_X_SLICES,meanValueGaussian,RMSGaussian,"0",tableCaption,tableFileName);
+	WriteTable(y,NB_SUBLEVELS*NB_Z_SLICES*NB_X_SLICES,meanValueGaussian,RMSGaussian,"0",tableCaption,tableFileName);
 	      
 
 
