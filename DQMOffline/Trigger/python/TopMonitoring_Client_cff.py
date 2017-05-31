@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 topEfficiency_elejets = cms.EDAnalyzer("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/TopHLTOffline/TopMonitor/EleJet/*"),
+    subDirs        = cms.untracked.vstring("HLT/TopHLTOffline/TopMonitor/Top/EleJet/*"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
@@ -40,7 +40,7 @@ topEfficiency_elejets = cms.EDAnalyzer("DQMGenericClient",
 )
 
 topEfficiency_eleHT = cms.EDAnalyzer("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/TopHLTOffline/TopMonitor/EleHT/*"),
+    subDirs        = cms.untracked.vstring("HLT/TopHLTOffline/TopMonitor/Top/EleHT/*"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
