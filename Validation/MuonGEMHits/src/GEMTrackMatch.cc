@@ -154,7 +154,7 @@ void GEMTrackMatch::buildLUT(const int maxChamberId)
       const BoundPlane& bSurface(it->surface());
       GlobalPoint gCentre(bSurface.toGlobal(lCentre));
       int cphi(static_cast<int>(gCentre.phi().degrees()));
-      if (cphi < 0) cphi += 360;
+      if (cphi < 0) cphi += 360; 
       phis_pos.push_back(cphi);
       edm::LogInfo("GEMTrackMatch")<<"added phi = "<<cphi<<" to phi pos vector"<<std::endl;
     }
