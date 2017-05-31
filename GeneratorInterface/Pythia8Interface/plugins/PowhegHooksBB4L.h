@@ -1,5 +1,4 @@
 // PowhegHooksBB4L.h 
-// Copyright (C) 2017 Tomas Jezo, Markus Seidel, Ben Nachman 
 
 // Author: Tomas Jezo, Markus Seidel and Ben Nachman based on 
 // PowhegHooks.h by Richard Corke
@@ -58,7 +57,7 @@ public:
 			// No radiating resonance found
 			scale = 0.8;
 		}
-		else if (abs(event[iRes].id()) == 6) {
+		else if (std::abs(event[iRes].id()) == 6) {
 			// Find top daughters
 			int idw = -1, idb = -1, idg = -1;
 			
@@ -133,6 +132,7 @@ public:
 
 
 	inline double getdechardness(int topcharge, const Event &e){
+		// construct pdg ids of top and its decay products
 		int tid = 6*topcharge, wid = 24*topcharge, bid = 5*topcharge, gid = 21, wildcard = 0;
 		// find last top in the record
 		int i_top = -1;
