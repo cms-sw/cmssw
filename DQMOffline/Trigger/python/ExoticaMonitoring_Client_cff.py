@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-metEfficiency = cms.EDAnalyzer("DQMGenericClient",
+metEfficiency = DQMEDHarvester("MyHarvester",
     subDirs        = cms.untracked.vstring("HLT/MET/*"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
@@ -15,7 +16,7 @@ metEfficiency = cms.EDAnalyzer("DQMGenericClient",
   
 )
 
-NoBPTXEfficiency = cms.EDAnalyzer("DQMGenericClient",
+NoBPTXEfficiency = DQMEDHarvester("MyHarvester",
     subDirs        = cms.untracked.vstring("HLT/NoBPTX/*"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
