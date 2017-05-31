@@ -250,9 +250,13 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
         float caloJetEm, caloJetHad;
         getCaloJetEnergy(p4, caloJets.product(), caloJetEm, caloJetHad);
 
-        const reco::DeDxHitInfo* hitInfo = (*gt2dedxHitInfo)[tkref].get();
-        float dEdxPixel = getDeDx(hitInfo, true, false);
-        float dEdxStrip = (*gt2dedx)[tkref].dEdx(); // estimated strip dEdx is already stored in AOD
+        // if no dEdx info exists, just store -1
+        float dEdxPixel=-1, dEdxStrip=-1;        
+        if(gt2dedxHitInfo.isValid()){
+            const reco::DeDxHitInfo* hitInfo = (*gt2dedxHitInfo)[tkref].get();
+            dEdxPixel = getDeDx(hitInfo, true, false);
+            dEdxStrip = (*gt2dedx)[tkref].dEdx(); // estimated strip dEdx is already stored in AOD
+        }
 
         int trackQuality = gentk.qualityMask();
 
