@@ -4,6 +4,12 @@ import FWCore.ParameterSet.Config as cms
 #AlCaReco filtering for HCAL pedestal:
 #------------------------------------------------
 
+import HLTrigger.HLTfilters.hltHighLevel_cfi
+hcalCalibPedestalHLT =  HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
+    eventSetupPathsKey='HcalCalPedestal',
+    throw = False #dont throw except on unknown path name 
+)
+
 import EventFilter.HcalRawToDigi.HcalCalibTypeFilter_cfi
 hcalCalibPedestal = EventFilter.HcalRawToDigi.HcalCalibTypeFilter_cfi.hcalCalibTypeFilter.clone(
     #  InputLabel = cms.string('rawDataCollector'),
@@ -65,7 +71,8 @@ horecoPedestal.dropZSmarkedPassed = cms.bool(False)
 
 hcalLocalRecoSequencePedestal = cms.Sequence(hbherecoPedestal*hfrecoPedestal*horecoPedestal) 
 
-seqALCARECOHcalCalPedestal = cms.Sequence(hcalCalibPedestal*
+seqALCARECOHcalCalPedestal = cms.Sequence(hcalCalibPedestalHLT*
+                                          hcalCalibPedestal*
                                           hcalDigiAlCaPedestal*
                                           qie10Digis*
                                           gtDigisAlCaPedestal*
@@ -73,7 +80,7 @@ seqALCARECOHcalCalPedestal = cms.Sequence(hcalCalibPedestal*
 
 import RecoLocalCalo.HcalRecProducers.hfprereco_cfi
 hfprerecoPedestal = RecoLocalCalo.HcalRecProducers.hfprereco_cfi.hfprereco.clone(
-    digiLabel = cms.InputTag("hcalDigiAlaMB"),
+    digiLabel = cms.InputTag("hcalDigiAlCaMB"),
     dropZSmarkedPassed = cms.bool(False),
     tsFromDB = cms.bool(False),
     sumAllTimeSlices = cms.bool(False),
@@ -105,7 +112,8 @@ hbheplan1Pedestal = RecoLocalCalo.HcalRecProducers.hbheplan1_cfi.hbheplan1.clone
 from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
 run2_HCAL_2017.toModify( hbherecoPedestal,
     processQIE11 = cms.bool(True),
-    setNoiseFlagsQIE11 = cms.bool(True),
+# temporarily disabled until RecoLocalCalo/HcalRecProducers/python/HBHEPhase1Reconstructor_cfi.py:flagParametersQIE11 is filled
+#    setNoiseFlagsQIE11 = cms.bool(True),
 )
 
 _plan1_seqALCARECOHcalCalPedestal = _phase1_seqALCARECOHcalCalPedestal.copy()
