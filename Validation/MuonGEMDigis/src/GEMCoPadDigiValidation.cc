@@ -143,8 +143,8 @@ void GEMCoPadDigiValidation::analyze(const edm::Event& e,
       if ( bx1 < (Short_t)minBXGEM_ || bx1 > (Short_t)maxBXGEM_) continue;
       if ( bx2 < (Short_t)minBXGEM_ || bx2 > (Short_t)maxBXGEM_) continue;
 
-      LocalPoint lp1 = superChamber->chamber(1)->etaPartition(1)->centreOfPad(pad1);
-      LocalPoint lp2 = superChamber->chamber(1)->etaPartition(1)->centreOfPad(pad2);
+      LocalPoint lp1 = superChamber->chamber(1)->etaPartition(nroll)->centreOfPad(pad1);
+      LocalPoint lp2 = superChamber->chamber(2)->etaPartition(nroll)->centreOfPad(pad2);
 
       GlobalPoint gp1 = surface.toGlobal(lp1);
       GlobalPoint gp2 = surface.toGlobal(lp2);
@@ -175,7 +175,7 @@ void GEMCoPadDigiValidation::analyze(const edm::Event& e,
 
       histname_suffix = getSuffixName( re, st ) ;
       TString dcEta_histname = TString::Format("copad_dcEta%s",histname_suffix.Data());
-      theCoPad_dcEta[dcEta_histname.Hash()]->Fill( binX, binY); 
+      theCoPad_dcEta[dcEta_histname.Hash()]->Fill( binX, binY);
       theCoPad_dcEta[dcEta_histname.Hash()]->Fill( binX+1, binY);
 
       // Fill detail plots.
