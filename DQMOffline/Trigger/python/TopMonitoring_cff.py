@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from DQMOffline.Trigger.TopMonitor_cfi import hltTOPmonitoring
 
 eleJet_jet = hltTOPmonitoring.clone()
-eleJet_jet.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/EleJet/JetMonitor')
+eleJet_jet.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/Top/EleJet/JetMonitor')
 eleJet_jet.nmuons = cms.uint32(0)
 eleJet_jet.nelectrons = cms.uint32(1)
 eleJet_jet.njets = cms.uint32(2)
@@ -16,7 +16,7 @@ eleJet_jet.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Ele30_eta2p1_W
                                                              'HLT_Ele40_WPTight_Gsf_v*',)
 
 eleJet_ele = hltTOPmonitoring.clone()
-eleJet_ele.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/EleJet/ElectronMonitor')
+eleJet_ele.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/Top/EleJet/ElectronMonitor')
 eleJet_ele.nmuons = cms.uint32(0)
 eleJet_ele.nelectrons = cms.uint32(1)
 eleJet_ele.njets = cms.uint32(2)
@@ -26,7 +26,7 @@ eleJet_ele.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Ele30_eta2p1_W
 eleJet_ele.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFJet60_v*')
 
 eleJet_all = hltTOPmonitoring.clone()
-eleJet_all.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/EleJet/GlobalMonitor')
+eleJet_all.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/Top/EleJet/GlobalMonitor')
 eleJet_all.nmuons = cms.uint32(0)
 eleJet_all.nelectrons = cms.uint32(1)
 eleJet_all.njets = cms.uint32(2)
@@ -36,7 +36,7 @@ eleJet_all.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Ele30_eta2p1_W
 # eleJet_all.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_IsoMu24_v*')
 
 eleHT_ht = hltTOPmonitoring.clone()
-eleHT_ht.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/EleHT/HTMonitor')
+eleHT_ht.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/Top/EleHT/HTMonitor')
 eleHT_ht.nmuons = cms.uint32(0)
 eleHT_ht.nelectrons = cms.uint32(1)
 eleHT_ht.njets = cms.uint32(2)
@@ -50,7 +50,7 @@ eleHT_ht.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Ele30_eta2p1_WPT
                                                            'HLT_Ele40_WPTight_Gsf_v*',)
 
 eleHT_ele = hltTOPmonitoring.clone()
-eleHT_ele.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/EleHT/ElectronMonitor')
+eleHT_ele.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/Top/EleHT/ElectronMonitor')
 eleHT_ele.nmuons = cms.uint32(0)
 eleHT_ele.nelectrons = cms.uint32(1)
 eleHT_ele.njets = cms.uint32(2)
@@ -62,7 +62,7 @@ eleHT_ele.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_HT200_v*',
                                                             'HLT_HT275_v*',)
 
 eleHT_all = hltTOPmonitoring.clone()
-eleHT_all.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/EleHT/GlobalMonitor')
+eleHT_all.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/Top/EleHT/GlobalMonitor')
 eleHT_all.nmuons = cms.uint32(0)
 eleHT_all.nelectrons = cms.uint32(1)
 eleHT_all.njets = cms.uint32(2)
