@@ -36,6 +36,8 @@ BPHMonitor::BPHMonitor( const edm::ParameterSet& iConfig ) :
   , tnp_     ( iConfig.getParameter<int>("tnp" )     )
   , trOrMu_     ( iConfig.getParameter<int>("trOrMu" )     )
   , nofset_     ( iConfig.getParameter<int>("nofset" )     )
+  , maxmass_     ( iConfig.getParameter<double>("maxmass" )     )
+  , minmass_     ( iConfig.getParameter<double>("minmass" )     )
   , trSelection_ ( iConfig.getParameter<std::string>("muoSelection") )
   , trSelection_ref ( iConfig.getParameter<std::string>("muoSelection_ref") )
 
@@ -325,17 +327,17 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 
 //  edm::Handle<reco::BeamSpot> const& beamSpot;
   // Filter out events if Trigger Filtering is requested
-  if (tnp_>0) {
+  if (tnp_>0) {//TnP method 
   if (num_genTriggerEventFlag_->on() && ! num_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
   std::vector<reco::Muon> tagMuons;
   std::vector<reco::Muon> probeMuons;
-  for ( auto const & m : *muoHandle ) {
+  for ( auto const & m : *muoHandle ) {//applying tag selection 
   if ( muoSelection_tag( m ) ) tagMuons.push_back(m);
   }
   for (int i = 0; i<int(tagMuons.size());i++){
     for ( auto const & m : *muoHandle ) { 
-      if ((tagMuons[i].pt() - m.pt())<=0.01)continue;//not the same  
-      if ((tagMuons[i].p4()+m.p4()).M() >2.596&& (tagMuons[i].p4()+m.p4()).M() <3.596){//near to J/psi mass
+      if ((tagMuons[i].pt() == m.pt()))continue;//not the same  
+      if ((tagMuons[i].p4()+m.p4()).M() >minmass_&& (tagMuons[i].p4()+m.p4()).M() <maxmass_){//near to J/psi mass
       muPhi_.denominator->Fill(m.phi());
       muEta_.denominator->Fill(m.eta());
       muPt_.denominator ->Fill(m.pt());
@@ -354,10 +356,12 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
     
 
   }  
-  else{
-    if (trOrMu_){
+  else{//reference method
+    if (trOrMu_){//if 1 we fill hists for tracks(nofset_==9) 
+  if (den_genTriggerEventFlag_->on() && ! den_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
       edm::Handle<reco::TrackCollection> trHandle;
       iEvent.getByToken( trToken_, trHandle );
+      if (trHandle.isValid()){
   for (auto const & t : *trHandle) {
     if(!trSelection_ref(t))continue;
     muPhi_.denominator->Fill(t.phi());
@@ -371,7 +375,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
     muEta_.numerator->Fill(t.eta());
     muPt_.numerator ->Fill(t.pt());
   }
-
+}
 //  
 
   
@@ -385,8 +389,8 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
         if (m1.pt() == m.pt())continue;
       if(!muoSelection_ref(m))continue;   
       if(!muoSelection_ref(m1))continue;   
-      switch(nofset_){
-      case 1: tnp_=1;
+      switch(nofset_){//nofset_ = 1...9, represents different sets of variables for different paths, we want to have different hists for different paths
+      case 1: tnp_=1;//already filled hists for tnp method
       case 2:
         mu1Phi_.denominator->Fill(m.phi());
         mu1Eta_.denominator->Fill(m.eta());
@@ -430,7 +434,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
         DiMudR_.denominator ->Fill(reco::deltaR(m.eta(),m.phi(),m1.eta(),m1.phi()));
         break;
       case 6: 
-        for (auto const & m2 : *muoHandle) {
+        for (auto const & m2 : *muoHandle) {//triple muon paths
         if (m2.pt() == m.pt())continue;
         mu1Phi_.denominator->Fill(m.phi());
         mu1Eta_.denominator->Fill(m.eta());
@@ -444,11 +448,11 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
         break;    
 }      
 
-      case 7: 
+      case 7:// the hists for photon monitoring will be filled on 515 line
         tnp_=0;
         break;
         
-      case 8: 
+      case 8://vtx monitoring, filling probability, DS, DCA, cos of pointing angle to the PV, eta, pT of dimuon
           edm::ESHandle<MagneticField> bFieldHandle;
           iSetup.get<IdealMagneticFieldRecord>().get(bFieldHandle);    
           const reco::BeamSpot& vertexBeamSpot = *beamSpot;
@@ -465,8 +469,8 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
         
           reco::Vertex jpsivertex = jtv;
           float dimuonCL = 0;
-          if( (jpsivertex.chi2()>=0.0) && (jpsivertex.ndof()>0) ) 
-            dimuonCL = TMath::Prob(jpsivertex.chi2(), jpsivertex.ndof() );
+          if( (jpsivertex.chi2()>=0) && (jpsivertex.ndof()>0) )//I think these values are "unphysical"(no one will need to change them ever)so the can be fixed 
+          dimuonCL = TMath::Prob(jpsivertex.chi2(), jpsivertex.ndof() );
           math::XYZVector jpperp(m.px() + m1.px() ,
                                  m.py() + m1.py() ,
                                  0.);
@@ -510,6 +514,8 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 
 }
 }
+/////////
+//filling numerator hists
   if (num_genTriggerEventFlag_->on() && ! num_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
   if (nofset_ == 7){//photons
   for (auto const & p : *phHandle) {
@@ -671,6 +677,8 @@ void BPHMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   desc.add<int>( "tnp", 0 );
   desc.add<int>( "trOrMu", 0 );//if =0, track param monitoring
   desc.add<int>( "nofset", 1 );//1...9, 9 sets of variables to be filled, depends on the hlt path
+  desc.add<double>( "maxmass", 3.596 );
+  desc.add<double>( "minmass", 2.596 );
 
   edm::ParameterSetDescription genericTriggerEventPSet;
   genericTriggerEventPSet.add<bool>("andOr");

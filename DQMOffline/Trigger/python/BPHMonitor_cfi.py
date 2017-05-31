@@ -5,6 +5,8 @@ from DQMOffline.Trigger.bphMonitoring_cfi import bphMonitoring
 hltBPHmonitoring = bphMonitoring.clone()
 hltBPHmonitoring.FolderName = cms.string('HLT/BPH/Dimuon_10_Jpsi_Barrel/')
 hltBPHmonitoring.tnp = cms.int32(1)
+hltBPHmonitoring.minmass = cms.double(2.596)
+hltBPHmonitoring.maxmass = cms.double(3.596)
 hltBPHmonitoring.histoPSet.ptPSet = cms.PSet(
   nbins = cms.int32 (  200  ),
   xmin  = cms.double(   -0.5),
