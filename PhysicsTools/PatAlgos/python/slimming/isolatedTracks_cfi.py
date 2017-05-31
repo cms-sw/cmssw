@@ -1,17 +1,18 @@
 import FWCore.ParameterSet.Config as cms
 from TrackingTools.TrackAssociator.default_cfi import TrackAssociatorParameterBlock
 
-TrackAssociatorParameterBlock.TrackAssociatorParameters.useMuon = cms.bool(False)
-TrackAssociatorParameterBlock.TrackAssociatorParameters.useCalo = cms.bool(False)
-TrackAssociatorParameterBlock.TrackAssociatorParameters.useHO = cms.bool(False)
-TrackAssociatorParameterBlock.TrackAssociatorParameters.usePreshower = cms.bool(False)
-TrackAssociatorParameterBlock.TrackAssociatorParameters.EERecHitCollectionLabel = cms.InputTag("reducedEcalRecHitsEE")
-TrackAssociatorParameterBlock.TrackAssociatorParameters.EBRecHitCollectionLabel = cms.InputTag("reducedEcalRecHitsEB")
-TrackAssociatorParameterBlock.TrackAssociatorParameters.HBHERecHitCollectionLabel = cms.InputTag("reducedHcalRecHits","hbhereco")
-TrackAssociatorParameterBlock.TrackAssociatorParameters.HORecHitCollectionLabel = cms.InputTag("reducedHcalRecHits","horeco")
+tkAssocParamBlock = TrackAssociatorParameterBlock.clone()
+tkAssocParamBlock.TrackAssociatorParameters.useMuon = cms.bool(False)
+tkAssocParamBlock.TrackAssociatorParameters.useCalo = cms.bool(False)
+tkAssocParamBlock.TrackAssociatorParameters.useHO = cms.bool(False)
+tkAssocParamBlock.TrackAssociatorParameters.usePreshower = cms.bool(False)
+tkAssocParamBlock.TrackAssociatorParameters.EERecHitCollectionLabel = cms.InputTag("reducedEcalRecHitsEE")
+tkAssocParamBlock.TrackAssociatorParameters.EBRecHitCollectionLabel = cms.InputTag("reducedEcalRecHitsEB")
+tkAssocParamBlock.TrackAssociatorParameters.HBHERecHitCollectionLabel = cms.InputTag("reducedHcalRecHits","hbhereco")
+tkAssocParamBlock.TrackAssociatorParameters.HORecHitCollectionLabel = cms.InputTag("reducedHcalRecHits","horeco")
 
 isolatedTracks = cms.EDProducer("PATIsolatedTrackProducer",
-    TrackAssociatorParameterBlock,
+    tkAssocParamBlock,
     packedPFCandidates = cms.InputTag("packedPFCandidates"),
     lostTracks = cms.InputTag("lostTracks"),
     generalTracks = cms.InputTag("generalTracks"),
