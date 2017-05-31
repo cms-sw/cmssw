@@ -13,6 +13,28 @@ SinglePhoton175_monitoring = hltPhotonmonitoring.clone()
 SinglePhoton175_monitoring.FolderName = cms.string('HLT/Photon/Photon175/')
 SinglePhoton175_monitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Photon175_v*")
 
+SinglePhoton50_R9Id90_HE10_IsoM_monitoring = hltPhotonmonitoring.clone()
+SinglePhoton50_R9Id90_HE10_IsoM_monitoring.FolderName = cms.string('HLT/Photon/Photon50_R9Id90_HE10_IsoM/')
+SinglePhoton50_R9Id90_HE10_IsoM_monitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Photon50_R9Id90_HE10_IsoM_v*")
+
+
+SinglePhoton75_R9Id90_HE10_IsoM_monitoring = hltPhotonmonitoring.clone()
+SinglePhoton75_R9Id90_HE10_IsoM_monitoring.FolderName = cms.string('HLT/Photon/Photon75_R9Id90_HE10_IsoM/')
+SinglePhoton75_R9Id90_HE10_IsoM_monitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Photon75_R9Id90_HE10_IsoM_v*")
+
+
+SinglePhoton90_R9Id90_HE10_IsoM_monitoring = hltPhotonmonitoring.clone()
+SinglePhoton90_R9Id90_HE10_IsoM_monitoring.FolderName = cms.string('HLT/Photon/Photon90_R9Id90_HE10_IsoM/')
+SinglePhoton90_R9Id90_HE10_IsoM_monitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Photon90_R9Id90_HE10_IsoM_v*")
+
+SinglePhoton120_R9Id90_HE10_IsoM_monitoring = hltPhotonmonitoring.clone()
+SinglePhoton120_R9Id90_HE10_IsoM_monitoring.FolderName = cms.string('HLT/Photon/Photon120_R9Id90_HE10_IsoM/')
+SinglePhoton120_R9Id90_HE10_IsoM_monitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Photon120_R9Id90_HE10_IsoM_v*")
+
+SinglePhoton165_R9Id90_HE10_IsoM_monitoring = hltPhotonmonitoring.clone()
+SinglePhoton165_R9Id90_HE10_IsoM_monitoring.FolderName = cms.string('HLT/Photon/Photon165_R9Id90_HE10_IsoM/')
+SinglePhoton165_R9Id90_HE10_IsoM_monitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Photon165_R9Id90_HE10_IsoM_v*")
+
 
 Photon60_monitoring = hltPhotonmonitoring.clone()
 Photon60_monitoring.FolderName = cms.string('HLT/Photon/Photon60/')
@@ -38,6 +60,11 @@ exoHLTPhotonmonitoring = cms.Sequence(
     + Photon60_monitoring
     + Photon60_DisplacedIdL_monitoring
     + Photon60_DisplacedIdL_PFJet350MinPFJet15_monitoring
+    + SinglePhoton50_R9Id90_HE10_IsoM_monitoring
+    + SinglePhoton75_R9Id90_HE10_IsoM_monitoring
+    + SinglePhoton90_R9Id90_HE10_IsoM_monitoring
+    + SinglePhoton120_R9Id90_HE10_IsoM_monitoring
+    + SinglePhoton165_R9Id90_HE10_IsoM_monitoring
     
 )
 

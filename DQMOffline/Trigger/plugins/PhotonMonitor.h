@@ -98,6 +98,10 @@ private:
   PhotonME photonPhiME_;
   PhotonME photonME_variableBinning_;
   PhotonME photonVsLS_;
+  PhotonME photonEtaPhiME_;   
+  PhotonME photonr9ME_;   
+  PhotonME photonHoverEME_;   
+
 
 
   GenericTriggerEventFlag* num_genTriggerEventFlag_;
