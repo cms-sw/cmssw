@@ -31,7 +31,7 @@ int APVGain::subdetectorId(uint32_t det_id) {
  * The char * string is expected to have a 3 char descriptor of the subdetector
  * type in front.
  */
-int APVGain::subdetectorId(std::string tag) {
+int APVGain::subdetectorId(const std::string& tag) {
     std::string d = tag.substr(0,3);
     if ( d.compare("TIB")==0 ) return 3;
     if ( d.compare("TID")==0 ) return 4;
@@ -60,7 +60,7 @@ int APVGain::subdetectorSide(uint32_t det_id, const TrackerTopology* topo) {
  *   The char * descriptor is expected to have either "minus" or "plus"
  *   string to specify the sign. If no sign spec is found 0 is returned.
  */
-int APVGain::subdetectorSide(std::string tag) {
+int APVGain::subdetectorSide(const std::string& tag) {
     std::size_t m = tag.find("minus");
     std::size_t p = tag.find("plus");
     if (m!=std::string::npos) return 1;
@@ -91,7 +91,7 @@ int APVGain::subdetectorPlane(uint32_t det_id, const TrackerTopology* topo) {
  * The char * string is expected to have the subdetector plane put at its
  * end after an "_" char.
  */
-int APVGain::subdetectorPlane(std::string tag) {
+int APVGain::subdetectorPlane(const std::string& tag) {
    std::size_t p = (tag.find("layer")!=std::string::npos)? tag.find("layer") : tag.find("wheel");
    if (p!=std::string::npos) {
        std::size_t start = tag.find("_",p+1) + 1;
