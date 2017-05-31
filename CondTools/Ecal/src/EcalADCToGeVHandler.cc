@@ -77,12 +77,6 @@ void popcon::EcalADCToGeVHandler::getNewObjects() {
 	econn = new EcalCondDBInterface( m_sid, m_user, m_pass );
 	std::cout << "Connection done" << std::endl;
 	
-	if (!econn)
-	  {
-	    std::cout << " Problem with OMDS: connection parameters " <<m_sid <<"/"<<m_user<<"/"<<m_pass<<std::endl;
-	    throw cms::Exception("OMDS not available");
-	  } 
-
 
 	std::cout << "Retrieving last run from ONLINE DB ... " << std::endl;
 	std::map<EcalLogicID, RunDat> rundat;

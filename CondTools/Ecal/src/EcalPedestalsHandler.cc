@@ -159,11 +159,6 @@ void popcon::EcalPedestalsHandler::getNewObjectsP5() {
   econn = new EcalCondDBInterface( m_sid, m_user, m_pass );
   std::cout << "Connection done" << std::endl;
 	
-  if (!econn) {
-    std::cout << " Problem with OMDS: connection parameters " <<m_sid <<"/"<<m_user<<"/"<<m_pass<<std::endl;
-    throw cms::Exception("OMDS not available");
-  } 
-
   // these are the online conditions DB classes 
   RunList my_runlist ;
   RunTag  my_runtag;
