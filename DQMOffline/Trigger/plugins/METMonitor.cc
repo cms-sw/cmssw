@@ -34,6 +34,7 @@ METMonitor::METMonitor( const edm::ParameterSet& iConfig ) :
   , jetSelection_ ( iConfig.getParameter<std::string>("jetSelection") )
   , eleSelection_ ( iConfig.getParameter<std::string>("eleSelection") )
   , muoSelection_ ( iConfig.getParameter<std::string>("muoSelection") )
+  , jetSelection_HT_ ( iConfig.getParameter<std::string>("jetSelection_HT") )
   , njets_      ( iConfig.getParameter<int>("njets" )      )
   , nelectrons_ ( iConfig.getParameter<int>("nelectrons" ) )
   , nmuons_     ( iConfig.getParameter<int>("nmuons" )     )
@@ -47,12 +48,8 @@ METMonitor::METMonitor( const edm::ParameterSet& iConfig ) :
   htVsLS_.denominator = nullptr;
   deltaphimetj1ME_.numerator   = nullptr;
   deltaphimetj1ME_.denominator = nullptr;
-  deltaphimetj1VsLS_.numerator   = nullptr;
-  deltaphimetj1VsLS_.denominator = nullptr;
   deltaphij1j2ME_.numerator   = nullptr;
   deltaphij1j2ME_.denominator = nullptr;
-  deltaphij1j2VsLS_.numerator   = nullptr;
-  deltaphij1j2VsLS_.denominator = nullptr;
   metME_.numerator   = nullptr;
   metME_.denominator = nullptr;
   metME_variableBinning_.numerator   = nullptr;
@@ -159,17 +156,9 @@ void METMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   bookME(ibooker,deltaphimetj1ME_,histname,histtitle,phi_binning_.nbins, phi_binning_.xmin, phi_binning_.xmax);
   setMETitle(deltaphimetj1ME_,"delta phi (met, j1)","events / 0.1 rad");
 
-  histname = "deltaphiVsLS_metjet1"; histtitle = "DPHI_METJ1 vs LS";
-  bookME(ibooker,deltaphimetj1VsLS_,histname,histtitle,ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax,phi_binning_.xmin, phi_binning_.xmax);
-  setMETitle(deltaphimetj1VsLS_,"LS","delta phi(met, j1)");
-
   histname = "deltaphi_jet1jet2"; histtitle = "DPHI_J1J2";
   bookME(ibooker,deltaphij1j2ME_,histname,histtitle,phi_binning_.nbins, phi_binning_.xmin, phi_binning_.xmax);
   setMETitle(deltaphij1j2ME_,"delta phi (j1, j2)","events / 0.1 rad");
-
-  histname = "deltaphiVsLS_jet1jet2"; histtitle = "DPHI_J1J2 vs LS";
-  bookME(ibooker,deltaphij1j2VsLS_,histname,histtitle,ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax,phi_binning_.xmin, phi_binning_.xmax);
-  setMETitle(deltaphij1j2VsLS_,"LS","delta phi(j1, j2)");
 
   histname = "met"; histtitle = "PFMET";
   bookME(ibooker,metME_,histname,histtitle,met_binning_.nbins,met_binning_.xmin, met_binning_.xmax);
@@ -219,7 +208,7 @@ void METMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   for ( auto const & j : *jetHandle ) {
     if ( jetSelection_( j ) ) {
       jets.push_back(j);
-      ht += j.pt();
+      if ( jetSelection_HT_(j)) ht += j.pt();
     }
   }
   if ( int(jets.size()) < njets_ ) return;
@@ -262,8 +251,6 @@ void METMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   int ls = iEvent.id().luminosityBlock();
   htVsLS_.denominator -> Fill(ls, ht);
   metVsLS_.denominator -> Fill(ls, met);
-  deltaphimetj1VsLS_.denominator-> Fill(ls, deltaPhi_met_j1); 
-  deltaphij1j2VsLS_.denominator -> Fill(ls, deltaPhi_j1_j2);
   
   // applying selection for numerator
   if (num_genTriggerEventFlag_->on() && ! num_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
@@ -277,9 +264,7 @@ void METMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   metPhiME_.numerator -> Fill(phi);
   metVsLS_.numerator -> Fill(ls, met);
   deltaphimetj1ME_.numerator  -> Fill(deltaPhi_met_j1); 
-  deltaphimetj1VsLS_.numerator -> Fill(ls, deltaPhi_met_j1);
   deltaphij1j2ME_.numerator  -> Fill(deltaPhi_j1_j2); 
-  deltaphij1j2VsLS_.numerator -> Fill(ls, deltaPhi_j1_j2);
 
 }
 
@@ -308,6 +293,7 @@ void METMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   desc.add<std::string>("jetSelection", "pt > 0");
   desc.add<std::string>("eleSelection", "pt > 0");
   desc.add<std::string>("muoSelection", "pt > 0");
+  desc.add<std::string>("jetSelection_HT", "pt > 10 && eta < 2.5");
   desc.add<int>("njets",      0);
   desc.add<int>("nelectrons", 0);
   desc.add<int>("nmuons",     0);
