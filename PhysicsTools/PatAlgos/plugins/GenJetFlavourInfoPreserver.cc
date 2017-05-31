@@ -1,5 +1,5 @@
 //
-// $Id: GenJetFlavourInfoPreserver.cc,v 1.0 2017/05/18 18:45:45 mwlebour Exp $
+// $Id: GenJetFlavourInfoPreserver.cc,v 1.0 2017/05/18 18:45:45  $
 //
 
 /**
@@ -51,7 +51,6 @@ namespace pat {
 pat::GenJetFlavourInfoPreserver::GenJetFlavourInfoPreserver(const edm::ParameterSet & iConfig) :
     GenJetsToken_(consumes<edm::View<reco::GenJet> >(iConfig.getParameter<edm::InputTag>("GenJets"))),
     slimmedGenJetsToken_(consumes<edm::View<reco::Jet> >(iConfig.getParameter<edm::InputTag>("slimmedGenJets"))),
-//    gp2pgp_(consumes<edm::Association<std::vector<pat::PackedGenParticle> > >(iConfig.getParameter<edm::InputTag>("packedGenParticles"))),
     cut_(iConfig.getParameter<std::string>("cut")),
     ak4GenJetFlavourInfosToken_(consumes<reco::JetFlavourInfoMatchingCollection>(iConfig.getParameter<edm::InputTag>("GenJetFlavourInfos")))
 {
@@ -74,17 +73,9 @@ pat::GenJetFlavourInfoPreserver::produce(edm::Event & iEvent, const edm::EventSe
 
     auto jetFlavourInfos = std::make_unique<reco::JetFlavourInfoMatchingCollection>(reco::JetRefBaseProd(slimmedGenJets));
 
-//    Handle<edm::Association<std::vector<pat::PackedGenParticle> > > gp2pgp;
-//    iEvent.getByToken(gp2pgp_,gp2pgp);
 
     uint slimmedId = 0;
 
-    /*reco::GenParticleRefVector clusteredbHadrons;
-    reco::GenParticleRefVector clusteredcHadrons;
-    reco::GenParticleRefVector clusteredPartons;
-    reco::GenParticleRefVector clusteredLeptons;
-    int hadronFlavour;
-    int partonFlavour;*/
 	
 
     for (View<reco::GenJet>::const_iterator it = GenJets->begin(), ed = GenJets->end(); it != ed; ++it) {
@@ -95,32 +86,12 @@ pat::GenJetFlavourInfoPreserver::produce(edm::Event & iEvent, const edm::EventSe
                 if((JetInfo - ak4GenJetFlavourInfos->begin()) < (it - GenJets->begin())) continue;
                 else if((JetInfo - ak4GenJetFlavourInfos->begin()) > (it - GenJets->begin())) continue;
 
-               // else if((JetInfo - ak4GenJetFlavourInfos->begin()) == (it - GenJets->begin())){
-                   // clusteredbHadrons = JetInfo->second.getbHadrons();
-                    //clusteredcHadrons = JetInfo->second.getcHadrons();
-                    //clusteredPartons = JetInfo->second.getPartons();
-                    //clusteredLeptons = JetInfo->second.getLeptons();
-                    //hadronFlavour = JetInfo->second.getHadronFlavour();
-                    //partonFlavour = JetInfo->second.getPartonFlavour();
-                    (*jetFlavourInfos)[slimmedGenJets->refAt(slimmedId)] = reco::JetFlavourInfo(JetInfo->second.getbHadrons(), JetInfo->second.getcHadrons(), JetInfo->second.getPartons(), JetInfo->second.getLeptons(), JetInfo->second.getHadronFlavour(), JetInfo->second.getPartonFlavour());
+                (*jetFlavourInfos)[slimmedGenJets->refAt(slimmedId)] = reco::JetFlavourInfo(JetInfo->second.getbHadrons(), JetInfo->second.getcHadrons(), JetInfo->second.getPartons(), JetInfo->second.getLeptons(), JetInfo->second.getHadronFlavour(), JetInfo->second.getPartonFlavour());
 
-                    break;
-                //}
+                break;
 
         }
 
-        // Get the refs to particles that were clustered into the original gen-jet
-       //reco::JetFlavourInfo JetInfo = *ak4GenJetFlavourInfos.second;
-        //ak4GenJetFlavourInfos[GenJets->refAt(3)];
-        //const reco::GenParticleRefVector & clusteredbHadrons=(*ak4GenJetFlavourInfos)[GenJets->refAt(it-GenJets->begin())].getbHadrons();
-        //const reco::GenParticleRefVector & clusteredcHadrons=(*ak4GenJetFlavourInfos)[GenJets->refAt(it-GenJets->begin())].getcHadrons();
-        //const reco::GenParticleRefVector & clusteredPartons=(*ak4GenJetFlavourInfos)[GenJets->refAt(it-GenJets->begin())].getPartons();
-        //const reco::GenParticleRefVector & clusteredLeptons=(*ak4GenJetFlavourInfos)[GenJets->refAt(it-GenJets->begin())].getLeptons();
-        //const int hadronFlavour= (*ak4GenJetFlavourInfos)[GenJets->refAt(it-GenJets->begin())].getHadronFlavour();
-        //const int partonFlavour=(*ak4GenJetFlavourInfos)[GenJets->refAt(it-GenJets->begin())].getPartonFlavour();
-
-        //(*jetFlavourInfos)[slimmedGenJets->refAt(slimmedId)] = reco::JetFlavourInfo(clusteredbHadrons, clusteredcHadrons, clusteredPartons, clusteredLeptons, 0, 0);
-        //(*jetFlavourInfos)[slimmedGenJets->refAt(slimmedId)] = reco::JetFlavourInfo(clusteredbHadrons, clusteredcHadrons, clusteredPartons, clusteredLeptons, hadronFlavour, partonFlavour);
         slimmedId++; 
     }
 
