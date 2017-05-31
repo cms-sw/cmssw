@@ -21,7 +21,7 @@ simEmtfDigisMC = cms.EDProducer("L1TMuonEndCapTrackProducer",
     GEMEnable = cms.bool(False),
 
     # Era (options: 'Run2_2016', 'Run2_2017')
-    Era = cms.string('Run2_2016'),
+    Era = cms.string('Run2_2017'),
 
     # BX
     MinBX    = cms.int32(-3),

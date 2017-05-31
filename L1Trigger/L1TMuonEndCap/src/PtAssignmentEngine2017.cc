@@ -14,22 +14,22 @@ const PtAssignmentEngineAux2017& PtAssignmentEngine2017::aux() const {
 float PtAssignmentEngine2017::scale_pt(const float pt, const int mode) const {
 
   // Scaling to achieve 90% efficency at any given L1 pT threshold
-  // For now, a simple scaling based on mode 15 CSC-only
-  // Should scale each mode differently in the future - AWB 23.05.17
+  // For now, a linear scaling based on SingleMu-quality (modes 11, 13, 14, 15), CSC+RPC tracks
+  // Should maybe scale each mode differently in the future - AWB 31.05.17
   
-  // TRG       = (1.15 + 0.01*TRG) * XML
-  // TRG       = 1.15*XML / (1 - 0.01*XML)
-  // TRG / XML = 1.15 / (1 - 0.01*XML)
+  // TRG       = (1.2 + 0.015*TRG) * XML
+  // TRG       = 1.2*XML / (1 - 0.015*XML)
+  // TRG / XML = 1.2 / (1 - 0.015*XML)
 
-  float pt_xml   = fmin(30., pt); // Don't scale muons with XML pT > 30 GeV (scaled pT ~50 GeV)
-  float pt_scale = 1.15 / (1 - 0.01*pt_xml);
+  float pt_xml   = fmin(20., pt); // Maximum scale set by muons with XML pT = 20 GeV (scaled pT ~35 GeV)
+  float pt_scale = 1.2 / (1 - 0.015*pt_xml);
 
   return pt_scale;
 }
 
 float PtAssignmentEngine2017::unscale_pt(const float pt, const int mode) const {
-  float pt_unscale = 1 / (1.15 + 0.01*pt);
-  pt_unscale = fmax( pt_unscale, 0.7/1.15 );
+  float pt_unscale = 1 / (1.2 + 0.015*pt);
+  pt_unscale = fmax( pt_unscale, (1 - 0.015*20)/1.2 );
 
   return pt_unscale;
 }

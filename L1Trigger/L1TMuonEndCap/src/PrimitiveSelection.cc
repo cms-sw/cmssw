@@ -379,14 +379,14 @@ void PrimitiveSelection::merge(
       // No CSC hits, insert all RPC hits
       selected_prim_map[selected_rpc] = rpc_primitives;
 
-    } else {
-      // If only one CSC hit, insert the first RPC hit
-      TriggerPrimitiveCollection& tmp_primitives = selected_prim_map[selected_rpc];  // pass by reference
+    } // else { // Initial FW in 2017; should be disabled by June 2nd, 2017 - AWB 31.05.17
+    //   // If only one CSC hit, insert the first RPC hit
+    //   TriggerPrimitiveCollection& tmp_primitives = selected_prim_map[selected_rpc];  // pass by reference
 
-      if (tmp_primitives.size() < 2) {
-        tmp_primitives.push_back(rpc_primitives.front());
-      }
-    }
+    //   if (tmp_primitives.size() < 2) {
+    //     tmp_primitives.push_back(rpc_primitives.front());
+    //   }
+    // }
   }
 
   // Third, insert GEM stubs if there is no CSC/RPC hits

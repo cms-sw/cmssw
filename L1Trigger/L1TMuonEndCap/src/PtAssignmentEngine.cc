@@ -20,24 +20,21 @@ PtAssignmentEngine::~PtAssignmentEngine() {
 
 // Called by "produce" in plugins/L1TMuonEndCapForestESProducer.cc 
 // Runs over local XMLs if we are not running from the database
+// void PtAssignmentEngine::read(const std::string& xml_dir, const unsigned xml_nTrees) {
 void PtAssignmentEngine::read(const std::string& xml_dir) {
 
-  std::string xml_dir_full = "/afs/cern.ch/work/a/abrinke1/public/EMTF/PtAssign2017/XMLs/2017_05_10_for_emulator";
+  std::string xml_dir_full = "L1Trigger/L1TMuonEndCap/data/pt_xmls/" + xml_dir;
+  unsigned xml_nTrees = 400; // Should make configurable, different by era - AWB 31.05.17
 
   std::cout << "EMTF emulator: attempting to read pT LUT XMLs from local directory" << std::endl;
   std::cout << xml_dir_full << std::endl;
   std::cout << "Non-standard operation; if it fails, now you know why" << std::endl;
 
   for (unsigned i = 0; i < allowedModes_.size(); ++i) {
-    int mode = allowedModes_.at(i);
+    int mode = allowedModes_.at(i); // For 2016, maps to "mode_inv"
     std::stringstream ss;
-
-    if (mode != 12)
-      ss << xml_dir_full << "/f_MODE_" << mode << "_invPtTarg_invPtWgt_bitCompr_RPC_BDTG_AWB_Sq.weights";
-    else
-      ss << xml_dir_full << "/f_MODE_" << mode << "_invPtTarg_invPtWgt_bitCompr_RPC_BDTG_AWB.weights";
-
-    forests_.at(mode).loadForestFromXML(ss.str().c_str(), 400);
+    ss << xml_dir_full << "/" << mode;
+    forests_.at(mode).loadForestFromXML(ss.str().c_str(), xml_nTrees);
   }
 
   return;
@@ -100,6 +97,7 @@ void PtAssignmentEngine::configure_details() {
     std::cout << "EMTF emulator: attempting to read pT LUT binary file from local area" << std::endl;
     std::cout << lut_full_path << std::endl;
     std::cout << "Non-standard operation; if it fails, now you know why" << std::endl;
+    std::cout << "Be sure to check that the 'scale_pt' function still matches this LUT" << std::endl;
 
     ptlut_reader_.read(lut_full_path);
   }

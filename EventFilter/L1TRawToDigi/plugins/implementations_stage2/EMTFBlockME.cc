@@ -35,14 +35,15 @@ namespace l1t {
 	auto payload = block.payload();
 	int errors = 0;
 	
-	//Check the number of 16-bit words
-	if(payload.size() != 4) { errors += 1; edm::LogError("L1T|EMTF") << "Payload size in 'ME Data Record' is different than expected"; }
+	// Check the number of 16-bit words
+	if (payload.size() != 4) { errors += 1; 
+	  edm::LogError("L1T|EMTF") << "Payload size in 'ME Data Record' is different than expected"; }
 	
-	//Check that each word is 16 bits
-	if(GetHexBits(payload[0], 16, 31) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Payload[0] has more than 16 bits in 'ME Data Record'"; }
-	if(GetHexBits(payload[1], 16, 31) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Payload[1] has more than 16 bits in 'ME Data Record'"; }
-	if(GetHexBits(payload[2], 16, 31) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Payload[2] has more than 16 bits in 'ME Data Record'"; }
-	if(GetHexBits(payload[3], 16, 31) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Payload[3] has more than 16 bits in 'ME Data Record'"; }
+	// Check that each word is 16 bits
+	for (unsigned int i = 0; i < 4; i++) {
+	  if (GetHexBits(payload[i], 16, 31) != 0) { errors += 1; 
+	    edm::LogError("L1T|EMTF") << "Payload[" << i << "] has more than 16 bits in 'ME Data Record'"; }
+	}
 	
 	uint16_t MEa = payload[0];
 	uint16_t MEb = payload[1];
@@ -50,10 +51,14 @@ namespace l1t {
 	uint16_t MEd = payload[3];
 
 	//Check Format
-	if(GetHexBits(MEa, 15, 15) != 1) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in MEa are incorrect"; }
-	if(GetHexBits(MEb, 15, 15) != 1) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in MEb are incorrect"; }
-	if(GetHexBits(MEc, 15, 15) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in MEc are incorrect"; }
-	if(GetHexBits(MEd, 15, 15) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in MEd are incorrect"; }
+	if (GetHexBits(MEa, 15, 15) != 1) { errors += 1; 
+	  edm::LogError("L1T|EMTF") << "Format identifier bits in MEa are incorrect"; }
+	if (GetHexBits(MEb, 15, 15) != 1) { errors += 1; 
+	  edm::LogError("L1T|EMTF") << "Format identifier bits in MEb are incorrect"; }
+	if (GetHexBits(MEc, 15, 15) != 0) { errors += 1; 
+	  edm::LogError("L1T|EMTF") << "Format identifier bits in MEc are incorrect"; }
+	if (GetHexBits(MEd, 15, 15) != 0) { errors += 1; 
+	  edm::LogError("L1T|EMTF") << "Format identifier bits in MEd are incorrect"; }
 
 	return errors;
 
@@ -165,10 +170,12 @@ namespace l1t {
 	bool duplicate_hit_exists = false;
 	for (uint iHit = 0; iHit < res_hit->size(); iHit++) {
 
-	  if ( Hit_.BX() == res_hit->at(iHit).BX() && Hit_.Station() == res_hit->at(iHit).Station() &&
-	       ( Hit_.Ring() == res_hit->at(iHit).Ring() || abs(Hit_.Ring() - res_hit->at(iHit).Ring()) == 3 ) && 
-	       Hit_.Chamber() == res_hit->at(iHit).Chamber() ) {
-
+	  if ( res_hit->at(iHit).Is_CSC() == 1               && 
+	       Hit_.BX()      == res_hit->at(iHit).BX()      && 
+	       Hit_.Station() == res_hit->at(iHit).Station() &&
+	       Hit_.Chamber() == res_hit->at(iHit).Chamber() &&
+	       ( Hit_.Ring()  == res_hit->at(iHit).Ring() || abs(Hit_.Ring() - res_hit->at(iHit).Ring()) == 3 ) ) { 
+	    
 	    if ( Hit_.Neighbor() == res_hit->at(iHit).Neighbor() ) {
 	      ME_.set_stub_num( ME_.Stub_num() + 1 );
 	      Hit_.set_stub_num( Hit_.Stub_num() + 1); }
@@ -176,7 +183,7 @@ namespace l1t {
 		      Hit_.Wire() == res_hit->at(iHit).Wire() )
 	      duplicate_hit_exists = true;
 	  }
-	}
+	} // End loop: for (uint iHit = 0; iHit < res_hit->size(); iHit++)
 
 	(res->at(iOut)).push_ME(ME_);
 	res_hit->push_back(Hit_);

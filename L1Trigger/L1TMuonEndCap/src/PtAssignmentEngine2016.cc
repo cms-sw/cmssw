@@ -653,8 +653,6 @@ float PtAssignmentEngine2016::calculate_pt_xml(const address_t& address) const {
         assert(v != -999);
       }
       tree_data.push_back(v);
-    } else {
-      tree_data.push_back(0);  // pad with zeroes, somehow BDT tries to access out of bounds
     }
   }
 

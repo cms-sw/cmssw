@@ -264,7 +264,7 @@ void Forest::rankVariables(std::vector<int>& rank)
        // std::cout << "x" << w[i].second  << ": " << w[i].first  << std::endl; 
     }
     
-    //std::cout << std::endl << "Done." << std::endl << std::endl;
+    // std::cout << std::endl << "Done." << std::endl << std::endl;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -525,7 +525,7 @@ void Forest::loadForestFromXML(const char* directory, unsigned int numTrees)
     trees = std::vector<Tree*>(numTrees);
 
     // Load the Forest.
-    //std::cout << std::endl << "Loading Forest from XML ... " << std::endl;
+    // std::cout << std::endl << "Loading Forest from XML ... " << std::endl;
     for(unsigned int i=0; i < numTrees; i++) 
     {   
         trees[i] = new Tree(); 
@@ -533,11 +533,10 @@ void Forest::loadForestFromXML(const char* directory, unsigned int numTrees)
         std::stringstream ss;
         ss << directory << "/" << i << ".xml";
 
-        trees[i]->loadFromXML(ss.str().c_str()); // Temporary hack to test new XMLs - AWB 20.05.17
-        // trees[i]->loadFromXML(edm::FileInPath(ss.str().c_str()).fullPath().c_str());
+        trees[i]->loadFromXML(edm::FileInPath(ss.str().c_str()).fullPath().c_str());
     }   
 
-   // std::cout << "Done." << std::endl << std::endl;
+    //std::cout << "Done." << std::endl << std::endl;
 }
 
 void Forest::loadFromCondPayload(const L1TMuonEndCapForest::DForest& forest)
