@@ -6,7 +6,7 @@
 
 #include "CondTools/L1TriggerExt/interface/L1ConfigOnlineProdBaseExt.h"
 #include "CondFormats/L1TObjects/interface/L1TMuonEndCapParams.h"
-#include "CondFormats/DataRecord/interface/L1TMuonEndcapParamsRcd.h"
+#include "CondFormats/DataRecord/interface/L1TMuonEndCapParamsRcd.h"
 #include "CondFormats/DataRecord/interface/L1TMuonEndcapParamsO2ORcd.h"
 #include "L1Trigger/L1TMuonEndCap/interface/EndCapParamsHelper.h"
 #include "L1Trigger/L1TCommon/interface/TriggerSystem.h"

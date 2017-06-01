@@ -78,11 +78,6 @@ void L1TMuonEndcapObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey
 
     std::map<std::string, l1t::Parameter> conf = trgSys.getParameters("EMTF-1"); // any processor will do
 
-    std::string core_fwv = conf["core_firmware_version"].getValueAsStr();
-    tm brokenTime;
-    strptime(core_fwv.c_str(), "%Y-%m-%d %T", &brokenTime);
-    time_t sinceEpoch = timegm(&brokenTime);
-
 ////////////////////////
 
     // simply assign the algo key to the record
