@@ -12,7 +12,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-
+#include "DataFormats/L1Trigger/interface/Jet.h"
 
 #include <map>
 #include <vector>
@@ -25,7 +25,7 @@ class L1TCaloJetsMatching: public edm::global::EDProducer<> {
 
  private:
     
-  const edm::EDGetTokenT<reco::PFJetCollection> jetSrc_;
+  const edm::EDGetTokenT<reco::CaloJetCollection> jetSrc_;
   const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> jetTrigger_;
   const double mPt1_Min;
   const double mPt2_Min;

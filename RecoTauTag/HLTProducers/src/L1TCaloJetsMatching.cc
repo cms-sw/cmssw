@@ -107,7 +107,7 @@ void L1TCaloJetsMatching::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<edm::InputTag>("JetSrc"      , edm::InputTag("hltAK4CaloJetsCorrectedIDPassed"))->setComment("Input collection of CaloJets");
   desc.add<double>       ("Pt1Min",95.0)->setComment("Minimal pT1 of CaloJets to match");
   desc.add<double>       ("Pt2Min",35.0)->setComment("Minimal pT2 of CaloJets to match");
-  desc.add<double>       ("MjjMin",650.0)->setComment("Minimal mjj of matched PFjets");
+  desc.add<double>       ("MjjMin",650.0)->setComment("Minimal mjj of matched CaloJets");
   descriptions.setComment("This module produces collections of CaloJets matched to L1Jets.");
   descriptions.add       ("L1TCaloJetsMatching",desc);
 }
