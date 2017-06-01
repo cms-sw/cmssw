@@ -111,6 +111,18 @@ void L1TMP7ZeroSupp::bookCapIdHistograms(DQMStore::IBooker& ibooker, const unsig
   zeroSuppValMap_[id]->setBinLabel(ZSBLKSBADFALSEPOS+1, "false pos.", 1);
   zeroSuppValMap_[id]->setBinLabel(ZSBLKSBADFALSENEG+1, "false neg.", 1);
 
+  errorSummaryNumMap_[id] = ibooker.book1D("errorSummaryNum", summaryTitleText.c_str(), RNBINLABELS, 0, RNBINLABELS);
+  errorSummaryNumMap_[id]->setBinLabel(REVTS+1, "bad events", 1);
+  errorSummaryNumMap_[id]->setBinLabel(RBLKS+1, "bad blocks", 1);
+  errorSummaryNumMap_[id]->setBinLabel(RBLKSFALSEPOS+1, "false pos.", 1);
+  errorSummaryNumMap_[id]->setBinLabel(RBLKSFALSENEG+1, "false neg.", 1);
+
+  errorSummaryDenMap_[id] = ibooker.book1D("errorSummaryDen", "denominators", RNBINLABELS, 0, RNBINLABELS);
+  errorSummaryDenMap_[id]->setBinLabel(REVTS+1, "# events", 1);
+  errorSummaryDenMap_[id]->setBinLabel(RBLKS+1, "# blocks", 1);
+  errorSummaryDenMap_[id]->setBinLabel(RBLKSFALSEPOS+1, "# blocks", 1);
+  errorSummaryDenMap_[id]->setBinLabel(RBLKSFALSENEG+1, "# blocks", 1);
+
   readoutSizeNoZSMap_[id] = ibooker.book1D("readoutSize", (sizeTitleText + "size").c_str(), 100, 0, maxFedReadoutSize_);
   readoutSizeNoZSMap_[id]->setAxisTitle("size (byte)", 1);
   readoutSizeZSMap_[id] = ibooker.book1D("readoutSizeZS", (sizeTitleText + "size with zero suppression").c_str(), 100, 0, maxFedReadoutSize_);
@@ -132,8 +144,10 @@ void L1TMP7ZeroSupp::analyze(const edm::Event& e, const edm::EventSetup& c) {
   }
 
   zeroSuppValMap_[maxMasks_]->Fill(EVTS);
+  errorSummaryDenMap_[maxMasks_]->Fill(REVTS);
   for (const auto &id: definedMaskCapIds_) {
     zeroSuppValMap_[id]->Fill(EVTS);
+    errorSummaryDenMap_[id]->Fill(REVTS);
   }
 
   std::map<unsigned int, bool> evtGood;
@@ -235,9 +249,15 @@ void L1TMP7ZeroSupp::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
         bool capIdDefined = false;
         zeroSuppValMap_[maxMasks_]->Fill(BLOCKS);
+        errorSummaryDenMap_[maxMasks_]->Fill(RBLKS);
+        errorSummaryDenMap_[maxMasks_]->Fill(RBLKSFALSEPOS);
+        errorSummaryDenMap_[maxMasks_]->Fill(RBLKSFALSENEG);
         if (zeroSuppValMap_.find(blockCapId) != zeroSuppValMap_.end()) {
           capIdDefined = true;
           zeroSuppValMap_[blockCapId]->Fill(BLOCKS);
+          errorSummaryDenMap_[blockCapId]->Fill(RBLKS);
+          errorSummaryDenMap_[blockCapId]->Fill(RBLKSFALSEPOS);
+          errorSummaryDenMap_[blockCapId]->Fill(RBLKSFALSENEG);
         }
 
         auto totalBlockSize = blockSize + blockHeaderSize;
@@ -289,11 +309,15 @@ void L1TMP7ZeroSupp::analyze(const edm::Event& e, const edm::EventSetup& c) {
           if (verbose_) std::cout << "BAD block with ZS flag true" << std::endl;
           zeroSuppValMap_[maxMasks_]->Fill(ZSBLKSBAD);
           zeroSuppValMap_[maxMasks_]->Fill(ZSBLKSBADFALSEPOS);
+          errorSummaryNumMap_[maxMasks_]->Fill(RBLKS);
+          errorSummaryNumMap_[maxMasks_]->Fill(RBLKSFALSEPOS);
           readoutSizeZSExpectedMap[maxMasks_] += totalBlockSize;
           evtGood[maxMasks_] = false;
           if (capIdDefined) {
             zeroSuppValMap_[blockCapId]->Fill(ZSBLKSBAD);
             zeroSuppValMap_[blockCapId]->Fill(ZSBLKSBADFALSEPOS);
+            errorSummaryNumMap_[blockCapId]->Fill(RBLKS);
+            errorSummaryNumMap_[blockCapId]->Fill(RBLKSFALSEPOS);
             readoutSizeZSExpectedMap[blockCapId] += totalBlockSize;
             evtGood[blockCapId] = false;
           }
@@ -301,11 +325,15 @@ void L1TMP7ZeroSupp::analyze(const edm::Event& e, const edm::EventSetup& c) {
           if (verbose_) std::cout << "BAD block with ZS flag false" << std::endl;
           zeroSuppValMap_[maxMasks_]->Fill(ZSBLKSBAD);
           zeroSuppValMap_[maxMasks_]->Fill(ZSBLKSBADFALSENEG);
+          errorSummaryNumMap_[maxMasks_]->Fill(RBLKS);
+          errorSummaryNumMap_[maxMasks_]->Fill(RBLKSFALSENEG);
           readoutSizeZSMap[maxMasks_] += totalBlockSize;
           evtGood[maxMasks_] = false;
           if (capIdDefined) {
             zeroSuppValMap_[blockCapId]->Fill(ZSBLKSBAD);
             zeroSuppValMap_[blockCapId]->Fill(ZSBLKSBADFALSENEG);
+            errorSummaryNumMap_[blockCapId]->Fill(RBLKS);
+            errorSummaryNumMap_[blockCapId]->Fill(RBLKSFALSENEG);
             readoutSizeZSMap[blockCapId] += totalBlockSize;
             evtGood[blockCapId] = false;
           }
@@ -326,12 +354,14 @@ void L1TMP7ZeroSupp::analyze(const edm::Event& e, const edm::EventSetup& c) {
     zeroSuppValMap_[maxMasks_]->Fill(EVTSGOOD);
   } else {
     zeroSuppValMap_[maxMasks_]->Fill(EVTSBAD);
+    errorSummaryNumMap_[maxMasks_]->Fill(REVTS);
   }
   for (const auto &id: definedMaskCapIds_) {
     if (evtGood[id]) {
       zeroSuppValMap_[id]->Fill(EVTSGOOD);
     } else {
       zeroSuppValMap_[id]->Fill(EVTSBAD);
+      errorSummaryNumMap_[id]->Fill(REVTS);
     }
   }
 }
