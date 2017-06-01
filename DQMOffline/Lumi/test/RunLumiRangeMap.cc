@@ -1,9 +1,9 @@
-#include "DQMOffline/LumiZCounting/interface/RunLumiRangeMap.h"
+#include "DQMOffline/Lumi/interface/RunLumiRangeMap.h"
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/lexical_cast.hpp>
 
-using namespace baconhep;
+using namespace ZCountingTrigger;
 
 //--------------------------------------------------------------------------------------------------
 void RunLumiRangeMap::addJSONFile(const std::string &filepath)

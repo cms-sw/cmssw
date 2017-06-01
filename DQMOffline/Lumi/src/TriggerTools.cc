@@ -1,9 +1,9 @@
-#include "DQMOffline/LumiZCounting/interface/TriggerTools.h"
+#include "DQMOffline/Lumi/interface/TriggerTools.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include <string>
 
-using namespace baconhep;
+using namespace ZCountingTrigger;
 
 //--------------------------------------------------------------------------------------------------
 TriggerObjects TriggerTools::matchHLT(const double eta, const double phi, 

@@ -1,11 +1,11 @@
-#ifndef DQMOFFLINE_LUMIZCOUNTING_TRIGGERRECORD_H
-#define DQMOFFLINE_LUMIZCOUNTING_TRIGGERRECORD_H
+#ifndef DQMOFFLINE_LUMI_TRIGGERRECORD_H
+#define DQMOFFLINE_LUMI_TRIGGERRECORD_H
 
 #include <vector>
 #include <string>
 #include <utility>
 
-namespace baconhep {
+namespace ZCountingTrigger {
 
 class TriggerRecord
 {
