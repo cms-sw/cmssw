@@ -431,15 +431,15 @@ std::pair<int,int> AlignmentParameterStore::typeAndLayer(const Alignable* ali, c
 
 //__________________________________________________________________________________________________
 void AlignmentParameterStore::
-applyAlignableAbsolutePositions( const align::Alignables& alivec, 
-                                 const AlignablePositions& newpos, 
-                                 int& ierr )
+applyAlignableAbsolutePositions(const align::Alignables& alivec,
+const AlignablePositions& newpos,
+int& ierr)
 {
   unsigned int nappl=0;
   ierr=0;
 
   // Iterate over list of alignables
-  for (align::Alignables::const_iterator iali = alivec.begin(); iali != alivec.end(); ++iali) { 
+  for (align::Alignables::const_iterator iali = alivec.begin(); iali != alivec.end(); ++iali) {
     Alignable* ali = *iali;
     align::ID id = ali->id();
     align::StructureType typeId = ali->alignableObjectId();
@@ -448,73 +448,72 @@ applyAlignableAbsolutePositions( const align::Alignables& alivec,
     bool found=false;
     for (AlignablePositions::const_iterator ipos = newpos.begin(); ipos != newpos.end(); ++ipos) {
       if (id == ipos->id() && typeId == ipos->objId()) {
-	if (found) {
-	  edm::LogError("DuplicatePosition")
-	    << "New positions for alignable found more than once!";
-	} else {
-	  // New position/rotation
-	  const align::PositionType& pnew = ipos->pos();
-	  const align::RotationType& rnew = ipos->rot();
+        if (found) {
+          edm::LogError("DuplicatePosition")
+            << "New positions for alignable found more than once!";
+        }
+        else {
+          // New position/rotation
+          const align::PositionType& pnew = ipos->pos();
+          const align::RotationType& rnew = ipos->rot();
           const std::vector<double> dnew = ipos->deformationParameters();
-	  // Current position / rotation
-	  const align::PositionType& pold = ali->globalPosition();
-	  const align::RotationType& rold = ali->globalRotation();
+          // Current position / rotation
+          const align::PositionType& pold = ali->globalPosition();
+          const align::RotationType& rold = ali->globalRotation();
+          // Current surf. deformation
+          std::vector<std::pair<int, SurfaceDeformation*> > dold_id_pairs;
+          SurfaceDeformation* dold_obj=0;
+          SurfaceDeformationFactory::Type dtype = SurfaceDeformationFactory::kNoDeformations;
           std::vector<double> dold;
-          std::vector<std::pair<int,SurfaceDeformation*> > result;
-          if (1 == ali->surfaceDeformationIdPairs(result)) { // might not have any...
-            dold = result[0].second->parameters();
+          if (1 == ali->surfaceDeformationIdPairs(dold_id_pairs)) { // might not have any...
+            dold_obj = dold_id_pairs[0].second;
+            dold = dold_obj->parameters();
+            dtype = (SurfaceDeformationFactory::Type)dold_obj->type();
           }
-				
-	  // shift needed to move from current to new position
-	  align::GlobalVector posDiff = pnew - pold;
-	  align::RotationType rotDiff = rold.multiplyInverse(rnew);
-          std::vector<double> defDiff;
-          for(unsigned int i = 0; i < dold.size(); i++) {
-              defDiff.push_back(dnew[i] - dold[i]);
+
+          // shift needed to move from current to new position
+          align::GlobalVector posDiff = pnew - pold;
+          align::RotationType rotDiff = rold.multiplyInverse(rnew);
+          align::rectify(rotDiff); // correct for rounding errors 
+          ali->move(posDiff);
+          ali->rotateInGlobalFrame(rotDiff);
+          // add the surface deformations
+          if (dold.size() != 0 && dtype != SurfaceDeformationFactory::kNoDeformations){
+            std::vector<double> defDiff;
+            for (unsigned int i = 0; i < dold.size(); i++) defDiff.push_back(dnew[i] - dold[i]);
+            auto deform = SurfaceDeformationFactory::create(dtype, defDiff);
+            ali->addSurfaceDeformation(deform, true);
+            delete deform;
           }
-	  align::rectify(rotDiff); // correct for rounding errors 
-	  ali->move( posDiff );
-	  ali->rotateInGlobalFrame( rotDiff );
-          enum SurfaceDeformationFactory::Type type;
-          if (dold.size() != 0) {
-              if (dold.size() == 3) {
-                  type = SurfaceDeformationFactory::kBowedSurface;
-              } else {
-                  type = SurfaceDeformationFactory::kTwoBowedSurfaces;
-              }
-              auto deform = SurfaceDeformationFactory::create(type, defDiff);
-              ali->addSurfaceDeformation(deform , true);
-              delete deform;
-          }
-	  LogDebug("NewPosition") << "moving by:" << posDiff;
-	  LogDebug("NewRotation") << "rotating by:\n" << rotDiff;
+          LogDebug("NewPosition") << "moving by:" << posDiff;
+          LogDebug("NewRotation") << "rotating by:\n" << rotDiff;
           //might want to add LogDebug("NewDeformation") << deforming by
 
-	  // add position error
-	  // AlignmentPositionError ape(shift.x(),shift.y(),shift.z());
-	  // (*iali)->addAlignmentPositionError(ape);
-	  // (*iali)->addAlignmentPositionErrorFromRotation(rot);
-				
-	  found=true;
-	  ++nappl;
-	}
+          // add position error
+          // AlignmentPositionError ape(shift.x(),shift.y(),shift.z());
+          // (*iali)->addAlignmentPositionError(ape);
+          // (*iali)->addAlignmentPositionErrorFromRotation(rot);
+
+          found=true;
+          ++nappl;
+        }
       }
     }
   }
 
-  if ( nappl< newpos.size() )
-    edm::LogError("Mismatch") << "Applied only " << nappl << " new positions" 
-			      << " out of " << newpos.size();
+  if (nappl< newpos.size())
+    edm::LogError("Mismatch") << "Applied only " << nappl << " new positions"
+    << " out of " << newpos.size();
 
   LogDebug("NewPositions") << "Applied new positions for " << nappl
-                           << " out of " << alivec.size() <<" alignables.";
+    << " out of " << alivec.size() <<" alignables.";
 
 }
 
 
 //__________________________________________________________________________________________________
 void AlignmentParameterStore::
-applyAlignableRelativePositions( const align::Alignables& alivec, const AlignableShifts& shifts, int& ierr )
+applyAlignableRelativePositions(const align::Alignables& alivec, const AlignableShifts& shifts, int& ierr)
 {
   // Heshy note: should also add deformations in this function at some point.
   //             I think Jered didn't because it's not callled, so it can wait.
@@ -533,28 +532,46 @@ applyAlignableRelativePositions( const align::Alignables& alivec, const Alignabl
     bool found = false;
     for (AlignableShifts::const_iterator ipos = shifts.begin(); ipos != shifts.end(); ++ipos) {
       if (id == ipos->id() && typeId == ipos->objId()) {
-	if (found) {
-	  edm::LogError("DuplicatePosition")
-	    << "New positions for alignable found more than once!";
-	} else {
-	  ali->move( ipos->pos() );
-	  ali->rotateInGlobalFrame( ipos->rot() );
-          
-	  // Add position error
-	  //AlignmentPositionError ape(pnew.x(),pnew.y(),pnew.z());
-	  //ali->addAlignmentPositionError(ape);
-	  //ali->addAlignmentPositionErrorFromRotation(rnew);
-          
-	  found=true;
-	  ++nappl;
-	}
+        if (found) {
+          edm::LogError("DuplicatePosition")
+            << "New positions for alignable found more than once!";
+        }
+        else {
+          // Current surf. deformation
+          std::vector<std::pair<int, SurfaceDeformation*> > dold_id_pairs;
+          SurfaceDeformation* dold_obj=0;
+          SurfaceDeformationFactory::Type dtype = SurfaceDeformationFactory::kNoDeformations;
+          std::vector<double> dold;
+          if (1 == ali->surfaceDeformationIdPairs(dold_id_pairs)) { // might not have any...
+            dold_obj = dold_id_pairs[0].second;
+            dold = dold_obj->parameters();
+            dtype = (SurfaceDeformationFactory::Type)dold_obj->type();
+          }
+
+          ali->move(ipos->pos());
+          ali->rotateInGlobalFrame(ipos->rot());
+          if (dold.size() != 0 && dtype != SurfaceDeformationFactory::kNoDeformations){
+            const std::vector<double> defDiff = ipos->deformationParameters();
+            auto deform = SurfaceDeformationFactory::create(dtype, defDiff);
+            ali->addSurfaceDeformation(deform, true);
+            delete deform;
+          }
+
+          // Add position error
+          //AlignmentPositionError ape(pnew.x(),pnew.y(),pnew.z());
+          //ali->addAlignmentPositionError(ape);
+          //ali->addAlignmentPositionErrorFromRotation(rnew);
+
+          found=true;
+          ++nappl;
+        }
       }
     }
   }
-  
-  if ( nappl < shifts.size() )
-    edm::LogError("Mismatch") << "Applied only " << nappl << " new positions" 
-			      << " out of " << shifts.size();
+
+  if (nappl < shifts.size())
+    edm::LogError("Mismatch") << "Applied only " << nappl << " new positions"
+    << " out of " << shifts.size();
 
   LogDebug("NewPositions") << "Applied new positions for " << nappl << " alignables.";
 }

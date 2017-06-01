@@ -88,7 +88,7 @@ bool BowedSurfaceDeformation::add(const SurfaceDeformation &other)
 //------------------------------------------------------------------------------
 std::vector<double> BowedSurfaceDeformation::parameters() const
 {
-  std::vector<double> result(3);
+  std::vector<double> result(parSize);
   result[0] = theSagittaX;
   result[1] = theSagittaXY;
   result[2] = theSagittaY;

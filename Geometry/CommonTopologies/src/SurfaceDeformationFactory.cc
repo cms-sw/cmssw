@@ -20,7 +20,7 @@ SurfaceDeformationFactory::surfaceDeformationType(const std::string &typeString)
     throw cms::Exception("BadInput") << "SurfaceDeformationFactory::surfaceDeformationType: "
 				     << "Unknown SurfaceDeformation type " << typeString
 				     << " (must be 'BowedSurface' or 'TwoBowedSurfaces'.\n";
-    return kBowedSurface; // not reached, to please the compiler
+    return kNoDeformations; // not reached, to please the compiler
   }
 }
 
