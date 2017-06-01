@@ -18,7 +18,8 @@ namespace SurfaceDeformationFactory
   enum Type { 
     // rigid body has no deformations! kRigidBody = 0,
     kBowedSurface = 1, // BowedSurfaceDeformation
-    kTwoBowedSurfaces  // TwoBowedSurfacesDeformation
+    kTwoBowedSurfaces,  // TwoBowedSurfacesDeformation
+    kNoDeformations // To please compilers
   };
 
   /// convert string to 'Type' - exception if string is not known
