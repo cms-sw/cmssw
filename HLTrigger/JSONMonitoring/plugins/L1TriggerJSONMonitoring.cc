@@ -369,7 +369,9 @@ L1TriggerJSONMonitoring::globalEndLuminosityBlockSummary(edm::LuminosityBlock co
   if (not writeFiles)
     return;
 
+  unsigned int processed = lumidata->processed.value().at(0);
   auto const& rundata = * runCache(lumi.getRun().index());
+  Json::StyledWriter writer;
 
   // [SIC]
   char hostname[33];
@@ -380,43 +382,47 @@ L1TriggerJSONMonitoring::globalEndLuminosityBlockSummary(edm::LuminosityBlock co
   std::stringstream sOutDef;
   sOutDef << rundata.baseRunDir << "/" << "output_" << getpid() << ".jsd";
 
-  // write the .jsndata files which contain the actual rates
-  Json::Value jsndata;
-  jsndata[jsoncollector::DataPoint::SOURCE] = sourceHost;
-  jsndata[jsoncollector::DataPoint::DEFINITION] = rundata.jsdFileName;
-  jsndata[jsoncollector::DataPoint::DATA].append(lumidata->processed.toJsonValue());
-  jsndata[jsoncollector::DataPoint::DATA].append(lumidata->l1tAccept.toJsonValue());
-  jsndata[jsoncollector::DataPoint::DATA].append(lumidata->l1tAcceptPhysics.toJsonValue());
-  jsndata[jsoncollector::DataPoint::DATA].append(lumidata->l1tAcceptCalibration.toJsonValue());
-  jsndata[jsoncollector::DataPoint::DATA].append(lumidata->l1tAcceptRandom.toJsonValue());
+  std::string  jsndataFileList = "";
+  unsigned int jsndataSize = 0;
+  unsigned int jsndataAdler32 = 1;      // adler32 checksum for an empty file
 
-  // write only the number of "physics", "calibration" and "random" events
-  jsoncollector::HistoJ<unsigned int> tcdsAccept;
-  tcdsAccept.update(lumidata->tcdsAccept.value()[edm::EventAuxiliary::PhysicsTrigger]);
-  tcdsAccept.update(lumidata->tcdsAccept.value()[edm::EventAuxiliary::CalibrationTrigger]);
-  tcdsAccept.update(lumidata->tcdsAccept.value()[edm::EventAuxiliary::RandomTrigger]);
-  jsndata[jsoncollector::DataPoint::DATA].append(tcdsAccept.toJsonValue());
-  /* FIXME send information for all event types instead of only these three
-  jsndata[jsoncollector::DataPoint::DATA].append(lumidata->tcdsAccept.toJsonValue());
-  */
-  jsndata[jsoncollector::DataPoint::DATA].append(lumidata->prescaleIndex);
+  if (processed) {
+    // write the .jsndata files which contain the actual rates
+    Json::Value jsndata;
+    jsndata[jsoncollector::DataPoint::SOURCE] = sourceHost;
+    jsndata[jsoncollector::DataPoint::DEFINITION] = rundata.jsdFileName;
+    jsndata[jsoncollector::DataPoint::DATA].append(lumidata->processed.toJsonValue());
+    jsndata[jsoncollector::DataPoint::DATA].append(lumidata->l1tAccept.toJsonValue());
+    jsndata[jsoncollector::DataPoint::DATA].append(lumidata->l1tAcceptPhysics.toJsonValue());
+    jsndata[jsoncollector::DataPoint::DATA].append(lumidata->l1tAcceptCalibration.toJsonValue());
+    jsndata[jsoncollector::DataPoint::DATA].append(lumidata->l1tAcceptRandom.toJsonValue());
 
-  auto jsndataFileName = boost::format("run%06d_ls%04d_streamL1Rates_pid%05d.jsndata") % run % ls % getpid();
+    // write only the number of "physics", "calibration" and "random" events
+    jsoncollector::HistoJ<unsigned int> tcdsAccept;
+    tcdsAccept.update(lumidata->tcdsAccept.value()[edm::EventAuxiliary::PhysicsTrigger]);
+    tcdsAccept.update(lumidata->tcdsAccept.value()[edm::EventAuxiliary::CalibrationTrigger]);
+    tcdsAccept.update(lumidata->tcdsAccept.value()[edm::EventAuxiliary::RandomTrigger]);
+    jsndata[jsoncollector::DataPoint::DATA].append(tcdsAccept.toJsonValue());
+    /* FIXME send information for all event types instead of only these three
+    jsndata[jsoncollector::DataPoint::DATA].append(lumidata->tcdsAccept.toJsonValue());
+    */
+    jsndata[jsoncollector::DataPoint::DATA].append(lumidata->prescaleIndex);
 
-  // changed: write a .jsndata file also with 0 processed events
-  Json::StyledWriter writer;
-  std::string result = writer.write(jsndata);
-  std::ofstream jsndataFile(rundata.baseRunDir + "/" + jsndataFileName.str());
-  jsndataFile << result;
-  jsndataFile.close();
+    auto jsndataFileName = boost::format("run%06d_ls%04d_streamL1Rates_pid%05d.jsndata") % run % ls % getpid();
 
-  std::string  jsndataFileList = jsndataFileName.str();
-  unsigned int jsndataSize = result.size();
-  unsigned int jsndataAdler32 = cms::Adler32(result.c_str(), result.size());
+    std::string result = writer.write(jsndata);
+    std::ofstream jsndataFile(rundata.baseRunDir + "/" + jsndataFileName.str());
+    jsndataFile << result;
+    jsndataFile.close();
+
+    jsndataFileList = jsndataFileName.str();
+    jsndataSize = result.size();
+    jsndataAdler32 = cms::Adler32(result.c_str(), result.size());
+  }
 
   // create a metadata json file for the "HLT rates" pseudo-stream
-  unsigned int jsnProcessed      = lumidata->processed.value().at(0);
-  unsigned int jsnAccepted       = jsnProcessed;
+  unsigned int jsnProcessed      = processed;
+  unsigned int jsnAccepted       = processed;
   unsigned int jsnErrorEvents    = 0;
   unsigned int jsnRetCodeMask    = 0;
   std::string  jsnInputFiles     = "";
