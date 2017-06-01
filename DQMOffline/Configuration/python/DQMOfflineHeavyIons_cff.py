@@ -54,6 +54,7 @@ triggerOfflineDQMSource.remove(higgsMonitorHLT)
 triggerOfflineDQMSource.remove(smpMonitorHLT)
 triggerOfflineDQMSource.remove(topMonitorHLT)
 triggerOfflineDQMSource.remove(btagMonitorHLT)
+triggerOfflineDQMSource.remove(egammaMonitorHLT)
 
 #egammaDQMOffline.remove(electronAnalyzerSequence)
 egammaDQMOffline.remove(zmumugammaAnalysis)
