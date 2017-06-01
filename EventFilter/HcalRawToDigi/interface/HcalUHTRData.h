@@ -41,11 +41,13 @@ class HcalUHTRData {
   public:
     const_iterator(const uint16_t* ptr, const uint16_t* limit=0);
     
-    bool isHeader() const { return ((*m_ptr)&0x8000)!=0; }    
-    int flavor() const { return ((*m_ptr)>>12)&0x7; }    
-    int errFlags() const { return ((*m_ptr)>>10)&0x3; }    
-    int capid0() const { return ((*m_ptr)>>8)&0x3; }    
-    int channelid() const { return ((*m_ptr))&0xFF; }    
+    bool isHeader() const { return ((*m_ptr)&0x8000)!=0; }
+    int flavor() const { return ((*m_ptr)>>12)&0x7; }
+    int errFlags() const;
+    bool dataValid() const;
+    int capid0() const { return ((*m_ptr)>>8)&0x3; }
+    int channelid() const { return ((*m_ptr))&0xFF; }
+    int technicalDataType() const;
 
     uint16_t value() const { return *m_ptr; }
 
@@ -72,34 +74,12 @@ class HcalUHTRData {
     int m_microstep;
     int m_stepclass;
     int m_flavor;
-  };    
+    int m_technicalDataType;
+  };
 
   const_iterator begin() const;
   const_iterator end() const;
 
-  class packer {
-  public:
-    packer(uint16_t* baseptr);
-    void addHeader(int flavor, int errf, int cap0, int channelid);
-    void addSample(int adc, bool soi=false, int retdc=0, int fetdc=0, int tdcstat=0);
-    void addTP(int tpword, bool soi=false);
-  private:
-    uint16_t* m_baseptr;
-    int m_ptr;
-    int m_flavor;
-    int m_ministep;
-  };
-
-  packer pack();
-
-
-  /** \brief pack header and trailer (call _after_ pack)*/
-  void packHeaderTrailer(int L1Anumber, int bcn, int submodule, int
-			 orbitn, int pipeline, int ndd, int nps, int firmwareRev=0);
-
-  /** \brief pack trailer with Mark and Pass bits */
-  void packUnsuppressed(const bool* mp);
-    
   /** \brief Get the HTR event number */
   inline uint32_t l1ANumber() const {  return uint32_t(m_raw64[0]>>32)&0xFFFFFF; }
   /** \brief Get the HTR bunch number */
