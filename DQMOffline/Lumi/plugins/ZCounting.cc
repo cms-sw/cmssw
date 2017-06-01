@@ -8,17 +8,17 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 
-#include "DQMOffline/LumiZCounting/interface/MiniBaconDefs.h"
-#include "DQMOffline/LumiZCounting/interface/TTrigger.h"
-#include "DQMOffline/LumiZCounting/interface/TriggerTools.h"
+#include "DQMOffline/Lumi/interface/MiniBaconDefs.h"
+#include "DQMOffline/Lumi/interface/TTrigger.h"
+#include "DQMOffline/Lumi/interface/TriggerTools.h"
 
 #include <boost/foreach.hpp>
 #include <TLorentzVector.h>
 #include <TMath.h>
 
-#include "DQMOffline/LumiZCounting/plugins/ZCounting.h"
+#include "DQMOffline/Lumi/plugins/ZCounting.h"
 
-using namespace baconhep;
+using namespace ZCountingTrigger;
 
 //
 // -------------------------------------- Constructor --------------------------------------------
@@ -28,8 +28,7 @@ ZCounting::ZCounting(const edm::ParameterSet& iConfig):
   fHLTTag            (iConfig.getParameter<edm::InputTag>("TriggerResults")),
   fPVName            (iConfig.getUntrackedParameter<std::string>("edmPVName","offlinePrimaryVertices")),
   fMuonName          (iConfig.getUntrackedParameter<std::string>("edmName","muons")),
-  fTrackName         (iConfig.getUntrackedParameter<std::string>("edmTrackName","generalTracks")),
-  fTrigger           (0)
+  fTrackName         (iConfig.getUntrackedParameter<std::string>("edmTrackName","generalTracks"))
 {
   edm::LogInfo("ZCounting") <<  "Constructor  ZCounting::ZCounting " << std::endl;
   
@@ -74,8 +73,6 @@ ZCounting::ZCounting(const edm::ParameterSet& iConfig):
 ZCounting::~ZCounting()
 {
   edm::LogInfo("ZCounting") <<  "Destructor ZCounting::~ZCounting " << std::endl;
-
-  delete fTrigger;
 }
 
 //
@@ -86,7 +83,7 @@ void ZCounting::dqmBeginRun(edm::Run const &, edm::EventSetup const &)
   edm::LogInfo("ZCounting") <<  "ZCounting::beginRun" << std::endl;
 
   // Triggers
-  fTrigger = new baconhep::TTrigger();
+  fTrigger.reset(new ZCountingTrigger::TTrigger());
   
 }
 //
@@ -434,14 +431,14 @@ void ZCounting::initHLT(const edm::TriggerResults& result, const edm::TriggerNam
 }
 
 //--------------------------------------------------------------------------------------------------
-bool ZCounting::isMuonTrigger(baconhep::TTrigger triggerMenu, TriggerBits hltBits)
+bool ZCounting::isMuonTrigger(ZCountingTrigger::TTrigger triggerMenu, TriggerBits hltBits)
 {
   return triggerMenu.pass("HLT_IsoMu24_v*",hltBits);
   //return triggerMenu.pass("HLT_IsoMu27_v*",hltBits);
 }
 
 //--------------------------------------------------------------------------------------------------
-bool ZCounting::isMuonTriggerObj(baconhep::TTrigger triggerMenu, TriggerObjects hltMatchBits)
+bool ZCounting::isMuonTriggerObj(ZCountingTrigger::TTrigger triggerMenu, TriggerObjects hltMatchBits)
 {
   return triggerMenu.passObj("HLT_IsoMu24_v*","hltL3crIsoL1sMu22L1f0L2f10QL3f24QL3trkIsoFiltered0p09",hltMatchBits);
   //return triggerMenu.passObj("HLT_IsoMu27_v*","hltL3crIsoL1sMu22Or25L1f0L2f10QL3f27QL3trkIsoFiltered0p09",hltMatchBits);

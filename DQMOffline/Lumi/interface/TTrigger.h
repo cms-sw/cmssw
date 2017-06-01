@@ -1,10 +1,10 @@
-#ifndef DQMOFFLINE_LUMIZCOUNTING_TTRIGGER_H
-#define DQMOFFLINE_LUMIZCOUNTING_TTRIGGER_H
+#ifndef DQMOFFLINE_LUMI_TTRIGGER_H
+#define DQMOFFLINE_LUMI_TTRIGGER_H
 
-#include "DQMOffline/LumiZCounting/interface/TriggerRecord.h"       // class to handle user specified trigger info
-#include "DQMOffline/LumiZCounting/interface/MiniBaconDefs.h"
+#include "DQMOffline/Lumi/interface/TriggerRecord.h"       // class to handle user specified trigger info
+#include "DQMOffline/Lumi/interface/MiniBaconDefs.h"
 
-namespace baconhep
+namespace ZCountingTrigger
 {
   class TTrigger 
   {
@@ -20,7 +20,7 @@ namespace baconhep
       bool passObj(const std::string iName, const int iLeg,             const TriggerObjects &iTrigObj) const;
       bool passObj(const std::string iName, const std::string iObjName, const TriggerObjects &iTrigObj) const;
 
-      std::vector<baconhep::TriggerRecord> fRecords;
+      std::vector<ZCountingTrigger::TriggerRecord> fRecords;
   };
 }
 #endif

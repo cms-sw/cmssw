@@ -1,12 +1,12 @@
-#ifndef DQMOFFLINE_LUMIZCOUNTING_TRIGGERTOOLS_H
-#define DQMOFFLINE_LUMIZCOUNTING_TRIGGERTOOLS_H
+#ifndef DQMOFFLINE_LUMI_TRIGGERTOOLS_H
+#define DQMOFFLINE_LUMI_TRIGGERTOOLS_H
 
-#include "DQMOffline/LumiZCounting/interface/MiniBaconDefs.h"
-#include "DQMOffline/LumiZCounting/interface/TriggerRecord.h"
+#include "DQMOffline/Lumi/interface/MiniBaconDefs.h"
+#include "DQMOffline/Lumi/interface/TriggerRecord.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include <vector>
 
-namespace baconhep {
+namespace ZCountingTrigger {
 
 class TriggerTools
 {

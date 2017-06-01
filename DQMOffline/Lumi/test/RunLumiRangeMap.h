@@ -1,11 +1,11 @@
-#ifndef DQMOFFLINE_LUMIZCOUNTING_RUNLUMIRANGEMAP_H
-#define DQMOFFLINE_LUMIZCOUNTING_RUNLUMIRANGEMAP_H
+#ifndef DQMOFFLINE_LUMI_RUNLUMIRANGEMAP_H
+#define DQMOFFLINE_LUMI_RUNLUMIRANGEMAP_H
 
 #include <string>
 #include <vector>
 #include <map>
 
-namespace baconhep
+namespace ZCountingTrigger
 {
   class RunLumiRangeMap
   {
