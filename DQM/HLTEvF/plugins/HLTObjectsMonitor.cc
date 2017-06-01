@@ -383,7 +383,7 @@ HLTObjectsMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	  std::cout << "moduleNAME: " << plot.moduleNAME << " --> " << moduleIDX << std::endl;
 			
 	if ( moduleIDX >= triggerEvent->sizeFilters() ) {
-	  edm::LogWarning("HLTObjectsMonitor") << plot.pathNAME << " " << plot.moduleNAME << " is not available ! please, fix update DQM/HLTEvF/python/HLTObjectsMonitor_cfi.py";
+	  LogDebug ("HLTObjectsMonitor") << plot.pathNAME << " " << plot.moduleNAME << " is not available ! please, fix update DQM/HLTEvF/python/HLTObjectsMonitor_cfi.py";
 	  return;
 	}
 
@@ -467,7 +467,7 @@ HLTObjectsMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	
 	if ( keys.size() < 2 ) {
 	  if ( plot.doPlotDiMass || plot.doPlotDZ )
-	    edm::LogWarning("HLTObjectsMonitor") << plot.pathNAME << " " << plot.moduleNAME << " # objects is (" << keys.size() << ") less than 2 ! you probably want to either change the moduleNAME or switch off di-object system plots (doPlotDZ: " << plot.doPlotDZ << " doPlotDiMass: " << plot.doPlotDiMass << ") in DQM/HLTEvF/python/HLTObjectsMonitor_cfi.py)";
+	    LogDebug ("HLTObjectsMonitor") << plot.pathNAME << " " << plot.moduleNAME << " # objects is (" << keys.size() << ") less than 2 ! you probably want to either change the moduleNAME or switch off di-object system plots (doPlotDZ: " << plot.doPlotDZ << " doPlotDiMass: " << plot.doPlotDiMass << ") in DQM/HLTEvF/python/HLTObjectsMonitor_cfi.py)";
 	} else {
 	  for ( const auto & key : keys ) {
 	    double pt   = objects[key].pt();
@@ -503,7 +503,7 @@ HLTObjectsMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 		plot.q1q2ME.first->Fill(q1q2);
 
 		if ( abs(id) != abs(id2) )
-		  edm::LogWarning("HLTObjectsMonitor") << "objects have different ID !?!";
+		  edm::LogWarning ("HLTObjectsMonitor") << "objects have different ID !?!";
 
 		if( (id+id2 ) == 0 ) {   // check di-object system charge and flavor
 		  
@@ -603,7 +603,7 @@ void HLTObjectsMonitor::bookHistograms(DQMStore::IBooker & ibooker, edm::Run con
   for (auto & plot : hltPlots_) {
     
     if ( plot.pathIDX <= 0 ) {
-      edm::LogWarning("HLTObjectsMonitor") << plot.pathNAME << " is not available in the HLT menu ! no plots are going to be booked for it (update DQM/HLTEvF/python/HLTObjectsMonitor_cfi.py)";
+      LogDebug ("HLTObjectsMonitor") << plot.pathNAME << " is not available in the HLT menu ! no plots are going to be booked for it (update DQM/HLTEvF/python/HLTObjectsMonitor_cfi.py)";
       continue;    
     }
     if ( debug_ )
@@ -874,12 +874,12 @@ HLTObjectsMonitor::dxyFinder(double eta, double phi, edm::Handle<reco::RecoCharg
 {
   double dxy = -99.;
   if ( !candidates.isValid() ) {
-    edm::LogWarning("HLTObjectsMonitor") << "either " << muCandidates_ << " or " << eleCandidates_ << " is not valid ! please, update DQM/HLTEvF/python/HLTObjectsMonitor_cfi.py" 
+    LogDebug ("HLTObjectsMonitor") << "either " << muCandidates_ << " or " << eleCandidates_ << " is not valid ! please, update DQM/HLTEvF/python/HLTObjectsMonitor_cfi.py" 
 					 << " by switching OFF doPlotDXY or updating the InputTag collection";
     return dxy;
   }
   if ( !beamspot.isValid() ) {
-    edm::LogWarning("HLTObjectsMonitor") << beamSpot_ << " is not valid ! please, update DQM/HLTEvF/python/HLTObjectsMonitor_cfi.py"
+    LogDebug ("HLTObjectsMonitor") << beamSpot_ << " is not valid ! please, update DQM/HLTEvF/python/HLTObjectsMonitor_cfi.py"
 					 << " by switching OFF doPlotDXY or updating the InputTag collection";
     return dxy;
   }
@@ -895,7 +895,7 @@ HLTObjectsMonitor::dxyFinder(double eta, double phi, edm::Handle<reco::RecoCharg
     }
   }
   if (!matched)
-    edm::LogWarning("HLTObjectsMonitor") << "trigger object does not match ( dR > " << dRcut << ") to any of the candidates in either " 
+    edm::LogWarning ("HLTObjectsMonitor") << "trigger object does not match ( dR > " << dRcut << ") to any of the candidates in either " 
 					 << muCandidates_ << " or " << eleCandidates_;
 
   return dxy;
@@ -906,7 +906,7 @@ HLTObjectsMonitor::dzFinder(double eta1, double phi1, double eta2, double phi2, 
 {
   double dz = -99.;
   if ( !candidates.isValid() ) {
-    edm::LogWarning("HLTObjectsMonitor") << "either " << muCandidates_ << " or " << eleCandidates_ << " is not valid ! please, update DQM/HLTEvF/python/HLTObjectsMonitor_cfi.py" 
+    LogDebug ("HLTObjectsMonitor") << "either " << muCandidates_ << " or " << eleCandidates_ << " is not valid ! please, update DQM/HLTEvF/python/HLTObjectsMonitor_cfi.py" 
 					 << " by switching OFF doPlotDZ or updating the InputTag collection";
     return dz;
   }
@@ -927,7 +927,7 @@ HLTObjectsMonitor::dzFinder(double eta1, double phi1, double eta2, double phi2, 
     }
   }
   if (!matched1) {
-    edm::LogWarning("HLTObjectsMonitor") << "trigger object1 does not match ( dR > " << dRcut << ") to any of the candidates in either " 
+    LogDebug  ("HLTObjectsMonitor") << "trigger object1 does not match ( dR > " << dRcut << ") to any of the candidates in either " 
 					 << muCandidates_ << " or " << eleCandidates_;
     return dz;
   }
@@ -950,7 +950,7 @@ HLTObjectsMonitor::dzFinder(double eta1, double phi1, double eta2, double phi2, 
     }
   }
   if (!matched2) {
-    edm::LogWarning("HLTObjectsMonitor") << "trigger object2 does not match ( dR > " << dRcut << ") to any of the candidates in either " 
+    LogDebug  ("HLTObjectsMonitor") << "trigger object2 does not match ( dR > " << dRcut << ") to any of the candidates in either " 
 					 << muCandidates_ << " or " << eleCandidates_;
     return dz;
   }
