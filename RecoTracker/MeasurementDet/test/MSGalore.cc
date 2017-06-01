@@ -297,6 +297,9 @@ void MSGalore::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   } // loop  on tanLa
  } // loop on from
 
+ // sort
+ for (auto const & e : msParam.data)
+ for (auto const & d : e.second) std::stable_sort(d.begin(),d.end(),[](auto const & a,auto const & b){a.vo<b.vo;});
 
  // test MSParam
  { 
