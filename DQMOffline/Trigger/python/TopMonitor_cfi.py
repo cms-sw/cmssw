@@ -68,6 +68,7 @@ hltTOPmonitoring.muons     = cms.InputTag("muons") # while pfIsolatedMuonsEI are
 
 # Marina
 hltTOPmonitoring.btagalgo  = cms.InputTag("pfCombinedSecondaryVertexV2BJetTags")
+hltTOPmonitoring.workingpoint     = cms.double(0.8484) # Medium
 
 hltTOPmonitoring.HTdefinition = cms.string('pt>30 & abs(eta)<2.5')
 hltTOPmonitoring.leptJetDeltaRmin = cms.double(0.4)

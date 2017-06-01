@@ -873,7 +873,7 @@ void TopMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   desc.add<double>("HTcut", 0);
   // Marina                               
   desc.add<unsigned int>("nbjets",     0);
-  desc.add<double>("workingpoint",     0);
+  desc.add<double>("workingpoint",     0.8484); // medium CSV
   desc.add<double>("bjetPtCut",        0);
   desc.add<double>("bjetAbsEtaCut",    0);
 
