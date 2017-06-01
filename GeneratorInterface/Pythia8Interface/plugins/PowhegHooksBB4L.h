@@ -63,9 +63,9 @@ public:
 			
 			for (int i = 0; i < nDau; i++) {
 				int iDau = event[iRes].daughterList()[i];
-				if (abs(event[iDau].id()) == 24) idw = iDau;
-				if (abs(event[iDau].id()) ==  5) idb = iDau;
-				if (abs(event[iDau].id()) == 21) idg = iDau;
+				if (std::abs(event[iDau].id()) == 24) idw = iDau;
+				if (std::abs(event[iDau].id()) ==  5) idb = iDau;
+				if (std::abs(event[iDau].id()) == 21) idg = iDau;
 			}
 			
 			// Get daughter 4-vectors in resonance frame
@@ -254,7 +254,7 @@ public:
 			// find the top resonance the radiator originates from
 			int iTop = e[iRadBef].mother1();
 			int distance = 1;
-			while (abs(e[iTop].id()) != 6 && iTop > 0) {
+			while (std::abs(e[iTop].id()) != 6 && iTop > 0) {
 				iTop = e[iTop].mother1();
 				distance ++;
 			}
@@ -272,7 +272,7 @@ public:
 			if (e[iRadBef].id() == 21)
 				scale = gSplittingScale(pt, pr, pe);
 			// quark emitting a gluon
-			else if (abs(e[iRadBef].id()) <= 5)
+			else if (std::abs(e[iRadBef].id()) <= 5)
 				scale = qSplittingScale(pt, pr, pe);
 			// other stuff (which we should not veto)
 			else {
