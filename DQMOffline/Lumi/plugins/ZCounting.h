@@ -23,9 +23,9 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-#include "DQMOffline/LumiZCounting/interface/MiniBaconDefs.h"
-#include "DQMOffline/LumiZCounting/interface/TTrigger.h"
-#include "DQMOffline/LumiZCounting/interface/TriggerTools.h"
+#include "DQMOffline/Lumi/interface/MiniBaconDefs.h"
+#include "DQMOffline/Lumi/interface/TTrigger.h"
+#include "DQMOffline/Lumi/interface/TriggerTools.h"
 
 class TFile;
 class TH1D;
@@ -35,7 +35,7 @@ namespace edm {
   class TriggerResults;
   class TriggerNames;
 }
-namespace baconhep {
+namespace ZCountingTrigger {
   class TTrigger;
 }
  
@@ -56,8 +56,8 @@ protected:
 
 private:
   //other functions
-  bool isMuonTrigger(baconhep::TTrigger triggerMenu, TriggerBits hltBits);
-  bool isMuonTriggerObj(baconhep::TTrigger triggerMenu, TriggerObjects hltMatchBits);
+  bool isMuonTrigger(ZCountingTrigger::TTrigger triggerMenu, TriggerBits hltBits);
+  bool isMuonTriggerObj(ZCountingTrigger::TTrigger triggerMenu, TriggerObjects hltMatchBits);
   bool passMuonID(const reco::Muon& muon, const reco::Vertex& vtx, const std::string idType);
   bool passMuonIso(const reco::Muon& muon, const std::string isoType, const float isoCut);
 
@@ -78,8 +78,7 @@ private:
   edm::EDGetTokenT<reco::TrackCollection> fTrackName_token;
 
   // bacon fillers
-  baconhep::TTrigger        *fTrigger;
-  //std::unique_ptr<baconhep::TTrigger> *fTrigger;
+  std::unique_ptr<ZCountingTrigger::TTrigger> fTrigger;
 
   std::string IDType_;
   std::string IsoType_;

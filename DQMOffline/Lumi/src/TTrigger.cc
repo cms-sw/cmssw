@@ -1,4 +1,4 @@
-#include "DQMOffline/LumiZCounting/interface/TTrigger.h"
+#include "DQMOffline/Lumi/interface/TTrigger.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <string.h>
@@ -7,7 +7,7 @@
 #include <fstream>
 #include <limits> 
 
-using namespace baconhep;
+using namespace ZCountingTrigger;
 
 //--------------------------------------------------------------------------------------------------
 //
@@ -24,8 +24,8 @@ using namespace baconhep;
 //
 TTrigger::TTrigger() { 
 
-  fRecords.push_back(baconhep::TriggerRecord("HLT_IsoMu24_v*",0));
-  //fRecords.push_back(baconhep::TriggerRecord("HLT_IsoMu27_v*",0));
+  fRecords.push_back(ZCountingTrigger::TriggerRecord("HLT_IsoMu24_v*",0));
+  //fRecords.push_back(ZCountingTrigger::TriggerRecord("HLT_IsoMu27_v*",0));
   fRecords.back().objectMap.push_back(std::pair<std::string, int>("hltL3crIsoL1sMu22L1f0L2f10QL3f24QL3trkIsoFiltered0p09",0));
   //fRecords.back().objectMap.push_back(std::pair<std::string, int>("hltL3crIsoL1sMu22Or25L1f0L2f10QL3f27QL3trkIsoFiltered0p09",0));    
 }
