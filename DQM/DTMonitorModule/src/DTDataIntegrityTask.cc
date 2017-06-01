@@ -40,7 +40,7 @@ DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps) : nevents(
   neventsROS25 = 0;
 
   FEDIDmin = FEDNumbering::MINDTFEDID;
-  FEDIDMax = FEDNumbering::MAXDTFEDID;
+  FEDIDMax = 774; // FEDNumbering::MAXDTFEDID; Monitoring only real used FEDs
 
 //   If you want info VS time histos
 //   doTimeHisto =  ps.getUntrackedParameter<bool>("doTimeHisto", false);
