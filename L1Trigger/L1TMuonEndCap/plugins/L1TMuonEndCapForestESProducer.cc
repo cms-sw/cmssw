@@ -29,23 +29,15 @@ public:
 
   ReturnType produce(const L1TMuonEndCapForestRcd&);
 private:
-  l1t::ForestHelper data_;
+
 };
 
-L1TMuonEndCapForestESProducer::L1TMuonEndCapForestESProducer(const edm::ParameterSet& iConfig) :
-  data_(new L1TMuonEndCapForest())
+L1TMuonEndCapForestESProducer::L1TMuonEndCapForestESProducer(const edm::ParameterSet& iConfig) 
 {
    //the following line is needed to tell the framework what
    // data is being produced
    setWhatProduced(this);
 
-   // these should come from pythong config...
-   std::vector<int> modes = {3,5,9,6,10,12,7,11,13,14,15}; 
-   //std::string dir = "L1Trigger/L1TMuon/data/emtf_luts/ModeVariables/trees/";
-   std::string dir = "L1Trigger/L1TMuon/data/emtf_luts/v_16_02_21/ModeVariables/trees/";
-   int ntrees = 64;
-
-   data_.initializeFromXML(dir.c_str(), modes, ntrees);
    //data_.print(cout);
 
    // Benchmark calculations from original version of UF
@@ -108,10 +100,18 @@ L1TMuonEndCapForestESProducer::~L1TMuonEndCapForestESProducer()
 L1TMuonEndCapForestESProducer::ReturnType
 L1TMuonEndCapForestESProducer::produce(const L1TMuonEndCapForestRcd& iRecord)
 {
-   using namespace edm::es;
-   std::shared_ptr<L1TMuonEndCapForest> pEMTFForest(data_.getWriteInstance());
-   return pEMTFForest;
+   auto value = std::make_shared<L1TMuonEndCapForest>();
+     
+   l1t::ForestHelper data(value.get());
+   // these should come from pythong config...
+   std::vector<int> modes = {3,5,9,6,10,12,7,11,13,14,15}; 
+   //std::string dir = "L1Trigger/L1TMuon/data/emtf_luts/ModeVariables/trees/";
+   std::string dir = "L1Trigger/L1TMuon/data/emtf_luts/v_16_02_21/ModeVariables/trees/";
+   int ntrees = 64;
    
+   data.initializeFromXML(dir.c_str(), modes, ntrees);
+   
+   return value;
 }
 
 //define this as a plug-in
