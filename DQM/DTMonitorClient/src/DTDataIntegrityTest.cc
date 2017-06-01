@@ -123,7 +123,7 @@ DTDataIntegrityTest::~DTDataIntegrityTest(){
     MonitorElement * FED_EvLenght = igetter.get(fedEvLenName);
 
     // Get the histos for FED integrity
-    string fedIntegrityFolder = "DT/FEDIntegrity/";
+    string fedIntegrityFolder = "DT/00-DataIntegrity/";
     MonitorElement * hFEDEntry = igetter.get(fedIntegrityFolder+"FEDEntries");
     MonitorElement * hFEDFatal = igetter.get(fedIntegrityFolder+"FEDFatal");
     MonitorElement * hFEDNonFatal = igetter.get(fedIntegrityFolder+"FEDNonFatal");
