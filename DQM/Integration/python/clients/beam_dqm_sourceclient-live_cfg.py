@@ -89,6 +89,33 @@ else:
   #process.dqmBeamMonitorBx.BeamFitter.AsciiFileName = '/nfshome0/yumiceva/BeamMonitorDQM/BeamFitResults_Bx.txt'
 
 
+#----------------------------
+# TrackingMonitor
+#-----------------------------
+import DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi
+process.trackingMonitor = DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi.TrackerCollisionTrackMon.clone()
+process.trackingMonitor.FolderName                = 'BeamMonitor/Tracking/pixelTracks'
+if (runFirstStepTrk):
+  process.trackingMonitor.TrackProducer             = 'initialStepTracksPreSplitting'
+  process.trackingMonitor.allTrackProducer          = 'initialStepTracksPreSplitting'
+else:
+  process.trackingMonitor.TrackProducer             = 'pixelTracks'
+  process.trackingMonitor.allTrackProducer          = 'pixelTracks'
+process.trackingMonitor.beamSpot                  = "offlineBeamSpot"
+process.trackingMonitor.primaryVertex             = "pixelVertices"
+process.trackingMonitor.doAllPlots                = cms.bool(False)
+process.trackingMonitor.doLumiAnalysis            = cms.bool(False)
+process.trackingMonitor.doProfilesVsLS            = cms.bool(True)
+process.trackingMonitor.doDCAPlots                = cms.bool(True)
+process.trackingMonitor.doPlotsVsGoodPVtx         = cms.bool(True)
+process.trackingMonitor.doEffFromHitPatternVsPU   = cms.bool(False)
+process.trackingMonitor.doEffFromHitPatternVsBX   = cms.bool(True)
+process.trackingMonitor.doEffFromHitPatternVsLUMI = cms.bool(False)
+process.trackingMonitor.doPlotsVsGoodPVtx         = cms.bool(True)
+process.trackingMonitor.doPlotsVsLUMI             = cms.bool(True)
+process.trackingMonitor.doPlotsVsBX               = cms.bool(True)
+
+
 ## TKStatus
 process.dqmTKStatus = cms.EDAnalyzer("TKStatus",
         BeamFitter = cms.PSet(
@@ -100,7 +127,7 @@ process.dqmTKStatus = cms.EDAnalyzer("TKStatus",
 process.dqmcommon = cms.Sequence(process.dqmEnv
                                 *process.dqmSaver)
 
-process.monitor = cms.Sequence(process.dqmBeamMonitor)
+process.monitor = cms.Sequence(process.dqmBeamMonitor+process.trackingMonitor)
 
 
 #------------------------------------------------------------
