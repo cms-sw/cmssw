@@ -53,15 +53,43 @@ Surface::RotationType rotation( const GlobalVector& zDir)
 struct MSData {
   int stid;
   int lid;
-  float z;
+  float zi;
+  float zo;
   float uerr;
   float verr;
 };
 inline
 std::ostream & operator<<(std::ostream & os, MSData d) {
-  os <<  d.stid<<'>' <<d.lid <<'|'<<d.z<<':'<<d.uerr<<'/'<<d.verr;
+  os <<  d.stid<<'>' <<d.lid <<'|'<<d.zi<<'/'<<d.zo<<':'<<d.uerr<<'/'<<d.verr;
   return os;
 }
+
+
+constexpr unsigned short packLID(unsigned int id, unsigned int od) {  return (id<<8) | od ;}
+constexpr std::tuple<unsigned short, unsigned short> unpackLID(unsigned short lid) { return std::make_tuple(lid>>8, lid&255);}
+
+
+
+constexpr unsigned int nLmBins() { return 12*10;}                                                                         
+constexpr float lmBin() { return 0.1f;}
+
+class MSParam {
+public:
+  struct Elem {
+    float vi;
+    float vo;
+    float uerr;
+    float verr;
+  };
+
+  using Data = std::unordered_map<unsigned short,std::array<std::vector<Elem>,nLmBins()>>;
+
+  Data data;
+
+};
+
+MSParam msParam;
+
 
 class MSGalore final : public edm::EDAnalyzer {
 public:
@@ -129,9 +157,10 @@ void MSGalore::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   for (decltype(fsz) i=0;i<fsz-1;++i) layers[i+bsz-1]=searchGeom.posPixelForwardLayers()[i];
   */
 
-  for (int from=0; from<3; ++from) {
+  for (int from=0; from<4; ++from) {
   std::cout << "from layer "<< from << std::endl; 
-  for (float tl = 0.0f; tl<12.0f; tl+=0.1f) {
+  float tl=0;
+  for (decltype(nLmBins()) ib=0; ib<nLmBins(); ++ib, tl+=lmBin()) {
 
   float p = 1.0f;
   float phi = 0.1415f;
@@ -145,7 +174,7 @@ void MSGalore::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   GlobalVector startingMomentum(p*std::sin(phi)*sinth,p*std::cos(phi)*sinth,p*costh);
 
-  std::vector<MSData> mserr[3];
+  std::vector<MSData> mserr[6];
 
   float lastzz=-18;
   float lastbz=-18;
@@ -153,7 +182,7 @@ void MSGalore::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::string loc=" Barrel";
   for (int iz=0;iz<2; ++iz) {
   if (iz>0) goFw=true;
-  for (float zz=lastzz; zz<18.1; zz+=0.1) {
+  for (float zz=lastzz; zz<18.1; zz+=0.2) {
   float z = zz;
   GlobalPoint startingPosition(0,0,z);
 
@@ -191,7 +220,7 @@ void MSGalore::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     loc = " Forward";
     z1 = tsos.globalPosition().perp();
   }
-  for (int il=1; il<4;	++il) {
+  for (int il=1; il<6;	++il) {
 
   auto const & compLayers = (*navSchool).nextLayers(*layer,*tsos.freeState(),alongMomentum);
   layer = nullptr;
@@ -224,13 +253,30 @@ void MSGalore::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       stid = layer->seqNum();
     }
 
-    //if (il>from) 
+    if (il>from) 
     {
-      float xerr = std::sqrt(tsos.localError().matrix()(3,3));
-      float zerr = std::sqrt(tsos.localError().matrix()(4,4));
+
+      auto globalError = ErrorFrameTransformer::transform(tsos.localError().positionError(), tsos.surface());
+      auto gp = tsos.globalPosition();
+      float r = gp.perp();
+      float errorPhi = std::sqrt(float(globalError.phierr(gp))); 
+      float errorR = std::sqrt(float(globalError.rerr(gp)));
+      float errorZ = std::sqrt(float(globalError.czz()));
+      float xerr = errorPhi;
+      float zerr = layer->isBarrel() ? errorZ : errorR; 
+      auto zo = layer->isBarrel() ? gp.z() : r;
       //  std::cout << tanlmd << ' ' << z1 << ' ' << it->seqNum() << ':' << xerr <<'/'<<zerr << std::endl;    
-      if (mserr[il-1].empty()) mserr[il-1].emplace_back(MSData{stid,it->seqNum(),z1,xerr,zerr});
-      else if ( stid!=mserr[il-1].back().stid ||  std::abs(xerr-mserr[il-1].back().uerr)>0.1f*xerr || std::abs(zerr-mserr[il-1].back().verr)>0.1f*zerr) mserr[il-1].emplace_back(MSData{stid,it->seqNum(),z1,xerr,zerr});
+      if (mserr[il-1].empty()) mserr[il-1].emplace_back(MSData{stid,it->seqNum(),z1,zo,xerr,zerr});
+      else if ( stid!=mserr[il-1].back().stid ||  std::abs(xerr-mserr[il-1].back().uerr)>0.1f*xerr || std::abs(zerr-mserr[il-1].back().verr)>0.1f*zerr) 
+           mserr[il-1].emplace_back(MSData{stid,it->seqNum(),z1,zo,xerr,zerr});
+
+      auto lid = packLID(stid,it->seqNum());
+      auto & md = msParam.data[lid][ib];
+      if (md.empty()
+          || std::abs(xerr-md.back().uerr)>0.1f*xerr
+       	  || std::abs(zerr-md.back().verr)>0.1f*zerr
+         ) md.emplace_back(MSParam::Elem{z1,zo,xerr,zerr});
+ 
     }
     break;
    }
@@ -241,15 +287,30 @@ void MSGalore::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   } // layer loop
   }} // loop on z
-   if (mserr[0].empty()) continue;
+   if (mserr[from].empty()) continue;
    std::cout << "tl " << tanlmd << loc << ' ' <<from<< std::endl;
-   for (auto il=0; il<3; ++il) { std::cout << il << ' ';
-   for ( auto const & e : mserr[il]) std::cout << e << '-' <<e.uerr/sinth <<'/'<<e.verr/sinth <<' ';
+   for (auto il=0; il<6; ++il) { std::cout << il << ' ';
+   for ( auto const & e : mserr[il]) std::cout << e << '-' <<e.uerr*sinth <<'/'<<e.verr*sinth <<' ';
    std::cout << std::endl;
   }
    std::cout << tanlmd << ' ' << lastbz << std::endl;
   } // loop  on tanLa
  } // loop on from
+
+
+ // test MSParam
+ { 
+  std::cout << "\n\nProduced MSParam" << std::endl;
+  unsigned short f,t;
+  for (auto const & e : msParam.data) {
+    std::tie(f,t) = unpackLID(e.first);
+    std::cout << "from/to " << f << "->" << t << std::endl;
+    for(auto const & d : e.second) {
+      std::cout << d.size() << ' ';
+    }
+    std::cout << std::endl;
+  }
+ }
 }
 
 //define this as a plug-in
