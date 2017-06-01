@@ -43,6 +43,8 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 #include <map>
 #include <vector>
@@ -81,10 +83,12 @@ class L1TJetsMatching: public edm::global::EDProducer<> {
         unsigned int i2 = 0;
         double mjj = 0;
         if (pfMatchedJets.size()>1){
-            for (unsigned int i = 0; i < pfMatchedJets.size()-1; i++)
+            for (unsigned int i = 0; i < pfMatchedJets.size()-1; i++){
+                
+                const T &  myJet1 = (pfMatchedJets)[i];
+                
                 for (unsigned int j = i+1; j < pfMatchedJets.size(); j++)
                 {
-                    const T &  myJet1 = (pfMatchedJets)[i];
                     const T &  myJet2 = (pfMatchedJets)[j];
                     
                     const double mjj_test = (myJet1.p4()+myJet2.p4()).M();
@@ -96,6 +100,7 @@ class L1TJetsMatching: public edm::global::EDProducer<> {
                         i2 = j;
                     }
                 }
+            }
             
             const T &  myJet1 = (pfMatchedJets)[i1];
             const T &  myJet2 = (pfMatchedJets)[i2];
@@ -164,11 +169,11 @@ class L1TJetsMatching: public edm::global::EDProducer<> {
         
         //std::cout<<"PFsize= "<<pfJets->size()<<endl<<" L1size= "<<jetCandRefVec.size()<<std::endl;
         for(unsigned int iJet = 0; iJet < pfJets->size(); iJet++){
+            const T &  myJet = (*pfJets)[iJet];
             for(unsigned int iL1Jet = 0; iL1Jet < jetCandRefVec.size(); iL1Jet++){
                 // Find the relative L2pfJets, to see if it has been reconstructed
-                const T &  myJet = (*pfJets)[iJet];
                 //  if ((iJet<3) && (iL1Jet==0))  std::cout<<myJet.p4().Pt()<<" ";
-                deltaR = ROOT::Math::VectorUtil::DeltaR2(myJet.p4().Vect(), (jetCandRefVec[iL1Jet]->p4()).Vect());
+                deltaR = reco::deltaR2(myJet.p4().Vect(), (jetCandRefVec[iL1Jet]->p4()).Vect());
                 if(deltaR < matchingR ) {
                     pfMatchedJets->push_back(myJet);
                     break;
@@ -194,7 +199,7 @@ class L1TJetsMatching: public edm::global::EDProducer<> {
      desc.add<double>       ("pt2_Min",35.0)->setComment("Minimal pT2 of PFJets to match");
      desc.add<double>       ("mjj_Min",650.0)->setComment("Minimal mjj of matched PFjets");
      descriptions.setComment("This module produces collection of PFJetss matched to L1 Taus / Jets passing a HLT filter (Only p4 and vertex of returned PFJetss are set).");
-     descriptions.add       ("L1TJetsMatching",desc);
+     descriptions.add(defaultModuleLabel<L1TJetsMatching<T>>(), desc);
      }
     
 
