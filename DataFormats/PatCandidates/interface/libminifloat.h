@@ -54,6 +54,28 @@ class MiniFloatConverter {
             return conv.flt;
         }
 
+        template<int bits>
+        inline static float reduceMantissaToNbitsRounding(const float &f)
+        {
+            static_assert(bits <= 23,"max mantissa size is 23 bits");
+            constexpr int      shift = (23-bits);    // bits I throw away
+            constexpr uint32_t mask  = (0xFFFFFFFF >> (shift)) << (shift); // mask for truncation
+            constexpr uint32_t test  = 1 << (shift-1); // most significant bit I throw away
+            constexpr uint32_t low23 = (0x007FFFFF); // mask to keep lowest 23 bits = mantissa
+            constexpr uint32_t  hi9  = (0xFF800000); // mask to keep highest 9 bits = the rest
+            constexpr uint32_t maxn  = (1<<bits)-2; // max number I can increase before overflowing
+            union { float flt; uint32_t i32; } conv;
+            conv.flt=f;
+            if (conv.i32 & test) { // need to round
+                uint32_t mantissa = (conv.i32 & low23) >> shift;
+                if (mantissa < maxn) mantissa++;
+                conv.i32 = (conv.i32 & hi9) | (mantissa << shift);
+            } else {
+                conv.i32 &= mask;
+            }
+            return conv.flt;
+        }
+
         inline static float max() {
             union { float flt; uint32_t i32; } conv;
             conv.i32 = 0x477fe000; // = mantissatable[offsettable[0x1e]+0x3ff]+exponenttable[0x1e]
