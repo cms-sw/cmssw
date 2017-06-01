@@ -160,6 +160,10 @@ void SiStripMonitorTrack::book(DQMStore::IBooker & ibooker , const TrackerTopolo
     tkhisto_NumMissingHits      = new TkHistoMap(ibooker , topFolderName_, "TkHMap_NumberMissingHits",0.0,true);
     tkhisto_NumberInactiveHits  = new TkHistoMap(ibooker , topFolderName_, "TkHMap_NumberInactiveHits",0.0,true);
     tkhisto_NumberValidHits     = new TkHistoMap(ibooker , topFolderName_, "TkHMap_NumberValidHits",0.0,true);
+    tkhisto_NoiseOnTrack     = new TkHistoMap(ibooker , topFolderName_, "TkHMap_NoiseOnTrack",0.0,true);
+    tkhisto_NoiseOffTrack     = new TkHistoMap(ibooker , topFolderName_, "TkHMap_NoiseOffTrack",0.0,true);
+    tkhisto_ClusterWidthOnTrack     = new TkHistoMap(ibooker , topFolderName_, "TkHMap_ClusterWidthOnTrack",0.0,true);
+    tkhisto_ClusterWidthOffTrack     = new TkHistoMap(ibooker , topFolderName_, "TkHMap_ClusterWidthOffTrack",0.0,true);
   }
   if (clchCMoriginTkHmap_On_)
     tkhisto_ClChPerCMfromOrigin = new TkHistoMap(ibooker , topFolderName_, "TkHMap_ChargePerCMfromOrigin",0.0,true);
@@ -1276,6 +1280,12 @@ bool SiStripMonitorTrack::clusterInfos(
       if(noise == 0.0)
 	LogDebug("SiStripMonitorTrack") << "Module " << detid << " in Event " << eventNb << " noise " << noise << std::endl;
     }
+    if (TkHistoMap_On_ && (flag == OnTrack)) {
+      uint32_t adet=cluster->detId();
+      tkhisto_ClusterWidthOnTrack->fill(adet,cluster->width());
+      if(noise > 0.0) tkhisto_NoiseOnTrack->fill(adet,cluster->noiseRescaledByGain()*cosRZ);
+    }
+    
     // Module plots filled only for onTrack Clusters
     if(Mod_On_){
       SiStripHistoId hidmanager2;
@@ -1320,6 +1330,11 @@ bool SiStripMonitorTrack::clusterInfos(
         if(charge > 250){
 	  LogDebug("SiStripMonitorTrack") << "Module firing " << detid << " in Event " << eventNb << std::endl;
         }
+      }
+      if (TkHistoMap_On_) {
+        uint32_t adet=cluster->detId();
+        tkhisto_ClusterWidthOffTrack->fill(adet,cluster->width());
+        if(noise > 0.0) tkhisto_NoiseOffTrack->fill(adet,cluster->noiseRescaledByGain());
       }
     }
     // layerMEs
