@@ -34,7 +34,9 @@ patOOTPhotons.resolutions     = cms.PSet()
 patOOTPhotons.addPuppiIsolation = cms.bool(False)
 
 # PFClusterIso
-patOOTPhotons.addPFClusterIso = cms.bool(False)
+patOOTPhotons.addPFClusterIso = cms.bool(True)
+patOOTPhotons.ecalPFClusterIsoMap = cms.InputTag("reducedEgamma", "ootPhoEcalPFClusIso")
+patOOTPhotons.hcalPFClusterIsoMap = cms.InputTag("reducedEgamma", "ootPhoHcalPFClusIso")
 
 # MC Match
 patOOTPhotons.genParticleMatch = cms.InputTag("ootPhotonMatch") ## particles source to be used for the matching

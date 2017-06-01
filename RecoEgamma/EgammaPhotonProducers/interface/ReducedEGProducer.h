@@ -74,6 +74,7 @@ class ReducedEGProducer : public edm::stream::EDProducer<> {
  std::vector<edm::EDGetTokenT<edm::ValueMap<float> > > gsfElectronIdTs_;
 
  std::vector<edm::EDGetTokenT<edm::ValueMap<float> > > photonPFClusterIsoTs_;
+ std::vector<edm::EDGetTokenT<edm::ValueMap<float> > > ootPhotonPFClusterIsoTs_;
  std::vector<edm::EDGetTokenT<edm::ValueMap<float> > > gsfElectronPFClusterIsoTs_;
 
  //names for output collections
@@ -96,6 +97,7 @@ class ReducedEGProducer : public edm::stream::EDProducer<> {
  const std::vector<std::string> outPhotonIds_;
  const std::vector<std::string> outGsfElectronIds_;
  const std::vector<std::string> outPhotonPFClusterIsos_;
+ const std::vector<std::string> outOOTPhotonPFClusterIsos_;
  const std::vector<std::string> outGsfElectronPFClusterIsos_;
  
  const StringCutObjectSelector<reco::Photon> keepPhotonSel_;
