@@ -23,8 +23,8 @@ hiOfflinePrimaryVertices=hiPixelAdaptiveVertex.clone( # vertexing run AFTER trac
     TkFilterParameters = cms.PSet(
         algorithm = cms.string('filterWithThreshold'),
         maxNormalizedChi2 = cms.double(5.0),
-        minPixelLayersWithHits=cms.int32(4),    #0 missing pix hit
-        minSiliconLayersWithHits = cms.int32(5),#at least 9 hits total
+        minPixelLayersWithHits=cms.int32(3),    #0 missing pix hit
+        minSiliconLayersWithHits = cms.int32(5),#at least 8 hits total
         maxD0Significance = cms.double(3.0),    #default 5.0, suppresses split vtxs
         minPt = cms.double(0.0),
         maxEta = cms.double(100.),               
@@ -32,6 +32,22 @@ hiOfflinePrimaryVertices=hiPixelAdaptiveVertex.clone( # vertexing run AFTER trac
         numTracksThreshold = cms.int32(2)
     )
 )
+from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
+trackingPhase1.toModify(hiOfflinePrimaryVertices,
+TkFilterParameters = cms.PSet(
+        algorithm = cms.string('filterWithThreshold'),
+        maxNormalizedChi2 = cms.double(5.0),
+        minPixelLayersWithHits=cms.int32(4),    #0 missing pix hit in phase1
+        minSiliconLayersWithHits = cms.int32(4),#at least 8 hits total
+        maxD0Significance = cms.double(3.0),    #default 5.0, suppresses split vtxs
+        minPt = cms.double(0.0),
+        maxEta = cms.double(100.),
+        trackQuality = cms.string("any"),
+        numTracksThreshold = cms.int32(2)
+    )
+)
+
+
 hiBestOfflinePrimaryVertex = cms.EDFilter("HIBestVertexSelection",
     src = cms.InputTag("hiOfflinePrimaryVertices"),
     maxNumber = cms.uint32(1)
