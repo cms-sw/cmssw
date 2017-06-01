@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 dtunpacker = cms.EDProducer("DTUnpackingModule",
     dataType = cms.string('DDU'),
-    inputLabel = cms.InputTag('source'),
+    inputLabel = cms.InputTag('rawDataCollector'),
     fedbyType = cms.bool(False),
     useStandardFEDid = cms.bool(True),
     dqmOnly = cms.bool(True),                       
@@ -22,8 +22,6 @@ dtunpacker = cms.EDProducer("DTUnpackingModule",
 )
 
 from DQM.DTMonitorModule.dtDataIntegrityTask_cfi import *
-DTDataIntegrityTask.processingMode = "HLT"
 
-dtDQMEvF = cms.Sequence(dtunpacker)
 
 
