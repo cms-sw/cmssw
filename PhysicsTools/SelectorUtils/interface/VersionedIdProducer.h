@@ -132,24 +132,9 @@ template< class PhysicsObjectPtr , class SelectorType >
 void VersionedIdProducer<PhysicsObjectPtr,SelectorType>::
 produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   constexpr char bitmap_label[] = "Bitmap";
-   
+  
   edm::Handle<Collection> physicsObjectsHandle;
   iEvent.getByToken(physicsObjectSrc_,physicsObjectsHandle);
-  
-  //S. Harper fix for a problem
-  //VID must be the one stop shop for all e/gamma ID calculations
-  //we need to access E/gamma ID in DQM
-  //reco runs VID only on pat::Electrons, we can not use pat::Electrons in DQM
-  //therefore DQM has to re-run VID to get the ValueMaps for reco::GsfElectrons
-  //DQM may run on things without gedGsfElectrons
-  //therefore VID must gracefully fail in this case (or not be run but this is difficult)
-  //hence it now just exits if we dont have a valid collection
-  //open to better suggestions...
-  if(!physicsObjectsHandle.isValid()){
-    edm::LogWarning("InvalidCollection")<<
-      "physics objects collection is invalid, no VID info will be written";
-    return;
-  }
 
   const Collection& physicsobjects = *physicsObjectsHandle;
 
