@@ -340,14 +340,16 @@ from DQM.HLTEvF.HLTObjectsMonitor_B2G_cfi import *
 from DQM.HLTEvF.HLTObjectsMonitor_TAU_cfi import *
 from DQM.HLTEvF.HLTObjectsMonitor_SUS_cfi import *
 from DQM.HLTEvF.HLTObjectsMonitor_MUO_cfi import *
-#from DQM.HLTEvF.HLTObjectsMonitor_JME_cfi import *
+from DQM.HLTEvF.HLTObjectsMonitor_BTV_cfi import *
+from DQM.HLTEvF.HLTObjectsMonitor_JME_cfi import *
 
 hltObjectsMonitor4all.plots.extend(egmObjects)
 hltObjectsMonitor4all.plots.extend(b2gObjects)
 hltObjectsMonitor4all.plots.extend(tauObjects)
 hltObjectsMonitor4all.plots.extend(susObjects)
 hltObjectsMonitor4all.plots.extend(muoObjects)
-#hltObjectsMonitor4all.plots.extend(jmeObjects)
+hltObjectsMonitor4all.plots.extend(btvObjects)
+hltObjectsMonitor4all.plots.extend(jmeObjects)
 
 hltObjectsMonitor4sus = cms.EDAnalyzer('HLTObjectsMonitor',
     TopFolder = cms.string("HLT/Objects"),
