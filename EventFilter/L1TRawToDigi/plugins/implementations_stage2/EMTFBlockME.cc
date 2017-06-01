@@ -170,17 +170,19 @@ namespace l1t {
 	bool duplicate_hit_exists = false;
 	for (uint iHit = 0; iHit < res_hit->size(); iHit++) {
 
-	  if ( res_hit->at(iHit).Is_CSC() == 1               && 
-	       Hit_.BX()      == res_hit->at(iHit).BX()      && 
-	       Hit_.Station() == res_hit->at(iHit).Station() &&
-	       Hit_.Chamber() == res_hit->at(iHit).Chamber() &&
-	       ( Hit_.Ring()  == res_hit->at(iHit).Ring() || abs(Hit_.Ring() - res_hit->at(iHit).Ring()) == 3 ) ) { 
+	  if ( res_hit->at(iHit).Is_CSC() == 1                     && 
+	       Hit_.BX()         == res_hit->at(iHit).BX()         && 
+	       Hit_.Endcap()     == res_hit->at(iHit).Endcap()     &&
+	       Hit_.Station()    == res_hit->at(iHit).Station()    &&
+	       Hit_.Chamber()    == res_hit->at(iHit).Chamber()    &&
+	       (Hit_.Ring() % 3) == (res_hit->at(iHit).Ring() % 3) ) { // ME1/1a and ME1/1b (rings "4" and 1) are the same chamber
 	    
 	    if ( Hit_.Neighbor() == res_hit->at(iHit).Neighbor() ) {
 	      ME_.set_stub_num( ME_.Stub_num() + 1 );
 	      Hit_.set_stub_num( Hit_.Stub_num() + 1); }
-	    else if ( Hit_.Ring() == res_hit->at(iHit).Ring() && Hit_.Strip() == res_hit->at(iHit).Strip() && 
-		      Hit_.Wire() == res_hit->at(iHit).Wire() )
+	    else if ( Hit_.Ring()  == res_hit->at(iHit).Ring()  && 
+		      Hit_.Strip() == res_hit->at(iHit).Strip() && 
+		      Hit_.Wire()  == res_hit->at(iHit).Wire()  )
 	      duplicate_hit_exists = true;
 	  }
 	} // End loop: for (uint iHit = 0; iHit < res_hit->size(); iHit++)

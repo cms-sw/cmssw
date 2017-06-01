@@ -253,23 +253,12 @@ namespace l1t {
 	       (res_hit->at(iHit)).Neighbor() == conv_vals_SP.at(3) &&
 	       (res_hit->at(iHit)).Stub_num() == SP_.ME1_stub_num() ) {
 	    
-	    // if (abs(SP_.TBIN() - 3) < 2)
-	    // 	std::cout << "\nTrack: ID = " << conv_vals_SP.at(0) << ", sector = " << conv_vals_SP.at(1) << ", sub = " << conv_vals_SP.at(2)
-	    // 		  << ", neighbor = " << conv_vals_SP.at(3) << ", station = 1"
-	    // 		  << ", stub = " << SP_.ME1_stub_num() << ", BX = " << SP_.TBIN() - 3 << std::endl;
-	    
-	    // if (abs(SP_.TBIN() - 3) < 2 && iBX == 0)
-	    // 	std::cout << "Hit: Is CSC = " << (res_hit->at(iHit)).Is_CSC() << ", CSC ID = " << (res_hit->at(iHit)).CSC_ID() 
-	    // 		  << ", sector = " << (res_hit->at(iHit)).Sector() << ", sub = " << (res_hit->at(iHit)).Subsector()
-	    // 		  << ", neighbor = " << (res_hit->at(iHit)).Neighbor() << ", station = " << (res_hit->at(iHit)).Station()
-	    // 		  << ", stub = " << (res_hit->at(iHit)).Stub_num() << ", BX = " << (res_hit->at(iHit)).BX() << std::endl;
-	    
 	    if ( (res_hit->at(iHit)).Is_CSC() == 1 && 
 		 ( (res_hit->at(iHit)).CSC_ID()    != conv_vals_SP.at(0) ||
 		   (res_hit->at(iHit)).Subsector() != conv_vals_SP.at(2) ) ) continue;
 	    
-	    int RPC_subsector = (((res_hit->at(iHit)).Subsector() - 1) / 3) + 1; // Convert RPC subsector to equivalent CSC subsector
-	    int RPC_CSC_ID    = (((res_hit->at(iHit)).Subsector() - 1) % 3) + 4; // Convert RPC subsector and ring to equivalent CSC ID
+	    int RPC_subsector = (((res_hit->at(iHit)).Subsector() - 1) / 3) + 1; // Map RPC subsector to equivalent CSC subsector
+	    int RPC_CSC_ID    = (((res_hit->at(iHit)).Subsector() - 1) % 3) + 4; // Map RPC subsector and ring to equivalent CSC ID
 	    
 	    if ( (res_hit->at(iHit)).Is_RPC() == 1 &&
 		 ( RPC_CSC_ID    != conv_vals_SP.at(0) ||
@@ -368,27 +357,40 @@ namespace l1t {
       
 	
 	// if ( Track_.Mode() != St_hits[0]*8 + St_hits[1]*4 + St_hits[2]*2 + St_hits[3] && Track_.BX() == 0) {
-	//   std::cout << "" << std::endl;
-	//   std::cout << "***********************************************************" << std::endl;
-	//   std::cout << "Bug in EMTF event! Mode " << Track_.Mode() << " track in sector " << Track_.Sector()*Track_.Endcap() 
-	// 	    << ", BX " << Track_.BX() << " with (" << St_hits[0] << ", " << St_hits[1] 
+	//   std::cout << "\n\n***********************************************************" << std::endl;
+	//   std::cout << "Bug in unpacked EMTF event! Mode " << Track_.Mode() << " track in sector " << Track_.Sector()*Track_.Endcap() 
+	// 	    << ", BX " << Track_.BX() << " (delay = " << trk_delay << ") with (" << St_hits[0] << ", " << St_hits[1] 
 	// 	    << ", " << St_hits[2] << ", " << St_hits[3] << ") hits in stations (1, 2, 3, 4)" << std::endl;
-	//   std::cout << "Sector = " << (res->at(iOut)).PtrEventHeader()->Sector() << ", ME1_stub_num = " << SP_.ME1_stub_num() 
-	// 	    << ", ME1_delay = " <<  SP_.ME1_delay() << ", ME1_CSC_ID = " << SP_.ME1_CSC_ID() <<  ", ME1_subsector = " << SP_.ME1_subsector() << std::endl;
-	//   std::cout << "Sector = " << (res->at(iOut)).PtrEventHeader()->Sector() << ", ME2_stub_num = " << SP_.ME2_stub_num() 
-	// 	    << ", ME2_delay = " <<  SP_.ME2_delay() << ", ME2_CSC_ID = " << SP_.ME2_CSC_ID() << std::endl;
-	//   std::cout << "Sector = " << (res->at(iOut)).PtrEventHeader()->Sector() << ", ME3_stub_num = " << SP_.ME3_stub_num() 
-	// 	    << ", ME3_delay = " <<  SP_.ME3_delay() << ", ME3_CSC_ID = " << SP_.ME3_CSC_ID() << std::endl;
-	//   std::cout << "Sector = " << (res->at(iOut)).PtrEventHeader()->Sector() << ", ME4_stub_num = " << SP_.ME4_stub_num() 
-	// 	    << ", ME4_delay = " <<  SP_.ME4_delay() << ", ME4_CSC_ID = " << SP_.ME4_CSC_ID() << std::endl;
+
+	//   std::cout << "\nME1_stub_num = " << SP_.ME1_stub_num() << ", ME1_delay = " <<  SP_.ME1_delay() 
+	// 	    << ", ME1_CSC_ID = " << SP_.ME1_CSC_ID() <<  ", ME1_subsector = " << SP_.ME1_subsector() << std::endl;
+	//   std::cout << "ME2_stub_num = " << SP_.ME2_stub_num() << ", ME2_delay = " <<  SP_.ME2_delay() 
+	// 	    << ", ME2_CSC_ID = " << SP_.ME2_CSC_ID() << std::endl;
+	//   std::cout << "ME3_stub_num = " << SP_.ME3_stub_num() << ", ME3_delay = " <<  SP_.ME3_delay() 
+	// 	    << ", ME3_CSC_ID = " << SP_.ME3_CSC_ID() << std::endl;
+	//   std::cout << "ME4_stub_num = " << SP_.ME4_stub_num() << ", ME4_delay = " <<  SP_.ME4_delay() 
+	// 	    << ", ME4_CSC_ID = " << SP_.ME4_CSC_ID() << std::endl;
+
+	//   conv_vals_SP = convert_SP_location( SP_.ME1_CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), SP_.ME1_subsector(), 1 );
+	//   std::cout << "\nConverted ME1 CSC ID = " << conv_vals_SP.at(0) << ", sector = " << conv_vals_SP.at(1)
+	// 	    << ", subsector = " << conv_vals_SP.at(2) << ", neighbor = " << conv_vals_SP.at(3) << std::endl;
+	//   conv_vals_SP = convert_SP_location( SP_.ME2_CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), -99, 2 );
+	//   std::cout << "Converted ME2 CSC ID = " << conv_vals_SP.at(0) << ", sector = " << conv_vals_SP.at(1)
+	// 	    << ", subsector = " << conv_vals_SP.at(2) << ", neighbor = " << conv_vals_SP.at(3) << std::endl;
+	//   conv_vals_SP = convert_SP_location( SP_.ME3_CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), -99, 3 );
+	//   std::cout << "Converted ME3 CSC ID = " << conv_vals_SP.at(0) << ", sector = " << conv_vals_SP.at(1)
+	// 	    << ", subsector = " << conv_vals_SP.at(2) << ", neighbor = " << conv_vals_SP.at(3) << std::endl;
+	//   conv_vals_SP = convert_SP_location( SP_.ME4_CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), -99, 4 );
+	//   std::cout << "Converted ME4 CSC ID = " << conv_vals_SP.at(0) << ", sector = " << conv_vals_SP.at(1)
+	// 	    << ", subsector = " << conv_vals_SP.at(2) << ", neighbor = " << conv_vals_SP.at(3) << "\n" << std::endl;
+
 	  
 	//   for (uint iHit = 0; iHit < res_hit->size(); iHit++)
 	//     std::cout << "Hit: Is CSC = " << (res_hit->at(iHit)).Is_CSC() << ", CSC ID = " << (res_hit->at(iHit)).CSC_ID() 
 	// 	      << ", sector = " << (res_hit->at(iHit)).Sector() << ", sub = " << (res_hit->at(iHit)).Subsector()
 	// 	      << ", neighbor = " << (res_hit->at(iHit)).Neighbor() << ", station = " << (res_hit->at(iHit)).Station()
 	// 	      << ", ring = " << (res_hit->at(iHit)).Ring() << ", chamber = " << (res_hit->at(iHit)).Chamber()
-	// 	      << ", stub = " << (res_hit->at(iHit)).Stub_num() << ", segment = " << (res_hit->at(iHit)).PC_segment() 
-	// 	      << ", BX = " << (res_hit->at(iHit)).BX() << std::endl;
+	// 	      << ", stub = " << (res_hit->at(iHit)).Stub_num() << ", BX = " << (res_hit->at(iHit)).BX() << std::endl;
 	  
 	//   // for (uint iHit = 0; iHit < res_hit->size(); iHit++) {
 	//   //   if (iHit == 0) (res_hit->at(iHit)).PrintSimulatorHeader();

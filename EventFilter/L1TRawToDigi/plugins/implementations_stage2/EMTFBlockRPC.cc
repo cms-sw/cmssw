@@ -178,15 +178,17 @@ namespace l1t {
 	for (uint iHit = 0; iHit < res_hit->size(); iHit++) {
 	  
 	  if ( Hit_.BX()      == res_hit->at(iHit).BX()      && 
+	       Hit_.Endcap()  == res_hit->at(iHit).Endcap()  &&
 	       Hit_.Station() == res_hit->at(iHit).Station() &&
 	       Hit_.Chamber() == res_hit->at(iHit).Chamber() ) {
 
-	    if ( (res_hit->at(iHit).Is_CSC() == 1 && res_hit->at(iHit).Ring() == 2           ) ||
-		 (res_hit->at(iHit).Is_RPC() == 1 && res_hit->at(iHit).Ring() == Hit_.Ring() ) ) {
+	    if ( (res_hit->at(iHit).Is_CSC() == 1 && res_hit->at(iHit).Ring() == 2) ||
+		 (res_hit->at(iHit).Is_RPC() == 1) ) { // RPC rings 2 and 3 both map to CSC ring 2 
 
 	      if ( Hit_.Neighbor() == res_hit->at(iHit).Neighbor() ) {
 		Hit_.set_stub_num( Hit_.Stub_num() + 1);
 	      } // else if ( res_hit->at(iHit).Is_RPC()   == 1               &&
+	      // 		  res_hit->at(iHit).Ring()     == Hit_.Ring()     &&
 	      // 		  res_hit->at(iHit).Theta_fp() == Hit_.Theta_fp() &&
 	      // 		  res_hit->at(iHit).Phi_fp()   == Hit_.Phi_fp()   ) {
 	      // 	duplicate_hit_exists = true;
