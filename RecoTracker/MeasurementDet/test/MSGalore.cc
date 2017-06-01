@@ -88,6 +88,13 @@ public:
 
 };
 
+inline
+std::ostream & operator<<(std::ostream & os, MSParam::Elem d) {
+  os <<d.vi<<'/'<<d.vo<<':'<<d.uerr<<'/'<<d.verr;
+  return os;
+}
+
+
 MSParam msParam;
 
 
@@ -157,27 +164,26 @@ void MSGalore::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   for (decltype(fsz) i=0;i<fsz-1;++i) layers[i+bsz-1]=searchGeom.posPixelForwardLayers()[i];
   */
 
+  bool debug = false;
   for (int from=0; from<4; ++from) {
-  std::cout << "from layer "<< from << std::endl; 
+  // std::cout << "from layer "<< from << std::endl; 
   float tl=0;
   for (decltype(nLmBins()) ib=0; ib<nLmBins(); ++ib, tl+=lmBin()) {
 
   float p = 1.0f;
-  float phi = 0.1415f;
+  float phi = 0.0415f;
   float tanlmd = tl; // 0.1f;
   auto sinth2 = 1.f/(1.f+tanlmd*tanlmd);
   auto sinth = std::sqrt(sinth2);
   auto costh = tanlmd*sinth;
 
-  // std::cout << tl << ' ' << sinth << ' ' << costh << std::endl;
+  // debug= (tl>2.34f && tl<2.55f);
+  if(debug) std::cout << tl << ' ' << sinth << ' ' << costh << std::endl;
 
 
-  GlobalVector startingMomentum(p*std::sin(phi)*sinth,p*std::cos(phi)*sinth,p*costh);
-
-  std::vector<MSData> mserr[6];
 
   float lastzz=-18;
-  float lastbz=-18;
+  // float lastbz=-18;
   bool goFw=false;
   std::string loc=" Barrel";
   for (int iz=0;iz<2; ++iz) {
@@ -185,6 +191,12 @@ void MSGalore::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   for (float zz=lastzz; zz<18.1; zz+=0.2) {
   float z = zz;
   GlobalPoint startingPosition(0,0,z);
+
+  std::vector<MSData> mserr[6];
+  for (int ip=0;ip<5; ++ip) {
+
+  phi += (3.14159f/6.f)/5.f;
+  GlobalVector startingMomentum(p*std::sin(phi)*sinth,p*std::cos(phi)*sinth,p*costh);
 
   // make TSOS happy
   //Define starting plane
@@ -200,19 +212,19 @@ void MSGalore::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   DetLayer const * layer = searchGeom.pixelBarrelLayers()[0];
   if (goFw) layer = searchGeom.posPixelForwardLayers()[0];
   int stid = layer->seqNum();
-  /*
+  
   {
     auto it = layer;
-    std::cout << "first layer " << (it->isBarrel() ? " Barrel" : " Forward") << " layer " << it->seqNum() << " SubDet " << it->subDetector()<< std::endl;
+    if(debug) std::cout << "first layer " << (it->isBarrel() ? " Barrel" : " Forward") << " layer " << it->seqNum() << " SubDet " << it->subDetector()<< std::endl;
   }
- */
+ 
   auto const & detWithState = layer->compatibleDets(tsos,ANprop,estimator);
   if(!detWithState.size()) {
-    // std::cout << "no det on first layer" << layer->seqNum() << std::endl;
+    if(debug) std::cout << "no det on first layer" << layer->seqNum() << std::endl;
     continue;
   }
   tsos = detWithState.front().second;
-  // std::cout << "arrived at " << int(detWithState.front().first->geographicalId()) << ' ' << tsos.globalPosition() << ' ' << tsos.localError().positionError() << std::endl;
+  if(debug) std::cout << "arrived at " << int(detWithState.front().first->geographicalId()) << ' ' << tsos.globalPosition() << ' ' << tsos.localError().positionError() << std::endl;
 
   // for barrel
   float z1 = tsos.globalPosition().z();
@@ -222,7 +234,8 @@ void MSGalore::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
   for (int il=1; il<6;	++il) {
 
-  auto const & compLayers = (*navSchool).nextLayers(*layer,*tsos.freeState(),alongMomentum);
+  auto compLayers = (*navSchool).nextLayers(*layer,*tsos.freeState(),alongMomentum);
+  std::stable_sort(compLayers.begin(),compLayers.end(),[](auto a, auto  b){return a->seqNum()<b->seqNum();});
   layer = nullptr;
   for(auto it : compLayers){
     if (it->basicComponents().empty()) {
@@ -230,17 +243,17 @@ void MSGalore::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   std::cout <<"a detlayer with no components: I cannot figure out a DetId from this layer. please investigate." << std::endl;
 	   continue;
      }
-    //std::cout << il << (it->isBarrel() ? " Barrel" : " Forward") << " layer " << it->seqNum() << " SubDet " << it->subDetector()<< std::endl;
+    if (debug) std::cout << il << (it->isBarrel() ? " Barrel" : " Forward") << " layer " << it->seqNum() << " SubDet " << it->subDetector()<< std::endl;
     auto const & detWithState = it->compatibleDets(tsos,ANprop,estimator);
     if(!detWithState.size()) { 
-      // std::cout << "no det on this layer" << it->seqNum() << std::endl; 
+      if(debug) std::cout << "no det on this layer" << it->seqNum() << std::endl; 
       continue;
     }
     layer = it;
-    //auto did = detWithState.front().first->geographicalId();
-    //std::cout << "arrived at " << int(did) << std::endl;
+    auto did = detWithState.front().first->geographicalId();
+    if (debug) std::cout << "arrived at " << int(did) << std::endl;
     tsos = detWithState.front().second;
-    // std::cout << tsos.globalPosition() << ' ' << tsos.localError().positionError() << std::endl;
+    if(debug) std::cout << tsos.globalPosition() << ' ' << tsos.localError().positionError() << std::endl;
 
     if (from==il) {
       // std::cout << tsos.globalPosition() << ' ' << tsos.globalDirection() << ' ' << tsos.localError().positionError() << std::endl;
@@ -266,40 +279,61 @@ void MSGalore::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       float zerr = layer->isBarrel() ? errorZ : errorR; 
       auto zo = layer->isBarrel() ? gp.z() : r;
       //  std::cout << tanlmd << ' ' << z1 << ' ' << it->seqNum() << ':' << xerr <<'/'<<zerr << std::endl;    
-      if (mserr[il-1].empty()) mserr[il-1].emplace_back(MSData{stid,it->seqNum(),z1,zo,xerr,zerr});
-      else if ( stid!=mserr[il-1].back().stid ||  std::abs(xerr-mserr[il-1].back().uerr)>0.1f*xerr || std::abs(zerr-mserr[il-1].back().verr)>0.1f*zerr) 
-           mserr[il-1].emplace_back(MSData{stid,it->seqNum(),z1,zo,xerr,zerr});
-
-      auto lid = packLID(stid,it->seqNum());
-      auto & md = msParam.data[lid][ib];
-      if (md.empty()
-          || std::abs(xerr-md.back().uerr)>0.1f*xerr
-       	  || std::abs(zerr-md.back().verr)>0.1f*zerr
-         ) md.emplace_back(MSParam::Elem{z1,zo,xerr,zerr});
- 
+      mserr[il-1].emplace_back(MSData{stid,it->seqNum(),z1,zo,xerr,zerr});
     }
     break;
-   }
+   }  // loop on compLayers
    if (!layer) break;
-   if (!goFw) lastbz=z1;
+   // if (!goFw) lastbz=z1;
    lastzz=zz;
 
-
   } // layer loop
+
+   if (debug && mserr[from].empty()) {
+     std::cout << "tl " << tanlmd << loc << ' ' <<from<< std::endl;
+     for (auto il=0; il<6; ++il) { std::cout << il << ' ';
+     for ( auto const & e : mserr[il]) std::cout << e<<' '; //  << '-' <<e.uerr*sinth <<'/'<<e.verr*sinth <<' ';
+     std::cout << std::endl;  
+   }
+
+  } // loop on phi
+
+   
+   for (auto il=from; il<6; ++il) {
+     if (mserr[il].empty()) continue;
+     auto stid=mserr[il].front().stid;     
+     auto lid=mserr[il].front().lid;
+     float xerr =0;
+     float zerr =0;
+     float zo=0;
+     for (auto const & e : mserr[il]) {
+      if (e.stid!=stid) continue;
+      lid = std::min(lid,e.lid);
+     }
+     float nn=0;
+     for (auto const & e : mserr[il]) {
+      if (e.stid!=stid || lid!=e.lid) continue;
+      xerr+=e.uerr; zerr+=e.verr; zo+=e.zo; ++nn;
+     }
+     xerr/=nn; zerr/=nn; zo/=nn;
+     auto iid = packLID(stid,lid);
+     auto & md = msParam.data[iid][ib];
+     if (md.empty()
+        || std::abs(xerr-md.back().uerr)>0.2f*xerr
+        || std::abs(zerr-md.back().verr)>0.2f*zerr
+     ) md.emplace_back(MSParam::Elem{z1,zo,xerr,zerr});
+   } // loop on layers
+
   }} // loop on z
-   if (mserr[from].empty()) continue;
-   std::cout << "tl " << tanlmd << loc << ' ' <<from<< std::endl;
-   for (auto il=0; il<6; ++il) { std::cout << il << ' ';
-   for ( auto const & e : mserr[il]) std::cout << e << '-' <<e.uerr*sinth <<'/'<<e.verr*sinth <<' ';
-   std::cout << std::endl;
+
   }
-   std::cout << tanlmd << ' ' << lastbz << std::endl;
+  // std::cout << tanlmd << ' ' << lastbz << std::endl;
   } // loop  on tanLa
  } // loop on from
 
  // sort
- for (auto const & e : msParam.data)
- for (auto const & d : e.second) std::stable_sort(d.begin(),d.end(),[](auto const & a,auto const & b){a.vo<b.vo;});
+ for (auto & e : msParam.data)
+ for (auto & d : e.second) std::stable_sort(d.begin(),d.end(),[](auto a,auto  b){return a.vo<b.vo;});
 
  // test MSParam
  { 
@@ -313,6 +347,23 @@ void MSGalore::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
     std::cout << std::endl;
   }
+
+  for (int st=0;st<30; st+=29)
+  for (int il=1; il<5;++il) {
+    int ll = st+il;
+    if (st==0 && il==5) ll=29;
+    auto id = packLID(st,ll);
+    std::cout << "from/to " << st << "->" << ll <<std::endl;
+    auto const & d = msParam.data[id];  // we should use find
+    int lb=0; for(auto const & ld : d) {
+      lb++;
+      if (ld.empty()) continue;
+      std::cout << lb << ": ";
+      for(auto const & e : ld) std::cout << e << ' ';
+      std::cout<<std::endl;
+    } 
+  }
+
  }
 }
 
