@@ -22,25 +22,23 @@
 
 //for collections
 #include "HLTrigger/JetMET/interface/AlphaT.h"
+
+#include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
-#include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
-#include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-#include "TMath.h"
-#include "TStyle.h"
 #include "TLorentzVector.h"
 
 #include <unordered_map>
 
-const double MASS_MU(.105658);
 
 struct hltPlot {
   
@@ -90,50 +88,6 @@ struct hltPlot {
   bool doPlotDZ;
   bool doPlotDiMass;
 };
-
-struct MEbinning {
-  int nbins;
-  double xmin;
-  double xmax;
-};
-
-
-double MAX_PHI = 3.2;
-int N_PHI = 64;
-const MEbinning phi_binning_{
-  N_PHI, -MAX_PHI, MAX_PHI
-};
-
-double MAX_CSV = 1.;
-int N_CSV = 20;
-const MEbinning csv_binning_{
-  N_CSV, -MAX_CSV, MAX_CSV
-};
-
-std::vector<double> phi_variable_binning_;
-
-/*
-  HEP17 covers 
-  - phi between 310° and 330° (-50° to -30°, or -0.87 t.52 rad)
-  - eta between +1.3 and +3.0 (positive side only)
-*/
-double MAX_PHI_HEP17 = -0.52;
-double MIN_PHI_HEP17 = -0.87;
-int N_PHI_HEP17 = 7;
-const MEbinning phi_binning_hep17_{
-  N_PHI_HEP17, MIN_PHI_HEP17, MAX_PHI_HEP17
-};
-double MAX_ETA_HEP17 = 3.0;
-double MIN_ETA_HEP17 = 1.3;
-int N_ETA_HEP17 = 6;
-const MEbinning eta_binning_hep17_{
-  N_ETA_HEP17, MIN_ETA_HEP17, MAX_ETA_HEP17
-};
-
-const MEbinning eta_binning_hem17_{
-  N_ETA_HEP17, -MAX_ETA_HEP17, MIN_ETA_HEP17
-};
-
 //
 // class declaration
 //
@@ -194,6 +148,51 @@ class HLTObjectsMonitor : public DQMEDAnalyzer {
   edm::InputTag eleCandidates_;
   edm::EDGetTokenT<std::vector<reco::RecoChargedCandidate>> eleCandidatesToken_;
 
+  const double MASS_MU = .105658;
+
+
+struct MEbinning {
+  int nbins;
+  double xmin;
+  double xmax;
+};
+
+
+double MAX_PHI = 3.2;
+int N_PHI = 64;
+const MEbinning phi_binning_{
+  N_PHI, -MAX_PHI, MAX_PHI
+};
+
+double MAX_CSV = 1.;
+int N_CSV = 20;
+const MEbinning csv_binning_{
+  N_CSV, -MAX_CSV, MAX_CSV
+};
+
+std::vector<double> phi_variable_binning_;
+
+/*
+  HEP17 covers 
+  - phi between 310° and 330° (-50° to -30°, or -0.87 t.52 rad)
+  - eta between +1.3 and +3.0 (positive side only)
+*/
+double MAX_PHI_HEP17 = -0.52;
+double MIN_PHI_HEP17 = -0.87;
+int N_PHI_HEP17 = 7;
+const MEbinning phi_binning_hep17_{
+  N_PHI_HEP17, MIN_PHI_HEP17, MAX_PHI_HEP17
+};
+double MAX_ETA_HEP17 = 3.0;
+double MIN_ETA_HEP17 = 1.3;
+int N_ETA_HEP17 = 6;
+const MEbinning eta_binning_hep17_{
+  N_ETA_HEP17, MIN_ETA_HEP17, MAX_ETA_HEP17
+};
+
+const MEbinning eta_binning_hem17_{
+  N_ETA_HEP17, -MAX_ETA_HEP17, MIN_ETA_HEP17
+};
 
 };
 
