@@ -277,6 +277,129 @@ singleTopSingleMuonHLTMonitor_Mu50.muoSelection = cms.string('pt>26 & abs(eta)<2
 singleTopSingleMuonHLTMonitor_Mu50.jetSelection = cms.string('pt>20 & abs(eta)<2.4')
 singleTopSingleMuonHLTMonitor_Mu50.numGenericTriggerEventPSet.hltPaths = cms.vstring(['HLT_TkMu50_v*', 'HLT_Mu50_v*'])
 
+# Marina
+fullyhadronic_DoubleBTag_all = hltTOPmonitoring.clone()
+fullyhadronic_DoubleBTag_all.FolderName   = cms.string('HLT/TopHLTOffline/TopMonitor/FullyHadronic/DoubleBTag/GlobalMonitor/')
+# Selections
+fullyhadronic_DoubleBTag_all.leptJetDeltaRmin = cms.double(0.0)
+fullyhadronic_DoubleBTag_all.njets            = cms.uint32(6)
+fullyhadronic_DoubleBTag_all.jetSelection     = cms.string('pt>30 & abs(eta)<2.4')
+fullyhadronic_DoubleBTag_all.HTdefinition     = cms.string('pt>30 & abs(eta)<2.4')
+fullyhadronic_DoubleBTag_all.HTcut            = cms.double(450)
+fullyhadronic_DoubleBTag_all.nbjets           = cms.uint32(2)
+fullyhadronic_DoubleBTag_all.bjetPtCut        = cms.double(30)
+fullyhadronic_DoubleBTag_all.bjetAbsEtaCut    = cms.double(2.4)
+fullyhadronic_DoubleBTag_all.workingpoint     = cms.double(0.8484) # Medium
+# Binning
+fullyhadronic_DoubleBTag_all.histoPSet.htPSet = cms.PSet(nbins=cms.int32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
+fullyhadronic_DoubleBTag_all.histoPSet.jetPtBinning = cms.vdouble(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,90,100,120,200,400)
+fullyhadronic_DoubleBTag_all.histoPSet.HTBinning    = cms.vdouble(0,420,440,460,480,500,520,540,560,580,600,650,700,750,800,850,900)
+# Triggers 
+fullyhadronic_DoubleBTag_all.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT380_SixJet32_DoubleBTagCSV_p075_v')
+fullyhadronic_DoubleBTag_all.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_IsoMu27_v')
+
+fullyhadronic_DoubleBTag_jet = hltTOPmonitoring.clone()
+fullyhadronic_DoubleBTag_jet.FolderName   = cms.string('HLT/TopHLTOffline/TopMonitor/FullyHadronic/DoubleBTag/JetMonitor/')
+# Selections
+fullyhadronic_DoubleBTag_jet.leptJetDeltaRmin = cms.double(0.0)
+fullyhadronic_DoubleBTag_jet.njets            = cms.uint32(6)
+fullyhadronic_DoubleBTag_jet.jetSelection     = cms.string('pt>30 & abs(eta)<2.4')
+fullyhadronic_DoubleBTag_jet.HTdefinition     = cms.string('pt>30 & abs(eta)<2.4')
+fullyhadronic_DoubleBTag_jet.HTcut            = cms.double(450)
+fullyhadronic_DoubleBTag_jet.nbjets           = cms.uint32(2)
+fullyhadronic_DoubleBTag_jet.bjetPtCut        = cms.double(30)
+fullyhadronic_DoubleBTag_jet.bjetAbsEtaCut    = cms.double(2.4)
+fullyhadronic_DoubleBTag_jet.workingpoint = cms.double(0.8484) # Medium
+# Binning 
+fullyhadronic_DoubleBTag_jet.histoPSet.htPSet = cms.PSet(nbins=cms.int32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
+fullyhadronic_DoubleBTag_jet.histoPSet.jetPtBinning = cms.vdouble(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,90,100,120,200,400)
+fullyhadronic_DoubleBTag_jet.histoPSet.HTBinning    = cms.vdouble(0,420,440,460,480,500,520,540,560,580,600,650,700,750,800,850,900)
+# Triggers
+fullyhadronic_DoubleBTag_jet.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT380_SixJet32_DoubleBTagCSV_p075_v')
+fullyhadronic_DoubleBTag_jet.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT370_v')
+
+fullyhadronic_DoubleBTag_bjet = hltTOPmonitoring.clone()
+fullyhadronic_DoubleBTag_bjet.FolderName   = cms.string('HLT/TopHLTOffline/TopMonitor/FullyHadronic/DoubleBTag/BJetMonitor/')
+# Selections
+fullyhadronic_DoubleBTag_bjet.leptJetDeltaRmin = cms.double(0.0)
+fullyhadronic_DoubleBTag_bjet.njets            = cms.uint32(6)
+fullyhadronic_DoubleBTag_bjet.jetSelection     = cms.string('pt>30 & abs(eta)<2.4')
+fullyhadronic_DoubleBTag_bjet.HTdefinition     = cms.string('pt>30 & abs(eta)<2.4')
+fullyhadronic_DoubleBTag_bjet.HTcut            = cms.double(450)
+fullyhadronic_DoubleBTag_bjet.nbjets           = cms.uint32(2)
+fullyhadronic_DoubleBTag_bjet.bjetPtCut        = cms.double(30)
+fullyhadronic_DoubleBTag_bjet.bjetAbsEtaCut    = cms.double(2.4)
+fullyhadronic_DoubleBTag_bjet.workingpoint     = cms.double(0.70)
+# Binning
+fullyhadronic_DoubleBTag_bjet.histoPSet.htPSet = cms.PSet(nbins=cms.int32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
+fullyhadronic_DoubleBTag_bjet.histoPSet.jetPtBinning = cms.vdouble(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,90,100,120,200,400)
+fullyhadronic_DoubleBTag_bjet.histoPSet.HTBinning    = cms.vdouble(0,420,440,460,480,500,520,540,560,580,600,650,700,750,800,850,900)
+# Triggers
+fullyhadronic_DoubleBTag_bjet.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT380_SixJet32_DoubleBTagCSV_p075_v')
+fullyhadronic_DoubleBTag_bjet.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT380_SixJet32_v')
+
+
+fullyhadronic_SingleBTag_all = hltTOPmonitoring.clone()
+fullyhadronic_SingleBTag_all.FolderName= cms.string('HLT/TopHLTOffline/TopMonitor/FullyHadronic/SingleBTag/GlobalMonitor/')
+# Selections
+fullyhadronic_SingleBTag_all.leptJetDeltaRmin = cms.double(0.0)
+fullyhadronic_SingleBTag_all.njets            = cms.uint32(6)
+fullyhadronic_SingleBTag_all.jetSelection     = cms.string('pt>30 & abs(eta)<2.4')
+fullyhadronic_SingleBTag_all.HTdefinition     = cms.string('pt>30 & abs(eta)<2.4')
+fullyhadronic_SingleBTag_all.HTcut            = cms.double(450)
+fullyhadronic_SingleBTag_all.nbjets           = cms.uint32(2)
+fullyhadronic_SingleBTag_all.bjetPtCut        = cms.double(30)
+fullyhadronic_SingleBTag_all.bjetAbsEtaCut    = cms.double(2.4)
+fullyhadronic_SingleBTag_all.workingpoint     = cms.double(0.8484) # Medium
+# Binning
+fullyhadronic_SingleBTag_all.histoPSet.htPSet = cms.PSet(nbins=cms.int32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
+fullyhadronic_SingleBTag_all.histoPSet.jetPtBinning = cms.vdouble(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,90,100,120,200,400)
+fullyhadronic_SingleBTag_all.histoPSet.HTBinning    = cms.vdouble(0,420,440,460,480,500,520,540,560,580,600,650,700,750,800,850,900)
+# Triggers
+fullyhadronic_SingleBTag_all.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT430_SixJet40_BTagCSV_p080_v')
+fullyhadronic_SingleBTag_all.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_IsoMu27_v')
+
+fullyhadronic_SingleBTag_jet = hltTOPmonitoring.clone()
+fullyhadronic_SingleBTag_jet.FolderName= cms.string('HLT/TopHLTOffline/TopMonitor/FullyHadronic/SingleBTag/JetMonitor/')
+# Selection
+fullyhadronic_SingleBTag_jet.leptJetDeltaRmin = cms.double(0.0)
+fullyhadronic_SingleBTag_jet.njets            = cms.uint32(6)
+fullyhadronic_SingleBTag_jet.jetSelection     = cms.string('pt>30 & abs(eta)<2.4')
+fullyhadronic_SingleBTag_jet.HTdefinition     = cms.string('pt>30 & abs(eta)<2.4')
+fullyhadronic_SingleBTag_jet.HTcut            = cms.double(450)
+fullyhadronic_SingleBTag_jet.nbjets           = cms.uint32(2)
+fullyhadronic_SingleBTag_jet.bjetPtCut        = cms.double(30)
+fullyhadronic_SingleBTag_jet.bjetAbsEtaCut    = cms.double(2.4)
+fullyhadronic_SingleBTag_jet.workingpoint     = cms.double(0.8484) # Medium
+# Binning
+fullyhadronic_SingleBTag_jet.histoPSet.htPSet = cms.PSet(nbins=cms.int32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
+fullyhadronic_SingleBTag_jet.histoPSet.jetPtBinning = cms.vdouble(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,90,100,120,200,400)
+fullyhadronic_SingleBTag_jet.histoPSet.HTBinning    = cms.vdouble(0,420,440,460,480,500,520,540,560,580,600,650,700,750,800,850,900)
+# Triggers
+fullyhadronic_SingleBTag_jet.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT430_SixJet40_BTagCSV_p080_v')
+fullyhadronic_SingleBTag_jet.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT430_v')
+
+fullyhadronic_SingleBTag_bjet = hltTOPmonitoring.clone()
+fullyhadronic_SingleBTag_bjet.FolderName= cms.string('HLT/TopHLTOffline/TopMonitor/FullyHadronic/SingleBTag/BJetMonitor/')
+# Selection
+fullyhadronic_SingleBTag_bjet.leptJetDeltaRmin = cms.double(0.0)
+fullyhadronic_SingleBTag_bjet.njets            = cms.uint32(6)
+fullyhadronic_SingleBTag_bjet.jetSelection     = cms.string('pt>30 & abs(eta)<2.4')
+fullyhadronic_SingleBTag_bjet.HTdefinition     = cms.string('pt>30 & abs(eta)<2.4')
+fullyhadronic_SingleBTag_bjet.HTcut            = cms.double(450)
+fullyhadronic_SingleBTag_bjet.nbjets           = cms.uint32(2)
+fullyhadronic_SingleBTag_bjet.bjetPtCut        = cms.double(30)
+fullyhadronic_SingleBTag_bjet.bjetAbsEtaCut    = cms.double(2.4)
+fullyhadronic_SingleBTag_bjet.workingpoint     = cms.double(0.70)
+# Binning
+fullyhadronic_SingleBTag_bjet.histoPSet.htPSet = cms.PSet(nbins=cms.int32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
+fullyhadronic_SingleBTag_bjet.histoPSet.jetPtBinning = cms.vdouble(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,90,100,120,200,400)
+fullyhadronic_SingleBTag_bjet.histoPSet.HTBinning    = cms.vdouble(0,420,440,460,480,500,520,540,560,580,600,650,700,750,800,850,900)
+# Triggers
+fullyhadronic_SingleBTag_bjet.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT430_SixJet40_BTagCSV_p080_v')
+fullyhadronic_SingleBTag_bjet.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT430_SixJet40_v')
+
+
 
 topMonitorHLT = cms.Sequence(
     eleJet_ele
@@ -298,5 +421,11 @@ topMonitorHLT = cms.Sequence(
     + singleTopSingleMuonHLTMonitor_Mu24
     + singleTopSingleMuonHLTMonitor_Mu27
     + singleTopSingleMuonHLTMonitor_Mu50
+    + fullyhadronic_DoubleBTag_all
+    + fullyhadronic_DoubleBTag_jet
+    + fullyhadronic_DoubleBTag_bjet
+    + fullyhadronic_SingleBTag_all
+    + fullyhadronic_SingleBTag_jet
+    + fullyhadronic_SingleBTag_bjet
 
     )

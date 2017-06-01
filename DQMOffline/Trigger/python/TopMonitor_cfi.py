@@ -29,6 +29,13 @@ hltTOPmonitoring.histoPSet.htPSet = cms.PSet(
   xmin  = cms.double(   0   ),
   xmax  = cms.double(  600  ),
 )
+# Marina
+hltTOPmonitoring.histoPSet.csvPSet = cms.PSet(
+  nbins = cms.int32 ( 50 ),
+  xmin  = cms.double( 0.0 ),
+  xmax  = cms.double( 1.0  ),
+)
+
 
 #MET and HT binning
 hltTOPmonitoring.histoPSet.metBinning = cms.vdouble(0,20,40,60,80,100,125,150,175,200)
@@ -58,6 +65,9 @@ hltTOPmonitoring.met       = cms.InputTag("pfMetEI") # pfMet
 hltTOPmonitoring.jets      = cms.InputTag("pfJetsEI") # ak4PFJets, ak4PFJetsCHS
 hltTOPmonitoring.electrons = cms.InputTag("gedGsfElectrons") # while pfIsolatedElectronsEI are reco::PFCandidate !
 hltTOPmonitoring.muons     = cms.InputTag("muons") # while pfIsolatedMuonsEI are reco::PFCandidate !
+
+# Marina
+hltTOPmonitoring.btagalgo  = cms.InputTag("pfCombinedSecondaryVertexV2BJetTags")
 
 hltTOPmonitoring.HTdefinition = cms.string('pt>30 & abs(eta)<2.5')
 hltTOPmonitoring.leptJetDeltaRmin = cms.double(0.4)

@@ -36,6 +36,9 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+// Marina
+#include "DataFormats/BTauReco/interface/JetTag.h"
+
 
 //root
 #include "TLorentzVector.h"
@@ -78,6 +81,17 @@ protected:
 
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
 
+  // Marina
+  struct JetRefCompare :
+    public std::binary_function<edm::RefToBase<reco::Jet>, edm::RefToBase<reco::Jet>, bool> {
+    inline bool operator () (const edm::RefToBase<reco::Jet> &j1, const edm::RefToBase<reco::Jet> &j2)
+      const {return j1.id() < j2.id() || (j1.id() == j2.id() && j1.key() < j2.key());}
+  };
+  // Marina
+  typedef std::map<edm::RefToBase<reco::Jet>, float, JetRefCompare> JetTagMap;
+
+
+
 private:
   static MEbinning getHistoPSet    (edm::ParameterSet pset);
   static MEbinning getHistoLSPSet  (edm::ParameterSet pset);
@@ -89,6 +103,9 @@ private:
   edm::EDGetTokenT<reco::PFJetCollection>       jetToken_;
   edm::EDGetTokenT<reco::GsfElectronCollection> eleToken_;
   edm::EDGetTokenT<reco::MuonCollection>        muoToken_;
+  // Marina
+  edm::EDGetTokenT<reco::JetTagCollection>  jetTagToken_ ;
+
 
   MEbinning           met_binning_;
   MEbinning           ls_binning_;
@@ -96,6 +113,8 @@ private:
   MEbinning           pt_binning_;
   MEbinning           eta_binning_;
   MEbinning           HT_binning_;
+  // Marina
+  MEbinning           csv_binning_;
 
   std::vector<double> met_variable_binning_;
   std::vector<double> HT_variable_binning_;
@@ -123,6 +142,8 @@ private:
   METME jetVsLS_;
   METME muVsLS_;
   METME eleVsLS_;
+  // Marina
+  METME bjetVsLS_;
   METME htVsLS_;
 
   METME jetEtaPhi_HEP17_; // for HEP17 monitoring
@@ -130,6 +151,8 @@ private:
   METME jetMulti_;
   METME eleMulti_;
   METME muMulti_;
+  // Marina
+  METME bjetMulti_;
 
   METME elePt_jetPt_;
   METME elePt_eventHT_;
@@ -153,13 +176,24 @@ private:
   std::vector<METME> jetEta_;
   std::vector<METME> jetPt_;
 
+  // Marina
+  std::vector<METME> bjetPhi_;
+  std::vector<METME> bjetEta_;
+  std::vector<METME> bjetPt_;
+  std::vector<METME> bjetCSV_;
+  
   std::vector<METME> muPt_variableBinning_;
   std::vector<METME> elePt_variableBinning_;
   std::vector<METME> jetPt_variableBinning_;
+  // Marina
+  std::vector<METME> bjetPt_variableBinning_;
 
   std::vector<METME> muEta_variableBinning_;
   std::vector<METME> eleEta_variableBinning_;
   std::vector<METME> jetEta_variableBinning_;
+  // Marina
+  std::vector<METME> bjetEta_variableBinning_;
+  
 
   //2D distributions
   std::vector<METME> jetPtEta_;
@@ -168,7 +202,9 @@ private:
   std::vector<METME> eleEtaPhi_;
   std::vector<METME> muPtEta_;
   std::vector<METME> muEtaPhi_;
-
+  // Marina
+  std::vector<METME> bjetPtEta_;
+  std::vector<METME> bjetEtaPhi_;
 
   METME eventHT_;
   METME eventHT_variableBinning_;
@@ -187,7 +223,13 @@ private:
   unsigned int nmuons_;
   double leptJetDeltaRmin_;
   double HTcut_;
-
+  // Marina
+  unsigned int nbjets_;
+  double workingpoint_;
+  double bjetPtCut_;
+  double bjetAbsEtaCut_;
+  
+  
 };
 
 #endif // TOPMONITOR_H
