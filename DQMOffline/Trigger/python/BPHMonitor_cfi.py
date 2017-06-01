@@ -88,7 +88,7 @@ hltBPHmonitoring.numGenericTriggerEventPSet.verbosityLevel = cms.uint32(0)
 
 hltBPHmonitoring.denGenericTriggerEventPSet.andOr         = cms.bool( False )
 hltBPHmonitoring.denGenericTriggerEventPSet.dcsInputTag   = cms.InputTag( "scalersRawToDigi" )
-hltBPHmonitoring.denGenericTriggerEventPSet.hltPaths  = cms.vstring( "HLT_Mu7p5_Tk2_Jpsi" )#reference
+hltBPHmonitoring.denGenericTriggerEventPSet.hltPaths  = cms.vstring( "HLT_Mu7p5_Track2_Jpsi" )#reference
 hltBPHmonitoring.denGenericTriggerEventPSet.l1Algorithms      = cms.vstring("DM0_SQ") # HLT_ZeroBias_v*
 hltBPHmonitoring.denGenericTriggerEventPSet.dcsPartitions = cms.vint32 ( 0,1,2,3,5,6,7,8,9,12,13,14,15,16,17,20,22,24, 25, 26, 27, 28, 29 ) # 24-27: strip, 28-29: pixel
 hltBPHmonitoring.denGenericTriggerEventPSet.andOrDcs      = cms.bool( False )
