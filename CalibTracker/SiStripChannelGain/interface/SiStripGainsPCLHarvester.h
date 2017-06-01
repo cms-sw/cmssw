@@ -26,8 +26,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 // user includes
 #include "CalibTracker/SiStripChannelGain/interface/APVGainStruct.h"
@@ -51,7 +51,11 @@ class SiStripGainsPCLHarvester : public  DQMEDHarvester {
    private:
 
       virtual void checkBookAPVColls(const edm::EventSetup& setup);
+      virtual void checkAndRetrieveTopology(const edm::EventSetup& setup);
       virtual void dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::IGetter& igetter_);
+
+      void gainQualityMonitor(DQMStore::IBooker& ibooker_, const MonitorElement* Charge_Vs_Index) const;
+
 
       int statCollectionFromMode(const char* tag) const;
 
@@ -63,6 +67,7 @@ class SiStripGainsPCLHarvester : public  DQMEDHarvester {
       std::unique_ptr<SiStripApvGain> getNewObject(const MonitorElement* Charge_Vs_Index);
 
       bool doStoreOnDB;
+      bool doChargeMonitorPerPlane;   /*!< Charge monitor per detector plane */
       unsigned int GOOD;
       unsigned int BAD;
       unsigned int MASKED;
@@ -75,14 +80,20 @@ class SiStripGainsPCLHarvester : public  DQMEDHarvester {
       double MinNrEntries;
 
       std::string m_Record;
-      std::string m_DQMdir;
-      std::string m_calibrationMode;
+
+      std::string  m_DQMdir;                  /*!< DQM folder hosting the charge statistics and the monitor plots */
+      std::string  m_calibrationMode;         /*!< Type of statistics for the calibration */
+      std::vector<std::string> VChargeHisto;  /*!< Charge monitor plots to be output */
+
       std::vector<std::string> dqm_tag_;  
+
+      
 
       int CalibrationLevel;
 
       edm::ESHandle<TrackerGeometry> tkGeom_;
       const TrackerGeometry *bareTkGeomPtr_;  // ugly hack to fill APV colls only once, but checks
+      const TrackerTopology* tTopo_;
 
       std::vector<std::shared_ptr<stAPVGain> > APVsCollOrdered;
       std::unordered_map<unsigned int, std::shared_ptr<stAPVGain> > APVsColl; 
