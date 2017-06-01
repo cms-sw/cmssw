@@ -24,8 +24,8 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "RecoTauTag/HLTProducers/interface/L1TJetsMatching.h"
 
-typedef L1TJetsMatching<reco::PFJet> L1PFTJetsMatching ;
-typedef L1TJetsMatching<reco::CaloJet> L1CaloTJetsMatching ;
+typedef L1TJetsMatching<reco::PFJet> L1TPFJetsMatching ;
+typedef L1TJetsMatching<reco::CaloJet> L1TCaloJetsMatching ;
 
 DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, TauRegionalPixelSeedGenerator, "TauRegionalPixelSeedGenerator");      
 DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, TrackingRegionsFromBeamSpotAndL2Tau, "TrackingRegionsFromBeamSpotAndL2Tau");
@@ -52,6 +52,6 @@ DEFINE_FWK_MODULE(VertexFromTrackProducer);
 //DEFINE_FWK_MODULE(L2TauPixelTrackMatch);
 DEFINE_FWK_MODULE(HLTPFTauPairLeadTrackDzMatchFilter);
 DEFINE_FWK_MODULE(L2TauPixelIsoTagProducer);
-DEFINE_FWK_MODULE(L1CaloTJetsMatching);
-DEFINE_FWK_MODULE(L1PFTJetsMatching);
+DEFINE_FWK_MODULE(L1TCaloJetsMatching);
+DEFINE_FWK_MODULE(L1TPFJetsMatching);
 
