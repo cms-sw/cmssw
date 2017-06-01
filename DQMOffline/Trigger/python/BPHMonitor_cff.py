@@ -4,26 +4,73 @@ from DQMOffline.Trigger.BPHMonitor_cfi import hltBPHmonitoring
 
 # HLT_PFMETNoMu90_PFMHTNoMu90_IDTight
 Dimuon0_Jpsi_tnp = hltBPHmonitoring.clone()
-Dimuon0_Jpsi_tnp.FolderName = cms.string('HLT/BPH/DiMu0_Jpsi_L1_NO_OS/')
+Dimuon0_Jpsi_tnp.FolderName = cms.string('HLT/BPH/DiMu0_Jpsi_L1_NO_OS_denTk2/')
 Dimuon0_Jpsi_tnp.tnp = cms.int32(1)
 Dimuon0_Jpsi_tnp.nofset = cms.int32(1)
 Dimuon0_Jpsi_tnp.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Dimuon0_Jpsi_L1_NoOS")
 Dimuon0_Jpsi_tnp.numGenericTriggerEventPSet.l1Algorithms = cms.vstring("DM0_SQ")
-Dimuon0_Jpsi_tnp.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Mu7p5_TkX_Jpsi")
+Dimuon0_Jpsi_tnp.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Mu7p5_Tk2_Jpsi")
 Dimuon0_Jpsi_tnp.denGenericTriggerEventPSet.l1Algorithms = cms.vstring("SM5 OR SM7")
 Dimuon0_Jpsi_tnp.muoSelection_ref = cms.string("pt>7.5 && abs(eta)<2.4 & isPFMuon & isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0 ")
 Dimuon0_Jpsi_tnp.muoSelection = cms.string("abs(eta)<2.4 & isPFMuon & isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0 ")
 
 Dimuon0_Upsilon_tnp = hltBPHmonitoring.clone()
-Dimuon0_Upsilon_tnp.FolderName = cms.string('HLT/BPH/DiMu0_Upsilon_L1_NO_OS/')
+Dimuon0_Upsilon_tnp.FolderName = cms.string('HLT/BPH/DiMu0_Upsilon_L1_NO_OS_denTk2/')
 Dimuon0_Upsilon_tnp.tnp = cms.int32(1)
 Dimuon0_Upsilon_tnp.nofset = cms.int32(1)
 Dimuon0_Upsilon_tnp.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Dimuon0_Upsilon_L1_NoOS")
 Dimuon0_Upsilon_tnp.numGenericTriggerEventPSet.l1Algorithms = cms.vstring("DM4p5_SQ")
-Dimuon0_Upsilon_tnp.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Mu7p5_TkX_Upsilon")
+Dimuon0_Upsilon_tnp.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Mu7p5_Tk2_Upsilon")
 Dimuon0_Upsilon_tnp.denGenericTriggerEventPSet.l1Algorithms = cms.vstring("SM5 OR SM7")
 Dimuon0_Upsilon_tnp.muoSelection = cms.string("abs(eta)<2.4 &  isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0 ")
 Dimuon0_Upsilon_tnp.muoSelection_ref = cms.string("pt>7.5 abs(eta)<2.4 & isPFMuon & isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0 ")
+##
+Dimuon0_Jpsi_tnp1 = hltBPHmonitoring.clone()
+Dimuon0_Jpsi_tnp1.FolderName = cms.string('HLT/BPH/DiMu0_Jpsi_L1_NO_OS_denTk7/')
+Dimuon0_Jpsi_tnp1.tnp = cms.int32(1)
+Dimuon0_Jpsi_tnp1.nofset = cms.int32(1)
+Dimuon0_Jpsi_tnp1.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Dimuon0_Jpsi_L1_NoOS")
+Dimuon0_Jpsi_tnp1.numGenericTriggerEventPSet.l1Algorithms = cms.vstring("DM0_SQ")
+Dimuon0_Jpsi_tnp1.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Mu7p5_Tk7_Jpsi")
+Dimuon0_Jpsi_tnp1.denGenericTriggerEventPSet.l1Algorithms = cms.vstring("SM5 OR SM7")
+Dimuon0_Jpsi_tnp1.muoSelection_ref = cms.string("pt>7.5 && abs(eta)<2.4 & isPFMuon & isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0 ")
+Dimuon0_Jpsi_tnp1.muoSelection = cms.string("abs(eta)<2.4 & isPFMuon & isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0 ")
+
+Dimuon0_Upsilon_tnp1 = hltBPHmonitoring.clone()
+Dimuon0_Upsilon_tnp1.FolderName = cms.string('HLT/BPH/DiMu0_Upsilon_L1_NO_OS_denTk7/')
+Dimuon0_Upsilon_tnp1.tnp = cms.int32(1)
+Dimuon0_Upsilon_tnp1.nofset = cms.int32(1)
+Dimuon0_Upsilon_tnp1.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Dimuon0_Upsilon_L1_NoOS")
+Dimuon0_Upsilon_tnp1.numGenericTriggerEventPSet.l1Algorithms = cms.vstring("DM4p5_SQ")
+Dimuon0_Upsilon_tnp1.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Mu7p5_Tk7_Upsilon")
+Dimuon0_Upsilon_tnp1.denGenericTriggerEventPSet.l1Algorithms = cms.vstring("SM5 OR SM7")
+Dimuon0_Upsilon_tnp1.muoSelection = cms.string("abs(eta)<2.4 &  isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0 ")
+Dimuon0_Upsilon_tnp1.muoSelection_ref = cms.string("pt>7.5 abs(eta)<2.4 & isPFMuon & isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0 ")
+##
+##
+Dimuon0_Jpsi_tnp2 = hltBPHmonitoring.clone()
+Dimuon0_Jpsi_tnp2.FolderName = cms.string('HLT/BPH/DiMu0_Jpsi_L1_NO_OS_denTk3p5/')
+Dimuon0_Jpsi_tnp2.tnp = cms.int32(1)
+Dimuon0_Jpsi_tnp2.nofset = cms.int32(1)
+Dimuon0_Jpsi_tnp2.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Dimuon0_Jpsi_L1_NoOS")
+Dimuon0_Jpsi_tnp2.numGenericTriggerEventPSet.l1Algorithms = cms.vstring("DM0_SQ")
+Dimuon0_Jpsi_tnp2.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Mu7p5_Tk3p5_Jpsi")
+Dimuon0_Jpsi_tnp2.denGenericTriggerEventPSet.l1Algorithms = cms.vstring("SM5 OR SM7")
+Dimuon0_Jpsi_tnp2.muoSelection_ref = cms.string("pt>7.5 && abs(eta)<2.4 & isPFMuon & isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0 ")
+Dimuon0_Jpsi_tnp2.muoSelection = cms.string("abs(eta)<2.4 & isPFMuon & isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0 ")
+
+Dimuon0_Upsilon_tnp2 = hltBPHmonitoring.clone()
+Dimuon0_Upsilon_tnp2.FolderName = cms.string('HLT/BPH/DiMu0_Upsilon_L1_NO_OS_denTk3p5/')
+Dimuon0_Upsilon_tnp2.tnp = cms.int32(1)
+Dimuon0_Upsilon_tnp2.nofset = cms.int32(1)
+Dimuon0_Upsilon_tnp2.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Dimuon0_Upsilon_L1_NoOS")
+Dimuon0_Upsilon_tnp2.numGenericTriggerEventPSet.l1Algorithms = cms.vstring("DM4p5_SQ")
+Dimuon0_Upsilon_tnp2.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Mu7p5_Tk3p5_Upsilon")
+Dimuon0_Upsilon_tnp2.denGenericTriggerEventPSet.l1Algorithms = cms.vstring("SM5 OR SM7")
+Dimuon0_Upsilon_tnp2.muoSelection = cms.string("abs(eta)<2.4 &  isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0 ")
+Dimuon0_Upsilon_tnp2.muoSelection_ref = cms.string("pt>7.5 abs(eta)<2.4 & isPFMuon & isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0 ")
+##
+
 ##
 
 Dimuon0_Jpsi_OS = hltBPHmonitoring.clone()
@@ -252,7 +299,10 @@ Dimuon0_addTrack_Jpsi.muoSelection = cms.string(" abs(eta)<2.4 & isGlobalMuon  &
 ###
 
 bphHLTmonitoring = cms.Sequence(
-    Dimuon0_Jpsi_OS
+    Dimuon0_Upsilon_tnp
+    + Dimuon0_Upsilon_tnp1
+    + Dimuon0_Upsilon_tnp2
+    + Dimuon0_Jpsi_OS
     + Dimuon0_er
     + Dimuon0_Upsilon_er
     + Dimuon0_dRcut
