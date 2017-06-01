@@ -29,7 +29,6 @@ validationHarvesting = cms.Path(postValidation*hltpostvalidation*postValidation_
 
 _validationHarvesting_fastsim = validationHarvesting.copy()
 for _entry in [hltpostvalidation]:
-    print 'dropping hltpostvalidation'
     _validationHarvesting_fastsim.remove(_entry)
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toReplaceWith(validationHarvesting,_validationHarvesting_fastsim)
@@ -41,7 +40,6 @@ validationpreprodHarvesting = cms.Path(postValidation_preprod*hltpostvalidation_
 
 _validationpreprodHarvesting_fastsim = validationpreprodHarvesting.copy()
 for _entry in [hltpostvalidation_preprod]:
-    print 'dropping hltpostvalidation_preprod'
     _validationpreprodHarvesting_fastsim.remove(_entry)
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toReplaceWith(validationpreprodHarvesting,_validationpreprodHarvesting_fastsim)

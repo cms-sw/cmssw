@@ -84,7 +84,6 @@ for an in _config.analysis:
 	vstr = s.__getattribute__("hltPathsToCheck")
 	map(lambda x: triggers.add(x.replace("_v","")),vstr)
 triggers = list(triggers)
-print triggers
 #------------------------------------------------------------
 
 # Generating the list with all the efficiencies
