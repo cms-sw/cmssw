@@ -32,7 +32,6 @@ const MEbinning r9_binning_{
 
 double MAX_hoe = 0.02;
 double MIN_hoe= 0;
-int N_r9 = 50;
 const MEbinning hoe_binning_{
   N_r9, MIN_hoe, MAX_hoe
     };
