@@ -96,8 +96,7 @@ topEfficiency_singleMu = DQMEDHarvester("DQMGenericClient",
 
 topEfficiency_diElec = DQMEDHarvester("DQMGenericClient",
     subDirs        = cms.untracked.vstring("HLT/TopHLTOffline/TopMonitor/Top/DiLepton/DiElectron/"),
-    verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
-                                      
+    verbose        = cms.untracked.uint32(0), # Set to 2 for all messages                                      
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
         "effic_metME       'efficiency vs MET; MET [GeV]; efficiency' metME_numerator       metME_denominator",
@@ -115,6 +114,10 @@ topEfficiency_diElec = DQMEDHarvester("DQMGenericClient",
         "effic_jetPhi_2       'efficiency vs sub-leading jet phi; jet phi ; efficiency' jetPhi_2_numerator       jetPhi_2_denominator",
         "effic_eventHT       'efficiency vs event HT; event HT [GeV]; efficiency' eventHT_numerator       eventHT_denominator",
         "effic_jetEtaPhi       'efficiency vs jet #eta-#phi; jet #eta; jet #phi' jetEtaPhi_numerator       jetEtaPhi_denominator",
+        "effic_ele1Pt_ele2Pt    'efficiency vs ele1-ele2 pt; ele1 pt; ele2 pt' ele1Pt_ele2Pt_numerator       ele1Pt_ele2Pt_denominator",
+        "effic_ele1Eta_ele2Eta    'efficiency vs ele1-ele2 #eta; ele1 #eta; ele2 #eta' ele1Eta_ele2Eta_numerator       ele1Eta_ele2Eta_denominator",
+
+
     ),
 )
 
@@ -122,17 +125,16 @@ topEfficiency_diElec = DQMEDHarvester("DQMGenericClient",
 
 topEfficiency_diMu = DQMEDHarvester("DQMGenericClient",
     subDirs        = cms.untracked.vstring("HLT/TopHLTOffline/TopMonitor/Top/DiLepton/DiMuon/"),
-    verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
-                                      
+    verbose        = cms.untracked.uint32(0), # Set to 2 for all messages                                      
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
         "effic_metME       'efficiency vs MET; MET [GeV]; efficiency' metME_numerator       metME_denominator",
-        "effic_muPt_1       'efficiency vs muctron pt; muctron pt [GeV]; efficiency' muPt_1_numerator       muPt_1_denominator",
-        "effic_muEta_1       'efficiency vs muctron eta; muctron eta ; efficiency' muEta_1_numerator       muEta_1_denominator",
-        "effic_muPhi_1       'efficiency vs muctron phi; muctron phi ; efficiency' muPhi_1_numerator       muPhi_1_denominator",
-        "effic_muPt_2       'efficiency vs muctron pt; muctron pt [GeV]; efficiency' muPt_2_numerator       muPt_2_denominator",
-        "effic_muEta_2       'efficiency vs muctron eta; muctron eta ; efficiency' muEta_2_numerator       muEta_2_denominator",
-        "effic_muPhi_2       'efficiency vs muctron phi; muctron phi ; efficiency' muPhi_2_numerator       muPhi_2_denominator",
+        "effic_muPt_1       'efficiency vs mu pt; mu pt [GeV]; efficiency' muPt_1_numerator       muPt_1_denominator",
+        "effic_muEta_1       'efficiency vs mu eta; mu eta ; efficiency' muEta_1_numerator       muEta_1_denominator",
+        "effic_muPhi_1       'efficiency vs mu phi; mu phi ; efficiency' muPhi_1_numerator       muPhi_1_denominator",
+        "effic_muPt_2       'efficiency vs mu pt; mu pt [GeV]; efficiency' muPt_2_numerator       muPt_2_denominator",
+        "effic_muEta_2       'efficiency vs mu eta; mu eta ; efficiency' muEta_2_numerator       muEta_2_denominator",
+        "effic_muPhi_2       'efficiency vs mu phi; mu phi ; efficiency' muPhi_2_numerator       muPhi_2_denominator",
         "effic_jetPt_1       'efficiency vs leading jet pt; jet pt [GeV]; efficiency' jetPt_1_numerator       jetPt_1_denominator",
         "effic_jetEta_1       'efficiency vs leading jet eta; jet eta ; efficiency' jetEta_1_numerator       jetEta_1_denominator",
         "effic_jetPhi_1       'efficiency vs leading jet phi; jet phi ; efficiency' jetPhi_1_numerator       jetPhi_1_denominator",
@@ -141,6 +143,12 @@ topEfficiency_diMu = DQMEDHarvester("DQMGenericClient",
         "effic_jetPhi_2       'efficiency vs sub-leading jet phi; jet phi ; efficiency' jetPhi_2_numerator       jetPhi_2_denominator",
         "effic_eventHT       'efficiency vs event HT; event HT [GeV]; efficiency' eventHT_numerator       eventHT_denominator",
         "effic_jetEtaPhi       'efficiency vs jet #eta-#phi; jet #eta; jet #phi' jetEtaPhi_numerator       jetEtaPhi_denominator",
+        "effic_mu1Pt_mu2Pt    'efficiency vs mu1-mu2 pt; mu1 pt; mu2 pt' mu1Pt_mu2Pt_numerator       mu1Pt_mu2Pt_denominator",
+        "effic_mu1Eta_mu2Eta    'efficiency vs mu1-mu2 #eta; mu1 #eta; mu2 #phi' mu1Eta_mu2Eta_numerator      mu1Eta_mu2Eta_denominator",
+
+        
+        
+
     ),
 )
 
@@ -148,13 +156,12 @@ topEfficiency_diMu = DQMEDHarvester("DQMGenericClient",
 topEfficiency_ElecMu = DQMEDHarvester("DQMGenericClient",
     subDirs        = cms.untracked.vstring("HLT/TopHLTOffline/TopMonitor/Top/DiLepton/ElecMuon/"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
-                                      
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
         "effic_metME       'efficiency vs MET; MET [GeV]; efficiency' metME_numerator       metME_denominator",
-        "effic_muPt_1       'efficiency vs muctron pt; muctron pt [GeV]; efficiency' muPt_1_numerator       muPt_1_denominator",
-        "effic_muEta_1       'efficiency vs muctron eta; muctron eta ; efficiency' muEta_1_numerator       muEta_1_denominator",
-        "effic_muPhi_1       'efficiency vs muctron phi; muctron phi ; efficiency' muPhi_1_numerator       muPhi_1_denominator",
+        "effic_muPt_1       'efficiency vs mu pt; mu pt [GeV]; efficiency' muPt_1_numerator       muPt_1_denominator",
+        "effic_muEta_1       'efficiency vs mu eta; mu eta ; efficiency' muEta_1_numerator       muEta_1_denominator",
+        "effic_muPhi_1       'efficiency vs mu phi; mu phi ; efficiency' muPhi_1_numerator       muPhi_1_denominator",
         "effic_elePt_1       'efficiency vs electron pt; electron pt [GeV]; efficiency' elePt_1_numerator       elePt_1_denominator",
         "effic_eleEta_1       'efficiency vs electron eta; electron eta ; efficiency' eleEta_1_numerator       eleEta_1_denominator",
         "effic_elePhi_1       'efficiency vs electron phi; electron phi ; efficiency' elePhi_1_numerator       elePhi_1_denominator",
@@ -166,14 +173,17 @@ topEfficiency_ElecMu = DQMEDHarvester("DQMGenericClient",
         "effic_jetPhi_2       'efficiency vs sub-leading jet phi; jet phi ; efficiency' jetPhi_2_numerator       jetPhi_2_denominator",
         "effic_eventHT       'efficiency vs event HT; event HT [GeV]; efficiency' eventHT_numerator       eventHT_denominator",
         "effic_jetEtaPhi       'efficiency vs jet #eta-#phi; jet #eta; jet #phi' jetEtaPhi_numerator       jetEtaPhi_denominator",
+        "effic_elePt_muPt    'efficiency vs ele-mu pt; ele pt; mu pt' elePt_muPt_numerator       elePt_muPt_denominator",
+        "effic_eleEta_muEta    'efficiency vs ele-mu #eta; ele #eta; mu #phi' eleEta_muEta_numerator      eleEta_muEta_denominator",
+        
+
     ),
 )
 
 
 singleTopEfficiency_singleMu = DQMEDHarvester("DQMGenericClient",
     subDirs        = cms.untracked.vstring("HLT/TopHLTOffline/TopMonitor/SingleTop/SingleMuon/"),
-    verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
-                                      
+    verbose        = cms.untracked.uint32(0), # Set to 2 for all messages                                   
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
         "effic_metME       'efficiency vs MET; MET [GeV]; efficiency' metME_numerator       metME_denominator",
@@ -190,6 +200,7 @@ singleTopEfficiency_singleMu = DQMEDHarvester("DQMGenericClient",
         "effic_jetEtaPhi       'efficiency vs jet #eta-#phi; jet #eta; jet #phi' jetEtaPhi_numerator       jetEtaPhi_denominator",
     ),
 )
+
 
 
 

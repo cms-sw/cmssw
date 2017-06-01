@@ -117,64 +117,165 @@ eleHT_all.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Ele28_eta2p1_WP
 
 
 #ATHER
-topSingleMuonHLTValidation = hltTOPmonitoring.clone()
-topSingleMuonHLTValidation.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/Top/SingleLepton/SingleMuon/')
-topSingleMuonHLTValidation.nmuons = cms.uint32(1)
-topSingleMuonHLTValidation.nelectrons = cms.uint32(0)
-topSingleMuonHLTValidation.njets = cms.uint32(4)
-topSingleMuonHLTValidation.eleSelection = cms.string('pt>30 & abs(eta)<2.5 & (dr03TkSumPt+dr03EcalRecHitSumEt+dr03HcalTowerSumEt)/pt < 0.1')
-topSingleMuonHLTValidation.muoSelection = cms.string('pt>26 & abs(eta)<2.1 & (pfIsolationR04.sumChargedHadronPt+pfIsolationR04.sumPhotonEt+pfIsolationR04.sumNeutralHadronEt)/pt < 0.12')
-topSingleMuonHLTValidation.jetSelection = cms.string('pt>20 & abs(eta)<2.5')
-topSingleMuonHLTValidation.numGenericTriggerEventPSet.hltPaths = cms.vstring(['HLT_Mu20_v*', 'HLT_TkMu20_v*' , 'HLT_Mu27_v*', 'HLT_TkMu27_v*', 'HLT_TkMu50_v*', 'HLT_Mu50_v*', 'HLT_IsoMu24_eta2p1_v*', 'HLT_IsoMu24_v*', 'HLT_IsoMu27_v*', 'HLT_IsoMu20_v*', 'HLT_IsoTkMu24_eta2p1_v*', 'HLT_IsoTkMu24_v*', 'HLT_IsoTkMu27_v*', 'HLT_IsoTkMu20_v*'])
+#########SingleMuon
+topSingleMuonHLTMonitor_Mu20 = hltTOPmonitoring.clone()
+topSingleMuonHLTMonitor_Mu20.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/Top/SingleLepton/SingleMuon/Mu20/')
+topSingleMuonHLTMonitor_Mu20.nmuons = cms.uint32(1)
+topSingleMuonHLTMonitor_Mu20.nelectrons = cms.uint32(0)
+topSingleMuonHLTMonitor_Mu20.njets = cms.uint32(4)
+topSingleMuonHLTMonitor_Mu20.eleSelection = cms.string('pt>30 & abs(eta)<2.4 & (dr03TkSumPt+dr03EcalRecHitSumEt+dr03HcalTowerSumEt)/pt < 0.1')
+topSingleMuonHLTMonitor_Mu20.muoSelection = cms.string('pt>26 & abs(eta)<2.1 & (pfIsolationR04().sumChargedHadronPt + max(pfIsolationR04().sumNeutralHadronEt + pfIsolationR04().sumPhotonEt - pfIsolationR04().sumPUPt/2,0.0))/pt < 0.15 & innerTrack.hitPattern.numberOfValidPixelHits > 0 & innerTrack.hitPattern.trackerLayersWithMeasurement > 5 & globalTrack.hitPattern.numberOfValidMuonHits > 0 & globalTrack.normalizedChi2 < 10 & numberOfMatches > 1 & isGlobalMuon & isPFMuon & isTrackerMuon')
+topSingleMuonHLTMonitor_Mu20.jetSelection = cms.string('pt>20 & abs(eta)<2.4')
+topSingleMuonHLTMonitor_Mu20.numGenericTriggerEventPSet.hltPaths = cms.vstring(['HLT_Mu20_v*', 'HLT_TkMu20_v*' , 'HLT_IsoMu20_v*',  'HLT_IsoTkMu20_v*'])
 
 
+topSingleMuonHLTMonitor_Mu24 = hltTOPmonitoring.clone()
+topSingleMuonHLTMonitor_Mu24.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/Top/SingleLepton/SingleMuon/Mu24/')
+topSingleMuonHLTMonitor_Mu24.nmuons = cms.uint32(1)
+topSingleMuonHLTMonitor_Mu24.nelectrons = cms.uint32(0)
+topSingleMuonHLTMonitor_Mu24.njets = cms.uint32(4)
+topSingleMuonHLTMonitor_Mu24.eleSelection = cms.string('pt>30 & abs(eta)<2.4 & (dr03TkSumPt+dr03EcalRecHitSumEt+dr03HcalTowerSumEt)/pt < 0.1')
+topSingleMuonHLTMonitor_Mu24.muoSelection = cms.string('pt>26 & abs(eta)<2.1 & (pfIsolationR04().sumChargedHadronPt + max(pfIsolationR04().sumNeutralHadronEt + pfIsolationR04().sumPhotonEt - pfIsolationR04().sumPUPt/2,0.0))/pt < 0.15 & innerTrack.hitPattern.numberOfValidPixelHits > 0 & innerTrack.hitPattern.trackerLayersWithMeasurement > 5 & globalTrack.hitPattern.numberOfValidMuonHits > 0 & globalTrack.normalizedChi2 < 10 & numberOfMatches > 1 & isGlobalMuon & isPFMuon & isTrackerMuon')
+topSingleMuonHLTMonitor_Mu24.jetSelection = cms.string('pt>20 & abs(eta)<2.4')
+topSingleMuonHLTMonitor_Mu24.numGenericTriggerEventPSet.hltPaths = cms.vstring(['HLT_IsoMu24_eta2p1_v*', 'HLT_IsoMu24_v*', 'HLT_IsoTkMu24_eta2p1_v*', 'HLT_IsoTkMu24_v*'])
 
-topDiElectronHLTValidation = hltTOPmonitoring.clone()
-topDiElectronHLTValidation.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/Top/DiLepton/DiElectron/')
-topDiElectronHLTValidation.nmuons = cms.uint32(0)
-topDiElectronHLTValidation.nelectrons = cms.uint32(2)
-topDiElectronHLTValidation.njets = cms.uint32(2)
-topDiElectronHLTValidation.eleSelection = cms.string('pt>20 & abs(eta)<2.5  & (dr03TkSumPt+dr03EcalRecHitSumEt+dr03HcalTowerSumEt)/pt < 0.1')
-topDiElectronHLTValidation.muoSelection = cms.string('pt>20 & abs(eta)<2.4 & (pfIsolationR04.sumChargedHadronPt+pfIsolationR04.sumPhotonEt+pfIsolationR04.sumNeutralHadronEt)/pt < 0.12')   
-topDiElectronHLTValidation.jetSelection = cms.string('pt>30 & abs(eta)<2.5')
-topDiElectronHLTValidation.numGenericTriggerEventPSet.hltPaths = cms.vstring(['HLT_Ele12_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v*'])
-
-
-
-topDiMuonHLTValidation = hltTOPmonitoring.clone()
-topDiMuonHLTValidation.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/Top/DiLepton/DiMuon/')
-topDiMuonHLTValidation.nmuons = cms.uint32(2)
-topDiMuonHLTValidation.nelectrons = cms.uint32(0)
-topDiMuonHLTValidation.njets = cms.uint32(2)
-topDiMuonHLTValidation.eleSelection = cms.string('pt>20 & abs(eta)<2.5  & (dr03TkSumPt+dr03EcalRecHitSumEt+dr03HcalTowerSumEt)/pt < 0.1')              
-topDiMuonHLTValidation.muoSelection = cms.string('pt>20 & abs(eta)<2.4 & (pfIsolationR04.sumChargedHadronPt+pfIsolationR04.sumPhotonEt+pfIsolationR04.sumNeutralHadronEt)/pt < 0.12')  
-topDiMuonHLTValidation.jetSelection = cms.string('pt>30 & abs(eta)<2.5')
-topDiMuonHLTValidation.numGenericTriggerEventPSet.hltPaths = cms.vstring(['HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v*', 'HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v*','HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v*'])
+topSingleMuonHLTMonitor_Mu27 = hltTOPmonitoring.clone()
+topSingleMuonHLTMonitor_Mu27.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/Top/SingleLepton/SingleMuon/Mu27/')
+topSingleMuonHLTMonitor_Mu27.nmuons = cms.uint32(1)
+topSingleMuonHLTMonitor_Mu27.nelectrons = cms.uint32(0)
+topSingleMuonHLTMonitor_Mu27.njets = cms.uint32(4)
+topSingleMuonHLTMonitor_Mu27.eleSelection = cms.string('pt>30 & abs(eta)<2.4 & (dr03TkSumPt+dr03EcalRecHitSumEt+dr03HcalTowerSumEt)/pt < 0.1')
+topSingleMuonHLTMonitor_Mu27.muoSelection = cms.string('pt>26 & abs(eta)<2.1 & (pfIsolationR04().sumChargedHadronPt + max(pfIsolationR04().sumNeutralHadronEt + pfIsolationR04().sumPhotonEt - pfIsolationR04().sumPUPt/2,0.0))/pt < 0.15 & innerTrack.hitPattern.numberOfValidPixelHits > 0 & innerTrack.hitPattern.trackerLayersWithMeasurement > 5 & globalTrack.hitPattern.numberOfValidMuonHits > 0 & globalTrack.normalizedChi2 < 10 & numberOfMatches > 1 & isGlobalMuon & isPFMuon & isTrackerMuon')
+topSingleMuonHLTMonitor_Mu27.jetSelection = cms.string('pt>20 & abs(eta)<2.4')
+topSingleMuonHLTMonitor_Mu27.numGenericTriggerEventPSet.hltPaths = cms.vstring(['HLT_Mu27_v*', 'HLT_TkMu27_v*', 'HLT_IsoMu27_v*', 'HLT_IsoTkMu27_v*'])
 
 
-
-topElecMuonHLTValidation = hltTOPmonitoring.clone()
-topElecMuonHLTValidation.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/Top/DiLepton/ElecMuon/')
-topElecMuonHLTValidation.nmuons = cms.uint32(1)
-topElecMuonHLTValidation.nelectrons = cms.uint32(1)
-topElecMuonHLTValidation.njets = cms.uint32(2)
-topElecMuonHLTValidation.eleSelection = cms.string('pt>20 & abs(eta)<2.5 & (dr03TkSumPt+dr03EcalRecHitSumEt+dr03HcalTowerSumEt)/pt < 0.1')
-topElecMuonHLTValidation.muoSelection = cms.string('pt>20 & abs(eta)<2.4 & (pfIsolationR04.sumChargedHadronPt+pfIsolationR04.sumPhotonEt+pfIsolationR04.sumNeutralHadronEt)/pt < 0.12')           
-topElecMuonHLTValidation.jetSelection = cms.string('pt>30 & abs(eta)<2.5')
-topElecMuonHLTValidation.numGenericTriggerEventPSet.hltPaths = cms.vstring(['HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v*','HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v*'])
-
+topSingleMuonHLTMonitor_Mu50 = hltTOPmonitoring.clone()
+topSingleMuonHLTMonitor_Mu50.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/Top/SingleLepton/SingleMuon/Mu50/')
+topSingleMuonHLTMonitor_Mu50.nmuons = cms.uint32(1)
+topSingleMuonHLTMonitor_Mu50.nelectrons = cms.uint32(0)
+topSingleMuonHLTMonitor_Mu50.njets = cms.uint32(4)
+topSingleMuonHLTMonitor_Mu50.eleSelection = cms.string('pt>30 & abs(eta)<2.4 & (dr03TkSumPt+dr03EcalRecHitSumEt+dr03HcalTowerSumEt)/pt < 0.1')
+topSingleMuonHLTMonitor_Mu50.muoSelection = cms.string('pt>26 & abs(eta)<2.1 & (pfIsolationR04().sumChargedHadronPt + max(pfIsolationR04().sumNeutralHadronEt + pfIsolationR04().sumPhotonEt - pfIsolationR04().sumPUPt/2,0.0))/pt < 0.15 & innerTrack.hitPattern.numberOfValidPixelHits > 0 & innerTrack.hitPattern.trackerLayersWithMeasurement > 5 & globalTrack.hitPattern.numberOfValidMuonHits > 0 & globalTrack.normalizedChi2 < 10 & numberOfMatches > 1 & isGlobalMuon & isPFMuon & isTrackerMuon')
+topSingleMuonHLTMonitor_Mu50.jetSelection = cms.string('pt>20 & abs(eta)<2.4')
+topSingleMuonHLTMonitor_Mu50.numGenericTriggerEventPSet.hltPaths = cms.vstring(['HLT_TkMu50_v*', 'HLT_Mu50_v*'])
 
 
-singleTopSingleMuonHLTValidation = hltTOPmonitoring.clone()
-singleTopSingleMuonHLTValidation.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/SingleTop/SingleMuon/')
-singleTopSingleMuonHLTValidation.nmuons = cms.uint32(1)
-singleTopSingleMuonHLTValidation.nelectrons = cms.uint32(0)
-singleTopSingleMuonHLTValidation.njets = cms.uint32(2)
-singleTopSingleMuonHLTValidation.eleSelection = cms.string('pt>30 & abs(eta)<2.5 & (dr03TkSumPt+dr03EcalRecHitSumEt+dr03HcalTowerSumEt)/pt < 0.1')   
-singleTopSingleMuonHLTValidation.muoSelection = cms.string('pt>26 & abs(eta)<2.1 & (pfIsolationR04.sumChargedHadronPt+pfIsolationR04.sumPhotonEt+pfIsolationR04.sumNeutralHadronEt)/pt < 0.12')
-singleTopSingleMuonHLTValidation.jetSelection = cms.string('pt>40 & abs(eta)<5.0')
-singleTopSingleMuonHLTValidation.numGenericTriggerEventPSet.hltPaths = cms.vstring(['HLT_Mu20_v*', 'HLT_TkMu20_v*' , 'HLT_Mu27_v*', 'HLT_TkMu27_v*', 'HLT_TkMu50_v*', 'HLT_Mu50_v*', 'HLT_IsoMu24_eta2p1_v*', 'HLT_IsoMu24_v*', 'HLT_IsoMu27_v*', 'HLT_IsoMu20_v*', 'HLT_IsoTkMu24_eta2p1_v*', 'HLT_IsoTkMu24_v*', 'HLT_IsoTkMu27_v*', 'HLT_IsoTkMu20_v*'])
+#########DiElectron
+topDiElectronHLTMonitor = hltTOPmonitoring.clone()
+topDiElectronHLTMonitor.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/Top/DiLepton/DiElectron/')
+topDiElectronHLTMonitor.nmuons = cms.uint32(0)
+topDiElectronHLTMonitor.nelectrons = cms.uint32(2)
+topDiElectronHLTMonitor.njets = cms.uint32(2)
+topDiElectronHLTMonitor.eleSelection = cms.string('pt>20 & abs(eta)<2.4  & (dr03TkSumPt+dr03EcalRecHitSumEt+dr03HcalTowerSumEt)/pt < 0.1')
 
+topDiElectronHLTMonitor.muoSelection = cms.string('pt>20 & abs(eta)<2.4 & (pfIsolationR04().sumChargedHadronPt + max(pfIsolationR04().sumNeutralHadronEt + pfIsolationR04().sumPhotonEt - pfIsolationR04().sumPUPt/2,0.0))/pt < 0.25  & isPFMuon & (isTrackerMuon || isGlobalMuon)')
+
+topDiElectronHLTMonitor.jetSelection = cms.string('pt>30 & abs(eta)<2.4')
+topDiElectronHLTMonitor.numGenericTriggerEventPSet.hltPaths = cms.vstring(['HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v*'])
+
+
+#########DiMuon
+topDiMuonHLTMonitor_noDz = hltTOPmonitoring.clone()
+topDiMuonHLTMonitor_noDz.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/Top/DiLepton/DiMuon/NoDz/')
+topDiMuonHLTMonitor_noDz.nmuons = cms.uint32(2)
+topDiMuonHLTMonitor_noDz.nelectrons = cms.uint32(0)
+topDiMuonHLTMonitor_noDz.njets = cms.uint32(2)
+topDiMuonHLTMonitor_noDz.eleSelection = cms.string('pt>20 & abs(eta)<2.4  & (dr03TkSumPt+dr03EcalRecHitSumEt+dr03HcalTowerSumEt)/pt < 0.1')
+
+topDiMuonHLTMonitor_noDz.muoSelection = cms.string('pt>20 & abs(eta)<2.4 & (pfIsolationR04().sumChargedHadronPt + max(pfIsolationR04().sumNeutralHadronEt + pfIsolationR04().sumPhotonEt - pfIsolationR04().sumPUPt/2,0.0))/pt < 0.25  & isPFMuon & (isTrackerMuon || isGlobalMuon)')
+
+topDiMuonHLTMonitor_noDz.jetSelection = cms.string('pt>30 & abs(eta)<2.4')
+topDiMuonHLTMonitor_noDz.numGenericTriggerEventPSet.hltPaths = cms.vstring(['HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v*', 'HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v*','HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v*'])
+
+topDiMuonHLTMonitor_Dz = hltTOPmonitoring.clone()
+topDiMuonHLTMonitor_Dz.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/Top/DiLepton/DiMuon/Dz/')
+topDiMuonHLTMonitor_Dz.nmuons = cms.uint32(2)
+topDiMuonHLTMonitor_Dz.nelectrons = cms.uint32(0)
+topDiMuonHLTMonitor_Dz.njets = cms.uint32(2)
+topDiMuonHLTMonitor_Dz.eleSelection = cms.string('pt>20 & abs(eta)<2.4  & (dr03TkSumPt+dr03EcalRecHitSumEt+dr03HcalTowerSumEt)/pt < 0.1')              
+
+topDiMuonHLTMonitor_Dz.muoSelection = cms.string('pt>20 & abs(eta)<2.4 & (pfIsolationR04().sumChargedHadronPt + max(pfIsolationR04().sumNeutralHadronEt + pfIsolationR04().sumPhotonEt - pfIsolationR04().sumPUPt/2,0.0))/pt < 0.25  & isPFMuon & (isTrackerMuon || isGlobalMuon)')
+
+topDiMuonHLTMonitor_Dz.jetSelection = cms.string('pt>30 & abs(eta)<2.4')
+topDiMuonHLTMonitor_Dz.numGenericTriggerEventPSet.hltPaths = cms.vstring(['HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v*', 'HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v*','HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v*'])
+
+topDiMuonHLTMonitor_Mass8 = hltTOPmonitoring.clone()
+topDiMuonHLTMonitor_Mass8.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/Top/DiLepton/DiMuon/Mass8/')
+topDiMuonHLTMonitor_Mass8.nmuons = cms.uint32(2)
+topDiMuonHLTMonitor_Mass8.nelectrons = cms.uint32(0)
+topDiMuonHLTMonitor_Mass8.njets = cms.uint32(2)
+topDiMuonHLTMonitor_Mass8.eleSelection = cms.string('pt>20 & abs(eta)<2.4  & (dr03TkSumPt+dr03EcalRecHitSumEt+dr03HcalTowerSumEt)/pt < 0.1')
+
+topDiMuonHLTMonitor_Mass8.muoSelection = cms.string('pt>20 & abs(eta)<2.4 & (pfIsolationR04().sumChargedHadronPt + max(pfIsolationR04().sumNeutralHadronEt + pfIsolationR04().sumPhotonEt - pfIsolationR04().sumPUPt/2,0.0))/pt < 0.25  & isPFMuon & (isTrackerMuon || isGlobalMuon)')
+
+topDiMuonHLTMonitor_Mass8.jetSelection = cms.string('pt>30 & abs(eta)<2.4')
+topDiMuonHLTMonitor_Mass8.numGenericTriggerEventPSet.hltPaths = cms.vstring(['HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8'])
+
+#########ElecMuon
+topElecMuonHLTMonitor = hltTOPmonitoring.clone()
+topElecMuonHLTMonitor.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/Top/DiLepton/ElecMuon/')
+topElecMuonHLTMonitor.nmuons = cms.uint32(1)
+topElecMuonHLTMonitor.nelectrons = cms.uint32(1)
+topElecMuonHLTMonitor.njets = cms.uint32(2)
+topElecMuonHLTMonitor.eleSelection = cms.string('pt>20 & abs(eta)<2.4 & (dr03TkSumPt+dr03EcalRecHitSumEt+dr03HcalTowerSumEt)/pt < 0.1')
+
+topElecMuonHLTMonitor.muoSelection = cms.string('pt>20 & abs(eta)<2.4 & (pfIsolationR04().sumChargedHadronPt + max(pfIsolationR04().sumNeutralHadronEt + pfIsolationR04().sumPhotonEt - pfIsolationR04().sumPUPt/2,0.0))/pt < 0.25  & isPFMuon & (isTrackerMuon || isGlobalMuon)') 
+
+topElecMuonHLTMonitor.jetSelection = cms.string('pt>30 & abs(eta)<2.4')
+topElecMuonHLTMonitor.numGenericTriggerEventPSet.hltPaths = cms.vstring(['HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v*','HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v*'])
+
+
+#########Single Top Single Muon
+singleTopSingleMuonHLTMonitor_Mu20 = hltTOPmonitoring.clone()
+singleTopSingleMuonHLTMonitor_Mu20.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/SingleTop/SingleMuon/Mu20/')
+singleTopSingleMuonHLTMonitor_Mu20.nmuons = cms.uint32(1)
+singleTopSingleMuonHLTMonitor_Mu20.nelectrons = cms.uint32(0)
+singleTopSingleMuonHLTMonitor_Mu20.njets = cms.uint32(4)
+singleTopSingleMuonHLTMonitor_Mu20.eleSelection = cms.string('pt>30 & abs(eta)<2.4 & (dr03TkSumPt+dr03EcalRecHitSumEt+dr03HcalTowerSumEt)/pt < 0.1')
+
+singleTopSingleMuonHLTMonitor_Mu20.muoSelection = cms.string('pt>26 & abs(eta)<2.1 & (pfIsolationR04().sumChargedHadronPt + max(pfIsolationR04().sumNeutralHadronEt + pfIsolationR04().sumPhotonEt - pfIsolationR04().sumPUPt/2,0.0))/pt < 0.15 & innerTrack.hitPattern.numberOfValidPixelHits > 0 & innerTrack.hitPattern.trackerLayersWithMeasurement > 5 & globalTrack.hitPattern.numberOfValidMuonHits > 0 & globalTrack.normalizedChi2 < 10 & numberOfMatches > 1 & isGlobalMuon & isPFMuon & isTrackerMuon')
+
+singleTopSingleMuonHLTMonitor_Mu20.jetSelection = cms.string('pt>20 & abs(eta)<2.4')
+singleTopSingleMuonHLTMonitor_Mu20.numGenericTriggerEventPSet.hltPaths = cms.vstring(['HLT_Mu20_v*', 'HLT_TkMu20_v*' , 'HLT_IsoMu20_v*',  'HLT_IsoTkMu20_v*'])
+
+
+singleTopSingleMuonHLTMonitor_Mu24 = hltTOPmonitoring.clone()
+singleTopSingleMuonHLTMonitor_Mu24.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/SingleTop/SingleMuon/Mu24/')
+singleTopSingleMuonHLTMonitor_Mu24.nmuons = cms.uint32(1)
+singleTopSingleMuonHLTMonitor_Mu24.nelectrons = cms.uint32(0)
+singleTopSingleMuonHLTMonitor_Mu24.njets = cms.uint32(4)
+singleTopSingleMuonHLTMonitor_Mu24.eleSelection = cms.string('pt>30 & abs(eta)<2.4 & (dr03TkSumPt+dr03EcalRecHitSumEt+dr03HcalTowerSumEt)/pt < 0.1')
+
+singleTopSingleMuonHLTMonitor_Mu24.muoSelection = cms.string('pt>26 & abs(eta)<2.1 & (pfIsolationR04().sumChargedHadronPt + max(pfIsolationR04().sumNeutralHadronEt + pfIsolationR04().sumPhotonEt - pfIsolationR04().sumPUPt/2,0.0))/pt < 0.15 & innerTrack.hitPattern.numberOfValidPixelHits > 0 & innerTrack.hitPattern.trackerLayersWithMeasurement > 5 & globalTrack.hitPattern.numberOfValidMuonHits > 0 & globalTrack.normalizedChi2 < 10 & numberOfMatches > 1 & isGlobalMuon & isPFMuon & isTrackerMuon')
+
+singleTopSingleMuonHLTMonitor_Mu24.jetSelection = cms.string('pt>20 & abs(eta)<2.4')
+singleTopSingleMuonHLTMonitor_Mu24.numGenericTriggerEventPSet.hltPaths = cms.vstring(['HLT_IsoMu24_eta2p1_v*', 'HLT_IsoMu24_v*', 'HLT_IsoTkMu24_eta2p1_v*', 'HLT_IsoTkMu24_v*'])
+
+singleTopSingleMuonHLTMonitor_Mu27 = hltTOPmonitoring.clone()
+singleTopSingleMuonHLTMonitor_Mu27.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/SingleTop/SingleMuon/Mu27/')
+singleTopSingleMuonHLTMonitor_Mu27.nmuons = cms.uint32(1)
+singleTopSingleMuonHLTMonitor_Mu27.nelectrons = cms.uint32(0)
+singleTopSingleMuonHLTMonitor_Mu27.njets = cms.uint32(4)
+singleTopSingleMuonHLTMonitor_Mu27.eleSelection = cms.string('pt>30 & abs(eta)<2.4 & (dr03TkSumPt+dr03EcalRecHitSumEt+dr03HcalTowerSumEt)/pt < 0.1')
+
+singleTopSingleMuonHLTMonitor_Mu27.muoSelection = cms.string('pt>26 & abs(eta)<2.1 & (pfIsolationR04().sumChargedHadronPt + max(pfIsolationR04().sumNeutralHadronEt + pfIsolationR04().sumPhotonEt - pfIsolationR04().sumPUPt/2,0.0))/pt < 0.15 & innerTrack.hitPattern.numberOfValidPixelHits > 0 & innerTrack.hitPattern.trackerLayersWithMeasurement > 5 & globalTrack.hitPattern.numberOfValidMuonHits > 0 & globalTrack.normalizedChi2 < 10 & numberOfMatches > 1 & isGlobalMuon & isPFMuon & isTrackerMuon')
+
+singleTopSingleMuonHLTMonitor_Mu27.jetSelection = cms.string('pt>20 & abs(eta)<2.4')
+singleTopSingleMuonHLTMonitor_Mu27.numGenericTriggerEventPSet.hltPaths = cms.vstring(['HLT_Mu27_v*', 'HLT_TkMu27_v*', 'HLT_IsoMu27_v*', 'HLT_IsoTkMu27_v*'])
+
+
+singleTopSingleMuonHLTMonitor_Mu50 = hltTOPmonitoring.clone()
+singleTopSingleMuonHLTMonitor_Mu50.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/SingleTop/SingleMuon/Mu50/')
+singleTopSingleMuonHLTMonitor_Mu50.nmuons = cms.uint32(1)
+singleTopSingleMuonHLTMonitor_Mu50.nelectrons = cms.uint32(0)
+singleTopSingleMuonHLTMonitor_Mu50.njets = cms.uint32(4)
+singleTopSingleMuonHLTMonitor_Mu50.eleSelection = cms.string('pt>30 & abs(eta)<2.4 & (dr03TkSumPt+dr03EcalRecHitSumEt+dr03HcalTowerSumEt)/pt < 0.1')
+
+singleTopSingleMuonHLTMonitor_Mu50.muoSelection = cms.string('pt>26 & abs(eta)<2.1 & (pfIsolationR04().sumChargedHadronPt + max(pfIsolationR04().sumNeutralHadronEt + pfIsolationR04().sumPhotonEt - pfIsolationR04().sumPUPt/2,0.0))/pt < 0.15 & innerTrack.hitPattern.numberOfValidPixelHits > 0 & innerTrack.hitPattern.trackerLayersWithMeasurement > 5 & globalTrack.hitPattern.numberOfValidMuonHits > 0 & globalTrack.normalizedChi2 < 10 & numberOfMatches > 1 & isGlobalMuon & isPFMuon & isTrackerMuon')
+
+singleTopSingleMuonHLTMonitor_Mu50.jetSelection = cms.string('pt>20 & abs(eta)<2.4')
+singleTopSingleMuonHLTMonitor_Mu50.numGenericTriggerEventPSet.hltPaths = cms.vstring(['HLT_TkMu50_v*', 'HLT_Mu50_v*'])
 
 
 topMonitorHLT = cms.Sequence(
@@ -184,10 +285,18 @@ topMonitorHLT = cms.Sequence(
     + eleHT_ele
     + eleHT_ht
     + eleHT_all
-    + topSingleMuonHLTValidation
-    + topDiElectronHLTValidation
-    + topDiMuonHLTValidation
-    + topElecMuonHLTValidation
-    + singleTopSingleMuonHLTValidation
+    + topSingleMuonHLTMonitor_Mu20
+    + topSingleMuonHLTMonitor_Mu24
+    + topSingleMuonHLTMonitor_Mu27
+    + topSingleMuonHLTMonitor_Mu50
+    + topDiElectronHLTMonitor
+    + topDiMuonHLTMonitor_noDz
+    + topDiMuonHLTMonitor_Dz
+    + topDiMuonHLTMonitor_Mass8
+    + topElecMuonHLTMonitor
+    + singleTopSingleMuonHLTMonitor_Mu20
+    + singleTopSingleMuonHLTMonitor_Mu24
+    + singleTopSingleMuonHLTMonitor_Mu27
+    + singleTopSingleMuonHLTMonitor_Mu50
 
     )
