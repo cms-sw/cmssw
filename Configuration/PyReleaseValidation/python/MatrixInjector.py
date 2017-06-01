@@ -533,7 +533,8 @@ class MatrixInjector(object):
                 print pprint.pprint(d)
                 print "Submitting",n,"..........."
                 workFlow=makeRequest(self.wmagent,d,encodeDict=True)
-                approveRequest(self.wmagent,workFlow)
+# Changed: DO NOT APPROVE REQUEST, approval will be done via reqmgr2 interface
+#                approveRequest(self.wmagent,workFlow)
                 print "...........",n,"submitted"
                 random_sleep()
             
