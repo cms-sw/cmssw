@@ -100,7 +100,8 @@ DTDataIntegrityTest::~DTDataIntegrityTest(){
   counter++;
 
   //Loop on FED id
-  for (int dduId=FEDNumbering::MINDTFEDID; dduId<=FEDNumbering::MAXDTFEDID; ++dduId){
+  //Monitoring only real used FEDs
+  for (int dduId=FEDNumbering::MINDTFEDID; dduId<=774; ++dduId){
     LogTrace ("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest")
       <<"[DTDataIntegrityTest]:FED Id: "<<dduId;
  
