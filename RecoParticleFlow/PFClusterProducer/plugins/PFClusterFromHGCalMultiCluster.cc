@@ -33,8 +33,11 @@ void PFClusterFromHGCalMultiCluster::buildClusters(
       const auto& hitsAndFractions = cl->hitsAndFractions();
       for (const auto& hAndF : hitsAndFractions) {
         auto itr = detIdToIndex.find(hAndF.first);
-        if (itr == detIdToIndex.end()) continue;  // hit wasn't saved in reco
+        if (itr == detIdToIndex.end()) {
+	  continue;  // hit wasn't saved in reco
+	}
         auto ref = makeRefhit(input, itr->second);
+	assert(ref->detId() == hAndF.first.rawId());
         const double hit_energy = hAndF.second * ref->energy();
         energy += hit_energy;
         back.addRecHitFraction(reco::PFRecHitFraction(ref, hAndF.second));
