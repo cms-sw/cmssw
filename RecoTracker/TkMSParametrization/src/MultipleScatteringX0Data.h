@@ -6,7 +6,7 @@
  */
 
 #include <string>
-class TFile;
+#include <memory>
 class TH2F;
 
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
@@ -29,8 +29,7 @@ public:
 private:
   std::string fileName();
 
-   TFile * theFile;
-   TH2F  * theData;
+  std::unique_ptr<TH2F> theData;
 };
 
 #endif
