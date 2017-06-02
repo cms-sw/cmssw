@@ -73,7 +73,7 @@ L3MuonTrajectoryBuilder::~L3MuonTrajectoryBuilder() {
 
 void L3MuonTrajectoryBuilder::fillDescriptions(edm::ParameterSetDescription& desc) {
    edm::ParameterSetDescription descTRB;
-   MuonTrackingRegionBuilder::fillDescriptionsHLT(descTRB);
+   MuonTrackingRegionBuilder::fillDescriptions(descTRB);
    desc.add("MuonTrackingRegionBuilder",descTRB);
 }
 
