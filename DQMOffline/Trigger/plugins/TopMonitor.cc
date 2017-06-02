@@ -15,10 +15,12 @@ TopMonitor::TopMonitor( const edm::ParameterSet& iConfig ) :
   folderName_             ( iConfig.getParameter<std::string>("FolderName") )
   , metToken_             ( consumes<reco::PFMETCollection>      (iConfig.getParameter<edm::InputTag>("met")       ) )   
   , jetToken_             ( mayConsume<reco::PFJetCollection>      (iConfig.getParameter<edm::InputTag>("jets")      ) )   
-  , eleToken_             ( mayConsume<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons") ) )   
+  , eleToken_             ( mayConsume<edm::View<reco::GsfElectron> >(iConfig.getParameter<edm::InputTag>("electrons") ) )   
   , muoToken_             ( mayConsume<reco::MuonCollection>       (iConfig.getParameter<edm::InputTag>("muons")     ) )   
   // Marina
   , jetTagToken_          ( mayConsume<reco::JetTagCollection>     (iConfig.getParameter<edm::InputTag>("btagalgo") ))
+  //Suvankar
+  , vtxToken_             ( mayConsume<reco::VertexCollection> (iConfig.getParameter<edm::InputTag>("vertices") ) )
   , met_binning_          ( getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("metPSet")    ) )
   , ls_binning_           ( getHistoLSPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("lsPSet")     ) )
   , phi_binning_          ( getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("phiPSet")    ) )
@@ -50,6 +52,7 @@ TopMonitor::TopMonitor( const edm::ParameterSet& iConfig ) :
   , eleSelection_ ( iConfig.getParameter<std::string>("eleSelection") )
   , muoSelection_ ( iConfig.getParameter<std::string>("muoSelection") )
   , HTdefinition_ ( iConfig.getParameter<std::string>("HTdefinition") )
+  , vtxSelection_ ( iConfig.getParameter<std::string>("vertexSelection") )
   , njets_      ( iConfig.getParameter<unsigned int>("njets" )      )
   , nelectrons_ ( iConfig.getParameter<unsigned int>("nelectrons" ) )
   , nmuons_     ( iConfig.getParameter<unsigned int>("nmuons" )     )
@@ -60,6 +63,8 @@ TopMonitor::TopMonitor( const edm::ParameterSet& iConfig ) :
   , workingpoint_(iConfig.getParameter<double>("workingpoint"))
   , bjetPtCut_(iConfig.getParameter<double>("bjetPtCut"))
   , bjetAbsEtaCut_(iConfig.getParameter<double>("bjetAbsEtaCut"))
+  //Suvankar
+  , usePVcuts_ ( iConfig.getParameter<bool>("applyleptonPVcuts")    )
 {
 
     METME empty;
@@ -134,7 +139,9 @@ TopMonitor::TopMonitor( const edm::ParameterSet& iConfig ) :
       bjetPtEta_.push_back(empty);
       bjetEtaPhi_.push_back(empty);
     }
-    
+  //Suvankar
+  lepPVcuts_.dxy = (iConfig.getParameter<edm::ParameterSet>("leptonPVcuts")).getParameter<double>("dxy");
+  lepPVcuts_.dz  = (iConfig.getParameter<edm::ParameterSet>("leptonPVcuts")).getParameter<double>("dz");     
 }
 
 TopMonitor::~TopMonitor()
@@ -512,10 +519,26 @@ void TopMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
+//Suvankar
+#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+
 void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)  {
 
   // Filter out events if Trigger Filtering is requested
   if (den_genTriggerEventFlag_->on() && ! den_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
+
+  //Suvankar
+  edm::Handle<reco::VertexCollection> primaryVertices;
+  iEvent.getByToken(vtxToken_, primaryVertices);
+  //Primary Vertex selection
+  const reco::Vertex* pv = nullptr;
+  for(auto const& v: *primaryVertices) {
+    if ( !vtxSelection_( v ) )      continue;
+    pv = &v;
+    break;
+  }
+  if(usePVcuts_ && pv == nullptr)      return;
 
   edm::Handle<reco::PFMETCollection> metHandle;
   iEvent.getByToken( metToken_, metHandle );
@@ -529,7 +552,7 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   float met = pfmet.pt();
   float phi = pfmet.phi();
 
-  edm::Handle<reco::GsfElectronCollection> eleHandle;
+  edm::Handle<edm::View<reco::GsfElectron> > eleHandle;
   iEvent.getByToken( eleToken_, eleHandle );
   if (!eleHandle.isValid()){
       edm::LogWarning("TopMonitor") << "Electron handle not valid \n";
@@ -539,6 +562,9 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   if ( eleHandle->size() < nelectrons_ ) return;
   for ( auto const & e : *eleHandle ) {
     if ( eleSelection_( e ) ) electrons.push_back(e);
+    //Suvankar
+    if ( usePVcuts_ && 
+         (std::fabs(e.gsfTrack()->dxy(pv->position())) >= lepPVcuts_.dxy || std::fabs(e.gsfTrack()->dz(pv->position())) >= lepPVcuts_.dz) ) continue;
   }
   if ( electrons.size() < nelectrons_ ) return;
   
@@ -552,6 +578,9 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   std::vector<reco::Muon> muons;
   for ( auto const & m : *muoHandle ) {
     if ( muoSelection_( m ) ) muons.push_back(m);
+    //Suvankar
+    if ( usePVcuts_ && 
+         (std::fabs(m.muonBestTrack()->dxy(pv->position())) >= lepPVcuts_.dxy || std::fabs(m.muonBestTrack()->dz(pv->position())) >= lepPVcuts_.dz) ) continue;
   }
   if ( muons.size() < nmuons_ ) return;
 
@@ -859,6 +888,8 @@ void TopMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   desc.add<edm::InputTag>( "jets",     edm::InputTag("ak4PFJetsCHS") );
   desc.add<edm::InputTag>( "electrons",edm::InputTag("gedGsfElectrons") );
   desc.add<edm::InputTag>( "muons",    edm::InputTag("muons") );
+  //Suvankar
+  desc.add<edm::InputTag>( "vertices", edm::InputTag("offlinePrimaryVertices") );
   // Marina
   desc.add<edm::InputTag>( "btagalgo", edm::InputTag("pfCombinedSecondaryVertexV2BJetTags") );
   desc.add<std::string>("metSelection", "pt > 0");
@@ -866,6 +897,8 @@ void TopMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   desc.add<std::string>("eleSelection", "pt > 0");
   desc.add<std::string>("muoSelection", "pt > 0");
   desc.add<std::string>("HTdefinition", "pt > 0");
+  //Suvankar
+  desc.add<std::string>("vertexSelection", "!isFake");
   desc.add<unsigned int>("njets",      0);
   desc.add<unsigned int>("nelectrons", 0);
   desc.add<unsigned int>("nmuons",     0);
@@ -876,7 +909,8 @@ void TopMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   desc.add<double>("workingpoint",     0.8484); // medium CSV
   desc.add<double>("bjetPtCut",        0);
   desc.add<double>("bjetAbsEtaCut",    0);
-
+  //Suvankar
+  desc.add<bool>("applyleptonPVcuts", false);
 
   edm::ParameterSetDescription genericTriggerEventPSet;
   genericTriggerEventPSet.add<bool>("andOr");
@@ -945,6 +979,11 @@ void TopMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   histoPSet.add<edm::ParameterSetDescription>("lsPSet", lsPSet);
 
   desc.add<edm::ParameterSetDescription>("histoPSet",histoPSet);
+  //Suvankar
+  edm::ParameterSetDescription lPVcutPSet;
+  lPVcutPSet.add<double>( "dxy", 0. );
+  lPVcutPSet.add<double>( "dz",  0. );
+  desc.add<edm::ParameterSetDescription>("leptonPVcuts", lPVcutPSet);
 
   descriptions.add("topMonitoring", desc);
 }
