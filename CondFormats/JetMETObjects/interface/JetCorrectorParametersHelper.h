@@ -46,7 +46,7 @@ class JetCorrectorParametersHelper
     // Maps a set of lower bounds for the first N-1 dimensions to the range of lower bound indices mBinBoundaries for the N dimension
     std::unordered_map<tuple_type_Nm1, std::pair<size_t,size_t> > mMap;
     // The number of binned dimensions as given by the JetCorrectorParameters::Definitions class
-    unsigned													  SIZE;
+    unsigned                                                      SIZE;
 };
 
 #endif
