@@ -108,10 +108,27 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
       if(clusterTrim.checkClusterFlag(CaloCluster::INCLUDE_NN)) egamma.setHwPt(egamma.hwPt() + towerEtNN);
       if(clusterTrim.checkClusterFlag(CaloCluster::INCLUDE_SS)) egamma.setHwPt(egamma.hwPt() + towerEtSS);
 
+      
+      //Extended H/E flag computed using all neighbouring towers
+      bool HoE_ext = idHoverE_ext(seed);           
+      HoE_ext &= idHoverE_ext(towerNW);
+      HoE_ext &= idHoverE_ext(towerN);
+      HoE_ext &= idHoverE_ext(towerNE);
+      HoE_ext &= idHoverE_ext(towerE);
+      HoE_ext &= idHoverE_ext(towerSE);
+      HoE_ext &= idHoverE_ext(towerS);
+      HoE_ext &= idHoverE_ext(towerSW);
+      HoE_ext &= idHoverE_ext(towerW);
+      //NN and SS only checked if included
+      if(cluster.checkClusterFlag(CaloCluster::INCLUDE_NN)) HoE_ext &= idHoverE_ext(towerNN);
+      if(cluster.checkClusterFlag(CaloCluster::INCLUDE_SS)) HoE_ext &= idHoverE_ext(towerSS);
+      
 
       // Identification of the egamma
       // Based on the seed tower FG bit, the H/E ratio of the seed tower, and the shape of the cluster
       bool hOverEBit = cluster.hOverE()>0;
+      if(!params_->egBypassExtHOverE())
+	hOverEBit &= HoE_ext;
       bool shapeBit  = idShape(cluster, egamma.hwPt());
       bool fgBit     = !(cluster.fgECAL()); 
       int qual = 0;
@@ -141,7 +158,9 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
           1,72,towers,1,999,CaloTools::CALO);
       unsigned int lutAddress = isoLutIndex(egamma.hwEta(), nrTowers, egamma.hwPt());
 
-      int isolBit = (((hwEtSum-hwFootPrint) < params_->egIsolationLUT()->data(lutAddress)) || (params_->egIsolationLUT()->data(lutAddress)>255));       
+      int isolBit = (((hwEtSum-hwFootPrint) < params_->egIsolationLUT()->data(lutAddress)) || (params_->egIsolationLUT()->data(lutAddress)>255));  
+      int isolBit2 = (((hwEtSum-hwFootPrint) < params_->egIsolationLUT2()->data(lutAddress)) || (params_->egIsolationLUT2()->data(lutAddress)>255));  
+      isolBit += (isolBit2 << 1);	     
       egamma.setHwIso(isolBit);
       int hwIsoEnergy = hwEtSum-hwFootPrint;
 
@@ -524,5 +543,18 @@ int l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::returnHoE(const l1t::CaloTower
   //else E >= H , so ratio=log(E/H)
 
   return ratio;
+
+}
+
+
+
+
+bool l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::idHoverE_ext(const l1t::CaloTower tow){
+
+  int qual  = tow.hwQual();
+  bool eOverHFlag    = ((qual&0x2) > 0);
+
+  if(tow.hwPt()<=10) return true; //Only applied for towers with ET>5 GeV
+  else return eOverHFlag;
 
 }
