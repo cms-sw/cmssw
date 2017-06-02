@@ -217,6 +217,7 @@ private:
   StringCutObjectSelector<reco::GsfElectron,true> eleSelection_;
   StringCutObjectSelector<reco::Muon,true>        muoSelection_;
   StringCutObjectSelector<reco::PFJet,true   >    HTdefinition_;
+  StringCutObjectSelector<reco::Jet,true   >      bjetSelection_;
 
   unsigned int njets_;
   unsigned int nelectrons_;
@@ -226,9 +227,6 @@ private:
   // Marina
   unsigned int nbjets_;
   double workingpoint_;
-  double bjetPtCut_;
-  double bjetAbsEtaCut_;
-  
   
 };
 
