@@ -190,4 +190,13 @@ def setupVIDPhotonSelection(process,cutflow,patProducer=None,addUserData=True,ta
         idName = cutflow.idName.value()
         addVIDSelectionToPATProducer(patProducer,'egmPhotonIDs',idName,addUserData)
         
+####
+# OOT Photons
+####
 
+#turns on the VID OOT photon ID producer, possibly with extra options
+# for PAT and/or MINIAOD: currently only does regression
+def switchOnVIDOOTPhotonIdProducer(process, dataFormat, task=None):
+    process.load('RecoEgamma.PhotonIdentification.egmOOTPhotonIDs_cff')
+    if task is not None:
+        task.add(process.egmOOTPhotonIDTask)
