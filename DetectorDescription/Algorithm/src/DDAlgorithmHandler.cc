@@ -1,25 +1,15 @@
 #include "DetectorDescription/Algorithm/interface/DDAlgorithmHandler.h"
-
-#include <utility>
-
 #include "DetectorDescription/Algorithm/interface/DDAlgorithm.h"
 #include "DetectorDescription/Algorithm/interface/DDAlgorithmFactory.h"
-#include "DetectorDescription/Core/interface/DDSplit.h"
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
 class DDCompactView;
 
-DDAlgorithmHandler::DDAlgorithmHandler()
-  : algo_(0)
-{
-}
+DDAlgorithmHandler::DDAlgorithmHandler( void )
+{}
 
-DDAlgorithmHandler::~DDAlgorithmHandler()
-{
-  if (algo_) {
-    delete algo_;
-  }
-}
+DDAlgorithmHandler::~DDAlgorithmHandler( void )
+{}
 
 void
 DDAlgorithmHandler::initialize( const std::string & algoName,
@@ -30,11 +20,10 @@ DDAlgorithmHandler::initialize( const std::string & algoName,
 				const DDStringArguments & sArgs,
 				const DDStringVectorArguments & svArgs )
 {
-  std::pair<std::string,std::string> algoNmNs = DDSplit(algoName);
   algoname_ = algoName;
-  algo_ = DDAlgorithmFactory::get()->create(algoname_);
-  algo_->setParent(parent);
-  algo_->initialize(nArgs,vArgs,mArgs,sArgs, svArgs);
+  algo_ = std::unique_ptr<DDAlgorithm>( DDAlgorithmFactory::get()->create( algoname_ ));
+  algo_->setParent( parent );
+  algo_->initialize( nArgs, vArgs, mArgs, sArgs, svArgs );
 }
 
 void

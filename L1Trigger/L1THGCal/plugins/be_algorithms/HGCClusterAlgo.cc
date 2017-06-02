@@ -41,6 +41,7 @@ class HGCClusterAlgo : public Algorithm<FECODEC>
         clustering_( conf.getParameterSet("C2d_parameters") ),
         multiclustering_( conf.getParameterSet("C3d_parameters" ) )
         {
+            clustering_threshold_ = conf.getParameterSet("C2d_parameters").getParameter<double>("clustering_threshold");
             std::string type(conf.getParameterSet("C2d_parameters").getParameter<std::string>("clusterType"));
             if(type=="dRC2d"){
                 clusteringAlgorithmType_ = dRC2d;
@@ -101,6 +102,7 @@ class HGCClusterAlgo : public Algorithm<FECODEC>
 
         /* algorithm type */
         ClusterType clusteringAlgorithmType_;
+        double clustering_threshold_;
 };
 
 
@@ -144,8 +146,8 @@ void HGCClusterAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection & c
 
                 l1t::HGCalTriggerCell calibratedtriggercell( triggercell );
                 calibration_.calibrateInGeV( calibratedtriggercell, cellThickness ); 
+                if(calibratedtriggercell.mipPt()<clustering_threshold_) continue;
                 trgcell_product_->push_back( 0, calibratedtriggercell );
-
             }           
         
         }

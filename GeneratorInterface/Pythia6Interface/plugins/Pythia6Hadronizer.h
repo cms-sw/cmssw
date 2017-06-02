@@ -44,7 +44,7 @@ class JetMatching;
   
   public:
      Pythia6Hadronizer(edm::ParameterSet const& ps);
-     ~Pythia6Hadronizer();
+     virtual ~Pythia6Hadronizer();
 
      // bool generatePartons();
      bool generatePartonsAndHadronize();

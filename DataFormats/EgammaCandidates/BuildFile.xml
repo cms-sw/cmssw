@@ -1,4 +1,5 @@
 <use   name="DataFormats/Candidate"/>
+<use   name="DataFormats/CLHEP"/>
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/EgammaReco"/>
 <use   name="DataFormats/CaloRecHit"/>
@@ -9,6 +10,7 @@
 <use   name="DataFormats/TrackerRecHit2D"/>
 <use   name="DataFormats/TrackingRecHit"/>
 <use   name="DataFormats/VertexReco"/>
+<use   name="DataFormats/GsfTrackReco"/>
 <use   name="DataFormats/GeometryCommonDetAlgo"/>
 # <use   name="DataFormats/ParticleFlowCandidate"/>
 <use   name="FWCore/MessageLogger"/>

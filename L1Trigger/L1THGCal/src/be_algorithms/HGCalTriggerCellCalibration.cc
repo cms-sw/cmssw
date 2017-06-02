@@ -8,6 +8,14 @@ HGCalTriggerCellCalibration::HGCalTriggerCellCalibration(const edm::ParameterSet
     fCperMIP_fh_ = beCodecConfig.getParameter<std::vector<double>>("fCperMIPfh");
     dEdX_weights_ = beCodecConfig.getParameter<std::vector<double>>("dEdXweights");
     thickCorr_ = beCodecConfig.getParameter<std::vector<double>>("thickCorr");
+    
+
+    for(auto corr : thickCorr_){
+        if(corr <= 0){
+            edm::LogWarning("DivisionByZero") << "WARNING: the cell-thickness correction factor is zero or negative. It won't be applied to correct trigger cell energies.";
+        }
+
+    }
 }
 
 
@@ -33,7 +41,11 @@ void HGCalTriggerCellCalibration::calibrateInMipT(l1t::HGCalTriggerCell& trgCell
     }
 
     /* correct the charge amplitude for the sensor thickness */
-    double trgCellMipP = amplitude * thickCorr_.at( cellThickness-1 );
+    double trgCellMipP = amplitude;
+    if( thickCorr_.at( cellThickness-1 ) > 0 ){
+        trgCellMipP = trgCellMipP / thickCorr_.at( cellThickness-1 ); 
+    }
+     
     double trgCellMipPt = trgCellMipP/cosh( trgCell.eta() ); 
 
     /* setting pT [mip] */

@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 from DQM.SiPixelPhase1Common.HistogramManager_cfi import *
 
 SiPixelPhase1TrackClustersOnTrackCharge = DefaultHistoTrack.clone(
@@ -10,7 +11,19 @@ SiPixelPhase1TrackClustersOnTrackCharge = DefaultHistoTrack.clone(
   specs = VPSet(
     Specification().groupBy("PXBarrel/PXLayer").saveAll(),
     Specification().groupBy("PXForward/PXDisk").saveAll(),
-    StandardSpecification2DProfile
+    StandardSpecification2DProfile,#what is below is only for the timing client
+    Specification(OverlayCurvesForTiming).groupBy("PXBarrel/OnlineBlock")
+         .groupBy("PXBarrel", "EXTEND_Y")
+         .save(),
+    Specification(OverlayCurvesForTiming).groupBy("PXForward/OnlineBlock")
+          .groupBy("PXForward", "EXTEND_Y")
+          .save(),
+    Specification(OverlayCurvesForTiming).groupBy("PXForward/PXDisk/OnlineBlock") # per-layer with history for online
+          .groupBy("PXForward/PXDisk", "EXTEND_Y")
+          .save(),
+    Specification(OverlayCurvesForTiming).groupBy("PXBarrel/PXLayer/OnlineBlock") # per-layer with history for online
+                                 .groupBy("PXBarrel/PXLayer", "EXTEND_Y")
+                                 .save()
   )
 )
 
@@ -68,6 +81,18 @@ SiPixelPhase1TrackClustersOnTrackNClusters = DefaultHistoTrack.clone(
                    .reduce("COUNT")
                    .groupBy("PXAll")
                    .save(nbins=200, xmin=0, xmax=10000),
+
+    #below is for timing client
+    Specification(OverlayCurvesForTiming).groupBy("DetId/Event")
+                    .reduce("COUNT")
+                    .groupBy("PXForward/OnlineBlock")
+                    .groupBy("PXForward", "EXTEND_Y")
+                    .save(),
+    Specification(OverlayCurvesForTiming).groupBy("DetId/Event")
+                    .reduce("COUNT")
+                    .groupBy("PXBarrel/OnlineBlock")
+                    .groupBy("PXBarrel", "EXTEND_Y")
+                    .save()
   )
 )
 
@@ -164,7 +189,7 @@ SiPixelPhase1TrackClustersAnalyzer = cms.EDAnalyzer("SiPixelPhase1TrackClusters"
         geometry = SiPixelPhase1Geometry
 )
 
-SiPixelPhase1TrackClustersHarvester = cms.EDAnalyzer("SiPixelPhase1Harvester",
+SiPixelPhase1TrackClustersHarvester = DQMEDHarvester("SiPixelPhase1Harvester",
         histograms = SiPixelPhase1TrackClustersConf,
         geometry = SiPixelPhase1Geometry
 )

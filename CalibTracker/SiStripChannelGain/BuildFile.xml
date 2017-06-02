@@ -9,6 +9,7 @@
 <use name="CondFormats/RunInfo"/>
 <use name="DataFormats/DetId"/>
 <use name="DataFormats/FEDRawData"/>
+<use name="DataFormats/TrackerCommon"/>
 <use name="DataFormats/GeometrySurface"/>
 <use name="DataFormats/SiStripCluster"/>
 <use name="DataFormats/SiStripDetId"/>

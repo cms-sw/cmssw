@@ -115,7 +115,6 @@ namespace {
       iNThreads = tbb::task_scheduler_init::default_num_threads();
     }
     oPtr = std::make_unique<tbb::task_scheduler_init>(static_cast<int>(iNThreads),iStackSize);
-    edm::LogInfo("ThreadSetup") <<"setting # threads "<<iNThreads;
 
     return iNThreads;
   }

@@ -65,10 +65,26 @@ namespace edm {
       return 0;
     }
 #elif defined(__aarch64__)
-#warning unsigned long long rdtsc(void) is not implemented on ARMv8 (AArch64) architecture. Returning 0 by default.
     static __inline__ unsigned long long rdtsc(void)
     {
-      return 0;
+      // We will be reading CNTVCT_EL0 (the virtual counter), which is prepared for us by OS.
+      // The system counter sits outside multiprocessor in SOC and runs on a different frequency.
+      // Increments at a fixed frequency, typically in the range 1-50MHz.
+      // Applications can figure out system counter configuration via CNTFRQ_EL0.
+      // 
+      // Notice:
+      // Reads of CNTVCT_EL0 can occur speculatively and out of order relative to other 
+      // instructions executed on the same PE.
+      // For example, if a read from memory is used to obtain a signal from another agent 
+      // that indicates that CNTVCT_EL0 must be read, an ISB is used to ensure that the 
+      // read of CNTVCT_EL0 occurs after the signal has been read from memory
+      //
+      // More details:
+      // Chapter D6: The Generic Timer in AArch64 state
+      // ARM DDI 0487B.a, ID033117 (file: DDI0487B_a_armv8_arm.pdf)
+      unsigned long long ret; // unsigned 64-bit value
+      __asm__ __volatile__ ("isb; mrs %0, cntvct_el0" : "=r" (ret));
+      return ret;
     }
 #else
 #error The file FWCore/Utilities/interface/HRRealTime.h needs to be set up for your CPU type.

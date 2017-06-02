@@ -17,7 +17,7 @@
 class L1TLossFunction
 {
  public:
-  
+  virtual ~L1TLossFunction() =default; 
   // The gradient of the loss function.
   // Each tree is a step in the direction of the gradient
   // towards the minimum of the Loss Function.

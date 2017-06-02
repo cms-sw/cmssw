@@ -9,6 +9,7 @@
 class FrameRotation 
 {
 public:
+    virtual ~FrameRotation() = default;
     virtual Local3DPoint transformPoint(Local3DPoint &,G4VPhysicalVolume *) const = 0;
 };
 

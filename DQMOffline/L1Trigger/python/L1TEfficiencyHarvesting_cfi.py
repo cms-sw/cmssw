@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-l1tEfficiencyMuons_Harvesting = cms.EDAnalyzer("L1TEfficiency_Harvesting",
+l1tEfficiencyMuons_Harvesting = DQMEDHarvester("L1TEfficiency_Harvesting",
     verbose  = cms.untracked.bool(False),
     plotCfgs = cms.untracked.VPSet(
         cms.untracked.PSet( dqmBaseDir = cms.untracked.string("L1T/Efficiency/Muons"),

@@ -33,6 +33,9 @@ from DQMOffline.Trigger.PrimaryVertexMonitoring_cff import *
 from DQMOffline.Trigger.TrackingMonitoring_cff import *
 from DQMOffline.Trigger.TrackingMonitoringPA_cff import*
 
+# hcal
+from DQMOffline.Trigger.HCALMonitoring_cff import *
+
 # strip
 from DQMOffline.Trigger.SiStrip_OfflineMonitoring_cff import *
 
@@ -54,9 +57,10 @@ from DQMOffline.Trigger.heavyionUCCDQM_cfi import *
 import DQMServices.Components.DQMEnvironment_cfi
 dqmEnvHLT= DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
 dqmEnvHLT.subSystemFolder = 'HLT'
+
 # EXO
 from DQMOffline.Trigger.ExoticaMonitoring_cff import *
-
+# SUS
 from DQMOffline.Trigger.SusyMonitoring_cff import *
 # B2G
 from DQMOffline.Trigger.B2GMonitoring_cff import *
@@ -76,6 +80,7 @@ from DQMOffline.Trigger.topHLTOfflineDQM_cff import *
 offlineHLTSource = cms.Sequence(
     hltResults *
     lumiMonitorHLTsequence *
+    hcalMonitoringSequence *
     egHLTOffDQMSource *
     muonFullOfflineDQM *
     HLTTauDQMOffline *

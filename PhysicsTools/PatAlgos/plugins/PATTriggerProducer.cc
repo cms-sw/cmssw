@@ -80,6 +80,7 @@ PATTriggerProducer::PATTriggerProducer( const ParameterSet & iConfig ) :
   hltPrescaleTableLumi_(),
   addPathModuleLabels_( false ),
   packPathNames_( iConfig.existsAs<bool>("packTriggerPathNames") ? iConfig.getParameter<bool>("packTriggerPathNames") : false ),
+  packLabels_( iConfig.existsAs<bool>("packTriggerLabels") ? iConfig.getParameter<bool>("packTriggerLabels") : true ),
   packPrescales_( iConfig.existsAs<bool>("packTriggerPrescales") ? iConfig.getParameter<bool>("packTriggerPrescales") : true )
 {
 
@@ -1017,12 +1018,17 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
   }
 
 
-  if (packPathNames_) {
-    const edm::TriggerNames & names = iEvent.triggerNames(*handleTriggerResults);
-    for (pat::TriggerObjectStandAlone &obj : *triggerObjectsStandAlone) {
-      obj.packPathNames(names);
-    }
+  edm::ProcessConfiguration config;
+  iEvent.processHistory().getConfigurationForProcess(nameProcess_,config);
+
+
+  const edm::TriggerNames & names = iEvent.triggerNames(*handleTriggerResults);
+  for (pat::TriggerObjectStandAlone &obj : *triggerObjectsStandAlone) {
+        obj.setPSetID(config.parameterSetID());
+	if(packPathNames_)      obj.packPathNames(names);
+	if(packLabels_)      obj.packFilterLabels(iEvent,*handleTriggerResults);
   }
+  
   // Put (finally) stand-alone trigger objects to event
   iEvent.put(std::move(triggerObjectsStandAlone));
 

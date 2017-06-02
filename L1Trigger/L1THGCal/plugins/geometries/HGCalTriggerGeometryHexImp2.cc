@@ -55,6 +55,7 @@ class HGCalTriggerGeometryHexImp2 : public HGCalTriggerGeometryBase
         std::multimap<std::pair<short,short>, short> trigger_cells_to_cells_;// FIXME: something else than map<pair,short>?
         std::unordered_map<short, short> number_trigger_cells_in_wafers_; // the map key is the wafer type
         std::unordered_map<short, short> number_cells_in_wafers_; // the map key is the wafer type
+        std::unordered_set<unsigned> invalid_triggercells_;
 
         // neighbor related maps
         // trigger cell neighbors:
@@ -73,10 +74,12 @@ class HGCalTriggerGeometryHexImp2 : public HGCalTriggerGeometryBase
 
         void fillMaps(const es_info&);
         void fillNeighborMaps(const es_info&);
+        void fillInvalidTriggerCells(const es_info&);
         unsigned packTriggerCell(unsigned, const std::vector<int>&) const;
         // returns transverse wafer type: -1=coarse, 1=fine, 0=undefined
         int detIdWaferType(unsigned subdet, short wafer) const;
         bool validCellId(unsigned subdet, unsigned cell_id) const;
+        bool validTriggerCellFromCells( const unsigned ) const;
 };
 
 
@@ -111,6 +114,7 @@ initialize(const es_info& esInfo)
     es_info_ = esInfo;
     fillMaps(esInfo);
     fillNeighborMaps(esInfo);
+    fillInvalidTriggerCells(esInfo);
 
 }
 
@@ -434,7 +438,8 @@ getNeighborsFromTriggerCell( const unsigned trigger_cell_id ) const
                 << " for wafer " << wafer << " and trigger cell " << trigger_cell
                 << ". The neighbor mapping files should be modified.";
         }
-        unsigned neighbor_wafer = (wafer_tc.first==0 ? wafer : surrounding_wafers.at(wafer_tc.first-1));
+        int neighbor_wafer = (wafer_tc.first==0 ? wafer : surrounding_wafers.at(wafer_tc.first-1));
+        if(neighbor_wafer==-1) continue; // non-existing wafer
         int type = types.at(wafer_tc.first);
         HGCalDetId neighbor_det_id((ForwardSubdetector)trigger_cell_det_id.subdetId(), trigger_cell_det_id.zside(), trigger_cell_det_id.layer(), type, neighbor_wafer, wafer_tc.second);
         if(validTriggerCell(neighbor_det_id.rawId()))
@@ -648,6 +653,47 @@ fillNeighborMaps(const es_info& esInfo)
     }
 }
 
+
+void 
+HGCalTriggerGeometryHexImp2::
+fillInvalidTriggerCells(const es_info& esInfo)
+{
+    unsigned n_layers_ee = es_info_.topo_ee->dddConstants().layers(true);
+    for(unsigned layer=1; layer<=n_layers_ee; layer++)
+    {
+        for(const auto& wafer_module : wafer_to_module_ee_)
+        {
+            unsigned wafer = wafer_module.first;
+            int wafer_type = detIdWaferType(ForwardSubdetector::HGCEE, wafer);
+            // loop on the trigger cells in each wafer
+            for(int trigger_cell=0; trigger_cell<number_trigger_cells_in_wafers_.at(wafer_type); trigger_cell++)
+            {
+                HGCalDetId trigger_cell_id_neg(ForwardSubdetector::HGCEE, -1, layer, wafer_type, wafer, trigger_cell);
+                HGCalDetId trigger_cell_id_pos(ForwardSubdetector::HGCEE, 1, layer, wafer_type, wafer, trigger_cell);
+                if(!validTriggerCellFromCells(trigger_cell_id_neg)) invalid_triggercells_.emplace(trigger_cell_id_neg.rawId());
+                if(!validTriggerCellFromCells(trigger_cell_id_pos)) invalid_triggercells_.emplace(trigger_cell_id_pos.rawId());
+            }
+        }
+    }
+    unsigned n_layers_fh = es_info_.topo_fh->dddConstants().layers(true);
+    for(unsigned layer=1; layer<=n_layers_fh; layer++)
+    {
+        for(const auto& wafer_module : wafer_to_module_fh_)
+        {
+            unsigned wafer = wafer_module.first;
+            int wafer_type = detIdWaferType(ForwardSubdetector::HGCHEF, wafer);
+            // loop on the trigger cells in each wafer
+            for(int trigger_cell=0; trigger_cell<number_trigger_cells_in_wafers_.at(wafer_type); trigger_cell++)
+            {
+                HGCalDetId trigger_cell_id_neg(ForwardSubdetector::HGCHEF, -1, layer, wafer_type, wafer, trigger_cell);
+                HGCalDetId trigger_cell_id_pos(ForwardSubdetector::HGCHEF, 1, layer, wafer_type, wafer, trigger_cell);
+                if(!validTriggerCellFromCells(trigger_cell_id_neg)) invalid_triggercells_.emplace(trigger_cell_id_neg.rawId());
+                if(!validTriggerCellFromCells(trigger_cell_id_pos)) invalid_triggercells_.emplace(trigger_cell_id_pos.rawId());
+            }
+        }
+    }
+}
+
 unsigned 
 HGCalTriggerGeometryHexImp2::
 packTriggerCell(unsigned trigger_cell, const std::vector<int>& wafer_types) const
@@ -688,6 +734,13 @@ detIdWaferType(unsigned subdet, short wafer) const
 bool 
 HGCalTriggerGeometryHexImp2::
 validTriggerCell(const unsigned trigger_cell_id) const
+{
+    return invalid_triggercells_.find(trigger_cell_id)==invalid_triggercells_.end();
+}
+
+bool 
+HGCalTriggerGeometryHexImp2::
+validTriggerCellFromCells(const unsigned trigger_cell_id) const
 {
     // Check the validity of a trigger cell with the
     // validity of the cells. One valid cell in the 

@@ -63,7 +63,14 @@ l1tStage2uGMTZeroSupp = cms.EDAnalyzer(
                                       0x00000000,
                                       0x0003FC00,
                                       0x00000000),
-    # no masks defined for caption IDs 0 and 3-11
+    # mask for validation event outputs (pt==0 defines empty muon)
+    maskCapId3 = cms.untracked.vint32(0x0003FC00,
+                                      0x00000000,
+                                      0x0003FC00,
+                                      0x00000000,
+                                      0x0003FC00,
+                                      0x00000000),
+    # no masks defined for caption IDs 0 and 4-11
     maxFEDReadoutSize = cms.untracked.int32(9000),
     monitorDir = cms.untracked.string("L1T/L1TStage2uGMT/zeroSuppression/AllEvts"),
     verbose = cms.untracked.bool(False),

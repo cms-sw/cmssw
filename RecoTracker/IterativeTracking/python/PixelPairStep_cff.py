@@ -33,19 +33,20 @@ _layerListForPhase2 = [
         'BPix1+FPix1_pos', 'BPix1+FPix1_neg',
         'BPix2+FPix1_pos', 'BPix2+FPix1_neg'
 ]
+# modifing these errors seems to make no difference
 from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
 trackingPhase2PU140.toModify(pixelPairStepSeedLayers, 
     layerList = _layerListForPhase2,
     BPix = dict(
         useErrorsFromParam = cms.bool(True),
-        hitErrorRPhi = cms.double(0.0027),
-        hitErrorRZ = cms.double(0.006),
+        hitErrorRPhi = cms.double(0.0016),
+        hitErrorRZ = cms.double(0.0035),
         TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelPairs'),
     ),
     FPix = dict(
         useErrorsFromParam = cms.bool(True),
-        hitErrorRPhi = cms.double(0.0051),
-        hitErrorRZ = cms.double(0.0036),
+        hitErrorRPhi = cms.double(0.0030),
+        hitErrorRZ = cms.double(0.0020),
         TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelPairs'),
     )
 )
@@ -110,6 +111,11 @@ pixelPairStepTrajectoryFilter = cms.PSet(
     #    cms.PSet( refToPSet_ = cms.string('pixelPairStepTrajectoryFilterShape'))
     ),
 )
+from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeTrajectoryFilter_cfi import *
+trackingPhase2PU140.toModify(pixelPairStepTrajectoryFilter,
+    filters = pixelPairStepTrajectoryFilter.filters + [cms.PSet(refToPSet_ = cms.string('ClusterShapeTrajectoryFilter'))]
+)
+
 
 
 pixelPairStepTrajectoryFilterInOut = pixelPairStepTrajectoryFilterBase.clone(
