@@ -64,7 +64,7 @@ class L1TJetsMatching: public edm::global::EDProducer<> {
   const double pt1_Min;
   const double pt2_Min;
   const double mjj_Min;
-    
+  const double matchingR;  
   };
     //
     // class decleration
@@ -136,7 +136,8 @@ class L1TJetsMatching: public edm::global::EDProducer<> {
     jetTrigger_( consumes<trigger::TriggerFilterObjectWithRefs>(iConfig.getParameter<InputTag>("L1JetTrigger") ) ),
     pt1_Min   ( iConfig.getParameter<double>("pt1_Min")),
     pt2_Min   ( iConfig.getParameter<double>("pt2_Min")),
-    mjj_Min   ( iConfig.getParameter<double>("mjj_Min"))
+    mjj_Min   ( iConfig.getParameter<double>("mjj_Min")),
+    matchingR ( iConfig.getParameter<double>("matchingR"))
     {
         produces<std::vector<T>>("TwoJets");
         produces<std::vector<T>>("ThreeJets");
@@ -151,8 +152,7 @@ class L1TJetsMatching: public edm::global::EDProducer<> {
         unique_ptr<std::vector<T>> pfMatchedJets(new std::vector<T>);
         std::pair<std::vector<T>,std::vector<T>> output;
         
-        double deltaR2    = 1.0;
-        double matchingR2 = 0.25;
+        double matchingR2 = matchingR*matchingR;
         
         // Getting HLT jets to be matched
         edm::Handle<std::vector<T> > pfJets;
@@ -173,8 +173,7 @@ class L1TJetsMatching: public edm::global::EDProducer<> {
             for(unsigned int iL1Jet = 0; iL1Jet < jetCandRefVec.size(); iL1Jet++){
                 // Find the relative L2pfJets, to see if it has been reconstructed
                 //  if ((iJet<3) && (iL1Jet==0))  std::cout<<myJet.p4().Pt()<<" ";
-                deltaR2 = reco::deltaR2(myJet.p4().Vect(), (jetCandRefVec[iL1Jet]->p4()).Vect());
-                if(deltaR2 < matchingR2 ) {
+                if(reco::deltaR2(myJet.p4().Vect(), (jetCandRefVec[iL1Jet]->p4()).Vect()) < matchingR2 ) {
                     pfMatchedJets->push_back(myJet);
                     break;
                 }
@@ -198,6 +197,7 @@ class L1TJetsMatching: public edm::global::EDProducer<> {
      desc.add<double>       ("pt1_Min",95.0)->setComment("Minimal pT1 of PFJets to match");
      desc.add<double>       ("pt2_Min",35.0)->setComment("Minimal pT2 of PFJets to match");
      desc.add<double>       ("mjj_Min",650.0)->setComment("Minimal mjj of matched PFjets");
+     desc.add<double>       ("matchingR",0.5)->setComment("dR value used for matching");
      descriptions.setComment("This module produces collection of PFJetss matched to L1 Taus / Jets passing a HLT filter (Only p4 and vertex of returned PFJetss are set).");
      descriptions.add(defaultModuleLabel<L1TJetsMatching<T>>(), desc);
      }
