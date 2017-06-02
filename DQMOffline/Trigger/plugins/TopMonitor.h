@@ -241,8 +241,6 @@ unsigned int njets_;
   unsigned int nbjets_;
   double workingpoint_;
 
-  double bjetPtCut_;
-  double bjetAbsEtaCut_;
   //Suvankar
   PVcut  lepPVcuts_;
   bool usePVcuts_;
