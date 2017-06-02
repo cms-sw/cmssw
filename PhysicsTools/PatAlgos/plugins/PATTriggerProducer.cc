@@ -157,7 +157,7 @@ PATTriggerProducer::PATTriggerProducer( const ParameterSet & iConfig ) :
 
   // HLT configuration parameters
   if ( iConfig.exists( "triggerResults" ) ) tagTriggerResults_ = iConfig.getParameter< InputTag >( "triggerResults" );
-  triggerResultsGetter_ = GetterOfProducts< TriggerResults >( InputTagMatch( InputTag( tagTriggerResults_.label(), tagTriggerResults_.instance() ) ), this);
+  triggerResultsGetter_ = GetterOfProducts< TriggerResults >( InputTagMatch( InputTag( tagTriggerResults_.label(), tagTriggerResults_.instance(), autoProcessName_ ? InputTag::kSkipCurrentProcess : nameProcess_  ) ), this);
   if ( iConfig.exists( "triggerEvent" ) ) tagTriggerEvent_ = iConfig.getParameter< InputTag >( "triggerEvent" );
   triggerEventGetter_ = GetterOfProducts< trigger::TriggerEvent >( InputTagMatch( InputTag( tagTriggerEvent_.label(), tagTriggerEvent_.instance() ) ), this);
   if ( iConfig.exists( "hltPrescaleLabel" ) )    hltPrescaleLabel_      = iConfig.getParameter< std::string >( "hltPrescaleLabel" );
