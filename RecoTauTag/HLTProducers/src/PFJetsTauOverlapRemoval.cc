@@ -3,6 +3,7 @@
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 //
 // class declaration
@@ -37,7 +38,7 @@ void PFJetsTauOverlapRemoval::produce(edm::StreamID iSId, edm::Event& iEvent, co
       bool isMatched = false;  
       const reco::PFJet &  myPFJet = (*PFJets)[iJet];
       for(unsigned int iTau = 0; iTau < taus.size(); iTau++){  
-        if(ROOT::Math::VectorUtil::DeltaR2((taus[iTau]->p4()).Vect(), myPFJet.p4().Vect()) < matchingR2){
+        if(reco::deltaR2(taus[iTau]->p4(), myPFJet.p4()) < matchingR2){
           isMatched = true;
           break;
         }
