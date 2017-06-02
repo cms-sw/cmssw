@@ -2140,7 +2140,7 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
             << "    massSqPhy/2  = " << massSqPhy << "  sqrt(|massSq|) = "<< sqrt(fabs(2.*massSqPhy)) << std::endl;
 
             //if(preShift>0) massSq /= pow(10,preShift);
-            if(  massSq > 0. &&
+            if(  massSq >= 0 &&
               massSq >= (long long)(corrPar.minMassCutValue*pow(10,preShift)) &&
               massSq <= (long long)(corrPar.maxMassCutValue*pow(10,preShift))  ) {
 
