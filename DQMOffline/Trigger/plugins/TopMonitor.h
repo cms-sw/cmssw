@@ -230,7 +230,9 @@ private:
   //Suvankar
   StringCutObjectSelector<reco::Vertex,true>      vtxSelection_;
   
-  unsigned int njets_;
+  StringCutObjectSelector<reco::Jet,true   >      bjetSelection_;
+
+unsigned int njets_;
   unsigned int nelectrons_;
   unsigned int nmuons_;
   double leptJetDeltaRmin_;
@@ -238,6 +240,7 @@ private:
   // Marina
   unsigned int nbjets_;
   double workingpoint_;
+
   double bjetPtCut_;
   double bjetAbsEtaCut_;
   //Suvankar
