@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process("BeamPixel")
+process = cms.Process("BeamPixel", eras.Run2_2017)
 
 
 #----------------------------
@@ -75,7 +76,6 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     process.ecalPreshowerDigis.sourceTag     = cms.InputTag("rawDataCollector")
     process.gctDigis.inputLabel              = cms.InputTag("rawDataCollector")
     process.gtDigis.DaqGtInputTag            = cms.InputTag("rawDataCollector")
-    process.gtEvmDigis.EvmGtInputTag         = cms.InputTag("rawDataCollector")
     process.hcalDigis.InputLabel             = cms.InputTag("rawDataCollector")
     process.muonCSCDigis.InputObjects        = cms.InputTag("rawDataCollector")
     process.muonDTDigis.inputLabel           = cms.InputTag("rawDataCollector")
@@ -84,7 +84,11 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     process.siPixelDigis.InputLabel          = cms.InputTag("rawDataCollector")
     process.siStripDigis.ProductLabel        = cms.InputTag("rawDataCollector")
 
-    process.load("Configuration.StandardSequences.Reconstruction_Data_cff")
+    process.load("RecoLocalTracker.Configuration.RecoLocalTracker_cff")
+    process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
+    from RecoPixelVertexing.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *
+    process.siPixelClusterShapeCachePreSplitting = siPixelClusterShapeCache.clone(src = "siPixelClustersPreSplitting")
+    process.load("RecoLocalTracker.SiPixelRecHits.PixelCPEGeneric_cfi")
 
 
     #----------------------------
@@ -112,7 +116,7 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
                                             minVxDoF           = cms.double(10.0),
                                             minVxWgt           = cms.double(0.5),
                                             fileName           = cms.string("/nfshome0/dqmdev/BeamMonitorDQM/BeamPixelResults.txt"))
-    if process.dqmSaver.producer.value() is "Playback":
+    if process.dqmRunConfig.type.value() is "playback":
         process.pixelVertexDQM.fileName = cms.string("/nfshome0/dqmdev/BeamMonitorDQM/BeamPixelResults.txt")
     else:
         process.pixelVertexDQM.fileName = cms.string("/nfshome0/dqmpro/BeamMonitorDQM/BeamPixelResults.txt")
@@ -122,24 +126,19 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     #----------------------------
     # Pixel-Tracks&Vertices Config
     #----------------------------
-    process.load("RecoPixelVertexing.Configuration.RecoPixelVertexing_cff")
+    process.load("RecoPixelVertexing.PixelTrackFitting.PixelTracks_2017_cff")
+    process.load("RecoVertex.PrimaryVertexProducer.OfflinePixel3DPrimaryVertices_cfi")
+    process.recopixelvertexing = cms.Sequence(process.pixelTracksSequence + process.pixelVertices)
     process.pixelVertices.TkFilterParameters.minPt = cms.double(0.9)
+    process.pixelTracksTrackingRegions.RegionPSet.originRadius = 0.4
 
-    from RecoTracker.TkTrackingRegions.globalTrackingRegion_cfi import globalTrackingRegion
-    process.pixelTracksTrackingRegions = globalTrackingRegion.clone(RegionPSet = dict(originRadius = cms.double(0.4)))
-
-    from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import *
-    process.PixelLayerTriplets.BPix.HitProducer = cms.string("siPixelRecHitsPreSplitting")
-    process.PixelLayerTriplets.FPix.HitProducer = cms.string("siPixelRecHitsPreSplitting")
-
-    process.pixelTracksHitTriplets.SeedComparitorPSet.clusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCachePreSplitting")
-
-
+    
     #----------------------------
     # Pixel-Tracks&Vertices Reco
     #----------------------------
     process.reconstructionStep = cms.Sequence(process.siPixelDigis*
-                                              process.offlineBeamSpot*
+                                              process.siStripDigis*
+                                              process.striptrackerlocalreco*
                                               process.siPixelClustersPreSplitting*
                                               process.siPixelRecHitsPreSplitting*
                                               process.siPixelClusterShapeCachePreSplitting*
@@ -167,7 +166,6 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.ecalPreshowerDigis.sourceTag     = cms.InputTag("rawDataRepacker")
     process.gctDigis.inputLabel              = cms.InputTag("rawDataRepacker")
     process.gtDigis.DaqGtInputTag            = cms.InputTag("rawDataRepacker")
-    process.gtEvmDigis.EvmGtInputTag         = cms.InputTag("rawDataRepacker")
     process.hcalDigis.InputLabel             = cms.InputTag("rawDataRepacker")
     process.muonCSCDigis.InputObjects        = cms.InputTag("rawDataRepacker")
     process.muonDTDigis.inputLabel           = cms.InputTag("rawDataRepacker")
@@ -204,7 +202,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
                                             minVxDoF           = cms.double(10.0),
                                             minVxWgt           = cms.double(0.5),
                                             fileName           = cms.string("/nfshome0/dqmdev/BeamMonitorDQM/BeamPixelResults.txt"))
-    if process.dqmSaver.producer.value() is "Playback":
+    if process.dqmRunConfig.type.value() is "playback":
         process.pixelVertexDQM.fileName = cms.string("/nfshome0/dqmdev/BeamMonitorDQM/BeamPixelResults.txt")
     else:
         process.pixelVertexDQM.fileName = cms.string("/nfshome0/dqmpro/BeamMonitorDQM/BeamPixelResults.txt")
