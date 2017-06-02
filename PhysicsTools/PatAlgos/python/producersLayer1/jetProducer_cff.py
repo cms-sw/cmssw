@@ -23,14 +23,20 @@ from RecoBTag.ImpactParameter.pfImpactParameterTagInfos_cfi import * #pfImpactPa
 from RecoBTag.SecondaryVertex.pfSecondaryVertexTagInfos_cfi import * #pfSecondaryVertexTagInfos
 from RecoBTag.SecondaryVertex.pfInclusiveSecondaryVertexFinderTagInfos_cfi import * #pfInclusiveSecondaryVertexFinderTagInfos
 from RecoBTag.Combined.deepFlavour_cff import * #pfDeepFlavourTask
+from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
 
-makeDeepCSVForMiniAOD = pfDeepFlavourTask.copy()
-makeDeepCSVForMiniAOD.add(pfImpactParameterTagInfos)
-makeDeepCSVForMiniAOD.add(pfSecondaryVertexTagInfos)
-makeDeepCSVForMiniAOD.add(pfInclusiveSecondaryVertexFinderTagInfos)
-makeDeepCSVForMiniAOD.add(patJets)
+#make a copy to avoid labels and substitution problems
+_makePatJetsCopy = makePatJets.copy()
 
-makePatJetsAndDeepCSVTask = makePatJets.copy()
-makePatJetsAndDeepCSVTask.replace(patJets, makeDeepCSVForMiniAOD)
-run2_miniAOD_80XLegacy.toReplaceWith(makePatJetsTask, makePatJetsAndDeepCSVTask)
+run2_miniAOD_80XLegacy.toReplaceWith(
+    makePatJets, 
+    cms.Sequence(
+      pfImpactParameterTagInfos *
+      pfSecondaryVertexTagInfos *
+      pfInclusiveSecondaryVertexFinderTagInfos *
+      pfDeepFlavour *
+      _makePatJetsCopy
+      )
+)
+
 
