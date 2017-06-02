@@ -1257,7 +1257,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 					   << "    massSqPhy/2  = " << massSqPhy << "  sqrt(|massSq|) = "<< sqrt(fabs(2.*massSqPhy)) << std::endl;
 
 		  //if(preShift>0) massSq /= pow(10,preShift);
-		  if(  massSq > 0. &&
+		  if(  massSq >= 0 &&
 		      massSq >= (long long)(corrPar.minMassCutValue*pow(10,preShift)) &&
 		      massSq <= (long long)(corrPar.maxMassCutValue*pow(10,preShift))  ) {
 		     LogDebug("L1TGlobal") << "    Passed Invariant Mass Cut [" << (long long)(corrPar.minMassCutValue*pow(10,preShift))
