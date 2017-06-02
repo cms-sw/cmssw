@@ -72,7 +72,7 @@ void CSJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup const& iS
   //some minor modifications with respect to original
   //main change: eta-dependent rho within the jet
 
-  for(fastjet::PseudoJet ijet : tempJets ) {
+  for(fastjet::PseudoJet& ijet : tempJets ) {
   
     //----------------------------------------------------------------------
     // sift ghosts and particles in the input jet
