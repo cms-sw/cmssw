@@ -4,7 +4,7 @@
 
   <!-- Mismatch Summary QTest -->
 
-  <QTEST name="EMTFDEMismatchRatioMax0p05">
+  <QTEST name="EMTFDE_MismatchRatioMax0p05">
     <TYPE>ContentsYRange</TYPE>	
     <PARAM name="ymin">0.00</PARAM>
     <PARAM name="ymax">0.05</PARAM>
@@ -14,7 +14,7 @@
   </QTEST>
   
   <LINK name="L1TEMU/L1TdeStage2EMTF/mismatchRatio">
-      <TestName activate="true">EMTFDEMismatchRatioMax0p05</TestName>
+      <TestName activate="true">EMTFDE_MismatchRatioMax0p05</TestName>
   </LINK>
 
 </TESTSCONFIGURATION>
