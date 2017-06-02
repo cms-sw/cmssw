@@ -204,7 +204,7 @@ singleTopEfficiency_singleMu = DQMEDHarvester("DQMGenericClient",
 
 # Marina
 fullyhadronicEfficiency_DoubleBTag_all = DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/TopHLTOffline/TopMonitor/FullyHadronic/DoubleBTag/GlobalMonitor/*"),
+    subDirs        = cms.untracked.vstring("HLT/TopHLTOffline/TopMonitor/Top/FullyHadronic/DoubleBTag/GlobalMonitor/*"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
@@ -288,7 +288,7 @@ fullyhadronicEfficiency_DoubleBTag_all = DQMEDHarvester("DQMGenericClient",
 )
 
 fullyhadronicEfficiency_DoubleBTag_jet = DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/TopHLTOffline/TopMonitor/FullyHadronic/DoubleBTag/JetMonitor/*"),
+    subDirs        = cms.untracked.vstring("HLT/TopHLTOffline/TopMonitor/Top/FullyHadronic/DoubleBTag/JetMonitor/*"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
@@ -372,7 +372,7 @@ fullyhadronicEfficiency_DoubleBTag_jet = DQMEDHarvester("DQMGenericClient",
 )
 
 fullyhadronicEfficiency_DoubleBTag_bjet = DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/TopHLTOffline/TopMonitor/FullyHadronic/DoubleBTag/BJetMonitor/*"),
+    subDirs        = cms.untracked.vstring("HLT/TopHLTOffline/TopMonitor/Top/FullyHadronic/DoubleBTag/BJetMonitor/*"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
@@ -457,7 +457,7 @@ fullyhadronicEfficiency_DoubleBTag_bjet = DQMEDHarvester("DQMGenericClient",
 
 
 fullyhadronicEfficiency_SingleBTag_all = DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/TopHLTOffline/TopMonitor/FullyHadronic/SingleBTag/GlobalMonitor/*"),
+    subDirs        = cms.untracked.vstring("HLT/TopHLTOffline/TopMonitor/Top/FullyHadronic/SingleBTag/GlobalMonitor/*"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
@@ -541,7 +541,7 @@ fullyhadronicEfficiency_SingleBTag_all = DQMEDHarvester("DQMGenericClient",
 )
 
 fullyhadronicEfficiency_SingleBTag_jet = DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/TopHLTOffline/TopMonitor/FullyHadronic/DoubleBTag/JetMonitor/*"),
+    subDirs        = cms.untracked.vstring("HLT/TopHLTOffline/TopMonitor/Top/FullyHadronic/DoubleBTag/JetMonitor/*"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
@@ -625,7 +625,7 @@ fullyhadronicEfficiency_SingleBTag_jet = DQMEDHarvester("DQMGenericClient",
 )
 
 fullyhadronicEfficiency_SingleBTag_bjet = DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/TopHLTOffline/TopMonitor/FullyHadronic/DoubleBTag/BJetMonitor/*"),
+    subDirs        = cms.untracked.vstring("HLT/TopHLTOffline/TopMonitor/Top/FullyHadronic/DoubleBTag/BJetMonitor/*"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
