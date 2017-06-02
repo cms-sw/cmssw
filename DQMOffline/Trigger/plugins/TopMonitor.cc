@@ -50,6 +50,7 @@ TopMonitor::TopMonitor( const edm::ParameterSet& iConfig ) :
   , eleSelection_ ( iConfig.getParameter<std::string>("eleSelection") )
   , muoSelection_ ( iConfig.getParameter<std::string>("muoSelection") )
   , HTdefinition_ ( iConfig.getParameter<std::string>("HTdefinition") )
+  , bjetSelection_( iConfig.getParameter<std::string>("bjetSelection"))
   , njets_      ( iConfig.getParameter<unsigned int>("njets" )      )
   , nelectrons_ ( iConfig.getParameter<unsigned int>("nelectrons" ) )
   , nmuons_     ( iConfig.getParameter<unsigned int>("nmuons" )     )
@@ -58,8 +59,6 @@ TopMonitor::TopMonitor( const edm::ParameterSet& iConfig ) :
   // Marina
   , nbjets_    ( iConfig.getParameter<unsigned int>("nbjets"))
   , workingpoint_(iConfig.getParameter<double>("workingpoint"))
-  , bjetPtCut_(iConfig.getParameter<double>("bjetPtCut"))
-  , bjetAbsEtaCut_(iConfig.getParameter<double>("bjetAbsEtaCut"))
 {
 
     METME empty;
@@ -613,13 +612,12 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 
   if (bTags.size() < nbjets_ ) return;
   for (unsigned int i=0; i!=bTags.size(); ++i){
-    // Apply Selections
-    if (bTags[i].first->pt() < bjetPtCut_                ) continue;
-    if (std::abs(bTags[i].first->eta()) > bjetAbsEtaCut_ ) continue;
-    if (bTags[i].second < workingpoint_                  ) continue;
+      // Apply Selections
+      if (!bjetSelection_(*dynamic_cast<const reco::Jet*>(bTags[i].first.get())) ) continue;
+      if (bTags[i].second < workingpoint_                  ) continue;
 
-    // Fill JetTag Map
-    bjets.insert(JetTagMap::value_type(bTags[i].first, bTags[i].second));
+      // Fill JetTag Map
+      bjets.insert(JetTagMap::value_type(bTags[i].first, bTags[i].second));
   }
 
   
@@ -866,6 +864,7 @@ void TopMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   desc.add<std::string>("eleSelection", "pt > 0");
   desc.add<std::string>("muoSelection", "pt > 0");
   desc.add<std::string>("HTdefinition", "pt > 0");
+  desc.add<std::string>("bjetSelection","pt > 0");
   desc.add<unsigned int>("njets",      0);
   desc.add<unsigned int>("nelectrons", 0);
   desc.add<unsigned int>("nmuons",     0);
@@ -874,9 +873,6 @@ void TopMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   // Marina                               
   desc.add<unsigned int>("nbjets",     0);
   desc.add<double>("workingpoint",     0.8484); // medium CSV
-  desc.add<double>("bjetPtCut",        0);
-  desc.add<double>("bjetAbsEtaCut",    0);
-
 
   edm::ParameterSetDescription genericTriggerEventPSet;
   genericTriggerEventPSet.add<bool>("andOr");
