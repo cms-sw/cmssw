@@ -76,11 +76,11 @@ public:
 TkMSParameterizationBuilder::TkMSParameterizationBuilder(edm::ParameterSet const& pset): 
   theNavigationSchoolName(pset.getParameter<std::string>("navigationSchool")){
   setWhatProduced(this,"");
-
 }
 
 TkMSParameterizationBuilder::ReturnType 
 TkMSParameterizationBuilder::produce(TkMSParameterizationRecord const& iRecord) {
+
   using namespace tkMSParameterization;
 
   product = std::make_shared<TkMSParameterization>();  
@@ -310,12 +310,4 @@ TkMSParameterizationBuilder::produce(TkMSParameterizationRecord const& iRecord) 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Utilities/interface/typelookup.h"
-TYPELOOKUP_DATA_REG(TkMSParameterization);
 DEFINE_FWK_EVENTSETUP_MODULE(TkMSParameterizationBuilder);
-
-
-
-
-
-
-
