@@ -1,36 +1,40 @@
 import os
 import random
+
 import globalDictionaries
 import configTemplates
-from helperFunctions import getCommandOutput2, replaceByMap
-from TkAlExceptions import AllInOneError
 
+from genericValidation import ValidationMetaClass, ValidationWithComparison, ValidationWithPlots
+from helperFunctions import getCommandOutput2, replaceByMap, cppboolstring
+from offlineValidation import OfflineValidation
+from primaryVertexValidation import PrimaryVertexValidation
+from TkAlExceptions import AllInOneError
+from trackSplittingValidation import TrackSplittingValidation
+from zMuMuValidation import ZMuMuValidation
 
 class BasePlottingOptions(object):
-    def __init__(self, config, valType, addDefaults = {}, addMandatories=[], addneedpackages=[]):
+    __metaclass__ = ValidationMetaClass
+    defaults = {
+                "cmssw" : os.environ["CMSSW_BASE"],
+                "publicationstatus" : "",
+                "customtitle" : "",
+                "customrighttitle" : "",
+                "era" : "NONE",
+                "legendheader" : "",
+                "legendoptions":"all",
+               }
+    mandatories = set()
+    needpackages = {"Alignment/OfflineValidation"}
+    def __init__(self, config, valType):
         import random
         self.type = valType
         self.general = config.getGeneral()
         self.randomWorkdirPart = "%0i"%random.randint(1,10e9)
         self.config = config
 
-        defaults = {
-                    "cmssw" : os.environ["CMSSW_BASE"],
-                    "publicationstatus" : "",
-                    "customtitle" : "",
-                    "customrighttitle" : "",
-                    "era" : "NONE",
-                    "legendheader" : "",
-                    "legendoptions":"all",
-                   }
-        defaults.update(addDefaults)
-        mandatories = []
-        mandatories += addMandatories
-        needpackages = ["Alignment/OfflineValidation"]
-        needpackages += addneedpackages
         theUpdate = config.getResultingSection("plots:"+self.type,
-                                               defaultDict = defaults,
-                                               demandPars = mandatories)
+                                               defaultDict = self.defaults,
+                                               demandPars = self.mandatories)
         self.general.update(theUpdate)
 
         self.cmssw = self.general["cmssw"]
@@ -56,7 +60,7 @@ class BasePlottingOptions(object):
             self.scramarch = commandoutput[1]
             self.cmsswreleasebase = commandoutput[2]
 
-        for package in needpackages:
+        for package in self.needpackages:
             for placetolook in self.cmssw, self.cmsswreleasebase:
                 pkgpath = os.path.join(placetolook, "src", package)
                 if os.path.exists(pkgpath):
@@ -88,7 +92,7 @@ class BasePlottingOptions(object):
         if self.general["era"] not in eraenum:
             raise AllInOneError("Era must be one of " + ", ".join(eraenum) + "!")
 
-        knownOpts = defaults.keys()+mandatories
+        knownOpts = set(self.defaults.keys())|self.mandatories|self.optionals
         ignoreOpts = []
         config.checkInput("plots:"+self.type,
                           knownSimpleOptions = knownOpts,
@@ -104,21 +108,26 @@ class BasePlottingOptions(object):
                 "CMSSW_BASE": self.cmssw,
                 "SCRAM_ARCH": self.scramarch,
                 "CMSSW_RELEASE_BASE": self.cmsswreleasebase,
+                "validationId": self.validationclass.__name__,
                 })
+        if issubclass(self.validationclass, ValidationWithPlots):
+            result["plottingscriptname"] = self.validationclass.plottingscriptname()
+            result["plottingscriptpath"] = ".oO[scriptsdir]Oo./.oO[plottingscriptname]Oo."
+            result["PlotsDirName"] = self.validationclass.plotsdirname()
+        if issubclass(self.validationclass, ValidationWithComparison):
+            result["compareAlignmentsPath"] = self.validationclass.comparealignmentspath()
+            result["compareAlignmentsName"] = self.validationclass.comparealignmentsname()
         return result
 
 class PlottingOptionsTrackSplitting(BasePlottingOptions):
-    def __init__(self, config, addDefaults = {}, addMandatories=[], addneedpackages=[]):
-        defaults = {
-                    "outliercut": "-1.0",
-                    "subdetector": "none",
-                   }
-        defaults.update(addDefaults)
-        mandatories = []
-        mandatories += addMandatories
-        needpackages = ["Alignment/CommonAlignmentProducer"]
-        needpackages += addneedpackages
-        BasePlottingOptions.__init__(self, config, "split", defaults, mandatories, needpackages)
+    defaults = {
+                "outliercut": "-1.0",
+                "subdetector": "none",
+               }
+    needpackages = {"Alignment/CommonAlignmentProducer"}
+    validationclass = TrackSplittingValidation
+    def __init__(self, config):
+        super(PlottingOptionsTrackSplitting, self).__init__(config, "split")
         validsubdets = self.validsubdets()
         if self.general["subdetector"] not in validsubdets:
             raise AllInOneError("'%s' is not a valid subdetector!\n" % self.general["subdetector"] + "The options are: " + ", ".join(validsubdets))
@@ -152,73 +161,78 @@ class PlottingOptionsTrackSplitting(BasePlottingOptions):
         return [a for a in results if a]
 
 class PlottingOptionsZMuMu(BasePlottingOptions):
-    def __init__(self, config, addDefaults = {}, addMandatories=[], addneedpackages=[]):
-        defaults = {
-                    "resonance": "Z",
-                    "switchONfit": "false",
-                    "rebinphi": "4",
-                    "rebinetadiff": "2",
-                    "rebineta": "2",
-                    "rebinpt": "8",
-                   }
-        defaults.update(addDefaults)
-        mandatories = []
-        mandatories += addMandatories
-        needpackages = ["MuonAnalysis/MomentumScaleCalibration"]
-        needpackages += addneedpackages
-        BasePlottingOptions.__init__(self, config, "zmumu", defaults, mandatories, needpackages)
+    defaults = {
+                "resonance": "Z",
+                "switchONfit": "false",
+                "rebinphi": "4",
+                "rebinetadiff": "2",
+                "rebineta": "2",
+                "rebinpt": "8",
+               }
+    needpackages = {"MuonAnalysis/MomentumScaleCalibration"}
+    validationclass = ZMuMuValidation
+    def __init__(self, config):
+        super(PlottingOptionsZMuMu, self).__init__(config, "zmumu")
+        self.general["switchONfit"] = cppboolstring(self.general["switchONfit"], "switchONfit")
 
 class PlottingOptionsOffline(BasePlottingOptions):
-    def __init__(self, config, addDefaults = {}, addMandatories=[], addneedpackages=[]):
-        defaults = {
-                    "DMRMethod":"median,rmsNorm",
-                    "DMRMinimum":"30",
-                    "DMROptions":"",
-                    "OfflineTreeBaseDir":"TrackHitFilter",
-                    "SurfaceShapes":"coarse",
-                    "bigtext":"false",
-                   }
-        defaults.update(addDefaults)
-        mandatories = []
-        mandatories += addMandatories
-        BasePlottingOptions.__init__(self, config, "offline", defaults, mandatories, addneedpackages)
+    defaults = {
+                "DMRMethod":"median,rmsNorm",
+                "DMRMinimum":"30",
+                "DMROptions":"",
+                "OfflineTreeBaseDir":"TrackHitFilter",
+                "SurfaceShapes":"coarse",
+                "bigtext":"false",
+                "mergeOfflineParJobsScriptPath": ".oO[scriptsdir]Oo./TkAlOfflineJobsMerge.C",
+                "usefit": "false",
+               }
+    validationclass = OfflineValidation
+    def __init__(self, config):
+        super(PlottingOptionsOffline, self).__init__(config, "offline")
+        for name in "usefit", "bigtext":
+            self.general[name] = cppboolstring(self.general[name], name)
+
 
 class PlottingOptionsPrimaryVertex(BasePlottingOptions):
-    def __init__(self, config, addDefaults = {}, addMandatories=[], addneedpackages=[]):
-        defaults = {
-                    "autoLimits":"false",
-                    "doMaps":"false",
-                    "stdResiduals":"true",
-                    "m_dxyPhiMax":"40",    
-                    "m_dzPhiMax":"40",    
-                    "m_dxyEtaMax":"40",    
-                    "m_dzEtaMax":"40",                            
-                    "m_dxyPhiNormMax":"0.5",   
-                    "m_dzPhiNormMax":"0.5",   
-                    "m_dxyEtaNormMax":"0.5",   
-                    "m_dzEtaNormMax":"0.5",                           
-                    "w_dxyPhiMax":"150",   
-                    "w_dzPhiMax":"150",   
-                    "w_dxyEtaMax":"150",   
-                    "w_dzEtaMax":"1000",                          
-                    "w_dxyPhiNormMax":"1.8",   
-                    "w_dzPhiNormMax":"1.8",   
-                    "w_dxyEtaNormMax":"1.8",   
-                    "w_dzEtaNormMax":"1.8",    
-                    }
-        defaults.update(addDefaults)
-        mandatories = []
-        mandatories += addMandatories
-        BasePlottingOptions.__init__(self, config, "primaryvertex", defaults, mandatories, addneedpackages)
+    defaults = {
+                "autoLimits":"false",
+                "doMaps":"false",
+                "stdResiduals":"true",
+                "m_dxyPhiMax":"40",
+                "m_dzPhiMax":"40",
+                "m_dxyEtaMax":"40",
+                "m_dzEtaMax":"40",
+                "m_dxyPhiNormMax":"0.5",
+                "m_dzPhiNormMax":"0.5",
+                "m_dxyEtaNormMax":"0.5",
+                "m_dzEtaNormMax":"0.5",
+                "w_dxyPhiMax":"150",
+                "w_dzPhiMax":"150",
+                "w_dxyEtaMax":"150",
+                "w_dzEtaMax":"1000",
+                "w_dxyPhiNormMax":"1.8",
+                "w_dzPhiNormMax":"1.8",
+                "w_dxyEtaNormMax":"1.8",
+                "w_dzEtaNormMax":"1.8",
+                }
+    validationclass = PrimaryVertexValidation
+    def __init__(self, config):
+        super(PlottingOptionsPrimaryVertex, self).__init__(config, "primaryvertex")
+        for name in "autoLimits", "doMaps", "stdResiduals":
+            self.general[name] = cppboolstring(self.general[name], name)
 
 def PlottingOptions(config, valType):
     plottingOptionsClasses = {
                               "offline": PlottingOptionsOffline,
                               "split": PlottingOptionsTrackSplitting,
                               "zmumu": PlottingOptionsZMuMu,
-                              "primaryvertex": PlottingOptionsPrimaryVertex
+                              "primaryvertex": PlottingOptionsPrimaryVertex,
                              }
+    if isinstance(valType, type):
+        valType = valType.valType
 
     if valType not in globalDictionaries.plottingOptions:
+        if config is None:
+            raise ValueError("Have to provide a config the first time you call PlottingOptions for {}".format(valType))
         globalDictionaries.plottingOptions[valType] = plottingOptionsClasses[valType](config)
     return globalDictionaries.plottingOptions[valType].getRepMap()
