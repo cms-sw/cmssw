@@ -87,28 +87,120 @@ else:
 #----------------------------
 # TrackingMonitor
 #-----------------------------
+# first, tracks selection as in https://github.com/cms-sw/cmssw/blob/master/DQM/BeamMonitor/python/BeamMonitor_Pixel_cff.py
+# -MinimumPt = cms.untracked.double(1.0),
+# -MaximumEta = cms.untracked.double(2.4),
+# -MaximumImpactParameter = cms.untracked.double(1.0),
+# -MaximumZ = cms.untracked.double(60),
+# -MinimumTotalLayers = cms.untracked.int32(3),
+# -MinimumPixelLayers = cms.untracked.int32(3),
+# -MaximumNormChi2 = cms.untracked.double(30.0),
+
+#### while hitPattern().trackerLayersWithMeasurement() and hitPattern().pixelLayersWithMeasurement() !!!
+#### =>
+#### select tracks based on MaximumImpactParameter, MaximumZ, MinimumTotalLayers, MinimumPixelLayers and MaximumNormChi2
+process.pixelTracksCutClassifier = cms.EDProducer( "TrackCutClassifier",
+    src = cms.InputTag( "pixelTracks" ),
+    GBRForestLabel = cms.string( "" ),
+    beamspot = cms.InputTag( "offlineBeamSpot" ),
+#    vertices = cms.InputTag( "pixelVertices" ),
+    vertices = cms.InputTag( "" ),
+    qualityCuts = cms.vdouble( -0.7, 0.1, 0.7 ),
+    mva = cms.PSet(
+      minPixelHits = cms.vint32( 0, 3, 3 ),
+      maxDzWrtBS = cms.vdouble( 3.40282346639E38, 3.40282346639E38, 60.0 ),
+      dr_par = cms.PSet(
+        d0err = cms.vdouble( 0.003, 0.003, 3.40282346639E38 ),
+        dr_par2 = cms.vdouble( 0.3, 0.3, 3.40282346639E38 ),
+        dr_par1 = cms.vdouble( 0.4, 0.4, 3.40282346639E38 ),
+        dr_exp = cms.vint32( 4, 4, 4 ),
+        d0err_par = cms.vdouble( 0.001, 0.001, 3.40282346639E38 )
+      ),
+      maxLostLayers = cms.vint32( 99, 99, 99 ),
+      min3DLayers = cms.vint32( 0, 2, 3 ),
+      dz_par = cms.PSet(
+        dz_par1 = cms.vdouble( 0.4, 0.4, 3.40282346639E38 ),
+        dz_par2 = cms.vdouble( 0.35, 0.35, 3.40282346639E38 ),
+        dz_exp = cms.vint32( 4, 4, 4 )
+      ),
+      minNVtxTrk = cms.int32( 3 ),
+      maxDz = cms.vdouble( 3.40282346639E38, 3.40282346639E38, 3.40282346639E38 ),
+      minNdof = cms.vdouble( 1.0E-5, 1.0E-5, 1.0E-5 ),
+      maxChi2 = cms.vdouble( 9999., 9999., 30.0 ),
+      maxDr = cms.vdouble( 99., 99., 1. ),
+      minLayers = cms.vint32( 0, 2, 3 )
+    ),
+    ignoreVertices = cms.bool( True ),
+    GBRForestFileName = cms.string( "" )
+)
+process.pixelTracksHP = cms.EDProducer( "TrackCollectionFilterCloner",
+    minQuality = cms.string( "highPurity" ),
+    copyExtras = cms.untracked.bool( True ),
+    copyTrajectories = cms.untracked.bool( False ),
+    originalSource = cms.InputTag( "pixelTracks" ),
+    originalQualVals = cms.InputTag( 'pixelTracksCutClassifier','QualityMasks' ),
+    originalMVAVals = cms.InputTag( 'pixelTracksCutClassifier','MVAValues' )
+)
+
 import DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi
-process.trackingMonitor = DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi.TrackerCollisionTrackMon.clone()
-process.trackingMonitor.FolderName                = 'BeamMonitor/Tracking/pixelTracks'
+process.pixelTracksMonitor = DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi.TrackerCollisionTrackMon.clone()
+process.pixelTracksMonitor.FolderName                = 'BeamMonitor/Tracking/pixelTracks'
 if (runFirstStepTrk):
-  process.trackingMonitor.TrackProducer             = 'initialStepTracksPreSplitting'
-  process.trackingMonitor.allTrackProducer          = 'initialStepTracksPreSplitting'
+  process.pixelTracksMonitor.TrackProducer             = 'initialStepTracksPreSplitting'
+  process.pixelTracksMonitor.allTrackProducer          = 'initialStepTracksPreSplitting'
 else:
-  process.trackingMonitor.TrackProducer             = 'pixelTracks'
-  process.trackingMonitor.allTrackProducer          = 'pixelTracks'
-process.trackingMonitor.beamSpot                  = "offlineBeamSpot"
-process.trackingMonitor.primaryVertex             = "pixelVertices"
-process.trackingMonitor.doAllPlots                = cms.bool(False)
-process.trackingMonitor.doLumiAnalysis            = cms.bool(False)
-process.trackingMonitor.doProfilesVsLS            = cms.bool(True)
-process.trackingMonitor.doDCAPlots                = cms.bool(True)
-process.trackingMonitor.doPlotsVsGoodPVtx         = cms.bool(True)
-process.trackingMonitor.doEffFromHitPatternVsPU   = cms.bool(False)
-process.trackingMonitor.doEffFromHitPatternVsBX   = cms.bool(True)
-process.trackingMonitor.doEffFromHitPatternVsLUMI = cms.bool(False)
-process.trackingMonitor.doPlotsVsGoodPVtx         = cms.bool(True)
-process.trackingMonitor.doPlotsVsLUMI             = cms.bool(True)
-process.trackingMonitor.doPlotsVsBX               = cms.bool(True)
+  process.pixelTracksMonitor.TrackProducer             = 'pixelTracks'
+  process.pixelTracksMonitor.allTrackProducer          = 'pixelTracks'
+process.pixelTracksMonitor.beamSpot                  = "offlineBeamSpot"
+process.pixelTracksMonitor.primaryVertex             = "pixelVertices"
+process.pixelTracksMonitor.doAllPlots                = cms.bool(False)
+process.pixelTracksMonitor.doLumiAnalysis            = cms.bool(False)
+process.pixelTracksMonitor.doProfilesVsLS            = cms.bool(True)
+process.pixelTracksMonitor.doDCAPlots                = cms.bool(True)
+process.pixelTracksMonitor.doPlotsVsGoodPVtx         = cms.bool(True)
+process.pixelTracksMonitor.doEffFromHitPatternVsPU   = cms.bool(False)
+process.pixelTracksMonitor.doEffFromHitPatternVsBX   = cms.bool(True)
+process.pixelTracksMonitor.doEffFromHitPatternVsLUMI = cms.bool(False)
+process.pixelTracksMonitor.doPlotsVsGoodPVtx         = cms.bool(True)
+process.pixelTracksMonitor.doPlotsVsLUMI             = cms.bool(True)
+process.pixelTracksMonitor.doPlotsVsBX               = cms.bool(True)
+process.pixelTracksMonitor.AbsDxyMax  =   1.2
+process.pixelTracksMonitor.AbsDxyBin  =  12
+process.pixelTracksMonitor.DxyMin     =  -1.2
+process.pixelTracksMonitor.DxyMax     =   1.2
+process.pixelTracksMonitor.DxyBin     =  60
+process.pixelTracksMonitor.Chi2NDFMax =  35.
+process.pixelTracksMonitor.Chi2NDFMin =   0.
+process.pixelTracksMonitor.Chi2NDFBin =  70
+process.pixelTracksMonitor.VZBin      = 124
+process.pixelTracksMonitor.VZMin      = -62.
+process.pixelTracksMonitor.VZMax      =  62.
+process.pixelTracksMonitor.TrackPtMin =   0.
+process.pixelTracksMonitor.TrackPtMax =  50.
+process.pixelTracksMonitor.TrackPtBin = 250
+
+process.tracks2monitor = cms.EDFilter('TrackSelector',
+    src = cms.InputTag('pixelTracks'),
+    cut = cms.string("")
+)
+process.tracks2monitor.src = 'pixelTracksHP'
+process.tracks2monitor.cut = 'pt > 1 & abs(eta) < 2.4' # & normalizedChi2 < 30. abs(dxy) < 1. abs(dz) < 60.'
+
+process.selectedPixelTracksMonitor = process.pixelTracksMonitor.clone()
+process.selectedPixelTracksMonitor.FolderName                = 'BeamMonitor/Tracking/selectedPixelTracks'
+if (runFirstStepTrk):
+  process.selectedPixelTracksMonitor.TrackProducer             = 'initialStepTracksPreSplitting'
+  process.selectedPixelTracksMonitor.allTrackProducer          = 'initialStepTracksPreSplitting'
+else:
+  process.selectedPixelTracksMonitor.TrackProducer             = 'tracks2monitor'
+  process.selectedPixelTracksMonitor.allTrackProducer          = 'tracks2monitor'
+
+process.selectedPixelTracksMonitorSequence = cms.Sequence(
+  process.pixelTracksCutClassifier
+  + process.pixelTracksHP
+  + process.tracks2monitor
+  + process.selectedPixelTracksMonitor
+)
 
 
 ## TKStatus
@@ -122,7 +214,7 @@ process.dqmTKStatus = cms.EDAnalyzer("TKStatus",
 process.dqmcommon = cms.Sequence(process.dqmEnv
                                 *process.dqmSaver)
 
-process.monitor = cms.Sequence(process.dqmBeamMonitor+process.trackingMonitor)
+process.monitor = cms.Sequence(process.dqmBeamMonitor+process.selectedPixelTracksMonitorSequence)
 
 
 #------------------------------------------------------------
