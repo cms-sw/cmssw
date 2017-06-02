@@ -1,5 +1,5 @@
-#ifndef PFJetsTauOverlapRemoval_H
-#define PFJetsTauOverlapRemoval_H
+#ifndef RecoTauTag_HLTProducers_PFJetsTauOverlapRemoval_H
+#define RecoTauTag_HLTProducers_PFJetsTauOverlapRemoval_H
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -30,6 +30,6 @@ class PFJetsTauOverlapRemoval: public edm::global::EDProducer<> {
     
   const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> tauSrc_;
   const edm::EDGetTokenT<reco::PFJetCollection> pfJetSrc_;
-
+  const double mindR_;
 };
 #endif

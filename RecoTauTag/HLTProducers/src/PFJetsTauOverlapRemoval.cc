@@ -9,7 +9,8 @@
 //
 PFJetsTauOverlapRemoval::PFJetsTauOverlapRemoval(const edm::ParameterSet& iConfig):
   tauSrc_    ( consumes<trigger::TriggerFilterObjectWithRefs>(iConfig.getParameter<edm::InputTag>("TauSrc"      ) ) ),
-  pfJetSrc_  ( consumes<reco::PFJetCollection>(iConfig.getParameter<edm::InputTag>("PFJetSrc") ) )
+  pfJetSrc_  ( consumes<reco::PFJetCollection>(iConfig.getParameter<edm::InputTag>("PFJetSrc") ) ),
+  mindR_     ( iConfig.getParameter<double>("Min_dR") )
 {  
   produces<reco::PFJetCollection>();
 }
@@ -18,10 +19,9 @@ PFJetsTauOverlapRemoval::~PFJetsTauOverlapRemoval(){ }
 void PFJetsTauOverlapRemoval::produce(edm::StreamID iSId, edm::Event& iEvent, const edm::EventSetup& iES) const
 {
     
-    std::unique_ptr<reco::PFJetCollection> cleanedPFJets(new reco::PFJetCollection);
+  std::unique_ptr<reco::PFJetCollection> cleanedPFJets(new reco::PFJetCollection);
     
-  double deltaR2   = 1.0;
-  double matchingR2 = 0.25;  
+  double matchingR2 = mindR_*mindR_;  
   
   edm::Handle<trigger::TriggerFilterObjectWithRefs> tauJets;
   iEvent.getByToken(tauSrc_, tauJets);
@@ -37,8 +37,7 @@ void PFJetsTauOverlapRemoval::produce(edm::StreamID iSId, edm::Event& iEvent, co
       bool isMatched = false;  
       const reco::PFJet &  myPFJet = (*PFJets)[iJet];
       for(unsigned int iTau = 0; iTau < taus.size(); iTau++){  
-        deltaR2 = ROOT::Math::VectorUtil::DeltaR2((taus[iTau])->p4().Vect(), myPFJet.p4().Vect());
-        if(deltaR2 < matchingR2){
+        if(ROOT::Math::VectorUtil::DeltaR2((taus[iTau]->p4()).Vect(), myPFJet.p4().Vect()) < matchingR2){
           isMatched = true;
           break;
         }
@@ -53,8 +52,9 @@ void PFJetsTauOverlapRemoval::produce(edm::StreamID iSId, edm::Event& iEvent, co
 void PFJetsTauOverlapRemoval::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
 {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("PFJetSrc", edm::InputTag("hltAK4PFJetsCorrected"                     ))->setComment("Input collection of PFJets"    );
-  desc.add<edm::InputTag>("TauSrc"      , edm::InputTag("hltPFTau20TrackLooseIso"))->setComment("Input collection of PFTaus that have passed ID and isolation requirements");
+  desc.add<edm::InputTag>("PFJetSrc", edm::InputTag("hltAK4PFJetsCorrected"))->setComment("Input collection of PFJets"    );
+  desc.add<edm::InputTag>("TauSrc", edm::InputTag("hltPFTau20TrackLooseIso"))->setComment("Input collection of PFTaus that have passed ID and isolation requirements");
+  desc.add<double>       ("Min_dR",0.5)->setComment("Minimum dR outside of which PFJets will be saved");
   descriptions.setComment("This module produces a collection of PFJets that are cross-cleaned with respect to PFTaus passing a HLT filter.");
   descriptions.add       ("PFJetsTauOverlapRemoval",desc);
 }
