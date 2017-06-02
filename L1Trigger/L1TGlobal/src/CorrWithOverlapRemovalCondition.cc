@@ -872,7 +872,7 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
             // Calorimeter Objects (EG, Jet, Tau)
             case CondCalo: {
 
-              switch(cndObjTypeVec[0]) {
+              switch(cndObjTypeVec[2]) {
 
                 case gtEG: {
                   lutObj2 = "EG";
@@ -951,7 +951,7 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
               etSumCond = true;
               //Stupid mapping between enum types for energy sums.
               l1t::EtSum::EtSumType type;
-              switch( cndObjTypeVec[0] ){
+              switch( cndObjTypeVec[2] ){
               case gtETM:
                 type = l1t::EtSum::EtSumType::kMissingEt;
                 lutObj2 = "ETM";
@@ -986,8 +986,8 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
               default:
                 edm::LogError("L1TGlobal")
                 << "\n  Error: "
-                << "Unmatched object type from template to EtSumType, cndObjTypeVec[0] = "
-                << cndObjTypeVec[0]
+                << "Unmatched object type from template to EtSumType, cndObjTypeVec[2] = "
+                << cndObjTypeVec[2]
                 << std::endl;
                 type = l1t::EtSum::EtSumType::kTotalEt;
                 break;
@@ -1001,17 +1001,17 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
                   etaIndex2 =  (candEtSumVec->at(bxEval,iEtSum))->hwEta();
 
                   //  Get the floating point numbers
-                  if(cndObjTypeVec[0] == gtETM ) {
+                  if(cndObjTypeVec[2] == gtETM ) {
                     std::pair<double, double> binEdges = m_gtScales->getETMScales().phiBins.at(phiIndex2);
                     phi2Phy = 0.5*(binEdges.second + binEdges.first);
                     eta2Phy = 0.; //No Eta for Energy Sums
 
-                  } else if (cndObjTypeVec[0] == gtHTM) {
+                  } else if (cndObjTypeVec[2] == gtHTM) {
                     std::pair<double, double> binEdges = m_gtScales->getHTMScales().phiBins.at(phiIndex2);
                     phi2Phy = 0.5*(binEdges.second + binEdges.first);
                     eta2Phy = 0.; //No Eta for Energy Sums
 
-                  } else if (cndObjTypeVec[0] == gtETMHF) {
+                  } else if (cndObjTypeVec[2] == gtETMHF) {
                     std::pair<double, double> binEdges = m_gtScales->getETMHFScales().phiBins.at(phiIndex2);
                     phi2Phy = 0.5*(binEdges.second + binEdges.first);
                     eta2Phy = 0.; //No Eta for Energy Sums
@@ -1537,7 +1537,7 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
                 // Calorimeter Objects (EG, Jet, Tau)
                 case CondCalo: {
 
-                  switch(cndObjTypeVec[0]) {
+                  switch(cndObjTypeVec[2]) {
 
                     case gtEG: {
                       lutObj2 = "EG";
@@ -1612,7 +1612,7 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
                   etSumCond = true;
                 	//Stupid mapping between enum types for energy sums.
                 	l1t::EtSum::EtSumType type;
-                	switch( cndObjTypeVec[0] ){
+                	switch( cndObjTypeVec[2] ){
                 	case gtETM:
                 	  type = l1t::EtSum::EtSumType::kMissingEt;
                 	  lutObj2 = "ETM";
@@ -1647,8 +1647,8 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
                 	default:
                 	  edm::LogError("L1TGlobal")
                 	    << "\n  Error: "
-                	    << "Unmatched object type from template to EtSumType, cndObjTypeVec[0] = "
-                	    << cndObjTypeVec[0]
+                	    << "Unmatched object type from template to EtSumType, cndObjTypeVec[2] = "
+                	    << cndObjTypeVec[2]
                 	    << std::endl;
                 	  type = l1t::EtSum::EtSumType::kTotalEt;
                 	  break;
@@ -1662,17 +1662,17 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
                       etaIndex2 =  (candEtSumVec->at(bxEval,iEtSum))->hwEta();
 
                       //  Get the floating point numbers
-                      if(cndObjTypeVec[0] == gtETM ) {
+                      if(cndObjTypeVec[2] == gtETM ) {
                         std::pair<double, double> binEdges = m_gtScales->getETMScales().phiBins.at(phiIndex2);
                         phi2Phy = 0.5*(binEdges.second + binEdges.first);
                         eta2Phy = 0.; //No Eta for Energy Sums
 
-                      } else if (cndObjTypeVec[0] == gtHTM) {
+                      } else if (cndObjTypeVec[2] == gtHTM) {
                         std::pair<double, double> binEdges = m_gtScales->getHTMScales().phiBins.at(phiIndex2);
                         phi2Phy = 0.5*(binEdges.second + binEdges.first);
                         eta2Phy = 0.; //No Eta for Energy Sums
 
-                      } else if (cndObjTypeVec[0] == gtETMHF) {
+                      } else if (cndObjTypeVec[2] == gtETMHF) {
                         std::pair<double, double> binEdges = m_gtScales->getETMHFScales().phiBins.at(phiIndex2);
                         phi2Phy = 0.5*(binEdges.second + binEdges.first);
                         eta2Phy = 0.; //No Eta for Energy Sums
