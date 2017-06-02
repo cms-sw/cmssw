@@ -39,8 +39,8 @@ hltTOPmonitoring.histoPSet.csvPSet = cms.PSet(
 #Suvankar
 hltTOPmonitoring.applyleptonPVcuts = cms.bool(False)
 hltTOPmonitoring.leptonPVcuts = cms.PSet(
-  dxy = cms.double(   0   ),
-  dz  = cms.double(   0   ),
+  dxy = cms.double(   9999.   ),
+  dz  = cms.double(   9999.   ),
 )
 
 #MET and HT binning
