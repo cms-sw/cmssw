@@ -151,8 +151,8 @@ class L1TJetsMatching: public edm::global::EDProducer<> {
         unique_ptr<std::vector<T>> pfMatchedJets(new std::vector<T>);
         std::pair<std::vector<T>,std::vector<T>> output;
         
-        double deltaR    = 1.0;
-        double matchingR = 0.5;
+        double deltaR2    = 1.0;
+        double matchingR2 = 0.25;
         
         // Getting HLT jets to be matched
         edm::Handle<std::vector<T> > pfJets;
@@ -173,8 +173,8 @@ class L1TJetsMatching: public edm::global::EDProducer<> {
             for(unsigned int iL1Jet = 0; iL1Jet < jetCandRefVec.size(); iL1Jet++){
                 // Find the relative L2pfJets, to see if it has been reconstructed
                 //  if ((iJet<3) && (iL1Jet==0))  std::cout<<myJet.p4().Pt()<<" ";
-                deltaR = reco::deltaR2(myJet.p4().Vect(), (jetCandRefVec[iL1Jet]->p4()).Vect());
-                if(deltaR < matchingR ) {
+                deltaR2 = reco::deltaR2(myJet.p4().Vect(), (jetCandRefVec[iL1Jet]->p4()).Vect());
+                if(deltaR2 < matchingR2 ) {
                     pfMatchedJets->push_back(myJet);
                     break;
                 }
