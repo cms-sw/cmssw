@@ -2,10 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 from DQM.SiPixelPhase1Common.HistogramManager_cfi import *
 OverlayCurvesForTiming.enabled = False #switch to overlay digi/clusters curves for timing scan 
-PerModule.enabled              = False 
-PerLadder.enabled              = False
-PerLayer2D.enabled             = True # 2D maps/profiles of layers
-PerLayer1D.enabled             = True # normal histos per layer
+#PerModule.enabled              = False 
+#PerLadder.enabled              = False
+#PerLayer2D.enabled             = True # 2D maps/profiles of layers
+#PerLayer1D.enabled             = True # normal histos per layer
 
 hltSiPixelPhase1Geometry = SiPixelPhase1Geometry.clone()
 hltSiPixelPhase1Geometry.max_lumisection   = 2500

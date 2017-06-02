@@ -19,9 +19,9 @@ const char * QTestConfigure::findOrDefault(const std::map<std::string, std::stri
   if (( iter = m.find(std::string(item))) != m.end()) {
     return (*iter).second.c_str();
   }
-  edm::LogWarning("QTestConfigure") << "Warning, using default value for parameter "
-                                    << item << " with default_value: "
-                                    << default_value << std::endl;
+  LogDebug("QTestConfigure") << "Warning, using default value for parameter "
+			     << item << " with default_value: "
+			     << default_value << std::endl;
   return default_value;
 }
 
