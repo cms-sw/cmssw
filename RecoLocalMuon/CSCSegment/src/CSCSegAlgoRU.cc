@@ -59,7 +59,6 @@ std::vector<CSCSegment> CSCSegAlgoRU::buildSegments(const ChamberHitContainer& u
   ChamberHitContainer rechits = urechits;
   LayerIndex layerIndex(rechits.size());
   int recHits_per_layer[6] = {0,0,0,0,0,0};
-std::cout<<" entered segbuilder "<<std::endl;
   //skip events with high multiplicity of hits
   if (rechits.size()>150){
     return std::vector<CSCSegment>();
