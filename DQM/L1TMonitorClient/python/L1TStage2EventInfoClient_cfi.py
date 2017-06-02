@@ -107,14 +107,24 @@ l1tStage2EventInfoClient = DQMEDHarvester("L1TEventInfoClient",
                         SystemDisable  = cms.uint32(0),
                         QualityTests = cms.VPSet(
                             cms.PSet(
+                                QualityTestName = cms.string("BMTF_hwPtRange"),
+                                QualityTestHist = cms.string("L1T/L1TStage2BMTF/bmtf_hwPt"),
+                                QualityTestSummaryEnabled = cms.uint32(1)
+                                ),
+                            cms.PSet(
                                 QualityTestName = cms.string("BMTF_hwPtSpectrum"),
                                 QualityTestHist = cms.string("L1T/L1TStage2BMTF/bmtf_hwPt"),
+                                QualityTestSummaryEnabled = cms.uint32(0)
+                                ),
+                            cms.PSet(
+                                QualityTestName = cms.string("BMTF_WedgeBXNoisyWedge"),
+                                QualityTestHist = cms.string("L1T/L1TStage2BMTF/bmtf_wedge_bx"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),
                             cms.PSet(
                                 QualityTestName = cms.string("BMTF_WedgeBXSpectrum"),
                                 QualityTestHist = cms.string("L1T/L1TStage2BMTF/bmtf_wedge_bx"),
-                                QualityTestSummaryEnabled = cms.uint32(1)
+                                QualityTestSummaryEnabled = cms.uint32(0)
                                 ),
                             )
                         ),
@@ -136,14 +146,24 @@ l1tStage2EventInfoClient = DQMEDHarvester("L1TEventInfoClient",
                         SystemDisable  = cms.uint32(0),
                         QualityTests = cms.VPSet(
                             cms.PSet(
+                                QualityTestName = cms.string("EMTF_HitOccupancyDeadChambe"),
+                                QualityTestHist = cms.string("L1T/L1TStage2EMTF/emtfHitOccupancy"),
+                                QualityTestSummaryEnabled = cms.uint32(1)
+                                ),
+                            cms.PSet(
                                 QualityTestName = cms.string("EMTF_HitOccupancyNoisyChamber"),
                                 QualityTestHist = cms.string("L1T/L1TStage2EMTF/emtfHitOccupancy"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),
                             cms.PSet(
-                                QualityTestName = cms.string("EMTF_TrackBXSpectrum"),
+                                QualityTestName = cms.string("EMTF_TrackBXNoisyTrack"),
                                 QualityTestHist = cms.string("L1T/L1TStage2EMTF/emtfTrackBX"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
+                                ),
+                            cms.PSet(
+                                QualityTestName = cms.string("EMTF_TrackBXSpectrum"),
+                                QualityTestHist = cms.string("L1T/L1TStage2EMTF/emtfTrackBX"),
+                                QualityTestSummaryEnabled = cms.uint32(0)
                                 ),
                             )
                         ),
@@ -163,14 +183,19 @@ l1tStage2EventInfoClient = DQMEDHarvester("L1TEventInfoClient",
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),
                             cms.PSet(
-                                QualityTestName = cms.string("uGMT_MuonPtSpectrum"),
+                                QualityTestName = cms.string("uGMT_MuonPtRange"),
                                 QualityTestHist = cms.string("L1T/L1TStage2uGMT/ugmtMuonPt"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),
                             cms.PSet(
+                                QualityTestName = cms.string("uGMT_MuonPtSpectrum"),
+                                QualityTestHist = cms.string("L1T/L1TStage2uGMT/ugmtMuonPt"),
+                                QualityTestSummaryEnabled = cms.uint32(0)
+                                ),
+                            cms.PSet(
                                 QualityTestName = cms.string("uGMT_MuonPhivsEtaSpectrum"),
                                 QualityTestHist = cms.string("L1T/L1TStage2uGMT/ugmtMuonPhivsEta"),
-                                QualityTestSummaryEnabled = cms.uint32(1)
+                                QualityTestSummaryEnabled = cms.uint32(0)
                                 ),
                             cms.PSet(
                                 QualityTestName = cms.string("uGMT_BMTFBXMeanAtBX0"),
@@ -180,7 +205,7 @@ l1tStage2EventInfoClient = DQMEDHarvester("L1TEventInfoClient",
                             cms.PSet(
                                 QualityTestName = cms.string("uGMT_BMTFhwPhiSpectrum"),
                                 QualityTestHist = cms.string("L1T/L1TStage2uGMT/BMTFInput/ugmtBMTFglbhwPhi"),
-                                QualityTestSummaryEnabled = cms.uint32(1)
+                                QualityTestSummaryEnabled = cms.uint32(0)
                                 ),
                             cms.PSet(
                                 QualityTestName = cms.string("uGMT_BMTFhwEtaMeanAt0"),
@@ -200,7 +225,7 @@ l1tStage2EventInfoClient = DQMEDHarvester("L1TEventInfoClient",
                             cms.PSet(
                                 QualityTestName = cms.string("uGMT_OMTFhwPhiPosSpectrum"),
                                 QualityTestHist = cms.string("L1T/L1TStage2uGMT/OMTFInput/ugmtOMTFglbhwPhiPos"),
-                                QualityTestSummaryEnabled = cms.uint32(1)
+                                QualityTestSummaryEnabled = cms.uint32(0)
                                 ),
                             cms.PSet(
                                 QualityTestName = cms.string("uGMT_OMTFhwEtaMeanAt0"),
@@ -208,9 +233,14 @@ l1tStage2EventInfoClient = DQMEDHarvester("L1TEventInfoClient",
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),
                             cms.PSet(
-                                QualityTestName = cms.string("uGMT_OMTFhwPtSpectrum"),
+                                QualityTestName = cms.string("uGMT_OMTFhwPtRange"),
                                 QualityTestHist = cms.string("L1T/L1TStage2uGMT/OMTFInput/ugmtOMTFhwPt"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
+                                ),
+                            cms.PSet(
+                                QualityTestName = cms.string("uGMT_OMTFhwPtSpectrum"),
+                                QualityTestHist = cms.string("L1T/L1TStage2uGMT/OMTFInput/ugmtOMTFhwPt"),
+                                QualityTestSummaryEnabled = cms.uint32(0)
                                 ),
                             cms.PSet(
                                 QualityTestName = cms.string("uGMT_OMTFhwSignUniform"),
@@ -244,27 +274,27 @@ l1tStage2EventInfoClient = DQMEDHarvester("L1TEventInfoClient",
                                 ),
                             cms.PSet(
                                 QualityTestName = cms.string("uGMTCopies_MismatchRatioMax0p05"),
-                                QualityTestHist = cms.string("L1T/L1TStage2uGMT/uGMTMuonCopy1/mismatchRatio"),
+                                QualityTestHist = cms.string("L1T/L1TStage2uGMT/uGMTMuonCopies/GMTMuonCopy1/mismatchRatio"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),
                             cms.PSet(
                                 QualityTestName = cms.string("uGMTCopies_MismatchRatioMax0p05"),
-                                QualityTestHist = cms.string("L1T/L1TStage2uGMT/uGMTMuonCopy2/mismatchRatio"),
+                                QualityTestHist = cms.string("L1T/L1TStage2uGMT/uGMTMuonCopies/uGMTMuonCopy2/mismatchRatio"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),
                             cms.PSet(
                                 QualityTestName = cms.string("uGMTCopies_MismatchRatioMax0p05"),
-                                QualityTestHist = cms.string("L1T/L1TStage2uGMT/uGMTMuonCopy3/mismatchRatio"),
-                                QualityTestSummaryEnabled = cms.uint32(1)
-                                ),
-                            cms.PSet(
-                                QualityTestName = cms.string("uGMTCopies_uGMTCopies_MismatchRatioMax0p05"),
-                                QualityTestHist = cms.string("L1T/L1TStage2uGMT/uGMTMuonCopy4/mismatchRatio"),
+                                QualityTestHist = cms.string("L1T/L1TStage2uGMT/uGMTMuonCopies/uGMTMuonCopy3/mismatchRatio"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),
                             cms.PSet(
                                 QualityTestName = cms.string("uGMTCopies_MismatchRatioMax0p05"),
-                                QualityTestHist = cms.string("L1T/L1TStage2uGMT/uGMTMuonCopy5/mismatchRatio"),
+                                QualityTestHist = cms.string("L1T/L1TStage2uGMT/uGMTMuonCopies/uGMTMuonCopy4/mismatchRatio"),
+                                QualityTestSummaryEnabled = cms.uint32(1)
+                                ),
+                            cms.PSet(
+                                QualityTestName = cms.string("uGMTCopies_MismatchRatioMax0p05"),
+                                QualityTestHist = cms.string("L1T/L1TStage2uGMT/uGMTMuonCopies/uGMTMuonCopy5/mismatchRatio"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),
                             cms.PSet(
