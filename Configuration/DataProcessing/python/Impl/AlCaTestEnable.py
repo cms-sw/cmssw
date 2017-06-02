@@ -34,7 +34,18 @@ class AlCaTestEnable(AlCa):
         options.scenario = "pp"
         options.step = stepALCAPRODUCER(skims)
 
-        dictIO(options,args)
+        if 'outputs' in args:
+            # the RAW data-tier needs a special treatment since the event-content as defined in release is not good enough
+            outputs_Raw = [x for x in args['outputs'] if x['dataTier'] == 'RAW']
+            outputs_noRaw = [x for x in args['outputs'] if x['dataTier'] != 'RAW']
+            print args['outputs']
+            print outputs_noRaw
+            print outputs_Raw
+            if len(outputs_Raw) == 1:
+                print 'RAW data-tier requested'
+            options.outputDefinition = outputs_noRaw.__str__()
+
+        # dictIO(options,args)
         options.conditions = gtNameAndConnect(globalTag, args)
 
         options.filein = 'tobeoverwritten.xyz'
@@ -50,6 +61,35 @@ class AlCaTestEnable(AlCa):
         cb.prepare()
 
         addMonitoring(process)
+
+        for output in outputs_Raw:
+            print output
+            moduleLabel = output['moduleLabel']
+            selectEvents = output.get('selectEvents', None)
+            maxSize = output.get('maxSize', None)
+
+            outputModule = cms.OutputModule(
+                "PoolOutputModule",
+                fileName = cms.untracked.string("%s.root" % moduleLabel)
+                )
+
+            outputModule.dataset = cms.untracked.PSet(dataTier = cms.untracked.string("RAW"))
+
+            if maxSize != None:
+                outputModule.maxSize = cms.untracked.int32(maxSize)
+
+            if selectEvents != None:
+                outputModule.SelectEvents = cms.untracked.PSet(
+                    SelectEvents = cms.vstring(selectEvents)
+                    )
+            outputModule.outputCommands = cms.untracked.vstring('drop *',
+                                                                'keep  *_*_*_HLT')
+
+            setattr(process, moduleLabel, outputModule)
+	        # outputModule=getattr(self.process,theModuleLabel)
+            setattr(process, moduleLabel+'_step', cms.EndPath(outputModule))
+            path = getattr(process, moduleLabel+'_step')
+            process.schedule.append(path)
 
         return process
 
