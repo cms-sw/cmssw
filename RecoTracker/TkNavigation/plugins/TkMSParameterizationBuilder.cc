@@ -24,6 +24,7 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "RecoTracker/Record/interface/TkMSParameterizationRecord.h"
 
@@ -58,9 +59,14 @@ std::ostream & operator<<(std::ostream & os, MSData d) {
 class TkMSParameterizationBuilder final : public edm::ESProducer {
 public:
   TkMSParameterizationBuilder(edm::ParameterSet const&);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions){
+     edm::ParameterSetDescription desc;
+     // desc.add<std::string>("ComponentName","TkMSParameterization");
+     desc.add<std::string>("navigationSchool","SimpleNavigationSchool");     
+     descriptions.add("TkMSParameterizationBuilder",desc);
+  }
   
   using ReturnType = std::shared_ptr<TkMSParameterization>;
-
   ReturnType produce(TkMSParameterizationRecord const&);
 
   std::string theNavigationSchoolName;
