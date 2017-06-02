@@ -11,9 +11,7 @@
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
-#include <RecoTracker/MeasurementDet/interface/MeasurementTracker.h>
-#include <RecoTracker/Record/interface/CkfComponentsRecord.h>
-#include "TrackingTools/DetLayers/interface/NavigationSchool.h"
+#include "RecoTracker/TkNavigation/interface/TkNavigationSchool.h"
 #include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
@@ -106,40 +104,27 @@ class MSGalore final : public edm::EDAnalyzer {
  private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   
-  std::string theMeasurementTrackerName;
   std::string theNavigationSchoolName;
 };
 
 
 MSGalore::MSGalore(const edm::ParameterSet& iConfig): 
-  theMeasurementTrackerName(iConfig.getParameter<std::string>("measurementTracker"))
-  ,theNavigationSchoolName(iConfig.getParameter<std::string>("navigationSchool")){}
+  theNavigationSchoolName(iConfig.getParameter<std::string>("navigationSchool")){}
 
 
 void MSGalore::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
   
-  //get the measurementtracker
-  edm::ESHandle<MeasurementTracker> measurementTracker;
-  edm::ESHandle<NavigationSchool>   navSchool;
+  edm::ESHandle<NavigationSchool>   navSchoolH;
   
-  iSetup.get<CkfComponentsRecord>().get(theMeasurementTrackerName, measurementTracker);
-  iSetup.get<NavigationSchoolRecord>().get(theNavigationSchoolName, navSchool);
+  iSetup.get<NavigationSchoolRecord>().get(theNavigationSchoolName, navSchoolH);
+
+  TkNavigationSchool const & navSchool = *(TkNavigationSchool const *)navSchoolH.product();
   
-  auto const & searchGeom = *(*measurementTracker).geometricSearchTracker();
-  
-  /*
-    auto const & geom = *(TrackerGeometry const *)(*measurementTracker).geomTracker();
-    auto const & dus = geom.detUnits(); 
-    auto firstBarrel = geom.offsetDU(GeomDetEnumerators::tkDetEnum[1]);
-    auto firstForward = geom.offsetDU(GeomDetEnumerators::tkDetEnum[2]);
-    std::cout << "number of dets " << dus.size() << std::endl;
-    std::cout << "Bl/Fw loc " << firstBarrel<< '/' << firstForward << std::endl;
-  */
-  
-  edm::ESHandle<MagneticField> magfield;
-  iSetup.get<IdealMagneticFieldRecord>().get(magfield);
+  auto const & searchGeom  = navSchool.searchTracker();
+  auto const & magfield = navSchool.field();  
+
   
   edm::ESHandle<Propagator>             propagatorHandle;
   iSetup.get<TrackingComponentsRecord>().get("PropagatorWithMaterial", propagatorHandle);
@@ -156,14 +141,6 @@ void MSGalore::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   KFUpdator kfu;
   LocalError he(0.001*0.001,0,0.002*0.002);
   
-  /*
-    auto bsz = searchGeom.pixelBarrelLayers().size();
-    auto fsz = searchGeom.posPixelForwardLayers().size();
-    auto nl=bsz+fsz-2;
-    DetLayer const * layers[nl];
-    for (decltype(bsz) i=0;i<bsz-1;++i) layers[i]=searchGeom.pixelBarrelLayers()[i];
-    for (decltype(fsz) i=0;i<fsz-1;++i) layers[i+bsz-1]=searchGeom.posPixelForwardLayers()[i];
-  */
   
   
   // loop over lambdas
@@ -204,7 +181,7 @@ void MSGalore::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  
 	  for (auto il=from+1; il<maxLayers; ++il) {
 	    
-	    auto compLayers = (*navSchool).nextLayers(*layer,*tsos.freeState(),alongMomentum);
+	    auto compLayers = navSchool.nextLayers(*layer,*tsos.freeState(),alongMomentum);
 	    std::stable_sort(compLayers.begin(),compLayers.end(),[](auto a, auto  b){return a->seqNum()<b->seqNum();});
 	    layer = nullptr;
 	    for(auto it : compLayers){
@@ -280,7 +257,7 @@ void MSGalore::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  auto startingPlane = pb.plane( startingPosition, rot);
 	  
 	  TrajectoryStateOnSurface startingStateP( GlobalTrajectoryParameters(startingPosition,
-									      startingMomentum, 1, magfield.product()),
+									      startingMomentum, 1, &magfield),
 						   err, *startingPlane);
 	  auto tsos0 = startingStateP;
 	  
