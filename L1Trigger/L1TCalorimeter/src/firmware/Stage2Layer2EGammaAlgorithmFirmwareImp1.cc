@@ -152,10 +152,9 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
 					  params_->egPUSParam(2));
 
       int hwFootPrint = isoCalEgHwFootPrint(cluster,towers);
-
       int nrTowers = CaloTools::calNrTowers(-1*params_->egPUSParam(1),
           params_->egPUSParam(1),
-          1,72,towers,1,999,CaloTools::CALO);
+					    1,72,towers,1+params_->pileUpTowerThreshold(),999,CaloTools::CALO);
       unsigned int lutAddress = isoLutIndex(egamma.hwEta(), nrTowers, egamma.hwPt());
 
       int isolBit = (((hwEtSum-hwFootPrint) < params_->egIsolationLUT()->data(lutAddress)) || (params_->egIsolationLUT()->data(lutAddress)>255));  
