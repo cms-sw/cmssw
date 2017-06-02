@@ -39,6 +39,8 @@ namespace tkMSParameterization {
       if (p!=data.begin()) --p; 
       return *p;
     }
+   auto const& operator()() const { return data;}
+
   private:
     std::vector<Elem> data;
     friend TkMSParameterizationBuilder;
@@ -51,7 +53,9 @@ namespace tkMSParameterization {
        auto i = std::min(nLmBins()-1,(unsigned int)(std::abs(tnLambda)*lmBinInv()));
        return data[i];
      }
-   private:
+
+    auto const& operator()() const { return data;}
+  private:
      std::array<Elems,nLmBins()> data;
      friend TkMSParameterizationBuilder;
   };
@@ -73,14 +77,21 @@ public:
   using	AllData = tkMSParameterization::AllData;
 
   FromToData const * fromTo(DetLayer const & in, DetLayer const & out) const {
+   return fromTo(in.seqNum(),out.seqNum());
+  }
+
+
+ FromToData const * fromTo(int in, int out) const {
     using namespace tkMSParameterization;
-    auto id = packLID(in.seqNum(),out.seqNum());
+    auto id = packLID(in,out);   
     auto p = data.find(id);
     if (p!=data.end()) return &(*p).second;
     return nullptr;
   }
+ 
 
-
+  auto const& operator()() const { return data;}
+ 
 private:
   AllData data;
   friend TkMSParameterizationBuilder;
