@@ -138,8 +138,8 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
                 if (hwIsoEnergy < 0) hwIsoEnergy = 0; // just in case the cluster is outside the window? should be very rare
                 
                 isolBit =      (((hwIsoEnergy < (params_->tauIsolationLUT()->data(LUTaddress))) || (params_->tauIsolationLUT()->data(LUTaddress)>255)) ? 1 : 0);
-		int isolBit2 = (((hwIsoEnergy < (params_->tauIsolationLUT2()->data(LUTaddress))) || (params_->tauIsolationLUT2()->data(LUTaddress)>255)) ? 1 : 0);
-		isolBit += (isolBit2 << 1);
+		//int isolBit2 = (((hwIsoEnergy < (params_->tauIsolationLUT2()->data(LUTaddress))) || (params_->tauIsolationLUT2()->data(LUTaddress)>255)) ? 1 : 0);
+		//isolBit += (isolBit2 << 1);
                 tau.setHwIso(isolBit);
 
                 // development vars
@@ -434,8 +434,8 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
                 if (hwIsoEnergy < 0) hwIsoEnergy = 0; // just in case the cluster is outside the window? should be very rare
 
                 isolBit =      (((hwIsoEnergy < (params_->tauIsolationLUT()->data(LUTaddress))) || (params_->tauIsolationLUT()->data(LUTaddress)>255)) ? 1 : 0);
-		int isolBit2 = (((hwIsoEnergy < (params_->tauIsolationLUT2()->data(LUTaddress))) || (params_->tauIsolationLUT2()->data(LUTaddress)>255)) ? 1 : 0);
-		isolBit += (isolBit2 << 1);
+		//int isolBit2 = (((hwIsoEnergy < (params_->tauIsolationLUT2()->data(LUTaddress))) || (params_->tauIsolationLUT2()->data(LUTaddress)>255)) ? 1 : 0);
+		//isolBit += (isolBit2 << 1);
                 tau.setHwIso(isolBit);
 
                 // development vars
