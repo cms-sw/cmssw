@@ -2,7 +2,7 @@
 
   <!-- BMTF HW pT -->
 
-  <QTEST name="BMTFhwPtRange">
+  <QTEST name="BMTF_hwPtRange">
     <TYPE>ContentsXRange</TYPE> 
     <PARAM name="xmin">6</PARAM>
     <PARAM name="xmax">511</PARAM>
@@ -10,7 +10,7 @@
     <PARAM name="warning">0.99</PARAM>
   </QTEST>
 
-  <QTEST name="BMTFhwPtSpectrum">
+  <QTEST name="BMTF_hwPtSpectrum">
     <TYPE>Comp2RefKolmogorov</TYPE>	
     <PARAM name="testparam">0</PARAM>
     <PARAM name="error">0.01</PARAM>
@@ -18,13 +18,13 @@
   </QTEST>
   
   <LINK name="*/L1TStage2BMTF/bmtf_hwPt">
-      <TestName activate="true">BMTFhwPtRange</TestName>
-      <TestName activate="true">BMTFhwPtSpectrum</TestName>
+      <TestName activate="true">BMTF_hwPtRange</TestName>
+      <TestName activate="true">BMTF_hwPtSpectrum</TestName>
   </LINK>
 
   <!-- BMTF WEDGE vs BX -->
 
-  <QTEST name="BMTFWedgeBXSpectrum">
+  <QTEST name="BMTF_WedgeBXSpectrum">
     <TYPE>Comp2Ref2DChi2</TYPE>	
     <PARAM name="testparam">0</PARAM>
     <PARAM name="error">0.01</PARAM>
@@ -32,7 +32,7 @@
     <PARAM name="minEntries">60</PARAM>
   </QTEST>
 
-  <QTEST name="BMTFWedgeBXNoisyWedge">
+  <QTEST name="BMTF_WedgeBXNoisyWedge">
     <TYPE>NoisyChannel</TYPE>	
     <PARAM name="tolerance">10</PARAM>
     <PARAM name="neighbours">1</PARAM>
@@ -41,8 +41,8 @@
   </QTEST>
   
   <LINK name="*/L1TStage2BMTF/bmtf_wedge_bx">
-      <TestName activate="true">BMTFWedgeBXSpectrum</TestName>
-      <TestName activate="true">BMTFWedgeBXNoisyWedge</TestName>
+      <TestName activate="true">BMTF_WedgeBXSpectrum</TestName>
+      <TestName activate="true">BMTF_WedgeBXNoisyWedge</TestName>
   </LINK>
 
 </TESTSCONFIGURATION>

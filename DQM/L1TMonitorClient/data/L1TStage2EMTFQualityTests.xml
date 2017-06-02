@@ -2,14 +2,14 @@
 
   <!-- EMTF Hit Occupancy -->
 
-  <QTEST name="EMTFHitOccupancyDeadChamber">
+  <QTEST name="EMTF_HitOccupancyDeadChamber">
     <TYPE>DeadChannel</TYPE>	
     <PARAM name="threshold">0</PARAM>
     <PARAM name="error">0.60</PARAM>
     <PARAM name="warning">0.80</PARAM>
   </QTEST>
 
-  <QTEST name="EMTFHitOccupancyNoisyChamber">
+  <QTEST name="EMTF_HitOccupancyNoisyChamber">
     <TYPE>NoisyChannel</TYPE>	
     <PARAM name="tolerance">20</PARAM>
     <PARAM name="neighbours">9</PARAM>
@@ -18,13 +18,13 @@
   </QTEST>
   
   <LINK name="*/L1TStage2EMTF/emtfHitOccupancy">
-      <TestName activate="true">EMTFHitOccupancyDeadChamber</TestName>
-      <TestName activate="true">EMTFHitOccupancyNoisyChamber</TestName>
+      <TestName activate="true">EMTF_HitOccupancyDeadChamber</TestName>
+      <TestName activate="true">EMTF_HitOccupancyNoisyChamber</TestName>
   </LINK>
 
   <!-- EMTF Track BX -->
 
-  <QTEST name="EMTFTrackBXSpectrum">
+  <QTEST name="EMTF_TrackBXSpectrum">
     <TYPE>Comp2Ref2DChi2</TYPE>	
     <PARAM name="testparam">0</PARAM>
     <PARAM name="error">0.01</PARAM>
@@ -32,7 +32,7 @@
     <PARAM name="minEntries">96</PARAM>
   </QTEST>
 
-  <QTEST name="EMTFTrackBXNoisyTrack">
+  <QTEST name="EMTF_TrackBXNoisyTrack">
     <TYPE>NoisyChannel</TYPE>	
     <PARAM name="tolerance">10</PARAM>
     <PARAM name="neighbours">1</PARAM>
@@ -41,8 +41,8 @@
   </QTEST>
   
   <LINK name="*/L1TStage2EMTF/emtfTrackBX">
-      <TestName activate="true">EMTFTrackBXSpectrum</TestName>
-      <TestName activate="true">EMTFTrackBXNoisyTrack</TestName>
+      <TestName activate="true">EMTF_TrackBXSpectrum</TestName>
+      <TestName activate="true">EMTF_TrackBXNoisyTrack</TestName>
   </LINK>
 
 </TESTSCONFIGURATION>
