@@ -89,6 +89,9 @@ class ReducedEGProducer : public edm::stream::EDProducer<> {
  const std::string outSuperClusters_;
  const std::string outEBEEClusters_;
  const std::string outESClusters_;
+ const std::string outOOTSuperClusters_;
+ const std::string outOOTEBEEClusters_;
+ const std::string outOOTESClusters_;
  const std::string outEBRecHits_;
  const std::string outEERecHits_;
  const std::string outESRecHits_;
