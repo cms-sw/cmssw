@@ -680,10 +680,10 @@ void popcon::EcalPedestalsHandler::readPedestalFile() {
 
   // ***************** now EE *****************
   float EEmean12[kEEChannels], EErms12[kEEChannels], EEmean6[kEEChannels], EErms6[kEEChannels], EEmean1[kEEChannels], EErms1[kEEChannels];
-  for (int iChannel = 0; iChannel < 14648; iChannel++) {
+  for (int iChannel = 0; iChannel < kEEChannels; iChannel++) {
     fInput >> hashedId >> EEmean12[iChannel] >> EErms12[iChannel] >> EEmean6[iChannel] >> EErms6[iChannel] 
 	   >> EEmean1[iChannel] >> EErms1[iChannel];
-    if(hashedId != iChannel + 61201) {
+    if(hashedId != iChannel + kEBChannels + 1) {
       std::cout << m_filename << " strange hash " << hashedId << " while iChannel " << iChannel << std::endl;
       exit(-1);
     }
@@ -826,10 +826,10 @@ void popcon::EcalPedestalsHandler::readPedestal2017() {
 
   // ***************** now EE *****************
   float EEmean12[kEEChannels], EErms12[kEEChannels], EEmean6[kEEChannels], EErms6[kEEChannels], EEmean1[kEEChannels], EErms1[kEEChannels];
-  for (int iChannel = 0; iChannel < 14648; iChannel++) {
+  for (int iChannel = 0; iChannel < kEEChannels; iChannel++) {
     fInput >> hashedId >> EEmean12[iChannel] >> EErms12[iChannel] >> EEmean6[iChannel] >> EErms6[iChannel] 
 	   >> EEmean1[iChannel] >> EErms1[iChannel];
-    if(hashedId != iChannel + 61201) {
+    if(hashedId != iChannel + kEBChannels + 1) {
       std::cout << m_filename << " strange hash " << hashedId << " while iChannel " << iChannel << std::endl;
       exit(-1);
     }
