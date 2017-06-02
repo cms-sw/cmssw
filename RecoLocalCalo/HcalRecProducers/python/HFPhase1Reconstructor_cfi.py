@@ -6,13 +6,13 @@ hfreco = cms.EDProducer("HFPhase1Reconstructor",
 
     # Change the following to True in order to use the channel
     # status from the DB
-    useChannelQualityFromDB = cms.bool(False),
+    useChannelQualityFromDB = cms.bool(True),
 
     # Change the following to True when the status becomes
     # available in the DB for both anodes. If this parameter
     # is set to False then it is assumed that the status of
     # both anodes is given by the channel at depth 1 and 2.
-    checkChannelQualityForDepth3and4 = cms.bool(False),
+    checkChannelQualityForDepth3and4 = cms.bool(True),
 
     # Configure the reconstruction algorithm
     algorithm = cms.PSet(

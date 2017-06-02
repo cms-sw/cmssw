@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 #define HltBTagPostValidation for the b-tag DQM validation (efficiency and mistagrate plot)
-HltBTagPostValidation = cms.EDAnalyzer("HLTBTagHarvestingAnalyzer",
+HltBTagPostValidation = DQMEDHarvester("HLTBTagHarvestingAnalyzer",
 	HLTPathNames = cms.vstring(
 	'HLT_PFMET120_',
 	'HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDTight_',

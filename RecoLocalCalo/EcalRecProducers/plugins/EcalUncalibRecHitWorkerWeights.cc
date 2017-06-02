@@ -15,7 +15,7 @@
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 
 EcalUncalibRecHitWorkerWeights::EcalUncalibRecHitWorkerWeights(const edm::ParameterSet&ps, edm::ConsumesCollector& c) :
-  EcalUncalibRecHitWorkerBaseClass(ps,c)
+  EcalUncalibRecHitWorkerRunOneDigiBase(ps,c)
 {
 }
 

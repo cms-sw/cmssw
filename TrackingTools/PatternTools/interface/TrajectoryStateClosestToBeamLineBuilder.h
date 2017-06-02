@@ -16,7 +16,7 @@ class TrajectoryStateClosestToBeamLineBuilder
 public: 
 
   typedef FreeTrajectoryState		FTS;
-
+  virtual ~TrajectoryStateClosestToBeamLineBuilder() = default;
   virtual TrajectoryStateClosestToBeamLine operator()
     (const FTS& originalFTS, const reco::BeamSpot & beamSpot) const = 0;
 

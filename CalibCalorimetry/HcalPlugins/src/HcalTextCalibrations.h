@@ -47,7 +47,7 @@ class HcalTextCalibrations : public edm::ESProducer,
 {
 public:
   HcalTextCalibrations (const edm::ParameterSet& );
-  ~HcalTextCalibrations ();
+  virtual ~HcalTextCalibrations ();
 
   void produce () {};
 
@@ -60,6 +60,7 @@ public:
         if(!HcalDbASCIIIO::getObject(inStream, &*result)) result.reset(nullptr);
         return result;
       }
+      virtual ~CheckGetObject() = default ;
     protected:
       virtual std::unique_ptr<T> makeResult(){ return std::make_unique<T>(); }
   };
@@ -67,6 +68,7 @@ public:
   class CheckGetObjectTopo : public CheckGetObject<T> {
     public:
       CheckGetObjectTopo(const HcalTopology* topo) : CheckGetObject<T>(topo), topo_(topo) {}
+      virtual ~CheckGetObjectTopo() = default;
     protected:
       std::unique_ptr<T> makeResult() override { return std::make_unique<T>(topo_); }
     private:

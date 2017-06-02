@@ -27,7 +27,7 @@
 #include <vector>
 
 EcalUncalibRecHitWorkerMaxSample::EcalUncalibRecHitWorkerMaxSample(const edm::ParameterSet& ps, edm::ConsumesCollector& c) :
-  EcalUncalibRecHitWorkerBaseClass( ps ,c)
+  EcalUncalibRecHitWorkerRunOneDigiBase( ps ,c)
 {
 }
 

@@ -26,14 +26,14 @@
 // to add module type and label context to the messages being caught
 // here. At this point we did not think it worth the time to implement.
 namespace {
-  void translator(cms::Exception const& ex) {
+  void translatorlibFWCorePythonParameterSet(cms::Exception const& ex) {
     PyErr_SetString(PyExc_RuntimeError, ex.message().c_str());
   }
 }
 
 BOOST_PYTHON_MODULE(libFWCorePythonParameterSet)
 {
-  boost::python::register_exception_translator<cms::Exception>(translator);
+  boost::python::register_exception_translator<cms::Exception>(translatorlibFWCorePythonParameterSet);
 
   boost::python::class_<edm::InputTag>("InputTag", boost::python::init<std::string>())
       .def(boost::python::init<std::string, std::string, std::string>())

@@ -4,6 +4,7 @@
 <use   name="FWCore/Utilities"/>
 <use   name="DataFormats/Candidate"/>
 <use   name="DataFormats/HcalDetId"/>
+<use   name="DataFormats/GeometryVector"/>
 
 <export>
   <lib   name="1"/>

@@ -8,6 +8,7 @@ namespace muonisolation {
 class CutsConeSizeFunction : public IsolatorByDeposit::ConeSizeFunction {
 public: 
   CutsConeSizeFunction(const Cuts & cuts) : theLastCut(0), theCuts(cuts) {} 
+  virtual ~CutsConeSizeFunction() = default;
   float threshold() const { return theLastCut->threshold; }
   float coneSize( float eta, float pt) const {
     theLastCut = & theCuts(eta); 

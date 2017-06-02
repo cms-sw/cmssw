@@ -1,5 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
+from PhysicsTools.Utilities.pileupFilter_cfi import *
+
+pileupFilter.pileupInfoSummaryInputTag = cms.InputTag("addPileupInfo")
+
 pu20to25 = pileupFilter.clone()
 pu20to25.minPU = cms.double(20)
 pu20to25.maxPU = cms.double(25)

@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-l1tCsctfClient = cms.EDAnalyzer("L1TCSCTFClient",
+l1tCsctfClient = DQMEDHarvester("L1TCSCTFClient",
     input_dir = cms.untracked.string('L1T/L1TCSCTF'),
     prescaleLS = cms.untracked.int32(-1),
     verbose = cms.untracked.bool(False),

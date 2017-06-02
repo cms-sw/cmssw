@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-NEWpostProcessorRecoMuon = cms.EDAnalyzer("DQMGenericClient",
+NEWpostProcessorRecoMuon = DQMEDHarvester("DQMGenericClient",
     subDirs = cms.untracked.vstring("Muons/RecoMuonV/NewRecoMuon_MuonAssoc"),
     #efficiencies and fractions
     efficiency = cms.vstring("EffP   'Efficiency vs p'     P   SimP  ",
@@ -55,7 +56,7 @@ NEWpostProcessorRecoMuon_StaPF = NEWpostProcessorRecoMuon.clone()
 NEWpostProcessorRecoMuon_StaPF.subDirs = cms.untracked.vstring("Muons/RecoMuonV/NewRecoMuon_MuonAssoc_StaPF")
 
 #not sure about this one, which types are monitored
-NEWpostProcessorRecoMuonComp = cms.EDAnalyzer(
+NEWpostProcessorRecoMuonComp = DQMEDHarvester(
     "DQMGenericClient",
     subDirs = cms.untracked.vstring("Muons/RecoMuonV/"),
     efficiency = cms.vstring(
@@ -72,7 +73,7 @@ NEWpostProcessorRecoMuonComp = cms.EDAnalyzer(
     outputFileName = cms.untracked.string("")
 )
 
-NEWpostProcessorRecoMuonCompPF = cms.EDAnalyzer(
+NEWpostProcessorRecoMuonCompPF = DQMEDHarvester(
     "DQMGenericClient",
     subDirs = cms.untracked.vstring("Muons/RecoMuonV/"),
     efficiency = cms.vstring(
