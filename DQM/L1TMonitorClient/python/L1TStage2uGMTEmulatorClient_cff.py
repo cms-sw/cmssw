@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 # directories
 ugmtEmuDqmDir = "L1TEMU/L1TdeStage2uGMT"
@@ -9,7 +10,7 @@ errHistNumStr = 'errorSummaryNum'
 errHistDenStr = 'errorSummaryDen'
 
 # Muons
-l1tStage2uGMTEmulatorCompRatioClient = cms.EDAnalyzer("L1TStage2RatioClient",
+l1tStage2uGMTEmulatorCompRatioClient = DQMEDHarvester("L1TStage2RatioClient",
     monitorDir = cms.untracked.string(ugmtEmuDEDqmDir),
     inputNum = cms.untracked.string(ugmtEmuDEDqmDir+'/'+errHistNumStr),
     inputDen = cms.untracked.string(ugmtEmuDEDqmDir+'/'+errHistDenStr),

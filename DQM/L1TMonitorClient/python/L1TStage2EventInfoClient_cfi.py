@@ -10,8 +10,9 @@
 
 
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-l1tStage2EventInfoClient = cms.EDAnalyzer("L1TEventInfoClient",
+l1tStage2EventInfoClient = DQMEDHarvester("L1TEventInfoClient",
     monitorDir = cms.untracked.string("L1T"),
 
     # decide when to run and update the results of the quality tests
