@@ -127,15 +127,16 @@ void MSGalore::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   iSetup.get<CkfComponentsRecord>().get(theMeasurementTrackerName, measurementTracker);
   iSetup.get<NavigationSchoolRecord>().get(theNavigationSchoolName, navSchool);
 
-  auto const & geom = *(TrackerGeometry const *)(*measurementTracker).geomTracker();
   auto const & searchGeom = *(*measurementTracker).geometricSearchTracker();
-  auto const & dus = geom.detUnits();
   
+  /*
+  auto const & geom = *(TrackerGeometry const *)(*measurementTracker).geomTracker();
+  auto const & dus = geom.detUnits(); 
   auto firstBarrel = geom.offsetDU(GeomDetEnumerators::tkDetEnum[1]);
   auto firstForward = geom.offsetDU(GeomDetEnumerators::tkDetEnum[2]);
- 
   std::cout << "number of dets " << dus.size() << std::endl;
   std::cout << "Bl/Fw loc " << firstBarrel<< '/' << firstForward << std::endl;
+  */
 
   edm::ESHandle<MagneticField> magfield;
   iSetup.get<IdealMagneticFieldRecord>().get(magfield);
@@ -153,7 +154,7 @@ void MSGalore::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   Chi2MeasurementEstimator estimator(30.,-3.0,0.5,2.0,0.5,1.e12);  // same as defauts....
   KFUpdator kfu;
-  LocalError he(0.01*0.01,0,0.02*0.02);
+  LocalError he(0.001*0.001,0,0.002*0.002);
 
   /*
   auto bsz = searchGeom.pixelBarrelLayers().size();
@@ -170,15 +171,17 @@ void MSGalore::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   float tl=0;
   for (decltype(nLmBins()) ib=0; ib<nLmBins(); ++ib, tl+=lmBin()) {
 
-  float p = 1.0f;
+  float pt = 1.0f;
   float phi = 0.0415f;
   float tanlmd = tl; // 0.1f;
   auto sinth2 = 1.f/(1.f+tanlmd*tanlmd);
   auto sinth = std::sqrt(sinth2);
-  auto costh = tanlmd*sinth;
+  // auto costh = tanlmd*sinth;
+  auto overp = sinth/pt; 
+  auto pz = pt*tanlmd;
 
   // debug= (tl>2.34f && tl<2.55f);
-  if(debug) std::cout << tl << ' ' << sinth << ' ' << costh << std::endl;
+ if(debug)  std::cout << tl << ' ' << pz << ' ' << 1./overp << std::endl;
 
 
 
@@ -196,7 +199,7 @@ void MSGalore::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   for (int ip=0;ip<5; ++ip) {
 
   phi += (3.14159f/6.f)/5.f;
-  GlobalVector startingMomentum(p*std::sin(phi)*sinth,p*std::cos(phi)*sinth,p*costh);
+  GlobalVector startingMomentum(pt*std::sin(phi),pt*std::cos(phi),pz);
 
   // make TSOS happy
   //Define starting plane
@@ -275,8 +278,8 @@ void MSGalore::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       float errorPhi = std::sqrt(float(globalError.phierr(gp))); 
       float errorR = std::sqrt(float(globalError.rerr(gp)));
       float errorZ = std::sqrt(float(globalError.czz()));
-      float xerr = errorPhi;
-      float zerr = layer->isBarrel() ? errorZ : errorR; 
+      float xerr = overp*errorPhi;
+      float zerr = overp*(layer->isBarrel() ? errorZ : errorR); 
       auto zo = layer->isBarrel() ? gp.z() : r;
       //  std::cout << tanlmd << ' ' << z1 << ' ' << it->seqNum() << ':' << xerr <<'/'<<zerr << std::endl;    
       mserr[il-1].emplace_back(MSData{stid,it->seqNum(),z1,zo,xerr,zerr});
