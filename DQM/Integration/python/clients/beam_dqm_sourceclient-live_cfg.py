@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process("BeamMonitor")
+process = cms.Process("BeamMonitor", eras.Run2_2017)
 
 #----------------------------------------------                                                                                                                                    
 # Switch to change between firstStep and Pixel
@@ -53,6 +54,14 @@ process.load("DQM.BeamMonitor.BeamConditionsMonitor_cff")
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
+process.load("RecoLocalTracker.Configuration.RecoLocalTracker_cff")
+process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
+from RecoPixelVertexing.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *
+process.siPixelClusterShapeCachePreSplitting = siPixelClusterShapeCache.clone(
+  src = 'siPixelClustersPreSplitting'
+)
+process.load("RecoLocalTracker.SiPixelRecHits.PixelCPEGeneric_cfi")
+
 
 #---------------
 # Calibration
@@ -64,21 +73,16 @@ process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 #process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
 
 # Change Beam Monitor variables
-if process.dqmRunConfig.type.value() is "playback":
-  process.dqmBeamMonitor.BeamFitter.WriteAscii = False
-  process.dqmBeamMonitor.BeamFitter.AsciiFileName = '/nfshome0/yumiceva/BeamMonitorDQM/BeamFitResults.txt'
-  process.dqmBeamMonitor.BeamFitter.WriteDIPAscii = True
-  process.dqmBeamMonitor.BeamFitter.DIPFileName = '/nfshome0/dqmdev/BeamMonitorDQM/BeamFitResults.txt'
-else:
+if process.dqmRunConfig.type.value() is "production":
   process.dqmBeamMonitor.BeamFitter.WriteAscii = True
   process.dqmBeamMonitor.BeamFitter.AsciiFileName = '/nfshome0/yumiceva/BeamMonitorDQM/BeamFitResults.txt'
   process.dqmBeamMonitor.BeamFitter.WriteDIPAscii = True
   process.dqmBeamMonitor.BeamFitter.DIPFileName = '/nfshome0/dqmpro/BeamMonitorDQM/BeamFitResults.txt'
-  #process.dqmBeamMonitor.BeamFitter.SaveFitResults = False
-  #process.dqmBeamMonitor.BeamFitter.OutputFileName = '/nfshome0/yumiceva/BeamMonitorDQM/BeamFitResults.root'
-  #process.dqmBeamMonitorBx.BeamFitter.WriteAscii = False
-  #process.dqmBeamMonitorBx.BeamFitter.AsciiFileName = '/nfshome0/yumiceva/BeamMonitorDQM/BeamFitResults_Bx.txt'
-
+else:
+  process.dqmBeamMonitor.BeamFitter.WriteAscii = False
+  process.dqmBeamMonitor.BeamFitter.AsciiFileName = '/nfshome0/yumiceva/BeamMonitorDQM/BeamFitResults.txt'
+  process.dqmBeamMonitor.BeamFitter.WriteDIPAscii = True
+  process.dqmBeamMonitor.BeamFitter.DIPFileName = '/nfshome0/dqmdev/BeamMonitorDQM/BeamFitResults.txt'
 
 ## TKStatus
 process.dqmTKStatus = cms.EDAnalyzer("TKStatus",
@@ -147,7 +151,6 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     process.ecalPreshowerDigis.sourceTag = cms.InputTag("rawDataCollector")
     process.gctDigis.inputLabel = cms.InputTag("rawDataCollector")
     process.gtDigis.DaqGtInputTag = cms.InputTag("rawDataCollector")
-    process.gtEvmDigis.EvmGtInputTag = cms.InputTag("rawDataCollector")
     process.hcalDigis.InputLabel = cms.InputTag("rawDataCollector")
     process.muonCSCDigis.InputObjects = cms.InputTag("rawDataCollector")
     process.muonDTDigis.inputLabel = cms.InputTag("rawDataCollector")
@@ -157,12 +160,7 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     process.siStripDigis.ProductLabel = cms.InputTag("rawDataCollector")
 
 
-    process.load("Configuration.StandardSequences.Reconstruction_cff")
-    # Offline Beam Spot
-    #process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
-    # copy from online
-    import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
-    offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
+    process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
 
     process.dqmBeamMonitor.OnlineMode = True              
     process.dqmBeamMonitor.resetEveryNLumi = 5
@@ -214,38 +212,24 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
                                                      )
     else: # pixel tracking
         print "[beam_dqm_sourceclient-live_cfg]:: pixelTracking"
-        #pixel  track/vertices reco
-        process.load("RecoPixelVertexing.Configuration.RecoPixelVertexing_cff")
-        from RecoPixelVertexing.PixelTrackFitting.PixelTracks_cff import *
-        from RecoTracker.TkTrackingRegions.globalTrackingRegion_cfi import *
-        new = globalTrackingRegion.clone()
-        def _copy(old, new, skip=[]):
-          skipSet = set(skip)
-          for key in old.parameterNames_():
-            if key not in skipSet:
-              setattr(new, key, getattr(old, key))
-        _copy(process.pixelTracksTrackingRegions.RegionPSet, new.RegionPSet, skip=["nSigmaZ", "beamSpot"])
-        new.RegionPSet.originRadius = 0.4
-        # Bit of a hack to replace a module with another, but works
-        #
-        # With the naive
-        # process.pixelTracksTrackingRegions = glovalTrackingRegion.clone()
-        # the configuration system complains that pixelTracksTrackingRegions is already being used in recopixelvertexing sequence
-        modifier = cms.Modifier()
-        modifier._setChosen()
-        modifier.toReplaceWith(process.pixelTracksTrackingRegions, new)
 
+
+        #pixel  track/vertices reco
+        process.load("RecoPixelVertexing.PixelTrackFitting.PixelTracks_2017_cff")
+        process.load("RecoVertex.PrimaryVertexProducer.OfflinePixel3DPrimaryVertices_cfi")
+        process.recopixelvertexing = cms.Sequence(process.pixelTracksSequence + process.pixelVertices)
+        process.pixelTracksTrackingRegions.RegionPSet.originRadius = 0.4
+        process.pixelTracksTrackingRegions.RegionPSet.originHalfLength = 3
+        process.pixelTracksTrackingRegions.RegionPSet.originXPos = 0.08
+        process.pixelTracksTrackingRegions.RegionPSet.originYPos = -0.03
+        process.pixelTracksTrackingRegions.RegionPSet.originZPos = 1.
         process.pixelVertices.TkFilterParameters.minPt = process.pixelTracksTrackingRegions.RegionPSet.ptMin
 
         process.dqmBeamMonitor.PVFitter.errorScale = 1.22 #keep checking this with new release expected close to 1.2
-     
-
-        from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import *
-        process.PixelLayerTriplets.BPix.HitProducer = cms.string('siPixelRecHitsPreSplitting')
-        process.PixelLayerTriplets.FPix.HitProducer = cms.string('siPixelRecHitsPreSplitting')
-        process.pixelTracksHitTriplets.SeedComparitorPSet.clusterShapeCacheSrc = 'siPixelClusterShapeCachePreSplitting'
  
         process.tracking_FirstStep  = cms.Sequence(process.siPixelDigis* 
+                                                   process.siStripDigis *
+                                                   process.striptrackerlocalreco *
                                                    process.offlineBeamSpot*
                                                    process.siPixelClustersPreSplitting*
                                                    process.siPixelRecHitsPreSplitting*
@@ -288,7 +272,6 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.ecalPreshowerDigis.sourceTag = cms.InputTag("rawDataRepacker")
     process.gctDigis.inputLabel = cms.InputTag("rawDataRepacker")
     process.gtDigis.DaqGtInputTag = cms.InputTag("rawDataRepacker")
-    process.gtEvmDigis.EvmGtInputTag = cms.InputTag("rawDataRepacker")
     process.hcalDigis.InputLabel = cms.InputTag("rawDataRepacker")
     process.muonCSCDigis.InputObjects = cms.InputTag("rawDataRepacker")
     process.muonDTDigis.inputLabel = cms.InputTag("rawDataRepacker")
