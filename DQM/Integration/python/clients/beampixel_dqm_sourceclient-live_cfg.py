@@ -129,14 +129,14 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     process.load("RecoPixelVertexing.PixelTrackFitting.PixelTracks_2017_cff")
     process.load("RecoVertex.PrimaryVertexProducer.OfflinePixel3DPrimaryVertices_cfi")
     process.recopixelvertexing = cms.Sequence(process.pixelTracksSequence + process.pixelVertices)
-    process.pixelVertices.TkFilterParameters.minPt = 0.9
-    process.pixelTracksTrackingRegions.RegionPSet.originRadius = 0.4
-    process.pixelTracksTrackingRegions.RegionPSet.originHalfLength = 3.
-    process.pixelTracksTrackingRegions.RegionPSet.originXPos = 0.08
-    process.pixelTracksTrackingRegions.RegionPSet.originYPos = -0.03
-    process.pixelTracksTrackingRegions.RegionPSet.originZPos = 1.
-
-
+    process.pixelVertices.TkFilterParameters.minPt                 =  0.9
+    process.pixelTracksTrackingRegions.RegionPSet.originRadius     =  0.4
+    process.pixelTracksTrackingRegions.RegionPSet.originHalfLength =  3.
+    process.pixelTracksTrackingRegions.RegionPSet.originXPos       =  0.08
+    process.pixelTracksTrackingRegions.RegionPSet.originYPos       = -0.03
+    process.pixelTracksTrackingRegions.RegionPSet.originZPos       =  1.
+    
+    
     #----------------------------
     # Pixel-Tracks&Vertices Reco
     #----------------------------
