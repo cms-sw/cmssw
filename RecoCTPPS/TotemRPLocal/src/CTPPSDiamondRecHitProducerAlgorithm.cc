@@ -34,15 +34,18 @@ CTPPSDiamondRecHitProducerAlgorithm::build( const TotemRPGeometry* geom, const e
 
     for ( edm::DetSet<CTPPSDiamondDigi>::const_iterator digi = vec->begin(); digi != vec->end(); ++digi )
     {
+      if ( digi->getLeadingEdge()==0 and digi->getTrailingEdge()==0 ) { continue; }
+      
       const int t = digi->getLeadingEdge();
-      if ( t==0 ) { continue; }
-
-      const int t0 = ( t-t_shift_ ) % 1024,
-                time_slice = ( t-t_shift_ ) / 1024;
+      const int t0 = ( t-t_shift_ ) % 1024;
+      const int time_slice = ( t-t_shift_ ) / 1024;
+                
+      int tot = 0;
+      if (t!=0 and digi->getTrailingEdge()!=0) tot = ( (int) digi->getTrailingEdge() ) -t;
 
       rec_hits.push_back( CTPPSDiamondRecHit( x_pos, x_width, y_pos, y_width, // spatial information
                                               ( t0 * ts_to_ns_ ),
-                                              ( digi->getTrailingEdge()-t0 ) * ts_to_ns_,
+                                              ( tot * ts_to_ns_),
                                               time_slice,
                                               digi->getHPTDCErrorFlags(),
                                               digi->getMultipleHit() ) );
