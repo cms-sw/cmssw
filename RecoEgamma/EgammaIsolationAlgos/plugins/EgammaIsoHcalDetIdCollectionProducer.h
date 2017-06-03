@@ -57,12 +57,14 @@ private:
   edm::EDGetTokenT<reco::SuperClusterCollection> superClustersToken_;
   edm::EDGetTokenT<reco::GsfElectronCollection> elesToken_;
   edm::EDGetTokenT<reco::PhotonCollection> phosToken_;
+  edm::EDGetTokenT<reco::PhotonCollection> ootPhosToken_;
 
   std::string interestingDetIdCollection_;
  
   float minSCEt_;
   float minEleEt_;
   float minPhoEt_;
+  float minOOTPhoEt_;
 
   int maxDIEta_;
   int maxDIPhi_;

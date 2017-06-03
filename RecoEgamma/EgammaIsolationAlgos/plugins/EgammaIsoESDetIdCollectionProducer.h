@@ -53,15 +53,19 @@ private:
   // ----------member data ---------------------------
   edm::EDGetTokenT<reco::PFCluster::EEtoPSAssociation>         eeClusToESMapToken_;
   edm::EDGetTokenT<reco::PFClusterCollection> ecalPFClustersToken_;
+  edm::EDGetTokenT<reco::PFCluster::EEtoPSAssociation>         ootEEClusToESMapToken_;
+  edm::EDGetTokenT<reco::PFClusterCollection> ootEcalPFClustersToken_;
   edm::EDGetTokenT<reco::SuperClusterCollection> superClustersToken_;
   edm::EDGetTokenT<reco::GsfElectronCollection> elesToken_;
   edm::EDGetTokenT<reco::PhotonCollection> phosToken_;
+  edm::EDGetTokenT<reco::PhotonCollection> ootPhosToken_;
 
   std::string interestingDetIdCollection_;
  
   float minSCEt_;
   float minEleEt_;
   float minPhoEt_;
+  float minOOTPhoEt_;
 
   float maxDR_;
     
