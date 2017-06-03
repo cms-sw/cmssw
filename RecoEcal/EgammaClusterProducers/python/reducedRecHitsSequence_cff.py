@@ -95,6 +95,7 @@ reducedEcalRecHitsEB = cms.EDProducer("ReducedRecHitCollectionProducer",
             # egamma
             cms.InputTag("interestingGedEleIsoDetIdEB"),
             cms.InputTag("interestingGedGamIsoDetIdEB"),
+            cms.InputTag("interestingOotGamIsoDetIdEB"),
             cms.InputTag("interestingGamIsoDetIdEB"),
             # tau
             #cms.InputTag("caloRecoTauProducer"),
@@ -119,6 +120,7 @@ reducedEcalRecHitsEE = cms.EDProducer("ReducedRecHitCollectionProducer",
             # egamma
             cms.InputTag("interestingGedEleIsoDetIdEE"),
             cms.InputTag("interestingGedGamIsoDetIdEE"),
+            cms.InputTag("interestingOotGamIsoDetIdEE"),
             cms.InputTag("interestingGamIsoDetIdEE"),
             # tau
             #cms.InputTag("caloRecoTauProducer"),
