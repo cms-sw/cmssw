@@ -4,7 +4,7 @@ from RecoLocalCalo.CaloTowersCreator.calotowermaker_cfi import calotowermaker
 from RecoHI.HiJetAlgos.HiRecoJets_cff import akPu4CaloJets
 from JetMETCorrections.Configuration.DefaultJEC_cff import *
 
-hiCaloTowerForTrk = calotowermaker.clone(hbheInput=cms.InputTag('hbhereco'))
+hiCaloTowerForTrk = calotowermaker.clone(hbheInput=cms.InputTag('hbheprereco'))
 akPu4CaloJetsForTrk = akPu4CaloJets.clone( srcPVs = cms.InputTag('hiSelectedVertex'), src= cms.InputTag('hiCaloTowerForTrk'))
 
 
