@@ -151,7 +151,7 @@ DetId MuonDetLayerGeometry::makeDetLayerId(const DetLayer* detLayer) const{
   }
   else if( detLayer->subDetector()== GeomDetEnumerators::GEM){
     GEMDetId id( detLayer->basicComponents().front()->geographicalId().rawId());
-    return GEMDetId(id.region(),1,id.station(),id.layer(),0,0);
+    return GEMDetId(id.region(),1,id.station(),0,0,0);
   }
   else if( detLayer->subDetector()== GeomDetEnumerators::ME0){
     ME0DetId id( detLayer->basicComponents().front()->geographicalId().rawId());
@@ -353,7 +353,7 @@ const DetLayer* MuonDetLayerGeometry::idToLayer(const DetId &detId) const{
   }
   else if (detId.subdetId() == MuonSubdetId::GEM){
     GEMDetId gemId(detId.rawId() );
-    id = GEMDetId(gemId.region(),1,gemId.station(),gemId.layer(),0,0);
+    id = GEMDetId(gemId.region(),1,gemId.station(),0,0,0);
   }
   else if (detId.subdetId() == MuonSubdetId::ME0){
     ME0DetId me0Id(detId.rawId() );
