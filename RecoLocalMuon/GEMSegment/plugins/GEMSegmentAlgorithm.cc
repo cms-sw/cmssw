@@ -128,7 +128,7 @@ GEMSegmentAlgorithm::clusterHits(const GEMEnsemble& ensemble, const EnsembleHitC
     GEMDetId rhID                  = rechits[i]->gemId();
     const GEMEtaPartition * rhEP   = (ensemble.second.find(rhID.rawId()))->second;
     if(!rhEP) throw cms::Exception("GEMEtaPartition not found") << "Corresponding GEMEtaPartition to GEMDetId: "<<rhID<<" not found in the GEMEnsemble";
-    const GEMSuperChamber * rhCH   = ensemble.first;
+    const GEMEtaPartition * rhCH   = ensemble.first;
     LocalPoint rhLP_inEtaPartFrame = rechits[i]->localPosition();
     GlobalPoint rhGP_inCMSFrame    = rhEP->toGlobal(rhLP_inEtaPartFrame);
     LocalPoint rhLP_inChamberFrame = rhCH->toLocal(rhGP_inCMSFrame);
@@ -314,20 +314,26 @@ void GEMSegmentAlgorithm::buildSegments(const GEMEnsemble& ensemble, const Ensem
   proto_segment.clear();
   
   // select hits from the ensemble and sort it
-  const GEMSuperChamber * suCh   = ensemble.first;
+  const GEMEtaPartition * suCh   = ensemble.first;
+  edm::LogVerbatim("GEMSegmentAlgorithm") <<"GEMSegmentAlgorithm::buildSegments error 1"<< std::endl;
   for (auto rh=rechits.begin(); rh!=rechits.end();rh++){
     proto_segment.push_back(*rh);
+  edm::LogVerbatim("GEMSegmentAlgorithm") <<"GEMSegmentAlgorithm::buildSegments error 1.1"<< std::endl;
     
     // for segFit - using local point in chamber frame
     const GEMEtaPartition * thePartition   = (ensemble.second.find((*rh)->gemId()))->second;
+  edm::LogVerbatim("GEMSegmentAlgorithm") <<"GEMSegmentAlgorithm::buildSegments error 1.2"<< std::endl;
     GlobalPoint gp = thePartition->toGlobal((*rh)->localPosition());
+  edm::LogVerbatim("GEMSegmentAlgorithm") <<"GEMSegmentAlgorithm::buildSegments error 1.3"<< std::endl;
     const LocalPoint lp = suCh->toLocal(gp);
-    
+      edm::LogVerbatim("GEMSegmentAlgorithm") <<"GEMSegmentAlgorithm::buildSegments error 1.4"<< std::endl;
+
     GEMRecHit *newRH = (*rh)->clone();
     newRH->setPosition(lp);
     MuonSegFit::MuonRecHitPtr trkRecHit(newRH);
     muonRecHits.push_back(trkRecHit);
   }
+  edm::LogVerbatim("GEMSegmentAlgorithm") <<"GEMSegmentAlgorithm::buildSegments error 2"<< std::endl;
   
   #ifdef EDM_ML_DEBUG // have lines below only compiled when in debug mode 
   edm::LogVerbatim("GEMSegmentAlgorithm") << "[GEMSegmentAlgorithm::buildSegments] will now try to fit a GEMSegment from collection of "<<rechits.size()<<" GEM RecHits";
@@ -343,6 +349,7 @@ void GEMSegmentAlgorithm::buildSegments(const GEMEnsemble& ensemble, const Ensem
   sfit_ = std::make_unique<MuonSegFit>(muonRecHits);
   bool goodfit = sfit_->fit();
   edm::LogVerbatim("GEMSegmentAlgorithm") << "[GEMSegmentAlgorithm::buildSegments] GEMSegment fit done :: fit is good = "<<goodfit;
+  edm::LogVerbatim("GEMSegmentAlgorithm") <<"GEMSegmentAlgorithm::buildSegments error 3"<< std::endl;
 
   // quit function if fit was not OK
   if(!goodfit){
@@ -361,6 +368,7 @@ void GEMSegmentAlgorithm::buildSegments(const GEMEnsemble& ensemble, const Ensem
     bx += (*rh)->BunchX();
   }
   if(rechits.size() != 0) bx=bx*1.0/(rechits.size());
+  edm::LogVerbatim("GEMSegmentAlgorithm") <<"GEMSegmentAlgorithm::buildSegments error 4"<< std::endl;
 
   // Calculate the central value and uncertainty of the segment time
   // if we want to study impact of 2-3ns time resolution on GEM Segment 
@@ -390,6 +398,7 @@ void GEMSegmentAlgorithm::buildSegments(const GEMEnsemble& ensemble, const Ensem
   edm::LogVerbatim("GEMSegmentAlgorithm") << "[GEMSegmentAlgorithm::buildSegments] will now wrap fit info in GEMSegment dataformat";
   GEMSegment tmp(proto_segment, protoIntercept, protoDirection, protoErrors, protoChi2, bx);
   // GEMSegment tmp(proto_segment, protoIntercept, protoDirection, protoErrors, protoChi2, averageTime, timeUncrt);
+  edm::LogVerbatim("GEMSegmentAlgorithm") <<"GEMSegmentAlgorithm::buildSegments error 5"<< std::endl;
 
   edm::LogVerbatim("GEMSegmentAlgorithm") << "[GEMSegmentAlgorithm::buildSegments] GEMSegment made in "<<tmp.gemDetId();
   edm::LogVerbatim("GEMSegmentAlgorithm") << "[GEMSegmentAlgorithm::buildSegments] "<<tmp;

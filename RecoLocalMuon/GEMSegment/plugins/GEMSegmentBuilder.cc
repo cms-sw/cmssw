@@ -47,9 +47,9 @@ void GEMSegmentBuilder::build(const GEMRecHitCollection* recHits, GEMSegmentColl
     // this reference id serves to link all GEMEtaPartitions
     // and will also be used to determine the GEMSuperChamber 
     // to which the GEMSegment is assigned (done inside GEMSegAlgoXX)
-    GEMDetId id(it2->gemId().region(),1,it2->gemId().station(),0,it2->gemId().chamber(),0);
+    //GEMDetId id(it2->gemId().region(),1,it2->gemId().station(),0,it2->gemId().chamber(),0);
     // save current GEMRecHit in vector associated to the reference id
-    ensembleRH[id.rawId()].push_back(it2->clone());
+    ensembleRH[it2->gemId()].push_back(it2->clone());
   }
 
   // Loop on the entire map <ref id, vector of GEMRecHits>
@@ -59,7 +59,7 @@ void GEMSegmentBuilder::build(const GEMRecHitCollection* recHits, GEMSegmentColl
     std::map<uint32_t,const GEMEtaPartition* > ens;
 
     // all detIds have been assigned to the to chamber
-    const GEMSuperChamber* chamber = geom_->superChamber(enIt->first);
+    const GEMEtaPartition* chamber = geom_->etaPartition(enIt->first);
     for(auto rechit = enIt->second.begin(); rechit != enIt->second.end(); ++rechit) {
       gemRecHits.push_back(*rechit);
       ens[(*rechit)->gemId()]=geom_->etaPartition((*rechit)->gemId());
@@ -81,7 +81,7 @@ void GEMSegmentBuilder::build(const GEMRecHitCollection* recHits, GEMSegmentColl
     #endif
 
 
-    GEMSegmentAlgorithmBase::GEMEnsemble ensemble(std::pair<const GEMSuperChamber*,      std::map<uint32_t,const GEMEtaPartition*> >(chamber,ens));
+    GEMSegmentAlgorithmBase::GEMEnsemble ensemble(std::pair<const GEMEtaPartition*, std::map<uint32_t,const GEMEtaPartition*> >(chamber,ens));
     
     #ifdef EDM_ML_DEBUG // have lines below only compiled when in debug mode
     LogTrace("GEMSegmentBuilder") << "[GEMSegmentBuilder::build] run the segment reconstruction algorithm now";

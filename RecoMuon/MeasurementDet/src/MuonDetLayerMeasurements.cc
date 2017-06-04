@@ -150,51 +150,37 @@ MuonRecHitContainer MuonDetLayerMeasurements::recHits(const GeomDet* geomDet,
 
 	// Create the chamber Id
 	GEMDetId chamberId(geoId.rawId());
-	if (chamberId.layer() != 0)
-	  return result;
-	// return all segments and rechits not used in segments
-	// Get the GEMSegment which relies on this chamber
-	GEMSegmentCollection::range seg_range = theGEMSegments->get(chamberId.superChamberId());
+	// return segments and rechits not used in segments
+	GEMSegmentCollection::range gemSegs = theGEMSegments->get(chamberId.superChamberId());
 	LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "Number of GEM rechits available =  " << theGEMSegments->size()
 							   <<", from chamber: "<< chamberId<<std::endl;
 	// Create the MuonTransientTrackingRecHit
-	for (GEMSegmentCollection::const_iterator segment = seg_range.first;
-	     segment!=seg_range.second; ++segment){
+	for (GEMSegmentCollection::const_iterator segment = gemSegs.first;segment!=gemSegs.second; ++segment){
 	  LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "On GEM iteration " <<std::endl;
 	  result.push_back(MuonTransientTrackingRecHit::specificBuild(geomDet,&*segment));
 	}
-	
-	// Get the GEMRecHits not used in GEMSegment
-	for (int layer = 1; layer <= GEMDetId::maxLayerId; ++layer){
-	  for(int roll = 1; roll <= GEMDetId::maxRollId; ++roll){
-	    GEMRecHitCollection::range range = theGEMRecHits->get( GEMDetId(chamberId.region(),1,chamberId.station(),layer,chamberId.chamber(),roll) );
-	    LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "Number of GEM rechits available =  " << theGEMRecHits->size()
-							     <<", from chamber: "<< chamberId<<std::endl;
-	    for (GEMRecHitCollection::const_iterator rechit = range.first;
-		 rechit!=range.second; ++rechit){
+	// Get the GEMRecHits not used in GEMSegment	
+	GEMRecHitCollection::range gemRHs = theGEMRecHits->get(chamberId);
+	LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "Number of GEM rechits available =  " << theGEMRecHits->size()
+							   <<", from chamber: "<< chamberId<<std::endl;
+	for (GEMRecHitCollection::const_iterator rechit = gemRHs.first;rechit!=gemRHs.second; ++rechit){
 
-	      const GEMRecHit *gemRecHit = (&*rechit);
-	      bool isUsed = false;
-	      for (GEMSegmentCollection::const_iterator segment = seg_range.first;
-		   segment!=seg_range.second; ++segment){
-		for (auto seg : segment->recHits()){
-		  const GEMRecHit * segrechit = dynamic_cast<const GEMRecHit *>(seg);
-		  if (*segrechit == *gemRecHit){
-		    isUsed = true;
-		    break;
-		  }
-		}
+	  const GEMRecHit *gemRecHit = (&*rechit);
+	  bool isUsed = false;
+	  for (GEMSegmentCollection::const_iterator segment = gemSegs.first;segment!=gemSegs.second; ++segment){
+	    for (auto seg : segment->recHits()){
+	      const GEMRecHit * segrechit = dynamic_cast<const GEMRecHit *>(seg);
+	      if (*segrechit == *gemRecHit){
+		isUsed = true;
 	      }
-	    
-	      LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "On GEM iteration " <<std::endl;
-	      if (!isUsed)
-		result.push_back(MuonTransientTrackingRecHit::specificBuild(geomDet,gemRecHit));
 	    }
 	  }
+	  LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "On GEM iteration " <<std::endl;
+	  if (!isUsed)
+	    result.push_back(MuonTransientTrackingRecHit::specificBuild(geomDet,gemRecHit));
 	}
+	LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "Number of GEM rechits = " << result.size()<<std::endl;
       }
-    //LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "Number of GEM rechits = " << result.size()<<std::endl;
-    //std::cout << "Number of GEM rechits = " << result.size()<<", from chamber: "<< chamberId<<std::endl;
   }
   else if (geoId.subdetId()  == MuonSubdetId::ME0) {
     LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "(ME0): identified"<<std::endl;

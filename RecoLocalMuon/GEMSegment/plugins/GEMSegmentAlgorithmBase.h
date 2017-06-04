@@ -22,7 +22,7 @@
 
 class GEMSegmentAlgorithmBase {
 public:
-  typedef std::pair<const GEMSuperChamber*, std::map<uint32_t, const GEMEtaPartition*> >GEMEnsemble; 
+  typedef std::pair<const GEMEtaPartition*, std::map<uint32_t, const GEMEtaPartition*> >GEMEnsemble; 
 
     /// Constructor
     explicit GEMSegmentAlgorithmBase(const edm::ParameterSet&) {};
