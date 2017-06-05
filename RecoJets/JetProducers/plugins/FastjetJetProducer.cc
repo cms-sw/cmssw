@@ -539,8 +539,10 @@ void FastjetJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
 	descFastjetJetProducer.add<vector<double>>("puCenters", 	puCentersDefault);
 	///// From PileUpSubstractor
 	descFastjetJetProducer.add<double> ("puPtMin", 	10.);
-	descFastjetJetProducer.add<double> ("nSigmaPU", 	1.);
-	descFastjetJetProducer.add<double> ("radiusPU", 	0.5);
+	descFastjetJetProducer.add<double> ("nSigmaPU",  1.);
+	descFastjetJetProducer.add<double> ("radiusPU",  0.5);
+	descFastjetJetProducer.add<bool> ("sumRecHits", false);
+
 	/////////////////////
 	descriptions.addDefault(descFastjetJetProducer);
 
