@@ -1,6 +1,5 @@
 <use   name="DataFormats/GeometrySurface"/>
 <use   name="DataFormats/GeometryVector"/>
-<use   name="DetectorDescription/Base"/>
 <use   name="DetectorDescription/Core"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/Utilities"/>

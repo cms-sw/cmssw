@@ -4,7 +4,7 @@
 #include <utility>
 #include <vector>
 
-#include "DetectorDescription/Base/interface/Store.h"
+#include "DetectorDescription/Core/interface/Store.h"
 #include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
 #include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 #include "FWCore/Utilities/interface/Exception.h"

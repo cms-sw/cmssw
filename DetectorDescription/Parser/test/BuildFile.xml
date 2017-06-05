@@ -1,6 +1,5 @@
 <bin name="dumpDDExpandedView" file="dumpDDExpandedView.cpp">
  <use name="DetectorDescription/Algorithm"/>
- <use name="DetectorDescription/Base"/>
  <use name="DetectorDescription/Core"/>
  <use name="DetectorDescription/Parser"/>
  <use name="DetectorDescription/RegressionTest"/>
@@ -18,7 +17,6 @@
 </bin>
 <bin file="testDoc.cpp">
    <use name="DetectorDescription/Algorithm"/>
-   <use name="DetectorDescription/Base"/>
    <use name="DetectorDescription/Core"/>
    <use name="DetectorDescription/Parser"/>
    <use name="FWCore/MessageLogger"/>
@@ -32,7 +30,6 @@
 </bin>
 
 <bin name="testmat" file="testmat.cpp">
- <use name="DetectorDescription/Base"/>
  <use name="DetectorDescription/Parser"/>
  <use name="FWCore/MessageLogger"/>
  <use name="FWCore/ParameterSet"/>
@@ -44,7 +41,6 @@
 </bin>
 <bin name="dumpDDCompactView" file="dumpDDCompactView.cpp">
  <use name="DetectorDescription/Algorithm"/>
- <use name="DetectorDescription/Base"/>
  <use name="DetectorDescription/Core"/>
  <use name="DetectorDescription/Parser"/>
  <use name="DetectorDescription/RegressionTest"/>
@@ -58,7 +54,6 @@
 </bin>
 <bin name="testNew" file="testNew.cpp">
  <use name="DetectorDescription/Algorithm"/>
- <use name="DetectorDescription/Base"/>
  <use name="DetectorDescription/Core"/>
  <use name="DetectorDescription/Parser"/>
 </bin>

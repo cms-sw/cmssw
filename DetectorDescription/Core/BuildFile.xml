@@ -1,4 +1,3 @@
-<use   name="DetectorDescription/Base"/>
 <use   name="DetectorDescription/ExprAlgo"/>
 <use   name="FWCore/Utilities"/>
 <use   name="FWCore/MessageLogger"/>

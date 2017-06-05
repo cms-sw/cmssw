@@ -1,7 +1,7 @@
 #ifndef ExprEvalSingleton_h
 #define ExprEvalSingleton_h
 
-#include "DetectorDescription/Base/interface/Singleton.h"
+#include "DetectorDescription/Core/interface/Singleton.h"
 #include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
 
 class ClhepEvaluator;

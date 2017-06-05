@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 #include <map>
-#include "DetectorDescription/Base/interface/DDReadMapType.h"
+#include "DetectorDescription/Core/interface/DDReadMapType.h"
 #include <iosfwd>
 
 //! corresponds to a collection of named doubles 
