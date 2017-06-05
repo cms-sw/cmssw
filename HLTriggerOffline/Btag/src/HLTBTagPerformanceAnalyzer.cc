@@ -163,9 +163,9 @@ void HLTBTagPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 					TString label=JetTagCollection_Label[ind] + "__";
 					label+=flavour_str;
 					H1_.at(ind)[label.Data()]->Fill(std::fmax(0.0,BtagJT.second));	//fill 1D btag plot for 'b,c,uds'
-					for (unsigned int i=0; i<modules_.size();i++){
-						if (inmodule[modules_[i]])
-						H1mod_.at(ind)[label.Data()][modules_[i]]->Fill(std::fmax(0.0,BtagJT.second));	//fill 1D btag plot for 'b,c,uds' in modules (HEP17 etc.)
+					for (unsigned int j=0; j<modules_.size();j++){
+						if (inmodule[modules_[j]])
+						H1mod_.at(ind)[label.Data()][modules_[j]]->Fill(std::fmax(0.0,BtagJT.second));	//fill 1D btag plot for 'b,c,uds' in modules (HEP17 etc.)
 					}
 					label=JetTagCollection_Label[ind] + "___";
 					label+=flavour_str;
@@ -173,9 +173,9 @@ void HLTBTagPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 					std::string labelPhi = label.Data();
 					label+=TString("_disc_pT");
 					H2_.at(ind)[label.Data()]->Fill(std::fmax(0.0,BtagJT.second),BtagJT.first->pt());	//fill 2D btag, jetPt plot for 'b,c,uds'
-					for (unsigned int i=0; i<modules_.size();i++){
-						if (inmodule[modules_[i]])
-						H2mod_.at(ind)[label.Data()][modules_[i]]->Fill(std::fmax(0.0,BtagJT.second),BtagJT.first->pt());
+					for (unsigned int j=0; j<modules_.size();j++){
+						if (inmodule[modules_[j]])
+						H2mod_.at(ind)[label.Data()][modules_[j]]->Fill(std::fmax(0.0,BtagJT.second),BtagJT.first->pt());
 					}
 					labelEta+="_disc_eta";
 					H2Eta_.at(ind)[labelEta]->Fill(std::fmax(0.0,BtagJT.second),BtagJT.first->eta());	//fill 2D btag, jetEta plot for 'b,c,uds'
@@ -244,10 +244,10 @@ void HLTBTagPerformanceAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, edm
 				//book 1D btag plot for 'b,c,light,g'
 				H1_.back()[label.Data()] = 		 ibooker.book1D(label.Data(),   Form("%s %s",JetTagCollection_Label[ind].c_str(),flavour.Data()), btagBins, btagL, btagU );
 				H1_.back()[label.Data()]->setAxisTitle("disc",1);
-				for (unsigned int i=0; i<modules_.size();i++){
-					ibooker.setCurrentFolder(dqmFolder+"/"+modules_[i]);
-					H1mod_.back()[label.Data()][modules_[i]] = 		 ibooker.book1D(label.Data(),   Form("%s %s",JetTagCollection_Label[ind].c_str(),flavour.Data()), btagBins, btagL, btagU );
-					H1mod_.back()[label.Data()][modules_[i]]->setAxisTitle("disc",1);
+				for (unsigned int j=0; j<modules_.size();j++){
+					ibooker.setCurrentFolder(dqmFolder+"/"+modules_[j]);
+					H1mod_.back()[label.Data()][modules_[j]] = 		 ibooker.book1D(label.Data(),   Form("%s %s",JetTagCollection_Label[ind].c_str(),flavour.Data()), btagBins, btagL, btagU );
+					H1mod_.back()[label.Data()][modules_[j]]->setAxisTitle("disc",1);
 				}
 				ibooker.setCurrentFolder(dqmFolder);
 				label=JetTagCollection_Label[ind]+"___";
@@ -261,11 +261,11 @@ void HLTBTagPerformanceAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, edm
 				H2_.back()[label.Data()] =  ibooker.book2D( label.Data(), label.Data(), btagBins, btagL, btagU, nBinsPt, pTmin, pTMax );
 				H2_.back()[label.Data()]->setAxisTitle("pT",2);
 				H2_.back()[label.Data()]->setAxisTitle("disc",1);
-				for (unsigned int i=0; i<modules_.size();i++){
-					ibooker.setCurrentFolder(dqmFolder+"/"+modules_[i]);
-					H2mod_.back()[label.Data()][modules_[i]] =  ibooker.book2D( label.Data(), label.Data(), btagBins, btagL, btagU, nBinsPt, pTmin, pTMax );
-					H2mod_.back()[label.Data()][modules_[i]]->setAxisTitle("pT",2);
-					H2mod_.back()[label.Data()][modules_[i]]->setAxisTitle("disc",1);
+				for (unsigned int j=0; j<modules_.size();j++){
+					ibooker.setCurrentFolder(dqmFolder+"/"+modules_[j]);
+					H2mod_.back()[label.Data()][modules_[j]] =  ibooker.book2D( label.Data(), label.Data(), btagBins, btagL, btagU, nBinsPt, pTmin, pTMax );
+					H2mod_.back()[label.Data()][modules_[j]]->setAxisTitle("pT",2);
+					H2mod_.back()[label.Data()][modules_[j]]->setAxisTitle("disc",1);
 				}
 				ibooker.setCurrentFolder(dqmFolder);
 				H2Eta_.back()[labelEta] =  ibooker.book2D( labelEta, labelEta, btagBins, btagL, btagU, nBinsEta, etamin, etaMax );
