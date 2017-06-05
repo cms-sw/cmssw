@@ -1,8 +1,8 @@
 #ifndef DETECTOR_DESCRIPTION_PARSER_DDL_ELEMENT_REGISTRY_H
 #define DETECTOR_DESCRIPTION_PARSER_DDL_ELEMENT_REGISTRY_H
 
-#include "DetectorDescription/Base/interface/Singleton.h"
-#include "DetectorDescription/Base/interface/Singleton.icc"
+#include "DetectorDescription/Core/interface/Singleton.h"
+#include "DetectorDescription/Core/interface/Singleton.icc"
 #include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
 #include <CLHEP/Evaluator/Evaluator.h>

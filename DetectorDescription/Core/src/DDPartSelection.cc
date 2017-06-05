@@ -1,4 +1,4 @@
-#include "DetectorDescription/Base/interface/Singleton.h"
+#include "DetectorDescription/Core/interface/Singleton.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDPartSelection.h"
@@ -272,4 +272,4 @@ std::ostream & operator<<(std::ostream & os, const std::vector<DDPartSelection> 
 template class DDI::Singleton<DDSelLevelFtor>;
 //template class DDI::Singleton<DDI::Store<DDName, DDSelLevelCollector> >;
 template class DDI::Singleton<DDSelLevelCollector>;
-#include <DetectorDescription/Base/interface/Singleton.icc>
+#include <DetectorDescription/Core/interface/Singleton.icc>

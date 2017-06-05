@@ -3,7 +3,7 @@
 #include <utility>
 #include <vector>
 
-#include "DetectorDescription/Base/interface/Store.h"
+#include "DetectorDescription/Core/interface/Store.h"
 #include "DetectorDescription/Core/interface/DDBase.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDName.h"

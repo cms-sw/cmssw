@@ -9,7 +9,7 @@
 // Includes
 // -------------------------------------------------------------------------
 #include "DDXMLElement.h"
-#include "DetectorDescription/Base/interface/DDTypes.h"
+#include "DetectorDescription/Core/interface/DDTypes.h"
 #include "DetectorDescription/Core/interface/DDNumeric.h"
 
 class DDCompactView;

@@ -6,7 +6,7 @@
 //---------------------------------------------------------------------
 
 #include "DDDividedGeometryObject.h"
-#include "DetectorDescription/Base/interface/DDTranslation.h"
+#include "DetectorDescription/Core/interface/DDTranslation.h"
 #include "DetectorDescription/Core/interface/DDDivision.h"
 
 class DDCompactView;
