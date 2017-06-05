@@ -112,11 +112,13 @@ hbheplan1Noise = RecoLocalCalo.HcalRecProducers.hbheplan1_cfi.hbheplan1.clone(
 from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
 run2_HCAL_2017.toModify( hbherecoMBNZS,
     processQIE11 = cms.bool(True),
-    setNoiseFlagsQIE11 = cms.bool(True),
+# temporarily disabled until RecoLocalCalo/HcalRecProducers/python/HBHEPhase1Reconstructor_cfi.py:flagParametersQIE11 is filled
+#    setNoiseFlagsQIE11 = cms.bool(True),
 )
 run2_HCAL_2017.toModify( hbherecoNoise,
     processQIE11 = cms.bool(True),
-    setNoiseFlagsQIE11 = cms.bool(True),
+# temporarily disabled until RecoLocalCalo/HcalRecProducers/python/HBHEPhase1Reconstructor_cfi.py:flagParametersQIE11 is filled
+#    setNoiseFlagsQIE11 = cms.bool(True),
 )
 
 _plan1_seqALCARECOHcalCalMinBias = _phase1_seqALCARECOHcalCalMinBias.copy()
