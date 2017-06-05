@@ -468,7 +468,6 @@ void FastjetJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
 	VirtualJetProducer::fillDescriptionsFromVirtualJetProducer(descFastjetJetProducer);
 	///// From PileUpSubtractor
 	PileUpSubtractor::fillDescriptionsFromPileUpSubtractor(descFastjetJetProducer);
-	descFastjetJetProducer.add<bool> ("sumRecHits", false);
 
 	/////////////////////
 	descriptions.addDefault(descFastjetJetProducer);
