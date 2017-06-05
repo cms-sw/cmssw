@@ -3,6 +3,7 @@
 
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/HcalDigi/interface/HcalUnpackerReport.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 
 /** \class HcalDataFrameFilter
     
@@ -34,12 +35,15 @@ public:
   QIE11DigiCollection filter(const QIE11DigiCollection& incol, HcalUnpackerReport& r);
   /// whether any filters are on
   bool active() const;
+  /// get conditions
+  void setConditions(const HcalDbService* conditions);
 private:
   bool requireCapid_;
   bool requireDVER_;
   bool energyFilter_;
   int firstSample_, lastSample_;
   double minimumAmplitude_;
+  const HcalDbService* conditions_;
 };
 
 
