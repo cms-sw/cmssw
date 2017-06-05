@@ -313,7 +313,6 @@ std::vector<CSCSegment> CSCSegAlgoRU::buildSegments(const ChamberHitContainer& u
       ++it;//go to the next seg
     }
   }//while
-  std::cout<<" segs built "<<std::endl;
   // Give the segments to the CSCChamber
   return segments;
 }//build segments
