@@ -7,7 +7,8 @@
 ## $5 is the common config. file name
 ## $6 is the align config file name
 ## $7 is the track selection config
-## $8 Dry run option (0 by default)
+## $8 is the surface deformations flag
+## $9 Dry run option (0 by default)
 
 # setup environment: have call script from Package/Subpackage dir
 cd ../..
@@ -20,7 +21,7 @@ set odir = `cd $2; pwd` # get full output path
 set errfile = "$odir/ERROR"
 
 # configure all of the scripts
-scripts/configureHippy.pl $odir $3 $4 $5 $6 $7
+scripts/configureHippy.pl $odir $3 $4 $5 $6 $7 $8
 
 if ( -f $errfile ) then
    echo "$errfile exists! Please fix the errors and re-run."
@@ -28,7 +29,7 @@ else
   cp scripts/runControl.csh $odir/main/
 
   # submit parallel jobs
-  if (  $8 == 0 ) then
+  if (  $9 == 0 ) then
     scripts/submitJobs_py $1 $2 $4
     # create DB objects
     cp $odir/main/IOAlignedPositions*.root $odir/main/IOIteration*.root $odir/

@@ -10,6 +10,16 @@ $iovrange = $ARGV[2];
 $incommoncfg = $ARGV[3];
 $inaligncfg = $ARGV[4];
 $intrkselcfg = $ARGV[5];
+$inuseSurfDef = $ARGV[6];
+
+$strUseSD = "";
+if ($inuseSurfDef == 0){
+   $strUseSD = "False";
+}
+else{
+   $strUseSD = "True";
+}
+
 
 open (datafile1) or die "Can't open the file!";
 @dataFileInput1 = <datafile1>;
@@ -41,6 +51,7 @@ cp scripts/runControl.csh $odir/main/;
 cp scripts/checkError.sh $odir/main/;
 ");
 $success*=replace( "$odir/common_cff_py.txt", "<iovs>", "$iovstr" );
+$success*=replace( "$odir/common_cff_py.txt", "<SURFDEFOPT>", "$strUseSD" );
 
 foreach $data1 ( @dataFileInput1 ) {
 

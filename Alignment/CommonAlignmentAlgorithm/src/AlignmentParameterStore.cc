@@ -431,9 +431,7 @@ std::pair<int,int> AlignmentParameterStore::typeAndLayer(const Alignable* ali, c
 
 //__________________________________________________________________________________________________
 void AlignmentParameterStore::
-applyAlignableAbsolutePositions(const align::Alignables& alivec,
-const AlignablePositions& newpos,
-int& ierr)
+applyAlignableAbsolutePositions(const align::Alignables& alivec, const AlignablePositions& newpos, int& ierr)
 {
   unsigned int nappl=0;
   ierr=0;
@@ -470,6 +468,8 @@ int& ierr)
             dold = dold_obj->parameters();
             dtype = (SurfaceDeformationFactory::Type)dold_obj->type();
           }
+          else if (ali->surfaceDeformationIdPairs(dold_id_pairs)>1) edm::LogError("Alignment") << "@SUB=AlignmentParameterStore::applyAlignableAbsolutePositions"
+            << "There are more than one surface deformation id pairs for detector " << id;
 
           // shift needed to move from current to new position
           align::GlobalVector posDiff = pnew - pold;
@@ -482,6 +482,8 @@ int& ierr)
             std::vector<double> defDiff;
             for (unsigned int i = 0; i < dold.size(); i++) defDiff.push_back(dnew[i] - dold[i]);
             auto deform = SurfaceDeformationFactory::create(dtype, defDiff);
+            LogDebug("Alignment") << "@SUB=AlignmentParameterStore::applyAlignableAbsolutePositions"
+              << "Surface deformation of type " << dtype << ", size " << defDiff.size() << " and first element " << defDiff.at(0);
             ali->addSurfaceDeformation(deform, true);
             delete deform;
           }
@@ -547,11 +549,15 @@ applyAlignableRelativePositions(const align::Alignables& alivec, const Alignable
             dold = dold_obj->parameters();
             dtype = (SurfaceDeformationFactory::Type)dold_obj->type();
           }
+          else if (ali->surfaceDeformationIdPairs(dold_id_pairs)>1) edm::LogError("Alignment") << "@SUB=AlignmentParameterStore::applyAlignableRelativePositions"
+            << "There are more than one surface deformation id pairs for detector " << id;
 
           ali->move(ipos->pos());
           ali->rotateInGlobalFrame(ipos->rot());
           if (dold.size() != 0 && dtype != SurfaceDeformationFactory::kNoDeformations){
             const std::vector<double> defDiff = ipos->deformationParameters();
+            LogDebug("Alignment") << "@SUB=AlignmentParameterStore::applyAlignableRelativePositions"
+              << "Surface deformation of type " << dtype << ", size " << defDiff.size() << " and first element " << defDiff.at(0);
             auto deform = SurfaceDeformationFactory::create(dtype, defDiff);
             ali->addSurfaceDeformation(deform, true);
             delete deform;

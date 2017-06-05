@@ -1,6 +1,7 @@
 #ifndef Alignment_HIPAlignmentAlgorithm_HIPAlignmentAlgorithm_h
 #define Alignment_HIPAlignmentAlgorithm_HIPAlignmentAlgorithm_h
 
+#include <vector>
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
 #include "Alignment/CommonAlignment/interface/AlignableDetOrUnitPtr.h"
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
@@ -69,6 +70,7 @@ class HIPAlignmentAlgorithm : public AlignmentAlgorithmBase
   bool calcParameters(Alignable* ali,int setDet, double start, double step);
   void collector(void);
   int  fillEventwiseTree(const char *filename, int iter, int ierr);
+
   // private data members
 
   std::unique_ptr<AlignableObjectId> alignableObjectId_;
@@ -133,10 +135,12 @@ class HIPAlignmentAlgorithm : public AlignmentAlgorithmBase
   align::ID m_detId;
 
   // variables for alignable-wise tree
-  int m2_Nhit,m2_Type,m2_Layer;
-  float m2_Xpos, m2_Ypos, m2_Zpos, m2_Eta, m2_Phi; 
   align::ID m2_Id;
   align::StructureType m2_ObjId;
+  int m2_Nhit, m2_Type, m2_Layer;
+  float m2_Xpos, m2_Ypos, m2_Zpos;
+  short m2_dtype, m2_nsurfdef;
+  std::vector<float> m2_surfDef;
 
   // variables for survey tree 
   align::ID m3_Id;
