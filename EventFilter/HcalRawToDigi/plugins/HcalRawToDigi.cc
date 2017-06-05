@@ -223,10 +223,14 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
     HBHEDigiCollection filtered_hbhe=filter_.filter(*hbhe_prod,*report);
     HODigiCollection filtered_ho=filter_.filter(*ho_prod,*report);
     HFDigiCollection filtered_hf=filter_.filter(*hf_prod,*report);
+    QIE10DigiCollection filtered_qie10=filter_.filter(*qie10_prod,*report);
+    QIE11DigiCollection filtered_qie11=filter_.filter(*qie11_prod,*report);
     
     hbhe_prod->swap(filtered_hbhe);
     ho_prod->swap(filtered_ho);
     hf_prod->swap(filtered_hf);    
+    qie10_prod->swap(filtered_qie10);
+    qie11_prod->swap(filtered_qie11);
   }
 
 

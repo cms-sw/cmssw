@@ -28,6 +28,10 @@ public:
   HcalCalibDigiCollection filter(const HcalCalibDigiCollection& incol, HcalUnpackerReport& r);
   /// filter ZDC data frames
   ZDCDigiCollection filter(const ZDCDigiCollection& incol, HcalUnpackerReport& r);
+  /// filter QIE10 data frames
+  QIE10DigiCollection filter(const QIE10DigiCollection& incol, HcalUnpackerReport& r);
+  /// filter QIE11 data frames
+  QIE11DigiCollection filter(const QIE11DigiCollection& incol, HcalUnpackerReport& r);
   /// whether any filters are on
   bool active() const;
 private:
