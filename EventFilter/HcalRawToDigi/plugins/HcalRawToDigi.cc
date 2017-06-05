@@ -107,6 +107,7 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   edm::ESHandle<HcalElectronicsMap> item;
   es.get<HcalElectronicsMapRcd>().get(electronicsMapLabel_, item);
   const HcalElectronicsMap* readoutMap = item.product();
+  filter_.setConditions(pSetup.product());
   
   // Step B: Create empty output  : three vectors for three classes...
   std::vector<HBHEDataFrame> hbhe;
