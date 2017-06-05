@@ -848,6 +848,13 @@ void VirtualJetProducer::writeCompoundJets(  edm::Event & iEvent, edm::EventSetu
 void VirtualJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
 	edm::ParameterSetDescription desc;
+        fillDescriptionsFromVirtualJetProducer(desc);
+	desc.add<string>("jetCollInstanceName", ""	);
+	descriptions.addDefault(desc);
+}
+
+void VirtualJetProducer::fillDescriptionsFromVirtualJetProducer(edm::ParameterSetDescription& desc)
+{
 	desc.add<string> ("@module_label",	"" );
 	desc.add<edm::InputTag>("src",		edm::InputTag("particleFlow") );
 	desc.add<edm::InputTag>("srcPVs",	edm::InputTag("") );
@@ -860,7 +867,6 @@ void VirtualJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
 	desc.add<bool> 	("doPVCorrection",	false );
 	desc.add<bool> 	("doAreaFastjet",	false );
 	desc.add<bool>  ("doRhoFastjet",	false );
-	desc.add<string>("jetCollInstanceName", ""	);
 	desc.add<bool> 	("doPUOffsetCorr", 	false	);
 	desc.add<string>("subtractorName", 	""	);
 	desc.add<bool> 	("useExplicitGhosts", 	false	);
@@ -887,6 +893,5 @@ void VirtualJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
 	desc.add<unsigned int>("maxRecoveredHcalCells",	9999999 );
 	vector<double>  puCentersDefault;
 	desc.add<vector<double>>("puCenters", 	puCentersDefault);
-	descriptions.addDefault(desc);
 }
 
