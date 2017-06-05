@@ -32,26 +32,27 @@ class PileUpSubtractor{
   PileUpSubtractor(const edm::ParameterSet& iConfig,  edm::ConsumesCollector && iC); 
   virtual ~PileUpSubtractor(){;}
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptionsFromPileUpSubtractor(edm::ParameterSetDescription& desc);
 
-virtual void setDefinition(JetDefPtr const & jetDef);
-virtual void reset(std::vector<edm::Ptr<reco::Candidate> >& input,
+  virtual void setDefinition(JetDefPtr const & jetDef);
+  virtual void reset(std::vector<edm::Ptr<reco::Candidate> >& input,
 	     std::vector<fastjet::PseudoJet>& towers,
 	     std::vector<fastjet::PseudoJet>& output);
-virtual void setupGeometryMap(edm::Event& iEvent,const edm::EventSetup& iSetup);
-virtual void calculatePedestal(std::vector<fastjet::PseudoJet> const & coll);
-virtual void subtractPedestal(std::vector<fastjet::PseudoJet> & coll);
-virtual void calculateOrphanInput(std::vector<fastjet::PseudoJet> & orphanInput);
-virtual void offsetCorrectJets();
-virtual double getMeanAtTower(const reco::CandidatePtr & in) const;
-virtual double getSigmaAtTower(const reco::CandidatePtr & in) const;
-virtual double getPileUpAtTower(const reco::CandidatePtr & in) const;
-virtual double getPileUpEnergy(int ijet) const {return jetOffset_[ijet];}
- virtual double getCone(double cone, double eta, double phi, double& et, double& pu);
- int getN(const reco::CandidatePtr & in) const;
- int getNwithJets(const reco::CandidatePtr & in) const;
+  virtual void setupGeometryMap(edm::Event& iEvent,const edm::EventSetup& iSetup);
+  virtual void calculatePedestal(std::vector<fastjet::PseudoJet> const & coll);
+  virtual void subtractPedestal(std::vector<fastjet::PseudoJet> & coll);
+  virtual void calculateOrphanInput(std::vector<fastjet::PseudoJet> & orphanInput);
+  virtual void offsetCorrectJets();
+  virtual double getMeanAtTower(const reco::CandidatePtr & in) const;
+  virtual double getSigmaAtTower(const reco::CandidatePtr & in) const;
+  virtual double getPileUpAtTower(const reco::CandidatePtr & in) const;
+  virtual double getPileUpEnergy(int ijet) const {return jetOffset_[ijet];}
+  virtual double getCone(double cone, double eta, double phi, double& et, double& pu);
+  int getN(const reco::CandidatePtr & in) const;
+  int getNwithJets(const reco::CandidatePtr & in) const;
 
- int ieta(const reco::CandidatePtr & in) const;
- int iphi(const reco::CandidatePtr & in) const;
+  int ieta(const reco::CandidatePtr & in) const;
+  int iphi(const reco::CandidatePtr & in) const;
 
  protected:
 

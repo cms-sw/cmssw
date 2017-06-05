@@ -81,6 +81,7 @@ public:
   explicit VirtualJetProducer(const edm::ParameterSet& iConfig);
   virtual ~VirtualJetProducer();
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptionsFromVirtualJetProducer(edm::ParameterSetDescription& desc);
   
   // typedefs
   typedef boost::shared_ptr<fastjet::ClusterSequence>        ClusterSequencePtr;

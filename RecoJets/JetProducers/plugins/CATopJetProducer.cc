@@ -1,5 +1,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "RecoJets/JetProducers/plugins/CATopJetProducer.h"
+#include "RecoJets/JetProducers/plugins/FastjetJetProducer.h"
 
 
 using namespace edm;
@@ -179,85 +180,10 @@ void CATopJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
 	desc.add<double>("tau2Cut", 	0); 
 	desc.add<double>("cosThetaSCut", 	0); 
 	desc.add<bool>("useExclusive", 	false); 
-
 	////// From FastjetJetProducer
-	desc.add<bool>("useMassDropTagger",	false);
-	desc.add<bool>("useFiltering",	false);
-	desc.add<bool>("useDynamicFiltering",	false);
-	desc.add<bool>("useTrimming",	false);
-	desc.add<bool>("usePruning",	false);
-	desc.add<bool>("useCMSBoostedTauSeedingAlgorithm",	false);
-	desc.add<bool>("useKtPruning",	false);
-	desc.add<bool>("useConstituentSubtraction",	false);
-	desc.add<bool>("useSoftDrop",	false);
-	desc.add<bool>("correctShape",	false);
-	desc.add<bool>("UseOnlyVertexTracks",	false);
-	desc.add<bool>("UseOnlyOnePV",	false);
-	desc.add<double>("muCut",	-1.0);
-	desc.add<double>("yCut",	-1.0);
-	desc.add<double>("rFilt",	-1.0);
-	desc.add<double>("rFiltFactor",	-1.0);
-	desc.add<double>("trimPtFracMin",	-1.0);
-	desc.add<double>("zcut",	-1.0);
-	desc.add<double>("rcut_factor",	-1.0);
-	desc.add<double>("csRho_EtaMax",	-1.0);
-	desc.add<double>("csRParam",	-1.0);
-	desc.add<double>("beta",	-1.0);
-	desc.add<double>("R0",	-1.0);
-	desc.add<double>("gridMaxRapidity",	-1.0); // For fixed-grid rho
-	desc.add<double>("gridSpacing",	-1.0);  // For fixed-grid rho
-	desc.add<double>("DzTrVtxMax",	999999.);  
-	desc.add<double>("DxyTrVtxMax",	999999.);  
-	desc.add<double>("MaxVtxZ",	15.0);  
-	desc.add<double>("subjetPtMin",	-1.0);
-	desc.add<double>("muMin",	-1.0);
-	desc.add<double>("muMax",	-1.0);
-	desc.add<double>("yMin",	-1.0);
-	desc.add<double>("yMax",	-1.0);
-	desc.add<double>("dRMin",	-1.0);
-	desc.add<double>("dRMax",	-1.0);
-	desc.add<int>("maxDepth",	-1);
-	desc.add<int>("nFilt",	-1);
-	desc.add<int>("MinVtxNdof",	5);
+	FastjetJetProducer::fillDescriptionsFromFastJetProducer(desc);
 	///// From VirtualJetProducer
-	desc.add<string> ("@module_label",	"" );
-	desc.add<InputTag>("src",	InputTag("particleFlow") );
-	desc.add<bool>("doAreaFastjet",	false );
-	desc.add<double>("Rho_EtaMax", 	4.4 	);
-	desc.add<double>("rParam",		0.4 );
-	desc.add<string>("jetAlgorithm",	"AntiKt" );
-	desc.add<InputTag>("srcPVs",	InputTag("") );
-	desc.add<string>("jetType",		"PFJet" );
-	desc.add<double>("inputEtMin", 	0.0 );
-	desc.add<double>("inputEMin",		0.0 );
-	desc.add<double>("jetPtMin",		5. );
-	desc.add<bool>("doPVCorrection",	false );
-	desc.add<bool>("doRhoFastjet",	false );
-	desc.add<bool>("doPUOffsetCorr", 	false	);
-	desc.add<string>("subtractorName", 	""	);
-	desc.add<bool>("useExplicitGhosts", 	false	);
-	desc.add<bool>("doAreaDiskApprox", 	false 	);
-	desc.add<double>("voronoiRfact", 	-0.9 	);
-	desc.add<double>("Ghost_EtaMax",	5. 	);
-	desc.add<int>("Active_Area_Repeats",	1 	);
-	desc.add<double>("GhostArea",	 	0.01 	);
-	desc.add<bool>("restrictInputs", 	false 	);
-	desc.add<unsigned int>("maxInputs", 	1 	);
-	desc.add<bool>("writeCompound", 	false 	);
-	desc.add<bool>("doFastJetNonUniform", false 	);
-	desc.add<bool>("useDeterministicSeed",false 	);
-	desc.add<unsigned int>("minSeed", 	14327 	);
-	desc.add<int>("verbosity", 		0 	);
-	desc.add<double>("puWidth",	 	0. 	);
-	desc.add<unsigned int>("nExclude", 	0 	);
-	desc.add<unsigned int>("maxBadEcalCells", 	9999999	);
-	desc.add<unsigned int>("maxBadHcalCells",	9999999 );
-	desc.add<unsigned int>("maxProblematicEcalCells",	9999999 );
-	desc.add<unsigned int>("maxProblematicHcalCells",	9999999 );
-	desc.add<unsigned int>("maxRecoveredEcalCells",	9999999 );
-	desc.add<unsigned int>("maxRecoveredHcalCells",	9999999 );
-	vector<double>  puCentersDefault;
-	desc.add<vector<double>>("puCenters", 	puCentersDefault);
+	VirtualJetProducer::fillDescriptionsFromVirtualJetProducer(desc);
 	/////////////////////
 	descriptions.addDefault(desc);
 

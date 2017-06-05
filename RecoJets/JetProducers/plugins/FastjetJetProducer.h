@@ -52,6 +52,7 @@ public:
   explicit FastjetJetProducer(const edm::ParameterSet& iConfig);
   virtual ~FastjetJetProducer();
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptionsFromFastJetProducer(edm::ParameterSetDescription& desc);
 
   virtual void produce( edm::Event & iEvent, const edm::EventSetup & iSetup );
 

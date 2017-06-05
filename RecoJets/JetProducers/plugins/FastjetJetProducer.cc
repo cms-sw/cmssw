@@ -19,6 +19,8 @@
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 
+#include "RecoJets/JetProducers/interface/PileUpSubtractor.h"
+
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -459,88 +461,13 @@ void FastjetJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup cons
 void FastjetJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
 	edm::ParameterSetDescription descFastjetJetProducer;
-	descFastjetJetProducer.add<bool>("useMassDropTagger",	false);
-	descFastjetJetProducer.add<bool>("useFiltering",	false);
-	descFastjetJetProducer.add<bool>("useDynamicFiltering",	false);
-	descFastjetJetProducer.add<bool>("useTrimming",	false);
-	descFastjetJetProducer.add<bool>("usePruning",	false);
-	descFastjetJetProducer.add<bool>("useCMSBoostedTauSeedingAlgorithm",	false);
-	descFastjetJetProducer.add<bool>("useKtPruning",	false);
-	descFastjetJetProducer.add<bool>("useConstituentSubtraction",	false);
-	descFastjetJetProducer.add<bool>("useSoftDrop",	false);
-	descFastjetJetProducer.add<bool>("correctShape",	false);
-	descFastjetJetProducer.add<bool>("UseOnlyVertexTracks",	false);
-	descFastjetJetProducer.add<bool>("UseOnlyOnePV",	false);
-	descFastjetJetProducer.add<double>("muCut",	-1.0);
-	descFastjetJetProducer.add<double>("yCut",	-1.0);
-	descFastjetJetProducer.add<double>("rFilt",	-1.0);
-	descFastjetJetProducer.add<double>("rFiltFactor",	-1.0);
-	descFastjetJetProducer.add<double>("trimPtFracMin",	-1.0);
-	descFastjetJetProducer.add<double>("zcut",	-1.0);
-	descFastjetJetProducer.add<double>("rcut_factor",	-1.0);
-	descFastjetJetProducer.add<double>("csRho_EtaMax",	-1.0);
-	descFastjetJetProducer.add<double>("csRParam",	-1.0);
-	descFastjetJetProducer.add<double>("beta",	-1.0);
-	descFastjetJetProducer.add<double>("R0",	-1.0);
-	descFastjetJetProducer.add<double>("gridMaxRapidity",	-1.0); // For fixed-grid rho
-	descFastjetJetProducer.add<double>("gridSpacing",	-1.0);  // For fixed-grid rho
-	descFastjetJetProducer.add<double>("DzTrVtxMax",	999999.);  
-	descFastjetJetProducer.add<double>("DxyTrVtxMax",	999999.);  
-	descFastjetJetProducer.add<double>("MaxVtxZ",	15.0);  
-	descFastjetJetProducer.add<double>("subjetPtMin",	-1.0);
-	descFastjetJetProducer.add<double>("muMin",	-1.0);
-	descFastjetJetProducer.add<double>("muMax",	-1.0);
-	descFastjetJetProducer.add<double>("yMin",	-1.0);
-	descFastjetJetProducer.add<double>("yMax",	-1.0);
-	descFastjetJetProducer.add<double>("dRMin",	-1.0);
-	descFastjetJetProducer.add<double>("dRMax",	-1.0);
-	descFastjetJetProducer.add<int>("maxDepth",	-1);
-	descFastjetJetProducer.add<int>("nFilt",	-1);
-	descFastjetJetProducer.add<int>("MinVtxNdof",	5);
+	////// From FastjetJetProducer
+	fillDescriptionsFromFastJetProducer(descFastjetJetProducer);
 	///// From VirtualJetProducer
-	descFastjetJetProducer.add<string> ("@module_label",	"" );
-	descFastjetJetProducer.add<InputTag>("src",	InputTag("particleFlow") );
-	descFastjetJetProducer.add<bool>("doAreaFastjet",	false );
-	descFastjetJetProducer.add<double>("Rho_EtaMax", 	4.4 	);
-	descFastjetJetProducer.add<double>("rParam",		0.4 );
-	descFastjetJetProducer.add<string>("jetAlgorithm",	"AntiKt" );
-	descFastjetJetProducer.add<InputTag>("srcPVs",	InputTag("") );
-	descFastjetJetProducer.add<string>("jetType",		"PFJet" );
-	descFastjetJetProducer.add<double>("inputEtMin", 	0.0 );
-	descFastjetJetProducer.add<double>("inputEMin",		0.0 );
-	descFastjetJetProducer.add<double>("jetPtMin",		5. );
-	descFastjetJetProducer.add<bool>("doPVCorrection",	false );
-	descFastjetJetProducer.add<bool>("doRhoFastjet",	false );
 	descFastjetJetProducer.add<string>("jetCollInstanceName", ""	);
-	descFastjetJetProducer.add<bool>("doPUOffsetCorr", 	false	);
-	descFastjetJetProducer.add<string>("subtractorName", 	""	);
-	descFastjetJetProducer.add<bool>("useExplicitGhosts", 	false	);
-	descFastjetJetProducer.add<bool>("doAreaDiskApprox", 	false 	);
-	descFastjetJetProducer.add<double>("voronoiRfact", 	-0.9 	);
-	descFastjetJetProducer.add<double>("Ghost_EtaMax",	5. 	);
-	descFastjetJetProducer.add<int>("Active_Area_Repeats",	1 	);
-	descFastjetJetProducer.add<double>("GhostArea",	 	0.01 	);
-	descFastjetJetProducer.add<bool>("restrictInputs", 	false 	);
-	descFastjetJetProducer.add<unsigned int>("maxInputs", 	1 	);
-	descFastjetJetProducer.add<bool>("writeCompound", 	false 	);
-	descFastjetJetProducer.add<bool>("doFastJetNonUniform", false 	);
-	descFastjetJetProducer.add<bool>("useDeterministicSeed",false 	);
-	descFastjetJetProducer.add<unsigned int>("minSeed", 	14327 	);
-	descFastjetJetProducer.add<int>("verbosity", 		0 	);
-	descFastjetJetProducer.add<double>("puWidth",	 	0. 	);
-	descFastjetJetProducer.add<unsigned int>("nExclude", 	0 	);
-	descFastjetJetProducer.add<unsigned int>("maxBadEcalCells", 	9999999	);
-	descFastjetJetProducer.add<unsigned int>("maxBadHcalCells",	9999999 );
-	descFastjetJetProducer.add<unsigned int>("maxProblematicEcalCells",	9999999 );
-	descFastjetJetProducer.add<unsigned int>("maxProblematicHcalCells",	9999999 );
-	descFastjetJetProducer.add<unsigned int>("maxRecoveredEcalCells",	9999999 );
-	descFastjetJetProducer.add<unsigned int>("maxRecoveredHcalCells",	9999999 );
-	vector<double>  puCentersDefault;
-	descFastjetJetProducer.add<vector<double>>("puCenters", 	puCentersDefault);
+	VirtualJetProducer::fillDescriptionsFromVirtualJetProducer(descFastjetJetProducer);
 	///// From PileUpSubstractor
-	descFastjetJetProducer.add<double> ("puPtMin", 	10.);
-	descFastjetJetProducer.add<double> ("nSigmaPU",  1.);
-	descFastjetJetProducer.add<double> ("radiusPU",  0.5);
+	PileUpSubtractor::fillDescriptionsFromPileUpSubtractor(descFastjetJetProducer);
 	descFastjetJetProducer.add<bool> ("sumRecHits", false);
 
 	/////////////////////
@@ -548,6 +475,47 @@ void FastjetJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
 
 }
 
+void FastjetJetProducer::fillDescriptionsFromFastJetProducer(edm::ParameterSetDescription& desc)
+{
+	desc.add<bool>("useMassDropTagger",     false);
+	desc.add<bool>("useFiltering",	        false);
+	desc.add<bool>("useDynamicFiltering",	false);
+	desc.add<bool>("useTrimming",	false);
+	desc.add<bool>("usePruning",	false);
+	desc.add<bool>("useCMSBoostedTauSeedingAlgorithm", false);
+	desc.add<bool>("useKtPruning",	false);
+	desc.add<bool>("useConstituentSubtraction", false);
+	desc.add<bool>("useSoftDrop",	false);
+	desc.add<bool>("correctShape",	false);
+	desc.add<bool>("UseOnlyVertexTracks",	false);
+	desc.add<bool>("UseOnlyOnePV",	false);
+	desc.add<double>("muCut",	-1.0);
+	desc.add<double>("yCut",	-1.0);
+	desc.add<double>("rFilt",	-1.0);
+	desc.add<double>("rFiltFactor",	-1.0);
+	desc.add<double>("trimPtFracMin",-1.0);
+	desc.add<double>("zcut",	-1.0);
+	desc.add<double>("rcut_factor",	-1.0);
+	desc.add<double>("csRho_EtaMax",-1.0);
+	desc.add<double>("csRParam",	-1.0);
+	desc.add<double>("beta",	-1.0);
+	desc.add<double>("R0",	-1.0);
+	desc.add<double>("gridMaxRapidity",	-1.0); // For fixed-grid rho
+	desc.add<double>("gridSpacing",	-1.0);  // For fixed-grid rho
+	desc.add<double>("DzTrVtxMax",	999999.);  
+	desc.add<double>("DxyTrVtxMax",	999999.);  
+	desc.add<double>("MaxVtxZ",	15.0);  
+	desc.add<double>("subjetPtMin",	-1.0);
+	desc.add<double>("muMin",	-1.0);
+	desc.add<double>("muMax",	-1.0);
+	desc.add<double>("yMin",	-1.0);
+	desc.add<double>("yMax",	-1.0);
+	desc.add<double>("dRMin",	-1.0);
+	desc.add<double>("dRMax",	-1.0);
+	desc.add<int>("maxDepth",	-1);
+	desc.add<int>("nFilt",       	-1);
+	desc.add<int>("MinVtxNdof",	5);
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // define as cmssw plugin
