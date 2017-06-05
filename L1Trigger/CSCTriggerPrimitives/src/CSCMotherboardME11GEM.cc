@@ -380,7 +380,6 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
   const CSCDetId me1aId(me1bId.endcap(), 1, 4, me1bId.chamber());
   const CSCChamber* cscChamberME1a(csc_g->chamber(me1aId));
 
-  const bool isEven(me1bId.chamber()%2==0);
   const int region((theEndcap == 1) ? 1: -1);
   const GEMDetId gem_id(region, 1, theStation, 1, me1bId.chamber(), 0);
   const GEMChamber* gemChamber(gem_g->chamber(gem_id));
