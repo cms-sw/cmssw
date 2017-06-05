@@ -44,6 +44,9 @@ class MyBatchManager:
       self.parser.add_option("--notify", "--sendto", dest="sendto", type="string",
                                 help="Email addresses (comma-separated) to notify when job is complete.",
                                 default=None)
+      self.parser.add_option("--deform", action="store_true",
+                                dest="useSD", default=False,
+                                help="Include surface deformations in alignment")
       self.parser.add_option("-f", "--force", action="store_true",
                                 dest="force", default=False,
                                 help="Don't ask any questions, just over-write")
@@ -57,10 +60,10 @@ class MyBatchManager:
 
       self.mkdir(self.opt.outputdir)
 
-      if(self.opt.lstfile is None):
+      if self.opt.lstfile is None:
          print "Unspecified lst file."
          sys.exit(1)
-      if(self.opt.iovfile is None):
+      if self.opt.iovfile is None:
          print "Unspecified IOV list."
          sys.exit(1)
 
@@ -70,6 +73,8 @@ class MyBatchManager:
          self.opt.sendto.strip()
          self.opt.sendto.replace(","," ")
          print "Job {} is configured to notify {}.".format(self.jobname, self.opt.sendto)
+
+      self.SDflag = 1 if self.opt.useSD else 0
 
 
    def mkdir( self, dirname ):
@@ -128,7 +133,7 @@ class MyBatchManager:
       else:
          if self.opt.dryRun > 0:
             print 'Dry run option is enabled. Will not submit jobs to the queue'
-         jobcmd = 'scripts/iterator_py {} {} {} {} {} {} {} {}'.format(
+         jobcmd = 'scripts/iterator_py {} {} {} {} {} {} {} {} {}'.format(
          self.opt.niter,
          self.opt.outputdir,
          self.opt.lstfile,
@@ -136,6 +141,7 @@ class MyBatchManager:
          self.opt.commoncfg,
          self.opt.aligncfg,
          self.opt.trkselcfg,
+         self.SDflag,
          self.opt.dryRun
          )
       ret = os.system( jobcmd )
