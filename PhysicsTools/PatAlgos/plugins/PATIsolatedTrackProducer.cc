@@ -65,8 +65,11 @@ namespace pat {
           const edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection> > gt2lt_;
           const edm::EDGetTokenT<edm::Association<reco::PFCandidateCollection> > pc2pf_;
           const edm::EDGetTokenT<reco::CaloJetCollection> caloJets_;
-          const edm::EDGetTokenT<edm::ValueMap<reco::DeDxData> > gt2dedx_;
+          const edm::EDGetTokenT<edm::ValueMap<reco::DeDxData> > gt2dedxStrip_;
+          const edm::EDGetTokenT<edm::ValueMap<reco::DeDxData> > gt2dedxPixel_;
           const edm::EDGetTokenT<reco::DeDxHitInfoAss> gt2dedxHitInfo_;
+          const bool usePrecomputedDeDxStrip_;
+          const bool usePrecomputedDeDxPixel_;
           const float pT_cut_;  // only save cands with pT>pT_cut_
           const float pT_cut_noIso_;  // above this pT, don't apply any iso cut
           const float pfIsolation_DR_;  // isolation radius
@@ -91,8 +94,11 @@ pat::PATIsolatedTrackProducer::PATIsolatedTrackProducer(const edm::ParameterSet&
   gt2lt_(consumes<edm::Association<pat::PackedCandidateCollection> >(iConfig.getParameter<edm::InputTag>("lostTracks"))),
   pc2pf_(consumes<edm::Association<reco::PFCandidateCollection> >(iConfig.getParameter<edm::InputTag>("packedPFCandidates"))),
   caloJets_(consumes<reco::CaloJetCollection>(iConfig.getParameter<edm::InputTag>("caloJets"))),
-  gt2dedx_(consumes<edm::ValueMap<reco::DeDxData> >(iConfig.getParameter<edm::InputTag>("dEdxInfo"))),
+  gt2dedxStrip_(consumes<edm::ValueMap<reco::DeDxData> >(iConfig.getParameter<edm::InputTag>("dEdxDataStrip"))),
+  gt2dedxPixel_(consumes<edm::ValueMap<reco::DeDxData> >(iConfig.getParameter<edm::InputTag>("dEdxDataPixel"))),
   gt2dedxHitInfo_(consumes<reco::DeDxHitInfoAss>(iConfig.getParameter<edm::InputTag>("dEdxHitInfo"))),
+  usePrecomputedDeDxStrip_(iConfig.getParameter<bool>("usePrecomputedDeDxStrip")),
+  usePrecomputedDeDxPixel_(iConfig.getParameter<bool>("usePrecomputedDeDxPixel")),
   pT_cut_         (iConfig.getParameter<double>("pT_cut")),
   pT_cut_noIso_   (iConfig.getParameter<double>("pT_cut_noIso")),
   pfIsolation_DR_ (iConfig.getParameter<double>("pfIsolation_DR")),
@@ -150,8 +156,12 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
     iEvent.getByToken(caloJets_, caloJets);
 
     // associate generalTracks with their DeDx data (estimator for strip dE/dx)
-    edm::Handle<edm::ValueMap<reco::DeDxData> > gt2dedx;
-    iEvent.getByToken(gt2dedx_, gt2dedx);
+    edm::Handle<edm::ValueMap<reco::DeDxData> > gt2dedxStrip;
+    iEvent.getByToken(gt2dedxStrip_, gt2dedxStrip);
+
+    // associate generalTracks with their DeDx data (estimator for pixel dE/dx)
+    edm::Handle<edm::ValueMap<reco::DeDxData> > gt2dedxPixel;
+    iEvent.getByToken(gt2dedxPixel_, gt2dedxPixel);
 
     // associate generalTracks with their DeDx hit info (used to estimate pixel dE/dx)
     edm::Handle<reco::DeDxHitInfoAss> gt2dedxHitInfo;
@@ -173,11 +183,13 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
         reco::TrackRef tkref = reco::TrackRef(gt_h, igt);
         pat::PackedCandidateRef pcref = (*gt2pc)[tkref];
         pat::PackedCandidateRef ltref = (*gt2lt)[tkref];
+        const pat::PackedCandidate & pfCand = *(pcref.get());
+        const pat::PackedCandidate & lostTrack = *(ltref.get());
 
         // Determine if this general track is associated with anything in packedPFCandidates or lostTracks
         // Sometimes, a track gets associated w/ a neutral pfCand.
         // In this case, ignore the pfCand and take from lostTracks
-        bool isInPackedCands = (pcref.isNonnull() && pcref.id()==pc_h.id() && pcref.get()->charge()!=0);
+        bool isInPackedCands = (pcref.isNonnull() && pcref.id()==pc_h.id() && pfCand.charge()!=0);
         bool isInLostTracks  = (ltref.isNonnull() && ltref.id()==lt_h.id());
 
         LorentzVector p4;
@@ -188,12 +200,12 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
 
         // get the four-momentum and charge
         if(isInPackedCands){
-            p4 = pcref.get()->p4();
-            charge = pcref.get()->charge();
+            p4        = pfCand.p4();
+            charge    = pfCand.charge();
             pfCandInd = pcref.key();
         }else if(isInLostTracks){
-            p4 = ltref.get()->p4();
-            charge = ltref.get()->charge();
+            p4        = lostTrack.p4();
+            charge    = lostTrack.charge();
             pfCandInd = -1;
         }else{
             double m = 0.13957018; //assume pion mass
@@ -222,28 +234,28 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
 
         // get the rest after the pt/iso cuts. Saves some runtime
         if(isInPackedCands){
-            pdgId = pcref.get()->pdgId();
-            dz = pcref.get()->dz();
-            dxy = pcref.get()->dxy();
-            dzError = pcref.get()->dzError();
-            dxyError = pcref.get()->dxyError();
-            fromPV = pcref.get()->fromPV();
+            pdgId     = pfCand.pdgId();
+            dz        = pfCand.dz();
+            dxy       = pfCand.dxy();
+            dzError   = pfCand.dzError();
+            dxyError  = pfCand.dxyError();
+            fromPV    = pfCand.fromPV();
             refToCand = pcref;
         }else if(isInLostTracks){
-            pdgId = 0;
-            dz = ltref.get()->dz();
-            dxy = ltref.get()->dxy();
-            dzError = ltref.get()->dzError();
-            dxyError = ltref.get()->dxyError();
-            fromPV = -1;
+            pdgId     = 0;
+            dz        = lostTrack.dz();
+            dxy       = lostTrack.dxy();
+            dzError   = lostTrack.dzError();
+            dxyError  = lostTrack.dxyError();
+            fromPV    = -1;
             refToCand = ltref;
         }else{
-            pdgId = 0;
-            dz = gentk.dz();
-            dxy = gentk.dxy();
-            dzError = gentk.dzError();
-            dxyError = gentk.dxyError();
-            fromPV = -1;
+            pdgId     = 0;
+            dz        = gentk.dz();
+            dxy       = gentk.dxy();
+            dzError   = gentk.dzError();
+            dxyError  = gentk.dxyError();
+            fromPV    = -1;
             refToCand = pat::PackedCandidateRef();  //NULL reference
         }
 
@@ -252,10 +264,17 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
 
         // if no dEdx info exists, just store -1
         float dEdxPixel=-1, dEdxStrip=-1;        
-        if(gt2dedxHitInfo.isValid()){
+        if(usePrecomputedDeDxStrip_ && gt2dedxStrip.isValid()){
+            dEdxStrip = (*gt2dedxStrip)[tkref].dEdx();
+        }else if(gt2dedxHitInfo.isValid()){
+            const reco::DeDxHitInfo* hitInfo = (*gt2dedxHitInfo)[tkref].get();
+            dEdxStrip = getDeDx(hitInfo, false, true);
+        }
+        if(usePrecomputedDeDxPixel_ && gt2dedxPixel.isValid()){
+            dEdxPixel = (*gt2dedxPixel)[tkref].dEdx();
+        }else if(gt2dedxHitInfo.isValid()){
             const reco::DeDxHitInfo* hitInfo = (*gt2dedxHitInfo)[tkref].get();
             dEdxPixel = getDeDx(hitInfo, true, false);
-            dEdxStrip = (*gt2dedx)[tkref].dEdx(); // estimated strip dEdx is already stored in AOD
         }
 
         int trackQuality = gentk.qualityMask();
@@ -293,7 +312,7 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
     // (mostly electrons, with a handful of muons)
     // here we find these and store. Track-specific variables get some default values
     for(unsigned int ipc=0; ipc<pc->size(); ipc++){
-        const pat::PackedCandidate& pfcand = pc->at(ipc);
+        const pat::PackedCandidate& pfCand = pc->at(ipc);
         pat::PackedCandidateRef pcref = pat::PackedCandidateRef(pc_h, ipc);
         reco::PFCandidateRef pfref = (*pc2pf)[pcref];
 
@@ -306,8 +325,8 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
         int pdgId, charge, fromPV;
         float dz, dxy, dzError, dxyError;
 
-        p4 = pfcand.p4();
-        charge = pfcand.charge();
+        p4 = pfCand.p4();
+        charge = pfCand.charge();
 
         if(p4.pt() < pT_cut_)
             continue;
@@ -326,12 +345,12 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
               miniIso.chargedHadronIso()/p4.pt() < miniRelIso_cut_))
             continue;
 
-        pdgId = pfcand.pdgId();
-        dz = pfcand.dz();
-        dxy = pfcand.dxy();
-        dzError = pfcand.dzError();
-        dxyError = pfcand.dxyError();
-        fromPV = pfcand.fromPV();
+        pdgId     = pfCand.pdgId();
+        dz        = pfCand.dz();
+        dxy       = pfCand.dxy();
+        dzError   = pfCand.dzError();
+        dxyError  = pfCand.dxyError();
+        fromPV    = pfCand.fromPV();
         refToCand = pcref;
 
         float caloJetEm, caloJetHad;
@@ -479,8 +498,9 @@ void pat::PATIsolatedTrackProducer::getCaloJetEnergy(const LorentzVector& p4, co
         caloJetEm = 0;
         caloJetHad = 0;
     }else{
-        caloJetEm = cJets->at(ind).emEnergyInEB() + cJets->at(ind).emEnergyInEE() + cJets->at(ind).emEnergyInHF();
-        caloJetHad = cJets->at(ind).hadEnergyInHB() + cJets->at(ind).hadEnergyInHE() + cJets->at(ind).hadEnergyInHF();
+        const reco::CaloJet & cJet = cJets->at(ind);
+        caloJetEm = cJet.emEnergyInEB() + cJet.emEnergyInEE() + cJet.emEnergyInHF();
+        caloJetHad = cJet.hadEnergyInHB() + cJet.hadEnergyInHE() + cJet.hadEnergyInHF();
     }
 
 }

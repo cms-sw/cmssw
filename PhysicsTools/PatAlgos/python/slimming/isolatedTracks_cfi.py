@@ -16,9 +16,12 @@ isolatedTracks = cms.EDProducer("PATIsolatedTrackProducer",
     packedPFCandidates = cms.InputTag("packedPFCandidates"),
     lostTracks = cms.InputTag("lostTracks"),
     generalTracks = cms.InputTag("generalTracks"),
-    caloJets = cms.InputTag("ak4CaloJets"),                               
-    dEdxInfo = cms.InputTag("dedxHarmonic2"),
+    caloJets = cms.InputTag("ak4CaloJets"),
+    dEdxDataStrip = cms.InputTag("dedxHarmonic2"),
+    dEdxDataPixel = cms.InputTag("dedxPixelHarmonic2"),
     dEdxHitInfo = cms.InputTag("dedxHitInfo"),
+    usePrecomputedDeDxStrip = cms.bool(True),        # if these are set to True, will get estimated DeDx from DeDxData branches
+    usePrecomputedDeDxPixel = cms.bool(True),        # if set to False, will manually compute using dEdxHitInfo
     pT_cut = cms.double(5.0),         # save tracks above this pt
     pT_cut_noIso = cms.double(20.0),  # for tracks with at least this pT, don't apply any iso cut
     pfIsolation_DR = cms.double(0.3),
@@ -28,10 +31,6 @@ isolatedTracks = cms.EDProducer("PATIsolatedTrackProducer",
     absIso_cut = cms.double(5.0),
     relIso_cut = cms.double(0.2),
     miniRelIso_cut = cms.double(0.2),
-
-    # absIso_cut = cms.double(999999.0),
-    # relIso_cut = cms.double(999999.0),
-    # miniRelIso_cut = cms.double(999999.0),
 
     caloJet_DR = cms.double(0.3),
 
