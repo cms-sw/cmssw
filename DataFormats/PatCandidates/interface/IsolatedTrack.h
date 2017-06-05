@@ -85,9 +85,10 @@ namespace pat {
         const std::vector<EcalChannelStatusCode>& crossedEcalStatus() const { return crossedEcalStatus_; }
         const std::vector<HcalChannelStatus>& crossedHcalStatus() const { return crossedHcalStatus_; }
 
-
-        float deltaEta() const { return float(deltaEta_)/250*0.5; }
-        float deltaPhi() const { return float(deltaPhi_)/250*0.5; }
+        //! difference in eta/phi between initial traj and intersection w/ ecal
+        //! Values are between +-0.5 with a precision of 0.002
+        float deltaEta() const { return float(deltaEta_)/500.f; }
+        float deltaPhi() const { return float(deltaPhi_)/500.f; }
 
         const PackedCandidateRef& packedCandRef() const { return packedCandRef_; }
 
@@ -105,7 +106,7 @@ namespace pat {
 
         std::vector<EcalChannelStatusCode> crossedEcalStatus_;
         std::vector<HcalChannelStatus> crossedHcalStatus_;
-        int deltaEta_, deltaPhi_; // difference in eta/phi between initial traj and intersection w/ ecal
+        int deltaEta_, deltaPhi_;
 
         PackedCandidateRef packedCandRef_; // stored only for packedPFCands/lostTracks. NULL for generalTracks
 
