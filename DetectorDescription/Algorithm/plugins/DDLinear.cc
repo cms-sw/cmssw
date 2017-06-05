@@ -1,4 +1,4 @@
-#include "DetectorDescription/Algorithm/interface/DDLinear.h"
+#include "DDLinear.h"
 
 #include <math.h>
 
