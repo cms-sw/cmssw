@@ -49,7 +49,8 @@ namespace l1t {
 	   etSumEcalSumPUS=37,
 	   etSumBypassEcalSumPUSFlag=38,
 	   layer1HOverE=39,
-	   NUM_CALOPARAMNODES=40
+	   PUTowerThreshold=40,
+	   NUM_CALOPARAMNODES=41
     };
 
     CaloParamsHelper() { pnode_.resize(NUM_CALOPARAMNODES); }
@@ -110,6 +111,12 @@ namespace l1t {
     void setRegionPUSType(std::string type) { pnode_[regionPUS].type_ = type; }
     void setRegionPUSParams(const std::vector<double> & params) { pnode_[regionPUS].dparams_ = params; }
     void setRegionPUSLUT(const l1t::LUT & lut) { pnode_[regionPUS].LUT_ = lut; }
+
+    int pileUpTowerThreshold() const {return pnode_[PUTowerThreshold].iparams_[0]; }
+    void setPileUpTowerThreshold(int thresh) { 
+      pnode_[PUTowerThreshold].iparams_.resize(1);
+      pnode_[PUTowerThreshold].iparams_[0] = thresh; 
+    }
 
     // EG
     int egEtaCut() const {
