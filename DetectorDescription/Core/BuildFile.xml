@@ -1,7 +1,7 @@
-<use   name="DetectorDescription/ExprAlgo"/>
 <use   name="FWCore/Utilities"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="boost"/>
+<use   name="clhep"/>
 <use   name="rootmath"/>
 <export>
   <lib   name="1"/>

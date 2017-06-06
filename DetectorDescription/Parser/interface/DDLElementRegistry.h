@@ -3,7 +3,7 @@
 
 #include "DetectorDescription/Core/interface/Singleton.h"
 #include "DetectorDescription/Core/interface/Singleton.icc"
-#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
+#include "DetectorDescription/Core/interface/ClhepEvaluator.h"
 
 #include <CLHEP/Evaluator/Evaluator.h>
 #include <string>
@@ -43,7 +43,7 @@ class DDLElementRegistry
    */
   std::shared_ptr<DDXMLElement> getElement(const std::string& name); 
 
-  ClhepEvaluator &evaluator() { return ExprEvalSingleton::instance(); }
+  ClhepEvaluator &evaluator() { return DDI::Singleton<ClhepEvaluator>::instance(); }
 
  private:
   RegistryMap registry_;

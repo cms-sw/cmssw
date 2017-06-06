@@ -1,6 +1,5 @@
 <use   name="DetectorDescription/Algorithm"/>
 <use   name="DetectorDescription/Core"/>
-<use   name="DetectorDescription/ExprAlgo"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/Utilities"/>
