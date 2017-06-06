@@ -48,7 +48,7 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
     l1t::CaloStage2Nav caloNav; 
   
     // this is common to all taus in this event
-    const int nrTowers = CaloTools::calNrTowers(-1*params_->tauPUSParam(1),params_->tauPUSParam(1),1,72,towers,1,999,CaloTools::CALO);
+    const int nrTowers = CaloTools::calNrTowers(-1*params_->tauPUSParam(1),params_->tauPUSParam(1),1,72,towers,1+params_->pileUpTowerThreshold(),999,CaloTools::CALO);
 
     for (const auto& mainCluster : clusters)
     {
