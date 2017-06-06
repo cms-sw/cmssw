@@ -129,7 +129,7 @@ void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
   float i5=0;
   float n5=0;
 
-  if(channelData.hasTimeInfo()) {
+  if(channelData.hasTimeInfo() && channelData.recoShape()==205) {
     get205Frac(-tsShift3,-tsShift3+tsWidth,i3);
     get205Frac(-tsShift3+tsWidth,-tsShift3+tsWidth*2,n3);
     get205Frac(-tsShift3+tsWidth*2,-tsShift3+tsWidth*3,nn3);
@@ -168,7 +168,7 @@ void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
         double invG = invGpar[0]+invGpar[1]*std::sqrt(2*std::log(invGpar[2]/ratio));
         float iG=0;
 
-	if(channelData.hasTimeInfo()) {
+	if(channelData.hasTimeInfo() && channelData.recoShape()==205) {
 	  get205Frac(-invG,-invG+tsWidth,iG);
 	} else {
 	  getLandauFrac(-invG,-invG+tsWidth,iG);
