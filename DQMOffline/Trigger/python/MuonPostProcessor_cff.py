@@ -80,7 +80,7 @@ hltMuonEfficienciesMR =  DQMEDHarvester("DQMGenericClient",
 
 )
 
-hltMuonRefEfficiencies = cms.EDAnalyzer("HLTMuonRefMethod",
+hltMuonRefEfficiencies = DQMEDHarvester("HLTMuonRefMethod",
                                         subDirs        = cms.untracked.vstring("HLT/Muon/Distributions.*"),
                                         outputFileName = cms.untracked.string(''),
                                         hltTriggers    = cms.untracked.vstring("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ",
@@ -107,7 +107,7 @@ hltMuonRefEfficiencies = cms.EDAnalyzer("HLTMuonRefMethod",
                                         
                                         )
 
-hltMuonRefEfficienciesMR = cms.EDAnalyzer("HLTMuonRefMethod",
+hltMuonRefEfficienciesMR = DQMEDHarvester("HLTMuonRefMethod",
                                           subDirs        = cms.untracked.vstring("HLT/Muon/MR/Distributions.*"),
                                           outputFileName = cms.untracked.string(''),
                                           hltTriggers    = cms.untracked.vstring("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ",
