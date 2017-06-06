@@ -90,6 +90,9 @@ L1TCaloStage2ParamsESProducer::L1TCaloStage2ParamsESProducer(const edm::Paramete
   m_params_helper.setRegionLsb(conf.getParameter<double>("regionLsb"));
   m_params_helper.setRegionPUSType(conf.getParameter<std::string>("regionPUSType"));
   m_params_helper.setRegionPUSParams(conf.getParameter<std::vector<double> >("regionPUSParams"));
+  
+  m_params_helper.setPileUpTowerThreshold(conf.getParameter<int>("pileUpTowerThreshold"));
+  
 
   // EG
   m_params_helper.setEgEtaCut(conf.getParameter<int>("egEtaCut"));
