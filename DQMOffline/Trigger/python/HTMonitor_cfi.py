@@ -21,12 +21,12 @@ hltHTmonitoring.numGenericTriggerEventPSet.hltInputTag   = cms.InputTag( "Trigge
 hltHTmonitoring.numGenericTriggerEventPSet.hltPaths      = cms.vstring("HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_v*") # HLT_ZeroBias_v*
 #hltHTmonitoring.numGenericTriggerEventPSet.hltDBKey      = cms.string("EXO_HLT_HT")
 hltHTmonitoring.numGenericTriggerEventPSet.errorReplyHlt = cms.bool( False )
-hltHTmonitoring.numGenericTriggerEventPSet.verbosityLevel = cms.uint32(1)
+hltHTmonitoring.numGenericTriggerEventPSet.verbosityLevel = cms.uint32(0)
 
 hltHTmonitoring.denGenericTriggerEventPSet.andOr         = cms.bool( False )
 hltHTmonitoring.denGenericTriggerEventPSet.dcsInputTag   = cms.InputTag( "scalersRawToDigi" )
 hltHTmonitoring.denGenericTriggerEventPSet.dcsPartitions = cms.vint32 ( 24, 25, 26, 27, 28, 29 ) # 24-27: strip, 28-29: pixel, we should add all other detectors !
 hltHTmonitoring.denGenericTriggerEventPSet.andOrDcs      = cms.bool( False )
 hltHTmonitoring.denGenericTriggerEventPSet.errorReplyDcs = cms.bool( True )
-hltHTmonitoring.denGenericTriggerEventPSet.verbosityLevel = cms.uint32(1)
-hltHTmonitoring.denGenericTriggerEventPSet.hltPaths      = cms.vstring("");
+hltHTmonitoring.denGenericTriggerEventPSet.verbosityLevel = cms.uint32(0)
+hltHTmonitoring.denGenericTriggerEventPSet.hltPaths      = cms.vstring("HLT_IsoMu27_v*","HLT_IsoTkMu27_v*");

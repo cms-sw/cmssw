@@ -27,7 +27,7 @@ hltMETmonitoring.numGenericTriggerEventPSet.hltInputTag   = cms.InputTag( "Trigg
 hltMETmonitoring.numGenericTriggerEventPSet.hltPaths      = cms.vstring("HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_v*") # HLT_ZeroBias_v*
 #hltMETmonitoring.numGenericTriggerEventPSet.hltDBKey      = cms.string("EXO_HLT_MET")
 hltMETmonitoring.numGenericTriggerEventPSet.errorReplyHlt = cms.bool( False )
-hltMETmonitoring.numGenericTriggerEventPSet.verbosityLevel = cms.uint32(1)
+hltMETmonitoring.numGenericTriggerEventPSet.verbosityLevel = cms.uint32(0)
 
 hltMETmonitoring.denGenericTriggerEventPSet.andOr         = cms.bool( False )
 hltMETmonitoring.denGenericTriggerEventPSet.dcsInputTag   = cms.InputTag( "scalersRawToDigi" )
@@ -35,4 +35,4 @@ hltMETmonitoring.denGenericTriggerEventPSet.dcsPartitions = cms.vint32 ( 24, 25,
 hltMETmonitoring.denGenericTriggerEventPSet.andOrDcs      = cms.bool( False )
 hltMETmonitoring.denGenericTriggerEventPSet.errorReplyDcs = cms.bool( True )
 hltMETmonitoring.denGenericTriggerEventPSet.verbosityLevel = cms.uint32(1)
-hltMETmonitoring.denGenericTriggerEventPSet.hltPaths      = cms.vstring("");
+hltMETmonitoring.denGenericTriggerEventPSet.hltPaths      = cms.vstring("HLT_IsoMu27_v*","HLT_IsoTkMu27_v*");

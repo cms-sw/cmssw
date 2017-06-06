@@ -293,7 +293,7 @@ void METMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   desc.add<std::string>("jetSelection", "pt > 0");
   desc.add<std::string>("eleSelection", "pt > 0");
   desc.add<std::string>("muoSelection", "pt > 0");
-  desc.add<std::string>("jetSelection_HT", "pt > 10 && eta < 2.5");
+  desc.add<std::string>("jetSelection_HT", "pt > 30 && eta < 2.5");
   desc.add<int>("njets",      0);
   desc.add<int>("nelectrons", 0);
   desc.add<int>("nmuons",     0);
