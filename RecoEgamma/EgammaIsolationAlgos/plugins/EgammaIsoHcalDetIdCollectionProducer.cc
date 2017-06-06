@@ -17,16 +17,13 @@ EgammaIsoHcalDetIdCollectionProducer::EgammaIsoHcalDetIdCollectionProducer(const
   phosToken_ = 
   	  consumes<reco::PhotonCollection>(iConfig.getParameter< edm::InputTag >("phosLabel"));
 
-  ootPhosToken_ = 
-  	  consumes<reco::PhotonCollection>(iConfig.getParameter< edm::InputTag >("ootPhosLabel"));
-
   superClustersToken_ = 
           consumes<reco::SuperClusterCollection>(iConfig.getParameter< edm::InputTag >("superClustersLabel"));
 
   minSCEt_ = iConfig.getParameter<double>("minSCEt");
   minEleEt_ = iConfig.getParameter<double>("minEleEt");
   minPhoEt_ = iConfig.getParameter<double>("minPhoEt");
-  minOOTPhoEt_ = iConfig.getParameter<double>("minOOTPhoEt");
+  
 
   interestingDetIdCollection_ = iConfig.getParameter<std::string>("interestingDetIdCollection");
   
@@ -64,9 +61,6 @@ EgammaIsoHcalDetIdCollectionProducer::produce (edm::Event& iEvent,
   edm::Handle<reco::PhotonCollection> phos;
   iEvent.getByToken(phosToken_,phos);
 
-  edm::Handle<reco::PhotonCollection> ootPhos;
-  iEvent.getByToken(ootPhosToken_,ootPhos);
-
   edm::Handle<HBHERecHitCollection> recHits;
   iEvent.getByToken(recHitsToken_,recHits);
 
@@ -85,12 +79,6 @@ EgammaIsoHcalDetIdCollectionProducer::produce (edm::Event& iEvent,
     for(auto& pho : *phos){
       float scEt = pho.superCluster()->energy()*std::sin(pho.superCluster()->position().theta());
       if(scEt > minPhoEt_ || pho.et()> minPhoEt_) addDetIds(*pho.superCluster(),*recHits,indexToStore);
-    }
-  }
-  if(ootPhos.isValid() && recHits.isValid()){
-    for(auto& ootPho : *ootPhos){
-      float scEt = ootPho.superCluster()->energy()*std::sin(ootPho.superCluster()->position().theta());
-      if(scEt > minOOTPhoEt_ || ootPho.et()> minOOTPhoEt_) addDetIds(*ootPho.superCluster(),*recHits,indexToStore);
     }
   }
   if(superClusters.isValid() && recHits.isValid()){
