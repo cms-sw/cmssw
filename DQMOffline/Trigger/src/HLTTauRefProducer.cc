@@ -22,7 +22,7 @@
 //CaloTower includes
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerDefs.h"
 #include "Math/GenVector/VectorUtil.h"
 
 using namespace edm;
