@@ -24,6 +24,7 @@ namespace SurfaceDeformationFactory
 
   /// convert string to 'Type' - exception if string is not known
   Type surfaceDeformationType(const std::string &typeString);
+  std::string surfaceDeformationTypeName(const Type &type);
 
 
   /// Create an instance of the concrete implementations of 
@@ -32,6 +33,7 @@ namespace SurfaceDeformationFactory
   /// and the size of 'params' must match the expectation of the 
   /// concrete type (exception otherwise).
   SurfaceDeformation* create(int type, const std::vector<double> &params);
+  SurfaceDeformation* create(const std::vector<double> &params);
 
 }
 
