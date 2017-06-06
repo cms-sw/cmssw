@@ -24,9 +24,9 @@ private:
     virtual void beginJob() ;
     virtual bool filter(edm::Event&, const edm::EventSetup&);
     virtual void endJob() ;
-    edm::EDGetTokenT<edm::HepMCProduct> token_;
+    //edm::EDGetTokenT<edm::HepMCProduct> token_;
 private:
-//     edm::InputTag hepMCProductTag;
+    edm::InputTag hepMCProductTag_;
     double ptsep;
     int read22, read23, pass22, pass23, hardLep;
 };
