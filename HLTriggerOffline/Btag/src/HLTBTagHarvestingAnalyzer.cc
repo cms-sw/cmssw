@@ -209,10 +209,8 @@ bool HLTBTagHarvestingAnalyzer::GetNumDenumerators(DQMStore::IBooker& ibooker, D
 
 	if (type==3) //mistagrate HEP17 / HEM17 relation: fill "ptrnum" with HEP17 mistagrate and "ptrden" with HEM17 mistagrate
 	{
-		TH1* numH1 = numME->getTH1();
-		TH1* denH1 = denME->getTH1();
-		ptrden=(TH1*)denH1->Clone("denominator");
-		ptrnum=(TH1*)numH1->Clone("numerator");
+		ptrden=denME->getTH1();
+		ptrnum=numME->getTH1();
 	}
 	return true;
 }
