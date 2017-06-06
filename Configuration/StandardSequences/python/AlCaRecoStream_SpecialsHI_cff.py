@@ -51,7 +51,7 @@ from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalMinBiasHI_cff import *
 
 from DQMOffline.Configuration.AlCaRecoDQMHI_cff import *
 
-pathALCARECOHcalCalMinBias = cms.Path(seqALCARECOHcalCalMinBias*ALCARECOHcalCalPhisymDQM)
+pathALCARECOHcalCalMinBias = cms.Path(seqALCARECOHcalCalMinBiasDigi*seqALCARECOHcalCalMinBias*ALCARECOHcalCalPhisymDQM)
 
 from Configuration.EventContent.AlCaRecoOutput_cff import *
 
