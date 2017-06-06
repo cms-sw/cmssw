@@ -226,6 +226,51 @@ topElecMuonHLTMonitor.jetSelection = cms.string('pt>30 & abs(eta)<2.4')
 topElecMuonHLTMonitor.numGenericTriggerEventPSet.hltPaths = cms.vstring(['HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v*','HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v*'])
 
 # Marina
+
+fullyhadronic_ref350 = hltTOPmonitoring.clone()
+fullyhadronic_ref350.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/FullyHadronic/Reference/PFHT350Monitor/')
+# Selections
+fullyhadronic_ref350.leptJetDeltaRmin = cms.double(0.0)
+fullyhadronic_ref350.HTdefinition     = cms.string('pt>30 & abs(eta)<2.4')
+fullyhadronic_ref350.HTcut            = cms.double(250)
+# Binning
+fullyhadronic_ref350.histoPSet.htPSet = cms.PSet(nbins=cms.int32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
+fullyhadronic_ref350.histoPSet.HTBinning = cms.vdouble(0,240,260,280,300,320,340,360,380,400,420,440,460,480,
+                                                       500,520,540,560,580,600,650,700,750,800,850,900,1000)
+# Trigger
+fullyhadronic_ref350.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT350_v')
+fullyhadronic_ref350.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_IsoMu27_v')
+
+
+fullyhadronic_ref370 = hltTOPmonitoring.clone()
+fullyhadronic_ref370.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/FullyHadronic/Reference/PFHT370Monitor/')
+# Selections
+fullyhadronic_ref370.leptJetDeltaRmin = cms.double(0.0)
+fullyhadronic_ref370.HTdefinition     = cms.string('pt>30 & abs(eta)<2.4')
+fullyhadronic_ref370.HTcut            = cms.double(250)
+# Binning
+fullyhadronic_ref370.histoPSet.htPSet = cms.PSet(nbins=cms.int32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
+fullyhadronic_ref370.histoPSet.HTBinning = cms.vdouble(0,240,260,280,300,320,340,360,380,400,420,440,460,480,
+                                                       500,520,540,560,580,600,650,700,750,800,850,900,1000)
+# Trigger
+fullyhadronic_ref370.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT370_v')
+fullyhadronic_ref370.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_IsoMu27_v')
+
+fullyhadronic_ref430 = hltTOPmonitoring.clone()
+fullyhadronic_ref430.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/FullyHadronic/Reference/PFHT430Monitor/')
+# Selections
+fullyhadronic_ref430.leptJetDeltaRmin = cms.double(0.0)
+fullyhadronic_ref430.HTdefinition     = cms.string('pt>30 & abs(eta)<2.4')
+fullyhadronic_ref430.HTcut            = cms.double(250)
+# Binning
+fullyhadronic_ref430.histoPSet.htPSet = cms.PSet(nbins=cms.int32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
+fullyhadronic_ref430.histoPSet.HTBinning = cms.vdouble(0,240,260,280,300,320,340,360,380,400,420,440,460,480,
+                                                       500,520,540,560,580,600,650,700,750,800,850,900,1000)
+# Trigger
+fullyhadronic_ref430.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT430_v')
+fullyhadronic_ref430.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_IsoMu27_v')
+
+
 fullyhadronic_DoubleBTag_all = hltTOPmonitoring.clone()
 fullyhadronic_DoubleBTag_all.FolderName   = cms.string('HLT/TopHLTOffline/TopMonitor/FullyHadronic/DoubleBTag/GlobalMonitor/')
 # Selections
@@ -359,6 +404,9 @@ topMonitorHLT = cms.Sequence(
     + topDiMuonHLTMonitor_Dz
     + topDiMuonHLTMonitor_Mass8
     + topElecMuonHLTMonitor
+    + fullyhadronic_ref350
+    + fullyhadronic_ref370
+    + fullyhadronic_ref430
     + fullyhadronic_DoubleBTag_all
     + fullyhadronic_DoubleBTag_jet
     + fullyhadronic_DoubleBTag_bjet

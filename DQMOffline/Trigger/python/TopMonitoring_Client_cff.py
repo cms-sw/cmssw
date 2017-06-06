@@ -182,6 +182,17 @@ topEfficiency_ElecMu = DQMEDHarvester("DQMGenericClient",
 
 
 # Marina
+fullyhadronicEfficiency_Reference = DQMEDHarvester("DQMGenericClient",
+    subDirs        = cms.untracked.vstring("HLT/TopHLTOffline/TopMonitor/FullyHadronic/Reference/*"),
+    verbose        = cms.untracked.uint32(0), # Set to 2 for all messages 
+    resolution     = cms.vstring(),
+    efficiency     = cms.vstring(
+        "effic_eventHT       'efficiency vs event HT; event HT [GeV]; efficiency' eventHT_numerator       eventHT_denominator",
+        "effic_eventHT_variableBinning       'efficiency vs event HT; event HT [GeV]; efficiency' eventHT_variableBinning_numerator    eventHT_variableBinning_denominator",
+        ),
+)
+
+
 fullyhadronicEfficiency_DoubleBTag = DQMEDHarvester("DQMGenericClient",
     subDirs        = cms.untracked.vstring("HLT/TopHLTOffline/TopMonitor/FullyHadronic/DoubleBTag/*"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
@@ -365,6 +376,7 @@ topClient = cms.Sequence(
     + topEfficiency_diElec
     + topEfficiency_diMu
     + topEfficiency_ElecMu
+    + fullyhadronicEfficiency_Reference
     + fullyhadronicEfficiency_DoubleBTag
     + fullyhadronicEfficiency_SingleBTag
 )
