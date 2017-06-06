@@ -296,7 +296,7 @@ StandardSpecificationTrend_Num = [
                    .groupBy("PXBarrel/PXLayer","EXTEND_X")
                    .groupBy("PXBarrel", "EXTEND_Y")
                    .save(),
-    Specification().groupBy("PXBarrel/PXLayer/Event")
+    Specification().groupBy("PXBarrel/Event")
                    .reduce("COUNT")
                    .groupBy("PXBarrel/Lumisection")
                    .reduce("MEAN")
@@ -309,7 +309,7 @@ StandardSpecificationTrend_Num = [
                    .groupBy("PXForward/PXDisk","EXTEND_X")
                    .groupBy("PXForward", "EXTEND_Y")
                    .save(),
-    Specification().groupBy("PXForward/PXDisk/Event")
+    Specification().groupBy("PXForward/Event")
                    .reduce("COUNT")
                    .groupBy("PXForward/Lumisection")
                    .reduce("MEAN")
@@ -325,6 +325,7 @@ StandardSpecificationTrend_Num = [
 
 
 StandardSpecification2DProfile_Num = [
+
     Specification(PerLayer2D)
        .groupBy("PXBarrel/PXLayer/SignedLadder/SignedModule" + "/DetId/Event")
        .reduce("COUNT")
