@@ -121,7 +121,7 @@ void VirtualJetProducer::makeProduces( std::string alias, std::string tag )
 //______________________________________________________________________________
 VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig) {
 
-	moduleLabel_   		= iConfig.getParameter<string> ("@module_label");
+	moduleLabel_   		= iConfig.getParameter<string>  ("module_label");
 	jetType_       		= iConfig.getParameter<string> 	("jetType");
 	jetAlgorithm_  		= iConfig.getParameter<string>  ("jetAlgorithm");
 	rParam_        		= iConfig.getParameter<double>  ("rParam");
@@ -850,12 +850,12 @@ void VirtualJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
 	edm::ParameterSetDescription desc;
         fillDescriptionsFromVirtualJetProducer(desc);
 	desc.add<string>("jetCollInstanceName", ""	);
-	descriptions.addDefault(desc);
+	descriptions.add("VirtualJetProducer",desc);
 }
 
 void VirtualJetProducer::fillDescriptionsFromVirtualJetProducer(edm::ParameterSetDescription& desc)
 {
-	desc.add<string> ("@module_label",	"" );
+	desc.add<string> ("module_label",	"" );
 	desc.add<edm::InputTag>("src",		edm::InputTag("particleFlow") );
 	desc.add<edm::InputTag>("srcPVs",	edm::InputTag("") );
 	desc.add<string>("jetType",		"PFJet" );

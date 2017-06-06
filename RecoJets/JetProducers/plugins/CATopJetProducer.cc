@@ -170,7 +170,7 @@ void CATopJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
 	///// From VirtualJetProducer
 	VirtualJetProducer::fillDescriptionsFromVirtualJetProducer(desc);
 	/////////////////////
-	descriptions.addDefault(desc);
+	descriptions.add("CATopJetProducer",desc);
 
 }
 //define this as a plug-in
