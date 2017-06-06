@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 metEfficiency = DQMEDHarvester("DQMGenericClient",
@@ -54,8 +55,14 @@ htEfficiency = cms.EDAnalyzer("DQMGenericClient",
 
 )
 
+from DQMOffline.Trigger.HTMonitoring_Client_cff import *
+from DQMOffline.Trigger.METMonitoring_Client_cff import *
+
+
 exoticaClient = cms.Sequence(
     metEfficiency
     + NoBPTXEfficiency
     + htEfficiency
+    + htClient
+    + metClient
 )
