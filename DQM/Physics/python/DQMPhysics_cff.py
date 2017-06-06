@@ -19,8 +19,8 @@ from DQM.Physics.CentralitypADQM_cfi import *
 from DQM.Physics.topJetCorrectionHelper_cfi import *
 
 dqmPhysics = cms.Sequence( bphysicsOniaDQM 
-                           #*ewkMuDQM # FIXME: broken after PR #14312
-                           #*ewkElecDQM
+                           *ewkMuDQM 
+                           *ewkElecDQM
                            #*ewkMuLumiMonitorDQM
                            *qcdPhotonsDQM
 			   *topSingleMuonMediumDQM

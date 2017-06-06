@@ -1,11 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("EwkDQM")
-process.load("DQM.Physics.ewkMuDQM_cfi")
-
+process.load("ewkMuDQM_cfi")
 process.load("DQMServices.Core.DQM_cfg")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
-process.DQM.collectorHost = ''
+#process.DQM.collectorHost = ''
 
 
 process.maxEvents = cms.untracked.PSet(
@@ -18,8 +17,7 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
-process.GlobalTag.globaltag = 'FT_53_V21_AN6::All'
-#process.GlobalTag.globaltag = 'START70_V2::All'
+process.GlobalTag.globaltag = '80X_dataRun2_2016SeptRepro_v4'
 
 
 process.source = cms.Source("PoolSource",
@@ -33,8 +31,10 @@ process.source = cms.Source("PoolSource",
 # "/store/data/Run2011B/SingleMu/AOD/PromptReco-v1/000/179/889/102E699B-AB01-E111-8D71-BCAEC53296FC.root",
 # "/store/data/Run2011B/SingleMu/AOD/PromptReco-v1/000/179/889/10C174C9-D401-E111-AE6D-00237DDC5BBC.root"
 #    'file:/tmp/andriusj/ZmmPU.root'
-    'file:/tmp/andriusj/Data2012D_DoubleMu.root'
-#    'file:/tmp/andriusj/ZeePU.root'
+#    'file:/tmp/andriusj/Data2012D_DoubleMu.root'
+#'/store/relval/CMSSW_9_0_0_pre2/RelValZMM_13/MINIAODSIM/PU25ns_90X_upgrade2017_realistic_v0_resub2-v1/10000/52CD8AA2-BBCD-E611-B544-0CC47A4D76C8.root'
+'/store/relval/CMSSW_9_0_0_pre6/RelValZMM_13/MINIAODSIM/90X_mcRun2_asymptotic_v4_FastSim-v1/00000/A21A65DD-7501-E711-979B-0025905A60F4.root'
+#'store/data/Run2016B/SingleMuon/MINIAOD/23Sep2016-v1/70000/029A7F31-B187-E611-B7D5-0CC47A13CECE.root'
 )
 )
 
@@ -64,6 +64,11 @@ process.MessageLogger = cms.Service("MessageLogger",
             threshold = cms.untracked.string('DEBUG')
            #threshold = cms.untracked.string('ERROR')
     )
+)
+
+process.TFileService = cms.Service("TFileService",
+   fileName = cms.string('output_singlemuon_notriggerm.root'
+   )
 )
 
 #process.ana = cms.EDAnalyzer("EventContentAnalyzer")
