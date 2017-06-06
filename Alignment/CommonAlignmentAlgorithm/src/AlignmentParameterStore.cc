@@ -463,7 +463,7 @@ applyAlignableAbsolutePositions(const align::Alignables& alivec, const Alignable
           SurfaceDeformation* dold_obj=0;
           SurfaceDeformationFactory::Type dtype = SurfaceDeformationFactory::kNoDeformations;
           std::vector<double> dold;
-          if (1 == ali->surfaceDeformationIdPairs(dold_id_pairs)) { // might not have any...
+          if (1 == ali->surfaceDeformationIdPairs(dold_id_pairs)){ // might not have any...
             dold_obj = dold_id_pairs[0].second;
             dold = dold_obj->parameters();
             dtype = (SurfaceDeformationFactory::Type)dold_obj->type();
@@ -477,6 +477,9 @@ applyAlignableAbsolutePositions(const align::Alignables& alivec, const Alignable
           align::rectify(rotDiff); // correct for rounding errors 
           ali->move(posDiff);
           ali->rotateInGlobalFrame(rotDiff);
+          LogDebug("NewPosition") << "moving by:" << posDiff;
+          LogDebug("NewRotation") << "rotating by:\n" << rotDiff;
+
           // add the surface deformations
           if (dold.size() != 0 && dtype != SurfaceDeformationFactory::kNoDeformations){
             std::vector<double> defDiff;
@@ -487,9 +490,6 @@ applyAlignableAbsolutePositions(const align::Alignables& alivec, const Alignable
             ali->addSurfaceDeformation(deform, true);
             delete deform;
           }
-          LogDebug("NewPosition") << "moving by:" << posDiff;
-          LogDebug("NewRotation") << "rotating by:\n" << rotDiff;
-          //might want to add LogDebug("NewDeformation") << deforming by
 
           // add position error
           // AlignmentPositionError ape(shift.x(),shift.y(),shift.z());
@@ -517,9 +517,6 @@ applyAlignableAbsolutePositions(const align::Alignables& alivec, const Alignable
 void AlignmentParameterStore::
 applyAlignableRelativePositions(const align::Alignables& alivec, const AlignableShifts& shifts, int& ierr)
 {
-  // Heshy note: should also add deformations in this function at some point.
-  //             I think Jered didn't because it's not callled, so it can wait.
-
   ierr=0;
   unsigned int nappl=0;
   unsigned int nAlignables = alivec.size();
@@ -544,7 +541,7 @@ applyAlignableRelativePositions(const align::Alignables& alivec, const Alignable
           SurfaceDeformation* dold_obj=0;
           SurfaceDeformationFactory::Type dtype = SurfaceDeformationFactory::kNoDeformations;
           std::vector<double> dold;
-          if (1 == ali->surfaceDeformationIdPairs(dold_id_pairs)) { // might not have any...
+          if (1 == ali->surfaceDeformationIdPairs(dold_id_pairs)){ // might not have any...
             dold_obj = dold_id_pairs[0].second;
             dold = dold_obj->parameters();
             dtype = (SurfaceDeformationFactory::Type)dold_obj->type();
