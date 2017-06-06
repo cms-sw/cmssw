@@ -4,6 +4,7 @@
 <use   name="Alignment/TrackerAlignment"/>
 <use   name="CondCore/DBOutputService"/>
 <use   name="CondFormats/Alignment"/>
+<use   name="CondFormats/RunInfo"/>
 <use   name="DataFormats/TrackReco"/>
 <use   name="DataFormats/MuonReco"/>
 <use   name="FWCore/PluginManager"/>
