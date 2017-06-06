@@ -233,7 +233,7 @@ HcalTriggerPrimitiveAlgo::addSignal(const QIE11DataFrame& frame)
 {
    HcalDetId detId(frame.id());
    // prevent QIE11 calibration channels from entering TP emulation
-   if(detId.subdet() != HcalEndcap) return;
+   if(detId.subdet() != HcalEndcap && detId.subdet() != HcalBarrel) return;
 
    std::vector<HcalTrigTowerDetId> ids = theTrigTowerGeometry->towerIds(detId);
    assert(ids.size() == 1 || ids.size() == 2);
