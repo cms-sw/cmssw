@@ -200,7 +200,7 @@ group.add_argument('--full',
                     action  = 'store_false',
                     default = not defaults.fragment,
                     help    = 'Generate a full configuration file, with minimal modifications (default)' )
-group.add_argument('--cff',
+group.add_argument('--fragment', '--cff',
                     dest    = 'fragment',
                     action  = 'store_true',
                     default = defaults.fragment,
