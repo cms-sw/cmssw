@@ -471,7 +471,7 @@ void FastjetJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
 	descFastjetJetProducer.add<bool> ("sumRecHits", false);
 
 	/////////////////////
-	descriptions.addDefault(descFastjetJetProducer);
+	descriptions.add("FastjetJetProducer",descFastjetJetProducer);
 
 }
 
