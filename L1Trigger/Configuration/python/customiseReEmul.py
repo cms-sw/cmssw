@@ -168,6 +168,25 @@ def L1TReEmulMCFromRAW(process):
             process.simOmtfDigis.srcCSC             = cms.InputTag('simCscTriggerPrimitiveDigis','MPCSORTED')
     return process
 
+def L1TReEmulMCFromRAWSimEcalTP(process):
+    L1TReEmulMCFromRAW(process)
+    if stage2L1Trigger.isChosen():
+            process.simCaloStage2Layer1Digis.ecalToken = cms.InputTag("simEcalTriggerPrimitiveDigis")
+    return process
+
+def L1TReEmulMCFromRAWSimHcalTP(process):
+    L1TReEmulMCFromRAW(process)
+    if stage2L1Trigger.isChosen():
+            process.simCaloStage2Layer1Digis.hcalToken = cms.InputTag('simHcalTriggerPrimitiveDigis')
+    return process
+
+def L1TReEmulMCFromRAWSimCalTP(process):
+    L1TReEmulMCFromRAW(process)
+    if stage2L1Trigger.isChosen():
+            process.simCaloStage2Layer1Digis.ecalToken = cms.InputTag("simEcalTriggerPrimitiveDigis")
+            process.simCaloStage2Layer1Digis.hcalToken = cms.InputTag('simHcalTriggerPrimitiveDigis')
+    return process
+
 def L1TReEmulFromRAWsimEcalTP(process):
     L1TReEmulFromRAW(process)
     if stage2L1Trigger.isChosen():
