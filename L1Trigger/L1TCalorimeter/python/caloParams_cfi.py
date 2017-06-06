@@ -26,6 +26,8 @@ caloParams = cms.ESProducer(
     regionPUSVersion = cms.int32(0),
     regionPUSParams  = cms.vdouble(),
 
+    pileUpTowerThreshold = cms.int32(0),
+
     # EG
     egEtaCut                   = cms.int32(28),
     egLsb                      = cms.double(0.5),
