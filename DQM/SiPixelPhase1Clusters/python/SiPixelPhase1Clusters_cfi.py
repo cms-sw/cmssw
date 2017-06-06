@@ -5,7 +5,7 @@ from DQM.SiPixelPhase1Common.HistogramManager_cfi import *
 SiPixelPhase1ClustersCharge = DefaultHistoDigiCluster.clone(
   name = "charge",
   title = "Cluster Charge",
-  range_min = 0, range_max = 200e3, range_nbins = 200,
+  range_min = 0, range_max = 300e3, range_nbins = 150,
   xlabel = "Charge (electrons)",
 
   specs = VPSet(
@@ -20,7 +20,7 @@ SiPixelPhase1ClustersCharge = DefaultHistoDigiCluster.clone(
 SiPixelPhase1ClustersSize = DefaultHistoDigiCluster.clone(
   name = "size",
   title = "Total Cluster Size",
-  range_min = 0, range_max = 30, range_nbins = 30,
+  range_min = 0, range_max = 50, range_nbins = 50,
   xlabel = "size[pixels]",
   specs = VPSet(
     StandardSpecification2DProfile,
@@ -34,7 +34,7 @@ SiPixelPhase1ClustersSize = DefaultHistoDigiCluster.clone(
 SiPixelPhase1ClustersSizeX = DefaultHistoDigiCluster.clone(
   name = "sizeX",
   title = "Cluster Size in X",
-  range_min = 0, range_max = 30, range_nbins = 30,
+  range_min = 0, range_max = 50, range_nbins = 50,
   xlabel = "size[pixels]",
   specs = VPSet(
     #StandardSpecification2DProfile,
@@ -48,7 +48,7 @@ SiPixelPhase1ClustersSizeX = DefaultHistoDigiCluster.clone(
 SiPixelPhase1ClustersSizeY = DefaultHistoDigiCluster.clone(
   name = "sizeY",
   title = "Cluster Size in Y",
-  range_min = 0, range_max = 30, range_nbins = 30,
+  range_min = 0, range_max = 50, range_nbins = 50,
   xlabel = "size[pixels]",
   specs = VPSet(
     #StandardSpecification2DProfile,
@@ -62,7 +62,7 @@ SiPixelPhase1ClustersSizeY = DefaultHistoDigiCluster.clone(
 SiPixelPhase1ClustersNClusters = DefaultHistoDigiCluster.clone(
   name = "clusters",
   title = "Clusters",
-  range_min = 0, range_max = 10, range_nbins = 10,
+  range_min = 0, range_max = 30, range_nbins = 30,
   xlabel = "clusters",
   dimensions = 0,
 
@@ -75,11 +75,11 @@ SiPixelPhase1ClustersNClusters = DefaultHistoDigiCluster.clone(
     Specification().groupBy("PXBarrel/PXLayer/Event") #this will produce inclusive counts per Layer/Disk
                              .reduce("COUNT")    
                              .groupBy("PXBarrel/PXLayer")
-                             .save(nbins=100, xmin=0, xmax=3000),
+                             .save(nbins=100, xmin=0, xmax=20000),
     Specification().groupBy("PXForward/PXDisk/Event")
                              .reduce("COUNT")    
                              .groupBy("PXForward/PXDisk/")
-                             .save(nbins=100, xmin=0, xmax=3000),
+                             .save(nbins=100, xmin=0, xmax=10000),
   )
 )
 
@@ -87,7 +87,7 @@ SiPixelPhase1ClustersNClusters = DefaultHistoDigiCluster.clone(
 SiPixelPhase1ClustersNClustersInclusive = DefaultHistoDigiCluster.clone(
   name = "clusters",
   title = "Clusters",
-  range_min = 0, range_max = 10000, range_nbins = 200,
+  range_min = 0, range_max = 30000, range_nbins = 150,
   xlabel = "clusters",
   dimensions = 0,
   specs = VPSet(
@@ -114,7 +114,7 @@ SiPixelPhase1ClustersEventrate = DefaultHistoDigiCluster.clone(
 SiPixelPhase1ClustersPositionB = DefaultHistoDigiCluster.clone(
   name = "clusterposition_zphi",
   title = "Cluster Positions",
-  range_min   =  -60, range_max   =  60, range_nbins   = 600,
+  range_min   =  -60, range_max   =  60, range_nbins   = 300,
   range_y_min = -3.2, range_y_max = 3.2, range_y_nbins = 200,
   xlabel = "Global Z", ylabel = "Global \phi",
   dimensions = 2,
@@ -194,7 +194,7 @@ SiPixelPhase1ClustersReadoutCharge = DefaultHistoReadout.clone(
 SiPixelPhase1ClustersReadoutNClusters = DefaultHistoReadout.clone(
   name = "clusters",
   title = "Clusters",
-  range_min = 0, range_max = 10, range_nbins = 10,
+  range_min = 0, range_max = 30, range_nbins = 30,
   xlabel = "clusters",
   dimensions = 0,
   specs = VPSet(
