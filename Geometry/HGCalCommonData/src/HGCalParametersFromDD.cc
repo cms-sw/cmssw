@@ -15,7 +15,8 @@
 //#define EDM_ML_DEBUG
 
 namespace {
-  int getGeometryMode(const char* s, const DDsvalues_type & sv, bool type) {
+  HGCalGeometryMode::GeometryMode getGeometryMode(const char* s, 
+						  const DDsvalues_type & sv) {
     DDValue val(s);
     if (DDfetch(&sv, val)) {
       const std::vector<std::string> & fvec = val.strings();
@@ -23,20 +24,27 @@ namespace {
         throw cms::Exception("HGCalGeom") << "Failed to get " << s << " tag.";
       }
 
-      int result(-1);
-      if (type) {
-	HGCalStringToEnumParser<HGCalGeometryMode::GeometryMode> eparser;
-	HGCalGeometryMode::GeometryMode mode = (HGCalGeometryMode::GeometryMode) eparser.parseString(fvec[0]);
-	result = (int)(mode);
-      } else {
-	HGCalStringToEnumParser<HGCalGeometryMode::WaferMode> eparser;
-	HGCalGeometryMode::WaferMode mode = (HGCalGeometryMode::WaferMode) eparser.parseString(fvec[0]);
-	result = (int)(mode);
-      }
+      HGCalStringToEnumParser<HGCalGeometryMode::GeometryMode> eparser;
+      HGCalGeometryMode::GeometryMode result = (HGCalGeometryMode::GeometryMode) eparser.parseString(fvec[0]);
       return result;
     } else {
-      throw cms::Exception("HGCalGeom") << "Failed to get "<< s 
-					<< " tag for type " << type << ".";
+      throw cms::Exception("HGCalGeom") << "Failed to get "<< s << " tag";
+    }
+  }
+  HGCalGeometryMode::WaferMode getGeometryWaferMode(const char* s,
+						    const DDsvalues_type & sv){
+    DDValue val(s);
+    if (DDfetch(&sv, val)) {
+      const std::vector<std::string> & fvec = val.strings();
+      if (fvec.size() == 0) {
+        throw cms::Exception("HGCalGeom") << "Failed to get " << s << " tag.";
+      }
+
+      HGCalStringToEnumParser<HGCalGeometryMode::WaferMode> eparser;
+      HGCalGeometryMode::WaferMode result = (HGCalGeometryMode::WaferMode) eparser.parseString(fvec[0]);
+      return result;
+    } else {
+      throw cms::Exception("HGCalGeom") << "Failed to get "<< s << " tag";
     }
   }
 }
@@ -63,15 +71,15 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
 
   if (ok) {
     DDsvalues_type sv(fv.mergedSpecifics());
-    php.mode_ = getGeometryMode("GeometryMode", sv, true);
+    php.mode_ = getGeometryMode("GeometryMode", sv);
 #ifdef EDM_ML_DEBUG
     std::cout << "GeometryMode " << php.mode_ <<":" << HGCalGeometryMode::Square
 	      << ":" << HGCalGeometryMode::Hexagon << ":" 
 	      << HGCalGeometryMode::HexagonFull << std::endl;
 #endif
     HGCalGeomParameters *geom = new HGCalGeomParameters();
-    if ((php.mode_ == static_cast<int> (HGCalGeometryMode::Hexagon)) ||
-	(php.mode_ == static_cast<int> (HGCalGeometryMode::HexagonFull))) {
+    if ((php.mode_ == HGCalGeometryMode::Hexagon) ||
+	(php.mode_ == HGCalGeometryMode::HexagonFull)) {
       attribute  = "OnlyForHGCalNumbering";
       value      = "HGCal";
       DDValue val2(attribute, value, 0.0);
@@ -80,26 +88,26 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
       bool ok2 = fv2.firstChild();
       if (ok2) {
 	DDsvalues_type sv2(fv2.mergedSpecifics());
-	mode = (HGCalGeometryMode::WaferMode)(getGeometryMode("WaferMode", sv2, false));
+	mode = getGeometryWaferMode("WaferMode", sv2);
 #ifdef EDM_ML_DEBUG
 	std::cout << "WaferMode " << mode << ":" << HGCalGeometryMode::Polyhedra
 		  << ":" << HGCalGeometryMode::ExtrudedPolygon << std::endl;
 #endif
       }
     }
-    if (php.mode_ == static_cast<int> (HGCalGeometryMode::Square)) {
+    if (php.mode_ == HGCalGeometryMode::Square) {
       //Load the SpecPars
       geom->loadSpecParsSquare(fv, php);
       //Load the Geometry parameters
       geom->loadGeometrySquare(fv, php, name);
-    } else if (php.mode_ == static_cast<int> (HGCalGeometryMode::Hexagon)) {
+    } else if (php.mode_ == HGCalGeometryMode::Hexagon) {
       //Load the SpecPars
       geom->loadSpecParsHexagon(fv, php, cpv, namew, namec);
       //Load the Geometry parameters
       geom->loadGeometryHexagon(fv, php, name, cpv, namew, namec, mode);
       //Load cell parameters
       geom->loadCellParsHexagon(cpv, php);
-    } else if (php.mode_ == static_cast<int> (HGCalGeometryMode::HexagonFull)){
+    } else if (php.mode_ == HGCalGeometryMode::HexagonFull) {
       //Load the SpecPars
       geom->loadSpecParsHexagon(fv, php, cpv, namew, namec);
       //Load the Geometry parameters

@@ -792,9 +792,9 @@ bool HGCalDDDConstants::waferInLayer(int wafer, int lay) const {
     else                                    cornerAll = false;
   }
   bool   in(false);
-  if (hgpar_->mode_ == static_cast<int> (HGCalGeometryMode::Hexagon)) 
+  if (hgpar_->mode_ == HGCalGeometryMode::Hexagon)
     in = cornerAll;
-  else if (hgpar_->mode_ == static_cast<int> (HGCalGeometryMode::HexagonFull))
+  else if (hgpar_->mode_ == HGCalGeometryMode::HexagonFull)
     in = cornerOne;
   return in;
 }
