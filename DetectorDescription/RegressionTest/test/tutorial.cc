@@ -36,8 +36,7 @@
 #include "DetectorDescription/Core/interface/DDValue.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "DetectorDescription/Core/interface/adjgraph.h"
-#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
-#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
+#include "DetectorDescription/Core/interface/ClhepEvaluator.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Math/GenVector/Cartesian3D.h"
 #include "Math/GenVector/DisplacementVector3D.h"
@@ -371,7 +370,7 @@ void tutorial()
       
 	double dv = 0.;
 	try {
-	  dv = ExprEvalSingleton::instance().eval("",v);
+	  dv = DDI::Singleton<ClhepEvaluator>::instance().eval("",v);
 	}
 	catch (const cms::Exception & e) {
 	  dv = 0;
