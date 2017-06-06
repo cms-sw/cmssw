@@ -130,7 +130,7 @@ ZDCDigiCollection HcalDataFrameFilter::filter(const ZDCDigiCollection& incol, Hc
 }
 
 QIE10DigiCollection HcalDataFrameFilter::filter(const QIE10DigiCollection& incol, HcalUnpackerReport& r) {
-  QIE10DigiCollection output;
+  QIE10DigiCollection output(incol.samples());
   for (QIE10DigiCollection::const_iterator i=incol.begin(); i!=incol.end(); i++) {
     if (!HcalDataFrameFilter_impl::checkQIE10(*i,requireCapid_,requireDVER_))
       r.countBadQualityDigi(i->id());
@@ -142,7 +142,7 @@ QIE10DigiCollection HcalDataFrameFilter::filter(const QIE10DigiCollection& incol
 }
 
 QIE11DigiCollection HcalDataFrameFilter::filter(const QIE11DigiCollection& incol, HcalUnpackerReport& r) {
-  QIE11DigiCollection output;
+  QIE11DigiCollection output(incol.samples());
   for (QIE11DigiCollection::const_iterator i=incol.begin(); i!=incol.end(); i++) {
     if (!HcalDataFrameFilter_impl::checkQIE11(*i,requireCapid_,requireDVER_))
       r.countBadQualityDigi(i->id());
