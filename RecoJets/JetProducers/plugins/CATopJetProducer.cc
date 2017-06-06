@@ -144,41 +144,26 @@ void CATopJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
 								//  1,	deltar adjacency 
 								//  2,	modified adjacency
 								//  3,	calotower neirest neigbor based adjacency (untested)
-	vector<double>  sumEtBinsDefault;
-	sumEtBinsDefault.push_back(0);
-	sumEtBinsDefault.push_back(1600);
-	sumEtBinsDefault.push_back(2600);
-	desc.add<vector<double>>("sumEtBins",	sumEtBinsDefault); 	// sumEt bins over which cuts vary. vector={bin 0 lower bound, bin 1 lower bound, ...} 
-	vector<double>  rBinsDefault;
-	rBinsDefault.push_back(0.8);
-	rBinsDefault.push_back(0.8);
-	rBinsDefault.push_back(0.8);
-	desc.add<vector<double>>("rBins", 	rBinsDefault); 		// Jet distance paramter R. R values depend on sumEt bins.
-	vector<double>  ptFracBinsDefault;
-	ptFracBinsDefault.push_back(0.05);
-	ptFracBinsDefault.push_back(0.05);
-	ptFracBinsDefault.push_back(0.05);
-	desc.add<vector<double>>("ptFracBins", 	ptFracBinsDefault); 	// minimum fraction of central jet pt for subjets (deltap)
-	vector<double>  deltarBinsDefault;
-	deltarBinsDefault.push_back(0.019);
-	deltarBinsDefault.push_back(0.019);
-	deltarBinsDefault.push_back(0.019);
-	desc.add<vector<double>>("deltarBins",	deltarBinsDefault); 	// Applicable only if useAdjacency=1. deltar adjacency values for each sumEtBin
-	vector<double>  nCellBinsDefault;
-	nCellBinsDefault.push_back(1.9);
-	nCellBinsDefault.push_back(1.9);
-	nCellBinsDefault.push_back(1.9);
-	desc.add<vector<double>>("nCellBins", 	nCellBinsDefault); 	// Applicable only if useAdjacency=3. number of cells apart for two subjets to be considered "independent"
+	vector<double>  sumEtBinsDefault={0.,1600.,2600.};
+	desc.add<vector<double>>("sumEtBins",  sumEtBinsDefault); 	// sumEt bins over which cuts vary. vector={bin 0 lower bound, bin 1 lower bound, ...} 
+	vector<double>  rBinsDefault(3,0.8);
+	desc.add<vector<double>>("rBins",      rBinsDefault); 		// Jet distance paramter R. R values depend on sumEt bins.
+	vector<double>  ptFracBinsDefault(3,0.05);
+	desc.add<vector<double>>("ptFracBins", ptFracBinsDefault); 	// minimum fraction of central jet pt for subjets (deltap)
+	vector<double>  deltarBinsDefault(3,0.019);
+	desc.add<vector<double>>("deltarBins", deltarBinsDefault); 	// Applicable only if useAdjacency=1. deltar adjacency values for each sumEtBin
+	vector<double>  nCellBinsDefault(3,1.9);
+	desc.add<vector<double>>("nCellBins",  nCellBinsDefault); 	// Applicable only if useAdjacency=3. number of cells apart for two subjets to be considered "independent"
 	desc.add<bool>("useMaxTower", 	false); 			// use max tower in adjacency criterion, otherwise use centroid - NOT USED
-	desc.add<double>("sumEtEtaCut", 3.0); 				// eta for event SumEt - NOT USED                                                 
-	desc.add<double>("etFrac", 	0.7); 				// fraction of event sumEt / 2 for a jet to be considered "hard" - NOT USED
-	desc.add<double>("ptFrac", 	0.05); 
-	desc.add<double>("rFrac", 	0); 
-	desc.add<double>("adjacencyParam", 	0); 
-	desc.add<double>("deltaRCut", 	0.19); 
-	desc.add<double>("cosThetaWMax", 	0.7); 
-	desc.add<double>("tau2Cut", 	0); 
-	desc.add<double>("cosThetaSCut", 	0); 
+	desc.add<double>("sumEtEtaCut",    3.0); 			// eta for event SumEt - NOT USED                                                 
+	desc.add<double>("etFrac", 	   0.7); 			// fraction of event sumEt / 2 for a jet to be considered "hard" - NOT USED
+	desc.add<double>("ptFrac", 	   0.05); 
+	desc.add<double>("rFrac",          0.); 
+	desc.add<double>("adjacencyParam", 0.); 
+	desc.add<double>("deltaRCut", 	   0.19); 
+	desc.add<double>("cosThetaWMax",   0.7); 
+	desc.add<double>("tau2Cut",        0.); 
+	desc.add<double>("cosThetaSCut",   0.); 
 	desc.add<bool>("useExclusive", 	false); 
 	////// From FastjetJetProducer
 	FastjetJetProducer::fillDescriptionsFromFastJetProducer(desc);

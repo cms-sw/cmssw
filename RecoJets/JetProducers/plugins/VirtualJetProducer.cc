@@ -137,10 +137,10 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig) {
 	useExplicitGhosts_ 	= iConfig.getParameter<bool>	("useExplicitGhosts");  // use explicit ghosts in the fastjet clustering sequence?
 	doAreaDiskApprox_ 	= iConfig.getParameter<bool>	("doAreaDiskApprox");
 	voronoiRfact_     	= iConfig.getParameter<double>	("voronoiRfact"); 	// Voronoi-based area calculation allows for an empirical scale factor
-	rhoEtaMax		= iConfig.getParameter<double>	("Rho_EtaMax"); 		// do fasjet area / rho calcluation? => accept corresponding parameters
-	ghostEtaMax 		= iConfig.getParameter<double>	("Ghost_EtaMax");
-	activeAreaRepeats 	= iConfig.getParameter<int> 	("Active_Area_Repeats");
-	ghostArea 		= iConfig.getParameter<double> 	("GhostArea");
+	rhoEtaMax_		= iConfig.getParameter<double>	("Rho_EtaMax"); 		// do fasjet area / rho calcluation? => accept corresponding parameters
+	ghostEtaMax_ 		= iConfig.getParameter<double>	("Ghost_EtaMax");
+	activeAreaRepeats_ 	= iConfig.getParameter<int> 	("Active_Area_Repeats");
+	ghostArea_ 		= iConfig.getParameter<double> 	("GhostArea");
 	restrictInputs_ 	= iConfig.getParameter<bool>	("restrictInputs"); 	// restrict inputs to first "maxInputs" towers?
 	maxInputs_      	= iConfig.getParameter<unsigned int>("maxInputs");
 	writeCompound_ 		= iConfig.getParameter<bool>	("writeCompound"); 	// Check to see if we are writing compound jets for substructure and jet grooming
@@ -217,7 +217,7 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig) {
 	if ( doAreaFastjet_ || doRhoFastjet_ ) {
 
 		if (voronoiRfact_ <= 0) {
-			fjActiveArea_     = ActiveAreaSpecPtr(new fastjet::GhostedAreaSpec(ghostEtaMax,activeAreaRepeats,ghostArea));
+			fjActiveArea_     = ActiveAreaSpecPtr(new fastjet::GhostedAreaSpec(ghostEtaMax_,activeAreaRepeats_,ghostArea_));
 			fjActiveArea_->set_fj2_placement(true);
 
 			if ( !useExplicitGhosts_ ) {
@@ -226,7 +226,7 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig) {
 				fjAreaDefinition_ = AreaDefinitionPtr( new fastjet::AreaDefinition(fastjet::active_area_explicit_ghosts, *fjActiveArea_ ) );
 			}
 		}
-		fjRangeDef_ = RangeDefPtr( new fastjet::RangeDefinition(rhoEtaMax) );
+		fjRangeDef_ = RangeDefPtr( new fastjet::RangeDefinition(rhoEtaMax_) );
 	} 
 
 	if( ( doFastJetNonUniform_ ) && ( puCenters_.size() == 0 ) ) 
