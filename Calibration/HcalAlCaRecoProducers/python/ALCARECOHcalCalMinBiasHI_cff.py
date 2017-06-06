@@ -26,7 +26,8 @@ hfrecoMBNZS.dropZSmarkedPassed = cms.bool(False)
 
 import RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_ho_cfi
 
-seqALCARECOHcalCalMinBias = cms.Sequence(hcalminbiasHLT*hcalDigiAlCaMB*gtDigisAlCaMB*hbherecoNoise*hfrecoNoise*hfrecoMBNZS*horecoNoise)
+seqALCARECOHcalCalMinBiasDigi = cms.Sequence(hcalminbiasHLT*hcalDigiAlCaMB*gtDigisAlCaMB)
+seqALCARECOHcalCalMinBias = cms.Sequence(hbherecoNoise*hfrecoNoise*hfrecoMBNZS*horecoNoise)
 
 import RecoLocalCalo.HcalRecProducers.hfprereco_cfi
 hfprerecoMBNZS = RecoLocalCalo.HcalRecProducers.hfprereco_cfi.hfprereco.clone(
