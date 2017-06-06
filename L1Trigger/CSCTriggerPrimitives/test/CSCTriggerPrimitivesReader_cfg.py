@@ -44,8 +44,6 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.globaltag = 'DESIGN_31X_V8::All'
 process.GlobalTag.globaltag = 'MC_61_V1::All'
 
-# Enable floating point exceptions
-#process.EnableFloatingPointExceptions = cms.Service("EnableFloatingPointExceptions")
 #process.Tracer = cms.Service("Tracer")
 
 process.TFileService = cms.Service("TFileService",
