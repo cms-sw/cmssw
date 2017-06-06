@@ -45,26 +45,6 @@ interestingGedGamIsoDetIdEE.outerRadius = 0.6
 interestingGedGamIsoDetIdEE.innerRadius = 0.0
 
 import RecoEgamma.EgammaIsolationAlgos.interestingGamIsoDetIdModule_cff
-interestingOotGamIsoDetIdEB = RecoEgamma.EgammaIsolationAlgos.interestingGamIsoDetIdModule_cff.interestingGamIsoDetId.clone()
-interestingOotGamIsoDetIdEB.recHitsLabel = 'ecalRecHit:EcalRecHitsEB'
-interestingOotGamIsoDetIdEB.emObjectLabel = 'ootPhotons'
-interestingOotGamIsoDetIdEB.etCandCut = 0.0
-interestingOotGamIsoDetIdEB.energyCut = 0.095
-interestingOotGamIsoDetIdEB.etCut = 0.0
-interestingOotGamIsoDetIdEB.outerRadius = 0.6
-interestingOotGamIsoDetIdEB.innerRadius = 0.0
-
-import RecoEgamma.EgammaIsolationAlgos.interestingGamIsoDetIdModule_cff
-interestingOotGamIsoDetIdEE = RecoEgamma.EgammaIsolationAlgos.interestingGamIsoDetIdModule_cff.interestingGamIsoDetId.clone()
-interestingOotGamIsoDetIdEE.recHitsLabel = 'ecalRecHit:EcalRecHitsEE'
-interestingOotGamIsoDetIdEE.emObjectLabel = 'ootPhotons'
-interestingOotGamIsoDetIdEE.etCandCut = 0.0
-interestingOotGamIsoDetIdEE.energyCut = 0.0
-interestingOotGamIsoDetIdEE.etCut = 0.110
-interestingOotGamIsoDetIdEE.outerRadius = 0.6
-interestingOotGamIsoDetIdEE.innerRadius = 0.0
-
-import RecoEgamma.EgammaIsolationAlgos.interestingGamIsoDetIdModule_cff
 interestingGamIsoDetIdEB = RecoEgamma.EgammaIsolationAlgos.interestingGamIsoDetIdModule_cff.interestingGamIsoDetId.clone()
 interestingGamIsoDetIdEB.recHitsLabel = 'ecalRecHit:EcalRecHitsEB'
 interestingGamIsoDetIdEB.emObjectLabel = 'photons'
@@ -89,30 +69,25 @@ interestingGedEgammaIsoHCALDetId = RecoEgamma.EgammaIsolationAlgos.interestingEg
 interestingGedEgammaIsoHCALDetId.recHitsLabel=cms.InputTag("hbhereco")
 interestingGedEgammaIsoHCALDetId.elesLabel=cms.InputTag("gedGsfElectrons")
 interestingGedEgammaIsoHCALDetId.phosLabel=cms.InputTag("gedPhotons")
-interestingGedEgammaIsoHCALDetId.ootPhosLabel=cms.InputTag("ootPhotons")
 interestingGedEgammaIsoHCALDetId.superClustersLabel=cms.InputTag("particleFlowEGamma")
 interestingGedEgammaIsoHCALDetId.minSCEt=cms.double(20)
 interestingGedEgammaIsoHCALDetId.minEleEt=cms.double(20)
 interestingGedEgammaIsoHCALDetId.minPhoEt=cms.double(20)
-interestingGedEgammaIsoHCALDetId.minOOTPhoEt=cms.double(20)
 interestingGedEgammaIsoHCALDetId.maxDIEta=cms.int32(5)
 interestingGedEgammaIsoHCALDetId.maxDIPhi=cms.int32(5)
 interestingGedEgammaIsoHCALDetId.minEnergyHCAL = cms.double(0.8)
+
 
 import RecoEgamma.EgammaIsolationAlgos.interestingEgammaIsoESDetIdModule_cff
 interestingGedEgammaIsoESDetId = RecoEgamma.EgammaIsolationAlgos.interestingEgammaIsoESDetIdModule_cff.interestingEgammaIsoESDetId.clone()
 interestingGedEgammaIsoESDetId.eeClusToESMapLabel=cms.InputTag("particleFlowClusterECALRemade")
 interestingGedEgammaIsoESDetId.ecalPFClustersLabel=cms.InputTag("particleFlowClusterECALRemade")
-interestingGedEgammaIsoESDetId.ootEEClusToESMapLabel=cms.InputTag("particleFlowClusterOOTECAL")
-interestingGedEgammaIsoESDetId.ootEcalPFClustersLabel=cms.InputTag("particleFlowClusterOOTECAL")
 interestingGedEgammaIsoESDetId.elesLabel=cms.InputTag("gedGsfElectrons")
 interestingGedEgammaIsoESDetId.phosLabel=cms.InputTag("gedPhotons")
-interestingGedEgammaIsoESDetId.ootPhosLabel=cms.InputTag("ootPhotons")
 interestingGedEgammaIsoESDetId.superClustersLabel=cms.InputTag("particleFlowEGamma")
 interestingGedEgammaIsoESDetId.minSCEt=cms.double(500)
 interestingGedEgammaIsoESDetId.minEleEt=cms.double(20)
 interestingGedEgammaIsoESDetId.minPhoEt=cms.double(20)
-interestingGedEgammaIsoESDetId.minOOTPhoEt=cms.double(20)
 interestingGedEgammaIsoESDetId.maxDR=cms.double(0.4)
 
 interestingEgammaIsoDetIds = cms.Sequence(
@@ -120,8 +95,6 @@ interestingEgammaIsoDetIds = cms.Sequence(
     interestingGedEleIsoDetIdEE * 
     interestingGedGamIsoDetIdEB * 
     interestingGedGamIsoDetIdEE *   
-    interestingOotGamIsoDetIdEB * 
-    interestingOotGamIsoDetIdEE *   
     interestingGamIsoDetIdEB * 
     interestingGamIsoDetIdEE *
     interestingGedEgammaIsoHCALDetId*
