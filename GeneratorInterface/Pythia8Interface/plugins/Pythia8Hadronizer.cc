@@ -32,6 +32,7 @@ using namespace Pythia8;
 
 // Resonance scale hook
 #include "GeneratorInterface/Pythia8Interface/plugins/PowhegResHook.h"
+#include "GeneratorInterface/Pythia8Interface/plugins/PowhegHooksBB4L.h"
 
 //decay filter hook
 #include "GeneratorInterface/Pythia8Interface/interface/ResonanceDecayFilterHook.h"
@@ -129,6 +130,7 @@ class Pythia8Hadronizer : public BaseHadronizer, public Py8InterfaceBase {
     
     // Resonance scale hook
     PowhegResHook* fPowhegResHook;
+    PowhegHooksBB4L* fPowhegHooksBB4L;
     
     //resonance decay filter hook
     ResonanceDecayFilterHook *fResonanceDecayFilterHook;
@@ -155,6 +157,7 @@ class Pythia8Hadronizer : public BaseHadronizer, public Py8InterfaceBase {
 
     int nISRveto;
     int nFSRveto;
+    int nFSRvetoBB4L;
 
     int NHooks;
 
@@ -169,7 +172,7 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   fInitialState(PP),
   fMultiUserHook(new MultiUserHook), fReweightUserHook(0),fReweightRapUserHook(0),fReweightPtHatRapUserHook(0),
   fJetMatchingHook(0),fJetMatchingPy8InternalHook(0), fMergingHook(0),
-  fEmissionVetoHook(0), fEmissionVetoHook1(0), fResonanceDecayFilterHook(0), fPTFilterHook(0), nME(-1), nMEFiltered(-1), nISRveto(0), nFSRveto(0),
+  fEmissionVetoHook(0), fEmissionVetoHook1(0), fResonanceDecayFilterHook(0), fPTFilterHook(0), nME(-1), nMEFiltered(-1), nISRveto(0), nFSRveto(0), nFSRvetoBB4L(0),
   NHooks(0)
 {
 
@@ -267,6 +270,9 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   
   //add settings for powheg resonance scale calculation
   fMasterGen->settings.addFlag("POWHEGres:calcScales",false);
+  fMasterGen->settings.addFlag("POWHEG:bb4l",false);
+  fMasterGen->settings.addFlag("POWHEG:bb4l:onlyDistance1",false);
+  fMasterGen->settings.addFlag("POWHEG:bb4l:useScaleResonanceInstead",false);
 
   // Reweight user hook
   //
@@ -430,6 +436,13 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
     fMultiUserHook->addHook(fPowhegResHook);
   }
   
+  bool PowhegBB4L = fMasterGen->settings.flag("POWHEG:bb4l");
+  if (PowhegBB4L) {
+    edm::LogInfo("Pythia8Interface") << "Turning on BB4l hook from CMSSW Pythia8Interface";
+    fPowhegHooksBB4L = new PowhegHooksBB4L();
+    fMultiUserHook->addHook(fPowhegHooksBB4L);
+  }
+  
   bool resonanceDecayFilter = fMasterGen->settings.flag("ResonanceDecayFilter:filter");
   if (resonanceDecayFilter && !fResonanceDecayFilterHook) {
     fResonanceDecayFilterHook = new ResonanceDecayFilterHook;
@@ -500,6 +513,13 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
     edm::LogInfo("Pythia8Interface") << "Turning on resonance scale setting from CMSSW Pythia8Interface";
     fPowhegResHook = new PowhegResHook();
     fMultiUserHook->addHook(fPowhegResHook);
+  }
+  
+  bool PowhegBB4L = fMasterGen->settings.flag("POWHEG:bb4l");
+  if (PowhegBB4L) {
+    edm::LogInfo("Pythia8Interface") << "Turning on BB4l hook from CMSSW Pythia8Interface";
+    fPowhegHooksBB4L = new PowhegHooksBB4L();
+    fMultiUserHook->addHook(fPowhegHooksBB4L);
   }
 
   //adapted from main89.cc in pythia8 examples
@@ -608,6 +628,10 @@ void Pythia8Hadronizer::statistics()
     edm::LogPrint("Pythia8Interface")
       << "Number of FSR vetoed = " << nFSRveto;
   }
+  if(fPowhegHooksBB4L) {
+    edm::LogInfo("Pythia8Interface") << "\n"
+      << "BB4L: Number of FSR vetoed = " << nFSRvetoBB4L;
+  }
 
   double xsec = fMasterGen->info.sigmaGen(); // cross section in mb
   xsec *= 1.0e9; // translate to pb (CMS/Gen "convention" as of May 2009)
@@ -637,6 +661,14 @@ bool Pythia8Hadronizer::generatePartonsAndHadronize()
       double wgt = fMasterGen->info.getWeightsCompressedValue(i);
       event()->weights().push_back(wgt);
     }
+  }
+
+  if (fEmissionVetoHook) {
+    nISRveto += fEmissionVetoHook->getNISRveto();
+    nFSRveto += fEmissionVetoHook->getNFSRveto();  
+  }
+  if (fPowhegHooksBB4L) {
+    nFSRvetoBB4L += fPowhegHooksBB4L->getNFSRveto();
   }
   
   return true;
