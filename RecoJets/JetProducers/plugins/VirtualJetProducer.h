@@ -183,10 +183,10 @@ protected:
   bool                  doFastJetNonUniform_;       // choice of eta-dependent PU calculation
   double                voronoiRfact_;              // negative to calculate rho using active area (ghosts); otherwise calculates Voronoi area with this effective scale factor
 
-  double                rhoEtaMax;                  // Eta range of jets to be considered for Rho calculation; Should be at most (jet acceptance - jet radius)
-  double                ghostEtaMax;              // default Ghost_EtaMax should be 5
-  int                   activeAreaRepeats;        // default Active_Area_Repeats 1
-  double                ghostArea;                // default GhostArea 0.01
+  double                rhoEtaMax_;                 // Eta range of jets to be considered for Rho calculation; Should be at most (jet acceptance - jet radius)
+  double                ghostEtaMax_;               // default Ghost_EtaMax should be 5
+  int                   activeAreaRepeats_;         // default Active_Area_Repeats 1
+  double                ghostArea_;                 // default GhostArea 0.01
 
   // for pileup offset correction
   bool                  doPUOffsetCorr_;            // add the pileup calculation from offset correction? 
