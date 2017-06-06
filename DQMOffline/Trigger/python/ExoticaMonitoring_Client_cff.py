@@ -16,7 +16,7 @@ metEfficiency = DQMEDHarvester("DQMGenericClient",
   
 )
 
-NoBPTXEfficiency = DQMEDHarvester("MyHarvester",
+NoBPTXEfficiency = DQMEDHarvester("DQMGenericClient",
     subDirs        = cms.untracked.vstring("HLT/NoBPTX/*"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
