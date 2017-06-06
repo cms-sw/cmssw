@@ -5,6 +5,7 @@
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
 #include "Alignment/CommonAlignment/interface/AlignableDetOrUnitPtr.h"
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
+#include "Alignment/CommonAlignment/interface/AlignableNavigator.h"  
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentIORoot.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Riostream.h"
@@ -16,7 +17,6 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h" 	 
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h" 	 
 
-class AlignableNavigator;
 class TFile;
 class TTree;
 
@@ -64,7 +64,7 @@ class HIPAlignmentAlgorithm : public AlignmentAlgorithmBase
   int readIterationFile(std::string filename);
   void writeIterationFile(std::string filename, int iter);
   void setAlignmentPositionError(void);
-  double calcAPE(double* par, int iter, double function);
+  double calcAPE(double* par, int iter, int function);
   void bookRoot(void);
   void fillRoot(const edm::EventSetup& setup);
   bool calcParameters(Alignable* ali,int setDet, double start, double step);
@@ -76,7 +76,7 @@ class HIPAlignmentAlgorithm : public AlignmentAlgorithmBase
   std::unique_ptr<AlignableObjectId> alignableObjectId_;
   AlignmentParameterStore* theAlignmentParameterStore;
   std::vector<Alignable*> theAlignables;
-  AlignableNavigator* theAlignableDetAccessor;
+  std::unique_ptr<AlignableNavigator> theAlignableDetAccessor;
 
   AlignmentIORoot theIO;
   int ioerr;
@@ -87,8 +87,8 @@ class HIPAlignmentAlgorithm : public AlignmentAlgorithmBase
   // verbosity flag
   bool verbose;
   // names of IO root files
-  std::string outfile,outfile2,outpath,suvarfile,sparameterfile;
-  std::string struefile,smisalignedfile,salignedfile,siterationfile,ssurveyfile;
+  std::string outfile, outfilecore, outfile2, outpath, suvarfilecore, suvarfile, sparameterfile;
+  std::string struefile, smisalignedfile, salignedfile, siterationfile, ssurveyfile;
 
   // alignment position error parameters
   bool theApplyAPE;
