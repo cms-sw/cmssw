@@ -21,8 +21,7 @@ class AnyNumberAssociationAdaptor {
             tokenVMb_(iC.consumes<edm::ValueMap<bool>   >(in)),
             tokenAVd_(iC.consumes<AssoVec<double>::type >(in)),
             tokenAVf_(iC.consumes<AssoVec<float>::type  >(in)),
-            tokenAVi_(iC.consumes<AssoVec<int>::type    >(in)),
-            tokenAVb_(iC.consumes<AssoVec<bool>::type   >(in))            
+            tokenAVi_(iC.consumes<AssoVec<int>::type    >(in))
             { }
 
         const std::string & label() { return label_; }
@@ -37,7 +36,6 @@ class AnyNumberAssociationAdaptor {
                      if (run_<AssoVec<double>::type >(tokenAVd_, iEvent, coll, ret)) { type_ = AssoVecDouble;  return true; }
                      if (run_<AssoVec<float>::type  >(tokenAVf_, iEvent, coll, ret)) { type_ = AssoVecFloat;   return true; }
                      if (run_<AssoVec<int>::type    >(tokenAVi_, iEvent, coll, ret)) { type_ = AssoVecInt;     return true; }
-                     if (run_<AssoVec<bool>::type   >(tokenAVb_, iEvent, coll, ret)) { type_ = AssoVecBool;    return true; }
                      type_ = Nothing; return false;
                      break;
                 case ValueMapDouble : return run_<edm::ValueMap<double> >(tokenVMd_, iEvent, coll, ret);
@@ -47,7 +45,6 @@ class AnyNumberAssociationAdaptor {
                 case AssoVecDouble  : return run_<AssoVec<double>::type >(tokenAVd_, iEvent, coll, ret);
                 case AssoVecFloat   : return run_<AssoVec<float>::type  >(tokenAVf_, iEvent, coll, ret);
                 case AssoVecInt     : return run_<AssoVec<int>::type    >(tokenAVi_, iEvent, coll, ret);
-                case AssoVecBool    : return run_<AssoVec<bool>::type   >(tokenAVb_, iEvent, coll, ret);
                 case Nothing        : return false;
             }
             return false;
@@ -55,7 +52,7 @@ class AnyNumberAssociationAdaptor {
     private:
         enum Type { Uninitialized  = 0,
                     ValueMapDouble, ValueMapFloat, ValueMapInt, ValueMapBool,
-                    AssoVecDouble ,  AssoVecFloat,  AssoVecInt,  AssoVecBool,
+                    AssoVecDouble ,  AssoVecFloat,  AssoVecInt,
                     Nothing };
         template<typename T> bool   run_(const edm::EDGetTokenT<T> & token, const edm::Event &iEvent, const Collection &coll, std::vector<value_type> &ret) ;
         Type type_;
@@ -68,7 +65,6 @@ class AnyNumberAssociationAdaptor {
         edm::EDGetTokenT<AssoVec<double>::type > tokenAVd_;
         edm::EDGetTokenT<AssoVec<float>::type  > tokenAVf_;
         edm::EDGetTokenT<AssoVec<int>::type    > tokenAVi_;
-        edm::EDGetTokenT<AssoVec<bool>::type   > tokenAVb_;
 
 };
     
