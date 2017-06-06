@@ -481,15 +481,25 @@ applyAlignableAbsolutePositions(const align::Alignables& alivec, const Alignable
           LogDebug("NewRotation") << "rotating by:\n" << rotDiff;
 
           // add the surface deformations
-          if (dold.size() != 0 && dtype != SurfaceDeformationFactory::kNoDeformations){
+          // If an old surface deformation record exists, ensure that the added deformation has the same type and size.
+          if (dold.size() != 0 && dtype != SurfaceDeformationFactory::kNoDeformations && dnew.size()==dold.size()){
             std::vector<double> defDiff;
             for (unsigned int i = 0; i < dold.size(); i++) defDiff.push_back(dnew[i] - dold[i]);
             auto deform = SurfaceDeformationFactory::create(dtype, defDiff);
-            LogDebug("Alignment") << "@SUB=AlignmentParameterStore::applyAlignableAbsolutePositions"
-              << "Surface deformation of type " << dtype << ", size " << defDiff.size() << " and first element " << defDiff.at(0);
+            edm::LogInfo("Alignment") << "@SUB=AlignmentParameterStore::applyAlignableAbsolutePositions"
+              << "Adding surface deformation of type " << SurfaceDeformationFactory::surfaceDeformationTypeName((SurfaceDeformationFactory::Type)deform->type()) << ", size " << defDiff.size() << " and first element " << defDiff.at(0);
             ali->addSurfaceDeformation(deform, true);
             delete deform;
           }
+          // In case no old surface deformation record exists, only ensure that the new surface deformation record has size>0. Size check is done elsewhere.
+          else if (dnew.size()!=0){
+            auto deform = SurfaceDeformationFactory::create(dnew);
+            edm::LogInfo("Alignment") << "@SUB=AlignmentParameterStore::applyAlignableAbsolutePositions"
+              << "Setting surface deformation of type " << SurfaceDeformationFactory::surfaceDeformationTypeName((SurfaceDeformationFactory::Type)deform->type()) << ", size " << dnew.size() << " and first element " << dnew.at(0);
+            ali->addSurfaceDeformation(deform, true); // Equivalent to setSurfaceDeformation in this case
+            delete deform;
+          }
+          // If there is no new surface deformation record, do nothing.
 
           // add position error
           // AlignmentPositionError ape(shift.x(),shift.y(),shift.z());
@@ -551,14 +561,25 @@ applyAlignableRelativePositions(const align::Alignables& alivec, const Alignable
 
           ali->move(ipos->pos());
           ali->rotateInGlobalFrame(ipos->rot());
-          if (dold.size() != 0 && dtype != SurfaceDeformationFactory::kNoDeformations){
-            const std::vector<double> defDiff = ipos->deformationParameters();
-            LogDebug("Alignment") << "@SUB=AlignmentParameterStore::applyAlignableRelativePositions"
-              << "Surface deformation of type " << dtype << ", size " << defDiff.size() << " and first element " << defDiff.at(0);
+
+          const std::vector<double> defDiff = ipos->deformationParameters();
+          // If an old surface deformation record exists, ensure that the added deformation has the same type and size.
+          if (dold.size() != 0 && dtype != SurfaceDeformationFactory::kNoDeformations && defDiff.size()==dold.size()){
             auto deform = SurfaceDeformationFactory::create(dtype, defDiff);
+            edm::LogInfo("Alignment") << "@SUB=AlignmentParameterStore::applyAlignableRelativePositions"
+              << "Adding surface deformation of type " << SurfaceDeformationFactory::surfaceDeformationTypeName((SurfaceDeformationFactory::Type)deform->type()) << ", size " << defDiff.size() << " and first element " << defDiff.at(0);
             ali->addSurfaceDeformation(deform, true);
             delete deform;
           }
+          // In case no old surface deformation record exists, only ensure that the new surface deformation record has size>0. Size check is done elsewhere.
+          else if (defDiff.size()!=0){
+            auto deform = SurfaceDeformationFactory::create(defDiff);
+            edm::LogInfo("Alignment") << "@SUB=AlignmentParameterStore::applyAlignableRelativePositions"
+              << "Setting surface deformation of type " << SurfaceDeformationFactory::surfaceDeformationTypeName((SurfaceDeformationFactory::Type)deform->type()) << ", size " << defDiff.size() << " and first element " << defDiff.at(0);
+            ali->addSurfaceDeformation(deform, true); // Equivalent to setSurfaceDeformation in this case
+            delete deform;
+          }
+          // If there is no new surface deformation record, do nothing.
 
           // Add position error
           //AlignmentPositionError ape(pnew.x(),pnew.y(),pnew.z());
