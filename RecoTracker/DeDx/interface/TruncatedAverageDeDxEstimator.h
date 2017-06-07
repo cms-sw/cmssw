@@ -1,6 +1,7 @@
 #ifndef RecoTrackerDeDx_TruncatedAverageDeDxEstimator_h
 #define RecoTrackerDeDx_TruncatedAverageDeDxEstimator_h
 
+#include "RecoTracker/DeDx/interface/BaseDeDxEstimator.h"
 #include "RecoTracker/DeDx/interface/DeDxTools.h"
 #include "DataFormats/TrackReco/interface/DeDxHit.h"
 #include <numeric>
