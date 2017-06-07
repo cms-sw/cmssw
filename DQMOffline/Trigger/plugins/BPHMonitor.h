@@ -158,6 +158,7 @@ METME  DiMudR_   ;
   StringCutObjectSelector<reco::Muon,true>        muoSelection_probe;
   int nmuons_;
   int tnp_;
+  int L3_;
   int trOrMu_;
   int Jpsi_;
   int Upsilon_;
