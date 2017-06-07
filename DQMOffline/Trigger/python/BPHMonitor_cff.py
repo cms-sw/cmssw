@@ -344,7 +344,7 @@ Dimuon20_masscut1.numGenericTriggerEventPSet.l1Algorithms = cms.vstring("L1_Doub
 Dimuon20_masscut1.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Dimuon0_Upsilon_L1_4p5er2p0_v*")
 Dimuon20_masscut1.denGenericTriggerEventPSet.l1Algorithms = cms.vstring("L1_DoubleMu4p5er2p0_SQ_OS")
 Dimuon20_masscut1.muoSelection_ref = cms.string("pt>5 && abs(eta)<2.0 &  isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0 ")
-Dimuon20_masscut1.DMSelection_ref = cms.string("M<18 & M>7 & Pt>21 & abs(Eta)<1.2")
+Dimuon20_masscut1.DMSelection_ref = cms.string("M<18 & M>7 & Pt>11 & abs(Eta)<1.2")
 
 
 
