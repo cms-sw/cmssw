@@ -218,8 +218,9 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   theEvent.getByToken(preshowerHits_, preshowerHitHandle);
   EcalRecHitCollection preshowerRecHits;
   if (!preshowerHitHandle.isValid()) {
-    throw cms::Exception("PhotonProducer") 
+    edm::LogError("PhotonProducer")
       << "Error! Can't get the preshowerEcalHits";
+    validPreshowerRecHits=false;
   }
   if( validPreshowerRecHits ) preshowerRecHits = *(preshowerHitHandle.product());
 
