@@ -58,7 +58,7 @@ private:
       edm::EDGetTokenT<LVColl> token;
     };
     std::vector<RefObject> refObjects_;
-    std::vector<edm::ParameterSet> tagAndProbePaths;
+    bool tagAndProbe;
 
     std::vector<std::unique_ptr<GenericTriggerEventFlag> > num_genTriggerEventFlag_;
     std::vector<std::unique_ptr<GenericTriggerEventFlag> > den_genTriggerEventFlag_;
