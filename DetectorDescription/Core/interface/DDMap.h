@@ -5,7 +5,7 @@
 #include <map>
 #include <string>
 
-#include "DetectorDescription/Base/interface/DDReadMapType.h"
+#include "DetectorDescription/Core/interface/DDReadMapType.h"
 #include "DetectorDescription/Core/interface/DDBase.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 

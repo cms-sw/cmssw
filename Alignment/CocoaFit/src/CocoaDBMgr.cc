@@ -12,8 +12,6 @@
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignMeasurementInfo.h" 
 #include "CondFormats/DataRecord/interface/OpticalAlignmentsRcd.h" 
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentRcd.h" 
-#include "DetectorDescription/Core/interface/DDFilteredView.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"

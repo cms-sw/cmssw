@@ -1,4 +1,4 @@
-#include "DetectorDescription/Base/interface/DDReadMapType.h"
+#include "DetectorDescription/Core/interface/DDReadMapType.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 namespace dddDetails {
