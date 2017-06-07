@@ -11,9 +11,7 @@
 PFJetsTauOverlapRemoval::PFJetsTauOverlapRemoval(const edm::ParameterSet& iConfig):
   tauSrc_    ( consumes<trigger::TriggerFilterObjectWithRefs>(iConfig.getParameter<edm::InputTag>("TauSrc"      ) ) ),
   pfJetSrc_  ( consumes<reco::PFJetCollection>(iConfig.getParameter<edm::InputTag>("PFJetSrc") ) ),
-  mindR_     ( iConfig.getParameter<double>("Min_dR") ),
-
-  matchingR2 ( mindR_*mindR_ )
+  matchingR2_ ( iConfig.getParameter<double>("Min_dR")*iConfig.getParameter<double>("Min_dR") )
 {  
   produces<reco::PFJetCollection>();
 }
@@ -21,7 +19,6 @@ PFJetsTauOverlapRemoval::~PFJetsTauOverlapRemoval(){ }
 
 void PFJetsTauOverlapRemoval::produce(edm::StreamID iSId, edm::Event& iEvent, const edm::EventSetup& iES) const
 {
-    
   std::unique_ptr<reco::PFJetCollection> cleanedPFJets(new reco::PFJetCollection);
     
   edm::Handle<trigger::TriggerFilterObjectWithRefs> tauJets;
@@ -38,7 +35,7 @@ void PFJetsTauOverlapRemoval::produce(edm::StreamID iSId, edm::Event& iEvent, co
       bool isMatched = false;  
       const reco::PFJet &  myPFJet = (*PFJets)[iJet];
       for(unsigned int iTau = 0; iTau < taus.size(); iTau++){  
-        if(reco::deltaR2(taus[iTau]->p4(), myPFJet.p4()) < matchingR2){
+        if(reco::deltaR2(taus[iTau]->p4(), myPFJet.p4()) < matchingR2_){
           isMatched = true;
           break;
         }
