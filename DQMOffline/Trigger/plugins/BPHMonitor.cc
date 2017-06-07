@@ -34,6 +34,7 @@ BPHMonitor::BPHMonitor( const edm::ParameterSet& iConfig ) :
   , muoSelection_probe ( iConfig.getParameter<std::string>("muoSelection_probe") )
   , nmuons_     ( iConfig.getParameter<int>("nmuons" )     )
   , tnp_     ( iConfig.getParameter<int>("tnp" )     )
+  , L3_     ( iConfig.getParameter<int>("L3" )     )
   , trOrMu_     ( iConfig.getParameter<int>("trOrMu" )     )
   , Jpsi_     ( iConfig.getParameter<int>("Jpsi" )     )
   , Upsilon_     ( iConfig.getParameter<int>("Upsilon" )     )//if ==1 path with Upsilon constraint
@@ -354,19 +355,21 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 //  edm::Handle<reco::BeamSpot> const& beamSpot;
   // Filter out events if Trigger Filtering is requested
   if (tnp_>0) {//TnP method 
-  if (num_genTriggerEventFlag_->on() && ! num_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
+  if (den_genTriggerEventFlag_->on() && ! den_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
   iEvent.getByLabel( hltInputTag_, handleTriggerEvent);
   if (handleTriggerEvent->sizeFilters()== 0)return;
   std::string hltpath = hltpaths_num[0]; 
   std::vector<reco::Muon> tagMuons;
   std::vector<reco::Muon> probeMuons;
   for ( auto const & m : *muoHandle ) {//applying tag selection 
-  if(!matchToTrigger(hltpath,m, handleTriggerEvent)) continue;
+  if(!L3_){//matching does not work for L3 tnp monitoring yet 
+  if(!matchToTrigger(hltpath,m, handleTriggerEvent)) continue;}
   if ( muoSelection_ref( m ) ) tagMuons.push_back(m);
   }
   for (int i = 0; i<int(tagMuons.size());i++){
     for ( auto const & m : *muoHandle ) { 
-    if(!matchToTrigger(hltpath,m, handleTriggerEvent)) continue;
+  if(!L3_){ 
+    if(!matchToTrigger(hltpath,m, handleTriggerEvent)) continue;}
       if ((tagMuons[i].pt() == m.pt()))continue;//not the same  
       if ((tagMuons[i].p4()+m.p4()).M() >minmass_&& (tagMuons[i].p4()+m.p4()).M() <maxmass_){//near to J/psi mass
       muPhi_.denominator->Fill(m.phi());
@@ -1027,6 +1030,7 @@ void BPHMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
 
   desc.add<int>("nmuons",     1);
   desc.add<int>( "tnp", 0 );
+  desc.add<int>( "L3", 0 );
   desc.add<int>( "trOrMu", 0 );//if =0, track param monitoring
   desc.add<int>( "Jpsi", 0 );
   desc.add<int>( "Upsilon", 0 );
@@ -1107,8 +1111,8 @@ void BPHMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   bool BPHMonitor::matchToTrigger(std::string theTriggerName,T t, edm::Handle<trigger::TriggerEvent> handleTriggerEvent){
    
     bool matchedToTrigger = false;
-    const trigger::TriggerObjectCollection & toc(handleTriggerEvent->getObjects());//Handle< trigger::TriggerEvent > handleTriggerEvent;
     if (handleTriggerEvent->sizeFilters() >0){
+    const trigger::TriggerObjectCollection & toc(handleTriggerEvent->getObjects());//Handle< trigger::TriggerEvent > handleTriggerEvent;
     for ( size_t ia = 0; ia < handleTriggerEvent->sizeFilters(); ++ ia) {
         std::string fullname = handleTriggerEvent->filterTag(ia).encode();
         std::string name;
