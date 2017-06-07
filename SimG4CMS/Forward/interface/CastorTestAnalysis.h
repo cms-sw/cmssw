@@ -61,6 +61,7 @@ class BeginOfRun;
 class EndOfRun;
 class BeginOfEvent;
 class EndOfEvent;
+class CaloG4HitCollection;
 
 class CastorTestAnalysis : public SimWatcher,
 			public Observer<const BeginOfJob *>, 
