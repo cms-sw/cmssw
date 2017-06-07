@@ -347,8 +347,13 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
         pdgId     = pfCand.pdgId();
         dz        = pfCand.dz();
         dxy       = pfCand.dxy();
-        dzError   = pfCand.dzError();
-        dxyError  = pfCand.dxyError();
+        if (pfCand.hasTrackDetails()){
+            dzError   = pfCand.dzError();
+            dxyError  = pfCand.dxyError();
+        } else {
+            dzError = 0;
+            dxyError = 0;
+        }
         fromPV    = pfCand.fromPV();
         refToCand = pcref;
 
