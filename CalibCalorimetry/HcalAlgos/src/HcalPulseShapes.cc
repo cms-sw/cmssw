@@ -271,6 +271,9 @@ void HcalPulseShapes::computeHFShape() {
 void HcalPulseShapes::computeSiPMShapeData2017()
 {
   //From Jay Lawhorn: derived from data Edward Laird phase scan may2017
+  //https://indico.cern.ch/event/641978/contributions/2604491/attachments/1468666/2271582/17-05-31-hcal-hep17-pulse-shape.pdf
+  //Run numbers are 294736-294740 and 294929-294950
+
   unsigned int nbin = 250;
 
   std::vector<float> nt = {
