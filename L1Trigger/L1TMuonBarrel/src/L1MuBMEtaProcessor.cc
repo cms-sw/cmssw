@@ -43,9 +43,9 @@
 #include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTrackFinder.h"
 #include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTrack.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTEtaPattern.h"
-#include "CondFormats/L1TObjects/interface/L1MuDTEtaPatternLut.h"
+#include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTEtaPatternLut.h"
 #include "CondFormats/DataRecord/interface/L1MuDTEtaPatternLutRcd.h"
-#include "CondFormats/L1TObjects/interface/L1MuDTQualPatternLut.h"
+#include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTEtaPatternLut.h"
 #include "CondFormats/DataRecord/interface/L1MuDTQualPatternLutRcd.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTTFMasks.h"
 #include "CondFormats/DataRecord/interface/L1MuDTTFMasksRcd.h"
@@ -327,7 +327,7 @@ void L1MuBMEtaProcessor::runEtaTrackFinder(const edm::EventSetup& c) {
   // Pattern comparator:
   // loop over all patterns and compare with local chamber pattern
   // result : list of valid pattern IDs ( m_foundPattern )
-  L1MuDTEtaPatternLut::ETFLut_iter it = theEtaPatternLUT.begin();
+  L1MuBMTEtaPatternLut::ETFLut_iter it = theEtaPatternLUT.begin();
   while ( it != theEtaPatternLUT.end() ) {
 
     const L1MuDTEtaPattern pattern = (*it).second;
