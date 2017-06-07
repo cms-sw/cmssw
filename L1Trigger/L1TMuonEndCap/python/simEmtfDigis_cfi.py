@@ -11,8 +11,9 @@ import FWCore.ParameterSet.Config as cms
 ## Two options for CSCInputBxShift
 ##   * -2 when using simCscTriggerPrimitiveDigis re-emulated from data
 ##   *  0 in all other cases (MC, csctfDigis or emtfStage2Digis input)
+##   * changed to -2 for MC because LCT central BX is shifted from 6 to 8 now in MC
 simEmtfDigis = cms.EDProducer("L1TMuonEndCapTrackProducer",
                               CSCInput = cms.InputTag('simCscTriggerPrimitiveDigis','MPCSORTED'),
                               RPCInput = cms.InputTag('simMuonRPCDigis'),
-                              CSCInputBxShift = cms.untracked.int32(0),
+                              CSCInputBxShift = cms.untracked.int32(-2),
                               )

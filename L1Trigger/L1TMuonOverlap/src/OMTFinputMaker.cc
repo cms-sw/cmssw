@@ -276,7 +276,7 @@ OMTFinput OMTFinputMaker::processCSC(const CSCCorrelatedLCTDigiCollection *cscDi
 
       ///Check Trigger primitive quality.
       ///CSC central BX is 6 for some reason.
-      if (abs(digi->getBX()- 6)>0) continue;
+      if (abs(digi->getBX()- 8)>0) continue;
       
       unsigned int hwNumber = myOmtfConfig->getLayerNumber(rawid);
       if(myOmtfConfig->getHwToLogicLayer().find(hwNumber)==myOmtfConfig->getHwToLogicLayer().end()) continue;
