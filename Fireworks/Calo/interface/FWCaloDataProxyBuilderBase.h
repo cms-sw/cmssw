@@ -26,7 +26,7 @@
 #include "Rtypes.h"
 #include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerDefs.h"
 
 // forward declarations
 class TEveCaloData;
