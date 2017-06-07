@@ -87,6 +87,7 @@ caloParams = cms.ESProducer(
     tauIsoLUTFile2                = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauIsoLUTetPU.txt"),
     tauCalibrationLUTFileEta      = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauCalibrationLUTEta.txt"),
     tauCalibrationLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauCalibrationLUT.txt"),
+    tauTrimmingShapeVetoLUTFile   = cms.FileInPath("L1Trigger/L1TCalorimeter/data/Tau_TrimmingShapeVeto_LUT_v1.0.0.txt"),
     tauCompressLUTFile            = cms.FileInPath("L1Trigger/L1TCalorimeter/data/Tau_Eta_Et_compression_LUT.txt"),
     tauEtToHFRingEtLUTFile        = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauHwEtToHFRingScale_LUT.txt"),
     tauPUSParams                  = cms.vdouble(1,4,27),
