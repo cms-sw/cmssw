@@ -1,6 +1,6 @@
 
 
-#include "DetectorDescription/Base/interface/DDTypes.h"
+#include "DetectorDescription/Core/interface/DDTypes.h"
 
 #include <iostream>
 #include <utility>

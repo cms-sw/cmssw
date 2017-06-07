@@ -2,7 +2,7 @@
 
 #include <ostream>
 
-#include "DetectorDescription/Base/interface/Store.h"
+#include "DetectorDescription/Core/interface/Store.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/src/LogicalPart.h"
