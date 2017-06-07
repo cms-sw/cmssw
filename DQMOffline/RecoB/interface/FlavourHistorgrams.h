@@ -97,7 +97,7 @@ public:
 protected:
 
   void fillVariable ( const int & flavour , const T & var , const T & w) const;
-  double ClopperPearsonUnc(TH1F* num, TH1F* den, int bin);
+  double ClopperPearsonUnc(double num, double den);
   void ComputeEfficiency(TH1F* num, TH1F* den, int bin);
   
   //
@@ -509,24 +509,22 @@ void FlavourHistograms<T>::epsPlot(const std::string& name)
 }
 
 template <class T>
-double FlavourHistograms<T>::ClopperPearsonUnc(TH1F* num, TH1F* den, int bin){
-  double effVal = num->GetBinContent(bin)/den->GetBinContent(bin);
-  double errLo = TEfficiency::ClopperPearson((int)den->GetBinContent(bin), 
-					     (int)num->GetBinContent(bin),
-					     0.683,false);
-  double errUp = TEfficiency::ClopperPearson((int)den->GetBinContent(bin), 
-					     (int)num->GetBinContent(bin),
-					     0.683,true);
-  return (effVal - errLo > errUp - effVal) ? effVal - errLo : errUp - effVal; 
+double FlavourHistograms<T>::ClopperPearsonUnc(double num, double den){
+  double effVal = num / den;
+  double errLo = TEfficiency::ClopperPearson(static_cast<int>(den), static_cast<int>(num), 0.683, false);
+  double errUp = TEfficiency::ClopperPearson(static_cast<int>(den), static_cast<int>(num), 0.683, true);
+  return std::max(effVal - errLo, errUp - effVal);
 }
 
 template <class T>
 void FlavourHistograms<T>::ComputeEfficiency(TH1F* num, TH1F* den, int bin){
   double effVal = 1.;
   double errVal = 0.;
-  if (den->GetBinContent(bin)>0) {
-    effVal = num->GetBinContent(bin)/den->GetBinContent(bin); 
-    errVal = ClopperPearsonUnc(num, den, bin);
+  double numVal = num->GetBinContent(bin);
+  double denVal = den->GetBinContent(bin);
+  if (denVal > 0 && numVal > 0 && numVal <= denVal) {
+    effVal = numVal / denVal; 
+    errVal = ClopperPearsonUnc(numVal, denVal);
   }
   num->SetBinContent(bin, effVal);
   num->SetBinError(bin, errVal);
