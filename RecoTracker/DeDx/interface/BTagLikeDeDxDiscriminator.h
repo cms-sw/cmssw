@@ -1,6 +1,7 @@
 #ifndef RecoTrackerDeDx_BTagLikeDeDxDiscriminator_h
 #define RecoTrackerDeDx_BTagLikeDeDxDiscriminator_h
 
+#include "RecoTracker/DeDx/interface/BaseDeDxEstimator.h"
 #include "RecoTracker/DeDx/interface/DeDxTools.h"
 #include "DataFormats/TrackReco/interface/DeDxHit.h"
 
