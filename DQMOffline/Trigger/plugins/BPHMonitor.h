@@ -82,6 +82,9 @@ protected:
   void setMETitle(METME& me, std::string titleX, std::string titleY);
 
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
+  template <typename T>
+  bool matchToTrigger(std::string theTriggerName,T t, edm::Handle<trigger::TriggerEvent> handleTriggerEvent);
+
 
 private:
   static MEbinning getHistoPSet    (edm::ParameterSet pset);
@@ -156,11 +159,29 @@ METME  DiMudR_   ;
   int nmuons_;
   int tnp_;
   int trOrMu_;
+  int Jpsi_;
+  int Upsilon_;
   int nofset_;
+  int seagull_;
   double maxmass_;
   double minmass_;
+  double maxmassJpsi;
+  double minmassJpsi;
+  double maxmassUpsilon;
+  double minmassUpsilon;
+  double maxmassJpsiTk;
+  double minmassJpsiTk;
+  double minprob;
+  double mincos;
+  double minDS;
+  //edm::EDGetTokenT<trigger::TriggerEvent>  hltInputTag_;
+  //edm::EDGetTokenT<edm::TriggerResults>  hltInputTag_;
+  edm::InputTag  hltInputTag_;
+  std::vector<std::string> hltpaths_num;
+  std::vector<std::string> hltpaths_den;
   StringCutObjectSelector<reco::Track,true>        trSelection_;
   StringCutObjectSelector<reco::Track,true>        trSelection_ref;
+  StringCutObjectSelector<reco::Candidate::LorentzVector,true>        DMSelection_ref;
 
 };
 
