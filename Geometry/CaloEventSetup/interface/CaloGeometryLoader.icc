@@ -23,7 +23,6 @@
 #include "DetectorDescription/Core/interface/DDScope.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
-#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 

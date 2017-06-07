@@ -6,9 +6,9 @@
 #include <vector>
 
 # include "DetectorDescription/Algorithm/interface/DDAlgorithm.h"
-# include "DetectorDescription/Base/interface/DDRotationMatrix.h"
-#include "DetectorDescription/Base/interface/DDTranslation.h"
-# include "DetectorDescription/Base/interface/DDTypes.h"
+# include "DetectorDescription/Core/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Core/interface/DDTranslation.h"
+# include "DetectorDescription/Core/interface/DDTypes.h"
 
 class DDCompactView;
 
