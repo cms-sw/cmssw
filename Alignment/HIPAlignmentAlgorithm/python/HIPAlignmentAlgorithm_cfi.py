@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # parameters for HIPAlignmentAlgorithm
 HIPAlignmentAlgorithm = cms.PSet(
     applyAPE = cms.bool(False),
-    maxRelParameterError = cms.double(1000.0),
+    maxRelParameterError = cms.double(-1),
     outpath = cms.string('./'),
     collectorNJobs = cms.int32(0),
     uvarFile = cms.string('IOUserVariables.root'),
