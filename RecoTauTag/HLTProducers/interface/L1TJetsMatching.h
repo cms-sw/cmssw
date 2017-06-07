@@ -61,11 +61,11 @@ class L1TJetsMatching: public edm::global::EDProducer<> {
     
   const edm::EDGetTokenT<std::vector<T>> jetSrc_;
   const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> jetTrigger_;
-  const double pt1Min;
-  const double pt2Min;
-  const double mjjMin;
-  const double matchingR;
-  const double matchingR2;
+  const double pt1Min_;
+  const double pt2Min_;
+  const double mjjMin_;
+  const double matchingR_;
+  const double matchingR2_;
   };
     //
     // class decleration
@@ -135,11 +135,11 @@ class L1TJetsMatching: public edm::global::EDProducer<> {
     L1TJetsMatching<T>::L1TJetsMatching(const edm::ParameterSet& iConfig):
     jetSrc_    ( consumes<std::vector<T>>                     (iConfig.getParameter<InputTag>("JetSrc"      ) ) ),
     jetTrigger_( consumes<trigger::TriggerFilterObjectWithRefs>(iConfig.getParameter<InputTag>("L1JetTrigger") ) ),
-    pt1Min   ( iConfig.getParameter<double>("pt1Min")),
-    pt2Min   ( iConfig.getParameter<double>("pt2Min")),
-    mjjMin   ( iConfig.getParameter<double>("mjjMin")),
-    matchingR ( iConfig.getParameter<double>("matchingR")),
-    matchingR2 ( matchingR*matchingR )
+    pt1Min_   ( iConfig.getParameter<double>("pt1Min_")),
+    pt2Min_   ( iConfig.getParameter<double>("pt2Min_")),
+    mjjMin_   ( iConfig.getParameter<double>("mjjMin_")),
+    matchingR_ ( iConfig.getParameter<double>("matchingR_")),
+    matchingR2_ ( matchingR_*matchingR_ )
     {
         produces<std::vector<T>>("TwoJets");
         produces<std::vector<T>>("ThreeJets");
@@ -176,14 +176,14 @@ class L1TJetsMatching: public edm::global::EDProducer<> {
             for(unsigned int iL1Jet = 0; iL1Jet < jetCandRefVec.size(); iL1Jet++){
                 // Find the relative L2pfJets, to see if it has been reconstructed
                 //  if ((iJet<3) && (iL1Jet==0))  std::cout<<myJet.p4().Pt()<<" ";
-                if ((reco::deltaR2(myJet.p4().Vect(), (jetCandRefVec[iL1Jet]->p4()).Vect()) < matchingR2 ) && (myJet.pt()>pt2Min)) {
+                if ((reco::deltaR2(myJet.p4().Vect(), (jetCandRefVec[iL1Jet]->p4()).Vect()) < matchingR2_ ) && (myJet.pt()>pt2Min_)) {
                     pfMatchedJets->push_back(myJet);
                     break;
                 }
             }
         }
         
-        output= categorise(*pfMatchedJets,pt1Min,pt2Min, mjjMin);
+        output= categorise(*pfMatchedJets,pt1Min_,pt2Min_, mjjMin_);
         unique_ptr<std::vector<T>> output1(new std::vector<T>(output.first));
         unique_ptr<std::vector<T>> output2(new std::vector<T>(output.second));
         
@@ -197,10 +197,10 @@ class L1TJetsMatching: public edm::global::EDProducer<> {
      edm::ParameterSetDescription desc;
      desc.add<edm::InputTag>("L1JetTrigger", edm::InputTag("hltL1DiJetVBF"))->setComment("Name of trigger filter"    );
      desc.add<edm::InputTag>("JetSrc"      , edm::InputTag("hltAK4PFJetsTightIDCorrected"))->setComment("Input collection of PFJets");
-     desc.add<double>       ("pt1Min",95.0)->setComment("Minimal pT1 of PFJets to match");
-     desc.add<double>       ("pt2Min",35.0)->setComment("Minimal pT2 of PFJets to match");
-     desc.add<double>       ("mjjMin",650.0)->setComment("Minimal mjj of matched PFjets");
-     desc.add<double>       ("matchingR",0.5)->setComment("dR value used for matching");
+     desc.add<double>       ("pt1Min_",95.0)->setComment("Minimal pT1 of PFJets to match");
+     desc.add<double>       ("pt2Min_",35.0)->setComment("Minimal pT2 of PFJets to match");
+     desc.add<double>       ("mjjMin_",650.0)->setComment("Minimal mjj of matched PFjets");
+     desc.add<double>       ("matchingR_",0.5)->setComment("dR value used for matching");
      descriptions.setComment("This module produces collection of PFJetss matched to L1 Taus / Jets passing a HLT filter (Only p4 and vertex of returned PFJetss are set).");
      descriptions.add(defaultModuleLabel<L1TJetsMatching<T>>(), desc);
      }
