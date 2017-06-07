@@ -507,9 +507,12 @@ class GenericValidationData_CTSR(GenericValidationData):
         "momentumconstraint": "None",
         "openmasswindow": "False",
         "cosmicsdecomode": "True",
+        "removetrackhitfiltercommands": "",
+        "appendtrackhitfiltercommands": "",
     }
     def getRepMap(self):
         result = super(GenericValidationData_CTSR, self).getRepMap()
+
         from trackSplittingValidation import TrackSplittingValidation
         result.update({
             "ValidationSequence": self.ValidationSequence,
@@ -517,6 +520,16 @@ class GenericValidationData_CTSR(GenericValidationData):
             "cosmics0T": str(self.cosmics0T),
             "use_d0cut": str("Cosmics" not in self.general["trackcollection"]),  #use it for collisions only
         })
+
+        commands = []
+        for removeorappend in "remove", "append":
+            optionname = removeorappend + "trackhitfiltercommands"
+            if result[optionname]:
+                for command in result[optionname].split(","):
+                    command = command.strip()
+                    commands.append('process.TrackerTrackHitFilter.commands.{}("{}")'.format(removeorappend, command))
+        result["trackhitfiltercommands"] = "\n".join(commands)
+
         return result
     @property
     def TrackSelectionRefitting(self):
