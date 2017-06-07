@@ -379,7 +379,7 @@ void PrimitiveSelection::merge(
       // No CSC hits, insert all RPC hits
       selected_prim_map[selected_rpc] = rpc_primitives;
 
-    } // else { // Initial FW in 2017; should be disabled by June 2nd, 2017 - AWB 31.05.17
+    } // else { // Initial FW in 2017; was disabled on June 7
     //   // If only one CSC hit, insert the first RPC hit
     //   TriggerPrimitiveCollection& tmp_primitives = selected_prim_map[selected_rpc];  // pass by reference
 

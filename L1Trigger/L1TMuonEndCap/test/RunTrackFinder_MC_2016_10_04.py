@@ -37,7 +37,7 @@ process.load("RecoMuon.TrackingTools.MuonTrackLoader_cff")
 
 ## Message Logger and Event range
 process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(1000)
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(200000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(False))
 
 ## Global Tags
@@ -122,33 +122,53 @@ process.simCscTriggerPrimitiveDigis.CSCWireDigiProducer       = cms.InputTag('un
 
 process.load('L1Trigger.L1TMuonEndCap.simEmtfDigis_cfi')
 
-process.simEmtfDigis.MinBX = cms.int32(-3)
-process.simEmtfDigis.MaxBX = cms.int32(+3)
+process.simEmtfDigis.verbosity = cms.untracked.int32(0)
 
-process.simEmtfDigis.spPCParams16.FixZonePhi     = cms.bool(True)
-process.simEmtfDigis.spPCParams16.UseNewZones    = cms.bool(False)
-process.simEmtfDigis.spPCParams16.ZoneBoundaries = cms.vint32(0,41,49,87,127)
-#process.simEmtfDigis.spPCParams16.ZoneBoundaries = cms.vint32(0,36,54,96,127)
-process.simEmtfDigis.spPCParams16.FixME11Edges   = cms.bool(True)  ## Better coordinates in ME1/1 - AWB 16.05.17
+##############################################
+###  Settings for 2016 vs. 2017 emulation  ###
+##############################################
 
-process.simEmtfDigis.spPRParams16.UseSymmetricalPatterns = cms.bool(True)
+# ## *** 2016 ***
+# ## From python/fakeEmtfParams_cff.py
+# process.emtfParams.PtAssignVersion = cms.int32(5)
+# process.emtfParams.FirmwareVersion = cms.int32(49999) ## Settings as of end-of-year 2016
+# process.emtfParams.PrimConvVersion = cms.int32(0)
+# process.emtfForestsDB.toGet = cms.VPSet(
+#     cms.PSet(
+#         record = cms.string("L1TMuonEndCapForestRcd"),
+#         tag = cms.string("L1TMuonEndCapForest_static_2016_mc")
+#         )
+#     )
 
-process.simEmtfDigis.spGCParams16.UseSecondEarliest = cms.bool(True)
+# ## From python/simEmtfDigis_cfi.py
+# process.simEmtfDigis.RPCEnable                 = cms.bool(False)
+# process.simEmtfDigis.spTBParams16.ThetaWindow  = cms.int32(4)
+# process.simEmtfDigis.spPCParams16.FixME11Edges = cms.bool(False)
+# process.simEmtfDigis.spPAParams16.PtLUTVersion = cms.int32(5)
+# process.simEmtfDigis.spPAParams16.BugGMTPhi    = cms.bool(True)
 
-process.simEmtfDigis.spPAParams16.FixMode15HighPt = cms.bool(True)
-process.simEmtfDigis.spPAParams16.Bug9BitDPhi     = cms.bool(False)
-process.simEmtfDigis.spPAParams16.BugMode7CLCT    = cms.bool(False)
-process.simEmtfDigis.spPAParams16.BugNegPt        = cms.bool(False)
 
-process.simEmtfDigis.CSCInput        = cms.InputTag('simCscTriggerPrimitiveDigis','MPCSORTED')
-process.simEmtfDigis.RPCInput        = cms.InputTag('simMuonRPCDigis')
-process.simEmtfDigis.CSCEnable       = cms.bool(True)
-process.simEmtfDigis.RPCEnable       = cms.bool(True)
-process.simEmtfDigis.CSCInputBXShift = cms.int32(-6)
-process.simEmtfDigis.RPCInputBXShift = cms.int32(0)
-process.simEmtfDigis.verbosity       = cms.untracked.int32(0)
+## *** 2017 ***
+## From python/fakeEmtfParams_cff.py
+process.emtfParams.PtAssignVersion = cms.int32(7)
+process.emtfParams.FirmwareVersion = cms.int32(50001) ## Settings as of beginning-of-year 2017
+process.emtfParams.PrimConvVersion = cms.int32(1)
+# process.emtfForestsDB.toGet = cms.VPSet(
+#     cms.PSet(
+#         record = cms.string("L1TMuonEndCapForestRcd"),
+#         tag = cms.string("L1TMuonEndCapForest_static_Sq_20170523_mc")
+#         )
+#     )
 
-process.simEmtfDigis.Era = cms.string('Run2_2017')
+## From python/simEmtfDigis_cfi.py
+process.simEmtfDigis.RPCEnable                 = cms.bool(True)
+process.simEmtfDigis.spTBParams16.ThetaWindow  = cms.int32(8)
+process.simEmtfDigis.spPCParams16.FixME11Edges = cms.bool(True)
+process.simEmtfDigis.spPAParams16.PtLUTVersion = cms.int32(7)
+process.simEmtfDigis.spPAParams16.BugGMTPhi    = cms.bool(False)
+
+process.simEmtfDigis.spPAParams16.ReadPtLUTFile = cms.bool(True)
+
 
 # RawToDigi_AWB = cms.Sequence(process.muonCSCDigis+process.muonRPCDigis+process.csctfDigis)
 RawToDigi_AWB = cms.Sequence(process.simCscTriggerPrimitiveDigis+process.muonCSCDigis+process.muonRPCDigis+process.csctfDigis+process.simEmtfDigis)
@@ -196,11 +216,12 @@ outCommands = cms.untracked.vstring(
     )
 
 out_dir = "/afs/cern.ch/work/a/abrinke1/public/EMTF/Commissioning/2017/"
+# out_dir = "./"
 
 process.treeOut = cms.OutputModule("PoolOutputModule", 
                                    # fileName = cms.untracked.string("EMTF_MC_Tree_RelValNuGun_UP15_1k.root"),
                                    # fileName = cms.untracked.string("EMTF_MC_Tree_tau_to_3_mu_RPC_debug.root"),
-                                   fileName = cms.untracked.string(out_dir+"EMTF_MC_Tree_SingleMu_RPC_newPt_11k.root"),
+                                   fileName = cms.untracked.string(out_dir+"EMTF_MC_Tree_SingleMu_2017_fromLUTv7_11k.root"),
                                    outputCommands = outCommands
                                    )
 

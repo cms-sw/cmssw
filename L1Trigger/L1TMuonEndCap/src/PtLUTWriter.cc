@@ -3,23 +3,25 @@
 #include <fstream>
 #include <iostream>
 #include <stdexcept>
+#include <cassert>
 
 #define PTLUT_SIZE (1<<30)
 
 PtLUTWriter::PtLUTWriter() :
     ptlut_(),
-    version_(4),
+    version_(7), // Initial version, but not hard-coded: gets set by "set_version"
     ok_(false)
 {
-  ptlut_.reserve(PTLUT_SIZE);
+  ptlut_.reserve(PTLUT_SIZE / 64); // Hack! Hard-code / manually set denom_ for now - AWB 24.05.17
 }
 
 PtLUTWriter::~PtLUTWriter() {
 
 }
 
-void PtLUTWriter::write(const std::string& lut_full_path) const {
+void PtLUTWriter::write(const std::string& lut_full_path, const uint16_t num_, const uint16_t denom_) const {
   //if (ok_)  return;
+  assert(denom_ == 64); // Check consistency for temporary hack - AWB 24.05.17
 
   std::cout << "Writing LUT, this might take a while..." << std::endl;
 
@@ -30,13 +32,14 @@ void PtLUTWriter::write(const std::string& lut_full_path) const {
     throw std::invalid_argument(what);
   }
 
-  if (ptlut_.size() != PTLUT_SIZE) {
+  if (ptlut_.size() != (PTLUT_SIZE / denom_)) {
     char what[256];
     snprintf(what, sizeof(what), "ptlut_.size() is %lu != %i", ptlut_.size(), PTLUT_SIZE);
     throw std::invalid_argument(what);
   }
 
-  ptlut_.at(0) = version_;  // address 0 is the pT LUT version number
+  if (num_ == 1) 
+    ptlut_.at(0) = version_;  // address 0 is the pT LUT version number
 
   typedef uint64_t full_word_t;
   full_word_t full_word;

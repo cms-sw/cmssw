@@ -163,7 +163,7 @@ int PtAssignmentEngineAux2017::getCLCT(int clct, int endcap, int dPhiSign, int b
   assert( clct >= 0 && clct <= 10 && abs(endcap) == 1 && 
 	  abs(dPhiSign) == 1 && (bits == 2 || bits == 3) );
 
-  // Convention here: endcap == +/-1, dPhiSign = +/-1.  May need to change to match FW. - AWB 17.03.17
+  // Convention here: endcap == +/-1, dPhiSign = +/-1.
   int clct_ = 0;
   int sign_ = -1 * endcap * dPhiSign;  // CLCT bend is with dPhi in ME-, opposite in ME+
 
@@ -343,18 +343,18 @@ int PtAssignmentEngineAux2017::getTheta(int theta, int st1_ring2, int bits) cons
   // For use in mode 15
   if (bits == 4) {
     if (st1_ring2 == 0) {
-      // Should never fail with dTheta < 4 windows ... should change to using ME1 for track theta - AWB 17.03.17
-      if (theta > 58) {
+      // Should rarely fail ... should change to using ME1 for track theta - AWB 05.06.17
+      if (theta > 52) {
 	// std::cout << "\n\n*** Bizzare case of mode 15 track with ME1/1 LCT and track theta = " << theta << std::endl;
       }     
-      theta_ = (std::min( std::max(theta, 5), 58) - 5) / 9;
+      theta_ = (std::min( std::max(theta, 5), 52) - 5) / 6;
     }
     else if (st1_ring2 == 1) {
-      // Should rarely fail with dTheta < 4 windows ... should change to using ME1 for track theta - AWB 17.03.17
-      if (theta < 44 || theta > 88) {
+      // Should rarely fail ... should change to using ME1 for track theta - AWB 05.06.17
+      if (theta < 46 || theta > 87) {
 	// std::cout << "\n\n*** Bizzare case of mode 15 track with ME1/2 LCT and track theta = " << theta << std::endl;
       }
-      theta_ = ((std::min( std::max(theta, 44), 88) - 44) / 9) + 6;
+      theta_ = ((std::min( std::max(theta, 46), 87) - 46) / 7) + 8;
     }
   } // End conditional: if (bits == 4)
 
@@ -368,7 +368,7 @@ int PtAssignmentEngineAux2017::getTheta(int theta, int st1_ring2, int bits) cons
     }
   } // End conditional: else if (bits == 5)
 
-  assert(theta_ >= 0 && ((bits == 4 && theta_ <= 10) || (bits == 5 && theta_ < pow(2, bits))) );
+  assert(theta_ >= 0 && ((bits == 4 && theta_ <= 13) || (bits == 5 && theta_ < pow(2, bits))) );
   return (theta_);
 } // End function: int PtAssignmentEngineAux2017::getTheta()
 
@@ -379,12 +379,12 @@ void PtAssignmentEngineAux2017::unpackTheta(int& theta, int& st1_ring2, int bits
 
   // For use in mode 15
   if (bits == 4) {
-    if (theta < 6) {
+    if (theta < 8) {
       st1_ring2 = 0;
-      theta = (theta * 9) + 5;
+      theta = (theta * 6) + 5;
     } else {
       st1_ring2 = 1;
-      theta = ((theta - 6) * 9) + 44;
+      theta = ((theta - 8) * 7) + 46;
     }
   } else if (bits == 5) {
     if (theta < 15) {
@@ -415,22 +415,6 @@ int PtAssignmentEngineAux2017::unpackSt1Ring2(int theta, int bits) const {
   }
 
 } // End function: void PtAssignmentEngineAux2017::unpackSt1Ring2()
-
-
-// // Need to re-check / verify this - AWB 17.03.17
-// // front-rear LUTs
-// // [sector[0]][station 0-4][chamber id]
-// // chamber numbers start from 1, so add an extra low bit for invalid chamber = 0
-// static const int FRLUT[2][5] = {
-//   {0b0000000100100, 0b0000001011010, 0b0101010101010, 0b0010101010100, 0b0010101010100},
-//   {0b0000000100100, 0b0000001011010, 0b0111010100100, 0b0000101011010, 0b0000101011010}
-// };
-
-// int PtAssignmentEngineAux2017::getFRLUT(int sector, int station, int chamber) const {
-//   int bits = FRLUT[(sector-1)%2][station];
-//   bool isFront = bits & (1<<chamber);
-//   return isFront;
-// }
 
 
 int PtAssignmentEngineAux2017::get2bRPC(int clctA, int clctB, int clctC) const {
@@ -465,9 +449,9 @@ int PtAssignmentEngineAux2017::get8bMode15(int theta, int st1_ring2, int endcap,
 
   // std::cout << "Inside get8bMode15, theta = " << theta << ", st1_ring2 = " << st1_ring2 << ", endcap = " << endcap << ", sPhiAB = " << sPhiAB 
   // 	    << ", clctA = " << clctA << ", clctB = " << clctB << ", clctC = " << clctC << ", clctD = " << clctD << std::endl;
-  
-  if (st1_ring2) theta = (std::min( std::max(theta, 44), 88) - 44) / 9;
-  else           theta = (std::min( std::max(theta,  5), 58) -  5) / 9;
+
+  if (st1_ring2) theta = (std::min( std::max(theta, 46), 87) - 46) / 7;
+  else           theta = (std::min( std::max(theta,  5), 52) -  5) / 6;
   assert(theta >= 0 && theta < 10);
   
   int clctA_2b = getCLCT(clctA, endcap, sPhiAB, 2);
@@ -490,12 +474,12 @@ int PtAssignmentEngineAux2017::get8bMode15(int theta, int st1_ring2, int endcap,
     rpc_clct  = rpc_word + clctA_2b;
     mode15_8b = (theta*32) + rpc_clct + 64;
   } else {
-    if      (theta >= 3 && clctD == 0) rpc_word = 0; 
-    else if (theta >= 3 && clctC == 0) rpc_word = 1;             
-    else if (theta >= 3              ) rpc_word = 2;             
+    if      (theta >= 4 && clctD == 0) rpc_word = 0; 
+    else if (theta >= 4 && clctC == 0) rpc_word = 1;             
+    else if (theta >= 4              ) rpc_word = 2;             
     else                               rpc_word = 3;
     rpc_clct  = rpc_word*4 + clctA_2b;
-    mode15_8b = ((theta % 3)*16) + rpc_clct;
+    mode15_8b = ((theta % 4)*16) + rpc_clct;
   }
 
   // std::cout << "  * Output mode15_8b = " << mode15_8b << std::endl;
@@ -527,7 +511,7 @@ void PtAssignmentEngineAux2017::unpack8bMode15( int mode15_8b, int& theta, int& 
 
     rpc_clct = (mode15_8b % 32);
     theta    = (mode15_8b - 64 - rpc_clct) / 32; 
-    theta   += 6;
+    theta   += 8;
 
     if (rpc_clct < 4) clctA_2b = 0;
     else              clctA_2b = (rpc_clct % 4);
@@ -562,9 +546,9 @@ void PtAssignmentEngineAux2017::unpack8bMode15( int mode15_8b, int& theta, int& 
     clctA = clctA_2b;
 
     switch(rpc_word) {
-    case 0: nRPC = 1; theta += 3; rpcD = 1; break;
-    case 1: nRPC = 1; theta += 3; rpcC = 1; break;
-    case 2: nRPC = 0; theta += 3;           break;
+    case 0: nRPC = 1; theta += 4; rpcD = 1; break;
+    case 1: nRPC = 1; theta += 4; rpcC = 1; break;
+    case 2: nRPC = 0; theta += 4;           break;
     case 3: nRPC = 0;                       break;
     default: break;
     }

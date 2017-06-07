@@ -301,9 +301,6 @@ void PrimitiveConversion::convert_csc_details(EMTFHit& conv_hit) const {
   int fph = lut().get_ph_init(fw_endcap, fw_sector, pc_lut_id);
   fph = fph + ph_tmp_sign * ph_tmp;
 
-  // // Add option to correct for endcap-dependence (needed to line up with global geometry / RPC hits) - AWB 03.03.17
-  // fph -= ( (fw_endcap == 0) ? 28 : 36);
-
   int ph_hit = lut().get_ph_disp(fw_endcap, fw_sector, pc_lut_id);
   ph_hit = (ph_hit >> 1) + ph_tmp_sign * (ph_tmp >> 5) + ph_coverage;
 

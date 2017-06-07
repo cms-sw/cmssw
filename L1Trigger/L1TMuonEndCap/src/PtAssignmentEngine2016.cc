@@ -102,7 +102,6 @@ PtAssignmentEngine::address_t PtAssignmentEngine2016::calculate_address(const EM
     FR4 = aux().getFRLUT(track.Sector(), 4, CSCID4);
   }
 
-  // Can we automate the assigning of addresses?  Would decrease typos, speed future development. - AWB 03.10.16
   switch (mode_inv) {
   case 3:   // 1-2
     if (!bug9BitDPhi_)  dPhi12 = std::min(511, dPhi12);
@@ -532,7 +531,7 @@ float PtAssignmentEngine2016::calculate_pt_xml(const address_t& address) const {
   }
 
 
-  // First fix to recover high pT muons with 3 hits in a line and one displaced hit - AWB 28.07.16
+  // First fix to recover high pT muons with 3 hits in a line and one displaced hit
   // Done by re-writing a few addresses in the original LUT, according to the following logic
   // Implemented in FW 26.07.16, as of run 2774278 / fill 5119
   if (fixMode15HighPt_) {

@@ -6,6 +6,8 @@ import FWCore.ParameterSet.Config as cms
 #   * 'csctfDigis' : real trigger primitives as received by CSCTF (legacy trigger)
 #   * 'emtfStage2Digis' : real trigger primitives as received by EMTF, unpacked in EventFilter/L1TRawToDigi/
 
+# Check that proper switches are implemented in L1Trigger/Configuration/python/customiseReEmul.py - AWB 02.06.17
+
 simEmtfDigisMC = cms.EDProducer("L1TMuonEndCapTrackProducer",
     # Verbosity level
     verbosity = cms.untracked.int32(0),
@@ -36,15 +38,14 @@ simEmtfDigisMC = cms.EDProducer("L1TMuonEndCapTrackProducer",
     # Sector processor primitive-conversion parameters
     spPCParams16 = cms.PSet(
         ZoneBoundaries  = cms.vint32(0,41,49,87,127),  # 5 boundaries for 4 zones
-        #ZoneBoundaries  = cms.vint32(0,36,54,96,127), # new proposed zone boundaries
+        # ZoneBoundaries  = cms.vint32(0,36,54,96,127), # new proposed zone boundaries
         ZoneOverlap     = cms.int32(2),
         ZoneOverlapRPC  = cms.int32(8),
-        CoordLUTDir     = cms.string('ph_lut_v1'),  # no longer used
         IncludeNeighbor = cms.bool(True),
         DuplicateTheta  = cms.bool(True),
         FixZonePhi      = cms.bool(True),
         UseNewZones     = cms.bool(False),
-        FixME11Edges    = cms.bool(True),  ## Status in FW? - AWB 16.05.17
+        FixME11Edges    = cms.bool(True),
     ),
 
     # Sector processor pattern-recognition parameters
@@ -93,7 +94,7 @@ simEmtfDigisMC = cms.EDProducer("L1TMuonEndCapTrackProducer",
 
     # Sector processor pt-assignment parameters
     spPAParams16 = cms.PSet(
-        BDTXMLDir       = cms.string('v_16_02_21'),  # no longer used
+        PtLUTVersion    = cms.int32(7),  ## v5 for 2016, v6 for early 2017, v7 starting ~June 5 - AWB 02.06.17
         ReadPtLUTFile   = cms.bool(False),
         FixMode15HighPt = cms.bool(True),
         Bug9BitDPhi     = cms.bool(False),

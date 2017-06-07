@@ -13,7 +13,7 @@ void SectorProcessor::configure(
     const GeometryTranslator* tp_geom,
     const ConditionHelper* cond,
     const SectorProcessorLUT* lut,
-    const PtAssignmentEngine* pt_assign_engine,
+    PtAssignmentEngine** pt_assign_engine,
     int verbose, int endcap, int sector,
     int minBX, int maxBX, int bxWindow, int bxShiftCSC, int bxShiftRPC, int bxShiftGEM,
     const std::vector<int>& zoneBoundaries, int zoneOverlap, int zoneOverlapRPC,
@@ -21,7 +21,7 @@ void SectorProcessor::configure(
     const std::vector<std::string>& pattDefinitions, const std::vector<std::string>& symPattDefinitions, bool useSymPatterns,
     int thetaWindow, int thetaWindowRPC, bool useSingleHits, bool bugSt2PhDiff, bool bugME11Dupes,
     int maxRoadsPerZone, int maxTracks, bool useSecondEarliest, bool bugSameSectorPt0,
-    bool readPtLUTFile, bool fixMode15HighPt, bool bug9BitDPhi, bool bugMode7CLCT, bool bugNegPt, bool bugGMTPhi
+    int ptLUTVersion, bool readPtLUTFile, bool fixMode15HighPt, bool bug9BitDPhi, bool bugMode7CLCT, bool bugNegPt, bool bugGMTPhi
 ) {
   assert(MIN_ENDCAP <= endcap && endcap <= MAX_ENDCAP);
   assert(MIN_TRIGSECTOR <= sector && sector <= MAX_TRIGSECTOR);
@@ -71,6 +71,7 @@ void SectorProcessor::configure(
   useSecondEarliest_  = useSecondEarliest;
   bugSameSectorPt0_   = bugSameSectorPt0;
 
+  ptLUTVersion_       = ptLUTVersion;
   readPtLUTFile_      = readPtLUTFile;
   fixMode15HighPt_    = fixMode15HighPt;
   bug9BitDPhi_        = bug9BitDPhi;
@@ -79,10 +80,17 @@ void SectorProcessor::configure(
   bugGMTPhi_          = bugGMTPhi;
 }
 
+void SectorProcessor::set_pt_lut_version(unsigned pt_lut_version) {
+  ptLUTVersion_ = pt_lut_version;
+  std::cout << "  * In endcap " << endcap_ << ", sector " << sector_ << ", set ptLUTVersion_ to " << ptLUTVersion_ << std::endl;
+}
+
 // Refer to docs/EMTF_FW_LUT_versions_2016_draft2.xlsx
 void SectorProcessor::configure_by_fw_version(unsigned fw_version) {
 
-  if (fw_version == 0 || fw_version == 12345)  // fw_version '12345' is from the fake conditions
+  std::cout << "Running configure_by_fw_version with version " << fw_version << std::endl;
+
+  if (fw_version == 0 || fw_version == 123456)  // fw_version '123456' is from the fake conditions
     return;
 
   // For now, no switches later than FW version 47864 (end-of-year 2016)
@@ -191,9 +199,9 @@ void SectorProcessor::configure_by_fw_version(unsigned fw_version) {
   // Other settings
   if (fw_version < 50000) {
     // Default settings for 2016
-    useNewZones_        = false;
-    fixME11Edges_       = false;
-    bugGMTPhi_          = true;
+    useNewZones_   = false;
+    fixME11Edges_  = false;
+    bugGMTPhi_     = true;
   }
 
 }
@@ -318,9 +326,9 @@ void SectorProcessor::process_single_bx(
 
   PtAssignment pt_assign;
   pt_assign.configure(
-      pt_assign_engine_,
+      *pt_assign_engine_,
       verbose_, endcap_, sector_, bx,
-      readPtLUTFile_, fixMode15HighPt_,
+      ptLUTVersion_, readPtLUTFile_, fixMode15HighPt_,
       bug9BitDPhi_, bugMode7CLCT_, bugNegPt_,
       bugGMTPhi_
   );

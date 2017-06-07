@@ -36,7 +36,7 @@ public:
       const GeometryTranslator* tp_geom,
       const ConditionHelper* cond,
       const SectorProcessorLUT* lut,
-      const PtAssignmentEngine* pt_assign_engine,
+      PtAssignmentEngine** pt_assign_engine,
       int verbose, int endcap, int sector,
       int minBX, int maxBX, int bxWindow, int bxShiftCSC, int bxShiftRPC, int bxShiftGEM,
       const std::vector<int>& zoneBoundaries, int zoneOverlap, int zoneOverlapRPC,
@@ -44,9 +44,10 @@ public:
       const std::vector<std::string>& pattDefinitions, const std::vector<std::string>& symPattDefinitions, bool useSymPatterns,
       int thetaWindow, int thetaWindowRPC, bool useSingleHits, bool bugSt2PhDiff, bool bugME11Dupes,
       int maxRoadsPerZone, int maxTracks, bool useSecondEarliest, bool bugSameSectorPt0,
-      bool readPtLUTFile, bool fixMode15HighPt, bool bug9BitDPhi, bool bugMode7CLCT, bool bugNegPt, bool bugGMTPhi
+      int ptLUTVersion, bool readPtLUTFile, bool fixMode15HighPt, bool bug9BitDPhi, bool bugMode7CLCT, bool bugNegPt, bool bugGMTPhi
   );
 
+  void set_pt_lut_version(unsigned pt_lut_version);
   void configure_by_fw_version(unsigned fw_version);
 
   void process(
@@ -78,7 +79,7 @@ private:
 
   const SectorProcessorLUT* lut_;
 
-  const PtAssignmentEngine* pt_assign_engine_;
+  PtAssignmentEngine** pt_assign_engine_;
 
   int verbose_, endcap_, sector_;
 
@@ -104,6 +105,7 @@ private:
   bool bugSameSectorPt0_;
 
   // For pt assignment
+  int ptLUTVersion_;
   bool readPtLUTFile_, fixMode15HighPt_;
   bool bug9BitDPhi_, bugMode7CLCT_, bugNegPt_, bugGMTPhi_;
 };

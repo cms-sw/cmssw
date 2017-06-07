@@ -15,7 +15,7 @@ public:
   typedef uint64_t               address_t;
   typedef std::vector<content_t> table_t;
 
-  void write(const std::string& lut_full_path) const;
+  void write(const std::string& lut_full_path, const uint16_t num_, const uint16_t denom_) const;
 
   void push_back(const content_t& pt);
 

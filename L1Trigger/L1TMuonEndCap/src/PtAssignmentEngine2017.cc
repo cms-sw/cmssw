@@ -12,6 +12,10 @@ const PtAssignmentEngineAux2017& PtAssignmentEngine2017::aux() const {
 }
 
 float PtAssignmentEngine2017::scale_pt(const float pt, const int mode) const {
+  assert(ptLUTVersion_ >= 6);
+
+  float pt_xml   = -99;
+  float pt_scale = -99;
 
   // Scaling to achieve 90% efficency at any given L1 pT threshold
   // For now, a linear scaling based on SingleMu-quality (modes 11, 13, 14, 15), CSC+RPC tracks
@@ -21,15 +25,25 @@ float PtAssignmentEngine2017::scale_pt(const float pt, const int mode) const {
   // TRG       = 1.2*XML / (1 - 0.015*XML)
   // TRG / XML = 1.2 / (1 - 0.015*XML)
 
-  float pt_xml   = fmin(20., pt); // Maximum scale set by muons with XML pT = 20 GeV (scaled pT ~35 GeV)
-  float pt_scale = 1.2 / (1 - 0.015*pt_xml);
+  // First "physics" LUTs for 2017, deployed June 7
+  if (ptLUTVersion_ >= 6) {
+    pt_xml   = fmin(20., pt); // Maximum scale set by muons with XML pT = 20 GeV (scaled pT ~35 GeV)
+    pt_scale = 1.2 / (1 - 0.015*pt_xml);
+  }
 
   return pt_scale;
 }
 
 float PtAssignmentEngine2017::unscale_pt(const float pt, const int mode) const {
-  float pt_unscale = 1 / (1.2 + 0.015*pt);
-  pt_unscale = fmax( pt_unscale, (1 - 0.015*20)/1.2 );
+  assert(ptLUTVersion_ >= 6);
+
+  float pt_unscale = -99;
+
+  // First "physics" LUTs for 2017, deployed June 7
+  if (ptLUTVersion_ >= 6) {
+    pt_unscale = 1 / (1.2 + 0.015*pt);
+    pt_unscale = fmax( pt_unscale, (1 - 0.015*20)/1.2 );
+  }
 
   return pt_unscale;
 }
@@ -483,11 +497,6 @@ float PtAssignmentEngine2017::calculate_pt_xml(const EMTFTrack& track) const {
 	     pat1, pat2, pat3, pat4,
 	     dPhiSign, endcap, mode, true );
   
-  FR_1 = (st1 ? data.fr[0] : -99);
-  FR_2 = (st2 ? data.fr[1] : -99);
-  FR_3 = (st3 ? data.fr[2] : -99);
-  FR_4 = (st4 ? data.fr[3] : -99);
-
   RPC_1 = (st1 ? (pat1 == 0) : -99);
   RPC_2 = (st2 ? (pat2 == 0) : -99);
   RPC_3 = (st3 ? (pat3 == 0) : -99);

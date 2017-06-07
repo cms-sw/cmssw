@@ -21,6 +21,10 @@ PtLUTReader::~PtLUTReader() {
 void PtLUTReader::read(const std::string& lut_full_path) {
   if (ok_)  return;
 
+  std::cout << "EMTF emulator: attempting to read pT LUT binary file from local area" << std::endl;
+  std::cout << lut_full_path << std::endl;
+  std::cout << "Non-standard operation; if it fails, now you know why" << std::endl;
+  std::cout << "Be sure to check that the 'scale_pt' function still matches this LUT" << std::endl;
   std::cout << "Loading LUT, this might take a while..." << std::endl;
 
   std::ifstream infile(lut_full_path, std::ios::binary);

@@ -28,7 +28,7 @@ public:
 
   void configure(
       int verbose,
-      bool readPtLUTFile, bool fixMode15HighPt,
+      int ptLUTVersion, bool readPtLUTFile, bool fixMode15HighPt,
       bool bug9BitDPhi, bool bugMode7CLCT, bool bugNegPt
   );
 
@@ -48,15 +48,17 @@ public:
   virtual float calculate_pt_xml(const address_t& address) const { return 0.; }
   virtual float calculate_pt_xml(const EMTFTrack& track) const { return 0.; }
 
+  inline int  readPtLUTFile() { return readPtLUTFile_; }
+  inline void set_ptLUTVersion( int ptLUTVersion ) { ptLUTVersion_ = ptLUTVersion; }
+
 protected:
   std::vector<int> allowedModes_;
   std::array<emtf::Forest, 16> forests_;
   PtLUTReader ptlut_reader_;
 
-  unsigned version_;  // init: 0xFFFFFFFF
-
   int verbose_;
 
+  int ptLUTVersion_;
   bool readPtLUTFile_, fixMode15HighPt_;
   bool bug9BitDPhi_, bugMode7CLCT_, bugNegPt_;
 };

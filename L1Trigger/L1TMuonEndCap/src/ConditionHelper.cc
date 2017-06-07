@@ -17,7 +17,11 @@ ConditionHelper::ConditionHelper():
 ConditionHelper::~ConditionHelper() {
 }
 
-void ConditionHelper::checkAndUpdateConditions(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+bool ConditionHelper::checkAndUpdateConditions(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+
+  bool new_params = false;
+  bool new_forests = false;
+
   // Pull configuration from the EventSetup
   auto& params_setup = iSetup.get<L1TMuonEndcapParamsRcd>();
   if (params_setup.cacheIdentifier() != params_cache_id_) {
@@ -28,6 +32,7 @@ void ConditionHelper::checkAndUpdateConditions(const edm::Event& iEvent, const e
 
     // reset cache id
     params_cache_id_ = params_setup.cacheIdentifier();
+    new_params = true;
   }
 
   // Pull pt LUT from the EventSetup
@@ -40,25 +45,30 @@ void ConditionHelper::checkAndUpdateConditions(const edm::Event& iEvent, const e
 
     // reset cache id
     forest_cache_id_ = forest_setup.cacheIdentifier();
+    new_forests = true;
   }
 
   // Debug
   //std::cout << "Run number: " << iEvent.id().run() << " fw_version: " << get_fw_version()
   //    << " pt_lut_version: " << get_pt_lut_version() << " pc_lut_version: " << get_pc_lut_version()
   //    << std::endl;
+
+  return (new_params || new_forests);
 }
 
 unsigned int ConditionHelper::get_fw_version() const {
+  std::cout << "Getting firmware version from ConditionHelper" << std::endl;
   return params_->firmwareVersion_;
 }
 
 unsigned int ConditionHelper::get_pt_lut_version() const {
-  return params_->PtAssignVersion_;
+  std::cout << "Getting pT LUT version from ConditionHelper" << std::endl;
+  return (params_->PtAssignVersion_ & 0xff);  // Version indicated by first two bytes
 }
 
 unsigned int ConditionHelper::get_pc_lut_version() const {
-  // Not yet implemented in O2O; default to coordinate LUTs from beginning of 2017
-  return 2;
-  // Requires change to CondFormats/L1TObjects/interface/L1TMuonEndCapParams.h
-  // return params_->PrimConvVersion_;  
+  // "PhiMatchWindowSt1" arbitrarily re-mapped to Primitive conversion (PC LUT) version
+  // because of rigid CondFormats naming conventions - AWB 02.06.17
+  std::cout << "Getting PC LUT version from ConditionHelper" << std::endl;
+  return params_->PhiMatchWindowSt1_;  
 }

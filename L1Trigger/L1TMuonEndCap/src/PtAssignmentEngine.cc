@@ -8,8 +8,7 @@
 PtAssignmentEngine::PtAssignmentEngine() :
     allowedModes_({3,5,9,6,10,12,7,11,13,14,15}),
     forests_(),
-    ptlut_reader_(),
-    version_(0xFFFFFFFF)
+    ptlut_reader_()
 {
 
 }
@@ -24,7 +23,9 @@ PtAssignmentEngine::~PtAssignmentEngine() {
 void PtAssignmentEngine::read(const std::string& xml_dir) {
 
   std::string xml_dir_full = "L1Trigger/L1TMuonEndCap/data/pt_xmls/" + xml_dir;
-  unsigned xml_nTrees = 400; // Should make configurable, different by era - AWB 31.05.17
+  unsigned xml_nTrees = 64; // 2016 XMLs
+  if (ptLUTVersion_ >= 6)    
+    xml_nTrees = 400;       // First 2017 XMLs
 
   std::cout << "EMTF emulator: attempting to read pT LUT XMLs from local directory" << std::endl;
   std::cout << xml_dir_full << std::endl;
@@ -41,21 +42,25 @@ void PtAssignmentEngine::read(const std::string& xml_dir) {
 }
 
 void PtAssignmentEngine::load(const L1TMuonEndCapForest *payload) {
-  unsigned pt_lut_version = payload->version_;
-  if (version_ == pt_lut_version)  return;
-
+  // unsigned pt_lut_version = payload->version_;  // Why is payload->version_ always 0? - AWB 02.06.17
+  // std::cout << "ptLUTVersion_ from configuration = " << ptLUTVersion_ << ", payload->version_ = " << payload->version_ << std::endl;
+  // assert(pt_lut_version == unsigned(ptLUTVersion_));
+  
   for (unsigned i = 0; i < allowedModes_.size(); ++i) {
     int mode = allowedModes_.at(i);
-
+    
     L1TMuonEndCapForest::DForestMap::const_iterator index = payload->forest_map_.find(mode); // associates mode to index
     if (index == payload->forest_map_.end())  continue;
-
+    
     forests_.at(mode).loadFromCondPayload(payload->forest_coll_[index->second]);
     
-    // boostWeight set in plugins/L1TMuonEndCapForestESProducer.cc
-    // For 2017 only - should make configurable based on "Era" - AWB 22.05.17
     double boostWeight_ = payload->forest_map_.find(mode+16)->second / 1000000.;  
+    std::cout << "Loaded forest for mode " << mode << " with boostWeight_ = " << boostWeight_ << std::endl;
+    std::cout << "  * ptLUTVersion_ = " << ptLUTVersion_ << std::endl;
     forests_.at(mode).getTree(0)->setBoostWeight( boostWeight_ );
+
+    assert(boostWeight_ == 0 || ptLUTVersion_ >= 6);  // Check that XMLs and pT LUT version are consistent
+    // Will catch user trying to run with Global Tag settings on 2017 data, rather than fakeEmtfParams. - AWB 08.06.17
 
     // // Code below can be used to save out trees in XML format
     // for (int t = 0; t < 64; t++) {
@@ -67,17 +72,17 @@ void PtAssignmentEngine::load(const L1TMuonEndCapForest *payload) {
 
   }
 
-  version_ = pt_lut_version;
   return;
 }
 
 void PtAssignmentEngine::configure(
     int verbose,
-    bool readPtLUTFile, bool fixMode15HighPt,
+    int ptLUTVersion, bool readPtLUTFile, bool fixMode15HighPt,
     bool bug9BitDPhi, bool bugMode7CLCT, bool bugNegPt
 ) {
   verbose_ = verbose;
 
+  ptLUTVersion_    = ptLUTVersion;
   readPtLUTFile_   = readPtLUTFile;
   fixMode15HighPt_ = fixMode15HighPt;
   bug9BitDPhi_     = bug9BitDPhi;
@@ -91,14 +96,8 @@ void PtAssignmentEngine::configure_details() {
   if (readPtLUTFile_) {
     std::stringstream ss;
     // Hardcoded - this 2 GB LUT file does not exist in CMSSW
-    ss << "/afs/cern.ch/work/a/abrinke1/public/EMTF/PtAssign2017/LUTs/2017_05_24/LUT_v6_24May17.dat";
+    ss << "/afs/cern.ch/work/a/abrinke1/public/EMTF/PtAssign2017/LUTs/2017_06_07/LUT_v07_07June17.dat";
     std::string lut_full_path = ss.str();
-
-    std::cout << "EMTF emulator: attempting to read pT LUT binary file from local area" << std::endl;
-    std::cout << lut_full_path << std::endl;
-    std::cout << "Non-standard operation; if it fails, now you know why" << std::endl;
-    std::cout << "Be sure to check that the 'scale_pt' function still matches this LUT" << std::endl;
-
     ptlut_reader_.read(lut_full_path);
   }
 }

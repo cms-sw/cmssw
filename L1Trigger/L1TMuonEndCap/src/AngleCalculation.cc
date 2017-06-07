@@ -324,11 +324,15 @@ void AngleCalculation::calculate_angles(EMTFTrack& track) const {
   if (vstat == 0b0001 || vstat == 0b0010 || vstat == 0b0100 || vstat == 0b1000 || vstat == 0)
     rank = 0;
 
-  // from RecoMuon/DetLayers/src/MuonCSCDetLayerGeometryBuilder.cc
+  // From RecoMuon/DetLayers/src/MuonCSCDetLayerGeometryBuilder.cc
   auto isFront = [](int station, int ring, int chamber, int subsystem) {
-    // RPCs are behind the CSCs in stations 1, 3, and 4; in front in 2
-    if (subsystem == TriggerPrimitive::kRPC)
-      return (station == 2);
+
+    // // RPCs are behind the CSCs in stations 1, 3, and 4; in front in 2
+    // if (subsystem == TriggerPrimitive::kRPC)
+    //   return (station == 2);
+
+    // In EMTF firmware, RPC hits are treated as if they came from the corresponding 
+    // CSC chamber, so the FR bit assignment is the same as for CSCs - AWB 06.06.17
 
     // GEMs are in front of the CSCs
     if (subsystem == TriggerPrimitive::kGEM)

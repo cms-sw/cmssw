@@ -5,6 +5,10 @@
 #include "CondFormats/L1TObjects/interface/L1TMuonEndCapForest.h"
 #include "CondFormats/DataRecord/interface/L1TMuonEndCapForestRcd.h"
 
+#include "CondFormats/L1TObjects/interface/L1TMuonEndCapForest.h"
+#include "CondFormats/DataRecord/interface/L1TMuonEndCapForestRcd.h"
+#include "CondFormats/DataRecord/interface/L1TMuonEndcapForestO2ORcd.h"
+
 #include "CondFormats/L1TObjects/interface/L1TMuonOverlapParams.h"
 #include "CondFormats/DataRecord/interface/L1TMuonOverlapParamsRcd.h"
 #include "CondFormats/DataRecord/interface/L1TMuonOverlapParamsO2ORcd.h"
@@ -24,6 +28,7 @@ REGISTER_PLUGIN(L1TMuonBarrelParamsRcd, L1TMuonBarrelParams);
 REGISTER_PLUGIN(L1TMuonGlobalParamsRcd, L1TMuonGlobalParams);
 
 REGISTER_PLUGIN(L1TMuonEndcapParamsO2ORcd,  L1TMuonEndCapParams);
+REGISTER_PLUGIN(L1TMuonEndcapForestO2ORcd,  L1TMuonEndCapForest);
 REGISTER_PLUGIN(L1TMuonOverlapParamsO2ORcd, L1TMuonOverlapParams);
 REGISTER_PLUGIN(L1TMuonBarrelParamsO2ORcd, L1TMuonBarrelParams);
 REGISTER_PLUGIN(L1TMuonGlobalParamsO2ORcd, L1TMuonGlobalParams);
