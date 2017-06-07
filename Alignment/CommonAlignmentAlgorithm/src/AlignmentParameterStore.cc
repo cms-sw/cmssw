@@ -487,7 +487,9 @@ applyAlignableAbsolutePositions(const align::Alignables& alivec, const Alignable
             for (unsigned int i = 0; i < dold.size(); i++) defDiff.push_back(dnew[i] - dold[i]);
             auto deform = SurfaceDeformationFactory::create(dtype, defDiff);
             edm::LogInfo("Alignment") << "@SUB=AlignmentParameterStore::applyAlignableAbsolutePositions"
-              << "Adding surface deformation of type " << SurfaceDeformationFactory::surfaceDeformationTypeName((SurfaceDeformationFactory::Type)deform->type()) << ", size " << defDiff.size() << " and first element " << defDiff.at(0);
+              << "Adding surface deformation of type " << SurfaceDeformationFactory::surfaceDeformationTypeName((SurfaceDeformationFactory::Type)deform->type())
+              << ", size " << defDiff.size() << " and first element " << defDiff.at(0)
+              << " to alignable with id / type: " << id << " / " << typeId;
             ali->addSurfaceDeformation(deform, true);
             delete deform;
           }
@@ -495,7 +497,9 @@ applyAlignableAbsolutePositions(const align::Alignables& alivec, const Alignable
           else if (dnew.size()!=0){
             auto deform = SurfaceDeformationFactory::create(dnew);
             edm::LogInfo("Alignment") << "@SUB=AlignmentParameterStore::applyAlignableAbsolutePositions"
-              << "Setting surface deformation of type " << SurfaceDeformationFactory::surfaceDeformationTypeName((SurfaceDeformationFactory::Type)deform->type()) << ", size " << dnew.size() << " and first element " << dnew.at(0);
+              << "Setting surface deformation of type " << SurfaceDeformationFactory::surfaceDeformationTypeName((SurfaceDeformationFactory::Type)deform->type())
+              << ", size " << dnew.size() << " and first element " << dnew.at(0)
+              << " to alignable with id / type: " << id << " / " << typeId;
             ali->addSurfaceDeformation(deform, true); // Equivalent to setSurfaceDeformation in this case
             delete deform;
           }
@@ -567,7 +571,9 @@ applyAlignableRelativePositions(const align::Alignables& alivec, const Alignable
           if (dold.size() != 0 && dtype != SurfaceDeformationFactory::kNoDeformations && defDiff.size()==dold.size()){
             auto deform = SurfaceDeformationFactory::create(dtype, defDiff);
             edm::LogInfo("Alignment") << "@SUB=AlignmentParameterStore::applyAlignableRelativePositions"
-              << "Adding surface deformation of type " << SurfaceDeformationFactory::surfaceDeformationTypeName((SurfaceDeformationFactory::Type)deform->type()) << ", size " << defDiff.size() << " and first element " << defDiff.at(0);
+              << "Adding surface deformation of type " << SurfaceDeformationFactory::surfaceDeformationTypeName((SurfaceDeformationFactory::Type)deform->type())
+              << ", size " << defDiff.size() << " and first element " << defDiff.at(0)
+              << " to alignable with id / type: " << id << " / " << typeId;
             ali->addSurfaceDeformation(deform, true);
             delete deform;
           }
@@ -575,7 +581,9 @@ applyAlignableRelativePositions(const align::Alignables& alivec, const Alignable
           else if (defDiff.size()!=0){
             auto deform = SurfaceDeformationFactory::create(defDiff);
             edm::LogInfo("Alignment") << "@SUB=AlignmentParameterStore::applyAlignableRelativePositions"
-              << "Setting surface deformation of type " << SurfaceDeformationFactory::surfaceDeformationTypeName((SurfaceDeformationFactory::Type)deform->type()) << ", size " << defDiff.size() << " and first element " << defDiff.at(0);
+              << "Setting surface deformation of type " << SurfaceDeformationFactory::surfaceDeformationTypeName((SurfaceDeformationFactory::Type)deform->type())
+              << ", size " << defDiff.size() << " and first element " << defDiff.at(0)
+              << " to alignable with id / type: " << id << " / " << typeId;
             ali->addSurfaceDeformation(deform, true); // Equivalent to setSurfaceDeformation in this case
             delete deform;
           }
