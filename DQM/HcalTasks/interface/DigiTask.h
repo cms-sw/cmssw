@@ -70,7 +70,6 @@ class DigiTask : public hcaldqm::DQTask
 		std::vector<uint32_t> _vhashFEDs;
 
 		//	emap
-		HcalElectronicsMap const* _emap;
 		hcaldqm::electronicsmap::ElectronicsMap _ehashmap; // online only
 		hcaldqm::electronicsmap::ElectronicsMap _dhashmap;
 
@@ -79,6 +78,8 @@ class DigiTask : public hcaldqm::DQTask
 		hcaldqm::filter::HashFilter _filter_uTCA;
 		hcaldqm::filter::HashFilter _filter_FEDHF;
 		hcaldqm::filter::HashFilter _filter_HF;
+		hcaldqm::filter::HashFilter _filter_notHF;
+		hcaldqm::filter::HashFilter _filter_HEP17;
 
 		/* hcaldqm::Containers */
 		//	ADC, fC - Charge - just filling - no summary!
@@ -89,6 +90,14 @@ class DigiTask : public hcaldqm::DQTask
 		hcaldqm::ContainerProf1D _cSumQvsLS_SubdetPM;
 		hcaldqm::ContainerProf1D _cSumQvsBX_SubdetPM;	// online only!
 
+		// ADC, fC for HF (QIE10 has different ADC/fC)
+		hcaldqm::Container1D _cADC_SubdetPM_HF;
+		hcaldqm::Container1D _cfC_SubdetPM_HF;
+		hcaldqm::Container1D _cSumQ_SubdetPM_HF;
+		hcaldqm::ContainerProf1D _cSumQvsLS_SubdetPM_HF;
+		hcaldqm::ContainerProf1D _cSumQvsBX_SubdetPM_HF;	// online only!
+
+		
 		//	Shape - just filling - not summary!
 		hcaldqm::Container1D _cShapeCut_FED;
 
@@ -146,10 +155,9 @@ class DigiTask : public hcaldqm::DQTask
 		hcaldqm::ContainerXXX<uint32_t> _xNChsNominal; // online only
 
 		// QIE10 TDC histograms
-		hcaldqm::ContainerSingle2D _cLETDCvsADC;
-		hcaldqm::ContainerSingle2D _cLETDCvsTS;
-		hcaldqm::ContainerSingle1D _cLETDCTime;
-
+		hcaldqm::Container2D _cLETDCvsADC_SubdetPM;
+		hcaldqm::Container2D _cLETDCvsTS_SubdetPM;
+		hcaldqm::Container1D _cLETDCTime_SubdetPM;
 
 		//	#events counters
 		MonitorElement *meNumEvents1LS; // to transfer the #events to harvesting
