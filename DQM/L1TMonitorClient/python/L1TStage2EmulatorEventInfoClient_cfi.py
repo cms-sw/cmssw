@@ -1,4 +1,4 @@
-# L1 Trigger Event Info client cfi
+# L1 Emulator Trigger Event Info client cfi
 #
 #   The cfi can be used, with appropriate settings, for both L1T and L1TEMU.
 #   Default version in cfi: L1T event client
@@ -6,6 +6,7 @@
 #   authors previous versions - see CVS
 #
 #   V.M. Ghete 2010-10-22 revised version of L1T DQM and L1TEMU DQM
+#   A.G. Stahl 2017-06-02 first implementation for L1TEMU Stage2 DQM
 
 
 
@@ -180,162 +181,7 @@ l1tStage2EmulatorEventInfoClient = DQMEDHarvester("L1TEventInfoClient",
     #
     # the position in the parameter set gives, in reverse order, the position in the reportSummaryMap
     # in the trigger object column (right column)
-    L1Objects = cms.VPSet(
-                    cms.PSet(
-                        ObjectLabel = cms.string("TechTrig"),
-                        ObjectDisable  = cms.uint32(0),
-                        QualityTests = cms.VPSet(
-                            cms.PSet(
-                                QualityTestName = cms.string(""),
-                                QualityTestHist = cms.string(""),
-                                QualityTestSummaryEnabled = cms.uint32(0)
-                                )
-                            )
-                        ),
-                    cms.PSet(
-                        ObjectLabel = cms.string("GtExternal"),
-                        ObjectDisable  = cms.uint32(0),
-                        QualityTests = cms.VPSet(
-                            cms.PSet(
-                                QualityTestName = cms.string(""),
-                                QualityTestHist = cms.string(""),
-                                QualityTestSummaryEnabled = cms.uint32(0)
-                                )
-                            )
-                        ),
-                    cms.PSet(
-                        ObjectLabel = cms.string("HfRingEtSums"),
-                        ObjectDisable  = cms.uint32(0),
-                        QualityTests = cms.VPSet(
-                            cms.PSet(
-                                QualityTestName = cms.string(""),
-                                QualityTestHist = cms.string(""),
-                                QualityTestSummaryEnabled = cms.uint32(0)
-                                )
-                            )
-                        ),
-                    cms.PSet(
-                        ObjectLabel = cms.string("HfBitCounts"),
-                        ObjectDisable  = cms.uint32(0),
-                        QualityTests = cms.VPSet(
-                            cms.PSet(
-                                QualityTestName = cms.string(""),
-                                QualityTestHist = cms.string(""),
-                                QualityTestSummaryEnabled = cms.uint32(0)
-                                )
-                            )
-                        ),
-                    cms.PSet(
-                        ObjectLabel = cms.string("HTM"),
-                        ObjectDisable  = cms.uint32(0),
-                        QualityTests = cms.VPSet(
-                            cms.PSet(
-                                QualityTestName = cms.string(""),
-                                QualityTestHist = cms.string(""),
-                                QualityTestSummaryEnabled = cms.uint32(0)
-                                )
-                            )
-                        ),
-                    cms.PSet(
-                        ObjectLabel = cms.string("HTT"),
-                        ObjectDisable  = cms.uint32(0),
-                        QualityTests = cms.VPSet(
-                            cms.PSet(
-                                QualityTestName = cms.string(""),
-                                QualityTestHist = cms.string(""),
-                                QualityTestSummaryEnabled = cms.uint32(0)
-                                )
-                            )
-                        ),
-                    cms.PSet(
-                        ObjectLabel = cms.string("ETM"),
-                        ObjectDisable  = cms.uint32(0),
-                        QualityTests = cms.VPSet(
-                            cms.PSet(
-                                QualityTestName = cms.string(""),
-                                QualityTestHist = cms.string(""),
-                                QualityTestSummaryEnabled = cms.uint32(0)
-                                )
-                            )
-                        ),
-                    cms.PSet(
-                        ObjectLabel = cms.string("ETT"),
-                        ObjectDisable  = cms.uint32(0),
-                        QualityTests = cms.VPSet(
-                            cms.PSet(
-                                QualityTestName = cms.string(""),
-                                QualityTestHist = cms.string(""),
-                                QualityTestSummaryEnabled = cms.uint32(0)
-                                )
-                            )
-                        ),
-                    cms.PSet(
-                        ObjectLabel = cms.string("Tau"),
-                        ObjectDisable  = cms.uint32(0),
-                        QualityTests = cms.VPSet(
-                            cms.PSet(
-                                QualityTestName = cms.string(""),
-                                QualityTestHist = cms.string(""),
-                                QualityTestSummaryEnabled = cms.uint32(0)
-                                )
-                            )
-                        ),
-                    cms.PSet(
-                        ObjectLabel = cms.string("ForJet"),
-                        ObjectDisable  = cms.uint32(0),
-                        QualityTests = cms.VPSet(
-                            cms.PSet(
-                                QualityTestName = cms.string(""),
-                                QualityTestHist = cms.string(""),
-                                QualityTestSummaryEnabled = cms.uint32(0)
-                                )
-                            )
-                        ),
-                    cms.PSet(
-                        ObjectLabel = cms.string("CenJet"),
-                        ObjectDisable  = cms.uint32(0),
-                        QualityTests = cms.VPSet(
-                            cms.PSet(
-                                QualityTestName = cms.string(""),
-                                QualityTestHist = cms.string(""),
-                                QualityTestSummaryEnabled = cms.uint32(0)
-                                )
-                            )
-                        ),
-                    cms.PSet(
-                        ObjectLabel = cms.string("IsoEG"),
-                        ObjectDisable  = cms.uint32(0),
-                        QualityTests = cms.VPSet(
-                            cms.PSet(
-                                QualityTestName = cms.string(""),
-                                QualityTestHist = cms.string(""),
-                                QualityTestSummaryEnabled = cms.uint32(0)
-                                )
-                            )
-                        ),
-                    cms.PSet(
-                        ObjectLabel = cms.string("NoIsoEG"),
-                        ObjectDisable  = cms.uint32(0),
-                        QualityTests = cms.VPSet(
-                            cms.PSet(
-                                QualityTestName = cms.string(""),
-                                QualityTestHist = cms.string(""),
-                                QualityTestSummaryEnabled = cms.uint32(0)
-                                )
-                            )
-                        ),
-                    cms.PSet(
-                        ObjectLabel = cms.string("Mu"),
-                        ObjectDisable  = cms.uint32(0),
-                        QualityTests = cms.VPSet(
-                            cms.PSet(
-                                QualityTestName = cms.string(""),
-                                QualityTestHist = cms.string(""),
-                                QualityTestSummaryEnabled = cms.uint32(0)
-                                )
-                            )
-                        )
-                    ),
+    L1Objects = cms.VPSet(),
     #
     # fast over-mask a system: if the name of the system is in the list, the system will be masked
     # (the default mask value is given in L1Systems VPSet)
