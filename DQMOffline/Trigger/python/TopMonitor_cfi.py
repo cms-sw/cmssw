@@ -85,7 +85,7 @@ hltTOPmonitoring.numGenericTriggerEventPSet.andOr         = cms.bool( False )
 hltTOPmonitoring.numGenericTriggerEventPSet.andOrHlt      = cms.bool(True)# True:=OR; False:=AND
 hltTOPmonitoring.numGenericTriggerEventPSet.hltInputTag   = cms.InputTag( "TriggerResults::HLT" )
 hltTOPmonitoring.numGenericTriggerEventPSet.errorReplyHlt = cms.bool( False )
-hltTOPmonitoring.numGenericTriggerEventPSet.verbosityLevel = cms.uint32(1)
+hltTOPmonitoring.numGenericTriggerEventPSet.verbosityLevel = cms.uint32(0)
 
 hltTOPmonitoring.denGenericTriggerEventPSet.andOr         = cms.bool( False )
 hltTOPmonitoring.numGenericTriggerEventPSet.andOrHlt      = cms.bool(True)# True:=OR; False:=AND
@@ -95,5 +95,5 @@ hltTOPmonitoring.denGenericTriggerEventPSet.dcsInputTag   = cms.InputTag( "scale
 hltTOPmonitoring.denGenericTriggerEventPSet.dcsPartitions = cms.vint32 ( 24, 25, 26, 27, 28, 29 ) # 24-27: strip, 28-29: pixel, we should add all other detectors !
 hltTOPmonitoring.denGenericTriggerEventPSet.andOrDcs      = cms.bool( False )
 hltTOPmonitoring.denGenericTriggerEventPSet.errorReplyDcs = cms.bool( True )
-hltTOPmonitoring.denGenericTriggerEventPSet.verbosityLevel = cms.uint32(1)
+hltTOPmonitoring.denGenericTriggerEventPSet.verbosityLevel = cms.uint32(0)
 
