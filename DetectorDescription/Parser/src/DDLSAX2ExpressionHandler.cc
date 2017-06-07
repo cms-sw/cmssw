@@ -1,5 +1,5 @@
 #include "DetectorDescription/Parser/interface/DDLSAX2ExpressionHandler.h"
-#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
+#include "DetectorDescription/Core/interface/ClhepEvaluator.h"
 #include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
 #include "Utilities/Xerces/interface/XercesStrUtils.h"
 #include <map>

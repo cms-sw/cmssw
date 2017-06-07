@@ -2,7 +2,7 @@
 #define DDI_Store_h
 
 #include <map>
-#include "DetectorDescription/Base/interface/rep_type.h"
+#include "DetectorDescription/Core/interface/rep_type.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //;
