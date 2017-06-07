@@ -77,7 +77,7 @@ hltBTVmonitoring.numGenericTriggerEventPSet.andOr         = cms.bool( False )
 hltBTVmonitoring.numGenericTriggerEventPSet.andOrHlt      = cms.bool(True)# True:=OR; False:=AND
 hltBTVmonitoring.numGenericTriggerEventPSet.hltInputTag   = cms.InputTag( "TriggerResults::HLT" )
 hltBTVmonitoring.numGenericTriggerEventPSet.errorReplyHlt = cms.bool( False )
-hltBTVmonitoring.numGenericTriggerEventPSet.verbosityLevel = cms.uint32(1)
+hltBTVmonitoring.numGenericTriggerEventPSet.verbosityLevel = cms.uint32(0)
 
 hltBTVmonitoring.denGenericTriggerEventPSet.andOr         = cms.bool( False )
 hltBTVmonitoring.numGenericTriggerEventPSet.andOrHlt      = cms.bool(True)# True:=OR; False:=AND
