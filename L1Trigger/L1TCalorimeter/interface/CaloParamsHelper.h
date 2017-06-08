@@ -48,8 +48,10 @@ namespace l1t {
 	   etSumBypassEttPUSFlag=36,
 	   etSumEcalSumPUS=37,
 	   etSumBypassEcalSumPUSFlag=38,
-	   layer1SecondStageLut=39,
-	   NUM_CALOPARAMNODES=40
+	   layer1HOverE=39,
+	   PUTowerThreshold=40,
+	   tauTrimmingShapeVeto=41,
+	   NUM_CALOPARAMNODES=42
     };
 
     CaloParamsHelper() { pnode_.resize(NUM_CALOPARAMNODES); }
@@ -110,6 +112,12 @@ namespace l1t {
     void setRegionPUSType(std::string type) { pnode_[regionPUS].type_ = type; }
     void setRegionPUSParams(const std::vector<double> & params) { pnode_[regionPUS].dparams_ = params; }
     void setRegionPUSLUT(const l1t::LUT & lut) { pnode_[regionPUS].LUT_ = lut; }
+
+    int pileUpTowerThreshold() const {return pnode_[PUTowerThreshold].iparams_[0]; }
+    void setPileUpTowerThreshold(int thresh) { 
+      pnode_[PUTowerThreshold].iparams_.resize(1);
+      pnode_[PUTowerThreshold].iparams_[0] = thresh; 
+    }
 
     // EG
     int egEtaCut() const {
@@ -228,6 +236,7 @@ namespace l1t {
 
     l1t::LUT* tauIsolationLUT() { return &pnode_[tauIsolation].LUT_; }
     l1t::LUT* tauIsolationLUT2() { return &pnode_[tauIsolation2].LUT_; }
+    l1t::LUT* tauTrimmingShapeVetoLUT() {return &pnode_[tauTrimmingShapeVeto].LUT_; }
 
     std::string tauCalibrationType() const { return pnode_[tauCalibration].type_; }
     std::vector<double> tauCalibrationParams() { return pnode_[tauCalibration].dparams_; }
@@ -256,6 +265,7 @@ namespace l1t {
     void setTauPUSType(std::string type) { pnode_[tauPUS].type_ = type; }
     void setTauIsolationLUT(const l1t::LUT & lut) { pnode_[tauIsolation].LUT_ = lut; }
     void setTauIsolationLUT2(const l1t::LUT & lut) { pnode_[tauIsolation2].LUT_ = lut; }
+    void setTauTrimmingShapeVetoLUT(const l1t::LUT & lut) { pnode_[tauTrimmingShapeVeto].LUT_ = lut; }
 
     void setTauCalibrationType(std::string type) { pnode_[tauCalibration].type_ = type; }
     void setTauIsoAreaNrTowersEta(unsigned iTauIsoAreaNrTowersEta){taup_.isoAreaNrTowersEta_=iTauIsoAreaNrTowersEta;}
@@ -427,8 +437,8 @@ namespace l1t {
     void setLayer1HCalScalePhiBins(const std::vector<unsigned> params) { pnode_[layer1HCal].uparams_ = params; }
     void setLayer1HFScalePhiBins(const std::vector<unsigned> params)   { pnode_[layer1HF  ].uparams_ = params; }
 
-    l1t::LUT* layer1SecondStageLUT() { return &pnode_[layer1SecondStageLut].LUT_; }
-    void setLayer1SecondStageLUT(const l1t::LUT & lut) { pnode_[layer1SecondStageLut].LUT_ = lut; }
+    l1t::LUT* layer1HOverELUT() { return &pnode_[layer1HOverE].LUT_; }
+    void setLayer1HOverELUT(const l1t::LUT & lut) { pnode_[layer1HOverE].LUT_ = lut; }
 
 
   private:
@@ -446,5 +456,4 @@ namespace l1t {
 
 
 #endif
-
 
