@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 caloParamsSource = cms.ESSource(
     "EmptyESSource",
-    recordName = cms.string('L1TCaloStage2ParamsRcd'),
+    recordName = cms.string('L1TCaloParamsRcd'),
     iovIsRunNotTime = cms.bool(True),
     firstValid = cms.vuint32(1)
 )
