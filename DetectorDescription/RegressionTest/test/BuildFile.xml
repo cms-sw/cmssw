@@ -19,7 +19,6 @@
 <bin file="html_ddd.cpp">
   <flags NO_TESTRUN="1"/>
   <use name="FWCore/PluginManager"/>
-  <use name="DetectorDescription/Base"/>
   <use name="DetectorDescription/Core"/>
   <use name="DetectorDescription/Parser"/>
   <use name="DetectorDescription/RegressionTest"/>
@@ -29,7 +28,6 @@
   <flags NO_TESTRUN="1"/>
   <use name="xerces-c"/>
   <use name="FWCore/PluginManager"/>
-  <use name="DetectorDescription/Base"/>
   <use name="DetectorDescription/Core"/>
   <use name="DetectorDescription/Parser"/>
   <use name="DetectorDescription/RegressionTest"/>
@@ -39,7 +37,6 @@
   <flags NO_TESTRUN="1"/>
   <use name="xerces-c"/>
   <use name="FWCore/PluginManager"/>
-  <use name="DetectorDescription/Base"/>
   <use name="DetectorDescription/Core"/>
   <use name="DetectorDescription/Parser"/>
   <use name="DetectorDescription/RegressionTest"/>
@@ -48,7 +45,6 @@
 <bin file="named_types.cpp">
   <flags NO_TESTRUN="1"/>
   <use name="FWCore/PluginManager"/>
-  <use name="DetectorDescription/Base"/>
   <use name="DetectorDescription/Core"/>
   <use name="DetectorDescription/Parser"/>
   <use name="DetectorDescription/RegressionTest"/>
@@ -77,7 +73,6 @@
 
 <bin file="const_dump.cpp">
  <use name="DetectorDescription/Core"/>
- <use name="DetectorDescription/ExprAlgo"/>
  <use name="DetectorDescription/Algorithm"/>
  <use name="DetectorDescription/RegressionTest"/>
  <use name="DetectorDescription/Parser"/>

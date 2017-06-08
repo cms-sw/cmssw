@@ -1,7 +1,7 @@
 #ifndef DD_ALGO_PLUGIN_DD_ALGORITHM_H
 #define DD_ALGO_PLUGIN_DD_ALGORITHM_H
 
-#include "DetectorDescription/Base/interface/DDTypes.h"
+#include "DetectorDescription/Core/interface/DDTypes.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include <vector>

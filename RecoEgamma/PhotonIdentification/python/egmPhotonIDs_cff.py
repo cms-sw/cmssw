@@ -1,22 +1,42 @@
-# Misc loads for VID framework
-from RecoEgamma.PhotonIdentification.egmPhotonIDs_cfi import *
-from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
+import FWCore.ParameterSet.Config as cms
 
-# Load the producer module to build full 5x5 cluster shapes and whatever 
-# else is needed for IDs
-from RecoEgamma.PhotonIdentification.PhotonIDValueMapProducer_cfi import *
+from PhysicsTools.SelectorUtils.tools.DataFormat import DataFormat
 
-# Load the producer for MVA IDs. Make sure it is also added to the sequence!
-from RecoEgamma.PhotonIdentification.PhotonMVAValueMapProducer_cfi import *
-from RecoEgamma.PhotonIdentification.PhotonRegressionValueMapProducer_cfi import *
+def loadEgmIdSequence(process, dataFormat):
+    process.load("RecoEgamma.PhotonIdentification.egmPhotonIDs_cfi")
+    from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
 
-# The sequence below is important. The MVA ValueMapProducer
-# needs to be downstream from the ID ValueMapProducer because it relies 
-# on some of its products
-egmPhotonIDTask = cms.Task(
-    photonIDValueMapProducer,
-    photonMVAValueMapProducer,
-    egmPhotonIDs,
-    photonRegressionValueMapProducer
-)
-egmPhotonIDSequence = cms.Sequence(egmPhotonIDTask)
+    # Load the producer module to build full 5x5 cluster shapes and whatever 
+    # else is needed for IDs
+    process.load("RecoEgamma.PhotonIdentification.PhotonIDValueMapProducer_cfi")
+
+    # Load the producer for MVA IDs. Make sure it is also added to the sequence!
+    process.load("RecoEgamma.PhotonIdentification.PhotonMVAValueMapProducer_cfi")
+    process.load("RecoEgamma.PhotonIdentification.PhotonRegressionValueMapProducer_cfi")
+
+    # Load tasks for isolations computed with CITK for both AOD and miniAOD cases
+    process.egmPhotonIDTask = cms.Task()
+    # The isolation piece is different depending on the input format
+    if dataFormat== DataFormat.AOD:
+        process.load("RecoEgamma.EgammaIsolationAlgos.egmPhotonIsolationAOD_cff")
+        #if particleFlowTmpPtrs was not create we should create it
+        if not hasattr(process, "particleFlowTmpPtrs"):
+            process.particleFlowTmpPtrs = cms.EDProducer("PFCandidateFwdPtrProducer",
+                                                         src = cms.InputTag('particleFlow')
+                                                         )
+            process.egmPhotonIDTask.add(process.particleFlowTmpPtrs,
+                                        process.egmPhotonIsolationAODTask)
+        else :
+            process.egmPhotonIDTask.add(process.egmPhotonIsolationAODTask)
+            
+    elif dataFormat== DataFormat.MiniAOD:
+        process.load("RecoEgamma.EgammaIsolationAlgos.egmPhotonIsolationMiniAOD_cff")
+        process.egmPhotonIDTask.add(process.egmPhotonIsolationMiniAODTask)
+    else:
+        raise Exception('InvalidVIDDataFormat', 'The requested data format is different from AOD or MiniAOD')
+    # Add everything else other then isolation
+    process.egmPhotonIDTask.add(process.photonIDValueMapProducer,
+                                process.photonMVAValueMapProducer,
+                                process.egmPhotonIDs,
+                                process.photonRegressionValueMapProducer)
+    process.egmPhotonIDSequence = cms.Sequence(process.egmPhotonIDTask)

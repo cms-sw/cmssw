@@ -45,6 +45,18 @@ void HcalDeterministicFit::getLandauFrac(float tStart, float tEnd, float &sum) c
   return;
 }
 
+
+constexpr float HcalDeterministicFit::siPM205Frac[];
+void HcalDeterministicFit::get205Frac(float tStart, float tEnd, float &sum) const{
+
+  if (std::abs(tStart-tEnd-tsWidth)<0.1) {
+    sum=0;
+    return;
+  }
+  sum= siPM205Frac[int(ceil(tStart+tsWidth))];
+  return;
+}
+
 void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
 				       float& reconstructedEnergy,
 				       float& reconstructedTime) const
@@ -104,26 +116,40 @@ void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
 
   }
 
-  float i3=0;
-  getLandauFrac(-tsShift3,-tsShift3+tsWidth,i3);
-  float n3=0;
-  getLandauFrac(-tsShift3+tsWidth,-tsShift3+tsWidth*2,n3);
-  float nn3=0;
-  getLandauFrac(-tsShift3+tsWidth*2,-tsShift3+tsWidth*3,nn3);
-
-  float i4=0;
-  getLandauFrac(-tsShift4,-tsShift4+tsWidth,i4);
-  float n4=0;
-  getLandauFrac(-tsShift4+tsWidth,-tsShift4+tsWidth*2,n4);
-
-  float i5=0;
-  getLandauFrac(-tsShift5,-tsShift5+tsWidth,i5);
-  float n5=0;
-  getLandauFrac(-tsShift5+tsWidth,-tsShift5+tsWidth*2,n5);
-
   float ch3=0;
   float ch4=0;
   float ch5=0;
+
+  float i3=0;
+  float n3=0;
+  float nn3=0;
+
+  float i4=0;
+  float n4=0;
+  float i5=0;
+  float n5=0;
+
+  if(channelData.hasTimeInfo() && channelData.recoShape()==205) {
+    get205Frac(-tsShift3,-tsShift3+tsWidth,i3);
+    get205Frac(-tsShift3+tsWidth,-tsShift3+tsWidth*2,n3);
+    get205Frac(-tsShift3+tsWidth*2,-tsShift3+tsWidth*3,nn3);
+
+    get205Frac(-tsShift4,-tsShift4+tsWidth,i4);
+    get205Frac(-tsShift4+tsWidth,-tsShift4+tsWidth*2,n4);
+
+    get205Frac(-tsShift5,-tsShift5+tsWidth,i5);
+    get205Frac(-tsShift5+tsWidth,-tsShift5+tsWidth*2,n5);
+  } else {
+    getLandauFrac(-tsShift3,-tsShift3+tsWidth,i3);
+    getLandauFrac(-tsShift3+tsWidth,-tsShift3+tsWidth*2,n3);
+    getLandauFrac(-tsShift3+tsWidth*2,-tsShift3+tsWidth*3,nn3);
+
+    getLandauFrac(-tsShift4,-tsShift4+tsWidth,i4);
+    getLandauFrac(-tsShift4+tsWidth,-tsShift4+tsWidth*2,n4);
+
+    getLandauFrac(-tsShift5,-tsShift5+tsWidth,i5);
+    getLandauFrac(-tsShift5+tsWidth,-tsShift5+tsWidth*2,n5);
+  }
 
   if (i3 != 0 && i4 != 0 && i5 != 0) {
 
@@ -141,7 +167,12 @@ void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
       if (ratio < 5 && ratio > 0.5) {
         double invG = invGpar[0]+invGpar[1]*std::sqrt(2*std::log(invGpar[2]/ratio));
         float iG=0;
-	getLandauFrac(-invG,-invG+tsWidth,iG);
+
+	if(channelData.hasTimeInfo() && channelData.recoShape()==205) {
+	  get205Frac(-invG,-invG+tsWidth,iG);
+	} else {
+	  getLandauFrac(-invG,-invG+tsWidth,iG);
+	}
 	if (iG != 0 ) {
 	  ch4=(corrCharge[4]-ch3*n3)/(iG);
 	  tsShift4=invG;
