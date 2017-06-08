@@ -46,9 +46,181 @@ namespace {
     }// fill
   };
 
+  /************************************************
+    time history histogram of SiStripApvGains 
+  *************************************************/
+
+  class SiStripApvGainTimeMeans : public cond::payloadInspector::HistoryPlot<SiStripApvGain,float> {
+  public:
+    SiStripApvGainTimeMeans() : cond::payloadInspector::HistoryPlot<SiStripApvGain,float>( "SiStripApv Gains average","average Strip APV gain value"){}
+    virtual ~SiStripApvGainTimeMeans() = default;
+
+    float getFromPayload( SiStripApvGain& payload ){
+     
+      std::vector<uint32_t> detid;
+      payload.getDetIds(detid);
+      
+      float nAPVs=0;
+      float sumOfGains=0;
+
+      for (size_t id=0;id<detid.size();id++){
+	SiStripApvGain::Range range=payload.getRange(detid[id]);
+	for(int it=0;it<range.second-range.first;it++){
+	  nAPVs+=1;
+	  sumOfGains+=payload.getApvGain(it,range);
+	} // loop over APVs
+      } // loop over detIds
+
+      return sumOfGains/nAPVs;
+
+    } // payload
+  };
+
+  /************************************************
+    time history histogram of TIB SiStripApvGains 
+  *************************************************/
+
+  class SiStripApvTIBGainTimeMeans : public cond::payloadInspector::HistoryPlot<SiStripApvGain,float> {
+  public:
+    SiStripApvTIBGainTimeMeans() : cond::payloadInspector::HistoryPlot<SiStripApvGain,float>( "SiStripApv Gains average","average Tracker Inner Barrel APV gain value"){}
+    virtual ~SiStripApvTIBGainTimeMeans() = default;
+
+    float getFromPayload( SiStripApvGain& payload ){
+     
+      std::vector<uint32_t> detid;
+      payload.getDetIds(detid);
+      
+      float nAPVs=0;
+      float sumOfGains=0;
+
+      for (size_t id=0;id<detid.size();id++){
+
+	int subid = (id >> 25)&0x7;
+	if(subid!=3) continue;
+	
+	SiStripApvGain::Range range=payload.getRange(detid[id]);
+	for(int it=0;it<range.second-range.first;it++){
+	  nAPVs+=1;
+	  sumOfGains+=payload.getApvGain(it,range);
+	} // loop over APVs
+      } // loop over detIds
+
+      return sumOfGains/nAPVs;
+
+    } // payload
+  };
+
+  /************************************************
+    time history histogram of TOB SiStripApvGains 
+  *************************************************/
+
+  class SiStripApvTOBGainTimeMeans : public cond::payloadInspector::HistoryPlot<SiStripApvGain,float> {
+  public:
+    SiStripApvTOBGainTimeMeans() : cond::payloadInspector::HistoryPlot<SiStripApvGain,float>( "SiStripApv Gains average","average Tracker Outer Barrel gain value"){}
+    virtual ~SiStripApvTOBGainTimeMeans() = default;
+
+    float getFromPayload( SiStripApvGain& payload ){
+     
+      std::vector<uint32_t> detid;
+      payload.getDetIds(detid);
+      
+      float nAPVs=0;
+      float sumOfGains=0;
+
+      for (size_t id=0;id<detid.size();id++){
+
+	int subid = (id >> 25)&0x7;
+	if(subid!=5) continue;
+	
+	SiStripApvGain::Range range=payload.getRange(detid[id]);
+	for(int it=0;it<range.second-range.first;it++){
+	  nAPVs+=1;
+	  sumOfGains+=payload.getApvGain(it,range);
+	} // loop over APVs
+      } // loop over detIds
+
+      return sumOfGains/nAPVs;
+
+    } // payload
+  };
+
+  /************************************************
+    time history histogram of TID SiStripApvGains 
+  *************************************************/
+
+  class SiStripApvTIDGainTimeMeans : public cond::payloadInspector::HistoryPlot<SiStripApvGain,float> {
+  public:
+    SiStripApvTIDGainTimeMeans() : cond::payloadInspector::HistoryPlot<SiStripApvGain,float>( "SiStripApv Gains average","average Tracker Inner Disks APV gain value"){}
+    virtual ~SiStripApvTIDGainTimeMeans() = default;
+
+    float getFromPayload( SiStripApvGain& payload ){
+     
+      std::vector<uint32_t> detid;
+      payload.getDetIds(detid);
+      
+      float nAPVs=0;
+      float sumOfGains=0;
+
+      for (size_t id=0;id<detid.size();id++){
+
+	int subid = (id >> 25)&0x7;
+	if(subid!=4) continue;
+	
+	SiStripApvGain::Range range=payload.getRange(detid[id]);
+	for(int it=0;it<range.second-range.first;it++){
+	  nAPVs+=1;
+	  sumOfGains+=payload.getApvGain(it,range);
+	} // loop over APVs
+      } // loop over detIds
+
+      return sumOfGains/nAPVs;
+
+    } // payload
+  };
+
+  /************************************************
+    time history histogram of TEC SiStripApvGains 
+  *************************************************/
+
+  class SiStripApvTECGainTimeMeans : public cond::payloadInspector::HistoryPlot<SiStripApvGain,float> {
+  public:
+    SiStripApvTECGainTimeMeans() : cond::payloadInspector::HistoryPlot<SiStripApvGain,float>( "SiStripApv Gains average in TEC","average Tracker Endcaps APV gain value"){}
+    virtual ~SiStripApvTECGainTimeMeans() = default;
+
+    float getFromPayload( SiStripApvGain& payload ){
+     
+      std::vector<uint32_t> detid;
+      payload.getDetIds(detid);
+      
+      float nAPVs=0;
+      float sumOfGains=0;
+
+      for (size_t id=0;id<detid.size();id++){
+
+	int subid = (id >> 25)&0x7;
+	if(subid!=6) continue;
+	
+	SiStripApvGain::Range range=payload.getRange(detid[id]);
+	for(int it=0;it<range.second-range.first;it++){
+	  nAPVs+=1;
+	  sumOfGains+=payload.getApvGain(it,range);
+	} // loop over APVs
+      } // loop over detIds
+
+      return sumOfGains/nAPVs;
+
+    } // payload
+  };
+
+    
 } // close namespace
 
 // Register the classes as boost python plugin
 PAYLOAD_INSPECTOR_MODULE(SiStripApvGain){
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsValue);
+  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainTimeMeans);
+  PAYLOAD_INSPECTOR_CLASS(SiStripApvTIBGainTimeMeans);
+  PAYLOAD_INSPECTOR_CLASS(SiStripApvTIDGainTimeMeans);
+  PAYLOAD_INSPECTOR_CLASS(SiStripApvTOBGainTimeMeans);
+  PAYLOAD_INSPECTOR_CLASS(SiStripApvTECGainTimeMeans);
 }
