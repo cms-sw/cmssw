@@ -163,8 +163,8 @@ void TSGForOI::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 }
 
 void TSGForOI::findSeedsOnLayer(
-                const edm::ESHandle<TrackerTopology> tTopo,
-                const GeometricSearchDet &layer,
+				const edm::ESHandle<TrackerTopology> tTopo,
+				const GeometricSearchDet &layer,
 				const TrajectoryStateOnSurface &tsosAtIP,
 				const Propagator& propagatorAlong,
 				const Propagator& propagatorOpposite,
@@ -243,8 +243,8 @@ double TSGForOI::calculateSFFromL2(const reco::TrackRef track){
 
 
 int TSGForOI::makeSeedsFromHits(
-                const edm::ESHandle<TrackerTopology> tTopo,
-                const GeometricSearchDet &layer,
+				const edm::ESHandle<TrackerTopology> tTopo,
+				const GeometricSearchDet &layer,
 				const TrajectoryStateOnSurface &tsosAtIP,
 				std::vector<TrajectorySeed> &out,
 				const Propagator& propagatorAlong,
@@ -288,7 +288,7 @@ int TSGForOI::makeSeedsFromHits(
     if (useStereoLayersInTEC_) { 
       DetId detid = ((*it).recHit()->hit())->geographicalId();
       if (detid.subdetId() == StripSubdetector::TEC) {
-    if (!tTopo->tecIsStereo(detid.rawId())) break;  // try another layer
+		if (!tTopo->tecIsStereo(detid.rawId())) break;  // try another layer
       }
     }
     
