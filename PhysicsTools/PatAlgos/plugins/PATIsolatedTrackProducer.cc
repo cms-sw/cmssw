@@ -22,6 +22,8 @@
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
 #include "DataFormats/TrackReco/interface/DeDxData.h"
 #include "DataFormats/TrackReco/interface/DeDxHitInfo.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "RecoTracker/DeDx/interface/DeDxTools.h"
 
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
@@ -61,6 +63,7 @@ namespace pat {
           const edm::EDGetTokenT<pat::PackedCandidateCollection>    pc_;
           const edm::EDGetTokenT<pat::PackedCandidateCollection>    lt_;
           const edm::EDGetTokenT<reco::TrackCollection>    gt_;
+          const edm::EDGetTokenT<reco::VertexCollection>    pv_;
           const edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection> > gt2pc_;
           const edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection> > gt2lt_;
           const edm::EDGetTokenT<edm::Association<reco::PFCandidateCollection> > pc2pf_;
@@ -90,6 +93,7 @@ pat::PATIsolatedTrackProducer::PATIsolatedTrackProducer(const edm::ParameterSet&
   pc_(consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("packedPFCandidates"))),
   lt_(consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("lostTracks"))),
   gt_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("generalTracks"))),
+  pv_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("primaryVertices"))),
   gt2pc_(consumes<edm::Association<pat::PackedCandidateCollection> >(iConfig.getParameter<edm::InputTag>("packedPFCandidates"))),
   gt2lt_(consumes<edm::Association<pat::PackedCandidateCollection> >(iConfig.getParameter<edm::InputTag>("lostTracks"))),
   pc2pf_(consumes<edm::Association<reco::PFCandidateCollection> >(iConfig.getParameter<edm::InputTag>("packedPFCandidates"))),
@@ -139,6 +143,11 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
     edm::Handle<reco::TrackCollection> gt_h;
     iEvent.getByToken( gt_, gt_h );
     const reco::TrackCollection *generalTracks = gt_h.product();
+
+    // get the primary vertex
+    edm::Handle<reco::VertexCollection> pvs;
+    iEvent.getByToken( pv_, pvs );
+    const reco::Vertex & pv = (*pvs)[0];
 
     // generalTracks-->packedPFCandidate association
     edm::Handle<edm::Association<pat::PackedCandidateCollection> > gt2pc;
@@ -242,17 +251,17 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
             fromPV    = pfCand.fromPV();
             refToCand = pcref;
         }else if(isInLostTracks){
-            pdgId     = 0;
+            pdgId     = lostTrack.pdgId();
             dz        = lostTrack.dz();
             dxy       = lostTrack.dxy();
             dzError   = lostTrack.dzError();
             dxyError  = lostTrack.dxyError();
-            fromPV    = -1;
+            fromPV    = lostTrack.fromPV();
             refToCand = ltref;
         }else{
             pdgId     = 0;
-            dz        = gentk.dz();
-            dxy       = gentk.dxy();
+            dz        = gentk.dz(pv.position());
+            dxy       = gentk.dxy(pv.position());
             dzError   = gentk.dzError();
             dxyError  = gentk.dxyError();
             fromPV    = -1;
