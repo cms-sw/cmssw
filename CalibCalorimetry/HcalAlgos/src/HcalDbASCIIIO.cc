@@ -202,7 +202,7 @@ bool dumpHcalObject (std::ostream& fOutput, const T& fObject) {
     const float* values = fObject.getValues (*channel)->getValues ();
     if (values) {
       HcalDbASCIIIO::dumpId (fOutput, *channel);
-      sprintf (buffer, " %8.5f %8.5f %8.5f %8.5f %10X\n",
+      sprintf (buffer, " %10.7f %10.7f %10.7f %10.7f %10X\n",
 	       values[0], values[1], values[2], values[3], channel->rawId ());
       fOutput << buffer;
     }
