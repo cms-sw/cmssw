@@ -24,6 +24,7 @@ HcalShapes::HcalShapes()
   theHcalShape201(),
   theHcalShape202(),
   theHcalShape203(),
+  theHcalShape205(),
   theHcalShape301(),
   theHcalShape401()
  {
@@ -47,7 +48,7 @@ HcalShapes::HcalShapes()
   theHcalShape104.setShape(104);                  
   theShapes[104] = new CaloCachedShapeIntegrator(&theHcalShape104);
   theHcalShape104.setShape(105);
-  theShapes[105] = new CaloCachedShapeIntegrator(&theHcalShape105); // HPD new 
+  theShapes[105] = new CaloCachedShapeIntegrator(&theHcalShape105); // HPD reco
   theHcalShape123.setShape(123);                  
   theShapes[123] = new CaloCachedShapeIntegrator(&theHcalShape123);
   theHcalShape124.setShape(124);                  
@@ -60,6 +61,8 @@ HcalShapes::HcalShapes()
   theShapes[202] = new CaloCachedShapeIntegrator(&theHcalShape202);
   theHcalShape203.setShape(203);
   theShapes[203] = new CaloCachedShapeIntegrator(&theHcalShape203);
+  theHcalShape205.setShape(205);
+  theShapes[205] = new CaloCachedShapeIntegrator(&theHcalShape205);
   theHcalShape301.setShape(301);
   theShapes[301] = new CaloCachedShapeIntegrator(&theHcalShape301);
   //    ZDC not yet defined in CalibCalorimetry/HcalAlgos/src/HcalPulseShapes.cc
