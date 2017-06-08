@@ -6,10 +6,6 @@ namespace hcaldqm
 	using namespace constants;
 	namespace utilities
 	{
-		double adc2fCDB(const CaloSamples& calo_samples, unsigned int n) {
-			return calo_samples[n];
-		}
-
 		/*
 		 *	Useful Detector Functions. For Fast Detector Validity Check
 		 */
@@ -24,9 +20,9 @@ namespace hcaldqm
             	slot = fed%2==0 ? SLOT_uTCA_MIN : SLOT_uTCA_MIN+6;
             }
             std::pair<uint16_t, uint16_t> crate_slot = std::make_pair<uint16_t, uint16_t>(0,0);
-            if (constants::fed2crate_map.find(fed) != constants::fed2crate_map.end()) {
-            	crate_slot = std::make_pair<uint16_t const, uint16_t const>((uint16_t const)constants::fed2crate_map.at(fed),
-                (uint16_t const)slot);
+            auto it_fed2crate = constants::fed2crate_map.find(fed);
+            if (it_fed2crate != constants::fed2crate_map.end()) {
+            	crate_slot = std::make_pair<uint16_t const, uint16_t const>((uint16_t const)it_fed2crate->second, (uint16_t const)slot);
             }
 			return crate_slot;
 		}
@@ -35,16 +31,18 @@ namespace hcaldqm
 		{
 			//	 for the details see Constants.h
 			int fed = 0;
-			if (constants::crate2fed_map.find(crate) != constants::crate2fed_map.end()) {
-				fed = constants::crate2fed_map.at(crate);
+			auto it_crate2fed = constants::crate2fed_map.find(crate);
+			if (it_crate2fed != constants::crate2fed_map.end()) {
+				fed = it_crate2fed->second;
 				if (fed <= FED_VME_MAX && fed > 0) {
 					if (slot > 10 && (crate==3 || crate==6 || crate==7)) {
 						++fed;
 					}
 				} else {
-					if (slot > 6 && (20 <= crate && crate <= 37))  //needed to handle dual fed readout
+					if (slot > 6 && (20 <= crate && crate <= 37)) {  //needed to handle dual fed readout
 				  		++fed;
-				  }
+				  	}
+				}
 			}
 			return fed;
 		}

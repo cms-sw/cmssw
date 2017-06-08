@@ -31,9 +31,6 @@ namespace hcaldqm
 			return calo_samples;
 		}
 
-		// Get adc2fC
-		double adc2fCDB(const CaloSamples& calo_samples, unsigned int n);
-
 		// Get pedestal-subtracted charge
 		template<class Digi> 
 		double adc2fCDBMinusPedestal(const edm::ESHandle<HcalDbService>& conditions, const CaloSamples& calo_samples, const HcalDetId did, const Digi& digi, unsigned int n) {
