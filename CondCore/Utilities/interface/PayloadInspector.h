@@ -434,6 +434,13 @@ namespace cond {
 	  std::get<1>(Base::m_plotData[ibin])+=weight;
 	}
       }
+      
+      // to be used to fill the histogram!
+      void fillWithBinAndValue( size_t bin, float weight=1 ){
+	if(bin>=0 && bin<Base::m_plotData.size()){
+	  std::get<1>(Base::m_plotData[bin])+=weight;
+	}
+      }
 
       // this one can ( and in general should ) be overridden - the implementation should use fillWithValue
       virtual bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override {
