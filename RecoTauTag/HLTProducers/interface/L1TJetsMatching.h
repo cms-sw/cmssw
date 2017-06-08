@@ -176,7 +176,7 @@ class L1TJetsMatching: public edm::global::EDProducer<> {
             for(unsigned int iL1Jet = 0; iL1Jet < jetCandRefVec.size(); iL1Jet++){
                 // Find the relative L2pfJets, to see if it has been reconstructed
                 //  if ((iJet<3) && (iL1Jet==0))  std::cout<<myJet.p4().Pt()<<" ";
-                if ((reco::deltaR2(myJet.p4().Vect(), (jetCandRefVec[iL1Jet]->p4()).Vect()) < matchingR2_ ) && (myJet.pt()>pt2Min_)) {
+                if ((reco::deltaR2(myJet.p4(), jetCandRefVec[iL1Jet]->p4()) < matchingR2_ ) && (myJet.pt()>pt2Min_)) {
                     pfMatchedJets->push_back(myJet);
                     break;
                 }
