@@ -199,6 +199,11 @@ L1TCaloStage2ParamsESProducer::L1TCaloStage2ParamsESProducer(const edm::Paramete
   std::shared_ptr<LUT> tauIsoLUT2( new LUT(tauIsoLUTStream2) );
   m_params_helper.setTauIsolationLUT2(*tauIsoLUT2);
 
+  edm::FileInPath tauTrimmingShapeVetoLUTFile = conf.getParameter<edm::FileInPath>("tauTrimmingShapeVetoLUTFile");
+  std::ifstream tauTrimmingShapeVetoLUTStream(tauTrimmingShapeVetoLUTFile.fullPath());
+  std::shared_ptr<LUT> tauTrimmingShapeVetoLUT( new LUT(tauTrimmingShapeVetoLUTStream) );
+  m_params_helper.setTauTrimmingShapeVetoLUT(*tauTrimmingShapeVetoLUT);
+
   edm::FileInPath tauCalibrationLUTFile = conf.getParameter<edm::FileInPath>("tauCalibrationLUTFile");
   std::ifstream tauCalibrationLUTStream(tauCalibrationLUTFile.fullPath());
   std::shared_ptr<LUT> tauCalibrationLUT( new LUT(tauCalibrationLUTStream) );
