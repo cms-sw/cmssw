@@ -20,16 +20,19 @@
 #include <boost/tokenizer.hpp>
 #include <boost/algorithm/string.hpp>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 class TestCompareDDSpecsDumpFiles
-  : public edm::EDAnalyzer
+  : public edm::one::EDAnalyzer<>
 {
 public:
   explicit TestCompareDDSpecsDumpFiles( const edm::ParameterSet& );
   ~TestCompareDDSpecsDumpFiles( void );
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  
+  void beginJob() override {}
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void endJob() override {}
 
 private:
   typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
