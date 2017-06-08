@@ -29,16 +29,8 @@ namespace hcaldqm
 		{
 		  //return utilities::crate2fed(eid.crateId(),eid.slot());
 			unsigned int fed = utilities::crate2fed(eid.crateId(), eid.slot());
-			int index = -1;
-			auto it = fedListuTCA.begin();
-			for (; it != fedListuTCA.end(); ++it) {
-				if (*it == fed) {
-					index = std::distance(fedListuTCA.begin(), it);
-					break;
-				}
-			}
-			return index;
-
+			auto it_fed = std::find(std::begin(fedListuTCA), std::end(fedListuTCA), fed);
+			return ((it_fed == std::end(fedListuTCA)) ? -1 : std::distance(fedListuTCA.begin(), it_fed));
 		}
 
 		int getValue_FEDVME(HcalElectronicsId const& eid)
@@ -46,66 +38,30 @@ namespace hcaldqm
 			//return eid.dccid();
 			//return utilities::crate2fed(eid.crateId(),eid.slot());
 			unsigned int fed = utilities::crate2fed(eid.crateId(), eid.slot());
-			int index = -1;
-			auto it = fedListVME.begin();
-			for (; it != fedListVME.end(); ++it) {
-				if (*it == fed) {
-					index = std::distance(fedListVME.begin(), it);
-					break;
-				}
-			}
-			return index;
-			
+			auto it_fed = std::find(std::begin(fedListVME), std::end(fedListVME), fed);
+			return ((it_fed == std::end(fedListVME)) ? -1 : std::distance(fedListVME.begin(), it_fed));
+
 		}
 
 		int getValue_Crate(HcalElectronicsId const& eid)
 		{
-			//int c = eid.crateId();
-			//if (eid.isUTCAid())
-			//	c = CRATE_VME_NUM + eid.crateId()-CRATE_uTCA_MIN;
-			//return c;
 			unsigned int crate = eid.crateId();
-			int index = -1;
-			auto it = crateList.begin();
-			for (; it != crateList.end(); ++it) {
-				if (*it == crate) {
-					index = std::distance(crateList.begin(), it);
-					break;
-				}
-			}
-			return index;
+			auto it_crate = std::find(std::begin(crateList), std::end(crateList), crate);
+			return ((it_crate == std::end(crateList)) ? -1 : std::distance(crateList.begin(), it_crate));
 		}
 
 		int getValue_CrateuTCA(HcalElectronicsId const& eid)
 		{
-			//return eid.crateId()-CRATE_uTCA_MIN;
-			//return eid.crateId();
 			unsigned int crate = eid.crateId();
-			int index = -1;
-			auto it = crateListuTCA.begin();
-			for (; it != crateListuTCA.end(); ++it) {
-				if (*it == crate) {
-					index = std::distance(crateListuTCA.begin(), it);
-					break;
-				}
-			}
-			return index;
+			auto it_crate = std::find(std::begin(crateListuTCA), std::end(crateListuTCA), crate);
+			return ((it_crate == std::end(crateListuTCA)) ? -1 : std::distance(crateListuTCA.begin(), it_crate));
 		}
 
 		int getValue_CrateVME(HcalElectronicsId const& eid)
 		{
-			//return eid.crateId();
 			unsigned int crate = eid.crateId();
-			int index = -1;
-			auto it = crateListVME.begin();
-			for (; it != crateListVME.end(); ++it) {
-				if (*it == crate) {
-					index = std::distance(crateListVME.begin(), it);
-					break;
-				}
-			}
-			return index;
-			
+			auto it_crate = std::find(std::begin(crateListVME), std::end(crateListVME), crate);
+			return ((it_crate == std::end(crateListVME)) ? -1 : std::distance(crateListVME.begin(), it_crate));			
 		}
 
 		int getValue_SlotuTCA(HcalElectronicsId const& eid)
