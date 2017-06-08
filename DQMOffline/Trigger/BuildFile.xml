@@ -17,6 +17,7 @@
 <use   name="DataFormats/CaloTowers"/>
 <use   name="DataFormats/HeavyIonEvent"/>
 <use   name="CommonTools/Utils"/>
+<use   name="CommonTools/TriggerUtils"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="RecoEgamma/EgammaHLTAlgos"/>
 <use   name="RecoEgamma/EgammaIsolationAlgos"/>
