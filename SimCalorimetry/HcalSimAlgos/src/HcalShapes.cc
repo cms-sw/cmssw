@@ -12,6 +12,7 @@
 HcalShapes::HcalShapes()
 : theMCParams(0),
   theShapes(),
+  theShapesPrecise(),
   theZDCShape(),
   theHcalShape101(),
   theHcalShape102(),
@@ -40,34 +41,48 @@ HcalShapes::HcalShapes()
   */
 
   theHcalShape101.setShape(101); 
+  theShapesPrecise[101] = &theHcalShape101;
   theShapes[101] = new CaloCachedShapeIntegrator(&theHcalShape101);
   theHcalShape102.setShape(102);                  
+  theShapesPrecise[102] = &theHcalShape102;
   theShapes[102] = new CaloCachedShapeIntegrator(&theHcalShape102);
   theHcalShape103.setShape(103);                  
+  theShapesPrecise[103] = &theHcalShape103;
   theShapes[103] = new CaloCachedShapeIntegrator(&theHcalShape103);
   theHcalShape104.setShape(104);                  
+  theShapesPrecise[104] = &theHcalShape104;
   theShapes[104] = new CaloCachedShapeIntegrator(&theHcalShape104);
-  theHcalShape104.setShape(105);
+  theHcalShape105.setShape(105);
+  theShapesPrecise[105] = &theHcalShape105;
   theShapes[105] = new CaloCachedShapeIntegrator(&theHcalShape105); // HPD reco
   theHcalShape123.setShape(123);                  
+  theShapesPrecise[123] = &theHcalShape123;
   theShapes[123] = new CaloCachedShapeIntegrator(&theHcalShape123);
   theHcalShape124.setShape(124);                  
+  theShapesPrecise[124] = &theHcalShape124;
   theShapes[124] = new CaloCachedShapeIntegrator(&theHcalShape124);
   theHcalShape125.setShape(125);
+  theShapesPrecise[125] = &theHcalShape125;
   theShapes[125] = new CaloCachedShapeIntegrator(&theHcalShape125);
   theHcalShape201.setShape(201);                  
+  theShapesPrecise[201] = &theHcalShape201;
   theShapes[201] = new CaloCachedShapeIntegrator(&theHcalShape201);
   theHcalShape202.setShape(202);                  
+  theShapesPrecise[202] = &theHcalShape202;
   theShapes[202] = new CaloCachedShapeIntegrator(&theHcalShape202);
   theHcalShape203.setShape(203);
+  theShapesPrecise[203] = &theHcalShape203;
   theShapes[203] = new CaloCachedShapeIntegrator(&theHcalShape203);
   theHcalShape205.setShape(205);
+  theShapesPrecise[205] = &theHcalShape205;
   theShapes[205] = new CaloCachedShapeIntegrator(&theHcalShape205);
   theHcalShape301.setShape(301);
+  theShapesPrecise[301] = &theHcalShape301;
   theShapes[301] = new CaloCachedShapeIntegrator(&theHcalShape301);
   //    ZDC not yet defined in CalibCalorimetry/HcalAlgos/src/HcalPulseShapes.cc
   // theHcalShape401(401);
   // theShapes[401] = new CaloCachedShapeIntegrator(&theHcalShape401);
+  theShapesPrecise[ZDC] = &theZDCShape;
   theShapes[ZDC] = new CaloCachedShapeIntegrator(&theZDCShape);
 
   theMCParams=0;
@@ -112,36 +127,42 @@ void HcalShapes::endRun()
 }
 
 
-const CaloVShape * HcalShapes::shape(const DetId & detId) const
+const CaloVShape * HcalShapes::shape(const DetId & detId, bool precise) const
 {
   if(!theMCParams) {
     return defaultShape(detId);
   }
   int shapeType = theMCParams->getValues(detId)->signalShape();
-  ShapeMap::const_iterator shapeMapItr = theShapes.find(shapeType);
-  if(shapeMapItr == theShapes.end()) {
+  const auto& myShapes = getShapeMap(precise);
+  ShapeMap::const_iterator shapeMapItr = myShapes.find(shapeType);
+  if(shapeMapItr == myShapes.end()) {
        edm::LogWarning("HcalShapes") << "HcalShapes::shape - shapeType ?  = "
 				     << shapeType << std::endl;
-    return defaultShape(detId);
+    return defaultShape(detId,precise);
   } else {
     return shapeMapItr->second;
   }
 }
 
-const CaloVShape * HcalShapes::defaultShape(const DetId & detId) const
+const CaloVShape * HcalShapes::defaultShape(const DetId & detId, bool precise) const
 {
   // try to figure the appropriate shape
   const CaloVShape * result;
+  const auto& myShapes = getShapeMap(precise);
   HcalGenericDetId::HcalGenericSubdetector subdet 
     = HcalGenericDetId(detId).genericSubdet();
   if(subdet == HcalGenericDetId::HcalGenBarrel 
-  || subdet == HcalGenericDetId::HcalGenEndcap) result = theShapes.find(HPD)->second;
-  else if(subdet == HcalGenericDetId::HcalGenOuter) result = theShapes.find(HPD)->second;
-  else if(subdet == HcalGenericDetId::HcalGenForward) result = theShapes.find(HF)->second;
-  else if(subdet == HcalGenericDetId::HcalGenZDC) result = theShapes.find(ZDC)->second;
+  || subdet == HcalGenericDetId::HcalGenEndcap) result = myShapes.find(HPD)->second;
+  else if(subdet == HcalGenericDetId::HcalGenOuter) result = myShapes.find(HPD)->second;
+  else if(subdet == HcalGenericDetId::HcalGenForward) result = myShapes.find(HF)->second;
+  else if(subdet == HcalGenericDetId::HcalGenZDC) result = myShapes.find(ZDC)->second;
   else result = 0;
 
   edm::LogWarning("HcalShapes") << "Cannot find HCAL MC Params, so the default one is taken for subdet " << subdet;  
 
   return result;
+}
+
+const HcalShapes::ShapeMap& HcalShapes::getShapeMap(bool precise) const {
+  return precise ? theShapesPrecise : theShapes;
 }
