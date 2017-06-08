@@ -80,6 +80,11 @@ class CSCComparatorDigiFitter
   std::vector<float> ezs_;
   float radius_;
   bool useKeyRadius_;
+
+  // number of strips and chamber width for each chamber type
+  // ME1a ME1b ME12 ME13 ME21 ME22 ME31 ME32 ME41 ME42
+  const std::vector<int> strips_ = {48,64,80,64, 80,80,80,80,80,80};
+  const std::vector<float> degrees_ = {10.,10.,10.,10.,20.,10.,20.,10.,20.,10.};
 };
 
 #endif
