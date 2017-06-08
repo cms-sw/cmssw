@@ -1,0 +1,13 @@
+<library   file="*.cc" name="L1TrackTriggerPlugins">
+  <use   name="L1Trigger/L1TTrackMatch"/>
+  <use   name="SimGeneral/HepPDTRecord"/>
+  <use   name="FastSimulation/BaseParticlePropagator"/>
+  <use   name="SimDataFormats/GeneratorProducts"/>
+  <use   name="PhysicsTools/UtilAlgos"/>
+  <use   name="CommonTools/UtilAlgos"/>
+<use name="DataFormats/JetReco"/>
+<use name="DataFormats/L1TrackTrigger"/>
+  <use   name="hepmc"/>
+  <use   name="root"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
