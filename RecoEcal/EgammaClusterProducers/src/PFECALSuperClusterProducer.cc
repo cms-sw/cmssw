@@ -50,9 +50,12 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
     iConfig.getUntrackedParameter<bool>("verbose",false);
 
   superClusterAlgo_.setUseRegression(iConfig.getParameter<bool>("useRegression")); 
-    
+
+  isOOTCollection_ = (iConfig.existsAs<bool>("isOOTCollection") ? iConfig.getParameter<bool>("isOOTCollection") : false);
+  superClusterAlgo_.setIsOOTCollection(isOOTCollection_);
+
   superClusterAlgo_.setTokens(iConfig,consumesCollector());
-   
+
   std::string _typename = iConfig.getParameter<std::string>("ClusteringType");
   if( _typename == ClusterType__BOX ) {
     _theclusteringtype = PFECALSuperClusterAlgo::kBOX;
@@ -348,6 +351,9 @@ void PFECALSuperClusterProducer::fillDescriptions(edm::ConfigurationDescriptions
   desc.add<double>("phiwidth_SuperClusterBarrel",0.6);
   desc.add<double>("thresh_PFClusterES",0.0);
   desc.add<bool>("seedThresholdIsET",true);
+  desc.add<bool>("isOOTCollection",false);
+  desc.add<edm::InputTag>("barrelRecHits",edm::InputTag("ecalRecHit","EcalRecHitsEE"));
+  desc.add<edm::InputTag>("endcapRecHits",edm::InputTag("ecalRecHit","EcalRecHitsEB"));
   desc.add<std::string>("PFSuperClusterCollectionEndcapWithPreshower","particleFlowSuperClusterECALEndcapWithPreshower");
   descriptions.add("particleFlowSuperClusterECALMustache",desc);
 }
