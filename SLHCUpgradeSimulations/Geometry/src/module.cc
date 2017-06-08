@@ -5,7 +5,7 @@
 #include "SLHCUpgradeSimulations/Geometry/interface/DDPixBarStackLayerAlgo.h"
 #include "SLHCUpgradeSimulations/Geometry/interface/DDPixBarTPGStackLayerAlgo.h"
 #include "SLHCUpgradeSimulations/Geometry/interface/DDPixBarStackTrigLayerAlgo.h"
-#include "DetectorDescription/Algorithm/interface/DDAlgorithmFactory.h"
+#include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
 #include "SLHCUpgradeSimulations/Geometry/interface/DDPixBarLayerUpgradeAlgoCoverage.h"
 
 #include "SLHCUpgradeSimulations/Geometry/interface/PrintGeomMatInfo.h"
