@@ -548,8 +548,8 @@ void L1TStage2uGMT::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
   if (verbose) edm::LogInfo("L1TStage2uGMT") << "L1TStage2uGMT: analyze..." << std::endl;
 
-  float etaScale = 0.010875;
-  float phiScale = 0.010908;
+  const float etaScale = 0.010875;
+  const float phiScale = 0.010908;
 
   if (!emul) {
     edm::Handle<l1t::RegionalMuonCandBxCollection> BMTFBxCollection;
