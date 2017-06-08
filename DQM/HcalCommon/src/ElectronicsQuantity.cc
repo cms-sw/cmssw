@@ -5,29 +5,14 @@ namespace hcaldqm
 	namespace quantity
 	{
 		int getValue_FED(HcalElectronicsId const& eid)
-		{
-			//int v = 0;
-			//if (eid.isVMEid())
-			//	v = eid.dccid();
-			//else
-			//  v = utilities::crate2fed(eid.crateId(),eid.slot())-FED_uTCA_MIN + 
-			//		constants::FED_VME_NUM;
-			//return v;
+		{			
 			unsigned int fed = utilities::crate2fed(eid.crateId(), eid.slot());
-			int index = -1;
-			auto it = fedList.begin();
-			for (; it != fedList.end(); ++it) {
-				if (*it == fed) {
-					index = std::distance(fedList.begin(), it);
-					break;
-				}
-			}
-			return index;
+			auto it_fed = std::find(std::begin(fedList), std::end(fedList), fed);
+			return ((it_fed == std::end(fedList)) ? -1 : std::distance(fedList.begin(), it_fed));
 		}
 
 		int getValue_FEDuTCA(HcalElectronicsId const& eid)
 		{
-		  //return utilities::crate2fed(eid.crateId(),eid.slot());
 			unsigned int fed = utilities::crate2fed(eid.crateId(), eid.slot());
 			auto it_fed = std::find(std::begin(fedListuTCA), std::end(fedListuTCA), fed);
 			return ((it_fed == std::end(fedListuTCA)) ? -1 : std::distance(fedListuTCA.begin(), it_fed));
@@ -35,8 +20,6 @@ namespace hcaldqm
 
 		int getValue_FEDVME(HcalElectronicsId const& eid)
 		{
-			//return eid.dccid();
-			//return utilities::crate2fed(eid.crateId(),eid.slot());
 			unsigned int fed = utilities::crate2fed(eid.crateId(), eid.slot());
 			auto it_fed = std::find(std::begin(fedListVME), std::end(fedListVME), fed);
 			return ((it_fed == std::end(fedListVME)) ? -1 : std::distance(fedListVME.begin(), it_fed));
