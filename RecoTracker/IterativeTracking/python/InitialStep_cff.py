@@ -242,10 +242,19 @@ initialStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.cl
 
 #vertices
 from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import offlinePrimaryVertices as _offlinePrimaryVertices
-firstStepPrimaryVertices = _offlinePrimaryVertices.clone()
-firstStepPrimaryVertices.TrackLabel = cms.InputTag("initialStepTracks")
-firstStepPrimaryVertices.vertexCollections = [_offlinePrimaryVertices.vertexCollections[0].clone()]
- 
+firstStepPrimaryVerticesUnsorted = _offlinePrimaryVertices.clone()
+firstStepPrimaryVerticesUnsorted.TrackLabel = cms.InputTag("initialStepTracks")
+firstStepPrimaryVerticesUnsorted.vertexCollections = [_offlinePrimaryVertices.vertexCollections[0].clone()]
+
+from RecoJets.JetProducers.TracksForJets_cff import trackRefsForJets
+initialStepTrackRefsForJets = trackRefsForJets.clone(src = cms.InputTag('initialStepTracks'))
+from RecoJets.JetProducers.caloJetsForTrk_cff import *
+from CommonTools.RecoAlgos.sortedPrimaryVertices_cfi import sortedPrimaryVertices as _sortedPrimaryVertices
+firstStepPrimaryVertices = _sortedPrimaryVertices.clone(
+    vertices = "firstStepPrimaryVerticesUnsorted",
+    particles = "initialStepTrackRefsForJets",
+)
+
 
 # Final selection
 from RecoTracker.FinalTrackSelectors.TrackMVAClassifierPrompt_cfi import *
@@ -353,10 +362,13 @@ InitialStep = cms.Sequence(initialStepSeedLayers*
                            initialStepSeeds*
                            initialStepTrackCandidates*
                            initialStepTracks*
+                           firstStepPrimaryVerticesUnsorted*
+                           initialStepTrackRefsForJets*
+                           caloJetsForTrk*
                            firstStepPrimaryVertices*
                            initialStepClassifier1*initialStepClassifier2*initialStepClassifier3*
                            initialStep)
-_InitialStep_LowPU = InitialStep.copyAndExclude([firstStepPrimaryVertices, initialStepClassifier1, initialStepClassifier2, initialStepClassifier3])
+_InitialStep_LowPU = InitialStep.copyAndExclude([firstStepPrimaryVerticesUnsorted, initialStepTrackRefsForJets, caloJetsForTrk, firstStepPrimaryVertices, initialStepClassifier1, initialStepClassifier2, initialStepClassifier3])
 _InitialStep_LowPU.replace(initialStep, initialStepSelector)
 trackingLowPU.toReplaceWith(InitialStep, _InitialStep_LowPU)
 _InitialStep_Phase1QuadProp = InitialStep.copyAndExclude([initialStepClassifier2, initialStepClassifier3])
