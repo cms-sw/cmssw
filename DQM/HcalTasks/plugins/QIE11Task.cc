@@ -113,16 +113,18 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 
 	for (int iChan = 0; iChan < 4; ++iChan) {
-		_cTimingRatio_vs_LS[iChan].initialize(_name, "TimingRatioVsLS", 
-			hcaldqm::hashfunctions::fdepth, 
-			new hcaldqm::quantity::LumiSection(_maxLS),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTimingRatio),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
-		_cTDCTime_vs_LS[iChan].initialize(_name, "TDCTimeVsLS", 
-			hcaldqm::hashfunctions::fdepth, 
-			new hcaldqm::quantity::LumiSection(_maxLS),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTime_ns_250),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
+		if (_ptype != fLocal) {
+			_cTimingRatio_vs_LS[iChan].initialize(_name, "TimingRatioVsLS", 
+				hcaldqm::hashfunctions::fdepth, 
+				new hcaldqm::quantity::LumiSection(_maxLS),
+				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTimingRatio),
+				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
+			_cTDCTime_vs_LS[iChan].initialize(_name, "TDCTimeVsLS", 
+				hcaldqm::hashfunctions::fdepth, 
+				new hcaldqm::quantity::LumiSection(_maxLS),
+				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTime_ns_250),
+				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
+		}
 		_cQSOIp1_vs_QSOI[iChan].initialize(_name, "QsoiPlus1VsQsoi", 
 			hcaldqm::hashfunctions::fdepth, 
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_10000),
@@ -158,8 +160,10 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 	for (int iChan = 0; iChan < 4; ++iChan) {
 		char aux[100];
 		sprintf(aux, "/IEta%d_IPhi%d", timingChannels[iChan].first, timingChannels[iChan].second);
-		_cTimingRatio_vs_LS[iChan].book(ib, _emap, _filter_timingChannels[iChan], _subsystem, aux);
-		_cTDCTime_vs_LS[iChan].book(ib, _emap, _filter_timingChannels[iChan], _subsystem, aux);
+		if (_ptype != fLocal) {
+			_cTimingRatio_vs_LS[iChan].book(ib, _emap, _filter_timingChannels[iChan], _subsystem, aux);
+			_cTDCTime_vs_LS[iChan].book(ib, _emap, _filter_timingChannels[iChan], _subsystem, aux);
+		}
 		_cQSOIp1_vs_QSOI[iChan].book(ib, _emap, _filter_timingChannels[iChan], _subsystem, aux);
 	}
 
@@ -235,13 +239,12 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 			if (!_filter_timingChannels[iChan].filter(HcalDetId(did))) {
 				// For local runs, hack something in for lumisection
 				int ls = _currentLS;
-				if (_ptype == fLocal) {
-					ls = (int)(e.id().event() / 20);
-				}
 				int isoi = -1;
 				for (int j = 0; j < frame.samples(); ++j) {
-					if (frame[j].tdc() < 50) {
-						_cTDCTime_vs_LS[iChan].fill(HcalDetId(did), ls, j*25. + (frame[j].tdc() / 2.));
+					if (_ptype != fLocal) {
+						if (frame[j].tdc() < 50) {
+							_cTDCTime_vs_LS[iChan].fill(HcalDetId(did), ls, j*25. + (frame[j].tdc() / 2.));
+						}
 					}
 					if (frame[j].soi()) {
 						isoi = j;
@@ -265,7 +268,9 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 						ratio = 0.;
 					}
 				}
-				_cTimingRatio_vs_LS[iChan].fill(HcalDetId(did), ls, ratio);
+				if (_ptype != fLocal) {
+					_cTimingRatio_vs_LS[iChan].fill(HcalDetId(did), ls, ratio);
+				}
 			}
 		}
 	}
