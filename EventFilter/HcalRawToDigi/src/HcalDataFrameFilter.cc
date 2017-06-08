@@ -22,7 +22,8 @@ namespace HcalDataFrameFilter_impl {
     return true;
   }
 
-  bool checkQIE10(const QIE10DataFrame& df, bool capcheck, bool linkerrcheck) {
+  template<>
+  bool check<QIE10DataFrame>(const QIE10DataFrame& df, bool capcheck, bool linkerrcheck) {
     if (linkerrcheck && df.linkError()) return false;
     if (capcheck) {
       for (int i=0; i<df.samples(); i++) {
@@ -32,7 +33,8 @@ namespace HcalDataFrameFilter_impl {
     return true;
   }
 
-  bool checkQIE11(const QIE11DataFrame& df, bool capcheck, bool linkerrcheck) {
+  template<>
+  bool check<QIE11DataFrame>(const QIE11DataFrame& df, bool capcheck, bool linkerrcheck) {
     if (linkerrcheck && df.linkError()) return false;
     if (capcheck && df.capidError()) return false;
     return true;
@@ -40,21 +42,22 @@ namespace HcalDataFrameFilter_impl {
 
 
   template <class DataFrame> 
-  double energySum(const DataFrame& df, int fs, int ls) {
+  double energySum(const DataFrame& df, int fs, int ls, const HcalDbService* conditions=nullptr) {
     double es=0;
     for (int i=fs; i<=ls && i<=df.size(); i++) 
       es+=df[i].nominal_fC();
     return es;
   }
 
-  double energySumQIE11(const QIE11DataFrame& df, unsigned int fs, unsigned int ls, const HcalDbService* conditions) {
+  template <>
+  double energySum<QIE11DataFrame>(const QIE11DataFrame& df, int fs, int ls, const HcalDbService* conditions) {
     const HcalQIECoder* channelCoder = conditions->getHcalCoder(df.id());
     const HcalQIEShape* shape = conditions->getHcalShape(channelCoder);
     CaloSamples tool;
     HcalCoderDb coder(*channelCoder, *shape);
     coder.adc2fC(df, tool);
     double es=0;
-    for (unsigned int i=fs; i<=ls && i<=df.size(); i++)
+    for (int i=fs; i<=ls && i<=(int)df.samples(); i++)
       es+=tool[i];
     return es;
   }
@@ -132,11 +135,12 @@ ZDCDigiCollection HcalDataFrameFilter::filter(const ZDCDigiCollection& incol, Hc
 QIE10DigiCollection HcalDataFrameFilter::filter(const QIE10DigiCollection& incol, HcalUnpackerReport& r) {
   QIE10DigiCollection output(incol.samples());
   for (QIE10DigiCollection::const_iterator i=incol.begin(); i!=incol.end(); i++) {
-    if (!HcalDataFrameFilter_impl::checkQIE10(*i,requireCapid_,requireDVER_))
+    QIE10DataFrame df(*i);
+    if (!HcalDataFrameFilter_impl::check(df,requireCapid_,requireDVER_))
       r.countBadQualityDigi(i->id());
     // Never exclude QIE10 digis as their absence would be
     // treated as a digi with zero charged deposited in that channel
-    output.push_back(*i);
+    output.push_back(df);
   }
   return output;
 }
@@ -144,10 +148,11 @@ QIE10DigiCollection HcalDataFrameFilter::filter(const QIE10DigiCollection& incol
 QIE11DigiCollection HcalDataFrameFilter::filter(const QIE11DigiCollection& incol, HcalUnpackerReport& r) {
   QIE11DigiCollection output(incol.samples());
   for (QIE11DigiCollection::const_iterator i=incol.begin(); i!=incol.end(); i++) {
-    if (!HcalDataFrameFilter_impl::checkQIE11(*i,requireCapid_,requireDVER_))
+    QIE11DataFrame df(*i);
+    if (!HcalDataFrameFilter_impl::check(df,requireCapid_,requireDVER_))
       r.countBadQualityDigi(i->id());
-    else if (!energyFilter_ || minimumAmplitude_<HcalDataFrameFilter_impl::energySumQIE11(*i,firstSample_,lastSample_,conditions_))
-      output.push_back(*i);
+    else if (!energyFilter_ || minimumAmplitude_<HcalDataFrameFilter_impl::energySum(df,firstSample_,lastSample_,conditions_))
+      output.push_back(df);
   }
   return output;
 }
