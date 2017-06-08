@@ -2,13 +2,7 @@
 
 #include <utility>
 
-#include "DetectorDescription/Base/interface/Store.h"
-//#include "DetectorDescription/Base/interface/DDException.h"
-
-// Evaluator 
-//#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
-
-
+#include "DetectorDescription/Core/interface/Store.h"
 
 DDString::DDString() : DDBase<DDName,std::string*>() { }
 

@@ -47,6 +47,7 @@ private:
   HcalShape theHcalShape201;
   HcalShape theHcalShape202;
   HcalShape theHcalShape203;
+  HcalShape theHcalShape205;
   HcalShape theHcalShape301;
   HcalShape theHcalShape401;
 

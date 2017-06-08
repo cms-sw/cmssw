@@ -23,6 +23,7 @@ ecalPacker.InstanceEB = 'ebDigis'
 ecalPacker.InstanceEE = 'eeDigis'
 ecalPacker.labelEBSRFlags = "simEcalDigis:ebSrFlags"
 ecalPacker.labelEESRFlags = "simEcalDigis:eeSrFlags"
+hcalRawDatauHTR.premix = cms.bool(True)
 
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 phase2_common.toReplaceWith(DigiToRaw, DigiToRaw.copyAndExclude([castorRawData]))

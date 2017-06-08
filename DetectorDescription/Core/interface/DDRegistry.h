@@ -2,7 +2,7 @@
 #define DDD_DDRegistry_h
 
 #include <map>
-//#include "DetectorDescription/Base/interface/Singleton.h"
+//#include "DetectorDescription/Core/interface/Singleton.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 
 template <class T>

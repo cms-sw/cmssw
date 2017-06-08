@@ -15,7 +15,10 @@ HLTTauMCProducer::HLTTauMCProducer(const edm::ParameterSet& mc)
   ptMinMCMuon_ = mc.getUntrackedParameter<double>("ptMinMuon",2.);
   ptMinMCElectron_ = mc.getUntrackedParameter<double>("ptMinElectron",5.);
   m_PDG_   = mc.getUntrackedParameter<std::vector<int> >("BosonID");
+  etaMin = mc.getUntrackedParameter<double>("EtaMin",-2.5);
   etaMax = mc.getUntrackedParameter<double>("EtaMax",2.5);
+  phiMin = mc.getUntrackedParameter<double>("PhiMin",-3.15);
+  phiMax = mc.getUntrackedParameter<double>("PhiMax",3.15);
 
   produces<LorentzVectorCollection>("LeptonicTauLeptons");
   produces<LorentzVectorCollection>("LeptonicTauElectrons");
@@ -214,14 +217,14 @@ void HLTTauMCProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
       //		  cout<< "So we have a: " << tauDecayMode <<endl;
       if(tauDecayMode == kElectron)
 	{
-	  if((abs(Visible_Taus.eta())<etaMax)&&(Visible_Taus.pt()>ptMinMCElectron_)){
+	  if((Visible_Taus.eta()>etaMin&&Visible_Taus.eta()<etaMax&&Visible_Taus.phi()>phiMin&&Visible_Taus.phi()<phiMax)&&(Visible_Taus.pt()>ptMinMCElectron_)){
 	    product_Electrons->push_back(Visible_Taus);
 	    product_Leptons->push_back(Visible_Taus);
 	  }
 	}
       else if (tauDecayMode == kMuon)
 	{
-	  if((abs(Visible_Taus.eta())<etaMax)&&(Visible_Taus.pt()>ptMinMCMuon_)){
+	  if((Visible_Taus.eta()>etaMin&&Visible_Taus.eta()<etaMax&&Visible_Taus.phi()>phiMin&&Visible_Taus.phi()<phiMax)&&(Visible_Taus.pt()>ptMinMCMuon_)){
 	    product_Muons->push_back(Visible_Taus);
 	    product_Leptons->push_back(Visible_Taus);
 	  }
@@ -230,7 +233,7 @@ void HLTTauMCProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 	      tauDecayMode == kOneProng1pi0 || 
 	      tauDecayMode == kOneProng2pi0 ) 
 	{
-	  if ((abs(Visible_Taus.eta()) < etaMax) && (Visible_Taus.pt() > ptMinMCTau_)){
+	  if ((Visible_Taus.eta()>etaMin&&Visible_Taus.eta()<etaMax&&Visible_Taus.phi()>phiMin&&Visible_Taus.phi()<phiMax) && (Visible_Taus.pt() > ptMinMCTau_)){
 	    product_OneProng->push_back(Visible_Taus);
 	    product_OneAndThreeProng->push_back(Visible_Taus);
 	    product_Neutrina->push_back(Neutrino);
@@ -239,7 +242,7 @@ void HLTTauMCProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
       else if (tauDecayMode == kThreeProng0pi0 || 
 	       tauDecayMode == kThreeProng1pi0 )
 	{
-	  if((abs(Visible_Taus.eta())<etaMax)&&(Visible_Taus.pt()>ptMinMCTau_))  {
+	  if((Visible_Taus.eta()>etaMin&&Visible_Taus.eta()<etaMax&&Visible_Taus.phi()>phiMin&&Visible_Taus.phi()<phiMax)&&(Visible_Taus.pt()>ptMinMCTau_))  {
 	    product_ThreeProng->push_back(Visible_Taus);
 	    product_OneAndThreeProng->push_back(Visible_Taus);
 	    product_Neutrina->push_back(Neutrino);
@@ -247,7 +250,7 @@ void HLTTauMCProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 	}
       else if (tauDecayMode == kOther)
 	{
-	  if((abs(Visible_Taus.eta())<etaMax)&&(Visible_Taus.pt()>ptMinMCTau_))  {
+	  if((Visible_Taus.eta()>etaMin&&Visible_Taus.eta()<etaMax&&Visible_Taus.phi()>phiMin&&Visible_Taus.phi()<phiMax)&&(Visible_Taus.pt()>ptMinMCTau_))  {
 	    product_Other->push_back(Visible_Taus);
 	  }
 	}
