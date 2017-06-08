@@ -1,12 +1,8 @@
-//
-// $Id: GenJetFlavourInfoPreserver.cc,v 1.0 2017/05/18 18:45:45  $
-//
-
 /**
   \class    pat::GenJetFlavourInfoPreserver GenJetFlavourInfoPreserver.h "PhysicsTools/JetMCAlgos/interface/GenJetFlavourInfoPreserver.h"
   \brief    Transfers the JetFlavourInfos from the original GenJets to the slimmedGenJets in MiniAOD 
             
-  \author   Andrej Saibel
+  \author   Andrej Saibel, andrej.saibel@cern.ch
 */
 
 
@@ -35,24 +31,24 @@ namespace pat {
     explicit GenJetFlavourInfoPreserver(const edm::ParameterSet & iConfig);
     virtual ~GenJetFlavourInfoPreserver() { }
     
-    virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+    virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
     
   private:
-    const edm::EDGetTokenT<edm::View<reco::GenJet> > GenJetsToken_;
+    const edm::EDGetTokenT<edm::View<reco::GenJet> > genJetsToken_;
     const edm::EDGetTokenT<edm::View<reco::Jet> > slimmedGenJetsToken_;
 
     const StringCutObjectSelector<reco::GenJet> cut_;
     
-    const edm::EDGetTokenT<reco::JetFlavourInfoMatchingCollection> ak4GenJetFlavourInfosToken_;
+    const edm::EDGetTokenT<reco::JetFlavourInfoMatchingCollection> genJetFlavourInfosToken_;
   };
 
 } // namespace
 
 pat::GenJetFlavourInfoPreserver::GenJetFlavourInfoPreserver(const edm::ParameterSet & iConfig) :
-    GenJetsToken_(consumes<edm::View<reco::GenJet> >(iConfig.getParameter<edm::InputTag>("GenJets"))),
+    genJetsToken_(consumes<edm::View<reco::GenJet> >(iConfig.getParameter<edm::InputTag>("genJets"))),
     slimmedGenJetsToken_(consumes<edm::View<reco::Jet> >(iConfig.getParameter<edm::InputTag>("slimmedGenJets"))),
     cut_(iConfig.getParameter<std::string>("cut")),
-    ak4GenJetFlavourInfosToken_(consumes<reco::JetFlavourInfoMatchingCollection>(iConfig.getParameter<edm::InputTag>("GenJetFlavourInfos")))
+    genJetFlavourInfosToken_(consumes<reco::JetFlavourInfoMatchingCollection>(iConfig.getParameter<edm::InputTag>("genJetFlavourInfos")))
 {
     produces<reco::JetFlavourInfoMatchingCollection>();
 }
@@ -62,14 +58,14 @@ pat::GenJetFlavourInfoPreserver::produce(edm::Event & iEvent, const edm::EventSe
     using namespace edm;
     using namespace std;
 
-    Handle<View<reco::GenJet> >      GenJets;
-    iEvent.getByToken(GenJetsToken_, GenJets);
+    Handle<View<reco::GenJet> >      genJets;
+    iEvent.getByToken(genJetsToken_, genJets);
 
     Handle<View<reco::Jet> >      slimmedGenJets;
     iEvent.getByToken(slimmedGenJetsToken_, slimmedGenJets);
 
-    Handle<reco::JetFlavourInfoMatchingCollection> ak4GenJetFlavourInfos;
-    iEvent.getByToken(ak4GenJetFlavourInfosToken_,ak4GenJetFlavourInfos);
+    Handle<reco::JetFlavourInfoMatchingCollection> genJetFlavourInfos;
+    iEvent.getByToken(genJetFlavourInfosToken_, genJetFlavourInfos);
 
     auto jetFlavourInfos = std::make_unique<reco::JetFlavourInfoMatchingCollection>(reco::JetRefBaseProd(slimmedGenJets));
 
@@ -78,15 +74,21 @@ pat::GenJetFlavourInfoPreserver::produce(edm::Event & iEvent, const edm::EventSe
 
 	
 
-    for (View<reco::GenJet>::const_iterator it = GenJets->begin(), ed = GenJets->end(); it != ed; ++it) {
+    for (View<reco::GenJet>::const_iterator it = genJets->begin(), ed = genJets->end(); it != ed; ++it) {
         if (!cut_(*it)) continue;
 
-        for(reco::JetFlavourInfoMatchingCollection::const_iterator JetInfo  = ak4GenJetFlavourInfos->begin(); JetInfo != ak4GenJetFlavourInfos->end();++JetInfo){
+        for(reco::JetFlavourInfoMatchingCollection::const_iterator jetInfo  = genJetFlavourInfos->begin(); jetInfo != genJetFlavourInfos->end();++jetInfo){
                 
-                if((JetInfo - ak4GenJetFlavourInfos->begin()) < (it - GenJets->begin())) continue;
-                else if((JetInfo - ak4GenJetFlavourInfos->begin()) > (it - GenJets->begin())) continue;
+                if((jetInfo - genJetFlavourInfos->begin()) < (it - genJets->begin())) continue;
 
-                (*jetFlavourInfos)[slimmedGenJets->refAt(slimmedId)] = reco::JetFlavourInfo(JetInfo->second.getbHadrons(), JetInfo->second.getcHadrons(), JetInfo->second.getPartons(), JetInfo->second.getLeptons(), JetInfo->second.getHadronFlavour(), JetInfo->second.getPartonFlavour());
+                else if((jetInfo - genJetFlavourInfos->begin()) > (it - genJets->begin())) continue;
+
+                (*jetFlavourInfos)[slimmedGenJets->refAt(slimmedId)] = reco::JetFlavourInfo(jetInfo->second.getbHadrons(),
+                                                                                            jetInfo->second.getcHadrons(),
+                                                                                            jetInfo->second.getPartons(), 
+                                                                                            jetInfo->second.getLeptons(), 
+                                                                                            jetInfo->second.getHadronFlavour(), 
+                                                                                            jetInfo->second.getPartonFlavour());
 
                 break;
 
