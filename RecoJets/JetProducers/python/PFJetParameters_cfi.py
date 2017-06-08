@@ -4,7 +4,6 @@ PFJetParameters = cms.PSet(
     src            = cms.InputTag('particleFlow'),
     srcPVs         = cms.InputTag(''),
     jetType        = cms.string('PFJet'),
-    doOutputJets   = cms.bool(True),
     jetPtMin       = cms.double(5.0),
     inputEMin      = cms.double(0.0),
     inputEtMin     = cms.double(0.0),
