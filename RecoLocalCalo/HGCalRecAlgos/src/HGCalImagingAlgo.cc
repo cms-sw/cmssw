@@ -366,7 +366,7 @@ int HGCalImagingAlgo::findAndAssignClusters(std::vector<KDNode> &nd,KDTree &lp, 
   //flag points in cluster with density < rho_b as halo points, then fill the cluster vector
   for(unsigned int i = 0; i < nd_size; ++i){
     int ci = nd[i].data.clusterIndex;
-    if(ci!=-1 && nd[i].data.rho < rho_b[ci])
+    if(ci!=-1 && nd[i].data.rho <= rho_b[ci])
       nd[i].data.isHalo = true;
     if(nd[i].data.clusterIndex!=-1){
       current_v[ci+cluster_offset].push_back(nd[i]);
