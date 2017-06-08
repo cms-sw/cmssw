@@ -9,7 +9,7 @@
 #include "DataFormats/L1CSCTrackFinder/interface/TrackStub.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 
-#include "L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h"
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include "DataFormats/Common/interface/Handle.h"
@@ -77,9 +77,7 @@ void CSCTFTrackProducer::produce(edm::Event & e, const edm::EventSetup& c)
 
   // set geometry pointer
   edm::ESHandle<CSCGeometry> pDD;
-
   c.get<MuonGeometryRecord>().get( pDD );
-  CSCTriggerGeometry::setGeometry(pDD);
 
   edm::Handle<CSCCorrelatedLCTDigiCollection> LCTs;
   std::unique_ptr<L1CSCTrackCollection> track_product(new L1CSCTrackCollection);

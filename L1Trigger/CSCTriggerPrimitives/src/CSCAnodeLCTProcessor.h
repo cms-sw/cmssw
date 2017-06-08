@@ -24,6 +24,8 @@
 
 #include <vector>
 
+class CSCGeometry;
+
 class CSCAnodeLCTProcessor
 {
  public:
@@ -42,6 +44,8 @@ class CSCAnodeLCTProcessor
   /** Clears the LCT containers. */
   void clear();
 
+  void setCSCGeometry(const CSCGeometry *g) { csc_g = g; }
+  
   /** Runs the LCT processor code. Called in normal running -- gets info from
       a collection of wire digis. */
   std::vector<CSCALCTDigi> run(const CSCWireDigiCollection* wiredc);
@@ -97,6 +101,8 @@ class CSCAnodeLCTProcessor
   const unsigned theSector;
   const unsigned theSubsector;
   const unsigned theTrigChamber;
+
+  const CSCGeometry* csc_g;
 
   /** ring number. Only matters for ME1a */
   unsigned theRing;

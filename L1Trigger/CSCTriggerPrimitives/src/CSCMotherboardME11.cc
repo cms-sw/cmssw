@@ -170,6 +170,9 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
     return;
   }
 
+  alct->setCSCGeometry(csc_g);
+  clct->setCSCGeometry(csc_g);
+
   alctV = alct->run(wiredc); // run anodeLCT
   clctV1b = clct->run(compdc); // run cathodeLCT in ME1/b
   clctV1a = clct1a->run(compdc); // run cathodeLCT in ME1/a

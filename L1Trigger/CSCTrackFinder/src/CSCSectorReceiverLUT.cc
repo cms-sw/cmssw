@@ -1,20 +1,17 @@
-#include <L1Trigger/CSCTrackFinder/interface/CSCSectorReceiverLUT.h>
-#include <L1Trigger/CSCTrackFinder/interface/CSCSectorReceiverMiniLUT.h>
-#include <L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h>
-#include <L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeomManager.h>
-#include <L1Trigger/CSCCommonTrigger/interface/CSCPatternLUT.h>
-#include <L1Trigger/CSCCommonTrigger/interface/CSCFrontRearLUT.h>
-#include <DataFormats/L1CSCTrackFinder/interface/CSCBitWidths.h>
-#include <DataFormats/L1CSCTrackFinder/interface/CSCTFConstants.h>
-#include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h>
+#include "L1Trigger/CSCTrackFinder/interface/CSCSectorReceiverLUT.h"
+#include "L1Trigger/CSCTrackFinder/interface/CSCSectorReceiverMiniLUT.h"
+#include "L1Trigger/CSCCommonTrigger/interface/CSCPatternLUT.h"
+#include "L1Trigger/CSCCommonTrigger/interface/CSCFrontRearLUT.h"
+#include "DataFormats/L1CSCTrackFinder/interface/CSCBitWidths.h"
+#include "DataFormats/L1CSCTrackFinder/interface/CSCTFConstants.h"
+#include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
 
-#include <Geometry/CSCGeometry/interface/CSCLayerGeometry.h>
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h"
 
-#include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
-
-#include <FWCore/MessageLogger/interface/MessageLogger.h>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <fstream>
 #include <cstring>
@@ -273,8 +270,7 @@ double CSCSectorReceiverLUT::getGlobalPhiValue(const CSCLayer* thelayer, const u
 gblphidat CSCSectorReceiverLUT::calcGlobalPhiME(const gblphiadd& address) const
 {
   gblphidat result(0);
-  CSCTriggerGeomManager* thegeom = CSCTriggerGeometry::get();
-  CSCChamber* thechamber = NULL;
+  const CSCChamber* thechamber = NULL;
   const CSCLayer* thelayer = NULL;
   const CSCLayerGeometry* layergeom = NULL;
   int cscid = address.cscid;
@@ -336,7 +332,10 @@ gblphidat CSCSectorReceiverLUT::calcGlobalPhiME(const gblphiadd& address) const
 
   try
     {
-      thechamber = thegeom->chamber(_endcap,_station,_sector,_subsector,cscid);
+      int ring = CSCTriggerNumbering::ringFromTriggerLabels(_station, cscid);
+      int chid = CSCTriggerNumbering::chamberFromTriggerLabels(_sector, _subsector, _station, cscid);
+      CSCDetId detid(_endcap, _station, ring, chid, 0);    
+      thechamber = const_cast<const CSCChamber*>(csc_g->chamber(detid));
       if(thechamber)
 	{
 	  if(isTMB07)
@@ -628,7 +627,6 @@ double CSCSectorReceiverLUT::getGlobalEtaValue(const unsigned& thecscid, const u
       cscid = CSCTriggerNumbering::maxTriggerCscId();
     }
 
-  CSCTriggerGeomManager* thegeom = CSCTriggerGeometry::get();
   CSCLayerGeometry* layerGeom = NULL;
   const unsigned numBins = 1 << 2; // 4 local phi bins
 
@@ -640,7 +638,10 @@ double CSCSectorReceiverLUT::getGlobalEtaValue(const unsigned& thecscid, const u
   }
   try
     {
-      const CSCChamber* thechamber = thegeom->chamber(_endcap,_station,_sector,_subsector,cscid);
+      int ring = CSCTriggerNumbering::ringFromTriggerLabels(_station, cscid);
+      int chid = CSCTriggerNumbering::chamberFromTriggerLabels(_sector, _subsector, _station, cscid);
+      CSCDetId detid(_endcap, _station, ring, chid, 0);    
+      const CSCChamber* thechamber = const_cast<const CSCChamber*>(csc_g->chamber(detid));
       if(thechamber) {
 	layerGeom = const_cast<CSCLayerGeometry*>(thechamber->layer(CSCConstants::KEY_ALCT_LAYER)->geometry());
 	const unsigned nWireGroups = layerGeom->numberOfWireGroups();

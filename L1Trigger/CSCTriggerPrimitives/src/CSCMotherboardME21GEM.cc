@@ -1,10 +1,10 @@
-#include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME21GEM.h>
-#include <FWCore/MessageLogger/interface/MessageLogger.h>
-#include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
-#include <L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h>
-#include <Geometry/GEMGeometry/interface/GEMGeometry.h>
-#include <Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h>
-#include <DataFormats/Math/interface/deltaPhi.h>
+#include "L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME21GEM.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h"
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h"
+
 #include <iomanip> 
 #include "boost/container/flat_set.hpp"
 
@@ -172,6 +172,9 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
     return;
   }
 
+  alct->setCSCGeometry(csc_g);
+  clct->setCSCGeometry(csc_g);
+
   alct->run(wiredc); // run anodeLCT
   clct->run(compdc); // run cathodeLCT
   gemCoPadV = coPadProcessor->run(gemPads); // run copad processor in GE2/1
@@ -183,10 +186,11 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
     gemGeometryAvailable = true;
   }
 
-  // retrieve CSCChamber geometry                                                                                                                                       
-  CSCTriggerGeomManager* geo_manager(CSCTriggerGeometry::get());
-  const CSCChamber* cscChamber(geo_manager->chamber(theEndcap, theStation, theSector, theSubsector, theTrigChamber));
-  const CSCDetId csc_id(cscChamber->id());
+  // retrieve CSCChamber geometry                                                                                            
+  int ring = CSCTriggerNumbering::ringFromTriggerLabels(theStation, theTrigChamber);
+  int chid = CSCTriggerNumbering::chamberFromTriggerLabels(theSector, theSubsector, theStation, theTrigChamber);
+  const CSCDetId csc_id(theEndcap, theStation, ring, chid, 0);    
+  const CSCChamber* cscChamber = csc_g->chamber(csc_id);
 
   if (runME21ILT_){
     
@@ -251,7 +255,7 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
 
     // pick any roll 
     const int nGEMPads(randRoll->npads());
-    for (int i = 0; i< nGEMPads; ++i){
+    for (int i = 1; i<= nGEMPads; ++i){
       const LocalPoint lpGEM(randRoll->centreOfPad(i));
       const GlobalPoint gp(randRoll->toGlobal(lpGEM));
       const LocalPoint lpCSC(keyLayer->toLocal(gp));

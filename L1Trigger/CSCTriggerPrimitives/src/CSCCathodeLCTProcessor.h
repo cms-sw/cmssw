@@ -34,6 +34,8 @@
 
 #include <vector>
 
+class CSCGeometry;
+
 class CSCCathodeLCTProcessor
 {
  public:
@@ -53,6 +55,8 @@ class CSCCathodeLCTProcessor
   /** Clears the LCT containers. */
   void clear();
 
+  void setCSCGeometry(const CSCGeometry *g) { csc_g = g; }
+  
   /** Runs the LCT processor code. Called in normal running -- gets info from
       a collection of comparator digis. */
   std::vector<CSCCLCTDigi> run(const CSCComparatorDigiCollection* compdc);
@@ -124,6 +128,8 @@ class CSCCathodeLCTProcessor
   const unsigned theSubsector;
   const unsigned theTrigChamber;
   
+  const CSCGeometry* csc_g;
+
   // holders for easy access:
   unsigned int theRing;
   unsigned int theChamber;

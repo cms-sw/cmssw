@@ -1,11 +1,10 @@
-#include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME11GEM.h>
-#include <FWCore/MessageLogger/interface/MessageLogger.h>
-#include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
-#include <Geometry/GEMGeometry/interface/GEMGeometry.h>
-#include <Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h>
-#include <L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h>
-#include <DataFormats/Math/interface/deltaPhi.h>
-#include <DataFormats/Math/interface/normalizedPhi.h>
+#include "L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME11GEM.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h"
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+#include "Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h"
+
 #include <cmath>
 #include <tuple>
 #include <set>
@@ -357,6 +356,10 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
     return;
   }
 
+  alct->setCSCGeometry(csc_g);
+  clct->setCSCGeometry(csc_g);
+  clct1a->setCSCGeometry(csc_g);
+
   alctV = alct->run(wiredc); // run anodeLCT
   clctV1b = clct->run(compdc); // run cathodeLCT in ME1/b
   clctV1a = clct1a->run(compdc); // run cathodeLCT in ME1/a
@@ -373,10 +376,11 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
   for (int b=0;b<20;b++)
     used_clct_mask[b] = used_clct_mask_1a[b] = 0;
 
-  // retrieve CSCChamber geometry                                                                                                                                       
-  CSCTriggerGeomManager* geo_manager(CSCTriggerGeometry::get());
-  const CSCChamber* cscChamberME1b(geo_manager->chamber(theEndcap, theStation, theSector, theSubsector, theTrigChamber));
-  const CSCDetId me1bId(cscChamberME1b->id());
+  // retrieve CSCChamber geometry                                                                                            
+  int ring = CSCTriggerNumbering::ringFromTriggerLabels(theStation, theTrigChamber);
+  int chid = CSCTriggerNumbering::chamberFromTriggerLabels(theSector, theSubsector, theStation, theTrigChamber);
+  const CSCDetId me1bId(theEndcap, theStation, ring, chid, 0);    
+  const CSCChamber* cscChamberME1b = csc_g->chamber(me1bId);
   const CSCDetId me1aId(me1bId.endcap(), 1, 4, me1bId.chamber());
   const CSCChamber* cscChamberME1a(csc_g->chamber(me1aId));
 
@@ -469,7 +473,7 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
     }
 
     const int nGEMPads(randRoll->npads());
-    for (int i = 0; i< nGEMPads; ++i){
+    for (int i = 1; i<= nGEMPads; ++i){
       const LocalPoint lpGEM(randRoll->centreOfPad(i));
       const GlobalPoint gp(randRoll->toGlobal(lpGEM));
       const LocalPoint lpCSCME1a(keyLayerME1a->toLocal(gp));

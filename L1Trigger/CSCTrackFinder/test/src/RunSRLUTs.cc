@@ -1,16 +1,14 @@
+#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
+#include "DataFormats/L1CSCTrackFinder/interface/CSCTriggerContainer.h"
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "L1Trigger/CSCTrackFinder/test/src/RunSRLUTs.h"
+#include "L1Trigger/CSCTrackFinder/interface/CSCTrackFinderDataTypes.h"
 
 #include <vector>
 #include <string>
 #include <string.h>
-#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
-#include "DataFormats/L1CSCTrackFinder/interface/CSCTriggerContainer.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
-
-#include "L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
-
-#include "L1Trigger/CSCTrackFinder/interface/CSCTrackFinderDataTypes.h"
 
 namespace csctf_analysis
 {
