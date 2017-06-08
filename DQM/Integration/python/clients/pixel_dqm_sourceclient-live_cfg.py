@@ -73,6 +73,7 @@ process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 # Real data raw to digi
 process.load("EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi")
 process.siPixelDigis.IncludeErrors = True
+process.siPixelDigis.UsePhase1 = True
 
 # Local Reconstruction
 process.load("RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi")
