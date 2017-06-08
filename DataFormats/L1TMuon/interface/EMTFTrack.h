@@ -40,8 +40,8 @@ namespace l1t {
     void push_HitIndex(uint bits)               { _HitIndices.push_back(bits); numHits = _HitIndices.size(); }
 
     int NumHits()            const { return numHits; }
-    EMTFHitCollection Hits()       { return _Hits; }
-    std::vector<uint> HitIndices() { return _HitIndices; }
+    EMTFHitCollection Hits() const { return _Hits; }
+    std::vector<uint> HitIndices()            const { return _HitIndices; }
     const EMTFHitCollection * PtrHits()       const { return &_Hits; }
     const std::vector<uint> * PtrHitIndices() const { return &_HitIndices; }
     
