@@ -2,9 +2,6 @@
 #include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
 #include "DataFormats/Math/interface/normalizedPhi.h"
 
-#include "TF1.h"
-#include "TGraphErrors.h"
-
 namespace
 {
   // CSC LCT patterns
@@ -251,18 +248,18 @@ void CSCComparatorDigiFitter::calculateSlopeIntercept(float& alpha, float& beta)
 {
   if (phis_.size()>=3) {
   
-    const bool isFront(zs_.front() < zs_.back());
-    const float zmin = isFront ? zs_.front() : zs_.back();
-    const float zmax = isFront ? zs_.back() : zs_.front();
-
-    // do the fit
-    std::unique_ptr<TF1> fit1(new TF1("fit1","pol1",zmin,zmax)); 
-    std::unique_ptr<TGraphErrors> gr(new TGraphErrors(phis_.size(),&(zs_[0]),&(phis_[0]),&(ezs_[0]),&(ephis_[0])));
-    gr->SetMinimum(ephis_[2]-5*0.002);
-    gr->SetMaximum(ephis_[2]+5*0.002);
-    gr->Fit(fit1.get(),"RQ"); 
-    alpha = fit1.get()->GetParameter(0);
-    beta  = fit1.get()->GetParameter(1);
+    float Sxx = 0, Sxy = 0, Sx = 0, Sy = 0, S = 0;
+    for (unsigned i = 0; i<phis_.size(); ++i){
+      float sigma2 = ephis_[i]*ephis_[i];
+      Sxx += zs_[i]*zs_[i] / sigma2;
+      Sxy += zs_[i]*phis_[i] / sigma2;
+      Sx += zs_[i]*zs_[i] / sigma2;
+      Sy += phis_[i] / sigma2;
+      S += 1 / sigma2;
+    }
+    float delta = S * Sxx - Sx * Sx;
+    alpha = (Sxx * Sy - Sx * Sxy) / delta;
+    beta = (S * Sxy - Sx * Sy) / delta;
   }
   else {
     alpha = -99; beta= 0.0;
@@ -272,14 +269,10 @@ void CSCComparatorDigiFitter::calculateSlopeIntercept(float& alpha, float& beta)
 float
 CSCComparatorDigiFitter::cscHalfStripWidth(const CSCDetId& id) const
 {
-  // number of strips and chamber width for each chamber type
-  // ME1a ME1b ME12 ME13 ME21 ME22 ME31 ME32 ME41 ME42
-  const std::vector<int> strips = {48,64,80,64, 80,80,80,80,80,80};
-  const std::vector<float> degrees = {10.,10.,10.,10.,20.,10.,20.,10.,20.,10.};
   int index = id.iChamberType()-1;
 
   // half strip width
-  return degrees[index] * M_PI/180. / (2. * strips[index]);
+  return degrees_[index] * M_PI/180. / (2. * strips_[index]);
 }
 
 bool 
