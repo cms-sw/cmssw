@@ -36,8 +36,8 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
   math::XYZTLorentzVector p4;
   
   int nTT4 = CaloTools::calNrTowers(-1*params_->egPUSParam(1),
-					params_->egPUSParam(1),
-					1,72,towers,1,999,CaloTools::CALO);
+				    params_->egPUSParam(1),
+				    1,72,towers,1+params_->pileUpTowerThreshold(),999,CaloTools::CALO);
   uint compNTT4 = params_->egCompressShapesLUT()->data((0x1<<7)+(0x1<<8)+(0x1<<5)+nTT4);
 
 
@@ -49,22 +49,24 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
     int32_t etem(0);
     uint32_t mb0(0), mb1(0);
 
+    bool ecalSat(0), hcalSat(0);
+
     for (unsigned absieta=1; absieta<=(uint)CaloTools::mpEta(CaloTools::kHFEnd); absieta++) {
 
       int ieta = etaSide * absieta;
       
       towEtMetThresh_ = 0;
-      towEtEttThresh_ = 0;
+      towEtSumEtThresh_ = 0;
       towEtEcalSumThresh_ = 0;
 
       if(!params_->etSumBypassMetPUS()){
 	if(params_->etSumMetPUSType() == "LUT"){
-	  uint towEtMetLUTAddr = (compNTT4<<6) | (abs(ieta)-1);
-	  if(towEtMetLUTAddr > 2047) towEtMetThresh_ = 16;
-	  else towEtMetThresh_ = params_->etSumMetPUSLUT()->data(towEtMetLUTAddr);
+	  uint towEtMetLUTAddr = (compNTT4<<6) | (abs(ieta));
+	  if(abs(ieta)<13) towEtMetLUTAddr = abs(ieta);
+	  towEtMetThresh_ = params_->etSumMetPUSLUT()->data(towEtMetLUTAddr);
 	} else {
 	  if(params_->etSumMetPUSType() != "None" && params_->etSumMetPUSType() != "none") {
-	      edm::LogError("l1t|stage 2") << "Invalid PUS type in calo params. Not applying PUS to Stage 2 MET" << std::endl;
+	    edm::LogError("l1t|stage 2") << "Invalid PUS type in calo params. Not applying PUS to Stage 2 MET" << std::endl;
 	      return;
 	  }
 	}
@@ -72,11 +74,11 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
       
       if(!params_->etSumBypassEttPUS()){
 	if(params_->etSumEttPUSType() == "LUT"){
-	  uint towEtEttLUTAddr = (compNTT4<<6) | (abs(ieta)-1);
-	  if(towEtEttLUTAddr > 2047) towEtMetThresh_ = 16;
-	  else towEtMetThresh_ = params_->etSumEttPUSLUT()->data(towEtEttLUTAddr);
+	  uint towEtSumEtLUTAddr = (compNTT4<<6) | (abs(ieta));
+	  if(abs(ieta)<13) towEtSumEtLUTAddr = abs(ieta);
+	  towEtSumEtThresh_ = params_->etSumEttPUSLUT()->data(towEtSumEtLUTAddr);
 	} else {
-	    if(params_->etSumEttPUSType() != "None" && params_->etSumEttPUSType() != "none") {
+	  if(params_->etSumEttPUSType() != "None" && params_->etSumEttPUSType() != "none") {
 	      edm::LogError("l1t|stage 2") << "Invalid PUS type in calo params. Not applying PUS to Stage 2 ETT" << std::endl;
 	      return;
 	    }
@@ -84,18 +86,18 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
       }
       
       if(!params_->etSumBypassEcalSumPUS()){
-	  if(params_->etSumEcalSumPUSType() == "LUT"){
-	    uint towEtEcalSumAddr = (compNTT4<<6) | (abs(ieta)-1);
-	    if(towEtEcalSumAddr > 2047) towEtMetThresh_ = 16;
-	    else towEtMetThresh_ = params_->etSumEcalSumPUSLUT()->data(towEtEcalSumAddr);
-	  } else {
-	    if(params_->etSumEcalSumPUSType() != "None" && params_->etSumEcalSumPUSType() != "none") {
-	      edm::LogError("l1t|stage 2") << "Invalid PUS type in calo params. Not applying PUS to Stage 2 Ecal ETT" << std::endl;
-	      return;
-	    }
+	if(params_->etSumEcalSumPUSType() == "LUT"){
+	  uint towEtEcalSumLUTAddr = (compNTT4<<6) | (abs(ieta));
+	  if(abs(ieta)<13) towEtEcalSumLUTAddr = abs(ieta);
+	  towEtEcalSumThresh_ = params_->etSumEcalSumPUSLUT()->data(towEtEcalSumLUTAddr);
+	} else {
+	  if(params_->etSumEcalSumPUSType() != "None" && params_->etSumEcalSumPUSType() != "none") {
+	    edm::LogError("l1t|stage 2") << "Invalid PUS type in calo params. Not applying PUS to Stage 2 Ecal ETT" << std::endl;
+	    return;
 	  }
+	}
       }
-    
+      
       int32_t ringEx(0), ringEy(0), ringEt(0);
       int32_t ringExHF(0), ringEyHF(0), ringEtHF(0);
       int32_t ringEtEm(0);
@@ -106,7 +108,15 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
 
         l1t::CaloTower tower = l1t::CaloTools::getTower(towers, CaloTools::caloEta(ieta), iphi);
 
-	
+	//ecal, hcal and tower saturation check
+	if(tower.hwPt()==509) hcalSat=true;
+	if(tower.hwPt()==510) ecalSat=true;
+	if(tower.hwPt()==511){
+	  hcalSat=true;
+	  ecalSat=true;
+	}
+
+
 	// MET without HF
 
 	if (tower.hwPt()>towEtMetThresh_ && CaloTools::mpEta(abs(tower.hwEta()))<=CaloTools::mpEta(metEtaMax_)) {
@@ -126,11 +136,11 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
 	}
 
 	// scalar sum
-	if (tower.hwPt()>towEtEttThresh_ && CaloTools::mpEta(abs(tower.hwEta()))<=CaloTools::mpEta(ettEtaMax_)) 
+	if (tower.hwPt()>towEtSumEtThresh_ && CaloTools::mpEta(abs(tower.hwEta()))<=CaloTools::mpEta(ettEtaMax_)) 
 	  ringEt += tower.hwPt();
   
 	// scalar sum including HF
-	if (tower.hwPt()>towEtEttThresh_ && CaloTools::mpEta(abs(tower.hwEta()))<=CaloTools::mpEta(ettEtaMaxHF_)) 
+	if (tower.hwPt()>towEtSumEtThresh_ && CaloTools::mpEta(abs(tower.hwEta()))<=CaloTools::mpEta(ettEtaMaxHF_)) 
 	  ringEtHF += tower.hwPt();
 		
         // scalar sum (EM)
@@ -166,6 +176,19 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
     if (mb0>0xf) mb0 = 0xf;
     if (mb1>0xf) mb1 = 0xf;
 
+
+    // saturate energy sums if saturated TP/tower
+
+    if(ecalSat) etem = 0xffff;
+
+    if(ecalSat || hcalSat){
+      et = 0xffff;
+      ex = 0x7fffffff;
+      ey = 0x7fffffff;
+      etHF = 0xffff;
+      exHF = 0x7fffffff;
+      eyHF = 0x7fffffff;
+    }
 
     l1t::EtSum etSumTotalEt(p4,l1t::EtSum::EtSumType::kTotalEt,et,0,0,0);
     l1t::EtSum etSumEx(p4,l1t::EtSum::EtSumType::kTotalEtx,ex,0,0,0);
@@ -206,4 +229,3 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
   etsums.push_back(etSumNtowers);
 
 }
-

@@ -37,8 +37,7 @@ l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::~Stage2Layer2EGammaAlgorithmFirmwa
 }
 
 /*****************************************************************/
-void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vector<l1t::CaloCluster>& clusters, const std::vector<l1t::CaloTower>& 
-towers, std::vector<l1t::EGamma>& egammas) 
+void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vector<l1t::CaloCluster>& clusters, const std::vector<l1t::CaloTower>& towers, std::vector<l1t::EGamma>& egammas) 
 /*****************************************************************/
 {
   l1t::CaloStage2Nav caloNav;
@@ -153,10 +152,9 @@ towers, std::vector<l1t::EGamma>& egammas)
 					  params_->egPUSParam(2));
 
       int hwFootPrint = isoCalEgHwFootPrint(cluster,towers);
-
       int nrTowers = CaloTools::calNrTowers(-1*params_->egPUSParam(1),
-          params_->egPUSParam(1),
-          1,72,towers,1,999,CaloTools::CALO);
+					    params_->egPUSParam(1),
+					    1,72,towers,1+params_->pileUpTowerThreshold(),999,CaloTools::CALO);
       unsigned int lutAddress = isoLutIndex(egamma.hwEta(), nrTowers, egamma.hwPt());
 
       int isolBit = (((hwEtSum-hwFootPrint) < params_->egIsolationLUT()->data(lutAddress)) || (params_->egIsolationLUT()->data(lutAddress)>255));  
@@ -239,8 +237,7 @@ towers, std::vector<l1t::EGamma>& egammas)
       if(!IDcuts) continue;
 
       if (egammas_raw.at(iEG).hwEta() > 0) egEtaPos.at( egammas_raw.at(iEG).hwEta()-1).at((egammas_raw.at(iEG).hwPhi()-1)/4) = egammas_raw.at(iEG);
-      else                                 egEtaNeg.at( -(egammas_raw.at(iEG).hwEta()+1)).at((egammas_raw.at(iEG).hwPhi()-1)/4) = 
-egammas_raw.at(iEG);
+      else                                 egEtaNeg.at( -(egammas_raw.at(iEG).hwEta()+1)).at((egammas_raw.at(iEG).hwPhi()-1)/4) = egammas_raw.at(iEG);
   }
 
   AccumulatingSort <l1t::EGamma> etaPosSorter(6);
@@ -560,4 +557,3 @@ bool l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::idHoverE_ext(const l1t::CaloT
   else return eOverHFlag;
 
 }
-
