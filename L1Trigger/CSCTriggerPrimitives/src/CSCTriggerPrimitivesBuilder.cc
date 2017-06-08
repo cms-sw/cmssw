@@ -78,7 +78,7 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
                 (stat <= 0 || stat > MAX_STATIONS)   ||
                 (sect <= 0 || sect > MAX_SECTORS)    ||
                 (subs <= 0 || subs > MAX_SUBSECTORS) ||
-                (cham <= 0 || stat > MAX_CHAMBERS))
+                (cham <= 0 || cham > MAX_CHAMBERS))
             {
               edm::LogError("L1CSCTPEmulatorSetupError")
                 << "+++ trying to instantiate TMB of illegal CSC id ["
