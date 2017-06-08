@@ -348,7 +348,7 @@ private:
   public:
     PlotsPerPath();
     void reset();
-    void book(DQMStore::IBooker &, ProcessCallGraph const&, ProcessCallGraph::PathType const&, PlotRanges const& ranges, unsigned int lumisections, bool byls);
+    void book(DQMStore::IBooker &, std::string const &, ProcessCallGraph const&, ProcessCallGraph::PathType const&, PlotRanges const& ranges, unsigned int lumisections, bool byls);
     void fill(ProcessCallGraph::PathType const&, ResourcesPerJob const&, ResourcesPerPath const&, unsigned int lumisection);
 
   private:
