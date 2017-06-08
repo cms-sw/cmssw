@@ -6,7 +6,7 @@ OutALCARECOAlCaPCCZeroBias_noDrop = cms.PSet(
         SelectEvents = cms.vstring('pathALCARECOAlCaPCCZeroBias')
     ),
     outputCommands = cms.untracked.vstring(
-        'keep *_*alcaPCCProducer*_*_*') 
+        'keep *_*alcaPCCProducerZeroBias_*_*')
 )
 
 

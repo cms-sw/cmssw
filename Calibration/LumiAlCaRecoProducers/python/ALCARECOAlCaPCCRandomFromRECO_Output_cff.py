@@ -6,7 +6,7 @@ OutALCARECOAlCaPCCRandomFromRECO_noDrop = cms.PSet(
         SelectEvents = cms.vstring('pathALCARECOAlCaPCCRandomFromRECO')
     ),
     outputCommands = cms.untracked.vstring(
-        'keep *_*alcaPCCProducer*_*_*') 
+        'keep *_*alcaPCCProducerRandom_*_*')
 )
 
 
