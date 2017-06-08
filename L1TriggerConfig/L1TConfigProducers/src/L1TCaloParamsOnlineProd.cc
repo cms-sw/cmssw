@@ -99,7 +99,7 @@ std::map<std::string, l1t::Mask>& ) {
     "tauMaxEta",
     "tauEnergyCalibLUT",
     "tauIsoLUT1",
-    "tauIsoLUT2",
+///    "tauIsoLUT2",
     "towerCountThreshold",
     "towerCountMaxEta",
     "ET_towerThresholdLUT",
@@ -173,9 +173,13 @@ std::map<std::string, l1t::Mask>& ) {
 
   paramsHelper.setTauCalibrationLUT( l1t::convertToLUT( conf["tauEnergyCalibLUT"].getVector<int>() ) );
   paramsHelper.setTauIsolationLUT  ( l1t::convertToLUT( conf["tauIsoLUT1"].getVector<int>() ) );
-  paramsHelper.setTauIsolationLUT2 ( l1t::convertToLUT( conf["tauIsoLUT2"].getVector<int>() ) );
+  if( conf.find("tauIsoLUT2") != conf.end() )
+    paramsHelper.setTauIsolationLUT2 ( l1t::convertToLUT( conf["tauIsoLUT2"].getVector<int>() ) );
 
   paramsHelper.setEgBypassExtHOverE( conf["egammaBypassExtendedHOverE"].getValue<bool>() );
+
+  if( conf.find("P_TauTrimming_13to8.mif") != conf.end() )
+    paramsHelper.setTauTrimmingShapeVetoLUT( l1t::convertToLUT( conf["P_TauTrimming_13to8.mif"].getVector<int>() ) );
 
   return true;
 }
