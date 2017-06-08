@@ -11,14 +11,17 @@ void CTPPSPixelGainCalibrations::setGainCalibration(const uint32_t& detid, const
     edm::LogInfo("CTPPSPixelGainCalibrations") << "newPixGains detId = "<< newPixGains.getDetId() 
 	      << " ; iBegin = "<< newPixGains.getIBegin()
 	      << " ; iEnd = "<< newPixGains.getIEnd()
-	      << " ; nCols = "<< newPixGains.getNCols() ;
+	      << " ; nCols = "<< newPixGains.getNCols() 
+	      << " ; nRows ="<<newPixGains.getNRows();
 
     int npix = newPixGains.getIEnd() ; 
-    bool dead,noisy;
+    //bool dead,noisy;
     if(npix!=0 )
-      edm::LogInfo("CTPPSPixelGainCalibrations") << "newPixGains Ped[0] = "<< newPixGains.getPed(0,dead,noisy)
-		<< " ; Gain[0] = " << newPixGains.getGain(0,dead,noisy)
-		<< " ; dead = " << dead << " ; noisy = "<< noisy ;
+      edm::LogInfo("CTPPSPixelGainCalibrations") 
+	<< "newPixGains Ped[0] = "<< newPixGains.getPed(0)
+	<< " ; Gain[0] = " << newPixGains.getGain(0)
+	<< " ; dead = " << newPixGains.isDead(0) 
+	<< " ; noisy = "<< newPixGains.isNoisy(0) ;
     else 
       edm::LogError("CTPPSPixelGainCalibrations") << "looks like setting gain calibrations did not work, npix is "<< npix ;
 
@@ -29,19 +32,19 @@ void CTPPSPixelGainCalibrations::setGainCalibration(const uint32_t& detid, const
     m_calibrations[detid] = PixGains;
 }
 
-void CTPPSPixelGainCalibrations::setGainCalibration(const uint32_t& detid, const vector<float> & peds, const vector<float> & gains){
+void CTPPSPixelGainCalibrations::setGainCalibration(const uint32_t& detid, const std::vector<float> & peds, const std::vector<float> & gains){
   m_calibrations[detid] =  CTPPSPixelGainCalibration(detid,peds,gains);
 }
 
-void CTPPSPixelGainCalibrations::setGainCalibrations(const calibmap & PixGainsCalibs){
+void CTPPSPixelGainCalibrations::setGainCalibrations(const CalibMap & PixGainsCalibs){
   m_calibrations = PixGainsCalibs;
 }
 
-void CTPPSPixelGainCalibrations::setGainCalibrations(const vector<uint32_t>& detidlist, const vector<vector<float>>& peds, const vector<vector<float>>& gains){
+void CTPPSPixelGainCalibrations::setGainCalibrations(const std::vector<uint32_t>& detidlist, const std::vector<std::vector<float>>& peds, const std::vector<std::vector<float>>& gains){
   int nids=detidlist.size();
   for (int detid=0; detid<nids ; ++detid){
-    const  vector<float>& pedsvec  = peds[detid];
-    const  vector<float>& gainsvec = gains[detid];
+    const  std::vector<float>& pedsvec  = peds[detid];
+    const  std::vector<float>& gainsvec = gains[detid];
     m_calibrations[detid]=  CTPPSPixelGainCalibration(detid,pedsvec,gainsvec);
   }
 }
@@ -52,7 +55,7 @@ CTPPSPixelGainCalibration & CTPPSPixelGainCalibrations::getGainCalibration(const
 }
 
 CTPPSPixelGainCalibration  CTPPSPixelGainCalibrations::getGainCalibration(const uint32_t & detid) const{ // returns the object does not change the map
-  calibmap::const_iterator it = m_calibrations.find(detid);
+  CalibMap::const_iterator it = m_calibrations.find(detid);
   if (it != m_calibrations.end())
     return it->second;
 

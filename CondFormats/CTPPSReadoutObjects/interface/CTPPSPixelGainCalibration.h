@@ -34,7 +34,7 @@ class CTPPSPixelGainCalibration {
     uint32_t ibegin;
     uint32_t iend  ;
     uint32_t ncols ;
-    
+    uint32_t nrows ;
     COND_SERIALIZABLE;
   };
   
@@ -58,26 +58,28 @@ class CTPPSPixelGainCalibration {
 
   // Set and get public methods
 
-  void  setDeadPixel(int ipix)  { putData(ipix, -999., 0. ); } // dead flag is pedestal = -999.
+  void  setDeadPixel(int ipix)  { putData(ipix, -9999., 0. ); } // dead flag is pedestal = -9999.
   void  setNoisyPixel(int ipix) { putData(ipix, 0., -9999. ); } // noisy flat is gain= -9999.
 
 
   void putData(uint32_t ipix, float ped, float gain);
 
-  float getPed   (const int& col, const int& row , bool& isDead, bool& isNoisy) const;
-  float getGain  (const int& col, const int& row , bool& isDead, bool& isNoisy) const;
-  float getPed   (const uint32_t ipix, bool& isDead, bool& isNoisy)const;
-  float getGain  (const uint32_t ipix, bool& isDead, bool& isNoisy)const;
+  /* float getPed   (const int& col, const int& row , bool& isDead, bool& isNoisy) const; */
+  /* float getGain  (const int& col, const int& row , bool& isDead, bool& isNoisy) const; */
+  /* float getPed   (const uint32_t ipix, bool& isDead, bool& isNoisy)const; */
+  /* float getGain  (const uint32_t ipix, bool& isDead, bool& isNoisy)const; */
   float getPed   (const int& col, const int& row ) const;
   float getGain  (const int& col, const int& row ) const;
-  float getPed   (const uint32_t ipix )const;
-  float getGain  (const uint32_t ipix )const;
-
+  float getPed   (const uint32_t ipix )const{return v_pedestals[ipix];}
+  float getGain  (const uint32_t ipix )const{return v_gains[ipix];}
+  bool  isDead   (const uint32_t ipix)const{return (v_pedestals[ipix]==-9999.);}
+  bool  isNoisy  (const uint32_t ipix)const{return (v_gains[ipix]==-9999.);}
   //get information related to indexes
   uint32_t getDetId () const {return indexes.detid;}
   uint32_t getNCols () const {return indexes.ncols;}
   uint32_t getIBegin() const {return indexes.ibegin;}
   uint32_t getIEnd  () const {return indexes.iend;}
+  uint32_t getNRows () const {return indexes.nrows;}
 
  private:
   void setIndexes(const uint32_t& detId);
@@ -87,7 +89,7 @@ class CTPPSPixelGainCalibration {
   std::vector<float> v_gains;
   DetRegistry indexes;
   // a single detRegistry w/ detID and collection of indices 
-  float  minPed_, maxPed_, minGain_, maxGain_; //not really used
+  float  minPed_, maxPed_, minGain_, maxGain_; //not really used yet
 
  COND_SERIALIZABLE;
 };

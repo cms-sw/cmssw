@@ -5,21 +5,20 @@
 #include <map>
 #include <vector>
 
-using namespace std;
 
 class CTPPSPixelGainCalibrations{
  public:
-  typedef map<uint32_t,CTPPSPixelGainCalibration> calibmap;
+  typedef std::map<uint32_t,CTPPSPixelGainCalibration> CalibMap;
 
   CTPPSPixelGainCalibrations(){}
   virtual ~CTPPSPixelGainCalibrations(){}
 
   void setGainCalibration(const uint32_t& DetId, const CTPPSPixelGainCalibration & PixGains);
-  void setGainCalibration(const uint32_t& DetId, const vector<float>& peds, const vector<float>& gains);
-  void setGainCalibrations(const calibmap & PixGainsCalibs);
-  void setGainCalibrations(const vector<uint32_t>& detidlist, const vector<vector<float>>& peds, const vector<vector<float>>& gains);
+  void setGainCalibration(const uint32_t& DetId, const std::vector<float>& peds, const std::vector<float>& gains);
+  void setGainCalibrations(const CalibMap & PixGainsCalibs);
+  void setGainCalibrations(const std::vector<uint32_t>& detidlist, const std::vector<std::vector<float>>& peds, const std::vector<std::vector<float>>& gains);
 
-  const calibmap & getCalibmap()const { return m_calibrations;}
+  const CalibMap & getCalibMap()const { return m_calibrations;}
 
   CTPPSPixelGainCalibration getGainCalibration(const uint32_t & detid) const;
   CTPPSPixelGainCalibration & getGainCalibration(const uint32_t & detid);
@@ -29,7 +28,7 @@ class CTPPSPixelGainCalibrations{
   int size() const {return m_calibrations.size();}
 
  private:
-  calibmap m_calibrations;
+  CalibMap m_calibrations;
 
   COND_SERIALIZABLE;
 };
