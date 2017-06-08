@@ -5,6 +5,7 @@ import FWCore.ParameterSet.Config as cms
 #from DQM.HLTEvF.OccupancyPlotter_cfi import *
 
 from DQM.HLTEvF.HLTObjectMonitor_cfi import *
+from DQM.HLTEvF.HLTObjectsMonitor_cfi import *
 from DQM.HLTEvF.HLTLumiMonitoring_cff import *
 from DQM.HLTEvF.HLTSiPixelMonitoring_cff import *
 # strip monitoring@HLT needs track re-fitting (estimation of the crossing angle through the sensor)
@@ -24,6 +25,7 @@ hlt4vector = cms.Path(
     * trackingMonitoringHLTsequence # tracking monitoring
     * egmTrackingMonitorHLTsequence # EGM tracking monitoring
     * vertexingMonitorHLTsequence # vertexing
+    * hltObjectsMonitor
 )
 
 
