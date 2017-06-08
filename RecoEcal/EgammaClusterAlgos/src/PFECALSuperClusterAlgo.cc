@@ -194,7 +194,13 @@ void PFECALSuperClusterAlgo::setTokens(const edm::ParameterSet &iConfig, edm::Co
     regr_.reset(new SCEnergyCorrectorSemiParm());
     regr_->setTokens(regconf, cc);  
   }
-  
+
+  if (isOOTCollection_) { // OOT photons only
+    inputTagBarrelRecHits_ =
+      cc.consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("barrelRecHits"));
+    inputTagEndcapRecHits_ =
+      cc.consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("endcapRecHits"));
+  }  
 }
 
 void PFECALSuperClusterAlgo::update(const edm::EventSetup& setup) {
@@ -279,6 +285,26 @@ loadAndSortPFClusters(const edm::Event &iEvent) {
   GreaterByEt greater;
   std::sort(_clustersEB.begin(), _clustersEB.end(), greater);
   std::sort(_clustersEE.begin(), _clustersEE.end(), greater);  
+
+  // set recHit collections for OOT photons
+  if (isOOTCollection_)
+  {
+    edm::Handle<EcalRecHitCollection> barrelRecHitsHandle;
+    iEvent.getByToken(inputTagBarrelRecHits_, barrelRecHitsHandle);
+    if (!barrelRecHitsHandle.isValid()) {
+      throw cms::Exception("PFECALSuperClusterAlgo") 
+	<< "If you use OOT photons, need to specify proper barrel rec hit collection";
+    }
+    barrelRecHits_ = barrelRecHitsHandle.product();
+
+    edm::Handle<EcalRecHitCollection> endcapRecHitsHandle;
+    iEvent.getByToken(inputTagEndcapRecHits_, endcapRecHitsHandle);
+    if (!endcapRecHitsHandle.isValid()) {
+      throw cms::Exception("PFECALSuperClusterAlgo") 
+	<< "If you use OOT photons, need to specify proper endcap rec hit collection";
+    }
+    endcapRecHits_ = endcapRecHitsHandle.product();
+  }
 }
 
 void PFECALSuperClusterAlgo::run() {  
@@ -532,10 +558,20 @@ buildSuperCluster(CalibClusterPtr& seed,
   if ( scEtBS > threshSuperClusterEt_ ) {
     switch( seed->the_ptr()->layer() ) {
     case PFLayer::ECAL_BARREL:
+      if(isOOTCollection_) {
+	DetId seedId = new_sc.seed()->seed();
+	EcalRecHitCollection::const_iterator seedRecHit = barrelRecHits_->find(seedId);
+	if (!seedRecHit->checkFlag(EcalRecHit::kOutOfTime)) break;
+      }
       superClustersEB_->push_back(new_sc);
       break;
     case PFLayer::HGCAL:
     case PFLayer::ECAL_ENDCAP:    
+      if(isOOTCollection_) {
+	DetId seedId = new_sc.seed()->seed();
+	EcalRecHitCollection::const_iterator seedRecHit = endcapRecHits_->find(seedId);
+	if (!seedRecHit->checkFlag(EcalRecHit::kOutOfTime)) break;
+      }
       superClustersEE_->push_back(new_sc);    
       break;
     default:
