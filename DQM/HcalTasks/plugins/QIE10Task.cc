@@ -38,8 +38,7 @@ QIE10Task::QIE10Task(edm::ParameterSet const& ps):
 
 	// create a slot filter and initialize what you need
 	unsigned int itr=0;
-	for(unsigned int crate=22; crate < 33; ++crate) {
-		if (crate != 22 && crate != 29 && crate != 32) continue;
+	for (auto& crate : constants::crateListHF) {
 		for(unsigned int slot=SLOT_uTCA_MIN; slot<=SLOT_uTCA_MAX; ++slot) {
 			std::vector<uint32_t> vhashSlot;
 			vhashSlot.push_back(HcalElectronicsId(crate, slot, FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
@@ -121,8 +120,7 @@ QIE10Task::QIE10Task(edm::ParameterSet const& ps):
 
 
 	itr = 0;
-	for(unsigned int crate=22; crate < 33; ++crate) {
-		if (crate != 22 && crate != 29 && crate != 32) continue;
+	for(auto& crate : constants::crateListHF) {
 		for(unsigned int slot=SLOT_uTCA_MIN; slot<=SLOT_uTCA_MAX; ++slot) {
 			char aux[100];
 			sprintf(aux, "/Crate%d_Slot%d", crate, slot);
