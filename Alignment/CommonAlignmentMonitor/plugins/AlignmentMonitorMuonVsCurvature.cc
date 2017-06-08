@@ -42,8 +42,6 @@ public:
   void event(const edm::Event &iEvent, const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& iTrajTracks) override;
   void processMuonResidualsFromTrack(MuonResidualsFromTrack &mrft, const Trajectory* traj = NULL);
 
-  void afterAlignment(const edm::EventSetup &iSetup) override {}
-
 private:
   
   edm::InputTag m_muonCollectionTag;

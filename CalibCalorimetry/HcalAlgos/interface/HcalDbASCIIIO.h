@@ -52,6 +52,13 @@ Text file formats for different data types is as following:
   eta(int)  phi(int) depth(int) det(HB,HE,HF) cap1_pedw(float) cap2_pedw(float) cap3_pedw(float) cap4_pedw(float) cap1_gainw(float) cap2_gainw(float) cap3_gainw(float) cap4_gainw(float) HcalDetId(int,optional)
 */
 namespace HcalDbASCIIIO {
+  //alternate function for creating certain objects
+  template <class T>
+  std::unique_ptr<T> createObject (std::istream& fInput){
+    assert(0); //no general case, relies on specializations defined in cc file
+    return std::make_unique<T>();
+  }
+
   bool getObject (std::istream& fInput, HcalPedestals* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalPedestals& fObject);
   bool getObject (std::istream& fInput, HcalPedestalWidths* fObject);
@@ -66,7 +73,6 @@ namespace HcalDbASCIIIO {
   bool dumpObject (std::ostream& fOutput, const HcalCalibrationQIEData& fObject);
   bool getObject (std::istream& fInput, HcalQIETypes* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalQIETypes& fObject);
-  bool getObject (std::istream& fInput, HcalElectronicsMap* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalElectronicsMap& fObject);
   bool getObject (std::istream& fInput, HcalChannelQuality* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalChannelQuality& fObject);
@@ -82,7 +88,6 @@ namespace HcalDbASCIIIO {
   bool dumpObject (std::ostream& fOutput, const HcalZSThresholds& fObject);
   bool getObject (std::istream& fInput, HcalL1TriggerObjects* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalL1TriggerObjects& fObject);
-  bool getObject (std::istream& fInput, HcalFrontEndMap* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalFrontEndMap& fObject);
 
   bool getObject (std::istream& fInput, HcalValidationCorrs* fObject);
@@ -91,7 +96,6 @@ namespace HcalDbASCIIIO {
   bool dumpObject (std::ostream& fOutput, const HcalLutMetadata& fObject);
   bool getObject (std::istream& fInput, HcalDcsValues* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalDcsValues& fObject);
-  bool getObject (std::istream& fInput, HcalDcsMap* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalDcsMap& fObject);
 
   bool getObject (std::istream& fInput, HcalRecoParams* fObject);
@@ -114,7 +118,6 @@ namespace HcalDbASCIIIO {
 
   bool getObject (std::istream& fInput, HcalSiPMParameters* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalSiPMParameters& fObject);
-  bool getObject (std::istream& fInput, HcalSiPMCharacteristics* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalSiPMCharacteristics& fObject);
 
   bool getObject (std::istream& fInput, HcalTPParameters* fObject);

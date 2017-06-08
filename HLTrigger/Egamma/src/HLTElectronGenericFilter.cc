@@ -41,7 +41,7 @@ HLTElectronGenericFilter::HLTElectronGenericFilter(const edm::ParameterSet& iCon
   varToken_     = consumes<reco::ElectronIsolationMap>(varTag_);
 }
 
-HLTElectronGenericFilter::~HLTElectronGenericFilter(){}
+HLTElectronGenericFilter::~HLTElectronGenericFilter()= default;
 
 void
 HLTElectronGenericFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -88,9 +88,9 @@ HLTElectronGenericFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& i
   // look at all photons, check cuts and add to filter object
   int n = 0;
 
-  for (unsigned int i=0; i<elecands.size(); i++) {
+  for (auto & elecand : elecands) {
 
-    ref = elecands[i];
+    ref = elecand;
     reco::ElectronIsolationMap::const_iterator mapi = (*depMap).find( ref );
 
     float vali = mapi->val;

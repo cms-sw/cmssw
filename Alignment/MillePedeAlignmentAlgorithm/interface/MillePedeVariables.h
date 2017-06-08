@@ -15,15 +15,16 @@
 
 #include "Alignment/CommonAlignment/interface/AlignmentUserVariables.h"
 
+#include <string>
 #include <vector>
 
 class MillePedeVariables : public AlignmentUserVariables {
  public:
   
   /** constructor */
-  MillePedeVariables(unsigned int nParams, unsigned int label);
+  MillePedeVariables(unsigned int nParams, unsigned int label, const std::string& name);
   /** destructor */
-  virtual ~MillePedeVariables() {}
+  virtual ~MillePedeVariables() = default;
   /** clone method (using copy constructor) */
   virtual MillePedeVariables* clone() const { return new MillePedeVariables(*this);}
 
@@ -67,6 +68,11 @@ class MillePedeVariables : public AlignmentUserVariables {
   /// set alignable label as used by pede
   void setLabel(unsigned int label) { myLabel = label;}
 
+  /// get alignable name
+  const std::string& name() const { return myName; }
+  /// set alignable name
+  void setName(const std::string& name) { myName = name;}
+
   /// get number of hits for x-measurement
   unsigned int hitsX() const {return myHitsX;}
   /// increase hits for x-measurement
@@ -94,6 +100,7 @@ class MillePedeVariables : public AlignmentUserVariables {
   unsigned int       myHitsX;
   unsigned int       myHitsY;
   unsigned int       myLabel;
+  std::string        myName;
 };
 
 #endif

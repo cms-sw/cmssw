@@ -58,6 +58,11 @@ namespace l1t {
       static const unsigned emtfTrAddrTrkNumMask_  = 0x3;
       static const unsigned emtfTrAddrBxShift_     =  18;
       static const unsigned emtfTrAddrBxMask_    = 0x7FF;
+
+      static const unsigned omtfTrAddrLayersShift_ =  0;
+      static const unsigned omtfTrAddrLayersMask_ = 0x3FFFF;
+      static const unsigned omtfTrAddrWeightShift_ =  18;
+      static const unsigned omtfTrAddrWeightMask_ = 0x1F;
   };
 }
 

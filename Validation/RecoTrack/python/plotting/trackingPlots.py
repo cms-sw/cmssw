@@ -457,29 +457,6 @@ _possibleTrackingCollsOld = {
     "Tenth" : "iter10",
 }
 
-def _trackingSubFoldersFallbackSLHC_Phase1PU70_OldMapping(subfolder):
-    ret = subfolder.replace("trackingParticleRecoAsssociation", "AssociatorByHitsRecoDenom")
-    for (old, new) in [("InitialStep",         "Zero"),
-                       ("LowPtTripletStep",    "First"),
-                       ("PixelPairStep",       "Second"),
-                       ("MixedTripletStep",    "Fourth"),
-                       ("MuonSeededStepInOut", "Ninth"),
-                       ("MuonSeededStepOutIn", "Tenth")]:
-
-        ret = ret.replace(old, new)
-    if ret == subfolder:
-        return None
-    return ret
-def _trackingRefFileFallbackSLHC_Phase1PU70_OldMapping(path):
-    for (old, new) in [("initialStep",         "iter0"),
-                       ("lowPtTripletStep",    "iter1"),
-                       ("pixelPairStep",       "iter2"),
-                       ("mixedTripletStep",    "iter4"),
-                       ("muonSeededStepInOut", "iter9"),
-                       ("muonSeededStepOutIn", "iter10")]:
-        path = path.replace(old, new)
-    return path
-
 def _trackingSubFoldersFallbackSLHC_Phase1PU140(subfolder):
     ret = subfolder.replace("trackingParticleRecoAsssociation", "AssociatorByHitsRecoDenom")
     for (old, new) in [("InitialStep",         "Zero"),
@@ -1030,11 +1007,9 @@ def _appendTrackingPlots(lastDirName, name, algoPlots, onlyForPileup=False, only
     # to keep backward compatibility, this set of plots has empty name
     limiters = dict(onlyForPileup=onlyForPileup, onlyForElectron=onlyForElectron, onlyForConversion=onlyForConversion)
     commonForTPF = dict(purpose=PlotPurpose.TrackingIteration, fallbackRefFiles=[
-        #_trackingRefFileFallbackSLHC_Phase1PU70_OldMapping
         _trackingRefFileFallbackSLHC_Phase1PU140
     ], **limiters)
     common = dict(fallbackDqmSubFolders=[
-        #_trackingSubFoldersFallbackSLHC_Phase1PU70_OldMapping,
         _trackingSubFoldersFallbackSLHC_Phase1PU140,
         _trackingSubFoldersFallbackFromPV, _trackingSubFoldersFallbackConversion])
     plotter.append(name, folders, TrackingPlotFolder(*algoPlots, **commonForTPF), **common)

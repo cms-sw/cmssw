@@ -28,6 +28,7 @@
 //-------------------------------
 
 #include "L1Trigger/DTTrackFinder/src/L1MuDTTFConfig.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTTrackFinder.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTExtParam.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTSectorProcessor.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTSEU.h"
@@ -51,9 +52,9 @@ L1MuDTEUX::L1MuDTEUX(const L1MuDTSectorProcessor& sp, const L1MuDTSEU& seu, int 
     m_sp(sp), m_seu(seu), m_id(id), 
     m_result(false), m_quality(0), m_address(15),
     m_start(0), m_target(0), 
-    theExtFilter(L1MuDTTFConfig::getExtTSFilter()),
-    nbit_phi(L1MuDTTFConfig::getNbitsExtPhi()),
-    nbit_phib(L1MuDTTFConfig::getNbitsExtPhib())
+    theExtFilter(sp.tf().config()->getExtTSFilter()),
+    nbit_phi(sp.tf().config()->getNbitsExtPhi()),
+    nbit_phib(sp.tf().config()->getNbitsExtPhib())
 {
 }
 
@@ -91,12 +92,13 @@ void L1MuDTEUX::run(const edm::EventSetup& c) {
   c.get< L1MuDTExtLutRcd >().get( theExtLUTs );
   c.get< L1MuDTTFParametersRcd >().get( pars );
 
-  if ( L1MuDTTFConfig::Debug(4) ) cout << "Run EUX "  << m_id << endl;
-  if ( L1MuDTTFConfig::Debug(4) ) cout << "start :  " << *m_start  << endl;
-  if ( L1MuDTTFConfig::Debug(4) ) cout << "target : " << *m_target << endl;
+  const bool debug4 = m_sp.tf().config()->Debug(4);
+  if ( debug4 ) cout << "Run EUX "  << m_id << endl;
+  if ( debug4 ) cout << "start :  " << *m_start  << endl;
+  if ( debug4 ) cout << "target : " << *m_target << endl;
 
   if ( m_start == 0 || m_target == 0 ) { 
-    if ( L1MuDTTFConfig::Debug(4) ) cout << "Error: EUX has no data loaded" << endl;
+    if ( debug4 ) cout << "Error: EUX has no data loaded" << endl;
     return;
   }
 
@@ -118,7 +120,7 @@ void L1MuDTEUX::run(const edm::EventSetup& c) {
 
   }
 
-  if ( L1MuDTTFConfig::Debug(5) ) cout << "EUX : using look-up table : "
+  if ( m_sp.tf().config()->Debug(5) ) cout << "EUX : using look-up table : "
                                        << static_cast<Extrapolation>(lut_idx)
                                        << endl;
 
@@ -165,7 +167,7 @@ void L1MuDTEUX::run(const edm::EventSetup& c) {
 
   // is phi-difference within the extrapolation window?
   bool openlut = pars->get_soc_openlut_extr(m_sp.id().wheel(), m_sp.id().sector());
-  if (( diff >= low && diff <= high ) || L1MuDTTFConfig::getopenLUTs() || openlut ) {
+  if (( diff >= low && diff <= high ) || m_sp.tf().config()->getopenLUTs() || openlut ) {
     m_result = true;
     int qual_st = m_start->quality();
     int qual_ta = m_target->quality();
@@ -178,7 +180,7 @@ void L1MuDTEUX::run(const edm::EventSetup& c) {
     m_address = m_id;
   }
 
-  if ( L1MuDTTFConfig::Debug(5) ) cout << "diff : "   << low  << " "
+  if ( m_sp.tf().config()->Debug(5) ) cout << "diff : "   << low  << " "
                                        << diff << " " << high << " : "
                                        << m_result << " " << endl;
 

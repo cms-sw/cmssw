@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-jetMETHLTOfflineClientAK4 = cms.EDAnalyzer("JetMETHLTOfflineClient",
+jetMETHLTOfflineClientAK4 = DQMEDHarvester("JetMETHLTOfflineClient",
 
                                  processname = cms.string("HLT"),
                                  DQMDirName=cms.string("HLT/JetMET"),

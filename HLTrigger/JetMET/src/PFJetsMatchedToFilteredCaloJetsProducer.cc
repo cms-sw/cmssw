@@ -26,7 +26,7 @@ PFJetsMatchedToFilteredCaloJetsProducer::PFJetsMatchedToFilteredCaloJetsProducer
   produces<PFJetCollection>();
 }
 
-PFJetsMatchedToFilteredCaloJetsProducer::~PFJetsMatchedToFilteredCaloJetsProducer(){ }
+PFJetsMatchedToFilteredCaloJetsProducer::~PFJetsMatchedToFilteredCaloJetsProducer()= default;
 
 void PFJetsMatchedToFilteredCaloJetsProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -64,13 +64,13 @@ void PFJetsMatchedToFilteredCaloJetsProducer::produce(edm::Event& iEvent, const 
 	math::XYZPoint a(0.,0.,0.);
 	PFJet::Specific f;
 		
-	for( unsigned int iCalo=0; iCalo <jetRefVec.size();iCalo++)
+	for(auto & iCalo : jetRefVec)
 	  {  
 	    // std::cout << "\tiTriggerJet: " << iCalo << " pT= " << jetRefVec[iCalo]->pt() << std::endl;
 	    for(unsigned int iPF=0;iPF<PFJets->size();iPF++)
 	      {
 		const Candidate &  myJet = (*PFJets)[iPF];
-		double deltaR = ROOT::Math::VectorUtil::DeltaR(myJet.p4().Vect(), (jetRefVec[iCalo]->p4()).Vect());
+		double deltaR = ROOT::Math::VectorUtil::DeltaR(myJet.p4().Vect(), (iCalo->p4()).Vect());
 		if(deltaR < DeltaR_ ) {
 		  PFJet myPFJet(myJet.p4(),a,f);
 		  pfjets->push_back(myPFJet);

@@ -13,6 +13,7 @@
 class TrackerFrameRotation : public FrameRotation 
 {
 public:
+    virtual ~TrackerFrameRotation() = default;
     virtual Local3DPoint transformPoint(Local3DPoint &,G4VPhysicalVolume *) const;
 };
 

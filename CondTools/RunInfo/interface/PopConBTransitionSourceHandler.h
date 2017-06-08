@@ -34,11 +34,9 @@ namespace popcon {
     bool checkBOn() {
       //the output boolean is set to true as default
       bool isBOn = true;
+      cond::persistency::Session& session = PopConSourceHandler<T>::dbSession();
       //reading RunInfo from Conditions
-      edm::LogInfo( "PopConBTransitionSourceHandler" ) << "[" << "PopConBTransitionSourceHandler::" << __func__ << "]: "
-                                                       << "Initialising CondDB read-only session to " << m_connectionString << std::endl;
-      cond::persistency::Session session = m_connection.createReadOnlySession( m_connectionString, "" );
-      session.transaction().start();
+      cond::persistency::TransactionScope trans( session.transaction() );
       edm::LogInfo( "PopConBTransitionSourceHandler" ) << "[" << "PopConBTransitionSourceHandler::" << __func__ << "]: "
                                                        << "Loading tag for RunInfo " << m_tagForRunInfo
                                                        << " and IOV valid for run number: " << m_run << std::endl;
@@ -59,18 +57,15 @@ namespace popcon {
       if( avg_current != current_default && avg_current <= m_currentThreshold ) isBOn = false;
       edm::LogInfo( "PopConBTransitionSourceHandler" ) << "[" << "PopConBTransitionSourceHandler::" << __func__ << "]: "
                                                        << "The magnet was " << ( isBOn ? "ON" : "OFF" )
-                                                       << " during run " << m_run << std::endl;
-      session.transaction().commit();
+						       << " during run " << m_run << std::endl;
+      trans.close();          
       return isBOn;
     }
 
     virtual void getObjectsForBTransition( bool isBOn ) {
       //reading payloads for 0T and 3.8T from Conditions
-      edm::LogInfo( "PopConBTransitionSourceHandler" ) << "[" << "PopConBTransitionSourceHandler::" << __func__ << "]: "
-                                                       << "Initialising CondDB session to " << m_connectionString << std::endl;
-      cond::persistency::Session session = m_connection.createSession( m_connectionString, true );
+      cond::persistency::Session& session = PopConSourceHandler<T>::dbSession();
       cond::persistency::TransactionScope trans( session.transaction() );
-      trans.start( false );
       edm::LogInfo( "PopConBTransitionSourceHandler" ) << "[" << "PopConBTransitionSourceHandler::" << __func__ << "]: "
                                                        << "Loading tag for B " << ( isBOn ? "ON" : "OFF" ) << ": "
                                                        << ( isBOn ? m_tagForBOn : m_tagForBOff )
@@ -90,7 +85,13 @@ namespace popcon {
            << ( isBOn ? "ON" : "OFF" );
         edm::LogInfo( "PopConBTransitionSourceHandler" ) << "[" << "PopConBTransitionSourceHandler::" << __func__ << "]: "
                                                          << ss.str() << std::endl;
-	cond::persistency::IOVEditor editor = session.editIov( destTag );
+	cond::persistency::IOVEditor editor;
+        if( session.existsIov( destTag ) ){
+	  editor = session.editIov( destTag );
+	} else {
+	  editor = session.createIov<T>( destTag, iov.timeType() );
+          editor.setDescription( "Tag created by PopConBTransitionSourceHandler" );
+	}
         editor.insert( m_run, currentIov.payloadId );
         editor.flush();
         this->m_userTextLog = ss.str();
@@ -103,7 +104,7 @@ namespace popcon {
                                                          << " in the destination tag " << destTag
                                                          << ".\nNo transfer needed." <<std::endl;
       }
-      trans.commit();
+      trans.close();     
     }
 
     virtual void getNewObjects() override final {

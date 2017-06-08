@@ -22,7 +22,7 @@ DDLMaterial::setReference( const std::string& nmspace, DDCompactView& cpv )
   // Attempt to make sure Material elements can be in LogicalPart elements.
   if (myRegistry_->getElement("LogicalPart")->size() > 0)
     {
-      DDXMLElement* refmat = myRegistry_->getElement("rMaterial");
+      auto refmat = myRegistry_->getElement("rMaterial");
       std::vector<std::string> names;
       std::vector<std::string> values;
       names.push_back("name");

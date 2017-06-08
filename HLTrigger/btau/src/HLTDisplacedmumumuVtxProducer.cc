@@ -49,10 +49,7 @@ HLTDisplacedmumumuVtxProducer::HLTDisplacedmumumuVtxProducer(const edm::Paramete
 }
 
 
-HLTDisplacedmumumuVtxProducer::~HLTDisplacedmumumuVtxProducer()
-{
-  
-}
+HLTDisplacedmumumuVtxProducer::~HLTDisplacedmumumuVtxProducer() = default;
 
 void
 HLTDisplacedmumumuVtxProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -204,8 +201,8 @@ void HLTDisplacedmumumuVtxProducer::produce(edm::Event& iEvent, const edm::Event
 
 bool HLTDisplacedmumumuVtxProducer::checkPreviousCand(const TrackRef& trackref, vector<RecoChargedCandidateRef> & refVect){
   bool ok=false;
-  for (unsigned int i=0; i<refVect.size(); i++) {
-    if ( refVect[i]->get<TrackRef>() == trackref ) {
+  for (auto & i : refVect) {
+    if ( i->get<TrackRef>() == trackref ) {
       ok=true;
       break;
     }

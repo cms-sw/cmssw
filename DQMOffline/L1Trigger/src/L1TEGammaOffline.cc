@@ -120,7 +120,7 @@ void L1TEGammaOffline::fillElectrons(edm::Event const& e, const unsigned int nVe
     return;
   }
   if (!l1EGamma.isValid()) {
-    edm::LogError("L1TEGammaOffline") << "invalid collection: L1 EGamma " << std::endl;
+    //edm::LogError("L1TEGammaOffline") << "invalid collection: L1 EGamma " << std::endl;
     return;
   }
   if (!findTagAndProbePair(gsfElectrons)) {
@@ -363,7 +363,7 @@ void L1TEGammaOffline::fillPhotons(edm::Event const& e, const unsigned int nVert
     return;
   }
   if (!l1EGamma.isValid()) {
-    edm::LogError("L1TEGammaOffline") << "invalid collection: L1 EGamma " << std::endl;
+    //  edm::LogError("L1TEGammaOffline") << "invalid collection: L1 EGamma " << std::endl;
     return;
   }
 

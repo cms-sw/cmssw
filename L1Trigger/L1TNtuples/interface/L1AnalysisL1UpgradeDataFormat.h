@@ -106,7 +106,7 @@ namespace L1Analysis
       muonQual.clear();
       muonTfMuonIdx.clear();
       muonBx.clear();
-
+      
       nSums = 0;
       sumType.clear();
       sumEt.clear();

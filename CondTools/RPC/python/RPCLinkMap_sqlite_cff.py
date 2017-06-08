@@ -16,6 +16,14 @@ RPCLinkMapSource = cms.ESSource('PoolDBESSource'
                                         record = cms.string('RPCTwinMuxLinkMapRcd')
                                         , tag = cms.string('RPCTwinMuxLinkMap_v1')
                                     )
+                                    , cms.PSet(
+                                        record = cms.string('RPCCPPFLinkMapRcd')
+                                        , tag = cms.string('RPCCPPFLinkMap_v1')
+                                    )
+                                    , cms.PSet(
+                                        record = cms.string('RPCOMTFLinkMapRcd')
+                                        , tag = cms.string('RPCOMTFLinkMap_v1')
+                                    )
                                 )
                                 , connect = cms.string('sqlite_fip:CondTools/RPC/data/RPCLinkMap.db')
 )

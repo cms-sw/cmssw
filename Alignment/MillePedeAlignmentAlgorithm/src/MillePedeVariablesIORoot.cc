@@ -3,9 +3,6 @@
  *
  *  \author    : Gero Flucke
  *  date       : November 2006
- *  $Revision: 1.6 $
- *  $Date: 2008/10/14 07:19:32 $
- *  (last update by $Author: flucke $)
  */
 
 // this class's header
@@ -22,7 +19,7 @@
 // -------------------------------------------------------------------------------------------------
 MillePedeVariablesIORoot::MillePedeVariablesIORoot() :
   myId(0), myObjId(0), myNumPar(0),
-  myHitsX(0), myHitsY(0), myLabel(0)
+  myHitsX(0), myHitsY(0), myLabel(0), myName(""), myNamePtr(&myName)
 {
   treename = "MillePedeUser";
   treetxt = "MillePede User Variables";
@@ -115,6 +112,7 @@ int MillePedeVariablesIORoot::writeOne(Alignable* ali)
   myHitsX = mpVar->hitsX();
   myHitsY = mpVar->hitsY();
   myLabel = mpVar->label();
+  myName  = mpVar->name();
 
   myId = ali->id();
   myObjId = ali->alignableObjectId();
@@ -137,7 +135,7 @@ AlignmentUserVariables* MillePedeVariablesIORoot::readOne(Alignable *ali, int &i
     return 0;
   }
 
-  MillePedeVariables *mpVar = new MillePedeVariables(myNumPar, myLabel);
+  MillePedeVariables *mpVar = new MillePedeVariables(myNumPar, myLabel, myName);
   for (unsigned int iPar = 0; iPar < myNumPar; ++iPar) {
     mpVar->isValid()[iPar]    = myIsValid[iPar];
     mpVar->diffBefore()[iPar] = myDiffBefore[iPar];
@@ -167,6 +165,7 @@ void MillePedeVariablesIORoot::createBranches()
   tree->Branch("HitsX",     &myHitsX,     "HitsX/i");
   tree->Branch("HitsY",     &myHitsY,     "HitsY/i");
   tree->Branch("Label",     &myLabel,     "Label/i");
+  tree->Branch("Name",      &myNamePtr);
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -184,4 +183,5 @@ void MillePedeVariablesIORoot::setBranchAddresses()
   tree->SetBranchAddress("HitsX",     &myHitsX);
   tree->SetBranchAddress("HitsY",     &myHitsY);
   tree->SetBranchAddress("Label",     &myLabel);
+  tree->SetBranchAddress("Name",      &myNamePtr);
 }

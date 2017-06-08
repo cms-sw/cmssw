@@ -278,7 +278,8 @@ def _connect(db, init, read_only, args):
 
         if connection.is_official:
             if args.force:
-                logging.warning('You are going to edit an official database. If you are not one of the Offline DB experts but have access to the password for other reasons, please stop now.')
+                if not args.yes:
+                    logging.warning('You are going to edit an official database. If you are not one of the Offline DB experts but have access to the password for other reasons, please stop now.')
             else:
                 raise Exception('Editing official databases is forbidden. Use the official DropBox to upload conditions. If you need a special intervention on the database, see the contact help: %s' % conddb.contact_help)
         # for sqlite we trigger the implicit schema creation
@@ -761,6 +762,8 @@ def _convert_time( session, toTimeType, runNumber ):
 
 class hlt_synchro_policy( object ):
     def __init__(self, session1, session2, timeType, destTag):
+        if timeType in ('Time','Lumi'):
+            raise Exception("Can't synchronize a tag with time type '%s' to hlt" %timeType) 
         session = conddb.getSessionOnMasterDB( session1, session2 )
         self.fcsr = _get_hlt_fcsr( session, timeType  ) 
         self.lastFrozenSince = _get_last_frozen_since( session2, destTag, self.fcsr ) 
@@ -782,7 +785,7 @@ class hlt_synchro_policy( object ):
         nlate = len(late_iovs)
         if nlate>0:
             logging.warning('%s IOV(s) with since less than the hlt FCSR (%s) have been discarded.' %(nlate,self.fcsr) ) 
-        return new_iovs
+        return True, new_iovs
 
 class prompt_synchro_policy( object ):
     def __init__(self, session1, session2, timeType, destTag):
@@ -807,7 +810,7 @@ class prompt_synchro_policy( object ):
         nlate = len(late_iovs)
         if nlate>0:
             logging.warning('%s IOV(s) with since less than the tier0 FCSR (%s) have been discarded.' %(nlate,self.fcsr) ) 
-        return new_iovs
+        return True, new_iovs
 
 class pcl_synchro_policy( object ):
     def __init__(self, session1, session2, timeType, destTag):
@@ -817,6 +820,7 @@ class pcl_synchro_policy( object ):
     def validate( self, iovs ):
         new_iovs = {}
         late_iovs = []
+        ret = True
         for since in sorted(iovs.keys(),reverse=True):
             if since >= self.fcsr:
                 new_iovs[since] = iovs[since]
@@ -824,8 +828,9 @@ class pcl_synchro_policy( object ):
                 late_iovs.append(since)
         nlate = len(late_iovs)
         if nlate>0:
-            logging.warning('%s IOV(s) with since less than the tier0 FCSR (%s) have been discarded.' %(nlate,self.fcsr) ) 
-        return new_iovs
+            logging.error('%s IOV(s) with since less than the tier0 FCSR (%s) have been discarded.' %(nlate,self.fcsr) ) 
+            ret = False
+        return ret, new_iovs
          
 class mc_synchro_policy( object ):
     def __init__(self, session1, session2, timeType, destTag):
@@ -834,6 +839,7 @@ class mc_synchro_policy( object ):
     def validate( self, iovs ):
         new_iovs = {}
         niovs = len(iovs)
+        ret = True
         if self.lastFrozenSince is None:
             if 1 not in iovs.keys():
                 raise Exception( 'Could not find an iov with since 1 in the source tag.')
@@ -842,8 +848,9 @@ class mc_synchro_policy( object ):
                 logging.warning('%s IOV(s) with since greater than the expected mc since=1 will be discarded.' %(niovs-1))
         else:
             if niovs>0:
+                ret = False
                 logging.warning('%s The destination tag is frozen - no iov can be altered.' %niovs)
-        return new_iovs
+        return ret, new_iovs
 
 class offline_synchro_policy( object ):
     def __init__(self, session1, session2, timeType, destTag):
@@ -858,19 +865,22 @@ class offline_synchro_policy( object ):
             else:
                 late_iovs.append(since)
         nlate = len(late_iovs)
+        ret = True
         if nlate>0:
+            ret = False
             logging.warning('%s IOV(s) with since less than the last since in the destination tag (%s) have been discarded.' %(nlate,self.lastFrozenSince) ) 
-        return new_iovs
+        return ret, new_iovs
 
 class no_synchro_policy( object ):
     def __init__(self, session1=None, session2=None, timeType=None, destTag=None):
         pass
     
     def validate( self, iovs ):
-        return iovs
+        return True, iovs
 
 _synchro_map = { 'hlt': hlt_synchro_policy, 'express': hlt_synchro_policy, 'prompt': prompt_synchro_policy, 'pcl':pcl_synchro_policy, 
-                 'mc': mc_synchro_policy, 'offline': offline_synchro_policy, 'any':no_synchro_policy, 'validation':no_synchro_policy }
+                 'mc': mc_synchro_policy, 'offline': offline_synchro_policy, 'any':no_synchro_policy, 'validation':no_synchro_policy,
+                 'runmc': offline_synchro_policy }
 def _get_synchro_policy( synchronization ):
     if synchronization not in _synchro_map.keys():
         raise Exception('Cannot handle synchronization %s' %synchronization)
@@ -1190,7 +1200,7 @@ def _copy_payload( args, copyTime, session1, session2, payloadHash ):
     Payload1 = session1.get_dbtype(conddb.Payload)
     Payload2 = session2.get_dbtype(conddb.Payload)
     if _exists(session2, Payload2.hash, payloadHash):
-        logging.info('Skipping copy of payload %s to %s since it already exists...', str_db_object(args.db, payloadHash), str_db_object(args.destdb, payloadHash))
+        logging.debug('Skipping copy of payload %s to %s since it already exists...', str_db_object(args.db, payloadHash), str_db_object(args.destdb, payloadHash))
         return False
     else:
         logging.info('Copying payload %s to %s ...', str_db_object(args.db, payloadHash), str_db_object(args.destdb, payloadHash))
@@ -1201,6 +1211,7 @@ def _copy_payload( args, copyTime, session1, session2, payloadHash ):
         return True
 
 def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, toIOV=None, timeMap=None):
+    ret = True
     Tag1 = session1.get_dbtype(conddb.Tag)
     Tag2 = session2.get_dbtype(conddb.Tag)
     # Copy the tag
@@ -1332,7 +1343,7 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
             logging.info('Destination tag synchronization is %s' %destSynchro)
             policy_type = _get_synchro_policy( destSynchro )
             synchro_policy = policy_type( session1, session2, destTimeType, second )
-            iovs = synchro_policy.validate( iovs )
+            ret, iovs = synchro_policy.validate( iovs )
         if args.convertTime:
             converter = run_to_timestamp( conddb.getSessionOnMasterDB( session1, session2 ) )
             iovs = converter.convertIovs( iovs )
@@ -1404,7 +1415,9 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
         logging.debug('Copying IOV %s -> %s...', k, v)
         session2.add(IOV2(tag_name=second,since=k,insertion_time=copyTime,payload_hash=v))
         niovs += 1
-    return niovs
+    if not niovs==0:
+        logging.info('%s iov(s) copied.',niovs)
+    return ret, niovs
 
 def copy(args):
     _check_same_object(args)
@@ -1441,10 +1454,10 @@ def copy(args):
             if args.convertTime:
                 raise Exception('Copy with time conversion is not supported with the synchronization.')
 
-        niovs = _copy_tag(args, copyTime, session1, session2, args.first, args.second, getattr(args, 'from'), args.to)
+        ret, niovs = _copy_tag(args, copyTime, session1, session2, args.first, args.second, getattr(args, 'from'), args.to)
 
         if niovs!=0:
-            #_confirm_changes(args)
+            _confirm_changes(args)
             note = args.note
             if args.force and args.note is None:
                 note = _get_user_note(args,'Force edit mode requires an editing note to be provided: ')
@@ -1452,8 +1465,7 @@ def copy(args):
                 note = '-'
             _update_tag_log(session2,args.second,copyTime,'%s iov(s) inserted.' %niovs,note)
             session2.commit()
-            return 0
-        return -1
+        return 1*( not ret )
 
 
     elif args.type == 'gt':

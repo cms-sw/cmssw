@@ -59,5 +59,5 @@ def customise_NoCrossing_PU(process):
 
 
 def customise_Mix_LongLived_Neutrons(process):
-    process.mix.WrapLongTimes = cms.untracked.bool(True)
+    process.mix.WrapLongTimes = cms.bool(True)
     return (process)

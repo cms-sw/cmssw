@@ -246,6 +246,15 @@ OutputDDToDDL::addToSolStore( const DDSolid& sol, std::set<DDSolid> & solStore, 
     }
     rotStore.insert( bs.rotation());
   }
+  if( sol.shape() == ddmultiunion ) {
+    const DDMultiUnionSolid& ms( sol );
+    for( auto it : ms.solids())
+      if( solStore.find(it) == solStore.end()) {
+	addToSolStore( it, solStore, rotStore );
+      }
+    for( auto it : ms.rotations())
+      rotStore.insert( it );
+  }
 }
 
 void

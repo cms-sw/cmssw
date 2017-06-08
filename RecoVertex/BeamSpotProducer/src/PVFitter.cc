@@ -81,7 +81,7 @@ void PVFitter::initialize(const edm::ParameterSet& iConfig,
   fFitPerBunchCrossing=iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<bool>("FitPerBunchCrossing");
   useOnlyFirstPV_    = iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<bool>("useOnlyFirstPV");
   minSumPt_          = iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<double>("minSumPt");
-
+  
   // preset quality cut to "infinite"
   dynamicQualityCut_ = 1.e30;
 
@@ -96,6 +96,7 @@ PVFitter::~PVFitter() {
 
 void PVFitter::readEvent(const edm::Event& iEvent)
 {
+
   //------ Primary Vertices
   edm::Handle< reco::VertexCollection > PVCollection;
   bool hasPVs = false;
@@ -109,7 +110,7 @@ void PVFitter::readEvent(const edm::Event& iEvent)
 
       for (reco::VertexCollection::const_iterator pv = PVCollection->begin(); pv != PVCollection->end(); ++pv ) {
           if (useOnlyFirstPV_){
-             if (pv != PVCollection->begin()) break;
+            if (pv != PVCollection->begin()) break;
           }
 
           //--- vertex selection
@@ -118,16 +119,23 @@ void PVFitter::readEvent(const edm::Event& iEvent)
           //---
 
           if (pv->tracksSize() < minVtxTracks_ ) continue;
-		  
-          double sumPt=0;
-          for(auto iTrack = pv->tracks_begin(); iTrack != pv->tracks_end(); ++iTrack)
+
+          const auto& testTrack = pv->trackRefAt(0);
+          if(testTrack.isNull() || !testTrack.isAvailable())
           {
-             const auto pt = (*iTrack)->pt();
-             sumPt += pt;
+              edm::LogInfo("") << "Track collection not found. Skipping cut on sumPt.";
           }
-          if (sumPt < minSumPt_) continue;
-		  
-		  
+          else
+          {
+              double sumPt=0;
+              for(auto iTrack = pv->tracks_begin(); iTrack != pv->tracks_end(); ++iTrack)
+              {
+                  const auto pt = (*iTrack)->pt();
+                  sumPt += pt;
+              }
+              if (sumPt < minSumPt_) continue;
+          }
+
           hPVx->Fill( pv->x(), pv->z() );
           hPVy->Fill( pv->y(), pv->z() );
 
@@ -158,15 +166,15 @@ void PVFitter::readEvent(const edm::Event& iEvent)
           pvData.posCorr[2] = pv->covariance(1,2)/pv->yError()/pv->zError();
           pvStore_.push_back(pvData);
 
-          if(ftree_ != 0){
-             theBeamSpotTreeData_.run(iEvent.id().run());
-             theBeamSpotTreeData_.lumi(iEvent.luminosityBlock());
-             theBeamSpotTreeData_.bunchCrossing(bx);
-             theBeamSpotTreeData_.pvData(pvData);
-             ftree_->Fill();
-          }
+      if(ftree_ != 0){
+        theBeamSpotTreeData_.run(iEvent.id().run());
+        theBeamSpotTreeData_.lumi(iEvent.luminosityBlock());
+        theBeamSpotTreeData_.bunchCrossing(bx);
+        theBeamSpotTreeData_.pvData(pvData);
+        ftree_->Fill();
+      }
 
-          if (fFitPerBunchCrossing) bxMap_[bx].push_back(pvData);
+      if (fFitPerBunchCrossing) bxMap_[bx].push_back(pvData);
 
       }
 
@@ -197,8 +205,8 @@ bool PVFitter::runBXFitter() {
 
     if ( (pvStore->second).size() <= minNrVertices_ ) {
         edm::LogWarning("PVFitter") << " not enough PVs, continue" << std::endl;
-        fit_ok = false;
-        continue;
+	fit_ok = false;
+      continue;
     }
 
     edm::LogInfo("PVFitter") << "Calculating beam spot with PVs ..." << std::endl;
@@ -261,8 +269,8 @@ bool PVFitter::runBXFitter() {
     ierr = migrad(0,1.);
     if ( !ierr.IsValid() ) {
         edm::LogInfo("PVFitter") << "3D beam spot fit failed in 3rd iteration" << std::endl;
-        fit_ok = false;
-        continue;
+	fit_ok = false;
+      continue;
     }
 
     fwidthX = upar.Value(3);
@@ -295,7 +303,7 @@ bool PVFitter::runBXFitter() {
 
     fbspotMap[pvStore->first] = fbeamspot;
     edm::LogInfo("PVFitter") << "3D PV fit done for this bunch crossing."<<std::endl;
-
+    //delete fcn;
     fit_ok = fit_ok & true;
   }
 
@@ -315,9 +323,10 @@ bool PVFitter::runFitter() {
     TH1F *h1PVz = (TH1F*) hPVx->ProjectionY("h1PVz", 0, -1, "e");
 
     //Use our own copy for thread safety
-    TF1 gausx("localGausX","gaus");
-    TF1 gausy("localGausY","gaus");
-    TF1 gausz("localGausZ","gaus");
+    // also do not add to global list of functions
+    TF1 gausx("localGausX","gaus",0.,1.,TF1::EAddToList::kNo);
+    TF1 gausy("localGausY","gaus",0.,1.,TF1::EAddToList::kNo);
+    TF1 gausz("localGausZ","gaus",0.,1.,TF1::EAddToList::kNo);
 
     h1PVx->Fit(&gausx,"QLMN0");
     h1PVy->Fit(&gausy,"QLMN0");
@@ -369,12 +378,12 @@ bool PVFitter::runFitter() {
       upar.Add("x"     , estX       , errX	     , -10.	    , 10.	    ); // 0
       upar.Add("y"     , estY       , errY	     , -10.	    , 10.	    ); // 1
       upar.Add("z"     , estZ       , errZ	     , -30.	    , 30.	    ); // 2
-      upar.Add("ex"    , 0.015	    , 0.01  	     , 0.   	    , 10. 	    ); // 3
-      upar.Add("corrxy", 0.   	    , 0.02  	     , -1.  	    , 1.  	    ); // 4
-      upar.Add("ey"    , 0.015	    , 0.01  	     , 0.   	    , 10. 	    ); // 5
-      upar.Add("dxdz"  , 0.   	    , 0.0002	     , -0.1 	    , 0.1 	    ); // 6
-      upar.Add("dydz"  , 0.   	    , 0.0002	     , -0.1 	    , 0.1 	    ); // 7
-      upar.Add("ez"    , 1.   	    , 0.1   	     , 0.   	    , 30. 	    ); // 8
+      upar.Add("ex"    , 0.015	    , 0.01  	 , 0.   	, 10. 	    ); // 3
+      upar.Add("corrxy", 0.   	    , 0.02  	 , -1.  	, 1.  	    ); // 4
+      upar.Add("ey"    , 0.015	    , 0.01  	 , 0.   	, 10. 	    ); // 5
+      upar.Add("dxdz"  , 0.   	    , 0.0002	 , -0.1 	, 0.1 	    ); // 6
+      upar.Add("dydz"  , 0.   	    , 0.0002	 , -0.1 	, 0.1 	    ); // 7
+      upar.Add("ez"    , 1.   	    , 0.1   	 , 0.   	, 30. 	    ); // 8
       upar.Add("scale" , errorScale_, errorScale_/10.,errorScale_/2., errorScale_*2.); // 9  
       MnMigrad migrad(*fcn, upar);
       //
@@ -397,6 +406,7 @@ bool PVFitter::runFitter() {
       vector<double> errors  ;
       results = ierr.UserParameters().Params() ;					       \
       errors  = ierr.UserParameters().Errors() ;					       \
+
       
       fcn->setLimits(results[0]-sigmaCut_*results[3],
                      results[0]+sigmaCut_*results[3],
@@ -457,7 +467,7 @@ bool PVFitter::runFitter() {
       fbeamspot.setType(reco::BeamSpot::Tracker); 
     }
 
-    return true; //FIXME: Need to add quality test for the fit results!
+    return true;
 }
 
 void PVFitter::dumpTxtFile(){

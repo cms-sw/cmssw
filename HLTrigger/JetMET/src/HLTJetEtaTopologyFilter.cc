@@ -43,7 +43,7 @@ HLTJetEtaTopologyFilter<T>::HLTJetEtaTopologyFilter(const edm::ParameterSet& iCo
 }
 
 template<typename T>
-HLTJetEtaTopologyFilter<T>::~HLTJetEtaTopologyFilter(){}
+HLTJetEtaTopologyFilter<T>::~HLTJetEtaTopologyFilter()= default;
 
 template<typename T>
 void

@@ -12,9 +12,7 @@ HLTHFAsymmetryFilter::HLTHFAsymmetryFilter(const edm::ParameterSet& iConfig)
 }
 
 
-HLTHFAsymmetryFilter::~HLTHFAsymmetryFilter()
-{
-}
+HLTHFAsymmetryFilter::~HLTHFAsymmetryFilter() = default;
 
 void
 HLTHFAsymmetryFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -43,18 +41,18 @@ HLTHFAsymmetryFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   double e_hf[2] = {0.,0.};
 
   //Select interesting HFRecHits
-  for (HFRecHitCollection::const_iterator it=HFRecHitsH->begin(); it!=HFRecHitsH->end(); it++) {
-    if (it->energy()>eCut_HF_) 
+  for (auto const & it : *HFRecHitsH) {
+    if (it.energy()>eCut_HF_) 
     {
-      if (it->id().zside() == -1)
+      if (it.id().zside() == -1)
       {
 	++n_hf[0];
-	e_hf[0] += it->energy();
+	e_hf[0] += it.energy();
       }
       else
       {
 	++n_hf[1];
-	e_hf[1] += it->energy();
+	e_hf[1] += it.energy();
       }
     }
   }

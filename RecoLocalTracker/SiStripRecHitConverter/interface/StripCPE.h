@@ -57,8 +57,8 @@ public:
     StripCPE::Param const & p = param(det);
     SiStripDetId::SubDetector loc = SiStripDetId( det.geographicalId() ).subDetector();  
  
-    LocalVector track = ltp.momentum();
-    track *= -p.thickness/track.z();
+    LocalVector track = ltp.directionNotNormalized();
+    track *= -p.thickness;
 
     const float fullProjection = p.coveredStrips( track+p.drift, ltp.position());
 

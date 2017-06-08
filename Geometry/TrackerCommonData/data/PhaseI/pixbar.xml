@@ -1015,18 +1015,22 @@
  <PosPart copyNumber="1">
    <rParent name="pixbar:PixelBarrel"/>
    <rChild name="pixbarlayer0:PixelBarrelLayer0"/>
+  <rRotation name="pixbar:180D"/>
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="pixbar:PixelBarrel"/>
    <rChild name="pixbarlayer1:PixelBarrelLayer1"/>
+  <rRotation name="pixbar:180D"/>
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="pixbar:PixelBarrel"/>
    <rChild name="pixbarlayer2:PixelBarrelLayer2"/>
+  <rRotation name="pixbar:180D"/>
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="pixbar:PixelBarrel"/>
    <rChild name="pixbarlayer3:PixelBarrelLayer3"/>
+  <rRotation name="pixbar:180D"/>
  </PosPart>
 </PosPartSection>
 

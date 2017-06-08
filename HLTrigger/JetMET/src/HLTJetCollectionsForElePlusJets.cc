@@ -93,28 +93,28 @@ HLTJetCollectionsForElePlusJets<T>::produce(edm::Event& iEvent, const edm::Event
   std::vector<TVector3> ElePs;
 
   if(!clusCands.empty()){ //try trigger cluster
-    for(size_t candNr=0;candNr<clusCands.size();candNr++){
+    for(auto & clusCand : clusCands){
       TVector3 positionVector(
-                  clusCands[candNr]->superCluster()->position().x(),
-                  clusCands[candNr]->superCluster()->position().y(),
-                  clusCands[candNr]->superCluster()->position().z());
+                  clusCand->superCluster()->position().x(),
+                  clusCand->superCluster()->position().y(),
+                  clusCand->superCluster()->position().z());
       ElePs.push_back(positionVector);
     }
   }else if(!eleCands.empty()){ // try trigger electrons
-    for(size_t candNr=0;candNr<eleCands.size();candNr++){
+    for(auto & eleCand : eleCands){
       TVector3 positionVector(
-                  eleCands[candNr]->superCluster()->position().x(),
-                  eleCands[candNr]->superCluster()->position().y(),
-                  eleCands[candNr]->superCluster()->position().z());
+                  eleCand->superCluster()->position().x(),
+                  eleCand->superCluster()->position().y(),
+                  eleCand->superCluster()->position().z());
       ElePs.push_back(positionVector);
     }
   }
   else if(!photonCands.empty()){ // try trigger photons
-    for(size_t candNr=0;candNr<photonCands.size();candNr++){
+    for(auto & photonCand : photonCands){
       TVector3 positionVector(
-                  photonCands[candNr]->superCluster()->position().x(),
-                  photonCands[candNr]->superCluster()->position().y(),
-                  photonCands[candNr]->superCluster()->position().z());
+                  photonCand->superCluster()->position().x(),
+                  photonCand->superCluster()->position().y(),
+                  photonCand->superCluster()->position().z());
       ElePs.push_back(positionVector);
     }
   }
@@ -130,7 +130,7 @@ HLTJetCollectionsForElePlusJets<T>::produce(edm::Event& iEvent, const edm::Event
   
  //bool foundSolution(false);
 
-    for (unsigned int i = 0; i < ElePs.size(); i++) {
+    for (auto & EleP : ElePs) {
 
        // bool VBFJetPair = false;
         //std::vector<int> store_jet;
@@ -138,7 +138,7 @@ HLTJetCollectionsForElePlusJets<T>::produce(edm::Event& iEvent, const edm::Event
 
         for (unsigned int j = 0; j < theJetCollection.size(); j++) {
             TVector3 JetP(theJetCollection[j].px(), theJetCollection[j].py(), theJetCollection[j].pz());
-            double DR = ElePs[i].DeltaR(JetP);
+            double DR = EleP.DeltaR(JetP);
 
             if (DR > minDeltaR_)
         refVector.push_back(TRef(theJetCollectionHandle, j));

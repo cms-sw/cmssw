@@ -49,7 +49,7 @@ class PedestalTask : public hcaldqm::DQTask
 		edm::EDGetTokenT<HcalUMNioDigi> _tokuMN;
 		edm::EDGetTokenT<HBHEDigiCollection> _tokHBHE;
 		edm::EDGetTokenT<HODigiCollection> _tokHO;
-		edm::EDGetTokenT<HFDigiCollection> _tokHF;
+		edm::EDGetTokenT<QIE10DigiCollection> _tokHF;
 		edm::EDGetTokenT<HcalTBTriggerData> _tokTrigger;
 
 		std::vector<hcaldqm::flag::Flag> _vflags;

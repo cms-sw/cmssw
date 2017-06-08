@@ -8,7 +8,7 @@ import FWCore.ParameterSet.Config as cms
 import HLTrigger.HLTfilters.hltHighLevel_cfi
 ALCARECOTkAlCosmicsInCollisionsHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
     andOr = True, ## choose logical OR between Triggerbits
-    eventSetupPathsKey = 'TkAlCosmics',
+    eventSetupPathsKey = 'TkAlCosmicsInCollisions',
     throw = False # tolerate triggers not available
     )
 

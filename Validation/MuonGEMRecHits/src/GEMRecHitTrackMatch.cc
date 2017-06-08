@@ -27,6 +27,9 @@ void GEMRecHitTrackMatch::bookHistograms(DQMStore::IBooker& ibooker, edm::Run co
   iSetup.get<MuonGeometryRecord>().get(hGeom);
   const GEMGeometry& geom = *hGeom;
   setGeometry(geom);
+    
+  ibooker.setCurrentFolder("MuonGEMRecHitsV/GEMRecHitsTask");
+  LogDebug("GEMRecHitTrackMatch")<<"ibooker set current folder\n";
 
   const float PI=TMath::Pi();
   const char* l_suffix[4] = {"_l1","_l2","_l1or2","_l1and2"};

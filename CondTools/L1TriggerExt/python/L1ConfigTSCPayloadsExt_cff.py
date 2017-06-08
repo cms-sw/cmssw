@@ -25,5 +25,10 @@ def setTSCPayloadsDB(process, DBConnect, DBAuth, protoDBConnect, protoDBAuth):
     process.L1TUtmTriggerMenuOnlineProd.onlineAuthentication       = cms.string( DBAuth )
 
     process.l1caloparProtodb.connect                         = cms.string( protoDBConnect )
+    process.l1bmtfparProtodb.connect                         = cms.string( protoDBConnect )
+    process.l1emtfparProtodb.connect                         = cms.string( protoDBConnect )
+    process.l1gmtparProtodb.connect                          = cms.string( protoDBConnect )
     process.l1caloparProtodb.DBParameters.authenticationPath = cms.untracked.string( protoDBAuth )
-
+    process.l1bmtfparProtodb.DBParameters.authenticationPath = cms.untracked.string( protoDBAuth )
+    process.l1emtfparProtodb.DBParameters.authenticationPath = cms.untracked.string( protoDBAuth )
+    process.l1gmtparProtodb.DBParameters.authenticationPath  = cms.untracked.string( protoDBAuth )

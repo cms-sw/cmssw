@@ -3,28 +3,28 @@
 #include <ostream>
 #include <sstream>
 
-RPCFebConnector::RPCFebConnector(RPCDetId const & _rpc_det_id
-                                 , unsigned int _first_strip
-                                 , int _slope
-                                 , ::uint16_t _channels)
+RPCFebConnector::RPCFebConnector(RPCDetId const & rpc_det_id
+                                 , unsigned int first_strip
+                                 , int slope
+                                 , std::uint16_t channels)
     : first_strip_(1)
-    , slope_(_slope < 0 ? -1 : 1)
-    , channels_(_channels)
-    , rpc_det_id_(_rpc_det_id.rawId())
+    , slope_(slope < 0 ? -1 : 1)
+    , channels_(channels)
+    , rpc_det_id_(rpc_det_id.rawId())
 {
-    setFirstStrip(_first_strip);
+    setFirstStrip(first_strip);
 }
 
 std::string RPCFebConnector::getString() const
 {
-    std::ostringstream _oss;
-    _oss << rpc_det_id_ << '_'
-         << (int)first_strip_ << (slope_ < 0 ? '-' : '+') << '_'
-         << std::hex << std::showbase << channels_;
-    return _oss.str();
+    std::ostringstream oss;
+    oss << rpc_det_id_ << '_'
+        << (int)first_strip_ << (slope_ < 0 ? '-' : '+') << '_'
+        << std::hex << std::showbase << channels_;
+    return oss.str();
 }
 
-std::ostream & operator<<(std::ostream & _ostream, RPCFebConnector const & _connector)
+std::ostream & operator<<(std::ostream & ostream, RPCFebConnector const & connector)
 {
-    return (_ostream << _connector.getString());
+    return (ostream << connector.getString());
 }

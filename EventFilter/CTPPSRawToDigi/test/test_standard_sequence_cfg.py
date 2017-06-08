@@ -14,7 +14,8 @@ process.MessageLogger = cms.Service("MessageLogger",
 # raw data source
 process.source = cms.Source("PoolSource",
   fileNames = cms.untracked.vstring(
-    '/store/express/Run2016H/ExpressPhysics/FEVT/Express-v2/000/283/877/00000/4EE44B0E-2499-E611-A155-02163E011938.root'
+#    '/store/express/Run2016H/ExpressPhysics/FEVT/Express-v2/000/283/877/00000/4EE44B0E-2499-E611-A155-02163E011938.root'
+    '/store/data/Run2016H/ZeroBias/RAW/v1/000/283/820/00000/462D2A5B-B19A-E611-B100-02163E01382E.root'
   )
 )
 

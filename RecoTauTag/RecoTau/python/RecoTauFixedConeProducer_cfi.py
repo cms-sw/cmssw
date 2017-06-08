@@ -13,7 +13,6 @@ See PFT-08-001 for a description of the algorithm.
 
 _fixedConeRecoTausConfig = cms.PSet(
     name = cms.string("fixedCone"),
-    useClosestPV = cms.bool(False),
     qualityCuts = PFTauQualityCuts,
     # If true, consider PFLeptons (e/mu) as charged hadrons.
     usePFLeptons = cms.bool(True),
@@ -27,7 +26,9 @@ _fixedConeRecoTausConfig = cms.PSet(
     isoConePiZeros = cms.string('0.4'),
     signalConeNeutralHadrons = cms.string('0.10'),
     isoConeNeutralHadrons = cms.string('0.4'),
-    maxSignalConeChargedHadrons = cms.int32(-1) # CV: upper limit on number of signalConeChargedHadrons disabled per default
+    maxSignalConeChargedHadrons = cms.int32(-1), # CV: upper limit on number of signalConeChargedHadrons disabled per default
+    minAbsPhotonSumPt_insideSignalCone = cms.double(2.5),
+    minRelPhotonSumPt_insideSignalCone = cms.double(0.10)
 )
 
 fixedConeRecoTaus = shrinkingConeRecoTaus.clone(

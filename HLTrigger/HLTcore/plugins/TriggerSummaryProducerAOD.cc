@@ -178,9 +178,7 @@ TriggerSummaryProducerAOD::TriggerSummaryProducerAOD(const edm::ParameterSet& ps
   });
 }
 
-TriggerSummaryProducerAOD::~TriggerSummaryProducerAOD()
-{
-}
+TriggerSummaryProducerAOD::~TriggerSummaryProducerAOD() = default;
 
 //
 // member functions

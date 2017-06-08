@@ -41,7 +41,8 @@ PrimaryVertexAssignment::chargedHadronVertex( const reco::VertexCollection& vert
       }
    }
   // first use "closest in Z" with tight cuts (targetting primary particles)
-    if(vtxIdMinDz>=0 and (dzmin < maxDzForPrimaryAssignment_ or dzmin/track->dzError() < maxDzSigForPrimaryAssignment_ ))
+    float dzE=sqrt(track->dzError()*track->dzError()+vertices[vtxIdMinDz].covariance(2,2));
+    if(vtxIdMinDz>=0 and (dzmin < maxDzForPrimaryAssignment_ and dzmin/dzE < maxDzSigForPrimaryAssignment_  and track->dzError()<maxDzErrorForPrimaryAssignment_))
     {
         iVertex=vtxIdMinDz;
     }
@@ -56,7 +57,7 @@ PrimaryVertexAssignment::chargedHadronVertex( const reco::VertexCollection& vert
       if( ij->pt() < minJetPt_ ) continue; // skip jets below the jet Pt threshold
 
       double deltaR = reco::deltaR( *ij, *track );
-      if( deltaR < minDeltaR )
+      if( deltaR < minDeltaR and track->dzError()<maxDzErrorForPrimaryAssignment_ )
       {
         minDeltaR = deltaR;
         jetIdx = std::distance(jets.begin(), ij);

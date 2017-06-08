@@ -10,6 +10,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 
 class L1TStage2RegionalMuonCandComp : public DQMEDAnalyzer {
@@ -18,6 +20,7 @@ class L1TStage2RegionalMuonCandComp : public DQMEDAnalyzer {
 
   L1TStage2RegionalMuonCandComp(const edm::ParameterSet& ps);
   virtual ~L1TStage2RegionalMuonCandComp();
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  protected:
 
@@ -29,6 +32,7 @@ class L1TStage2RegionalMuonCandComp : public DQMEDAnalyzer {
  private:  
 
   enum variables {BXRANGEGOOD=1, BXRANGEBAD, NMUONGOOD, NMUONBAD, MUONALL, MUONGOOD, PTBAD, ETABAD, LOCALPHIBAD, SIGNBAD, SIGNVALBAD, QUALBAD, HFBAD, LINKBAD, PROCBAD, TFBAD, TRACKADDRBAD};
+  enum ratioVariables {RBXRANGE=1, RNMUON, RMUON, RPT, RETA, RLOCALPHI, RSIGN, RSIGNVAL, RQUAL, RHF, RLINK, RPROC, RTF, RTRACKADDR};
   enum tfs {BMTFBIN=1, OMTFNEGBIN, OMTFPOSBIN, EMTFNEGBIN, EMTFPOSBIN};
 
   edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> muonToken1;
@@ -41,6 +45,8 @@ class L1TStage2RegionalMuonCandComp : public DQMEDAnalyzer {
   bool verbose;
 
   MonitorElement* summary;
+  MonitorElement* errorSummaryNum;
+  MonitorElement* errorSummaryDen;
 
   MonitorElement* muColl1BxRange;
   MonitorElement* muColl1nMu;

@@ -35,7 +35,7 @@ HLTElectronEoverpFilterRegional::HLTElectronEoverpFilterRegional(const edm::Para
    if(!doIsolated_) electronNonIsolatedToken_ = consumes<reco::ElectronCollection>(electronNonIsolatedProducer_);
 }
 
-HLTElectronEoverpFilterRegional::~HLTElectronEoverpFilterRegional(){}
+HLTElectronEoverpFilterRegional::~HLTElectronEoverpFilterRegional()= default;
 
 void
 HLTElectronEoverpFilterRegional::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -86,11 +86,11 @@ HLTElectronEoverpFilterRegional::hltFilter(edm::Event& iEvent, const edm::EventS
     //(the matching is done checking the super clusters)
     // and put into the event a Ref to the Electron objects that passes the
     // selections
-  for (unsigned int i=0; i<recoecalcands.size(); i++) {
-    reco::SuperClusterRef recr2 = recoecalcands[i]->superCluster();
+  for (auto & recoecalcand : recoecalcands) {
+    reco::SuperClusterRef recr2 = recoecalcand->superCluster();
 
     //loop over the electrons to find the matching one
-    for(reco::ElectronCollection::const_iterator iElectron = electronIsolatedHandle->begin(); iElectron != electronIsolatedHandle->end(); iElectron++){
+    for(auto iElectron = electronIsolatedHandle->begin(); iElectron != electronIsolatedHandle->end(); iElectron++){
 
       reco::ElectronRef electronref(reco::ElectronRef(electronIsolatedHandle,iElectron - electronIsolatedHandle->begin()));
       const reco::SuperClusterRef theClus = electronref->superCluster();
@@ -119,7 +119,7 @@ HLTElectronEoverpFilterRegional::hltFilter(edm::Event& iEvent, const edm::EventS
 
     if(!doIsolated_) {
     //loop over the electrons to find the matching one
-    for(reco::ElectronCollection::const_iterator iElectron = electronNonIsolatedHandle->begin(); iElectron != electronNonIsolatedHandle->end(); iElectron++){
+    for(auto iElectron = electronNonIsolatedHandle->begin(); iElectron != electronNonIsolatedHandle->end(); iElectron++){
 
       reco::ElectronRef electronref(reco::ElectronRef(electronNonIsolatedHandle,iElectron - electronNonIsolatedHandle->begin()));
       const reco::SuperClusterRef theClus = electronref->superCluster();

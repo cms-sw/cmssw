@@ -85,7 +85,6 @@ class AlignmentMonitorAsAnalyzer : public edm::EDAnalyzer {
       AlignmentParameterStore *m_alignmentParameterStore;
 
       std::vector<AlignmentMonitorBase*> m_monitors;
-      const edm::EventSetup *m_lastSetup;
 
       bool m_firstEvent;
 };
@@ -219,8 +218,6 @@ AlignmentMonitorAsAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
       (*monitor)->duringLoop(iEvent, iSetup, trajTracks);
    }
 
-   // Keep this for endOfLoop (why does endOfLoop want iSetup???)
-   m_lastSetup = &iSetup;
 }
 
 
@@ -236,7 +233,7 @@ void
 AlignmentMonitorAsAnalyzer::endJob() 
 {
    for (std::vector<AlignmentMonitorBase*>::const_iterator monitor = m_monitors.begin();  monitor != m_monitors.end();  ++monitor) {
-      (*monitor)->endOfLoop(*m_lastSetup);
+      (*monitor)->endOfLoop();
    }
    for (std::vector<AlignmentMonitorBase*>::const_iterator monitor = m_monitors.begin();  monitor != m_monitors.end();  ++monitor) {
       (*monitor)->endOfJob();

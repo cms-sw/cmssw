@@ -27,8 +27,7 @@ HLTElectronMissingHitsFilter::HLTElectronMissingHitsFilter(const edm::ParameterS
   ncandcut_  = iConfig.getParameter<int> ("ncandcut");
 }
 
-HLTElectronMissingHitsFilter::~HLTElectronMissingHitsFilter()
-{}
+HLTElectronMissingHitsFilter::~HLTElectronMissingHitsFilter() = default;
 
 void HLTElectronMissingHitsFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -62,10 +61,10 @@ bool HLTElectronMissingHitsFilter::hltFilter(edm::Event& iEvent, const edm::Even
   int n(0);
 
   edm::RefToBase<reco::Candidate> candref;
-  for (unsigned int i=0; i<recoecalcands.size(); i++) {
+  for (auto & recoecalcand : recoecalcands) {
 
-    reco::SuperClusterRef scCand = recoecalcands[i]->superCluster();
-    for(reco::ElectronCollection::const_iterator iElectron = electronHandle->begin(); iElectron != electronHandle->end(); iElectron++) {
+    reco::SuperClusterRef scCand = recoecalcand->superCluster();
+    for(auto iElectron = electronHandle->begin(); iElectron != electronHandle->end(); iElectron++) {
       reco::ElectronRef electronref(reco::ElectronRef(electronHandle, iElectron - electronHandle->begin()));
       const reco::SuperClusterRef scEle = electronref->superCluster();
       if(scCand == scEle) {

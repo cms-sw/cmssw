@@ -28,7 +28,7 @@ HLTEgammaDoubleEtDeltaPhiFilter::HLTEgammaDoubleEtDeltaPhiFilter(const edm::Para
    inputToken_  = consumes<trigger::TriggerFilterObjectWithRefs> (inputTag_);
 }
 
-HLTEgammaDoubleEtDeltaPhiFilter::~HLTEgammaDoubleEtDeltaPhiFilter(){}
+HLTEgammaDoubleEtDeltaPhiFilter::~HLTEgammaDoubleEtDeltaPhiFilter()= default;
 
 void
 HLTEgammaDoubleEtDeltaPhiFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -64,8 +64,7 @@ HLTEgammaDoubleEtDeltaPhiFilter::hltFilter(edm::Event& iEvent, const edm::EventS
 
    // look at all candidates,  check cuts
    int n(0);
-   for(unsigned int i=0; i<recoecalcands.size(); i++) {
-      const edm::Ref<reco::RecoEcalCandidateCollection> & ref = recoecalcands[i];
+   for(auto & ref : recoecalcands) {
       if( ref->et() >= etcut_) {
 	++n;
 	if(n==1)  ref1 = ref;

@@ -31,7 +31,7 @@ typedef std::vector<int> SingleCombInCond;
 /// all the object combinations evaluated to true in the condition
 typedef std::vector<SingleCombInCond> CombinationsInCond;
 
-typedef std::vector<l1t::GlobalObject> ObjectTypeInCond;
+typedef std::vector<l1t::GlobalObject> L1TObjectTypeInCond;
 //typedef std::vector<int> ObjectTypeInCond;
 
 #endif /* L1GlobalTrigger_L1TGtObjectMapFwd_h */

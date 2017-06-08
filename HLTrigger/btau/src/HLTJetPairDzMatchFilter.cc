@@ -46,7 +46,7 @@ HLTJetPairDzMatchFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& des
 }
 
 template<typename T>
-HLTJetPairDzMatchFilter<T>::~HLTJetPairDzMatchFilter(){}
+HLTJetPairDzMatchFilter<T>::~HLTJetPairDzMatchFilter()= default;
 
 template<typename T>
 bool HLTJetPairDzMatchFilter<T>::hltFilter(edm::Event& ev, const edm::EventSetup& es, trigger::TriggerFilterObjectWithRefs & filterproduct) const

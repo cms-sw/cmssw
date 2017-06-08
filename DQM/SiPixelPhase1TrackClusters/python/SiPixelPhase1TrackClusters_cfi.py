@@ -1,11 +1,37 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 from DQM.SiPixelPhase1Common.HistogramManager_cfi import *
 
 SiPixelPhase1TrackClustersOnTrackCharge = DefaultHistoTrack.clone(
   name = "charge",
   title = "Corrected Cluster Charge (OnTrack)",
-  range_min = 0, range_max = 200e3, range_nbins = 200,
+  range_min = 0, range_max = 300e3, range_nbins = 150,
   xlabel = "Charge (electrons)",
+
+  specs = VPSet(
+    Specification().groupBy("PXBarrel/PXLayer").saveAll(),
+    Specification().groupBy("PXForward/PXDisk").saveAll(),
+    StandardSpecification2DProfile,#what is below is only for the timing client
+    Specification(OverlayCurvesForTiming).groupBy("PXBarrel/OnlineBlock")
+         .groupBy("PXBarrel", "EXTEND_Y")
+         .save(),
+    Specification(OverlayCurvesForTiming).groupBy("PXForward/OnlineBlock")
+          .groupBy("PXForward", "EXTEND_Y")
+          .save(),
+    Specification(OverlayCurvesForTiming).groupBy("PXForward/PXDisk/OnlineBlock") # per-layer with history for online
+          .groupBy("PXForward/PXDisk", "EXTEND_Y")
+          .save(),
+    Specification(OverlayCurvesForTiming).groupBy("PXBarrel/PXLayer/OnlineBlock") # per-layer with history for online
+                                 .groupBy("PXBarrel/PXLayer", "EXTEND_Y")
+                                 .save()
+  )
+)
+
+SiPixelPhase1TrackClustersOnTrackSize = DefaultHistoTrack.clone(
+  name = "size",
+  title = "Total Cluster Size (OnTrack)",
+  range_min = 0, range_max = 50, range_nbins = 50,
+  xlabel = "size[pixels]",
 
   specs = VPSet(
     Specification().groupBy("PXBarrel/PXLayer").saveAll(),
@@ -14,22 +40,10 @@ SiPixelPhase1TrackClustersOnTrackCharge = DefaultHistoTrack.clone(
   )
 )
 
-SiPixelPhase1TrackClustersOnTrackSize = DefaultHistoTrack.clone(
-  name = "size",
-  title = "Total Cluster Size (OnTrack)",
-  range_min = 0, range_max = 30, range_nbins = 30,
-  xlabel = "size[pixels]",
-
-  specs = VPSet(
-    Specification().groupBy("PXBarrel/PXLayer").saveAll(),
-    Specification().groupBy("PXForward/PXDisk").saveAll(),
-  )
-)
-
 SiPixelPhase1TrackClustersOnTrackNClusters = DefaultHistoTrack.clone(
   name = "clusters_ontrack",
   title = "Clusters_onTrack",
-  range_min = 0, range_max = 10, range_nbins = 10,
+  range_min = 0, range_max = 30, range_nbins = 30,
   xlabel = "clusters",
   dimensions = 0,
 
@@ -44,35 +58,48 @@ SiPixelPhase1TrackClustersOnTrackNClusters = DefaultHistoTrack.clone(
  #                  .saveAll(),
  #   #StandardSpecificationInclusive_Num,
     StandardSpecificationTrend_Num,
+    StandardSpecification2DProfile_Num,
 
     Specification().groupBy("PXBarrel/PXLayer/Event") #this will produce inclusive counts per Layer/Disk
                              .reduce("COUNT")    
                              .groupBy("PXBarrel/PXLayer")
-                             .save(nbins=100, xmin=0, xmax=3000),
+                             .save(nbins=100, xmin=0, xmax=20000),
     Specification().groupBy("PXForward/PXDisk/Event")
                              .reduce("COUNT")    
                              .groupBy("PXForward/PXDisk/")
-                             .save(nbins=100, xmin=0, xmax=3000),
+                             .save(nbins=100, xmin=0, xmax=10000),
 
     Specification().groupBy("PXBarrel/Event")
                    .reduce("COUNT")
                    .groupBy("PXBarrel")
-                   .save(nbins=200, xmin=0, xmax=10000),
+                   .save(nbins=150, xmin=0, xmax=30000),
     Specification().groupBy("PXForward/Event")
                    .reduce("COUNT")
                    .groupBy("PXForward")
-                   .save(nbins=200, xmin=0, xmax=10000),
+                   .save(nbins=150, xmin=0, xmax=30000),
     Specification().groupBy("PXAll/Event")
                    .reduce("COUNT")
                    .groupBy("PXAll")
-                   .save(nbins=200, xmin=0, xmax=10000),
+                   .save(nbins=150, xmin=0, xmax=30000),
+
+    #below is for timing client
+    Specification(OverlayCurvesForTiming).groupBy("DetId/Event")
+                    .reduce("COUNT")
+                    .groupBy("PXForward/OnlineBlock")
+                    .groupBy("PXForward", "EXTEND_Y")
+                    .save(),
+    Specification(OverlayCurvesForTiming).groupBy("DetId/Event")
+                    .reduce("COUNT")
+                    .groupBy("PXBarrel/OnlineBlock")
+                    .groupBy("PXBarrel", "EXTEND_Y")
+                    .save()
   )
 )
 
 SiPixelPhase1TrackClustersOnTrackPositionB = DefaultHistoTrack.clone(
   name = "clusterposition_zphi_ontrack",
   title = "Cluster_onTrack Positions",
-  range_min   =  -60, range_max   =  60, range_nbins   = 600,
+  range_min   =  -60, range_max   =  60, range_nbins   = 300,
   range_y_min = -3.2, range_y_max = 3.2, range_y_nbins = 200,
   xlabel = "Global Z", ylabel = "Global \phi",
   dimensions = 2,
@@ -162,7 +189,7 @@ SiPixelPhase1TrackClustersAnalyzer = cms.EDAnalyzer("SiPixelPhase1TrackClusters"
         geometry = SiPixelPhase1Geometry
 )
 
-SiPixelPhase1TrackClustersHarvester = cms.EDAnalyzer("SiPixelPhase1Harvester",
+SiPixelPhase1TrackClustersHarvester = DQMEDHarvester("SiPixelPhase1Harvester",
         histograms = SiPixelPhase1TrackClustersConf,
         geometry = SiPixelPhase1Geometry
 )

@@ -165,7 +165,7 @@ private:
   std::list<std::pair<int,InputFile*>> filesToDelete_;
   std::list<std::pair<int,std::string>> fileNamesToDelete_;
   std::mutex fileDeleteLock_;
-  std::vector<int> *streamFileTrackerPtr_ = nullptr;
+  std::vector<int> streamFileTracker_;
   unsigned int nStreams_ = 0;
   unsigned int checkEvery_ = 10;
 

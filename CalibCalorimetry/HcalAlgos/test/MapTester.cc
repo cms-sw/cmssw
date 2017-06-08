@@ -109,11 +109,10 @@ MapTester::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup)
     sprintf(buf,"#file creation series : %s",tempbuff);
     outStream<<buf<< std::endl;
 
-    HcalElectronicsMap myemap;
     edm::LogInfo( "MapTester") <<"generating the emap..."<<std::endl;
-    myemap = mymap.generateHcalElectronicsMap();
+    auto myemap = mymap.generateHcalElectronicsMap();
     edm::LogInfo( "MapTester") <<"dumping the emap..."<<std::endl;
-    HcalDbASCIIIO::dumpObject(outStream,myemap);}
+    HcalDbASCIIIO::dumpObject(outStream,*myemap);}
 }
 
 //define this as a plug-in

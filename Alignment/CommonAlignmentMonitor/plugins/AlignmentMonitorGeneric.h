@@ -43,10 +43,6 @@ class AlignmentMonitorGeneric:
 		     const ConstTrajTrackPairCollection&
 		     );
 
-  virtual void afterAlignment(
-			      const edm::EventSetup&
-			      ) {}
-
   private:
 
   static const unsigned int nBin_ = 50;

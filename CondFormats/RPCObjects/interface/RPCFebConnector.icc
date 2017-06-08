@@ -5,15 +5,15 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
-inline unsigned int RPCFebConnector::bit_count(::uint16_t _value)
+inline unsigned int RPCFebConnector::bit_count(std::uint16_t value)
 {
     // sum per nibble
-    _value -= ((  (_value >> 1) & 0x7777)
-               + ((_value >> 2) & 0x3333)
-               + ((_value >> 3) & 0x1111)
-               );
-    _value = (_value + (_value >> 4)) & 0x0f0f;
-    return ((_value + (_value >> 8)) & 0x1f);
+    value -= ((  (value >> 1) & 0x7777)
+              + ((value >> 2) & 0x3333)
+              + ((value >> 3) & 0x1111)
+              );
+    value = (value + (value >> 4)) & 0x0f0f;
+    return ((value + (value >> 8)) & 0x1f);
 }
 
 inline void RPCFebConnector::reset()
@@ -39,43 +39,43 @@ inline int RPCFebConnector::getSlope() const
     return slope_;
 }
 
-inline ::uint16_t RPCFebConnector::getChannels() const
+inline std::uint16_t RPCFebConnector::getChannels() const
 {
     return channels_;
 }
 
-inline RPCFebConnector & RPCFebConnector::setRPCDetId(RPCDetId const & _rpc_det_id)
+inline RPCFebConnector & RPCFebConnector::setRPCDetId(RPCDetId const & rpc_det_id)
 {
-    rpc_det_id_ = _rpc_det_id.rawId();
+    rpc_det_id_ = rpc_det_id.rawId();
     return *this;
 }
 
-inline RPCFebConnector & RPCFebConnector::setFirstStrip(unsigned int _first_strip)
+inline RPCFebConnector & RPCFebConnector::setFirstStrip(unsigned int first_strip)
 {
-    if (_first_strip >= min_first_strip_ && _first_strip <= max_first_strip_)
-        first_strip_ = _first_strip;
+    if (first_strip >= min_first_strip_ && first_strip <= max_first_strip_)
+        first_strip_ = first_strip;
     else
         throw cms::Exception("OutOfRange")
-            << "Out-of-range input for RPCFebConnector first strip: " << _first_strip;
+            << "Out-of-range input for RPCFebConnector first strip: " << first_strip;
     return *this;
 }
 
-inline RPCFebConnector & RPCFebConnector::setSlope(int _slope)
+inline RPCFebConnector & RPCFebConnector::setSlope(int slope)
 {
-    slope_ = (_slope < 0 ? -1 : 1);
+    slope_ = (slope < 0 ? -1 : 1);
     return *this;
 }
 
-inline RPCFebConnector & RPCFebConnector::setChannels(::uint16_t _channels)
+inline RPCFebConnector & RPCFebConnector::setChannels(std::uint16_t channels)
 {
-    channels_ = _channels;
+    channels_ = channels;
     return *this;
 }
 
-inline bool RPCFebConnector::isActive(unsigned int _channel) const
+inline bool RPCFebConnector::isActive(unsigned int channel) const
 {
-    if (_channel > 0 && _channel <= nchannels_)
-        return (channels_ & (0x1 << (_channel - 1)));
+    if (channel > 0 && channel <= nchannels_)
+        return (channels_ & (0x1 << (channel - 1)));
     return false;
 }
 
@@ -84,31 +84,31 @@ inline unsigned int RPCFebConnector::getNChannels() const
     return bit_count(channels_);
 }
 
-inline unsigned int RPCFebConnector::getStrip(unsigned int _channel) const
+inline unsigned int RPCFebConnector::getStrip(unsigned int channel) const
 {
-    if (!isActive(_channel))
+    if (!isActive(channel))
         return 0;
-    int _active_channels = bit_count(::uint16_t(channels_ & ((0x1 << (_channel - 1)) - 1)));
-    return (int)first_strip_ + slope_ * _active_channels;
+    int active_channels = bit_count(std::uint16_t(channels_ & ((0x1 << (channel - 1)) - 1)));
+    return (int)first_strip_ + slope_ * active_channels;
 }
 
-inline bool RPCFebConnector::hasStrip(unsigned int _strip) const
+inline bool RPCFebConnector::hasStrip(unsigned int strip) const
 {
-    int _offset = slope_ * (_strip - first_strip_);
-    return (_offset >=0 && _offset < (int)getNChannels());
+    int offset = slope_ * (strip - first_strip_);
+    return (offset >=0 && offset < (int)getNChannels());
 }
 
-inline unsigned int RPCFebConnector::getChannel(unsigned int _strip) const
+inline unsigned int RPCFebConnector::getChannel(unsigned int strip) const
 {
-    int _offset = slope_ * (_strip - first_strip_);
-    if (_offset < 0 || _offset >= (int)getNChannels())
+    int offset = slope_ * (strip - first_strip_);
+    if (offset < 0 || offset >= (int)getNChannels())
         return 0;
-    ::uint16_t _channels(channels_);
-    for (unsigned int _channel = 1 ; _channels ; _channels >>= 1, ++_channel)
-        if (_channels & 0x1) {
-            if (!_offset)
-                return _channel;
-            --_offset;
+    std::uint16_t channels(channels_);
+    for (unsigned int channel = 1 ; channels ; channels >>= 1, ++channel)
+        if (channels & 0x1) {
+            if (!offset)
+                return channel;
+            --offset;
         }
     return 0;
 }

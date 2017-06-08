@@ -54,7 +54,7 @@ class SiPixelTrackResidualSource : public DQMEDAnalyzer {
     virtual void dqmBeginRun(const edm::Run& r, edm::EventSetup const& iSetup) override;
     virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
     virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-    void getrococcupancy(DetId detId,const edm::DetSetVector<PixelDigi> diginp,const TrackerTopology* const tTopo,std::vector<MonitorElement*> meinput);
+    void getrococcupancy(DetId detId,const edm::DetSetVector<PixelDigi> & diginp,const TrackerTopology* const tTopo,std::vector<MonitorElement*> meinput);
     void triplets(double x1,double y1,double z1,double x2,double y2,double z2,double x3,double y3,double z3,
                   double ptsig, double & dc,double & dz, double kap); 
 

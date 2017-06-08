@@ -55,7 +55,7 @@ HLTmumutktkVtxProducer::HLTmumutktkVtxProducer(const edm::ParameterSet& iConfig)
 }
 
 // ----------------------------------------------------------------------
-HLTmumutktkVtxProducer::~HLTmumutktkVtxProducer() {}
+HLTmumutktkVtxProducer::~HLTmumutktkVtxProducer() = default;
 
 void
 HLTmumutktkVtxProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -270,8 +270,8 @@ bool HLTmumutktkVtxProducer::overlap(const TrackRef& trackref1, const TrackRef& 
 
 bool HLTmumutktkVtxProducer::checkPreviousCand(const TrackRef& trackref, vector<RecoChargedCandidateRef> & refVect){
   bool ok=false;
-  for (unsigned int i=0; i<refVect.size(); i++) {
-    if ( refVect[i]->get<TrackRef>() == trackref ) {
+  for (auto & i : refVect) {
+    if ( i->get<TrackRef>() == trackref ) {
       ok=true;
       break;
     }

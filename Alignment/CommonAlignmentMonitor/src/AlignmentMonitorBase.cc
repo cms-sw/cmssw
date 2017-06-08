@@ -62,9 +62,9 @@ void AlignmentMonitorBase::duringLoop(const edm::Event &iEvent, const edm::Event
 }
 
 
-void AlignmentMonitorBase::endOfLoop(const edm::EventSetup &iSetup)
+void AlignmentMonitorBase::endOfLoop()
 {
-   afterAlignment(iSetup);
+   afterAlignment();
 }
 
 

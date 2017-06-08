@@ -25,9 +25,11 @@ public:
 
   virtual ~CMSDummyDeexcitation() {};
 
-  G4HadFinalState* ApplyYourself(const G4HadProjectile&, G4Nucleus&) { return 0; } 
+  virtual G4HadFinalState* ApplyYourself(const G4HadProjectile&, G4Nucleus&) { return 0; } 
 
-  G4ReactionProductVector* DeExcite(G4Fragment&) { return new G4ReactionProductVector(); };
+  virtual G4ReactionProductVector* DeExcite(G4Fragment&) { return new G4ReactionProductVector(); };
+
+  virtual void DeExciteModelDescription(std::ostream&) const {}
 
 };
 #endif

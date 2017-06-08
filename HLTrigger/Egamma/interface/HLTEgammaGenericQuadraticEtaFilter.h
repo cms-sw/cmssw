@@ -35,29 +35,39 @@ class HLTEgammaGenericQuadraticEtaFilter : public HLTFilter {
       edm::EDGetTokenT<reco::RecoEcalCandidateIsolationMap> varToken_;
       bool lessThan_;           // the cut is "<" or ">" ?
       bool useEt_;              // use E or Et in relative isolation cuts
-/*  Barrel quadratic threshold function:
+      /*  Barrel quadratic threshold function:
       vali (<= or >=) thrRegularEB_ + (E or Et)*thrOverEEB_ + (E or Et)*(E or Et)*thrOverE2EB_
     Endcap quadratic threshold function:
       vali (<= or >=) thrRegularEE_ + (E or Et)*thrOverEEE_ + (E or Et)*(E or Et)*thrOverE2EE_
-*/
+      */
+
+      std::vector<double> energyLowEdges_; // lower bin edges for energy-dependent cuts
       double etaBoundaryEB12_;     //eta Boundary between Regions 1 and 2 - ECAL barrel
       double etaBoundaryEE12_;     //eta Boundary between Regions 1 and 2 - ECAL endcap
-      double thrRegularEB1_;     // threshold value for zeroth order term - ECAL barrel region 1
-      double thrRegularEE1_;     // threshold value for zeroth order term - ECAL endcap region 1
-      double thrOverEEB1_;       // coefficient for first order term - ECAL barrel region 1
-      double thrOverEEE1_;       // coefficient for first order term - ECAL endcap region 1
-      double thrOverE2EB1_;      // coefficient for second order term - ECAL barrel region 1
-      double thrOverE2EE1_;      // coefficient for second order term - ECAL endcap region 1
-      double thrRegularEB2_;     // threshold value for zeroth order term - ECAL barrel region 2
-      double thrRegularEE2_;     // threshold value for zeroth order term - ECAL endcap region 2
-      double thrOverEEB2_;       // coefficient for first order term - ECAL barrel region 2
-      double thrOverEEE2_;       // coefficient for first order term - ECAL endcap region 2
-      double thrOverE2EB2_;      // coefficient for second order term - ECAL barrel region 2
-      double thrOverE2EE2_;      // coefficient for second order term - ECAL endcap region 2
+      std::vector<double> thrRegularEB1_;     // threshold value for zeroth order term - ECAL barrel region 1
+      std::vector<double> thrRegularEE1_;     // threshold value for zeroth order term - ECAL endcap region 1
+      std::vector<double> thrOverEEB1_;       // coefficient for first order term - ECAL barrel region 1
+      std::vector<double> thrOverEEE1_;       // coefficient for first order term - ECAL endcap region 1
+      std::vector<double> thrOverE2EB1_;      // coefficient for second order term - ECAL barrel region 1
+      std::vector<double> thrOverE2EE1_;      // coefficient for second order term - ECAL endcap region 1
+      std::vector<double> thrRegularEB2_;     // threshold value for zeroth order term - ECAL barrel region 2
+      std::vector<double> thrRegularEE2_;     // threshold value for zeroth order term - ECAL endcap region 2
+      std::vector<double> thrOverEEB2_;       // coefficient for first order term - ECAL barrel region 2
+      std::vector<double> thrOverEEE2_;       // coefficient for first order term - ECAL endcap region 2
+      std::vector<double> thrOverE2EB2_;      // coefficient for second order term - ECAL barrel region 2
+      std::vector<double> thrOverE2EE2_;      // coefficient for second order term - ECAL endcap region 2
       int    ncandcut_;        // number of candidates required
 
       bool   store_;
       edm::InputTag l1EGTag_;
+
+      edm::InputTag rhoTag_; // input tag identifying rho producer
+      edm::EDGetTokenT<double> rhoToken_;
+      bool doRhoCorrection_;
+      double rhoMax_;
+      double rhoScale_;
+      std::vector<double> effectiveAreas_;
+      std::vector<double> absEtaLowEdges_;
 };
 
 #endif //HLTEgammaGenericQuadraticEtaFilter_h

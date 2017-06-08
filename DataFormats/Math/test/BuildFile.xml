@@ -11,20 +11,18 @@
 <bin   file="ProjectMatrix_t.cpp" name="DataFormatsProjectMatrix_t">
 </bin>
 <bin   file="FastMath_t.cpp" name="DataFormatsFastMath_t">
-  <flags CXXFLAGS="-std=gnu++11 -Wno-error=format -Wno-format -Wno-format-contains-nul"/>
+  <flags CXXFLAGS="-Wno-error=format -Wno-format -Wno-format-contains-nul"/>
   <flags REM_CXXFLAGS="-Wformat -ansi"/>
   <flags REM_CXXFLAGS="-Wformat-contains-nul"/>
 </bin>
 <bin   file="testApproximations.cpp" name="testMathApproximations">
-  <flags CXXFLAGS="-std=gnu++11 -Wno-error=format -Wno-format -Wno-format-contains-nul"/>
-  <flags REM_CXXFLAGS="-std=c++%"/>
+  <flags CXXFLAGS="-Wno-error=format -Wno-format -Wno-format-contains-nul"/>
   <flags REM_CXXFLAGS="-Wformat"/>
   <flags REM_CXXFLAGS="-Wformat-contains-nul"/>
   <flags REM_CXXFLAGS="-ansi"/>
 </bin>
 <bin   file="testApproxMath.cpp" name="testMathApproxMath">
-  <flags CXXFLAGS="-std=gnu++11 -Wno-error=format -Wno-format -Wno-format-contains-nul"/>
-  <flags REM_CXXFLAGS="-std=c++%"/>
+  <flags CXXFLAGS="-Wno-error=format -Wno-format -Wno-format-contains-nul"/>
   <flags REM_CXXFLAGS="-Wformat"/>
   <flags REM_CXXFLAGS="-Wformat-contains-nul"/>
   <flags REM_CXXFLAGS="-ansi"/>
@@ -51,8 +49,7 @@
 </bin>
 
 <bin   file="deltaR_t.cpp" name="DataFormatsDeltaR_t">
-  <flags CXXFLAGS="-ffast-math -std=gnu++11 -Wno-error=format -Wno-format -Wno-format-contains-nul"/>
-  <flags REM_CXXFLAGS="-std=c++%"/>
+  <flags CXXFLAGS="-Wno-error=format -Wno-format -Wno-format-contains-nul"/>
   <flags REM_CXXFLAGS="-Wformat"/>
   <flags REM_CXXFLAGS="-Wformat-contains-nul"/>
   <flags REM_CXXFLAGS="-ansi"/>

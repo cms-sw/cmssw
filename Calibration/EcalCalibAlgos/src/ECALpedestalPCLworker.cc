@@ -2,7 +2,10 @@
 #include "Calibration/EcalCalibAlgos/interface/ECALpedestalPCLworker.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
-
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "CondFormats/EcalObjects/interface/EcalPedestals.h"
+#include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
 #include <iostream>
 #include <sstream>
 
@@ -16,6 +19,16 @@ ECALpedestalPCLworker::ECALpedestalPCLworker(const edm::ParameterSet& iConfig)
 
     digiTokenEB_ = consumes<EBDigiCollection>(digiTagEB_);
     digiTokenEE_ = consumes<EEDigiCollection>(digiTagEE_);
+
+    pedestalSamples_ = iConfig.getParameter<uint32_t>("pedestalSamples");
+    checkSignal_     = iConfig.getParameter<bool>("checkSignal");
+    sThresholdEB_      = iConfig.getParameter<uint32_t>("sThresholdEB");
+    sThresholdEE_      = iConfig.getParameter<uint32_t>("sThresholdEE");
+
+    dynamicBooking_ = iConfig.getParameter<bool>("dynamicBooking");
+    fixedBookingCenterBin_ = iConfig.getParameter<int>("fixedBookingCenterBin");
+    nBins_          = iConfig.getParameter<int>("nBins");
+    dqmDir_         = iConfig.getParameter<std::string>("dqmDir");
 }
 
 
@@ -25,47 +38,54 @@ void
 ECALpedestalPCLworker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
     using namespace edm;
-      
+
     Handle<EBDigiCollection> pDigiEB;
-    iEvent.getByLabel("ecalDigis","ebDigis",pDigiEB);
-   
+    iEvent.getByLabel(digiTagEB_,pDigiEB);
+
     Handle<EEDigiCollection> pDigiEE;
-    iEvent.getByLabel("ecalDigis","eeDigis",pDigiEE);
+    iEvent.getByLabel(digiTagEE_,pDigiEE);
 
 
 
     for (EBDigiCollection::const_iterator pDigi=pDigiEB->begin(); pDigi!=pDigiEB->end(); ++pDigi){
-         
+
         EBDetId id = pDigi->id();
         uint32_t hashedId = id.hashedIndex();
 
         EBDataFrame digi( *pDigi );
+        
+        if (checkSignal_){
+            uint16_t maxdiff = *std::max_element(digi.frame().begin(), digi.frame().end(), adc_compare )  -
+                               *std::min_element(digi.frame().begin(), digi.frame().end(), adc_compare );
+            if ( maxdiff> sThresholdEB_ ) continue; // assume there is signal in this frame
+        }
 
-        uint16_t maxdiff = *std::max_element(digi.frame().begin(), digi.frame().end(), adc_compare )  - 
-                           *std::min_element(digi.frame().begin(), digi.frame().end(), adc_compare ); 
-        if ( maxdiff> kThreshold ) continue; // assume there is signal in this frame       
         //for (auto& mgpasample : digi.frame()) meEB_[hashedId]->Fill(mgpasample&0xFFF);
-        for (edm::DataFrame::iterator mgpasample = digi.frame().begin();  
-             mgpasample!=digi.frame().begin()+kPedestalSamples; 
+        for (edm::DataFrame::iterator mgpasample = digi.frame().begin();
+             mgpasample!=digi.frame().begin()+pedestalSamples_;
              ++mgpasample )
             meEB_[hashedId]->Fill(*mgpasample&0xFFF);
 
     } // eb digis
-   
+
+
 
     for (EEDigiCollection::const_iterator pDigi=pDigiEE->begin(); pDigi!=pDigiEE->end(); ++pDigi){
-         
+
         EEDetId id = pDigi->id();
         uint32_t hashedId = id.hashedIndex();
 
-        EBDataFrame digi( *pDigi );
+        EEDataFrame digi( *pDigi );
 
-        uint16_t maxdiff = *std::max_element(digi.frame().begin(), digi.frame().end(), adc_compare )  - 
-                           *std::min_element(digi.frame().begin(), digi.frame().end(), adc_compare ); 
-        if ( maxdiff> kThreshold ) continue; // assume there is signal in this frame       
+        if (checkSignal_){
+            uint16_t maxdiff = *std::max_element(digi.frame().begin(), digi.frame().end(), adc_compare )  -
+                               *std::min_element(digi.frame().begin(), digi.frame().end(), adc_compare );
+            if ( maxdiff> sThresholdEE_ ) continue; // assume there is signal in this frame
+        }
+
         //for (auto& mgpasample : digi.frame()) meEE_[hashedId]->Fill(mgpasample&0xFFF);
-        for (edm::DataFrame::iterator mgpasample = digi.frame().begin();  
-             mgpasample!=digi.frame().begin()+kPedestalSamples; 
+        for (edm::DataFrame::iterator mgpasample = digi.frame().begin();
+             mgpasample!=digi.frame().begin()+pedestalSamples_;
              ++mgpasample )
             meEE_[hashedId]->Fill(*mgpasample&0xFFF);
 
@@ -73,18 +93,18 @@ ECALpedestalPCLworker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
 
 
-   
+
 }
 
 
-void 
+void
 ECALpedestalPCLworker::beginJob()
 {
 }
 
 
-void 
-ECALpedestalPCLworker::endJob() 
+void
+ECALpedestalPCLworker::endJob()
 {
 }
 
@@ -97,25 +117,48 @@ ECALpedestalPCLworker::fillDescriptions(edm::ConfigurationDescriptions& descript
 }
 
 
-void 
+void
 ECALpedestalPCLworker::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & run, edm::EventSetup const & es){
-    
+
     ibooker.cd();
-    ibooker.setCurrentFolder("EcalCalibration/EcalPedestalPCL");
+    ibooker.setCurrentFolder(dqmDir_);
+
+    edm::ESHandle<EcalPedestals> peds;
+    es.get<EcalPedestalsRcd>().get(peds);
+    
 
     for ( uint32_t i = 0 ; i< EBDetId::kSizeForDenseIndexing; ++i){
-        std::stringstream hname;
-        hname<<"eb_"<<i;       
-        meEB_.push_back(ibooker.book1D(hname.str(),hname.str(),100,150,250));
+        
+        std::string hname = "eb_" + std::to_string(i);
+        DetId id = EBDetId::detIdFromDenseIndex(i);
+        int centralBin = fixedBookingCenterBin_;
+         
+        if (dynamicBooking_){
+            centralBin =  int ((peds->find(id))->mean_x12) ;
+        }
+
+        int min = centralBin - nBins_/2;
+        int max = centralBin + nBins_/2;
+
+        meEB_.push_back(ibooker.book1D(hname,hname,nBins_,min,max));
     }
 
     for ( uint32_t i = 0 ; i< EEDetId::kSizeForDenseIndexing; ++i){
-        std::stringstream hname;
-        hname<<"ee_"<<i;
-        meEE_.push_back(ibooker.book1D(hname.str(),hname.str(),100,150,250));
+
+        std::string hname = "ee_" + std::to_string(i);
+
+        DetId id = EEDetId::detIdFromDenseIndex(i);
+        int centralBin = fixedBookingCenterBin_;
+         
+        if (dynamicBooking_){
+            centralBin =  int ((peds->find(id))->mean_x12) ;
+        }
+
+        int min = centralBin - nBins_/2;
+        int max = centralBin + nBins_/2;
+
+        meEE_.push_back(ibooker.book1D(hname,hname,nBins_,min,max));
 
     }
-       
+
 }
-
-

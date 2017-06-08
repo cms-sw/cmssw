@@ -37,8 +37,7 @@ HLTCSCActivityFilter::HLTCSCActivityFilter(const edm::ParameterSet& iConfig) : H
   m_cscStripDigiToken = consumes<CSCStripDigiCollection>(m_cscStripDigiTag);
 }
 
-HLTCSCActivityFilter::~HLTCSCActivityFilter() {
-}
+HLTCSCActivityFilter::~HLTCSCActivityFilter() = default;
 
 void
 HLTCSCActivityFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -66,14 +65,14 @@ bool HLTCSCActivityFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& 
   edm::Handle<CSCStripDigiCollection> cscStrips;
   iEvent.getByToken(m_cscStripDigiToken, cscStrips);
 
-  for (CSCStripDigiCollection::DigiRangeIterator dSDiter=cscStrips->begin(); dSDiter!=cscStrips->end(); ++dSDiter) {
-    CSCDetId id = (CSCDetId)(*dSDiter).first;
+  for (auto && dSDiter : *cscStrips) {
+    CSCDetId id = (CSCDetId)dSDiter.first;
     bool thisME = ((id.station()== m_StationNumb) && (id.ring()== m_RingNumb));
     if (m_MESR && thisME)
       continue;
 
-    std::vector<CSCStripDigi>::const_iterator stripIter = (*dSDiter).second.first;
-    std::vector<CSCStripDigi>::const_iterator lStrip    = (*dSDiter).second.second;
+    auto stripIter = dSDiter.second.first;
+    auto lStrip    = dSDiter.second.second;
     for( ; stripIter != lStrip; ++stripIter) {
       const std::vector<int> & myADCVals = stripIter->getADCCounts();
       const float pedestal  = 0.5 * (float) (myADCVals[0] + myADCVals[1]);

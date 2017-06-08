@@ -86,9 +86,7 @@ HLTMuonDimuonL2FromL1TFilter::HLTMuonDimuonL2FromL1TFilter(const edm::ParameterS
       << " " << nsigma_Pt_;
 }
 
-HLTMuonDimuonL2FromL1TFilter::~HLTMuonDimuonL2FromL1TFilter()
-{
-}
+HLTMuonDimuonL2FromL1TFilter::~HLTMuonDimuonL2FromL1TFilter() = default;
 
 
 //
@@ -295,8 +293,8 @@ HLTMuonDimuonL2FromL1TFilter::hltFilter(edm::Event& iEvent, const edm::EventSetu
             bool i2done = false;
             vector<RecoChargedCandidateRef> vref;
 	    filterproduct.getObjects(TriggerMuon,vref);
-            for (unsigned int i=0; i<vref.size(); i++) {
-	      RecoChargedCandidateRef candref =  RecoChargedCandidateRef(vref[i]);
+            for (auto & i : vref) {
+	      RecoChargedCandidateRef candref =  RecoChargedCandidateRef(i);
 	      TrackRef tktmp = candref->get<TrackRef>();
 	      if (tktmp==tk1) {
                         i1done = true;

@@ -29,7 +29,6 @@
 #include <fstream>
 
 #include "FWCore/MessageService/interface/ELdestination.h"
-#include "FWCore/MessageService/interface/ELdestControl.h"
 
 // Possible Traces:
 // #define ELdestinationCONSTRUCTOR_TRACE
@@ -88,20 +87,52 @@ bool ELdestination::log( const edm::ErrorObj &)  { return false; }
 // and all the no-op methods will issue an ELwarning2 at their own destination.
 
 
-static const ELstring noSummarizationMsg = "No summarization()";
-static const ELstring noSummaryMsg = "No summary()";
-static const ELstring noClearSummaryMsg = "No clearSummary()";
 static const ELstring hereMsg = "available via this destination";
 static const ELstring noosMsg = "No ostream";
 static const ELstring notELoutputMsg = "This destination is not an ELoutput";
 
-void ELdestination::clearSummary()  {
+// ----------------------------------------------------------------------
+// Behavior control methods invoked by the framework
+// ----------------------------------------------------------------------
 
-  edm::ErrorObj msg( ELwarning, noClearSummaryMsg );
-  msg << hereMsg;
-  log( msg );
+void ELdestination::setThreshold( const ELseverityLevel & sv )  {
+  threshold = sv;
+}
 
-}  // clearSummary()
+
+void ELdestination::setTraceThreshold( const ELseverityLevel & sv )  {
+  traceThreshold = sv;
+}
+
+
+void ELdestination::setLimit( const ELstring & s, int n )  {
+  limits.setLimit( s, n );
+}
+
+
+void ELdestination::setInterval
+( const ELseverityLevel & sv, int interval )  {
+  limits.setInterval( sv, interval );
+}
+
+void ELdestination::setInterval( const ELstring & s, int interval )  {
+  limits.setInterval( s, interval );
+}
+
+
+void ELdestination::setLimit( const ELseverityLevel & sv, int n )  {
+  limits.setLimit( sv, n );
+}
+
+
+void ELdestination::setTimespan( const ELstring & s, int n )  {
+  limits.setTimespan( s, n );
+}
+
+
+void ELdestination::setTimespan( const ELseverityLevel & sv, int n )  {
+  limits.setTimespan( sv, n );
+}
 
 
 void ELdestination::wipe()  { limits.wipe(); }
@@ -143,54 +174,10 @@ void ELdestination::excludeModule( ELstring const & moduleName )  {
   ignoreModule(moduleName);
 }
 
-void ELdestination::summary( )  { }
-
-void ELdestination::summary( ELdestControl & dest, const ELstring & title )  {
-
-  edm::ErrorObj msg( ELwarning, noSummaryMsg );
-  msg << noSummaryMsg << " " << hereMsg << dest.getNewline() << title;
-  dest.log( msg );
-
-}  // summary()
-
-
-void ELdestination::summary( std::ostream & os, const ELstring & title )  {
-
-  os << "%MSG" << ELwarning.getSymbol() << " "
-       << noSummaryMsg << " " << hereMsg << std::endl
-     << title << std::endl;
-
-}  // summary()
-
-
-void ELdestination::summary( ELstring & s, const ELstring & title )  {
-
-  s = ELstring("%MSG") + ELwarning.getSymbol() + " "
-      + noSummaryMsg + " " + hereMsg + "\n"
-    + title + "\n";
-
-}  // summary()
-
-void ELdestination::summaryForJobReport(std::map<std::string, double> &) { }
-
 void ELdestination::finish() {  }
 
 void ELdestination::setTableLimit( int n )  { limits.setTableLimit( n ); }
 
-
-void ELdestination::summarization(
-  const ELstring & title
-, const ELstring & /*sumLines*/ )  {
-
-  edm::ErrorObj  msg( ELwarning, noSummarizationMsg );
-  msg << hereMsg << newline << title;
-  log( msg );
-
-}
-
-std::map<ELextendedID , StatsCount> ELdestination::statisticsMap() const {
-  return std::map<ELextendedID , StatsCount> ();
-}
 
 void ELdestination::changeFile (std::ostream & /*unused*/) {
   edm::ErrorObj  msg( ELwarning, noosMsg );
@@ -240,8 +227,6 @@ void ELdestination::attachTime()    { ; }
 
 void ELdestination::separateEpilogue()  { ; }
 void ELdestination::attachEpilogue()    { ; }
-
-void ELdestination::noTerminationSummary()  { ; }
 
 ELstring ELdestination::getNewline() const  { return newline; }
 

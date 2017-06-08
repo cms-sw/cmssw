@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlZMuMu_cff import *
 
 ALCARECOTkAlZMuMuPAHLT = ALCARECOTkAlZMuMuHLT.clone(
-    eventSetupPathsKey = 'TkAlZMuMu'
+    eventSetupPathsKey = 'TkAlZMuMuPA'
 )
 
 ALCARECOTkAlZMuMuPADCSFilter = ALCARECOTkAlZMuMuDCSFilter.clone()

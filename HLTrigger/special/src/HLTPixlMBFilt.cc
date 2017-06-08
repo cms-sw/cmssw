@@ -41,9 +41,7 @@ HLTPixlMBFilt::HLTPixlMBFilt(const edm::ParameterSet& iConfig) : HLTFilter(iConf
   LogDebug("") << "Requesting tracks from same vertex eta-phi separation by " << min_sep_;
 }
 
-HLTPixlMBFilt::~HLTPixlMBFilt()
-{
-}
+HLTPixlMBFilt::~HLTPixlMBFilt() = default;
 
 void
 HLTPixlMBFilt::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -88,8 +86,8 @@ bool HLTPixlMBFilt::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup,
    vector<double> phistore;
    vector<int> itstore;
    bool accept;
-   RecoChargedCandidateCollection::const_iterator apixl(tracks->begin());
-   RecoChargedCandidateCollection::const_iterator epixl(tracks->end());
+   auto apixl(tracks->begin());
+   auto epixl(tracks->end());
    RecoChargedCandidateCollection::const_iterator ipixl, jpixl;
    unsigned int nsame_vtx=0;
    int itrk = -1;
@@ -167,8 +165,7 @@ bool HLTPixlMBFilt::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup,
    // we now move them to the filterproduct
 
    if (accept) {
-     for (unsigned int ipos=0; ipos < itstore.size(); ipos++) {
-       int iaddr=itstore.at(ipos);
+     for (int iaddr : itstore) {
        filterproduct.addObject(TriggerTrack,RecoChargedCandidateRef(tracks,iaddr));
      }
    }

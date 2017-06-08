@@ -173,6 +173,9 @@ NEWmuonValidation_reduced_seq = cms.Sequence(
     NEWprobeTracks_seq + NEWtpToTkMuonAssociation + NEWtrkProbeTrackVMuonAssoc
     +NEWtpToStaUpdMuonAssociation + NEWstaUpdMuonTrackVMuonAssoc
     +NEWtpToGlbMuonAssociation + NEWglbMuonTrackVMuonAssoc
+    +NEWtpToDisplacedStaMuonAssociation + NEWdisplacedStaMuonTrackVMuonAssoc
+    +NEWtpToDisplacedTrkMuonAssociation + NEWdisplacedTrackVMuonAssoc
+    +NEWtpToDisplacedGlbMuonAssociation + NEWdisplacedGlbMuonTrackVMuonAssoc
 )
 
 NEWmuonValidationTEV_seq = cms.Sequence(

@@ -54,7 +54,7 @@ maxNEvents = 2000000
 if(firstRun!=-1 or lastRun!=-1): automatic = False
 
 
-DQM_dir = "AlCaReco/SiStripGains" if "AagBunch" not in opt.calMode else "AlCaReco/SiStripGainsAfterAbortGap"
+DQM_dir = "AlCaReco/SiStripGains" if "AagBunch" not in opt.calMode else "AlCaReco/SiStripGainsAAG"
 
 print "firstRun = " +str(firstRun)
 print "lastRun  = " +str(lastRun)

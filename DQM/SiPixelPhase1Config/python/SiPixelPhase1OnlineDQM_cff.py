@@ -31,28 +31,28 @@ StandardSpecifications1D.append(
   )
   
 StandardSpecifications1D_Num.append(
-      Specification(OverlayCurvesForTiming).groupBy("PXBarrel/PXLayer/OnlineBlock/DetId/Event") # per-layer with history for online
+      Specification(OverlayCurvesForTiming).groupBy("DetId/Event") # per-layer with history for online
                                .reduce("COUNT")
                                .groupBy("PXBarrel/PXLayer/OnlineBlock") 
                                .groupBy("PXBarrel/PXLayer", "EXTEND_Y")
                                .save()
   )
 StandardSpecifications1D_Num.append(
-      Specification(OverlayCurvesForTiming).groupBy("PXForward/PXDisk/OnlineBlock/DetId/Event") # per-layer with history for online
+      Specification(OverlayCurvesForTiming).groupBy("DetId/Event") # per-layer with history for online
                                .reduce("COUNT")
                                .groupBy("PXForward/PXDisk/OnlineBlock") 
                                .groupBy("PXForward/PXDisk", "EXTEND_Y")
                                .save()
   )
 StandardSpecifications1D_Num.append(
-      Specification(OverlayCurvesForTiming).groupBy("PXBarrel/OnlineBlock/DetId/Event") # per-layer with history for online
+      Specification(OverlayCurvesForTiming).groupBy("DetId/Event") # per-layer with history for online
                      .reduce("COUNT")
                      .groupBy("PXBarrel/OnlineBlock") 
                      .groupBy("PXBarrel", "EXTEND_Y")
                      .save()
   )
 StandardSpecifications1D_Num.append(
-      Specification(OverlayCurvesForTiming).groupBy("PXForward/OnlineBlock/DetId/Event") # per-layer with history for online
+      Specification(OverlayCurvesForTiming).groupBy("DetId/Event") # per-layer with history for online
                      .reduce("COUNT")
                      .groupBy("PXForward/OnlineBlock") 
                      .groupBy("PXForward", "EXTEND_Y")
@@ -74,7 +74,6 @@ DefaultHistoTrack.perLumiHarvesting = True
 
 # Pixel Digi Monitoring
 from DQM.SiPixelPhase1Digis.SiPixelPhase1Digis_cfi import *
-SiPixelPhase1DigisAnalyzer.src = cms.InputTag("siPixelDigis") # adapt for real data
 
 # Cluster (track-independent) monitoring
 from DQM.SiPixelPhase1Clusters.SiPixelPhase1Clusters_cfi import *

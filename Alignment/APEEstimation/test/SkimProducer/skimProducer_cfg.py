@@ -113,15 +113,15 @@ if isData3: process.load("Alignment.APEEstimation.samples.Data_TkAlMuonIsolated_
 if isData4: process.load("Alignment.APEEstimation.samples.Data_TkAlMuonIsolated_22Jan2013D_v1_cff")
 if isQcd: process.load("Alignment.APEEstimation.samples.Mc_TkAlMuonIsolated_Summer12_qcd_cff")
 if isWlnu: process.load("Alignment.APEEstimation.samples.Mc_WJetsToLNu_74XTest_cff")
-if isZmumu10: process.load("Alignment.APEEstimation.samples.Mc_TkAlMuonIsolated_Summer12_zmumu10_cff")
+if isZmumu: process.load("Alignment.APEEstimation.samples.Mc_TkAlZMuMu_PhaseI_Fall16_81X_DY_cff")
 if isZmumu20: process.load("Alignment.APEEstimation.samples.Mc_TkAlMuonIsolated_Summer12_zmumu20_cff")
 if isZmumu50: process.load("Alignment.APEEstimation.samples.DYToMuMu_M-50_Tune4C_13TeV-pythia8_Spring14dr-TkAlMuonIsolated-castor_PU_S14_POSTLS170_V6-v1_ALCARECO_cff")
 
 
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-#~ process.GlobalTag = GlobalTag(process.GlobalTag, 'GR_P_V56', '')
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
+#~ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_design', '')
 print "Using global tag "+process.GlobalTag.globaltag._value
 
 process.load("Configuration.StandardSequences.Services_cff")
@@ -130,14 +130,6 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 
-
-process.GlobalTag.toGet = cms.VPSet(
-    cms.PSet(
-        record = cms.string("SiPixelTemplateDBObjectRcd"),
-        tag = cms.string("SiPixelTemplateDBObject_38T_v3_mc"),
-        connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS"),
-    )
-) 
 
 ##
 ## Number of Events (should be after input file)
@@ -162,14 +154,15 @@ if options.useTrackList:
     process.TriggerSelectionSequence *= process.TrackList
 
 import Alignment.CommonAlignment.tools.trackselectionRefitting as trackselRefit
-process.seqTrackselRefit = trackselRefit.getSequence(process, 'ALCARECOTkAlMuonIsolated')
-#~ process.seqTrackselRefit = trackselRefit.getSequence(process, 'ALCARECOTkAlZMuMu')
+#~ process.seqTrackselRefit = trackselRefit.getSequence(process, 'ALCARECOTkAlMuonIsolated')
+process.seqTrackselRefit = trackselRefit.getSequence(process, 'ALCARECOTkAlZMuMu')
 
 ##
 ## Path
 ##
 process.path = cms.Path(
     process.offlineBeamSpot*
+    process.seqTrackselRefit*
     process.MuSkim
 )
 
@@ -191,7 +184,8 @@ EventSelection = cms.PSet(
 ##
 process.out = cms.OutputModule("PoolOutputModule",
     ## Parameters directly for PoolOutputModule
-    fileName = cms.untracked.string('Data_TkAlMuonIsolated_DoubleMuon_Run2015B_PromptReco1.root'),
+    #~ fileName = cms.untracked.string('Data_TkAlMuonIsolated_DoubleMuon_Run2015B_PromptReco1.root'),
+    fileName = cms.untracked.string('MC_TkAlZMuMu_PhaseI_Fall16_81X_DY.root'),
     #logicalFileName = cms.untracked.string(''),
     #catalog = cms.untracked.string(''),
     # Maximus size per file before a new one is created
@@ -220,47 +214,6 @@ process.out = cms.OutputModule("PoolOutputModule",
 process.load("Alignment.APEEstimation.PrivateSkim_EventContent_cff")
 process.out.outputCommands.extend(process.ApeSkimEventContent.outputCommands)
 
-#if isData1:
-#  if options.atCern:
-#    process.out.fileName = 'root://eoscms//eos/cms/store/caf/user/ajkumar/data/DoubleMu/Run2011A_May10ReReco/apeSkim.root?svcClass=cmscafuser&stageHost=castorcms'
-#  else:
-#    process.out.fileName = '/scratch/hh/current/cms/user/ajkumar/data/alcareco/data/apeSkim.root'
-#elif isData2:
-#  if options.atCern:
-#    #process.out.fileName = 'root://eoscms//eos/cms/store/caf/user/ajkumar/data/DoubleMu/Run2011A_PromptV4/apeSkim.root?svcClass=cmscafuser&stageHost=castorcms'
-#    process.out.fileName = 'apeSkim.root'
-#  else:
-#    process.out.fileName = '/scratch/hh/current/cms/user/ajkumar/data/alcareco/data/apeSkim.root'
-#if isQcd:
-#  if options.atCern:
-#    process.out.fileName = 'root://eoscms//eos/cms/store/caf/user/ajkumar/mc/Summer11/qcd/apeSkim.root?svcClass=cmscafuser&stageHost=castorcms'
-#  else:
-#    process.out.fileName = '/scratch/hh/current/cms/user/ajkumar/data/alcareco/qcd/apeSkim.root'
-#elif isWlnu:
-#  if options.atCern:
-#    process.out.fileName = 'root://eoscms//eos/cms/store/caf/user/ajkumar/mc/Summer11/wlnu/apeSkim.root?svcClass=cmscafuser&stageHost=castorcms'
-#  else:
-#    process.out.fileName = '/scratch/hh/current/cms/user/ajkumar/data/alcareco/wlnu/apeSkim.root'
-#elif isZmumu:
-#  if options.atCern:
-#    process.out.fileName = ''
-#  else:
-#    process.out.fileName = '/scratch/hh/current/cms/user/ajkumar/data/alcareco/zmumu/apeSkim.root'
-#elif isZtautau:
-#  if options.atCern:
-#    process.out.fileName = ''
-#  else:
-#    process.out.fileName = '/scratch/hh/current/cms/user/ajkumar/data/alcareco/ztautau/apeSkim.root'
-#elif isZmumu10:
-#  if options.atCern:
-#    process.out.fileName = 'root://eoscms//eos/cms/store/caf/user/ajkumar/mc/Summer11/zmumu10/apeSkim.root?svcClass=cmscafuser&stageHost=castorcms'
-#  else:
-#    process.out.fileName = ''
-#elif isZmumu20:
-#  if options.atCern:
-#    process.out.fileName = 'root://eoscms//eos/cms/store/caf/user/ajkumar/mc/Summer11/zmumu20/apeSkim.root?svcClass=cmscafuser&stageHost=castorcms'
-#  else:
-#    process.out.fileName = ''
 if options.isTest:
   process.out.fileName = os.environ['CMSSW_BASE'] + '/src/Alignment/APEEstimation/hists/test_apeSkim.root'
 

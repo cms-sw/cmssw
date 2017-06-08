@@ -26,6 +26,7 @@
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
+#include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Common/interface/ConvertHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Common/interface/TriggerResultsByName.h"
@@ -40,6 +41,7 @@ namespace edm {
    class ProductID;
    class TriggerResults;
    class TriggerNames;
+   class ParameterSet;
 
    class EventBase {
 
@@ -69,9 +71,12 @@ namespace edm {
       virtual TriggerResultsByName triggerResultsByName(edm::TriggerResults const& triggerResults) const = 0;
       virtual ProcessHistory const& processHistory() const = 0;
 
+      virtual edm::ParameterSet const* parameterSet(edm::ParameterSetID const& psID) const = 0;
    protected:
 
       static TriggerNames const* triggerNames_(edm::TriggerResults const& triggerResults);
+
+      static edm::ParameterSet const* parameterSetForID_(edm::ParameterSetID const& psID);
 
    private:
       //EventBase(EventBase const&); // allow default

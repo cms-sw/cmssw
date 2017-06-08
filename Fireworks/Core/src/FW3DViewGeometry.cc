@@ -211,7 +211,7 @@ FW3DViewGeometry::showMuonEndcap( bool showMuonEndcap )
 	  teEndcap = new TEveElementList( "GEM Backward" );
 	m_muonEndcapElements->AddElement( teEndcap );
 
-	int mxSt = m_geom->versionInfo().haveExtraDet("GE2") ? 3:1; 
+	int mxSt = m_geom->versionInfo().haveExtraDet("GE2") ? GEMDetId::maxStationId :1; 
 
 	for( Int_t iStation = GEMDetId::minStationId; iStation <= mxSt; ++iStation ){
 	  std::ostringstream s; s << "Station" << iStation;

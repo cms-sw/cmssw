@@ -55,12 +55,12 @@
 class EcalMIPRecHitFilter : public edm::EDFilter {
 public:
   explicit EcalMIPRecHitFilter(const edm::ParameterSet&);
-  ~EcalMIPRecHitFilter();
+  ~EcalMIPRecHitFilter() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
-  virtual bool filter(edm::Event &, edm::EventSetup const &) override;
+  bool filter(edm::Event &, edm::EventSetup const &) override;
 
   // ----------member data ---------------------------
   const edm::EDGetTokenT<EcalRecHitCollection> EcalRecHitToken_;
@@ -134,12 +134,12 @@ EcalMIPRecHitFilter::filter(edm::Event & iEvent, edm::EventSetup const & iSetup)
 
   bool thereIsSignal = false;
   // loop on  rechits
-  for ( EcalRecHitCollection::const_iterator hitItr = recHits->begin(); hitItr != recHits->end(); ++hitItr ) {
+  for ( auto hitItr = recHits->begin(); hitItr != recHits->end(); ++hitItr ) {
 
     EcalRecHit const & hit = *hitItr;
 
     // masking noisy channels //KEEP this for now, just in case a few show up
-    std::vector<int>::const_iterator result = std::find( maskedList_.begin(), maskedList_.end(), EBDetId(hit.id()).hashedIndex() );
+    auto result = std::find( maskedList_.begin(), maskedList_.end(), EBDetId(hit.id()).hashedIndex() );
     if  (result != maskedList_.end())
       // LogWarning("EcalFilter") << "skipping uncalRecHit for channel: " << ic << " with amplitude " << ampli_ ;
       continue;
@@ -148,7 +148,7 @@ EcalMIPRecHitFilter::filter(edm::Event & iEvent, edm::EventSetup const & iSetup)
     EBDetId ebDet = hit.id();
 
     // find intercalib constant for this xtal
-    EcalIntercalibConstantMap::const_iterator icalit=icalMap.find(ebDet);
+    auto icalit=icalMap.find(ebDet);
     EcalIntercalibConstant icalconst = 1.;
     if( icalit!=icalMap.end() ){
       icalconst = (*icalit);
@@ -179,7 +179,7 @@ EcalMIPRecHitFilter::filter(edm::Event & iEvent, edm::EventSetup const & iSetup)
       float secondMin = 0.;
       for(std::vector<DetId>::const_iterator detitr = neighbors.begin(); detitr != neighbors.end(); ++detitr)
       {
-        EcalRecHitCollection::const_iterator thishit = recHits->find((*detitr));
+        auto thishit = recHits->find((*detitr));
         if (thishit == recHits->end())
         {
           //LogWarning("EcalMIPRecHitFilter") << "No RecHit available, for "<< EBDetId(*detitr);
@@ -189,7 +189,7 @@ EcalMIPRecHitFilter::filter(edm::Event & iEvent, edm::EventSetup const & iSetup)
         {
           float thisamp = (*thishit).energy();
           // find intercalib constant for this xtal
-          EcalIntercalibConstantMap::const_iterator icalit2=icalMap.find((*thishit).id());
+          auto icalit2=icalMap.find((*thishit).id());
           EcalIntercalibConstant icalconst2 = 1.;
           if( icalit2!=icalMap.end() ){
             icalconst2 = (*icalit2);

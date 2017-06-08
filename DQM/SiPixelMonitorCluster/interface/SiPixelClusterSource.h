@@ -112,8 +112,8 @@
        int noOfLayers;
        int noOfDisks;
 
-       void getrococcupancy(DetId detId,const edm::DetSetVector<PixelDigi> diginp,const TrackerTopology* const tTopo,
-			    std::vector<MonitorElement*> meinput);
+       void getrococcupancy(DetId detId,const edm::DetSetVector<PixelDigi> & diginp,const TrackerTopology* const tTopo,
+			    std::vector<MonitorElement*> const & meinput);
        void getrococcupancye(DetId detId,const edmNew::DetSetVector<SiPixelCluster> & clustColl, const TrackerTopology* const pTT,
 			     edm::ESHandle<TrackerGeometry> pDD,MonitorElement* meinput);
 

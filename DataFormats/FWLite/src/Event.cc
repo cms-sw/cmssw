@@ -492,6 +492,15 @@ Event::fillParameterSetRegistry() const {
   }
 }
 
+edm::ParameterSet const*
+Event::parameterSet(edm::ParameterSetID const& psID) const {
+  if(!parameterSetRegistryFilled_) {
+    fillParameterSetRegistry();
+  }
+  return parameterSetForID_(psID);
+}
+
+  
 edm::TriggerResultsByName
 Event::triggerResultsByName(edm::TriggerResults const& triggerResults) const {
 

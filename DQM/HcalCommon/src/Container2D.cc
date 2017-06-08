@@ -1245,10 +1245,12 @@ namespace hcaldqm
 
 		std::vector<std::string> xlabels = _qx->getLabels();
 		std::vector<std::string> ylabels = _qy->getLabels();
-		for (unsigned int i=0; i<xlabels.size(); i++)
+		for (unsigned int i=0; i<xlabels.size(); i++) {
 			me->setBinLabel(i+1, xlabels[i], 1);
-		for (unsigned int i=0; i<ylabels.size(); i++)
+		}
+		for (unsigned int i=0; i<ylabels.size(); i++) {
 			me->setBinLabel(i+1, ylabels[i], 2);
+		}
 	}
 }
 

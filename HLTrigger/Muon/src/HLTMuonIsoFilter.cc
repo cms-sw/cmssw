@@ -37,7 +37,7 @@ HLTMuonIsoFilter::HLTMuonIsoFilter(const edm::ParameterSet& iConfig) : HLTFilter
    previousCandToken_ (consumes<trigger::TriggerFilterObjectWithRefs>(previousCandTag_)),
    depTag_  (iConfig.getParameter< std::vector< edm::InputTag > >("DepTag" ) ),
    depToken_(0),
-   theDepositIsolator(0),
+   theDepositIsolator(nullptr),
    min_N_   (iConfig.getParameter<int> ("MinN"))
 {
   std::stringstream tags;
@@ -53,7 +53,7 @@ HLTMuonIsoFilter::HLTMuonIsoFilter(const edm::ParameterSet& iConfig) : HLTFilter
 
    edm::ParameterSet isolatorPSet = iConfig.getParameter<edm::ParameterSet>("IsolatorPSet");
    if (isolatorPSet.empty()) {
-     theDepositIsolator=0;
+     theDepositIsolator=nullptr;
        }else{
      std::string type = isolatorPSet.getParameter<std::string>("ComponentName");
      theDepositIsolator = MuonIsolatorFactory::get()->create(type, isolatorPSet, consumesCollector());
@@ -62,9 +62,7 @@ HLTMuonIsoFilter::HLTMuonIsoFilter(const edm::ParameterSet& iConfig) : HLTFilter
    if (theDepositIsolator) produces<edm::ValueMap<bool> >();
 }
 
-HLTMuonIsoFilter::~HLTMuonIsoFilter()
-{
-}
+HLTMuonIsoFilter::~HLTMuonIsoFilter() = default;
 
 //
 // member functions

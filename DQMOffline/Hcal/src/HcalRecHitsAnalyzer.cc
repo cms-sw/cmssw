@@ -3,7 +3,9 @@
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
-HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
+HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) 
+  : topFolderName_           ( conf.getParameter<std::string>("TopFolderName") )
+{
 
   // DQM ROOT output
   outputFile_ = conf.getUntrackedParameter<std::string>("outputFile", "myfile.root");
@@ -22,12 +24,17 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
   sign_         = conf.getUntrackedParameter<std::string>("sign", "*");
   //useAllHistos_ = conf.getUntrackedParameter<bool>("useAllHistos", false);
 
+  //HEP17 configuration
+  hep17_        = conf.getUntrackedParameter<bool>("hep17");
+
   //Collections
   tok_hbhe_ = consumes<HBHERecHitCollection>(conf.getUntrackedParameter<edm::InputTag>("HBHERecHitCollectionLabel"));
   tok_hf_  = consumes<HFRecHitCollection>(conf.getUntrackedParameter<edm::InputTag>("HFRecHitCollectionLabel"));
   tok_ho_ = consumes<HORecHitCollection>(conf.getUntrackedParameter<edm::InputTag>("HORecHitCollectionLabel"));
-  tok_EB_ = consumes<EBRecHitCollection>(edm::InputTag("ecalRecHit","EcalRecHitsEB"));
-  tok_EE_ = consumes<EERecHitCollection>(edm::InputTag("ecalRecHit","EcalRecHitsEE"));
+  edm::InputTag EBRecHitCollectionLabel = conf.getParameter<edm::InputTag>("EBRecHitCollectionLabel");
+  tok_EB_ = consumes<EBRecHitCollection>(EBRecHitCollectionLabel);
+  edm::InputTag EERecHitCollectionLabel = conf.getParameter<edm::InputTag>("EERecHitCollectionLabel");
+  tok_EE_ = consumes<EERecHitCollection>(EERecHitCollectionLabel);
 
   subdet_ = 5;
   if (hcalselector_ == "noise") subdet_ = 0;
@@ -108,7 +115,7 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
     ieta_max_ = iEtaMax + 1.5;
     ieta_bins_ = (int) (ieta_max_ - ieta_min_);
 
-    }
+  }
 
  void HcalRecHitsAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & /* iRun*/, edm::EventSetup const & /* iSetup */)
 
@@ -116,7 +123,7 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
 
     Char_t histo[200];
 
-    ibooker.setCurrentFolder("HcalRecHitsD/HcalRecHitTask");
+    ibooker.setCurrentFolder(topFolderName_);
 
     // General counters (drawn)
 
@@ -157,7 +164,7 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
     else {  
       for(int depth = 1; depth <= maxDepthAll_; depth++){
         sprintf  (histo, "emap_depth%d",depth );
-        emap.push_back( ibooker.book2D(histo, histo, 84, -42., 42., 72, 0., 72.) );
+        emap.push_back( ibooker.book2D(histo, histo, ieta_bins_, ieta_min_, ieta_max_, iphi_bins_, iphi_min_, iphi_max_) );
       } 
 
       //The mean energy histos are drawn, but not the RMS or emean seq
@@ -182,6 +189,20 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
 	sprintf  (histo, "emean_vs_ieta_M3_HE%d",depth );
 	emean_vs_ieta_HEM3.push_back( ibooker.bookProfile(histo, histo, ieta_bins_, ieta_min_, ieta_max_, -10., 2000., " ") );
       }
+
+      if(hep17_){
+         for (int depth = 1; depth <= maxDepthHE_; depth++) {
+            sprintf  (histo, "emean_vs_ieta_HEP17_depth%d",depth );
+            emean_vs_ieta_HEP17.push_back( ibooker.bookProfile(histo, histo, ieta_bins_, ieta_min_, ieta_max_, -10., 2000., " ") );
+
+   	    sprintf  (histo, "emean_vs_ieta_M0_HEP17_depth%d",depth );
+	    emean_vs_ieta_HEP17M0.push_back( ibooker.bookProfile(histo, histo, ieta_bins_, ieta_min_, ieta_max_, -10., 2000., " ") );
+
+	    sprintf  (histo, "emean_vs_ieta_M3_HEP17_depth%d",depth );
+	    emean_vs_ieta_HEP17M3.push_back( ibooker.bookProfile(histo, histo, ieta_bins_, ieta_min_, ieta_max_, -10., 2000., " ") );
+         }
+      }
+
       for (int depth = 1; depth <= maxDepthHF_; depth++) {
 	sprintf  (histo, "emean_vs_ieta_HF%d",depth );
 	emean_vs_ieta_HF.push_back( ibooker.bookProfile(histo, histo, ieta_bins_, ieta_min_, ieta_max_, -10., 2000., " ") );
@@ -209,27 +230,34 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
          sprintf  (histo, "occupancy_map_HF%d",depth );
          occupancy_map_HF.push_back( ibooker.book2D(histo, histo, ieta_bins_, ieta_min_, ieta_max_, iphi_bins_, iphi_min_, iphi_max_) );
       }
-
-      //These are drawn
-
+      
+      // nrechits vs iphi
       for (int depth = 1; depth <= maxDepthHB_; depth++) {
-         sprintf  (histo, "occupancy_vs_ieta_HB%d",depth );
-         occupancy_vs_ieta_HB.push_back( ibooker.book1D(histo, histo, ieta_bins_, ieta_min_, ieta_max_) );
+
+         sprintf  (histo, "nrechits_vs_iphi_HBP_d%d",depth );
+         nrechits_vs_iphi_HBP.push_back( ibooker.book1D(histo, histo, iphi_bins_, iphi_min_, iphi_max_) );
+         sprintf  (histo, "nrechits_vs_iphi_HBM_d%d",depth );
+         nrechits_vs_iphi_HBM.push_back( ibooker.book1D(histo, histo, iphi_bins_, iphi_min_, iphi_max_) );
       }
 
       for (int depth = 1; depth <= maxDepthHE_; depth++) {
-         sprintf  (histo, "occupancy_vs_ieta_HE%d",depth );
-         occupancy_vs_ieta_HE.push_back( ibooker.book1D(histo, histo, ieta_bins_, ieta_min_, ieta_max_) );
+         sprintf  (histo, "nrechits_vs_iphi_HEP_d%d",depth );
+         nrechits_vs_iphi_HEP.push_back( ibooker.book1D(histo, histo, iphi_bins_, iphi_min_, iphi_max_) );
+         sprintf  (histo, "nrechits_vs_iphi_HEM_d%d",depth );
+         nrechits_vs_iphi_HEM.push_back( ibooker.book1D(histo, histo, iphi_bins_, iphi_min_, iphi_max_) );
       }
 
-      sprintf  (histo, "occupancy_vs_ieta_HO" );
-      occupancy_vs_ieta_HO = ibooker.book1D(histo, histo, ieta_bins_, ieta_min_, ieta_max_);
+      sprintf  (histo, "nrechits_vs_iphi_HOP" );
+      nrechits_vs_iphi_HOP = ibooker.book1D(histo, histo, iphi_bins_, iphi_min_, iphi_max_);
+      sprintf  (histo, "nrechits_vs_iphi_HOM" );
+      nrechits_vs_iphi_HOM = ibooker.book1D(histo, histo, iphi_bins_, iphi_min_, iphi_max_);
 
       for (int depth = 1; depth <= maxDepthHF_; depth++) {
-         sprintf  (histo, "occupancy_vs_ieta_HF%d",depth );
-         occupancy_vs_ieta_HF.push_back( ibooker.book1D(histo, histo, ieta_bins_, ieta_min_, ieta_max_) );
+         sprintf  (histo, "nrechits_vs_iphi_HFP_d%d",depth );
+         nrechits_vs_iphi_HFP.push_back( ibooker.book1D(histo, histo, iphi_bins_, iphi_min_, iphi_max_) );
+         sprintf  (histo, "nrechits_vs_iphi_HFM_d%d",depth );
+         nrechits_vs_iphi_HFM.push_back( ibooker.book1D(histo, histo, iphi_bins_, iphi_min_, iphi_max_) );
       }
-
 
       //All status word histos except HF67 are drawn
       sprintf (histo, "HcalRecHitTask_RecHit_StatusWord_HB" ) ;
@@ -297,7 +325,7 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
       
       sprintf (histo, "HcalRecHitTask_energy_of_rechits_M3_HB" ) ;
       meRecHitsEnergyHBM3 = ibooker.book1D(histo, histo, 2010 , -10. , 2000.); 
-      
+
       sprintf (histo, "HcalRecHitTask_energy_of_rechits_M2vM0_HB" ) ;
       meRecHitsEnergyM2vM0HB = ibooker.book2D(histo, histo, 42 , -10. , 200., 42, -10., 200.); 
       
@@ -354,13 +382,34 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
       sprintf (histo, "HcalRecHitTask_energy_of_rechits_M3_HE" ) ;
       meRecHitsEnergyHEM3 = ibooker.book1D(histo, histo, 2010, -10., 2000.);
       
+      if(hep17_){
+         sprintf (histo, "HcalRecHitTask_energy_of_rechits_HEP17" ) ;
+         meRecHitsEnergyHEP17.push_back(ibooker.book1D(histo, histo, 2010 , -10. , 2000.)); 
+      
+         sprintf (histo, "HcalRecHitTask_energy_of_rechits_M0_HEP17" ) ;
+         meRecHitsEnergyHEP17M0.push_back(ibooker.book1D(histo, histo, 2010 , -10. , 2000.)); 
+      
+         sprintf (histo, "HcalRecHitTask_energy_of_rechits_M3_HEP17" ) ;
+         meRecHitsEnergyHEP17M3.push_back(ibooker.book1D(histo, histo, 2010 , -10. , 2000.)); 
+         for (int depth = 1; depth <= maxDepthHE_; depth++) {
+            sprintf (histo, "HcalRecHitTask_energy_of_rechits_HEP17_depth%d",depth ) ;
+            meRecHitsEnergyHEP17.push_back(ibooker.book1D(histo, histo, 2010 , -10. , 2000.)); 
+      
+            sprintf (histo, "HcalRecHitTask_energy_of_rechits_M0_HEP17_depth%d",depth ) ;
+            meRecHitsEnergyHEP17M0.push_back(ibooker.book1D(histo, histo, 2010 , -10. , 2000.)); 
+      
+            sprintf (histo, "HcalRecHitTask_energy_of_rechits_M3_HEP17_depth%d",depth ) ;
+            meRecHitsEnergyHEP17M3.push_back(ibooker.book1D(histo, histo, 2010 , -10. , 2000.)); 
+         }
+      }
+
       sprintf (histo, "HcalRecHitTask_energy_of_rechits_M2vM0_HE" ) ;
       meRecHitsEnergyM2vM0HE = ibooker.book2D(histo, histo, 42 , -10. , 200., 42, -10., 200.); 
       
       sprintf (histo, "HcalRecHitTask_energy_of_rechits_M3vM0_HE" ) ;
       meRecHitsEnergyM3vM0HE = ibooker.book2D(histo, histo, 42 , -10. , 200., 42, -10., 200.); 
       
-      sprintf (histo, "HcalRecHitTask_energy_of_rechits_M2vM0_HE" ) ;
+      sprintf (histo, "HcalRecHitTask_energy_of_rechits_M3vM2_HE" ) ;
       meRecHitsEnergyM3vM2HE = ibooker.book2D(histo, histo, 42 , -10. , 200., 42, -10., 200.); 
       
       sprintf (histo, "HcalRecHitTask_M2Log10Chi2_of_rechits_HE" ) ;
@@ -525,38 +574,29 @@ void HcalRecHitsAnalyzer::analyze(edm::Event const& ev, edm::EventSetup const& c
 
   // ECAL 
   if(ecalselector_ == "yes" && (subdet_ == 1 || subdet_ == 2 || subdet_ == 5)) {
+
     Handle<EBRecHitCollection> rhitEB;
-
-
-      ev.getByToken(tok_EB_, rhitEB);
-
-    EcalRecHitCollection::const_iterator RecHit = rhitEB.product()->begin();  
-    EcalRecHitCollection::const_iterator RecHitEnd = rhitEB.product()->end();  
-    
-    for (; RecHit != RecHitEnd ; ++RecHit) {
-       
-      double en  = RecHit->energy();
-      eEcal  += en;
-      eEcalB += en;
-
-
+    if ( ev.getByToken(tok_EB_, rhitEB) ) {
+      
+      for ( const auto & recHit : *(rhitEB.product()) ) {
+	
+	double en  = recHit.energy();
+	eEcal  += en;
+	eEcalB += en;
+      }      
     }
-
+  
     
     Handle<EERecHitCollection> rhitEE;
- 
-      ev.getByToken(tok_EE_, rhitEE);
-
-    RecHit = rhitEE.product()->begin();  
-    RecHitEnd = rhitEE.product()->end();  
+    if ( ev.getByToken(tok_EE_, rhitEE) ) {
     
-    for (; RecHit != RecHitEnd ; ++RecHit) {
-      
-      double en   = RecHit->energy();
-      eEcal  += en;
-      eEcalE += en;
-
-
+      for ( const auto & recHit : *(rhitEE.product()) ) {
+	
+	double en   = recHit.energy();
+	eEcal  += en;
+	eEcalE += en;
+	
+      }
     }
   }     // end of ECAL selection 
 
@@ -584,6 +624,9 @@ void HcalRecHitsAnalyzer::analyze(edm::Event const& ev, edm::EventSetup const& c
     uint32_t stwd = cstwd[i];
     uint32_t auxstwd = cauxstwd[i];
     //    double z   = cz[i];
+
+    //This will be true if hep17 == "yes" and the rechit is in the hep17 wedge
+    bool isHEP17 = (sub == 2) && (iphi >= 63) && (iphi <= 66) && (ieta > 0) && (hep17_);
 
     //Make sure that an invalid depth won't cause an error. We should probably report the problem as well.
     if( depth < 1 ) continue;
@@ -624,20 +667,34 @@ void HcalRecHitsAnalyzer::analyze(edm::Event const& ev, edm::EventSetup const& c
 	 emean_vs_ieta_HBM0[depth-1]->Fill(double(ieta), enM0);
 	 emean_vs_ieta_HBM3[depth-1]->Fill(double(ieta), enM3);
 	 occupancy_map_HB[depth-1]->Fill(double(ieta),double(iphi));
+	 if (ieta>0) nrechits_vs_iphi_HBP[depth-1]->Fill(double(iphi));
+	 else        nrechits_vs_iphi_HBM[depth-1]->Fill(double(iphi));
       }
       if ( sub == 2){
-	 emean_vs_ieta_HE[depth-1]->Fill(double(ieta), en);
-	 emean_vs_ieta_HEM0[depth-1]->Fill(double(ieta), enM0);
-	 emean_vs_ieta_HEM3[depth-1]->Fill(double(ieta), enM3);
+	 if(!isHEP17){
+	    emean_vs_ieta_HE[depth-1]->Fill(double(ieta), en);
+	    emean_vs_ieta_HEM0[depth-1]->Fill(double(ieta), enM0);
+	    emean_vs_ieta_HEM3[depth-1]->Fill(double(ieta), enM3);
+         }else{
+	    emean_vs_ieta_HEP17[depth-1]->Fill(double(ieta), en);
+	    emean_vs_ieta_HEP17M0[depth-1]->Fill(double(ieta), enM0);
+	    emean_vs_ieta_HEP17M3[depth-1]->Fill(double(ieta), enM3);
+         }
 	 occupancy_map_HE[depth-1]->Fill(double(ieta),double(iphi));
+	 if (ieta>0) nrechits_vs_iphi_HEP[depth-1]->Fill(double(iphi));
+	 else        nrechits_vs_iphi_HEM[depth-1]->Fill(double(iphi));
       }
       if ( sub == 3){
 	 emean_vs_ieta_HO->Fill(double(ieta), en);
 	 occupancy_map_HO->Fill(double(ieta),double(iphi));
+	 if (ieta>0) nrechits_vs_iphi_HOP->Fill(double(iphi));
+	 else        nrechits_vs_iphi_HOM->Fill(double(iphi));
       }
       if ( sub == 4){
 	 emean_vs_ieta_HF[depth-1]->Fill(double(ieta), en);
 	 occupancy_map_HF[depth-1]->Fill(double(ieta),double(iphi));
+	 if (ieta>0) nrechits_vs_iphi_HFP[depth-1]->Fill(double(iphi));
+	 else        nrechits_vs_iphi_HFM[depth-1]->Fill(double(iphi));
       }
     }
 
@@ -725,11 +782,17 @@ void HcalRecHitsAnalyzer::analyze(edm::Event const& ev, edm::EventSetup const& c
       int sub    = csub[i];
       double eta = ceta[i]; 
       double phi = cphi[i]; 
+      double ieta = cieta[i]; 
+      double iphi = ciphi[i]; 
       double en  = cen[i]; 
       double enM0  = cenM0[i]; 
       double enM3  = cenM3[i]; 
       double chi2  = cchi2[i];
       double t   = ctime[i];
+      double depth = cdepth[i];
+
+      bool isHEP17 = (sub == 2) && (iphi >= 63) && (iphi <= 66) && (ieta > 0) && (hep17_);
+
 //       int   ieta = cieta[i];
 
       double rhot = dR(etaHot, phiHot, eta, phi); 
@@ -768,9 +831,18 @@ void HcalRecHitsAnalyzer::analyze(edm::Event const& ev, edm::EventSetup const& c
       }     
       if(sub == 2 && (subdet_ == 2 || subdet_ == 5)) {  
 	meTimeHE->Fill(t);
-	meRecHitsEnergyHE->Fill(en);
-	meRecHitsEnergyHEM0->Fill(enM0);
-	meRecHitsEnergyHEM3->Fill(enM3);
+        if(!isHEP17){
+	   meRecHitsEnergyHE->Fill(en);
+	   meRecHitsEnergyHEM0->Fill(enM0);
+	   meRecHitsEnergyHEM3->Fill(enM3);
+        }else{
+	   meRecHitsEnergyHEP17[0]->Fill(en);
+	   meRecHitsEnergyHEP17M0[0]->Fill(enM0);
+	   meRecHitsEnergyHEP17M3[0]->Fill(enM3);
+	   meRecHitsEnergyHEP17[depth]->Fill(en);
+	   meRecHitsEnergyHEP17M0[depth]->Fill(enM0);
+	   meRecHitsEnergyHEP17M3[depth]->Fill(enM3);
+        }
 
         meRecHitsEnergyM2vM0HE->Fill(enM0,en);
         meRecHitsEnergyM3vM0HE->Fill(enM0,enM3);
@@ -851,101 +923,103 @@ void HcalRecHitsAnalyzer::fillRecHitsTmp(int subdet_, edm::Event const& ev){
     
     //HBHE
     edm::Handle<HBHERecHitCollection> hbhecoll;
-    ev.getByToken(tok_hbhe_, hbhecoll);
+    if ( ev.getByToken(tok_hbhe_, hbhecoll) ) {
     
-    for (HBHERecHitCollection::const_iterator j=hbhecoll->begin(); j != hbhecoll->end(); j++) {
-      HcalDetId cell(j->id());
-      const HcalGeometry* cellGeometry = 
-	(HcalGeometry*)(geometry->getSubdetectorGeometry(cell));
-      double eta  = cellGeometry->getPosition(cell).eta () ;
-      double phi  = cellGeometry->getPosition(cell).phi () ;
-      double zc   = cellGeometry->getPosition(cell).z ();
-      int sub     = cell.subdet();
-      int depth   = cell.depth();
-      int inteta  = cell.ieta();
-      int intphi  = cell.iphi();
-      double en   = j->energy();
-      double enM0 = j->eraw();
-      double enM3 = j->eaux();
-      double chi2 = j->chi2();
-      double t    = j->time();
-      int stwd    = j->flags();
-      int auxstwd = j->aux();
-      
-      int severityLevel = hcalSevLvl( (CaloRecHit*) &*j );
-      if( cell.subdet()==HcalBarrel ){
-         hcalHBSevLvlVec.push_back(severityLevel);
-      }else if (cell.subdet()==HcalEndcap ){
-         hcalHESevLvlVec.push_back(severityLevel);
-      } 
-      
-      if((iz > 0 && eta > 0.) || (iz < 0 && eta <0.) || iz == 0) { 
+      for (HBHERecHitCollection::const_iterator j=hbhecoll->begin(); j != hbhecoll->end(); j++) {
+	HcalDetId cell(j->id());
+	const HcalGeometry* cellGeometry = 
+	  (HcalGeometry*)(geometry->getSubdetectorGeometry(cell));
+	double eta  = cellGeometry->getPosition(cell).eta () ;
+	double phi  = cellGeometry->getPosition(cell).phi () ;
+	double zc   = cellGeometry->getPosition(cell).z ();
+	int sub     = cell.subdet();
+	int depth   = cell.depth();
+	int inteta  = cell.ieta();
+	int intphi  = cell.iphi();
+	double en   = j->energy();
+	double enM0 = j->eraw();
+	double enM3 = j->eaux();
+	double chi2 = j->chi2();
+	double t    = j->time();
+	int stwd    = j->flags();
+	int auxstwd = j->aux();
 	
-	csub.push_back(sub);
-	cen.push_back(en);
-	cenM0.push_back(enM0);
-	cenM3.push_back(enM3);
-        cchi2.push_back(chi2);
-	ceta.push_back(eta);
-	cphi.push_back(phi);
-	ctime.push_back(t);
-	cieta.push_back(inteta);
-	ciphi.push_back(intphi);
-	cdepth.push_back(depth);
-	cz.push_back(zc);
-	cstwd.push_back(stwd);
-        cauxstwd.push_back(auxstwd);
+	int severityLevel = hcalSevLvl( (CaloRecHit*) &*j );
+	if( cell.subdet()==HcalBarrel ){
+	  hcalHBSevLvlVec.push_back(severityLevel);
+	}else if (cell.subdet()==HcalEndcap ){
+	  hcalHESevLvlVec.push_back(severityLevel);
+	} 
+	
+	if((iz > 0 && eta > 0.) || (iz < 0 && eta <0.) || iz == 0) { 
+	  
+	  csub.push_back(sub);
+	  cen.push_back(en);
+	  cenM0.push_back(enM0);
+	  cenM3.push_back(enM3);
+	  cchi2.push_back(chi2);
+	  ceta.push_back(eta);
+	  cphi.push_back(phi);
+	  ctime.push_back(t);
+	  cieta.push_back(inteta);
+	  ciphi.push_back(intphi);
+	  cdepth.push_back(depth);
+	  cz.push_back(zc);
+	  cstwd.push_back(stwd);
+	  cauxstwd.push_back(auxstwd);
+	}
       }
+      
     }
-    
   }
 
   if( subdet_ == 4 || subdet_ == 5 || subdet_ == 6 || subdet_ == 0) {
 
     //HF
     edm::Handle<HFRecHitCollection> hfcoll;
-    ev.getByToken(tok_hf_, hfcoll);
-
-    for (HFRecHitCollection::const_iterator j = hfcoll->begin(); j != hfcoll->end(); j++) {
-      HcalDetId cell(j->id());
-      const CaloCellGeometry* cellGeometry =
-	geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
-      double eta   = cellGeometry->getPosition().eta () ;
-      double phi   = cellGeometry->getPosition().phi () ;
-      double zc     = cellGeometry->getPosition().z ();
-      int sub      = cell.subdet();
-      int depth    = cell.depth();
-      int inteta   = cell.ieta();
-      int intphi   = cell.iphi();
-      double en    = j->energy();
-      double enM0  = 0.;
-      double enM3  = 0.;
-      double chi2  = 0.;
-      double t     = j->time();
-      int stwd     = j->flags();
-      int auxstwd  = j->aux();
-
-      int severityLevel = hcalSevLvl( (CaloRecHit*) &*j );
-      if( cell.subdet()==HcalForward ){
-         hcalHFSevLvlVec.push_back(severityLevel);
-      } 
-
-      if((iz > 0 && eta > 0.) || (iz < 0 && eta <0.) || iz == 0) { 
+    if ( ev.getByToken(tok_hf_, hfcoll) ) {
+      
+      for (HFRecHitCollection::const_iterator j = hfcoll->begin(); j != hfcoll->end(); j++) {
+	HcalDetId cell(j->id());
+	const CaloCellGeometry* cellGeometry =
+	  geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
+	double eta   = cellGeometry->getPosition().eta () ;
+	double phi   = cellGeometry->getPosition().phi () ;
+	double zc     = cellGeometry->getPosition().z ();
+	int sub      = cell.subdet();
+	int depth    = cell.depth();
+	int inteta   = cell.ieta();
+	int intphi   = cell.iphi();
+	double en    = j->energy();
+	double enM0  = 0.;
+	double enM3  = 0.;
+	double chi2  = 0.;
+	double t     = j->time();
+	int stwd     = j->flags();
+	int auxstwd  = j->aux();
 	
-	csub.push_back(sub);
-	cen.push_back(en);
-	cenM0.push_back(enM0);
-	cenM3.push_back(enM3);
-        cchi2.push_back(chi2);
-	ceta.push_back(eta);
-	cphi.push_back(phi);
-	ctime.push_back(t);
-	cieta.push_back(inteta);
-	ciphi.push_back(intphi);
-	cdepth.push_back(depth);
-	cz.push_back(zc);
-	cstwd.push_back(stwd);
-        cauxstwd.push_back(auxstwd);
+	int severityLevel = hcalSevLvl( (CaloRecHit*) &*j );
+	if( cell.subdet()==HcalForward ){
+	  hcalHFSevLvlVec.push_back(severityLevel);
+	} 
+	
+	if((iz > 0 && eta > 0.) || (iz < 0 && eta <0.) || iz == 0) { 
+	  
+	  csub.push_back(sub);
+	  cen.push_back(en);
+	  cenM0.push_back(enM0);
+	  cenM3.push_back(enM3);
+	  cchi2.push_back(chi2);
+	  ceta.push_back(eta);
+	  cphi.push_back(phi);
+	  ctime.push_back(t);
+	  cieta.push_back(inteta);
+	  ciphi.push_back(intphi);
+	  cdepth.push_back(depth);
+	  cz.push_back(zc);
+	  cstwd.push_back(stwd);
+	  cauxstwd.push_back(auxstwd);
+	}
       }
     }
   }
@@ -954,47 +1028,48 @@ void HcalRecHitsAnalyzer::fillRecHitsTmp(int subdet_, edm::Event const& ev){
   if( subdet_ == 3 || subdet_ == 5 || subdet_ == 6 || subdet_ == 0) {
   
     edm::Handle<HORecHitCollection> hocoll;
-    ev.getByToken(tok_ho_, hocoll);
-    
-    for (HORecHitCollection::const_iterator j = hocoll->begin(); j != hocoll->end(); j++) {
-      HcalDetId cell(j->id());
-      const CaloCellGeometry* cellGeometry =
-	geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
-      double eta   = cellGeometry->getPosition().eta () ;
-      double phi   = cellGeometry->getPosition().phi () ;
-      double zc    = cellGeometry->getPosition().z ();
-      int sub      = cell.subdet();
-      int depth    = cell.depth();
-      int inteta   = cell.ieta();
-      int intphi   = cell.iphi();
-      double t     = j->time();
-      double en    = j->energy();
-      double enM0  = 0.;
-      double enM3  = 0.;
-      double chi2 = 0.;
-      int stwd     = j->flags();
-      int auxstwd  = j->aux();
-
-      int severityLevel = hcalSevLvl( (CaloRecHit*) &*j );
-      if( cell.subdet()==HcalOuter ){
-         hcalHOSevLvlVec.push_back(severityLevel);
-      } 
+    if ( ev.getByToken(tok_ho_, hocoll) ) {
       
-      if((iz > 0 && eta > 0.) || (iz < 0 && eta <0.) || iz == 0) { 
-	csub.push_back(sub);
-	cen.push_back(en);
-	cenM0.push_back(enM0);
-	cenM3.push_back(enM3);
-        cchi2.push_back(chi2);
-	ceta.push_back(eta);
-	cphi.push_back(phi);
-	ctime.push_back(t);
-	cieta.push_back(inteta);
-	ciphi.push_back(intphi);
-	cdepth.push_back(depth);
-	cz.push_back(zc);
-	cstwd.push_back(stwd);
-        cauxstwd.push_back(auxstwd);
+      for (HORecHitCollection::const_iterator j = hocoll->begin(); j != hocoll->end(); j++) {
+	HcalDetId cell(j->id());
+	const CaloCellGeometry* cellGeometry =
+	  geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
+	double eta   = cellGeometry->getPosition().eta () ;
+	double phi   = cellGeometry->getPosition().phi () ;
+	double zc    = cellGeometry->getPosition().z ();
+	int sub      = cell.subdet();
+	int depth    = cell.depth();
+	int inteta   = cell.ieta();
+	int intphi   = cell.iphi();
+	double t     = j->time();
+	double en    = j->energy();
+	double enM0  = 0.;
+	double enM3  = 0.;
+	double chi2 = 0.;
+	int stwd     = j->flags();
+	int auxstwd  = j->aux();
+	
+	int severityLevel = hcalSevLvl( (CaloRecHit*) &*j );
+	if( cell.subdet()==HcalOuter ){
+	  hcalHOSevLvlVec.push_back(severityLevel);
+	} 
+	
+	if((iz > 0 && eta > 0.) || (iz < 0 && eta <0.) || iz == 0) { 
+	  csub.push_back(sub);
+	  cen.push_back(en);
+	  cenM0.push_back(enM0);
+	  cenM3.push_back(enM3);
+	  cchi2.push_back(chi2);
+	  ceta.push_back(eta);
+	  cphi.push_back(phi);
+	  ctime.push_back(t);
+	  cieta.push_back(inteta);
+	  ciphi.push_back(intphi);
+	  cdepth.push_back(depth);
+	  cz.push_back(zc);
+	  cstwd.push_back(stwd);
+	  cauxstwd.push_back(auxstwd);
+	}
       }
     }
   }

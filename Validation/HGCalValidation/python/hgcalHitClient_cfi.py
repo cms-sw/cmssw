@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-hgcalHitClient = cms.EDAnalyzer("HGCalHitClient", 
+hgcalHitClient = DQMEDHarvester("HGCalHitClient", 
                                 DirectoryName = cms.string("HitValidation"),
                                 )

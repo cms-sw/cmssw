@@ -8,24 +8,28 @@
   <Constant name="rMaxCoarse" value="2000.0*cm"/>
   <Constant name="rMin"       value="[hgcal:rminHE]"/>
   <Constant name="rMax"       value="[hgcal:rmaxHE]"/>
+  <Constant name="absorbW"    value="1.5*[hgcal:WaferW]"/>
+  <Constant name="absorbH"    value="1.5*[hgcal:WaferW]"/>
 </ConstantsSection>
 
 <PosPartSection label="hgcalHE.xml">
-  <Algorithm name="hgcal:DDHGCalModuleAlgo">
+  <Algorithm name="hgcal:DDHGCalTBModule">
     <rParent name="hgcal:HGCalHE"/>
     <Vector name="WaferName" type="string" nEntries="2">
       hgcalwafer:HGCalHEWaferFine, hgcalwafer:HGCalHEWaferCoarse</Vector>
-    <Vector name="MaterialNames" type="string" nEntries="9">
-      materials:StainlessSteel, materials:G10, materials:Copper, 
-      materials:Copper, materials:Silicon, materials:Kapton, materials:Air,
-      materials:StainlessSteel, materials:Air</Vector>
-    <Vector name="VolumeNames" type="string" nEntries="9">
-      HESiliconAbsorber1, HEPCB1, HESiliconShield, HESiliconHeatShield, 
-      HESiliconSensitive, HESiliconPCB, HESiliconAirGap, HESiliconSupport, 
-      HEThermalGap</Vector>
-    <Vector name="Thickness" type="numeric" nEntries="9">
-      40.0*mm, 1.6*mm, 1.2*mm, 6.0*mm, 0.1*mm, 0.01*mm, 6.89*mm, 10.0*mm,
-      6.0*mm</Vector>
+    <Vector name="CoverName" type="string" nEntries="3">
+      hgcal:HGCalHEPCB, hgcal:HGCalHEKapton, hgcal:HGCalHEAbsorber</Vector>
+    <Vector name="MaterialNames" type="string" nEntries="8">
+      materials:StainlessSteel, materials:Air, materials:Air, 
+      materials:Copper, materials:Air, materials:Air, materials:Air,
+      materials:StainlessSteel</Vector>
+    <Vector name="VolumeNames" type="string" nEntries="8">
+      HESiliconAbsorber1, HESiliconPCB1, HESiliconShield1, HESiliconHeatShield, 
+      HESiliconSensitive, HESiliconKapton1, HESiliconAirGap, 
+      HESiliconSupport</Vector>
+    <Vector name="Thickness" type="numeric" nEntries="8">
+      40.0*mm, [hgcal:thPCB], [hgcal:thAbsHE], 6.0*mm, 0.1*mm, [hgcal:thKapton],
+      6.89*mm, 10.0*mm</Vector>
     <Vector name="Layers" type="numeric" nEntries="7"> 
       1, 9, 9, 9, 9, 9, 7</Vector>
     <Vector name="LayerThick" type="numeric" nEntries="7"> 
@@ -38,14 +42,16 @@
     </Vector>
     <Vector name="LayerSense" type="numeric" nEntries="53">
       0,
-      0, 0, 0, 1, 1, 1, 0, 0, 0,  0, 0, 0, 1, 1, 1, 0, 0, 0,
-      0, 0, 0, 1, 1, 1, 0, 0, 0,  0, 0, 0, 1, 1, 1, 0, 0, 0,
-      0, 0, 0, 1, 1, 1, 0, 0, 0,  0, 0, 0, 1, 1, 1, 0
+      0, 4, 3, 1, 1, 1, 2, 0, 0,  0, 4, 3, 1, 1, 1, 2, 0, 0,
+      0, 4, 3, 1, 1, 1, 2, 0, 0,  0, 4, 3, 1, 1, 1, 2, 0, 0,
+      0, 4, 3, 1, 1, 1, 2, 0, 0,  0, 4, 3, 1, 1, 1, 2
     </Vector>
     <Numeric name="zMinBlock"   value="[hgcal:zminHE]"/>
     <Numeric name="rMaxFine"    value="[rMaxFine]"/>
     <Numeric name="waferW"      value="[hgcal:WaferW]"/>
     <Numeric name="waferGap"    value="1.0*mm"/>
+    <Numeric name="absorberW"   value="[hgcalHE:absorbW]"/>
+    <Numeric name="absorberH"   value="[hgcalHE:absorbH]"/>
     <Numeric name="Sectors"     value="12"/>
     <Vector name="SlopeBottom" type="numeric" nEntries="2">
       0.0, 0.0</Vector>

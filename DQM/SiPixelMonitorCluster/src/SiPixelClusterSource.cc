@@ -425,8 +425,8 @@ void SiPixelClusterSource::bookMEs(DQMStore::IBooker & iBooker, const edm::Event
 
 }
 
-void SiPixelClusterSource::getrococcupancy(DetId detId,const edm::DetSetVector<PixelDigi> diginp,const TrackerTopology* const tTopo,
-					   std::vector<MonitorElement*> meinput) {
+void SiPixelClusterSource::getrococcupancy(DetId detId,const edm::DetSetVector<PixelDigi> & diginp,const TrackerTopology* const tTopo,
+					   std::vector<MonitorElement*> const & meinput) {
   
   edm::DetSetVector<PixelDigi>::const_iterator ipxsearch = diginp.find(detId);
   if( ipxsearch != diginp.end() ) {

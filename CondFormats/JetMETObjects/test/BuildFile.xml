@@ -1,3 +1,8 @@
 <bin file="testSerializationJetMETObjects.cpp">
-    <use   name="CondFormats/JetMETObjects"/>
+    <use name="CondFormats/JetMETObjects"/>
+</bin>
+<bin name="TestCondFormatsJetMETObjectsJetCorrectorParameters" file="JetCorrectorParameters_t.cpp">
+     <use name="FWCore/ParameterSet"/>
+     <use name="CondFormats/JetMETObjects"/>
+     <use name="cppunit"/>
 </bin>

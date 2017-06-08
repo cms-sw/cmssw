@@ -58,6 +58,7 @@
 namespace {
 class CumulatorBase {
  public:
+  virtual ~CumulatorBase()  = default;
   virtual void cumulate(int lumi_section) = 0;
   virtual void finalizeCumulate() = 0;
 };

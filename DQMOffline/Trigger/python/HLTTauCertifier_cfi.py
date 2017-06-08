@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-hltTauOfflineCertification = cms.EDAnalyzer("HLTTauCertifier",
+hltTauOfflineCertification = DQMEDHarvester("HLTTauCertifier",
                                    targetDir = cms.string("HLT/EventInfo/reportSummaryContents"),
                                    targetME  = cms.string("HLT_Tau"),
                                    inputMEs = cms.vstring(

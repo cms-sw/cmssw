@@ -1,6 +1,8 @@
 #ifndef DataFormats_Phase2TrackerDigi_Phase2TrackerCommissioningDigi_H
 #define DataFormats_Phase2TrackerDigi_Phase2TrackerCommissioningDigi_H
 
+#include <cstdint>
+
 class Phase2TrackerCommissioningDigi
 {
   public:

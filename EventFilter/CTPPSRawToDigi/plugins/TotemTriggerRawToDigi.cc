@@ -93,7 +93,7 @@ int TotemTriggerRawToDigi::ProcessLoneGFrame(uint64_t *oBuf, unsigned long size,
 {
   if (size != 20)
   {
-    LogProblem("Totem") << "Error in TotemTriggerRawToDigi::ProcessLoneGFrame > " <<
+    LogError("Totem") << "Error in TotemTriggerRawToDigi::ProcessLoneGFrame > " <<
       "Wrong LoneG frame size: " << size << " (shall be 20)." << endl;
     return 1;
   }

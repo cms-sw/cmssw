@@ -16,15 +16,9 @@ typedef double VECTOR_EXT( 16 ) cms_float64x2_t;
 typedef double VECTOR_EXT( 32 ) cms_float64x4_t;
 typedef double VECTOR_EXT( 64 ) cms_float64x8_t;
 
-// Enable only for AArch64 for now as this would ICE GCC on
-// x86_64.
-// XXX: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=65486
-// XXX: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=65491
-#if defined(__aarch64__) || defined(__powerpc64__) || defined(__PPC64__) || defined(__powerpc__)
 typedef long double VECTOR_EXT( 32 ) cms_float128x2_t;
 typedef long double VECTOR_EXT( 64 ) cms_float128x4_t;
 typedef long double VECTOR_EXT( 128 ) cms_float128x8_t;
-#endif
 
 // template<typename T, int N> using ExtVec =  T __attribute__( ( vector_size( N*sizeof(T) ) ) );
 
@@ -53,11 +47,6 @@ struct ExtVecTraits<double, 4> {
   typedef double VECTOR_EXT( 4*sizeof(double) ) type;
 };
 
-// Enable only for AArch64 for now as this would ICE GCC on
-// x86_64.
-// XXX: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=65486
-// XXX: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=65491
-#if defined(__aarch64__) || defined(__powerpc64__) || defined(__PPC64__) || defined(__powerpc__)
 template<>
 struct ExtVecTraits<long double, 2> {
   typedef long double VECTOR_EXT( 2*sizeof(long double) ) type;
@@ -67,7 +56,6 @@ template<>
 struct ExtVecTraits<long double, 4> {
   typedef long double VECTOR_EXT( 4*sizeof(long double) ) type;
 };
-#endif
 
 template<typename T, int N> using ExtVec =  typename ExtVecTraits<T,N>::type;
 

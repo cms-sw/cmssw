@@ -6,13 +6,14 @@
  */
 
 #include <string>
-class TFile;
+#include <memory>
 class TH2F;
 
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 class dso_hidden SumX0AtEtaDataProvider{ 
 public: virtual float sumX0atEta(float eta, float r) const = 0; 
+        virtual ~SumX0AtEtaDataProvider() {}
 }; 
 
 class dso_hidden MultipleScatteringX0Data : public SumX0AtEtaDataProvider {
@@ -28,8 +29,7 @@ public:
 private:
   std::string fileName();
 
-   TFile * theFile;
-   TH2F  * theData;
+  std::unique_ptr<TH2F> theData;
 };
 
 #endif

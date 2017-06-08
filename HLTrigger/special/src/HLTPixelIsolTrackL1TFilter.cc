@@ -27,7 +27,7 @@ HLTPixelIsolTrackL1TFilter::HLTPixelIsolTrackL1TFilter(const edm::ParameterSet& 
   hltGTseedToken_ = consumes<trigger::TriggerFilterObjectWithRefs>(hltGTseedlabel_);
 }
 
-HLTPixelIsolTrackL1TFilter::~HLTPixelIsolTrackL1TFilter(){}
+HLTPixelIsolTrackL1TFilter::~HLTPixelIsolTrackL1TFilter()= default;
 
 
 void

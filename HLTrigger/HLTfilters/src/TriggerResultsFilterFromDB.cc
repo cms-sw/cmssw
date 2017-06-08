@@ -33,7 +33,7 @@
 TriggerResultsFilterFromDB::TriggerResultsFilterFromDB(const edm::ParameterSet & config) :
   m_eventSetupPathsKey(config.getParameter<std::string>("eventSetupPathsKey")),
   m_eventSetupWatcher(),
-  m_expression(0),
+  m_expression(nullptr),
   m_eventCache(config, consumesCollector())
 {
 }
@@ -97,7 +97,7 @@ void TriggerResultsFilterFromDB::pathsFromSetup(const edm::Event & event, const 
   typedef std::map<std::string, std::string> TriggerMap;
   const TriggerMap & triggerMap = triggerBits->m_alcarecoToTrig;
 
-  TriggerMap::const_iterator listIter = triggerMap.find(m_eventSetupPathsKey);
+  auto listIter = triggerMap.find(m_eventSetupPathsKey);
   if (listIter == triggerMap.end()) {
     throw cms::Exception("Configuration") << "TriggerResultsFilterFromDB [instance: " << moduleDescription().moduleLabel()
                                           << "]: No triggerList with key " << m_eventSetupPathsKey << " in AlCaRecoTriggerBitsRcd";

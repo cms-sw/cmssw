@@ -61,7 +61,6 @@ class RawFile {
  private:
 
   FILE* inputFile;
-  bool  rfioFlag;
   bool  xrootdFlag;
 };
 #endif

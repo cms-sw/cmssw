@@ -50,7 +50,7 @@ HLTElectronOneOEMinusOneOPFilterRegional::fillDescriptions(edm::ConfigurationDes
   descriptions.add("hltElectronOneOEMinusOneOPFilterRegional",desc);
 }
 
-HLTElectronOneOEMinusOneOPFilterRegional::~HLTElectronOneOEMinusOneOPFilterRegional(){}
+HLTElectronOneOEMinusOneOPFilterRegional::~HLTElectronOneOEMinusOneOPFilterRegional()= default;
 
 
 // ------------ method called to produce the data  ------------
@@ -91,11 +91,11 @@ HLTElectronOneOEMinusOneOPFilterRegional::hltFilter(edm::Event& iEvent, const ed
     // selections
 
   edm::RefToBase<reco::Candidate> candref;
-  for (unsigned int i=0; i<recoecalcands.size(); i++) {
+  for (auto & recoecalcand : recoecalcands) {
 
-    reco::SuperClusterRef recr2 = recoecalcands[i]->superCluster();
+    reco::SuperClusterRef recr2 = recoecalcand->superCluster();
     //loop over the electrons to find the matching one
-    for(reco::ElectronCollection::const_iterator iElectron = electronIsolatedHandle->begin(); iElectron != electronIsolatedHandle->end(); iElectron++){
+    for(auto iElectron = electronIsolatedHandle->begin(); iElectron != electronIsolatedHandle->end(); iElectron++){
       // ElectronRef is a Ref<reco::RecoEcalCandidateCollection>
       reco::ElectronRef electronref(reco::ElectronRef(electronIsolatedHandle,iElectron - electronIsolatedHandle->begin()));
       const reco::SuperClusterRef theClus = electronref->superCluster();
@@ -123,7 +123,7 @@ HLTElectronOneOEMinusOneOPFilterRegional::hltFilter(edm::Event& iEvent, const ed
 
     if(!doIsolated_) {
     //loop over the electrons to find the matching one
-    for(reco::ElectronCollection::const_iterator iElectron = electronNonIsolatedHandle->begin(); iElectron != electronNonIsolatedHandle->end(); iElectron++){
+    for(auto iElectron = electronNonIsolatedHandle->begin(); iElectron != electronNonIsolatedHandle->end(); iElectron++){
 
       reco::ElectronRef electronref(reco::ElectronRef(electronNonIsolatedHandle,iElectron - electronNonIsolatedHandle->begin()));
       const reco::SuperClusterRef theClus = electronref->superCluster();

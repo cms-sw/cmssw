@@ -15,32 +15,33 @@
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "CommonTools/Utils/interface/StringToEnumValue.h"
 #include <iostream>
-#include <sstream>
+#include <string>
 
 ECALpedestalPCLHarvester::ECALpedestalPCLHarvester(const edm::ParameterSet& ps):
     currentPedestals_(0),channelStatus_(0){
 
     chStatusToExclude_= StringToEnumValue<EcalChannelStatusCode::Code>(ps.getParameter<std::vector<std::string> >("ChannelStatusToExclude"));
     minEntries_=ps.getParameter<int>("MinEntries");
-
+    checkAnomalies_  = ps.getParameter<bool>("checkAnomalies"); 
+    nSigma_  = ps.getParameter<double>("nSigma");
+    thresholdAnomalies_ = ps.getParameter<double>("thresholdAnomalies"); 
+    dqmDir_         = ps.getParameter<std::string>("dqmDir");
 }
 
 void ECALpedestalPCLHarvester::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::IGetter& igetter_) {
-    
+
 
     // calculate pedestals and fill db record
     EcalPedestals pedestals;
 
-    std::stringstream hname;
+
     for (uint16_t i =0; i< EBDetId::kSizeForDenseIndexing; ++i) {
-        std::stringstream hname;
-        hname.str("EcalCalibration/EcalPedestalPCL/");
-        hname<<"eb_"<<i;
-        MonitorElement* ch= igetter_.get(hname.str());
+        std::string hname = dqmDir_+"/eb_" + std::to_string(i);
+        MonitorElement* ch= igetter_.get(hname);
         double mean = ch->getMean();
         double rms  = ch->getRMS();
 
-       DetId id = EBDetId::detIdFromDenseIndex(i);
+        DetId id = EBDetId::detIdFromDenseIndex(i);
         EcalPedestal ped;
         EcalPedestal oldped=* currentPedestals_->find(id.rawId());
 
@@ -49,12 +50,12 @@ void ECALpedestalPCLHarvester::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::
 
         // if bad channel or low stat skip
         if(ch->getEntries()< minEntries_ || !checkStatusCode(id)){
-            
+
             ped.mean_x12=oldped.mean_x12;
             ped.rms_x12=oldped.rms_x12;
-            
+
         }
-       
+
         ped.mean_x6=oldped.mean_x6;
         ped.rms_x6=oldped.rms_x6;
         ped.mean_x1=oldped.mean_x1;
@@ -66,9 +67,9 @@ void ECALpedestalPCLHarvester::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::
 
     for (uint16_t i =0; i< EEDetId::kSizeForDenseIndexing; ++i) {
 
-        hname.str("EcalCalibration/EcalPedestalPCL/");
-        hname<<"ee_"<<i;
-        MonitorElement* ch= igetter_.get(hname.str());
+        std::string hname = dqmDir_+"/ee_" + std::to_string(i);
+     
+        MonitorElement* ch= igetter_.get(hname);
         double mean = ch->getMean();
         double rms  = ch->getRMS();
 
@@ -94,7 +95,14 @@ void ECALpedestalPCLHarvester::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::
     }
 
 
+    // check if there are large variations wrt exisiting pedstals
 
+    if (checkAnomalies_){
+        if (checkVariation(*currentPedestals_, pedestals)) {
+            edm::LogError("Large Variations found wrt to old pedestals, no file created");
+            return;
+        }
+    }
 
     // write out pedestal record
     edm::Service<cond::service::PoolDBOutputService> poolDbService;
@@ -120,7 +128,7 @@ ECALpedestalPCLHarvester::fillDescriptions(edm::ConfigurationDescriptions& descr
 
 
 void ECALpedestalPCLHarvester::endRun(edm::Run const& run, edm::EventSetup const & isetup){
-    
+
 
     edm::ESHandle<EcalChannelStatus> chStatus;
     isetup.get<EcalChannelStatusRcd>().get(chStatus);
@@ -129,7 +137,7 @@ void ECALpedestalPCLHarvester::endRun(edm::Run const& run, edm::EventSetup const
     edm::ESHandle<EcalPedestals> peds;
     isetup.get<EcalPedestalsRcd>().get(peds);
     currentPedestals_=peds.product();
-    
+
 }
 
 bool ECALpedestalPCLHarvester::checkStatusCode(const DetId& id){
@@ -138,9 +146,45 @@ bool ECALpedestalPCLHarvester::checkStatusCode(const DetId& id){
     dbstatusPtr = channelStatus_->getMap().find(id.rawId());
     EcalChannelStatusCode::Code  dbstatus = dbstatusPtr->getStatusCode();
 
-    std::vector<int>::const_iterator res = 
+    std::vector<int>::const_iterator res =
         std::find( chStatusToExclude_.begin(), chStatusToExclude_.end(), dbstatus );
     if ( res != chStatusToExclude_.end() ) return false;
 
     return true;
+}
+
+
+bool ECALpedestalPCLHarvester::checkVariation(const EcalPedestalsMap& oldPedestals, 
+                                              const EcalPedestalsMap& newPedestals) {
+
+    uint32_t nAnomaliesEB =0;
+    uint32_t nAnomaliesEE =0;
+
+    for (uint16_t i =0; i< EBDetId::kSizeForDenseIndexing; ++i) {
+       
+        DetId id = EBDetId::detIdFromDenseIndex(i);
+        const EcalPedestal& newped=* newPedestals.find(id.rawId());   
+        const EcalPedestal& oldped=* oldPedestals.find(id.rawId());
+
+        if  (std::abs(newped.mean_x12 -oldped.mean_x12)  >  nSigma_ * oldped.rms_x12) nAnomaliesEB++;
+
+    }
+
+    for (uint16_t i =0; i< EEDetId::kSizeForDenseIndexing; ++i) {
+       
+        DetId id = EEDetId::detIdFromDenseIndex(i);
+        const EcalPedestal& newped=* newPedestals.find(id.rawId());   
+        const EcalPedestal& oldped=* oldPedestals.find(id.rawId());
+
+        if  (std::abs(newped.mean_x12 -oldped.mean_x12)  >  nSigma_ * oldped.rms_x12) nAnomaliesEE++;
+
+    }
+    
+    if (nAnomaliesEB > thresholdAnomalies_ *  EBDetId::kSizeForDenseIndexing || 
+        nAnomaliesEE > thresholdAnomalies_ *  EEDetId::kSizeForDenseIndexing)  
+        return true;
+
+    return false;
+
+
 }

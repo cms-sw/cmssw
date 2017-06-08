@@ -18,7 +18,7 @@ class RPCDCCLinkMapHandler
     : public popcon::PopConSourceHandler<RPCDCCLinkMap>
 {
 public:
-    RPCDCCLinkMapHandler(edm::ParameterSet const & _config);
+    RPCDCCLinkMapHandler(edm::ParameterSet const & config);
     ~RPCDCCLinkMapHandler();
 
     void getNewObjects();

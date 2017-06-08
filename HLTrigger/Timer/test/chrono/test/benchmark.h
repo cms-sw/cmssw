@@ -40,6 +40,8 @@ double to_nanoseconds(boost::chrono::duration<Rep, Period> duration) {
 #endif // HAVE_BOOST_CHRONO
 
 
+#if defined(__x86_64__) || defined(__i386__)
+
 // native chrono types
 template <class Rep, class Period>
 double to_seconds(native::native_duration<Rep, Period> duration) {
@@ -51,6 +53,7 @@ double to_nanoseconds(native::native_duration<Rep, Period> duration) {
     return std::chrono::duration_cast<std::chrono::duration<double, std::nano>>(duration).count();
 }
 
+#endif
 
 static constexpr unsigned int SIZE = 1000000;
 

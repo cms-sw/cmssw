@@ -93,9 +93,7 @@ HLTDTActivityFilter::HLTDTActivityFilter(const edm::ParameterSet& iConfig) : HLT
 }
 
 
-HLTDTActivityFilter::~HLTDTActivityFilter() {
-
-}
+HLTDTActivityFilter::~HLTDTActivityFilter() = default;
 
 void
 HLTDTActivityFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -148,8 +146,8 @@ bool HLTDTActivityFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& i
     edm::Handle<L1MuDTChambPhContainer> l1DTTPGPh;
     iEvent.getByToken(inputDCCToken_,l1DTTPGPh);
     vector<L1MuDTChambPhDigi> const*  phTrigs = l1DTTPGPh->getContainer();
-    vector<L1MuDTChambPhDigi>::const_iterator iph  = phTrigs->begin();
-    vector<L1MuDTChambPhDigi>::const_iterator iphe = phTrigs->end();
+    auto iph  = phTrigs->begin();
+    auto iphe = phTrigs->end();
 
     for(; iph !=iphe ; ++iph) {
 
@@ -249,8 +247,8 @@ bool HLTDTActivityFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& i
 	int bx = (*candIt).bx();
 
 	if (bx>=minBX_[RPC] && bx<=maxBX_[RPC]) {
-	  activityMap::iterator actMapIt  = actMap.begin();
-	  activityMap::iterator actMapEnd = actMap.end();
+	  auto actMapIt  = actMap.begin();
+	  auto actMapEnd = actMap.end();
 	  for (; actMapIt!= actMapEnd; ++ actMapIt)
 	    if (matchChamber(actMapIt->first, *candIt, dtGeom.product()))
 	      actMapIt->second.set(RPC);

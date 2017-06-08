@@ -52,10 +52,7 @@ HLTDisplacedtktkVtxProducer::HLTDisplacedtktkVtxProducer(const edm::ParameterSet
 }
 
 
-HLTDisplacedtktkVtxProducer::~HLTDisplacedtktkVtxProducer()
-{
-
-}
+HLTDisplacedtktkVtxProducer::~HLTDisplacedtktkVtxProducer() = default;
 
 void
 HLTDisplacedtktkVtxProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -199,8 +196,8 @@ void HLTDisplacedtktkVtxProducer::produce(edm::Event& iEvent, const edm::EventSe
 
 bool HLTDisplacedtktkVtxProducer::checkPreviousCand(const TrackRef& trackref, vector<RecoChargedCandidateRef> & refVect){
   bool ok=false;
-  for (unsigned int i=0; i<refVect.size(); i++) {
-    if ( refVect[i]->get<TrackRef>() == trackref ) {
+  for (auto & i : refVect) {
+    if ( i->get<TrackRef>() == trackref ) {
       ok=true;
       break;
     }

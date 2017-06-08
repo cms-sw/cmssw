@@ -98,7 +98,7 @@ HLTHcalTowerNoiseCleanerWithrechit::HLTHcalTowerNoiseCleanerWithrechit(const edm
 }
 
 
-HLTHcalTowerNoiseCleanerWithrechit::~HLTHcalTowerNoiseCleanerWithrechit(){}
+HLTHcalTowerNoiseCleanerWithrechit::~HLTHcalTowerNoiseCleanerWithrechit()= default;
 
 void
 HLTHcalTowerNoiseCleanerWithrechit::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -181,8 +181,7 @@ void HLTHcalTowerNoiseCleanerWithrechit::produce(edm::Event& iEvent, const edm::
 		
   // create a sorted set of the RBXs, ordered by energy
   noisedataset_t data;
-  for(HcalNoiseRBXCollection::const_iterator it=rbxs_h->begin(); it!=rbxs_h->end(); ++it) {
-    const HcalNoiseRBX &rbx=(*it);
+  for(auto const & rbx : *rbxs_h) {
     CommonHcalNoiseRBXData d(rbx, minRecHitE_, minLowHitE_, minHighHitE_, TS4TS5EnergyThreshold_,
 			     TS4TS5UpperCut_, TS4TS5LowerCut_, minR45HitE_);
     data.insert(d);
@@ -191,15 +190,13 @@ void HLTHcalTowerNoiseCleanerWithrechit::produce(edm::Event& iEvent, const edm::
   // data is now sorted by RBX energy
   // only consider top N=numRBXsToConsider_ energy RBXs
   if(severity_>0){
-    for(noisedataset_t::const_iterator it=data.begin();
-	it!=data.end();
-	it++) {
+    for(auto const & it : data) {
       // Check the Rechit-R45 filter
       // Taken from http://cmslxr.fnal.gov/lxr/source/RecoMET/METAlgorithms/src/HcalNoiseAlgo.cc?v=CMSSW_7_4_6#0256
      bool passRechitr45 = true;
-      int r45Count = it->r45Count();
-      double r45Fraction = it->r45Fraction();
-      double r45EnergyFraction = it->r45EnergyFraction();
+      int r45Count = it.r45Count();
+      double r45Fraction = it.r45Fraction();
+      double r45EnergyFraction = it.r45EnergyFraction();
       for(int i = 0; i + 3 < (int)hltMinRBXRechitR45Cuts_.size(); i = i + 4) {
 	double Value = r45Count * hltMinRBXRechitR45Cuts_[i] + r45Fraction * hltMinRBXRechitR45Cuts_[i+1] + r45EnergyFraction * hltMinRBXRechitR45Cuts_[i+2] + hltMinRBXRechitR45Cuts_[i+3];
 	if (Value > 0) passRechitr45=false;
@@ -207,17 +204,17 @@ void HLTHcalTowerNoiseCleanerWithrechit::produce(edm::Event& iEvent, const edm::
 
       bool passFilter=true;
       bool passEMF=true;
-      if(it->energy()>minRBXEnergy_) {
-	if(it->validRatio() && it->ratio()<minRatio_)        passFilter=false;
-	else if(it->validRatio() && it->ratio()>maxRatio_)   passFilter=false;
-	else if(it->numHPDHits()>=minHPDHits_)               passFilter=false;
-	else if(it->numRBXHits()>=minRBXHits_)               passFilter=false;
-	else if(it->numHPDNoOtherHits()>=minHPDNoOtherHits_) passFilter=false;
-	else if(it->numZeros()>=minZeros_)                   passFilter=false;
-	else if(it->minHighEHitTime()<minHighEHitTime_)      passFilter=false;
-	else if(it->maxHighEHitTime()>maxHighEHitTime_)      passFilter=false;
+      if(it.energy()>minRBXEnergy_) {
+	if(it.validRatio() && it.ratio()<minRatio_)        passFilter=false;
+	else if(it.validRatio() && it.ratio()>maxRatio_)   passFilter=false;
+	else if(it.numHPDHits()>=minHPDHits_)               passFilter=false;
+	else if(it.numRBXHits()>=minRBXHits_)               passFilter=false;
+	else if(it.numHPDNoOtherHits()>=minHPDNoOtherHits_) passFilter=false;
+	else if(it.numZeros()>=minZeros_)                   passFilter=false;
+	else if(it.minHighEHitTime()<minHighEHitTime_)      passFilter=false;
+	else if(it.maxHighEHitTime()>maxHighEHitTime_)      passFilter=false;
 	else if (passRechitr45==false)                       passFilter=false;
-	if(it->RBXEMF()<maxRBXEMF_){
+	if(it.RBXEMF()<maxRBXEMF_){
 	  passEMF=false;
 	}
       }
@@ -225,17 +222,17 @@ void HLTHcalTowerNoiseCleanerWithrechit::produce(edm::Event& iEvent, const edm::
       if((needEMFCoincidence_ && !passEMF && !passFilter) ||
 	 (!needEMFCoincidence_ && !passFilter)) { // check for noise
 	LogDebug("") << "HLTHcalTowerNoiseCleanerWithrechit debug: Found a noisy RBX: "
-		     << "energy=" << it->energy() << "; "
-		     << "ratio=" << it->ratio() << "; "
-		     << "# RBX hits=" << it->numRBXHits() << "; "
-		     << "# HPD hits=" << it->numHPDHits() << "; "
-		     << "# Zeros=" << it->numZeros() << "; "
-		     << "min time=" << it->minHighEHitTime() << "; "
-		     << "max time=" << it->maxHighEHitTime() << "; "
-		     << "RBX EMF=" << it->RBXEMF()
+		     << "energy=" << it.energy() << "; "
+		     << "ratio=" << it.ratio() << "; "
+		     << "# RBX hits=" << it.numRBXHits() << "; "
+		     << "# HPD hits=" << it.numHPDHits() << "; "
+		     << "# Zeros=" << it.numZeros() << "; "
+		     << "min time=" << it.minHighEHitTime() << "; "
+		     << "max time=" << it.maxHighEHitTime() << "; "
+		     << "RBX EMF=" << it.RBXEMF()
 		     << std::endl;
 	// add calotowers associated with this RBX to the noise list
-	edm::RefVector<CaloTowerCollection> noiseTowers = it->rbxTowers();
+	edm::RefVector<CaloTowerCollection> noiseTowers = it.rbxTowers();
 	edm::RefVector<CaloTowerCollection>::const_iterator noiseTowersIt;
 	//add these calotowers to the noisy list
 	for( noiseTowersIt = noiseTowers.begin(); noiseTowersIt != noiseTowers.end(); noiseTowersIt++){

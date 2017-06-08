@@ -39,9 +39,7 @@ HLTEventAnalyzerAOD::HLTEventAnalyzerAOD(const edm::ParameterSet& ps) :
 
 }
 
-HLTEventAnalyzerAOD::~HLTEventAnalyzerAOD()
-{
-}
+HLTEventAnalyzerAOD::~HLTEventAnalyzerAOD() = default;
 
 //
 // member functions

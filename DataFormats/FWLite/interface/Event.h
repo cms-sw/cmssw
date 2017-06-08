@@ -91,7 +91,7 @@ namespace fwlite {
          virtual ~Event();
 
          ///Advance to next event in the TFile
-         Event const& operator++();
+         Event const& operator++() override;
 
          ///Find index of given event-id
          Long64_t indexFromEventId(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, edm::EventNumber_t event);
@@ -105,18 +105,18 @@ namespace fwlite {
          bool to(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, edm::EventNumber_t event);
 
          /// Go to the very first Event.
-         Event const& toBegin();
+         Event const& toBegin() override;
 
          // ---------- const member functions ---------------------
          ///Return the branch name in the TFile which contains the data
          virtual std::string const getBranchNameFor(std::type_info const&,
                                                     char const* iModuleLabel,
                                                     char const* iProductInstanceLabel,
-                                                    char const* iProcessName) const;
+                                                    char const* iProcessName) const override;
 
          using fwlite::EventBase::getByLabel;
          /// This function should only be called by fwlite::Handle<>
-         virtual bool getByLabel(std::type_info const&, char const*, char const*, char const*, void*) const;
+         virtual bool getByLabel(std::type_info const&, char const*, char const*, char const*, void*) const override;
          //void getByBranchName(std::type_info const&, char const*, void*&) const;
 
          ///Properly setup for edm::Ref, etc and then call TTree method
@@ -127,12 +127,12 @@ namespace fwlite {
 
          bool isValid() const;
          operator bool () const;
-         virtual bool atEnd() const;
+         virtual bool atEnd() const override;
 
          ///Returns number of events in the file
          Long64_t size() const;
 
-         virtual edm::EventAuxiliary const& eventAuxiliary() const;
+         virtual edm::EventAuxiliary const& eventAuxiliary() const override;
 
          std::vector<edm::BranchDescription> const& getBranchDescriptions() const {
             return branchMap_.getBranchDescriptions();
@@ -142,17 +142,19 @@ namespace fwlite {
             return branchMap_.getFile();
          }
 
-         virtual edm::WrapperBase const* getByProductID(edm::ProductID const&) const;
+         virtual edm::ParameterSet const* parameterSet(edm::ParameterSetID const& psID) const override;
+
+         virtual edm::WrapperBase const* getByProductID(edm::ProductID const&) const override;
          edm::WrapperBase const* getThinnedProduct(edm::ProductID const& pid, unsigned int& key) const;
          void getThinnedProducts(edm::ProductID const& pid,
                                  std::vector<edm::WrapperBase const*>& foundContainers,
                                  std::vector<unsigned int>& keys) const;
 
-         virtual edm::TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults) const;
+         virtual edm::TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults) const override;
 
-         virtual edm::TriggerResultsByName triggerResultsByName(edm::TriggerResults const& triggerResults) const;
+         virtual edm::TriggerResultsByName triggerResultsByName(edm::TriggerResults const& triggerResults) const override;
 
-         virtual edm::ProcessHistory const& processHistory() const {return history();}
+         virtual edm::ProcessHistory const& processHistory() const override {return history();}
 
          fwlite::LuminosityBlock const& getLuminosityBlock() const;
          fwlite::Run             const& getRun() const;

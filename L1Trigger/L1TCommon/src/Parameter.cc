@@ -35,10 +35,16 @@ Parameter::Parameter(const char *id,
     unsigned long nItems = 0;
     char *saveptr;
     for(const char *item=strtok_r(copy.get(),delimeter,&saveptr); item != NULL; item = strtok_r(NULL,delimeter,&saveptr), nItems++){
-        colIndexToName.insert( make_pair(nItems,string(item)) );
-        columnNameToIndex.insert( make_pair(string(item),nItems) );
-        if( table.insert( make_pair(string(item),vector<string>(rows.size())) ).second == false )
-            throw runtime_error("Duplicate column name: '" + string(item) + "'");
+        // trim leading and trailing whitespaces
+        size_t pos=0, len = strlen(item);
+        while( pos<len && isspace(item[pos]) ) pos++;
+        while( len>0 && isspace(item[--len]) );
+        string str = (pos<len+1 ? string(item+pos,len+1-pos) : item);
+
+        colIndexToName.insert( make_pair(nItems,str) );
+        columnNameToIndex.insert( make_pair(str,nItems) );
+        if( table.insert( make_pair(str,vector<string>(rows.size())) ).second == false )
+            throw runtime_error("Duplicate column name: '" + str + "'");
     }
 
     for(unsigned int r=0; r<rows.size(); r++){
@@ -48,7 +54,12 @@ Parameter::Parameter(const char *id,
             if( item == NULL )
                 throw runtime_error("Too few elements in '" + rows[r] + "'");
 
-            table[ colIndexToName[pos] ][r] = item;
+            // trim leading and trailing whitespaces
+            size_t p=0, len = strlen(item);
+            while( p<len && isspace(item[p]) ) p++;
+            while( len>0 && isspace(item[--len]) );
+
+            table[ colIndexToName[pos] ][r] = (pos<len+1 ? string(item+p,len+1-p) : item);
         }
         if( strtok_r(NULL,delimeter,&saveptr) != NULL )
             throw runtime_error("Too many elements in '" + rows[r] + "', expected " + to_string(nItems));

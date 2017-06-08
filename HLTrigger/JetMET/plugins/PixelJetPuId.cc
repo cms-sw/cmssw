@@ -56,12 +56,12 @@ Implementation:
 class PixelJetPuId : public edm::global::EDProducer <>{
     public:
         PixelJetPuId(const edm::ParameterSet&);
-        virtual ~PixelJetPuId();
+        ~PixelJetPuId() override;
         
         static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
         
     private:
-        virtual void produce(edm::StreamID sid, edm::Event&, const edm::EventSetup&) const override;
+        void produce(edm::StreamID sid, edm::Event&, const edm::EventSetup&) const override;
         
         // ----------member data ---------------------------
         edm::InputTag m_primaryVertex;
@@ -118,7 +118,7 @@ PixelJetPuId::PixelJetPuId(const edm::ParameterSet& iConfig)
 }
 
 
-PixelJetPuId::~PixelJetPuId() {}
+PixelJetPuId::~PixelJetPuId() = default;
 
 
 void
@@ -200,7 +200,7 @@ void PixelJetPuId::produce(edm::StreamID sid, edm::Event& iEvent, const edm::Eve
                 else 
                 {
                     //loop on tracks
-                    std::vector<reco::Track>::const_iterator itTrack = tracks->begin();
+                    auto itTrack = tracks->begin();
                     for (unsigned int i=0; i<tsize; ++i) {
                         float deltaR2=reco::deltaR2(itJet->eta(),itJet->phi(), teta[i],tphi[i]);
                         if(deltaR2<0.25) {

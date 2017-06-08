@@ -40,7 +40,7 @@ edm::OwnVector<RPCRecHit> RPCRecHitBaseAlgo::reconstruct(const RPCRoll& roll,
     const int firstClustStrip = cl.firstStrip();
     const int clusterSize = cl.clusterSize();
     RPCRecHit* recHit = new RPCRecHit(rpcId,cl.bx(),firstClustStrip,clusterSize,point,tmpErr);
-    if ( timeErr >= 0 ) recHit->setTimeAndError(time, timeErr);
+    recHit->setTimeAndError(time, timeErr);
 
     result.push_back(recHit);
   }

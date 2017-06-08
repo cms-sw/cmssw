@@ -3,6 +3,12 @@ import FWCore.ParameterSet.Config as cms
 #------------------------------------------------
 #AlCaReco filtering for HCAL isotrk:
 #------------------------------------------------
+import HLTrigger.HLTfilters.hltHighLevel_cfi
+ALCARECOHcalCalIsoTrkFilterHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
+    eventSetupPathsKey='HcalCalIsoTrkFilter',
+    throw = False #dont throw except on unknown path name
+
+)
 
 from Calibration.HcalAlCaRecoProducers.alcaIsoTracksFilter_cfi import *
 
@@ -15,7 +21,7 @@ TkAlIsoProdFilter.applyNHighestPt = False
 TkAlIsoProdFilter.applyIsolationCut = False
 TkAlIsoProdFilter.applyChargeCheck = False
 
-seqALCARECOHcalCalIsoTrkFilter = cms.Sequence(AlcaIsoTracksFilter*TkAlIsoProdFilter)
+seqALCARECOHcalCalIsoTrkFilter = cms.Sequence(ALCARECOHcalCalIsoTrkFilterHLT * AlcaIsoTracksFilter*TkAlIsoProdFilter)
 
 
 

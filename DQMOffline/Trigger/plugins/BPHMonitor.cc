@@ -232,7 +232,7 @@ void BPHMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   genericTriggerEventPSet.add<std::vector<std::string> >("hltPaths",{});
   genericTriggerEventPSet.add<std::string>("hltDBKey","");
   genericTriggerEventPSet.add<bool>("errorReplyHlt",false);
-  genericTriggerEventPSet.add<unsigned int>("verbosityLevel",1);
+  genericTriggerEventPSet.add<unsigned int>("verbosityLevel",0);
 
   desc.add<edm::ParameterSetDescription>("numGenericTriggerEventPSet", genericTriggerEventPSet);
   desc.add<edm::ParameterSetDescription>("denGenericTriggerEventPSet", genericTriggerEventPSet);

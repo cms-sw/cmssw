@@ -35,6 +35,9 @@
 namespace edm {
   class HepMCProduct;
 }
+namespace HepMC {
+   class FourVector;
+}
 
 class MCSmartSingleParticleFilter : public edm::EDFilter {
    public:
@@ -44,6 +47,9 @@ class MCSmartSingleParticleFilter : public edm::EDFilter {
 
       virtual bool filter(edm::Event&, const edm::EventSetup&);
    private:
+      // ----------memeber function----------------------
+       HepMC::FourVector zboost(const HepMC::FourVector&);
+
       // ----------member data ---------------------------
       
        edm::EDGetTokenT<edm::HepMCProduct> token_;
@@ -57,5 +63,6 @@ class MCSmartSingleParticleFilter : public edm::EDFilter {
        std::vector<double> decayRadiusMax;
        std::vector<double> decayZMin;  
        std::vector<double> decayZMax;
+       double betaBoost;
 };
 #endif

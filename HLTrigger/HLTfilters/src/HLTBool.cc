@@ -22,9 +22,7 @@ HLTBool::HLTBool(const edm::ParameterSet& iConfig) :
   LogDebug("HLTBool") << " configured result is: " << result_;
 }
 
-HLTBool::~HLTBool()
-{
-}
+HLTBool::~HLTBool() = default;
 
 void
 HLTBool::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

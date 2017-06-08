@@ -85,7 +85,7 @@ BeamHaloProducer::BeamHaloProducer( const ParameterSet & pset) :
 
   produces<HepMCProduct>("unsmeared");
   produces<GenEventInfoProduct>();
-  produces<GenRunInfoProduct, InRun>();
+  produces<GenRunInfoProduct, Transition::EndRun>();
 
   usesResource("BeamHaloProducer");
 

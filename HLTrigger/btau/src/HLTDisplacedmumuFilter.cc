@@ -51,10 +51,7 @@ HLTDisplacedmumuFilter::HLTDisplacedmumuFilter(const edm::ParameterSet& iConfig)
 }
 
 
-HLTDisplacedmumuFilter::~HLTDisplacedmumuFilter()
-{
-
-}
+HLTDisplacedmumuFilter::~HLTDisplacedmumuFilter() = default;
 
 void HLTDisplacedmumuFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -120,9 +117,7 @@ bool HLTDisplacedmumuFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup
   bool triggered = false;
 
   // loop over vertex collection
-  for(reco::VertexCollection::iterator it = displacedVertexColl.begin(); it!= displacedVertexColl.end(); it++){
-          reco::Vertex displacedVertex = *it;
-
+  for(auto displacedVertex : displacedVertexColl){
           // check if the vertex actually consists of exactly two muon tracks, throw exception if not
           if(displacedVertex.tracksSize() != 2)  throw cms::Exception("BadLogic") << "HLTDisplacedmumuFilter: ERROR: the Jpsi vertex must have exactly two muons by definition. It now has n muons = "
         									    << displacedVertex.tracksSize() << std::endl;
@@ -135,7 +130,7 @@ bool HLTDisplacedmumuFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup
 	  if (vtxProb < minVtxProbability_) continue;
 
           // get the two muons from the vertex
-          reco::Vertex::trackRef_iterator trackIt =  displacedVertex.tracks_begin();
+          auto trackIt =  displacedVertex.tracks_begin();
           reco::TrackRef vertextkRef1 =  (*trackIt).castTo<reco::TrackRef>() ;
           // the second one
           trackIt++;
@@ -146,7 +141,7 @@ bool HLTDisplacedmumuFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup
 	  reco::RecoChargedCandidateCollection::const_iterator cand2;	
 
 	  int iFoundRefs = 0;
-	  for (reco::RecoChargedCandidateCollection::const_iterator cand=mucands->begin(); cand!=mucands->end(); cand++) {
+	  for (auto cand=mucands->begin(); cand!=mucands->end(); cand++) {
 	    reco::TrackRef tkRef = cand->get<reco::TrackRef>();
 	    if(tkRef == vertextkRef1) {cand1 = cand; iFoundRefs++;}
 	    if(tkRef == vertextkRef2) {cand2 = cand; iFoundRefs++;}

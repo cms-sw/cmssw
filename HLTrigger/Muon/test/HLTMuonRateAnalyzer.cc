@@ -39,8 +39,8 @@ HLTMuonRateAnalyzer::HLTMuonRateAnalyzer(const ParameterSet& pset)
   theHLTCollectionLabels = pset.getUntrackedParameter<std::vector<InputTag> >("HLTCollectionLabels");
   theGenToken = consumes<edm::HepMCProduct>(theGenLabel);
   theL1CollectionToken = consumes<trigger::TriggerFilterObjectWithRefs>(theL1CollectionLabel);
-  for (unsigned int i=0; i<theHLTCollectionLabels.size(); ++i) {
-    theHLTCollectionTokens.push_back(consumes<trigger::TriggerFilterObjectWithRefs>(theHLTCollectionLabels[i]));
+  for (auto & theHLTCollectionLabel : theHLTCollectionLabels) {
+    theHLTCollectionTokens.push_back(consumes<trigger::TriggerFilterObjectWithRefs>(theHLTCollectionLabel));
   }
   theL1ReferenceThreshold = pset.getUntrackedParameter<double>("L1ReferenceThreshold");
   theNSigmas = pset.getUntrackedParameter<std::vector<double> >("NSigmas90");
@@ -60,8 +60,7 @@ HLTMuonRateAnalyzer::HLTMuonRateAnalyzer(const ParameterSet& pset)
 }
 
 /// Destructor
-HLTMuonRateAnalyzer::~HLTMuonRateAnalyzer(){
-}
+HLTMuonRateAnalyzer::~HLTMuonRateAnalyzer()= default;
 
 void HLTMuonRateAnalyzer::beginJob(){
   // Create the root file
@@ -77,12 +76,12 @@ void HLTMuonRateAnalyzer::beginJob(){
   snprintf(chtitle, 255, "Rate (Hz) vs L1 Pt threshold (GeV), label=%s, L=%.2E (cm^{-2} s^{-1})", theL1CollectionLabel.encode().c_str(), theLuminosity*1.e33);
   hL1rate = new TH1F(chname, chtitle, theNbins, thePtMin, thePtMax);
 
-  for (unsigned int i=0; i<theHLTCollectionLabels.size(); i++) {
-      snprintf(chname, 255, "eff_%s", theHLTCollectionLabels[i].encode().c_str());
-      snprintf(chtitle, 255, "Efficiency (%%) vs HLT Pt threshold (GeV), label=%s", theHLTCollectionLabels[i].encode().c_str());
+  for (auto & theHLTCollectionLabel : theHLTCollectionLabels) {
+      snprintf(chname, 255, "eff_%s", theHLTCollectionLabel.encode().c_str());
+      snprintf(chtitle, 255, "Efficiency (%%) vs HLT Pt threshold (GeV), label=%s", theHLTCollectionLabel.encode().c_str());
       hHLTeff.push_back(new TH1F(chname, chtitle, theNbins, thePtMin, thePtMax));
-      snprintf(chname, 255, "rate_%s", theHLTCollectionLabels[i].encode().c_str());
-      snprintf(chtitle, 255, "Rate (Hz) vs HLT Pt threshold (GeV), label=%s, L=%.2E (cm^{-2} s^{-1})", theHLTCollectionLabels[i].encode().c_str(), theLuminosity*1.e33);
+      snprintf(chname, 255, "rate_%s", theHLTCollectionLabel.encode().c_str());
+      snprintf(chtitle, 255, "Rate (Hz) vs HLT Pt threshold (GeV), label=%s, L=%.2E (cm^{-2} s^{-1})", theHLTCollectionLabel.encode().c_str(), theLuminosity*1.e33);
       hHLTrate.push_back(new TH1F(chname, chtitle, theNbins, thePtMin, thePtMax));
   }
 
@@ -176,8 +175,8 @@ void HLTMuonRateAnalyzer::analyze(const Event & event, const EventSetup& eventSe
   double epsilon = 0.001;
   vector<L1MuonParticleRef> l1mu;
   l1cands->getObjects(TriggerL1Mu,l1mu);
-  for (unsigned int k=0; k<l1mu.size(); k++) {
-      L1MuonParticleRef candref = L1MuonParticleRef(l1mu[k]);
+  for (auto & k : l1mu) {
+      L1MuonParticleRef candref = L1MuonParticleRef(k);
       // L1 PTs are "quantized" due to LUTs. 
       // Their meaning: true_pt > ptLUT more than 90% pof the times
       double ptLUT = candref->pt();
@@ -190,8 +189,8 @@ void HLTMuonRateAnalyzer::analyze(const Event & event, const EventSetup& eventSe
 
       // L1 filling
       unsigned int nFound = 0;
-      for (unsigned int k=0; k<l1mu.size(); k++) {
-            L1MuonParticleRef candref = L1MuonParticleRef(l1mu[k]);
+      for (auto & k : l1mu) {
+            L1MuonParticleRef candref = L1MuonParticleRef(k);
             double pt = candref->pt();
             if (pt>ptcut) nFound++;
       }
@@ -205,8 +204,8 @@ void HLTMuonRateAnalyzer::analyze(const Event & event, const EventSetup& eventSe
             unsigned nFound = 0;
 	    vector<RecoChargedCandidateRef> vref;
 	    hltcands[i]->getObjects(TriggerMuon,vref);
-            for (unsigned int k=0; k<vref.size(); k++) {
-                  RecoChargedCandidateRef candref =  RecoChargedCandidateRef(vref[k]);
+            for (auto & k : vref) {
+                  RecoChargedCandidateRef candref =  RecoChargedCandidateRef(k);
                   TrackRef tk = candref->get<TrackRef>();
                   double pt = tk->pt();
                   double err0 = tk->error(0);

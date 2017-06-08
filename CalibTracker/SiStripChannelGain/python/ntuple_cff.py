@@ -6,7 +6,7 @@ from CalibTracker.SiStripCommon.ShallowGainCalibration_cfi import *
 from CalibTracker.SiStripCommon.SiStripBFieldFilter_cfi import *
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import *
-AfterAbortGapFilter = triggerResultsFilter.clone(
+AAGFilter = triggerResultsFilter.clone(
 #                       triggerConditions = cms.vstring("HLT_ZeroBias_*"),
                         triggerConditions = cms.vstring("HLT_ZeroBias_FirstCollisionAfterAbortGap_*"),
                         hltResults = cms.InputTag( "TriggerResults", "", "HLT" ),
@@ -71,16 +71,16 @@ OfflineGainNtuple_StdBunch = cms.Sequence( ZeroBiasFilter + siStripBFieldOnFilte
 OfflineGainNtuple_StdBunch0T = cms.Sequence( ZeroBiasFilter + siStripBFieldOffFilter + 
                                            inputDataSequence * gainCalibrationTreeStdBunch0T )
 
-OfflineGainNtuple_AagBunch = cms.Sequence( siStripBFieldOnFilter + AfterAbortGapFilter +
+OfflineGainNtuple_AagBunch = cms.Sequence( siStripBFieldOnFilter + AAGFilter +
                                            inputDataSequence * gainCalibrationTreeAagBunch )
 
-OfflineGainNtuple_AagBunch0T = cms.Sequence( siStripBFieldOffFilter + AfterAbortGapFilter +
+OfflineGainNtuple_AagBunch0T = cms.Sequence( siStripBFieldOffFilter + AAGFilter +
                                              inputDataSequence * gainCalibrationTreeAagBunch0T )
 
-OfflineGainNtuple_IsoMuon = cms.Sequence( siStripBFieldOnFilter + AfterAbortGapFilter +
+OfflineGainNtuple_IsoMuon = cms.Sequence( siStripBFieldOnFilter + AAGFilter +
                                            inputDataSequence * gainCalibrationTreeIsoMuon )
 
-OfflineGainNtuple_IsoMuon0T = cms.Sequence( siStripBFieldOffFilter + AfterAbortGapFilter +
+OfflineGainNtuple_IsoMuon0T = cms.Sequence( siStripBFieldOffFilter + AAGFilter +
                                              inputDataSequence * gainCalibrationTreeIsoMuon0T )
 
 #OfflineGainNtuple = cms.Sequence( (shallowEventRun+

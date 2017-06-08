@@ -1,7 +1,7 @@
 #ifndef CondFormats_RPCObjects_RPCAMCLink_h
 #define CondFormats_RPCObjects_RPCAMCLink_h
 
-#include <stdint.h>
+#include <cstdint>
 #include <string>
 #include <iosfwd>
 #include <climits>
@@ -28,27 +28,27 @@ protected:
     /** @{ */
     /** field positions and masks */
     static int const pos_fed_ = 16;
-    static ::uint32_t const mask_fed_ = 0xffff0000;
+    static std::uint32_t const mask_fed_ = 0xffff0000;
     static int const pos_amcnumber_ = 12;
-    static ::uint32_t const mask_amcnumber_ = 0x0000f000;
+    static std::uint32_t const mask_amcnumber_ = 0x0000f000;
     static int const pos_amcinput_ = 0;
-    static ::uint32_t const mask_amcinput_ = 0x00000fff;
+    static std::uint32_t const mask_amcinput_ = 0x00000fff;
     /** @} */
 
 public:
     RPCAMCLink();
-    RPCAMCLink(::uint32_t const & _id);
-    RPCAMCLink(int _fed
-               , int _amcnumber
-               , int _amcinput = wildcard_);
+    RPCAMCLink(std::uint32_t const & id);
+    RPCAMCLink(int fed
+               , int amcnumber
+               , int amcinput = wildcard_);
 
-    ::uint32_t getId() const;
-    operator ::uint32_t() const;
-    ::uint32_t getMask() const;
+    std::uint32_t getId() const;
+    operator std::uint32_t() const;
+    std::uint32_t getMask() const;
 
-    bool matches(RPCAMCLink const & _rhs) const;
+    bool matches(RPCAMCLink const & rhs) const;
 
-    void setId(::uint32_t const & _id);
+    void setId(std::uint32_t const & id);
     void reset();
 
     /** @{ */
@@ -62,19 +62,19 @@ public:
     /** Field Setters
      * A cms::Exception("OutOfRange") is thrown for out-of-range input values.
      **/
-    RPCAMCLink & setFED(int _fed = wildcard_);
-    RPCAMCLink & setAMCNumber(int _amcnumber = wildcard_);
-    RPCAMCLink & setAMCInput(int _amcinput = wildcard_);
+    RPCAMCLink & setFED(int fed = wildcard_);
+    RPCAMCLink & setAMCNumber(int amcnumber = wildcard_);
+    RPCAMCLink & setAMCInput(int amcinput = wildcard_);
     /** @} */
 
     std::string getName() const;
 
-    bool operator<(RPCAMCLink const & _rhs) const;
-    bool operator==(RPCAMCLink const & _rhs) const;
-    bool operator!=(RPCAMCLink const & _rhs) const;
-    bool operator<(::uint32_t const & _rhs) const;
-    bool operator==(::uint32_t const & _rhs) const;
-    bool operator!=(::uint32_t const & _rhs) const;
+    bool operator<(RPCAMCLink const & rhs) const;
+    bool operator==(RPCAMCLink const & rhs) const;
+    bool operator!=(RPCAMCLink const & rhs) const;
+    bool operator<(std::uint32_t const & rhs) const;
+    bool operator==(std::uint32_t const & rhs) const;
+    bool operator!=(std::uint32_t const & rhs) const;
 
     RPCAMCLink & operator++();
     RPCAMCLink operator++(int);
@@ -82,17 +82,17 @@ public:
     RPCAMCLink operator--(int);
 
 protected:
-    int bf_get(int const _min, ::uint32_t const _mask, int const _pos) const;
-    RPCAMCLink & bf_set(int const _min, int const _max, ::uint32_t const _mask, int const _pos, int const _value);
-    std::ostream & bf_stream(std::ostream & _ostream, int const _min, ::uint32_t const _mask, int const _pos) const;
+    int bf_get(int const min, std::uint32_t const mask, int const pos) const;
+    RPCAMCLink & bf_set(int const min, int const max, std::uint32_t const mask, int const pos, int const value);
+    std::ostream & bf_stream(std::ostream & ostream, int const min, std::uint32_t const mask, int const pos) const;
 
 protected:
-    ::uint32_t id_;
+    std::uint32_t id_;
 
     COND_SERIALIZABLE;
 };
 
-std::ostream & operator<<(std::ostream & _ostream, RPCAMCLink const & _link);
+std::ostream & operator<<(std::ostream & ostream, RPCAMCLink const & link);
 
 #include "CondFormats/RPCObjects/interface/RPCAMCLink.icc"
 

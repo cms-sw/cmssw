@@ -18,6 +18,14 @@ void SiPixelFedCablingMap::initializeRocs() {
   // Decide if it is phase0 or phase1 based on the first fed, 0-phase0, 1200-phase1
   unsigned int fedId = (theMap.begin())->first.fed; // get the first fed
 
+  // Specifically for CMSSW_9_0_X, we need to call a different version of the frame 
+  // conversion steered by the version name in the cabling map
+  if (theVersion.find("CMSSW_9_0_X")!=std::string::npos) {
+    for (auto & v : theMap) v.second.initFrameConversionPhase1_CMSSW_9_0_X(); // works
+    std::cout<<"*** Found CMSSW_9_0_X specific cabling map\n";
+    return;
+  }
+
   if(fedId>=FEDNumbering::MINSiPixeluTCAFEDID) { // phase1 >= 1200
     for (auto & v : theMap) v.second.initFrameConversionPhase1(); // works
   } else { // phase0
@@ -120,11 +128,30 @@ const sipixelobjects::PixelROC* SiPixelFedCablingMap::findItem(
   return roc;
 }
 
+
+std::unordered_map<uint32_t, unsigned int>  SiPixelFedCablingMap::det2fedMap() const {
+  std::unordered_map<uint32_t, unsigned int> result;
+  for (auto im = theMap.begin(); im != theMap.end(); ++im) {
+    result[im->second.rawId()] = im->first.fed;  // we know: a det is in only one fed!
+  }
+  return result;
+}
+
+std::map< uint32_t,std::vector<sipixelobjects::CablingPathToDetUnit> > SiPixelFedCablingMap::det2PathMap() const {
+  std::map< uint32_t,std::vector<sipixelobjects::CablingPathToDetUnit> > result;
+  for (auto im = theMap.begin(); im != theMap.end(); ++im) {
+    CablingPathToDetUnit path = {im->first.fed, im->first.link, im->first.roc};
+    result[im->second.rawId()].push_back(path);
+  }
+  return result;
+}
+
+
 std::vector<sipixelobjects::CablingPathToDetUnit> SiPixelFedCablingMap::pathToDetUnit(
       uint32_t rawDetId) const {
 
   std::vector<sipixelobjects::CablingPathToDetUnit> result;
-  for (Map::const_iterator im = theMap.begin(); im != theMap.end(); ++im) {
+  for (auto im = theMap.begin(); im != theMap.end(); ++im) {
     if(im->second.rawId()==rawDetId ) {
       CablingPathToDetUnit path = {im->first.fed, im->first.link, im->first.roc};
       result.push_back(path);

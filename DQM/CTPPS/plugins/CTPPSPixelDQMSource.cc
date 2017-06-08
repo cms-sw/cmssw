@@ -123,6 +123,9 @@ class CTPPSPixelDQMSource: public DQMEDAnalyzer
 
 };
 
+constexpr int CTPPSPixelDQMSource::NplaneMAX;
+constexpr int CTPPSPixelDQMSource::NROCsMAX;
+
 //----------------------------------------------------------------------------------
 
 using namespace std;
@@ -434,17 +437,20 @@ if(pixDigi.isValid())
       int indp = getPlaneIndex(arm,stn,rp,p);
       for(int r=0; r<NROCsMAX; r++) if(HitsMultROC[indp][r] > 0) ++rocf[r];
       for(int r=0; r<NROCsMAX; r++) h2HitsMultROC[index]->Fill(p,r,HitsMultROC[indp][r]);
-    }
-    int max = 0;
-    for(int r=0; r<NROCsMAX; r++) if(max < rocf[r]) 
-    { max = rocf[r]; }
 
-    for(int r=0; r<NROCsMAX; r++) hRPotActivROCs[index]->Fill(r,rocf[r]);
-    for(int r=0; r<NROCsMAX; r++) if(rocf[r] == max)
-	hRPotActivROCsMax[index]->Fill(r,max);
-
-    if(max > 4) hRPotActivBXroc[index]->Fill(event.bunchCrossing());
-  }
+        }
+        int max = 0;
+        for(int r=0; r<NROCsMAX; r++) {
+          if(max < rocf[r]) { max = rocf[r]; }
+        }
+        for(int r=0; r<NROCsMAX; r++) {
+          hRPotActivROCs[index]->Fill(r,rocf[r]); 
+        }
+        for(int r=0; r<NROCsMAX; r++) {
+          if(rocf[r] == max) {hRPotActivROCsMax[index]->Fill(r,max);}
+        }
+        if(max > 4) hRPotActivBXroc[index]->Fill(event.bunchCrossing());
+      }
 
   if((nEvents % 100)) return;
   if(verbosity) LogPrint("CTPPSPixelDQMSource")<<"analyze event "<<nEvents;

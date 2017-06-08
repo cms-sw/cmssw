@@ -42,12 +42,12 @@
 class EcalSimpleUncalibRecHitFilter : public edm::EDFilter {
 public:
   explicit EcalSimpleUncalibRecHitFilter(const edm::ParameterSet&);
-  ~EcalSimpleUncalibRecHitFilter();
+  ~EcalSimpleUncalibRecHitFilter() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
-  virtual bool filter(edm::Event &, edm::EventSetup const &) override;
+  bool filter(edm::Event &, edm::EventSetup const &) override;
 
   // ----------member data ---------------------------
   const edm::EDGetTokenT<EcalUncalibratedRecHitCollection> EcalUncalibRecHitToken_;
@@ -98,12 +98,10 @@ EcalSimpleUncalibRecHitFilter::filter(edm::Event & iEvent, edm::EventSetup const
 
   bool thereIsSignal = false;
   // loop on crude rechits
-  for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = crudeHits->begin(); hitItr != crudeHits->end(); ++hitItr ) {
-
-    EcalUncalibratedRecHit hit = (*hitItr);
+  for (auto hit : *crudeHits) {
 
     // masking noisy channels
-    std::vector<int>::const_iterator result = std::find( maskedList_.begin(), maskedList_.end(), EBDetId(hit.id()).hashedIndex() );
+    auto result = std::find( maskedList_.begin(), maskedList_.end(), EBDetId(hit.id()).hashedIndex() );
     if  (result != maskedList_.end())
       // LogWarning("EcalFilter") << "skipping uncalRecHit for channel: " << ic << " with amplitude " << ampli_ ;
       continue;

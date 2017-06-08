@@ -2,8 +2,6 @@ from RecoPixelVertexing.PixelTriplets.pixelTripletHLTEDProducerDefault_cfi impor
 
 pixelTripletHLTEDProducer = _pixelTripletHLTEDProducerDefault.clone()
 from Configuration.Eras.Modifier_trackingLowPU_cff import trackingLowPU
-from Configuration.Eras.Modifier_trackingPhase1PU70_cff import trackingPhase1PU70
 from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
 trackingLowPU.toModify(pixelTripletHLTEDProducer, maxElement=100000)
-trackingPhase1PU70.toModify(pixelTripletHLTEDProducer, maxElement=0)
 trackingPhase2PU140.toModify(pixelTripletHLTEDProducer, maxElement=0)

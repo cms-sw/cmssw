@@ -37,7 +37,7 @@ HLTEgammaDoubleEtFilter::HLTEgammaDoubleEtFilter(const edm::ParameterSet& iConfi
   candToken_ = consumes<trigger::TriggerFilterObjectWithRefs> (candTag_);
 }
 
-HLTEgammaDoubleEtFilter::~HLTEgammaDoubleEtFilter(){}
+HLTEgammaDoubleEtFilter::~HLTEgammaDoubleEtFilter()= default;
 
 void
 HLTEgammaDoubleEtFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

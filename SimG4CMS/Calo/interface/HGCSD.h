@@ -8,8 +8,8 @@
 
 #include "SimG4CMS/Calo/interface/CaloSD.h"
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
-#include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 #include "SimG4CMS/Calo/interface/HGCNumberingScheme.h"
+#include "SimG4CMS/Calo/interface/HGCMouseBite.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 
 #include "G4String.hh"
@@ -50,11 +50,15 @@ private:
 
   HGCalGeometryMode             m_mode;
   HGCNumberingScheme*           numberingScheme;
+  HGCMouseBite*                 mouseBite_;
   G4int                         mumPDG, mupPDG; 
   double                        eminHit;
   ForwardSubdetector            myFwdSubdet_;
   double                        slopeMin_;
   int                           levelT_;
+  bool                          rejectMB_, waferRot_;
+  double                        mouseBiteCut_;
+  std::vector<double>           angles_;
 };
 
 #endif // HGCSD_h

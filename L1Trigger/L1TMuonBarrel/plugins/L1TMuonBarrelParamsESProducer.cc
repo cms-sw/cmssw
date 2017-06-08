@@ -66,7 +66,6 @@ class L1TMuonBarrelParamsESProducer : public edm::ESProducer {
 //
 L1TMuonBarrelParamsESProducer::L1TMuonBarrelParamsESProducer(const edm::ParameterSet& iConfig)
 {
-	l1t::XmlConfigReader ttt;
    //the following line is needed to tell the framework what
    // data is being produced
    setWhatProduced(this);

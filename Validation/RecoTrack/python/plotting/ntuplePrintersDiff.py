@@ -7,7 +7,6 @@ import collections
 
 from operator import itemgetter, methodcaller
 
-from Validation.RecoTrack.plotting.ntupleDetId import *
 from Validation.RecoTrack.plotting.ntupleDataFormat import *
 
 # Common track-track matching by hits (=clusters)
@@ -704,8 +703,8 @@ def _hitPatternSummary(hits):
 
     prevdet = 0
     for hit in hits:
-        det = hit.det()
-        lay = hit.lay()
+        det = hit.subdet()
+        lay = hit.layer()
 
         if det != prevdet:
             summary += " "+SubDet.toString(det)
@@ -748,10 +747,11 @@ class _RecHitPrinter(_IndentPrinter):
         lst = []
         for hit in hits:
             matched = ""
+            glued = ""
             coord = ""
             if hit.isValidHit():
                 if hasattr(hit, "matchedSimHitInfos"):
-                    matched = "from %s " % HitSimType.toString(hit.simType())
+                    matched = " from %s " % HitSimType.toString(hit.simType())
                     matches = []
                     hasChargeFraction = False
                     for shInfo in hit.matchedSimHitInfos():
@@ -769,8 +769,12 @@ class _RecHitPrinter(_IndentPrinter):
                         matched += " "+",".join(matches)
 
                 coord = "x,y,z %f,%f,%f" % (hit.x(), hit.y(), hit.z())
-            detId = parseDetId(hit.detId())
-            lst.append(self._prefix+"%s %d detid %d %s %s %s" % (hit.layerStr(), hit.index(), detId.detid, str(detId), coord, matched))
+                if isinstance(hit, GluedHit):
+                    glued = "monoHit %d stereoHit %d " % (hit.monoHit().index(), hit.stereoHit().index())
+
+            lst.append(self._prefix+"{layer} {hit} detid {detid} {detidStr} {glued}{coord}{matched}".format(layer=hit.layerStr(), hit=hit.index(),
+                                                                                                               detid=hit.detId(), detidStr=hit.detIdStr(),
+                                                                                                               glued=glued, coord=coord, matched=matched))
         return lst
 
 class _TrackingParticleMatchPrinter(object):
@@ -1098,7 +1102,6 @@ class TrackingParticlePrinter(_IndentPrinter):
         if self._hits:
             lst.append(self._prefix+" sim hits"+_hitPatternSummary(tp.simHits()))
             for simhit in tp.simHits():
-                detId = parseDetId(simhit.detId())
                 tmp = []
                 for h in simhit.hits():
                     tmp.append(",".join([str(trk.index()) for trk in h.tracks()]) + ":%d"%h.index())
@@ -1107,7 +1110,7 @@ class TrackingParticlePrinter(_IndentPrinter):
                 else:
                     matched = "matched to Tracks:RecHits "+";".join(tmp)
 
-                lst.append(self._prefix+"  %s %d pdgId %d process %d detId %d %s x,y,z %f,%f,%f %s" % (simhit.layerStr(), simhit.index(), simhit.particle(), simhit.process(), detId.detid, str(detId), simhit.x(), simhit.y(), simhit.z(), matched))
+                lst.append(self._prefix+"  %s %d pdgId %d process %d detId %d %s x,y,z %f,%f,%f %s" % (simhit.layerStr(), simhit.index(), simhit.particle(), simhit.process(), simhit.detId(), simhit.detIdStr(), simhit.x(), simhit.y(), simhit.z(), matched))
         return lst
 
     def _printMatchedTracksHeader(self):
@@ -1125,7 +1128,7 @@ class TrackingParticlePrinter(_IndentPrinter):
             self._trackPrinter.indent(2)
             for track in tracks:
                 lst.extend(self._trackPrinter.printTrack(track))
-                self._trackPrinter.restoreIndent()
+            self._trackPrinter.restoreIndent()
         return lst
 
     def printMatchedTracks(self, tp, useTrackPrinter=True):

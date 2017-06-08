@@ -1,6 +1,8 @@
 #ifndef SimDataFormats_GeneratorProducts_PdfInfo_h
 #define SimDataFormats_GeneratorProducts_PdfInfo_h
 
+#include <utility>
+
 /** \class PdfInfo
  *
  */

@@ -298,7 +298,7 @@ void SimG4HcalValidation::fill(const EndOfEvent * evt) {
   LogDebug("ValidHcal") << "SimG4HcalValidation :: Hit Collection for " 
 			<< names[0] << " of ID " << HCHCid <<" is obtained at "
 			<< theHCHC;
-  if (HCHCid >= 0 && theHCHC > 0) {
+  if (HCHCid >= 0 && theHCHC != nullptr) {
     for (j = 0; j < theHCHC->entries(); j++) {
 
       CaloG4Hit* aHit = (*theHCHC)[j]; 
@@ -374,7 +374,7 @@ void SimG4HcalValidation::fill(const EndOfEvent * evt) {
       LogDebug("ValidHcal") << "SimG4HcalValidation:: Hit Collection for "
 			    << names[idty] << " of ID " << ECHCid 
 			    << " is obtained at " << theECHC;
-      if (ECHCid >= 0 && theECHC > 0) {
+      if (ECHCid >= 0 && theECHC != nullptr) {
 	for (j = 0; j < theECHC->entries(); j++) {
 
 	  CaloG4Hit* aHit = (*theECHC)[j]; 

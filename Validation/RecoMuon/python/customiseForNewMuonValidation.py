@@ -3,8 +3,9 @@ import FWCore.ParameterSet.Config as cms
 def enableNewMuonVal(process):
     "Enable new muon validation sequence, both for sources and harvesting"    
     
-    if hasattr(process,"validation")       and \
-       not hasattr(process,"validationHI") and \
+    if hasattr(process,"validation")              and \
+       not hasattr(process,"validationHI")        and \
+       not hasattr(process,"prevalidation_step2") and \
        hasattr(process,"recoMuonValidation") :
     
         print "[enableNewMuonVal] : pp RECO"
@@ -14,6 +15,19 @@ def enableNewMuonVal(process):
         if hasattr(process,"validation") :
             process.validation.replace(process.recoMuonValidation, \
                                        process.NEWrecoMuonValidation)
+
+    if hasattr(process,"globalPrevalidationMuons") and \
+       hasattr(process,"prevalidation_step2")      and \
+       not hasattr(process,"validationHI")         and \
+       hasattr(process,"recoMuonValidation") :
+    
+        print "[enableNewMuonVal] : pp RECO Upgrades"
+    
+        process.load("Validation.RecoMuon.NewMuonValidation_cff")
+    
+        if hasattr(process,"validation") :
+            process.globalPrevalidationMuons.replace(process.recoMuonValidation, \
+                                                     process.NEWrecoMuonValidation)
 
     if hasattr(process,"hltvalidation")    and \
        not hasattr(process,"validationHI") and \
@@ -67,6 +81,15 @@ def enableNewMuonVal(process):
         if hasattr(process,"postValidation") :
             process.postValidation.replace(process.recoMuonPostProcessors, \
                                            process.NEWrecoMuonPostProcessors)
+
+    if hasattr(process,"postValidation_muons") and \
+       hasattr(process,"recoMuonPostProcessors") :
+
+        process.load("Validation.RecoMuon.NewPostProcessor_cff")
+
+        if hasattr(process,"postValidation_muons") :
+            process.postValidation_muons.replace(process.recoMuonPostProcessors, \
+                                                 process.NEWrecoMuonPostProcessors)
 
     if hasattr(process,"postValidationHI") and \
        hasattr(process,"recoMuonPostProcessors") :

@@ -36,7 +36,7 @@ class RawToDigiConverter
       edm::DetSetVector<CTPPSDiamondDigi> &digi, edm::DetSetVector<TotemVFATStatus> &status);
 
     /// Print error summaries.
-    void PrintSummaries();
+    void PrintSummaries() const;
 
   private:
     struct Record

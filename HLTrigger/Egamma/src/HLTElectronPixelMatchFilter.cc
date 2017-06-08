@@ -60,8 +60,7 @@ HLTElectronPixelMatchFilter::HLTElectronPixelMatchFilter(const edm::ParameterSet
 
 }
 
-HLTElectronPixelMatchFilter::~HLTElectronPixelMatchFilter()
-{}
+HLTElectronPixelMatchFilter::~HLTElectronPixelMatchFilter() = default;
 
 float HLTElectronPixelMatchFilter::calDPhi1Sq(reco::ElectronSeedCollection::const_iterator seed, int charge)const
 {
@@ -135,9 +134,9 @@ bool HLTElectronPixelMatchFilter::hltFilter(edm::Event& iEvent, const edm::Event
   
   // look at all egammas,  check cuts and add to filter object
   int n = 0;
-  for (unsigned int i=0; i<recoecalcands.size(); i++) {
+  for (auto & recoecalcand : recoecalcands) {
 
-    ref = recoecalcands[i];
+    ref = recoecalcand;
     reco::SuperClusterRef recr2 = ref->superCluster();
     
     int nmatch = getNrOfMatches(l1PixelSeeds, recr2);
@@ -165,7 +164,7 @@ int HLTElectronPixelMatchFilter::getNrOfMatches(edm::Handle<reco::ElectronSeedCo
 						reco::SuperClusterRef& candSCRef)const
 {
   int nrMatch=0;
-  for(reco::ElectronSeedCollection::const_iterator seedIt = eleSeeds->begin(); seedIt != eleSeeds->end(); seedIt++){
+  for(auto seedIt = eleSeeds->begin(); seedIt != eleSeeds->end(); seedIt++){
     edm::RefToBase<reco::CaloCluster> caloCluster = seedIt->caloCluster() ;
     reco::SuperClusterRef scRef = caloCluster.castTo<reco::SuperClusterRef>() ;
     if(&(*candSCRef) ==  &(*scRef)){

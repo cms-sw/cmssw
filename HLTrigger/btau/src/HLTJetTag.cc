@@ -52,9 +52,7 @@ HLTJetTag<T>::HLTJetTag(const edm::ParameterSet & config) : HLTFilter(config),
 }
 
 template<typename T>
-HLTJetTag<T>::~HLTJetTag()
-{
-}
+HLTJetTag<T>::~HLTJetTag() = default;
 
 template<typename T>
 void
@@ -110,14 +108,14 @@ HLTJetTag<T>::hltFilter(edm::Event& event, const edm::EventSetup& setup, trigger
   // Look at all jets in decreasing order of Et.
   int nJet = 0;
   int nTag = 0;
-  for (JetTagCollection::const_iterator jet = h_JetTags->begin(); jet != h_JetTags->end(); ++jet) {
-    jetRef = TRef(h_Jets,jet->first.key());
+  for (auto const & jet : *h_JetTags) {
+    jetRef = TRef(h_Jets,jet.first.key());
     LogTrace("") << "Jet " << nJet
-                 << " : Et = " << jet->first->et()
-                 << " , tag value = " << jet->second;
+                 << " : Et = " << jet.first->et()
+                 << " , tag value = " << jet.second;
     ++nJet;
     // Check if jet is tagged.
-    if ( (m_MinTag <= jet->second) and (jet->second <= m_MaxTag) ) {
+    if ( (m_MinTag <= jet.second) and (jet.second <= m_MaxTag) ) {
       ++nTag;
 
       // Store a reference to the jets which passed tagging cuts

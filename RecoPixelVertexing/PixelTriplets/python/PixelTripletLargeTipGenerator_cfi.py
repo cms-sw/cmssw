@@ -11,8 +11,5 @@ PixelTripletLargeTipGenerator = cms.PSet(
     extraHitRPhitolerance = cms.double(0.032),
     extraHitRZtolerance = cms.double(0.037)
 )
-from Configuration.Eras.Modifier_trackingPhase1PU70_cff import trackingPhase1PU70
-trackingPhase1PU70.toModify(PixelTripletLargeTipGenerator, maxElement = 0)
-
 from Configuration.Eras.Modifier_peripheralPbPb_cff import peripheralPbPb
 peripheralPbPb.toModify(PixelTripletLargeTipGenerator, maxElement = 1000000)

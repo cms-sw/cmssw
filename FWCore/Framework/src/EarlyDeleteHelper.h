@@ -23,10 +23,9 @@
 #include <atomic>
 
 // user include files
-
+#include "DataFormats/Provenance/interface/BranchID.h"
 // forward declarations
 namespace edm {
-  class BranchID;
   class EventPrincipal;
   
   struct BranchToCount {

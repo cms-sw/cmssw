@@ -5,6 +5,7 @@
  *
  *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
+ *          Vladimir Rekovic - extend for overlap removal
  *
  * $Date$
  * $Revision$
@@ -71,7 +72,9 @@ constexpr entry<l1t::GtConditionType> l1GtConditionTypeStringToEnumMap[] = {
 	{"l1t::TypeMinBiasHFP1", l1t::TypeMinBiasHFP1},
 	{"l1t::TypeMinBiasHFM1", l1t::TypeMinBiasHFM1},
         {"l1t::TypeExternal", l1t::TypeExternal},
-        {0, (l1t::GtConditionType) - 1}
+        {0, (l1t::GtConditionType) - 1},
+        {"l1t::Type2corWithOverlapRemoval", l1t::Type2corWithOverlapRemoval}
+
 };
 
 // l1t::GtConditionCategory
@@ -82,7 +85,8 @@ constexpr entry<l1t::GtConditionCategory> l1GtConditionCategoryStringToEnumMap[]
   {"l1t::CondEnergySum", l1t::CondEnergySum},
   {"l1t::CondCorrelation", l1t::CondCorrelation},
   {"l1t::CondExternal", l1t::CondExternal},
-  {0, (l1t::GtConditionCategory) - 1}
+  {0, (l1t::GtConditionCategory) - 1},
+  {"l1t::CondCorrelationWithOverlapRemoval", l1t::CondCorrelationWithOverlapRemoval}
 };
 
 }

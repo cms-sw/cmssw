@@ -58,7 +58,7 @@ phase2TrackerDigitizer = cms.PSet(
     PSPDigitizerAlgorithm = cms.PSet(
       makeDigiSimLinks = cms.untracked.bool(True),
       ElectronPerAdc = cms.double(135.0),
-      ReadoutNoiseInElec = cms.double(1000.0),#D.B.:Fill readout noise, including all readout chain, relevant for smearing
+      ReadoutNoiseInElec = cms.double(200.0),#D.B.:Fill readout noise, including all readout chain, relevant for smearing
       ThresholdInElectrons_Barrel = cms.double(6300.), #(0.4 MIP = 0.4 * 16000 e)
       ThresholdInElectrons_Endcap = cms.double(6300.), #(0.4 MIP = 0.4 * 16000 e) 
       AddThresholdSmearing = cms.bool(True),
@@ -66,7 +66,7 @@ phase2TrackerDigitizer = cms.PSet(
       ThresholdSmearing_Endcap = cms.double(630.0),
       HIPThresholdInElectrons_Barrel = cms.double(1.0e10), # very high value to avoid Over threshold bit
       HIPThresholdInElectrons_Endcap = cms.double(1.0e10), # very high value to avoid Over threshold bit
-      NoiseInElectrons = cms.double(300),	         # 30% of the readout noise (should be changed in future)
+      NoiseInElectrons = cms.double(200),	         # 30% of the readout noise (should be changed in future)
       DigitalReadout           = cms.bool(True), # Flag to decide analog or digital readout 
       AdcFullScale = cms.int32(255),
       TofUpperCut = cms.double(12.5),
@@ -97,7 +97,7 @@ phase2TrackerDigitizer = cms.PSet(
       makeDigiSimLinks = cms.untracked.bool(True),
       ElectronPerAdc = cms.double(135.0),
 #D.B.:the noise should be a function of strip capacitance, roughly: ReadoutNoiseInElec=500+(64*Cdet[pF]) ~= 500+(64*1.5[cm])
-      ReadoutNoiseInElec = cms.double(1000.0),#D.B.:Fill readout noise, including all readout chain, relevant for smearing
+      ReadoutNoiseInElec = cms.double(700.0),#D.B.:Fill readout noise, including all readout chain, relevant for smearing
       ThresholdInElectrons_Barrel = cms.double(6300.), #(0.4 MIP = 0.4 * 16000 e)
       ThresholdInElectrons_Endcap = cms.double(6300.), #(0.4 MIP = 0.4 * 16000 e)
       AddThresholdSmearing = cms.bool(True),
@@ -105,7 +105,7 @@ phase2TrackerDigitizer = cms.PSet(
       ThresholdSmearing_Endcap = cms.double(630.0),
       HIPThresholdInElectrons_Barrel = cms.double(21000.), # 1.4 MIP considered as HIP
       HIPThresholdInElectrons_Endcap = cms.double(21000.), # 1.4 MIP considered as HIP 
-      NoiseInElectrons = cms.double(300),	         # 30% of the readout noise (should be changed in future)
+      NoiseInElectrons = cms.double(700),	         # 30% of the readout noise (should be changed in future)
       DigitalReadout           = cms.bool(True), # Flag to decide analog or digital readout 
       AdcFullScale = cms.int32(255),
       TofUpperCut = cms.double(12.5),
@@ -144,7 +144,7 @@ phase2TrackerDigitizer = cms.PSet(
       ThresholdSmearing_Endcap = cms.double(580.0),#D.B.: changed (~5mV peakToPeak --> 1.76mV rms) (was 245.0)
       HIPThresholdInElectrons_Barrel = cms.double(1.0e10), # very high value to avoid Over threshold bit
       HIPThresholdInElectrons_Endcap = cms.double(1.0e10), # very high value to avoid Over threshold bit
-      NoiseInElectrons = cms.double(300),	         # 30% of the readout noise (should be changed in future)
+      NoiseInElectrons = cms.double(1000),	         # 30% of the readout noise (should be changed in future)
       DigitalReadout           = cms.bool(True), # Flag to decide analog or digital readout 
       AdcFullScale = cms.int32(255),
       TofUpperCut = cms.double(12.5),

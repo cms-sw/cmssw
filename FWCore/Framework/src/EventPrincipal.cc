@@ -390,13 +390,6 @@ namespace edm {
     return getProvenance(bid, mcc);
   }
 
-  void
-  EventPrincipal::setupUnscheduled(UnscheduledConfigurator const& iConfigure) {
-    applyToResolvers([&iConfigure](ProductResolverBase* iResolver) {
-      iResolver->setupUnscheduled(iConfigure);
-    });
-  }
-
   EventSelectionIDVector const&
   EventPrincipal::eventSelectionIDs() const {
     return eventSelectionIDs_;

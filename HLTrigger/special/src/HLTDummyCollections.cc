@@ -70,11 +70,11 @@ Implementation:
 class HLTDummyCollections : public edm::EDProducer {
   public:
     explicit HLTDummyCollections(const edm::ParameterSet&);
-    ~HLTDummyCollections();
+    ~HLTDummyCollections() override;
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);   
 
   private:
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
     // ----------member data ---------------------------
 

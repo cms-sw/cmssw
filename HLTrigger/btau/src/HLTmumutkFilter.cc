@@ -46,7 +46,7 @@ HLTmumutkFilter::HLTmumutkFilter(const edm::ParameterSet& iConfig) : HLTFilter(i
 }
 
 // ----------------------------------------------------------------------
-HLTmumutkFilter::~HLTmumutkFilter() {}
+HLTmumutkFilter::~HLTmumutkFilter() = default;
 
 void
 HLTmumutkFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -118,7 +118,7 @@ bool HLTmumutkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetu
     if (vtxProb < minVtxProbability_) continue;
 
     // get the three tracks from the vertex
-    reco::Vertex::trackRef_iterator trackIt =  displacedVertex.tracks_begin();
+    auto trackIt =  displacedVertex.tracks_begin();
     reco::TrackRef vertextkRef1 =  (*trackIt).castTo<reco::TrackRef>() ;
     trackIt++;
     reco::TrackRef vertextkRef2 =  (*trackIt).castTo<reco::TrackRef>();
@@ -132,7 +132,7 @@ bool HLTmumutkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetu
 
     int iFoundRefs = 0;
     bool threeMuons = false;
-    for (reco::RecoChargedCandidateCollection::const_iterator cand=mucands->begin(); cand!=mucands->end(); cand++) {
+    for (auto cand=mucands->begin(); cand!=mucands->end(); cand++) {
       reco::TrackRef tkRef = cand->get<reco::TrackRef>();
       if     (tkRef == vertextkRef1 && iFoundRefs==0) {mucand1 = cand; iFoundRefs++;}
       else if(tkRef == vertextkRef1 && iFoundRefs==1) {mucand2 = cand; iFoundRefs++;}
@@ -149,7 +149,7 @@ bool HLTmumutkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetu
 
     bool twoTrks = false;
     int iTrkFoundRefs = 0;
-    for (reco::RecoChargedCandidateCollection::const_iterator cand=trkcands->begin(); cand!=trkcands->end(); cand++) {
+    for (auto cand=trkcands->begin(); cand!=trkcands->end(); cand++) {
       reco::TrackRef tkRef = cand->get<reco::TrackRef>();
       if     (tkRef == vertextkRef1 && iTrkFoundRefs==0) {tkcand = cand; iTrkFoundRefs++;}
       else if(tkRef == vertextkRef1 && iTrkFoundRefs==1) {twoTrks = true;}

@@ -13,6 +13,15 @@
 #include <DataFormats/GEMDigi/interface/ME0DigiPreReco.h>
 #include <DataFormats/GEMDigi/interface/ME0DigiPreRecoCollection.h>
 
+#include <DataFormats/GEMDigi/interface/ME0Digi.h>
+#include <DataFormats/GEMDigi/interface/ME0DigiCollection.h>
+
+#include <DataFormats/GEMDigi/interface/ME0PadDigi.h>
+#include <DataFormats/GEMDigi/interface/ME0PadDigiCollection.h>
+
+#include <DataFormats/GEMDigi/interface/ME0TriggerDigi.h>
+#include <DataFormats/GEMDigi/interface/ME0TriggerDigiCollection.h>
+
 #include <DataFormats/Common/interface/Wrapper.h>
 #include <vector>
 
@@ -50,5 +59,23 @@ namespace DataFormats_GEMDigi {
     edm::Wrapper<ME0DigiPreRecoCollection> wm;
     ME0DigiPreRecoMap mmap;
     edm::Wrapper<ME0DigiPreRecoMap> wmmap;
+    
+    ME0Digi mm;
+    std::vector<ME0Digi>  vmm;
+    std::vector<std::vector<ME0Digi> >  vvmm;
+    ME0DigiCollection mmcol;
+    edm::Wrapper<ME0DigiCollection> wmm;
+
+    ME0PadDigi mp;
+    std::vector<ME0PadDigi>  vmp;
+    std::vector<std::vector<ME0PadDigi> >  vvmp;
+    ME0PadDigiCollection mpcol;
+    edm::Wrapper<ME0PadDigiCollection> wmp;
+
+    ME0TriggerDigi ml;
+    std::vector<ME0TriggerDigi>  vml;
+    std::vector<std::vector<ME0TriggerDigi> >  vvml;
+    ME0TriggerDigiCollection mlcol;
+    edm::Wrapper<ME0TriggerDigiCollection> wml;
   };
 }

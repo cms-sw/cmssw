@@ -6,24 +6,49 @@ process.MessageLogger.cout.placeholder = cms.untracked.bool(False)
 process.MessageLogger.cout.threshold = cms.untracked.string('DEBUG')
 process.MessageLogger.debugModules = cms.untracked.vstring('*')
 
-process.source = cms.Source("EmptySource", firstRun = cms.untracked.uint32(285243))
+import FWCore.ParameterSet.VarParsing as VarParsing
+options = VarParsing.VarParsing()
+options.register('db',
+                 'static:caloStage2Params_2017_v1_4_inconsistent_cfi.py',
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "Source DB: prod/prep/static:.../sqlite:..."
+)
+options.register('run',
+                 1,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "Run (IOV)"
+)
+options.parseArguments()
+
+if "static" in options.db :
+    process.load("L1Trigger.L1TCalorimeter." + options.db[7:])
+else :
+    if   options.db == "prod" :
+        sourceDB = "frontier://FrontierProd/CMS_CONDITIONS"
+    elif options.db == "prep" :
+        sourceDB = "frontier://FrontierPrep/CMS_CONDITIONS"
+    elif "sqlite" in options.db :
+        sourceDB = options.db
+    else :
+        print "Unknown input DB: ", options.db, " should be static:.../prod/prep/sqlite:..."
+        exit(0)
+
+    from CondCore.CondDB.CondDB_cfi import CondDB
+    CondDB.connect = cms.string(sourceDB)
+    process.l1conddb = cms.ESSource("PoolDBESSource",
+       CondDB,
+       toGet   = cms.VPSet(
+            cms.PSet(
+                 record = cms.string('L1TCaloParamsRcd'),
+                 tag = cms.string("L1TCaloParams_Stage2v3_hlt")
+            )
+       )
+   )
+
+process.source = cms.Source("EmptySource", firstRun = cms.untracked.uint32(options.run))
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
-
-process.load("L1Trigger.L1TCalorimeter.caloStage2Params_2016_v3_3_cfi")
-
-#from CondCore.CondDB.CondDB_cfi import CondDB
-##CondDB.connect = cms.string('sqlite:l1config.db')
-#CondDB.connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
-#
-#process.l1conddb = cms.ESSource("PoolDBESSource",
-#       CondDB,
-#       toGet   = cms.VPSet(
-#            cms.PSet(
-#                 record = cms.string('L1TCaloStage2ParamsRcd'),
-#                 tag = cms.string("L1TCaloParams_Stage2v0_hlt")
-#            )
-#       )
-#)
 
 process.l1cpv = cms.EDAnalyzer("L1TCaloParamsViewer", printEgIsoLUT = cms.untracked.bool(False) )
 

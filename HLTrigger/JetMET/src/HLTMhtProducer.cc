@@ -32,7 +32,7 @@ HLTMhtProducer::HLTMhtProducer(const edm::ParameterSet & iConfig) :
 }
 
 // Destructor
-HLTMhtProducer::~HLTMhtProducer() {}
+HLTMhtProducer::~HLTMhtProducer() = default;
 
 // Fill descriptions
 void HLTMhtProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
@@ -82,10 +82,10 @@ void HLTMhtProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
     }
 
     if (excludePFMuons_) {
-        for (reco::PFCandidateCollection::const_iterator j = pfCandidates->begin(); j != pfCandidates->end(); ++j) {
-            if (std::abs(j->pdgId()) == 13) {
-                mhx += j->px();
-                mhy += j->py();
+        for (auto const & j : *pfCandidates) {
+            if (std::abs(j.pdgId()) == 13) {
+                mhx += j.px();
+                mhy += j.py();
             }
         }
     }

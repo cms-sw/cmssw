@@ -75,38 +75,6 @@ namespace {
 }
 
 BasicTrajectoryState::
-BasicTrajectoryState( const FreeTrajectoryState& fts,
-		      const SurfaceType& aSurface,
-		      const SurfaceSide side) :
-  theFreeState(fts),
-  theLocalError(InvalidError()),
-  theLocalParameters(),
-  theLocalParametersValid(false),
-  theValid(true),
-  theSurfaceSide(side), 
-  theSurfaceP( &aSurface), 
-  theWeight(1.)
-{}    
-
-
-BasicTrajectoryState::
-BasicTrajectoryState( const GlobalTrajectoryParameters& par,
-		      const CartesianTrajectoryError& err,
-		      const SurfaceType& aSurface,
-		      const SurfaceSide side) :
-  theFreeState(par, err),
-  theLocalError(InvalidError()),
-  theLocalParameters(),
-  theLocalParametersValid(false),
-  theValid(true),
-  theSurfaceSide(side), 
-  theSurfaceP( &aSurface), 
-  theWeight(1.)
-{}
-
-
-
-BasicTrajectoryState::
 BasicTrajectoryState( const LocalTrajectoryParameters& par,
 		      const LocalTrajectoryError& err,
 		      const SurfaceType& aSurface,

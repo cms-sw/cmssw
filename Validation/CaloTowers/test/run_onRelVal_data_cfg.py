@@ -1,5 +1,6 @@
 import os
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 process = cms.Process("hcalval")
 process.load("Configuration.StandardSequences.Reconstruction_Data_cff")
@@ -49,7 +50,7 @@ process.hcalTowerAnalyzer = cms.EDAnalyzer("CaloTowersValidation",
     useAllHistos             = cms.untracked.bool(False)                         
 )
 
-process.noiseRates = cms.EDAnalyzer('NoiseRates',
+process.noiseRates = DQMEDHarvester('NoiseRates',
     outputFile   = cms.untracked.string('NoiseRatesRelVal.root'),
     rbxCollName  = cms.untracked.InputTag('hcalnoise'),
 
@@ -79,17 +80,17 @@ process.dqmSaver.workflow = Workflow
 #process.dqmSaver.saveByRun         = 1
 #process.dqmSaver.saveAtJobEnd = False
 
-process.calotowersClient = cms.EDAnalyzer("CaloTowersClient", 
+process.calotowersClient = DQMEDHarvester("CaloTowersClient", 
      outputFile = cms.untracked.string('CaloTowersHarvestingME.root'),
      DQMDirName = cms.string("/") # root directory
 )
 
-process.noiseratesClient = cms.EDAnalyzer("NoiseRatesClient", 
+process.noiseratesClient = DQMEDHarvester("NoiseRatesClient", 
      outputFile = cms.untracked.string('NoiseRatesHarvestingME.root'),
      DQMDirName = cms.string("/") # root directory
 )
 
-process.hcalrechitsClient = cms.EDAnalyzer("HcalRecHitsClient", 
+process.hcalrechitsClient = DQMEDHarvester("HcalRecHitsClient", 
      outputFile = cms.untracked.string('HcalRecHitsHarvestingME.root'),
      DQMDirName = cms.string("/") # root directory
 )
@@ -116,7 +117,7 @@ process.hcalRecHitsAnalyzer = cms.EDAnalyzer("HcalRecHitsAnalyzer",
     useAllHistos              = cms.untracked.bool(False)                                 
 )
 
-process.hcalNoiseRates = cms.EDAnalyzer('HcalNoiseRates',
+process.hcalNoiseRates = DQMEDHarvester('HcalNoiseRates',
 #    outputFile   = cms.untracked.string('NoiseRatesRelVal.root'),
     outputFile   = cms.untracked.string(''),
     rbxCollName  = cms.untracked.InputTag('hcalnoise'),

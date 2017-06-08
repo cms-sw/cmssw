@@ -7,7 +7,6 @@ import sys
 from Configuration.Eras.Modifier_stage1L1Trigger_cff import stage1L1Trigger
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
 if not (stage1L1Trigger.isChosen() or stage2L1Trigger.isChosen()):
-    sys.stderr.write("L1TCalorimeter Sequence configured for Run1 (Legacy) trigger. \n")
 # -  RCT (Regional Calorimeter Trigger) emulator
     import L1Trigger.RegionalCaloTrigger.rctDigis_cfi
     simRctDigis = L1Trigger.RegionalCaloTrigger.rctDigis_cfi.rctDigis.clone()
@@ -23,7 +22,6 @@ if not (stage1L1Trigger.isChosen() or stage2L1Trigger.isChosen()):
 # Stage-1 Trigger
 #
 if stage1L1Trigger.isChosen() and not stage2L1Trigger.isChosen():
-    sys.stderr.write("L1TCalorimeter Sequence configured for Stage-1 (2015) trigger. \n")
 #
 # -  RCT (Regional Calorimeter Trigger) emulator
 #
@@ -43,7 +41,6 @@ if stage1L1Trigger.isChosen() and not stage2L1Trigger.isChosen():
 # Stage-2 Trigger
 #
 if stage2L1Trigger.isChosen():
-    sys.stderr.write("L1TCalorimeter Sequence configured for Stage-2 (2016) trigger. \n")
     # select one of the following two options:
     # - layer1 from L1Trigger/L1TCalorimeter package
     #from L1Trigger.L1TCalorimeter.simCaloStage2Layer1Digis_cfi import simCaloStage2Layer1Digis

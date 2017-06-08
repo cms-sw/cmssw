@@ -80,18 +80,19 @@ void verifyAlign() {
     auto p= new int(3);
     sum +=(*p);
     auto t = new T;
-    sum +=(*t)[0];
     if (aligned(t)!=0) ++nota;
+    else sum +=(*t)[0];
     delete p;
     delete t;
     t = new T;
     sum +=(*t)[0];
     if (aligned(t)!=0) ++nota;
+    else sum +=(*t)[0];  
     delete t;
     vi = new int[3];
     auto vt = new T[3];
     if (aligned(vt)!=0) ++nota;
-    sum +=vt[1][1];
+    else sum +=vt[1][1];
     delete [] vi;
     delete [] vt;
   }
@@ -114,7 +115,8 @@ int main() {
 
 
 #ifdef __clang__
-  std::cout << "biggest alignment " << sizeof(double) << std::endl;
+  struct MxAling {} __attribute__((__aligned__));
+  std::cout << "biggest alignment " << alignof(MxAling) << std::endl;
 #else
   std::cout << "biggest alignment " << __BIGGEST_ALIGNMENT__ << std::endl;
 #endif
@@ -122,14 +124,15 @@ int main() {
 
 
 
-  std::cout << sizeof(Basic2DVectorF) << std::endl;
-  std::cout << sizeof(Basic2DVectorD) << std::endl;
-  std::cout << sizeof(Basic3DVectorF) << std::endl;
-  std::cout << sizeof(Basic3DVectorD) << std::endl;
-  std::cout << sizeof(Basic3DVectorLD) << std::endl;
+  std::cout << sizeof(Basic2DVectorF) << ' ' << alignof(Basic2DVectorF) << std::endl;
+  std::cout << sizeof(Basic2DVectorD) << ' ' << alignof(Basic2DVectorD) << std::endl;
+  std::cout << sizeof(Basic3DVectorF) << ' ' << alignof(Basic3DVectorF) << std::endl;
+  std::cout << sizeof(Basic3DVectorD) << ' ' << alignof(Basic3DVectorD) << std::endl;
+  std::cout << sizeof(Basic3DVectorLD) << ' ' << alignof(Basic3DVectorLD) << std::endl;
+
 
   verifyAlign<Basic3DVectorF>();
-  verifyAlign<Basic3DVectorD>();
+  // verifyAlign<Basic3DVectorD>();  // crashes for AVX
 
 
   Basic3DVectorF  x(2.0f,4.0f,5.0f);

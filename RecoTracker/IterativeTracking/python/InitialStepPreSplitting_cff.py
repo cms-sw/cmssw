@@ -108,7 +108,7 @@ trackingPhase1QuadProp.toModify(initialStepSeedsPreSplitting, seedingHitSets = "
 # building
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
 initialStepTrajectoryFilterBasePreSplitting = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
-    minimumNumberOfHits = 3,
+    minimumNumberOfHits = 4,
     minPt = 0.2,
     maxCCCLostHits = 0,
     minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutLoose'))
@@ -128,9 +128,8 @@ import RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator_cfi
 initialStepChi2EstPreSplitting = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator_cfi.Chi2ChargeMeasurementEstimator.clone(
     ComponentName = cms.string('initialStepChi2EstPreSplitting'),
     nSigma = cms.double(3.0),
-    MaxChi2 = cms.double(30.0),
+    MaxChi2 = cms.double(16.0),
     clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutLoose')),
-    pTChargeCutThreshold = cms.double(15.)
 )
 _tracker_apv_vfp30_2016.toModify(initialStepChi2EstPreSplitting,
     clusterChargeCut = dict(refToPSet_ = "SiStripClusterChargeCutTiny")
@@ -142,8 +141,6 @@ initialStepTrajectoryBuilderPreSplitting = RecoTracker.CkfPattern.GroupedCkfTraj
     alwaysUseInvalidHits = True,
     maxCand = 3,
     estimator = cms.string('initialStepChi2Est'),
-    maxDPhiForLooperReconstruction = cms.double(2.0),
-    maxPtForLooperReconstruction = cms.double(0.7)
     )
 
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
@@ -163,23 +160,17 @@ import RecoTracker.TrackProducer.TrackProducer_cfi
 initialStepTracksPreSplitting = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     src = 'initialStepTrackCandidatesPreSplitting',
     AlgorithmName = cms.string('initialStep'),
-    Fitter = cms.string('FlexibleKFFittingSmoother')
+    Fitter = cms.string('FlexibleKFFittingSmoother'),
+    NavigationSchool ='',
+    MeasurementTrackerEvent = ''
     )
 initialStepTracksPreSplitting.MeasurementTrackerEvent = 'MeasurementTrackerEventPreSplitting'
 
 #vertices
-import RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi
-firstStepPrimaryVerticesPreSplitting = RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi.offlinePrimaryVertices.clone()
+from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import offlinePrimaryVertices as _offlinePrimaryVertices
+firstStepPrimaryVerticesPreSplitting = _offlinePrimaryVertices.clone()
 firstStepPrimaryVerticesPreSplitting.TrackLabel = cms.InputTag("initialStepTracksPreSplitting")
-firstStepPrimaryVerticesPreSplitting.vertexCollections = cms.VPSet(
-     [cms.PSet(label=cms.string(""),
-               algorithm=cms.string("AdaptiveVertexFitter"),
-               minNdof=cms.double(0.0),
-               useBeamConstraint = cms.bool(False),
-               maxDistanceToBeam = cms.double(1.0)
-               )
-      ]
-    )
+firstStepPrimaryVerticesPreSplitting.vertexCollections = [_offlinePrimaryVertices.vertexCollections[0].clone()]
 
 #Jet Core emulation to identify jet-tracks
 from RecoTracker.IterativeTracking.JetCoreRegionalStep_cff import initialStepTrackRefsForJets, caloTowerForTrk, ak4CaloJetsForTrk, jetsForCoreTracking
@@ -227,7 +218,7 @@ _InitialStepPreSplitting_trackingPhase1.replace(initialStepHitTripletsPreSplitti
 trackingPhase1.toReplaceWith(InitialStepPreSplitting, _InitialStepPreSplitting_trackingPhase1.copyAndExclude([initialStepHitTripletsPreSplitting]))
 trackingPhase1QuadProp.toReplaceWith(InitialStepPreSplitting, _InitialStepPreSplitting_trackingPhase1)
 
-# Although InitialStepPreSplitting is not really part of LowPU/Run1/Phase1PU70
+# Although InitialStepPreSplitting is not really part of LowPU/Run1/Phase2PU140
 # tracking, we use it to get siPixelClusters and siPixelRecHits
 # collections for non-splitted pixel clusters. All modules before
 # iterTracking sequence use siPixelClustersPreSplitting and
@@ -236,7 +227,7 @@ trackingPhase1QuadProp.toReplaceWith(InitialStepPreSplitting, _InitialStepPreSpl
 # If siPixelClusters would be defined in
 # RecoLocalTracker.Configuration.RecoLocalTracker_cff, we would have a
 # situation where
-# - LowPU/Phase1PU70 has siPixelClusters defined in RecoLocalTracker_cff
+# - LowPU/Phase2PU140 has siPixelClusters defined in RecoLocalTracker_cff
 # - everything else has siPixelClusters defined here
 # and this leads to a mess. The way it is done here we have only
 # one place (within Reconstruction_cff) where siPixelClusters
@@ -244,16 +235,13 @@ trackingPhase1QuadProp.toReplaceWith(InitialStepPreSplitting, _InitialStepPreSpl
 from RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi import siPixelClusters as _siPixelClusters
 from Configuration.Eras.Modifier_trackingLowPU_cff import trackingLowPU
 trackingLowPU.toReplaceWith(siPixelClusters, _siPixelClusters)
-from Configuration.Eras.Modifier_trackingPhase1PU70_cff import trackingPhase1PU70
-trackingPhase1PU70.toReplaceWith(siPixelClusters, _siPixelClusters)
 from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
 trackingPhase2PU140.toReplaceWith(siPixelClusters, _siPixelClusters)
-_InitialStepPreSplitting_LowPU_Phase1PU70 = cms.Sequence(
+_InitialStepPreSplitting_LowPU_Phase2PU140 = cms.Sequence(
     siPixelClusters +
     siPixelRecHits +
     MeasurementTrackerEvent +
     siPixelClusterShapeCache
 )
-trackingLowPU.toReplaceWith(InitialStepPreSplitting, _InitialStepPreSplitting_LowPU_Phase1PU70)
-trackingPhase1PU70.toReplaceWith(InitialStepPreSplitting, _InitialStepPreSplitting_LowPU_Phase1PU70)
-trackingPhase2PU140.toReplaceWith(InitialStepPreSplitting, _InitialStepPreSplitting_LowPU_Phase1PU70)
+trackingLowPU.toReplaceWith(InitialStepPreSplitting, _InitialStepPreSplitting_LowPU_Phase2PU140)
+trackingPhase2PU140.toReplaceWith(InitialStepPreSplitting, _InitialStepPreSplitting_LowPU_Phase2PU140)

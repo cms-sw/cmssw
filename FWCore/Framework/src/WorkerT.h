@@ -128,7 +128,7 @@ namespace edm {
       module_->itemsMayGet(branchType, indexes);
     }
 
-    virtual std::vector<ProductResolverIndexAndSkipBit> const& itemsToGetFromEvent() const override { return module_->itemsToGetFromEvent(); }
+    virtual std::vector<ProductResolverIndexAndSkipBit> const& itemsToGetFrom(BranchType iType) const override final { return module_->itemsToGetFrom(iType); }
     
     virtual std::vector<ProductResolverIndex> const& itemsShouldPutInEvent() const override;
 

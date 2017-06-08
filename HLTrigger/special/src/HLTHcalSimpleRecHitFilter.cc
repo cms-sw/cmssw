@@ -41,11 +41,11 @@
 class HLTHcalSimpleRecHitFilter : public HLTFilter {
 public:
     explicit HLTHcalSimpleRecHitFilter(const edm::ParameterSet&);
-    ~HLTHcalSimpleRecHitFilter();
+    ~HLTHcalSimpleRecHitFilter() override;
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
-    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+    bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
     // ----------member data ---------------------------
     edm::EDGetTokenT<HFRecHitCollection> HcalRecHitsToken_;
@@ -128,9 +128,7 @@ HLTHcalSimpleRecHitFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& 
     bool accept = false ;
 
     int nHitsNeg=0, nHitsPos=0;
-    for ( HFRecHitCollection::const_iterator hitItr = crudeHits->begin(); hitItr != crudeHits->end(); ++hitItr ) {
-       HFRecHit hit = (*hitItr);
-
+    for (auto hit : *crudeHits) {
        // masking noisy channels
        if (std::find( maskedList_.begin(), maskedList_.end(), hit.id().rawId() ) != maskedList_.end())
            continue;

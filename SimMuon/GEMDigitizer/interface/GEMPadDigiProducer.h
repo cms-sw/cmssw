@@ -32,7 +32,7 @@ public:
 
 private:
   
-  void buildPads(const GEMDigiCollection &digis, GEMPadDigiCollection &out_pads);
+  void buildPads(const GEMDigiCollection &digis, GEMPadDigiCollection &out_pads) const;
 
   /// Name of input digi Collection
   edm::EDGetTokenT<GEMDigiCollection> digi_token_;

@@ -26,6 +26,7 @@ public:
   explicit EcalDigiCollection(size_type istride=MAXSAMPLES, int isubdet=0)  : 
     edm::DataFrameContainer(istride, isubdet){}
   void swap(DataFrameContainer& other) {this->DataFrameContainer::swap(other);}
+  
 };
 
 // make edm (and ecal client) happy
@@ -38,6 +39,10 @@ public:
   EBDigiCollection(size_type istride=MAXSAMPLES) : 
     EcalDigiCollection(istride, EcalBarrel){}
   void swap(EBDigiCollection& other) {this->EcalDigiCollection::swap(other);}
+  void push_back(const Digi& digi){ DataFrameContainer::push_back(digi.id(), digi.frame().begin()); }
+  void push_back(id_type iid){DataFrameContainer::push_back(iid);}
+  void push_back(id_type iid,data_type const* idata){DataFrameContainer::push_back(iid,idata);}
+  
 };
 
 class EEDigiCollection : public  EcalDigiCollection {
@@ -49,6 +54,10 @@ public:
   EEDigiCollection(size_type istride=MAXSAMPLES) : 
     EcalDigiCollection(istride, EcalEndcap){}
   void swap(EEDigiCollection& other) {this->EcalDigiCollection::swap(other);}
+  void push_back(const Digi& digi){ edm::DataFrameContainer::push_back(digi.id(), digi.frame().begin()); }
+  void push_back(id_type iid){DataFrameContainer::push_back(iid);}
+  void push_back(id_type iid,data_type const* idata){DataFrameContainer::push_back(iid,idata);}
+  
 };
 
 class ESDigiCollection : public EcalDigiCollection 

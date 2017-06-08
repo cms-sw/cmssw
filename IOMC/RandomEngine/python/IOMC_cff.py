@@ -150,8 +150,11 @@ RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
         initialSeed = cms.untracked.uint32(987346),
         engineName = cms.untracked.string('TRandom3')
     ),
-
-
+   #CTPPS FastSim
+    CTPPSFastRecHits = cms.PSet(
+        initialSeed = cms.untracked.uint32(1357987),
+        engineName = cms.untracked.string('TRandom3')
+     ),
     # filter for simulated beam spot
     simBeamSpotFilter = cms.PSet(
         initialSeed = cms.untracked.uint32(87654321),

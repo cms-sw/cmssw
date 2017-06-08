@@ -39,7 +39,7 @@ class AlignmentMonitorTracksFromTrajectories: public AlignmentMonitorBase {
 
       void book();
       void event(const edm::Event &iEvent, const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& iTrajTracks);
-      void afterAlignment(const edm::EventSetup &iSetup);
+      void afterAlignment();
 
    private:
       MuonServiceProxy *theMuonServiceProxy;
@@ -260,7 +260,7 @@ void AlignmentMonitorTracksFromTrajectories::event(const edm::Event &iEvent, con
 // afterAlignment()
 //////////////////////////////////////////////////////////////////////
 
-void AlignmentMonitorTracksFromTrajectories::afterAlignment(const edm::EventSetup &iSetup) {
+void AlignmentMonitorTracksFromTrajectories::afterAlignment() {
 }
 
 //

@@ -99,9 +99,9 @@ namespace edm {
 
     template<typename T>
     std::vector<edm::ProductResolverIndexAndSkipBit> const&
-    ProducingModuleAdaptorBase<T>::itemsToGetFromEvent() const {
+    ProducingModuleAdaptorBase<T>::itemsToGetFrom(BranchType iType) const {
       assert(not m_streamModules.empty());
-      return m_streamModules[0]->itemsToGetFromEvent();
+      return m_streamModules[0]->itemsToGetFrom(iType);
     }
 
     template< typename T>

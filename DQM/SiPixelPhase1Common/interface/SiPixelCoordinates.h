@@ -171,27 +171,27 @@ class SiPixelCoordinates {
 
   // Internal containers for optimal speed
   // - only calculate things once per DetId
-  std::map<uint32_t, int> quadrant_;
-  std::map<uint32_t, int> side_;
-  std::map<uint32_t, int> module_;
-  std::map<uint32_t, int> layer_;
-  std::map<uint32_t, int> sector_;
-  std::map<uint32_t, int> ladder_;
-  std::map<uint32_t, int> signed_ladder_;
-  std::map<uint32_t, int> signed_module_;
-  std::map<uint32_t, int> half_;
-  std::map<uint32_t, int> outer_;
-  std::map<uint32_t, int> flipped_;
-  std::map<uint32_t, int> disk_;
-  std::map<uint32_t, int> signed_disk_;
-  std::map<uint32_t, int> panel_;
-  std::map<uint32_t, int> ring_;
-  std::map<uint32_t, int> blade_;
-  std::map<uint32_t, int> signed_blade_;
+  std::unordered_map<uint32_t, int> quadrant_;
+  std::unordered_map<uint32_t, int> side_;
+  std::unordered_map<uint32_t, int> module_;
+  std::unordered_map<uint32_t, int> layer_;
+  std::unordered_map<uint32_t, int> sector_;
+  std::unordered_map<uint32_t, int> ladder_;
+  std::unordered_map<uint32_t, int> signed_ladder_;
+  std::unordered_map<uint32_t, int> signed_module_;
+  std::unordered_map<uint32_t, int> half_;
+  std::unordered_map<uint32_t, int> outer_;
+  std::unordered_map<uint32_t, int> flipped_;
+  std::unordered_map<uint32_t, int> disk_;
+  std::unordered_map<uint32_t, int> signed_disk_;
+  std::unordered_map<uint32_t, int> panel_;
+  std::unordered_map<uint32_t, int> ring_;
+  std::unordered_map<uint32_t, int> blade_;
+  std::unordered_map<uint32_t, int> signed_blade_;
 
-  std::map<uint32_t, unsigned int> fedid_;
-  std::map<uint64_t, unsigned int> channel_;
-  std::map<uint64_t, unsigned int> roc_;
+  std::unordered_map<uint32_t, unsigned int> fedid_;
+  std::unordered_map<uint64_t, unsigned int> channel_;
+  std::unordered_map<uint64_t, unsigned int> roc_;
 
   // Internal methods used for pixel coordinates
   bool isPixel_(const DetId&);

@@ -191,10 +191,7 @@ namespace spr{
       std::vector< typename T::const_iterator> hit = spr::findHit(hits, vdets[i]);
       double energy = 0;
       int subdet  = ((HcalDetId)(vdets[i].rawId())).subdet();	
-      double eThr = hbThr;
-      if      (subdet == (int)(HcalEndcap))  eThr = heThr;
-      else if (subdet == (int)(HcalForward)) eThr = hfThr;
-      else if (subdet == (int)(HcalOuter))   eThr = hoThr;
+      double eThr = spr::eHCALThreshold(subdet, hbThr, heThr, hfThr, hoThr);
       for (unsigned int ihit=0; ihit<hit.size(); ihit++) {
         if (hit[ihit] != hits->end()) {
           khit++;
@@ -215,14 +212,14 @@ namespace spr{
   void energyHCALCell(HcalDetId detID, edm::Handle<T>& hits, std::vector<std::pair<double,int> >& energyCell, int maxDepth, double hbThr, double heThr, double hfThr, double hoThr, double tMin, double tMax, bool useRaw, bool debug) {
     energyCell.clear();
     int    subdet  = detID.subdet();	
-    double eThr    = hbThr;
-    if      (subdet == (int)(HcalEndcap))  eThr = heThr;
-    else if (subdet == (int)(HcalForward)) eThr = hfThr;
-    else if (subdet == (int)(HcalOuter))   eThr = hoThr;
+    double eThr    = spr::eHCALThreshold(subdet, hbThr, heThr, hfThr, hoThr);
+    bool   hbhe    = (detID.ietaAbs() == 16);
+    int    depthHE = (maxDepth <= 6) ? 3 : 4;
     if (debug)
       std::cout << "energyHCALCell: input ID " << detID << " MaxDepth " << maxDepth << " Threshold (E) " << eThr << " (T) " << tMin << ":" << tMax << std::endl;
     for (int i=0; i<maxDepth; i++) {
-      HcalDetId hcid(detID.subdet(),detID.ieta(),detID.iphi(),i+1);
+      HcalSubdetector subdet0 = (hbhe) ? ((i+1 >= depthHE) ? HcalEndcap : HcalBarrel) : detID.subdet();
+      HcalDetId hcid(subdet0,detID.ieta(),detID.iphi(),i+1);
       DetId det(hcid.rawId());
       std::vector< typename T::const_iterator> hit = spr::findHit(hits, det);
       double energy(0);

@@ -46,7 +46,7 @@ DDLSAX2FileHandler::startElement( const XMLCh* const uri,
     names_.push_back(namesMap_.size() - 1);
   }
 
-  DDXMLElement* myElement = DDLGlobalRegistry::instance().getElement(myElementName);
+  auto myElement = DDLGlobalRegistry::instance().getElement(myElementName);
 
   unsigned int numAtts = attrs.getLength();
   std::vector<std::string> attrNames, attrValues;
@@ -70,7 +70,7 @@ DDLSAX2FileHandler::endElement( const XMLCh* const uri,
   std::string ts(cStr(qname).ptr());
   const std::string&  myElementName = self();
 
-  DDXMLElement* myElement = DDLGlobalRegistry::instance().getElement(myElementName);
+  auto myElement = DDLGlobalRegistry::instance().getElement(myElementName);
 
   std::string nmspace = nmspace_;
   // The need for processElement to have the nmspace so that it can 
@@ -98,7 +98,7 @@ void
 DDLSAX2FileHandler::characters( const XMLCh* const chars,
 				const XMLSize_t length )
 {
-  DDXMLElement* myElement = DDLGlobalRegistry::instance().getElement(self());
+  auto myElement = DDLGlobalRegistry::instance().getElement(self());
   std::string inString = "";
   for (XMLSize_t i = 0; i < length; ++i)
   {

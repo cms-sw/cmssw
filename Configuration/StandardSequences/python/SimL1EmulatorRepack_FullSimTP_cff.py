@@ -60,6 +60,10 @@ else:
         cms.InputTag('unpackHcal'),
         cms.InputTag('unpackHcal')
     )
+    simHcalTriggerPrimitiveDigis.inputUpgradeLabel = cms.VInputTag(
+        cms.InputTag('unpackHcal'),     # upgrade HBHE
+        cms.InputTag('unpackHcal')      # upgrade HF
+    )
 
     from L1Trigger.Configuration.SimL1Emulator_cff import *
     

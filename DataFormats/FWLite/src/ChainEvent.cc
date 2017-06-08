@@ -319,6 +319,11 @@ ChainEvent::triggerNames(edm::TriggerResults const& triggerResults) const
   return event_->triggerNames(triggerResults);
 }
 
+edm::ParameterSet const*
+ChainEvent::parameterSet(edm::ParameterSetID const& psID) const {
+  return event_->parameterSet(psID);
+}
+  
 void
 ChainEvent::fillParameterSetRegistry() const
 {

@@ -81,7 +81,7 @@ HLTJetHbbFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& description
 template<typename T> float HLTJetHbbFilter<T>::findCSV(const typename std::vector<T>::const_iterator & jet, const reco::JetTagCollection  & jetTags){
   float minDr = 0.1; //matching jet tag with jet
   float tmpCSV = -20 ;
-  for (reco::JetTagCollection::const_iterator jetb = jetTags.begin(); (jetb!=jetTags.end()); ++jetb) {
+  for (auto jetb = jetTags.begin(); (jetb!=jetTags.end()); ++jetb) {
     float tmpDr = reco::deltaR(*jet,*(jetb->first));
     if (tmpDr < minDr) {
       minDr = tmpDr ;
@@ -139,10 +139,10 @@ HLTJetHbbFilter<T>::hltFilter(edm::Event& event, const edm::EventSetup& setup,tr
   double etajet2 = -99.;
 
   //looping through sets of jets
-  for (typename TCollection::const_iterator jet1=jets->begin(); (jet1!=jets->end()); ++jet1) {
+  for (auto jet1=jets->begin(); (jet1!=jets->end()); ++jet1) {
     tag1 = findCSV(jet1, *jetTags);
     ++nJet;
-    for (typename TCollection::const_iterator jet2=(jet1+1); (jet2!=jets->end()); ++jet2) {
+    for (auto jet2=(jet1+1); (jet2!=jets->end()); ++jet2) {
       tag2 = findCSV(jet2, *jetTags);
 
       ejet1   = jet1->energy();

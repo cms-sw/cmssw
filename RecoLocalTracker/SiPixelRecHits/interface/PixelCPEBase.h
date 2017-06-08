@@ -67,12 +67,7 @@ public:
       float theThickness;
       float thePitchX;
       float thePitchY;
-      //float theDetR;
-      //float theDetZ;
-      //float theNumOfRow; //Not used, AH
-      //float theNumOfCol; //Not used, AH
-      //float theSign; //Not used, AH
-      
+            
       float bz; // local Bz
       float bx; // local Bx
       LocalVector driftDirection;
@@ -85,38 +80,39 @@ public:
    
    struct ClusterParam
    {
-      ClusterParam(const SiPixelCluster & cl) : theCluster(&cl), loc_trk_pred(0.0,0.0,0.0,0.0),
-      probabilityX_(0.0), probabilityY_(0.0), probabilityQ_(0.0), qBin_(0.0),
-      isOnEdge_(false), hasBadPixels_(false), spansTwoROCs_(false), hasFilledProb_(false) {}
+      ClusterParam(const SiPixelCluster & cl) : theCluster(&cl) {}
+
       virtual ~ClusterParam() = default;
+
       const SiPixelCluster * theCluster;
       
-      //--- Cluster-level quantities (may need more)
+      //--- Cluster-level quantities (filled in computeAnglesFrom....)
       float cotalpha;
       float cotbeta;
-      //bool  zneg; // Not used, AH
       
       // G.Giurgiu (05/14/08) track local coordinates
+      // filled in computeAnglesFrom....
       float trk_lp_x;
       float trk_lp_y;
       
       // ggiurgiu@jhu.edu (12/01/2010) : Needed for calling topology methods
       // with track angles to handle surface deformations (bows/kinks)
+      // filled in computeAnglesFrom.... (btw redundant with the 4 above)
       Topology::LocalTrackPred loc_trk_pred;
-      //LocalTrajectoryParameters loc_traj_param; // Not used, AH
       
-      // ggiurgiu@jhu.edu (10/18/2008)
-      bool with_track_angle;
-      
-      //--- Probability
+      //--- Probability  (protected by hasFilledProb_)
       float probabilityX_ ;
       float probabilityY_ ;
       float probabilityQ_ ;
-      float qBin_ ;
-      bool  isOnEdge_ ;
-      bool  hasBadPixels_ ;
-      bool  spansTwoROCs_ ;
-      bool  hasFilledProb_ ;
+      int    qBin_ ;  // always filled by qbin
+
+      bool  isOnEdge_ ; // filled in setTheClu
+      bool  hasBadPixels_ = false;  // (never used in current code)
+      bool  spansTwoROCs_ ; // filled in setTheClu
+      bool  hasFilledProb_ =false;
+      // ggiurgiu@jhu.edu (10/18/2008)
+      bool with_track_angle; // filled in computeAnglesFrom....
+
    };
    
 public:

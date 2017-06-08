@@ -78,6 +78,10 @@
       <rMaterial name="testMaterials:Air"/>
       <rSolid name="testSolids:tube2"/>
     </LogicalPart> 
+    <LogicalPart name="cuttubs">
+      <rMaterial name="testMaterials:Air"/>
+      <rSolid name="testSolids:cuttubs"/>
+    </LogicalPart> 
     <LogicalPart name="trunctubs1">
       <rMaterial name="testMaterials:Air"/>
       <rSolid name="testSolids:trunctubs1"/>
@@ -129,7 +133,11 @@
     <LogicalPart name="para">
       <rMaterial name="testMaterials:Air"/>
       <rSolid name="testSolids:para"/>
-    </LogicalPart> 
+    </LogicalPart>
+    <LogicalPart name="extrudedpgon">
+      <rMaterial name="testMaterials:Air"/>
+      <rSolid name="testSolids:extrudedpgon"/>
+    </LogicalPart>
 
   </LogicalPartSection>
 

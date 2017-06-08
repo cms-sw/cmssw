@@ -69,6 +69,13 @@ namespace l1tcalo {
 
   constexpr uint32_t MaxUCTRegionsPhi{MaxCaloPhi / NPhiInRegion};
   constexpr uint32_t MaxUCTRegionsEta{2 * (NRegionsInCard + NHFRegionsInCard)};
+
+  // Binning for Layer1 calibration LUTs
+  const uint32_t nEtBins = 256;
+  const uint32_t nCalEtaBins = 28;
+  const uint32_t nCalSideBins = 2;
+  const uint32_t nHfEtaBins = 12;
+
 }
 
 typedef std::pair<int, uint32_t> UCTRegionIndex;

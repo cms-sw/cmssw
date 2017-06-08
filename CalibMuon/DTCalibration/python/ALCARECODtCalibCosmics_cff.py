@@ -6,7 +6,7 @@ from HLTrigger.HLTfilters.hltHighLevel_cfi import *
 # AlCaReco for DT calibration
 ALCARECODtCalibCosmicsHLTFilter = copy.deepcopy(hltHighLevel)
 ALCARECODtCalibCosmicsHLTFilter.throw = False ## dont throw on unknown path names
-ALCARECODtCalibCosmicsHLTFilter.eventSetupPathsKey = 'MuAlcaDtCalibCosmics'
+ALCARECODtCalibCosmicsHLTFilter.eventSetupPathsKey = 'DtCalibCosmics'
 #ALCARECODtCalibCosmicsHLTFilter.HLTPaths = ['HLT_L1SingleMuOpen_AntiBPTX_v*','HLT_L1TrackerCosmics_v*']
 #ALCARECODtCalibCosmicsHLTFilter.eventSetupPathsKey = ''
 

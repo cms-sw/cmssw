@@ -26,7 +26,7 @@ void
 DDLReflectionSolid::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 {
   // get solid reference:
-  DDXMLElement* myrSolid = myRegistry_->getElement("rSolid");
+  auto myrSolid = myRegistry_->getElement("rSolid");
 
   if (myrSolid->size() != 1)
   {

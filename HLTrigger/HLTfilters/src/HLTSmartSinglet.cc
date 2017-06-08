@@ -39,9 +39,7 @@ HLTSmartSinglet<T>::HLTSmartSinglet(const edm::ParameterSet& iConfig) : HLTFilte
 }
 
 template<typename T>
-HLTSmartSinglet<T>::~HLTSmartSinglet()
-{
-}
+HLTSmartSinglet<T>::~HLTSmartSinglet() = default;
 
 template<typename T>
 void

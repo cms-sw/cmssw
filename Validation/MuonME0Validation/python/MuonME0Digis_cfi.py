@@ -6,8 +6,8 @@ me0DigiValidation = cms.EDAnalyzer('ME0DigisValidation',
     stripDigiLabel = cms.InputTag("simMuonME0ReDigis"),
     simInputLabel = cms.InputTag('g4SimHits',"MuonME0Hits"),
     digiInputLabel = cms.InputTag("simMuonME0ReDigis"),
-    sigma_x = cms.double(0.03),
-    sigma_y = cms.double(2.50),
+    sigma_x = cms.double(0.0003), #It corresponds to phi resolution
+    sigma_y = cms.double(0.03), #It corresponds to eta resolution
     # st1, st2_short, st2_long of xbin, st1,st2_short,st2_long of ybin
     nBinGlobalZR = cms.untracked.vdouble(30,100),
     # st1 xmin, xmax, st2_short xmin, xmax, st2_long xmin, xmax, st1 ymin, ymax...

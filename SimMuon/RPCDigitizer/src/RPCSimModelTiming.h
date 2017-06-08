@@ -53,6 +53,7 @@ class RPCSimModelTiming : public RPCSim
   double sspeed;
   double lbGate;
   bool rpcdigiprint;
+  bool   eledig;
   
   int N_hits;
   int nbxing;

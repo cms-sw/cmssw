@@ -3,7 +3,7 @@
 
 #include "UCTGeometry.hh"
 
-#include <vector>
+#include <array>
 
 namespace l1tcalo {
   constexpr uint32_t etInputMax{0xFF};
@@ -66,17 +66,17 @@ public:
   bool setHCALData(uint32_t hcalFB, uint32_t hcalET);
   bool setHFData(uint32_t fbIn, uint32_t etIn);
 
-  bool setECALLUT(const std::vector< std::vector< std::vector< uint32_t > > > *l) {
+  bool setECALLUT(const std::array< std::array< std::array<uint32_t, 256>, 2>, 28> *l) {
     ecalLUT = l;
     return true;
   }
   
-  bool setHCALLUT(const std::vector< std::vector< std::vector< uint32_t > > > *l) {
+  bool setHCALLUT(const std::array< std::array< std::array<uint32_t, 256>, 2>, 28> *l) {
     hcalLUT = l;
     return true;
   }
   
-  bool setHFLUT(const std::vector< std::vector< uint32_t > > *l) {
+  bool setHFLUT(const std::array< std::array<uint32_t, 256>, 12>  *l) {
     hfLUT = l;
     return true;
   }
@@ -162,10 +162,11 @@ private:
   uint32_t hcalFB;
 
   // Lookup table
-
-  const std::vector< std::vector< std::vector< uint32_t > > > *ecalLUT;
-  const std::vector< std::vector< std::vector< uint32_t > > > *hcalLUT;
-  const std::vector< std::vector< uint32_t > > *hfLUT;
+  // ecal/hcal:  256 pt bins, 2 sides, 28 eta bins (towers)
+  // hf:  256 pt bins, 12 eta bins (towers)
+  const std::array< std::array< std::array<uint32_t, 256>, 2>, 28> *ecalLUT;
+  const std::array< std::array< std::array<uint32_t, 256>, 2>, 28> *hcalLUT;
+  const std::array< std::array<uint32_t, 256>, 12> *hfLUT;
   
   // Owned tower level data 
   // Packed bits -- only bottom 16 bits are used in "prelim" protocol

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 ##########################################################################
 
 # Read the ini data which is passed to the function and return the
@@ -11,6 +9,9 @@ import ConfigParser
 import logging
 import os
 
+from Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.helper \
+    import checked_out_MPS
+
 
 class ConfigData:
     """ stores the config data of the ini files or the console parameters
@@ -18,8 +19,11 @@ class ConfigData:
 
     def __init__(self):
         # get path to modules, defaut ini and templates
-        self.mpspath = os.path.join(os.path.dirname(__file__))
-        
+        self.mpspath = os.path.join(os.environ["CMSSW_BASE"]
+                                    if checked_out_MPS()[0]
+                                    else os.environ["CMSSW_RELEASE_BASE"], "src",
+                                    "Alignment", "MillePedeAlignmentAlgorithm")
+
         # General
         # jobmX dir
         self.jobNumber = -1
@@ -38,18 +42,22 @@ class ConfigData:
         self.limit = {}
         # statboxsize
         self.statboxsize = -1
+        # global tag
+        self.globalTag = None
+        # first run to pick for the geometry in self.globalTag
+        self.firstRun = None
 
         # what should be created
-        self.showmonitor = -1
-        self.showadditional = -1
-        self.showdump = -1
-        self.showtime = -1
-        self.showhighlevel = -1
-        self.showmodule = -1
-        self.showsubmodule = -1
-        self.showtex = -1
-        self.showbeamer = -1
-        self.showhtml = -1
+        self.showmonitor    = False
+        self.showadditional = False
+        self.showdump       = False
+        self.showtime       = False
+        self.showhighlevel  = False
+        self.showmodule     = False
+        self.showsubmodule  = False
+        self.showtex        = False
+        self.showbeamer     = False
+        self.showhtml       = False
 
         # MODULEPLOTS
         # number of bins after shrinking
@@ -59,7 +67,7 @@ class ConfigData:
         # new histogram width in units of StdDev
         self.widthstddev = -1
         # every parameter (e.g. xyz) with same range
-        self.samerange = -1
+        self.samerange = False
         # rangemode "stddev" = multiple of StdDev, "all" = show all, "given" =
         # use given ranges
         self.rangemode = -1
@@ -73,7 +81,7 @@ class ConfigData:
         self.rangexyzHL = []
         self.rangerotHL = []
         # every parameter (e.g. xyz) with same range
-        self.samerangeHL = -1
+        self.samerangeHL = False
         # rangemode "all" = show all, "given" = use given ranges
         self.rangemodeHL = -1
 
@@ -85,7 +93,7 @@ class ConfigData:
 
     def parseConfig(self, path):
         logger = logging.getLogger("mpsvalidate")
-        
+
         # create ConfigParser object
         parser = ConfigParser.ConfigParser()
 
@@ -93,45 +101,40 @@ class ConfigData:
         if (parser.read(path) == []):
             logger.error("Could not open ini-file: {0}".format(path))
 
-        # buffer object
-        configBuffer = ConfigData()
-
         # collect data and process it
         try:
-            configBuffer.jobNumber = int(parser.get("GENERAL", "job"))
+            self.jobNumber = parser.getint("GENERAL", "job")
         except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
             pass
 
         try:
-            configBuffer.jobDataPath = parser.get("GENERAL", "jobdatapath")
+            self.jobDataPath = parser.get("GENERAL", "jobdatapath")
         except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
             pass
 
+        # if jobData path is given
+        if self.jobDataPath != "":
+            self.outputPath = "validation_output"
+
         # set jobDataPath if job number is given and if path is not given
-        if (configBuffer.jobNumber != -1 and configBuffer.jobDataPath == ""):
-            self.jobNumber = configBuffer.jobNumber
-            if (self.jobNumber == 0):
+        if self.jobNumber != -1 and self.jobDataPath == "":
+            if self.jobNumber == 0:
                 self.jobDataPath = "jobData/jobm"
             else:
                 self.jobDataPath = "jobData/jobm{0}".format(self.jobNumber)
             self.outputPath = os.path.join(self.jobDataPath, "validation_output")
-                
-        # if jobData path is given
-        if (configBuffer.jobDataPath != ""):
-            self.jobDataPath = configBuffer.jobDataPath
-            self.outputPath = "validation_output"
 
         # set outputpath
         try:
-            if (parser.get("GENERAL", "outputpath")):
+            if parser.get("GENERAL", "outputpath"):
                 self.outputPath = parser.get("GENERAL", "outputpath")
         except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
             pass
-                
+
 
         # data which could be stored directly
         try:
-            self.jobTime = int(parser.get("GENERAL", "time"))
+            self.jobTime = parser.getint("GENERAL", "time")
         except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
             pass
 
@@ -142,177 +145,117 @@ class ConfigData:
 
         try:
             self.limit = parser.get("GENERAL", "limit")
-            self.limit = map(float, self.limit.replace(" ", "").split(","))
+            self.limit = map(float, "".join(self.limit.split()).split(","))
             # make a dict to lookup by mode
             self.limit = dict(zip(["xyz", "rot", "dist"], self.limit))
         except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
             pass
 
         try:
-            self.statboxsize = float(parser.get("GENERAL", "statboxsize"))
+            self.statboxsize = parser.getfloat("GENERAL", "statboxsize")
         except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
             pass
+
 
         # MODULEPLOTS
 
+        # integers
+        for par in ("numberofbins", "defpeak", "widthstddev"):
+            try:
+                setattr(self, par, parser.getint("MODULEPLOTS", par))
+            except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
+                pass
+
+        # booleans
         try:
-            self.numberofbins = int(parser.get("MODULEPLOTS", "numberofbins"))
+            self.samerange = parser.getboolean("MODULEPLOTS", "samerange")
         except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
             pass
 
-        try:
-            self.defpeak = int(parser.get("MODULEPLOTS", "defpeak"))
-        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
-            pass
-
-        try:
-            self.widthstddev = int(parser.get("MODULEPLOTS", "widthstddev"))
-        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
-            pass
-
-        try:
-            self.samerange = int(parser.get("MODULEPLOTS", "samerange"))
-        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
-            pass
-
+        # strings
         try:
             self.rangemode = parser.get("MODULEPLOTS", "rangemode")
         except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
             pass
 
-        try:
-            self.rangexyzM = parser.get("MODULEPLOTS", "rangexyz")
-            self.rangexyzM = sorted(
-                map(float, self.rangexyzM.replace(" ", "").split(",")))
-        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
-            pass
+        # ranges
+        for r in ("rangexyz", "rangerot", "rangedist"):
+            try:
+                setattr(self, r+"M", parser.get("MODULEPLOTS", r))
+                setattr(self, r+"M",
+                        sorted(map(float, "".join(getattr(self, r+"M").split()).split(","))))
+            except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
+                pass
 
-        try:
-            self.rangerotM = parser.get("MODULEPLOTS", "rangerot")
-            self.rangerotM = sorted(
-                map(float, self.rangerotM.replace(" ", "").split(",")))
-        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
-            pass
-
-        try:
-            self.rangedistM = parser.get("MODULEPLOTS", "rangedist")
-            self.rangedistM = sorted(
-                map(float, self.rangedistM.replace(" ", "").split(",")))
-        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
-            pass
 
         # HIGHLEVELPLOTS
 
+        # booleans
         try:
-            self.rangexyzHL = parser.get("HIGHLEVELPLOTS", "rangexyz")
-            self.rangexyzHL = sorted(
-                map(float, self.rangexyzHL.replace(" ", "").split(",")))
+            self.samerangeHL = parser.getboolean("HIGHLEVELPLOTS", "samerange")
         except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
             pass
 
-        try:
-            self.rangerotHL = parser.get("HIGHLEVELPLOTS", "rangerot")
-            self.rangerotHL = sorted(
-                map(float, self.rangerotHL.replace(" ", "").split(",")))
-        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
-            pass
-
-        try:
-            self.samerangeHL = int(parser.get("HIGHLEVELPLOTS", "samerange"))
-        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
-            pass
-
+        # strings
         try:
             self.rangemodeHL = parser.get("HIGHLEVELPLOTS", "rangemode")
         except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
             pass
 
+        # ranges
+        for r in ("rangexyz", "rangerot"):
+            try:
+                setattr(self, r+"HL", parser.get("HIGHLEVELPLOTS", r))
+                setattr(self, r+"HL",
+                        sorted(map(float, "".join(getattr(self, r+"HL").split()).split(","))))
+            except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
+                pass
+
+
         # TIMEPLOTS
 
         try:
-            self.firsttree = int(parser.get("TIMEPLOTS", "firsttree"))
+            self.firsttree = parser.getint("TIMEPLOTS", "firsttree")
         except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
             pass
 
         # SHOW
+        for boolean in ("showmonitor", "showadditional", "showdump", "showtime",
+                        "showhighlevel", "showmodule", "showsubmodule",
+                        "showtex", "showbeamer", "showhtml"):
+            try:
+                setattr(self, boolean, parser.getboolean("SHOW", boolean))
+            except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
+                pass
 
-        try:
-            self.showmonitor = int(parser.get("SHOW", "showmonitor"))
-        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
-            pass
-
-        try:
-            self.showadditional = int(parser.get("SHOW", "showadditional"))
-        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
-            pass
-
-        try:
-            self.showdump = int(parser.get("SHOW", "showdump"))
-        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
-            pass
-
-        try:
-            self.showtime = int(parser.get("SHOW", "showtime"))
-        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
-            pass
-
-        try:
-            self.showhighlevel = int(parser.get("SHOW", "showhighlevel"))
-        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
-            pass
-
-        try:
-            self.showmodule = int(parser.get("SHOW", "showmodule"))
-        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
-            pass
-
-        try:
-            self.showsubmodule = int(parser.get("SHOW", "showsubmodule"))
-        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
-            pass
-
-        try:
-            self.showtex = int(parser.get("SHOW", "showtex"))
-        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
-            pass
-
-        try:
-            self.showbeamer = int(parser.get("SHOW", "showbeamer"))
-        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
-            pass
-
-        try:
-            self.showhtml = int(parser.get("SHOW", "showhtml"))
-        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
-            pass
 
     def parseParameter(self, args):
         logger = logging.getLogger("mpsvalidate")
-        
+
         # check if parameter is given and override the config data
-        if (args.time != -1):
+        if args.time != -1:
             self.jobTime = args.time
 
-        if (args.job != -1):
+        if args.job != -1:
             self.jobNumber = args.job
 
             # set jobDataPath
-            if (self.jobNumber == 0):
+            if self.jobNumber == 0:
                 self.jobDataPath = "jobData/jobm"
             else:
                 self.jobDataPath = "jobData/jobm{0}".format(self.jobNumber)
             self.outputPath = os.path.join(self.jobDataPath, "validation_output")
 
-        if (args.jobdatapath != ""):
+        if args.jobdatapath != "":
             self.jobDataPath = args.jobdatapath
 
-        if (args.message != ""):
+        if args.message != "":
             self.message = args.message
 
         # if path is given put the output in the current directory
-        if (args.jobdatapath):
+        if args.jobdatapath:
             self.outputPath = "validation_output"
-        
-        if (args.outputpath):
+
+        if args.outputpath:
             self.outputPath = args.outputpath
-            
+

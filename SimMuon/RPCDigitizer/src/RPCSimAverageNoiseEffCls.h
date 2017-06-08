@@ -55,7 +55,8 @@ class RPCSimAverageNoiseEffCls : public RPCSim
   double sspeed;
   double lbGate;
   bool rpcdigiprint;
-  
+  bool eledig;
+
   int N_hits;
   int nbxing;
   double rate;

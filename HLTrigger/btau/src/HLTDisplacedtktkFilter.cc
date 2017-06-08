@@ -52,10 +52,7 @@ HLTDisplacedtktkFilter::HLTDisplacedtktkFilter(const edm::ParameterSet& iConfig)
 }
 
 
-HLTDisplacedtktkFilter::~HLTDisplacedtktkFilter()
-{
-
-}
+HLTDisplacedtktkFilter::~HLTDisplacedtktkFilter() = default;
 
 void HLTDisplacedtktkFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -122,9 +119,7 @@ bool HLTDisplacedtktkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup
   bool triggered = false;
 
   // loop over vertex collection
-  for(reco::VertexCollection::iterator it = displacedVertexColl.begin(); it!= displacedVertexColl.end(); it++){
-          reco::Vertex displacedVertex = *it;
-
+  for(auto displacedVertex : displacedVertexColl){
           // check if the vertex actually consists of exactly two track tracks, reject the event if not
           if(displacedVertex.tracksSize() != 2){
             edm::LogError("HLTDisplacedtktkFilter") << "HLTDisplacedtktkFilter: ERROR: the Jpsi vertex must have exactly two tracks by definition. It now has n tracks = "<< displacedVertex.tracksSize() << std::endl;
@@ -139,7 +134,7 @@ bool HLTDisplacedtktkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup
 	  if (vtxProb < minVtxProbability_) continue;
 
           // get the two tracks from the vertex
-          reco::Vertex::trackRef_iterator trackIt =  displacedVertex.tracks_begin();
+          auto trackIt =  displacedVertex.tracks_begin();
           reco::TrackRef vertextkRef1 =  (*trackIt).castTo<reco::TrackRef>() ;
           // the second one
           trackIt++;
@@ -150,7 +145,7 @@ bool HLTDisplacedtktkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup
 	  reco::RecoChargedCandidateCollection::const_iterator cand2;	
 
 	  int iFoundRefs = 0;
-	  for (reco::RecoChargedCandidateCollection::const_iterator cand=trackcands->begin(); cand!=trackcands->end(); cand++) {
+	  for (auto cand=trackcands->begin(); cand!=trackcands->end(); cand++) {
 	    reco::TrackRef tkRef = cand->get<reco::TrackRef>();
 	    if(tkRef == vertextkRef1) {cand1 = cand; iFoundRefs++;}
 	    if(tkRef == vertextkRef2) {cand2 = cand; iFoundRefs++;}

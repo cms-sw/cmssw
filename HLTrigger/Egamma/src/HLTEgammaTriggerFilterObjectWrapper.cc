@@ -41,7 +41,7 @@ HLTEgammaTriggerFilterObjectWrapper::fillDescriptions(edm::ConfigurationDescript
   descriptions.add("hltEgammaTriggerFilterObjectWrapper",desc);
 }
 
-HLTEgammaTriggerFilterObjectWrapper::~HLTEgammaTriggerFilterObjectWrapper(){}
+HLTEgammaTriggerFilterObjectWrapper::~HLTEgammaTriggerFilterObjectWrapper()= default;
 
 
 // ------------ method called to produce the data  ------------
@@ -56,7 +56,7 @@ bool HLTEgammaTriggerFilterObjectWrapper::hltFilter(edm::Event& iEvent, const ed
 
   edm::Ref<reco::RecoEcalCandidateCollection> ref;
   // transform the L1Iso_RecoEcalCandidate into the TriggerFilterObjectWithRefs
-  for (reco::RecoEcalCandidateCollection::const_iterator recoecalcand= recoIsolecalcands->begin(); recoecalcand!=recoIsolecalcands->end(); recoecalcand++) {
+  for (auto recoecalcand= recoIsolecalcands->begin(); recoecalcand!=recoIsolecalcands->end(); recoecalcand++) {
     ref = edm::Ref<reco::RecoEcalCandidateCollection>(recoIsolecalcands, distance(recoIsolecalcands->begin(),recoecalcand) );
     filterproduct.addObject(TriggerCluster, ref);
   }
@@ -65,7 +65,7 @@ bool HLTEgammaTriggerFilterObjectWrapper::hltFilter(edm::Event& iEvent, const ed
     // transform the L1NonIso_RecoEcalCandidate into the TriggerFilterObjectWithRefs and add them to the L1Iso ones.
     edm::Handle<reco::RecoEcalCandidateCollection> recoNonIsolecalcands;
     iEvent.getByToken(candNonIsolatedToken_,recoNonIsolecalcands);
-    for (reco::RecoEcalCandidateCollection::const_iterator recoecalcand= recoNonIsolecalcands->begin(); recoecalcand!=recoNonIsolecalcands->end(); recoecalcand++) {
+    for (auto recoecalcand= recoNonIsolecalcands->begin(); recoecalcand!=recoNonIsolecalcands->end(); recoecalcand++) {
       ref = edm::Ref<reco::RecoEcalCandidateCollection>(recoNonIsolecalcands, distance(recoNonIsolecalcands->begin(),recoecalcand) );
       filterproduct.addObject(TriggerCluster, ref);
     }

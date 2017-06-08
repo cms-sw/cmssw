@@ -74,7 +74,7 @@ HLTHcalMETNoiseFilter::HLTHcalMETNoiseFilter(const edm::ParameterSet& iConfig) :
 }
 
 
-HLTHcalMETNoiseFilter::~HLTHcalMETNoiseFilter(){}
+HLTHcalMETNoiseFilter::~HLTHcalMETNoiseFilter()= default;
 
 void
 HLTHcalMETNoiseFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -141,8 +141,7 @@ bool HLTHcalMETNoiseFilter::filter(edm::Event& iEvent, const edm::EventSetup& iS
 
   // create a sorted set of the RBXs, ordered by energy
   noisedataset_t data;
-  for(HcalNoiseRBXCollection::const_iterator it=rbxs_h->begin(); it!=rbxs_h->end(); ++it) {
-    const HcalNoiseRBX &rbx=(*it);
+  for(auto const & rbx : *rbxs_h) {
     CommonHcalNoiseRBXData d(rbx, minRecHitE_, minLowHitE_, minHighHitE_, TS4TS5EnergyThreshold_,
 			     TS4TS5UpperCut_, TS4TS5LowerCut_, minR45HitE_);
     data.insert(d);
@@ -151,7 +150,7 @@ bool HLTHcalMETNoiseFilter::filter(edm::Event& iEvent, const edm::EventSetup& iS
   // data is now sorted by RBX energy
   // only consider top N=numRBXsToConsider_ energy RBXs
   int cntr=0;
-  for(noisedataset_t::const_iterator it=data.begin();
+  for(auto it=data.begin();
       it!=data.end() && cntr<numRBXsToConsider_;
       ++it, ++cntr) {
 

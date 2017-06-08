@@ -60,7 +60,7 @@ from DQM.L1TMonitor.L1TStage2BMTF_cfi import *
 from DQM.L1TMonitor.L1TStage2EMTF_cfi import *
 
 # uGMT
-from DQM.L1TMonitor.L1TStage2uGMT_cfi import *
+from DQM.L1TMonitor.L1TStage2uGMT_cff import *
 
 # uGT
 from DQM.L1TMonitor.L1TStage2uGT_cfi import *
@@ -68,22 +68,19 @@ from DQM.L1TMonitor.L1TStage2uGT_cfi import *
 #-------------------------------------------------
 # Stage2 Unpacking and DQM Sequences
 
+# sequence to run for every event
 l1tStage2OnlineDQM = cms.Sequence(
     l1tStage2CaloLayer1  +
     l1tStage2CaloLayer2 +
     l1tStage2Bmtf +
     #l1tStage2Omtf +
     l1tStage2Emtf +
-    l1tStage2uGMT +
-    l1tStage2uGMTIntermediateBMTF +
-    l1tStage2uGMTIntermediateOMTFNeg +
-    l1tStage2uGMTIntermediateOMTFPos +
-    l1tStage2uGMTIntermediateEMTFNeg +
-    l1tStage2uGMTIntermediateEMTFPos +
-    l1tStage2uGMTZeroSupp +
-    l1tStage2BmtfOutVsuGMTIn +
-    l1tStage2EmtfOutVsuGMTIn +
-    l1tStage2uGMTOutVsuGTIn +
+    l1tStage2uGMTOnlineDQMSeq +
     l1tStage2uGt
+)
+
+# sequence to run only for validation events
+l1tStage2OnlineDQMValidationEvents = cms.Sequence(
+    l1tStage2uGMTValidationEventOnlineDQMSeq
 )
 

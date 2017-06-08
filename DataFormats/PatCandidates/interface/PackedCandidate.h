@@ -42,7 +42,9 @@ namespace pat {
       packedCovariance_(),
       packedPuppiweight_(0),
       packedPuppiweightNoLepDiff_(0),
+      rawCaloFraction_(0),
       hcalFraction_(0),
+      isIsolatedChargedHadron_(0),
       p4_(new PolarLorentzVector(0,0,0,0)), p4c_( new LorentzVector(0,0,0,0)), 
       vertex_(new Point(0,0,0)), dphi_(0), deta_(0), dtrkpt_(0),track_(nullptr), pdgId_(0),
       qualityFlags_(0), pvRefKey_(reco::VertexRef::invalidKey()),
@@ -51,7 +53,8 @@ namespace pat {
     explicit PackedCandidate( const reco::Candidate & c,
                               const reco::VertexRefProd &pvRefProd,
                               reco::VertexRef::key_type pvRefKey) :
-      packedPuppiweight_(0), packedPuppiweightNoLepDiff_(0), hcalFraction_(0),
+      packedPuppiweight_(0), packedPuppiweightNoLepDiff_(0), rawCaloFraction_(0), hcalFraction_(0),
+      isIsolatedChargedHadron_(0),
       p4_( new PolarLorentzVector(c.pt(), c.eta(), c.phi(), c.mass())), 
       p4c_( new LorentzVector(*p4_)), vertex_( new Point(c.vertex())), 
       dphi_(0), deta_(0), dtrkpt_(0),
@@ -65,7 +68,8 @@ namespace pat {
                               float trkPt,float etaAtVtx,float phiAtVtx,int pdgId,
                               const reco::VertexRefProd &pvRefProd,
                               reco::VertexRef::key_type pvRefKey) :
-      packedPuppiweight_(0), packedPuppiweightNoLepDiff_(0), hcalFraction_(0),
+      packedPuppiweight_(0), packedPuppiweightNoLepDiff_(0), rawCaloFraction_(0), hcalFraction_(0),
+      isIsolatedChargedHadron_(0),
       p4_( new PolarLorentzVector(p4) ), p4c_( new LorentzVector(*p4_)), 
       vertex_( new Point(vtx) ), 
       dphi_(reco::deltaPhi(phiAtVtx,p4_.load()->phi())), 
@@ -81,7 +85,8 @@ namespace pat {
                               float trkPt, float etaAtVtx, float phiAtVtx, int pdgId,
                               const reco::VertexRefProd &pvRefProd,
                               reco::VertexRef::key_type pvRefKey) :
-      packedPuppiweight_(0), packedPuppiweightNoLepDiff_(0), hcalFraction_(0),
+      packedPuppiweight_(0), packedPuppiweightNoLepDiff_(0), rawCaloFraction_(0), hcalFraction_(0),
+      isIsolatedChargedHadron_(0),
       p4_(new PolarLorentzVector(p4.Pt(), p4.Eta(), p4.Phi(), p4.M())), 
       p4c_( new LorentzVector(p4)), vertex_( new Point(vtx) ) ,
       dphi_(reco::deltaPhi(phiAtVtx,p4_.load()->phi())), 
@@ -101,7 +106,9 @@ namespace pat {
       packedCovariance_(iOther.packedCovariance_),
       packedPuppiweight_(iOther.packedPuppiweight_), 
       packedPuppiweightNoLepDiff_(iOther.packedPuppiweightNoLepDiff_),
+      rawCaloFraction_(iOther.rawCaloFraction_),
       hcalFraction_(iOther.hcalFraction_),
+      isIsolatedChargedHadron_(iOther.isIsolatedChargedHadron_),
       //Need to trigger unpacking in iOther
       p4_( new PolarLorentzVector(iOther.polarP4() ) ),
       p4c_( new LorentzVector(iOther.p4())), vertex_( new Point(iOther.vertex())),
@@ -123,7 +130,9 @@ namespace pat {
       packedCovariance_(iOther.packedCovariance_),
       packedPuppiweight_(iOther.packedPuppiweight_), 
       packedPuppiweightNoLepDiff_(iOther.packedPuppiweightNoLepDiff_),
+      rawCaloFraction_(iOther.rawCaloFraction_),
       hcalFraction_(iOther.hcalFraction_),
+      isIsolatedChargedHadron_(iOther.isIsolatedChargedHadron_),
       p4_( iOther.p4_.exchange(nullptr) ) ,
       p4c_( iOther.p4c_.exchange(nullptr)), vertex_(iOther.vertex_.exchange(nullptr)),
       dxy_(iOther.dxy_), dz_(iOther.dz_),
@@ -153,7 +162,9 @@ namespace pat {
       packedCovariance_=iOther.packedCovariance_;
       packedPuppiweight_=iOther.packedPuppiweight_; 
       packedPuppiweightNoLepDiff_=iOther.packedPuppiweightNoLepDiff_;
+      rawCaloFraction_=iOther.rawCaloFraction_;
       hcalFraction_=iOther.hcalFraction_;
+      isIsolatedChargedHadron_=iOther.isIsolatedChargedHadron_;
       //Need to trigger unpacking in iOther
       if(p4_) {
         *p4_ = iOther.polarP4();
@@ -225,7 +236,9 @@ namespace pat {
       packedCovariance_=iOther.packedCovariance_;
       packedPuppiweight_=iOther.packedPuppiweight_; 
       packedPuppiweightNoLepDiff_=iOther.packedPuppiweightNoLepDiff_;
+      rawCaloFraction_=iOther.rawCaloFraction_;
       hcalFraction_=iOther.hcalFraction_;
+      isIsolatedChargedHadron_=iOther.isIsolatedChargedHadron_;
       delete p4_.exchange(iOther.p4_.exchange(nullptr));
       delete p4c_.exchange(iOther.p4c_.exchange(nullptr));
       delete vertex_.exchange(iOther.vertex_.exchange(nullptr));
@@ -592,10 +605,16 @@ namespace pat {
     float puppiWeight() const;                          /// Weight from full PUPPI
     float puppiWeightNoLep() const;                     /// Weight from PUPPI removing leptons
     
-    // for teh neutral fraction
-    void setHcalFraction(float p);                      /// Set the fraction of Ecal and Hcal needed for HF and neutral hadrons
-    float hcalFraction() const { return (hcalFraction_/100.); }    /// Fraction of Ecal and Hcal for HF and neutral hadrons
-    
+    // for the neutral fractions
+    void setRawCaloFraction(float p);                      /// Set the raw ECAL+HCAL energy over candidate energy for isolated charged hadrons
+    float rawCaloFraction() const { return (rawCaloFraction_/100.); }    /// Raw ECAL+HCAL energy over candidate energy for isolated charged hadrons
+    void setHcalFraction(float p);                      /// Set the fraction of Hcal needed for HF and neutral hadrons and isolated charged hadrons
+    float hcalFraction() const { return (hcalFraction_/100.); }    /// Fraction of Ecal and Hcal for HF and neutral hadrons and isolated charged hadrons
+
+     // isolated charged hadrons
+    void setIsIsolatedChargedHadron(bool p);                      /// Set isolation (as in particle flow, i.e. at calorimeter surface rather than at PV) flat for charged hadrons
+    bool isIsolatedChargedHadron() const { return isIsolatedChargedHadron_; }    /// Flag isolation (as in particle flow, i.e. at calorimeter surface rather than at PV) flag for charged hadrons
+
     struct PackedCovariance {
         PackedCovariance(): dxydxy(0),dxydz(0),dzdz(0),dlambdadz(0),dphidxy(0),dptdpt(0),detadeta(0),dphidphi(0) {}
         //3D IP covariance
@@ -643,7 +662,10 @@ namespace pat {
 
     int8_t packedPuppiweight_;
     int8_t packedPuppiweightNoLepDiff_; // storing the DIFFERENCE of (all - "no lep") for compression optimization
+    uint8_t rawCaloFraction_;
     int8_t hcalFraction_;
+
+    bool isIsolatedChargedHadron_;
 
     /// the four vector                                                 
     mutable std::atomic<PolarLorentzVector*> p4_;

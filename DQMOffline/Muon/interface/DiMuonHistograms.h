@@ -65,6 +65,7 @@ class DiMuonHistograms : public DQMEDAnalyzer {
   double etaECMin;
   double etaECMax;
 
+
   //Defining the relevant invariant mass regions
   double LowMassMin;
   double LowMassMax;
@@ -78,6 +79,8 @@ class DiMuonHistograms : public DQMEDAnalyzer {
   std::vector<MonitorElement*> TrkTrkMuon_LM;
   std::vector<MonitorElement*> TrkTrkMuon_HM;
 
+  std::vector<MonitorElement*> LooseLooseMuon;
+  std::vector<MonitorElement*> MediumMediumMuon;
   std::vector<MonitorElement*> TightTightMuon;
   std::vector<MonitorElement*> SoftSoftMuon;
   
@@ -91,6 +94,8 @@ class DiMuonHistograms : public DQMEDAnalyzer {
   std::string theFolder;
 
   int nTightTight;
+  int nMediumMedium;
+  int nLooseLoose;
   int nGlbGlb;
 
 };

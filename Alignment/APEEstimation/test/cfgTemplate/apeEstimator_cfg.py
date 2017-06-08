@@ -46,9 +46,9 @@ process.load("Configuration.Geometry.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.Services_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.AlCa.GlobalTag import GlobalTag
+from CondCore.CondDB.CondDB_cfi import *
 
 # new CPE
 
@@ -127,6 +127,9 @@ elif options.sample == 'zmumu20':
     isMc = True
 elif options.sample == 'zmumu50':
     isMc = True
+elif "MC" in options.sample:
+    isMc = True
+    print options.sample
 else:
     print 'ERROR --- incorrect data sammple: ', options.sample
     exit(8888)
@@ -159,7 +162,6 @@ process.source.duplicateCheckMode = cms.untracked.string("checkEachRealDataFile"
 #process.source.duplicateCheckMode = cms.untracked.string("checkAllFilesOpened")   # default value
 
 
-
 ##
 ## Whole Refitter Sequence
 ##
@@ -168,20 +170,12 @@ process.load("Alignment.APEEstimation.TrackRefitter_38T_cff")
 if isParticleGun:
     process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_design', '')
 elif isMc:
-    process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_design', '')
+    #~ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_design', '')
+    #~ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_design', '')
+    process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_realistic', '')
     
-    ##### To be used when running on Phys14MC with a CMSSW version > 72X
-    # process.GlobalTag.toGet = cms.VPSet(
-		# cms.PSet(
-			# record = cms.string("BeamSpotObjectsRcd"),
-			# tag = cms.string("Realistic8TeVCollisions_START50_V13_v1_mc"),
-			# connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
-		# )
-	# )
-
 
 elif isData:
-    #~ process.GlobalTag.globaltag = 'GR_P_V56'
     process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 
 
@@ -189,56 +183,63 @@ elif isData:
 
 ## Alignment and APE
 ##
-import CalibTracker.Configuration.Common.PoolDBESSource_cfi
 ## Choose Alignment (w/o touching APE)
 if options.alignRcd=='design':
-  process.myTrackerAlignment = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone(
-    connect = 'frontier://FrontierProd/CMS_CONDITIONS',
-    toGet = cms.VPSet(
-      cms.PSet(
-        record = cms.string('TrackerAlignmentRcd'),
-        tag = cms.string('TrackerAlignment_Ideal62X_mc')
-      )
-    )
-  )
-  process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","myTrackerAlignment")
+	CondDBAlignment = CondDB.clone(connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'))
+	process.myTrackerAlignment = cms.ESSource("PoolDBESSource",
+		CondDBAlignment,
+		timetype = cms.string("runnumber"),
+		toGet = cms.VPSet(
+			cms.PSet(
+				record = cms.string('TrackerAlignmentRcd'),
+				tag = cms.string('TrackerAlignment_Upgrade2017_design_v3')
+				)
+			)
+		)
+	process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","myTrackerAlignment")
 
   
 elif options.alignRcd == 'misalTest':
-  process.myTrackerAlignment = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone(
-    connect = 'sqlite_file:/afs/cern.ch/user/c/cschomak/CMSSW_7_4_1/src/Alignment/APEEstimation/test/geometry_MisalignmentScenario_20mu_fromDESRUN2_74_V4.db',
-    toGet = cms.VPSet(
-      cms.PSet(
-        record = cms.string('TrackerAlignmentRcd'),
-        tag = cms.string('Alignments'),
-      )
-    )
-  )
-  process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","myTrackerAlignment")
+	CondDBAlignment = CondDB.clone(connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'))
+	process.myTrackerAlignment = cms.ESSource("PoolDBESSource",
+		CondDBAlignment,
+		timetype = cms.string("runnumber"),
+		toGet = cms.VPSet(
+			cms.PSet(
+				record = cms.string('TrackerAlignmentRcd'),
+				tag = cms.string('TrackerAlignment_Phase1Realignment_CRUZET_2M'),
+			)
+		)
+	)
+	process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","myTrackerAlignment")
   
 elif options.alignRcd == 'mp1799':
-  process.myTrackerAlignment = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone(
-    connect = 'sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/MP/MPproduction/mp1799/jobData/jobm/alignments_MP.db',
-    toGet = cms.VPSet(
-      cms.PSet(
-        record = cms.string('TrackerAlignmentRcd'),
-        tag = cms.string('Alignments'),
-      )
-    )
-  )
-  process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","myTrackerAlignment")
+	CondDBAlignment = CondDB.clone(connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/MP/MPproduction/mp1799/jobData/jobm/alignments_MP.db'))
+	process.myTrackerAlignment = cms.ESSource("PoolDBESSource",
+		CondDBAlignment,
+		timetype = cms.string("runnumber"),
+		toGet = cms.VPSet(
+			cms.PSet(
+				record = cms.string('TrackerAlignmentRcd'),
+				tag = cms.string('Alignments'),
+			)
+		)
+	)
+	process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","myTrackerAlignment")
    
 elif options.alignRcd == 'hp1370':
-  process.myTrackerAlignment = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone(
-    connect = 'sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/HIP/xiaomeng/CMSSW_7_4_6_patch5/src/Alignment/HIPAlignmentAlgorithm/hp1370/alignments.db',
-    toGet = cms.VPSet(
-      cms.PSet(
-        record = cms.string('TrackerAlignmentRcd'),
-        tag = cms.string('Alignments'),
-      )
-    )
-  )
-  process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","myTrackerAlignment")
+	CondDBAlignment = CondDB.clone(connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/HIP/xiaomeng/CMSSW_7_4_6_patch5/src/Alignment/HIPAlignmentAlgorithm/hp1370/alignments.db'))
+	process.myTrackerAlignment = cms.ESSource("PoolDBESSource",
+		CondDBAlignment,
+		timetype = cms.string("runnumber"),
+		toGet = cms.VPSet(
+			cms.PSet(
+				record = cms.string('TrackerAlignmentRcd'),
+				tag = cms.string('Alignments'),
+			)
+		)
+	)
+	process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","myTrackerAlignment")
   
 
 
@@ -254,17 +255,19 @@ else:
 
 ## APE
 if options.iterNumber!=0:
-    process.myTrackerAlignmentErr = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone(
-      connect = 'sqlite_file:'+os.environ['CMSSW_BASE']+'/src/Alignment/APEEstimation/hists/apeObjects/apeIter'+str(options.iterNumber-1)+'.db',
-      toGet = [
-        cms.PSet(
-          record = cms.string('TrackerAlignmentErrorExtendedRcd'),
-          tag = cms.string('TrackerAlignmentExtendedErr_2009_v2_express_IOVs')
-        ),
-      ],
-    )
-    process.es_prefer_trackerAlignmentErr = cms.ESPrefer("PoolDBESSource","myTrackerAlignmentErr")
-
+	CondDBAlignmentError = CondDB.clone(connect = cms.string('sqlite_file:'+os.environ['CMSSW_BASE']+'/src/Alignment/APEEstimation/hists/apeObjects/apeIter'+str(options.iterNumber-1)+'.db'))
+	process.myTrackerAlignmentErr = cms.ESSource("PoolDBESSource",
+		CondDBAlignmentError,
+		timetype = cms.string("runnumber"),
+		toGet = cms.VPSet(
+			cms.PSet(
+				record = cms.string('TrackerAlignmentErrorExtendedRcd'),
+				tag = cms.string('TrackerAlignmentExtendedErr_2009_v2_express_IOVs')
+			)
+		)
+	)
+	process.es_prefer_trackerAlignmentErr = cms.ESPrefer("PoolDBESSource","myTrackerAlignmentErr")
+	
 
 
 ##

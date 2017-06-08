@@ -30,6 +30,11 @@ digiMon = cms.EDAnalyzer("Phase2TrackerMonitorDigi",
            ymin   = cms.double(0.5),
            ymax   = cms.double(10.5)
     ),
+    EtaH = cms.PSet(
+        Nbins  = cms.int32(45),
+        xmin   = cms.double(-4.5),
+        xmax   = cms.double(4.5)
+    ),
     DigiChargeH = cms.PSet(
       Nbins = cms.int32(261),
       xmin   = cms.double(0.5),

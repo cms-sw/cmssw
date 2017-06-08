@@ -4,7 +4,6 @@
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
 #include "DataFormats/L1Trigger/interface/Muon.h"
 
-//#include "EventFilter/L1TRawToDigi/interface/UnpackerCollections.h"
 #include "L1TObjectCollections.h"
 
 #include <array>
@@ -13,19 +12,23 @@ namespace l1t {
    namespace stage2 {
       class GMTCollections : public L1TObjectCollections {
          public:
-            GMTCollections(edm::Event& e) :
+            // If the zero suppression deletes all the blocks used to
+            // fill a collection the BX range cannot be determined.
+            // Set default values here to then create an empty collection
+            // with a defined BX range.
+            GMTCollections(edm::Event& e, const int iFirstBx=-2, const int iLastBx=2, const int oFirstBx=-2, const int oLastBx=2) :
                L1TObjectCollections(e),
-               regionalMuonCandsBMTF_(std::make_unique<RegionalMuonCandBxCollection>()),
-               regionalMuonCandsOMTF_(std::make_unique<RegionalMuonCandBxCollection>()),
-               regionalMuonCandsEMTF_(std::make_unique<RegionalMuonCandBxCollection>()),
+               regionalMuonCandsBMTF_(std::make_unique<RegionalMuonCandBxCollection>(0, iFirstBx, iLastBx)),
+               regionalMuonCandsOMTF_(std::make_unique<RegionalMuonCandBxCollection>(0, iFirstBx, iLastBx)),
+               regionalMuonCandsEMTF_(std::make_unique<RegionalMuonCandBxCollection>(0, iFirstBx, iLastBx)),
                muons_(),
-               imdMuonsBMTF_(std::make_unique<MuonBxCollection>()),
-               imdMuonsEMTFNeg_(std::make_unique<MuonBxCollection>()),
-               imdMuonsEMTFPos_(std::make_unique<MuonBxCollection>()),
-               imdMuonsOMTFNeg_(std::make_unique<MuonBxCollection>()),
-               imdMuonsOMTFPos_(std::make_unique<MuonBxCollection>())
+               imdMuonsBMTF_(std::make_unique<MuonBxCollection>(0, oFirstBx, oLastBx)),
+               imdMuonsEMTFNeg_(std::make_unique<MuonBxCollection>(0, oFirstBx, oLastBx)),
+               imdMuonsEMTFPos_(std::make_unique<MuonBxCollection>(0, oFirstBx, oLastBx)),
+               imdMuonsOMTFNeg_(std::make_unique<MuonBxCollection>(0, oFirstBx, oLastBx)),
+               imdMuonsOMTFPos_(std::make_unique<MuonBxCollection>(0, oFirstBx, oLastBx))
             {
-               std::generate(muons_.begin(), muons_.end(), []{ return std::make_unique<MuonBxCollection>(); });
+               std::generate(muons_.begin(), muons_.end(), [&oFirstBx, &oLastBx]{ return std::make_unique<MuonBxCollection>(0, oFirstBx, oLastBx); });
             };
 
             virtual ~GMTCollections();

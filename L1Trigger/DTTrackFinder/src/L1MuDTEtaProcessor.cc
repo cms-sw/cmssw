@@ -62,7 +62,7 @@ using namespace std;
 
 L1MuDTEtaProcessor::L1MuDTEtaProcessor(const L1MuDTTrackFinder& tf, int id, edm::ConsumesCollector&& iC) :
       m_tf(tf), m_epid(id), m_foundPattern(0), m_tseta(15),
-      m_DTDigiToken(iC.consumes<L1MuDTChambThContainer>(L1MuDTTFConfig::getDTDigiInputTag())) {
+      m_DTDigiToken(iC.consumes<L1MuDTChambThContainer>(m_tf.config()->getDTDigiInputTag())) {
 
   m_tseta.reserve(15);
   
@@ -85,7 +85,7 @@ L1MuDTEtaProcessor::~L1MuDTEtaProcessor() {}
 //
 void L1MuDTEtaProcessor::run(int bx, const edm::Event& e, const edm::EventSetup& c) {
 
-  if ( L1MuDTTFConfig::getEtaTF() ) {
+  if ( m_tf.config()->getEtaTF() ) {
     receiveData(bx,e,c);
     runEtaTrackFinder(c);
   }

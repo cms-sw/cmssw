@@ -76,7 +76,7 @@ bool DDCompareEqual::operator() ()
 
 bool DDCompareEqual::nextAnylogp()
 {
-  register size_t hi = hIndex_;
+  size_t hi = hIndex_;
   while (hi < hMax_) {
     if (sLp_==hist_[hi].logicalPart()) {
       hIndex_ = hi+1;

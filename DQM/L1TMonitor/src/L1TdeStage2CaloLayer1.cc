@@ -68,7 +68,7 @@ void L1TdeStage2CaloLayer1::analyze(const edm::Event & event, const edm::EventSe
   }
   
   if ( dataTowerSet.size() != emulTowerSet.size() ) {
-    edm::LogError("L1TdeStage2CaloLayer1") << "Data and Emulation have different number of trigger towers! data=" << dataTowerSet.size() << ", emul=" << emulTowerSet.size() << std::endl;
+    LogDebug("L1TdeStage2CaloLayer1") << "Data and Emulation have different number of trigger towers! data=" << dataTowerSet.size() << ", emul=" << emulTowerSet.size() << std::endl;
     towerCountMismatchesPerBx_->Fill(event.bunchCrossing());
     return;
   }

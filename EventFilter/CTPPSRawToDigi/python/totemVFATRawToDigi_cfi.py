@@ -11,6 +11,7 @@ totemVFATRawToDigi = cms.EDProducer("TotemVFATRawToDigi",
   fedIds = cms.vuint32(),
 
   RawUnpacking = cms.PSet(
+    verbosity = cms.untracked.uint32(0),
   ),
 
   RawToDigi = cms.PSet(
@@ -39,7 +40,7 @@ totemVFATRawToDigi = cms.EDProducer("TotemVFATRawToDigi",
     BC_fraction = cms.untracked.double(0.6),
     
     # if non-zero, prints a per-VFAT error summary at the end of the job
-    printErrorSummary = cms.untracked.uint32(1),
+    printErrorSummary = cms.untracked.uint32(0),
     
     # if non-zero, prints a summary of frames found in data, but not in the mapping
     printUnknownFrameSummary = cms.untracked.uint32(0),

@@ -46,7 +46,7 @@ HLTmumutktkFilter::HLTmumutktkFilter(const edm::ParameterSet& iConfig) : HLTFilt
 }
 
 // ----------------------------------------------------------------------
-HLTmumutktkFilter::~HLTmumutktkFilter() {}
+HLTmumutktkFilter::~HLTmumutktkFilter() = default;
 
 void
 HLTmumutktkFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -120,7 +120,7 @@ bool HLTmumutktkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
 
     // get the four tracks from the vertex
     std::vector <reco::TrackRef> vertexTrksRefVec;
-    reco::Vertex::trackRef_iterator trackIt =  displacedVertex.tracks_begin();
+    auto trackIt =  displacedVertex.tracks_begin();
     for (trackIt = displacedVertex.tracks_begin(); trackIt != displacedVertex.tracks_end(); trackIt++){
         vertexTrksRefVec.push_back((*trackIt).castTo<reco::TrackRef>());
     }
@@ -128,19 +128,19 @@ bool HLTmumutktkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
     // first find the tracks in the input muon/track collection
     std::vector<reco::RecoChargedCandidateCollection::const_iterator> mucandVec;
     std::vector<reco::RecoChargedCandidateCollection::const_iterator> trkcandVec;
-    for (reco::RecoChargedCandidateCollection::const_iterator cand=mucands->begin(); cand!=mucands->end(); cand++) {
+    for (auto cand=mucands->begin(); cand!=mucands->end(); cand++) {
       reco::TrackRef tkRef = cand->get<reco::TrackRef>();
-      for (unsigned int iVec=0; iVec < vertexTrksRefVec.size();iVec++){
-        if (tkRef == vertexTrksRefVec.at(iVec)) {mucandVec.push_back(cand); break;}
+      for (auto & iVec : vertexTrksRefVec){
+        if (tkRef == iVec) {mucandVec.push_back(cand); break;}
       }
     }
     if(mucandVec.size()!= 2) throw cms::Exception("BadLogic") << "HLTmumutktkFilterr: ERROR: the vertex must have "
                                                               << " exactly two muons by definition."  << std::endl;
 
-    for (reco::RecoChargedCandidateCollection::const_iterator cand=trkcands->begin(); cand!=trkcands->end(); cand++) {
+    for (auto cand=trkcands->begin(); cand!=trkcands->end(); cand++) {
       reco::TrackRef tkRef = cand->get<reco::TrackRef>();
-      for (unsigned int iVec = 0; iVec < vertexTrksRefVec.size();iVec++){
-        if (tkRef == vertexTrksRefVec.at(iVec)) {trkcandVec.push_back(cand); break;}
+      for (auto & iVec : vertexTrksRefVec){
+        if (tkRef == iVec) {trkcandVec.push_back(cand); break;}
       }
     }
     if(trkcandVec.size()!= 2 ) throw cms::Exception("BadLogic") << "HLTmumutktkFilterr: ERROR: the vertex must have "

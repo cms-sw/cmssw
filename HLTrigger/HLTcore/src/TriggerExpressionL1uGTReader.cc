@@ -1,6 +1,6 @@
 #include <iostream>
 #include <boost/foreach.hpp>
-#include <boost/regex.hpp>
+#include <regex>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/RegexMatch.h"
@@ -67,9 +67,9 @@ void L1uGTReader::init(const Data & data) {
   } else {
     // expand wildcards in the pattern
     bool match = false;
-    boost::regex re(edm::glob2reg(m_pattern));
+    std::regex re(edm::glob2reg(m_pattern));
     for (auto const & entry: triggerMap)
-      if (boost::regex_match(entry.first, re)) {
+      if (std::regex_match(entry.first, re)) {
         match = true;
         m_triggers.push_back( std::make_pair(entry.first, entry.second.getIndex()) );
       }

@@ -1,9 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
+# lumi
+from DQMOffline.Trigger.DQMOffline_LumiMontiroring_cff import *
 # Egamma
 from DQMOffline.Trigger.HLTGeneralOffline_cfi import *
-
+# Egamma
 from DQMOffline.Trigger.EgHLTOfflineSource_cfi import *
+from DQMOffline.Trigger.EgammaMonitoring_cff import *
 # Muon
 from DQMOffline.Trigger.MuonOffline_Trigger_cff import *
 # Top
@@ -31,8 +34,14 @@ from DQMOffline.Trigger.PrimaryVertexMonitoring_cff import *
 from DQMOffline.Trigger.TrackingMonitoring_cff import *
 from DQMOffline.Trigger.TrackingMonitoringPA_cff import*
 
+# hcal
+from DQMOffline.Trigger.HCALMonitoring_cff import *
+
 # strip
 from DQMOffline.Trigger.SiStrip_OfflineMonitoring_cff import *
+
+# pixel
+from DQMOffline.Trigger.SiPixel_OfflineMonitoring_cff import *
 
 # photon jet
 from DQMOffline.Trigger.HigPhotonJetHLTOfflineSource_cfi import * 
@@ -49,9 +58,10 @@ from DQMOffline.Trigger.heavyionUCCDQM_cfi import *
 import DQMServices.Components.DQMEnvironment_cfi
 dqmEnvHLT= DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
 dqmEnvHLT.subSystemFolder = 'HLT'
+
 # EXO
 from DQMOffline.Trigger.ExoticaMonitoring_cff import *
-
+# SUS
 from DQMOffline.Trigger.SusyMonitoring_cff import *
 # B2G
 from DQMOffline.Trigger.B2GMonitoring_cff import *
@@ -70,6 +80,8 @@ from DQMOffline.Trigger.BPHMonitor_cff import *
 from DQMOffline.Trigger.topHLTOfflineDQM_cff import *
 offlineHLTSource = cms.Sequence(
     hltResults *
+    lumiMonitorHLTsequence *
+    hcalMonitoringSequence *
     egHLTOffDQMSource *
     muonFullOfflineDQM *
     HLTTauDQMOffline *
@@ -83,6 +95,7 @@ offlineHLTSource = cms.Sequence(
     eventshapeDQMSequence *
     HeavyIonUCCDQMSequence *
     hotlineDQMSequence *
+    egammaMonitorHLT * 
     exoticaMonitorHLT *
     susyMonitorHLT *
     b2gMonitorHLT *
@@ -100,7 +113,9 @@ dqmInfoHLTMon = cms.EDAnalyzer("DQMEventInfo",
 
 OfflineHLTMonitoring = cms.Sequence(
     dqmInfoHLTMon *
+    lumiMonitorHLTsequence * # lumi
     sistripMonitorHLTsequence * # strip
+    sipixelMonitorHLTsequence * # pixel
     BTVHLTOfflineSource *
     trackingMonitorHLT * # tracking
     egmTrackingMonitorHLT * # egm tracking

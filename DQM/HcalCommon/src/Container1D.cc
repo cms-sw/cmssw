@@ -1334,8 +1334,9 @@ namespace hcaldqm
 
 		//	set labels
 		std::vector<std::string> xlabels = _qx->getLabels();
-		for (unsigned int i=0; i<xlabels.size(); i++)
+		for (unsigned int i=0; i<xlabels.size(); i++) {
 			me->setBinLabel(i+1, xlabels[i], 1);
+		}
 	}
 
 	/* virtual */ void Container1D::extendAxisRange(int l)

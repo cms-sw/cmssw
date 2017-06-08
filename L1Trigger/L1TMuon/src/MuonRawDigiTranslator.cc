@@ -18,8 +18,7 @@ l1t::MuonRawDigiTranslator::fillMuon(Muon& mu, uint32_t raw_data_00_31, uint32_t
     // Eta and phi at the muon system are replaced by eta and phi at the vertex
     // Eta and phi at the muon system are moved to spare bits
     // The uGMT (FED 1402) or uGT (FED 1404) FW versions are used to determine the era.
-    // FIXME: set correct FW versions for uGT and uGMT once they are known
-    if ((fed == 1402 && fw < 0x5000000) || (fed == 1404 && fw < 0x10A5)) {
+    if ((fed == 1402 && fw < 0x4010000) || (fed == 1404 && fw < 0x10A6)) {
       // coordinates at the muon system are in 2016 where in 2017 eta and phi at the vertex are
       mu.setHwEta(calcHwEta(raw_data_00_31, absEtaAtVtxShift_, etaAtVtxSignShift_));
       mu.setHwPhi((raw_data_00_31 >> phiAtVtxShift_) & phiMask_);

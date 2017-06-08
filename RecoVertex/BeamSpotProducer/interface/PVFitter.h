@@ -126,7 +126,6 @@ class PVFitter {
     for ( std::map<int,std::vector<BeamSpotFitPVData> >::const_iterator pvStore = bxMap_.begin(); 
 	  pvStore!=bxMap_.end(); ++pvStore) {
 
-      //std::cout << "bx " << pvStore->first << " NPVs = " << (pvStore->second).size() << std::endl;
       npvsmap_[ pvStore->first ] = (pvStore->second).size();
 
     }
@@ -146,7 +145,6 @@ class PVFitter {
   bool debug_;
   bool do3DFit_;
   edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
-  // bool writeTxt_;
   std::string outputTxt_;
 
   unsigned int maxNrVertices_;
@@ -158,8 +156,8 @@ class PVFitter {
   double maxVtxR_;
   double maxVtxZ_;
   double errorScale_;
-  double sigmaCut_;
-  double minSumPt_;
+  double sigmaCut_;         
+  double minSumPt_;         
 	
   std::time_t freftime[2];
 
@@ -176,7 +174,7 @@ class PVFitter {
   double fwidthXerr;
   double fwidthYerr;
   double fwidthZerr;
-	
+
   std::vector<BeamSpotFitPVData> pvStore_; //< cache for PV data
   std::map< int, std::vector<BeamSpotFitPVData> > bxMap_; // store PV data as a function of bunch crossings
   double dynamicQualityCut_;               //< quality cut for vertices (dynamic adjustment)

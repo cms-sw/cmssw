@@ -30,6 +30,41 @@ std::vector<sipixelobjects::CablingPathToDetUnit> SiPixelFedCablingTree::pathToD
   return result;
 }
 
+std::unordered_map<uint32_t, unsigned int> SiPixelFedCablingTree::det2fedMap() const {
+  std::unordered_map<uint32_t, unsigned int> result;
+  for (auto im = theFedCablings.begin(); im != theFedCablings.end(); ++im) {
+    auto const & aFed = im->second;
+    for (unsigned int idxLink = 1; idxLink <= aFed.numberOfLinks(); idxLink++) {
+      auto link = aFed.link(idxLink);
+      if (!link) continue;
+      unsigned int numberOfRocs = link->numberOfROCs();
+      for(unsigned int idxRoc = 1; idxRoc <= numberOfRocs; idxRoc++) {
+        auto roc = link->roc(idxRoc);
+        result[roc->rawId()]=aFed.id();  // we know that a det is in one fed only...
+      }
+    }
+  }
+  return result;
+}
+
+std::map< uint32_t,std::vector<sipixelobjects::CablingPathToDetUnit> > SiPixelFedCablingTree::det2PathMap() const {
+  std::map< uint32_t,std::vector<sipixelobjects::CablingPathToDetUnit> > result;
+  for (auto im = theFedCablings.begin(); im != theFedCablings.end(); ++im) {
+    auto const & aFed = im->second;
+    for (unsigned int idxLink = 1; idxLink <= aFed.numberOfLinks(); idxLink++) {
+      auto link = aFed.link(idxLink);
+      if (!link) continue;
+      unsigned int numberOfRocs = link->numberOfROCs();
+      for(unsigned int idxRoc = 1; idxRoc <= numberOfRocs; idxRoc++) {
+        auto roc = link->roc(idxRoc);
+        CablingPathToDetUnit path = {aFed.id(), link->id(), roc->idInLink()};
+        result[roc->rawId()].push_back(path);
+      }
+    }
+  }
+  return result;
+}
+
 void SiPixelFedCablingTree::addFed(const PixelFEDCabling & f)
 {
   int id = f.id();

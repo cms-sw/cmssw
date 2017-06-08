@@ -49,3 +49,4 @@
 <library   name="CalibrationIsoTrackCalib" file="IsoTrackCalib.cc"> </library>
 <library   name="CalibrationIsoTrackCalibration" file="IsoTrackCalibration.cc"> </library>
 <library   name="CalibrationHcalRaddamMuon" file="HcalRaddamMuon.cc"> </library>
+<library   name="CalibrationHcalHBHEMuonSimAnalyzer" file="HcalHBHEMuonSimAnalyzer.cc"> </library>

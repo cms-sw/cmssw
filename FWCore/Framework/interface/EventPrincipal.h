@@ -42,7 +42,6 @@ namespace edm {
   class ThinnedAssociationsHelper;
   class ProcessHistoryRegistry;
   class RunPrincipal;
-  class UnscheduledConfigurator;
 
   class EventPrincipal : public Principal {
   public:
@@ -138,8 +137,6 @@ namespace edm {
     RunPrincipal const& runPrincipal() const;
 
     ProductProvenanceRetriever const* productProvenanceRetrieverPtr() const {return provRetrieverPtr_.get();}
-
-    void setupUnscheduled(UnscheduledConfigurator const&);
 
     EventSelectionIDVector const& eventSelectionIDs() const;
 

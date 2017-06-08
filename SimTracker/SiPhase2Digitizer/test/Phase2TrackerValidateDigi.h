@@ -19,6 +19,7 @@
 class MonitorElement;
 class PixelDigiSimLink;
 class SimTrack;
+class SimHit;
 class TrackerTopology;
 class PixelDigi;
 class Phase2TrackerDigi;
@@ -40,28 +41,28 @@ public:
     MonitorElement* SimTrackPt;  
     MonitorElement* SimTrackEta;  
     MonitorElement* SimTrackPhi;  
-    MonitorElement* SimTrackPtP;  
-    MonitorElement* SimTrackEtaP;  
-    MonitorElement* SimTrackPhiP;  
-    MonitorElement* SimTrackPtS;  
-    MonitorElement* SimTrackEtaS;  
-    MonitorElement* SimTrackPhiS;  
     MonitorElement* MatchedTrackPt;
     MonitorElement* MatchedTrackPhi;
     MonitorElement* MatchedTrackEta;
-    MonitorElement* MatchedTrackPtP;
-    MonitorElement* MatchedTrackPhiP;
-    MonitorElement* MatchedTrackEtaP;
-    MonitorElement* MatchedTrackPtS;
-    MonitorElement* MatchedTrackPhiS;
-    MonitorElement* MatchedTrackEtaS;
-    MonitorElement* SimHitElossP;  
-    MonitorElement* SimHitElossS;  
+    MonitorElement* MissedHitTrackPt;
+    MonitorElement* MissedHitTrackPhi;
+    MonitorElement* MissedHitTrackEta;
+    MonitorElement* MissedDigiTrackPt;
+    MonitorElement* MissedDigiTrackPhi;
+    MonitorElement* MissedDigiTrackEta;
+    MonitorElement* MissedDigiSimHitElossP;
+    MonitorElement* MissedDigiSimHitElossS;
+    MonitorElement* MatchedSimHitElossP;  
+    MonitorElement* MatchedSimHitElossS;  
     MonitorElement* SimHitDx;
     MonitorElement* SimHitDy;
     MonitorElement* SimHitDz;
     MonitorElement* BunchXTimeBin;
     MonitorElement* FractionOfOOTDigis;
+    MonitorElement* MissedDigiLocalXposVsYPos;
+    MonitorElement* MissedDigiTimeWindow;
+    int nHits;
+    int nDigis;
   };
 
 private:
@@ -69,12 +70,17 @@ private:
   MonitorElement* nSimulatedTracks;  
   MonitorElement* nSimulatedTracksP;  
   MonitorElement* nSimulatedTracksS;  
+
+  MonitorElement* nSimVertices;
+
   MonitorElement* SimulatedTrackPt;  
   MonitorElement* SimulatedTrackEta;  
   MonitorElement* SimulatedTrackPhi;  
+
   MonitorElement* SimulatedTrackPtP;  
   MonitorElement* SimulatedTrackEtaP;  
   MonitorElement* SimulatedTrackPhiP;  
+
   MonitorElement* SimulatedTrackPtS;  
   MonitorElement* SimulatedTrackEtaS;  
   MonitorElement* SimulatedTrackPhiS;  
@@ -90,20 +96,25 @@ private:
   MonitorElement* SimulatedTOFRMap;
   MonitorElement* SimulatedTOFZMap;
 
+  MonitorElement* nSimHitsPerTrack;
   float etaCut_;
   float ptCut_;
+  float tofUpperCut_;
+  float tofLowerCut_;
+
 
   void bookLayerHistos(DQMStore::IBooker & ibooker, unsigned int det_id, const TrackerTopology* tTopo, bool flag); 
   unsigned int getSimTrackId(const edm::DetSetVector<PixelDigiSimLink>* simLinks, const DetId& detId, unsigned int& channel);
   int matchedSimTrack(edm::Handle<edm::SimTrackContainer>& SimTk, unsigned int simTrkId);
-  int isPrimary(const SimTrack& simTrk, edm::Handle<edm::PSimHitContainer>& simHitHandle);
+  bool isPrimary(const SimTrack& simTrk, const PSimHit& simHit);
 
   void fillHistogram(MonitorElement* th1, MonitorElement* th2, MonitorElement* th3, float val, int primary);
-  int fillSimHitInfo(const edm::Event& iEvent, unsigned int id, float pt, float eta, float phi, int type, const edm::ESHandle<TrackerGeometry> gHandle);
+  int fillSimHitInfo(const edm::Event& iEvent, const SimTrack simTrk, const edm::ESHandle<TrackerGeometry> gHandle);
   bool findOTDigi(unsigned int detid, unsigned int id);
   bool findITPixelDigi(unsigned int detid, unsigned int id);
   void fillOTBXInfo();
   void fillITPixelBXInfo();
+  void fillHitsPerTrack();
 
   edm::ParameterSet config_;
   std::map<unsigned int, DigiMEs> layerMEs;
@@ -138,5 +149,6 @@ private:
   edm::ESHandle<TrackerTopology> tTopoHandle_;
 
   const float GeVperElectron; // 3.7E-09 
+  const float cval;   // cm/ns
 };
 #endif

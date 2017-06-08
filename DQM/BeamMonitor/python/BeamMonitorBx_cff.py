@@ -37,7 +37,7 @@ dqmBeamMonitorBx = cms.EDAnalyzer("BeamMonitorBx",
                                 FractionOfFittedTrks = cms.untracked.double(0.9),
                                 MinimumInputTracks = cms.untracked.int32(150),
                                 deltaSignificanceCut = cms.untracked.double(10)
-                              ),
+                                ),
                               PVFitter = cms.PSet(
                                 Debug = cms.untracked.bool(False),
                                 Apply3DFit = cms.untracked.bool(True),
@@ -57,7 +57,7 @@ dqmBeamMonitorBx = cms.EDAnalyzer("BeamMonitorBx",
                                 FitPerBunchCrossing = cms.untracked.bool(True),
                                 useOnlyFirstPV = cms.untracked.bool(False),
                                 minSumPt = cms.untracked.double(0.)
-                              ),
+                                ),
                               dxBin = cms.int32(200),
                               dxMin = cms.double(-1.0),
                               dxMax = cms.double(1.0),

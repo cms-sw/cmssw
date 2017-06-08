@@ -84,8 +84,8 @@ namespace
 		return collection[index];
 	}
 
-  template <typename T>
-  void fillKeys(std::unordered_set<T>& keys, const edm::RefVector<TrackingParticleCollection>& collection) {
+  void fillKeys(edm::IndexSet& keys, const edm::RefVector<TrackingParticleCollection>& collection) {
+    keys.reserve(collection.size());
     for(const auto& ref: collection) {
       keys.insert(ref.key());
     }
@@ -331,7 +331,7 @@ template<typename T_TPCollection,typename iter> std::vector< std::pair<edm::Ref<
 	// TrackingParticleRefVector overloads). The trackingParticles
 	// parameter is still ignored since looping over it on every call
 	// would be expensive, but the keys of the TrackingParticleRefs are
-	// cached to an unordered_set (trackingParticleKeys) which is used
+	// cached to an IndexSet (trackingParticleKeys) which is used
 	// as a fast search structure.
 
 	// The pairs in this vector have a Ref to the associated TrackingParticle as "first" and the weighted number of associated clusters as "second"
@@ -357,7 +357,7 @@ template<typename T_TPCollection,typename iter> std::vector< std::pair<edm::Ref<
 
 				const TrackingParticleRef trackingParticle=(ip->second);
 
-                                if(trackingParticleKeys && trackingParticleKeys->find(trackingParticle.key()) == trackingParticleKeys->end())
+                                if(trackingParticleKeys && !trackingParticleKeys->has(trackingParticle.key()))
                                   continue;
 
 				// Historically there was a requirement that pTrackingParticle->numberOfHits() > 0

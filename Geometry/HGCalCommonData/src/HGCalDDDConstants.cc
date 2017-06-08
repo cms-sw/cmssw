@@ -680,14 +680,19 @@ bool HGCalDDDConstants::waferInLayer(int wafer, int lay, bool reco) const {
   return waferInLayer(wafer,indx.first);
 }
 
-std::pair<double,double> HGCalDDDConstants::waferPosition(int wafer) const {
+std::pair<double,double> HGCalDDDConstants::waferPosition(int wafer, 
+							  bool reco) const {
 
-  std::pair<double,double> xy;
+  double xx(0), yy(0);
   if (wafer >= 0 && wafer < (int)(hgpar_->waferPosX_.size())) {
-    xy = std::pair<double,double>(hgpar_->waferPosX_[wafer],hgpar_->waferPosY_[wafer]);
-  } else {
-    xy = std::pair<double,double>(0,0);
+    xx = hgpar_->waferPosX_[wafer];
+    yy = hgpar_->waferPosY_[wafer];
   }
+  if (!reco) {
+    xx /= k_ScaleFromDDD;
+    yy /= k_ScaleFromDDD;
+  }
+  std::pair<double,double> xy(xx,yy);
   return xy;
 }
 

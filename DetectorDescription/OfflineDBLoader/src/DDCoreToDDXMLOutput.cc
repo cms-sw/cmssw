@@ -10,8 +10,8 @@
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "DetectorDescription/Base/interface/DDRotationMatrix.h"
-#include "DetectorDescription/Base/interface/DDTranslation.h"
+#include "DetectorDescription/Core/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Core/interface/DDTranslation.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDPosData.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
@@ -301,6 +301,24 @@ DDCoreToDDXMLOutput::solid( const DDSolid& solid, std::ostream& xos )
 	     << " ty=\"" << pHighNorm[1] << "\""
 	     << " tz=\"" << pHighNorm[2] << "\"/>"
 	     << std::endl;
+         break;
+      }
+      case ddextrudedpolygon:
+      {
+	 DDExtrudedPolygon rs(solid);
+	 std::vector<double> x = rs.xVec();
+	 std::vector<double> y = rs.yVec();
+	 std::vector<double> z = rs.zVec();
+	 std::vector<double> zx = rs.zxVec();
+	 std::vector<double> zy = rs.zyVec();
+	 std::vector<double> zs = rs.zscaleVec();
+	 
+         xos << "<ExtrudedPolygon name=\""  << rs.toString() << "\"";
+	 for( unsigned int i : x )
+	   xos << " <XYPoint x=\"" << x[i] << "*mm\" y=\"" << y[i] << "*mm\"/>\n";
+	 for( unsigned int k : z )
+	   xos << " <ZXYSection z=\"" << z[k] << "*mm\" x=\"" << zx[k] << "*mm\" y=\"" << zy[k] << "*mm scale=" <<  zs[k] << "*mm\"/>\n";
+	 xos << "</ExtrudedPolygon>\n";
          break;
       }
          //       return new PSolid( pstrs(solid.toString()), solid.parameters()

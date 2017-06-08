@@ -14,6 +14,7 @@
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
+#include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
 
 namespace edm {
    class ConfigurationDescriptions;
@@ -59,6 +60,8 @@ class HLTMuonDimuonL3Filter : public HLTFilter {
       double max_DCAMuMu_;      // DCA between the two muons
       double max_YPair_;        // |rapidity| of pair
       bool cutCowboys_;             ///< if true, reject muon-track pairs that bend towards each other
+      const edm::InputTag theL3LinksLabel;					//Needed to iterL3
+      const edm::EDGetTokenT<reco::MuonTrackLinksCollection> linkToken_;	//Needed to iterL3
 };
 
 #endif //HLTMuonDimuonFilter_h

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 ##########################################################################
 # Creates html out of the histograms, parsed data and a given template.
 ##
@@ -7,9 +5,7 @@
 import logging
 import os
 import string
-
-from Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.classes import MonitorData, PedeDumpData
-from Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.geometry import Alignables, Structure
+import Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.classes as mpsv_classes
 
 
 # create class to have delimiter %% which is not used in latex
@@ -23,7 +19,8 @@ def create(alignables, pedeDump, additionalData, outputFile, config):
     logger = logging.getLogger("mpsvalidate")
 
     # load template
-    with open(os.path.join(config.mpspath, "html_template.html"), "r") as template:
+    with open(os.path.join(config.mpspath, "templates",
+                           "mpsvalidate_html_template.html")) as template:
         data = template.read()
         template.close()
 
@@ -45,38 +42,42 @@ def create(alignables, pedeDump, additionalData, outputFile, config):
     try:
         out += "<h2>Alignment Configuration</h2>\n"
         out += "<b>PedeSteerer method:</b> {0}<br>\n".format(
-            additionalData.pedeSteererMethod)
+            additionalData.pede_steerer_method)
         out += "<b>PedeSteerer options:</b>\n"
-        for line in additionalData.pedeSteererOptions:
+        for line in additionalData.pede_steerer_options:
             out += "{0}<br>\n".format(line)
         out += "<b>PedeSteerer command:</b> {0}<br>\n".format(
-            additionalData.pedeSteererCommand)
+            additionalData.pede_steerer_command)
 
-        for selector in additionalData.pattern:
-            out += "<b>{0}:</b><br>\n".format(additionalData.pattern[selector][3])
-            for line in additionalData.pattern[selector][0]:
-                for i in line:
-                    out += "{0} ".format(i)
-                out += "<br>\n"
-            for line in additionalData.pattern[selector][2]:
-                out += "{0} \n".format(line)
-                out += "<br>\n"
+        for i in sorted(additionalData.selectors):
+            out += "<b>{0}:</b><br>\n".format(additionalData.selectors[i]["name"])
+            for line in additionalData.selectors[i]["selector"].dumpPython().split("\n"):
+                out += line + "<br>\n"
+
+        if len(additionalData.iov_definition) > 0:
+            out += "<b>IOV defintion:</b><br>\n"
+            for line in additionalData.iov_definition.dumpPython().split("\n"):
+                out += line + "<br>\n"
+
     except Exception as e:
         logger.error("data not found - {0} {1}".format(type(e), e))
             
     # table of input files with number of tracks
-    if (config.showmonitor):
+    if config.showmonitor:
         out += "<h2>Datasets with tracks</h2>\n"
         out += """<table border="1">
             <tr>
                <th>Dataset</th>
                <th>Number of used tracks</th>
+               <th>Weight</th>
             <tr>"""
-        for monitor in MonitorData.monitors:
+        for monitor in mpsv_classes.MonitorData.monitors:
             out += """<tr>
                 <th>{0}</th>
                 <th>{1}</th>
-                </tr>""".format(monitor.name, monitor.ntracks)
+                <th>{2}</th>
+                </tr>""".format(monitor.name, monitor.ntracks,
+                monitor.weight if monitor.weight != None else "&ndash;")
         try:
             if (pedeDump.nrec):
                 out += """<tr>
