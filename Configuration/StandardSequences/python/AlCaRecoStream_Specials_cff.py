@@ -60,7 +60,7 @@ ALCARECOStreamHcalCalMinBias = cms.FilteredStream(
 # HCAL Pedestals
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalPedestal_cff import *
 
-pathALCARECOHcalCalPedestal = cms.Path(seqALCARECOHcalCalPedestal*ALCARECOHcalCalPhisymDQM)
+pathALCARECOHcalCalPedestal = cms.Path(seqALCARECOHcalCalPedestalDigi*seqALCARECOHcalCalPedestal*ALCARECOHcalCalPhisymDQM)
 
 from Configuration.EventContent.AlCaRecoOutput_cff import *
 
