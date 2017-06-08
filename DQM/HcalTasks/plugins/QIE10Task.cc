@@ -178,11 +178,22 @@ QIE10Task::QIE10Task(edm::ParameterSet const& ps):
 		QIE10DataFrame frame = static_cast<QIE10DataFrame>((*cqie10)[i]);
 		HcalDetId did = frame.detid();
 		HcalElectronicsId eid = HcalElectronicsId(_ehashmap.lookup(did));
+		if (did.subdet() != HcalForward) {
+			continue;
+		}
 
-		int fakecrate=-1;
-		if (eid.crateId() == 22) fakecrate = 0;
-		if (eid.crateId() == 29) fakecrate = 1;
-		if (eid.crateId() == 32) fakecrate = 2;
+		// Compute index for EChannel plots
+		int fakecrate =-1;
+		if (eid.crateId() == 22) {
+			fakecrate = 0;
+		} else if (eid.crateId() == 29) {
+			fakecrate = 1;
+		} else if (eid.crateId() == 32) {
+			fakecrate = 2;
+		} else {
+			// Unknown crate, skip digi
+			continue;
+		}
 		int index = fakecrate*12+eid.slot()-1;
 
 		//	compute the signal, ped subracted
