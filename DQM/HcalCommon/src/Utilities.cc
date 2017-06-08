@@ -35,11 +35,11 @@ namespace hcaldqm
 			if (it_crate2fed != constants::crate2fed_map.end()) {
 				fed = it_crate2fed->second;
 				if (fed <= FED_VME_MAX && fed > 0) {
-					if (slot > 10 && (crate==3 || crate==6 || crate==7)) {
+					if (slot > 10 && (std::find(constants::crateListVME.begin(), constants::crateListVME.end(), crate) != constants::crateListVME.end())) {
 						++fed;
 					}
 				} else {
-					if (slot > 6 && (20 <= crate && crate <= 37)) {  //needed to handle dual fed readout
+					if (slot > 6 && (std::find(constants::crateListuTCA.begin(), constants::crateListuTCA.end(), crate) != constants::crateListuTCA.end())) {  //needed to handle dual fed readout
 				  		++fed;
 				  	}
 				}
