@@ -90,6 +90,7 @@ namespace hcaldqm
 		std::vector<unsigned int> const crateList = {3,6,7,13,20,21,22,24,25,29,30,31,32,34,35,37,38};
 		std::vector<unsigned int> const crateListuTCA = {20,21,22,24,25,29,30,31,32,34,35,37,38};
 		std::vector<unsigned int> const crateListVME = {3,6,7,13};
+		std::vector<unsigned int> const crateListHF = {22,29,32};
 
 		int const FED_uTCA_MAX_REAL = 50;
 
