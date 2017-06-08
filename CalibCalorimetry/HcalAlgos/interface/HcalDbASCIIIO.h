@@ -73,6 +73,7 @@ namespace HcalDbASCIIIO {
   bool dumpObject (std::ostream& fOutput, const HcalCalibrationQIEData& fObject);
   bool getObject (std::istream& fInput, HcalQIETypes* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalQIETypes& fObject);
+  template<> std::unique_ptr<HcalElectronicsMap> createObject<HcalElectronicsMap>(std::istream& fInput);
   bool dumpObject (std::ostream& fOutput, const HcalElectronicsMap& fObject);
   bool getObject (std::istream& fInput, HcalChannelQuality* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalChannelQuality& fObject);
@@ -88,6 +89,7 @@ namespace HcalDbASCIIIO {
   bool dumpObject (std::ostream& fOutput, const HcalZSThresholds& fObject);
   bool getObject (std::istream& fInput, HcalL1TriggerObjects* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalL1TriggerObjects& fObject);
+  template<> std::unique_ptr<HcalFrontEndMap> createObject<HcalFrontEndMap>(std::istream& fInput);
   bool dumpObject (std::ostream& fOutput, const HcalFrontEndMap& fObject);
 
   bool getObject (std::istream& fInput, HcalValidationCorrs* fObject);
@@ -96,6 +98,7 @@ namespace HcalDbASCIIIO {
   bool dumpObject (std::ostream& fOutput, const HcalLutMetadata& fObject);
   bool getObject (std::istream& fInput, HcalDcsValues* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalDcsValues& fObject);
+  template <> std::unique_ptr<HcalDcsMap> createObject<HcalDcsMap>(std::istream& fInput);
   bool dumpObject (std::ostream& fOutput, const HcalDcsMap& fObject);
 
   bool getObject (std::istream& fInput, HcalRecoParams* fObject);
@@ -118,6 +121,7 @@ namespace HcalDbASCIIIO {
 
   bool getObject (std::istream& fInput, HcalSiPMParameters* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalSiPMParameters& fObject);
+  template<> std::unique_ptr<HcalSiPMCharacteristics> createObject<HcalSiPMCharacteristics>(std::istream& fInput);
   bool dumpObject (std::ostream& fOutput, const HcalSiPMCharacteristics& fObject);
 
   bool getObject (std::istream& fInput, HcalTPParameters* fObject);
