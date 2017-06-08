@@ -12,6 +12,9 @@
  *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * \author  M. Eder            - HEPHY Vienna - ORCA version, reduced functionality
+ * \author  Vladimir Rekovic
+ *                - indexing
+ *                - correlations with overlap object removal 
  *
  * $Date$
  * $Revision$
@@ -28,6 +31,7 @@
 #include "L1Trigger/L1TGlobal/interface/CaloTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/EnergySumTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CorrelationTemplate.h"
+#include "L1Trigger/L1TGlobal/interface/CorrelationWithOverlapRemovalTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/ExternalTemplate.h"
 
 #include "L1Trigger/L1TGlobal/interface/GlobalScales.h"
@@ -176,6 +180,14 @@ public:
 
     void setVecCorrelationTemplate(
             const std::vector<std::vector<CorrelationTemplate> >&);
+
+    inline const std::vector<std::vector<CorrelationWithOverlapRemovalTemplate> >& vecCorrelationWithOverlapRemovalTemplate() const {
+
+        return m_vecCorrelationWithOverlapRemovalTemplate;
+    }
+
+    void setVecCorrelationWithOverlapRemovalTemplate(
+            const std::vector<std::vector<CorrelationWithOverlapRemovalTemplate> >&);
 
     // get / set the vectors containing the conditions for correlation templates
     //
@@ -345,6 +357,9 @@ private:
     /// parse a correlation condition
     bool parseCorrelation(tmeventsetup::esCondition corrCond, unsigned int chipNr = 0);
 
+    /// parse a correlation condition with overlap removal
+    bool parseCorrelationWithOverlapRemoval(const tmeventsetup::esCondition& corrCond, unsigned int chipNr = 0);
+
 
     /// parse all algorithms
     //bool parseAlgorithms(XERCES_CPP_NAMESPACE::XercesDOMParser* parser);
@@ -435,6 +450,7 @@ private:
     std::vector<std::vector<ExternalTemplate> > m_vecExternalTemplate;
 
     std::vector<std::vector<CorrelationTemplate> > m_vecCorrelationTemplate;
+    std::vector<std::vector<CorrelationWithOverlapRemovalTemplate> > m_vecCorrelationWithOverlapRemovalTemplate;
     std::vector<std::vector<MuonTemplate> > m_corMuonTemplate;
     std::vector<std::vector<CaloTemplate> > m_corCaloTemplate;
     std::vector<std::vector<EnergySumTemplate> > m_corEnergySumTemplate;

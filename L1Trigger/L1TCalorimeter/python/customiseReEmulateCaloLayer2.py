@@ -4,7 +4,8 @@ import FWCore.ParameterSet.Config as cms
 def reEmulateLayer2(process):
 
     process.load('L1Trigger/L1TCalorimeter/simCaloStage2Digis_cfi')
-    process.load('L1Trigger.L1TCalorimeter.caloStage2Params_2016_v3_3_1_cfi')
+    #process.load('L1Trigger.L1TCalorimeter.caloStage2Params_2016_v3_3_1_HI_cfi')
+    process.load('L1Trigger.L1TCalorimeter.caloStage2Params_2017_v2_1_cfi')
 
     process.simCaloStage2Digis.towerToken = cms.InputTag("caloStage2Digis", "CaloTower")
     

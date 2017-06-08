@@ -23,7 +23,11 @@ l1UpgradeEmuTree.egToken = cms.untracked.InputTag("simCaloStage2Digis")
 l1UpgradeEmuTree.tauTokens = cms.untracked.VInputTag("simCaloStage2Digis")
 l1UpgradeEmuTree.jetToken = cms.untracked.InputTag("simCaloStage2Digis")
 l1UpgradeEmuTree.muonToken = cms.untracked.InputTag("simGmtStage2Digis")
+#l1UpgradeEmuTree.muonToken = cms.untracked.InputTag("muonLegacyInStage2FormatDigis")
 l1UpgradeEmuTree.sumToken = cms.untracked.InputTag("simCaloStage2Digis")
+
+#l1legacyMuonEmuTree = l1UpgradeTree.clone()
+#l1legacyMuonEmuTree.muonToken = cms.untracked.InputTag("muonLegacyInStage2FormatDigis","imdMuonsLegacy")
 
 l1uGTEmuTree = l1uGTTree.clone()
 l1uGTEmuTree.ugtToken = cms.InputTag("simGtStage2Digis")
@@ -40,5 +44,6 @@ L1NtupleEMU = cms.Sequence(
   +l1UpgradeTfMuonEmuTree
   +l1CaloTowerEmuTree
   +l1UpgradeEmuTree
+#  +l1MuonEmuTree
   +l1uGTEmuTree
 )

@@ -11,6 +11,7 @@
  *    <TODO: enter implementation details>
  *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
+ *          Vladimir Rekovic - extend for indexing
  *
  * $Date$
  * $Revision$
@@ -59,6 +60,8 @@ public:
     {
         unsigned int ptHighThreshold;
         unsigned int ptLowThreshold;
+        unsigned int indexHigh;
+        unsigned int indexLow;
         bool enableMip;
         bool enableIso;
         bool requestIso;
