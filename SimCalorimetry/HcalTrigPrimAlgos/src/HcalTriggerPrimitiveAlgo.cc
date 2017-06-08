@@ -239,10 +239,10 @@ HcalTriggerPrimitiveAlgo::addSignal(const QIE11DataFrame& frame)
    incoder_->lookupMSB(frame, msb);
 
    if(ids.size() == 2) {
-      // make a second trigprim for the other one, and split the energy
+      // make a second trigprim for the other one, and share the energy
       IntegerCaloSamples samples2(ids[1], samples1.size());
       for(int i = 0; i < samples1.size(); ++i) {
-         samples1[i] = uint32_t(samples1[i]*0.5);
+         samples1[i] = uint32_t(samples1[i]);
          samples2[i] = samples1[i];
       }
       samples2.setPresamples(frame.presamples());
@@ -355,12 +355,17 @@ HcalTriggerPrimitiveAlgo::analyze2017(IntegerCaloSamples& samples, HcalTriggerPr
    auto& msb = fgUpgradeMap_[samples.id()];
    IntegerCaloSamples sum(samples.id(), samples.size());
 
+   HcalDetId detId(samples.id());
+   std::vector<HcalTrigTowerDetId> ids = theTrigTowerGeometry->towerIds(detId);
    //slide algo window
    for(int ibin = 0; ibin < int(samples.size())- shrink; ++ibin) {
       int algosumvalue = 0;
       for(unsigned int i = 0; i < weights_.size(); i++) {
-         //add up value * scale factor
-         algosumvalue += int(samples[ibin+i] * weights_[i]);
+	//add up value * scale factor
+	// In addition, divide by two in the 10 degree phi segmentation region
+	// to mimic 5 degree segmentation for the trigger
+	if(ids.size()==2) algosumvalue += int(samples[ibin+i] * 0.5 * weights_[i]);
+	else algosumvalue += int(samples[ibin+i] * weights_[i]);
       }
       if (algosumvalue<0) sum[ibin]=0;            // low-side
                                                   //high-side
