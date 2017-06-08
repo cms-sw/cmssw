@@ -105,8 +105,8 @@ private:
 
 	/// Function to find seeds on a given layer
 	void findSeedsOnLayer(
-                  const edm::ESHandle<TrackerTopology> tTopo,
-                  const GeometricSearchDet &layer,
+			      const edm::ESHandle<TrackerTopology> tTopo,
+			      const GeometricSearchDet &layer,
 			      const TrajectoryStateOnSurface &tsosAtIP,
 			      const Propagator& propagatorAlong,
 			      const Propagator& propagatorOpposite,
@@ -118,8 +118,8 @@ private:
 
 	/// Function to find hits on layers and create seeds from updated TSOS
 	int makeSeedsFromHits(
-            const edm::ESHandle<TrackerTopology> tTopo,
-            const GeometricSearchDet &layer,
+			const edm::ESHandle<TrackerTopology> tTopo,
+			const GeometricSearchDet &layer,
 			const TrajectoryStateOnSurface &state,
 			std::vector<TrajectorySeed> &out,
 			const Propagator& propagatorAlong,
