@@ -65,4 +65,33 @@ hltTauValIdealMonitorPF = hltTauValIdealMonitorMC.clone(
     ),
 )
 
-hltTauValIdeal = cms.Sequence(hltTauValIdealMonitorMC+hltTauValIdealMonitorPF)
+from DQMOffline.Trigger.HLTTauDQMOffline_cfi import hltTauOfflineMonitor_TagAndProbe
+hltTauValTagAndProbe = hltTauValIdealMonitorMC.clone(
+    DQMBaseFolder = cms.untracked.string("HLT/TauRelVal/TagAndProbe"),
+    Matching = cms.PSet(
+        doMatching            = cms.untracked.bool(True),
+        matchFilters          = cms.untracked.VPSet(   
+                                    cms.untracked.PSet(
+                                        FilterName        = cms.untracked.InputTag("TauRefCombiner",""),
+                                        matchObjectID     = cms.untracked.int32(15),
+                                    ),
+                                    cms.untracked.PSet(
+                                        FilterName        = cms.untracked.InputTag("TauMCProducer","LeptonicTauElectrons"),
+                                        matchObjectID     = cms.untracked.int32(11),
+                                    ),
+                                    cms.untracked.PSet(
+                                        FilterName        = cms.untracked.InputTag("TauMCProducer","LeptonicTauMuons"),
+                                        matchObjectID     = cms.untracked.int32(13),
+                                    ),
+                                    cms.untracked.PSet(
+                                        FilterName        = cms.untracked.InputTag("TauMCProducer","MET"),
+                                        matchObjectID     = cms.untracked.int32(0),
+                                    ),
+                                ),
+    ),
+    TagAndProbe = hltTauOfflineMonitor_TagAndProbe.TagAndProbe
+)
+
+#hltTauValIdeal = cms.Sequence(hltTauValIdealMonitorMC+hltTauValIdealMonitorPF)
+hltTauValIdeal = cms.Sequence(hltTauValIdealMonitorMC+hltTauValIdealMonitorPF+hltTauValTagAndProbe)
+

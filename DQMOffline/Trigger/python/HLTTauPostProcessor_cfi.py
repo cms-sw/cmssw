@@ -24,7 +24,8 @@ def makeInclusiveAnalyzer(monitorModule):
 def makePFTauAnalyzer(monitorModule):
     (m1, m2) = makeInclusiveAnalyzer(monitorModule)
     m1.subDirs.extend([monitorModule.DQMBaseFolder.value()+"/HLT_.*",
-                       monitorModule.DQMBaseFolder.value()+"/"+monitorModule.L1Plotter.DQMFolder.value()])
+                       monitorModule.DQMBaseFolder.value()+"/"+monitorModule.L1Plotter.DQMFolder.value(),
+                       monitorModule.DQMBaseFolder.value()+"/.*"])
 
     def _addEfficiencies(level, quantities, nameFormat, titleObject="#tau", postfix=""):
         if postfix != "":
@@ -37,12 +38,19 @@ def makePFTauAnalyzer(monitorModule):
     _addEfficiencies("L1", [("Et", "E_{T}"),
                             ("Eta", "#eta"),
                             ("Phi", "#phi")], "%sTau%sEff")
+    _addEfficiencies("L1", [("Et", "E_{T}"),
+                            ("Eta", "#eta"),
+                            ("Phi", "#phi")], "%sIsoTau%sEff")
     _addEfficiencies("L1", [("HighEt", "E_{T}")], "%sTau%sEff", postfix="(high E_{T})")
 
     _addEfficiencies("L1", [("Et", "E_{T}")], "%sETM%sEff", "ETM")
 
     _addEfficiencies("L2", [("Et", "E_{T}"),
                             ("Phi", "#phi")], "%sTrigMET%sEff", "MET")
+    _addEfficiencies("tau", [("Et", "E_{T}"),("Eta", "#eta"),("Phi", "#phi")], "%s%sEff", titleObject="")
+    _addEfficiencies("muon", [("Et", "E_{T}"),("Eta", "#eta"),("Phi", "#phi")], "%s%sEff", titleObject="")
+    _addEfficiencies("electron", [("Et", "E_{T}"),("Eta", "#eta"),("Phi", "#phi")], "%s%sEff", titleObject="")
+    _addEfficiencies("met", [("Et", "E_{T}"),("Phi", "#phi")], "%s%sEff", titleObject="")
 
     for level in ["L2", "L3"]:
         _addEfficiencies(level, [("Et", "p_{T}"),
@@ -55,12 +63,19 @@ def makePFTauAnalyzer(monitorModule):
         _addEfficiencies(level, [("Et", "p_{T}"),
                                  ("Eta", "#eta"),
                                  ("Phi", "#phi")], "%sTrigMuon%sEff", "muon")
+
+    m1.efficiency.append("L3EtaPhiEfficiency 'eta phi eff; #eta; #phi' helpers/L3TrigTauEtaPhiEffNum helpers/L3TrigTauEtaPhiEffDenom")
+    m1.efficiency.append("tauEtaPhiEfficiency 'eta phi eff; #eta; #phi' helpers/tauEtaPhiEffNum helpers/tauEtaPhiEffDenom")
+
     return (m1, m2)
 
 
 (HLTTauPostAnalysis_Inclusive, HLTTauPostAnalysis_Inclusive2) = makeInclusiveAnalyzer(hltTauOfflineMonitor_Inclusive)
 (HLTTauPostAnalysis_PFTaus, HLTTauPostAnalysis_PFTaus2) = makePFTauAnalyzer(hltTauOfflineMonitor_PFTaus)
+(HLTTauPostAnalysis_TP, HLTTauPostAnalysis_TP2) = makePFTauAnalyzer(hltTauOfflineMonitor_TagAndProbe)
+
 HLTTauPostSeq = cms.Sequence(
     HLTTauPostAnalysis_Inclusive+HLTTauPostAnalysis_Inclusive2+
-    HLTTauPostAnalysis_PFTaus+HLTTauPostAnalysis_PFTaus2
+    HLTTauPostAnalysis_PFTaus+HLTTauPostAnalysis_PFTaus2+
+    HLTTauPostAnalysis_TP+HLTTauPostAnalysis_TP2
 )
