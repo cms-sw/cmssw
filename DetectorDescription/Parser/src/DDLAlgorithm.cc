@@ -4,7 +4,7 @@
 #include <map>
 #include <utility>
 
-#include "DetectorDescription/Algorithm/interface/DDAlgorithmHandler.h"
+#include "DetectorDescription/Core/interface/DDAlgorithmHandler.h"
 #include "DetectorDescription/Core/interface/DDTypes.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDName.h"

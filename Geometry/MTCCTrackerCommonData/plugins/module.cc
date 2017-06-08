@@ -2,7 +2,7 @@
 
 #include "Geometry/MTCCTrackerCommonData/plugins/DDTIBLayerAlgo_MTCC.h"
 #include "Geometry/MTCCTrackerCommonData/plugins/DDTIBRadCableAlgo_MTCC.h"
-#include "DetectorDescription/Algorithm/interface/DDAlgorithmFactory.h"
+#include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 

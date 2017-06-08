@@ -1,7 +1,7 @@
-#ifndef DD_ALGO_PLUGIN_DD_ALGORITHM_FACTORY_H
-# define DD_ALGO_PLUGIN_DD_ALGORITHM_FACTORY_H
+#ifndef DD_CORE_PLUGIN_DD_ALGORITHM_FACTORY_H
+# define DD_CORE_PLUGIN_DD_ALGORITHM_FACTORY_H
 
-#include "DetectorDescription/Algorithm/interface/DDAlgorithm.h"
+#include "DetectorDescription/Core/interface/DDAlgorithm.h"
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
 class DDAlgorithm;
