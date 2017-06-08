@@ -57,7 +57,7 @@ void CSCOfflineMonitor::bookHistograms(DQMStore::IBooker & ibooker,
 	  // wire digis
 	  ibooker.setCurrentFolder("CSC/CSCOfflineMonitor/Digis");
 
-	  hWirenGroupsTotal = ibooker.book1D("hWirenGroupsTotal","Fired Wires per Event; # Wiregroups Fired",200,-0.5,199.5);
+	  hWirenGroupsTotal = ibooker.book1D("hWirenGroupsTotal","Fired Wires per Event; # Wiregroups Fired",500,-0.5,499.5);
 	  hWireTBin.push_back(ibooker.book1D("hWireTBin_m42","Wire TBin Fired (ME -4/2); Time Bin (25ns)",17,-0.5,16.5));
 	  hWireTBin.push_back(ibooker.book1D("hWireTBin_m41","Wire TBin Fired (ME -4/1); Time Bin (25ns)",17,-0.5,16.5));
 	  hWireTBin.push_back(ibooker.book1D("hWireTBin_m32","Wire TBin Fired (ME -3/2); Time Bin (25ns)",17,-0.5,16.5));
@@ -100,7 +100,7 @@ void CSCOfflineMonitor::bookHistograms(DQMStore::IBooker & ibooker,
 	  hWireNumber.push_back(ibooker.book1D("hWireNumber_p42","Wiregroup Number Fired (ME +4/2); Wiregroup #",113,-0.5,112.5));
 
 	  // strip digis
-	  hStripNFired = ibooker.book1D("hStripNFired","Fired Strips per Event; # Strips Fired (above 13 ADC)",300,-0.5,299.5);
+	  hStripNFired = ibooker.book1D("hStripNFired","Fired Strips per Event; # Strips Fired (above 13 ADC)",1000,-0.5,999.5);
 	  hStripNumber.push_back(ibooker.book1D("hStripNumber_m42","Strip Number Fired (ME -4/2); Strip # Fired (above 13 ADC)",81,-0.5,80.5));
 	  hStripNumber.push_back(ibooker.book1D("hStripNumber_m41","Strip Number Fired (ME -4/1); Strip # Fired (above 13 ADC)",81,-0.5,80.5));
 	  hStripNumber.push_back(ibooker.book1D("hStripNumber_m32","Strip Number Fired (ME -3/2); Strip # Fired (above 13 ADC)",81,-0.5,80.5));
@@ -149,7 +149,7 @@ void CSCOfflineMonitor::bookHistograms(DQMStore::IBooker & ibooker,
 	  // rechits
 	  ibooker.setCurrentFolder("CSC/CSCOfflineMonitor/recHits");
 
-	  hRHnrechits = ibooker.book1D("hRHnrechits","recHits per Event (all chambers); # of RecHits",200,-0.50,199.5);
+	  hRHnrechits = ibooker.book1D("hRHnrechits","recHits per Event (all chambers); # of RecHits",500,-0.50,499.5);
 	  hRHGlobal.push_back(ibooker.book2D("hRHGlobalp1","recHit global X,Y station +1; Global X (cm); Global Y (cm)",100,-800.,800.,100,-800.,800.));
 	  hRHGlobal.push_back(ibooker.book2D("hRHGlobalp2","recHit global X,Y station +2; Global X (cm); Global Y (cm)",100,-800.,800.,100,-800.,800.));
 	  hRHGlobal.push_back(ibooker.book2D("hRHGlobalp3","recHit global X,Y station +3; Global X (cm); Global Y (cm)",100,-800.,800.,100,-800.,800.));
@@ -348,10 +348,95 @@ void CSCOfflineMonitor::bookHistograms(DQMStore::IBooker & ibooker,
 	  hSChiSqProb.push_back(ibooker.book1D("hSChiSqProbp42","Segment chi2 Probability (ME +4/2); Probability",110,-0.05,1.05));
 	  hSGlobalTheta = ibooker.book1D("hSGlobalTheta","Segment Direction (Global Theta); Global Theta (radians)",136,-0.1,3.3);
 	  hSGlobalPhi   = ibooker.book1D("hSGlobalPhi","Segment Direction (Global Phi); Global Phi (radians)",  128,-3.2,3.2);
-          hSTimeDiff  = ibooker.book1D("hSTimeDiff", "Anode Minus Cathode Segment Time  [ns]",50,-50,50);
+
+          hSTimeDiff  = ibooker.book1D("hSTimeDiff", "Anode Minus Cathode Segment Time [ns]",50,-50,50);
+          hSTimeDiffByChamberType.push_back(ibooker.book1D("hSTimeDiff_m42", "Anode Minus Cathode Segment Time (ME -4/2) [ns]",50,-50,50));
+          hSTimeDiffByChamberType.push_back(ibooker.book1D("hSTimeDiff_m41", "Anode Minus Cathode Segment Time (ME -4/1) [ns]",50,-50,50));
+          hSTimeDiffByChamberType.push_back(ibooker.book1D("hSTimeDiff_m32", "Anode Minus Cathode Segment Time (ME -3/2) [ns]",50,-50,50));
+          hSTimeDiffByChamberType.push_back(ibooker.book1D("hSTimeDiff_m31", "Anode Minus Cathode Segment Time (ME -3/2) [ns]",50,-50,50));
+          hSTimeDiffByChamberType.push_back(ibooker.book1D("hSTimeDiff_m22", "Anode Minus Cathode Segment Time (ME -2/2) [ns]",50,-50,50));
+          hSTimeDiffByChamberType.push_back(ibooker.book1D("hSTimeDiff_m21", "Anode Minus Cathode Segment Time (ME -2/1) [ns]",50,-50,50));
+          hSTimeDiffByChamberType.push_back(ibooker.book1D("hSTimeDiff_m11a", "Anode Minus Cathode Segment Time (ME -1/1a) [ns]",50,-50,50));
+          hSTimeDiffByChamberType.push_back(ibooker.book1D("hSTimeDiff_m13", "Anode Minus Cathode Segment Time (ME -1/3) [ns]",50,-50,50));
+          hSTimeDiffByChamberType.push_back(ibooker.book1D("hSTimeDiff_m12", "Anode Minus Cathode Segment Time (ME -1/2) [ns]",50,-50,50));
+          hSTimeDiffByChamberType.push_back(ibooker.book1D("hSTimeDiff_m11b", "Anode Minus Cathode Segment Time (ME -1/1b) [ns]",50,-50,50));
+          hSTimeDiffByChamberType.push_back(ibooker.book1D("hSTimeDiff_p11b", "Anode Minus Cathode Segment Time (ME +1/1b) [ns]",50,-50,50));
+          hSTimeDiffByChamberType.push_back(ibooker.book1D("hSTimeDiff_p12", "Anode Minus Cathode Segment Time (ME +1/2) [ns]",50,-50,50));
+          hSTimeDiffByChamberType.push_back(ibooker.book1D("hSTimeDiff_p13", "Anode Minus Cathode Segment Time (ME +1/3) [ns]",50,-50,50));
+          hSTimeDiffByChamberType.push_back(ibooker.book1D("hSTimeDiff_p11a", "Anode Minus Cathode Segment Time (ME +1/1a) [ns]",50,-50,50));
+          hSTimeDiffByChamberType.push_back(ibooker.book1D("hSTimeDiff_p21", "Anode Minus Cathode Segment Time (ME +2/1) [ns]",50,-50,50));
+          hSTimeDiffByChamberType.push_back(ibooker.book1D("hSTimeDiff_p22", "Anode Minus Cathode Segment Time (ME +2/2) [ns]",50,-50,50));
+          hSTimeDiffByChamberType.push_back(ibooker.book1D("hSTimeDiff_p31", "Anode Minus Cathode Segment Time (ME +3/1) [ns]",50,-50,50));
+          hSTimeDiffByChamberType.push_back(ibooker.book1D("hSTimeDiff_p32", "Anode Minus Cathode Segment Time (ME +3/2) [ns]",50,-50,50));
+          hSTimeDiffByChamberType.push_back(ibooker.book1D("hSTimeDiff_p41", "Anode Minus Cathode Segment Time (ME +4/1) [ns]",50,-50,50));
+          hSTimeDiffByChamberType.push_back(ibooker.book1D("hSTimeDiff_p42", "Anode Minus Cathode Segment Time (ME +4/2) [ns]",50,-50,50));
+
           hSTimeAnode  = ibooker.book1D("hSTimeAnode", "Anode Only Segment Time  [ns]",200,-200,200);
+          hSTimeAnodeByChamberType.push_back(ibooker.book1D("hSTimeAnode_m42", "Anode Only Segment Time (ME -4/2) [ns]",200,-200,200));
+          hSTimeAnodeByChamberType.push_back(ibooker.book1D("hSTimeAnode_m41", "Anode Only Segment Time (ME -4/1) [ns]",200,-200,200));
+          hSTimeAnodeByChamberType.push_back(ibooker.book1D("hSTimeAnode_m32", "Anode Only Segment Time (ME -3/2) [ns]",200,-200,200));
+          hSTimeAnodeByChamberType.push_back(ibooker.book1D("hSTimeAnode_m31", "Anode Only Segment Time (ME -3/2) [ns]",200,-200,200));
+          hSTimeAnodeByChamberType.push_back(ibooker.book1D("hSTimeAnode_m22", "Anode Only Segment Time (ME -2/2) [ns]",200,-200,200));
+          hSTimeAnodeByChamberType.push_back(ibooker.book1D("hSTimeAnode_m21", "Anode Only Segment Time (ME -2/1) [ns]",200,-200,200));
+          hSTimeAnodeByChamberType.push_back(ibooker.book1D("hSTimeAnode_m11a", "Anode Only Segment Time (ME -1/1a) [ns]",200,-200,200));       
+          hSTimeAnodeByChamberType.push_back(ibooker.book1D("hSTimeAnode_m13", "Anode Only Segment Time (ME -1/3) [ns]",200,-200,200));
+          hSTimeAnodeByChamberType.push_back(ibooker.book1D("hSTimeAnode_m12", "Anode Only Segment Time (ME -1/2) [ns]",200,-200,200));
+          hSTimeAnodeByChamberType.push_back(ibooker.book1D("hSTimeAnode_m11b", "Anode Only Segment Time (ME -1/1b) [ns]",200,-200,200));
+          hSTimeAnodeByChamberType.push_back(ibooker.book1D("hSTimeAnode_p11b", "Anode Only Segment Time (ME +1/1b) [ns]",200,-200,200));
+          hSTimeAnodeByChamberType.push_back(ibooker.book1D("hSTimeAnode_p12", "Anode Only Segment Time (ME +1/2) [ns]",200,-200,200));
+          hSTimeAnodeByChamberType.push_back(ibooker.book1D("hSTimeAnode_p13", "Anode Only Segment Time (ME +1/3) [ns]",200,-200,200));
+          hSTimeAnodeByChamberType.push_back(ibooker.book1D("hSTimeAnode_p11a", "Anode Only Segment Time (ME +1/1a) [ns]",200,-200,200));
+          hSTimeAnodeByChamberType.push_back(ibooker.book1D("hSTimeAnode_p21", "Anode Only Segment Time (ME +2/1) [ns]",200,-200,200));
+          hSTimeAnodeByChamberType.push_back(ibooker.book1D("hSTimeAnode_p22", "Anode Only Segment Time (ME +2/2) [ns]",200,-200,200));
+          hSTimeAnodeByChamberType.push_back(ibooker.book1D("hSTimeAnode_p31", "Anode Only Segment Time (ME +3/1) [ns]",200,-200,200));
+          hSTimeAnodeByChamberType.push_back(ibooker.book1D("hSTimeAnode_p32", "Anode Only Segment Time (ME +3/2) [ns]",200,-200,200));
+          hSTimeAnodeByChamberType.push_back(ibooker.book1D("hSTimeAnode_p41", "Anode Only Segment Time (ME +4/1) [ns]",200,-200,200));
+          hSTimeAnodeByChamberType.push_back(ibooker.book1D("hSTimeAnode_p42", "Anode Only Segment Time (ME +4/2) [ns]",200,-200,200));
+
 	  hSTimeCathode  = ibooker.book1D("hSTimeCathode", "Cathode Only Segment Time  [ns]",200,-200,200);
+          hSTimeCathodeByChamberType.push_back(ibooker.book1D("hSTimeCathode_m42", "Cathode Only Segment Time (ME -4/2) [ns]",200,-200,200));
+          hSTimeCathodeByChamberType.push_back(ibooker.book1D("hSTimeCathode_m41", "Cathode Only Segment Time (ME -4/1) [ns]",200,-200,200));
+          hSTimeCathodeByChamberType.push_back(ibooker.book1D("hSTimeCathode_m32", "Cathode Only Segment Time (ME -3/2) [ns]",200,-200,200));
+          hSTimeCathodeByChamberType.push_back(ibooker.book1D("hSTimeCathode_m31", "Cathode Only Segment Time (ME -3/2) [ns]",200,-200,200));
+          hSTimeCathodeByChamberType.push_back(ibooker.book1D("hSTimeCathode_m22", "Cathode Only Segment Time (ME -2/2) [ns]",200,-200,200));
+          hSTimeCathodeByChamberType.push_back(ibooker.book1D("hSTimeCathode_m21", "Cathode Only Segment Time (ME -2/1) [ns]",200,-200,200));
+          hSTimeCathodeByChamberType.push_back(ibooker.book1D("hSTimeCathode_m11a", "Cathode Only Segment Time (ME -1/1a) [ns]",200,-200,200));
+          hSTimeCathodeByChamberType.push_back(ibooker.book1D("hSTimeCathode_m13", "Cathode Only Segment Time (ME -1/3) [ns]",200,-200,200));
+          hSTimeCathodeByChamberType.push_back(ibooker.book1D("hSTimeCathode_m12", "Cathode Only Segment Time (ME -1/2) [ns]",200,-200,200));
+          hSTimeCathodeByChamberType.push_back(ibooker.book1D("hSTimeCathode_m11b", "Cathode Only Segment Time (ME -1/1b) [ns]",200,-200,200));
+          hSTimeCathodeByChamberType.push_back(ibooker.book1D("hSTimeCathode_p11b", "Cathode Only Segment Time (ME +1/1b) [ns]",200,-200,200));
+          hSTimeCathodeByChamberType.push_back(ibooker.book1D("hSTimeCathode_p12", "Cathode Only Segment Time (ME +1/2) [ns]",200,-200,200));
+          hSTimeCathodeByChamberType.push_back(ibooker.book1D("hSTimeCathode_p13", "Cathode Only Segment Time (ME +1/3) [ns]",200,-200,200));
+          hSTimeCathodeByChamberType.push_back(ibooker.book1D("hSTimeCathode_p11a", "Cathode Only Segment Time (ME +1/1a) [ns]",200,-200,200));
+          hSTimeCathodeByChamberType.push_back(ibooker.book1D("hSTimeCathode_p21", "Cathode Only Segment Time (ME +2/1) [ns]",200,-200,200));
+          hSTimeCathodeByChamberType.push_back(ibooker.book1D("hSTimeCathode_p22", "Cathode Only Segment Time (ME +2/2) [ns]",200,-200,200));
+          hSTimeCathodeByChamberType.push_back(ibooker.book1D("hSTimeCathode_p31", "Cathode Only Segment Time (ME +3/1) [ns]",200,-200,200));
+          hSTimeCathodeByChamberType.push_back(ibooker.book1D("hSTimeCathode_p32", "Cathode Only Segment Time (ME +3/2) [ns]",200,-200,200));
+          hSTimeCathodeByChamberType.push_back(ibooker.book1D("hSTimeCathode_p41", "Cathode Only Segment Time (ME +4/1) [ns]",200,-200,200));
+          hSTimeCathodeByChamberType.push_back(ibooker.book1D("hSTimeCathode_p42", "Cathode Only Segment Time (ME +4/2) [ns]",200,-200,200));
+
 	  hSTimeCombined = ibooker.book1D("hSTimeCombined", "Segment Time (anode+cathode times) [ns]",200,-200,200);
+          hSTimeCombinedByChamberType.push_back(ibooker.book1D("hSTimeCombined_m42", "Segment Time (anode+cathode times) Segment Time (ME -4/2) [ns]",200,-200,200));
+          hSTimeCombinedByChamberType.push_back(ibooker.book1D("hSTimeCombined_m41", "Segment Time (anode+cathode times) Segment Time (ME -4/1) [ns]",200,-200,200));
+          hSTimeCombinedByChamberType.push_back(ibooker.book1D("hSTimeCombined_m32", "Segment Time (anode+cathode times) Segment Time (ME -3/2) [ns]",200,-200,200));
+          hSTimeCombinedByChamberType.push_back(ibooker.book1D("hSTimeCombined_m31", "Segment Time (anode+cathode times) Segment Time (ME -3/2) [ns]",200,-200,200));
+          hSTimeCombinedByChamberType.push_back(ibooker.book1D("hSTimeCombined_m22", "Segment Time (anode+cathode times) Segment Time (ME -2/2) [ns]",200,-200,200));
+          hSTimeCombinedByChamberType.push_back(ibooker.book1D("hSTimeCombined_m21", "Segment Time (anode+cathode times) Segment Time (ME -2/1) [ns]",200,-200,200));
+          hSTimeCombinedByChamberType.push_back(ibooker.book1D("hSTimeCombined_m11a", "Segment Time (anode+cathode times) Segment Time (ME -1/1a) [ns]",200,-200,200));
+          hSTimeCombinedByChamberType.push_back(ibooker.book1D("hSTimeCombined_m13", "Segment Time (anode+cathode times) Segment Time (ME -1/3) [ns]",200,-200,200));
+          hSTimeCombinedByChamberType.push_back(ibooker.book1D("hSTimeCombined_m12", "Segment Time (anode+cathode times) Segment Time (ME -1/2) [ns]",200,-200,200));
+          hSTimeCombinedByChamberType.push_back(ibooker.book1D("hSTimeCombined_m11b", "Segment Time (anode+cathode times) Segment Time (ME -1/1b) [ns]",200,-200,200));
+          hSTimeCombinedByChamberType.push_back(ibooker.book1D("hSTimeCombined_p11b", "Segment Time (anode+cathode times) Segment Time (ME +1/1b) [ns]",200,-200,200));
+          hSTimeCombinedByChamberType.push_back(ibooker.book1D("hSTimeCombined_p12", "Segment Time (anode+cathode times) Segment Time (ME +1/2) [ns]",200,-200,200));
+          hSTimeCombinedByChamberType.push_back(ibooker.book1D("hSTimeCombined_p13", "Segment Time (anode+cathode times) Segment Time (ME +1/3) [ns]",200,-200,200));
+          hSTimeCombinedByChamberType.push_back(ibooker.book1D("hSTimeCombined_p11a", "Segment Time (anode+cathode times) Segment Time (ME +1/1a) [ns]",200,-200,200));
+          hSTimeCombinedByChamberType.push_back(ibooker.book1D("hSTimeCombined_p21", "Segment Time (anode+cathode times) Segment Time (ME +2/1) [ns]",200,-200,200));
+          hSTimeCombinedByChamberType.push_back(ibooker.book1D("hSTimeCombined_p22", "Segment Time (anode+cathode times) Segment Time (ME +2/2) [ns]",200,-200,200));
+          hSTimeCombinedByChamberType.push_back(ibooker.book1D("hSTimeCombined_p31", "Segment Time (anode+cathode times) Segment Time (ME +3/1) [ns]",200,-200,200));
+          hSTimeCombinedByChamberType.push_back(ibooker.book1D("hSTimeCombined_p32", "Segment Time (anode+cathode times) Segment Time (ME +3/2) [ns]",200,-200,200));
+          hSTimeCombinedByChamberType.push_back(ibooker.book1D("hSTimeCombined_p41", "Segment Time (anode+cathode times) Segment Time (ME +4/1) [ns]",200,-200,200));
+          hSTimeCombinedByChamberType.push_back(ibooker.book1D("hSTimeCombined_p42", "Segment Time (anode+cathode times) Segment Time (ME +4/2) [ns]",200,-200,200));
+
           hSTimeDiffSerial  = ibooker.book2D("hSTimeDiffSerial", "Anode Minus Cathode Segment Time  [ns]",601,-0.5,600.5,200,-50,50);
           hSTimeAnodeSerial  = ibooker.book2D("hSTimeAnodeSerial", "Anode Only Segment Time  [ns]",601,-0.5,600.5,200,-200,200);
           hSTimeCathodeSerial  = ibooker.book2D("hSTimeCathodeSerial", "Cathode Only Segment Time  [ns]",601,-0.5,600.5,200,-200,200);
@@ -964,9 +1049,13 @@ void CSCOfflineMonitor::doSegments(edm::Handle<CSCSegmentCollection> cscSegments
 	hSGlobalTheta->Fill(globTheta);
 	hSGlobalPhi->Fill(globPhi);
 	hSTimeDiff->Fill(timeAnode-timeCathode);
+        hSTimeDiffByChamberType[tIndex-1]->Fill(timeAnode-timeCathode);
         hSTimeAnode->Fill(timeAnode);
+        hSTimeAnodeByChamberType[tIndex-1]->Fill(timeAnode);
 	hSTimeCathode->Fill(timeCathode);
+        hSTimeCathodeByChamberType[tIndex-1]->Fill(timeCathode);
 	hSTimeCombined->Fill(timeCombined);
+        hSTimeCombinedByChamberType[tIndex-1]->Fill(timeCombined);
         hSTimeDiffSerial->Fill(chamberSerial(id),timeAnode-timeCathode);
         hSTimeAnodeSerial->Fill(chamberSerial(id),timeAnode);
         hSTimeCathodeSerial->Fill(chamberSerial(id),timeCathode);
