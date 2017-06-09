@@ -9,6 +9,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
@@ -28,7 +30,6 @@
 #include "Geometry/GEMGeometry/interface/ME0EtaPartitionSpecs.h"
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "TH1F.h"
 #include "TH2F.h"
@@ -150,27 +151,14 @@ void ME0DigiReader::analyze(const edm::Event & event, const edm::EventSetup& eve
     trStripArea = (roll->pitch()) * striplength;
     trArea = trStripArea * nstrips;
 
-    if(id.roll() == 1) { countRoll[0]++;}
-    if(id.roll() == 2) { countRoll[1]++;}
-    if(id.roll() == 3) { countRoll[2]++;}
-    if(id.roll() == 4) { countRoll[3]++;}
-    if(id.roll() == 5) { countRoll[4]++;}
-    if(id.roll() == 6) { countRoll[5]++;}
-    if(id.roll() == 7) { countRoll[6]++;}
-    if(id.roll() == 8) { countRoll[7]++;}
+    if ( id.roll()>0 && id.roll()<9) countRoll[id.roll()-1]++;
 
     // Loop over the digis of this DetUnit
     const ME0DigiCollection::Range& range = (*detUnitIt).second;
     for (ME0DigiCollection::const_iterator digiIt = range.first; digiIt!=range.second; ++digiIt)
     {
-      if(id.roll() == 1) {hNstripEtaParts->Fill(id.roll(),digiIt->strip()); ndigiEtaPart[0]++;}
-      if(id.roll() == 2) {hNstripEtaParts->Fill(id.roll(),digiIt->strip()); ndigiEtaPart[1]++;}
-      if(id.roll() == 3) {hNstripEtaParts->Fill(id.roll(),digiIt->strip()); ndigiEtaPart[2]++;}
-      if(id.roll() == 4) {hNstripEtaParts->Fill(id.roll(),digiIt->strip()); ndigiEtaPart[3]++;}
-      if(id.roll() == 5) {hNstripEtaParts->Fill(id.roll(),digiIt->strip()); ndigiEtaPart[4]++;}
-      if(id.roll() == 6) {hNstripEtaParts->Fill(id.roll(),digiIt->strip()); ndigiEtaPart[5]++;}
-      if(id.roll() == 7) {hNstripEtaParts->Fill(id.roll(),digiIt->strip()); ndigiEtaPart[6]++;}
-      if(id.roll() == 8) {hNstripEtaParts->Fill(id.roll(),digiIt->strip()); ndigiEtaPart[7]++;}
+      hNstripEtaParts->Fill(id.roll(),digiIt->strip());
+      if ( id.roll()>0 && id.roll()<9) ndigiEtaPart[id.roll()-1]++;
 
       //bx
       hBx->Fill(digiIt->bx()); 
@@ -178,7 +166,7 @@ void ME0DigiReader::analyze(const edm::Event & event, const edm::EventSetup& eve
 
       if (digiIt->strip() < 1 || digiIt->strip() > roll->nstrips() )
       {
-        cout <<" XXXXXXXXXXXXX Problemt with "<<id<<"  a digi has strip# = "<<digiIt->strip()<<endl;
+        LogDebug("ME0DigiReader") <<" XXXXXXXXXXXXX Problemt with "<<id<<"  a digi has strip# = "<<digiIt->strip()<<endl;
       }
  
       for(const auto& simHit: *simHits)
@@ -212,100 +200,43 @@ void ME0DigiReader::analyze(const edm::Event & event, const edm::EventSetup& eve
     hRadiusEtaPartVsNdigiOvTrArea->Fill(rollRadius,ndigi/trArea);
     hRadiusEtaPart->Fill(rollRadius);
 
-    if(id.roll() == 1) {ndigiVsArea[0] = ndigiVsArea[0] + ndigiEtaPart[0]*1./trArea; rollRadiusEtaPart[0] = rollRadius;}
-    if(id.roll() == 2) {ndigiVsArea[1] = ndigiVsArea[1] + ndigiEtaPart[1]*1./trArea; rollRadiusEtaPart[1] = rollRadius;}
-    if(id.roll() == 3) {ndigiVsArea[2] = ndigiVsArea[2] + ndigiEtaPart[2]*1./trArea; rollRadiusEtaPart[2] = rollRadius;}
-    if(id.roll() == 4) {ndigiVsArea[3] = ndigiVsArea[3] + ndigiEtaPart[3]*1./trArea; rollRadiusEtaPart[3] = rollRadius;}
-    if(id.roll() == 5) {ndigiVsArea[4] = ndigiVsArea[4] + ndigiEtaPart[4]*1./trArea; rollRadiusEtaPart[4] = rollRadius;}
-    if(id.roll() == 6) {ndigiVsArea[5] = ndigiVsArea[5] + ndigiEtaPart[5]*1./trArea; rollRadiusEtaPart[5] = rollRadius;}
-    if(id.roll() == 7) {ndigiVsArea[6] = ndigiVsArea[6] + ndigiEtaPart[6]*1./trArea; rollRadiusEtaPart[6] = rollRadius;}
-    if(id.roll() == 8) {ndigiVsArea[7] = ndigiVsArea[7] + ndigiEtaPart[7]*1./trArea; rollRadiusEtaPart[7] = rollRadius;}
-
+    if ( id.roll()>0 && id.roll()<9) {
+      ndigiVsArea[id.roll()-1] = ndigiVsArea[id.roll()-1] + ndigiEtaPart[id.roll()-1]*1./trArea;
+      rollRadiusEtaPart[id.roll()-1] = rollRadius;
+    }
   }// for eta partitions (rolls)
 
-  std::cout << "roll 1 numbers = " <<  countRoll[0] << "\tndigi = " << ndigiEtaPart[0] << std::endl;
-  std::cout << "roll 2 numbers = " <<  countRoll[1] << "\tndigi = " << ndigiEtaPart[1] << std::endl;
-  std::cout << "roll 3 numbers = " <<  countRoll[2] << "\tndigi = " << ndigiEtaPart[2] << std::endl;
-  std::cout << "roll 4 numbers = " <<  countRoll[3] << "\tndigi = " << ndigiEtaPart[3] << std::endl;
-  std::cout << "roll 5 numbers = " <<  countRoll[4] << "\tndigi = " << ndigiEtaPart[4] << std::endl;
-  std::cout << "roll 6 numbers = " <<  countRoll[5] << "\tndigi = " << ndigiEtaPart[5] << std::endl;
-  std::cout << "roll 7 numbers = " <<  countRoll[6] << "\tndigi = " << ndigiEtaPart[6] << std::endl;
-  std::cout << "roll 8 numbers = " <<  countRoll[7] << "\tndigi = " << ndigiEtaPart[7]<< std::endl;
+  for (int i=0; i<=8; ++i){
+    LogDebug("ME0DigiReader") << "roll "<<i+1<<" numbers = " <<  countRoll[i] << "\tndigi = " << ndigiEtaPart[i] << std::endl;
+  }
 
   numbEvents++;
 }
 
 void ME0DigiReader::endJob() {
-  std::cout << "number of events = " << numbEvents << std::endl;
-  std::cout << "--------------" << std::endl;
+  LogDebug("ME0DigiReader") << "number of events = " << numbEvents << std::endl;
+  LogDebug("ME0DigiReader") << "--------------" << std::endl;
   //  hRadiusEtaPartVsNdigiOvTrArea->GetXProjections();
 
   std::vector<double> myRadii, myRates;
 
-  std::cout << "ndigiVsArea1 = " << ndigiVsArea[0];
-  ndigiVsArea[0] = ndigiVsArea[0]/(numbEvents * 9 *25 * 1.0e-9 * 2. * 18.  * 6. * 1.5);
-  std::cout << "\tRate [Hz/cm2] = " << ndigiVsArea[0] << std::endl;
+  for (int i=0; i<=8; ++i){
+    LogDebug("ME0DigiReader") << "ndigiVsArea"<<i+1<< " = " << ndigiVsArea[i];
+    ndigiVsArea[0] = ndigiVsArea[i]/(numbEvents * 9 *25 * 1.0e-9 * 2. * 18.  * 6. * 1.5);
+    LogDebug("ME0DigiReader") << "\tRate [Hz/cm2] = " << ndigiVsArea[i] << std::endl;
+    myRadii.push_back(rollRadiusEtaPart[i]);
+    myRates.push_back(ndigiVsArea[i]);
+  }
 
-  myRadii.push_back(rollRadiusEtaPart[0]); myRates.push_back(ndigiVsArea[0]);
-
-  std::cout << "ndigiVsArea2 = " << ndigiVsArea[1];
-  ndigiVsArea[1] = ndigiVsArea[1]/(numbEvents * 9 *25 * 1.0e-9 * 2. * 18.  * 6. * 1.5);
-  std::cout << "\tRate [Hz/cm2] = " << ndigiVsArea[1] << std::endl;
-
-  myRadii.push_back(rollRadiusEtaPart[1]); myRates.push_back(ndigiVsArea[1]);
-
-  std::cout << "ndigiVsArea3 = " << ndigiVsArea[2];
-  ndigiVsArea[2] = ndigiVsArea[2]/(numbEvents * 9 *25 * 1.0e-9 * 2. * 18.  * 6. * 1.5);
-  std::cout << "\tRate [Hz/cm2] = " << ndigiVsArea[2] << std::endl;
-
-  myRadii.push_back(rollRadiusEtaPart[2]); myRates.push_back(ndigiVsArea[2]);
-
-  std::cout << "ndigiVsArea4 = " << ndigiVsArea[3];
-  ndigiVsArea[3] = ndigiVsArea[3]/(numbEvents * 9 *25 * 1.0e-9 * 2. * 18.  * 6. * 1.5);
-  std::cout << "\tRate [Hz/cm2] = " << ndigiVsArea[3] << std::endl;
-
-  myRadii.push_back(rollRadiusEtaPart[3]); myRates.push_back(ndigiVsArea[3]);
-
-  std::cout << "ndigiVsArea5 = " << ndigiVsArea[4];
-  ndigiVsArea[4] = ndigiVsArea[4]/(numbEvents * 9 *25 * 1.0e-9 * 2. * 18.  * 6. * 1.5);
-  std::cout << "\tRate [Hz/cm2] = " << ndigiVsArea[4] << std::endl;
-
-  myRadii.push_back(rollRadiusEtaPart[4]); myRates.push_back(ndigiVsArea[4]);
-
-  std::cout << "ndigiVsArea6 = " << ndigiVsArea[5];
-  ndigiVsArea[5] = ndigiVsArea[5]/(numbEvents * 9 *25 * 1.0e-9 * 2. * 18.  * 6. * 1.5);
-  std::cout << "\tRate [Hz/cm2] = " << ndigiVsArea[5] << std::endl;
-
-  myRadii.push_back(rollRadiusEtaPart[5]); myRates.push_back(ndigiVsArea[5]);
-
-  std::cout << "ndigiVsArea7 = " << ndigiVsArea[6];
-  ndigiVsArea[6] = ndigiVsArea[6]/(numbEvents * 9 *25 * 1.0e-9 * 2. * 18.  * 6. * 1.5);
-  std::cout << "\tRate [Hz/cm2] = " << ndigiVsArea[6] << std::endl;
-
-  myRadii.push_back(rollRadiusEtaPart[6]); myRates.push_back(ndigiVsArea[6]);
-
-  std::cout << "ndigiVsArea8 = " << ndigiVsArea[7];
-  ndigiVsArea[7] = ndigiVsArea[7]/(numbEvents * 9 *25 * 1.0e-9 * 2. * 18.  * 6. * 1.5);
-  std::cout << "\tRate [Hz/cm2] = " << ndigiVsArea[7] << std::endl;
-
-  myRadii.push_back(rollRadiusEtaPart[7]); myRates.push_back(ndigiVsArea[7]);
-
-  std::cout << "rollRadius[cm]\tRate[Hz/cm2]" << std::endl;
-  std::cout << rollRadiusEtaPart[0] << "\t" << ndigiVsArea[0] << std::endl;
-  std::cout << rollRadiusEtaPart[1] << "\t" << ndigiVsArea[1] << std::endl;
-  std::cout << rollRadiusEtaPart[2] << "\t" << ndigiVsArea[2] << std::endl;
-  std::cout << rollRadiusEtaPart[3] << "\t" << ndigiVsArea[3] << std::endl;
-  std::cout << rollRadiusEtaPart[4] << "\t" << ndigiVsArea[4] << std::endl;
-  std::cout << rollRadiusEtaPart[5] << "\t" << ndigiVsArea[5] << std::endl;
-  std::cout << rollRadiusEtaPart[6] << "\t" << ndigiVsArea[6] << std::endl;
-  std::cout << rollRadiusEtaPart[7] << "\t" << ndigiVsArea[7] << std::endl;
-
+  LogDebug("ME0DigiReader") << "rollRadius[cm]\tRate[Hz/cm2]" << std::endl;
+  for (int i=0; i<=8; ++i){
+    LogDebug("ME0DigiReader") << rollRadiusEtaPart[i] << "\t" << ndigiVsArea[i] << std::endl;
+  }
 
   for (unsigned int i = 0; i < myRadii.size(); i++)
   {
-    std::cout << "radius = " << myRadii[i] << "\tRate = " << myRates[i] << std::endl;
+    LogDebug("ME0DigiReader") << "radius = " << myRadii[i] << "\tRate = " << myRates[i] << std::endl;
     grRatePerRoll->SetPoint(i, myRadii[i], myRates[i]);
-
   }
 
 }

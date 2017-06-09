@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
@@ -29,7 +30,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "TH1F.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 
@@ -120,19 +120,20 @@ void ME0DigiSimLinkReader::analyze(const edm::Event & event, const edm::EventSet
     hProces->Fill(simHit.processType());
     hAllSimHitsType->Fill(simHit.particleType());
 
-    if (abs(simHit.particleType()) == 13)
+    if (std::abs(simHit.particleType()) == 13){
       Muon_energy->Fill(simHit.pabs());
-    if (abs(simHit.particleType()) == 11)
+    }
+    else if (std::abs(simHit.particleType()) == 11)
     {
       if (simHit.processType() == 13)
         Compton_energy->Fill(simHit.pabs());
-      if (simHit.processType() == 2)
+      else if (simHit.processType() == 2)
         EIoni_energy->Fill(simHit.pabs());
-      if (simHit.processType() == 4)
+      else if (simHit.processType() == 4)
         PairProd_energy->Fill(simHit.pabs());
-      if (simHit.processType() == 14)
+      else if (simHit.processType() == 14)
         Conversions_energy->Fill(simHit.pabs());
-      if (simHit.processType() == 3)
+      else if (simHit.processType() == 3)
         EBrem_energy->Fill(simHit.pabs());
     }
 
@@ -172,15 +173,15 @@ void ME0DigiSimLinkReader::analyze(const edm::Event & event, const edm::EventSet
 
       if (debug_)
       {
-        LogDebug("ME0DigiSimLinkReader") << "roll Id\t" << me0Id << std::endl;
-        LogDebug("ME0DigiSimLinkReader") << "number of strips \t" << nstrips << std::endl;
-        LogDebug("ME0DigiSimLinkReader") << "simhit particle type\t" << particletype << std::endl;
-        LogDebug("ME0DigiSimLinkReader") << "simhit process type\t" << processtype << std::endl;
-        LogDebug("ME0DigiSimLinkReader") << "linked to strip with number\t" << strip << std::endl;
-        LogDebug("ME0DigiSimLinkReader") << "in bunch crossing\t" << bx << std::endl;
-        LogDebug("ME0DigiSimLinkReader") << "energy loss\t" << myEnergyLoss << std::endl;
-        LogDebug("ME0DigiSimLinkReader") << "time of flight't" << partTof << std::endl;
-        LogDebug("ME0DigiSimLinkReader") << "roll Id\t" << roll->id() << "\tangularStripCoverage \t" << fullAngularStripPitch << std::endl;
+        LogDebug("ME0DigiSimLinkReader") << "roll Id\t" << me0Id << std::endl
+					 << "number of strips \t" << nstrips << std::endl
+					 << "simhit particle type\t" << particletype << std::endl
+					 << "simhit process type\t" << processtype << std::endl
+					 << "linked to strip with number\t" << strip << std::endl
+					 << "in bunch crossing\t" << bx << std::endl
+					 << "energy loss\t" << myEnergyLoss << std::endl
+					 << "time of flight't" << partTof << std::endl
+					 << "roll Id\t" << roll->id() << "\tangularStripCoverage \t" << fullAngularStripPitch << std::endl;
       }
 
       hParticleTypes->Fill(particletype);
@@ -189,7 +190,7 @@ void ME0DigiSimLinkReader::analyze(const edm::Event & event, const edm::EventSet
         processtypeElectrons->Fill(processtype);
       if (particletype == -11)
         processtypePositrons->Fill(processtype);
-      if (abs(particletype) == 13)
+      if (std::abs(particletype) == 13)
       {
         processtypeMuons->Fill(processtype);
         locMuonEntry = link_iter->getEntryPoint();
@@ -200,15 +201,15 @@ void ME0DigiSimLinkReader::analyze(const edm::Event & event, const edm::EventSet
       if (bx == 0)
       {
         if (me0Id.station() != 1)
-        std::cout << "wrong ME0 station !=1" << std::endl;
+	  LogDebug("ME0DigiSimLinkReader") << "wrong ME0 station !=1" << std::endl;
         else
         {
           tof_allPart_bx0->Fill(partTof);
-          if (abs(particletype) == 13)
+          if (std::abs(particletype) == 13)
           {
             tof_mu_bx0->Fill(partTof);
           }
-          else if (abs(particletype) == 11)
+          else if (std::abs(particletype) == 11)
           {
             if (me0Id.station() == 1) tof_elec_bx0->Fill(partTof);
           }
