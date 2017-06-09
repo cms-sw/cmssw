@@ -28,8 +28,8 @@
 #include "SimG4Core/Notification/interface/Observer.h"
 #include "SimG4Core/Watcher/interface/SimWatcher.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "SimG4CMS/Forward/interface/CastorNumberingScheme.h"
+#include "SimG4CMS/Calo/interface/CaloG4Hit.h"
+#include "SimG4CMS/Calo/interface/CaloG4HitCollection.h"
 
 #include <cassert>
 #include <iostream>
@@ -61,6 +61,7 @@ class BeginOfRun;
 class EndOfRun;
 class BeginOfEvent;
 class EndOfEvent;
+class CastorNumberingScheme;
 
 class CastorTestAnalysis : public SimWatcher,
 			public Observer<const BeginOfJob *>, 
