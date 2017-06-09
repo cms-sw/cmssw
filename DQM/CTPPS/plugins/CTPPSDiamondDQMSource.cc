@@ -632,10 +632,10 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
           case 0:
             potPlots_[detId_pot].activity_per_bx->Fill( event.bunchCrossing() );
             break;
-          case 1: 
+          case 1:
             potPlots_[detId_pot].activity_per_bx_plus1->Fill( event.bunchCrossing() );
             break;
-        }      
+        }
 
       } // End if (complete hits)
     }
