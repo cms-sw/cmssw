@@ -2,9 +2,8 @@
 #define Alignment_HIPAlignmentAlgorithm_HIPAlignmentAlgorithm_h
 
 #include <vector>
-#include <utility>
-#include <unordered_map>
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
+#include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/AlignableDetOrUnitPtr.h"
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 #include "Alignment/CommonAlignment/interface/AlignableNavigator.h"  
@@ -19,19 +18,10 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h" 	 
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h" 	 
 
+#include "Alignment/HIPAlignmentAlgorithm/interface/HIPAlignableSpecificParameters.h"
+
 class TFile;
 class TTree;
-
-struct HIPAlignableSpecificParameters{
-  // Use these two indices to match
-  align::ID id; // Alignable::id
-  int objId; // Alignable::alignableObjectId
-
-  // These are the actual parameters
-  int minNHits;
-  double maxRelParError;
-  double maxHitPull;
-};
 
 class HIPAlignmentAlgorithm : public AlignmentAlgorithmBase{
 public:
