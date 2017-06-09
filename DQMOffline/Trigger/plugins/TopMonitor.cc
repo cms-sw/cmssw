@@ -649,7 +649,8 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
       bjets.insert(JetTagMap::value_type(bTags[i].first, bTags[i].second));
   }
 
-  
+  if (bjets.size() < nbjets_ ) return;  
+
   // filling histograms (denominator)  
   metME_.denominator -> Fill(met);
   metME_variableBinning_.denominator -> Fill(met);
