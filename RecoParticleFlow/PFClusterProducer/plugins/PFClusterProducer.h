@@ -25,11 +25,11 @@ class PFClusterProducer : public edm::stream::EDProducer<> {
   typedef PFCPositionCalculatorBase PosCalc;
  public:    
   PFClusterProducer(const edm::ParameterSet&);
-  ~PFClusterProducer() { }
+  ~PFClusterProducer() override = default;
   
-  virtual void beginLuminosityBlock(const edm::LuminosityBlock&, 
-				    const edm::EventSetup&);
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void beginLuminosityBlock(const edm::LuminosityBlock&, 
+				    const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
   
  private:
   // inputs
