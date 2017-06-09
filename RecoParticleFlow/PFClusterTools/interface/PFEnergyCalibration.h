@@ -90,22 +90,22 @@ class PFEnergyCalibration
   const ESEEIntercalibConstants* esEEInterCalib_;
   
   // Barrel calibration (eta 0.00 -> 1.48)
-  TF1* faBarrel;
-  TF1* fbBarrel; 
-  TF1* fcBarrel; 
-  TF1* faEtaBarrelEH; 
-  TF1* fbEtaBarrelEH; 
-  TF1* faEtaBarrelH; 
-  TF1* fbEtaBarrelH; 
+  std::unique_ptr<TF1> faBarrel;
+  std::unique_ptr<TF1> fbBarrel; 
+  std::unique_ptr<TF1> fcBarrel; 
+  std::unique_ptr<TF1> faEtaBarrelEH; 
+  std::unique_ptr<TF1> fbEtaBarrelEH; 
+  std::unique_ptr<TF1> faEtaBarrelH; 
+  std::unique_ptr<TF1> fbEtaBarrelH; 
 
   // Endcap calibration (eta 1.48 -> 3.xx)
-  TF1* faEndcap;
-  TF1* fbEndcap; 
-  TF1* fcEndcap; 
-  TF1* faEtaEndcapEH; 
-  TF1* fbEtaEndcapEH; 
-  TF1* faEtaEndcapH; 
-  TF1* fbEtaEndcapH; 
+  std::unique_ptr<TF1> faEndcap;
+  std::unique_ptr<TF1> fbEndcap; 
+  std::unique_ptr<TF1> fcEndcap; 
+  std::unique_ptr<TF1> faEtaEndcapEH; 
+  std::unique_ptr<TF1> fbEtaEndcapEH; 
+  std::unique_ptr<TF1> faEtaEndcapH; 
+  std::unique_ptr<TF1> fbEtaEndcapH; 
 
  private:
   
