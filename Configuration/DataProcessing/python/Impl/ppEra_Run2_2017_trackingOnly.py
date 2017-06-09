@@ -29,17 +29,19 @@ class ppEra_Run2_2017_trackingOnly(pp):
 
         # TkAlMinBias run but hidden to Tier0, in order not to persist it
         if not args.has_key('skims') :
-            args['skims'] = 'TkAlMinBias'
+            args['skims']=['TkAlMinBias']
         else :
             if not 'TkAlMinBias' in args['skims'] :
                 args['skims'].append('TkAlMinBias')
 
         # reco sequence is limited to tracking => DQM accordingly
         if not args.has_key('dqmSeq') :
-            args['dqmSeq'] = 'DQMOfflineTracking'
+            args['dqmSeq'] = ['DQMOfflineTracking']
 
 
-        pp.expressProcessing(self, globalTag, **args)
+        process = pp.expressProcessing(self, globalTag, **args)
+
+        return process
 
     """
     _ppEra_Run2_2017_trackingOnly
