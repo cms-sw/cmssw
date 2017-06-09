@@ -30,6 +30,13 @@ hltHIGmonitoring.histoPSet.htPSet = cms.PSet(
   xmax  = cms.double(  600  ),
 )
 
+# Marina
+hltHIGmonitoring.histoPSet.csvPSet = cms.PSet(
+  nbins = cms.int32 ( 50 ),
+  xmin  = cms.double( 0.0 ),
+  xmax  = cms.double( 1.0  ),
+)
+
 hltHIGmonitoring.applyleptonPVcuts = cms.bool(True)
 hltHIGmonitoring.leptonPVcuts = cms.PSet(
   dxy = cms.double(   0.5  ),

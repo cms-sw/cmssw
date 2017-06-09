@@ -14,7 +14,7 @@ ele23Ele12CaloIdLTrackIdLIsoVL_dzmon.denGenericTriggerEventPSet.hltPaths = cms.v
 mu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLDZ_eleleg = hltHIGmonitoring.clone()
 mu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLDZ_eleleg.nmuons = cms.uint32(1)
 mu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLDZ_eleleg.nelectrons = cms.uint32(1)
-mu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLDZ_eleleg.FolderName = cms.string('HLT/Higgs/DiLepton/HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_eleLeg')
+mu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLDZ_eleleg.FolderName = cms.string('HLT/Higgs/DiLepton/HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ/eleLeg')
 mu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLDZ_eleleg.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v*") 
 mu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLDZ_eleleg.denGenericTriggerEventPSet.hltPaths = cms.vstring(
 	"HLT_Mu20_v*","HLT_TkMu20_v*",
@@ -31,7 +31,7 @@ mu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLDZ_eleleg.denGenericTriggerEventPSet.hltPa
 mu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLDZ_muleg = hltHIGmonitoring.clone()
 mu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLDZ_muleg.nmuons = cms.uint32(1)
 mu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLDZ_muleg.nelectrons = cms.uint32(1)
-mu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLDZ_muleg.FolderName = cms.string('HLT/Higgs/DiLepton/HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_muref/')
+mu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLDZ_muleg.FolderName = cms.string('HLT/Higgs/DiLepton/HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ/muLeg')
 mu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLDZ_muleg.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v*")
 mu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLDZ_muleg.denGenericTriggerEventPSet.hltPaths = cms.vstring(
         "HLT_Ele27_WPTight_Gsf_v*",
@@ -42,7 +42,7 @@ mu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLDZ_muleg.denGenericTriggerEventPSet.hltPat
 mu12TrkIsoVVLEle23CaloIdLTrackIdLIsoVLDZ_eleleg = hltHIGmonitoring.clone()
 mu12TrkIsoVVLEle23CaloIdLTrackIdLIsoVLDZ_eleleg.nmuons = cms.uint32(1)
 mu12TrkIsoVVLEle23CaloIdLTrackIdLIsoVLDZ_eleleg.nelectrons = cms.uint32(1)
-mu12TrkIsoVVLEle23CaloIdLTrackIdLIsoVLDZ_eleleg.FolderName = cms.string('HLT/Higgs/DiLepton/HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_eleLeg/')
+mu12TrkIsoVVLEle23CaloIdLTrackIdLIsoVLDZ_eleleg.FolderName = cms.string('HLT/Higgs/DiLepton/HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ/eleLeg')
 mu12TrkIsoVVLEle23CaloIdLTrackIdLIsoVLDZ_eleleg.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v*") # 
 mu12TrkIsoVVLEle23CaloIdLTrackIdLIsoVLDZ_eleleg.denGenericTriggerEventPSet.hltPaths = cms.vstring(
 	"HLT_Mu20_v*",
@@ -60,7 +60,7 @@ mu12TrkIsoVVLEle23CaloIdLTrackIdLIsoVLDZ_eleleg.denGenericTriggerEventPSet.hltPa
 mu12TrkIsoVVLEle23CaloIdLTrackIdLIsoVLDZ_muleg = hltHIGmonitoring.clone()
 mu12TrkIsoVVLEle23CaloIdLTrackIdLIsoVLDZ_muleg.nmuons = cms.uint32(1)
 mu12TrkIsoVVLEle23CaloIdLTrackIdLIsoVLDZ_muleg.nelectrons = cms.uint32(1)
-mu12TrkIsoVVLEle23CaloIdLTrackIdLIsoVLDZ_muleg.FolderName = cms.string('HLT/Higgs/DiLepton/HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_muLeg/')
+mu12TrkIsoVVLEle23CaloIdLTrackIdLIsoVLDZ_muleg.FolderName = cms.string('HLT/Higgs/DiLepton/HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ/muLeg')
 mu12TrkIsoVVLEle23CaloIdLTrackIdLIsoVLDZ_muleg.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v*")
 mu12TrkIsoVVLEle23CaloIdLTrackIdLIsoVLDZ_muleg.denGenericTriggerEventPSet.hltPaths = cms.vstring(
         "HLT_Ele27_WPTight_Gsf_v*",
@@ -85,7 +85,7 @@ higgsTrielemon.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Ele23_Ele1
 ###############################cross flavour trilepton monitor####################################
 #########DiMuon+Single Ele Trigger###################
 diMu9Ele9CaloIdLTrackIdL_muleg = hltHIGmonitoring.clone()
-diMu9Ele9CaloIdLTrackIdL_muleg.FolderName = cms.string('HLT/Higgs/TriLepton/HLT_DiMu9_Ele9_CaloIdL_TrackIdL_muLeg/')
+diMu9Ele9CaloIdLTrackIdL_muleg.FolderName = cms.string('HLT/Higgs/TriLepton/HLT_DiMu9_Ele9_CaloIdL_TrackIdL/muLeg')
 diMu9Ele9CaloIdLTrackIdL_muleg.nelectrons = cms.uint32(1)
 diMu9Ele9CaloIdLTrackIdL_muleg.nmuons = cms.uint32(2)
 diMu9Ele9CaloIdLTrackIdL_muleg.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_DiMu9_Ele9_CaloIdL_TrackIdL_v*") # HLT_ZeroBias_v*
@@ -95,7 +95,7 @@ diMu9Ele9CaloIdLTrackIdL_muleg.denGenericTriggerEventPSet.hltPaths = cms.vstring
 )
 
 diMu9Ele9CaloIdLTrackIdL_eleleg = hltHIGmonitoring.clone()
-diMu9Ele9CaloIdLTrackIdL_eleleg.FolderName = cms.string('HLT/Higgs/TriLepton/HLT_DiMu9_Ele9_CaloIdL_TrackIdL_eleLeg/')
+diMu9Ele9CaloIdLTrackIdL_eleleg.FolderName = cms.string('HLT/Higgs/TriLepton/HLT_DiMu9_Ele9_CaloIdL_TrackIdL/eleLeg')
 diMu9Ele9CaloIdLTrackIdL_eleleg.nelectrons = cms.uint32(1)
 diMu9Ele9CaloIdLTrackIdL_eleleg.nmuons = cms.uint32(2)
 diMu9Ele9CaloIdLTrackIdL_eleleg.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_DiMu9_Ele9_CaloIdL_TrackIdL_v*") # HLT_ZeroBias_v*
@@ -110,7 +110,7 @@ diMu9Ele9CaloIdLTrackIdL_eleleg.denGenericTriggerEventPSet.hltPaths = cms.vstrin
 
 #################DiElectron+Single Muon Trigger##################
 mu8diEle12CaloIdLTrackIdL_eleleg = hltHIGmonitoring.clone()
-mu8diEle12CaloIdLTrackIdL_eleleg.FolderName = cms.string('HLT/Higgs/TriLepton/HLT_Mu8_DiEle12_CaloIdL_TrackIdL_eleLeg/')
+mu8diEle12CaloIdLTrackIdL_eleleg.FolderName = cms.string('HLT/Higgs/TriLepton/HLT_Mu8_DiEle12_CaloIdL_TrackIdL/eleLeg')
 mu8diEle12CaloIdLTrackIdL_eleleg.nelectrons = cms.uint32(2)
 mu8diEle12CaloIdLTrackIdL_eleleg.nmuons = cms.uint32(1)
 mu8diEle12CaloIdLTrackIdL_eleleg.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Mu8_DiEle12_CaloIdL_TrackIdL_v*") # HLT_ZeroBias_v*
@@ -120,7 +120,7 @@ mu8diEle12CaloIdLTrackIdL_eleleg.denGenericTriggerEventPSet.hltPaths = cms.vstri
 )
 
 mu8diEle12CaloIdLTrackIdL_muleg = hltHIGmonitoring.clone()
-mu8diEle12CaloIdLTrackIdL_muleg.FolderName = cms.string('HLT/Higgs/TriLepton/HLT_Mu8_DiEle12_CaloIdL_TrackIdL_muLeg/')
+mu8diEle12CaloIdLTrackIdL_muleg.FolderName = cms.string('HLT/Higgs/TriLepton/HLT_Mu8_DiEle12_CaloIdL_TrackIdL/muLeg')
 mu8diEle12CaloIdLTrackIdL_muleg.nelectrons = cms.uint32(2)
 mu8diEle12CaloIdLTrackIdL_muleg.nmuons = cms.uint32(1)
 mu8diEle12CaloIdLTrackIdL_muleg.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Mu8_DiEle12_CaloIdL_TrackIdL_v*") # HLT_ZeroBias_v*
