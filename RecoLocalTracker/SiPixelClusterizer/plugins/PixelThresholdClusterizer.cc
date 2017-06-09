@@ -48,8 +48,11 @@ PixelThresholdClusterizer::PixelThresholdClusterizer
     thePixelThreshold( conf.getParameter<int>("ChannelThreshold") ),
     theSeedThreshold( conf.getParameter<int>("SeedThreshold") ),
     theClusterThreshold( conf.getParameter<double>("ClusterThreshold") ),
+    theClusterThreshold_L1( conf.getUntrackedParameter<double>("ClusterThreshold_L1",theClusterThreshold) ),
     theConversionFactor( conf.getParameter<int>("VCaltoElectronGain") ),
+    theConversionFactor_L1( conf.getUntrackedParameter<int>("VCaltoElectronGain_L1",theConversionFactor) ),
     theOffset( conf.getParameter<int>("VCaltoElectronOffset") ),
+    theOffset_L1( conf.getUntrackedParameter<int>("VCaltoElectronOffset_L1",theOffset) ),
     theStackADC_( conf.exists("AdcFullScaleStack") ? conf.getParameter<int>("AdcFullScaleStack") : 255 ),
     theFirstStack_( conf.exists("FirstStackLayer") ? conf.getParameter<int>("FirstStackLayer") : 5 ),
     theElectronPerADCGain_( conf.exists("ElectronPerADCGain") ? conf.getParameter<double>("ElectronPerADCGain") : 135. ),
@@ -119,6 +122,11 @@ void PixelThresholdClusterizer::clusterizeDetUnitT( const T & input,
   
   detid_ = input.detId();
   
+  // Set separate cluster threshold for L1 (needed for phase1)
+  double clusterThreshold = theClusterThreshold;
+  int layer = (DetId(detid_).subdetId()==1) ? PXBDetId(detid_).layer() : 0;
+  if (layer==1) clusterThreshold = theClusterThreshold_L1;
+  
   //  Copy PixelDigis to the buffer array; select the seed pixels
   //  on the way, and store them in theSeeds.
   copy_to_buffer(begin, end);
@@ -138,7 +146,7 @@ void PixelThresholdClusterizer::clusterizeDetUnitT( const T & input,
 	  
 	  //  Check if the cluster is above threshold  
 	  // (TO DO: one is signed, other unsigned, gcc warns...)
-	  if ( cluster.charge() >= theClusterThreshold) 
+	  if ( cluster.charge() >= clusterThreshold) 
 	    {
 	      // std::cout << "putting in this cluster " << i << " " << cluster.charge() << " " << cluster.pixelADC().size() << endl;
               // sort by row (x)
@@ -202,10 +210,14 @@ void PixelThresholdClusterizer::copy_to_buffer( DigiIterator begin, DigiIterator
 #endif
   int electron[end-begin];
   memset(electron, 0, sizeof(electron));
+  int layer = (DetId(detid_).subdetId()==1) ? PXBDetId(detid_).layer() : 0;
   if ( doMissCalibrate ) {
-    (*theSiPixelGainCalibrationService_).calibrate(detid_,begin,end,theConversionFactor, theOffset,electron);
+    if (layer==1) {
+      (*theSiPixelGainCalibrationService_).calibrate(detid_,begin,end,theConversionFactor_L1, theOffset_L1,electron);
+    } else {
+      (*theSiPixelGainCalibrationService_).calibrate(detid_,begin,end,theConversionFactor,    theOffset,  electron);
+    }
   } else {
-    int layer = (DetId(detid_).subdetId()==1) ? PXBDetId(detid_).layer() : 0;
     int i=0;
     for(DigiIterator di = begin; di != end; ++di) {
       auto adc = di->adc();
@@ -315,7 +327,11 @@ int PixelThresholdClusterizer::calibrate(int adc, int col, int row)
 	  //const float p3 = 113.0; 
 	  //float vcal = ( atanh( (adc-p3)/p2) + p1)/p0;
 	  
-	  electrons = int( vcal * theConversionFactor + theOffset); 
+	  if (layer==1) {
+	    electrons = int( vcal * theConversionFactor_L1 + theOffset_L1); 
+	  } else {
+	    electrons = int( vcal * theConversionFactor + theOffset); 
+	  }
 	}
     }
   else 
@@ -427,6 +443,11 @@ PixelThresholdClusterizer::make_cluster( const SiPixelCluster::PixelPos& pix,
   
   if (dead_flag && doSplitClusters) 
     {
+      // Set separate cluster threshold for L1 (needed for phase1)
+      double clusterThreshold = theClusterThreshold;
+      int layer = (DetId(detid_).subdetId()==1) ? PXBDetId(detid_).layer() : 0;
+      if (layer==1) clusterThreshold = theClusterThreshold_L1;
+      
       //Set the first cluster equal to the existing cluster.
       SiPixelCluster first_cluster = cluster;
       bool have_second_cluster = false;
@@ -440,8 +461,8 @@ PixelThresholdClusterizer::make_cluster( const SiPixelCluster::PixelPos& pix,
 	  SiPixelCluster second_cluster = make_cluster(deadpix, output);
 	  
 	  //If both clusters would normally have been found by the clusterizer, put them into output
-	  if ( second_cluster.charge() >= theClusterThreshold && 
-	       first_cluster.charge() >= theClusterThreshold )
+	  if ( second_cluster.charge() >= clusterThreshold && 
+	       first_cluster.charge() >= clusterThreshold )
 	    {
 	      output.push_back( second_cluster );
 	      have_second_cluster = true;	
@@ -460,7 +481,7 @@ PixelThresholdClusterizer::make_cluster( const SiPixelCluster::PixelPos& pix,
 	}
       
       //Remember to also add the first cluster if we added the second one.
-      if ( first_cluster.charge() >= theClusterThreshold && have_second_cluster) 
+      if ( first_cluster.charge() >= clusterThreshold && have_second_cluster) 
 	{
 	  output.push_back( first_cluster );
           std::push_heap(output.begin(),output.end(),[](SiPixelCluster const & cl1,SiPixelCluster const & cl2) { return cl1.minPixelRow() < cl2.minPixelRow();});
