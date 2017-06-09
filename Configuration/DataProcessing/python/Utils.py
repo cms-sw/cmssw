@@ -134,12 +134,6 @@ def dqmSeq(args,default):
     else:
         return default
 
-def recoSeq(args,default):
-    if 'recoSeq' in args and len(args['recoSeq'])!=0:
-        return ':'+('+'.join(args['recoSeq']))
-    else:
-        return default
-
 def gtNameAndConnect(globalTag, args):
     if 'globalTagConnect' in args and args['globalTagConnect'] != '':
         return globalTag + ','+args['globalTagConnect']        
