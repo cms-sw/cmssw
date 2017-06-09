@@ -52,7 +52,6 @@ class pp(Reco):
 
         return process
 
-
     def expressProcessing(self, globalTag, **args):
         """
         _expressProcessing_
