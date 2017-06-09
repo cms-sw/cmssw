@@ -10,24 +10,8 @@
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 HcalShapes::HcalShapes()
-: theMCParams(0),
-  theShapes(),
-  theShapesPrecise(),
-  theZDCShape(),
-  theHcalShape101(),
-  theHcalShape102(),
-  theHcalShape103(),
-  theHcalShape104(),
-  theHcalShape105(),
-  theHcalShape123(),
-  theHcalShape124(),
-  theHcalShape125(),
-  theHcalShape201(),
-  theHcalShape202(),
-  theHcalShape203(),
-  theHcalShape205(),
-  theHcalShape301(),
-  theHcalShape401()
+: theMCParams(nullptr),
+  theTopology(nullptr)
  {
 /*
          00 - not used (reserved)
@@ -40,62 +24,27 @@ HcalShapes::HcalShapes()
         401 - regular ZDC shape
   */
 
-  theHcalShape101.setShape(101); 
-  theShapesPrecise[101] = &theHcalShape101;
-  theShapes[101] = new CaloCachedShapeIntegrator(&theHcalShape101);
-  theHcalShape102.setShape(102);                  
-  theShapesPrecise[102] = &theHcalShape102;
-  theShapes[102] = new CaloCachedShapeIntegrator(&theHcalShape102);
-  theHcalShape103.setShape(103);                  
-  theShapesPrecise[103] = &theHcalShape103;
-  theShapes[103] = new CaloCachedShapeIntegrator(&theHcalShape103);
-  theHcalShape104.setShape(104);                  
-  theShapesPrecise[104] = &theHcalShape104;
-  theShapes[104] = new CaloCachedShapeIntegrator(&theHcalShape104);
-  theHcalShape105.setShape(105);
-  theShapesPrecise[105] = &theHcalShape105;
-  theShapes[105] = new CaloCachedShapeIntegrator(&theHcalShape105); // HPD reco
-  theHcalShape123.setShape(123);                  
-  theShapesPrecise[123] = &theHcalShape123;
-  theShapes[123] = new CaloCachedShapeIntegrator(&theHcalShape123);
-  theHcalShape124.setShape(124);                  
-  theShapesPrecise[124] = &theHcalShape124;
-  theShapes[124] = new CaloCachedShapeIntegrator(&theHcalShape124);
-  theHcalShape125.setShape(125);
-  theShapesPrecise[125] = &theHcalShape125;
-  theShapes[125] = new CaloCachedShapeIntegrator(&theHcalShape125);
-  theHcalShape201.setShape(201);                  
-  theShapesPrecise[201] = &theHcalShape201;
-  theShapes[201] = new CaloCachedShapeIntegrator(&theHcalShape201);
-  theHcalShape202.setShape(202);                  
-  theShapesPrecise[202] = &theHcalShape202;
-  theShapes[202] = new CaloCachedShapeIntegrator(&theHcalShape202);
-  theHcalShape203.setShape(203);
-  theShapesPrecise[203] = &theHcalShape203;
-  theShapes[203] = new CaloCachedShapeIntegrator(&theHcalShape203);
-  theHcalShape205.setShape(205);
-  theShapesPrecise[205] = &theHcalShape205;
-  theShapes[205] = new CaloCachedShapeIntegrator(&theHcalShape205);
-  theHcalShape301.setShape(301);
-  theShapesPrecise[301] = &theHcalShape301;
-  theShapes[301] = new CaloCachedShapeIntegrator(&theHcalShape301);
-  //    ZDC not yet defined in CalibCalorimetry/HcalAlgos/src/HcalPulseShapes.cc
-  // theHcalShape401(401);
-  // theShapes[401] = new CaloCachedShapeIntegrator(&theHcalShape401);
+  std::vector<int> theHcalShapeNums = {101,102,103,104,105,123,124,125,201,202,203,205,301};
+  // use resize so vector won't invalidate pointers by reallocating memory while filling
+  theHcalShapes.resize(theHcalShapeNums.size());
+  for(unsigned inum = 0; inum < theHcalShapeNums.size(); ++inum){
+    int num = theHcalShapeNums[inum];
+    theHcalShapes[inum].setShape(num);
+    theShapesPrecise[num] = &theHcalShapes[inum];
+    theShapes[num] = new CaloCachedShapeIntegrator(&theHcalShapes[inum]);
+  }
+
+  // ZDC not yet defined in CalibCalorimetry/HcalAlgos/src/HcalPulseShapes.cc
   theShapesPrecise[ZDC] = &theZDCShape;
   theShapes[ZDC] = new CaloCachedShapeIntegrator(&theZDCShape);
-
-  theMCParams=0;
-  theTopology=0;
 }
 
 
 HcalShapes::~HcalShapes()
 {
-  for(ShapeMap::const_iterator shapeItr = theShapes.begin();
-      shapeItr != theShapes.end();  ++shapeItr)
+  for(auto& shapeItr : theShapes)
   {
-    delete shapeItr->second;
+    delete shapeItr.second;
   }
   theShapes.clear();
   if (theMCParams!=0) delete theMCParams;
@@ -134,7 +83,7 @@ const CaloVShape * HcalShapes::shape(const DetId & detId, bool precise) const
   }
   int shapeType = theMCParams->getValues(detId)->signalShape();
   const auto& myShapes = getShapeMap(precise);
-  ShapeMap::const_iterator shapeMapItr = myShapes.find(shapeType);
+  auto shapeMapItr = myShapes.find(shapeType);
   if(shapeMapItr == myShapes.end()) {
        edm::LogWarning("HcalShapes") << "HcalShapes::shape - shapeType ?  = "
 				     << shapeType << std::endl;
