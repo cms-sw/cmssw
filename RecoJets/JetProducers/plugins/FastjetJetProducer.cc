@@ -19,8 +19,6 @@
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 
-#include "RecoJets/JetProducers/interface/PileUpSubtractor.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -464,10 +462,9 @@ void FastjetJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
 	////// From FastjetJetProducer
 	fillDescriptionsFromFastJetProducer(descFastjetJetProducer);
 	///// From VirtualJetProducer
-	descFastjetJetProducer.add<string>("jetCollInstanceName", ""	);
 	VirtualJetProducer::fillDescriptionsFromVirtualJetProducer(descFastjetJetProducer);
-	///// From PileUpSubtractor
-	PileUpSubtractor::fillDescriptionsFromPileUpSubtractor(descFastjetJetProducer);
+        ////
+	descFastjetJetProducer.add<string>("jetCollInstanceName", ""	);
 	descFastjetJetProducer.add<bool> ("sumRecHits", false);
 
 	/////////////////////

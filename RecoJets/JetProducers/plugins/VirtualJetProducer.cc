@@ -867,6 +867,9 @@ void VirtualJetProducer::fillDescriptionsFromVirtualJetProducer(edm::ParameterSe
 	desc.add<bool> 	("doAreaFastjet",	false );
 	desc.add<bool>  ("doRhoFastjet",	false );
 	desc.add<bool> 	("doPUOffsetCorr", 	false	);
+	desc.add<double>("puPtMin",             10.);
+        desc.add<double>("nSigmaPU",            1.0 );
+        desc.add<double>("radiusPU",            0.5 );
 	desc.add<string>("subtractorName", 	""	);
 	desc.add<bool> 	("useExplicitGhosts", 	false	);
 	desc.add<bool> 	("doAreaDiskApprox", 	false 	);
