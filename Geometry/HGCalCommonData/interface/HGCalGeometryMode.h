@@ -22,6 +22,9 @@ public:
   }
 };
 
-enum class HGCalGeometryMode : int { Square=0, Hexagon=1, HexagonFull=2 };
+namespace HGCalGeometryMode {
+  enum GeometryMode { Square=0, Hexagon=1, HexagonFull=2 };
+  enum WaferMode { Polyhedra=0, ExtrudedPolygon=1};
+}
 
 #endif
