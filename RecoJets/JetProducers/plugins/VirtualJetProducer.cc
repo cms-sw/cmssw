@@ -151,7 +151,7 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig) {
 	restrictInputs_ 	= iConfig.getParameter<bool>	("restrictInputs"); 	// restrict inputs to first "maxInputs" towers?
 	maxInputs_      	= iConfig.getParameter<unsigned int>("maxInputs");
 	writeCompound_ 		= iConfig.getParameter<bool>	("writeCompound"); 	// Check to see if we are writing compound jets for substructure and jet grooming
-        if ( iConfig.exists("writeJetsWithConst") ) writeJetsWithConst_ = iConfig.getParameter<bool>("writeJetsWithConst"); //write subtracted jet constituents
+        writeJetsWithConst_     = iConfig.getParameter<bool>("writeJetsWithConst"); //write subtracted jet constituents
 	doFastJetNonUniform_ 	= iConfig.getParameter<bool>   	("doFastJetNonUniform");
 	puCenters_ 		= iConfig.getParameter<vector<double> >("puCenters");
 	puWidth_ 		= iConfig.getParameter<double>	("puWidth");
