@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "DetectorDescription/Algorithm/interface/DDAlgorithm.h"
+#include "DetectorDescription/Core/interface/DDAlgorithm.h"
 #include "DetectorDescription/Core/interface/DDTypes.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 

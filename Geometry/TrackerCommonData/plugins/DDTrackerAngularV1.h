@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 #include "DetectorDescription/Core/interface/DDTypes.h"
-#include "DetectorDescription/Algorithm/interface/DDAlgorithm.h"
+#include "DetectorDescription/Core/interface/DDAlgorithm.h"
 
 class DDTrackerAngularV1 : public DDAlgorithm {
  

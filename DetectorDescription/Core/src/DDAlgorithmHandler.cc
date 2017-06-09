@@ -1,6 +1,6 @@
-#include "DetectorDescription/Algorithm/interface/DDAlgorithmHandler.h"
-#include "DetectorDescription/Algorithm/interface/DDAlgorithm.h"
-#include "DetectorDescription/Algorithm/interface/DDAlgorithmFactory.h"
+#include "DetectorDescription/Core/interface/DDAlgorithmHandler.h"
+#include "DetectorDescription/Core/interface/DDAlgorithm.h"
+#include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
 class DDCompactView;
