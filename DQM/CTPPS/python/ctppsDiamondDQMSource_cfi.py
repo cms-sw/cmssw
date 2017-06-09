@@ -9,8 +9,9 @@ ctppsDiamondDQMSource = cms.EDAnalyzer("CTPPSDiamondDQMSource",
     tagLocalTrack = cms.InputTag("totemRPLocalTrackFitter"),
     
     excludeMultipleHits = cms.bool(True),
-    minimumStripAngleForTomography = cms.double(1),
-    centralOOT = cms.int32(2),
+    minimumStripAngleForTomography = cms.double(0),
+    maximumStripAngleForTomography = cms.double(1),
+    centralOOT = cms.int32(3),
   
     verbosity = cms.untracked.uint32(10),
 )
