@@ -51,7 +51,7 @@
 </bin>
 
 <library file="test_module.cc" name="DetectorDescriptionTestAlgorithmPlugins">
-  <use name="DetectorDescription/Algorithm"/>
+  <use name="DetectorDescription/Core"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 
@@ -73,7 +73,6 @@
 
 <bin file="const_dump.cpp">
  <use name="DetectorDescription/Core"/>
- <use name="DetectorDescription/Algorithm"/>
  <use name="DetectorDescription/RegressionTest"/>
  <use name="DetectorDescription/Parser"/>
  <use name="xerces-c"/>
