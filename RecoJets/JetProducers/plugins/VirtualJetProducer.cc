@@ -122,6 +122,8 @@ void VirtualJetProducer::makeProduces( std::string alias, std::string tag )
 VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig) {
 
 	moduleLabel_   		= iConfig.getParameter<string>  ("@module_label");
+        src_                    = iConfig.getParameter<edm::InputTag>("src");
+        srcPVs_                 = iConfig.getParameter<edm::InputTag>("srcPVs");
 	jetType_       		= iConfig.getParameter<string> 	("jetType");
 	jetAlgorithm_  		= iConfig.getParameter<string>  ("jetAlgorithm");
 	rParam_        		= iConfig.getParameter<double>  ("rParam");
@@ -154,8 +156,8 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig) {
 
 	anomalousTowerDef_ = auto_ptr<AnomalousTower>(new AnomalousTower(iConfig));
 
-	input_vertex_token_ = consumes<reco::VertexCollection>(iConfig.getParameter<InputTag>("srcPVs"));
-	input_candidateview_token_ = consumes<reco::CandidateView>(iConfig.getParameter<edm::InputTag>("src"));
+	input_vertex_token_ = consumes<reco::VertexCollection>(srcPVs_);
+	input_candidateview_token_ = consumes<reco::CandidateView>(src_);
 	input_candidatefwdptr_token_ = consumes<vector<edm::FwdPtr<reco::PFCandidate> > >(iConfig.getParameter<edm::InputTag>("src"));
 	input_packedcandidatefwdptr_token_ = consumes<vector<edm::FwdPtr<pat::PackedCandidate> > >(iConfig.getParameter<edm::InputTag>("src"));
 	//
