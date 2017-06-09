@@ -2,7 +2,7 @@
 
 //#include "Geometry/EcalPreshowerData/interface/DDTestAlgorithm.h"
 #include "Geometry/EcalTestBeam/plugins/DDTBH4Algo.h"
-#include "DetectorDescription/Algorithm/interface/DDAlgorithmFactory.h"
+#include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
 
 //DEFINE_SEAL_PLUGIN (DDAlgorithmFactory, DDTestAlgorithm, "DDTestAlgorithm");
 
