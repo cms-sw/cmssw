@@ -11,7 +11,7 @@
 #include "Geometry/HcalAlgo/plugins/DDHCalTBZposAlgo.h"
 #include "Geometry/HcalAlgo/plugins/DDHCalTestBeamAlgo.h"
 #include "Geometry/HcalAlgo/plugins/DDHCalXtalAlgo.h"
-#include "DetectorDescription/Algorithm/interface/DDAlgorithmFactory.h"
+#include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDHCalAngular,      "hcal:DDHCalAngular");
