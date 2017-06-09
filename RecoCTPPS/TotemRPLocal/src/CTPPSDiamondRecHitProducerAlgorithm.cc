@@ -39,7 +39,7 @@ CTPPSDiamondRecHitProducerAlgorithm::build( const TotemRPGeometry* geom, const e
       const int time_slice = ( t-t_shift_ ) / 1024;
 
       int tot = 0;
-      if ( i==0 && digi->getTrailingEdge()!=0 ) tot = ( (int) digi->getTrailingEdge() ) - t;
+      if ( t!=0 && digi->getTrailingEdge()!=0 ) tot = ( (int) digi->getTrailingEdge() ) - t;
 
       rec_hits.push_back( CTPPSDiamondRecHit( x_pos, x_width, y_pos, y_width, // spatial information
                                               ( t0 * ts_to_ns_ ),
