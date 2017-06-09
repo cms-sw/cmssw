@@ -75,13 +75,17 @@ HIPAlignmentAlgorithm::HIPAlignmentAlgorithm(
 
   // parameters for APE
   theApplyAPE = cfg.getParameter<bool>("applyAPE");
-  themultiIOV = cfg.getParameter<bool>("multiIOV");
   theAPEParameterSet = cfg.getParameter<std::vector<edm::ParameterSet> >("apeParam");
+
+  themultiIOV = cfg.getParameter<bool>("multiIOV");
   theIOVrangeSet = cfg.getParameter<std::vector<unsigned> >("IOVrange");
 
   theMaxAllowedHitPull = cfg.getParameter<double>("maxAllowedHitPull");
   theMinimumNumberOfHits = cfg.getParameter<int>("minimumNumberOfHits");
   theMaxRelParameterError = cfg.getParameter<double>("maxRelParameterError");
+
+  theApplyCutsPerComponent = cfg.getParameter<bool>("applyCutsPerComponent");
+  theCutsPerComponent = cfg.getParameter<std::vector<edm::ParameterSet> >("cutsPerComponent");
 
   // for collector mode (parallel processing)
   isCollector=cfg.getParameter<bool>("collectorActive");
@@ -167,43 +171,79 @@ void HIPAlignmentAlgorithm::initialize(
   // get alignables
   theAlignables = theAlignmentParameterStore->alignables();
 
-  // clear theAPEParameters, if necessary
-  theAPEParameters.clear();
+  // Config flags that specify different detectors
+  {
+    AlignmentParameterSelector selector(tracker, muon, extras);
 
-  // get APE parameters
-  if (theApplyAPE){
-    AlignmentParameterSelector selector(tracker, muon);
-    for (std::vector<edm::ParameterSet>::const_iterator setiter = theAPEParameterSet.begin(); setiter != theAPEParameterSet.end(); ++setiter){
-      std::vector<Alignable*> alignables;
+    // APE parameters, clear if necessary
+    theAPEParameters.clear();
+    if (theApplyAPE){
+      for (std::vector<edm::ParameterSet>::const_iterator setiter = theAPEParameterSet.begin(); setiter != theAPEParameterSet.end(); ++setiter){
+        std::vector<Alignable*> alignables;
 
-      selector.clear();
-      edm::ParameterSet selectorPSet = setiter->getParameter<edm::ParameterSet>("Selector");
-      std::vector<std::string> alignParams = selectorPSet.getParameter<std::vector<std::string> >("alignParams");
-      if (alignParams.size() == 1  &&  alignParams[0] == std::string("selected")) alignables = theAlignables;
-      else{
-        selector.addSelections(selectorPSet);
-        alignables = selector.selectedAlignables();
+        selector.clear();
+        edm::ParameterSet selectorPSet = setiter->getParameter<edm::ParameterSet>("Selector");
+        std::vector<std::string> alignParams = selectorPSet.getParameter<std::vector<std::string> >("alignParams");
+        if (alignParams.size() == 1  &&  alignParams[0] == std::string("selected")) alignables = theAlignables;
+        else{
+          selector.addSelections(selectorPSet);
+          alignables = selector.selectedAlignables();
+        }
+
+        std::vector<double> apeSPar = setiter->getParameter<std::vector<double> >("apeSPar");
+        std::vector<double> apeRPar = setiter->getParameter<std::vector<double> >("apeRPar");
+        std::string function = setiter->getParameter<std::string>("function");
+
+        if (apeSPar.size() != 3  ||  apeRPar.size() != 3)
+          throw cms::Exception("BadConfig")
+          << "apeSPar and apeRPar must have 3 values each"
+          << std::endl;
+
+        for (std::vector<double>::const_iterator i = apeRPar.begin(); i != apeRPar.end(); ++i) apeSPar.push_back(*i);
+
+        if (function == std::string("linear")) apeSPar.push_back(0); // c.f. note in calcAPE
+        else if (function == std::string("exponential")) apeSPar.push_back(1); // c.f. note in calcAPE
+        else if (function == std::string("step")) apeSPar.push_back(2); // c.f. note in calcAPE
+        else throw cms::Exception("BadConfig") << "APE function must be \"linear\", \"exponential\", or \"step\"." << std::endl;
+
+        theAPEParameters.push_back(std::pair<std::vector<Alignable*>, std::vector<double> >(alignables, apeSPar));
       }
-
-      std::vector<double> apeSPar = setiter->getParameter<std::vector<double> >("apeSPar");
-      std::vector<double> apeRPar = setiter->getParameter<std::vector<double> >("apeRPar");
-      std::string function = setiter->getParameter<std::string>("function");
-
-      if (apeSPar.size() != 3  ||  apeRPar.size() != 3)
-        throw cms::Exception("BadConfig")
-        << "apeSPar and apeRPar must have 3 values each"
-        << std::endl;
-
-      for (std::vector<double>::const_iterator i = apeRPar.begin(); i != apeRPar.end(); ++i) apeSPar.push_back(*i);
-
-      if (function == std::string("linear")) apeSPar.push_back(0); // c.f. note in calcAPE
-      else if (function == std::string("exponential")) apeSPar.push_back(1); // c.f. note in calcAPE
-      else if (function == std::string("step")) apeSPar.push_back(2); // c.f. note in calcAPE
-      else throw cms::Exception("BadConfig") << "APE function must be \"linear\" or \"exponential\"." << std::endl;
-
-      theAPEParameters.push_back(std::pair<std::vector<Alignable*>, std::vector<double> >(alignables, apeSPar));
     }
+
+    // Relative error per component instead of overall relative error
+    theCutsPerComponent.clear();
+    if (theApplyCutsPerComponent){
+      for (std::vector<edm::ParameterSet>::const_iterator setiter = theCutsPerComponent.begin(); setiter != theCutsPerComponent.end(); ++setiter){
+        std::vector<Alignable*> alignables;
+
+        selector.clear();
+        edm::ParameterSet selectorPSet = setiter->getParameter<edm::ParameterSet>("Selector");
+        std::vector<std::string> alignParams = selectorPSet.getParameter<std::vector<std::string> >("alignParams");
+        if (alignParams.size() == 1  &&  alignParams[0] == std::string("selected")) alignables = theAlignables;
+        else{
+          selector.addSelections(selectorPSet);
+          alignables = selector.selectedAlignables();
+        }
+
+        double maxRelParError = setiter->getParameter<double>("maxRelParError");
+        double maxHitPull = setiter->getParameter<double>("maxHitPull");
+        int minNHits = setiter->getParameter<double>("minNHits");
+        for (auto& ali : alignables){
+          HIPAlignableSpecificParameters alispecs;
+          alispecs.id = ali->id();
+          alispecs.objId = ali->alignableObjectId();
+
+          alispecs.maxRelParError = maxRelParError;
+          alispecs.maxHitPull = maxHitPull;
+          alispecs.minNHits = minNHits;
+
+          theAlignableSpecifics.push_back(alispecs);
+        }
+      }
+    }
+
   }
+
 }
 
 // Call at new loop -------------------------------------------------------------
@@ -435,6 +475,7 @@ bool HIPAlignmentAlgorithm::processHit1D(
 
   // get Alignment Parameters
   AlignmentParameters* params = ali->alignmentParameters();
+  const HIPAlignableSpecificParameters* alispecifics = findAlignableSpecs(ali);
   // get derivatives
   AlgebraicMatrix derivs2D = params->selectedDerivatives(tsos, alidet);
   // calculate user parameters
@@ -455,9 +496,13 @@ bool HIPAlignmentAlgorithm::processHit1D(
     return false;
   }
 
-  bool useThisHit = (theMaxAllowedHitPull <= 0.);
-  useThisHit |= (fabs(xpull) < theMaxAllowedHitPull);
-  if (!useThisHit) return false;
+  double maxHitPullThreshold = ((!theApplyCutsPerComponent || alispecifics==0) ? theMaxAllowedHitPull : alispecifics->maxHitPull);
+  bool useThisHit = (maxHitPullThreshold < 0.);
+  useThisHit |= (fabs(xpull) < maxHitPullThreshold);
+  if (!useThisHit){
+    edm::LogInfo("Alignment") << "@SUB=HIPAlignmentAlgorithm::processHit2D" << "Hit pull (x) " << xpull << " fails the cut " << maxHitPullThreshold;
+    return false;
+  }
 
   AlgebraicMatrix covtmp(covmat);
   AlgebraicMatrix jtvjtmp(derivs * covtmp *derivs.T());
@@ -538,6 +583,7 @@ bool HIPAlignmentAlgorithm::processHit2D(
 
   // get Alignment Parameters
   AlignmentParameters* params = ali->alignmentParameters();
+  const HIPAlignableSpecificParameters* alispecifics = findAlignableSpecs(ali);
   // get derivatives
   AlgebraicMatrix derivs2D = params->selectedDerivatives(tsos, alidet);
   // calculate user parameters
@@ -558,9 +604,13 @@ bool HIPAlignmentAlgorithm::processHit2D(
     return false;
   }
 
-  bool useThisHit = (theMaxAllowedHitPull <= 0.);
-  useThisHit |= (fabs(xpull) < theMaxAllowedHitPull  &&  fabs(ypull) < theMaxAllowedHitPull);
-  if (!useThisHit) return false;
+  double maxHitPullThreshold = ((!theApplyCutsPerComponent || alispecifics==0) ? theMaxAllowedHitPull : alispecifics->maxHitPull);
+  bool useThisHit = (maxHitPullThreshold < 0.);
+  useThisHit |= (fabs(xpull) < maxHitPullThreshold  &&  fabs(ypull) < maxHitPullThreshold);
+  if (!useThisHit){
+    edm::LogInfo("Alignment") << "@SUB=HIPAlignmentAlgorithm::processHit2D" << "Hit pull (x,y) " << xpull << " , " << ypull << " fails the cut " << maxHitPullThreshold;
+    return false;
+  }
 
   AlgebraicMatrix covtmp(covmat);
   AlgebraicMatrix jtvjtmp(derivs * covtmp *derivs.T());
@@ -821,10 +871,8 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
 
 
         //Make cut on hit impact angle, reduce collision hits perpendicular to modules
-        if (IsCollision)
-        { if (angle>col_cut)ihitwt=0; }
-        else
-        { if (angle<cos_cut)ihitwt=0; }
+        if (IsCollision){ if (angle>col_cut)ihitwt=0; }
+        else{ if (angle<cos_cut)ihitwt=0; }
         m_angle = angle;
         m_sinTheta = sin_theta;
         m_detId = ali->id();
@@ -903,12 +951,11 @@ void HIPAlignmentAlgorithm::writeIterationFile(std::string filename, int iter){
 void HIPAlignmentAlgorithm::setAlignmentPositionError(void){
   // Check if user wants to override APE
   if (!theApplyAPE){
-    edm::LogWarning("Alignment") <<"[HIPAlignmentAlgorithm::setAlignmentPositionError] No APE applied";
+    edm::LogInfo("Alignment") <<"[HIPAlignmentAlgorithm::setAlignmentPositionError] No APE applied";
     return; // NO APE APPLIED
   }
 
-
-  edm::LogWarning("Alignment") <<"[HIPAlignmentAlgorithm::setAlignmentPositionError] Apply APE!";
+  edm::LogInfo("Alignment") <<"[HIPAlignmentAlgorithm::setAlignmentPositionError] Apply APE!";
 
   double apeSPar[3], apeRPar[3];
   for (std::vector<std::pair<std::vector<Alignable*>, std::vector<double> > >::const_iterator alipars = theAPEParameters.begin(); alipars != theAPEParameters.end(); ++alipars) {
@@ -1132,12 +1179,12 @@ void HIPAlignmentAlgorithm::fillRoot(const edm::EventSetup& iSetup){
 }
 
 // ----------------------------------------------------------------------------
-
 bool HIPAlignmentAlgorithm::calcParameters(Alignable* ali, int setDet, double start, double step){
   edm::LogInfo("Alignment") << "@SUB=HIPAlignmentAlgorithm::calcParameters" << "Begin: Processing detector " << ali->id();
 
   // Alignment parameters
   AlignmentParameters* par = ali->alignmentParameters();
+  const HIPAlignableSpecificParameters* alispecifics = findAlignableSpecs(ali);
   // access user variables
   HIPUserVariables* uservar = dynamic_cast<HIPUserVariables*>(par->userVariables());
   int nhit = uservar->nhit;
@@ -1145,8 +1192,10 @@ bool HIPAlignmentAlgorithm::calcParameters(Alignable* ali, int setDet, double st
   // matrix shrinkage and expansion
   // int hitdim = uservar->hitdim;
 
-  if (setDet==0 && nhit<theMinimumNumberOfHits){
-    edm::LogWarning("Alignment") << "@SUB=HIPAlignmentAlgorithm::calcParameters" << "Skipping because number of hits = " << nhit << " <= " << theMinimumNumberOfHits;
+  // Test nhits
+  int minHitThreshold = ((!theApplyCutsPerComponent || alispecifics==0) ? theMinimumNumberOfHits : alispecifics->minNHits);
+  if (setDet==0 && nhit<minHitThreshold){
+    edm::LogWarning("Alignment") << "@SUB=HIPAlignmentAlgorithm::calcParameters" << "Skipping because number of hits = " << nhit << " <= " << minHitThreshold;
     par->setValid(false);
     return false;
   }
@@ -1171,16 +1220,15 @@ bool HIPAlignmentAlgorithm::calcParameters(Alignable* ali, int setDet, double st
     params = -(jtvjinv * jtve);
     cov = jtvjinv;
 
-    //  edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm::CalcParameters]: parameters before RelErrCut= " << params;
-    //  edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm::CalcParameters]: cov= " << cov;
+    double maxRelErrThreshold = ((!theApplyCutsPerComponent || alispecifics==0) ? theMaxRelParameterError : alispecifics->maxRelParError);
     for (int i=0; i<npar; i++){
       double relerr=0;
       if (fabs(cov[i][i])>0.) paramerr[i] = sqrt(fabs(cov[i][i]));
       else paramerr[i] = params[i];
       if (params[i]!=0.) relerr = fabs(paramerr[i]/params[i]);
-      if (theMaxRelParameterError>=0. && relerr>theMaxRelParameterError){
+      if (maxRelErrThreshold>=0. && relerr>maxRelErrThreshold){
         edm::LogWarning("Alignment")
-          << "@SUB=HIPAlignmentAlgorithm::calcParameters" << "RelError = " << relerr << " >= " << theMaxRelParameterError
+          << "@SUB=HIPAlignmentAlgorithm::calcParameters" << "RelError = " << relerr << " >= " << maxRelErrThreshold
           << ". Setting param = paramerr = 0 for component " << i;
         params[i]=0;
         paramerr[i]=0;
@@ -1210,7 +1258,6 @@ bool HIPAlignmentAlgorithm::calcParameters(Alignable* ali, int setDet, double st
 }
 
 //-----------------------------------------------------------------------------
-
 void HIPAlignmentAlgorithm::collector(void){
   edm::LogInfo("Alignment") << "@SUB=HIPAlignmentAlgorithm::collector" <<  "Called for iteration " << theIteration;
 
@@ -1272,7 +1319,6 @@ void HIPAlignmentAlgorithm::collector(void){
 }
 
 //------------------------------------------------------------------------------------
-
 int HIPAlignmentAlgorithm::fillEventwiseTree(const char* filename, int iter, int ierr){
   int totntrk = 0;
   char treeName[64];
@@ -1370,4 +1416,12 @@ int HIPAlignmentAlgorithm::fillEventwiseTree(const char* filename, int iter, int
   jobfile->Close();
 
   return totntrk;
+}
+
+//-----------------------------------------------------------------------------------
+HIPAlignableSpecificParameters* HIPAlignmentAlgorithm::findAlignableSpecs(const Alignable* ali){
+  for (std::vector<HIPAlignableSpecificParameters>::iterator it=theAlignableSpecifics.begin(); it!=theAlignableSpecifics.end(); it++){
+    if (ali->id()==it->id && ali->alignableObjectId()==it->objId) return &(*it);
+  }
+  return 0;
 }
