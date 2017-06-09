@@ -123,6 +123,7 @@ private:
   MEbinning           pt_binning_;
   MEbinning           eta_binning_;
   MEbinning           HT_binning_;
+  MEbinning           DR_binning_;
   // Marina
   MEbinning           csv_binning_;
 
@@ -173,6 +174,9 @@ private:
   METME mu1Eta_mu2Eta_;
   METME elePt_muPt_;
   METME eleEta_muEta_;
+
+  //BTV
+  METME DeltaR_jet_Mu_;
 
   std::vector<METME> muPhi_;
   std::vector<METME> muEta_;
