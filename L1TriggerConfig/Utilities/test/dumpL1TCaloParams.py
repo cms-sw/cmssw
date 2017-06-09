@@ -24,6 +24,11 @@ options.register('outputDBConnect',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "Connection string for output DB")
+options.register('exclusiveLayer',
+                 0, # default value to have both CaloL1 and CaloL2 processed
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "Specify processing of CaloLayer1 and/or CaloLayer2")
 options.register('DBConnect',
                  'oracle://cms_omds_adg/CMS_TRG_R', # default value adg->lb
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -82,6 +87,7 @@ process.L1TCaloParamsOnlineProd.onlineAuthentication     = cms.string( options.D
 process.L1TCaloParamsOnlineProd.onlineDB                 = cms.string( options.DBConnect )
 process.l1caloparProtodb.connect                         = cms.string('oracle://cms_orcon_adg/CMS_CONDITIONS')
 process.l1caloparProtodb.DBParameters.authenticationPath = cms.untracked.string( options.DBAuth )
+process.L1TCaloParamsOnlineProd.exclusiveLayer           = cms.uint32( options.exclusiveLayer )
 
 process.getter = cms.EDAnalyzer("EventSetupRecordDataGetter",
    toGet = cms.VPSet(cms.PSet(
