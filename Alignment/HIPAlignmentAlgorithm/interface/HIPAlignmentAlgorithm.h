@@ -18,6 +18,9 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h" 	 
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h" 	 
 
+#include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
+#include "Geometry/CommonTopologies/interface/SurfaceDeformationFactory.h"
+
 #include "Alignment/HIPAlignmentAlgorithm/interface/HIPAlignableSpecificParameters.h"
 
 class TFile;
@@ -104,12 +107,11 @@ private:
   std::vector<edm::ParameterSet> theAPEParameterSet;
   std::vector<std::pair<std::vector<Alignable*>, std::vector<double> > > theAPEParameters;
 
-  // max allowed pull (residual / uncertainty) on a hit used in alignment
-  double theMaxAllowedHitPull;
-  // min number of hits on alignable to calc parameters
-  int theMinimumNumberOfHits;
-  // max allowed rel error on parameter (else not used)
-  double theMaxRelParameterError;
+  // Default alignment specifications
+  // - min number of hits on alignable to calc parameters
+  // - max allowed rel error on parameter (else not used)
+  // - max allowed pull (residual / uncertainty) on a hit used in alignment
+  HIPAlignableSpecificParameters defaultAlignableSpecs;
 
   bool theApplyCutsPerComponent;
   std::vector<edm::ParameterSet> theCutsPerComponent;
@@ -152,7 +154,8 @@ private:
   align::StructureType m2_ObjId;
   int m2_Nhit, m2_Type, m2_Layer;
   float m2_Xpos, m2_Ypos, m2_Zpos;
-  short m2_dtype, m2_nsurfdef;
+  SurfaceDeformationFactory::Type m2_dtype;
+  unsigned int m2_nsurfdef;
   std::vector<float> m2_surfDef;
 
   // variables for survey tree 

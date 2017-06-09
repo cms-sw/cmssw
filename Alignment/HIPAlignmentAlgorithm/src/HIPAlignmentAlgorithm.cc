@@ -31,8 +31,6 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h" 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
-#include "Geometry/CommonTopologies/interface/SurfaceDeformationFactory.h"
 
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
@@ -48,6 +46,7 @@ HIPAlignmentAlgorithm::HIPAlignmentAlgorithm(
   const edm::ParameterSet& cfg
   ) :
   AlignmentAlgorithmBase(cfg),
+  defaultAlignableSpecs((Alignable*)0),
   surveyResiduals_(cfg.getUntrackedParameter<std::vector<std::string> >("surveyResiduals"))
 {
   // parse parameters
@@ -80,10 +79,9 @@ HIPAlignmentAlgorithm::HIPAlignmentAlgorithm(
   themultiIOV = cfg.getParameter<bool>("multiIOV");
   theIOVrangeSet = cfg.getParameter<std::vector<unsigned> >("IOVrange");
 
-  theMaxAllowedHitPull = cfg.getParameter<double>("maxAllowedHitPull");
-  theMinimumNumberOfHits = cfg.getParameter<int>("minimumNumberOfHits");
-  theMaxRelParameterError = cfg.getParameter<double>("maxRelParameterError");
-
+  defaultAlignableSpecs.minNHits = cfg.getParameter<int>("minimumNumberOfHits");;
+  defaultAlignableSpecs.maxRelParError = cfg.getParameter<double>("maxRelParameterError");
+  defaultAlignableSpecs.maxHitPull = cfg.getParameter<double>("maxAllowedHitPull");
   theApplyCutsPerComponent = cfg.getParameter<bool>("applyCutsPerComponent");
   theCutsPerComponent = cfg.getParameter<std::vector<edm::ParameterSet> >("cutsPerComponent");
 
@@ -266,7 +264,7 @@ void HIPAlignmentAlgorithm::startNewLoop(void){
   // try to read in alignment parameters from a previous iteration
   AlignablePositions theAlignablePositionsFromFile = theIO.readAlignableAbsolutePositions(theAlignables, salignedfile.c_str(), -1, ioerr);
   int numAlignablesFromFile = theAlignablePositionsFromFile.size();
-  if (numAlignablesFromFile==0) { // file not there: first iteration 
+  if (numAlignablesFromFile==0){ // file not there: first iteration 
     // set iteration number to 1 when needed
     if (isCollector) theIteration=0;
     else theIteration=1;
@@ -283,7 +281,7 @@ void HIPAlignmentAlgorithm::startNewLoop(void){
     // increase iteration
     if (ioerr==0){
       theIteration++;
-      edm::LogWarning("Alignment") << "@SUB=HIPAlignmentAlgorithm::startNewLoop" << "Iteration increased by one!";
+      edm::LogWarning("Alignment") << "@SUB=HIPAlignmentAlgorithm::startNewLoop" << "Iteration increased by one and is now " << theIteration;
     }
 
     // now apply psotions of file from prev iteration
@@ -500,7 +498,7 @@ bool HIPAlignmentAlgorithm::processHit1D(
     return false;
   }
 
-  double maxHitPullThreshold = ((!theApplyCutsPerComponent || alispecifics==0) ? theMaxAllowedHitPull : alispecifics->maxHitPull);
+  double maxHitPullThreshold = (!theApplyCutsPerComponent ? defaultAlignableSpecs.maxHitPull : alispecifics->maxHitPull);
   bool useThisHit = (maxHitPullThreshold < 0.);
   useThisHit |= (fabs(xpull) < maxHitPullThreshold);
   if (!useThisHit){
@@ -608,7 +606,7 @@ bool HIPAlignmentAlgorithm::processHit2D(
     return false;
   }
 
-  double maxHitPullThreshold = ((!theApplyCutsPerComponent || alispecifics==0) ? theMaxAllowedHitPull : alispecifics->maxHitPull);
+  double maxHitPullThreshold = (!theApplyCutsPerComponent ? defaultAlignableSpecs.maxHitPull : alispecifics->maxHitPull);
   bool useThisHit = (maxHitPullThreshold < 0.);
   useThisHit |= (fabs(xpull) < maxHitPullThreshold  &&  fabs(ypull) < maxHitPullThreshold);
   if (!useThisHit){
@@ -1066,14 +1064,14 @@ void HIPAlignmentAlgorithm::bookRoot(void){
 
   theTree2->Branch("Id", &m2_Id, "Id/i");
   theTree2->Branch("ObjId", &m2_ObjId, "ObjId/I");
-  theTree2->Branch("Nhit", &m2_Nhit, "Nhit/I");
-  theTree2->Branch("Type", &m2_Type, "Type/I");
-  theTree2->Branch("Layer", &m2_Layer, "Layer/I");
-  theTree2->Branch("Xpos", &m2_Xpos, "Xpos/F");
-  theTree2->Branch("Ypos", &m2_Ypos, "Ypos/F");
-  theTree2->Branch("Zpos", &m2_Zpos, "Zpos/F");
-  theTree2->Branch("DeformationsType", &m2_dtype, "DeformationsType/S");
-  theTree2->Branch("NumDeformations", &m2_nsurfdef, "NumDeformations/S");
+  theTree2->Branch("Nhit", &m2_Nhit);
+  theTree2->Branch("Type", &m2_Type);
+  theTree2->Branch("Layer", &m2_Layer);
+  theTree2->Branch("Xpos", &m2_Xpos);
+  theTree2->Branch("Ypos", &m2_Ypos);
+  theTree2->Branch("Zpos", &m2_Zpos);
+  theTree2->Branch("DeformationsType", &m2_dtype, "DeformationsType/I");
+  theTree2->Branch("NumDeformations", &m2_nsurfdef);
   theTree2->Branch("Deformations", &m2_surfDef);
 
   // book survey-wise ROOT Tree only if survey is enabled
@@ -1142,12 +1140,12 @@ void HIPAlignmentAlgorithm::fillRoot(const edm::EventSetup& iSetup){
         }
         for (auto& dit : dali) m2_surfDef.push_back((float)dit);
         m2_dtype = dtype;
-        m2_nsurfdef = (short)m2_surfDef.size();
+        m2_nsurfdef = m2_surfDef.size();
       }
 
       AlgebraicVector pars = dap->parameters();
 
-      if (verbose) {
+      if (verbose){
         edm::LogVerbatim("Alignment")
           << "------------------------------------------------------------------------\n"
           << " ALIGNABLE: " << setw(6) << naligned
@@ -1197,7 +1195,7 @@ bool HIPAlignmentAlgorithm::calcParameters(Alignable* ali, int setDet, double st
   // int hitdim = uservar->hitdim;
 
   // Test nhits
-  int minHitThreshold = ((!theApplyCutsPerComponent || alispecifics==0) ? theMinimumNumberOfHits : alispecifics->minNHits);
+  int minHitThreshold = (!theApplyCutsPerComponent ? defaultAlignableSpecs.minNHits : alispecifics->minNHits);
   if (setDet==0 && nhit<minHitThreshold){
     edm::LogInfo("Alignment") << "@SUB=HIPAlignmentAlgorithm::calcParameters" << "Skipping detector " << ali->id() << " because number of hits = " << nhit << " <= " << minHitThreshold;
     par->setValid(false);
@@ -1224,7 +1222,7 @@ bool HIPAlignmentAlgorithm::calcParameters(Alignable* ali, int setDet, double st
     params = -(jtvjinv * jtve);
     cov = jtvjinv;
 
-    double maxRelErrThreshold = ((!theApplyCutsPerComponent || alispecifics==0) ? theMaxRelParameterError : alispecifics->maxRelParError);
+    double maxRelErrThreshold = (!theApplyCutsPerComponent ? defaultAlignableSpecs.maxRelParError : alispecifics->maxRelParError);
     for (int i=0; i<npar; i++){
       double relerr=0;
       if (fabs(cov[i][i])>0.) paramerr[i] = sqrt(fabs(cov[i][i]));
@@ -1424,9 +1422,11 @@ int HIPAlignmentAlgorithm::fillEventwiseTree(const char* filename, int iter, int
 
 //-----------------------------------------------------------------------------------
 HIPAlignableSpecificParameters* HIPAlignmentAlgorithm::findAlignableSpecs(const Alignable* ali){
-  for (std::vector<HIPAlignableSpecificParameters>::iterator it=theAlignableSpecifics.begin(); it!=theAlignableSpecifics.end(); it++){
-    if (it->matchAlignable(ali)) return &(*it);
+  if (ali!=0){
+    for (std::vector<HIPAlignableSpecificParameters>::iterator it=theAlignableSpecifics.begin(); it!=theAlignableSpecifics.end(); it++){
+      if (it->matchAlignable(ali)) return &(*it);
+    }
+    edm::LogInfo("Alignment") << "[HIPAlignmentAlgorithm::findAlignableSpecs] Alignment object with id " << ali->id() << " / " << ali->alignableObjectId() << " could not be found. Returning default.";
   }
-  edm::LogInfo("Alignment") << "[HIPAlignmentAlgorithm::findAlignableSpecs] Alignment object with id " << ali->id() << " / " << ali->alignableObjectId() << " could not be found";
-  return 0;
+  return &defaultAlignableSpecs;
 }
