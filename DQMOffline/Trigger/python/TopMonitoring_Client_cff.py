@@ -95,7 +95,7 @@ topEfficiency_singleMu = DQMEDHarvester("DQMGenericClient",
 
 
 topEfficiency_diElec = DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/TopHLTOffline/TopMonitor/DiLepton/DiElectron/"),
+    subDirs        = cms.untracked.vstring("HLT/TopHLTOffline/TopMonitor/DiLepton/DiElectron/*"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages                                      
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
@@ -154,7 +154,7 @@ topEfficiency_diMu = DQMEDHarvester("DQMGenericClient",
 
 
 topEfficiency_ElecMu = DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/TopHLTOffline/TopMonitor/DiLepton/ElecMuon/"),
+    subDirs        = cms.untracked.vstring("HLT/TopHLTOffline/TopMonitor/DiLepton/ElecMuon/*"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
