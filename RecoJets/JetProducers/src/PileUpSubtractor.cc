@@ -378,15 +378,10 @@ void PileUpSubtractor::fillDescriptions(edm::ConfigurationDescriptions& descript
 	desc.add<double> ("Ghost_EtaMax", 5);
 	desc.add<double> ("GhostArea", 0.01);
 	desc.add<int> ("Active_Area_Repeats", 1);
-	fillDescriptionsFromPileUpSubtractor(desc);
-	descriptions.addDefault(desc);
-}
-
-void PileUpSubtractor::fillDescriptionsFromPileUpSubtractor(edm::ParameterSetDescription& desc)
-{
 	desc.add<double> ("puPtMin", 	10.);
 	desc.add<double> ("nSigmaPU", 	1.);
 	desc.add<double> ("radiusPU", 	0.5);
+	descriptions.addDefault(desc);
 }
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
