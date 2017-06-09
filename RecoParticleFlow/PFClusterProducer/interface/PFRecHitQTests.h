@@ -22,28 +22,28 @@ public:
     {
     }
 
-    void beginEvent(const edm::Event& event, const edm::EventSetup& iSetup) {
+    void beginEvent(const edm::Event& event, const edm::EventSetup& iSetup) override {
     }
 
-    bool test(reco::PFRecHit& hit, const EcalRecHit& rh, bool& clean, bool fullReadOut){
+    bool test(reco::PFRecHit& hit, const EcalRecHit& rh, bool& clean, bool fullReadOut) override{
       return fullReadOut or pass(hit);
     }
-    bool test(reco::PFRecHit& hit, const HBHERecHit& rh, bool& clean){
+    bool test(reco::PFRecHit& hit, const HBHERecHit& rh, bool& clean) override{
       return pass(hit);
     }
 
-    bool test(reco::PFRecHit& hit, const HFRecHit& rh, bool& clean){
+    bool test(reco::PFRecHit& hit, const HFRecHit& rh, bool& clean) override{
       return pass(hit);
     }
-    bool test(reco::PFRecHit& hit, const HORecHit& rh, bool& clean){
-      return pass(hit);
-    }
-
-    bool test(reco::PFRecHit& hit, const CaloTower& rh, bool& clean){
+    bool test(reco::PFRecHit& hit, const HORecHit& rh, bool& clean) override{
       return pass(hit);
     }
 
-    bool test(reco::PFRecHit& hit, const HGCRecHit& rh, bool& clean){
+    bool test(reco::PFRecHit& hit, const CaloTower& rh, bool& clean) override{
+      return pass(hit);
+    }
+
+    bool test(reco::PFRecHit& hit, const HGCRecHit& rh, bool& clean) override{
       return pass(hit);
     }
 
@@ -74,24 +74,24 @@ public:
       thresholds_ = iConfig.getParameter<std::vector<int> >("maxSeverities");
       cleanThresholds_ = iConfig.getParameter<std::vector<double> >("cleaningThresholds");
       std::vector<std::string> flags = iConfig.getParameter<std::vector<std::string> >("flags");
-      for (unsigned int i=0;i<flags.size();++i) {
-        if (flags[i] =="Standard") {
+      for (auto & flag : flags) {
+        if (flag =="Standard") {
           flags_.push_back(-1);
           depths_.push_back(-1);
         }
-        else if (flags[i] =="HFInTime") {
+        else if (flag =="HFInTime") {
           flags_.push_back(1<<HcalCaloFlagLabels::HFInTimeWindow);
           depths_.push_back(-1);
         }
-        else if (flags[i] =="HFDigi") {
+        else if (flag =="HFDigi") {
           flags_.push_back(1<<HcalCaloFlagLabels::HFDigiTime);
           depths_.push_back(-1);
         }
-        else if (flags[i] =="HFLong") {
+        else if (flag =="HFLong") {
           flags_.push_back(1<<HcalCaloFlagLabels::HFLongShort);
           depths_.push_back(1);
         }
-        else if (flags[i] =="HFShort") {
+        else if (flag =="HFShort") {
           flags_.push_back(1<<HcalCaloFlagLabels::HFLongShort);
           depths_.push_back(2);
         }
@@ -102,7 +102,7 @@ public:
       }
     }
 
-    void beginEvent(const edm::Event& event, const edm::EventSetup& iSetup) {
+    void beginEvent(const edm::Event& event, const edm::EventSetup& iSetup) override {
       edm::ESHandle<HcalTopology> topo;
       iSetup.get<HcalRecNumberingRecord>().get(topo);
       theHcalTopology_ = topo.product();
@@ -114,25 +114,25 @@ public:
       hcalSevLvlComputer_  =  hcalSevLvlComputerHndl.product();
     }
 
-    bool test(reco::PFRecHit& hit, const EcalRecHit& rh, bool& clean, bool fullReadOut){
+    bool test(reco::PFRecHit& hit, const EcalRecHit& rh, bool& clean, bool fullReadOut) override{
       return true;
     }
-    bool test(reco::PFRecHit& hit, const HBHERecHit& rh, bool& clean){
+    bool test(reco::PFRecHit& hit, const HBHERecHit& rh, bool& clean) override{
       return test(rh.detid(), rh.energy(), rh.flags(), clean);
     }
 
-    bool test(reco::PFRecHit& hit, const HFRecHit& rh, bool& clean){
+    bool test(reco::PFRecHit& hit, const HFRecHit& rh, bool& clean) override{
       return test(rh.detid(), rh.energy(), rh.flags(), clean);
     }
-    bool test(reco::PFRecHit& hit, const HORecHit& rh, bool& clean){
+    bool test(reco::PFRecHit& hit, const HORecHit& rh, bool& clean) override{
       return test(rh.detid(), rh.energy(), rh.flags(), clean);
     }
 
-    bool test(reco::PFRecHit& hit, const CaloTower& rh, bool& clean){
+    bool test(reco::PFRecHit& hit, const CaloTower& rh, bool& clean) override{
       return true;
     }
 
-    bool test(reco::PFRecHit& hit, const HGCRecHit& rh, bool& clean){
+    bool test(reco::PFRecHit& hit, const HGCRecHit& rh, bool& clean) override{
       return true;
     }
 
@@ -188,36 +188,36 @@ public:
     PFRecHitQTestBase(iConfig)
     {
       std::vector<edm::ParameterSet> psets = iConfig.getParameter<std::vector<edm::ParameterSet> >("cuts");
-      for (unsigned int i=0;i<psets.size();++i) {
-        depths_.push_back(psets[i].getParameter<int>("depth"));
-        minTimes_.push_back(psets[i].getParameter<double>("minTime"));
-        maxTimes_.push_back(psets[i].getParameter<double>("maxTime"));
-        thresholds_.push_back(psets[i].getParameter<double>("threshold"));
+      for (auto & pset : psets) {
+        depths_.push_back(pset.getParameter<int>("depth"));
+        minTimes_.push_back(pset.getParameter<double>("minTime"));
+        maxTimes_.push_back(pset.getParameter<double>("maxTime"));
+        thresholds_.push_back(pset.getParameter<double>("threshold"));
       }
     }
 
-    void beginEvent(const edm::Event& event, const edm::EventSetup& iSetup) {
+    void beginEvent(const edm::Event& event, const edm::EventSetup& iSetup) override {
     }
 
-    bool test(reco::PFRecHit& hit, const EcalRecHit& rh, bool& clean, bool fullReadOut){
+    bool test(reco::PFRecHit& hit, const EcalRecHit& rh, bool& clean, bool fullReadOut) override{
       return true;
     }
-    bool test(reco::PFRecHit& hit, const HBHERecHit& rh, bool& clean){
+    bool test(reco::PFRecHit& hit, const HBHERecHit& rh, bool& clean) override{
       return test(rh.detid(), rh.energy(), rh.time(), clean);
     }
 
-    bool test(reco::PFRecHit& hit, const HFRecHit& rh, bool& clean){
+    bool test(reco::PFRecHit& hit, const HFRecHit& rh, bool& clean) override{
       return test(rh.detid(), rh.energy(), rh.time(), clean);
     }
-    bool test(reco::PFRecHit& hit, const HORecHit& rh, bool& clean) {
+    bool test(reco::PFRecHit& hit, const HORecHit& rh, bool& clean) override {
       return test(rh.detid(), rh.energy(), rh.time(), clean);
     }
 
-    bool test(reco::PFRecHit& hit, const CaloTower& rh, bool& clean){
+    bool test(reco::PFRecHit& hit, const CaloTower& rh, bool& clean) override{
       return true;
     }
 
-    bool test(reco::PFRecHit& hit, const HGCRecHit& rh, bool& clean){
+    bool test(reco::PFRecHit& hit, const HGCRecHit& rh, bool& clean) override{
       return true;
     }
 
@@ -258,34 +258,34 @@ public:
     PFRecHitQTestBase(iConfig)
     {
       std::vector<edm::ParameterSet> psets = iConfig.getParameter<std::vector<edm::ParameterSet> >("cuts");
-      for (unsigned int i=0;i<psets.size();++i) {
-        depths_.push_back(psets[i].getParameter<int>("depth"));
-        thresholds_.push_back(psets[i].getParameter<double>("threshold"));
+      for (auto & pset : psets) {
+        depths_.push_back(pset.getParameter<int>("depth"));
+        thresholds_.push_back(pset.getParameter<double>("threshold"));
       }
     }
 
-    void beginEvent(const edm::Event& event, const edm::EventSetup& iSetup) {
+    void beginEvent(const edm::Event& event, const edm::EventSetup& iSetup) override {
     }
 
-    bool test(reco::PFRecHit& hit, const EcalRecHit& rh, bool& clean, bool fullReadOut){
+    bool test(reco::PFRecHit& hit, const EcalRecHit& rh, bool& clean, bool fullReadOut) override{
       return true;
     }
-    bool test(reco::PFRecHit& hit, const HBHERecHit& rh, bool& clean){
+    bool test(reco::PFRecHit& hit, const HBHERecHit& rh, bool& clean) override{
       return test(rh.detid(), rh.energy(), rh.time(), clean);
     }
 
-    bool test(reco::PFRecHit& hit, const HFRecHit& rh, bool& clean){
+    bool test(reco::PFRecHit& hit, const HFRecHit& rh, bool& clean) override{
       return test(rh.detid(), rh.energy(), rh.time(), clean);
     }
-    bool test(reco::PFRecHit& hit, const HORecHit& rh, bool& clean){
+    bool test(reco::PFRecHit& hit, const HORecHit& rh, bool& clean) override{
       return test(rh.detid(), rh.energy(), rh.time(), clean);
     }
 
-    bool test(reco::PFRecHit& hit, const CaloTower& rh, bool& clean){
+    bool test(reco::PFRecHit& hit, const CaloTower& rh, bool& clean) override{
       return true;
     }
 
-    bool test(reco::PFRecHit& hit, const HGCRecHit& rh, bool& clean){
+    bool test(reco::PFRecHit& hit, const HGCRecHit& rh, bool& clean) override{
       return true;
     }
 
@@ -331,22 +331,22 @@ public:
   {
   }
 
-  void beginEvent(const edm::Event& event, const edm::EventSetup& iSetup) {
+  void beginEvent(const edm::Event& event, const edm::EventSetup& iSetup) override {
   }
 
-  bool test(reco::PFRecHit& hit, const EcalRecHit& rh, bool& clean, bool fullReadOut){
+  bool test(reco::PFRecHit& hit, const EcalRecHit& rh, bool& clean, bool fullReadOut) override{
     return true;
   }
 
-  bool test(reco::PFRecHit& hit, const HBHERecHit& rh, bool& clean){
+  bool test(reco::PFRecHit& hit, const HBHERecHit& rh, bool& clean) override{
     return true;
   }
 
-  bool test(reco::PFRecHit& hit, const HFRecHit& rh, bool& clean){
+  bool test(reco::PFRecHit& hit, const HFRecHit& rh, bool& clean) override{
     return true;
   }
 
-  bool test(reco::PFRecHit& hit, const HORecHit& rh, bool& clean){
+  bool test(reco::PFRecHit& hit, const HORecHit& rh, bool& clean) override{
     HcalDetId detid(rh.detid());
     if (abs(detid.ieta())<=4 and hit.energy()>threshold0_)
       return true;
@@ -356,11 +356,11 @@ public:
     return false;
   }
 
-  bool test(reco::PFRecHit& hit, const CaloTower& rh, bool& clean){
+  bool test(reco::PFRecHit& hit, const CaloTower& rh, bool& clean) override{
     return true;
   }
 
-  bool test(reco::PFRecHit& hit, const HGCRecHit& rh, bool& clean){
+  bool test(reco::PFRecHit& hit, const HGCRecHit& rh, bool& clean) override{
     return true;
   }
 
@@ -388,7 +388,7 @@ public:
   {
   }
 
-  void beginEvent(const edm::Event& event, const edm::EventSetup& iSetup) {
+  void beginEvent(const edm::Event& event, const edm::EventSetup& iSetup) override {
     edm::ESHandle<CaloGeometry> pG;
     iSetup.get<CaloGeometryRecord>().get(pG);
     CaloSubdetectorGeometry const* endcapGeometry = pG->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
@@ -399,25 +399,25 @@ public:
     }
   }
 
-  bool test(reco::PFRecHit& hit, const EcalRecHit& rh, bool& clean, bool fullReadOut){
+  bool test(reco::PFRecHit& hit, const EcalRecHit& rh, bool& clean, bool fullReadOut) override{
     return fullReadOut or pass(hit);
   }
-  bool test(reco::PFRecHit& hit, const HBHERecHit& rh, bool& clean){
+  bool test(reco::PFRecHit& hit, const HBHERecHit& rh, bool& clean) override{
     return true;
   }
 
-  bool test(reco::PFRecHit& hit, const HFRecHit& rh, bool& clean){
+  bool test(reco::PFRecHit& hit, const HFRecHit& rh, bool& clean) override{
     return true;
   }
-  bool test(reco::PFRecHit& hit, const HORecHit& rh, bool& clean){
-    return true;
-  }
-
-  bool test(reco::PFRecHit& hit, const CaloTower& rh, bool& clean){
+  bool test(reco::PFRecHit& hit, const HORecHit& rh, bool& clean) override{
     return true;
   }
 
-  bool test(reco::PFRecHit& hit, const HGCRecHit& rh, bool& clean){
+  bool test(reco::PFRecHit& hit, const CaloTower& rh, bool& clean) override{
+    return true;
+  }
+
+  bool test(reco::PFRecHit& hit, const HGCRecHit& rh, bool& clean) override{
     return true;
   }
 
@@ -467,10 +467,10 @@ public:
   {
   }
 
-  void beginEvent(const edm::Event& event, const edm::EventSetup& iSetup) {
+  void beginEvent(const edm::Event& event, const edm::EventSetup& iSetup) override {
   }
 
-  bool test(reco::PFRecHit& hit, const EcalRecHit& rh, bool& clean, bool fullReadOut){
+  bool test(reco::PFRecHit& hit, const EcalRecHit& rh, bool& clean, bool fullReadOut) override{
     if (skipTTRecoveredHits_ and rh.checkFlag(EcalRecHit::kTowerRecovered))
     {
       clean=true;
@@ -494,23 +494,23 @@ public:
     return true;
   }
 
-  bool test(reco::PFRecHit& hit, const HBHERecHit& rh, bool& clean){
+  bool test(reco::PFRecHit& hit, const HBHERecHit& rh, bool& clean) override{
     return true;
   }
 
-  bool test(reco::PFRecHit& hit, const HFRecHit& rh, bool& clean){
+  bool test(reco::PFRecHit& hit, const HFRecHit& rh, bool& clean) override{
     return true;
   }
 
-  bool test(reco::PFRecHit& hit, const HORecHit& rh, bool& clean){
+  bool test(reco::PFRecHit& hit, const HORecHit& rh, bool& clean) override{
     return true;
   }
 
-  bool test(reco::PFRecHit& hit, const CaloTower& rh, bool& clean){
+  bool test(reco::PFRecHit& hit, const CaloTower& rh, bool& clean) override{
     return true;
   }
 
-  bool test(reco::PFRecHit& hit, const HGCRecHit& rh, bool& clean){
+  bool test(reco::PFRecHit& hit, const HGCRecHit& rh, bool& clean) override{
     return true;
   }
 
@@ -540,10 +540,10 @@ public:
   {
   }
 
-  void beginEvent(const edm::Event& event, const edm::EventSetup& iSetup) {
+  void beginEvent(const edm::Event& event, const edm::EventSetup& iSetup) override {
   }
 
-  bool test(reco::PFRecHit& hit, const EcalRecHit& rh, bool& clean, bool fullReadOut) {
+  bool test(reco::PFRecHit& hit, const EcalRecHit& rh, bool& clean, bool fullReadOut) override {
 
     if ( rh.energy() < thresholdCleaning_ ) {
       clean=false;
@@ -567,23 +567,23 @@ public:
     return true;
   }
 
-  bool test(reco::PFRecHit& hit, const HBHERecHit& rh, bool& clean){
+  bool test(reco::PFRecHit& hit, const HBHERecHit& rh, bool& clean) override{
     return true;
   }
 
-  bool test(reco::PFRecHit& hit, const HFRecHit& rh, bool& clean){
+  bool test(reco::PFRecHit& hit, const HFRecHit& rh, bool& clean) override{
     return true;
   }
 
-  bool test(reco::PFRecHit& hit, const HORecHit& rh, bool& clean){
+  bool test(reco::PFRecHit& hit, const HORecHit& rh, bool& clean) override{
     return true;
   }
 
-  bool test(reco::PFRecHit& hit, const CaloTower& rh, bool& clean){
+  bool test(reco::PFRecHit& hit, const CaloTower& rh, bool& clean) override{
     return true;
   }
 
-  bool test(reco::PFRecHit& hit, const HGCRecHit& rh, bool& clean){
+  bool test(reco::PFRecHit& hit, const HGCRecHit& rh, bool& clean) override{
     return true;
   }
 
@@ -609,34 +609,34 @@ public:
   {
   }
 
-  void beginEvent(const edm::Event& event, const edm::EventSetup& iSetup) {
+  void beginEvent(const edm::Event& event, const edm::EventSetup& iSetup) override {
   }
 
-  bool test(reco::PFRecHit& hit, const EcalRecHit& rh, bool& clean, bool fullReadOut){
+  bool test(reco::PFRecHit& hit, const EcalRecHit& rh, bool& clean, bool fullReadOut) override{
     return true;
   }
-  bool test(reco::PFRecHit& hit, const HBHERecHit& rh, bool& clean){
+  bool test(reco::PFRecHit& hit, const HBHERecHit& rh, bool& clean) override{
     HcalDetId detId(hit.detId());
     if (abs(detId.ieta())==29)
       hit.setEnergy(hit.energy()*calibFactor_);
     return true;
   }
 
-  bool test(reco::PFRecHit& hit, const HFRecHit& rh, bool& clean){
+  bool test(reco::PFRecHit& hit, const HFRecHit& rh, bool& clean) override{
     return true;
   }
-  bool test(reco::PFRecHit& hit, const HORecHit& rh, bool& clean){
+  bool test(reco::PFRecHit& hit, const HORecHit& rh, bool& clean) override{
     return true;
   }
 
-  bool test(reco::PFRecHit& hit, const CaloTower& rh, bool& clean){
+  bool test(reco::PFRecHit& hit, const CaloTower& rh, bool& clean) override{
     CaloTowerDetId detId(hit.detId());
     if (detId.ietaAbs()==29)
       hit.setEnergy(hit.energy()*calibFactor_);
     return true;
   }
 
-  bool test(reco::PFRecHit& hit, const HGCRecHit& rh, bool& clean){
+  bool test(reco::PFRecHit& hit, const HGCRecHit& rh, bool& clean) override{
     return true;
   }
 
@@ -663,38 +663,38 @@ public:
   {
   }
 
-  void beginEvent(const edm::Event& event, const edm::EventSetup& iSetup) {
+  void beginEvent(const edm::Event& event, const edm::EventSetup& iSetup) override {
   }
 
-  bool test(reco::PFRecHit& hit, const EcalRecHit& rh, bool& clean, bool fullReadOut) {
+  bool test(reco::PFRecHit& hit, const EcalRecHit& rh, bool& clean, bool fullReadOut) override {
     throw cms::Exception("WrongDetector")
       << "PFRecHitQTestThresholdInMIPs only works for HGCAL!";
     return false;
   }
-  bool test(reco::PFRecHit& hit, const HBHERecHit& rh, bool& clean) {
-    throw cms::Exception("WrongDetector")
-      << "PFRecHitQTestThresholdInMIPs only works for HGCAL!";
-    return false;
-  }
-
-  bool test(reco::PFRecHit& hit, const HFRecHit& rh, bool& clean) {
-    throw cms::Exception("WrongDetector")
-      << "PFRecHitQTestThresholdInMIPs only works for HGCAL!";
-    return false;
-  }
-  bool test(reco::PFRecHit& hit, const HORecHit& rh, bool& clean) {
+  bool test(reco::PFRecHit& hit, const HBHERecHit& rh, bool& clean) override {
     throw cms::Exception("WrongDetector")
       << "PFRecHitQTestThresholdInMIPs only works for HGCAL!";
     return false;
   }
 
-  bool test(reco::PFRecHit& hit, const CaloTower& rh, bool& clean) {
+  bool test(reco::PFRecHit& hit, const HFRecHit& rh, bool& clean) override {
+    throw cms::Exception("WrongDetector")
+      << "PFRecHitQTestThresholdInMIPs only works for HGCAL!";
+    return false;
+  }
+  bool test(reco::PFRecHit& hit, const HORecHit& rh, bool& clean) override {
     throw cms::Exception("WrongDetector")
       << "PFRecHitQTestThresholdInMIPs only works for HGCAL!";
     return false;
   }
 
-  bool test(reco::PFRecHit& hit, const HGCRecHit& rh, bool& clean) {
+  bool test(reco::PFRecHit& hit, const CaloTower& rh, bool& clean) override {
+    throw cms::Exception("WrongDetector")
+      << "PFRecHitQTestThresholdInMIPs only works for HGCAL!";
+    return false;
+  }
+
+  bool test(reco::PFRecHit& hit, const HGCRecHit& rh, bool& clean) override {
     const double newE = ( recHitEnergy_keV_ ?
         1.0e-6*rh.energy()*recHitEnergyMultiplier_ :
         rh.energy()*recHitEnergyMultiplier_ );
@@ -732,41 +732,41 @@ class PFRecHitQTestThresholdInThicknessNormalizedMIPs : public PFRecHitQTestBase
       recHitEnergyMultiplier_(iConfig.getParameter<double>("recHitEnergyMultiplier")) {
       }
 
-    void beginEvent(const edm::Event& event, const edm::EventSetup& iSetup) {
+    void beginEvent(const edm::Event& event, const edm::EventSetup& iSetup) override {
       edm::ESHandle<HGCalGeometry> geoHandle;
       iSetup.get<IdealGeometryRecord>().get(geometryInstance_, geoHandle);
       ddd_ = &(geoHandle->topology().dddConstants());
     }
 
-    bool test(reco::PFRecHit& hit, const EcalRecHit& rh, bool& clean, bool fullReadOut) {
+    bool test(reco::PFRecHit& hit, const EcalRecHit& rh, bool& clean, bool fullReadOut) override {
       throw cms::Exception("WrongDetector")
         << "PFRecHitQTestThresholdInMIPs only works for HGCAL!";
       return false;
     }
-    bool test(reco::PFRecHit& hit, const HBHERecHit& rh, bool& clean) {
-      throw cms::Exception("WrongDetector")
-        << "PFRecHitQTestThresholdInMIPs only works for HGCAL!";
-      return false;
-    }
-
-    bool test(reco::PFRecHit& hit, const HFRecHit& rh, bool& clean) {
-      throw cms::Exception("WrongDetector")
-        << "PFRecHitQTestThresholdInMIPs only works for HGCAL!";
-      return false;
-    }
-    bool test(reco::PFRecHit& hit, const HORecHit& rh, bool& clean) {
+    bool test(reco::PFRecHit& hit, const HBHERecHit& rh, bool& clean) override {
       throw cms::Exception("WrongDetector")
         << "PFRecHitQTestThresholdInMIPs only works for HGCAL!";
       return false;
     }
 
-    bool test(reco::PFRecHit& hit, const CaloTower& rh, bool& clean) {
+    bool test(reco::PFRecHit& hit, const HFRecHit& rh, bool& clean) override {
+      throw cms::Exception("WrongDetector")
+        << "PFRecHitQTestThresholdInMIPs only works for HGCAL!";
+      return false;
+    }
+    bool test(reco::PFRecHit& hit, const HORecHit& rh, bool& clean) override {
       throw cms::Exception("WrongDetector")
         << "PFRecHitQTestThresholdInMIPs only works for HGCAL!";
       return false;
     }
 
-    bool test(reco::PFRecHit& hit, const HGCRecHit& rh, bool& clean) {
+    bool test(reco::PFRecHit& hit, const CaloTower& rh, bool& clean) override {
+      throw cms::Exception("WrongDetector")
+        << "PFRecHitQTestThresholdInMIPs only works for HGCAL!";
+      return false;
+    }
+
+    bool test(reco::PFRecHit& hit, const HGCRecHit& rh, bool& clean) override {
       const double newE = ( recHitEnergy_keV_ ?
           1.0e-6*rh.energy()*recHitEnergyMultiplier_ :
           rh.energy()*recHitEnergyMultiplier_ );

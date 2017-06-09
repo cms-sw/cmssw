@@ -27,10 +27,10 @@ class PFRecHitNavigatorBase {
  public:
   typedef std::unordered_map<unsigned,unsigned> DetIdToHitIdx;
 
-  PFRecHitNavigatorBase() {}
+  PFRecHitNavigatorBase() = default;
   PFRecHitNavigatorBase(const edm::ParameterSet& iConfig) {}
 
-  virtual ~PFRecHitNavigatorBase() {}
+  virtual ~PFRecHitNavigatorBase() = default;
 
   virtual void beginEvent(const edm::EventSetup&)=0;
   virtual void associateNeighbours(reco::PFRecHit&,std::unique_ptr<reco::PFRecHitCollection>&,edm::RefProd<reco::PFRecHitCollection>&)=0;
