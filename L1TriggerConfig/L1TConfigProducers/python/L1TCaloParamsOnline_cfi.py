@@ -18,6 +18,7 @@ l1caloparProtodb = cms.ESSource("PoolDBESSource",
 L1TCaloParamsOnlineProd = cms.ESProducer("L1TCaloParamsOnlineProd",
     onlineAuthentication = cms.string('.'),
     forceGeneration = cms.bool(False),
-    onlineDB = cms.string('oracle://CMS_OMDS_LB/CMS_TRG_R')
+    onlineDB = cms.string('oracle://CMS_OMDS_LB/CMS_TRG_R'),
+    exclusiveLayer = cms.uint32(0)
 )
 
