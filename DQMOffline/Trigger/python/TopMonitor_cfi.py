@@ -36,6 +36,12 @@ hltTOPmonitoring.histoPSet.csvPSet = cms.PSet(
   xmax  = cms.double( 1.0  ),
 )
 
+#Suvankar
+hltTOPmonitoring.applyleptonPVcuts = cms.bool(False)
+hltTOPmonitoring.leptonPVcuts = cms.PSet(
+  dxy = cms.double(   9999.   ),
+  dz  = cms.double(   9999.   ),
+)
 
 #MET and HT binning
 hltTOPmonitoring.histoPSet.metBinning = cms.vdouble(0,20,40,60,80,100,125,150,175,200)
@@ -65,6 +71,8 @@ hltTOPmonitoring.met       = cms.InputTag("pfMetEI") # pfMet
 hltTOPmonitoring.jets      = cms.InputTag("pfJetsEI") # ak4PFJets, ak4PFJetsCHS
 hltTOPmonitoring.electrons = cms.InputTag("gedGsfElectrons") # while pfIsolatedElectronsEI are reco::PFCandidate !
 hltTOPmonitoring.muons     = cms.InputTag("muons") # while pfIsolatedMuonsEI are reco::PFCandidate !
+#Suvankar
+hltTOPmonitoring.vertices  = cms.InputTag("offlinePrimaryVertices")
 
 # Marina
 hltTOPmonitoring.btagalgo  = cms.InputTag("pfCombinedSecondaryVertexV2BJetTags")
@@ -77,7 +85,7 @@ hltTOPmonitoring.numGenericTriggerEventPSet.andOr         = cms.bool( False )
 hltTOPmonitoring.numGenericTriggerEventPSet.andOrHlt      = cms.bool(True)# True:=OR; False:=AND
 hltTOPmonitoring.numGenericTriggerEventPSet.hltInputTag   = cms.InputTag( "TriggerResults::HLT" )
 hltTOPmonitoring.numGenericTriggerEventPSet.errorReplyHlt = cms.bool( False )
-hltTOPmonitoring.numGenericTriggerEventPSet.verbosityLevel = cms.uint32(1)
+hltTOPmonitoring.numGenericTriggerEventPSet.verbosityLevel = cms.uint32(0)
 
 hltTOPmonitoring.denGenericTriggerEventPSet.andOr         = cms.bool( False )
 hltTOPmonitoring.numGenericTriggerEventPSet.andOrHlt      = cms.bool(True)# True:=OR; False:=AND
@@ -87,5 +95,5 @@ hltTOPmonitoring.denGenericTriggerEventPSet.dcsInputTag   = cms.InputTag( "scale
 hltTOPmonitoring.denGenericTriggerEventPSet.dcsPartitions = cms.vint32 ( 24, 25, 26, 27, 28, 29 ) # 24-27: strip, 28-29: pixel, we should add all other detectors !
 hltTOPmonitoring.denGenericTriggerEventPSet.andOrDcs      = cms.bool( False )
 hltTOPmonitoring.denGenericTriggerEventPSet.errorReplyDcs = cms.bool( True )
-hltTOPmonitoring.denGenericTriggerEventPSet.verbosityLevel = cms.uint32(1)
+hltTOPmonitoring.denGenericTriggerEventPSet.verbosityLevel = cms.uint32(0)
 
