@@ -386,6 +386,9 @@ public:
     PFRecHitQTestBase(iConfig),
     thresholds_(iConfig.getParameter<std::vector<double> >("thresholds"))
   {
+    if (thresholds_.size() != EcalRingCalibrationTools::N_RING_TOTAL)
+      throw edm::Exception(edm::errors::Configuration, "ValueError")
+        << "thresholds is expected to have " << EcalRingCalibrationTools::N_RING_TOTAL << " elements but has " << thresholds_.size();
   }
 
   void beginEvent(const edm::Event& event, const edm::EventSetup& iSetup) override {
@@ -425,28 +428,29 @@ protected:
   const std::vector<double> thresholds_;
   bool endcapGeometrySet_;
 
-    bool pass(const reco::PFRecHit& hit){
+  bool pass(const reco::PFRecHit& hit){
 
-      // this is to skip endcap ZS for Phase2 until there is a defined geometry
-      // apply the loosest ZS threshold, for the first eta-ring in EB
-      DetId detId(hit.detId());
-      if(!endcapGeometrySet_) {
+    DetId detId(hit.detId());
 
-        // there is only ECAL EB in Phase 2
-        if(detId.subdetId() != EcalBarrel) return true;
+    // this is to skip endcap ZS for Phase2 until there is a defined geometry
+    // apply the loosest ZS threshold, for the first eta-ring in EB
+    if (not endcapGeometrySet_) {
 
-        // 0-169: EB eta-rings
-        // 170-208: EE- eta rings
-        // 209-247: EE+ eta rings
-        int firstEBRing = 0;
-        return (hit.energy() > thresholds_[firstEBRing]);
-      }
+      // there is only ECAL EB in Phase 2
+      if(detId.subdetId() != EcalBarrel) return true;
 
-      int iring = EcalRingCalibrationTools::getRingIndex(detId);
-      if (hit.energy() > thresholds_[iring]) return true;
-
-      return false;
+      //   0-169: EB  eta-rings
+      // 170-208: EE- eta rings
+      // 209-247: EE+ eta rings
+      int firstEBRing = 0;
+      return (hit.energy() > thresholds_[firstEBRing]);
     }
+
+    int iring = EcalRingCalibrationTools::getRingIndex(detId);
+    if (hit.energy() > thresholds_[iring]) return true;
+
+    return false;
+  }
 };
 
 
@@ -454,21 +458,21 @@ protected:
 //  Quality test that checks ecal quality cuts
 //
 class PFRecHitQTestECAL : public PFRecHitQTestBase {
-public:
-  PFRecHitQTestECAL() {
-  }
+  public:
+    PFRecHitQTestECAL() {
+    }
 
-  PFRecHitQTestECAL(const edm::ParameterSet& iConfig):
-    PFRecHitQTestBase(iConfig),
-    thresholdCleaning_(iConfig.getParameter<double>("cleaningThreshold")),
-    timingCleaning_(iConfig.getParameter<bool>("timingCleaning")),
-    topologicalCleaning_(iConfig.getParameter<bool>("topologicalCleaning")),
-    skipTTRecoveredHits_(iConfig.getParameter<bool>("skipTTRecoveredHits"))
+    PFRecHitQTestECAL(const edm::ParameterSet& iConfig):
+      PFRecHitQTestBase(iConfig),
+      thresholdCleaning_(iConfig.getParameter<double>("cleaningThreshold")),
+      timingCleaning_(iConfig.getParameter<bool>("timingCleaning")),
+      topologicalCleaning_(iConfig.getParameter<bool>("topologicalCleaning")),
+      skipTTRecoveredHits_(iConfig.getParameter<bool>("skipTTRecoveredHits"))
   {
   }
 
-  void beginEvent(const edm::Event& event, const edm::EventSetup& iSetup) override {
-  }
+    void beginEvent(const edm::Event& event, const edm::EventSetup& iSetup) override {
+    }
 
   bool test(reco::PFRecHit& hit, const EcalRecHit& rh, bool& clean, bool fullReadOut) override{
     if (skipTTRecoveredHits_ and rh.checkFlag(EcalRecHit::kTowerRecovered))
