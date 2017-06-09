@@ -10,7 +10,7 @@ HGCalTopology::HGCalTopology(const HGCalDDDConstants& hdcons,
   sectors_  = hdcons_.sectors();
   layers_   = hdcons_.layers(true);
   cells_    = hdcons_.maxCells(true);
-  mode_ = HGCalGeometryMode( hdcons_.geomMode());
+  mode_     = hdcons_.geomMode();
   if (mode_ == HGCalGeometryMode::Square) {
     kHGhalf_    = sectors_*layers_*subSectors_*cells_ ;
     kHGeomHalf_ = (half_ ? (sectors_*layers_*subSectors_) : (sectors_*layers_));

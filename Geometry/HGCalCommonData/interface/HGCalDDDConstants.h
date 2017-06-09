@@ -39,7 +39,7 @@ public:
   std::pair<int,int>  findCell(int cell, int lay, int subSec, bool reco) const;
   std::pair<int,int>  findCellSquare(int cell, float h, float bl, float tl, 
 				     float alpha, float cellSize) const;
-  HGCalGeometryMode   geomMode() const {return mode_;}
+  HGCalGeometryMode::GeometryMode geomMode() const {return mode_;}
   bool                isValid(int lay, int mod, int cell, bool reco) const;
   bool                isValidCell(int layindex, int wafer, int cell) const;
   unsigned int        layers(bool reco) const;
@@ -102,13 +102,13 @@ private:
 			  float& tl, float& alpha) const;
   bool waferInLayer(int wafer, int lay) const;
 
-  const HGCalParameters* hgpar_;
-  constexpr static double tan30deg_ = 0.5773502693;
-  double                 rmax_, hexside_;
-  HGCalGeometryMode      mode_;
-  int32_t                tot_wafers_, modHalf_;
-  std::array<uint32_t,2> tot_layers_;
-  simrecovecs            max_modules_layer_; 
+  const HGCalParameters*          hgpar_;
+  constexpr static double         tan30deg_ = 0.5773502693;
+  double                          rmax_, hexside_;
+  HGCalGeometryMode::GeometryMode mode_;
+  int32_t                         tot_wafers_, modHalf_;
+  std::array<uint32_t,2>          tot_layers_;
+  simrecovecs                     max_modules_layer_; 
 };
 
 #endif

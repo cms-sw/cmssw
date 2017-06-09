@@ -218,6 +218,7 @@
     <PartSelector path="//HGCalEECell.*"/>
     <PartSelector path="//HGCalHECell.*"/>
     <Parameter name="OnlyForHGCalNumbering" value="HGCal" eval="false"/>
+    <Parameter name="WaferMode" value="HGCalGeometryMode::ExtrudedPolygon" eval="false"/>
   </SpecPar>
 </SpecParSection>
 

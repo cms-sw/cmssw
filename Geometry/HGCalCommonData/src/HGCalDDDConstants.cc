@@ -14,7 +14,7 @@ constexpr double k_ScaleFromDDD = 0.1;
 
 HGCalDDDConstants::HGCalDDDConstants(const HGCalParameters* hp,
 				     const std::string name) : hgpar_(hp) {
-  mode_ = HGCalGeometryMode( hgpar_->mode_ );
+  mode_ = hgpar_->mode_;
   if (mode_ == HGCalGeometryMode::Square) {
     rmax_    = 0;
     modHalf_ = sectors()*layers(true);
@@ -792,9 +792,9 @@ bool HGCalDDDConstants::waferInLayer(int wafer, int lay) const {
     else                                    cornerAll = false;
   }
   bool   in(false);
-  if (hgpar_->mode_ == static_cast<int> (HGCalGeometryMode::Hexagon)) 
+  if (hgpar_->mode_ == HGCalGeometryMode::Hexagon)
     in = cornerAll;
-  else if (hgpar_->mode_ == static_cast<int> (HGCalGeometryMode::HexagonFull))
+  else if (hgpar_->mode_ == HGCalGeometryMode::HexagonFull)
     in = cornerOne;
   return in;
 }
