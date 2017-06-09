@@ -24,6 +24,7 @@
 
 // user include files
 #include "HepPDT/ParticleDataTable.hh"
+#include "SimG4Core/Physics/interface/PhysicsList.h"
 
 // forward declarations
 class SimActivityRegistry;
