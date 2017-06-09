@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-from DQMOffline.Trigger.JetMETMonitor_cff import *
+from DQMOffline.Trigger.JetMonitor_cff import *
 
 jetmetMonitorHLT = cms.Sequence(
-    HLTJetMETmonitoring
+    HLTJetmonitoring
 )
