@@ -40,8 +40,8 @@
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-
 #include "Alignment/HIPAlignmentAlgorithm/interface/HIPAlignmentAlgorithm.h"
+
 
 // Constructor ----------------------------------------------------------------
 HIPAlignmentAlgorithm::HIPAlignmentAlgorithm(
@@ -211,7 +211,7 @@ void HIPAlignmentAlgorithm::initialize(
     }
 
     // Relative error per component instead of overall relative error
-    theCutsPerComponent.clear();
+    theAlignableSpecifics.clear();
     if (theApplyCutsPerComponent){
       for (std::vector<edm::ParameterSet>::const_iterator setiter = theCutsPerComponent.begin(); setiter != theCutsPerComponent.end(); ++setiter){
         std::vector<Alignable*> alignables;
@@ -227,17 +227,21 @@ void HIPAlignmentAlgorithm::initialize(
 
         double maxRelParError = setiter->getParameter<double>("maxRelParError");
         double maxHitPull = setiter->getParameter<double>("maxHitPull");
-        int minNHits = setiter->getParameter<double>("minNHits");
+        int minNHits = setiter->getParameter<int>("minNHits");
         for (auto& ali : alignables){
-          HIPAlignableSpecificParameters alispecs;
-          alispecs.id = ali->id();
-          alispecs.objId = ali->alignableObjectId();
-
+          HIPAlignableSpecificParameters alispecs(ali);
           alispecs.maxRelParError = maxRelParError;
           alispecs.maxHitPull = maxHitPull;
           alispecs.minNHits = minNHits;
 
           theAlignableSpecifics.push_back(alispecs);
+          edm::LogInfo("Alignment")
+            << "@SUB=HIPAlignmentAlgorithm::initialize"
+            << "Alignment specifics acquired for detector " << alispecs.id() << " / " << alispecs.objId()
+            << ":\n"
+            << " - maxRelParError = " << alispecs.maxRelParError << "\n"
+            << " - maxHitPull = " << alispecs.maxHitPull << "\n"
+            << " - minNHits = " << alispecs.minNHits;
         }
       }
     }
@@ -1195,7 +1199,7 @@ bool HIPAlignmentAlgorithm::calcParameters(Alignable* ali, int setDet, double st
   // Test nhits
   int minHitThreshold = ((!theApplyCutsPerComponent || alispecifics==0) ? theMinimumNumberOfHits : alispecifics->minNHits);
   if (setDet==0 && nhit<minHitThreshold){
-    edm::LogWarning("Alignment") << "@SUB=HIPAlignmentAlgorithm::calcParameters" << "Skipping because number of hits = " << nhit << " <= " << minHitThreshold;
+    edm::LogInfo("Alignment") << "@SUB=HIPAlignmentAlgorithm::calcParameters" << "Skipping detector " << ali->id() << " because number of hits = " << nhit << " <= " << minHitThreshold;
     par->setValid(false);
     return false;
   }
@@ -1421,7 +1425,8 @@ int HIPAlignmentAlgorithm::fillEventwiseTree(const char* filename, int iter, int
 //-----------------------------------------------------------------------------------
 HIPAlignableSpecificParameters* HIPAlignmentAlgorithm::findAlignableSpecs(const Alignable* ali){
   for (std::vector<HIPAlignableSpecificParameters>::iterator it=theAlignableSpecifics.begin(); it!=theAlignableSpecifics.end(); it++){
-    if (ali->id()==it->id && ali->alignableObjectId()==it->objId) return &(*it);
+    if (it->matchAlignable(ali)) return &(*it);
   }
+  edm::LogInfo("Alignment") << "[HIPAlignmentAlgorithm::findAlignableSpecs] Alignment object with id " << ali->id() << " / " << ali->alignableObjectId() << " could not be found";
   return 0;
 }
