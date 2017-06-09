@@ -18,7 +18,9 @@ from Configuration.DataProcessing.Impl.pp import pp
 class ppEra_Run2_2017_trackingOnly(pp):
     def __init__(self):
         pp.__init__(self)
-        self.recoSeq=':reconstruction_trackingOnly'
+        self.recoSeq=''
+        # revert temporarily to full RECO sequence, because ALCARECOTkAlMinBiasTkAlDQM needs jets
+        #self.recoSeq=':reconstruction_trackingOnly'
         self.cbSc='pp'
         self.eras=Run2_2017
         self.promptCustoms += [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2017' ]
