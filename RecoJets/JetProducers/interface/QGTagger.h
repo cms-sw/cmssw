@@ -2,6 +2,8 @@
 #define JetProducers_QGTagger_h
 #include <tuple>
 
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
 
