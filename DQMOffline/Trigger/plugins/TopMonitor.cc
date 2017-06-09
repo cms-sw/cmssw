@@ -27,6 +27,7 @@ TopMonitor::TopMonitor( const edm::ParameterSet& iConfig ) :
   , pt_binning_           ( getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("ptPSet")    ) )
   , eta_binning_          ( getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("etaPSet")    ) )
   , HT_binning_           ( getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("htPSet")    ) )
+  , DR_binning_           ( getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("DRPSet")    ) )
   // Marina
   , csv_binning_          ( getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet> ("csvPSet")))
   , met_variable_binning_ ( iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("metBinning") )
@@ -99,6 +100,8 @@ TopMonitor::TopMonitor( const edm::ParameterSet& iConfig ) :
     elePt_muPt_ = empty;
     eleEta_muEta_ = empty;
 
+    //BTV
+    DeltaR_jet_Mu_ = empty;
 
     for (unsigned int iMu=0; iMu<nmuons_; ++iMu){
         muPhi_.push_back(empty);
@@ -286,6 +289,12 @@ void TopMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
       setMETitle(mu1Eta_mu2Eta_,"muon-1 #eta","muon-2 #eta");
   }
 
+  if ( (njets_ > 0) && (nmuons_ > 0)){
+
+      histname = "DeltaR_jet_Mu"; histtitle = "#DeltaR(jet,mu)";
+      bookME(ibooker,DeltaR_jet_Mu_,histname,histtitle, DR_binning_.nbins, DR_binning_.xmin, DR_binning_.xmax );      
+      setMETitle(DeltaR_jet_Mu_,"#DeltaR(jet,mu)","events");
+  }
 
   histname = "htVsLS"; histtitle = "event HT vs LS";
   bookME(ibooker,htVsLS_,histname,histtitle,ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax,pt_binning_.xmin, pt_binning_.xmax);
@@ -674,6 +683,12 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
           mu1Pt_mu2Pt_.denominator->Fill(muons.at(0).pt(),muons.at(1).pt());
           mu1Eta_mu2Eta_.denominator->Fill(muons.at(0).eta(),muons.at(1).eta());
       }
+      if(njets_>0){
+          TLorentzVector jp4, mp4; 
+          jp4.SetPtEtaPhiE(jets.at(0).pt(),jets.at(0).eta(),jets.at(0).phi(),jets.at(0).energy());
+          mp4.SetPtEtaPhiE(muons.at(0).pt(),muons.at(0).eta(),muons.at(0).phi(),muons.at(0).energy());
+          DeltaR_jet_Mu_.denominator -> Fill (jp4.DeltaR(mp4));
+      }
   }
   if (njets_ > 0)      jetVsLS_.denominator -> Fill(ls, jets.at(0).pt());
   if (nelectrons_ > 0) {
@@ -780,11 +795,18 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   eventHT_variableBinning_.numerator -> Fill(eventHT);
 
   if (nmuons_ > 0){
-     muVsLS_.numerator -> Fill(ls, muons.at(0).pt());
+      muVsLS_.numerator -> Fill(ls, muons.at(0).pt());
       if (nmuons_>1) {
           mu1Pt_mu2Pt_.numerator->Fill(muons.at(0).pt(),muons.at(1).pt());
           mu1Eta_mu2Eta_.numerator->Fill(muons.at(0).eta(),muons.at(1).eta());
       }
+      if(njets_>0){
+          TLorentzVector jp4, mp4; 
+          jp4.SetPtEtaPhiE(jets.at(0).pt(),jets.at(0).eta(),jets.at(0).phi(),jets.at(0).energy());
+          mp4.SetPtEtaPhiE(muons.at(0).pt(),muons.at(0).eta(),muons.at(0).phi(),muons.at(0).energy());
+          DeltaR_jet_Mu_.numerator -> Fill (jp4.DeltaR(mp4));
+      }
+
   }
   if (njets_ > 0)      jetVsLS_.numerator -> Fill(ls, jets.at(0).pt());
   if (nelectrons_ > 0) {
@@ -932,6 +954,7 @@ void TopMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   edm::ParameterSetDescription etaPSet;
   edm::ParameterSetDescription ptPSet;
   edm::ParameterSetDescription htPSet;
+  edm::ParameterSetDescription DRPSet;
   // Marina
   edm::ParameterSetDescription csvPSet;
   fillHistoPSetDescription(metPSet);
@@ -939,6 +962,7 @@ void TopMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   fillHistoPSetDescription(ptPSet);
   fillHistoPSetDescription(etaPSet);
   fillHistoPSetDescription(htPSet);
+  fillHistoPSetDescription(DRPSet);
   // Marina
   fillHistoPSetDescription(csvPSet);
   histoPSet.add<edm::ParameterSetDescription>("metPSet", metPSet);
@@ -946,6 +970,7 @@ void TopMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   histoPSet.add<edm::ParameterSetDescription>("phiPSet", phiPSet);
   histoPSet.add<edm::ParameterSetDescription>("ptPSet", ptPSet);
   histoPSet.add<edm::ParameterSetDescription>("htPSet", htPSet);
+  histoPSet.add<edm::ParameterSetDescription>("DRPSet", DRPSet);
   // Marina
   histoPSet.add<edm::ParameterSetDescription>("csvPSet", csvPSet);
   std::vector<double> bins = {0.,20.,40.,60.,80.,90.,100.,110.,120.,130.,140.,150.,160.,170.,180.,190.,200.,220.,240.,260.,280.,300.,350.,400.,450.,1000.};
