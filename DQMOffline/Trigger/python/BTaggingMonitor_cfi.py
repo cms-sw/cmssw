@@ -31,9 +31,15 @@ hltBTVmonitoring.histoPSet.htPSet = cms.PSet(
 )
 # Marina
 hltBTVmonitoring.histoPSet.csvPSet = cms.PSet(
-  nbins = cms.int32 ( 50 ),
+  nbins = cms.int32 ( 20 ),
   xmin  = cms.double( 0.0 ),
   xmax  = cms.double( 1.0  ),
+)
+#BTV
+hltBTVmonitoring.histoPSet.DRPSet = cms.PSet(
+  nbins = cms.int32 ( 60  ),
+  xmin  = cms.double( 0.0 ),
+  xmax  = cms.double( 6.0 ),
 )
 
 
@@ -68,10 +74,13 @@ hltBTVmonitoring.muons     = cms.InputTag("muons") # while pfIsolatedMuonsEI are
 
 # Marina
 hltBTVmonitoring.btagalgo  = cms.InputTag("pfCombinedSecondaryVertexV2BJetTags")
-hltBTVmonitoring.workingpoint     = cms.double(0.8484) # Medium
+hltBTVmonitoring.workingpoint     = cms.double(-1.) #no cut applied
 
 hltBTVmonitoring.HTdefinition = cms.string('pt>30 & abs(eta)<2.5')
 hltBTVmonitoring.leptJetDeltaRmin = cms.double(0.0)
+#always monitor CSV score for one jet
+hltBTVmonitoring.nbjets = cms.uint32(1)
+hltBTVmonitoring.bjetSelection = cms.string('pt>30 & abs(eta)<2.4')
 
 hltBTVmonitoring.numGenericTriggerEventPSet.andOr         = cms.bool( False )
 hltBTVmonitoring.numGenericTriggerEventPSet.andOrHlt      = cms.bool(True)# True:=OR; False:=AND

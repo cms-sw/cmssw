@@ -35,6 +35,12 @@ hltTOPmonitoring.histoPSet.csvPSet = cms.PSet(
   xmin  = cms.double( 0.0 ),
   xmax  = cms.double( 1.0  ),
 )
+#BTV
+hltTOPmonitoring.histoPSet.DRPSet = cms.PSet(
+  nbins = cms.int32 ( 60  ),
+  xmin  = cms.double( 0.0 ),
+  xmax  = cms.double( 6.0 ),
+)
 
 #Suvankar
 hltTOPmonitoring.applyleptonPVcuts = cms.bool(False)
