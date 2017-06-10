@@ -215,6 +215,7 @@ private:
   // Marina
   std::vector<METME> bjetPtEta_;
   std::vector<METME> bjetEtaPhi_;
+  std::vector<METME> bjetCSVHT_;
 
   METME eventHT_;
   METME eventHT_variableBinning_;

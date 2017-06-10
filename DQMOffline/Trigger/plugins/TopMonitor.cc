@@ -137,6 +137,7 @@ TopMonitor::TopMonitor( const edm::ParameterSet& iConfig ) :
       bjetPt_variableBinning_.push_back(empty);
       bjetPtEta_.push_back(empty);
       bjetEtaPhi_.push_back(empty);
+      bjetCSVHT_.push_back(empty);
     }
   //Suvankar
   lepPVcuts_.dxy = (iConfig.getParameter<edm::ParameterSet>("leptonPVcuts")).getParameter<double>("dxy");
@@ -467,6 +468,10 @@ void TopMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
     bookME(ibooker,bjetEtaPhi_.at(iBJet),histname,histtitle, jetEta_variable_binning_2D_, phi_variable_binning_2D_);
     setMETitle(bjetEtaPhi_.at(iBJet),"b-jet p_{T} [GeV]","jet #eta");
 
+    histname = "bjetCSVHT_"; histtitle = "HT - b-jet CSV - ";
+    histname.append(index); histtitle.append(index);
+    bookME(ibooker,bjetCSVHT_.at(iBJet), histname, histtitle, csv_binning_.nbins, csv_binning_.xmin, csv_binning_.xmax, HT_binning_.nbins,HT_binning_.xmin, HT_binning_.xmax);
+    setMETitle(bjetCSVHT_.at(iBJet),"b-jet CSV", "event HT [GeV]");
   }
   
 
@@ -758,6 +763,7 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
     bjetPt_variableBinning_.at(iBJet).denominator  -> Fill(bjet.first->pt());
     bjetPtEta_.at(iBJet).denominator  -> Fill(bjet.first->pt(), bjet.first->eta());
     bjetEtaPhi_.at(iBJet).denominator -> Fill(bjet.first->eta(), bjet.first->phi());
+    bjetCSVHT_.at(iBJet).denominator  -> Fill(std::fmax(0.0, bjet.second), eventHT);
 
     iBJet++;
   }
@@ -854,7 +860,8 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
     bjetPt_variableBinning_.at(j).numerator  -> Fill(bjet.first->pt());
     bjetPtEta_.at(j).numerator  -> Fill(bjet.first->pt(), bjet.first->eta());
     bjetEtaPhi_.at(j).numerator -> Fill(bjet.first->eta(), bjet.first->phi());
-    
+    bjetCSVHT_.at(j).numerator  -> Fill(std::fmax(0.0,bjet.second), eventHT);
+
     j++;
   }
 
