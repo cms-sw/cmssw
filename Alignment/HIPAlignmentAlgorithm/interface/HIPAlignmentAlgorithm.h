@@ -21,6 +21,7 @@
 #include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
 #include "Geometry/CommonTopologies/interface/SurfaceDeformationFactory.h"
 
+#include "Alignment/HIPAlignmentAlgorithm/interface/HIPMonitorConfig.h"
 #include "Alignment/HIPAlignmentAlgorithm/interface/HIPAlignableSpecificParameters.h"
 
 class TFile;
@@ -76,7 +77,7 @@ private:
   void fillRoot(const edm::EventSetup& setup);
   bool calcParameters(Alignable* ali, int setDet, double start, double step);
   void collector(void);
-  int fillEventwiseTree(const char *filename, int iter, int ierr);
+  void collectMonitorTrees(const std::vector<std::string>& filenames);
 
   HIPAlignableSpecificParameters* findAlignableSpecs(const Alignable* ali);
 
@@ -94,9 +95,12 @@ private:
   // steering parameters
 
   // verbosity flag
-  bool verbose;
+  const bool verbose;
+  // Monitor configuration
+  HIPMonitorConfig theMonitorConfig;
+  const bool doMonitoring;
   // names of IO root files
-  std::string outfile, outfilecore, outfile2, outpath, suvarfilecore, suvarfile, sparameterfile;
+  std::string outfile2, outpath, suvarfilecore, suvarfile, sparameterfile;
   std::string struefile, smisalignedfile, salignedfile, siterationfile, ssurveyfile;
 
   bool themultiIOV;
@@ -124,7 +128,6 @@ private:
   int theEventPrescale, theCurrentPrescale;
   bool trackPs, trackWt, IsCollision, uniEta;
   double Scale, cos_cut, col_cut;
-  bool theFillTrackMonitoring;
   std::vector<double> SetScanDet;
 
   const std::vector<std::string> surveyResiduals_;
@@ -140,10 +143,9 @@ private:
   TTree* theTree3; // survey tree
 
   // variables for event-wise tree
-  static const int MAXREC = 99;
-  //int m_Run,m_Event;
-  int m_Ntracks, m_Nhits[MAXREC], m_nhPXB[MAXREC], m_nhPXF[MAXREC], m_nhTIB[MAXREC], m_nhTOB[MAXREC], m_nhTID[MAXREC], m_nhTEC[MAXREC];
-  float m_Pt[MAXREC], m_Eta[MAXREC], m_Phi[MAXREC], m_Chi2n[MAXREC], m_P[MAXREC], m_d0[MAXREC], m_dz[MAXREC], m_wt[MAXREC];
+  int m_Ntracks;
+  std::vector<int> m_Nhits, m_nhPXB, m_nhPXF, m_nhTIB, m_nhTOB, m_nhTID, m_nhTEC;
+  std::vector<float> m_Pt, m_Eta, m_Phi, m_Chi2n, m_P, m_d0, m_dz, m_wt;
 
   // variables for hit-wise tree
   float m_sinTheta, m_hitwt, m_angle;

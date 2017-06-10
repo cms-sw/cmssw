@@ -2,6 +2,7 @@
 
 #include "TFile.h"
 #include "TTree.h"
+#include "TList.h"
 #include "TRandom.h" 
 #include "TFormula.h"
 #include "TMath.h"
@@ -46,13 +47,21 @@ HIPAlignmentAlgorithm::HIPAlignmentAlgorithm(
   const edm::ParameterSet& cfg
   ) :
   AlignmentAlgorithmBase(cfg),
+  verbose(cfg.getParameter<bool>("verbosity")),
+  theMonitorConfig(cfg),
+  doMonitoring(theMonitorConfig.fillTrackMonitoring || theMonitorConfig.fillTrackHitMonitoring),
   defaultAlignableSpecs((Alignable*)0),
-  surveyResiduals_(cfg.getUntrackedParameter<std::vector<std::string> >("surveyResiduals"))
+  surveyResiduals_(cfg.getUntrackedParameter<std::vector<std::string> >("surveyResiduals")),
+  theFile(0),
+  theTree(0),
+  hitTree(0),
+  theFile2(0),
+  theTree2(0),
+  theFile3(0),
+  theTree3(0)
 {
   // parse parameters
-  verbose = cfg.getParameter<bool>("verbosity");
   outpath = cfg.getParameter<std::string>("outpath");
-  outfilecore = cfg.getParameter<std::string>("outfile"); outfile = outfilecore;
   outfile2 = cfg.getParameter<std::string>("outfile2");
   struefile = cfg.getParameter<std::string>("trueFile");
   smisalignedfile = cfg.getParameter<std::string>("misalignedFile");
@@ -62,7 +71,6 @@ HIPAlignmentAlgorithm::HIPAlignmentAlgorithm(
   sparameterfile = cfg.getParameter<std::string>("parameterFile");
   ssurveyfile = cfg.getParameter<std::string>("surveyFile");
 
-  outfile        =outpath+outfile;//Eventwise tree
   outfile2       =outpath+outfile2;//Alignablewise tree
   struefile      =outpath+struefile;
   smisalignedfile=outpath+smisalignedfile;
@@ -89,12 +97,8 @@ HIPAlignmentAlgorithm::HIPAlignmentAlgorithm(
   isCollector=cfg.getParameter<bool>("collectorActive");
   theCollectorNJobs=cfg.getParameter<int>("collectorNJobs");
   theCollectorPath=cfg.getParameter<std::string>("collectorPath");
-  theFillTrackMonitoring=cfg.getUntrackedParameter<bool>("fillTrackMonitoring");
 
   if (isCollector) edm::LogInfo("Alignment") << "[HIPAlignmentAlgorithm] Collector mode";
-
-  theEventPrescale = cfg.getParameter<int>("eventPrescale");
-  theCurrentPrescale = theEventPrescale;
 
   trackPs = cfg.getParameter<bool>("UsePreSelection");
   trackWt = cfg.getParameter<bool>("UseReweighting");
@@ -417,28 +421,37 @@ void HIPAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup){
 
   // write out trees and close root file
 
-  // eventwise tree
-  if (theFillTrackMonitoring){
+  // Eventwise and hitwise monitoring trees
+  if (doMonitoring && theFile!=0){
     theFile->cd();
-    theTree->Write();
-    hitTree->Write();
-    delete hitTree;
-    delete theTree;
+    if (theMonitorConfig.fillTrackMonitoring && theTree!=0){
+      theTree->Write();
+      delete theTree;
+      theTree=0;
+    }
+    if (theMonitorConfig.fillTrackHitMonitoring && hitTree!=0){
+      hitTree->Write();
+      delete hitTree;
+      hitTree=0;
+    }
     theFile->Close();
   }
 
+  // Survey tree
   if (theLevels.size()>0){
     theFile3->cd();
     theTree3->Write();
     delete theTree3;
+    theTree3=0;
     theFile3->Close();
   }
 
-  // alignable-wise tree is only filled once
-  if (theIteration==1){ // only for 0th or 1st iteration
+  // Alignable-wise tree is only filled once at iteration 1
+  if (theIteration==1){
     theFile2->cd();
     theTree2->Write();
     delete theTree2;
+    theTree2=0;
     theFile2->Close();
   }
 }
@@ -661,18 +674,12 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
 
   TrajectoryStateCombiner tsoscomb;
 
-  // AM: not really needed
-  // AM: m_Ntracks = 0 should be sufficient
-  int itr=0;
   m_Ntracks=0;
-  //CY : hit info  
+  // hit info  
   m_sinTheta =0;
   m_angle = 0;
   m_detId =0;
   m_hitwt=1;
-
-  // AM: what is this needed for?
-  //theFile->cd();
 
   // loop over tracks  
   const ConstTrajTrackPairCollection &tracks = eventInfo.trajTrackPairs();
@@ -719,28 +726,24 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
     }
     else if (trackWt) ihitwt=trkwt;
 
-
-    //edm::LogWarning("Alignment") << "UsingReweighting="<<trackWt<<",trkwt="<<trkwt<<",hitWt="<<ihitwt;
-
     // fill track parameters in root tree
-    if (itr<MAXREC) {
-      m_Nhits[itr]=nhit;
-      m_Pt[itr]=pt;
-      m_P[itr]=p;
-      m_Eta[itr]=eta;
-      m_Phi[itr]=phi;
-      m_Chi2n[itr]=chi2n;
-      m_nhPXB[itr]=nhpxb;
-      m_nhPXF[itr]=nhpxf;
-      m_nhTIB[itr]=nhtib;
-      m_nhTOB[itr]=nhtob;
-      m_nhTID[itr]=nhtid;
-      m_nhTEC[itr]=nhtec;
-      m_d0[itr]=d0;
-      m_dz[itr]=dz;
-      m_wt[itr]=ihitwt;
-      itr++;
-      m_Ntracks=itr;
+    {
+      m_Nhits.push_back(nhit);
+      m_Pt.push_back(pt);
+      m_P.push_back(p);
+      m_Eta.push_back(eta);
+      m_Phi.push_back(phi);
+      m_Chi2n.push_back(chi2n);
+      m_nhPXB.push_back(nhpxb);
+      m_nhPXF.push_back(nhpxf);
+      m_nhTIB.push_back(nhtib);
+      m_nhTOB.push_back(nhtob);
+      m_nhTID.push_back(nhtid);
+      m_nhTEC.push_back(nhtec);
+      m_d0.push_back(d0);
+      m_dz.push_back(dz);
+      m_wt.push_back(ihitwt);
+      m_Ntracks++;
     }
 
     std::vector<const TransientTrackingRecHit*> hitvec;
@@ -772,7 +775,7 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
           int subDet = hit->geographicalId().subdetId();
           //take the actual RecHit out of the Transient one
           const TrackingRecHit *rechit=hit->hit();
-          if (subDet>2) { // AM: if possible use enum instead of hard-coded value	 
+          if (subDet>2){ // AM: if possible use enum instead of hard-coded value	 
             const std::type_info &type = typeid(*rechit);
 
             if (type == typeid(SiStripRecHit1D)){
@@ -783,10 +786,9 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
                 // myflag=PrescMap[stripclust]; 	 
                 myflag = (*eventInfo.clusterValueMap())[stripclust];
               }
-              else
-                edm::LogError("HIPAlignmentAlgorithm")
-                  << "ERROR in <HIPAlignmentAlgorithm::run>: Dynamic cast of Strip RecHit failed! "
-                  << "TypeId of the RecHit: " << className(*hit) <<std::endl;
+              else edm::LogError("HIPAlignmentAlgorithm")
+                << "ERROR in <HIPAlignmentAlgorithm::run>: Dynamic cast of Strip RecHit failed! "
+                << "TypeId of the RecHit: " << className(*hit);
             }//end if type = SiStripRecHit1D 	 
             else if (type == typeid(SiStripRecHit2D)){
 
@@ -796,12 +798,9 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
                 // myflag=PrescMap[stripclust]; 	 
                 myflag = (*eventInfo.clusterValueMap())[stripclust];
               }
-              else{
-                edm::LogError("HIPAlignmentAlgorithm")
-                  << "ERROR in <HIPAlignmentAlgorithm::run>: Dynamic cast of Strip RecHit failed! "
-                  // << "TypeId of the TTRH: " << className(*ttrhit) << std::endl; 	 
-                  << "TypeId of the TTRH: " << className(*hit) << std::endl;
-              }
+              else edm::LogError("HIPAlignmentAlgorithm")
+                << "ERROR in <HIPAlignmentAlgorithm::run>: Dynamic cast of Strip RecHit failed! "
+                << "TypeId of the TTRH: " << className(*hit);
             } //end if type == SiStripRecHit2D 	 
           } //end if hit from strips 	 
           else{
@@ -811,11 +810,9 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
               // myflag=PrescMap[pixelclust]; 	 
               myflag = (*eventInfo.clusterValueMap())[pixelclust];
             }
-            else
-              edm::LogError("HIPAlignmentAlgorithm")
-                << "ERROR in <HIPAlignmentAlgorithm::run>: Dynamic cast of Pixel RecHit failed! "
-                // << "TypeId of the TTRH: " << className(*ttrhit) << std::endl; 	 
-                << "TypeId of the TTRH: " << className(*hit) << std::endl;
+            else edm::LogError("HIPAlignmentAlgorithm")
+              << "ERROR in <HIPAlignmentAlgorithm::run>: Dynamic cast of Pixel RecHit failed! "
+              << "TypeId of the TTRH: " << className(*hit);
           } //end 'else' it is a pixel hit 	 
           // bool hitTaken=myflag.isTaken(); 	 
           if (!myflag.isTaken()){
@@ -824,8 +821,10 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
         }//end if Prescaled Hits 	 
         //////////////////////////////// 	 
 
-        TrajectoryStateOnSurface tsos = tsoscomb.combine(meas.forwardPredictedState(),
-          meas.backwardPredictedState());
+        TrajectoryStateOnSurface tsos = tsoscomb.combine(
+          meas.forwardPredictedState(),
+          meas.backwardPredictedState()
+          );
 
         if (tsos.isValid()){
           // hitvec.push_back(ttrhit);
@@ -846,7 +845,7 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
     std::vector<const TransientTrackingRecHit*>::const_iterator ihit=hitvec.begin();
 
     // loop over vectors(hit,tsos)
-    while (itsos != tsosvec.end()) {
+    while (itsos != tsosvec.end()){
 
       // get AlignableDet for this hit
       const GeomDet* det = (*ihit)->det();
@@ -858,7 +857,7 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
       // get relevant Alignable
       Alignable* ali = aap.alignableFromAlignableDet(alidet);
 
-      if (ali!=0) {
+      if (ali!=0){
         const TrajectoryStateOnSurface & tsos=*itsos;
 
         //  LocalVector v = tsos.localDirection();
@@ -871,7 +870,6 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
         double sin_theta = TMath::Abs(mom_z) / sqrt(pow(mom_x, 2)+pow(mom_y, 2)+pow(mom_z, 2));
         double angle = TMath::ASin(sin_theta);
 
-
         //Make cut on hit impact angle, reduce collision hits perpendicular to modules
         if (IsCollision){ if (angle>col_cut)ihitwt=0; }
         else{ if (angle<cos_cut)ihitwt=0; }
@@ -880,7 +878,7 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
         m_detId = ali->id();
         m_hitwt = ihitwt;
 
-        if (theFillTrackMonitoring) hitTree->Fill();
+        if (theMonitorConfig.fillTrackHitMonitoring && theMonitorConfig.checkNhits() && hitTree!=0) hitTree->Fill();
 
         if (ihitwt!=0.){
           switch (nhitDim){
@@ -906,14 +904,7 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
   } // end of track loop
 
   // fill eventwise root tree (with prescale defined in pset)
-  if (theFillTrackMonitoring) {
-    theCurrentPrescale--;
-    //edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm::run] theCurrentPrescale="<<theCurrentPrescale;
-    if (theCurrentPrescale<=0) {
-      theTree->Fill();
-      theCurrentPrescale = theEventPrescale;
-    }
-  }
+  if (theMonitorConfig.fillTrackMonitoring && theMonitorConfig.checkNevents() && theTree!=0) theTree->Fill();
 }
 
 // ----------------------------------------------------------------------------
@@ -1011,57 +1002,49 @@ double HIPAlignmentAlgorithm::calcAPE(double* par, int iter, int function){
 // ----------------------------------------------------------------------------
 // book root trees
 void HIPAlignmentAlgorithm::bookRoot(void){
-  TString tname="T1";
-  char iterString[15];
-  snprintf(iterString, sizeof(iterString), "%i", theIteration);
-  tname.Append("_");
-  tname.Append(iterString);
+  TString tname=Form("T1_%i", theIteration);
 
   // create ROOT files
-  if (theFillTrackMonitoring){
-    theFile = TFile::Open(outfile.c_str(), "update");
+  if (doMonitoring && !isCollector){
+    theFile = TFile::Open(theMonitorConfig.outfile.c_str(), "update");
     theFile->cd();
-
     // book event-wise ROOT Tree
-
-    TString tname_hit="T1_hit";
-    tname_hit.Append("_");
-    tname_hit.Append(iterString);
-
-    theTree  = new TTree(tname, "Eventwise tree");
-
-    //theTree->Branch("Run",     &m_Run,     "Run/I");
-    //theTree->Branch("Event",   &m_Event,   "Event/I");
-    theTree->Branch("Ntracks", &m_Ntracks, "Ntracks/I");
-    theTree->Branch("Nhits", m_Nhits, "Nhits[Ntracks]/I");
-    theTree->Branch("nhPXB", m_nhPXB, "nhPXB[Ntracks]/I");
-    theTree->Branch("nhPXF", m_nhPXF, "nhPXF[Ntracks]/I");
-    theTree->Branch("nhTIB", m_nhTIB, "nhTIB[Ntracks]/I");
-    theTree->Branch("nhTOB", m_nhTOB, "nhTOB[Ntracks]/I");
-    theTree->Branch("nhTID", m_nhTID, "nhTID[Ntracks]/I");
-    theTree->Branch("nhTEC", m_nhTEC, "nhTEC[Ntracks]/I");
-    theTree->Branch("Pt", m_Pt, "Pt[Ntracks]/F");
-    theTree->Branch("P", m_P, "P[Ntracks]/F");
-    theTree->Branch("Eta", m_Eta, "Eta[Ntracks]/F");
-    theTree->Branch("Phi", m_Phi, "Phi[Ntracks]/F");
-    theTree->Branch("Chi2n", m_Chi2n, "Chi2n[Ntracks]/F");
-    theTree->Branch("d0", m_d0, "d0[Ntracks]/F");
-    theTree->Branch("dz", m_dz, "dz[Ntracks]/F");
-    theTree->Branch("wt", m_wt, "wt[Ntracks]/F");
-
-    hitTree  = new TTree(tname_hit, "Hitwise tree");
-    hitTree->Branch("Id", &m_detId, "Id/i");
-    hitTree->Branch("sinTheta", &m_sinTheta, "sinTheta/F");
-    hitTree->Branch("hitImpactAngle", &m_angle, "hitImpactAngle/F");
-    hitTree->Branch("wt", &m_hitwt, "wt/F");
+    if (theMonitorConfig.fillTrackMonitoring){
+      theTree = new TTree(tname, "Eventwise tree");
+      //theTree->Branch("Run",     &m_Run,     "Run/I");
+      //theTree->Branch("Event",   &m_Event,   "Event/I");
+      theTree->Branch("Ntracks", &m_Ntracks);
+      theTree->Branch("Nhits", &m_Nhits);
+      theTree->Branch("nhPXB", &m_nhPXB);
+      theTree->Branch("nhPXF", &m_nhPXF);
+      theTree->Branch("nhTIB", &m_nhTIB);
+      theTree->Branch("nhTOB", &m_nhTOB);
+      theTree->Branch("nhTID", &m_nhTID);
+      theTree->Branch("nhTEC", &m_nhTEC);
+      theTree->Branch("Pt", &m_Pt);
+      theTree->Branch("P", &m_P);
+      theTree->Branch("Eta", &m_Eta);
+      theTree->Branch("Phi", &m_Phi);
+      theTree->Branch("Chi2n", &m_Chi2n);
+      theTree->Branch("d0", &m_d0);
+      theTree->Branch("dz", &m_dz);
+      theTree->Branch("wt", &m_wt);
+    }
+    // book hit-wise ROOT Tree
+    if (theMonitorConfig.fillTrackHitMonitoring){
+      TString tname_hit=Form("T1_hit_%i", theIteration);
+      hitTree = new TTree(tname_hit, "Hitwise tree");
+      hitTree->Branch("Id", &m_detId, "Id/i");
+      hitTree->Branch("sinTheta", &m_sinTheta, "sinTheta/F");
+      hitTree->Branch("hitImpactAngle", &m_angle, "hitImpactAngle/F");
+      hitTree->Branch("wt", &m_hitwt, "wt/F");
+    }
   }
-  // book Alignable-wise ROOT Tree
 
+  // book alignable-wise ROOT Tree
   theFile2 = TFile::Open(outfile2.c_str(), "update");
   theFile2->cd();
-
   theTree2 = new TTree("T2", "Alignablewise tree");
-
   theTree2->Branch("Id", &m2_Id, "Id/i");
   theTree2->Branch("ObjId", &m2_ObjId, "ObjId/I");
   theTree2->Branch("Nhit", &m2_Nhit);
@@ -1076,7 +1059,7 @@ void HIPAlignmentAlgorithm::bookRoot(void){
 
   // book survey-wise ROOT Tree only if survey is enabled
   if (theLevels.size()>0){
-    edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm::bookRoot] Survey trees booked.";
+    edm::LogInfo("Alignment") << "[HIPAlignmentAlgorithm::bookRoot] Survey trees booked.";
     theFile3 = TFile::Open(ssurveyfile.c_str(), "update");
     theFile3->cd();
     theTree3 = new TTree(tname, "Survey Tree");
@@ -1084,7 +1067,7 @@ void HIPAlignmentAlgorithm::bookRoot(void){
     theTree3->Branch("ObjId", &m3_ObjId, "ObjId/I");
     theTree3->Branch("Par", &m3_par, "Par[6]/F");
   }
-  edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm::bookRoot] Root trees booked.";
+  edm::LogInfo("Alignment") << "[HIPAlignmentAlgorithm::bookRoot] Root trees booked.";
 }
 
 // ----------------------------------------------------------------------------
@@ -1261,10 +1244,11 @@ bool HIPAlignmentAlgorithm::calcParameters(Alignable* ali, int setDet, double st
 
 //-----------------------------------------------------------------------------
 void HIPAlignmentAlgorithm::collector(void){
-  edm::LogInfo("Alignment") << "@SUB=HIPAlignmentAlgorithm::collector" <<  "Called for iteration " << theIteration;
+  edm::LogInfo("Alignment") << "@SUB=HIPAlignmentAlgorithm::collector" << "Called for iteration " << theIteration;
 
+  std::vector<std::string> monitorFileList;
   HIPUserVariablesIORoot HIPIO;
-  for (int ijob=1; ijob<=theCollectorNJobs; ijob++) {
+  for (int ijob=1; ijob<=theCollectorNJobs; ijob++){
     edm::LogInfo("Alignment") << "@SUB=HIPAlignmentAlgorithm::collector" << "Reading uservar for job " << ijob;
 
     std::stringstream ss;
@@ -1274,8 +1258,8 @@ void HIPAlignmentAlgorithm::collector(void){
     std::string uvfile = theCollectorPath+"/job"+str+"/"+suvarfilecore;
 
     std::vector<AlignmentUserVariables*> uvarvec = HIPIO.readHIPUserVariables(theAlignables, uvfile.c_str(), theIteration, ioerr);
-    if (uvarvec.size()!=theAlignables.size())
-      edm::LogWarning("Alignment") << "@SUB=HIPAlignmentAlgorithm::collector"
+    if (uvarvec.size()!=theAlignables.size()) edm::LogWarning("Alignment")
+      << "@SUB=HIPAlignmentAlgorithm::collector"
       << "Number of alignables = " << theAlignables.size() << " is not the same as number of user variables = " << uvarvec.size()
       << ". A mismatch might occur!";
 
@@ -1311,113 +1295,68 @@ void HIPAlignmentAlgorithm::collector(void){
     theAlignmentParameterStore->attachUserVariables(theAlignables, uvarvecadd, ioerr);
 
     // fill Eventwise Tree
-    if (theFillTrackMonitoring){
-      int nmontracks = fillEventwiseTree(uvfile.c_str(), theIteration, ioerr);
-      uvfile = theCollectorPath+"/job"+str+"/"+outfilecore;
-      edm::LogInfo("Alignment") << "@SUB=HIPAlignmentAlgorithm::collector"
-        << "Added " << nmontracks << " tracks to the monitor tree";
+    if (doMonitoring){
+      uvfile = theCollectorPath+"/job"+str+"/"+theMonitorConfig.outfilecore;
+      monitorFileList.push_back(uvfile);
     }
   } // end loop on jobs
+
+  // Collect monitor (eventwise and hitwise) trees
+  if (doMonitoring) collectMonitorTrees(monitorFileList);
+
 }
 
 //------------------------------------------------------------------------------------
-int HIPAlignmentAlgorithm::fillEventwiseTree(const char* filename, int iter, int ierr){
-  int totntrk = 0;
-  char treeName[64];
-  snprintf(treeName, sizeof(treeName), "T1_%d", iter);
-  char hitTreeName[64];
-  snprintf(hitTreeName, sizeof(hitTreeName), "T1_hit_%d", iter);
+void HIPAlignmentAlgorithm::collectMonitorTrees(const std::vector<std::string>& filenames){
+  if (!doMonitoring) return;
+  if (!isCollector) throw cms::Exception("LogicError")
+    << "[HIPAlignmentAlgorithm::collectMonitorTrees] Called in non-collector mode."
+    << std::endl;
 
-  //open the file "HIPAlignmentEvents.root" in the job directory
-  TFile *jobfile = TFile::Open(filename, "READ");
-  //grab the tree corresponding to this iteration
-  TTree *jobtree = (TTree*)jobfile->Get(treeName);
-  TTree *hittree = (TTree*)jobfile->Get(hitTreeName);
-  //address and read the variables 
-  static const int nmaxtrackperevent = 1000;
-  int jobNtracks, jobNhitspertrack[nmaxtrackperevent], jobnhPXB[nmaxtrackperevent], jobnhPXF[nmaxtrackperevent], jobnhTIB[nmaxtrackperevent], jobnhTOB[nmaxtrackperevent], jobnhTID[nmaxtrackperevent], jobnhTEC[nmaxtrackperevent];
-  float jobP[nmaxtrackperevent], jobPt[nmaxtrackperevent], jobEta[nmaxtrackperevent], jobPhi[nmaxtrackperevent];
-  float jobd0[nmaxtrackperevent], jobwt[nmaxtrackperevent], jobdz[nmaxtrackperevent], jobChi2n[nmaxtrackperevent];
-  float jobsinTheta, jobHitWt, jobangle;
-  align::ID jobDetId;
+  TString treeName=Form("T1_%i", theIteration);
+  TString hitTreeName=Form("T1_hit_%i", theIteration);
 
-  jobtree->SetBranchAddress("Ntracks", &jobNtracks);
-  jobtree->SetBranchAddress("Nhits", jobNhitspertrack);
-  jobtree->SetBranchAddress("nhPXB", jobnhPXB);
-  jobtree->SetBranchAddress("nhPXF", jobnhPXF);
-  jobtree->SetBranchAddress("nhTIB", jobnhTIB);
-  jobtree->SetBranchAddress("nhTOB", jobnhTOB);
-  jobtree->SetBranchAddress("nhTID", jobnhTID);
-  jobtree->SetBranchAddress("nhTEC", jobnhTEC);
-  jobtree->SetBranchAddress("Pt", jobPt);
-  jobtree->SetBranchAddress("P", jobP);
-  jobtree->SetBranchAddress("d0", jobd0);
-  jobtree->SetBranchAddress("dz", jobdz);
-  jobtree->SetBranchAddress("Eta", jobEta);
-  jobtree->SetBranchAddress("Phi", jobPhi);
-  jobtree->SetBranchAddress("Chi2n", jobChi2n);
-  jobtree->SetBranchAddress("wt", jobwt);
-
-  // CY: hit info
-  hittree->SetBranchAddress("sinTheta", &jobsinTheta);
-  hittree->SetBranchAddress("HitImpactAngle", &jobangle);
-  hittree->SetBranchAddress("Id", &jobDetId);
-  hittree->SetBranchAddress("wt", &jobHitWt);
-
-  int ievent = 0;
-  for (ievent=0; ievent<jobtree->GetEntries(); ++ievent){
-    jobtree->GetEntry(ievent);
-
-    //fill the collector tree with them
-
-    //  TO BE IMPLEMENTED: a prescale factor like in run()
-    m_Ntracks = jobNtracks;
-    int ntrk = 0;
-    while (ntrk<m_Ntracks){
-      if (ntrk<MAXREC){
-        totntrk = ntrk+1;
-        m_Nhits[ntrk] = jobNhitspertrack[ntrk];
-        m_Pt[ntrk] = jobPt[ntrk];
-        m_P[ntrk] = jobP[ntrk];
-        m_nhPXB[ntrk] = jobnhPXB[ntrk];
-        m_nhPXF[ntrk] = jobnhPXF[ntrk];
-        m_nhTIB[ntrk] = jobnhTIB[ntrk];
-        m_nhTOB[ntrk] = jobnhTOB[ntrk];
-        m_nhTID[ntrk] = jobnhTID[ntrk];
-        m_nhTEC[ntrk] = jobnhTEC[ntrk];
-        m_Eta[ntrk] = jobEta[ntrk];
-        m_Phi[ntrk] = jobPhi[ntrk];
-        m_Chi2n[ntrk] = jobChi2n[ntrk];
-        m_d0[ntrk] = jobd0[ntrk];
-        m_dz[ntrk] = jobdz[ntrk];
-        m_wt[ntrk] = jobwt[ntrk];
-      }//end if j<MAXREC
-      else{
-        edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm::fillEventwiseTree] Number of tracks in Eventwise tree exceeds MAXREC: "
-          << m_Ntracks << "  Skipping exceeding tracks.";
-        ntrk = m_Ntracks+1;
+  std::vector<TFile*> finputlist;
+  TList* eventtrees = new TList;
+  TList* hittrees = new TList;
+  for (std::string const& filename : filenames){
+    TFile* finput = TFile::Open(filename.c_str(), "read");
+    if (finput!=0){
+      TTree* tmptree;
+      if (theMonitorConfig.fillTrackMonitoring){
+        tmptree=0;
+        tmptree = (TTree*)finput->Get(treeName);
+        if (tmptree!=0) eventtrees->Add(tmptree);
       }
-      ++ntrk;
-    }//end while loop
-    theTree->Fill();
-  }//end loop on i - entries in the job tree
-
-  int ihit = 0;
-  for (ihit=0; ihit<hittree->GetEntries(); ++ihit){
-    hittree->GetEntry(ihit);
-    m_angle = jobangle;
-    m_sinTheta = jobsinTheta;
-    m_detId = jobDetId;
-    m_hitwt=jobHitWt;
-    hitTree->Fill();
+      if (theMonitorConfig.fillTrackHitMonitoring){
+        tmptree=0;
+        tmptree = (TTree*)finput->Get(hitTreeName);
+        if (tmptree!=0) hittrees->Add((TTree*)finput->Get(hitTreeName));
+      }
+      finputlist.push_back(finput);
+    }
   }
 
-  //clean up
-  delete jobtree;
-  delete hittree;
-  jobfile->Close();
+  if (theFile!=0){ // This should never happen
+    edm::LogError("Alignment") << "@SUB=HIPAlignmentAlgorithm::collectMonitorTrees"
+      << "Monitor file is already open while it is not supposed to be!";
+    delete theTree; theTree=0;
+    delete hitTree; hitTree=0;
+    theFile->Close();
+  }
+  theFile = TFile::Open(theMonitorConfig.outfile.c_str(), "update");
+  theFile->cd();
+  if (eventtrees->GetSize()>0) theTree = TTree::MergeTrees(eventtrees);
+  if (hittrees->GetSize()>0) hitTree = TTree::MergeTrees(hittrees);
+  // Leave it to HIPAlignmentAlgorithm::terminate to write the trees and close theFile
 
-  return totntrk;
+  delete hittrees;
+  delete eventtrees;
+  for (TFile*& finput : finputlist) finput->Close();
+
+  // Rename the trees to standard names
+  if (theTree!=0) theTree->SetName(treeName);
+  if (hitTree!=0) hitTree->SetName(hitTreeName);
 }
 
 //-----------------------------------------------------------------------------------

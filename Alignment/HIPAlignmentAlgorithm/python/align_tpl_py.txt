@@ -52,8 +52,7 @@ process.AlignmentProducer.tjTkAssociationMapTag = 'FinalTrackRefitter'
 
 # process.AlignmentProducer.hitPrescaleMapTag= 'TkAlHitAssoMapCTF' #if this is not empty, turn on the usage of prescaled hits
 process.AlignmentProducer.hitPrescaleMapTag=''
-process.AlignmentProducer.algoConfig.outpath = ''
-process.AlignmentProducer.algoConfig.uvarFile = '<PATH>/IOUserVariables.root'
+process.AlignmentProducer.algoConfig.outpath = '<PATH>/'
 
 #when etaCutRW=0, there's no eta cut and the eventWeight will apply to all hits.
 
@@ -80,8 +79,6 @@ else:
 #    process.AlignmentProducer.algoConfig.UniformEta=True
 #    process.AlignmentProducer.algoConfig.CLAngleCut=1.37
 
-process.AlignmentProducer.algoConfig.outfile =  '<PATH>/HIPAlignmentEvents.root'
-process.AlignmentProducer.algoConfig.outfile2 = '<PATH>/HIPAlignmentAlignables.root'
 process.AlignmentProducer.algoConfig.applyAPE = False
 #process.AlignmentProducer.algoConfig.applyAPE = True 
 process.AlignmentProducer.algoConfig.apeParam = cms.VPSet(
