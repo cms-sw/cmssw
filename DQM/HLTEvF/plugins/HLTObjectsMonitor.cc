@@ -602,6 +602,9 @@ void HLTObjectsMonitor::bookHistograms(DQMStore::IBooker & ibooker, edm::Run con
 
   for (auto & plot : hltPlots_) {
     
+    if ( debug_ )
+      std::cout << "booking plots for " << plot.label << std::endl;
+
     if ( plot.pathIDX <= 0 ) {
       LogDebug ("HLTObjectsMonitor") << plot.pathNAME << " is not available in the HLT menu ! no plots are going to be booked for it (update DQM/HLTEvF/python/HLTObjectsMonitor_cfi.py)";
       continue;    
