@@ -6,20 +6,23 @@ import FWCore.ParameterSet.Config as cms
 #
 # http://sviret.web.cern.ch/sviret/docs/CMS/SLHC/L1TT_XX1215.pdf
 #
-# Extension to the tilted geometry is discused here:
+# Extension to the tilted geometry is discussed here:
 #
 # https://indico.cern.ch/event/536881/contributions/2219856/
 #
+# This script is adapted to the very last Tilted Tracker geometry to date (tracker T5)
+#
+# 
 
 # Tab2013 hit matching algorithm
 TTStubAlgorithm_official_Phase2TrackerDigi_ = cms.ESProducer("TTStubAlgorithm_official_Phase2TrackerDigi_",
-   zMatchingPS = cms.bool(False),
+   zMatchingPS = cms.bool(True),
    zMatching2S = cms.bool(True),
    BarrelCut = cms.vdouble( 0, 1.5, 1.5, 2.5, 4.0, 5.0, 6.5), #Use 0 as dummy to have direct access using DetId to the correct element 
-   NTiltedRings = cms.vdouble( 0., 11., 12., 13., 0., 0., 0.), #Number of tilted rings per side in barrel layers (for tilted geom only)
+   NTiltedRings = cms.vdouble( 0., 12., 12., 12., 0., 0., 0.), #Number of tilted rings per side in barrel layers (for tilted geom only)
    TiltedBarrelCutSet = cms.VPSet(
 	cms.PSet( TiltedCut = cms.vdouble( 0 ) ),
-	cms.PSet( TiltedCut = cms.vdouble( 0, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1, 1, 1, 1, 1) ), #TBPS L1 rings
+	cms.PSet( TiltedCut = cms.vdouble( 0, 1.5,1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1, 1, 1, 1, 1) ), #TBPS L1 rings
 	cms.PSet( TiltedCut = cms.vdouble( 0, 2, 2, 2, 2, 2, 1.5, 1.5, 2, 2, 1.5, 1.5, 1.5) ), #TBPS L2 rings
 	cms.PSet( TiltedCut = cms.vdouble( 0, 2.5, 2.5, 2.5, 2.5, 2, 2, 2, 2, 2, 2, 2, 2, 1.5) ), #TBPS L3 rings
 	),
@@ -35,7 +38,7 @@ TTStubAlgorithm_official_Phase2TrackerDigi_ = cms.ESProducer("TTStubAlgorithm_of
 
 # CBC3 hit matching algorithm
 TTStubAlgorithm_cbc3_Phase2TrackerDigi_ = cms.ESProducer("TTStubAlgorithm_cbc3_Phase2TrackerDigi_",
-   zMatchingPS = cms.bool(False),
+   zMatchingPS = cms.bool(True),
    zMatching2S = cms.bool(True),
 )
 
