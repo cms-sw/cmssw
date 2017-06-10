@@ -269,3 +269,46 @@ process.AlignmentProducer.ParameterBuilder.SelectorRigid = cms.PSet(
     ),
 )
 
+process.AlignmentProducer.algoConfig.applyCutsPerComponent = cms.bool(False) # Overrides settings above for the specified detectors
+process.AlignmentProducer.algoConfig.cutsPerComponent = cms.VPSet(
+    cms.PSet(
+        Selector = cms.PSet(
+            alignParams = cms.vstring(
+                SelectorRigidAlignables
+            ), # can use "selected" for the already-specified alignables
+        ),
+        maxRelParError = cms.double(1), # -1 for no cut
+        maxHitPull = cms.double(-1), # -1 for no cut
+        minNHits = cms.int32(30),
+    ),
+    cms.PSet(
+        Selector = cms.PSet(
+            alignParams = cms.vstring(
+                SelectorBowedAlignables
+            ), # can use "selected" for the already-specified alignables
+            tecSingleSens = cms.PSet(
+                tecDetId = cms.PSet(ringRanges = cms.vint32(1,4))
+            ),
+        ),
+        maxRelParError = cms.double(1), # -1 for no cut
+        maxHitPull = cms.double(-1), # -1 for no cut
+        minNHits = cms.int32(30),
+    ),
+    cms.PSet(
+        Selector = cms.PSet(
+            alignParams = cms.vstring(
+                SelectorTwoBowedAlignables
+            ), # can use "selected" for the already-specified alignables
+            tecDoubleSens = cms.PSet(
+                tecDetId = cms.PSet(
+                    ringRanges = cms.vint32(5,7)
+                )
+            ),
+        ),
+        maxRelParError = cms.double(1), # -1 for no cut
+        maxHitPull = cms.double(-1), # -1 for no cut
+        minNHits = cms.int32(30),
+    ),
+)
+
+
