@@ -302,7 +302,17 @@ def getSequence(process, collection,
         modules.append(getattr(process, src))
 
     moduleSum = process.offlineBeamSpot        # first element of the sequence
-    for module in modules: moduleSum += module # append the other modules
+    for module in modules:
+        # Spply srcConstr fix here
+        if hasattr(module,"srcConstr"):
+           strSrcConstr = module.srcConstr.getModuleLabel()
+           if strSrcConstr:
+               procsrcconstr = getattr(process,strSrcConstr)
+               if procsrcconstr.src != module.src:
+                  module.srcConstr=''
+                  module.constraint=''
+
+        moduleSum += module # append the other modules
 
     return cms.Sequence(moduleSum)
 
