@@ -9,7 +9,6 @@ HIPAlignmentAlgorithm = cms.PSet(
 
     isCollision = cms.bool(True),
     UsePreSelection = cms.bool(False),
-    eventPrescale = cms.int32(1),
 
     multiIOV=cms.bool(False),
     IOVrange=cms.vuint32(1,99999999),
@@ -60,10 +59,10 @@ HIPAlignmentAlgorithm = cms.PSet(
     setScanDet = cms.vdouble(0,0,0), # detector ID (1=all det), start,step
 
     # File paths and names
+    outpath = cms.string('./'),
     collectorActive = cms.bool(False),
     collectorNJobs = cms.int32(0),
     collectorPath = cms.string(''),
-    outpath = cms.string('./'),
     uvarFile = cms.string('IOUserVariables.root'),
     alignedFile = cms.string('IOAlignedPositions.root'),
     misalignedFile = cms.string('IOMisalignedPositions.root'),
@@ -72,8 +71,13 @@ HIPAlignmentAlgorithm = cms.PSet(
     iterationFile = cms.string('IOIteration.root'),
     outfile2 = cms.string('HIPAlignmentAlignables.root'),
 
-    fillTrackMonitoring = cms.untracked.bool(False),
-    outfile = cms.string('HIPAlignmentEvents.root'),
+    monitorConfig = cms.PSet(
+        outfile = cms.string('HIPAlignmentEvents.root'),
+        fillTrackMonitoring = cms.bool(False),
+        maxEventsPerJob = cms.int32(100),
+        fillTrackHitMonitoring = cms.bool(False),
+        maxHits = cms.int32(10000), # Not per track, just total
+    ),
 
     surveyResiduals = cms.untracked.vstring(), ## no survey constraint
     surveyFile = cms.string('HIPSurveyResiduals.root'),
