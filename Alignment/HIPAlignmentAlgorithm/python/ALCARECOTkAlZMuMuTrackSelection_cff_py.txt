@@ -39,8 +39,12 @@ process.TrackRefitterSequence = TrackRefitterSequencer.getSequence(
   )
 
 # Override TrackRefitterSequencer defaults
+process.HighPurityTrackSelector.pMin   = 0.0
 process.AlignmentTrackSelector.pMin    = 0.0
 process.AlignmentTrackSelector.ptMin   = 15.0
+process.AlignmentTrackSelector.etaMin  = -3.0
+process.AlignmentTrackSelector.etaMax  = 3.0
+process.AlignmentTrackSelector.minHitsPerSubDet.inPIXEL = cms.int32(1)
 process.AlignmentTrackSelector.TwoBodyDecaySelector.daughterMass = 0.105658
 process.AlignmentTrackSelector.TwoBodyDecaySelector.minXMass = 80.0
 process.AlignmentTrackSelector.TwoBodyDecaySelector.maxXMass = 100.0

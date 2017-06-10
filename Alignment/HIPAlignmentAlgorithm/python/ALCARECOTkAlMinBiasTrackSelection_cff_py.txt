@@ -51,5 +51,9 @@ if strTBDConstrainer is not None:
     process.AlignmentTrackSelector.TwoBodyDecaySelector.minXMass = 80.0
     process.AlignmentTrackSelector.TwoBodyDecaySelector.maxXMass = 100.0
 
-
+# OVerride some settings in track selection
+process.HighPurityTrackSelector.pMin   = 0.
+process.AlignmentTrackSelector.etaMin  = -999.
+process.AlignmentTrackSelector.etaMax  = 999.
+process.AlignmentTrackSelector.minHitsPerSubDet.inPIXEL = cms.int32(1)
 
