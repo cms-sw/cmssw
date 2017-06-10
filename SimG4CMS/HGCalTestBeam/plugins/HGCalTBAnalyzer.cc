@@ -118,7 +118,7 @@ private:
 
   std::vector<float>                        hgcPassiveEEEnergy, hgcPassiveFHEnergy, hgcPassiveBHEnergy;
   std::vector<std::string>                  hgcPassiveEEName, hgcPassiveFHName, hgcPassiveBHName;
-  std::vector<Int_t>                        hgcPassiveEEID, hgcPassiveFHID, hgcPassiveBHID;
+  std::vector<int>                          hgcPassiveEEID, hgcPassiveFHID, hgcPassiveBHID;
 
   double                                    xBeam, yBeam, zBeam, pBeam;
 };
