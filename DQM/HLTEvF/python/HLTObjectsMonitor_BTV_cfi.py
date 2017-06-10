@@ -82,7 +82,7 @@ btvObjects = cms.VPSet(
        cms.PSet(
            pathNAME = cms.string("HLT_DoubleJets30_Mu12_DoubleBTagCSV_0p92_DoublePFJets62MaxDeta1p6"),
            moduleNAME = cms.string("hltBTagCalo30x8CSVp0p92DoubleWithMatching"),
-           label  = cms.string("CALO b-jet (double w/ muon)"),
+           label  = cms.string("CALO b-jet (double w muon)"),
            xTITLE = cms.string("CALO b-jet"),
            etaBINNING    = cms.vdouble(-2.5,-2.0,-1.5,-1.0,-0.5,0.,0.5,1.0,1.5,2.0,2.5),
            ptBINNING     = cms.vdouble(0.,50.,60.,70.,80.,90.,100.,110.,120.,130.,140.,150.,160.,170.,180.,190.,200.,250.,300.,400.,500.),
@@ -121,7 +121,8 @@ btvObjects = cms.VPSet(
        cms.PSet(
            pathNAME = cms.string("HLT_DoubleJets30_Mu12_SingleBTagCSV_0p92_DoublePFJets200"),
            moduleNAME = cms.string("hltBTagCalo30x8CSVp0p92SingleWithMatching"),
-           label  = cms.string("CALO b-jet (single w/ muon)"),
+#           label  = cms.string("CALO b-jet (single w/ muon)"),
+           label  = cms.string("CALO b-jet (single w muon)"),
            xTITLE = cms.string("CALO b-jet"),
            etaBINNING    = cms.vdouble(-2.5,-2.0,-1.5,-1.0,-0.5,0.,0.5,1.0,1.5,2.0,2.5),
            ptBINNING     = cms.vdouble(0.,50.,60.,70.,80.,90.,100.,110.,120.,130.,140.,150.,160.,170.,180.,190.,200.,250.,300.,400.,500.),
