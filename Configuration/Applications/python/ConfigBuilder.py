@@ -417,11 +417,14 @@ class ConfigBuilder(object):
 			   if len(line)<2:
 				   print 'Issue to load LHE files, please check and try again.'
 				   sys.exit(-1)
+			   #Additional check to protect empty fileNames in process.source
+			   if len(self.process.source.fileNames)==0:
+				   print 'Issue with empty filename, but can pass line check'
+				   sys.exit(-1)
 			   if len(args)>2:
 				   self.process.source.skipEvents = cms.untracked.uint32(int(args[2]))
 		   else:
 			   filesFromOption(self)
-
 		   
 	   elif self._options.filetype == "DQM":
 		   self.process.source=cms.Source("DQMRootSource",
