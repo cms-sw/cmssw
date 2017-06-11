@@ -88,6 +88,7 @@ HIPAlignmentAlgorithm::HIPAlignmentAlgorithm(
   theIOVrangeSet = cfg.getParameter<std::vector<unsigned> >("IOVrange");
 
   defaultAlignableSpecs.minNHits = cfg.getParameter<int>("minimumNumberOfHits");;
+  defaultAlignableSpecs.minRelParError = cfg.getParameter<double>("minRelParameterError");
   defaultAlignableSpecs.maxRelParError = cfg.getParameter<double>("maxRelParameterError");
   defaultAlignableSpecs.maxHitPull = cfg.getParameter<double>("maxAllowedHitPull");
   theApplyCutsPerComponent = cfg.getParameter<bool>("applyCutsPerComponent");
@@ -227,11 +228,13 @@ void HIPAlignmentAlgorithm::initialize(
           alignables = selector.selectedAlignables();
         }
 
+        double minRelParError = setiter->getParameter<double>("minRelParError");
         double maxRelParError = setiter->getParameter<double>("maxRelParError");
         double maxHitPull = setiter->getParameter<double>("maxHitPull");
         int minNHits = setiter->getParameter<int>("minNHits");
         for (auto& ali : alignables){
           HIPAlignableSpecificParameters alispecs(ali);
+          alispecs.minRelParError = minRelParError;
           alispecs.maxRelParError = maxRelParError;
           alispecs.maxHitPull = maxHitPull;
           alispecs.minNHits = minNHits;
@@ -241,6 +244,7 @@ void HIPAlignmentAlgorithm::initialize(
             << "@SUB=HIPAlignmentAlgorithm::initialize"
             << "Alignment specifics acquired for detector " << alispecs.id() << " / " << alispecs.objId()
             << ":\n"
+            << " - minRelParError = " << alispecs.minRelParError << "\n"
             << " - maxRelParError = " << alispecs.maxRelParError << "\n"
             << " - maxHitPull = " << alispecs.maxHitPull << "\n"
             << " - minNHits = " << alispecs.minNHits;
@@ -1205,15 +1209,17 @@ bool HIPAlignmentAlgorithm::calcParameters(Alignable* ali, int setDet, double st
     params = -(jtvjinv * jtve);
     cov = jtvjinv;
 
+    double minRelErrThreshold = (!theApplyCutsPerComponent ? defaultAlignableSpecs.minRelParError : alispecifics->minRelParError);
     double maxRelErrThreshold = (!theApplyCutsPerComponent ? defaultAlignableSpecs.maxRelParError : alispecifics->maxRelParError);
     for (int i=0; i<npar; i++){
       double relerr=0;
       if (fabs(cov[i][i])>0.) paramerr[i] = sqrt(fabs(cov[i][i]));
       else paramerr[i] = params[i];
       if (params[i]!=0.) relerr = fabs(paramerr[i]/params[i]);
-      if (maxRelErrThreshold>=0. && relerr>maxRelErrThreshold){
+      if ((maxRelErrThreshold>=0. && relerr>maxRelErrThreshold) || relerr<minRelErrThreshold){
         edm::LogWarning("Alignment")
-          << "@SUB=HIPAlignmentAlgorithm::calcParameters" << "RelError = " << relerr << " >= " << maxRelErrThreshold
+          << "@SUB=HIPAlignmentAlgorithm::calcParameters" << "RelError = " << relerr
+          << " > " << maxRelErrThreshold << " or < " << minRelErrThreshold
           << ". Setting param = paramerr = 0 for component " << i;
         params[i]=0;
         paramerr[i]=0;

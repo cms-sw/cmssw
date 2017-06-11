@@ -13,6 +13,7 @@ HIPAlignmentAlgorithm = cms.PSet(
     multiIOV=cms.bool(False),
     IOVrange=cms.vuint32(1,99999999),
 
+    minRelParameterError = cms.double(0),
     maxRelParameterError = cms.double(-1), # -1 for no cut
     minimumNumberOfHits = cms.int32(1),
     maxAllowedHitPull = cms.double(-1), # -1 for no cut
@@ -25,6 +26,7 @@ HIPAlignmentAlgorithm = cms.PSet(
                     "AllAlignables,000000" # Obligatory second string
                 ) # can use "selected" for the already-specified alignables
             ),
+            minRelParError = cms.double(0),
             maxRelParError = cms.double(-1), # -1 for no cut
             maxHitPull = cms.double(-1), # -1 for no cut
             minNHits = cms.int32(0),
