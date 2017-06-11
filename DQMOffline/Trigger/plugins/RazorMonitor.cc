@@ -318,7 +318,7 @@ void RazorMonitor::fillDescriptions(edm::ConfigurationDescriptions & description
 
   desc.add<edm::InputTag>( "met",      edm::InputTag("pfMet") );
   desc.add<edm::InputTag>( "jets",     edm::InputTag("ak4PFJetsCHS") );
-  desc.add<edm::InputTag>("hemispheres",edm::InputTag("hemispheres"))->setComment("hemisphere jets used to compute razor variables");
+  desc.add<edm::InputTag>("hemispheres",edm::InputTag("hemispheresDQM"))->setComment("hemisphere jets used to compute razor variables");
   desc.add<std::string>("metSelection", "pt > 0");
 
   // from 2016 offline selection

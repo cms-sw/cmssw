@@ -2,7 +2,7 @@
 
 import FWCore.ParameterSet.Config as cms
 
-hemispheres = cms.EDFilter(
+hemispheresDQM = cms.EDFilter(
     "HLTRHemisphere",
     inputTag = cms.InputTag("ak4PFJetsCHS"),
     minJetPt = cms.double(40),
@@ -10,7 +10,7 @@ hemispheres = cms.EDFilter(
     maxNJ = cms.int32(9)
 )
 
-caloHemispheres = cms.EDFilter(
+caloHemispheresDQM = cms.EDFilter(
     "HLTRHemisphere",
     inputTag = cms.InputTag("ak4CaloJets"),
     minJetPt = cms.double(30),
@@ -18,6 +18,6 @@ caloHemispheres = cms.EDFilter(
     maxNJ = cms.int32(9)
 )
 
-hemisphereSequence = cms.Sequence(hemispheres)
+hemisphereDQMSequence = cms.Sequence(hemispheresDQM)
 
-caloHemisphereSequence = cms.Sequence(caloHemispheres)
+caloHemisphereDQMSequence = cms.Sequence(caloHemispheresDQM)
