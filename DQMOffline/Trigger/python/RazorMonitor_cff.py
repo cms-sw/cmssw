@@ -45,8 +45,8 @@ RsqMR320_Rsq0p09_MR200_4jet_RazorMonitoring.numGenericTriggerEventPSet.hltPaths 
 
 
 susyHLTRazorMonitoring = cms.Sequence(
-        cms.ignore(hemispheres)+ #for razor triggers
-        cms.ignore(caloHemispheres)+ #for razor triggers
+        cms.ignore(hemispheresDQM)+ #for razor triggers
+        cms.ignore(caloHemispheresDQM)+ #for razor triggers
         Rsq0p25_RazorMonitoring+
         Rsq0p30_RazorMonitoring+
         RsqMR270_Rsq0p09_MR200_RazorMonitoring+
