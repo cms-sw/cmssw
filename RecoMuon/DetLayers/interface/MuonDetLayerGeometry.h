@@ -52,11 +52,6 @@ class MuonDetLayerGeometry : public DetLayerGeometry{
   /// return the backward (-Z) GEM DetLayers, inside-out
   const std::vector<const DetLayer*>& backwardGEMLayers() const;
 
-  /// return the forward (+Z) GEM SuperChambers, inside-out
-  const std::vector<const DetLayer*>& forwardGEMSuperChambers() const;
-
-  /// return the backward (-Z) GEM SuperChambers, inside-out
-  const std::vector<const DetLayer*>& backwardGEMSuperChambers() const;
 //////////////////////////////
 
 
@@ -179,8 +174,6 @@ class MuonDetLayerGeometry : public DetLayerGeometry{
   std::vector<const DetLayer*> gemLayers_fw;
   std::vector<const DetLayer*> gemLayers_bk;
   std::vector<const DetLayer*> gemLayers_all;
-  std::vector<const DetLayer*> gemSuperChambers_fw;
-  std::vector<const DetLayer*> gemSuperChambers_bk;
 
 /////////////////////////////// ME0s
 
