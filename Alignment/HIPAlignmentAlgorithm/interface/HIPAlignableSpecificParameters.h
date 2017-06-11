@@ -13,6 +13,7 @@ protected:
 public:
   // These are the actual parameters
   int minNHits;
+  double minRelParError;
   double maxRelParError;
   double maxHitPull;
 
