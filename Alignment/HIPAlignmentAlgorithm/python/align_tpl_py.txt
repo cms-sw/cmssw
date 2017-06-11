@@ -23,20 +23,23 @@ if "genericcpe" in strflagoptslower:
 ###############################################################################
 
 
+sourceFileList=[
+  <FILE>
+]
 if strflaglower == "cosmics":
   process.source = cms.Source("PoolSource",
                               #useCSA08Kludge = cms.untracked.bool(True),
-                              fileNames = cms.untracked.vstring(<FILE>)
+                              fileNames = cms.untracked.vstring(sourceFileList)
                               )
 elif strflaglower == "cdcs":
   process.source = cms.Source("PoolSource",
                               #useCSA08Kludge = cms.untracked.bool(True),
-                              fileNames = cms.untracked.vstring(<FILE>)
+                              fileNames = cms.untracked.vstring(sourceFileList)
                               )
 else:
   process.source = cms.Source("PoolSource",
                               #useCSA08Kludge = cms.untracked.bool(True),
-                              fileNames = cms.untracked.vstring(<FILE>)
+                              fileNames = cms.untracked.vstring(sourceFileList)
                               )
 
 #import FWCore.PythonUtilities.LumiList as LumiList

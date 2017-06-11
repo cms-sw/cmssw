@@ -442,18 +442,20 @@ void HIPAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup){
   }
 
   // Survey tree
-  if (theLevels.size()>0){
+  if (theLevels.size()>0 && theFile3!=0){
     theFile3->cd();
-    theTree3->Write();
+    if (theTree3!=0) theTree3->Write();
     delete theTree3;
     theTree3=0;
     theFile3->Close();
   }
 
   // Alignable-wise tree is only filled once at iteration 1
-  if (theIteration==1){
-    theFile2->cd();
-    theTree2->Write();
+  if (theFile2!=0){
+    if (theIteration==1){
+      theFile2->cd();
+      if (theTree2!=0) theTree2->Write();
+    }
     delete theTree2;
     theTree2=0;
     theFile2->Close();
