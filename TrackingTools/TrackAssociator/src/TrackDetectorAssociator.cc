@@ -808,7 +808,7 @@ void TrackDetectorAssociator::fillMuon( const edm::Event& iEvent,
 	else {
 	  // GEM Chamber
 	  if (parameters.useGEM){
-	    if (const GEMEtaPartition* chamber = dynamic_cast<const GEMEtaPartition*>(geomDet) ) {	 
+	    if (const GEMSuperChamber* chamber = dynamic_cast<const GEMSuperChamber*>(geomDet) ) {	 
 	      // Get the range for the corresponding segments
 	      GEMSegmentCollection::range  range = gemSegments->get(chamber->id());
 	      // Loop over the segments
