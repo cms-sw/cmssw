@@ -1,3 +1,12 @@
+// -----------------------------
+//
+// Offline DQM for razor triggers. The razor inclusive analysis measures trigger efficiency
+// in SingleElectron events (orthogonal to analysis), as a 2D function of the razor variables
+// M_R and R^2. Also monitor dPhi_R, used offline for  QCD and/or detector-related MET tail
+// rejection.
+// Based on DQMOffline/Trigger/plugins/METMonitor.*
+//
+// ----------------------------- 
 #ifndef RAZORMONITOR_H
 #define RAZORMONITOR_H
 
@@ -57,7 +66,6 @@ public:
   RazorMonitor( const edm::ParameterSet& );
   ~RazorMonitor();
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  static void fillHistoPSetDescription(edm::ParameterSetDescription & pset);
   static void fillHistoLSPSetDescription(edm::ParameterSetDescription & pset);
 
   static double CalcMR(TLorentzVector ja,TLorentzVector jb);
@@ -76,7 +84,6 @@ protected:
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
 
 private:
-  static MEbinning getHistoPSet    (edm::ParameterSet pset);
   static MEbinning getHistoLSPSet  (edm::ParameterSet pset);
 
   std::string folderName_;

@@ -1,3 +1,5 @@
+# for Razor trigger monitoring
+
 import FWCore.ParameterSet.Config as cms
 
 hemispheres = cms.EDFilter(
