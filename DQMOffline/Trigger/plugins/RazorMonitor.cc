@@ -206,7 +206,7 @@ void RazorMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSet
   reco::PFMET pfmet = metHandle->front();
   if ( ! metSelection_( pfmet ) ) return;
 
-  `//jet collection, track # of jets for two working points
+  //jet collection, track # of jets for two working points
   edm::Handle<reco::PFJetCollection> jetHandle;
   iEvent.getByToken( jetToken_, jetHandle );
   std::vector<reco::PFJet> jets;
