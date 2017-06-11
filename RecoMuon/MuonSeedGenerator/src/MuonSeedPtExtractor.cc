@@ -2,7 +2,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
-#include "DataFormats/MuonDetId/interface/GEMDetId.h"
 #include "DataFormats/MuonDetId/interface/ME0DetId.h"
 
 #include "TMath.h"
@@ -253,14 +252,6 @@ std::vector<double> MuonSeedPtExtractor::pT_extract(MuonTransientTrackingRecHit:
       os << cscId.station() << ring;
       combination = "SME_"+os.str();
     }
-    else if(innerHit->isGEM())
-    {
-      GEMDetId gemId(detId_inner);
-      std::ostringstream os;
-      int ring = gemId.ring();
-      os << gemId.station() << ring;
-      combination = "SME_"+os.str();
-    }
     else if(innerHit->isME0())
     {
       ME0DetId me0Id(detId_inner);
@@ -390,13 +381,6 @@ int MuonSeedPtExtractor::stationCode(MuonTransientTrackingRecHit::ConstMuonRecHi
     result = cscID.station();
     if(result == 1 && (1 == cscID.ring() ||  4 == cscID.ring()) )
        result = 0;
-  }
-  else if( hit->isGEM() ){
-    GEMDetId gemID(detId);
-    //std::cout<<"first (GEM) E/S/R/C = "<<gemID.endcap()<<"/"<<gemID.station()<<"/"<<gemID.ring()<<"/"<<gemID.chamber()<<std::endl;
-    result = gemID.station();
-    if (result == 1)
-      result = 0;     
   }
   else if( hit->isME0() ){
     result = 0;

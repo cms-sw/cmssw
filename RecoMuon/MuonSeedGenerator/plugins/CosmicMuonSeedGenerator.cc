@@ -78,7 +78,8 @@ CosmicMuonSeedGenerator::CosmicMuonSeedGenerator(const edm::ParameterSet& pset){
 
   edm::ConsumesCollector iC = consumesCollector();
   muonMeasurements = new MuonDetLayerMeasurements(theDTRecSegmentLabel,theCSCRecSegmentLabel,
-						  InputTag(),InputTag(),InputTag(),InputTag(),iC,
+
+						  InputTag(),InputTag(),InputTag(),iC,
 						  theEnableDTFlag,theEnableCSCFlag,false,false,false);
 
 
