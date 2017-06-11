@@ -25,8 +25,7 @@ protected:
   /// the name of the CSC rec hits collection
   edm::InputTag theCSCRecSegmentLabel;
 
-  edm::InputTag theGEMRecSegmentLabel;
-  edm::InputTag theGEMRecHitLabel;
+  /// the name of the ME0 rec hits collection
   edm::InputTag theME0RecSegmentLabel;
   
   ///Enable the DT measurement
@@ -35,7 +34,7 @@ protected:
   ///Enable the CSC measurement
   bool enableCSCMeasurement;
 
-  bool enableGEMMeasurement;
+  ///Enable the ME0 measurement
   bool enableME0Measurement;
 
 };

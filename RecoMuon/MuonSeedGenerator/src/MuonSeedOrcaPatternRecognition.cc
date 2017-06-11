@@ -15,6 +15,7 @@
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2D.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4D.h"
+#include "DataFormats/GEMRecHit/interface/ME0SegmentCollection.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -36,13 +37,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-// GEM
-#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
-#include "Geometry/GEMGeometry/interface/GEMEtaPartition.h"
-#include "DataFormats/MuonDetId/interface/GEMDetId.h"
-#include "DataFormats/GEMRecHit/interface/GEMSegmentCollection.h"
-#include "DataFormats/GEMRecHit/interface/ME0SegmentCollection.h"
-
 // C++
 #include <vector>
 
@@ -61,9 +55,9 @@ theDeltaCrackWindow(pset.existsAs<double>("deltaEtaCrackSearchWindow") ? pset.ge
 {
 
   muonMeasurements = new MuonDetLayerMeasurements (theDTRecSegmentLabel.label(),theCSCRecSegmentLabel,edm::InputTag(),
-						   theGEMRecSegmentLabel,theGEMRecHitLabel,theME0RecSegmentLabel,
+						   edm::InputTag(),theME0RecSegmentLabel,
 						   iC,
-						   enableDTMeasurement,enableCSCMeasurement,false,enableGEMMeasurement,enableME0Measurement);
+						   enableDTMeasurement,enableCSCMeasurement,false,false,enableME0Measurement);
 }
 
 
@@ -75,7 +69,7 @@ void MuonSeedOrcaPatternRecognition::produce(const edm::Event& event, const edm:
   // divide the RecHits by DetLayer, in order to fill the
   // RecHitContainer like it was in ORCA
   
-  // Muon Geometry - DT, CSC and RPC 
+  // Muon Geometry - DT, CSC, RPC and ME0
   edm::ESHandle<MuonDetLayerGeometry> muonLayers;
   eSetup.get<MuonRecoGeometryRecord>().get(muonLayers);
 
@@ -85,10 +79,6 @@ void MuonSeedOrcaPatternRecognition::produce(const edm::Event& event, const edm:
   // get the CSC layers
   vector<const DetLayer*> cscForwardLayers = muonLayers->forwardCSCLayers();
   vector<const DetLayer*> cscBackwardLayers = muonLayers->backwardCSCLayers();
-  
-  // get the GEM layers
-  vector<const DetLayer*> gemForwardLayers = muonLayers->forwardGEMLayers();
-  vector<const DetLayer*> gemBackwardLayers = muonLayers->backwardGEMLayers();
   
   // get the ME0 layers
   vector<const DetLayer*> me0ForwardLayers = muonLayers->forwardME0Layers();
@@ -135,25 +125,7 @@ void MuonSeedOrcaPatternRecognition::produce(const edm::Event& event, const edm:
   bool* MB2 = zero(list7.size());
   bool* MB3 = zero(list6.size());
 
-  MuonRecHitContainer muRH_GE11Fwd, muRH_GE21Fwd, muRH_GE11Bwd, muRH_GE21Bwd, muRH_ME0Fwd, muRH_ME0Bwd;
-
-  // MuonGEMDetLayerGeometryBuilder makes 4 layers, 2 chambers for GE11 and 2 chambers for GE21
-  if (gemForwardLayers.size()){// Forward (z>0) EndCap disk
-    const DetLayer* GE11Fwd = gemForwardLayers[0];
-    muRH_GE11Fwd = filterSegments(muonMeasurements->recHits(GE11Fwd,event), endcapdThetaCut);
-    if (gemForwardLayers.size() > 2){
-      const DetLayer* GE21Fwd = gemForwardLayers[2];
-      muRH_GE21Fwd = filterSegments(muonMeasurements->recHits(GE21Fwd,event), endcapdThetaCut);      
-    }
-  }
-  if (gemBackwardLayers.size()){// Backward (z<0) EndCap disk
-    const DetLayer* GE11Bwd = gemBackwardLayers[0];
-    muRH_GE11Bwd = filterSegments(muonMeasurements->recHits(GE11Bwd,event), endcapdThetaCut);
-    if (gemBackwardLayers.size() > 2){
-      const DetLayer* GE21Bwd = gemBackwardLayers[2];
-      muRH_GE21Bwd = filterSegments(muonMeasurements->recHits(GE21Bwd,event), endcapdThetaCut);      
-    }
-  }
+  MuonRecHitContainer muRH_ME0Fwd, muRH_ME0Bwd;
   
   if (me0ForwardLayers.size()){// Forward (z>0) EndCap disk
     const DetLayer* ME0Fwd = me0ForwardLayers[0];
@@ -164,14 +136,11 @@ void MuonSeedOrcaPatternRecognition::produce(const edm::Event& event, const edm:
     muRH_ME0Bwd = filterSegments(muonMeasurements->recHits(ME0Bwd,event), endcapdThetaCut);
   }
   
-  
   endcapPatterns(filterSegments(muonMeasurements->recHits(ME11Bwd,event), endcapdThetaCut),
 		 filterSegments(muonMeasurements->recHits(ME12Bwd,event), endcapdThetaCut),
 		 filterSegments(muonMeasurements->recHits(ME2Bwd,event), endcapdThetaCut),
 		 filterSegments(muonMeasurements->recHits(ME3Bwd,event), endcapdThetaCut),
 		 filterSegments(muonMeasurements->recHits(ME4Bwd,event), endcapdThetaCut),
-		 muRH_GE21Bwd,
-		 muRH_GE11Bwd,
 		 muRH_ME0Bwd,
 		 list8, list7, list6,
 		 MB1, MB2, MB3, result);
@@ -181,8 +150,6 @@ void MuonSeedOrcaPatternRecognition::produce(const edm::Event& event, const edm:
 		 filterSegments(muonMeasurements->recHits(ME2Fwd,event), endcapdThetaCut),
 		 filterSegments(muonMeasurements->recHits(ME3Fwd,event), endcapdThetaCut),
 		 filterSegments(muonMeasurements->recHits(ME4Fwd,event), endcapdThetaCut),
-		 muRH_GE21Fwd,
-		 muRH_GE11Fwd,
 		 muRH_ME0Fwd,
 		 list8, list7, list6,
 		 MB1, MB2, MB3, result);
@@ -278,42 +245,17 @@ void MuonSeedOrcaPatternRecognition::produce(const edm::Event& event, const edm:
     all.reserve(all.size()+tmp.size());
     copy(tmp.begin(),tmp.end(),back_inserter(all));
 
-    if (gemBackwardLayers.size()){
-      if (gemBackwardLayers.size() > 2){
-	const DetLayer* GE21Bwd = gemBackwardLayers[2];
-	tmp = filterSegments(muonMeasurements->recHits(GE21Bwd,event), endcapdThetaCut);
-	all.reserve(all.size()+tmp.size());
-	copy(tmp.begin(),tmp.end(),back_inserter(all));
-      }
-      const DetLayer* GE11Bwd = gemBackwardLayers[0];
-      tmp = filterSegments(muonMeasurements->recHits(GE11Bwd,event), endcapdThetaCut);
-      all.reserve(all.size()+tmp.size());
-      copy(tmp.begin(),tmp.end(),back_inserter(all));
-    }
     if (me0BackwardLayers.size()){
       const DetLayer* ME0Bwd = me0BackwardLayers[0];
       tmp = filterSegments(muonMeasurements->recHits(ME0Bwd,event), endcapdThetaCut);
       all.reserve(all.size()+tmp.size());
       copy(tmp.begin(),tmp.end(),back_inserter(all));
     }
-
     if (me0ForwardLayers.size()){
       const DetLayer* ME0Fwd = me0ForwardLayers[0];
       tmp = filterSegments(muonMeasurements->recHits(ME0Fwd,event), endcapdThetaCut);
       all.reserve(all.size()+tmp.size());
       copy(tmp.begin(),tmp.end(),back_inserter(all));
-    }
-    if (gemForwardLayers.size()){
-      const DetLayer* GE11Fwd = gemForwardLayers[0];
-      tmp = filterSegments(muonMeasurements->recHits(GE11Fwd,event), endcapdThetaCut);
-      all.reserve(all.size()+tmp.size());
-      copy(tmp.begin(),tmp.end(),back_inserter(all));
-      if (gemForwardLayers.size() > 2){
-	const DetLayer* GE21Fwd = gemForwardLayers[2];
-	tmp = filterSegments(muonMeasurements->recHits(GE21Fwd,event), endcapdThetaCut);
-	all.reserve(all.size()+tmp.size());
-	copy(tmp.begin(),tmp.end(),back_inserter(all));
-      }
     }
     
     tmp = filterSegments(muonMeasurements->recHits(ME11Fwd,event), endcapdThetaCut);
@@ -379,8 +321,7 @@ bool * MuonSeedOrcaPatternRecognition::zero(unsigned listSize)
 void MuonSeedOrcaPatternRecognition::endcapPatterns(
   const MuonRecHitContainer & me11, const MuonRecHitContainer & me12,
   const MuonRecHitContainer & me2,  const MuonRecHitContainer & me3,
-  const MuonRecHitContainer & me4,  const MuonRecHitContainer & ge21,
-  const MuonRecHitContainer & ge11, const MuonRecHitContainer & me0,
+  const MuonRecHitContainer & me4,  const MuonRecHitContainer & me0,
   const MuonRecHitContainer & mb1,  const MuonRecHitContainer & mb2,  const  MuonRecHitContainer & mb3,
   bool * MB1, bool * MB2, bool * MB3,
   std::vector<MuonRecHitContainer> & result)
@@ -390,8 +331,6 @@ void MuonSeedOrcaPatternRecognition::endcapPatterns(
   dumpLayer("ME2 ", me2);
   dumpLayer("ME12 ", me12);
   dumpLayer("ME11 ", me11);
-  dumpLayer("GE21 ", ge21);
-  dumpLayer("GE11 ", ge11);
   dumpLayer("ME0 ", me0);
 
 
@@ -410,15 +349,11 @@ void MuonSeedOrcaPatternRecognition::endcapPatterns(
   MuonRecHitContainer list23 = me3;
 
   MuonRecHitContainer list12 = me2;
-  // add GE21 to ME2
-  list12.reserve(list12.size()+ge21.size());
-  copy(ge21.begin(),ge21.end(),back_inserter(list12));
 
   MuonRecHitContainer list22 = me12;
   MuonRecHitContainer list21 = me11;
-  // add GE11 and ME0 to ME1
-  list21.reserve(list21.size()+ge11.size()+me0.size());
-  copy(ge11.begin(),ge11.end(),back_inserter(list21));
+  // add ME0 to ME1
+  list21.reserve(list21.size()+me0.size());
   copy(me0.begin(),me0.end(),back_inserter(list21));
 
   MuonRecHitContainer list11 = list21;
@@ -774,18 +709,6 @@ MuonPatternRecoDumper theDumper;
       else 
       {
          LogTrace(metname) << "Cutting segment " << theDumper.dumpMuonId((**segmentItr).geographicalId()) << " because dtheta = " << dtheta;
-      }
-    }
-    else if((*segmentItr)->isGEM())
-    {
-      // only use segments
-      if((*segmentItr)->dimension() > 2 && fabs(dtheta) < dThetaCut)
-      {
-	result.push_back(*segmentItr);
-      }
-      else
-      {
-	LogTrace(metname) << "Cutting segment " << theDumper.dumpMuonId((**segmentItr).geographicalId()) << " because dtheta = " << dtheta;
       }
     }
     else if((*segmentItr)->isME0())
