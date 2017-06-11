@@ -67,7 +67,6 @@ CosmicMuonTrajectoryBuilder::CosmicMuonTrajectoryBuilder(const edm::ParameterSet
                                                      RPCRecSegmentLabel,
                                                      edm::InputTag(),
 						     edm::InputTag(),
-						     edm::InputTag(),
 						     iC,
 						     enableDTMeasurement,
 						     enableCSCMeasurement,

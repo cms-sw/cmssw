@@ -122,7 +122,6 @@ void MuonSeedGenerator::fillDescriptions(edm::ConfigurationDescriptions & descri
    desc.setAllowAnything();
    desc.add<bool>("EnableDTMeasurement",true);
    desc.add<bool>("EnableCSCMeasurement",true);
-   desc.add<bool>("EnableGEMMeasurement",false);
    desc.add<bool>("EnableME0Measurement",false);
    descriptions.add("produceMuons", desc);
 }
