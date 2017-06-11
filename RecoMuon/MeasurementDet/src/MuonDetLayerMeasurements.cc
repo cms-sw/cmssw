@@ -6,7 +6,8 @@
  *  \modified by D. Nash to include ME0s
  *
  *  \modified by C. Calabria & A.Sharma to include GEMs
- *  \modified by J. Lee to include both GEMRecHits and GEMSegments
+ *
+ *
  */
 
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
@@ -29,7 +30,6 @@ MuonDetLayerMeasurements::MuonDetLayerMeasurements(edm::InputTag dtlabel,
 						   edm::InputTag csclabel, 
 						   edm::InputTag rpclabel,
  						   edm::InputTag gemlabel,
- 						   edm::InputTag gemRHlabel,
 						   edm::InputTag me0label,
 						   edm::ConsumesCollector& iC,
 						   bool enableDT, bool enableCSC, bool enableRPC, bool enableGEM, bool enableME0): 
@@ -41,9 +41,7 @@ MuonDetLayerMeasurements::MuonDetLayerMeasurements(edm::InputTag dtlabel,
   theDTRecHits(),
   theCSCRecHits(),
   theRPCRecHits(),
-  theGEMSegments(),
   theGEMRecHits(),
-  theME0Segments(),
   theDTEventCacheID(0),
   theCSCEventCacheID(0),
   theRPCEventCacheID(0),
@@ -55,8 +53,7 @@ MuonDetLayerMeasurements::MuonDetLayerMeasurements(edm::InputTag dtlabel,
   dtToken_ = iC.consumes<DTRecSegment4DCollection>(dtlabel);
   cscToken_ = iC.consumes<CSCSegmentCollection>(csclabel);
   rpcToken_ = iC.consumes<RPCRecHitCollection>(rpclabel);
-  gemSegToken_ = iC.consumes<GEMSegmentCollection>(gemlabel);
-  gemRHToken_ = iC.consumes<GEMRecHitCollection>(gemRHlabel);
+  gemToken_ = iC.consumes<GEMRecHitCollection>(gemlabel);
   me0Token_ = iC.consumes<ME0SegmentCollection>(me0label);
 
   static int procInstance(0);
@@ -150,38 +147,23 @@ MuonRecHitContainer MuonDetLayerMeasurements::recHits(const GeomDet* geomDet,
 
 	// Create the chamber Id
 	GEMDetId chamberId(geoId.rawId());
-	// return segments and rechits not used in segments
-	GEMSegmentCollection::range gemSegs = theGEMSegments->get(chamberId.superChamberId());
-	LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "Number of GEM rechits available =  " << theGEMSegments->size()
-							   <<", from chamber: "<< chamberId<<std::endl;
-	// Create the MuonTransientTrackingRecHit
-	for (GEMSegmentCollection::const_iterator segment = gemSegs.first;segment!=gemSegs.second; ++segment){
-	  LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "On GEM iteration " <<std::endl;
-	  result.push_back(MuonTransientTrackingRecHit::specificBuild(geomDet,&*segment));
-	}
-	// Get the GEMRecHits not used in GEMSegment	
-	GEMRecHitCollection::range gemRHs = theGEMRecHits->get(chamberId);
+
+	LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "(GEM): "<<chamberId<<std::endl;
+
+	// Get the GEM-Segment which relies on this chamber
+	GEMRecHitCollection::range range = theGEMRecHits->get(chamberId);
+
 	LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "Number of GEM rechits available =  " << theGEMRecHits->size()
 							   <<", from chamber: "<< chamberId<<std::endl;
-	for (GEMRecHitCollection::const_iterator rechit = gemRHs.first;rechit!=gemRHs.second; ++rechit){
 
-	  const GEMRecHit *gemRecHit = (&*rechit);
-	  bool isUsed = false;
-	  for (GEMSegmentCollection::const_iterator segment = gemSegs.first;segment!=gemSegs.second; ++segment){
-	    for (auto seg : segment->recHits()){
-	      const GEMRecHit * segrechit = dynamic_cast<const GEMRecHit *>(seg);
-	      if (*segrechit == *gemRecHit){
-		isUsed = true;
-	      }
-	    }
-	  }
-	  LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "On GEM iteration " <<std::endl;
-	  if (!isUsed)
-	    result.push_back(MuonTransientTrackingRecHit::specificBuild(geomDet,gemRecHit));
-	}
+	// Create the MuonTransientTrackingRecHit
+	for (GEMRecHitCollection::const_iterator rechit = range.first; 
+	     rechit!=range.second; ++rechit)
+	  result.push_back(MuonTransientTrackingRecHit::specificBuild(geomDet,&*rechit));
 	LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "Number of GEM rechits = " << result.size()<<std::endl;
       }
   }
+
   else if (geoId.subdetId()  == MuonSubdetId::ME0) {
     LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "(ME0): identified"<<std::endl;
     if(enableME0Measurement)
@@ -193,9 +175,9 @@ MuonRecHitContainer MuonDetLayerMeasurements::recHits(const GeomDet* geomDet,
     
 	// Get the ME0-Segment which relies on this chamber
 	// Getting rechits right now, not segments - maybe it should be segments?
-	ME0SegmentCollection::range range = theME0Segments->get(chamberId);
+	ME0SegmentCollection::range range = theME0RecHits->get(chamberId);
 
-	LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "Number of ME0 rechits available =  " << theME0Segments->size()
+	LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "Number of ME0 rechits available =  " << theME0RecHits->size()
 							   <<", from chamber: "<< chamberId<<std::endl;
 
 	// Create the MuonTransientTrackingRecHit
@@ -279,11 +261,10 @@ void MuonDetLayerMeasurements::checkGEMRecHits()
   if (cacheID == theGEMEventCacheID) return;
 
   {
-    theEvent->getByToken(gemSegToken_, theGEMSegments);
-    theEvent->getByToken(gemRHToken_, theGEMRecHits);
+    theEvent->getByToken(gemToken_, theGEMRecHits);
     theGEMEventCacheID = cacheID;
   }
-  if(!theGEMRecHits.isValid() && !theGEMSegments.isValid())
+  if(!theGEMRecHits.isValid())
   {
     throw cms::Exception("MuonDetLayerMeasurements") << "Cannot get GEM RecHits";
   }
@@ -297,10 +278,10 @@ void MuonDetLayerMeasurements::checkME0RecHits()
   if (cacheID == theME0EventCacheID) return;
 
   {
-    theEvent->getByToken(me0Token_, theME0Segments);
+    theEvent->getByToken(me0Token_, theME0RecHits);
     theME0EventCacheID = cacheID;
   }
-  if(!theME0Segments.isValid())
+  if(!theME0RecHits.isValid())
   {
     throw cms::Exception("MuonDetLayerMeasurements") << "Cannot get ME0 RecHits";
     LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "Cannot get ME0 RecHits";
