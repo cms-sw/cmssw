@@ -153,7 +153,7 @@ void GEMTrackMatch::buildLUT(const int maxChamberId)
       edm::LogInfo("GEMTrackMatch")<<"added id = "<<it->id()<<" = "<<it->id().rawId()<<" to pos ids"<<std::endl;
       const BoundPlane& bSurface(it->surface());
       GlobalPoint gCentre(bSurface.toGlobal(lCentre));
-      int cphi(static_cast<int>(gCentre.phi().degrees()));
+      int cphi(gCentre.phi().degrees());
       if (cphi < 0) cphi += 360;
       phis_pos.push_back(cphi);
       edm::LogInfo("GEMTrackMatch")<<"added phi = "<<cphi<<" to phi pos vector"<<std::endl;
@@ -163,7 +163,7 @@ void GEMTrackMatch::buildLUT(const int maxChamberId)
       edm::LogInfo("GEMTrackMatch")<<"added id = "<<it->id()<<" = "<<it->id().rawId()<<" to neg ids"<<std::endl;
       const BoundPlane& bSurface(it->surface());
       GlobalPoint gCentre(bSurface.toGlobal(lCentre));
-      int cphi(static_cast<int>(gCentre.phi().degrees()));
+      int cphi(gCentre.phi().degrees());
       if (cphi < 0) cphi += 360;
       phis_neg.push_back(cphi);
       edm::LogInfo("GEMTrackMatch")<<"added phi = "<<cphi<<" to phi neg vector"<<std::endl;
