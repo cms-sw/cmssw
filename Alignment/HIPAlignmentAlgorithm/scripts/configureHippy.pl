@@ -98,6 +98,7 @@ foreach $data1 ( @dataFileInput1 ) {
 
    ## setting up parallel jobs
    foreach $data ( @dataFileInput ) {
+      chomp($data);
       $jsuccess=1;
       $j++;
       # do stuff
