@@ -28,6 +28,7 @@ caloStage2Params.egTrimmingLUTFile          = cms.FileInPath("L1Trigger/L1TCalor
 caloStage2Params.egMaxHcalEt                = cms.double(0.)
 caloStage2Params.egMaxPtHOverE          = cms.double(128.)
 caloStage2Params.egMaxHOverELUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/HoverEIdentification_0.995_v15.12.23.txt")
+caloStage2Params.egBypassExtHOverE          = cms.uint32(0)
 caloStage2Params.egCompressShapesLUTFile    = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egCompressLUT_v4.txt")
 caloStage2Params.egShapeIdType              = cms.string("compressed")
 caloStage2Params.egShapeIdVersion           = cms.uint32(0)
@@ -37,6 +38,8 @@ caloStage2Params.egPUSType                  = cms.string("None")
 caloStage2Params.egIsolationType            = cms.string("compressed")
 #caloStage2Params.egIsoLUTFile               = cms.FileInPath("L1Trigger/L1TCalorimeter/data/IsoIdentification_adapt_extrap_v16.07.29.txt")
 caloStage2Params.egIsoLUTFile               = cms.FileInPath("L1Trigger/L1TCalorimeter/data/EG_Iso_LUT_04_04_2017.txt")
+caloStage2Params.egIsoLUTFile2               = cms.FileInPath("L1Trigger/L1TCalorimeter/data/IsoIdentification_adapt_extrap_FW_v16.08.08.txt")
+#caloStage2Params.egIsoLUTFile2              = cms.FileInPath("L1Trigger/L1TCalorimeter/data/EG_Iso_LUT_04_04_2017.txt")
 caloStage2Params.egIsoAreaNrTowersEta       = cms.uint32(2)
 caloStage2Params.egIsoAreaNrTowersPhi       = cms.uint32(4)
 caloStage2Params.egIsoVetoNrTowersPhi       = cms.uint32(2)
@@ -118,7 +121,7 @@ caloStage2Params.jetCalibrationLUTFile    = cms.FileInPath("L1Trigger/L1TCalorim
 # sums: 0=ET, 1=HT, 2=MET, 3=MHT
 caloStage2Params.etSumLsb                = cms.double(0.5)
 caloStage2Params.etSumEtaMin             = cms.vint32(1, 1, 1, 1, 1)
-caloStage2Params.etSumEtaMax             = cms.vint32(28,  26, 28,  28, 28)
+caloStage2Params.etSumEtaMax             = cms.vint32(28,  26, 28,  26, 28)
 caloStage2Params.etSumEtThreshold        = cms.vdouble(0.,  30.,  0.,  30., 0.) # only 2nd (HT) and 4th (MHT) values applied
 caloStage2Params.etSumMetPUSType         = cms.string("LUT") # et threshold from this LUT supercedes et threshold in line above
 caloStage2Params.etSumEttPUSType         = cms.string("None")
@@ -131,7 +134,7 @@ caloStage2Params.etSumYCalibrationType    = cms.string("None")
 caloStage2Params.etSumEttCalibrationType  = cms.string("None")
 caloStage2Params.etSumEcalSumCalibrationType = cms.string("None")
 
-caloStage2Params.etSumMetPUSLUTFile               = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_towEtThresh_2017v3.txt")
+caloStage2Params.etSumMetPUSLUTFile               = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_towEtThresh_2017v4.txt")
 caloStage2Params.etSumEttPUSLUTFile               = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_towEtThresh_dummy.txt")
 caloStage2Params.etSumEcalSumPUSLUTFile           = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_towEtThresh_dummy.txt")
 caloStage2Params.etSumXCalibrationLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_etSumPUS_dummy.txt")
@@ -203,10 +206,19 @@ caloStage2Params.layer1HCalScaleFactors = cms.vdouble([
 #  in 5 REAL ET bins (5, 20, 30, 50, Max)
 #  So, index = etBin*12+ietaHF
 caloStage2Params.layer1HFScaleETBins = cms.vint32([5, 20, 30, 50, 256])
+# Old
+# caloStage2Params.layer1HFScaleFactors = cms.vdouble([
+#     1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 
+#     1.767080, 1.767080, 1.755186, 1.769951, 1.763527, 1.791043, 1.898787, 1.982235, 2.071074, 2.193011, 2.356886, 2.403384, 
+#     2.170477, 2.170477, 2.123540, 2.019866, 1.907698, 1.963179, 1.989122, 2.035251, 2.184642, 2.436399, 2.810884, 2.923750, 
+#     1.943941, 1.943941, 1.899826, 1.813950, 1.714978, 1.736184, 1.785928, 1.834211, 1.944230, 2.153565, 2.720887, 2.749795, 
+#     1.679984, 1.679984, 1.669753, 1.601871, 1.547276, 1.577805, 1.611497, 1.670184, 1.775022, 1.937061, 2.488311, 2.618629, 
+#     ])
+# Old multiplied by 0.7 (HF energies were formerly multiplied by 0.7; this has been removed)
 caloStage2Params.layer1HFScaleFactors = cms.vdouble([
-    1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 
-    1.767080, 1.767080, 1.755186, 1.769951, 1.763527, 1.791043, 1.898787, 1.982235, 2.071074, 2.193011, 2.356886, 2.403384, 
-    2.170477, 2.170477, 2.123540, 2.019866, 1.907698, 1.963179, 1.989122, 2.035251, 2.184642, 2.436399, 2.810884, 2.923750, 
-    1.943941, 1.943941, 1.899826, 1.813950, 1.714978, 1.736184, 1.785928, 1.834211, 1.944230, 2.153565, 2.720887, 2.749795, 
-    1.679984, 1.679984, 1.669753, 1.601871, 1.547276, 1.577805, 1.611497, 1.670184, 1.775022, 1.937061, 2.488311, 2.618629, 
+    1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00,
+    1.236956, 1.236956, 1.228630, 1.238966, 1.234469, 1.253730, 1.329151, 1.387564, 1.449752, 1.535108, 1.649820, 1.682369,
+    1.519334, 1.519334, 1.486478, 1.413906, 1.335389, 1.374225, 1.392385, 1.424676, 1.529249, 1.705479, 1.967619, 2.046625,
+    1.360759, 1.360759, 1.329878, 1.269765, 1.200485, 1.215329, 1.250150, 1.283948, 1.360961, 1.507495, 1.904621, 1.924856,
+    1.175989, 1.175989, 1.168827, 1.121310, 1.083093, 1.104463, 1.128048, 1.169129, 1.242515, 1.355943, 1.741818, 1.833040,
     ])
