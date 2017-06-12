@@ -260,13 +260,10 @@ def miniAOD_customizeCommon(process):
     #---------------------------------------------------------------------------
 
     # Adding puppi jets
-    #if not hasattr(process, 'ak4PFJetsPuppi'): #MM: avoid confilct with substructure call
-    from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJets, ak4PFJetsPuppi
-    addToProcessAndTask('ak4PFJetsPuppi',ak4PFJetsPuppi.clone(), process, task)
-    addToProcessAndTask('ak4PFJets',ak4PFJets.clone(), process, task)
-    task.add(process.ak4PFJets)
-    task.add(process.ak4PFJetsPuppi)
-
+    if not hasattr(process, 'ak4PFJetsPuppi'): #MM: avoid confilct with substructure call
+        process.load('RecoJets.JetProducers.ak4PFJetsPuppi_cfi')
+        task.add(process.ak4PFJets)
+        task.add(process.ak4PFJetsPuppi)
     from RecoJets.JetAssociationProducers.j2tParametersVX_cfi import j2tParametersVX
     process.ak4PFJetsPuppiTracksAssociatorAtVertex = cms.EDProducer("JetTracksAssociatorAtVertex",
         j2tParametersVX,
