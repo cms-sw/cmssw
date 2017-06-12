@@ -1048,20 +1048,23 @@ void HIPAlignmentAlgorithm::bookRoot(void){
   }
 
   // book alignable-wise ROOT Tree
-  theFile2 = TFile::Open(outfile2.c_str(), "update");
-  theFile2->cd();
-  theTree2 = new TTree("T2", "Alignablewise tree");
-  theTree2->Branch("Id", &m2_Id, "Id/i");
-  theTree2->Branch("ObjId", &m2_ObjId, "ObjId/I");
-  theTree2->Branch("Nhit", &m2_Nhit);
-  theTree2->Branch("Type", &m2_Type);
-  theTree2->Branch("Layer", &m2_Layer);
-  theTree2->Branch("Xpos", &m2_Xpos);
-  theTree2->Branch("Ypos", &m2_Ypos);
-  theTree2->Branch("Zpos", &m2_Zpos);
-  theTree2->Branch("DeformationsType", &m2_dtype, "DeformationsType/I");
-  theTree2->Branch("NumDeformations", &m2_nsurfdef);
-  theTree2->Branch("Deformations", &m2_surfDef);
+  if (isCollector){
+    TString tname=Form("T2_%i", theIteration);
+    theAlignablesMonitorIORootFile = TFile::Open(outfile2.c_str(), "update");
+    theAlignablesMonitorIORootFile->cd();
+    theAlignablesMonitorTree = new TTree(tname, "Alignablewise tree");
+    theAlignablesMonitorTree->Branch("Id", &m2_Id, "Id/i");
+    theAlignablesMonitorTree->Branch("ObjId", &m2_ObjId, "ObjId/I");
+    theAlignablesMonitorTree->Branch("Nhit", &m2_Nhit);
+    theAlignablesMonitorTree->Branch("Type", &m2_Type);
+    theAlignablesMonitorTree->Branch("Layer", &m2_Layer);
+    theAlignablesMonitorTree->Branch("Xpos", &m2_Xpos);
+    theAlignablesMonitorTree->Branch("Ypos", &m2_Ypos);
+    theAlignablesMonitorTree->Branch("Zpos", &m2_Zpos);
+    theAlignablesMonitorTree->Branch("DeformationsType", &m2_dtype, "DeformationsType/I");
+    theAlignablesMonitorTree->Branch("NumDeformations", &m2_nsurfdef);
+    theAlignablesMonitorTree->Branch("Deformations", &m2_surfDef);
+  }
 
   // book survey-wise ROOT Tree only if survey is enabled
   if (theLevels.size()>0){
