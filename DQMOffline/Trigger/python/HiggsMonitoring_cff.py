@@ -75,6 +75,12 @@ higgsTrimumon.nmuons = cms.uint32(3)
 higgsTrimumon.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_TripleMu_12_10_5_v*") # 
 higgsTrimumon.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v*","HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v*")
 
+higgsTrimu10_5_5_dz_mon = hltHIGmonitoring.clone()
+higgsTrimu10_5_5_dz_mon.FolderName = cms.string('HLT/Higgs/TriLepton/HLT_TripleM_10_5_5_DZ/')
+higgsTrimu10_5_5_dz_mon.nmuons = cms.uint32(3)
+higgsTrimu10_5_5_dz_mon.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_TripleMu_10_5_5_DZ_v*") # 
+higgsTrimu10_5_5_dz_mon.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v*","HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v*")
+
 #######TripleElectron####
 higgsTrielemon = hltHIGmonitoring.clone()
 higgsTrielemon.FolderName = cms.string('HLT/Higgs/TriLepton/HLT_Ele16_Ele12_Ele8_CaloIdL_TrackIdL/')
@@ -145,6 +151,7 @@ mu8diEle12CaloIdLTrackIdL_dz.denGenericTriggerEventPSet.hltPaths = cms.vstring("
 higgsMonitorHLT = cms.Sequence(
  higgsTrielemon
  + higgsTrimumon
+ +  higgsTrimu10_5_5_dz_mon
  + ele23Ele12CaloIdLTrackIdLIsoVL_dzmon
  + mu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLDZ_eleleg
  + mu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLDZ_muleg
