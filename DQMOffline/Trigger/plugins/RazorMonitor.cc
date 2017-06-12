@@ -33,7 +33,6 @@ RazorMonitor::RazorMonitor( const edm::ParameterSet& iConfig ) :
   , den_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("denGenericTriggerEventPSet"),consumesCollector(), *this))
   , metSelection_ ( iConfig.getParameter<std::string>("metSelection") )
   , jetSelection_ ( iConfig.getParameter<std::string>("jetSelection") )
-  , tightJetSelection_ ( iConfig.getParameter<std::string>("tightJetSelection") )
   , njets_      ( iConfig.getParameter<int>("njets" )      )
   , rsqCut_     ( iConfig.getParameter<double>("rsqCut" )  )
   , mrCut_      ( iConfig.getParameter<double>("mrCut" )   )
@@ -43,25 +42,17 @@ RazorMonitor::RazorMonitor( const edm::ParameterSet& iConfig ) :
 
   MR_ME_.numerator = nullptr;
   MR_ME_.denominator = nullptr;
-  MR_Tight_ME_.numerator = nullptr;
-  MR_Tight_ME_.denominator = nullptr;
   MRVsLS_.numerator = nullptr;
   MRVsLS_.denominator = nullptr;
   Rsq_ME_.numerator = nullptr;
   Rsq_ME_.denominator = nullptr;
-  Rsq_Tight_ME_.numerator = nullptr;
-  Rsq_Tight_ME_.denominator = nullptr;
   RsqVsLS_.numerator = nullptr;
   RsqVsLS_.denominator = nullptr;
   dPhiR_ME_.numerator = nullptr;
   dPhiR_ME_.denominator = nullptr;
-  dPhiRVsLS_.numerator = nullptr;
-  dPhiRVsLS_.denominator = nullptr;
 
   MRVsRsq_ME_.numerator = nullptr;
   MRVsRsq_ME_.denominator = nullptr;
-  MRVsRsq_Tight_ME_.numerator = nullptr;
-  MRVsRsq_Tight_ME_.denominator = nullptr;
 
 }
 
@@ -145,11 +136,6 @@ void RazorMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   bookME(ibooker,MRVsLS_,histname,histtitle,ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax, mr_binning_.front(),mr_binning_.back());
   setMETitle(MRVsLS_,"LS","PF M_{R} [GeV]");
 
-  // 1D hist, MR, with tight jet requirement
-  histname = "MR_Tight"; histtitle = "PF MR";
-  bookME(ibooker,MR_Tight_ME_,histname,histtitle,mr_binning_);
-  setMETitle(MR_Tight_ME_,"PF M_{R} [GeV]","events / [GeV]");
-
   // 1D hist, Rsq
   histname = "Rsq"; histtitle = "PF Rsq";
   bookME(ibooker,Rsq_ME_,histname,histtitle,rsq_binning_);
@@ -160,30 +146,15 @@ void RazorMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   bookME(ibooker,RsqVsLS_,histname,histtitle,ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax, rsq_binning_.front(), rsq_binning_.back());
   setMETitle(RsqVsLS_,"LS","PF R^{2}");
 
-  // 1D hist, Rsq, with tight jet requirement
-  histname = "Rsq_Tight"; histtitle = "PF Rsq";
-  bookME(ibooker,Rsq_Tight_ME_,histname,histtitle,rsq_binning_);
-  setMETitle(Rsq_Tight_ME_,"PF R^{2}","events");
-
   // 1D hist, dPhiR
   histname = "dPhiR"; histtitle = "dPhiR";
   bookME(ibooker,dPhiR_ME_,histname,histtitle,dphiR_binning_);
   setMETitle(dPhiR_ME_,"dPhi_{R}","events");
 
-  // profile, dPhiR vs LS
-  histname = "dPhiRVsLS"; histtitle = "PF dPhiR vs LS";
-  bookME(ibooker,dPhiRVsLS_,histname,histtitle,ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax, dphiR_binning_.front(), dphiR_binning_.back());
-  setMETitle(dPhiRVsLS_,"LS","dPhi_{R}");
-
   // 2D hist, MR & Rsq
   histname = "MRVsRsq"; histtitle = "PF MR vs PF Rsq";
   bookME(ibooker,MRVsRsq_ME_,histname,histtitle,mr_binning_, rsq_binning_);
   setMETitle(MRVsRsq_ME_,"M_{R} [GeV]","R^{2}");
-
-  // 2D hist, MR & Rsq, with tight jet requirement
-  histname = "MRVsRsq_Tight"; histtitle = "PF MR vs PF Rsq";
-  bookME(ibooker,MRVsRsq_Tight_ME_,histname,histtitle,mr_binning_, rsq_binning_);
-  setMETitle(MRVsRsq_Tight_ME_,"M_{R} [GeV]","R^{2}");
 
   // Initialize the GenericTriggerEventFlag
   if ( num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on() ) num_genTriggerEventFlag_->initRun( iRun, iSetup );
@@ -210,11 +181,9 @@ void RazorMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSet
   edm::Handle<reco::PFJetCollection> jetHandle;
   iEvent.getByToken( jetToken_, jetHandle );
   std::vector<reco::PFJet> jets;
-  std::vector<reco::PFJet> tightJets;
   if ( int(jetHandle->size()) < njets_ ) return;
   for ( auto const & j : *jetHandle ) {
     if ( jetSelection_( j ) ) jets.push_back(j);
-    if ( tightJetSelection_( j ) ) tightJets.push_back(j);
   }
   if ( int(jets.size()) < njets_ ) return;
 
@@ -231,6 +200,8 @@ void RazorMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSet
     return;
   }
 
+  // should always have 2 hemispheres -- no muons included (c. 2017), if not return invalid hemisphere collection
+  // retaining check for hemisphere size 5 or 10 which correspond to the one or two muon case for possible future use
   if(hemispheres->size() != 0 && hemispheres->size() != 2 && hemispheres->size() != 5 && hemispheres->size() != 10){
     edm::LogError("DQM_HLT_Razor") << "Invalid hemisphere collection!  hemispheres->size() = " << hemispheres->size() << endl;
     return;
@@ -240,19 +211,20 @@ void RazorMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSet
   TLorentzVector ja(hemispheres->at(0).x(),hemispheres->at(0).y(),hemispheres->at(0).z(),hemispheres->at(0).t());
   TLorentzVector jb(hemispheres->at(1).x(),hemispheres->at(1).y(),hemispheres->at(1).z(),hemispheres->at(1).t());
 
-  //dummy vector (this trigger does not care about muons)
+  //dummy vector (this trigger currently doesn't use muons, 
+  //but retain for possible future use)
   std::vector<math::XYZTLorentzVector> muonVec;
 
   //calculate razor variables
   double MR = CalcMR(ja,jb);
-  double R  = CalcR(MR,ja,jb,metHandle,muonVec);
+  double R  = CalcR(MR,ja,jb,metHandle, muonVec);
   double Rsq = R*R;
   double dPhiR = abs(deltaPhi(ja.Phi(), jb.Phi()));
 
+  int ls = iEvent.id().luminosityBlock();
+
   //apply offline selection cuts
   if (Rsq<rsqCut_ && MR<mrCut_) return;
-
-  int ls = iEvent.id().luminosityBlock();
 
   // applying selection for denominator
   if (den_genTriggerEventFlag_->on() && ! den_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
@@ -269,15 +241,8 @@ void RazorMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSet
   }
 
   dPhiR_ME_.denominator -> Fill(dPhiR);
-  dPhiRVsLS_.denominator -> Fill(ls, dPhiR);
 
   MRVsRsq_ME_.denominator -> Fill(MR, Rsq);
-
-  if ( int(tightJets.size()) >= njets_ ) {
-    if (Rsq>=rsqCut_) MR_Tight_ME_.denominator -> Fill(MR);
-    if (MR>=mrCut_)   Rsq_Tight_ME_.denominator -> Fill(Rsq);
-      MRVsRsq_Tight_ME_.denominator -> Fill(MR, Rsq);
-  }
 
   // applying selection for numerator
   if (num_genTriggerEventFlag_->on() && ! num_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
@@ -294,15 +259,8 @@ void RazorMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSet
   }
 
   dPhiR_ME_.numerator -> Fill(dPhiR);
-  dPhiRVsLS_.numerator -> Fill(ls, dPhiR);
 
   MRVsRsq_ME_.numerator -> Fill(MR, Rsq);
-
-  if ( int(tightJets.size()) >= njets_ ) {
-    if (Rsq>=rsqCut_) MR_Tight_ME_.numerator -> Fill(MR);
-    if (MR>=mrCut_)   Rsq_Tight_ME_.numerator -> Fill(Rsq);
-    MRVsRsq_Tight_ME_.numerator -> Fill(MR, Rsq);
-  }
 
 }
 
@@ -323,7 +281,6 @@ void RazorMonitor::fillDescriptions(edm::ConfigurationDescriptions & description
 
   // from 2016 offline selection
   desc.add<std::string>("jetSelection", "pt > 80");
-  desc.add<std::string>("tightJetSelection", "pt > 120");
   desc.add<int>("njets",      2);
   desc.add<double>("mrCut",    300);
   desc.add<double>("rsqCut",   0.15);
@@ -404,9 +361,9 @@ double RazorMonitor::CalcR(double MR, TLorentzVector ja, TLorentzVector jb, edm:
   met.SetPtEtaPhi((inputMet->front()).pt(),0.0,(inputMet->front()).phi());
 
   std::vector<math::XYZTLorentzVector>::const_iterator muonIt;
-  for(muonIt = muons.begin(); muonIt!=muons.end(); muonIt++){
+  for (muonIt = muons.begin(); muonIt!=muons.end(); muonIt++) {
     TVector3 tmp;
-    tmp.SetPtEtaPhi(muonIt->pt(),0,muonIt->phi());
+    tmp.SetPtEtaPhi(muonIt->pt(), 0, muonIt->phi());
     met-=tmp;
   }
 

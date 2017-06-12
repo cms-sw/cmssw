@@ -99,23 +99,18 @@ private:
   std::vector<double> dphiR_binning_;
 
   RazorME MR_ME_;
-  RazorME MR_Tight_ME_;
   RazorME MRVsLS_;
   RazorME Rsq_ME_;
-  RazorME Rsq_Tight_ME_;
   RazorME RsqVsLS_;
   RazorME dPhiR_ME_;
-  RazorME dPhiRVsLS_;
 
   RazorME MRVsRsq_ME_;
-  RazorME MRVsRsq_Tight_ME_;
 
   GenericTriggerEventFlag* num_genTriggerEventFlag_;
   GenericTriggerEventFlag* den_genTriggerEventFlag_;
 
   StringCutObjectSelector<reco::MET,true>         metSelection_;
   StringCutObjectSelector<reco::PFJet,true   >    jetSelection_;
-  StringCutObjectSelector<reco::PFJet,true   >    tightJetSelection_;
   int njets_;
   float rsqCut_;
   float mrCut_;
