@@ -107,6 +107,13 @@ diMu9Ele9CaloIdLTrackIdL_eleleg.denGenericTriggerEventPSet.hltPaths = cms.vstrin
 	"HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v*",
 	"HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v*"
 )
+##Eff of the HLT with DZ w.ref to non-DZ one 
+diMu9Ele9CaloIdLTrackIdL_dz = hltHIGmonitoring.clone()
+diMu9Ele9CaloIdLTrackIdL_dz.FolderName = cms.string('HLT/Higgs/TriLepton/HLT_DiMu9_Ele9_CaloIdL_TrackIdL/dzMon')
+diMu9Ele9CaloIdLTrackIdL_dz.nelectrons = cms.uint32(1)
+diMu9Ele9CaloIdLTrackIdL_dz.nmuons = cms.uint32(2)
+diMu9Ele9CaloIdLTrackIdL_dz.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_DiMu9_Ele9_CaloIdL_TrackIdL_DZ_v*") # HLT_ZeroBias_v*
+diMu9Ele9CaloIdLTrackIdL_dz.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_DiMu9_Ele9_CaloIdL_TrackIdL_v*")
 
 #################DiElectron+Single Muon Trigger##################
 mu8diEle12CaloIdLTrackIdL_eleleg = hltHIGmonitoring.clone()
@@ -127,8 +134,13 @@ mu8diEle12CaloIdLTrackIdL_muleg.numGenericTriggerEventPSet.hltPaths = cms.vstrin
 mu8diEle12CaloIdLTrackIdL_muleg.denGenericTriggerEventPSet.hltPaths = cms.vstring(
 	"HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v*"
 )
-
-
+##Eff of the HLT with DZ w.ref to non-DZ one 
+mu8diEle12CaloIdLTrackIdL_dz = hltHIGmonitoring.clone() 
+mu8diEle12CaloIdLTrackIdL_dz.FolderName = cms.string('HLT/Higgs/TriLepton/HLT_Mu8_DiEle12_CaloIdL_TrackIdL/dzMon')
+mu8diEle12CaloIdLTrackIdL_dz.nelectrons = cms.uint32(2)
+mu8diEle12CaloIdLTrackIdL_dz.nmuons = cms.uint32(1)
+mu8diEle12CaloIdLTrackIdL_dz.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Mu8_DiEle12_CaloIdL_TrackIdL_DZ_v*") # HLT_ZeroBias_v*
+mu8diEle12CaloIdLTrackIdL_dz.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Mu8_DiEle12_CaloIdL_TrackIdL_v*")
 ###############################Higgs Monitor HLT##############################################
 higgsMonitorHLT = cms.Sequence(
  higgsTrielemon
@@ -140,6 +152,8 @@ higgsMonitorHLT = cms.Sequence(
  + mu12TrkIsoVVLEle23CaloIdLTrackIdLIsoVLDZ_muleg
  + mu8diEle12CaloIdLTrackIdL_muleg
  + mu8diEle12CaloIdLTrackIdL_eleleg
+ + mu8diEle12CaloIdLTrackIdL_dz
  + diMu9Ele9CaloIdLTrackIdL_muleg
  + diMu9Ele9CaloIdLTrackIdL_eleleg
+ + diMu9Ele9CaloIdLTrackIdL_dz
 )
