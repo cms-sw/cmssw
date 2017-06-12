@@ -88,14 +88,14 @@ class dso_hidden PixelThresholdClusterizer final : public PixelClusterizerBase {
   float theSeedThresholdInNoiseUnits;     // Pixel cluster seed in units of noise
   float theClusterThresholdInNoiseUnits;  // Cluster threshold in units of noise
 
-  const int   thePixelThreshold;  // Pixel threshold in electrons
-  const int   theSeedThreshold;   // Seed threshold in electrons
-  const float theClusterThreshold;    // Cluster threshold in electrons
-  const float theClusterThreshold_L1; // Cluster threshold in electrons for Layer 1
-  const int   theConversionFactor;    // adc to electron conversion factor
-  const int   theConversionFactor_L1; // adc to electron conversion factor for Layer 1
-  const int   theOffset;              // adc to electron conversion offset
-  const int   theOffset_L1;           // adc to electron conversion offset for Layer 1
+  const int thePixelThreshold;  // Pixel threshold in electrons
+  const int theSeedThreshold;   // Seed threshold in electrons
+  const int theClusterThreshold;    // Cluster threshold in electrons
+  const int theClusterThreshold_L1; // Cluster threshold in electrons for Layer 1
+  const int theConversionFactor;    // adc to electron conversion factor
+  const int theConversionFactor_L1; // adc to electron conversion factor for Layer 1
+  const int theOffset;              // adc to electron conversion offset
+  const int theOffset_L1;           // adc to electron conversion offset for Layer 1
 
   const int   theStackADC_;          // The maximum ADC count for the stack layers
   const int   theFirstStack_;        // The index of the first stack layer
