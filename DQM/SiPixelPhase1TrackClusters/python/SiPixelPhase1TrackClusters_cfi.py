@@ -282,8 +282,6 @@ SiPixelPhase1TrackClustersOnTrackSizeXYInner = SiPixelPhase1TrackClustersOnTrack
 )
 
 
-
-
 SiPixelPhase1TrackClustersOnTrackChargeOuter = DefaultHistoTrack.clone(
   name = "chargeOuter",
   title = "Corrected Cluster Charge (OnTrack) outer ladders",
@@ -312,7 +310,6 @@ SiPixelPhase1TrackClustersOnTrackShapeInner = SiPixelPhase1TrackClustersOnTrackS
   name = "shapeFilterInner",
   title = "Shape filter (OnTrack) Inner Ladders",
 )
-
 
 
 SiPixelPhase1TrackClustersConf = cms.VPSet(
@@ -356,5 +353,4 @@ SiPixelPhase1TrackClustersHarvester = DQMEDHarvester("SiPixelPhase1Harvester",
         histograms = SiPixelPhase1TrackClustersConf,
         geometry = SiPixelPhase1Geometry
 )
-
 

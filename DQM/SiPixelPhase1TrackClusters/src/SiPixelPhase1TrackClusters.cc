@@ -22,7 +22,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-
+#include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeHitFilter.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelClusterShapeCache.h"
@@ -139,7 +139,6 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
     if(std::abs(d0)<15 && std::abs(dz)<50) crossesPixVol = true;
 
     auto etatk = track.eta();
-
 
     auto const & trajParams = track.extra()->trajParams();
     assert(trajParams.size()==track.recHitsSize());
