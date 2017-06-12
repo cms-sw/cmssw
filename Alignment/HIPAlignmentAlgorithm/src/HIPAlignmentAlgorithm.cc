@@ -403,7 +403,7 @@ void HIPAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup){
   edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm::terminate] Aligned units: " << ialigned;
 
   // fill alignable wise root tree
-  fillRoot(iSetup);
+  fillAlignablesMonitor(iSetup);
 
   edm::LogWarning("Alignment")
     << "[HIPAlignmentAlgorithm] Writing aligned parameters to file: " << theAlignables.size()
