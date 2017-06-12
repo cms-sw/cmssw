@@ -99,6 +99,13 @@ void BTagPerformanceAnalyzerOnData::bookHistograms(DQMStore::IBooker & ibook, ed
       iTag++;
       const string& folderName    = iModule->getParameter<string>("folder");
       
+      bool doDifferentialPlots = false;
+      double discrCut = -999.;
+      if (iModule->exists("differentialPlots") && iModule->getParameter<bool>("differentialPlots") == true) {
+          doDifferentialPlots = true;
+          discrCut = iModule->getParameter<double>("discrCut");
+      }
+      
       // eta loop
       for ( int iEta = iEtaStart ; iEta < iEtaEnd ; ++iEta ) {
         // pt loop
@@ -107,12 +114,6 @@ void BTagPerformanceAnalyzerOnData::bookHistograms(DQMStore::IBooker & ibook, ed
           const EtaPtBin& etaPtBin = getEtaPtBin(iEta, iPt);
           
           // Instantiate the genertic b tag plotter
-          bool doDifferentialPlots = false;
-          double discrCut = -999.;
-          if (iModule->exists("differentialPlots") && iModule->getParameter<bool>("differentialPlots") == true) {
-              doDifferentialPlots = true;
-              discrCut = iModule->getParameter<double>("discrCut");
-          }
           JetTagPlotter *jetTagPlotter = new JetTagPlotter(folderName, etaPtBin, iModule->getParameter<edm::ParameterSet>("parameters"), 0, false, ibook, false, doDifferentialPlots, discrCut);
           binJetTagPlotters.at(iTag).push_back ( jetTagPlotter ) ;
           
