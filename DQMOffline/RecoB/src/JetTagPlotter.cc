@@ -84,6 +84,9 @@ JetTagPlotter::JetTagPlotter (const std::string & tagName, const EtaPtBin & etaP
       // jet Eta larger than requested discrimnator cut
       dJetPseudoRapidityDiscrCut = new FlavourHistograms<double>("jetEta_diffEff" + es, "Efficiency vs. jet eta for discriminator above cut",
             20, -etaPtBin.getEtaMax(), etaPtBin.getEtaMax(), false, false, true, "b", jetTagDir, mcPlots_, ibook);
+  } else {
+      dJetPhiDiscrCut = nullptr;
+      dJetPseudoRapidityDiscrCut = nullptr;
   }
 }  
   
