@@ -113,7 +113,6 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
     if (!vertices.isValid() || vertices->empty()) return;
   }
 
-
   //get the map
   edm::Handle<reco::TrackCollection> tracks;
   iEvent.getByToken( tracksToken_, tracks);
