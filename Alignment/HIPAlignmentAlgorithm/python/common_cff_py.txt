@@ -69,9 +69,8 @@ process.AlignmentProducer.algoConfig.IOVrange=cms.vuint32(<iovs>)
 
 #process.AlignmentProducer.algoConfig.setScanDet = cms.vdouble(1,0,20)  #detector ID (1=all det), start,step
 
-#process.AlignmentProducer.algoConfig.fillTrackMonitoring=True
-#process.AlignmentProducer.algoConfig.fillTrackHitMonitoring=True # Will not trigger if fillTrackMonitoring==False
-process.AlignmentProducer.algoConfig.fillTrackMonitoring=False
+process.AlignmentProducer.algoConfig.monitorConfig.fillTrackMonitoring = cms.bool(False)
+process.AlignmentProducer.algoConfig.monitorConfig.fillTrackHitMonitoring = cms.bool(False)
 
 SurfDefFlag = <SURFDEFOPT>
 # See Alignment/CommonAlignmentParametrization/src/AlignmentParametersFactory.cc::parametersType for the second string
