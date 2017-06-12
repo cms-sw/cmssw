@@ -26,7 +26,7 @@ SiPixelPhase1TrackEfficiency::SiPixelPhase1TrackEfficiency(const edm::ParameterS
 { 
   tracksToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"));
   vtxToken_ = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("primaryvertices"));
-  ApplyVertexCut_=iConfig.getUntrackedParameter<bool>("VertexCut",true);
+  applyVertexCut_=iConfig.getUntrackedParameter<bool>("VertexCut",true);
 
 }
 
@@ -45,7 +45,7 @@ void SiPixelPhase1TrackEfficiency::analyze(const edm::Event& iEvent, const edm::
 
   histo[VERTICES].fill(vertices->size(),DetId(0),&iEvent);
 
-  if (ApplyVertexCut_ &&  vertices->size() == 0) return;
+  if (applyVertexCut_ &&  vertices->size() == 0) return;
 
   // should be used for weird cuts
   //const auto primaryVertex = vertices->at(0); 
@@ -58,7 +58,7 @@ void SiPixelPhase1TrackEfficiency::analyze(const edm::Event& iEvent, const edm::
   for (auto const & track : *tracks) {
 
     //this cut is needed to be consisten with residuals calculation
-    if (ApplyVertexCut_ && (track.pt() < 0.75 || std::fabs( track.dxy(vertices->at(0).position()) ) > 5*track.dxyError())) continue; 
+    if (applyVertexCut_ && (track.pt() < 0.75 || std::abs( track.dxy(vertices->at(0).position()) ) > 5*track.dxyError())) continue; 
 
     bool isBpixtrack = false, isFpixtrack = false;
     int nStripHits = 0;
