@@ -28,7 +28,7 @@ SiPixelPhase1RecHits::SiPixelPhase1RecHits(const edm::ParameterSet& iConfig) :
 
   onlyValid_=iConfig.getParameter<bool>("onlyValidHits");
 
-  ApplyVertexCut_=iConfig.getUntrackedParameter<bool>("VertexCut",true);
+  applyVertexCut_=iConfig.getUntrackedParameter<bool>("VertexCut",true);
 
 }
 
@@ -45,12 +45,12 @@ void SiPixelPhase1RecHits::analyze(const edm::Event& iEvent, const edm::EventSet
   edm::Handle<reco::VertexCollection> vertices;
   iEvent.getByToken(offlinePrimaryVerticesToken_, vertices);
 
-  if (ApplyVertexCut_ && (!vertices.isValid() || vertices->size() == 0)) return;
+  if (applyVertexCut_ && (!vertices.isValid() || vertices->size() == 0)) return;
 
 
   for (auto const & track : *tracks) {
 
-    if (ApplyVertexCut_ && (track.pt() < 0.75 || std::fabs( track.dxy(vertices->at(0).position()) ) > 5*track.dxyError())) continue;
+    if (applyVertexCut_ && (track.pt() < 0.75 || std::abs( track.dxy(vertices->at(0).position()) ) > 5*track.dxyError())) continue;
 
     bool isBpixtrack = false, isFpixtrack = false;
 

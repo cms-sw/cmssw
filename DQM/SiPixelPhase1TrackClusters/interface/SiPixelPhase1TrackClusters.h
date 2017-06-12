@@ -31,8 +31,6 @@ class SiPixelPhase1TrackClusters : public SiPixelPhase1Base {
     NTRACKS_VOLUME
   };
 
-  bool ApplyVertexCut_;
-
   public:
   explicit SiPixelPhase1TrackClusters(const edm::ParameterSet& conf);
   void analyze(const edm::Event&, const edm::EventSetup&);
@@ -41,6 +39,8 @@ class SiPixelPhase1TrackClusters : public SiPixelPhase1Base {
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > clustersToken_;
   edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
   edm::EDGetTokenT<reco::VertexCollection> offlinePrimaryVerticesToken_;
+
+  bool applyVertexCut_;
 };
 
 #endif
