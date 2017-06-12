@@ -47,25 +47,24 @@ hltBTVmonitoring.histoPSet.DRPSet = cms.PSet(
 hltBTVmonitoring.histoPSet.metBinning = cms.vdouble(0,20,40,60,80,100,125,150,175,200)
 hltBTVmonitoring.histoPSet.HTBinning  = cms.vdouble(0,20,40,60,80,100,125,150,175,200,300,400,500,700)
 #Eta binning
-hltBTVmonitoring.histoPSet.eleEtaBinning = cms.vdouble(-2.4,-2.1,-1.7,-1.2,-0.9,-0.6,-0.3,-0.1,0,0.1,0.3,0.6,0.9,1.2,1.7,2.1,2.4)
-hltBTVmonitoring.histoPSet.jetEtaBinning = cms.vdouble(-2.4,-2.1,-1.7,-1.2,-0.9,-0.6,-0.3,-0.1,0,0.1,0.3,0.6,0.9,1.2,1.7,2.1,2.4)
-hltBTVmonitoring.histoPSet.muEtaBinning  = cms.vdouble(-2.4,-2.1,-1.7,-1.2,-0.9,-0.6,-0.3,-0.1,0,0.1,0.3,0.6,0.9,1.2,1.7,2.1,2.4)
+hltBTVmonitoring.histoPSet.eleEtaBinning = cms.vdouble(-2.4,-2.1,-1.5,-0.9,-0.3,0.,0.3,0.9,1.5,2.1,2.4)
+hltBTVmonitoring.histoPSet.jetEtaBinning = cms.vdouble(-2.4,-2.1,-1.5,-0.9,-0.3,0.,0.3,0.9,1.5,2.1,2.4)
+hltBTVmonitoring.histoPSet.muEtaBinning  = cms.vdouble(-2.4,-2.1,-1.5,-0.9,-0.3,0.,0.3,0.9,1.5,2.1,2.4)
 #pt binning
 hltBTVmonitoring.histoPSet.elePtBinning = cms.vdouble(0,3,5,8,15,20,25,30,40,50,60,80,120,200,400,700)
 hltBTVmonitoring.histoPSet.jetPtBinning = cms.vdouble(0,3,5,8,15,20,25,30,40,50,70,100,150,200,400,700,1000,1500)
 hltBTVmonitoring.histoPSet.muPtBinning  = cms.vdouble(0,3,5,7,10,15,20,30,40,50,70,100,150,200,400,700)
 #Eta binning 2D
-hltBTVmonitoring.histoPSet.eleEtaBinning2D = cms.vdouble(-2.4,-1.7,-1.2,-0.6,-0.3,0,0.3,0.6,1.2,1.7,2.4)
-hltBTVmonitoring.histoPSet.jetEtaBinning2D = cms.vdouble(-2.4,-1.7,-1.2,-0.6,-0.3,0,0.3,0.6,1.2,1.7,2.4)
-hltBTVmonitoring.histoPSet.muEtaBinning2D  = cms.vdouble(-2.4,-1.7,-1.2,-0.6,-0.3,0,0.3,0.6,1.2,1.7,2.4)
+hltBTVmonitoring.histoPSet.eleEtaBinning2D = cms.vdouble(-2.5,-1.5,-0.6,0.,0.6,1.5,2.5)
+hltBTVmonitoring.histoPSet.jetEtaBinning2D = cms.vdouble(-2.5,-1.5,-0.6,0.,0.6,1.5,2.5)
+hltBTVmonitoring.histoPSet.muEtaBinning2D  = cms.vdouble(-2.5,-1.5,-0.6,0.,0.6,1.5,2.5)
 #pt binning 2D
 hltBTVmonitoring.histoPSet.elePtBinning2D = cms.vdouble(0,15,20,30,40,60,80,100,200,400)
 hltBTVmonitoring.histoPSet.jetPtBinning2D = cms.vdouble(0,15,20,30,40,60,80,100,200,400)
 hltBTVmonitoring.histoPSet.muPtBinning2D  = cms.vdouble(0,15,20,30,40,60,80,100,200,400)
 #HT and phi binning 2D
 hltBTVmonitoring.histoPSet.HTBinning2D  = cms.vdouble(0,20,40,70,100,150,200,400,700)
-hltBTVmonitoring.histoPSet.phiBinning2D = cms.vdouble(-3.1416,-2.5132,-1.8849,-1.2566,-0.6283,0,0.6283,1.2566,1.8849,2.5132,3.1416)
-
+hltBTVmonitoring.histoPSet.phiBinning2D = cms.vdouble(-3.1416,-1.8849,-0.6283,0.6283,1.8849,3.1416)
 
 hltBTVmonitoring.met       = cms.InputTag("pfMetEI") # pfMet
 hltBTVmonitoring.jets      = cms.InputTag("ak4PFJetsCHS") # ak4PFJets, ak4PFJetsCHS, pfJetsEI
