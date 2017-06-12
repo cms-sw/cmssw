@@ -33,16 +33,7 @@
 
 class GenericTriggerEventFlag;
 
-struct NoBPTXbinning {
-  int nbins;
-  double xmin;
-  double xmax;
-};
 
-struct NoBPTXME {
-  MonitorElement* numerator;
-  MonitorElement* denominator;
-};
 //
 // class declaration
 //
@@ -56,6 +47,11 @@ public:
   static void fillHistoPSetDescription(edm::ParameterSetDescription & pset);
   static void fillHistoLSPSetDescription(edm::ParameterSetDescription & pset);
 
+  struct NoBPTXME {
+    MonitorElement* numerator;
+    MonitorElement* denominator;
+  };
+
 protected:
 
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
@@ -68,9 +64,15 @@ protected:
 
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
 
-private:
-  static NoBPTXbinning getHistoPSet    (edm::ParameterSet pset);
-  static NoBPTXbinning getHistoLSPSet  (edm::ParameterSet pset);
+private:  
+  struct NoBPTXbinning {
+    int nbins;
+    double xmin;
+    double xmax;
+  };
+
+  static NoBPTXbinning getHistoPSet    (const edm::ParameterSet & pset);
+  static NoBPTXbinning getHistoLSPSet  (const edm::ParameterSet & pset);
 
   std::string folderName_;
   std::string histoSuffix_;
@@ -110,13 +112,13 @@ private:
   NoBPTXME muonPhiVsLS_;
   NoBPTXME muonPhiVsBX_;
 
-  GenericTriggerEventFlag* num_genTriggerEventFlag_;
-  GenericTriggerEventFlag* den_genTriggerEventFlag_;
+  std::unique_ptr<GenericTriggerEventFlag> num_genTriggerEventFlag_;
+  std::unique_ptr<GenericTriggerEventFlag> den_genTriggerEventFlag_;
 
   StringCutObjectSelector<reco::CaloJet,true   >    jetSelection_;
   StringCutObjectSelector<reco::Track,true>        muonSelection_;
-  int njets_;
-  int nmuons_;
+  unsigned int njets_;
+  unsigned int nmuons_;
 
 };
 

@@ -6,8 +6,8 @@
 
 NoBPTXMonitor::NoBPTXMonitor( const edm::ParameterSet& iConfig ) : 
   folderName_             ( iConfig.getParameter<std::string>("FolderName") )
-  , jetToken_             ( mayConsume<reco::CaloJetCollection>      (iConfig.getParameter<edm::InputTag>("jets")      ) )   
-  , muonToken_             ( mayConsume<reco::TrackCollection>       (iConfig.getParameter<edm::InputTag>("muons")     ) )   
+  , jetToken_             ( consumes<reco::CaloJetCollection>      (iConfig.getParameter<edm::InputTag>("jets")      ) )   
+  , muonToken_             ( consumes<reco::TrackCollection>       (iConfig.getParameter<edm::InputTag>("muons")     ) )   
   , jetE_variable_binning_ ( iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("jetEBinning") )
   , jetE_binning_          ( getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("jetEPSet")    ) )
   , jetEta_binning_          ( getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("jetEtaPSet")    ) )
@@ -22,8 +22,8 @@ NoBPTXMonitor::NoBPTXMonitor( const edm::ParameterSet& iConfig ) :
   , den_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("denGenericTriggerEventPSet"),consumesCollector(), *this))
   , jetSelection_ ( iConfig.getParameter<std::string>("jetSelection") )
   , muonSelection_ ( iConfig.getParameter<std::string>("muonSelection") )
-  , njets_      ( iConfig.getParameter<int>("njets" )      )
-  , nmuons_     ( iConfig.getParameter<int>("nmuons" )     )
+  , njets_      ( iConfig.getParameter<unsigned int>("njets" )      )
+  , nmuons_     ( iConfig.getParameter<unsigned int>("nmuons" )     )
 {
 
   jetENoBPTX_.numerator   = nullptr;
@@ -72,11 +72,9 @@ NoBPTXMonitor::NoBPTXMonitor( const edm::ParameterSet& iConfig ) :
 
 NoBPTXMonitor::~NoBPTXMonitor()
 {
-  if (num_genTriggerEventFlag_) delete num_genTriggerEventFlag_;
-  if (den_genTriggerEventFlag_) delete den_genTriggerEventFlag_;
 }
 
-NoBPTXbinning NoBPTXMonitor::getHistoPSet(edm::ParameterSet pset)
+NoBPTXMonitor::NoBPTXbinning NoBPTXMonitor::getHistoPSet(const edm::ParameterSet & pset)
 {
   return NoBPTXbinning{
     pset.getParameter<int32_t>("nbins"),
@@ -85,7 +83,7 @@ NoBPTXbinning NoBPTXMonitor::getHistoPSet(edm::ParameterSet pset)
       };
 }
 
-NoBPTXbinning NoBPTXMonitor::getHistoLSPSet(edm::ParameterSet pset)
+NoBPTXMonitor::NoBPTXbinning NoBPTXMonitor::getHistoLSPSet(const edm::ParameterSet & pset)
 {
   return NoBPTXbinning{
     pset.getParameter<int32_t>("nbins"),
@@ -246,11 +244,11 @@ void NoBPTXMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSe
   edm::Handle<reco::CaloJetCollection> jetHandle;
   iEvent.getByToken( jetToken_, jetHandle );
   std::vector<reco::CaloJet> jets;
-  if ( int(jetHandle->size()) < njets_ ) return;
+  if ((unsigned int)(jetHandle->size()) < njets_ ) return;
   for ( auto const & j : *jetHandle ) {
     if ( jetSelection_( j ) ) jets.push_back(j);
   }
-  if ( int(jets.size()) < njets_ ) return;
+  if ((unsigned int)(jets.size()) < njets_ ) return;
   double jetE = -999;
   double jetEta = -999;
   double jetPhi = -999;
@@ -262,12 +260,12 @@ void NoBPTXMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSe
 
   edm::Handle<reco::TrackCollection> DSAHandle;
   iEvent.getByToken( muonToken_, DSAHandle );
-  if ( int(DSAHandle->size()) < nmuons_ ) return;
+  if ((unsigned int)(DSAHandle->size()) < nmuons_ ) return;
   std::vector<reco::Track> muons;
   for ( auto const & m : *DSAHandle ) {
     if ( muonSelection_( m ) ) muons.push_back(m);
   }
-  if ( int(muons.size()) < nmuons_ ) return;
+  if ((unsigned int)(muons.size()) < nmuons_ ) return;
   double muonPt = -999;
   double muonEta = -999;
   double muonPhi = -999;
@@ -345,8 +343,8 @@ void NoBPTXMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptio
   desc.add<edm::InputTag>( "muons",    edm::InputTag("displacedStandAloneMuons") );
   desc.add<std::string>("jetSelection", "pt > 0");
   desc.add<std::string>("muonSelection", "pt > 0");
-  desc.add<int>("njets",      0);
-  desc.add<int>("nmuons",     0);
+  desc.add<unsigned int>("njets",      0);
+  desc.add<unsigned int>("nmuons",     0);
 
   edm::ParameterSetDescription genericTriggerEventPSet;
   genericTriggerEventPSet.add<bool>("andOr");
