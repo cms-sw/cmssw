@@ -36,6 +36,7 @@
 //#include "SimDataFormats/CTPPS/interface/CTPPSSimHit.h"
 
 #include "SimRomanPot/CTPPSOpticsParameterisation/interface/ProtonReconstructionAlgorithm.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "TH1D.h"
 #include "TH2D.h"
@@ -57,7 +58,8 @@ class PlotsProducer : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
     virtual void analyze( const edm::Event&, const edm::EventSetup& ) override;
     virtual void endJob() override;
 
-    edm::EDGetTokenT< edm::View<CTPPSSimProtonTrack> > genProtonsToken_, recoProtons45Token_, recoProtons56Token_;
+    edm::EDGetTokenT<edm::HepMCProduct> genProtonsToken_;
+    edm::EDGetTokenT< edm::View<CTPPSSimProtonTrack> > recoProtons45Token_, recoProtons56Token_;
     edm::EDGetTokenT< edm::View<CTPPSSimHit> > hitsToken_;
 
     //edm::ParameterSet beamConditions_;
@@ -85,7 +87,7 @@ class PlotsProducer : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
 };
 
 PlotsProducer::PlotsProducer( const edm::ParameterSet& iConfig ) :
-  genProtonsToken_   ( consumes< edm::View<CTPPSSimProtonTrack> >( iConfig.getParameter<edm::InputTag>( "genProtonsTag" ) ) ),
+  genProtonsToken_   ( consumes<edm::HepMCProduct>( iConfig.getParameter<edm::InputTag>( "genProtonsTag" ) ) ),
   recoProtons45Token_( consumes< edm::View<CTPPSSimProtonTrack> >( iConfig.getParameter<edm::InputTag>( "recoProtons45Tag" ) ) ),
   recoProtons56Token_( consumes< edm::View<CTPPSSimProtonTrack> >( iConfig.getParameter<edm::InputTag>( "recoProtons56Tag" ) ) ),
   hitsToken_         ( consumes< edm::View<CTPPSSimHit> >( iConfig.getParameter<edm::InputTag>( "potsHitsTag" ) ) ),
@@ -105,26 +107,27 @@ PlotsProducer::PlotsProducer( const edm::ParameterSet& iConfig ) :
 
   unsigned short i = 0;
   for ( unsigned int sect : { 45, 56 } ) {
+    TFileDirectory subdir = fs->mkdir( Form( "sector %d", sect ) );
     // prepare plots - histograms
-    h_de_vtx_x_[i] = fs->make<TH1D>( Form( "h_de_vtx_x_%d", sect ), Form( ";vtx_{x}^{reco,%d} - vtx_{x}^{sim}", sect ), 100, -40E-6, +40E-6 );
-    h_de_vtx_y_[i] = fs->make<TH1D>( Form( "h_de_vtx_y_%d", sect ), Form( ";vtx_{y}^{reco,%d} - vtx_{y}^{sim}", sect ), 100, -250E-6, +250E-6 );
-    h_de_th_x_[i] = fs->make<TH1D>( Form( "h_de_th_x_%d", sect ), Form( ";th_{x}^{reco,%d} - th_{x}^{sim}", sect ), 100, -100E-6, +100E-6 );
-    h_de_th_y_[i] = fs->make<TH1D>( Form( "h_de_th_y_%d", sect ), Form( ";th_{y}^{reco,%d} - th_{y}^{sim}", sect ), 100, -100E-6, +100E-6 );
-    h_de_xi_[i] = fs->make<TH1D>( Form( "h_de_xi_%d", sect ), Form( ";#xi^{reco,%d} - #xi^{sim}", sect ), 100, -5E-3, +5E-3 );
+    h_de_vtx_x_[i] = subdir.make<TH1D>( Form( "h_de_vtx_x_%d", sect ), Form( ";vtx_{x}^{reco,%d} - vtx_{x}^{sim}", sect ), 100, -40E-6, +40E-6 );
+    h_de_vtx_y_[i] = subdir.make<TH1D>( Form( "h_de_vtx_y_%d", sect ), Form( ";vtx_{y}^{reco,%d} - vtx_{y}^{sim}", sect ), 100, -250E-6, +250E-6 );
+    h_de_th_x_[i] = subdir.make<TH1D>( Form( "h_de_th_x_%d", sect ), Form( ";th_{x}^{reco,%d} - th_{x}^{sim}", sect ), 100, -100E-6, +100E-6 );
+    h_de_th_y_[i] = subdir.make<TH1D>( Form( "h_de_th_y_%d", sect ), Form( ";th_{y}^{reco,%d} - th_{y}^{sim}", sect ), 100, -100E-6, +100E-6 );
+    h_de_xi_[i] = subdir.make<TH1D>( Form( "h_de_xi_%d", sect ), Form( ";#xi^{reco,%d} - #xi^{sim}", sect ), 100, -5E-3, +5E-3 );
 
     // prepare plots - 2D histograms
-    h2_de_vtx_x_vs_de_xi_[i] = fs->make<TH2D>( Form( "h2_de_vtx_x_vs_de_xi_%d", sect ), Form( ";#Delta#xi^{%d};#Deltavtx_{x}^{%d}", sect, sect ), 50, -5E-3, +5E-3, 50, -40E-6, +40E-6 );
-    h2_de_vtx_y_vs_de_xi_[i] = fs->make<TH2D>( Form( "h2_de_vtx_y_vs_de_xi_%d", sect ), Form( ";#Delta#xi^{%d};#Deltavtx_{y}^{%d}", sect, sect ), 50, -5E-3, +5E-3, 50, -250E-6, +250E-6 );
-    h2_de_th_x_vs_de_xi_[i] = fs->make<TH2D>( Form( "h2_de_th_x_vs_de_xi_%d", sect ), Form( ";#Delta#xi^{%d};#Deltath_{x}^{%d}", sect, sect ), 50, -5E-3, +5E-3, 50, -100E-6, +100E-6 );
-    h2_de_th_y_vs_de_xi_[i] = fs->make<TH2D>( Form( "h2_de_th_y_vs_de_xi_%d", sect ), Form( ";#Delta#xi^{%d};#Deltath_{y}^{%d}", sect, sect ), 50, -5E-3, +5E-3, 50, -100E-6, +100E-6 );
-    h2_de_vtx_y_vs_de_th_y_[i] = fs->make<TH2D>( Form( "h2_de_vtx_y_vs_de_th_y_%d", sect ), Form( ";#Deltath_{y}^{%d};#Deltavtx_{y}^{%d}", sect, sect ), 50, -100E-6, +100E-6, 50, -250E-6, +250E-6 );
+    h2_de_vtx_x_vs_de_xi_[i] = subdir.make<TH2D>( Form( "h2_de_vtx_x_vs_de_xi_%d", sect ), Form( ";#Delta#xi^{%d};#Deltavtx_{x}^{%d}", sect, sect ), 50, -5E-3, +5E-3, 50, -40E-6, +40E-6 );
+    h2_de_vtx_y_vs_de_xi_[i] = subdir.make<TH2D>( Form( "h2_de_vtx_y_vs_de_xi_%d", sect ), Form( ";#Delta#xi^{%d};#Deltavtx_{y}^{%d}", sect, sect ), 50, -5E-3, +5E-3, 50, -250E-6, +250E-6 );
+    h2_de_th_x_vs_de_xi_[i] = subdir.make<TH2D>( Form( "h2_de_th_x_vs_de_xi_%d", sect ), Form( ";#Delta#xi^{%d};#Deltath_{x}^{%d}", sect, sect ), 50, -5E-3, +5E-3, 50, -100E-6, +100E-6 );
+    h2_de_th_y_vs_de_xi_[i] = subdir.make<TH2D>( Form( "h2_de_th_y_vs_de_xi_%d", sect ), Form( ";#Delta#xi^{%d};#Deltath_{y}^{%d}", sect, sect ), 50, -5E-3, +5E-3, 50, -100E-6, +100E-6 );
+    h2_de_vtx_y_vs_de_th_y_[i] = subdir.make<TH2D>( Form( "h2_de_vtx_y_vs_de_th_y_%d", sect ), Form( ";#Deltath_{y}^{%d};#Deltavtx_{y}^{%d}", sect, sect ), 50, -100E-6, +100E-6, 50, -250E-6, +250E-6 );
 
     // prepare plots - profiles
-    p_de_vtx_x_vs_xi_[i] = fs->make<TProfile>( Form( "p_de_vtx_x_vs_xi_%d", sect ), Form( ";#xi;#Deltavtx_{x}^{%d}", sect ), 20, 0., 0.20 );
-    p_de_vtx_y_vs_xi_[i] = fs->make<TProfile>( Form( "p_de_vtx_y_vs_xi_%d", sect ), Form( ";#xi;#Deltavtx_{y}^{%d}", sect ), 20, 0., 0.20 );
-    p_de_th_x_vs_xi_[i] = fs->make<TProfile>( Form( "p_de_th_x_vs_xi_%d", sect ), Form( ";#xi;#Deltath_{x}^{%d}", sect ), 20, 0., 0.20 );
-    p_de_th_y_vs_xi_[i] = fs->make<TProfile>( Form( "p_de_th_y_vs_xi_%d", sect ), Form( ";#xi;#Deltath_{y}^{%d}", sect ), 20, 0., 0.20 );
-    p_de_xi_vs_xi_[i] = fs->make<TProfile>( Form( "p_de_xi_vs_xi_%d", sect ), Form( ";#xi;#Delta#xi^{%d}", sect ), 20, 0., 0.20 );
+    p_de_vtx_x_vs_xi_[i] = subdir.make<TProfile>( Form( "p_de_vtx_x_vs_xi_%d", sect ), Form( ";#xi;#Deltavtx_{x}^{%d}", sect ), 20, 0., 0.20 );
+    p_de_vtx_y_vs_xi_[i] = subdir.make<TProfile>( Form( "p_de_vtx_y_vs_xi_%d", sect ), Form( ";#xi;#Deltavtx_{y}^{%d}", sect ), 20, 0., 0.20 );
+    p_de_th_x_vs_xi_[i] = subdir.make<TProfile>( Form( "p_de_th_x_vs_xi_%d", sect ), Form( ";#xi;#Deltath_{x}^{%d}", sect ), 20, 0., 0.20 );
+    p_de_th_y_vs_xi_[i] = subdir.make<TProfile>( Form( "p_de_th_y_vs_xi_%d", sect ), Form( ";#xi;#Deltath_{y}^{%d}", sect ), 20, 0., 0.20 );
+    p_de_xi_vs_xi_[i] = subdir.make<TProfile>( Form( "p_de_xi_vs_xi_%d", sect ), Form( ";#xi;#Delta#xi^{%d}", sect ), 20, 0., 0.20 );
 
     i++;
   }
@@ -139,47 +142,56 @@ PlotsProducer::analyze( const edm::Event& iEvent, const edm::EventSetup& )
   edm::Handle< edm::View<CTPPSSimHit> > hits;
   iEvent.getByToken( hitsToken_, hits );
 
+  // run simulation
+  //
   for ( const auto& hit : *hits ) {
     m_rp_h2_y_vs_x_[hit.potId().detectorDecId()/10]->Fill( hit.getX0(), hit.getY0() );
   }
 
-  edm::Handle< edm::View<CTPPSSimProtonTrack> > gen_protons, reco_protons[2];
-  iEvent.getByToken( genProtonsToken_, gen_protons );
-  if ( gen_protons->size()>1 ) {
+  edm::Handle<edm::HepMCProduct> protons;
+  iEvent.getByToken( genProtonsToken_, protons );
+  const HepMC::GenEvent& evt = protons->getHepMCData();
+  if ( evt.particles_size()>1 ) {
     throw cms::Exception("PlotsProducer") << "Not yet supporting multiple generated protons per event";
   }
-  const CTPPSSimProtonTrack gen_pro = *( gen_protons->ptrAt( 0 ) );
-  const double gen_xi = gen_pro.xi();
 
+  edm::Handle< edm::View<CTPPSSimProtonTrack> > reco_protons[2];
   iEvent.getByToken( recoProtons45Token_, reco_protons[0] );
   iEvent.getByToken( recoProtons56Token_, reco_protons[1] );
 
-  for ( unsigned short i=0; i<2; ++i ) {
-    for ( const auto& rec_pro : *reco_protons[i] ) {
-      const double xi = rec_pro.xi();
-      const double de_vtx_x = rec_pro.vertex().x()-gen_pro.vertex().x();
-      const double de_vtx_y = rec_pro.vertex().y()-gen_pro.vertex().y();
-      const double de_th_x = rec_pro.direction().x()-gen_pro.direction().x();
-      const double de_th_y = rec_pro.direction().y()-gen_pro.direction().y();
-      const double de_xi = xi-gen_xi;
+  for ( HepMC::GenEvent::particle_const_iterator p=evt.particles_begin(); p!=evt.particles_end(); ++p ) {
+    const HepMC::GenParticle* gen_pro = *p;
+    const double gen_xi = gen_pro->momentum().e()/6500.-1.;
 
-      h_de_vtx_x_[i]->Fill( de_vtx_x );
-      h_de_vtx_y_[i]->Fill( de_vtx_y );
-      h_de_th_x_[i]->Fill( de_th_x );
-      h_de_th_y_[i]->Fill( de_th_y );
-      h_de_xi_[i]->Fill( de_xi );
+    for ( unsigned short i=0; i<2; ++i ) {
+      for ( const auto& rec_pro : *reco_protons[i] ) {
+        const HepMC::FourVector& gen_pos = gen_pro->production_vertex()->position();
+        const double rec_xi = rec_pro.xi();
 
-      h2_de_vtx_x_vs_de_xi_[i]->Fill( de_xi, de_vtx_x );
-      h2_de_vtx_y_vs_de_xi_[i]->Fill( de_xi, de_vtx_y );
-      h2_de_th_x_vs_de_xi_[i]->Fill( de_xi, de_th_x );
-      h2_de_th_y_vs_de_xi_[i]->Fill( de_xi, de_th_y );
-      h2_de_vtx_y_vs_de_th_y_[i]->Fill( de_th_y, de_vtx_y );
+        const double de_vtx_x = rec_pro.vertex().x()-gen_pos.x();
+        const double de_vtx_y = rec_pro.vertex().y()-gen_pos.y();
+        const double de_th_x = rec_pro.direction().x()-gen_pro->momentum().theta();
+        const double de_th_y = rec_pro.direction().y()-gen_pro->momentum().phi(); //FIXME
+        const double de_xi = rec_xi-gen_xi;
 
-      p_de_vtx_x_vs_xi_[i]->Fill( gen_xi, de_vtx_x );
-      p_de_vtx_y_vs_xi_[i]->Fill( gen_xi, de_vtx_y );
-      p_de_th_x_vs_xi_[i]->Fill( gen_xi, de_th_x );
-      p_de_th_y_vs_xi_[i]->Fill( gen_xi, de_th_y );
-      p_de_xi_vs_xi_[i]->Fill( gen_xi, de_xi );
+        h_de_vtx_x_[i]->Fill( de_vtx_x );
+        h_de_vtx_y_[i]->Fill( de_vtx_y );
+        h_de_th_x_[i]->Fill( de_th_x );
+        h_de_th_y_[i]->Fill( de_th_y );
+        h_de_xi_[i]->Fill( de_xi );
+
+        h2_de_vtx_x_vs_de_xi_[i]->Fill( de_xi, de_vtx_x );
+        h2_de_vtx_y_vs_de_xi_[i]->Fill( de_xi, de_vtx_y );
+        h2_de_th_x_vs_de_xi_[i]->Fill( de_xi, de_th_x );
+        h2_de_th_y_vs_de_xi_[i]->Fill( de_xi, de_th_y );
+        h2_de_vtx_y_vs_de_th_y_[i]->Fill( de_th_y, de_vtx_y );
+
+        p_de_vtx_x_vs_xi_[i]->Fill( gen_xi, de_vtx_x );
+        p_de_vtx_y_vs_xi_[i]->Fill( gen_xi, de_vtx_y );
+        p_de_th_x_vs_xi_[i]->Fill( gen_xi, de_th_x );
+        p_de_th_y_vs_xi_[i]->Fill( gen_xi, de_th_y );
+        p_de_xi_vs_xi_[i]->Fill( gen_xi, de_xi );
+      }
     }
   }
 /*

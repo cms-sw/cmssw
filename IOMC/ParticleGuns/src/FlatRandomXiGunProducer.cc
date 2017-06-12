@@ -71,7 +71,7 @@ namespace edm
     pEvt->set_event_number( iEvent.id().event() );
     pOut->addHepMCData( pEvt );
 
-    iEvent.put( std::move( pOut ) );
+    iEvent.put( std::move( pOut ), "unsmeared" );
 
     std::unique_ptr<GenEventInfoProduct> pGenEventInfo( new GenEventInfoProduct( pEvt ) );
     iEvent.put( std::move( pGenEventInfo ) );
@@ -101,7 +101,7 @@ namespace edm
       th_y += CLHEP::RandGauss::shoot( rnd ) * beamDivergence_;
     }
 
-    const double e_part = sqrtS_*( 1.-xi ); //FIXME
+    const double e_part = sqrtS_/2.*( 1.-xi ); //FIXME
     const double p = sqrt( e_part*e_part-mass*mass );
 
     return HepMC::FourVector( p*cos( phi )*sin( th_x ), p*cos( phi )*sin( th_y ), p*cos( th_x )*cos( th_y ), e_part ); //FIXME

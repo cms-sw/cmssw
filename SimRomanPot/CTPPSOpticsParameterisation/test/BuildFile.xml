@@ -1,0 +1,13 @@
+<!--<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="DataFormats/CTPPSDetId"/>
+<use name="SimRomanPot/CTPPSOpticsParameterisation"/>-->
+<use name="FWCore/PluginManager"/>
+<use name="SimDataFormats/GeneratorProducts"/>
+<use name="CommonTools/Utils"/>
+<use name="CommonTools/UtilAlgos"/>
+<use name="rootcore"/>
+<library file="PlotsProducer.cc">
+  <flags EDM_PLUGIN="1"/>
+</library>
+

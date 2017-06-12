@@ -15,7 +15,7 @@ process.source = cms.Source('EmptySource')
 process.load('SimRomanPot.CTPPSOpticsParameterisation.lhcBeamProducer_cfi')
 process.load('SimRomanPot.CTPPSOpticsParameterisation.ctppsOpticsParameterisation_cfi')
 process.load('SimRomanPot.CTPPSOpticsParameterisation.ctppsOpticsReconstruction_cfi')
-process.load('SimRomanPot.CTPPSOpticsParameterisation.plotsProducer_cfi')
+process.load('SimRomanPot.CTPPSOpticsParameterisation.test.plotsProducer_cfi')
 
 process.out = cms.OutputModule('PoolOutputModule',
     fileName = cms.untracked.string('ctppsSim.root')
