@@ -39,16 +39,12 @@ namespace edm {
 class ErrorObj;
 namespace service {       
 
-class ELdestControl;
-
 
 // ----------------------------------------------------------------------
 // ELoutput:
 // ----------------------------------------------------------------------
 
 class ELoutput : public ELdestination  {
-
-  friend class ELdestControl;
 
 public:
 
@@ -65,17 +61,11 @@ public:
 public:
   virtual bool log( const edm::ErrorObj & msg ) override;
 
-  // ---  Methods invoked through the ELdestControl handle:
-  //
 protected:
     // trivial clearSummary(), wipe(), zero() from base class
     // trivial three summary(..) from base class
 
-  // ---  Data affected by methods of specific ELdestControl handle:
-  //
 protected:
-    // ELoutput uses the generic ELdestControl handle
-
   // ---  Internal Methods -- Users should not invoke these:
   //
 protected:

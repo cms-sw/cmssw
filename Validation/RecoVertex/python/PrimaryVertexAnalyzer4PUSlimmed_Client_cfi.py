@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 def _resolPull(prefix):
     return [
@@ -36,7 +37,7 @@ def _resolPull(prefix):
     ]
 
 
-postProcessorVertex = cms.EDAnalyzer("DQMGenericClient",
+postProcessorVertex = DQMEDHarvester("DQMGenericClient",
                                      subDirs = cms.untracked.vstring("Vertexing/PrimaryVertexV/*"),
                                      efficiency = cms.vstring(
                                          "effic_vs_NumVertices 'Efficiency vs NumVertices' GenAllAssoc2RecoMatched_NumVertices GenAllAssoc2Reco_NumVertices",

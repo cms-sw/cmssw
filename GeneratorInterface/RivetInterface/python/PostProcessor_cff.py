@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 ###################
 #CMS_2011_S8968497
@@ -293,7 +294,7 @@ postCMS_2011_S9086218 = cms.EDAnalyzer(
 ###################
 #CMS_2011_S9088458
 ###################
-postCMS_2011_S9088458 = cms.EDAnalyzer(
+postCMS_2011_S9088458 = DQMEDHarvester(
     "DQMGenericClient",
     subDirs = cms.untracked.vstring("Rivet/CMS_2011_S9088458"),
     efficiencyProfile = cms.untracked.vstring("d01-x01-y01 d01-x01-y01 trijet dijet"),

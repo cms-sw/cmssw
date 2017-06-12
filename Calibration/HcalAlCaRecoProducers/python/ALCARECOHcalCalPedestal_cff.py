@@ -69,18 +69,17 @@ horecoPedestal.firstSample = cms.int32(0)
 horecoPedestal.samplesToAdd = cms.int32(4)
 horecoPedestal.dropZSmarkedPassed = cms.bool(False)
 
-hcalLocalRecoSequencePedestal = cms.Sequence(hbherecoPedestal*hfrecoPedestal*horecoPedestal) 
+seqALCARECOHcalCalPedestal = cms.Sequence(hbherecoPedestal*hfrecoPedestal*horecoPedestal) 
 
-seqALCARECOHcalCalPedestal = cms.Sequence(hcalCalibPedestalHLT*
-                                          hcalCalibPedestal*
-                                          hcalDigiAlCaPedestal*
-                                          qie10Digis*
-                                          gtDigisAlCaPedestal*
-                                          hcalLocalRecoSequencePedestal)
+seqALCARECOHcalCalPedestalDigi = cms.Sequence(hcalCalibPedestalHLT*
+                                              hcalCalibPedestal*
+                                              hcalDigiAlCaPedestal*
+                                              qie10Digis*
+                                              gtDigisAlCaPedestal)
 
 import RecoLocalCalo.HcalRecProducers.hfprereco_cfi
 hfprerecoPedestal = RecoLocalCalo.HcalRecProducers.hfprereco_cfi.hfprereco.clone(
-    digiLabel = cms.InputTag("hcalDigiAlaMB"),
+    digiLabel = cms.InputTag("hcalDigiAlCaMB"),
     dropZSmarkedPassed = cms.bool(False),
     tsFromDB = cms.bool(False),
     sumAllTimeSlices = cms.bool(False),

@@ -96,7 +96,7 @@ DetId HcalGeometry::getClosestCell(const GlobalPoint& r) const {
     bc = HcalBarrel;
   } else if (absz >= z_long) {
     bc = HcalForward;
-  } else if (m_topology.etaMax(HcalEndcap) ) {
+  } else if (abseta <= m_topology.etaMax(HcalEndcap) ) {
     bc = HcalEndcap;
   } else {
     bc = HcalForward;

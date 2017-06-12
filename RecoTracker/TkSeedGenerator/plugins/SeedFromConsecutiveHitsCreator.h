@@ -72,9 +72,9 @@ private:
 protected:
 
   std::string thePropagatorLabel;
-  double theBOFFMomentum;
-  double theOriginTransverseErrorMultiplier;
-  double theMinOneOverPtError;
+  float theBOFFMomentum;
+  float theOriginTransverseErrorMultiplier;
+  float theMinOneOverPtError;
 
   const TrackingRegion * region = nullptr;
   const SeedComparitor *filter = nullptr;

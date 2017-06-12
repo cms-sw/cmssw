@@ -1,10 +1,11 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 from DQM.SiPixelPhase1Common.HistogramManager_cfi import *
 
 SiPixelPhase1RecHitsNRecHits = DefaultHistoTrack.clone(
   name = "rechits",
   title = "RecHits",
-  range_min = 0, range_max = 10, range_nbins = 10,
+  range_min = 0, range_max = 30, range_nbins = 30,
   xlabel = "rechits",
   dimensions = 0,
   specs = VPSet(
@@ -19,7 +20,7 @@ SiPixelPhase1RecHitsNRecHits = DefaultHistoTrack.clone(
 SiPixelPhase1RecHitsClustX = DefaultHistoTrack.clone(
   name = "rechitsize_x",
   title = "X size of RecHit clusters",
-  range_min = 0, range_max = 10, range_nbins = 10,
+  range_min = 0, range_max = 50, range_nbins = 50,
   xlabel = "RecHit X-Size",
   dimensions = 1,
   specs = VPSet(
@@ -97,7 +98,7 @@ SiPixelPhase1RecHitsAnalyzer = cms.EDAnalyzer("SiPixelPhase1RecHits",
 
 )
 
-SiPixelPhase1RecHitsHarvester = cms.EDAnalyzer("SiPixelPhase1Harvester",
+SiPixelPhase1RecHitsHarvester = DQMEDHarvester("SiPixelPhase1Harvester",
         histograms = SiPixelPhase1RecHitsConf,
         geometry = SiPixelPhase1Geometry
 )

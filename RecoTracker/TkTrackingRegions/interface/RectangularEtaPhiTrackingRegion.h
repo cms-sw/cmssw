@@ -148,6 +148,7 @@ public:
 
   /// allowed eta range [eta_min, eta_max] interval
   const Range & etaRange() const { return theEtaRange; }
+  const Range & tanLambdaRange() const { return theLambdaRange; }
 
   /// defined phi range around phi0, margin is [phi_left,phi_right]. 
   /// region is defined in a range: [phi0-phi_left, phi0+phi_right]
@@ -192,7 +193,7 @@ private:
 private:
 
   Range theEtaRange;
-  Range theLambdaRange;
+  Range theLambdaRange; // this is actually tanLambda
   Margin thePhiMargin;
   float theMeanLambda;
   const UseMeasurementTracker theMeasurementTrackerUsage = UseMeasurementTracker::kNever;

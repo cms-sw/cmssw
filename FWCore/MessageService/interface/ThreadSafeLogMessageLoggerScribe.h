@@ -4,7 +4,7 @@
 #include "FWCore/Utilities/interface/value_ptr.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 
-#include "FWCore/MessageService/interface/ELdestControl.h"
+#include "FWCore/MessageService/interface/ELdestination.h"
 #include "FWCore/MessageService/interface/MessageLoggerDefaults.h"
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
 #include "FWCore/MessageLogger/interface/AbstractMLscribe.h"
@@ -68,7 +68,7 @@ private:
   void  configure_errorlog( );
   void  configure_ordinary_destinations( );			// Change Log 3
   void  configure_statistics( );				// Change Log 3
-  void  configure_dest( ELdestControl & dest_ctrl		
+  void  configure_dest( std::shared_ptr<ELdestination> dest_ctrl
                       , String const &  filename
 		      );
 
@@ -95,7 +95,7 @@ private:
   
   // --- data:
   edm::propagate_const<std::shared_ptr<ELadministrator>>  admin_p;
-  ELdestControl                       early_dest;
+  std::shared_ptr<ELdestination>                       early_dest;
   std::vector<edm::propagate_const<std::shared_ptr<std::ofstream>>> file_ps;
   edm::propagate_const<std::shared_ptr<PSet>> job_pset_p;
   std::map<String, edm::propagate_const<std::ostream*>> stream_ps;

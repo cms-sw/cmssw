@@ -27,7 +27,7 @@ namespace L1TwinMux {
   class RPCCollector {
   public:
     RPCCollector();
-    ~RPCCollector() {}
+    virtual ~RPCCollector() = default;
 
     virtual void extractPrimitives(edm::Handle<RPCDigiCollection> rpcDigis,
 				   std::vector<L1TMuon::TriggerPrimitive>&) const;

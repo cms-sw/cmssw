@@ -4,7 +4,7 @@
 #include <string>
 
 #include "DDXMLElement.h"
-#include "DetectorDescription/Base/interface/DDTranslation.h"
+#include "DetectorDescription/Core/interface/DDTranslation.h"
 
 class DDCompactView;
 class DDLElementRegistry;

@@ -26,18 +26,19 @@ hfrecoMBNZS.dropZSmarkedPassed = cms.bool(False)
 
 import RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_ho_cfi
 
-seqALCARECOHcalCalMinBias = cms.Sequence(hcalminbiasHLT*hcalDigiAlCaMB*gtDigisAlCaMB*hbherecoNoise*hfrecoNoise*hfrecoMBNZS*horecoNoise)
+seqALCARECOHcalCalMinBiasDigi = cms.Sequence(hcalminbiasHLT*hcalDigiAlCaMB*gtDigisAlCaMB)
+seqALCARECOHcalCalMinBias = cms.Sequence(hbherecoNoise*hfrecoNoise*hfrecoMBNZS*horecoNoise)
 
 import RecoLocalCalo.HcalRecProducers.hfprereco_cfi
 hfprerecoMBNZS = RecoLocalCalo.HcalRecProducers.hfprereco_cfi.hfprereco.clone(
-    digiLabel = cms.InputTag("hcalDigiAlaMB"),
+    digiLabel = cms.InputTag("hcalDigiAlCaMB"),
     dropZSmarkedPassed = cms.bool(False),
     tsFromDB = cms.bool(False),
     sumAllTimeSlices = cms.bool(True),
     forceSOI = cms.int32(1)
 )
 hfprerecoNoise = RecoLocalCalo.HcalRecProducers.hfprereco_cfi.hfprereco.clone(
-    digiLabel = cms.InputTag("hcalDigiAlaMB"),
+    digiLabel = cms.InputTag("hcalDigiAlCaMB"),
     dropZSmarkedPassed = cms.bool(False),
     tsFromDB = cms.bool(False),
     sumAllTimeSlices = cms.bool(False),

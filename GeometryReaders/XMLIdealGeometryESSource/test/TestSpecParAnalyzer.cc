@@ -12,16 +12,12 @@
 */
 //
 
-
-
-// system include files
 #include <memory>
 #include <iostream>
 #include <fstream>
 
-// user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -42,35 +38,21 @@
 #include "CondFormats/Common/interface/FileBlob.h"
 #include "Geometry/Records/interface/GeometryFileRcd.h"
 
-//
-// class decleration
-//
-
-class TestSpecParAnalyzer : public edm::EDAnalyzer {
+class TestSpecParAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit TestSpecParAnalyzer( const edm::ParameterSet& );
   ~TestSpecParAnalyzer();
 
-  
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  void beginJob() override {}
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void endJob() override {}
+
 private:
-  // ----------member data ---------------------------
   std::string specName_;
   std::string specStrValue_;
   double specDblValue_;
 };
 
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 TestSpecParAnalyzer::TestSpecParAnalyzer( const edm::ParameterSet& iConfig ) :
   specName_(iConfig.getParameter<std::string>("specName")),
   specStrValue_(iConfig.getUntrackedParameter<std::string>("specStrValue", "frederf")),
@@ -80,15 +62,8 @@ TestSpecParAnalyzer::TestSpecParAnalyzer( const edm::ParameterSet& iConfig ) :
 
 TestSpecParAnalyzer::~TestSpecParAnalyzer()
 {
- 
 }
 
-
-//
-// member functions
-//
-
-// ------------ method called to produce the data  ------------
 void
 TestSpecParAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
@@ -134,6 +109,4 @@ TestSpecParAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& i
    std::cout << "finished" << std::endl;
 }
 
-
-//define this as a plug-in
 DEFINE_FWK_MODULE(TestSpecParAnalyzer);

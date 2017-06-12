@@ -49,7 +49,7 @@ namespace edm {
 
    private:
     InputTag tag_;
-    bool WrapT_;
+    bool WrapT_ = false;
     EDGetTokenT<T> token_;
   };
 

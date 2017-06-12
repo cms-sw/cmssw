@@ -43,7 +43,6 @@ namespace service {
 // prerequisite classes:
 // ----------------------------------------------------------------------
 
-class ELdestControl;
 class ELadministrator;
 
 
@@ -54,7 +53,6 @@ class ELadministrator;
 class ELdestination  {
 
   friend class ELadministrator;
-  friend class ELdestControl;
 
 public:
 
@@ -70,9 +68,30 @@ public:
 
   virtual void finish();
 
-  // -----  Methods invoked through the ELdestControl handle:
+  // -----  Behavior control methods invoked by the framework:
   //
-protected:
+  void setThreshold( const ELseverityLevel & sv );
+  void setTraceThreshold( const ELseverityLevel & sv );
+  void setLimit( const ELstring & s, int n );
+  void setLimit( const ELseverityLevel & sv, int n );
+  void setInterval( const ELstring & s, int interval );
+  void setInterval( const ELseverityLevel& sv, int interval);
+  void setTimespan( const ELstring& s, int n );
+  void setTimespan( const ELseverityLevel & sv, int n );
+
+  // -----  Select output format options:
+  //
+  virtual void suppressText();           virtual void includeText(); // $$ jvr
+  virtual void suppressModule();         virtual void includeModule();
+  virtual void suppressSubroutine();     virtual void includeSubroutine();
+  virtual void suppressTime();           virtual void includeTime();
+  virtual void suppressContext();        virtual void includeContext();
+  virtual void suppressSerial();         virtual void includeSerial();
+  virtual void useFullContext();         virtual void useContext();
+  virtual void separateTime();           virtual void attachTime();
+  virtual void separateEpilogue();       virtual void attachEpilogue();
+  virtual int  setLineLength(int len);	 virtual int  getLineLength() const;
+
   virtual void wipe();
   virtual void zero();
   virtual void filterModule( ELstring const & moduleName );
@@ -87,22 +106,7 @@ protected:
   virtual void changeFile (const ELstring & filename);
   virtual void flush(); 				       
 
-  // -----  Select output format options:
-  //
-private:
-  virtual void suppressText();           virtual void includeText(); // $$ jvr
-  virtual void suppressModule();         virtual void includeModule();
-  virtual void suppressSubroutine();     virtual void includeSubroutine();
-  virtual void suppressTime();           virtual void includeTime();
-  virtual void suppressContext();        virtual void includeContext();
-  virtual void suppressSerial();         virtual void includeSerial();
-  virtual void useFullContext();         virtual void useContext();
-  virtual void separateTime();           virtual void attachTime();
-  virtual void separateEpilogue();       virtual void attachEpilogue();
-  virtual int  setLineLength(int len);	 virtual int  getLineLength() const;
 
-  // -----  Data affected by methods of the ELdestControl handle:
-  //
 protected:
   ELseverityLevel threshold;
   ELseverityLevel traceThreshold;

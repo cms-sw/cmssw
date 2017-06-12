@@ -3,7 +3,7 @@
 #include <stddef.h>
 #include <utility>
 
-#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
+#include "DetectorDescription/Core/interface/ClhepEvaluator.h"
 #include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
 
 class DDCompactView;

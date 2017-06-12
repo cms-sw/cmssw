@@ -23,7 +23,9 @@ namespace hgcal {
     void getEventSetup(const edm::EventSetup&);
 
     GlobalPoint getPosition(const DetId& id) const;
-    
+    // zside returns +/- 1
+    int zside(const DetId& id) const;
+
     std::float_t getSiThickness(const DetId&) const;
     std::float_t getRadiusToSide(const DetId&) const;
 
@@ -44,6 +46,7 @@ namespace hgcal {
     float getPhi(const DetId& id) const;
     float getPt(const DetId& id, const float& hitEnergy, const float& vertex_z = 0.) const;
 
+    inline const CaloGeometry * getGeometry() const {return geom_;};
   private:
     const CaloGeometry* geom_;
   };

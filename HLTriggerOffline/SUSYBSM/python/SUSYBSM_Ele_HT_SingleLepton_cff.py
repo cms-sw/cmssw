@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 from copy import deepcopy
 
 SUSY_HLT_Ele15_HT600_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
@@ -42,7 +43,7 @@ SUSY_HLT_Ele15_HT600_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
                                               csvThreshold = cms.untracked.double(-1.0)
                                               )
 
-SUSY_HLT_Ele15_HT600_SingleLepton_POSTPROCESSING = cms.EDAnalyzer('DQMGenericClient',
+SUSY_HLT_Ele15_HT600_SingleLepton_POSTPROCESSING = DQMEDHarvester('DQMGenericClient',
                                                              subDirs = cms.untracked.vstring('HLT/SUSYBSM/HLT_Ele15_IsoVVVL_PFHT600'),
                                                              efficiency = cms.vstring(
         "leptonTurnOn_eff ';Offline Electron p_{T} [GeV];#epsilon' leptonTurnOn_num leptonTurnOn_den",
@@ -92,7 +93,7 @@ SUSY_HLT_Ele15_HT400_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
                                               csvThreshold = cms.untracked.double(-1.0)
                                               )
 
-SUSY_HLT_Ele15_HT400_SingleLepton_POSTPROCESSING = cms.EDAnalyzer('DQMGenericClient',
+SUSY_HLT_Ele15_HT400_SingleLepton_POSTPROCESSING = DQMEDHarvester('DQMGenericClient',
                                                              subDirs = cms.untracked.vstring('HLT/SUSYBSM/HLT_Ele15_IsoVVVL_PFHT400'),
                                                              efficiency = cms.vstring(
         "leptonTurnOn_eff ';Offline Electron p_{T} [GeV];#epsilon' leptonTurnOn_num leptonTurnOn_den",
@@ -142,7 +143,7 @@ SUSY_HLT_Ele50_HT400_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
                                               csvThreshold = cms.untracked.double(-1.0)
                                               )
 
-SUSY_HLT_Ele50_HT400_SingleLepton_POSTPROCESSING = cms.EDAnalyzer('DQMGenericClient',
+SUSY_HLT_Ele50_HT400_SingleLepton_POSTPROCESSING = DQMEDHarvester('DQMGenericClient',
                                                              subDirs = cms.untracked.vstring('HLT/SUSYBSM/HLT_Ele50_IsoVVVL_PFHT400'),
                                                              efficiency = cms.vstring(
         "leptonTurnOn_eff ';Offline Electron p_{T} [GeV];#epsilon' leptonTurnOn_num leptonTurnOn_den",

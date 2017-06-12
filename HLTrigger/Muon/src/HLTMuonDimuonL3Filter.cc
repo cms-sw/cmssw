@@ -215,7 +215,7 @@ HLTMuonDimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSet
 	      L2toL3s[staTrack].push_back(RecoChargedCandidateRef(cand));
 	  }
 	  else if (not previousCandIsL2_){
-	      L2toL3s[staTrack].push_back(RecoChargedCandidateRef(cand));
+	      L2toL3s[tk].push_back(RecoChargedCandidateRef(cand));
 	  }
         } //MTL loop
      } //RCC loop

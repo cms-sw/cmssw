@@ -44,7 +44,6 @@ namespace edm {
 class ErrorObj;
 namespace service {       
 class ELadministrator;
-class ELdestControl;
 
 
 // ----------------------------------------------------------------------
@@ -54,7 +53,6 @@ class ELdestControl;
 class ELstatistics : public ELdestination  {
 
   friend class ELadministrator;
-  friend class ELdestControl;
 
 public:
   // -----  constructor/destructor:
@@ -89,8 +87,6 @@ public:
   void summaryForJobReport (std::map<std::string, double> & sm);
   virtual void wipe() override;
 
-  // -----  Methods invoked through the ELdestControl handle:
-  //
 protected:
   void clearSummary();
 
@@ -103,8 +99,6 @@ protected:
   // summarization( const ELstring & sumLines, const ELstring & sumLines )
   // from base class
 
-  // -----  Data affected by methods of specific ELdestControl handle:
-  //
 protected:
   int            tableLimit;
   ELmap_stats    stats;

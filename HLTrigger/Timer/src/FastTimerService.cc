@@ -505,6 +505,7 @@ FastTimerService::PlotsPerPath::reset()
 void
 FastTimerService::PlotsPerPath::book(
     DQMStore::IBooker & booker,
+    std::string const & prefixDir,
     ProcessCallGraph const& job,
     ProcessCallGraph::PathType const& path,
     PlotRanges const& ranges,
@@ -512,7 +513,8 @@ FastTimerService::PlotsPerPath::book(
     bool byls)
 {
   const std::string basedir = booker.pwd();
-  booker.setCurrentFolder(basedir + "/path " + path.name_);
+  //  booker.setCurrentFolder(basedir + "/path " + path.name_);
+  booker.setCurrentFolder(basedir + "/" + prefixDir + path.name_);
 
   total_.book(booker, "path", path.name_, ranges, lumisections, byls);
 
@@ -632,7 +634,7 @@ FastTimerService::PlotsPerProcess::book(
   booker.setCurrentFolder(basedir + "/process " + process.name_ + " paths");
   for (unsigned int id: boost::irange(0ul, paths_.size()))
   {
-    paths_[id].book(booker,
+    paths_[id].book(booker,"path ",
         job, process.paths_[id],
         path_ranges,
         lumisections,
@@ -640,7 +642,7 @@ FastTimerService::PlotsPerProcess::book(
   }
   for (unsigned int id: boost::irange(0ul, endpaths_.size()))
   {
-    endpaths_[id].book(booker,
+    endpaths_[id].book(booker,"endpath ",
         job, process.endPaths_[id],
         path_ranges,
         lumisections,

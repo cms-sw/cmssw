@@ -77,8 +77,8 @@ PrimaryVertexMonitor::bookHistograms(DQMStore::IBooker &iBooker,
 
 //   xPos = iBooker.book1D ("xPos","x Coordinate" ,100, -0.1, 0.1);
 
-  nbvtx      = iBooker.book1D("vtxNbr","Reconstructed Vertices in Event",50,-0.5,49.5);
-  nbgvtx      = iBooker.book1D("goodvtxNbr","Reconstructed Good Vertices in Event",50,-0.5,49.5);
+  nbvtx      = iBooker.book1D("vtxNbr","Reconstructed Vertices in Event",80,-0.5,79.5);
+  nbgvtx      = iBooker.book1D("goodvtxNbr","Reconstructed Good Vertices in Event",80,-0.5,79.5);
 
   // to be configured each year...
   auto vposx = conf_.getParameter<double>("Xpos");

@@ -26,7 +26,6 @@
 
 
 #include "FWCore/MessageService/interface/ELstatistics.h"
-#include "FWCore/MessageService/interface/ELdestControl.h"
 
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
 
@@ -218,10 +217,6 @@ bool  ELstatistics::log( const edm::ErrorObj & msg )  {
 
 }  // log()
 
-
-// ----------------------------------------------------------------------
-// Methods invoked through the ELdestControl handle
-// ----------------------------------------------------------------------
 
 void  ELstatistics::clearSummary()  {
 

@@ -152,7 +152,7 @@ void SimG4HGCalValidation::update(const BeginOfJob * job) {
       edm::ESHandle<HGCalDDDConstants>    hdc;
       es->get<IdealGeometryRecord>().get(nameX,hdc);
       if (hdc.isValid()) {
-	HGCalGeometryMode m_mode = hdc->geomMode();
+	HGCalGeometryMode::GeometryMode m_mode = hdc->geomMode();
 	hgcNumbering_.push_back(new HGCNumberingScheme(*hdc,nameX));
 	if (m_mode == HGCalGeometryMode::Square) types_[type] = 0;
 	else                                     types_[type] = 1;

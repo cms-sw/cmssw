@@ -49,6 +49,11 @@ globalRecoPbPb = cms.Sequence(hiTracking_wSplitting
                               * hcalnoise
                               * muonRecoHighLevelPbPb
                               )
+globalRecoPbPb_wPhase1 = globalRecoPbPb.copy()
+globalRecoPbPb_wPhase1.replace(hiTracking_wSplitting, hiTracking_wSplitting_Phase1)
+from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
+trackingPhase1.toReplaceWith(globalRecoPbPb, globalRecoPbPb_wPhase1)
+
 
 globalRecoPbPb_wConformalPixel = cms.Sequence(hiTracking_wConformalPixel
                                               * hiParticleFlowLocalReco

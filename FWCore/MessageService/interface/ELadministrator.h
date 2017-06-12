@@ -49,12 +49,11 @@
 //
 // ----------------------------------------------------------------------
 
-#include "FWCore/MessageService/interface/ELdestControl.h"
-
 #include "FWCore/MessageLogger/interface/ELstring.h"
 #include "FWCore/MessageLogger/interface/ELlist.h"
 #include "FWCore/MessageLogger/interface/ELseverityLevel.h"
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
+#include "FWCore/MessageService/interface/ELdestination.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <memory>
@@ -94,7 +93,7 @@ public:
   
   // ---  furnish/recall destinations:
   //
-  ELdestControl attach( std::shared_ptr<ELdestination> sink );
+  std::shared_ptr<ELdestination> attach( std::shared_ptr<ELdestination> sink );
 
   // ---  handle severity information:
   //

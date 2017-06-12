@@ -223,7 +223,7 @@ namespace edm {
         // configuration we are about to do, we issue the message (so it sits
         // on the queue), then copy the processing that the LOG_A_MESSAGE case
         // does.  We suppress the timestamp to allow for automated unit testing.
-        early_dest.suppressTime();
+        early_dest->suppressTime();
         LogError ("preconfiguration") << preconfiguration_message;
       }
       
@@ -243,7 +243,7 @@ namespace edm {
     
     
     void
-    ThreadSafeLogMessageLoggerScribe::configure_dest( ELdestControl & dest_ctrl
+    ThreadSafeLogMessageLoggerScribe::configure_dest( std::shared_ptr<ELdestination> dest_ctrl
                                                      , String const &  filename
                                                      )
     {
@@ -326,14 +326,14 @@ namespace edm {
       // change log 1a
       if ( dest_default_limit != NO_VALUE_SET ) {
         if ( dest_default_limit < 0 ) dest_default_limit = 2000000000;
-        dest_ctrl.setLimit("*", dest_default_limit );
+        dest_ctrl->setLimit("*", dest_default_limit );
       } 						// change log 1b, 2a, 2b
       if ( dest_default_interval != NO_VALUE_SET ) {  // change log 6
-        dest_ctrl.setInterval("*", dest_default_interval );
+        dest_ctrl->setInterval("*", dest_default_interval );
       }
       if ( dest_default_timespan != NO_VALUE_SET ) {
         if ( dest_default_timespan < 0 ) dest_default_timespan = 2000000000;
-        dest_ctrl.setTimespan("*", dest_default_timespan );
+        dest_ctrl->setTimespan("*", dest_default_timespan );
       } 						// change log 1b, 2a, 2b
       
       // establish this destination's threshold:
@@ -350,7 +350,7 @@ namespace edm {
       }
       if (dest_threshold == empty_String) dest_threshold = COMMON_DEFAULT_THRESHOLD;
       ELseverityLevel  threshold_sev(dest_threshold);
-      dest_ctrl.setThreshold(threshold_sev);
+      dest_ctrl->setThreshold(threshold_sev);
       // change log 37
       if (threshold_sev <= ELseverityLevel::ELsev_success)
       { edm::MessageDrop::debugAlwaysSuppressed = false; }
@@ -403,14 +403,14 @@ namespace edm {
         
         if( limit     != NO_VALUE_SET )  {
           if ( limit < 0 ) limit = 2000000000;
-          dest_ctrl.setLimit(msgID, limit);
+          dest_ctrl->setLimit(msgID, limit);
         }  						// change log 2a, 2b
         if( interval  != NO_VALUE_SET )  {
-          dest_ctrl.setInterval(msgID, interval);
+          dest_ctrl->setInterval(msgID, interval);
         }  						// change log 6
         if( timespan  != NO_VALUE_SET )  {
           if ( timespan < 0 ) timespan = 2000000000;
-          dest_ctrl.setTimespan(msgID, timespan);
+          dest_ctrl->setTimespan(msgID, timespan);
         }						// change log 2a, 2b
         
       }  // for
@@ -434,13 +434,13 @@ namespace edm {
         }
         if( limit    != NO_VALUE_SET )  {
           if (limit < 0) limit = 2000000000;			// change log 38
-          dest_ctrl.setLimit(severity, limit   );
+          dest_ctrl->setLimit(severity, limit   );
         }
         int  interval  = getAparameter<int>(sev_pset, "reportEvery", NO_VALUE_SET);
         if ( interval     == NO_VALUE_SET )  {			// change log 24
           interval = messageLoggerDefaults->sev_reportEvery(filename,sevID);
         }
-        if( interval != NO_VALUE_SET )  dest_ctrl.setInterval(severity, interval);
+        if( interval != NO_VALUE_SET )  dest_ctrl->setInterval(severity, interval);
         // change log 2
         int  timespan  = getAparameter<int>(sev_pset, "timespan", NO_VALUE_SET);
         if ( timespan     == NO_VALUE_SET )  {			// change log 24
@@ -448,7 +448,7 @@ namespace edm {
         }
         if( timespan    != NO_VALUE_SET )  {
           if (timespan < 0) timespan = 2000000000;			// change log 38
-          dest_ctrl.setTimespan(severity, timespan   );
+          dest_ctrl->setTimespan(severity, timespan   );
         }
       }  // for
       
@@ -459,7 +459,7 @@ namespace edm {
       bool noLineBreaks
       = getAparameter<bool> (dest_pset, "noLineBreaks", noLineBreaks_default);
       if (noLineBreaks) {
-        dest_ctrl.setLineLength(32000);
+        dest_ctrl->setLineLength(32000);
       }
       else {
         int  lenDef = 80;
@@ -468,7 +468,7 @@ namespace edm {
         // change log 5
         int  lineLen = getAparameter<int> (dest_pset, "lineLength", lineLen_default);
         if (lineLen != lenDef) {
-          dest_ctrl.setLineLength(lineLen);
+          dest_ctrl->setLineLength(lineLen);
         }
       }
       
@@ -478,7 +478,7 @@ namespace edm {
       bool suppressTime
       = getAparameter<bool> (dest_pset, "noTimeStamps", suppressTime_default);
       if (suppressTime) {
-        dest_ctrl.suppressTime();
+        dest_ctrl->suppressTime();
       }
       
     }  // ThreadSafeLogMessageLoggerScribe::configure_dest()
@@ -507,7 +507,7 @@ namespace edm {
       
       // dial down the early destination if other dest's are supplied:
       if( ! destinations.empty() )
-        early_dest.setThreshold(ELhighestSeverity);
+        early_dest->setThreshold(ELhighestSeverity);
       
       // establish each destination:
       for( vString::const_iterator it = destinations.begin()
@@ -590,13 +590,13 @@ namespace edm {
         ordinary_destination_filenames.push_back(actual_filename);
         
         // attach the current destination, keeping a control handle to it:
-        ELdestControl dest_ctrl;
+        std::shared_ptr<ELdestination> dest_ctrl;
         if( actual_filename == "cout" )  {
           dest_ctrl = admin_p->attach( std::make_shared<ELoutput>(std::cout) );
           stream_ps["cout"] = &std::cout;
         }
         else if( actual_filename == "cerr" )  {
-          early_dest.setThreshold(ELzeroSeverity);
+          early_dest->setThreshold(ELzeroSeverity);
           dest_ctrl = early_dest;
           stream_ps["cerr"] = &std::cerr;
         }
@@ -745,8 +745,7 @@ namespace edm {
           statisticsResets.push_back(reset);
           
           // now configure this destination:
-          ELdestControl dest_ctrl(stat);
-          configure_dest(dest_ctrl, psetname);
+          configure_dest(stat, psetname);
           
           // and suppress the desire to do an extra termination summary just because
           // of end-of-job info messages

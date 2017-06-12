@@ -48,7 +48,7 @@ SeedingLayerSetsBuilder::SeedingLayerId SeedingLayerSetsBuilder::nameToEnumId(co
     //
     else if ((index = name.find("FPix")) != string::npos) {
       subdet = GeomDetEnumerators::PixelEndcap;
-      idLayer = atoi(name.substr(index+4,1).c_str());
+      idLayer = atoi(name.substr(index+4).c_str());
       if ( name.find("pos") != string::npos ) {
         side = SeedingLayer::PosEndcap;
       } else {

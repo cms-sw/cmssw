@@ -53,7 +53,7 @@ private:
   bool                              useWeight, storeTrack, storeRL, storeLayerTimeSim;
   bool                              useBirk, useBirkL3;
   double                            birk1, birk2, birk3, birkSlope, birkCut;
-  double                            slopeLY;
+  double                            slopeLY, scaleRL;
   std::string                       crystalMat, depth1Name, depth2Name;
   std::map<G4LogicalVolume*,double> xtalLMap;
   std::vector<G4LogicalVolume*>     useDepth1, useDepth2, noWeight;
