@@ -23,7 +23,7 @@ def applySubstructure( process, postfix="" ) :
 
 
     ## AK8 groomed masses
-    from RecoJets.Configuration.RecoPFJets_cff import ak8PFJetsCHSPruned, ak8PFJetsCHSSoftDrop
+    from RecoJets.JetProducers.ak8PFJets_cfi import ak8PFJetsCHSPruned, ak8PFJetsCHSSoftDrop
     addToProcessAndTask('ak8PFJetsCHSPruned'+postfix, ak8PFJetsCHSPruned.clone(), process, task)
     addToProcessAndTask('ak8PFJetsCHSSoftDrop'+postfix, ak8PFJetsCHSSoftDrop.clone(), process, task)
     from RecoJets.JetProducers.ak8PFJetsCHS_groomingValueMaps_cfi import ak8PFJetsCHSPrunedMass, ak8PFJetsCHSTrimmedMass, ak8PFJetsCHSFilteredMass, ak8PFJetsCHSSoftDropMass
@@ -68,6 +68,7 @@ def applySubstructure( process, postfix="" ) :
     addToProcessAndTask('ak4PFJetsPuppi'+postfix,ak4PFJetsPuppi.clone(), process, task)
     addToProcessAndTask('ak8PFJetsPuppiConstituents', ak8PFJetsPuppiConstituents.clone(), process, task )
     addToProcessAndTask('ak8PFJetsCHSConstituents', ak8PFJetsCHSConstituents.clone(), process, task )
+ndard in RECO at all anymore.
     addToProcessAndTask('ak8PFJetsPuppi'+postfix,ak8PFJetsPuppi.clone(), process, task)
     addToProcessAndTask('ak8PFJetsPuppiSoftDrop'+postfix, ak8PFJetsPuppiSoftDrop.clone(), process, task)
     getattr(process,"ak8PFJetsPuppi").doAreaFastjet = True # even for standard ak8PFJets this is overwritten in RecoJets/Configuration/python/RecoPFJets_cff
@@ -96,7 +97,7 @@ def applySubstructure( process, postfix="" ) :
                         process, task)
 
     ## AK8 groomed masses
-    from RecoJets.Configuration.RecoPFJets_cff import ak8PFJetsPuppiSoftDrop
+    from RecoJets.JetProducers.ak8PFJets_cfi import ak8PFJetsPuppiSoftDrop
     addToProcessAndTask('ak8PFJetsPuppiSoftDrop'+postfix, ak8PFJetsPuppiSoftDrop.clone(), process, task)
     from RecoJets.JetProducers.ak8PFJetsPuppi_groomingValueMaps_cfi import ak8PFJetsPuppiSoftDropMass
     addToProcessAndTask('ak8PFJetsPuppiSoftDropMass'+postfix, ak8PFJetsPuppiSoftDropMass.clone(), process, task)
