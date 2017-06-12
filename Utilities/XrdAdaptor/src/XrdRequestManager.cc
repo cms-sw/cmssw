@@ -151,7 +151,6 @@ RequestManager::initialize(std::weak_ptr<RequestManager> self)
   for (int idx=0; idx<retries; idx++)
   {
     file.reset(new XrdCl::File());
-    file->SetProperty("ReadRecovery", "false");
     auto opaque = prepareOpaqueString();
     std::string new_filename = m_name + (opaque.size() ? ((m_name.find("?") == m_name.npos) ? "?" : "&") + opaque : "");
     SyncHostResponseHandler handler;
@@ -1188,7 +1187,6 @@ XrdAdaptor::RequestManager::OpenHandler::open()
     std::string new_name = manager.m_name + ((manager.m_name.find("?") == manager.m_name.npos) ? "?" : "&") + opaque;
     edm::LogVerbatim("XrdAdaptorInternal") << "Trying to open URL: " << new_name;
     m_file.reset(new XrdCl::File());
-    m_file->SetProperty("ReadRecovery", "false");
     m_outstanding_open = true;
 
     // Always make sure we release m_file and set m_outstanding_open to false on error.
