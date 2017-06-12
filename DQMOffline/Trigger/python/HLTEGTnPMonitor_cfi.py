@@ -38,7 +38,8 @@ hcalPhi17Cut = cms.PSet(
 
 tagAndProbeConfigEle27WPTight = cms.PSet(
     trigEvent = cms.InputTag("hltTriggerSummaryAOD","","HLT"),
-    objColl = cms.InputTag("gedGsfElectrons"),
+    tagColl = cms.InputTag("gedGsfElectrons"),
+    probeColl = cms.InputTag("gedGsfElectrons"),
     tagVIDCuts = cms.InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-Summer16-80X-V1-tight"),
     probeVIDCuts = cms.InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-Summer16-80X-V1-tight"),
     sampleTrigRequirements = cms.PSet(
@@ -60,6 +61,7 @@ tagAndProbeConfigEle27WPTight = cms.PSet(
     probeFilters = cms.vstring(),
     probeFiltersORed = cms.bool(False),
     probeRangeCuts = cms.VPSet(ecalBarrelAndEndcapEtaCut),
+    minTagProbeDR = cms.double(0),
     minMass = cms.double(70.0),
     maxMass = cms.double(110.0),
     requireOpSign = cms.bool(False),
@@ -78,7 +80,22 @@ tagAndProbeConfigEle27WPTightHEM17 = tagAndProbeConfigEle27WPTight.clone(
         hcalNegEtaCut,
         hcalPhi17Cut,
 ))
-    
+
+tagAndProbeElePhoConfigEle27WPTight = tagAndProbeConfigEle27WPTight.clone(
+    probeColl=cms.InputTag("gedPhotons"),
+    probeVIDCuts=cms.InputTag(""),
+    minTagProbeDR=cms.double(0.1)
+)
+tagAndProbeElePhoConfigEle27WPTightHEP17 = tagAndProbeElePhoConfigEle27WPTight.clone(
+     probeRangeCuts = cms.VPSet(
+        hcalPosEtaCut,
+        hcalPhi17Cut,
+))
+tagAndProbeElePhoConfigEle27WPTightHEM17 = tagAndProbeElePhoConfigEle27WPTight.clone(
+     probeRangeCuts = cms.VPSet(
+        hcalNegEtaCut,
+        hcalPhi17Cut,
+))
 
 egammaStdHistConfigs = cms.VPSet(
     cms.PSet(
@@ -348,6 +365,29 @@ egHLTDQMOfflineTnPSource = cms.EDAnalyzer("HLTEleTagAndProbeOfflineSource",
         )
                                          )
 
+egHLTElePhoDQMOfflineTnPSource = cms.EDAnalyzer("HLTElePhoTagAndProbeOfflineSource",
+                                                tagAndProbeCollections = cms.VPSet(
+        cms.PSet( 
+            tagAndProbeConfigEle27WPTight.clone(probeColl=cms.InputTag("gedPhotons"),
+            histConfigs = egammaStdHistConfigs,
+            baseHistName = cms.string("eleWPTightTag_"),
+            filterConfigs = egammaStdFiltersToMonitor,
+        ),
+        cms.PSet(
+            tagAndProbeConfigEle27WPTightHEM17,
+            histConfigs = egammaStdHistConfigs,
+            baseHistName = cms.string("eleWPTightTag-HEM17_"),
+            filterConfigs = egammaStdFiltersToMonitor,
+        ),
+        cms.PSet(
+            tagAndProbeConfigEle27WPTightHEP17,
+            histConfigs = egammaStdHistConfigs,
+            baseHistName = cms.string("eleWPTightTag-HEP17_"),
+            filterConfigs = egammaStdFiltersToMonitor,
+        ),
+           
+        )
+           
 from RecoEgamma.ElectronIdentification.egmGsfElectronIDs_cff import egmGsfElectronIDs
 
 egmGsfElectronIDsForDQM = egmGsfElectronIDs.clone()
