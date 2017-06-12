@@ -168,6 +168,38 @@ triplemu12mu10mu5 = DQMEDHarvester("DQMGenericClient",
     ),
 )
 
+triplemu10mu5mu5DZ = DQMEDHarvester("DQMGenericClient",
+    subDirs        = cms.untracked.vstring("HLT/Higgs/TriLepton/HLT_TripleM_10_5_5_DZ/"),
+    verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
+    resolution     = cms.vstring(),
+    efficiency     = cms.vstring(
+        "effic_muPt_1       'efficiency vs leading muon pt; muon pt [GeV]; efficiency' muPt_1_numerator       muPt_1_denominator",
+        "effic_muEta_1       'efficiency vs leading muon eta; muon eta ; efficiency' muEta_1_numerator       muEta_1_denominator",
+        "effic_muPhi_1       'efficiency vs leading muon phi; muon phi ; efficiency' muPhi_1_numerator       muPhi_1_denominator",
+        "effic_muPt_1_variableBinning       'efficiency vs leading muon pt; muon pt [GeV]; efficiency' muPt_1_variableBinning_numerator       muPt_1_variableBinning_denominator",
+        "effic_muEta_1_variableBinning       'efficiency vs leading muon eta; muon eta ; efficiency' muEta_1_variableBinning_numerator       muEta_1_variableBinning_denominator",
+        "effic_muPtEta_1       'efficiency vs leading muon pt-#eta; muon pt [GeV]; muon #eta' muPtEta_1_numerator	muPtEta_1_denominator",
+        "effic_muEtaPhi_1	'efficiency vs leading muon #eta-#phi; muon #eta ; muon #phi' muEtaPhi_1_numerator	 muEtaPhi_1_denominator",
+        "effic_muPt_2       'efficiency vs sub-leading muon pt; muon pt [GeV]; efficiency' muPt_2_numerator       muPt_2_denominator",
+        "effic_muEta_2       'efficiency vs sub-leading muon eta; muon eta ; efficiency' muEta_2_numerator       muEta_2_denominator",
+        "effic_muPhi_2       'efficiency vs sub-leading muon phi; muon phi ; efficiency' muPhi_2_numerator       muPhi_2_denominator",
+        "effic_muPt_2_variableBinning       'efficiency vs sub-leading muon pt; muon pt [GeV]; efficiency' muPt_2_variableBinning_numerator       muPt_2_variableBinning_denominator",
+        "effic_muEta_2_variableBinning       'efficiency vs sub-leading muon eta; muon eta ; efficiency' muEta_2_variableBinning_numerator       muEta_2_variableBinning_denominator",
+        "effic_muPtEta_2       'efficiency vs sub-leading muon pt-#eta; muon pt [GeV]; muon #eta' muPtEta_2_numerator	muPtEta_2_denominator",
+        "effic_muEtaPhi_2	'efficiency vs sub-leading muon #eta-#phi; muon #eta ; muon #phi' muEtaPhi_2_numerator	 muEtaPhi_2_denominator",
+        "effic_muPt_3       'efficiency vs trailing muon pt; muon pt [GeV]; efficiency' muPt_3_numerator       muPt_3_denominator",
+        "effic_muEta_3       'efficiency vs trailing muon eta; muon eta ; efficiency' muEta_3_numerator       muEta_3_denominator",
+        "effic_muPhi_3       'efficiency vs trailing muon phi; muon phi ; efficiency' muPhi_3_numerator       muPhi_3_denominator",
+        "effic_muPt_3_variableBinning       'efficiency vs trailing muon pt; muon pt [GeV]; efficiency' muPt_3_variableBinning_numerator       muPt_3_variableBinning_denominator",
+        "effic_muEta_3_variableBinning       'efficiency vs trailing muon eta; muon eta ; efficiency' muEta_3_variableBinning_numerator       muEta_3_variableBinning_denominator",
+        "effic_muPtEta_3       'efficiency vs trailing muon pt-#eta; muon pt [GeV]; muon #eta' muPtEta_3_numerator	muPtEta_3_denominator",
+        "effic_muEtaPhi_3	'efficiency vs trailing muon #eta-#phi; muon #eta ; muon #phi' muEtaPhi_3_numerator	 muEtaPhi_3_denominator",
+    ),
+    efficiencyProfile = cms.untracked.vstring(
+        "effic_LeadMuonPt_vs_LS 'Muon p_T efficiency vs LS; LS; Muon p_T efficiency' muVsLS_numerator muVsLS_denominator"
+    ),
+)
+
 #############################Double Mu + Single Ele######################################
 dimu9ele9caloIdLTrackIdLdz_effmu = DQMEDHarvester("DQMGenericClient",
     subDirs        = cms.untracked.vstring("HLT/Higgs/TriLepton/HLT_DiMu9_Ele9_CaloIdL_TrackIdL/muLeg/"),
@@ -311,6 +343,7 @@ higgsClient = cms.Sequence(
   + mu8diEle12CaloIdLTrackIdL_effdz
   + ele16ele12ele8caloIdLTrackIdL
   + triplemu12mu10mu5
+  + triplemu10mu5mu5DZ
   + mu12TrkIsoVVLEle23CaloIdLTrackIdLIsoVLDZ_effele
   + mu12TrkIsoVVLEle23CaloIdLTrackIdLIsoVLDZ_effmu
   + mu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLDZ_effele
