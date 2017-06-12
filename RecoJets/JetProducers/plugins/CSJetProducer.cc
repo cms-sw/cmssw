@@ -3,8 +3,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "RecoJets/JetProducers/interface/JetSpecific.h"
 
-#include "RecoJets/JetProducers/interface/PileUpSubtractor.h"
-
 using namespace std;
 using namespace reco;
 using namespace edm;
@@ -199,8 +197,6 @@ void CSJetProducer::fillDescriptions(edm::ConfigurationDescriptions& description
   ///// From VirtualJetProducer
   descCSJetProducer.add<string>("jetCollInstanceName", ""    );
   VirtualJetProducer::fillDescriptionsFromVirtualJetProducer(descCSJetProducer);
-  ///// From PileUpSubtractor
-  PileUpSubtractor::fillDescriptionsFromPileUpSubtractor(descCSJetProducer);
   descCSJetProducer.add<bool> ("sumRecHits", false);
   
   /////////////////////
