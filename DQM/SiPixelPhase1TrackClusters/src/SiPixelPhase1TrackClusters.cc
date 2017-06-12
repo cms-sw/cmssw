@@ -21,13 +21,19 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 
 
 SiPixelPhase1TrackClusters::SiPixelPhase1TrackClusters(const edm::ParameterSet& iConfig) :
   SiPixelPhase1Base(iConfig) 
 {
   clustersToken_ = consumes<edmNew::DetSetVector<SiPixelCluster>>(iConfig.getParameter<edm::InputTag>("clusters"));
+
   tracksToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"));
+
+  offlinePrimaryVerticesToken_ = consumes<reco::VertexCollection>(std::string("offlinePrimaryVertices"));
+
+  ApplyVertexCut_=iConfig.getUntrackedParameter<bool>("VertexCut",true);
 }
 
 void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -37,9 +43,15 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
   iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
   assert(tracker.isValid());
   
+  edm::Handle<reco::VertexCollection> vertices;
+  iEvent.getByToken(offlinePrimaryVerticesToken_, vertices);
+
+  if (ApplyVertexCut_ && (!vertices.isValid() || vertices->size() == 0)) return;
+
   //get the map
   edm::Handle<reco::TrackCollection> tracks;
   iEvent.getByToken( tracksToken_, tracks);
+
   if ( !tracks.isValid() ) {
     edm::LogWarning("SiPixelPhase1TrackClusters")  << "track collection is not valid";
     return;
@@ -48,6 +60,7 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
   // get clusters
   edm::Handle< edmNew::DetSetVector<SiPixelCluster> >  clusterColl;
   iEvent.getByToken( clustersToken_, clusterColl );
+
   if ( !clusterColl.isValid() ) {
     edm::LogWarning("SiPixelPhase1TrackClusters")  << "pixel cluster collection is not valid";
     return;
@@ -61,6 +74,8 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
   std::vector<float> corr_charge(clusterColl->data().size(), -1.0f);
 
   for (auto const & track : *tracks) {
+
+    if (ApplyVertexCut_ && (track.pt() < 0.75 || std::fabs( track.dxy(vertices->at(0).position()) ) > 5*track.dxyError())) continue;
 
     bool isBpixtrack = false, isFpixtrack = false, crossesPixVol=false;
 
