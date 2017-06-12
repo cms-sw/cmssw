@@ -56,7 +56,7 @@ namespace {
     
   public:
     SiStripApvBarrelGainsByLayer() : cond::payloadInspector::Histogram1D<SiStripApvGain>("SiStripApv Gains averages by Barrel layer",
-											 "SiStripApv Gains averages by Barrel layer",10,0,10){
+											 "Barrel layer (0-3: TIB), (4-9: TOB)",10,0,10,"average SiStripApv Gain"){
       Base::setSingleIov( true );
     }
     
@@ -72,8 +72,8 @@ namespace {
 
 	  for (size_t id=0;id<detid.size();id++){
 
-	    int subid = (id >> 25)&0x7;
-	    int layer = (id >> 14)&0x7;
+	    int subid = int((detid[id]>>25) & 0x7);	   
+	    int layer = int((detid[id]>>14) & 0x7);
 	    if(subid!=3 && subid!=5) continue;
 	    if(subid==5){
 	      // layers of TOB start at 5th bin
@@ -89,7 +89,8 @@ namespace {
 
 	  // loop on the map to fill the plot
 	  for (auto& data : sumOfGainsByLayer){
-	    fillWithBinAndValue(data.first,(data.second.first/data.second.second));
+	    //std::cout<<"layer: "<<data.first << " payload:"<< (data.second.first/data.second.second) <<std::endl;
+	    fillWithBinAndValue(data.first-1,(data.second.first/data.second.second));
 	  }
 	  
 	}// payload
@@ -108,7 +109,7 @@ namespace {
     
   public:
     SiStripApvEndcapMinusGainsByDisk() : cond::payloadInspector::Histogram1D<SiStripApvGain>("SiStripApv Gains averages by Endcap (minus) disk",
-											     "SiStripApv Gains averages by Endcap (minus) disk",12,0,12){
+											     "Endcap (minus) disk (0-2: TID), (3-11: TEC)",12,0,12,"average SiStripApv Gain"){
       Base::setSingleIov( true );
     }
     
@@ -126,21 +127,21 @@ namespace {
 
 	    int disk=-1;
 	    int side=-1;
-	    int subid = (id >> 25)&0x7;
+	    int subid = int((detid[id]>>25) & 0x7);
 	    if(subid!=4 && subid!=6) continue;
 	    
 	    // TID https://github.com/cms-sw/cmssw/blob/master/DataFormats/SiStripDetId/interface/TIDDetId.h#L112
 
 	    if(subid==4){
 
-	      side = (id >> 13)&0x3;
-	      disk= (id >>11)&0x3; 
+	      side = int((detid[id]>>13) & 0x3);
+	      disk = int((detid[id]>>11) & 0x3); 
 	    } else {
 
 	    // TEC  https://github.com/cms-sw/cmssw/blob/master/DataFormats/SiStripDetId/interface/TECDetId.h#L122
 
-	      side = (id >> 18)&0x3;
-	      disk = (id >> 14)&0xF;
+	      side = int((detid[id]>>18) & 0x3);
+	      disk = int((detid[id]>>14) & 0xF);
 	      
 	      // disks of TEC start at 4th bin
 	      disk+=3;
@@ -158,7 +159,7 @@ namespace {
 
 	  // loop on the map to fill the plot
 	  for (auto& data : sumOfGainsByDisk){
-	    fillWithBinAndValue(data.first,(data.second.first/data.second.second));
+	    fillWithBinAndValue(data.first-1,(data.second.first/data.second.second));
 	  }
 	  
 	}// payload
@@ -177,7 +178,7 @@ namespace {
     
   public:
     SiStripApvEndcapPlusGainsByDisk() : cond::payloadInspector::Histogram1D<SiStripApvGain>("SiStripApv Gains averages by Endcap (plus) disk",
-											    "SiStripApv Gains averages by Endcap (plus) disk",12,0,12){
+											    "Endcap (plus) disk (0-2: TID), (3-11: TEC)",12,0,12,"average SiStripApv Gain"){
       Base::setSingleIov( true );
     }
     
@@ -195,20 +196,20 @@ namespace {
 
 	    int disk=-1;
 	    int side=-1;
-	    int subid = (id >> 25)&0x7;
+	    int subid = int((detid[id]>>25) & 0x7);
 	    if(subid!=4 && subid!=6) continue;
 
 	    // TID https://github.com/cms-sw/cmssw/blob/master/DataFormats/SiStripDetId/interface/TIDDetId.h#L112
 
 	    if(subid==4){
-	      side = (id >> 13)&0x3;
-	      disk = (id >> 11)&0x3; 
+	      side = int((detid[id]>>13) & 0x3);
+	      disk = int((detid[id]>>11) & 0x3); 
 	    } else {
 
 	    // TEC https://github.com/cms-sw/cmssw/blob/master/DataFormats/SiStripDetId/interface/TECDetId.h#L122
 	      
-	      side = (id >> 18)&0x3;
-	      disk = (id >> 14)&0xF; 
+	      side = int((detid[id]>>18) & 0x3);
+	      disk = int((detid[id]>>14) & 0xF); 
 	      
 	      // disks of TEC start at 4th bin
 	      disk+=4;
@@ -285,7 +286,7 @@ namespace {
 
       for (size_t id=0;id<detid.size();id++){
 
-	int subid = (id >> 25)&0x7;
+	int subid = int((detid[id]>>25) & 0x7);
 	if(subid!=3) continue;
 	
 	SiStripApvGain::Range range=payload.getRange(detid[id]);
@@ -319,7 +320,7 @@ namespace {
 
       for (size_t id=0;id<detid.size();id++){
 
-	int subid = (id >> 25)&0x7;
+	int subid = int((detid[id]>>25) & 0x7);
 	if(subid!=5) continue;
 	
 	SiStripApvGain::Range range=payload.getRange(detid[id]);
@@ -353,7 +354,7 @@ namespace {
 
       for (size_t id=0;id<detid.size();id++){
 
-	int subid = (id >> 25)&0x7;
+	int subid = int((detid[id]>>25) & 0x7);
 	if(subid!=4) continue;
 	
 	SiStripApvGain::Range range=payload.getRange(detid[id]);
@@ -387,7 +388,7 @@ namespace {
 
       for (size_t id=0;id<detid.size();id++){
 
-	int subid = (id >> 25)&0x7;
+	int subid = int((detid[id]>>25) & 0x7);
 	if(subid!=6) continue;
 	
 	SiStripApvGain::Range range=payload.getRange(detid[id]);
