@@ -202,7 +202,7 @@ void BPHMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   std::string currentFolder = folderName_ + istnp;
   ibooker.setCurrentFolder(currentFolder.c_str());
   if (trOrMu_) trMuPh = "tr";else if (Ph_) trMuPh = "ph";else trMuPh = "mu";
-  if (nofset_==7 || nofset_==1 || nofset_==9){  
+  if (nofset_==7 || nofset_==1 || nofset_==9 || nofset_==10){  
   histname = trMuPh+"Pt"; histtitle = trMuPh+"_P_{t}";
   bookME(ibooker,muPt_,histname,histtitle, pt_binning_.nbins, pt_binning_.xmin, pt_binning_.xmax);
   setMETitle(muPt_,trMuPh+"_Pt[GeV]","events/1GeV");
@@ -432,8 +432,9 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
       if (m1.pt() == m.pt())continue;
       if(!muoSelection_ref(m1))continue;   
       if(!matchToTrigger(hltpath,m1, handleTriggerEvent)) continue;
+      if (nofset_<10){
       if (!DMSelection_ref(m1.p4() + m.p4()))continue;
-      if (m.charge()*m1.charge()>0 )continue;
+      if (m.charge()*m1.charge()>0 )continue;}
         
       
           edm::ESHandle<MagneticField> bFieldHandle;
@@ -692,7 +693,67 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
     }
     }
     break;
+    case 10:
+///
+      if (trHandle.isValid()){
+    ////////////////////////
 
+        for (auto const & t : *trHandle) {
+        if(!trSelection_ref(t))continue;
+        if(!matchToTrigger(hltpath,t, handleTriggerEvent)) continue;
+            reco::Track itrk1       = t ;                                                
+            if((reco::deltaR(t.eta(), t.phi(),m1.eta(),m1.phi()) <= 0.001))continue;//checking overlaping
+            if((reco::deltaR(t.eta(), t.phi(),m.eta(),m.phi()) <= 0.001)) continue;
+ 
+            if (! itrk1.quality(reco::TrackBase::highPurity))     continue;
+
+            reco::Particle::LorentzVector pB, p2, p3;
+            double trackMass2 = 0.493677 *0.493677;
+            double MuMass2 = 0.1056583745 *0.1056583745;
+            double e2   = sqrt(m1.momentum().Mag2()  + MuMass2          );
+            double e3   = sqrt(itrk1.momentum().Mag2() + trackMass2  );
+            
+            p2   = reco::Particle::LorentzVector(m1.px() , m1.py() , m1.pz() , e2  );
+            p3   = reco::Particle::LorentzVector(itrk1.px(), itrk1.py(), itrk1.pz(), e3  );
+            pB   = p2 + p3;
+            reco::TransientTrack trTT(itrk1, &(*bFieldHandle));
+
+            std::vector<reco::TransientTrack> t_tks;
+            t_tks.push_back(mu2TT);
+            t_tks.push_back(trTT);
+            if (t_tks.size()!=2) continue;
+            
+            KalmanVertexFitter kvf;
+            TransientVertex tv  = kvf.vertex(t_tks);
+            reco::Vertex vertex = tv;
+            if (!tv.isValid()) continue;
+            if( pB.mass()> maxmassJpsiTk || pB.mass()< minmassJpsiTk)continue;
+            float JpsiTkCL = 0;
+            if ((vertex.chi2()>=0.0) && (vertex.ndof()>0) )   
+            JpsiTkCL = TMath::Prob(vertex.chi2(), vertex.ndof() );
+            math::XYZVector pperp(m1.px() + itrk1.px(),
+                                  m1.py() + itrk1.py(),
+                                  0.);
+            GlobalPoint secondaryVertex = tv.position();
+            GlobalError err             = tv.positionError();
+            GlobalPoint displacementFromBeamspot( -1*((vertexBeamSpot.x0() - secondaryVertex.x()) + 
+                                                      (secondaryVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dxdz()), 
+                                                  -1*((vertexBeamSpot.y0() - secondaryVertex.y()) + 
+                                                      (secondaryVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dydz()), 
+                                                  0);
+            reco::Vertex::Point vperp(displacementFromBeamspot.x(),displacementFromBeamspot.y(),0.);
+            float jpsiKcos = vperp.Dot(pperp)/(vperp.R()*pperp.R());
+        if (JpsiTkCL<minprob)continue;
+        muPhi_.denominator->Fill(m1.phi());
+        muEta_.denominator->Fill(m1.eta());
+        muPt_.denominator ->Fill(m1.pt());
+ 
+    /////////////////////////
+    }
+    }
+    break;
+//
+//
   } 
  }
 }
@@ -917,38 +978,29 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
         if ((displacementFromBeamspotJpsi.perp()/sqrt(jerr.rerr(displacementFromBeamspotJpsi)))<minDS)continue;
 
       if (trHandle.isValid()){
-    ////////////////////////
-
         for (auto const & t : *trHandle) {
-    
         if(!trSelection_ref(t))continue;
         if(!matchToTrigger(hltpath,t, handleTriggerEvent)) continue;
             reco::Track itrk1       = t ;                                                
-            
             if((reco::deltaR(t.eta(), t.phi(),m1.eta(),m1.phi()) <= 0.001))continue;//checking overlaping
             if((reco::deltaR(t.eta(), t.phi(),m.eta(),m.phi()) <= 0.001)) continue;
- 
             if (! itrk1.quality(reco::TrackBase::highPurity))     continue;
-
             reco::Particle::LorentzVector pB, p1, p2, p3;
             double trackMass2 = 0.493677 *0.493677;
             double MuMass2 = 0.1056583745 *0.1056583745;
             double e1   = sqrt(m.momentum().Mag2()  + MuMass2          );
             double e2   = sqrt(m1.momentum().Mag2()  + MuMass2          );
             double e3   = sqrt(itrk1.momentum().Mag2() + trackMass2  );
-            
             p1   = reco::Particle::LorentzVector(m.px() , m.py() , m.pz() , e1  );
             p2   = reco::Particle::LorentzVector(m1.px() , m1.py() , m1.pz() , e2  );
             p3   = reco::Particle::LorentzVector(itrk1.px(), itrk1.py(), itrk1.pz(), e3  );
             pB   = p1 + p2 + p3;
             reco::TransientTrack trTT(itrk1, &(*bFieldHandle));
-
             std::vector<reco::TransientTrack> t_tks;
             t_tks.push_back(mu1TT);
             t_tks.push_back(mu2TT);
             t_tks.push_back(trTT);
             if (t_tks.size()!=3) continue;
-            
             KalmanVertexFitter kvf;
             TransientVertex tv  = kvf.vertex(t_tks);
             reco::Vertex vertex = tv;
@@ -981,6 +1033,66 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
     }
     break;
 
+    case 10:
+///
+      if (trHandle.isValid()){
+    ////////////////////////
+
+        for (auto const & t : *trHandle) {
+        if(!trSelection_ref(t))continue;
+        if(!matchToTrigger(hltpath,t, handleTriggerEvent)) continue;
+            reco::Track itrk1       = t ;                                                
+            if((reco::deltaR(t.eta(), t.phi(),m1.eta(),m1.phi()) <= 0.001))continue;//checking overlaping
+            if((reco::deltaR(t.eta(), t.phi(),m.eta(),m.phi()) <= 0.001)) continue;
+ 
+            if (! itrk1.quality(reco::TrackBase::highPurity))     continue;
+
+            reco::Particle::LorentzVector pB, p2, p3;
+            double trackMass2 = 0.493677 *0.493677;
+            double MuMass2 = 0.1056583745 *0.1056583745;
+            double e2   = sqrt(m1.momentum().Mag2()  + MuMass2          );
+            double e3   = sqrt(itrk1.momentum().Mag2() + trackMass2  );
+            
+            p2   = reco::Particle::LorentzVector(m1.px() , m1.py() , m1.pz() , e2  );
+            p3   = reco::Particle::LorentzVector(itrk1.px(), itrk1.py(), itrk1.pz(), e3  );
+            pB   = p2 + p3;
+            reco::TransientTrack trTT(itrk1, &(*bFieldHandle));
+
+            std::vector<reco::TransientTrack> t_tks;
+            t_tks.push_back(mu2TT);
+            t_tks.push_back(trTT);
+            if (t_tks.size()!=2) continue;
+            
+            KalmanVertexFitter kvf;
+            TransientVertex tv  = kvf.vertex(t_tks);
+            reco::Vertex vertex = tv;
+            if (!tv.isValid()) continue;
+            if( pB.mass()> maxmassJpsiTk || pB.mass()< minmassJpsiTk)continue;
+            float JpsiTkCL = 0;
+            if ((vertex.chi2()>=0.0) && (vertex.ndof()>0) )   
+            JpsiTkCL = TMath::Prob(vertex.chi2(), vertex.ndof() );
+            math::XYZVector pperp(m1.px() + itrk1.px(),
+                                  m1.py() + itrk1.py(),
+                                  0.);
+            GlobalPoint secondaryVertex = tv.position();
+            GlobalError err             = tv.positionError();
+            GlobalPoint displacementFromBeamspot( -1*((vertexBeamSpot.x0() - secondaryVertex.x()) + 
+                                                      (secondaryVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dxdz()), 
+                                                  -1*((vertexBeamSpot.y0() - secondaryVertex.y()) + 
+                                                      (secondaryVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dydz()), 
+                                                  0);
+            reco::Vertex::Point vperp(displacementFromBeamspot.x(),displacementFromBeamspot.y(),0.);
+            float jpsiKcos = vperp.Dot(pperp)/(vperp.R()*pperp.R());
+        if (JpsiTkCL<minprob)continue;
+        muPhi_.numerator->Fill(m1.phi());
+        muEta_.numerator->Fill(m1.eta());
+        muPt_.numerator ->Fill(m1.pt());
+ 
+    /////////////////////////
+    }
+    }
+    break;
+    
   } 
  }
 }
