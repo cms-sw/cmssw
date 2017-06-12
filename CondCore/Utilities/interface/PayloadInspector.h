@@ -409,8 +409,8 @@ namespace cond {
     public:
       typedef Plot2D<PayloadType,float,float > Base;
       // naive implementation, essentially provided as an example...
-      Histogram1D( const std::string& title, const std::string& xLabel, size_t nbins, float min, float max ):
-	Base( "Histo1D", title, xLabel , "entries" ),m_nbins(nbins),m_min(min),m_max(max){
+    Histogram1D( const std::string& title, const std::string& xLabel, size_t nbins, float min, float max, const std::string& yLabel="entries"):
+	Base( "Histo1D", title, xLabel , yLabel),m_nbins(nbins),m_min(min),m_max(max){
       }
       virtual ~Histogram1D() = default;
       // 
