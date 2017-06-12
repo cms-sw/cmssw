@@ -72,12 +72,11 @@ namespace {
 
 	  for (size_t id=0;id<detid.size();id++){
 
-	    int layer=-1;
 	    int subid = (id >> 25)&0x7;
+	    int layer = (id >> 14)&0x7;
 	    if(subid!=3 && subid!=5) continue;
-	    if(subid==3){
-	      layer= int((id >> 14)& 0x7);
-	    } else {
+	    if(subid==5){
+	      // layers of TOB start at 5th bin
 	      layer+=4;
 	    }
 
@@ -85,11 +84,148 @@ namespace {
 	    for(int it=0;it<range.second-range.first;it++){
 	      sumOfGainsByLayer[layer].first+=payload->getApvGain(it,range);
 	      sumOfGainsByLayer[layer].second+=1.;
-		}// loop over APVs
+	    }// loop over APVs
 	  } // loop over detIds
 
 	  // loop on the map to fill the plot
 	  for (auto& data : sumOfGainsByLayer){
+	    fillWithBinAndValue(data.first,(data.second.first/data.second.second));
+	  }
+	  
+	}// payload
+      }// iovs
+      return true;
+    }// fill
+  };
+
+  /************************************************
+    1d histogram of means of SiStripApvGains
+    for Tracker Endcaps (minus side) of 1 IOV 
+  *************************************************/
+
+  // inherit from one of the predefined plot class: Histogram1D
+  class SiStripApvEndcapMinusGainsByDisk : public cond::payloadInspector::Histogram1D<SiStripApvGain> {
+    
+  public:
+    SiStripApvEndcapMinusGainsByDisk() : cond::payloadInspector::Histogram1D<SiStripApvGain>("SiStripApv Gains averages by Endcap (minus) disk",
+											     "SiStripApv Gains averages by Endcap (minus) disk",12,0,12){
+      Base::setSingleIov( true );
+    }
+    
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+      for ( auto const & iov: iovs) {
+	std::shared_ptr<SiStripApvGain> payload = Base::fetchPayload( std::get<1>(iov) );
+	if( payload.get() ){
+	 
+	  std::vector<uint32_t> detid;
+	  payload->getDetIds(detid);
+	  
+	  std::map<int,std::pair<float,float> > sumOfGainsByDisk;
+
+	  for (size_t id=0;id<detid.size();id++){
+
+	    int disk=-1;
+	    int side=-1;
+	    int subid = (id >> 25)&0x7;
+	    if(subid!=4 && subid!=6) continue;
+	    
+	    // TID https://github.com/cms-sw/cmssw/blob/master/DataFormats/SiStripDetId/interface/TIDDetId.h#L112
+
+	    if(subid==4){
+
+	      side = (id >> 13)&0x3;
+	      disk= (id >>11)&0x3; 
+	    } else {
+
+	    // TEC  https://github.com/cms-sw/cmssw/blob/master/DataFormats/SiStripDetId/interface/TECDetId.h#L122
+
+	      side = (id >> 18)&0x3;
+	      disk = (id >> 14)&0xF;
+	      
+	      // disks of TEC start at 4th bin
+	      disk+=3;
+	    }
+
+	    // only negative side
+	    if(side!=1) continue;
+
+	    SiStripApvGain::Range range=payload->getRange(detid[id]);
+	    for(int it=0;it<range.second-range.first;it++){
+	      sumOfGainsByDisk[disk].first+=payload->getApvGain(it,range);
+	      sumOfGainsByDisk[disk].second+=1.;
+	    }// loop over APVs
+	  } // loop over detIds
+
+	  // loop on the map to fill the plot
+	  for (auto& data : sumOfGainsByDisk){
+	    fillWithBinAndValue(data.first,(data.second.first/data.second.second));
+	  }
+	  
+	}// payload
+      }// iovs
+      return true;
+    }// fill
+  };
+
+  /************************************************
+    1d histogram of means of SiStripApvGains
+    for Tracker Endcaps (plus side) of 1 IOV 
+  *************************************************/
+
+  // inherit from one of the predefined plot class: Histogram1D
+  class SiStripApvEndcapPlusGainsByDisk : public cond::payloadInspector::Histogram1D<SiStripApvGain> {
+    
+  public:
+    SiStripApvEndcapPlusGainsByDisk() : cond::payloadInspector::Histogram1D<SiStripApvGain>("SiStripApv Gains averages by Endcap (plus) disk",
+											    "SiStripApv Gains averages by Endcap (plus) disk",12,0,12){
+      Base::setSingleIov( true );
+    }
+    
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+      for ( auto const & iov: iovs) {
+	std::shared_ptr<SiStripApvGain> payload = Base::fetchPayload( std::get<1>(iov) );
+	if( payload.get() ){
+	 
+	  std::vector<uint32_t> detid;
+	  payload->getDetIds(detid);
+	  
+	  std::map<int,std::pair<float,float> > sumOfGainsByDisk;
+
+	  for (size_t id=0;id<detid.size();id++){
+
+	    int disk=-1;
+	    int side=-1;
+	    int subid = (id >> 25)&0x7;
+	    if(subid!=4 && subid!=6) continue;
+
+	    // TID https://github.com/cms-sw/cmssw/blob/master/DataFormats/SiStripDetId/interface/TIDDetId.h#L112
+
+	    if(subid==4){
+	      side = (id >> 13)&0x3;
+	      disk = (id >> 11)&0x3; 
+	    } else {
+
+	    // TEC https://github.com/cms-sw/cmssw/blob/master/DataFormats/SiStripDetId/interface/TECDetId.h#L122
+	      
+	      side = (id >> 18)&0x3;
+	      disk = (id >> 14)&0xF; 
+	      
+	      // disks of TEC start at 4th bin
+	      disk+=4;
+	    }
+	    
+	    // only positive side
+	    if(side!=2) continue;
+
+	    SiStripApvGain::Range range=payload->getRange(detid[id]);
+	    for(int it=0;it<range.second-range.first;it++){
+	      sumOfGainsByDisk[disk].first+=payload->getApvGain(it,range);
+	      sumOfGainsByDisk[disk].second+=1.;
+	    }// loop over APVs
+	  } // loop over detIds
+
+	  // loop on the map to fill the plot
+	  for (auto& data : sumOfGainsByDisk){
 	    fillWithBinAndValue(data.first,(data.second.first/data.second.second));
 	  }
 	  
@@ -273,6 +409,8 @@ namespace {
 PAYLOAD_INSPECTOR_MODULE(SiStripApvGain){
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsValue);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvBarrelGainsByLayer);
+  PAYLOAD_INSPECTOR_CLASS(SiStripApvEndcapMinusGainsByDisk);
+  PAYLOAD_INSPECTOR_CLASS(SiStripApvEndcapPlusGainsByDisk);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainByRunMeans);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvTIBGainByRunMeans);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvTIDGainByRunMeans);
