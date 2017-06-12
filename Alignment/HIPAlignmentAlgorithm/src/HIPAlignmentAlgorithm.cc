@@ -1201,7 +1201,7 @@ bool HIPAlignmentAlgorithm::calcParameters(Alignable* ali, int setDet, double st
   int npar = jtve.num_row();
   AlgebraicVector params(npar);
   AlgebraicVector paramerr(npar);
-  AlgebraicSymMatrix cov(npar*npar);
+  AlgebraicSymMatrix cov(npar);
 
   // errors of parameters
   if (setDet==0){
