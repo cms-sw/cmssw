@@ -11,6 +11,7 @@
 #include "DQM/SiPixelPhase1Common/interface/SiPixelPhase1Base.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 class SiPixelPhase1RecHits : public SiPixelPhase1Base {
   enum {
@@ -24,6 +25,7 @@ class SiPixelPhase1RecHits : public SiPixelPhase1Base {
   };
 
   bool onlyValid_;
+  bool ApplyVertexCut_;
 
   public:
   explicit SiPixelPhase1RecHits(const edm::ParameterSet& conf);
@@ -31,6 +33,7 @@ class SiPixelPhase1RecHits : public SiPixelPhase1Base {
 
   private:
     edm::EDGetTokenT<reco::TrackCollection> srcToken_;
+    edm::EDGetTokenT<reco::VertexCollection> offlinePrimaryVerticesToken_;
 };
 
 #endif

@@ -21,6 +21,8 @@ class SiPixelPhase1TrackEfficiency : public SiPixelPhase1Base {
     VERTICES
   };
 
+  bool ApplyVertexCut_;
+
   public:
   explicit SiPixelPhase1TrackEfficiency(const edm::ParameterSet& conf);
   void analyze(const edm::Event&, const edm::EventSetup&);
