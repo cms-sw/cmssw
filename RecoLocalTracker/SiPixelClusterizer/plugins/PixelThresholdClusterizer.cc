@@ -47,12 +47,12 @@ PixelThresholdClusterizer::PixelThresholdClusterizer
     // Get thresholds in electrons
     thePixelThreshold( conf.getParameter<int>("ChannelThreshold") ),
     theSeedThreshold( conf.getParameter<int>("SeedThreshold") ),
-    theClusterThreshold( conf.getParameter<double>("ClusterThreshold") ),
-    theClusterThreshold_L1( conf.getUntrackedParameter<double>("ClusterThreshold_L1",theClusterThreshold) ),
+    theClusterThreshold( conf.getParameter<int>("ClusterThreshold") ),
+    theClusterThreshold_L1( conf.getParameter<int>("ClusterThreshold_L1") ),
     theConversionFactor( conf.getParameter<int>("VCaltoElectronGain") ),
-    theConversionFactor_L1( conf.getUntrackedParameter<int>("VCaltoElectronGain_L1",theConversionFactor) ),
+    theConversionFactor_L1( conf.getParameter<int>("VCaltoElectronGain_L1") ),
     theOffset( conf.getParameter<int>("VCaltoElectronOffset") ),
-    theOffset_L1( conf.getUntrackedParameter<int>("VCaltoElectronOffset_L1",theOffset) ),
+    theOffset_L1( conf.getParameter<int>("VCaltoElectronOffset_L1") ),
     theStackADC_( conf.exists("AdcFullScaleStack") ? conf.getParameter<int>("AdcFullScaleStack") : 255 ),
     theFirstStack_( conf.exists("FirstStackLayer") ? conf.getParameter<int>("FirstStackLayer") : 5 ),
     theElectronPerADCGain_( conf.exists("ElectronPerADCGain") ? conf.getParameter<double>("ElectronPerADCGain") : 135. ),
@@ -123,7 +123,7 @@ void PixelThresholdClusterizer::clusterizeDetUnitT( const T & input,
   detid_ = input.detId();
   
   // Set separate cluster threshold for L1 (needed for phase1)
-  double clusterThreshold = theClusterThreshold;
+  auto clusterThreshold = theClusterThreshold;
   int layer = (DetId(detid_).subdetId()==1) ? PXBDetId(detid_).layer() : 0;
   if (layer==1) clusterThreshold = theClusterThreshold_L1;
   
@@ -444,7 +444,7 @@ PixelThresholdClusterizer::make_cluster( const SiPixelCluster::PixelPos& pix,
   if (dead_flag && doSplitClusters) 
     {
       // Set separate cluster threshold for L1 (needed for phase1)
-      double clusterThreshold = theClusterThreshold;
+      auto clusterThreshold = theClusterThreshold;
       int layer = (DetId(detid_).subdetId()==1) ? PXBDetId(detid_).layer() : 0;
       if (layer==1) clusterThreshold = theClusterThreshold_L1;
       

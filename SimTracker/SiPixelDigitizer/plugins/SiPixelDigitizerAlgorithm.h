@@ -322,10 +322,10 @@ class SiPixelDigitizerAlgorithm  {
     const double theThresholdSmearing_BPix;
     const double theThresholdSmearing_BPix_L1;
 
-    const double electronsPerVCAL;          // for electrons - VCAL conversion
-    const double electronsPerVCAL_Offset;   // in misscalibrate()
-    const double electronsPerVCAL_L1;       // same for Layer 1
-    const double electronsPerVCAL_L1_Offset;// same for Layer 1
+    const float electronsPerVCAL;          // for electrons - VCAL conversion
+    const float electronsPerVCAL_Offset;   // in misscalibrate()
+    const float electronsPerVCAL_L1;       // same for Layer 1
+    const float electronsPerVCAL_L1_Offset;// same for Layer 1
 
     const float theTofLowerCut;             // Cut on the particle TOF
     const float theTofUpperCut;             // Cut on the particle TOF
