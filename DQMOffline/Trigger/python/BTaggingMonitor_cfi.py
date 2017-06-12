@@ -10,9 +10,9 @@ hltBTVmonitoring.histoPSet.metPSet = cms.PSet(
   xmax  = cms.double(  300  ),
 )
 hltBTVmonitoring.histoPSet.ptPSet = cms.PSet(
-  nbins = cms.int32 (  60   ),
+  nbins = cms.int32 (  100  ),
   xmin  = cms.double(   0   ),
-  xmax  = cms.double(  300  ),
+  xmax  = cms.double(  1000 ),
 )
 hltBTVmonitoring.histoPSet.phiPSet = cms.PSet(
   nbins = cms.int32 (  32  ),
@@ -25,9 +25,9 @@ hltBTVmonitoring.histoPSet.etaPSet = cms.PSet(
   xmax  = cms.double(  2.4 ),
 )
 hltBTVmonitoring.histoPSet.htPSet = cms.PSet(
-  nbins = cms.int32 (   60  ),
+  nbins = cms.int32 (  100  ),
   xmin  = cms.double(   0   ),
-  xmax  = cms.double(  600  ),
+  xmax  = cms.double(  1000 ),
 )
 # Marina
 hltBTVmonitoring.histoPSet.csvPSet = cms.PSet(
@@ -51,9 +51,9 @@ hltBTVmonitoring.histoPSet.eleEtaBinning = cms.vdouble(-2.4,-2.1,-1.7,-1.2,-0.9,
 hltBTVmonitoring.histoPSet.jetEtaBinning = cms.vdouble(-2.4,-2.1,-1.7,-1.2,-0.9,-0.6,-0.3,-0.1,0,0.1,0.3,0.6,0.9,1.2,1.7,2.1,2.4)
 hltBTVmonitoring.histoPSet.muEtaBinning  = cms.vdouble(-2.4,-2.1,-1.7,-1.2,-0.9,-0.6,-0.3,-0.1,0,0.1,0.3,0.6,0.9,1.2,1.7,2.1,2.4)
 #pt binning
-hltBTVmonitoring.histoPSet.elePtBinning = cms.vdouble(0,3,5,8,15,20,25,30,40,50,60,80,120,200,400)
-hltBTVmonitoring.histoPSet.jetPtBinning = cms.vdouble(0,3,5,8,15,20,25,30,40,50,60,80,120,200,400)
-hltBTVmonitoring.histoPSet.muPtBinning  = cms.vdouble(0,3,5,8,15,20,25,30,40,50,60,80,120,200,400)
+hltBTVmonitoring.histoPSet.elePtBinning = cms.vdouble(0,3,5,8,15,20,25,30,40,50,60,80,120,200,400,700)
+hltBTVmonitoring.histoPSet.jetPtBinning = cms.vdouble(0,3,5,8,15,20,25,30,40,50,70,100,150,200,400,700,1000,1500)
+hltBTVmonitoring.histoPSet.muPtBinning  = cms.vdouble(0,3,5,7,10,15,20,30,40,50,70,100,150,200,400,700)
 #Eta binning 2D
 hltBTVmonitoring.histoPSet.eleEtaBinning2D = cms.vdouble(-2.4,-1.7,-1.2,-0.6,-0.3,0,0.3,0.6,1.2,1.7,2.4)
 hltBTVmonitoring.histoPSet.jetEtaBinning2D = cms.vdouble(-2.4,-1.7,-1.2,-0.6,-0.3,0,0.3,0.6,1.2,1.7,2.4)
