@@ -148,26 +148,26 @@ process.simEmtfDigis.verbosity = cms.untracked.int32(0)
 # process.simEmtfDigis.spPAParams16.BugGMTPhi    = cms.bool(True)
 
 
-## *** 2017 ***
-## From python/fakeEmtfParams_cff.py
-process.emtfParams.PtAssignVersion = cms.int32(7)
-process.emtfParams.FirmwareVersion = cms.int32(50001) ## Settings as of beginning-of-year 2017
-process.emtfParams.PrimConvVersion = cms.int32(1)
-# process.emtfForestsDB.toGet = cms.VPSet(
-#     cms.PSet(
-#         record = cms.string("L1TMuonEndCapForestRcd"),
-#         tag = cms.string("L1TMuonEndCapForest_static_Sq_20170523_mc")
-#         )
-#     )
+# ## *** 2017 ***
+# ## From python/fakeEmtfParams_cff.py
+# process.emtfParams.PtAssignVersion = cms.int32(7)
+# process.emtfParams.FirmwareVersion = cms.int32(50001) ## Settings as of beginning-of-year 2017
+# process.emtfParams.PrimConvVersion = cms.int32(1)
+# # process.emtfForestsDB.toGet = cms.VPSet(
+# #     cms.PSet(
+# #         record = cms.string("L1TMuonEndCapForestRcd"),
+# #         tag = cms.string("L1TMuonEndCapForest_static_Sq_20170523_mc")
+# #         )
+# #     )
 
-## From python/simEmtfDigis_cfi.py
-process.simEmtfDigis.RPCEnable                 = cms.bool(True)
-process.simEmtfDigis.spTBParams16.ThetaWindow  = cms.int32(8)
-process.simEmtfDigis.spPCParams16.FixME11Edges = cms.bool(True)
-process.simEmtfDigis.spPAParams16.PtLUTVersion = cms.int32(7)
-process.simEmtfDigis.spPAParams16.BugGMTPhi    = cms.bool(False)
+# ## From python/simEmtfDigis_cfi.py
+# process.simEmtfDigis.RPCEnable                 = cms.bool(True)
+# process.simEmtfDigis.spTBParams16.ThetaWindow  = cms.int32(8)
+# process.simEmtfDigis.spPCParams16.FixME11Edges = cms.bool(True)
+# process.simEmtfDigis.spPAParams16.PtLUTVersion = cms.int32(7)
+# process.simEmtfDigis.spPAParams16.BugGMTPhi    = cms.bool(False)
 
-process.simEmtfDigis.spPAParams16.ReadPtLUTFile = cms.bool(True)
+# process.simEmtfDigis.spPAParams16.ReadPtLUTFile = cms.bool(True)
 
 
 # RawToDigi_AWB = cms.Sequence(process.muonCSCDigis+process.muonRPCDigis+process.csctfDigis)
@@ -221,7 +221,7 @@ out_dir = "/afs/cern.ch/work/a/abrinke1/public/EMTF/Commissioning/2017/"
 process.treeOut = cms.OutputModule("PoolOutputModule", 
                                    # fileName = cms.untracked.string("EMTF_MC_Tree_RelValNuGun_UP15_1k.root"),
                                    # fileName = cms.untracked.string("EMTF_MC_Tree_tau_to_3_mu_RPC_debug.root"),
-                                   fileName = cms.untracked.string(out_dir+"EMTF_MC_Tree_SingleMu_2017_fromLUTv7_11k.root"),
+                                   fileName = cms.untracked.string(out_dir+"EMTF_MC_Tree_SingleMu_2017_v7_O2O_v3_11k.root"),
                                    outputCommands = outCommands
                                    )
 

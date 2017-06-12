@@ -89,7 +89,7 @@ int L1MuBMTEtaPatternLut::load() {
   // get directory name
   string defaultPath = "L1Trigger/";//L1TriggerConfig/DTTrackFinder/parameters/";
   string eau_dir = "L1TMuon/data/bmtf_luts/LUTs_Ass/";//L1TriggerData/DTTrackFinder/Eau/
-cout<<"skata"<<endl;
+
   // assemble file name
   edm::FileInPath lut_f = edm::FileInPath(string(defaultPath + eau_dir + "ETFPatternList.lut"));
   string etf_file = lut_f.fullPath();

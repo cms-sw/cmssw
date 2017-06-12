@@ -151,10 +151,10 @@ namespace l1t {
 	Counters_.set_me2n_3( GetHexBits(BCc, 13, 13) ); 
 	Counters_.set_me2n_9( GetHexBits(BCc, 14, 14) ); 
 
-	Counters_.set_me2n_3( GetHexBits(BCd,  0,  0) ); 
-	Counters_.set_me2n_9( GetHexBits(BCd,  1,  1) ); 
-	Counters_.set_me2n_3( GetHexBits(BCd,  2,  2) ); 
-	Counters_.set_me2n_9( GetHexBits(BCd,  3,  3) ); 
+	Counters_.set_me3n_3( GetHexBits(BCd,  0,  0) ); 
+	Counters_.set_me3n_9( GetHexBits(BCd,  1,  1) ); 
+	Counters_.set_me4n_3( GetHexBits(BCd,  2,  2) ); 
+	Counters_.set_me4n_9( GetHexBits(BCd,  3,  3) ); 
 	Counters_.set_me1a_1( GetHexBits(BCd,  4,  4) );
 	Counters_.set_me1b_1( GetHexBits(BCd,  5,  5) );
 	Counters_.set_me2_1 ( GetHexBits(BCd,  6,  6) );

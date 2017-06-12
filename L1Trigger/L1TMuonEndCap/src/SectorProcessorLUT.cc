@@ -31,7 +31,7 @@ void SectorProcessorLUT::read(unsigned pc_lut_version) {
       << "Trying to use EMTF pc_lut_version = " << pc_lut_version << ", does not exist!";
   // Will catch user trying to run with Global Tag settings on 2016 data, rather than fakeEmtfParams. - AWB 08.06.17
 
-  std::string coord_lut_path = "L1Trigger/L1TMuonEndCap/data/emtf_luts/" + coord_lut_dir + "/";
+  std::string coord_lut_path = "L1Trigger/L1TMuon/data/emtf_luts/" + coord_lut_dir + "/";
 
   std::cout << "coord_lut_path = " << coord_lut_path << std::endl;
 
