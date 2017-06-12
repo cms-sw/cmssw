@@ -47,8 +47,8 @@ PixelThresholdClusterizer::PixelThresholdClusterizer
     // Get thresholds in electrons
     thePixelThreshold( conf.getParameter<int>("ChannelThreshold") ),
     theSeedThreshold( conf.getParameter<int>("SeedThreshold") ),
-    theClusterThreshold( conf.getParameter<int>("ClusterThreshold") ),
-    theClusterThreshold_L1( conf.getParameter<int>("ClusterThreshold_L1") ),
+    theClusterThreshold( conf.getParameter<double>("ClusterThreshold") ),
+    theClusterThreshold_L1( conf.getParameter<double>("ClusterThreshold_L1") ),
     theConversionFactor( conf.getParameter<int>("VCaltoElectronGain") ),
     theConversionFactor_L1( conf.getParameter<int>("VCaltoElectronGain_L1") ),
     theOffset( conf.getParameter<int>("VCaltoElectronOffset") ),
@@ -62,6 +62,10 @@ PixelThresholdClusterizer::PixelThresholdClusterizer
     doSplitClusters( conf.getParameter<bool>("SplitClusters") )
 {
   theBuffer.setSize( theNumOfRows, theNumOfCols );
+  if (theClusterThreshold != conf.getParameter<double>("ClusterThreshold"))
+    throw cms::Exception("Configuration")<<"ClusterThreshold is to be converted to int, Please, use an integer value.";
+  if (theClusterThreshold_L1 != conf.getParameter<double>("ClusterThreshold_L1"))
+    throw cms::Exception("Configuration")<<"ClusterThreshold_L1 is to be converted to int, Please, use an integer value.";
 }
 /////////////////////////////////////////////////////////////////////////////
 PixelThresholdClusterizer::~PixelThresholdClusterizer() {}
