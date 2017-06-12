@@ -1321,8 +1321,8 @@ void HIPAlignmentAlgorithm::collectMonitorTrees(const std::vector<std::string>& 
     << "[HIPAlignmentAlgorithm::collectMonitorTrees] Called in non-collector mode."
     << std::endl;
 
-  TString treeName=Form("T1_%i", theIteration);
-  TString hitTreeName=Form("T1_hit_%i", theIteration);
+  TString theTrackMonitorTreeName=Form("T1_%i", theIteration);
+  TString theHitMonitorTreeName=Form("T1_hit_%i", theIteration);
 
   std::vector<TFile*> finputlist;
   TList* eventtrees = new TList;
@@ -1333,7 +1333,7 @@ void HIPAlignmentAlgorithm::collectMonitorTrees(const std::vector<std::string>& 
       TTree* tmptree;
       if (theMonitorConfig.fillTrackMonitoring){
         tmptree=0;
-        tmptree = (TTree*)finput->Get(treeName);
+        tmptree = (TTree*)finput->Get(theTrackMonitorTreeName);
         if (tmptree!=0) eventtrees->Add(tmptree);
       }
       if (theMonitorConfig.fillTrackHitMonitoring){
@@ -1363,8 +1363,8 @@ void HIPAlignmentAlgorithm::collectMonitorTrees(const std::vector<std::string>& 
   for (TFile*& finput : finputlist) finput->Close();
 
   // Rename the trees to standard names
-  if (theTree!=0) theTree->SetName(treeName);
-  if (hitTree!=0) hitTree->SetName(hitTreeName);
+  if (theTrackMonitorTree!=0) theTrackMonitorTree->SetName(theTrackMonitorTreeName);
+  if (theHitMonitorTree!=0) theHitMonitorTree->SetName(theHitMonitorTreeName);
 }
 
 //-----------------------------------------------------------------------------------
