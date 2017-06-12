@@ -10,7 +10,7 @@ L1TkElectrons = cms.EDProducer("L1TkElectronTrackProducer",
         # Quality cuts on Track and Track L1EG matching criteria                                
         TrackChi2           = cms.double(1e10), # minimum Chi2 to select tracks
         TrackMinPt          = cms.double(10.0), # minimum Pt to select tracks                                     
-	useTwoStubsPT       = cms.bool( True ),
+	useTwoStubsPT       = cms.bool( False ),
         TrackEGammaDeltaPhi = cms.vdouble(0.07, 0.0, 0.0), # functional Delta Phi cut parameters to match Track with L1EG objects
         TrackEGammaDeltaR   = cms.vdouble(0.08, 0.0, 0.0), # functional Delta R cut parameters to match Track with L1EG objects
         TrackEGammaDeltaEta = cms.double(1e10), # Delta Eta cutoff to match Track with L1EG objects

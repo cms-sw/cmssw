@@ -3,6 +3,9 @@ import FWCore.ParameterSet.Config as cms
 from L1Trigger.L1TTrackMatch.L1TkElectronTrackProducer_cfi import L1TkElectrons
 pL1TkElectrons = cms.Path( L1TkElectrons )
 
+from L1Trigger.L1TTrackMatch.L1TkElectronTrackProducer_cfi import L1TkIsoElectrons
+pL1TkIsoElectrons = cms.Path( L1TkIsoElectrons )
+
 from L1Trigger.L1TTrackMatch.L1TkEmParticleProducer_cfi import L1TkPhotons 
 pL1TkPhotons = cms.Path( L1TkPhotons )
 

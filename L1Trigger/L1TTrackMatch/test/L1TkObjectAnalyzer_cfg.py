@@ -21,16 +21,14 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(2)
+    input = cms.untracked.int32(-1)
 )
 
 # Input source
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        '/store/mc/PhaseIISpring17D/SingleE_FlatPt-8to100/GEN-SIM-DIGI-RAW/NoPU_90X_upgrade2023_realistic_v9-v1/70000/44C2F01A-DE26-E711-A085-FA163E0162D6.root',
-        '/store/mc/PhaseIISpring17D/SingleE_FlatPt-8to100/GEN-SIM-DIGI-RAW/NoPU_90X_upgrade2023_realistic_v9-v1/70000/70829AD5-1526-E711-B695-FA163E5613EB.root'
+     '/store/mc/PhaseIISpring17D/SingleNeutrino/GEN-SIM-DIGI-RAW/PU140_90X_upgrade2023_realistic_v9-v1/70000/80771242-8428-E711-A998-0242AC130005.root'
     ),
-#    fileNames = cms.untracked.vstring('/store/relval/CMSSW_9_1_0_pre3/RelValSingleElectronPt10Extended/GEN-SIM-DIGI-RAW/91X_upgrade2023_realistic_v1_D11-v1/10000/10597704-722E-E711-A2CD-0CC47A78A436.root'),
     secondaryFileNames = cms.untracked.vstring()
 )
 # Production Info
@@ -158,28 +156,18 @@ process.endjob_step = cms.EndPath(process.endOfProcess)
 # Now we produce L1TkEmParticles and L1TkElectrons
 
 process.load("L1Trigger.L1TTrackMatch.L1TkObjectProducers_cff")
-process.pL1TkObjects = cms.Path(process.L1TkElectrons 
+process.pTrkObjProd = cms.Path(process.L1TkElectrons
+                             + process.L1TkIsoElectrons 
                              + process.L1TkPhotons 
-                             + process.L1TkJets 
-                             + process.L1TkPrimaryVertex 
-                             + process.L1TkEtMiss 
-                             + process.L1TkHTMissVtx
-                             + process.L1TkMuons
-                             + process.L1TkTauFromCalo)
+                             + process.L1TkMuons)
 
-process.printTkObj = cms.EDAnalyzer( 'PrintL1TkObjects' ,
-    L1TkVtxInputTag         = cms.InputTag("L1TkPrimaryVertex",""),
-    L1TkEtMissInputTag    = cms.InputTag("L1TkEtMiss","MET"),
-    L1TkJetsInputTag      = cms.InputTag("L1TkJets","Central"),
-    L1TkHTMInputTag       = cms.InputTag("L1TkHTMissVtx", ""),
-    L1TkPhotonsInputTag   = cms.InputTag("L1TkPhotons" "EG"),
-    L1TkElectronsInputTag = cms.InputTag("L1TkElectrons","EG"),
-    L1TkMuonsInputTag     = cms.InputTag("L1TkMuons",""),
-    L1TkTausInputTag      = cms.InputTag("L1TkTauFromCalo")
 
-)
-process.pPrintObject = cms.Path(process.printTkObj)
+process.load("L1Trigger.L1TTrackMatch.L1TkObjectAnalyzer_cff")
+process.pTrkObjAna = cms.Path(process.MuonRate +  process.PhotonRate + process.ElectronRate + process.IsoElectronRate)
+
 # root file with histograms produced by the analyzer
+filename = "efficiency_PU140_1.root"
+process.TFileService = cms.Service("TFileService", fileName = cms.string(filename), closeFileFast = cms.untracked.bool(True))
 
 # ---------------------------------------------------------------------------
 
@@ -187,8 +175,7 @@ process.dumpED = cms.EDAnalyzer("EventContentAnalyzer")
 process.pDumpED = cms.Path(process.dumpED)
 
 
-process.schedule = cms.Schedule(process.L1simulation_step,process.L1TrackTrigger_step,process.pL1TkObjects,process.pPrintObject,process.pDumpED)
-#process.schedule = cms.Schedule(process.L1simulation_step,process.L1TrackTrigger_step)
+process.schedule = cms.Schedule(process.L1simulation_step,process.L1TrackTrigger_step,process.pTrkObjProd,process.pTrkObjAna)
 
 
 
