@@ -6,7 +6,7 @@ process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.autoCond import autoCond
-process.GlobalTag.globaltag=autoCond['run2_mc']
+process.GlobalTag.globaltag='92X_dataRun2_Prompt_v4'
 
 process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('warnings','errors',
@@ -66,10 +66,18 @@ process.MessageLogger = cms.Service("MessageLogger",
     )
 )
 
-process.load('Calibration.HcalCalibAlgos.isoAnalyzer_cfi')
+process.load('RecoLocalCalo.CaloTowersCreator.calotowermaker_cfi')
+process.towerMakerAll = process.calotowermaker.clone()
+process.towerMakerAll.hbheInput = cms.InputTag("hbhereco")
+process.towerMakerAll.hoInput = cms.InputTag("none")
+process.towerMakerAll.hfInput = cms.InputTag("none")
+process.towerMakerAll.ecalInputs = cms.VInputTag(cms.InputTag("ecalRecHit","EcalRecHitsEB"), cms.InputTag("ecalRecHit","EcalRecHitsEE"))
+process.towerMakerAll.AllowMissingInputs = True
+
+process.load('Calibration.HcalCalibAlgos.HcalIsoTrkAnalyzer_cfi')
 process.source = cms.Source("PoolSource", 
                             fileNames = cms.untracked.vstring(
-        'file:root://eoscms//eos/cms/store/caf/user/gwalia/00159954-AB20-E411-B738-0025901D490C.root'
+        '/store/data/Run2017A/JetHT/RECO/PromptReco-v2/000/296/168/00000/CE1DFEC8-444C-E711-AB09-02163E019CB1.root'
     )
 )
 
@@ -79,6 +87,6 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 process.TFileService = cms.Service("TFileService",
    fileName = cms.string('output.root')
 )
-
+process.HcalIsoTrkAnalyzer.Triggers = []
 process.p = cms.Path(process.HcalIsoTrkAnalyzer)
 
