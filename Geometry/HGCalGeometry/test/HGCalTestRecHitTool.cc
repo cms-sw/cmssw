@@ -44,6 +44,7 @@ private:
   GlobalPoint getPosition(DetId const&) const;
 
   const CaloGeometry *geom_;
+  int                 layerEE_, layerFH_, layerBH_;
 };
 
 HGCalTestRecHitTool::HGCalTestRecHitTool(const edm::ParameterSet& iC) { }
@@ -59,7 +60,15 @@ void HGCalTestRecHitTool::analyze(const edm::Event& ,
 
   if (pG.isValid()) {
     geom_ = pG.product();
-    retrieveLayerPositions(52);
+    auto geomEE = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCEE));
+    layerEE_    = (geomEE->topology().dddConstants()).layers(true);
+    auto geomFH = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCHEF));
+    layerFH_    = (geomFH->topology().dddConstants()).layers(true);
+    auto geomBH = static_cast<const HcalGeometry*>(geom_->getSubdetectorGeometry(DetId::Hcal,HcalSubdetector::HcalEndcap));
+    layerBH_    = (geomBH->topology().dddConstants())->getMaxDepth(1);
+    std::cout << "Layers " << layerEE_ << ":" << layerFH_ << ":" << layerBH_
+	      << std::endl;
+    retrieveLayerPositions(layerEE_+layerFH_+layerBH_);
   } else {
     std::cout << "Cannot get valid CaloGeometry Object" << std::endl;
   }
@@ -85,16 +94,16 @@ std::vector<double> HGCalTestRecHitTool::retrieveLayerPositions(unsigned layers)
 
   DetId id;
   std::vector<double> layerPositions;
-  for (unsigned ilayer=1; ilayer<=layers; ++ilayer) {
+  for (int ilayer=1; ilayer<=(int)(layers); ++ilayer) {
     int lay(ilayer), type(0);
-    if (ilayer<=28) {
+    if (ilayer<=layerEE_) {
       id  = HGCalDetId(ForwardSubdetector::HGCEE,1,lay,1,2,1);
-    } else if (ilayer>28 && ilayer<=40) {
-      lay = ilayer-28;
+    } else if (ilayer>layerEE_ && ilayer<=(layerEE_+layerFH_)) {
+      lay = ilayer-layerEE_;
       id  = HGCalDetId(ForwardSubdetector::HGCHEF,1,lay,1,2,1);
       type= 1;
     } else {
-      lay = ilayer-40;
+      lay = ilayer-(layerEE_+layerFH_);
       id  = HcalDetId(HcalSubdetector::HcalEndcap, 50, 100, lay);
       type= 2;
     }
