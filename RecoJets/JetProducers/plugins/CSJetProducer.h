@@ -29,6 +29,8 @@ namespace cms
     CSJetProducer(const edm::ParameterSet& ps);
 
     virtual ~CSJetProducer() {}
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+    static void fillDescriptionsFromCSJetProducer(edm::ParameterSetDescription& desc);
 
     virtual void produce( edm::Event & iEvent, const edm::EventSetup & iSetup );
     
@@ -38,10 +40,7 @@ namespace cms
 
     static bool function_used_for_sorting(std::pair<double,int> i,std::pair<double, int> j);
     
-     // calls VirtualJetProducer::inputTowers
-    //virtual void inputTowers();
-
-    double csRParam_;           /// for constituent subtraction : R parameter for KT alg in jet median background estimator
+    double csRParam_;           /// for constituent subtraction : R parameter
     double csAlpha_;            /// for HI constituent subtraction : alpha (power of pt in metric)
 
     //input rho and rho_m + eta map

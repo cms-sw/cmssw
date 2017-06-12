@@ -3,6 +3,8 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "RecoJets/JetProducers/interface/JetSpecific.h"
 
+#include "RecoJets/JetProducers/interface/PileUpSubtractor.h"
+
 using namespace std;
 using namespace reco;
 using namespace edm;
@@ -187,6 +189,34 @@ void CSJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup const& iS
 
 bool  CSJetProducer::function_used_for_sorting(std::pair<double,int> i,std::pair<double, int> j){
     return (i.first < j.first);
+}
+
+void CSJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
+  edm::ParameterSetDescription descCSJetProducer;
+  ////// From CSJetProducer
+  fillDescriptionsFromCSJetProducer(descCSJetProducer);
+  ///// From VirtualJetProducer
+  descCSJetProducer.add<string>("jetCollInstanceName", ""    );
+  VirtualJetProducer::fillDescriptionsFromVirtualJetProducer(descCSJetProducer);
+  ///// From PileUpSubtractor
+  PileUpSubtractor::fillDescriptionsFromPileUpSubtractor(descCSJetProducer);
+  descCSJetProducer.add<bool> ("sumRecHits", false);
+  
+  /////////////////////
+  descriptions.add("CSJetProducer",descCSJetProducer);
+  
+}
+
+void CSJetProducer::fillDescriptionsFromCSJetProducer(edm::ParameterSetDescription& desc) {
+
+  desc.add<double>("csRParam",-1.);
+  desc.add<double>("csAlpha",1.);
+
+  desc.add<edm::InputTag>("etaMap",edm::InputTag("hiFJRhoProducer","mapEtaEdges") );
+  desc.add<edm::InputTag>("rho",edm::InputTag("hiFJRhoProducer","mapToRho") );
+  desc.add<edm::InputTag>("rhom",edm::InputTag("hiFJRhoProducer","mapToRhoM") );
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
