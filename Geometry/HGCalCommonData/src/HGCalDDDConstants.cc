@@ -736,7 +736,7 @@ int HGCalDDDConstants::wafers(int layer, int type) const {
   auto itr = waferLayer_.find(layer);
   if (itr != waferLayer_.end()) {
     if      (type == 2) wafer = std::get<2>(itr->second);
-    else if (type == 2) wafer = std::get<1>(itr->second);
+    else if (type == 1) wafer = std::get<1>(itr->second);
     else                wafer = std::get<0>(itr->second);
   }
   return wafer;
