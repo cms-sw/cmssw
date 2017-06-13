@@ -1,7 +1,7 @@
 # "GRun" menu
 
-HLTriggerFirstPath		
-HLTriggerFinalPath		
+HLTriggerFirstPath	#	
+HLTriggerFinalPath	#	
 HLT_ZeroBias_v*	#	CMSHLT-117
 HLT_Physics_v*	#	CMSHLT-892
 DST_Physics_v*	#	skim
@@ -11,8 +11,8 @@ HLT_HcalCalibration_v*	#	CMSHLT-1231
 AlCa_LumiPixels_ZeroBias_v*	#	CMSHLT-1231
 AlCa_LumiPixels_Random_v*	#	CMSHLT-1231
 AlCa_EcalPhiSym_v*	#	CMSHLT-1231
-HLT_HcalPhiSym_v*	#	CMSHLT-1231
-HLT_HcalNZS_v*	#	CMSHLT-1231
+HLT_HcalPhiSym_v*	#	CMSHLT-1231, CMSHLT-1332
+HLT_HcalNZS_v*	#	CMSHLT-1231, CMSHLT-1342
 AlCa_RPCMuonNormalisation_v*	#	CMSHLT-1231
 HLT_DoubleEle33_CaloIdL_MW_v*	#	CMSHLT-1254
 HLT_DoublePhoton33_CaloIdL_v*	#	CMSHLT-1254
@@ -59,6 +59,7 @@ HLT_PFJet320_v*	#	CMSHLT-1233
 HLT_PFJet400_v*	#	CMSHLT-1233
 HLT_PFJet450_v*	#	CMSHLT-1233
 HLT_PFJet500_v*	#	CMSHLT-1233
+HLT_PFJet550_v*	#	CMSHLT-1233
 HLT_AK8PFJet40_v*	#	CMSHLT-1233
 HLT_AK8PFJet60_v*	#	CMSHLT-1233
 HLT_AK8PFJet80_v*	#	CMSHLT-1233
@@ -69,6 +70,7 @@ HLT_AK8PFJet320_v*	#	CMSHLT-1233
 HLT_AK8PFJet400_v*	#	CMSHLT-1233
 HLT_AK8PFJet450_v*	#	CMSHLT-1233
 HLT_AK8PFJet500_v*	#	CMSHLT-1233
+HLT_AK8PFJet550_v*	#	CMSHLT-1233
 HLT_Photon60_R9Id90_CaloIdL_IsoL_DisplacedIdL_PFHT350MinPFJet15_v*	#	CMSHLT-1249
 HLT_IsoMu24_eta2p1_v*	#	CMSHLT-1250
 HLT_IsoMu27_v*	#	CMSHLT-1250
@@ -155,8 +157,8 @@ HLT_DoubleJets100_SingleBTagCSV_0p92_DoublePFJets350_v*	#	CMSHLT-1256
 HLT_DoubleJets100_DoubleBTagCSV_0p92_DoublePFJets100MaxDeta1p6_v*	#	CMSHLT-1256
 HLT_DoubleJets100_DoubleBTagCSV_0p92_DoublePFJets116MaxDeta1p6_v*	#	CMSHLT-1256
 HLT_DoubleJets100_DoubleBTagCSV_0p92_DoublePFJets128MaxDeta1p6_v*	#	CMSHLT-1256
-#HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v*	#	CMSHLT-1258
-#HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v*	#	CMSHLT-1258
+HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v*	#	CMSHLT-1258, CMSHLT-1358, CMSHLT-1365
+HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v*	#	CMSHLT-1258, CMSHLT-1358, CMSHLT-1365
 HLT_HT400_DisplacedDijet40_DisplacedTrack_v*	#	CMSHLT-1259
 HLT_HT430_DisplacedDijet40_DisplacedTrack_v*	#	CMSHLT-1259
 HLT_HT430_DisplacedDijet60_DisplacedTrack_v*	#	CMSHLT-1259
@@ -356,11 +358,9 @@ HLT_DoubleMu8_Mass8_PFHT350_v*	#	CMSHLT-1311
 HLT_Dimuon8_PsiPrime_Barrel_Seagulls_v*	#	CMSHLT-1365 (fixme)
 HLT_Dimuon8_Upsilon_Barrel_Seagulls_v*	#	CMSHLT-1365 (fixme)
 HLT_DoubleMu3_PFMET50_v*	#	CMSHLT-1365 (fixme)
-HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_v*	#	CMSHLT-1365 (fixme)
 HLT_Mu3_PFJet40_v*	#	CMSHLT-1365 (fixme)
-HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v*	#	CMSHLT-1365 (fixme)
-
-
+HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v*	#	CMSHLT-1358, CMSHLT-1365 (fixme)
+HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_v*	#	CMSHLT-1358, CMSHLT-1365 (fixme)
 
 
 
@@ -384,6 +384,7 @@ ScoutingPFOutput                          # CMSHLT-548
 DQMOutput
 DQMEventDisplayOutput
 DQMCalibrationOutput
+DQMOnlineBeamspotOutput                   # CMSHLT-1288
 HLTMonitorOutput                          # CMSHLT-462, CMSHLT-481
 CalibrationOutput
 EcalCalibrationOutput
