@@ -1,8 +1,8 @@
-#ifndef DQMOffline_Trigger_MssmHbbBtagTriggerMonitor_H
-#define DQMOffline_Trigger_MssmHbbBtagTriggerMonitor_H
+#ifndef DQMOffline_Trigger_TagAndProbeBtagTriggerMonitor_H
+#define DQMOffline_Trigger_TagAndProbeBtagTriggerMonitor_H
 
 /*
-  MssmHbbBtagTriggerMonitor DQM code
+  TagAndProbeBtagTriggerMonitor DQM code
 */  
 //
 // Originally created by:  Roberval Walsh
@@ -43,11 +43,11 @@ class GenericTriggerEventFlag;
 // class declaration
 //
 
-class MssmHbbBtagTriggerMonitor : public DQMEDAnalyzer 
+class TagAndProbeBtagTriggerMonitor : public DQMEDAnalyzer 
 {
 public:
-  MssmHbbBtagTriggerMonitor( const edm::ParameterSet& );
-  ~MssmHbbBtagTriggerMonitor();
+  TagAndProbeBtagTriggerMonitor( const edm::ParameterSet& );
+  ~TagAndProbeBtagTriggerMonitor();
 
 protected:
 
@@ -91,4 +91,4 @@ private:
 
 };
 
-#endif // DQMOffline_Trigger_MssmHbbBtagTriggerMonitor_H
+#endif // DQMOffline_Trigger_TagAndProbeBtagTriggerMonitor_H

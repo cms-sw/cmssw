@@ -11,7 +11,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 
 
-#include "DQMOffline/Trigger/plugins/MssmHbbBtagTriggerMonitor.h"
+#include "DQMOffline/Trigger/plugins/TagAndProbeBtagTriggerMonitor.h"
 
 #include "TLorentzVector.h"
 
@@ -20,7 +20,7 @@
 //  constructors and destructor
 // -----------------------------
 
-MssmHbbBtagTriggerMonitor::MssmHbbBtagTriggerMonitor( const edm::ParameterSet& iConfig )
+TagAndProbeBtagTriggerMonitor::TagAndProbeBtagTriggerMonitor( const edm::ParameterSet& iConfig )
 {
   folderName_             = iConfig.getParameter<std::string>("dirname");
   processname_            = iConfig.getParameter<std::string>("processname");
@@ -38,12 +38,12 @@ MssmHbbBtagTriggerMonitor::MssmHbbBtagTriggerMonitor( const edm::ParameterSet& i
 
 }
 
-MssmHbbBtagTriggerMonitor::~MssmHbbBtagTriggerMonitor()
+TagAndProbeBtagTriggerMonitor::~TagAndProbeBtagTriggerMonitor()
 {
 
 }
 
-void MssmHbbBtagTriggerMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
+void TagAndProbeBtagTriggerMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
 				 edm::Run const        & iRun,
 				 edm::EventSetup const & iSetup) 
 {  
@@ -64,7 +64,7 @@ void MssmHbbBtagTriggerMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   // Initialize the GenericTriggerEventFlag
 }
 
-void MssmHbbBtagTriggerMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
+void TagAndProbeBtagTriggerMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
 {
    edm::Handle<edm::TriggerResults> triggerResultsHandler;
    iEvent.getByToken(triggerResultsToken_, triggerResultsHandler);
@@ -155,16 +155,16 @@ void MssmHbbBtagTriggerMonitor::analyze(edm::Event const& iEvent, edm::EventSetu
 //  if (den_genTriggerEventFlag_->on() && ! den_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
 
 }
-void MssmHbbBtagTriggerMonitor::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
+void TagAndProbeBtagTriggerMonitor::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
     bool changed(true);
     if (!hltConfig_.init(iRun, iSetup, processname_, changed))
     {
-       LogDebug("MssmHbbBtagTriggerMonitor") << "HLTConfigProvider failed to initialize.";
+       LogDebug("TagAndProbeBtagTriggerMonitor") << "HLTConfigProvider failed to initialize.";
     }
 }
 
 
 // Define this as a plug-in
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(MssmHbbBtagTriggerMonitor);
+DEFINE_FWK_MODULE(TagAndProbeBtagTriggerMonitor);
