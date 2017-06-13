@@ -973,7 +973,7 @@ void l1t::TriggerMenuParser::parseDeltaEta_Cosh_LUTS(std::map<std::string, tmeve
 
 }
 
-void l1t::TriggerMenuParser::parseDeltaPhi_Cos_LUTS(std::map<std::string, tmeventsetup::esScale> scaleMap, std::string obj1, std::string obj2, unsigned int prec1, unsigned int prec2)
+void l1t::TriggerMenuParser::parseDeltaPhi_Cos_LUTS(const std::map<std::string, tmeventsetup::esScale>& scaleMap, const std::string & obj1, const std::string & obj2, unsigned int prec1, unsigned int prec2)
 {
 
     using namespace tmeventsetup;
@@ -1006,7 +1006,7 @@ void l1t::TriggerMenuParser::parseDeltaPhi_Cos_LUTS(std::map<std::string, tmeven
 
 }
 
-void l1t::TriggerMenuParser::parsePhi_Trig_LUTS(std::map<std::string, tmeventsetup::esScale> scaleMap, std::string obj, std::string func, unsigned int prec)
+void l1t::TriggerMenuParser::parsePhi_Trig_LUTS(const std::map<std::string, tmeventsetup::esScale> & scaleMap, const std::string & obj, const std::string & func, unsigned int prec)
 {
 
     using namespace tmeventsetup;
@@ -1025,10 +1025,7 @@ void l1t::TriggerMenuParser::parsePhi_Trig_LUTS(std::map<std::string, tmeventset
     const size_t n = std::ceil(range / step);
     const size_t bitwidth = std::ceil(std::log10(n) / std::log10(2));
 
-    std::vector<double> array;
-
-    array.resize(std::pow(2, bitwidth));
-    std::fill(array.begin(), array.end(), 0);
+    std::vector<double> array(std::pow(2,bitwidth),0);
 
     for (size_t ii = 0; ii < n; ii++)
       {

@@ -385,13 +385,13 @@ private:
 	    unsigned int prec1, unsigned int prec2) ;
 
     // Parse LUT for Delta Eta and Cosh
-    void parseDeltaPhi_Cos_LUTS(std::map<std::string, tmeventsetup::esScale> scaleMap,
-            std::string obj1, std::string obj2,
+    void parseDeltaPhi_Cos_LUTS(const std::map<std::string, tmeventsetup::esScale> & scaleMap,
+            const std::string & obj1, const std::string & obj2,
 	    unsigned int prec1, unsigned int prec2) ;
 
     // Parse LUT for Sin(Phi),Cos(Phi) in TwoBodyPt algorithm calculation
-    void parsePhi_Trig_LUTS(std::map<std::string, tmeventsetup::esScale> scaleMap,
-            std::string func, std::string obj,
+    void parsePhi_Trig_LUTS(const std::map<std::string, tmeventsetup::esScale> & scaleMap,
+            const std::string & func, const std::string & obj,
 	    unsigned int prec) ;
 
 
