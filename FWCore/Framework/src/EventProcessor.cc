@@ -1966,11 +1966,6 @@ namespace edm {
     }
 
     ServiceRegistry::Operate operate(serviceToken_);
-    if(preallocations_.numberOfThreads()>1) {
-      edm::Service<RootHandlers> handler;
-      handler->initializeThisThreadForUse();
-    }
-
     try {
       //need to use lock in addition to the serial task queue because
       // of delayed provenance reading and reading data in response to
