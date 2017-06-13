@@ -377,4 +377,5 @@ _InitialStep_Phase1 = _InitialStep_Phase1QuadProp.copyAndExclude([initialStepHit
 trackingPhase1.toReplaceWith(InitialStep, _InitialStep_Phase1)
 _InitialStep_trackingPhase2 = InitialStep.copyAndExclude([initialStepClassifier1, initialStepClassifier2, initialStepClassifier3])
 _InitialStep_trackingPhase2.replace(initialStepHitTriplets, initialStepHitQuadruplets)
+_InitialStep_trackingPhase2.replace(initialStep, initialStepSelector)
 trackingPhase2PU140.toReplaceWith(InitialStep, _InitialStep_trackingPhase2)
