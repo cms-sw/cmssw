@@ -197,6 +197,23 @@ def L1TReEmulMCFromRAWSimHcalTP(process):
             process.simCaloStage2Layer1Digis.hcalToken = cms.InputTag('simHcalTriggerPrimitiveDigis')
     return process
 
+def L1TReEmulMCFrom90xRAWSimHcalTP(process):
+    L1TReEmulMCFromRAW(process)
+    if stage2L1Trigger.isChosen():
+            process.simHcalTriggerPrimitiveDigis.inputLabel = cms.VInputTag(
+                cms.InputTag('simHcalUnsuppressedDigis'),
+                cms.InputTag('simHcalUnsuppressedDigis')
+            )
+            process.simHcalTriggerPrimitiveDigis.inputUpgradeLabel = cms.VInputTag(
+                cms.InputTag('simHcalUnsuppressedDigis:HBHEQIE11DigiCollection'),
+                cms.InputTag('simHcalUnsuppressedDigis:HFQIE10DigiCollection')
+            )
+            process.simCaloStage2Layer1Digis.hcalToken = cms.InputTag('simHcalTriggerPrimitiveDigis')
+    return process
+    #inputUpgradeLabel = cms.VInputTag(
+    #    cms.InputTag('simHcalUnsuppressedDigis:HBHEQIE11DigiCollection'),
+    #    cms.InputTag('simHcalUnsuppressedDigis:HFQIE10DigiCollection')),
+
 def L1TReEmulMCFromRAWSimCalTP(process):
     L1TReEmulMCFromRAW(process)
     if stage2L1Trigger.isChosen():
