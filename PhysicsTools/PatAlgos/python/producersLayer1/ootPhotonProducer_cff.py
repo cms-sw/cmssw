@@ -4,7 +4,7 @@ from PhysicsTools.PatAlgos.mcMatchLayer0.ootPhotonMatch_cff import *
 from PhysicsTools.PatAlgos.producersLayer1.photonProducer_cfi import *
 
 patOOTPhotons = patPhotons.clone()
-patOOTPhotons.photonSource = cms.InputTag("reducedOOTPhotons")
+patOOTPhotons.photonSource = cms.InputTag("ootPhotons")
 patOOTPhotons.embedSuperCluster      = cms.bool(False) ## whether to embed in AOD externally stored supercluster
 patOOTPhotons.embedSeedCluster       = cms.bool(False) ## embed in AOD externally stored the photon's seedcluster 
 patOOTPhotons.embedBasicClusters     = cms.bool(False) ## embed in AOD externally stored the photon's basic clusters 
