@@ -50,8 +50,8 @@
 // Parameter Set:
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
-#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include <vector>
 
