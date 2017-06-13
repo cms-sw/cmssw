@@ -26,6 +26,10 @@ MssmHbbBtagTriggerMonitor::MssmHbbBtagTriggerMonitor( const edm::ParameterSet& i
   processname_            = iConfig.getParameter<std::string>("processname");
   pathname_               = iConfig.getParameter<std::string>("pathname");
   triggerobjbtag_         = iConfig.getParameter<std::string>("triggerobjbtag");
+  jetPtmin_               = iConfig.getParameter<double>("jetPtMin");
+  jetEtamax_              = iConfig.getParameter<double>("jetEtaMax");
+  tagBtagmin_             = iConfig.getParameter<double>("tagBtagMin");
+  probeBtagmin_           = iConfig.getParameter<double>("probeBtagMin");
   triggerSummaryLabel_    = iConfig.getParameter<edm::InputTag>("triggerSummary");
   triggerResultsLabel_    = iConfig.getParameter<edm::InputTag>("triggerResults");
   triggerSummaryToken_    = consumes <trigger::TriggerEvent> (triggerSummaryLabel_);
@@ -47,11 +51,11 @@ void MssmHbbBtagTriggerMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   std::string currentFolder = folderName_ ;
   ibooker.setCurrentFolder(currentFolder.c_str());
   
-  pt_jet1_ = ibooker.book1D("pt_jet1","pt_jet1",20,0,200);
-  pt_jet2_ = ibooker.book1D("pt_jet2","pt_jet2",20,0,200);
+  pt_jet1_ = ibooker.book1D("pt_jet1","pt_jet1",60,0,600);
+  pt_jet2_ = ibooker.book1D("pt_jet2","pt_jet2",60,0,600);
   
-  pt_probe_ = ibooker.book1D("pt_probe","pt_probe",20,0,200);
-  pt_probe_match_ = ibooker.book1D("pt_probe_match","pt_probe_match",20,0,200);
+  pt_probe_ = ibooker.book1D("pt_probe","pt_probe",60,0,600);
+  pt_probe_match_ = ibooker.book1D("pt_probe_match","pt_probe_match",60,0,600);
   
 
   discr_offline_btagcsv_jet1_ = ibooker.book1D("discr_offline_btagcsv_jet1","discr_offline_btagcsv_jet1",20,0,10);
@@ -102,9 +106,9 @@ void MssmHbbBtagTriggerMonitor::analyze(edm::Event const& iEvent, edm::EventSetu
             float btag1 = jettags.value(0);
             float btag2 = jettags.value(1);
                
-            if ( jet1->pt() > 40 && jet2->pt() > 40 && fabs(jet1->eta()) < 2.2 && fabs(jet2->eta()) < 2.2 )
+            if ( jet1->pt() > jetPtmin_ && jet2->pt() > jetPtmin_ && fabs(jet1->eta()) < jetEtamax_ && fabs(jet2->eta()) < jetEtamax_ )
             {
-               if ( btag1 > 0.95 && btag2 > 0.84 )
+               if ( btag1 > tagBtagmin_ && btag2 > probeBtagmin_ )
                {
                   pt_jet1_ -> Fill(jet1->pt());
                   pt_jet2_ -> Fill(jet2->pt());
@@ -158,17 +162,8 @@ void MssmHbbBtagTriggerMonitor::dqmBeginRun(const edm::Run& iRun, const edm::Eve
     {
        LogDebug("MssmHbbBtagTriggerMonitor") << "HLTConfigProvider failed to initialize.";
     }
-//     else
-//     {
-//        const std::vector< std::string > trgNames = hltConfig_.triggerNames();
-//        for ( auto & tn : trgNames )
-//        std::cout << tn << std::endl;
-//     }
 }
 
-void MssmHbbBtagTriggerMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
-{
-}
 
 // Define this as a plug-in
 #include "FWCore/Framework/interface/MakerMacros.h"

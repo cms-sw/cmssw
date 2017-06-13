@@ -48,9 +48,6 @@ class MssmHbbBtagTriggerMonitor : public DQMEDAnalyzer
 public:
   MssmHbbBtagTriggerMonitor( const edm::ParameterSet& );
   ~MssmHbbBtagTriggerMonitor();
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  static void fillHistoPSetDescription(edm::ParameterSetDescription & pset);
-  static void fillHistoLSPSetDescription(edm::ParameterSetDescription & pset);
 
 protected:
 
@@ -65,6 +62,11 @@ private:
   std::string processname_;
   std::string pathname_;
   std::string triggerobjbtag_;
+  
+  double jetPtmin_;
+  double jetEtamax_;
+  double tagBtagmin_;
+  double probeBtagmin_;
 
   edm::InputTag triggerSummaryLabel_;
   edm::InputTag triggerResultsLabel_;
