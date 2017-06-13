@@ -35,10 +35,10 @@ class PFEcalEndcapRecHitCreator :  public  PFRecHitCreatorBase {
     {
       recHitToken_ = iC.consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("src"));
       srFlagToken_ = iC.consumes<EESrFlagCollection>(iConfig.getParameter<edm::InputTag>("srFlags"));
-      elecMap_ = 0;
+      elecMap_ = nullptr;
     }
 
-  void importRecHits(std::unique_ptr<reco::PFRecHitCollection>&out,std::unique_ptr<reco::PFRecHitCollection>& cleaned ,const edm::Event& iEvent,const edm::EventSetup& iSetup) {
+  void importRecHits(std::unique_ptr<reco::PFRecHitCollection>&out,std::unique_ptr<reco::PFRecHitCollection>& cleaned ,const edm::Event& iEvent,const edm::EventSetup& iSetup) override {
 
     beginEvent(iEvent,iSetup);
  
@@ -97,7 +97,7 @@ class PFEcalEndcapRecHitCreator :  public  PFRecHitCreatorBase {
     }
   }
 
-  void init(const edm::EventSetup &es) {
+  void init(const edm::EventSetup &es) override {
       
     edm::ESHandle< EcalElectronicsMapping > ecalmapping;
     es.get< EcalMappingRcd >().get(ecalmapping);
@@ -110,7 +110,7 @@ class PFEcalEndcapRecHitCreator :  public  PFRecHitCreatorBase {
 
   bool isHighInterest(const EEDetId& detid) {
     bool result=false;
-    EESrFlagCollection::const_iterator srf = srFlagHandle_->find(readOutUnitOf(detid));
+    auto srf = srFlagHandle_->find(readOutUnitOf(detid));
     if(srf==srFlagHandle_->end()) return false;
     else result = ((srf->value() & ~EcalSrFlag::SRF_FORCED_MASK) == EcalSrFlag::SRF_FULL);
     return result;
