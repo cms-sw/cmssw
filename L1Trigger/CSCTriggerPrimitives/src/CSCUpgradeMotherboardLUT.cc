@@ -76,6 +76,10 @@ CSCGEMMotherboardLUTME11::CSCGEMMotherboardLUTME11()
   lut_wg_eta_odd = {};
   lut_wg_eta_even = {};
 
+  /*
+    98% acceptance cuts of the GEM-CSC bending angle in ME1b
+    for various pT thresholds and for even/odd chambers
+   */
   lut_pt_vs_dphi_gemcsc = {
     {3, 0.03971647, 0.01710244},
     {5, 0.02123785, 0.00928431},
@@ -159,6 +163,10 @@ CSCGEMMotherboardLUTME21::CSCGEMMotherboardLUTME21() :   CSCGEMMotherboardLUT()
   lut_wg_eta_odd = {};
   lut_wg_eta_even = {};
   
+  /*
+    98% acceptance cuts of the GEM-CSC bending angle in ME21
+    for various pT thresholds and for even/odd chambers
+   */
   lut_pt_vs_dphi_gemcsc = {
     {3, 0.01832829, 0.01003643 },
     {5, 0.01095490, 0.00631625 },

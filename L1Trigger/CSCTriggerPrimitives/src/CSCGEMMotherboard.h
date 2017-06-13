@@ -15,6 +15,7 @@ typedef match<GEMCoPadDigi>   GEMCoPadDigiId;
 typedef matches<GEMCoPadDigi> GEMCoPadDigiIds;
 typedef matchesBX<GEMCoPadDigi> GEMCoPadDigiIdsBX;
 
+enum lctTypes{Invalid, ALCTCLCT, ALCTCLCTGEM, ALCTCLCT2GEM, ALCT2GEM, CLCT2GEM};
 
 class CSCGEMMotherboard : public CSCUpgradeMotherboard
 {
@@ -355,7 +356,7 @@ void CSCGEMMotherboard::printGEMTriggerPads(int bx_start, int bx_stop, enum CSCP
   LogTrace("CSCGEMMotherboard") << "------------------------------------------------------------------------" << std::endl;
   bool first = true;
   for (int bx = bx_start; bx <= bx_stop; bx++) {
-    std::vector<std::pair<unsigned int, S> > in_pads = actual_lut[bx];
+    const std::vector<std::pair<unsigned int, S> >& in_pads = actual_lut[bx];
     if (first) {
       if (!iscopad) LogTrace("CSCGEMMotherboard") << "* GEM trigger pads: " << std::endl;
       else          LogTrace("CSCGEMMotherboard") << "* GEM trigger coincidence pads: " << std::endl;

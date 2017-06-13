@@ -8,6 +8,8 @@
 #include <boost/variant.hpp>
 
 // generic container type
+namespace{
+
 template <class T>
 using match = std::pair<unsigned int, T>;
 
@@ -16,6 +18,8 @@ using matches = std::vector<std::pair<unsigned int, T> >;
 
 template <class T>
 using matchesBX = std::map<int, std::vector<std::pair<unsigned int, T> > >;
+
+}
 
 class CSCGeometry;
 class CSCChamber;
@@ -30,15 +34,15 @@ public:
   public:
     LCTContainer (unsigned int match_trig_window_size ) : match_trig_window_size(match_trig_window_size){}
     CSCCorrelatedLCTDigi& operator()(int bx, int match_bx, int lct) { return data[bx][match_bx][lct]; }
-    std::vector<CSCCorrelatedLCTDigi> getTimeMatched(const int bx) const;
-    std::vector<CSCCorrelatedLCTDigi> getMatched() const;
+    void getTimeMatched(const int bx, std::vector<CSCCorrelatedLCTDigi>&) const;
+    void getMatched(std::vector<CSCCorrelatedLCTDigi>&) const;
     CSCCorrelatedLCTDigi data[CSCMotherboard::MAX_LCT_BINS][15][2];
     const unsigned int match_trig_window_size;
   };
 
   CSCUpgradeMotherboard(unsigned endcap, unsigned station, unsigned sector,
-                    unsigned subsector, unsigned chamber,
-                    const edm::ParameterSet& conf);
+			unsigned subsector, unsigned chamber,
+			const edm::ParameterSet& conf);
 
    //Default constructor for testing
   CSCUpgradeMotherboard();

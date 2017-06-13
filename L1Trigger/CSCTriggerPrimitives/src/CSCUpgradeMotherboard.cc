@@ -1,24 +1,21 @@
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCUpgradeMotherboard.h"
 #include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h"
 
-std::vector<CSCCorrelatedLCTDigi> CSCUpgradeMotherboard::LCTContainer::getTimeMatched(const int bx) const 
+void CSCUpgradeMotherboard::LCTContainer::getTimeMatched(const int bx, std::vector<CSCCorrelatedLCTDigi>& lcts) const 
 {
-  std::vector<CSCCorrelatedLCTDigi> lcts;
   for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++)
     for (int i=0;i<2;i++)
       if (data[bx][mbx][i].isValid())
         lcts.push_back(data[bx][mbx][i]);
-  return lcts;
 }
 
-std::vector<CSCCorrelatedLCTDigi> CSCUpgradeMotherboard::LCTContainer::getMatched() const 
+void CSCUpgradeMotherboard::LCTContainer::getMatched(std::vector<CSCCorrelatedLCTDigi>& lcts) const 
 {
-  std::vector<CSCCorrelatedLCTDigi> lcts;
   for (int bx = 0; bx < MAX_LCT_BINS; bx++){
-    const auto& temp_lcts = CSCUpgradeMotherboard::LCTContainer::getTimeMatched(bx);
+    std::vector<CSCCorrelatedLCTDigi> temp_lcts;
+    CSCUpgradeMotherboard::LCTContainer::getTimeMatched(bx,temp_lcts);
     lcts.insert(std::end(lcts), std::begin(temp_lcts), std::end(temp_lcts));
   }
-  return lcts;
 }
 
 CSCUpgradeMotherboard::CSCUpgradeMotherboard(unsigned endcap, unsigned station,

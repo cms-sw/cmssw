@@ -45,37 +45,30 @@ public:
   
  private:
   // create LUT: roll->(etaMin,etaMax)
-  std::vector<std::pair<double,double> > 
-  gemRollToEtaLimitsLUT(const GEMChamber* c) const;
-
+  void gemRollToEtaLimitsLUT(const GEMChamber* c, std::vector<std::pair<double,double> >& ) const;
+  
   // create LUT: roll->(etaMin,etaMax)
-  std::vector<std::pair<double,double> > 
-  rpcRollToEtaLimitsLUT(const RPCChamber* c) const;
+  void rpcRollToEtaLimitsLUT(const RPCChamber* c, std::vector<std::pair<double,double> >&) const;
 
   // create LUT: WG->(rollMin,rollMax)
-  std::vector<std::pair<int,int> > 
-  cscWgToRollLUT(const std::vector<std::pair<double,double> >&,
-		 const std::vector<std::pair<double,double> >&) const;
+  void cscWgToRollLUT(const std::vector<std::pair<double,double> >&,
+		 const std::vector<std::pair<double,double> >&,
+		 std::vector<std::pair<int,int> >&) const;
   
   // create LUT: WG->(etaMin,etaMax)
-  std::vector<std::pair<double,double> > 
-  cscWgToEtaLimitsLUT(const CSCLayer*) const;
+  void cscWgToEtaLimitsLUT(const CSCLayer*, std::vector<std::pair<double,double> >&) const;
   
   // create LUT: HS->pad
-  std::vector<std::pair<int,int> >
-  cscHsToGemPadLUT(const CSCLayer*, const GEMEtaPartition*, int minH, int maxH) const;
+  void cscHsToGemPadLUT(const CSCLayer*, const GEMEtaPartition*, int minH, int maxH, std::vector<std::pair<int,int> >&) const;
 
   // create LUT: pad->HS
-  std::vector<int>
-  gemPadToCscHsLUT(const CSCLayer*, const GEMEtaPartition*) const;
+  void gemPadToCscHsLUT(const CSCLayer*, const GEMEtaPartition*, std::vector<int>&) const;
 
   // create LUT: HS->strip
-  std::vector<std::pair<int,int> >
-  cscHsToRpcStripLUT(const CSCLayer*, const RPCRoll*, int minH, int maxH) const;
+  void cscHsToRpcStripLUT(const CSCLayer*, const RPCRoll*, int minH, int maxH, std::vector<std::pair<int,int> >&) const;
 
   // create LUT: strip->HS
-  std::vector<int>
-  rpcStripToCscHsLUT(const CSCLayer*, const RPCRoll*) const;
+  void rpcStripToCscHsLUT(const CSCLayer*, const RPCRoll*, std::vector<int>&) const;
 
   const CSCGeometry* csc_g;
   const GEMGeometry* gem_g;
