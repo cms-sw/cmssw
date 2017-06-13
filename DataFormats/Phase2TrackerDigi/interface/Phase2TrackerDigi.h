@@ -35,7 +35,7 @@ public:
   unsigned int strip()   const { return row(); }
   unsigned int edge()    const { return column(); } // CD: any better name for that? 
   // Access to the (raw) channel number
-  unsigned int channel() const { return theChannel; }
+  unsigned int channel() const { return 0x7FFF & theChannel; }
   // Access Overthreshold bit
   bool overThreshold() const { return (otBit(theChannel) ? true : false); }
 
