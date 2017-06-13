@@ -146,10 +146,10 @@ void TrackFinder::process(
 
   if (new_conditions) {
     // Reload primitive conversion LUTs if necessary
-    std::cout << "Configured with condition_helper_.get_pc_lut_version() = " << condition_helper_.get_pc_lut_version() << std::endl;
+    // std::cout << "Configured with condition_helper_.get_pc_lut_version() = " << condition_helper_.get_pc_lut_version() << std::endl;
     sector_processor_lut_.read(condition_helper_.get_pc_lut_version());
 
-    std::cout << "Configured with condition_helper_.get_pt_lut_version() = " << condition_helper_.get_pt_lut_version() << std::endl;
+    // std::cout << "Configured with condition_helper_.get_pt_lut_version() = " << condition_helper_.get_pt_lut_version() << std::endl;
     if ( condition_helper_.get_pt_lut_version() <= 5 ) {
       pt_assign_engine_ = pt_assign_engine_2016_.get();
       pt_assign_engine_->set_ptLUTVersion( condition_helper_.get_pt_lut_version() );

@@ -221,7 +221,8 @@ out_dir = "/afs/cern.ch/work/a/abrinke1/public/EMTF/Commissioning/2017/"
 process.treeOut = cms.OutputModule("PoolOutputModule", 
                                    # fileName = cms.untracked.string("EMTF_MC_Tree_RelValNuGun_UP15_1k.root"),
                                    # fileName = cms.untracked.string("EMTF_MC_Tree_tau_to_3_mu_RPC_debug.root"),
-                                   fileName = cms.untracked.string(out_dir+"EMTF_MC_Tree_SingleMu_2017_v7_O2O_v3_11k.root"),
+                                   # fileName = cms.untracked.string(out_dir+"EMTF_MC_Tree_SingleMu_2017_fromXMLv7_test.root"),
+                                   fileName = cms.untracked.string(out_dir+"EMTF_MC_Tree_SingleMu_2017_v7_O2O_v5_11k.root"),
                                    outputCommands = outCommands
                                    )
 

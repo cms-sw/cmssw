@@ -82,13 +82,13 @@ void SectorProcessor::configure(
 
 void SectorProcessor::set_pt_lut_version(unsigned pt_lut_version) {
   ptLUTVersion_ = pt_lut_version;
-  std::cout << "  * In endcap " << endcap_ << ", sector " << sector_ << ", set ptLUTVersion_ to " << ptLUTVersion_ << std::endl;
+  // std::cout << "  * In endcap " << endcap_ << ", sector " << sector_ << ", set ptLUTVersion_ to " << ptLUTVersion_ << std::endl;
 }
 
 // Refer to docs/EMTF_FW_LUT_versions_2016_draft2.xlsx
 void SectorProcessor::configure_by_fw_version(unsigned fw_version) {
 
-  std::cout << "Running configure_by_fw_version with version " << fw_version << std::endl;
+  // std::cout << "Running configure_by_fw_version with version " << fw_version << std::endl;
 
   if (fw_version == 0 || fw_version == 123456)  // fw_version '123456' is from the fake conditions
     return;

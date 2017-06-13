@@ -167,8 +167,6 @@ void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
   std::vector<std::string> rpc_name = {"43", "42", "33", "32", "22", "12"};
   std::vector<std::string> rpc_label = {"4/3", "4/2", "3/3", "3/2", "2/2", "1/2"};
 
-  ibooker.setCurrentFolder(monitorDir + "/RPCInput");
-
   rpcHitBX = ibooker.book2D("rpcHitBX", "RPC Hit BX", 8, -3, 5, 12, 0, 12);
   rpcHitBX->setAxisTitle("BX", 1);
   for (int xbin = 1, xbin_label = -3; xbin <= 8; ++xbin, ++xbin_label) {
@@ -189,7 +187,7 @@ void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
     rpcHitOccupancy->setBinLabel(13 - i, "RE+" + rpc_label[i - 1],2);
   }
 
-  ibooker.setCurrentFolder(monitorDir);
+  ibooker.setCurrentFolder(monitorDir + "/RPCInput");
 
   for (int hist = 0, i = 0; hist < 12; hist++, i = hist % 6) {
     if (hist < 6) {
@@ -214,6 +212,8 @@ void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
       rpcChamberTheta[hist]->setBinLabel(bin, std::to_string(bin), 1);
     }
   }
+
+  ibooker.setCurrentFolder(monitorDir);
 
   // Track Monitor Elements
   emtfnTracks = ibooker.book1D("emtfnTracks", "Number of EMTF Tracks per Event", 11, 0, 11);
@@ -330,7 +330,7 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
         else mpcLinkGood->Fill(j + 1 + offset, endcap * (i  + 0.5));
       }
     }
-    offset = (EventHeader->Sector() == 6 ? 0:EventHeader->Sector()) * 9;
+    offset = (EventHeader->Sector() == 6 ? 0 : EventHeader->Sector()) * 9;
     if (CO.ME1n_3() == 1) mpcLinkErrors->Fill(1 + offset, endcap * 5.5, (int) CO.ME1n_3());
     if (CO.ME1n_6() == 1) mpcLinkErrors->Fill(2 + offset, endcap * 5.5, (int) CO.ME1n_6());
     if (CO.ME1n_9() == 1) mpcLinkErrors->Fill(3 + offset, endcap * 5.5, (int) CO.ME1n_9());
@@ -417,7 +417,9 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
         }
       } else {
         cscid_offset = (sector == 6 ? 0 : sector) * 9;
-        cscLCTOccupancy->Fill(cscid + cscid_offset, endcap * 6);
+	// Map neighbor chambers to "fake" CSC IDs: 1/3 --> 1, 1/6 --> 2, 1/9 --> 3, 2/3 --> 4, 2/9 --> 5, etc.
+	int cscid_n = (station == 1 ? (cscid / 3) : (station * 2) + ((cscid - 3) / 6) );
+        cscLCTOccupancy->Fill(cscid_n + cscid_offset, endcap * 5.5);
       }
       
     }
@@ -475,8 +477,6 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
     emtfTrackQualityVsMode->Fill(mode, quality);
     if (mode == 15) emtfTrackPhiHighQuality->Fill(phi_glob_rad);
    }
-
-  std::cout << "Checkpoint Three" << endl << endl;
 
   // Regional Muon Candidates
   edm::Handle<l1t::RegionalMuonCandBxCollection> MuonBxCollection;

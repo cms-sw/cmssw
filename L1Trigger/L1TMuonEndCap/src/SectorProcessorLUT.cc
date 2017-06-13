@@ -33,7 +33,7 @@ void SectorProcessorLUT::read(unsigned pc_lut_version) {
 
   std::string coord_lut_path = "L1Trigger/L1TMuon/data/emtf_luts/" + coord_lut_dir + "/";
 
-  std::cout << "coord_lut_path = " << coord_lut_path << std::endl;
+  // std::cout << "coord_lut_path = " << coord_lut_path << std::endl;
 
   read_file(coord_lut_path+"ph_init_neighbor.txt",     ph_init_neighbor_);
   read_file(coord_lut_path+"ph_disp_neighbor.txt",     ph_disp_neighbor_);

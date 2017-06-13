@@ -57,18 +57,18 @@ bool ConditionHelper::checkAndUpdateConditions(const edm::Event& iEvent, const e
 }
 
 unsigned int ConditionHelper::get_fw_version() const {
-  std::cout << "Getting firmware version from ConditionHelper" << std::endl;
+  // std::cout << "Getting firmware version from ConditionHelper" << std::endl;
   return params_->firmwareVersion_;
 }
 
 unsigned int ConditionHelper::get_pt_lut_version() const {
-  std::cout << "Getting pT LUT version from ConditionHelper" << std::endl;
+  // std::cout << "Getting pT LUT version from ConditionHelper" << std::endl;
   return (params_->PtAssignVersion_ & 0xff);  // Version indicated by first two bytes
 }
 
 unsigned int ConditionHelper::get_pc_lut_version() const {
   // "PhiMatchWindowSt1" arbitrarily re-mapped to Primitive conversion (PC LUT) version
   // because of rigid CondFormats naming conventions - AWB 02.06.17
-  std::cout << "Getting PC LUT version from ConditionHelper" << std::endl;
+  // std::cout << "Getting PC LUT version from ConditionHelper" << std::endl;
   return params_->PhiMatchWindowSt1_;  
 }

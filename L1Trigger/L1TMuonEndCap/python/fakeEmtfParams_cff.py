@@ -34,6 +34,7 @@ emtfForestsSource = cms.ESSource(
 # ## EMTF ESProducer. Fills CondFormats from local XML files.
 # emtfForests = cms.ESProducer(
 #     "L1TMuonEndCapForestESProducer",
+#     PtAssignVersion = cms.int32(7),
 #     bdtXMLDir = cms.string("2017_v7")
 #     )
 
@@ -51,10 +52,10 @@ emtfForestsDB = cms.ESSource(
 
             # ## v5 EMTF pT LUTs from ~August 2016
             # tag = cms.string("L1TMuonEndCapForest_static_2016_mc")
-            ## v6 EMTF pT LUTs from May 24, 2017
-            tag = cms.string("L1TMuonEndCapForest_static_Sq_20170523_mc")
-            # ## v7 EMTF pT LUTs from June 7, 2017 - AWB 07.06.17
-            # tag = cms.string("???")
+            # ## v6 EMTF pT LUTs from May 24, 2017
+            # tag = cms.string("L1TMuonEndCapForest_static_Sq_20170523_mc")
+            ## v7 EMTF pT LUTs from June 7, 2017 - AWB 07.06.17
+            tag = cms.string("L1TMuonEndCapForest_static_Sq_20170613_v7_mc")
             )
         )
     )

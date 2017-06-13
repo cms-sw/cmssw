@@ -10,6 +10,8 @@
 #include "CondFormats/DataRecord/interface/L1TMuonEndCapForestRcd.h"
 
 #include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine.h"
+#include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine2016.h"
+#include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine2017.h"
 #include "L1Trigger/L1TMuonEndCap/interface/bdt/Node.h"
 #include "L1Trigger/L1TMuonEndCap/interface/bdt/Tree.h"
 #include "L1Trigger/L1TMuonEndCap/interface/bdt/Forest.h"
@@ -28,6 +30,7 @@ public:
   ReturnType produce(const L1TMuonEndCapForestRcd&);
 
 private:
+  int ptLUTVersion;
   string bdtXMLDir;
 
   L1TMuonEndCapForest::DTree traverse(emtf::Node* tree);
@@ -39,7 +42,8 @@ L1TMuonEndCapForestESProducer::L1TMuonEndCapForestESProducer(const edm::Paramete
 {
    setWhatProduced(this);
 
-   bdtXMLDir = iConfig.getParameter<string>("bdtXMLDir");
+   ptLUTVersion = iConfig.getParameter<int>("PtAssignVersion");
+   bdtXMLDir    = iConfig.getParameter<string>("bdtXMLDir");
 }
 
 // member functions
@@ -87,32 +91,43 @@ L1TMuonEndCapForest::DTree L1TMuonEndCapForestESProducer::traverse(emtf::Node* n
 L1TMuonEndCapForestESProducer::ReturnType
 L1TMuonEndCapForestESProducer::produce(const L1TMuonEndCapForestRcd& iRecord)
 {
-   // piggyback on the PtAssignmentEngine class to read the XMLs in
-   PtAssignmentEngine pt_assign_engine_;
-   pt_assign_engine_.read(bdtXMLDir);
-   // get a hold on the forests; copy to non-const locals
-   std::array<emtf::Forest, 16> forests = pt_assign_engine_.getForests();
-   std::vector<int> allowedModes = pt_assign_engine_.getAllowedModes();
-   // construct empty cond payload
-   std::shared_ptr<L1TMuonEndCapForest> pEMTFForest(new L1TMuonEndCapForest());
-   // pack the forests into the cond payload for each mode
-   pEMTFForest->forest_coll_.resize(0);
-   for(unsigned int i=0; i<allowedModes.size(); i++){
-       int mode = allowedModes[i];
-       pEMTFForest->forest_map_[mode] = i;
-       // convert emtf::Forest into the L1TMuonEndCapForest::DForest
-       emtf::Forest& forest = forests.at(mode);
-       // Store boostWeight (initial pT value of tree 0) as an integer: boostWeight x 1 million
-       pEMTFForest->forest_map_[mode+16] = forest.getTree(0)->getBoostWeight() * 1000000;
-       L1TMuonEndCapForest::DForest cond_forest;
-       for(unsigned int j=0; j<forest.size(); j++)
-           cond_forest.push_back( traverse( forest.getTree(j)->getRootNode() ) );
-       // of course, move has no effect here, but I'll keep it in case move constructor will be provided some day
-       pEMTFForest->forest_coll_.push_back( std::move( cond_forest ) );
-   }
+  // piggyback on the PtAssignmentEngine class to read the XMLs in
+  PtAssignmentEngine* pt_assign_engine_;
+  std::unique_ptr<PtAssignmentEngine> pt_assign_engine_2016_;
+  std::unique_ptr<PtAssignmentEngine> pt_assign_engine_2017_;
+  
+  pt_assign_engine_2016_.reset(new PtAssignmentEngine2016());
+  pt_assign_engine_2017_.reset(new PtAssignmentEngine2017());
+  
+  if (ptLUTVersion <= 5) pt_assign_engine_ = pt_assign_engine_2016_.get();
+  else                   pt_assign_engine_ = pt_assign_engine_2017_.get();
 
-   return pEMTFForest;
+  pt_assign_engine_->configure( true, ptLUTVersion, false, false, false, false, false );
+  pt_assign_engine_->read(bdtXMLDir);
+  
+  // get a hold on the forests; copy to non-const locals
+  std::array<emtf::Forest, 16> forests = pt_assign_engine_->getForests();
+  std::vector<int> allowedModes = pt_assign_engine_->getAllowedModes();
+  // construct empty cond payload
+  std::shared_ptr<L1TMuonEndCapForest> pEMTFForest(new L1TMuonEndCapForest());
+  // pack the forests into the cond payload for each mode
+  pEMTFForest->forest_coll_.resize(0);
+  for (unsigned int i = 0; i < allowedModes.size(); i++) {
+    int mode = allowedModes[i];
+    pEMTFForest->forest_map_[mode] = i;
+    // convert emtf::Forest into the L1TMuonEndCapForest::DForest
+    emtf::Forest& forest = forests.at(mode);
+    // Store boostWeight (initial pT value of tree 0) as an integer: boostWeight x 1 million
+    pEMTFForest->forest_map_[mode+16] = forest.getTree(0)->getBoostWeight() * 1000000;
+    L1TMuonEndCapForest::DForest cond_forest;
+    for (unsigned int j = 0; j < forest.size(); j++)
+      cond_forest.push_back( traverse( forest.getTree(j)->getRootNode() ) );
+    // of course, move has no effect here, but I'll keep it in case move constructor will be provided some day
+    pEMTFForest->forest_coll_.push_back( std::move( cond_forest ) );
+  }
+  
+  return pEMTFForest;
 }
 
-//define this as a plug-in
+// Define this as a plug-in
 DEFINE_FWK_EVENTSETUP_MODULE(L1TMuonEndCapForestESProducer);

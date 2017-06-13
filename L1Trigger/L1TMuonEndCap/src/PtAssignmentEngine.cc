@@ -26,8 +26,8 @@ void PtAssignmentEngine::read(const std::string& xml_dir) {
   unsigned xml_nTrees = 64; // 2016 XMLs
   if (ptLUTVersion_ >= 6)    
     xml_nTrees = 400;       // First 2017 XMLs
-
-  std::cout << "EMTF emulator: attempting to read pT LUT XMLs from local directory" << std::endl;
+  
+  std::cout << "EMTF emulator: attempting to read " << xml_nTrees << " pT LUT XMLs from local directory" << std::endl;
   std::cout << xml_dir_full << std::endl;
   std::cout << "Non-standard operation; if it fails, now you know why" << std::endl;
 
@@ -55,8 +55,8 @@ void PtAssignmentEngine::load(const L1TMuonEndCapForest *payload) {
     forests_.at(mode).loadFromCondPayload(payload->forest_coll_[index->second]);
     
     double boostWeight_ = payload->forest_map_.find(mode+16)->second / 1000000.;  
-    std::cout << "Loaded forest for mode " << mode << " with boostWeight_ = " << boostWeight_ << std::endl;
-    std::cout << "  * ptLUTVersion_ = " << ptLUTVersion_ << std::endl;
+    // std::cout << "Loaded forest for mode " << mode << " with boostWeight_ = " << boostWeight_ << std::endl;
+    // std::cout << "  * ptLUTVersion_ = " << ptLUTVersion_ << std::endl;
     forests_.at(mode).getTree(0)->setBoostWeight( boostWeight_ );
 
     assert(boostWeight_ == 0 || ptLUTVersion_ >= 6);  // Check that XMLs and pT LUT version are consistent
