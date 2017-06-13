@@ -33,10 +33,10 @@ class PFRecHitCaloNavigatorWithTime : public PFRecHitNavigatorBase {
   }
 
 
- virtual ~PFRecHitCaloNavigatorWithTime() { if(!ownsTopo) { topology_.release(); } }
+ ~PFRecHitCaloNavigatorWithTime() override { if(!ownsTopo) { topology_.release(); } }
 
 
-  void associateNeighbours(reco::PFRecHit& hit,std::unique_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refProd) {
+  void associateNeighbours(reco::PFRecHit& hit,std::unique_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refProd) override {
       DetId detid( hit.detId() );
       
       CaloNavigator<D> navigator(detid, topology_.get());
