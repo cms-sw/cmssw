@@ -158,9 +158,10 @@ TFitResultPtr functionFit(TH1D *hist, double *fitrange, double *startvalues,
   int npar=6;
   TF1 *ffit = new TF1(FunName,doubleGauss,fitrange[0],fitrange[1],npar);
   ffit->SetParameters(startvalues);
+  ffit->SetLineColor(kBlue);
   ffit->SetParNames("Area1","Mean1","Width1","Area2","Mean2","Width2");
   for (int i=0; i<npar; i++) ffit->SetParLimits(i, parlimitslo[i], parlimitshi[i]);
-  TFitResultPtr Fit = hist->Fit(FunName,"+RWLS");
+  TFitResultPtr Fit = hist->Fit(FunName,"RWLS");
   return Fit;
 }
 
@@ -172,20 +173,24 @@ std::pair<double,double> fitTwoGauss (TH1D* hist) {
   char option[20];
   if (hist->GetEntries() > 100) sprintf (option, "QRS");
   else                          sprintf (option, "QRWLS");
-  TFitResultPtr Fit = hist->Fit("gaus",option,"",LowEdge,HighEdge);
-  for (int k=0; k<3; ++k) std::cout << "Parameter[" << k << "] = " << Fit->Value(k) << " +- " << Fit->FitResult::Error(1) << std::endl;
+  //   TFitResultPtr Fit = hist->Fit("gaus",option,"",LowEdge,HighEdge);
+  TF1 *g1    = new TF1("g1","gaus",LowEdge,HighEdge); 
+  g1->SetLineColor(kGreen);//mod
+  TFitResultPtr Fit = hist->Fit(g1,option,"");//mod
+  
+  for (int k=0; k<3; ++k) std::cout << "Initial Parameter[" << k << "] = " << Fit->Value(k) << " +- " << Fit->FitResult::Error(k) << std::endl;
   double startvalues[6], fitrange[2], lowValue[6], highValue[6];
   startvalues[0] =     Fit->Value(0); lowValue[0] = 0.5*startvalues[0]; highValue[0] = 2.*startvalues[0];
   startvalues[1] =     Fit->Value(1); lowValue[1] = 0.5*startvalues[1]; highValue[1] = 2.*startvalues[1];
   startvalues[2] =     Fit->Value(2); lowValue[2] = 0.5*startvalues[2]; highValue[2] = 2.*startvalues[2];
   startvalues[3] = 0.1*Fit->Value(0); lowValue[3] = 0.0; highValue[3] = 10.*startvalues[3];
   startvalues[4] =     Fit->Value(1); lowValue[4] = 0.5*startvalues[4]; highValue[4] = 2.*startvalues[4];
-  startvalues[5] = 2.0*Fit->Value(2); lowValue[5] = 0.5*startvalues[5]; highValue[2] = 100.*startvalues[5];
+  startvalues[5] = 2.0*Fit->Value(2); lowValue[5] = 0.5*startvalues[5]; highValue[5] = 100.*startvalues[5];
   fitrange[0] = mean - 3.0*rms; fitrange[1] = mean + 3.0*rms;
   TFitResultPtr Fitfun = functionFit(hist, fitrange, startvalues, lowValue, highValue);
   double value = Fitfun->Value(1);
   double error = Fitfun->FitResult::Error(1); 
-  for (int k=0; k<6; ++k) std::cout << hist->GetName() << ":Parameter[" << k << "] = " << Fitfun->Value(k) << " +- " << Fitfun->FitResult::Error(1) << std::endl;
+  for (int k=0; k<6; ++k) std::cout << hist->GetName() << ":Parameter[" << k << "] = " << Fitfun->Value(k) << " +- " << Fitfun->FitResult::Error(k) << std::endl;
   return std::pair<double,double>(value,error);
 }
 
