@@ -68,16 +68,16 @@ public:
     inline void setETMHfScales(ScaleParameters& scales) { m_etmHfScales = scales; }
     inline void setHTMScales(ScaleParameters& scales)   { m_htmScales = scales; }
 
-    virtual void setLUT_CalMuEta(std::string lutName, std::vector<long long> lut);
-    virtual void setLUT_CalMuPhi(std::string lutName, std::vector<long long> lut);
-    virtual void setLUT_DeltaEta(std::string lutName, std::vector<long long> lut, unsigned int precision);
-    virtual void setLUT_DeltaPhi(std::string lutName, std::vector<long long> lut, unsigned int precision);
-    virtual void setLUT_Pt(std::string lutName, std::vector<long long> lut, unsigned int precision);
-    virtual void setLUT_Cosh(std::string lutName, std::vector<long long> lut, unsigned int precision);
-    virtual void setLUT_Cos(std::string lutName, std::vector<long long> lut, unsigned int precision);
-    virtual void setLUT_Sin(std::string lutName, std::vector<long long> lut, unsigned int precision);
+    virtual void setLUT_CalMuEta(const std::string & lutName, std::vector<long long> lut);
+    virtual void setLUT_CalMuPhi(const std::string & lutName, std::vector<long long> lut);
+    virtual void setLUT_DeltaEta(const std::string & lutName, std::vector<long long> lut, unsigned int precision);
+    virtual void setLUT_DeltaPhi(const std::string & lutName, std::vector<long long> lut, unsigned int precision);
+    virtual void setLUT_Pt(const std::string & lutName, std::vector<long long> lut, unsigned int precision);
+    virtual void setLUT_Cosh(const std::string & lutName, std::vector<long long> lut, unsigned int precision);
+    virtual void setLUT_Cos(const std::string & lutName, std::vector<long long> lut, unsigned int precision);
+    virtual void setLUT_Sin(const std::string & lutName, std::vector<long long> lut, unsigned int precision);
 
-    inline void setScalesName(std::string name) { m_ScaleSetName = name; }
+    inline void setScalesName(const std::string & name) { m_ScaleSetName = name; }
     virtual std::string getScalesName() const;
 
     inline ScaleParameters getMUScales() const    { return m_muScales; }
@@ -92,23 +92,23 @@ public:
     inline ScaleParameters getHTMScales() const   { return m_htmScales; }
 
 
-    long long getLUT_CalMuEta(std::string lutName, int element) const;
-    long long getLUT_CalMuPhi(std::string lutName, int element) const;
+    long long getLUT_CalMuEta(const std::string & lutName, int element) const;
+    long long getLUT_CalMuPhi(const std::string & lutName, int element) const;
     long long getLUT_DeltaEta(std::string lutName, int element) const;
     long long getLUT_DeltaPhi(std::string lutName, int element) const;
-    long long getLUT_Pt(std::string lutName, int element) const;
+    long long getLUT_Pt(const std::string & lutName, int element) const;
     long long getLUT_DeltaEta_Cosh(std::string lutName, int element) const;
     long long getLUT_DeltaPhi_Cos(std::string lutName, int element) const;
-    long long getLUT_Cos(std::string lutName, int element) const;
-    long long getLUT_Sin(std::string lutName, int element) const;
+    long long getLUT_Cos(const std::string & lutName, int element) const;
+    long long getLUT_Sin(const std::string & lutName, int element) const;
 
-    unsigned int getPrec_DeltaEta(std::string lutName) const;
-    unsigned int getPrec_DeltaPhi(std::string lutName) const;
-    unsigned int getPrec_Pt(std::string lutName) const;
-    unsigned int getPrec_DeltaEta_Cosh(std::string lutName) const;
-    unsigned int getPrec_DeltaPhi_Cos(std::string lutName) const;
-    unsigned int getPrec_Cos(std::string lutName) const;
-    unsigned int getPrec_Sin(std::string lutName) const;
+    unsigned int getPrec_DeltaEta(const std::string & lutName) const;
+    unsigned int getPrec_DeltaPhi(const std::string & lutName) const;
+    unsigned int getPrec_Pt(const std::string & lutName) const;
+    unsigned int getPrec_DeltaEta_Cosh(const std::string & lutName) const;
+    unsigned int getPrec_DeltaPhi_Cos(const std::string & lutName) const;
+    unsigned int getPrec_Cos(const std::string & lutName) const;
+    unsigned int getPrec_Sin(const std::string & lutName) const;
 
 
     virtual void dumpAllLUTs(std::ostream& myCout) const;

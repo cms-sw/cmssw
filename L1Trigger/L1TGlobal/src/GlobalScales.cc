@@ -36,7 +36,7 @@ l1t::GlobalScales::~GlobalScales() {
 std::string l1t::GlobalScales::getScalesName() const { return m_ScaleSetName;}
 
 
-void l1t::GlobalScales::setLUT_CalMuEta(std::string lutName, std::vector<long long> lut)
+void l1t::GlobalScales::setLUT_CalMuEta(const std::string & lutName, std::vector<long long> lut)
 {
      if (m_lut_CalMuEta.count(lutName) != 0) {
         LogTrace("GlobalScales") << "      LUT \"" << lutName
@@ -52,7 +52,7 @@ void l1t::GlobalScales::setLUT_CalMuEta(std::string lutName, std::vector<long lo
 }
 
 
-void l1t::GlobalScales::setLUT_CalMuPhi(std::string lutName, std::vector<long long> lut)
+void l1t::GlobalScales::setLUT_CalMuPhi(const std::string & lutName, std::vector<long long> lut)
 {
      if (m_lut_CalMuPhi.count(lutName) != 0) {
         LogTrace("GlobalScales") << "      LUT \"" << lutName
@@ -68,7 +68,7 @@ void l1t::GlobalScales::setLUT_CalMuPhi(std::string lutName, std::vector<long lo
 }
 
 
-void l1t::GlobalScales::setLUT_DeltaEta(std::string lutName, std::vector<long long> lut, unsigned int precision)
+void l1t::GlobalScales::setLUT_DeltaEta(const std::string & lutName, std::vector<long long> lut, unsigned int precision)
 {
      if (m_lut_DeltaEta.count(lutName) != 0) {
         LogTrace("GlobalScales") << "      LUT \"" << lutName
@@ -84,7 +84,7 @@ void l1t::GlobalScales::setLUT_DeltaEta(std::string lutName, std::vector<long lo
 
 }
 
-void l1t::GlobalScales::setLUT_DeltaPhi(std::string lutName, std::vector<long long> lut, unsigned int precision)
+void l1t::GlobalScales::setLUT_DeltaPhi(const std::string & lutName, std::vector<long long> lut, unsigned int precision)
 {
      if (m_lut_DeltaPhi.count(lutName) != 0) {
         LogTrace("GlobalScales") << "      LUT \"" << lutName
@@ -100,7 +100,7 @@ void l1t::GlobalScales::setLUT_DeltaPhi(std::string lutName, std::vector<long lo
 
 }
 
-void l1t::GlobalScales::setLUT_Pt(std::string lutName, std::vector<long long> lut, unsigned int precision)
+void l1t::GlobalScales::setLUT_Pt(const std::string & lutName, std::vector<long long> lut, unsigned int precision)
 {
      if (m_lut_Pt.count(lutName) != 0) {
         LogTrace("GlobalScales") << "      LUT \"" << lutName
@@ -116,7 +116,7 @@ void l1t::GlobalScales::setLUT_Pt(std::string lutName, std::vector<long long> lu
 
 }
 
-void l1t::GlobalScales::setLUT_Cosh(std::string lutName, std::vector<long long> lut, unsigned int precision)
+void l1t::GlobalScales::setLUT_Cosh(const std::string & lutName, std::vector<long long> lut, unsigned int precision)
 {
      if (m_lut_Cosh.count(lutName) != 0) {
         LogTrace("GlobalScales") << "      LUT \"" << lutName
@@ -132,7 +132,7 @@ void l1t::GlobalScales::setLUT_Cosh(std::string lutName, std::vector<long long> 
 
 }
 
-void l1t::GlobalScales::setLUT_Cos(std::string lutName, std::vector<long long> lut, unsigned int precision)
+void l1t::GlobalScales::setLUT_Cos(const std::string & lutName, std::vector<long long> lut, unsigned int precision)
 {
      if (m_lut_Cos.count(lutName) != 0) {
         LogTrace("GlobalScales") << "      LUT \"" << lutName
@@ -148,7 +148,7 @@ void l1t::GlobalScales::setLUT_Cos(std::string lutName, std::vector<long long> l
 
 }
 
-void l1t::GlobalScales::setLUT_Sin(std::string lutName, std::vector<long long> lut, unsigned int precision)
+void l1t::GlobalScales::setLUT_Sin(const std::string & lutName, std::vector<long long> lut, unsigned int precision)
 {
      if (m_lut_Sin.count(lutName) != 0) {
         LogTrace("GlobalScales") << "      LUT \"" << lutName
@@ -165,7 +165,7 @@ void l1t::GlobalScales::setLUT_Sin(std::string lutName, std::vector<long long> l
 }
 
 
-long long l1t::GlobalScales::getLUT_CalMuEta(std::string lutName, int element) const
+long long l1t::GlobalScales::getLUT_CalMuEta(const std::string & lutName, int element) const
 {
    long long value = 0;
 
@@ -177,7 +177,7 @@ long long l1t::GlobalScales::getLUT_CalMuEta(std::string lutName, int element) c
    return value;
 }
 
-long long l1t::GlobalScales::getLUT_CalMuPhi(std::string lutName, int element) const
+long long l1t::GlobalScales::getLUT_CalMuPhi(const std::string & lutName, int element) const
 {
    long long value = 0;
 
@@ -220,7 +220,7 @@ long long l1t::GlobalScales::getLUT_DeltaEta(std::string lutName, int element) c
    }
    return value;
 }
-unsigned int l1t::GlobalScales::getPrec_DeltaEta(std::string lutName) const
+unsigned int l1t::GlobalScales::getPrec_DeltaEta(const std::string & lutName) const
 {
    unsigned int value = 0;
 
@@ -275,7 +275,7 @@ long long l1t::GlobalScales::getLUT_DeltaPhi(std::string lutName, int element) c
    }
    return value;
 }
-unsigned int l1t::GlobalScales::getPrec_DeltaPhi(std::string lutName) const
+unsigned int l1t::GlobalScales::getPrec_DeltaPhi(const std::string & lutName) const
 {
    unsigned int value = 0;
 
@@ -300,7 +300,7 @@ unsigned int l1t::GlobalScales::getPrec_DeltaPhi(std::string lutName) const
 }
 
 
-long long l1t::GlobalScales::getLUT_Pt(std::string lutName, int element) const
+long long l1t::GlobalScales::getLUT_Pt(const std::string & lutName, int element) const
 {
    long long value = 0;
 
@@ -311,7 +311,7 @@ long long l1t::GlobalScales::getLUT_Pt(std::string lutName, int element) const
    }
    return value;
 }
-unsigned int l1t::GlobalScales::getPrec_Pt(std::string lutName) const
+unsigned int l1t::GlobalScales::getPrec_Pt(const std::string & lutName) const
 {
    unsigned int value = 0;
 
@@ -353,7 +353,7 @@ long long l1t::GlobalScales::getLUT_DeltaEta_Cosh(std::string lutName, int eleme
    }
    return value;
 }
-unsigned int l1t::GlobalScales::getPrec_DeltaEta_Cosh(std::string lutName) const
+unsigned int l1t::GlobalScales::getPrec_DeltaEta_Cosh(const std::string & lutName) const
 {
    unsigned int value = 0;
 
@@ -407,7 +407,7 @@ long long l1t::GlobalScales::getLUT_DeltaPhi_Cos(std::string lutName, int elemen
    return value;
 }
 
-long long l1t::GlobalScales::getLUT_Cos(std::string lutName, int element) const
+long long l1t::GlobalScales::getLUT_Cos(const std::string & lutName, int element) const
 {
    long long value = 0;
 
@@ -425,7 +425,7 @@ long long l1t::GlobalScales::getLUT_Cos(std::string lutName, int element) const
    return value;
 }
 
-long long l1t::GlobalScales::getLUT_Sin(std::string lutName, int element) const
+long long l1t::GlobalScales::getLUT_Sin(const std::string & lutName, int element) const
 {
    long long value = 0;
 
@@ -443,7 +443,7 @@ long long l1t::GlobalScales::getLUT_Sin(std::string lutName, int element) const
    return value;
 }
 
-unsigned int l1t::GlobalScales::getPrec_DeltaPhi_Cos(std::string lutName) const
+unsigned int l1t::GlobalScales::getPrec_DeltaPhi_Cos(const std::string & lutName) const
 {
    unsigned int value = 0;
 
@@ -467,7 +467,7 @@ unsigned int l1t::GlobalScales::getPrec_DeltaPhi_Cos(std::string lutName) const
    return value;
 }
 
-unsigned int l1t::GlobalScales::getPrec_Cos(std::string lutName) const
+unsigned int l1t::GlobalScales::getPrec_Cos(const std::string & lutName) const
 {
    unsigned int value = 0;
 
@@ -479,7 +479,7 @@ unsigned int l1t::GlobalScales::getPrec_Cos(std::string lutName) const
    return value;
 }
 
-unsigned int l1t::GlobalScales::getPrec_Sin(std::string lutName) const
+unsigned int l1t::GlobalScales::getPrec_Sin(const std::string & lutName) const
 {
    unsigned int value = 0;
 
