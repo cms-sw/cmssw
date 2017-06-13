@@ -1,4 +1,4 @@
-# /dev/CMSSW_9_2_0/HLTafterV18/PIon
+# /dev/CMSSW_9_2_0/PIon
 
 import FWCore.ParameterSet.Config as cms
 
