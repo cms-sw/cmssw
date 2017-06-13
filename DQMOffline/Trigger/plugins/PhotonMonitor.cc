@@ -52,10 +52,10 @@ PhotonMonitor::PhotonMonitor( const edm::ParameterSet& iConfig ) :
   
 }
 
+
 PhotonMonitor::~PhotonMonitor()
 {
-  if (num_genTriggerEventFlag_) num_genTriggerEventFlag_.release();
-  if (den_genTriggerEventFlag_) den_genTriggerEventFlag_.release();
+  
 }
 
 MEbinning PhotonMonitor::getHistoPSet(edm::ParameterSet const& pset)
