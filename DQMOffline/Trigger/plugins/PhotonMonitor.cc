@@ -54,8 +54,8 @@ PhotonMonitor::PhotonMonitor( const edm::ParameterSet& iConfig ) :
 
 PhotonMonitor::~PhotonMonitor()
 {
-  if (num_genTriggerEventFlag_) delete num_genTriggerEventFlag_;
-  if (den_genTriggerEventFlag_) delete den_genTriggerEventFlag_;
+  if (num_genTriggerEventFlag_) num_genTriggerEventFlag_.release();
+  if (den_genTriggerEventFlag_) den_genTriggerEventFlag_.release();
 }
 
 MEbinning PhotonMonitor::getHistoPSet(edm::ParameterSet const& pset)
@@ -224,7 +224,7 @@ void PhotonMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSe
 
   // filling histograms (denominator)  
       int ls = iEvent.id().luminosityBlock();
-      if(photons.empty())
+      if(!(photons.empty()))
 	
 	{
 	  photonME_.denominator -> Fill(photons[0].pt());
@@ -241,7 +241,7 @@ void PhotonMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSe
   if (num_genTriggerEventFlag_->on() && ! num_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
 
   // filling histograms (num_genTriggerEventFlag_)  
-  if(photons.size()>0)
+  if(!(photons.empty()))
     {
       photonME_.numerator -> Fill(photons[0].pt());
       photonME_variableBinning_.numerator -> Fill(photons[0].pt());
@@ -282,9 +282,9 @@ void PhotonMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptio
   desc.add<std::string>("eleSelection", "pt > 0");
   desc.add<std::string>("photonSelection", "pt > 145 && eta<1.4442 && hadTowOverEm<0.0597 && full5x5_sigmaIetaIeta()<0.01031 && chargedHadronIso<1.295");
   //desc.add<std::string>("photonSelection", "pt > 145");
-  desc.add<int>("njets",      0);
-  desc.add<int>("nelectrons", 0);
-  desc.add<int>("nphotons",     0);
+  desc.add<unsigned int>("njets",      0);
+  desc.add<unsigned int>("nelectrons", 0);
+  desc.add<unsigned int>("nphotons",     0);
 
   edm::ParameterSetDescription genericTriggerEventPSet;
   genericTriggerEventPSet.add<bool>("andOr");

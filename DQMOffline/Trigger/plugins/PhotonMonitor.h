@@ -136,11 +136,11 @@ private:
 
 
 
-  GenericTriggerEventFlag* num_genTriggerEventFlag_;
-  GenericTriggerEventFlag* den_genTriggerEventFlag_;
+  //  GenericTriggerEventFlag* num_genTriggerEventFlag_;
+  //GenericTriggerEventFlag* den_genTriggerEventFlag_;
 
-  //  std::unique_ptr<GenericTriggerEventFlag> num_genTriggerEventFlag_ (new GenericTriggerEventFlag);
-  //std::unique_ptr<GenericTriggerEventFlag> den_genTriggerEventFlag_ (new GenericTriggerEventFlag);
+  std::unique_ptr<GenericTriggerEventFlag> num_genTriggerEventFlag_ ;
+  std::unique_ptr<GenericTriggerEventFlag> den_genTriggerEventFlag_ ;
 
 
   StringCutObjectSelector<reco::MET,true>         metSelection_;
