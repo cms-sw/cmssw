@@ -85,7 +85,7 @@ void HLTTauDQMOfflineSource::dqmBeginRun(const edm::Run& iRun, const edm::EventS
       }
       std::sort(foundPaths.begin(), foundPaths.end());
 
-      if(tagAndProbe_) {
+      if(!tagAndProbe_) {
         // Construct path plotters
         std::vector<const HLTTauDQMPath *> pathObjects;
         pathPlotters_.reserve(foundPaths.size());  
