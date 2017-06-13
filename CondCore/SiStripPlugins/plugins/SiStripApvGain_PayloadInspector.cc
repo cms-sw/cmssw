@@ -212,7 +212,7 @@ namespace {
 	      disk = int((detid[id]>>14) & 0xF); 
 	      
 	      // disks of TEC start at 4th bin
-	      disk+=4;
+	      disk+=3;
 	    }
 	    
 	    // only positive side
@@ -227,7 +227,7 @@ namespace {
 
 	  // loop on the map to fill the plot
 	  for (auto& data : sumOfGainsByDisk){
-	    fillWithBinAndValue(data.first,(data.second.first/data.second.second));
+	    fillWithBinAndValue(data.first-1,(data.second.first/data.second.second));
 	  }
 	  
 	}// payload
