@@ -1,12 +1,3 @@
-import FWCore.ParameterSet.Config as cms
-
-process = cms.Process("Alignment")
-process.load("Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi")
-process.load("RecoTracker.FinalTrackSelectors.TrackerTrackHitFilter_cff")
-#process.load("RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilderWithoutRefit_cfi")
-process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
-process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
-
 # "including" common configuration
 <COMMON>
 
@@ -55,10 +46,35 @@ process.AlignmentProducer.tjTkAssociationMapTag = 'FinalTrackRefitter'
 
 # process.AlignmentProducer.hitPrescaleMapTag= 'TkAlHitAssoMapCTF' #if this is not empty, turn on the usage of prescaled hits
 process.AlignmentProducer.hitPrescaleMapTag=''
-process.AlignmentProducer.algoConfig.outpath = '<PATH>/'
+
+# Outpath is empty here because input (./) and output directories are different, and HIP does not have inputpath.
+process.AlignmentProducer.algoConfig.outpath = ''
+outfileList = [
+   "uvarFile",
+#   "alignedFile",
+   "misalignedFile",
+   "trueFile",
+   "parameterFile",
+#   "iterationFile",
+#   "outfile2",
+   "surveyFile"
+]
+monitorfileList=[
+   "outfile"
+]
+strcommonoutpath = '<PATH>/'
+for key in outfileList:
+   val = str(getattr(process.AlignmentProducer.algoConfig, key)._value)
+   fname = val.split('/')[-1]
+   fname = strcommonoutpath + fname
+   setattr(process.AlignmentProducer.algoConfig, key, fname)
+for key in monitorfileList:
+   val = str(getattr(process.AlignmentProducer.algoConfig.monitorConfig, key)._value)
+   fname = val.split('/')[-1]
+   fname = strcommonoutpath + fname
+   setattr(process.AlignmentProducer.algoConfig.monitorConfig, key, fname)
 
 #when etaCutRW=0, there's no eta cut and the eventWeight will apply to all hits.
-
 # TEC disk 1-9 in +z half : 470311204,470327588,470343972,470360388,470376772,470393156,470409572,470425956,470442372
 # TEC disk 1-9 in -z half : 470049060,470065444,470081828,470098244,470114628,470131012,470147428,470163812,470180228 
 # angle cut : degrees-65,70,75,80 ; rads-1.134,1.222,1.309,1.396 ; sin-0.9,0.95,0.97,0.99  
