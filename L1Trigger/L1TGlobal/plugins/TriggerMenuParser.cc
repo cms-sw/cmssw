@@ -837,15 +837,15 @@ bool l1t::TriggerMenuParser::parseScales(std::map<std::string, tmeventsetup::esS
     parseDeltaPhi_Cos_LUTS(scaleMap,"MU","HTM",precisions["PRECISION-MU-HTM-Delta"],precisions["PRECISION-MU-HTM-Math"]);
     parseDeltaPhi_Cos_LUTS(scaleMap,"MU","MU", precisions["PRECISION-MU-MU-Delta"], precisions["PRECISION-MU-MU-Math"]);
 
-    parsePhi_Trig_LUTS(scaleMap,"EG",  "Cos", precisions["PRECISION-EG-EG-Math"]);
-    parsePhi_Trig_LUTS(scaleMap,"JET", "Cos", precisions["PRECISION-JET-JET-Math"]);
-    parsePhi_Trig_LUTS(scaleMap,"TAU", "Cos", precisions["PRECISION-TAU-TAU-Math"]);
-    parsePhi_Trig_LUTS(scaleMap,"MU",  "Cos", precisions["PRECISION-MU-MU-Math"]);
+    parsePhi_Trig_LUTS(scaleMap,"EG",  l1t::COS , precisions["PRECISION-EG-EG-Math"]);
+    parsePhi_Trig_LUTS(scaleMap,"JET", l1t::COS , precisions["PRECISION-JET-JET-Math"]);
+    parsePhi_Trig_LUTS(scaleMap,"TAU", l1t::COS , precisions["PRECISION-TAU-TAU-Math"]);
+    parsePhi_Trig_LUTS(scaleMap,"MU",  l1t::COS , precisions["PRECISION-MU-MU-Math"]);
 
-    parsePhi_Trig_LUTS(scaleMap,"EG",  "Sin", precisions["PRECISION-EG-EG-Math"]);
-    parsePhi_Trig_LUTS(scaleMap,"JET", "Sin", precisions["PRECISION-JET-JET-Math"]);
-    parsePhi_Trig_LUTS(scaleMap,"TAU", "Sin", precisions["PRECISION-TAU-TAU-Math"]);
-    parsePhi_Trig_LUTS(scaleMap,"MU",  "Sin", precisions["PRECISION-MU-MU-Math"]);
+    parsePhi_Trig_LUTS(scaleMap,"EG",  l1t::SIN , precisions["PRECISION-EG-EG-Math"]);
+    parsePhi_Trig_LUTS(scaleMap,"JET", l1t::SIN , precisions["PRECISION-JET-JET-Math"]);
+    parsePhi_Trig_LUTS(scaleMap,"TAU", l1t::SIN , precisions["PRECISION-TAU-TAU-Math"]);
+    parsePhi_Trig_LUTS(scaleMap,"MU",  l1t::SIN , precisions["PRECISION-MU-MU-Math"]);
 
 
     //CCLA
@@ -1006,7 +1006,7 @@ void l1t::TriggerMenuParser::parseDeltaPhi_Cos_LUTS(const std::map<std::string, 
 
 }
 
-void l1t::TriggerMenuParser::parsePhi_Trig_LUTS(const std::map<std::string, tmeventsetup::esScale> & scaleMap, const std::string & obj, const std::string & func, unsigned int prec)
+void l1t::TriggerMenuParser::parsePhi_Trig_LUTS(const std::map<std::string, tmeventsetup::esScale> & scaleMap, const std::string & obj, l1t::TrigFunc_t func, unsigned int prec)
 {
 
     using namespace tmeventsetup;
@@ -1016,7 +1016,7 @@ void l1t::TriggerMenuParser::parsePhi_Trig_LUTS(const std::map<std::string, tmev
 
     //This LUT does not exist in L1 Menu file, don't fill it
     if( scaleMap.find(scLabel) == scaleMap.end() ) return;
-    if( func != "Sin" and func != "Cos") return;
+    if( func != l1t::SIN and func != l1t::COS) return;
 
     const esScale* scale = &scaleMap.find(scLabel)->second;
 
@@ -1034,11 +1034,11 @@ void l1t::TriggerMenuParser::parsePhi_Trig_LUTS(const std::map<std::string, tmev
 
     std::string lutName = obj;
     std::vector<long long> lut;
-    if ( func == "Sin" ) {
+    if ( func == l1t::SIN ) {
       applySin(array, n);
       setLut(lut, array, prec);
       m_gtScales.setLUT_Sin(lutName,lut,prec);
-    }else if ( func == "Cos" ) {
+    }else if ( func == l1t::COS ) {
       applyCos(array, n);
       setLut(lut, array, prec);
       m_gtScales.setLUT_Cos(lutName,lut,prec);

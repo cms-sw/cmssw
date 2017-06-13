@@ -51,9 +51,13 @@ class GlobalAlgorithm;
 
 namespace l1t {
 
+
+typedef enum { COS, SIN } TrigFunc_t;
+
 // class declaration
 class TriggerMenuParser
 {
+
 
 public:
 
@@ -65,6 +69,7 @@ public:
     virtual ~TriggerMenuParser();
 
 public:
+
 
     ///   get / set the number of condition chips in GTL
     inline const unsigned int gtNumberConditionChips() const {
@@ -391,7 +396,7 @@ private:
 
     // Parse LUT for Sin(Phi),Cos(Phi) in TwoBodyPt algorithm calculation
     void parsePhi_Trig_LUTS(const std::map<std::string, tmeventsetup::esScale> & scaleMap,
-            const std::string & func, const std::string & obj,
+            const std::string & obj, TrigFunc_t func,
 	    unsigned int prec) ;
 
 
