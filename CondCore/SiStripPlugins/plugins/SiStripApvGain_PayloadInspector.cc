@@ -4,6 +4,7 @@
 
 // the data format of the condition to be inspected
 #include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
+#include "DataFormats/DetId/interface/DetId.h"
 
 #include <memory>
 #include <sstream>
@@ -31,8 +32,8 @@ namespace {
 	  std::vector<uint32_t> detid;
 	  payload->getDetIds(detid);
 	  
-	  for (size_t id=0;id<detid.size();id++){
-	    SiStripApvGain::Range range=payload->getRange(detid[id]);
+	  for (const auto & d : detid) {
+	    SiStripApvGain::Range range=payload->getRange(d);
 	    for(int it=0;it<range.second-range.first;it++){
 
 	      // to be used to fill the histogram
@@ -70,17 +71,18 @@ namespace {
 	  
 	  std::map<int,std::pair<float,float> > sumOfGainsByLayer;
 
-	  for (size_t id=0;id<detid.size();id++){
+	  for (const auto & d : detid) {
 
-	    int subid = int((detid[id]>>25) & 0x7);	   
-	    int layer = int((detid[id]>>14) & 0x7);
+	    //int subid = int((d>>25) & 0x7);	   
+	    int subid = DetId(d).subdetId();
+	    int layer = int((d>>14) & 0x7);
 	    if(subid!=3 && subid!=5) continue;
 	    if(subid==5){
 	      // layers of TOB start at 5th bin
 	      layer+=4;
 	    }
 
-	    SiStripApvGain::Range range=payload->getRange(detid[id]);
+	    SiStripApvGain::Range range=payload->getRange(d);
 	    for(int it=0;it<range.second-range.first;it++){
 	      sumOfGainsByLayer[layer].first+=payload->getApvGain(it,range);
 	      sumOfGainsByLayer[layer].second+=1.;
@@ -123,25 +125,25 @@ namespace {
 	  
 	  std::map<int,std::pair<float,float> > sumOfGainsByDisk;
 
-	  for (size_t id=0;id<detid.size();id++){
+	  for (const auto & d : detid) {
 
 	    int disk=-1;
 	    int side=-1;
-	    int subid = int((detid[id]>>25) & 0x7);
+	    int subid = DetId(d).subdetId();
 	    if(subid!=4 && subid!=6) continue;
 	    
 	    // TID https://github.com/cms-sw/cmssw/blob/master/DataFormats/SiStripDetId/interface/TIDDetId.h#L112
 
 	    if(subid==4){
 
-	      side = int((detid[id]>>13) & 0x3);
-	      disk = int((detid[id]>>11) & 0x3); 
+	      side = int((d>>13) & 0x3);
+	      disk = int((d>>11) & 0x3); 
 	    } else {
 
 	    // TEC  https://github.com/cms-sw/cmssw/blob/master/DataFormats/SiStripDetId/interface/TECDetId.h#L122
 
-	      side = int((detid[id]>>18) & 0x3);
-	      disk = int((detid[id]>>14) & 0xF);
+	      side = int((d>>18) & 0x3);
+	      disk = int((d>>14) & 0xF);
 	      
 	      // disks of TEC start at 4th bin
 	      disk+=3;
@@ -150,7 +152,7 @@ namespace {
 	    // only negative side
 	    if(side!=1) continue;
 
-	    SiStripApvGain::Range range=payload->getRange(detid[id]);
+	    SiStripApvGain::Range range=payload->getRange(d);
 	    for(int it=0;it<range.second-range.first;it++){
 	      sumOfGainsByDisk[disk].first+=payload->getApvGain(it,range);
 	      sumOfGainsByDisk[disk].second+=1.;
@@ -191,25 +193,25 @@ namespace {
 	  payload->getDetIds(detid);
 	  
 	  std::map<int,std::pair<float,float> > sumOfGainsByDisk;
-
-	  for (size_t id=0;id<detid.size();id++){
+	  
+	  for (const auto & d : detid) {
 
 	    int disk=-1;
 	    int side=-1;
-	    int subid = int((detid[id]>>25) & 0x7);
+	    int subid = DetId(d).subdetId();
 	    if(subid!=4 && subid!=6) continue;
 
 	    // TID https://github.com/cms-sw/cmssw/blob/master/DataFormats/SiStripDetId/interface/TIDDetId.h#L112
 
 	    if(subid==4){
-	      side = int((detid[id]>>13) & 0x3);
-	      disk = int((detid[id]>>11) & 0x3); 
+	      side = int((d>>13) & 0x3);
+	      disk = int((d>>11) & 0x3); 
 	    } else {
 
 	    // TEC https://github.com/cms-sw/cmssw/blob/master/DataFormats/SiStripDetId/interface/TECDetId.h#L122
 	      
-	      side = int((detid[id]>>18) & 0x3);
-	      disk = int((detid[id]>>14) & 0xF); 
+	      side = int((d>>18) & 0x3);
+	      disk = int((d>>14) & 0xF); 
 	      
 	      // disks of TEC start at 4th bin
 	      disk+=3;
@@ -218,7 +220,7 @@ namespace {
 	    // only positive side
 	    if(side!=2) continue;
 
-	    SiStripApvGain::Range range=payload->getRange(detid[id]);
+	    SiStripApvGain::Range range=payload->getRange(d);
 	    for(int it=0;it<range.second-range.first;it++){
 	      sumOfGainsByDisk[disk].first+=payload->getApvGain(it,range);
 	      sumOfGainsByDisk[disk].second+=1.;
@@ -253,17 +255,17 @@ namespace {
       
       float nAPVs=0;
       float sumOfGains=0;
-
-      for (size_t id=0;id<detid.size();id++){
-	SiStripApvGain::Range range=payload.getRange(detid[id]);
+      
+      for (const auto & d : detid) {
+	SiStripApvGain::Range range=payload.getRange(d);
 	for(int it=0;it<range.second-range.first;it++){
 	  nAPVs+=1;
 	  sumOfGains+=payload.getApvGain(it,range);
 	} // loop over APVs
       } // loop over detIds
-
+      
       return sumOfGains/nAPVs;
-
+      
     } // payload
   };
 
@@ -284,12 +286,12 @@ namespace {
       float nAPVs=0;
       float sumOfGains=0;
 
-      for (size_t id=0;id<detid.size();id++){
+      for (const auto & d : detid) {
 
-	int subid = int((detid[id]>>25) & 0x7);
+	int subid = DetId(d).subdetId();
 	if(subid!=3) continue;
 	
-	SiStripApvGain::Range range=payload.getRange(detid[id]);
+	SiStripApvGain::Range range=payload.getRange(d);
 	for(int it=0;it<range.second-range.first;it++){
 	  nAPVs+=1;
 	  sumOfGains+=payload.getApvGain(it,range);
@@ -317,13 +319,13 @@ namespace {
       
       float nAPVs=0;
       float sumOfGains=0;
-
-      for (size_t id=0;id<detid.size();id++){
-
-	int subid = int((detid[id]>>25) & 0x7);
+      
+      for (const auto & d : detid) {
+	
+	int subid = DetId(d).subdetId();
 	if(subid!=5) continue;
 	
-	SiStripApvGain::Range range=payload.getRange(detid[id]);
+	SiStripApvGain::Range range=payload.getRange(d);
 	for(int it=0;it<range.second-range.first;it++){
 	  nAPVs+=1;
 	  sumOfGains+=payload.getApvGain(it,range);
@@ -351,13 +353,12 @@ namespace {
       
       float nAPVs=0;
       float sumOfGains=0;
-
-      for (size_t id=0;id<detid.size();id++){
-
-	int subid = int((detid[id]>>25) & 0x7);
+      for (const auto & d : detid) {
+	
+	int subid = DetId(d).subdetId();
 	if(subid!=4) continue;
 	
-	SiStripApvGain::Range range=payload.getRange(detid[id]);
+	SiStripApvGain::Range range=payload.getRange(d);
 	for(int it=0;it<range.second-range.first;it++){
 	  nAPVs+=1;
 	  sumOfGains+=payload.getApvGain(it,range);
@@ -386,12 +387,12 @@ namespace {
       float nAPVs=0;
       float sumOfGains=0;
 
-      for (size_t id=0;id<detid.size();id++){
+      for (const auto & d : detid) {
 
-	int subid = int((detid[id]>>25) & 0x7);
+	int subid = DetId(d).subdetId();
 	if(subid!=6) continue;
 	
-	SiStripApvGain::Range range=payload.getRange(detid[id]);
+	SiStripApvGain::Range range=payload.getRange(d);
 	for(int it=0;it<range.second-range.first;it++){
 	  nAPVs+=1;
 	  sumOfGains+=payload.getApvGain(it,range);
