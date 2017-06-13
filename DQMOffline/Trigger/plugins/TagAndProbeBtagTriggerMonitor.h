@@ -37,7 +37,12 @@
 
 //DataFormats
 
-class GenericTriggerEventFlag;
+struct Binning {
+  int nbins;
+  double xmin;
+  double xmax;
+};
+
 
 //
 // class declaration
@@ -58,6 +63,8 @@ protected:
 
 private:
 
+  static Binning getHistoPSet  (edm::ParameterSet pset); 
+
   std::string folderName_;
   std::string processname_;
   std::string pathname_;
@@ -67,23 +74,36 @@ private:
   double jetEtamax_;
   double tagBtagmin_;
   double probeBtagmin_;
+  
+  Binning jetPtbins_;
+  Binning jetEtabins_;
+  Binning jetPhibins_;
+  Binning jetBtagbins_;
 
   edm::InputTag triggerSummaryLabel_;
   edm::InputTag triggerResultsLabel_;
   
-  edm::EDGetTokenT<reco::JetTagCollection> offlineCSVPFToken_;
+  edm::EDGetTokenT<reco::JetTagCollection> offlineBtagToken_;
   edm::EDGetTokenT <edm::TriggerResults> triggerResultsToken_;
   edm::EDGetTokenT <trigger::TriggerEvent> triggerSummaryToken_;
 
   MonitorElement * pt_jet1_;
   MonitorElement * pt_jet2_;
+  MonitorElement * eta_jet1_;
+  MonitorElement * eta_jet2_;
+  MonitorElement * phi_jet1_;
+  MonitorElement * phi_jet2_;
 
   MonitorElement * pt_probe_;
   MonitorElement * pt_probe_match_;
+  MonitorElement * eta_probe_;
+  MonitorElement * eta_probe_match_;
+  MonitorElement * phi_probe_;
+  MonitorElement * phi_probe_match_;
 
     
-  MonitorElement * discr_offline_btagcsv_jet1_;
-  MonitorElement * discr_offline_btagcsv_jet2_;
+  MonitorElement * discr_offline_btag_jet1_;
+  MonitorElement * discr_offline_btag_jet2_;
   
   
   HLTConfigProvider hltConfig_;
