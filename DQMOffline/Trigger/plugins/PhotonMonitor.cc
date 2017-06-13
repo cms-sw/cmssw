@@ -121,7 +121,8 @@ void PhotonMonitor::bookME(DQMStore::IBooker &ibooker, PhotonME& me, const std::
 {
   int nbins = binning.size()-1;
   std::vector<float> fbinning(binning.begin(),binning.end());
-  float* arr = &fbinning[0];
+  //  float* arr = &fbinning[0];
+  float* arr = fbinning.data();
   me.numerator   = ibooker.book1D(histname+"_numerator",   histtitle+" (numerator)",   nbins, arr);
   me.denominator = ibooker.book1D(histname+"_denominator", histtitle+" (denominator)", nbins, arr);
 }
