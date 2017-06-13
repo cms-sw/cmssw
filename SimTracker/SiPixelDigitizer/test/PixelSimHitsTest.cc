@@ -50,7 +50,6 @@ New det-id.
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 //#include "Geometry/Surface/interface/Surface.h"
 
 
