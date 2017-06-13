@@ -14,7 +14,7 @@
  * \author  M. Eder            - HEPHY Vienna - ORCA version, reduced functionality
  * \author  Vladimir Rekovic
  *                - indexing
- *                - correlations with overlap object removal 
+ *                - correlations with overlap object removal
  *
  * $Date$
  * $Revision$
@@ -51,9 +51,13 @@ class GlobalAlgorithm;
 
 namespace l1t {
 
+
+typedef enum { COS, SIN } TrigFunc_t;
+
 // class declaration
-class TriggerMenuParser 
+class TriggerMenuParser
 {
+
 
 public:
 
@@ -65,6 +69,7 @@ public:
     virtual ~TriggerMenuParser();
 
 public:
+
 
     ///   get / set the number of condition chips in GTL
     inline const unsigned int gtNumberConditionChips() const {
@@ -229,12 +234,12 @@ public:
 
 
 public:
-	    
-	    
-    void parseCondFormats(const L1TUtmTriggerMenu* utmMenu);	    
 
 
-    std::map<std::string, unsigned int> getExternalSignals(const L1TUtmTriggerMenu* utmMenu); 
+    void parseCondFormats(const L1TUtmTriggerMenu* utmMenu);
+
+
+    std::map<std::string, unsigned int> getExternalSignals(const L1TUtmTriggerMenu* utmMenu);
 
 public:
 
@@ -314,7 +319,7 @@ private:
 /*     bool parseScale(tmeventsetup::esScale scale); */
 //    bool parseScales( tmeventsetup::esScale scale);
 	bool parseScales(std::map<std::string, tmeventsetup::esScale> scaleMap);
- 
+
 
     /// parse a muon condition
 /*     bool parseMuon(XERCES_CPP_NAMESPACE::DOMNode* node, */
@@ -367,27 +372,32 @@ private:
             unsigned int chipNr = 0 );
 
     // Parse LUT for Cal Mu Eta
-    void parseCalMuEta_LUTS(std::map<std::string, tmeventsetup::esScale> scaleMap, 
+    void parseCalMuEta_LUTS(std::map<std::string, tmeventsetup::esScale> scaleMap,
                 std::string obj1, std::string obj2);
 
 
     // Parse LUT for Cal Mu Phi
-    void parseCalMuPhi_LUTS(std::map<std::string, tmeventsetup::esScale> scaleMap, 
+    void parseCalMuPhi_LUTS(std::map<std::string, tmeventsetup::esScale> scaleMap,
                 std::string obj1, std::string obj2);
 
-    // Parse LUT for Cal Mu Pt
-    void parsePt_LUTS(std::map<std::string, tmeventsetup::esScale> scaleMap, 
-                std::string obj1, unsigned int prec);
+    // Parse LUT for Pt LUT in Mass calculation
+    void parsePt_LUTS(std::map<std::string, tmeventsetup::esScale> scaleMap,
+                std::string lutpfx, std::string obj1, unsigned int prec);
 
     // Parse LUT for Delta Eta and Cosh
-    void parseDeltaEta_Cosh_LUTS(std::map<std::string, tmeventsetup::esScale> scaleMap, 
-            std::string obj1, std::string obj2, 
+    void parseDeltaEta_Cosh_LUTS(std::map<std::string, tmeventsetup::esScale> scaleMap,
+            std::string obj1, std::string obj2,
 	    unsigned int prec1, unsigned int prec2) ;
 
     // Parse LUT for Delta Eta and Cosh
-    void parseDeltaPhi_Cos_LUTS(std::map<std::string, tmeventsetup::esScale> scaleMap, 
-            std::string obj1, std::string obj2, 
+    void parseDeltaPhi_Cos_LUTS(const std::map<std::string, tmeventsetup::esScale> & scaleMap,
+            const std::string & obj1, const std::string & obj2,
 	    unsigned int prec1, unsigned int prec2) ;
+
+    // Parse LUT for Sin(Phi),Cos(Phi) in TwoBodyPt algorithm calculation
+    void parsePhi_Trig_LUTS(const std::map<std::string, tmeventsetup::esScale> & scaleMap,
+            const std::string & obj, TrigFunc_t func,
+	    unsigned int prec) ;
 
 
 private:
