@@ -13,8 +13,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DQM/TrackingMonitor/interface/GetLumi.h"
-
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 
 // -----------------------------
@@ -33,7 +31,7 @@ RazorMonitor::RazorMonitor( const edm::ParameterSet& iConfig ) :
   , den_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("denGenericTriggerEventPSet"),consumesCollector(), *this))
   , metSelection_ ( iConfig.getParameter<std::string>("metSelection") )
   , jetSelection_ ( iConfig.getParameter<std::string>("jetSelection") )
-  , njets_      ( iConfig.getParameter<int>("njets" )      )
+  , njets_      ( iConfig.getParameter<uint>("njets" )      )
   , rsqCut_     ( iConfig.getParameter<double>("rsqCut" )  )
   , mrCut_      ( iConfig.getParameter<double>("mrCut" )   )
 {
@@ -58,8 +56,6 @@ RazorMonitor::RazorMonitor( const edm::ParameterSet& iConfig ) :
 
 RazorMonitor::~RazorMonitor()
 {
-  if (num_genTriggerEventFlag_) delete num_genTriggerEventFlag_;
-  if (den_genTriggerEventFlag_) delete den_genTriggerEventFlag_;
 }
 
 MEbinning RazorMonitor::getHistoLSPSet(edm::ParameterSet pset)
@@ -164,8 +160,6 @@ void RazorMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 void RazorMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)  {
 
   // Filter out events if Trigger Filtering is requested
@@ -181,11 +175,11 @@ void RazorMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSet
   edm::Handle<reco::PFJetCollection> jetHandle;
   iEvent.getByToken( jetToken_, jetHandle );
   std::vector<reco::PFJet> jets;
-  if ( int(jetHandle->size()) < njets_ ) return;
+  if ( jetHandle->size() < njets_ ) return;
   for ( auto const & j : *jetHandle ) {
     if ( jetSelection_( j ) ) jets.push_back(j);
   }
-  if ( int(jets.size()) < njets_ ) return;
+  if ( jets.size() < njets_ ) return;
 
   //razor hemisphere clustering from previous step
   edm::Handle< vector<math::XYZTLorentzVector> > hemispheres;
@@ -207,19 +201,23 @@ void RazorMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSet
     return;
   }
 
-  //define hemispheres
-  TLorentzVector ja(hemispheres->at(0).x(),hemispheres->at(0).y(),hemispheres->at(0).z(),hemispheres->at(0).t());
-  TLorentzVector jb(hemispheres->at(1).x(),hemispheres->at(1).y(),hemispheres->at(1).z(),hemispheres->at(1).t());
-
   //dummy vector (this trigger currently doesn't use muons, 
   //but retain for possible future use)
   std::vector<math::XYZTLorentzVector> muonVec;
 
-  //calculate razor variables
-  double MR = CalcMR(ja,jb);
-  double R  = CalcR(MR,ja,jb,metHandle, muonVec);
+  //calculate razor variables, with hemispheres pT-ordered
+  double MR = 0, R = 0;
+  if (hemispheres->at(1).Pt() > hemispheres->at(0).Pt()) {
+    MR = CalcMR(hemispheres->at(1),hemispheres->at(0));
+    R = CalcR(MR,hemispheres->at(1),hemispheres->at(0),metHandle, muonVec);
+  }
+  else {
+    MR = CalcMR(hemispheres->at(0),hemispheres->at(1));
+    R = CalcR(MR,hemispheres->at(0),hemispheres->at(1),metHandle, muonVec);
+  }
+  
   double Rsq = R*R;
-  double dPhiR = abs(deltaPhi(ja.Phi(), jb.Phi()));
+  double dPhiR = abs(deltaPhi(hemispheres->at(0).Phi(), hemispheres->at(1).Phi()));
 
   int ls = iEvent.id().luminosityBlock();
 
@@ -281,7 +279,7 @@ void RazorMonitor::fillDescriptions(edm::ConfigurationDescriptions & description
 
   // from 2016 offline selection
   desc.add<std::string>("jetSelection", "pt > 80");
-  desc.add<int>("njets",      2);
+  desc.add<uint>("njets",      2);
   desc.add<double>("mrCut",    300);
   desc.add<double>("rsqCut",   0.15);
 
@@ -323,17 +321,8 @@ void RazorMonitor::fillDescriptions(edm::ConfigurationDescriptions & description
 }
 
 //CalcMR and CalcR borrowed from HLTRFilter.cc
-double RazorMonitor::CalcMR(TLorentzVector ja, TLorentzVector jb){
+double RazorMonitor::CalcMR(const math::XYZTLorentzVector& ja, const math::XYZTLorentzVector& jb){
   if(ja.Pt()<=0.1) return -1;
-
-  ja.SetPtEtaPhiM(ja.Pt(),ja.Eta(),ja.Phi(),0.0);
-  jb.SetPtEtaPhiM(jb.Pt(),jb.Eta(),jb.Phi(),0.0);
-
-  if(ja.Pt() > jb.Pt()){
-    TLorentzVector temp = ja;
-    ja = jb;
-    jb = temp;
-  }
 
   double A = ja.P();
   double B = jb.P();
@@ -355,7 +344,7 @@ double RazorMonitor::CalcMR(TLorentzVector ja, TLorentzVector jb){
   return MR*mygamma;
 }
 
-double RazorMonitor::CalcR(double MR, TLorentzVector ja, TLorentzVector jb, edm::Handle<std::vector<reco::PFMET> > inputMet, const std::vector<math::XYZTLorentzVector>& muons){
+double RazorMonitor::CalcR(double MR, const math::XYZTLorentzVector& ja, const math::XYZTLorentzVector& jb, const edm::Handle<std::vector<reco::PFMET> >& inputMet, const std::vector<math::XYZTLorentzVector>& muons){
   //now we can calculate MTR
   TVector3 met;
   met.SetPtEtaPhi((inputMet->front()).pt(),0.0,(inputMet->front()).phi());
@@ -367,7 +356,11 @@ double RazorMonitor::CalcR(double MR, TLorentzVector ja, TLorentzVector jb, edm:
     met-=tmp;
   }
 
-  double MTR = sqrt(0.5*(met.Mag()*(ja.Pt()+jb.Pt()) - met.Dot(ja.Vect()+jb.Vect())));
+  TVector3 ja3, jb3;
+  ja3.SetXYZ(ja.Px(),ja.Py(),ja.Pz());
+  jb3.SetXYZ(jb.Px(),jb.Py(),jb.Pz());
+
+  double MTR = sqrt(0.5*(met.Mag()*(ja.Pt()+jb.Pt()) - met.Dot(ja3+jb3)));
 
   //filter events
   return float(MTR)/float(MR); //R
