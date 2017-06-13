@@ -67,31 +67,31 @@ public:
     struct CorrelationParameter
     {
 
-	//Cut values in hardware
-	long long minEtaCutValue;
-	long long maxEtaCutValue;
-	unsigned int precEtaCut;
-
-	long long minPhiCutValue;
-	long long maxPhiCutValue;
-	unsigned int precPhiCut;
-
-	long long minDRCutValue;
-	long long maxDRCutValue;
-	unsigned int precDRCut;
-
-	long long minMassCutValue;
-	long long maxMassCutValue;
-	unsigned int precMassCut;
-
+        //Cut values in hardware
+        long long minEtaCutValue;
+        long long maxEtaCutValue;
+        unsigned int precEtaCut;
+        
+        long long minPhiCutValue;
+        long long maxPhiCutValue;
+        unsigned int precPhiCut;
+        
+        long long minDRCutValue;
+        long long maxDRCutValue;
+        unsigned int precDRCut;
+        
+        long long minMassCutValue;
+        long long maxMassCutValue;
+        unsigned int precMassCut;
+        
         long long minTBPTCutValue;
         long long maxTBPTCutValue;
         unsigned int precTBPTCut;
-
+        
         //Requirement on charge of legs (currently only Mu-Mu).
-	unsigned int chargeCorrelation;
-
-	int corrCutType;
+        unsigned int chargeCorrelation;
+        
+        int corrCutType;
 
     };
 
