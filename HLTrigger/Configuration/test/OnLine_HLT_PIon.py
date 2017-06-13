@@ -1,11 +1,11 @@
-# /dev/CMSSW_9_2_0/HLTafterV18/PIon/V7 (CMSSW_9_2_2)
+# /dev/CMSSW_9_2_0/PIon/V12 (CMSSW_9_2_2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_9_2_0/HLTafterV18/PIon/V7')
+  tableName = cms.string('/dev/CMSSW_9_2_0/PIon/V12')
 )
 
 process.transferSystem = cms.PSet( 
@@ -4189,6 +4189,12 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
     outputCommands = cms.untracked.vstring( 'drop *',
       'keep *_hltCombinedSecondaryVertexBJetTagsCalo_*_*',
       'keep *_hltCombinedSecondaryVertexBJetTagsPF_*_*',
+      'keep *_hltEcalRecHit_*_*',
+      'keep *_hltEgammaCandidates_*_*',
+      'keep *_hltEgammaGsfElectrons_*_*',
+      'keep *_hltHbhereco_*_*',
+      'keep *_hltHfreco_*_*',
+      'keep *_hltHoreco_*_*',
       'keep *_hltIter0HighPtTkMuPixelTracks_*_*',
       'keep *_hltIter0HighPtTkMuTrackSelectionHighPurity_*_*',
       'keep *_hltIter2HighPtTkMuMerged_*_*',

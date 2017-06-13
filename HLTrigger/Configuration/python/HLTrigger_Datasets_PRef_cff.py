@@ -1,4 +1,4 @@
-# /dev/CMSSW_9_2_0/HLTafterV18/PRef
+# /dev/CMSSW_9_2_0/PRef
 
 import FWCore.ParameterSet.Config as cms
 
