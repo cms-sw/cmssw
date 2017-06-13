@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 mssmHbbBtagTriggerMonitorSL40noMu = cms.EDAnalyzer(
-    "MssmHbbBtagTriggerMonitor",
+    "TagAndProbeBtagTriggerMonitor",
     dirname = cms.string("HLT/Higgs/MssmHbb/Semilep/BtagTrigger/pt40_noMuon"),
     processname = cms.string("reHLT"),
     pathname = cms.string("HLT_DoubleJets30_SingleBTagCSV_0p92_DoublePFJets40_v"),
@@ -18,7 +18,7 @@ mssmHbbBtagTriggerMonitorSL40noMu = cms.EDAnalyzer(
 
 
 mssmHbbBtagTriggerMonitorSL40 = cms.EDAnalyzer(
-    "MssmHbbBtagTriggerMonitor",
+    "TagAndProbeBtagTriggerMonitor",
     dirname = cms.string("HLT/Higgs/MssmHbb/Semilep/BtagTrigger/pt40"),
     processname = cms.string("reHLT"),
     pathname = cms.string("HLT_DoubleJets30_Mu12_SingleBTagCSV_0p92_DoublePFJets40_v"),
@@ -34,7 +34,7 @@ mssmHbbBtagTriggerMonitorSL40 = cms.EDAnalyzer(
 )
 
 mssmHbbBtagTriggerMonitorSL100 = cms.EDAnalyzer(
-    "MssmHbbBtagTriggerMonitor",
+    "TagAndProbeBtagTriggerMonitor",
     dirname = cms.string("HLT/Higgs/MssmHbb/Semilep/BtagTrigger/pt100"),
     processname = cms.string("reHLT"),
     pathname = cms.string("HLT_DoubleJets30_Mu12_SingleBTagCSV_0p92_DoublePFJets100_v"),
@@ -50,7 +50,7 @@ mssmHbbBtagTriggerMonitorSL100 = cms.EDAnalyzer(
 )
 
 mssmHbbBtagTriggerMonitorSL200 = cms.EDAnalyzer(
-    "MssmHbbBtagTriggerMonitor",
+    "TagAndProbeBtagTriggerMonitor",
     dirname = cms.string("HLT/Higgs/MssmHbb/Semilep/BtagTrigger/pt200"),
     processname = cms.string("reHLT"),
     pathname = cms.string("HLT_DoubleJets30_Mu12_SingleBTagCSV_0p92_DoublePFJets200_v"),
@@ -66,7 +66,7 @@ mssmHbbBtagTriggerMonitorSL200 = cms.EDAnalyzer(
 )
 
 mssmHbbBtagTriggerMonitorSL350 = cms.EDAnalyzer(
-    "MssmHbbBtagTriggerMonitor",
+    "TagAndProbeBtagTriggerMonitor",
     dirname = cms.string("HLT/Higgs/MssmHbb/Semilep/BtagTrigger/pt350"),
     processname = cms.string("reHLT"),
     pathname = cms.string("HLT_DoubleJets30_Mu12_SingleBTagCSV_0p92_DoublePFJets350_v"),
@@ -83,7 +83,7 @@ mssmHbbBtagTriggerMonitorSL350 = cms.EDAnalyzer(
 
 
 mssmHbbBtagTriggerMonitorAH100 = cms.EDAnalyzer(
-    "MssmHbbBtagTriggerMonitor",
+    "TagAndProbeBtagTriggerMonitor",
     dirname = cms.string("HLT/Higgs/MssmHbb/Allhad/BtagTrigger/pt100"),
     processname = cms.string("reHLT"),
     pathname = cms.string("HLT_DoubleJets100_SingleBTagCSV_0p92_DoublePFJets100_v"),
@@ -99,7 +99,7 @@ mssmHbbBtagTriggerMonitorAH100 = cms.EDAnalyzer(
 )
 
 mssmHbbBtagTriggerMonitorAH200 = cms.EDAnalyzer(
-    "MssmHbbBtagTriggerMonitor",
+    "TagAndProbeBtagTriggerMonitor",
     dirname = cms.string("HLT/Higgs/MssmHbb/Allhad/BtagTrigger/pt200"),
     processname = cms.string("reHLT"),
     pathname = cms.string("HLT_DoubleJets100_SingleBTagCSV_0p92_DoublePFJets200_v"),
@@ -115,7 +115,7 @@ mssmHbbBtagTriggerMonitorAH200 = cms.EDAnalyzer(
 )
 
 mssmHbbBtagTriggerMonitorAH350 = cms.EDAnalyzer(
-    "MssmHbbBtagTriggerMonitor",
+    "TagAndProbeBtagTriggerMonitor",
     dirname = cms.string("HLT/Higgs/MssmHbb/Allhad/BtagTrigger/pt350"),
     processname = cms.string("reHLT"),
     pathname = cms.string("HLT_DoubleJets100_SingleBTagCSV_0p92_DoublePFJets350_v"),
