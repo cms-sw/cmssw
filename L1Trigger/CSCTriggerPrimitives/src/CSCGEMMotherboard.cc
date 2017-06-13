@@ -51,16 +51,16 @@ void CSCGEMMotherboard::run(const CSCWireDigiCollection* wiredc,
 
 void CSCGEMMotherboard::retrieveGEMPads(const GEMPadDigiCollection* gemPads, unsigned id)
 {
+  pads_.clear();
   auto superChamber(gem_g->superChamber(id));
   for (const auto& ch : superChamber->chambers()) {
     for (const auto& roll : ch->etaPartitions()) {
       GEMDetId roll_id(roll->id());
       auto pads_in_det = gemPads->get(roll_id);
       for (auto pad = pads_in_det.first; pad != pads_in_det.second; ++pad) {
-        auto id_pad = std::make_pair(roll_id, *pad);
         const int bx_shifted(lct_central_bx + pad->bx());
         for (int bx = bx_shifted - maxDeltaBXPad_;bx <= bx_shifted + maxDeltaBXPad_; ++bx) {
-          pads_[bx].push_back(id_pad);  
+	  pads_[bx].emplace_back(roll_id, *pad);  
         }
       }
     }
@@ -69,6 +69,7 @@ void CSCGEMMotherboard::retrieveGEMPads(const GEMPadDigiCollection* gemPads, uns
 
 void CSCGEMMotherboard::retrieveGEMCoPads()
 {
+  coPads_.clear();
   for (const auto& copad: gemCoPadV){
     if (copad.first().bx() != lct_central_bx) continue;
     coPads_[copad.bx(1)].push_back(std::make_pair(copad.roll(), copad));  
@@ -118,16 +119,16 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
 							 enum CSCPart p, int trknmb)
 {
   // step 1: determine the case
-  int lctCase = 0;
-  if (alct.isValid() and clct.isValid() and gem1 != GEMPadDigi() and gem2 == GEMCoPadDigi())      lctCase = 1;
-  else if (alct.isValid() and clct.isValid() and gem1 == GEMPadDigi() and gem2 != GEMCoPadDigi()) lctCase = 2;
-  else if (alct.isValid() and gem2 != GEMCoPadDigi()) lctCase = 3;
-  else if (clct.isValid() and gem2 != GEMCoPadDigi()) lctCase = 4;
+  int lctCase = lctTypes::Invalid;
+  if (alct.isValid() and clct.isValid() and gem1 != GEMPadDigi() and gem2 == GEMCoPadDigi())      lctCase = lctTypes::ALCTCLCT2GEM;
+  else if (alct.isValid() and clct.isValid() and gem1 == GEMPadDigi() and gem2 != GEMCoPadDigi()) lctCase = lctTypes::ALCTCLCTGEM;
+  else if (alct.isValid() and gem2 != GEMCoPadDigi()) lctCase = lctTypes::ALCT2GEM;
+  else if (clct.isValid() and gem2 != GEMCoPadDigi()) lctCase = lctTypes::CLCT2GEM;
 
   // step 2: assign properties depending on the LCT dataformat (old/new)
   int pattern = 0, quality = 0, bx = 0, keyStrip = 0, keyWG = 0;
   switch(lctCase){
-  case 1: {
+  case lctTypes::ALCTCLCTGEM: {
     pattern = encodePattern(clct.getPattern(), clct.getStripType());
     quality = findQualityGEM<GEMPadDigi>(alct, clct);
     bx = alct.getBX();
@@ -135,7 +136,7 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
     keyWG = alct.getKeyWG();
     break;
   }
-  case 2: {
+  case lctTypes::ALCTCLCT2GEM: {
     pattern = encodePattern(clct.getPattern(), clct.getStripType());
     quality = findQualityGEM<GEMCoPadDigi>(alct, clct);
     bx = alct.getBX();
@@ -143,7 +144,7 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
     keyWG = alct.getKeyWG();
     break;
   }
-  case 3: {
+  case lctTypes::ALCT2GEM: {
     const auto& mymap1 = getLUT()->get_gem_pad_to_csc_hs(par, p);
     pattern = promoteALCTGEMpattern_ ? 10 : 0;
     quality = promoteALCTGEMquality_ ? 15 : 11;
@@ -152,7 +153,7 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
     keyWG = alct.getKeyWG();
     break;
   }
-  case 4: {
+  case lctTypes::CLCT2GEM: {
     const auto& mymap2 = getLUT()->get_gem_roll_to_csc_wg(par, p);
     pattern = encodePattern(clct.getPattern(), clct.getStripType());
     quality = promoteCLCTGEMquality_ ? 15 : 11;
