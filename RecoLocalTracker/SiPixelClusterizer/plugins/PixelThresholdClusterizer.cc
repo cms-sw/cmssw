@@ -47,8 +47,8 @@ PixelThresholdClusterizer::PixelThresholdClusterizer
     // Get thresholds in electrons
     thePixelThreshold( conf.getParameter<int>("ChannelThreshold") ),
     theSeedThreshold( conf.getParameter<int>("SeedThreshold") ),
-    theClusterThreshold( conf.getParameter<double>("ClusterThreshold") ),
-    theClusterThreshold_L1( conf.getParameter<double>("ClusterThreshold_L1") ),
+    theClusterThreshold( conf.getParameter<int>("ClusterThreshold") ),
+    theClusterThreshold_L1( conf.getParameter<int>("ClusterThreshold_L1") ),
     theConversionFactor( conf.getParameter<int>("VCaltoElectronGain") ),
     theConversionFactor_L1( conf.getParameter<int>("VCaltoElectronGain_L1") ),
     theOffset( conf.getParameter<int>("VCaltoElectronOffset") ),
@@ -62,13 +62,31 @@ PixelThresholdClusterizer::PixelThresholdClusterizer
     doSplitClusters( conf.getParameter<bool>("SplitClusters") )
 {
   theBuffer.setSize( theNumOfRows, theNumOfCols );
-  if (theClusterThreshold != conf.getParameter<double>("ClusterThreshold"))
-    throw cms::Exception("Configuration")<<"ClusterThreshold is to be converted to int, Please, use an integer value.";
-  if (theClusterThreshold_L1 != conf.getParameter<double>("ClusterThreshold_L1"))
-    throw cms::Exception("Configuration")<<"ClusterThreshold_L1 is to be converted to int, Please, use an integer value.";
 }
 /////////////////////////////////////////////////////////////////////////////
 PixelThresholdClusterizer::~PixelThresholdClusterizer() {}
+
+
+// Configuration descriptions
+void
+PixelThresholdClusterizer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // siPixelClusters
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("src", edm::InputTag("siPixelDigis"));
+  desc.add<int>("ChannelThreshold", 1000);
+  desc.addUntracked<bool>("MissCalibrate", true);
+  desc.add<bool>("SplitClusters", false);
+  desc.add<int>("VCaltoElectronGain", 65);
+  desc.add<int>("VCaltoElectronGain_L1", 65);
+  desc.add<int>("VCaltoElectronOffset", -414);
+  desc.add<int>("VCaltoElectronOffset_L1", -414);
+  desc.add<std::string>("payloadType", "Offline");
+  desc.add<int>("SeedThreshold", 1000);
+  desc.add<int>("ClusterThreshold_L1", 4000);
+  desc.add<int>("ClusterThreshold", 4000);
+  descriptions.add("siPixelClusters", desc);
+  desc.add<int>("maxNumberOfClusters", -1);
+}
 
 //----------------------------------------------------------------------------
 //!  Prepare the Clusterizer to work on a particular DetUnit.  Re-init the
