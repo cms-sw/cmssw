@@ -257,7 +257,7 @@ PixelLumiDQM::analyze(const edm::Event& iEvent,
                   histName="clusSizeBarrel"+std::to_string(layer);
                   fHistContainerThisRun[histName.c_str()]->Fill(iEvent.bunchCrossing(), size);
                 } else {
-                  std::cout<<"higher layer number, "<<layer<<", than layers,"<<kNumLayers<<std::endl;
+                  edm::LogWarning("pixelLumi")<<"higher layer number, "<<layer<<", than layers";
                 }
               } else {
                 
@@ -266,7 +266,6 @@ PixelLumiDQM::analyze(const edm::Event& iEvent,
                 // DEBUG DEBUG DEBUG end
                 
                 PixelEndcapNameUpgrade detName = PixelEndcapNameUpgrade(detId);
-                PixelEndcapNameUpgrade::HalfCylinder halfCylinder = detName.halfCylinder();
                 unsigned int disk = detName.diskName() - kOffsetDisks;
                 if (disk<kNumDisks) {
                   std::string histName;
@@ -277,7 +276,7 @@ PixelLumiDQM::analyze(const edm::Event& iEvent,
                   histName="clusSizeEndCap"+std::to_string(disk);
                   fHistContainerThisRun[histName.c_str()]->Fill(iEvent.bunchCrossing(), size);
                 } else {
-                  std::cout<<"higher disk number, "<<disk<<", than disks,"<<kNumDisks<<std::endl;
+                  edm::LogWarning("pixelLumi")<<"higher disk number, "<<disk<<", than disks,"<<kNumDisks<<std::endl;
                 }
               }
             }
@@ -558,7 +557,7 @@ PixelLumiDQM::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock,
     // Reset counters 
     (*it).second.Reset();
 
-    // std::cout << "bx="<< (*it).first << " clusters=" << (*it).second.numB.at(0)) << std::endl; 
+    // edm::LogWarning("pixelLumi") << "bx="<< (*it).first << " clusters=" << (*it).second.numB.at(0)); 
   }
 
   if((filledAndUnmaskedBunches = calculateBunchMask(fHistClusterCountByBxCumulative,bunchTriggerMask))!=0){
@@ -577,7 +576,7 @@ PixelLumiDQM::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock,
     }
     else total_recorded = 0.0;
     
-    std::cout << " Total recorded " << total_recorded  << std::endl;
+    edm::LogWarning("pixelLumi") << " Total recorded " << total_recorded ;
     fHistTotalRecordedLumiByLS->setBinContent(ls,total_recorded);
     fHistTotalRecordedLumiByLS->setBinError(ls,
               sqrt(total_recorded_unc_square));
@@ -652,9 +651,9 @@ unsigned int PixelLumiDQM::calculateBunchMask(std::vector<float> &e, unsigned in
   }
   
   ave /= non_empty_bins;
-  std::cout << "Bunch mask finder - non empty bins " << non_empty_bins
+  edm::LogWarning("pixelLumi") << "Bunch mask finder - non empty bins " << non_empty_bins
       << " average of non empty bins " << ave 
-      << " max content of one bin " << maxc << std::endl;
+      << " max content of one bin " << maxc;
   double mean = 0.;
   double sigma = 0.;
   if(non_empty_bins < 50){
@@ -672,17 +671,16 @@ unsigned int PixelLumiDQM::calculateBunchMask(std::vector<float> &e, unsigned in
     mean = fit.GetParameter("Mean");
     sigma = fit.GetParameter("Sigma");
   }
-  std::cout << "Bunch mask will use mean" << mean << " sigma " << sigma << std::endl;
+  edm::LogWarning("pixelLumi") << "Bunch mask will use mean" << mean << " sigma " << sigma;
   // Active BX defined as those which have nclus within fixed standard deviations of peak.
   for(unsigned int i = 1; i<= nbins; i++){
     double bin = e[i];
     if(bin>0. && std::abs(bin-mean)<5.*(sigma)){ mask[i]=true; active_count++;}
   }
-  std::cout << "Bunch mask finds " << active_count << " active bunch crossings " << std::endl;
-  //   std::cout << "this is the full bx mask " ;
+  edm::LogWarning("pixelLumi") << "Bunch mask finds " << active_count << " active bunch crossings ";
+  //   edm::LogWarning("pixelLumi") << "this is the full bx mask " ;
   //   for(unsigned int i = 1; i<= nbins; i++)
-  //     std::cout << ((mask[i]) ? 1:0);
-  //   std::cout << std::endl;
+  //     edm::LogWarning("pixelLumi") << ((mask[i]) ? 1:0);
   return active_count;
 }
 // Define this as a CMSSW plug-in.
