@@ -157,6 +157,7 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
         histo[ONTRACK_SIZE      ].fill(double(cluster.size()  ), id, &iEvent);
         histo[ONTRACK_POSITION_B].fill(clustgp.z(),   clustgp.phi(),   id, &iEvent);
         histo[ONTRACK_POSITION_F].fill(clustgp.x(),   clustgp.y(),     id, &iEvent);
+	histo[SIZE_VS_ETA].fill(clustgp.eta(), cluster.sizeY(), id, &iEvent);
       } else {
         histo[OFFTRACK_NCLUSTERS ].fill(id, &iEvent);
         histo[OFFTRACK_CHARGE    ].fill(double(cluster.charge()), id, &iEvent);
