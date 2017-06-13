@@ -39,6 +39,8 @@
 
 #include "PackingSetupFactory.h"
 
+#include "EventFilter/L1TRawToDigi/plugins/implementations_stage2/L1TStage2Layer2Constants.h"
+
 namespace l1t {
    class L1TRawToDigi : public edm::stream::EDProducer<> {
       public:
@@ -72,6 +74,8 @@ namespace l1t {
          int amc13HeaderSize_;
          int amc13TrailerSize_;
 
+         bool tmtCheck_;
+
          bool ctp7_mode_;
          bool mtf7_mode_;
          bool debug_;
@@ -91,6 +95,7 @@ namespace l1t {
       minFeds_(config.getParameter<unsigned int>("MinFeds")),
       fwId_(config.getParameter<unsigned int>("FWId")),
       fwOverride_(config.getParameter<bool>("FWOverride")),
+      tmtCheck_(config.getParameter<bool>("TMTCheck")),
       ctp7_mode_(config.getUntrackedParameter<bool>("CTP7")),
       mtf7_mode_(config.getUntrackedParameter<bool>("MTF7"))
    {
@@ -235,43 +240,52 @@ namespace l1t {
 
             unsigned board = amc.blockHeader().getBoardID();
             unsigned amc_no = amc.blockHeader().getAMCNumber();
-
-            auto unpackers = prov_->getUnpackers(fedId, board, amc_no, fw);
-
+	    
+	    auto unpackers = prov_->getUnpackers(fedId, board, amc_no, fw);	      
+	      
             // getBlock() returns a non-null unique_ptr on success
             std::unique_ptr<Block> block;
             while ((block = payload->getBlock()).get()) {
-               if (debug_) {
+	      
+	      // only unpack the Calo Layer 2 MP TMT node if it has processed this BX
+	      unsigned tmtId = board - l1t::stage2::layer2::mp::offsetBoardId + 1;
+	      unsigned bxId = header.bxID();
+	      unsigned unpackTMT = ( !tmtCheck_ || ( ( tmtId - 1 ) == ( ( bxId - 1 + 3 ) % 9 ) ) );
+	      unsigned isCaloL2TMT = ( fedId==l1t::stage2::layer2::fedId && ( amc_no != l1t::stage2::layer2::demux::amcSlotNum ) );
+	      
+	      if( !isCaloL2TMT || unpackTMT ) { 
+		if (debug_) {
                   std::cout << ">>> block to unpack <<<" << std::endl
-                     << "hdr:  " << std::hex << std::setw(8) << std::setfill('0') << block->header().raw() << std::dec
-                     << " (ID " << block->header().getID() << ", size " << block->header().getSize()
-                     << ", CapID 0x" << std::hex << std::setw(2) << std::setfill('0') << block->header().getCapID()
-			    << ")" << std::dec << std::endl;
+			    << "hdr:  " << std::hex << std::setw(8) << std::setfill('0') << block->header().raw() << std::dec
+			    << " (ID " << block->header().getID() << ", size " << block->header().getSize()
+			    << ", CapID 0x" << std::hex << std::setw(2) << std::setfill('0') << block->header().getCapID()
+	       		    << ")" << std::dec << std::endl;
                   for (const auto& word: block->payload()) {
-		    if (debug_)
-		      std::cout << "data: " << std::hex << std::setw(8) << std::setfill('0') << word << std::dec << std::endl;
-		  }
-               }
-
-               auto unpacker = unpackers.find(block->header().getID());
-
-               block->amc(amc.header());
-
-               if (unpacker == unpackers.end()) {
-                  LogDebug("L1T") << "Cannot find an unpacker for"
-                     << "\n\tblock: ID " << block->header().getID() << ", size " << block->header().getSize()
-                     << "\n\tAMC: # " << amc_no << ", board ID 0x" << std::hex << board << std::dec
-                     << "\n\tFED ID " << fedId << ", and FW ID " << fw;
-                  // TODO Handle error
-               } else if (!unpacker->second->unpack(*block, coll.get())) {
-                  LogDebug("L1T") << "Error unpacking data for block ID "
-                     << block->header().getID() << ", AMC # " << amc_no
-                     << ", board ID " << board << ", FED ID " << fedId
-                     << ", and FW ID " << fw << "!";
-                  // TODO Handle error
-               }
-            }
-         }
+	       	    if (debug_)
+	       	      std::cout << "data: " << std::hex << std::setw(8) << std::setfill('0') << word << std::dec << std::endl;
+	       	  }
+		}
+		
+		auto unpacker = unpackers.find(block->header().getID());
+		
+		block->amc(amc.header());
+		
+		if (unpacker == unpackers.end()) {
+		  LogDebug("L1T") << "Cannot find an unpacker for"
+				  << "\n\tblock: ID " << block->header().getID() << ", size " << block->header().getSize()
+				  << "\n\tAMC: # " << amc_no << ", board ID 0x" << std::hex << board << std::dec
+				  << "\n\tFED ID " << fedId << ", and FW ID " << fw;
+		  // TODO Handle error
+		} else if (!unpacker->second->unpack(*block, coll.get())) {
+		  LogDebug("L1T") << "Error unpacking data for block ID "
+				  << block->header().getID() << ", AMC # " << amc_no
+				  << ", board ID " << board << ", FED ID " << fedId
+				  << ", and FW ID " << fw << "!";
+		  // TODO Handle error
+		}
+	      }
+	    }
+	 }
       }
       if (valid_count < minFeds_){
 	if (warnsb_ < 5){
@@ -292,6 +306,7 @@ namespace l1t {
      // part of the L1T/HLT interface.  They can be cleaned up or updated at will:     
      desc.add<unsigned int>("FWId",0)->setComment("Ignored unless FWOverride is true.  Calo Stage1:  32 bits: if the first eight bits are 0xff, will read the 74x MC format.\n");
      desc.add<bool>("FWOverride", false)->setComment("Firmware version should be taken as FWId parameters");
+     desc.add<bool>("TMTCheck", true)->setComment("Flag for turning on/off Calo Layer 2 TMT node check");
      desc.addUntracked<bool>("CTP7", false);
      desc.addUntracked<bool>("MTF7", false);
      desc.add<edm::InputTag>("InputLabel",edm::InputTag("rawDataCollector"));
