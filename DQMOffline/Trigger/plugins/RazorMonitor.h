@@ -68,8 +68,8 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   static void fillHistoLSPSetDescription(edm::ParameterSetDescription & pset);
 
-  static double CalcMR(TLorentzVector ja,TLorentzVector jb);
-  static double CalcR(double MR, TLorentzVector ja,TLorentzVector jb, edm::Handle<std::vector<reco::PFMET> > met, const std::vector<math::XYZTLorentzVector>& muons);
+  static double CalcMR(const math::XYZTLorentzVector& ja, const math::XYZTLorentzVector& jb);
+  static double CalcR(double MR, const math::XYZTLorentzVector& ja, const math::XYZTLorentzVector& jb, const edm::Handle<std::vector<reco::PFMET> >& met, const std::vector<math::XYZTLorentzVector>& muons);
 
 protected:
 
@@ -106,12 +106,12 @@ private:
 
   RazorME MRVsRsq_ME_;
 
-  GenericTriggerEventFlag* num_genTriggerEventFlag_;
-  GenericTriggerEventFlag* den_genTriggerEventFlag_;
+  std::unique_ptr<GenericTriggerEventFlag> num_genTriggerEventFlag_;
+  std::unique_ptr<GenericTriggerEventFlag> den_genTriggerEventFlag_;
 
-  StringCutObjectSelector<reco::MET,true>         metSelection_;
-  StringCutObjectSelector<reco::PFJet,true   >    jetSelection_;
-  int njets_;
+  StringCutObjectSelector<reco::MET,true>      metSelection_;
+  StringCutObjectSelector<reco::PFJet,true >   jetSelection_;
+  uint njets_;
   float rsqCut_;
   float mrCut_;
 
