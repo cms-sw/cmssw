@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 lhcBeamConditions_2016PreTS2 = cms.PSet(
+    sqrtS = cms.double(13.e3), # in GeV
     vertexSize = cms.double(10.e-6), # in m
     beamDivergence = cms.double(20.e-6), # in rad
 

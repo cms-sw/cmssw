@@ -68,6 +68,7 @@ class CTPPSOpticsParameterisation : public edm::stream::EDProducer<> {
     edm::EDGetTokenT<edm::HepMCProduct> protonsToken_;
 
     edm::ParameterSet beamConditions_;
+    double sqrtS_;
     double halfCrossingAngleSector45_, halfCrossingAngleSector56_;
     double yOffsetSector45_, yOffsetSector56_;
 
@@ -87,6 +88,7 @@ class CTPPSOpticsParameterisation : public edm::stream::EDProducer<> {
 CTPPSOpticsParameterisation::CTPPSOpticsParameterisation( const edm::ParameterSet& iConfig ) :
   protonsToken_( consumes<edm::HepMCProduct>( iConfig.getParameter<edm::InputTag>( "beamParticlesTag" ) ) ),
   beamConditions_             ( iConfig.getParameter<edm::ParameterSet>( "beamConditions" ) ),
+  sqrtS_                      ( beamConditions_.getParameter<double>( "sqrtS" ) ),
   halfCrossingAngleSector45_  ( beamConditions_.getParameter<double>( "halfCrossingAngleSector45" ) ),
   halfCrossingAngleSector56_  ( beamConditions_.getParameter<double>( "halfCrossingAngleSector56" ) ),
   yOffsetSector45_            ( beamConditions_.getParameter<double>( "yOffsetSector45" ) ),
@@ -177,7 +179,7 @@ CTPPSOpticsParameterisation::transportProtonTrack( const HepMC::GenParticle* in_
       vtx_y += yOffsetSector56_;
     }
 
-    const double xi = 1.-mom.pz()/6500.; //FIXME
+    const double xi = 1.-mom.pz()/( sqrtS_*0.5 ); //FIXME
 
     // transport proton to its corresponding RP
     double kin_in[5] = { vtx_x, th_x * ( 1.-xi ), vtx_y, th_y * ( 1.-xi ), -xi };

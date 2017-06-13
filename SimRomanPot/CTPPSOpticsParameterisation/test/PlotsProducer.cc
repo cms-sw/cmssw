@@ -3,7 +3,7 @@
 // Package:    SimRomanPot/CTPPSOpticsParameterisation
 // Class:      PlotsProducer
 // 
-/**\class PlotsProducer PlotsProducer.cc SimRomanPot/CTPPSOpticsParameterisation/plugins/PlotsProducer.cc
+/**\class PlotsProducer PlotsProducer.cc SimRomanPot/CTPPSOpticsParameterisation/test/PlotsProducer.cc
 
  Description: [one line class summary]
 
@@ -63,6 +63,7 @@ class PlotsProducer : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
     edm::EDGetTokenT< edm::View<CTPPSSimHit> > hitsToken_;
 
     //edm::ParameterSet beamConditions_;
+    double sqrtS_;
     std::vector<edm::ParameterSet> detectorPackages_;
 
     std::map<unsigned int,TH2D*> m_rp_h2_y_vs_x_;
@@ -92,6 +93,7 @@ PlotsProducer::PlotsProducer( const edm::ParameterSet& iConfig ) :
   recoProtons56Token_( consumes< edm::View<CTPPSSimProtonTrack> >( iConfig.getParameter<edm::InputTag>( "recoProtons56Tag" ) ) ),
   hitsToken_         ( consumes< edm::View<CTPPSSimHit> >( iConfig.getParameter<edm::InputTag>( "potsHitsTag" ) ) ),
   //beamConditions_  ( iConfig.getParameter<edm::ParameterSet>( "beamConditions" ) ),
+  sqrtS_           ( iConfig.getParameter<edm::ParameterSet>( "beamConditions" ).getParameter<double>( "sqrtS" ) ),
   detectorPackages_( iConfig.getParameter< std::vector<edm::ParameterSet> >( "detectorPackages" ) )
 {
   usesResource( "TFileService" );
@@ -161,12 +163,14 @@ PlotsProducer::analyze( const edm::Event& iEvent, const edm::EventSetup& )
 
   for ( HepMC::GenEvent::particle_const_iterator p=evt.particles_begin(); p!=evt.particles_end(); ++p ) {
     const HepMC::GenParticle* gen_pro = *p;
-    const double gen_xi = gen_pro->momentum().e()/6500.-1.;
+    const double gen_xi = 1.-gen_pro->momentum().pz()/( sqrtS_*0.5 );
 
     for ( unsigned short i=0; i<2; ++i ) {
       for ( const auto& rec_pro : *reco_protons[i] ) {
         const HepMC::FourVector& gen_pos = gen_pro->production_vertex()->position();
         const double rec_xi = rec_pro.xi();
+
+//std::cout << "--> sector " << i << ": " << gen_xi << " / " << rec_xi << std::endl;
 
         const double de_vtx_x = rec_pro.vertex().x()-gen_pos.x();
         const double de_vtx_y = rec_pro.vertex().y()-gen_pos.y();
@@ -196,52 +200,11 @@ PlotsProducer::analyze( const edm::Event& iEvent, const edm::EventSetup& )
   }
 /*
 	// save plots
-	gDirectory = f_out;
-
-	for (const auto &it : m_rp_h2_y_vs_x)
-	{
-		char buf[100];
-		sprintf(buf, "h2_y_vs_x_RP%u", it.first);
-		it.second->Write(buf);
-	}
-
-	gDirectory = f_out->mkdir("sector 45");
-	h_de_vtx_x_45->Write();
-	h_de_vtx_y_45->Write();
-	h_de_th_x_45->Write();
-	h_de_th_y_45->Write();
-	h_de_xi_45->Write();
-
-	h2_de_vtx_x_vs_de_xi_45->Write();
-	h2_de_vtx_y_vs_de_xi_45->Write();
-	h2_de_th_x_vs_de_xi_45->Write();
-	h2_de_th_y_vs_de_xi_45->Write();
-	h2_de_vtx_y_vs_de_th_y_45->Write();
-
-	p_de_vtx_x_vs_xi_45->Write();
-	p_de_vtx_y_vs_xi_45->Write();
-	p_de_th_x_vs_xi_45->Write();
-	p_de_th_y_vs_xi_45->Write();
-	p_de_xi_vs_xi_45->Write();
-
 	ProfileToRMSGraph(p_de_vtx_x_vs_xi_45, "g_rms_de_vtx_x_vs_xi_45")->Write();
 	ProfileToRMSGraph(p_de_vtx_y_vs_xi_45, "g_rms_de_vtx_y_vs_xi_45")->Write();
 	ProfileToRMSGraph(p_de_th_x_vs_xi_45, "g_rms_de_th_x_vs_xi_45")->Write();
 	ProfileToRMSGraph(p_de_th_y_vs_xi_45, "g_rms_de_th_y_vs_xi_45")->Write();
 	ProfileToRMSGraph(p_de_xi_vs_xi_45, "g_rms_de_xi_vs_xi_45")->Write();
-
-	gDirectory = f_out->mkdir("sector 56");
-	h_de_vtx_x_56->Write();
-	h_de_vtx_y_56->Write();
-	h_de_th_x_56->Write();
-	h_de_th_y_56->Write();
-	h_de_xi_56->Write();
-
-	h2_de_vtx_x_vs_de_xi_56->Write();
-	h2_de_vtx_y_vs_de_xi_56->Write();
-	h2_de_th_x_vs_de_xi_56->Write();
-	h2_de_th_y_vs_de_xi_56->Write();
-	h2_de_vtx_y_vs_de_th_y_56->Write();
 
 	ProfileToRMSGraph(p_de_vtx_x_vs_xi_56, "g_rms_de_vtx_x_vs_xi_56")->Write();
 	ProfileToRMSGraph(p_de_vtx_y_vs_xi_56, "g_rms_de_vtx_y_vs_xi_56")->Write();

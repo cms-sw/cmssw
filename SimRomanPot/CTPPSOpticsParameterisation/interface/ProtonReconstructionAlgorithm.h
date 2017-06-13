@@ -40,6 +40,8 @@ class ProtonReconstructionAlgorithm
     };
 
     edm::ParameterSet beamConditions_;
+    double halfCrossingAngleSector45_, halfCrossingAngleSector56_;
+    double yOffsetSector45_, yOffsetSector56_;
     /// map: RP id --> optics data
     std::map<TotemRPDetId,RPOpticsData> m_rp_optics_;
 
@@ -47,7 +49,12 @@ class ProtonReconstructionAlgorithm
     class ChiSquareCalculator {
       public:
         ChiSquareCalculator( const edm::ParameterSet& bc, bool aper, bool invert ) :
-          beamConditions_( bc ), check_apertures( aper ), invert_beam_coord_systems( invert ) {}
+          beamConditions_( bc ),
+          halfCrossingAngleSector45_( bc.getParameter<double>( "halfCrossingAngleSector45" ) ),
+          halfCrossingAngleSector56_( bc.getParameter<double>( "halfCrossingAngleSector56" ) ),
+          yOffsetSector45_( bc.getParameter<double>( "yOffsetSector45" ) ),
+          yOffsetSector56_( bc.getParameter<double>( "yOffsetSector56" ) ),
+          check_apertures( aper ), invert_beam_coord_systems( invert ) {}
         double operator() ( const double* ) const;
 
         const std::vector< edm::Ptr<CTPPSSimHit> >* tracks;
@@ -55,6 +62,8 @@ class ProtonReconstructionAlgorithm
 
       private:
         edm::ParameterSet beamConditions_;
+        double halfCrossingAngleSector45_, halfCrossingAngleSector56_;
+        double yOffsetSector45_, yOffsetSector56_;
         const bool check_apertures;
         const bool invert_beam_coord_systems;
     };

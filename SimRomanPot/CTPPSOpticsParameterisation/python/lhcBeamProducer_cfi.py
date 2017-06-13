@@ -5,8 +5,8 @@ from SimRomanPot.CTPPSOpticsParameterisation.lhcBeamConditions_cff import lhcBea
 lhcBeamProducer = cms.EDProducer('FlatRandomXiGunProducer',
     PGunParameters = cms.PSet(
         PartID = cms.vint32(2212),
-        SqrtS = cms.double(13.e3),
         BeamConditions = lhcBeamConditions_2016PreTS2,
+        SqrtS = lhcBeamConditions_2016PreTS2.sqrtS,
         MinXi = cms.double(0.03),
         MaxXi = cms.double(0.17),
         # switches

@@ -2,6 +2,10 @@
 
 ProtonReconstructionAlgorithm::ProtonReconstructionAlgorithm( const edm::ParameterSet& beam_conditions, std::unordered_map<unsigned int, std::string> objects, const std::string& optics_file ) :
   beamConditions_( beam_conditions ),
+  halfCrossingAngleSector45_( beamConditions_.getParameter<double>( "halfCrossingAngleSector45" ) ),
+  halfCrossingAngleSector56_( beamConditions_.getParameter<double>( "halfCrossingAngleSector56" ) ),
+  yOffsetSector45_( beamConditions_.getParameter<double>( "yOffsetSector45" ) ),
+  yOffsetSector56_( beamConditions_.getParameter<double>( "yOffsetSector56" ) ),
   fitter_( std::make_unique<ROOT::Fit::Fitter>() ),
   checkApertures_( false ), invertBeamCoordinatesSystem_( true ), //FIXME
   chiSquareCalculator_( std::make_unique<ChiSquareCalculator>( beamConditions_, checkApertures_, invertBeamCoordinatesSystem_ ) )
@@ -28,13 +32,13 @@ ProtonReconstructionAlgorithm::ProtonReconstructionAlgorithm( const edm::Paramet
 
     // determine LHC sector from RP id
     if ( pot_id.arm()==0 ) {
-      crossing_angle = beamConditions_.getParameter<double>( "halfCrossingAngleSector45" );
-      vtx0_y = beamConditions_.getParameter<double>( "yOffsetSector45" );
+      crossing_angle = halfCrossingAngleSector45_;
+      vtx0_y = yOffsetSector45_;
     }
 
     if ( pot_id.arm()==1 ) {
-      crossing_angle = beamConditions_.getParameter<double>( "halfCrossingAngleSector56" );
-      vtx0_y = beamConditions_.getParameter<double>( "yOffsetSector56" );
+      crossing_angle = halfCrossingAngleSector56_;
+      vtx0_y = yOffsetSector56_;
     }
 
     auto g_xi_vs_x = std::make_unique<TGraph>(),
@@ -131,9 +135,9 @@ ProtonReconstructionAlgorithm::Reconstruct( const std::vector< edm::Ptr<CTPPSSim
     y_idx++;
   }
 
-  const double det = v_y[0] * L_y[1] - L_y[0] * v_y[1];
-  const double vtx_y_0 = (L_y[1] * y[0] - L_y[0] * y[1]) / det;
-  const double th_y_0 = (v_y[0] * y[1] - v_y[1] * y[0]) / det;
+  const double det = v_y[0]*L_y[1] - L_y[0]*v_y[1];
+  const double vtx_y_0 = ( L_y[1]*y[0] - L_y[0]*y[1] ) / det;
+  const double th_y_0 = ( v_y[0]*y[1] - v_y[1]*y[0] ) / det;
 
   // minimisation
   fitter_->Config().ParSettings( 0 ).Set( "xi", xi_0, 0.005 );
@@ -148,9 +152,17 @@ ProtonReconstructionAlgorithm::Reconstruct( const std::vector< edm::Ptr<CTPPSSim
 
   // extract proton parameters
   const ROOT::Fit::FitResult& result = fitter_->Result();
-  const double* fitParameters = result.GetParams();
+  const double* params = result.GetParams();
 
-  return CTPPSSimProtonTrack( Local3DPoint( 0., fitParameters[3], 0. ), Local3DVector( fitParameters[1], fitParameters[2], 0. ), fitParameters[0] );
+  //std::cout
+  edm::LogInfo("ProtonReconstructionAlgorithm")
+    << "at reconstructed level: "
+    << "xi=" << params[0] << ", "
+    << "theta_x=" << params[1] << ", "
+    << "theta_y=" << params[2] << ", "
+    << "vertex_y=" << params[3] << "\n";
+
+  return CTPPSSimProtonTrack( Local3DPoint( 0., params[3], 0. ), Local3DVector( params[1], params[2], 0. ), params[0] );
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -159,40 +171,39 @@ double
 ProtonReconstructionAlgorithm::ChiSquareCalculator::operator() ( const double* parameters ) const
 {
   // extract proton parameters
-  const double &xi = parameters[0];
-  const double &th_x = parameters[1];
-  const double &th_y = parameters[2];
+  const double& xi = parameters[0];
+  const double& th_x = parameters[1];
+  const double& th_y = parameters[2];
   const double vtx_x = 0;
-  const double &vtx_y = parameters[3];
+  const double& vtx_y = parameters[3];
 
   // calculate chi^2
   double S2 = 0.;
 
   for ( auto& hit : *tracks ) {
-    double crossing_angle = 0.;
-    double vtx0_y = 0.;
-    const TotemRPDetId detid( TotemRPDetId::decToRawId( hit->potId() ) );
+    double crossing_angle = 0., vtx0_y = 0.;
+    const TotemRPDetId detid( hit->potId() );
 
     // determine LHC sector from RP id
     if ( detid.arm()==0 ) {
-      crossing_angle = beamConditions_.getParameter<double>( "halfCrossingAngleSector45" );
-      vtx0_y = beamConditions_.getParameter<double>( "yOffsetSector45" );
+      crossing_angle = halfCrossingAngleSector45_;
+      vtx0_y = yOffsetSector45_;
     }
 
     if ( detid.arm()==1 ) {
-      crossing_angle = beamConditions_.getParameter<double>( "halfCrossingAngleSector56" );
-      vtx0_y = beamConditions_.getParameter<double>( "yOffsetSector56" );
+      crossing_angle = halfCrossingAngleSector56_;
+      vtx0_y = yOffsetSector56_;
     }
 
     // transport proton to the RP
     auto oit = m_rp_optics->find( detid );
 
-    double kin_in[5] = { vtx_x,	(th_x + crossing_angle) * (1. - xi), vtx0_y + vtx_y, th_y * (1. - xi), -xi };
+    double kin_in[5] = { vtx_x,	( th_x+crossing_angle ) * ( 1.-xi ), vtx0_y+vtx_y, th_y * ( 1.-xi ), -xi };
     double kin_out[5];
     oit->second.optics->Transport( kin_in, kin_out, check_apertures, invert_beam_coord_systems );
 
-    const double &x = kin_out[0];
-    const double &y = kin_out[2];
+    const double& x = kin_out[0];
+    const double& y = kin_out[2];
 
     // calculate chi^2 constributions
     const double x_diff_norm = ( x-hit->getX0() ) / hit->getX0Sigma();
@@ -203,9 +214,10 @@ ProtonReconstructionAlgorithm::ChiSquareCalculator::operator() ( const double* p
   }
 
   edm::LogInfo("ChiSquareCalculator")
-    << "xi = " << xi
-    << ", th_x = " << th_x << ", th_y = " << th_y
-    << ", vtx_y = " << vtx_y << " | S2 = " << S2;
+    << "xi = " << xi << ", "
+    << "th_x = " << th_x << ", "
+    << "th_y = " << th_y << ", "
+    << "vtx_y = " << vtx_y << " | S2 = " << S2 << "\n";
 
   return S2;
 }
