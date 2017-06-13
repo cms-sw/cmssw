@@ -47,17 +47,6 @@ def customisePostEra_Run2_2017(process):
     _hcalCustoms25ns(process)
     return process
 
-def customisePostEra_Run2_2017_trackingOnly(process):
-    customisePostEra_Run2_2017(process)
-    if hasattr(process,'pathALCARECOTkAlMinBias'):
-        print "process does have pathALCARECOTkAlMinBias"
-        process.pathALCARECOTkAlMinBias.remove(process.ALCARECOTkAlMinBiasDQM)
-    if hasattr(process,'schedule'):
-        print "process does have schedule"
-        process.schedule.remove(process.eventinterpretaion_step)
-    return process
-
-
 ##############################################################################
 def customisePPData(process):
     #deprecated process= customiseCommon(process)

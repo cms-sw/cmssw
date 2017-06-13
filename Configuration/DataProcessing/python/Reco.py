@@ -80,7 +80,6 @@ class Reco(Scenario):
 
         options.step = 'RAW2DIGI,L1Reco,RECO'+self.recoSeq+eiStep+step+PhysicsSkimStep+miniAODStep+',DQM'+dqmStep+',ENDJOB'
 
-
         dictIO(options,args)
         options.conditions = gtNameAndConnect(globalTag, args)
         
