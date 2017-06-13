@@ -35,8 +35,8 @@ HLTBTagHarvestingAnalyzer::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGet
 		TH1 *num =NULL; 
 		std::map<TString,TH1F> effics;
 		std::map<TString,bool> efficsOK;
-		std::map<TString,std::map<std::string,TH1F> > efficsmod;
-		std::map<TString,std::map<std::string,bool> > efficsmodOK;
+		std::map<std::string,std::map<std::string,TH1F> > efficsmod;
+		std::map<std::string,std::map<std::string,bool> > efficsmodOK;
 		for (unsigned int i = 0; i < m_mcLabels.size(); ++i)
 		{
 			bool isOK=false;
@@ -57,8 +57,8 @@ HLTBTagHarvestingAnalyzer::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGet
 				if (isOK){
 			
 					//do the 'b-tag efficiency vs discr' plot
-					efficsmod[flavour][modules_[j]]=calculateEfficiency1D(ibooker,igetter,*num,*den,(label+"_efficiency_vs_disc").Data());
-					efficsmodOK[flavour][modules_[j]]=isOK;
+					efficsmod[flavour.Data()][modules_[j]]=calculateEfficiency1D(ibooker,igetter,*num,*den,(label+"_efficiency_vs_disc").Data());
+					efficsmodOK[flavour.Data()][modules_[j]]=isOK;
 				}
 			}
 			ibooker.setCurrentFolder(effDir);
@@ -89,8 +89,8 @@ HLTBTagHarvestingAnalyzer::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGet
 
 			///save efficiency_vs_disc_HEP17 / efficiency_vs_disc_HEM17 plots
 			ibooker.setCurrentFolder(relationsDir);
-			if (efficsmodOK[flavour]["HEP17"] && efficsmodOK[flavour]["HEM17"]) 
-				modulesrate(ibooker,igetter,&efficsmod[flavour]["HEP17"], &efficsmod[flavour]["HEM17"], m_histoName.at(ind)+"_"+flavour.Data()+"_HEP17_HEM17_effs_vs_disc_rate" );
+			if (efficsmodOK[flavour.Data()]["HEP17"] && efficsmodOK[flavour.Data()]["HEM17"]) 
+				modulesrate(ibooker,igetter,&efficsmod[flavour.Data()]["HEP17"], &efficsmod[flavour.Data()]["HEM17"], m_histoName.at(ind)+"_"+flavour.Data()+"_HEP17_HEM17_effs_vs_disc_rate" );
 			ibooker.setCurrentFolder(effDir);
 
 		} /// for mc labels
