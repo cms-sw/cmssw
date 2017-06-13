@@ -68,8 +68,9 @@ void TSGForOI::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::vector<BarrelDetLayer const*> const& tob = measurementTracker_->geometricSearchTracker()->tobLayers();
   std::vector<ForwardDetLayer const*> const& tecPositive = measurementTracker_->geometricSearchTracker()->posTecLayers();
   std::vector<ForwardDetLayer const*> const& tecNegative = measurementTracker_->geometricSearchTracker()->negTecLayers();
-  edm::ESHandle<TrackerTopology> tTopo;
-  iSetup.get<TrackerTopologyRcd>().get(tTopo);
+  edm::ESHandle<TrackerTopology> tTopo_handle;
+  iSetup.get<TrackerTopologyRcd>().get(tTopo_handle);
+  const TrackerTopology* tTopo = tTopo_handle.product();
 
   //	Get the suitable propagators:
   std::unique_ptr<Propagator> propagatorAlong = SetPropagationDirection(*propagatorAlong_,alongMomentum);
@@ -163,7 +164,7 @@ void TSGForOI::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 }
 
 void TSGForOI::findSeedsOnLayer(
-				const edm::ESHandle<TrackerTopology> tTopo,
+				const TrackerTopology* tTopo,
 				const GeometricSearchDet &layer,
 				const TrajectoryStateOnSurface &tsosAtIP,
 				const Propagator& propagatorAlong,
@@ -243,7 +244,7 @@ double TSGForOI::calculateSFFromL2(const reco::TrackRef track){
 
 
 int TSGForOI::makeSeedsFromHits(
-				const edm::ESHandle<TrackerTopology> tTopo,
+				const TrackerTopology* tTopo,
 				const GeometricSearchDet &layer,
 				const TrajectoryStateOnSurface &tsosAtIP,
 				std::vector<TrajectorySeed> &out,
