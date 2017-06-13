@@ -6,36 +6,6 @@
 
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 
-double MAX_PHI1 = 3.2;
-int N_PHI1 = 64;
-const MEbinning phi_binning_1{
-  N_PHI1, -MAX_PHI1, MAX_PHI1
-    };
-
-
-double MAX_ETA = 1.4442;
-int N_ETA = 34;
-const MEbinning eta_binning_{
-  N_ETA, -MAX_ETA, MAX_ETA
-    };
-
-
-
-double MAX_r9 = 1;
-double MIN_r9 = 0;
-int N_r9 = 50;
-const MEbinning r9_binning_{
-  N_r9, MIN_r9, MAX_r9
-    };
-
-
-
-double MAX_hoe = 0.02;
-double MIN_hoe= 0;
-const MEbinning hoe_binning_{
-  N_r9, MIN_hoe, MAX_hoe
-    };
-
 // -----------------------------
 //  constructors and destructor
 // -----------------------------
@@ -55,9 +25,9 @@ PhotonMonitor::PhotonMonitor( const edm::ParameterSet& iConfig ) :
   , jetSelection_ ( iConfig.getParameter<std::string>("jetSelection") )
   , eleSelection_ ( iConfig.getParameter<std::string>("eleSelection") )
   , photonSelection_ ( iConfig.getParameter<std::string>("photonSelection") )
-  , njets_      ( iConfig.getParameter<int>("njets" )      )
-  , nphotons_      ( iConfig.getParameter<int>("nphotons" )      )
-  , nelectrons_ ( iConfig.getParameter<int>("nelectrons" ) )
+  , njets_      ( iConfig.getParameter<unsigned int>("njets" )      )
+  , nphotons_      ( iConfig.getParameter<unsigned int>("nphotons" )      )
+  , nelectrons_ ( iConfig.getParameter<unsigned int>("nelectrons" ) )
 {
 
   photonME_.numerator   = nullptr;
@@ -76,6 +46,9 @@ PhotonMonitor::PhotonMonitor( const edm::ParameterSet& iConfig ) :
   photonr9ME_.denominator = nullptr;
   photonHoverEME_.numerator   = nullptr;       
   photonHoverEME_.denominator = nullptr;
+
+  
+  
   
 }
 
@@ -85,7 +58,7 @@ PhotonMonitor::~PhotonMonitor()
   if (den_genTriggerEventFlag_) delete den_genTriggerEventFlag_;
 }
 
-MEbinning PhotonMonitor::getHistoPSet(edm::ParameterSet pset)
+MEbinning PhotonMonitor::getHistoPSet(edm::ParameterSet const& pset)
 {
   return MEbinning{
     pset.getParameter<int32_t>("nbins"),
@@ -94,7 +67,7 @@ MEbinning PhotonMonitor::getHistoPSet(edm::ParameterSet pset)
       };
 }
 
-MEbinning PhotonMonitor::getHistoLSPSet(edm::ParameterSet pset)
+MEbinning PhotonMonitor::getHistoLSPSet(edm::ParameterSet const& pset)
 {
   return MEbinning{
     pset.getParameter<int32_t>("nbins"),
@@ -103,7 +76,7 @@ MEbinning PhotonMonitor::getHistoLSPSet(edm::ParameterSet pset)
       };
 }
 
-void PhotonMonitor::setTitle(PhotonME& me, std::string titleX, std::string titleY)
+void PhotonMonitor::setTitle(PhotonME& me, const std::string& titleX, const std::string& titleY)
 {
   me.numerator->setAxisTitle(titleX,1);
   me.numerator->setAxisTitle(titleY,2);
@@ -221,20 +194,20 @@ void PhotonMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSe
   iEvent.getByToken( jetToken_, jetHandle );
   std::vector<reco::PFJet> jets;
   jets.clear();
-  if ( int(jetHandle->size()) < njets_ ) return;
+  if ( jetHandle->size() < njets_ ) return;
   for ( auto const & j : *jetHandle ) {
     if ( jetSelection_( j ) ) jets.push_back(j);
   }
-  if ( int(jets.size()) < njets_ ) return;
+  if ( jets.size() < njets_ ) return;
   
   edm::Handle<reco::GsfElectronCollection> eleHandle;
   iEvent.getByToken( eleToken_, eleHandle );
   std::vector<reco::GsfElectron> electrons;
-  if ( int(eleHandle->size()) < nelectrons_ ) return;
+  if ( eleHandle->size() < nelectrons_ ) return;
   for ( auto const & e : *eleHandle ) {
     if ( eleSelection_( e ) ) electrons.push_back(e);
   }
-  if ( int(electrons.size()) < nelectrons_ ) return;
+  if ( electrons.size() < nelectrons_ ) return;
 
 
 
@@ -242,16 +215,16 @@ void PhotonMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSe
   iEvent.getByToken( photonToken_, photonHandle );
   std::vector<reco::Photon> photons;
   photons.clear();
-  if ( int(photonHandle->size()) < nphotons_ ) return;
+  if ( photonHandle->size() < nphotons_ ) return;
   for ( auto const & p : *photonHandle ) {
     if ( photonSelection_( p ) ) photons.push_back(p);
   }
-  if ( int(photons.size()) < nphotons_ ) return;
+  if ( photons.size() < nphotons_ ) return;
   
 
   // filling histograms (denominator)  
       int ls = iEvent.id().luminosityBlock();
-      if(photons.size()>0)
+      if(photons.empty())
 	
 	{
 	  photonME_.denominator -> Fill(photons[0].pt());
