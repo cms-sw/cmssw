@@ -355,13 +355,11 @@ HLT_Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT350_DZ_v*	#	CMSHLT-1311
 HLT_Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT350_v*	#	CMSHLT-1311
 HLT_DoubleMu4_Mass8_DZ_PFHT350_v*	#	CMSHLT-1311
 HLT_DoubleMu8_Mass8_PFHT350_v*	#	CMSHLT-1311
-HLT_Dimuon8_PsiPrime_Barrel_Seagulls_v*	#	CMSHLT-1365 (fixme)
-HLT_Dimuon8_Upsilon_Barrel_Seagulls_v*	#	CMSHLT-1365 (fixme)
 HLT_DoubleMu3_PFMET50_v*	#	CMSHLT-1365 (fixme)
 HLT_Mu3_PFJet40_v*	#	CMSHLT-1365 (fixme)
 HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v*	#	CMSHLT-1358, CMSHLT-1365 (fixme)
+HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v*	#	CMSHLT-1358
 HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_v*	#	CMSHLT-1358, CMSHLT-1365 (fixme)
-
 
 
 ## EndPath ##
