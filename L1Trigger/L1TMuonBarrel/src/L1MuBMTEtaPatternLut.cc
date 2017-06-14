@@ -87,9 +87,9 @@ void L1MuBMTEtaPatternLut::reset() {
 int L1MuBMTEtaPatternLut::load() {
 
   // get directory name
-  string defaultPath = "L1Trigger/";//L1TriggerConfig/DTTrackFinder/parameters/";
-  string eau_dir = "L1TMuon/data/bmtf_luts/LUTs_Ass/";//L1TriggerData/DTTrackFinder/Eau/
-cout<<"skata"<<endl;
+  string defaultPath = "L1Trigger/";
+  string eau_dir = "L1TMuon/data/bmtf_luts/LUTs_Ass/";
+
   // assemble file name
   edm::FileInPath lut_f = edm::FileInPath(string(defaultPath + eau_dir + "ETFPatternList.lut"));
   string etf_file = lut_f.fullPath();
@@ -100,8 +100,9 @@ cout<<"skata"<<endl;
   //  if ( L1MuDTTFConfig::Debug(1) ) cout << "Reading file : " 
   //                                       << file.getName() << endl; 
 
-  // ignore comment lines 
-  file.ignoreLines(16);
+  // ignore comment lines (always at the beginning)
+  int skip2=getIgnoredLines(file);
+  file.ignoreLines(skip2);
  
   // read patterns
   while ( file.good() ) {
@@ -166,4 +167,18 @@ L1MuDTEtaPattern L1MuBMTEtaPatternLut::getPattern(int id) const {
   }
   return (*it).second;  
 
+}
+
+int L1MuBMTEtaPatternLut::getIgnoredLines(L1TriggerLutFile file) const{
+   if ( file.open() != 0 ) return -1;
+   int skip=0;
+   while ( file.good() ) {
+
+     string str=file.readString();
+     if (str.find("#")==0) skip+=1;
+           //cout<<"here "<<str<<" found "<<str.find("#")<<endl;
+           if ( !file.good() ) { file.close(); break; }
+     }
+     file.close();
+     return skip;
 }
