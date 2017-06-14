@@ -32,6 +32,7 @@
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 #include "DataFormats/Common/interface/View.h"
+#include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
 
 #include "SimDataFormats/CTPPS/interface/LHCOpticsApproximator.h"
@@ -50,7 +51,7 @@ class CTPPSOpticsParameterisation : public edm::stream::EDProducer<> {
 
   private:
     struct CTPPSPotInfo {
-      CTPPSPotInfo() : resolution( 0. ), approximator( 0 ) {}
+      CTPPSPotInfo() : detid( 0 ), resolution( 0. ), approximator( 0 ) {}
       CTPPSPotInfo( const TotemRPDetId& det_id, double resol, LHCOpticsApproximator* approx ) : detid( det_id ), resolution( resol ), approximator( approx ) {}
 
       TotemRPDetId detid;
@@ -107,7 +108,7 @@ CTPPSOpticsParameterisation::CTPPSOpticsParameterisation( const edm::ParameterSe
     const std::string interp_name = rp.getParameter<std::string>( "interpolatorName" );
     const unsigned int raw_detid = rp.getParameter<unsigned int>( "potId" );
     const double det_resol = rp.getParameter<double>( "resolution" );
-    TotemRPDetId detid( TotemRPDetId::decToRawId( raw_detid*10 ) ); //FIXME
+    TotemRPDetId detid( raw_detid );
 
     if ( detid.arm()==0 ) // sector 45 -- beam 2
       pots_.emplace_back( detid, det_resol, dynamic_cast<LHCOpticsApproximator*>( f_in_optics_beam2->Get( interp_name.c_str() ) ) );

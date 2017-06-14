@@ -31,6 +31,7 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "DataFormats/Common/interface/View.h"
+#include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
 
 #include "SimDataFormats/CTPPS/interface/CTPPSSimProtonTrack.h"
@@ -81,7 +82,7 @@ CTPPSParameterisation::CTPPSParameterisation( const edm::ParameterSet& iConfig )
   genProtonsToken_   ( consumes<edm::HepMCProduct>( iConfig.getParameter<edm::InputTag>( "genProtonsTag" ) ) ),
   recoProtons45Token_( consumes< edm::View<CTPPSSimProtonTrack> >( iConfig.getParameter<edm::InputTag>( "recoProtons45Tag" ) ) ),
   recoProtons56Token_( consumes< edm::View<CTPPSSimProtonTrack> >( iConfig.getParameter<edm::InputTag>( "recoProtons56Tag" ) ) ),
-  tracksToken_       ( consumes< edm::View<CTPPSSimHit> >( iConfig.getParameter<edm::InputTag>( "potsTracksTag" ) ) ),
+  tracksToken_       ( consumes< edm::View<CTPPSLocalTrackLite> >( iConfig.getParameter<edm::InputTag>( "potsTracksTag" ) ) ),
   //beamConditions_  ( iConfig.getParameter<edm::ParameterSet>( "beamConditions" ) ),
   sqrtS_           ( iConfig.getParameter<edm::ParameterSet>( "beamConditions" ).getParameter<double>( "sqrtS" ) ),
   detectorPackages_( iConfig.getParameter< std::vector<edm::ParameterSet> >( "detectorPackages" ) )
@@ -138,12 +139,12 @@ CTPPSParameterisation::~CTPPSParameterisation()
 void
 CTPPSParameterisation::analyze( const edm::Event& iEvent, const edm::EventSetup& )
 {
-  edm::Handle< edm::View<CTPPSSimHit> > hits;
+  edm::Handle< edm::View<CTPPSLocalTrackLite> > tracks;
   iEvent.getByToken( tracksToken_, tracks );
 
   for ( const auto& trk : *tracks ) {
     const TotemRPDetId det_id( trk.getRPId() );
-    m_rp_h2_y_vs_x_[det_id.detectorDecId()/10]->Fill( trk.getX(), trk.getY() );
+    m_rp_h2_y_vs_x_[det_id.rawId()]->Fill( trk.getX(), trk.getY() );
   }
 
   edm::Handle<edm::HepMCProduct> protons;

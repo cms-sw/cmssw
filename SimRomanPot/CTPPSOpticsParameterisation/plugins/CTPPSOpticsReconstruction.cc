@@ -81,7 +81,7 @@ CTPPSOpticsReconstruction::CTPPSOpticsReconstruction( const edm::ParameterSet& i
   for ( const auto& rp : detectorPackages_ ) {
     const std::string interp_name = rp.getParameter<std::string>( "interpolatorName" );
     const unsigned int raw_detid = rp.getParameter<unsigned int>( "potId" );
-    TotemRPDetId detid( TotemRPDetId::decToRawId( raw_detid*10 ) ); //FIXME
+    TotemRPDetId detid( raw_detid );
 
     if ( detid.arm()==0 ) pots_45.insert( std::make_pair( raw_detid, interp_name ) );
     if ( detid.arm()==1 ) pots_56.insert( std::make_pair( raw_detid, interp_name ) );

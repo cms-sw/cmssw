@@ -17,7 +17,7 @@ ProtonReconstructionAlgorithm::ProtonReconstructionAlgorithm( const edm::Paramet
   // build optics data for each object
   for ( const auto& it : objects ) {
     const unsigned int& rpId = it.first;
-    const TotemRPDetId pot_id( TotemRPDetId::decToRawId( rpId*10 ) );
+    const TotemRPDetId pot_id( rpId );
     const std::string& ofName = it.second;
 
     TObject* of_orig = f_in_optics->Get( ofName.c_str() );
@@ -117,10 +117,10 @@ ProtonReconstructionAlgorithm::reconstruct( const std::vector< edm::Ptr<CTPPSLoc
     unsigned int y_idx = 0;
     for ( const auto& trk : tracks ) {
       if ( y_idx>1 ) break;
-      auto oit = m_rp_optics_.find( TotemRPDetId( hit->getRPId() ) );
+      auto oit = m_rp_optics_.find( TotemRPDetId( trk->getRPId() ) );
       if ( oit==m_rp_optics_.end() ) continue;
 
-      y[y_idx] = hit->getY0()-oit->second.s_y0_vs_xi->Eval( xi_0 );
+      y[y_idx] = trk->getY()-oit->second.s_y0_vs_xi->Eval( xi_0 );
       v_y[y_idx] = oit->second.s_v_y_vs_xi->Eval( xi_0 );
       L_y[y_idx] = oit->second.s_L_y_vs_xi->Eval( xi_0 );
 
@@ -176,9 +176,9 @@ ProtonReconstructionAlgorithm::ChiSquareCalculator::operator() ( const double* p
   // calculate chi^2
   double S2 = 0.;
 
-  for ( auto& hit : *tracks ) {
+  for ( auto& trk : *tracks ) {
     double crossing_angle = 0., vtx0_y = 0.;
-    const TotemRPDetId detid( hit->potId() );
+    const TotemRPDetId detid( trk->getRPId() );
 
     // determine LHC sector from RP id
     if ( detid.arm()==0 ) {
@@ -202,8 +202,8 @@ ProtonReconstructionAlgorithm::ChiSquareCalculator::operator() ( const double* p
     const double& y = kin_out[2];
 
     // calculate chi^2 contributions
-    const double x_diff_norm = ( x-hit->getX() ) / hit->getXUnc();
-    const double y_diff_norm = ( y-hit->getY() ) / hit->getYUnc();
+    const double x_diff_norm = ( x-trk->getX() ) / trk->getXUnc();
+    const double y_diff_norm = ( y-trk->getY() ) / trk->getYUnc();
 
     // increase chi^2
     S2 += x_diff_norm*x_diff_norm + y_diff_norm*y_diff_norm;
