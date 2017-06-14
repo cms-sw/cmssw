@@ -67,12 +67,22 @@ void HGCalTestRecHitTool::analyze(const edm::Event& ,
     layerFH_    = (geomFH->topology().dddConstants()).layers(true);
     auto geomBH = static_cast<const HcalGeometry*>(geom_->getSubdetectorGeometry(DetId::Hcal,HcalSubdetector::HcalEndcap));
     layerBH_    = (geomBH->topology().dddConstants())->getMaxDepth(1);
-    edm::LogInfo("HGCalGeom") << "Layers " << layerEE_ << ":" << layerFH_ 
-			      << ":" << layerBH_ << std::endl;
+    edm::LogVerbatim("HGCalGeom") << "Layers " << layerEE_ << ":" << layerFH_ 
+				  << ":" << layerBH_ << std::endl;
+    for (int layer=1; layer <= layerEE_; ++layer)
+      edm::LogVerbatim("HGCalGeom") << "EE Layer " << layer << " Wafers "
+				    << (geomEE->topology().dddConstants()).wafers(layer,0) << ":"
+				    << (geomEE->topology().dddConstants()).wafers(layer,1) << ":"
+				    << (geomEE->topology().dddConstants()).wafers(layer,2) << std::endl;
+    for (int layer=1; layer <= layerFH_; ++layer)
+      edm::LogVerbatim("HGCalGeom") << "FH Layer " << layer << " Wafers "
+				    << (geomFH->topology().dddConstants()).wafers(layer,0) << ":"
+				    << (geomFH->topology().dddConstants()).wafers(layer,1) << ":"
+				    << (geomFH->topology().dddConstants()).wafers(layer,2) << std::endl;
     retrieveLayerPositions(layerEE_+layerFH_+layerBH_);
   } else {
-    edm::LogInfo("HGCalGeom") << "Cannot get valid CaloGeometry Object" 
-			      << std::endl;
+    edm::LogVerbatim("HGCalGeom") << "Cannot get valid CaloGeometry Object" 
+				  << std::endl;
   }
 }
 
@@ -111,13 +121,13 @@ std::vector<double> HGCalTestRecHitTool::retrieveLayerPositions(unsigned layers)
     }
     const GlobalPoint pos = getPosition(id);
     if (id.det() == DetId::Hcal) 
-      edm::LogInfo("HGCalGeom") << "GEOM  layer " << ilayer << " ID " 
-				<< HcalDetId(id);
+      edm::LogVerbatim("HGCalGeom") << "GEOM  layer " << ilayer << " ID " 
+				    << HcalDetId(id);
     else                         
-      edm::LogInfo("HGCalGeom") << "GEOM  layer " << ilayer << " ID " 
-				<<HGCalDetId(id);
-    edm::LogInfo("HGCalGeom") << " Z " << pos.z() << ":" << getLayerZ(id)
-			      << ":" << getLayerZ(type,lay) << std::endl;
+      edm::LogVerbatim("HGCalGeom") << "GEOM  layer " << ilayer << " ID " 
+				    << HGCalDetId(id);
+    edm::LogVerbatim("HGCalGeom") << " Z " << pos.z() << ":" << getLayerZ(id)
+				  << ":" << getLayerZ(type,lay) << std::endl;
     layerPositions[ilayer-1] = pos.z();
   }
   return layerPositions;

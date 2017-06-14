@@ -101,15 +101,15 @@ private:
 			  float& tl, float& alpha) const;
   bool waferInLayer(int wafer, int lay) const;
 
-  typedef std::array<std::vector<int32_t>, 2> simrecovecs;  
-  typedef std::tuple<int,int,int> HGCWaferParam;
+  typedef std::array<std::vector<int32_t>, 2> Simrecovecs;  
+  typedef std::array<int,3>                   HGCWaferParam;
   const HGCalParameters*          hgpar_;
   constexpr static double         tan30deg_ = 0.5773502693;
   double                          rmax_, hexside_;
   HGCalGeometryMode::GeometryMode mode_;
   int32_t                         tot_wafers_, modHalf_;
   std::array<uint32_t,2>          tot_layers_;
-  simrecovecs                     max_modules_layer_;
+  Simrecovecs                     max_modules_layer_;
   std::map<int,HGCWaferParam>     waferLayer_;
 };
 
