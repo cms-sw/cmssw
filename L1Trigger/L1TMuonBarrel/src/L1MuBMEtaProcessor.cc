@@ -415,9 +415,6 @@ void L1MuBMEtaProcessor::runEtaMatchingUnit(const edm::EventSetup& c) {
     if ( adr1 == adr2 && !m_mask ) {
       // both tracks get coarse (default) eta value
       m_eta[idx1]  = theQualPatternLUT.getCoarseEta(i+1,adr1);
-      //if ( m_eta[idx1] == 99 ) m_eta[idx1] = 32;
-      //if ( m_eta[idx1] > 31 ) m_eta[idx1] -= 64;
-      //m_eta[idx1] += 32;
       m_pattern[idx1] = 0;
       m_fine[idx1] = false;
       m_eta[idx2]  = theQualPatternLUT.getCoarseEta(i+1,adr2);

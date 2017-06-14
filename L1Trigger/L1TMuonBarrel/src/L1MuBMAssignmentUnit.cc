@@ -196,7 +196,9 @@ void L1MuBMAssignmentUnit::PhiAU(const edm::EventSetup& c) {
   phi_8 += sectordiff*48;
 
   int phi = phi_8 + 24;
-  if (phi >  60) phi =  60;
+  // 78 phi bins (-8 to 69) correspond 30 degree sector plus 
+  // additional lower and higher bins for neighboring sectors.
+  if (phi >  69) phi =  69;
   if (phi < -8) phi = -8;
 
   m_sp.track(m_id)->setPhi(phi); // Regional

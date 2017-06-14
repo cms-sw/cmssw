@@ -211,9 +211,9 @@ void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
 
             l1t::RegionalMuonCand rmc;
 
+            // max value in LUTs is 117
             if(cand->hwEta()>-117 || cand->hwEta()<117 )
                 rmc.setHwEta(cand->hwEta());
-	      //rmc.setHwEta(eta_map[cand->hwEta()]);
             else
                 rmc.setHwEta(-1000);
 
