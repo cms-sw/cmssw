@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+
+# online btagging monitor
 mssmHbbBtagTriggerMonitorSL40noMu = cms.EDAnalyzer(
     "TagAndProbeBtagTriggerMonitor",
     dirname = cms.string("HLT/Higgs/MssmHbb/Semilep/BtagTrigger/pt40_noMuon"),
@@ -15,9 +17,9 @@ mssmHbbBtagTriggerMonitorSL40noMu = cms.EDAnalyzer(
     offlineBtag = cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
     histoPSet = cms.PSet(
        jetPt = cms.PSet (
-          nbins = cms.int32 (60),
-          xmin  = cms.double(0),
-          xmax  = cms.double(600),
+          nbins = cms.int32 (12),
+          xmin  = cms.double(40),
+          xmax  = cms.double(100),
        ),
        jetEta = cms.PSet (
           nbins = cms.int32 (10),
@@ -30,8 +32,8 @@ mssmHbbBtagTriggerMonitorSL40noMu = cms.EDAnalyzer(
           xmax  = cms.double(3.5),
        ),
        jetBtag = cms.PSet (
-          nbins = cms.int32 (40),
-          xmin  = cms.double(-1),
+          nbins = cms.int32 (20),
+          xmin  = cms.double(0.8),
           xmax  = cms.double(1),
        ),
     ),
@@ -53,9 +55,9 @@ mssmHbbBtagTriggerMonitorSL40 = cms.EDAnalyzer(
     offlineBtag = cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
     histoPSet = cms.PSet(
        jetPt = cms.PSet (
-          nbins = cms.int32 (60),
-          xmin  = cms.double(0),
-          xmax  = cms.double(600),
+          nbins = cms.int32 (12),
+          xmin  = cms.double(40),
+          xmax  = cms.double(100),
        ),
        jetEta = cms.PSet (
           nbins = cms.int32 (10),
@@ -68,8 +70,8 @@ mssmHbbBtagTriggerMonitorSL40 = cms.EDAnalyzer(
           xmax  = cms.double(3.5),
        ),
        jetBtag = cms.PSet (
-          nbins = cms.int32 (40),
-          xmin  = cms.double(-1),
+          nbins = cms.int32 (20),
+          xmin  = cms.double(0.8),
           xmax  = cms.double(1),
        ),
     ),
@@ -90,9 +92,9 @@ mssmHbbBtagTriggerMonitorSL100 = cms.EDAnalyzer(
     offlineBtag = cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
     histoPSet = cms.PSet(
        jetPt = cms.PSet (
-          nbins = cms.int32 (60),
-          xmin  = cms.double(0),
-          xmax  = cms.double(600),
+          nbins = cms.int32 (10),
+          xmin  = cms.double(100),
+          xmax  = cms.double(200),
        ),
        jetEta = cms.PSet (
           nbins = cms.int32 (10),
@@ -105,8 +107,8 @@ mssmHbbBtagTriggerMonitorSL100 = cms.EDAnalyzer(
           xmax  = cms.double(3.5),
        ),
        jetBtag = cms.PSet (
-          nbins = cms.int32 (40),
-          xmin  = cms.double(-1),
+          nbins = cms.int32 (20),
+          xmin  = cms.double(0.8),
           xmax  = cms.double(1),
        ),
     ),
@@ -127,9 +129,9 @@ mssmHbbBtagTriggerMonitorSL200 = cms.EDAnalyzer(
     offlineBtag = cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
     histoPSet = cms.PSet(
        jetPt = cms.PSet (
-          nbins = cms.int32 (60),
-          xmin  = cms.double(0),
-          xmax  = cms.double(600),
+          nbins = cms.int32 (15),
+          xmin  = cms.double(200),
+          xmax  = cms.double(350),
        ),
        jetEta = cms.PSet (
           nbins = cms.int32 (10),
@@ -142,8 +144,8 @@ mssmHbbBtagTriggerMonitorSL200 = cms.EDAnalyzer(
           xmax  = cms.double(3.5),
        ),
        jetBtag = cms.PSet (
-          nbins = cms.int32 (40),
-          xmin  = cms.double(-1),
+          nbins = cms.int32 (20),
+          xmin  = cms.double(0.8),
           xmax  = cms.double(1),
        ),
     ),
@@ -164,8 +166,8 @@ mssmHbbBtagTriggerMonitorSL350 = cms.EDAnalyzer(
     offlineBtag = cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
     histoPSet = cms.PSet(
        jetPt = cms.PSet (
-          nbins = cms.int32 (60),
-          xmin  = cms.double(0),
+          nbins = cms.int32 (25),
+          xmin  = cms.double(350),
           xmax  = cms.double(600),
        ),
        jetEta = cms.PSet (
@@ -179,8 +181,8 @@ mssmHbbBtagTriggerMonitorSL350 = cms.EDAnalyzer(
           xmax  = cms.double(3.5),
        ),
        jetBtag = cms.PSet (
-          nbins = cms.int32 (40),
-          xmin  = cms.double(-1),
+          nbins = cms.int32 (20),
+          xmin  = cms.double(0.8),
           xmax  = cms.double(1),
        ),
     ),
@@ -202,9 +204,9 @@ mssmHbbBtagTriggerMonitorAH100 = cms.EDAnalyzer(
     offlineBtag = cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
     histoPSet = cms.PSet(
        jetPt = cms.PSet (
-          nbins = cms.int32 (60),
-          xmin  = cms.double(0),
-          xmax  = cms.double(600),
+          nbins = cms.int32 (10),
+          xmin  = cms.double(100),
+          xmax  = cms.double(200),
        ),
        jetEta = cms.PSet (
           nbins = cms.int32 (10),
@@ -217,8 +219,8 @@ mssmHbbBtagTriggerMonitorAH100 = cms.EDAnalyzer(
           xmax  = cms.double(3.5),
        ),
        jetBtag = cms.PSet (
-          nbins = cms.int32 (40),
-          xmin  = cms.double(-1),
+          nbins = cms.int32 (20),
+          xmin  = cms.double(0.8),
           xmax  = cms.double(1),
        ),
     ),
@@ -239,9 +241,9 @@ mssmHbbBtagTriggerMonitorAH200 = cms.EDAnalyzer(
     offlineBtag = cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
     histoPSet = cms.PSet(
        jetPt = cms.PSet (
-          nbins = cms.int32 (60),
-          xmin  = cms.double(0),
-          xmax  = cms.double(600),
+          nbins = cms.int32 (15),
+          xmin  = cms.double(200),
+          xmax  = cms.double(350),
        ),
        jetEta = cms.PSet (
           nbins = cms.int32 (10),
@@ -254,8 +256,8 @@ mssmHbbBtagTriggerMonitorAH200 = cms.EDAnalyzer(
           xmax  = cms.double(3.5),
        ),
        jetBtag = cms.PSet (
-          nbins = cms.int32 (40),
-          xmin  = cms.double(-1),
+          nbins = cms.int32 (20),
+          xmin  = cms.double(0.8),
           xmax  = cms.double(1),
        ),
     ),
@@ -276,8 +278,8 @@ mssmHbbBtagTriggerMonitorAH350 = cms.EDAnalyzer(
     offlineBtag = cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
     histoPSet = cms.PSet(
        jetPt = cms.PSet (
-          nbins = cms.int32 (60),
-          xmin  = cms.double(0),
+          nbins = cms.int32 (25),
+          xmin  = cms.double(350),
           xmax  = cms.double(600),
        ),
        jetEta = cms.PSet (
@@ -291,8 +293,8 @@ mssmHbbBtagTriggerMonitorAH350 = cms.EDAnalyzer(
           xmax  = cms.double(3.5),
        ),
        jetBtag = cms.PSet (
-          nbins = cms.int32 (40),
-          xmin  = cms.double(-1),
+          nbins = cms.int32 (20),
+          xmin  = cms.double(0.8),
           xmax  = cms.double(1),
        ),
     ),
