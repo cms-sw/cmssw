@@ -70,4 +70,7 @@
  <class name="edm::Wrapper<MEtoEDM<int> >"/>
  <class name="edm::Wrapper<MEtoEDM<long long> >"/>
  <class name="edm::Wrapper<MEtoEDM<TString> >"/>
+
+ <class name="DQMToken" ClassVersion="0"/>
+ <class name="edm::Wrapper<DQMToken>" persistent="false"/>
 </lcgdict>
