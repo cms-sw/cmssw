@@ -34,6 +34,7 @@
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "CondFormats/L1TObjects/interface/L1TriggerLutFile.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 
@@ -162,8 +163,7 @@ L1MuDTEtaPattern L1MuBMTEtaPatternLut::getPattern(int id) const {
 
   LUT::const_iterator it = m_lut.find(id);
   if ( it == m_lut.end() ) {
-    cerr << "Error: L1MuDTEtaPatternLut: pattern not found : " << id << endl;
-    //    return 0;
+    edm::LogError ("L1MuBMTEtaPatternLut: fine eta not found") << "Error: L1MuBMTEtaPatternLut: pattern not found : " << id << endl;
   }
   return (*it).second;  
 
