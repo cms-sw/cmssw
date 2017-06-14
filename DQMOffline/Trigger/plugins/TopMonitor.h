@@ -42,9 +42,6 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-/* //root */
-/* #include "TLorentzVector.h" */
-
 
 class GenericTriggerEventFlag;
 
