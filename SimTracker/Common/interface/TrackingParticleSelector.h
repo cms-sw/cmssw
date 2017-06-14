@@ -23,7 +23,17 @@ public:
 			     double minPhi=-3.2, double maxPhi=3.2) :
     ptMin2_( ptMin*ptMin ), minRapidity_( minRapidity ), maxRapidity_( maxRapidity ),
     meanPhi_((minPhi+maxPhi)/2.), rangePhi_((maxPhi-minPhi)/2.),
-    tip2_( tip*tip ), lip_( lip ), minHit_( minHit ), signalOnly_(signalOnly), intimeOnly_(intimeOnly), chargedOnly_(chargedOnly), stableOnly_(stableOnly), pdgId_( pdgId ) { }
+    tip2_( tip*tip ), lip_( lip ), minHit_( minHit ), signalOnly_(signalOnly), intimeOnly_(intimeOnly), chargedOnly_(chargedOnly), stableOnly_(stableOnly), pdgId_( pdgId ) {
+    if(minPhi >= maxPhi) {
+      throw cms::Exception("Configuration") << "TrackingParticleSelector: minPhi (" << minPhi << ") must be smaller than maxPhi (" << maxPhi << "). The range is constructed from minPhi to maxPhi around their average.";
+    }
+    if(minPhi >= M_PI) {
+      throw cms::Exception("Configuration") << "TrackingParticleSelector: minPhi (" << minPhi << ") must be smaller than PI. The range is constructed from minPhi to maxPhi around their average.";
+    }
+    if(maxPhi <= -M_PI) {
+      throw cms::Exception("Configuration") << "TrackingParticleSelector: maxPhi (" << maxPhi << ") must be larger than -PI. The range is constructed from minPhi to maxPhi around their average.";
+    }
+  }
 
   /// Operator() performs the selection: e.g. if (tPSelector(tp)) {...}
   bool operator()( const TrackingParticle & tp ) const {
