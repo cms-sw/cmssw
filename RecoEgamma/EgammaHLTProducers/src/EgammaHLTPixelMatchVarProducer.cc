@@ -24,8 +24,6 @@
 
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTPixelMatchParamObjects.h"
 
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h" 
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h" 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
