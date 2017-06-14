@@ -3,6 +3,9 @@
 
 /** \class ME0TriggerProducer
  *
+ * Takes ME0 pad clusters as input
+ * Produces ME0 trigger objects
+ *
  * \author Sven Dildick (TAMU).
  *
  */

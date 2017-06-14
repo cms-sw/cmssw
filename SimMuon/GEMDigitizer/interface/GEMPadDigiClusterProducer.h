@@ -8,7 +8,7 @@
  *  Clusters are used downstream in the CSC local trigger to build 
  *  GEM-CSC triggers and in the muon trigger to build EMTF tracks
  *   
- *  \author Sven Dildick
+ *  \author Sven Dildick (TAMU)
  */
 
 #include <FWCore/Framework/interface/ConsumesCollector.h>
