@@ -7,7 +7,7 @@
  *
  */
 
-#include "DataFormats/GEMDigi/interface/ME0PadDigiCollection.h"
+#include "DataFormats/GEMDigi/interface/ME0PadDigiClusterCollection.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
@@ -27,8 +27,8 @@ class ME0TriggerProducer : public edm::global::EDProducer<>
   virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
  private:
-  edm::InputTag me0PadDigiProducer_;
-  edm::EDGetTokenT<ME0PadDigiCollection> me0_pad_token_;
+  edm::InputTag me0PadDigiClusterProducer_;
+  edm::EDGetTokenT<ME0PadDigiClusterCollection> me0_pad_token_;
   edm::ParameterSet config_;
 };
 
