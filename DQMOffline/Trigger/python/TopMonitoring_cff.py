@@ -283,7 +283,7 @@ fullyhadronic_ref350.leptJetDeltaRmin = cms.double(0.0)
 fullyhadronic_ref350.HTdefinition     = cms.string('pt>30 & abs(eta)<2.4')
 fullyhadronic_ref350.HTcut            = cms.double(250)
 # Binning
-fullyhadronic_ref350.histoPSet.htPSet = cms.PSet(nbins=cms.int32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
+fullyhadronic_ref350.histoPSet.htPSet = cms.PSet(nbins=cms.uint32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
 fullyhadronic_ref350.histoPSet.HTBinning = cms.vdouble(0,240,260,280,300,320,340,360,380,400,420,440,460,480,
                                                        500,520,540,560,580,600,650,700,750,800,850,900,1000)
 # Trigger
@@ -298,7 +298,7 @@ fullyhadronic_ref370.leptJetDeltaRmin = cms.double(0.0)
 fullyhadronic_ref370.HTdefinition     = cms.string('pt>30 & abs(eta)<2.4')
 fullyhadronic_ref370.HTcut            = cms.double(250)
 # Binning
-fullyhadronic_ref370.histoPSet.htPSet = cms.PSet(nbins=cms.int32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
+fullyhadronic_ref370.histoPSet.htPSet = cms.PSet(nbins=cms.uint32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
 fullyhadronic_ref370.histoPSet.HTBinning = cms.vdouble(0,240,260,280,300,320,340,360,380,400,420,440,460,480,
                                                        500,520,540,560,580,600,650,700,750,800,850,900,1000)
 # Trigger
@@ -312,7 +312,7 @@ fullyhadronic_ref430.leptJetDeltaRmin = cms.double(0.0)
 fullyhadronic_ref430.HTdefinition     = cms.string('pt>30 & abs(eta)<2.4')
 fullyhadronic_ref430.HTcut            = cms.double(250)
 # Binning
-fullyhadronic_ref430.histoPSet.htPSet = cms.PSet(nbins=cms.int32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
+fullyhadronic_ref430.histoPSet.htPSet = cms.PSet(nbins=cms.uint32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
 fullyhadronic_ref430.histoPSet.HTBinning = cms.vdouble(0,240,260,280,300,320,340,360,380,400,420,440,460,480,
                                                        500,520,540,560,580,600,650,700,750,800,850,900,1000)
 # Trigger
@@ -332,7 +332,7 @@ fullyhadronic_DoubleBTag_all.nbjets           = cms.uint32(2)
 fullyhadronic_DoubleBTag_all.bjetSelection    = cms.string('pt>30 & abs(eta)<2.4')
 fullyhadronic_DoubleBTag_all.workingpoint     = cms.double(0.8484) # Medium
 # Binning
-fullyhadronic_DoubleBTag_all.histoPSet.htPSet = cms.PSet(nbins=cms.int32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
+fullyhadronic_DoubleBTag_all.histoPSet.htPSet = cms.PSet(nbins=cms.uint32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
 fullyhadronic_DoubleBTag_all.histoPSet.jetPtBinning = cms.vdouble(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,90,100,120,200,400)
 fullyhadronic_DoubleBTag_all.histoPSet.HTBinning    = cms.vdouble(0,420,440,460,480,500,520,540,560,580,600,650,700,750,800,850,900)
 # Triggers 
@@ -351,7 +351,7 @@ fullyhadronic_DoubleBTag_jet.nbjets           = cms.uint32(2)
 fullyhadronic_DoubleBTag_jet.bjetSelection    = cms.string('pt>30 & abs(eta)<2.4')
 fullyhadronic_DoubleBTag_jet.workingpoint = cms.double(0.8484) # Medium
 # Binning 
-fullyhadronic_DoubleBTag_jet.histoPSet.htPSet = cms.PSet(nbins=cms.int32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
+fullyhadronic_DoubleBTag_jet.histoPSet.htPSet = cms.PSet(nbins=cms.uint32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
 fullyhadronic_DoubleBTag_jet.histoPSet.jetPtBinning = cms.vdouble(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,90,100,120,200,400)
 fullyhadronic_DoubleBTag_jet.histoPSet.HTBinning    = cms.vdouble(0,420,440,460,480,500,520,540,560,580,600,650,700,750,800,850,900)
 # Triggers
@@ -370,7 +370,7 @@ fullyhadronic_DoubleBTag_bjet.nbjets           = cms.uint32(2)
 fullyhadronic_DoubleBTag_bjet.bjetSelection    = cms.string('pt>30 & abs(eta)<2.4')
 fullyhadronic_DoubleBTag_bjet.workingpoint     = cms.double(0.70)
 # Binning
-fullyhadronic_DoubleBTag_bjet.histoPSet.htPSet = cms.PSet(nbins=cms.int32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
+fullyhadronic_DoubleBTag_bjet.histoPSet.htPSet = cms.PSet(nbins=cms.uint32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
 fullyhadronic_DoubleBTag_bjet.histoPSet.jetPtBinning = cms.vdouble(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,90,100,120,200,400)
 fullyhadronic_DoubleBTag_bjet.histoPSet.HTBinning    = cms.vdouble(0,420,440,460,480,500,520,540,560,580,600,650,700,750,800,850,900)
 # Triggers
@@ -390,7 +390,7 @@ fullyhadronic_SingleBTag_all.nbjets           = cms.uint32(2)
 fullyhadronic_SingleBTag_all.bjetSelection    = cms.string('pt>30 & abs(eta)<2.4')
 fullyhadronic_SingleBTag_all.workingpoint     = cms.double(0.8484) # Medium
 # Binning
-fullyhadronic_SingleBTag_all.histoPSet.htPSet = cms.PSet(nbins=cms.int32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
+fullyhadronic_SingleBTag_all.histoPSet.htPSet = cms.PSet(nbins=cms.uint32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
 fullyhadronic_SingleBTag_all.histoPSet.jetPtBinning = cms.vdouble(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,90,100,120,200,400)
 fullyhadronic_SingleBTag_all.histoPSet.HTBinning    = cms.vdouble(0,420,440,460,480,500,520,540,560,580,600,650,700,750,800,850,900)
 # Triggers
@@ -409,7 +409,7 @@ fullyhadronic_SingleBTag_jet.nbjets           = cms.uint32(2)
 fullyhadronic_SingleBTag_jet.bjetSelection    = cms.string('pt>30 & abs(eta)<2.4')
 fullyhadronic_SingleBTag_jet.workingpoint     = cms.double(0.8484) # Medium
 # Binning
-fullyhadronic_SingleBTag_jet.histoPSet.htPSet = cms.PSet(nbins=cms.int32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
+fullyhadronic_SingleBTag_jet.histoPSet.htPSet = cms.PSet(nbins=cms.uint32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
 fullyhadronic_SingleBTag_jet.histoPSet.jetPtBinning = cms.vdouble(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,90,100,120,200,400)
 fullyhadronic_SingleBTag_jet.histoPSet.HTBinning    = cms.vdouble(0,420,440,460,480,500,520,540,560,580,600,650,700,750,800,850,900)
 # Triggers
@@ -428,7 +428,7 @@ fullyhadronic_SingleBTag_bjet.nbjets           = cms.uint32(2)
 fullyhadronic_SingleBTag_bjet.bjetSelection    = cms.string('pt>30 & abs(eta)<2.4')
 fullyhadronic_SingleBTag_bjet.workingpoint     = cms.double(0.70)
 # Binning
-fullyhadronic_SingleBTag_bjet.histoPSet.htPSet = cms.PSet(nbins=cms.int32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
+fullyhadronic_SingleBTag_bjet.histoPSet.htPSet = cms.PSet(nbins=cms.uint32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
 fullyhadronic_SingleBTag_bjet.histoPSet.jetPtBinning = cms.vdouble(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,90,100,120,200,400)
 fullyhadronic_SingleBTag_bjet.histoPSet.HTBinning    = cms.vdouble(0,420,440,460,480,500,520,540,560,580,600,650,700,750,800,850,900)
 # Triggers
@@ -449,7 +449,7 @@ fullyhadronic_TripleBTag_all.nbjets           = cms.uint32(4)
 fullyhadronic_TripleBTag_all.bjetSelection    = cms.string('pt>45 & abs(eta)<2.4')
 fullyhadronic_TripleBTag_all.workingpoint     = cms.double(0.8484) # Medium 
 # Binning
-fullyhadronic_TripleBTag_all.histoPSet.htPSet = cms.PSet(nbins=cms.int32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
+fullyhadronic_TripleBTag_all.histoPSet.htPSet = cms.PSet(nbins=cms.uint32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
 fullyhadronic_TripleBTag_all.histoPSet.jetPtBinning = cms.vdouble(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,90,100,120,200,400)
 fullyhadronic_TripleBTag_all.histoPSet.HTBinning    = cms.vdouble(0,460,480,500,520,540,560,580,600,650,700,750,800,850,900)
 # Triggers
@@ -468,7 +468,7 @@ fullyhadronic_TripleBTag_jet.nbjets           = cms.uint32(4)
 fullyhadronic_TripleBTag_jet.bjetSelection    = cms.string('pt>45 & abs(eta)<2.4')
 fullyhadronic_TripleBTag_jet.workingpoint = cms.double(0.8484) # Medium
 # Binning
-fullyhadronic_TripleBTag_jet.histoPSet.htPSet = cms.PSet(nbins=cms.int32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
+fullyhadronic_TripleBTag_jet.histoPSet.htPSet = cms.PSet(nbins=cms.uint32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
 fullyhadronic_TripleBTag_jet.histoPSet.jetPtBinning = cms.vdouble(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,90,100,120,200,400)
 fullyhadronic_TripleBTag_jet.histoPSet.HTBinning    = cms.vdouble(0,460,480,500,520,540,560,580,600,650,700,750,800,850,900)
 # Triggers
@@ -487,7 +487,7 @@ fullyhadronic_TripleBTag_bjet.nbjets           = cms.uint32(4)
 fullyhadronic_TripleBTag_bjet.bjetSelection    = cms.string('pt>45 & abs(eta)<2.4')
 fullyhadronic_TripleBTag_bjet.workingpoint     = cms.double(0.8484)
 # Binning
-fullyhadronic_TripleBTag_bjet.histoPSet.htPSet = cms.PSet(nbins=cms.int32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
+fullyhadronic_TripleBTag_bjet.histoPSet.htPSet = cms.PSet(nbins=cms.uint32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
 fullyhadronic_TripleBTag_bjet.histoPSet.jetPtBinning = cms.vdouble(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,90,100,120,200,400)
 fullyhadronic_TripleBTag_bjet.histoPSet.HTBinning    = cms.vdouble(0,460,480,500,520,540,560,580,600,650,700,750,800,850,900)
 # Triggers 
