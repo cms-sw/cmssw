@@ -91,7 +91,7 @@ HLTEgammaGenericQuadraticEtaFilter::HLTEgammaGenericQuadraticEtaFilter(const edm
   }
 
   //register your products
-  produces<trigger::TriggerFilterObjectWithRefs>();
+  //produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 void
