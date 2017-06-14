@@ -464,8 +464,6 @@ streamPhysicsMuons_datasetMuOnia_selector.triggerConditions = cms.vstring('HLT_D
     'HLT_Dimuon10_Upsilon_Barrel_Seagulls_v1', 
     'HLT_Dimuon12_Upsilon_eta1p5_v8', 
     'HLT_Dimuon14_Phi_Barrel_Seagulls_v1', 
-    'HLT_Dimuon8_PsiPrime_Barrel_Seagulls_v1', 
-    'HLT_Dimuon8_Upsilon_Barrel_Seagulls_v1', 
     'HLT_Mu20_TkMu0_Phi_v1', 
     'HLT_Mu25_TkMu0_Onia_v1', 
     'HLT_Mu25_TkMu0_Phi_v1', 
@@ -489,6 +487,7 @@ streamPhysicsMuons_datasetMuonEG_selector.triggerConditions = cms.vstring('HLT_D
     'HLT_Mu8_DiEle12_CaloIdL_TrackIdL_v9', 
     'HLT_Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT350_DZ_v10', 
     'HLT_Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT350_v10', 
+    'HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v4', 
     'HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v4')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsMuons_datasetSingleMuon_selector
