@@ -11,6 +11,7 @@
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
@@ -66,11 +67,12 @@ void HGCalTestRecHitTool::analyze(const edm::Event& ,
     layerFH_    = (geomFH->topology().dddConstants()).layers(true);
     auto geomBH = static_cast<const HcalGeometry*>(geom_->getSubdetectorGeometry(DetId::Hcal,HcalSubdetector::HcalEndcap));
     layerBH_    = (geomBH->topology().dddConstants())->getMaxDepth(1);
-    std::cout << "Layers " << layerEE_ << ":" << layerFH_ << ":" << layerBH_
-	      << std::endl;
+    edm::LogInfo("HGCalGeom") << "Layers " << layerEE_ << ":" << layerFH_ 
+			      << ":" << layerBH_ << std::endl;
     retrieveLayerPositions(layerEE_+layerFH_+layerBH_);
   } else {
-    std::cout << "Cannot get valid CaloGeometry Object" << std::endl;
+    edm::LogInfo("HGCalGeom") << "Cannot get valid CaloGeometry Object" 
+			      << std::endl;
   }
 }
 
@@ -93,7 +95,7 @@ void HGCalTestRecHitTool::check_ddd(const DDD* ddd) const {
 std::vector<double> HGCalTestRecHitTool::retrieveLayerPositions(unsigned layers) {
 
   DetId id;
-  std::vector<double> layerPositions;
+  std::vector<double> layerPositions(layers);
   for (int ilayer=1; ilayer<=(int)(layers); ++ilayer) {
     int lay(ilayer), type(0);
     if (ilayer<=layerEE_) {
@@ -108,12 +110,15 @@ std::vector<double> HGCalTestRecHitTool::retrieveLayerPositions(unsigned layers)
       type= 2;
     }
     const GlobalPoint pos = getPosition(id);
-    std::cout << "GEOM  layer " << ilayer;
-    if (id.det() == DetId::Hcal) std::cout << " ID " << HcalDetId(id);
-    else                         std::cout << " ID " <<HGCalDetId(id);
-    std::cout << " Z " << pos.z() << ":" << getLayerZ(id) << ":"
-	      << getLayerZ(type,lay) << std::endl;
-    layerPositions.push_back(pos.z());
+    if (id.det() == DetId::Hcal) 
+      edm::LogInfo("HGCalGeom") << "GEOM  layer " << ilayer << " ID " 
+				<< HcalDetId(id);
+    else                         
+      edm::LogInfo("HGCalGeom") << "GEOM  layer " << ilayer << " ID " 
+				<<HGCalDetId(id);
+    edm::LogInfo("HGCalGeom") << " Z " << pos.z() << ":" << getLayerZ(id)
+			      << ":" << getLayerZ(type,lay) << std::endl;
+    layerPositions[ilayer-1] = pos.z();
   }
   return layerPositions;
 }
