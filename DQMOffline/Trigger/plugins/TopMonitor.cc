@@ -103,45 +103,42 @@ TopMonitor::TopMonitor( const edm::ParameterSet& iConfig ) :
     //BTV
     DeltaR_jet_Mu_ = empty;
 
-    for (unsigned int iMu=0; iMu<nmuons_; ++iMu){
-        muPhi_.push_back(empty);
-        muEta_.push_back(empty);
-        muPt_.push_back(empty);
-        muEta_variableBinning_.push_back(empty);
-        muPt_variableBinning_.push_back(empty);
-        muPtEta_.push_back(empty);
-        muEtaPhi_.push_back(empty);
-    }
-    for (unsigned int iEle=0; iEle<nelectrons_; ++iEle){
-        elePhi_.push_back(empty);
-        eleEta_.push_back(empty);
-        elePt_.push_back(empty);
-        eleEta_variableBinning_.push_back(empty);
-        elePt_variableBinning_.push_back(empty);
-        elePtEta_.push_back(empty);
-        eleEtaPhi_.push_back(empty);
-    }
-    for (unsigned int iJet=0; iJet<njets_; ++iJet){
-        jetPhi_.push_back(empty);
-        jetEta_.push_back(empty);
-        jetPt_.push_back(empty);
-        jetEta_variableBinning_.push_back(empty);
-        jetPt_variableBinning_.push_back(empty);
-        jetPtEta_.push_back(empty);
-        jetEtaPhi_.push_back(empty);
-    }
+    muPhi_= std::vector<METME> (nmuons_,empty);
+    muEta_= std::vector<METME> (nmuons_,empty);
+    muPt_= std::vector<METME> (nmuons_,empty);
+    muEta_variableBinning_= std::vector<METME> (nmuons_,empty);
+    muPt_variableBinning_= std::vector<METME> (nmuons_,empty);
+    muPtEta_= std::vector<METME> (nmuons_,empty);
+    muEtaPhi_= std::vector<METME> (nmuons_,empty);
+
+    elePhi_= std::vector<METME> (nelectrons_,empty);
+    eleEta_= std::vector<METME> (nelectrons_,empty);
+    elePt_= std::vector<METME> (nelectrons_,empty);
+    eleEta_variableBinning_= std::vector<METME> (nelectrons_,empty);
+    elePt_variableBinning_= std::vector<METME> (nelectrons_,empty);
+    elePtEta_= std::vector<METME> (nelectrons_,empty);
+    eleEtaPhi_= std::vector<METME> (nelectrons_,empty);
+
+
+    jetPhi_= std::vector<METME> (njets_,empty);
+    jetEta_= std::vector<METME> (njets_,empty);
+    jetPt_= std::vector<METME> (njets_,empty);
+    jetEta_variableBinning_= std::vector<METME> (njets_,empty);
+    jetPt_variableBinning_= std::vector<METME> (njets_,empty);
+    jetPtEta_= std::vector<METME> (njets_,empty);
+    jetEtaPhi_= std::vector<METME> (njets_,empty);
+
     // Marina
-    for (unsigned int iBJet=0; iBJet<nbjets_; ++iBJet){
-      bjetPhi_.push_back(empty);
-      bjetEta_.push_back(empty);
-      bjetPt_.push_back(empty);
-      bjetCSV_.push_back(empty);
-      bjetEta_variableBinning_.push_back(empty);
-      bjetPt_variableBinning_.push_back(empty);
-      bjetPtEta_.push_back(empty);
-      bjetEtaPhi_.push_back(empty);
-      bjetCSVHT_.push_back(empty);
-    }
+    bjetPhi_= std::vector<METME> (nbjets_,empty);
+    bjetEta_= std::vector<METME> (nbjets_,empty);
+    bjetPt_= std::vector<METME> (nbjets_,empty);
+    bjetCSV_= std::vector<METME> (nbjets_,empty);
+    bjetEta_variableBinning_= std::vector<METME> (nbjets_,empty);
+    bjetPt_variableBinning_= std::vector<METME> (nbjets_,empty);
+    bjetPtEta_= std::vector<METME> (nbjets_,empty);
+    bjetEtaPhi_= std::vector<METME> (nbjets_,empty);
+    bjetCSVHT_= std::vector<METME> (nbjets_,empty);
+
   //Suvankar
   lepPVcuts_.dxy = (iConfig.getParameter<edm::ParameterSet>("leptonPVcuts")).getParameter<double>("dxy");
   lepPVcuts_.dz  = (iConfig.getParameter<edm::ParameterSet>("leptonPVcuts")).getParameter<double>("dz");     
@@ -149,14 +146,14 @@ TopMonitor::TopMonitor( const edm::ParameterSet& iConfig ) :
 
 TopMonitor::~TopMonitor()
 {
-  if (num_genTriggerEventFlag_) delete num_genTriggerEventFlag_;
-  if (den_genTriggerEventFlag_) delete den_genTriggerEventFlag_;
+    if (num_genTriggerEventFlag_) num_genTriggerEventFlag_.reset();
+    if (den_genTriggerEventFlag_) den_genTriggerEventFlag_.reset();
 }
 
 MEbinning TopMonitor::getHistoPSet(edm::ParameterSet pset)
 {
   return MEbinning{
-    pset.getParameter<int32_t>("nbins"),
+    pset.getParameter<uint32_t>("nbins"),
       pset.getParameter<double>("xmin"),
       pset.getParameter<double>("xmax"),
       };
@@ -165,9 +162,9 @@ MEbinning TopMonitor::getHistoPSet(edm::ParameterSet pset)
 MEbinning TopMonitor::getHistoLSPSet(edm::ParameterSet pset)
 {
   return MEbinning{
-    pset.getParameter<int32_t>("nbins"),
+    pset.getParameter<uint32_t>("nbins"),
       0.,
-      double(pset.getParameter<int32_t>("nbins"))
+      double(pset.getParameter<uint32_t>("nbins"))
       };
 }
 
@@ -180,7 +177,7 @@ void TopMonitor::setMETitle(METME& me, std::string titleX, std::string titleY)
 
 }
 
-void TopMonitor::bookME(DQMStore::IBooker &ibooker, METME& me, const std::string& histname, const std::string& histtitle, int nbins, double min, double max)
+void TopMonitor::bookME(DQMStore::IBooker &ibooker, METME& me, const std::string& histname, const std::string& histtitle, unsigned int nbins, double min, double max)
 {
   me.numerator   = ibooker.book1D(histname+"_numerator",   histtitle+" (numerator)",   nbins, min, max);
   me.denominator = ibooker.book1D(histname+"_denominator", histtitle+" (denominator)", nbins, min, max);
@@ -193,12 +190,12 @@ void TopMonitor::bookME(DQMStore::IBooker &ibooker, METME& me, const std::string
   me.numerator   = ibooker.book1D(histname+"_numerator",   histtitle+" (numerator)",   nbins, arr);
   me.denominator = ibooker.book1D(histname+"_denominator", histtitle+" (denominator)", nbins, arr);
 }
-void TopMonitor::bookME(DQMStore::IBooker &ibooker, METME& me, const std::string& histname, const std::string& histtitle, int nbinsX, double xmin, double xmax, double ymin, double ymax)
+void TopMonitor::bookME(DQMStore::IBooker &ibooker, METME& me, const std::string& histname, const std::string& histtitle, unsigned int nbinsX, double xmin, double xmax, double ymin, double ymax)
 {
   me.numerator   = ibooker.bookProfile(histname+"_numerator",   histtitle+" (numerator)",   nbinsX, xmin, xmax, ymin, ymax);
   me.denominator = ibooker.bookProfile(histname+"_denominator", histtitle+" (denominator)", nbinsX, xmin, xmax, ymin, ymax);
 }
-void TopMonitor::bookME(DQMStore::IBooker &ibooker, METME& me, const std::string& histname, const std::string& histtitle, int nbinsX, double xmin, double xmax, int nbinsY, double ymin, double ymax)
+void TopMonitor::bookME(DQMStore::IBooker &ibooker, METME& me, const std::string& histname, const std::string& histtitle, unsigned int nbinsX, double xmin, double xmax, unsigned int nbinsY, double ymin, double ymax)
 {
   me.numerator   = ibooker.book2D(histname+"_numerator",   histtitle+" (numerator)",   nbinsX, xmin, xmax, nbinsY, ymin, ymax);
   me.denominator = ibooker.book2D(histname+"_denominator", histtitle+" (denominator)", nbinsX, xmin, xmax, nbinsY, ymin, ymax);
@@ -305,11 +302,6 @@ void TopMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   bookME(ibooker,metPhiME_,histname,histtitle, phi_binning_.nbins, phi_binning_.xmin, phi_binning_.xmax);
   setMETitle(metPhiME_,"PF MET #phi","events / 0.1 rad");
 
-  if ((muPt_.size()!=nmuons_) || (muEta_.size()!=nmuons_) || (muPhi_.size()!=nmuons_)){
-      edm::LogWarning("TopMonitor") << "Number of histograms does not match with number of required muons \n";
-      return;
-  } 
-
   for (unsigned int iMu=0; iMu<nmuons_; ++iMu){
       std::string index = std::to_string(iMu+1);
 
@@ -347,11 +339,6 @@ void TopMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
 
   }
 
-  if ((elePt_.size()!=nelectrons_) || (eleEta_.size()!=nelectrons_) || (elePhi_.size()!=nelectrons_)){
-      edm::LogWarning("TopMonitor") << "Number of histograms does not match with number of required electrons \n";
-      return;
-  } 
-
   for (unsigned int iEle=0; iEle<nelectrons_; ++iEle){
       std::string index = std::to_string(iEle+1);
 
@@ -388,11 +375,6 @@ void TopMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
 
 
   }
-
-  if ((jetPt_.size()!=njets_) || (jetEta_.size()!=njets_) || (jetPhi_.size()!=njets_)){
-      edm::LogWarning("TopMonitor") << "Number of histograms does not match with number of required jets \n";
-      return;
-  } 
 
   for (unsigned int iJet=0; iJet<njets_; ++iJet){
       std::string index = std::to_string(iJet+1);
@@ -433,11 +415,6 @@ void TopMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   }
 
   // Marina
-  if ((bjetPt_.size()!=nbjets_) || (bjetEta_.size()!=nbjets_) || (bjetPhi_.size()!=nbjets_)){
-    edm::LogWarning("TopMonitor") << "Number of histograms does not match with number of required b-jets \n";
-    return;
-  }
-  // Marina
   for (unsigned int iBJet=0; iBJet<nbjets_; ++iBJet){
     std::string index = std::to_string(iBJet+1);
 
@@ -470,12 +447,12 @@ void TopMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
     histname = "bjetPtEta_"; histtitle = "b-jet p_{T} - #eta - ";
     histname.append(index); histtitle.append(index);
     bookME(ibooker,bjetPtEta_.at(iBJet),histname,histtitle, jetPt_variable_binning_2D_, jetEta_variable_binning_2D_);
-    setMETitle(bjetPtEta_.at(iBJet),"b-jet p_{T} [GeV]","jet #eta");
+    setMETitle(bjetPtEta_.at(iBJet),"b-jet p_{T} [GeV]","b-jet #eta");
 
     histname = "bjetEtaPhi_"; histtitle = "b-jet #eta - #phi - ";
     histname.append(index); histtitle.append(index);
     bookME(ibooker,bjetEtaPhi_.at(iBJet),histname,histtitle, jetEta_variable_binning_2D_, phi_variable_binning_2D_);
-    setMETitle(bjetEtaPhi_.at(iBJet),"b-jet p_{T} [GeV]","jet #eta");
+    setMETitle(bjetEtaPhi_.at(iBJet),"b-jet p_{T} [GeV]","b-jet #eta");
 
     histname = "bjetCSVHT_"; histtitle = "HT - b-jet CSV - ";
     histname.append(index); histtitle.append(index);
@@ -613,11 +590,9 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
       }
       if ( jetSelection_( j ) ){
           bool isJetOverlappedWithLepton = false;
-          TLorentzVector jp4; jp4.SetPtEtaPhiE(j.pt(),j.eta(),j.phi(),j.energy());
           if(nmuons_>0){
               for (auto const m : muons){
-                  TLorentzVector mp4; mp4.SetPtEtaPhiE(m.pt(),m.eta(),m.phi(),m.energy());
-                  if (mp4.DeltaR(jp4)<leptJetDeltaRmin_){
+                  if (deltaR(j,m)<leptJetDeltaRmin_){
                       isJetOverlappedWithLepton=true;
                       break;
                   }
@@ -626,8 +601,7 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
           if (isJetOverlappedWithLepton) continue;
           if(nelectrons_>0){
               for (auto const e : electrons){
-                  TLorentzVector ep4; ep4.SetPtEtaPhiE(e.pt(),e.eta(),e.phi(),e.energy());
-                  if (ep4.DeltaR(jp4)<leptJetDeltaRmin_){
+                  if (deltaR(j,e)<leptJetDeltaRmin_){
                       isJetOverlappedWithLepton=true;
                       break;
                   }
@@ -690,10 +664,7 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
           mu1Eta_mu2Eta_.denominator->Fill(muons.at(0).eta(),muons.at(1).eta());
       }
       if(njets_>0){
-          TLorentzVector jp4, mp4; 
-          jp4.SetPtEtaPhiE(jets.at(0).pt(),jets.at(0).eta(),jets.at(0).phi(),jets.at(0).energy());
-          mp4.SetPtEtaPhiE(muons.at(0).pt(),muons.at(0).eta(),muons.at(0).phi(),muons.at(0).energy());
-          DeltaR_jet_Mu_.denominator -> Fill (jp4.DeltaR(mp4));
+          DeltaR_jet_Mu_.denominator -> Fill (deltaR(jets.at(0),muons.at(0)));
       }
   }
   if (njets_ > 0)      jetVsLS_.denominator -> Fill(ls, jets.at(0).pt());
@@ -714,25 +685,6 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 
   // Marina
   if (nbjets_ > 0)     bjetVsLS_.denominator -> Fill(ls, bjets.begin()->first->pt());
-
-  if ((muPt_.size()!=nmuons_) || (muEta_.size()!=nmuons_) || (muPhi_.size()!=nmuons_)){
-      edm::LogWarning("TopMonitor") << "Number of histograms does not match with number of required muons \n";
-      return;
-  } 
-  if ((elePt_.size()!=nelectrons_) || (eleEta_.size()!=nelectrons_) || (elePhi_.size()!=nelectrons_)){
-      edm::LogWarning("TopMonitor") << "Number of histograms does not match with number of required electrons \n";
-      return;
-  } 
-  if ((jetPt_.size()!=njets_) || (jetEta_.size()!=njets_) || (jetPhi_.size()!=njets_)){
-      edm::LogWarning("TopMonitor") << "Number of histograms does not match with number of required jets \n";
-      return;
-  } 
-
-  // Marina
-  if ((bjetPt_.size()!=nbjets_) || (bjetEta_.size()!=nbjets_) || (bjetPhi_.size() != nbjets_)){
-    edm::LogWarning("TopMonitor") << "Number of histograms does not match with number of required b-jets \n";
-  }
-
 
   for (unsigned int iMu=0; iMu<muons.size(); ++iMu){
       if (iMu>=nmuons_) break;
@@ -808,10 +760,7 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
           mu1Eta_mu2Eta_.numerator->Fill(muons.at(0).eta(),muons.at(1).eta());
       }
       if(njets_>0){
-          TLorentzVector jp4, mp4; 
-          jp4.SetPtEtaPhiE(jets.at(0).pt(),jets.at(0).eta(),jets.at(0).phi(),jets.at(0).energy());
-          mp4.SetPtEtaPhiE(muons.at(0).pt(),muons.at(0).eta(),muons.at(0).phi(),muons.at(0).energy());
-          DeltaR_jet_Mu_.numerator -> Fill (jp4.DeltaR(mp4));
+          DeltaR_jet_Mu_.numerator -> Fill (deltaR(jets.at(0),muons.at(0)));
       }
 
   }
@@ -897,14 +846,14 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 
 void TopMonitor::fillHistoPSetDescription(edm::ParameterSetDescription & pset)
 {
-  pset.add<int>   ( "nbins");
+  pset.add<unsigned int>   ( "nbins");
   pset.add<double>( "xmin" );
   pset.add<double>( "xmax" );
 }
 
 void TopMonitor::fillHistoLSPSetDescription(edm::ParameterSetDescription & pset)
 {
-  pset.add<int>   ( "nbins", 2500);
+  pset.add<unsigned int>   ( "nbins", 2500);
 }
 
 void TopMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)

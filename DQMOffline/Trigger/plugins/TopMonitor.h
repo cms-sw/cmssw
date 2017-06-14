@@ -1,5 +1,5 @@
-#ifndef TOPMONITOR_H
-#define TOPMONITOR_H
+#ifndef DQMOffline_Trigger_TopMonitor_h
+#define DQMOffline_Trigger_TopMonitor_h
 
 #include <string>
 #include <vector>
@@ -23,7 +23,7 @@
 //DataFormats
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/PFMETCollection.h"
-
+#include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
@@ -42,14 +42,14 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-//root
-#include "TLorentzVector.h"
+/* //root */
+/* #include "TLorentzVector.h" */
 
 
 class GenericTriggerEventFlag;
 
 struct MEbinning {
-  int nbins;
+  unsigned int nbins;
   double xmin;
   double xmax;
 };
@@ -81,10 +81,10 @@ public:
 protected:
 
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void bookME(DQMStore::IBooker &, METME& me, const std::string& histname, const std::string& histtitle, int nbins, double xmin, double xmax);
+  void bookME(DQMStore::IBooker &, METME& me, const std::string& histname, const std::string& histtitle, unsigned int nbins, double xmin, double xmax);
   void bookME(DQMStore::IBooker &, METME& me, const std::string& histname, const std::string& histtitle, const std::vector<double>& binningX);
-  void bookME(DQMStore::IBooker &, METME& me, const std::string& histname, const std::string& histtitle, int nbinsX, double xmin, double xmax, double ymin, double ymax);
-  void bookME(DQMStore::IBooker &, METME& me, const std::string& histname, const std::string& histtitle, int nbinsX, double xmin, double xmax, int nbinsY, double ymin, double ymax);
+  void bookME(DQMStore::IBooker &, METME& me, const std::string& histname, const std::string& histtitle, unsigned int nbinsX, double xmin, double xmax, double ymin, double ymax);
+  void bookME(DQMStore::IBooker &, METME& me, const std::string& histname, const std::string& histtitle, unsigned int nbinsX, double xmin, double xmax, unsigned int nbinsY, double ymin, double ymax);
   void bookME(DQMStore::IBooker &, METME& me, const std::string& histname, const std::string& histtitle, const std::vector<double>& binningX, const std::vector<double>& binningY);
   void setMETitle(METME& me, std::string titleX, std::string titleY);
 
@@ -224,8 +224,8 @@ private:
   METME eventHT_;
   METME eventHT_variableBinning_;
 
-  GenericTriggerEventFlag* num_genTriggerEventFlag_;
-  GenericTriggerEventFlag* den_genTriggerEventFlag_;
+  std::unique_ptr<GenericTriggerEventFlag> num_genTriggerEventFlag_;
+  std::unique_ptr<GenericTriggerEventFlag> den_genTriggerEventFlag_;
 
   StringCutObjectSelector<reco::MET,true>         metSelection_;
   StringCutObjectSelector<reco::PFJet,true   >    jetSelection_;
@@ -252,4 +252,4 @@ unsigned int njets_;
   
 };
 
-#endif // TOPMONITOR_H
+#endif // DQMOffline_Trigger_TopMonitor_h
