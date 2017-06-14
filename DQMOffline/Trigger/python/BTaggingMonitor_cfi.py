@@ -5,39 +5,37 @@ from DQMOffline.Trigger.topMonitoring_cfi import topMonitoring
 hltBTVmonitoring = topMonitoring.clone()
 hltBTVmonitoring.FolderName = cms.string('HLT/BTV/default/')
 hltBTVmonitoring.histoPSet.metPSet = cms.PSet(
-  nbins = cms.int32 (  30   ),
+  nbins = cms.uint32(  30   ),
   xmin  = cms.double(   0   ),
   xmax  = cms.double(  300  ),
 )
 hltBTVmonitoring.histoPSet.ptPSet = cms.PSet(
-  nbins = cms.int32 (  100  ),
+  nbins = cms.uint32(  100  ),
   xmin  = cms.double(   0   ),
   xmax  = cms.double(  1000 ),
 )
 hltBTVmonitoring.histoPSet.phiPSet = cms.PSet(
-  nbins = cms.int32 (  32  ),
+  nbins = cms.uint32(  32  ),
   xmin  = cms.double( -3.2 ),
   xmax  = cms.double(  3.2 ),
 )
 hltBTVmonitoring.histoPSet.etaPSet = cms.PSet(
-  nbins = cms.int32 (  24  ),
+  nbins = cms.uint32(  24  ),
   xmin  = cms.double( -2.4 ),
   xmax  = cms.double(  2.4 ),
 )
 hltBTVmonitoring.histoPSet.htPSet = cms.PSet(
-  nbins = cms.int32 (  100  ),
+  nbins = cms.uint32(  100  ),
   xmin  = cms.double(   0   ),
   xmax  = cms.double(  1000 ),
 )
-# Marina
 hltBTVmonitoring.histoPSet.csvPSet = cms.PSet(
-  nbins = cms.int32 ( 20 ),
+  nbins = cms.uint32( 20 ),
   xmin  = cms.double( 0.0 ),
   xmax  = cms.double( 1.0  ),
 )
-#BTV
 hltBTVmonitoring.histoPSet.DRPSet = cms.PSet(
-  nbins = cms.int32 ( 60  ),
+  nbins = cms.uint32( 60  ),
   xmin  = cms.double( 0.0 ),
   xmax  = cms.double( 6.0 ),
 )
