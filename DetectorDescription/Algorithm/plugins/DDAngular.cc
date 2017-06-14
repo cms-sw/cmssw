@@ -1,4 +1,4 @@
-#include "DetectorDescription/Algorithm/interface/DDAngular.h"
+#include "DDAngular.h"
 
 #include <math.h>
 
