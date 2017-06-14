@@ -5,7 +5,9 @@ L1TStage2uGMT::L1TStage2uGMT(const edm::ParameterSet& ps)
     : ugmtMuonToken(consumes<l1t::MuonBxCollection>(ps.getParameter<edm::InputTag>("muonProducer"))),
       monitorDir(ps.getUntrackedParameter<std::string>("monitorDir")),
       emul(ps.getUntrackedParameter<bool>("emulator")),
-      verbose(ps.getUntrackedParameter<bool>("verbose"))
+      verbose(ps.getUntrackedParameter<bool>("verbose")),
+      etaScale_(0.010875),
+      phiScale_(0.010908)
 {
   if (!emul) {
     ugmtBMTFToken = consumes<l1t::RegionalMuonCandBxCollection>(ps.getParameter<edm::InputTag>("bmtfProducer"));
@@ -351,27 +353,29 @@ void L1TStage2uGMT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
   ugmtMuonPhiAtVtxEmtf = ibooker.book1D("ugmtMuonPhiAtVtxEmtf", "uGMT Muon #phi at vertex for EMTF Inputs", 126, -3.15, 3.15);
   ugmtMuonPhiAtVtxEmtf->setAxisTitle("#phi at vertex", 1);
 
-  ugmtMuonDEtavsPtBmtf = ibooker.book2D("ugmtMuonDEtavsPtBmtf", "uGMT Muon from BMTF #eta_{at vertex} - #eta_{at muon system} vs p_{T}", 80, 0, 80, 50, -0.2, 0.2);
+  const float dPhiScale = 4*phiScale_;
+  const float dEtaScale = etaScale_;
+  ugmtMuonDEtavsPtBmtf = ibooker.book2D("ugmtMuonDEtavsPtBmtf", "uGMT Muon from BMTF #eta_{at vertex} - #eta_{at muon system} vs p_{T}", 32, 0, 64, 31, -15.5*dEtaScale, 15.5*dEtaScale);
   ugmtMuonDEtavsPtBmtf->setAxisTitle("p_{T} [GeV]", 1);
   ugmtMuonDEtavsPtBmtf->setAxisTitle("#eta_{at vertex} - #eta", 2);
 
-  ugmtMuonDPhivsPtBmtf = ibooker.book2D("ugmtMuonDPhivsPtBmtf", "uGMT Muon from BMTF #phi_{at vertex} - #phi_{at muon system} vs p_{T}", 80, 0, 80, 50, -0.75, 0.75);
+  ugmtMuonDPhivsPtBmtf = ibooker.book2D("ugmtMuonDPhivsPtBmtf", "uGMT Muon from BMTF #phi_{at vertex} - #phi_{at muon system} vs p_{T}", 32, 0, 64, 31, -15.5*dPhiScale, 15.5*dPhiScale);
   ugmtMuonDPhivsPtBmtf->setAxisTitle("p_{T} [GeV]", 1);
   ugmtMuonDPhivsPtBmtf->setAxisTitle("#phi_{at vertex} - #phi", 2);
 
-  ugmtMuonDEtavsPtOmtf = ibooker.book2D("ugmtMuonDEtavsPtOmtf", "uGMT Muon from OMTF #eta_{at vertex} - #eta_{at muon system} vs p_{T}", 80, 0, 80, 50, -0.2, 0.2);
+  ugmtMuonDEtavsPtOmtf = ibooker.book2D("ugmtMuonDEtavsPtOmtf", "uGMT Muon from OMTF #eta_{at vertex} - #eta_{at muon system} vs p_{T}", 32, 0, 64, 31, -15.5*dEtaScale, 15.5*dEtaScale);
   ugmtMuonDEtavsPtOmtf->setAxisTitle("p_{T} [GeV]", 1);
   ugmtMuonDEtavsPtOmtf->setAxisTitle("#eta_{at vertex} - #eta", 2);
 
-  ugmtMuonDPhivsPtOmtf = ibooker.book2D("ugmtMuonDPhivsPtOmtf", "uGMT Muon from OMTF #phi_{at vertex} - #phi_{at muon system} vs p_{T}", 80, 0, 80, 50, -0.75, 0.75);
+  ugmtMuonDPhivsPtOmtf = ibooker.book2D("ugmtMuonDPhivsPtOmtf", "uGMT Muon from OMTF #phi_{at vertex} - #phi_{at muon system} vs p_{T}", 32, 0, 64, 31, -15.5*dPhiScale, 15.5*dPhiScale);
   ugmtMuonDPhivsPtOmtf->setAxisTitle("p_{T} [GeV]", 1);
   ugmtMuonDPhivsPtOmtf->setAxisTitle("#phi_{at vertex} - #phi", 2);
 
-  ugmtMuonDEtavsPtEmtf = ibooker.book2D("ugmtMuonDEtavsPtEmtf", "uGMT Muon from EMTF #eta_{at vertex} - #eta_{at muon system} vs p_{T}", 80, 0, 80, 50, -0.2, 0.2);
+  ugmtMuonDEtavsPtEmtf = ibooker.book2D("ugmtMuonDEtavsPtEmtf", "uGMT Muon from EMTF #eta_{at vertex} - #eta_{at muon system} vs p_{T}", 32, 0, 64, 31, -15.5*dEtaScale, 15.5*dEtaScale);
   ugmtMuonDEtavsPtEmtf->setAxisTitle("p_{T} [GeV]", 1);
   ugmtMuonDEtavsPtEmtf->setAxisTitle("#eta_{at vertex} - #eta", 2);
 
-  ugmtMuonDPhivsPtEmtf = ibooker.book2D("ugmtMuonDPhivsPtEmtf", "uGMT Muon from EMTF #phi_{at vertex} - #phi_{at muon system} vs p_{T}", 80, 0, 80, 50, -0.75, 0.75);
+  ugmtMuonDPhivsPtEmtf = ibooker.book2D("ugmtMuonDPhivsPtEmtf", "uGMT Muon from EMTF #phi_{at vertex} - #phi_{at muon system} vs p_{T}", 32, 0, 64, 31, -15.5*dPhiScale, 15.5*dPhiScale);
   ugmtMuonDPhivsPtEmtf->setAxisTitle("p_{T} [GeV]", 1);
   ugmtMuonDPhivsPtEmtf->setAxisTitle("#phi_{at vertex} - #phi", 2);
 
@@ -548,9 +552,6 @@ void L1TStage2uGMT::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
   if (verbose) edm::LogInfo("L1TStage2uGMT") << "L1TStage2uGMT: analyze..." << std::endl;
 
-  const float etaScale = 0.010875;
-  const float phiScale = 0.010908;
-
   if (!emul) {
     edm::Handle<l1t::RegionalMuonCandBxCollection> BMTFBxCollection;
     e.getByToken(ugmtBMTFToken, BMTFBxCollection);
@@ -578,8 +579,8 @@ void L1TStage2uGMT::analyze(const edm::Event& e, const edm::EventSetup& c) {
         // Analyse muon correlations
         for (l1t::RegionalMuonCandBxCollection::const_iterator BMTF2 = BMTF+1; BMTF2 != BMTFBxCollection->end(itBX); ++BMTF2) {
           int global_hw_phi2 = l1t::MicroGMTConfiguration::calcGlobalPhi(BMTF2->hwPhi(), BMTF2->trackFinderType(), BMTF2->processor());
-          float dEta = (BMTF->hwEta() - BMTF2->hwEta()) * etaScale;
-          float dPhi = (global_hw_phi - global_hw_phi2) * phiScale;
+          float dEta = (BMTF->hwEta() - BMTF2->hwEta()) * etaScale_;
+          float dPhi = (global_hw_phi - global_hw_phi2) * phiScale_;
           float dR = sqrt(dEta*dEta + dPhi*dPhi);
 
           int dLink = std::abs(BMTF->link() - BMTF2->link());
@@ -628,8 +629,8 @@ void L1TStage2uGMT::analyze(const edm::Event& e, const edm::EventSetup& c) {
         // Analyse muon correlations
         for (l1t::RegionalMuonCandBxCollection::const_iterator OMTF2 = OMTF+1; OMTF2 != OMTFBxCollection->end(itBX); ++OMTF2) {
           int global_hw_phi2 = l1t::MicroGMTConfiguration::calcGlobalPhi(OMTF2->hwPhi(), OMTF2->trackFinderType(), OMTF2->processor());
-          float dEta = (OMTF->hwEta() - OMTF2->hwEta()) * etaScale;
-          float dPhi = (global_hw_phi - global_hw_phi2) * phiScale;
+          float dEta = (OMTF->hwEta() - OMTF2->hwEta()) * etaScale_;
+          float dPhi = (global_hw_phi - global_hw_phi2) * phiScale_;
           float dR = sqrt(dEta*dEta + dPhi*dPhi);
 
           int dLink = std::abs(OMTF->link() - OMTF2->link());
@@ -678,8 +679,8 @@ void L1TStage2uGMT::analyze(const edm::Event& e, const edm::EventSetup& c) {
         // Analyse muon correlations
         for (l1t::RegionalMuonCandBxCollection::const_iterator EMTF2 = EMTF+1; EMTF2 != EMTFBxCollection->end(itBX); ++EMTF2) {
           int global_hw_phi2 = l1t::MicroGMTConfiguration::calcGlobalPhi(EMTF2->hwPhi(), EMTF2->trackFinderType(), EMTF2->processor());
-          float dEta = (EMTF->hwEta() - EMTF2->hwEta()) * etaScale;
-          float dPhi = (global_hw_phi - global_hw_phi2) * phiScale;
+          float dEta = (EMTF->hwEta() - EMTF2->hwEta()) * etaScale_;
+          float dPhi = (global_hw_phi - global_hw_phi2) * phiScale_;
           float dR = sqrt(dEta*dEta + dPhi*dPhi);
 
           int dLink = std::abs(EMTF->link() - EMTF2->link());
@@ -704,8 +705,8 @@ void L1TStage2uGMT::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
         for (l1t::RegionalMuonCandBxCollection::const_iterator OMTF = OMTFBxCollection->begin(itBX); OMTF != OMTFBxCollection->end(itBX); ++OMTF) {
           int global_hw_phi_omtf = l1t::MicroGMTConfiguration::calcGlobalPhi(OMTF->hwPhi(), OMTF->trackFinderType(), OMTF->processor());
-          float dEta = (BMTF->hwEta() - OMTF->hwEta()) * etaScale;
-          float dPhi = (global_hw_phi_bmtf - global_hw_phi_omtf) * phiScale;
+          float dEta = (BMTF->hwEta() - OMTF->hwEta()) * etaScale_;
+          float dPhi = (global_hw_phi_bmtf - global_hw_phi_omtf) * phiScale_;
           float dR = sqrt(dEta*dEta + dPhi*dPhi);
           if (OMTF->trackFinderType() == l1t::omtf_neg) {
             ugmtBOMTFnegMuMuDEta->Fill(dEta);
@@ -732,8 +733,8 @@ void L1TStage2uGMT::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
         for (l1t::RegionalMuonCandBxCollection::const_iterator OMTF = OMTFBxCollection->begin(itBX); OMTF != OMTFBxCollection->end(itBX); ++OMTF) {
           int global_hw_phi_omtf = l1t::MicroGMTConfiguration::calcGlobalPhi(OMTF->hwPhi(), OMTF->trackFinderType(), OMTF->processor());
-          float dEta = (EMTF->hwEta() - OMTF->hwEta()) * etaScale;
-          float dPhi = (global_hw_phi_emtf - global_hw_phi_omtf) * phiScale;
+          float dEta = (EMTF->hwEta() - OMTF->hwEta()) * etaScale_;
+          float dPhi = (global_hw_phi_emtf - global_hw_phi_omtf) * phiScale_;
           float dR = sqrt(dEta*dEta + dPhi*dPhi);
           if (EMTF->trackFinderType() == l1t::emtf_neg && OMTF->trackFinderType() == l1t::omtf_neg) {
             ugmtEOMTFnegMuMuDEta->Fill(dEta);
@@ -782,18 +783,18 @@ void L1TStage2uGMT::analyze(const edm::Event& e, const edm::EventSetup& c) {
       if (tfType == l1t::emtf_pos || tfType == l1t::emtf_neg) {
         ugmtMuonPhiEmtf->Fill(Muon->phi());
         ugmtMuonPhiAtVtxEmtf->Fill(Muon->phiAtVtx());
-        ugmtMuonDEtavsPtEmtf->Fill(Muon->pt(), Muon->etaAtVtx() - Muon->eta());
-        ugmtMuonDPhivsPtEmtf->Fill(Muon->pt(), Muon->phiAtVtx() - Muon->phi());
+        ugmtMuonDEtavsPtEmtf->Fill(Muon->pt(), Muon->hwDEtaExtra()*etaScale_);
+        ugmtMuonDPhivsPtEmtf->Fill(Muon->pt(), Muon->hwDPhiExtra()*phiScale_);
       } else if (tfType == l1t::omtf_pos || tfType == l1t::omtf_neg) {
         ugmtMuonPhiOmtf->Fill(Muon->phi());
         ugmtMuonPhiAtVtxOmtf->Fill(Muon->phiAtVtx());
-        ugmtMuonDEtavsPtOmtf->Fill(Muon->pt(), Muon->etaAtVtx() - Muon->eta());
-        ugmtMuonDPhivsPtOmtf->Fill(Muon->pt(), Muon->phiAtVtx() - Muon->phi());
+        ugmtMuonDEtavsPtOmtf->Fill(Muon->pt(), Muon->hwDEtaExtra()*etaScale_);
+        ugmtMuonDPhivsPtOmtf->Fill(Muon->pt(), Muon->hwDPhiExtra()*phiScale_);
       } else if (tfType == l1t::bmtf) {
         ugmtMuonPhiBmtf->Fill(Muon->phi());
         ugmtMuonPhiAtVtxBmtf->Fill(Muon->phiAtVtx());
-        ugmtMuonDEtavsPtBmtf->Fill(Muon->pt(), Muon->etaAtVtx() - Muon->eta());
-        ugmtMuonDPhivsPtBmtf->Fill(Muon->pt(), Muon->phiAtVtx() - Muon->phi());
+        ugmtMuonDEtavsPtBmtf->Fill(Muon->pt(), Muon->hwDEtaExtra()*etaScale_);
+        ugmtMuonDPhivsPtBmtf->Fill(Muon->pt(), Muon->hwDPhiExtra()*phiScale_);
       }
 
       ugmtMuonPtvsEta->Fill(Muon->eta(), Muon->pt());
