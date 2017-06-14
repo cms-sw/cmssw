@@ -61,6 +61,28 @@ JetSubstructurePacker::produce(edm::Event& iEvent, const edm::EventSetup&)
       for ( auto const & jjet : *ialgoHandle ) {
 	
 	if ( reco::deltaR( ijet, jjet ) < dRMin ) {
+
+	  for ( auto const & userfloatstr : jjet.userFloatNames() ) {
+	    if ( std::find( outputs->back().userFloatNames().begin(), outputs->back().userFloatNames().end(), userfloatstr) == outputs->back().userFloatNames().end() ) 
+	      outputs->back().addUserFloat( userfloatstr, jjet.userFloat(userfloatstr) );
+	    else {
+	      throw cms::Exception("DuplicateUserData") << " User data replicated. Exiting: " << userfloatstr << std::endl;
+	    }
+	  }
+	  for ( auto const & userintstr : jjet.userIntNames() ) {
+	    if ( std::find( outputs->back().userIntNames().begin(), outputs->back().userIntNames().end(), userintstr) == outputs->back().userIntNames().end() ) 
+	      outputs->back().addUserInt( userintstr, jjet.userInt(userintstr) );
+	    else {
+	      throw cms::Exception("DuplicateUserData") << " User data replicated. Exiting: " << userintstr << std::endl;
+	    }
+	  }
+	  for ( auto const & usercandstr : jjet.userCandNames() ) {
+	    if ( std::find( outputs->back().userCandNames().begin(), outputs->back().userCandNames().end(), usercandstr) == outputs->back().userCandNames().end() ) 
+	      outputs->back().addUserCand( usercandstr, jjet.userCand(usercandstr) );
+	    else {
+	      throw cms::Exception("DuplicateUserData") << " User data replicated. Exiting: " << usercandstr << std::endl;
+	    }
+	  }
 	  for ( size_t ida = 0; ida < jjet.numberOfDaughters(); ++ida ) {
 
 	    reco::CandidatePtr candPtr =  jjet.daughterPtr( ida);
