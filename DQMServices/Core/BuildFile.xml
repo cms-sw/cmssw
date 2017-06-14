@@ -1,4 +1,5 @@
 <flags   CPPFLAGS="-DWITHOUT_CMS_FRAMEWORK=0"/>
+<use   name="DataFormats/Histograms"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/ServiceRegistry"/>
