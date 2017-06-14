@@ -28,7 +28,6 @@ namespace edm
   FlatRandomXiGunProducer::~FlatRandomXiGunProducer()
   {}
 
-  // ------------ method called to produce the data  ------------
   void
   FlatRandomXiGunProducer::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
   {
@@ -60,7 +59,9 @@ namespace edm
       auto part_data = pdgTable_->particle( HepPDT::ParticleID( abs( part ) ) );
       const double mass = part_data->mass().value();
 
-      auto p = new HepMC::GenParticle( shoot( rnd, mass ), part, 1 ); // cleanup in HepMCProduct
+      int dir = ( CLHEP::RandFlat::shoot( rnd )<0.5 ) ? -1 : 1;
+
+      auto p = new HepMC::GenParticle( shoot( rnd, mass, dir ), part, 1 ); // cleanup in HepMCProduct
       p->suggest_barcode( barcode );
       pVertex->add_particle_out( p );
 
@@ -80,46 +81,42 @@ namespace edm
   //----------------------------------------------------------------------------------------------------
 
   HepMC::FourVector
-  FlatRandomXiGunProducer::shoot( CLHEP::HepRandomEngine* rnd, double mass )
+  FlatRandomXiGunProducer::shoot( CLHEP::HepRandomEngine* rnd, double mass, int z_direction )
   {
     // generate xi
     const double xi = minXi_ + CLHEP::RandFlat::shoot( rnd ) * ( maxXi_-minXi_ );
     // generate phi
-    const double phi = minPhi_ + CLHEP::RandFlat::shoot( rnd ) * ( maxPhi_-minPhi_ );
+    //const double phi = minPhi_ + CLHEP::RandFlat::shoot( rnd ) * ( maxPhi_-minPhi_ );
   
-    // generate scattering angles (physics)
-    double th_x_phys = 0., th_y_phys = 0.;
+    // generate scattering angles
+    double th_x = 0., th_y = 0.;
 
-    if ( simulateScatteringAngleX_ ) th_x_phys += CLHEP::RandGauss::shoot( rnd ) * thetaPhys_;
-    if ( simulateScatteringAngleY_ ) th_y_phys += CLHEP::RandGauss::shoot( rnd ) * thetaPhys_;
+    if ( simulateScatteringAngleX_ ) th_x += CLHEP::RandGauss::shoot( rnd ) * thetaPhys_;
+    if ( simulateScatteringAngleY_ ) th_y += CLHEP::RandGauss::shoot( rnd ) * thetaPhys_;
 
-    // generate beam divergence, calculate complete angle
-    double th_x = th_x_phys, th_y = th_y_phys;
-
+    // generate beam divergence
     if ( simulateBeamDivergence_ ) {
       th_x += CLHEP::RandGauss::shoot( rnd ) * beamDivergence_;
       th_y += CLHEP::RandGauss::shoot( rnd ) * beamDivergence_;
     }
 
-    const double e_part = sqrtS_/2.*( 1.-xi ); //FIXME
+    const double e_part = sqrtS_/2.*( 1.-xi );
     const double p = sqrt( e_part*e_part-mass*mass );
+    const double pz = ( z_direction/abs( z_direction ) ) * p/sqrt( 1+tan( th_x )*tan( th_x )+tan( th_y )*tan( th_y ) );
 
-    return HepMC::FourVector( p*cos( phi )*sin( th_x ), p*cos( phi )*sin( th_y ), p*cos( th_x )*cos( th_y ), e_part ); //FIXME
+    return HepMC::FourVector( pz*tan( th_x ), pz*tan( th_y ), pz, e_part );
   }
 
-  // ------------ method called once each stream before processing any runs, lumis or events  ------------
   void
   FlatRandomXiGunProducer::beginRun( const edm::Run&, const edm::EventSetup& iSetup )
   {
     iSetup.getData( pdgTable_ );
   }
 
-  // ------------ method called once each stream after processing all runs, lumis and events  ------------
   void
   FlatRandomXiGunProducer::endRun( const edm::Run&, const edm::EventSetup& )
   {}
 
-  // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
   void
   FlatRandomXiGunProducer::fillDescriptions( edm::ConfigurationDescriptions& descriptions )
   {

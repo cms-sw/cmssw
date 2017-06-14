@@ -26,17 +26,16 @@ enum LHCSector { unknownSector, sector45, sector56 };
 class ProtonReconstructionAlgorithm
 {
   public:
-    ProtonReconstructionAlgorithm( const edm::ParameterSet&, std::unordered_map<unsigned int, std::string>, const std::string& );
+    ProtonReconstructionAlgorithm( const edm::ParameterSet&, std::unordered_map<unsigned int, std::string>, const std::string&, bool, bool );
     ~ProtonReconstructionAlgorithm();
 
-    CTPPSSimProtonTrack Reconstruct( const std::vector< edm::Ptr<CTPPSSimHit> >& tracks ) const;
+    void reconstruct( const std::vector< edm::Ptr<CTPPSSimHit> >& tracks, std::vector<CTPPSSimProtonTrack>& reco ) const;
 
   private:
     /// optics data associated with 1 RP
     struct RPOpticsData {
-      LHCOpticsApproximator *optics;
-      //std::unique_ptr<TSpline3> s_xi_vs_x, s_y0_vs_xi, s_v_y_vs_xi, s_L_y_vs_xi;
-      TSpline3* s_xi_vs_x, *s_y0_vs_xi, *s_v_y_vs_xi, *s_L_y_vs_xi;
+      std::shared_ptr<LHCOpticsApproximator> optics;
+      std::shared_ptr<TSpline3> s_xi_vs_x, s_y0_vs_xi, s_v_y_vs_xi, s_L_y_vs_xi;
     };
 
     edm::ParameterSet beamConditions_;

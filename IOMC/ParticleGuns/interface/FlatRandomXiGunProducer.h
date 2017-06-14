@@ -38,7 +38,7 @@ namespace edm
       virtual void produce( edm::Event&, const edm::EventSetup& ) override;
       virtual void endRun( const edm::Run&, const edm::EventSetup& ) override;
 
-      HepMC::FourVector shoot( CLHEP::HepRandomEngine*, double );
+      HepMC::FourVector shoot( CLHEP::HepRandomEngine*, double, int );
 
       edm::ESHandle<HepPDT::ParticleDataTable> pdgTable_;
 

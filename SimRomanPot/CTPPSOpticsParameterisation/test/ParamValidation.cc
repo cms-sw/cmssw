@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
 // Package:    SimRomanPot/CTPPSOpticsParameterisation
-// Class:      PlotsProducer
+// Class:      ParamValidation
 // 
-/**\class PlotsProducer PlotsProducer.cc SimRomanPot/CTPPSOpticsParameterisation/test/PlotsProducer.cc
+/**\class ParamValidation ParamValidation.cc SimRomanPot/CTPPSOpticsParameterisation/test/ParamValidation.cc
 
  Description: [one line class summary]
 
@@ -33,7 +33,7 @@
 #include "DataFormats/Common/interface/View.h"
 
 #include "SimDataFormats/CTPPS/interface/CTPPSSimProtonTrack.h"
-//#include "SimDataFormats/CTPPS/interface/CTPPSSimHit.h"
+#include "SimDataFormats/CTPPS/interface/CTPPSSimHit.h"
 
 #include "SimRomanPot/CTPPSOpticsParameterisation/interface/ProtonReconstructionAlgorithm.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
@@ -46,10 +46,10 @@
 
 #include <map>
 
-class PlotsProducer : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
+class ParamValidation : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
   public:
-    explicit PlotsProducer( const edm::ParameterSet& );
-    ~PlotsProducer();
+    explicit ParamValidation( const edm::ParameterSet& );
+    ~ParamValidation();
 
     static void fillDescriptions( edm::ConfigurationDescriptions& descriptions );
 
@@ -68,26 +68,17 @@ class PlotsProducer : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
 
     std::map<unsigned int,TH2D*> m_rp_h2_y_vs_x_;
 
-    TH1D* h_de_vtx_x_[2];
-    TH1D* h_de_vtx_y_[2];
-    TH1D* h_de_th_x_[2];
-    TH1D* h_de_th_y_[2];
-    TH1D* h_de_xi_[2];
-
-    TH2D* h2_de_vtx_x_vs_de_xi_[2];
-    TH2D* h2_de_vtx_y_vs_de_xi_[2];
-    TH2D* h2_de_th_x_vs_de_xi_[2];
-    TH2D* h2_de_th_y_vs_de_xi_[2];
-    TH2D* h2_de_vtx_y_vs_de_th_y_[2];
-
-    TProfile* p_de_vtx_x_vs_xi_[2];
-    TProfile* p_de_vtx_y_vs_xi_[2];
-    TProfile* p_de_th_x_vs_xi_[2];
-    TProfile* p_de_th_y_vs_xi_[2];
-    TProfile* p_de_xi_vs_xi_[2];
+    // gen-level plots
+    TH1D* h_gen_vtx_x_, *h_gen_vtx_y_, *h_gen_th_x_, *h_gen_th_y_, *h_gen_xi_;
+    // reco-gen 1D plots
+    TH1D* h_de_vtx_x_[2], *h_de_vtx_y_[2], *h_de_th_x_[2], *h_de_th_y_[2], *h_de_xi_[2];
+    // reco-gen 2D (vs delta(xi), ...) plots
+    TH2D* h2_de_vtx_x_vs_de_xi_[2], *h2_de_vtx_y_vs_de_xi_[2], *h2_de_th_x_vs_de_xi_[2], *h2_de_th_y_vs_de_xi_[2], *h2_de_vtx_y_vs_de_th_y_[2];
+    // profiles
+    TProfile* p_de_vtx_x_vs_xi_[2], *p_de_vtx_y_vs_xi_[2], *p_de_th_x_vs_xi_[2], *p_de_th_y_vs_xi_[2], *p_de_xi_vs_xi_[2];
 };
 
-PlotsProducer::PlotsProducer( const edm::ParameterSet& iConfig ) :
+ParamValidation::ParamValidation( const edm::ParameterSet& iConfig ) :
   genProtonsToken_   ( consumes<edm::HepMCProduct>( iConfig.getParameter<edm::InputTag>( "genProtonsTag" ) ) ),
   recoProtons45Token_( consumes< edm::View<CTPPSSimProtonTrack> >( iConfig.getParameter<edm::InputTag>( "recoProtons45Tag" ) ) ),
   recoProtons56Token_( consumes< edm::View<CTPPSSimProtonTrack> >( iConfig.getParameter<edm::InputTag>( "recoProtons56Tag" ) ) ),
@@ -107,45 +98,50 @@ PlotsProducer::PlotsProducer( const edm::ParameterSet& iConfig ) :
     m_rp_h2_y_vs_x_.insert( std::make_pair( pot_id, fs->make<TH2D>( Form( "h2_rp_hits_%d", pot_id ) , ";x;y", 300, 0., 30E-3, 200, -10E-3, +10E-3 ) ) );
   }
 
+  TFileDirectory gen_dir = fs->mkdir( "gen level" );
+  h_gen_vtx_x_ = gen_dir.make<TH1D>( "h_gen_vtx_x", ";vtx_{x}^{gen}", 100, -1.e-4, 1.e-4 );
+  h_gen_vtx_y_ = gen_dir.make<TH1D>( "h_gen_vtx_y", ";vtx_{y}^{gen}", 100, -1.e-3, 1.e-3 );
+  h_gen_th_x_ = gen_dir.make<TH1D>( "h_gen_th_x", ";#theta_{x}^{gen}", 100, -1.e-4, 1.e-4 );
+  h_gen_th_y_ = gen_dir.make<TH1D>( "h_gen_th_y", ";#theta_{y}^{gen}", 100, -1.e-4, 1.e-4 );
+  h_gen_xi_ = gen_dir.make<TH1D>( "h_gen_xi", ";#xi^{gen}", 100, 0., 0.25 );
+
   unsigned short i = 0;
   for ( unsigned int sect : { 45, 56 } ) {
     TFileDirectory subdir = fs->mkdir( Form( "sector %d", sect ) );
     // prepare plots - histograms
-    h_de_vtx_x_[i] = subdir.make<TH1D>( Form( "h_de_vtx_x_%d", sect ), Form( ";vtx_{x}^{reco,%d} - vtx_{x}^{sim}", sect ), 100, -40E-6, +40E-6 );
-    h_de_vtx_y_[i] = subdir.make<TH1D>( Form( "h_de_vtx_y_%d", sect ), Form( ";vtx_{y}^{reco,%d} - vtx_{y}^{sim}", sect ), 100, -250E-6, +250E-6 );
-    h_de_th_x_[i] = subdir.make<TH1D>( Form( "h_de_th_x_%d", sect ), Form( ";th_{x}^{reco,%d} - th_{x}^{sim}", sect ), 100, -100E-6, +100E-6 );
-    h_de_th_y_[i] = subdir.make<TH1D>( Form( "h_de_th_y_%d", sect ), Form( ";th_{y}^{reco,%d} - th_{y}^{sim}", sect ), 100, -100E-6, +100E-6 );
-    h_de_xi_[i] = subdir.make<TH1D>( Form( "h_de_xi_%d", sect ), Form( ";#xi^{reco,%d} - #xi^{sim}", sect ), 100, -5E-3, +5E-3 );
+    h_de_vtx_x_[i] = subdir.make<TH1D>( Form( "h_de_vtx_x_%d", sect ), Form( ";vtx_{x}^{reco,%d} - vtx_{x}^{gen}", sect ), 100, -40E-6, +40E-6 );
+    h_de_vtx_y_[i] = subdir.make<TH1D>( Form( "h_de_vtx_y_%d", sect ), Form( ";vtx_{y}^{reco,%d} - vtx_{y}^{gen}", sect ), 100, -250E-6, +250E-6 );
+    h_de_th_x_[i] = subdir.make<TH1D>( Form( "h_de_th_x_%d", sect ), Form( ";#theta_{x}^{reco,%d} - #theta_{x}^{gen}", sect ), 100, -100E-6, +100E-6 );
+    h_de_th_y_[i] = subdir.make<TH1D>( Form( "h_de_th_y_%d", sect ), Form( ";#theta_{y}^{reco,%d} - #theta_{y}^{gen}", sect ), 100, -100E-6, +100E-6 );
+    h_de_xi_[i] = subdir.make<TH1D>( Form( "h_de_xi_%d", sect ), Form( ";#xi^{reco,%d} - #xi^{gen}", sect ), 100, -5E-3, +5E-3 );
 
     // prepare plots - 2D histograms
     h2_de_vtx_x_vs_de_xi_[i] = subdir.make<TH2D>( Form( "h2_de_vtx_x_vs_de_xi_%d", sect ), Form( ";#Delta#xi^{%d};#Deltavtx_{x}^{%d}", sect, sect ), 50, -5E-3, +5E-3, 50, -40E-6, +40E-6 );
     h2_de_vtx_y_vs_de_xi_[i] = subdir.make<TH2D>( Form( "h2_de_vtx_y_vs_de_xi_%d", sect ), Form( ";#Delta#xi^{%d};#Deltavtx_{y}^{%d}", sect, sect ), 50, -5E-3, +5E-3, 50, -250E-6, +250E-6 );
-    h2_de_th_x_vs_de_xi_[i] = subdir.make<TH2D>( Form( "h2_de_th_x_vs_de_xi_%d", sect ), Form( ";#Delta#xi^{%d};#Deltath_{x}^{%d}", sect, sect ), 50, -5E-3, +5E-3, 50, -100E-6, +100E-6 );
-    h2_de_th_y_vs_de_xi_[i] = subdir.make<TH2D>( Form( "h2_de_th_y_vs_de_xi_%d", sect ), Form( ";#Delta#xi^{%d};#Deltath_{y}^{%d}", sect, sect ), 50, -5E-3, +5E-3, 50, -100E-6, +100E-6 );
-    h2_de_vtx_y_vs_de_th_y_[i] = subdir.make<TH2D>( Form( "h2_de_vtx_y_vs_de_th_y_%d", sect ), Form( ";#Deltath_{y}^{%d};#Deltavtx_{y}^{%d}", sect, sect ), 50, -100E-6, +100E-6, 50, -250E-6, +250E-6 );
+    h2_de_th_x_vs_de_xi_[i] = subdir.make<TH2D>( Form( "h2_de_th_x_vs_de_xi_%d", sect ), Form( ";#Delta#xi^{%d};#Delta#theta_{x}^{%d}", sect, sect ), 50, -5E-3, +5E-3, 50, -100E-6, +100E-6 );
+    h2_de_th_y_vs_de_xi_[i] = subdir.make<TH2D>( Form( "h2_de_th_y_vs_de_xi_%d", sect ), Form( ";#Delta#xi^{%d};#Delta#theta_{y}^{%d}", sect, sect ), 50, -5E-3, +5E-3, 50, -100E-6, +100E-6 );
+    h2_de_vtx_y_vs_de_th_y_[i] = subdir.make<TH2D>( Form( "h2_de_vtx_y_vs_de_th_y_%d", sect ), Form( ";#Delta#theta_{y}^{%d};#Deltavtx_{y}^{%d}", sect, sect ), 50, -100E-6, +100E-6, 50, -250E-6, +250E-6 );
 
     // prepare plots - profiles
     p_de_vtx_x_vs_xi_[i] = subdir.make<TProfile>( Form( "p_de_vtx_x_vs_xi_%d", sect ), Form( ";#xi;#Deltavtx_{x}^{%d}", sect ), 20, 0., 0.20 );
     p_de_vtx_y_vs_xi_[i] = subdir.make<TProfile>( Form( "p_de_vtx_y_vs_xi_%d", sect ), Form( ";#xi;#Deltavtx_{y}^{%d}", sect ), 20, 0., 0.20 );
-    p_de_th_x_vs_xi_[i] = subdir.make<TProfile>( Form( "p_de_th_x_vs_xi_%d", sect ), Form( ";#xi;#Deltath_{x}^{%d}", sect ), 20, 0., 0.20 );
-    p_de_th_y_vs_xi_[i] = subdir.make<TProfile>( Form( "p_de_th_y_vs_xi_%d", sect ), Form( ";#xi;#Deltath_{y}^{%d}", sect ), 20, 0., 0.20 );
+    p_de_th_x_vs_xi_[i] = subdir.make<TProfile>( Form( "p_de_th_x_vs_xi_%d", sect ), Form( ";#xi;#Delta#theta_{x}^{%d}", sect ), 20, 0., 0.20 );
+    p_de_th_y_vs_xi_[i] = subdir.make<TProfile>( Form( "p_de_th_y_vs_xi_%d", sect ), Form( ";#xi;#Delta#theta_{y}^{%d}", sect ), 20, 0., 0.20 );
     p_de_xi_vs_xi_[i] = subdir.make<TProfile>( Form( "p_de_xi_vs_xi_%d", sect ), Form( ";#xi;#Delta#xi^{%d}", sect ), 20, 0., 0.20 );
 
     i++;
   }
 }
 
-PlotsProducer::~PlotsProducer()
+ParamValidation::~ParamValidation()
 {}
 
 void
-PlotsProducer::analyze( const edm::Event& iEvent, const edm::EventSetup& )
+ParamValidation::analyze( const edm::Event& iEvent, const edm::EventSetup& )
 {
   edm::Handle< edm::View<CTPPSSimHit> > hits;
   iEvent.getByToken( hitsToken_, hits );
 
-  // run simulation
-  //
   for ( const auto& hit : *hits ) {
     m_rp_h2_y_vs_x_[hit.potId().detectorDecId()/10]->Fill( hit.getX0(), hit.getY0() );
   }
@@ -154,7 +150,7 @@ PlotsProducer::analyze( const edm::Event& iEvent, const edm::EventSetup& )
   iEvent.getByToken( genProtonsToken_, protons );
   const HepMC::GenEvent& evt = protons->getHepMCData();
   if ( evt.particles_size()>1 ) {
-    throw cms::Exception("PlotsProducer") << "Not yet supporting multiple generated protons per event";
+    throw cms::Exception("ParamValidation") << "Not yet supporting multiple generated protons per event";
   }
 
   edm::Handle< edm::View<CTPPSSimProtonTrack> > reco_protons[2];
@@ -163,19 +159,29 @@ PlotsProducer::analyze( const edm::Event& iEvent, const edm::EventSetup& )
 
   for ( HepMC::GenEvent::particle_const_iterator p=evt.particles_begin(); p!=evt.particles_end(); ++p ) {
     const HepMC::GenParticle* gen_pro = *p;
-    const double gen_xi = 1.-gen_pro->momentum().pz()/( sqrtS_*0.5 );
+    const HepMC::FourVector& gen_pos = gen_pro->production_vertex()->position();
+
+    const double gen_xi = 1.-gen_pro->momentum().e()/( sqrtS_*0.5 );
+    const double gen_th_x = atan2( gen_pro->momentum().px(), gen_pro->momentum().pz() );
+    const double gen_th_y = atan2( gen_pro->momentum().py(), gen_pro->momentum().pz() );
+    const double gen_vtx_x = gen_pos.x(), gen_vtx_y = gen_pos.y();
+
+    h_gen_vtx_x_->Fill( gen_vtx_x );
+    h_gen_vtx_y_->Fill( gen_vtx_y );
+    h_gen_th_x_->Fill( gen_th_x );
+    h_gen_th_y_->Fill( gen_th_y );
+    h_gen_xi_->Fill( gen_xi );
 
     for ( unsigned short i=0; i<2; ++i ) {
       for ( const auto& rec_pro : *reco_protons[i] ) {
-        const HepMC::FourVector& gen_pos = gen_pro->production_vertex()->position();
         const double rec_xi = rec_pro.xi();
 
-//std::cout << "--> sector " << i << ": " << gen_xi << " / " << rec_xi << std::endl;
+std::cout << "(" << reco_protons[i]->size() << ")--> sector " << i << ": " << gen_xi << " / " << rec_xi << std::endl;
 
-        const double de_vtx_x = rec_pro.vertex().x()-gen_pos.x();
-        const double de_vtx_y = rec_pro.vertex().y()-gen_pos.y();
-        const double de_th_x = rec_pro.direction().x()-gen_pro->momentum().theta();
-        const double de_th_y = rec_pro.direction().y()-gen_pro->momentum().phi(); //FIXME
+        const double de_vtx_x = rec_pro.vertex().x()-gen_vtx_x;
+        const double de_vtx_y = rec_pro.vertex().y()-gen_vtx_y;
+        const double de_th_x = rec_pro.direction().x()-gen_th_x;
+        const double de_th_y = rec_pro.direction().y()-gen_th_y;
         const double de_xi = rec_xi-gen_xi;
 
         h_de_vtx_x_[i]->Fill( de_vtx_x );
@@ -198,37 +204,32 @@ PlotsProducer::analyze( const edm::Event& iEvent, const edm::EventSetup& )
       }
     }
   }
-/*
-	// save plots
-	ProfileToRMSGraph(p_de_vtx_x_vs_xi_45, "g_rms_de_vtx_x_vs_xi_45")->Write();
-	ProfileToRMSGraph(p_de_vtx_y_vs_xi_45, "g_rms_de_vtx_y_vs_xi_45")->Write();
-	ProfileToRMSGraph(p_de_th_x_vs_xi_45, "g_rms_de_th_x_vs_xi_45")->Write();
-	ProfileToRMSGraph(p_de_th_y_vs_xi_45, "g_rms_de_th_y_vs_xi_45")->Write();
-	ProfileToRMSGraph(p_de_xi_vs_xi_45, "g_rms_de_xi_vs_xi_45")->Write();
+}
 
-	ProfileToRMSGraph(p_de_vtx_x_vs_xi_56, "g_rms_de_vtx_x_vs_xi_56")->Write();
-	ProfileToRMSGraph(p_de_vtx_y_vs_xi_56, "g_rms_de_vtx_y_vs_xi_56")->Write();
-	ProfileToRMSGraph(p_de_th_x_vs_xi_56, "g_rms_de_th_x_vs_xi_56")->Write();
-	ProfileToRMSGraph(p_de_th_y_vs_xi_56, "g_rms_de_th_y_vs_xi_56")->Write();
-	ProfileToRMSGraph(p_de_xi_vs_xi_56, "g_rms_de_xi_vs_xi_56")->Write();
+void
+ParamValidation::beginJob()
+{}
+
+void
+ParamValidation::endJob()
+{
+/*
+  ProfileToRMSGraph(p_de_vtx_x_vs_xi_45, "g_rms_de_vtx_x_vs_xi_45")->Write();
+  ProfileToRMSGraph(p_de_vtx_y_vs_xi_45, "g_rms_de_vtx_y_vs_xi_45")->Write();
+  ProfileToRMSGraph(p_de_th_x_vs_xi_45, "g_rms_de_th_x_vs_xi_45")->Write();
+  ProfileToRMSGraph(p_de_th_y_vs_xi_45, "g_rms_de_th_y_vs_xi_45")->Write();
+  ProfileToRMSGraph(p_de_xi_vs_xi_45, "g_rms_de_xi_vs_xi_45")->Write();
+
+  ProfileToRMSGraph(p_de_vtx_x_vs_xi_56, "g_rms_de_vtx_x_vs_xi_56")->Write();
+  ProfileToRMSGraph(p_de_vtx_y_vs_xi_56, "g_rms_de_vtx_y_vs_xi_56")->Write();
+  ProfileToRMSGraph(p_de_th_x_vs_xi_56, "g_rms_de_th_x_vs_xi_56")->Write();
+  ProfileToRMSGraph(p_de_th_y_vs_xi_56, "g_rms_de_th_y_vs_xi_56")->Write();
+  ProfileToRMSGraph(p_de_xi_vs_xi_56, "g_rms_de_xi_vs_xi_56")->Write();
 */
 }
 
-// ------------ method called once each job just before starting event loop  ------------
 void
-PlotsProducer::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void
-PlotsProducer::endJob()
-{
-}
-
-// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void
-PlotsProducer::fillDescriptions( edm::ConfigurationDescriptions& descriptions ) {
+ParamValidation::fillDescriptions( edm::ConfigurationDescriptions& descriptions ) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
@@ -237,6 +238,6 @@ PlotsProducer::fillDescriptions( edm::ConfigurationDescriptions& descriptions ) 
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE( PlotsProducer );
+DEFINE_FWK_MODULE( ParamValidation );
 
 

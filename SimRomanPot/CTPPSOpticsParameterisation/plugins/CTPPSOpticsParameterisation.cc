@@ -35,7 +35,6 @@
 
 #include "SimDataFormats/CTPPS/interface/CTPPSSimHit.h"
 #include "SimDataFormats/CTPPS/interface/LHCOpticsApproximator.h"
-//#include "SimDataFormats/CTPPS/interface/LHCApertureApproximator.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "CLHEP/Random/RandGauss.h"
@@ -59,10 +58,7 @@ class CTPPSOpticsParameterisation : public edm::stream::EDProducer<> {
       LHCOpticsApproximator* approximator;
     };
 
-    virtual void beginStream( edm::StreamID ) override;
     virtual void produce( edm::Event&, const edm::EventSetup& ) override;
-    virtual void endStream() override;
-
     void transportProtonTrack( const HepMC::GenParticle*, std::vector<CTPPSSimHit>& );
 
     edm::EDGetTokenT<edm::HepMCProduct> protonsToken_;
@@ -113,19 +109,16 @@ CTPPSOpticsParameterisation::CTPPSOpticsParameterisation( const edm::ParameterSe
     const double det_resol = rp.getParameter<double>( "resolution" );
     TotemRPDetId detid( TotemRPDetId::decToRawId( raw_detid*10 ) ); //FIXME
 
-    if ( detid.arm()==0 )
+    if ( detid.arm()==0 ) // sector 45 -- beam 2
       pots_.emplace_back( detid, det_resol, dynamic_cast<LHCOpticsApproximator*>( f_in_optics_beam2->Get( interp_name.c_str() ) ) );
-    if ( detid.arm()==1 )
+    if ( detid.arm()==1 ) // sector 56 -- beam 1
       pots_.emplace_back( detid, det_resol, dynamic_cast<LHCOpticsApproximator*>( f_in_optics_beam1->Get( interp_name.c_str() ) ) );
   }
 }
 
-
 CTPPSOpticsParameterisation::~CTPPSOpticsParameterisation()
 {}
 
-
-// ------------ method called to produce the data  ------------
 void
 CTPPSOpticsParameterisation::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
@@ -153,21 +146,25 @@ CTPPSOpticsParameterisation::produce( edm::Event& iEvent, const edm::EventSetup&
   iEvent.put( std::move( pOut ) );
 }
 
-//----------------------------------------------------------------------------------------------------
-
 void
 CTPPSOpticsParameterisation::transportProtonTrack( const HepMC::GenParticle* in_trk, std::vector<CTPPSSimHit>& out_hits )
 {
   /// implemented according to LHCOpticsApproximator::Transport_m_GeV
-  /// xi is positive for diffractive protons, thus proton momentum p = (1 - xi) * p_nom
-  /// horizontal component of proton momentum: p_x = th_x * (1 - xi) * p_nom
+  /// xi is positive for diffractive protons, thus proton momentum p = (1-xi) * p_nom
+  /// horizontal component of proton momentum: p_x = th_x * (1-xi) * p_nom
 
   // transport the proton into each pot
   for ( const auto& rp : pots_ ) {
     const HepMC::FourVector mom = in_trk->momentum();
+
+    // first check the side
+    if ( rp.detid.arm()==0 && mom.z()<0. ) continue;
+    if ( rp.detid.arm()==1 && mom.z()>0. ) continue;
+
     const HepMC::GenVertex* vtx = in_trk->production_vertex();
     // convert physics kinematics to the LHC reference frame
     double th_x = atan2( mom.x(), mom.z() ), th_y = atan2( mom.y(), mom.z() );
+    //if ( mom.z()<0. ) { th_x = M_PI-th_x; th_y = M_PI-th_y; } //FIXME
     double vtx_x = vtx->position().x(), vtx_y = vtx->position().y();
     if ( rp.detid.arm()==0 ) {
       th_x += halfCrossingAngleSector45_;
@@ -179,7 +176,7 @@ CTPPSOpticsParameterisation::transportProtonTrack( const HepMC::GenParticle* in_
       vtx_y += yOffsetSector56_;
     }
 
-    const double xi = 1.-mom.pz()/( sqrtS_*0.5 ); //FIXME
+    const double xi = 1.-mom.e()/( sqrtS_*0.5 );
 
     // transport proton to its corresponding RP
     double kin_in[5] = { vtx_x, th_x * ( 1.-xi ), vtx_y, th_y * ( 1.-xi ), -xi };
@@ -190,28 +187,17 @@ CTPPSOpticsParameterisation::transportProtonTrack( const HepMC::GenParticle* in_
     // stop if proton not transportable
     if ( !proton_transported ) return;
 
+    const double rp_resol = ( simulateDetectorsResolution_ ) ? rp.resolution : 0.;
+
     // simulate detector resolution
-    if ( simulateDetectorsResolution_ ) {
-      kin_out[0] += CLHEP::RandGauss::shoot( rnd_ ) * rp.resolution;
-      kin_out[2] += CLHEP::RandGauss::shoot( rnd_ ) * rp.resolution;
-    }
+    kin_out[0] += CLHEP::RandGauss::shoot( rnd_ ) * rp_resol; // vtx_x
+    kin_out[2] += CLHEP::RandGauss::shoot( rnd_ ) * rp_resol; // vtx_y
 
     // add track
-    out_hits.emplace_back( rp.detid, Local2DPoint( kin_out[0], kin_out[2] ), Local2DPoint( 12.e-6, 12.e-6 ) );
+    out_hits.emplace_back( rp.detid, Local2DPoint( kin_out[0], kin_out[2] ), Local2DPoint( rp_resol, rp_resol ) );
   }
 }
 
-// ------------ method called once each stream before processing any runs, lumis or events  ------------
-void
-CTPPSOpticsParameterisation::beginStream( edm::StreamID )
-{}
-
-// ------------ method called once each stream after processing all runs, lumis and events  ------------
-void
-CTPPSOpticsParameterisation::endStream()
-{}
-
-// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
 CTPPSOpticsParameterisation::fillDescriptions( edm::ConfigurationDescriptions& descriptions )
 {
