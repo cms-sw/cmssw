@@ -43,6 +43,9 @@ class L1TStage2uGMT : public DQMEDAnalyzer {
   bool emul;
   bool verbose;
 
+  const float etaScale_;
+  const float phiScale_;
+
   MonitorElement* ugmtBMTFBX;
   MonitorElement* ugmtBMTFnMuons;
   MonitorElement* ugmtBMTFhwPt;
