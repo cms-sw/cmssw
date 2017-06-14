@@ -20,7 +20,6 @@
 // This Class's Header --
 //-----------------------
 
-//#include "L1Trigger/L1TMuonBarrel/interface/L1MuDTQualPatternLut.h"
 #include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTQualPatternLut.h"
 
 //---------------
@@ -37,6 +36,7 @@
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "CondFormats/L1TObjects/interface/L1TriggerLutFile.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 
@@ -64,14 +64,6 @@ L1MuBMTQualPatternLut::L1MuBMTQualPatternLut() {
 //--------------
 
 L1MuBMTQualPatternLut::~L1MuBMTQualPatternLut() {
-
-  LUT::iterator iter = m_lut.begin();
-  while ( iter != m_lut.end() ) {
-    (*iter).second.second.clear(); 
-    iter++;
-  }
-
-  m_lut.clear();
 
 }
 
@@ -200,7 +192,7 @@ int L1MuBMTQualPatternLut::getCoarseEta(int sp, int adr) const {
 
   LUT::const_iterator it = m_lut.find(make_pair(sp,adr));
   if ( it == m_lut.end() ) {
-    cerr << "Error: L1MuDTQualPatternLut: no coarse eta found for address " << adr << endl;
+     edm::LogError ("L1MuBMTQualPatternLut") << "Error: L1MuBMTQualPatternLut: no coarse eta found for address " << adr << endl;
     return 0;
   }
   return (*it).second.first;
@@ -215,7 +207,7 @@ const vector<short>& L1MuBMTQualPatternLut::getQualifiedPatterns(int sp, int adr
 
   LUT::const_iterator it = m_lut.find(make_pair(sp,adr));
   if ( it == m_lut.end() ) {
-    cerr << "Error: L1MuDTQualPatternLut: no pattern list found for address " << adr << endl;
+    edm::LogError ("L1MuBMTQualPatternLut") << "Error: L1MuBMTQualPatternLut: no pattern list found for address " << adr << endl;
   }
   return (*it).second.second;
 
