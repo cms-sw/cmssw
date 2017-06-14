@@ -708,11 +708,13 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(DQMStore::IBooker& ibook, bo
   bookResolutionPlots2D(nrecHit_vs_nsimHit_rec2sim, "nrecHit_vs_nsimHit_rec2sim","nrecHit vs nsimHit (Rec2simAssoc)", nintHit,minHit,maxHit, nintHit,minHit,maxHit);
 
   if(useLogPt){
-    BinLogX(dzres_vs_pt.back()->getTH2F());
-    BinLogX(dxyres_vs_pt.back()->getTH2F());
-    BinLogX(phires_vs_pt.back()->getTH2F());
-    BinLogX(cotThetares_vs_pt.back()->getTH2F());
-    BinLogX(ptres_vs_pt.back()->getTH2F());
+    if(doResolutionPlots) {
+      BinLogX(dzres_vs_pt.back()->getTH2F());
+      BinLogX(dxyres_vs_pt.back()->getTH2F());
+      BinLogX(phires_vs_pt.back()->getTH2F());
+      BinLogX(cotThetares_vs_pt.back()->getTH2F());
+      BinLogX(ptres_vs_pt.back()->getTH2F());
+    }
     BinLogX(h_looperpT.back()->getTH1F());
     if(!doSeedPlots_) BinLogX(h_misidpT.back()->getTH1F());
     BinLogX(h_recopT.back()->getTH1F());

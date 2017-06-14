@@ -355,6 +355,12 @@ for _eraName, _postfix, _era in _relevantEras:
                [
                    "cutsRecoTracksBtvLike",
                    "cutsRecoTracksAK4PFJets"
+               ],
+               doResolutionPlotsForLabels = [
+                   "generalTracks",
+                   locals()["_generalTracksHp"+_postfix],
+                   "generalTracksPt09",
+                   "cutsRecoTracksBtvLike",
                ]
     )
     _setForEra(trackValidator.histoProducerAlgoBlock, _eraName, _era, seedingLayerSets=locals()["_seedingLayerSets"+_postfix])
@@ -370,9 +376,13 @@ trackValidatorFromPV = trackValidator.clone(
     trackCollectionForDrCalculation = "generalTracksFromPV",
     doPlotsOnlyForTruePV = True,
     doPVAssociationPlots = False,
+    doResolutionPlotsForLabels = ["disabled"],
 )
 for _eraName, _postfix, _era in _relevantEras:
-    _setForEra(trackValidatorFromPV, _eraName, _era, label = ["generalTracksFromPV"] + locals()["_selectorsFromPV"+_postfix] + ["generalTracksFromPVPt09"] + locals()["_selectorsFromPVPt09"+_postfix])
+    _setForEra(trackValidatorFromPV, _eraName, _era,
+               label = ["generalTracksFromPV"] + locals()["_selectorsFromPV"+_postfix] + ["generalTracksFromPVPt09"] + locals()["_selectorsFromPVPt09"+_postfix],
+               doResolutionPlotsForLabels = [] # for standard "FromPV" do resolution plots for all input collections as they are already limited
+    )
 
 # For fake rate of signal tracks vs. all TPs, and pileup rate of
 # signal tracks vs. non-signal TPs
@@ -384,6 +394,7 @@ trackValidatorFromPVAllTP = trackValidatorFromPV.clone(
     label_tp_fake_refvector = False,
     doSimPlots = False,
     doSimTrackPlots = False,
+    doResolutionPlotsForLabels = ["disabled"], # resolution plots are the same as in "trackValidatorFromPV"
 )
 
 # For efficiency of all TPs vs. all tracks
@@ -393,6 +404,7 @@ trackValidatorAllTPEffic = trackValidator.clone(
     doSimPlots = False,
     doRecoTrackPlots = True, # Fake rate of all tracks vs. all TPs is already included in trackValidator, but we want the reco plots for other reasons
     doPVAssociationPlots = False,
+    doResolutionPlotsForLabels = ["disabled"], # resolution plots are the same as in "trackValidator"
 )
 trackValidatorAllTPEffic.histoProducerAlgoBlock.generalTpSelector.signalOnly = False
 trackValidatorAllTPEffic.histoProducerAlgoBlock.TpSelectorForEfficiencyVsEta.signalOnly = False
@@ -530,6 +542,7 @@ for _eraName, _postfix, _era in _relevantEras:
 trackValidatorFromPVStandalone = trackValidatorFromPV.clone()
 for _eraName, _postfix, _era in _relevantEras:
     _setForEra(trackValidatorFromPVStandalone, _eraName, _era, label = trackValidatorFromPV.label + locals()["_selectorsFromPVStandalone"+_postfix] + locals()["_selectorsFromPVPt09Standalone"+_postfix])
+# do resolutions as in the standard version
 
 trackValidatorFromPVAllTPStandalone = trackValidatorFromPVAllTP.clone(
     label = trackValidatorFromPVStandalone.label.value()
@@ -591,6 +604,7 @@ _trackValidatorSeedingBuildingTrackingOnly = trackValidatorTrackingOnly.clone( #
     dodEdxPlots = False,
     doPVAssociationPlots = False,
     doSimPlots = False,
+    doResolutionPlotsForLabels = ["disabled"],
 )
 trackValidatorBuildingTrackingOnly = _trackValidatorSeedingBuildingTrackingOnly.clone(
     dirName = "Tracking/TrackBuilding/",
