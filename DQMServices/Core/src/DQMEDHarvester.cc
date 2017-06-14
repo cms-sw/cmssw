@@ -8,7 +8,7 @@
 
 DQMEDHarvester::DQMEDHarvester() {
   usesResource("DQMStore");
-  produces<DQMToken>();
+  produces<DQMToken,edm::Transition::EndLuminosityBlock>();
 }
 
 void DQMEDHarvester::endJob() {
