@@ -510,15 +510,15 @@ class GenericValidationData_CTSR(GenericValidationData):
         "removetrackhitfiltercommands": "",
         "appendtrackhitfiltercommands": "",
     }
-    def getRepMap(self):
-        result = super(GenericValidationData_CTSR, self).getRepMap()
+    def getRepMap(self, alignment=None):
+        result = super(GenericValidationData_CTSR, self).getRepMap(alignment)
 
         from trackSplittingValidation import TrackSplittingValidation
         result.update({
             "ValidationSequence": self.ValidationSequence,
             "istracksplitting": str(isinstance(self, TrackSplittingValidation)),
             "cosmics0T": str(self.cosmics0T),
-            "use_d0cut": str("Cosmics" not in self.general["trackcollection"]),  #use it for collisions only
+            "use_d0cut": str(self.use_d0cut),
         })
 
         commands = []
@@ -531,6 +531,9 @@ class GenericValidationData_CTSR(GenericValidationData):
         result["trackhitfiltercommands"] = "\n".join(commands)
 
         return result
+    @property
+    def use_d0cut(self):
+        return "Cosmics" not in self.general["trackcollection"]  #use it for collisions only
     @property
     def TrackSelectionRefitting(self):
         return configTemplates.CommonTrackSelectionRefitting
