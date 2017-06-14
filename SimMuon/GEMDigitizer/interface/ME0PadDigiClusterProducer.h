@@ -1,6 +1,15 @@
 #ifndef SimMuon_GEMDigitizer_ME0PadDigiClusterProducer_h
 #define SimMuon_GEMDigitizer_ME0PadDigiClusterProducer_h
 
+/** 
+ *  \class ME0PadDigiClusterProducer
+ *
+ *  Produces ME0 pad clusters from at most 8 adjacent ME0 pads.
+ *  Clusters are used downstream to build triggers. 
+ *  
+ *  \author Sven Dildick
+ */
+
 #include <FWCore/Framework/interface/ConsumesCollector.h>
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
