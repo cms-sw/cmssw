@@ -44,6 +44,17 @@ class ppEra_Run2_2017_trackingOnly(pp):
 
         return process
 
+    def alcaHarvesting(self, globalTag, datasetName, **args):
+
+        theCustom = 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2017_harvesting_trackingOnly'
+        if not args.has_key('customs') :
+            args['customs']=[theCustom]
+        else :
+            if not theCustom in args['customs'] :
+                args['customs'].append('TkAlMinBias')
+
+        return pp.alcaHarvesting(self, globalTag, datasetName, **args)
+
     """
     _ppEra_Run2_2017_trackingOnly
 
