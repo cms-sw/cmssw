@@ -22,6 +22,7 @@
 //---------------
 
 #include "CondFormats/Serialization/interface/Serializable.h"
+#include "CondFormats/L1TObjects/interface/L1TriggerLutFile.h"
 
 #include <vector>
 #include <map>
@@ -63,6 +64,8 @@ class L1MuBMTQualPatternLut {
 
     /// print look-up tables
     void print() const;
+
+    int getIgnoredLines(L1TriggerLutFile file) const;
 
     /// get coarse eta value for a given sector processor [1-6] and address [1-22]
     int getCoarseEta(int sp, int adr) const;

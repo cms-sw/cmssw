@@ -94,14 +94,8 @@ int L1MuBMTQualPatternLut::load() {
 
   // loop over all sector processors
   for ( int sp = 0; sp < 6; sp++ ) { 
-    switch ( sp ) {
-      case 0  : { emu_str = "QualPatternList_SP1"; break; }
-      case 1  : { emu_str = "QualPatternList_SP2"; break; }
-      case 2  : { emu_str = "QualPatternList_SP3"; break; }
-      case 3  : { emu_str = "QualPatternList_SP4"; break; }
-      case 4  : { emu_str = "QualPatternList_SP5"; break; }
-      case 5  : { emu_str = "QualPatternList_SP6"; break; }
-    }  
+
+    emu_str="QualPatternList_SP"+std::to_string(sp);
   
     // assemble file name
     edm::FileInPath lut_f = edm::FileInPath(string(defaultPath + eau_dir + emu_str + ".lut"));
@@ -114,7 +108,8 @@ int L1MuBMTQualPatternLut::load() {
     //                                         << file.getName() << endl; 
 
     // ignore comment lines 
-    file.ignoreLines(14);
+    int skip2=getIgnoredLines(file);
+    file.ignoreLines(skip2);
 
     // read file
     while ( file.good() ) {
@@ -127,6 +122,8 @@ int L1MuBMTQualPatternLut::load() {
       if ( !file.good() ) break;
 
       vector<short> patternlist;
+      patternlist.reserve(num);
+
       for ( int i = 0; i < num; i++ ) {
         int pattern = file.readInteger();
         patternlist.push_back(pattern);
@@ -211,4 +208,18 @@ const vector<short>& L1MuBMTQualPatternLut::getQualifiedPatterns(int sp, int adr
   }
   return (*it).second.second;
 
+}
+
+int L1MuBMTQualPatternLut::getIgnoredLines(L1TriggerLutFile file) const{
+   if ( file.open() != 0 ) return -1;
+   int skip=0;
+   while ( file.good() ) {
+
+     string str=file.readString();
+     if (str.find("#")==0) skip+=1;
+           //cout<<"here "<<str<<" found "<<str.find("#")<<endl;
+           if ( !file.good() ) { file.close(); break; }
+     }
+     file.close();
+     return skip;
 }
