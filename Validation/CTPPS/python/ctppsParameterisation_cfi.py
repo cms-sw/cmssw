@@ -7,7 +7,7 @@ ctppsParameterisation = cms.EDAnalyzer('CTPPSParameterisation',
     genProtonsTag = cms.InputTag('lhcBeamProducer', 'unsmeared'),
     recoProtons45Tag = cms.InputTag('ctppsOpticsReconstruction', 'sector45'),
     recoProtons56Tag = cms.InputTag('ctppsOpticsReconstruction', 'sector56'),
-    potsHitsTag = cms.InputTag('ctppsOpticsParameterisation'),
+    potsTracksTag = cms.InputTag('ctppsOpticsParameterisation'),
     detectorPackages = detectorPackages_2016PreTS2,
     beamConditions = lhcBeamConditions_2016PreTS2,
 )

@@ -29,9 +29,9 @@
 #include "FWCore/Utilities/interface/StreamID.h"
 
 #include "DataFormats/Common/interface/View.h"
+#include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
 
 #include "SimDataFormats/CTPPS/interface/CTPPSSimProtonTrack.h"
-#include "SimDataFormats/CTPPS/interface/CTPPSSimHit.h"
 #include "SimDataFormats/CTPPS/interface/LHCOpticsApproximator.h"
 
 #include "SimRomanPot/CTPPSOpticsParameterisation/interface/ProtonReconstructionAlgorithm.h"
@@ -45,9 +45,9 @@ class CTPPSOpticsReconstruction : public edm::stream::EDProducer<> {
 
   private:
     virtual void produce( edm::Event&, const edm::EventSetup& ) override;
-    void transportProtonTrack( const CTPPSSimProtonTrack&, std::vector<CTPPSSimHit>& );
+    void transportProtonTrack( const CTPPSSimProtonTrack&, std::vector<CTPPSLocalTrackLite>& );
 
-    edm::EDGetTokenT< edm::View<CTPPSSimHit> > hitsToken_;
+    edm::EDGetTokenT< edm::View<CTPPSLocalTrackLite> > hitsToken_;
 
     edm::ParameterSet beamConditions_;
 
@@ -62,7 +62,7 @@ class CTPPSOpticsReconstruction : public edm::stream::EDProducer<> {
 };
 
 CTPPSOpticsReconstruction::CTPPSOpticsReconstruction( const edm::ParameterSet& iConfig ) :
-  hitsToken_( consumes< edm::View<CTPPSSimHit> >( iConfig.getParameter<edm::InputTag>( "potsHitsTag" ) ) ),
+  hitsToken_( consumes< edm::View<CTPPSLocalTrackLite> >( iConfig.getParameter<edm::InputTag>( "potsHitsTag" ) ) ),
   beamConditions_( iConfig.getParameter<edm::ParameterSet>( "beamConditions" ) ),
   checkApertures_( iConfig.getParameter<bool>( "checkApertures" ) ),
   invertBeamCoordinatesSystem_( iConfig.getParameter<bool>( "invertBeamCoordinatesSystem" ) ),
@@ -101,7 +101,7 @@ CTPPSOpticsReconstruction::produce( edm::Event& iEvent, const edm::EventSetup& i
   std::unique_ptr< std::vector<CTPPSSimProtonTrack> > pOut45( new std::vector<CTPPSSimProtonTrack> );
   std::unique_ptr< std::vector<CTPPSSimProtonTrack> > pOut56( new std::vector<CTPPSSimProtonTrack> );
 
-  edm::Handle< edm::View<CTPPSSimHit> > hits;
+  edm::Handle< edm::View<CTPPSLocalTrackLite> > hits;
   iEvent.getByToken( hitsToken_, hits );
 
   // run reconstruction

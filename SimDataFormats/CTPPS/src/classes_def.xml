@@ -17,14 +17,4 @@
   <class name="edm::Ptr<CTPPSSimProtonTrack>"/>
   <class name="std::vector< edm::Ptr<CTPPSSimProtonTrack> >"/>
   <class name="edm::Wrapper< std::vector<CTPPSSimProtonTrack> >"/>
-
-  <!-- hits as observed in RPs -->
-  <class name="CTPPSSimHit" ClassVersion="11">
-    <version ClassVersion="11" checksum="2472350513"/>
-  </class>
-  <class name="std::vector<CTPPSSimHit>"/>
-  <class name="edm::View<CTPPSSimHit>"/>
-  <class name="edm::Ptr<CTPPSSimHit>"/>
-  <class name="std::vector< edm::Ptr<CTPPSSimHit> >"/>
-  <class name="edm::Wrapper< std::vector<CTPPSSimHit> >"/>
 </lcgdict>

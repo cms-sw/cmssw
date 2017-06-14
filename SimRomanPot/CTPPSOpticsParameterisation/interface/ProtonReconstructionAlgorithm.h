@@ -6,11 +6,11 @@
 
 #include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
+#include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
 
 #include "SimDataFormats/CTPPS/interface/LHCOpticsApproximator.h"
 //#include "SimDataFormats/CTPPS/interface/LHCApertureApproximator.h"
 #include "SimDataFormats/CTPPS/interface/CTPPSSimProtonTrack.h"
-#include "SimDataFormats/CTPPS/interface/CTPPSSimHit.h"
 
 #include "TFile.h"
 #include "TSpline.h"
@@ -29,7 +29,7 @@ class ProtonReconstructionAlgorithm
     ProtonReconstructionAlgorithm( const edm::ParameterSet&, std::unordered_map<unsigned int, std::string>, const std::string&, bool, bool );
     ~ProtonReconstructionAlgorithm();
 
-    void reconstruct( const std::vector< edm::Ptr<CTPPSSimHit> >& tracks, std::vector<CTPPSSimProtonTrack>& reco ) const;
+    void reconstruct( const std::vector< edm::Ptr<CTPPSLocalTrackLite> >& tracks, std::vector<CTPPSSimProtonTrack>& reco ) const;
 
   private:
     /// optics data associated with 1 RP
@@ -56,7 +56,7 @@ class ProtonReconstructionAlgorithm
           check_apertures( aper ), invert_beam_coord_systems( invert ) {}
         double operator() ( const double* ) const;
 
-        const std::vector< edm::Ptr<CTPPSSimHit> >* tracks;
+        const std::vector< edm::Ptr<CTPPSLocalTrackLite> >* tracks;
         const std::map<TotemRPDetId,RPOpticsData>* m_rp_optics;
 
       private:

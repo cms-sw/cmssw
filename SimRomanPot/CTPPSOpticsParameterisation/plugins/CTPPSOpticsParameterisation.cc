@@ -32,8 +32,8 @@
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 #include "DataFormats/Common/interface/View.h"
+#include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
 
-#include "SimDataFormats/CTPPS/interface/CTPPSSimHit.h"
 #include "SimDataFormats/CTPPS/interface/LHCOpticsApproximator.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
@@ -59,7 +59,7 @@ class CTPPSOpticsParameterisation : public edm::stream::EDProducer<> {
     };
 
     virtual void produce( edm::Event&, const edm::EventSetup& ) override;
-    void transportProtonTrack( const HepMC::GenParticle*, std::vector<CTPPSSimHit>& );
+    void transportProtonTrack( const HepMC::GenParticle*, std::vector<CTPPSLocalTrackLite>& );
 
     edm::EDGetTokenT<edm::HepMCProduct> protonsToken_;
 
@@ -97,7 +97,7 @@ CTPPSOpticsParameterisation::CTPPSOpticsParameterisation( const edm::ParameterSe
   detectorPackages_           ( iConfig.getParameter< std::vector<edm::ParameterSet> >( "detectorPackages" ) ),
   rnd_( 0 )
 {
-  produces< std::vector<CTPPSSimHit> >();
+  produces< std::vector<CTPPSLocalTrackLite> >();
 
   auto f_in_optics_beam1 = std::make_unique<TFile>( opticsFileBeam1_.fullPath().c_str() ),
        f_in_optics_beam2 = std::make_unique<TFile>( opticsFileBeam2_.fullPath().c_str() );
@@ -122,7 +122,7 @@ CTPPSOpticsParameterisation::~CTPPSOpticsParameterisation()
 void
 CTPPSOpticsParameterisation::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-  std::unique_ptr< std::vector<CTPPSSimHit> > pOut( new std::vector<CTPPSSimHit> );
+  std::unique_ptr< std::vector<CTPPSLocalTrackLite> > pOut( new std::vector<CTPPSLocalTrackLite> );
 
   if ( simulateDetectorsResolution_ ) {
     edm::Service<edm::RandomNumberGenerator> rng;
@@ -135,11 +135,11 @@ CTPPSOpticsParameterisation::produce( edm::Event& iEvent, const edm::EventSetup&
 
   // run simulation
   for ( HepMC::GenEvent::particle_const_iterator p=evt.particles_begin(); p!=evt.particles_end(); ++p ) {
-    std::vector<CTPPSSimHit> hits;
-    transportProtonTrack( *p, hits );
-    //FIXME add an association map proton track <-> sim hits
-    for ( const auto& hit : hits ) {
-      pOut->push_back( hit );
+    std::vector<CTPPSLocalTrackLite> tracks;
+    transportProtonTrack( *p, tracks );
+    //FIXME add an association map proton track <-> sim tracks
+    for ( const auto& trk : tracks ) {
+      pOut->push_back( trk );
     }
   }
 
@@ -147,7 +147,7 @@ CTPPSOpticsParameterisation::produce( edm::Event& iEvent, const edm::EventSetup&
 }
 
 void
-CTPPSOpticsParameterisation::transportProtonTrack( const HepMC::GenParticle* in_trk, std::vector<CTPPSSimHit>& out_hits )
+CTPPSOpticsParameterisation::transportProtonTrack( const HepMC::GenParticle* in_trk, std::vector<CTPPSLocalTrackLite>& out_tracks )
 {
   /// implemented according to LHCOpticsApproximator::Transport_m_GeV
   /// xi is positive for diffractive protons, thus proton momentum p = (1-xi) * p_nom
@@ -164,7 +164,7 @@ CTPPSOpticsParameterisation::transportProtonTrack( const HepMC::GenParticle* in_
     const HepMC::GenVertex* vtx = in_trk->production_vertex();
     // convert physics kinematics to the LHC reference frame
     double th_x = atan2( mom.x(), mom.z() ), th_y = atan2( mom.y(), mom.z() );
-    //if ( mom.z()<0. ) { th_x = M_PI-th_x; th_y = M_PI-th_y; } //FIXME
+    if ( mom.z()<0. ) { th_x = M_PI-th_x; th_y = M_PI-th_y; }
     double vtx_x = vtx->position().x(), vtx_y = vtx->position().y();
     if ( rp.detid.arm()==0 ) {
       th_x += halfCrossingAngleSector45_;
@@ -194,7 +194,7 @@ CTPPSOpticsParameterisation::transportProtonTrack( const HepMC::GenParticle* in_
     kin_out[2] += CLHEP::RandGauss::shoot( rnd_ ) * rp_resol; // vtx_y
 
     // add track
-    out_hits.emplace_back( rp.detid, Local2DPoint( kin_out[0], kin_out[2] ), Local2DPoint( rp_resol, rp_resol ) );
+    out_tracks.emplace_back( rp.detid, kin_out[0], rp_resol, kin_out[2], rp_resol );
   }
 }
 

@@ -31,9 +31,9 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "DataFormats/Common/interface/View.h"
+#include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
 
 #include "SimDataFormats/CTPPS/interface/CTPPSSimProtonTrack.h"
-#include "SimDataFormats/CTPPS/interface/CTPPSSimHit.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
@@ -59,7 +59,7 @@ class CTPPSParameterisation : public edm::one::EDAnalyzer<edm::one::SharedResour
 
     edm::EDGetTokenT<edm::HepMCProduct> genProtonsToken_;
     edm::EDGetTokenT< edm::View<CTPPSSimProtonTrack> > recoProtons45Token_, recoProtons56Token_;
-    edm::EDGetTokenT< edm::View<CTPPSSimHit> > hitsToken_;
+    edm::EDGetTokenT< edm::View<CTPPSLocalTrackLite> > tracksToken_;
 
     //edm::ParameterSet beamConditions_;
     double sqrtS_;
@@ -81,7 +81,7 @@ CTPPSParameterisation::CTPPSParameterisation( const edm::ParameterSet& iConfig )
   genProtonsToken_   ( consumes<edm::HepMCProduct>( iConfig.getParameter<edm::InputTag>( "genProtonsTag" ) ) ),
   recoProtons45Token_( consumes< edm::View<CTPPSSimProtonTrack> >( iConfig.getParameter<edm::InputTag>( "recoProtons45Tag" ) ) ),
   recoProtons56Token_( consumes< edm::View<CTPPSSimProtonTrack> >( iConfig.getParameter<edm::InputTag>( "recoProtons56Tag" ) ) ),
-  hitsToken_         ( consumes< edm::View<CTPPSSimHit> >( iConfig.getParameter<edm::InputTag>( "potsHitsTag" ) ) ),
+  tracksToken_       ( consumes< edm::View<CTPPSSimHit> >( iConfig.getParameter<edm::InputTag>( "potsTracksTag" ) ) ),
   //beamConditions_  ( iConfig.getParameter<edm::ParameterSet>( "beamConditions" ) ),
   sqrtS_           ( iConfig.getParameter<edm::ParameterSet>( "beamConditions" ).getParameter<double>( "sqrtS" ) ),
   detectorPackages_( iConfig.getParameter< std::vector<edm::ParameterSet> >( "detectorPackages" ) )
@@ -139,10 +139,11 @@ void
 CTPPSParameterisation::analyze( const edm::Event& iEvent, const edm::EventSetup& )
 {
   edm::Handle< edm::View<CTPPSSimHit> > hits;
-  iEvent.getByToken( hitsToken_, hits );
+  iEvent.getByToken( tracksToken_, tracks );
 
-  for ( const auto& hit : *hits ) {
-    m_rp_h2_y_vs_x_[hit.potId().detectorDecId()/10]->Fill( hit.getX0(), hit.getY0() );
+  for ( const auto& trk : *tracks ) {
+    const TotemRPDetId det_id( trk.getRPId() );
+    m_rp_h2_y_vs_x_[det_id.detectorDecId()/10]->Fill( trk.getX(), trk.getY() );
   }
 
   edm::Handle<edm::HepMCProduct> protons;

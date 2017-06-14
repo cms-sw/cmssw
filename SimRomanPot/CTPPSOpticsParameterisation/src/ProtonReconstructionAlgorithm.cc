@@ -93,31 +93,31 @@ ProtonReconstructionAlgorithm::~ProtonReconstructionAlgorithm()
 //----------------------------------------------------------------------------------------------------
 
 void
-ProtonReconstructionAlgorithm::reconstruct( const std::vector< edm::Ptr<CTPPSSimHit> >& hits, std::vector<CTPPSSimProtonTrack>& out ) const
+ProtonReconstructionAlgorithm::reconstruct( const std::vector< edm::Ptr<CTPPSLocalTrackLite> >& tracks, std::vector<CTPPSSimProtonTrack>& out ) const
 {
-  if ( hits.size()<2 ) return;
+  if ( tracks.size()<2 ) return;
   out.clear();
 
   // first loop to extract a rough estimate of xi (mean of all xi's)
   double sum_xi0 = 0.;
-  unsigned int num_hits = 0;
+  unsigned int num_tracks = 0;
 
-  for ( const auto& hit : hits ) {
+  for ( const auto& trk : tracks ) {
     // find the associated RP/parameterisation and interpolate xi from x
-    auto oit = m_rp_optics_.find( hit->potId() );
+    auto oit = m_rp_optics_.find( TotemRPDetId( trk->getRPId() ) );
     if ( oit==m_rp_optics_.end() ) continue;
-    sum_xi0 += oit->second.s_xi_vs_x->Eval( hit->getX0() );
-    num_hits++;
+    sum_xi0 += oit->second.s_xi_vs_x->Eval( trk->getX() );
+    num_tracks++;
   }
-  const double xi_0 = sum_xi0 / num_hits;
+  const double xi_0 = sum_xi0 / num_tracks;
 
-  { //FIXME replace with a loop over all hits to reconstruct tracks!
+  { //FIXME replace with a loop over all pots tracks to reconstruct tracks!
     // second loop to extract a rough estimate of th_y and vtx_y
     double y[2], v_y[2], L_y[2];
     unsigned int y_idx = 0;
-    for ( const auto& hit : hits ) {
+    for ( const auto& trk : tracks ) {
       if ( y_idx>1 ) break;
-      auto oit = m_rp_optics_.find( hit->potId() );
+      auto oit = m_rp_optics_.find( TotemRPDetId( hit->getRPId() ) );
       if ( oit==m_rp_optics_.end() ) continue;
 
       y[y_idx] = hit->getY0()-oit->second.s_y0_vs_xi->Eval( xi_0 );
@@ -137,7 +137,7 @@ ProtonReconstructionAlgorithm::reconstruct( const std::vector< edm::Ptr<CTPPSSim
     fitter_->Config().ParSettings( 2 ).Set( "th_y", th_y_0, 1.e-6 );
     fitter_->Config().ParSettings( 3 ).Set( "vtx_y", vtx_y_0, 1.e-6 );
 
-    chiSquareCalculator_->tracks = &hits;
+    chiSquareCalculator_->tracks = &tracks;
     chiSquareCalculator_->m_rp_optics = &m_rp_optics_;
 
     fitter_->FitFCN();
@@ -201,9 +201,9 @@ ProtonReconstructionAlgorithm::ChiSquareCalculator::operator() ( const double* p
     const double& x = kin_out[0];
     const double& y = kin_out[2];
 
-    // calculate chi^2 constributions
-    const double x_diff_norm = ( x-hit->getX0() ) / hit->getX0Sigma();
-    const double y_diff_norm = ( y-hit->getY0() ) / hit->getY0Sigma();
+    // calculate chi^2 contributions
+    const double x_diff_norm = ( x-hit->getX() ) / hit->getXUnc();
+    const double y_diff_norm = ( y-hit->getY() ) / hit->getYUnc();
 
     // increase chi^2
     S2 += x_diff_norm*x_diff_norm + y_diff_norm*y_diff_norm;
