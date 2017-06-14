@@ -95,7 +95,7 @@ int L1MuBMTQualPatternLut::load() {
   // loop over all sector processors
   for ( int sp = 0; sp < 6; sp++ ) { 
 
-    emu_str="QualPatternList_SP"+std::to_string(sp);
+    emu_str="QualPatternList_SP"+std::to_string(sp+1);
   
     // assemble file name
     edm::FileInPath lut_f = edm::FileInPath(string(defaultPath + eau_dir + emu_str + ".lut"));
