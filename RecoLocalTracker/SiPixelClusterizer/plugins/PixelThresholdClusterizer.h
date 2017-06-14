@@ -65,12 +65,14 @@ class dso_hidden PixelThresholdClusterizer final : public PixelClusterizerBase {
   // Full I/O in DetSet
   void clusterizeDetUnit( const edm::DetSet<PixelDigi> & input,	
 				  const PixelGeomDetUnit * pixDet,
+				  const TrackerTopology* tTopo,
 				  const std::vector<short>& badChannels,
-				  edmNew::DetSetVector<SiPixelCluster>::FastFiller& output) { clusterizeDetUnitT(input, pixDet, badChannels, output); }
+				  edmNew::DetSetVector<SiPixelCluster>::FastFiller& output) { clusterizeDetUnitT(input, pixDet, tTopo, badChannels, output); }
   void clusterizeDetUnit( const edmNew::DetSet<SiPixelCluster> & input,
                           const PixelGeomDetUnit * pixDet,
+                          const TrackerTopology* tTopo,
                           const std::vector<short>& badChannels,
-                          edmNew::DetSetVector<SiPixelCluster>::FastFiller& output) { clusterizeDetUnitT(input, pixDet, badChannels, output); }
+                          edmNew::DetSetVector<SiPixelCluster>::FastFiller& output) { clusterizeDetUnitT(input, pixDet, tTopo, badChannels, output); }
 
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
@@ -79,6 +81,7 @@ class dso_hidden PixelThresholdClusterizer final : public PixelClusterizerBase {
   template<typename T>
   void clusterizeDetUnitT( const T & input,
                            const PixelGeomDetUnit * pixDet,
+			   const TrackerTopology* tTopo,
                            const std::vector<short>& badChannels,
                            edmNew::DetSetVector<SiPixelCluster>::FastFiller& output);
 
@@ -110,6 +113,7 @@ class dso_hidden PixelThresholdClusterizer final : public PixelClusterizerBase {
   int  theNumOfRows;
   int  theNumOfCols;
   uint32_t detid_;
+  int layer_;
   bool dead_flag;
   const bool doMissCalibrate; // Use calibration or not
   const bool doSplitClusters;
