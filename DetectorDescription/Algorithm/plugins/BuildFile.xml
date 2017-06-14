@@ -1,4 +1,4 @@
-<library file="module.cc" name="DetectorDescriptionAlgorithmPlugins">
+<library file="*.cc" name="DetectorDescriptionAlgorithmPlugins">
  <use name="DetectorDescription/Algorithm"/>
 </library>
 <flags   EDM_PLUGIN="1"/>
