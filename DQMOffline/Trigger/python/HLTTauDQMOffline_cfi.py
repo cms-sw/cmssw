@@ -584,5 +584,50 @@ hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
             numerator   = TriggerSelectionParameters(cms.vstring('HLT_MediumChargedIsoPFTau50_Trk30_eta2p1_1pr_MET100_v*')),
             denominator = TriggerSelectionParameters(cms.vstring('HLT_MediumChargedIsoPFTau50_Trk30_eta2p1_1pr_v*'))
         ),
+        cms.untracked.PSet(
+            name        = cms.string('IsoMu20_eta2p1'),
+            xvariable   = cms.string('Muon'),
+            nPtBins     = cms.int32(20),
+            ptmin       = cms.double(0.),
+            ptmax       = cms.double(200.),
+            nEtaBins    = cms.int32(20),
+            etamin      = cms.double(-2.5),  
+            etamax      = cms.double(2.5),
+            nPhiBins    = cms.int32(20),
+            phimin      = cms.double(-3.14),
+            phimax      = cms.double(3.14),
+            numerator   = TriggerSelectionParameters(cms.vstring('HLT_DoubleIsoMu20_eta2p1_v*')),
+            denominator = TriggerSelectionParameters(cms.vstring('HLT_IsoMu24_eta2p1_v*'))
+        ),
+        cms.untracked.PSet(
+            name        = cms.string('IsoMu24_eta2p1'),
+            xvariable   = cms.string('Muon'),
+            nPtBins     = cms.int32(20),  
+            ptmin       = cms.double(0.),  
+            ptmax       = cms.double(200.),
+            nEtaBins    = cms.int32(20),
+            etamin      = cms.double(-2.5),  
+            etamax      = cms.double(2.5), 
+            nPhiBins    = cms.int32(20),   
+            phimin      = cms.double(-3.14),
+            phimax      = cms.double(3.14),
+            numerator   = TriggerSelectionParameters(cms.vstring('HLT_DoubleIsoMu24_eta2p1_v*')),                                                        
+            denominator = TriggerSelectionParameters(cms.vstring('HLT_IsoMu24_eta2p1_v*'))
+        ),
+        cms.untracked.PSet(
+            name        = cms.string('Ele24_eta2p1_WPTight_Gsf'),
+            xvariable   = cms.string('Electron'),
+            nPtBins     = cms.int32(20),   
+            ptmin       = cms.double(0.),
+            ptmax       = cms.double(200.),
+            nEtaBins    = cms.int32(20),
+            etamin      = cms.double(-2.5),  
+            etamax      = cms.double(2.5), 
+            nPhiBins    = cms.int32(20),   
+            phimin      = cms.double(-3.14),
+            phimax      = cms.double(3.14),
+            numerator   = TriggerSelectionParameters(cms.vstring('HLT_DoubleEle24_eta2p1_WPTight_Gsf_v*')),
+            denominator = TriggerSelectionParameters(cms.vstring('HLT_Ele27_eta2p1_WPTight_Gsf_v*'))
+        )
     )
 )
