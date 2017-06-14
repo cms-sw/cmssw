@@ -23,8 +23,6 @@
 #include "L1Trigger/L1TCommon/interface/Parameter.h"
 #include "L1Trigger/L1TCommon/interface/Mask.h"
 
-//#include "CondFormats/L1TObjects/interface/L1MuDTQualPatternLut.h"
-//#include "CondFormats/L1TObjects/interface/L1MuDTEtaPatternLut.h"
 #include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTQualPatternLut.h"
 #include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTEtaPatternLut.h"
 
