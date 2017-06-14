@@ -9,6 +9,7 @@
 
 #include "DataFormats/GEMDigi/interface/ME0TriggerDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/ME0PadDigiCollection.h"
+#include "DataFormats/GEMDigi/interface/ME0PadDigiClusterCollection.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class ME0Motherboard;
@@ -27,10 +28,16 @@ class ME0TriggerBuilder
   ~ME0TriggerBuilder();
 
   /** Build Triggers in each chamber and fill them into output collections. */
+  void build(const ME0PadDigiClusterCollection* me0Pads, ME0TriggerDigiCollection& oc_trig);
+
+  /** Build Triggers in each chamber and fill them into output collections. */
   void build(const ME0PadDigiCollection* me0Pads, ME0TriggerDigiCollection& oc_trig);
   
   /** set geometry for the matching needs */
   void setME0Geometry(const ME0Geometry *g) { me0_g = g; }
+
+  // declusterizes the clusters into single pad digis
+  void declusterize(const ME0PadDigiClusterCollection*, ME0PadDigiCollection&);
 
   /** Max values of trigger labels for all ME0s; 
    *  used to construct TMB processors. 

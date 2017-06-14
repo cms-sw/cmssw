@@ -31,6 +31,14 @@ ME0TriggerBuilder::~ME0TriggerBuilder()
 {
 }
 
+void ME0TriggerBuilder::build(const ME0PadDigiClusterCollection* me0Clusters,
+			      ME0TriggerDigiCollection& oc_trig)
+{
+  std::unique_ptr<ME0PadDigiCollection> me0Pads(new ME0PadDigiCollection());
+  declusterize(me0Clusters, *me0Pads);
+  build(me0Pads.get(), oc_trig);
+}
+
 void ME0TriggerBuilder::build(const ME0PadDigiCollection* me0Pads,
 			      ME0TriggerDigiCollection& oc_trig)
 {
@@ -61,5 +69,21 @@ void ME0TriggerBuilder::build(const ME0PadDigiCollection* me0Pads,
 	oc_trig.put(std::make_pair(trigV.begin(),trigV.end()), detid);
       }
     } 
+  }
+}
+
+void
+ME0TriggerBuilder::declusterize(const ME0PadDigiClusterCollection* in_clusters,
+				ME0PadDigiCollection& out_pads)
+{
+  ME0PadDigiClusterCollection::DigiRangeIterator detUnitIt;
+  for (detUnitIt = in_clusters->begin();detUnitIt != in_clusters->end(); ++detUnitIt) {
+    const ME0DetId& id = (*detUnitIt).first;
+    const ME0PadDigiClusterCollection::Range& range = (*detUnitIt).second;
+    for (ME0PadDigiClusterCollection::const_iterator digiIt = range.first; digiIt!=range.second; ++digiIt) {
+      for (auto p: digiIt->pads()){
+	out_pads.insertDigi(id, ME0PadDigi(p, digiIt->bx()));
+      }
+    }
   }
 }
