@@ -377,6 +377,24 @@ fullyhadronic_DoubleBTag_bjet.histoPSet.HTBinning    = cms.vdouble(0,420,440,460
 fullyhadronic_DoubleBTag_bjet.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT380_SixJet32_DoubleBTagCSV_p075_v*')
 fullyhadronic_DoubleBTag_bjet.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT380_SixJet32_v*')
 
+fullyhadronic_DoubleBTag_ref = hltTOPmonitoring.clone()
+fullyhadronic_DoubleBTag_ref.FolderName   = cms.string('HLT/TopHLTOffline/TopMonitor/FullyHadronic/DoubleBTag/RefMonitor/')
+# Selections
+fullyhadronic_DoubleBTag_ref.leptJetDeltaRmin = cms.double(0.0)
+fullyhadronic_DoubleBTag_ref.njets            = cms.uint32(6)
+fullyhadronic_DoubleBTag_ref.jetSelection     = cms.string('pt>30 & abs(eta)<2.4')
+fullyhadronic_DoubleBTag_ref.HTdefinition     = cms.string('pt>30 & abs(eta)<2.4')
+fullyhadronic_DoubleBTag_ref.HTcut            = cms.double(360)
+fullyhadronic_DoubleBTag_ref.nbjets           = cms.uint32(0)
+fullyhadronic_DoubleBTag_ref.bjetSelection    = cms.string('pt>30 & abs(eta)<2.4')
+fullyhadronic_DoubleBTag_ref.workingpoint     = cms.double(0.70)
+# Binning
+fullyhadronic_DoubleBTag_ref.histoPSet.htPSet = cms.PSet(nbins=cms.uint32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
+fullyhadronic_DoubleBTag_ref.histoPSet.jetPtBinning = cms.vdouble(0,30,35,40,45,50,55,60,65,70,75,80,90,100,120,200,400)
+fullyhadronic_DoubleBTag_ref.histoPSet.HTBinning    = cms.vdouble(0,360,380,400,420,440,460,480,500,520,540,560,580,600,650,700,750,800,850,900)
+# Triggers
+fullyhadronic_DoubleBTag_ref.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT380_SixJet32_v*')
+fullyhadronic_DoubleBTag_ref.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_IsoMu27_v*')
 
 fullyhadronic_SingleBTag_all = hltTOPmonitoring.clone()
 fullyhadronic_SingleBTag_all.FolderName= cms.string('HLT/TopHLTOffline/TopMonitor/FullyHadronic/SingleBTag/GlobalMonitor/')
@@ -435,6 +453,24 @@ fullyhadronic_SingleBTag_bjet.histoPSet.HTBinning    = cms.vdouble(0,420,440,460
 fullyhadronic_SingleBTag_bjet.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT430_SixJet40_BTagCSV_p080_v*')
 fullyhadronic_SingleBTag_bjet.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT430_SixJet40_v*')
 
+fullyhadronic_SingleBTag_ref = hltTOPmonitoring.clone()
+fullyhadronic_SingleBTag_ref.FolderName= cms.string('HLT/TopHLTOffline/TopMonitor/FullyHadronic/SingleBTag/RefMonitor/')
+# Selection
+fullyhadronic_SingleBTag_ref.leptJetDeltaRmin = cms.double(0.0)
+fullyhadronic_SingleBTag_ref.njets            = cms.uint32(6)
+fullyhadronic_SingleBTag_ref.jetSelection     = cms.string('pt>30 & abs(eta)<2.4')
+fullyhadronic_SingleBTag_ref.HTdefinition     = cms.string('pt>30 & abs(eta)<2.4')
+fullyhadronic_SingleBTag_ref.HTcut            = cms.double(400)
+fullyhadronic_SingleBTag_ref.nbjets           = cms.uint32(0)
+fullyhadronic_SingleBTag_ref.bjetSelection    = cms.string('pt>30 & abs(eta)<2.4')
+fullyhadronic_SingleBTag_ref.workingpoint     = cms.double(0.70)
+# Binning
+fullyhadronic_SingleBTag_ref.histoPSet.htPSet = cms.PSet(nbins=cms.uint32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
+fullyhadronic_SingleBTag_ref.histoPSet.jetPtBinning = cms.vdouble(0,30,35,40,45,50,55,60,65,70,75,80,90,100,120,200,400)
+fullyhadronic_SingleBTag_ref.histoPSet.HTBinning    = cms.vdouble(0,400,420,440,460,480,500,520,540,560,580,600,650,700,750,800,850,900)
+# Triggers
+fullyhadronic_SingleBTag_ref.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT430_SixJet40_v*')
+fullyhadronic_SingleBTag_ref.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_IsoMu27_v*')
 
 # TripleBTag
 fullyhadronic_TripleBTag_all = hltTOPmonitoring.clone()
@@ -517,9 +553,11 @@ topMonitorHLT = cms.Sequence(
     + fullyhadronic_DoubleBTag_all
     + fullyhadronic_DoubleBTag_jet
     + fullyhadronic_DoubleBTag_bjet
+    + fullyhadronic_DoubleBTag_ref
     + fullyhadronic_SingleBTag_all
     + fullyhadronic_SingleBTag_jet
     + fullyhadronic_SingleBTag_bjet
+    + fullyhadronic_SingleBTag_ref
     + fullyhadronic_TripleBTag_all
     + fullyhadronic_TripleBTag_jet
     + fullyhadronic_TripleBTag_bjet
