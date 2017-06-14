@@ -67,7 +67,7 @@ class OfflineValidation(GenericValidationData_CTSR, ParallelValidation, Validati
         return super(OfflineValidation, self).createCrabCfg(path, self.crabCfgBaseName)
 
     def getRepMap(self, alignment = None):
-        repMap = super(OfflineValidation, self).getRepMap()
+        repMap = super(OfflineValidation, self).getRepMap(alignment)
         repMap.update({
             "nEvents": self.general["maxevents"],
             "offlineValidationMode": "Standalone",
