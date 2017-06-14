@@ -35,7 +35,7 @@ PFHT800_HTmonitoring.jetSelection = cms.string("pt > 0")
 PFHT800_HTmonitoring.jetSelection_HT =  cms.string("pt > 10 && eta < 2.5")
 
 b2gMonitorHLT = cms.Sequence(
-    AK8PFHT700_HTmonitoring,
+    AK8PFHT700_HTmonitoring
     + AK8PFJet360_TrimMass30_PromptMonitoring
     + PFHT650_WideJetMJJ900DEtaJJ1p5_HTmonitoring
     + PFHT800_HTmonitoring
