@@ -179,6 +179,7 @@ def customiseFor19181_pixel_phase0(process):
         producer.VCaltoElectronOffset_L1 = cms.int32(-414)
         producer.ClusterThreshold    = cms.int32(4000)
         producer.ClusterThreshold_L1 = cms.int32(4000)
+    return process
 
 def customiseFor19181_pixel_phase1(process):
     for producer in producers_by_type(process, "SiPixelClusterProducer"):
@@ -188,6 +189,7 @@ def customiseFor19181_pixel_phase1(process):
         producer.VCaltoElectronOffset_L1 = cms.int32(-670)
         producer.ClusterThreshold    = cms.int32(4000)
         producer.ClusterThreshold_L1 = cms.int32(2000)
+    return process
 
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):

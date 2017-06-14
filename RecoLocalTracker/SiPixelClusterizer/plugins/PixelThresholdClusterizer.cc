@@ -27,7 +27,6 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 //#include "Geometry/CommonTopologies/RectangularPixelTopology.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 
 // STL
 #include <stack>
@@ -84,8 +83,8 @@ PixelThresholdClusterizer::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<int>("SeedThreshold", 1000);
   desc.add<int>("ClusterThreshold_L1", 4000);
   desc.add<int>("ClusterThreshold", 4000);
-  descriptions.add("siPixelClusters", desc);
   desc.add<int>("maxNumberOfClusters", -1);
+  descriptions.add("siPixelClusters", desc);
 }
 
 //----------------------------------------------------------------------------
@@ -129,6 +128,7 @@ bool PixelThresholdClusterizer::setup(const PixelGeomDetUnit * pixDet)
 template<typename T>
 void PixelThresholdClusterizer::clusterizeDetUnitT( const T & input,
 						   const PixelGeomDetUnit * pixDet,
+						   const TrackerTopology* tTopo,
 						   const std::vector<short>& badChannels,
                                                    edmNew::DetSetVector<SiPixelCluster>::FastFiller& output) {
   
@@ -146,8 +146,8 @@ void PixelThresholdClusterizer::clusterizeDetUnitT( const T & input,
   
   // Set separate cluster threshold for L1 (needed for phase1)
   auto clusterThreshold = theClusterThreshold;
-  int layer = (DetId(detid_).subdetId()==1) ? PXBDetId(detid_).layer() : 0;
-  if (layer==1) clusterThreshold = theClusterThreshold_L1;
+  layer_ = (DetId(detid_).subdetId()==1) ? tTopo->pxbLayer(detid_) : 0;
+  if (layer_==1) clusterThreshold = theClusterThreshold_L1;
   
   //  Copy PixelDigis to the buffer array; select the seed pixels
   //  on the way, and store them in theSeeds.
@@ -232,9 +232,8 @@ void PixelThresholdClusterizer::copy_to_buffer( DigiIterator begin, DigiIterator
 #endif
   int electron[end-begin];
   memset(electron, 0, sizeof(electron));
-  int layer = (DetId(detid_).subdetId()==1) ? PXBDetId(detid_).layer() : 0;
   if ( doMissCalibrate ) {
-    if (layer==1) {
+    if (layer_==1) {
       (*theSiPixelGainCalibrationService_).calibrate(detid_,begin,end,theConversionFactor_L1, theOffset_L1,electron);
     } else {
       (*theSiPixelGainCalibrationService_).calibrate(detid_,begin,end,theConversionFactor,    theOffset,  electron);
@@ -246,7 +245,7 @@ void PixelThresholdClusterizer::copy_to_buffer( DigiIterator begin, DigiIterator
       const float gain = theElectronPerADCGain_; // default: 1 ADC = 135 electrons
       const float pedestal = 0.; //
       electron[i] = int(adc * gain + pedestal);
-      if (layer>=theFirstStack_) {
+      if (layer_>=theFirstStack_) {
 	if (theStackADC_==1&&adc==1) {
 	  electron[i] = int(255*135); // Arbitrarily use overflow value.
 	}
@@ -307,8 +306,6 @@ void PixelThresholdClusterizer::copy_to_buffer( ClusterIterator begin, ClusterIt
 int PixelThresholdClusterizer::calibrate(int adc, int col, int row) 
 {
   int electrons = 0;
-  int layer= 0;
-  if (DetId(detid_).subdetId()==1){ layer = PXBDetId(detid_).layer();}
 
   if ( doMissCalibrate ) 
     {
@@ -349,7 +346,7 @@ int PixelThresholdClusterizer::calibrate(int adc, int col, int row)
 	  //const float p3 = 113.0; 
 	  //float vcal = ( atanh( (adc-p3)/p2) + p1)/p0;
 	  
-	  if (layer==1) {
+	  if (layer_==1) {
 	    electrons = int( vcal * theConversionFactor_L1 + theOffset_L1); 
 	  } else {
 	    electrons = int( vcal * theConversionFactor + theOffset); 
@@ -362,7 +359,7 @@ int PixelThresholdClusterizer::calibrate(int adc, int col, int row)
       const float gain = theElectronPerADCGain_; // default: 1 ADC = 135 electrons
       const float pedestal = 0.; //
       electrons = int(adc * gain + pedestal);
-      if (layer>=theFirstStack_) {
+      if (layer_>=theFirstStack_) {
 	if (theStackADC_==1&&adc==1)
 	  {
 	    electrons = int(255*135); // Arbitrarily use overflow value.
@@ -467,8 +464,7 @@ PixelThresholdClusterizer::make_cluster( const SiPixelCluster::PixelPos& pix,
     {
       // Set separate cluster threshold for L1 (needed for phase1)
       auto clusterThreshold = theClusterThreshold;
-      int layer = (DetId(detid_).subdetId()==1) ? PXBDetId(detid_).layer() : 0;
-      if (layer==1) clusterThreshold = theClusterThreshold_L1;
+      if (layer_==1) clusterThreshold = theClusterThreshold_L1;
       
       //Set the first cluster equal to the existing cluster.
       SiPixelCluster first_cluster = cluster;
