@@ -7,7 +7,7 @@
  *  Produces ME0 pad clusters from at most 8 adjacent ME0 pads.
  *  Clusters are used downstream to build triggers. 
  *  
- *  \author Sven Dildick
+ *  \author Sven Dildick (TAMU)
  */
 
 #include <FWCore/Framework/interface/ConsumesCollector.h>
