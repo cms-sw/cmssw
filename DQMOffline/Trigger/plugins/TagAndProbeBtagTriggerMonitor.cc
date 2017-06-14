@@ -69,6 +69,8 @@ void TagAndProbeBtagTriggerMonitor::bookHistograms(DQMStore::IBooker     & ibook
   eta_jet2_ = ibooker.book1D("eta_jet2","eta_jet2",jetEtabins_.nbins,jetEtabins_.xmin,jetEtabins_.xmax);
   phi_jet1_ = ibooker.book1D("phi_jet1","phi_jet1",jetPhibins_.nbins,jetPhibins_.xmin,jetPhibins_.xmax);
   phi_jet2_ = ibooker.book1D("phi_jet2","phi_jet2",jetPhibins_.nbins,jetPhibins_.xmin,jetPhibins_.xmax);
+  eta_phi_jet1_ = ibooker.book2D("eta_phi_jet1","eta_phi_jet1",jetEtabins_.nbins,jetEtabins_.xmin,jetEtabins_.xmax,jetPhibins_.nbins,jetPhibins_.xmin,jetPhibins_.xmax);
+  eta_phi_jet2_ = ibooker.book2D("eta_phi_jet2","eta_phi_jet2",jetEtabins_.nbins,jetEtabins_.xmin,jetEtabins_.xmax,jetPhibins_.nbins,jetPhibins_.xmin,jetPhibins_.xmax);
   
   pt_probe_        = ibooker.book1D("pt_probe","pt_probe",jetPtbins_.nbins,jetPtbins_.xmin,jetPtbins_.xmax);
   pt_probe_match_  = ibooker.book1D("pt_probe_match","pt_probe_match",jetPtbins_.nbins,jetPtbins_.xmin,jetPtbins_.xmax);
@@ -76,7 +78,8 @@ void TagAndProbeBtagTriggerMonitor::bookHistograms(DQMStore::IBooker     & ibook
   eta_probe_match_ = ibooker.book1D("eta_probe_match","eta_probe_match",jetEtabins_.nbins,jetEtabins_.xmin,jetEtabins_.xmax);
   phi_probe_       = ibooker.book1D("phi_probe","phi_probe",jetPhibins_.nbins,jetPhibins_.xmin,jetPhibins_.xmax);
   phi_probe_match_ = ibooker.book1D("phi_probe_match","phi_probe_match",jetPhibins_.nbins,jetPhibins_.xmin,jetPhibins_.xmax);
-  
+  eta_phi_probe_       = ibooker.book2D("eta_phi_probe","eta_phi_probe",jetEtabins_.nbins,jetEtabins_.xmin,jetEtabins_.xmax,jetPhibins_.nbins,jetPhibins_.xmin,jetPhibins_.xmax);
+  eta_phi_probe_match_ = ibooker.book2D("eta_phi_probe_match","eta_phi_match",jetEtabins_.nbins,jetEtabins_.xmin,jetEtabins_.xmax,jetPhibins_.nbins,jetPhibins_.xmin,jetPhibins_.xmax);
 
   discr_offline_btag_jet1_ = ibooker.book1D("discr_offline_btag_jet1","discr_offline_btag_jet1",jetBtagbins_.nbins,jetBtagbins_.xmin,jetBtagbins_.xmax);
   discr_offline_btag_jet2_ = ibooker.book1D("discr_offline_btag_jet2","discr_offline_btag_jet2",jetBtagbins_.nbins,jetBtagbins_.xmin,jetBtagbins_.xmax);
@@ -139,6 +142,8 @@ void TagAndProbeBtagTriggerMonitor::analyze(edm::Event const& iEvent, edm::Event
                eta_jet2_ -> Fill(jet2->eta());
                phi_jet1_ -> Fill(jet1->phi());
                phi_jet2_ -> Fill(jet2->phi());
+               eta_phi_jet1_ -> Fill(jet1->eta(),jet1->phi());
+               eta_phi_jet2_ -> Fill(jet2->eta(),jet2->phi());
                if ( btag1 < 0 ) btag1 = -0.5;
                if ( btag2 < 0 ) btag2 = -0.5;
                discr_offline_btag_jet1_ -> Fill(btag1);
@@ -171,11 +176,13 @@ void TagAndProbeBtagTriggerMonitor::analyze(edm::Event const& iEvent, edm::Event
                   pt_probe_  -> Fill(jet2->pt());
                   eta_probe_ -> Fill(jet2->eta());
                   phi_probe_ -> Fill(jet2->phi());
+                  eta_phi_probe_ -> Fill(jet2->eta(),jet2->phi());
                   if ( match2 ) // jet2 is the probe
                   {
                      pt_probe_match_  -> Fill(jet2->pt());
                      eta_probe_match_ -> Fill(jet2->eta());
                      phi_probe_match_ -> Fill(jet2->phi());
+                     eta_phi_probe_match_ -> Fill(jet2->eta(),jet2->phi());
                   }
                }
             } // offline jets btag
