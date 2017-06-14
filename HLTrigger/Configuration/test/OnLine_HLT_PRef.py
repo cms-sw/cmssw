@@ -1,11 +1,11 @@
-# /dev/CMSSW_9_2_0/PRef/V12 (CMSSW_9_2_2)
+# /dev/CMSSW_9_2_0/PRef/V13 (CMSSW_9_2_2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPRef" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_9_2_0/PRef/V12')
+  tableName = cms.string('/dev/CMSSW_9_2_0/PRef/V13')
 )
 
 process.transferSystem = cms.PSet( 
