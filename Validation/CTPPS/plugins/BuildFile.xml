@@ -3,7 +3,7 @@
 <use name="CommonTools/Utils"/>
 <use name="CommonTools/UtilAlgos"/>
 <use name="rootcore"/>
-<library file="ParamValidation.cc">
+<library name="ValidationCTPPSPlugins" file="*.cc">
   <flags EDM_PLUGIN="1"/>
 </library>
 

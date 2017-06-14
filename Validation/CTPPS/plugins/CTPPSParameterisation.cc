@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    SimRomanPot/CTPPSOpticsParameterisation
-// Class:      ParamValidation
+// Package:    Validation/CTPPS
+// Class:      CTPPSParameterisation
 // 
-/**\class ParamValidation ParamValidation.cc SimRomanPot/CTPPSOpticsParameterisation/test/ParamValidation.cc
+/**\class CTPPSParameterisation CTPPSParameterisation.cc Validation/CTPPS/test/CTPPSParameterisation.cc
 
  Description: [one line class summary]
 
@@ -35,7 +35,6 @@
 #include "SimDataFormats/CTPPS/interface/CTPPSSimProtonTrack.h"
 #include "SimDataFormats/CTPPS/interface/CTPPSSimHit.h"
 
-#include "SimRomanPot/CTPPSOpticsParameterisation/interface/ProtonReconstructionAlgorithm.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "TH1D.h"
@@ -46,10 +45,10 @@
 
 #include <map>
 
-class ParamValidation : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
+class CTPPSParameterisation : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
   public:
-    explicit ParamValidation( const edm::ParameterSet& );
-    ~ParamValidation();
+    explicit CTPPSParameterisation( const edm::ParameterSet& );
+    ~CTPPSParameterisation();
 
     static void fillDescriptions( edm::ConfigurationDescriptions& descriptions );
 
@@ -78,7 +77,7 @@ class ParamValidation : public edm::one::EDAnalyzer<edm::one::SharedResources>  
     TProfile* p_de_vtx_x_vs_xi_[2], *p_de_vtx_y_vs_xi_[2], *p_de_th_x_vs_xi_[2], *p_de_th_y_vs_xi_[2], *p_de_xi_vs_xi_[2];
 };
 
-ParamValidation::ParamValidation( const edm::ParameterSet& iConfig ) :
+CTPPSParameterisation::CTPPSParameterisation( const edm::ParameterSet& iConfig ) :
   genProtonsToken_   ( consumes<edm::HepMCProduct>( iConfig.getParameter<edm::InputTag>( "genProtonsTag" ) ) ),
   recoProtons45Token_( consumes< edm::View<CTPPSSimProtonTrack> >( iConfig.getParameter<edm::InputTag>( "recoProtons45Tag" ) ) ),
   recoProtons56Token_( consumes< edm::View<CTPPSSimProtonTrack> >( iConfig.getParameter<edm::InputTag>( "recoProtons56Tag" ) ) ),
@@ -133,11 +132,11 @@ ParamValidation::ParamValidation( const edm::ParameterSet& iConfig ) :
   }
 }
 
-ParamValidation::~ParamValidation()
+CTPPSParameterisation::~CTPPSParameterisation()
 {}
 
 void
-ParamValidation::analyze( const edm::Event& iEvent, const edm::EventSetup& )
+CTPPSParameterisation::analyze( const edm::Event& iEvent, const edm::EventSetup& )
 {
   edm::Handle< edm::View<CTPPSSimHit> > hits;
   iEvent.getByToken( hitsToken_, hits );
@@ -150,7 +149,7 @@ ParamValidation::analyze( const edm::Event& iEvent, const edm::EventSetup& )
   iEvent.getByToken( genProtonsToken_, protons );
   const HepMC::GenEvent& evt = protons->getHepMCData();
   if ( evt.particles_size()>1 ) {
-    throw cms::Exception("ParamValidation") << "Not yet supporting multiple generated protons per event";
+    throw cms::Exception("CTPPSParameterisation") << "Not yet supporting multiple generated protons per event";
   }
 
   edm::Handle< edm::View<CTPPSSimProtonTrack> > reco_protons[2];
@@ -176,7 +175,7 @@ ParamValidation::analyze( const edm::Event& iEvent, const edm::EventSetup& )
       for ( const auto& rec_pro : *reco_protons[i] ) {
         const double rec_xi = rec_pro.xi();
 
-std::cout << "(" << reco_protons[i]->size() << ")--> sector " << i << ": " << gen_xi << " / " << rec_xi << std::endl;
+        //std::cout << "(" << reco_protons[i]->size() << ")--> sector " << i << ": " << gen_xi << " / " << rec_xi << std::endl;
 
         const double de_vtx_x = rec_pro.vertex().x()-gen_vtx_x;
         const double de_vtx_y = rec_pro.vertex().y()-gen_vtx_y;
@@ -207,11 +206,11 @@ std::cout << "(" << reco_protons[i]->size() << ")--> sector " << i << ": " << ge
 }
 
 void
-ParamValidation::beginJob()
+CTPPSParameterisation::beginJob()
 {}
 
 void
-ParamValidation::endJob()
+CTPPSParameterisation::endJob()
 {
 /*
   ProfileToRMSGraph(p_de_vtx_x_vs_xi_45, "g_rms_de_vtx_x_vs_xi_45")->Write();
@@ -229,7 +228,7 @@ ParamValidation::endJob()
 }
 
 void
-ParamValidation::fillDescriptions( edm::ConfigurationDescriptions& descriptions ) {
+CTPPSParameterisation::fillDescriptions( edm::ConfigurationDescriptions& descriptions ) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
@@ -238,6 +237,6 @@ ParamValidation::fillDescriptions( edm::ConfigurationDescriptions& descriptions 
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE( ParamValidation );
+DEFINE_FWK_MODULE( CTPPSParameterisation );
 
 
