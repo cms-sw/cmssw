@@ -93,6 +93,8 @@ private:
   MonitorElement * eta_jet2_;
   MonitorElement * phi_jet1_;
   MonitorElement * phi_jet2_;
+  MonitorElement * eta_phi_jet1_;
+  MonitorElement * eta_phi_jet2_;
 
   MonitorElement * pt_probe_;
   MonitorElement * pt_probe_match_;
@@ -100,6 +102,8 @@ private:
   MonitorElement * eta_probe_match_;
   MonitorElement * phi_probe_;
   MonitorElement * phi_probe_match_;
+  MonitorElement * eta_phi_probe_;
+  MonitorElement * eta_phi_probe_match_;
 
     
   MonitorElement * discr_offline_btag_jet1_;
