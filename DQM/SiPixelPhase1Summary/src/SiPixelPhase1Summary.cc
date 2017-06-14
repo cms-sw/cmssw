@@ -114,7 +114,7 @@ void SiPixelPhase1Summary::dqmEndJob(DQMStore::IBooker & iBooker, DQMStore::IGet
 //------------------------------------------------------------------
 void SiPixelPhase1Summary::bookSummaries(DQMStore::IBooker & iBooker){
 
-  //  iBooker.cd();
+  iBooker.cd();
 
   std::vector<std::string> xAxisLabels_ = {"BMO","BMI","BPO ","BPI","HCMO_1","HCMO_2","HCMI_1","HCMI_2","HCPO_1","HCPO_2","HCPI_1","HCPI_2"}; // why not having a global variable !?!?!?! 
   std::vector<std::string> yAxisLabels_ = {"1","2","3","4"}; // why not having a global variable ?!?!?!!? - I originally did, but was told not to by David Lange!
@@ -123,7 +123,6 @@ void SiPixelPhase1Summary::bookSummaries(DQMStore::IBooker & iBooker){
   //Book the summary plots for the variables as described in the config file  
   for (auto mapInfo: summaryPlotName_){
     auto name = mapInfo.first;
-    if (name == "Grand") iBooker.setCurrentFolder("PixelPhase1/EventInfo");
     summaryMap_[name] = iBooker.book2D("pixel"+name+"Summary","Pixel "+name+" Summary",12,0,12,4,0,4);
   }
   //Now book the overall summary map
