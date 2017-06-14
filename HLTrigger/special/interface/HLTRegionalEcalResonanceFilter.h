@@ -103,12 +103,7 @@ class HLTRegionalEcalResonanceFilter : public edm::stream::EDFilter<>
       void convxtalid(int & , int &);
       int diff_neta_s(int,int);
       int diff_nphi_s(int,int);
-      
-      
-      // use function in DataFormats/Math/interface/deltaPhi.h
-      //static float DeltaPhi(float phi1, float phi2); 
-      static float GetDeltaR(float eta1, float eta2, float phi1, float phi2); 
-      
+            
       // Input hits & clusters
       edm::InputTag barrelHits_;
       edm::InputTag endcapHits_;
