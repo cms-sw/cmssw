@@ -21,6 +21,9 @@ MssmHbbMonitor::MssmHbbMonitor( const edm::ParameterSet& iConfig )
   pathname_               = iConfig.getParameter<std::string>("pathname");
   jetPtmin_               = iConfig.getParameter<double>("jetPtMin");
   jetEtamax_              = iConfig.getParameter<double>("jetEtaMax");
+  muonPtmin_              = iConfig.getParameter<double>("muonPtMin");
+  muonEtamax_             = iConfig.getParameter<double>("muonEtaMax");
+  jetMuonDRmax_           = iConfig.getParameter<double>("jetMuonDRMax");
   triggerResultsToken_    = consumes <edm::TriggerResults>   (iConfig.getParameter<edm::InputTag>("triggerResults"));
   muonsToken_             = consumes<reco::MuonCollection>   (iConfig.getParameter<edm::InputTag>("muons"));
   offlineBtagToken_       = consumes<reco::JetTagCollection> (iConfig.getParameter<edm::InputTag>("offlineBtag"));
@@ -90,14 +93,19 @@ void MssmHbbMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iS
 
    bool accept = false;
    
+   bool doMuon = true;
+   
    edm::Handle<edm::TriggerResults> triggerResultsHandler;
    iEvent.getByToken(triggerResultsToken_, triggerResultsHandler);
    if ( ! triggerResultsHandler.isValid() )  return;
       
    edm::Handle<reco::JetTagCollection> offlineJetTagPFHandler;
-   iEvent.getByToken(offlineBtagToken_, offlineJetTagPFHandler);
-      
+   iEvent.getByToken(offlineBtagToken_, offlineJetTagPFHandler);      
    if( ! offlineJetTagPFHandler.isValid()) return;
+   
+   edm::Handle<reco::MuonCollection> muonHandler;
+   iEvent.getByToken(muonsToken_, muonHandler);
+   if( ! muonHandler.isValid()) doMuon = false;
    
    const edm::TriggerResults & triggers = *(triggerResultsHandler.product());
    
@@ -150,6 +158,28 @@ void MssmHbbMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iS
             
             discr_offline_btag_jet1_ -> Fill(btag1);
             discr_offline_btag_jet2_ -> Fill(btag2);
+            
+            
+            if ( doMuon )
+            {
+               reco::MuonCollection muons = *(muonHandler.product());
+               for ( auto & muon : muons )
+               {
+                  if ( muon.pt() < muonPtmin_ || fabs(muon.eta()) > muonEtamax_ || !muon.isGlobalMuon()) continue;
+                  TLorentzVector p4_muon;
+                  p4_muon.SetPtEtaPhiM(muon.pt(),muon.eta(),muon.phi(),0);
+                  float dR1 = p4_muon.DeltaR(p4_jet1);
+                  float dR2 = p4_muon.DeltaR(p4_jet2);
+                  if ( dR1 < jetMuonDRmax_ || dR2 < jetMuonDRmax_ ) 
+                  {
+                     pt_muon_  -> Fill(muon.pt());
+                     eta_muon_ -> Fill(muon.eta());
+                     phi_muon_ -> Fill(muon.phi());
+                     break;
+                  }
+               }
+            }
+            
          } // offline jets kinematic selection
       } // at least two offline jets
    } // accept trigger
