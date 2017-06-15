@@ -44,6 +44,7 @@ namespace l1t
       // calibration
       int calibratedPt(const l1t::CaloCluster& clus, int hwPt);
       unsigned int calibrationLutIndex(int iEta, int E, int shape);
+      bool idHoverE_ext(const l1t::CaloTower tow);
 
     private:
       CaloParamsHelper* params_;

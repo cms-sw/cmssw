@@ -48,7 +48,7 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
     l1t::CaloStage2Nav caloNav; 
   
     // this is common to all taus in this event
-    const int nrTowers = CaloTools::calNrTowers(-1*params_->tauPUSParam(1),params_->tauPUSParam(1),1,72,towers,1,999,CaloTools::CALO);
+    const int nrTowers = CaloTools::calNrTowers(-1*params_->tauPUSParam(1),params_->tauPUSParam(1),1,72,towers,1+params_->pileUpTowerThreshold(),999,CaloTools::CALO);
 
     for (const auto& mainCluster : clusters)
     {
@@ -138,8 +138,8 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
                 if (hwIsoEnergy < 0) hwIsoEnergy = 0; // just in case the cluster is outside the window? should be very rare
                 
                 isolBit =      (((hwIsoEnergy < (params_->tauIsolationLUT()->data(LUTaddress))) || (params_->tauIsolationLUT()->data(LUTaddress)>255)) ? 1 : 0);
-		int isolBit2 = (((hwIsoEnergy < (params_->tauIsolationLUT2()->data(LUTaddress))) || (params_->tauIsolationLUT2()->data(LUTaddress)>255)) ? 1 : 0);
-		isolBit += (isolBit2 << 1);
+		//int isolBit2 = (((hwIsoEnergy < (params_->tauIsolationLUT2()->data(LUTaddress))) || (params_->tauIsolationLUT2()->data(LUTaddress)>255)) ? 1 : 0);
+		//isolBit += (isolBit2 << 1);
                 tau.setHwIso(isolBit);
 
                 // development vars
@@ -149,7 +149,12 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
 		tau.setTowerIEta((short int)mainCluster.hwEta());
                 tau.setIsMerged(false);
                 tau.setRawEt((short int) mainCluster.hwPt());
-                tau.setHasEM(mainCluster.hwPtEm() > 0);
+		const l1t::CaloTower& seedTT_primary = l1t::CaloTools::getTower(towers, CaloTools::caloEta(mainCluster.hwEta()), mainCluster.hwPhi());
+		int qual = seedTT_primary.hwQual();
+		bool denomZeroFlag = ((qual&0x1) > 0);
+		bool eOverHFlag    = ((qual&0x2) > 0);
+		int hasEM = (eOverHFlag || !denomZeroFlag);
+                tau.setHasEM(hasEM > 0);
                 tau.setIsoEt((short int) hwIsoEnergy);
                 tau.setNTT((short int) nrTowers);
 
@@ -214,8 +219,17 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
                     secMaxN = secClusters.at(isNeigh2 - sites.begin());
                 else if (isNeigh1 != sites.end() && isNeigh3 != sites.end() )
                 {
-                    if ((secClusters.at(isNeigh1 - sites.begin()))->hwPt() == (secClusters.at(isNeigh3 - sites.begin()))->hwPt()) // same E --> take 1
-                        secMaxN = secClusters.at(isNeigh1 - sites.begin());
+                    if ((secClusters.at(isNeigh1 - sites.begin()))->hwPt() == (secClusters.at(isNeigh3 - sites.begin()))->hwPt())
+		      {// same E --> take 1
+			if(mainCluster.hwEta()>0)
+			  {
+			    secMaxN = secClusters.at(isNeigh1 - sites.begin());			  
+			  }
+			else
+			  {
+			    secMaxN = secClusters.at(isNeigh3 - sites.begin());	
+			  }
+		      }
                     else
                     {
                         if ((secClusters.at(isNeigh1 - sites.begin()))->hwPt() > (secClusters.at(isNeigh3 - sites.begin()))->hwPt()) secMaxN = secClusters.at(isNeigh1 - sites.begin());
@@ -228,15 +242,24 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
 
                 // S neighbor --------------------------------------------------
                 if (isNeigh7 != sites.end())
-                    secMaxS = secClusters.at(isNeigh7 - sites.begin());
+		  secMaxS = secClusters.at(isNeigh7 - sites.begin());
                 else if (isNeigh5 != sites.end())
-                    secMaxS = secClusters.at(isNeigh5 - sites.begin());
+		  secMaxS = secClusters.at(isNeigh5 - sites.begin());
                 else if (isNeigh4 != sites.end() && isNeigh6 != sites.end() )
-                {
-                    if ((secClusters.at(isNeigh4 - sites.begin()))->hwPt() == (secClusters.at(isNeigh6 - sites.begin()))->hwPt()) // same E --> take 1
-                        secMaxS = secClusters.at(isNeigh4 - sites.begin());
+		  {
+                    if ((secClusters.at(isNeigh4 - sites.begin()))->hwPt() == (secClusters.at(isNeigh6 - sites.begin()))->hwPt())
+		      {// same E --> take 1
+			if(mainCluster.hwEta()>0)
+			  {
+			    secMaxN = secClusters.at(isNeigh4 - sites.begin());			  
+			  }
+			else
+			  {
+			    secMaxN = secClusters.at(isNeigh6 - sites.begin());	
+			  }
+		      }
                     else
-                    {
+		      {
                         if ((secClusters.at(isNeigh4 - sites.begin()))->hwPt() > (secClusters.at(isNeigh6 - sites.begin()))->hwPt()) secMaxS = secClusters.at(isNeigh4 - sites.begin());
                         else secMaxS = secClusters.at(isNeigh6 - sites.begin());
 
@@ -434,8 +457,8 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
                 if (hwIsoEnergy < 0) hwIsoEnergy = 0; // just in case the cluster is outside the window? should be very rare
 
                 isolBit =      (((hwIsoEnergy < (params_->tauIsolationLUT()->data(LUTaddress))) || (params_->tauIsolationLUT()->data(LUTaddress)>255)) ? 1 : 0);
-		int isolBit2 = (((hwIsoEnergy < (params_->tauIsolationLUT2()->data(LUTaddress))) || (params_->tauIsolationLUT2()->data(LUTaddress)>255)) ? 1 : 0);
-		isolBit += (isolBit2 << 1);
+		//int isolBit2 = (((hwIsoEnergy < (params_->tauIsolationLUT2()->data(LUTaddress))) || (params_->tauIsolationLUT2()->data(LUTaddress)>255)) ? 1 : 0);
+		//isolBit += (isolBit2 << 1);
                 tau.setHwIso(isolBit);
 
                 // development vars
@@ -445,7 +468,12 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
 		tau.setTowerIEta((short int)mainCluster.hwEta());
                 tau.setIsMerged(true);
                 tau.setRawEt((short int) (mainCluster.hwPt() + secondaryCluster->hwPt()));
-                tau.setHasEM(mainCluster.hwPtEm() > 0);
+		const l1t::CaloTower& seedTT_primary = l1t::CaloTools::getTower(towers, CaloTools::caloEta(mainCluster.hwEta()), mainCluster.hwPhi());
+		int qual = seedTT_primary.hwQual();
+		bool denomZeroFlag = ((qual&0x1) > 0);
+		bool eOverHFlag    = ((qual&0x2) > 0);
+		int hasEM = (eOverHFlag || !denomZeroFlag);
+                tau.setHasEM(hasEM > 0);
                 tau.setIsoEt((short int) hwIsoEnergy);
                 tau.setNTT((short int) nrTowers);
 
@@ -820,8 +848,11 @@ int l1t::Stage2Layer2TauAlgorithmFirmwareImp1::calibratedPt(const l1t::CaloClust
 {
     // get seed tower
   const l1t::CaloTower& seedTT = l1t::CaloTools::getTower(towers, CaloTools::caloEta(clus.hwEta()), clus.hwPhi());
-    int hasEM = (seedTT.hwEtEm() > 0 ? 1 : 0);
-    int isMergedI = (isMerged ? 1 : 0);
+  int qual = seedTT.hwQual();
+  bool denomZeroFlag = ((qual&0x1) > 0);
+  bool eOverHFlag    = ((qual&0x2) > 0);
+  int hasEM = (eOverHFlag || !denomZeroFlag);
+  int isMergedI = (isMerged ? 1 : 0);
 
     //cout << "  --> ieta = " << clus.hwEta() << " , hasEM = " << hasEM << " , isMergedI = " << isMergedI << endl;
 
