@@ -10,6 +10,7 @@ mssmHbbPhysicsMonitor = cms.EDAnalyzer(
     jetEtaMax = cms.double(2.5),
     muonPtMin = cms.double(5),
     muonEtaMax = cms.double(2.5),
+    jetMuonDRMax = cms.double(0.4),
     triggerResults = cms.InputTag("TriggerResults","","HLT"),
     offlineBtag = cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
     muons = cms.InputTag("muons"),

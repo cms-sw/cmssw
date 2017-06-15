@@ -8,14 +8,17 @@ from DQMOffline.Trigger.mssmhbb_cfi import mssmHbbPhysicsMonitor
 msssHbbAllHadronic100 = mssmHbbPhysicsMonitor.clone()
 msssHbbAllHadronic100.dirname = cms.string("HLT/Higgs/MssmHbb/Allhad/Physics/DoubleBJet100")
 msssHbbAllHadronic100.pathname = cms.string("HLT_DoubleJets100_DoubleBTagCSV_0p92_DoublePFJets100MaxDeta1p6_v")
+msssHbbAllHadronic100.muons = cms.InputTag("dummy")
 
 msssHbbAllHadronic116 = mssmHbbPhysicsMonitor.clone()
 msssHbbAllHadronic116.dirname = cms.string("HLT/Higgs/MssmHbb/Allhad/Physics/DoubleBJet116")
 msssHbbAllHadronic116.pathname = cms.string("HLT_DoubleJets100_DoubleBTagCSV_0p92_DoublePFJets116MaxDeta1p6_v")
+msssHbbAllHadronic116.muons = cms.InputTag("dummy")
 
 msssHbbAllHadronic128 = mssmHbbPhysicsMonitor.clone()
 msssHbbAllHadronic128.dirname = cms.string("HLT/Higgs/MssmHbb/Allhad/Physics/DoubleBJet128")
 msssHbbAllHadronic128.pathname = cms.string("HLT_DoubleJets100_DoubleBTagCSV_0p92_DoublePFJets128MaxDeta1p6_v")
+msssHbbAllHadronic128.muons = cms.InputTag("dummy")
 
 msssHbbSemileptonic40 = mssmHbbPhysicsMonitor.clone()
 msssHbbSemileptonic40.dirname = cms.string("HLT/Higgs/MssmHbb/Semilep/Physics/Mu12DoubleBJet40")
