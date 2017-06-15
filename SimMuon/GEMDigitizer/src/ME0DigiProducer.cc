@@ -10,12 +10,12 @@
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 
-#include "SimMuon/GEMDigitizer/interface/GEMDigiProducer.h"
-#include "SimMuon/GEMDigitizer/interface/GEMDigiModelFactory.h"
-#include "SimMuon/GEMDigitizer/interface/GEMDigiModel.h"
+#include "SimMuon/GEMDigitizer/interface/ME0DigiProducer.h"
+#include "SimMuon/GEMDigitizer/interface/ME0DigiModelFactory.h"
+#include "SimMuon/GEMDigitizer/interface/ME0DigiModel.h"
 
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+#include "Geometry/GEMGeometry/interface/ME0Geometry.h"
 
 #include <sstream>
 #include <string>
@@ -26,21 +26,21 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-GEMDigiProducer::GEMDigiProducer(const edm::ParameterSet& ps)
-  : digiModelString_(ps.getParameter<std::string>("digiModelString"))
+ME0DigiProducer::ME0DigiProducer(const edm::ParameterSet& ps)
+  : me0digiModelString_(ps.getParameter<std::string>("digiModelString"))
 {
-  produces<GEMDigiCollection>();
-  produces<StripDigiSimLinks>("GEM");
-  produces<GEMDigiSimLinks>("GEM");
+  produces<ME0DigiCollection>();
+  produces<StripDigiSimLinks>("ME0");
+  produces<ME0DigiSimLinks>("ME0");
 
   edm::Service<edm::RandomNumberGenerator> rng;
   if (!rng.isAvailable()){
     throw cms::Exception("Configuration")
-      << "GEMDigiProducer::GEMDigiProducer() - RandomNumberGeneratorService is not present in configuration file.\n"
+      << "ME0DigiProducer::ME0DigiProducer() - RandomNumberGeneratorService is not present in configuration file.\n"
       << "Add the service in the configuration file or remove the modules that require it.";
   }
-  gemDigiModel_ = GEMDigiModelFactory::get()->create("GEM" + digiModelString_ + "Model", ps);
-  LogDebug("GEMDigiProducer") << "Using GEM" + digiModelString_ + "Model";
+  ME0DigiModel_ = ME0DigiModelFactory::get()->create("ME0" + me0digiModelString_ + "Model", ps);
+  LogDebug("ME0DigiProducer") << "Using ME0" + me0digiModelString_ + "Model";
 
   std::string mix_(ps.getParameter<std::string>("mixLabel"));
   std::string collection_(ps.getParameter<std::string>("inputCollection"));
@@ -49,22 +49,22 @@ GEMDigiProducer::GEMDigiProducer(const edm::ParameterSet& ps)
 }
 
 
-GEMDigiProducer::~GEMDigiProducer()
+ME0DigiProducer::~ME0DigiProducer()
 {
-  delete gemDigiModel_;
+  delete ME0DigiModel_;
 }
 
 
-void GEMDigiProducer::beginRun(const edm::Run&, const edm::EventSetup& eventSetup)
+void ME0DigiProducer::beginRun(const edm::Run&, const edm::EventSetup& eventSetup)
 {
-  edm::ESHandle<GEMGeometry> hGeom;
+  edm::ESHandle<ME0Geometry> hGeom;
   eventSetup.get<MuonGeometryRecord>().get(hGeom);
-  gemDigiModel_->setGeometry(&*hGeom);
-  gemDigiModel_->setup();
+  ME0DigiModel_->setGeometry(&*hGeom);
+  ME0DigiModel_->setup();
 }
 
 
-void GEMDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
+void ME0DigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
 {
   edm::Service<edm::RandomNumberGenerator> rng;
   CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
@@ -75,9 +75,9 @@ void GEMDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   std::unique_ptr<MixCollection<PSimHit> > hits(new MixCollection<PSimHit>(cf.product()));
 
   // Create empty output
-  std::unique_ptr<GEMDigiCollection> digis(new GEMDigiCollection());
+  std::unique_ptr<ME0DigiCollection> digis(new ME0DigiCollection());
   std::unique_ptr<StripDigiSimLinks> stripDigiSimLinks(new StripDigiSimLinks() );
-  std::unique_ptr<GEMDigiSimLinks> gemDigiSimLinks(new GEMDigiSimLinks() );
+  std::unique_ptr<ME0DigiSimLinks> me0DigiSimLinks(new ME0DigiSimLinks() );
 
   // arrange the hits by eta partition
   std::map<uint32_t, edm::PSimHitContainer> hitMap;
@@ -86,26 +86,26 @@ void GEMDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   }
 
   // simulate signal and noise for each eta partition
-  const auto & etaPartitions(gemDigiModel_->getGeometry()->etaPartitions());
+  const auto & etaPartitions(ME0DigiModel_->getGeometry()->etaPartitions());
 
   for (const auto& roll: etaPartitions){
-    const GEMDetId detId(roll->id());
+    const ME0DetId detId(roll->id());
     const uint32_t rawId(detId.rawId());
     const auto & simHits(hitMap[rawId]);
 
-    LogDebug("GEMDigiProducer")
-      << "GEMDigiProducer: found " << simHits.size() << " hit(s) in eta partition" << rawId;
+    LogDebug("ME0DigiProducer")
+      << "ME0DigiProducer: found " << simHits.size() << " hit(s) in eta partition" << rawId;
 
-    gemDigiModel_->simulateSignal(roll, simHits, engine);
-    gemDigiModel_->simulateNoise(roll, engine);
-    gemDigiModel_->fillDigis(rawId, *digis);
-    (*stripDigiSimLinks).insert(gemDigiModel_->stripDigiSimLinks());
-    (*gemDigiSimLinks).insert(gemDigiModel_->gemDigiSimLinks());
+    ME0DigiModel_->simulateSignal(roll, simHits, engine);
+    ME0DigiModel_->simulateNoise(roll, engine);
+    ME0DigiModel_->fillDigis(rawId, *digis);
+    (*stripDigiSimLinks).insert(ME0DigiModel_->stripDigiSimLinks());
+    (*me0DigiSimLinks).insert(ME0DigiModel_->me0DigiSimLinks());
   }
 
   // store them in the event
   e.put(std::move(digis));
-  e.put(std::move(stripDigiSimLinks),"GEM");
-  e.put(std::move(gemDigiSimLinks),"GEM");
+  e.put(std::move(stripDigiSimLinks),"ME0");
+  e.put(std::move(me0DigiSimLinks),"ME0");
 }
 

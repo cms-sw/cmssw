@@ -127,7 +127,7 @@ TestME0SegmentAnalyzer::TestME0SegmentAnalyzer(const edm::ParameterSet& iConfig)
    //now do what ever initialization is needed
   ME0Segment_Token = consumes<ME0SegmentCollection>(edm::InputTag("me0Segments","","ME0RERECO"));
   ME0RecHit_Token  = consumes<ME0RecHitCollection>(edm::InputTag("me0RecHits"));
-  ME0Digi_Token  = consumes<ME0DigiPreRecoCollection>(edm::InputTag("simMuonME0Digis"));
+  ME0Digi_Token  = consumes<ME0DigiPreRecoCollection>(edm::InputTag("simMuonME0PseudoReDigis"));
   //  ME0SimHit_Token = 
   rootFileName  = iConfig.getUntrackedParameter<std::string>("RootFileName");
   outputfile.reset(TFile::Open(rootFileName.c_str(), "RECREATE"));
