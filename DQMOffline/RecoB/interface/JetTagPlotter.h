@@ -11,28 +11,28 @@
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-class JetTagPlotter : public BaseBTagPlotter {
+class JetTagPlotter: public BaseBTagPlotter {
 
  public:
 
   JetTagPlotter (const std::string & tagName, const EtaPtBin & etaPtBin,
-		 const edm::ParameterSet& pSet, const unsigned int& mc , 
-		 const bool& willFinalize, DQMStore::IBooker & ibook, const bool & doCTagPlots = false, bool doDifferentialPlots=false, double discrCut=-999.);
+         const edm::ParameterSet& pSet, unsigned int mc, 
+         bool willFinalize, DQMStore::IBooker & ibook, bool doCTagPlots = false, bool doDifferentialPlots=false, double discrCut=-999.);
 
-  virtual ~JetTagPlotter () ;
+  virtual ~JetTagPlotter() ;
 
-  void analyzeTag (); //added to fill the jet multiplicity on data 
-  void analyzeTag (const float & w); //added to fill the jet multiplicity on mc 
-  void analyzeTag (const reco::JetTag & jetTag, const double & jec, const int & jetFlavour);
-  void analyzeTag (const reco::JetTag & jetTag, const double & jec, const int & jetFlavour, const float & w);
-  void analyzeTag (const reco::Jet & jet, const double & jec, const float& discriminator, const int& jetFlavour);
-  void analyzeTag (const reco::Jet & jet, const double & jec, const float& discriminator, const int& jetFlavour, const float & w);
+  void analyzeTag(); //added to fill the jet multiplicity on data 
+  void analyzeTag(float w); //added to fill the jet multiplicity on mc 
+  //void analyzeTag (const reco::JetTag & jetTag, const double & jec, const int & jetFlavour);
+  void analyzeTag(const reco::JetTag & jetTag, double jec, int jetFlavour, float w=1);
+  //void analyzeTag (const reco::Jet & jet, const double & jec, const float& discriminator, const int& jetFlavour);
+  void analyzeTag(const reco::Jet & jet, double jec, float discriminator, int jetFlavour, float w=1);
 
   // final computation, plotting, printing .......
   void finalize (DQMStore::IBooker & ibook_, DQMStore::IGetter & igetter_);
 
   // get "2d" histograms for misid. vs. b-eff
-  EffPurFromHistos * getEffPurFromHistos () { return effPurFromHistos_ ; }
+  EffPurFromHistos& getEffPurFromHistos() { return *effPurFromHistos_; }
 
   void epsPlot(const std::string & name);
   void psPlot(const std::string & name);
@@ -45,7 +45,6 @@ class JetTagPlotter : public BaseBTagPlotter {
 
   // binning and bounds
   // 1) for 'efficiency' versus discriminator cut histos
-  int discrBins;
   double discrStart_;
   double discrEnd_;
   int nBinEffPur_;
@@ -64,33 +63,33 @@ class JetTagPlotter : public BaseBTagPlotter {
   std::vector<int> nJets_;
   
   // jet multiplicity
-  FlavourHistograms<int> * jetMultiplicity_;
+  std::unique_ptr<FlavourHistograms<int>> jetMultiplicity_;
 
   // for the misid vs. eff plots
-  EffPurFromHistos * effPurFromHistos_;
+  std::unique_ptr<EffPurFromHistos> effPurFromHistos_;
 
-  FlavourHistograms<int> * dJetFlav_;
+  std::unique_ptr<FlavourHistograms<int>> dJetFlav_;
   
   // Discriminator: again with reasonable binning
-  FlavourHistograms<double> * dDiscriminator_;
+  std::unique_ptr<FlavourHistograms<double>> dDiscriminator_;
   
   // reconstructed jet momentum
-  FlavourHistograms<double> * dJetRecMomentum_;
+  std::unique_ptr<FlavourHistograms<double>> dJetRecMomentum_;
 
   // reconstructed jet transverse momentum
-  FlavourHistograms<double> * dJetRecPt_;
+  std::unique_ptr<FlavourHistograms<double>> dJetRecPt_;
 
   // reconstructed jet eta
-  FlavourHistograms<double> * dJetRecPseudoRapidity_;
+  std::unique_ptr<FlavourHistograms<double>> dJetRecPseudoRapidity_;
 
   // reconstructed jet phi
-  FlavourHistograms<double> * dJetRecPhi_;
+  std::unique_ptr<FlavourHistograms<double>> dJetRecPhi_;
   
   // jet Phi larger than requested discrimnator cut
-  FlavourHistograms<double> * dJetPhiDiscrCut_;
+  std::unique_ptr<FlavourHistograms<double>> dJetPhiDiscrCut_;
   
   // jet Eta larger than requested discrimnator cut
-  FlavourHistograms<double> * dJetPseudoRapidityDiscrCut_;
+  std::unique_ptr<FlavourHistograms<double>> dJetPseudoRapidityDiscrCut_;
 };
 
 #endif
