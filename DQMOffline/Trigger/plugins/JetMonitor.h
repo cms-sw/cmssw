@@ -102,9 +102,11 @@ private:
   edm::EDGetTokenT<reco::CaloJetCollection>     calojetToken_;// calojet
   edm::EDGetTokenT<reco::GsfElectronCollection> eleToken_;
   edm::EDGetTokenT<reco::MuonCollection>        muoToken_;
+  //edm::InputTag        jetSrc_; // test for Jet
+  edm::EDGetTokenT<edm::View<reco::Jet>  >  jetSrc_; // test for Jet
 
-  std::vector<double> met_variable_binning_;
-  MEbinning           met_binning_;
+  std::vector<double> jetpT_variable_binning_;
+  MEbinning           jetpT_binning;
   MEbinning           jetptThr_binning_;
   MEbinning           ls_binning_;
 
@@ -119,7 +121,11 @@ private:
   JetME a_ME_HEP17[7];
   JetME a_ME_HEP18[7];
 
-//  JetME jetHEP18_EtaVsPhi_;
+  JetME jetHEP17_AbsEtaVsPhi_;
+  JetME jetHEM17_AbsEtaVsPhi_;
+  // For Ratio plot 
+  JetME jetHEP17_AbsEta_;
+  JetME jetHEM17_AbsEta_;
 
   GenericTriggerEventFlag* num_genTriggerEventFlag_;
   GenericTriggerEventFlag* den_genTriggerEventFlag_;
