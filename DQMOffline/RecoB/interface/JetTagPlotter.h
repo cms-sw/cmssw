@@ -61,7 +61,7 @@ class JetTagPlotter : public BaseBTagPlotter {
   bool doDifferentialPlots_;
   double cutValue_;
 
-  int *nJets_;
+  std::vector<int> nJets_;
   
   // jet multiplicity
   FlavourHistograms<int> * jetMultiplicity_;

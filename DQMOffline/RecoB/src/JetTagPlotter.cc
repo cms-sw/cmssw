@@ -32,10 +32,7 @@ JetTagPlotter::JetTagPlotter (const std::string & tagName, const EtaPtBin & etaP
   //added to count the number of jets by event : 0=DATA or NI, 1to5=quarks u,d,s,c,b , 6=gluon
   int nFl = 1;
   if(mcPlots_) nFl = 8;
-  nJets_ = new int [nFl];
-  for(int i = 0; i < nFl; i++){
-    nJets_[i]=0;
-  }
+  nJets_.resize(nFl, 0);
   
   if (mcPlots_){
     // jet flavour
@@ -204,13 +201,11 @@ void JetTagPlotter::analyzeTag(const float& w)
     jetMultiplicity_->fill(-1, totNJets, w); //total number of jets in the event
     jetMultiplicity_->fill(123, udsNJets, w);
     jetMultiplicity_->fill(12321, udsgNJets, w);
-  }
-  else 
-    {
+  } else {
       int totNJets = 0;
-      for(int i = 0; i < 8; i++){
-	totNJets += nJets_[i];
-	nJets_[i] = 0;
+      for (int i = 0; i < 8; i++) {
+	    totNJets += nJets_[i];
+	    nJets_[i] = 0;
       }
       jetMultiplicity_->fill(-1, totNJets, w);
     }
@@ -227,8 +222,7 @@ void JetTagPlotter::analyzeTag(const reco::Jet & jet,
     else if(abs(jetFlavour)==21) nJets_[6]+=1; //gluons
     else if(jetFlavour==20) nJets_[7]+=1; //PU
     else nJets_[0]+=1; //NI
-  }
-  else{
+  } else {
     nJets_[0]+=1;
   }
   if (edm::isNotFinite(discriminator) ) dDiscriminator_->fill(jetFlavour, -999.0 );
@@ -257,8 +251,7 @@ void JetTagPlotter::analyzeTag(const reco::Jet & jet,
     else if(abs(jetFlavour)==21) nJets_[6]+=1; //gluons
     else if(jetFlavour==20) nJets_[7]+=1; //PU
     else nJets_[0]+=1; //NI
-  }
-  else{
+  } else {
     nJets_[0]+=1;
   }
   if (edm::isNotFinite(discriminator) ) dDiscriminator_->fill(jetFlavour, -999.0 , w );
@@ -282,13 +275,12 @@ void JetTagPlotter::analyzeTag(const reco::JetTag & jetTag,
 {
   if (mcPlots_) {
   dJetFlav_->fill(jetFlavour, jetFlavour);
-  if(abs(jetFlavour)>0 && abs(jetFlavour)<6) nJets_[abs(jetFlavour)]+=1; //quarks 1 to 5
-  else if(abs(jetFlavour)==21) nJets_[6]+=1; //gluons
-  else if(jetFlavour==20) nJets_[7]+=1; //PU  
-  else nJets_[0]+=1; //NI
-  }
-  else{
-    nJets_[0]+=1;
+  if (abs(jetFlavour) > 0 && abs(jetFlavour) < 6) nJets_[abs(jetFlavour)] += 1; //quarks 1 to 5
+  else if(abs(jetFlavour) == 21) nJets_[6] +=1 ; //gluons
+  else if(jetFlavour == 20) nJets_[7] += 1; //PU  
+  else nJets_[0] += 1; //NI
+  } else {
+    nJets_[0] += 1;
   }
   if (edm::isNotFinite(jetTag.second) ) dDiscriminator_->fill(jetFlavour, -999.0 );
   else dDiscriminator_->fill(jetFlavour, jetTag.second);
@@ -305,13 +297,12 @@ void JetTagPlotter::analyzeTag(const reco::JetTag & jetTag,
 {
   if (mcPlots_) {
     dJetFlav_->fill(jetFlavour, jetFlavour, w );
-    if(abs(jetFlavour)>0 && abs(jetFlavour)<6) nJets_[abs(jetFlavour)]+=1; //quarks 1 to 5
-    else if(abs(jetFlavour)==21) nJets_[6]+=1; //gluons
-    else if(jetFlavour==20) nJets_[7]+=1; //PU  
-    else nJets_[0]+=1; //NI
-  }
-  else{
-    nJets_[0]+=1;
+    if (abs(jetFlavour) > 0 && abs(jetFlavour) < 6) nJets_[abs(jetFlavour)] += 1; //quarks 1 to 5
+    else if (abs(jetFlavour) == 21) nJets_[6] += 1; //gluons
+    else if (jetFlavour == 20) nJets_[7] += 1; //PU  
+    else nJets_[0] += 1; //NI
+  } else {
+    nJets_[0] += 1;
   }
   if (edm::isNotFinite(jetTag.second) ) dDiscriminator_->fill(jetFlavour, -999.0 , w );
   else dDiscriminator_->fill(jetFlavour, jetTag.second , w );
