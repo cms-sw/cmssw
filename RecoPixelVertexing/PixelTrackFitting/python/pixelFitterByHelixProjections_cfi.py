@@ -5,4 +5,4 @@ from RecoPixelVertexing.PixelTrackFitting.pixelFitterByHelixProjectionsDefault_c
 
 pixelFitterByHelixProjections = pixelFitterByHelixProjectionsDefault.clone()
 
-phase1Pixel.toModify( pixelFitterByHelixProjections, scaleErrorsForPhaseIQuadruplets = cms.bool(True))
+phase1Pixel.toModify( pixelFitterByHelixProjections, scaleErrorsForPhaseI = True)
