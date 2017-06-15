@@ -86,22 +86,22 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
 	    // FIXME : in firmware N --> larger phi but apparently only for these secondaries ... sigh ...
 	    // might need to revert ; ALSO check EAST / WEST
 	    // or at least check that everything is coherent here
-	    if (is3x3Maximum(towerN2, towers, caloNav)  && towerN2.hwPt()  >= seedThreshold && !mainCluster.checkClusterFlag(CaloCluster::INCLUDE_NN))
-	      sites.push_back(5);
+            if (is3x3Maximum(towerN2, towers, caloNav)  && towerN2.hwPt()  >= seedThreshold && !mainCluster.checkClusterFlag(CaloCluster::INCLUDE_NN)) 
+                sites.push_back(5);
             if (is3x3Maximum(towerN3, towers, caloNav)  && towerN3.hwPt()  >= seedThreshold)
-	      sites.push_back(7);
-            if (is3x3Maximum(towerN2W, towers, caloNav) && towerN2W.hwPt() >= seedThreshold && abs(towerN2W.hwEta())<params_->isoTauEtaMax())
-	      sites.push_back(4);
-            if (is3x3Maximum(towerN2E, towers, caloNav) && towerN2E.hwPt() >= seedThreshold && abs(towerN2E.hwEta())<params_->isoTauEtaMax())
-	      sites.push_back(6);
-            if (is3x3Maximum(towerS2, towers, caloNav)  && towerS2.hwPt()  >= seedThreshold && !mainCluster.checkClusterFlag(CaloCluster::INCLUDE_SS))
-	      sites.push_back(2);
+                sites.push_back(7);
+            if (is3x3Maximum(towerN2W, towers, caloNav) && towerN2W.hwPt() >= seedThreshold)
+                sites.push_back(4);
+            if (is3x3Maximum(towerN2E, towers, caloNav) && towerN2E.hwPt() >= seedThreshold)
+                sites.push_back(6);
+            if (is3x3Maximum(towerS2, towers, caloNav)  && towerS2.hwPt()  >= seedThreshold && !mainCluster.checkClusterFlag(CaloCluster::INCLUDE_SS)) 
+                sites.push_back(2);
             if (is3x3Maximum(towerS3, towers, caloNav)  && towerS3.hwPt()  >= seedThreshold)
-	      sites.push_back(0);
-            if (is3x3Maximum(towerS2W, towers, caloNav) && towerS2W.hwPt() >= seedThreshold && abs(towerS2W.hwEta())<params_->isoTauEtaMax())
-	      sites.push_back(1);
-            if (is3x3Maximum(towerS2E, towers, caloNav) && towerS2E.hwPt() >= seedThreshold && abs(towerS2E.hwEta())<params_->isoTauEtaMax())
-	      sites.push_back(3);
+                sites.push_back(0);
+            if (is3x3Maximum(towerS2W, towers, caloNav) && towerS2W.hwPt() >= seedThreshold)
+                sites.push_back(1);
+            if (is3x3Maximum(towerS2E, towers, caloNav) && towerS2E.hwPt() >= seedThreshold)
+                sites.push_back(3);	    
           
             if (sites.size() == 0) // no merging candidate
             {
