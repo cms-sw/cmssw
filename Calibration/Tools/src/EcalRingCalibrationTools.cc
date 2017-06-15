@@ -14,7 +14,7 @@
 std::atomic<bool> EcalRingCalibrationTools::isInitializedFromGeometry_(false);
 short EcalRingCalibrationTools::endcapRingIndex_[EEDetId::IX_MAX][EEDetId::IY_MAX];
 std::once_flag EcalRingCalibrationTools::once_;
-
+const short EcalRingCalibrationTools::N_RING_TOTAL;
 
 short EcalRingCalibrationTools::getRingIndex(DetId id) 
 {
