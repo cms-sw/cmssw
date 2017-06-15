@@ -61,7 +61,7 @@ PhotonMonitor::~PhotonMonitor()
 MEbinning PhotonMonitor::getHistoPSet(edm::ParameterSet const& pset)
 {
   return MEbinning{
-    pset.getParameter<int32_t>("nbins"),
+    pset.getParameter<unsigned int>("nbins"),
       pset.getParameter<double>("xmin"),
       pset.getParameter<double>("xmax"),
       };
@@ -70,9 +70,9 @@ MEbinning PhotonMonitor::getHistoPSet(edm::ParameterSet const& pset)
 MEbinning PhotonMonitor::getHistoLSPSet(edm::ParameterSet const& pset)
 {
   return MEbinning{
-    pset.getParameter<int32_t>("nbins"),
+    pset.getParameter<unsigned int>("nbins"),
       0.,
-      double(pset.getParameter<int32_t>("nbins"))
+      double(pset.getParameter<unsigned int>("nbins"))
       };
 }
 
@@ -85,36 +85,36 @@ void PhotonMonitor::setTitle(PhotonME& me, const std::string& titleX, const std:
 
 }
 
-void PhotonMonitor::bookME(DQMStore::IBooker &ibooker, PhotonME& me, const std::string& histname, const std::string& histtitle, int nbins, double min, double max)
+void PhotonMonitor::bookME(DQMStore::IBooker &ibooker, PhotonME& me, const std::string& histname, const std::string& histtitle, unsigned int nbins, double min, double max)
 {
   me.numerator   = ibooker.book1D(histname+"_numerator",   histtitle+" (numerator)",   nbins, min, max);
   me.denominator = ibooker.book1D(histname+"_denominator", histtitle+" (denominator)", nbins, min, max);
 }
 void PhotonMonitor::bookME(DQMStore::IBooker &ibooker, PhotonME& me, const std::string& histname, const std::string& histtitle, const std::vector<double>& binning)
 {
-  int nbins = binning.size()-1;
+  unsigned int nbins = binning.size()-1;
   std::vector<float> fbinning(binning.begin(),binning.end());
   //  float* arr = &fbinning[0];
   float* arr = fbinning.data();
   me.numerator   = ibooker.book1D(histname+"_numerator",   histtitle+" (numerator)",   nbins, arr);
   me.denominator = ibooker.book1D(histname+"_denominator", histtitle+" (denominator)", nbins, arr);
 }
-void PhotonMonitor::bookME(DQMStore::IBooker &ibooker, PhotonME& me, const std::string& histname, const std::string& histtitle, int nbinsX, double xmin, double xmax, double ymin, double ymax)
+void PhotonMonitor::bookME(DQMStore::IBooker &ibooker, PhotonME& me, const std::string& histname, const std::string& histtitle, unsigned int nbinsX, double xmin, double xmax, double ymin, double ymax)
 {
   me.numerator   = ibooker.bookProfile(histname+"_numerator",   histtitle+" (numerator)",   nbinsX, xmin, xmax, ymin, ymax);
   me.denominator = ibooker.bookProfile(histname+"_denominator", histtitle+" (denominator)", nbinsX, xmin, xmax, ymin, ymax);
 }
-void PhotonMonitor::bookME(DQMStore::IBooker &ibooker, PhotonME& me, const std::string& histname, const std::string& histtitle, int nbinsX, double xmin, double xmax, int nbinsY, double ymin, double ymax)
+void PhotonMonitor::bookME(DQMStore::IBooker &ibooker, PhotonME& me, const std::string& histname, const std::string& histtitle, unsigned int nbinsX, double xmin, double xmax, unsigned int nbinsY, double ymin, double ymax)
 {
   me.numerator   = ibooker.book2D(histname+"_numerator",   histtitle+" (numerator)",   nbinsX, xmin, xmax, nbinsY, ymin, ymax);
   me.denominator = ibooker.book2D(histname+"_denominator", histtitle+" (denominator)", nbinsX, xmin, xmax, nbinsY, ymin, ymax);
 }
 void PhotonMonitor::bookME(DQMStore::IBooker &ibooker, PhotonME& me, const std::string& histname, const std::string& histtitle, const std::vector<double>& binningX, const std::vector<double>& binningY)
 {
-  int nbinsX = binningX.size()-1;
+  unsigned int nbinsX = binningX.size()-1;
   std::vector<float> fbinningX(binningX.begin(),binningX.end());
   float* arrX = &fbinningX[0];
-  int nbinsY = binningY.size()-1;
+  unsigned int nbinsY = binningY.size()-1;
   std::vector<float> fbinningY(binningY.begin(),binningY.end());
   float* arrY = &fbinningY[0];
 
@@ -259,14 +259,14 @@ void PhotonMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSe
 
 void PhotonMonitor::fillHistoPSetDescription(edm::ParameterSetDescription & pset)
 {
-  pset.add<int>   ( "nbins");
+  pset.add<unsigned int>   ( "nbins");
   pset.add<double>( "xmin" );
   pset.add<double>( "xmax" );
 }
 
 void PhotonMonitor::fillHistoLSPSetDescription(edm::ParameterSetDescription & pset)
 {
-  pset.add<int>   ( "nbins", 2500);
+  pset.add<unsigned int>   ( "nbins", 2500);
 }
 
 void PhotonMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
