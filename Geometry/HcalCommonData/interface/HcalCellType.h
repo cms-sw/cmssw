@@ -56,6 +56,7 @@ public:
   int    unitPhi() const {return theUnitPhi;}
   void   setPhi(std::vector<std::pair<int,double>>& phis,
 		std::vector<int>& iphiMiss, double foff,double dphi, int unit);
+  void   setPhi(std::vector<std::pair<int,double>>& phis) {thePhis = phis;}
                                                                                
   /// which cell will actually do the readout for this cell
   /// 1 means move hits in this cell up, and -1 means down
