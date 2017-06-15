@@ -8,7 +8,6 @@
 //
 // -----------------------------
 
-
 #include "DQMOffline/Trigger/plugins/RazorMonitor.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -23,7 +22,6 @@ RazorMonitor::RazorMonitor( const edm::ParameterSet& iConfig ) :
   folderName_             ( iConfig.getParameter<std::string>("FolderName") )
   , metToken_             ( consumes<reco::PFMETCollection>      (iConfig.getParameter<edm::InputTag>("met")       ) )   
   , jetToken_             ( mayConsume<reco::PFJetCollection>      (iConfig.getParameter<edm::InputTag>("jets")      ) )   
-  , ls_binning_           ( getHistoLSPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("lsPSet")     ) )
   , rsq_binning_          ( iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >   ("rsqBins")    )
   , mr_binning_           ( iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >   ("mrBins")     )
   , dphiR_binning_        ( iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >   ("dphiRBins")  )
@@ -31,7 +29,7 @@ RazorMonitor::RazorMonitor( const edm::ParameterSet& iConfig ) :
   , den_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("denGenericTriggerEventPSet"),consumesCollector(), *this))
   , metSelection_ ( iConfig.getParameter<std::string>("metSelection") )
   , jetSelection_ ( iConfig.getParameter<std::string>("jetSelection") )
-  , njets_      ( iConfig.getParameter<uint>("njets" )      )
+  , njets_      ( iConfig.getParameter<unsigned int>("njets" )      )
   , rsqCut_     ( iConfig.getParameter<double>("rsqCut" )  )
   , mrCut_      ( iConfig.getParameter<double>("mrCut" )   )
 {
@@ -40,12 +38,8 @@ RazorMonitor::RazorMonitor( const edm::ParameterSet& iConfig ) :
 
   MR_ME_.numerator = nullptr;
   MR_ME_.denominator = nullptr;
-  MRVsLS_.numerator = nullptr;
-  MRVsLS_.denominator = nullptr;
   Rsq_ME_.numerator = nullptr;
   Rsq_ME_.denominator = nullptr;
-  RsqVsLS_.numerator = nullptr;
-  RsqVsLS_.denominator = nullptr;
   dPhiR_ME_.numerator = nullptr;
   dPhiR_ME_.denominator = nullptr;
 
@@ -56,15 +50,6 @@ RazorMonitor::RazorMonitor( const edm::ParameterSet& iConfig ) :
 
 RazorMonitor::~RazorMonitor()
 {
-}
-
-MEbinning RazorMonitor::getHistoLSPSet(edm::ParameterSet pset)
-{
-  return MEbinning{
-    pset.getParameter<int32_t>("nbins"),
-      0.,
-      double(pset.getParameter<int32_t>("nbins"))
-      };
 }
 
 void RazorMonitor::setMETitle(RazorME& me, std::string titleX, std::string titleY)
@@ -127,20 +112,10 @@ void RazorMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   bookME(ibooker,MR_ME_,histname,histtitle,mr_binning_);
   setMETitle(MR_ME_,"PF M_{R} [GeV]","events / [GeV]");
 
-  // profile, MR vs LS
-  histname = "MRVsLS"; histtitle = "PF MR vs LS";
-  bookME(ibooker,MRVsLS_,histname,histtitle,ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax, mr_binning_.front(),mr_binning_.back());
-  setMETitle(MRVsLS_,"LS","PF M_{R} [GeV]");
-
   // 1D hist, Rsq
   histname = "Rsq"; histtitle = "PF Rsq";
   bookME(ibooker,Rsq_ME_,histname,histtitle,rsq_binning_);
   setMETitle(Rsq_ME_,"PF R^{2}","events");
-
-  // profile, Rsq vs LS
-  histname = "RsqVsLS"; histtitle = "PF Rsq vs LS";
-  bookME(ibooker,RsqVsLS_,histname,histtitle,ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax, rsq_binning_.front(), rsq_binning_.back());
-  setMETitle(RsqVsLS_,"LS","PF R^{2}");
 
   // 1D hist, dPhiR
   histname = "dPhiR"; histtitle = "dPhiR";
@@ -201,25 +176,19 @@ void RazorMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSet
     return;
   }
 
-  //dummy vector (this trigger currently doesn't use muons, 
-  //but retain for possible future use)
-  std::vector<math::XYZTLorentzVector> muonVec;
-
   //calculate razor variables, with hemispheres pT-ordered
   double MR = 0, R = 0;
   if (hemispheres->at(1).Pt() > hemispheres->at(0).Pt()) {
     MR = CalcMR(hemispheres->at(1),hemispheres->at(0));
-    R = CalcR(MR,hemispheres->at(1),hemispheres->at(0),metHandle, muonVec);
+    R = CalcR(MR,hemispheres->at(1),hemispheres->at(0),metHandle);
   }
   else {
     MR = CalcMR(hemispheres->at(0),hemispheres->at(1));
-    R = CalcR(MR,hemispheres->at(0),hemispheres->at(1),metHandle, muonVec);
+    R = CalcR(MR,hemispheres->at(0),hemispheres->at(1),metHandle);
   }
   
   double Rsq = R*R;
   double dPhiR = abs(deltaPhi(hemispheres->at(0).Phi(), hemispheres->at(1).Phi()));
-
-  int ls = iEvent.id().luminosityBlock();
 
   //apply offline selection cuts
   if (Rsq<rsqCut_ && MR<mrCut_) return;
@@ -230,12 +199,10 @@ void RazorMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSet
   // filling histograms (denominator)
   if (Rsq>=rsqCut_) {
     MR_ME_.denominator -> Fill(MR);
-    MRVsLS_.denominator -> Fill(ls, MR);
   }
 
   if (MR>=mrCut_) {
     Rsq_ME_.denominator -> Fill(Rsq);
-    RsqVsLS_.denominator -> Fill(ls, Rsq);
   }
 
   dPhiR_ME_.denominator -> Fill(dPhiR);
@@ -248,23 +215,16 @@ void RazorMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSet
   // filling histograms (numerator)
   if (Rsq>=rsqCut_) {
     MR_ME_.numerator -> Fill(MR);
-    MRVsLS_.numerator -> Fill(ls, MR);
   }
 
   if (MR>=mrCut_) {
     Rsq_ME_.numerator -> Fill(Rsq);
-    RsqVsLS_.numerator -> Fill(ls, Rsq);
   }
 
   dPhiR_ME_.numerator -> Fill(dPhiR);
 
   MRVsRsq_ME_.numerator -> Fill(MR, Rsq);
 
-}
-
-void RazorMonitor::fillHistoLSPSetDescription(edm::ParameterSetDescription & pset)
-{
-  pset.add<int32_t>   ( "nbins", 2500);
 }
 
 void RazorMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
@@ -279,7 +239,7 @@ void RazorMonitor::fillDescriptions(edm::ConfigurationDescriptions & description
 
   // from 2016 offline selection
   desc.add<std::string>("jetSelection", "pt > 80");
-  desc.add<uint>("njets",      2);
+  desc.add<unsigned int>("njets",      2);
   desc.add<double>("mrCut",    300);
   desc.add<double>("rsqCut",   0.15);
 
@@ -311,10 +271,6 @@ void RazorMonitor::fillDescriptions(edm::ConfigurationDescriptions & description
   std::vector<double> dphirbins = {0., 0.5, 1.0, 1.5, 2.0, 2.5, 2.8, 3.0, 3.2};
   histoPSet.add<std::vector<double> >("dphiRBins", dphirbins);
 
-  edm::ParameterSetDescription lsPSet;
-  fillHistoLSPSetDescription(lsPSet);
-  histoPSet.add<edm::ParameterSetDescription>("lsPSet", lsPSet);
-
   desc.add<edm::ParameterSetDescription>("histoPSet",histoPSet);
 
   descriptions.add("razorMonitoring", desc);
@@ -344,23 +300,12 @@ double RazorMonitor::CalcMR(const math::XYZTLorentzVector& ja, const math::XYZTL
   return MR*mygamma;
 }
 
-double RazorMonitor::CalcR(double MR, const math::XYZTLorentzVector& ja, const math::XYZTLorentzVector& jb, const edm::Handle<std::vector<reco::PFMET> >& inputMet, const std::vector<math::XYZTLorentzVector>& muons){
+double RazorMonitor::CalcR(double MR, const math::XYZTLorentzVector& ja, const math::XYZTLorentzVector& jb, const edm::Handle<std::vector<reco::PFMET> >& inputMet){
+
   //now we can calculate MTR
-  TVector3 met;
-  met.SetPtEtaPhi((inputMet->front()).pt(),0.0,(inputMet->front()).phi());
+  const math::XYZVector met = (inputMet->front()).momentum();
 
-  std::vector<math::XYZTLorentzVector>::const_iterator muonIt;
-  for (muonIt = muons.begin(); muonIt!=muons.end(); muonIt++) {
-    TVector3 tmp;
-    tmp.SetPtEtaPhi(muonIt->pt(), 0, muonIt->phi());
-    met-=tmp;
-  }
-
-  TVector3 ja3, jb3;
-  ja3.SetXYZ(ja.Px(),ja.Py(),ja.Pz());
-  jb3.SetXYZ(jb.Px(),jb.Py(),jb.Pz());
-
-  double MTR = sqrt(0.5*(met.Mag()*(ja.Pt()+jb.Pt()) - met.Dot(ja3+jb3)));
+  double MTR = sqrt(0.5*(met.R()*(ja.Pt()+jb.Pt()) - met.Dot(ja.Vect()+jb.Vect())));
 
   //filter events
   return float(MTR)/float(MR); //R
