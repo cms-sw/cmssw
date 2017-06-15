@@ -141,9 +141,10 @@ def gtNameAndConnect(globalTag, args):
     return globalTag +',frontier://PromptProd/CMS_CONDITIONS'
 
 def customise_HPbeamspot(process):
-    # write to sqlite the HP tag and use the HP medatata for upload to the dropbox
-    if ( hasattr(process,'PoolDBOutputService')   and 
-         hasattr(process,'pclMetadataWriter')     and 
+    # write to sqlite the HP tag and use the HP medatata for uploading it  to the dropbox
+    # ByLumi
+    if ( hasattr(process,'PoolDBOutputService')   and
+         hasattr(process,'pclMetadataWriter')     and
          hasattr(process,'ALCAHARVESTBeamSpotByLumi')  ):
         for onePset in process.PoolDBOutputService.toPut:
             if onePset.record == 'BeamSpotObjectsRcdByLumi':
@@ -155,8 +156,9 @@ def customise_HPbeamspot(process):
         if process.ALCAHARVESTBeamSpotByLumi.AlcaBeamSpotHarvesterParameters.outputRecordName == 'BeamSpotObjectsRcdByLumi':
             process.ALCAHARVESTBeamSpotByLumi.AlcaBeamSpotHarvesterParameters.outputRecordName = 'BeamSpotObjectsRcdHPByLumi'
 
-    if ( hasattr(process,'PoolDBOutputService')   and 
-         hasattr(process,'pclMetadataWriter')     and 
+    # ByRun
+    if ( hasattr(process,'PoolDBOutputService')   and
+         hasattr(process,'pclMetadataWriter')     and
          hasattr(process,'ALCAHARVESTBeamSpotByRun')  ):
         for onePset in process.PoolDBOutputService.toPut:
             if onePset.record == 'BeamSpotObjectsRcdByRun':
@@ -167,5 +169,3 @@ def customise_HPbeamspot(process):
                 onePset.record = 'BeamSpotObjectsRcdHPByRun'
         if process.ALCAHARVESTBeamSpotByRun.AlcaBeamSpotHarvesterParameters.outputRecordName == 'BeamSpotObjectsRcdByRun':
             process.ALCAHARVESTBeamSpotByRun.AlcaBeamSpotHarvesterParameters.outputRecordName = 'BeamSpotObjectsRcdHPByRun'
-
-#    return process
