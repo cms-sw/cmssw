@@ -112,26 +112,26 @@ postProcessorRecoMuon = DQMEDHarvester("DQMGenericClient",
 )
 
 # for each type monitored
-postProcessorRecoMuon_Glb = postProcessorRecoMuon.clone()
-postProcessorRecoMuon_Glb.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_Glb")
+postProcessorRecoMuonGlb = postProcessorRecoMuon.clone()
+postProcessorRecoMuonGlb.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_Glb")
 
-postProcessorRecoMuon_Trk = postProcessorRecoMuon.clone()
-postProcessorRecoMuon_Trk.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_Trk")
+postProcessorRecoMuonTrk = postProcessorRecoMuon.clone()
+postProcessorRecoMuonTrk.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_Trk")
 
-postProcessorRecoMuon_Sta = postProcessorRecoMuon.clone()
-postProcessorRecoMuon_Sta.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_Sta")
+postProcessorRecoMuonSta = postProcessorRecoMuon.clone()
+postProcessorRecoMuonSta.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_Sta")
 
-postProcessorRecoMuon_Tgt = postProcessorRecoMuon.clone()
-postProcessorRecoMuon_Tgt.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_Tgt")
+postProcessorRecoMuonTgt = postProcessorRecoMuon.clone()
+postProcessorRecoMuonTgt.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_Tgt")
 
-postProcessorRecoMuon_GlbPF = postProcessorRecoMuon.clone()
-postProcessorRecoMuon_GlbPF.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_GlbPF")
+postProcessorRecoMuonGlbPF = postProcessorRecoMuon.clone()
+postProcessorRecoMuonGlbPF.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_GlbPF")
 
-postProcessorRecoMuon_TrkPF = postProcessorRecoMuon.clone()
-postProcessorRecoMuon_TrkPF.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_TrkPF")
+postProcessorRecoMuonTrkPF = postProcessorRecoMuon.clone()
+postProcessorRecoMuonTrkPF.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_TrkPF")
 
-postProcessorRecoMuon_StaPF = postProcessorRecoMuon.clone()
-postProcessorRecoMuon_StaPF.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_StaPF")
+postProcessorRecoMuonStaPF = postProcessorRecoMuon.clone()
+postProcessorRecoMuonStaPF.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_StaPF")
 
 #not sure about this one, which types are monitored
 postProcessorRecoMuonComp = DQMEDHarvester(
@@ -165,4 +165,4 @@ postProcessorRecoMuonCompPF = DQMEDHarvester(
 )
         
 
-recoMuonPostProcessors = cms.Sequence(postProcessorMuonMultiTrack*postProcessorRecoMuon_Glb*postProcessorRecoMuon_Trk*postProcessorRecoMuon_Sta*postProcessorRecoMuon_Tgt*postProcessorRecoMuon_GlbPF*postProcessorRecoMuon_TrkPF*postProcessorRecoMuon_StaPF*postProcessorMuonMultiTrackComp*postProcessorRecoMuonComp*postProcessorRecoMuonCompPF)
+recoMuonPostProcessors = cms.Sequence(postProcessorMuonMultiTrack*postProcessorRecoMuonGlb*postProcessorRecoMuonTrk*postProcessorRecoMuonSta*postProcessorRecoMuonTgt*postProcessorRecoMuonGlbPF*postProcessorRecoMuonTrkPF*postProcessorRecoMuonStaPF*postProcessorMuonMultiTrackComp*postProcessorRecoMuonComp*postProcessorRecoMuonCompPF)
