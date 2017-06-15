@@ -35,7 +35,7 @@ hltNoBPTXmonitoring.histoPSet.muonPhiPSet = cms.PSet(
     xmax  = cms.double(3.2),
     )
 hltNoBPTXmonitoring.histoPSet.bxPSet = cms.PSet(
-    nbins = cms.uint32(3600),
+    nbins = cms.uint32(1800),
 )
 hltNoBPTXmonitoring.jets      = cms.InputTag("ak4CaloJets")
 hltNoBPTXmonitoring.muons     = cms.InputTag("displacedStandAloneMuons")

@@ -58,10 +58,10 @@ protected:
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void bookNoBPTX(DQMStore::IBooker &, NoBPTXME& me, const std::string& histname, const std::string& histtitle, int nbins, double xmin, double xmax);
   void bookNoBPTX(DQMStore::IBooker &, NoBPTXME& me, const std::string& histname, const std::string& histtitle, const std::vector<double>& binningX);
-  void bookNoBPTX(DQMStore::IBooker &, NoBPTXME& me, const std::string& histname, const std::string& histtitle, int nbinsX, double xmin, double xmax, double ymin, double ymax);
+  void bookNoBPTX(DQMStore::IBooker &, NoBPTXME& me, const std::string& histname, const std::string& histtitle, int nbinsX, double xmin, double xmax, double ymin, double ymax, bool bookDen);
   void bookNoBPTX(DQMStore::IBooker &, NoBPTXME& me, const std::string& histname, const std::string& histtitle, int nbinsX, double xmin, double xmax, int nbinsY, double ymin, double ymax);
   void bookNoBPTX(DQMStore::IBooker &, NoBPTXME& me, const std::string& histname, const std::string& histtitle, const std::vector<double>& binningX, const std::vector<double>& binningY);
-  void setNoBPTXTitle(NoBPTXME& me, std::string titleX, std::string titleY);
+  void setNoBPTXTitle(NoBPTXME& me, std::string titleX, std::string titleY, bool bookDen);
 
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
 
