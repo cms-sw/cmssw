@@ -238,8 +238,7 @@ void l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::filtering(const std::vector<
       {
           int iEtaNeigh = caloNav.offsetIEta(iEta,  deta);
           int iPhiNeigh = caloNav.offsetIPhi(iPhi,  dphi);
-          const l1t::CaloCluster& clusterNeigh = l1t::CaloTools::getCluster(clusters, iEtaNeigh, iPhiNeigh);
-	  	    
+          const l1t::CaloCluster& clusterNeigh = l1t::CaloTools::getCluster(clusters, CaloTools::caloEta(iEtaNeigh), iPhiNeigh);
 
           if      (mask[8-(dphi+4)][deta+1] == 0) continue;
           else if (mask[8-(dphi+4)][deta+1] == 1) filter = (clusterNeigh.hwPt() >   cluster.hwPt());
