@@ -31,8 +31,8 @@ do
 
     if [ $Run_numb -gt 284500 ]; then
 
-        DataLocalDir='Data2016'
-        DataOfflineDir='PARun2016'
+        DataLocalDir='Data2017'
+        DataOfflineDir='Run2017'
     else
 
 
@@ -126,7 +126,7 @@ do
     if [[ ${runStatus} == 0 ]] 
 	then 
 	echo ${Run_numb} >> ${curdir}/runsNotComplete_tmp.txt
-        if [ ${FORCE} == 0] 
+        if [ ${FORCE} == 0 ] 
 	then 
 	    continue; 
 	fi
@@ -280,8 +280,9 @@ do
     scp *.root cctrack@vocms061:/data/users/event_display/TkCommissioner_runs/${DataLocalDir}/${dest}
     rm *.root
 
-    echo "countig dead pixel ROCs" 
-    if [ $DataLocalDir=="Data2016" -o $DataLocalDir=="Data2015" -o $DataLocalDir=="Data2013" -o $DataLocalDir=="Data2016" ]; then 
+    echo "counting dead pixel ROCs" 
+    echo "DataLocalDir = ${DataLocalDir}"
+    if [[ $DataLocalDir == "Data2016" || $DataLocalDir == "Data2015" || $DataLocalDir == "Data2013" || $DataLocalDir == "Data2016" ]]; then 
        ./DeadROCCounter.py ${file_path}/$dqmFileName
     else 
        ./DeadROCCounter_Phase1.py ${file_path}/$dqmFileName
