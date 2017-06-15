@@ -7,8 +7,8 @@
 // Based on DQMOffline/Trigger/plugins/METMonitor.*
 //
 // ----------------------------- 
-#ifndef RAZORMONITOR_H
-#define RAZORMONITOR_H
+#ifndef DQMOFFLINE_TRIGGER_RAZORMONITOR_H
+#define DQMOFFLINE_TRIGGER_RAZORMONITOR_H
 
 #include <string>
 #include <vector>
@@ -46,12 +46,6 @@
 
 class GenericTriggerEventFlag;
 
-struct MEbinning {
-  int nbins;
-  double xmin;
-  double xmax;
-};
-
 struct RazorME {
   MonitorElement* numerator;
   MonitorElement* denominator;
@@ -66,10 +60,9 @@ public:
   RazorMonitor( const edm::ParameterSet& );
   ~RazorMonitor();
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  static void fillHistoLSPSetDescription(edm::ParameterSetDescription & pset);
 
   static double CalcMR(const math::XYZTLorentzVector& ja, const math::XYZTLorentzVector& jb);
-  static double CalcR(double MR, const math::XYZTLorentzVector& ja, const math::XYZTLorentzVector& jb, const edm::Handle<std::vector<reco::PFMET> >& met, const std::vector<math::XYZTLorentzVector>& muons);
+  static double CalcR(double MR, const math::XYZTLorentzVector& ja, const math::XYZTLorentzVector& jb, const edm::Handle<std::vector<reco::PFMET> >& met);
 
 protected:
 
@@ -84,7 +77,6 @@ protected:
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
 
 private:
-  static MEbinning getHistoLSPSet  (edm::ParameterSet pset);
 
   std::string folderName_;
   std::string histoSuffix_;
@@ -93,17 +85,13 @@ private:
   edm::EDGetTokenT<reco::PFJetCollection>       jetToken_;
   edm::EDGetTokenT<std::vector<math::XYZTLorentzVector> > theHemispheres_;
   
-  MEbinning           ls_binning_;
   std::vector<double> rsq_binning_;
   std::vector<double> mr_binning_;
   std::vector<double> dphiR_binning_;
 
   RazorME MR_ME_;
-  RazorME MRVsLS_;
   RazorME Rsq_ME_;
-  RazorME RsqVsLS_;
   RazorME dPhiR_ME_;
-
   RazorME MRVsRsq_ME_;
 
   std::unique_ptr<GenericTriggerEventFlag> num_genTriggerEventFlag_;
@@ -111,10 +99,10 @@ private:
 
   StringCutObjectSelector<reco::MET,true>      metSelection_;
   StringCutObjectSelector<reco::PFJet,true >   jetSelection_;
-  uint njets_;
+  unsigned int njets_;
   float rsqCut_;
   float mrCut_;
 
 };
 
-#endif // RAZORMONITOR_H
+#endif // DQMOFFLINE_TRIGGER_RAZORMONITOR_H
