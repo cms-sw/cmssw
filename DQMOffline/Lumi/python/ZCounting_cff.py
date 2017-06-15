@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process.zcounting = cms.EDAnalyzer('ZCounting',
+zcounting = cms.EDAnalyzer('ZCounting',
                                  TriggerEvent    = cms.InputTag('hltTriggerSummaryAOD','','HLT'),
                                  TriggerResults  = cms.InputTag('TriggerResults','','HLT'),
 				 edmPVName       = cms.untracked.string('offlinePrimaryVertices'),
