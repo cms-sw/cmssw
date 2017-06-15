@@ -568,8 +568,8 @@ void HGCalImagingAlgo::computeThreshold() {
 	  else if( thickness>299. && thickness<301. ) thickIndex=2;
 	  else assert( thickIndex>0 && "ERROR - silicon thickness has a nonsensical value" );
 	  float sigmaNoise = 0.001 * fcPerEle * nonAgedNoises[thickIndex] * dEdXweights[layer] / (fcPerMip[thickIndex] * thicknessCorrection[thickIndex]);
-	  thresholds[layer-1][wafer]=sigmaNoise*ecut;
-	  v_sigmaNoise[layer-1][wafer] = sigmaNoise;
+          thresholds[layer-1][wafer]=sigmaNoise*ecut;
+          v_sigmaNoise[layer-1][wafer] = sigmaNoise;
 	}
     }
 
