@@ -5,13 +5,13 @@ from DQMOffline.Trigger.metMonitoring_cfi import metMonitoring
 hltMETmonitoring = metMonitoring.clone()
 hltMETmonitoring.FolderName = cms.string('HLT/MET/PFMETNoMu120/')
 hltMETmonitoring.histoPSet.metPSet = cms.PSet(
-  nbins = cms.int32 (  200  ),
-  xmin  = cms.double(   -0.5),
+  nbins = cms.int32 (200),
+  xmin  = cms.double(-0.5),
   xmax  = cms.double(19999.5),
 )
 hltMETmonitoring.histoPSet.htPSet = cms.PSet(
-  nbins = cms.int32 (  200  ),
-  xmin  = cms.double(   -0.5),
+  nbins = cms.int32 (200),
+  xmin  = cms.double(-0.5),
   xmax  = cms.double(19999.5),
 )
 

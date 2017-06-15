@@ -20,31 +20,29 @@ MET200_HTmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_MET20
 # HLT_MonoCentralPFJet80_PFMETNoMu110_PFMHTNoMu110_IDTight
 MonoCentralPFJet80_PFMETNoMu110_PFMHTNoMu110_HTmonitoring = hltHTmonitoring.clone()
 MonoCentralPFJet80_PFMETNoMu110_PFMHTNoMu110_HTmonitoring.FolderName = cms.string('HLT/HT/MonoCentralPFJet80_PFMETNoMu110/')
-MonoCentralPFJet80_PFMETNoMu110_PFMHTNoMu110_HTmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("MonoCentralPFJet80_PFMETNoMu110_PFMHTNoMu110_IDTight_v*")
-MonoCentralPFJet80_PFMETNoMu110_PFMHTNoMu110_HTmonitoring.jetSelection      = cms.string("pt[0] > 100 && eta[0] < 2.5 && neutralHadronEnergyFraction[0] < 0.8 && chargedHadronEnergyFraction[0] > 0.1")
-MonoCentralPFJet80_PFMETNoMu110_PFMHTNoMu110_HTmonitoring.muoSelection      = cms.string("isTightMuon()")
+MonoCentralPFJet80_PFMETNoMu110_PFMHTNoMu110_HTmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_MonoCentralPFJet80_PFMETNoMu110_PFMHTNoMu110_IDTight_v*")
+MonoCentralPFJet80_PFMETNoMu110_PFMHTNoMu110_HTmonitoring.jetSelection      = cms.string("pt > 100 && eta < 2.5 && neutralHadronEnergyFraction < 0.8 && chargedHadronEnergyFraction > 0.1")
 MonoCentralPFJet80_PFMETNoMu110_PFMHTNoMu110_HTmonitoring.jetSelection_HT   = cms.string("pt > 30 && eta < 2.5")
 
 # HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight
 MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_HTmonitoring = hltHTmonitoring.clone()
 MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_HTmonitoring.FolderName = cms.string('HLT/HT/MonoCentralPFJet80_PFMETNoMu120/')
 MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_HTmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight_v*")
+MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_HTmonitoring.jetSelection      = cms.string("pt > 100 && eta < 2.5 && neutralHadronEnergyFraction < 0.8 && chargedHadronEnergyFraction > 0.1")
 MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_HTmonitoring.jetSelection_HT   = cms.string("pt > 30 && eta < 2.5")
 
 # HLT_MonoCentralPFJet80_PFMETNoMu130_PFMHTNoMu130_IDTight
 MonoCentralPFJet80_PFMETNoMu130_PFMHTNoMu130_HTmonitoring = hltHTmonitoring.clone()
 MonoCentralPFJet80_PFMETNoMu130_PFMHTNoMu130_HTmonitoring.FolderName = cms.string('HLT/HT/MonoCentralPFJet80_PFMETNoMu130/')
-MonoCentralPFJet80_PFMETNoMu130_PFMHTNoMu130_HTmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("MonoCentralPFJet80_PFMETNoMu130_PFMHTNoMu130_IDTight_v*")
-MonoCentralPFJet80_PFMETNoMu130_PFMHTNoMu130_HTmonitoring.jetSelection      = cms.string("pt[0] > 100 && eta[0] < 2.5 && neutralHadronEnergyFraction[0] < 0.8 && chargedHadronEnergyFraction[0] > 0.1")
-MonoCentralPFJet80_PFMETNoMu130_PFMHTNoMu130_HTmonitoring.muoSelection      = cms.string("isTightMuon()")
+MonoCentralPFJet80_PFMETNoMu130_PFMHTNoMu130_HTmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_MonoCentralPFJet80_PFMETNoMu130_PFMHTNoMu130_IDTight_v*")
+MonoCentralPFJet80_PFMETNoMu130_PFMHTNoMu130_HTmonitoring.jetSelection      = cms.string("pt > 100 && eta < 2.5 && neutralHadronEnergyFraction < 0.8 && chargedHadronEnergyFraction > 0.1")
 MonoCentralPFJet80_PFMETNoMu130_PFMHTNoMu130_HTmonitoring.jetSelection_HT   = cms.string("pt > 30 && eta < 2.5")
 
 # HLT_MonoCentralPFJet80_PFMETNoMu140_PFMHTNoMu140_IDTight
 MonoCentralPFJet80_PFMETNoMu140_PFMHTNoMu140_HTmonitoring = hltHTmonitoring.clone()
 MonoCentralPFJet80_PFMETNoMu140_PFMHTNoMu140_HTmonitoring.FolderName = cms.string('HLT/HT/MonoCentralPFJet80_PFMETNoMu140/')
-MonoCentralPFJet80_PFMETNoMu140_PFMHTNoMu140_HTmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("_v*")
-MonoCentralPFJet80_PFMETNoMu140_PFMHTNoMu140_HTmonitoring.jetSelection      = cms.string("pt[0] > 100 && eta[0] < 2.5 && neutralHadronEnergyFraction[0] < 0.8 && chargedHadronEnergyFraction[0] > 0.1")
-MonoCentralPFJet80_PFMETNoMu140_PFMHTNoMu140_HTmonitoring.muoSelection      = cms.string("isTightMuon()")
+MonoCentralPFJet80_PFMETNoMu140_PFMHTNoMu140_HTmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_MonoCentralPFJet80_PFMETNoMu140_PFMHTNoMu140_IDTight_v*")
+MonoCentralPFJet80_PFMETNoMu140_PFMHTNoMu140_HTmonitoring.jetSelection      = cms.string("pt > 100 && eta < 2.5 && neutralHadronEnergyFraction < 0.8 && chargedHadronEnergyFraction > 0.1")
 MonoCentralPFJet80_PFMETNoMu140_PFMHTNoMu140_HTmonitoring.jetSelection_HT   = cms.string("pt > 30 && eta < 2.5")
 
 # HLT_MonoCentralPFJet80_PFMETNoMu90_PFMHTNoMu90_IDTight
@@ -173,32 +171,28 @@ PFHT180_HTmonitoring.jetSelection_HT   = cms.string("pt > 30 && eta < 2.5")
 PFMETTypeOne110_PFMHT110_HTmonitoring = hltHTmonitoring.clone()
 PFMETTypeOne110_PFMHT110_HTmonitoring.FolderName = cms.string('HLT/HT/PFMETTypeOne110/')
 PFMETTypeOne110_PFMHT110_HTmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFMETTypeOne110_PFMHT110_IDTight_v*")
-PFMETTypeOne110_PFMHT110_HTmonitoring.jetSelection      = cms.string("pt[0] > 100 && eta[0] < 2.5 && neutralHadronEnergyFraction[0] < 0.8 && chargedHadronEnergyFraction[0] > 0.1")
-PFMETTypeOne110_PFMHT110_HTmonitoring.muoSelection      = cms.string("isTightMuon()")
+PFMETTypeOne110_PFMHT110_HTmonitoring.jetSelection      = cms.string("pt > 100 && eta < 2.5 && neutralHadronEnergyFraction < 0.8 && chargedHadronEnergyFraction > 0.1")
 PFMETTypeOne110_PFMHT110_HTmonitoring.jetSelection_HT   = cms.string("pt > 30 && eta < 2.5")
 
 # HLT_PFMETTypeOne120_PFMHT120_IDTight
 PFMETTypeOne120_PFMHT120_HTmonitoring = hltHTmonitoring.clone()
 PFMETTypeOne120_PFMHT120_HTmonitoring.FolderName = cms.string('HLT/HT/PFMETTypeOne120/')
 PFMETTypeOne120_PFMHT120_HTmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PPFMETTypeOne120_PFMHT120_IDTight_v*")
-PFMETTypeOne120_PFMHT120_HTmonitoring.jetSelection      = cms.string("pt[0] > 100 && eta[0] < 2.5 && neutralHadronEnergyFraction[0] < 0.8 && chargedHadronEnergyFraction[0] > 0.1")
-PFMETTypeOne120_PFMHT120_HTmonitoring.muoSelection      = cms.string("isTightMuon()")
+PFMETTypeOne120_PFMHT120_HTmonitoring.jetSelection      = cms.string("pt > 100 && eta < 2.5 && neutralHadronEnergyFraction < 0.8 && chargedHadronEnergyFraction > 0.1")
 PFMETTypeOne120_PFMHT120_HTmonitoring.jetSelection_HT   = cms.string("pt > 30 && eta < 2.5")
 
 # HLT_PFMETTypeOne130_PFMHT130_IDTight
 PFMETTypeOne130_PFMHT130_HTmonitoring = hltHTmonitoring.clone()
 PFMETTypeOne130_PFMHT130_HTmonitoring.FolderName = cms.string('HLT/HT/PFMETTypeOne130/')
 PFMETTypeOne130_PFMHT130_HTmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFMETTypeOne130_PFMHT130_IDTight_v*")
-PFMETTypeOne130_PFMHT130_HTmonitoring.jetSelection      = cms.string("pt[0] > 100 && eta[0] < 2.5 && neutralHadronEnergyFraction[0] < 0.8 && chargedHadronEnergyFraction[0] > 0.1")
-PFMETTypeOne130_PFMHT130_HTmonitoring.muoSelection      = cms.string("isTightMuon()")
+PFMETTypeOne130_PFMHT130_HTmonitoring.jetSelection      = cms.string("pt > 100 && eta < 2.5 && neutralHadronEnergyFraction < 0.8 && chargedHadronEnergyFraction > 0.1")
 PFMETTypeOne130_PFMHT130_HTmonitoring.jetSelection_HT   = cms.string("pt > 30 && eta < 2.5")
 
 # HLT_PFMETTypeOne140_PFMHT140_IDTight
 PFMETTypeOne140_PFMHT140_HTmonitoring = hltHTmonitoring.clone()
 PFMETTypeOne140_PFMHT140_HTmonitoring.FolderName = cms.string('HLT/HT/PFMETTypeOne140/')
 PFMETTypeOne140_PFMHT140_HTmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFMETTypeOne140_PFMHT140_IDTight_v*")
-PFMETTypeOne140_PFMHT140_HTmonitoring.jetSelection      = cms.string("pt[0] > 100 && eta[0] < 2.5 && neutralHadronEnergyFraction[0] < 0.8 && chargedHadronEnergyFraction[0] > 0.1")
-PFMETTypeOne140_PFMHT140_HTmonitoring.muoSelection      = cms.string("isTightMuon()")
+PFMETTypeOne140_PFMHT140_HTmonitoring.jetSelection      = cms.string("pt > 100 && eta < 2.5 && neutralHadronEnergyFraction < 0.8 && chargedHadronEnergyFraction > 0.1")
 PFMETTypeOne140_PFMHT140_HTmonitoring.jetSelection_HT   = cms.string("pt > 30 && eta < 2.5")
 
 exoHLTHTmonitoring = cms.Sequence(

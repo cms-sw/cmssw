@@ -23,6 +23,7 @@ METMonitor::METMonitor( const edm::ParameterSet& iConfig ) :
   , jetToken_             ( mayConsume<reco::PFJetCollection>      (iConfig.getParameter<edm::InputTag>("jets")      ) )   
   , eleToken_             ( mayConsume<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons") ) )   
   , muoToken_             ( mayConsume<reco::MuonCollection>       (iConfig.getParameter<edm::InputTag>("muons")     ) )   
+  , vtxToken_             ( mayConsume<reco::VertexCollection>      (iConfig.getParameter<edm::InputTag>("vertices")      ) )
   , met_variable_binning_ ( iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("metBinning") )
   , met_binning_          ( getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("metPSet")    ) )
   , ls_binning_           ( getHistoLSPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("lsPSet")     ) )
@@ -187,10 +188,10 @@ void METMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 void METMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)  {
-
+  std::cout<<"debug0"<<std::endl;
   // Filter out events if Trigger Filtering is requested
   if (den_genTriggerEventFlag_->on() && ! den_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
-
+  std::cout<<"debug1"<<std::endl;
   edm::Handle<reco::PFMETCollection> metHandle;
   iEvent.getByToken( metToken_, metHandle );
   reco::PFMET pfmet = metHandle->front();
@@ -199,26 +200,27 @@ void METMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   float ht = 0.0; 
   float met = pfmet.pt();
   float phi = pfmet.phi();
-
+  std::cout<<"debug2"<<std::endl;
   edm::Handle<reco::PFJetCollection> jetHandle;
   iEvent.getByToken( jetToken_, jetHandle );
-  std::vector<reco::PFJet> jets;
+  std::vector<reco::PFJet> jets;   std::cout<<"debug2a"<<std::endl;
   jets.clear();
   if ( int(jetHandle->size()) < njets_ ) return;
-  for ( auto const & j : *jetHandle ) {
-    if ( jetSelection_( j ) ) {
-      jets.push_back(j);
-      if ( jetSelection_HT_(j)) ht += j.pt();
+  std::cout<<"debug2b"<<std::endl;
+  for ( auto const & j : *jetHandle ) {   std::cout<<"debug2c"<<std::endl;
+    if ( jetSelection_(j) ) {   std::cout<<"debug2d"<<std::endl;
+      jets.push_back(j);   std::cout<<"debug2e"<<std::endl;
+      if ( jetSelection_HT_(j)) ht += j.pt();   std::cout<<"debug2f"<<std::endl;
     }
-  }
+  }   std::cout<<"debug2g"<<std::endl;
   if ( int(jets.size()) < njets_ ) return;
-  
+  std::cout<<"debug3"<<std::endl;
   float deltaPhi_met_j1= 10.0;
   float deltaPhi_j1_j2 = 10.0;
 
   if (int(jets.size()) >= 1) deltaPhi_met_j1 = fabs( deltaPhi( pfmet.phi(),  jets[0].phi() ));
   if (int(jets.size()) >= 2) deltaPhi_j1_j2 = fabs( deltaPhi( jets[0].phi(),  jets[1].phi() ));
-
+  std::cout<<"debug4"<<std::endl;
   edm::Handle<reco::GsfElectronCollection> eleHandle;
   iEvent.getByToken( eleToken_, eleHandle );
   std::vector<reco::GsfElectron> electrons;
@@ -229,13 +231,28 @@ void METMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   }
   if ( int(electrons.size()) < nelectrons_ ) return;
   
+  edm::Handle<reco::VertexCollection> vtxHandle;
+  iEvent.getByToken(vtxToken_, vtxHandle);
+
+  reco::Vertex vtx;
+  math::XYZPoint pv(0, 0, 0);
+  for (vector<reco::Vertex>::const_iterator v = vtxHandle->begin(); v != vtxHandle->end(); ++v) {
+    bool isFake =  v->isFake() ;
+    
+    if (!isFake) {
+      pv.SetXYZ(v->x(), v->y(), v->z());
+      vtx = *v;
+      break;
+    }
+  }
+
   edm::Handle<reco::MuonCollection> muoHandle;
   iEvent.getByToken( muoToken_, muoHandle );
   if ( int(muoHandle->size()) < nmuons_ ) return;
   std::vector<reco::Muon> muons;
   muons.clear();
   for ( auto const & m : *muoHandle ) {
-    if ( muoSelection_( m ) ) muons.push_back(m);
+    if ( muoSelection_( m ) && m.isGlobalMuon() && m.isPFMuon() && m.globalTrack()->normalizedChi2() < 10. && m.globalTrack()->hitPattern().numberOfValidMuonHits() > 0 && m.numberOfMatchedStations() > 1 && fabs(m.muonBestTrack()->dxy(pv)) < 0.2 && fabs(m.muonBestTrack()->dz(pv)) < 0.5 && m.innerTrack()->hitPattern().numberOfValidPixelHits() > 0 && m.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 ) muons.push_back(m);
   }
   if ( int(muons.size()) < nmuons_ ) return;
 
@@ -251,7 +268,7 @@ void METMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   int ls = iEvent.id().luminosityBlock();
   htVsLS_.denominator -> Fill(ls, ht);
   metVsLS_.denominator -> Fill(ls, met);
-  
+  std::cout<<"debug5"<<std::endl;
   // applying selection for numerator
   if (num_genTriggerEventFlag_->on() && ! num_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
 
@@ -265,7 +282,7 @@ void METMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   metVsLS_.numerator -> Fill(ls, met);
   deltaphimetj1ME_.numerator  -> Fill(deltaPhi_met_j1); 
   deltaphij1j2ME_.numerator  -> Fill(deltaPhi_j1_j2); 
-
+  std::cout<<"debug6"<<std::endl;
 }
 
 void METMonitor::fillHistoPSetDescription(edm::ParameterSetDescription & pset)
@@ -289,6 +306,7 @@ void METMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   desc.add<edm::InputTag>( "jets",     edm::InputTag("ak4PFJetsCHS") );
   desc.add<edm::InputTag>( "electrons",edm::InputTag("gedGsfElectrons") );
   desc.add<edm::InputTag>( "muons",    edm::InputTag("muons") );
+  desc.add<edm::InputTag>( "vertices",edm::InputTag("offlinePrimaryVertices") );
   desc.add<std::string>("metSelection", "pt > 0");
   desc.add<std::string>("jetSelection", "pt > 0");
   desc.add<std::string>("eleSelection", "pt > 0");
