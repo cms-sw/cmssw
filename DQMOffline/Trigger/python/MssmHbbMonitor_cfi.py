@@ -1,61 +1,37 @@
 import FWCore.ParameterSet.Config as cms
 
 # physics path monitor
-msssHbbAllHadronic = cms.EDAnalyzer(
-    "MssmHbbMonitor",
-    dirname = cms.string("HLT/Higgs/MssmHbb/Allhad/Physics/DoubleBJet100"),
-    processname = cms.string("HLT"),
-    pathname = cms.string("HLT_DoubleJets30_SingleBTagCSV_0p92_DoublePFJets40_v"),
-    jetPtMin = cms.double(40),
-    jetEtaMax = cms.double(2.5),
-    muonPtMin = cms.double(5),
-    muonEtaMax = cms.double(2.5),
-    triggerResults = cms.InputTag("TriggerResults","","HLT"),
-    offlineBtag = cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
-    muons = cms.InputTag("muons"),
-    histoPSet = cms.PSet(
-       jetPt = cms.PSet (
-          nbins = cms.int32 (60),
-          xmin  = cms.double(0),
-          xmax  = cms.double(600),
-       ),
-       jetEta = cms.PSet (
-          nbins = cms.int32 (10),
-          xmin  = cms.double(-2.5),
-          xmax  = cms.double(2.5),
-       ),
-       jetPhi = cms.PSet (
-          nbins = cms.int32 (14),
-          xmin  = cms.double(-3.5),
-          xmax  = cms.double(3.5),
-       ),
-       jetBtag = cms.PSet (
-          nbins = cms.int32 (40),
-          xmin  = cms.double(-1),
-          xmax  = cms.double(1),
-       ),
-       jetsDR = cms.PSet (
-          nbins = cms.int32 (40),
-          xmin  = cms.double(0),
-          xmax  = cms.double(4),
-       ),
-       muonPt = cms.PSet (
-          nbins = cms.int32 (30),
-          xmin  = cms.double(0),
-          xmax  = cms.double(30),
-       ),
-       muonEta = cms.PSet (
-          nbins = cms.int32 (10),
-          xmin  = cms.double(-2.5),
-          xmax  = cms.double(2.5),
-       ),
-       muonPhi = cms.PSet (
-          nbins = cms.int32 (14),
-          xmin  = cms.double(-3.5),
-          xmax  = cms.double(3.5),
-       ),
-    ),
-)
+
+from DQMOffline.Trigger.mssmhbb_cfi import mssmHbbPhysicsMonitor
+
+# physics path monitor
+msssHbbAllHadronic100 = mssmHbbPhysicsMonitor.clone()
+msssHbbAllHadronic100.dirname = cms.string("HLT/Higgs/MssmHbb/Allhad/Physics/DoubleBJet100")
+msssHbbAllHadronic100.pathname = cms.string("HLT_DoubleJets100_DoubleBTagCSV_0p92_DoublePFJets100MaxDeta1p6_v")
+
+msssHbbAllHadronic116 = mssmHbbPhysicsMonitor.clone()
+msssHbbAllHadronic116.dirname = cms.string("HLT/Higgs/MssmHbb/Allhad/Physics/DoubleBJet116")
+msssHbbAllHadronic116.pathname = cms.string("HLT_DoubleJets100_DoubleBTagCSV_0p92_DoublePFJets116MaxDeta1p6_v")
+
+msssHbbAllHadronic128 = mssmHbbPhysicsMonitor.clone()
+msssHbbAllHadronic128.dirname = cms.string("HLT/Higgs/MssmHbb/Allhad/Physics/DoubleBJet128")
+msssHbbAllHadronic128.pathname = cms.string("HLT_DoubleJets100_DoubleBTagCSV_0p92_DoublePFJets128MaxDeta1p6_v")
+
+msssHbbSemileptonic40 = mssmHbbPhysicsMonitor.clone()
+msssHbbSemileptonic40.dirname = cms.string("HLT/Higgs/MssmHbb/Semilep/Physics/Mu12DoubleBJet40")
+msssHbbSemileptonic40.pathname = cms.string("HLT_DoubleJets30_Mu12_DoubleBTagCSV_0p92_DoublePFJets40MaxDeta1p6_v")
+
+msssHbbSemileptonic54 = mssmHbbPhysicsMonitor.clone()
+msssHbbSemileptonic54.dirname = cms.string("HLT/Higgs/MssmHbb/Semilep/Physics/Mu12DoubleBJet54")
+msssHbbSemileptonic54.pathname = cms.string("HLT_DoubleJets30_Mu12_DoubleBTagCSV_0p92_DoublePFJets54MaxDeta1p6_v")
+
+msssHbbSemileptonic62 = mssmHbbPhysicsMonitor.clone()
+msssHbbSemileptonic62.dirname = cms.string("HLT/Higgs/MssmHbb/Semilep/Physics/Mu12DoubleBJet62")
+msssHbbSemileptonic62.pathname = cms.string("HLT_DoubleJets30_Mu12_DoubleBTagCSV_0p92_DoublePFJets62MaxDeta1p6_v")
+
+msssHbbSemileptonicNoBtag = mssmHbbPhysicsMonitor.clone()
+msssHbbSemileptonicNoBtag.dirname = cms.string("HLT/Higgs/MssmHbb/Semilep/Physics/Mu12Jet40")
+msssHbbSemileptonicNoBtag.pathname = cms.string("HLT_SingleJet30_Mu12_SinglePFJet40_v")
 
 
 
