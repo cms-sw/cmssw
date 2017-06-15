@@ -67,7 +67,7 @@ TauRefProducer = cms.EDProducer("HLTTauRefProducer",
                     EtaMin = cms.untracked.double(-2.3),
                     EtaMax = cms.untracked.double(2.3),
                     PhiMin = cms.untracked.double(-3.15),
-                    PhiMax = cms.untracked.double(3-15)
+                    PhiMax = cms.untracked.double(3.15)
                   )
 
 #----------------------------------MONITORS--------------------------------------------------------------------------
