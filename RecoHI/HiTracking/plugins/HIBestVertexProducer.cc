@@ -4,6 +4,9 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -17,10 +20,12 @@ HIBestVertexProducer::HIBestVertexProducer
 (const edm::ParameterSet& ps) : theConfig(ps),
   theBeamSpotTag(consumes<reco::BeamSpot>(ps.getParameter<edm::InputTag>("beamSpotLabel"))),
   theMedianVertexCollection(consumes<reco::VertexCollection>(ps.getParameter<edm::InputTag>("medianVertexCollection"))),
-  theAdaptiveVertexCollection(consumes<reco::VertexCollection>(ps.getParameter<edm::InputTag>("adaptiveVertexCollection")))
+  theAdaptiveVertexCollection(consumes<reco::VertexCollection>(ps.getParameter<edm::InputTag>("adaptiveVertexCollection"))),
+  theUseFinalAdaptiveVertexCollection(ps.getParameter<bool>("useFinalAdaptiveVertexCollection"))
 {
-  theUseFinalAdapativeVertexCollection  = (ps.existsAs<bool>("useFinalAdapativeVertexCollection") ? ps.getParameter<bool>("useFinalAdapativeVertexCollection") : false);
-  if(theUseFinalAdapativeVertexCollection) theFinalAdaptiveVertexCollection = consumes<reco::VertexCollection>(ps.getParameter<edm::InputTag>("finalAdaptiveVertexCollection"));
+  if(theUseFinalAdaptiveVertexCollection){
+    theFinalAdaptiveVertexCollection = consumes<reco::VertexCollection>(ps.getParameter<edm::InputTag>("finalAdaptiveVertexCollection"));
+  }
   produces<reco::VertexCollection>();
 }
 
@@ -28,6 +33,18 @@ HIBestVertexProducer::HIBestVertexProducer
 /*****************************************************************************/
 HIBestVertexProducer::~HIBestVertexProducer()
 { 
+}
+
+/*****************************************************************************/
+void HIBestVertexProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+   edm::ParameterSetDescription desc;
+   desc.add<InputTag>("beamSpotLabel", edm::InputTag("offlineBeamSpot"));
+   desc.add<InputTag>("adaptiveVertexCollection", edm::InputTag("hiBestAdaptiveVertex"));
+   desc.add<InputTag>("medianVertexCollection", edm::InputTag("hiPixelMedianVertex"));
+   desc.add<bool>("useFinalAdaptiveVertexCollection", false);
+   desc.add<InputTag>("finalAdaptiveVertexCollection", edm::InputTag("hiBestOfflinePrimaryVertex"));
+  
+   descriptions.add("hiSelectedPixelVertex", desc);
 }
 
 /*****************************************************************************/
@@ -56,30 +73,31 @@ void HIBestVertexProducer::produce
     LogError("HeavyIonVertexing") << "adaptive vertex collection is empty!" << endl;
 
 //** Final vertex collection if needed **//
+  const double maxZError = 3.0; //any vtx with error > this number is considered no good
   bool hasFinalVertex = false;
-  if(theUseFinalAdapativeVertexCollection){
+  if(theUseFinalAdaptiveVertexCollection){
     edm::Handle<reco::VertexCollection> vc0;
     ev.getByToken(theFinalAdaptiveVertexCollection, vc0);
     const reco::VertexCollection *vertices0 = vc0.product();
     if(vertices0->size()==0)
-      LogError("HeavyIonVertexing") << "final adaptive vertex collection is empty!" << endl;
+      LogInfo("HeavyIonVertexing") << "final adaptive vertex collection is empty!" << endl;
 
   //if using final vertex and has a good vertex, use it
-    if(vertices0->begin()->zError()<3){
+    if(vertices0->begin()->zError() < maxZError){
       hasFinalVertex = true;
-      reco::VertexCollection::const_iterator vertex0 = vertices0->begin();
-      newVertexCollection->push_back(*vertex0);
+      auto const& vertex0 = vertices0->front();
+      newVertexCollection->push_back(vertex0);
       LogInfo("HeavyIonVertexing") << "adaptive vertex:\n vz = (" 
-				 << vertex0->x() << ", " << vertex0->y() << ", " << vertex0->z() << ")" 
+				 << vertex0.x() << ", " << vertex0.y() << ", " << vertex0.z() << ")" 
  				 << "\n error = ("
-                                 << vertex0->xError() << ", " << vertex0->yError() << ", " 
-				 << vertex0->zError() << ")" << endl;			
+                                 << vertex0.xError() << ", " << vertex0.yError() << ", " 
+				 << vertex0.zError() << ")" << endl;			
     }
   }
 
   //otherwise use the pixel track adaptive vertex if it is good
   if(!hasFinalVertex){
-    if(vertices1->begin()->zError()<3) { 
+    if(vertices1->begin()->zError() < maxZError) { 
     
       reco::VertexCollection::const_iterator vertex1 = vertices1->begin();
       newVertexCollection->push_back(*vertex1);
