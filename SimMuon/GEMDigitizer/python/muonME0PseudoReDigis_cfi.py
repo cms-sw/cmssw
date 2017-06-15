@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 # Module to create simulated ME0 Pre Reco digis.
-simMuonME0ReDigis = cms.EDProducer("ME0ReDigiProducer",
-    inputCollection    =cms.string('simMuonME0Digis'),
+simMuonME0PseudoReDigis = cms.EDProducer("ME0ReDigiProducer",
+    inputCollection    =cms.string('simMuonME0PseudoDigis'),
     useCusGeoFor1PartGeo =cms.bool(True),   #Use custom strips and partitions for digitization for single partition geometry
     numberOfStrips     =cms.uint32(384), # If use custom: number of strips per partition                                             
     numberOfPartitions =cms.uint32(8),   # If use custom:  number of partitions per chamber                                           
