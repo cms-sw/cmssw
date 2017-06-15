@@ -37,6 +37,9 @@
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+
 class GenericTriggerEventFlag;
 
 struct MEHTbinning {
@@ -85,6 +88,7 @@ private:
   edm::EDGetTokenT<reco::PFJetCollection>       jetToken_;
   edm::EDGetTokenT<reco::GsfElectronCollection> eleToken_;
   edm::EDGetTokenT<reco::MuonCollection>        muoToken_;
+  edm::EDGetTokenT<reco::VertexCollection>       vtxToken_;
 
   std::vector<double> ht_variable_binning_;
   MEHTbinning           ht_binning_;
