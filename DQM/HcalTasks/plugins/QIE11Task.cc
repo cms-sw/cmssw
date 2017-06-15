@@ -56,41 +56,45 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 	}
 
 	//	INITIALIZE what you need
-	unsigned int itr = 0;
-	for (unsigned int crate = 34; crate <= 34; ++crate) {
-		for (unsigned int slot = 11; slot <= 12; ++slot) {
-			std::vector<uint32_t> vhashSlot;
-			vhashSlot.push_back(HcalElectronicsId(crate, slot, FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
-			_filter_slot[itr].initialize(filter::fPreserver, hashfunctions::fCrateSlot, vhashSlot);
-			_cShapeCut_EChannel[itr].initialize(_name,
-				"ShapeCut", hcaldqm::hashfunctions::fEChannel,
-				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
-				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_400000));
-			_cLETDCvsTS_EChannel[itr].initialize(_name, 
-				"LETDCvsTS", hcaldqm::hashfunctions::fEChannel, 
-				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
-				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
-                new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true), 0);
-			_cLETDCTime_EChannel[itr].initialize(_name,
-				"LETDCTime", hcaldqm::hashfunctions::fEChannel,
-				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTime_ns_250),
-				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
-			for (unsigned int j=0; j<10; j++) {
-				_cLETDCvsADC_EChannel[j][itr].initialize(_name,
-					"LETDCvsADC", hcaldqm::hashfunctions::fEChannel,
-					new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
+	
+	// EChannel plots, online+local only
+	if (_ptype != fOffline) {
+		unsigned int itr = 0;
+		for (unsigned int crate = 34; crate <= 34; ++crate) {
+			for (unsigned int slot = 11; slot <= 12; ++slot) {
+				std::vector<uint32_t> vhashSlot;
+				vhashSlot.push_back(HcalElectronicsId(crate, slot, FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
+				_filter_slot[itr].initialize(filter::fPreserver, hashfunctions::fCrateSlot, vhashSlot);
+				_cShapeCut_EChannel[itr].initialize(_name,
+					"ShapeCut", hcaldqm::hashfunctions::fEChannel,
+					new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
+					new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_400000));
+				_cLETDCvsTS_EChannel[itr].initialize(_name, 
+					"LETDCvsTS", hcaldqm::hashfunctions::fEChannel, 
+					new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
 					new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
+	                new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true), 0);
+				_cLETDCTime_EChannel[itr].initialize(_name,
+					"LETDCTime", hcaldqm::hashfunctions::fEChannel,
+					new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTime_ns_250),
 					new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
-				_cADC_EChannel[j][itr].initialize(_name,
-					"ADC", hcaldqm::hashfunctions::fEChannel,
-					new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
-					new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
-				_cLETDC_EChannel[j][itr].initialize(_name,
-					"LETDC", hcaldqm::hashfunctions::fEChannel,
-					new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
-					new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
+				for (unsigned int j=0; j<10; j++) {
+					_cLETDCvsADC_EChannel[j][itr].initialize(_name,
+						"LETDCvsADC", hcaldqm::hashfunctions::fEChannel,
+						new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
+						new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
+						new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
+					_cADC_EChannel[j][itr].initialize(_name,
+						"ADC", hcaldqm::hashfunctions::fEChannel,
+						new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
+						new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
+					_cLETDC_EChannel[j][itr].initialize(_name,
+						"LETDC", hcaldqm::hashfunctions::fEChannel,
+						new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
+						new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
+				}
+				++itr;
 			}
-			++itr;
 		}
 	}
 	_cShapeCut.initialize(_name,
@@ -112,44 +116,26 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 
-	for (int iChan = 0; iChan < 4; ++iChan) {
-		if (_ptype != fLocal) {
-			_cTimingRatio_vs_LS[iChan].initialize(_name, "TimingRatioVsLS", 
-				hcaldqm::hashfunctions::fdepth, 
-				new hcaldqm::quantity::LumiSection(_maxLS),
-				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTimingRatio),
-				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
-			_cTDCTime_vs_LS[iChan].initialize(_name, "TDCTimeVsLS", 
-				hcaldqm::hashfunctions::fdepth, 
-				new hcaldqm::quantity::LumiSection(_maxLS),
-				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTime_ns_250),
-				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
-		}
-		_cQSOIp1_vs_QSOI[iChan].initialize(_name, "QsoiPlus1VsQsoi", 
-			hcaldqm::hashfunctions::fdepth, 
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_10000),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_10000),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
-	}
-
-	itr = 0;
-	std::map<std::pair<unsigned int, unsigned int>, unsigned int> itr_map;
-	for(unsigned int crate = 34; crate <= 34; ++crate) {
-		for(unsigned int slot=11; slot<=12; ++slot) {
-			char aux[100];
-			sprintf(aux, "/Crate%d_Slot%d", crate, slot);
-			_cShapeCut_EChannel[itr].book(ib, _emap, _filter_slot[itr], _subsystem, aux);
-			_cLETDCvsTS_EChannel[itr].book(ib, _emap, _filter_slot[itr], _subsystem, aux);
-			_cLETDCTime_EChannel[itr].book(ib, _emap, _filter_slot[itr], _subsystem, aux);
-			for (unsigned int j=0; j<10; j++) {
-				char aux2[100];
-				sprintf(aux2, "/Crate%d_Slot%d/TS%d", crate, slot, j);
-				_cLETDCvsADC_EChannel[j][itr].book(ib, _emap, _filter_slot[itr], _subsystem, aux2);
-				_cLETDC_EChannel[j][itr].book(ib, _emap, _filter_slot[itr], _subsystem, aux2);
-				_cADC_EChannel[j][itr].book(ib, _emap, _filter_slot[itr], _subsystem, aux2);
+	if (_ptype != fOffline) {
+		unsigned int itr = 0;
+		std::map<std::pair<unsigned int, unsigned int>, unsigned int> itr_map;
+		for(unsigned int crate = 34; crate <= 34; ++crate) {
+			for(unsigned int slot=11; slot<=12; ++slot) {
+				char aux[100];
+				sprintf(aux, "/Crate%d_Slot%d", crate, slot);
+				_cShapeCut_EChannel[itr].book(ib, _emap, _filter_slot[itr], _subsystem, aux);
+				_cLETDCvsTS_EChannel[itr].book(ib, _emap, _filter_slot[itr], _subsystem, aux);
+				_cLETDCTime_EChannel[itr].book(ib, _emap, _filter_slot[itr], _subsystem, aux);
+				for (unsigned int j=0; j<10; j++) {
+					char aux2[100];
+					sprintf(aux2, "/Crate%d_Slot%d/TS%d", crate, slot, j);
+					_cLETDCvsADC_EChannel[j][itr].book(ib, _emap, _filter_slot[itr], _subsystem, aux2);
+					_cLETDC_EChannel[j][itr].book(ib, _emap, _filter_slot[itr], _subsystem, aux2);
+					_cADC_EChannel[j][itr].book(ib, _emap, _filter_slot[itr], _subsystem, aux2);
+				}
+				itr_map[std::make_pair(crate, slot)] = itr;
+				++itr;
 			}
-			itr_map[std::make_pair(crate, slot)] = itr;
-			++itr;
 		}
 	}
 	_cShapeCut.book(ib, _subsystem);
@@ -157,15 +143,6 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 	_cLETDCTimevsADC.book(ib, _subsystem);
 	_cLETDC.book(ib, _subsystem);
 	_cADC.book(ib, _subsystem);
-	for (int iChan = 0; iChan < 4; ++iChan) {
-		char aux[100];
-		sprintf(aux, "/IEta%d_IPhi%d", timingChannels[iChan].first, timingChannels[iChan].second);
-		if (_ptype != fLocal) {
-			_cTimingRatio_vs_LS[iChan].book(ib, _emap, _filter_timingChannels[iChan], _subsystem, aux);
-			_cTDCTime_vs_LS[iChan].book(ib, _emap, _filter_timingChannels[iChan], _subsystem, aux);
-		}
-		_cQSOIp1_vs_QSOI[iChan].book(ib, _emap, _filter_timingChannels[iChan], _subsystem, aux);
-	}
 
 	_ehashmap.initialize(_emap, electronicsmap::fD2EHashMap, _filter_C34);
 }
@@ -206,21 +183,23 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 		for (int j=0; j<frame.samples(); j++)
 		{
 			double q_pedsub = hcaldqm::utilities::adc2fCDBMinusPedestal<QIE11DataFrame>(_dbService, digi_fC, did, frame, j);
-			if (index == 0 || index == 1) {
-				//	shapes are after the cut
-				_cShapeCut_EChannel[index].fill(eid, j, q_pedsub);	
-				_cLETDCvsTS_EChannel[index].fill(eid, j, frame[j].tdc());	
+			if (_ptype != fOffline) {
+				if (index == 0 || index == 1) {
+					//	shapes are after the cut
+					_cShapeCut_EChannel[index].fill(eid, j, q_pedsub);	
+					_cLETDCvsTS_EChannel[index].fill(eid, j, frame[j].tdc());	
 
-				//	w/o a cut
-				_cLETDCvsADC_EChannel[j][index].fill(eid, frame[j].adc(), 
-					frame[j].tdc());
-				_cLETDC_EChannel[j][index].fill(eid, frame[j].tdc());
-				if (frame[j].tdc() < 50) {
-					// Each TDC count is 0.5 ns. 
-					// tdc == 62 or 63 means value was below or above threshold for whole time slice. 
-					_cLETDCTime_EChannel[index].fill(eid, j*25. + (frame[j].tdc() / 2.));
+					//	w/o a cut
+					_cLETDCvsADC_EChannel[j][index].fill(eid, frame[j].adc(), 
+						frame[j].tdc());
+					_cLETDC_EChannel[j][index].fill(eid, frame[j].tdc());
+					if (frame[j].tdc() < 50) {
+						// Each TDC count is 0.5 ns. 
+						// tdc == 62 or 63 means value was below or above threshold for whole time slice. 
+						_cLETDCTime_EChannel[index].fill(eid, j*25. + (frame[j].tdc() / 2.));
+					}
+					_cADC_EChannel[j][index].fill(eid, frame[j].adc());
 				}
-				_cADC_EChannel[j][index].fill(eid, frame[j].adc());
 			}
 			_cShapeCut.fill(eid, j, q_pedsub);
 
@@ -232,46 +211,6 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 
 			_cADC.fill(eid, frame[j].adc());
 
-		}
-
-		// Timing channels for phase scan
-		for (int iChan = 0; iChan < 4; ++iChan) {
-			if (!_filter_timingChannels[iChan].filter(HcalDetId(did))) {
-				// For local runs, hack something in for lumisection
-				int ls = _currentLS;
-				int isoi = -1;
-				for (int j = 0; j < frame.samples(); ++j) {
-					if (_ptype != fLocal) {
-						if (frame[j].tdc() < 50) {
-							_cTDCTime_vs_LS[iChan].fill(HcalDetId(did), ls, j*25. + (frame[j].tdc() / 2.));
-						}
-					}
-					if (frame[j].soi()) {
-						isoi = j;
-					}
-				}
-				double qsoi = hcaldqm::utilities::adc2fCDBMinusPedestal<QIE11DataFrame>(_dbService, digi_fC, did, frame, isoi);
-				double qsoiPlus1 = hcaldqm::utilities::adc2fCDBMinusPedestal<QIE11DataFrame>(_dbService, digi_fC, did, frame, isoi+1);
-				_cQSOIp1_vs_QSOI[iChan].fill(HcalDetId(did), qsoi, qsoiPlus1);
-				double ratio = 0.;
-				if (qsoi > 0) {
-					ratio = qsoiPlus1 / qsoi;
-					if (ratio > 2.) {
-						ratio = 2.;
-					} else if (ratio < 0.) {
-						ratio = 0.;
-					}
-				} else {
-					if (qsoiPlus1 > 0.) { // X/0, set to 2.
-						ratio = 2.;
-					} else { // 0/0, set to 0.
-						ratio = 0.;
-					}
-				}
-				if (_ptype != fLocal) {
-					_cTimingRatio_vs_LS[iChan].fill(HcalDetId(did), ls, ratio);
-				}
-			}
 		}
 	}
 }
