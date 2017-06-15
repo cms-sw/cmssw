@@ -52,35 +52,6 @@ def customisePostEra_Run2_2017_harvesting_trackingOnly(process):
     customise_HPbeamspot(process)
     return process
 
-#    # write to sqlite the HP tag and use the HP medatata for upload to the dropbox
-#    if ( hasattr(process,'PoolDBOutputService')   and 
-#         hasattr(process,'pclMetadataWriter')     and 
-#         hasattr(process,'ALCAHARVESTBeamSpotByLumi')  ):
-#        for onePset in process.PoolDBOutputService.toPut:
-#            if onePset.record == 'BeamSpotObjectsRcdByLumi':
-#                onePset.record = 'BeamSpotObjectsRcdHPByLumi'
-#                onePset.tag    = 'BeamSpotObjectHP_ByLumi'
-#        for onePset in process.pclMetadataWriter.recordsToMap:
-#            if onePset.record == 'BeamSpotObjectsRcdByLumi':
-#                onePset.record = 'BeamSpotObjectsRcdHPByLumi'
-#        if process.ALCAHARVESTBeamSpotByLumi.AlcaBeamSpotHarvesterParameters.outputRecordName == 'BeamSpotObjectsRcdByLumi':
-#            process.ALCAHARVESTBeamSpotByLumi.AlcaBeamSpotHarvesterParameters.outputRecordName = 'BeamSpotObjectsRcdHPByLumi'
-#
-#    if ( hasattr(process,'PoolDBOutputService')   and 
-#         hasattr(process,'pclMetadataWriter')     and 
-#         hasattr(process,'ALCAHARVESTBeamSpotByRun')  ):
-#        for onePset in process.PoolDBOutputService.toPut:
-#            if onePset.record == 'BeamSpotObjectsRcdByRun':
-#                onePset.record = 'BeamSpotObjectsRcdHPByRun'
-#                onePset.tag    = 'BeamSpotObjectHP_ByRun'
-#        for onePset in process.pclMetadataWriter.recordsToMap:
-#            if onePset.record == 'BeamSpotObjectsRcdByRun':
-#                onePset.record = 'BeamSpotObjectsRcdHPByRun'
-#        if process.ALCAHARVESTBeamSpotByRun.AlcaBeamSpotHarvesterParameters.outputRecordName == 'BeamSpotObjectsRcdByRun':
-#            process.ALCAHARVESTBeamSpotByRun.AlcaBeamSpotHarvesterParameters.outputRecordName = 'BeamSpotObjectsRcdHPByRun'
-#
-#    return process
-
 ##############################################################################
 def customisePPData(process):
     #deprecated process= customiseCommon(process)
