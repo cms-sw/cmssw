@@ -86,9 +86,9 @@ hltBTVmonitoring.numGenericTriggerEventPSet.errorReplyHlt = cms.bool( False )
 hltBTVmonitoring.numGenericTriggerEventPSet.verbosityLevel = cms.uint32(0)
 
 hltBTVmonitoring.denGenericTriggerEventPSet.andOr         = cms.bool( False )
-hltBTVmonitoring.numGenericTriggerEventPSet.andOrHlt      = cms.bool(True)# True:=OR; False:=AND
-hltBTVmonitoring.numGenericTriggerEventPSet.hltInputTag   = cms.InputTag( "TriggerResults::HLT" )
-hltBTVmonitoring.numGenericTriggerEventPSet.errorReplyHlt = cms.bool( False )
+hltBTVmonitoring.denGenericTriggerEventPSet.andOrHlt      = cms.bool(True)# True:=OR; False:=AND
+hltBTVmonitoring.denGenericTriggerEventPSet.hltInputTag   = cms.InputTag( "TriggerResults::HLT" )
+hltBTVmonitoring.denGenericTriggerEventPSet.errorReplyHlt = cms.bool( False )
 hltBTVmonitoring.denGenericTriggerEventPSet.dcsInputTag   = cms.InputTag( "scalersRawToDigi" )
 hltBTVmonitoring.denGenericTriggerEventPSet.dcsPartitions = cms.vint32 ( 24, 25, 26, 27, 28, 29 ) # 24-27: strip, 28-29: pixel, we should add all other detectors !
 hltBTVmonitoring.denGenericTriggerEventPSet.andOrDcs      = cms.bool( False )
