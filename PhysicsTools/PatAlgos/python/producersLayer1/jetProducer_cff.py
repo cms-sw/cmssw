@@ -18,3 +18,25 @@ makePatJetsTask = cms.Task(
     patJets
     )
 makePatJets = cms.Sequence(makePatJetsTask)
+
+from RecoBTag.ImpactParameter.pfImpactParameterTagInfos_cfi import * #pfImpactParameterTagInfos
+from RecoBTag.SecondaryVertex.pfSecondaryVertexTagInfos_cfi import * #pfSecondaryVertexTagInfos
+from RecoBTag.SecondaryVertex.pfInclusiveSecondaryVertexFinderTagInfos_cfi import * #pfInclusiveSecondaryVertexFinderTagInfos
+from RecoBTag.Combined.deepFlavour_cff import * #pfDeepFlavourTask
+from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
+
+#make a copy to avoid labels and substitution problems
+_makePatJetsCopy = makePatJets.copy()
+
+run2_miniAOD_80XLegacy.toReplaceWith(
+    makePatJets, 
+    cms.Sequence(
+      pfImpactParameterTagInfos *
+      pfSecondaryVertexTagInfos *
+      pfInclusiveSecondaryVertexFinderTagInfos *
+      pfDeepFlavour *
+      _makePatJetsCopy
+      )
+)
+
+
