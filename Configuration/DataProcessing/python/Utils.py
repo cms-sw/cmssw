@@ -139,3 +139,33 @@ def gtNameAndConnect(globalTag, args):
         return globalTag + ','+args['globalTagConnect']        
     # we override here the default in the release which uses the FrontierProd servlet not suited for Tier0 activity
     return globalTag +',frontier://PromptProd/CMS_CONDITIONS'
+
+def customise_HPbeamspot(process):
+    # write to sqlite the HP tag and use the HP medatata for upload to the dropbox
+    if ( hasattr(process,'PoolDBOutputService')   and 
+         hasattr(process,'pclMetadataWriter')     and 
+         hasattr(process,'ALCAHARVESTBeamSpotByLumi')  ):
+        for onePset in process.PoolDBOutputService.toPut:
+            if onePset.record == 'BeamSpotObjectsRcdByLumi':
+                onePset.record = 'BeamSpotObjectsRcdHPByLumi'
+                onePset.tag    = 'BeamSpotObjectHP_ByLumi'
+        for onePset in process.pclMetadataWriter.recordsToMap:
+            if onePset.record == 'BeamSpotObjectsRcdByLumi':
+                onePset.record = 'BeamSpotObjectsRcdHPByLumi'
+        if process.ALCAHARVESTBeamSpotByLumi.AlcaBeamSpotHarvesterParameters.outputRecordName == 'BeamSpotObjectsRcdByLumi':
+            process.ALCAHARVESTBeamSpotByLumi.AlcaBeamSpotHarvesterParameters.outputRecordName = 'BeamSpotObjectsRcdHPByLumi'
+
+    if ( hasattr(process,'PoolDBOutputService')   and 
+         hasattr(process,'pclMetadataWriter')     and 
+         hasattr(process,'ALCAHARVESTBeamSpotByRun')  ):
+        for onePset in process.PoolDBOutputService.toPut:
+            if onePset.record == 'BeamSpotObjectsRcdByRun':
+                onePset.record = 'BeamSpotObjectsRcdHPByRun'
+                onePset.tag    = 'BeamSpotObjectHP_ByRun'
+        for onePset in process.pclMetadataWriter.recordsToMap:
+            if onePset.record == 'BeamSpotObjectsRcdByRun':
+                onePset.record = 'BeamSpotObjectsRcdHPByRun'
+        if process.ALCAHARVESTBeamSpotByRun.AlcaBeamSpotHarvesterParameters.outputRecordName == 'BeamSpotObjectsRcdByRun':
+            process.ALCAHARVESTBeamSpotByRun.AlcaBeamSpotHarvesterParameters.outputRecordName = 'BeamSpotObjectsRcdHPByRun'
+
+#    return process
