@@ -77,7 +77,7 @@ NoBPTXMonitor::~NoBPTXMonitor()
 NoBPTXMonitor::NoBPTXbinning NoBPTXMonitor::getHistoPSet(const edm::ParameterSet & pset)
 {
   return NoBPTXbinning{
-    pset.getParameter<int32_t>("nbins"),
+    pset.getParameter<unsigned int32_t>("nbins"),
       pset.getParameter<double>("xmin"),
       pset.getParameter<double>("xmax"),
       };
@@ -86,9 +86,9 @@ NoBPTXMonitor::NoBPTXbinning NoBPTXMonitor::getHistoPSet(const edm::ParameterSet
 NoBPTXMonitor::NoBPTXbinning NoBPTXMonitor::getHistoLSPSet(const edm::ParameterSet & pset)
 {
   return NoBPTXbinning{
-    pset.getParameter<int32_t>("nbins"),
+    pset.getParameter<unsigned int32_t>("nbins"),
       0.,
-      double(pset.getParameter<int32_t>("nbins"))
+      double(pset.getParameter<unsigned int32_t>("nbins"))
       };
 }
 
@@ -324,14 +324,14 @@ void NoBPTXMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSe
 
 void NoBPTXMonitor::fillHistoPSetDescription(edm::ParameterSetDescription & pset)
 {
-  pset.add<int>   ( "nbins", 200);
+  pset.add<unsigned int>   ( "nbins", 200);
   pset.add<double>( "xmin", -0.5 );
   pset.add<double>( "xmax", 19999.5 );
 }
 
 void NoBPTXMonitor::fillHistoLSPSetDescription(edm::ParameterSetDescription & pset)
 {
-  pset.add<int>   ( "nbins", 2500);
+  pset.add<unsigned int>   ( "nbins", 2500);
 }
 
 void NoBPTXMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
