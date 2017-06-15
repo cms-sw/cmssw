@@ -1,5 +1,6 @@
-#ifndef NOBPTXMONITOR_H
-#define NOBPTXMONITOR_H
+#ifndef DQMOFFLINE_TRIGGER_NOBPTXMONITOR_H
+#define DQMOFFLINE_TRIGGER_NOBPTXMONITOR_H
+
 
 #include <string>
 #include <vector>
@@ -66,7 +67,7 @@ protected:
 
 private:  
   struct NoBPTXbinning {
-    int nbins;
+    unsigned int nbins;
     double xmin;
     double xmax;
   };
@@ -122,4 +123,4 @@ private:
 
 };
 
-#endif // NOBPTXMONITOR_H
+#endif //DQMOFFLINE_TRIGGER_NOBPTXMONITOR_H
