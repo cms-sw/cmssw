@@ -59,7 +59,7 @@ hltTOPmonitoring.histoPSet.muEtaBinning  = cms.vdouble(-2.4,-2.1,-1.5,-0.9,-0.3,
 #pt binning
 hltTOPmonitoring.histoPSet.elePtBinning = cms.vdouble(0,5,10,20,30,40,50,70,100,200,400)
 hltTOPmonitoring.histoPSet.jetPtBinning = cms.vdouble(0,5,10,20,30,40,50,70,100,200,400)
-hltTOPmonitoring.histoPSet.muPtBinning  = cms.vdouble(0,5,10,20,30,40,50,70,100,200,400)
+ltTOPmonitoring.histoPSet.muPtBinning  = cms.vdouble(0,5,10,20,30,40,50,70,100,200,400)
 #Eta binning 2D
 hltTOPmonitoring.histoPSet.eleEtaBinning2D = cms.vdouble(-2.5,-1.5,-0.6,0.,0.6,1.5,2.5)
 hltTOPmonitoring.histoPSet.jetEtaBinning2D = cms.vdouble(-2.5,-1.5,-0.6,0.,0.6,1.5,2.5)
