@@ -36,35 +36,25 @@ hcalPhi17Cut = cms.PSet(
     allowedRanges=cms.vstring("-0.87:-0.52"),
     )
 
-
-tagAndProbeConfigEle33WPLoose = cms.PSet(
+tagAndProbeConfigEle50CaloIdVTGsfTrkIdT = cms.PSet(
     trigEvent = cms.InputTag("hltTriggerSummaryAOD","","HLT"),
     objColl = cms.InputTag("gedGsfElectrons"),
     tagVIDCuts = cms.InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-Summer16-80X-V1-tight"),
-    probeVIDCuts = cms.InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-Summer16-80X-V1-loose"),
+    probeVIDCuts = cms.InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-Summer16-80X-V1-tight"),
     sampleTrigRequirements = cms.PSet(
         hltInputTag = cms.InputTag("TriggerResults","","HLT"),
-        hltPaths = cms.vstring("HLT_DoubleEle33_CaloIdL_MW_v*")
+        hltPaths = cms.vstring("HLT_Ele50_CaloIdVT_GsfTrkIdT_PFJet165_v*")
         ),
     #it is intended that these are the filters of the triggers listed for sampleTrigRequirements
-    tagFilters = cms.vstring("hltL1sSingleEG40",
-                             "hltEGL1SingleEG40Filter"
-                             "hltEle50EtFilter",
-                             "hltEle50CaloIdVTClusterShapeFilter"
-                             "hltEle50CaloIdVTHEFilter"
-                             "hltEle50CaloIdVTPixelMatchFilter"
-                             "hltEle50CaloIdVTGsfTrkIdTGsfDetaFilter",
-                             "hltEle50CaloIdVTGsfTrkIdTGsfDphiFilter" ),
+    tagFilters = cms.vstring("hltEle50CaloIdVTGsfTrkIdTGsfDphiFilter"),
     tagFiltersORed = cms.bool(True),
-    tagRangeCuts = cms.VPSet(ecalBarrelEtaCut),
+    tagRangeCuts = cms.VPSet(ecalBarrelAndEndcapEtaCut),
     probeFilters = cms.vstring(),
     probeFiltersORed = cms.bool(False),
     probeRangeCuts = cms.VPSet(ecalBarrelAndEndcapEtaCut),
     minMass = cms.double(70.0),
     maxMass = cms.double(110.0),
     requireOpSign = cms.bool(False),
-  
-    
     )
     
 egammaStdHistConfigs = cms.VPSet(
@@ -139,9 +129,9 @@ egammaStdFiltersToMonitor= cms.VPSet(
 egHLTDQMOfflineTnPSource = cms.EDAnalyzer("HLTEleTagAndProbeOfflineSource",
                                           tagAndProbeCollections = cms.VPSet(
         cms.PSet( 
-            tagAndProbeConfigEle33WPLoose,
+            tagAndProbeConfigEle50CaloIdVTGsfTrkIdT,
             histConfigs = egammaStdHistConfigs,
-            baseHistName = cms.string("eleWPLooseTag_"),
+            baseHistName = cms.string("eleWPTightTag_"),
             filterConfigs = egammaStdFiltersToMonitor,
         ),
 
