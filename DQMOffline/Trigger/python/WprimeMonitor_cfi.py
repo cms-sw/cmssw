@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from DQMOffline.Trigger.topMonitoring_cfi import topMonitoring
 
 hltWprimemonitoring = topMonitoring.clone()
-hltWprimemonitoring.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/default/')
+
 
 hltWprimemonitoring.histoPSet.ptPSet = cms.PSet(
   nbins = cms.uint32(  45   ),
