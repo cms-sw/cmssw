@@ -223,7 +223,7 @@ int L1MuBMTQualPatternLut::getIgnoredLines(L1TriggerLutFile file) const{
      file.close();
 
      // skip aditional lines of comments between "---".
-     skip += 3;
+     skip += 2;
 
      return skip;
 }
