@@ -24,8 +24,10 @@
 #include "L1Trigger/L1TCommon/interface/Parameter.h"
 #include "L1Trigger/L1TCommon/interface/Mask.h"
 
-#include "CondFormats/L1TObjects/interface/L1MuDTQualPatternLut.h"
-#include "CondFormats/L1TObjects/interface/L1MuDTEtaPatternLut.h"
+//#include "CondFormats/L1TObjects/interface/L1MuDTQualPatternLut.h"
+//#include "CondFormats/L1TObjects/interface/L1MuDTEtaPatternLut.h"
+#include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTQualPatternLut.h"
+#include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTEtaPatternLut.h"
 
 typedef std::map<short, short, std::less<short> > LUT;
 
@@ -107,8 +109,8 @@ public:
 ///  friend std::ostream& operator<<(std::ostream& o, const L1TMuonBarrelParams & p) { p.print(o); return o; }
 
 //  L1MuDTExtLut        l1mudttfextlut;
-  L1MuDTQualPatternLut l1mudttfqualplut;
-  L1MuDTEtaPatternLut  l1mudttfetaplut;
+  L1MuBMTQualPatternLut l1mudttfqualplut;
+  L1MuBMTEtaPatternLut  l1mudttfetaplut;
 
 private:
 
