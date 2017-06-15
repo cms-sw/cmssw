@@ -37,6 +37,9 @@
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+
 #include "DQMOffline/Trigger/plugins/HTMonitor.h"
 
 class GenericTriggerEventFlag;
@@ -87,6 +90,7 @@ private:
   edm::EDGetTokenT<reco::PFJetCollection>       jetToken_;
   edm::EDGetTokenT<reco::GsfElectronCollection> eleToken_;
   edm::EDGetTokenT<reco::MuonCollection>        muoToken_;
+  edm::EDGetTokenT<reco::VertexCollection>       vtxToken_;
 
   std::vector<double> met_variable_binning_;
   MEbinning           met_binning_;
@@ -112,6 +116,7 @@ private:
   StringCutObjectSelector<reco::GsfElectron,true> eleSelection_;
   StringCutObjectSelector<reco::Muon,true>        muoSelection_;
   StringCutObjectSelector<reco::PFJet,true   >    jetSelection_HT_;
+
   int njets_;
   int nelectrons_;
   int nmuons_;
