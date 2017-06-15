@@ -175,16 +175,18 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTime_ns_250),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
 
-	_cOccupancy_Crate.initialize(_name,
-		 "Occupancy", hashfunctions::fCrate,
-		 new quantity::ElectronicsQuantity(quantity::fSlotuTCA),
-		 new quantity::ElectronicsQuantity(quantity::fFiberuTCAFiberCh),
-		 new quantity::ValueQuantity(quantity::fN),0);
-	_cOccupancy_CrateSlot.initialize(_name,
-		 "Occupancy", hashfunctions::fCrateSlot,
-		 new quantity::ElectronicsQuantity(quantity::fFiberuTCA),
-		 new quantity::ElectronicsQuantity(quantity::fFiberCh),
-		 new quantity::ValueQuantity(quantity::fN),0);
+	if (_ptype == fOnline || _ptype == fLocal) {
+		_cOccupancy_Crate.initialize(_name,
+			 "Occupancy", hashfunctions::fCrate,
+			 new quantity::ElectronicsQuantity(quantity::fSlotuTCA),
+			 new quantity::ElectronicsQuantity(quantity::fFiberuTCAFiberCh),
+			 new quantity::ValueQuantity(quantity::fN),0);
+		_cOccupancy_CrateSlot.initialize(_name,
+			 "Occupancy", hashfunctions::fCrateSlot,
+			 new quantity::ElectronicsQuantity(quantity::fFiberuTCA),
+			 new quantity::ElectronicsQuantity(quantity::fFiberCh),
+			 new quantity::ValueQuantity(quantity::fN),0);		
+	}
 
 	//	INITIALIZE HISTOGRAMS that are only for Online
 	if (_ptype==fOnline)
@@ -425,8 +427,6 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	_cTimingCut_depth.book(ib, _emap, _subsystem);
 	_cTimingCutvsLS_SubdetPM.book(ib, _emap, _subsystem);
 
-	_cOccupancy_Crate.book(ib, _emap, _subsystem);
-	_cOccupancy_CrateSlot.book(ib, _emap, _subsystem);
 	_cOccupancyvsLS_Subdet.book(ib, _emap, _subsystem);
 	_cOccupancy_depth.book(ib, _emap, _subsystem);
 	_cOccupancyCut_depth.book(ib, _emap, _subsystem);
@@ -439,6 +439,12 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	//	BOOK HISTOGRAMS that are only for Online
 	_ehashmap.initialize(_emap, electronicsmap::fD2EHashMap);
 	_dhashmap.initialize(_emap, electronicsmap::fE2DHashMap);
+
+	if (_ptype == fOnline || _ptype == fLocal) {
+		_cOccupancy_Crate.book(ib, _emap, _subsystem);
+		_cOccupancy_CrateSlot.book(ib, _emap, _subsystem);
+	}
+
 	if (_ptype==fOnline)
 	{
 		_cQ2Q12CutvsLS_FEDHF.book(ib, _emap, _filter_FEDHF, _subsystem);
@@ -596,7 +602,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 
 		_cSumQ_SubdetPM.fill(did, sumQ);
 		_cOccupancy_depth.fill(did);
-		if (rawid != 0) {
+		if (_ptype == fOnline || _ptype == fLocal) {
 			_cOccupancy_Crate.fill(eid);
 			_cOccupancy_CrateSlot.fill(eid);
 		}
