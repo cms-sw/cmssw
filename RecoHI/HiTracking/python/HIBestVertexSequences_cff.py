@@ -10,7 +10,8 @@ hiBestAdaptiveVertex = cms.EDFilter("HIBestVertexSelection",
 hiSelectedPixelVertex = cms.EDProducer("HIBestVertexProducer",
     beamSpotLabel = cms.InputTag("offlineBeamSpot"),
     adaptiveVertexCollection = cms.InputTag("hiBestAdaptiveVertex"),
-    medianVertexCollection = cms.InputTag("hiPixelMedianVertex")
+    medianVertexCollection = cms.InputTag("hiPixelMedianVertex"),
+    useFinalAdaptiveVertexCollection = cms.bool(False),
 )
 
 # best vertex sequence
@@ -43,11 +44,8 @@ hiBestOfflinePrimaryVertex = cms.EDFilter("HIBestVertexSelection",
     maxNumber = cms.uint32(1)
 )
 # select best of precise vertex, fast vertex, and beamspot
-hiSelectedVertex = cms.EDProducer("HIBestVertexProducer",
-    beamSpotLabel = cms.InputTag("offlineBeamSpot"),
-    medianVertexCollection = cms.InputTag("hiPixelMedianVertex"),
-    adaptiveVertexCollection = cms.InputTag("hiBestAdaptiveVertex"),
-    useFinalAdapativeVertexCollection = cms.bool(True),
+hiSelectedVertex = hiSelectedPixelVertex.clone(
+    useFinalAdaptiveVertexCollection = cms.bool(True),
     finalAdaptiveVertexCollection = cms.InputTag("hiBestOfflinePrimaryVertex")
 )
 bestFinalHiVertex = cms.Sequence(hiOfflinePrimaryVertices * hiBestOfflinePrimaryVertex * hiSelectedVertex ) # vertexing run AFTER tracking
