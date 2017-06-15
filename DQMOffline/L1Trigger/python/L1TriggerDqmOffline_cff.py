@@ -311,7 +311,9 @@ Stage2l1TriggerOnline = cms.Sequence(
                                 * l1tStage2OnlineDQM
                                 * dqmEnvL1T
                                )
-
+# Do not include the uGT online DQM module in the offline sequence
+# since the large 2D histograms cause crashes at the T0.
+l1tStage2OnlineDQM.remove(l1tStage2uGt)
 
 
 
