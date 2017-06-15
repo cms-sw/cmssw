@@ -1,5 +1,5 @@
-#ifndef PhotonMonitor_H
-#define PhotonMonitor_H
+#ifndef DQMOFFLINE_TRIGGER_PHOTON_H
+#define DQMOFFLINE_TRIGGER_PHOTON_H
 
 #include <string>
 #include <vector>
@@ -40,7 +40,7 @@
 class GenericTriggerEventFlag;
 
 struct MEbinning {
-  int nbins;
+  unsigned int nbins;
   double xmin;
   double xmax;
 };
@@ -65,10 +65,10 @@ public:
 protected:
 
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void bookME(DQMStore::IBooker &, PhotonME& me, const std::string& histname, const std::string& histtitle, int nbins, double xmin, double xmax);
+  void bookME(DQMStore::IBooker &, PhotonME& me, const std::string& histname, const std::string& histtitle, unsigned int nbins, double xmin, double xmax);
   void bookME(DQMStore::IBooker &, PhotonME& me, const std::string& histname, const std::string& histtitle, const std::vector<double>& binningX);
-  void bookME(DQMStore::IBooker &, PhotonME& me, const std::string& histname, const std::string& histtitle, int nbinsX, double xmin, double xmax, double ymin, double ymax);
-  void bookME(DQMStore::IBooker &, PhotonME& me, const std::string& histname, const std::string& histtitle, int nbinsX, double xmin, double xmax, int nbinsY, double ymin, double ymax);
+  void bookME(DQMStore::IBooker &, PhotonME& me, const std::string& histname, const std::string& histtitle, unsigned int nbinsX, double xmin, double xmax, double ymin, double ymax);
+  void bookME(DQMStore::IBooker &, PhotonME& me, const std::string& histname, const std::string& histtitle, unsigned int nbinsX, double xmin, double xmax, unsigned int nbinsY, double ymin, double ymax);
   void bookME(DQMStore::IBooker &, PhotonME& me, const std::string& histname, const std::string& histtitle, const std::vector<double>& binningX, const std::vector<double>& binningY);
   void setTitle(PhotonME& me, const std::string& titleX, const std::string& titleY);
 
@@ -103,14 +103,14 @@ private:
   PhotonME photonHoverEME_;   
 
   double MAX_PHI1 = 3.2;
-  int N_PHI1 = 64;
+  unsigned int N_PHI1 = 64;
   const MEbinning phi_binning_1{
     N_PHI1, -MAX_PHI1, MAX_PHI1
       };
 
 
   double MAX_ETA = 1.4442;
-  int N_ETA = 34;
+  unsigned int N_ETA = 34;
   const MEbinning eta_binning_{
     N_ETA, -MAX_ETA, MAX_ETA
       };
@@ -119,7 +119,7 @@ private:
 
   double MAX_r9 = 1;
   double MIN_r9 = 0;
-  int N_r9 = 50;
+  unsigned int N_r9 = 50;
   const MEbinning r9_binning_{
     N_r9, MIN_r9, MAX_r9
       };
