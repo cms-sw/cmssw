@@ -29,17 +29,17 @@ class JetTagPlotter : public BaseBTagPlotter {
   void analyzeTag (const reco::Jet & jet, const double & jec, const float& discriminator, const int& jetFlavour, const float & w);
 
   // final computation, plotting, printing .......
-  void finalize (DQMStore::IBooker & ibook_, DQMStore::IGetter & igetter_) ;
+  void finalize (DQMStore::IBooker & ibook_, DQMStore::IGetter & igetter_);
 
   // get "2d" histograms for misid. vs. b-eff
-  EffPurFromHistos * getEffPurFromHistos () { return effPurFromHistos ; }
+  EffPurFromHistos * getEffPurFromHistos () { return effPurFromHistos_ ; }
 
   void epsPlot(const std::string & name);
   void psPlot(const std::string & name);
 
-  int nBinEffPur() const {return nBinEffPur_;}
-  double startEffPur() const {return startEffPur_;}
-  double endEffPur() const {return endEffPur_;}
+  int nBinEffPur() const { return nBinEffPur_; }
+  double startEffPur() const { return startEffPur_; }
+  double endEffPur() const { return endEffPur_; }
 
  protected:
 
@@ -61,35 +61,36 @@ class JetTagPlotter : public BaseBTagPlotter {
   bool doDifferentialPlots_;
   double cutValue_;
 
-  int *nJets;
+  int *nJets_;
+  
   // jet multiplicity
-  FlavourHistograms<int> * JetMultiplicity;
+  FlavourHistograms<int> * jetMultiplicity_;
 
   // for the misid vs. eff plots
-  EffPurFromHistos * effPurFromHistos ;
+  EffPurFromHistos * effPurFromHistos_;
 
-  FlavourHistograms<int> * dJetFlav;
+  FlavourHistograms<int> * dJetFlav_;
   
   // Discriminator: again with reasonable binning
-  FlavourHistograms<double> * dDiscriminator;
+  FlavourHistograms<double> * dDiscriminator_;
   
   // reconstructed jet momentum
-  FlavourHistograms<double> * dJetRecMomentum;
+  FlavourHistograms<double> * dJetRecMomentum_;
 
   // reconstructed jet transverse momentum
-  FlavourHistograms<double> * dJetRecPt;
+  FlavourHistograms<double> * dJetRecPt_;
 
   // reconstructed jet eta
-  FlavourHistograms<double> * dJetRecPseudoRapidity;
+  FlavourHistograms<double> * dJetRecPseudoRapidity_;
 
   // reconstructed jet phi
-  FlavourHistograms<double> * dJetRecPhi;
+  FlavourHistograms<double> * dJetRecPhi_;
   
   // jet Phi larger than requested discrimnator cut
-  FlavourHistograms<double> * dJetPhiDiscrCut;
+  FlavourHistograms<double> * dJetPhiDiscrCut_;
   
   // jet Eta larger than requested discrimnator cut
-  FlavourHistograms<double> * dJetPseudoRapidityDiscrCut;
+  FlavourHistograms<double> * dJetPseudoRapidityDiscrCut_;
 };
 
 #endif
