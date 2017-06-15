@@ -5,6 +5,7 @@
 // Framework
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 #include "CommonTools/Utils/interface/StringToEnumValue.h"
 
@@ -48,6 +49,8 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
     consumes<EcalRecHitCollection>(conf_.getParameter<edm::InputTag>("barrelEcalHits"));
   endcapEcalHits_   =
     consumes<EcalRecHitCollection>(conf_.getParameter<edm::InputTag>("endcapEcalHits"));
+  preshowerHits_   = 
+    consumes<EcalRecHitCollection>(conf_.getParameter<edm::InputTag>("preshowerHits"));
   vertexProducer_   =
     consumes<reco::VertexCollection>(conf_.getParameter<edm::InputTag>("primaryVertexProducer"));
   hcalTowers_ =
@@ -210,6 +213,17 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   }
   if( validEcalRecHits) endcapRecHits = *(endcapHitHandle.product());
 
+  bool validPreshowerRecHits=true;
+  Handle<EcalRecHitCollection> preshowerHitHandle;
+  theEvent.getByToken(preshowerHits_, preshowerHitHandle);
+  EcalRecHitCollection preshowerRecHits;
+  if (!preshowerHitHandle.isValid()) {
+    edm::LogError("PhotonProducer")
+      << "Error! Can't get the preshowerEcalHits";
+    validPreshowerRecHits=false;
+  }
+  if( validPreshowerRecHits ) preshowerRecHits = *(preshowerHitHandle.product());
+
   //AA
   //Get the severity level object
   edm::ESHandle<EcalSeverityLevelAlgo> sevLv;
@@ -258,6 +272,7 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
 			 topology,
 			 &barrelRecHits,
 			 &endcapRecHits,
+                         &preshowerRecHits,
 			 hcalTowersHandle,
 			 //vtx,
 			 vertexCollection,
@@ -279,6 +294,7 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
 					  const CaloTopology* topology,
 					  const EcalRecHitCollection* ecalBarrelHits,
 					  const EcalRecHitCollection* ecalEndcapHits,
+					  const EcalRecHitCollection* preshowerHits,
 					  const edm::Handle<CaloTowerCollection> & hcalTowersHandle,
 					  // math::XYZPoint & vtx,
                                           reco::VertexCollection & vertexCollection,
@@ -348,12 +364,12 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     float maxXtal =   EcalClusterTools::eMax( *(scRef->seed()), &(*hits) );
     //AA
     //Change these to consider severity level of hits
-    float e1x5    =   EcalClusterTools::e1x5(  *(scRef->seed()), &(*hits), &(*topology));
-    float e2x5    =   EcalClusterTools::e2x5Max(  *(scRef->seed()), &(*hits), &(*topology));
-    float e3x3    =   EcalClusterTools::e3x3(  *(scRef->seed()), &(*hits), &(*topology));
-    float e5x5    =   EcalClusterTools::e5x5( *(scRef->seed()), &(*hits), &(*topology));
-    std::vector<float> cov =  EcalClusterTools::covariances( *(scRef->seed()), &(*hits), &(*topology), geometry);
-    std::vector<float> locCov =  EcalClusterTools::localCovariances( *(scRef->seed()), &(*hits), &(*topology));
+    float e1x5    =   ( hits != nullptr ? EcalClusterTools::e1x5(  *(scRef->seed()), &(*hits), &(*topology)) : 0.f );
+    float e2x5    =   ( hits != nullptr ? EcalClusterTools::e2x5Max(  *(scRef->seed()), &(*hits), &(*topology)) : 0.f );
+    float e3x3    =   ( hits != nullptr ? EcalClusterTools::e3x3(  *(scRef->seed()), &(*hits), &(*topology)) : 0.f );
+    float e5x5    =   ( hits != nullptr ? EcalClusterTools::e5x5( *(scRef->seed()), &(*hits), &(*topology)) : 0.f );
+    std::vector<float> cov =  ( hits != nullptr ? EcalClusterTools::covariances( *(scRef->seed()), &(*hits), &(*topology), geometry) : std::vector<float>( {0.f,0.f,0.f} ) );
+    std::vector<float> locCov =  ( hits != nullptr ? EcalClusterTools::localCovariances( *(scRef->seed()), &(*hits), &(*topology)) : std::vector<float>( {0.f,0.f,0.f} ) );
 
     float sigmaEtaEta = sqrt(cov[0]);
     float sigmaIetaIeta = sqrt(locCov[0]);
@@ -362,12 +378,12 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     float full5x5_maxXtal =   noZS::EcalClusterTools::eMax( *(scRef->seed()), &(*hits) );
     //AA
     //Change these to consider severity level of hits
-    float full5x5_e1x5    =   noZS::EcalClusterTools::e1x5(  *(scRef->seed()), &(*hits), &(*topology));
-    float full5x5_e2x5    =   noZS::EcalClusterTools::e2x5Max(  *(scRef->seed()), &(*hits), &(*topology));
-    float full5x5_e3x3    =   noZS::EcalClusterTools::e3x3(  *(scRef->seed()), &(*hits), &(*topology));
-    float full5x5_e5x5    =   noZS::EcalClusterTools::e5x5( *(scRef->seed()), &(*hits), &(*topology));
-    std::vector<float> full5x5_cov =  noZS::EcalClusterTools::covariances( *(scRef->seed()), &(*hits), &(*topology), geometry);
-    std::vector<float> full5x5_locCov =  noZS::EcalClusterTools::localCovariances( *(scRef->seed()), &(*hits), &(*topology));
+    float full5x5_e1x5    =   ( hits != nullptr ? noZS::EcalClusterTools::e1x5(  *(scRef->seed()), &(*hits), &(*topology)) : 0.f );
+    float full5x5_e2x5    =   ( hits != nullptr ? noZS::EcalClusterTools::e2x5Max(  *(scRef->seed()), &(*hits), &(*topology)) : 0.f );
+    float full5x5_e3x3    =   ( hits != nullptr ? noZS::EcalClusterTools::e3x3(  *(scRef->seed()), &(*hits), &(*topology)) : 0.f );
+    float full5x5_e5x5    =   ( hits != nullptr ? noZS::EcalClusterTools::e5x5( *(scRef->seed()), &(*hits), &(*topology)) : 0.f );
+    std::vector<float> full5x5_cov =  ( hits != nullptr ? noZS::EcalClusterTools::covariances( *(scRef->seed()), &(*hits), &(*topology), geometry) : std::vector<float>( {0.f,0.f,0.f} ) );
+    std::vector<float> full5x5_locCov =  ( hits != nullptr ? noZS::EcalClusterTools::localCovariances( *(scRef->seed()), &(*hits), &(*topology)) : std::vector<float>( {0.f,0.f,0.f} ) );
 
     float full5x5_sigmaEtaEta = sqrt(full5x5_cov[0]);
     float full5x5_sigmaIetaIeta = sqrt(full5x5_locCov[0]);
@@ -417,8 +433,50 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     showerShape.hcalDepth1OverEcalBc = hcalDepth1OverEcalBc;
     showerShape.hcalDepth2OverEcalBc = hcalDepth2OverEcalBc;
     showerShape.hcalTowersBehindClusters =  TowersBehindClus;
-    newCandidate.setShowerShapeVariables ( showerShape );
+    /// fill extra shower shapes
+    const float spp = (!edm::isFinite(locCov[2]) ? 0. : sqrt(locCov[2]));
+    const float sep = locCov[1];
+    showerShape.sigmaIetaIphi = sep;
+    showerShape.sigmaIphiIphi = spp;
+    showerShape.e2nd          = ( hits != nullptr ? EcalClusterTools::e2nd(*(scRef->seed()),&(*hits)) : 0.f );
+    showerShape.eTop          = ( hits != nullptr ? EcalClusterTools::eTop(*(scRef->seed()), &(*hits), &(*topology)) : 0.f );
+    showerShape.eLeft         = ( hits != nullptr ? EcalClusterTools::eLeft(*(scRef->seed()), &(*hits), &(*topology)) : 0.f );
+    showerShape.eRight        = ( hits != nullptr ? EcalClusterTools::eRight(*(scRef->seed()), &(*hits), &(*topology)) : 0.f );
+    showerShape.eBottom       = ( hits != nullptr ? EcalClusterTools::eBottom(*(scRef->seed()), &(*hits), &(*topology)) : 0.f );
+    showerShape.e1x3          = ( hits != nullptr ? EcalClusterTools::e1x3(*(scRef->seed()), &(*hits), &(*topology)) : 0.f );
+    showerShape.e2x2          = ( hits != nullptr ? EcalClusterTools::e2x2(*(scRef->seed()), &(*hits), &(*topology)) : 0.f );
+    showerShape.e2x5Max       = ( hits != nullptr ? EcalClusterTools::e2x5Max(*(scRef->seed()), &(*hits), &(*topology)) : 0.f );
+    showerShape.e2x5Left      = ( hits != nullptr ? EcalClusterTools::e2x5Left(*(scRef->seed()), &(*hits), &(*topology)) : 0.f );
+    showerShape.e2x5Right     = ( hits != nullptr ? EcalClusterTools::e2x5Right(*(scRef->seed()), &(*hits), &(*topology)) : 0.f );
+    showerShape.e2x5Top       = ( hits != nullptr ? EcalClusterTools::e2x5Top(*(scRef->seed()), &(*hits), &(*topology)) : 0.f );
+    showerShape.e2x5Bottom    = ( hits != nullptr ? EcalClusterTools::e2x5Bottom(*(scRef->seed()), &(*hits), &(*topology)) : 0.f );
+    // fill preshower shapes
+    EcalClusterLazyTools toolsforES(evt, es, barrelEcalHits_, endcapEcalHits_, preshowerHits_);
+    const float sigmaRR =  toolsforES.eseffsirir( *scRef );
+    showerShape.effSigmaRR = sigmaRR;
+    newCandidate.setShowerShapeVariables ( showerShape ); 
 
+    reco::Photon::SaturationInfo saturationInfo;
+    const reco::CaloCluster& seedCluster = *(scRef->seed()) ;
+    DetId seedXtalId = seedCluster.seed();
+    int nSaturatedXtals = 0;
+    bool isSeedSaturated = false;
+    if (hits != nullptr) {
+      const auto hitsAndFractions = scRef->hitsAndFractions();
+      for (auto&& hitFractionPair : hitsAndFractions) {    
+	auto&& ecalRecHit = hits->find(hitFractionPair.first);
+	if (ecalRecHit == hits->end()) continue;
+	if (ecalRecHit->checkFlag(EcalRecHit::Flags::kSaturated)) {
+	  nSaturatedXtals++;
+	  if (seedXtalId == ecalRecHit->detid())
+	    isSeedSaturated = true;
+	}
+      }
+    }
+    saturationInfo.nSaturatedXtals = nSaturatedXtals;
+    saturationInfo.isSeedSaturated = isSeedSaturated;
+    newCandidate.setSaturationInfo(saturationInfo);
+    
     /// fill full5x5 shower shape block
     reco::Photon::ShowerShape  full5x5_showerShape;
     full5x5_showerShape.e1x5= full5x5_e1x5;
@@ -428,7 +486,26 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     full5x5_showerShape.maxEnergyXtal =  full5x5_maxXtal;
     full5x5_showerShape.sigmaEtaEta =    full5x5_sigmaEtaEta;
     full5x5_showerShape.sigmaIetaIeta =  full5x5_sigmaIetaIeta;
-    newCandidate.full5x5_setShowerShapeVariables ( full5x5_showerShape );
+    /// fill extra full5x5 shower shapes
+    const float full5x5_spp = (!edm::isFinite(full5x5_locCov[2]) ? 0. : sqrt(full5x5_locCov[2]));
+    const float full5x5_sep = full5x5_locCov[1];
+    full5x5_showerShape.sigmaIetaIphi = full5x5_sep;
+    full5x5_showerShape.sigmaIphiIphi = full5x5_spp;
+    full5x5_showerShape.e2nd          = ( hits != nullptr ? noZS::EcalClusterTools::e2nd(*(scRef->seed()),&(*hits)) : 0.f );
+    full5x5_showerShape.eTop          = ( hits != nullptr ? noZS::EcalClusterTools::eTop(*(scRef->seed()), &(*hits), &(*topology)) : 0.f );
+    full5x5_showerShape.eLeft         = ( hits != nullptr ? noZS::EcalClusterTools::eLeft(*(scRef->seed()), &(*hits), &(*topology)) : 0.f );
+    full5x5_showerShape.eRight        = ( hits != nullptr ? noZS::EcalClusterTools::eRight(*(scRef->seed()), &(*hits), &(*topology)) : 0.f );
+    full5x5_showerShape.eBottom       = ( hits != nullptr ? noZS::EcalClusterTools::eBottom(*(scRef->seed()), &(*hits), &(*topology)) : 0.f );
+    full5x5_showerShape.e1x3          = ( hits != nullptr ? noZS::EcalClusterTools::e1x3(*(scRef->seed()), &(*hits), &(*topology)) : 0.f );
+    full5x5_showerShape.e2x2          = ( hits != nullptr ? noZS::EcalClusterTools::e2x2(*(scRef->seed()), &(*hits), &(*topology)) : 0.f );
+    full5x5_showerShape.e2x5Max       = ( hits != nullptr ? noZS::EcalClusterTools::e2x5Max(*(scRef->seed()), &(*hits), &(*topology)) : 0.f );
+    full5x5_showerShape.e2x5Left      = ( hits != nullptr ? noZS::EcalClusterTools::e2x5Left(*(scRef->seed()), &(*hits), &(*topology)) : 0.f );
+    full5x5_showerShape.e2x5Right     = ( hits != nullptr ? noZS::EcalClusterTools::e2x5Right(*(scRef->seed()), &(*hits), &(*topology)) : 0.f );
+    full5x5_showerShape.e2x5Top       = ( hits != nullptr ? noZS::EcalClusterTools::e2x5Top(*(scRef->seed()), &(*hits), &(*topology)) : 0.f );
+    full5x5_showerShape.e2x5Bottom    = ( hits != nullptr ? noZS::EcalClusterTools::e2x5Bottom(*(scRef->seed()), &(*hits), &(*topology)) : 0.f );
+     // fill preshower shapes
+    full5x5_showerShape.effSigmaRR = sigmaRR;
+    newCandidate.full5x5_setShowerShapeVariables ( full5x5_showerShape );     
 
     /// get ecal photon specific corrected energy
     /// plus values from regressions     and store them in the Photon

@@ -53,6 +53,7 @@ class PhotonProducer : public edm::stream::EDProducer<> {
                             const CaloTopology *topology,
 			    const EcalRecHitCollection* ecalBarrelHits,
 			    const EcalRecHitCollection* ecalEndcapHits,
+			    const EcalRecHitCollection* preshowerHits,
 			    const edm::Handle<CaloTowerCollection> & hcalTowersHandle,
 			    //math::XYZPoint & vtx,
 			    reco::VertexCollection& pvVertices,
@@ -65,6 +66,7 @@ class PhotonProducer : public edm::stream::EDProducer<> {
   edm::EDGetTokenT<reco::PhotonCoreCollection> photonCoreProducer_;
   edm::EDGetTokenT<EcalRecHitCollection> barrelEcalHits_;
   edm::EDGetTokenT<EcalRecHitCollection> endcapEcalHits_;
+  edm::EDGetTokenT<EcalRecHitCollection> preshowerHits_;
   edm::EDGetTokenT<CaloTowerCollection> hcalTowers_;
   edm::EDGetTokenT<reco::VertexCollection> vertexProducer_;
 
