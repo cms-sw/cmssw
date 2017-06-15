@@ -70,6 +70,10 @@ private:
   
   double jetPtmin_;
   double jetEtamax_;
+  double muonPtmin_;
+  double muonEtamax_;
+  
+  double jetMuonDRmax_;
   
   Binning jetPtbins_;
   Binning jetEtabins_;
