@@ -57,7 +57,7 @@ void CSCCorrelatedLCTDigi::clear() {
 
 /// return the fractional strip
 float CSCCorrelatedLCTDigi::getFractionalStrip() const{
-  return 0.5 * (getStrip() + 1) - 0.25;
+  return 0.5f * (getStrip() + 1) - 0.25f;
 }
 
 /// Comparison
