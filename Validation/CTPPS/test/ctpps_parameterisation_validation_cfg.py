@@ -31,8 +31,17 @@ process.RandomNumberGeneratorService.ctppsOpticsParameterisation = cms.PSet( ini
 # prepare the output file
 process.TFileService = cms.Service('TFileService',
     fileName = cms.string('output.root'),
-    closeFileFast = cms.untracked.bool(True)
+    closeFileFast = cms.untracked.bool(True),
 )
+
+process.Timing = cms.Service('Timing',
+    summaryOnly = cms.untracked.bool(True),
+    useJobReport = cms.untracked.bool(True),
+)
+
+#process.SimpleMemoryCheck = cms.Service('SimpleMemoryCheck',
+#    ignoreTotal = cms.untracked.int32(1),
+#)
  
 process.p = cms.Path(
     process.lhcBeamProducer

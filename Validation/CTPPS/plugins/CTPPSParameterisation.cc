@@ -131,7 +131,7 @@ CTPPSParameterisation::CTPPSParameterisation( const edm::ParameterSet& iConfig )
   TFileDirectory hm_dir = fs->mkdir( "hitmaps" );
   for ( const auto& det : detectorPackages_ ) {
     const TotemRPDetId pot_id( det.getParameter<unsigned int>( "potId" ) );
-    m_rp_h2_y_vs_x_.insert( std::make_pair( pot_id, hm_dir.make<TH2D>( Form( "h2_rp_hits_arm%d_rp%d", pot_id.arm(), pot_id.getRPId() ) , ";x;y", 300, 0., 30E-3, 200, -10E-3, +10E-3 ) ) );
+    m_rp_h2_y_vs_x_.insert( std::make_pair( pot_id, hm_dir.make<TH2D>( Form( "h2_rp_hits_arm%d_rp%d", pot_id.arm(), pot_id.rp() ) , ";x;y", 300, 0., 30E-3, 200, -10E-3, +10E-3 ) ) );
   }
 }
 
