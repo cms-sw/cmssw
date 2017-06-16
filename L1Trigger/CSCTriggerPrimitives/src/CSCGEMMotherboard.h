@@ -62,6 +62,9 @@ protected:
   float getAvePad(const GEMCoPadDigi&);
   float getAvePad(const CSCCLCTDigi&, enum CSCPart part);
 
+  template <class S>
+  std::map<int, matches<S> > getMatches();
+
   // match ALCT/CLCT to Pad/CoPad
   template <class T>
   matches<T> matchingPads(const CSCALCTDigi& alct, enum CSCPart part);
@@ -248,16 +251,22 @@ S CSCGEMMotherboard::bestMatchingPad(const CSCALCTDigi& alct1, const CSCCLCTDigi
 }
 
 template <class S>
+std::map<int, matches<S> > CSCGEMMotherboard::getMatches()
+{
+  boost::variant<GEMPadDigiIdsBX, GEMCoPadDigiIdsBX> variant_lut;
+  if (std::is_same<S, GEMPadDigi>::value) variant_lut = pads_;
+  else                                    variant_lut = coPads_;
+  return boost::get<std::map<int, matches<S> > >(variant_lut);
+}
+
+template <class S>
 matches<S> CSCGEMMotherboard::matchingPads(const CSCALCTDigi& alct, enum CSCPart part)
 {
   matches<S> result;
   if (not alct.isValid()) return result;
 
   // get the generic LUT  
-  boost::variant<GEMPadDigiIdsBX, GEMCoPadDigiIdsBX> variant_lut;
-  if (std::is_same<S, GEMPadDigi>::value) variant_lut = pads_;
-  else                                    variant_lut = coPads_;
-  const auto& actual_lut = boost::get<std::map<int, matches<S> > >(variant_lut);
+  const auto& actual_lut = boost::get<getMatches<S>()>;
 
   std::pair<int,int> alctRoll = (getLUT()->CSCGEMMotherboardLUT::get_csc_wg_to_gem_roll(par))[alct.getKeyWG()];
   for (const auto& p: actual_lut[alct.getBX()]){
@@ -282,16 +291,9 @@ matches<S> CSCGEMMotherboard::matchingPads(const CSCCLCTDigi& clct, enum CSCPart
   
   int deltaBX;
   // get the generic LUT  
-  boost::variant<GEMPadDigiIdsBX, GEMCoPadDigiIdsBX> variant_lut;
-  if (std::is_same<S, GEMPadDigi>::value) {
-    variant_lut = pads_;
-    deltaBX = maxDeltaBXPad_;
-  }
-  else{
-    variant_lut = coPads_;
-    deltaBX = maxDeltaBXCoPad_;
-  }
-  const auto& actual_lut = boost::get<std::map<int, matches<S> > >(variant_lut);
+  const auto& actual_lut = boost::get<getMatches<S>()>;
+  if (std::is_same<S, GEMPadDigi>::value) deltaBX = maxDeltaBXPad_;
+  else                                    deltaBX = maxDeltaBXCoPad_;
   
   const auto& mymap = (getLUT()->get_csc_hs_to_gem_pad(par, part));
   const int lowPad(mymap[clct.getKeyStrip()].first);
