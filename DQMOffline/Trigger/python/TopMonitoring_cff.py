@@ -53,7 +53,6 @@ topEleJet_all.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Ele30_eta2p
 # topEleJet_all.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_IsoMu24_v*')
 
 
-
 topEleHT_ht = hltTOPmonitoring.clone()
 topEleHT_ht.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/EleHT/HTMonitor')
 topEleHT_ht.nmuons = cms.uint32(0)

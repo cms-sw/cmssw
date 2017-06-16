@@ -59,7 +59,7 @@ hltSUSYmonitoring.histoPSet.muEtaBinning  = cms.vdouble(-2.4,-2.1,-1.5,-0.9,-0.3
 #pt binning
 hltSUSYmonitoring.histoPSet.elePtBinning = cms.vdouble(0,5,10,20,30,40,50,70,100,200,400)
 hltSUSYmonitoring.histoPSet.jetPtBinning = cms.vdouble(0,5,10,20,30,40,50,70,100,200,400)
-ltTOPmonitoring.histoPSet.muPtBinning  = cms.vdouble(0,5,10,20,30,40,50,70,100,200,400)
+hltSUSYmonitoring.histoPSet.muPtBinning  = cms.vdouble(0,5,10,20,30,40,50,70,100,200,400)
 #Eta binning 2D
 hltSUSYmonitoring.histoPSet.eleEtaBinning2D = cms.vdouble(-2.5,-1.5,-0.6,0.,0.6,1.5,2.5)
 hltSUSYmonitoring.histoPSet.jetEtaBinning2D = cms.vdouble(-2.5,-1.5,-0.6,0.,0.6,1.5,2.5)
@@ -94,9 +94,9 @@ hltSUSYmonitoring.numGenericTriggerEventPSet.errorReplyHlt = cms.bool( False )
 hltSUSYmonitoring.numGenericTriggerEventPSet.verbosityLevel = cms.uint32(0)
 
 hltSUSYmonitoring.denGenericTriggerEventPSet.andOr         = cms.bool( False )
-hltSUSYmonitoring.numGenericTriggerEventPSet.andOrHlt      = cms.bool(True)# True:=OR; False:=AND
-hltSUSYmonitoring.numGenericTriggerEventPSet.hltInputTag   = cms.InputTag( "TriggerResults::HLT" )
-hltSUSYmonitoring.numGenericTriggerEventPSet.errorReplyHlt = cms.bool( False )
+hltSUSYmonitoring.denGenericTriggerEventPSet.andOrHlt      = cms.bool(True)# True:=OR; False:=AND
+hltSUSYmonitoring.denGenericTriggerEventPSet.hltInputTag   = cms.InputTag( "TriggerResults::HLT" )
+hltSUSYmonitoring.denGenericTriggerEventPSet.errorReplyHlt = cms.bool( False )
 hltSUSYmonitoring.denGenericTriggerEventPSet.dcsInputTag   = cms.InputTag( "scalersRawToDigi" )
 hltSUSYmonitoring.denGenericTriggerEventPSet.dcsPartitions = cms.vint32 ( 24, 25, 26, 27, 28, 29 ) # 24-27: strip, 28-29: pixel, we should add all other detectors !
 hltSUSYmonitoring.denGenericTriggerEventPSet.andOrDcs      = cms.bool( False )
