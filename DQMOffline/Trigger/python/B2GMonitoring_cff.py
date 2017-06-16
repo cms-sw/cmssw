@@ -3,43 +3,77 @@ import FWCore.ParameterSet.Config as cms
 from DQMOffline.Trigger.JetMETMonitor_cfi import hltJetMETmonitoring
 from DQMOffline.Trigger.HTMonitor_cfi import hltHTmonitoring
 
+
+# B2G triggers:
+#HLT_AK8PFHT750_TrimMass50_v*
+#HLT_AK8PFJet380_TrimMass30_v*
+#HLT_AK8PFHT800_TrimMass50_v*
+#HLT_AK8PFJet400_TrimMass30_v*
+#HLT_AK8PFHT850_TrimMass50_v*
+#HLT_AK8PFJet420_TrimMass30_v*
+#HLT_AK8PFHT900_TrimMass50_v*
 # HLT_AK8PFHT700_TrimR0p1PT0p03Mass50                                                                                                                                         
-AK8PFHT700_HTmonitoring = hltHTmonitoring.clone()
-AK8PFHT700_HTmonitoring.FolderName = cms.string('HLT/B2GMonitor/AK8PFHT700_TrimR0p1PT0p03Mass50')
-AK8PFHT700_HTmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_AK8PFHT700_TrimR0p1PT0p03Mass50_v*")
-AK8PFHT700_HTmonitoring.jets = cms.InputTag("ak8PFJetsCHS")
-AK8PFHT700_HTmonitoring.jetSelection      = cms.string("pt > 0 && eta < 2.5")
-AK8PFHT700_HTmonitoring.jetSelection_HT = cms.string("pt > 200 && eta < 2.5")
+AK8PFHT750_TrimMass50_HTmonitoring = hltHTmonitoring.clone()
+AK8PFHT750_TrimMass50_HTmonitoring.FolderName = cms.string('HLT/B2GMonitor/AK8PFHT750_TrimMass50')
+AK8PFHT750_TrimMass50_HTmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_AK8PFHT750_TrimMass50_v*")
+AK8PFHT750_TrimMass50_HTmonitoring.jets = cms.InputTag("ak8PFJetsCHS")
+AK8PFHT750_TrimMass50_HTmonitoring.jetSelection      = cms.string("pt > 0 && eta < 2.5")
+AK8PFHT750_TrimMass50_HTmonitoring.jetSelection_HT = cms.string("pt > 200 && eta < 2.5")
 
-# HLT_AK8PFJet360_TrimMass30                                                                                                                                                  
-AK8PFJet360_TrimMass30_PromptMonitoring = hltJetMETmonitoring.clone()
-AK8PFJet360_TrimMass30_PromptMonitoring.FolderName = cms.string('HLT/B2GMonitor/AK8PFJet360_TrimMass30')
-AK8PFJet360_TrimMass30_PromptMonitoring.ptcut = cms.double(360)
-AK8PFJet360_TrimMass30_Promptonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_AK8PFJet360_TrimMass30_v*")
-AK8PFJet360_TrimMass30_PromptMonitoring.pfjets      = cms.InputTag("ak8PFJetsCHS")
-AK8PFJet360_TrimMass30_PromptMonitoring.jetSelection      = cms.string("pt > 0 && eta < 2.5")
-AK8PFJet360_TrimMass30_PromptMonitoring.jetSelection_HT= cms.string("pt > 200 && eta < 2.5")
+AK8PFHT800_TrimMass50_HTmonitoring = hltHTmonitoring.clone()
+AK8PFHT800_TrimMass50_HTmonitoring.FolderName = cms.string('HLT/B2GMonitor/AK8PFHT800_TrimMass50')
+AK8PFHT800_TrimMass50_HTmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_AK8PFHT800_TrimMass50_v*")
+AK8PFHT800_TrimMass50_HTmonitoring.jets = cms.InputTag("ak8PFJetsCHS")
+AK8PFHT800_TrimMass50_HTmonitoring.jetSelection      = cms.string("pt > 0 && eta < 2.5")
+AK8PFHT800_TrimMass50_HTmonitoring.jetSelection_HT = cms.string("pt > 200 && eta < 2.5")
+
+AK8PFHT850_TrimMass50_HTmonitoring = hltHTmonitoring.clone()
+AK8PFHT850_TrimMass50_HTmonitoring.FolderName = cms.string('HLT/B2GMonitor/AK8PFHT850_TrimMass50')
+AK8PFHT850_TrimMass50_HTmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_AK8PFHT850_TrimMass50_v*")
+AK8PFHT850_TrimMass50_HTmonitoring.jets = cms.InputTag("ak8PFJetsCHS")
+AK8PFHT850_TrimMass50_HTmonitoring.jetSelection      = cms.string("pt > 0 && eta < 2.5")
+AK8PFHT850_TrimMass50_HTmonitoring.jetSelection_HT = cms.string("pt > 200 && eta < 2.5")
+
+AK8PFHT900_TrimMass50_HTmonitoring = hltHTmonitoring.clone()
+AK8PFHT900_TrimMass50_HTmonitoring.FolderName = cms.string('HLT/B2GMonitor/AK8PFHT900_TrimMass50')
+AK8PFHT900_TrimMass50_HTmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_AK8PFHT900_TrimMass50_v*")
+AK8PFHT900_TrimMass50_HTmonitoring.jets = cms.InputTag("ak8PFJetsCHS")
+AK8PFHT900_TrimMass50_HTmonitoring.jetSelection      = cms.string("pt > 0 && eta < 2.5")
+AK8PFHT900_TrimMass50_HTmonitoring.jetSelection_HT = cms.string("pt > 200 && eta < 2.5")
+
+               
+AK8PFJet380_TrimMass30_PromptMonitoring = hltJetMETmonitoring.clone()
+AK8PFJet380_TrimMass30_PromptMonitoring.FolderName = cms.string('HLT/B2GMonitor/AK8PFJet380_TrimMass30')
+AK8PFJet380_TrimMass30_PromptMonitoring.ptcut = cms.double(380)
+AK8PFJet380_TrimMass30_Promptonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_AK8PFJet380_TrimMass30_v*")
+AK8PFJet380_TrimMass30_PromptMonitoring.pfjets      = cms.InputTag("ak8PFJetsCHS")
+AK8PFJet380_TrimMass30_PromptMonitoring.jetSelection      = cms.string("pt > 0 && eta < 2.5")
+AK8PFJet380_TrimMass30_PromptMonitoring.jetSelection_HT= cms.string("pt > 200 && eta < 2.5")
+
+AK8PFJet400_TrimMass30_PromptMonitoring = hltJetMETmonitoring.clone()
+AK8PFJet400_TrimMass30_PromptMonitoring.FolderName = cms.string('HLT/B2GMonitor/AK8PFJet400_TrimMass30')
+AK8PFJet400_TrimMass30_PromptMonitoring.ptcut = cms.double(400)
+AK8PFJet400_TrimMass30_Promptonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_AK8PFJet400_TrimMass30_v*")
+AK8PFJet400_TrimMass30_PromptMonitoring.pfjets      = cms.InputTag("ak8PFJetsCHS")
+AK8PFJet400_TrimMass30_PromptMonitoring.jetSelection      = cms.string("pt > 0 && eta < 2.5")
+AK8PFJet400_TrimMass30_PromptMonitoring.jetSelection_HT= cms.string("pt > 200 && eta < 2.5")
+
+AK8PFJet420_TrimMass30_PromptMonitoring = hltJetMETmonitoring.clone()
+AK8PFJet420_TrimMass30_PromptMonitoring.FolderName = cms.string('HLT/B2GMonitor/AK8PFJet420_TrimMass30')
+AK8PFJet420_TrimMass30_PromptMonitoring.ptcut = cms.double(420)
+AK8PFJet420_TrimMass30_Promptonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_AK8PFJet420_TrimMass30_v*")
+AK8PFJet420_TrimMass30_PromptMonitoring.pfjets      = cms.InputTag("ak8PFJetsCHS")
+AK8PFJet420_TrimMass30_PromptMonitoring.jetSelection      = cms.string("pt > 0 && eta < 2.5")
+AK8PFJet420_TrimMass30_PromptMonitoring.jetSelection_HT= cms.string("pt > 200 && eta < 2.5")
 
 
-# HLT_PFHT650_WideJetMJJ900DEtaJJ1p5                                                                                                                   
-PFHT650_WideJetMJJ900DEtaJJ1p5_HTmonitoring = hltHTmonitoring.clone()                        
-PFHT650_WideJetMJJ900DEtaJJ1p5_HTmonitoring.FolderName = cms.string('HLT/B2GMonitor/PFHT650_WideJetMJJ900DEtaJJ1p5')
-PFHT650_WideJetMJJ900DEtaJJ1p5_HTmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFHT650_WideJetMJJ900DEtaJJ1p5_v*")
-PFHT650_WideJetMJJ900DEtaJJ1p5_HTmonitoring.jets = cms.InputTag("ak8PFJetsCHS")
-PFHT650_WideJetMJJ900DEtaJJ1p5_HTmonitoring.jetSelection = cms.string("pt > 0 && eta < 2.5")
-PFHT650_WideJetMJJ900DEtaJJ1p5_HTmonitoring.jetSelection_HT =  cms.string("pt > 200 && eta < 2.5")
-
-# HLT_PFHT800                                                                                                                                          
-PFHT800_HTmonitoring = hltHTmonitoring.clone()
-PFHT800_HTmonitoring.FolderName = cms.string('HLT/B2GMonitor/PFHT800')
-PFHT800_HTmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFHT800_v*")
-PFHT800_HTmonitoring.jets = cms.InputTag("ak8PFJetsCHS")
-PFHT800_HTmonitoring.jetSelection = cms.string("pt > 0 && eta < 2.5") 
-PFHT800_HTmonitoring.jetSelection_HT =  cms.string("pt > 200 && eta < 2.5")
 
 b2gMonitorHLT = cms.Sequence(
-    AK8PFHT700_HTmonitoring
-    + AK8PFJet360_TrimMass30_PromptMonitoring
-    + PFHT650_WideJetMJJ900DEtaJJ1p5_HTmonitoring
-    + PFHT800_HTmonitoring
+    AK8PFHT750_TrimMass50_HTmonitoring +
+    AK8PFHT800_TrimMass50_HTmonitoring + 
+    AK8PFHT850_TrimMass50_HTmonitoring + 
+    AK8PFHT900_TrimMass50_HTmonitoring +
+    AK8PFJet380_TrimMass30 + 
+    AK8PFJet400_TrimMass30 + 
+    AK8PFJet420_TrimMass30
 )

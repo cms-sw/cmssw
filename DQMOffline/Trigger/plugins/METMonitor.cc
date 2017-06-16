@@ -8,11 +8,6 @@
 
 #include "DataFormats/Math/interface/deltaPhi.h"
 
-double MAX_PHI = 3.2;
-int N_PHI = 64;
-const MEbinning phi_binning_{
-  N_PHI, -MAX_PHI, MAX_PHI
-};
 // -----------------------------
 //  constructors and destructor
 // -----------------------------
@@ -27,26 +22,17 @@ METMonitor::METMonitor( const edm::ParameterSet& iConfig ) :
   , met_variable_binning_ ( iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("metBinning") )
   , met_binning_          ( getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("metPSet")    ) )
   , ls_binning_           ( getHistoLSPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("lsPSet")     ) )
-  , ht_variable_binning_ ( iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("htBinning") )
-  , ht_binning_          ( getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("htPSet")    ) )
   , num_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet"),consumesCollector(), *this))
   , den_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("denGenericTriggerEventPSet"),consumesCollector(), *this))
   , metSelection_ ( iConfig.getParameter<std::string>("metSelection") )
   , jetSelection_ ( iConfig.getParameter<std::string>("jetSelection") )
   , eleSelection_ ( iConfig.getParameter<std::string>("eleSelection") )
   , muoSelection_ ( iConfig.getParameter<std::string>("muoSelection") )
-  , jetSelection_HT_ ( iConfig.getParameter<std::string>("jetSelection_HT") )
-  , njets_      ( iConfig.getParameter<int>("njets" )      )
-  , nelectrons_ ( iConfig.getParameter<int>("nelectrons" ) )
-  , nmuons_     ( iConfig.getParameter<int>("nmuons" )     )
+  , njets_      ( iConfig.getParameter<unsigned>("njets" )      )
+  , nelectrons_ ( iConfig.getParameter<unsigned>("nelectrons" ) )
+  , nmuons_     ( iConfig.getParameter<unsigned>("nmuons" )     )
 {
 
-  htME_.numerator   = nullptr;
-  htME_.denominator = nullptr;
-  htME_variableBinning_.numerator   = nullptr;
-  htME_variableBinning_.denominator = nullptr;
-  htVsLS_.numerator   = nullptr;
-  htVsLS_.denominator = nullptr;
   deltaphimetj1ME_.numerator   = nullptr;
   deltaphimetj1ME_.denominator = nullptr;
   deltaphij1j2ME_.numerator   = nullptr;
@@ -64,22 +50,20 @@ METMonitor::METMonitor( const edm::ParameterSet& iConfig ) :
 
 METMonitor::~METMonitor()
 {
-  if (num_genTriggerEventFlag_) delete num_genTriggerEventFlag_;
-  if (den_genTriggerEventFlag_) delete den_genTriggerEventFlag_;
 }
 
-MEbinning METMonitor::getHistoPSet(edm::ParameterSet pset)
+METMonitor::MEbinning METMonitor::getHistoPSet(edm::ParameterSet pset)
 {
-  return MEbinning{
+  return METMonitor::MEbinning{
     pset.getParameter<int32_t>("nbins"),
       pset.getParameter<double>("xmin"),
       pset.getParameter<double>("xmax"),
       };
 }
 
-MEbinning METMonitor::getHistoLSPSet(edm::ParameterSet pset)
+METMonitor::MEbinning METMonitor::getHistoLSPSet(edm::ParameterSet pset)
 {
-  return MEbinning{
+  return METMonitor::MEbinning{
     pset.getParameter<int32_t>("nbins"),
       0.,
       double(pset.getParameter<int32_t>("nbins"))
@@ -141,18 +125,6 @@ void METMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   std::string currentFolder = folderName_ ;
   ibooker.setCurrentFolder(currentFolder.c_str());
 
-  histname = "ht"; histtitle = "HT";
-  bookME(ibooker,htME_,histname,histtitle,ht_binning_.nbins,ht_binning_.xmin, ht_binning_.xmax);
-  setMETitle(htME_,"HT [GeV]","events / [GeV]");
-
-  histname = "ht_variable"; histtitle = "HT";
-  bookME(ibooker,htME_variableBinning_,histname,histtitle,ht_variable_binning_);
-  setMETitle(htME_variableBinning_,"HT [GeV]","events / [GeV]");
-
-  histname = "htVsLS"; histtitle = "HT vs LS";
-  bookME(ibooker,htVsLS_,histname,histtitle,ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax,ht_binning_.xmin, ht_binning_.xmax);
-  setMETitle(htVsLS_,"LS","HT [GeV]");
-
   histname = "deltaphi_metjet1"; histtitle = "DPHI_METJ1";
   bookME(ibooker,deltaphimetj1ME_,histname,histtitle,phi_binning_.nbins, phi_binning_.xmin, phi_binning_.xmax);
   setMETitle(deltaphimetj1ME_,"delta phi (met, j1)","events / 0.1 rad");
@@ -188,48 +160,39 @@ void METMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 void METMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)  {
-  std::cout<<"debug0"<<std::endl;
   // Filter out events if Trigger Filtering is requested
   if (den_genTriggerEventFlag_->on() && ! den_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
-  std::cout<<"debug1"<<std::endl;
   edm::Handle<reco::PFMETCollection> metHandle;
   iEvent.getByToken( metToken_, metHandle );
   reco::PFMET pfmet = metHandle->front();
   if ( ! metSelection_( pfmet ) ) return;
 
-  float ht = 0.0; 
   float met = pfmet.pt();
   float phi = pfmet.phi();
-  std::cout<<"debug2"<<std::endl;
   edm::Handle<reco::PFJetCollection> jetHandle;
   iEvent.getByToken( jetToken_, jetHandle );
-  std::vector<reco::PFJet> jets;   std::cout<<"debug2a"<<std::endl;
+  std::vector<reco::PFJet> jets;
   jets.clear();
-  if ( int(jetHandle->size()) < njets_ ) return;
-  std::cout<<"debug2b"<<std::endl;
-  for ( auto const & j : *jetHandle ) {   std::cout<<"debug2c"<<std::endl;
-    if ( jetSelection_(j) ) {   std::cout<<"debug2d"<<std::endl;
-      jets.push_back(j);   std::cout<<"debug2e"<<std::endl;
-      if ( jetSelection_HT_(j)) ht += j.pt();   std::cout<<"debug2f"<<std::endl;
+  if ( jetHandle->size() < njets_ ) return;
+  for ( auto const & j : *jetHandle ) {
+    if ( jetSelection_(j) ) {
+      jets.push_back(j);
     }
-  }   std::cout<<"debug2g"<<std::endl;
-  if ( int(jets.size()) < njets_ ) return;
-  std::cout<<"debug3"<<std::endl;
+  }
   float deltaPhi_met_j1= 10.0;
   float deltaPhi_j1_j2 = 10.0;
 
-  if (int(jets.size()) >= 1) deltaPhi_met_j1 = fabs( deltaPhi( pfmet.phi(),  jets[0].phi() ));
-  if (int(jets.size()) >= 2) deltaPhi_j1_j2 = fabs( deltaPhi( jets[0].phi(),  jets[1].phi() ));
-  std::cout<<"debug4"<<std::endl;
+  if (jets.size() >= 1) deltaPhi_met_j1 = fabs( deltaPhi( pfmet.phi(),  jets[0].phi() ));
+  if (jets.size() >= 2) deltaPhi_j1_j2 = fabs( deltaPhi( jets[0].phi(),  jets[1].phi() ));
   edm::Handle<reco::GsfElectronCollection> eleHandle;
   iEvent.getByToken( eleToken_, eleHandle );
   std::vector<reco::GsfElectron> electrons;
   electrons.clear();
-  if ( int(eleHandle->size()) < nelectrons_ ) return;
+  if ( eleHandle->size() < nelectrons_ ) return;
   for ( auto const & e : *eleHandle ) {
     if ( eleSelection_( e ) ) electrons.push_back(e);
   }
-  if ( int(electrons.size()) < nelectrons_ ) return;
+  if (electrons.size() < nelectrons_ ) return;
   
   edm::Handle<reco::VertexCollection> vtxHandle;
   iEvent.getByToken(vtxToken_, vtxHandle);
@@ -248,17 +211,15 @@ void METMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 
   edm::Handle<reco::MuonCollection> muoHandle;
   iEvent.getByToken( muoToken_, muoHandle );
-  if ( int(muoHandle->size()) < nmuons_ ) return;
+  if ( muoHandle->size() < nmuons_ ) return;
   std::vector<reco::Muon> muons;
   muons.clear();
   for ( auto const & m : *muoHandle ) {
-    if ( muoSelection_( m ) && m.isGlobalMuon() && m.isPFMuon() && m.globalTrack()->normalizedChi2() < 10. && m.globalTrack()->hitPattern().numberOfValidMuonHits() > 0 && m.numberOfMatchedStations() > 1 && fabs(m.muonBestTrack()->dxy(pv)) < 0.2 && fabs(m.muonBestTrack()->dz(pv)) < 0.5 && m.innerTrack()->hitPattern().numberOfValidPixelHits() > 0 && m.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 ) muons.push_back(m);
+    if ( muoSelection_( m ) ) muons.push_back(m);
   }
-  if ( int(muons.size()) < nmuons_ ) return;
+  if ( muons.size() < nmuons_ ) return;
 
   // filling histograms (denominator)  
-  htME_.denominator -> Fill(ht);
-  htME_variableBinning_.denominator -> Fill(ht);
   metME_.denominator -> Fill(met);
   metME_variableBinning_.denominator -> Fill(met);
   metPhiME_.denominator -> Fill(phi);
@@ -266,23 +227,17 @@ void METMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   deltaphij1j2ME_.denominator -> Fill(deltaPhi_j1_j2);
 
   int ls = iEvent.id().luminosityBlock();
-  htVsLS_.denominator -> Fill(ls, ht);
   metVsLS_.denominator -> Fill(ls, met);
-  std::cout<<"debug5"<<std::endl;
   // applying selection for numerator
   if (num_genTriggerEventFlag_->on() && ! num_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
 
   // filling histograms (num_genTriggerEventFlag_)  
-  htME_.numerator -> Fill(ht);
-  htME_variableBinning_.numerator -> Fill(ht);
-  htVsLS_.numerator -> Fill(ls, ht);
   metME_.numerator -> Fill(met);
   metME_variableBinning_.numerator -> Fill(met);
   metPhiME_.numerator -> Fill(phi);
   metVsLS_.numerator -> Fill(ls, met);
   deltaphimetj1ME_.numerator  -> Fill(deltaPhi_met_j1); 
   deltaphij1j2ME_.numerator  -> Fill(deltaPhi_j1_j2); 
-  std::cout<<"debug6"<<std::endl;
 }
 
 void METMonitor::fillHistoPSetDescription(edm::ParameterSetDescription & pset)
@@ -310,8 +265,7 @@ void METMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   desc.add<std::string>("metSelection", "pt > 0");
   desc.add<std::string>("jetSelection", "pt > 0");
   desc.add<std::string>("eleSelection", "pt > 0");
-  desc.add<std::string>("muoSelection", "pt > 0");
-  desc.add<std::string>("jetSelection_HT", "pt > 30 && eta < 2.5");
+  desc.add<std::string>("muoSelection", "pt > 0 && isGlobalMuon() && isPFMuon() && globalTrack()->normalizedChi2() < 10. && globalTrack()->hitPattern().numberOfValidMuonHits() > 0 && numberOfMatchedStations() > 1 && fabs(muonBestTrack()->dxy(pv)) < 0.2 && fabs(muonBestTrack()->dz(pv)) < 0.5 && innerTrack()->hitPattern().numberOfValidPixelHits() > 0 && innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5");
   desc.add<int>("njets",      0);
   desc.add<int>("nelectrons", 0);
   desc.add<int>("nmuons",     0);
@@ -337,12 +291,8 @@ void METMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   edm::ParameterSetDescription metPSet;
   fillHistoPSetDescription(metPSet);
   histoPSet.add<edm::ParameterSetDescription>("metPSet", metPSet);
-  edm::ParameterSetDescription htPSet;
-  fillHistoPSetDescription(htPSet);
-  histoPSet.add<edm::ParameterSetDescription>("htPSet", htPSet);
   std::vector<double> bins = {0.,20.,40.,60.,80.,90.,100.,110.,120.,130.,140.,150.,160.,170.,180.,190.,200.,220.,240.,260.,280.,300.,350.,400.,450.,1000.};
   histoPSet.add<std::vector<double> >("metBinning", bins);
-  histoPSet.add<std::vector<double> >("htBinning", bins);
 
   edm::ParameterSetDescription lsPSet;
   fillHistoLSPSetDescription(lsPSet);
