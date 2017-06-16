@@ -5,7 +5,10 @@ DisplacedEleMuPSet = cms.PSet(
         "HLT_Mu38NoFiltersNoVtx_Photon38_CaloIdL_v", # Run2 Displaced muons
         "HLT_Mu42NoFiltersNoVtx_Photon42_CaloIdL_v", # Run2 Displaced muons
         "HLT_Mu17_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v", # Run1
-        "HLT_Mu8_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v"  # Run1
+        "HLT_Mu8_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v",  # Run1
+        #2017
+        "HLT_Mu43NoFiltersNoVtx_Photon43_CaloIdL_v",
+        "HLT_Mu48NoFiltersNoVtx_Photon48_CaloIdL_v"
         ),
     recElecLabel  = cms.InputTag("gedGsfElectrons"),
     recMuonLabel  = cms.InputTag("muons"),

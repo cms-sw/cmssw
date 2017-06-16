@@ -15,6 +15,9 @@ DisplacedMuJetPSet = cms.PSet(
 
         "HLT_Mu23NoFiltersNoVtx_Photon23_CaloIdL_v",
         "HLT_DoubleMu18NoFiltersNoVtx_v"
+        #2017                                                                                                                                                
+        "HLT_DoubleMu43NoFiltersNoVtx_v",
+        "HLT_DoubleMu48NoFiltersNoVtx_v"
         ),
     recMuonLabel  = cms.InputTag("muons"),
     recPFJetLabel = cms.InputTag("ak4PFJets"),

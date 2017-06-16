@@ -5,7 +5,10 @@ DisplacedDimuonPSet = cms.PSet(
         "HLT_DoubleMu33NoFiltersNoVtx_v", # Run2
         "HLT_DoubleMu38NoFiltersNoVtx_v", # Run2
         "HLT_DoubleMu23NoFiltersNoVtxDisplaced_v", # Run2
-        "HLT_DoubleMu28NoFiltersNoVtxDisplaced_v" # Run2
+        "HLT_DoubleMu28NoFiltersNoVtxDisplaced_v", # Run2
+        #2017
+        "HLT_DoubleMu43NoFiltersNoVtx_v",
+        "HLT_DoubleMu48NoFiltersNoVtx_v"
         ),
     recMuonLabel  = cms.InputTag("muons"),
     # -- Analysis specific cuts
