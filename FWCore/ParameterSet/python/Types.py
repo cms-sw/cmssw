@@ -37,7 +37,7 @@ class int32(_SimpleParameterTypeBase):
         if len(value) >1 and '0x' == value[:2]:
             return int32(int(value,16))
         return int32(int(value))
-    def insertInto(self, parameterSet, myname):
+    def insertInto(self, parameterSet, myname, processName):
         parameterSet.addInt32(self.isTracked(), myname, self.value())
     def __nonzero__(self):
         return self.value()!=0
@@ -54,7 +54,7 @@ class uint32(_SimpleParameterTypeBase):
         if len(value) >1 and '0x' == value[:2]:
             return uint32(long(value,16))
         return uint32(long(value))
-    def insertInto(self, parameterSet, myname):
+    def insertInto(self, parameterSet, myname, processName):
         parameterSet.addUInt32(self.isTracked(), myname, self.value())
     def __nonzero__(self):
         return self.value()!=0
@@ -73,7 +73,7 @@ class int64(_SimpleParameterTypeBase):
         if len(value) >1 and '0x' == value[:2]:
             return uint32(long(value,16))
         return int64(long(value))
-    def insertInto(self, parameterSet, myname):
+    def insertInto(self, parameterSet, myname, processName):
         parameterSet.addInt64(self.isTracked(), myname, self.value())
     def __nonzero__(self):
         return self.value()!=0
@@ -91,7 +91,7 @@ class uint64(_SimpleParameterTypeBase):
         if len(value) >1 and '0x' == value[:2]:
             return uint32(long(value,16))
         return uint64(long(value))
-    def insertInto(self, parameterSet, myname):
+    def insertInto(self, parameterSet, myname, processName):
         parameterSet.addUInt64(self.isTracked(), myname, self.value())
     def __nonzero__(self):
         return self.value()!=0
@@ -106,7 +106,7 @@ class double(_SimpleParameterTypeBase):
     def _valueFromString(value):
         """only used for cfg-parsing"""
         return double(float(value))
-    def insertInto(self, parameterSet, myname):
+    def insertInto(self, parameterSet, myname, processName):
         parameterSet.addDouble(self.isTracked(), myname, float(self.value()))
     def __nonzero__(self):
         return self.value()!=0.
@@ -129,7 +129,7 @@ class bool(_SimpleParameterTypeBase):
         except:
             pass
         raise RuntimeError('can not make bool from string '+value)
-    def insertInto(self, parameterSet, myname):
+    def insertInto(self, parameterSet, myname, processName):
         parameterSet.addBool(self.isTracked(), myname, self.value())
     def __nonzero__(self):
         return self.value()
@@ -161,7 +161,7 @@ class string(_SimpleParameterTypeBase):
     def _valueFromString(value):
         """only used for cfg-parsing"""
         return string(value)
-    def insertInto(self, parameterSet, myname):
+    def insertInto(self, parameterSet, myname, processName):
         value = self.value()
         #  doesn't seem to handle \0 correctly
         #if value == '\0':
@@ -212,7 +212,7 @@ class EventID(_ParameterTypeBase):
         return str(self.__run)+ ', '+str(self.__luminosityBlock)+ ', '+str(self.__event)
     def cppID(self, parameterSet):
         return parameterSet.newEventID(self.run(), self.luminosityBlock(), self.event())
-    def insertInto(self, parameterSet, myname):
+    def insertInto(self, parameterSet, myname, processName):
         parameterSet.addEventID(self.isTracked(), myname, self.cppID(parameterSet))
 
 
@@ -241,7 +241,7 @@ class LuminosityBlockID(_ParameterTypeBase):
           return str(self.__run)+ ', '+str(self.__block)
     def cppID(self, parameterSet):
         return parameterSet.newLuminosityBlockID(self.run(), self.luminosityBlock())
-    def insertInto(self, parameterSet, myname):
+    def insertInto(self, parameterSet, myname, processName):
         parameterSet.addLuminosityBlockID(self.isTracked(), myname, self.cppID(parameterSet))
 
 
@@ -303,7 +303,7 @@ class LuminosityBlockRange(_ParameterTypeBase):
                + str(self.__end)   + ', ' + str(self.__endSub)
     def cppID(self, parameterSet):
         return parameterSet.newLuminosityBlockRange(self.start(), self.startSub(),self.end(), self.endSub())
-    def insertInto(self, parameterSet, myname):
+    def insertInto(self, parameterSet, myname, processName):
         parameterSet.addLuminosityBlockRange(self.isTracked(), myname, self.cppID(parameterSet))
 
 class EventRange(_ParameterTypeBase):
@@ -403,7 +403,7 @@ class EventRange(_ParameterTypeBase):
                + str(self.__end)  + ', ' + str(self.__endLumi) + ', ' + str(self.__endSub)
     def cppID(self, parameterSet):
         return parameterSet.newEventRange(self.start(), self.startLumi(), self.startSub(), self.end(), self.endLumi(), self.endSub())
-    def insertInto(self, parameterSet, myname):
+    def insertInto(self, parameterSet, myname, processName):
         parameterSet.addEventRange(self.isTracked(), myname, self.cppID(parameterSet))
 
 class InputTag(_ParameterTypeBase):
@@ -489,13 +489,18 @@ class InputTag(_ParameterTypeBase):
                 self.__productInstance = toks[1]
             if len(toks) > 2:
                 self.__processName=toks[2]
+
     # convert to the wrapper class for C++ InputTags
-    def cppTag(self, parameterSet):
-        return parameterSet.newInputTag(self.getModuleLabel(),
-                                        self.getProductInstanceLabel(),
-                                        self.getProcessName())
-    def insertInto(self, parameterSet, myname):
-        parameterSet.addInputTag(self.isTracked(), myname, self.cppTag(parameterSet))
+    def cppTag(self, parameterSet, processName):
+        label    = self.getModuleLabel()
+        instance = self.getProductInstanceLabel()
+        process  = self.getProductInstanceLabel()
+        if process == '@currentProcess':
+            process = processName
+        return parameterSet.newInputTag(label, instance, process)
+
+    def insertInto(self, parameterSet, myname, processName):
+        parameterSet.addInputTag(self.isTracked(), myname, self.cppTag(parameterSet, processName))
 
 class ESInputTag(_ParameterTypeBase):
     def __init__(self,module='',data=''):
@@ -568,7 +573,7 @@ class ESInputTag(_ParameterTypeBase):
     def cppTag(self, parameterSet):
         return parameterSet.newESInputTag(self.getModuleLabel(),
                                         self.getDataLabel())
-    def insertInto(self, parameterSet, myname):
+    def insertInto(self, parameterSet, myname, processName):
         parameterSet.addESInputTag(self.isTracked(), myname, self.cppTag(parameterSet))
 
 class FileInPath(_SimpleParameterTypeBase):
@@ -585,7 +590,7 @@ class FileInPath(_SimpleParameterTypeBase):
     @staticmethod
     def _valueFromString(value):
         return FileInPath(value)
-    def insertInto(self, parameterSet, myname):
+    def insertInto(self, parameterSet, myname, processName):
       parameterSet.addNewFileInPath( self.isTracked(), myname, self.value() )
 
 class SecSource(_ParameterTypeBase,_TypedParameterizable,_ConfigureComponent,_Labelable):
@@ -651,16 +656,16 @@ class PSet(_ParameterTypeBase,_Parameterizable,_ConfigureComponent,_Labelable):
         proc._placePSet(name,self)
     def __str__(self):
         return object.__str__(self)
-    def insertInto(self, parameterSet, myname):
+    def insertInto(self, parameterSet, myname, processName):
         newpset = parameterSet.newPSet()
-        self.insertContentsInto(newpset)
+        self.insertContentsInto(newpset, processName)
         parameterSet.addPSet(self.isTracked(), myname, newpset)
-    def insertContentsInto(self, parameterSet):
+    def insertContentsInto(self, parameterSet, processName):
         if self.isRef_():
             ref = parameterSet.getTopPSet_(self.refToPSet_.value())
-            ref.insertContentsInto(parameterSet)
+            ref.insertContentsInto(parameterSet, processName)
         else:
-            super(PSet, self).insertContentsInto(parameterSet)
+            super(PSet, self).insertContentsInto(parameterSet, processName)
 
 
 class vint32(_ValidatingParameterListBase):
@@ -673,7 +678,7 @@ class vint32(_ValidatingParameterListBase):
     @staticmethod
     def _valueFromString(value):
         return vint32(*_ValidatingParameterListBase._itemsFromStrings(value,int32._valueFromString))
-    def insertInto(self, parameterSet, myname):
+    def insertInto(self, parameterSet, myname, processName):
         parameterSet.addVInt32(self.isTracked(), myname, self.value())
 
 
@@ -687,7 +692,7 @@ class vuint32(_ValidatingParameterListBase):
     @staticmethod
     def _valueFromString(value):
         return vuint32(*_ValidatingParameterListBase._itemsFromStrings(value,uint32._valueFromString))
-    def insertInto(self, parameterSet, myname):
+    def insertInto(self, parameterSet, myname, processName):
         parameterSet.addVUInt32(self.isTracked(), myname, self.value())
 
 
@@ -701,7 +706,7 @@ class vint64(_ValidatingParameterListBase):
     @staticmethod
     def _valueFromString(value):
         return vint64(*_ValidatingParameterListBase._itemsFromStrings(value,int64._valueFromString))
-    def insertInto(self, parameterSet, myname):
+    def insertInto(self, parameterSet, myname, processName):
         parameterSet.addVInt64(self.isTracked(), myname, self.value())
 
 
@@ -715,7 +720,7 @@ class vuint64(_ValidatingParameterListBase):
     @staticmethod
     def _valueFromString(value):
         return vuint64(*_ValidatingParameterListBase._itemsFromStrings(value,vuint64._valueFromString))
-    def insertInto(self, parameterSet, myname):
+    def insertInto(self, parameterSet, myname, processName):
         parameterSet.addVUInt64(self.isTracked(), myname, self.value())
 
 
@@ -729,7 +734,7 @@ class vdouble(_ValidatingParameterListBase):
     @staticmethod
     def _valueFromString(value):
         return vdouble(*_ValidatingParameterListBase._itemsFromStrings(value,double._valueFromString))
-    def insertInto(self, parameterSet, myname):
+    def insertInto(self, parameterSet, myname, processName):
         parameterSet.addVDouble(self.isTracked(), myname, self.value())
 
 
@@ -743,7 +748,7 @@ class vbool(_ValidatingParameterListBase):
     @staticmethod
     def _valueFromString(value):
         return vbool(*_ValidatingParameterListBase._itemsFromStrings(value,bool._valueFromString))
-    def insertInto(self, parameterSet, myname):
+    def insertInto(self, parameterSet, myname, processName):
         parameterSet.addVBool(self.isTracked(), myname, self.value())
 
 
@@ -760,7 +765,7 @@ class vstring(_ValidatingParameterListBase):
     @staticmethod
     def _valueFromString(value):
         return vstring(*_ValidatingParameterListBase._itemsFromStrings(value,string._valueFromString))
-    def insertInto(self, parameterSet, myname):
+    def insertInto(self, parameterSet, myname, processName):
         parameterSet.addVString(self.isTracked(), myname, self.value())
 
 class VLuminosityBlockID(_ValidatingParameterListBase):
@@ -776,7 +781,7 @@ class VLuminosityBlockID(_ValidatingParameterListBase):
     @staticmethod
     def _valueFromString(value):
         return VLuminosityBlockID(*_ValidatingParameterListBase._itemsFromStrings(value,LuminosityBlockID._valueFromString))
-    def insertInto(self, parameterSet, myname):
+    def insertInto(self, parameterSet, myname, processName):
         cppIDs = list()
         for i in self:
             item = i
@@ -807,13 +812,13 @@ class VInputTag(_ValidatingParameterListBase):
     @staticmethod
     def _valueFromString(value):
         return VInputTag(*_ValidatingParameterListBase._itemsFromStrings(value,InputTag._valueFromString))
-    def insertInto(self, parameterSet, myname):
+    def insertInto(self, parameterSet, myname, processName):
         cppTags = list()
         for i in self:
             item = i
             if isinstance(item, str):
                 item = InputTag(i)
-            cppTags.append(item.cppTag(parameterSet))
+            cppTags.append(item.cppTag(parameterSet, processName))
         parameterSet.addVInputTag(self.isTracked(), myname, cppTags)
 
 class VESInputTag(_ValidatingParameterListBase):
@@ -837,7 +842,7 @@ class VESInputTag(_ValidatingParameterListBase):
     @staticmethod
     def _valueFromString(value):
         return VESInputTag(*_ValidatingParameterListBase._itemsFromStrings(value,ESInputTag._valueFromString))
-    def insertInto(self, parameterSet, myname):
+    def insertInto(self, parameterSet, myname, processName):
         cppTags = list()
         for i in self:
             item = i
@@ -863,7 +868,7 @@ class VEventID(_ValidatingParameterListBase):
     @staticmethod
     def _valueFromString(value):
         return VEventID(*_ValidatingParameterListBase._itemsFromStrings(value,EventID._valueFromString))
-    def insertInto(self, parameterSet, myname):
+    def insertInto(self, parameterSet, myname, processName):
         cppIDs = list()
         for i in self:
             item = i
@@ -889,7 +894,7 @@ class VLuminosityBlockRange(_ValidatingParameterListBase):
     @staticmethod
     def _valueFromString(value):
         return VLuminosityBlockRange(*_ValidatingParameterListBase._itemsFromStrings(value,VLuminosityBlockRange._valueFromString))
-    def insertInto(self, parameterSet, myname):
+    def insertInto(self, parameterSet, myname, processName):
         cppIDs = list()
         for i in self:
             item = i
@@ -915,7 +920,7 @@ class VEventRange(_ValidatingParameterListBase):
     @staticmethod
     def _valueFromString(value):
         return VEventRange(*_ValidatingParameterListBase._itemsFromStrings(value,VEventRange._valueFromString))
-    def insertInto(self, parameterSet, myname):
+    def insertInto(self, parameterSet, myname, processName):
         cppIDs = list()
         for i in self:
             item = i
@@ -940,12 +945,12 @@ class VPSet(_ValidatingParameterListBase,_ConfigureComponent,_Labelable):
         return copy.copy(self)
     def _place(self,name,proc):
         proc._placeVPSet(name,self)
-    def insertInto(self, parameterSet, myname):
+    def insertInto(self, parameterSet, myname, processName):
         # translate the PSet members into C++ parameterSets
         parametersets = list()
         for pset in self:
             newparameterset = parameterSet.newPSet()
-            pset.insertContentsInto(newparameterset)
+            pset.insertContentsInto(newparameterset, processName)
             parametersets.append(newparameterset)
         parameterSet.addVPSet(self.isTracked(), myname, parametersets)
     def __repr__(self):
@@ -960,7 +965,7 @@ def makeCppPSet(module,cppPSetMaker):
         
     for x,p in module.iteritems():
         if isinstance(p,PSet):
-            p.insertInto(cppPSetMaker,x)
+            p.insertInto(cppPSetMaker,x,'TEST')
     return cppPSetMaker
 
 class _ConvertToPSet(object):
@@ -1143,14 +1148,14 @@ class EDAlias(_ConfigureComponent,_Labelable):
     def nameInProcessDesc_(self, myname):
         return myname;
 
-    def insertInto(self, parameterSet, myname):
+    def insertInto(self, parameterSet, myname, processName):
         newpset = parameterSet.newPSet()
         newpset.addString(True, "@module_label", myname)
         newpset.addString(True, "@module_type", type(self).__name__)
         newpset.addString(True, "@module_edm_type", type(self).__name__)
         for name in self.parameterNames_():
             param = getattr(self,name)
-            param.insertInto(newpset, name)
+            param.insertInto(newpset, name, processName)
         parameterSet.addPSet(True, self.nameInProcessDesc_(myname), newpset)
 
     def dumpPython(self, options=PrintOptions()):
@@ -1402,9 +1407,9 @@ if __name__ == "__main__":
             eid = EventID(2, 0, 3)
             self.assertEqual( repr(eid), "cms.EventID(2, 0, 3)" )
             pset = PSetTester()
-            eid.insertInto(pset,'foo')
+            eid.insertInto(pset, 'foo', 'TEST')
             eid2 = EventID._valueFromString('3:4')
-            eid2.insertInto(pset,'foo2')
+            eid2.insertInto(pset, 'foo2', 'TEST')
         def testVEventID(self):
             veid = VEventID(EventID(2, 0, 3))
             veid2 = VEventID("1:2", "3:4")
@@ -1412,15 +1417,15 @@ if __name__ == "__main__":
             self.assertEqual( repr(veid2[0]), "'1:2'" )
             self.assertEqual( veid2.dumpPython(), 'cms.VEventID("1:2", "3:4")')
             pset = PSetTester()
-            veid.insertInto(pset,'foo')
+            veid.insertInto(pset, 'foo', 'TEST')
 
         def testLuminosityBlockID(self):
             lid = LuminosityBlockID(2, 3)
             self.assertEqual( repr(lid), "cms.LuminosityBlockID(2, 3)" )
             pset = PSetTester()
-            lid.insertInto(pset,'foo')
+            lid.insertInto(pset, 'foo', 'TEST')
             lid2 = LuminosityBlockID._valueFromString('3:4')
-            lid2.insertInto(pset,'foo2')
+            lid2.insertInto(pset, 'foo2', 'TEST')
 
         def testVLuminosityBlockID(self):
             vlid = VLuminosityBlockID(LuminosityBlockID(2, 3))
@@ -1428,7 +1433,7 @@ if __name__ == "__main__":
             self.assertEqual( repr(vlid[0]), "cms.LuminosityBlockID(2, 3)" )
             self.assertEqual( repr(vlid2[0]), "'1:2'" )
             pset = PSetTester()
-            vlid.insertInto(pset,'foo')
+            vlid.insertInto(pset, 'foo', 'TEST')
 
         def testEventRange(self):
             range1 = EventRange(1, 0, 2, 3, 0, 4)
@@ -1437,14 +1442,14 @@ if __name__ == "__main__":
             self.assertEqual(repr(range1), repr(range1))
             self.assertEqual(repr(range3), "cms.EventRange(1, 0, 1, 3, 0, 0)")
             pset = PSetTester()
-            range1.insertInto(pset,'foo')
-            range2.insertInto(pset,'bar')
+            range1.insertInto(pset, 'foo', 'TEST')
+            range2.insertInto(pset, 'bar', 'TEST')
         def testVEventRange(self):
             v1 = VEventRange(EventRange(1, 0, 2, 3, 0, 4))
             v2 = VEventRange("1:2-3:4", "5:MIN-7:MAX")
             self.assertEqual( repr(v1[0]), "cms.EventRange(1, 0, 2, 3, 0, 4)" )
             pset = PSetTester()
-            v2.insertInto(pset,'foo')
+            v2.insertInto(pset, 'foo', 'TEST')
 
         def testLuminosityBlockRange(self):
             range1 = LuminosityBlockRange(1, 2, 3, 4)
@@ -1453,14 +1458,14 @@ if __name__ == "__main__":
             self.assertEqual(repr(range1), repr(range1))
             self.assertEqual(repr(range3), "cms.LuminosityBlockRange(1, 1, 3, 0)")
             pset = PSetTester()
-            range1.insertInto(pset,'foo')
-            range2.insertInto(pset,'bar')
+            range1.insertInto(pset, 'foo', 'TEST')
+            range2.insertInto(pset, 'bar', 'TEST')
         def testVLuminosityBlockRange(self):
             v1 = VLuminosityBlockRange(LuminosityBlockRange(1, 2, 3, 4))
             v2 = VLuminosityBlockRange("1:2-3:4", "5:MIN-7:MAX")
             self.assertEqual( repr(v1[0]), "cms.LuminosityBlockRange(1, 2, 3, 4)" )
             pset = PSetTester()
-            v2.insertInto(pset,'foo')
+            v2.insertInto(pset, 'foo', 'TEST')
 
         def testPSetConversion(self):
             p = PSet(a = untracked.int32(7),
@@ -1492,14 +1497,14 @@ if __name__ == "__main__":
                      A = vdouble(7.0,8.0)
             )
             convert = _ConvertToPSet()
-            p.insertInto(convert,"p")
+            p.insertInto(convert, "p", 'TEST')
             self.assert_(hasattr(convert.pset,'p'))
             self.assert_(hasattr(convert.pset.p,'a'))
             self.assertEqual(p.a,convert.pset.p.a)
             self.assertEqual(p.a.isTracked(),convert.pset.p.a.isTracked())
 
             q = PSet(b = int32(1), p = p)
-            q.insertInto(convert,"q")
+            q.insertInto(convert, "q", 'TEST')
             self.assert_(hasattr(convert.pset,'q'))
             self.assert_(hasattr(convert.pset.q,'b'))
             self.assertEqual(q.b,convert.pset.q.b)
@@ -1513,7 +1518,7 @@ if __name__ == "__main__":
             q = PSet(b = int32(1), p = p)
             v = VPSet(p,q)
             convert = _ConvertToPSet()
-            v.insertInto(convert,'v')
+            v.insertInto(convert, 'v', 'TEST')
             self.assert_(hasattr(convert.pset,'v'))
             self.assert_(len(convert.pset.v)==2)
             self.assertEqual(v[0].a,convert.pset.v[0].a)
