@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-from DQMOffline.Trigger.topMonitoring_cfi import topMonitoring
+from DQMOffline.Trigger.TopMonitor_cfi import hltTOPmonitoring
 
-hltWprimemonitoring = topMonitoring.clone()
+hltWprimemonitoring = hltTOPmonitoring.clone()
 
 
 hltWprimemonitoring.histoPSet.ptPSet = cms.PSet(
