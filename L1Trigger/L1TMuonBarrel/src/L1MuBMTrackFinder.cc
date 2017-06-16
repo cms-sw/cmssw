@@ -11,6 +11,7 @@
 //   J. Troconiz              UAM Madrid
 //   Modifications:   
 //   G. Flouris	              U.Ioannina
+//   G. Karathanasis          U. Athens
 //--------------------------------------------------
 
 //-----------------------
@@ -210,8 +211,9 @@ void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
 
             l1t::RegionalMuonCand rmc;
 
-            if(cand->hwEta()>-33 || cand->hwEta()<32 )
-                rmc.setHwEta(eta_map[cand->hwEta()]);
+            // max value in LUTs is 117
+            if(cand->hwEta()>-117 || cand->hwEta()<117 )
+                rmc.setHwEta(cand->hwEta());
             else
                 rmc.setHwEta(-1000);
 
@@ -281,8 +283,9 @@ void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
         rmc.setHwHF((*iter)->hwHF());
 
         rmc.setHwPhi((*iter)->hwPhi());
-        if((*iter)->hwEta()>-33 || (*iter)->hwEta()<32 )
-                rmc.setHwEta(eta_map[(*iter)->hwEta()]);
+        if((*iter)->hwEta()>-117 || (*iter)->hwEta()<117 )
+	  //  rmc.setHwEta(eta_map[(*iter)->hwEta()]);
+           rmc.setHwEta((*iter)->hwEta());
         else
             rmc.setHwEta(-1000);
         rmc.setHwSign((*iter)->hwSign() == 1 ? 0 : 1);
