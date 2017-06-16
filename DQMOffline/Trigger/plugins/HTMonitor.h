@@ -42,16 +42,6 @@
 
 class GenericTriggerEventFlag;
 
-struct MEHTbinning {
-  int nbins;
-  double xmin;
-  double xmax;
-};
-
-struct HTME {
-  MonitorElement* numerator;
-  MonitorElement* denominator;
-};
 //
 // class declaration
 //
@@ -59,6 +49,20 @@ struct HTME {
 class HTMonitor : public DQMEDAnalyzer 
 {
 public:
+
+
+  struct MEHTbinning {
+    int nbins;
+    double xmin;
+    double xmax;
+  };
+
+  struct HTME {
+    MonitorElement* numerator;
+    MonitorElement* denominator;
+  };
+
+
   HTMonitor( const edm::ParameterSet& );
   ~HTMonitor();
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
@@ -94,23 +98,30 @@ private:
   MEHTbinning           ht_binning_;
   MEHTbinning           ls_binning_;
 
-  HTME htME_;
   HTME htME_variableBinning_;
   HTME htVsLS_;
   HTME deltaphimetj1ME_;
   HTME deltaphij1j2ME_;
 
-  GenericTriggerEventFlag* num_genTriggerEventFlag_;
-  GenericTriggerEventFlag* den_genTriggerEventFlag_;
+  std::unique_ptr<GenericTriggerEventFlag> num_genTriggerEventFlag_;
+  std::unique_ptr<GenericTriggerEventFlag> den_genTriggerEventFlag_;
 
   StringCutObjectSelector<reco::MET,true>         metSelection_;
   StringCutObjectSelector<reco::PFJet,true   >    jetSelection_;
   StringCutObjectSelector<reco::GsfElectron,true> eleSelection_;
   StringCutObjectSelector<reco::Muon,true>        muoSelection_;
   StringCutObjectSelector<reco::PFJet,true   >    jetSelection_HT_;
-  int njets_;
-  int nelectrons_;
-  int nmuons_;
+  unsigned njets_;
+  unsigned nelectrons_;
+  unsigned nmuons_;
+
+  static constexpr double MAXedge_PHI = 3.2;
+  static constexpr int Nbin_PHI = 64;
+  static constexpr MEHTbinning phi_binning_{
+    Nbin_PHI, -MAXedge_PHI, MAXedge_PHI
+  };
+
+
 
 };
 
