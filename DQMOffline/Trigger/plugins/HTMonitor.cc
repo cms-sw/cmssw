@@ -259,9 +259,9 @@ void HTMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   desc.add<std::string>("eleSelection", "pt > 0");
   desc.add<std::string>("muoSelection", "pt > 0");
   desc.add<std::string>("jetSelection_HT", "pt > 30 && eta < 2.5");
-  desc.add<int>("njets",      0);
-  desc.add<int>("nelectrons", 0);
-  desc.add<int>("nmuons",     0);
+  desc.add<unsigned>("njets",      0);
+  desc.add<unsigned>("nelectrons", 0);
+  desc.add<unsigned>("nmuons",     0);
 
   edm::ParameterSetDescription genericTriggerEventPSet;
   genericTriggerEventPSet.add<bool>("andOr");
