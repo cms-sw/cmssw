@@ -215,7 +215,8 @@ void METMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   std::vector<reco::Muon> muons;
   muons.clear();
   for ( auto const & m : *muoHandle ) {
-    if ( muoSelection_( m ) ) muons.push_back(m);
+    bool pass = m.isGlobalMuon() && m.isPFMuon() && m.globalTrack()->normalizedChi2() < 10. && m.globalTrack()->hitPattern().numberOfValidMuonHits() > 0 && m.numberOfMatchedStations() > 1 && fabs(m.muonBestTrack()->dxy(pv)) < 0.2 && fabs(m.muonBestTrack()->dz(pv)) < 0.5 && m.innerTrack()->hitPattern().numberOfValidPixelHits() > 0 && m.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5;
+    if ( muoSelection_( m ) && pass ) muons.push_back(m);
   }
   if ( muons.size() < nmuons_ ) return;
 
@@ -265,10 +266,10 @@ void METMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   desc.add<std::string>("metSelection", "pt > 0");
   desc.add<std::string>("jetSelection", "pt > 0");
   desc.add<std::string>("eleSelection", "pt > 0");
-  desc.add<std::string>("muoSelection", "pt > 0 && isGlobalMuon() && isPFMuon() && globalTrack()->normalizedChi2() < 10. && globalTrack()->hitPattern().numberOfValidMuonHits() > 0 && numberOfMatchedStations() > 1 && fabs(muonBestTrack()->dxy(pv)) < 0.2 && fabs(muonBestTrack()->dz(pv)) < 0.5 && innerTrack()->hitPattern().numberOfValidPixelHits() > 0 && innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5");
-  desc.add<int>("njets",      0);
-  desc.add<int>("nelectrons", 0);
-  desc.add<int>("nmuons",     0);
+  desc.add<std::string>("muoSelection", "pt > 0");
+  desc.add<unsigned>("njets",      0);
+  desc.add<unsigned>("nelectrons", 0);
+  desc.add<unsigned>("nmuons",     0);
 
   edm::ParameterSetDescription genericTriggerEventPSet;
   genericTriggerEventPSet.add<bool>("andOr");
