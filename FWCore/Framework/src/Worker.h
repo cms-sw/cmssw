@@ -106,11 +106,11 @@ namespace edm {
                                   typename T::Context const* context);
 
     template <typename T>
-    void runStatusInserter(typename T::MyPrincipal const& ep,
-                           EventSetup const& es,
-                           StreamID streamID,
-                           ParentContext const& parentContext,
-                           typename T::Context const* context);
+    std::exception_ptr runModuleDirectly(typename T::MyPrincipal const& ep,
+                                         EventSetup const& es,
+                                         StreamID streamID,
+                                         ParentContext const& parentContext,
+                                         typename T::Context const* context);
 
     void callWhenDoneAsync(WaitingTask* task) {
       waitingTasks_.add(task);
@@ -311,12 +311,12 @@ namespace edm {
     }
     
     template<typename T>
-    void runModuleAfterAsyncPrefetch(std::exception_ptr const * iEPtr,
-                                     typename T::MyPrincipal const& ep,
-                                     EventSetup const& es,
-                                     StreamID streamID,
-                                     ParentContext const& parentContext,
-                                     typename T::Context const* context);
+    std::exception_ptr runModuleAfterAsyncPrefetch(std::exception_ptr const * iEPtr,
+                                                   typename T::MyPrincipal const& ep,
+                                                   EventSetup const& es,
+                                                   StreamID streamID,
+                                                   ParentContext const& parentContext,
+                                                   typename T::Context const* context);
         
     template< typename T>
     class RunModuleTask : public WaitingTask {
@@ -651,12 +651,12 @@ namespace edm {
   }
      
   template<typename T>
-  void Worker::runModuleAfterAsyncPrefetch(std::exception_ptr const* iEPtr,
-                                   typename T::MyPrincipal const& ep,
-                                   EventSetup const& es,
-                                   StreamID streamID,
-                                   ParentContext const& parentContext,
-                                   typename T::Context const* context) {
+  std::exception_ptr Worker::runModuleAfterAsyncPrefetch(std::exception_ptr const* iEPtr,
+                                                         typename T::MyPrincipal const& ep,
+                                                         EventSetup const& es,
+                                                         StreamID streamID,
+                                                         ParentContext const& parentContext,
+                                                         typename T::Context const* context) {
     std::exception_ptr exceptionPtr;
     if(iEPtr) {
       assert(*iEPtr);
@@ -676,6 +676,7 @@ namespace edm {
       }
     }
     waitingTasks_.doneWaiting(exceptionPtr);
+    return exceptionPtr;
   }
 
   template <typename T>
@@ -875,30 +876,15 @@ namespace edm {
   }
 
   template <typename T>
-  void Worker::runStatusInserter(typename T::MyPrincipal const& ep,
-                                 EventSetup const& es,
-                                 StreamID streamID,
-                                 ParentContext const& parentContext,
-                                 typename T::Context const* context) {
+  std::exception_ptr Worker::runModuleDirectly(typename T::MyPrincipal const& ep,
+                                               EventSetup const& es,
+                                               StreamID streamID,
+                                               ParentContext const& parentContext,
+                                               typename T::Context const* context) {
 
-    ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
     timesVisited_.fetch_add(1,std::memory_order_relaxed);
-    timesRun_.fetch_add(1,std::memory_order_relaxed);
-
-    try {
-      convertException::wrap([&]()
-      {
-        workerhelper::CallImpl<T>::call(this,streamID,ep,es, actReg_.get(), &moduleCallingContext_, context);
-        timesPassed_.fetch_add(1,std::memory_order_relaxed);
-      });
-    } catch(cms::Exception& ex) {
-      timesExcept_.fetch_add(1,std::memory_order_relaxed);
-      exceptionContext(ex, &moduleCallingContext_);
-      std::exception_ptr exceptionPtr = std::current_exception();
-      waitingTasks_.doneWaiting(exceptionPtr);
-      std::rethrow_exception(exceptionPtr);
-    }
-    waitingTasks_.doneWaiting(nullptr);
+    std::exception_ptr const* prefetchingException = nullptr; // null because there was no prefetching to do
+    return runModuleAfterAsyncPrefetch<T>(prefetchingException, ep, es, streamID, parentContext, context);
   }
 }
 #endif
