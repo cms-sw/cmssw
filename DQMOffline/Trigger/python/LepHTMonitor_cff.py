@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 from copy import deepcopy
 
 DQMOffline_Ele15_HT600 = cms.EDAnalyzer('LepHTMonitor',
@@ -45,7 +46,7 @@ DQMOffline_Ele15_HT600 = cms.EDAnalyzer('LepHTMonitor',
                                               csvThreshold = cms.untracked.double(-1.0)
                                               )
 
-DQMOffline_Ele15_HT600_POSTPROCESSING = cms.EDAnalyzer('DQMGenericClient',
+DQMOffline_Ele15_HT600_POSTPROCESSING = DQMEDHarvester("DQMGenericClient",
                                                              subDirs = cms.untracked.vstring('HLT/LepHT/HLT_Ele15_IsoVVVL_PFHT600_v'),
                                                              efficiency = cms.vstring(
         "leptonTurnOn_eff ';Offline Electron p_{T} [GeV];#epsilon' leptonTurnOn_num leptonTurnOn_den",
@@ -98,7 +99,7 @@ DQMOffline_Mu15_HT600 = cms.EDAnalyzer('LepHTMonitor',
                                               csvThreshold = cms.untracked.double(-1.0)
                                               )
 
-DQMOffline_Mu15_HT600_POSTPROCESSING = cms.EDAnalyzer('DQMGenericClient',
+DQMOffline_Mu15_HT600_POSTPROCESSING = DQMEDHarvester("DQMGenericClient",
                                                              subDirs = cms.untracked.vstring('HLT/LepHT/HLT_Mu15_IsoVVVL_PFHT600_v'),
                                                              efficiency = cms.vstring(
         "leptonTurnOn_eff ';Offline Muon p_{T} [GeV];#epsilon' leptonTurnOn_num leptonTurnOn_den",
@@ -152,7 +153,7 @@ DQMOffline_Ele15_HT450 = cms.EDAnalyzer('LepHTMonitor',
                                               csvThreshold = cms.untracked.double(-1.0)
                                               )
 
-DQMOffline_Ele15_HT450_POSTPROCESSING = cms.EDAnalyzer('DQMGenericClient',
+DQMOffline_Ele15_HT450_POSTPROCESSING = DQMEDHarvester("DQMGenericClient",
                                                              subDirs = cms.untracked.vstring('HLT/LepHT/HLT_Ele15_IsoVVVL_PFHT450_v'),
                                                              efficiency = cms.vstring(
         "leptonTurnOn_eff ';Offline Electron p_{T} [GeV];#epsilon' leptonTurnOn_num leptonTurnOn_den",
@@ -206,7 +207,7 @@ DQMOffline_Mu15_HT450 = cms.EDAnalyzer('LepHTMonitor',
                                               csvThreshold = cms.untracked.double(-1.0)
                                               )
 
-DQMOffline_Mu15_HT450_POSTPROCESSING = cms.EDAnalyzer('DQMGenericClient',
+DQMOffline_Mu15_HT450_POSTPROCESSING = DQMEDHarvester("DQMGenericClient",
                                                              subDirs = cms.untracked.vstring('HLT/LepHT/HLT_Mu15_IsoVVVL_PFHT450_v'),
                                                              efficiency = cms.vstring(
         "leptonTurnOn_eff ';Offline Muon p_{T} [GeV];#epsilon' leptonTurnOn_num leptonTurnOn_den",
@@ -260,7 +261,7 @@ DQMOffline_Ele50_HT450 = cms.EDAnalyzer('LepHTMonitor',
                                               csvThreshold = cms.untracked.double(-1.0)
                                               )
 
-DQMOffline_Ele50_HT450_POSTPROCESSING = cms.EDAnalyzer('DQMGenericClient',
+DQMOffline_Ele50_HT450_POSTPROCESSING = DQMEDHarvester("DQMGenericClient",
                                                              subDirs = cms.untracked.vstring('HLT/LepHT/HLT_Ele50_IsoVVVL_PFHT450_v'),
                                                              efficiency = cms.vstring(
         "leptonTurnOn_eff ';Offline Electron p_{T} [GeV];#epsilon' leptonTurnOn_num leptonTurnOn_den",
@@ -313,7 +314,7 @@ DQMOffline_Mu50_HT450 = cms.EDAnalyzer('LepHTMonitor',
                                               csvThreshold = cms.untracked.double(-1.0)
                                               )
 
-DQMOffline_Mu50_HT450_POSTPROCESSING = cms.EDAnalyzer('DQMGenericClient',
+DQMOffline_Mu50_HT450_POSTPROCESSING = DQMEDHarvester("DQMGenericClient",
                                                              subDirs = cms.untracked.vstring('HLT/LepHT/HLT_Mu50_IsoVVVL_PFHT450_v'),
                                                              efficiency = cms.vstring(
         "leptonTurnOn_eff ';Offline Muon p_{T} [GeV];#epsilon' leptonTurnOn_num leptonTurnOn_den",
@@ -368,7 +369,7 @@ DQMOffline_DoubleEle8_CaloIdM_TrackIdM_Mass8_DZ_PFHT350 = cms.EDAnalyzer('LepHTM
                                               csvThreshold = cms.untracked.double(-1.0)
                                               )
 
-DQMOffline_DoubleEle8_CaloIdM_TrackIdM_Mass8_DZ_PFHT350_POSTPROCESSING = cms.EDAnalyzer('DQMGenericClient',
+DQMOffline_DoubleEle8_CaloIdM_TrackIdM_Mass8_DZ_PFHT350_POSTPROCESSING = DQMEDHarvester("DQMGenericClient",
                                                              subDirs = cms.untracked.vstring('HLT/LepHT/HLT_DoubleEle8_CaloIdM_TrackIdM_Mass8_DZ_PFHT350_v'),
                                                              efficiency = cms.vstring(
         "leptonTurnOn_eff ';Offline Electron p_{T} [GeV];#epsilon' leptonTurnOn_num leptonTurnOn_den",
@@ -422,7 +423,7 @@ DQMOffline_DoubleMu4_Mass8_DZ_PFHT350 = cms.EDAnalyzer('LepHTMonitor',
                                               csvThreshold = cms.untracked.double(-1.0)
                                               )
 
-DQMOffline_DoubleMu4_Mass8_DZ_PFHT350_POSTPROCESSING = cms.EDAnalyzer('DQMGenericClient',
+DQMOffline_DoubleMu4_Mass8_DZ_PFHT350_POSTPROCESSING = DQMEDHarvester("DQMGenericClient",
                                                              subDirs = cms.untracked.vstring('HLT/LepHT/HLT_DoubleMu4_Mass8_DZ_PFHT350_v'),
                                                              efficiency = cms.vstring(
         "leptonTurnOn_eff ';Offline Muon p_{T} [GeV];#epsilon' leptonTurnOn_num leptonTurnOn_den",
