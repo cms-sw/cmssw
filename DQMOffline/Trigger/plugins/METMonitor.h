@@ -40,26 +40,28 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-#include "DQMOffline/Trigger/plugins/HTMonitor.h"
-
 class GenericTriggerEventFlag;
 
-struct MEbinning {
-  int nbins;
-  double xmin;
-  double xmax;
-};
-
-struct METME {
-  MonitorElement* numerator;
-  MonitorElement* denominator;
-};
 //
 // class declaration
 //
 
 class METMonitor : public DQMEDAnalyzer 
 {
+ public:
+
+  struct MEbinning {
+    int nbins;
+    double xmin;
+    double xmax;
+  };
+  
+  struct METME {
+    MonitorElement* numerator;
+    MonitorElement* denominator;
+  };
+  
+
 public:
   METMonitor( const edm::ParameterSet& );
   ~METMonitor();
@@ -95,12 +97,7 @@ private:
   std::vector<double> met_variable_binning_;
   MEbinning           met_binning_;
   MEbinning           ls_binning_;
-  std::vector<double> ht_variable_binning_;
-  MEbinning           ht_binning_;
 
-  METME htME_;
-  METME htME_variableBinning_;
-  METME htVsLS_;
   METME metME_;
   METME metME_variableBinning_;
   METME metVsLS_;
@@ -108,18 +105,24 @@ private:
   METME deltaphimetj1ME_;
   METME deltaphij1j2ME_;
 
-  GenericTriggerEventFlag* num_genTriggerEventFlag_;
-  GenericTriggerEventFlag* den_genTriggerEventFlag_;
+  std::unique_ptr<GenericTriggerEventFlag> num_genTriggerEventFlag_;
+  std::unique_ptr<GenericTriggerEventFlag> den_genTriggerEventFlag_;
 
   StringCutObjectSelector<reco::MET,true>         metSelection_;
   StringCutObjectSelector<reco::PFJet,true   >    jetSelection_;
   StringCutObjectSelector<reco::GsfElectron,true> eleSelection_;
   StringCutObjectSelector<reco::Muon,true>        muoSelection_;
-  StringCutObjectSelector<reco::PFJet,true   >    jetSelection_HT_;
 
-  int njets_;
-  int nelectrons_;
-  int nmuons_;
+  unsigned njets_;
+  unsigned nelectrons_;
+  unsigned nmuons_;
+
+  static constexpr double MAX_PHI = 3.2;
+  static constexpr int N_PHI = 64;
+  static constexpr MEbinning phi_binning_{
+    N_PHI, -MAX_PHI, MAX_PHI
+  };
+
 
 };
 
