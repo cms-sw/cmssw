@@ -11,7 +11,19 @@ ctppsDiamondDQMSource = cms.EDAnalyzer("CTPPSDiamondDQMSource",
     excludeMultipleHits = cms.bool(True),
     minimumStripAngleForTomography = cms.double(0),
     maximumStripAngleForTomography = cms.double(1),
-    centralOOT = cms.int32(3),
+
+    offsetsOOT = cms.VPSet(
+        # 2016, after TS2
+        cms.PSet(
+            validityRange = cms.EventRange("1:min - 292520:max"),
+            centralOOT = cms.int32(-1),
+        ),
+        # 2017
+        cms.PSet(
+            validityRange = cms.EventRange("292521:min - 999999999:max"),
+            centralOOT = cms.int32(3),
+        ),
+    ),
   
     verbosity = cms.untracked.uint32(10),
 )
