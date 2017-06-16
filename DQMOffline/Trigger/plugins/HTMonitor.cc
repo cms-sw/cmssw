@@ -1,18 +1,9 @@
 #include "DQMOffline/Trigger/plugins/HTMonitor.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "DQM/TrackingMonitor/interface/GetLumi.h"
-
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 
 #include "DataFormats/Math/interface/deltaPhi.h"
 
-double MAXedge_PHI = 3.2;
-int Nbin_PHI = 64;
-const MEHTbinning phi_binning_{
-  Nbin_PHI, -MAXedge_PHI, MAXedge_PHI
-  };
 // -----------------------------
 //  constructors and destructor
 // -----------------------------
@@ -34,13 +25,11 @@ HTMonitor::HTMonitor( const edm::ParameterSet& iConfig ) :
   , eleSelection_ ( iConfig.getParameter<std::string>("eleSelection") )
   , muoSelection_ ( iConfig.getParameter<std::string>("muoSelection") )
   , jetSelection_HT_ ( iConfig.getParameter<std::string>("jetSelection_HT") )
-  , njets_      ( iConfig.getParameter<int>("njets" )      )
-  , nelectrons_ ( iConfig.getParameter<int>("nelectrons" ) )
-  , nmuons_     ( iConfig.getParameter<int>("nmuons" )     )
+  , njets_      ( iConfig.getParameter<unsigned>("njets" )      )
+  , nelectrons_ ( iConfig.getParameter<unsigned>("nelectrons" ) )
+  , nmuons_     ( iConfig.getParameter<unsigned>("nmuons" )     )
 {
 
-  htME_.numerator   = nullptr;
-  htME_.denominator = nullptr;
   htME_variableBinning_.numerator   = nullptr;
   htME_variableBinning_.denominator = nullptr;
   htVsLS_.numerator   = nullptr;
@@ -54,22 +43,20 @@ HTMonitor::HTMonitor( const edm::ParameterSet& iConfig ) :
 
 HTMonitor::~HTMonitor()
 {
-  if (num_genTriggerEventFlag_) delete num_genTriggerEventFlag_;
-  if (den_genTriggerEventFlag_) delete den_genTriggerEventFlag_;
 }
 
-MEHTbinning HTMonitor::getHistoPSet(edm::ParameterSet pset)
+HTMonitor::MEHTbinning HTMonitor::getHistoPSet(edm::ParameterSet pset)
 {
-  return MEHTbinning{
+  return HTMonitor::MEHTbinning{
     pset.getParameter<int32_t>("nbins"),
       pset.getParameter<double>("xmin"),
       pset.getParameter<double>("xmax"),
       };
 }
 
-MEHTbinning HTMonitor::getHistoLSPSet(edm::ParameterSet pset)
+HTMonitor::MEHTbinning HTMonitor::getHistoLSPSet(edm::ParameterSet pset)
 {
-  return MEHTbinning{
+  return HTMonitor::MEHTbinning{
     pset.getParameter<int32_t>("nbins"),
       0.,
       double(pset.getParameter<int32_t>("nbins"))
@@ -131,10 +118,6 @@ void HTMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   std::string currentFolder = folderName_ ;
   ibooker.setCurrentFolder(currentFolder.c_str());
 
-  histname = "ht"; histtitle = "HT";
-  bookME(ibooker,htME_,histname,histtitle,ht_binning_.nbins,ht_binning_.xmin, ht_binning_.xmax);
-  setHTitle(htME_,"HT [GeV]","events / [GeV]");
-
   histname = "ht_variable"; histtitle = "HT";
   bookME(ibooker,htME_variableBinning_,histname,histtitle,ht_variable_binning_);
   setHTitle(htME_variableBinning_,"HT [GeV]","events / [GeV]");
@@ -172,37 +155,38 @@ void HTMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
   if ( ! metSelection_( pfmet ) ) return;
 
   float ht = 0.0; 
-  float met = pfmet.pt();
-  float phi = pfmet.phi();
 
   edm::Handle<reco::PFJetCollection> jetHandle; //add a configurable jet collection & jet pt selection
   iEvent.getByToken( jetToken_, jetHandle );
   std::vector<reco::PFJet> jets;
   jets.clear();
-  if ( int(jetHandle->size()) < njets_ ) return;
+  if ( jetHandle->size() < njets_ ) return;
   for ( auto const & j : *jetHandle ) {
     if ( jetSelection_( j ) ) {
       jets.push_back(j);
       if ( jetSelection_HT_(j)) ht += j.pt();
     }
   }
-  if ( int(jets.size()) < njets_ ) return;
+  for ( auto const & j : *jetHandle ) {
+    if ( jetSelection_HT_(j)) ht += j.pt();
+  }
+  if ( jets.size() < njets_ ) return;
 
   float deltaPhi_met_j1 = 10.0;
   float deltaPhi_j1_j2 = 10.0;
 
-  if (int(jets.size()) >= 1) deltaPhi_met_j1 = fabs( deltaPhi( pfmet.phi(),  jets[0].phi() ));
-  if (int(jets.size()) >= 2) deltaPhi_j1_j2 = fabs( deltaPhi( jets[0].phi(),  jets[1].phi() ));
+  if (jets.size() >= 1) deltaPhi_met_j1 = fabs( deltaPhi( pfmet.phi(),  jets[0].phi() ));
+  if (jets.size() >= 2) deltaPhi_j1_j2 = fabs( deltaPhi( jets[0].phi(),  jets[1].phi() ));
   
   edm::Handle<reco::GsfElectronCollection> eleHandle;
   iEvent.getByToken( eleToken_, eleHandle );
   std::vector<reco::GsfElectron> electrons;
   electrons.clear();
-  if ( int(eleHandle->size()) < nelectrons_ ) return;
+  if ( eleHandle->size() < nelectrons_ ) return;
   for ( auto const & e : *eleHandle ) {
     if ( eleSelection_( e ) ) electrons.push_back(e);
   }
-  if ( int(electrons.size()) < nelectrons_ ) return;
+  if ( electrons.size() < nelectrons_ ) return;
   
   edm::Handle<reco::VertexCollection> vtxHandle;
   iEvent.getByToken(vtxToken_, vtxHandle);
@@ -221,16 +205,15 @@ void HTMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
 
   edm::Handle<reco::MuonCollection> muoHandle;
   iEvent.getByToken( muoToken_, muoHandle );
-  if ( int(muoHandle->size()) < nmuons_ ) return;
+  if ( muoHandle->size() < nmuons_ ) return;
   std::vector<reco::Muon> muons;
   muons.clear();
   for ( auto const & m : *muoHandle ) {
     if ( muoSelection_( m ) && m.isGlobalMuon() && m.isPFMuon() && m.globalTrack()->normalizedChi2() < 10. && m.globalTrack()->hitPattern().numberOfValidMuonHits() > 0 && m.numberOfMatchedStations() > 1 && fabs(m.muonBestTrack()->dxy(pv)) < 0.2 && fabs(m.muonBestTrack()->dz(pv)) < 0.5 && m.innerTrack()->hitPattern().numberOfValidPixelHits() > 0 && m.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 )  muons.push_back(m);
   }
-  if ( int(muons.size()) < nmuons_ ) return;
+  if ( muons.size() < nmuons_ ) return;
 
   // filling histograms (denominator)  
-  htME_.denominator -> Fill(ht);
   htME_variableBinning_.denominator -> Fill(ht);
   deltaphimetj1ME_.denominator -> Fill(deltaPhi_met_j1);
   deltaphij1j2ME_.denominator -> Fill(deltaPhi_j1_j2);
@@ -242,7 +225,6 @@ void HTMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
   if (num_genTriggerEventFlag_->on() && ! num_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
 
   // filling histograms (num_genTriggerEventFlag_)  
-  htME_.numerator -> Fill(ht);
   htME_variableBinning_.numerator -> Fill(ht);
   htVsLS_.numerator -> Fill(ls, ht);
   deltaphimetj1ME_.numerator  -> Fill(deltaPhi_met_j1); 
