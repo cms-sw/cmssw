@@ -163,6 +163,34 @@ def customiseFor18429(process):
 
      return process
 
+# Updating FastjetJetProducer (and related producers) with fillDescriptions
+def customiseFor19098(process):
+	for producer in producers_by_type(process, "FastjetJetProducer"):
+		if hasattr(producer, "doOutputJets"): del producer.doOutputJets
+		if hasattr(producer, "addNegative"): del producer.addNegative
+		if hasattr(producer, "addNegativesFromCone"): del producer.addNegativesFromCone
+		if hasattr(producer, "dropZeros"): del producer.dropZeros
+		if hasattr(producer, "infinitesimalPt"): del producer.infinitesimalPt
+	return process
+
+def customiseFor19181_pixel_phase0(process):
+    for producer in producers_by_type(process, "SiPixelClusterProducer"):
+        producer.VCaltoElectronGain_L1 = cms.int32(65)
+        producer.VCaltoElectronOffset_L1 = cms.int32(-414)
+        producer.ClusterThreshold    = cms.int32(4000)
+        producer.ClusterThreshold_L1 = cms.int32(4000)
+    return process
+
+def customiseFor19181_pixel_phase1(process):
+    for producer in producers_by_type(process, "SiPixelClusterProducer"):
+        producer.VCaltoElectronGain    = cms.int32(47)
+        producer.VCaltoElectronGain_L1 = cms.int32(50)
+        producer.VCaltoElectronOffset    = cms.int32(-60)
+        producer.VCaltoElectronOffset_L1 = cms.int32(-670)
+        producer.ClusterThreshold    = cms.int32(4000)
+        producer.ClusterThreshold_L1 = cms.int32(2000)
+    return process
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
@@ -177,5 +205,11 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # process = customiseFor12718(process)
     process = customiseFor18429(process)
     process = customiseFor18559(process)
+    process = customiseFor19098(process)
+
+    if (menuType == "GRun2016"):
+        process = customiseFor19181_pixel_phase0(process)
+    else:
+        process = customiseFor19181_pixel_phase1(process)
 
     return process

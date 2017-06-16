@@ -46,9 +46,6 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
     firstRun = cms.untracked.uint32(1)
 )
 
-
-process.EnableFloatingPointExceptions = cms.Service("EnableFloatingPointExceptions")
-
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     moduleSeeds = cms.PSet(
         generator = cms.untracked.uint32(456789), ## check

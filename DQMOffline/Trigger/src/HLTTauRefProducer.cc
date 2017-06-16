@@ -22,7 +22,7 @@
 //CaloTower includes
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerDefs.h"
 #include "Math/GenVector/VectorUtil.h"
 
 using namespace edm;
@@ -41,6 +41,10 @@ HLTTauRefProducer::HLTTauRefProducer(const edm::ParameterSet& iConfig)
     }
     doPFTaus_ = pfTau.getUntrackedParameter<bool>("doPFTaus",false);
     ptMinPFTau_= pfTau.getUntrackedParameter<double>("ptMin",15.);
+    etaMinPFTau_= pfTau.getUntrackedParameter<double>("etaMin",-2.5);
+    etaMaxPFTau_= pfTau.getUntrackedParameter<double>("etaMax",2.5);
+    phiMinPFTau_= pfTau.getUntrackedParameter<double>("phiMin",-3.15);
+    phiMaxPFTau_= pfTau.getUntrackedParameter<double>("phiMax",3.15);
   }
 
   {
@@ -99,7 +103,10 @@ HLTTauRefProducer::HLTTauRefProducer(const edm::ParameterSet& iConfig)
     ptMinMET_= met.getUntrackedParameter<double>("ptMin",15.);
   }
 
+  etaMin_ = iConfig.getUntrackedParameter<double>("EtaMin",-2.5);
   etaMax_ = iConfig.getUntrackedParameter<double>("EtaMax",2.5);
+  phiMin_ = iConfig.getUntrackedParameter<double>("PhiMin",-3.15);
+  phiMax_ = iConfig.getUntrackedParameter<double>("PhiMax",3.15);
 
   //recoCollections
   produces<LorentzVectorCollection>("PFTaus");
@@ -139,7 +146,9 @@ HLTTauRefProducer::doPFTaus(edm::Event& iEvent) const
   if (iEvent.getByToken(PFTaus_,pftaus)) {
     for (unsigned int i=0; i<pftaus->size(); ++i) {
       auto const& pftau = (*pftaus)[i];
-      if (pftau.pt()>ptMinPFTau_&&fabs(pftau.eta())<etaMax_) {
+      if (pftau.pt()>ptMinPFTau_&&
+          pftau.eta()>etaMinPFTau_&&pftau.eta()<etaMaxPFTau_&&
+          pftau.phi()>phiMinPFTau_&&pftau.phi()<phiMaxPFTau_) {
         reco::PFTauRef thePFTau {pftaus,i};
         bool passAll {true};
         for (edm::EDGetTokenT<reco::PFTauDiscriminator> const& token: PFTauDis_) {
@@ -241,7 +250,7 @@ HLTTauRefProducer::doMuons(edm::Event& iEvent) const
   edm::Handle<MuonCollection> muons;
   if (iEvent.getByToken(Muons_,muons)) {
     for (auto const& muon : *muons) {
-      if (muon.pt()>ptMinMuon_ && fabs(muon.eta())<etaMax_) {
+      if (muon.pt()>ptMinMuon_ && muon.eta()>etaMin_&&muon.eta()<etaMax_&&muon.phi()>phiMin_&&muon.phi()<phiMax_) {
         product_Muons->emplace_back(muon.px(),muon.py(),muon.pz(),muon.energy());
       }
     }
@@ -258,7 +267,7 @@ HLTTauRefProducer::doJets(edm::Event& iEvent) const
   edm::Handle<CaloJetCollection> jets;
   if (iEvent.getByToken(Jets_,jets)) {
     for (auto const& jet : *jets) {
-      if (jet.et()>ptMinJet_ && fabs(jet.eta())<etaMax_) {
+      if (jet.et()>ptMinJet_ && jet.eta()>etaMin_&&jet.eta()<etaMax_&&jet.phi()>phiMin_&&jet.phi()<phiMax_) {
         product_Jets->emplace_back(jet.px(),jet.py(),jet.pz(),jet.energy());
       }
     }
@@ -274,7 +283,7 @@ HLTTauRefProducer::doTowers(edm::Event& iEvent) const
   edm::Handle<CaloTowerCollection> towers;
   if (iEvent.getByToken(Towers_,towers)) {
     for (auto const& tower1 : *towers) {
-      if (tower1.pt()>ptMinTower_ && fabs(tower1.eta())<etaMax_) {
+      if (tower1.pt()>ptMinTower_ && tower1.eta()>etaMin_&&tower1.eta()<etaMax_&&tower1.phi()>phiMin_&&tower1.phi()<phiMax_) {
         //calculate isolation
         double isolET {};
         for (auto const& tower2 : *towers) {
@@ -302,7 +311,7 @@ HLTTauRefProducer::doPhotons(edm::Event& iEvent) const
   if (iEvent.getByToken(Photons_,photons)) {
     for (auto const& photon : *photons) {
       if (photon.ecalRecHitSumEtConeDR04()<photonEcalIso_ &&
-          photon.et()>ptMinPhoton_ && fabs(photon.eta())<etaMax_) {
+          photon.et()>ptMinPhoton_ && photon.eta()>etaMin_&&photon.eta()<etaMax_&&photon.phi()>phiMin_&&photon.phi()<phiMax_) {
         product_Gammas->emplace_back(photon.px(),photon.py(),photon.pz(),photon.energy());
       }
     }

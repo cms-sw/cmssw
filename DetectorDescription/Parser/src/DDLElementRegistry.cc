@@ -5,7 +5,7 @@
 #include <utility>
 #include <vector>
 
-#include "DetectorDescription/Base/interface/Singleton.h"
+#include "DetectorDescription/Core/interface/Singleton.h"
 #include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
 #include "DetectorDescription/Parser/src/DDLAlgorithm.h"
 #include "DetectorDescription/Parser/src/DDLBooleanSolid.h"

@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-#include "DetectorDescription/Base/interface/DDReadMapType.h"
+#include "DetectorDescription/Core/interface/DDReadMapType.h"
 #include "DetectorDescription/Core/interface/DDMap.h"
 #include "DetectorDescription/Parser/src/DDXMLElement.h"
 #include "boost/spirit/home/classic/core/non_terminal/grammar.hpp"

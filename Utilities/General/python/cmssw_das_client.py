@@ -1,5 +1,6 @@
 from commands import getstatusoutput
 import time
+import os
 from json import loads, dumps
 from types import GeneratorType
 
@@ -66,12 +67,18 @@ def get_value(data, filters, base=10):
       else:
         yield values
 
-def get_data(query, limit=None, threshold=None, idx=None, host=None):
+def get_data(query, limit=None, threshold=None, idx=None, host=None, cmd=None):
   cmd_opts = "--format=json"
   if threshold is not None: cmd_opts += " --threshold=%s" % threshold
   if limit     is not None: cmd_opts += " --limit=%s"     % limit
   if idx       is not None: cmd_opts += " --idx=%s"       % idx
   if host      is not None: cmd_opts += " --host=%s"      % host
-  err, out = getstatusoutput("das_client %s --query '%s'" % (cmd_opts, query))
+  if not cmd:
+    cmd = "das_client"
+    for path in os.getenv('PATH').split(':'):
+      if  os.path.isfile(os.path.join(path, 'dasgoclient')):
+        cmd = "dasgoclient"
+        break
+  err, out = getstatusoutput("%s %s --query '%s'" % (cmd, cmd_opts, query))
   if not err: return loads(out)
   return {'status' : 'error', 'reason' : out}
