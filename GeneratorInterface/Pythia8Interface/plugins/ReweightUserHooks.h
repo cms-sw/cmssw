@@ -26,6 +26,36 @@ class PtHatReweightUserHook : public Pythia8::UserHooks
     double pt, power;
 };
 
+class PtHatEmpReweightUserHook : public Pythia8::UserHooks
+{
+  public:
+   PtHatEmpReweightUserHook(double _pTHatMin, double _pTHatMax) :
+      pTHatMin(_pTHatMin), pTHatMax(_pTHatMax) {
+      // Normalized to Event/fb-1
+      // sigma(938.385)==1
+      sigma = TF1("sigma", "(x<1000.)*(([0]*TMath::Log10(x-[1])**[2])+[3])+(x>=1000.)*(x<2132.)*([4]*TMath::Exp(-[5]*x))+(x>=2132)*([6]*TMath::Exp(-[7]*x))", pTHatMin, pTHatMax);
+      sigma.SetParameters(5.24127e+18,-4.37813e+01, -3.87024e+01,-9.83995e-01,1.18362e+02,5.32593e-03,5.83347e+01,4.99407e-03);
+    }
+    virtual ~PtHatEmpReweightUserHook() {}
+
+    virtual bool canBiasSelection() { return true; }
+
+    virtual double biasSelectionBy(const Pythia8::SigmaProcess* sigmaProcessPtr,
+                      const Pythia8::PhaseSpace* phaseSpacePtr, bool inEvent)
+    {
+      //the variable selBias of the base class should be used;
+      if ((sigmaProcessPtr->nFinal() == 2)) {
+         selBias = 1.0/sigma.Eval(phaseSpacePtr->pTHat());
+        return selBias;
+      }
+      selBias = 1.;
+      return selBias;
+    }
+
+  private:
+    double pTHatMin, pTHatMax;
+    TF1 sigma;
+};
 
 class RapReweightUserHook : public Pythia8::UserHooks
 {
