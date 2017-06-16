@@ -6,8 +6,8 @@ L1TStage2uGMT::L1TStage2uGMT(const edm::ParameterSet& ps)
       monitorDir(ps.getUntrackedParameter<std::string>("monitorDir")),
       emul(ps.getUntrackedParameter<bool>("emulator")),
       verbose(ps.getUntrackedParameter<bool>("verbose")),
-      etaScale_(0.010875),
-      phiScale_(0.010908)
+      etaScale_(0.010875), // eta scale (CMS DN-2015/017)
+      phiScale_(0.010908)  // phi scale (2*pi/576 HW values)
 {
   if (!emul) {
     ugmtBMTFToken = consumes<l1t::RegionalMuonCandBxCollection>(ps.getParameter<edm::InputTag>("bmtfProducer"));
