@@ -75,7 +75,8 @@ class CTPPSDiamondDQMSource : public DQMEDAnalyzer
     bool excludeMultipleHits_;
     double minimumStripAngleForTomography_;
     double maximumStripAngleForTomography_;
-    std::vector< std::pair<edm::EventRange, int> > centralOOT_;
+    std::vector< std::pair<edm::EventRange, int> > runParameters_;
+    int centralOOT_;
     unsigned int verbosity_;
 
     /// plots related to the whole system
@@ -322,11 +323,12 @@ CTPPSDiamondDQMSource::CTPPSDiamondDQMSource( const edm::ParameterSet& ps ) :
   excludeMultipleHits_           ( ps.getParameter<bool>( "excludeMultipleHits" ) ),
   minimumStripAngleForTomography_( ps.getParameter<double>( "minimumStripAngleForTomography" ) ),
   maximumStripAngleForTomography_( ps.getParameter<double>( "maximumStripAngleForTomography" ) ),
+  centralOOT_( -999 ),
   verbosity_                     ( ps.getUntrackedParameter<unsigned int>( "verbosity", 0 ) ),
   EC_difference_56_( -500 ), EC_difference_45_( -500 )
 {
   for ( const auto& pset : ps.getParameter< std::vector<edm::ParameterSet> >( "offsetsOOT" ) ) {
-    centralOOT_.emplace_back( std::make_pair( pset.getParameter<edm::EventRange>( "validityRange" ), pset.getParameter<int>( "centralOOT" ) ) );
+    runParameters_.emplace_back( std::make_pair( pset.getParameter<edm::EventRange>( "validityRange" ), pset.getParameter<int>( "centralOOT" ) ) );
   }
 }
 
@@ -338,8 +340,16 @@ CTPPSDiamondDQMSource::~CTPPSDiamondDQMSource()
 //----------------------------------------------------------------------------------------------------
 
 void
-CTPPSDiamondDQMSource::dqmBeginRun( const edm::Run&, const edm::EventSetup& )
-{}
+CTPPSDiamondDQMSource::dqmBeginRun( const edm::Run& iRun, const edm::EventSetup& )
+{
+  centralOOT_ = -999;
+  for ( const auto& oot : runParameters_ ) {
+    if ( edm::contains( oot.first, edm::EventID( iRun.run(), 0, 1 ) ) ) {
+      centralOOT_ = oot.second; break;
+    }
+  }
+}
+
 
 //----------------------------------------------------------------------------------------------------
 
@@ -403,13 +413,6 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
   edm::Handle< edm::DetSetVector<CTPPSDiamondLocalTrack> > diamondLocalTracks;
   event.getByToken( tokenDiamondTrack_, diamondLocalTracks );
 
-  int central_oot = -999;
-  for ( const auto& oot : centralOOT_ ) {
-    if ( edm::contains( oot.first, event.id() ) ) {
-      central_oot = oot.second;
-    }
-  }
-
   // check validity
   bool valid = true;
   valid &= diamondVFATStatus.isValid();
@@ -433,7 +436,6 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
   //------------------------------  
 
   //   if (event.bunchCrossing() > 100) return;
-
 
   //------------------------------
   // Correlation Plots
@@ -467,7 +469,7 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
       for ( const auto& ds2 : *diamondLocalTracks ) {
         for ( const auto& tr2 : ds2 ) {
           if ( ! tr2.isValid() ) continue;
-          if ( central_oot != -999 && tr2.getOOTIndex() != central_oot ) continue;
+          if ( centralOOT_ != -999 && tr2.getOOTIndex() != centralOOT_ ) continue;
           if ( excludeMultipleHits_ && tr2.getMultipleHits() > 0 ) continue;
 
           CTPPSDetId diamId2( ds2.detId() );
@@ -485,7 +487,7 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
     for ( const auto& tr1 : ds1 ) {
       if ( ! tr1.isValid() ) continue;
       if ( excludeMultipleHits_ && tr1.getMultipleHits() > 0 ) continue;
-      if ( central_oot != -999 && tr1.getOOTIndex() != central_oot ) continue;
+      if ( centralOOT_ != -999 && tr1.getOOTIndex() != centralOOT_ ) continue;
 
       CTPPSDetId diamId1( ds1.detId() );
       unsigned int arm1 = diamId1.arm();
@@ -496,7 +498,7 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
         for ( const auto& tr2 : ds2 ) {
           if ( ! tr2.isValid() ) continue;
           if ( excludeMultipleHits_ && tr2.getMultipleHits() > 0 ) continue;
-          if ( central_oot != -999 && tr2.getOOTIndex() != central_oot ) continue;
+          if ( centralOOT_ != -999 && tr2.getOOTIndex() != centralOOT_ ) continue;
 
           CTPPSDetId diamId2( ds2.detId() );
           unsigned int arm2 = diamId2.arm();
@@ -587,7 +589,7 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
       float UFSDShift = 0.0;
       if ( rechit.getYWidth() < 3 ) UFSDShift = 0.5;  // Display trick for UFSD that have 2 pixels with same X
 
-      if ( rechit.getToT() != 0 && central_oot != -999 && rechit.getOOTIndex() == central_oot ) {
+      if ( rechit.getToT() != 0 && centralOOT_ != -999 && rechit.getOOTIndex() == centralOOT_ ) {
         TH2F *hitHistoTmp = potPlots_[detId_pot].hitDistribution2d->getTH2F();
         TAxis *hitHistoTmpYAxis = hitHistoTmp->GetYaxis();
         int startBin = hitHistoTmpYAxis->FindBin( rechit.getX() - 0.5*rechit.getXWidth() );
@@ -636,7 +638,7 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
       }
 
       if ( rechit.getToT() != 0 ) {
-        switch ( rechit.getOOTIndex() - ( ( central_oot != -999 ) ? central_oot : 0 ) ) {
+        switch ( rechit.getOOTIndex() - ( ( centralOOT_ != -999 ) ? centralOOT_ : 0 ) ) {
           case -1:
             potPlots_[detId_pot].activity_per_bx_minus1->Fill( event.bunchCrossing() );
             break;
@@ -676,7 +678,7 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
         trackHistoOOTTmp->Fill( track.getOOTIndex(), trackHistoOOTTmpYAxis->GetBinCenter(startBin+i) );
       }
 
-      if ( central_oot != -999 && track.getOOTIndex() == central_oot ) {
+      if ( centralOOT_ != -999 && track.getOOTIndex() == centralOOT_ ) {
         TH1F *trackHistoInTimeTmp = potPlots_[detId_pot].trackDistribution->getTH1F();
         int startBin = trackHistoInTimeTmp->FindBin( track.getX0() - track.getX0Sigma() );
         int numOfBins = 2*track.getX0Sigma()/DISPLAY_RESOLUTION_FOR_HITS_MM;
@@ -708,7 +710,7 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
           if ( striplt.getTx() > maximumStripAngleForTomography_ || striplt.getTy() > maximumStripAngleForTomography_) continue;
           if ( striplt.getTx() < minimumStripAngleForTomography_ || striplt.getTy() < minimumStripAngleForTomography_) continue;
           if ( stripId.rp() == CTPPS_FAR_RP_ID ) {
-            switch ( rechit.getOOTIndex() - ( ( central_oot != -999 ) ? central_oot : 0 ) ) {
+            switch ( rechit.getOOTIndex() - ( ( centralOOT_ != -999 ) ? centralOOT_ : 0 ) ) {
               case -1: {
                 potPlots_[detId_pot].stripTomographyAllFar_minus1->Fill( striplt.getX0() + 25*detId.plane(), striplt.getY0() );
               } break;
@@ -784,7 +786,7 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
       if ( excludeMultipleHits_ && rechit.getMultipleHits() > 0 ) continue;
       if ( rechit.getToT() == 0 ) continue;
       if ( planePlots_.find( detId_plane ) != planePlots_.end() ) {
-        if ( central_oot != -999 && rechit.getOOTIndex() == central_oot ) {
+        if ( centralOOT_ != -999 && rechit.getOOTIndex() == centralOOT_ ) {
           TH1F *hitHistoTmp = planePlots_[detId_plane].hitProfile->getTH1F();
           int startBin = hitHistoTmp->FindBin( rechit.getX() - 0.5*rechit.getXWidth() );
           int numOfBins = rechit.getXWidth()/DISPLAY_RESOLUTION_FOR_HITS_MM;
@@ -814,7 +816,7 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
           if ( striplt.getTx() > maximumStripAngleForTomography_ || striplt.getTy() > maximumStripAngleForTomography_) continue;
           if ( striplt.getTx() < minimumStripAngleForTomography_ || striplt.getTy() < minimumStripAngleForTomography_) continue;
           if ( stripId.rp() == CTPPS_FAR_RP_ID ) {
-            planePlots_[detId_plane].stripTomography_far->Fill( striplt.getX0() + 25*(rechit.getOOTIndex() - ( ( central_oot != -999 ) ? central_oot : 0 ) +1), striplt.getY0() );
+            planePlots_[detId_plane].stripTomography_far->Fill( striplt.getX0() + 25*(rechit.getOOTIndex() - ( ( centralOOT_ != -999 ) ? centralOOT_ : 0 ) +1), striplt.getY0() );
           }
         }
       }
@@ -876,7 +878,7 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
       }
 
       if ( rechit.getToT() != 0 ) {
-        switch ( rechit.getOOTIndex() - ( ( central_oot != -999 ) ? central_oot : 0 ) ) {
+        switch ( rechit.getOOTIndex() - ( ( centralOOT_ != -999 ) ? centralOOT_ : 0 ) ) {
           case -1: {
             channelPlots_[detId].activity_per_bx_minus1->Fill( event.bunchCrossing() );
           } break;
@@ -907,7 +909,7 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
             if ( striplt.getTx() > maximumStripAngleForTomography_ || striplt.getTy() > maximumStripAngleForTomography_) continue;
             if ( striplt.getTx() < minimumStripAngleForTomography_ || striplt.getTy() < minimumStripAngleForTomography_) continue;
             if ( stripId.rp() == CTPPS_FAR_RP_ID ) {
-              channelPlots_[detId].stripTomography_far->Fill( striplt.getX0() + 25*(rechit.getOOTIndex() - ( ( central_oot != -999 ) ? central_oot : 0 ) +1), striplt.getY0() );
+              channelPlots_[detId].stripTomography_far->Fill( striplt.getX0() + 25*(rechit.getOOTIndex() - ( ( centralOOT_ != -999 ) ? centralOOT_ : 0 ) +1), striplt.getY0() );
             }
           }
         }
