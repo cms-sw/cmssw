@@ -7,7 +7,7 @@ WprimeEle115.FolderName = cms.string('HLT/EXO/Wprime/WprimeEle115')
 WprimeEle115.nmuons = cms.uint32(0)
 WprimeEle115.nelectrons = cms.uint32(1)
 WprimeEle115.njets = cms.uint32(0)
-WprimeEle115.eleSelection = cms.string('pt>50 & abs(eta)<2.4 & (dr03TkSumPt+dr04EcalRecHitSumEt+dr04HcalTowerSumEt)/pt<0.1')
+WprimeEle115.eleSelection = cms.string('pt>50 & abs(eta)<2.5 & (dr03TkSumPt+dr04EcalRecHitSumEt+dr04HcalTowerSumEt)/pt<0.1')
 WprimeEle115.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Ele115_CaloIdVT_GsfTrkIdT_v*')
 WprimeEle115.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu27_v*',
                                                                'HLT_Mu50_v*',
@@ -20,7 +20,7 @@ WprimeEle135.FolderName = cms.string('HLT/EXO/Wprime/WprimeEle135')
 WprimeEle135.nmuons = cms.uint32(0)
 WprimeEle135.nelectrons = cms.uint32(1)
 WprimeEle135.njets = cms.uint32(0)
-WprimeEle135.eleSelection = cms.string('pt>50 & abs(eta)<2.4 & (dr03TkSumPt+dr04EcalRecHitSumEt+dr04HcalTowerSumEt)/pt<0.1')
+WprimeEle135.eleSelection = cms.string('pt>50 & abs(eta)<2.5 &  (dr03TkSumPt+dr04EcalRecHitSumEt+dr04HcalTowerSumEt)/pt<0.1')
 WprimeEle135.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Ele135_CaloIdVT_GsfTrkIdT_v*')
 WprimeEle135.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu27_v*',
                                                                'HLT_Mu50_v*',
@@ -33,7 +33,7 @@ WprimeEle145.FolderName = cms.string('HLT/EXO/Wprime/WprimeEle145')
 WprimeEle145.nmuons = cms.uint32(0)
 WprimeEle145.nelectrons = cms.uint32(1)
 WprimeEle145.njets = cms.uint32(0)
-WprimeEle145.eleSelection = cms.string('pt>50 & abs(eta)<2.4 & (dr03TkSumPt+dr04EcalRecHitSumEt+dr04HcalTowerSumEt)/pt<0.1')
+WprimeEle145.eleSelection = cms.string('pt>50 & abs(eta)<2.5 & (dr03TkSumPt+dr04EcalRecHitSumEt+dr04HcalTowerSumEt)/pt<0.1')
 WprimeEle145.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Ele145_CaloIdVT_GsfTrkIdT_v*')
 WprimeEle145.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu27_v*',
                                                                'HLT_Mu50_v*',
@@ -44,7 +44,7 @@ WprimeEle200.FolderName = cms.string('HLT/EXO/Wprime/WprimeEle200')
 WprimeEle200.nmuons = cms.uint32(0)
 WprimeEle200.nelectrons = cms.uint32(1)
 WprimeEle200.njets = cms.uint32(0)
-WprimeEle200.eleSelection = cms.string('pt>50 & abs(eta)<2.4 & (dr03TkSumPt+dr04EcalRecHitSumEt+dr04HcalTowerSumEt)/pt<0.1')
+WprimeEle200.eleSelection = cms.string('pt>50 & abs(eta)<2.5 & (dr03TkSumPt+dr04EcalRecHitSumEt+dr04HcalTowerSumEt)/pt<0.1')
 WprimeEle200.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Ele200_CaloIdVT_GsfTrkIdT_v*')
 WprimeEle200.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu27_v*',
                                                                'HLT_Mu50_v*',
@@ -55,7 +55,7 @@ WprimeEle250.FolderName = cms.string('HLT/EXO/Wprime/WprimeEle250')
 WprimeEle250.nmuons = cms.uint32(0)
 WprimeEle250.nelectrons = cms.uint32(1)
 WprimeEle250.njets = cms.uint32(0)
-WprimeEle250.eleSelection = cms.string('pt>50 & abs(eta)<2.4 & (dr03TkSumPt+dr04EcalRecHitSumEt+dr04HcalTowerSumEt)/pt<0.1')
+WprimeEle250.eleSelection = cms.string('pt>50 & abs(eta)<2.5 & (dr03TkSumPt+dr04EcalRecHitSumEt+dr04HcalTowerSumEt)/pt<0.1')
 WprimeEle250.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Ele250_CaloIdVT_GsfTrkIdT_v*')
 WprimeEle250.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu27_v*',
                                                                'HLT_Mu50_v*',
@@ -66,7 +66,7 @@ WprimeEle300.FolderName = cms.string('HLT/EXO/Wprime/WprimeEle300')
 WprimeEle300.nmuons = cms.uint32(0)
 WprimeEle300.nelectrons = cms.uint32(1)
 WprimeEle300.njets = cms.uint32(0)
-WprimeEle300.eleSelection = cms.string('pt>50 & abs(eta)<2.4 & (dr03TkSumPt+dr04EcalRecHitSumEt+dr04HcalTowerSumEt)/pt<0.1')
+WprimeEle300.eleSelection = cms.string('pt>50 & abs(eta)<2.5 & (dr03TkSumPt+dr04EcalRecHitSumEt+dr04HcalTowerSumEt)/pt<0.1')
 WprimeEle300.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Ele300_CaloIdVT_GsfTrkIdT_v*')
 WprimeEle300.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu27_v*',
                                                                'HLT_Mu50_v*',
