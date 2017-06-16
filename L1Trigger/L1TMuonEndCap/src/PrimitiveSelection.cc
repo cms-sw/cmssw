@@ -439,16 +439,38 @@ int PrimitiveSelection::select_csc(const TriggerPrimitive& muon_primitive) const
     int tp_bx        = tp_data.bx;
     int tp_csc_ID    = tp_data.cscID;
 
-    assert(MIN_ENDCAP <= tp_endcap && tp_endcap <= MAX_ENDCAP);
-    assert(MIN_TRIGSECTOR <= tp_sector && tp_sector <= MAX_TRIGSECTOR);
-    assert(1 <= tp_station && tp_station <= 4);
-    assert(1 <= tp_csc_ID && tp_csc_ID <= 9);
-    assert(tp_data.strip < 160);
-    // assert(tp_data.keywire < 112);
-    assert(tp_data.keywire < 128);
-    assert(tp_data.valid == true);
-    assert(tp_data.pattern <= 10);
-    assert(tp_data.quality > 0);
+    // assert(MIN_ENDCAP <= tp_endcap && tp_endcap <= MAX_ENDCAP);
+    // assert(MIN_TRIGSECTOR <= tp_sector && tp_sector <= MAX_TRIGSECTOR);
+    // assert(1 <= tp_station && tp_station <= 4);
+    // assert(1 <= tp_csc_ID && tp_csc_ID <= 9);
+    // assert(tp_data.strip < 160);
+    // // assert(tp_data.keywire < 112);
+    // assert(tp_data.keywire < 128);
+    // assert(tp_data.valid == true);
+    // assert(tp_data.pattern <= 10);
+    // assert(tp_data.quality > 0);
+
+
+    if ( !(MIN_ENDCAP <= tp_endcap && tp_endcap <= MAX_ENDCAP) ) {
+      std::cout << "EMTF CSC format error: tp_endcap = "  << tp_endcap  << std::endl; return selected; }
+    if ( !(MIN_TRIGSECTOR <= tp_sector && tp_sector <= MAX_TRIGSECTOR) ) {
+      std::cout << "EMTF CSC format error: tp_sector = "  << tp_sector  << std::endl; return selected; }
+    if ( !(1 <= tp_station && tp_station <= 4) ) {
+      std::cout << "EMTF CSC format error: tp_station = " << tp_station << std::endl; return selected; }
+    if ( !(1 <= tp_csc_ID && tp_csc_ID <= 9) ) {
+      std::cout << "EMTF CSC format error: tp_csc_ID = "  << tp_csc_ID  << std::endl; return selected; }
+    if ( !(tp_data.strip < 160) ) {
+      std::cout << "EMTF CSC format error: tp_data.strip = "   << tp_data.strip   << std::endl; return selected; }
+    // if ( !(tp_data.keywire < 112) ) {
+    if ( !(tp_data.keywire < 128) ) {
+      std::cout << "EMTF CSC format error: tp_data.keywire = " << tp_data.keywire << std::endl; return selected; }
+    if ( !(tp_data.valid == true) ) {
+      std::cout << "EMTF CSC format error: tp_data.valid = "   << tp_data.valid   << std::endl; return selected; }
+    if ( !(tp_data.pattern <= 10) ) {
+      std::cout << "EMTF CSC format error: tp_data.pattern = " << tp_data.pattern << std::endl; return selected; }
+    if ( !(tp_data.quality > 0) ) {
+      std::cout << "EMTF CSC format error: tp_data.quality = " << tp_data.quality << std::endl; return selected; }
+
 
     // Check using ME1/1a --> ring 4 convention
     if (tp_station == 1 && tp_ring == 1) {
@@ -627,15 +649,35 @@ int PrimitiveSelection::select_rpc(const TriggerPrimitive& muon_primitive) const
     int tp_bx        = tp_data.bx;
     int tp_strip     = tp_data.strip;
 
-    assert(tp_region != 0);
-    assert(MIN_ENDCAP <= tp_endcap && tp_endcap <= MAX_ENDCAP);
-    assert(MIN_TRIGSECTOR <= tp_sector && tp_sector <= MAX_TRIGSECTOR);
-    assert(1 <= tp_subsector && tp_subsector <= 6);
-    assert(1 <= tp_station && tp_station <= 4);
-    assert(2 <= tp_ring && tp_ring <= 3);
-    assert(1 <= tp_roll && tp_roll <= 3);
-    assert(1 <= tp_strip && tp_strip <= 32);
-    assert(tp_station > 2 || tp_ring != 3);  // stations 1 and 2 do not receive RPCs from ring 3
+    // assert(tp_region != 0);
+    // assert(MIN_ENDCAP <= tp_endcap && tp_endcap <= MAX_ENDCAP);
+    // assert(MIN_TRIGSECTOR <= tp_sector && tp_sector <= MAX_TRIGSECTOR);
+    // assert(1 <= tp_subsector && tp_subsector <= 6);
+    // assert(1 <= tp_station && tp_station <= 4);
+    // assert(2 <= tp_ring && tp_ring <= 3);
+    // assert(1 <= tp_roll && tp_roll <= 3);
+    // assert(1 <= tp_strip && tp_strip <= 32);
+    // assert(tp_station > 2 || tp_ring != 3);  // stations 1 and 2 do not receive RPCs from ring 3
+
+    if ( !(tp_region != 0) ) {
+      std::cout << "EMTF RPC format error: tp_region = "  << tp_region  << std::endl; return selected; }
+    if ( !(MIN_ENDCAP <= tp_endcap && tp_endcap <= MAX_ENDCAP) ) {
+      std::cout << "EMTF RPC format error: tp_endcap = "  << tp_endcap  << std::endl; return selected; }
+    if ( !(MIN_TRIGSECTOR <= tp_sector && tp_sector <= MAX_TRIGSECTOR) ) {
+      std::cout << "EMTF RPC format error: tp_sector = "  << tp_sector  << std::endl; return selected; } 
+    if ( !(1 <= tp_subsector && tp_subsector <= 6) ) {
+      std::cout << "EMTF RPC format error: tp_subsector = "  << tp_subsector  << std::endl; return selected; } 
+    if ( !(1 <= tp_station && tp_station <= 4) ) {
+      std::cout << "EMTF RPC format error: tp_station = " << tp_station << std::endl; return selected; }
+    if ( !(2 <= tp_ring && tp_ring <= 3) ) {
+      std::cout << "EMTF RPC format error: tp_ring = " << tp_ring << std::endl; return selected; }
+    if ( !(1 <= tp_roll && tp_roll <= 3) ) {
+      std::cout << "EMTF RPC format error: tp_roll = "  << tp_roll  << std::endl; return selected; }
+    if ( !(1 <= tp_strip && tp_strip <= 32) ) {
+      std::cout << "EMTF RPC format error: tp_data.strip = "   << tp_data.strip   << std::endl; return selected; }
+    if ( !(tp_station > 2 || tp_ring != 3) ) {
+      std::cout << "EMTF RPC format error: tp_station = " << tp_station << ", tp_ring = " << tp_ring << std::endl; return selected; }
+
 
     // Selection
     if (is_in_bx_rpc(tp_bx)) {
