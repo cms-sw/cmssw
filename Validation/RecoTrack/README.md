@@ -105,6 +105,7 @@ Use `--help` to check out the parameters.
 
 * [`trackingNtupleExample.py`](test/trackingNtupleExample.py) examples of various links
 * [`analyseDuplicateFake.py`](test/analyseDuplicateFake.py) examples of printouts
+* [`analyseMVA.py`](test/analyseMVA.py) simple analysis for debugging track MVA selection
 * [`fakeAnalysis/main.py`](test/fakeAnalysis/main.py) complete analysis code for fake tracks
 
 
