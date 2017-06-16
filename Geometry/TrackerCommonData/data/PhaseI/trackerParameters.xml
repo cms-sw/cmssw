@@ -2,7 +2,7 @@
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
  <ConstantsSection  label="trackerParameters.xml" eval="true">
   <Vector name="vPars" type="numeric" nEntries="6">
-    80, 52, 1, 2, 2, 8
+    80, 52, 0, 0, 2, 8
   </Vector>
   <Vector name="Subdetector1" type="numeric" nEntries="6">
     20, 12, 2, 0xF, 0xFF, 0x3FF
