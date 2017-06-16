@@ -294,10 +294,14 @@ namespace edm {
       if (pathStatusInserter_) { // pathStatusInserter is null for EndPaths
         pathStatusInserter_->setPathStatus(streamID, status);
       }
-      pathStatusInserterWorker_->runStatusInserter<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>>(
+      std::exception_ptr jException =
+        pathStatusInserterWorker_->runModuleDirectly<OccurrenceTraits<EventPrincipal,
+                                                                      BranchActionStreamBegin>>(
           iEP, iES, streamID, ParentContext(iContext), iContext
-      );
-
+        );
+      if(jException && not iException) {
+        iException = jException;
+      }
       actReg_->postPathEventSignal_(*iContext, pathContext_, status);
     } catch(...) {
       if(not iException) {

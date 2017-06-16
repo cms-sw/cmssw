@@ -544,26 +544,27 @@ namespace edm {
     Traits::setStreamContext(streamContext_, ep);
     Traits::preScheduleSignal(actReg_.get(), &streamContext_);
 
-    try {
-      HLTPathStatus hltPathStatus(hlt::Pass, 0);
-      for (int empty_trig_path : empty_trig_paths_) {
-        results_->at(empty_trig_path) = hltPathStatus;
-        pathStatusInserters.at(empty_trig_path)->setPathStatus(streamID_, hltPathStatus);
-        pathStatusInserterWorkers_.at(empty_trig_path)->runStatusInserter<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>>(
-            ep, es, streamID_, ParentContext(&streamContext_), &streamContext_
-        );
+    HLTPathStatus hltPathStatus(hlt::Pass, 0);
+    for (int empty_trig_path : empty_trig_paths_) {
+      results_->at(empty_trig_path) = hltPathStatus;
+      pathStatusInserters[empty_trig_path]->setPathStatus(streamID_, hltPathStatus);
+      std::exception_ptr iException = pathStatusInserterWorkers_[empty_trig_path]->runModuleDirectly<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>>(
+          ep, es, streamID_, ParentContext(&streamContext_), &streamContext_
+      );
+      if (iException) {
+        iTask.doneWaiting(iException);
+        return;
       }
-      for (int empty_end_path : empty_end_paths_) {
-        endPathStatusInserterWorkers_.at(empty_end_path)->runStatusInserter<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>>(
-            ep, es, streamID_, ParentContext(&streamContext_), &streamContext_
-        );
-      }
-    } catch(...) {
-      auto iException = std::current_exception();
-      iTask.doneWaiting(iException);
-      return;
     }
-
+    for (int empty_end_path : empty_end_paths_) {
+      std::exception_ptr iException = endPathStatusInserterWorkers_[empty_end_path]->runModuleDirectly<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>>(
+          ep, es, streamID_, ParentContext(&streamContext_), &streamContext_
+      );
+      if (iException) {
+        iTask.doneWaiting(iException);
+        return;
+      }
+    }
     
     // This call takes care of the unscheduled processing.
     workerManager_.setupOnDemandSystem(ep,es);
