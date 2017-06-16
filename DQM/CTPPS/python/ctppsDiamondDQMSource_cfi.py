@@ -16,7 +16,7 @@ ctppsDiamondDQMSource = cms.EDAnalyzer("CTPPSDiamondDQMSource",
         # 2016, after TS2
         cms.PSet(
             validityRange = cms.EventRange("1:min - 292520:max"),
-            centralOOT = cms.int32(-1),
+            centralOOT = cms.int32(-999), # no cut on OOT index
         ),
         # 2017
         cms.PSet(
