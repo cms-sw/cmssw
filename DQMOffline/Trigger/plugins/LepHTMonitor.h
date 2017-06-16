@@ -47,6 +47,8 @@
 //Beam spot
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
+class GenericTriggerEventFlag;
+
 class LepHTMonitor: public DQMEDAnalyzer{
 
 public:
@@ -80,65 +82,31 @@ private:
   edm::EDGetTokenT<reco::ConversionCollection> theConversionCollection_;
   edm::InputTag theBeamSpotTag_;
   edm::EDGetTokenT<reco::BeamSpot> theBeamSpot_;
-
-  edm::InputTag theLeptonFilterTag_;
-  edm::InputTag theHLTHTTag_;
-  edm::EDGetTokenT<reco::METCollection> theHLTHT_;
-  edm::InputTag theHLTMETTag_;
-  edm::EDGetTokenT<reco::METCollection> theHLTMET_;
-  edm::InputTag theHLTJetCollectionTag_;
-  edm::EDGetTokenT<reco::CaloJetCollection> theHLTJetCollection_;
-  edm::InputTag theHLTJetTagCollectionTag_;
-  edm::EDGetTokenT<reco::JetTagCollection> theHLTJetTagCollection_;
-
-  edm::InputTag theTriggerResultsTag_;
-  edm::EDGetTokenT<edm::TriggerResults> theTriggerResults_;
-  edm::InputTag theTrigSummaryTag_;
-  edm::EDGetTokenT<trigger::TriggerEvent> theTrigSummary_;
-
-  HLTConfigProvider fHltConfig_;
-
-  std::string HLTProcess_;
+  GenericTriggerEventFlag* num_genTriggerEventFlag_;
+  GenericTriggerEventFlag* den_lep_genTriggerEventFlag_;
+  GenericTriggerEventFlag* den_HT_genTriggerEventFlag_;
 
   std::string triggerPath_;
-  std::string triggerPathAuxiliary_;
-  std::string triggerPathLeptonAuxiliary_;
-
-  double csvlCut_;
-  double csvmCut_;
-  double csvtCut_;
 
   double jetPtCut_;
   double jetEtaCut_;
   double metCut_;
   double htCut_;
-
   double nmusCut_;
   double nelsCut_;
   double lep_pt_threshold_;
   double ht_threshold_;
   double met_threshold_;
-  double csv_threshold_;
 
   // Histograms
-  MonitorElement* h_triggerLepPt_;
-  MonitorElement* h_triggerLepEta_;
-  MonitorElement* h_triggerLepPhi_;
-  MonitorElement* h_HT_;
-  MonitorElement* h_MET_;
-  MonitorElement* h_maxCSV_;
+
   MonitorElement* h_leptonTurnOn_num_;
   MonitorElement* h_leptonTurnOn_den_;
   MonitorElement* h_lepEtaTurnOn_num_;
   MonitorElement* h_lepEtaTurnOn_den_;
   MonitorElement* h_pfHTTurnOn_num_;
   MonitorElement* h_pfHTTurnOn_den_;
-  MonitorElement* h_pfMetTurnOn_num_;
-  MonitorElement* h_pfMetTurnOn_den_;
-  MonitorElement* h_CSVTurnOn_num_;
-  MonitorElement* h_CSVTurnOn_den_;
-  MonitorElement* h_btagTurnOn_num_;
-  MonitorElement* h_btagTurnOn_den_;
+
 };
 
 #endif
