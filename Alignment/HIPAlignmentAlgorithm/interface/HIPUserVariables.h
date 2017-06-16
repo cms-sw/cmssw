@@ -1,5 +1,6 @@
 
 #include "Alignment/CommonAlignment/interface/AlignmentUserVariables.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
 class HIPUserVariables : public AlignmentUserVariables {
 
