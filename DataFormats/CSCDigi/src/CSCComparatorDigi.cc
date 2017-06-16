@@ -76,7 +76,7 @@ int CSCComparatorDigi::getHalfStrip() const {
 
 // Return the fractional half-strip
 float CSCComparatorDigi::getFractionalStrip() const {
-  return getStrip() + getComparator() * 0.5 - 0.75;
+  return getStrip() + getComparator() * 0.5f - 0.75f;
 }
 
 std::vector<int> CSCComparatorDigi::getTimeBinsOn() const {
