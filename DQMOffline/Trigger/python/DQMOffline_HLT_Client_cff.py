@@ -24,7 +24,7 @@ from DQMOffline.Trigger.B2GMonitoring_Client_cff import *
 from DQMOffline.Trigger.HiggsMonitoring_Client_cff import *
 from DQMOffline.Trigger.StandardModelMonitoring_Client_cff import *
 from DQMOffline.Trigger.TopMonitoring_Client_cff import *
-
+from DQMOffline.Trigger.LepHTMonitor_cff import *
 from DQMOffline.Trigger.BTaggingMonitoring_Client_cff import *
 from DQMOffline.Trigger.BPHMonitoring_Client_cff import *
 hltOfflineDQMClient = cms.Sequence(
@@ -45,6 +45,7 @@ hltOfflineDQMClient = cms.Sequence(
     higgsClient *
     smpClient *
     topClient *
+    LepHTClient*
     btaggingClient *
     bphClient
     )
