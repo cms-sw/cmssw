@@ -142,7 +142,7 @@ namespace edm {
     //Need to lookup ids to names quickly
     std::unordered_map<unsigned int, std::string> moduleIndexToNames;
 
-    std::map<std::string, unsigned int> pathStatusInserterModuleLabelToModuleID;
+    std::unordered_map<std::string, unsigned int> pathStatusInserterModuleLabelToModuleID;
 
     //for testing, state that TriggerResults is at the end of all paths
     const std::string kTriggerResults("TriggerResults");
