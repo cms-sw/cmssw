@@ -7,7 +7,8 @@ WprimeEle115.FolderName = cms.string('HLT/EXO/Wprime/WprimeEle115')
 WprimeEle115.nmuons = cms.uint32(0)
 WprimeEle115.nelectrons = cms.uint32(1)
 WprimeEle115.njets = cms.uint32(0)
-WprimeEle115.eleSelection = cms.string('pt>50 & abs(eta)<2.5 & (dr03TkSumPt+dr04EcalRecHitSumEt+dr04HcalTowerSumEt)/pt<0.1')
+WprimeEle115.eleSelection = cms.string('pt>50 & abs(eta)<1.4442 & full5x5_sigmaIetaIeta<0.00998 & abs(deltaEtaSuperClusterAtVtx)<0.00308 & abs(deltaPhiSuperClusterTrackAtVtx)< 0.0816 & hadronicOverEm<0.0414 & abs(1.0/ecalEnergy - eSuperClusterOverP/ecalEnergy)<0.0129 & passConversionVeto==1 & gsfTrack.hitPattern.numberOfHits(reco::HitPattern::MISSING_INNER_HITS) & (dr03TkSumPt+dr04EcalRecHitSumEt+dr04HcalTowerSumEt)/pt<0.1')
+WprimeEle115.eleSelection1 = cms.string('pt>50 & abs(eta)>1.566 & abs(eta)<2.5 & full5x5_sigmaIetaIeta<0.0292 & abs(deltaEtaSuperClusterAtVtx)<0.00605 & abs(deltaPhiSuperClusterTrackAtVtx)< 0.0394 & hadronicOverEm<0.0641 & abs(1.0/ecalEnergy - eSuperClusterOverP/ecalEnergy)<0.0129 & passConversionVeto==1 & gsfTrack.hitPattern.numberOfHits(reco::HitPattern::MISSING_INNER_HITS) & (dr03TkSumPt+dr04EcalRecHitSumEt+dr04HcalTowerSumEt)/pt<0.1')
 WprimeEle115.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Ele115_CaloIdVT_GsfTrkIdT_v*')
 WprimeEle115.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu27_v*',
                                                                'HLT_Mu50_v*',
