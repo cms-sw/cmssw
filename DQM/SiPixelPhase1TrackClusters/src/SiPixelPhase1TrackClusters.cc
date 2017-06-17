@@ -57,7 +57,7 @@ enum {  // copy paste from cfy: the only safe way to doit....
   SiPixelPhase1TrackClustersOnTrackSizeXYOuter,
   SiPixelPhase1TrackClustersOnTrackSizeXYInner,
 
-  SiPixelPhase1ClustersSizeVsEta,
+  SiPixelPhase1ClustersSizeVsEtaOnTrack,
 
 
   SiPixelPhase1TrackClustersEnumSize
@@ -203,7 +203,7 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
       histo[SiPixelPhase1TrackClustersOnTrackPositionB].fill(clustgp.z(),   clustgp.phi(),   id, &iEvent);
       histo[SiPixelPhase1TrackClustersOnTrackPositionF].fill(clustgp.x(),   clustgp.y(),     id, &iEvent);
 
-      histo[SiPixelPhase1ClustersSizeVsEta].fill(etatk, cluster.sizeY(), id, &iEvent);
+      histo[SiPixelPhase1ClustersSizeVsEtaOnTrack].fill(etatk, cluster.sizeY(), id, &iEvent);
 
       if(tkTpl.pxbLadder(id)%2==1) {
         histo[SiPixelPhase1ClustersSizeVsEtaOnTrackOuter].fill(etatk, cluster.sizeY(), id, &iEvent);

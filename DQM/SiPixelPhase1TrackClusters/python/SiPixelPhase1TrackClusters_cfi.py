@@ -312,8 +312,8 @@ SiPixelPhase1TrackClustersOnTrackShapeInner = SiPixelPhase1TrackClustersOnTrackS
 )
 
 
-SiPixelPhase1ClustersSizeVsEta = DefaultHistoTrack.clone(
-  name = "sizeyvseta",
+SiPixelPhase1ClustersSizeVsEtaOnTrack = DefaultHistoTrack.clone(
+  name = "sizeyvseta_on_track",
   title = "Cluster Size along Beamline vs. Cluster position #eta (OnTrack)",
   xlabel = "Cluster #eta",
   ylabel = "length [pixels]",
@@ -354,7 +354,8 @@ SiPixelPhase1TrackClustersConf = cms.VPSet(
   SiPixelPhase1TrackClustersOnTrackSizeXYOuter,
   SiPixelPhase1TrackClustersOnTrackSizeXYInner,
 
-  SiPixelPhase1ClustersSizeVsEta
+  SiPixelPhase1ClustersSizeVsEtaOnTrack
+)
 
 )
 
