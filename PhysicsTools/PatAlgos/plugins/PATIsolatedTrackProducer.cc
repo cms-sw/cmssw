@@ -273,15 +273,15 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
 
         // if no dEdx info exists, just store -1
         float dEdxPixel=-1, dEdxStrip=-1;        
-        if(usePrecomputedDeDxStrip_ && gt2dedxStrip.isValid()){
+        if(usePrecomputedDeDxStrip_ && gt2dedxStrip.isValid() && gt2dedxStrip->contains(tkref.id())){
             dEdxStrip = (*gt2dedxStrip)[tkref].dEdx();
-        }else if(gt2dedxHitInfo.isValid()){
+        }else if(gt2dedxHitInfo.isValid() && gt2dedxHitInfo->contains(tkref.id())){
             const reco::DeDxHitInfo* hitInfo = (*gt2dedxHitInfo)[tkref].get();
             dEdxStrip = getDeDx(hitInfo, false, true);
         }
-        if(usePrecomputedDeDxPixel_ && gt2dedxPixel.isValid()){
+        if(usePrecomputedDeDxPixel_ && gt2dedxPixel.isValid() && gt2dedxPixel->contains(tkref.id())){
             dEdxPixel = (*gt2dedxPixel)[tkref].dEdx();
-        }else if(gt2dedxHitInfo.isValid()){
+        }else if(gt2dedxHitInfo.isValid() && gt2dedxHitInfo->contains(tkref.id())){
             const reco::DeDxHitInfo* hitInfo = (*gt2dedxHitInfo)[tkref].get();
             dEdxPixel = getDeDx(hitInfo, true, false);
         }
