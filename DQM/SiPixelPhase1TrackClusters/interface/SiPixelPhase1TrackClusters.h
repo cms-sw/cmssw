@@ -29,7 +29,7 @@ class SiPixelPhase1TrackClusters : public SiPixelPhase1Base {
 
     NTRACKS,
     NTRACKS_VOLUME,
-    SIZE_VS_ETA,
+    ONTRACK_SIZE_VS_ETA
 
   };
 
