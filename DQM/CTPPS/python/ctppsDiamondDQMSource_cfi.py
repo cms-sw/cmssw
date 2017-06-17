@@ -12,11 +12,11 @@ ctppsDiamondDQMSource = cms.EDAnalyzer("CTPPSDiamondDQMSource",
     minimumStripAngleForTomography = cms.double(0),
     maximumStripAngleForTomography = cms.double(1),
 
-    offsetsOOT = cms.VPSet(
+    offsetsOOT = cms.VPSet( # cut on the OOT bin for physics hits
         # 2016, after TS2
         cms.PSet(
             validityRange = cms.EventRange("1:min - 292520:max"),
-            centralOOT = cms.int32(-999), # no cut on OOT index
+            centralOOT = cms.int32(1),
         ),
         # 2017
         cms.PSet(
