@@ -11,7 +11,7 @@ hltRazorMonitoring.jets      = cms.InputTag("pfJetsEI") # ak4PFJets, ak4PFJetsCH
 hltRazorMonitoring.numGenericTriggerEventPSet.andOr         = cms.bool( False )
 hltRazorMonitoring.numGenericTriggerEventPSet.andOrHlt      = cms.bool(True) # True:=OR; False:=AND
 hltRazorMonitoring.numGenericTriggerEventPSet.hltInputTag   = cms.InputTag( "TriggerResults::HLT" )
-hltRazorMonitoring.numGenericTriggerEventPSet.hltPaths      = cms.vstring("HLT_RsqMR270_Rsq0p09_MR200_v*") 
+hltRazorMonitoring.numGenericTriggerEventPSet.hltPaths      = cms.vstring("HLT_RsqMR300_Rsq0p09_MR200_v*") 
 hltRazorMonitoring.numGenericTriggerEventPSet.errorReplyHlt = cms.bool( False )
 hltRazorMonitoring.numGenericTriggerEventPSet.verbosityLevel = cms.uint32(1)
 
