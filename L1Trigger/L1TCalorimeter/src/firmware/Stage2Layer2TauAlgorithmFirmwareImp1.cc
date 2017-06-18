@@ -69,14 +69,14 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
 
             // get list of neighbor seeds and determine the highest E one
             std::vector<l1t::CaloTower> satellites;
-            const l1t::CaloTower& towerN2  = l1t::CaloTools::getTower(towers, CaloTools::caloEta(iEta),  iPhiM2);
-            const l1t::CaloTower& towerN3  = l1t::CaloTools::getTower(towers, CaloTools::caloEta(iEta),  iPhiM3);
-            const l1t::CaloTower& towerN2W = l1t::CaloTools::getTower(towers, CaloTools::caloEta(iEtaM), iPhiM2);
-            const l1t::CaloTower& towerN2E = l1t::CaloTools::getTower(towers, CaloTools::caloEta(iEtaP), iPhiM2);
-            const l1t::CaloTower& towerS2  = l1t::CaloTools::getTower(towers, CaloTools::caloEta(iEta),  iPhiP2);
-            const l1t::CaloTower& towerS3  = l1t::CaloTools::getTower(towers, CaloTools::caloEta(iEta),  iPhiP3);
-            const l1t::CaloTower& towerS2W = l1t::CaloTools::getTower(towers, CaloTools::caloEta(iEtaM), iPhiP2);
-            const l1t::CaloTower& towerS2E = l1t::CaloTools::getTower(towers, CaloTools::caloEta(iEtaP), iPhiP2);
+            const l1t::CaloTower& towerN2  = l1t::CaloTools::getTower(towers, iEta,  iPhiM2);
+            const l1t::CaloTower& towerN3  = l1t::CaloTools::getTower(towers, iEta,  iPhiM3);
+            const l1t::CaloTower& towerN2W = l1t::CaloTools::getTower(towers, iEtaM, iPhiM2);
+            const l1t::CaloTower& towerN2E = l1t::CaloTools::getTower(towers, iEtaP, iPhiM2);
+            const l1t::CaloTower& towerS2  = l1t::CaloTools::getTower(towers, iEta,  iPhiP2);
+            const l1t::CaloTower& towerS3  = l1t::CaloTools::getTower(towers, iEta,  iPhiP3);
+            const l1t::CaloTower& towerS2W = l1t::CaloTools::getTower(towers, iEtaM, iPhiP2);
+            const l1t::CaloTower& towerS2E = l1t::CaloTools::getTower(towers, iEtaP, iPhiP2);
 
             int seedThreshold    = floor(params_->egSeedThreshold()/params_->towerLsbSum()); 
             //int clusterThreshold = floor(params_->egNeighbourThreshold()/params_->towerLsbSum());
@@ -332,7 +332,7 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
                 int iSecEta = caloNav.offsetIEta (mainCluster.hwEta(), neigEta[secondaryClusterSite]);
                 int iSecPhi = caloNav.offsetIPhi (mainCluster.hwPhi(), neigPhi[secondaryClusterSite]);
         
-                const l1t::CaloTower& towerSec = l1t::CaloTools::getTower(towers, CaloTools::caloEta(iSecEta), iSecPhi);
+                const l1t::CaloTower& towerSec = l1t::CaloTools::getTower(towers, iSecEta, iSecPhi);
 
                 secondaryCluster->setHwPt(towerSec.hwPt());
                 secondaryCluster->setHwPtEm(towerSec.hwEtEm());
@@ -345,16 +345,16 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
                 int iSecPhiP2 = caloNav.offsetIPhi(iSecPhi,  2);
                 int iSecPhiM  = caloNav.offsetIPhi(iSecPhi, -1);
                 int iSecPhiM2 = caloNav.offsetIPhi(iSecPhi, -2);
-                const l1t::CaloTower& towerNW = l1t::CaloTools::getTower(towers, CaloTools::caloEta(iSecEtaM), iSecPhiM);
-                const l1t::CaloTower& towerN  = l1t::CaloTools::getTower(towers, CaloTools::caloEta(iSecEta) , iSecPhiM);
-                const l1t::CaloTower& towerNE = l1t::CaloTools::getTower(towers, CaloTools::caloEta(iSecEtaP), iSecPhiM);
-                const l1t::CaloTower& towerE  = l1t::CaloTools::getTower(towers, CaloTools::caloEta(iSecEtaP), iSecPhi );
-                const l1t::CaloTower& towerSE = l1t::CaloTools::getTower(towers, CaloTools::caloEta(iSecEtaP), iSecPhiP);
-                const l1t::CaloTower& towerS  = l1t::CaloTools::getTower(towers, CaloTools::caloEta(iSecEta) , iSecPhiP);
-                const l1t::CaloTower& towerSW = l1t::CaloTools::getTower(towers, CaloTools::caloEta(iSecEtaM), iSecPhiP);
-                const l1t::CaloTower& towerW  = l1t::CaloTools::getTower(towers, CaloTools::caloEta(iSecEtaM), iSecPhi ); 
-                const l1t::CaloTower& towerNN = l1t::CaloTools::getTower(towers, CaloTools::caloEta(iSecEta) , iSecPhiM2);
-                const l1t::CaloTower& towerSS = l1t::CaloTools::getTower(towers, CaloTools::caloEta(iSecEta) , iSecPhiP2);
+                const l1t::CaloTower& towerNW = l1t::CaloTools::getTower(towers, iSecEtaM, iSecPhiM);
+                const l1t::CaloTower& towerN  = l1t::CaloTools::getTower(towers, iSecEta , iSecPhiM);
+                const l1t::CaloTower& towerNE = l1t::CaloTools::getTower(towers, iSecEtaP, iSecPhiM);
+                const l1t::CaloTower& towerE  = l1t::CaloTools::getTower(towers, iSecEtaP, iSecPhi );
+                const l1t::CaloTower& towerSE = l1t::CaloTools::getTower(towers, iSecEtaP, iSecPhiP);
+                const l1t::CaloTower& towerS  = l1t::CaloTools::getTower(towers, iSecEta , iSecPhiP);
+                const l1t::CaloTower& towerSW = l1t::CaloTools::getTower(towers, iSecEtaM, iSecPhiP);
+                const l1t::CaloTower& towerW  = l1t::CaloTools::getTower(towers, iSecEtaM, iSecPhi ); 
+                const l1t::CaloTower& towerNN = l1t::CaloTools::getTower(towers, iSecEta , iSecPhiM2);
+                const l1t::CaloTower& towerSS = l1t::CaloTools::getTower(towers, iSecEta , iSecPhiP2);
 
                 // just use E+H for clustering
                 int towerEtNW = towerNW.hwPt();
@@ -641,7 +641,7 @@ bool l1t::Stage2Layer2TauAlgorithmFirmwareImp1::is3x3Maximum (const l1t::CaloTow
         {
             int iEtaNeigh = caloNav.offsetIEta(iEta,  deta);
             int iPhiNeigh = caloNav.offsetIPhi(iPhi,  dphi);
-            const l1t::CaloTower& towerNeigh = l1t::CaloTools::getTower(towers, CaloTools::caloEta(iEtaNeigh), iPhiNeigh);
+            const l1t::CaloTower& towerNeigh = l1t::CaloTools::getTower(towers, iEtaNeigh, iPhiNeigh);
             if ( mask[2-(dphi+1)][deta +1] == 0 ) continue;
             if ( mask[2-(dphi+1)][deta +1] == 1 ) vetoTT = (tower.hwPt() <  towerNeigh.hwPt());
             if ( mask[2-(dphi+1)][deta +1] == 2 ) vetoTT = (tower.hwPt() <= towerNeigh.hwPt());
@@ -671,7 +671,7 @@ std::vector<l1t::CaloCluster*> l1t::Stage2Layer2TauAlgorithmFirmwareImp1::makeSe
         int iSecEta = caloNav.offsetIEta(iEtamain, neigEta[siteNumber]);
         int iSecPhi = caloNav.offsetIPhi(iPhimain, neigPhi[siteNumber]);
         
-        const l1t::CaloTower& towerSec = l1t::CaloTools::getTower(towers, CaloTools::caloEta(iSecEta), iSecPhi);
+        const l1t::CaloTower& towerSec = l1t::CaloTools::getTower(towers, iSecEta, iSecPhi);
         
         math::XYZTLorentzVector emptyP4;
         l1t::CaloCluster* secondaryCluster = new l1t::CaloCluster ( emptyP4, towerSec.hwPt(), towerSec.hwEta(), towerSec.hwPhi() ) ;
@@ -687,16 +687,16 @@ std::vector<l1t::CaloCluster*> l1t::Stage2Layer2TauAlgorithmFirmwareImp1::makeSe
         int iSecPhiP2 = caloNav.offsetIPhi(iSecPhi,  2);
         int iSecPhiM  = caloNav.offsetIPhi(iSecPhi, -1);
         int iSecPhiM2 = caloNav.offsetIPhi(iSecPhi, -2);
-        const l1t::CaloTower& towerNW = l1t::CaloTools::getTower(towers, CaloTools::caloEta(iSecEtaM), iSecPhiM);
-        const l1t::CaloTower& towerN  = l1t::CaloTools::getTower(towers, CaloTools::caloEta(iSecEta) , iSecPhiM);
-        const l1t::CaloTower& towerNE = l1t::CaloTools::getTower(towers, CaloTools::caloEta(iSecEtaP), iSecPhiM);
-        const l1t::CaloTower& towerE  = l1t::CaloTools::getTower(towers, CaloTools::caloEta(iSecEtaP), iSecPhi );
-        const l1t::CaloTower& towerSE = l1t::CaloTools::getTower(towers, CaloTools::caloEta(iSecEtaP), iSecPhiP);
-        const l1t::CaloTower& towerS  = l1t::CaloTools::getTower(towers, CaloTools::caloEta(iSecEta) , iSecPhiP);
-        const l1t::CaloTower& towerSW = l1t::CaloTools::getTower(towers, CaloTools::caloEta(iSecEtaM), iSecPhiP);
-        const l1t::CaloTower& towerW  = l1t::CaloTools::getTower(towers, CaloTools::caloEta(iSecEtaM), iSecPhi ); 
-        const l1t::CaloTower& towerNN = l1t::CaloTools::getTower(towers, CaloTools::caloEta(iSecEta) , iSecPhiM2);
-        const l1t::CaloTower& towerSS = l1t::CaloTools::getTower(towers, CaloTools::caloEta(iSecEta) , iSecPhiP2);
+        const l1t::CaloTower& towerNW = l1t::CaloTools::getTower(towers, iSecEtaM, iSecPhiM);
+        const l1t::CaloTower& towerN  = l1t::CaloTools::getTower(towers, iSecEta , iSecPhiM);
+        const l1t::CaloTower& towerNE = l1t::CaloTools::getTower(towers, iSecEtaP, iSecPhiM);
+        const l1t::CaloTower& towerE  = l1t::CaloTools::getTower(towers, iSecEtaP, iSecPhi );
+        const l1t::CaloTower& towerSE = l1t::CaloTools::getTower(towers, iSecEtaP, iSecPhiP);
+        const l1t::CaloTower& towerS  = l1t::CaloTools::getTower(towers, iSecEta , iSecPhiP);
+        const l1t::CaloTower& towerSW = l1t::CaloTools::getTower(towers, iSecEtaM, iSecPhiP);
+        const l1t::CaloTower& towerW  = l1t::CaloTools::getTower(towers, iSecEtaM, iSecPhi ); 
+        const l1t::CaloTower& towerNN = l1t::CaloTools::getTower(towers, iSecEta , iSecPhiM2);
+        const l1t::CaloTower& towerSS = l1t::CaloTools::getTower(towers, iSecEta , iSecPhiP2);
 
         // just use E+H for clustering
         int towerEtNW = towerNW.hwPt();
