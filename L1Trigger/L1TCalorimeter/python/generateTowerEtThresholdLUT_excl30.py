@@ -26,8 +26,8 @@ if not os.path.isdir(os.environ['LOCALRT'] + "/src/L1Trigger/L1TCalorimeter/data
           "Remember to do 'git add " + os.environ['LOCALRT'] + "L1Trigger/L1TCalorimeter/data' when committing the new LUT!")
     os.makedirs(os.environ['LOCALRT'] + "/src/L1Trigger/L1TCalorimeter/data")
 
-print "Creating tower Et threshold LUT with filename " + os.environ['LOCALRT'] + "/src/L1Trigger/L1TCalorimeter/data/lut_towEtThresh_2017v4.txt'"
-towEtThreshLUTFile = open(os.environ['LOCALRT']+"/src/L1Trigger/L1TCalorimeter/data/lut_towEtThresh_2017v4.txt", "w")
+print "Creating tower Et threshold LUT with filename " + os.environ['LOCALRT'] + "/src/L1Trigger/L1TCalorimeter/data/lut_towEtThresh_2017v4_excl30.txt'"
+towEtThreshLUTFile = open(os.environ['LOCALRT']+"/src/L1Trigger/L1TCalorimeter/data/lut_towEtThresh_2017v4_excl30.txt", "w")
 
 
 # write header info
@@ -65,6 +65,8 @@ for compNTT4 in compNTT4Range:
             towEtThresh = int(16)
         if ieta < 13 or towEtThresh < 0:
             towEtThresh = 0
+        if ieta == 29:
+            towEtThresh = 511
         if (addr % 64) == 0:
             printBins = "             # nTT4 = " + str(5*compNTT4) + "-" + str((5*compNTT4)+5) + " ieta = " + str(ieta)  
         else:
