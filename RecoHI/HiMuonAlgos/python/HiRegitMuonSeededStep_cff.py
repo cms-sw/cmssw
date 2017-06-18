@@ -69,7 +69,7 @@ import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 import RecoHI.HiTracking.hiMultiTrackSelector_cfi
 hiRegitMuonSeededTracksInOutSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiTrackSelector.clone(
       src='hiRegitMuonSeededTracksInOut',
-      vertices            = cms.InputTag("hiSelectedVertex"),
+      vertices            = cms.InputTag("hiSelectedPixelVertex"),
       useAnyMVA = cms.bool(True),
       GBRForestLabel = cms.string('HIMVASelectorIter7'),
       GBRForestVars = cms.vstring(['chi2perdofperlayer', 'nhits', 'nlayers', 'eta']),
@@ -120,7 +120,7 @@ trackingPhase1.toModify(hiRegitMuonSeededTracksInOutSelector, trackSelectors= cm
 
 hiRegitMuonSeededTracksOutInSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiTrackSelector.clone(
       src='hiRegitMuonSeededTracksOutIn',
-      vertices            = cms.InputTag("hiSelectedVertex"),
+      vertices            = cms.InputTag("hiSelectedPixelVertex"),
       useAnyMVA = cms.bool(True),
       GBRForestLabel = cms.string('HIMVASelectorIter7'),
       GBRForestVars = cms.vstring(['chi2perdofperlayer', 'nhits', 'nlayers', 'eta']),
