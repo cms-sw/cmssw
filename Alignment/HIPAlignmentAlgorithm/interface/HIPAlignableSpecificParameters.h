@@ -12,10 +12,16 @@ protected:
 
 public:
   // These are the actual parameters
-  int minNHits;
   double minRelParError;
   double maxRelParError;
+  int minNHits;
   double maxHitPull;
+  bool applyPixelProbCut;
+  bool usePixelProbXYOrProbQ;
+  double minPixelProbXY;
+  double maxPixelProbXY;
+  double minPixelProbQ;
+  double maxPixelProbQ;
 
   HIPAlignableSpecificParameters(const Alignable* aliObj_, bool defaultFlag_=false);
   HIPAlignableSpecificParameters(const HIPAlignableSpecificParameters& other);

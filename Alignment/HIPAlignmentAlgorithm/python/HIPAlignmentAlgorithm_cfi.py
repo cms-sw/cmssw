@@ -26,10 +26,18 @@ HIPAlignmentAlgorithm = cms.PSet(
                     "AllAlignables,000000" # Obligatory second string
                 ) # can use "selected" for the already-specified alignables
             ),
+            # Parameter cuts
             minRelParError = cms.double(0),
             maxRelParError = cms.double(-1), # -1 for no cut
-            maxHitPull = cms.double(-1), # -1 for no cut
+            # Hit cuts
             minNHits = cms.int32(0),
+            maxHitPull = cms.double(-1), # -1 for no cut
+            applyPixelProbCut = cms.bool(False),
+            usePixelProbXYOrProbQ = cms.bool(False), # Uses or instead of and when applying the min-max cuts
+            minPixelProbXY = cms.double(0),
+            maxPixelProbXY = cms.double(1),
+            minPixelProbQ = cms.double(0),
+            maxPixelProbQ = cms.double(1),
         )
     ),
 

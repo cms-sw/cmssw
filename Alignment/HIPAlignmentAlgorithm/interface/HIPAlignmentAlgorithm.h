@@ -56,7 +56,8 @@ private:
   bool processHit1D(
     const AlignableDetOrUnitPtr& alidet,
     const Alignable* ali,
-    const TrajectoryStateOnSurface & tsos,
+    const HIPAlignableSpecificParameters* alispecifics,
+    const TrajectoryStateOnSurface& tsos,
     const TrackingRecHit* hit,
     double hitwt
     );
@@ -64,7 +65,8 @@ private:
   bool processHit2D(
     const AlignableDetOrUnitPtr& alidet,
     const Alignable* ali,
-    const TrajectoryStateOnSurface & tsos,
+    const HIPAlignableSpecificParameters* alispecifics,
+    const TrajectoryStateOnSurface& tsos,
     const TrackingRecHit* hit,
     double hitwt
     );
@@ -148,7 +150,9 @@ private:
   std::vector<float> m_Pt, m_Eta, m_Phi, m_Chi2n, m_P, m_d0, m_dz, m_wt;
 
   // variables for hit-wise tree
-  float m_sinTheta, m_hitwt, m_angle;
+  bool m_hasHitProb;
+  float m_sinTheta, m_hitwt, m_angle, m_probXY, m_probQ;
+  unsigned int m_rawQualityWord;
   align::ID m_detId;
 
   // variables for alignable-wise tree

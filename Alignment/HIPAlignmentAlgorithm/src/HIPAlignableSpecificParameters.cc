@@ -4,17 +4,31 @@
 HIPAlignableSpecificParameters::HIPAlignableSpecificParameters(const Alignable* aliObj_, bool defaultFlag_) :
 aliObj(aliObj_),
 defaultFlag(defaultFlag_),
-minNHits(0),
+minRelParError(0),
 maxRelParError(-1),
-maxHitPull(-1)
+minNHits(0),
+maxHitPull(-1),
+applyPixelProbCut(false),
+usePixelProbXYOrProbQ(false),
+minPixelProbXY(0),
+maxPixelProbXY(1),
+minPixelProbQ(0),
+maxPixelProbQ(1)
 {}
 
 HIPAlignableSpecificParameters::HIPAlignableSpecificParameters(const HIPAlignableSpecificParameters& other) :
 aliObj(other.aliObj),
 defaultFlag(other.defaultFlag),
-minNHits(other.minNHits),
+minRelParError(other.minRelParError),
 maxRelParError(other.maxRelParError),
-maxHitPull(other.maxHitPull)
+minNHits(other.minNHits),
+maxHitPull(other.maxHitPull),
+applyPixelProbCut(other.applyPixelProbCut),
+usePixelProbXYOrProbQ(other.usePixelProbXYOrProbQ),
+minPixelProbXY(other.minPixelProbXY),
+maxPixelProbXY(other.maxPixelProbXY),
+minPixelProbQ(other.minPixelProbQ),
+maxPixelProbQ(other.maxPixelProbQ)
 {}
 
 align::ID HIPAlignableSpecificParameters::id()const{ if (aliObj!=0) return aliObj->id(); else return 0; }
