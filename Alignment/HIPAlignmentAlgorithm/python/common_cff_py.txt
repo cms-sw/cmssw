@@ -275,22 +275,40 @@ process.AlignmentProducer.algoConfig.cutsPerComponent = cms.VPSet(
         Selector = process.AlignmentProducer.ParameterBuilder.SelectorRigid,
         minRelParError = cms.double(0),
         maxRelParError = cms.double(-1), # -1 for no cut
-        maxHitPull = cms.double(-1), # -1 for no cut
         minNHits = cms.int32(30),
+        maxHitPull = cms.double(-1), # -1 for no cut
+        applyPixelProbCut = cms.bool(False),
+        usePixelProbXYOrProbQ = cms.bool(False),
+        minPixelProbXY = cms.double(0),
+        maxPixelProbXY = cms.double(1),
+        minPixelProbQ = cms.double(0),
+        maxPixelProbQ = cms.double(1),
     ),
     cms.PSet(
         Selector = process.AlignmentProducer.ParameterBuilder.SelectorBowed,
         minRelParError = cms.double(0),
         maxRelParError = cms.double(-1), # -1 for no cut
-        maxHitPull = cms.double(-1), # -1 for no cut
         minNHits = cms.int32(30),
+        maxHitPull = cms.double(-1), # -1 for no cut
+        applyPixelProbCut = cms.bool(False),
+        usePixelProbXYOrProbQ = cms.bool(False),
+        minPixelProbXY = cms.double(0),
+        maxPixelProbXY = cms.double(1),
+        minPixelProbQ = cms.double(0),
+        maxPixelProbQ = cms.double(1),
     ),
     cms.PSet(
         Selector = process.AlignmentProducer.ParameterBuilder.SelectorTwoBowed,
         minRelParError = cms.double(0),
         maxRelParError = cms.double(-1), # -1 for no cut
-        maxHitPull = cms.double(-1), # -1 for no cut
         minNHits = cms.int32(30),
+        maxHitPull = cms.double(-1), # -1 for no cut
+        applyPixelProbCut = cms.bool(False),
+        usePixelProbXYOrProbQ = cms.bool(False),
+        minPixelProbXY = cms.double(0),
+        maxPixelProbXY = cms.double(1),
+        minPixelProbQ = cms.double(0),
+        maxPixelProbQ = cms.double(1),
     ),
 )
 

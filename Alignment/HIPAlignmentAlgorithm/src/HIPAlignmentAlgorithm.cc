@@ -187,7 +187,7 @@ void HIPAlignmentAlgorithm::initialize(
         selector.clear();
         edm::ParameterSet selectorPSet = setiter->getParameter<edm::ParameterSet>("Selector");
         std::vector<std::string> alignParams = selectorPSet.getParameter<std::vector<std::string> >("alignParams");
-        if (alignParams.size() == 1  &&  alignParams[0] == std::string("selected")) alignables = theAlignables;
+        if (alignParams.size()==1 && alignParams[0] == std::string("selected")) alignables = theAlignables;
         else{
           selector.addSelections(selectorPSet);
           alignables = selector.selectedAlignables();
@@ -197,7 +197,7 @@ void HIPAlignmentAlgorithm::initialize(
         std::vector<double> apeRPar = setiter->getParameter<std::vector<double> >("apeRPar");
         std::string function = setiter->getParameter<std::string>("function");
 
-        if (apeSPar.size() != 3  ||  apeRPar.size() != 3)
+        if (apeSPar.size()!=3 || apeRPar.size()!=3)
           throw cms::Exception("BadConfig")
           << "apeSPar and apeRPar must have 3 values each"
           << std::endl;
@@ -222,7 +222,7 @@ void HIPAlignmentAlgorithm::initialize(
         selector.clear();
         edm::ParameterSet selectorPSet = setiter->getParameter<edm::ParameterSet>("Selector");
         std::vector<std::string> alignParams = selectorPSet.getParameter<std::vector<std::string> >("alignParams");
-        if (alignParams.size() == 1  &&  alignParams[0] == std::string("selected")) alignables = theAlignables;
+        if (alignParams.size()==1 && alignParams[0] == std::string("selected")) alignables = theAlignables;
         else{
           selector.addSelections(selectorPSet);
           alignables = selector.selectedAlignables();
@@ -230,14 +230,27 @@ void HIPAlignmentAlgorithm::initialize(
 
         double minRelParError = setiter->getParameter<double>("minRelParError");
         double maxRelParError = setiter->getParameter<double>("maxRelParError");
-        double maxHitPull = setiter->getParameter<double>("maxHitPull");
         int minNHits = setiter->getParameter<int>("minNHits");
+        double maxHitPull = setiter->getParameter<double>("maxHitPull");
+        bool applyPixelProbCut = setiter->getParameter<bool>("applyPixelProbCut");
+        bool usePixelProbXYOrProbQ = setiter->getParameter<bool>("usePixelProbXYOrProbQ");
+        double minPixelProbXY = setiter->getParameter<double>("minPixelProbXY");
+        double maxPixelProbXY = setiter->getParameter<double>("maxPixelProbXY");
+        double minPixelProbQ = setiter->getParameter<double>("minPixelProbQ");
+        double maxPixelProbQ = setiter->getParameter<double>("maxPixelProbQ");
         for (auto& ali : alignables){
           HIPAlignableSpecificParameters alispecs(ali);
           alispecs.minRelParError = minRelParError;
           alispecs.maxRelParError = maxRelParError;
-          alispecs.maxHitPull = maxHitPull;
           alispecs.minNHits = minNHits;
+          alispecs.maxHitPull = maxHitPull;
+
+          alispecs.applyPixelProbCut = applyPixelProbCut;
+          alispecs.usePixelProbXYOrProbQ = usePixelProbXYOrProbQ;
+          alispecs.minPixelProbXY = minPixelProbXY;
+          alispecs.maxPixelProbXY = maxPixelProbXY;
+          alispecs.minPixelProbQ = minPixelProbQ;
+          alispecs.maxPixelProbQ = maxPixelProbQ;
 
           theAlignableSpecifics.push_back(alispecs);
           edm::LogInfo("Alignment")
@@ -246,8 +259,15 @@ void HIPAlignmentAlgorithm::initialize(
             << ":\n"
             << " - minRelParError = " << alispecs.minRelParError << "\n"
             << " - maxRelParError = " << alispecs.maxRelParError << "\n"
+            << " - minNHits = " << alispecs.minNHits << "\n"
             << " - maxHitPull = " << alispecs.maxHitPull << "\n"
-            << " - minNHits = " << alispecs.minNHits;
+            << " - applyPixelProbCut = " << alispecs.applyPixelProbCut << "\n"
+            << " - usePixelProbXYOrProbQ = " << alispecs.usePixelProbXYOrProbQ << "\n"
+            << " - minPixelProbXY = " << alispecs.minPixelProbXY << "\n"
+            << " - maxPixelProbXY = " << alispecs.maxPixelProbXY << "\n"
+            << " - minPixelProbQ = " << alispecs.minPixelProbQ << "\n"
+            << " - maxPixelProbQ = " << alispecs.maxPixelProbQ
+            ;
         }
       }
     }
@@ -465,7 +485,8 @@ void HIPAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup){
 bool HIPAlignmentAlgorithm::processHit1D(
   const AlignableDetOrUnitPtr& alidet,
   const Alignable* ali,
-  const TrajectoryStateOnSurface & tsos,
+  const HIPAlignableSpecificParameters* alispecifics,
+  const TrajectoryStateOnSurface& tsos,
   const TransientTrackingRecHit* hit,
   double hitwt
   ){
@@ -496,7 +517,6 @@ bool HIPAlignmentAlgorithm::processHit1D(
 
   // get Alignment Parameters
   AlignmentParameters* params = ali->alignmentParameters();
-  const HIPAlignableSpecificParameters* alispecifics = findAlignableSpecs(ali);
   // get derivatives
   AlgebraicMatrix derivs2D = params->selectedDerivatives(tsos, alidet);
   // calculate user parameters
@@ -565,7 +585,8 @@ bool HIPAlignmentAlgorithm::processHit1D(
 bool HIPAlignmentAlgorithm::processHit2D(
   const AlignableDetOrUnitPtr& alidet,
   const Alignable* ali,
-  const TrajectoryStateOnSurface & tsos,
+  const HIPAlignableSpecificParameters* alispecifics,
+  const TrajectoryStateOnSurface& tsos,
   const TransientTrackingRecHit* hit,
   double hitwt
   ){
@@ -604,7 +625,6 @@ bool HIPAlignmentAlgorithm::processHit2D(
 
   // get Alignment Parameters
   AlignmentParameters* params = ali->alignmentParameters();
-  const HIPAlignableSpecificParameters* alispecifics = findAlignableSpecs(ali);
   // get derivatives
   AlgebraicMatrix derivs2D = params->selectedDerivatives(tsos, alidet);
   // calculate user parameters
@@ -819,13 +839,10 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
             else edm::LogError("HIPAlignmentAlgorithm")
               << "ERROR in <HIPAlignmentAlgorithm::run>: Dynamic cast of Pixel RecHit failed! "
               << "TypeId of the TTRH: " << className(*hit);
-          } //end 'else' it is a pixel hit 	 
-          // bool hitTaken=myflag.isTaken(); 	 
-          if (!myflag.isTaken()){
-            continue;
-          }
-        }//end if Prescaled Hits 	 
-        //////////////////////////////// 	 
+          } //end 'else' it is a pixel hit
+          if (!myflag.isTaken()) continue;
+        }//end if Prescaled Hits
+        ////////////////////////////////
 
         TrajectoryStateOnSurface tsos = tsoscomb.combine(
           meas.forwardPredictedState(),
@@ -833,7 +850,6 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
           );
 
         if (tsos.isValid()){
-          // hitvec.push_back(ttrhit);
           hitvec.push_back(hit);
           tsosvec.push_back(tsos);
         }
@@ -842,7 +858,7 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
     }
 
     // transform RecHit vector to AlignableDet vector
-    std::vector <AlignableDetOrUnitPtr> alidetvec = theAlignableDetAccessor->alignablesFromHits(hitvec);
+    std::vector<AlignableDetOrUnitPtr> alidetvec = theAlignableDetAccessor->alignablesFromHits(hitvec);
 
     // get concatenated alignment parameters for list of alignables
     CompositeAlignmentParameters aap = theAlignmentParameterStore->selectParameters(alidetvec);
@@ -852,7 +868,6 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
 
     // loop over vectors(hit,tsos)
     while (itsos != tsosvec.end()){
-
       // get AlignableDet for this hit
       const GeomDet* det = (*ihit)->det();
       // int subDet= (*ihit)->geographicalId().subdetId();
@@ -864,7 +879,8 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
       Alignable* ali = aap.alignableFromAlignableDet(alidet);
 
       if (ali!=0){
-        const TrajectoryStateOnSurface & tsos=*itsos;
+        const HIPAlignableSpecificParameters* alispecifics = findAlignableSpecs(ali);
+        const TrajectoryStateOnSurface& tsos = *itsos;
 
         //  LocalVector v = tsos.localDirection();
         //  double proj_z = v.dot(LocalVector(0,0,1));
@@ -882,17 +898,42 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
         m_angle = angle;
         m_sinTheta = sin_theta;
         m_detId = ali->id();
+
+        // Check pixel XY and Q probabilities
+        m_hasHitProb = false;
+        m_probXY=-1;
+        m_probQ=-1;
+        m_rawQualityWord=9999;
+        if ((*ihit)->hit()!=0){
+          const SiPixelRecHit* pixhit = dynamic_cast<const SiPixelRecHit*>((*ihit)->hit());
+          if (pixhit!=0){
+            m_hasHitProb = pixhit->hasFilledProb();
+            if (m_hasHitProb){
+              // Prob X, Y are deprecated
+              m_probXY=pixhit->probabilityXY();
+              m_probQ=pixhit->probabilityQ();
+              m_rawQualityWord=pixhit->rawQualityWord();
+              if (alispecifics->applyPixelProbCut){
+                bool probXYgood = (m_probXY>=alispecifics->minPixelProbXY && m_probXY<=alispecifics->maxPixelProbXY);
+                bool probQgood = (m_probQ>=alispecifics->minPixelProbQ && m_probQ<=alispecifics->maxPixelProbQ);
+                bool probXYQgood;
+                if (alispecifics->usePixelProbXYOrProbQ) probXYQgood = (probXYgood || probQgood);
+                else probXYQgood = (probXYgood && probQgood);
+                if (!probXYQgood) ihitwt=0;
+              }
+            }
+          }
+        }
+
         m_hitwt = ihitwt;
-
-        if (theMonitorConfig.fillTrackHitMonitoring && theMonitorConfig.checkNhits() && hitTree!=0) hitTree->Fill();
-
         if (ihitwt!=0.){
+          if (theMonitorConfig.fillTrackHitMonitoring && theMonitorConfig.checkNhits() && theHitMonitorTree!=0) theHitMonitorTree->Fill();
           switch (nhitDim){
           case 1:
-            processHit1D(alidet, ali, *itsos, *ihit, ihitwt);
+            processHit1D(alidet, ali, alispecifics, tsos, *ihit, ihitwt);
             break;
           case 2:
-            processHit2D(alidet, ali, *itsos, *ihit, ihitwt);
+            processHit2D(alidet, ali, alispecifics, tsos, *ihit, ihitwt);
             break;
           default:
             edm::LogError("HIPAlignmentAlgorithm")
@@ -1039,11 +1080,15 @@ void HIPAlignmentAlgorithm::bookRoot(void){
     // book hit-wise ROOT Tree
     if (theMonitorConfig.fillTrackHitMonitoring){
       TString tname_hit=Form("T1_hit_%i", theIteration);
-      hitTree = new TTree(tname_hit, "Hitwise tree");
-      hitTree->Branch("Id", &m_detId, "Id/i");
-      hitTree->Branch("sinTheta", &m_sinTheta, "sinTheta/F");
-      hitTree->Branch("hitImpactAngle", &m_angle, "hitImpactAngle/F");
-      hitTree->Branch("wt", &m_hitwt, "wt/F");
+      theHitMonitorTree = new TTree(tname_hit, "Hitwise tree");
+      theHitMonitorTree->Branch("Id", &m_detId, "Id/i");
+      theHitMonitorTree->Branch("sinTheta", &m_sinTheta);
+      theHitMonitorTree->Branch("impactAngle", &m_angle);
+      theHitMonitorTree->Branch("wt", &m_hitwt);
+      theHitMonitorTree->Branch("probPresent", &m_hasHitProb);
+      theHitMonitorTree->Branch("probXY", &m_probXY);
+      theHitMonitorTree->Branch("probQ", &m_probQ);
+      theHitMonitorTree->Branch("qualityWord", &m_rawQualityWord);
     }
   }
 
