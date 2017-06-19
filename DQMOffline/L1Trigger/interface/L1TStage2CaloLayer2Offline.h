@@ -59,6 +59,22 @@ public:
   L1TStage2CaloLayer2Offline(const edm::ParameterSet& ps);
   virtual ~L1TStage2CaloLayer2Offline();
 
+  enum ControlPlots {
+    L1MET,
+    L1MHT,
+    L1ETT,
+    L1HTT,
+    OfflineMET,
+    OfflineMHT,
+    OfflineETT,
+    OfflineHTT,
+    L1JetET,
+    OfflineJetET,
+    NumberOfControlPlots
+  };
+
+  typedef std::map<L1TStage2CaloLayer2Offline::ControlPlots, MonitorElement*> ControlPlotMap;
+
 protected:
 
   void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;
@@ -111,6 +127,9 @@ private:
   // Histograms
   MonitorElement* h_nVertex_;
 
+  // control plots
+  ControlPlotMap h_controlPlots_;
+
   // energy sums reco vs L1
   MonitorElement* h_L1METvsCaloMET_;
   MonitorElement* h_L1MHTvsRecoMHT_;
@@ -138,6 +157,7 @@ private:
   std::map<double, MonitorElement*> h_efficiencyMHT_total_;
   std::map<double, MonitorElement*> h_efficiencyETT_total_;
   std::map<double, MonitorElement*> h_efficiencyHTT_total_;
+
 
   // jet reco vs L1
   MonitorElement* h_L1JetETvsCaloJetET_HB_;
