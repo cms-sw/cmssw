@@ -69,13 +69,13 @@ else:
 
     # -----------------------------------------------------------
     # change when availalbe simTwinMux and reliable DTTPs, CSCTPs
-    cutlist=['simDtTriggerPrimitiveDigis','simCscTriggerPrimitiveDigis','simTwinMuxDigis']
+    cutlist=['simDtTriggerPrimitiveDigis','simCscTriggerPrimitiveDigis']
     for b in cutlist:
         SimL1EmulatorCore.remove(b)
     # -----------------------------------------------------------
 
     # BMTF
-    simBmtfDigis.DTDigi_Source       = cms.InputTag("unpackBmtf")
+    simBmtfDigis.DTDigi_Source       = cms.InputTag("simTwinMuxDigis")
     simBmtfDigis.DTDigi_Theta_Source = cms.InputTag("unpackBmtf")
 
     # OMTF
