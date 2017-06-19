@@ -744,16 +744,12 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
       // Filling FED Id associated clusters map.
 
       int good_fcc_index = -999;
-      /*std::cout << "fedConnections.size() = " << fedConnections.size() << endl;
-      for(int x=0;x=fedConnections.size();x++){
-        std::cout << "x = " << x << std::endl;
-      }*/
+
       for(uint x=0;x=fedConnections.size();x++){
         if(fedConnections.at(x-1)!=NULL && good_fcc_index==-999){
           good_fcc_index = x;
         }
       }
-
 
       if(good_fcc_index!=-999 && fedConnections.at(good_fcc_index)!=NULL){
         int temp_fedid = fedConnections[good_fcc_index]->fedId();
