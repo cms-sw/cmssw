@@ -1,7 +1,7 @@
 
 #include "L1TStage2Layer2Constants.h"
 
-signed int l1t::stage2::layer2::fedId = 1360;
+int l1t::stage2::layer2::fedId = 1360;
 
 unsigned int l1t::stage2::layer2::mp::offsetBoardId = 0x2210;
 
