@@ -102,6 +102,7 @@ if options.genFromOMDS == 0:
     # Generate dummy configuration data
     process.load('L1TriggerConfig.L1TConfigProducers.L1TMuonOverlapParamsOnlineProxy_cfi')
     process.load('L1TriggerConfig.L1TConfigProducers.L1TMuonEndcapParamsOnlineProxy_cfi')
+    process.load('L1TriggerConfig.L1TConfigProducers.L1TMuonEndcapForestOnlineProxy_cfi')
 #    if options.startup == 0:
 #        process.load("L1Trigger.Configuration.L1DummyConfig_cff")
 #        process.load("L1TriggerConfig.L1GtConfigProducers.Luminosity.lumi1031.L1Menu_MC2009_v2_L1T_Scales_20090624_Imp0_Unprescaled_cff")
