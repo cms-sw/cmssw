@@ -107,7 +107,8 @@ HadronAndPartonSelector::HadronAndPartonSelector(const edm::ParameterSet& iConfi
 
   srcToken_(mayConsume<GenEventInfoProduct>( iConfig.getParameter<edm::InputTag>("src") )),
   particlesToken_(consumes<reco::GenParticleCollection>( iConfig.getParameter<edm::InputTag>("particles") )),
-  partonMode_(iConfig.getParameter<std::string>("partonMode"))
+  partonMode_(iConfig.getParameter<std::string>("partonMode")),
+  fullChainPhysPartons_(iConfig.getParameter<bool>("fullChainPhysPartons"))
 
 {
    //register your products
@@ -119,7 +120,6 @@ HadronAndPartonSelector::HadronAndPartonSelector(const edm::ParameterSet& iConfi
 
    partonSelectorSet_=false;
    partonSelector_=nullptr;
-   fullChainPhysPartons_= iConfig.getParameter<bool>("fullChainPhysPartons");
 }
 
 
