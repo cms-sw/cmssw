@@ -415,6 +415,26 @@ trackValidatorAllTPEffic.histoProducerAlgoBlock.TpSelectorForEfficiencyVsVTXZ.si
 for _eraName, _postfix, _era in _relevantEras:
     _setForEra(trackValidatorAllTPEffic, _eraName, _era, label = ["generalTracks", locals()["_generalTracksHp"+_postfix]])
 
+# Built tracks, in the standard sequence mainly for monitoring the track selection MVA
+_trackValidatorSeedingBuilding = trackValidator.clone( # common for built tracks and seeds (in trackingOnly)
+    associators = ["quickTrackAssociatorByHits"],
+    UseAssociators = True,
+    dodEdxPlots = False,
+    doPVAssociationPlots = False,
+    doSimPlots = False,
+    doResolutionPlotsForLabels = ["disabled"],
+)
+trackValidatorBuilding = _trackValidatorSeedingBuilding.clone(
+    dirName = "Tracking/TrackBuilding/",
+    doMVAPlots = True,
+)
+for _eraName, _postfix, _era in _relevantErasAndFastSim:
+    _setForEra(trackValidatorBuilding, _eraName, _era, label = locals()["_trackProducers"+_postfix])
+fastSim.toModify(trackValidatorBuilding, doMVAPlots=False)
+for _eraName, _postfix, _era in _relevantEras:
+    _setForEra(trackValidatorBuilding, _eraName, _era, mvaLabels = locals()["_mvaSelectors"+_postfix])
+
+
 # For conversions
 trackValidatorConversion = trackValidator.clone(
     dirName = "Tracking/TrackConversion/",
@@ -499,6 +519,7 @@ tracksValidation = cms.Sequence(
     trackValidatorFromPV +
     trackValidatorFromPVAllTP +
     trackValidatorAllTPEffic +
+    trackValidatorBuilding +
     trackValidatorConversion +
     trackValidatorGsfTracks
 )
@@ -598,25 +619,7 @@ _sequenceForEachEra(_addSeedToTrackProducers, args=["_seedProducers"], names="_s
 # MTV instances
 trackValidatorTrackingOnly = trackValidatorStandalone.clone(label = [ x for x in trackValidatorStandalone.label if x != "cutsRecoTracksAK4PFJets"] )
 
-_trackValidatorSeedingBuildingTrackingOnly = trackValidatorTrackingOnly.clone( # common for seeds and built tracks
-    associators = ["quickTrackAssociatorByHits"],
-    UseAssociators = True,
-    dodEdxPlots = False,
-    doPVAssociationPlots = False,
-    doSimPlots = False,
-    doResolutionPlotsForLabels = ["disabled"],
-)
-trackValidatorBuildingTrackingOnly = _trackValidatorSeedingBuildingTrackingOnly.clone(
-    dirName = "Tracking/TrackBuilding/",
-    doMVAPlots = True,
-)
-for _eraName, _postfix, _era in _relevantErasAndFastSim:
-    _setForEra(trackValidatorBuildingTrackingOnly, _eraName, _era, label = locals()["_trackProducers"+_postfix])
-fastSim.toModify(trackValidatorBuildingTrackingOnly, doMVAPlots=False)
-for _eraName, _postfix, _era in _relevantEras:
-    _setForEra(trackValidatorBuildingTrackingOnly, _eraName, _era, mvaLabels = locals()["_mvaSelectors"+_postfix])
-
-trackValidatorSeedingTrackingOnly = _trackValidatorSeedingBuildingTrackingOnly.clone(
+trackValidatorSeedingTrackingOnly = _trackValidatorSeedingBuilding.clone(
     dirName = "Tracking/TrackSeeding/",
     label = _seedSelectors,
     doSeedPlots = True,
@@ -635,10 +638,7 @@ tracksPreValidationTrackingOnly.replace(tracksValidationSelectors, tracksValidat
 
 trackValidatorsTrackingOnly = _trackValidatorsBase.copy()
 trackValidatorsTrackingOnly.replace(trackValidatorStandalone, trackValidatorTrackingOnly)
-trackValidatorsTrackingOnly += (
-    trackValidatorSeedingTrackingOnly +
-    trackValidatorBuildingTrackingOnly
-)
+trackValidatorsTrackingOnly += trackValidatorSeedingTrackingOnly
 trackValidatorsTrackingOnly.replace(trackValidatorConversionStandalone, trackValidatorConversionTrackingOnly)
 trackValidatorsTrackingOnly.remove(trackValidatorGsfTracks)
 trackValidatorsTrackingOnly.replace(trackValidatorBHadronStandalone, trackValidatorBHadronTrackingOnly)
