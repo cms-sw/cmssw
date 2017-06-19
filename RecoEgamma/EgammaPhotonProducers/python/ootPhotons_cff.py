@@ -1,5 +1,11 @@
 import FWCore.ParameterSet.Config as cms
-from RecoEgamma.EgammaPhotonProducers.photons_cfi import *
+from RecoEgamma.EgammaPhotonProducers.gedPhotons_cfi import gedPhotons as _gedPhotons
 
-ootPhotons = photons.clone()
-ootPhotons.photonCoreProducer = cms.InputTag('ootPhotonCore')
+ootPhotons = _gedPhotons.clone(
+    photonProducer = 'ootPhotonCore',
+    candidateP4type = "fromEcalEnergy",
+    reconstructionStep = "oot",
+    pfEgammaCandidates = "",
+    valueMapPhotons = ""
+    )
+del ootPhotons.regressionConfig
