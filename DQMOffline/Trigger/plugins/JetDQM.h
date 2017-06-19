@@ -25,12 +25,11 @@ class JetDQM : public GENERICDQM
   static void fillJetDescription(edm::ParameterSetDescription & histoPSet);
 
   //keep public to fill them directly....
+  std::vector<double> jetpt_variable_binning_;
+  std::vector<double> jet1pt_variable_binning_;
   std::vector<double> jet2pt_variable_binning_;
-  MEbinning           jet1pt_binning_;
-  MEbinning           jet2pt_binning_;
-  MEbinning           jeteta_binning_;
   std::vector<double> mjj_variable_binning_;
-  MEbinning           mjj_binning_;
+  MEbinning           jeteta_binning_;
   MEbinning           detajj_binning_;
   MEbinning           dphijj_binning_;
   MEbinning           mindphijmet_binning_;
@@ -41,7 +40,6 @@ private:
   //leading jets pT and eta
   OBJME jet1ptME_;
   OBJME jet2ptME_;
-  OBJME jet2ptME_variableBinning_;
   OBJME jet1etaME_;
   OBJME jet2etaME_;
   //most central and most forward jets pT and eta
@@ -51,7 +49,6 @@ private:
   OBJME fjetptME_;
   //leading pair quantities
   OBJME mjjME_;
-  OBJME mjjME_variableBinning_;
   OBJME detajjME_;
   OBJME dphijjME_;
   //correlations MET-jets
