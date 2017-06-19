@@ -16,38 +16,23 @@ hltobjmonitoring.histoPSet.phiPSet = cms.PSet(
   xmax  = cms.double(3.1416),
 )
 hltobjmonitoring.doJetHistos = cms.bool(True)
-hltobjmonitoring.histoPSet.jet1ptPSet = cms.PSet(
-  nbins = cms.int32 (  200  ),
-  xmin  = cms.double(   0),
-  xmax  = cms.double(1000),
-)
-hltobjmonitoring.histoPSet.jet2ptPSet = cms.PSet(
-  nbins = cms.int32 (  200  ),
-  xmin  = cms.double(   0),
-  xmax  = cms.double(600),
-)
 hltobjmonitoring.histoPSet.jetetaPSet = cms.PSet(
-  nbins = cms.int32 (  200  ),
+  nbins = cms.int32 (  100  ),
   xmin  = cms.double(   -5),
   xmax  = cms.double(5),
 )
-hltobjmonitoring.histoPSet.mjjPSet = cms.PSet(
-  nbins = cms.int32 (  200  ),
-  xmin  = cms.double(   0),
-  xmax  = cms.double(6000),
-)
 hltobjmonitoring.histoPSet.detajjPSet = cms.PSet(
-  nbins = cms.int32 (  200  ),
+  nbins = cms.int32 (  90  ),
   xmin  = cms.double(   0),
   xmax  = cms.double(9),
 )
 hltobjmonitoring.histoPSet.dphijjPSet = cms.PSet(
-  nbins = cms.int32 (  200  ),
+  nbins = cms.int32 (  64  ),
   xmin  = cms.double(   0),
   xmax  = cms.double(3.1416),
 )
 hltobjmonitoring.histoPSet.mindphijmetPSet = cms.PSet(
-  nbins = cms.int32 (  200  ),
+  nbins = cms.int32 (  64  ),
   xmin  = cms.double(   0),
   xmax  = cms.double(3.1416),
 )
