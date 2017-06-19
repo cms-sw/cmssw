@@ -10,6 +10,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "RecoEcal/EgammaCoreTools/interface/ClusterShapeAlgo.h"
 
