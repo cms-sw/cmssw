@@ -5,7 +5,6 @@
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCMotherboard.h"
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCUpgradeMotherboardLUT.h"
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCUpgradeMotherboardLUTGenerator.h"
-#include <boost/variant.hpp>
 
 // generic container type
 namespace{
