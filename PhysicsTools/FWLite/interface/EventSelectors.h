@@ -1,3 +1,7 @@
+#if !defined(EventSelectors_H)
+#define EventSelectors_H
+
+
 // these includes are FWLite-safe
 #include "DataFormats/FWLite/interface/Handle.h"
 #include "DataFormats/FWLite/interface/Event.h"
@@ -90,3 +94,5 @@ namespace fwlite {
             ObjectCountSelector & operator=(const fwlite::ObjectCountSelector<Collection> &other) ;
     };
 }
+
+#endif
