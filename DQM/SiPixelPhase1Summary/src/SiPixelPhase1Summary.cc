@@ -118,26 +118,38 @@ void SiPixelPhase1Summary::bookSummaries(DQMStore::IBooker & iBooker){
 
   std::vector<std::string> xAxisLabels_ = {"BMO","BMI","BPO ","BPI","HCMO_1","HCMO_2","HCMI_1","HCMI_2","HCPO_1","HCPO_2","HCPI_1","HCPI_2"}; // why not having a global variable !?!?!?! 
   std::vector<std::string> yAxisLabels_ = {"1","2","3","4"}; // why not having a global variable ?!?!?!!? - I originally did, but was told not to by David Lange!
-    
+  
+  iBooker.setCurrentFolder("PixelPhase1/Summary");
+  //Book the summary plots for the variables as described in the config file  
   for (auto mapInfo: summaryPlotName_){
     auto name = mapInfo.first;
-    if (name == "Grand") iBooker.setCurrentFolder("PixelPhase1/EventInfo");
-    else iBooker.setCurrentFolder("PixelPhase1/Summary");
     summaryMap_[name] = iBooker.book2D("pixel"+name+"Summary","Pixel "+name+" Summary",12,0,12,4,0,4);
+  }
+  //Now book the overall summary map
+  iBooker.setCurrentFolder("PixelPhase1/EventInfo");
+  summaryMap_["Grand"] = iBooker.book2D("reportSummaryMap","Pixel Summary Map",12,0,12,4,0,4);
+  reportSummary = iBooker.bookFloat("reportSummary");
+
+  //Now set up axis and bin labels
+  for (auto summaryMapEntry: summaryMap_){
+    auto summaryMap = summaryMapEntry.second;
     for (unsigned int i = 0; i < xAxisLabels_.size(); i++){
-      summaryMap_[name]->setBinLabel(i+1, xAxisLabels_[i],1);
+      summaryMap->setBinLabel(i+1, xAxisLabels_[i],1);
     }
     for (unsigned int i = 0; i < yAxisLabels_.size(); i++){
-      summaryMap_[name]->setBinLabel(i+1,yAxisLabels_[i],2);
+      summaryMap->setBinLabel(i+1,yAxisLabels_[i],2);
     }
-    summaryMap_[name]->setAxisTitle("Subdetector",1);
-    summaryMap_[name]->setAxisTitle("Layer/disk",2);
+    summaryMap->setAxisTitle("Subdetector",1);
+    summaryMap->setAxisTitle("Layer/disk",2);
     for (int i = 0; i < 12; i++){ // !??!?!? xAxisLabels_.size() ?!?!
       for (int j = 0; j < 4; j++){ // !??!?!? yAxisLabels_.size() ?!?!?!
-	summaryMap_[name]->Fill(i,j,-1.);
+	summaryMap->Fill(i,j,-1.);
       }
     }
   }
+  reportSummary->Fill(-1.);
+  //Reset the iBooker
+  iBooker.setCurrentFolder("PixelPhase1/");
 }
 
 //------------------------------------------------------------------
@@ -145,6 +157,7 @@ void SiPixelPhase1Summary::bookSummaries(DQMStore::IBooker & iBooker){
 //------------------------------------------------------------------
 void SiPixelPhase1Summary::bookTrendPlots(DQMStore::IBooker & iBooker){
   //We need different plots depending on if we're online (runOnEndLumi) or offline (!runOnEndLumi)
+  iBooker.setCurrentFolder("PixelPhase1/");
   if (runOnEndLumi_){
     deadROCTrends_[bpix] = iBooker.book1D("deadRocTrendBPix","BPIX dead ROC trend",500,0.,5000);
     deadROCTrends_[bpix]->setAxisTitle("Lumisection",1);
@@ -176,7 +189,6 @@ void SiPixelPhase1Summary::fillSummaries(DQMStore::IBooker & iBooker, DQMStore::
   //Firstly, we will fill the regular summary maps.
   for (auto mapInfo: summaryPlotName_){
     auto name = mapInfo.first;
-    if (name == "Grand") continue;
     std::ostringstream histNameStream;
     std::string histName;
 
@@ -206,6 +218,8 @@ void SiPixelPhase1Summary::fillSummaries(DQMStore::IBooker & iBooker, DQMStore::
       }  
     }    
   }
+  //Sum of non-negative bins for the reportSummary
+  float sumOfNonNegBins = 0.;
   //Now we will use the other summary maps to create the overall map.
   for (int i = 0; i < 12; i++){ // !??!?!? xAxisLabels_.size() ?!?!
     if (!summaryMap_["Grand"]){
@@ -216,15 +230,16 @@ void SiPixelPhase1Summary::fillSummaries(DQMStore::IBooker & iBooker, DQMStore::
       summaryMap_["Grand"]->setBinContent(i+1,j+1,1); // This resets the map to be good. We only then set it to 0 if there has been a problem in one of the other summaries.
       for (auto const mapInfo: summaryPlotName_){ //Check summary maps
 	auto name = mapInfo.first;
-	if (name == "Grand") continue;
 	if (!summaryMap_[name]){
 	  edm::LogWarning("SiPixelPhase1Summary") << "Summary " << name << " does not exist!";
 	  continue;
 	}
 	if (summaryMap_["Grand"]->getBinContent(i+1,j+1) > summaryMap_[name]->getBinContent(i+1,j+1)) summaryMap_["Grand"]->setBinContent(i+1,j+1,summaryMap_[name]->getBinContent(i+1,j+1));
       }
+      if (summaryMap_["Grand"]->getBinContent(i+1,j+1) > -0.1) sumOfNonNegBins += summaryMap_["Grand"]->getBinContent(i+1,j+1);
     }
   }
+  reportSummary->Fill(sumOfNonNegBins/40.); // The average of the 40 useful bins in the summary map.
 
 }
 
