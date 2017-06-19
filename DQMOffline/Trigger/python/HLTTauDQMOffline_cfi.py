@@ -483,7 +483,7 @@ hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
             phimin      = cms.double(-3.15),
             phimax      = cms.double(3.15),
             numerator   = TriggerSelectionParameters(cms.vstring('HLT_Ele24_eta2p1_WPTight_Gsf_LooseChargedIsoPFTau30_eta2p1_CrossL1_v*')),
-            denominator = TriggerSelectionParameters(cms.vstring('HLT_Ele27_eta2p1_WPTight_Gsf_v*'))
+            denominator = TriggerSelectionParameters(cms.vstring('HLT_Ele27_WPTight_Gsf_v*'))
         ),
         cms.untracked.PSet(
             name        = cms.string('MediumChargedIsoPFTau30_eta2p1_CrossL1'),
@@ -498,7 +498,7 @@ hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
             phimin      = cms.double(-3.15),
             phimax      = cms.double(3.15), 
             numerator   = TriggerSelectionParameters(cms.vstring('HLT_Ele24_eta2p1_WPTight_Gsf_MediumChargedIsoPFTau30_eta2p1_CrossL1_v*')),
-            denominator = TriggerSelectionParameters(cms.vstring('HLT_Ele27_eta2p1_WPTight_Gsf_v*'))
+            denominator = TriggerSelectionParameters(cms.vstring('HLT_Ele27_WPTight_Gsf_v*'))
         ),
         cms.untracked.PSet(
             name        = cms.string('TightChargedIsoPFTau30_eta2p1_CrossL1'),
@@ -513,7 +513,7 @@ hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
             phimin      = cms.double(-3.15),
             phimax      = cms.double(3.15), 
             numerator   = TriggerSelectionParameters(cms.vstring('HLT_Ele24_eta2p1_WPTight_Gsf_TightChargedIsoPFTau30_eta2p1_CrossL1_v*')),
-            denominator = TriggerSelectionParameters(cms.vstring('HLT_Ele27_eta2p1_WPTight_Gsf_v*'))
+            denominator = TriggerSelectionParameters(cms.vstring('HLT_Ele27_WPTight_Gsf_v*'))
         ),
         cms.untracked.PSet(
             name        = cms.string('LooseChargedIsoPFTau30_eta2p1_TightID_CrossL1'),
@@ -528,7 +528,7 @@ hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
             phimin      = cms.double(-3.15),
             phimax      = cms.double(3.15), 
             numerator   = TriggerSelectionParameters(cms.vstring('HLT_Ele24_eta2p1_WPTight_Gsf_LooseChargedIsoPFTau30_eta2p1_TightID_CrossL1_v*')),
-            denominator = TriggerSelectionParameters(cms.vstring('HLT_Ele27_eta2p1_WPTight_Gsf_v*'))
+            denominator = TriggerSelectionParameters(cms.vstring('HLT_Ele27_WPTight_Gsf_v*'))
         ),
         cms.untracked.PSet(
             name        = cms.string('MediumChargedIsoPFTau30_eta2p1_TightID_CrossL1'),
@@ -543,7 +543,7 @@ hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
             phimin      = cms.double(-3.15),
             phimax      = cms.double(3.15), 
             numerator   = TriggerSelectionParameters(cms.vstring('HLT_Ele24_eta2p1_WPTight_Gsf_MediumChargedIsoPFTau30_eta2p1_TightID_CrossL1_v*')),
-            denominator = TriggerSelectionParameters(cms.vstring('HLT_Ele27_eta2p1_WPTight_Gsf_v*'))
+            denominator = TriggerSelectionParameters(cms.vstring('HLT_Ele27_WPTight_Gsf_v*'))
         ),
         cms.untracked.PSet(
             name        = cms.string('TightChargedIsoPFTau30_eta2p1_TightID_CrossL1'),
@@ -558,7 +558,7 @@ hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
             phimin      = cms.double(-3.15),
             phimax      = cms.double(3.15),
             numerator   = TriggerSelectionParameters(cms.vstring('HLT_Ele24_eta2p1_WPTight_Gsf_TightChargedIsoPFTau30_eta2p1_TightID_CrossL1_v*')),
-            denominator = TriggerSelectionParameters(cms.vstring('HLT_Ele27_eta2p1_WPTight_Gsf_v*'))
+            denominator = TriggerSelectionParameters(cms.vstring('HLT_Ele27_WPTight_Gsf_v*'))
         ),
         cms.untracked.PSet(
             name        = cms.string('MET90'),
@@ -627,7 +627,7 @@ hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
             phimin      = cms.double(-3.15),
             phimax      = cms.double(3.15),
             numerator   = TriggerSelectionParameters(cms.vstring('HLT_DoubleEle24_eta2p1_WPTight_Gsf_v*')),
-            denominator = TriggerSelectionParameters(cms.vstring('HLT_Ele27_eta2p1_WPTight_Gsf_v*'))
+            denominator = TriggerSelectionParameters(cms.vstring('HLT_Ele27_WPTight_Gsf_v*'))
         )
     )
 )
