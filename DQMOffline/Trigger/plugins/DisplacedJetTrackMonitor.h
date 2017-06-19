@@ -87,47 +87,30 @@ private:
   std::string folderName_;
   std::string histoSuffix_;
 
-  //edm::EDGetTokenT<reco::PFMETCollection>       metToken_;
 
   edm::EDGetTokenT<reco::CaloJetCollection>     calojetToken_;
   edm::EDGetTokenT<reco::TrackCollection>       tracksToken_;
   edm::EDGetTokenT<reco::GsfElectronCollection> eleToken_;
   edm::EDGetTokenT<reco::MuonCollection>        muoToken_;
 
-  //std::vector<double> met_variable_binning_;
-  //MEbinning           met_binning_;
-//  std::vector<double> caloht_variable_binning_;
-//  MEbinning           caloht_binning_;
   MEbinning           ntrack_binning_;
   MEbinning           ls_binning_;
 
-  //DJME caloHTME_;
-  //DJME caloHTME_variableBinning_;
-  //DJME caloHTVsLS_;
   DJME nprompttrksjet1ME_;
- // DJME nprompttrksjet1ME_varibaleBinning_;
   DJME nprompttrksjet2ME_;
- // DJME nprompttrksjet2ME_variableBinning_;
   DJME nprompttrksjet1VsLS_;
   DJME nprompttrksjet2VsLS_;
   DJME ndisplacedtrksjet1ME_;
- // DJME ndisplacedtrksjet1ME_variableBinning_;
   DJME ndisplacedtrksjet2ME_;
- // DJME ndisplacedtrksjet2ME_variableBinning_;
   DJME ndisplacedtrksjet1VsLS_;
   DJME ndisplacedtrksjet2VsLS_;
   
    
 
-  //DJME metME_;
-  //DJME metME_variableBinning_;
-  //DJME metVsLS_;
-  //DJME metPhiME_;
 
   GenericTriggerEventFlag* num_genTriggerEventFlag_;
   GenericTriggerEventFlag* den_genTriggerEventFlag_;
 
-  //StringCutObjectSelector<reco::MET, true>         metSelection_;
 
   StringCutObjectSelector<reco::CaloJet, true >   calojetSelection_;
   StringCutObjectSelector<reco::Track,  true >    trackSelection_;
