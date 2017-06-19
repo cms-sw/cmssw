@@ -17,6 +17,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "CommonTools/CandAlgos/interface/CandDecaySelector.h"
 #include "CommonTools/UtilAlgos/interface/ParameterAdapter.h"
 #include "CommonTools/UtilAlgos/interface/NonNullNumberSelector.h"
 #include "CommonTools/UtilAlgos/interface/StoreManagerTrait.h"
@@ -61,7 +62,7 @@ private:
   bool filter(edm::Event& evt, const edm::EventSetup& es) {
     Init::init(selector_, evt, es);
     using namespace std;
-    edm::Handle<typename Selector::collection> source;
+    edm::Handle<OutputCollection> source;
     evt.getByToken(srcToken_, source);
     StoreManager manager(source);
     selector_.select(source, evt, es);
