@@ -23,8 +23,8 @@ ObjMonitor::ObjMonitor( const edm::ParameterSet& iConfig ) :
   , muoToken_             ( mayConsume<reco::MuonCollection>       (iConfig.getParameter<edm::InputTag>("muons")     ) )
   , do_met_ (iConfig.getParameter<bool>("doMETHistos") )
   , do_jet_ (iConfig.getParameter<bool>("doJetHistos") )
-  , num_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet"),consumesCollector(), *this))
-  , den_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("denGenericTriggerEventPSet"),consumesCollector(), *this))
+  , num_genTriggerEventFlag_(std::make_unique<GenericTriggerEventFlag>(iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet"),consumesCollector(), *this))
+  , den_genTriggerEventFlag_(std::make_unique<GenericTriggerEventFlag>(iConfig.getParameter<edm::ParameterSet>("denGenericTriggerEventPSet"),consumesCollector(), *this))
   , metSelection_ ( iConfig.getParameter<std::string>("metSelection") )
   , jetSelection_ ( iConfig.getParameter<std::string>("jetSelection") )
   , eleSelection_ ( iConfig.getParameter<std::string>("eleSelection") )
@@ -43,8 +43,7 @@ ObjMonitor::ObjMonitor( const edm::ParameterSet& iConfig ) :
 
 ObjMonitor::~ObjMonitor()
 {
-  if (num_genTriggerEventFlag_) delete num_genTriggerEventFlag_;
-  if (den_genTriggerEventFlag_) delete den_genTriggerEventFlag_;
+
 }
 
 void ObjMonitor::bookHistograms(DQMStore::IBooker     & ibooker,

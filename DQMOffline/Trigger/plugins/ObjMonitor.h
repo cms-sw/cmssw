@@ -78,8 +78,8 @@ private:
   JetDQM jetDQM_;
 
 
-  unique_ptr<GenericTriggerEventFlag*> num_genTriggerEventFlag_;
-  unique_ptr<GenericTriggerEventFlag*> den_genTriggerEventFlag_;
+  std::unique_ptr<GenericTriggerEventFlag> num_genTriggerEventFlag_;
+  std::unique_ptr<GenericTriggerEventFlag> den_genTriggerEventFlag_;
 
   StringCutObjectSelector<reco::MET,true>         metSelection_;
   StringCutObjectSelector<reco::PFJet,true   >    jetSelection_;
