@@ -632,12 +632,10 @@ hiAlca2011 = {'--conditions':'auto:run1_mc_hi'}
 hiAlca2015 = {'--conditions':'auto:run2_mc_hi', '--era':'Run2_2016,Run2_HI'}
 hiAlca2018 = {'--conditions':'auto:phase1_2017_realistic', '--era':'Run2_2017'}
 
-#hiDefaults2011=merge([hiAlca2011,{'--scenario':'HeavyIons','-n':2,'--beamspot':'RealisticHI2011Collision'}])
-#hiDefaults2015=merge([hiAlca2015,{'--scenario':'HeavyIons','-n':2,'--beamspot':'RealisticHICollision2015'}])
-#hiDefaults2018=merge([hiAlca2018,{'--scenario':'HeavyIons','-n':2,'--beamspot':'Realistic50ns13TeVCollision','--geometry':'DB:extended'}])
+
 hiDefaults2011=merge([hiAlca2011,{'--scenario':'HeavyIons','-n':2}])
 hiDefaults2015=merge([hiAlca2015,{'--scenario':'HeavyIons','-n':2}])
-hiDefaults2018=merge([hiAlca2018,{'--scenario':'HeavyIons','-n':2,'--geometry':'DB:Extended'}])
+hiDefaults2018=merge([hiAlca2018,{'--scenario':'HeavyIons','-n':2}])
 
 
 steps['HydjetQ_B12_5020GeV_2011']=merge([{'-n':1,'--beamspot':'RealisticHI2011Collision'},hiDefaults2011,genS('Hydjet_Quenched_B12_5020GeV_cfi',U2000by1)])
