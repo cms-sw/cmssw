@@ -2,13 +2,13 @@ autoCond = {
 
     ### NEW KEYS ###
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run1
-    'run1_design'       :   '92X_mcRun1_design_v0',
+    'run1_design'       :   '92X_mcRun1_design_v1',
     # GlobalTag for MC production (pp collisions) with realistic alignment and calibrations for Run1
-    'run1_mc'           :   '92X_mcRun1_realistic_v0',
+    'run1_mc'           :   '92X_mcRun1_realistic_v1',
     # GlobalTag for MC production (Heavy Ions collisions) with realistic alignment and calibrations for Run1
-    'run1_mc_hi'        :   '92X_mcRun1_HeavyIon_v0',
+    'run1_mc_hi'        :   '92X_mcRun1_HeavyIon_v1',
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run1
-    'run1_mc_pa'        :   '92X_mcRun1_pA_v0',
+    'run1_mc_pa'        :   '92X_mcRun1_pA_v1',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run2
     'run2_design'       :   '92X_mcRun2_design_v0',
     # GlobalTag for MC production with pessimistic alignment and calibrations for Run2
@@ -18,7 +18,7 @@ autoCond = {
     # GlobalTag for MC production (cosmics) with starup-like alignment and calibrations for Run2, Strip tracker in peak mode
     'run2_mc_cosmics'   :   '92X_mcRun2cosmics_startup_deco_v0',
     # GlobalTag for MC production (Heavy Ions collisions) with optimistic alignment and calibrations for Run2
-    'run2_mc_hi'        :   '91X_mcRun2_HeavyIon_v3',
+    'run2_mc_hi'        :   '92X_mcRun2_HeavyIon_v0',
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run2
     'run2_mc_pa'        :   '92X_mcRun2_pA_v0',
     # GlobalTag for Run1 data reprocessing
@@ -37,7 +37,7 @@ autoCond = {
     # GlobalTag for Run2 HLT RelVals: customizations to run with fixed L1 Menu
     'run2_hlt_relval'   :   '92X_dataRun2_HLT_relval_v1',
     # GlobalTag for Run2 HLT for HI: it points to the online GT
-    'run2_hlt_hi'       :   '92X_dataRun2_HLTHI_frozen_v0',
+    'run2_hlt_hi'       :   '92X_dataRun2_HLTHI_frozen_v1',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017 (and 0,0,~0-centred beamspot)
     'phase1_2017_design'       :  '92X_upgrade2017_design_IdealBS_v4',
     # GlobalTag for MC production with realistic conditions for Phase1 2017 detector
