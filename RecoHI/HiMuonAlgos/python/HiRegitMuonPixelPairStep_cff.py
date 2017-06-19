@@ -52,7 +52,7 @@ hiRegitMuPixelPairStepHitDoublets = RecoTracker.IterativeTracking.PixelPairStep_
     clusterCheck = "hiRegitMuClusterCheck",
 )
 hiRegitMuPixelPairStepSeeds     = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepSeeds.clone(
-    seedingHitSets = "hiRegitMuPixelPairStepHitDoublets"
+    seedingHitSets = cms.InputTag("hiRegitMuPixelPairStepHitDoublets")
 )
 
 
