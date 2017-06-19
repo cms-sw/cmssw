@@ -3,6 +3,7 @@ from L1TriggerConfig.L1TConfigProducers.L1TMuonBarrelParamsOnline_cfi import *
 from L1TriggerConfig.L1TConfigProducers.L1TMuonGlobalParamsOnline_cfi import *
 from L1TriggerConfig.L1TConfigProducers.L1TMuonOverlapParamsOnline_cfi import *
 from L1TriggerConfig.L1TConfigProducers.L1TMuonEndcapParamsOnline_cfi import *
+from L1TriggerConfig.L1TConfigProducers.L1TMuonEndcapForestOnline_cfi import *
 from L1TriggerConfig.L1TConfigProducers.L1TCaloParamsOnline_cfi import *
 from L1TriggerConfig.L1TConfigProducers.L1TGlobalPrescalesVetosOnline_cfi import *
 
@@ -12,6 +13,7 @@ def setTSCPayloadsDB(process, DBConnect, DBAuth, protoDBConnect, protoDBAuth):
     process.L1TGlobalPrescalesVetosOnlineProd.onlineDB = cms.string( DBConnect )
     process.L1TMuonBarrelParamsOnlineProd.onlineDB     = cms.string( DBConnect )
     process.L1TMuonEndcapParamsOnlineProd.onlineDB     = cms.string( DBConnect )
+    process.L1TMuonEndcapForestOnlineProd.onlineDB     = cms.string( DBConnect )
     process.L1TMuonGlobalParamsOnlineProd.onlineDB     = cms.string( DBConnect )
     process.L1TMuonOverlapParamsOnlineProd.onlineDB    = cms.string( DBConnect )
     process.L1TUtmTriggerMenuOnlineProd.onlineDB       = cms.string( DBConnect )
@@ -20,6 +22,7 @@ def setTSCPayloadsDB(process, DBConnect, DBAuth, protoDBConnect, protoDBAuth):
     process.L1TGlobalPrescalesVetosOnlineProd.onlineAuthentication = cms.string( DBAuth )
     process.L1TMuonBarrelParamsOnlineProd.onlineAuthentication     = cms.string( DBAuth )
     process.L1TMuonEndcapParamsOnlineProd.onlineAuthentication     = cms.string( DBAuth )
+    process.L1TMuonEndcapForestOnlineProd.onlineAuthentication     = cms.string( DBAuth )
     process.L1TMuonGlobalParamsOnlineProd.onlineAuthentication     = cms.string( DBAuth )
     process.L1TMuonOverlapParamsOnlineProd.onlineAuthentication    = cms.string( DBAuth )
     process.L1TUtmTriggerMenuOnlineProd.onlineAuthentication       = cms.string( DBAuth )

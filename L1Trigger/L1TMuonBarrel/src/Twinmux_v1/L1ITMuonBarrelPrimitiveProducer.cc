@@ -10,7 +10,7 @@
 #include <FWCore/Framework/interface/ConsumesCollector.h>
 
 // L1IT include files
-#include "L1Trigger/L1TMuon/interface/deprecate/MuonTriggerPrimitive.h"
+#include "L1Trigger/L1TMuon/interface/MuonTriggerPrimitive.h"
 
 #include "L1Trigger/L1TMuonBarrel/src/Twinmux_v1/MBLTCollection.h"
 #include "L1Trigger/L1TMuonBarrel/src/Twinmux_v1/MBLTCollectionFwd.h"

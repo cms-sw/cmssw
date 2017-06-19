@@ -1,101 +1,44 @@
-#ifndef _L1ITMu_L1TMuonUpgradedTrackFinder_h_
-#define _L1ITMu_L1TMuonUpgradedTrackFinder_h_
-//asd
+#ifndef L1TMuonEndCap_L1TMuonEndCapTrackProducer_h
+#define L1TMuonEndCap_L1TMuonEndCapTrackProducer_h
+
+// system include files
 #include <memory>
-#include <map>
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <iostream>
-
+// user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/EDProducer.h"
-
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-
-#include "L1Trigger/L1TMuon/interface/deprecate/SubsystemCollectorFactory.h"
-
-#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "L1Trigger/L1TMuon/interface/deprecate/GeometryTranslator.h"
-#include "L1Trigger/L1TMuon/interface/deprecate/MuonTriggerPrimitive.h"
-
-#include "L1Trigger/L1TMuonEndCap/interface/MuonInternalTrack.h"
-#include "L1Trigger/L1TMuonEndCap/interface/MuonInternalTrackFwd.h"
+#include "L1Trigger/L1TMuonEndCap/interface/TrackFinder.h"
+#include "L1Trigger/L1TMuonEndCap/interface/MicroGMTConverter.h"
 
 
-#include "L1Trigger/L1TMuonEndCap/interface/PhiMemoryImage.h"
-#include "L1Trigger/L1TMuonEndCap/interface/EmulatorClasses.h"
-#include "L1Trigger/CSCTrackFinder/interface/CSCTFPtLUT.h"
-#include "L1Trigger/CSCTrackFinder/interface/CSCSectorReceiverLUT.h"
-#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
-
-#include "L1Trigger/L1TMuonEndCap/interface/PrimitiveConverter.h"
-#include "L1Trigger/L1TMuonEndCap/interface/PrimitiveConverterRPC.h"
-#include "L1Trigger/L1TMuonEndCap/interface/PtAssignment.h"
-
-// For RPCs
-#include "DataFormats/RPCDigi/interface/RPCDigi.h"
-#include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
-#include "DataFormats/MuonDetId/interface/RPCDetId.h"
-#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
-
-
-typedef edm::ParameterSet PSet;
-
-//class L1TMuonEndCapTrackProducer : public edm::EDAnalyzer {
-
+// Class declaration
 class L1TMuonEndCapTrackProducer : public edm::EDProducer {
 public:
-  L1TMuonEndCapTrackProducer(const PSet&);
-  ~L1TMuonEndCapTrackProducer() {}
-	
- //void analyze(const edm::Event&, const edm::EventSetup&); 
- void produce(edm::Event&, const edm::EventSetup&); 
-  void beginJob();
-  void endJob();
-  
-  ///////////////////////////////////////
-  //// For Emulator with timing /////////
-  /////  we need all of these ///////////
-  ///////////////////////////////////////
- // MatchingOutput Mout;
- // ZonesOutput Zout;
- // ExtenderOutput Eout;
- // PatternOutput Pout;
- // SortingOutput Sout;
- // std::vector<ConvertedHit> ConvHits;
- // std::vector<std::vector<DeltaOutput>> Dout;
-  ///////////////////////////////////////
-  ///////////////////////////////////////
-  ///////////////////////////////////////
-  ///////////////////////////////////////
-  
-  const float ptscale[33] = { 
-    -1.,   0.0,   1.5,   2.0,   2.5,   3.0,   3.5,   4.0,
-    4.5,   5.0,   6.0,   7.0,   8.0,  10.0,  12.0,  14.0,  
-    16.0,  18.0,  20.0,  25.0,  30.0,  35.0,  40.0,  45.0, 
-    50.0,  60.0,  70.0,  80.0,  90.0, 100.0, 120.0, 140.0, 1.E6 };
-  
+  explicit L1TMuonEndCapTrackProducer(const edm::ParameterSet&);
+  virtual ~L1TMuonEndCapTrackProducer();
 
- private:
-  
-  edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> inputTokenCSC;
-  int bxShiftCSC = 0;
-  edm::EDGetTokenT<RPCDigiCollection> inputTokenRPC;
-  PrimitiveConverter primConv_;
-  PrimitiveConverterRPC primConvRPC_;
-  l1t::EmtfPtAssignment ptAssignment_;
-  
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  virtual void beginJob() override;
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob() override;
+
+  //virtual void beginRun(edm::Run const&, edm::EventSetup const&);
+  //virtual void endRun(edm::Run const&, edm::EventSetup const&);
+  //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+  //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+
+private:
+  std::unique_ptr<TrackFinder>       track_finder_;
+  std::unique_ptr<MicroGMTConverter> uGMT_converter_;
+
+  const edm::ParameterSet& config_;
 };
-
 
 #endif

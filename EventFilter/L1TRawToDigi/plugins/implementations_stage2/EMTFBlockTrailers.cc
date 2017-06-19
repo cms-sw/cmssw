@@ -1,8 +1,30 @@
+// Code to unpack the AMC13 trailer, "AMC data trailer", and "Event Record Trailer"
+
 #include "EventFilter/L1TRawToDigi/plugins/UnpackerFactory.h"
 
 #include "EMTFCollections.h"
 #include "EMTFUnpackerTools.h"
-#include "EMTFBlockTrailers.h"
+
+// This is the "header" - no EMTFBlockTrailers.h file is needed
+namespace l1t {
+  namespace stage2 {
+    namespace emtf {
+      
+      class TrailersBlockUnpacker : public Unpacker { // "TrailersBlockUnpacker" inherits from "Unpacker"
+      public:
+	virtual int  checkFormat(const Block& block);
+	virtual bool unpack(const Block& block, UnpackerCollections *coll) override; // Apparently it's always good to use override in C++
+	// virtual bool packBlock(const Block& block, UnpackerCollections *coll) override;
+      };
+      
+      // class TrailersBlockPacker : public Packer { // "TrailersBlockPacker" inherits from "Packer"
+      // public:
+      // 	virtual bool unpack(const Block& block, UnpackerCollections *coll) override; // Apparently it's always good to use override in C++
+      // };
+      
+    }
+  }
+}
 
 namespace l1t {
   namespace stage2 {
@@ -92,9 +114,10 @@ namespace l1t {
 	// Unpack the Event Record trailer information
 	/////////////////////////////////////////////
 	
-	if ( (res->at(iOut)).HasEventTrailer() == true )
-	  { (res->at(iOut)).add_format_error(); edm::LogError("L1T|EMTF") << "Why is there already an EventTrailer object?"; goto write_Event; }
-	if (EventTrailer_.Format_Errors() > 0) goto write_Event;
+	if ( (res->at(iOut)).HasEventTrailer() == true ) { 
+	  (res->at(iOut)).add_format_error(); 
+	  edm::LogError("L1T|EMTF") << "Why is there already an EventTrailer object?"; 
+	}
 
 	EventTrailer_.set_l1a       ( GetHexBits(TR1a,  0,  7) );
 	EventTrailer_.set_ddcsr_lf  ( GetHexBits(TR1a,  8, 11, TR1b,  8, 11) );
@@ -120,16 +143,16 @@ namespace l1t {
 
 	// EventTrailer_.set_dataword(uint64_t bits)  { dataword = bits;  };
 
-      write_Event:
-
 	(res->at(iOut)).set_EventTrailer(EventTrailer_);
 
 	/////////////////////////////////////
 	// Unpack the MTF7 trailer information
 	/////////////////////////////////////
 
-	if ( (res->at(iOut)).HasMTF7Trailer() == true )
-	  { (res->at(iOut)).add_format_error(); edm::LogError("L1T|EMTF") << "Why is there already an MTF7Trailer object?"; goto write_MTF7; }
+	if ( (res->at(iOut)).HasMTF7Trailer() == true ) {
+	  (res->at(iOut)).add_format_error(); 
+	  edm::LogError("L1T|EMTF") << "Why is there already an MTF7Trailer object?";
+	}
 
 	// // AMC trailer info defined in interface/AMCSpec.h ... but not implemented in interface/Block.h?
 	// MTF7Trailer_.set_crc_32( GetHexBits(payload[], , ) );
@@ -137,16 +160,16 @@ namespace l1t {
 	// MTF7Trailer_.set_data_length( GetHexBits(payload[], , ) );
 	// MTF7Trailer_.set_dataword(uint64_t bits)  { dataword = bits;    };
 
-      write_MTF7:
-	
 	(res->at(iOut)).set_MTF7Trailer(MTF7Trailer_);
 
 	//////////////////////////////////////
 	// Unpack the AMC13 trailer information
 	//////////////////////////////////////
 	
-	if ( (res->at(iOut)).HasAMC13Trailer() == true )
-	  { (res->at(iOut)).add_format_error(); edm::LogError("L1T|EMTF") << "Why is there already an AMC13Trailer object?"; goto write_AMC13; }
+	if ( (res->at(iOut)).HasAMC13Trailer() == true ) { 
+	  (res->at(iOut)).add_format_error(); 
+	  edm::LogError("L1T|EMTF") << "Why is there already an AMC13Trailer object?"; 
+	}
 
 	// TODO: Write functions in interface/AMC13Spec.h (as in AMCSpec.h) to extract all AMC13 header and trailer info
 	// TODO: Edit interface/Block.h to have a amc13() function similar to amc()
@@ -161,8 +184,6 @@ namespace l1t {
 	// AMC13Trailer_.set_r( GetHexBits(payload[], , ) );
 	// AMC13Trailer_.set_dataword(uint64_t bits)  { dataword = bits; };
 
-      write_AMC13:
-	
 	(res->at(iOut)).set_AMC13Trailer(AMC13Trailer_);
 	
 	// Finished with unpacking trailers
