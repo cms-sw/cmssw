@@ -1,0 +1,40 @@
+import FWCore.ParameterSet.Config as cms
+
+from DQMOffline.Trigger.DisplacedJetHTMonitor_cfi import hltDJHTmonitoring
+
+
+#HLT_HT430_DisplacedDijet40_DisplacedTrack
+HT430_DisplacedDijet40_DisplacedTrack_HTmonitoring  = hltDJHTmonitoring.clone()
+HT430_DisplacedDijet40_DisplacedTrack_HTmonitoring.FolderName = cms.string('HLT/DisplacedJet/HT430_Pt40_DisplacedTrack_HT/')
+HT430_DisplacedDijet40_DisplacedTrack_HTmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_HT430_DisplacedDijet40_DisplacedTrack_v*")
+HT430_DisplacedDijet40_DisplacedTrack_HTmonitoring.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_HT400_DisplacedDijet40_DisplacedTrack_v*")
+
+#HLT_HT650_DisplacedDijet60_Inclusive
+
+HT650_DisplacedDijet60_Inclusive_HTmonitoring = hltDJHTmonitoring.clone()
+HT650_DisplacedDijet60_Inclusive_HTmonitoring.FolderName = cms.string('HLT/DisplacedJet/HT650_DisplacedDijet60_Inclusive_HT')
+HT650_DisplacedDijet60_Inclusive_HTmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_HT650_DisplacedDijet60_Inclusive_v*")
+HT650_DisplacedDijet60_Inclusive_HTmonitoring.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_HT550_DisplacedDijet60_Inclusive_v*")
+
+#HLT_HT650_DisplacedDijet80_Inclusive
+HT650_DisplacedDijet80_Inclusive_HTmonitoring = hltDJHTmonitoring.clone()
+HT650_DisplacedDijet80_Inclusive_HTmonitoring.FolderName = cms.string('HLT/DisplacedJet/HT650_DisplacedDijet80_Inclusive_HT')
+HT650_DisplacedDijet80_Inclusive_HTmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_HT650_DisplacedDijet80_Inclusive_v*")
+HT650_DisplacedDijet80_Inclusive_HTmonitoring.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_HT550_DisplacedDijet80_Inclusive_v*")
+
+#HLT_HT750_DisplacedDijet80_Inclusive
+HT750_DisplacedDijet80_Inclusive_HTmonitoring = hltDJHTmonitoring.clone()
+HT750_DisplacedDijet80_Inclusive_HTmonitoring.FolderName = cms.string('HLT/DisplacedJet/HT750_DisplacedDijet80_Inclusive_HT')
+HT750_DisplacedDijet80_Inclusive_HTmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_HT750_DisplacedDijet80_Inclusive_v*")
+HT750_DisplacedDijet80_Inclusive_HTmonitoring.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_HT550_DisplacedDijet80_Inclusive_v*")
+
+exoHLTDJHTmonitoring = cms.Sequence(
+
+   HT430_DisplacedDijet40_DisplacedTrack_HTmonitoring
+  +HT650_DisplacedDijet60_Inclusive_HTmonitoring
+  +HT650_DisplacedDijet80_Inclusive_HTmonitoring
+  +HT750_DisplacedDijet80_Inclusive_HTmonitoring
+
+
+
+)
