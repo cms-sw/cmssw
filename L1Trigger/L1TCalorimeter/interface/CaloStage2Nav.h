@@ -69,7 +69,7 @@ namespace l1t{
 	      return iEta_tmp+offset;
 	    }
 	}
-      else if(iEta>0 && iEta<etaBoundaryHF)
+      else if(iEta>0)
 	{
 	  int iEta_tmp = iEta;
 
@@ -87,7 +87,7 @@ namespace l1t{
 	      else return iEta_tmp+offset;
 	    }
 	}
-      else if(iEta<0 && iEta>-etaBoundaryHF)
+      else if(iEta>-etaBoundaryHF)
 	{
 	  int iEta_tmp = iEta;
 
@@ -105,7 +105,7 @@ namespace l1t{
 	      return iEta_tmp+offset;
 	    }
 	}
-      else if(iEta<-etaBoundaryHF)
+      else
 	{
 	  int iEta_tmp = iEta;
 
