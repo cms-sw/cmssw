@@ -180,6 +180,15 @@ PFJet500.jetSelection = cms.string('pt>450 & abs(eta)<2.4')
 PFJet500.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFJet500_v*')
 PFJet500.histoPSet.jetPtBinning = cms.vdouble(0,450,480,500,520,550,600,700,1000,1500)
 
+PFJet550 = hltBTVmonitoring.clone()
+PFJet550.FolderName = cms.string('HLT/BTV/PFJet/PFJet550')
+PFJet550.nmuons = cms.uint32(0)
+PFJet550.nelectrons = cms.uint32(0)
+PFJet550.njets = cms.uint32(1)
+PFJet550.jetSelection = cms.string('pt>500 & abs(eta)<2.4')
+PFJet550.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFJet550_v*')
+PFJet550.histoPSet.jetPtBinning = cms.vdouble(0,500,520,550,600,700,1000,1500)
+
 #PFJet AK8
 AK8PFJet40 = hltBTVmonitoring.clone()
 AK8PFJet40.FolderName = cms.string('HLT/BTV/PFJet/AK8PFJet40')
@@ -281,6 +290,17 @@ AK8PFJet500.jets = cms.InputTag("ak8PFJetsCHS")
 AK8PFJet500.jetSelection = cms.string('pt>450 & abs(eta)<2.4')
 AK8PFJet500.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_AK8PFJet500_v*')
 AK8PFJet500.histoPSet.jetPtBinning = cms.vdouble(0,450,480,500,520,550,600,700,1000,1500)
+
+AK8PFJet550 = hltBTVmonitoring.clone()
+AK8PFJet550.FolderName = cms.string('HLT/BTV/PFJet/AK8PFJet550')
+AK8PFJet550.nmuons = cms.uint32(0)
+AK8PFJet550.nelectrons = cms.uint32(0)
+AK8PFJet550.njets = cms.uint32(1)
+AK8PFJet550.jets = cms.InputTag("ak8PFJetsCHS")
+AK8PFJet550.jetSelection = cms.string('pt>500 & abs(eta)<2.4')
+AK8PFJet550.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_AK8PFJet550_v*')
+AK8PFJet550.histoPSet.jetPtBinning = cms.vdouble(0,500,520,550,600,700,1000,1500)
+
 
 btagMonitorHLT = cms.Sequence(
     BTagMu_AK4DiJet20_Mu5
