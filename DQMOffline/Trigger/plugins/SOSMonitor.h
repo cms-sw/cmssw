@@ -98,20 +98,30 @@ private:
   MON sosHTMON_;
 
 
-  GenericTriggerEventFlag* num_genTriggerEventFlag_;
-  GenericTriggerEventFlag* den_genTriggerEventFlag_;
+  GenericTriggerEventFlag* num_SOSTriggerEventFlag_;
+  GenericTriggerEventFlag* den_SOSTriggerEventFlag_;
 
   StringCutObjectSelector<reco::MET,true>         metSelection_;
   StringCutObjectSelector<reco::PFJet,true   >    jetSelection_;
   StringCutObjectSelector<reco::GsfElectron,true> eleSelection_;
   StringCutObjectSelector<reco::Muon,true>        muoSelection_;
-  int njets_;
-  int nelectrons_;
-  int nmuons_;
+  unsigned int njets_;
+  unsigned int nelectrons_;
+  unsigned int nmuons_;
   std::string turn_on_;
   int met_pt_cut_;
   float mu2_pt_cut_;
   float ht;
+  double sosMAX_PHI = 3.2;
+int sosN_PHI = 64;
+SOSbinning phi_binning_{
+  sosN_PHI, -sosMAX_PHI, sosMAX_PHI
+};
+double sosMAX_ETA = 2.1;
+int sosN_ETA = 64;
+SOSbinning eta_binning_{
+ sosN_ETA,-sosMAX_ETA,sosMAX_ETA
+};
 };
 
 #endif // SOSMONITOR_H

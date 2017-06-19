@@ -2,22 +2,12 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DQM/TrackingMonitor/interface/GetLumi.h"
 
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 
 #include "TLorentzVector.h"
 
-double sosMAX_PHI = 3.2;
-int sosN_PHI = 64;
-const SOSbinning phi_binning_{
-  sosN_PHI, -sosMAX_PHI, sosMAX_PHI
-};
-double sosMAX_ETA = 2.1;
-int sosN_ETA = 64;
-const SOSbinning eta_binning_{
- sosN_ETA,-sosMAX_ETA,sosMAX_ETA
-};
+
 // -----------------------------
 //  constructors and destructor
 // -----------------------------
@@ -31,8 +21,8 @@ SOSMonitor::SOSMonitor( const edm::ParameterSet& iConfig ) :
   , sos_variable_binning_ ( iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("sosBinning") )
   , sos_binning_          ( getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("sosPSet")    ) )
   , ls_binning_           ( getHistoLSPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("lsPSet")     ) )
-  , num_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet"),consumesCollector(), *this))
-  , den_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("denGenericTriggerEventPSet"),consumesCollector(), *this))
+  , num_SOSTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet"),consumesCollector(), *this))
+  , den_SOSTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("denGenericTriggerEventPSet"),consumesCollector(), *this))
   , metSelection_ ( iConfig.getParameter<std::string>("metSelection") )
   , jetSelection_ ( iConfig.getParameter<std::string>("jetSelection") )
   , eleSelection_ ( iConfig.getParameter<std::string>("eleSelection") )
@@ -45,24 +35,12 @@ SOSMonitor::SOSMonitor( const edm::ParameterSet& iConfig ) :
   , mu2_pt_cut_ (iConfig.getParameter<int>("mu2_pt_cut"))
 {
 
-  sosMON_.numerator   = nullptr;
-  sosMON_.denominator = nullptr;
-  sosMON_variableBinning_.numerator   = nullptr;
-  sosMON_variableBinning_.denominator = nullptr;
-  sosVsLS_.numerator   = nullptr;
-  sosVsLS_.denominator = nullptr;
-  sosPhiEtaMON_.numerator   = nullptr;
-  sosPhiEtaMON_.denominator = nullptr;
-  sosPhiMON_.numerator   = nullptr;
-  sosPhiMON_.denominator = nullptr;
- sosHTMON_.numerator   = nullptr;
- sosHTMON_.denominator = nullptr;
 }
 
 SOSMonitor::~SOSMonitor()
 {
-  if (num_genTriggerEventFlag_) delete num_genTriggerEventFlag_;
-  if (den_genTriggerEventFlag_) delete den_genTriggerEventFlag_;
+  if (num_SOSTriggerEventFlag_) delete num_SOSTriggerEventFlag_;
+  if (den_SOSTriggerEventFlag_) delete den_SOSTriggerEventFlag_;
 }
 
 SOSbinning SOSMonitor::getHistoPSet(edm::ParameterSet pset)
@@ -165,8 +143,8 @@ histname = turn_on_+"_PhiEta"; histtitle = histtitle2+"phiEta";
 
 
   // Initialize the GenericTriggerEventFlag
-  if ( num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on() ) num_genTriggerEventFlag_->initRun( iRun, iSetup );
-  if ( den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on() ) den_genTriggerEventFlag_->initRun( iRun, iSetup );
+  if ( num_SOSTriggerEventFlag_ && num_SOSTriggerEventFlag_->on() ) num_SOSTriggerEventFlag_->initRun( iRun, iSetup );
+  if ( den_SOSTriggerEventFlag_ && den_SOSTriggerEventFlag_->on() ) den_SOSTriggerEventFlag_->initRun( iRun, iSetup );
 
 }
 
@@ -177,7 +155,7 @@ histname = turn_on_+"_PhiEta"; histtitle = histtitle2+"phiEta";
 void SOSMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)  {
 
   // Filter out events if Trigger Filtering is requested
-  if (den_genTriggerEventFlag_->on() && ! den_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
+  if (den_SOSTriggerEventFlag_->on() && ! den_SOSTriggerEventFlag_->accept( iEvent, iSetup) ) return;
 
   edm::Handle<reco::PFMETCollection> metHandle;
   iEvent.getByToken( metToken_, metHandle );
@@ -192,12 +170,12 @@ void SOSMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   edm::Handle<reco::PFJetCollection> jetHandle;
   iEvent.getByToken( jetToken_, jetHandle );
   std::vector<reco::PFJet> jets;
-  if ( int(jetHandle->size()) < njets_ ) return;
+  if ( jetHandle->size() < njets_ ) return;
   for ( auto const & j : *jetHandle ) {
     if ( jetSelection_( j ) ) jets.push_back(j);
    
   }
-  if ( int(jets.size()) < njets_ ) return;
+  if ( jets.size() < njets_ ) return;
   //float ht=0;
   for (unsigned int j=0; j<jets.size(); j++) {
     if (jets[j].pt()>30) jet30+=1;
@@ -208,21 +186,21 @@ void SOSMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   edm::Handle<reco::GsfElectronCollection> eleHandle;
   iEvent.getByToken( eleToken_, eleHandle );
   std::vector<reco::GsfElectron> electrons;
-  if ( int(eleHandle->size()) < nelectrons_ ) return;
+  if ( eleHandle->size() < nelectrons_ ) return;
   for ( auto const & e : *eleHandle ) {
     if ( eleSelection_( e ) ) electrons.push_back(e);
   }
-  if ( int(electrons.size()) < nelectrons_ ) return;
+  if ( electrons.size() < nelectrons_ ) return;
   
 
   edm::Handle<reco::MuonCollection> muoHandle;
   iEvent.getByToken( muoToken_, muoHandle );
-  if ( int(muoHandle->size()) < nmuons_ ) return;
+  if ( muoHandle->size() < nmuons_ ) return;
   std::vector<reco::Muon> muons;
   for ( auto const & m : *muoHandle ) {
     if ( muoSelection_( m ) ) muons.push_back(m);
   }
-  if ( int(muons.size()) < nmuons_ ) return;
+  if ( muons.size() < nmuons_ ) return;
 if (nmuons_!=2) return;
 TLorentzVector mu1,mu2;
 mu1.SetPtEtaPhiM(muons[0].pt(),muons[0].eta(),muons[0].phi(),0.1);
@@ -243,7 +221,7 @@ if (met<met_pt_cut_) return;
   sosVsLS_.denominator -> Fill(ls, var);
   
   // applying selection for numerator
-  if (num_genTriggerEventFlag_->on() && ! num_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
+  if (num_SOSTriggerEventFlag_->on() && ! num_SOSTriggerEventFlag_->accept( iEvent, iSetup) ) return;
 
   // filling histograms (num_genTriggerEventFlag_)  
   sosMON_.numerator -> Fill(var);
