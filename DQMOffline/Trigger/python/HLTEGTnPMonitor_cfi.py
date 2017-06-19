@@ -529,7 +529,6 @@ for id_module_name in my_id_modules:
 
 
 from RecoEgamma.PhotonIdentification.PhotonIDValueMapProducer_cfi import photonIDValueMapProducer
-from RecoEgamma.PhotonIdentification.PhotonMVAValueMapProducer_cfi import photonMVAValueMapProducer
 from RecoEgamma.PhotonIdentification.egmPhotonIDs_cfi import egmPhotonIDs
 egmPhotonIDsForDQM = egmPhotonIDs.clone()
 egmPhotonIDsForDQM.physicsObjectsIDs = cms.VPSet()
@@ -545,5 +544,4 @@ for id_module_name in my_id_modules:
         if hasattr(item,'idName') and hasattr(item,'cutFlow'):
             setupVIDSelection(egmPhotonIDsForDQM,item)
 egmPhotonIDSequenceForDQM = cms.Sequence(photonIDValueMapProducer*
-                                         photonMVAValueMapProducer*
                                          egmPhotonIDsForDQM)
