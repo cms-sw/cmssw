@@ -30,8 +30,8 @@ trackingPhase1.toModify(hiGeneralTracksNoRegitMu,
                       cms.InputTag('hiLowPtTripletStepTracks'),
                       cms.InputTag('hiJetCoreRegionalStepTracks')
                      ),
-    hasSelector=cms.vint32(1,1,1,1,1,1,1,1),
-    setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1,2,3,4,5,6), pQual=cms.bool(True))),
+    hasSelector=cms.vint32(1,1,1,1,1,1,1),
+    setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1,2,3,4,5), pQual=cms.bool(True))),
     selectedTrackQuals = cms.VInputTag(
     cms.InputTag("hiInitialStepSelector","hiInitialStep"),
     cms.InputTag("hiLowPtQuadStepSelector","hiLowPtQuadStep"),
@@ -92,8 +92,8 @@ trackingPhase1.toModify(hiGeneralTracks,
                       cms.InputTag('hiRegitMuonSeededTracksOutIn'),
                       cms.InputTag('hiRegitMuonSeededTracksInOut')
                      ),
-    hasSelector=cms.vint32(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1),
-    setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14), pQual=cms.bool(True))),  # should this be False?
+    hasSelector=cms.vint32(1,1,1,1,1,1,1,1,1,1,1,1,1,1),
+    setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1,2,3,4,5,6,7,8,9,10,11,12,13), pQual=cms.bool(True))),  # should this be False?
     selectedTrackQuals = cms.VInputTag(
     cms.InputTag("hiInitialStepSelector","hiInitialStep"),
     cms.InputTag("hiLowPtQuadStepSelector","hiLowPtQuadStep"),
