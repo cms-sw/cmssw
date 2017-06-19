@@ -130,7 +130,7 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
   switch(lctCase){
   case lctTypes::ALCTCLCTGEM: {
     pattern = encodePattern(clct.getPattern(), clct.getStripType());
-    quality = findQualityGEM<GEMPadDigi>(alct, clct);
+    quality = findQualityGEM(alct, clct, 1);
     bx = alct.getBX();
     keyStrip = clct.getKeyStrip();
     keyWG = alct.getKeyWG();
@@ -138,7 +138,7 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
   }
   case lctTypes::ALCTCLCT2GEM: {
     pattern = encodePattern(clct.getPattern(), clct.getStripType());
-    quality = findQualityGEM<GEMCoPadDigi>(alct, clct);
+    quality = findQualityGEM(alct, clct, 2);
     bx = alct.getBX();
     keyStrip = clct.getKeyStrip();
     keyWG = alct.getKeyWG();
@@ -231,4 +231,104 @@ void CSCGEMMotherboard::setupGeometry()
 {
   CSCUpgradeMotherboard::setupGeometry();
   generator_->setGEMGeometry(gem_g);
+}
+
+void CSCGEMMotherboard::printGEMTriggerPads(int bx_start, int bx_stop, enum CSCPart part)
+{
+  LogTrace("CSCGEMMotherboard") << "------------------------------------------------------------------------" << std::endl;
+  LogTrace("CSCGEMMotherboard") << "* GEM trigger pads: " << std::endl;
+
+  for (int bx = bx_start; bx <= bx_stop; bx++) {
+    const auto& in_pads = pads_[bx];
+    LogTrace("CSCGEMMotherboard") << "N(pads) BX " << bx << " : " << in_pads.size() << std::endl;
+
+    for (const auto& pad : in_pads){ 
+      LogTrace("CSCGEMMotherboard") << "\tdetId " << GEMDetId(pad.first) << ", pad = " << pad.second;
+      const auto& roll_id(GEMDetId(pad.first));
+
+      if (part==CSCPart::ME11 and isPadInOverlap(GEMDetId(roll_id).roll())) LogTrace("CSCGEMMotherboard") << " (in overlap)" << std::endl;
+      else LogTrace("CSCGEMMotherboard") << std::endl;
+    }
+  }
+}
+
+
+void CSCGEMMotherboard::printGEMTriggerCoPads(int bx_start, int bx_stop, enum CSCPart part)
+{
+  LogTrace("CSCGEMMotherboard") << "------------------------------------------------------------------------" << std::endl;
+  LogTrace("CSCGEMMotherboard") << "* GEM trigger coincidence pads: " << std::endl;
+
+  for (int bx = bx_start; bx <= bx_stop; bx++) {
+    const auto& in_pads = coPads_[bx];
+    LogTrace("CSCGEMMotherboard") << "N(copads) BX " << bx << " : " << in_pads.size() << std::endl;
+
+    for (const auto& pad : in_pads){ 
+      LogTrace("CSCGEMMotherboard") << "\tdetId " << GEMDetId(pad.first) << ", pad = " << pad.second;
+      const auto& roll_id(GEMDetId(pad.first));
+
+      if (part==CSCPart::ME11 and isPadInOverlap(GEMDetId(roll_id).roll())) LogTrace("CSCGEMMotherboard") << " (in overlap)" << std::endl;
+      else LogTrace("CSCGEMMotherboard") << std::endl;
+    }
+  }
+}
+
+
+unsigned int CSCGEMMotherboard::findQualityGEM(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT, int gemlayers)
+{
+  /*
+    Same LCT quality definition as standard LCTs
+    a4 and c4 take GEMs into account!!!
+  */
+  
+  unsigned int quality = 0;
+
+  // 2008 definition.
+  if (!(aLCT.isValid()) || !(cLCT.isValid())) {
+    if (aLCT.isValid() && !(cLCT.isValid()))      quality = 1; // no CLCT
+    else if (!(aLCT.isValid()) && cLCT.isValid()) quality = 2; // no ALCT
+    else quality = 0; // both absent; should never happen.
+  }
+  else {
+    const int pattern(cLCT.getPattern());
+    if (pattern == 1) quality = 3; // layer-trigger in CLCT
+    else {
+      // ALCT quality is the number of layers hit minus 3.
+      // CLCT quality is the number of layers hit.
+      bool a4;
+      // GE11 
+      if (theStation==1) {
+	a4 = (aLCT.getQuality() >= 1);
+      }
+      // GE21
+      else if (theStation==2) {
+	a4 = (aLCT.getQuality() >= 1) or (aLCT.getQuality() >= 0 and gemlayers >=1);
+      }
+      else {
+	return -1; 
+      }
+      const bool c4((cLCT.getQuality() >= 4) or (cLCT.getQuality() >= 3 and gemlayers>=1));
+      //              quality = 4; "reserved for low-quality muons in future"
+      if      (!a4 && !c4) quality = 5; // marginal anode and cathode
+      else if ( a4 && !c4) quality = 6; // HQ anode, but marginal cathode
+      else if (!a4 &&  c4) quality = 7; // HQ cathode, but marginal anode
+      else if ( a4 &&  c4) {
+	if (aLCT.getAccelerator()) quality = 8; // HQ muon, but accel ALCT
+	else {
+	  // quality =  9; "reserved for HQ muons with future patterns
+	  // quality = 10; "reserved for HQ muons with future patterns
+	  if (pattern == 2 || pattern == 3)      quality = 11;
+	  else if (pattern == 4 || pattern == 5) quality = 12;
+	  else if (pattern == 6 || pattern == 7) quality = 13;
+	  else if (pattern == 8 || pattern == 9) quality = 14;
+	  else if (pattern == 10)                quality = 15;
+	  else {
+	    if (infoV >= 0) edm::LogWarning("L1CSCTPEmulatorWrongValues")
+			      << "+++ findQuality: Unexpected CLCT pattern id = "
+			      << pattern << "+++\n";
+	  }
+	}
+      }
+    }
+  }
+  return quality;
 }
