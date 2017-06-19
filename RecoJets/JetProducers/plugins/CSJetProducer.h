@@ -32,7 +32,7 @@ namespace cms
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
     static void fillDescriptionsFromCSJetProducer(edm::ParameterSetDescription& desc);
 
-    virtual void produce( edm::Event & iEvent, const edm::EventSetup & iSetup );
+    virtual void produce( edm::Event & iEvent, const edm::EventSetup & iSetup ) override;
     
   protected:
 

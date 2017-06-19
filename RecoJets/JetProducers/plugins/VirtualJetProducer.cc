@@ -904,13 +904,18 @@ void VirtualJetProducer::writeJetsWithConstituents(  edm::Event & iEvent, edm::E
       constituents = it->pieces();
     else if ( it->has_constituents() )
       fastjet::SelectorIsPureGhost().sift(it->constituents(), ghosts, constituents); //filter out ghosts
+
     //loop over constituents of jet (can be subjets or normal constituents)
-    std::vector<fastjet::PseudoJet>::const_iterator itConstBegin = constituents.begin(),
-      itConst = itConstBegin, itConstEnd = constituents.end();
-    for (; itConst != itConstEnd; ++itConst ) {
-      fastjet::PseudoJet const & constit = *itConst;
+    for (fastjet::PseudoJet const& constit : constituents) {
       if ( verbosity_ >= 1 ) {
-        std::cout << "jet #" << jetIndex << " constituent #" << (itConst - itConstBegin) << ": Pt = " << constit.pt() << ", eta = " << constit.eta() << ", phi = " << constit.phi() << ", mass = " << constit.m() << ", uid: " << constit.user_index() << ", pos: " << constituentsSub.size() << ")" << std::endl;
+        std::cout << "jet #" << jetIndex <<
+          ": Pt = " << constit.pt() <<
+          ", eta = " << constit.eta() <<
+          ", phi = " << constit.phi() <<
+          ", mass = " << constit.m() <<
+          ", uid: " << constit.user_index() <<
+          ", pos: " << constituentsSub.size() <<
+          ")" << std::endl;
       }
       indices[jetIndex].push_back( constituentsSub.size() );
       constituentsSub.push_back(constit);
@@ -919,8 +924,7 @@ void VirtualJetProducer::writeJetsWithConstituents(  edm::Event & iEvent, edm::E
 
   //Loop over constituents and store in the event
   static const reco::PFCandidate dummySinceTranslateIsNotStatic;
-  for (std::vector<fastjet::PseudoJet>::const_iterator itsub = constituentsSub.begin() ; itsub != constituentsSub.end(); ++itsub ) {
-    fastjet::PseudoJet const & constit = *itsub;
+  for (fastjet::PseudoJet const& constit : constituentsSub) {
     auto orig = inputs_[constit.user_index()];
     auto id = dummySinceTranslateIsNotStatic.translatePdgIdToType(orig->pdgId());
     reco::PFCandidate pCand( reco::PFCandidate(orig->charge(), orig->p4(), id) );

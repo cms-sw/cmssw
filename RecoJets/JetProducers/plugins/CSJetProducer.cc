@@ -27,11 +27,7 @@ void CSJetProducer::produce( edm::Event & iEvent, const edm::EventSetup & iSetup
   VirtualJetProducer::produce( iEvent, iSetup );
   //use runAlgorithm of this class
 
-
-  // fjClusterSeq_ retains quite a lot of memory - about 1 to 7Mb at 200 pileup
-  // depending on the exact configuration; and there are 24 FastjetJetProducers in the
-  // sequence so this adds up to about 60 Mb. It's allocated every time runAlgorithm
-  // is called, so safe to delete here.
+  //Delete allocated memory. It is allocated every time runAlgorithm is called
   fjClusterSeq_.reset();
 }
 
