@@ -72,30 +72,23 @@ pat::GenJetFlavourInfoPreserver::produce(edm::Event & iEvent, const edm::EventSe
 
     uint slimmedId = 0;
 
-	
+    auto jetIt = genJets->begin(), jetEnd = genJets->end();
+    auto jetInfoIt = genJetFlavourInfos->begin();
+    assert(genJets->size() == genJetFlavourInfos->size());
 
-    for (View<reco::GenJet>::const_iterator it = genJets->begin(), ed = genJets->end(); it != ed; ++it) {
-        if (!cut_(*it)) continue;
+    for(; jetIt != jetEnd; ++jetIt, ++jetInfoIt){
+        if (!cut_(*jetIt)) continue;
 
-        for(reco::JetFlavourInfoMatchingCollection::const_iterator jetInfo  = genJetFlavourInfos->begin(); jetInfo != genJetFlavourInfos->end();++jetInfo){
-                
-                if((jetInfo - genJetFlavourInfos->begin()) < (it - genJets->begin())) continue;
+        (*jetFlavourInfos)[slimmedGenJets->refAt(slimmedId)] = reco::JetFlavourInfo(jetInfoIt->second.getbHadrons(),
+                                                                                    jetInfoIt->second.getcHadrons(),
+                                                                                    jetInfoIt->second.getPartons(), 
+                                                                                    jetInfoIt->second.getLeptons(), 
+                                                                                    jetInfoIt->second.getHadronFlavour(), 
+                                                                                    jetInfoIt->second.getPartonFlavour());
+        slimmedId++;
 
-                else if((jetInfo - genJetFlavourInfos->begin()) > (it - genJets->begin())) continue;
-
-                (*jetFlavourInfos)[slimmedGenJets->refAt(slimmedId)] = reco::JetFlavourInfo(jetInfo->second.getbHadrons(),
-                                                                                            jetInfo->second.getcHadrons(),
-                                                                                            jetInfo->second.getPartons(), 
-                                                                                            jetInfo->second.getLeptons(), 
-                                                                                            jetInfo->second.getHadronFlavour(), 
-                                                                                            jetInfo->second.getPartonFlavour());
-
-                break;
-
-        }
-
-        slimmedId++; 
     }
+
 
     iEvent.put(std::move(jetFlavourInfos));
 }
