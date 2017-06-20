@@ -1,3 +1,6 @@
+#
+# caloStage2Params_2017_v1_6_2 (using both the 1st and 2nd EG iso WPs: 2017 and 2016) - expert level used with custumisation
+#
 import FWCore.ParameterSet.Config as cms
 
 from L1Trigger.L1TCalorimeter.caloParams_cfi import caloParamsSource
