@@ -9,7 +9,7 @@
  *
  */
 
-#include <DataFormats/GEMDigi/interface/GEMPadDigi.h>
+#include "DataFormats/GEMDigi/interface/GEMPadDigi.h"
 #include <cstdint>
 #include <iosfwd>
 
