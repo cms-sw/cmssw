@@ -1,3 +1,4 @@
+import os
 import sys
 import math
 import copy
@@ -2320,7 +2321,7 @@ class PlotGroup(object):
         for plot in self._plots:
             plot.create(tdirectoryNEvents, requireAllHistograms)
 
-    def draw(self, legendLabels, prefix=None, separate=False, saveFormat=".pdf", ratio=True):
+    def draw(self, legendLabels, prefix=None, separate=False, saveFormat=".pdf", ratio=True, directory=""):
         """Draw the histograms using values for a given algorithm.
 
         Arguments:
@@ -2329,6 +2330,7 @@ class PlotGroup(object):
         separate      -- Save the plots of a group to separate files instead of a file per group (default False)
         saveFormat   -- String specifying the plot format (default '.pdf')
         ratio        -- Add ratio to the plot (default True)
+        directory     -- Directory where to save the file (default "")
         """
 
         if self._overrideLegendLabels is not None:
@@ -2344,7 +2346,7 @@ class PlotGroup(object):
             return []
 
         if separate:
-            return self._drawSeparate(legendLabels, prefix, saveFormat, ratio)
+            return self._drawSeparate(legendLabels, prefix, saveFormat, ratio, directory)
 
         cwidth = 500*self._ncols
         nrows = int((len(self._plots)+self._ncols-1)/self._ncols) # this should work also for odd n
@@ -2394,9 +2396,9 @@ class PlotGroup(object):
         legend = self._createLegend(plot, legendLabels, lx1, ly1, lx2, ly2,
                                     denomUncertainty=(ratio and denomUnc))
 
-        return self._save(canvas, saveFormat, prefix=prefix)
+        return self._save(canvas, saveFormat, prefix=prefix, directory=directory)
 
-    def _drawSeparate(self, legendLabels, prefix, saveFormat, ratio):
+    def _drawSeparate(self, legendLabels, prefix, saveFormat, ratio, directory):
         """Internal method to do the drawing to separate files per Plot instead of a file per PlotGroup"""
         width = 500
         height = 500
@@ -2455,7 +2457,7 @@ class PlotGroup(object):
                 legend = self._createLegend(plot, legendLabels, lx1, ly1, lx2, ly2, textSize=0.03,
                                             denomUncertainty=(ratioForThisPlot and plot.drawRatioUncertainty))
 
-            ret.extend(self._save(c, saveFormat, prefix=prefix, postfix="_"+plot.getName(), single=True))
+            ret.extend(self._save(c, saveFormat, prefix=prefix, postfix="_"+plot.getName(), single=True, directory=directory))
         return ret
 
     def _modifyPadForRatio(self, pad):
@@ -2478,13 +2480,14 @@ class PlotGroup(object):
         l.Draw()
         return l
 
-    def _save(self, canvas, saveFormat, prefix=None, postfix=None, single=False):
+    def _save(self, canvas, saveFormat, prefix=None, postfix=None, single=False, directory=""):
         # Save the canvas to file and clear
         name = self._name
         if prefix is not None:
             name = prefix+name
         if postfix is not None:
             name = name+postfix
+        name = os.path.join(directory, name)
 
         if not verbose: # silence saved file printout
             backup = ROOT.gErrorIgnoreLevel
@@ -2625,7 +2628,7 @@ class PlotFolder:
                 continue
             pg.create(dirsNEvents, requireAllHistograms)
 
-    def draw(self, prefix=None, separate=False, saveFormat=".pdf", ratio=True):
+    def draw(self, prefix=None, separate=False, saveFormat=".pdf", ratio=True, directory=""):
         """Draw and save all plots using settings of a given algorithm.
 
         Arguments:
@@ -2633,11 +2636,12 @@ class PlotFolder:
         separate -- Save the plots of a group to separate files instead of a file per group (default False)
         saveFormat   -- String specifying the plot format (default '.pdf')
         ratio    -- Add ratio to the plot (default True)
+        directory -- Directory where to save the file (default "")
         """
         ret = []
 
         for pg in self._plotGroups:
-            ret.extend(pg.draw(self._labels, prefix=prefix, separate=separate, saveFormat=saveFormat, ratio=ratio))
+            ret.extend(pg.draw(self._labels, prefix=prefix, separate=separate, saveFormat=saveFormat, ratio=ratio, directory=directory))
         return ret
 
 

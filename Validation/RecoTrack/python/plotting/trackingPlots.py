@@ -1,3 +1,4 @@
+import os
 import copy
 import collections
 
@@ -1031,7 +1032,7 @@ class TrackingSeedingLayerTable:
         for plot in self._plots:
             plot.create(tdirectoryNEvents, requireAllHistograms)
 
-    def draw(self, legendLabels, prefix=None, *args, **kwargs):
+    def draw(self, legendLabels, prefix=None, directory="", *args, **kwargs):
         # Do not make the table if it would be empty
         onlyEmptyPlots = True
         for plot in self._plots:
@@ -1139,6 +1140,7 @@ class TrackingSeedingLayerTable:
         if prefix is not None:
             name = prefix+name
         name += ".html"
+        name = os.path.join(directory, name)
 
         with open(name, "w") as f:
             for line in content:
