@@ -28,7 +28,7 @@
 #include<cstring>
 #include<string>
 #include<vector>
-#include<stdlib.h>
+#include<cstdlib>
 #include <utility>
 #include <map>
 
