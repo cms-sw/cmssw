@@ -914,24 +914,27 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 			//	^^^ONLINE ONLY!
 		}
 
-		//	FIND a data digi
-		HcalTrigPrimDigiCollection::const_iterator jt=cdata->find(tid);
-		if (jt==cdata->end())
-		{
-			tid.ietaAbs()>=29?numMsnHF++:numMsnHBHE++;
-			_cEtCorr_TTSubdet.fill(tid, -2, soiEt);
-			_cMsnData_depthlike.fill(tid);
-			if (_ptype != fOffline) { // hidefed2crate
-				if (eid.isVMEid())
-					_cMsnData_ElectronicsVME.fill(eid);
-				else
-					_cMsnData_ElectronicsuTCA.fill(eid);
-			}
-			if (soiEt>_cutEt)
+		// Look for a data digi. 
+		// Do not perform if the emulated digi is zero suppressed.
+		if(!(it->zsMarkAndPass())) {
+			HcalTrigPrimDigiCollection::const_iterator jt=cdata->find(tid);
+			if (jt==cdata->end())
 			{
-				tid.ietaAbs()>=29?numMsnCutHF++:numMsnCutHBHE++;
-				if (_ptype==fOnline)
-					_xDataMsn.get(eid)++;
+				tid.ietaAbs()>=29?numMsnHF++:numMsnHBHE++;
+				_cEtCorr_TTSubdet.fill(tid, -2, soiEt);
+				_cMsnData_depthlike.fill(tid);
+				if (_ptype != fOffline) { // hidefed2crate
+					if (eid.isVMEid())
+						_cMsnData_ElectronicsVME.fill(eid);
+					else
+						_cMsnData_ElectronicsuTCA.fill(eid);
+				}
+				if (soiEt>_cutEt)
+				{
+					tid.ietaAbs()>=29?numMsnCutHF++:numMsnCutHBHE++;
+					if (_ptype==fOnline)
+						_xDataMsn.get(eid)++;
+				}
 			}
 		}
 	}
