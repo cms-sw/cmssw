@@ -1,6 +1,7 @@
 #ifndef PhysicsTools_Utilities_rootFunction_h
 #define PhysicsTools_Utilities_rootFunction_h
 #include "PhysicsTools/Utilities/interface/RootFunctionHelper.h"
+#include "PhysicsTools/Utilities/interface/Parameter.h"
 
 namespace root {
   template<unsigned int args, typename Tag, typename F>
