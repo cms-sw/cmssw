@@ -9,7 +9,7 @@
  * \author L. Gray, UF
  */
 
-#include <boost/cstdint.hpp>
+#include <cstdint>
 #include <iosfwd>
 
 class CSCCorrelatedLCTDigi 
