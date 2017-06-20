@@ -10,7 +10,7 @@
  *  \author Sven Dildick (TAMU)
  */
 
-#include <FWCore/Framework/interface/ConsumesCollector.h>
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
