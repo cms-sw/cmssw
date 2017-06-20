@@ -879,10 +879,13 @@ class Validation:
         tmp.extend([newSelection, sample.name()])
         newsubdir = os.path.join(*tmp)
         newdir = os.path.join(self._newBaseDir, newsubdir)
+        if not os.path.exists(newdir):
+            os.makedirs(newdir)
+        valnameFullPath = os.path.join(newdir, valname)
 
         # Copy the relevant histograms to a new validation root file
         # TODO: treat the case where dqmSubFolder is empty
-        newValFile = _copySubDir(harvestedFile, valname, plotterFolder.getPossibleDQMFolders(), dqmSubFolder.subfolder if dqmSubFolder is not None else None)
+        newValFile = _copySubDir(harvestedFile, valnameFullPath, plotterFolder.getPossibleDQMFolders(), dqmSubFolder.subfolder if dqmSubFolder is not None else None)
         fileList = []
 
         # Do the plots
@@ -896,10 +899,10 @@ class Validation:
             "%s, %s %s" % (sample.name(), _stripRelease(self._newRelease), newSelection)
         ]
         plotterFolder.create(rootFiles, legendLabels, dqmSubFolder, isPileupSample=sample.pileupEnabled())
-        fileList.extend(plotterFolder.draw(**self._plotterDrawArgs))
+        fileList.extend(plotterFolder.draw(directory=newdir, **self._plotterDrawArgs))
         # Copy val file only if there were plots
         if len(fileList) > 0:
-            fileList.append(valname)
+            fileList.append(valnameFullPath)
 
         # For tables we just try them all, and see which ones succeed
         for tableCreator in plotterFolder.getTableCreators():
@@ -919,12 +922,8 @@ class Validation:
             sys.exit(1)
 
         # Move plots to new directory
-        print "Moving plots and %s to %s" % (valname, newdir)
-        if not os.path.exists(newdir):
-            os.makedirs(newdir)
-        for f in fileList:
-            shutil.move(f, os.path.join(newdir, f))
-        return map(lambda n: os.path.join(newsubdir, n), fileList)
+        print "Created plots and %s in %s" % (valname, newdir)
+        return map(lambda n: n.replace(newdir, newsubdir), fileList)
 
     def _doPlotsFastFull(self, fastSample, fullSample, plotterFolder, dqmSubFolder, htmlReport):
         """Do the real plotting work for FastSim vs. FullSim for a given algorithm, quality flag, and sample."""
@@ -945,6 +944,8 @@ class Validation:
         fulldir = os.path.join(self._newBaseDir, fullSelection, fullSample.name())
         newsubdir = os.path.join("fastfull", self._newRelease, fastSelection, fastSample.name())
         newdir = os.path.join(self._newBaseDir, newsubdir)
+        if not os.path.exists(newdir):
+            os.makedirs(newdir)
 
         # Open input root files
         valname = "val.{sample}.root".format(sample=fastSample.name())
@@ -968,7 +969,7 @@ class Validation:
             "FastSim %s, %s %s" % (fastSample.name(), _stripRelease(self._newRelease), fastSelection),
         ]
         plotterFolder.create(rootFiles, legendLabels, dqmSubFolder, isPileupSample=fastSample.pileupEnabled(), requireAllHistograms=True)
-        fileList = plotterFolder.draw(**self._plotterDrawArgs)
+        fileList = plotterFolder.draw(directory=newdir, **self._plotterDrawArgs)
 
         # For tables we just try them all, and see which ones succeed
         for tableCreator in plotterFolder.getTableCreators():
@@ -987,12 +988,8 @@ class Validation:
             sys.exit(1)
 
         # Move plots to new directory
-        print "Moving plots to %s" % (newdir)
-        if not os.path.exists(newdir):
-            os.makedirs(newdir)
-        for f in fileList:
-            shutil.move(f, os.path.join(newdir, f))
-        return map(lambda n: os.path.join(newsubdir, n), fileList)
+        print "Created plots in %s" % (newdir)
+        return map(lambda n: n.replace(newdir, newsubdir), fileList)
 
     def _doPlotsPileup(self, pu140Sample, pu200Sample, plotterFolder, dqmSubFolder, htmlReport):
         """Do the real plotting work for two pileup scenarios for a given algorithm, quality flag, and sample."""
@@ -1010,6 +1007,8 @@ class Validation:
         pu200dir = os.path.join(self._newBaseDir, pu200Selection, pu200Sample.name())
         newsubdir = os.path.join("pileup", self._newRelease, pu200Selection, pu200Sample.name())
         newdir = os.path.join(self._newBaseDir, newsubdir)
+        if not os.path.exists(newdir):
+            os.makedirs(newdir)
 
         # Open input root files
         valname = "val.{sample}.root".format(sample=pu140Sample.name())
@@ -1037,7 +1036,7 @@ class Validation:
             "%s, %s %s" % (pu200Sample.name(), _stripRelease(self._newRelease), pu200Selection),
         ]
         plotterFolder.create(rootFiles, legendLabels, dqmSubFolder, isPileupSample=pu140Sample.pileupEnabled(), requireAllHistograms=True)
-        fileList = plotterFolder.draw(**self._plotterDrawArgs)
+        fileList = plotterFolder.draw(directory=newdir, **self._plotterDrawArgs)
 
         # For tables we just try them all, and see which ones succeed
         for tableCreator in plotterFolder.getTableCreators():
@@ -1056,12 +1055,8 @@ class Validation:
             sys.exit(1)
 
         # Move plots to new directory
-        print "Moving plots to %s" % (newdir)
-        if not os.path.exists(newdir):
-            os.makedirs(newdir)
-        for f in fileList:
-            shutil.move(f, os.path.join(newdir, f))
-        return map(lambda n: os.path.join(newsubdir, n), fileList)
+        print "Created plots in %s" % (newdir)
+        return map(lambda n: n.replace(newdir, newsubdir), fileList)
 
 
 def _copySubDir(oldfile, newfile, basenames, dirname):
@@ -1216,13 +1211,15 @@ class SimpleValidation:
 
     def _doPlots(self, plotterFolder, dqmSubFolder):
         plotterFolder.create(self._openFiles, self._labels, dqmSubFolder)
-        fileList = plotterFolder.draw(**self._plotterDrawArgs)
+        newsubdir = self._subdirprefix+plotterFolder.getSelectionName(dqmSubFolder)
+        newdir = os.path.join(self._newdir, newsubdir)
+        if not os.path.exists(newdir):
+            os.makedirs(newdir)
+        fileList = plotterFolder.draw(directory=newdir, **self._plotterDrawArgs)
 
         for tableCreator in plotterFolder.getTableCreators():
             self._htmlReport.addTable(tableCreator.create(self._openFiles, self._labels, dqmSubFolder))
 
-        newsubdir = self._subdirprefix+plotterFolder.getSelectionName(dqmSubFolder)
-        newdir = os.path.join(self._newdir, newsubdir)
 
         if len(fileList) == 0:
             return fileList
@@ -1233,9 +1230,5 @@ class SimpleValidation:
             print "Typically this is a naming problem in the plotter configuration"
             sys.exit(1)
 
-        print "Moving plots to %s" % newdir
-        if not os.path.exists(newdir):
-            os.makedirs(newdir)
-        for f in fileList:
-            shutil.move(f, os.path.join(newdir, f))
-        return map(lambda n: os.path.join(newsubdir, n), fileList)
+        print "Created plots in %s" % newdir
+        return map(lambda n: n.replace(newdir, newsubdir), fileList)
