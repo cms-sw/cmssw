@@ -50,8 +50,10 @@ class CSCComparatorDigiFitter
   void useKeyRadius(bool useKeyRadius) {useKeyRadius_ = useKeyRadius;}
   
   /* fit a straight line to the digis */
-  void fit(const CSCDetId& ch_id, const CSCCorrelatedLCTDigi&, const CSCComparatorDigiCollection&);
-  void getFitResults(std::vector<float>& fit_phis, std::vector<float>& fit_zs, float keyRadius);
+  void fit(const CSCDetId& ch_id, const CSCCorrelatedLCTDigi&,
+	   const CSCComparatorDigiCollection&,
+	   std::vector<float>& fit_phi_layers,
+	   std::vector<float>& fit_z_layers, float& keyRadius);
   
  private:
   
