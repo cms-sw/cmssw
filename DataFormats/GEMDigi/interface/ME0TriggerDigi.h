@@ -8,7 +8,7 @@
  * \author Sven Dildick (TAMU)
  */
 
-#include <boost/cstdint.hpp>
+#include <cstdint>
 #include <iosfwd>
 
 class ME0TriggerDigi 
