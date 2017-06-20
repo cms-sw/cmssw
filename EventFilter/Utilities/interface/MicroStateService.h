@@ -1,5 +1,5 @@
 #ifndef EvFMicroStateService_H
-#define EvFMicroStateServiceH 1
+#define EvFMicroStateService_H 1
 
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
