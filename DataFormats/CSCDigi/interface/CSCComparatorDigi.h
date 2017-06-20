@@ -11,7 +11,7 @@
  */
 #include <iosfwd>
 #include <vector>
-#include <stdint.h>
+#include <cstdint>
 
 class CSCComparatorDigi{
 
