@@ -56,7 +56,6 @@ void ME0PadDigiClusterProducer::produce(edm::Event& e, const edm::EventSetup& ev
 void ME0PadDigiClusterProducer::buildClusters(const ME0PadDigiCollection &det_pads, ME0PadDigiClusterCollection &out_clusters)
 {
   for (const auto& ch: geometry_->chambers()) {
-    unsigned int nClusters = 0;
     for (const auto& part: ch->etaPartitions()) {
       auto pads = det_pads.get(part->id());
       std::vector<uint16_t> cl;
@@ -74,7 +73,6 @@ void ME0PadDigiClusterProducer::buildClusters(const ME0PadDigiCollection &det_pa
             out_clusters.insertDigi(part->id(), pad_cluster);
             cl.clear();
             cl.push_back((*d).pad());
-            nClusters++;
           }
         }
         startBX = (*d).bx();
@@ -82,7 +80,6 @@ void ME0PadDigiClusterProducer::buildClusters(const ME0PadDigiCollection &det_pa
       if (pads.first != pads.second){
         ME0PadDigiCluster pad_cluster(cl, startBX);
         out_clusters.insertDigi(part->id(), pad_cluster);
-        nClusters++;
       }
     }
   }

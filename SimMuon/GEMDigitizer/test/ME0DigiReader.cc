@@ -241,6 +241,6 @@ void ME0DigiReader::endJob() {
 
 }
 
-#include <FWCore/Framework/interface/MakerMacros.h>
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(ME0DigiReader);
 

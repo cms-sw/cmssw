@@ -463,6 +463,6 @@ void GEMDigiSimLinkReader::analyze(const edm::Event & event, const edm::EventSet
   }        //end given detector
 }
 
-#include <FWCore/Framework/interface/MakerMacros.h>
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE (GEMDigiSimLinkReader);
 
