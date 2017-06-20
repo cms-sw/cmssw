@@ -42,6 +42,7 @@ class MonitorElement;
 class DQMStore;
 class SiStripDetCabling;
 class SiStripQuality;
+class TrackerTopology;
 
 class SiStripMonitorQuality : public DQMEDAnalyzer {
  public:
