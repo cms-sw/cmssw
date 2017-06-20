@@ -32,7 +32,8 @@ void PFCheckHitPattern::init(const TrackerTopology* tkerTopo, const TrackerGeome
   for (unsigned int i = 0; i < dets.size(); i++) {    
 
     // Get subdet and layer of this module
-    DetInfo detInfo = this->interpretDetId(dets[i]->geographicalId(), tkerTopo);
+    auto detId = dets[i]->geographicalId();
+    auto detInfo = DetInfo(detId.subdetId(), tkerTopo->layer(detId));
     uint32_t subDet = detInfo.first;
 
     // Note r (or z) of module if barrel (or endcap).
@@ -65,36 +66,6 @@ void PFCheckHitPattern::init(const TrackerTopology* tkerTopo, const TrackerGeome
     pair<double, double> rangeRZ = d->second;
   }
 #endif
-}
-
-PFCheckHitPattern::DetInfo PFCheckHitPattern::interpretDetId(DetId detId, const TrackerTopology* tkerTopo) {
-  // Convert detId to a pair<uint32, uint32> consisting of the numbers used by HitPattern 
-  // to identify subdetector and layer number respectively.
-  const auto subdetId = detId.subdetId();
-  uint32_t second{};
-  switch (subdetId) {
-    case StripSubdetector::TIB:
-      second = tkerTopo->tibLayer(detId);
-      break;
-    case StripSubdetector::TOB:
-      second = tkerTopo->tobLayer(detId);
-      break;
-    case StripSubdetector::TID:
-      second = tkerTopo->tidWheel(detId);
-      break;
-    case StripSubdetector::TEC:
-      second = tkerTopo->tecWheel(detId);
-      break;
-    case PixelSubdetector::PixelBarrel:
-      second = tkerTopo->pxbLayer(detId);
-      break;
-    case PixelSubdetector::PixelEndcap:
-      second = tkerTopo->pxfDisk(detId);
-      break;
-    default:
-      throw cms::Exception("RecoParticleFlow", "Found DetId that is not in Tracker");
-  }
-  return DetInfo(subdetId, second);
 }
 
 bool PFCheckHitPattern::barrel(uint32_t subDet) {
