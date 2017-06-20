@@ -60,10 +60,9 @@ private:
   /// Create map indicating r/z values of all layers/disks.
   void init (const TrackerTopology*, const TrackerGeometry*);
 
-  /// Return a pair<uint32, uint32> consisting of the numbers used by HitPattern to 
+  /// a pair<uint32, uint32> consisting of the numbers used by HitPattern to
   /// identify subdetector and layer number respectively.
   typedef std::pair<uint32_t, uint32_t> DetInfo;
-  static DetInfo interpretDetId(DetId detId, const TrackerTopology*);
 
   /// Return a bool indicating if a given subdetector is in the barrel.
   static bool barrel(uint32_t subDet);
