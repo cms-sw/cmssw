@@ -245,6 +245,14 @@ _sequenceForEachEra(_addSelectorsByAlgo, args=["_algos"], names="_selectorsByAlg
 # high purity
 _sequenceForEachEra(_addSelectorsByHp, args=["_algos"], names="_selectorsByAlgoHp", sequence="_tracksValidationSelectorsByAlgoHp", modDict=globals())
 
+# by originalAlgo
+for _eraName, _postfix, _era in _relevantEras:
+    locals()["_selectorsByAlgoAndHp"+_postfix] = locals()["_selectorsByAlgo"+_postfix] + locals()["_selectorsByAlgoHp"+_postfix]
+_sequenceForEachEra(_addSelectorsByOriginalAlgoMask, modDict = globals(),
+                    args = ["_selectorsByAlgoAndHp"], plainArgs = ["ByOriginalAlgo", "originalAlgorithm"],
+                    names = "_selectorsByOriginalAlgo", sequence = "_tracksValidationSelectorsByOriginalAlgo")
+
+
 for _eraName, _postfix, _era in _relevantEras:
     selectors = locals()["_selectorsByAlgoHp"+_postfix]
     locals()["_generalTracksHp"+_postfix] = selectors[0]
@@ -351,6 +359,7 @@ for _eraName, _postfix, _era in _relevantEras:
     _setForEra(trackValidator, _eraName, _era,
                label = ["generalTracks", locals()["_generalTracksHp"+_postfix]] +
                        locals()["_selectorsByAlgo"+_postfix] + locals()["_selectorsByAlgoHp"+_postfix] +
+                       locals()["_selectorsByOriginalAlgo"+_postfix] +
                        ["generalTracksPt09"] + locals()["_selectorsPt09"+_postfix] +
                [
                    "cutsRecoTracksBtvLike",
@@ -485,6 +494,7 @@ for _eraName, _postfix, _era in _relevantEras:
 tracksValidationSelectors = cms.Sequence(
     tracksValidationSelectorsByAlgo +
     tracksValidationSelectorsByAlgoHp +
+    tracksValidationSelectorsByOriginalAlgo +
     cutsRecoTracksBtvLike +
     ak4JetTracksAssociatorExplicitAll +
     cutsRecoTracksAK4PFJets
@@ -531,11 +541,6 @@ fastSim.toReplaceWith(tracksValidation, tracksValidation.copyAndExclude([
 ### Then define stuff for standalone mode (i.e. MTV with RECO+DIGI input)
 
 # Select by originalAlgo and algoMask
-for _eraName, _postfix, _era in _relevantEras:
-    locals()["_selectorsByAlgoAndHp"+_postfix] = locals()["_selectorsByAlgo"+_postfix] + locals()["_selectorsByAlgoHp"+_postfix]
-_sequenceForEachEra(_addSelectorsByOriginalAlgoMask, modDict = globals(),
-                    args = ["_selectorsByAlgoAndHp"], plainArgs = ["ByOriginalAlgo", "originalAlgorithm"],
-                    names = "_selectorsByOriginalAlgo", sequence = "_tracksValidationSelectorsByOriginalAlgoStandalone")
 _sequenceForEachEra(_addSelectorsByOriginalAlgoMask, modDict = globals(),
                     args = ["_selectorsByAlgoAndHp"], plainArgs = ["ByAlgoMask", "algorithmMaskContains"],
                     names = "_selectorsByAlgoMask", sequence = "_tracksValidationSelectorsByAlgoMaskStandalone")
@@ -558,7 +563,7 @@ _sequenceForEachEra(_addSelectorsBySrc, modDict = globals(),
 # MTV instances
 trackValidatorStandalone = trackValidator.clone()
 for _eraName, _postfix, _era in _relevantEras:
-    _setForEra(trackValidatorStandalone, _eraName, _era, label = trackValidator.label + locals()["_selectorsByOriginalAlgo"+_postfix] + locals()["_selectorsByAlgoMask"+_postfix] + locals()["_selectorsPt09Standalone"+_postfix])
+    _setForEra(trackValidatorStandalone, _eraName, _era, label = trackValidator.label + locals()["_selectorsByAlgoMask"+_postfix] + locals()["_selectorsPt09Standalone"+_postfix])
 
 trackValidatorFromPVStandalone = trackValidatorFromPV.clone()
 for _eraName, _postfix, _era in _relevantEras:
@@ -582,7 +587,6 @@ tracksPreValidationStandalone += trackingParticlesBHadron
 fastSim.toReplaceWith(tracksPreValidationStandalone, tracksPreValidation)
 
 tracksValidationSelectorsStandalone = cms.Sequence(
-    tracksValidationSelectorsByOriginalAlgoStandalone +
     tracksValidationSelectorsByAlgoMaskStandalone +
     tracksValidationSelectorsPt09Standalone +
     tracksValidationSelectorsFromPVStandalone +
