@@ -18,3 +18,5 @@ python ${LOCAL_TEST_DIR}/testDownhill.py || die 'Failure using testDownhill' $?
 python ${LOCAL_TEST_DIR}/testXGBoost_and_sklean.py || die 'Failure using testXGBoost' $?
 #python ${LOCAL_TEST_DIR}/testTheanets.py || die 'Failure using testTheanets' $?
 
+python ${LOCAL_TEST_DIR}/testhep_ml.py || die 'Failure using testhep_ml' $?
+python ${LOCAL_TEST_DIR}/testUncertainties.py || die 'Failure using testUncertainties' $?
