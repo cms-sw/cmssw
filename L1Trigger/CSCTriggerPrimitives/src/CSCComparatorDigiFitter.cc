@@ -10,107 +10,117 @@ namespace
   // pid=0: no pattern found
   std::vector<std::vector<int> > pat0delta;
  
-  std::vector<std::vector<int> > pat1delta {  
-    { -5,   -4,   -3,   -2,   -1,   0,   1,   2,   3,   4,   5}, 
-      {-2,   -1,   0,   1,   2}, 
-	{0},             // pid=1: layer-OR trigger 
-	  {-2,   -1,   0,   1,   2}, 
-	    { -4,   -3,   -2,   -1,   0,   1,   2,   3,   4}, 
-	      { -5,   -4,   -3,   -2,   -1,   0,   1,   2,   3,   4,   5}
-  }; 
+  // pid=1: layer-OR trigger
+  std::vector<std::vector<int> > pat1delta {
+    {-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5},
+      {-2, -1, 0, 1, 2},
+	{0},
+	  {-2, -1, 0, 1, 2},
+	    {-4, -3, -2, -1, 0, 1, 2, 3, 4},
+	      {-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5}
+  };
   
-  std::vector<std::vector<int> > pat2delta {  
-    {   3,   4,   5}, 
-      {  1,   2}, 
-	{0},             // pid=2: right-bending (large) 
-	  {-2,   -1,   0}, 
-	    {-4,   -3,   -2}, 
-	      {-5,   -4,   -3} 
+  // pid=2: right-bending (large)
+  std::vector<std::vector<int> > pat2delta {
+    {3, 4, 5},
+      {1, 2},
+	{0},
+	  {-2, -1, 0},
+	    {-4, -3, -2},
+	      {-5, -4, -3}
+  };
+
+  // pid=3: left-bending (large)
+  std::vector<std::vector<int> > pat3delta {
+    {-5, -4, -3},
+      {-2, -1},
+	{0},
+	  {0, 1, 2},
+	    {2, 3, 4},
+	      {3, 4, 5}
   }; 
 
-  std::vector<std::vector<int> > pat3delta { 
-    {   -5,   -4,   -3}, 
-      {-2,   -1}, 
-	{0},             // pid=3: left-bending (large) 
-	  {  0,   1,   2}, 
-	    {  2,   3,   4}, 
-	      {  3,   4,   5} 
-  };  
-
-  std::vector<std::vector<int> > pat4delta { 
-    {   2,   3,   4}, 
-      {  1,   2}, 
-	{0},             // pid=4: right-bending (medium) 
-	  {-2,   -1}, 
-	    {-4,   -3,   -2}, 
-	      {  -4,   -3,   -2} 
+  // pid=4: right-bending (medium)
+  std::vector<std::vector<int> > pat4delta {
+    {2, 3, 4},
+      {1, 2},
+	{0},
+	  {-2, -1},
+	    {-4, -3, -2},
+	      {-4, -3, -2}
             
-  }; 
+  };
 
-  std::vector<std::vector<int> > pat5delta { 
-    {   -4,   -3,   -2}, 
-      {-2,   -1}, 
-	{0},             // pid=5: left-bending (medium) 
-	  {  1,   2}, 
-	    {  2,   3,   4}, 
-	      {  2,   3,   4} 
+  // pid=5: left-bending (medium)
+  std::vector<std::vector<int> > pat5delta {
+    {-4, -3, -2},
+      {-2, -1},
+	{0},
+	  {1, 2},
+	    {2, 3, 4},
+	      {2, 3, 4}
             
-  }; 
+  };
 
-  std::vector<std::vector<int> > pat6delta { 
-    {   1,   2,   3}, 
-      {  0,   1}, 
-	{0},             // pid=6: right-bending (medium) 
-	  {  -1,   0}, 
-	    {  -2,   -1}, 
-	      {  -3,   -2,   -1} 
-  }; 
+  // pid=6: right-bending (medium)
+  std::vector<std::vector<int> > pat6delta {
+    {1, 2, 3},
+      {0, 1},
+	{0},
+	  {-1, 0},
+	    {-2, -1},
+	      {-3, -2, -1}
+  };
 
-  std::vector<std::vector<int> > pat7delta { 
-    {   -3,   -2,   -1}, 
-      {  -1,   0}, 
-	{0},             // pid=7: left-bending (medium) 
-	  {  0,   1}, 
-	    {  1,   2}, 
-	      { 1,  2,   3} 
-  }; 
+  // pid=7: left-bending (medium)
+  std::vector<std::vector<int> > pat7delta {
+    {-3, -2, -1},
+      {-1, 0},
+	{0},
+	  {0, 1},
+	    {1, 2},
+	      {1, 2, 3}
+  };
 
-  std::vector<std::vector<int> > pat8delta { 
-    {   0,   1,   2}, 
-      {  0,   1}, 
-	{0},             // pid=8: right-bending (small) 
-	  {  -1,   0}, 
-	    {  -2,   -1,   0}, 
-	      {  -2,   -1,   0} 
-  }; 
+  // pid=8: right-bending (small)
+  std::vector<std::vector<int> > pat8delta {
+    {0, 1, 2},
+      {0, 1},
+	{0},
+	  {-1, 0},
+	    {-2, -1, 0},
+	      {-2, -1, 0}
+  };
 
-  std::vector<std::vector<int> > pat9delta { 
-    {   -2,   -1,   0}, 
-      {  -1,   0}, 
-	{0},             // pid=9: left-bending (small) 
-	  {  0,   1}, 
-	    {  0,   1,   2}, 
-	      {  0,   1,   2} 
-  }; 
+  // pid=9: left-bending (small)
+  std::vector<std::vector<int> > pat9delta {
+    {-2, -1, 0},
+      {-1, 0},
+	{0},
+	  {0, 1},
+	    {0, 1, 2},
+	      {0, 1, 2}
+  };
 
-  std::vector<std::vector<int> > patAdelta { 
-    {   -1,   0,   1}, 
-      {  0}, 
-	{0},             // pid=A: straight-through 
-	  {  0}, 
-	    {  -1,   0,   1}, 
-	      {  -1,   0,   1} 
-  }; 
+  // pid=A: straight-through
+  std::vector<std::vector<int> > patAdelta {
+    {-1, 0, 1},
+      {0},
+	{0},
+	  {0},
+	    {-1, 0, 1},
+	      {-1, 0, 1}
+  };
 
-  std::vector< std::vector<std::vector<int> > > patIndexToPatternDelta { 
+  std::vector< std::vector<std::vector<int> > > patIndexToPatternDelta {
     pat0delta, pat1delta, pat2delta, pat3delta, pat4delta, pat5delta, pat6delta, pat7delta, pat8delta, pat9delta, patAdelta 
-  }; 
+  };
 }
 
 void CSCComparatorDigiFitter::matchingComparatorDigisLCT(const CSCDetId& ch_id, const CSCCorrelatedLCTDigi& stub, const CSCComparatorDigiCollection& hCSCComparators)
 {
   // fetch the CSC comparator digis in this chamber
-  for (int iLayer=1; iLayer<=6; ++iLayer) {
+  for (int iLayer=1; iLayer<=CSCConstants::NUM_LAYERS; ++iLayer) {
     const CSCDetId layerId(ch_id.endcap(), ch_id.station(), ch_id.ring(), ch_id.chamber(), iLayer);
     
     // get the digis per layer
@@ -185,12 +195,22 @@ void CSCComparatorDigiFitter::getComparatorDigiCoordinates(const CSCDetId& ch_id
 
     phi_tmp = phi_tmp/(p.second).size();
     phis_.push_back(phi_tmp);
+    // assume that the charge is flat distributed across the half-strip
+    // this is only approximately valid, but good enough for now
     ephis_.push_back(cscHalfStripWidth(detId)/sqrt(12));
   }
 }
 
-void CSCComparatorDigiFitter::fit(const CSCDetId& ch_id, const CSCCorrelatedLCTDigi& stub, const CSCComparatorDigiCollection& hCSCComparators)
+void CSCComparatorDigiFitter::fit(const CSCDetId& ch_id, const CSCCorrelatedLCTDigi& stub,
+				  const CSCComparatorDigiCollection& hCSCComparators,
+				  std::vector<float>& fit_phi_layers,
+				  std::vector<float>& fit_z_layers, float& keyRadius)
 {
+  // clear fit results
+  fit_phi_layers.clear();
+  fit_z_layers.clear();
+  keyRadius = 0;
+
   // first, match the comparator digis to the LCT
   matchingComparatorDigisLCT(ch_id, stub, hCSCComparators);
 
@@ -223,22 +243,30 @@ void CSCComparatorDigiFitter::fit(const CSCDetId& ch_id, const CSCCorrelatedLCTD
     beta = 0.0;
   }
 
+  // determine the pitch of the chamber
+  // option to discretize the pitch
   float stripPhiPitch = layer_geo->stripPhiPitch();
   if (nStripBits_)
     stripPhiPitch = stripPhiPitch/nStripBits_;
 
-  int fit_z_layers[6];
-  int fit_phi_layers[6];
-  for (int i=0; i<6; i++){
-    fit_z_layers[i] = cscChamber->layer(i+1)->centerOfStrip(20).z();
-    fit_phi_layers[i] = normalizedPhi(alpha + beta * fit_z_layers[i]);
+  // get the fit results
+  // option to discretize the fitted phi value
+  keyRadius = radius_;
+
+  for (int i=0; i<CSCConstants::NUM_LAYERS; i++) {
+    const float fit_z = cscChamber->layer(i+1)->centerOfStrip(20).z();
+    const float fit_phi = normalizedPhi(alpha + beta * fit_z);
+    fit_z_layers.push_back(fit_z);
+    fit_phi_layers.push_back(fit_phi);
     if (nStripBits_)
-      fit_phi_layers[i] = (std::floor(fit_phi_layers[i]/stripPhiPitch) + 0.5)*stripPhiPitch;
+      fit_phi_layers.push_back((std::floor(fit_phi/stripPhiPitch) + 0.5)*stripPhiPitch);
   }
 }
 
 void CSCComparatorDigiFitter::calculateSlopeIntercept(float& alpha, float& beta)
 {
+  // if there are at least 3 hits in the chamber, do a linear fit to the
+  // comparator digi positions with the chi2 method
   if (phis_.size()>=3) {
   
     float Sxx = 0, Sxy = 0, Sx = 0, Sy = 0, S = 0;
@@ -262,9 +290,10 @@ void CSCComparatorDigiFitter::calculateSlopeIntercept(float& alpha, float& beta)
 float
 CSCComparatorDigiFitter::cscHalfStripWidth(const CSCDetId& id) const
 {
+  // what is the chamber type?
   int index = id.iChamberType()-1;
 
-  // half strip width
+  // calculate the half strip width of this chamber
   return degrees_[index] * M_PI/180. / (2. * strips_[index]);
 }
 
