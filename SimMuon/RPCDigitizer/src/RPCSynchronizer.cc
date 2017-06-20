@@ -21,12 +21,12 @@
 
 #include "CLHEP/Random/RandGaussQ.h"
 
-#include<cstring>
-#include<iostream>
-#include<fstream>
-#include<string>
-#include<vector>
-#include<cstdlib>
+#include <cstring>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <cstdlib>
 #include <cmath>
 
 using namespace std;
