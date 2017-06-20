@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # THIS WILL BE UPDATED WHEN 19178 IS MERGED:
 #from DQMOffline.Trigger.JetMETMonitor_cfi import hltJetMETmonitoring
 from DQMOffline.Trigger.HTMonitor_cfi import hltHTmonitoring
-
+from DQMOffline.Trigger.B2GTnPMonitor_cfi import B2GegmGsfElectronIDsForDQM,B2GegHLTDQMOfflineTnPSource
 
 # B2G triggers:
 #HLT_AK8PFHT750_TrimMass50_v*
@@ -79,4 +79,10 @@ b2gMonitorHLT = cms.Sequence(
     #AK8PFJet380_TrimMass30 + 
     #AK8PFJet400_TrimMass30 + 
     #AK8PFJet420_TrimMass30
+)
+
+
+b2gMonitorHLT_elplusJet = cms.Sequence(
+    B2GegmGsfElectronIDsForDQM*
+    B2GegHLTDQMOfflineTnPSource
 )
