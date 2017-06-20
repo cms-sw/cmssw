@@ -24,12 +24,12 @@
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "SimMuon/RPCDigitizer/src/RPCSimSetUp.h"
 
-#include<cstring>
-#include<iostream>
-#include<fstream>
-#include<string>
-#include<vector>
-#include<cstdlib>
+#include <cstring>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <cstdlib>
 #include <utility>
 #include <map>
 
