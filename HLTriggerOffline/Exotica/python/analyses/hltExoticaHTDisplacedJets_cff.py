@@ -40,7 +40,8 @@ HTDisplacedJetsPSet = cms.PSet(
         "HLT_HT430_DisplacedDijet60_DisplacedTrack_v",
         "HLT_HT430_DisplacedDijet80_DisplacedTrack_v",
         "HLT_HT650_DisplacedDijet60_Inclusive_v",
-
+        "HLT_HT400_DisplacedDijet40_DisplacedTrack_v",
+        "HLT_HT550_DisplacedDijet60_Inclusive_v"
 
         ),
     recPFMHTLabel  = cms.InputTag("recoExoticaValidationHT"),
