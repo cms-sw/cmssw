@@ -10,7 +10,7 @@
  */
 
 #include <DataFormats/GEMDigi/interface/GEMPadDigi.h>
-#include <boost/cstdint.hpp>
+#include <cstdint>
 #include <iosfwd>
 
 class GEMCoPadDigi{
