@@ -290,8 +290,8 @@ void HcalDDDRecConstants::getLayerDepth(const int ieta,
 int HcalDDDRecConstants::getLayerFront(const int idet, const int ieta,
 				       const int iphi, const int depth) const {
   int subdet = (idet == 1) ? 1 : 2;
-  int eta    = (ieta > 0) ? ieta : -ieta;
   int zside  = (ieta > 0) ? 1 : -1;
+  int eta    = zside*ieta;
   int layFront = hcons.ldMap()->getLayerFront(subdet,eta,iphi,zside,depth);
   if (layFront < 0) {
     int laymin  = hcons.getFrontLayer(subdet, ieta);

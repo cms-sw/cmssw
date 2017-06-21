@@ -104,7 +104,7 @@ void HcalRecNumberingTester::analyze( const edm::Event& iEvent, const edm::Event
     std::vector<HcalCellType> hbcell = hdc.HcalCellTypes(HcalBarrel);
     std::cout << "HB with " << hbcell.size() << " cells" << std::endl;
     unsigned int i1(0), i2(0), i3(0), i4(0);
-    for (auto cell : hbcell) {
+    for (const auto& cell : hbcell) {
       std::cout << "HB[" << i1 << "] det " << cell.detType() << " zside "
 		<< cell.zside() << ":" << cell.halfSize()
 		<< " RO " << cell.actualReadoutDirection()
@@ -119,13 +119,13 @@ void HcalRecNumberingTester::analyze( const edm::Event& iEvent, const edm::Event
       ++i1;
       std::vector<std::pair<int,double>>phis = cell.phis();
       std::cout << "Phis (" << phis.size() << ") :";
-      for (auto phi : phis) 
+      for (const auto& phi : phis) 
 	std::cout << " [" << phi.first << ", " << phi.second << "]";
       std::cout << std::endl;
     }
     std::vector<HcalCellType> hecell = hdc.HcalCellTypes(HcalEndcap);
     std::cout << "HE with " << hecell.size() << " cells" << std::endl;
-    for (auto cell : hecell) {
+    for (const auto& cell : hecell) {
       std::cout << "HE[" << i2 << "] det " << cell.detType() << " zside "
 		<< cell.zside() << ":" << cell.halfSize()
 		<< " RO " << cell.actualReadoutDirection()
@@ -140,13 +140,13 @@ void HcalRecNumberingTester::analyze( const edm::Event& iEvent, const edm::Event
       ++i2;
       std::vector<std::pair<int,double>>phis = cell.phis();
       std::cout << "Phis (" << phis.size() << ") :";
-      for (auto phi : phis) 
+      for (const auto& phi : phis) 
 	std::cout << " [" << phi.first << ", " << phi.second << "]";
       std::cout << std::endl;
     }
     std::vector<HcalCellType> hfcell = hdc.HcalCellTypes(HcalForward);
     std::cout << "HF with " << hfcell.size() << " cells" << std::endl;
-    for (auto cell : hfcell) {
+    for (const auto& cell : hfcell) {
       std::cout << "HF[" << i3 << "] det " << cell.detType() << " zside "
 		<< cell.zside() << ":" << cell.halfSize()
 		<< " RO " << cell.actualReadoutDirection()
@@ -162,7 +162,7 @@ void HcalRecNumberingTester::analyze( const edm::Event& iEvent, const edm::Event
     }
     std::vector<HcalCellType> hocell = hdc.HcalCellTypes(HcalOuter);
     std::cout << "HO with " << hocell.size() << " cells" << std::endl;
-    for (auto cell : hocell) {
+    for (const auto& cell : hocell) {
       std::cout << "HO[" << i4 << "] det " << cell.detType() << " zside "
 		<< cell.zside() << ":" << cell.halfSize()
 		<< " RO " << cell.actualReadoutDirection()
@@ -180,7 +180,7 @@ void HcalRecNumberingTester::analyze( const edm::Event& iEvent, const edm::Event
       std::vector<HcalDDDRecConstants::HcalActiveLength> act = hdc.getThickActive(type);
       std::cout << "Hcal type " << type << " has " << act.size() 
 		<< " eta/depth segment " << std::endl;
-      for (auto active : act) {
+      for (const auto& active : act) {
 	std::cout << "zside " << active.zside << " ieta " << active.ieta
 		  << " depth " << active.depth << " type " << active.stype
 		  << " eta " << active.eta  << " active thickness " 
@@ -220,7 +220,7 @@ void HcalRecNumberingTester::analyze( const edm::Event& iEvent, const edm::Event
       }
     }
     // Test merging
-    for (auto cell : hbcell) {
+    for (const auto& cell : hbcell) {
       int ieta  = cell.etaBin()*cell.zside();
       double rz = hdc.getRZ(HcalBarrel,ieta,cell.phis()[0].first,
 			    cell.depthSegment());
@@ -228,7 +228,7 @@ void HcalRecNumberingTester::analyze( const edm::Event& iEvent, const edm::Event
 		<< ", depth=" << cell.depthSegment() << ") r/z = " << rz 
 		<< std::endl;
     }
-    for (auto cell : hecell) {
+    for (const auto& cell : hecell) {
       int ieta  = cell.etaBin()*cell.zside();
       double rz = hdc.getRZ(HcalEndcap,ieta,cell.phis()[0].first,
 			    cell.depthSegment());
