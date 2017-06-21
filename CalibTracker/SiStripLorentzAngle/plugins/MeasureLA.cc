@@ -5,6 +5,11 @@
 #include <TChain.h>
 #include <TFile.h>
 
+namespace {
+  uint32_t getTIBOrTOBLayer( DetId detId ) { return ((detId.rawId()>>14) & 0x7); };
+  bool getTIBorTOBStereo( DetId detId ) { return (detId.rawId() & 0x3) == 1; };
+}
+
 namespace sistrip {
 
 void MeasureLA::
@@ -179,8 +184,9 @@ calibration_key(const std::string layer, const LA_Filler_Fitter::Method method) 
 std::pair<uint32_t,LA_Filler_Fitter::Method> MeasureLA::
 calibration_key(const uint32_t detid, const LA_Filler_Fitter::Method method) {
   const bool TIB = SiStripDetId(detid).subDetector() == SiStripDetId::TIB;
-  const bool stereo = TIB ? TIBDetId(detid).stereo() : TOBDetId(detid).stereo();
-  const unsigned layer = TIB ? TIBDetId(detid).layer() : TOBDetId(detid).layer();
+  const bool stereo = getTIBorTOBStereo(detid);
+  const unsigned layer = getTIBOrTOBLayer(detid);
+
   return std::make_pair(LA_Filler_Fitter::layer_index(TIB,stereo,layer),method);
 }
 

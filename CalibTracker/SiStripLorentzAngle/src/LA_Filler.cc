@@ -4,6 +4,10 @@
 #include <cmath>
 #include <boost/lexical_cast.hpp>
 
+namespace {
+  uint32_t getTIBOrTOBLayer( DetId detId ) { return ((detId.rawId()>>14) & 0x7); };
+}
+
 void LA_Filler_Fitter::
 fill(TTree* tree, Book& book) const {
   TTREE_FOREACH_ENTRY(tree) {
@@ -85,11 +89,11 @@ granularity(const SiStripDetId detid, const float tthetaL, const Long64_t TFE_in
 }
 
 std::string LA_Filler_Fitter::
-subdetLabel(const SiStripDetId detid) { return detid.subDetector()==SiStripDetId::TOB? "TOB" : "TIB";}
+subdetLabel(const SiStripDetId detid) { return detid.subDetector()==SiStripDetId::TOB ? "TOB" : "TIB";}
 std::string LA_Filler_Fitter::
 moduleLabel(const SiStripDetId detid) { return subdetLabel(detid) + "_module"+std::to_string(detid());}
 std::string LA_Filler_Fitter::
 layerLabel(const SiStripDetId detid) {
-  unsigned layer = detid.subDetector() == SiStripDetId::TOB ? TOBDetId(detid()).layer() : TIBDetId(detid()).layer();
+  unsigned layer = getTIBOrTOBLayer(detid);
   return subdetLabel(detid)+"_layer"+std::to_string(layer)+(detid.stereo()?"s":"a");
 }

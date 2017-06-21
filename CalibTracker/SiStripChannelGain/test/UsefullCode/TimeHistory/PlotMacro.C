@@ -1,5 +1,3 @@
-
-
 #include "TROOT.h"
 #include "TFile.h"
 #include "TDirectory.h"
@@ -19,13 +17,27 @@
 #include "PlotFunction.h"
 
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+
+
+//WARNING: these methods assume that the DetId is a
+//TIBDetId or TOBDetId or TIDDetId or TECDetId (and don't check this).
+//Please use the corresponding TrackerTopology methods whenever possible.
+//Code copied from TIBDetId, TOBDetId, TIDDetId, and TECDetId (see
+//git show CMSSW_9_2_3_patch2:DataFormats/SiStripDetId/interface/TIBDetId.h
+//git show CMSSW_9_2_3_patch2:DataFormats/SiStripDetId/interface/TOBDetId.h
+//git show CMSSW_9_2_3_patch2:DataFormats/SiStripDetId/interface/TIDDetId.h
+//git show CMSSW_9_2_3_patch2:DataFormats/SiStripDetId/interface/TECDetId.h)
+
+uint32_t getTIBorTOBlayer( DetId detId ) { return ((detId.rawId()>>14) & 0x7); };
+uint32_t getTIDside      ( DetId detId ) { return ((detId.rawId()>>13) & 0x3); };
+uint32_t getTIDring      ( DetId detId ) { return ((detId.rawId()>> 9) & 0x3); };
+uint32_t getTIDwheel     ( DetId detId ) { return ((detId.rawId()>>11) & 0x3); };
+uint32_t getTECside      ( DetId detId ) { return ((detId.rawId()>>18) & 0x3); };
+uint32_t getTECring      ( DetId detId ) { return ((detId.rawId()>> 5) & 0x7); };
+uint32_t getTECwheel     ( DetId detId ) { return ((detId.rawId()>>14) & 0xF); };
 
 #include<vector>
-#include<tdrstyle.C>
+#include"tdrstyle.C"
 
 std::map<unsigned int, double> RunToIntLumi;
 
@@ -413,31 +425,27 @@ void GetAverageGain(string input, string moduleName, stLayerData& layerData )
       t1->GetEntry(ientry);
       SiStripDetId SSdetId(tree_DetId);
 
-       char LayerName[255];
+      char LayerName[255];
 
       int LayerID=tree_SubDet*1000;      
-      switch(tree_SubDet){         
-         case 3:{
-            TIBDetId tibid = TIBDetId(tree_DetId);
-            LayerID += tibid.layer();
-            sprintf(LayerName,"lTIB%i",tibid.layer());
+      switch (tree_SubDet) {         
+         case SiStripDetId::TIB:{
+            LayerID += getTIBorTOBlayer(tree_DetId);
+            sprintf(LayerName,"lTIB%i",getTIBorTOBlayer(tree_DetId));
          }break;
-         case 4:{
-            TIDDetId tidid = TIDDetId(tree_DetId);
-            LayerID += tidid.side()*100;
-            LayerID += tidid.ring();
-            sprintf(LayerName,"rTID%c%i",tidid.side()==1?'-':'+', tidid.ring());
+         case SiStripDetId::TID:{
+            LayerID += getTIDside(tree_DetId)*100;
+            LayerID += getTIDring(tree_DetId);
+            sprintf(LayerName,"rTID%c%i",getTIDside(tree_DetId)==1?'-':'+', getTIDring(tree_DetId));
          }break;
-         case 5:{
-            TOBDetId tobid = TOBDetId(tree_DetId);
-            LayerID += tobid.layer();
-            sprintf(LayerName,"lTOB%i",tobid.layer());
+         case SiStripDetId::TOB:{
+            LayerID += getTIBorTOBlayer(tree_DetId);
+            sprintf(LayerName,"lTOB%i",getTIBorTOBlayer(tree_DetId));
          }break;
-         case 6:{
-            TECDetId tecid = TECDetId(tree_DetId);
-            LayerID += tecid.side()*100;
-            LayerID += tecid.ring();
-            sprintf(LayerName,"rTEC%c%i",tecid.side()==1?'-':'+', tecid.ring());
+         case SiStripDetId::TEC:{
+            LayerID += getTECside(tree_DetId)*100;
+            LayerID += getTECring(tree_DetId);
+            sprintf(LayerName,"rTEC%c%i",getTECside(tree_DetId)==1?'-':'+', getTECring(tree_DetId));
          }break;
          default:
          break;
@@ -449,18 +457,16 @@ void GetAverageGain(string input, string moduleName, stLayerData& layerData )
 
 
       LayerID=tree_SubDet*1000;
-      switch(tree_SubDet){
-         case 4:{
-            TIDDetId tidid = TIDDetId(tree_DetId);
-            LayerID += (2+tidid.side())*100;
-            LayerID += tidid.wheel();
-            sprintf(LayerName,"wTID%c%i",tidid.side()==1?'-':'+', tidid.wheel());
+      switch (tree_SubDet) {
+         case SiStripDetId::TID:{
+            LayerID += (2+getTIDside(tree_DetId))*100;
+            LayerID += getTIDwheel(tree_DetId);
+            sprintf(LayerName,"wTID%c%i",getTIDside(tree_DetId)==1?'-':'+', getTIDwheel(tree_DetId));
          }break;
-         case 6:{
-            TECDetId tecid = TECDetId(tree_DetId);
-            LayerID += (2+tecid.side())*100;
-            LayerID += tecid.wheel();
-            sprintf(LayerName,"wTEC%c%i",tecid.side()==1?'-':'+', tecid.wheel());
+         case SiStripDetId::TEC:{
+            LayerID += (2+getTECside(tree_DetId))*100;
+            LayerID += getTECwheel(tree_DetId);
+            sprintf(LayerName,"wTEC%c%i",getTECside(tree_DetId)==1?'-':'+', getTECwheel(tree_DetId));
          }break;
          default:
          break;

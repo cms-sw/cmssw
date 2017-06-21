@@ -4,8 +4,7 @@
 #include <string>
 #include <vector>
 #include <map>
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
+#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 #include "CalibTracker/SiStripCommon/interface/Book.h"
 #include <TTree.h>
 #include "SymmetryFit.h"
