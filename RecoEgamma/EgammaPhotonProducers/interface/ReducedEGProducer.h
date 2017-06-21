@@ -52,6 +52,19 @@ class ReducedEGProducer : public edm::stream::EDProducer<> {
   ~ReducedEGProducer();
 
   virtual void produce(edm::Event& evt, const edm::EventSetup& es) override final;
+  void relinkCaloCluster(reco::SuperCluster& superCluster, 
+			 const std::map<reco::CaloClusterPtr, unsigned int>& ebeeClusterMap, 
+			 const std::map<reco::CaloClusterPtr, unsigned int>& esClusterMap, 
+			 const edm::OrphanHandle<reco::CaloClusterCollection>& outEBEEClusterHandle, 
+			 const edm::OrphanHandle<reco::CaloClusterCollection>& outESClusterHandle);
+  
+  void relinkSuperCluster(reco::PhotonCore& photonCore, 
+			  const std::map<reco::SuperClusterRef, unsigned int>& superClusterMap, 
+			  const edm::OrphanHandle<reco::SuperClusterCollection>& outSuperClusterHandle);
+
+  void relinkPhotonCore(reco::Photon& photon, 
+			const std::map<reco::PhotonCoreRef, unsigned int>& photonCoreMap, 
+			const edm::OrphanHandle<reco::PhotonCoreCollection>& outPhotonCoreHandle);
 
  private: 
   
