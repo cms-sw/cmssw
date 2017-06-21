@@ -127,8 +127,8 @@ phase2_hgcal.toModify(L1TriggerFEVTDEBUG, func=_appendHGCalDigis)
 # adding ME0 pseudo trigger stubs
 def _appendME0PseudoStubs(obj):
     l1ME0PseudoStubs = [
-        'keep *_simMuonME0PseudoReDigis192__*',
-        'keep *_me0RecHits192__*',
+        'keep *_simMuonME0PseudoReDigisCoarse__*',
+        'keep *_me0RecHitsCoarse__*',
         'keep *_me0TriggerPseudoDigis__*',
         ]
     obj.outputCommands += l1ME0PseudoStubs
