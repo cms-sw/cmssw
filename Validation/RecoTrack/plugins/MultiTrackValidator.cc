@@ -136,6 +136,7 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):
   }
 
   tpSelector = TrackingParticleSelector(pset.getParameter<double>("ptMinTP"),
+                                        pset.getParameter<double>("ptMaxTP"),
 					pset.getParameter<double>("minRapidityTP"),
 					pset.getParameter<double>("maxRapidityTP"),
 					pset.getParameter<double>("tipTP"),
@@ -159,6 +160,7 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):
 
   ParameterSet psetVsPhi = psetForHistoProducerAlgo.getParameter<ParameterSet>("TpSelectorForEfficiencyVsPhi");
   dRtpSelector = TrackingParticleSelector(psetVsPhi.getParameter<double>("ptMin"),
+                                          psetVsPhi.getParameter<double>("ptMax"),
 					  psetVsPhi.getParameter<double>("minRapidity"),
 					  psetVsPhi.getParameter<double>("maxRapidity"),
 					  psetVsPhi.getParameter<double>("tip"),
@@ -171,6 +173,7 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):
 					  psetVsPhi.getParameter<std::vector<int> >("pdgId"));
 
   dRtpSelectorNoPtCut = TrackingParticleSelector(0.0,
+                                                 psetVsPhi.getParameter<double>("ptMax"),
                                                  psetVsPhi.getParameter<double>("minRapidity"),
                                                  psetVsPhi.getParameter<double>("maxRapidity"),
                                                  psetVsPhi.getParameter<double>("tip"),
