@@ -127,11 +127,11 @@ void MuonSeedOrcaPatternRecognition::produce(const edm::Event& event, const edm:
 
   MuonRecHitContainer muRH_ME0Fwd, muRH_ME0Bwd;
   
-  if (me0ForwardLayers.size()){// Forward (z>0) EndCap disk
+  if (!me0ForwardLayers.empty()){// Forward (z>0) EndCap disk
     const DetLayer* ME0Fwd = me0ForwardLayers[0];
     muRH_ME0Fwd = filterSegments(muonMeasurements->recHits(ME0Fwd,event), endcapdThetaCut);
   }
-  if (me0BackwardLayers.size()){// Backward (z<0) EndCap disk
+  if (!me0BackwardLayers.empty()){// Backward (z<0) EndCap disk
     const DetLayer* ME0Bwd = me0BackwardLayers[0];
     muRH_ME0Bwd = filterSegments(muonMeasurements->recHits(ME0Bwd,event), endcapdThetaCut);
   }
@@ -230,68 +230,53 @@ void MuonSeedOrcaPatternRecognition::produce(const edm::Event& event, const edm:
 
     MuonRecHitContainer all = muonMeasurements->recHits(ME4Bwd,event);
     MuonRecHitContainer tmp = filterSegments(muonMeasurements->recHits(ME3Bwd,event), endcapdThetaCut);
-    all.reserve(all.size()+tmp.size());
     copy(tmp.begin(),tmp.end(),back_inserter(all));
 
     tmp = filterSegments(muonMeasurements->recHits(ME2Bwd,event), endcapdThetaCut);
-    all.reserve(all.size()+tmp.size());
     copy(tmp.begin(),tmp.end(),back_inserter(all));
 
     tmp = filterSegments(muonMeasurements->recHits(ME12Bwd,event), endcapdThetaCut);
-    all.reserve(all.size()+tmp.size());
     copy(tmp.begin(),tmp.end(),back_inserter(all));
 
     tmp = filterSegments(muonMeasurements->recHits(ME11Bwd,event), endcapdThetaCut);
-    all.reserve(all.size()+tmp.size());
     copy(tmp.begin(),tmp.end(),back_inserter(all));
 
-    if (me0BackwardLayers.size()){
+    if (!me0BackwardLayers.empty()){
       const DetLayer* ME0Bwd = me0BackwardLayers[0];
       tmp = filterSegments(muonMeasurements->recHits(ME0Bwd,event), endcapdThetaCut);
-      all.reserve(all.size()+tmp.size());
       copy(tmp.begin(),tmp.end(),back_inserter(all));
     }
-    if (me0ForwardLayers.size()){
+    if (!me0ForwardLayers.empty()){
       const DetLayer* ME0Fwd = me0ForwardLayers[0];
       tmp = filterSegments(muonMeasurements->recHits(ME0Fwd,event), endcapdThetaCut);
-      all.reserve(all.size()+tmp.size());
       copy(tmp.begin(),tmp.end(),back_inserter(all));
     }
     
     tmp = filterSegments(muonMeasurements->recHits(ME11Fwd,event), endcapdThetaCut);
-    all.reserve(all.size()+tmp.size());
     copy(tmp.begin(),tmp.end(),back_inserter(all));
 
     tmp = filterSegments(muonMeasurements->recHits(ME12Fwd,event), endcapdThetaCut);
-    all.reserve(all.size()+tmp.size());
     copy(tmp.begin(),tmp.end(),back_inserter(all));
 
     tmp = filterSegments(muonMeasurements->recHits(ME2Fwd,event), endcapdThetaCut);
-    all.reserve(all.size()+tmp.size());
     copy(tmp.begin(),tmp.end(),back_inserter(all));
 
     tmp = filterSegments(muonMeasurements->recHits(ME3Fwd,event), endcapdThetaCut);
-    all.reserve(all.size()+tmp.size());
     copy(tmp.begin(),tmp.end(),back_inserter(all));
 
     tmp = filterSegments(muonMeasurements->recHits(ME4Fwd,event), endcapdThetaCut);
-    all.reserve(all.size()+tmp.size());
     copy(tmp.begin(),tmp.end(),back_inserter(all));
 
     tmp = filterSegments(muonMeasurements->recHits(MB4DL,event), barreldThetaCut);
-    all.reserve(all.size()+tmp.size());
     copy(tmp.begin(),tmp.end(),back_inserter(all));
 
     tmp = filterSegments(muonMeasurements->recHits(MB3DL,event), barreldThetaCut);
-    all.reserve(all.size()+tmp.size());
     copy(tmp.begin(),tmp.end(),back_inserter(all));
 
     tmp = filterSegments(muonMeasurements->recHits(MB2DL,event), barreldThetaCut);
-    all.reserve(all.size()+tmp.size());
     copy(tmp.begin(),tmp.end(),back_inserter(all));
 
     tmp = filterSegments(muonMeasurements->recHits(MB1DL,event), barreldThetaCut);
-    all.reserve(all.size()+tmp.size());
     copy(tmp.begin(),tmp.end(),back_inserter(all));
 
     LogTrace(metname)<<"Number of segments: "<<all.size();
