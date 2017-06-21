@@ -239,6 +239,10 @@ void JetMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 
   edm::Handle< edm::View<reco::Jet> > offjets;
   iEvent.getByToken( jetSrc_, offjets );
+  if (!offjets.isValid()){
+      edm::LogWarning("JetMonitor") << "Jet handle not valid \n";
+      return;
+  }
   for ( edm::View<reco::Jet>::const_iterator ibegin = offjets->begin(), iend = offjets->end(), ijet = ibegin; ijet != iend; ++ijet ) {
     if (ijet->pt()< 20) {continue;}
     v_jetpt.push_back(ijet->pt()); 
