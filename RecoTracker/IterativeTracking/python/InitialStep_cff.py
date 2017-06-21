@@ -349,7 +349,6 @@ trackingPhase2PU140.toModify(initialStepSelector,
             dz_par2 = ( 0.55, 4.0 )
             ),
         ), #end of vpset
-    vertices = "pixelVertices"
 ) #end of clone
 
 
@@ -376,6 +375,7 @@ _InitialStep_Phase1QuadProp.replace(initialStepHitTriplets, initialStepHitTriple
 trackingPhase1QuadProp.toReplaceWith(InitialStep, _InitialStep_Phase1QuadProp)
 _InitialStep_Phase1 = _InitialStep_Phase1QuadProp.copyAndExclude([initialStepHitTriplets])
 trackingPhase1.toReplaceWith(InitialStep, _InitialStep_Phase1)
-_InitialStep_trackingPhase2 = _InitialStep_LowPU.copy()
+_InitialStep_trackingPhase2 = InitialStep.copyAndExclude([initialStepClassifier1, initialStepClassifier2, initialStepClassifier3])
 _InitialStep_trackingPhase2.replace(initialStepHitTriplets, initialStepHitQuadruplets)
+_InitialStep_trackingPhase2.replace(initialStep, initialStepSelector)
 trackingPhase2PU140.toReplaceWith(InitialStep, _InitialStep_trackingPhase2)
