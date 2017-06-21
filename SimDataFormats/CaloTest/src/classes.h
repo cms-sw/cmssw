@@ -5,11 +5,11 @@
 namespace SimDataFormats_CaloTest {
   struct dictionary {
     HcalTestHistoClass theHcalTestHistoClass;
-    ParticleFlux                                         d1;
-    edm::Wrapper<ParticleFlux>                           thed1;
-    ParticleFlux::flux                                   d2;
-    edm::Wrapper<ParticleFlux::flux>                     thed2;
-    std::vector<ParticleFlux::flux>                      d3;
-    edm::Wrapper<std::vector<ParticleFlux::flux> >       thed3;
+    ParticleFlux                                         m_d1;
+    edm::Wrapper<ParticleFlux>                           m_thed1;
+    ParticleFlux::flux                                   m_d2;
+    edm::Wrapper<ParticleFlux::flux>                     m_thed2;
+    std::vector<ParticleFlux::flux>                      m_d3;
+    edm::Wrapper<std::vector<ParticleFlux::flux> >       m_thed3;
   };
 }
