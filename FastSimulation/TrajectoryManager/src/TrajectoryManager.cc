@@ -13,7 +13,7 @@
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 #include "FastSimulation/TrajectoryManager/interface/InsideBoundsMeasurementEstimator.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "TrackingTools/GeomPropagators/interface/HelixArbitraryPlaneCrossing.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 //#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
