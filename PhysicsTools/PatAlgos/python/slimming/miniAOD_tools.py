@@ -256,11 +256,6 @@ def miniAOD_customizeCommon(process):
     for idmod in photon_ids:
         setupAllVIDIdsInModule(process,idmod,setupVIDPhotonSelection,None,False,task)
 
-    #OOT photons
-    switchOnVIDOOTPhotonIdProducer(process,DataFormat.MiniAOD, task)
-    process.ootPhotonRegressionValueMapProducer.src = \
-        cms.InputTag("reducedEgamma","reducedOOTPhotons")
-
     #---------------------------------------------------------------------------
     #Adding  Boosted Subjets taus
     from RecoTauTag.Configuration.boostedHPSPFTaus_cfi import addBoostedTaus
