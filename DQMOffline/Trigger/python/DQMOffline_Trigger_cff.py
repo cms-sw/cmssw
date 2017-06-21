@@ -102,6 +102,7 @@ offlineHLTSource = cms.Sequence(
     exoticaMonitorHLT *
     susyMonitorHLT *
     b2gMonitorHLT *
+    b2gMonitorHLT_elplusJet *
     higgsMonitorHLT *
     smpMonitorHLT *
     topMonitorHLT *
