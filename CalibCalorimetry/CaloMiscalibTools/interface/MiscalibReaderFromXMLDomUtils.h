@@ -6,6 +6,7 @@
 #include <string>
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/dom/DOMNamedNodeMap.hpp>
+#include <xercesc/dom/DOMNode.hpp>
 
 /** a collection of some XML reading utilities */
 class MiscalibReaderFromXMLDomUtils
