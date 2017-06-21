@@ -1360,18 +1360,19 @@ void SiStripGainFromCalibTree::qualityMonitor() {
             if(SubDet>=3) NoMPV->Fill(z,R);
 
         } else {          // Fit of MPV
-            if(FitMPV>0.) Gains->Fill(Gain);
+            if ( SubDet>=3 ) {  // remove input from Pixel detector id.
+                if(FitMPV>0.) Gains->Fill(Gain);
 
-            MPVs->Fill(FitMPV);
-            if(Thickness<0.04) MPVs320->Fill(Phi,FitMPV);
-            if(Thickness>0.04) MPVs500->Fill(Phi,FitMPV);
+                MPVs->Fill(FitMPV);
+                if(Thickness<0.04) MPVs320->Fill(Phi,FitMPV);
+                if(Thickness>0.04) MPVs500->Fill(Phi,FitMPV);
 
-            MPVError->Fill(FitMPVErr);
-            MPVErrorVsMPV->Fill(FitMPV,FitMPVErr);
-            MPVErrorVsEta->Fill(Eta,FitMPVErr);
-            MPVErrorVsPhi->Fill(Phi,FitMPVErr);
-            MPVErrorVsN->Fill(NEntries,FitMPVErr);
-
+                MPVError->Fill(FitMPVErr);
+                MPVErrorVsMPV->Fill(FitMPV,FitMPVErr);
+                MPVErrorVsEta->Fill(Eta,FitMPVErr);
+                MPVErrorVsPhi->Fill(Phi,FitMPVErr);
+                MPVErrorVsN->Fill(NEntries,FitMPVErr);
+            }
             if(SubDet==3) {
                 MPV_Vs_EtaTIB->Fill(Eta,FitMPV);
                 MPV_Vs_PhiTIB->Fill(Phi,FitMPV);
