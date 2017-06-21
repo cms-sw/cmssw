@@ -585,6 +585,7 @@ namespace edm {
                                  preallocations_.numberOfRuns(),
                                  preallocations_.numberOfThreads());
     actReg_->preallocateSignal_(bounds);
+    schedule_->convertCurrentProcessAlias(processConfiguration_->processName());
     pathsAndConsumesOfModules_.initialize(schedule_.get(), preg());
 
     //NOTE: this may throw
