@@ -15,7 +15,7 @@ python ${LOCAL_TEST_DIR}/testNumba.py || die 'Failure using testNumba' $?
 python ${LOCAL_TEST_DIR}/testTables.py || die 'Failure using testTables' $?
 
 python ${LOCAL_TEST_DIR}/testDownhill.py || die 'Failure using testDownhill' $?
-python ${LOCAL_TEST_DIR}/testXGBoost_and_sklean.py || die 'Failure using testXGBoost' $?
+python ${LOCAL_TEST_DIR}/testXGBoost_and_sklearn.py || die 'Failure using testXGBoost' $?
 #python ${LOCAL_TEST_DIR}/testTheanets.py || die 'Failure using testTheanets' $?
 
 python ${LOCAL_TEST_DIR}/testhep_ml.py || die 'Failure using testhep_ml' $?
