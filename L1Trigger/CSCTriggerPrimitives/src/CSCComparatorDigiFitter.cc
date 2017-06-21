@@ -8,7 +8,7 @@ namespace
   // the number quotes the distance to the center
 
   // pid=0: no pattern found
-  std::vector<std::vector<int> > pat0delta;
+  std::vector<std::vector<int> > pat0delta(CSCConstants::NUM_LAYERS);
  
   // pid=1: layer-OR trigger
   std::vector<std::vector<int> > pat1delta {
