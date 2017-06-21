@@ -25,6 +25,7 @@ class MuonTrackValidator : public DQMEDAnalyzer, protected MuonTrackValidatorBas
     useGEMs_ = pset.getParameter< bool >("useGEMs");
     useME0_ = pset.getParameter< bool >("useME0");
     tpSelector = TrackingParticleSelector(pset.getParameter<double>("ptMinTP"),
+                                          pset.getParameter<double>("ptMaxTP"),
 					  pset.getParameter<double>("minRapidityTP"),
 					  pset.getParameter<double>("maxRapidityTP"),
 					  pset.getParameter<double>("tipTP"),
