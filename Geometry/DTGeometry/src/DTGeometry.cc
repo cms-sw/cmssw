@@ -4,7 +4,7 @@
  */
 
 #include <Geometry/DTGeometry/interface/DTGeometry.h>
-#include <Geometry/CommonDetUnit/interface/GeomDetUnit.h>
+#include <Geometry/CommonDetUnit/interface/GeomDet.h>
 
 #include <algorithm>
 #include <iostream>

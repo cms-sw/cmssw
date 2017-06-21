@@ -16,7 +16,7 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include <Geometry/CommonDetUnit/interface/GeomDetUnit.h>
+#include <Geometry/CommonDetUnit/interface/GeomDet.h>
 #include <Geometry/CommonDetUnit/interface/GeomDetType.h>
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"

@@ -28,7 +28,7 @@
 
 // for trie
 #include "Geometry/TrackerGeometryBuilder/interface/trackerHierarchy.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "DataFormats/Common/interface/Trie.h"
 
 // for the test
