@@ -1165,11 +1165,12 @@ void MuonAssociatorByHitsHelper::getMatchedIds
 	    
 	    std::vector<SimHitIdpr> i_SimTrackIds;
 	    int i_compHit = 0;
-	    for (std::vector<const TrackingRecHit *>::const_iterator ithit =componentHits.begin(); 
-		 ithit != componentHits.end(); ++ithit) {
+
+	    for ( auto const & ithit : componentHits) {
+	      
 	      i_compHit++;
 	      
-	      const GEMRecHit * gemrechitseg = dynamic_cast<const GEMRecHit *>(*ithit);
+	      const GEMRecHit * gemrechitseg = dynamic_cast<const GEMRecHit *>(ithit);
 	      
 	      i_SimTrackIds.clear();
 	      if (gemrechitseg) {
@@ -1197,18 +1198,14 @@ void MuonAssociatorByHitsHelper::getMatchedIds
 	      } else if (printRtS) edm::LogWarning("MuonAssociatorByHitsHelper")
 		<<"*** WARNING in MuonAssociatorByHitsHelper::getMatchedIds, null dynamic_cast of a GEM TrackingRecHit !";
 	      
-	      unsigned int i_detid = (*ithit)->geographicalId().rawId();
-	      GEMDetId i_gemdetid = GEMDetId(i_detid);
+	      if (printRtS){
+		unsigned int i_detid = ithit->geographicalId().rawId();
+		GEMDetId i_gemdetid = GEMDetId(i_detid);
 
-	      stringstream i_gem_detector_id;
-	      i_gem_detector_id << i_gemdetid;
-
-	      stringstream i_ss;
-	      i_ss<<"\t\t hit "<<i_compHit<<" -Muon GEM- detID = "<<i_gem_detector_id.str();
-
-	      string i_hitlog = i_ss.str();
-	      i_hitlog = i_hitlog + write_matched_simtracks(i_SimTrackIds);
-	      if (printRtS) edm::LogVerbatim("MuonAssociatorByHitsHelper") << i_hitlog;
+		string i_hitlog = std::to_string(i_gemdetid);
+		i_hitlog = i_hitlog + write_matched_simtracks(i_SimTrackIds);
+		edm::LogVerbatim("MuonAssociatorByHitsHelper") << i_hitlog;
+	      }
 	      
 	      SimTrackIds.insert(SimTrackIds.end(),i_SimTrackIds.begin(),i_SimTrackIds.end());
 	    }	    
