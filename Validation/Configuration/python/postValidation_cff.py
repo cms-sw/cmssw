@@ -18,6 +18,7 @@ from Validation.RecoTau.DQMMCValidation_cfi import *
 from Validation.RecoVertex.PostProcessorVertex_cff import *
 from Validation.RecoMET.METPostProcessor_cff import *
 from Validation.L1T.postProcessorL1Gen_cff import *
+from Validation.SiPixelPhase1ConfigV.SiPixelPhase1OfflineDQM_harvestingV_cff import *
 from DQMOffline.RecoB.dqmCollector_cff import *
 
 
@@ -116,7 +117,12 @@ _phase2_postValidation += hgcalPostProcessor
 _phase2_postValidation += MuonME0DigisPostProcessors
 _phase2_postValidation += MuonME0SegPostProcessors
 
+_phase1_postValidation = postValidation.copy()
+_phase1_postValidation += siPixelPhase1OfflineDQM_harvestingV
+
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 run3_GEM.toReplaceWith( postValidation, _run3_postValidation )
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toReplaceWith( postValidation, _phase2_postValidation )
+from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
+phase1Pixel.toReplaceWith( postValidation, _phase1_postValidation )
