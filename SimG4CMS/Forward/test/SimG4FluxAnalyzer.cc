@@ -49,11 +49,11 @@ private:
   std::vector<edm::EDGetTokenT<ParticleFlux> > tok_PF_;
   TTree                                       *tree_;
 
-  std::vector<std::string>                     detName;
-  std::vector<int>                             detId, pdgId, vxType;
-  std::vector<float>                           tof, vtxX, vtxY, vtxZ;
-  std::vector<float>                           hitPtX, hitPtY, hitPtZ;
-  std::vector<float>                           momX, momY, momZ;
+  std::vector<std::string>                     detName_;
+  std::vector<int>                             detId_, pdgId_, vxType_;
+  std::vector<float>                           tof_, vtxX_, vtxY_, vtxZ_;
+  std::vector<float>                           hitPtX_, hitPtY_, hitPtZ_;
+  std::vector<float>                           momX_, momY_, momZ_;
 };
 
 SimG4FluxAnalyzer::SimG4FluxAnalyzer(const edm::ParameterSet& iConfig) {
@@ -90,30 +90,30 @@ void SimG4FluxAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descrip
 void SimG4FluxAnalyzer::beginJob() {
 
   tree_ = fs_->make<TTree>("Flux","ParticleFlux");
-  tree_->Branch("DetectorName", &detName);
-  tree_->Branch("DetectorID",   &detId);
-  tree_->Branch("ParticleCode", &pdgId);
-  tree_->Branch("VertexType",   &vxType);
-  tree_->Branch("ParticleTOF",  &tof);
-  tree_->Branch("VertexX",      &vtxX);
-  tree_->Branch("VertexY",      &vtxY);
-  tree_->Branch("VertexZ",      &vtxZ);
-  tree_->Branch("HitPointX",    &hitPtX);
-  tree_->Branch("HitPointY",    &hitPtY);
-  tree_->Branch("HitPointZ",    &hitPtZ);
-  tree_->Branch("MomentumX",    &momX);
-  tree_->Branch("MomentumY",    &momY);
-  tree_->Branch("MomentumZ",    &momZ);
+  tree_->Branch("DetectorName", &detName_);
+  tree_->Branch("DetectorID",   &detId_);
+  tree_->Branch("ParticleCode", &pdgId_);
+  tree_->Branch("VertexType",   &vxType_);
+  tree_->Branch("ParticleTOF",  &tof_);
+  tree_->Branch("VertexX",      &vtxX_);
+  tree_->Branch("VertexY",      &vtxY_);
+  tree_->Branch("VertexZ",      &vtxZ_);
+  tree_->Branch("HitPointX",    &hitPtX_);
+  tree_->Branch("HitPointY",    &hitPtY_);
+  tree_->Branch("HitPointZ",    &hitPtZ_);
+  tree_->Branch("MomentumX",    &momX_);
+  tree_->Branch("MomentumY",    &momY_);
+  tree_->Branch("MomentumZ",    &momZ_);
 }
 
 void SimG4FluxAnalyzer::analyze(const edm::Event& iEvent, 
 				const edm::EventSetup& iSetup) {
 
   //Loop over all flux containers
-  detName.clear(); detId.clear();  pdgId.clear(); vxType.clear();
-  tof.clear();     vtxX.clear();   vtxY.clear();  vtxZ.clear();
-  hitPtX.clear();  hitPtY.clear(); hitPtZ.clear();
-  momX.clear();    momY.clear();   momZ.clear();
+  detName_.clear(); detId_.clear();  pdgId_.clear(); vxType_.clear();
+  tof_.clear();     vtxX_.clear();   vtxY_.clear();  vtxZ_.clear();
+  hitPtX_.clear();  hitPtY_.clear(); hitPtZ_.clear();
+  momX_.clear();    momY_.clear();   momZ_.clear();
 #ifdef EDM_ML_DEBUG
   unsigned int k(0);
 #endif
@@ -132,19 +132,19 @@ void SimG4FluxAnalyzer::analyze(const edm::Event& iEvent,
       unsigned k1(0);
 #endif
       for (auto element : flux) {
-	detName.push_back(name); detId.push_back(id);
-	pdgId.push_back(element.pdgId);
-	vxType.push_back(element.vxType);
-	tof.push_back(element.tof);
-	vtxX.push_back(element.vertex.X());
-	vtxY.push_back(element.vertex.Y());
-	vtxZ.push_back(element.vertex.Z());
-	hitPtX.push_back(element.hitPoint.X());
-	hitPtY.push_back(element.hitPoint.Y());
-	hitPtZ.push_back(element.hitPoint.Z());
-	momX.push_back(element.momentum.X());
-	momY.push_back(element.momentum.Y());
-	momZ.push_back(element.momentum.Z());
+	detName_.push_back(name); detId_.push_back(id);
+	pdgId_.push_back(element.pdgId);
+	vxType_.push_back(element.vxType);
+	tof_.push_back(element.tof);
+	vtxX_.push_back(element.vertex.X());
+	vtxY_.push_back(element.vertex.Y());
+	vtxZ_.push_back(element.vertex.Z());
+	hitPtX_.push_back(element.hitPoint.X());
+	hitPtY_.push_back(element.hitPoint.Y());
+	hitPtZ_.push_back(element.hitPoint.Z());
+	momX_.push_back(element.momentum.X());
+	momY_.push_back(element.momentum.Y());
+	momZ_.push_back(element.momentum.Z());
 #ifdef EDM_ML_DEBUG
 	std::cout << "Flux[" << k1 << "] PDGId " << element.pdgId << " VT "
 		  << element.vxType << " ToF " << element.tof << " Vertex "
@@ -156,10 +156,10 @@ void SimG4FluxAnalyzer::analyze(const edm::Event& iEvent,
     }
   }
 #ifdef EDM_ML_DEBUG
-  std::cout << "All flux compnents have " << detName.size() << " entries" 
+  std::cout << "All flux compnents have " << detName_.size() << " entries" 
 	    << std::endl;
 #endif
-  if (detName.size() > 0) tree_->Fill();
+  if (detName_.size() > 0) tree_->Fill();
 
 }
   
