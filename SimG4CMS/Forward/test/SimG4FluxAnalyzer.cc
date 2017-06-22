@@ -64,11 +64,11 @@ SimG4FluxAnalyzer::SimG4FluxAnalyzer(const edm::ParameterSet& iConfig) {
   lvNames_  = iConfig.getParameter<std::vector<std::string> >("LVNames");
 #ifdef EDM_ML_DEBUG
   std::cout << "SimG4FluxAnalyzer:: for " << lvNames_.size() << " names:";
-  for (auto name : lvNames_) std::cout << " " << name;
+  for (const auto& name : lvNames_) std::cout << " " << name;
   std::cout << std::endl;
 #endif
 
-  for (auto name : lvNames_) {
+  for (const auto& name : lvNames_) {
     std::string tagn = name+"ParticleFlux";
     tok_PF_.push_back(consumes<ParticleFlux>(edm::InputTag("g4SimHits",tagn)));
 #ifdef EDM_ML_DEBUG
@@ -117,7 +117,7 @@ void SimG4FluxAnalyzer::analyze(const edm::Event& iEvent,
 #ifdef EDM_ML_DEBUG
   unsigned int k(0);
 #endif
-  for (auto token : tok_PF_) {
+  for (const auto& token : tok_PF_) {
     edm::Handle<ParticleFlux>  pFlux;
     iEvent.getByToken(token, pFlux);
     if (pFlux.isValid()) {
@@ -131,7 +131,7 @@ void SimG4FluxAnalyzer::analyze(const edm::Event& iEvent,
       ++k;
       unsigned k1(0);
 #endif
-      for (auto element : flux) {
+      for (const auto& element : flux) {
 	detName_.push_back(name); detId_.push_back(id);
 	pdgId_.push_back(element.pdgId);
 	vxType_.push_back(element.vxType);

@@ -12,7 +12,7 @@ class ParticleFlux {
 
 public:
 
-  ParticleFlux(std::string name="", int id=0) : detName(name), detId(id) {}
+  ParticleFlux(std::string name="", int id=0) : detName_(name), detId_(id) {}
   virtual ~ParticleFlux() {}
 
   struct flux {
@@ -23,20 +23,20 @@ public:
     flux(int id=0, int typ=0, float t=0) : pdgId(id), vxType(typ), tof(t) {}
   };
 
-  std::string                     getName() const {return detName;}
-  int                             getId() const {return detId;}
-  unsigned int                    getComponents() const {return fluxVector.size();}
-  std::vector<ParticleFlux::flux> getFlux() const {return fluxVector;}
-  void                            setName(const std::string nm) {detName = nm;}
-  void                            setId(const int id) {detId = id;}
+  std::string const&              getName() const {return detName_;}
+  int                             getId() const {return detId_;}
+  unsigned int                    getComponents() const {return fluxVector_.size();}
+  std::vector<ParticleFlux::flux> getFlux() const& {return fluxVector_;}
+  void                            setName(const std::string nm) {detName_ = nm;}
+  void                            setId(const int id) {detId_ = id;}
   void                            addFlux(const ParticleFlux::flux f);
   void                            clear();
 
 private:
 
-  std::string       detName;
-  int               detId;
-  std::vector<flux> fluxVector;
+  std::string       detName_;
+  int               detId_;
+  std::vector<flux> fluxVector_;
 
 };
 
