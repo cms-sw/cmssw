@@ -197,7 +197,7 @@ math::XYZPoint HGCalImagingAlgo::calculatePosition(std::vector<KDNode> &v){
 			 z/total_weight );
     }
   }
-  else {
+  else if (v_size > 0) {
     // return position of hit with maximum energy
     return math::XYZPoint(v[maxEnergyIndex].data.x, v[maxEnergyIndex].data.y, v[maxEnergyIndex].data.z);
   }
