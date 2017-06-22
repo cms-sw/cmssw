@@ -27,9 +27,9 @@ DisplacedJetTrackMonitor::DisplacedJetTrackMonitor( const edm::ParameterSet& iCo
   , eleSelection_ ( iConfig.getParameter<std::string>("eleSelection") )
   , muoSelection_ ( iConfig.getParameter<std::string>("muoSelection") )
 
-  , ncalojets_  ( iConfig.getParameter<int>("ncalojets")   )
-  , nelectrons_ ( iConfig.getParameter<int>("nelectrons" ) )
-  , nmuons_     ( iConfig.getParameter<int>("nmuons" )     )
+  , ncalojets_  ( iConfig.getParameter<unsigned int>("ncalojets")   )
+  , nelectrons_ ( iConfig.getParameter<unsigned int>("nelectrons" ) )
+  , nmuons_     ( iConfig.getParameter<unsigned int>("nmuons" )     )
 {
 
   nprompttrksjet1ME_.numerator = nullptr;
@@ -56,29 +56,27 @@ DisplacedJetTrackMonitor::DisplacedJetTrackMonitor( const edm::ParameterSet& iCo
 
 DisplacedJetTrackMonitor::~DisplacedJetTrackMonitor()
 {
-  if (num_genTriggerEventFlag_) delete num_genTriggerEventFlag_;
-  if (den_genTriggerEventFlag_) delete den_genTriggerEventFlag_;
 }
 
-MEbinning DisplacedJetTrackMonitor::getHistoPSet(edm::ParameterSet pset)
+MEbinning DisplacedJetTrackMonitor::getHistoPSet(edm::ParameterSet const& pset)
 {
   return MEbinning{
-    pset.getParameter<int32_t>("nbins"),
+    pset.getParameter<unsigned int>("nbins"),
       pset.getParameter<double>("xmin"),
       pset.getParameter<double>("xmax"),
       };
 }
 
-MEbinning DisplacedJetTrackMonitor::getHistoLSPSet(edm::ParameterSet pset)
+MEbinning DisplacedJetTrackMonitor::getHistoLSPSet(edm::ParameterSet const& pset)
 {
   return MEbinning{
-    pset.getParameter<int32_t>("nbins"),
+    pset.getParameter<unsigned int>("nbins"),
       0.,
-      double(pset.getParameter<int32_t>("nbins"))
+      double(pset.getParameter<unsigned int>("nbins"))
       };
 }
 
-void DisplacedJetTrackMonitor::setMETitle(DJME& me, std::string titleX, std::string titleY)
+void DisplacedJetTrackMonitor::setMETitle(DJME& me, const std::string& titleX, const std::string& titleY)
 {
   me.numerator->setAxisTitle(titleX,1);
   me.numerator->setAxisTitle(titleY,2);
@@ -87,7 +85,7 @@ void DisplacedJetTrackMonitor::setMETitle(DJME& me, std::string titleX, std::str
 
 }
 
-void DisplacedJetTrackMonitor::bookME(DQMStore::IBooker &ibooker, DJME& me, const std::string& histname, const std::string& histtitle, int nbins, double min, double max)
+void DisplacedJetTrackMonitor::bookME(DQMStore::IBooker &ibooker, DJME& me, const std::string& histname, const std::string& histtitle, unsigned int nbins, double min, double max)
 {
   me.numerator   = ibooker.book1D(histname+"_numerator",   histtitle+" (numerator)",   nbins, min, max);
   me.denominator = ibooker.book1D(histname+"_denominator", histtitle+" (denominator)", nbins, min, max);
@@ -100,22 +98,22 @@ void DisplacedJetTrackMonitor::bookME(DQMStore::IBooker &ibooker, DJME& me, cons
   me.numerator   = ibooker.book1D(histname+"_numerator",   histtitle+" (numerator)",   nbins, arr);
   me.denominator = ibooker.book1D(histname+"_denominator", histtitle+" (denominator)", nbins, arr);
 }
-void DisplacedJetTrackMonitor::bookME(DQMStore::IBooker &ibooker, DJME& me, const std::string& histname, const std::string& histtitle, int nbinsX, double xmin, double xmax, double ymin, double ymax)
+void DisplacedJetTrackMonitor::bookME(DQMStore::IBooker &ibooker, DJME& me, const std::string& histname, const std::string& histtitle, unsigned int nbinsX, double xmin, double xmax, double ymin, double ymax)
 {
   me.numerator   = ibooker.bookProfile(histname+"_numerator",   histtitle+" (numerator)",   nbinsX, xmin, xmax, ymin, ymax);
   me.denominator = ibooker.bookProfile(histname+"_denominator", histtitle+" (denominator)", nbinsX, xmin, xmax, ymin, ymax);
 }
-void DisplacedJetTrackMonitor::bookME(DQMStore::IBooker &ibooker, DJME& me, const std::string& histname, const std::string& histtitle, int nbinsX, double xmin, double xmax, int nbinsY, double ymin, double ymax)
+void DisplacedJetTrackMonitor::bookME(DQMStore::IBooker &ibooker, DJME& me, const std::string& histname, const std::string& histtitle, unsigned int nbinsX, double xmin, double xmax, unsigned int nbinsY, double ymin, double ymax)
 {
   me.numerator   = ibooker.book2D(histname+"_numerator",   histtitle+" (numerator)",   nbinsX, xmin, xmax, nbinsY, ymin, ymax);
   me.denominator = ibooker.book2D(histname+"_denominator", histtitle+" (denominator)", nbinsX, xmin, xmax, nbinsY, ymin, ymax);
 }
 void DisplacedJetTrackMonitor::bookME(DQMStore::IBooker &ibooker, DJME& me, const std::string& histname, const std::string& histtitle, const std::vector<double>& binningX, const std::vector<double>& binningY)
 {
-  int nbinsX = binningX.size()-1;
+  unsigned int nbinsX = binningX.size()-1;
   std::vector<float> fbinningX(binningX.begin(),binningX.end());
   float* arrX = &fbinningX[0];
-  int nbinsY = binningY.size()-1;
+  unsigned int nbinsY = binningY.size()-1;
   std::vector<float> fbinningY(binningY.begin(),binningY.end());
   float* arrY = &fbinningY[0];
 
@@ -194,7 +192,7 @@ void DisplacedJetTrackMonitor::analyze(edm::Event const& iEvent, edm::EventSetup
   std::vector<int> nPromptTracks;
   std::vector<int> nDisplacedTracks;
 
-  if ( int(calojetHandle->size())< ncalojets_) return;
+  if ( calojetHandle->size()< ncalojets_) return;
   int idx = 0;
   int min_nptrk1 = 1000;
   int min_nptrk2 = 1000;
@@ -225,7 +223,7 @@ void DisplacedJetTrackMonitor::analyze(edm::Event const& iEvent, edm::EventSetup
     }
 
   }
-  if (int(calojets.size()) < ncalojets_) return;
+  if (calojets.size() < ncalojets_) return;
 
   for (size_t ijet = 0; ijet < nPromptTracks.size(); ijet++){
       if (nPromptTracks.at(ijet)<=2){
@@ -240,20 +238,20 @@ void DisplacedJetTrackMonitor::analyze(edm::Event const& iEvent, edm::EventSetup
   edm::Handle<reco::GsfElectronCollection> eleHandle;
   iEvent.getByToken( eleToken_, eleHandle );
   std::vector<reco::GsfElectron> electrons;
-  if ( int(eleHandle->size()) < nelectrons_ ) return;
+  if ( eleHandle->size() < nelectrons_ ) return;
   for ( auto const & e : *eleHandle ) {
     if ( eleSelection_( e ) ) electrons.push_back(e);
   }
-  if ( int(electrons.size()) < nelectrons_ ) return;
+  if ( electrons.size() < nelectrons_ ) return;
   
   edm::Handle<reco::MuonCollection> muoHandle;
   iEvent.getByToken( muoToken_, muoHandle );
-  if ( int(muoHandle->size()) < nmuons_ ) return;
+  if ( muoHandle->size() < nmuons_ ) return;
   std::vector<reco::Muon> muons;
   for ( auto const & m : *muoHandle ) {
     if ( muoSelection_( m ) ) muons.push_back(m);
   }
-  if ( int(muons.size()) < nmuons_ ) return;
+  if ( muons.size() < nmuons_ ) return;
 
   nprompttrksjet1ME_.denominator->Fill(min_nptrk1);
   nprompttrksjet2ME_.denominator->Fill(min_nptrk2);
@@ -287,14 +285,14 @@ void DisplacedJetTrackMonitor::analyze(edm::Event const& iEvent, edm::EventSetup
 
 void DisplacedJetTrackMonitor::fillHistoPSetDescription(edm::ParameterSetDescription & pset)
 {
-  pset.add<int>   ( "nbins");
+  pset.add<unsigned int>   ( "nbins");
   pset.add<double>( "xmin" );
   pset.add<double>( "xmax" );
 }
 
 void DisplacedJetTrackMonitor::fillHistoLSPSetDescription(edm::ParameterSetDescription & pset)
 {
-  pset.add<int>   ( "nbins", 2500);
+  pset.add<unsigned int>   ( "nbins", 2500);
 }
 
 void DisplacedJetTrackMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
@@ -310,9 +308,9 @@ void DisplacedJetTrackMonitor::fillDescriptions(edm::ConfigurationDescriptions &
   desc.add<std::string>("trackSelection", "pt > 0");
   desc.add<std::string>("eleSelection", "pt > 0");
   desc.add<std::string>("muoSelection", "pt > 0");
-  desc.add<int>("ncalojets",  0);    
-  desc.add<int>("nelectrons", 0);
-  desc.add<int>("nmuons",     0);
+  desc.add<unsigned int>("ncalojets",  0);    
+  desc.add<unsigned int>("nelectrons", 0);
+  desc.add<unsigned int>("nmuons",     0);
 
   edm::ParameterSetDescription genericTriggerEventPSet;
   genericTriggerEventPSet.add<bool>("andOr");

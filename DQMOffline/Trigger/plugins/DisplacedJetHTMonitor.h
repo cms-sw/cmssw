@@ -1,5 +1,5 @@
-#ifndef DISPLACEDJETHTMONITOR_H
-#define DISPLACEDJETHTMONITOR_H
+#ifndef DQMOFFLINE_TRIGGER_DISPLACEDJETHT_H
+#define DQMOFFLINE_TRIGGER_DISPLACEDJETHT_H
 
 #include <string>
 #include <vector>
@@ -46,7 +46,7 @@
 class GenericTriggerEventFlag;
 
 struct MEbinning {
-  int nbins;
+  unsigned int nbins;
   double xmin;
   double xmax;
 };
@@ -71,18 +71,18 @@ public:
 protected:
 
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void bookME(DQMStore::IBooker &, DJME& me, const std::string& histname, const std::string& histtitle, int nbins, double xmin, double xmax);
+  void bookME(DQMStore::IBooker &, DJME& me, const std::string& histname, const std::string& histtitle, unsigned int nbins, double xmin, double xmax);
   void bookME(DQMStore::IBooker &, DJME& me, const std::string& histname, const std::string& histtitle, const std::vector<double>& binningX);
-  void bookME(DQMStore::IBooker &, DJME& me, const std::string& histname, const std::string& histtitle, int nbinsX, double xmin, double xmax, double ymin, double ymax);
-  void bookME(DQMStore::IBooker &, DJME& me, const std::string& histname, const std::string& histtitle, int nbinsX, double xmin, double xmax, int nbinsY, double ymin, double ymax);
+  void bookME(DQMStore::IBooker &, DJME& me, const std::string& histname, const std::string& histtitle, unsigned int nbinsX, double xmin, double xmax, double ymin, double ymax);
+  void bookME(DQMStore::IBooker &, DJME& me, const std::string& histname, const std::string& histtitle, unsigned int nbinsX, double xmin, double xmax, unsigned int nbinsY, double ymin, double ymax);
   void bookME(DQMStore::IBooker &, DJME& me, const std::string& histname, const std::string& histtitle, const std::vector<double>& binningX, const std::vector<double>& binningY);
-  void setMETitle(DJME& me, std::string titleX, std::string titleY);
+  void setMETitle(DJME& me, const std::string& titleX, const std::string& titleY);
 
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
 
 private:
-  static MEbinning getHistoPSet    (edm::ParameterSet pset);
-  static MEbinning getHistoLSPSet  (edm::ParameterSet pset);
+  static MEbinning getHistoPSet    (edm::ParameterSet const& pset);
+  static MEbinning getHistoLSPSet  (edm::ParameterSet const& pset);
 
   std::string folderName_;
   std::string histoSuffix_;
@@ -101,17 +101,18 @@ private:
   DJME caloHTME_variableBinning_;
   DJME caloHTVsLS_;
 
-  GenericTriggerEventFlag* num_genTriggerEventFlag_;
-  GenericTriggerEventFlag* den_genTriggerEventFlag_;
-
+  //GenericTriggerEventFlag* num_genTriggerEventFlag_;
+  //GenericTriggerEventFlag* den_genTriggerEventFlag_;
+  std::unique_ptr<GenericTriggerEventFlag> num_genTriggerEventFlag_;
+  std::unique_ptr<GenericTriggerEventFlag> den_genTriggerEventFlag_;
 
   StringCutObjectSelector<reco::CaloJet, true >   calojetSelection_;
   StringCutObjectSelector<reco::GsfElectron, true> eleSelection_;
   StringCutObjectSelector<reco::Muon, true>        muoSelection_;
 
-  int ncalojets_;
-  int nelectrons_;
-  int nmuons_;
+  unsigned int ncalojets_;
+  unsigned int nelectrons_;
+  unsigned int nmuons_;
 
 };
 
