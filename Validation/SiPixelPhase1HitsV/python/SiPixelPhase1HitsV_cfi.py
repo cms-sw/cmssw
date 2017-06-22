@@ -126,7 +126,7 @@ SiPixelPhase1HitsPosEta = SiPixelPhase1HitsPosX.clone(
   name = "local_eta",
   title = "Eta position of Hits",
   xlabel = "Hit position Eta dimension",
-  range_min = -0.1, range_max = 0.1, range_nbins = 1000,
+  range_min = -0.1, range_max = 0.1, range_nbins = 100,
 )
 
 SiPixelPhase1HitsEfficiencyTrack = DefaultHistoTrack.clone(
