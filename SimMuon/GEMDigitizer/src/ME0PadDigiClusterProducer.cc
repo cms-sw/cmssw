@@ -1,9 +1,9 @@
-#include "SimMuon/GEMDigitizer/interface/GEMPadDigiClusterProducer.h"
+#include "SimMuon/GEMDigitizer/interface/ME0PadDigiClusterProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+#include "Geometry/GEMGeometry/interface/ME0Geometry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <string>
@@ -11,39 +11,39 @@
 #include <vector>
 
 
-GEMPadDigiClusterProducer::GEMPadDigiClusterProducer(const edm::ParameterSet& ps)
+ME0PadDigiClusterProducer::ME0PadDigiClusterProducer(const edm::ParameterSet& ps)
 : geometry_(nullptr)
 {
   pads_ = ps.getParameter<edm::InputTag>("InputCollection");
   maxClusters_ = ps.getParameter<unsigned int>("maxClusters");
   maxClusterSize_ = ps.getParameter<unsigned int>("maxClusterSize");
 
-  pad_token_ = consumes<GEMPadDigiCollection>(pads_);
+  pad_token_ = consumes<ME0PadDigiCollection>(pads_);
 
-  produces<GEMPadDigiClusterCollection>();
-  consumes<GEMPadDigiCollection>(pads_);
+  produces<ME0PadDigiClusterCollection>();
+  consumes<ME0PadDigiCollection>(pads_);
 }
 
 
-GEMPadDigiClusterProducer::~GEMPadDigiClusterProducer()
+ME0PadDigiClusterProducer::~ME0PadDigiClusterProducer()
 {}
 
 
-void GEMPadDigiClusterProducer::beginRun(const edm::Run& run, const edm::EventSetup& eventSetup)
+void ME0PadDigiClusterProducer::beginRun(const edm::Run& run, const edm::EventSetup& eventSetup)
 {
-  edm::ESHandle<GEMGeometry> hGeom;
+  edm::ESHandle<ME0Geometry> hGeom;
   eventSetup.get<MuonGeometryRecord>().get(hGeom);
   geometry_ = &*hGeom;
 }
 
 
-void GEMPadDigiClusterProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
+void ME0PadDigiClusterProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
 {
-  edm::Handle<GEMPadDigiCollection> hpads;
+  edm::Handle<ME0PadDigiCollection> hpads;
   e.getByToken(pad_token_, hpads);
 
   // Create empty output
-  std::unique_ptr<GEMPadDigiClusterCollection> pClusters(new GEMPadDigiClusterCollection());
+  std::unique_ptr<ME0PadDigiClusterCollection> pClusters(new ME0PadDigiClusterCollection());
 
   // build the clusters
   buildClusters(*(hpads.product()), *pClusters);
@@ -53,10 +53,9 @@ void GEMPadDigiClusterProducer::produce(edm::Event& e, const edm::EventSetup& ev
 }
 
 
-void GEMPadDigiClusterProducer::buildClusters(const GEMPadDigiCollection &det_pads, GEMPadDigiClusterCollection &out_clusters)
+void ME0PadDigiClusterProducer::buildClusters(const ME0PadDigiCollection &det_pads, ME0PadDigiClusterCollection &out_clusters)
 {
   for (const auto& ch: geometry_->chambers()) {
-    unsigned int nClusters = 0;
     for (const auto& part: ch->etaPartitions()) {
       auto pads = det_pads.get(part->id());
       std::vector<uint16_t> cl;
@@ -70,19 +69,17 @@ void GEMPadDigiClusterProducer::buildClusters(const GEMPadDigiCollection &det_pa
             cl.push_back((*d).pad());
           }
           else {
-            GEMPadDigiCluster pad_cluster(cl, startBX);
+            ME0PadDigiCluster pad_cluster(cl, startBX);
             out_clusters.insertDigi(part->id(), pad_cluster);
             cl.clear();
             cl.push_back((*d).pad());
-            nClusters++;
           }
         }
         startBX = (*d).bx();
       }
       if (pads.first != pads.second){
-        GEMPadDigiCluster pad_cluster(cl, startBX);
+        ME0PadDigiCluster pad_cluster(cl, startBX);
         out_clusters.insertDigi(part->id(), pad_cluster);
-        nClusters++;
       }
     }
   }
