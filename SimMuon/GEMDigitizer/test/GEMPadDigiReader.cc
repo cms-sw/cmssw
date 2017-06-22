@@ -119,5 +119,5 @@ void GEMPadDigiReader::analyze(const edm::Event & event, const edm::EventSetup& 
   }// for (detids with pads)
 }
 
-#include <FWCore/Framework/interface/MakerMacros.h>
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(GEMPadDigiReader);

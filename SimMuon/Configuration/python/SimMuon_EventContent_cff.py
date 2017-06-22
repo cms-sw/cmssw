@@ -49,6 +49,7 @@ from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 phase2_muon.toModify( SimMuonFEVTDEBUG, outputCommands = SimMuonFEVTDEBUG.outputCommands + ['keep *_simMuonME0PseudoDigis_*_*',
                                                                                             'keep *_simMuonME0PseudoReDigis_*_*',
                                                                                             'keep *_simMuonME0Digis_*_*',
-                                                                                            'keep *_simMuonME0PadDigis_*_*'] )
+                                                                                            'keep *_simMuonME0PadDigis_*_*',
+                                                                                            'keep *_simMuonME0PadDigiClusters_*_*'] )
 phase2_muon.toModify( SimMuonRAW, outputCommands = SimMuonRAW.outputCommands + ['keep StripDigiSimLinkedmDetSetVector_simMuonME0Digis_*_*'] )
 phase2_muon.toModify( SimMuonRECO, outputCommands = SimMuonRECO.outputCommands + ['keep StripDigiSimLinkedmDetSetVector_simMuonME0Digis_*_*'] )
