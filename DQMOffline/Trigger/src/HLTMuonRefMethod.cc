@@ -20,19 +20,14 @@
 #include <cmath>
 #include <climits>
 #include <boost/tokenizer.hpp>
+#include <boost/regex.hpp>
 
 
 #include <TH1.h>
-#include <RVersion.h>
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,27,0)
 #include <TEfficiency.h>
-#else
-#include <TGraphAsymmErrors.h>
-#endif
 
 
-TPRegexp metacharacters("[\\^\\$\\.\\*\\+\\?\\|\\(\\)\\{\\}\\[\\]]");
-TPRegexp nonPerlWildcard("\\w\\*|^\\*");
+
 
 using namespace edm;
 using namespace std;
@@ -94,6 +89,8 @@ HLTMuonRefMethod::beginJob()
 void HLTMuonRefMethod::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter)
 {
   typedef std::vector<std::string> vstring;
+  boost::regex metacharacters{"[\\^\\$\\.\\*\\+\\?\\|\\(\\)\\{\\}\\[\\]]"};
+  boost::smatch what;
 
   theDQM = 0;
   theDQM = Service<DQMStore>().operator->();
@@ -107,7 +104,7 @@ void HLTMuonRefMethod::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter 
 
     if ( subDir[subDir.size()-1] == '/' ) subDir.erase(subDir.size()-1);
 
-    if ( TString(subDir).Contains(metacharacters) ) {
+    if ( boost::regex_search(subDir, what, metacharacters)) {
       const string::size_type shiftPos = subDir.rfind('/');
       const string searchPath = subDir.substr(0, shiftPos);
       const string pattern    = subDir.substr(shiftPos + 1, subDir.length());
@@ -191,6 +188,8 @@ void
 HLTMuonRefMethod::findAllSubdirectories (DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, std::string dir, std::set<std::string> * myList,
 					 const TString& _pattern = TString("")) {
   TString pattern = _pattern;
+  TPRegexp nonPerlWildcard("\\w\\*|^\\*");
+
   if (!igetter.dirExists(dir)) {
     LogError("DQMGenericClient") << " DQMGenericClient::findAllSubdirectories ==> Missing folder " << dir << " !!!"; 
     return;

@@ -375,10 +375,7 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>   & allMuons,
 	    hists_["massVsDZZ_denom"]->Fill(track->dz(beamSpot->position()));
 	    hists_["MR_massVsDZZ_denom"]->Fill(track->dz(beamSpot->position()));
 	  }
-	  TLorentzVector vMuon, vProbe;
-	  vMuon.SetPtEtaPhiE( muon.p4().Pt(), muon.p4().Eta(), muon.p4().Phi(), muon.p4().E());
-	  vProbe.SetPtEtaPhiE(theProbe.p4().Pt(), theProbe.p4().Eta(),theProbe.p4().Phi(), theProbe.p4().E());
-	  hists_["efficiencyDeltaR_denom" ]->Fill(vMuon.DeltaR(vProbe));
+	  hists_["efficiencyDeltaR_denom" ]->Fill(deltaR(theProbe, muon));
           if(matches[k] < targetMuons.size()) {
             hists_["massVsEtaZ_numer"]->Fill(theProbe.eta());
             hists_["MR_massVsEtaZ_numer"]->Fill(theProbe.eta());
@@ -387,7 +384,7 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>   & allMuons,
 	    hists_["MR_massVsPtZ_numer"]->Fill(theProbe.pt());
             hists_["massVsVertexZ_numer"]->Fill(vertices->size());
 	    hists_["MR_massVsVertexZ_numer"]->Fill(vertices->size());
-	    hists_["efficiencyDeltaR_numer" ]->Fill(vMuon.DeltaR(vProbe));
+	    hists_["efficiencyDeltaR_numer" ]->Fill(deltaR(theProbe, muon));
 	    if (track){
 	      hists_["massVsDZZ_numer"]->Fill(track->dz(beamSpot->position()));
 	      hists_["MR_massVsDZZ_numer"]->Fill(track->dz(beamSpot->position()));
@@ -427,7 +424,8 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>   & allMuons,
   if (requiredTriggers_.size() == 0) passTrigger = true;
   for (size_t i = 0; i < requiredTriggers_.size(); i++) {
     for ( unsigned int hltIndex = 0; hltIndex < numTriggers; ++hltIndex){
-      passTrigger = passTrigger || (trigNames.triggerName(hltIndex).find(requiredTriggers_[i]) != std::string::npos && triggerResults->wasrun(hltIndex) && triggerResults->accept(hltIndex));
+      passTrigger = (trigNames.triggerName(hltIndex).find(requiredTriggers_[i]) != std::string::npos && triggerResults->wasrun(hltIndex) && triggerResults->accept(hltIndex));
+      if (passTrigger) break;
     }
   }
 
