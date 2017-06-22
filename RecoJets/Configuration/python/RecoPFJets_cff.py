@@ -39,8 +39,7 @@ recoPFJets   =cms.Sequence(fixedGridRhoAll+
                            ak8PFJetsCHS+
                            ak8PFJetsCHSConstituents+
                            ak8PFJetsCHSSoftDrop+
-                           ak8PFJetsCHSSoftDropMass+
-                           cmsTopTagPFJetsCHS
+                           ak8PFJetsCHSSoftDropMass
     )
 
 recoAllPFJets=cms.Sequence(fixedGridRhoAll+
