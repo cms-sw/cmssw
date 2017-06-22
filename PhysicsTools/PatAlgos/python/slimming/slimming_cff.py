@@ -19,6 +19,7 @@ from PhysicsTools.PatAlgos.slimming.slimmedMETs_cfi      import *
 from PhysicsTools.PatAlgos.slimming.slimmedV0s_cff      import *
 from PhysicsTools.PatAlgos.slimming.metFilterPaths_cff   import *
 from PhysicsTools.PatAlgos.slimming.MicroEventContent_cff import *
+from PhysicsTools.PatAlgos.selectionLayer1.calojetSelector_cfi import *
 from RecoEgamma.EgammaPhotonProducers.reducedEgamma_cfi  import *
 from RecoLuminosity.LumiProducer.bunchSpacingProducer_cfi import bunchSpacingProducer
 from HeavyFlavorAnalysis.Onia2MuMu.OniaPhotonConversionProducer_cfi import PhotonCandidates as oniaPhotonCandidates
@@ -32,6 +33,7 @@ slimmingTask = cms.Task(
     genParticlesTask,
     selectedPatTrigger,
     slimmedPatTrigger,
+    selectedCaloJets,
     slimmedJets,
     slimmedJetsAK8,
     slimmedGenJets,
