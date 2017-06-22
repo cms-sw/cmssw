@@ -10,6 +10,7 @@ from RecoLocalMuon.GEMRecHit.me0RecHits_cfi import *
 from RecoLocalMuon.GEMSegment.me0Segments_cfi import *
 
 simMuonME0PseudoReDigisCoarse = simMuonME0PseudoReDigis.clone(
+    usePads = cms.bool(True)
 )
 me0RecHitsCoarse = me0RecHits.clone(
     me0DigiLabel = cms.InputTag("simMuonME0PseudoReDigisCoarse")
