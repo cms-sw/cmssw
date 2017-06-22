@@ -16,7 +16,7 @@
 
 #include "CondFormats/RunInfo/interface/RunInfo.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
