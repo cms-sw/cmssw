@@ -7,7 +7,10 @@ from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJets
 ##############################################################################
 # Standard AK8 Jets####################################################
 ##########################
-ak8PFJets = ak4PFJets.clone( rParam       = cms.double(0.8) )
+ak8PFJets = ak4PFJets.clone( 
+    rParam       = cms.double(0.8),
+    jetPtMin = cms.double(50.0) 
+    )
 
 ##############################################################################
 # AK8 jets with various pileup subtraction schemes
