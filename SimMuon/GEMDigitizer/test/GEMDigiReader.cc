@@ -123,6 +123,6 @@ void GEMDigiReader::analyze(const edm::Event & event, const edm::EventSetup& eve
   LogDebug("GEMDigiReader")<<"--------------"<<endl;
 }
 
-#include <FWCore/Framework/interface/MakerMacros.h>
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(GEMDigiReader);
 

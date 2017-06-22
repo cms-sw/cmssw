@@ -221,5 +221,5 @@ void ME0DigiSimLinkReader::analyze(const edm::Event & event, const edm::EventSet
   }
 }
 
-#include <FWCore/Framework/interface/MakerMacros.h>
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE (ME0DigiSimLinkReader);

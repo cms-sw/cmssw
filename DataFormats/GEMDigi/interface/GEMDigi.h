@@ -9,7 +9,7 @@
  *
  */
 
-#include <boost/cstdint.hpp>
+#include <cstdint>
 #include <iosfwd>
 
 class GEMDigi{
