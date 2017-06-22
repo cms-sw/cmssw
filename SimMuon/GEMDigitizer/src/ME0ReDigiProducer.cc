@@ -136,7 +136,7 @@ TrapezoidalStripTopology * ME0ReDigiProducer::TemporaryGeometry::buildTopo(const
 ME0ReDigiProducer::ME0ReDigiProducer(const edm::ParameterSet& ps) :
 		bxWidth            (25.0),
 		useCusGeoFor1PartGeo(ps.getParameter<bool>("useCusGeoFor1PartGeo")),
-		usePadsForDefaultGeo(ps.getParameter<bool>("usePadsForDefaultGeo")),
+		usePads(ps.getParameter<bool>("usePads")),
 		numberOfStrips      (ps.getParameter<unsigned int>("numberOfStrips")),
 		numberOfPartitions (ps.getParameter<unsigned int>("numberOfPartitions")),
 		neutronAcceptance  (ps.getParameter<double>("neutronAcceptance")),
@@ -161,7 +161,8 @@ ME0ReDigiProducer::ME0ReDigiProducer(const edm::ParameterSet& ps) :
 	useBuiltinGeo = true;
 
 	if(useCusGeoFor1PartGeo){
-          	numberOfStrips = numberOfStrips/2;
+	        if (usePads)
+		        numberOfStrips = numberOfStrips/2;
 		if(numberOfStrips == 0)
 			throw cms::Exception("Setup") << "ME0ReDigiProducer::ME0PreRecoDigiProducer() - Must have at least one strip if using custom geometry.";
 		if(numberOfPartitions == 0)
@@ -401,7 +402,7 @@ void ME0ReDigiProducer::getStripProperties(const ME0EtaPartition* etaPart, const
 
 	const TrapezoidalStripTopology * origTopo = (const TrapezoidalStripTopology*)(&etaPart->specificTopology());
 	TrapezoidalStripTopology padTopo(origTopo->nstrips()/2,origTopo->pitch()*2,origTopo->stripLength(),origTopo->radius());
-	const auto & topo = usePadsForDefaultGeo ?  padTopo : etaPart->specificTopology();
+	const auto & topo = usePads ?  padTopo : etaPart->specificTopology();
 
 	//find channel
 	const LocalPoint partLocalPoint(inDigi->x(), inDigi->y(),0.);
