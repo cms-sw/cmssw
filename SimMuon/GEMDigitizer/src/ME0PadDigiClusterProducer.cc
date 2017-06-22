@@ -61,7 +61,7 @@ void ME0PadDigiClusterProducer::buildClusters(const ME0PadDigiCollection &det_pa
       std::vector<uint16_t> cl;
       int startBX = 99;
       for (auto d = pads.first; d != pads.second; ++d) {
-        if (cl.size() == 0) {
+        if (cl.empty()) {
           cl.push_back((*d).pad());
         }
         else {
