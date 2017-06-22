@@ -220,7 +220,9 @@ public:
 			float etLow,
 			signed int depth,
 			const CaloTowerCollection* towers );
-  
+
+
+  void setTLS(const CaloTowerCollection* towers);  
   double getTowerEtSum (const reco::Candidate* cand, const std::vector<CaloTowerDetId> * detIdToExclude=0 ) const{
     reco::SuperCluster const & sc =  *cand->get<reco::SuperClusterRef>().get();
     return getSum(true,sc,detIdToExclude);

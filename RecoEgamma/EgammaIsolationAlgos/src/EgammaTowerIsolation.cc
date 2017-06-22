@@ -43,6 +43,11 @@ EgammaTowerIsolation::EgammaTowerIsolation (float extRadiusI,
 {
   assert(0==etLow);
 
+  if (towers != nullptr) setTLS(towers);
+}
+
+void EgammaTowerIsolation::setTLS(const CaloTowerCollection* towers)
+{
   // extremely poor in quality  (test of performance)
   if (tls.newAlgo.get()==nullptr ||  towers!=tls.oldTowers || towers->size()!=tls.newAlgo->nt || (towers->size()>15 && (*towers)[15].id()!=tls.id15)) {
     tls.newAlgo = std::make_unique<EgammaTowerIsolationNew<1>>(&extRadius,&intRadius,*towers);
