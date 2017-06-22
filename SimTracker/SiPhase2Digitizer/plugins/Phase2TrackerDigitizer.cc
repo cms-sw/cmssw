@@ -47,7 +47,7 @@
 #include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 
