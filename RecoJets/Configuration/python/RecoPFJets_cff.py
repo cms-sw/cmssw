@@ -6,7 +6,6 @@ from RecoJets.JetProducers.kt4PFJets_cfi import *
 from RecoJets.JetProducers.kt6PFJets_cfi import *
 from RecoJets.JetProducers.ca15PFJets_cfi import *
 from RecoJets.JetProducers.caTopTaggers_cff import cmsTopTagPFJetsCHS
-ndard in RECO at all anymore.
 from CommonTools.ParticleFlow.pfNoPileUpJME_cff  import *
 from CommonTools.PileupAlgos.Puppi_cff import puppi
 from CommonTools.PileupAlgos.softKiller_cfi import softKiller
@@ -40,7 +39,8 @@ recoPFJets   =cms.Sequence(fixedGridRhoAll+
                            ak8PFJetsCHS+
                            ak8PFJetsCHSConstituents+
                            ak8PFJetsCHSSoftDrop+
-                           ak8PFJetsCHSSoftDropMass
+                           ak8PFJetsCHSSoftDropMass+
+                           cmsTopTagPFJetsCHS
     )
 
 recoAllPFJets=cms.Sequence(fixedGridRhoAll+
