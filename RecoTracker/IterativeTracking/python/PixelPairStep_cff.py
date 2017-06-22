@@ -333,7 +333,7 @@ trackingPhase2PU140.toModify(pixelPairStepSelector,
             dz_par2 = ( 0.35, 4.0 )
             ),
         ), #end of vpset
-    vertices = "pixelVertices"
+    vertices = "firstStepPrimaryVertices"
 ) #end of clone
 
 
