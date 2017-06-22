@@ -50,11 +50,13 @@ SiStripApvGainRcd_prod_str = encodeJsonInString("SiStripApvGainRcd_prod.json")
 SiStripApvGainRcd_multirun_prod_str = encodeJsonInString("SiStripApvGainRcd_multirun_prod.json") 
 SiStripApvGainRcdAfterAbortGap_prod_str = encodeJsonInString("SiStripApvGainRcdAfterAbortGap_prod.json") # can be removed, once 92x deployed
 SiStripApvGainRcdAAG_prod_str = encodeJsonInString("SiStripApvGainRcdAAG_prod.json") # will take over
+SiStripApvGainRcdAAG_multirun_prod_str = encodeJsonInString("SiStripApvGainRcdAAG_multirun_prod.json")
 
 SiStripApvGainRcd_prep_str = encodeJsonInString("SiStripApvGainRcd_prep.json")
 SiStripApvGainRcd_multirun_prep_str = encodeJsonInString("SiStripApvGainRcd_multirun_prep.json")
 SiStripApvGainRcdAfterAbortGap_prep_str = encodeJsonInString("SiStripApvGainRcdAfterAbortGap_prep.json") # can be removed, once 92x deployed
 SiStripApvGainRcdAAG_prep_str = encodeJsonInString("SiStripApvGainRcdAAG_prep.json") # will take over
+SiStripApvGainRcdAAG_multirun_prep_str = encodeJsonInString("SiStripApvGainRcdAAG_multirun_prep.json")
 
 #SiPixelAli
 SiPixelAliRcd_prod_str = encodeJsonInString("SiPixelAliRcd_prod.json")
@@ -124,7 +126,9 @@ process.mywriter = cms.EDAnalyzer("ProduceDropBoxMetadata",
                                                                Source              = cms.untracked.string("AlcaHarvesting"),
                                                                FileClass           = cms.untracked.string("ALCA"),
                                                                prodMetaData        = cms.untracked.string(SiStripApvGainRcdAAG_prod_str),
+                                                               prodMetaDataMultiRun = cms.untracked.string(SiStripApvGainRcdAAG_multirun_prod_str),
                                                                prepMetaData        = cms.untracked.string(SiStripApvGainRcdAAG_prep_str),
+                                                               prepMetaDataMultiRun = cms.untracked.string(SiStripApvGainRcdAAG_multirun_prep_str)
                                                                ),
                                                       cms.PSet(record              = cms.untracked.string('EcalPedestalsRcd'),
                                                                Source              = cms.untracked.string("AlcaHarvesting"),
@@ -146,7 +150,7 @@ process.p = cms.Path(process.mywriter)
 if process.mywriter.write:
 
     from CondCore.CondDB.CondDB_cfi import CondDB
-    CondDB.connect = "sqlite_file:DropBoxMetadata_addHPbyRun.db"
+    CondDB.connect = "sqlite_file:DropBoxMetadata_addHPbyRun_addAAGmulti.db"
 
     process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                               CondDB,
