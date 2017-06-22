@@ -167,20 +167,36 @@ math::XYZPoint HGCalImagingAlgo::calculatePosition(std::vector<KDNode> &v){
   float y = 0.;
   float z = 0.;
   unsigned int v_size = v.size();
+  bool haloOnlyCluster = true;
 
+  // check if haloOnlyCluster
   for (unsigned int i = 0; i < v_size; i++){
     if(!v[i].data.isHalo){
-      total_weight += v[i].data.weight;
-      x += v[i].data.x*v[i].data.weight;
-      y += v[i].data.y*v[i].data.weight;
-      z += v[i].data.z*v[i].data.weight;
+      haloOnlyCluster = false;
     }
   }
 
-  if (total_weight != 0) {
-  return math::XYZPoint( x/total_weight,
+  if (!haloOnlyCluster) {
+    for (unsigned int i = 0; i < v_size; i++){
+      if(!v[i].data.isHalo){
+        total_weight += v[i].data.weight;
+        x += v[i].data.x*v[i].data.weight;
+        y += v[i].data.y*v[i].data.weight;
+        z += v[i].data.z*v[i].data.weight;
+      }
+    }
+
+    if (total_weight != 0) {
+      return math::XYZPoint( x/total_weight,
 			 y/total_weight,
 			 z/total_weight );
+     }
+  } // end !haloOnlyCluster
+  else {
+    // return position of hit with maximum energy
+    auto it = std::max_element(v.begin(), v.end(),
+    [](const KDNode& x, const KDNode& y) {  return x.data.weight < y.data.weight; });
+    return math::XYZPoint(it->data.x, it->data.y, it->data.z);
   }
   return math::XYZPoint(0, 0, 0);
 }
