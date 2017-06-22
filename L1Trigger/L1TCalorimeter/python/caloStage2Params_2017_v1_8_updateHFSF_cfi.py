@@ -1,3 +1,7 @@
+#
+# caloStage2Params_2017_v1_8_updateHFSF_cfi
+# change w.r.t. v1_8: change in Layer1HFSF lowest pT bins from 1.0 to 0.7
+#
 import FWCore.ParameterSet.Config as cms
 
 from L1Trigger.L1TCalorimeter.caloParams_cfi import caloParamsSource
