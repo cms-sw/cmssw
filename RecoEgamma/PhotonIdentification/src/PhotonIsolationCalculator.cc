@@ -52,7 +52,10 @@ void PhotonIsolationCalculator::setup(const edm::ParameterSet& conf,
   beamSpotProducerTag_ = iC.consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("beamSpotProducer"));
   barrelecalCollection_ = iC.consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("barrelEcalRecHitCollection"));
   endcapecalCollection_ = iC.consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("endcapEcalRecHitCollection"));
-  hcalCollection_ = iC.consumes<CaloTowerCollection>(conf.getParameter<edm::InputTag>("HcalRecHitCollection"));
+
+  auto hcRHC = conf.getParameter<edm::InputTag>("HcalRecHitCollection");
+  if (not hcRHC.label().empty())
+    hcalCollection_ = iC.consumes<CaloTowerCollection>(hcRHC);
 
   //  gsfRecoInputTag_ = conf.getParameter<edm::InputTag>("GsfRecoCollection");
   modulePhiBoundary_ = conf.getParameter<double>("modulePhiBoundary");
@@ -661,11 +664,11 @@ double PhotonIsolationCalculator::calculateHcalTowerIso(const reco::Photon* phot
 {
 
   edm::Handle<CaloTowerCollection> hcalhitsCollH;
- 
-  iEvent.getByToken(hcalCollection_, hcalhitsCollH);
-  
-  const CaloTowerCollection *toww = hcalhitsCollH.product();
-
+  const CaloTowerCollection *toww = nullptr; 
+  if (not hcalCollection_.isUninitialized()){
+    iEvent.getByToken(hcalCollection_, hcalhitsCollH);
+    toww = hcalhitsCollH.product();
+  }
   double hcalIsol=0.;
   
   //std::cout << "before iso call" << std::endl;
@@ -673,7 +676,7 @@ double PhotonIsolationCalculator::calculateHcalTowerIso(const reco::Photon* phot
                               RConeInner,
                               eMin,depth,
                               toww);
-  hcalIsol = phoIso.getTowerEtSum(photon);
+  hcalIsol = (toww != nullptr ? phoIso.getTowerEtSum(photon) : 0.);
   //  delete phoIso;
   //std::cout << "after call" << std::endl;
   return hcalIsol;
@@ -692,11 +695,11 @@ double PhotonIsolationCalculator::calculateHcalTowerIso(const reco::Photon* phot
 {
 
   edm::Handle<CaloTowerCollection> hcalhitsCollH;
- 
-  iEvent.getByToken(hcalCollection_, hcalhitsCollH);
-  
-  const CaloTowerCollection *toww = hcalhitsCollH.product();
-
+  const CaloTowerCollection *toww = nullptr;
+  if (not hcalCollection_.isUninitialized()){
+    iEvent.getByToken(hcalCollection_, hcalhitsCollH);
+    toww = hcalhitsCollH.product();
+  }
   double hcalIsol=0.;
   
   //std::cout << "before iso call" << std::endl;
@@ -704,7 +707,7 @@ double PhotonIsolationCalculator::calculateHcalTowerIso(const reco::Photon* phot
 			      0.,
                               eMin,depth,
                               toww);
-  hcalIsol = phoIso.getTowerEtSum(photon, &(photon->hcalTowersBehindClusters()) );
+  hcalIsol = (toww != nullptr ? phoIso.getTowerEtSum(photon, &(photon->hcalTowersBehindClusters()) ) : 0.);
   //  delete phoIso;
   //std::cout << "after call" << std::endl;
   return hcalIsol;
