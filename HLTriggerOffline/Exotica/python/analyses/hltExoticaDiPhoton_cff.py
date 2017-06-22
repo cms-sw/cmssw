@@ -10,6 +10,8 @@ DiPhotonPSet = cms.PSet(
         "HLT_DoublePhoton40_v", # 0T
         "HLT_DoublePhoton50_v"  # 0T
         #"HLT_DoublePhoton70_v"  # Run1 (frozenHLT)
+        "HLT_DoublePhoton70_v", #2017
+        "HLT_DoublePhoton33_CaloIdL"
         ),
     recElecLabel  = cms.InputTag("gedGsfElectrons"),
     #recPhotonLabel  = cms.InputTag("gedPhotons"),
