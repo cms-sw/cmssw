@@ -468,7 +468,7 @@ HcalDDDRecConstants::HcalCellTypes(HcalSubdetector subdet) const {
     int isub   = (subdet == HcalBarrel) ? 0 : 1;
     std::vector<HcalDDDRecConstants::HcalEtaBin> etabins = getEtaBins(isub);
     std::vector<int> missPhi;
-    for (auto etabin : etabins) {
+    for (const auto& etabin : etabins) {
       std::vector<HcalCellType> temp;
       std::vector<int>          count;
       std::vector<double>       dmin, dmax;
