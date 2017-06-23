@@ -286,7 +286,7 @@ void SiPixelPhase1Summary::fillTrendPlots(DQMStore::IBooker & iBooker, DQMStore:
     histName = histNameStream.str();
     MonitorElement * tempLayerME = iGetter.get(histName);
     if (!tempLayerME) continue;
-    float lowEffValue = 1. * (tempLayerME->getTH1()->Integral() / nRocsPerTrend[trendIt]);
+    float lowEffValue = 0.25 * (tempLayerME->getTH1()->Integral() / nRocsPerTrend[trendIt]);
     for (int i=1; i<=tempLayerME->getTH1()->GetXaxis()->GetNbins(); i++){
       for (int j=1; j<=tempLayerME->getTH1()->GetYaxis()->GetNbins(); j++){
 	if (tempLayerME->getBinContent(i,j) > 0.) nFilledROCs[trendIt]++;
