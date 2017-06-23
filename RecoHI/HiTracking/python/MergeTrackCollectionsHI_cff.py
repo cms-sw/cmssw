@@ -28,11 +28,10 @@ trackingPhase1.toModify(hiGeneralTracksNoRegitMu,
                       cms.InputTag('hiDetachedQuadStepTracks'),
                       cms.InputTag('hiDetachedTripletStepTracks'),
                       cms.InputTag('hiLowPtTripletStepTracks'),
-                      cms.InputTag('hiPixelPairGlobalPrimTracks'),
                       cms.InputTag('hiJetCoreRegionalStepTracks')
                      ),
-    hasSelector=cms.vint32(1,1,1,1,1,1,1,1),
-    setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1,2,3,4,5,6), pQual=cms.bool(True))),
+    hasSelector=cms.vint32(1,1,1,1,1,1,1),
+    setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1,2,3,4,5), pQual=cms.bool(True))),
     selectedTrackQuals = cms.VInputTag(
     cms.InputTag("hiInitialStepSelector","hiInitialStep"),
     cms.InputTag("hiLowPtQuadStepSelector","hiLowPtQuadStep"),
@@ -40,7 +39,6 @@ trackingPhase1.toModify(hiGeneralTracksNoRegitMu,
     cms.InputTag("hiDetachedQuadStepSelector","hiDetachedQuadStep"),
     cms.InputTag("hiDetachedTripletStepSelector","hiDetachedTripletStep"),
     cms.InputTag("hiLowPtTripletStepSelector","hiLowPtTripletStep"),
-    cms.InputTag("hiPixelPairStepSelector","hiPixelPairStep"),
     )                    
 )    
 
@@ -85,7 +83,6 @@ trackingPhase1.toModify(hiGeneralTracks,
                       cms.InputTag('hiDetachedQuadStepTracks'),
                       cms.InputTag('hiDetachedTripletStepTracks'),
                       cms.InputTag('hiLowPtTripletStepTracks'),
-                      cms.InputTag('hiPixelPairGlobalPrimTracks'),
                       cms.InputTag('hiJetCoreRegionalStepTracks'),
                       cms.InputTag('hiRegitMuInitialStepTracks'),
                       cms.InputTag('hiRegitMuPixelPairStepTracks'),
@@ -95,8 +92,8 @@ trackingPhase1.toModify(hiGeneralTracks,
                       cms.InputTag('hiRegitMuonSeededTracksOutIn'),
                       cms.InputTag('hiRegitMuonSeededTracksInOut')
                      ),
-    hasSelector=cms.vint32(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1),
-    setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14), pQual=cms.bool(True))),  # should this be False?
+    hasSelector=cms.vint32(1,1,1,1,1,1,1,1,1,1,1,1,1,1),
+    setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1,2,3,4,5,6,7,8,9,10,11,12,13), pQual=cms.bool(True))),  # should this be False?
     selectedTrackQuals = cms.VInputTag(
     cms.InputTag("hiInitialStepSelector","hiInitialStep"),
     cms.InputTag("hiLowPtQuadStepSelector","hiLowPtQuadStep"),
@@ -104,7 +101,6 @@ trackingPhase1.toModify(hiGeneralTracks,
     cms.InputTag("hiDetachedQuadStepSelector","hiDetachedQuadStep"),
     cms.InputTag("hiDetachedTripletStepSelector","hiDetachedTripletStep"),
     cms.InputTag("hiLowPtTripletStepSelector","hiLowPtTripletStep"),
-    cms.InputTag("hiPixelPairStepSelector","hiPixelPairStep"),
     cms.InputTag("hiJetCoreRegionalStepSelector","hiJetCoreRegionalStep"),
     cms.InputTag("hiRegitMuInitialStepSelector","hiRegitMuInitialStepLoose"),
     cms.InputTag("hiRegitMuPixelPairStepSelector","hiRegitMuPixelPairStep"),

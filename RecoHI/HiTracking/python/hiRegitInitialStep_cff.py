@@ -28,7 +28,11 @@ hiRegitInitialStepClusters = cms.EDProducer("HITrackClusterRemover",
                                             Strip = cms.PSet(
     maxChi2 = cms.double(9.0),
     )
-                                            )
+)
+from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
+trackingPhase1.toModify(hiRegitInitialStepClusters, 
+    oldClusterRemovalInfo = cms.InputTag("hiLowPtTripletStepClusters")
+)
 
 
 
