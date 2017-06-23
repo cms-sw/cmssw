@@ -95,10 +95,10 @@ namespace {
   
 PixelFitterByHelixProjections::PixelFitterByHelixProjections(const edm::EventSetup *es,
 							     const MagneticField *field,
-                                                             bool scaleErrorsForPhaseI,
+                                                             bool scaleErrorsForBPix1,
                                                              float scaleFactor):
   theES(es), theField(field),
-  thescaleErrorsForPhaseI(scaleErrorsForPhaseI), thescaleFactor(scaleFactor)
+  thescaleErrorsForBPix1(scaleErrorsForBPix1), thescaleFactor(scaleFactor)
 {
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopo;
@@ -160,7 +160,7 @@ std::unique_ptr<reco::Track> PixelFitterByHelixProjections::run(
   // that the pulls of the pixelVertices derived from the pixelTracks
   // have the correct mean and sigma.
   float errFactor = 1.;
-  if ( thescaleErrorsForPhaseI
+  if ( thescaleErrorsForBPix1
        && (hits[0]->geographicalId().subdetId() == PixelSubdetector::PixelBarrel) &&
        (theTopo->pxbLayer(hits[0]->geographicalId()) == 1))
 	errFactor = thescaleFactor;

@@ -15,7 +15,7 @@ class TrackerTopology;
 class PixelFitterByHelixProjections final : public PixelFitterBase {
 public:
   explicit PixelFitterByHelixProjections(const edm::EventSetup *es, const MagneticField *field,
-                                         bool scaleErrorsForPhaseI, float scaleFactor);
+                                         bool scaleErrorsForBPix1, float scaleFactor);
   virtual ~PixelFitterByHelixProjections() {}
   virtual std::unique_ptr<reco::Track> run(const std::vector<const TrackingRecHit *>& hits,
                                            const TrackingRegion& region) const override;
@@ -23,7 +23,7 @@ public:
 private:
   const edm::EventSetup *theES;
   const MagneticField *theField;
-  const bool thescaleErrorsForPhaseI;
+  const bool thescaleErrorsForBPix1;
   const float thescaleFactor;
   TrackerTopology const * theTopo=nullptr;
 };
