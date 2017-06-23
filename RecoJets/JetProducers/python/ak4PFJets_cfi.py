@@ -8,8 +8,7 @@ ak4PFJets = cms.EDProducer(
     PFJetParameters,
     AnomalousCellParameters,
     jetAlgorithm = cms.string("AntiKt"),
-    rParam       = cms.double(0.4),
-    doAreaFastJet = cms.bool(True)
+    rParam       = cms.double(0.4)
     )
 
 
