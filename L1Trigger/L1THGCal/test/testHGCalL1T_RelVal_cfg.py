@@ -11,8 +11,8 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2023D4Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2023D4_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D17Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D17_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedHLLHC14TeV_cfi')
@@ -31,7 +31,7 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("PoolSource",
-       fileNames = cms.untracked.vstring('/store/relval/CMSSW_9_1_0_pre2/RelValZEE_14/GEN-SIM-DIGI-RAW/PU25ns_90X_upgrade2023_realistic_v9_D4TPU140-v1/00000/DC25DA00-EF27-E711-9259-0025905A48D6.root') )
+       fileNames = cms.untracked.vstring('/store/relval/CMSSW_9_1_1_patch1/RelValZEE_14/GEN-SIM-DIGI-RAW/91X_upgrade2023_realistic_v1_D17-v1/10000/38679F3C-B04A-E711-9C7F-0CC47A4D7636.root') )
 
 process.options = cms.untracked.PSet(
 
