@@ -31,17 +31,7 @@ from CondCore.CondDB.CondDB_cfi import *
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.source = cms.Source("PoolSource",
                                 fileNames = cms.untracked.vstring(
-#'/store/data/Run2016H/SingleMuon/RECO/PromptReco-v2/000/281/693/00000/000146F7-1686-E611-BD78-FA163E90B8E2.root',
-#'/store/data/Run2016H/SingleMuon/RECO/PromptReco-v2/000/281/693/00000/0005E4FF-1686-E611-8EA1-FA163E4D9EA1.root',
-#'/store/data/Run2016H/SingleMuon/RECO/PromptReco-v2/000/281/693/00000/0015960B-1786-E611-9959-02163E011FA5.root',
-#'/store/data/Run2016H/SingleMuon/RECO/PromptReco-v2/000/281/693/00000/003BBD87-2086-E611-91F2-02163E0133E6.root',
-#'/store/data/Run2016H/SingleMuon/RECO/PromptReco-v2/000/281/693/00000/0050E751-1786-E611-8CE8-02163E0142A0.root',
-#'/store/data/Run2016H/SingleMuon/RECO/PromptReco-v2/000/281/693/00000/005C022F-1886-E611-9710-02163E0120DF.root',
-#'/store/data/Run2016H/SingleMuon/RECO/PromptReco-v2/000/281/693/00000/00C7E60D-1786-E611-AF8B-02163E011A02.root',
-#'/store/data/Run2016H/SingleMuon/RECO/PromptReco-v2/000/281/693/00000/00DFE8EE-1686-E611-8794-FA163E725C0F.root',
-#'/store/data/Run2016H/SingleMuon/RECO/PromptReco-v2/000/281/693/00000/022DEC66-1986-E611-AD21-02163E012464.root',
-#'/store/data/Run2016H/SingleMuon/RECO/PromptReco-v2/000/281/693/00000/02532811-1786-E611-AFEB-02163E011AA8.root',
-'/store/data/Run2016H/SingleMuon/RECO/PromptReco-v2/000/281/727/00000/000744C8-D286-E611-BBEE-02163E012677.root'
+'/store/data/Run2017B/SingleMuon/RECO/PromptReco-v1/000/297/218/00000/14C84999-6457-E711-AAE4-02163E0136E0.root'
                                 )
                                 )
 process.source.inputCommands = cms.untracked.vstring("keep *",
@@ -73,9 +63,9 @@ process.zcounting = cms.EDAnalyzer('ZCounting',
                                  MassMin  = cms.untracked.double(66.0),
                                  MassMax  = cms.untracked.double(116.0),
 
-                                 LumiBin  = cms.untracked.int32(400),
+                                 LumiBin  = cms.untracked.int32(500),
                                  LumiMin  = cms.untracked.double(0.0),
-                                 LumiMax  = cms.untracked.double(2000.0),
+                                 LumiMax  = cms.untracked.double(2500.0),
 
                                  PVBin    = cms.untracked.int32(60),
                                  PVMin    = cms.untracked.double(0.0),
@@ -103,4 +93,4 @@ process.schedule = cms.Schedule(
     process.dqmsave_step
     )
 
-process.dqmSaver.workflow = '/SingleMuon/Run2016H-PromptReco-v2/RECO'
+process.dqmSaver.workflow = '/SingleMuon/Run2017B-PromptReco-v1/RECO'

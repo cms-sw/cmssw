@@ -20,9 +20,9 @@ zcounting = cms.EDAnalyzer('ZCounting',
                                  MassMin  = cms.untracked.double(66.0),
                                  MassMax  = cms.untracked.double(116.0),
 
-                                 LumiBin  = cms.untracked.int32(400),
+                                 LumiBin  = cms.untracked.int32(500),
                                  LumiMin  = cms.untracked.double(0.0),
-                                 LumiMax  = cms.untracked.double(2000.0),
+                                 LumiMax  = cms.untracked.double(2500.0),
 
                                  PVBin    = cms.untracked.int32(60),
                                  PVMin    = cms.untracked.double(0.0),
