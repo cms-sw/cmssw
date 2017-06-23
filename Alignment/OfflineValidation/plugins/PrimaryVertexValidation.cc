@@ -153,7 +153,7 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   bool passesRunControl = false;
 
   if(runControl_){
-    for(unsigned int j=0;j<runControlNumbers_.size();j++){
+    for(const auto & j : runControlNumbers_){
       if(iEvent.eventAuxiliary().run() == runControlNumbers_[j]){ 
 	if (debug_){
 	  edm::LogInfo("PrimaryVertexValidation")<<" run number: "<<iEvent.eventAuxiliary().run()<<" keeping run:"<<runControlNumbers_[j];
@@ -235,7 +235,9 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   
   edm::Handle<TrackCollection>  trackCollectionHandle;
   iEvent.getByToken(theTrackCollectionToken, trackCollectionHandle);
-  
+  if(!trackCollectionHandle.isValid()) return;
+  auto const & tracks = *trackCollectionHandle;
+
   //=======================================================
   // Retrieve offline vartex information (only for reco)
   //=======================================================
@@ -427,10 +429,8 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   //======================================================
  
   std::vector<TransientTrack> t_tks;
-  unsigned int k = 0;   
-  for(TrackCollection::const_iterator track = trackCollectionHandle->begin(); track!= trackCollectionHandle->end(); ++track, ++k){
-  
-    TransientTrack tt = theB_->build(&(*track));  
+  for (const auto & track : tracks){
+    TransientTrack tt = theB_->build(&(track));  
     tt.setBeamSpot(beamSpot);
     t_tks.push_back(tt);
   
@@ -462,20 +462,21 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   //======================================================
   // Starts loop on clusters 
   //======================================================
-
-  for (vector< vector<TransientTrack> >::const_iterator iclus = clusters.begin(); iclus != clusters.end(); iclus++) {
+  for (const auto & iclus : clusters){
 
     nTracksPerClus_=0;
 
-    unsigned int i = 0;   
-    for(vector<TransientTrack>::const_iterator theTTrack = iclus->begin(); theTTrack!= iclus->end(); ++theTTrack, ++i)
+    unsigned int i=0;
+    for(const auto & theTTrack : iclus)
       {
+	i++;
+
 	if ( nTracks_ >= nMaxtracks_ ) {
 	  edm::LogError("PrimaryVertexValidation")<<" Warning - Number of tracks: " << nTracks_ << " , greater than " << nMaxtracks_;
 	  continue;
 	}
 	
-	const Track & theTrack = theTTrack->track();
+	const Track & theTrack = theTTrack.track();
 
 	pt_[nTracks_]       = theTrack.pt();
 	p_[nTracks_]        = theTrack.p();
@@ -516,7 +517,7 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 	int nhitinBPIX = hits.numberOfValidPixelBarrelHits();
 	int nhitinFPIX = hits.numberOfValidPixelEndcapHits();
 	
-	for (trackingRecHit_iterator iHit = theTTrack->recHitsBegin(); iHit != theTTrack->recHitsEnd(); ++iHit) {
+	for (trackingRecHit_iterator iHit = theTTrack.recHitsBegin(); iHit != theTTrack.recHitsEnd(); ++iHit) {
 	  if((*iHit)->isValid()) {	
 	    
 	    if (this->isHit2D(**iHit)) {++nRecHit2D;}
@@ -538,7 +539,7 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 	//=======================================================  
 
 	bool pass = true;
-	if(askFirstLayerHit_) pass = this->hasFirstLayerPixelHits((*theTTrack));
+	if(askFirstLayerHit_) pass = this->hasFirstLayerPixelHits(theTTrack);
 	if (pass && (theTrack.pt() >=ptOfProbe_) && fabs(theTrack.eta()) <= etaOfProbe_){
 	  isGoodTrack_[nTracks_]=1;
 	}
@@ -549,14 +550,14 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 	
 	vector<TransientTrack> theFinalTracks;
 	theFinalTracks.clear();
-
-	for(vector<TransientTrack>::const_iterator tk = iclus->begin(); tk!= iclus->end(); ++tk){
 	  
-	  pass = this->hasFirstLayerPixelHits((*tk));
+	for (const auto & tk : iclus) {
+
+	  pass = this->hasFirstLayerPixelHits(tk);
 	  if (pass){
 	    if( tk == theTTrack ) continue;
 	    else {
-	      theFinalTracks.push_back((*tk));
+	      theFinalTracks.push_back(tk);
 	    }
 	  }
 	}
@@ -591,7 +592,7 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 	      const math::XYZPoint myVertex(theFittedVertex.position().x(),theFittedVertex.position().y(),theFittedVertex.position().z());
 
 	      const Vertex vertex = theFittedVertex;
-	      fillTrackHistos(hDA,"all",&(*theTTrack),vertex,beamSpot,fBfield_);
+	      fillTrackHistos(hDA,"all",&theTTrack,vertex,beamSpot,fBfield_);
 
 	      hasRecVertex_[nTracks_]    = 1;
 	      xUnbiasedVertex_[nTracks_] = theFittedVertex.position().x();
@@ -616,7 +617,7 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 	      GlobalPoint vert(theFittedVertex.position().x(),theFittedVertex.position().y(),theFittedVertex.position().z());
 
-	      //FreeTrajectoryState theTrackNearVertex = (*theTTrack).trajectoryStateClosestToPoint(vert).theState();
+	      //FreeTrajectoryState theTrackNearVertex = theTTrack.trajectoryStateClosestToPoint(vert).theState();
 	      //double dz_err = sqrt(theFittedVertex.positionError().czz() + theTrackNearVertex.cartesianError().position().czz());      
 	      //double dz_err = hypot(theTrack.dzError(),theFittedVertex.positionError().czz());
 	      
@@ -624,7 +625,7 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 
 	      // PV2D 
-	      std::pair<bool,Measurement1D> s_ip2dpv = signedTransverseImpactParameter(*theTTrack,
+	      std::pair<bool,Measurement1D> s_ip2dpv = signedTransverseImpactParameter(theTTrack,
 										       GlobalVector(theTrack.px(),
 												    theTrack.py(),
 												    theTrack.pz()),
@@ -634,7 +635,7 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 	      double s_ip2dpv_err  = s_ip2dpv.second.error();
 	      
 	      // PV3D
-	      std::pair<bool, Measurement1D> s_ip3dpv = signedImpactParameter3D(*theTTrack,		    
+	      std::pair<bool, Measurement1D> s_ip3dpv = signedImpactParameter3D(theTTrack,		    
 										GlobalVector(theTrack.px(),  
 											     theTrack.py(),  
 											     theTrack.pz()), 
@@ -644,12 +645,12 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 	      double s_ip3dpv_err  = s_ip3dpv.second.error();
 
 	      // PV3D absolute
-	      std::pair<bool,Measurement1D> ip3dpv = absoluteImpactParameter3D(*theTTrack,theFittedVertex);
+	      std::pair<bool,Measurement1D> ip3dpv = absoluteImpactParameter3D(theTTrack,theFittedVertex);
 	      double ip3d_corr = ip3dpv.second.value(); 
 	      double ip3d_err  = ip3dpv.second.error(); 
 	      
 	      // with respect to any specified vertex, such as primary vertex
-	      TrajectoryStateClosestToPoint traj = (*theTTrack).trajectoryStateClosestToPoint(vert);
+	      TrajectoryStateClosestToPoint traj = (theTTrack).trajectoryStateClosestToPoint(vert);
 
 	      GlobalPoint refPoint = traj.position();
 	      GlobalPoint cPToVtx  = traj.theState().position();
@@ -737,7 +738,7 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 	      // checks on the probe track quality
 	      if(trackpt >= ptOfProbe_ && fabs(tracketa)<= etaOfProbe_){
 
-		std::pair<bool,bool> pixelOcc = pixelHitsCheck((*theTTrack));
+		std::pair<bool,bool> pixelOcc = pixelHitsCheck((theTTrack));
 
 		/*
 		  if(pixelOcc.first == true)
@@ -751,7 +752,7 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 	
 		//std::cout<<"track passed"<<std::endl;
 	
-		fillTrackHistos(hDA,"sel",&(*theTTrack),vertex,beamSpot,fBfield_);
+		fillTrackHistos(hDA,"sel",&(theTTrack),vertex,beamSpot,fBfield_);
 
 		// probe checks
 		h_probePt_->Fill(theTrack.pt());
@@ -780,9 +781,9 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 		float dxysigmaRecoV = TMath::Sqrt(theTrack.d0Error()*theTrack.d0Error()+xErrOfflineVertex_*yErrOfflineVertex_);
 		float dzsigmaRecoV  = TMath::Sqrt(theTrack.dzError()*theTrack.dzError()+zErrOfflineVertex_*zErrOfflineVertex_);
 
-		double zTrack=(theTTrack->stateAtBeamLine().trackStateAtPCA()).position().z();
+		double zTrack=(theTTrack.stateAtBeamLine().trackStateAtPCA()).position().z();
 		double zVertex=theFittedVertex.position().z();
-		double tantheta=tan((theTTrack->stateAtBeamLine().trackStateAtPCA()).momentum().theta());
+		double tantheta=tan((theTTrack.stateAtBeamLine().trackStateAtPCA()).momentum().theta());
 
 		double dz2= pow(theTrack.dzError(),2)+wxy2_/pow(tantheta,2);
 		double restrkz   = zTrack-zVertex;
@@ -1096,7 +1097,7 @@ void PrimaryVertexValidation::beginJob()
 
   h_runFromConfig     = EventFeatures.make<TH1I>("h_runFromConfig","run number from config;;run number (from configuration)",
 						 runControlNumbers_.size(),0.,runControlNumbers_.size());
-  for(unsigned int r=0;r<runControlNumbers_.size();r++){
+  for(const auto & r : runControlNumbers_){
     h_runFromConfig->SetBinContent(r+1,runControlNumbers_[r]);
   }
   
@@ -1493,8 +1494,8 @@ void PrimaryVertexValidation::beginJob()
   TFileDirectory Mean2DMapsDir   = fs->mkdir("MeanMaps");
   TFileDirectory Width2DMapsDir  = fs->mkdir("WidthMaps");
 
-  Double_t highedge=nBins_-0.5;
-  Double_t lowedge=-0.5;
+  double highedge=nBins_-0.5;
+  double lowedge=-0.5;
 
   // means and widths from the fit
 
@@ -2228,10 +2229,10 @@ void PrimaryVertexValidation::SetVarToZero()
 }
 
 //*************************************************************
-std::pair<Double_t,Double_t> PrimaryVertexValidation::getMedian(TH1F *histo)
+std::pair<double,double> PrimaryVertexValidation::getMedian(TH1F *histo)
 //*************************************************************
 {
-  Double_t median = 999;
+  double median = 999;
   int nbins = histo->GetNbinsX();
 
   //extract median from histogram
@@ -2246,7 +2247,7 @@ std::pair<Double_t,Double_t> PrimaryVertexValidation::getMedian(TH1F *histo)
   delete[] x; x = 0;
   delete[] y; y = 0;  
 
-  std::pair<Double_t,Double_t> result;
+  std::pair<double,double> result;
   result = std::make_pair(median,median/TMath::Sqrt(histo->GetEntries()));
 
   return result;
@@ -2254,18 +2255,18 @@ std::pair<Double_t,Double_t> PrimaryVertexValidation::getMedian(TH1F *histo)
 }
 
 //*************************************************************
-std::pair<Double_t,Double_t> PrimaryVertexValidation::getMAD(TH1F *histo)
+std::pair<double,double> PrimaryVertexValidation::getMAD(TH1F *histo)
 //*************************************************************
 {
 
   int nbins = histo->GetNbinsX();
-  Double_t median = getMedian(histo).first;
-  Double_t x_lastBin = histo->GetBinLowEdge(nbins+1);
+  double median = getMedian(histo).first;
+  double x_lastBin = histo->GetBinLowEdge(nbins+1);
   const char *HistoName =histo->GetName();
   TString Finalname = Form("resMed%s",HistoName);
   TH1F *newHisto = new TH1F(Finalname,Finalname,nbins,0.,x_lastBin);
-  Double_t *residuals = new Double_t[nbins];
-  Double_t *weights = new Double_t[nbins];
+  double *residuals = new double[nbins];
+  double *weights = new double[nbins];
 
   for (int j = 0; j < nbins; j++) {
     residuals[j] = TMath::Abs(median - histo->GetBinCenter(j+1));
@@ -2273,13 +2274,13 @@ std::pair<Double_t,Double_t> PrimaryVertexValidation::getMAD(TH1F *histo)
     newHisto->Fill(residuals[j],weights[j]);
   }
   
-  Double_t theMAD = (getMedian(newHisto).first)*1.4826;
+  double theMAD = (getMedian(newHisto).first)*1.4826;
   
   delete[] residuals; residuals=0;
   delete[] weights; weights=0;
   newHisto->Delete("");
   
-  std::pair<Double_t,Double_t> result;
+  std::pair<double,double> result;
   result = std::make_pair(theMAD,theMAD/histo->GetEntries());
 
   return result;
@@ -2287,7 +2288,7 @@ std::pair<Double_t,Double_t> PrimaryVertexValidation::getMAD(TH1F *histo)
 }
 
 //*************************************************************
-std::pair<std::pair<Double_t,Double_t>, std::pair<Double_t,Double_t>  > PrimaryVertexValidation::fitResiduals(TH1 *hist)
+std::pair<std::pair<double,double>, std::pair<double,double>  > PrimaryVertexValidation::fitResiduals(TH1 *hist)
 //*************************************************************
 {
   //float fitResult(9999);
@@ -2317,13 +2318,13 @@ std::pair<std::pair<Double_t,Double_t>, std::pair<Double_t,Double_t>  > PrimaryV
   float res_mean_err  = func.GetParError(1);
   float res_width_err = func.GetParError(2);
 
-  std::pair<Double_t,Double_t> resultM;
-  std::pair<Double_t,Double_t> resultW;
+  std::pair<double,double> resultM;
+  std::pair<double,double> resultW;
 
   resultM = std::make_pair(res_mean,res_mean_err);
   resultW = std::make_pair(res_width,res_width_err);
 
-  std::pair<std::pair<Double_t,Double_t>, std::pair<Double_t,Double_t>  > result;
+  std::pair<std::pair<double,double>, std::pair<double,double>  > result;
   
   result = std::make_pair(resultM,resultW);
   return result;
@@ -2402,7 +2403,7 @@ void PrimaryVertexValidation::fillTrendPlotByIndex(TH1F* trendPlot,std::vector<T
   for(auto iterator = h.begin(); iterator != h.end(); iterator++) {
     
     unsigned int bin = std::distance(h.begin(),iterator)+1;
-    std::pair<std::pair<Double_t,Double_t>, std::pair<Double_t,Double_t>  > myFit = fitResiduals((*iterator));
+    std::pair<std::pair<double,double>, std::pair<double,double>  > myFit = fitResiduals((*iterator));
 
     switch(fitPar_)
       {
@@ -2606,8 +2607,8 @@ std::vector<TH1F*> PrimaryVertexValidation::bookResidualsHistogram(TFileDirector
 								   TString varType){
   TH1F::SetDefaultSumw2(kTRUE);
   
-  Double_t up   = 1000;
-  Double_t down = -up;
+  double up   = 1000;
+  double down = -up;
   
   if(resType.Contains("norm")){
     up = up*(1/100);
