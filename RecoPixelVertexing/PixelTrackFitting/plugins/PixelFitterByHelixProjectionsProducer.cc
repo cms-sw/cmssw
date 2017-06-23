@@ -19,7 +19,7 @@
 class PixelFitterByHelixProjectionsProducer: public edm::global::EDProducer<> {
 public:
   explicit PixelFitterByHelixProjectionsProducer(const edm::ParameterSet& iConfig)
-    : thescaleErrorsForPhaseI(iConfig.getParameter<bool>("scaleErrorsForPhaseI"))
+    : thescaleErrorsForBPix1(iConfig.getParameter<bool>("scaleErrorsForBPix1"))
     , thescaleFactor(iConfig.getParameter<double>("scaleFactor"))  {
     produces<PixelFitter>();
   }
@@ -27,14 +27,14 @@ public:
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
-    desc.add<bool>("scaleErrorsForPhaseI", false);
-    desc.add<double>("scaleFactor", 0.65);
+    desc.add<bool>("scaleErrorsForBPix1", false);
+    desc.add<double>("scaleFactor", 0.65)->setComment("The default value was derived for phase1 pixel");
     descriptions.add("pixelFitterByHelixProjectionsDefault", desc);
   }
 
 private:
   virtual void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
-  const bool thescaleErrorsForPhaseI;
+  const bool thescaleErrorsForBPix1;
   const float thescaleFactor;
 };
 
@@ -43,7 +43,7 @@ void PixelFitterByHelixProjectionsProducer::produce(edm::StreamID, edm::Event& i
   edm::ESHandle<MagneticField> fieldESH;
   iSetup.get<IdealMagneticFieldRecord>().get(fieldESH);
 
-  auto impl = std::make_unique<PixelFitterByHelixProjections>(&iSetup, fieldESH.product(), thescaleErrorsForPhaseI, thescaleFactor);
+  auto impl = std::make_unique<PixelFitterByHelixProjections>(&iSetup, fieldESH.product(), thescaleErrorsForBPix1, thescaleFactor);
   auto prod = std::make_unique<PixelFitter>(std::move(impl));
   iEvent.put(std::move(prod));
 }
