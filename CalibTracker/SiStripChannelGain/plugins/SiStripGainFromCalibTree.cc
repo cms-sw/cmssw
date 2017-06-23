@@ -1339,6 +1339,8 @@ void SiStripGainFromCalibTree::qualityMonitor() {
         double        NEntries     = APV->NEntries;
         double        PreviousGain = APV->PreviousGain;
 
+        if (SubDet<3) continue;  // avoid to loop over Pixel det id
+
         if (Gain!=1.) {
             std::vector<MonitorElement*> charge_histos = APVGain::FetchMonitor(newCharge, DetId, tTopo_);
             TH2S *chvsidx = (Charge_Vs_Index[elepos])->getTH2S();
@@ -1357,7 +1359,7 @@ void SiStripGainFromCalibTree::qualityMonitor() {
 
 
         if (FitMPV<0.) {  // No fit of MPV
-            if(SubDet>=3) NoMPV->Fill(z,R);
+            NoMPV->Fill(z,R);
 
         } else {          // Fit of MPV
             if(FitMPV>0.) Gains->Fill(Gain);
