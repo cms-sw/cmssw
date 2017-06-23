@@ -96,6 +96,7 @@ public :
   Int_t                      t_Event;
   Int_t                      t_DataType;
   Int_t                      t_ieta;
+  Int_t                      t_iphi;
   Double_t                   t_EventWeight;
   Int_t                      t_nVtx;
   Int_t                      t_nTrk;
@@ -116,6 +117,7 @@ public :
   Double_t                   t_eHcal10;
   Double_t                   t_eHcal30;
   Double_t                   t_hmaxNearP;
+  Double_t                   t_rhoh;
   Bool_t                     t_selectTk;
   Bool_t                     t_qltyFlag;
   Bool_t                     t_qltyMissFlag;
@@ -134,6 +136,7 @@ public :
   TBranch                   *b_t_Event;         //!
   TBranch                   *b_t_DataType;      //!
   TBranch                   *b_t_ieta;          //!
+  TBranch                   *b_t_iphi;          //!
   TBranch                   *b_t_EventWeight;   //!
   TBranch                   *b_t_nVtx;          //!
   TBranch                   *b_t_nTrk;          //!
@@ -154,6 +157,7 @@ public :
   TBranch                   *b_t_eHcal10;       //!
   TBranch                   *b_t_eHcal30;       //!
   TBranch                   *b_t_hmaxNearP;     //!
+  TBranch                   *b_t_rhoh;          //!
   TBranch                   *b_t_selectTk;      //!
   TBranch                   *b_t_qltyFlag;      //!
   TBranch                   *b_t_qltyMissFlag;  //!
@@ -352,6 +356,7 @@ void CalibTree::Init(TTree *tree, const char *dupFileName) {
   fChain->SetBranchAddress("t_Event", &t_Event, &b_t_Event);
   fChain->SetBranchAddress("t_DataType", &t_DataType, &b_t_DataType);
   fChain->SetBranchAddress("t_ieta", &t_ieta, &b_t_ieta);
+  fChain->SetBranchAddress("t_iphi", &t_iphi, &b_t_iphi);
   fChain->SetBranchAddress("t_EventWeight", &t_EventWeight, &b_t_EventWeight);
   fChain->SetBranchAddress("t_nVtx", &t_nVtx, &b_t_nVtx);
   fChain->SetBranchAddress("t_nTrk", &t_nTrk, &b_t_nTrk);
@@ -372,6 +377,7 @@ void CalibTree::Init(TTree *tree, const char *dupFileName) {
   fChain->SetBranchAddress("t_eHcal10", &t_eHcal10, &b_t_eHcal10);
   fChain->SetBranchAddress("t_eHcal30", &t_eHcal30, &b_t_eHcal30);
   fChain->SetBranchAddress("t_hmaxNearP", &t_hmaxNearP, &b_t_hmaxNearP);
+  fChain->SetBranchAddress("t_rhoh", &t_rhoh, &b_t_rhoh);
   fChain->SetBranchAddress("t_selectTk", &t_selectTk, &b_t_selectTk);
   fChain->SetBranchAddress("t_qltyFlag", &t_qltyFlag, &b_t_qltyFlag);
   fChain->SetBranchAddress("t_qltyMissFlag", &t_qltyMissFlag, &b_t_qltyMissFlag);
