@@ -27,7 +27,14 @@ class AlCaTestEnable(AlCa):
         Proton collision data taking express processing
 
         """
-        skims = args['skims']
+        skims = []
+        if 'skims' in args:
+            skims = args['skims']
+            if 'EcalTestPulsesRaw' not in args['skims']:
+                skims.append('EcalTestPulsesRaw')
+            pclWkflws = [x for x in skims if "PromptCalibProd" in x]
+            for wfl in pclWkflws:
+                skims.remove(wfl)
 
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
@@ -38,9 +45,6 @@ class AlCaTestEnable(AlCa):
             # the RAW data-tier needs a special treatment since the event-content as defined in release is not good enough
             outputs_Raw = [x for x in args['outputs'] if x['dataTier'] == 'RAW']
             outputs_noRaw = [x for x in args['outputs'] if x['dataTier'] != 'RAW']
-            print args['outputs']
-            print outputs_noRaw
-            print outputs_Raw
             if len(outputs_Raw) == 1:
                 print 'RAW data-tier requested'
             options.outputDefinition = outputs_noRaw.__str__()
