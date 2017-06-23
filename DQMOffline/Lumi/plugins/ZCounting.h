@@ -45,6 +45,9 @@ public:
 
   ZCounting(const edm::ParameterSet& ps);
   virtual ~ZCounting();
+
+  enum MuonIDTypes  { NoneID, LooseID, MediumID, TightID };
+  enum MuonIsoTypes { NoneIso, TrackerIso, PFIso };
   
 protected:
 
@@ -58,8 +61,8 @@ private:
   //other functions
   bool isMuonTrigger(ZCountingTrigger::TTrigger triggerMenu, TriggerBits hltBits);
   bool isMuonTriggerObj(ZCountingTrigger::TTrigger triggerMenu, TriggerObjects hltMatchBits);
-  bool passMuonID(const reco::Muon& muon, const reco::Vertex& vtx, const std::string idType);
-  bool passMuonIso(const reco::Muon& muon, const std::string isoType, const float isoCut);
+  bool passMuonID(const reco::Muon& muon, const reco::Vertex& vtx, const MuonIDTypes idType);
+  bool passMuonIso(const reco::Muon& muon, const MuonIsoTypes isoType, const float isoCut);
 
   // initialization from HLT menu; needs to be called on every change in HLT menu
   void initHLT(const edm::TriggerResults&, const edm::TriggerNames&);
@@ -80,8 +83,10 @@ private:
   // bacon fillers
   std::unique_ptr<ZCountingTrigger::TTrigger> fTrigger;
 
-  std::string IDType_;
-  std::string IsoType_;
+  std::string  IDTypestr_;
+  std::string  IsoTypestr_;
+  MuonIDTypes  IDType_  {NoneID};
+  MuonIsoTypes IsoType_ {NoneIso};
   double IsoCut_;
 
   double PtCutL1_;
@@ -106,8 +111,8 @@ private:
   double VtxAbsZCut_;
   double VtxRhoCut_;
 
-  const Double_t MUON_MASS  = 0.105658369;
-  const Double_t MUON_BOUND = 0.9;
+  const double MUON_MASS  = 0.105658369;
+  const double MUON_BOUND = 0.9;
 
   // Histograms
   MonitorElement* h_mass_HLT_pass_central;

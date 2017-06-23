@@ -40,9 +40,18 @@ ZCounting::ZCounting(const edm::ParameterSet& iConfig):
   fTrackName_token = consumes<reco::TrackCollection>(fTrackName);
 
   //Cuts
-  IDType_   = iConfig.getUntrackedParameter<std::string>("IDType");
-  IsoType_  = iConfig.getUntrackedParameter<std::string>("IsoType");
-  IsoCut_   = iConfig.getUntrackedParameter<double>("IsoCut");
+  IDTypestr_       = iConfig.getUntrackedParameter<std::string>("IDType");
+  IsoTypestr_      = iConfig.getUntrackedParameter<std::string>("IsoType");
+  IsoCut_          = iConfig.getUntrackedParameter<double>("IsoCut");
+
+  if     (IDTypestr_ == "Loose")  IDType_ = LooseID;
+  else if(IDTypestr_ == "Medium") IDType_ = MediumID;
+  else if(IDTypestr_ == "Tight")  IDType_ = TightID;
+  else                            IDType_ = NoneID;
+
+  if     (IsoTypestr_ == "Tracker-based") IsoType_ = TrackerIso; 
+  else if(IsoTypestr_ == "PF-based")      IsoType_ = PFIso;
+  else                                    IsoType_ = NoneIso;
 
   PtCutL1_  = iConfig.getUntrackedParameter<double>("PtCutL1");
   PtCutL2_  = iConfig.getUntrackedParameter<double>("PtCutL2");
@@ -95,22 +104,7 @@ void ZCounting::bookHistograms(DQMStore::IBooker & ibooker_, edm::Run const &, e
 
   ibooker_.cd();
   ibooker_.setCurrentFolder("ZCounting/Histograms");
-/*
-  h_mass_HLT_pass_central = ibooker_.book1D("h_mass_HLT_pass_central", "h_mass_HLT_pass_central", MassBin_, MassMin_, MassMax_);
-  h_mass_HLT_pass_forward = ibooker_.book1D("h_mass_HLT_pass_forward", "h_mass_HLT_pass_forward", MassBin_, MassMin_, MassMax_);
-  h_mass_HLT_fail_central = ibooker_.book1D("h_mass_HLT_fail_central", "h_mass_HLT_fail_central", MassBin_, MassMin_, MassMax_);
-  h_mass_HLT_fail_forward = ibooker_.book1D("h_mass_HLT_fail_forward", "h_mass_HLT_fail_forward", MassBin_, MassMin_, MassMax_);
 
-  h_mass_SIT_pass_central = ibooker_.book1D("h_mass_SIT_pass_central", "h_mass_SIT_pass_central", MassBin_, MassMin_, MassMax_);
-  h_mass_SIT_pass_forward = ibooker_.book1D("h_mass_SIT_pass_forward", "h_mass_SIT_pass_forward", MassBin_, MassMin_, MassMax_);
-  h_mass_SIT_fail_central = ibooker_.book1D("h_mass_SIT_fail_central", "h_mass_SIT_fail_central", MassBin_, MassMin_, MassMax_);
-  h_mass_SIT_fail_forward = ibooker_.book1D("h_mass_SIT_fail_forward", "h_mass_SIT_fail_forward", MassBin_, MassMin_, MassMax_);
-
-  h_mass_Sta_pass_central = ibooker_.book1D("h_mass_Sta_pass_central", "h_mass_Sta_pass_central", MassBin_, MassMin_, MassMax_);
-  h_mass_Sta_pass_forward = ibooker_.book1D("h_mass_Sta_pass_forward", "h_mass_Sta_pass_forward", MassBin_, MassMin_, MassMax_);
-  h_mass_Sta_fail_central = ibooker_.book1D("h_mass_Sta_fail_central", "h_mass_Sta_fail_central", MassBin_, MassMin_, MassMax_);
-  h_mass_Sta_fail_forward = ibooker_.book1D("h_mass_Sta_fail_forward", "h_mass_Sta_fail_forward", MassBin_, MassMin_, MassMax_);
-*/
   h_mass_HLT_pass_central = ibooker_.book2D("h_mass_HLT_pass_central", "h_mass_HLT_pass_central", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
   h_mass_HLT_pass_forward = ibooker_.book2D("h_mass_HLT_pass_forward", "h_mass_HLT_pass_forward", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
   h_mass_HLT_fail_central = ibooker_.book2D("h_mass_HLT_fail_central", "h_mass_HLT_fail_central", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
@@ -157,16 +151,16 @@ void ZCounting::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   const reco::VertexCollection *pvCol = hVertexProduct.product();
   const reco::Vertex* pv = &(*pvCol->begin());
   int nvtx = 0;
-    
-  for(reco::VertexCollection::const_iterator itVtx = pvCol->begin(); itVtx!=pvCol->end(); ++itVtx) {
-    if(itVtx->isFake())                             continue;
-    if(itVtx->tracksSize()     < VtxNTracksFitCut_) continue;
-    if(itVtx->ndof()           < VtxNdofCut_)       continue;
-    if(fabs(itVtx->z())        > VtxAbsZCut_)       continue;
-    if(itVtx->position().Rho() > VtxRhoCut_)        continue;
+ 
+  for(auto const & itVtx : *hVertexProduct) {
+    if(itVtx.isFake())                             continue;
+    if(itVtx.tracksSize()     < VtxNTracksFitCut_) continue;
+    if(itVtx.ndof()           < VtxNdofCut_)       continue;
+    if(fabs(itVtx.z())        > VtxAbsZCut_)       continue;
+    if(itVtx.position().Rho() > VtxRhoCut_)        continue;
 
     if(nvtx==0) {
-      pv = &(*itVtx);
+      pv = &itVtx;
     }
     nvtx++;
   }
@@ -187,7 +181,7 @@ void ZCounting::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByToken(fHLTObjTag_token,hTrgEvt);
 
   const edm::TriggerNames &triggerNames = iEvent.triggerNames(*hTrgRes);
-  Bool_t config_changed = false;
+  bool config_changed = false;
   if(fTriggerNamesID != triggerNames.parameterSetID()) {
     fTriggerNamesID = triggerNames.parameterSetID();
     config_changed  = true;
@@ -214,40 +208,39 @@ void ZCounting::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<reco::MuonCollection> hMuonProduct;
   iEvent.getByToken(fMuonName_token,hMuonProduct);
   if(!hMuonProduct.isValid()) return;
-  const reco::MuonCollection *muonCol = hMuonProduct.product();
 
   edm::Handle<reco::TrackCollection> hTrackProduct;
   iEvent.getByToken(fTrackName_token,hTrackProduct);
   if(!hTrackProduct.isValid()) return;
-  const reco::TrackCollection *trackCol = hTrackProduct.product();
 
   TLorentzVector vTag(0.,0.,0.,0.);
   TLorentzVector vProbe(0.,0.,0.,0.);
   TLorentzVector vTrack(0.,0.,0.,0.);
 
   // Tag loop
-  for(reco::MuonCollection::const_iterator itMu1 = muonCol->begin(); itMu1!=muonCol->end(); ++itMu1) {
-    float pt1  = itMu1->muonBestTrack()->pt();
-    float eta1 = itMu1->muonBestTrack()->eta();
-    float phi1 = itMu1->muonBestTrack()->phi();
-    float q1   = itMu1->muonBestTrack()->charge();
+  for(auto const & itMu1 : *hMuonProduct) {
+
+    float pt1  = itMu1.muonBestTrack()->pt();
+    float eta1 = itMu1.muonBestTrack()->eta();
+    float phi1 = itMu1.muonBestTrack()->phi();
+    float q1   = itMu1.muonBestTrack()->charge();
 
     // Tag selection: kinematic cuts, lepton selection and trigger matching
     if(pt1        < PtCutL1_)  continue;
     if(fabs(eta1) > EtaCutL1_) continue;
-    if(!(passMuonID(*itMu1, *pv, IDType_) && passMuonIso(*itMu1, IsoType_, IsoCut_))) continue;
+    if(!(passMuonID(itMu1, *pv, IDType_) && passMuonIso(itMu1, IsoType_, IsoCut_))) continue;
     if(!isMuonTriggerObj(*fTrigger, TriggerTools::matchHLT(eta1, phi1, fTrigger->fRecords, *hTrgEvt))) continue;
 
     vTag.SetPtEtaPhiM(pt1, eta1, phi1, MUON_MASS);
 
     // Probe loop over muons
-    for(reco::MuonCollection::const_iterator itMu2 = muonCol->begin(); itMu2!=muonCol->end(); ++itMu2) {
-      if(itMu2 == itMu1) continue;
+    for(auto const & itMu2 : *hMuonProduct) {
+      if(&itMu2 == &itMu1) continue;
 
-      float pt2  = itMu2->muonBestTrack()->pt();
-      float eta2 = itMu2->muonBestTrack()->eta();
-      float phi2 = itMu2->muonBestTrack()->phi();
-      float q2   = itMu2->muonBestTrack()->charge();
+      float pt2  = itMu2.muonBestTrack()->pt();
+      float eta2 = itMu2.muonBestTrack()->eta();
+      float phi2 = itMu2.muonBestTrack()->phi();
+      float q2   = itMu2.muonBestTrack()->charge();
 
       // Probe selection: kinematic cuts and opposite charge requirement
       if(pt2        < PtCutL2_)  continue;
@@ -266,10 +259,10 @@ void ZCounting::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       if(fabs(eta2) < MUON_BOUND) isProbeCentral = true;
 
       // Determine event category for efficiency calculation
-      if(passMuonID(*itMu2, *pv, IDType_) && passMuonIso(*itMu2, IsoType_, IsoCut_)){
+      if(passMuonID(itMu2, *pv, IDType_) && passMuonIso(itMu2, IsoType_, IsoCut_)){
         if(isMuonTriggerObj(*fTrigger, TriggerTools::matchHLT(eta2, phi2, fTrigger->fRecords, *hTrgEvt))){
           // category 2HLT: both muons passing trigger requirements
-          if(itMu1>itMu2) continue;  // make sure we don't double count MuMu2HLT category
+          if(&itMu1>&itMu2) continue;  // make sure we don't double count MuMu2HLT category
 
           // Fill twice for each event, since both muons pass trigger 
           if(isTagCentral){
@@ -315,7 +308,7 @@ void ZCounting::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         // category 2HLT + 1HLT: Fill once for Z yield 
         h_yield_Z->Fill(iEvent.luminosityBlock());
       }
-      else if(itMu2->isGlobalMuon()){
+      else if(itMu2.isGlobalMuon()){
         // category NoSel: probe is a GLB muon but failing selection 
         if(isProbeCentral){
           h_mass_SIT_fail_central->Fill(iEvent.luminosityBlock(), vDilep.M());
@@ -327,7 +320,7 @@ void ZCounting::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
           h_mass_Sta_pass_forward->Fill(iEvent.luminosityBlock(), vDilep.M());
         }
       }
-      else if(itMu2->isStandAloneMuon()){
+      else if(itMu2.isStandAloneMuon()){
         // category STA: probe is a STA muon
         if(isProbeCentral){
           h_mass_Sta_fail_central->Fill(iEvent.luminosityBlock(), vDilep.M());
@@ -337,7 +330,7 @@ void ZCounting::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
           h_mass_Sta_fail_forward->Fill(iEvent.luminosityBlock(), vDilep.M());
         }
       }
-      else if(itMu2->innerTrack()->hitPattern().trackerLayersWithMeasurement() >= 6 && itMu2->innerTrack()->hitPattern().numberOfValidPixelHits() >= 1){
+      else if(itMu2.innerTrack()->hitPattern().trackerLayersWithMeasurement() >= 6 && itMu2.innerTrack()->hitPattern().numberOfValidPixelHits() >= 1){
         // cateogry Trk: probe is a tracker track
         if(isProbeCentral){
           h_mass_Sta_fail_central->Fill(iEvent.luminosityBlock(), vDilep.M());
@@ -351,22 +344,22 @@ void ZCounting::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     }// End of probe loop over muons
 
     // Probe loop over tracks, only for standalone efficiency calculation
-    for(reco::TrackCollection::const_iterator itTrk = trackCol->begin(); itTrk!=trackCol->end(); ++itTrk) {
+    for(auto const & itTrk : *hTrackProduct) {
 
       // Check track is not a muon
       bool isMuon = false;
-      for(reco::MuonCollection::const_iterator itMu = muonCol->begin(); itMu!=muonCol->end(); ++itMu) {
-        if(itMu->innerTrack().isNonnull() && itMu->innerTrack().get() == &(*itTrk)) {
+      for(auto const & itMu : *hMuonProduct) {
+        if(itMu.innerTrack().isNonnull() && itMu.innerTrack().get() == &itTrk) {
           isMuon = true;
           break;
         }
       }
       if(isMuon) continue;
 
-      float pt2  = itTrk->pt();
-      float eta2 = itTrk->eta();
-      float phi2 = itTrk->phi();
-      float q2   = itTrk->charge();
+      float pt2  = itTrk.pt();
+      float eta2 = itTrk.eta();
+      float phi2 = itTrk.phi();
+      float q2   = itTrk.charge();
 
       // Probe selection:  kinematic cuts and opposite charge requirement
       if(pt2        < PtCutL2_)  continue;
@@ -381,7 +374,7 @@ void ZCounting::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       bool isTrackCentral = false;
       if(fabs(eta2) > MUON_BOUND) isTrackCentral = true;
 
-      if(itTrk->hitPattern().trackerLayersWithMeasurement() >= 6 && itTrk->hitPattern().numberOfValidPixelHits() >= 1){
+      if(itTrk.hitPattern().trackerLayersWithMeasurement() >= 6 && itTrk.hitPattern().numberOfValidPixelHits() >= 1){
         if(isTrackCentral) h_mass_Sta_fail_central->Fill(iEvent.luminosityBlock(), vDilep.M());
         else               h_mass_Sta_fail_forward->Fill(iEvent.luminosityBlock(), vDilep.M());
       }
@@ -440,26 +433,27 @@ bool ZCounting::isMuonTrigger(ZCountingTrigger::TTrigger triggerMenu, TriggerBit
 //--------------------------------------------------------------------------------------------------
 bool ZCounting::isMuonTriggerObj(ZCountingTrigger::TTrigger triggerMenu, TriggerObjects hltMatchBits)
 {
-  return triggerMenu.passObj("HLT_IsoMu24_v*","hltL3crIsoL1sMu22L1f0L2f10QL3f24QL3trkIsoFiltered0p09",hltMatchBits);
-  //return triggerMenu.passObj("HLT_IsoMu27_v*","hltL3crIsoL1sMu22Or25L1f0L2f10QL3f27QL3trkIsoFiltered0p09",hltMatchBits);
+  return triggerMenu.passObj("HLT_IsoMu24_v*","hltL3crIsoL1sSingleMu22L1f0L2f10QL3f24QL3trkIsoFiltered0p07",hltMatchBits);
+  //return triggerMenu.passObj("HLT_IsoMu27_v*","hltL3crIsoL1sMu22Or25L1f0L2f10QL3f27QL3trkIsoFiltered0p07",hltMatchBits);
 }
 //--------------------------------------------------------------------------------------------------
-bool ZCounting::passMuonID(const reco::Muon& muon, const reco::Vertex& vtx, const std::string idType)
+bool ZCounting::passMuonID(const reco::Muon& muon, const reco::Vertex& vtx, const MuonIDTypes idType)
 {//Muon ID selection, using internal function "DataFormats/MuonReco/src/MuonSelectors.cc
 
-  if(idType == "Loose"       && muon::isLooseMuon(muon))      return true;
-  else if(idType == "Medium" && muon::isMediumMuon(muon))     return true;
-  else if(idType == "Tight"  && muon::isTightMuon(muon, vtx)) return true;
+  if     (idType == LooseID  && muon::isLooseMuon(muon))      return true;
+  else if(idType == MediumID && muon::isMediumMuon(muon))     return true;
+  else if(idType == TightID  && muon::isTightMuon(muon, vtx)) return true;
+  else if(idType == NoneID)                                   return true;
   else                                                        return false;
 }
 //--------------------------------------------------------------------------------------------------
-bool ZCounting::passMuonIso(const reco::Muon& muon, const std::string isoType, const float isoCut)
+bool ZCounting::passMuonIso(const reco::Muon& muon, const MuonIsoTypes isoType, const float isoCut)
 {//Muon isolation selection, up-to-date with MUO POG recommendation
 
-    if(isoType == "Tracker-based" && muon.isolationR03().sumPt < isoCut) return true;
-    else if(isoType == "PF-based" && muon.pfIsolationR04().sumChargedHadronPt + TMath::Max(0.,muon.pfIsolationR04().sumNeutralHadronEt + muon.pfIsolationR04().sumPhotonEt - 0.5*muon.pfIsolationR04().sumPUPt) < isoCut) return true;
-    else if(isoType == "NULL") return true;
-    else                       return false;
+    if(isoType == TrackerIso && muon.isolationR03().sumPt < isoCut) return true;
+    else if(isoType == PFIso && muon.pfIsolationR04().sumChargedHadronPt + TMath::Max(0.,muon.pfIsolationR04().sumNeutralHadronEt + muon.pfIsolationR04().sumPhotonEt - 0.5*muon.pfIsolationR04().sumPUPt) < isoCut) return true;
+    else if(isoType == NoneIso) return true;
+    else                        return false;
 }
 
 DEFINE_FWK_MODULE(ZCounting);
