@@ -216,6 +216,22 @@ SiPixelPhase1TrackClustersNTracksInVolume = DefaultHistoTrack.clone(
 
 )
 
+SiPixelPhase1ClustersSizeVsEtaOnTrack = DefaultHistoTrack.clone(
+  name = "sizeyvseta_on_track",
+  title = "Cluster Size along Beamline vs. Cluster position #eta (OnTrack)",
+  xlabel = "Cluster #eta",
+  ylabel = "length [pixels]",
+  range_min = -3.2, range_max  = 3.2, range_nbins   = 40,
+  range_y_min =  0, range_y_max = 40, range_y_nbins = 40,
+  dimensions = 2,
+  specs = VPSet(
+    Specification().groupBy("PXBarrel/PXLayer").save(),
+    Specification().groupBy("PXBarrel").save()
+  )
+)
+
+
+
 SiPixelPhase1TrackClustersConf = cms.VPSet(
   SiPixelPhase1TrackClustersOnTrackCharge,
   SiPixelPhase1TrackClustersOnTrackSize,
@@ -231,6 +247,7 @@ SiPixelPhase1TrackClustersConf = cms.VPSet(
 
   SiPixelPhase1TrackClustersNTracks,
   SiPixelPhase1TrackClustersNTracksInVolume,
+  SiPixelPhase1ClustersSizeVsEtaOnTrack
 )
 
 
@@ -245,3 +262,5 @@ SiPixelPhase1TrackClustersHarvester = DQMEDHarvester("SiPixelPhase1Harvester",
         histograms = SiPixelPhase1TrackClustersConf,
         geometry = SiPixelPhase1Geometry
 )
+
+
