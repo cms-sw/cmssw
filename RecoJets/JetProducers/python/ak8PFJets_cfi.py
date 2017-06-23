@@ -79,7 +79,6 @@ ak8PFJetsCHSMassDropFiltered = ak8PFJets.clone(
 
 ak8PFJetsCHSPruned = ak8PFJets.clone(
     SubJetParameters,
-    src = cms.InputTag("ak8PFJetsCHSConstituents", "constituents"),
     usePruning = cms.bool(True),
     useExplicitGhosts = cms.bool(True),
     writeCompound = cms.bool(True),
@@ -88,7 +87,6 @@ ak8PFJetsCHSPruned = ak8PFJets.clone(
     )
 
 ak8PFJetsCHSSoftDrop = ak8PFJets.clone(
-    src = cms.InputTag("ak8PFJetsCHSConstituents", "constituents"),
     useSoftDrop = cms.bool(True),
     zcut = cms.double(0.1),
     beta = cms.double(0.0),
@@ -101,7 +99,6 @@ ak8PFJetsCHSSoftDrop = ak8PFJets.clone(
 
 
 ak8PFJetsCHSTrimmed = ak8PFJets.clone(
-    src = cms.InputTag("ak8PFJetsCHSConstituents", "constituents"),
     useTrimming = cms.bool(True),
     rFilt = cms.double(0.2),
     trimPtFracMin = cms.double(0.03),
@@ -110,5 +107,5 @@ ak8PFJetsCHSTrimmed = ak8PFJets.clone(
     )
 
 ak8PFJetsPuppiSoftDrop = ak8PFJetsCHSSoftDrop.clone(
-    src = cms.InputTag("ak8PFJetsPuppiConstituents", "constituents")
+    src = cms.InputTag("puppi")
     )
