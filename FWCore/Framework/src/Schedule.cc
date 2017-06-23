@@ -960,15 +960,6 @@ namespace edm {
     streamSchedules_[iStreamID]->processOneEventAsync(std::move(iTask),ep,es);
   }
   
-  void Schedule::preForkReleaseResources() {
-    using std::placeholders::_1;
-    for_all(allWorkers(), std::bind(&Worker::preForkReleaseResources, _1));
-  }
-  void Schedule::postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {
-    using std::placeholders::_1;
-    for_all(allWorkers(), std::bind(&Worker::postForkReacquireResources, _1, iChildIndex, iNumberOfChildren));
-  }
-
   bool Schedule::changeModule(std::string const& iLabel,
                               ParameterSet const& iPSet,
                               const ProductRegistry& iRegistry) {

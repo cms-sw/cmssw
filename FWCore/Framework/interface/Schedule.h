@@ -192,9 +192,6 @@ namespace edm {
     // Call shouldWeCloseFile() on all OutputModules.
     bool shouldWeCloseOutput() const;
 
-    void preForkReleaseResources();
-    void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
-
     /// Return a vector allowing const access to all the
     /// ModuleDescriptions for this Schedule.
 

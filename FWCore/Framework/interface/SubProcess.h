@@ -171,18 +171,6 @@ namespace edm {
       return false;
     }
 
-    void preForkReleaseResources() {
-      ServiceRegistry::Operate operate(serviceToken_);
-      schedule_->preForkReleaseResources();
-      for_all(subProcesses_, [](auto& subProcess){ subProcess.preForkReleaseResources(); });
-    }
-
-    void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {
-      ServiceRegistry::Operate operate(serviceToken_);
-      schedule_->postForkReacquireResources(iChildIndex, iNumberOfChildren);
-      for_all(subProcesses_, [iChildIndex, iNumberOfChildren](auto& subProcess){ subProcess.postForkReacquireResources(iChildIndex, iNumberOfChildren); });
-    }
-
     /// Return a vector allowing const access to all the ModuleDescriptions for this SubProcess
 
     /// *** N.B. *** Ownership of the ModuleDescriptions is *not*
