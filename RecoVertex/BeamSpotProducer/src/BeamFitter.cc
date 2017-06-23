@@ -24,6 +24,10 @@ ________________________________________________________________**/
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+
+// HOOK RM
+#include "RecoVertex/BeamSpotProducer/interface/BeamSpotWrite2Txt.h"
+
 // Update the string representations of the time
 void BeamFitter::updateBTime() {
   char ts[] = "yyyy.mn.dd hh:mm:ss zzz ";
@@ -672,6 +676,20 @@ void BeamFitter::dumpTxtFile(std::string & fileName, bool append){
     }
   }//if bx results needed
   else {
+  
+    beamspot::BeamSpotContainer currentBS;
+    
+    currentBS.beamspot       = fbeamspot      ;
+    currentBS.run            = frun           ;
+    std::copy(fbeginTimeOfFit, fbeginTimeOfFit+32, currentBS.beginTimeOfFit);
+    std::copy(fendTimeOfFit  , fendTimeOfFit  +32, currentBS.endTimeOfFit  );
+    currentBS.beginLumiOfFit = fbeginLumiOfFit;
+    currentBS.endLumiOfFit   = fendLumiOfFit  ;
+    std::copy(freftime, freftime+2, currentBS.reftime);
+          
+    beamspot::dumpBeamSpotTxt(fileName, append, currentBS);
+        
+    /*
     outFile << "Runnumber " << frun << std::endl;
     outFile << "BeginTimeOfFit " << fbeginTimeOfFit << " " << freftime[0] << std::endl;
     outFile << "EndTimeOfFit " << fendTimeOfFit << " " << freftime[1] << std::endl;
@@ -708,6 +726,8 @@ void BeamFitter::dumpTxtFile(std::string & fileName, bool append){
     outFile << "EmittanceX " << fbeamspot.emittanceX() << std::endl;
     outFile << "EmittanceY " << fbeamspot.emittanceY() << std::endl;
     outFile << "BetaStar " << fbeamspot.betaStar() << std::endl;
+    //*/
+
 
     //write here Pv info for DIP only: This added only if append is false, which happen for DIP only :)
   if(!append){
