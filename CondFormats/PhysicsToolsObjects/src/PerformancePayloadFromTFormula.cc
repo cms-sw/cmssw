@@ -28,7 +28,7 @@ float PerformancePayloadFromTFormula::getResult(PerformanceResult::ResultType r 
   //
   // which formula to use?
   //
-  if (! isInPayload(r,p)) return PerformancePayload::InvalidResult;
+  assert(! isInPayload(r,p));
 
   // nice, what to do here???
   const boost::shared_ptr<TFormula>& formula = compiledFormulas_[resultPos(r)];
