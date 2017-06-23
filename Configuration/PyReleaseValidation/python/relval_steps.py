@@ -1157,7 +1157,7 @@ steps['TIER0EXPHI']={      '--conditions':'auto:run1_data',
           '--repacked':'',
           '-n':'10'
                           }
-steps['TIER0EXPTE']={'-s': 'ALCAPRODUCER:PromptCalibProdEcalPedestals',
+steps['TIER0EXPTE']={'-s': 'ALCAPRODUCER:EcalTestPulsesRaw',
                      '--conditions': 'auto:run2_data',
                      '--datatier':'ALCARECO',
                      '--eventcontent':'ALCARECO',
@@ -1405,7 +1405,7 @@ steps['ALCAEXP']={'-s':'ALCAOUTPUT:SiStripCalZeroBias+TkAlMinBias+DtCalib+Hotlin
                   '--triggerResultsProcess': 'RECO'}
 steps['ALCAEXPHI']=merge([{'-s':'ALCA:PromptCalibProd+PromptCalibProdSiStrip+PromptCalibProdSiStripGains+PromptCalibProdSiStripGainsAAG',
                   '--scenario':'HeavyIons'},steps['ALCAEXP']])
-steps['ALCAEXPTE']={'-s':'ALCAOUTPUT:PromptCalibProdEcalPedestals',
+steps['ALCAEXPTE']={'-s':'ALCA:PromptCalibProdEcalPedestals',
                     '--conditions':'auto:run2_data',
                     '--datatier':'ALCARECO',
                     '--eventcontent':'ALCARECO',
