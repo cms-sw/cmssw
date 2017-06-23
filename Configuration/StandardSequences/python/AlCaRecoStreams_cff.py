@@ -62,6 +62,8 @@ from Calibration.EcalAlCaRecoProducers.ALCARECOEcalUncalIsolElectron_cff import 
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalESAlign_cff import *
 # -- alcareco for trigger studies
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalTrg_cff import *
+# -- alcareco which selects RAW from test enables
+from Calibration.EcalAlCaRecoProducers.ALCARECOEcalTestPulsesRaw_cff import *
 
 ###############################################################
 # HCAL Calibration
@@ -168,6 +170,7 @@ pathALCARECOEcalCalWElectron     = cms.Path(seqALCARECOEcalCalWElectron)
 pathALCARECOEcalUncalZElectron   = cms.Path(seqALCARECOEcalUncalZElectron)
 pathALCARECOEcalUncalZSCElectron = cms.Path(seqALCARECOEcalUncalZSCElectron)
 pathALCARECOEcalUncalWElectron   = cms.Path(seqALCARECOEcalUncalWElectron)
+pathALCARECOEcalTestPulsesRaw    = cms.Path(seqALCARECOEcalTestPulsesRaw)
 
 #### Not meant to be used for central production
 #pathALCARECOEcalRecalElectron = cms.Path(seqALCARECOEcalRecalElectron)
@@ -451,6 +454,15 @@ ALCARECOStreamEcalTrg = cms.FilteredStream(
     paths = pathALCARECOEcalTrg,
     content=  OutALCARECOEcalTrg.outputCommands,
     selectEvents = OutALCARECOEcalTrg.SelectEvents,
+    dataTier = cms.untracked.string('ALCARECO')
+)
+
+ALCARECOStreamEcalTestPulsesRaw = cms.FilteredStream(
+    responsible = 'Stefano Argiro',
+    name = 'EcalTestPulsesRaw',
+    paths = pathALCARECOEcalTestPulsesRaw,
+    content=  OutALCARECOEcalTestPulsesRaw.outputCommands,
+    selectEvents = OutALCARECOEcalTestPulsesRaw.SelectEvents,
     dataTier = cms.untracked.string('ALCARECO')
 )
 
