@@ -62,7 +62,7 @@ namespace edm {
       std::vector<double> curr_events_time_;  // seconds
       bool summary_only_;
       bool report_summary_;
-      
+      double threshold_;
       //
       // Min Max and total event times for each Stream.
       //  Used for summary at end of job
@@ -134,6 +134,7 @@ namespace edm {
         curr_events_time_(),
         summary_only_(iPS.getUntrackedParameter<bool>("summaryOnly")),
         report_summary_(iPS.getUntrackedParameter<bool>("useJobReport")),
+        threshold_(iPS.getUntrackedParameter<double>("excessiveTimeThreshold")),
         max_events_time_(),
         min_events_time_(),
         total_event_count_(0) {
@@ -143,7 +144,7 @@ namespace edm {
       iRegistry.watchPreEvent(this, &Timing::preEvent);
       iRegistry.watchPostEvent(this, &Timing::postEvent);
 
-      if(not summary_only_) {
+      if( (not summary_only_) || threshold_ ) {
         iRegistry.watchPreModuleEvent(this, &Timing::preModule);
         iRegistry.watchPostModuleEvent(this, &Timing::postModule);
       }
@@ -182,6 +183,8 @@ namespace edm {
       "If 'true' do not report timing for each event");
       desc.addUntracked<bool>("useJobReport", true)->setComment(
        "If 'true' write summary information to JobReport");
+      desc.addUntracked<double>("excessiveTimeThreshold")->setComment(
+       "Amount of time in seconds before reporting a module has taken excessive time.");
       descriptions.add("Timing", desc);
       descriptions.setComment(
        "This service reports the time it takes to run each module in a job.");
@@ -309,12 +312,22 @@ namespace edm {
       auto const & eventID = iStream.eventID();
       auto const & desc = *(iModule.moduleDescription());
       
+      if( t > threshold_) {
+          LogPrint("TimeModule") << "ExcessiveTime> "
+          << eventID.event() << " "
+          << eventID.run() << " "
+          << desc.moduleLabel() << " "
+          << desc.moduleName() << " "
+          << t << " secs exceeds excessive time threshold "<<threshold_ <<" secs.";
+      }
+      if ( not summary_only_) {
       LogPrint("TimeModule") << "TimeModule> "
       << eventID.event() << " "
       << eventID.run() << " "
       << desc.moduleLabel() << " "
       << desc.moduleName() << " "
       << t;
+      }
     }
   }
 }
