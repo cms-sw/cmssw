@@ -11,6 +11,7 @@
 
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 
 #include <vector>
 
@@ -45,12 +46,13 @@ SlimCaloJetSelector( edm::ParameterSet const & params ):
                 iend = h_jets->end(), ijet = ibegin;
                 ijet != iend; ++ijet ){
            if( selector_(*ijet) ){
-              reco::CaloJet::Specific tmp_specific; 
+              reco::CaloJet::Specific tmp_specific;
+              const reco::Candidate::Point orivtx(0,0,0);
               tmp_specific.mTowersArea = ijet->towersArea();
               tmp_specific.mEnergyFractionEm = ijet->emEnergyFraction();
               tmp_specific.mEnergyFractionHadronic = ijet->energyFractionHadronic();
 
-              reco::CaloJet newCaloJet(ijet->p4(), ijet->vertex(), tmp_specific);
+              reco::CaloJet newCaloJet(ijet->p4(), orivtx, tmp_specific);
 
               caloJets->push_back(newCaloJet);
            }
