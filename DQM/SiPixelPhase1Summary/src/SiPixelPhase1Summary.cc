@@ -302,7 +302,6 @@ void SiPixelPhase1Summary::fillTrendPlots(DQMStore::IBooker & iBooker, DQMStore:
     for (unsigned int i = 0; i < trendOrder.size(); i++){
       deadROCTrends_[offline]->setBinContent(i+1,nRocsPerTrend[i]-nFilledROCs[i]);
       ineffROCTrends_[offline]->setBinContent(i+1,nFilledROCs[i]-hiEffROCs[i]);
-      std::cout << nFilledROCs[i] << " " << hiEffROCs[i] << " " << nRocsPerTrend[i] << std::endl;
     }
   }
   else { //online
