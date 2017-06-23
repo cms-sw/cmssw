@@ -47,7 +47,8 @@ class HGCalTriggerGeomTester : public edm::EDAnalyzer
 
     private:
         void fillTriggerGeometry(const HGCalTriggerGeometryBase::es_info& );
-        void checkConsistency(const HGCalTriggerGeometryBase::es_info& );
+        void checkMappingConsistency(const HGCalTriggerGeometryBase::es_info& );
+        void checkNeighborConsistency(const HGCalTriggerGeometryBase::es_info& );
         void setTreeModuleSize(const size_t n);
         void setTreeModuleCellSize(const size_t n);
         void setTreeTriggerCellSize(const size_t n);
@@ -56,6 +57,7 @@ class HGCalTriggerGeomTester : public edm::EDAnalyzer
         edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry_;
         edm::Service<TFileService> fs_;
         bool no_trigger_;
+        bool no_neighbors_;
         TTree* treeModules_;
         TTree* treeTriggerCells_;
         TTree* treeCells_;
@@ -140,7 +142,8 @@ class HGCalTriggerGeomTester : public edm::EDAnalyzer
 
 /*****************************************************************/
 HGCalTriggerGeomTester::HGCalTriggerGeomTester(const edm::ParameterSet& conf):
-    no_trigger_(false)
+    no_trigger_(false),
+    no_neighbors_(false)
 /*****************************************************************/
 {
 
@@ -288,18 +291,27 @@ void HGCalTriggerGeomTester::beginRun(const edm::Run& /*run*/,
 
     try
     {
-        checkConsistency(info);
+        checkMappingConsistency(info);
     }
     catch(const cms::Exception& e) {
         edm::LogWarning("HGCalTriggerGeometryTester") << "Problem with the trigger geometry detected. Only the basic cells tree will be filled\n";
         edm::LogWarning("HGCalTriggerGeometryTester") << e.message() << "\n";
         no_trigger_ = true;
     }
+    try
+    {
+        checkNeighborConsistency(info);
+    }
+    catch(const cms::Exception& e) {
+        edm::LogWarning("HGCalTriggerGeometryTester") << "Problem with the trigger neighbors detected. No neighbor information will be filled\n";
+        edm::LogWarning("HGCalTriggerGeometryTester") << e.message() << "\n";
+        no_neighbors_ = true;
+    }
     fillTriggerGeometry(info);
 }
 
 
-void HGCalTriggerGeomTester::checkConsistency(const HGCalTriggerGeometryBase::es_info& info)
+void HGCalTriggerGeomTester::checkMappingConsistency(const HGCalTriggerGeometryBase::es_info& info)
 {
     
 
@@ -425,6 +437,45 @@ void HGCalTriggerGeomTester::checkConsistency(const HGCalTriggerGeometryBase::es
             }
         }
     }
+}
+
+void HGCalTriggerGeomTester::checkNeighborConsistency(const HGCalTriggerGeometryBase::es_info& info)
+{
+    std::unordered_map<uint32_t, std::unordered_set<uint32_t>> triggercells_to_cells;
+
+    // EE
+    for(const auto& id : info.geom_ee->getValidGeomDetIds())
+    {
+        if(id.rawId()==0) continue;
+        HGCalDetId waferid(id); 
+        int nCells = info.topo_ee->dddConstants().numberCellsHexagon(waferid.wafer());
+        for(int i=0;i<nCells;i++)
+        {
+            HGCalDetId id(ForwardSubdetector(waferid.subdetId()), waferid.zside(), waferid.layer(), waferid.waferType(), waferid.wafer(), i);
+            if(!info.topo_ee->valid(id)) continue;
+            // fill trigger cells
+            uint32_t trigger_cell = triggerGeometry_->getTriggerCellFromCell(id);
+            auto itr_insert = triggercells_to_cells.emplace(trigger_cell, std::unordered_set<uint32_t>());
+            itr_insert.first->second.emplace(id);
+        }
+    }
+    // FH
+    for(const auto& id : info.geom_fh->getValidGeomDetIds())
+    {
+        if(id.rawId()==0) continue;
+        HGCalDetId waferid(id); 
+        int nCells = info.topo_fh->dddConstants().numberCellsHexagon(waferid.wafer());
+        for(int i=0;i<nCells;i++)
+        {
+            HGCalDetId id(ForwardSubdetector(waferid.subdetId()), waferid.zside(), waferid.layer(), waferid.waferType(), waferid.wafer(), i);
+            if(!info.topo_fh->valid(id)) continue;
+            // fill trigger cells
+            uint32_t trigger_cell = triggerGeometry_->getTriggerCellFromCell(id);
+            auto itr_insert = triggercells_to_cells.emplace(trigger_cell, std::unordered_set<uint32_t>());
+            itr_insert.first->second.emplace(id);
+        }
+    }
+
 
     edm::LogPrint("NeighborCheck")<<"Checking trigger cell neighbor consistency";
     // Loop over trigger cells
@@ -594,20 +645,23 @@ void HGCalTriggerGeomTester::fillTriggerGeometry(const HGCalTriggerGeometryBase:
             ic++;
         }
         // Get neighbors
-        const auto neighbors = triggerGeometry_->getNeighborsFromTriggerCell(id.rawId());
-        triggerCellNeighbor_N_ = neighbors.size();
-        setTreeTriggerCellNeighborSize(triggerCellNeighbor_N_);
-        size_t in = 0;
-        for(const auto neighbor : neighbors)
+        if(!no_neighbors_)
         {
-            HGCalDetId nId(neighbor);
-            triggerCellNeighbor_id_.get()[in] = neighbor;
-            triggerCellNeighbor_zside_ .get()[in] = nId.zside();
-            triggerCellNeighbor_subdet_.get()[in] = nId.subdetId();
-            triggerCellNeighbor_layer_ .get()[in] = nId.layer();
-            triggerCellNeighbor_wafer_ .get()[in] = nId.wafer();
-            triggerCellNeighbor_cell_  .get()[in] = nId.cell();
-            in++;
+            const auto neighbors = triggerGeometry_->getNeighborsFromTriggerCell(id.rawId());
+            triggerCellNeighbor_N_ = neighbors.size();
+            setTreeTriggerCellNeighborSize(triggerCellNeighbor_N_);
+            size_t in = 0;
+            for(const auto neighbor : neighbors)
+            {
+                HGCalDetId nId(neighbor);
+                triggerCellNeighbor_id_.get()[in] = neighbor;
+                triggerCellNeighbor_zside_ .get()[in] = nId.zside();
+                triggerCellNeighbor_subdet_.get()[in] = nId.subdetId();
+                triggerCellNeighbor_layer_ .get()[in] = nId.layer();
+                triggerCellNeighbor_wafer_ .get()[in] = nId.wafer();
+                triggerCellNeighbor_cell_  .get()[in] = nId.cell();
+                in++;
+            }
         }
         //
         treeTriggerCells_->Fill();
