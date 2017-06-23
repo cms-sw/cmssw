@@ -18,12 +18,13 @@ from Configuration.DataProcessing.Impl.pp import pp
 class ppEra_Run2_2017_trackingOnly(pp):
     def __init__(self):
         pp.__init__(self)
-        # tracking only RECO is sufficient, to run high performance BS at PCL; some dedicated customization are required, though: customisePostEra_Run2_2017_trackingOnly
+        # tracking only RECO is sufficient, to run high performance BS at PCL;
+        # some dedicated customization are required, though: customisePostEra_Run2_2017_trackingOnly
         self.recoSeq=':reconstruction_trackingOnly'
         self.cbSc=self.__class__.__name__
         self.eras=Run2_2017
         self.promptCustoms += [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2017' ]
-        self.expressCustoms += [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2017' ]
+        self.expressCustoms += [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2017_express_trackingOnly' ]
         self.visCustoms += [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2017' ]
 
     def expressProcessing(self, globalTag, **args):

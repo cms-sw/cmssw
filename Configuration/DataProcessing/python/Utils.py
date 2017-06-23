@@ -141,6 +141,7 @@ def gtNameAndConnect(globalTag, args):
     return globalTag +',frontier://PromptProd/CMS_CONDITIONS'
 
 def customise_HPbeamspot(process):
+
     # write to sqlite the HP tag and use the HP medatata for uploading it  to the dropbox
     # ByLumi
     if ( hasattr(process,'PoolDBOutputService')   and
@@ -155,7 +156,6 @@ def customise_HPbeamspot(process):
                 onePset.record = 'BeamSpotObjectsRcdHPByLumi'
         if process.ALCAHARVESTBeamSpotByLumi.AlcaBeamSpotHarvesterParameters.outputRecordName == 'BeamSpotObjectsRcdByLumi':
             process.ALCAHARVESTBeamSpotByLumi.AlcaBeamSpotHarvesterParameters.outputRecordName = 'BeamSpotObjectsRcdHPByLumi'
-
     # ByRun
     if ( hasattr(process,'PoolDBOutputService')   and
          hasattr(process,'pclMetadataWriter')     and
@@ -169,3 +169,18 @@ def customise_HPbeamspot(process):
                 onePset.record = 'BeamSpotObjectsRcdHPByRun'
         if process.ALCAHARVESTBeamSpotByRun.AlcaBeamSpotHarvesterParameters.outputRecordName == 'BeamSpotObjectsRcdByRun':
             process.ALCAHARVESTBeamSpotByRun.AlcaBeamSpotHarvesterParameters.outputRecordName = 'BeamSpotObjectsRcdHPByRun'
+
+    # ALCARECOTkAlMinBiasTkAlDQM is part of the ALCARECO sequence we want and needs caloJets
+    # which are not available when running tracking only reco => remove it from the sequence
+    print "BEF *****"
+    print hasattr(process,'ALCARECOTkAlMinBiasDQM')
+    print process.ALCARECOTkAlMinBiasDQM.moduleNames()
+    print 'ALCARECOTkAlMinBiasTkAlDQM' in process.ALCARECOTkAlMinBiasDQM.moduleNames()
+    print "####"
+    if hasattr(process,'ALCARECOTkAlMinBiasDQM') and 'ALCARECOTkAlMinBiasTkAlDQM' in process.ALCARECOTkAlMinBiasDQM.moduleNames() :
+        process.ALCARECOTkAlMinBiasDQM.remove(process.ALCARECOTkAlMinBiasTkAlDQM)
+    print "AFT *****"
+    print hasattr(process,'ALCARECOTkAlMinBiasDQM')
+    print process.ALCARECOTkAlMinBiasDQM.moduleNames()
+    print 'ALCARECOTkAlMinBiasTkAlDQM' in process.ALCARECOTkAlMinBiasDQM.moduleNames()
+    print "####"
