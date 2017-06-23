@@ -57,7 +57,7 @@ def setCrossingFrameOn(process):
     from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
     phase2_muon.toModify( process.mix.mixObjects,
         mixSH = dict(
-            crossingFrames = process.mix.mixObjects.mixSH.crossingFrames + [ 'MuonGEMHits' ]
+            crossingFrames = process.mix.mixObjects.mixSH.crossingFrames + [ 'MuonME0Hits' ]
         )
     )
 
