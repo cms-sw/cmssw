@@ -56,6 +56,8 @@ void TSGForOI::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iSetup.get<TrackingComponentsRecord>().get("PropagatorWithMaterial", propagatorOpposite_);
   iSetup.get<TrackingComponentsRecord>().get("PropagatorWithMaterial", propagatorAlong_);
   iSetup.get<GlobalTrackingGeometryRecord>().get(geometry_);
+  ESHandle<TrackerGeometry> tmpTkGeometry;
+  iSetup.get<TrackerDigiGeometryRecord>().get(tmpTkGeometry);
   iSetup.get<TrackingComponentsRecord>().get(estimatorName_,estimator_);
   iEvent.getByToken(measurementTrackerTag_, measurementTracker_);
   edm::Handle<reco::TrackCollection> l2TrackCol;					
@@ -66,8 +68,12 @@ void TSGForOI::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   //	Get vector of Detector layers once:
   std::vector<BarrelDetLayer const*> const& tob = measurementTracker_->geometricSearchTracker()->tobLayers();
-  std::vector<ForwardDetLayer const*> const& tecPositive = measurementTracker_->geometricSearchTracker()->posTecLayers();
-  std::vector<ForwardDetLayer const*> const& tecNegative = measurementTracker_->geometricSearchTracker()->negTecLayers();
+  std::vector<ForwardDetLayer const*> const& tecPositive = tmpTkGeometry->isThere(GeomDetEnumerators::P2OTEC) ? 
+                                                                          measurementTracker_->geometricSearchTracker()->posTidLayers() : 
+                                                                          measurementTracker_->geometricSearchTracker()->posTecLayers(); 
+  std::vector<ForwardDetLayer const*> const& tecNegative = tmpTkGeometry->isThere(GeomDetEnumerators::P2OTEC) ? 
+                                                                          measurementTracker_->geometricSearchTracker()->negTidLayers() : 
+                                                                          measurementTracker_->geometricSearchTracker()->negTecLayers();
 
   //	Get the suitable propagators:
   std::unique_ptr<Propagator> propagatorAlong = SetPropagationDirection(*propagatorAlong_,alongMomentum);
