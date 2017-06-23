@@ -1,4 +1,5 @@
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromTFormula.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 const int PerformancePayloadFromTFormula::InvalidPos=-1;
 
@@ -28,8 +29,10 @@ float PerformancePayloadFromTFormula::getResult(PerformanceResult::ResultType r 
   //
   // which formula to use?
   //
-  assert(! isInPayload(r,p));
-
+  if ( ! isInPayload(r,p) ) {
+    edm::LogError("PerformancePayloadFromTFormula") <<"Missing formula in conditions. Maybe code/conditions are inconsistent" << std::endl;
+    assert(false);
+  }
   // nice, what to do here???
   const boost::shared_ptr<TFormula>& formula = compiledFormulas_[resultPos(r)];
   //
