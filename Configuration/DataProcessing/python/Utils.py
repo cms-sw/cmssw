@@ -172,15 +172,5 @@ def customise_HPbeamspot(process):
 
     # ALCARECOTkAlMinBiasTkAlDQM is part of the ALCARECO sequence we want and needs caloJets
     # which are not available when running tracking only reco => remove it from the sequence
-    print "BEF *****"
-    print hasattr(process,'ALCARECOTkAlMinBiasDQM')
-    print process.ALCARECOTkAlMinBiasDQM.moduleNames()
-    print 'ALCARECOTkAlMinBiasTkAlDQM' in process.ALCARECOTkAlMinBiasDQM.moduleNames()
-    print "####"
     if hasattr(process,'ALCARECOTkAlMinBiasDQM') and 'ALCARECOTkAlMinBiasTkAlDQM' in process.ALCARECOTkAlMinBiasDQM.moduleNames() :
         process.ALCARECOTkAlMinBiasDQM.remove(process.ALCARECOTkAlMinBiasTkAlDQM)
-    print "AFT *****"
-    print hasattr(process,'ALCARECOTkAlMinBiasDQM')
-    print process.ALCARECOTkAlMinBiasDQM.moduleNames()
-    print 'ALCARECOTkAlMinBiasTkAlDQM' in process.ALCARECOTkAlMinBiasDQM.moduleNames()
-    print "####"
