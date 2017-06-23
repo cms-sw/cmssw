@@ -1,4 +1,3 @@
-
 from Validation.RecoTrack.HLTmultiTrackValidator_cff import *
 from Validation.RecoVertex.HLTmultiPVvalidator_cff import *
 from HLTriggerOffline.Muon.HLTMuonVal_cff import *
@@ -54,7 +53,7 @@ hltvalidation = cms.Sequence(
     +ExoticaValidationSequence
     +b2gHLTriggerValidation
     +SMPValidationSequence
-    +hltbtagValidationSequence
+#too noisy for now    +hltbtagValidationSequence
     +hltHCALdigisAnalyzer+hltHCALRecoAnalyzer+hltHCALNoiseRates # HCAL
     )
 
