@@ -158,10 +158,10 @@ void SiPixelPhase1Summary::bookSummaries(DQMStore::IBooker & iBooker){
 void SiPixelPhase1Summary::bookTrendPlots(DQMStore::IBooker & iBooker){
   //We need different plots depending on if we're online (runOnEndLumi) or offline (!runOnEndLumi)
   iBooker.setCurrentFolder("PixelPhase1/");
-  std::vector<string> binAxisLabels = {"Layer 1", "Layer 2", "Layer 3", "Layer 4", "Disk 1", "Disk 2"};
+  std::vector<string> binAxisLabels = {"Layer 1", "Layer 2", "Layer 3", "Layer 4", "Ring 1", "Ring 2"};
   if (runOnEndLumi_){
-    std::vector<trendPlots> histoOrder = {layer1,layer2,layer3,layer4,disk1,disk2};
-    std::vector<string> varName ={"Layer_1","Layer_2","Layer_3","Layer_4","Disk_1","Disk_2"};
+    std::vector<trendPlots> histoOrder = {layer1,layer2,layer3,layer4,ring1,ring2};
+    std::vector<string> varName ={"Layer_1","Layer_2","Layer_3","Layer_4","Ring_1","Ring_2"};
     for (unsigned int i = 0; i < histoOrder.size(); i++){
       string varNameStr = "deadRocTrend"+varName[i];
       string varTitle = binAxisLabels[i]+" dead ROC trend";
@@ -260,7 +260,7 @@ void SiPixelPhase1Summary::fillTrendPlots(DQMStore::IBooker & iBooker, DQMStore:
   
 
   //Find the total number of filled bins and hi efficiency bins
-  std::vector<trendPlots> trendOrder = {layer1,layer2,layer3,layer4,disk1,disk2};
+  std::vector<trendPlots> trendOrder = {layer1,layer2,layer3,layer4,ring1,ring2};
   std::vector<int> nFilledROCs(trendOrder.size(),0);
   std::vector<int> hiEffROCs(trendOrder.size(),0);
   std::vector<int> nRocsPerTrend = {1536,3584,5632,8192,4224,6528};
