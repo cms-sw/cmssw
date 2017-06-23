@@ -79,6 +79,7 @@ ak8PFJetsCHSMassDropFiltered = ak8PFJets.clone(
 
 ak8PFJetsCHSPruned = ak8PFJets.clone(
     SubJetParameters,
+    src = cms.InputTag("pfNoPileUpJME"),
     usePruning = cms.bool(True),
     useExplicitGhosts = cms.bool(True),
     writeCompound = cms.bool(True),
@@ -88,6 +89,7 @@ ak8PFJetsCHSPruned = ak8PFJets.clone(
 
 ak8PFJetsCHSSoftDrop = ak8PFJets.clone(
     useSoftDrop = cms.bool(True),
+    src = cms.InputTag("pfNoPileUpJME"),
     zcut = cms.double(0.1),
     beta = cms.double(0.0),
     R0   = cms.double(0.8),
@@ -100,6 +102,7 @@ ak8PFJetsCHSSoftDrop = ak8PFJets.clone(
 
 ak8PFJetsCHSTrimmed = ak8PFJets.clone(
     useTrimming = cms.bool(True),
+    src = cms.InputTag("pfNoPileUpJME"),
     rFilt = cms.double(0.2),
     trimPtFracMin = cms.double(0.03),
     useExplicitGhosts = cms.bool(True),
