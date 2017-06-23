@@ -27,7 +27,7 @@
 #include "Fireworks/Calo/interface/scaleMarker.h"
 
 #include "DataFormats/JetReco/interface/Jet.h"
-#include "Fireworks/Core/interface/FWBeamSpot.h"
+
 
 namespace fireworks {
 
@@ -62,7 +62,6 @@ public:
       iItem->getConfig()->assertParam(kJetLabelsRhoPhiOn, false);
       iItem->getConfig()->assertParam(kJetLabelsRhoZOn, false);
       iItem->getConfig()->assertParam(kJetOffset, 2.1, 1.0, 5.0);
-      iItem->getConfig()->assertParam(kJetApexBeamSpot, false);
       }
    }
 
@@ -115,11 +114,6 @@ FWJetProxyBuilder::requestCommon()
       {
          TEveJetCone* cone = fireworks::makeEveJetCone(modelData(i), context());
 
-         if (item()->getConfig()->value<bool>(kJetApexBeamSpot))
-         {
-            FWBeamSpot* bs = context().getBeamSpot();
-            cone->SetApex(TEveVector(bs->x0(), bs->y0(), bs->z0()));
-         }
          cone->SetFillColor(item()->defaultDisplayProperties().color());
          cone->SetLineColor(item()->defaultDisplayProperties().color());
          
@@ -180,13 +174,6 @@ FWJetProxyBuilder::buildViewType(const reco::Jet& iData, unsigned int iIndex, TE
          p2.Set((ecalR+size)*cos(phi), (ecalR+size)*sin(phi), 0);
       }
       
-      if (item()->getConfig()->value<bool>(kJetApexBeamSpot))
-      {
-         FWBeamSpot* bs = context().getBeamSpot();
-         TEveVector bsOff(bs->x0(), bs->y0(), bs->z0());
-         p1 += bsOff;
-         p2 += bsOff;
-      }
    
       markers.m_ls->SetScaleCenter(p1.fX, p1.fY, p1.fZ);
       markers.m_ls->AddLine(p1, p2);
