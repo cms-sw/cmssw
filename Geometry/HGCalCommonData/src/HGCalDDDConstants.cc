@@ -75,6 +75,23 @@ HGCalDDDConstants::HGCalDDDConstants(const HGCalParameters* hp,
     
   }  
   
+  for (unsigned int i=0; i<getTrFormN(); ++i) {
+    int lay0 = getTrForm(i).lay;
+    int wmin(9999999), wmax(0), kount(0);
+    for (int wafer=0; wafer<sectors(); ++wafer) {
+      if (waferInLayer(wafer,lay0,true)) {
+	if (wafer < wmin) wmin = wafer;
+	if (wafer > wmax) wmax = wafer;
+	++kount;
+      }
+    }
+#ifdef EDM_ML_DEBUG
+    int lay1 = getIndex(lay0,true).first;
+    std::cout << "Index " << i << " Layer " << lay0 << ":" << lay1 
+	      << " Wafer " << wmin << ":" << wmax << ":" << kount << std::endl;
+#endif
+    waferLayer_[lay0] = std::make_tuple(wmin,wmax,kount);
+  }
 }
 
 HGCalDDDConstants::~HGCalDDDConstants() {}
@@ -160,14 +177,6 @@ double HGCalDDDConstants::cellSizeHex(int type) const {
   int    indx = (type == 1) ? 0 : 1;
   double cell = (0.5*k_ScaleFromDDD*hgpar_->cellSize_[indx]);
   return cell;
-}
-
-unsigned int HGCalDDDConstants::layers(bool reco) const {
-  return tot_layers_[(int)reco];
-}
-
-unsigned int HGCalDDDConstants::layersInit(bool reco) const {
-  return (reco ? hgpar_->depthIndex_.size() : hgpar_->layerIndex_.size());
 }
 
 std::pair<int,int> HGCalDDDConstants::findCell(int cell, int lay, int subSec,
@@ -315,6 +324,14 @@ bool HGCalDDDConstants::isValidCell(int lay, int wafer, int cell) const {
 	      << " Flag " << ok << std::endl;
 #endif
   return ok;
+}
+
+unsigned int HGCalDDDConstants::layers(bool reco) const {
+  return tot_layers_[(int)reco];
+}
+
+unsigned int HGCalDDDConstants::layersInit(bool reco) const {
+  return (reco ? hgpar_->depthIndex_.size() : hgpar_->layerIndex_.size());
 }
 
 std::pair<float,float> HGCalDDDConstants::locateCell(int cell, int lay, 
@@ -709,6 +726,18 @@ int HGCalDDDConstants::wafers() const {
   for (unsigned int i = 0; i<layers(true); ++i) {
     int lay = hgpar_->depth_[i];
     wafer += modules(lay, true);
+  }
+  return wafer;
+}
+
+int HGCalDDDConstants::wafers(int layer, int type) const {
+
+  int  wafer(0);
+  auto itr = waferLayer_.find(layer);
+  if (itr != waferLayer_.end()) {
+    if      (type == 2) wafer = std::get<2>(itr->second);
+    else if (type == 2) wafer = std::get<1>(itr->second);
+    else                wafer = std::get<0>(itr->second);
   }
   return wafer;
 }
