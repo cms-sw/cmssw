@@ -23,8 +23,7 @@ SiPixelPhase1TrackResiduals::SiPixelPhase1TrackResiduals(const edm::ParameterSet
   validator(iConfig, consumesCollector())
 {
   offlinePrimaryVerticesToken_ = consumes<reco::VertexCollection>(std::string("offlinePrimaryVertices"));
-
-  applyVertexCut_=iConfig.getUntrackedParameter<bool>("VertexCut",true);
+  ApplyVertexCut_=iConfig.getParameter<bool>("VertexCut");
 }
 
 void SiPixelPhase1TrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -36,14 +35,14 @@ void SiPixelPhase1TrackResiduals::analyze(const edm::Event& iEvent, const edm::E
   edm::Handle<reco::VertexCollection> vertices;
   iEvent.getByToken(offlinePrimaryVerticesToken_, vertices);
 
-  if (applyVertexCut_ && (!vertices.isValid() || vertices->size() == 0)) return;
+  if (ApplyVertexCut_ && (!vertices.isValid() || vertices->size() == 0)) return;
   
   std::vector<TrackerValidationVariables::AVTrackStruct> vtracks;
 
   validator.fillTrackQuantities(iEvent, iSetup, 
     // tell the validator to only look at good tracks
     [&](const reco::Track& track) -> bool { 
-	return (!applyVertexCut_ || (track.pt() > 0.75
+	return (!ApplyVertexCut_ || (track.pt() > 0.75
 				     && std::abs( track.dxy(vertices->at(0).position()) ) < 5*track.dxyError())) ;
     }, vtracks);
 
