@@ -9,7 +9,8 @@ l1tStage2OMTFEmulatorCompRatioClient = DQMEDHarvester("L1TStage2RatioClient",
     ratioName = cms.untracked.string('mismatchRatio'),
     ratioTitle = cms.untracked.string('Summary of mismatch rates between OMTF muons and OMTF emulator muons'),
     yAxisTitle = cms.untracked.string('# mismatch / # total'),
-    binomialErr = cms.untracked.bool(True)
+    binomialErr = cms.untracked.bool(True),
+    ignoreBin = cms.untracked.vint32(1)
 )
 
 # sequences
