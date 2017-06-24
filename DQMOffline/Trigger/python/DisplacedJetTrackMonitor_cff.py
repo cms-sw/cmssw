@@ -1,0 +1,50 @@
+import FWCore.ParameterSet.Config as cms
+
+from DQMOffline.Trigger.DisplacedJetTrackMonitor_cfi import hltDJTrackmonitoring
+
+#HLT_HT430_DisplacedDijet40_DisplacedTrack
+HT430_DisplacedDijet40_DisplacedTrack_Trackmonitoring = hltDJTrackmonitoring.clone()
+HT430_DisplacedDijet40_DisplacedTrack_Trackmonitoring.FolderName = cms.string('HLT/DisplacedJet/HT430_DisplacedDijet40_DisplacedTrack_Track')
+HT430_DisplacedDijet40_DisplacedTrack_Trackmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_HT430_DisplacedDijet40_DisplacedTrack_v*")
+HT430_DisplacedDijet40_DisplacedTrack_Trackmonitoring.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_HT425_v*")
+
+#HLT_HT430_DisplacedDijet60_DisplacedTrack
+HT430_DisplacedDijet60_DisplacedTrack_Trackmonitoring = hltDJTrackmonitoring.clone()
+HT430_DisplacedDijet60_DisplacedTrack_Trackmonitoring.FolderName = cms.string('HLT/DisplacedJet/HT430_DisplacedDijet60_DisplacedTrack_Track')
+HT430_DisplacedDijet60_DisplacedTrack_Trackmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_HT430_DisplacedDijet60_DisplacedTrack_v*")
+HT430_DisplacedDijet60_DisplacedTrack_Trackmonitoring.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_HT425_v*")
+
+#HLT_HT430_DisplacedDijet80_DisplacedTrack
+HT430_DisplacedDijet80_DisplacedTrack_Trackmonitoring = hltDJTrackmonitoring.clone()
+HT430_DisplacedDijet80_DisplacedTrack_Trackmonitoring.FolderName = cms.string('HLT/DisplacedJet/HT430_DisplacedDijet80_DisplacedTrack_Track')
+HT430_DisplacedDijet80_DisplacedTrack_Trackmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_HT430_DisplacedDijet80_DisplacedTrack_v*")
+HT430_DisplacedDijet80_DisplacedTrack_Trackmonitoring.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_HT425_v*") 
+
+#HLT_HT650_DisplacedDijet60_Inclusive
+HT650_DisplacedDijet60_DisplacedTrack_Trackmonitoring = hltDJTrackmonitoring.clone()
+HT650_DisplacedDijet60_DisplacedTrack_Trackmonitoring.FolderName = cms.string('HLT/DisplacedJet/HT650_DisplacedDijet60_Inclusive_Track')
+HT650_DisplacedDijet60_DisplacedTrack_Trackmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_HT650_DisplacedDijet60_Inclusive_v*")
+HT650_DisplacedDijet60_DisplacedTrack_Trackmonitoring.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_HT425_v*")
+
+#HLT_HT650_DisplacedDijet60_Inclusive
+HT650_DisplacedDijet80_DisplacedTrack_Trackmonitoring = hltDJTrackmonitoring.clone()
+HT650_DisplacedDijet80_DisplacedTrack_Trackmonitoring.FolderName = cms.string('HLT/DisplacedJet/HT650_DisplacedDijet80_Inclusive_Track')
+HT650_DisplacedDijet80_DisplacedTrack_Trackmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_HT650_DisplacedDijet80_Inclusive_v*")
+HT650_DisplacedDijet80_DisplacedTrack_Trackmonitoring.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_HT425_v*")
+
+#HLT_HT750_DisplacedDijet80_Inclusive
+HT750_DisplacedDijet80_DisplacedTrack_Trackmonitoring = hltDJTrackmonitoring.clone()
+HT750_DisplacedDijet80_DisplacedTrack_Trackmonitoring.FolderName = cms.string('HLT/DisplacedJet/HT750_DisplacedDijet80_Inclusive_Track')
+HT750_DisplacedDijet80_DisplacedTrack_Trackmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_HT750_DisplacedDijet80_Inclusive_v*")
+HT750_DisplacedDijet80_DisplacedTrack_Trackmonitoring.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_HT425_v*")
+
+exoHLTDJTrackmonitoring = cms.Sequence(
+    HT430_DisplacedDijet40_DisplacedTrack_Trackmonitoring
+   +HT430_DisplacedDijet60_DisplacedTrack_Trackmonitoring
+   +HT430_DisplacedDijet80_DisplacedTrack_Trackmonitoring
+   +HT650_DisplacedDijet60_DisplacedTrack_Trackmonitoring
+   +HT650_DisplacedDijet80_DisplacedTrack_Trackmonitoring
+   +HT750_DisplacedDijet80_DisplacedTrack_Trackmonitoring
+)
+
+
