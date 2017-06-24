@@ -174,13 +174,11 @@ std::pair<double,double> fitTwoGauss (TH1D* hist, bool debug) {
   double LowEdge = mean - 1.0*rms;
   double HighEdge = mean + 1.0*rms;
   if (LowEdge < 0.15) LowEdge = 0.15;
-  char option[20];
-  if (hist->GetEntries() > 100) sprintf (option, "QRS");
-  else                          sprintf (option, "QRWLS");
+  std::string option = (hist->GetEntries() > 100) ? "QRS" : "QRWLS";
   //   TFitResultPtr Fit = hist->Fit("gaus",option,"",LowEdge,HighEdge);
   TF1 *g1    = new TF1("g1","gaus",LowEdge,HighEdge); 
   g1->SetLineColor(kGreen);
-  TFitResultPtr Fit = hist->Fit(g1,option,"");
+  TFitResultPtr Fit = hist->Fit(g1,option.c_str(),"");
   
   if (debug) 
     for (int k=0; k<3; ++k) 
@@ -209,17 +207,10 @@ std::pair<double,double> fitTwoGauss (TH1D* hist, bool debug) {
 std::pair<double,double> fitOneGauss (TH1D* hist, bool debug) {
   double mean     = hist->GetMean();
   double rms      = hist->GetRMS();
-  double LowEdge  = mean - 1.5*rms;
-  double HighEdge = mean + 2.0*rms;
-  if (LowEdge < 0.15) LowEdge = 0.15;
-  char option[20];
-  if (hist->GetEntries() > 100) {
-    sprintf (option, "QRS");
-  } else {
-    sprintf (option, "QRWLS");
-    HighEdge= mean+1.5*rms;
-  }
-  TFitResultPtr Fit = hist->Fit("gaus",option,"",LowEdge,HighEdge);
+  double LowEdge  = ((mean-1.5*rms)<0.15) ? 0.15 : (mean-1.5*rms);
+  double HighEdge = (hist->GetEntries()>100) ? (mean+2.0*rms) : (mean+1.5*rms);
+  std::string option = (hist->GetEntries()>100) ? "QRS" : "QRWLS";
+  TFitResultPtr Fit = hist->Fit("gaus",option.c_str(),"",LowEdge,HighEdge);
   double value = Fit->Value(1);
   double error = Fit->FitResult::Error(1); 
   std::pair<double,double> meaner = GetMean(hist,0.2,2.0);
