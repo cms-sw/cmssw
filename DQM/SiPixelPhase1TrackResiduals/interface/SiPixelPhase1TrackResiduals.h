@@ -18,6 +18,8 @@ class SiPixelPhase1TrackResiduals : public SiPixelPhase1Base {
     RESIDUAL_Y
   };
 
+  bool ApplyVertexCut_;
+
   public:
   explicit SiPixelPhase1TrackResiduals(const edm::ParameterSet& conf);
   void analyze(const edm::Event&, const edm::EventSetup&);
@@ -25,8 +27,6 @@ class SiPixelPhase1TrackResiduals : public SiPixelPhase1Base {
   private:
   TrackerValidationVariables validator;
   edm::EDGetTokenT<reco::VertexCollection> offlinePrimaryVerticesToken_;
-
-  bool applyVertexCut_;
 };
 
 #endif
