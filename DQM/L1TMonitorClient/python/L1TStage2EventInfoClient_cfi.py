@@ -258,42 +258,42 @@ l1tStage2EventInfoClient = DQMEDHarvester("L1TEventInfoClient",
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),
                             cms.PSet(
-                                QualityTestName = cms.string("uGMTvsuGT_MismatchRatioMax0p05"),
+                                QualityTestName = cms.string("uGMTvsuGT_MismatchRatioMax0"),
                                 QualityTestHist = cms.string("L1T/L1TStage2uGMT/uGMToutput_vs_uGTinput/mismatchRatio"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),
                             cms.PSet(
-                                QualityTestName = cms.string("BMTFvsuGMT_MismatchRatioMax0p05"),
+                                QualityTestName = cms.string("BMTFvsuGMT_MismatchRatioMax0"),
                                 QualityTestHist = cms.string("L1T/L1TStage2uGMT/BMTFoutput_vs_uGMTinput/mismatchRatio"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),
                             cms.PSet(
-                                QualityTestName = cms.string("EMTFvsuGMT_MismatchRatioMax0p05"),
+                                QualityTestName = cms.string("EMTFvsuGMT_MismatchRatioMax0"),
                                 QualityTestHist = cms.string("L1T/L1TStage2uGMT/EMTFoutput_vs_uGMTinput/mismatchRatio"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),
                             cms.PSet(
-                                QualityTestName = cms.string("uGMTCopies_MismatchRatioMax0p05"),
+                                QualityTestName = cms.string("uGMTCopies_MismatchRatioMax0"),
                                 QualityTestHist = cms.string("L1T/L1TStage2uGMT/uGMTMuonCopies/GMTMuonCopy1/mismatchRatio"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),
                             cms.PSet(
-                                QualityTestName = cms.string("uGMTCopies_MismatchRatioMax0p05"),
+                                QualityTestName = cms.string("uGMTCopies_MismatchRatioMax0"),
                                 QualityTestHist = cms.string("L1T/L1TStage2uGMT/uGMTMuonCopies/uGMTMuonCopy2/mismatchRatio"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),
                             cms.PSet(
-                                QualityTestName = cms.string("uGMTCopies_MismatchRatioMax0p05"),
+                                QualityTestName = cms.string("uGMTCopies_MismatchRatioMax0"),
                                 QualityTestHist = cms.string("L1T/L1TStage2uGMT/uGMTMuonCopies/uGMTMuonCopy3/mismatchRatio"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),
                             cms.PSet(
-                                QualityTestName = cms.string("uGMTCopies_MismatchRatioMax0p05"),
+                                QualityTestName = cms.string("uGMTCopies_MismatchRatioMax0"),
                                 QualityTestHist = cms.string("L1T/L1TStage2uGMT/uGMTMuonCopies/uGMTMuonCopy4/mismatchRatio"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),
                             cms.PSet(
-                                QualityTestName = cms.string("uGMTCopies_MismatchRatioMax0p05"),
+                                QualityTestName = cms.string("uGMTCopies_MismatchRatioMax0"),
                                 QualityTestHist = cms.string("L1T/L1TStage2uGMT/uGMTMuonCopies/uGMTMuonCopy5/mismatchRatio"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),
