@@ -58,7 +58,7 @@ public:
     produces<reco::PFClusterCollection>();
   }
 
-  virtual void produce(edm::Event& e, const edm::EventSetup& es);
+  void produce(edm::Event& e, const edm::EventSetup& es) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:

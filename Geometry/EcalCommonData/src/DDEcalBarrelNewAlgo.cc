@@ -11,7 +11,7 @@
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
-#include "DetectorDescription/Base/interface/DDTranslation.h"
+#include "DetectorDescription/Core/interface/DDTranslation.h"
 #include "Geometry/EcalCommonData/interface/DDEcalBarrelNewAlgo.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 

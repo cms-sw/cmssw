@@ -42,6 +42,7 @@ _iterations_trackingPhase1 = [
     "LowPtTripletStep",
     "DetachedQuadStep",
     "DetachedTripletStep",
+    "PixelPairStep",
     "MixedTripletStep",
     "PixelLessStep",
     "TobTecStep",
@@ -72,7 +73,11 @@ _multipleSeedProducers = {
 _multipleSeedProducers_trackingLowPU = {
     "MixedTripletStep": ["A", "B"],
 }
-_multipleSeedProducers_trackingPhase1 = _multipleSeedProducers
+_multipleSeedProducers_trackingPhase1 = {
+    "PixelPairStep": ["A", "B"],
+    "MixedTripletStep": ["A", "B"],
+    "TobTecStep": ["Pair", "Tripl"],
+}
 _multipleSeedProducers_trackingPhase1QuadProp = _multipleSeedProducers_trackingPhase1
 _multipleSeedProducers_trackingPhase2PU140 = {}
 _oldStyleHasSelector = set([

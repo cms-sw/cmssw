@@ -13,7 +13,7 @@ class PassThruSeedFinder : public SeedFinderBase {
 
   void findSeeds( const edm::Handle<reco::PFRecHitCollection>& input,
 		  const std::vector<bool>& mask,
-		  std::vector<bool>& seedable );
+		  std::vector<bool>& seedable ) override;
 
  private:  
 };

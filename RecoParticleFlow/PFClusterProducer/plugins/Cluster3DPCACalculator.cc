@@ -23,8 +23,8 @@ class Cluster3DPCACalculator : public PFCPositionCalculatorBase {
   Cluster3DPCACalculator(const Cluster3DPCACalculator&) = delete;
   Cluster3DPCACalculator& operator=(const Cluster3DPCACalculator&) = delete;
 
-  void calculateAndSetPosition(reco::PFCluster&);
-  void calculateAndSetPositions(reco::PFClusterCollection&);
+  void calculateAndSetPosition(reco::PFCluster&) override;
+  void calculateAndSetPositions(reco::PFClusterCollection&) override;
 
  private:
   std::unique_ptr<TPrincipal> pca_;

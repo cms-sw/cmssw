@@ -53,11 +53,11 @@ FlatVtxSmearingParameters = cms.PSet(
 # phi = half-crossing beam angle
 #
 # Emittance is the no normalized emittance in cm = normalized emittance/gamma (beta=1)
-# 
+#
 # length variables are in cm
 #
 
-# 900 GeV collisions, transverse beam size = 293 microns 
+# 900 GeV collisions, transverse beam size = 293 microns
 Early900GeVCollisionVtxSmearingParameters = cms.PSet(
     Phi = cms.double(0.0),
     BetaStar = cms.double(1100.0),
@@ -206,7 +206,7 @@ Realistic2p76TeV2013CollisionVtxSmearingParameters = cms.PSet(
     Z0 = cms.double(0.4145)
 )
 # HI realistic pPb collisions, updated for 2013
-# 
+#
 RealisticHIpPb2013CollisionVtxSmearingParameters = cms.PSet(
     Phi = cms.double(0.0),
     BetaStar = cms.double(80.0),
@@ -530,9 +530,9 @@ Realistic100ns13TeVCollisionBetaStar90mLowBunchesVtxSmearingParameters = cms.PSe
 # Z0         = 0.420085 +/- 4.1102E-04 [cm]
 # sigmaZ0    = 3.645533 +/- 2.9064E-04 [cm]
 #
-# From LHC calculator, emittance is 4.906e-8 cm 
+# From LHC calculator, emittance is 4.906e-8 cm
 # https://lpc.web.cern.ch/lpc/lumi2.html
-# 
+#
 # BPIX absolute position:
 # X = -0.0267572 cm
 # Y = -0.0759102 cm
@@ -547,6 +547,32 @@ Realistic25ns13TeV2016CollisionVtxSmearingParameters = cms.PSet(
     X0 = cms.double(0.09163),
     Y0 = cms.double(0.16955),
     Z0 = cms.double(0.9315 )
+)
+
+# From 2017A 3.8T data
+# BS parameters extracted from run 295463 (from offline DQM, i.e. PCL):
+# X0         =  0.08497  [cm]
+# Y0         = -0.03976  [cm]
+# Z0         =  1.6      [cm] ==> 0.5 adjusted after cogging tuning by LHC, see  https://hypernews.cern.ch/HyperNews/CMS/get/beamspot/159/1.html
+# sigmaZ0    =  3.5      [cm]
+#
+# From LHC calculator, emittance is 3.319e-8 cm
+# https://lpc.web.cern.ch/lpc/lumi2.html
+#
+# BPIX absolute position (https://hypernews.cern.ch/HyperNews/CMS/get/tif-alignment/657/1/1.html):
+# X = 0.109725 cm
+# Y = -0.108993 cm
+# Z = -0.32054  cm
+Realistic25ns13TeVEarly2017CollisionVtxSmearingParameters = cms.PSet(
+    Phi = cms.double(0.0),
+    BetaStar = cms.double(40.0),
+    Emittance = cms.double(3.319e-8),
+    Alpha = cms.double(0.0),
+    SigmaZ = cms.double(3.5),
+    TimeOffset = cms.double(0.0),
+    X0 = cms.double(-0.024755),
+    Y0 = cms.double(0.069233 ),
+    Z0 = cms.double(0.82054  )
 )
 
 # Test HF offset
@@ -584,8 +610,8 @@ Shifted15mmCollision2015VtxSmearingParameters = cms.PSet(
     Z0 = cms.double(0.0)
 )
 
-# Estimate for 2015 PbPb collisions, based on feedback from accelerator                                                                                  
-# Beamspot centroid shifted to match pp expectation for 2015                                                                                             
+# Estimate for 2015 PbPb collisions, based on feedback from accelerator
+# Beamspot centroid shifted to match pp expectation for 2015
 NominalHICollision2015VtxSmearingParameters = cms.PSet(
     Phi = cms.double(0.0),
     BetaStar = cms.double(60.0),
@@ -634,7 +660,7 @@ Realistic5TeVPACollision2016VtxSmearingParameters = cms.PSet(
     TimeOffset = cms.double(0.0),
     X0 = cms.double(0.0889),
     Y0 = cms.double(0.1820),
-    Z0 = cms.double(1.6066)    
+    Z0 = cms.double(1.6066)
 )
 
 # From fit to 8 TeV pPb data
@@ -647,7 +673,7 @@ Realistic8TeVPACollision2016VtxSmearingParameters = cms.PSet(
     TimeOffset = cms.double(0.0),
     X0 = cms.double(0.0836),
     Y0 = cms.double(0.1837),
-    Z0 = cms.double(1.3577)    
+    Z0 = cms.double(1.3577)
 )
 
 # Parameters for HL-LHC operation at 13TeV
@@ -666,11 +692,11 @@ HLLHCVtxSmearingParameters = cms.PSet(
     VerticalEmittance = cms.double(2.05e-06),
     BunchLengthInm = cms.double(0.090),
     CrabbingAngleCrossingInurad = cms.double(380.0),
-    CrabbingAngleSeparationInurad = cms.double(0.0)    
+    CrabbingAngleSeparationInurad = cms.double(0.0)
 )
 
 # Parameters for HL-LHC Crab-kissing operation 13 TeV
-HLLHCCrabKissingVtxSmearingParameters = cms.PSet(    
+HLLHCCrabKissingVtxSmearingParameters = cms.PSet(
     MeanXIncm = cms.double(0.),
     MeanYIncm = cms.double(0.),
     MeanZIncm = cms.double(0.),

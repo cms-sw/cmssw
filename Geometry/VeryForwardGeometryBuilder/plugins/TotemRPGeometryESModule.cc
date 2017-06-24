@@ -19,7 +19,7 @@
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
-#include "DetectorDescription/Base/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Core/interface/DDRotationMatrix.h"
 #include "DetectorDescription/Core/src/Material.h"
 #include "DetectorDescription/Core/src/Solid.h"
 #include "DetectorDescription/Core/src/LogicalPart.h"
