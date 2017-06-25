@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 #
 selectedCaloJets = cms.EDFilter("SlimCaloJetSelector",
     src = cms.InputTag("ak4CaloJets"),
-    cut = cms.string("pt>10")
+    cut = cms.string("pt>20")
 )
 
 
