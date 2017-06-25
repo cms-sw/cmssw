@@ -131,28 +131,21 @@ private:
     ChamberHitContainer proto_segment;
     const std::string myName; 
 		
-    double theChi2;
-    LocalPoint theOrigin;
-    LocalVector theDirection;
-    float uz, vz;
     float windowScale;
     int chi2D_iadd;
     int strip_iadd;	
-    bool doCollisions;
-    float dRMax ;
-    float dPhiMax;
-    float dRIntMax;
-    float dPhiIntMax;
-    float chi2Max;
-    float chi2_str_;
-    float chi2Norm_2D_; 
-    float wideSeg;
-    int minLayersApart;
+    bool l_doCollisions;
+    float l_dRMax ;
+    float l_dPhiMax;
+    float l_dRIntMax;
+    float l_dPhiIntMax;
+    float l_chi2Max;
+    float l_chi2_str_;
+    float l_chi2Norm_2D_; 
+    float l_wideSeg;
     bool debugInfo;
 
-        std::unique_ptr<CSCSegFit> sfit_;
-	//CSCSegFit* sfit_;
-
+    std::unique_ptr<CSCSegFit> sfit_;
 };
 
 #endif
