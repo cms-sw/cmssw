@@ -18,6 +18,7 @@ workflows[1004] = [ '',['RunHI2011','TIER0EXPHI','ALCAEXPHI','ALCAHARVD1HI','ALC
 
 workflows[1010] =  ['',['TestEnableEcalHCAL2016H','TIER0EXPTE', 'ALCAEXPTE', 'ALCAHARVDTE']]
 workflows[1020] =  ['',['AlCaLumiPixels2016H','TIER0PROMPTLP']]
+workflows[1030] =  ['',['RunHLTPhy2017B','TIER0EXPHPBS','ALCASPLITHPBS','ALCAHARVDHPBS']]
 
 
 
