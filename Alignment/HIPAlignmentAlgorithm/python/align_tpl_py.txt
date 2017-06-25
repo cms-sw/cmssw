@@ -64,12 +64,12 @@ monitorfileList=[
 ]
 strcommonoutpath = '<PATH>/'
 for key in outfileList:
-   val = str(getattr(process.AlignmentProducer.algoConfig, key)._value)
+   val = str(getattr(process.AlignmentProducer.algoConfig, key).value())
    fname = val.split('/')[-1]
    fname = strcommonoutpath + fname
    setattr(process.AlignmentProducer.algoConfig, key, fname)
 for key in monitorfileList:
-   val = str(getattr(process.AlignmentProducer.algoConfig.monitorConfig, key)._value)
+   val = str(getattr(process.AlignmentProducer.algoConfig.monitorConfig, key).value())
    fname = val.split('/')[-1]
    fname = strcommonoutpath + fname
    setattr(process.AlignmentProducer.algoConfig.monitorConfig, key, fname)
