@@ -53,9 +53,10 @@ class ReducedEGProducer : public edm::stream::EDProducer<> {
 
   virtual void produce(edm::Event& evt, const edm::EventSetup& es) override final;
 
-  void linkPhotonCore(const reco::Photon& photon, 
-		      reco::PhotonCoreCollection& photonCores, 
-		      std::map<reco::PhotonCoreRef, unsigned int>& photonCoreMap);
+ private:
+
+  template <typename T, typename U>
+  void linkCore(const T& core, U& cores, std::map<T, unsigned int>& coreMap);
     
   void linkSuperCluster(const reco::SuperClusterRef& superCluster, 
 			std::map<reco::SuperClusterRef, unsigned int>& superClusterMap,
@@ -81,9 +82,9 @@ class ReducedEGProducer : public edm::stream::EDProducer<> {
 		      reco::ConversionCollection& conversions, 
 		      std::map<reco::ConversionRef, unsigned int>& conversionMap);
 
-  void linkSeedCluster(const reco::SuperCluster& superCluster, 
-		       reco::CaloClusterCollection & ebeeClusters,
-		       std::map<reco::CaloClusterPtr, unsigned int>& ebeeClusterMap);
+  void linkCaloCluster(const reco::CaloClusterPtr& caloCluster,
+		       reco::CaloClusterCollection& caloClusters,
+		       std::map<reco::CaloClusterPtr, unsigned int>& caloClusterMap);
     
   void linkCaloClusters(const reco::SuperCluster& superCluster, 
 			reco::CaloClusterCollection& ebeeClusters,
@@ -95,13 +96,14 @@ class ReducedEGProducer : public edm::stream::EDProducer<> {
 			reco::CaloClusterCollection& esClusters,
 			std::map<reco::CaloClusterPtr, unsigned int>& esClusterMap);
   
-  void relinkCaloCluster(reco::SuperCluster& superCluster, 
-			 const std::map<reco::CaloClusterPtr, unsigned int>& ebeeClusterMap, 
-			 const std::map<reco::CaloClusterPtr, unsigned int>& esClusterMap, 
-			 const edm::OrphanHandle<reco::CaloClusterCollection>& outEBEEClusterHandle, 
-			 const edm::OrphanHandle<reco::CaloClusterCollection>& outESClusterHandle);
+  void relinkCaloClusters(reco::SuperCluster& superCluster, 
+			  const std::map<reco::CaloClusterPtr, unsigned int>& ebeeClusterMap, 
+			  const std::map<reco::CaloClusterPtr, unsigned int>& esClusterMap, 
+			  const edm::OrphanHandle<reco::CaloClusterCollection>& outEBEEClusterHandle, 
+			  const edm::OrphanHandle<reco::CaloClusterCollection>& outESClusterHandle);
   
-  void relinkSuperCluster(reco::PhotonCore& photonCore, 
+  template <typename T> 
+  void relinkSuperCluster(T& core,
 			  const std::map<reco::SuperClusterRef, unsigned int>& superClusterMap, 
 			  const edm::OrphanHandle<reco::SuperClusterCollection>& outSuperClusterHandle);
 
@@ -114,8 +116,10 @@ class ReducedEGProducer : public edm::stream::EDProducer<> {
 			const std::map<reco::PhotonCoreRef, unsigned int>& photonCoreMap, 
 			const edm::OrphanHandle<reco::PhotonCoreCollection>& outPhotonCoreHandle);
 
- private: 
-  
+  void relinkGsfElectronCore(reco::GsfElectron& gsfElectron, 
+			     const std::map<reco::GsfElectronCoreRef, unsigned int>& gsfElectronCoreMap, 
+			     const edm::OrphanHandle<reco::GsfElectronCoreCollection>& outGsfElectronCoreHandle);
+
  //tokens for input collections
  const edm::EDGetTokenT<reco::PhotonCollection> photonT_;
  const edm::EDGetTokenT<reco::PhotonCollection> ootPhotonT_;
