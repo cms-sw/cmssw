@@ -169,7 +169,7 @@ void OniaPhotonConversionProducer::produce(edm::Event& event, const edm::EventSe
      int flags = 0;
      if (flag1 && flag2 && flag3 && flag4){
         flags = PackFlags(*conv,flagTkVtxCompatibility,flagCompatibleInnerHits,flagHighpurity,pizero_rejected,large_pizero_window);
-        pat::CompositeCandidate *pat_conv = makePhotonCandidate(*conv);
+        std::unique_ptr<pat::CompositeCandidate> pat_conv(makePhotonCandidate(*conv));
         pat_conv->addUserInt("flags",flags);
         patoutCollection->push_back(*pat_conv);
      }
