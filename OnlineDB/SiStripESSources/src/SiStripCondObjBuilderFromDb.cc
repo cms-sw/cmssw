@@ -32,6 +32,7 @@ using namespace sistrip;
 SiStripCondObjBuilderFromDb::SiStripCondObjBuilderFromDb(const edm::ParameterSet& pset,
 							 const edm::ActivityRegistry&):
   m_skippedDevices(pset.getUntrackedParameter<edm::VParameterSet>("SkippedDevices", edm::VParameterSet())),
+  m_whitelistedDevices(pset.getUntrackedParameter<edm::VParameterSet>("WhitelistedDevices", edm::VParameterSet())),
   m_tickmarkThreshold(static_cast<float>(pset.getUntrackedParameter<double>("TickmarkThreshold",50.))),
   m_gaincalibrationfactor(static_cast<float>(pset.getUntrackedParameter<double>("GainNormalizationFactor",640.))),
   m_defaultpedestalvalue(static_cast<float>(pset.getUntrackedParameter<double>("DefaultPedestal",0.))),
@@ -52,6 +53,9 @@ SiStripCondObjBuilderFromDb::SiStripCondObjBuilderFromDb(const edm::ParameterSet
     << " Constructing object...";
   for (const auto &pset : m_skippedDevices){
     skippedDevices.emplace_back(pset);
+  }
+  for (const auto &pset : m_whitelistedDevices){
+    whitelistedDevices.emplace_back(pset);
   }
 }
 
@@ -424,17 +428,33 @@ bool SiStripCondObjBuilderFromDb::setValuesApvTiming(SiStripConfigDb* const db, 
     return false;
   }
 
-  for (const auto &desc : skippedDevices){
+  bool is_whitelist = false;
+  for (const auto &desc : whitelistedDevices){
     if (desc.isConsistent(ipair)){
-      edm::LogInfo(mlESSources_) << "[SiStripCondObjBuilderFromDb::" << __func__ << "]"
-          << " [ApvGain] Skip module with DetId:" << ipair.detId() << " ApvPair:" << ipair.apvPairNumber()
-          << " according to \n" << desc.dump();
-      if (std::find(skippedDetIds.begin(), skippedDetIds.end(), ipair.detId()) == skippedDetIds.end()){
-        skippedDetIds.push_back(ipair.detId());
+      is_whitelist = true;
+      if (std::find(whitelistedDetIds.begin(), whitelistedDetIds.end(), ipair.detId()) == whitelistedDetIds.end()){
+        whitelistedDetIds.push_back(ipair.detId());
       }
-      return false;
+      break;
     }
   }
+
+  if (!is_whitelist){
+    // check if this should be skipped only if it is not in the whitelist
+    for (const auto &desc : skippedDevices){
+      if (desc.isConsistent(ipair)){
+        edm::LogInfo(mlESSources_) << "[SiStripCondObjBuilderFromDb::" << __func__ << "]"
+            << " [ApvGain] Skip module with DetId:" << ipair.detId() << " ApvPair:" << ipair.apvPairNumber()
+            << " according to \n" << desc.dump();
+        if (std::find(skippedDetIds.begin(), skippedDetIds.end(), ipair.detId()) == skippedDetIds.end()){
+          skippedDetIds.push_back(ipair.detId());
+        }
+        return false;
+      }
+    }
+
+  }
+
 
   if ( anal->getHeight() > m_tickmarkThreshold ) {
     float tick_height = (anal->getHeight() / m_gaincalibrationfactor);
@@ -771,6 +791,14 @@ void SiStripCondObjBuilderFromDb::buildAnalysisRelatedObjects( SiStripConfigDb* 
 
   //print out skipped modules
   std::stringstream ss;
+  for (const auto &id : whitelistedDetIds){
+    ss << "\n" << id;
+  }
+  edm::LogInfo(mlESSources_)
+    << "[SiStripCondObjBuilderFromDb::" << __func__ << "]"
+    << " [ApvGainSummary] " << whitelistedDetIds.size() << " modules are in the whitelist, updates will be ensured: " << ss.str();
+
+  ss.str(""); // clear it!
   for (const auto &skip : skippedDetIds){
     ss << "\n" << skip;
   }

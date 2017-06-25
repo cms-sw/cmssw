@@ -135,6 +135,8 @@ class SiStripCondObjBuilderFromDb {
   std::shared_ptr<SiStripApvGain> gain_last_; // last gain object in DB
   std::vector<SkipDeviceDescription> skippedDevices; // devices to be skipped for gain update
   std::vector<uint32_t> skippedDetIds;
+  std::vector<SkipDeviceDescription> whitelistedDevices; // devices whitelist for gain update: will NOT be skipped, even if in the 'skip list'
+  std::vector<uint32_t> whitelistedDetIds;
 
   //methods used by BuildStripRelatedObjects
   bool setValuesApvLatency(SiStripLatency & latency_, SiStripConfigDb* const db, FedChannelConnection &ipair, uint32_t detid, uint16_t apvnr, SiStripConfigDb::DeviceDescriptionsRange apvs);
@@ -160,6 +162,7 @@ class SiStripCondObjBuilderFromDb {
 
   // cfi input parameters
   edm::VParameterSet m_skippedDevices;   // VPset of devices to be skipped in tickmark update
+  edm::VParameterSet m_whitelistedDevices;  // VPset of whitelisted devices: will NOT be skipped in tickmark update (even if in the 'skip list')
   float m_tickmarkThreshold;             // threshold to accept the tickmark measurement
   float m_gaincalibrationfactor;
   float m_defaultpedestalvalue;
