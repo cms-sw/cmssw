@@ -98,6 +98,7 @@ public:
   int                       getPhiZOne(std::vector<std::pair<int,int> >& phiz) const;
   double                    getRZ(int subdet, int ieta, int depth) const;
   double                    getRZ(int subdet, int ieta, int iphi, int depth) const;
+  double                    getRZ(int subdet, int layer) const;
   std::vector<HcalActiveLength>    getThickActive(const int type) const;
   int                       getTopoMode() const {return ((hpar->topologyMode)&0xFF);}
   int                       getTriggerMode() const {return (((hpar->topologyMode)>>8)&0xFF);}

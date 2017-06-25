@@ -419,6 +419,20 @@ double HcalDDDRecConstants::getRZ(int subdet, int ieta, int iphi,
 #endif
   return rz;
 }
+
+double HcalDDDRecConstants::getRZ(int subdet, int layer) const {
+
+  double rz(0);
+  if (layer > 0 && layer <= (int)(layerGroupSize(0)))
+    rz = ((subdet == static_cast<int>(HcalBarrel)) ? (gconsHB[layer-1].first) :
+	  (gconsHE[layer-1].first));
+#ifdef EDM_ML_DEBUG
+  std::cout << "getRZ: subdet|layer " << subdet << "|" << layer << " rz "
+	    << rz << std::endl;
+#endif
+  return rz;
+}
+
  	
 std::vector<HcalDDDRecConstants::HcalActiveLength> 
 HcalDDDRecConstants::getThickActive(const int type) const {
