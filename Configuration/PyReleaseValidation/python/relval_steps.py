@@ -268,8 +268,7 @@ steps['RunZeroBias2016H']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2016H-v1/RAW'
 steps['RunMuOnia2016H']={'INPUT':InputInfo(dataSet='/MuOnia/Run2016H-v1/RAW',label='muOnia2016H',events=100000,location='STD', ls=Run2016H)}
 
 #### run2 2017B ####
-Run2017B={297292: [[1, 45]]} # replace with line below once Phedex transfer will be done
-#Run2017B={297227: [[1, 45]]}
+Run2017B={297227: [[1, 45]]}
 steps['RunHLTPhy2017B']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2017B-v1/RAW',label='hltPhy2017B',events=100000,location='STD', ls=Run2017B)}
 
 
