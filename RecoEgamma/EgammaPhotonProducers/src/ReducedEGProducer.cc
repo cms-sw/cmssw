@@ -254,33 +254,7 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   auto esRecHits = std::make_unique<EcalRecHitCollection>();
   auto photonPfCandMap = std::make_unique<edm::ValueMap<std::vector<reco::PFCandidateRef>>>();
   auto gsfElectronPfCandMap = std::make_unique<edm::ValueMap<std::vector<reco::PFCandidateRef>>>();
-  
-  std::vector<std::unique_ptr<edm::ValueMap<bool> > > photonIds;
 
-  for (unsigned int iid=0; iid<photonIdHandles.size(); ++iid) {
-    photonIds.emplace_back(new edm::ValueMap<bool>);
-  }
-    
-  std::vector<std::unique_ptr<edm::ValueMap<float> > > gsfElectronIds;
-  for (unsigned int iid=0; iid<gsfElectronIdHandles.size(); ++iid) {
-    gsfElectronIds.emplace_back(new edm::ValueMap<float>);
-  }
-
-  std::vector<std::unique_ptr<edm::ValueMap<float> > > photonPFClusterIsos;
-  for (unsigned int iid=0; iid<photonPFClusterIsoHandles.size(); ++iid) {
-    photonPFClusterIsos.emplace_back(new edm::ValueMap<float>);
-  }
-
-  std::vector<std::unique_ptr<edm::ValueMap<float> > > ootPhotonPFClusterIsos;
-  for (unsigned int iid=0; iid<ootPhotonPFClusterIsoHandles.size(); ++iid) {
-    ootPhotonPFClusterIsos.emplace_back(new edm::ValueMap<float>);
-  }
-
-  std::vector<std::unique_ptr<edm::ValueMap<float> > > gsfElectronPFClusterIsos;
-  for (unsigned int iid=0; iid<gsfElectronPFClusterIsoHandles.size(); ++iid) {
-    gsfElectronPFClusterIsos.emplace_back(new edm::ValueMap<float>);
-  }
- 
   //maps to collection indices of output objects
   std::map<reco::PhotonCoreRef, unsigned int> photonCoreMap;
   std::map<reco::PhotonCoreRef, unsigned int> ootPhotonCoreMap;
@@ -303,11 +277,11 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   std::vector<std::vector<reco::PFCandidateRef> > pfCandIsoPairVecEle;
   
   //vectors for id valuemaps
-  std::vector<std::vector<bool> > photonIdVals(photonIds.size());
-  std::vector<std::vector<float> > gsfElectronIdVals(gsfElectronIds.size());
-  std::vector<std::vector<float> > photonPFClusterIsoVals(photonPFClusterIsos.size());
-  std::vector<std::vector<float> > ootPhotonPFClusterIsoVals(ootPhotonPFClusterIsos.size());
-  std::vector<std::vector<float> > gsfElectronPFClusterIsoVals(gsfElectronPFClusterIsos.size());
+  std::vector<std::vector<bool> > photonIdVals(photonIdHandles.size());
+  std::vector<std::vector<float> > gsfElectronIdVals(gsfElectronIdHandles.size());
+  std::vector<std::vector<float> > photonPFClusterIsoVals(photonPFClusterIsoHandles.size());
+  std::vector<std::vector<float> > ootPhotonPFClusterIsoVals(ootPhotonPFClusterIsoHandles.size());
+  std::vector<std::vector<float> > gsfElectronPFClusterIsoVals(gsfElectronPFClusterIsoHandles.size());
   
   //loop over photons and fill maps
   for (unsigned int ipho=0; ipho<photonHandle->size(); ++ipho) {
@@ -324,11 +298,11 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     pfCandIsoPairVecPho.push_back((*photonPfCandMapHandle)[photonref]);
 
     //fill photon id valuemap vectors
-    for (unsigned int iid=0; iid<photonIds.size(); ++iid) {
+    for (unsigned int iid=0; iid<photonIdHandles.size(); ++iid) {
       photonIdVals[iid].push_back( (*photonIdHandles[iid])[photonref] );
     }    
 
-    for (unsigned int iid=0; iid<photonPFClusterIsos.size(); ++iid) {
+    for (unsigned int iid=0; iid<photonPFClusterIsoHandles.size(); ++iid) {
       photonPFClusterIsoVals[iid].push_back( (*photonPFClusterIsoHandles[iid])[photonref] );
     }    
     
@@ -372,7 +346,7 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     ootPhotons->push_back(ootPhoton);
         
     //fill photon pfclusteriso valuemap vectors
-    for (unsigned int iid=0; iid<ootPhotonPFClusterIsos.size(); ++iid) {
+    for (unsigned int iid=0; iid<ootPhotonPFClusterIsoHandles.size(); ++iid) {
       ootPhotonPFClusterIsoVals[iid].push_back( (*ootPhotonPFClusterIsoHandles[iid])[ootPhotonref] );
     }    
 
@@ -403,11 +377,11 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     pfCandIsoPairVecEle.push_back((*gsfElectronPfCandMapHandle)[gsfElectronref]);
     
     //fill electron id valuemap vectors
-    for (unsigned int iid=0; iid<gsfElectronIds.size(); ++iid) {
+    for (unsigned int iid=0; iid<gsfElectronIdHandles.size(); ++iid) {
       gsfElectronIdVals[iid].push_back( (*gsfElectronIdHandles[iid])[gsfElectronref] );
     }    
 
-    for (unsigned int iid=0; iid<gsfElectronPFClusterIsos.size(); ++iid) {
+    for (unsigned int iid=0; iid<gsfElectronPFClusterIsoHandles.size(); ++iid) {
       gsfElectronPFClusterIsoVals[iid].push_back( (*gsfElectronPFClusterIsoHandles[iid])[gsfElectronref] );
     }    
 
@@ -603,43 +577,52 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   theEvent.put(std::move(photonPfCandMap),outPhotonPfCandMap_);
   theEvent.put(std::move(gsfElectronPfCandMap),outGsfElectronPfCandMap_);
   
-  //photon id value maps
-  for (unsigned int iid=0; iid<photonIds.size(); ++iid) {
-    edm::ValueMap<bool>::Filler fillerPhotonId(*photonIds[iid]);
-    fillerPhotonId.insert(outPhotonHandle,photonIdVals[iid].begin(),photonIdVals[iid].end());
-    fillerPhotonId.fill();
-    theEvent.put(std::move(photonIds[iid]),outPhotonIds_[iid]);
-  }
-  
-  //electron id value maps
-  for (unsigned int iid=0; iid<gsfElectronIds.size(); ++iid) {
-    edm::ValueMap<float>::Filler fillerGsfElectronId(*gsfElectronIds[iid]);
-    fillerGsfElectronId.insert(outGsfElectronHandle,gsfElectronIdVals[iid].begin(),gsfElectronIdVals[iid].end());
-    fillerGsfElectronId.fill();
-    theEvent.put(std::move(gsfElectronIds[iid]),outGsfElectronIds_[iid]);
-  }  
+  auto fillMap = [](auto refH, auto& vec, edm::Event& ev, const std::string& cAl = ""){
+    typedef  edm::ValueMap<typename std::decay<decltype(vec)>::type::value_type> MapType;
+    auto oMap = std::make_unique<MapType>();
+    {
+      typename MapType::Filler filler(*oMap);
+      filler.insert(refH, vec.begin(), vec.end());
+      filler.fill();
+    }
+    ev.put(std::move(oMap), cAl);
+  };
+  int index = 0;
 
-  //photon iso value maps
-  for (unsigned int iid=0; iid<photonPFClusterIsos.size(); ++iid) {
-    edm::ValueMap<float>::Filler fillerPhotonPFClusterIso(*photonPFClusterIsos[iid]);
-    fillerPhotonPFClusterIso.insert(outPhotonHandle,photonPFClusterIsoVals[iid].begin(),photonPFClusterIsoVals[iid].end());
-    fillerPhotonPFClusterIso.fill();
-    theEvent.put(std::move(photonPFClusterIsos[iid]),outPhotonPFClusterIsos_[iid]);
+  //photon id value maps
+  for (auto const& vals : photonIdVals){ 
+    fillMap(outPhotonHandle, vals, theEvent, outPhotonIds_[index]);
+    index++;
   }
+  index = 0;
+
+  //electron id value maps
+  for (auto const& vals : gsfElectronIdVals){ 
+    fillMap(outGsfElectronHandle, vals, theEvent, outGsfElectronIds_[index]);
+    index++;
+  }
+  index = 0;
+  
+  // photon iso value maps
+  for (auto const& vals : photonPFClusterIsoVals){
+    fillMap(outPhotonHandle, vals, theEvent, outPhotonPFClusterIsos_[index]);
+    index++;
+  }
+  index = 0;
+
   //oot photon iso value maps
-  for (unsigned int iid=0; iid<ootPhotonPFClusterIsos.size(); ++iid) {
-    edm::ValueMap<float>::Filler fillerOOTPhotonPFClusterIso(*ootPhotonPFClusterIsos[iid]);
-    fillerOOTPhotonPFClusterIso.insert(outOOTPhotonHandle,ootPhotonPFClusterIsoVals[iid].begin(),ootPhotonPFClusterIsoVals[iid].end());
-    fillerOOTPhotonPFClusterIso.fill();
-    theEvent.put(std::move(ootPhotonPFClusterIsos[iid]),outOOTPhotonPFClusterIsos_[iid]);
+  for (auto const& vals : ootPhotonPFClusterIsoVals){
+    fillMap(outOOTPhotonHandle, vals, theEvent, outOOTPhotonPFClusterIsos_[index]);
+    index++;
   }
+  index = 0;
+
   //electron iso value maps
-  for (unsigned int iid=0; iid<gsfElectronPFClusterIsos.size(); ++iid) {
-    edm::ValueMap<float>::Filler fillerGsfElectronPFClusterIso(*gsfElectronPFClusterIsos[iid]);
-    fillerGsfElectronPFClusterIso.insert(outGsfElectronHandle,gsfElectronPFClusterIsoVals[iid].begin(),gsfElectronPFClusterIsoVals[iid].end());
-    fillerGsfElectronPFClusterIso.fill();
-    theEvent.put(std::move(gsfElectronPFClusterIsos[iid]),outGsfElectronPFClusterIsos_[iid]);
-  }  
+  for (auto const& vals : gsfElectronPFClusterIsoVals){
+    fillMap(outGsfElectronHandle, vals, theEvent, outGsfElectronPFClusterIsos_[index]);
+    index++;
+  }
+  index = 0;
 }
 
 template <typename T, typename U>
