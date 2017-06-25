@@ -268,7 +268,7 @@ steps['RunZeroBias2016H']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2016H-v1/RAW'
 steps['RunMuOnia2016H']={'INPUT':InputInfo(dataSet='/MuOnia/Run2016H-v1/RAW',label='muOnia2016H',events=100000,location='STD', ls=Run2016H)}
 
 #### run2 2017B ####
-Run2017B={297113: [[1, 45]]} # replace with line below once Phedex transfer will be done
+Run2017B={297292: [[1, 45]]} # replace with line below once Phedex transfer will be done
 #Run2017B={297227: [[1, 45]]}
 steps['RunHLTPhy2017B']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2017B-v1/RAW',label='hltPhy2017B',events=100000,location='STD', ls=Run2017B)}
 
@@ -1236,6 +1236,7 @@ steps['TIER0EXPTE']={'-s': 'ALCAPRODUCER:EcalTestPulsesRaw',
                      '--scenario': 'pp',
                      #'--customise':'Configuration/DataProcessing/RecoTLR.customiseExpress',
                      }
+
 steps['TIER0PROMPTLP']={'-s': 'ALCA:AlCaPCCZeroBias+AlCaPCCRandom',
                         '--conditions': 'auto:run2_data',
                         '--datatier':'ALCARECO',
@@ -1244,6 +1245,36 @@ steps['TIER0PROMPTLP']={'-s': 'ALCA:AlCaPCCZeroBias+AlCaPCCRandom',
                         '--scenario': 'pp',
                         # '--customise':'Configuration/DataProcessing/RecoTLR.customiseExpress',
                         }
+
+steps['TIER0EXPHPBS']={'-s':'RAW2DIGI,L1Reco,RECO:reconstruction_trackingOnly,ALCAPRODUCER:TkAlMinBias,DQM:DQMOfflineTracking,ENDJOB',
+                          '--process':'RECO',
+                          '--scenario': 'pp',
+                          '--era':'Run2_2017',
+                          '--conditions':'auto:run2_data_promptlike',
+                          '--data': '',
+                          '--datatier':'ALCARECO,DQMIO',
+                          '--eventcontent':'ALCARECO,DQM',
+                          '--customise':'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2017_express_trackingOnly',
+                          }
+
+steps['ALCASPLITHPBS']={'-s':'ALCAOUTPUT:TkAlMinBias,ALCA:PromptCalibProd',
+                        '--scenario':'pp',
+                        '--data':'',
+                        '--era':'Run2_2017',
+                        '--datatier':'ALCARECO',
+                        '--eventcontent':'ALCARECO',
+                        '--conditions':'auto:run2_data_promptlike',
+                        '--triggerResultsProcess':'RECO',
+                        }
+
+steps['ALCAHARVDHPBS']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProd']),
+                        #'--conditions':'auto:run2_data_promptlike',
+                        '--conditions':'92X_dataRun2_Express_v2_snapshotted', # to replaced with line above once run2_data_promptlike will contain DropBoxMetadata
+                        '--scenario':'pp',
+                        '--data':'',
+                        '--era':'Run2_2017',
+                        '--customise':'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2017_harvesting_trackingOnly',
+                        '--filein':'file:PromptCalibProd.root'}
 
 
 steps['RECOCOSD']=merge([{'--scenario':'cosmics',
