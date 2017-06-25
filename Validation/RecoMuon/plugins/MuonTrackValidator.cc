@@ -137,12 +137,16 @@ void MuonTrackValidator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run con
       h_chi2mean_vs_phi.push_back( ibooker.bookProfile("chi2mean_vs_phi","mean of #chi^{2} vs #phi",nintPhi,minPhi,maxPhi, 200, 0, 20) );
 
       nhits_vs_eta.push_back( ibooker.book2D("nhits_vs_eta","nhits vs eta",nint,min,max,nintHit,minHit,maxHit) );
+      nPixelhits_vs_eta.push_back( ibooker.book2D("nPixelhits_vs_eta","# pixel hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
+      nStriphits_vs_eta.push_back( ibooker.book2D("nStriphits_vs_eta","# tracker hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
       nDThits_vs_eta.push_back( ibooker.book2D("nDThits_vs_eta","# DT hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
       nCSChits_vs_eta.push_back( ibooker.book2D("nCSChits_vs_eta","# CSC hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
       nRPChits_vs_eta.push_back( ibooker.book2D("nRPChits_vs_eta","# RPC hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
       if(useGEMs_) nGEMhits_vs_eta.push_back( ibooker.book2D("nGEMhits_vs_eta","# GEM hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
       if(useME0_) nME0hits_vs_eta.push_back( ibooker.book2D("nME0hits_vs_eta","# ME0 hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
 
+      h_Pixelhits_eta.push_back( ibooker.bookProfile("Pixelhits_eta","mean # Pixel hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
+      h_Striphits_eta.push_back( ibooker.bookProfile("Striphits_eta","mean # Strip hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
       h_DThits_eta.push_back( ibooker.bookProfile("DThits_eta","mean # DT hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
       h_CSChits_eta.push_back( ibooker.bookProfile("CSChits_eta","mean # CSC hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
       h_RPChits_eta.push_back( ibooker.bookProfile("RPChits_eta","mean # RPC hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
@@ -826,6 +830,8 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
 	//chi2 and #hit vs eta: fill 2D histos
 	chi2_vs_eta[w]->Fill(getEta(track->eta()),track->normalizedChi2());
 	nhits_vs_eta[w]->Fill(getEta(track->eta()),track->numberOfValidHits());
+	nPixelhits_vs_eta[w]->Fill(getEta(track->eta()),track->hitPattern().numberOfValidPixelHits());
+	nStriphits_vs_eta[w]->Fill(getEta(track->eta()),track->hitPattern().numberOfValidStripHits());
 	nDThits_vs_eta[w]->Fill(getEta(track->eta()),track->hitPattern().numberOfValidMuonDTHits());
 	nCSChits_vs_eta[w]->Fill(getEta(track->eta()),track->hitPattern().numberOfValidMuonCSCHits());
 	nRPChits_vs_eta[w]->Fill(getEta(track->eta()),track->hitPattern().numberOfValidMuonRPCHits());
@@ -902,6 +908,8 @@ void MuonTrackValidator::endRun(Run const&, EventSetup const&) {
       //chi2 and #hit vs eta: get mean from 2D histos
       doProfileX(chi2_vs_eta[w],h_chi2meanh[w]);
       doProfileX(nhits_vs_eta[w],h_hits_eta[w]);
+      doProfileX(nPixelhits_vs_eta[w],h_Pixelhits_eta[w]);
+      doProfileX(nStriphits_vs_eta[w],h_Striphits_eta[w]);
       doProfileX(nDThits_vs_eta[w],h_DThits_eta[w]);
       doProfileX(nCSChits_vs_eta[w],h_CSChits_eta[w]);
       doProfileX(nRPChits_vs_eta[w],h_RPChits_eta[w]);
