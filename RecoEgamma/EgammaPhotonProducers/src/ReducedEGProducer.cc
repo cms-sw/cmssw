@@ -170,9 +170,6 @@ ReducedEGProducer::~ReducedEGProducer()
 {
 }
 
-
-
-
 void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEventSetup) {
 
   //get input collections
@@ -336,7 +333,8 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     }    
     
     //link photon core
-    linkPhotonCore(photon, *photonCores, photonCoreMap);
+    const reco::PhotonCoreRef &photonCore = photon.photonCore();
+    linkCore(photonCore, *photonCores, photonCoreMap);
     
     bool slimRelink = slimRelinkPhotonSel_(photon);
     //no supercluster relinking unless slimRelink selection is satisfied
@@ -379,7 +377,8 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     }    
 
     //link photon core
-    linkPhotonCore(ootPhoton, *ootPhotonCores, ootPhotonCoreMap);
+    const reco::PhotonCoreRef &ootPhotonCore = ootPhoton.photonCore();
+    linkCore(ootPhotonCore, *ootPhotonCores, ootPhotonCoreMap);
 
     bool slimRelink = slimRelinkOOTPhotonSel_(ootPhoton);
     //no supercluster relinking unless slimRelink selection is satisfied
@@ -413,11 +412,8 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     }    
 
     const reco::GsfElectronCoreRef &gsfElectronCore = gsfElectron.core();
-    if (!gsfElectronCoreMap.count(gsfElectronCore)) {
-      gsfElectronCores->push_back(*gsfElectronCore);
-      gsfElectronCoreMap[gsfElectronCore] = gsfElectronCores->size() - 1;
-    }    
-    
+    linkCore(gsfElectronCore, *gsfElectronCores, gsfElectronCoreMap);
+
     bool slimRelink = slimRelinkGsfElectronSel_(gsfElectron);
     //no supercluster relinking unless slimRelink selection is satisfied
     if (!slimRelink) continue;
@@ -449,7 +445,8 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     reco::SuperCluster &superCluster = (*superClusters)[isc];
     
     //link seed cluster no matter what
-    linkSeedCluster(superCluster, *ebeeClusters, ebeeClusterMap);
+    const reco::CaloClusterPtr &seedCluster = superCluster.seed();
+    linkCaloCluster(seedCluster, *ebeeClusters, ebeeClusterMap);
         
     //only proceed if superCluster is marked for full relinking
     bool fullrelink = superClusterFullRelinkMap.count(isc);
@@ -474,7 +471,8 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     reco::SuperCluster &ootSuperCluster = (*ootSuperClusters)[isc];
     
     //link seed cluster no matter what
-    linkSeedCluster(ootSuperCluster, *ootEbeeClusters, ootEbeeClusterMap);
+    const reco::CaloClusterPtr &ootSeedCluster = ootSuperCluster.seed();
+    linkCaloCluster(ootSeedCluster, *ootEbeeClusters, ootEbeeClusterMap);
 
     //only proceed if ootSuperCluster is marked for full relinking
     bool fullrelink = ootSuperClusterFullRelinkMap.count(isc);
@@ -507,12 +505,12 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   theEvent.put(std::move(eeRecHits),outEERecHits_);
 
   if (doPreshowerEcalHits_) { 
-      for (const EcalRecHit &rechit : *preshowerHitHandle) {
-        if (rechitMap.count(rechit.detid())) {
-          esRecHits->push_back(rechit);
-        }
+    for (const EcalRecHit &rechit : *preshowerHitHandle) {
+      if (rechitMap.count(rechit.detid())) {
+	esRecHits->push_back(rechit);
       }
-      theEvent.put(std::move(esRecHits),outESRecHits_);  
+    }
+    theEvent.put(std::move(esRecHits),outESRecHits_);  
   }
   
   //CaloClusters
@@ -522,7 +520,7 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
 
   //Loop over SuperClusters and relink GEDPhoton + GSFElectron CaloClusters
   for (reco::SuperCluster &superCluster : *superClusters) {
-    relinkCaloCluster(superCluster, ebeeClusterMap, esClusterMap, outEBEEClusterHandle, outESClusterHandle);
+    relinkCaloClusters(superCluster, ebeeClusterMap, esClusterMap, outEBEEClusterHandle, outESClusterHandle);
   }
 
   //OOTCaloClusters
@@ -532,7 +530,7 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   
   //Loop over OOTSuperClusters and relink OOTPhoton CaloClusters
   for (reco::SuperCluster &ootSuperCluster : *ootSuperClusters) {
-    relinkCaloCluster(ootSuperCluster, ootEbeeClusterMap, ootEsClusterMap, outOOTEBEEClusterHandle, outOOTESClusterHandle);
+    relinkCaloClusters(ootSuperCluster, ootEbeeClusterMap, ootEsClusterMap, outOOTEBEEClusterHandle, outOOTESClusterHandle);
   }
 
   //put superclusters and conversions in the event
@@ -556,12 +554,7 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
 
   //Relink GSFElectron SuperClusters
   for (reco::GsfElectronCore &gsfElectronCore : *gsfElectronCores) {
-    const auto &scmapped = superClusterMap.find(gsfElectronCore.superCluster());
-    if (scmapped != superClusterMap.end()) {
-      //make new ref
-      reco::SuperClusterRef scref(outSuperClusterHandle,scmapped->second);
-      gsfElectronCore.setSuperCluster(scref);
-    }
+    relinkSuperCluster(gsfElectronCore, superClusterMap, outSuperClusterHandle);
   }
   
   //put ootsuperclusters in the event
@@ -587,12 +580,7 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   }
 
   for (reco::GsfElectron &gsfElectron : *gsfElectrons) {
-    const auto &coremapped = gsfElectronCoreMap.find(gsfElectron.core());
-    if (coremapped != gsfElectronCoreMap.end()) {
-      //make new ref
-      reco::GsfElectronCoreRef coreref(outgsfElectronCoreHandle,coremapped->second);
-      gsfElectron.setCore(coreref);
-    }
+    relinkGsfElectronCore(gsfElectron, gsfElectronCoreMap, outgsfElectronCoreHandle);
   }
   
   //(finally) store the output photon and electron collections
@@ -654,14 +642,12 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   }  
 }
 
-void ReducedEGProducer::linkPhotonCore(const reco::Photon& photon, 
-				       reco::PhotonCoreCollection& photonCores, 
-				       std::map<reco::PhotonCoreRef, unsigned int>& photonCoreMap)
+template <typename T, typename U>
+void ReducedEGProducer::linkCore(const T& core, U& cores, std::map<T, unsigned int>& coreMap)
 {
-  const reco::PhotonCoreRef &photonCore = photon.photonCore();
-  if (!photonCoreMap.count(photonCore)) {
-    photonCores.push_back(*photonCore);
-    photonCoreMap[photonCore] = photonCores.size() - 1;
+  if (!coreMap.count(core)) {
+    cores.push_back(*core);
+    coreMap[core] = cores.size() - 1;
   }
 }
     
@@ -688,12 +674,11 @@ void ReducedEGProducer::linkSuperCluster(const reco::SuperClusterRef& superClust
   if (relink) superClusterFullRelinkMap.insert(mappedscidx);
 }
 
-
 void ReducedEGProducer::linkConversions(const reco::ConversionRefVector& convrefs,
 					reco::ConversionCollection& conversions, 
 					std::map<reco::ConversionRef, unsigned int>& conversionMap)
 {
-  for (const reco::ConversionRef &convref : convrefs) {
+  for (const auto& convref : convrefs) {
     linkConversion(convref, conversions, conversionMap);
   }
 }
@@ -735,21 +720,20 @@ void ReducedEGProducer::linkConversion(const reco::ConversionRef& convref,
 				       std::map<reco::ConversionRef, unsigned int>& conversionMap)
 {
   if (!conversionMap.count(convref)) {
-      conversions.push_back(*convref);
-      conversionMap[convref] = conversions.size() - 1;
+    conversions.push_back(*convref);
+    conversionMap[convref] = conversions.size() - 1;
   }
 }
 
-void ReducedEGProducer::linkSeedCluster(const reco::SuperCluster& superCluster, 
-					reco::CaloClusterCollection& ebeeClusters,
-					std::map<reco::CaloClusterPtr, unsigned int>& ebeeClusterMap)
+void ReducedEGProducer::linkCaloCluster(const reco::CaloClusterPtr& caloCluster, 
+					reco::CaloClusterCollection& caloClusters,
+					std::map<reco::CaloClusterPtr, unsigned int>& caloClusterMap)
 {
-  if (!ebeeClusterMap.count(superCluster.seed())) {
-    ebeeClusters.push_back(*superCluster.seed());
-    ebeeClusterMap[superCluster.seed()] = ebeeClusters.size() - 1;
+  if (!caloClusterMap.count(caloCluster)) {
+    caloClusters.push_back(*caloCluster);
+    caloClusterMap[caloCluster] = caloClusters.size() - 1;
   }
 }
-
 
 void ReducedEGProducer::linkCaloClusters(const reco::SuperCluster& superCluster, 
 					 reco::CaloClusterCollection& ebeeClusters,
@@ -761,12 +745,10 @@ void ReducedEGProducer::linkCaloClusters(const reco::SuperCluster& superCluster,
 					 reco::CaloClusterCollection& esClusters,
 					 std::map<reco::CaloClusterPtr, unsigned int>& esClusterMap)
 {
-  for (const reco::CaloClusterPtr &cluster : superCluster.clusters()) {
-    if (!ebeeClusterMap.count(cluster)) {
-      ebeeClusters.push_back(*cluster);
-      ebeeClusterMap[cluster] = ebeeClusters.size() - 1;
-    }
-    for (auto const& hitfrac : cluster->hitsAndFractions()) {
+  for (const auto& cluster : superCluster.clusters()) {
+    linkCaloCluster(cluster, ebeeClusters, ebeeClusterMap);
+
+    for (const auto& hitfrac : cluster->hitsAndFractions()) {
       rechitMap.insert(hitfrac.first);
     }
     //make sure to also take all hits in the 5x5 around the max energy xtal
@@ -775,27 +757,25 @@ void ReducedEGProducer::linkCaloClusters(const reco::SuperCluster& superCluster,
     DetId seed = EcalClusterTools::getMaximum(*cluster, rhcol).first;
     
     std::vector<DetId> dets5x5 = caloTopology->getSubdetectorTopology(DetId::Ecal, barrel ? EcalBarrel : EcalEndcap)->getWindow(seed,5,5);
-    for (const DetId &detid : dets5x5) {
+    for (const auto& detid : dets5x5) {
       rechitMap.insert(detid);
     }
   }
-  for (const reco::CaloClusterPtr &cluster : superCluster.preshowerClusters()) {
-    if (!esClusterMap.count(cluster)) {
-      esClusters.push_back(*cluster);
-      esClusterMap[cluster] = esClusters.size() - 1;
-    }
-    for (auto const& hitfrac : cluster->hitsAndFractions()) {
+  for (const auto& cluster : superCluster.preshowerClusters()) {
+    linkCaloCluster(cluster, esClusters, esClusterMap);
+
+    for (const auto& hitfrac : cluster->hitsAndFractions()) {
       rechitMap.insert(hitfrac.first);
     }      
   }
 }
 
 
-void ReducedEGProducer::relinkCaloCluster(reco::SuperCluster& superCluster, 
-					  const std::map<reco::CaloClusterPtr, unsigned int>& ebeeClusterMap, 
-					  const std::map<reco::CaloClusterPtr, unsigned int>& esClusterMap, 
-					  const edm::OrphanHandle<reco::CaloClusterCollection>& outEBEEClusterHandle, 
-					  const edm::OrphanHandle<reco::CaloClusterCollection>& outESClusterHandle)
+void ReducedEGProducer::relinkCaloClusters(reco::SuperCluster& superCluster, 
+					   const std::map<reco::CaloClusterPtr, unsigned int>& ebeeClusterMap, 
+					   const std::map<reco::CaloClusterPtr, unsigned int>& esClusterMap, 
+					   const edm::OrphanHandle<reco::CaloClusterCollection>& outEBEEClusterHandle, 
+					   const edm::OrphanHandle<reco::CaloClusterCollection>& outESClusterHandle)
 {
   //remap seed cluster
   const auto &seedmapped = ebeeClusterMap.find(superCluster.seed());
@@ -804,10 +784,10 @@ void ReducedEGProducer::relinkCaloCluster(reco::SuperCluster& superCluster,
     reco::CaloClusterPtr clusptr(outEBEEClusterHandle,seedmapped->second);
     superCluster.setSeed(clusptr);
   }
-  
-  //remap all clusters
+
+ //remap all clusters
   reco::CaloClusterPtrVector clusters;
-  for (const reco::CaloClusterPtr &cluster : superCluster.clusters()) {
+  for (const auto &cluster : superCluster.clusters()) {
     const auto &clustermapped = ebeeClusterMap.find(cluster);
     if (clustermapped != ebeeClusterMap.end()) {
       //make new ptr
@@ -826,7 +806,7 @@ void ReducedEGProducer::relinkCaloCluster(reco::SuperCluster& superCluster,
   
   //remap preshower clusters
   reco::CaloClusterPtrVector esclusters;
-  for (const reco::CaloClusterPtr &cluster : superCluster.preshowerClusters()) {
+  for (const auto& cluster : superCluster.preshowerClusters()) {
     const auto &clustermapped = esClusterMap.find(cluster);
     if (clustermapped != esClusterMap.end()) {
       //make new ptr
@@ -844,15 +824,16 @@ void ReducedEGProducer::relinkCaloCluster(reco::SuperCluster& superCluster,
   }
 }
 
-void ReducedEGProducer::relinkSuperCluster(reco::PhotonCore& photonCore, 
+template <typename T>
+void ReducedEGProducer::relinkSuperCluster(T& core, 
 					   const std::map<reco::SuperClusterRef, unsigned int>& superClusterMap, 
 					   const edm::OrphanHandle<reco::SuperClusterCollection>& outSuperClusterHandle) 
 {
-  const auto &scmapped = superClusterMap.find(photonCore.superCluster());
+  const auto &scmapped = superClusterMap.find(core.superCluster());
   if (scmapped != superClusterMap.end()) {
     //make new ref
     reco::SuperClusterRef scref(outSuperClusterHandle,scmapped->second);
-    photonCore.setSuperCluster(scref);
+    core.setSuperCluster(scref);
   }
 }   
 
@@ -862,7 +843,7 @@ void ReducedEGProducer::relinkConversions(reco::PhotonCore& photonCore,
 					  const edm::OrphanHandle<reco::ConversionCollection> &outConversionHandle)
 {
   reco::ConversionRefVector outconvrefs;
-  for (const reco::ConversionRef &convref : convrefs) {
+  for (const auto& convref : convrefs) {
     const auto &convmapped = conversionMap.find(convref);
     if (convmapped != conversionMap.end()) {
       //make new ref
@@ -888,5 +869,17 @@ void ReducedEGProducer::relinkPhotonCore(reco::Photon& photon,
     //make new ref
     reco::PhotonCoreRef coreref(outPhotonCoreHandle,coremapped->second);
     photon.setPhotonCore(coreref);
+  }
+}
+
+void ReducedEGProducer::relinkGsfElectronCore(reco::GsfElectron& gsfElectron,
+					      const std::map<reco::GsfElectronCoreRef, unsigned int>& gsfElectronCoreMap, 
+					      const edm::OrphanHandle<reco::GsfElectronCoreCollection>& outgsfElectronCoreHandle) 
+{
+  const auto &coremapped = gsfElectronCoreMap.find(gsfElectron.core());
+  if (coremapped != gsfElectronCoreMap.end()) {
+    //make new ref
+    reco::GsfElectronCoreRef coreref(outgsfElectronCoreHandle,coremapped->second);
+    gsfElectron.setCore(coreref);
   }
 }
