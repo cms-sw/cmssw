@@ -7,7 +7,9 @@ alcaBeamSpotHarvester = cms.EDAnalyzer("AlcaBeamSpotHarvester",
 	BeamSpotLabel      = cms.untracked.string("alcaBeamSpot"),
 	outputRecordName   = cms.untracked.string("BeamSpotObjectsRcd"),
 	SigmaZValue        = cms.untracked.double(-1),
-	SigmaZCut        = cms.untracked.double(1) 
+	SigmaZCut        = cms.untracked.double(1), 
+	DumpTxt            = cms.untracked.bool(False),
+	TxtFileName        = cms.untracked.string("HPBSFit"),
     )
 )
 
