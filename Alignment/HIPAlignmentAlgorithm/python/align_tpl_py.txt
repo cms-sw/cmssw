@@ -6,10 +6,25 @@ strflaglower=strflag.lower()
 strflagopts="<FLAGOPTS>"
 strflagoptslower=strflagopts.lower()
 
+from Alignment.HIPAlignmentAlgorithm.OptionParser.HipPyOptionParser import HipPyOptionParser
+from Alignment.HIPAlignmentAlgorithm.OptionParser.HipPyOptionParser import matchPSetsByRecord
+from Alignment.HIPAlignmentAlgorithm.OptionParser.HipPyOptionParser import mergeVPSets
+optpy=HipPyOptionParser(strflag,strflagopts)
+
+# Track collection name is now interpreted from the flag and may be replaced if an option is specified
+# optpy.trkcoll is guaranteed to exist, else python should have already given an error.
+strtrackcollname=optpy.trkcoll
+
+# Replace GT specifics if a custom option is specified
+if hasattr(optpy, "GlobalTag"):
+   process.GlobalTag.globaltag = optpy.GlobalTag
+if hasattr(optpy, "GTtoGet"):
+   process.GlobalTag.toGet = mergeVPSets(process.GlobalTag.toGet, optpy.GTtoGet, matchPSetsByRecord)
+
 ###############################################################################
 # Setup common options
 strTTRHBuilder = "WithAngleAndTemplate"
-if "genericcpe" in strflagoptslower:
+if "generic" in optpy.CPEtype: # CPE type is defaulted to "template" in HipPyOptionParser
   strTTRHBuilder = "WithTrackAngle"
 ###############################################################################
 
@@ -33,8 +48,9 @@ else:
                               fileNames = cms.untracked.vstring(sourceFileList)
                               )
 
-#import FWCore.PythonUtilities.LumiList as LumiList
-#process.source.lumisToProcess = LumiList.LumiList(filename ='/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/DCSOnly/json_DCSONLY.txt').getVLuminosityBlockRange()
+if hasattr(optpy, "LumiJSON"):
+   import FWCore.PythonUtilities.LumiList as LumiList
+   process.source.lumisToProcess = optpy.LumiJSON
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 
@@ -97,6 +113,10 @@ else:
     process.AlignmentProducer.algoConfig.Weight=1
 #    process.AlignmentProducer.algoConfig.UniformEta=True
 #    process.AlignmentProducer.algoConfig.CLAngleCut=1.37
+
+if hasattr(optpy, "overallweight"):
+   process.AlignmentProducer.algoConfig.UseReweighting=True
+   process.AlignmentProducer.algoConfig.Weight=optpy.overallweight
 
 process.AlignmentProducer.algoConfig.applyAPE = False
 #process.AlignmentProducer.algoConfig.applyAPE = True 
