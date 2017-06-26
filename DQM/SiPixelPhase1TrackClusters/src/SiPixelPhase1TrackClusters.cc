@@ -124,11 +124,11 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
     return;
   }
 
+
   edm::Handle<SiPixelClusterShapeCache> pixelClusterShapeCacheH;
   iEvent.getByToken(pixelClusterShapeCacheToken_, pixelClusterShapeCacheH);
   auto const & pixelClusterShapeCache = *pixelClusterShapeCacheH;
 
-  
   for (auto const & track : *tracks) {
 
     if (applyVertexCut_ && (track.pt() < 0.75 || std::abs( track.dxy((*vertices)[0].position()) ) > 5*track.dxyError())) continue;
@@ -170,6 +170,7 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
       auto localDir = ltp.momentum()/ltp.momentum().mag();
 
       // correct charge for track impact angle
+
       auto charge = cluster.charge()*ltp.absdz();
 
       auto clustgp =  pixhit->globalPosition();  // from rechit
@@ -233,7 +234,6 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
   }
 
   histo[SiPixelPhase1TrackClustersOnTrackNClusters].executePerEventHarvesting(&iEvent);
-
 }
 
 }// namespace
