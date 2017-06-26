@@ -178,7 +178,8 @@ namespace edm {
       if( (not summary_only_) || (threshold_ > 0.) ) {
         iRegistry.watchPreModuleEvent(this, &Timing::preModule);
         iRegistry.watchPostModuleEvent(this, &Timing::postModule);
- 
+      } 
+      if(threshold_ > 0.) {
         iRegistry.watchPreSourceEvent(this, &Timing::preSourceEvent);
         iRegistry.watchPostSourceEvent(this, &Timing::postSourceEvent);
       
