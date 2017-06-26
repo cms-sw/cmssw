@@ -321,12 +321,12 @@ namespace edm {
           << t << " secs exceeds excessive time threshold "<<threshold_ <<" secs.";
       }
       if ( not summary_only_) {
-      LogPrint("TimeModule") << "TimeModule> "
-      << eventID.event() << " "
-      << eventID.run() << " "
-      << desc.moduleLabel() << " "
-      << desc.moduleName() << " "
-      << t;
+          LogPrint("TimeModule") << "TimeModule> "
+          << eventID.event() << " "
+          << eventID.run() << " "
+          << desc.moduleLabel() << " "
+          << desc.moduleName() << " "
+          << t;
       }
     }
   }
