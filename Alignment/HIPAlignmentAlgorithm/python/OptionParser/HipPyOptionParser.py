@@ -1,4 +1,6 @@
 from array import array
+from copy import copy
+from copy import deepcopy
 import FWCore.ParameterSet.Config as cms
 import FWCore.PythonUtilities.LumiList as LumiList
 
@@ -15,6 +17,30 @@ def insertPSetToPSet(inPSet, outPSet):
 
 def insertPSetToVPSet(inPSet, outVPSet):
    outVPSet.append(inPSet)
+
+
+def matchPSetsByRecord(ps1, ps2):
+   if hasattr(ps1,"record") and hasattr(ps2,"record"):
+      s1=ps1.record.value()
+      s2=ps2.record.value()
+      return (s1==s2)
+   return False
+
+
+def mergeVPSets(inVPSet, overrideVPSet, matchrule=None):
+   resvpset=overrideVPSet.copy()
+   for iop in inVPSet.value():
+      nomatch=True
+      if matchrule is not None:
+         for cps in overrideVPSet.value():
+            if matchrule(cps,iop):
+               nomatch=False
+               break
+      if nomatch:
+         insertPSetToVPSet(iop,resvpset)
+   return resvpset
+
+
 
 
 def parseBoolString(theString):
@@ -40,8 +66,9 @@ class HipPyOptionParser:
       self.CPEtype="template"
       self.getTrackDefaults()
 
-      self.parseOptions()
-      self.interpretOptions()
+      if self.rawopt.lower()!="noopts":
+         self.parseOptions()
+         self.interpretOptions()
 
 
    def getTrackDefaults(self):
@@ -54,7 +81,7 @@ class HipPyOptionParser:
          self.trkcoll="ALCARECOTkAlZMuMu"
          self.TBDconstraint="fullconstr"
          self.Bfield="3.8t"
-      elif (self.flag=="y1smumu" or self.flag=="y2smumu" or self.flag=="y3smumu"):
+      elif self.flag=="ymumu":
          self.trkcoll="ALCARECOTkAlUpsilonMuMu"
          self.TBDconstraint="fullconstr"
          self.Bfield="3.8t"
@@ -96,7 +123,7 @@ class HipPyOptionParser:
             vallist=val.split(';')
             for varset in vallist:
                apset = cms.PSet()
-               specs = varset.split(',')
+               specs = varset.split('|')
                for spec in specs:
                   namespec=spec.split('=')
                   if len(namespec)==2:
@@ -119,7 +146,7 @@ class HipPyOptionParser:
                      cmsstrspec = cms.string(tmpspec)
                      insertValToPSet(namespec[0],cmsstrspec,apset)
                   else:
-                     raise RuntimeError("GT specification does not ave size==2")
+                     raise RuntimeError("GT specification {} does not have size==2".format(namespec))
                gttogetpsets.append(apset)
          # Get data type
          elif (key=="type" or key=="datatype"):
@@ -138,6 +165,13 @@ class HipPyOptionParser:
          # Get non-standard track collection name
          elif key=="trackcollection":
             self.trkcoll=val
+         # Get overall weight. Turns reweighting on
+         elif key=="overallweight":
+            try:
+               fval=float(val)
+               self.overallweight=fval
+            except ValueError:
+               print "Overall weight is not a float"
          ## Options for mMin. bias
          # Get custom track selection for TBD
          elif (key=="twobodytrackselection" or key=="twobodydecayselection" or key=="tbdselection"):

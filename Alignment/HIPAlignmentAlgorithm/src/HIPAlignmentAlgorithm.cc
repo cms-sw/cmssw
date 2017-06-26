@@ -153,7 +153,7 @@ void HIPAlignmentAlgorithm::initialize(
           break;
         }
       }
-      if (!findMatchIOV) edm::LogError("Alignment") << "@SUB=HIPAlignmentAlgorithm::initialize" << "Didn't find the matched IOV file!";
+      if (!findMatchIOV) edm::LogError("Alignment") << "@SUB=HIPAlignmentAlgorithm::initialize" << "Didn't find the IOV file matching IOV first run " << firstrun << " from the validity interval";
     }
     else{
       std::string iovapp = std::to_string(theIOVrangeSet.at(0));
