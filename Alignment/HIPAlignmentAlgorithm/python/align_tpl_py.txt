@@ -4,7 +4,6 @@
 strflag="<FLAG>"
 strflaglower=strflag.lower()
 strflagopts="<FLAGOPTS>"
-strflagoptslower=strflagopts.lower()
 
 from Alignment.HIPAlignmentAlgorithm.OptionParser.HipPyOptionParser import HipPyOptionParser
 from Alignment.HIPAlignmentAlgorithm.OptionParser.HipPyOptionParser import matchPSetsByRecord
