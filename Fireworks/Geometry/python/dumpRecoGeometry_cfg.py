@@ -3,7 +3,7 @@ import sys
 import FWCore.ParameterSet.VarParsing as VarParsing
 from FWCore.Utilities.Enumerate import Enumerate
 
-varType = Enumerate ("Run1 2015 2017 2019 2023D7 2023D10 2023D4 2023D8 MaPSA")
+varType = Enumerate ("Run1 2015 2017 2019 2023D17 2023D19 2023D20 MaPSA")
 
 def help():
    print "Usage: cmsRun dumpFWRecoGeometry_cfg.py  tag=TAG "
@@ -62,29 +62,11 @@ def recoGeoLoad(score):
        process.DTGeometryESModule.applyAlignment = cms.bool(False)
        process.CSCGeometryESModule.applyAlignment = cms.bool(False)
        
-    elif  score == "2023D7":
+    elif "2023" in score:
        process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
        from Configuration.AlCa.autoCond import autoCond
        process.GlobalTag.globaltag = autoCond['run2_mc']
-       process.load('Configuration.Geometry.GeometryExtended2023D7Reco_cff')
-       
-    elif  score == "2023D10":
-       process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-       from Configuration.AlCa.autoCond import autoCond
-       process.GlobalTag.globaltag = autoCond['phase2_realistic']
-       process.load('Configuration.Geometry.GeometryExtended2023D10Reco_cff')
-       
-    elif  score == "2023D4":
-       process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-       from Configuration.AlCa.autoCond import autoCond
-       process.GlobalTag.globaltag = autoCond['phase2_realistic']
-       process.load('Configuration.Geometry.GeometryExtended2023D4Reco_cff')
-
-    elif  score == "2023D8":
-       process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-       from Configuration.AlCa.autoCond import autoCond
-       process.GlobalTag.globaltag = autoCond['phase2_realistic']
-       process.load('Configuration.Geometry.GeometryExtended2023D8Reco_cff')
+       process.load('Configuration.Geometry.GeometryExtended'+score+'Reco_cff')
        
     elif score == "MaPSA":
        process.load('Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff')
