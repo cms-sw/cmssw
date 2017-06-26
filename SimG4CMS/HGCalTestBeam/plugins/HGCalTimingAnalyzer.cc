@@ -86,8 +86,10 @@ HGCalTimingAnalyzer::HGCalTimingAnalyzer(const edm::ParameterSet& iConfig) {
   //now do whatever initialization is needed
   detectorEE_  = iConfig.getParameter<std::string>("DetectorEE");
   detectorBeam_= iConfig.getParameter<std::string>("DetectorBeam");
+  // Group hits (if groupHits_ = true) if hits come within timeUnit_
   groupHits_   = iConfig.getParameter<bool>("GroupHits");
   timeUnit_    = iConfig.getParameter<double>("TimeUnit");
+  // Only look into the beam counters with ID's as in idBeams_
   idBeams_     = iConfig.getParameter<std::vector<int>>("IDBeams");  
   doTree_      = iConfig.getUntrackedParameter<bool>("DoTree",false);
   if (!groupHits_) timeUnit_ = 0.000001;
@@ -124,7 +126,6 @@ HGCalTimingAnalyzer::~HGCalTimingAnalyzer() {}
 
 void HGCalTimingAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
   desc.add<std::string>("DetectorEE","HGCalEESensitive");
   desc.add<std::string>("DetectorBeam","HcalTB06BeamDetector");
   desc.add<bool>("GroupHits",false);
@@ -170,6 +171,7 @@ void HGCalTimingAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetu
 void HGCalTimingAnalyzer::analyze(const edm::Event& iEvent, 
 				  const edm::EventSetup& iSetup) {
 
+#ifdef EDM_ML_DEBUG
   //Generator input
   edm::Handle<edm::HepMCProduct> evtMC;
   iEvent.getByToken(tok_hepMC_,evtMC);
@@ -180,13 +182,12 @@ void HGCalTimingAnalyzer::analyze(const edm::Event& iEvent,
     unsigned int k(0);
     for (HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin();
          p != myGenEvent->particles_end(); ++p, ++k) {
-#ifdef EDM_ML_DEBUG
       std::cout << "Particle[" << k << "] with p " << (*p)->momentum().rho() 
 		<< " theta " << (*p)->momentum().theta() << " phi "
 		<< (*p)->momentum().phi() << std::endl;
-#endif
     }
   }
+#endif
 
   //Now the Simhits
   edm::Handle<edm::SimTrackContainer>  SimTk;
