@@ -15,6 +15,7 @@
 
 HIPUserVariablesIORoot::HIPUserVariablesIORoot() :
 ObjId(0), Id(0), Nhit(0), Nparj(0), Npare(0),
+DataType(-1),
 AlignableChi2(0.), AlignableNdof(0)
 {
   treename = "T9";
@@ -35,6 +36,7 @@ void HIPUserVariablesIORoot::createBranches(void){
   tree->Branch("ObjId", &ObjId, "ObjId/I");
 
   tree->Branch("Nhit", &Nhit, "Nhit/I");
+  tree->Branch("DataType", &DataType, "DataType/I");
   tree->Branch("Nparj", &Nparj, "Nparj/I");
   tree->Branch("Jtvj", &Jtvj, "Jtvj[Nparj]/D");
   tree->Branch("Npare", &Npare, "Npare/I");
@@ -52,6 +54,7 @@ void HIPUserVariablesIORoot::setBranchAddresses(void){
   tree->SetBranchAddress("ObjId", &ObjId);
 
   tree->SetBranchAddress("Nhit", &Nhit);
+  tree->SetBranchAddress("DataType", &DataType);
   tree->SetBranchAddress("Nparj", &Nparj);
   tree->SetBranchAddress("Jtvj", &Jtvj);
   tree->SetBranchAddress("Npare", &Npare);
@@ -108,9 +111,11 @@ int HIPUserVariablesIORoot::writeOne(Alignable* ali){
   AlgebraicVector alipar = uvar->alipar;
   AlgebraicVector alierr = uvar->alierr;
   int nhit=uvar->nhit;
+  int datatype=uvar->datatype;
   int np=jtve.num_row();
 
   Nhit=nhit;
+  DataType=datatype;
   Npare=np;
   Nparj=np*(np+1)/2;
   int count=0;
@@ -163,6 +168,7 @@ AlignmentUserVariables* HIPUserVariablesIORoot::readOne(Alignable* ali, int& ier
     uvar->jtvj=jtvj;
     uvar->jtve=jtve;
     uvar->nhit=Nhit;
+    uvar->datatype=DataType;
     uvar->alipar=alipar;
     uvar->alierr=alierr;
     //Chi2n

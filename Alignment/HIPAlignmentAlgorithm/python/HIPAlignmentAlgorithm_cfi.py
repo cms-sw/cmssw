@@ -57,9 +57,12 @@ HIPAlignmentAlgorithm = cms.PSet(
     ),
 
     # Re-weighting
+    DataGroup=cms.int32(-2),
     UseReweighting = cms.bool(False),
     Weight = cms.double(1),
     UniformEta = cms.bool(False),
+    UniformEtaFormula = cms.string("1"),
+    ReweightPerAlignable = cms.bool(False),
 
     # Impact angle cut
     CLAngleCut = cms.double(1.571), # upper bound on collision track impact angle, default -no cut
