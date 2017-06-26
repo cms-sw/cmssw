@@ -84,7 +84,8 @@ ak8PFJetsCHSPruned = ak8PFJets.clone(
     useExplicitGhosts = cms.bool(True),
     writeCompound = cms.bool(True),
     jetCollInstanceName=cms.string("SubJets"),
-    jetPtMin = 100.0
+    jetPtMin = 100.0,
+    doAreaFastjet = cms.bool(False)
     )
 
 ak8PFJetsCHSSoftDrop = ak8PFJets.clone(
