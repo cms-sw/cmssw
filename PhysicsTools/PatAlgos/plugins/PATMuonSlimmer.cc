@@ -37,7 +37,7 @@ namespace pat {
     std::vector<edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection>>> pf2pc_;
     const bool linkToPackedPF_;
     const StringCutObjectSelector<pat::Muon> saveTeVMuons_, dropDirectionalIso_, dropPfP4_, slimCaloVars_, slimKinkVars_, slimCaloMETCorr_, slimMatches_;
-    const bool modifyMuon_;
+    const bool saveSegments_,modifyMuon_;
     std::unique_ptr<pat::ObjectModifier<pat::Muon> > muonModifier_;
   };
 
@@ -53,6 +53,7 @@ pat::PATMuonSlimmer::PATMuonSlimmer(const edm::ParameterSet & iConfig) :
     slimKinkVars_(iConfig.getParameter<std::string>("slimKinkVars")),
     slimCaloMETCorr_(iConfig.getParameter<std::string>("slimCaloMETCorr")),
     slimMatches_(iConfig.getParameter<std::string>("slimMatches")),
+    saveSegments_(iConfig.getParameter<bool>("saveSegments")),
     modifyMuon_(iConfig.getParameter<bool>("modifyMuons"))
 {
     if (linkToPackedPF_) {
@@ -72,6 +73,11 @@ pat::PATMuonSlimmer::PATMuonSlimmer(const edm::ParameterSet & iConfig) :
       muonModifier_.reset(nullptr);
     }
     produces<std::vector<pat::Muon> >();
+    if( saveSegments_ ) {
+      produces< DTRecSegment4DCollection >();
+      //FIXME do same for CSC   
+    }
+
 }
 
 void 
@@ -89,6 +95,10 @@ pat::PATMuonSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
     auto out = std::make_unique<std::vector<pat::Muon>>();
     out->reserve(src->size());
+
+    auto outDTSegments = std::make_unique<DTRecSegment4DCollection>();
+    std::set<DTRecSegment4DRef> dtSegmentsRefs;
+    //FIXME same for CSC   
 
     if( modifyMuon_ ) { muonModifier_->setEvent(iEvent); }
 
@@ -173,11 +183,35 @@ pat::PATMuonSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
                     smatch.yErr = MiniFloatConverter::reduceMantissaToNbitsRounding<12>(smatch.yErr);
                     smatch.dXdZErr = MiniFloatConverter::reduceMantissaToNbitsRounding<12>(smatch.dXdZErr);
                     smatch.dYdZErr = MiniFloatConverter::reduceMantissaToNbitsRounding<12>(smatch.dYdZErr);
+                    if( saveSegments_ ) {
+                      dtSegmentsRefs.insert(smatch.dtSegmentRef);
+        //               std::cout << smatch.dtSegmentRef->first << std::endl;
+                    }
                 }
             }
         }
     }
 
+    if( saveSegments_ ) {
+      std::map<DTRecSegment4DRef,size_t> dtMap;
+      std::vector<DTRecSegment4D> outDTSegmentsTmp; 
+      for(auto & seg : dtSegmentsRefs) {
+         dtMap[seg]=outDTSegments->size();
+         outDTSegmentsTmp.push_back(*seg);
+      }
+      outDTSegments->put(0,outDTSegmentsTmp.begin(),outDTSegmentsTmp.end());
+      auto dtHandle = iEvent.put(std::move(outDTSegments));
+      for( auto & mu : *out) {
+        if(mu.isMatchesValid()) {
+          for (reco::MuonChamberMatch & cmatch : mu.matches()) {
+            for (reco::MuonSegmentMatch & smatch : cmatch.segmentMatches) {
+              if (dtMap.find(smatch.dtSegmentRef) != dtMap.end() )
+              smatch.dtSegmentRef=DTRecSegment4DRef(dtHandle,dtMap[smatch.dtSegmentRef]);
+            }
+          }
+        } 
+      }
+    }
     iEvent.put(std::move(out));
 }
 
