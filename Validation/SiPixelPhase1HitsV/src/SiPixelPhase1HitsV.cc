@@ -21,7 +21,7 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
-class TrackAssociatorByHits; 
+//class TrackAssociatorByHits; 
 
 SiPixelPhase1HitsV::SiPixelPhase1HitsV(const edm::ParameterSet& iConfig) :
   SiPixelPhase1Base(iConfig),
@@ -32,7 +32,6 @@ SiPixelPhase1HitsV::SiPixelPhase1HitsV(const edm::ParameterSet& iConfig) :
 
   tracksToken_ ( consumes< edm::View<reco::Track> >(iConfig.getParameter<edm::InputTag>("tracksTag")) ),
   tpToken_ ( consumes< TrackingParticleCollection >(iConfig.getParameter<edm::InputTag>("tpTag")) ),
-  simTracksToken_ ( consumes< edm::SimTrackContainer >(iConfig.getParameter<edm::InputTag>("simTracksTag")) ),
   trackAssociatorByHitsToken_ ( consumes< reco::TrackToTrackingParticleAssociator >(iConfig.getParameter<edm::InputTag>("trackAssociatorByHitsTag")) )
 {}
 
@@ -230,14 +229,6 @@ void SiPixelPhase1HitsV::analyze(const edm::Event& iEvent, const edm::EventSetup
   if ( theHitsAssociator.isValid() ) {
     associatorByHits = theHitsAssociator.product();
   }
-
-  edm::Handle<edm::SimTrackContainer> simTrackCollection;
-  iEvent.getByToken(simTracksToken_, simTrackCollection);
-  if ( simTrackCollection.isValid() ) {
-    simTC = simTrackCollection.product();
-  }  
-
-
 
   if ( TPCollectionH.isValid() && trackCollectionH.isValid() ) {
     reco::RecoToSimCollection p = associatorByHits->associateRecoToSim(trackCollectionH,TPCollectionH);
