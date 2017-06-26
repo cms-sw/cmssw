@@ -64,6 +64,7 @@ ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config) :
   preshowerEcalHits_(doPreshowerEcalHits_ ? consumes<EcalRecHitCollection>(config.getParameter<edm::InputTag>("preshowerEcalHits")) : edm::EDGetTokenT<EcalRecHitCollection>()),
   photonPfCandMapT_(consumes<edm::ValueMap<std::vector<reco::PFCandidateRef> > >(config.getParameter<edm::InputTag>("photonsPFValMap"))),  
   gsfElectronPfCandMapT_(consumes<edm::ValueMap<std::vector<reco::PFCandidateRef> > >(config.getParameter<edm::InputTag>("gsfElectronsPFValMap"))),
+  gsfTrackT_(consumes<reco::GsfTrackCollection>(config.getParameter<edm::InputTag>("gsfTracks"))),  //add by Hien
   //output collections    
   outPhotons_("reducedGedPhotons"),
   outPhotonCores_("reducedGedPhotonCores"),
@@ -79,6 +80,7 @@ ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config) :
   outESRecHits_("reducedESRecHits"),
   outPhotonPfCandMap_("reducedPhotonPfCandMap"),
   outGsfElectronPfCandMap_("reducedGsfElectronPfCandMap"),
+  outGsfTracks_("reducedGsfTrack"),  //add by me - Hien xinh dep
   outPhotonIds_(config.getParameter<std::vector<std::string> >("photonIDOutput")),
   outGsfElectronIds_(config.getParameter<std::vector<std::string> >("gsfElectronIDOutput")),
   outPhotonPFClusterIsos_(config.getParameter<std::vector<std::string> >("photonPFClusterIsoOutput")),
@@ -88,7 +90,11 @@ ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config) :
   relinkPhotonSel_(config.getParameter<std::string>("relinkPhotons")),
   keepGsfElectronSel_(config.getParameter<std::string>("keepGsfElectrons")),
   slimRelinkGsfElectronSel_(config.getParameter<std::string>("slimRelinkGsfElectrons")),
-  relinkGsfElectronSel_(config.getParameter<std::string>("relinkGsfElectrons"))
+  relinkGsfElectronSel_(config.getParameter<std::string>("relinkGsfElectrons")),
+  keepGsfTrackSel_(config.getParameter<std::string>("keepGsfTracks"))
+  ///slimRelinkGsfTrackSel_(config.getParameter<std::string>("slimRelinkGsfTracks")),  //add by Hien
+  //relinkGsfTrackSel_(config.getParameter<std::string>("relinkGsfTracks"))           //add by Hien
+
 {  
   const std::vector<edm::InputTag>& photonidinputs = 
     config.getParameter<std::vector<edm::InputTag> >("photonIDSources");
@@ -123,6 +129,7 @@ ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config) :
   produces< reco::SuperClusterCollection >(outSuperClusters_);  
   produces< reco::CaloClusterCollection >(outEBEEClusters_);
   produces< reco::CaloClusterCollection >(outESClusters_);
+  produces< reco::GsfTrackCollection >(outGsfTracks_);  //add by me - Hien xinh dep 
   produces< EcalRecHitCollection >(outEBRecHits_);
   produces< EcalRecHitCollection >(outEERecHits_);
   if (doPreshowerEcalHits_) produces< EcalRecHitCollection >(outESRecHits_);    
@@ -158,7 +165,10 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   theEvent.getByToken(photonT_, photonHandle);
 
   edm::Handle<reco::GsfElectronCollection> gsfElectronHandle;
-  theEvent.getByToken(gsfElectronT_, gsfElectronHandle);  
+  theEvent.getByToken(gsfElectronT_, gsfElectronHandle); 
+
+  edm::Handle<reco::GsfTrackCollection> gsfTrackHandle; //add by Hien
+  theEvent.getByToken(gsfTrackT_, gsfTrackHandle); 
   
   edm::Handle<reco::ConversionCollection> conversionHandle;
   theEvent.getByToken(conversionT_, conversionHandle);  
@@ -218,6 +228,7 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   auto ebRecHits = std::make_unique<EcalRecHitCollection>();
   auto eeRecHits = std::make_unique<EcalRecHitCollection>();
   auto esRecHits = std::make_unique<EcalRecHitCollection>();
+  auto gsfTracks = std::make_unique<reco::GsfTrackCollection>();  //add by me -Hien xinh dep
   auto photonPfCandMap = std::make_unique<edm::ValueMap<std::vector<reco::PFCandidateRef>>>();
   auto gsfElectronPfCandMap = std::make_unique<edm::ValueMap<std::vector<reco::PFCandidateRef>>>();
   
@@ -249,9 +260,13 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   std::map<reco::SuperClusterRef, unsigned int> superClusterMap;
   std::map<reco::CaloClusterPtr, unsigned int> ebeeClusterMap;
   std::map<reco::CaloClusterPtr, unsigned int> esClusterMap;
+  std::map<reco::GsfTrackRef, unsigned int> gsfTrackMap; //add by me - Hien xinh dep
+  //std::map<reco::GsfTrack, unsigned int> gsfTrackMap;
   std::unordered_set<DetId> rechitMap;
   
   std::unordered_set<unsigned int> superClusterFullRelinkMap;
+  std::unordered_set<unsigned int> gsfTrackFullRelinkMap;  //add by Hien
+
   
   //vectors for pfcandidate valuemaps
   std::vector<std::vector<reco::PFCandidateRef> > pfCandIsoPairVecPho;  
@@ -386,6 +401,24 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     
     //additionally mark supercluster for full relinking
     if (relink) superClusterFullRelinkMap.insert(mappedscidx);
+
+    /*
+    //gsftracks, add by me - Hien xinh dep                                                                                                                  
+    const reco::GsfTrackRef &gsfTrack = gsfElectron.gsfTrack();
+    const auto &mappedgsftk = gsfTrackMap.find(gsfTrack);
+    unsigned int mappedgsftkidx = 0;
+    if (mappedgsftk==gsfTrackMap.end()) {
+      gsfTracks->push_back(*gsfTrack);
+      //std::cout << "push back gsftrack to gsftrack ref" << std::endl;
+      mappedgsftkidx = gsfTracks->size() - 1;
+      gsfTrackMap[gsfTrack] = mappedgsftkidx;
+      //std::cout << " gsf track size: " << gsfTracks->size() << std::endl;
+    }
+    else {
+      mappedgsftkidx = mappedgsftk->second;
+    }
+    if (relink) gsfTrackFullRelinkMap.insert(mappedgsftkidx);
+    */
     
     //conversions only for full relinking
     if (!relink) continue;
@@ -438,8 +471,34 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     }    
     
   }
+
+  //get gsf track and push back to the output (add by me - Hien xinh dep)
+  for (unsigned int igsftk = 0; igsftk<gsfTrackHandle->size(); ++igsftk) {
+    const reco::GsfTrack &gsfTrack = (*gsfTrackHandle)[igsftk];
+
+    bool keep = keepGsfTrackSel_(gsfTrack);    
+    if (!keep) continue;
+
+    reco::GsfTrackRef gsfTrackref(gsfTrackHandle,igsftk);
+    //gsfTracks->push_back(gsfTrack);
+
+    const auto &mappedgsftk = gsfTrackMap.find(gsfTrackref);
+    unsigned int mappedgsftkidx = 0;
+    if (mappedgsftk==gsfTrackMap.end()) {
+      gsfTracks->push_back(*gsfTrackref);
+      mappedgsftkidx = gsfTracks->size()-1;
+      gsfTrackMap[gsfTrackref] = mappedgsftkidx; 
+    }
+    //bool slimRelink = slimRelinkGsfTrackSel_(gsfTrack);
+    //bool relink = relinkGsfTrackSel_(gsfTrack);
+  }
   
   //loop over output SuperClusters and fill maps
+  //std::cout << "gsf electron size: " << gsfElectrons->size() << std::endl;
+  //std::cout << "supercluster size: " << superClusters->size() << std::endl;
+  //std::cout << " photon size: " << photons->size() << std::endl;
+  //std::cout << "conversion size: " << conversions->size() << std::endl;
+  //std::cout << "gsf track size: " << gsfTracks->size() << std::endl;
   for (unsigned int isc = 0; isc<superClusters->size(); ++isc) {
     reco::SuperCluster &superCluster = (*superClusters)[isc];
     
@@ -603,6 +662,8 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   const edm::OrphanHandle<reco::SuperClusterCollection> &outSuperClusterHandle = theEvent.put(std::move(superClusters),outSuperClusters_);
   const edm::OrphanHandle<reco::ConversionCollection> &outConversionHandle = theEvent.put(std::move(conversions),outConversions_);
   const edm::OrphanHandle<reco::ConversionCollection> &outSingleConversionHandle = theEvent.put(std::move(singleConversions),outSingleConversions_);
+  //put gsftrack in the event (add by me - Hien xinh dep)   
+  //const edm::OrphanHandle<reco::GsfTrackCollection> &outGsfTrackHandle = theEvent.put(std::move(gsfTracks),outGsfTracks_);
   
   //loop over photoncores and relink superclusters (and conversions)
   for (reco::PhotonCore &photonCore : *photonCores) {
@@ -656,13 +717,33 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   //loop over gsfelectroncores and relink superclusters
   for (reco::GsfElectronCore &gsfElectronCore : *gsfElectronCores) {
     const auto &scmapped = superClusterMap.find(gsfElectronCore.superCluster());
+
     if (scmapped != superClusterMap.end()) {
       //make new ref
       reco::SuperClusterRef scref(outSuperClusterHandle,scmapped->second);
-      gsfElectronCore.setSuperCluster(scref);
+      gsfElectronCore.setSuperCluster(scref); 
+      //std::cout << "relink superclusters" << std::endl;
     }
   }
-  
+
+  //------------ add by me - Hien xinh dep ------------//
+  const edm::OrphanHandle<reco::GsfTrackCollection> &outGsfTrackHandle = theEvent.put(std::move(gsfTracks),outGsfTracks_);
+  //loop over gsfelectroncores and relink gsftracks
+  for (reco::GsfElectronCore &gsfElectronCore : *gsfElectronCores) {
+    const auto &gsftkmapped = gsfTrackMap.find(gsfElectronCore.gsfTrack());
+
+    //for(std::map<reco::GsfTrackRef, unsigned int>::const_iterator it = gsfTrackMap.begin(); it != gsfTrackMap.end(); ++it) {
+    //std::cout << it->first << " " << it->second << std::endl;
+    //}
+    if (gsftkmapped != gsfTrackMap.end()) {
+      reco::GsfTrackRef gsftkref(outGsfTrackHandle, gsftkmapped->second);
+      gsfElectronCore.setGsfTrack(gsftkref);
+      //std::cout<< "relink gsftracks" << std::endl;
+    }
+  }
+  // ---------------end adding ----------------//
+
+
   //put photon and gsfelectroncores into the event
   const edm::OrphanHandle<reco::PhotonCoreCollection> &outPhotonCoreHandle = theEvent.put(std::move(photonCores),outPhotonCores_);
   const edm::OrphanHandle<reco::GsfElectronCoreCollection> &outgsfElectronCoreHandle = theEvent.put(std::move(gsfElectronCores),outGsfElectronCores_);
@@ -682,13 +763,14 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     if (coremapped != gsfElectronCoreMap.end()) {
       //make new ref
       reco::GsfElectronCoreRef coreref(outgsfElectronCoreHandle,coremapped->second);
-      gsfElectron.setCore(coreref);
+      gsfElectron.setCore(coreref); 
     }
   }
   
   //(finally) store the output photon and electron collections
   const edm::OrphanHandle<reco::PhotonCollection> &outPhotonHandle = theEvent.put(std::move(photons),outPhotons_);  
   const edm::OrphanHandle<reco::GsfElectronCollection> &outGsfElectronHandle = theEvent.put(std::move(gsfElectrons),outGsfElectrons_);
+  //const edm::OrphanHandle<reco::GsfTrackCollection> &outGsfTrackHandle = theEvent.put(std::move(gsfTracks),outGsfTracks_);  //add by Hien
   
   //still need to output relinked valuemaps
   
