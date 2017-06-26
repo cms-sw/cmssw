@@ -144,7 +144,7 @@ namespace edm {
       iRegistry.watchPreEvent(this, &Timing::preEvent);
       iRegistry.watchPostEvent(this, &Timing::postEvent);
 
-      if( (not summary_only_) || threshold_ ) {
+      if( (not summary_only_) || (threshold_ > 0.) ) {
         iRegistry.watchPreModuleEvent(this, &Timing::preModule);
         iRegistry.watchPostModuleEvent(this, &Timing::postModule);
       }
@@ -313,7 +313,7 @@ namespace edm {
       auto const & desc = *(iModule.moduleDescription());
       
       if( t > threshold_) {
-          LogPrint("TimeModule") << "ExcessiveTime> "
+          LogError("TimeModule") << "ExcessiveTime> "
           << eventID.event() << " "
           << eventID.run() << " "
           << desc.moduleLabel() << " "
