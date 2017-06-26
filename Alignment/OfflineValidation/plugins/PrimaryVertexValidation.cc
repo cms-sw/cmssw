@@ -552,7 +552,11 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 	bool pass = true;
 	if(askFirstLayerHit_) pass = this->hasFirstLayerPixelHits(theTTrack);
-	if (pass && (theTrack.pt() >=ptOfProbe_) && fabs(theTrack.eta()) <= etaOfProbe_){
+	if (pass 
+	    && (theTrack.pt() >=ptOfProbe_) 
+	    && fabs(theTrack.eta()) <= etaOfProbe_ 
+	    && (theTrack.numberOfValidHits())>=nHitsOfProbe_
+	    && (theTrack.p()) >= pOfProbe_ ){
 	  isGoodTrack_[nTracks_]=1;
 	}
       
@@ -580,7 +584,7 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 	    edm::LogInfo("PrimaryVertexValidation")<<"Transient Track Collection size: "<<theFinalTracks.size();
 	  try{
 	      
-	    VertexFitter<5>* theFitter = new AdaptiveVertexFitter;
+	    auto theFitter = std::unique_ptr<VertexFitter<5> >( new AdaptiveVertexFitter());
 	    TransientVertex theFittedVertex = theFitter->vertex(theFinalTracks);
 
 	    //AdaptiveVertexFitter* theFitter = new AdaptiveVertexFitter;
@@ -956,7 +960,7 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 	      }// ends if debug_
 	    } // ends if the fitted vertex is Valid
 
-	    delete theFitter;
+	    //delete theFitter;
 
 	  }  catch ( cms::Exception& er ) {
 	    LogTrace("PrimaryVertexValidation")<<"caught std::exception "<<er.what()<<std::endl;
