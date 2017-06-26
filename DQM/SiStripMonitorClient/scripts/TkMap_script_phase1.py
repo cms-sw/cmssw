@@ -82,7 +82,7 @@ for i in range(len(Run_Number)):
 #################Downloading DQM file############################
     nnn=Run_Number[i]/100
     nnnOut = Run_Number[i]/1000
-
+    nnnOnline = Run_Number[i]/10000
 
     print 'Processing '+Run_type+ ' in '+DataOfflineDir+"..."
 
@@ -104,7 +104,29 @@ for i in range(len(Run_Number)):
     os.system('curl -k --cert /data/users/cctrkdata/current/auth/proxy/proxy.cert --key /data/users/cctrkdata/current/auth/proxy/proxy.cert -X GET https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/OfflineData/'+DataOfflineDir+'/'+Run_type+'/000'+str(nnn)+'xx/'+File_Name+' > /tmp/'+File_Name)
 
     filepath = '/tmp/'
-    
+
+
+
+##################online file########    
+    url1 = 'https://cmsweb.cern.ch/dqm/online/data/browse/Original/000'+str(nnnOnline)+'xxxx/000'+str(nnn)+'xx/'
+    os.popen("curl -k --cert /data/users/cctrkdata/current/auth/proxy/proxy.cert --key /data/users/cctrkdata/current/auth/proxy/proxy.cert -X GET "+url1+" > index_online.html")
+    f_online=codecs.open("index_online.html", 'r')
+    index_online = f_online.readlines()
+    for x in range(len(index_online)):
+        if str(Run_Number[i]) in index_online[x]:
+            if str("_PixelPhase1_") in index_online[x]:
+                File_Name_online=str(str(index_online[x].split(".root'>")[1].split("</a></td><td>")[0]))
+
+    print 'Downloading DQM file:'+File_Name_online
+
+
+    os.system('curl -k --cert /data/users/cctrkdata/current/auth/proxy/proxy.cert --key /data/users/cctrkdata/current/auth/proxy/proxy.cert -X GET https://cmsweb.cern.ch/dqm/online/data/browse/Original/000'+str(nnnOnline)+'xxxx/000'+str(nnn)+'xx/'+File_Name_online+' > /tmp/'+File_Name_online)
+
+    os.remove('index_online.html')
+
+
+
+
 
 ################Check if run is complete##############
 
@@ -241,6 +263,18 @@ for i in range(len(Run_Number)):
     shutil.move('PixZeroOccROCs_run'+str(Run_Number[i])+'.txt',workPath+'/PixZeroOccROCs_run'+str(Run_Number[i])+'.txt')
 
 
+
+
+######Counting Dead ROCs during the run#########################
+    
+
+    shutil.copy(workPath+'/MaskedChannelPrintOut/ref.txt','.')
+    os.system('${CMSSW_BASE}/src/DQM/SiStripMonitorClient/scripts/MaskedChannelPrintOut/DeadROC_duringRun.py '+filepath+File_Name_online+' '+filepath+File_Name)
+
+    os.system('${CMSSW_BASE}/src/DQM/SiStripMonitorClient/scripts/MaskedChannelPrintOut/PixelMapPlotter.py MaskedROC.txt')
+    os.remove('ref.txt')
+
+
 ###################copy ouput files###################
     strip_files = os.listdir('.')
     for file_name in strip_files:
@@ -279,6 +313,7 @@ for i in range(len(Run_Number)):
 
     shutil.copyfile(pixelTreeFileName,'/data/users/event_display/TkCommissioner_runs/'+DataLocalDir+'/'+dest+'/'+pixelTreeFileName)
     os.remove(pixelTreeFileName)
-
+    os.remove(filepath+File_Name)
+    os.remove(filepath+File_Name_online)
     os.chdir(workPath)
 
