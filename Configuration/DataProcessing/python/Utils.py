@@ -156,6 +156,7 @@ def customise_HPbeamspot(process):
                 onePset.record = 'BeamSpotObjectsRcdHPByLumi'
         if process.ALCAHARVESTBeamSpotByLumi.AlcaBeamSpotHarvesterParameters.outputRecordName == 'BeamSpotObjectsRcdByLumi':
             process.ALCAHARVESTBeamSpotByLumi.AlcaBeamSpotHarvesterParameters.outputRecordName = 'BeamSpotObjectsRcdHPByLumi'
+            process.ALCAHARVESTBeamSpotByLumi.AlcaBeamSpotHarvesterParameters.DumpTxt = True
     # ByRun
     if ( hasattr(process,'PoolDBOutputService')   and
          hasattr(process,'pclMetadataWriter')     and
