@@ -145,6 +145,7 @@ class DbManagerGain(DbManager):
 
         self.check_table(GainO2OPartitionDef, self.GainO2OPartition)
         self.check_table(GainO2OSkippedDevicesDef, self.GainO2OSkippedDevices)
+        self.check_table(GainO2OWhitelistedDevicesDef, self.GainO2OWhitelistedDevices)
         destSession = self.connect()
         o2oid = destSession.query(self.GainO2OPartition.o2oid).order_by(self.GainO2OPartition.o2oid.desc()).first()
         if o2oid:
