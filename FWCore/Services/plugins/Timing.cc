@@ -47,12 +47,27 @@ namespace edm {
       
       void postBeginJob();
       void postEndJob();
-      
+           
       void preEvent(StreamContext const&);
       void postEvent(StreamContext const&);
       
       void preModule(StreamContext const&, ModuleCallingContext const&);
       void postModule(StreamContext const&, ModuleCallingContext const&);
+
+      void preSourceEvent(StreamID);
+      void postSourceEvent(StreamID);
+      
+      void preSourceLumi();
+      void postSourceLumi();
+      
+      void preSourceRun();
+      void postSourceRun();
+     
+      void preOpenFile(std::string const&, bool);
+      void postOpenFile(std::string const&, bool);
+        
+      void preEventReadFromSource(StreamContext const&, ModuleCallingContext const&);
+      void postEventReadFromSource(StreamContext const&, ModuleCallingContext const&);
       
       double curr_job_time_;    // seconds
       double curr_job_cpu_;     // seconds
@@ -126,6 +141,22 @@ namespace edm {
       return s_stack;
     }
 
+    static 
+    double popStack() {
+      auto& modStack = moduleTimeStack();
+      assert(modStack.size() > 0);
+      double curr_module_time = modStack.back();
+      modStack.pop_back();
+      double t = getTime() - curr_module_time;
+      return t;
+    }
+
+    static 
+    void pushStack() {
+      auto& modStack = moduleTimeStack();
+      modStack.push_back(getTime());
+    }
+
     Timing::Timing(ParameterSet const& iPS, ActivityRegistry& iRegistry) :
         curr_job_time_(0.),
         curr_job_cpu_(0.),
@@ -147,6 +178,21 @@ namespace edm {
       if( (not summary_only_) || (threshold_ > 0.) ) {
         iRegistry.watchPreModuleEvent(this, &Timing::preModule);
         iRegistry.watchPostModuleEvent(this, &Timing::postModule);
+ 
+        iRegistry.watchPreSourceEvent(this, &Timing::preSourceEvent);
+        iRegistry.watchPostSourceEvent(this, &Timing::postSourceEvent);
+      
+        iRegistry.watchPreSourceLumi(this, &Timing::preSourceLumi);
+        iRegistry.watchPostSourceLumi(this, &Timing::postSourceLumi);
+      
+        iRegistry.watchPreSourceRun(this, &Timing::preSourceRun);
+        iRegistry.watchPostSourceRun(this, &Timing::postSourceRun);
+      
+        iRegistry.watchPreOpenFile(this, &Timing::preOpenFile);
+        iRegistry.watchPostOpenFile(this, &Timing::postOpenFile);
+      
+        iRegistry.watchPreEventReadFromSource(this, &Timing::preEventReadFromSource);
+        iRegistry.watchPostEventReadFromSource(this, &Timing::postEventReadFromSource);
       }
           
       iRegistry.preallocateSignal_.connect([this](service::SystemBounds const& iBounds){
@@ -293,25 +339,14 @@ namespace edm {
     }
 
     void Timing::preModule(StreamContext const&, ModuleCallingContext const&) {
-      auto & modStack = moduleTimeStack();
-      modStack.push_back(getTime());
+      pushStack();
     }
 
     void Timing::postModule(StreamContext const& iStream, ModuleCallingContext const& iModule) {
       //LogInfo("TimeModule")
-      auto& modStack = moduleTimeStack();
-      assert(modStack.size() > 0);
-      double curr_module_time = modStack.back();
-      modStack.pop_back();
-      double t = getTime() - curr_module_time;
-      //move waiting module start times forward to account
-      // for the fact that they were paused while this module ran
-      for(auto& waitingModuleStartTime : modStack) {
-        waitingModuleStartTime +=t;
-      }
       auto const & eventID = iStream.eventID();
       auto const & desc = *(iModule.moduleDescription());
-      
+      double t = popStack();
       if( t > threshold_) {
           LogError("TimeModule") << "ExcessiveTime> "
           << eventID.event() << " "
@@ -327,6 +362,67 @@ namespace edm {
           << desc.moduleLabel() << " "
           << desc.moduleName() << " "
           << t;
+      }
+    }
+
+    void Timing::preSourceEvent(StreamID sid) {
+      pushStack(); 
+    }
+
+    void Timing::postSourceEvent(StreamID sid) {
+      double t = popStack();
+      if( t > threshold_) {
+          LogError("TimeModule") << "ExcessiveTime> "
+          "postSourceEvent ::"<< t << " secs exceeds excessive time threshold "<<threshold_ <<" secs.";
+      }
+    }
+
+
+    void Timing::preSourceLumi() {
+      pushStack();
+    }
+ 
+    void Timing::postSourceLumi() {
+      double t = popStack();
+      if( t > threshold_) {
+          LogError("TimeModule") << "ExcessiveTime> "
+          "postSourceLumi ::"<< t << " secs exceeds excessive time threshold "<<threshold_ <<" secs.";
+      }
+    }
+  
+    void Timing::preSourceRun() {
+      pushStack();
+    }
+
+    void Timing::postSourceRun() {
+      double t = popStack();
+      if( t > threshold_) {
+          LogError("TimeModule") << "ExcessiveTime> "
+          "postSourceRun ::"<< t << " secs exceeds excessive time threshold "<<threshold_ <<" secs.";
+      }
+    }
+
+    void Timing::preOpenFile(std::string const& lfn, bool b) {
+      pushStack();
+    }
+
+    void Timing::postOpenFile(std::string const& lfn, bool b) {
+      double t = popStack();
+      if( t > threshold_) {
+          LogError("TimeModule") << "ExcessiveTime> "
+          "postOpenFile ::"<< t << " secs exceeds excessive time threshold "<<threshold_ <<" secs.";
+      }
+    }
+
+    void Timing::preEventReadFromSource(StreamContext const& sc, ModuleCallingContext const& mcc) {
+    pushStack();
+    }
+
+    void Timing:: postEventReadFromSource(StreamContext const& sc, ModuleCallingContext const& mcc) {
+      double t = popStack();
+      if( t > threshold_) {
+          LogError("TimeModule") << "ExcessiveTime> "
+          "postEventReadFromSource ::"<< t << " secs exceeds excessive time threshold "<<threshold_ <<" secs.";
       }
     }
   }
