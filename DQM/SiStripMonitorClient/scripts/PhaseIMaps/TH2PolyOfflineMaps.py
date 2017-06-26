@@ -29,7 +29,7 @@ forwardDiskXShift = [25, 75, 125]
 forwardDiskYShift = 45; # to make +DISK on top in the 'strip-like' layout
 
 plotWidth, plotHeight = 3000, 2000
-extremeBinsNum = 60
+extremeBinsNum = 20
 
 class TH2PolyOfflineMaps:
   
@@ -228,7 +228,7 @@ class TH2PolyOfflineMaps:
     # PLUS FORWARD
     for i in range(maxPxForward):
       with open(self.geometryFilenames[maxPxBarrel + maxPxForward + i], "r") as geoFile:
-        currForwardTranslateX = forwardDiskXShift[i - 1]
+        currForwardTranslateX = forwardDiskXShift[i]
         currForwardTranslateY = forwardDiskYShift
         
         self.__AddNamedBins(geoFile, currForwardTranslateX, currForwardTranslateY, 1, 1)
@@ -308,9 +308,8 @@ class TH2PolyOfflineMaps:
         zMin = float(lineSpl[1])
         zMax = float(lineSpl[2])
         isLog = False if lineSpl[3] == "0" else True
-        isAbs = False if lineSpl[4] == "0" else True
-
-        self.limitsDic.update({currName : {"zMin" : zMin, "zMax" : zMax, "isLog" : isLog, "isAbs" : isAbs}})
+        
+        self.limitsDic.update({currName : {"zMin" : zMin, "zMax" : zMax, "isLog" : isLog}})
   
   def ReadHistograms(self):
     if self.inputFile.IsOpen():
@@ -390,8 +389,6 @@ class TH2PolyOfflineMaps:
         histoTitle = "Run " + self.runNumber + ": Tracker Map for " + mv
           
         applyLogScale = False
-        applyAbsValue = False
-
         if mv in self.limitsDic:
           limitsElem = self.limitsDic[mv]
           
@@ -400,8 +397,7 @@ class TH2PolyOfflineMaps:
           currentHist.SetMinimum(limitsElem["zMin"])
           currentHist.SetMaximum(limitsElem["zMax"])
           applyLogScale = limitsElem["isLog"]
-          applyAbsValue = limitsElem["isAbs"]
-
+          
         listOfVals = []
         onlineName = ""
         for detId in self.internalData:
@@ -409,9 +405,7 @@ class TH2PolyOfflineMaps:
           onlineName = self.rawToOnlineDict[detId]
           listOfVals.append([val, detId, onlineName])
           currentHist.Fill(str(detId), val)
-          if applyAbsValue:
-            currentHist.Fill(str(detId), abs(val))
-
+          
         listOfVals = sorted(listOfVals, key = lambda item: item[0])
         
         minMaxFile.write("\n" + mv + "\n\n")
@@ -430,14 +424,6 @@ class TH2PolyOfflineMaps:
           c1.SetLogz()
           
         currentHist.Draw("AC COLZ L")        
-
-        gPad.Update()
-        palette = currentHist.FindObject("palette");
-        palette.SetX1NDC(0.89);
-        palette.SetX2NDC(0.91);
-        palette.SetLabelSize(0.05);
-        gPad.Update()
-
               
         ### IMPORTANT - REALTIVE POSITIONING IS MESSY IN CURRENT VERION OF PYROOT
         ### IT CAN CHANGE FROM VERSION TO VERSION, SO YOU HAVE TO ADJUST IT FOR YOUR NEEDS
