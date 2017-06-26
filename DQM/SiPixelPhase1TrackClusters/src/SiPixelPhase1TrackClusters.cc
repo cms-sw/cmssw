@@ -38,6 +38,8 @@ SiPixelPhase1TrackClusters::SiPixelPhase1TrackClusters(const edm::ParameterSet& 
 
 void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
+  if (! (histo.size() > ONTRACK_SIZE_VS_ETA)) return;
+
   // get geometry
   edm::ESHandle<TrackerGeometry> tracker;
   iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
@@ -72,6 +74,7 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
   // corr_charge is not strictly needed but cleaner to have it.
   std::vector<bool>  ontrack    (clusterColl->data().size(), false);
   std::vector<float> corr_charge(clusterColl->data().size(), -1.0f);
+  std::vector<float> etatk(clusterColl->data().size(), -1.0f);
 
   for (auto const & track : *tracks) {
 
@@ -115,6 +118,7 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
                                                           1.0/pow( tan(clust_beta ), 2 ) + 
                                                           1.0 ));
       corr_charge[clust.key()] = (float) corrCharge;
+      etatk[clust.key()]=(float) track.eta();
     }
 
     // statistics on tracks
@@ -157,7 +161,7 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
         histo[ONTRACK_SIZE      ].fill(double(cluster.size()  ), id, &iEvent);
         histo[ONTRACK_POSITION_B].fill(clustgp.z(),   clustgp.phi(),   id, &iEvent);
         histo[ONTRACK_POSITION_F].fill(clustgp.x(),   clustgp.y(),     id, &iEvent);
-	histo[ONTRACK_SIZE_VS_ETA].fill(clustgp.eta(), cluster.sizeY(), id, &iEvent);
+	histo[ONTRACK_SIZE_VS_ETA].fill(etatk[key], cluster.sizeY(), id, &iEvent);
       } else {
         histo[OFFTRACK_NCLUSTERS ].fill(id, &iEvent);
         histo[OFFTRACK_CHARGE    ].fill(double(cluster.charge()), id, &iEvent);
