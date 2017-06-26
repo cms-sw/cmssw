@@ -111,11 +111,18 @@ else:
     process.AlignmentProducer.algoConfig.UseReweighting=False
     process.AlignmentProducer.algoConfig.Weight=1
 #    process.AlignmentProducer.algoConfig.UniformEta=True
+# The following formula comes from Run2015D
+#    process.AlignmentProducer.algoConfig.UniformEtaFormula=cms.string("2.51469/(2.51469+4.11684*x-16.7847*pow(x,2)+46.1574*pow(x,3)-55.22*pow(x,4)+29.5591*pow(x,5)-5.39816*pow(x,6))")
 #    process.AlignmentProducer.algoConfig.CLAngleCut=1.37
 
+# Assign overall weight from options if specified
 if hasattr(optpy, "overallweight"):
    process.AlignmentProducer.algoConfig.UseReweighting=True
-   process.AlignmentProducer.algoConfig.Weight=optpy.overallweight
+   process.AlignmentProducer.algoConfig.Weight=cms.double(optpy.overallweight)
+
+# Assign datatype from options (always defaulted to -1, contrary to collection jobs, which default to -2)
+if hasattr(optpy, "datatype"):
+   process.AlignmentProducer.algoConfig.DataGroup = cms.int32(optpy.datatype)
 
 process.AlignmentProducer.algoConfig.applyAPE = False
 #process.AlignmentProducer.algoConfig.applyAPE = True 

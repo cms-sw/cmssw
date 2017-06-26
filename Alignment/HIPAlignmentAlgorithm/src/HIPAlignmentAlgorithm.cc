@@ -3,8 +3,7 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TList.h"
-#include "TRandom.h" 
-#include "TFormula.h"
+#include "TRandom.h"
 #include "TMath.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -99,12 +98,20 @@ HIPAlignmentAlgorithm::HIPAlignmentAlgorithm(
   theCollectorNJobs=cfg.getParameter<int>("collectorNJobs");
   theCollectorPath=cfg.getParameter<std::string>("collectorPath");
 
-  if (isCollector) edm::LogInfo("Alignment") << "[HIPAlignmentAlgorithm] Collector mode";
+  if (isCollector) edm::LogInfo("Alignment") << "@SUB=HIPAlignmentAlgorithm::HIPAlignmentAlgorithm" << "Collector mode";
 
   trackPs = cfg.getParameter<bool>("UsePreSelection");
+  theDataGroup = cfg.getParameter<int>("DataGroup");
   trackWt = cfg.getParameter<bool>("UseReweighting");
   Scale = cfg.getParameter<double>("Weight");
   uniEta = cfg.getParameter<bool>("UniformEta");
+  uniEtaFormula = cfg.getParameter<std::string>("UniformEtaFormula");
+  if (uniEtaFormula.empty()){
+    edm::LogWarning("Alignment") << "@SUB=HIPAlignmentAlgorithm::HIPAlignmentAlgorithm" << "Uniform eta formula is empty! Resetting to 1.";
+    uniEtaFormula="1";
+  }
+  theEtaFormula = std::make_unique<TFormula>(uniEtaFormula.c_str());
+  rewgtPerAli = cfg.getParameter<bool>("ReweightPerAlignable");
   IsCollision = cfg.getParameter<bool>("isCollision");
   SetScanDet=cfg.getParameter<std::vector<double> >("setScanDet");
   col_cut = cfg.getParameter<double>("CLAngleCut");
@@ -517,6 +524,8 @@ bool HIPAlignmentAlgorithm::processHit1D(
 
   // get Alignment Parameters
   AlignmentParameters* params = ali->alignmentParameters();
+  HIPUserVariables* uservar = dynamic_cast<HIPUserVariables*>(params->userVariables());
+  uservar->datatype = theDataGroup;
   // get derivatives
   AlgebraicMatrix derivs2D = params->selectedDerivatives(tsos, alidet);
   // calculate user parameters
@@ -557,9 +566,6 @@ bool HIPAlignmentAlgorithm::processHit1D(
 
   AlgebraicMatrix hitresidualT;
   hitresidualT = hitresidual.T();
-
-  // access user variables (via AlignmentParameters)
-  HIPUserVariables* uservar = dynamic_cast<HIPUserVariables*>(params->userVariables());
 
   uservar->jtvj += hitwt*thisjtvj;
   uservar->jtve += hitwt*thisjtve;
@@ -625,6 +631,8 @@ bool HIPAlignmentAlgorithm::processHit2D(
 
   // get Alignment Parameters
   AlignmentParameters* params = ali->alignmentParameters();
+  HIPUserVariables* uservar = dynamic_cast<HIPUserVariables*>(params->userVariables());
+  uservar->datatype = theDataGroup;
   // get derivatives
   AlgebraicMatrix derivs2D = params->selectedDerivatives(tsos, alidet);
   // calculate user parameters
@@ -666,8 +674,6 @@ bool HIPAlignmentAlgorithm::processHit2D(
 
   AlgebraicMatrix hitresidualT;
   hitresidualT = hitresidual.T();
-  // access user variables (via AlignmentParameters)
-  HIPUserVariables* uservar = dynamic_cast<HIPUserVariables*>(params->userVariables());
 
   uservar->jtvj += hitwt*thisjtvj;
   uservar->jtve += hitwt*thisjtve;
@@ -706,6 +712,7 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
   m_angle = 0;
   m_detId =0;
   m_hitwt=1;
+  m_datatype=theDataGroup;
 
   // loop over tracks  
   const ConstTrajTrackPairCollection &tracks = eventInfo.trajTrackPairs();
@@ -739,13 +746,11 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
 
     double ihitwt = 1;
     double trkwt = 1;
-
-    //eta distribution from 2015 RunD, need to change formula for other runs
-    TFormula* my_formula = new TFormula("formula", "2.51469/(2.51469+4.11684*x-16.7847*pow(x,2)+46.1574*pow(x,3)-55.22*pow(x,4)+29.5591*pow(x,5)-5.39816*pow(x,6))");
-    if (uniEta) trkwt = Scale*(my_formula->Eval(fabs(eta)));
-    else trkwt=Scale;
-    delete my_formula;
-
+    if (trackWt){
+      trkwt=Scale;
+      // Reweight by the specified eta distribution
+      if (uniEta) trkwt *= theEtaFormula->Eval(fabs(eta));
+    }
     if (trackPs){
       double r = gRandom->Rndm();
       if (trkwt < r) continue;
@@ -927,13 +932,13 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
 
         m_hitwt = ihitwt;
         if (ihitwt!=0.){
-          if (theMonitorConfig.fillTrackHitMonitoring && theMonitorConfig.checkNhits() && theHitMonitorTree!=0) theHitMonitorTree->Fill();
+          bool hitProcessed=false;
           switch (nhitDim){
           case 1:
-            processHit1D(alidet, ali, alispecifics, tsos, *ihit, ihitwt);
+            hitProcessed=processHit1D(alidet, ali, alispecifics, tsos, *ihit, ihitwt);
             break;
           case 2:
-            processHit2D(alidet, ali, alispecifics, tsos, *ihit, ihitwt);
+            hitProcessed=processHit2D(alidet, ali, alispecifics, tsos, *ihit, ihitwt);
             break;
           default:
             edm::LogError("HIPAlignmentAlgorithm")
@@ -942,6 +947,7 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
               << std::endl;
             break;
           }
+          if (theMonitorConfig.fillTrackHitMonitoring && theMonitorConfig.checkNhits() && theHitMonitorTree!=0 && hitProcessed) theHitMonitorTree->Fill();
         }
       }
 
@@ -1057,31 +1063,34 @@ void HIPAlignmentAlgorithm::bookRoot(void){
     theFile->cd();
     // book event-wise ROOT Tree
     if (theMonitorConfig.fillTrackMonitoring){
-      theTree = new TTree(tname, "Eventwise tree");
-      //theTree->Branch("Run",     &m_Run,     "Run/I");
-      //theTree->Branch("Event",   &m_Event,   "Event/I");
-      theTree->Branch("Ntracks", &m_Ntracks);
-      theTree->Branch("Nhits", &m_Nhits);
-      theTree->Branch("nhPXB", &m_nhPXB);
-      theTree->Branch("nhPXF", &m_nhPXF);
-      theTree->Branch("nhTIB", &m_nhTIB);
-      theTree->Branch("nhTOB", &m_nhTOB);
-      theTree->Branch("nhTID", &m_nhTID);
-      theTree->Branch("nhTEC", &m_nhTEC);
-      theTree->Branch("Pt", &m_Pt);
-      theTree->Branch("P", &m_P);
-      theTree->Branch("Eta", &m_Eta);
-      theTree->Branch("Phi", &m_Phi);
-      theTree->Branch("Chi2n", &m_Chi2n);
-      theTree->Branch("d0", &m_d0);
-      theTree->Branch("dz", &m_dz);
-      theTree->Branch("wt", &m_wt);
+      TString tname=Form("T1_%i", theIteration);
+      theTrackMonitorTree = new TTree(tname, "Eventwise tree");
+      //theTrackMonitorTree->Branch("Run",     &m_Run,     "Run/I");
+      //theTrackMonitorTree->Branch("Event",   &m_Event,   "Event/I");
+      theTrackMonitorTree->Branch("Ntracks", &m_Ntracks);
+      theTrackMonitorTree->Branch("Nhits", &m_Nhits);
+      theTrackMonitorTree->Branch("DataType", &m_datatype);
+      theTrackMonitorTree->Branch("nhPXB", &m_nhPXB);
+      theTrackMonitorTree->Branch("nhPXF", &m_nhPXF);
+      theTrackMonitorTree->Branch("nhTIB", &m_nhTIB);
+      theTrackMonitorTree->Branch("nhTOB", &m_nhTOB);
+      theTrackMonitorTree->Branch("nhTID", &m_nhTID);
+      theTrackMonitorTree->Branch("nhTEC", &m_nhTEC);
+      theTrackMonitorTree->Branch("Pt", &m_Pt);
+      theTrackMonitorTree->Branch("P", &m_P);
+      theTrackMonitorTree->Branch("Eta", &m_Eta);
+      theTrackMonitorTree->Branch("Phi", &m_Phi);
+      theTrackMonitorTree->Branch("Chi2n", &m_Chi2n);
+      theTrackMonitorTree->Branch("d0", &m_d0);
+      theTrackMonitorTree->Branch("dz", &m_dz);
+      theTrackMonitorTree->Branch("wt", &m_wt);
     }
     // book hit-wise ROOT Tree
     if (theMonitorConfig.fillTrackHitMonitoring){
       TString tname_hit=Form("T1_hit_%i", theIteration);
       theHitMonitorTree = new TTree(tname_hit, "Hitwise tree");
       theHitMonitorTree->Branch("Id", &m_detId, "Id/i");
+      theHitMonitorTree->Branch("DataType", &m_datatype);
       theHitMonitorTree->Branch("sinTheta", &m_sinTheta);
       theHitMonitorTree->Branch("impactAngle", &m_angle);
       theHitMonitorTree->Branch("wt", &m_hitwt);
@@ -1101,6 +1110,7 @@ void HIPAlignmentAlgorithm::bookRoot(void){
     theAlignablesMonitorTree->Branch("Id", &m2_Id, "Id/i");
     theAlignablesMonitorTree->Branch("ObjId", &m2_ObjId, "ObjId/I");
     theAlignablesMonitorTree->Branch("Nhit", &m2_Nhit);
+    theAlignablesMonitorTree->Branch("DataType", &m2_datatype);
     theAlignablesMonitorTree->Branch("Type", &m2_Type);
     theAlignablesMonitorTree->Branch("Layer", &m2_Layer);
     theAlignablesMonitorTree->Branch("Xpos", &m2_Xpos);
@@ -1148,6 +1158,7 @@ void HIPAlignmentAlgorithm::fillRoot(const edm::EventSetup& iSetup){
       // get number of hits from user variable
       HIPUserVariables* uservar = dynamic_cast<HIPUserVariables*>(dap->userVariables());
       m2_Nhit = uservar->nhit;
+      m2_datatype = uservar->datatype;
 
       // get type/layer
       std::pair<int, int> tl = theAlignmentParameterStore->typeAndLayer(ali, tTopo);

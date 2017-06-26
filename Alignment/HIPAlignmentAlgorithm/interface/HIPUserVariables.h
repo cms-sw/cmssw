@@ -8,6 +8,7 @@ public:
   double alichi2;
   int alindof;
   int nhit;
+  int datatype;
   AlgebraicVector alipar;
   AlgebraicVector alierr;
 
@@ -18,6 +19,7 @@ public:
     alichi2(0.0),
     alindof(0),
     nhit(0),
+    datatype(-1),
     alipar(npar, 0),
     alierr(npar, 0)
   {}
@@ -28,6 +30,7 @@ public:
     alichi2(other.alichi2),
     alindof(other.alindof),
     nhit(other.nhit),
+    datatype(other.datatype),
     alipar(other.alipar),
     alierr(other.alierr)
   {}

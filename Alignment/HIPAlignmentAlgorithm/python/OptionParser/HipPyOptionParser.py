@@ -62,7 +62,7 @@ class HipPyOptionParser:
       self.rawopt = stropt
       self.optdict=dict()
 
-      self.datatype=0
+      self.datatype=-1
       self.CPEtype="template"
       self.getTrackDefaults()
 
@@ -149,7 +149,7 @@ class HipPyOptionParser:
                      raise RuntimeError("GT specification {} does not have size==2".format(namespec))
                gttogetpsets.append(apset)
          # Get data type
-         elif (key=="type" or key=="datatype"):
+         elif (key=="type" or key=="datatype" or key=="datagroup"):
             try:
                dtype=int(val)
                self.datatype=dtype

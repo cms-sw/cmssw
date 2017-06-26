@@ -23,6 +23,8 @@
 
 #include "Alignment/HIPAlignmentAlgorithm/interface/HIPMonitorConfig.h"
 #include "Alignment/HIPAlignmentAlgorithm/interface/HIPAlignableSpecificParameters.h"
+#include "TFormula.h"
+
 
 class TFile;
 class TTree;
@@ -127,10 +129,14 @@ private:
   bool isCollector;
   int theCollectorNJobs;
   std::string theCollectorPath;
-  int theEventPrescale, theCurrentPrescale;
-  bool trackPs, trackWt, IsCollision, uniEta;
+  int theDataGroup; // The data type specified in the cfg
+  bool trackPs, trackWt, IsCollision, uniEta, rewgtPerAli;
+  std::string uniEtaFormula;
   double Scale, cos_cut, col_cut;
   std::vector<double> SetScanDet;
+
+  std::unique_ptr<TFormula> theEtaFormula;
+
 
   const std::vector<std::string> surveyResiduals_;
   std::vector<align::StructureType> theLevels; // for survey residuals
@@ -153,12 +159,14 @@ private:
   bool m_hasHitProb;
   float m_sinTheta, m_hitwt, m_angle, m_probXY, m_probQ;
   unsigned int m_rawQualityWord;
+  int m_datatype;
   align::ID m_detId;
 
   // variables for alignable-wise tree
   align::ID m2_Id;
   align::StructureType m2_ObjId;
   int m2_Nhit, m2_Type, m2_Layer;
+  int m2_datatype;
   float m2_Xpos, m2_Ypos, m2_Zpos;
   SurfaceDeformationFactory::Type m2_dtype;
   unsigned int m2_nsurfdef;
