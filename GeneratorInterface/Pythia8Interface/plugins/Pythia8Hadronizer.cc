@@ -32,7 +32,6 @@ using namespace Pythia8;
 
 // Resonance scale hook
 #include "GeneratorInterface/Pythia8Interface/plugins/PowhegResHook.h"
-#include "GeneratorInterface/Pythia8Interface/plugins/PowhegHooksBB4L.h"
 
 //decay filter hook
 #include "GeneratorInterface/Pythia8Interface/interface/ResonanceDecayFilterHook.h"
@@ -130,7 +129,6 @@ class Pythia8Hadronizer : public BaseHadronizer, public Py8InterfaceBase {
     
     // Resonance scale hook
     PowhegResHook* fPowhegResHook;
-    PowhegHooksBB4L* fPowhegHooksBB4L;
     
     //resonance decay filter hook
     ResonanceDecayFilterHook *fResonanceDecayFilterHook;
@@ -269,9 +267,6 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   
   //add settings for powheg resonance scale calculation
   fMasterGen->settings.addFlag("POWHEGres:calcScales",false);
-  fMasterGen->settings.addFlag("POWHEG:bb4l",false);
-  fMasterGen->settings.addFlag("POWHEG:bb4l:onlyDistance1",false);
-  fMasterGen->settings.addFlag("POWHEG:bb4l:useScaleResonanceInstead",false);
 
   // Reweight user hook
   //
@@ -435,13 +430,6 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
     fMultiUserHook->addHook(fPowhegResHook);
   }
   
-  bool PowhegBB4L = fMasterGen->settings.flag("POWHEG:bb4l");
-  if (PowhegBB4L) {
-    edm::LogInfo("Pythia8Interface") << "Turning on BB4l hook from CMSSW Pythia8Interface";
-    fPowhegHooksBB4L = new PowhegHooksBB4L();
-    fMultiUserHook->addHook(fPowhegHooksBB4L);
-  }
-  
   bool resonanceDecayFilter = fMasterGen->settings.flag("ResonanceDecayFilter:filter");
   if (resonanceDecayFilter && !fResonanceDecayFilterHook) {
     fResonanceDecayFilterHook = new ResonanceDecayFilterHook;
@@ -512,13 +500,6 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
     edm::LogInfo("Pythia8Interface") << "Turning on resonance scale setting from CMSSW Pythia8Interface";
     fPowhegResHook = new PowhegResHook();
     fMultiUserHook->addHook(fPowhegResHook);
-  }
-  
-  bool PowhegBB4L = fMasterGen->settings.flag("POWHEG:bb4l");
-  if (PowhegBB4L) {
-    edm::LogInfo("Pythia8Interface") << "Turning on BB4l hook from CMSSW Pythia8Interface";
-    fPowhegHooksBB4L = new PowhegHooksBB4L();
-    fMultiUserHook->addHook(fPowhegHooksBB4L);
   }
 
   //adapted from main89.cc in pythia8 examples
