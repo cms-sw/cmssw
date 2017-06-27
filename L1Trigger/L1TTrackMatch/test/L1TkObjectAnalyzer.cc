@@ -173,7 +173,7 @@ L1TkObjectAnalyzer::L1TkObjectAnalyzer(const edm::ParameterSet& iConfig) :
 void L1TkObjectAnalyzer::beginJob() {
   edm::Service<TFileService> fs;
 
-  etaTrack_ = fs->make<TH1F>("Eta_Track","Eta of L1Tracks",50, -2.5, 2.5);
+  etaTrack_ = fs->make<TH1F>("Eta_Track","Eta of L1Tracks",90, -4.5, 4.5);
   ptTrack_ = fs->make<TH1F>("Pt_Track","Pt of L1Tracks",  30, -0.5, 59.5);  
   
   std::ostringstream HistoName;
@@ -190,13 +190,13 @@ void L1TkObjectAnalyzer::beginJob() {
   
   HistoName.str("");
   HistoName << "EtaGen" << objectType_;
-  etaGenL1Obj = fs->make<TH1F>(HistoName.str().c_str(), HistoName.str().c_str(), 50, -2.5, 2.5);
+  etaGenL1Obj = fs->make<TH1F>(HistoName.str().c_str(), HistoName.str().c_str(), 90, -4.5, 4.5);
   HistoName.str("");
   HistoName << "Eta" << objectType_;
-  etaL1Obj  = fs->make<TH1F>(HistoName.str().c_str(), HistoName.str().c_str(), 50, -2.5, 2.5);
+  etaL1Obj  = fs->make<TH1F>(HistoName.str().c_str(), HistoName.str().c_str(), 90, -4.5, 4.5);
   HistoName.str("");
   HistoName << "EtaTrk" << objectType_;
-  etaL1TrkObj = fs->make<TH1F>(HistoName.str().c_str(),HistoName.str().c_str(), 50, -2.5, 2.5);
+  etaL1TrkObj = fs->make<TH1F>(HistoName.str().c_str(),HistoName.str().c_str(), 90, -4.5, 4.5);
   
   if (analysisOption_ == "Efficiency") {
     HistoName.str("");
@@ -673,14 +673,16 @@ int L1TkObjectAnalyzer::matchWithGenParticle(const edm::Handle<reco::GenParticle
       break;
     }
   }
-  const reco::Candidate & p = (*genH)[indx];
-  pt = p.pt();
-  eta = p.eta();
-  phi = p.phi();
-  if ( fabs(eta) > etaCutoff_ || pt <= 0.0) return -1;
-  if (pt > genPtThreshold_) {
-    etGenL1Obj->Fill(pt); 
-    etaGenL1Obj->Fill(eta); 
+  if (indx >= 0) {
+    const reco::Candidate & p = (*genH)[indx];
+    pt = p.pt();
+    eta = p.eta();
+    phi = p.phi();
+    if ( fabs(eta) > etaCutoff_ || pt <= 0.0) return -1;
+    if (pt > genPtThreshold_) {
+      etGenL1Obj->Fill(pt); 
+      etaGenL1Obj->Fill(eta); 
+    }
   }
   return indx;
 }

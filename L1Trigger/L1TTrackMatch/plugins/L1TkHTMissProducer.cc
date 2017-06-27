@@ -73,7 +73,7 @@ private:
 // constructor
 L1TkHTMissProducer::L1TkHTMissProducer(const edm::ParameterSet& iConfig) :
   tkpvToken(consumes<L1TkPrimaryVertexCollection>(iConfig.getParameter<edm::InputTag>("L1VertexInputTag"))),
-  tkjetToken(consumes<L1TkJetParticleCollection>(iConfig.getParameter<edm::InputTag>("L1JetInputTag")))
+  tkjetToken(consumes<L1TkJetParticleCollection>(iConfig.getParameter<edm::InputTag>("L1TkJetInputTag")))
 {
   
   JET_PTMIN  = (float)iConfig.getParameter<double>("JET_PTMIN");
