@@ -8,7 +8,6 @@
  <use name="Geometry/CSCGeometryBuilder"/>
  <use name="Geometry/MuonNumbering"/>
  <use name="Geometry/Records"/>
- <use name="Geometry/TrackingGeometryAligner"/>
 <library file="CSCGeometryESModule.cc">
  <flags EDM_PLUGIN="1"/>
 </library>
