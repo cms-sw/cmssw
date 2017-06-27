@@ -1207,15 +1207,14 @@ bool SiStripMonitorTrack::fillControlViewHistos(const edm::Event& ev, const edm:
   if( !tracks.isValid() )     return false;
 
   // loop over the tracks
-  for( reco::TrackCollection::const_iterator track = tracks->begin();
-       track != tracks->end(); ++track ) {
+  for ( const auto & track : *tracks) {
 
     // loop over the rechits of this track
-    for (trackingRecHit_iterator hit = track->recHitsBegin(), ehit = track->recHitsEnd();
+    for (trackingRecHit_iterator hit = track.recHitsBegin(), ehit = track.recHitsEnd();
          hit!=ehit; ++hit) {
 
       uint32_t thedetid = (*hit)->rawId();
-      if ( !(SiStripDetId(thedetid).subDetector() >=3 &&  SiStripDetId(thedetid).subDetector() <=6) ) { continue; }
+      if ( !(DetId(thedetid).subdetId() >=3 &&  DetId(thedetid).subdetId() <=6) ) { continue; }
 
       if (!(*hit)->isValid()) continue;
 
@@ -1243,45 +1242,46 @@ bool SiStripMonitorTrack::fillControlViewHistos(const edm::Event& ev, const edm:
       }
 
 
-      std::vector<const FedChannelConnection *> getFedChanConnections; getFedChanConnections.clear();
+      std::vector<const FedChannelConnection *> getFedChanConnections; 
       getFedChanConnections = SiStripDetCabling_->getConnections(thedetid);
 
-      SiStripFolderOrganizer folder_organizer;
-      TString sistripsubdet = folder_organizer.getSubDetFolderAndTag(thedetid, tTopo).second;
+      //      SiStripFolderOrganizer folder_organizer;
+      //      std::string sistripsubdet = folder_organizer.getSubDetFolderAndTag(thedetid, tTopo).second;
 
       // loop over the fed chan connections
-      for (unsigned int i0=0; i0<getFedChanConnections.size(); ++i0) {
+      for ( const auto & getFedChanConnection : getFedChanConnections ) {
 
-        if (getFedChanConnections[i0]==0) { continue; }
+        if (getFedChanConnection==0) { continue; }
 
-        int binfeccrate = getFedChanConnections[i0]->fecCrate();
-        int binfecslot  = getFedChanConnections[i0]->fecSlot();
-        int binfecring  = getFedChanConnections[i0]->fecRing();
+        int binfeccrate = getFedChanConnection->fecCrate();
+        int binfecslot  = getFedChanConnection->fecSlot();
+        int binfecring  = getFedChanConnection->fecRing();
         //int binccuchan  = getFedChanConnections[i0]->ccuChan(); //will be used in a new PR
         //int binccuadd   = getFedChanConnections[i0]->ccuAddr(); //will be used in a new PR
 
         return2DME(ClusterStoNCorr_OnTrack_FECCratevsFECSlot,binfecslot,binfeccrate,sovn);
 
 	// TIB/TID
-        if ((sistripsubdet.Contains("TIB")) || (sistripsubdet.Contains("TID"))) {
-          ClusterStoNCorr_OnTrack_TIBTID->Fill(sovn);
+	//        if ((sistripsubdet.find("TIB")) || (sistripsubdet.find("TID"))) {
+        if ((DetId(thedetid).subdetId()==SiStripDetId::TIB) || ((DetId(thedetid).subdetId()==SiStripDetId::TID)) ) {
+	  ClusterStoNCorr_OnTrack_TIBTID->Fill(sovn);
           return2DME(ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TIBTID,binfecring,binfecslot,sovn);
         }
 
 	// TOB
-        if (sistripsubdet.Contains("TOB")) {
+        if ( DetId(thedetid).subdetId()==SiStripDetId::TOB ) {
           ClusterStoNCorr_OnTrack_TOB->Fill(sovn);
           return2DME(ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TOB,binfecring,binfecslot,sovn);
         }
 
         // TECM
-        if (sistripsubdet.Contains("TEC__MINUS")) {
+        if ( (DetId(thedetid).subdetId()==SiStripDetId::TEC) && (tTopo->tecSide(thedetid)==1) ) {
           ClusterStoNCorr_OnTrack_TECM->Fill(sovn);
           return2DME(ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECM,binfecring,binfecslot,sovn);
         }
 
 	// TECP
-        if (sistripsubdet.Contains("TEC__PLUS")) {
+        if ( (DetId(thedetid).subdetId()==SiStripDetId::TEC) && (tTopo->tecSide(thedetid)==2) ) {
           ClusterStoNCorr_OnTrack_TECP->Fill(sovn);
           return2DME(ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECP,binfecring,binfecslot,sovn);
         }
