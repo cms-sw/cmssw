@@ -123,7 +123,7 @@ CaloSamples CaloHitResponse::makeAnalogSignal(const PCaloHit & hit, CLHEP::HepRa
 
   const CaloVShape * shape = theShape;
   if(!shape) {
-    shape = theShapes->shape(detId);
+    shape = theShapes->shape(detId,storePrecise);
   }
   // assume bins count from zero, go for center of bin
   const double tzero = ( shape->timeToRise()

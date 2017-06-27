@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
@@ -84,7 +85,7 @@ private:
 
   TH1F *deltaPhi_allStations_normalized;
   TH1F *deltaPhi_GE11;
-  TH1F *deltaPhi_GE21long;
+  TH1F *deltaPhi_GE21;
 
   TH2F *mom_cls_allStations;
   TH2F *deltaPhi_cls_allStations;
@@ -93,8 +94,8 @@ private:
   TH2F *mom_cls_GE11;
   TH2F *deltaPhi_cls_GE11;
 
-  TH2F *mom_cls_GE21long;
-  TH2F *deltaPhi_cls_GE21long;
+  TH2F *mom_cls_GE21;
+  TH2F *deltaPhi_cls_GE21;
 
   TH1F *allClusters_histo;
   TH1F *muonClusters_histo;
@@ -140,7 +141,7 @@ GEMDigiSimLinkReader::GEMDigiSimLinkReader(const edm::ParameterSet& pset) :
   deltaPhi_allStations = fs->make < TH1F > ("deltaPhi_allStations", "deltaPhi_allStations", 2000000, -1., 1.);
   deltaPhi_allStations_normalized = fs->make < TH1F > ("deltaPhi_allStations_normalized", "deltaPhi_allStations_normalized", 2000, -10., 10.);
   deltaPhi_GE11 = fs->make < TH1F > ("deltaPhi_GE11", "deltaPhi_GE11", 2000000, -1., 1.);
-  deltaPhi_GE21long = fs->make < TH1F > ("deltaPhi_GE21long", "deltaPhi_GE21long", 2000000, -1., 1.);
+  deltaPhi_GE21 = fs->make < TH1F > ("deltaPhi_GE21", "deltaPhi_GE21", 2000000, -1., 1.);
 
   mom_cls_allStations = fs->make < TH2F > ("mom_cls_allStations", "mom_cls_allStations", 20000, 0., 2000., 21, -0.5, 20.5);
   mom_cls_allStations->SetXTitle("Muon Momentum [GeV]");
@@ -150,9 +151,9 @@ GEMDigiSimLinkReader::GEMDigiSimLinkReader(const edm::ParameterSet& pset) :
   mom_cls_GE11->SetXTitle("Muon Momentum [GeV]");
   mom_cls_GE11->SetYTitle("Cluster Size");
 
-  mom_cls_GE21long = fs->make < TH2F > ("mom_cls_GE21long", "mom_cls_GE21long", 20000, 0., 2000., 21, -0.5, 20.5);
-  mom_cls_GE21long->SetXTitle("Muon Momentum [GeV]");
-  mom_cls_GE21long->SetYTitle("Cluster Size");
+  mom_cls_GE21 = fs->make < TH2F > ("mom_cls_GE21", "mom_cls_GE21", 20000, 0., 2000., 21, -0.5, 20.5);
+  mom_cls_GE21->SetXTitle("Muon Momentum [GeV]");
+  mom_cls_GE21->SetYTitle("Cluster Size");
 
   deltaPhi_cls_allStations = fs->make < TH2F> ("deltaPhi_cls_allStations", "deltaPhi_cls_allStations", 2000000, -1., 1., 21, -0.5, 20.5);
   deltaPhi_cls_allStations->SetXTitle("Delta #phi [rad]");
@@ -181,9 +182,9 @@ GEMDigiSimLinkReader::GEMDigiSimLinkReader(const edm::ParameterSet& pset) :
   deltaPhi_cls_GE11->SetXTitle("Delta #phi [rad]");
   deltaPhi_cls_GE11->SetYTitle("Cluster Size");
 
-  deltaPhi_cls_GE21long = fs->make < TH2F > ("deltaPhi_cls_GE21long", "deltaPhi_cls_GE21long", 2000000, -1., 1., 21, -0.5, 20.5);
-  deltaPhi_cls_GE21long->SetXTitle("Delta #phi [rad]");
-  deltaPhi_cls_GE21long->SetYTitle("Cluster Size");
+  deltaPhi_cls_GE21 = fs->make < TH2F > ("deltaPhi_cls_GE21", "deltaPhi_cls_GE21", 2000000, -1., 1., 21, -0.5, 20.5);
+  deltaPhi_cls_GE21->SetXTitle("Delta #phi [rad]");
+  deltaPhi_cls_GE21->SetYTitle("Cluster Size");
 
   allClusters_histo = fs->make < TH1F > ("allClusters_histo", "allClusters_histo", 51, -0.5, 50.5);
   muonClusters_histo = fs->make < TH1F > ("muonClusters_histo", "muonClusters_histo", 51, -0.5, 50.5);
@@ -216,14 +217,14 @@ void GEMDigiSimLinkReader::analyze(const edm::Event & event, const edm::EventSet
   for (const auto& simHit : *simHits)
   {
 
-    std::cout << "particle type\t" << simHit.particleType() << "\tprocess type\t" << simHit.processType() << std::endl;
+    LogDebug("GEMDigiSimLinkReader") << "particle type\t" << simHit.particleType() << "\tprocess type\t" << simHit.processType() << std::endl;
 
     hProces->Fill(simHit.processType());
     hAllSimHitsType->Fill(simHit.particleType());
 
-    if (abs(simHit.particleType()) == 13)
+    if (std::abs(simHit.particleType()) == 13)
       Muon_energy->Fill(simHit.pabs());
-    if (abs(simHit.particleType()) == 11)
+    if (std::abs(simHit.particleType()) == 11)
     {
       if (simHit.processType() == 13)
         Compton_energy->Fill(simHit.pabs());
@@ -246,7 +247,7 @@ void GEMDigiSimLinkReader::analyze(const edm::Event & event, const edm::EventSet
     //get the particular detector
     int detid = itsimlink->detId();
     if(debug_)
-      std::cout << "detid\t" << detid << std::endl;
+      LogDebug("GEMDigiSimLinkReader") << "detid\t" << detid << std::endl;
     const GEMEtaPartition* roll = pDD->etaPartition(detid);
     const GEMDetId gemId = roll->id();
     const int nstrips = roll->nstrips();
@@ -282,15 +283,15 @@ void GEMDigiSimLinkReader::analyze(const edm::Event & event, const edm::EventSet
 
       if (debug_)
       {
-        std::cout << "roll Id\t" << gemId << std::endl;
-        std::cout << "number of strips \t" << nstrips << std::endl;
-        std::cout << "simhit particle type\t" << particletype << std::endl;
-        std::cout << "simhit process type\t" << processtype << std::endl;
-        std::cout << "linked to strip with number\t" << strip << std::endl;
-        std::cout << "in bunch crossing\t" << bx << std::endl;
-        std::cout << "energy loss\t" << myEnergyLoss << std::endl;
-        std::cout << "time of flight't" << partTof << std::endl;
-        std::cout << "roll Id\t" << roll->id() << "\tangularStripCoverage \t" << fullAngularStripPitch << std::endl;
+        LogDebug("GEMDigiSimLinkReader") << "roll Id\t" << gemId << std::endl
+					 << "number of strips \t" << nstrips << std::endl
+					 << "simhit particle type\t" << particletype << std::endl
+					 << "simhit process type\t" << processtype << std::endl
+					 << "linked to strip with number\t" << strip << std::endl
+					 << "in bunch crossing\t" << bx << std::endl
+					 << "energy loss\t" << myEnergyLoss << std::endl
+					 << "time of flight't" << partTof << std::endl
+					 << "roll Id\t" << roll->id() << "\tangularStripCoverage \t" << fullAngularStripPitch << std::endl;
       }
 
       hParticleTypes->Fill(particletype);
@@ -299,9 +300,9 @@ void GEMDigiSimLinkReader::analyze(const edm::Event & event, const edm::EventSet
         processtypeElectrons->Fill(processtype);
       if (particletype == -11)
         processtypePositrons->Fill(processtype);
-      if (abs(particletype) == 13)
+      if (std::abs(particletype) == 13)
       {
-        std::cout << "particle\t" << particletype << "\tdetektor\t" << gemId << std::endl;
+        LogDebug("GEMDigiSimLinkReader") << "particle\t" << particletype << "\tdetektor\t" << gemId << std::endl;
         processtypeMuons->Fill(processtype);
         locMuonEntry = link_iter->getEntryPoint();
         globMuonEntry = roll->toGlobal(locMuonEntry);
@@ -315,62 +316,32 @@ void GEMDigiSimLinkReader::analyze(const edm::Event & event, const edm::EventSet
         tof_allPart_bx0_ge->Fill(partTof);
         if (gemId.station() == 1) tof_allPart_bx0_ge11->Fill(partTof);
         if (gemId.station() == 3) tof_allPart_bx0_ge21->Fill(partTof);
-        if (abs(particletype) == 13)
+        if (std::abs(particletype) == 13)
           {
             if (gemId.station() == 1) tof_mu_bx0_ge11->Fill(partTof);
             if (gemId.station() == 3) tof_mu_bx0_ge21->Fill(partTof);
-            MuCluster.insert(std::pair<int, int>(strip, particletype));
+            MuCluster.emplace(strip, particletype);
           }
-        else if (abs(particletype) == 11)
+        else if (std::abs(particletype) == 11)
         {
           if (gemId.station() == 1) tof_elec_bx0_ge11->Fill(partTof);
           if (gemId.station() == 3) tof_elec_bx0_ge21->Fill(partTof);
-          ElecCluster.insert(std::pair<int, int>(strip, particletype));
+          ElecCluster.emplace(strip, particletype);
         }
         else
           continue;
       }
     }
 
-    if (MuCluster.size() != 0)
-    {
-      for (std::map<int, int>::iterator it = MuCluster.begin(); it != MuCluster.end(); ++it)
-      {
-        myCluster.insert(std::pair<int, int>(it->first, it->second));
-      }
-    }
-
-    if (MuCluster.size() != 0)
-    {
-      for (std::map<int, int>::iterator it = MuCluster.begin(); it != MuCluster.end(); ++it)
-      {
-        myCluster.insert(std::pair<int, int>(it->first, it->second));
-      }
-    }
-
-    if (ElecCluster.size() != 0)
-    {
-      for (std::map<int, int>::iterator it = ElecCluster.begin(); it != ElecCluster.end(); ++it)
-      {
-        myCluster.insert(std::pair<int, int>(it->first, it->second));
-      }
-    }
-
-    if (MuCluster.size() != 0)
-    {
-      for (std::map<int, int>::iterator it = myCluster.begin(); it != myCluster.end(); ++it)
-      {
-        if (abs(it->second) == 13)
-        {
-          muonFired.push_back(it->first);
-        }
-      }
-    }
+     // add electron and muon hits to cluster
+    for (const auto& p : MuCluster) myCluster.emplace(p);
+    for (const auto& p : ElecCluster) myCluster.emplace(p);
+    for (const auto& p : MuCluster)  if (std::abs(p.second) == 13) muonFired.emplace_back(p.first);
 
     if (myCluster.size() != 0)
     {
-      std::cout << "=+=+=+=+=+=+=+=" << std::endl;
-      std::cout << "Muon size " << muonFired.size() << std::endl;
+      LogDebug("GEMDigiSimLinkReader") << "=+=+=+=+=+=+=+=" << std::endl;
+      LogDebug("GEMDigiSimLinkReader") << "Muon size " << muonFired.size() << std::endl;
 
       std::vector<int> allFired;
       std::vector<std::vector<int> > tempCluster;
@@ -382,13 +353,13 @@ void GEMDigiSimLinkReader::analyze(const edm::Event & event, const edm::EventSet
       int clusterInd = 0;
       for (unsigned int kk = 0; kk < allFired.size(); kk++)
       {
-        std::cout << "kk\t" << kk << std::endl;
+        LogDebug("GEMDigiSimLinkReader") << "kk\t" << kk << std::endl;
         int myDelta = 0;
         std::vector<int> prazen;
         tempCluster.push_back(prazen);
         (tempCluster[clusterInd]).push_back(allFired[kk]);
         unsigned int i = kk;
-        std::cout << "i\t" << i << "\tpush kk\t" << allFired[kk] << "\tclusterInd\t" << clusterInd << std::endl;
+        LogDebug("GEMDigiSimLinkReader") << "i\t" << i << "\tpush kk\t" << allFired[kk] << "\tclusterInd\t" << clusterInd << std::endl;
         for (; i < allFired.size(); i++)
         {
           if (i + 1 < allFired.size())
@@ -397,7 +368,7 @@ void GEMDigiSimLinkReader::analyze(const edm::Event & event, const edm::EventSet
             if (myDelta == 1)
             {
               tempCluster[clusterInd].push_back(allFired[i + 1]);
-              std::cout << "i\t" << i << "\ti+1\t" << i + 1 << "\tpush i+1\t" << allFired[i + 1] << std::endl;
+              LogDebug("GEMDigiSimLinkReader") << "i\t" << i << "\ti+1\t" << i + 1 << "\tpush i+1\t" << allFired[i + 1] << std::endl;
             }
             else
               break;
@@ -455,13 +426,13 @@ void GEMDigiSimLinkReader::analyze(const edm::Event & event, const edm::EventSet
           deltaPhi_allStations->Fill(deltaPhi);
           if ((tempCluster[j]).size() == 1)
             deltaPhi_cls1->Fill(deltaPhi);
-          if ((tempCluster[j]).size() == 2)
+          else if ((tempCluster[j]).size() == 2)
             deltaPhi_cls2->Fill(deltaPhi);
-          if ((tempCluster[j]).size() == 3)
+          else if ((tempCluster[j]).size() == 3)
             deltaPhi_cls3->Fill(deltaPhi);
-          if ((tempCluster[j]).size() == 4)
+          else if ((tempCluster[j]).size() == 4)
             deltaPhi_cls4->Fill(deltaPhi);
-          if ((tempCluster[j]).size() == 5)
+          else if ((tempCluster[j]).size() == 5)
             deltaPhi_cls5->Fill(deltaPhi);
 
           deltaPhi_allStations_normalized->Fill(deltaPhi / fullAngularStripPitch);
@@ -474,11 +445,11 @@ void GEMDigiSimLinkReader::analyze(const edm::Event & event, const edm::EventSet
             mom_cls_GE11->Fill(muMomentum, (tempCluster[j]).size());
             deltaPhi_cls_GE11->Fill(deltaPhi, (tempCluster[j]).size());
           }
-          if (gemId.station() == 3)
+          else if (gemId.station() == 3)
           {
-            deltaPhi_GE21long->Fill(deltaPhi);
-            mom_cls_GE21long->Fill(muMomentum, (tempCluster[j]).size());
-            deltaPhi_cls_GE21long->Fill(deltaPhi, (tempCluster[j]).size());
+            deltaPhi_GE21->Fill(deltaPhi);
+            mom_cls_GE21->Fill(muMomentum, (tempCluster[j]).size());
+            deltaPhi_cls_GE21->Fill(deltaPhi, (tempCluster[j]).size());
           }
         }
         else
@@ -492,6 +463,6 @@ void GEMDigiSimLinkReader::analyze(const edm::Event & event, const edm::EventSet
   }        //end given detector
 }
 
-#include <FWCore/Framework/interface/MakerMacros.h>
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE (GEMDigiSimLinkReader);
 

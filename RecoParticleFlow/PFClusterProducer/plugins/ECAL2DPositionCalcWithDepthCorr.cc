@@ -98,7 +98,7 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
   cluster.setEnergy(cl_energy);
   cluster.setTime(cl_time/cl_timeweight);
   cluster.setLayer(max_e_layer);
-  const CaloSubdetectorGeometry* ecal_geom = NULL;
+  const CaloSubdetectorGeometry* ecal_geom = nullptr;
   // get seed geometry information  
   switch(max_e_layer){
   case PFLayer::ECAL_BARREL:

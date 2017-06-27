@@ -44,7 +44,6 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -249,33 +248,6 @@ OverlapProblemTPAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
     LogDebug("SimHitDetId") << "List of " << tp->numberOfTrackerHits() << " simhits detid from muon with p = " << tp->p() 
 			    << "and eta = " << tp->eta();
     
-    // commented since with the new TP's I don't know how to loop on PSimHits
-
-    /*
-    for( std::vector<PSimHit>::const_iterator sh = tksimhits.begin(); sh!= tksimhits.end(); ++sh) {
-      
-      // check if the SimHit is Tracker and TEC
-      
-      LogTrace("SimHitDetId") << sh->detUnitId();
-      
-      TECDetId det(sh->detUnitId());
-      if(det.subDetector() == SiStripDetId::TEC) {
-	
-	unsigned int iring = det.ring() - 1;
-	m_simhitytecr[iring]->Fill(sh->entryPoint().y());
-	
-	// check if there is a TrackingRecHit in the same detid and if this is the case fill the histos
-	
-	for(std::vector<DetId>::const_iterator rhdet = rechits.begin(); rhdet!= rechits.end() ; ++rhdet) {
-	  if(det==*rhdet) {
-	    m_assosimhitytecr[iring]->Fill(sh->entryPoint().y());
-	    break;
-	  }
-	}
-	
-      }
-    }
-    */    
   }
   
 }

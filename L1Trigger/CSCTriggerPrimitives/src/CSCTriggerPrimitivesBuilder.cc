@@ -16,9 +16,9 @@
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCTriggerPrimitivesBuilder.h"
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCMotherboard.h"
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME11.h"
-#include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME11GEM.h>
-#include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME21GEM.h>
-#include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME3141RPC.h>
+#include "L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME11GEM.h"
+#include "L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME21GEM.h"
+#include "L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME3141RPC.h"
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCMuonPortCard.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -387,7 +387,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
 		oc_pretrig.put(std::make_pair(preTriggerBXs.begin(),preTriggerBXs.end()), detid);
 	      }            
 	      // 0th layer means whole chamber.
-	      GEMDetId gemId(detid.zendcap(), 1, 1, 1, chid, 0);
+	      GEMDetId gemId(detid.zendcap(), 1, 1, 0, chid, 0);
               
 	      // GEM coincidence pads
 	      if (!copads.empty()) {
@@ -492,7 +492,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
 	      }
 	      
 	      // 0th layer means whole chamber.
-	      GEMDetId gemId(detid.zendcap(), 1, 2, 1, chid, 0);
+	      GEMDetId gemId(detid.zendcap(), 1, 2, 0, chid, 0);
 	      
 	      // GEM coincidence pads
 	      if (!copads.empty()) {

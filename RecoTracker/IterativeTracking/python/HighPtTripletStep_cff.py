@@ -62,7 +62,7 @@ highPtTripletStepTrackingRegions = _globalTrackingRegionFromBeamSpot.clone(Regio
 ))
 from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
 trackingPhase1QuadProp.toModify(highPtTripletStepTrackingRegions, RegionPSet = dict(ptMin = 0.6))
-trackingPhase2PU140.toModify(highPtTripletStepTrackingRegions, RegionPSet = dict(ptMin = 0.9, originRadius = 0.03))
+trackingPhase2PU140.toModify(highPtTripletStepTrackingRegions, RegionPSet = dict(ptMin = 0.7, originRadius = 0.02))
 
 # seeding
 from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
@@ -90,20 +90,20 @@ highPtTripletStepHitTriplets = _caHitTripletEDProducer.clone(
     CAPhiCut = 0.07,
     CAHardPtCut = 0.3,
 )
+trackingPhase2PU140.toModify(highPtTripletStepHitTriplets,CAThetaCut = 0.003,CAPhiCut = 0.06,CAHardPtCut = 0.5)
+
 from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsEDProducer_cff import seedCreatorFromRegionConsecutiveHitsEDProducer as _seedCreatorFromRegionConsecutiveHitsEDProducer
 highPtTripletStepSeeds = _seedCreatorFromRegionConsecutiveHitsEDProducer.clone(
     seedingHitSets = "highPtTripletStepHitTriplets",
 )
 
 trackingPhase1QuadProp.toModify(highPtTripletStepHitDoublets, layerPairs = [0]) # layer pair (0,1)
-trackingPhase2PU140.toModify(highPtTripletStepHitDoublets, layerPairs = [0]) # layer pair (0,1)
 _highPtTripletStepHitTriplets_propagation = _pixelTripletHLTEDProducer.clone(
     doublets = "highPtTripletStepHitDoublets",
     produceSeedingHitSets = True,
     SeedComparitorPSet = highPtTripletStepHitTriplets.SeedComparitorPSet,
 )
 trackingPhase1QuadProp.toReplaceWith(highPtTripletStepHitTriplets, _highPtTripletStepHitTriplets_propagation)
-trackingPhase2PU140.toReplaceWith(highPtTripletStepHitTriplets, _highPtTripletStepHitTriplets_propagation)
 
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff as _TrajectoryFilter_cff
@@ -116,11 +116,18 @@ highPtTripletStepTrajectoryFilterBase = _highPtTripletStepTrajectoryFilterBase.c
     minGoodStripCharge = dict(refToPSet_ = 'SiStripClusterChargeCutLoose')
 )
 trackingPhase2PU140.toReplaceWith(highPtTripletStepTrajectoryFilterBase, _highPtTripletStepTrajectoryFilterBase)
+
 highPtTripletStepTrajectoryFilter = _TrajectoryFilter_cff.CompositeTrajectoryFilter_block.clone(
     filters = [cms.PSet(refToPSet_ = cms.string('highPtTripletStepTrajectoryFilterBase'))]
 )
 
+trackingPhase2PU140.toModify(highPtTripletStepTrajectoryFilter,
+    filters = highPtTripletStepTrajectoryFilter.filters + [cms.PSet(refToPSet_ = cms.string('ClusterShapeTrajectoryFilter'))]
+)
+
+
 highPtTripletStepTrajectoryFilterInOut = highPtTripletStepTrajectoryFilterBase.clone(
+    minPt = 0.4,
     minimumNumberOfHits = 4,
     seedExtension = 1,
     strictSeedExtension = False, # allow inactive
@@ -138,7 +145,7 @@ highPtTripletStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstim
 )
 trackingPhase2PU140.toModify(highPtTripletStepChi2Est,
     clusterChargeCut = dict(refToPSet_ = "SiStripClusterChargeCutNone"),
-    MaxChi2 = cms.double(25.0)
+    MaxChi2 = cms.double(20.0)
 )
 
 
@@ -232,23 +239,21 @@ highPtTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_c
             d0_par1 = ( 0.6, 4.0 ),
             dz_par1 = ( 0.7, 4.0 ),
             d0_par2 = ( 0.5, 4.0 ),
-            dz_par2 = ( 0.5, 4.0 )
+            dz_par2 = ( 0.6, 4.0 )
             ),
-        #FIXME: the cuts on min_nhits and minNumber*Layers are introduced to mitigate
-        #the cluster shape filter cut not working properly yet. To be remove in the future.
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
             name = 'highPtTripletStep',
             preFilterName = 'highPtTripletStepTight',
-            chi2n_par = 0.6,
+            chi2n_par = 0.8,
             res_par = ( 0.003, 0.001 ),
-            min_nhits = 5,
-            minNumberLayers = 5,
+            min_nhits = 4,
+            minNumberLayers = 4,
             maxNumberLostLayers = 2,
-            minNumber3DLayers = 5,
-            d0_par1 = ( 0.5, 4.0 ),
-            dz_par1 = ( 0.6, 4.0 ),
+            minNumber3DLayers = 4,
+            d0_par1 = ( 0.6, 4.0 ),
+            dz_par1 = ( 0.7, 4.0 ),
             d0_par2 = ( 0.45, 4.0 ),
-            dz_par2 = ( 0.45, 4.0 )
+            dz_par2 = ( 0.55, 4.0 )
             ),
     ] #end of vpset
 ) #end of clone

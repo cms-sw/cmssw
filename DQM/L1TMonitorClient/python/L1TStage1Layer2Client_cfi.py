@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-l1tStage1Layer2Client = cms.EDAnalyzer("L1TGCTClient",
+l1tStage1Layer2Client = DQMEDHarvester("L1TGCTClient",
     prescaleLS = cms.untracked.int32(-1),
     monitorDir = cms.untracked.string('L1T/L1TStage1Layer2'),
     prescaleEvt = cms.untracked.int32(1),

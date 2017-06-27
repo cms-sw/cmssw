@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 
-#include "DetectorDescription/Algorithm/interface/DDAlgorithm.h"
+#include "DetectorDescription/Core/interface/DDAlgorithm.h"
 
 class DDEcalPreshowerAlgoTB : public DDAlgorithm {
 

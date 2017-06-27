@@ -500,7 +500,7 @@ namespace pat {
         return nullptr;
     }
     /// Return true if a bestTrack can be extracted from this Candidate
-    bool hasTrackDetails() {return  (packedHits_!=0 || packedLayers_ !=0); }
+    bool hasTrackDetails() const {return  (packedHits_!=0 || packedLayers_ !=0); }
       
 
     /// true if the track had the highPurity quality bit

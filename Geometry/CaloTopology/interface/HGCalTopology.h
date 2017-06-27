@@ -85,7 +85,7 @@ public:
   }
 
   ///Geometry mode
-  HGCalGeometryMode geomMode() const {return mode_;}
+  HGCalGeometryMode::GeometryMode geomMode() const {return mode_;}
 
   ///Dense indexing
   virtual uint32_t detId2denseId(const DetId& id) const;
@@ -130,14 +130,15 @@ private:
   /// move the nagivator along z
   DetId changeZ(const DetId& id, int nrStepsZ) const ;
 
-  const HGCalDDDConstants&    hdcons_;
-  HGCalGeometryMode           mode_;
+  const HGCalDDDConstants&        hdcons_;
+  HGCalGeometryMode::GeometryMode mode_;
 
-  ForwardSubdetector          subdet_;
-  bool                        half_;
-  int                         sectors_, layers_, cells_, kHGhalf_, kHGeomHalf_;
-  std::vector<int>            maxcells_;
-  unsigned int                kSizeForDenseIndexing;
+  ForwardSubdetector              subdet_;
+  bool                            half_;
+  int                             sectors_, layers_, cells_;
+  int                             kHGhalf_, kHGeomHalf_;
+  std::vector<int>                maxcells_;
+  unsigned int                    kSizeForDenseIndexing;
 };
 
 #endif

@@ -7,7 +7,7 @@
 #include "Geometry/HGCalCommonData/plugins/DDHGCalTBModule.h"
 #include "Geometry/HGCalCommonData/plugins/DDHGCalNoTaperEndcap.h"
 #include "Geometry/HGCalCommonData/plugins/DDAHcalModuleAlgo.h"
-#include "DetectorDescription/Algorithm/interface/DDAlgorithmFactory.h"
+#include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
 
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDHGCalEEAlgo, "hgcal:DDHGCalEEAlgo");
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDHGCalHEAlgo, "hgcal:DDHGCalHEAlgo");

@@ -71,74 +71,87 @@ public:
      * Build track segments in this chamber (this is where the actual
      * segment-building algorithm hides.)
      */
-    std::vector<CSCSegment> buildSegments(const ChamberHitContainer& rechits);
+    std::vector<CSCSegment> buildSegments(const CSCChamber* aChamber, const ChamberHitContainer& rechits) const;
 
     //    std::vector<CSCSegment> assambleRechitsInSegments(const ChamberHitContainer& rechits, int iadd, BoolContainer& used, BoolContainer& used3p, int *recHits_per_layer, const LayerIndex& layerIndex, std::vector<CSCSegment> segments);
 
     /**
      * Here we must implement the algorithm
      */
-    std::vector<CSCSegment> run(const CSCChamber* aChamber, const ChamberHitContainer& rechits); 
+    std::vector<CSCSegment> run(const CSCChamber* aChamber, const ChamberHitContainer& rechits){ return buildSegments(aChamber, rechits); }
 
 private:
+    struct AlgoState {
+      const CSCChamber* aChamber = nullptr;
+      float windowScale = 0;
+      int strip_iadd = 0;
+      int chi2D_iadd = 0;
+      std::unique_ptr<CSCSegFit> sfit = nullptr;
+      ChamberHitContainer proto_segment;
 
+      //adjustable configuration
+      bool doCollisions;
+      float dRMax ;
+      float dPhiMax;
+      float dRIntMax;
+      float dPhiIntMax;
+      float chi2Max;
+      float chi2_str_;
+      float chi2Norm_2D_; 
+    };
     /// Utility functions 
     // Could be static at the moment, but in principle one
     // might like CSCSegmentizer-specific behaviour?
-    bool areHitsCloseInR(const CSCRecHit2D* h1, const CSCRecHit2D* h2) const;
-    bool areHitsCloseInGlobalPhi(const CSCRecHit2D* h1, const CSCRecHit2D* h2) const;
-    bool isHitNearSegment(const CSCRecHit2D* h) const;
+    bool areHitsCloseInR(const AlgoState& aState, const CSCRecHit2D* h1, const CSCRecHit2D* h2) const;
+    bool areHitsCloseInGlobalPhi(const AlgoState& aState, const CSCRecHit2D* h1, const CSCRecHit2D* h2) const;
+    bool isHitNearSegment(const AlgoState& aState, const CSCRecHit2D* h) const;
 
     /**
      * Try adding non-used hits to segment
      */
-    void tryAddingHitsToSegment(const ChamberHitContainer& rechitsInChamber,
+    void tryAddingHitsToSegment(AlgoState& aState, const ChamberHitContainer& rechitsInChamber,
 	const BoolContainer& used, const LayerIndex& layerIndex,
-        const ChamberHitContainerCIt i1, const ChamberHitContainerCIt i2);
+        const ChamberHitContainerCIt i1, const ChamberHitContainerCIt i2) const;
 
     /**
      * Return true if segment is 'good'.
      * In this algorithm, 'good' means has sufficient hits
      */
-    bool isSegmentGood(const ChamberHitContainer& rechitsInChamber) const;
+    bool isSegmentGood(const AlgoState& aState, const ChamberHitContainer& rechitsInChamber) const;
 
     /**
      * Flag hits on segment as used
      */
-    void flagHitsAsUsed(const ChamberHitContainer& rechitsInChamber,BoolContainer& used) const;
+    void flagHitsAsUsed(const AlgoState& aState, const ChamberHitContainer& rechitsInChamber,BoolContainer& used) const;
 	
     /// Utility functions 	
-    bool addHit(const CSCRecHit2D* hit, int layer);
-    void updateParameters(void);
-    float fit_r_phi(SVector6 points, int layer) const;
-    float fitX(SVector6 points, SVector6 errors, int ir, int ir2, float &chi2_str);
-    void baseline(int n_seg_min);//function for arasing bad hits in case of bad chi2/NDOF 
+    bool addHit(AlgoState& aState, const CSCRecHit2D* hit, int layer) const;
+    void updateParameters(AlgoState& aState) const;
+    float fit_r_phi(const AlgoState& aState, const SVector6& points, int layer) const;
+    float fitX(const AlgoState& aState, SVector6 points, SVector6 errors, int ir, int ir2, float &chi2_str) const;
+    void baseline(AlgoState& aState, int n_seg_min) const;//function for arasing bad hits in case of bad chi2/NDOF 
    /**
      * Always enforce direction of segment to point from IP outwards
      * (Incorrect for particles not coming from IP, of course.)
      */
-    float phiAtZ(float z) const;
-    bool hasHitOnLayer(int layer) const;
-    bool replaceHit(const CSCRecHit2D* h, int layer);
-    void compareProtoSegment(const CSCRecHit2D* h, int layer);
-    void increaseProtoSegment(const CSCRecHit2D* h, int layer, int chi2_factor);
+    float phiAtZ(const AlgoState& aState, float z) const;
+    bool hasHitOnLayer(const AlgoState& aState, int layer) const;
+    bool replaceHit(AlgoState& aState, const CSCRecHit2D* h, int layer) const;
+    void compareProtoSegment(AlgoState& aState, const CSCRecHit2D* h, int layer) const;
+    void increaseProtoSegment(AlgoState& aState, const CSCRecHit2D* h, int layer, int chi2_factor) const;
 
 		
     // Member variables
     // ================
 
-    const CSCChamber* theChamber;
-    ChamberHitContainer proto_segment;
     const std::string myName; 
 		
+
     double theChi2;
     LocalPoint theOrigin;
     LocalVector theDirection;
     float uz, vz;
-    float windowScale;
-    int chi2D_iadd;
-    int strip_iadd;	
-    bool doCollisions;
+    bool doCollisions;    
     float dRMax ;
     float dPhiMax;
     float dRIntMax;
@@ -149,9 +162,6 @@ private:
     float wideSeg;
     int minLayersApart;
     bool debugInfo;
-
-        std::unique_ptr<CSCSegFit> sfit_;
-	//CSCSegFit* sfit_;
 
 };
 

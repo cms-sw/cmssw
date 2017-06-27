@@ -737,7 +737,8 @@ namespace edm {
         if(product == nullptr) {
           // No product with this ID is in the event.
           // Add a null product.
-          TClass* cp = TClass::GetClass(item.branchDescription_->wrappedName().c_str());
+          TClass* cp = item.branchDescription_->wrappedType().getClass();
+          assert(cp != nullptr);
           int offset = cp->GetBaseClassOffset(wrapperBaseTClass_);
           void* p = cp->New();
           std::unique_ptr<WrapperBase> dummy = getWrapperBasePtr(p, offset);

@@ -69,15 +69,14 @@ class BTagPerformanceAnalyzerMC : public DQMEDAnalyzer {
   edm::InputTag slInfoTag;
   edm::InputTag genJetsMatchedSrc;
 
-  std::vector< std::vector<JetTagPlotter*> > binJetTagPlotters;
-  std::vector< std::vector<TagCorrelationPlotter*> > binTagCorrelationPlotters;
-  std::vector< std::vector<BaseTagInfoPlotter*> > binTagInfoPlotters;
+  std::vector< std::vector<std::unique_ptr<JetTagPlotter>> > binJetTagPlotters;
+  std::vector< std::vector<std::unique_ptr<TagCorrelationPlotter>> > binTagCorrelationPlotters;
+  std::vector< std::vector<std::unique_ptr<BaseTagInfoPlotter>> > binTagInfoPlotters;
   std::vector<edm::InputTag> jetTagInputTags;
   std::vector< std::pair<edm::InputTag, edm::InputTag> > tagCorrelationInputTags;
   std::vector< std::vector<edm::InputTag> > tagInfoInputTags;
   //  JetFlavourIdentifier jfi;
   std::vector<edm::ParameterSet> moduleConfig;
-  std::map<BaseTagInfoPlotter*, size_t> binTagInfoPlottersToModuleConfig;
 
   std::string flavPlots_;
   unsigned int mcPlots_;

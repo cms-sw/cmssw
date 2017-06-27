@@ -35,11 +35,11 @@ class EcalRingCalibrationTools
   static std::vector<DetId> getDetIdsInModule(short int);  
   static std::vector<DetId> getDetIdsInECAL();  
 
-  static const short N_RING_TOTAL  = 248;
-  static const short N_RING_BARREL = 170;
-  static const short N_RING_ENDCAP =  78;
+  static constexpr short N_RING_TOTAL  = 248;
+  static constexpr short N_RING_BARREL = 170;
+  static constexpr short N_RING_ENDCAP =  78;
 
-  static const short N_MODULES_BARREL = 144;
+  static constexpr short N_MODULES_BARREL = 144;
 
   static void setCaloGeometry(const CaloGeometry* geometry);
 

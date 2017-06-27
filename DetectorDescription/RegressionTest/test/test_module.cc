@@ -1,9 +1,9 @@
 #include <iostream>
 #include <string>
 
-#include "DetectorDescription/Algorithm/interface/DDAlgorithm.h"
-#include "DetectorDescription/Algorithm/interface/DDAlgorithmFactory.h"
-#include "DetectorDescription/Base/interface/DDTypes.h"
+#include "DetectorDescription/Core/interface/DDAlgorithm.h"
+#include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
+#include "DetectorDescription/Core/interface/DDTypes.h"
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
 class DDCompactView;

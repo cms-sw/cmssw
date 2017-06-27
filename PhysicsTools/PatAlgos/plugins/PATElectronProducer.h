@@ -80,6 +80,11 @@ namespace pat {
       bool                addGenMatch_;
       bool                embedGenMatch_;
       const bool          embedRecHits_;
+      // for mini-iso calculation
+      edm::EDGetTokenT<pat::PackedCandidateCollection>  pcToken_;
+      bool computeMiniIso_;
+      std::vector<double> miniIsoParamsE_;
+      std::vector<double> miniIsoParamsB_;
 
       typedef std::vector<edm::Handle<edm::Association<reco::GenParticleCollection> > > GenAssociations;
 
@@ -129,6 +134,9 @@ namespace pat {
 			  const GenAssociations& genMatches,
 			  const IsoDepositMaps& deposits,
 			  const IsolationValueMaps& isolationValues ) const;
+
+      // set the mini-isolation variables
+      void setElectronMiniIso(pat::Electron& anElectron, const pat::PackedCandidateCollection *pc);
 
     // embed various impact parameters with errors
     // embed high level selection

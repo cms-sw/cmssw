@@ -4,7 +4,7 @@
  */
 
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
-#include <Geometry/CommonDetUnit/interface/GeomDetUnit.h>
+#include <Geometry/CommonDetUnit/interface/GeomDet.h>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 RPCGeometry::RPCGeometry(){}

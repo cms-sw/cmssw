@@ -53,6 +53,11 @@ All modules and modules in the current process whose products they consume:
     IntProducer/'testStreamingProducer'
     IntVectorProducer/'intVectorProducer'
   TriggerResultInserter/'TriggerResults'
+  PathStatusInserter/'p'
+  PathStatusInserter/'p2'
+  PathStatusInserter/'p11'
+  EndPathStatusInserter/'e'
+  EndPathStatusInserter/'p1ep2'
 All modules (listed by class and label) and all their consumed products.
 Consumed products are listed by type, label, instance, process.
 For products not in the event, 'run' or 'lumi' is added to indicate the TTree they are from.
@@ -91,6 +96,11 @@ For products only read from previous processes, 'skip current process' is added
     edmtest::IntProduct 'testStreamingProducer' '' 'PROD1'
     std::vector<int> 'intVectorProducer' '' 'PROD1'
   TriggerResultInserter/'TriggerResults'
+  PathStatusInserter/'p'
+  PathStatusInserter/'p2'
+  PathStatusInserter/'p11'
+  EndPathStatusInserter/'e'
+  EndPathStatusInserter/'p1ep2'
 
 Process name = COPY
 paths:
@@ -126,6 +136,9 @@ All modules and modules in the current process whose products they consume:
   ConsumingIntProducer/'testManyConsumingProducer' consumes products from these modules:
     TriggerResultInserter/'TriggerResults'
   TriggerResultInserter/'TriggerResults'
+  PathStatusInserter/'p3'
+  EndPathStatusInserter/'ep1'
+  EndPathStatusInserter/'ep2'
 All modules (listed by class and label) and all their consumed products.
 Consumed products are listed by type, label, instance, process.
 For products not in the event, 'run' or 'lumi' is added to indicate the TTree they are from.
@@ -160,6 +173,9 @@ For products only read from previous processes, 'skip current process' is added
     edm::TriggerResults 'TriggerResults' '' ''
     edm::TriggerResults '' '' ''
   TriggerResultInserter/'TriggerResults'
+  PathStatusInserter/'p3'
+  EndPathStatusInserter/'ep1'
+  EndPathStatusInserter/'ep2'
 
 TestFindProduct sum = 12
 TestFindProduct sum = 300

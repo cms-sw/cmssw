@@ -1,5 +1,9 @@
 #ifndef TTHelper_s
 #define TTHelper_s
+
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+
 namespace tthelpers{
 inline reco::TransientTrack buildTT(edm::Handle<reco::TrackCollection> & tracks, edm::ESHandle<TransientTrackBuilder> &trackbuilder, unsigned int k) 
 {

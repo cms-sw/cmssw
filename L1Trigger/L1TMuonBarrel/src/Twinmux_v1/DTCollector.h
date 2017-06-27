@@ -31,7 +31,7 @@ namespace L1TwinMux {
   class DTCollector {
   public:
     DTCollector();
-    ~DTCollector() {}
+    virtual ~DTCollector() = default;
 
     //virtual void extractPrimitives(const edm::Event&, const edm::EventSetup&,
 	//			   std::vector<L1TMuon::TriggerPrimitive>&) const;

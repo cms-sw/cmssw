@@ -9,6 +9,7 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/PatCandidates/interface/PFIsolation.h"
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -40,6 +41,8 @@
 #include "FWCore/ParameterSet/interface/EmptyGroupDescription.h"
 
 #include "FWCore/Utilities/interface/transform.h"
+
+#include "PhysicsTools/PatUtils/interface/MiniIsolation.h"
 
 #include <vector>
 #include <memory>
@@ -168,6 +171,16 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
   //   }
   //   isoDepositTokens_ = edm::vector_transform(isoDepositLabels_, [this](std::pair<IsolationKeys,edm::InputTag> const & label){return consumes<edm::ValueMap<IsoDeposit> >(label.second);});
 
+  // for mini-iso
+  computeMiniIso_ = iConfig.getParameter<bool>("computeMiniIso");
+  miniIsoParamsE_ = iConfig.getParameter<std::vector<double> >("miniIsoParamsE");
+  miniIsoParamsB_ = iConfig.getParameter<std::vector<double> >("miniIsoParamsB");
+  if(computeMiniIso_ && (miniIsoParamsE_.size() != 9 || miniIsoParamsB_.size() != 9)){
+      throw cms::Exception("ParameterError") << "miniIsoParams must have exactly 9 elements.\n";
+  }
+  if(computeMiniIso_)
+      pcToken_ = consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("pfCandsForMiniIso"));
+
   // read isoDeposit labels, for direct embedding
   readIsolationLabels(iConfig, "isoDeposits", isoDepositLabels_, isoDepositTokens_);
   // read isolation value labels, for direct embedding
@@ -208,6 +221,10 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
   // Get the collection of electrons from the event
   edm::Handle<edm::View<reco::GsfElectron> > electrons;
   iEvent.getByToken(electronToken_, electrons);
+
+  edm::Handle<PackedCandidateCollection > pc;
+  if(computeMiniIso_)
+      iEvent.getByToken(pcToken_, pc);
 
   // for additional mva variables
   edm::InputTag  reducedEBRecHitCollection(string("reducedEcalRecHitsEB"));
@@ -522,6 +539,9 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 
 	  //COLIN need to use fillElectron2 in the non-pflow case as well, and to test it.
 
+          if(computeMiniIso_)
+              setElectronMiniIso(anElectron, pc.product());
+
 	  patElectrons->push_back(anElectron);
 	}
       }
@@ -730,6 +750,10 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
       // add sel to selected
       fillElectron( anElectron, elecsRef,elecBaseRef,
 		    genMatches, deposits, pfId, isolationValues, isolationValuesNoPFId);
+
+      if(computeMiniIso_)
+          setElectronMiniIso(anElectron, pc.product());
+
       patElectrons->push_back(anElectron);
     }
   }
@@ -925,6 +949,22 @@ void PATElectronProducer::fillElectron2( Electron& anElectron,
   }
 }
 
+void PATElectronProducer::setElectronMiniIso(Electron& anElectron, const PackedCandidateCollection *pc)
+{
+  pat::PFIsolation miniiso;
+  if(anElectron.isEE())
+      miniiso = pat::getMiniPFIsolation(pc, anElectron.p4(),
+                                        miniIsoParamsE_[0], miniIsoParamsE_[1], miniIsoParamsE_[2],
+                                        miniIsoParamsE_[3], miniIsoParamsE_[4], miniIsoParamsE_[5],
+                                        miniIsoParamsE_[6], miniIsoParamsE_[7], miniIsoParamsE_[8]);
+  else
+      miniiso = pat::getMiniPFIsolation(pc, anElectron.p4(),
+                                        miniIsoParamsB_[0], miniIsoParamsB_[1], miniIsoParamsB_[2],
+                                        miniIsoParamsB_[3], miniIsoParamsB_[4], miniIsoParamsB_[5],
+                                        miniIsoParamsB_[6], miniIsoParamsB_[7], miniIsoParamsB_[8]);
+  anElectron.setMiniPFIsolation(miniiso);
+
+}
 
 // ParameterSet description for module
 void PATElectronProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
@@ -986,6 +1026,12 @@ void PATElectronProducer::fillDescriptions(edm::ConfigurationDescriptions & desc
                  edm::ParameterDescription<edm::ParameterSetDescription>("electronIDSources", electronIDSourcesPSet, true)
                  )->setComment("input with electron ID variables");
 
+
+  // mini-iso
+  iDesc.add<bool>("computeMiniIso", false)->setComment("whether or not to compute and store electron mini-isolation");
+  iDesc.add<edm::InputTag>("pfCandsForMiniIso", edm::InputTag("packedPFCandidates"))->setComment("collection to use to compute mini-iso");
+  iDesc.add<std::vector<double> >("miniIsoParamsE", std::vector<double>())->setComment("mini-iso parameters to use for endcap electrons");
+  iDesc.add<std::vector<double> >("miniIsoParamsB", std::vector<double>())->setComment("mini-iso parameters to use for barrel electrons");
 
   // IsoDeposit configurables
   edm::ParameterSetDescription isoDepositsPSet;

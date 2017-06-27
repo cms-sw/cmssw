@@ -19,8 +19,7 @@
 #include <iostream>
 
 TrackBuildingAnalyzer::TrackBuildingAnalyzer(const edm::ParameterSet& iConfig) 
-    : conf_( iConfig )
-    , SeedPt(NULL)
+    : SeedPt(NULL)
     , SeedEta(NULL)
     , SeedPhi(NULL)
     , SeedPhiVsEta(NULL)
@@ -41,12 +40,12 @@ TrackBuildingAnalyzer::~TrackBuildingAnalyzer()
 { 
 }
 
-void TrackBuildingAnalyzer::initHisto(DQMStore::IBooker & ibooker)
+void TrackBuildingAnalyzer::initHisto(DQMStore::IBooker & ibooker, const edm::ParameterSet& iConfig)
 {
   
   // parameters from the configuration
-  std::string AlgoName       = conf_.getParameter<std::string>("AlgoName");
-  std::string MEFolderName   = conf_.getParameter<std::string>("FolderName"); 
+  std::string AlgoName       = iConfig.getParameter<std::string>("AlgoName");
+  std::string MEFolderName   = iConfig.getParameter<std::string>("FolderName"); 
 
   //  std::cout << "[TrackBuildingAnalyzer::beginRun] AlgoName: " << AlgoName << std::endl;
   
@@ -54,70 +53,70 @@ void TrackBuildingAnalyzer::initHisto(DQMStore::IBooker & ibooker)
   std::string CatagoryName = AlgoName;
   
   // get binning from the configuration
-  int    TrackPtBin = conf_.getParameter<int>(   "TrackPtBin");
-  double TrackPtMin = conf_.getParameter<double>("TrackPtMin");
-  double TrackPtMax = conf_.getParameter<double>("TrackPtMax");
+  int    TrackPtBin = iConfig.getParameter<int>(   "TrackPtBin");
+  double TrackPtMin = iConfig.getParameter<double>("TrackPtMin");
+  double TrackPtMax = iConfig.getParameter<double>("TrackPtMax");
   
-  int    PhiBin     = conf_.getParameter<int>(   "PhiBin");
-  double PhiMin     = conf_.getParameter<double>("PhiMin");
-  double PhiMax     = conf_.getParameter<double>("PhiMax");
+  int    PhiBin     = iConfig.getParameter<int>(   "PhiBin");
+  double PhiMin     = iConfig.getParameter<double>("PhiMin");
+  double PhiMax     = iConfig.getParameter<double>("PhiMax");
   
-  int    EtaBin     = conf_.getParameter<int>(   "EtaBin");
-  double EtaMin     = conf_.getParameter<double>("EtaMin");
-  double EtaMax     = conf_.getParameter<double>("EtaMax");
+  int    EtaBin     = iConfig.getParameter<int>(   "EtaBin");
+  double EtaMin     = iConfig.getParameter<double>("EtaMin");
+  double EtaMax     = iConfig.getParameter<double>("EtaMax");
   
-  int    ThetaBin   = conf_.getParameter<int>(   "ThetaBin");
-  double ThetaMin   = conf_.getParameter<double>("ThetaMin");
-  double ThetaMax   = conf_.getParameter<double>("ThetaMax");
+  int    ThetaBin   = iConfig.getParameter<int>(   "ThetaBin");
+  double ThetaMin   = iConfig.getParameter<double>("ThetaMin");
+  double ThetaMax   = iConfig.getParameter<double>("ThetaMax");
   
-  int    TrackQBin  = conf_.getParameter<int>(   "TrackQBin");
-  double TrackQMin  = conf_.getParameter<double>("TrackQMin");
-  double TrackQMax  = conf_.getParameter<double>("TrackQMax");
+  int    TrackQBin  = iConfig.getParameter<int>(   "TrackQBin");
+  double TrackQMin  = iConfig.getParameter<double>("TrackQMin");
+  double TrackQMax  = iConfig.getParameter<double>("TrackQMax");
   
-  int    SeedDxyBin = conf_.getParameter<int>(   "SeedDxyBin");
-  double SeedDxyMin = conf_.getParameter<double>("SeedDxyMin");
-  double SeedDxyMax = conf_.getParameter<double>("SeedDxyMax");
+  int    SeedDxyBin = iConfig.getParameter<int>(   "SeedDxyBin");
+  double SeedDxyMin = iConfig.getParameter<double>("SeedDxyMin");
+  double SeedDxyMax = iConfig.getParameter<double>("SeedDxyMax");
   
-  int    SeedDzBin  = conf_.getParameter<int>(   "SeedDzBin");
-  double SeedDzMin  = conf_.getParameter<double>("SeedDzMin");
-  double SeedDzMax  = conf_.getParameter<double>("SeedDzMax");
+  int    SeedDzBin  = iConfig.getParameter<int>(   "SeedDzBin");
+  double SeedDzMin  = iConfig.getParameter<double>("SeedDzMin");
+  double SeedDzMax  = iConfig.getParameter<double>("SeedDzMax");
   
-  int    SeedHitBin = conf_.getParameter<int>(   "SeedHitBin");
-  double SeedHitMin = conf_.getParameter<double>("SeedHitMin");
-  double SeedHitMax = conf_.getParameter<double>("SeedHitMax");
+  int    SeedHitBin = iConfig.getParameter<int>(   "SeedHitBin");
+  double SeedHitMin = iConfig.getParameter<double>("SeedHitMin");
+  double SeedHitMax = iConfig.getParameter<double>("SeedHitMax");
   
-  int    TCDxyBin   = conf_.getParameter<int>(   "TCDxyBin");
-  double TCDxyMin   = conf_.getParameter<double>("TCDxyMin");
-  double TCDxyMax   = conf_.getParameter<double>("TCDxyMax");
+  int    TCDxyBin   = iConfig.getParameter<int>(   "TCDxyBin");
+  double TCDxyMin   = iConfig.getParameter<double>("TCDxyMin");
+  double TCDxyMax   = iConfig.getParameter<double>("TCDxyMax");
   
-  int    TCDzBin    = conf_.getParameter<int>(   "TCDzBin");
-  double TCDzMin    = conf_.getParameter<double>("TCDzMin");
-  double TCDzMax    = conf_.getParameter<double>("TCDzMax");
+  int    TCDzBin    = iConfig.getParameter<int>(   "TCDzBin");
+  double TCDzMin    = iConfig.getParameter<double>("TCDzMin");
+  double TCDzMax    = iConfig.getParameter<double>("TCDzMax");
   
-  int    TCHitBin   = conf_.getParameter<int>(   "TCHitBin");
-  double TCHitMin   = conf_.getParameter<double>("TCHitMin");
-  double TCHitMax   = conf_.getParameter<double>("TCHitMax");
+  int    TCHitBin   = iConfig.getParameter<int>(   "TCHitBin");
+  double TCHitMin   = iConfig.getParameter<double>("TCHitMin");
+  double TCHitMax   = iConfig.getParameter<double>("TCHitMax");
   
   
-  edm::InputTag seedProducer   = conf_.getParameter<edm::InputTag>("SeedProducer");
-  edm::InputTag tcProducer     = conf_.getParameter<edm::InputTag>("TCProducer");
+  edm::InputTag seedProducer   = iConfig.getParameter<edm::InputTag>("SeedProducer");
+  edm::InputTag tcProducer     = iConfig.getParameter<edm::InputTag>("TCProducer");
   
-  doAllPlots     = conf_.getParameter<bool>("doAllPlots");
-  doAllSeedPlots = conf_.getParameter<bool>("doSeedParameterHistos");
-  doTCPlots      = conf_.getParameter<bool>("doTrackCandHistos");
-  doAllTCPlots   = conf_.getParameter<bool>("doAllTrackCandHistos");
-  doPT           = conf_.getParameter<bool>("doSeedPTHisto");
-  doETA          = conf_.getParameter<bool>("doSeedETAHisto");
-  doPHI          = conf_.getParameter<bool>("doSeedPHIHisto");
-  doPHIVsETA     = conf_.getParameter<bool>("doSeedPHIVsETAHisto");
-  doTheta        = conf_.getParameter<bool>("doSeedThetaHisto");
-  doQ            = conf_.getParameter<bool>("doSeedQHisto");
-  doDxy          = conf_.getParameter<bool>("doSeedDxyHisto");
-  doDz           = conf_.getParameter<bool>("doSeedDzHisto");
-  doNRecHits     = conf_.getParameter<bool>("doSeedNRecHitsHisto");
-  doProfPHI      = conf_.getParameter<bool>("doSeedNVsPhiProf");
-  doProfETA      = conf_.getParameter<bool>("doSeedNVsEtaProf");
-  doStopSource   = conf_.getParameter<bool>("doStopSource");
+  doAllPlots     = iConfig.getParameter<bool>("doAllPlots");
+  doAllSeedPlots = iConfig.getParameter<bool>("doSeedParameterHistos");
+  doTCPlots      = iConfig.getParameter<bool>("doTrackCandHistos");
+  doAllTCPlots   = iConfig.getParameter<bool>("doAllTrackCandHistos");
+  doPT           = iConfig.getParameter<bool>("doSeedPTHisto");
+  doETA          = iConfig.getParameter<bool>("doSeedETAHisto");
+  doPHI          = iConfig.getParameter<bool>("doSeedPHIHisto");
+  doPHIVsETA     = iConfig.getParameter<bool>("doSeedPHIVsETAHisto");
+  doTheta        = iConfig.getParameter<bool>("doSeedThetaHisto");
+  doQ            = iConfig.getParameter<bool>("doSeedQHisto");
+  doDxy          = iConfig.getParameter<bool>("doSeedDxyHisto");
+  doDz           = iConfig.getParameter<bool>("doSeedDzHisto");
+  doNRecHits     = iConfig.getParameter<bool>("doSeedNRecHitsHisto");
+  doProfPHI      = iConfig.getParameter<bool>("doSeedNVsPhiProf");
+  doProfETA      = iConfig.getParameter<bool>("doSeedNVsEtaProf");
+  doStopSource   = iConfig.getParameter<bool>("doStopSource");
   
   //    if (doAllPlots){doAllSeedPlots=true; doTCPlots=true;}
   

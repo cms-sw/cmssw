@@ -111,7 +111,7 @@ process.FEVTDEBUGoutput_step = cms.EndPath(process.FEVTDEBUGoutput)
 process.load('L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff')
 ## define trigger emulator without trigger cell selection
 process.hgcalTriggerPrimitiveDigiProducer.FECodec.CodecName = cms.string('HGCalTriggerCellThresholdCodec')
-process.hgcalTriggerPrimitiveDigiProducer.FECodec.NData = cms.uint32(999) # put number larger than max number of trigger cells in module
+process.hgcalTriggerPrimitiveDigiProducer.FECodec.TCThreshold_fC = cms.double(0.) 
 cluster_algo_all =  cms.PSet( AlgorithmName = cms.string('SingleCellClusterAlgoThreshold'),
                                FECodec = process.hgcalTriggerPrimitiveDigiProducer.FECodec,
                                HGCalEESensitive_tag = cms.string('HGCalEESensitive'),
@@ -125,6 +125,7 @@ process.hgcl1tpg_step1 = cms.Path(process.hgcalTriggerPrimitives)
 ## define trigger emulator with trigger cell selection
 process.hgcalTriggerPrimitiveDigiFEReproducer.FECodec.CodecName = cms.string('HGCalTriggerCellThresholdCodec')
 process.hgcalTriggerPrimitiveDigiFEReproducer.FECodec.triggerCellTruncationBits = cms.uint32(0)
+process.hgcalTriggerPrimitiveDigiProducer.FECodec.TCThreshold_fC = cms.double(10.) 
 cluster_algo_select =  cms.PSet( AlgorithmName = cms.string('SingleCellClusterAlgoThreshold'),
                                  FECodec = process.hgcalTriggerPrimitiveDigiFEReproducer.FECodec,
                                  HGCalEESensitive_tag = cms.string('HGCalEESensitive'),

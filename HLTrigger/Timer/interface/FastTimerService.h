@@ -28,6 +28,7 @@
 #include "FWCore/ServiceRegistry/interface/ProcessContext.h"
 #include "FWCore/ServiceRegistry/interface/GlobalContext.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/HLTPathStatus.h"
@@ -348,7 +349,7 @@ private:
   public:
     PlotsPerPath();
     void reset();
-    void book(DQMStore::IBooker &, ProcessCallGraph const&, ProcessCallGraph::PathType const&, PlotRanges const& ranges, unsigned int lumisections, bool byls);
+    void book(DQMStore::IBooker &, std::string const &, ProcessCallGraph const&, ProcessCallGraph::PathType const&, PlotRanges const& ranges, unsigned int lumisections, bool byls);
     void fill(ProcessCallGraph::PathType const&, ResourcesPerJob const&, ResourcesPerPath const&, unsigned int lumisection);
 
   private:
@@ -375,7 +376,7 @@ private:
     void reset();
     void book(DQMStore::IBooker &, ProcessCallGraph const&, ProcessCallGraph::ProcessType const&,
         PlotRanges const& event_ranges, PlotRanges const& path_ranges,
-        unsigned int lumisections, bool byls);
+        unsigned int lumisections, bool bypath, bool byls);
     void fill(ProcessCallGraph::ProcessType const&, ResourcesPerJob const&, ResourcesPerProcess const&, unsigned int ls);
 
   private:
@@ -393,7 +394,7 @@ private:
     void book(DQMStore::IBooker &, ProcessCallGraph const&, std::vector<GroupOfModules> const&,
         PlotRanges const&  event_ranges, PlotRanges const&  path_ranges,
         PlotRanges const&  module_ranges, unsigned int lumisections,
-        bool bymodule, bool byls);
+        bool bymodule, bool bypath, bool byls);
     void fill(ProcessCallGraph const&, ResourcesPerJob const&, unsigned int ls);
 
   private:
@@ -448,6 +449,7 @@ private:
 
   bool                          enable_dqm_;                    // non const, depends on the availability of the DQMStore
   const bool                    enable_dqm_bymodule_;
+  const bool                    enable_dqm_bypath_;
   const bool                    enable_dqm_byls_;
   const bool                    enable_dqm_bynproc_;
 

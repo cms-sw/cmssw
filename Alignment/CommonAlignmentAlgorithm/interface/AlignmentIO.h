@@ -20,7 +20,7 @@ class AlignmentIO
 {
 
   public:
-
+  virtual ~AlignmentIO() = default;
   /// write AlignmentParameters 
   virtual void writeAlignmentParameters (const align::Alignables& alivec, 
     const char* filename, int iter, bool validCheck, int& ierr) = 0;

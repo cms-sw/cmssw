@@ -4,7 +4,7 @@
 #include <string>
 #include <array>
 
-#include "DetectorDescription/Base/interface/Store.h"
+#include "DetectorDescription/Core/interface/Store.h"
 #include "DetectorDescription/Core/src/Boolean.h"
 #include "DetectorDescription/Core/src/Box.h"
 #include "DetectorDescription/Core/src/Cons.h"

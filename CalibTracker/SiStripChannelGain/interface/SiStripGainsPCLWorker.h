@@ -27,11 +27,9 @@
 #include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 #include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
 #include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
@@ -52,7 +50,7 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -65,6 +63,7 @@
 
 /// user includes
 #include "CalibTracker/SiStripChannelGain/interface/APVGainStruct.h"
+#include "CalibTracker/SiStripChannelGain/interface/APVGainHelpers.h"
 
 // System includes
 #include <unordered_map>
@@ -86,22 +85,29 @@ private:
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
     virtual void endJob() ;
     
-    void processEvent(); //what really does the job
+    void processEvent(const TrackerTopology* topo); //what really does the job
     virtual void checkBookAPVColls(const edm::EventSetup& setup);
 
     std::vector<std::string> dqm_tag_;
 
     int statCollectionFromMode(const char* tag) const;
 
-    std::vector<MonitorElement*>  Charge_Vs_Index;
-    std::vector<MonitorElement*>  Charge_Vs_PathlengthTIB;
-    std::vector<MonitorElement*>  Charge_Vs_PathlengthTOB;
-    std::vector<MonitorElement*>  Charge_Vs_PathlengthTIDP;
-    std::vector<MonitorElement*>  Charge_Vs_PathlengthTIDM;
-    std::vector<MonitorElement*>  Charge_Vs_PathlengthTECP1;
-    std::vector<MonitorElement*>  Charge_Vs_PathlengthTECP2;
-    std::vector<MonitorElement*>  Charge_Vs_PathlengthTECM1;
-    std::vector<MonitorElement*>  Charge_Vs_PathlengthTECM2;
+    std::vector<MonitorElement*>  Charge_Vs_Index;           /*!< Charge per cm for each detector id */
+    std::array< std::vector<APVGain::APVmon>,7 > Charge_1;   /*!< Charge per cm per layer / wheel */
+    std::array< std::vector<APVGain::APVmon>,7 > Charge_2;   /*!< Charge per cm per layer / wheel without G2 */
+    std::array< std::vector<APVGain::APVmon>,7 > Charge_3;   /*!< Charge per cm per layer / wheel without G1 */
+    std::array< std::vector<APVGain::APVmon>,7 > Charge_4;   /*!< Charge per cm per layer / wheel without G1 and G1*/
+
+    std::vector<MonitorElement*>  Charge_Vs_PathlengthTIB;   /*!< Charge vs pathlength in TIB */
+    std::vector<MonitorElement*>  Charge_Vs_PathlengthTOB;   /*!< Charge vs pathlength in TOB */
+    std::vector<MonitorElement*>  Charge_Vs_PathlengthTIDP;  /*!< Charge vs pathlength in TIDP */
+    std::vector<MonitorElement*>  Charge_Vs_PathlengthTIDM;  /*!< Charge vs pathlength in TIDM */
+    std::vector<MonitorElement*>  Charge_Vs_PathlengthTECP1; /*!< Charge vs pathlength in TECP thin */
+    std::vector<MonitorElement*>  Charge_Vs_PathlengthTECP2; /*!< Charge vs pathlength in TECP thick */
+    std::vector<MonitorElement*>  Charge_Vs_PathlengthTECM1; /*!< Charge vs pathlength in TECP thin */
+    std::vector<MonitorElement*>  Charge_Vs_PathlengthTECM2; /*!< Charge vs pathlength in TECP thick */
+
+    
 
     unsigned int NEvent;    
     unsigned int NTrack;
@@ -125,9 +131,11 @@ private:
     bool         Validation;
     bool         OldGainRemoving;
     bool         useCalibration;
+    bool         doChargeMonitorPerPlane;   /*!< Charge monitor per detector plane */
 
-    std::string  m_DQMdir; 
-    std::string  m_calibrationMode;
+    std::string  m_DQMdir;                  /*!< DQM folder hosting the charge statistics and the monitor plots */
+    std::string  m_calibrationMode;         /*!< Type of statistics for the calibration */
+    std::vector<std::string> VChargeHisto;  /*!< Charge monitor plots to be output */
 
     edm::ESHandle<TrackerGeometry> tkGeom_;
     const TrackerGeometry *bareTkGeomPtr_;   // ugly hack to fill APV colls only once, but checks
@@ -164,6 +172,7 @@ private:
     const std::vector<double>*         chargeoverpath =0;  edm::EDGetTokenT<std::vector<double>         > chargeoverpath_token_;
     const std::vector<unsigned char>*  amplitude      =0;  edm::EDGetTokenT<std::vector<unsigned char>  > amplitude_token_;
     const std::vector<double>*         gainused       =0;  edm::EDGetTokenT<std::vector<double>         > gainused_token_;
+    const std::vector<double>*         gainusedTick   =0;  edm::EDGetTokenT<std::vector<double>         > gainusedTick_token_;
 
     std::string EventPrefix_; //("");
     std::string EventSuffix_; //("");
