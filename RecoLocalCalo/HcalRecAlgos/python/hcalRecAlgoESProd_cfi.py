@@ -27,7 +27,7 @@ essourceSev =  cms.ESSource("EmptyESSource",
 
 
 hcalRecAlgos = cms.ESProducer("HcalRecAlgoESProducer",
-    phase = cms.uint32(1), 
+    phase = cms.uint32(0),
     SeverityLevels = cms.VPSet(
         # the following is the default level, please do not modify its definition:
         cms.PSet( Level = cms.int32(0),
@@ -103,9 +103,6 @@ run2_HCAL_2017.toModify(hcalRecAlgos,
                 ),
         cms.PSet( Level = cms.int32(5),
                   RecHitFlags = cms.vstring(''),
-        #          RecHitFlags = cms.vstring('HSCP_R1R2','HSCP_FracLeader','HSCP_OuterEnergy',
-        #                                    'HSCP_ExpFit','ADCSaturationBit', 'HBHEIsolatedNoise',
-        #                                    'AddedSimHcalNoise'),
                   ChannelStatus = cms.vstring('HcalCellExcludeFromHBHENoiseSummary')
                 ),
         cms.PSet( Level = cms.int32(8),
@@ -143,6 +140,4 @@ run2_HCAL_2017.toModify(hcalRecAlgos,
                   ChannelStatus = cms.vstring('HcalCellOff', 'HcalCellDead')
                 )
         ),
-    #RecoveredRecHitBits = cms.vstring('TimingAddedBit','TimingSubtractedBit'),
-    DropChannelStatusBits = cms.vstring('HcalCellMask','HcalCellOff', 'HcalCellDead')
 )
