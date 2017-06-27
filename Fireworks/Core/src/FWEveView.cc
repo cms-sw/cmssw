@@ -337,6 +337,15 @@ FWEveView::setupEnergyScale()
    gEve->Redraw3D();
 }
 
+void
+FWEveView::setupEventCenter()
+{
+  // piggyback on scales signal connections to redraw jets
+  // can add new signal in future if necessary
+   viewContext()->scaleChanged();
+   gEve->Redraw3D();
+}
+
 //-------------------------------------------------------------------------------
 void
 FWEveView::addTo(FWConfiguration& iTo) const
@@ -406,6 +415,7 @@ FWEveView::setFrom(const FWConfiguration& iFrom)
       viewerGL()->RefDarkColorSet().Selection(3).SetColor(ca[0], ca[1], ca[2]);
    }
 }
+
 
 //______________________________________________________________________________
 
