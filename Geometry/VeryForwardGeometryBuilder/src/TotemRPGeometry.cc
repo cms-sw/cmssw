@@ -29,9 +29,12 @@ char TotemRPGeometry::Build(const DetGeomDesc *gD)
 
     // check if it is RP detector
     if (! d->name().name().compare(DDD_TOTEM_RP_DETECTOR_NAME)
-       or d->name().name()==DDD_CTPPS_DIAMONDS_DETECTOR_NAME)
-      AddDetector(d->geographicalID(), d);
+       or d->name().name().compare(DDD_CTPPS_DIAMONDS_DETECTOR_NAME)==0
+	or d->name().name().compare(DDD_CTPPS_PIXELS_DETECTOR_NAME)==0){
 
+	cout << " added " <<d->name().name()<<" ++++++++++++++++++++ "<< endl;
+	AddDetector(d->geographicalID(), d);
+      }
     // check if it is RP device (primary vacuum)
     if (! d->name().name().compare(DDD_TOTEM_RP_PRIMARY_VACUUM_NAME))
       AddRPDevice(d->geographicalID(), d);
