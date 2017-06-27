@@ -280,45 +280,31 @@ public:
 			}
 
 			if (iTopCharge > 0) {
-				if (onlyDistance1) {
-					if ((distance == 1) && scale > topresscale) {
-					  nFSRveto++;
-					  return true;
-					}
-				}
+				if (onlyDistance1)
+					return (distance == 1) && scale > topresscale;
 				else
-					if (scale > topresscale) {
-					  nFSRveto++;
-					  return true;
-					}
+					return scale > topresscale;
 			}
 			else {
-				if (onlyDistance1) {
-					if ((distance == 1) && scale > atopresscale) {
-					  nFSRveto++;
-					  return true;
-					}
-				}
+				if (onlyDistance1)
+					return (distance == 1) && scale > atopresscale;
 				else
-					if (scale > atopresscale) {
-					  nFSRveto++;
-					  return true;
-					}
+					return scale > atopresscale;
 			}
+		} else {
+			return false;
 		}
-		return false;
 	}
 
 //--------------------------------------------------------------------------
 
   // Functions to return information
 
-  inline int    getNFSRveto() { return nFSRveto; }
+//  inline int    getNFSRveto() { return nFSRveto; }
 
 //--------------------------------------------------------------------------
 
 private:
-	int nFSRveto = 0;
 	double topresscale, atopresscale;
 	bool onlyDistance1, useScaleResonanceInstead;
 };
