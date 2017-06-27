@@ -10,6 +10,7 @@
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
+#include "DataFormats/CTPPSDetId/interface/CTPPSPixelDetId.h"
 #include "DataFormats/CTPPSDetId/interface/CTPPSDiamondDetId.h"
 
 // this might be useful one day
@@ -76,7 +77,26 @@ void DDDTotemRPContruction::buildDetGeomDesc(DDFilteredView *fv, DetGeomDesc *gd
       newGD->setGeographicalID(TotemRPDetId(arm, station, rp, detector));
     }
 
-    if (fv->logicalPart().name().name() == DDD_TOTEM_RP_PRIMARY_VACUUM_NAME)
+// for 3d pixels
+    if (fv->logicalPart().name().name().compare(DDD_CTPPS_PIXELS_DETECTOR_NAME) == 0)
+    {
+
+     const vector<int> &cN = fv->copyNumbers();
+      // check size of copy numubers array
+     if (cN.size() < 4)
+        throw cms::Exception("DDDTotemRPContruction") << "size of copyNumbers for Wafer is "
+          << cN.size() << ". It must be >= 4." << endl;
+
+      // extract information
+      const unsigned int A = cN[cN.size() - 4];
+      const unsigned int arm = A / 100;
+      const unsigned int station = (A % 100) / 10;
+      const unsigned int rp = A % 10;
+      const unsigned int detector = cN[cN.size() - 2]-1;
+      newGD->setGeographicalID(CTPPSPixelDetId(arm, station, rp, detector));
+    }
+
+    if (fv->logicalPart().name().name().compare(DDD_TOTEM_RP_PRIMARY_VACUUM_NAME) == 0)
     {
       const uint32_t decRPId = fv->copyno();
       const uint32_t armIdx = (decRPId / 100) % 10;
