@@ -108,7 +108,7 @@ options = VarParsing.VarParsing ()
 defaultOutputFileName="cmsRecoGeom.root"
 
 options.register ('tag',
-                  "2015", # default value
+                  "2017", # default value
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
                   "tag info about geometry database conditions")
