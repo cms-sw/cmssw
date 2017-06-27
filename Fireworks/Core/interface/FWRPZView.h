@@ -55,6 +55,8 @@ public:
    virtual void voteCaloMaxVal();
 
    virtual void eventBegin();
+   virtual void eventEnd();
+   virtual void setupEventCenter();
 
    //returns the new element created from this import
    void importElements(TEveElement* iProjectableChild, float layer, TEveElement* iProjectedParent=0);
