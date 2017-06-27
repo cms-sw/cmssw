@@ -31,9 +31,9 @@ autoCond = {
     'run2_data_promptlike' : '92X_dataRun2_PromptLike_v0',
 
     # GlobalTag for Run1 HLT: it points to the online GT
-    'run1_hlt'          :   '92X_dataRun2_HLT_frozen_v0',
+    'run1_hlt'          :   '92X_dataRun2_HLT_frozen_v1',
     # GlobalTag for Run2 HLT: it points to the online GT
-    'run2_hlt'          :   '92X_dataRun2_HLT_frozen_v0',
+    'run2_hlt'          :   '92X_dataRun2_HLT_frozen_v1',
     # GlobalTag for Run2 HLT RelVals: customizations to run with fixed L1 Menu
     'run2_hlt_relval'   :   '92X_dataRun2_HLT_relval_v3',
     # GlobalTag for Run2 HLT for HI: it points to the online GT
