@@ -54,6 +54,11 @@ REGISTER_L1_WRITER(L1TMuonBarrelParamsO2ORcd, L1TMuonBarrelParams);
 
 REGISTER_L1_WRITER(L1TMuonEndcapParamsO2ORcd, L1TMuonEndCapParams);
 
+#include "CondFormats/L1TObjects/interface/L1TMuonEndCapForest.h"
+#include "CondFormats/DataRecord/interface/L1TMuonEndcapForestO2ORcd.h"
+
+REGISTER_L1_WRITER(L1TMuonEndcapForestO2ORcd, L1TMuonEndCapForest);
+
 #include "CondFormats/L1TObjects/interface/L1TMuonOverlapParams.h"
 #include "CondFormats/DataRecord/interface/L1TMuonOverlapParamsO2ORcd.h"
 

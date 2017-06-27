@@ -1,8 +1,31 @@
+// Code to unpack the "SP Output Data Record"
+
 #include "EventFilter/L1TRawToDigi/plugins/UnpackerFactory.h"
 
 #include "EMTFCollections.h"
 #include "EMTFUnpackerTools.h"
-#include "EMTFBlockSP.h"
+
+// This is the "header" - no EMTFBlockSP.h file is needed
+namespace l1t {
+  namespace stage2 {
+    namespace emtf {
+      
+      class SPBlockUnpacker : public Unpacker { // "SPBlockUnpacker" inherits from "Unpacker"
+      public:
+	virtual int  checkFormat(const Block& block);
+	virtual bool unpack(const Block& block, UnpackerCollections *coll) override; // Apparently it's always good to use override in C++
+	// virtual bool packBlock(const Block& block, UnpackerCollections *coll) override;
+      };
+      
+
+      // class SPBlockPacker : public Packer { // "SPBlockPacker" inherits from "Packer"
+      // public:
+      // 	virtual bool unpack(const Block& block, UnpackerCollections *coll) override; // Apparently it's always good to use override in C++
+      // };
+      
+    }
+  }
+}
 
 namespace l1t {
   namespace stage2 {
@@ -13,19 +36,16 @@ namespace l1t {
 	auto payload = block.payload();
 	int errors = 0;
 
-	//Check the number of 16-bit words                                                                                                                                    
-	if(payload.size() != 8) { errors += 1; edm::LogError("L1T|EMTF") << "Payload size in 'SP Output Data Record' is different than expected"; }
+	// Check the number of 16-bit words
+	if (payload.size() != 8) { errors += 1; 
+	  edm::LogError("L1T|EMTF") << "Payload size in 'SP Output Data Record' is different than expected"; }
 
-	//Check that each word is 16 bits                                                                                                                                     
-	if(GetHexBits(payload[0], 16, 31) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Payload[0] has more than 16 bits in 'SP Output Data Record'"; }
-	if(GetHexBits(payload[1], 16, 31) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Payload[1] has more than 16 bits in 'SP Output Data Record'"; }
-	if(GetHexBits(payload[2], 16, 31) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Payload[2] has more than 16 bits in 'SP Output Data Record'"; }
-	if(GetHexBits(payload[3], 16, 31) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Payload[3] has more than 16 bits in 'SP Output Data Record'"; }
-	if(GetHexBits(payload[4], 16, 31) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Payload[4] has more than 16 bits in 'SP Output Data Record'"; }
-	if(GetHexBits(payload[5], 16, 31) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Payload[5] has more than 16 bits in 'SP Output Data Record'"; }
-	if(GetHexBits(payload[6], 16, 31) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Payload[6] has more than 16 bits in 'SP Output Data Record'"; }
-	if(GetHexBits(payload[7], 16, 31) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Payload[7] has more than 16 bits in 'SP Output Data Record'"; }
-
+	// Check that each word is 16 bits
+	for (unsigned int i = 0; i < 8; i++) {
+	  if (GetHexBits(payload[i], 16, 31) != 0) { errors += 1; 
+	    edm::LogError("L1T|EMTF") << "Payload[" << i << "] has more than 16 bits in 'SP Output Data Record'"; }
+	}
+	
 	uint16_t SP1a = payload[0];
 	uint16_t SP1b = payload[1];
 	uint16_t SP1c = payload[2];
@@ -35,15 +55,23 @@ namespace l1t {
 	uint16_t SP2c = payload[6];
 	uint16_t SP2d = payload[7];
       
-	//Check Format                                                                                                                                                        
-	if(GetHexBits(SP1a, 15, 15) != 1) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in SP1a are incorrect"; }
-	if(GetHexBits(SP1b, 15, 15) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in SP1b are incorrect"; }
-	if(GetHexBits(SP1c, 15, 15) != 1) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in SP1c are incorrect"; }
-	if(GetHexBits(SP1d, 15, 15) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in SP1d are incorrect"; }
-	if(GetHexBits(SP2a, 15, 15) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in SP2a are incorrect"; }
-	if(GetHexBits(SP2b, 15, 15) != 1) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in SP2b are incorrect"; }
-	if(GetHexBits(SP2c, 15, 15) != 1) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in SP2c are incorrect"; }
-	if(GetHexBits(SP2d, 15, 15) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in SP2d are incorrect"; }
+	// Check Format
+	if (GetHexBits(SP1a, 15, 15) != 1) { errors += 1; 
+	  edm::LogError("L1T|EMTF") << "Format identifier bits in SP1a are incorrect"; }
+	if (GetHexBits(SP1b, 15, 15) != 0) { errors += 1; 
+	  edm::LogError("L1T|EMTF") << "Format identifier bits in SP1b are incorrect"; }
+	if (GetHexBits(SP1c, 15, 15) != 1) { errors += 1; 
+	  edm::LogError("L1T|EMTF") << "Format identifier bits in SP1c are incorrect"; }
+	if (GetHexBits(SP1d, 15, 15) != 0) { errors += 1; 
+	  edm::LogError("L1T|EMTF") << "Format identifier bits in SP1d are incorrect"; }
+	if (GetHexBits(SP2a, 15, 15) != 0) { errors += 1; 
+	  edm::LogError("L1T|EMTF") << "Format identifier bits in SP2a are incorrect"; }
+	if (GetHexBits(SP2b, 15, 15) != 1) { errors += 1; 
+	  edm::LogError("L1T|EMTF") << "Format identifier bits in SP2b are incorrect"; }
+	if (GetHexBits(SP2c, 15, 15) != 1) { errors += 1; 
+	  edm::LogError("L1T|EMTF") << "Format identifier bits in SP2c are incorrect"; }
+	if (GetHexBits(SP2d, 15, 15) != 0) { errors += 1; 
+	  edm::LogError("L1T|EMTF") << "Format identifier bits in SP2d are incorrect"; }
 
 	return errors;
 
@@ -120,8 +148,6 @@ namespace l1t {
 	res_cand = static_cast<EMTFCollections*>(coll)->getRegionalMuonCands();
 	RegionalMuonCand mu_;
 	
-	// if (SP_.Format_Errors() > 0) goto write; // Temporarily disable for DQM operation - AWB 09.04.16
-
 	///////////////////////////////////
 	// Unpack the SP Output Data Record
 	///////////////////////////////////
@@ -162,10 +188,8 @@ namespace l1t {
 
 	// SP_.set_dataword     ( uint64_t dataword );
 
-	Track_.ImportSP( SP_, (res->at(iOut)).PtrEventHeader()->Sector() );
-	Track_.ImportPtLUT( Track_.Mode(), Track_.Pt_LUT_addr() );
-	Track_.set_endcap       ( ((res->at(iOut)).PtrEventHeader()->Endcap() == 1) ? 1 : -1 );
-        Track_.set_sector_index ( (Track_.Endcap() == 1) ? Track_.Sector() - 1 : Track_.Sector() + 5 );
+	ImportSP( Track_, SP_, (res->at(iOut)).PtrEventHeader()->Endcap(), (res->at(iOut)).PtrEventHeader()->Sector() );
+	// Track_.ImportPtLUT( Track_.Mode(), Track_.Pt_LUT_addr() );  // Deprecated ... replace? - AWB 15.03.17
 
 	if ( (res->at(iOut)).PtrSPCollection()->size() > 0 )
 	  if ( SP_.TBIN() == (res->at(iOut)).PtrSPCollection()->at( (res->at(iOut)).PtrSPCollection()->size() - 1 ).TBIN() )
@@ -179,146 +203,203 @@ namespace l1t {
 	mu_.setHwEta       ( SP_.Eta_GMT() );
 	mu_.setHwPhi       ( SP_.Phi_GMT() );
 	mu_.setHwPt        ( SP_.Pt_GMT() );
-	mu_.setTFIdentifiers ( Track_.Sector_GMT(), (Track_.Endcap() == 1) ? emtf_pos : emtf_neg );
+	mu_.setTFIdentifiers ( Track_.Sector() - 1, (Track_.Endcap() == 1) ? emtf_pos : emtf_neg );
 	mu_.setTrackSubAddress( RegionalMuonCand::kTrkNum, Track_.Track_num() );
 	// mu_.set_dataword   ( SP_.Dataword() );
+	// Track_.set_GMT(mu_);
 
-	// set_type         ( _SP.() );
-	// set_rank         ( _SP.() );
-	// set_layer        ( _SP.() );
-	// set_straightness ( _SP.() );
-	// set_strip        ( _SP.() );
-	// set_second_bx    ( _SP.() );
-	// set_pt_XML       ( _SP.() );
-	// set_theta_int    ( _SP.() );
-	// set_isGMT        ( _SP.() );
-	
 	///////////////////////
 	// Match hits to tracks
 	///////////////////////
 
+	// Find the track delay
+	int nDelay[3] = {0, 0, 0}; // Number of hits in the track with delay 0, 1, or 2
+	if ( Track_.Mode()      >= 8) nDelay[SP_.ME1_delay()] += 1;
+	if ((Track_.Mode() % 8) >= 4) nDelay[SP_.ME2_delay()] += 1;
+	if ((Track_.Mode() % 4) >= 2) nDelay[SP_.ME3_delay()] += 1;
+	if ((Track_.Mode() % 2) == 1) nDelay[SP_.ME4_delay()] += 1;
+
+	int trk_delay = -99;
+	// Assume 2nd-earliest LCT configuration
+	if      (nDelay[2]                         >= 2) trk_delay = 2;
+	else if (nDelay[2] + nDelay[1]             >= 2) trk_delay = 1;
+	else if (nDelay[2] + nDelay[1] + nDelay[0] >= 2) trk_delay = 0;
+
+	// // For earliest LCT configuration
+	// if      (nDelay[2]                         >= 1) trk_delay = 2;
+	// else if (nDelay[2] + nDelay[1]             >= 1) trk_delay = 1;
+	// else if (nDelay[2] + nDelay[1] + nDelay[0] >= 1) trk_delay = 0;
+	
 	int St_hits[4] = {0, 0, 0, 0}; // Number of matched hits in each station
-	// int dBX[3] = {0, 1, 2};         // Hit - track BX values for earliest LCT configuration
-	int dBX[5] = {0, -1, 1, -2, 2}; // Hit - track BX values for 2nd-earliest LCT configuration
 
-	Track_.set_has_neighbor(false);
-	Track_.set_all_neighbor(true);
+	for (uint iHit = 0; iHit < res_hit->size(); iHit++) {
+	  
+	  if ( (res_hit->at(iHit)).Endcap() != Track_.Endcap() ) continue;
+	  
+	  int hit_delay = -99;
+	  if      ( (res_hit->at(iHit)).Station() == 1 ) hit_delay = SP_.ME1_delay();
+	  else if ( (res_hit->at(iHit)).Station() == 2 ) hit_delay = SP_.ME2_delay();
+	  else if ( (res_hit->at(iHit)).Station() == 3 ) hit_delay = SP_.ME3_delay();
+	  else if ( (res_hit->at(iHit)).Station() == 4 ) hit_delay = SP_.ME4_delay();
+	  
+	  // Require exact matching according to TBIN and delays
+	  if ( (res_hit->at(iHit)).BX() + 3 + hit_delay != SP_.TBIN() + trk_delay ) continue;
+	  
+	  // Match hit in station 1
+	  conv_vals_SP = convert_SP_location( SP_.ME1_CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), SP_.ME1_subsector(), 1 );
+	  
+	  if ( (res_hit->at(iHit)).Station()  == 1                  &&	    
+	       (res_hit->at(iHit)).Sector()   == conv_vals_SP.at(1) &&
+	       (res_hit->at(iHit)).Neighbor() == conv_vals_SP.at(3) &&
+	       (res_hit->at(iHit)).Stub_num() == SP_.ME1_stub_num() ) {
+	    
+	    if ( (res_hit->at(iHit)).Is_CSC() == 1 && 
+		 ( (res_hit->at(iHit)).CSC_ID()    != conv_vals_SP.at(0) ||
+		   (res_hit->at(iHit)).Subsector() != conv_vals_SP.at(2) ) ) continue;
+	    
+	    int RPC_subsector = (((res_hit->at(iHit)).Subsector() - 1) / 3) + 1; // Map RPC subsector to equivalent CSC subsector
+	    int RPC_CSC_ID    = (((res_hit->at(iHit)).Subsector() - 1) % 3) + 4; // Map RPC subsector and ring to equivalent CSC ID
+	    
+	    if ( (res_hit->at(iHit)).Is_RPC() == 1 &&
+		 ( RPC_CSC_ID    != conv_vals_SP.at(0) ||
+		   RPC_subsector != conv_vals_SP.at(2) ) ) continue;
+	    
+	    if (St_hits[0] == 0 ) { // Only add the first matched hit to the track
+	      Track_.push_Hit( res_hit->at(iHit) );
+	      mu_.setTrackSubAddress( RegionalMuonCand::kME1Seg, SP_.ME1_stub_num() );
+	      mu_.setTrackSubAddress( RegionalMuonCand::kME1Ch,  
+				      L1TMuonEndCap::calc_uGMT_chamber( conv_vals_SP.at(0), 
+									conv_vals_SP.at(2), 
+									conv_vals_SP.at(3), 1) );
+	    }
+	    St_hits[0] += 1; // Count the total number of matches for debugging purposes
+	  } // End conditional: if ( (res_hit->at(iHit)).Station() == 1 
+	  
 
-	conv_vals_SP = convert_SP_location( SP_.ME1_CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), SP_.ME1_subsector(), 1 );
-	if ( conv_vals_SP.at(3) == 1 and not Track_.Has_neighbor() ) Track_.set_has_neighbor(true);
-	if ( conv_vals_SP.at(3) == 0 and     Track_.All_neighbor() ) Track_.set_all_neighbor(false); 
-	// if (abs(SP_.TBIN() - 3) < 2)
-	  // std::cout << "\nTrack: ID = " << conv_vals_SP.at(0) << ", sector = " << conv_vals_SP.at(1) << ", sub = " << conv_vals_SP.at(2)
-	  // 	    << ", neighbor = " << conv_vals_SP.at(3) << ", station = 1"
-	  // 	    << ", stub = " << SP_.ME1_stub_num() << ", BX = " << SP_.TBIN() - 3 << std::endl;
-	for (uint iBX = 0; iBX < 5; iBX++) { // Loop over BX values nearest to the track BX
-	  for (uint iHit = 0; iHit < res_hit->size(); iHit++) {
-	    // if (abs(SP_.TBIN() - 3) < 2 && iBX == 0)
-	      // std::cout << "Hit:   ID = " << (res_hit->at(iHit)).CSC_ID() << ", sector = " << (res_hit->at(iHit)).Sector() << ", sub = " << (res_hit->at(iHit)).Subsector()
-	      // 		<< ", neighbor = " << (res_hit->at(iHit)).Neighbor() << ", station = " << (res_hit->at(iHit)).Station()
-	      // 		<< ", stub = " << (res_hit->at(iHit)).Stub_num() << ", BX = " << (res_hit->at(iHit)).BX() << std::endl;
-	    if ( (res_hit->at(iHit)).CSC_ID() == conv_vals_SP.at(0) && (res_hit->at(iHit)).Sector() == conv_vals_SP.at(1) &&
-		 (res_hit->at(iHit)).Subsector() == conv_vals_SP.at(2) && (res_hit->at(iHit)).Neighbor() == conv_vals_SP.at(3) &&
-		 (res_hit->at(iHit)).Station() == 1 && (res_hit->at(iHit)).Stub_num() == SP_.ME1_stub_num() &&
-		 (res_hit->at(iHit)).Endcap() == Track_.Endcap() && (res_hit->at(iHit)).BX() - (SP_.TBIN() - 3) == dBX[iBX] ) {
-	      if (St_hits[0] == 0 ) Track_.push_Hit( res_hit->at(iHit) );
-	      St_hits[0] += 1; }
-	  }
-	  if (St_hits[0] > 0) break; // If you found a hit in a BX close to the track, not need to look in other BX
-	}
-	mu_.setTrackSubAddress( RegionalMuonCand::kME1Seg, SP_.ME1_stub_num() );
-	mu_.setTrackSubAddress( RegionalMuonCand::kME1Ch,  calc_uGMT_chamber(conv_vals_SP.at(0), conv_vals_SP.at(2), conv_vals_SP.at(3), 1) );
+	  // Match hit in station 2
+	  conv_vals_SP = convert_SP_location( SP_.ME2_CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), -99, 2 );
+	  
+	  if ( (res_hit->at(iHit)).Station()  == 2                  &&	    
+	       (res_hit->at(iHit)).Sector()   == conv_vals_SP.at(1) &&
+	       (res_hit->at(iHit)).Neighbor() == conv_vals_SP.at(3) &&
+	       (res_hit->at(iHit)).Stub_num() == SP_.ME2_stub_num() ) {
+	    
+	    if ( (res_hit->at(iHit)).Is_CSC() == 1 && 
+		 (res_hit->at(iHit)).CSC_ID() != conv_vals_SP.at(0) ) continue;
+	    
+	    if ( (res_hit->at(iHit)).Is_RPC() == 1 &&
+		 (res_hit->at(iHit)).Subsector() + 3 != conv_vals_SP.at(0) ) continue;
+	    
+	    if (St_hits[1] == 0 ) {
+	      Track_.push_Hit( res_hit->at(iHit) );
+	      mu_.setTrackSubAddress( RegionalMuonCand::kME2Seg, SP_.ME2_stub_num() );
+	      mu_.setTrackSubAddress( RegionalMuonCand::kME2Ch,  
+				      L1TMuonEndCap::calc_uGMT_chamber( conv_vals_SP.at(0), 
+									conv_vals_SP.at(2), 
+									conv_vals_SP.at(3), 2) );
+	    }
+	    St_hits[1] += 1;
+	  } // End conditional: if ( (res_hit->at(iHit)).Station() == 2 
+	  
 
-	conv_vals_SP = convert_SP_location( SP_.ME2_CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), -99, 2 );
-	if ( conv_vals_SP.at(3) == 1 and not Track_.Has_neighbor() ) Track_.set_has_neighbor(true);
-	if ( conv_vals_SP.at(3) == 0 and     Track_.All_neighbor() ) Track_.set_all_neighbor(false); 
-	for (uint iBX = 0; iBX < 5; iBX++) { 
-	  for (uint iHit = 0; iHit < res_hit->size(); iHit++) {
-	    if ( (res_hit->at(iHit)).CSC_ID() == conv_vals_SP.at(0) && (res_hit->at(iHit)).Sector() == conv_vals_SP.at(1) && 
-	    // if ( ( (res_hit->at(iHit)).CSC_ID() == conv_vals_SP.at(0) || (res_hit->at(iHit)).CSC_ID() == conv_vals_SP.at(0) + 3 ) && 
-	    // 	 (res_hit->at(iHit)).Sector() == conv_vals_SP.at(1) && 
-		 (res_hit->at(iHit)).Neighbor() == conv_vals_SP.at(3) && (res_hit->at(iHit)).Station() == 2 && 
-		 (res_hit->at(iHit)).Stub_num() == SP_.ME2_stub_num() && (res_hit->at(iHit)).Endcap() == Track_.Endcap() && 
-		 (res_hit->at(iHit)).BX() - (SP_.TBIN() - 3) == dBX[iBX] ) {
-	      if (St_hits[1] == 0 ) Track_.push_Hit( res_hit->at(iHit) );
-	      St_hits[1] += 1; }
-	  }
-	  if (St_hits[1] > 0) break; 
-	}
-	mu_.setTrackSubAddress( RegionalMuonCand::kME2Seg, SP_.ME2_stub_num() );
-	mu_.setTrackSubAddress( RegionalMuonCand::kME2Ch,  calc_uGMT_chamber(conv_vals_SP.at(0), conv_vals_SP.at(2), conv_vals_SP.at(3), 2) );
+	  // Match hit in station 3
+	  conv_vals_SP = convert_SP_location( SP_.ME3_CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), -99, 3 );
+	  
+	  if ( (res_hit->at(iHit)).Station()  == 3                  &&	    
+	       (res_hit->at(iHit)).Sector()   == conv_vals_SP.at(1) &&
+	       (res_hit->at(iHit)).Neighbor() == conv_vals_SP.at(3) &&
+	       (res_hit->at(iHit)).Stub_num() == SP_.ME3_stub_num() ) {
+	    
+	    if ( (res_hit->at(iHit)).Is_CSC() == 1 && 
+		 (res_hit->at(iHit)).CSC_ID() != conv_vals_SP.at(0) ) continue;
 
-	conv_vals_SP = convert_SP_location( SP_.ME3_CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), -99, 3 );
-	if ( conv_vals_SP.at(3) == 1 and not Track_.Has_neighbor() ) Track_.set_has_neighbor(true);
-	if ( conv_vals_SP.at(3) == 0 and     Track_.All_neighbor() ) Track_.set_all_neighbor(false); 
-	for (uint iBX = 0; iBX < 5; iBX++) { 
-	  for (uint iHit = 0; iHit < res_hit->size(); iHit++) {
-	    if ( (res_hit->at(iHit)).CSC_ID() == conv_vals_SP.at(0) && (res_hit->at(iHit)).Sector() == conv_vals_SP.at(1) &&
-	    // if ( ( (res_hit->at(iHit)).CSC_ID() == conv_vals_SP.at(0) || (res_hit->at(iHit)).CSC_ID() == conv_vals_SP.at(0) + 3 ) && 
-	    // 	 (res_hit->at(iHit)).Sector() == conv_vals_SP.at(1) && 
-		 (res_hit->at(iHit)).Neighbor() == conv_vals_SP.at(3) && (res_hit->at(iHit)).Station() == 3 && 
-		 (res_hit->at(iHit)).Stub_num() == SP_.ME3_stub_num() && (res_hit->at(iHit)).Endcap() == Track_.Endcap() &&
-		 (res_hit->at(iHit)).BX() - (SP_.TBIN() - 3) == dBX[iBX] ) {
-	      if (St_hits[2] == 0 ) Track_.push_Hit( res_hit->at(iHit) );
-	      St_hits[2] += 1; }
-	  }
-	  if (St_hits[2] > 0) break; 
-	}
-	mu_.setTrackSubAddress( RegionalMuonCand::kME3Seg, SP_.ME3_stub_num() );
-	mu_.setTrackSubAddress( RegionalMuonCand::kME3Ch,  calc_uGMT_chamber(conv_vals_SP.at(0), conv_vals_SP.at(2), conv_vals_SP.at(3), 3) );
-
-	conv_vals_SP = convert_SP_location( SP_.ME4_CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), -99, 4 );
-	if ( conv_vals_SP.at(3) == 1 and not Track_.Has_neighbor() ) Track_.set_has_neighbor(true);
-	if ( conv_vals_SP.at(3) == 0 and     Track_.All_neighbor() ) Track_.set_all_neighbor(false); 
-	for (uint iBX = 0; iBX < 5; iBX++) { 
-	  for (uint iHit = 0; iHit < res_hit->size(); iHit++) {
-	    if ( (res_hit->at(iHit)).CSC_ID() == conv_vals_SP.at(0) && (res_hit->at(iHit)).Sector() == conv_vals_SP.at(1) && 
-	    // if ( ( (res_hit->at(iHit)).CSC_ID() == conv_vals_SP.at(0) || (res_hit->at(iHit)).CSC_ID() == conv_vals_SP.at(0) + 3 ) && 
-	    // 	 (res_hit->at(iHit)).Sector() == conv_vals_SP.at(1) && 
-		 (res_hit->at(iHit)).Neighbor() == conv_vals_SP.at(3) && (res_hit->at(iHit)).Station() == 4 && 
-		 (res_hit->at(iHit)).Stub_num() == SP_.ME4_stub_num() && (res_hit->at(iHit)).Endcap() == Track_.Endcap() && 
-		 (res_hit->at(iHit)).BX() - (SP_.TBIN() - 3) == dBX[iBX] ) {
-	      if (St_hits[3] == 0 ) Track_.push_Hit( res_hit->at(iHit) );
-	      St_hits[3] += 1; }
-	  }
-	  if (St_hits[3] > 0) break; 
-	}
-	mu_.setTrackSubAddress( RegionalMuonCand::kME4Seg, SP_.ME4_stub_num() );
-	mu_.setTrackSubAddress( RegionalMuonCand::kME4Ch,  calc_uGMT_chamber(conv_vals_SP.at(0), conv_vals_SP.at(2), conv_vals_SP.at(3), 4) );
-
-
-	// if ( Track_.Mode() != St_hits[0]*8 + St_hits[1]*4 + St_hits[2]*2 + St_hits[3] && abs(Track_.BX()) < 2) {
-	//   std::cout << "" << std::endl;
-	//   std::cout << "***********************************************************" << std::endl;
-	//   std::cout << "Bug in EMTF event! Mode " << Track_.Mode() << " track in sector " << Track_.Sector()*Track_.Endcap() 
-	// 	    << ", BX " << Track_.BX() << " with (" << St_hits[0] << ", " << St_hits[1] 
+	    if ( (res_hit->at(iHit)).Is_RPC() == 1 &&
+		 (res_hit->at(iHit)).Subsector() + 3 != conv_vals_SP.at(0) ) continue;
+	    
+	    if (St_hits[2] == 0 ) {
+	      Track_.push_Hit( res_hit->at(iHit) );
+	      mu_.setTrackSubAddress( RegionalMuonCand::kME3Seg, SP_.ME3_stub_num() );
+	      mu_.setTrackSubAddress( RegionalMuonCand::kME3Ch,  
+				      L1TMuonEndCap::calc_uGMT_chamber( conv_vals_SP.at(0), 
+									conv_vals_SP.at(2), 
+									conv_vals_SP.at(3), 3) );
+	    }
+	    St_hits[2] += 1;
+	  } // End conditional: if ( (res_hit->at(iHit)).Station() == 3 
+	  
+	  
+	  // Match hit in station 4
+	  conv_vals_SP = convert_SP_location( SP_.ME4_CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), -99, 4 );
+	  
+	  if ( (res_hit->at(iHit)).Station()  == 4                  &&	    
+	       (res_hit->at(iHit)).Sector()   == conv_vals_SP.at(1) &&
+	       (res_hit->at(iHit)).Neighbor() == conv_vals_SP.at(3) &&
+	       (res_hit->at(iHit)).Stub_num() == SP_.ME4_stub_num() ) {
+	    
+	    if ( (res_hit->at(iHit)).Is_CSC() == 1 && 
+		 (res_hit->at(iHit)).CSC_ID() != conv_vals_SP.at(0) ) continue;
+	    
+	    if ( (res_hit->at(iHit)).Is_RPC() == 1 &&
+		 (res_hit->at(iHit)).Subsector() + 3 != conv_vals_SP.at(0) ) continue;
+	    
+	    if (St_hits[3] == 0 ) {
+	      Track_.push_Hit( res_hit->at(iHit) );
+	      mu_.setTrackSubAddress( RegionalMuonCand::kME4Seg, SP_.ME4_stub_num() );
+	      mu_.setTrackSubAddress( RegionalMuonCand::kME4Ch,  
+				      L1TMuonEndCap::calc_uGMT_chamber( conv_vals_SP.at(0), 
+									conv_vals_SP.at(2), 
+									conv_vals_SP.at(3), 4) );
+	    }
+	    St_hits[3] += 1;
+	  } // End conditional: if ( (res_hit->at(iHit)).Station() == 4 
+	  
+	} // End loop: for (uint iHit = 0; iHit < res_hit->size(); iHit++)
+      
+	
+	// if ( Track_.Mode() != St_hits[0]*8 + St_hits[1]*4 + St_hits[2]*2 + St_hits[3] && Track_.BX() == 0) {
+	//   std::cout << "\n\n***********************************************************" << std::endl;
+	//   std::cout << "Bug in unpacked EMTF event! Mode " << Track_.Mode() << " track in sector " << Track_.Sector()*Track_.Endcap() 
+	// 	    << ", BX " << Track_.BX() << " (delay = " << trk_delay << ") with (" << St_hits[0] << ", " << St_hits[1] 
 	// 	    << ", " << St_hits[2] << ", " << St_hits[3] << ") hits in stations (1, 2, 3, 4)" << std::endl;
-	//   std::cout << "Sector = " << (res->at(iOut)).PtrEventHeader()->Sector() << ", ME1_stub_num = " << SP_.ME1_stub_num() 
-	// 	    << ", ME1_delay = " <<  SP_.ME1_delay() << ", ME1_CSC_ID = " << SP_.ME1_CSC_ID() <<  ", ME1_subsector = " << SP_.ME1_subsector() << std::endl;
-	//   std::cout << "Sector = " << (res->at(iOut)).PtrEventHeader()->Sector() << ", ME2_stub_num = " << SP_.ME2_stub_num() 
-	// 	    << ", ME2_delay = " <<  SP_.ME2_delay() << ", ME2_CSC_ID = " << SP_.ME2_CSC_ID() << std::endl;
-	//   std::cout << "Sector = " << (res->at(iOut)).PtrEventHeader()->Sector() << ", ME3_stub_num = " << SP_.ME3_stub_num() 
-	// 	    << ", ME3_delay = " <<  SP_.ME3_delay() << ", ME3_CSC_ID = " << SP_.ME3_CSC_ID() << std::endl;
-	//   std::cout << "Sector = " << (res->at(iOut)).PtrEventHeader()->Sector() << ", ME4_stub_num = " << SP_.ME4_stub_num() 
-	// 	    << ", ME4_delay = " <<  SP_.ME4_delay() << ", ME4_CSC_ID = " << SP_.ME4_CSC_ID() << std::endl;
 
+	//   std::cout << "\nME1_stub_num = " << SP_.ME1_stub_num() << ", ME1_delay = " <<  SP_.ME1_delay() 
+	// 	    << ", ME1_CSC_ID = " << SP_.ME1_CSC_ID() <<  ", ME1_subsector = " << SP_.ME1_subsector() << std::endl;
+	//   std::cout << "ME2_stub_num = " << SP_.ME2_stub_num() << ", ME2_delay = " <<  SP_.ME2_delay() 
+	// 	    << ", ME2_CSC_ID = " << SP_.ME2_CSC_ID() << std::endl;
+	//   std::cout << "ME3_stub_num = " << SP_.ME3_stub_num() << ", ME3_delay = " <<  SP_.ME3_delay() 
+	// 	    << ", ME3_CSC_ID = " << SP_.ME3_CSC_ID() << std::endl;
+	//   std::cout << "ME4_stub_num = " << SP_.ME4_stub_num() << ", ME4_delay = " <<  SP_.ME4_delay() 
+	// 	    << ", ME4_CSC_ID = " << SP_.ME4_CSC_ID() << std::endl;
+
+	//   conv_vals_SP = convert_SP_location( SP_.ME1_CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), SP_.ME1_subsector(), 1 );
+	//   std::cout << "\nConverted ME1 CSC ID = " << conv_vals_SP.at(0) << ", sector = " << conv_vals_SP.at(1)
+	// 	    << ", subsector = " << conv_vals_SP.at(2) << ", neighbor = " << conv_vals_SP.at(3) << std::endl;
+	//   conv_vals_SP = convert_SP_location( SP_.ME2_CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), -99, 2 );
+	//   std::cout << "Converted ME2 CSC ID = " << conv_vals_SP.at(0) << ", sector = " << conv_vals_SP.at(1)
+	// 	    << ", subsector = " << conv_vals_SP.at(2) << ", neighbor = " << conv_vals_SP.at(3) << std::endl;
+	//   conv_vals_SP = convert_SP_location( SP_.ME3_CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), -99, 3 );
+	//   std::cout << "Converted ME3 CSC ID = " << conv_vals_SP.at(0) << ", sector = " << conv_vals_SP.at(1)
+	// 	    << ", subsector = " << conv_vals_SP.at(2) << ", neighbor = " << conv_vals_SP.at(3) << std::endl;
+	//   conv_vals_SP = convert_SP_location( SP_.ME4_CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), -99, 4 );
+	//   std::cout << "Converted ME4 CSC ID = " << conv_vals_SP.at(0) << ", sector = " << conv_vals_SP.at(1)
+	// 	    << ", subsector = " << conv_vals_SP.at(2) << ", neighbor = " << conv_vals_SP.at(3) << "\n" << std::endl;
+
+	  
 	//   for (uint iHit = 0; iHit < res_hit->size(); iHit++)
-	//     std::cout << "ID = " << (res_hit->at(iHit)).CSC_ID() << ", sector = " << (res_hit->at(iHit)).Sector()
-	// 	      << ", sub = " << (res_hit->at(iHit)).Subsector() << ", neighbor = " << (res_hit->at(iHit)).Neighbor()
-	// 	      << ", station = " << (res_hit->at(iHit)).Station() << ", stub = " << (res_hit->at(iHit)).Stub_num() 
-	// 	      << ", BX = " << (res_hit->at(iHit)).BX() << ", ring = " << (res_hit->at(iHit)).Ring() 
-	// 	      << ", chamber = " << (res_hit->at(iHit)).Chamber() << std::endl;
-
-	//   for (uint iHit = 0; iHit < res_hit->size(); iHit++) {
-	//     if (iHit == 0) (res_hit->at(iHit)).PrintSimulatorHeader();
-	//     (res_hit->at(iHit)).PrintForSimulator();
-	//   }
+	//     std::cout << "Hit: Is CSC = " << (res_hit->at(iHit)).Is_CSC() << ", CSC ID = " << (res_hit->at(iHit)).CSC_ID() 
+	// 	      << ", sector = " << (res_hit->at(iHit)).Sector() << ", sub = " << (res_hit->at(iHit)).Subsector()
+	// 	      << ", neighbor = " << (res_hit->at(iHit)).Neighbor() << ", station = " << (res_hit->at(iHit)).Station()
+	// 	      << ", ring = " << (res_hit->at(iHit)).Ring() << ", chamber = " << (res_hit->at(iHit)).Chamber()
+	// 	      << ", stub = " << (res_hit->at(iHit)).Stub_num() << ", BX = " << (res_hit->at(iHit)).BX() << std::endl;
+	  
+	//   // for (uint iHit = 0; iHit < res_hit->size(); iHit++) {
+	//   //   if (iHit == 0) (res_hit->at(iHit)).PrintSimulatorHeader();
+	//   //   (res_hit->at(iHit)).PrintForSimulator();
+	//   // }
 	//   std::cout << "***********************************************************" << std::endl;
 	//   std::cout << "" << std::endl;
 	// }
-
-	// write: // Temporarily disable for DQM operation - AWB 09.04.16
-
+	
 	(res->at(iOut)).push_SP(SP_);
 
 	res_track->push_back( Track_ );
