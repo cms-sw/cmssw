@@ -1,7 +1,7 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputer.h"
 #include "CondFormats/HcalObjects/interface/HcalChannelStatus.h"
 #include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
-#include "DataFormats/METReco/interface/HcalPhase1FlagLabels.h" //FIXME: Jae 
+#include "DataFormats/METReco/interface/HcalPhase1FlagLabels.h"
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -141,7 +141,7 @@ HcalSeverityLevelComputer::HcalSeverityLevelComputer( const edm::ParameterSet& i
   typedef std::vector< edm::ParameterSet > myParameters;
   myParameters myLevels = iConfig.getParameter<myParameters>((std::string)"SeverityLevels");
 
-  int phase_   = iConfig.getUntrackedParameter<bool>("phase"); // FIXME: Jae
+  int phase_   = iConfig.getParameter<int>("phase");
 
   // now run through the parameter set vector:
   for ( myParameters::iterator itLevels = myLevels.begin(); itLevels != myLevels.end(); ++itLevels)
@@ -177,7 +177,7 @@ HcalSeverityLevelComputer::HcalSeverityLevelComputer( const edm::ParameterSet& i
 	{
 	  if (myRecHitFlags[k].empty()) break; // empty string
 	  bnonempty++;
-	  bvalid+=getRecHitFlag(mydef, myRecHitFlags[k], phase_); // FIXME: Jae
+	  bvalid+=getRecHitFlag(mydef, myRecHitFlags[k], phase_);
 	}
 
       //      std::cout << "Made Severity Level:" << std::endl;
@@ -240,7 +240,7 @@ HcalSeverityLevelComputer::HcalSeverityLevelComputer( const edm::ParameterSet& i
   for (unsigned k=0; k < myRecovered.size(); k++)
     {
       if (myRecovered[k].empty()) break;
-      getRecHitFlag( (*RecoveredRecHit_), myRecovered[k], phase_); // FIXME: Jae
+      getRecHitFlag( (*RecoveredRecHit_), myRecovered[k], phase_);
     }
 
   //
