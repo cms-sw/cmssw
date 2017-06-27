@@ -177,7 +177,7 @@ for i in range(len(Run_Number)):
 
 
     os.system('cmsRun ${CMSSW_BASE}/src/DQM/SiStripMonitorClient/test/SiStripDQM_OfflineTkMap_Template_cfg_DB.py globalTag='+globalTag+' runNumber='+str(Run_Number[i])+' dqmFile='+filepath+'/'+File_Name+' detIdInfoFile='+detIdInfoFileName)
-    
+    os.system('rm -f *svg')
 ####################### rename bad module list file######################
     sefile = 'QualityTest_run'+str(Run_Number[i])+'.txt'
     shutil.move('QTBadModules.log',sefile)
@@ -248,8 +248,8 @@ for i in range(len(Run_Number)):
     shutil.copyfile(detIdInfoFileName,'/data/users/event_display/TkCommissioner_runs/'+DataLocalDir+'/'+dest+'/'+detIdInfoFileName)
 
     os.remove(detIdInfoFileName)
-
-
+    os.remove('MergedBadComponentsTkMap_Canvas.root')
+    os.remove('MergedBadComponentsTkMap.root')
 ##############counting dead pixel#######################
     print "countig dead pixel ROCs" 
     if (Run_Number[i] < 290124) :
@@ -270,9 +270,10 @@ for i in range(len(Run_Number)):
 
     shutil.copy(workPath+'/MaskedChannelPrintOut/ref.txt','.')
     os.system('${CMSSW_BASE}/src/DQM/SiStripMonitorClient/scripts/MaskedChannelPrintOut/DeadROC_duringRun.py '+filepath+File_Name_online+' '+filepath+File_Name)
-
-    os.system('${CMSSW_BASE}/src/DQM/SiStripMonitorClient/scripts/MaskedChannelPrintOut/PixelMapPlotter.py MaskedROC.txt')
+    os.system('${CMSSW_BASE}/src/DQM/SiStripMonitorClient/scripts/MaskedChannelPrintOut/change_name.py')
+    os.system('${CMSSW_BASE}/src/DQM/SiStripMonitorClient/scripts/MaskedChannelPrintOut/PixelMapPlotter.py MaskedROC_sum.txt -c')
     os.remove('ref.txt')
+    os.remove('MaskedROC_sum.txt')
 
 
 ###################copy ouput files###################

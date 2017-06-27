@@ -201,12 +201,28 @@ deadROCList_online = list(set(BPIX_list(filename_online))) + list(set(FPIX_list(
 deadROCList_offline = list(set(BPIX_list(filename_offline))) + list(set(FPIX_list(filename_offline)))
 
 MaskedROC_DuringRun = list(set(deadROCList_online) - set(deadROCList_offline))
-print 'Number of New Masked ROC: '+ str(len(MaskedROC_DuringRun))
+print 'Number of New Dead ROC: '+ str(len(MaskedROC_DuringRun))
 
-outFileName = 'MaskedROC.txt'
+outFileName = 'DeadROC_Diff.txt'
+outFileName_online = 'DeadROC_online.txt'
+outFileName_offline = 'DeadROC_offline.txt'
 f = open(outFileName,"w")
+f1 = open(outFileName_online,"w")
+f2 = open(outFileName_offline,"w")
+
 for i in range(len(MaskedROC_DuringRun)):
 
     f.write(MaskedROC_DuringRun[i]+"\n")
 f.close()
+
+for i in range(len(deadROCList_online)):
+
+    f1.write(deadROCList_online[i]+"\n")
+f1.close()
+
+for i in range(len(deadROCList_offline)):
+
+    f2.write(deadROCList_offline[i]+"\n")
+f2.close()
+
 
