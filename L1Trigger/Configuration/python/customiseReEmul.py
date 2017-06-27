@@ -132,7 +132,7 @@ def L1TReEmulFromRAW2016(process):
         process.simTwinMuxDigis.DTDigi_Source      = cms.InputTag('bmtfDigis')
         process.simTwinMuxDigis.DTThetaDigi_Source = cms.InputTag('bmtfDigis')
         # BMTF
-        process.simBmtfDigis.DTDigi_Source         = cms.InputTag('simTwinMuxDigis')
+        process.simBmtfDigis.DTDigi_Source         = cms.InputTag('bmtfDigis')
         process.simBmtfDigis.DTDigi_Theta_Source   = cms.InputTag('bmtfDigis')
         # OMTF
         process.simOmtfDigis.srcRPC                = cms.InputTag('muonRPCDigis')
