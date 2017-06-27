@@ -16,7 +16,8 @@
 #include "Fireworks/Core/interface/FWTextProjected.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWProxyBuilderConfiguration.h"
-#include "Fireworks/Core/interface/FWParameters.h"
+#include "Fireworks/Core/interface/Context.h"
+#include "Fireworks/Core/interface/CmsShowCommon.h"
 // user include files
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
@@ -239,6 +240,18 @@ FWJetProxyBuilder::scaleProduct(TEveElementList* parent, FWViewType::EType type,
          TEveStraightLineSetProjected* projLineSet = (TEveStraightLineSetProjected*)(*(*i).m_ls->BeginProjecteds());
          projLineSet->UpdateProjection();
       }
+   }
+
+   // move jets to eventCenter
+   fireworks::Context* contextGl =  fireworks::Context::getInstance();
+   TEveVector cv;
+   contextGl->commonPrefs()->getEventCenter(cv.Arr());
+   for (TEveElement::List_i i = m_common->BeginChildren(); i!= m_common->EndChildren(); ++ i)
+   {
+     TEveJetCone* cone = dynamic_cast<TEveJetCone*>(*i);
+     if (cone) {
+       cone->SetApex(cv);
+     }
    }
 }
 

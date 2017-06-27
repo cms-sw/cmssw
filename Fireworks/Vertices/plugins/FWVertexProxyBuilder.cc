@@ -14,12 +14,15 @@
 #include "Fireworks/Core/interface/FWProxyBuilderConfiguration.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
+#include "Fireworks/Core/interface/CmsShowCommon.h"
 #include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/FWParameters.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "Fireworks/Vertices/interface/TEveEllipsoid.h"
+#include "Fireworks/Core/interface/fwLog.h"
+
 
 #include "TEvePointSet.h"
 #include "TMatrixDEigen.h"
@@ -51,6 +54,7 @@ public:
          iItem->getConfig()->assertParam("Draw Ellipse", false);
          iItem->getConfig()->assertParam("Scale Ellipse",2l, 1l, 10l);
          iItem->getConfig()->assertParam("Ellipse Color Index",  6l, 0l, (long)context().colorManager()->numberOfLimitedColors());
+         iItem->getConfig()->assertParam("Event Center Index",  -1l, -1l, 500l);
       }
    }
    
@@ -70,14 +74,14 @@ private:
 
 
 void
-FWVertexProxyBuilder::build(const reco::Vertex& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext*)
+FWVertexProxyBuilder::build(const reco::Vertex& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext* vc)
 {
    const reco::Vertex & v = iData;
   
    // marker
    TEveGeoManagerHolder gmgr(TEveGeoShape::GetGeoMangeur());
    TEvePointSet* pointSet = new TEvePointSet();
-   pointSet->SetNextPoint( v.x(), v.y(), v.z() );  
+   pointSet->SetNextPoint( v.x(), v.y(), v.z());  
    setupAddElement(pointSet, &oItemHolder);
   
 
@@ -155,6 +159,17 @@ FWVertexProxyBuilder::build(const reco::Vertex& iData, unsigned int iIndex, TEve
       trk->MakeTrack();
       setupAddElement(trk, &oItemHolder);
       
+   }
+   
+   fireworks::Context* context =  fireworks::Context::getInstance();
+   int cIdx = item()->getConfig()->value<long>("Event Center Index");
+   if (cIdx == -1)
+   {
+     context->commonPrefs()->resetEventCenter();
+   }
+   if(cIdx >= 0 && int(iIndex) == int(cIdx)) {
+     fwLog( fwlog::kInfo ) <<  "FWVertexProxyBuilder set event center " << Form ("idx [%d], (%f %f %f) \n", cIdx,  v.x(), v.y(), v.z());
+     context->commonPrefs()->setEventCenter(v.x(), v.y(), v.z() );
    }
 }
 

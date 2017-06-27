@@ -96,6 +96,7 @@ private:
    void itemChanged(const FWEventItem*);
    bool haveViewForBit (int) const;
    void globalEnergyScaleChanged();
+   void eventCenterChanged();
 
    // ---------- member data --------------------------------
    
