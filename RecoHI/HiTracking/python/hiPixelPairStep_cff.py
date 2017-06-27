@@ -45,7 +45,7 @@ hiPixelPairSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerPairs_cfi.PixelLay
 # SEEDS
 import RecoTracker.TkSeedGenerator.GlobalSeedsFromPairsWithVertices_cff
 hiPixelPairSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromPairsWithVertices_cff.globalSeedsFromPairsWithVertices.clone()
-hiPixelPairSeeds.RegionFactoryPSet.RegionPSet.VertexCollection=cms.InputTag("hiSelectedVertex")
+hiPixelPairSeeds.RegionFactoryPSet.RegionPSet.VertexCollection=cms.InputTag("hiSelectedPixelVertex")
 hiPixelPairSeeds.RegionFactoryPSet.RegionPSet.ptMin = 1.0
 hiPixelPairSeeds.RegionFactoryPSet.RegionPSet.originRadius = 0.005
 hiPixelPairSeeds.RegionFactoryPSet.RegionPSet.nSigmaZ = 4.0

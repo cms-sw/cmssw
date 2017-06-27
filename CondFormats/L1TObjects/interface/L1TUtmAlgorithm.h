@@ -39,7 +39,7 @@ class L1TUtmAlgorithm
     // ctor
     L1TUtmAlgorithm()
       : name_(), expression_(), expression_in_condition_(), rpn_vector_(),
-        index_(), module_id_(), module_index_() { };
+        index_(), module_id_(), module_index_(), version(0) { };
 
     // dtor
     virtual ~L1TUtmAlgorithm() { };

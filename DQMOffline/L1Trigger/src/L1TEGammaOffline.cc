@@ -547,23 +547,23 @@ void L1TEGammaOffline::bookElectronHistos(DQMStore::IBooker & ibooker)
     std::string str_threshold = std::to_string(int(threshold));
     h_efficiencyElectronET_EB_pass_[threshold] = ibooker.book1D(
         "efficiencyElectronET_EB_threshold_" + str_threshold + "_Num",
-        "electron efficiency (EB); GSF Electron E_{T} (GeV); events", nBins, electronBinArray);
+        "electron efficiency (EB) (numerator); GSF Electron E_{T} (GeV); events", nBins, electronBinArray);
     h_efficiencyElectronET_EE_pass_[threshold] = ibooker.book1D(
         "efficiencyElectronET_EE_threshold_" + str_threshold + "_Num",
-        "electron efficiency (EE); GSF Electron E_{T} (GeV); events", nBins, electronBinArray);
+        "electron efficiency (EE) (numerator); GSF Electron E_{T} (GeV); events", nBins, electronBinArray);
     h_efficiencyElectronET_EB_EE_pass_[threshold] = ibooker.book1D(
         "efficiencyElectronET_EB_EE_threshold_" + str_threshold + "_Num",
-        "electron efficiency (EB+EE); GSF Electron E_{T} (GeV); events", nBins, electronBinArray);
+        "electron efficiency (EB+EE) (numerator); GSF Electron E_{T} (GeV); events", nBins, electronBinArray);
 
     h_efficiencyElectronET_EB_total_[threshold] = ibooker.book1D(
         "efficiencyElectronET_EB_threshold_" + str_threshold + "_Den",
-        "electron efficiency (EB); GSF Electron E_{T} (GeV); events", nBins, electronBinArray);
+        "electron efficiency (EB) (denominator); GSF Electron E_{T} (GeV); events", nBins, electronBinArray);
     h_efficiencyElectronET_EE_total_[threshold] = ibooker.book1D(
         "efficiencyElectronET_EE_threshold_" + str_threshold + "_Den",
-        "electron efficiency (EE); GSF Electron E_{T} (GeV); events", nBins, electronBinArray);
+        "electron efficiency (EE) (denominator); GSF Electron E_{T} (GeV); events", nBins, electronBinArray);
     h_efficiencyElectronET_EB_EE_total_[threshold] = ibooker.book1D(
         "efficiencyElectronET_EB_EE_threshold_" + str_threshold + "_Den",
-        "electron efficiency (EB+EE); GSF Electron E_{T} (GeV); events", nBins, electronBinArray);
+        "electron efficiency (EB+EE) (denominator); GSF Electron E_{T} (GeV); events", nBins, electronBinArray);
   }
 
   ibooker.cd();
@@ -624,23 +624,23 @@ void L1TEGammaOffline::bookPhotonHistos(DQMStore::IBooker & ibooker)
     std::string str_threshold = std::to_string(int(threshold));
     h_efficiencyPhotonET_EB_pass_[threshold] = ibooker.book1D(
         "efficiencyPhotonET_EB_threshold_" + str_threshold + "_Num",
-        "photon efficiency (EB);  Photon E_{T} (GeV); events", nBins, photonBinArray);
+        "photon efficiency (EB) (numerator);  Photon E_{T} (GeV); events", nBins, photonBinArray);
     h_efficiencyPhotonET_EE_pass_[threshold] = ibooker.book1D(
         "efficiencyPhotonET_EE_threshold_" + str_threshold + "_Num",
-        "photon efficiency (EE);  Photon E_{T} (GeV); events", nBins, photonBinArray);
+        "photon efficiency (EE) (numerator);  Photon E_{T} (GeV); events", nBins, photonBinArray);
     h_efficiencyPhotonET_EB_EE_pass_[threshold] = ibooker.book1D(
         "efficiencyPhotonET_EB_EE_threshold_" + str_threshold + "_Num",
-        "photon efficiency (EB+EE);  Photon E_{T} (GeV); events", nBins, photonBinArray);
+        "photon efficiency (EB+EE) (numerator);  Photon E_{T} (GeV); events", nBins, photonBinArray);
 
     h_efficiencyPhotonET_EB_total_[threshold] = ibooker.book1D(
         "efficiencyPhotonET_EB_threshold_" + str_threshold + "_Den",
-        "photon efficiency (EB);  Photon E_{T} (GeV); events", nBins, photonBinArray);
+        "photon efficiency (EB) (denominator);  Photon E_{T} (GeV); events", nBins, photonBinArray);
     h_efficiencyPhotonET_EE_total_[threshold] = ibooker.book1D(
         "efficiencyPhotonET_EE_threshold_" + str_threshold + "_Den",
-        "photon efficiency (EE);  Photon E_{T} (GeV); events", nBins, photonBinArray);
+        "photon efficiency (EE) (denominator);  Photon E_{T} (GeV); events", nBins, photonBinArray);
     h_efficiencyPhotonET_EB_EE_total_[threshold] = ibooker.book1D(
         "efficiencyPhotonET_EB_EE_threshold_" + str_threshold + "_Den",
-        "photon efficiency (EB+EE);  Photon E_{T} (GeV); events", nBins, photonBinArray);
+        "photon efficiency (EB+EE) (denominator);  Photon E_{T} (GeV); events", nBins, photonBinArray);
   }
 
   ibooker.cd();

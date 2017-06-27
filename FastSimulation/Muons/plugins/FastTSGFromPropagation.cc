@@ -34,7 +34,7 @@
 #include "FastSimulation/Tracking/interface/TrajectorySeedHitCandidate.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/GenericTransientTrackingRecHit.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"

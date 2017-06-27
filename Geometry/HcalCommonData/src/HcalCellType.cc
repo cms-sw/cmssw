@@ -84,12 +84,13 @@ void HcalCellType::setDepth(int bin, double dmin, double dmax) {
   theDepthMax     = dmax;
 }
 
-void HcalCellType::setPhi(std::vector<std::pair<int,double> >& phis,
-			  std::vector<int>& iphiMiss, double foff, double dphi,
-			  int unit) {
+void HcalCellType::setPhi(const std::vector<std::pair<int,double> >& phis,
+			  const std::vector<int>& iphiMiss, double foff, 
+			  double dphi, int unit) {
   thePhiBinWidth = dphi;
   thePhiOffset   = foff;
   theUnitPhi     = unit;
+  thePhis.clear();
   for (unsigned int k=0; k<phis.size(); ++k) {
     if (std::find(iphiMiss.begin(),iphiMiss.end(),phis[k].first) == iphiMiss.end()) {
       thePhis.push_back(phis[k]);

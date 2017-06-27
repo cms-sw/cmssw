@@ -4,7 +4,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
 #include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 

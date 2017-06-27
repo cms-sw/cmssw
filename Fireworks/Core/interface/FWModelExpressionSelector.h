@@ -22,6 +22,7 @@
 #include <string>
 
 // user include files
+#include <Rtypes.h>
 
 // forward declarations
 class FWEventItem;

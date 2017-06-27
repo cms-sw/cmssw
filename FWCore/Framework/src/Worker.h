@@ -50,6 +50,7 @@ the worker is reset().
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
+#include <atomic>
 #include <map>
 #include <memory>
 #include <sstream>
@@ -103,6 +104,13 @@ namespace edm {
                                   StreamID stream,
                                   ParentContext const& parentContext,
                                   typename T::Context const* context);
+
+    template <typename T>
+    std::exception_ptr runModuleDirectly(typename T::MyPrincipal const& ep,
+                                         EventSetup const& es,
+                                         StreamID streamID,
+                                         ParentContext const& parentContext,
+                                         typename T::Context const* context);
 
     void callWhenDoneAsync(WaitingTask* task) {
       waitingTasks_.add(task);
@@ -303,12 +311,12 @@ namespace edm {
     }
     
     template<typename T>
-    void runModuleAfterAsyncPrefetch(std::exception_ptr const * iEPtr,
-                                     typename T::MyPrincipal const& ep,
-                                     EventSetup const& es,
-                                     StreamID streamID,
-                                     ParentContext const& parentContext,
-                                     typename T::Context const* context);
+    std::exception_ptr runModuleAfterAsyncPrefetch(std::exception_ptr const * iEPtr,
+                                                   typename T::MyPrincipal const& ep,
+                                                   EventSetup const& es,
+                                                   StreamID streamID,
+                                                   ParentContext const& parentContext,
+                                                   typename T::Context const* context);
         
     template< typename T>
     class RunModuleTask : public WaitingTask {
@@ -643,12 +651,12 @@ namespace edm {
   }
      
   template<typename T>
-  void Worker::runModuleAfterAsyncPrefetch(std::exception_ptr const* iEPtr,
-                                   typename T::MyPrincipal const& ep,
-                                   EventSetup const& es,
-                                   StreamID streamID,
-                                   ParentContext const& parentContext,
-                                   typename T::Context const* context) {
+  std::exception_ptr Worker::runModuleAfterAsyncPrefetch(std::exception_ptr const* iEPtr,
+                                                         typename T::MyPrincipal const& ep,
+                                                         EventSetup const& es,
+                                                         StreamID streamID,
+                                                         ParentContext const& parentContext,
+                                                         typename T::Context const* context) {
     std::exception_ptr exceptionPtr;
     if(iEPtr) {
       assert(*iEPtr);
@@ -668,6 +676,7 @@ namespace edm {
       }
     }
     waitingTasks_.doneWaiting(exceptionPtr);
+    return exceptionPtr;
   }
 
   template <typename T>
@@ -864,6 +873,18 @@ namespace edm {
     }
     
     return rc;
+  }
+
+  template <typename T>
+  std::exception_ptr Worker::runModuleDirectly(typename T::MyPrincipal const& ep,
+                                               EventSetup const& es,
+                                               StreamID streamID,
+                                               ParentContext const& parentContext,
+                                               typename T::Context const* context) {
+
+    timesVisited_.fetch_add(1,std::memory_order_relaxed);
+    std::exception_ptr const* prefetchingException = nullptr; // null because there was no prefetching to do
+    return runModuleAfterAsyncPrefetch<T>(prefetchingException, ep, es, streamID, parentContext, context);
   }
 }
 #endif

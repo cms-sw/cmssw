@@ -55,15 +55,14 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
-#include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
+#include "Geometry/CommonTopologies/interface/GeometryAligner.h"
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 // To access kinks and bows 
-#include "Geometry/CommonDetUnit/interface/GeomDet.h" 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
 
 #include "CLHEP/Matrix/SymMatrix.h"

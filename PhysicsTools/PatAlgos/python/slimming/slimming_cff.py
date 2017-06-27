@@ -25,8 +25,8 @@ from HeavyFlavorAnalysis.Onia2MuMu.OniaPhotonConversionProducer_cfi import Photo
 
 slimmingTask = cms.Task(
     packedPFCandidatesTask,
-    isolatedTracks,
     lostTracks,
+    isolatedTracks,
     offlineSlimmedPrimaryVertices,
     primaryVertexAssociation,
     genParticlesTask,
