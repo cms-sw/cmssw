@@ -11,7 +11,7 @@ slimmedMuons = cms.EDProducer("PATMuonSlimmer",
     slimCaloVars = cms.string("1"),
     slimKinkVars = cms.string("1"),
     slimCaloMETCorr = cms.string("1"),
-    slimMatches = cms.string("0"),
+    slimMatches = cms.string("1"),
     saveSegments = cms.bool(True),
     modifyMuons = cms.bool(True),
     modifierConfig = cms.PSet( modifications = cms.VPSet() )

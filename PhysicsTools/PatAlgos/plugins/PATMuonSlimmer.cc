@@ -184,7 +184,7 @@ pat::PATMuonSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
                     smatch.dXdZErr = MiniFloatConverter::reduceMantissaToNbitsRounding<12>(smatch.dXdZErr);
                     smatch.dYdZErr = MiniFloatConverter::reduceMantissaToNbitsRounding<12>(smatch.dYdZErr);
                     if( saveSegments_ ) {
-                      dtSegmentsRefs.insert(smatch.dtSegmentRef);
+		      if(smatch.dtSegmentRef.isNonnull()) dtSegmentsRefs.insert(smatch.dtSegmentRef);
         //               std::cout << smatch.dtSegmentRef->first << std::endl;
                     }
                 }
@@ -199,7 +199,7 @@ pat::PATMuonSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
          dtMap[seg]=outDTSegments->size();
          outDTSegmentsTmp.push_back(*seg);
       }
-      outDTSegments->put(0,outDTSegmentsTmp.begin(),outDTSegmentsTmp.end());
+      outDTSegments->put(DTChamberId(),outDTSegmentsTmp.begin(),outDTSegmentsTmp.end());
       auto dtHandle = iEvent.put(std::move(outDTSegments));
       for( auto & mu : *out) {
         if(mu.isMatchesValid()) {
