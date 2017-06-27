@@ -77,7 +77,7 @@ def main(opts):
             printTrack(t)
         if hasSeeds:
             print "Pixel hit %d seeds" % opts.pixelHit
-            for t in hit.seeds():
+            for s in hit.seeds():
                 printSeed(s)
 
     if opts.stripHit is not None:
@@ -87,7 +87,7 @@ def main(opts):
             printTrack(t)
         if hasSeeds:
             print "Strip hit %d seeds" % opts.stripHit
-            for t in hit.seeds():
+            for s in hit.seeds():
                 printSeed(s)
 
 
