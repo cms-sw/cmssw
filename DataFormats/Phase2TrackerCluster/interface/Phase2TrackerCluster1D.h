@@ -24,7 +24,7 @@ public:
     unsigned int column() const { return firstDigi_.column(); }
     uint16_t size() const { return (data_ & 0x7fff); }
     uint16_t threshold() const { return ((data_ >> 15) & 0x1); }
-    float center() const { return firstStrip() + (data_ & 0x7fff) / 2.; }
+    float center() const { return float(firstStrip()) + 0.5f*size(); }
     std::pair< float, float > barycenter() const { return std::make_pair(column(), center()); }
 
 private:

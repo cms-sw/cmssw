@@ -28,7 +28,7 @@
 
 #include<algorithm>
 
-//#define DebugLog
+//#define EDM_ML_DEBUG
 
 template <class T>
 bool any(const std::vector<T> & v, const T &what) {
@@ -66,6 +66,7 @@ ECalSD::ECalSD(G4String name, const DDCompactView & cpv,
   bool isItTB  = m_EC.getUntrackedParameter<bool>("TestBeam", false);
   bool nullNS  = m_EC.getUntrackedParameter<bool>("NullNumbering", false);
   storeRL      = m_EC.getUntrackedParameter<bool>("StoreRadLength", false);
+  scaleRL      = m_EC.getUntrackedParameter<double>("ScaleRadLength",1.0);
 
   //Changes for improved timing simulation
   storeLayerTimeSim = m_EC.getUntrackedParameter<bool>("StoreLayerTimeSim", false);
@@ -84,13 +85,20 @@ ECalSD::ECalSD(G4String name, const DDCompactView & cpv,
   useWeight= true;
   std::vector<double>      tempD = getDDDArray("EnergyWeight",sv);
   if (tempD.size() > 0) { if (tempD[0] < 0.1) useWeight = false; }
+#ifdef EDM_ML_DEBUG
+  edm::LogInfo("EcalSim") << "ECalSD:: useWeight " << tempD.size() << ":" 
+			  << useWeight << std::endl;
+#endif
   std::vector<std::string> tempS = getStringArray("Depth1Name",sv);
   if (tempS.size() > 0) depth1Name = tempS[0];
   else                  depth1Name = " ";
   tempS = getStringArray("Depth2Name",sv);
   if (tempS.size() > 0) depth2Name = tempS[0];
   else                  depth2Name = " ";
-
+#ifdef EDM_ML_DEBUG
+  edm::LogInfo("EcalSim") << "Names (Depth 1):" << depth1Name << " (Depth 2):" 
+			  << depth2Name << std::endl;
+#endif
   EcalNumberingScheme* scheme=0;
   if (nullNS)                    scheme = 0;
   else if (name == "EcalHitsEB") 
@@ -113,7 +121,7 @@ ECalSD::ECalSD(G4String name, const DDCompactView & cpv,
 
 
   if (scheme)  setNumberingScheme(scheme);
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   LogDebug("EcalSim") << "Constructing a ECalSD  with name " << GetName();
 #endif
   if (useWeight) {
@@ -136,7 +144,7 @@ ECalSD::ECalSD(G4String name, const DDCompactView & cpv,
 			  << "\tions below " << kmaxIon << " MeV"
 			  << "\n\tDepth1 Name = " << depth1Name
 			  << "\tDepth2 Name = " << depth2Name
-			  << "\n\tstoreRL" << storeRL
+			  << "\n\tstoreRL" << storeRL << ":" << scaleRL
 			  << "\tstoreLayerTimeSim " << storeLayerTimeSim
 			  << "\n\ttime Granularity " << p.getParameter<edm::ParameterSet>("ECalSD").getParameter<double>("TimeSliceUnit") << " ns"; 
   if (useWeight) initMap(name,cpv);
@@ -168,7 +176,7 @@ double ECalSD::getEnergyDeposit(G4Step * aStep) {
 		((pdg/10)%100) > 0)) && (ke<kmaxIon)) weight = 0;
 	  if ((pdg == 2212) && (ke < kmaxProton))     weight = 0;
 	  if ((pdg == 2112) && (ke < kmaxNeutron))    weight = 0;
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
 	  if (weight == 0) 
 	    LogDebug("EcalSim") << "Ignore Track " << theTrack->GetTrackID()
 				<< " Type " << theTrack->GetDefinition()->GetParticleName()
@@ -204,7 +212,7 @@ double ECalSD::getEnergyDeposit(G4Step * aStep) {
     }
     */
     if(wt2 > 0.0) { edep *= wt2; }
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
     LogDebug("EcalSim") << "ECalSD:: " << nameVolume
 			<<" Light Collection Efficiency " <<weight << ":" <<wt1
 			<< " Weighted Energy Deposit " << edep/MeV << " MeV";
@@ -236,11 +244,15 @@ int ECalSD::getTrackID(G4Track* aTrack) {
 
 uint16_t ECalSD::getDepth(G4Step * aStep) {
   G4LogicalVolume* lv   = aStep->GetPreStepPoint()->GetTouchable()->GetVolume(0)->GetLogicalVolume();
-  if (any(useDepth1,lv))      return 1;
-  else if (any(useDepth2,lv)) return 2;
-  else if (storeRL) return getRadiationLength(aStep);
-  else if (storeLayerTimeSim) return getLayerIDForTimeSim(aStep);
-  return 0;
+  if      (storeRL) {
+    return getRadiationLength(aStep);
+  } else if (storeLayerTimeSim) {
+    return getLayerIDForTimeSim(aStep);
+  } else {
+    if      (any(useDepth1,lv)) return 1;
+    else if (any(useDepth2,lv)) return 2;
+    else                        return 0;
+  }
 }
 
 uint16_t ECalSD::getRadiationLength(G4Step * aStep) {
@@ -249,14 +261,20 @@ uint16_t ECalSD::getRadiationLength(G4Step * aStep) {
   if (aStep != NULL) {
     G4StepPoint* hitPoint = aStep->GetPreStepPoint();
     G4LogicalVolume* lv   = hitPoint->GetTouchable()->GetVolume(0)->GetLogicalVolume();
-    
+#ifdef EDM_ML_DEBUG
+    edm::LogInfo("EcalSim") << lv->GetName() << " useWight " << useWeight;
+#endif
     if (useWeight) {
       G4ThreeVector  localPoint = setToLocal(hitPoint->GetPosition(),
 					     hitPoint->GetTouchable());
       double crlength = crystalLength(lv);
       double radl     = hitPoint->GetMaterial()->GetRadlen();
       double detz     = (float)(0.5*crlength + localPoint.z());
-      thisX0 = (uint16_t)floor(detz/radl);   
+      thisX0 = (uint16_t)floor(scaleRL*detz/radl);
+#ifdef EDM_ML_DEBUG
+      edm::LogInfo("EcalSim") << "Crystal Length " << crlength << " Radl "
+			      << radl << " DetZ " << detz << " " << thisX0;
+#endif
     } 
   }
   return thisX0;
@@ -342,17 +360,18 @@ void ECalSD::initMap(G4String sd, const DDCompactView & cpv) {
       if (strncmp(lvname.c_str(), depth1Name.c_str(), 4) == 0) {
 	if (!any(useDepth1, lv)) {
  	  useDepth1.push_back(lv);
-#ifdef DebugLog
-	  LogDebug("EcalSim") << "ECalSD::initMap Logical Volume " << lvname
-			      <<" in Depth 1 volume list";
+#ifdef EDM_ML_DEBUG
+	  edm::LogInfo("EcalSim") << "ECalSD::initMap Logical Volume " 
+				  << lvname <<" in Depth 1 volume list\n";
 #endif
 	}
 	G4LogicalVolume* lvr = nameMap[lvname + "_refl"];
 	if (lvr != 0 && !any(useDepth1, lvr)) {
 	  useDepth1.push_back(lvr);
-#ifdef DebugLog
-	  LogDebug("EcalSim") << "ECalSD::initMap Logical Volume " << lvname << "_refl"
-			      <<" in Depth 1 volume list";
+#ifdef EDM_ML_DEBUG
+	  edm::LogInfo("EcalSim") << "ECalSD::initMap Logical Volume " 
+				  << lvname << "_refl"
+				  <<" in Depth 1 volume list\n";
 #endif
 	}
       }
@@ -361,17 +380,18 @@ void ECalSD::initMap(G4String sd, const DDCompactView & cpv) {
       if (strncmp(lvname.c_str(), depth2Name.c_str(), 4) == 0) {
 	if (!any(useDepth2, lv)) {
 	  useDepth2.push_back(lv);
-#ifdef DebugLog
-	  LogDebug("EcalSim") << "ECalSD::initMap Logical Volume " << lvname
-			      <<" in Depth 2 volume list";
+#ifdef EDM_ML_DEBUG
+	  edm::LogInfo("EcalSim") << "ECalSD::initMap Logical Volume " 
+				  << lvname <<" in Depth 2 volume list\n";
 #endif
 	}
 	G4LogicalVolume* lvr = nameMap[lvname + "_refl"];
 	if (lvr != 0 && !any(useDepth2,lvr)) {
 	  useDepth2.push_back(lvr);
-#ifdef DebugLog
-	  LogDebug("EcalSim") << "ECalSD::initMap Logical Volume " << lvname << "_refl"
-			      <<" in Depth 2 volume list";
+#ifdef EDM_ML_DEBUG
+	  edm::LogInfo("EcalSim") << "ECalSD::initMap Logical Volume " 
+				  << lvname << "_refl"
+				  <<" in Depth 2 volume list\n";
 #endif
 	}
       }
@@ -382,7 +402,7 @@ void ECalSD::initMap(G4String sd, const DDCompactView & cpv) {
 	  lvused.push_back(lv);
 	  const DDSolid & sol  = fv.logicalPart().solid();
 	  const std::vector<double> & paras = sol.parameters();
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
 	  LogDebug("EcalSim") << "ECalSD::initMap (for " << sd << "): Solid " 
 			      << lvname << " Shape " << sol.shape() 
 			      << " Parameter 0 = "<< paras[0] 
@@ -399,7 +419,7 @@ void ECalSD::initMap(G4String sd, const DDCompactView & cpv) {
       } else {
 	if (!any(noWeight,lv)) {
 	  noWeight.push_back(lv);
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
 	  LogDebug("EcalSim") << "ECalSD::initMap Logical Volume " << lvname
 			      << " Material " << matname <<" in noWeight list";
 #endif
@@ -407,7 +427,7 @@ void ECalSD::initMap(G4String sd, const DDCompactView & cpv) {
 	lv = nameMap[lvname];
 	if (lv != 0 && !any(noWeight,lv)) {
 	  noWeight.push_back(lv);
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
 	  LogDebug("EcalSim") << "ECalSD::initMap Logical Volume " << lvname
 			      << " Material " << matname <<" in noWeight list";
 #endif
@@ -416,7 +436,7 @@ void ECalSD::initMap(G4String sd, const DDCompactView & cpv) {
     }
     dodet = fv.next();
   }
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   LogDebug("EcalSim") << "ECalSD: Length Table for " << attribute << " = " 
 		      << sd << ":";   
   std::map<G4LogicalVolume*,double>::const_iterator ite = xtalLMap.begin();
@@ -482,7 +502,7 @@ void ECalSD::getBaseNumber(const G4Step* aStep) {
   if ( theSize > 1 ) {
     for (int ii = 0; ii < theSize ; ii++) {
       theBaseNumber.addLevel(touch->GetVolume(ii)->GetName(),touch->GetReplicaNumber(ii));
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
       LogDebug("EcalSim") << "ECalSD::getBaseNumber(): Adding level " << ii
                           << ": " << touch->GetVolume(ii)->GetName() << "["
                           << touch->GetReplicaNumber(ii) << "]";
@@ -507,7 +527,7 @@ double ECalSD::getBirkL3(G4Step* aStep) {
       if (weight < birkCut) weight = birkCut;
       else if (weight > 1.) weight = 1.;
     }
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
     LogDebug("EcalSim") << "ECalSD::getBirkL3 in " << mat->GetName()
                         << " Charge " << charge << " dE/dx " << dedx
                         << " Birk Const " << rkb << " Weight = " << weight 
@@ -521,12 +541,12 @@ double ECalSD::getBirkL3(G4Step* aStep) {
 std::vector<double> ECalSD::getDDDArray(const std::string & str,
 					const DDsvalues_type & sv) {
 
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   LogDebug("EcalSim") << "ECalSD:getDDDArray called for " << str;
 #endif
   DDValue value(str);
   if (DDfetch(&sv,value)) {
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
     LogDebug("EcalSim") << value;
 #endif
     const std::vector<double> & fvec = value.doubles();
@@ -540,12 +560,12 @@ std::vector<double> ECalSD::getDDDArray(const std::string & str,
 std::vector<std::string> ECalSD::getStringArray(const std::string & str,
 						const DDsvalues_type & sv) {
 
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   LogDebug("EcalSim") << "ECalSD:getStringArray called for " << str;
 #endif
   DDValue value(str);
   if (DDfetch(&sv,value)) {
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
     LogDebug("EcalSim") << value;
 #endif
     const std::vector<std::string> & fvec = value.strings();

@@ -15,10 +15,9 @@ ME0PadDigiProducer::ME0PadDigiProducer(const edm::ParameterSet& ps)
 {
   digis_ = ps.getParameter<edm::InputTag>("InputCollection");
 
-  digi_token_ = consumes<ME0DigiPreRecoCollection>(digis_);
+  digi_token_ = consumes<ME0DigiCollection>(digis_);
 
   produces<ME0PadDigiCollection>();
-  consumes<ME0DigiPreRecoCollection>(digis_);
 }
 
 
@@ -36,7 +35,7 @@ void ME0PadDigiProducer::beginRun(const edm::Run& run, const edm::EventSetup& ev
 
 void ME0PadDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
 {
-  edm::Handle<ME0DigiPreRecoCollection> hdigis;
+  edm::Handle<ME0DigiCollection> hdigis;
   e.getByToken(digi_token_, hdigis);
 
   // Create empty output
@@ -50,7 +49,7 @@ void ME0PadDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetu
 }
 
 
-void ME0PadDigiProducer::buildPads(const ME0DigiPreRecoCollection &det_digis, ME0PadDigiCollection &out_pads) const
+void ME0PadDigiProducer::buildPads(const ME0DigiCollection &det_digis, ME0PadDigiCollection &out_pads) const
 {
   auto etaPartitions = geometry_->etaPartitions();
   for(const auto& p: etaPartitions)
@@ -63,10 +62,8 @@ void ME0PadDigiProducer::buildPads(const ME0DigiPreRecoCollection &det_digis, ME
     auto digis = det_digis.get(p->id());
     for (auto d = digis.first; d != digis.second; ++d)
     {
-      int strip_num = p->strip(LocalPoint(d->x(),d->y(),0));
-      int pad_num = 1 + static_cast<int>( p->padOfStrip(strip_num) );
-      auto pad = std::make_pair(pad_num, d->tof());
-      proto_pads.insert(pad);
+      int pad_num = 1 + static_cast<int>( p->padOfStrip(d->strip()) );
+      proto_pads.emplace(pad_num, d->bx());
     }
 
     // fill the output collections

@@ -2,9 +2,9 @@
 #define DDCore_DDBase_h
 
 #include <utility>
-#include "DetectorDescription/Base/interface/Singleton.h"
-#include "DetectorDescription/Base/interface/Store.h"
-#include "DetectorDescription/Base/interface/rep_type.h"
+#include "DetectorDescription/Core/interface/Singleton.h"
+#include "DetectorDescription/Core/interface/Store.h"
+#include "DetectorDescription/Core/interface/rep_type.h"
 
 template <class N, class C>
 class DDBase

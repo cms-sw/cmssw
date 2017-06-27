@@ -37,7 +37,7 @@ bool GeomDet::setAlignmentPositionError (const AlignmentPositionError& ape)
   return ape.valid();
 }
 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "FWCore/Utilities/interface/Exception.h"
 

@@ -26,6 +26,10 @@ PythiaDecays::PythiaDecays()
     }
 }
 
+
+PythiaDecays::~PythiaDecays() {
+}
+
 const DaughterParticleList&
 PythiaDecays::particleDaughters(ParticlePropagator& particle, CLHEP::HepRandomEngine* engine)
 {

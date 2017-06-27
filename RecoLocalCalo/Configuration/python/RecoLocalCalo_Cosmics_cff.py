@@ -28,7 +28,9 @@ def hbheCosmic(module):
             firstSampleShift = cms.int32(-1000),
             samplesToAdd = cms.int32(10),
             correctForPhaseContainment = cms.bool(False),
-        )
+        ),
+        sipmQTSShift = cms.int32(-100),
+        sipmQNTStoSum = cms.int32(200),
     )
 
 hbhereco = hbheCosmic(_hcalLocalReco_cff.hbheprereco)

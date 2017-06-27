@@ -29,6 +29,7 @@
 #include "PhysicsTools/PatAlgos/interface/KinResolutionsLoader.h"
 
 #include "DataFormats/PatCandidates/interface/UserData.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "PhysicsTools/PatAlgos/interface/PATUserDataHelper.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 
@@ -62,11 +63,12 @@ namespace pat {
 
 
     /// common muon filling, for both the standard and PF2PAT case
-    void fillMuon( Muon& aMuon, const MuonBaseRef& muonRef, const reco::CandidateBaseRef& baseRef, const GenAssociations& genMatches, const IsoDepositMaps& deposits, const IsolationValueMaps& isolationValues) const;
+      void fillMuon( Muon& aMuon, const MuonBaseRef& muonRef, const reco::CandidateBaseRef& baseRef, const GenAssociations& genMatches, const IsoDepositMaps& deposits, const IsolationValueMaps& isolationValues) const;
     /// fill label vector from the contents of the parameter set,
     /// for the embedding of isoDeposits or userIsolation values
     template<typename T> void readIsolationLabels( const edm::ParameterSet & iConfig, const char* psetName, IsolationLabels& labels, std::vector<edm::EDGetTokenT<edm::ValueMap<T> > > & tokens);
 
+      void setMuonMiniIso(pat::Muon& aMuon, const pat::PackedCandidateCollection *pc);
 
     // embed various impact parameters with errors
     // embed high level selection
@@ -82,6 +84,11 @@ namespace pat {
   private:
     /// input source
     edm::EDGetTokenT<edm::View<reco::Muon> > muonToken_;
+    
+    // for mini-iso calculation
+    edm::EDGetTokenT<pat::PackedCandidateCollection > pcToken_;
+    bool computeMiniIso_;
+    std::vector<double> miniIsoParams_;
 
     /// embed the track from best muon measurement (global pflow)
     bool embedBestTrack_;

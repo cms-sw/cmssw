@@ -14,6 +14,7 @@
 
 #include "DataFormats/ParticleFlowCandidate/interface/IsolatedPFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/IsolatedPFCandidate.h"
+#include "DataFormats/PatCandidates/interface/PFIsolation.h"
 
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
@@ -35,6 +36,8 @@
 #include "TMath.h"
 
 #include "FWCore/Utilities/interface/transform.h"
+
+#include "PhysicsTools/PatUtils/interface/MiniIsolation.h"
 
 #include <vector>
 #include <memory>
@@ -116,6 +119,16 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) : useUserDat
     beamLineToken_ = consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamLineSrc"));
     pvToken_ = consumes<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("pvSrc"));
   }
+
+  //for mini-isolation calculation
+  computeMiniIso_ = iConfig.getParameter<bool>("computeMiniIso");
+  miniIsoParams_ = iConfig.getParameter<std::vector<double> >("miniIsoParams");
+  if(computeMiniIso_ && miniIsoParams_.size() != 9){
+      throw cms::Exception("ParameterError") << "miniIsoParams must have exactly 9 elements.\n";
+  }
+  if(computeMiniIso_)
+      pcToken_ = consumes<pat::PackedCandidateCollection >(iConfig.getParameter<edm::InputTag>("pfCandsForMiniIso"));
+
   // produces vector of muons
   produces<std::vector<Muon> >();
 }
@@ -135,6 +148,11 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 
   edm::Handle<edm::View<reco::Muon> > muons;
   iEvent.getByToken(muonToken_, muons);
+
+  
+  edm::Handle<pat::PackedCandidateCollection> pc;
+  if(computeMiniIso_)
+      iEvent.getByToken(pcToken_, pc);
 
   // get the ESHandle for the transient track builder,
   // if needed for high level selection embedding
@@ -275,6 +293,9 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
       if( embedPFCandidate_ ) aMuon.embedPFCandidate();
       fillMuon( aMuon, muonBaseRef, pfBaseRef, genMatches, deposits, isolationValues );
 
+      if(computeMiniIso_) 
+          setMuonMiniIso(aMuon, pc.product());
+
       if (addPuppiIsolation_) {
 	aMuon.setIsolationPUPPI((*PUPPIIsolation_charged_hadrons)[muonBaseRef],
 				(*PUPPIIsolation_neutral_hadrons)[muonBaseRef],
@@ -327,6 +348,8 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 
       Muon aMuon(muonRef);
       fillMuon( aMuon, muonRef, muonBaseRef, genMatches, deposits, isolationValues);
+      if(computeMiniIso_)
+          setMuonMiniIso(aMuon, pc.product());
       if (addPuppiIsolation_) {
 	aMuon.setIsolationPUPPI((*PUPPIIsolation_charged_hadrons)[muonRef], (*PUPPIIsolation_neutral_hadrons)[muonRef], (*PUPPIIsolation_photons)[muonRef]);
 	aMuon.setIsolationPUPPINoLeptons((*PUPPINoLeptonsIsolation_charged_hadrons)[muonRef], (*PUPPINoLeptonsIsolation_neutral_hadrons)[muonRef], (*PUPPINoLeptonsIsolation_photons)[muonRef]);
@@ -496,6 +519,15 @@ void PATMuonProducer::fillMuon( Muon& aMuon, const MuonBaseRef& muonRef, const r
   }
 }
 
+void PATMuonProducer::setMuonMiniIso(Muon& aMuon, const PackedCandidateCollection *pc)
+{
+  pat::PFIsolation miniiso = pat::getMiniPFIsolation(pc, aMuon.p4(),
+                                                     miniIsoParams_[0], miniIsoParams_[1], miniIsoParams_[2],
+                                                     miniIsoParams_[3], miniIsoParams_[4], miniIsoParams_[5],
+                                                     miniIsoParams_[6], miniIsoParams_[7], miniIsoParams_[8]);
+  aMuon.setMiniPFIsolation(miniiso);
+}
+
 // ParameterSet description for module
 void PATMuonProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
 {
@@ -535,6 +567,11 @@ void PATMuonProducer::fillDescriptions(edm::ConfigurationDescriptions & descript
   iDesc.addNode( edm::ParameterDescription<edm::InputTag>("genParticleMatch", edm::InputTag(), true) xor
                  edm::ParameterDescription<std::vector<edm::InputTag> >("genParticleMatch", emptySourceVector, true)
 		 )->setComment("input with MC match information");
+
+  // mini-iso
+  iDesc.add<bool>("computeMiniIso", false)->setComment("whether or not to compute and store electron mini-isolation");
+  iDesc.add<edm::InputTag>("pfCandsForMiniIso", edm::InputTag("packedPFCandidates"))->setComment("collection to use to compute mini-iso");
+  iDesc.add<std::vector<double> >("miniIsoParams", std::vector<double>())->setComment("mini-iso parameters to use for muons");
 
   pat::helper::KinResolutionsLoader::fillDescription(iDesc);
 

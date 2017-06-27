@@ -46,15 +46,14 @@ class BTagPerformanceAnalyzerOnData : public DQMEDAnalyzer {
   bool doJEC;
   edm::InputTag slInfoTag;
 
-  std::vector< std::vector<JetTagPlotter*> > binJetTagPlotters;
-  std::vector< std::vector<TagCorrelationPlotter*> > binTagCorrelationPlotters;
-  std::vector< std::vector<BaseTagInfoPlotter*> > binTagInfoPlotters;
+  std::vector< std::vector<std::unique_ptr<JetTagPlotter>> > binJetTagPlotters;
+  std::vector< std::vector<std::unique_ptr<TagCorrelationPlotter>> > binTagCorrelationPlotters;
+  std::vector< std::vector<std::unique_ptr<BaseTagInfoPlotter>> > binTagInfoPlotters;
   std::vector<edm::InputTag> jetTagInputTags;
   std::vector< std::pair<edm::InputTag, edm::InputTag> > tagCorrelationInputTags;
   std::vector< std::vector<edm::InputTag> > tagInfoInputTags;
   // Contains plots for each bin of rapidity and pt.
   std::vector<edm::ParameterSet> moduleConfig;
-  std::map<BaseTagInfoPlotter*, size_t> binTagInfoPlottersToModuleConfig;
 
   //add consumes
   edm::EDGetTokenT<reco::JetCorrector> jecMCToken;

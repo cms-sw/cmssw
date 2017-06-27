@@ -2,7 +2,7 @@
 
 #include <utility>
 
-#include "DetectorDescription/Base/interface/Store.h"
+#include "DetectorDescription/Core/interface/Store.h"
 
 DDMap::DDMap() : DDBase<DDName,dd_map_type*>() { }
 

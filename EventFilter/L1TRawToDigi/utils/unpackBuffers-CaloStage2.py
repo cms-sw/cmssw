@@ -14,6 +14,11 @@ options.register('skipEvents',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "Number of events to skip")
+options.register('fwVersion',
+                 268501043,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "Firmware version for unpacker configuration")
 options.register('mpFramesPerEvent',
                  40,
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -186,6 +191,12 @@ for i in range (0,options.nMP):
         offset = offset + 1    
     mpOffsets.append(offset)
 
+mpLatencies = cms.untracked.vint32()
+for i in range (0,options.nMP):
+    mpLatencies.append(0)
+
+boardIds = cms.untracked.vint32(range(0,options.nMP))
+
 boardOffset = options.skipEvents % options.nMP
 
 gtOffset = options.gtOffset + (options.skipEvents * options.gtFramesPerEvent)
@@ -204,15 +215,63 @@ if (options.doMP):
     print "mpOffset      = ", mpOffsets
     print " "
 
+mpBlock = cms.untracked.PSet(
+    rxBlockLength    = cms.untracked.vint32(40,40,40,40, # q0 0-3
+                                            40,40,40,40, # q1 4-7
+                                            40,40,40,40, # q2 8-11
+                                            40,40,40,40, # q3 12-15
+                                            40,40,40,40, # q4 16-19
+                                            40,40,40,40, # q5 20-23
+                                            40,40,40,40, # q6 24-27
+                                            40,40,40,40, # q7 28-31
+                                            40,40,40,40, # q8 32-35
+                                            40,40,40,40, # q9 36-39
+                                            40,40,40,40, # q10 40-43
+                                            40,40,40,40, # q11 44-47
+                                            40,40,40,40, # q12 48-51
+                                            40,40,40,40, # q13 52-55
+                                            40,40,40,40, # q14 56-59
+                                            40,40,40,40, # q15 60-63
+                                            40,40,40,40, # q16 64-67
+                                            40,40,40,40), # q17 68-71
+
+    txBlockLength    = cms.untracked.vint32(0,0,0,0, # q0 0-3
+                                            0,0,0,0, # q1 4-7
+                                            0,0,0,0, # q2 8-11
+                                            0,0,0,0, # q3 12-15
+                                            0,0,0,0, # q4 16-19
+                                            0,0,0,0, # q5 20-23
+                                            0,0,0,0, # q6 24-27
+                                            0,0,0,0, # q7 28-31
+                                            0,0,0,0, # q8 32-35
+                                            0,0,0,0, # q9 36-39
+                                            0,0,0,0, # q10 40-43
+                                            0,0,0,0, # q11 44-47
+                                            0,0,0,0, # q12 48-51
+                                            0,0,0,0, # q13 52-55
+                                            0,0,0,0, # q14 56-59
+                                            11,11,11,11, # q15 60-63
+                                            11,11,0,0, # q16 64-67
+                                            0,0,0,0) # q17 68-71
+)
+
+mpBlocks = cms.untracked.VPSet()
+
+for block in range(0,options.nMP):
+        mpBlocks.append(mpBlock)
+
 process.stage2MPRaw.nFramesPerEvent    = cms.untracked.int32(options.mpFramesPerEvent)
 process.stage2MPRaw.nFramesOffset    = cms.untracked.vuint32(mpOffsets)
+process.stage2MPRaw.nFramesLatency   = cms.untracked.vuint32(mpLatencies)
 process.stage2MPRaw.boardOffset    = cms.untracked.int32(boardOffset)
 process.stage2MPRaw.rxKeyLink    = cms.untracked.int32(options.mpKeyLinkRx)
 process.stage2MPRaw.txKeyLink    = cms.untracked.int32(options.mpKeyLinkTx)
-#process.stage2MPRaw.nFramesLatency   = cms.untracked.vuint32(mpLatencies)
+process.stage2MPRaw.boardId = cms.untracked.vint32(boardIds)
 process.stage2MPRaw.nHeaderFrames = cms.untracked.int32(options.mpHeaderFrames)
 process.stage2MPRaw.rxFile = cms.untracked.string("mp_rx_summary.txt")
 process.stage2MPRaw.txFile = cms.untracked.string("mp_tx_summary.txt")
+process.stage2MPRaw.blocks = cms.untracked.VPSet(mpBlocks)
+process.stage2MPRaw.fwVersion = cms.untracked.int32(options.fwVersion)
 
 # Demux config
 if (options.doDemux):
@@ -255,6 +314,9 @@ process.dumpRaw = cms.EDAnalyzer(
 process.load('EventFilter.L1TRawToDigi.caloStage2Digis_cfi')
 process.caloStage2Digis.InputLabel = cms.InputTag('rawDataCollector')
 process.caloStage2Digis.debug      = cms.untracked.bool(options.debug)
+process.caloStage2Digis.FWId  = cms.uint32(options.fwVersion)
+process.caloStage2Digis.FWOverride = cms.bool(True)
+process.caloStage2Digis.TMTCheck   = cms.bool(False)
 
 process.load('EventFilter.L1TRawToDigi.gtStage2Digis_cfi')
 process.gtStage2Digis.InputLabel = cms.InputTag('rawDataCollector')

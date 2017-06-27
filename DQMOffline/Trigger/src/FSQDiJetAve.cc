@@ -61,8 +61,7 @@ namespace FSQ {
 class BaseHandler {
     public:
         BaseHandler();
-        ~BaseHandler(){
-        }
+        virtual ~BaseHandler()  {}
         BaseHandler(const edm::ParameterSet& iConfig,  triggerExpression::Data & eventCache):
               m_expression(triggerExpression::parse( iConfig.getParameter<std::string>("triggerSelection")))
          {
@@ -148,7 +147,7 @@ class HandlerTemplate: public BaseHandler {
              m_singleObjectDrawables = iConfig.getParameter<  std::vector< edm::ParameterSet > >("singleObjectDrawables");
              m_isSetup = false;
         }
-
+        virtual ~HandlerTemplate() = default;
         void book(DQMStore::IBooker & booker){
             if(!m_isSetup){
                 booker.setCurrentFolder(m_dirname);

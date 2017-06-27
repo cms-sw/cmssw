@@ -48,7 +48,7 @@ hiLowPtTripletStepTrackingRegions = _globalTrackingRegionWithVertices.clone(Regi
     nSigmaZ = 4.0,
     sigmaZVertex = 4.0,
     fixedError = 0.2,
-    VertexCollection = "hiSelectedVertex",
+    VertexCollection = "hiSelectedPixelVertex",
     ptMin = 0.4,
     useFoundVertices = True,
     originRadius = 0.02
@@ -60,12 +60,31 @@ hiLowPtTripletStepTracksHitDoublets = _hitPairEDProducer.clone(
     maxElement = 0,
     produceIntermediateHitDoublets = True,
 )
+import RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi
 hiLowPtTripletStepTracksHitTriplets = _pixelTripletHLTEDProducer.clone(
     doublets = "hiLowPtTripletStepTracksHitDoublets",
-    maxElement = 5000000,
+    #maxElement = 5000000,
     SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor.clone(),
     produceSeedingHitSets = True,
 )
+
+from RecoPixelVertexing.PixelTriplets.caHitTripletEDProducer_cfi import caHitTripletEDProducer as _caHitTripletEDProducer
+hiLowPtTripletStepTracksHitDoubletsCA = hiLowPtTripletStepTracksHitDoublets.clone()
+hiLowPtTripletStepTracksHitDoubletsCA.layerPairs = [0,1]
+
+hiLowPtTripletStepTracksHitTripletsCA = _caHitTripletEDProducer.clone(
+    doublets = "hiLowPtTripletStepTracksHitDoubletsCA",
+    extraHitRPhitolerance = hiLowPtTripletStepTracksHitTriplets.extraHitRPhitolerance,
+    SeedComparitorPSet = hiLowPtTripletStepTracksHitTriplets.SeedComparitorPSet,
+    maxChi2 = dict(
+        pt1    = 0.8, pt2    = 2,
+        value1 = 70 , value2 = 8,
+    ),
+    useBendingCorrection = True,
+    CAThetaCut = 0.002,
+    CAPhiCut = 0.05,
+)
+
 hiLowPtTripletStepPixelTracksFilter = hiFilter.clone(
     nSigmaLipMaxTolerance = 4.0,
     nSigmaTipMaxTolerance = 4.0,
@@ -87,6 +106,10 @@ hiLowPtTripletStepPixelTracks = cms.EDProducer("PixelTrackProducer",
 	
     # Cleaner
     Cleaner = cms.string("trackCleaner")
+)
+from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
+trackingPhase1.toModify(hiLowPtTripletStepPixelTracks,
+    SeedingHitSets = cms.InputTag("hiLowPtTripletStepTracksHitTripletsCA")
 )
 
 
@@ -173,9 +196,29 @@ hiLowPtTripletStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiT
     ),
     ) #end of vpset
     ) #end of clone
+from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
+trackingPhase1.toModify(hiLowPtTripletStepSelector, useAnyMVA = cms.bool(False))
+trackingPhase1.toModify(hiLowPtTripletStepSelector, trackSelectors= cms.VPSet(
+    RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiLooseMTS.clone(
+    name = 'hiLowPtTripletStepLoose',
+    useMVA = cms.bool(False)
+    ), #end of pset
+    RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
+    name = 'hiLowPtTripletStepTight',
+    preFilterName = 'hiLowPtTripletStepLoose',
+    useMVA = cms.bool(False),
+    minMVA = cms.double(-0.58)
+    ),
+    RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
+    name = 'hiLowPtTripletStep',
+    preFilterName = 'hiLowPtTripletStepTight',
+    useMVA = cms.bool(False),
+    minMVA = cms.double(0.35)
+    ),
+    ) #end of vpset
+)
 
 
-from RecoTracker.FinalTrackSelectors.trackAlgoPriorityOrder_cfi import trackAlgoPriorityOrder
 import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
 hiLowPtTripletStepQual = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
     TrackProducers = cms.VInputTag(cms.InputTag('hiLowPtTripletStepTracks')),
@@ -201,3 +244,7 @@ hiLowPtTripletStep = cms.Sequence(hiLowPtTripletStepClusters*
                                         hiLowPtTripletStepSelector*
                                         hiLowPtTripletStepQual
                                         )
+hiLowPtTripletStep_Phase1 = hiLowPtTripletStep.copy()
+hiLowPtTripletStep_Phase1.replace(hiLowPtTripletStepTracksHitDoublets, hiLowPtTripletStepTracksHitDoubletsCA)
+hiLowPtTripletStep_Phase1.replace(hiLowPtTripletStepTracksHitTriplets, hiLowPtTripletStepTracksHitTripletsCA)
+trackingPhase1.toReplaceWith(hiLowPtTripletStep, hiLowPtTripletStep_Phase1)

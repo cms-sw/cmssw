@@ -18,6 +18,7 @@ from DQMOffline.Trigger.TrackingMonitoring_Client_cff import *
 from DQMOffline.Trigger.TrackingMonitoringPA_Client_cff import *
 from DQMOffline.Trigger.SiPixel_OfflineMonitoring_Client_cff import *
 
+from DQMOffline.Trigger.EgammaMonitoring_Client_cff import *
 from DQMOffline.Trigger.ExoticaMonitoring_Client_cff import *
 from DQMOffline.Trigger.SusyMonitoring_Client_cff import *
 from DQMOffline.Trigger.B2GMonitoring_Client_cff import *
@@ -39,6 +40,7 @@ hltOfflineDQMClient = cms.Sequence(
     HLTTauPostSeq *
     dqmOfflineHLTCert *
     hltInclusiveVBFClient *
+    egammaClient *
     exoticaClient *
     susyClient *
     b2gClient *

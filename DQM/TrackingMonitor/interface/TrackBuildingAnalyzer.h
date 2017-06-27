@@ -19,6 +19,7 @@ Monitoring source for general quantities related to tracks.
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
@@ -28,16 +29,13 @@ Monitoring source for general quantities related to tracks.
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 
-
-class DQMStore;
-
 class TrackBuildingAnalyzer 
 {
     public:
         TrackBuildingAnalyzer(const edm::ParameterSet&);
-        virtual ~TrackBuildingAnalyzer();
-        virtual void initHisto(DQMStore::IBooker & ibooker);
-        virtual void analyze
+        ~TrackBuildingAnalyzer();
+        void initHisto(DQMStore::IBooker & ibooker, const edm::ParameterSet&);
+        void analyze
         (
             const edm::Event& iEvent, 
             const edm::EventSetup& iSetup, 
@@ -46,7 +44,7 @@ class TrackBuildingAnalyzer
             const edm::ESHandle<MagneticField>& theMF,
             const edm::ESHandle<TransientTrackingRecHitBuilder>& theTTRHBuilder
         );
-        virtual void analyze
+        void analyze
         (
             const edm::Event& iEvent, 
             const edm::EventSetup& iSetup, 
@@ -62,8 +60,6 @@ class TrackBuildingAnalyzer
         void bookHistos(std::string sname, DQMStore::IBooker & ibooker);
 
         // ----------member data ---------------------------
-
-        edm::ParameterSet conf_;
 
         // Track Seeds
         MonitorElement* SeedPt;

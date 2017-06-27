@@ -449,9 +449,11 @@ namespace edm {
       if(nStreams==0) {
         nStreams = nThreads;
       }
-    // PG: Log the number of streams
-      edm::LogInfo("StreamSetup") <<"setting # streams "<<nStreams;
     }
+    if(nThreads >1) {
+      edm::LogInfo("ThreadStreamSetup") <<"setting # threads "<<nThreads<<"\nsetting # streams "<<nStreams;
+    }
+
     /*
       bool nRunsSet = false;
     */
@@ -1724,10 +1726,22 @@ namespace edm {
       //looper_->doStreamEndRun(schedule_->streamID(),runPrincipal, es);
     }
     {
+      auto globalWaitTask = make_empty_waiting_task();
+      globalWaitTask->increment_ref_count();
+
       runPrincipal.setAtEndTransition(true);
       typedef OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd> Traits;
-      schedule_->processOneGlobal<Traits>(runPrincipal, es, cleaningUpAfterException);
-      for_all(subProcesses_, [&runPrincipal, &ts, cleaningUpAfterException](auto& subProcess){subProcess.doEndRun(runPrincipal, ts, cleaningUpAfterException); });
+      endGlobalTransitionAsync<Traits>(WaitingTaskHolder(globalWaitTask.get()),
+                                       *schedule_,
+                                       runPrincipal,
+                                       ts,
+                                       es,
+                                       subProcesses_,
+                                       cleaningUpAfterException);
+      globalWaitTask->wait_for_all();
+      if(globalWaitTask->exceptionPtr() != nullptr) {
+        std::rethrow_exception(* (globalWaitTask->exceptionPtr()) );
+      }
     }
     FDEBUG(1) << "\tendRun " << run.runNumber() << "\n";
     if(looper_) {
@@ -1964,11 +1978,6 @@ namespace edm {
     }
 
     ServiceRegistry::Operate operate(serviceToken_);
-    if(preallocations_.numberOfThreads()>1) {
-      edm::Service<RootHandlers> handler;
-      handler->initializeThisThreadForUse();
-    }
-
     try {
       //need to use lock in addition to the serial task queue because
       // of delayed provenance reading and reading data in response to

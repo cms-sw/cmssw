@@ -10,22 +10,8 @@
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 HcalShapes::HcalShapes()
-: theMCParams(0),
-  theShapes(),
-  theZDCShape(),
-  theHcalShape101(),
-  theHcalShape102(),
-  theHcalShape103(),
-  theHcalShape104(),
-  theHcalShape105(),
-  theHcalShape123(),
-  theHcalShape124(),
-  theHcalShape125(),
-  theHcalShape201(),
-  theHcalShape202(),
-  theHcalShape203(),
-  theHcalShape301(),
-  theHcalShape401()
+: theMCParams(nullptr),
+  theTopology(nullptr)
  {
 /*
          00 - not used (reserved)
@@ -38,46 +24,27 @@ HcalShapes::HcalShapes()
         401 - regular ZDC shape
   */
 
-  theHcalShape101.setShape(101); 
-  theShapes[101] = new CaloCachedShapeIntegrator(&theHcalShape101);
-  theHcalShape102.setShape(102);                  
-  theShapes[102] = new CaloCachedShapeIntegrator(&theHcalShape102);
-  theHcalShape103.setShape(103);                  
-  theShapes[103] = new CaloCachedShapeIntegrator(&theHcalShape103);
-  theHcalShape104.setShape(104);                  
-  theShapes[104] = new CaloCachedShapeIntegrator(&theHcalShape104);
-  theHcalShape104.setShape(105);
-  theShapes[105] = new CaloCachedShapeIntegrator(&theHcalShape105); // HPD new 
-  theHcalShape123.setShape(123);                  
-  theShapes[123] = new CaloCachedShapeIntegrator(&theHcalShape123);
-  theHcalShape124.setShape(124);                  
-  theShapes[124] = new CaloCachedShapeIntegrator(&theHcalShape124);
-  theHcalShape125.setShape(125);
-  theShapes[125] = new CaloCachedShapeIntegrator(&theHcalShape125);
-  theHcalShape201.setShape(201);                  
-  theShapes[201] = new CaloCachedShapeIntegrator(&theHcalShape201);
-  theHcalShape202.setShape(202);                  
-  theShapes[202] = new CaloCachedShapeIntegrator(&theHcalShape202);
-  theHcalShape203.setShape(203);
-  theShapes[203] = new CaloCachedShapeIntegrator(&theHcalShape203);
-  theHcalShape301.setShape(301);
-  theShapes[301] = new CaloCachedShapeIntegrator(&theHcalShape301);
-  //    ZDC not yet defined in CalibCalorimetry/HcalAlgos/src/HcalPulseShapes.cc
-  // theHcalShape401(401);
-  // theShapes[401] = new CaloCachedShapeIntegrator(&theHcalShape401);
-  theShapes[ZDC] = new CaloCachedShapeIntegrator(&theZDCShape);
+  std::vector<int> theHcalShapeNums = {101,102,103,104,105,123,124,125,201,202,203,205,301};
+  // use resize so vector won't invalidate pointers by reallocating memory while filling
+  theHcalShapes.resize(theHcalShapeNums.size());
+  for(unsigned inum = 0; inum < theHcalShapeNums.size(); ++inum){
+    int num = theHcalShapeNums[inum];
+    theHcalShapes[inum].setShape(num);
+    theShapesPrecise[num] = &theHcalShapes[inum];
+    theShapes[num] = new CaloCachedShapeIntegrator(&theHcalShapes[inum]);
+  }
 
-  theMCParams=0;
-  theTopology=0;
+  // ZDC not yet defined in CalibCalorimetry/HcalAlgos/src/HcalPulseShapes.cc
+  theShapesPrecise[ZDC] = &theZDCShape;
+  theShapes[ZDC] = new CaloCachedShapeIntegrator(&theZDCShape);
 }
 
 
 HcalShapes::~HcalShapes()
 {
-  for(ShapeMap::const_iterator shapeItr = theShapes.begin();
-      shapeItr != theShapes.end();  ++shapeItr)
+  for(auto& shapeItr : theShapes)
   {
-    delete shapeItr->second;
+    delete shapeItr.second;
   }
   theShapes.clear();
   if (theMCParams!=0) delete theMCParams;
@@ -109,36 +76,42 @@ void HcalShapes::endRun()
 }
 
 
-const CaloVShape * HcalShapes::shape(const DetId & detId) const
+const CaloVShape * HcalShapes::shape(const DetId & detId, bool precise) const
 {
   if(!theMCParams) {
     return defaultShape(detId);
   }
   int shapeType = theMCParams->getValues(detId)->signalShape();
-  ShapeMap::const_iterator shapeMapItr = theShapes.find(shapeType);
-  if(shapeMapItr == theShapes.end()) {
+  const auto& myShapes = getShapeMap(precise);
+  auto shapeMapItr = myShapes.find(shapeType);
+  if(shapeMapItr == myShapes.end()) {
        edm::LogWarning("HcalShapes") << "HcalShapes::shape - shapeType ?  = "
 				     << shapeType << std::endl;
-    return defaultShape(detId);
+    return defaultShape(detId,precise);
   } else {
     return shapeMapItr->second;
   }
 }
 
-const CaloVShape * HcalShapes::defaultShape(const DetId & detId) const
+const CaloVShape * HcalShapes::defaultShape(const DetId & detId, bool precise) const
 {
   // try to figure the appropriate shape
   const CaloVShape * result;
+  const auto& myShapes = getShapeMap(precise);
   HcalGenericDetId::HcalGenericSubdetector subdet 
     = HcalGenericDetId(detId).genericSubdet();
   if(subdet == HcalGenericDetId::HcalGenBarrel 
-  || subdet == HcalGenericDetId::HcalGenEndcap) result = theShapes.find(HPD)->second;
-  else if(subdet == HcalGenericDetId::HcalGenOuter) result = theShapes.find(HPD)->second;
-  else if(subdet == HcalGenericDetId::HcalGenForward) result = theShapes.find(HF)->second;
-  else if(subdet == HcalGenericDetId::HcalGenZDC) result = theShapes.find(ZDC)->second;
+  || subdet == HcalGenericDetId::HcalGenEndcap) result = myShapes.find(HPD)->second;
+  else if(subdet == HcalGenericDetId::HcalGenOuter) result = myShapes.find(HPD)->second;
+  else if(subdet == HcalGenericDetId::HcalGenForward) result = myShapes.find(HF)->second;
+  else if(subdet == HcalGenericDetId::HcalGenZDC) result = myShapes.find(ZDC)->second;
   else result = 0;
 
   edm::LogWarning("HcalShapes") << "Cannot find HCAL MC Params, so the default one is taken for subdet " << subdet;  
 
   return result;
+}
+
+const HcalShapes::ShapeMap& HcalShapes::getShapeMap(bool precise) const {
+  return precise ? theShapesPrecise : theShapes;
 }

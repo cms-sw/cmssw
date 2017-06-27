@@ -1,7 +1,7 @@
 #ifndef SimMuon_GEMDigitizer_GEMPadDigiProducer_h
 #define SimMuon_GEMDigitizer_GEMPadDigiProducer_h
 
-#include <FWCore/Framework/interface/ConsumesCollector.h>
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"

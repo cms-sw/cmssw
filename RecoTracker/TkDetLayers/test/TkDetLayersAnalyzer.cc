@@ -28,7 +28,7 @@
 
 // for trie
 #include "Geometry/TrackerGeometryBuilder/interface/trackerHierarchy.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "DataFormats/Common/interface/Trie.h"
 
 // for the test
@@ -100,8 +100,9 @@ TkDetLayersAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& i
     << " Top node is  "<< &(*pDD) << "\n"
     << " And Contains  Daughters: "<< (*pDD).components().size() ;   
 
-  ESHandle<TrackerTopology> tTopo;
-  iSetup.get<TrackerTopologyRcd>().get(tTopo);
+  ESHandle<TrackerTopology> tTopo_handle;
+  iSetup.get<TrackerTopologyRcd>().get(tTopo_handle);
+  const TrackerTopology* tTopo = tTopo_handle.product();
 
   /*
 
@@ -139,7 +140,7 @@ TkDetLayersAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& i
 
    /*
   TOBLayerBuilder myTOBBuilder;
-  TOBLayer* testTOBLayer = myTOBBuilder.build(geometricDetTOBlayer,&(*pTrackerGeometry),&(*tTopo));
+  TOBLayer* testTOBLayer = myTOBBuilder.build(geometricDetTOBlayer,&(*pTrackerGeometry),&(*tTopo_handle));
   edm::LogInfo("TkDetLayersAnalyzer") << "testTOBLayer: " << testTOBLayer;
 
   */
@@ -165,7 +166,7 @@ TkDetLayersAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& i
       for(;b!=e; ++b) {
         last = b;
         unsigned int rawid = (*b)->geographicalId().rawId();
-        trie.insert(trackerHierarchy(rawid), *b); 
+        trie.insert(trackerHierarchy(tTopo, rawid), *b); 
       }
     }
     catch(edm::Exception const & e) {
@@ -208,7 +209,7 @@ TkDetLayersAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& i
   
   // -------- here it constructs the whole GeometricSearchTracker --------------
   GeometricSearchTrackerBuilder myTrackerBuilder;
-  GeometricSearchTracker* testTracker = myTrackerBuilder.build( &(*pDD),&(*pTrackerGeometry), &(*tTopo));
+  GeometricSearchTracker* testTracker = myTrackerBuilder.build( &(*pDD),&(*pTrackerGeometry), &(*tTopo_handle));
   edm::LogInfo("TkDetLayersAnalyzer") << "testTracker: " << testTracker ;
 
   for (auto const & l : testTracker->allLayers()) {

@@ -7,7 +7,7 @@
 
 #include "DetectorDescription/Core/interface/DDStrVector.h"
 #include "DetectorDescription/Core/interface/DDVector.h"
-#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
+#include "DetectorDescription/Core/interface/ClhepEvaluator.h"
 #include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
 #include "DetectorDescription/Parser/src/DDXMLElement.h"
 #include "boost/spirit/include/classic.hpp"

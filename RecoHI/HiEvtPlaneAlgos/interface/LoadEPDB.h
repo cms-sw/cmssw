@@ -7,6 +7,8 @@
 #include <string>
 
 // user include files
+#include "CondFormats/HIObjects/interface/RPFlatParams.h"
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 

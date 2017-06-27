@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 from DQM.SiPixelPhase1Common.HistogramManager_cfi import *
 
 
@@ -57,7 +58,7 @@ SiPixelPhase1RawDataTBMType = DefaultHisto.clone(
   name = "tbmtype",
   title = "Type of TBM trailer",
   xlabel = "TBM type",
-  range_min = -0.5, range_max = 4.5, range_nbins = 4,
+  range_min = -0.5, range_max = 4.5, range_nbins = 5,
   dimensions = 1,
   specs = VPSet(
     Specification().groupBy("FED/FED").save(),
@@ -69,7 +70,7 @@ SiPixelPhase1RawDataTypeNErrors = DefaultHisto.clone(
   name = "nerrors_per_type",
   title = "Number of Errors per Type",
   xlabel = "Error Type",
-  range_min = -0.5, range_max = 50.5, range_nbins = 51,#TODO: proper range here
+  range_min = 24.5, range_max = 40.5, range_nbins = 16,
   dimensions = 1,
   specs = VPSet(
     Specification().groupBy("FED/FED").save(),
@@ -97,7 +98,7 @@ SiPixelPhase1RawDataAnalyzer = cms.EDAnalyzer("SiPixelPhase1RawData",
         geometry = SiPixelPhase1Geometry
 )
 
-SiPixelPhase1RawDataHarvester = cms.EDAnalyzer("SiPixelPhase1Harvester",
+SiPixelPhase1RawDataHarvester = DQMEDHarvester("SiPixelPhase1Harvester",
         histograms = SiPixelPhase1RawDataConf,
         geometry = SiPixelPhase1Geometry
 )

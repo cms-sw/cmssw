@@ -36,7 +36,7 @@ namespace pat {
     private:
       const edm::EDGetTokenT<edm::View<pat::Photon> > src_;
 
-      const StringCutObjectSelector<pat::Photon> dropSuperClusters_, dropBasicClusters_, dropPreshowerClusters_, dropSeedCluster_, dropRecHits_, dropSaturation_;
+      const StringCutObjectSelector<pat::Photon> dropSuperClusters_, dropBasicClusters_, dropPreshowerClusters_, dropSeedCluster_, dropRecHits_, dropSaturation_, dropRegressionData_;
 
       const edm::EDGetTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef> > > reco2pf_;
       const edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection> > pf2pc_;
@@ -58,6 +58,7 @@ pat::PATPhotonSlimmer::PATPhotonSlimmer(const edm::ParameterSet & iConfig) :
     dropSeedCluster_(iConfig.getParameter<std::string>("dropSeedCluster")),
     dropRecHits_(iConfig.getParameter<std::string>("dropRecHits")),
     dropSaturation_(iConfig.getParameter<std::string>("dropSaturation")),
+    dropRegressionData_(iConfig.getParameter<std::string>("dropRegressionData")),
     reco2pf_(mayConsume<edm::ValueMap<std::vector<reco::PFCandidateRef> > >(iConfig.getParameter<edm::InputTag>("recoToPFMap"))),
     pf2pc_(mayConsume<edm::Association<pat::PackedCandidateCollection>>(iConfig.getParameter<edm::InputTag>("packedPFCandidates"))),
     pc_(mayConsume<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("packedPFCandidates"))),
@@ -124,6 +125,16 @@ pat::PATPhotonSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSet
 	if (dropSeedCluster_(photon)) { photon.seedCluster_.clear(); photon.embeddedSeedCluster_ = false; }
         if (dropRecHits_(photon)) { photon.recHits_ = EcalRecHitCollection(); photon.embeddedRecHits_ = false; }
         if (dropSaturation_(photon)) { photon.setSaturationInfo(reco::Photon::SaturationInfo()); }
+        if (dropRegressionData_(photon)) {
+            photon.setEMax(0); photon.setE2nd(0); photon.setE3x3(0);
+            photon.setETop(0); photon.setEBottom(0); photon.setELeft(0); photon.setERight(0);
+            photon.setSee(0); photon.setSep(0); photon.setSpp(0);
+            photon.setMaxDR(0); photon.setMaxDRDPhi(0); photon.setMaxDRDEta(0); photon.setMaxDRRawEnergy(0);
+            photon.setSubClusRawE1(0); photon.setSubClusRawE2(0); photon.setSubClusRawE3(0);
+            photon.setSubClusDPhi1(0); photon.setSubClusDPhi2(0); photon.setSubClusDPhi3(0);
+            photon.setSubClusDEta1(0); photon.setSubClusDEta2(0); photon.setSubClusDEta3(0);
+            photon.setCryPhi(0); photon.setCryEta(0); photon.setIEta(0); photon.setIPhi(0);
+        }
 
         if (linkToPackedPF_) {
             //std::cout << " PAT  photon in  " << src.id() << " comes from " << photon.refToOrig_.id() << ", " << photon.refToOrig_.key() << std::endl;

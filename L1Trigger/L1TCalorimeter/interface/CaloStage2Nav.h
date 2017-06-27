@@ -3,7 +3,7 @@
 ///
 ///
 ///
-/// \author: Sam Harper - RAL
+/// \authors: Sam Harper - RAL, Olivier Davignon - Bristol
 ///
 
 //
@@ -12,6 +12,7 @@
 #ifndef L1Trigger_L1TCalorimeter_CaloStage2Nav_h
 #define L1Trigger_L1TCalorimeter_CaloStage2Nav_h
 
+#include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
 #include <utility>
 #include <cstdlib>
 
@@ -39,13 +40,90 @@ namespace l1t{
       }
     }
 
-    //straight forward but have to watch the case where we cross the 0 boundary
-    static int offsetIEta(int iEta,int offset){
-      if(iEta==0) return 0;//invalid starting position
-      else if(iEta*offset>=0) return iEta+offset; //same sign so cant cross zero
-      else if(std::abs(iEta)>std::abs(offset)) return iEta+offset; //offset smaller than iEta, cant cross zero
-      else if(iEta>0) return iEta+offset-1; //must cross zero, if initial iEta postive, then need to sub 1 from result 
-      else return iEta+offset+1;
+    //straight forward but have to watch the cases where we cross the 0 and/or 29 boundaries
+    static int offsetIEta(int iEta,int offset)
+{
+
+      int etaMax = CaloTools::kHFEnd;
+      int etaBoundaryHF = CaloTools::kHFBegin;
+
+      if(iEta==0) return 0;//0 is not a valid position
+      if(abs(iEta)>etaMax) return 0;//beyond +/-41 is not a valid position
+      if(abs(iEta)==etaBoundaryHF) return 0;//+/-29 is not a valid position
+
+      if(iEta>etaBoundaryHF)
+	{
+	  int iEta_tmp = iEta;
+
+	  if(offset<0)
+	    {
+	      if(iEta_tmp+offset<=etaBoundaryHF) iEta_tmp--;
+	      if(iEta_tmp+offset<=0) iEta_tmp--;
+	      if(iEta_tmp+offset<=-etaBoundaryHF) iEta_tmp--;
+	      if(iEta_tmp+offset<=-etaMax) return -etaMax;
+	      return iEta_tmp+offset;
+	    }
+	  if(offset>=0)
+	    {
+	      if(iEta_tmp+offset>=etaMax) return etaMax;
+	      return iEta_tmp+offset;
+	    }
+	}
+      else if(iEta>0)
+	{
+	  int iEta_tmp = iEta;
+
+	  if(offset<0)
+	    {
+	      if(iEta_tmp+offset<=0) iEta_tmp--;
+	      if(iEta_tmp+offset<=-etaBoundaryHF) iEta_tmp--;
+	      if(iEta_tmp+offset<=-etaMax) return -etaMax;
+	      return iEta_tmp+offset;
+	    }
+	  if(offset>=0)
+	    {
+	      if(iEta_tmp+offset>=etaBoundaryHF) iEta_tmp++;
+	      if(iEta_tmp+offset>=etaMax) return etaMax;
+	      else return iEta_tmp+offset;
+	    }
+	}
+      else if(iEta>-etaBoundaryHF)
+	{
+	  int iEta_tmp = iEta;
+
+	  if(offset<0)
+	    {
+	      if(iEta_tmp+offset<=-etaBoundaryHF) iEta_tmp--;
+	      if(iEta_tmp+offset<=-etaMax) return -etaMax;
+	      return iEta_tmp+offset;
+	    }
+	  if(offset>=0)
+	    {
+	      if(iEta_tmp+offset>=0) iEta_tmp++;
+	      if(iEta_tmp+offset>=etaBoundaryHF) iEta_tmp++;
+	      if(iEta_tmp+offset>=etaMax) return etaMax;
+	      return iEta_tmp+offset;
+	    }
+	}
+      else
+	{
+	  int iEta_tmp = iEta;
+
+	  if(offset<0)
+	    {
+	      if(iEta_tmp+offset<=-etaMax) return -etaMax;
+	      return iEta_tmp+offset;
+	    }
+	  if(offset>=0)
+	    {
+	      if(iEta_tmp+offset>=-etaBoundaryHF) iEta_tmp++;
+	      if(iEta_tmp+offset>=0) iEta_tmp++;
+	      if(iEta_tmp+offset>=etaBoundaryHF) iEta_tmp++;
+	      if(iEta_tmp+offset>=etaMax) return etaMax;
+	      return iEta_tmp+offset;
+	    }
+	}
+      return 0;
     }
 
     std::pair<int,int> offsetFromCurrPos(int iEtaOffset,int iPhiOffset)const;

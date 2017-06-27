@@ -1,12 +1,13 @@
 # post-processors for HLT Muon track validation in FullSim and FastSim
 #
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 from Validation.RecoMuon.NewPostProcessor_cff import NEWpostProcessorMuonTrack
 NEWpostProcessorMuonTrackHLT = NEWpostProcessorMuonTrack.clone()
 NEWpostProcessorMuonTrackHLT.subDirs = cms.untracked.vstring("HLT/Muon/MuonTrack/*")
 
-NEWpostProcessorMuonTrackHLTComp = cms.EDAnalyzer(
+NEWpostProcessorMuonTrackHLTComp = DQMEDHarvester(
     "DQMGenericClient",
     subDirs = cms.untracked.vstring("HLT/Muon/MuonTrack/"), 
     efficiency = cms.vstring(

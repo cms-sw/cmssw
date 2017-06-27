@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-l1tDiffHarvesting = cms.EDAnalyzer(
+l1tDiffHarvesting = DQMEDHarvester(
     "L1TDiffHarvesting",
     verbose=cms.untracked.bool(False),
     plotCfgs=cms.untracked.VPSet(

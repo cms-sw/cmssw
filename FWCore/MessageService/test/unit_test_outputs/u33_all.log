@@ -136,3 +136,5 @@ Severity    # Occurrences   Total Occurrences
 Info                   10                  10
 Warning                12                  12
 Error                   8                   8
+
+dropped waiting message count 0

@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 # MuonAlignmentAnalyzer
-muonAlignmentSummary = cms.EDAnalyzer("MuonAlignmentSummary",
+muonAlignmentSummary = DQMEDHarvester("MuonAlignmentSummary",
     doDT = cms.untracked.bool(True),
     doCSC = cms.untracked.bool(True),
     meanPositionRange = cms.untracked.double(0.5),

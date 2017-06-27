@@ -79,6 +79,8 @@ private:
   MonitorElement *hL3TrigTauEtaEffDenom_;
   MonitorElement *hL3TrigTauPhiEffNum_;
   MonitorElement *hL3TrigTauPhiEffDenom_;
+  MonitorElement *hL3TrigTauEtaPhiEffNum_;
+  MonitorElement *hL3TrigTauEtaPhiEffDenom_;
 
   MonitorElement *hL2TrigElectronEtEffNum_;
   MonitorElement *hL2TrigElectronEtEffDenom_;
