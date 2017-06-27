@@ -1067,7 +1067,7 @@ class TrackingParticlePrinter(_IndentPrinter):
             fromB = " from B hadron"
         return [
             self._prefix+"TP %d pdgId %d%s%s ev:bx %d:%d pT %f eta %f phi %f" % (tp.index(), tp.pdgId(), genIds, fromB, tp.event(), tp.bunchCrossing(), tp.pt(), tp.eta(), tp.phi()),
-            self._prefix+" pixel hits %d strip hits %d dxy %f dz %f" % (tp.nPixel(), tp.nStrip(), tp.pca_dxy(), tp.pca_dz())
+            self._prefix+" pixel hits %d strip hits %d tracker hits %d dxy %f dz %f" % (tp.nPixel(), tp.nStrip(), tp.nTrackerHits(), tp.pca_dxy(), tp.pca_dz())
         ]
         
 
