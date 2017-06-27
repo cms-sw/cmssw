@@ -9,7 +9,7 @@ METplusTrackPSet = cms.PSet(
         "HLT_MET60_IsoTrk35_Loose_v" ,
         #2017
         "HLT_MET105_IsoTrk50_v",
-        "HLT_MET120_IsoTrk50_v",
+        "HLT_MET120_IsoTrk50_v"
     ),
     recPFMETLabel = cms.InputTag("pfMet"),
     #recMETLabel   = cms.InputTag("hltPFMETProducer"),

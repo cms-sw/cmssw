@@ -6,7 +6,7 @@ DisplacedMuEGPSet = cms.PSet(
         "HLT_Mu42NoFiltersNoVtx_Photon42_CaloIdL_v", # Run2 Displaced muons
         "HLT_Mu33NoFiltersNoVtx_Photon33_CaloIdL_R9Id65_HE10_v", # Run2 
         "HLT_Mu28NoFiltersNoVtxDisplaced_Photon28_CaloIdL",
-        "HLT_Mu33NoFiltersNoVtxDisplaced_Photon33_CaloIdL"
+        "HLT_Mu33NoFiltersNoVtxDisplaced_Photon33_CaloIdL",
         #2017                                                                                                                                               
         "HLT_Mu43NoFiltersNoVtx_Photon43_CaloIdL_v",
         "HLT_Mu48NoFiltersNoVtx_Photon48_CaloIdL_v"
