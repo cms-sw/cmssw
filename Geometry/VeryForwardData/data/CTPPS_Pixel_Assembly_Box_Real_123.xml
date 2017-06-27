@@ -1,0 +1,123 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
+    <ConstantsSection label="CTPPS_Pixel_Assembly_Box_Real_123.xml">
+      <Constant name="RotAngle"              value="18.4*deg"/>
+
+<Constant name="FullModuleThickness"   value="[CTPPS_Pixel_Module:EnvelopT]+[CTPPS_Pixel_Module:ROChipT]+[CTPPS_Pixel_Module:BumpBondT]+[CTPPS_Pixel_Module:WaferT]" />
+
+
+<Constant name="EnvelopBBox_dx" value="4.3*cm" />
+<Constant name="EnvelopBBox_dy" value="2.886*cm" />
+<Constant name="EnvelopBBox_dz" value="0.121*cm" />
+
+<Constant name="Offset_wrt_RP_bottom" value="1.5*mm" />   <!-- TO BE CHECKED   -->
+<Constant name="Planes_spacing_same_support" value="4.5*mm" />   <!-- TO BE CHECKED   -->
+<Constant name="Planes_spacing_different_support" value="4.04*mm" />    <!-- TO BE CHECKED   -->
+<Constant name="Planes_spacing_OFFSET" value="0.0*mm" />   <!-- TO BE CHECKED   -->
+<!--
+<Constant name="AluOffset" value="[CTPPS_Pixel_Module:EnvelopT]/2. - [CTPPS_Pixel_Module:AluT]/2." />
+-->
+<Constant name="EnvelopOffset" value="[CTPPS_Pixel_Module:EnvelopT]/2." />
+
+
+<!-- module Y offset = 0 if all modules oriented in the same direction -->
+<!--
+<Constant name="ModuleOffset"   value="([FullModuleThickness]+[CTPPS_Pixel_Module:ROChipT]+[CTPPS_Pixel_Module:BumpBondT])*sin([RotAngle])" />
+-->
+<Constant name="ModuleOffset"   value="0.00*mm" />
+<!-- offset to align the sensors:  www.ge.infn.it/~ferro/CMS/CTPPS_offset_piani.pdf -->
+    </ConstantsSection>
+  
+
+    <RotationSection label="CTPPS_Pixel_Assembly_Box_Real_123.xml">
+      <Rotation name="ModuleROTATION" thetaX="90*deg"  phiX="0*deg" 
+                         thetaY="90*deg-[RotAngle]"  phiY="90*deg" 
+                         thetaZ="-[RotAngle]" phiZ="90*deg"/>  <!-- rotation of RotAngle around x axis -->
+
+ 
+      <Rotation name="ModuleROTATIONmirror" thetaX="90*deg"  phiX="180*deg" 
+                         thetaY="90*deg-[RotAngle]"  phiY="90*deg" 
+                         thetaZ="180*deg-[RotAngle]" phiZ="90*deg"/>  
+
+      <Rotation name="ModuleROTATIONmirror2" thetaX="90*deg"  phiX="180*deg" 
+                         thetaY="90*deg+[RotAngle]"  phiY="90*deg" 
+                         thetaZ="180*deg+[RotAngle]" phiZ="90*deg"/>  
+
+    </RotationSection>
+
+
+
+    <PosPartSection label="CTPPS_Pixel_Assembly_Box_Real_123.xml">
+
+<!--
+ Originariamente:
+PARI: mirror rotation
+DISPARI: rotatio
+-->
+         <PosPart copyNumber="1">
+
+            <rParent name="RP_Box_123:RP_box_secondary_vacuum"/>
+            <rChild name="CTPPS_Pixel_Module:Envelop"/>
+            <Translation x="-0.4*mm" y="-[RP_Box:RP_Box_Secondary_Vacuum_Height]/2+[RP_Box:RP_Box_Bottom_Wall_Thickness]/2+[EnvelopBBox_dy]*cos([RotAngle])+[Offset_wrt_RP_bottom]" z="-(1.5*[Planes_spacing_same_support] + 1.0*[Planes_spacing_different_support] -[EnvelopOffset]) + [Planes_spacing_OFFSET]"/>
+            <rRotation name="ModuleROTATIONmirror2"/>
+
+        </PosPart>
+
+
+
+        <PosPart copyNumber="2">
+
+            <rParent name="RP_Box_123:RP_box_secondary_vacuum"/>
+            <rChild name="CTPPS_Pixel_Module_2x2:Envelop"/>
+            <Translation x="0.4*mm" y="-[ModuleOffset]-[RP_Box:RP_Box_Secondary_Vacuum_Height]/2+[RP_Box:RP_Box_Bottom_Wall_Thickness]/2+[EnvelopBBox_dy]*cos([RotAngle])+[Offset_wrt_RP_bottom]" z="-(0.5*[Planes_spacing_same_support] + 1.0*[Planes_spacing_different_support] +[EnvelopOffset]) + [Planes_spacing_OFFSET]"/>
+            <rRotation name="ModuleROTATIONmirror2"/>
+
+        </PosPart>
+
+        <PosPart copyNumber="3">
+
+            <rParent name="RP_Box_123:RP_box_secondary_vacuum"/>
+            <rChild name="CTPPS_Pixel_Module:Envelop"/>
+            <Translation x="-0.4*mm" y="-[RP_Box:RP_Box_Secondary_Vacuum_Height]/2+[RP_Box:RP_Box_Bottom_Wall_Thickness]/2+[EnvelopBBox_dy]*cos([RotAngle])+[Offset_wrt_RP_bottom]" z="-(0.5*[Planes_spacing_same_support] -[EnvelopOffset]) + [Planes_spacing_OFFSET]"/>
+            <rRotation name="ModuleROTATIONmirror2"/>
+
+        </PosPart>
+
+        <PosPart copyNumber="4">
+
+            <rParent name="RP_Box_123:RP_box_secondary_vacuum"/>
+            <rChild name="CTPPS_Pixel_Module:Envelop"/>
+            <Translation x="0.4*mm" y="-[ModuleOffset]-[RP_Box:RP_Box_Secondary_Vacuum_Height]/2+[RP_Box:RP_Box_Bottom_Wall_Thickness]/2+[EnvelopBBox_dy]*cos([RotAngle])+[Offset_wrt_RP_bottom]" z="0.5*[Planes_spacing_same_support]  - [EnvelopOffset] + [Planes_spacing_OFFSET]"/>
+            <rRotation name="ModuleROTATIONmirror2"/>
+
+        </PosPart>
+
+        <PosPart copyNumber="5">
+
+            <rParent name="RP_Box_123:RP_box_secondary_vacuum"/>
+            <rChild name="CTPPS_Pixel_Module:Envelop"/>
+            <Translation x="-0.4*mm" y="-[RP_Box:RP_Box_Secondary_Vacuum_Height]/2+[RP_Box:RP_Box_Bottom_Wall_Thickness]/2+[EnvelopBBox_dy]*cos([RotAngle])+[Offset_wrt_RP_bottom]" z="0.5*[Planes_spacing_same_support] + 1.0*[Planes_spacing_different_support]  + [EnvelopOffset] + [Planes_spacing_OFFSET]"/>
+            <rRotation name="ModuleROTATIONmirror2"/>
+
+        </PosPart>
+
+        <PosPart copyNumber="6">
+
+            <rParent name="RP_Box_123:RP_box_secondary_vacuum"/>
+            <rChild name="CTPPS_Pixel_Module:Envelop"/>
+            <Translation x="0.4*mm" y="-[ModuleOffset]-[RP_Box:RP_Box_Secondary_Vacuum_Height]/2+[RP_Box:RP_Box_Bottom_Wall_Thickness]/2+[EnvelopBBox_dy]*cos([RotAngle])+[Offset_wrt_RP_bottom]" z="1.5*[Planes_spacing_same_support] + 1.0*[Planes_spacing_different_support]  - [EnvelopOffset] + [Planes_spacing_OFFSET]"/>
+            <rRotation name="ModuleROTATIONmirror2"/>
+
+        </PosPart>
+
+
+
+
+
+
+
+
+    </PosPartSection>
+</DDDefinition>
