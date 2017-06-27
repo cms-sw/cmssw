@@ -57,7 +57,8 @@ class HcalSeverityLevelComputer
   HcalSeverityDefinition* DropChannel_;
  
   bool getChStBit(HcalSeverityDefinition& mydef, const std::string& mybit);
-  bool getRecHitFlag(HcalSeverityDefinition& mydef, const std::string& mybit);
+  //bool getRecHitFlag(HcalSeverityDefinition& mydef, const std::string& mybit);
+  bool getRecHitFlag(HcalSeverityDefinition& mydef, const std::string& mybit, int phase_); // FIXME: Jae
   void setBit (const unsigned bitnumber, uint32_t& where);
   void setAllRHMasks(const unsigned bitnumber, HcalSeverityDefinition& mydef);
 

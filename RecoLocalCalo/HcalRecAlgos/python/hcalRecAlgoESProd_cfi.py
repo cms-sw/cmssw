@@ -27,6 +27,7 @@ essourceSev =  cms.ESSource("EmptyESSource",
 
 
 hcalRecAlgos = cms.ESProducer("HcalRecAlgoESProducer",
+    phase = cms.uint32(1), 
     SeverityLevels = cms.VPSet(
         # the following is the default level, please do not modify its definition:
         cms.PSet( Level = cms.int32(0),
