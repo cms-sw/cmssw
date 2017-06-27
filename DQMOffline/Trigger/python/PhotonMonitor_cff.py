@@ -1,4 +1,4 @@
-import FWCore.ParameterSet.Config as cms
+1;2cimport FWCore.ParameterSet.Config as cms
 
 from DQMOffline.Trigger.PhotonMonitor_cfi import hltPhotonmonitoring
 
