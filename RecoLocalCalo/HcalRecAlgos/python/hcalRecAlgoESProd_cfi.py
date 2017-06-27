@@ -86,4 +86,62 @@ hcalRecAlgos = cms.ESProducer("HcalRecAlgoESProducer",
         ),
     RecoveredRecHitBits = cms.vstring('TimingAddedBit','TimingSubtractedBit'),
     DropChannelStatusBits = cms.vstring('HcalCellMask','HcalCellOff', 'HcalCellDead')
+) 
+
+from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
+run2_HCAL_2017.toModify(hcalRecAlgos,
+    phase = cms.uint32(1), 
+    SeverityLevels = cms.VPSet(
+        # the following is the default level, please do not modify its definition:
+        cms.PSet( Level = cms.int32(0),
+                  RecHitFlags = cms.vstring(''),
+                  ChannelStatus = cms.vstring('')
+                ),
+        cms.PSet( Level = cms.int32(1),
+                  RecHitFlags = cms.vstring(''),
+                  ChannelStatus = cms.vstring('HcalCellCaloTowerProb')
+                ),
+        cms.PSet( Level = cms.int32(5),
+                  RecHitFlags = cms.vstring('HSCP_R1R2','HSCP_FracLeader','HSCP_OuterEnergy',
+                                            'HSCP_ExpFit','ADCSaturationBit', 'HBHEIsolatedNoise',
+                                            'AddedSimHcalNoise'),
+                  ChannelStatus = cms.vstring('HcalCellExcludeFromHBHENoiseSummary')
+                ),
+        cms.PSet( Level = cms.int32(8),
+                  RecHitFlags = cms.vstring('HBHEHpdHitMultiplicity', # 
+                                            'HBHEFlatNoise', #
+                                            'HBHESpikeNoise', #
+                                            'HBHETriangleNoise',
+                                            'HBHETS4TS5Noise', #
+                                            'HBHENegativeNoise', #
+                                            'HBHEOOTPU' #
+                                            'HBHEPulseFitBit' # new: why not in phase 0?
+                                           ),
+                  ChannelStatus = cms.vstring('')
+                ),
+        cms.PSet( Level = cms.int32(11),
+                  RecHitFlags = cms.vstring('HFLongShort', #
+                                            # HFPET and HFS8S1Ratio feed HFLongShort, and should be at the same severity
+                                            'HFS8S1Ratio', # 
+                                            'HFPET', #
+                                            'HFSignalAsymmetry' # new
+                                            'TimingFromTDC' # new
+                                            ),
+                  ChannelStatus = cms.vstring('')
+                ),
+        cms.PSet( Level = cms.int32(12),
+                  RecHitFlags = cms.vstring(''),
+                  ChannelStatus = cms.vstring('HcalCellCaloTowerMask')
+                ),
+        cms.PSet( Level = cms.int32(15),
+                  RecHitFlags = cms.vstring(''),
+                  ChannelStatus = cms.vstring('HcalCellHot')
+                ),
+        cms.PSet( Level = cms.int32(20),
+                  RecHitFlags = cms.vstring(''),
+                  ChannelStatus = cms.vstring('HcalCellOff', 'HcalCellDead')
+                )
+        ),
+    RecoveredRecHitBits = cms.vstring('TimingAddedBit','TimingSubtractedBit'),
+    DropChannelStatusBits = cms.vstring('HcalCellMask','HcalCellOff', 'HcalCellDead')
 )
