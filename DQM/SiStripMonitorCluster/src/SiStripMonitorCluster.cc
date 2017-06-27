@@ -162,6 +162,9 @@ SiStripMonitorCluster::SiStripMonitorCluster(const edm::ParameterSet& iConfig)
   edm::ParameterSet ParametersNclusVsCycleTimeProf2D = conf_.getParameter<edm::ParameterSet>("NclusVsCycleTimeProf2D");
   globalswitchnclusvscycletimeprof2don = ParametersNclusVsCycleTimeProf2D.getParameter<bool>("globalswitchon");
 
+  edm::ParameterSet ParametersFEDCluster = conf_.getParameter<edm::ParameterSet>("TProfNClustersFED");
+  globalswitchFEDCluster = ParametersFEDCluster.getParameter<bool>("globalswitchon");
+
   edm::ParameterSet ParametersClusWidthVsAmpTH2 = conf_.getParameter<edm::ParameterSet>("ClusWidthVsAmpTH2");
   clusterWidth_vs_amplitude_on = ParametersClusWidthVsAmpTH2.getParameter<bool>("globalswitchon");
   layer_clusterWidth_vs_amplitude_on = ParametersClusWidthVsAmpTH2.getParameter<bool>("layerswitchon");
@@ -375,7 +378,7 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es , DQMStore::IBoo
 					       GlobalTH2Parameters.getParameter<double>("ymax"));
       GlobalCStripVsCpix->setAxisTitle("Strip Clusters",1);
       GlobalCStripVsCpix->setAxisTitle("Pix Clusters",2);
-      
+
       // Absolute Bunch Crossing ***********************
       edm::ParameterSet GlobalTH1Parameters =  conf_.getParameter<edm::ParameterSet>("TH1ABx_CSCP");
       HistoName = "AbsoluteBx_CStripVsCpixel";
@@ -439,8 +442,8 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es , DQMStore::IBoo
       GlobalTH2MainDiagonalPosition_vs_BX->setAxisTitle("Absolute BX",1);
       GlobalTH2MainDiagonalPosition_vs_BX->setAxisTitle("tan^{-1}(NPix/k*NStrip))",2);
 
-      
-      
+
+
     }
 
     // TO BE ADDED !!!
@@ -552,7 +555,23 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es , DQMStore::IBoo
 
       NumberOfPixelClus_vs_BX->setAxisTitle("Absolute BX", 1);
       NumberOfPixelClus_vs_BX->setAxisTitle("# of Clusters in Pixel", 2);
-      
+
+      if(globalswitchFEDCluster){
+        // Number of clusters per FED
+        edm::ParameterSet FEDCluster = conf_.getParameter<edm::ParameterSet>("TProfNClustersFED");
+        HistoName = "NumberOfClustersinFED_v_FEDID";
+        NumberOfFEDClus = ibooker.bookProfile(HistoName,
+                                         HistoName,
+                                         FEDCluster.getParameter<int32_t>("Nbinsx"),
+                                         FEDCluster.getParameter<double>("xmin"),
+                                         FEDCluster.getParameter<double>("xmax"),
+                                         FEDCluster.getParameter<int32_t>("Nbinsy"),
+                                         FEDCluster.getParameter<double>("ymin"),
+                                         FEDCluster.getParameter<double>("ymax"));
+        NumberOfFEDClus->setAxisTitle("FED ID",1);
+        NumberOfFEDClus->setAxisTitle("Mean # of Cluster in FED",2);
+      }
+
     }
 
   }//end of if
@@ -600,7 +619,7 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
 
   runNb   = iEvent.id().run();
   eventNb++;
-  trendVar = trendVsLs_ ? iEvent.orbitNumber()/262144.0 : iEvent.orbitNumber()/11223.0; // lumisection : seconds
+  trendVar = trendVsLs_ ? iEvent.orbitNumber()/262144.0 : iEvent.orbitNumber()/11223.0; // lumisection : #orbits / #orbits per second = seconds
 
   int NPixClusters=0, NStripClusters=0, MultiplicityRegion=0;
   bool isPixValid=false;
@@ -636,7 +655,7 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
     MultiplicityRegion=FindRegion(NStripClusters,NPixClusters);
 
     if ( passBPTXfilter_ and passPixelDCSfilter_ and passStripDCSfilter_ ) {
-      if (globalswitchcstripvscpix) GlobalCStripVsCpix->Fill(NStripClusters,NPixClusters); 
+      if (globalswitchcstripvscpix) GlobalCStripVsCpix->Fill(NStripClusters,NPixClusters);
       if (globalswitchmaindiagonalposition && NStripClusters > 0) GlobalMainDiagonalPosition->Fill(atan(NPixClusters/(k0*NStripClusters)));
 
       if (globalswitchMultiRegions) PixVsStripMultiplicityRegions->Fill(MultiplicityRegion);
@@ -657,6 +676,10 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
 
   SiStripFolderOrganizer folder_organizer;
   bool found_layer_me = false;
+
+  //Map of cumulative clusters per fed ID.
+  std::map<int,int> FEDID_v_clustersum;
+
   for (std::map<std::string, std::vector< uint32_t > >::const_iterator iterLayer = LayerDetMap.begin();
        iterLayer != LayerDetMap.end(); iterLayer++) {
 
@@ -710,6 +733,39 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
       //cluster_detset is a structure, cluster_detset.data is a std::vector<SiStripCluster>, cluster_detset.id is uint32_t
       //      edmNew::DetSet<SiStripCluster> cluster_detset = (*cluster_detsetvektor)[detid]; // the statement above makes sure there exists an element with 'detid'
       edmNew::DetSet<SiStripCluster> cluster_detset = (*isearch);
+
+      //////////////////////////////////////////////////////////////
+      // Get all FED connections associated with given detID.
+      // All connections for a detid have same FED Id therefore one FEDID is associated with a given detID.
+      // Vector of constant FedChannelConnection objects to variable pointers.
+      std::vector<const FedChannelConnection*> fedConnections = SiStripDetCabling_->getConnections(detid);
+
+      // Filling FED Id associated clusters map.
+
+      int good_fcc_index = -999;
+      for(uint x=0;x<fedConnections.size();x++){
+        if(fedConnections.at(x)!=NULL && good_fcc_index==-999){
+          good_fcc_index = x;
+        }
+      }
+      if(good_fcc_index!=-999 && fedConnections.at(good_fcc_index)!=NULL){
+        int temp_fedid = fedConnections[good_fcc_index]->fedId();
+        if(FEDID_v_clustersum.find(temp_fedid) != FEDID_v_clustersum.end()){
+          if(cluster_detset.size() <1000 && cluster_detset.size()>0){
+            FEDID_v_clustersum[temp_fedid] = FEDID_v_clustersum.find(temp_fedid)->second + cluster_detset.size();
+          }
+        }
+        else{
+          if(cluster_detset.size() < 1000 && cluster_detset.size() >0){
+            FEDID_v_clustersum[temp_fedid] = cluster_detset.size();
+          }
+        }
+      }
+      else{
+        edm::LogInfo("SiStripMonitorCluster") << "SiStripMonitorCluster::analyze WARNING! no good connections for detid = " << detid << endl;
+      }
+      //////////////////////////////////////////////////////////////
+
 
       // Filling TkHistoMap with number of clusters for each module
       if(clustertkhistomapon) {
@@ -785,27 +841,27 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
 	  if (layerswitchclusterwidthprofon)
 	    layer_single.LayerClusterWidthProfile->Fill(iDet, cluster_width);
 	}
-	
+
 	if (subdetswitchcluschargeon || subdetswitchcluswidthon)
 	  {
 	    std::map<std::string, SubDetMEs>::iterator iSubdet  = SubDetMEsMap.find(subdet_label);
-	    if(iSubdet != SubDetMEsMap.end()) 
+	    if(iSubdet != SubDetMEsMap.end())
 	      {
 		if (subdetswitchcluschargeon) iSubdet->second.SubDetClusterChargeTH1->Fill(cluster_signal);
 		if (subdetswitchcluswidthon)  iSubdet->second.SubDetClusterWidthTH1->Fill(cluster_width);
 		  }
 	  }
-     
+
 
     if (subdet_clusterWidth_vs_amplitude_on){
 		std::map<std::string, SubDetMEs>::iterator iSubdet  = SubDetMEsMap.find(subdet_label);
-		if(iSubdet != SubDetMEsMap.end()) iSubdet->second.SubDetClusWidthVsAmpTH2->Fill(cluster_signal, cluster_width); 
+		if(iSubdet != SubDetMEsMap.end()) iSubdet->second.SubDetClusWidthVsAmpTH2->Fill(cluster_signal, cluster_width);
 	}
 
 	if ( clusterWidth_vs_amplitude_on ) {
 	  ClusWidthVsAmpTH2->Fill(cluster_signal, cluster_width);
 	}
-	  
+
 	if (subdetswitchtotclusprofon) {
 	  std::map<std::string, SubDetMEs>::iterator iSubdet  = SubDetMEsMap.find(subdet_label);
 	  std::pair<std::string,int32_t> det_layer_pair = folder_organizer.GetSubDetAndLayer(detid, tTopo);
@@ -878,7 +934,7 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
 
       int the_phase = APVCyclePhaseCollection::invalid;
       long long tbx_corr = tbx;
-      
+
 
       if (SubDetPhasePartMap.find(sdet) != SubDetPhasePartMap.end()) the_phase = apv_phase_collection->getPhase(SubDetPhasePartMap[sdet]);
       if(the_phase==APVCyclePhaseCollection::nopartition ||
@@ -900,20 +956,31 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
 
 
       // Fill MainDiagonalPosition plots ***************
-      if (cluster_detsetvektor_pix.isValid()){      
+      if (cluster_detsetvektor_pix.isValid()){
 	if (ClusterHisto_){
 	  if ( passBPTXfilter_ and passStripDCSfilter_ ){
 	    NumberOfStripClus_vs_BX->Fill(tbx%3564,NStripClusters);
 	    if(passPixelDCSfilter_ ){
-	      NumberOfPixelClus_vs_BX->Fill(tbx%3564,NPixClusters); 
-	      if (globalswitchmaindiagonalposition && NStripClusters > 0){ 
+	      NumberOfPixelClus_vs_BX->Fill(tbx%3564,NPixClusters);
+	      if (globalswitchmaindiagonalposition && NStripClusters > 0){
 		GlobalMainDiagonalPosition_vs_BX->Fill(tbx%3564,atan(NPixClusters/(k0*NStripClusters)));
 		GlobalTH2MainDiagonalPosition_vs_BX->Fill(tbx%3564,atan(NPixClusters/(k0*NStripClusters)));
 	      }
 	    }
-      
+
 	  }
-	}	
+
+    //Filling # clusters per FED ID histogram from FED Id clusters map (for all layers simultaneously).
+    map<int,int>::iterator it;
+    for(it=FEDID_v_clustersum.begin(); it!=FEDID_v_clustersum.end(); it++){
+      NumberOfFEDClus->Fill(it->first,it->second);
+      //if(it->first < 200){
+      //  Trend_NumberOfFEDClus->Fill(trendVar,it->first,it->second);
+      //}
+    }
+    FEDID_v_clustersum.clear();
+
+	}
       }
 
       if (isPixValid && !MultiplicityRegion_Vs_APVcycle_filled){
@@ -935,18 +1002,18 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
       }
       if (subdetswitchapvcycledbxprof2on)
 	sdetmes.SubDetApvDBxProf2->Fill(tbx_corr%70,dbx,sdetmes.totNClusters);
-    }	
+    }
 
     if ( globalswitchnclusvscycletimeprof2don )
       {
 	long long tbx_corr = tbx;
 	int the_phase = apv_phase_collection->getPhase("All");
-	
+
 	if( the_phase == APVCyclePhaseCollection::nopartition ||
 	    the_phase == APVCyclePhaseCollection::multiphase ||
 	    the_phase == APVCyclePhaseCollection::invalid )
 	  the_phase=30;
-	
+
 	tbx_corr -= the_phase;
 
 	NclusVsCycleTimeProf2D->Fill( tbx_corr%70 , (int)event_history->_orbit , NStripClusters );
@@ -1236,7 +1303,7 @@ void SiStripMonitorCluster::createSubDetMEs(std::string label , DQMStore::IBooke
 							 0 , 0 , "" );
     subdetMEs.SubDetTotClusterProf->setAxisTitle(Parameters.getParameter<std::string>("xaxis"),1);
     if (subdetMEs.SubDetTotClusterProf->kind() == MonitorElement::DQM_KIND_TPROFILE) subdetMEs.SubDetTotClusterProf->getTH1()->SetCanExtend(TH1::kAllAxes);
-  
+
     HistoName = "TotalNumberOfClusterPerLayer__" + label;
     subdetMEs.SubDetNumberOfClusterPerLayerTrend = bookME2D("NumberOfClusterPerLayerTrendVarTH2", HistoName.c_str() , ibooker );
     subdetMEs.SubDetNumberOfClusterPerLayerTrend->setAxisTitle("Lumisection",1);
@@ -1298,8 +1365,8 @@ void SiStripMonitorCluster::createSubDetMEs(std::string label , DQMStore::IBooke
 
   }
 
-  
-  
+
+
   // Total Number of Cluster vs DeltaBxCycle - Profile
   if(subdetswitchdbxcycleprofon){
     edm::ParameterSet Parameters =  conf_.getParameter<edm::ParameterSet>("TProfClustersVsDBxCycle");
