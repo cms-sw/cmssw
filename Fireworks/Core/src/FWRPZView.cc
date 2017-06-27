@@ -36,7 +36,7 @@
 #include "Fireworks/Core/interface/FWViewContext.h"
 #include "Fireworks/Core/interface/FWViewEnergyScale.h"
 #include "Fireworks/Core/interface/CmsShowViewPopup.h"
-
+#include "Fireworks/Core/interface/CmsShowCommon.h"
 
 const float FWRPZView::s_distortF = 0.001;
 const float FWRPZView::s_distortFInv = 1000;
@@ -184,11 +184,11 @@ FWRPZView::eventBegin()
 {  
    if (context().getBeamSpot())
    {
-      FWBeamSpot& b = *(context().getBeamSpot());
-      fwLog(fwlog::kDebug) << Form("%s::eventBegin Set projection center (%f, %f, %f) \n", typeName().c_str(), b.x0(), b.y0(), b.z0());
+      float c[3] = {0,0,0};
+      context().commonPrefs()->getEventCenter(c);
 
       // projection center
-      TEveVector center(b.x0(),  b.y0(), b.z0());
+      TEveVector center(c[0], c[1], c[2] );
       m_projMgr->GetProjection()->SetCenter(center);
 
       // camera move
@@ -196,15 +196,33 @@ FWRPZView::eventBegin()
       cam.SetExternalCenter(true);
       if (typeId() != FWViewType::kRhoZ)
       {
-         double r = TMath::Sqrt( b.x0()*b.x0() +  b.y0()*b.y0());
-         cam.SetCenterVec(b.z0(), TMath::Sign(r, b.y0()), 0);
+         double r = center.Mag();
+         cam.SetCenterVec(center.fZ, TMath::Sign(r, center.fY), 0);
       }
       else
       {
-         cam.SetCenterVec(b.x0(), b.y0(), b.z0());
+         cam.SetCenterVec(c[0], c[1], c[2] );
       }
    }
 }
+
+void
+FWRPZView::eventEnd()
+{
+   float c[3]; context().commonPrefs()->getEventCenter(c);
+   m_projMgr->SetCenter(c[0], c[1], c[2]);
+   FWEveView::eventEnd();
+}
+
+
+void
+FWRPZView::setupEventCenter()
+{
+   float c[3];  context().commonPrefs()->getEventCenter(c);
+   m_projMgr->SetCenter(c[0], c[1], c[2]);
+   FWEveView::setupEventCenter();
+}
+
 
 void
 FWRPZView::doShiftOriginToBeamSpot()
