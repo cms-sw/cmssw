@@ -1726,10 +1726,22 @@ namespace edm {
       //looper_->doStreamEndRun(schedule_->streamID(),runPrincipal, es);
     }
     {
+      auto globalWaitTask = make_empty_waiting_task();
+      globalWaitTask->increment_ref_count();
+
       runPrincipal.setAtEndTransition(true);
       typedef OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd> Traits;
-      schedule_->processOneGlobal<Traits>(runPrincipal, es, cleaningUpAfterException);
-      for_all(subProcesses_, [&runPrincipal, &ts, cleaningUpAfterException](auto& subProcess){subProcess.doEndRun(runPrincipal, ts, cleaningUpAfterException); });
+      endGlobalTransitionAsync<Traits>(WaitingTaskHolder(globalWaitTask.get()),
+                                       *schedule_,
+                                       runPrincipal,
+                                       ts,
+                                       es,
+                                       subProcesses_,
+                                       cleaningUpAfterException);
+      globalWaitTask->wait_for_all();
+      if(globalWaitTask->exceptionPtr() != nullptr) {
+        std::rethrow_exception(* (globalWaitTask->exceptionPtr()) );
+      }
     }
     FDEBUG(1) << "\tendRun " << run.runNumber() << "\n";
     if(looper_) {

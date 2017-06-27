@@ -20,7 +20,7 @@ SiPixelPhase1ClustersCharge = DefaultHistoDigiCluster.clone(
 SiPixelPhase1ClustersSize = DefaultHistoDigiCluster.clone(
   name = "size",
   title = "Total Cluster Size",
-  range_min = 0, range_max = 50, range_nbins = 50,
+  range_min = 0, range_max = 30, range_nbins = 30,
   xlabel = "size[pixels]",
   specs = VPSet(
     StandardSpecification2DProfile,
@@ -34,7 +34,7 @@ SiPixelPhase1ClustersSize = DefaultHistoDigiCluster.clone(
 SiPixelPhase1ClustersSizeX = DefaultHistoDigiCluster.clone(
   name = "sizeX",
   title = "Cluster Size in X",
-  range_min = 0, range_max = 50, range_nbins = 50,
+  range_min = 0, range_max = 30, range_nbins = 30,
   xlabel = "size[pixels]",
   specs = VPSet(
     #StandardSpecification2DProfile,
@@ -48,7 +48,7 @@ SiPixelPhase1ClustersSizeX = DefaultHistoDigiCluster.clone(
 SiPixelPhase1ClustersSizeY = DefaultHistoDigiCluster.clone(
   name = "sizeY",
   title = "Cluster Size in Y",
-  range_min = 0, range_max = 50, range_nbins = 50,
+  range_min = 0, range_max = 30, range_nbins = 30,
   xlabel = "size[pixels]",
   specs = VPSet(
     #StandardSpecification2DProfile,
@@ -101,6 +101,7 @@ SiPixelPhase1ClustersEventrate = DefaultHistoDigiCluster.clone(
   title = "Number of Events with clusters",
   ylabel = "#Events",
   dimensions = 0,
+  enabled=False,
   specs = VPSet(
     Specification().groupBy("Lumisection")
                    .groupBy("", "EXTEND_X").save(),
