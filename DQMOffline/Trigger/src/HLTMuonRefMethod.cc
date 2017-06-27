@@ -46,7 +46,7 @@ public:
   
 
 private:
-  DQMStore* theDQM;
+  // DQMStore* theDQM;
 
   std::vector<std::string> subDirs_;
   std::vector<std::string> hltTriggers_;
@@ -92,8 +92,8 @@ void HLTMuonRefMethod::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter 
   boost::regex metacharacters{"[\\^\\$\\.\\*\\+\\?\\|\\(\\)\\{\\}\\[\\]]"};
   boost::smatch what;
 
-  theDQM = 0;
-  theDQM = Service<DQMStore>().operator->();
+  // theDQM = 0;
+  // theDQM = Service<DQMStore>().operator->();
   
   ibooker.cd();
   set<string> subDirSet;
