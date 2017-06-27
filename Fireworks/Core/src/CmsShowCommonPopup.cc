@@ -19,6 +19,7 @@
 #include "Fireworks/Core/src/FWDialogBuilder.h"
 #include "Fireworks/Core/src/FWColorSelect.h"
 #include "Fireworks/Core/interface/FWViewEnergyScaleEditor.h"
+#include "Fireworks/Core/interface/FWViewEnergyScale.h"
 
 #include "Fireworks/Core/interface/FWParameterSetterEditorBase.h"
 
@@ -59,7 +60,7 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
       TGLabel* xx = new TGLabel(vf2, "GlobalScales     ", fTextGC->GetGC());
       vf2->AddFrame(xx, new TGLayoutHints(kLHintsLeft, 2,2,4,4));
    }
-   FWViewEnergyScaleEditor* scaleEditor = new FWViewEnergyScaleEditor(m_common->m_energyScale.get(), vf2);
+   FWViewEnergyScaleEditor* scaleEditor = new FWViewEnergyScaleEditor(m_common->getEnergyScale(), vf2);
    vf2->AddFrame(scaleEditor);
    //==============================================================================
    // Projections
