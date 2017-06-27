@@ -26,13 +26,13 @@ HLT_HISinglePhoton30_Eta1p5ForPPRef_v*				# CMSHLT-684
 HLT_HISinglePhoton40_Eta1p5ForPPRef_v*				# CMSHLT-684
 HLT_HISinglePhoton50_Eta1p5ForPPRef_v*				# CMSHLT-684
 HLT_HISinglePhoton60_Eta1p5ForPPRef_v*				# CMSHLT-684
-HLT_HISinglePhoton10_Eta3p1ForPPRef_v*				# CMSHLT-684
-HLT_HISinglePhoton15_Eta3p1ForPPRef_v*				# CMSHLT-684
-HLT_HISinglePhoton20_Eta3p1ForPPRef_v*				# CMSHLT-684
-HLT_HISinglePhoton30_Eta3p1ForPPRef_v*				# CMSHLT-684
-HLT_HISinglePhoton40_Eta3p1ForPPRef_v*				# CMSHLT-684
-HLT_HISinglePhoton50_Eta3p1ForPPRef_v*				# CMSHLT-684
-HLT_HISinglePhoton60_Eta3p1ForPPRef_v*				# CMSHLT-684
+#HLT_HISinglePhoton10_Eta3p1ForPPRef_v*				# CMSHLT-684 , removed since CMSHLT-1257
+#HLT_HISinglePhoton15_Eta3p1ForPPRef_v*				# CMSHLT-684 , removed since CMSHLT-1257
+#HLT_HISinglePhoton20_Eta3p1ForPPRef_v*				# CMSHLT-684 , removed since CMSHLT-1257
+#HLT_HISinglePhoton30_Eta3p1ForPPRef_v*				# CMSHLT-684 , removed since CMSHLT-1257
+#HLT_HISinglePhoton40_Eta3p1ForPPRef_v*				# CMSHLT-684 , removed since CMSHLT-1257
+#HLT_HISinglePhoton50_Eta3p1ForPPRef_v*				# CMSHLT-684 , removed since CMSHLT-1257
+#HLT_HISinglePhoton60_Eta3p1ForPPRef_v*				# CMSHLT-684 , removed since CMSHLT-1257
 HLT_HIDoublePhoton15_Eta1p5_Mass50_1000ForPPRef_v*		# CMSHLT-684
 HLT_HIDoublePhoton15_Eta1p5_Mass50_1000_R9HECutForPPRef_v*	# CMSHLT-684
 HLT_HIDoublePhoton15_Eta2p1_Mass50_1000_R9CutForPPRef_v*	# CMSHLT-684
@@ -114,9 +114,6 @@ HLT_Random_v*							# CMSHLT-684
 HLT_EcalCalibration_v*						# CMSHLT-684
 HLT_HcalCalibration_v*						# CMSHLT-684
 
-#HLT_L1Tech6_BPTX_MinusOnly_v*					# CMSHLT-684 #outdated L1 seed (CMSHLT-1060)
-#HLT_L1Tech5_BPTX_PlusOnly_v*					# CMSHLT-684 #outdated L1 seed (CMSHLT-1060)
-#HLT_L1Tech7_NoBPTX_v*						# CMSHLT-684 #outdated L1 seed (CMSHLT-1060)
 HLT_L1TOTEM1_MinBias_v*						# CMSHLT-684
 HLT_L1TOTEM2_ZeroBias_v*					# CMSHLT-684
 HLT_L1MinimumBiasHF1OR_v*					# CMSHLT-684
