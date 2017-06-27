@@ -10,6 +10,7 @@
 #include "PhysicsTools/Utilities/interface/Ratio.h"
 #include "PhysicsTools/Utilities/interface/Sum.h"
 #include "PhysicsTools/Utilities/interface/ParametricTrait.h"
+#include <boost/mpl/if.hpp>
 
 #include "PhysicsTools/Utilities/interface/Simplify_begin.h"
 

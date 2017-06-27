@@ -127,7 +127,7 @@ for tracks in selectedTracks :
     locals()[label].doPlotsVsBX                         = cms.bool(True)
     locals()[label].doEffFromHitPatternVsPU             = doEffFromHitPatternVsPU             [tracks]
     locals()[label].doEffFromHitPatternVsBX             = doEffFromHitPatternVsBX             [tracks]
-    locals()[label].doEffFromHitPatternVsLUMI           = cms.bool(True)
+    locals()[label].doEffFromHitPatternVsLUMI           = False
     locals()[label].doStopSource                        = doStopSource                        [tracks]    
     locals()[label].setLabel(label)
 
@@ -167,7 +167,7 @@ for tracks in selectedTracks :
     locals()[label].doPlotsVsBX                         = cms.bool(True)
     locals()[label].doEffFromHitPatternVsPU             = doEffFromHitPatternVsPU             [tracks]
     locals()[label].doEffFromHitPatternVsBX             = doEffFromHitPatternVsBX             [tracks]
-    locals()[label].doEffFromHitPatternVsLUMI           = cms.bool(True)
+    locals()[label].doEffFromHitPatternVsLUMI           = False
     locals()[label].doStopSource                        = doStopSource                        [tracks]    
     locals()[label].setLabel(label)
 
@@ -208,7 +208,7 @@ for tracks in selectedTracks :
     locals()[label].doPlotsVsBX                         = cms.bool(True)
     locals()[label].doEffFromHitPatternVsPU             = doEffFromHitPatternVsPU             [tracks]
     locals()[label].doEffFromHitPatternVsBX             = doEffFromHitPatternVsBX             [tracks]
-    locals()[label].doEffFromHitPatternVsLUMI           = cms.bool(True)
+    locals()[label].doEffFromHitPatternVsLUMI           = False
     locals()[label].doStopSource                        = doStopSource                        [tracks]    
     locals()[label].setLabel(label)
 

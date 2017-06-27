@@ -129,32 +129,32 @@ l1tStage2EmulatorEventInfoClient = DQMEDHarvester("L1TEventInfoClient",
                         SystemDisable  = cms.uint32(0),
                         QualityTests = cms.VPSet(
                             cms.PSet(
-                                QualityTestName = cms.string("uGMTDE_MismatchRatioMax0p05"),
+                                QualityTestName = cms.string("uGMTDE_MismatchRatioMax0"),
                                 QualityTestHist = cms.string("L1TEMU/L1TdeStage2uGMT/data_vs_emulator_comparison/mismatchRatio"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),
                             cms.PSet(
-                                QualityTestName = cms.string("InterMuonsDE_MismatchRatioMax0p05"),
+                                QualityTestName = cms.string("InterMuonsDE_MismatchRatioMax0"),
                                 QualityTestHist = cms.string("L1TEMU/L1TdeStage2uGMT/intermediate_muons/BMTF/data_vs_emulator_comparison/mismatchRatio"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),
                             cms.PSet(
-                                QualityTestName = cms.string("InterMuonsDE_MismatchRatioMax0p05"),
+                                QualityTestName = cms.string("InterMuonsDE_MismatchRatioMax0"),
                                 QualityTestHist = cms.string("L1TEMU/L1TdeStage2uGMT/intermediate_muons/OMTF_pos/data_vs_emulator_comparison/mismatchRatio"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),
                             cms.PSet(
-                                QualityTestName = cms.string("InterMuonsDE_MismatchRatioMax0p05"),
+                                QualityTestName = cms.string("InterMuonsDE_MismatchRatioMax0"),
                                 QualityTestHist = cms.string("L1TEMU/L1TdeStage2uGMT/intermediate_muons/OMTF_neg/data_vs_emulator_comparison/mismatchRatio"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),
                             cms.PSet(
-                                QualityTestName = cms.string("InterMuonsDE_MismatchRatioMax0p05"),
+                                QualityTestName = cms.string("InterMuonsDE_MismatchRatioMax0"),
                                 QualityTestHist = cms.string("L1TEMU/L1TdeStage2uGMT/intermediate_muons/EMTF_pos/data_vs_emulator_comparison/mismatchRatio"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),
                             cms.PSet(
-                                QualityTestName = cms.string("InterMuonsDE_MismatchRatioMax0p05"),
+                                QualityTestName = cms.string("InterMuonsDE_MismatchRatioMax0"),
                                 QualityTestHist = cms.string("L1TEMU/L1TdeStage2uGMT/intermediate_muons/EMTF_neg/data_vs_emulator_comparison/mismatchRatio"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),

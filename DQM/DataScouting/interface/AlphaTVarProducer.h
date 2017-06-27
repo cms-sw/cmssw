@@ -9,6 +9,7 @@
 
 #include "TLorentzVector.h"
 #include "DataFormats/METReco/interface/CaloMETFwd.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
 #include <vector>
 

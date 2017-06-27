@@ -10,5 +10,5 @@ void PassThruSeedFinder::
 findSeeds( const edm::Handle<reco::PFRecHitCollection>& input,
 	   const std::vector<bool>& mask,
 	   std::vector<bool>& seedable ) {  
-  seedable = std::move(std::vector<bool>(input->size(),true));  
+  seedable = std::vector<bool>(input->size(),true);  
 }
