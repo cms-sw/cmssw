@@ -22,7 +22,7 @@
 // added by me
 
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"

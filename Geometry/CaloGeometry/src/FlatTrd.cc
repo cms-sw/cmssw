@@ -100,7 +100,11 @@ GlobalPoint FlatTrd::getPosition(const Pt3D& local ) const {
 #ifdef DebugLog
   std::cout << "FlatTrd::Local " << local.x() << ":" << local.y() << ":" 
 	    << local.z() << " Global " << glb.x() << ":" << glb.y() << ":" 
-	    << glb.z() << std::endl;
+	    << glb.z() << " TR " << m_tr.xx() << ":" << m_tr.xy() << ":"
+	    << m_tr.xz() << ":" << m_tr.yx() << ":" << m_tr.yy() << ":"
+	    << m_tr.yz() << ":" << m_tr.zx() << ":" << m_tr.zy() << ":" 
+	    << m_tr.zz() << ":" << m_tr.dx() << ":" << m_tr.dy() << ":" 
+	    << m_tr.dz()  << std::endl;
 #endif
   return GlobalPoint(glb.x(),glb.y(),glb.z());
 }

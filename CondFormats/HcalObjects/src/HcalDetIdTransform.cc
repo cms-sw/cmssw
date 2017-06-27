@@ -8,6 +8,7 @@ namespace HcalDetIdTransform
     unsigned transform(const HcalDetId& id, const unsigned transformCode)
     {
         static const int ietaShift = 1024;
+        static const int maxHcalDepth = 64;
 
         if (transformCode >= N_TRANSFORMS)
             throw cms::Exception("In HcalDetIdTransform::transform:"
@@ -29,6 +30,14 @@ namespace HcalDetIdTransform
 
         case SUBDET:
             t = id.subdetId();
+            break;
+
+        case IETADEPTH:
+            t = (id.ieta() + ietaShift)*maxHcalDepth + id.depth();
+            break;
+
+        case IETAABSDEPTH:
+            t = id.ietaAbs()*maxHcalDepth + id.depth();
             break;
 
         default:
