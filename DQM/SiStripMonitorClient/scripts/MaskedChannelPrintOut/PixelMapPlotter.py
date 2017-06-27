@@ -3,6 +3,7 @@
 import ROOT
 import sys
 import getopt
+from ROOT import *
 
 from copy import deepcopy
 
@@ -51,6 +52,7 @@ class HistogramManager:
       histObj.GetYaxis().SetTitle("OnlineSignedLadder");
       histObj.SetOption("COLZ")
       histObj.SetStats(0)
+      histObj.SetTitle("OnlineSignedModule")
 
       self.barrelHists.append(deepcopy(histObj))
       i = i + 1
@@ -69,6 +71,7 @@ class HistogramManager:
       histObj.GetYaxis().SetTitle("OnlineSignedBladePanel");
       histObj.SetOption("COLZ")
       histObj.SetStats(0)
+      
 
       self.forwardHists.append(deepcopy(histObj))
       i = i + 1
@@ -225,6 +228,34 @@ class HistogramManager:
           hist.GetZaxis().SetRangeUser(0,4160)
           ROOT.gStyle.SetPalette(70)
         hist.Draw()
+
+        txt = TLatex()
+        txt.SetNDC()
+        txt.SetTextFont(1)
+        txt.SetTextColor(1)
+        txt.SetTextAlign(22)
+        txt.SetTextAngle(0)
+        txt.SetTextSize(0.05)
+        txt.DrawLatex(0.5, 0.95, hist.GetName())
+
+        xMin = hist.GetXaxis().GetXmin()
+
+        yMin = hist.GetYaxis().GetXmin()
+
+        box1 = TBox(xMin*1.1,yMin*1.25,xMin*1,yMin*1.15);
+        box1.SetFillColor(kRed+3)
+        box1.Draw()
+        txt.SetTextSize(0.035)
+        txt.DrawLatex(0.25, 0.077, "Dead At Beginning")
+
+
+        box2 = TBox(xMin*0.45,yMin*1.25,xMin*0.35,yMin*1.15);
+        box2.SetFillColor(kAzure+2)
+        box2.Draw()
+        txt.SetTextSize(0.035)
+        txt.DrawLatex(0.47, 0.077, "Dead At End")
+
+
         self.prettifyCanvas(hist)
         colorString = ""
         if colorCoded:
@@ -348,7 +379,7 @@ def TranslateReasonStringBPix(theReasonStr):
   elif theReasonStr== "fedphases":
     return 4
   elif theReasonStr == "tbmdelay":
-    return 3
+    return 1
   elif theReasonStr == "power":
     return 5
   else:
@@ -358,10 +389,10 @@ def TranslateReasonStringBPix(theReasonStr):
 def TranslateReasonStringFPix(theReasonStr):
   if theReasonStr == "flaky":
     return 1
-  elif theReasonStr == "dead":
+  elif theReasonStr == "power":   #check github for the real reason
     return 5
-  elif theReasonStr == "portcard":
-    return 3
+  elif theReasonStr == "tbmdelay":  #
+    return 1
   elif theReasonStr == "unknown":
     return 2
   else:
@@ -441,7 +472,7 @@ i = 1
 with open (inputFileName, "r") as inputFile:
 
   for item in inputFile:
-    print("Processing record #%d" % (i))
+#    print("Processing record #%d" % (i))
     
     inputs = item.split(" ")
 
