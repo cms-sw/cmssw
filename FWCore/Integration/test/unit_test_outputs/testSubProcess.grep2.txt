@@ -2978,23 +2978,6 @@
 ++++++ starting: global end run for module: label = 'endPath1' id = 17
 ++++++ finished: global end run for module: label = 'endPath1' id = 17
 ++++ finished: global end run 1 : time = 0
-++++++ starting: global end run for module: label = 'thingWithMergeProducer' id = 10
-++++++ finished: global end run for module: label = 'thingWithMergeProducer' id = 10
-++++++ starting: global end run for module: label = 'test' id = 11
-++++++ finished: global end run for module: label = 'test' id = 11
-++++++ starting: global end run for module: label = 'testmerge' id = 12
-++++++ finished: global end run for module: label = 'testmerge' id = 12
-++++++ starting: global end run for module: label = 'get' id = 13
-++++++ finished: global end run for module: label = 'get' id = 13
-++++++ starting: global end run for module: label = 'getInt' id = 14
-++++++ finished: global end run for module: label = 'getInt' id = 14
-++++++ starting: global end run for module: label = 'dependsOnNoPut' id = 15
-++++++ finished: global end run for module: label = 'dependsOnNoPut' id = 15
-++++++ starting: global end run for module: label = 'out' id = 16
-++++++ finished: global end run for module: label = 'out' id = 16
-++++++ starting: global end run for module: label = 'TriggerResults' id = 9
-++++++ finished: global end run for module: label = 'TriggerResults' id = 9
-++++ finished: global end run 1 : time = 0
 ++++ starting: source run
 ++++ finished: source run
 ++++ starting: global begin run 2 : time = 55000001
@@ -5742,23 +5725,6 @@
 ++++++ finished: global end run for module: label = 'path4' id = 16
 ++++++ starting: global end run for module: label = 'endPath1' id = 17
 ++++++ finished: global end run for module: label = 'endPath1' id = 17
-++++ finished: global end run 2 : time = 0
-++++++ starting: global end run for module: label = 'thingWithMergeProducer' id = 10
-++++++ finished: global end run for module: label = 'thingWithMergeProducer' id = 10
-++++++ starting: global end run for module: label = 'test' id = 11
-++++++ finished: global end run for module: label = 'test' id = 11
-++++++ starting: global end run for module: label = 'testmerge' id = 12
-++++++ finished: global end run for module: label = 'testmerge' id = 12
-++++++ starting: global end run for module: label = 'get' id = 13
-++++++ finished: global end run for module: label = 'get' id = 13
-++++++ starting: global end run for module: label = 'getInt' id = 14
-++++++ finished: global end run for module: label = 'getInt' id = 14
-++++++ starting: global end run for module: label = 'dependsOnNoPut' id = 15
-++++++ finished: global end run for module: label = 'dependsOnNoPut' id = 15
-++++++ starting: global end run for module: label = 'out' id = 16
-++++++ finished: global end run for module: label = 'out' id = 16
-++++++ starting: global end run for module: label = 'TriggerResults' id = 9
-++++++ finished: global end run for module: label = 'TriggerResults' id = 9
 ++++ finished: global end run 2 : time = 0
 ++++ starting: source run
 ++++ finished: source run
