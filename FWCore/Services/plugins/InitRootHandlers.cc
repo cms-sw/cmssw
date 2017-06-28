@@ -428,6 +428,8 @@ namespace {
           strlcpy(buff, "\nModule: ", moduleBufferSize);
           if (edm::CurrentModuleOnThread::getCurrentModuleOnThread() != nullptr) {
             strlcat(buff, edm::CurrentModuleOnThread::getCurrentModuleOnThread()->moduleDescription()->moduleName().c_str(), moduleBufferSize);
+            strlcat(buff, ":", moduleBufferSize);
+            strlcat(buff, edm::CurrentModuleOnThread::getCurrentModuleOnThread()->moduleDescription()->moduleLabel().c_str(), moduleBufferSize);
           } else {
             strlcat(buff, "none", moduleBufferSize);
           }
@@ -529,6 +531,8 @@ namespace {
         char buff[moduleBufferSize] = "\nModule: ";
         if (edm::CurrentModuleOnThread::getCurrentModuleOnThread() != nullptr) {
           strlcat(buff, edm::CurrentModuleOnThread::getCurrentModuleOnThread()->moduleDescription()->moduleName().c_str(), moduleBufferSize);
+          strlcat(buff, ":", moduleBufferSize);
+          strlcat(buff, edm::CurrentModuleOnThread::getCurrentModuleOnThread()->moduleDescription()->moduleLabel().c_str(), moduleBufferSize);
         } else {
           strlcat(buff, "none", moduleBufferSize);
         }
