@@ -4,8 +4,8 @@
  * September 2016
  *
  **********************************************************************/
-#ifndef RecoCTPPS_CTPPSPixelCluster_DET_CLUSTERIZER_H
-#define RecoCTPPS_CTPPSPixelCluster_DET_CLUSTERIZER_H
+#ifndef RecoCTPPS_PixelCluster_DET_CLUSTERIZER_H
+#define RecoCTPPS_PixelCluster_DET_CLUSTERIZER_H
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -16,7 +16,7 @@
 #include "DataFormats/CTPPSReco/interface/CTPPSPixelCluster.h"
 
 #include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelGainCalibrations.h"
-#include "RecoCTPPS/CTPPSPixelLocal/interface/CTPPSPixelGainCalibrationDBService.h"
+#include "RecoCTPPS/PixelLocal/interface/CTPPSPixelGainCalibrationDBService.h"
 
 #include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelAnalysisMask.h"
 

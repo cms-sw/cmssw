@@ -1,7 +1,7 @@
 #include <iostream>
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "RecoCTPPS/CTPPSPixelLocal/interface/RPixDetClusterizer.h"
+#include "RecoCTPPS/PixelLocal/interface/RPixDetClusterizer.h"
 
 namespace {
   constexpr int max16bits = 65535;

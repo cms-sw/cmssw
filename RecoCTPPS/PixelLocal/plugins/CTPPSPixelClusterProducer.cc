@@ -1,6 +1,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "RecoCTPPS/CTPPSPixelLocal/interface/CTPPSPixelClusterProducer.h"
+#include "RecoCTPPS/PixelLocal/interface/CTPPSPixelClusterProducer.h"
 
 CTPPSPixelClusterProducer::CTPPSPixelClusterProducer(const edm::ParameterSet& conf) :
   param_(conf) ,

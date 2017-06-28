@@ -12,7 +12,7 @@
 <use name="Geometry/Records"/>
 <use name="Geometry/VeryForwardGeometryBuilder"/>
 
-<use name="RecoCTPPS/CTPPSPixelLocal"/>
-<library name="RecoCTPPSCTPPSPixelLocalPlugins" file="*.cc">
+<use name="RecoCTPPS/PixelLocal"/>
+<library name="RecoCTPPSPixelLocalPlugins" file="*.cc">
 <flags EDM_PLUGIN="1"/>
 </library>

@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Package:     RecoCTPPS/CTPPSPixelLocal
+// Package:     RecoCTPPS/PixelLocal
 // Class  :     CTPPSPixelGainCalibrationDBService
 // 
 // Implementation:
@@ -10,7 +10,7 @@
 //         Created:  Thu, 23 Feb 2017 17:37:50 GMT
 //
 
-#include "RecoCTPPS/CTPPSPixelLocal/interface/CTPPSPixelGainCalibrationDBService.h"
+#include "RecoCTPPS/PixelLocal/interface/CTPPSPixelGainCalibrationDBService.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
