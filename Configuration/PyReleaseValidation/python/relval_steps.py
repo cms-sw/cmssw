@@ -1858,13 +1858,9 @@ defaultDataSets['2017']='CMSSW_9_2_3-92X_upgrade2017_realistic_v1_earlyBS2017-v'
 defaultDataSets['2017Design']='CMSSW_9_2_1-92X_upgrade2017_design_IdealBS_v1-v'
 #defaultDataSets['2018']='CMSSW_8_1_0_pre16-81X_upgrade2017_realistic_v22-v'
 #defaultDataSets['2018Design']='CMSSW_8_1_0_pre16-81X_upgrade2017_design_IdealBS_v6-v'
-defaultDataSets['2023D10']=''
-defaultDataSets['2023D10Timing']=''
-defaultDataSets['2023D11']=''
-defaultDataSets['2023D14']=''
-defaultDataSets['2023D16']=''
 defaultDataSets['2023D17']=''
-defaultDataSets['2023D18']=''
+defaultDataSets['2023D19']=''
+defaultDataSets['2023D20']=''
 
 keys=defaultDataSets.keys()
 for key in keys:
