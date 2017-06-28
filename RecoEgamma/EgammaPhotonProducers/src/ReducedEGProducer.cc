@@ -261,7 +261,7 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   std::map<reco::CaloClusterPtr, unsigned int> ebeeClusterMap;
   std::map<reco::CaloClusterPtr, unsigned int> esClusterMap;
   std::map<reco::GsfTrackRef, unsigned int> gsfTrackMap; //add by me - Hien xinh dep
-  //std::map<reco::GsfTrack, unsigned int> gsfTrackMap;
+  std::map<reco::GsfTrackRef, unsigned int> AmbgsfTrackMap;
   std::unordered_set<DetId> rechitMap;
   
   std::unordered_set<unsigned int> superClusterFullRelinkMap;
@@ -729,17 +729,60 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   //------------ add by me - Hien xinh dep ------------//
   const edm::OrphanHandle<reco::GsfTrackCollection> &outGsfTrackHandle = theEvent.put(std::move(gsfTracks),outGsfTracks_);
   //loop over gsfelectroncores and relink gsftracks
-  for (reco::GsfElectronCore &gsfElectronCore : *gsfElectronCores) {
-    const auto &gsftkmapped = gsfTrackMap.find(gsfElectronCore.gsfTrack());
 
+  //for (reco::GsfElectronCore &gsfElectronCore : *gsfElectronCores) {
+  //const auto &gsftkmapped = gsfTrackMap.find(gsfElectronCore.gsfTrack());
     //for(std::map<reco::GsfTrackRef, unsigned int>::const_iterator it = gsfTrackMap.begin(); it != gsfTrackMap.end(); ++it) {
     //std::cout << it->first << " " << it->second << std::endl;
     //}
-    if (gsftkmapped != gsfTrackMap.end()) {
-      reco::GsfTrackRef gsftkref(outGsfTrackHandle, gsftkmapped->second);
-      gsfElectronCore.setGsfTrack(gsftkref);
+    //if (gsftkmapped != gsfTrackMap.end()) {
+  //reco::GsfTrackRef gsftkref(outGsfTrackHandle, gsftkmapped->second);
+      //gsfElectronCore.setGsfTrack(gsftkref);
       //std::cout<< "relink gsftracks" << std::endl;
+  //}
+  //}
+
+  
+  for (reco::GsfElectron &gsfElectron : *gsfElectrons) {
+    //const auto &gsftkmapped = gsfTrackMap.find(gsfElectron.gsfTrack());
+
+    //std::cout << "ambiguous true or false: " << gsfElectron.ambiguous() << std::endl;
+    //reco::GsfTrackRef gsfTrackref(gsfTrackHandle,igsftk);
+    //gsfTracks->push_back(gsfTrack);
+    //const auto &mappedgsftk = gsfTrackMap.find(gsfTrackref);
+
+    if (gsfElectron.ambiguousGsfTracksSize() ) {
+      gsfElectron.setAmbiguous(true);
     }
+    
+    int ambgsftksize = gsfElectron.ambiguousGsfTracksSize();
+
+    auto AmbgsfTracks = std::make_unique<reco::GsfTrackCollection>(); 
+
+    for (reco::GsfTrackRefVector::const_iterator igsf = gsfElectron.ambiguousGsfTracksBegin(); igsf != gsfElectron.ambiguousGsfTracksEnd(); ++igsf) {
+      std::cout << " ---- event number: " << theEvent.id().event() << "\t gsf pt: " << (*igsf)->pt() << "\t gsf eta: " << (*igsf)->eta() << "\t gsf phi: " << (*igsf)->phi() << std::endl;
+      std::cout << "ambiguous true or false: " <<gsfElectron.ambiguous() << std::endl;
+      const reco::GsfTrackRef &getAmbiguousTrack = *igsf;
+      const auto &mappedgsftk = AmbgsfTrackMap.find(getAmbiguousTrack);
+      unsigned int mappedgsftkidx = 0;
+      if (mappedgsftk==AmbgsfTrackMap.end()) {
+	AmbgsfTracks->push_back(*getAmbiguousTrack);
+	mappedgsftkidx = AmbgsfTracks->size()-1;
+	mappedgsftkidx = 1;
+	AmbgsfTrackMap[getAmbiguousTrack] = mappedgsftkidx; 
+	std::cout << "copy ambiguous track" << std::endl;
+      }
+    }
+
+    gsfElectron.clearAmbiguousGsfTracks();
+
+    //std::cout << "==== ambiguous gsf track size: " << ambgsftksize << std::endl;
+    const auto &gsftkmapped = AmbgsfTrackMap.find(gsfElectron.gsfTrack());
+    if (gsftkmapped != AmbgsfTrackMap.end() && ambgsftksize) {
+      reco::GsfTrackRef Ambgsftkref(&AmbgsfTracks);
+      gsfElectron.addAmbiguousGsfTrack(Ambgsftkref);
+    }
+
   }
   // ---------------end adding ----------------//
 
