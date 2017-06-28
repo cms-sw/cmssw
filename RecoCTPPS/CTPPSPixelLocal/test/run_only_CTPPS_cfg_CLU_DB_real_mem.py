@@ -31,14 +31,7 @@ process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",ignoreTotal = cms.un
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-'file:/eos/cms/tier0/store/data/Run2017A/ZeroBias2/AOD/PromptReco-v1/000/294/736/00000/44589413-F73F-E711-9E8D-02163E014337.root',
-'file:/eos/cms/tier0/store/data/Run2017A/ZeroBias2/AOD/PromptReco-v1/000/294/736/00000/4493383A-F63F-E711-A67F-02163E011870.root',
-'file:/eos/cms/tier0/store/data/Run2017A/ZeroBias2/AOD/PromptReco-v1/000/294/736/00000/5C6E42A5-0640-E711-9C3E-02163E011B62.root',
-'file:/eos/cms/tier0/store/data/Run2017A/ZeroBias2/AOD/PromptReco-v1/000/294/736/00000/98F7DD15-F93F-E711-87E1-02163E019D62.root',
-'file:/eos/cms/tier0/store/data/Run2017A/ZeroBias2/AOD/PromptReco-v1/000/294/736/00000/A01D8813-0A40-E711-A300-02163E01A211.root',
-'file:/eos/cms/tier0/store/data/Run2017A/ZeroBias2/AOD/PromptReco-v1/000/294/736/00000/B83C33DB-F63F-E711-82FC-02163E019DF3.root',
-'file:/eos/cms/tier0/store/data/Run2017A/ZeroBias2/AOD/PromptReco-v1/000/294/736/00000/D6706DD8-F93F-E711-9F6D-02163E019D7F.root',
-'file:/eos/cms/tier0/store/data/Run2017A/ZeroBias2/AOD/PromptReco-v1/000/294/736/00000/E206A2BF-FA3F-E711-8E72-02163E01369C.root'
+'root://cms-xrd-global.cern.ch//store/data/Run2017A/ZeroBias2/AOD/PromptReco-v1/000/294/736/00000/44589413-F73F-E711-9E8D-02163E014337.root'
 
 ),
 duplicateCheckMode = cms.untracked.string("checkEachFile")
@@ -48,25 +41,26 @@ duplicateCheckMode = cms.untracked.string("checkEachFile")
 from CondCore.CondDB.CondDB_cfi import *
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
         CondDB.clone(
-connect = cms.string('sqlite_file:/eos/cms/store/group/dpg_ctpps/comm_ctpps/fixed_ctppspixnew3.db')),
+connect = cms.string('frontier://FrontierPrep/CMS_CONDITIONS')),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('CTPPSPixelGainCalibrationsRcd'),
-        tag = cms.string("CTPPSPixelGainCalibNew_v3")
+        tag = cms.string("CTPPSPixelGainCalibNew_v4_test")
     ),
       cms.PSet(
         record = cms.string('CTPPSPixelDAQMappingRcd'),
-        tag = cms.string("PixelDAQMapping_v1"),
+        tag = cms.string("CTPPSPixelDAQMapping_v1_test"),
         label = cms.untracked.string("RPix")
       ),
       cms.PSet(
         record = cms.string('CTPPSPixelAnalysisMaskRcd'),
-        tag = cms.string("PixelAnalysisMask_v1"),
+        tag = cms.string("CTPPSPixelAnalysisMask_v1_test"),
         label = cms.untracked.string("RPix")
       )
 
 
 )
 )
+
 
 
 # raw-to-digi conversion
