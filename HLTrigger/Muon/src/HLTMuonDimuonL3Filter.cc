@@ -337,11 +337,47 @@ HLTMuonDimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSet
 	    //break the loop if fast accept.
 	    if (atLeastOnePair && fast_Accept_) break;
        }//loop on the second L2
-
-
        //break the loop if fast accept.
        if (atLeastOnePair && fast_Accept_) break;
        if (thisL3Index1isDone) break;
+
+       //Loop over L3FromL1 collection see if we get a pair that way
+       auto MuonToL3s_it1  = MuonToL3s.begin();
+       auto MuonToL3s_end = MuonToL3s.end();
+       for (; MuonToL3s_it1!=MuonToL3s_end; ++MuonToL3s_it1){
+         const RecoChargedCandidateRef& cand2=MuonToL3s_it1->second;
+         if (!applyMuonSelection(cand2, beamSpot)) continue;
+         TrackRef tk2 = cand2->get<TrackRef>();
+
+         // Run dimuon selection:
+         if (!applyDiMuonSelection(cand1, cand2, beamSpot, bFieldHandle)) continue;
+         n++;
+         LogDebug("HLTMuonDimuonL3Filter") << " L3FromL2 Track1 passing filter: pt= " << cand1->pt() << ", eta: " << cand1->eta();
+         LogDebug("HLTMuonDimuonL3Filter") << " L3FromL1 Track2 passing filter: pt= " << cand2->pt() << ", eta: " << cand2->eta();
+
+         bool i1done = false;
+         bool i2done = false;
+         vector<RecoChargedCandidateRef> vref;
+         filterproduct.getObjects(TriggerMuon,vref);
+         for (auto & i : vref) {
+           RecoChargedCandidateRef candref =  RecoChargedCandidateRef(i);
+           TrackRef tktmp = candref->get<TrackRef>();
+           if (tktmp==tk1) i1done = true;
+           else if (tktmp==tk2) i2done = true;     //why is this an elif?
+           if (i1done && i2done) break;
+         }
+         if (!i1done) filterproduct.addObject(TriggerMuon,cand1);
+         if (!i2done) filterproduct.addObject(TriggerMuon,cand2);
+       
+         //break anyway since a L3 track pair has been found matching the criteria
+         thisL3Index1isDone=true;
+         atLeastOnePair=true;
+         break;
+       }//L3FromL1 loop
+       //break the loop if fast accept.
+       if (atLeastOnePair && fast_Accept_) break;
+       if (thisL3Index1isDone) break;
+
      }//loop on tracks for first L2
      //break the loop if fast accept.
      if (atLeastOnePair && fast_Accept_) break;
@@ -349,9 +385,6 @@ HLTMuonDimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSet
 
 
    // now loop on 1st L3 from L1
-   edm::Handle<reco::MuonCollection> recomuons;
-   iEvent.getByToken(recoMuToken_,recomuons);
-
    auto MuonToL3s_it1  = MuonToL3s.begin();
    auto MuonToL3s_end = MuonToL3s.end();
    for (; MuonToL3s_it1!=MuonToL3s_end; ++MuonToL3s_it1){
@@ -392,8 +425,8 @@ HLTMuonDimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSet
        thisL3Index1isDone=true;
        atLeastOnePair=true;
        break;
-       if (atLeastOnePair && fast_Accept_) break;
      } //loop on 2nd muon
+
      //break the loop if fast accept
      if (atLeastOnePair && fast_Accept_) break;
      if (thisL3Index1isDone) break;
