@@ -859,8 +859,8 @@ void SiStripCondObjBuilderFromDb::buildFECRelatedObjects( SiStripConfigDb* const
   latency_->compress();
   std::stringstream ss;
   // latency debug output
-  latency_->printSummary(ss);
-  latency_->printDebug(ss);
+  latency_->printSummary(ss, tTopo);
+  latency_->printDebug(ss, tTopo);
   std::cout << ss.str() << std::endl;
 }
 

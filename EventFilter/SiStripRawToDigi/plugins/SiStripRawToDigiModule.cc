@@ -154,7 +154,9 @@ namespace sistrip {
 	std::stringstream sss;
 	sss << "[sistrip::RawToDigiModule::" << __func__ << "]"
 	    << " Summary of FED cabling:" << std::endl;
-	cabling_->summary(sss);
+	edm::ESHandle<TrackerTopology> tTopo;
+	setup.get<TrackerTopologyRcd>().get(tTopo);
+	cabling_->summary(sss, tTopo.product());
 	LogTrace("SiStripRawToDigi") << sss.str();
       }
       cacheId_ = cache_id;
