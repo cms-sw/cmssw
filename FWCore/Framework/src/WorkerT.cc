@@ -343,22 +343,6 @@ namespace edm{
   template<typename T>
   inline
   void
-  WorkerT<T>::implPreForkReleaseResources() {
-    module_->doPreForkReleaseResources();
-  }
-
-  template<typename T>
-  inline
-  void
-  WorkerT<T>::implPostForkReacquireResources(unsigned int iChildIndex,
-                                             unsigned int iNumberOfChildren) {
-    module_->doPostForkReacquireResources(iChildIndex, iNumberOfChildren);
-  }
-
-
-  template<typename T>
-  inline
-  void
   WorkerT<T>::implRegisterThinnedAssociations(ProductRegistry const& registry,
                                               ThinnedAssociationsHelper& helper) {
     module_->doRegisterThinnedAssociations(registry, helper);

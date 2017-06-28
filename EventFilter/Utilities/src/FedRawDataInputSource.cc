@@ -900,17 +900,6 @@ int FedRawDataInputSource::grabNextJsonFile(boost::filesystem::path const& jsonS
   return -1;
 }
 
-void FedRawDataInputSource::preForkReleaseResources()
-{}
-
-void FedRawDataInputSource::postForkReacquireResources(std::shared_ptr<edm::multicore::MessageReceiverForSource>)
-{
-  InputSource::rewind();
-  setRunAuxiliary(
-                  new edm::RunAuxiliary(runNumber_, edm::Timestamp::beginOfTime(),
-					edm::Timestamp::invalidTimestamp()));
-}
-
 void FedRawDataInputSource::rewind_()
 {}
 
