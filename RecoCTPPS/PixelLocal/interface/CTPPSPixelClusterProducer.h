@@ -3,8 +3,8 @@
  * Author: F.Ferro fabrizio.ferro@ge.infn.it - INFN Genova - 2017
  *
  **********************************************************************/
-#ifndef RecoCTPPS_CTPPSPixelLocal_CTPPSPixelClusterProducer
-#define RecoCTPPS_CTPPSPixelLocal_CTPPSPixelClusterProducer
+#ifndef RecoCTPPS_PixelLocal_CTPPSPixelClusterProducer
+#define RecoCTPPS_PixelLocal_CTPPSPixelClusterProducer
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -29,8 +29,8 @@
 #include "CondFormats/DataRecord/interface/CTPPSPixelAnalysisMaskRcd.h"
 #include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelDAQMapping.h"
 #include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelAnalysisMask.h"
-#include "RecoCTPPS/CTPPSPixelLocal/interface/CTPPSPixelGainCalibrationDBService.h"
-#include "RecoCTPPS/CTPPSPixelLocal/interface/RPixDetClusterizer.h"
+#include "RecoCTPPS/PixelLocal/interface/CTPPSPixelGainCalibrationDBService.h"
+#include "RecoCTPPS/PixelLocal/interface/RPixDetClusterizer.h"
 
 
 #include <vector>

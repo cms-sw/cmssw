@@ -1,11 +1,11 @@
-#ifndef RecoCTPPS_CTPPSPixelLocal_CTPPSPixelGainCalibrationDBService_h
-#define RecoCTPPS_CTPPSPixelLocal_CTPPSPixelGainCalibrationDBService_h
+#ifndef RecoCTPPS_PixelLocal_CTPPSPixelGainCalibrationDBService_h
+#define RecoCTPPS_PixelLocal_CTPPSPixelGainCalibrationDBService_h
 // -*- C++ -*-
 //
-// Package:     RecoCTPPS/CTPPSPixelLocal
+// Package:     RecoCTPPS/PixelLocal
 // Class  :     CTPPSPixelGainCalibrationDBService
 // 
-/**\class CTPPSPixelGainCalibrationDBService CTPPSPixelGainCalibrationDBService.h "RecoCTPPS/CTPPSPixelLocal/interface/CTPPSPixelGainCalibrationDBService.h"
+/**\class CTPPSPixelGainCalibrationDBService CTPPSPixelGainCalibrationDBService.h "RecoCTPPS/PixelLocal/interface/CTPPSPixelGainCalibrationDBService.h"
 
  Description: [one line class summary]
 
