@@ -11,7 +11,9 @@ generalTpSelectorBlock = cms.PSet(
     minHit = cms.int32(0),
     ptMin = cms.double(0.9),
     maxRapidity = cms.double(2.5),
-    tip = cms.double(3.5)
+    tip = cms.double(3.5),
+    minPhi = cms.double(-3.2),
+    maxPhi = cms.double(3.2),
 )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
