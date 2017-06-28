@@ -607,7 +607,6 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   std::map<int,int> FEDID_v_digisum;
 
-
   for (std::map<std::string, std::vector< uint32_t > >::const_iterator iterLayer = LayerDetMap.begin();
        iterLayer != LayerDetMap.end(); iterLayer++) {
 
@@ -879,7 +878,6 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
   if (globalswitchNDigisFEDID){
     std::map<int,int>::iterator it;
     for(it=FEDID_v_digisum.begin(); it!=FEDID_v_digisum.end(); it++){
-      std::cout << "it->second = " << it->second << std::endl;
       NumberOfFEDDigis->Fill(it->first,it->second);
     }
   }

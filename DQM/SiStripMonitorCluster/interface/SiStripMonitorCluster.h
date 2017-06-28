@@ -183,7 +183,6 @@ class SiStripMonitorCluster : public DQMEDAnalyzer {
   bool globalswitchmaindiagonalposition;
   bool globalswitchFEDCluster;
 
-
   bool moduleswitchncluson;
   bool moduleswitchcluschargeon;
   bool moduleswitchclusstonon;
