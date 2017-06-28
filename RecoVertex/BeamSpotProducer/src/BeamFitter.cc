@@ -10,23 +10,20 @@
 
 ________________________________________________________________**/
 
-#include "RecoVertex/BeamSpotProducer/interface/BeamFitter.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "DataFormats/Common/interface/View.h"
 
+#include "RecoVertex/BeamSpotProducer/interface/BeamFitter.h"
+#include "RecoVertex/BeamSpotProducer/interface/BeamSpotWrite2Txt.h"
+
+#include "DataFormats/Common/interface/View.h"
 #include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-
-// HOOK RM
-#include "RecoVertex/BeamSpotProducer/interface/BeamSpotWrite2Txt.h"
 
 // Update the string representations of the time
 void BeamFitter::updateBTime() {
