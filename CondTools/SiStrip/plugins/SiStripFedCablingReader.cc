@@ -77,7 +77,11 @@ void SiStripFedCablingReader::beginRun( const edm::Run& run,
     std::stringstream ss;
     ss << "[SiStripFedCablingReader::" << __func__ << "]"
        << " VERBOSE DEBUG" << std::endl;
-    if(FedRcdfound)fed->print( ss );
+    if(FedRcdfound) {
+      edm::ESHandle<TrackerTopology> tTopo;
+      setup.get<TrackerTopologyRcd>().get(tTopo);
+      fed->print(ss, tTopo.product());
+    }
     ss << std::endl;
     if ( FecRcdfound && printFecCabling_ && fec.isValid() ) { fec->print( ss ); }
     ss << std::endl;
@@ -101,7 +105,9 @@ void SiStripFedCablingReader::beginRun( const edm::Run& run,
     std::stringstream ss;
     ss << "[SiStripFedCablingReader::" << __func__ << "]"
        << " SUMMARY DEBUG" << std::endl;
-    fed->summary( ss );
+    edm::ESHandle<TrackerTopology> tTopo;
+    setup.get<TrackerTopologyRcd>().get(tTopo);
+    fed->summary(ss, tTopo.product());
     ss << std::endl;
     edm::LogVerbatim("SiStripFedCablingReader") << ss.str();
   }

@@ -158,8 +158,11 @@ APVCyclePhaseProducerFromL1TS::beginRun(const edm::Run& iRun, const edm::EventSe
     edm::ESHandle<SiStripConfObject> confObj;
     iSetup.get<SiStripConfObjectRcd>().get(m_rcdLabel,confObj);
 
+    edm::ESHandle<TrackerTopology> tTopo;
+    iSetup.get<TrackerTopologyRcd>().get(tTopo);
+
     std::stringstream summary;
-    confObj->printDebug(summary);
+    confObj->printDebug(summary, tTopo.product());
     LogDebug("SiStripConfObjectSummary") << summary.str();
 
     _defpartnames = confObj->get<std::vector<std::string> >("defaultPartitionNames");
