@@ -224,7 +224,7 @@ bool HLTMuonL3PreFilter::hltFilter(Event& iEvent, const EventSetup& iSetup, trig
         } //MTL loop
      
         
-        if ( !( l1CandTag_ == edm::InputTag("")) && check_l1match && matchPreviousCand_){
+        if ( !l1CandTag_.label().empty() && check_l1match && matchPreviousCand_){
             iEvent.getByToken(l1CandToken_,level1Cands);
             level1Cands->getObjects(trigger::TriggerL1Mu,vl1cands);
             const unsigned int nL1Muons(vl1cands.size());
