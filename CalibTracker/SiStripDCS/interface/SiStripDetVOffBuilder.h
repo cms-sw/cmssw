@@ -22,6 +22,7 @@
 #include "CondFormats/Common/interface/TimeConversions.h"
 //#include "DataFormats/Provenance/interface/Timestamp.h"
 
+class TrackerTopology;
 
 #include <fstream>
 #include <iostream>
@@ -46,7 +47,7 @@ class SiStripDetVOffBuilder
   /** Default constructor. */
   SiStripDetVOffBuilder(const edm::ParameterSet&,const edm::ActivityRegistry&);
   /** Build the SiStripDetVOff object for transfer. */
-  void BuildDetVOffObj();
+  void BuildDetVOffObj(const TrackerTopology* trackerTopo);
   /** Return modules Off vector of objects. */
   std::vector< std::pair<SiStripDetVOff*,cond::Time_t> > getModulesVOff() {
     reduction(deltaTmin_, maxIOVlength_);
