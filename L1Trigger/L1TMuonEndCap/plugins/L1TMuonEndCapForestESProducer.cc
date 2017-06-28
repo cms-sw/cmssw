@@ -1,6 +1,5 @@
 #include <iostream>
 #include <memory>
-#include <iostream>
 
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
@@ -9,12 +8,13 @@
 
 #include "CondFormats/L1TObjects/interface/L1TMuonEndCapForest.h"
 #include "CondFormats/DataRecord/interface/L1TMuonEndCapForestRcd.h"
-#include "L1Trigger/L1TMuonEndCap/interface/ForestHelper.h"
 
-#include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "TXMLEngine.h"
-
-#include "L1Trigger/L1TMuonEndCap/interface/Tree.h"
+#include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine.h"
+#include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine2016.h"
+#include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine2017.h"
+#include "L1Trigger/L1TMuonEndCap/interface/bdt/Node.h"
+#include "L1Trigger/L1TMuonEndCap/interface/bdt/Tree.h"
+#include "L1Trigger/L1TMuonEndCap/interface/bdt/Forest.h"
 
 using namespace std;
 
@@ -23,96 +23,111 @@ using namespace std;
 class L1TMuonEndCapForestESProducer : public edm::ESProducer {
 public:
   L1TMuonEndCapForestESProducer(const edm::ParameterSet&);
-  ~L1TMuonEndCapForestESProducer();
-  
+  ~L1TMuonEndCapForestESProducer() {}
+
   typedef std::shared_ptr<L1TMuonEndCapForest> ReturnType;
 
   ReturnType produce(const L1TMuonEndCapForestRcd&);
-private:
 
+private:
+  int ptLUTVersion;
+  string bdtXMLDir;
+
+  L1TMuonEndCapForest::DTree traverse(emtf::Node* tree);
 };
 
-L1TMuonEndCapForestESProducer::L1TMuonEndCapForestESProducer(const edm::ParameterSet& iConfig) 
+// constructor
+
+L1TMuonEndCapForestESProducer::L1TMuonEndCapForestESProducer(const edm::ParameterSet& iConfig)
 {
-   //the following line is needed to tell the framework what
-   // data is being produced
    setWhatProduced(this);
 
-   //data_.print(cout);
-
-   // Benchmark calculations from original version of UF
-
-   //DEBUG: mode:  15 dir L1Trigger/L1TMuon/data/emtf_luts/v_16_02_21/ModeVariables/trees/15 num trees 64
-   //DEBUG: pred val:  0.201249
-   //DEBUG: data = 1, 1.975, 121, -10, -16, 1, 
-   {
-     //std::vector<double> x = {1, 1.975, 121, -10, -16, 1};    
-     //cout << "DEBUG: original result:  0.201249, our result:  " << data_.evaluate(15, x) << "\n";
-   }
-
-   //DEBUG: mode:  15 dir L1Trigger/L1TMuon/data/emtf_luts/v_16_02_21/ModeVariables/trees/15 num trees 64
-   //DEBUG: pred val:  0.0201636
-   //DEBUG: data = 1, 1.325, 7, 0, 0, 0 
-   {
-     //std::vector<double> x = {1, 1.325, 7, 0, 0, 0};    
-     //cout << "DEBUG: original result:  0.0201636, our result:  " << data_.evaluate(15, x) << "\n";
-   }
-   
-   //DEBUG: mode:  11 dir L1Trigger/L1TMuon/data/emtf_luts/v_16_02_21/ModeVariables/trees/11 num trees 64
-   //DEBUG: pred val:  0.0260195
-   //DEBUG: data = 1, 1.675, 34, 10, 2, 0, 1 
-   {
-     //std::vector<double> x = {1, 1.675, 34, 10, 2, 0, 1};    
-     //cout << "DEBUG: original result:  0.0260195, our result:  " << data_.evaluate(11, x) << "\n";
-   }
-   
-   //DEBUG: mode:  10 dir L1Trigger/L1TMuon/data/emtf_luts/v_16_02_21/ModeVariables/trees/10 num trees 64
-   //DEBUG: pred val:  0.209812
-   //DEBUG: data = 1, 1.675, -38, 3, 1, 0, 1 
-   {
-     //std::vector<double> x = {1, 1.675, -38, 3, 1, 0, 1};    
-     //cout << "DEBUG: original result:  0.209812, our result:  " << data_.evaluate(10, x) << "\n";
-   }
-   
-   //DEBUG: mode:  15 dir L1Trigger/L1TMuon/data/emtf_luts/v_16_02_21/ModeVariables/trees/15 num trees 64
-   //DEBUG: pred val:  0.0788114
-   //DEBUG: data = 1, 1.375, 27, 16, 4, 1 
-   {
-     //std::vector<double> x = {1, 1.375, 27, 16, 4, 1};    
-     //cout << "DEBUG: original result:  0.0788114, our result:  " << data_.evaluate(15, x) << "\n";
-   }
-
+   ptLUTVersion = iConfig.getParameter<int>("PtAssignVersion");
+   bdtXMLDir    = iConfig.getParameter<string>("bdtXMLDir");
 }
 
-
-
-L1TMuonEndCapForestESProducer::~L1TMuonEndCapForestESProducer()
-{
-}
-
-
-
-//
 // member functions
-//
 
-// ------------ method called to produce the data  ------------
+L1TMuonEndCapForest::DTree L1TMuonEndCapForestESProducer::traverse(emtf::Node* node){
+    // original implementation use 0 ptr for non-existing children nodes, return empty cond tree (vector of nodes)
+    if( !node ) return L1TMuonEndCapForest::DTree();
+    // recur on left and then right child
+    L1TMuonEndCapForest::DTree left_subtree  = traverse( node->getLeftDaughter() );
+    L1TMuonEndCapForest::DTree right_subtree = traverse( node->getRightDaughter() );
+    // allocate tree
+    L1TMuonEndCapForest::DTree cond_tree(1 + left_subtree.size() + right_subtree.size());
+    // copy the local root node
+    L1TMuonEndCapForest::DTreeNode &local_root = cond_tree[0];
+    local_root.splitVar = node->getSplitVariable();
+    local_root.splitVal = node->getSplitValue();
+    local_root.fitVal   = node->getFitValue();
+    // shift children indicies and place the subtrees into the newly allocated tree
+    local_root.ileft    = (left_subtree.size()?1:0); // left subtree (if exists) is placed right after the root -> index=1
+    transform(left_subtree.cbegin(), // source from
+              left_subtree.cend(),   // source till
+              cond_tree.begin() + 1, // destination
+              [] (L1TMuonEndCapForest::DTreeNode cond_node) {
+                     // increment indecies only for existing children, left 0 for non-existing
+                     if( cond_node.ileft ) cond_node.ileft  += 1;
+                     if( cond_node.iright) cond_node.iright += 1;
+                     return cond_node;
+              }
+    );
+    unsigned int offset = left_subtree.size();
+    local_root.iright = (offset+right_subtree.size() ? 1 + offset : 0); // right subtree is placed after the left one
+    transform(right_subtree.cbegin(), // source from
+              right_subtree.cend(),   // source till
+              cond_tree.begin() + 1 + offset, // destination
+              [offset] (L1TMuonEndCapForest::DTreeNode cond_node) {
+                     // increment indecies only for existing children, left 0 for non-existing
+                     if( cond_node.ileft ) cond_node.ileft  += 1 + offset;
+                     if( cond_node.iright) cond_node.iright += 1 + offset;
+                     return cond_node;
+              }
+    );
+    return cond_tree;
+}
+
 L1TMuonEndCapForestESProducer::ReturnType
 L1TMuonEndCapForestESProducer::produce(const L1TMuonEndCapForestRcd& iRecord)
 {
-   auto value = std::make_shared<L1TMuonEndCapForest>();
-     
-   l1t::ForestHelper data(value.get());
-   // these should come from pythong config...
-   std::vector<int> modes = {3,5,9,6,10,12,7,11,13,14,15}; 
-   //std::string dir = "L1Trigger/L1TMuon/data/emtf_luts/ModeVariables/trees/";
-   std::string dir = "L1Trigger/L1TMuon/data/emtf_luts/v_16_02_21/ModeVariables/trees/";
-   int ntrees = 64;
-   
-   data.initializeFromXML(dir.c_str(), modes, ntrees);
-   
-   return value;
+  // piggyback on the PtAssignmentEngine class to read the XMLs in
+  PtAssignmentEngine* pt_assign_engine_;
+  std::unique_ptr<PtAssignmentEngine> pt_assign_engine_2016_;
+  std::unique_ptr<PtAssignmentEngine> pt_assign_engine_2017_;
+  
+  pt_assign_engine_2016_.reset(new PtAssignmentEngine2016());
+  pt_assign_engine_2017_.reset(new PtAssignmentEngine2017());
+  
+  if (ptLUTVersion <= 5) pt_assign_engine_ = pt_assign_engine_2016_.get();
+  else                   pt_assign_engine_ = pt_assign_engine_2017_.get();
+
+  pt_assign_engine_->configure( true, ptLUTVersion, false, false, false, false, false );
+  pt_assign_engine_->read(bdtXMLDir);
+  
+  // get a hold on the forests; copy to non-const locals
+  std::array<emtf::Forest, 16> forests = pt_assign_engine_->getForests();
+  std::vector<int> allowedModes = pt_assign_engine_->getAllowedModes();
+  // construct empty cond payload
+  std::shared_ptr<L1TMuonEndCapForest> pEMTFForest(new L1TMuonEndCapForest());
+  // pack the forests into the cond payload for each mode
+  pEMTFForest->forest_coll_.resize(0);
+  for (unsigned int i = 0; i < allowedModes.size(); i++) {
+    int mode = allowedModes[i];
+    pEMTFForest->forest_map_[mode] = i;
+    // convert emtf::Forest into the L1TMuonEndCapForest::DForest
+    emtf::Forest& forest = forests.at(mode);
+    // Store boostWeight (initial pT value of tree 0) as an integer: boostWeight x 1 million
+    pEMTFForest->forest_map_[mode+16] = forest.getTree(0)->getBoostWeight() * 1000000;
+    L1TMuonEndCapForest::DForest cond_forest;
+    for (unsigned int j = 0; j < forest.size(); j++)
+      cond_forest.push_back( traverse( forest.getTree(j)->getRootNode() ) );
+    // of course, move has no effect here, but I'll keep it in case move constructor will be provided some day
+    pEMTFForest->forest_coll_.push_back( std::move( cond_forest ) );
+  }
+  
+  return pEMTFForest;
 }
 
-//define this as a plug-in
+// Define this as a plug-in
 DEFINE_FWK_EVENTSETUP_MODULE(L1TMuonEndCapForestESProducer);
