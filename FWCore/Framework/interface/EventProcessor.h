@@ -218,9 +218,6 @@ namespace edm {
 
     virtual bool alreadyHandlingException() const override;
 
-    //returns 'true' if this was a child and we should continue processing
-    bool forkProcess(std::string const& jobReportFile);
-
   private:
     //------------------------------------------------------------------
     //
@@ -233,10 +230,6 @@ namespace edm {
     void terminateMachine(std::unique_ptr<statemachine::Machine>);
     std::unique_ptr<statemachine::Machine> createStateMachine();
 
-    void setupSignal();
-
-    void possiblyContinueAfterForkChildFailure();
-    
     bool readNextEventForStream(unsigned int iStreamIndex,
                                      std::atomic<bool>* finishedProcessingEvents);
 
@@ -310,11 +303,6 @@ namespace edm {
     bool                                          forceLooperToEnd_;
     bool                                          looperBeginJobRun_;
     bool                                          forceESCacheClearOnNewRun_;
-
-    int                                           numberOfForkedChildren_;
-    unsigned int                                  numberOfSequentialEventsPerChild_;
-    bool                                          setCpuAffinity_;
-    bool                                          continueAfterChildFailure_;
     
     PreallocationConfiguration                    preallocations_;
     
