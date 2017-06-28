@@ -32,9 +32,31 @@ class PtHatEmpReweightUserHook : public Pythia8::UserHooks
    PtHatEmpReweightUserHook(double _pTHatMin, double _pTHatMax) :
       pTHatMin(_pTHatMin), pTHatMax(_pTHatMax) {
       // Normalized to Event/fb-1
-      // sigma(938.385)==1
-      sigma = TF1("sigma", "(x<1000.)*(([0]*TMath::Log10(x-[1])**[2])+[3])+(x>=1000.)*(x<2132.)*([4]*TMath::Exp(-[5]*x))+(x>=2132)*([6]*TMath::Exp(-[7]*x))", pTHatMin, pTHatMax);
-      sigma.SetParameters(5.24127e+18,-4.37813e+01, -3.87024e+01,-9.83995e-01,1.18362e+02,5.32593e-03,5.83347e+01,4.99407e-03);
+      //Mikko
+      //sigma = TF1("sigma", "max(2.e-15,[0]*pow(x,[2]+[3]*log(0.01*x)+[4]*pow(log(0.01*x),2))*pow(1-2*x/13000.,[1]))", pTHatMin, pTHatMax);
+      //Line
+      //sigma = TF1("sigma", "((x<=5500)*([0]*pow(x,[2]+[3]*log(0.01*x)+[4]*pow(log(0.01*x),2))*pow(1-2*x/13000.,[1])))+((x>5500)*(1.99851e-11+-3.07464e-15*x))", pTHatMin, pTHatMax);
+      //quartic function
+      //sigma = TF1("sigma", "((x<=5500)*([0]*pow(x,[2]+[3]*log(0.01*x)+[4]*pow(log(0.01*x),2))*pow(1-2*x/13000.,[1])))+((x>5500)*(-3.07464e-18*pow(x-5250,2)+(1.436e-12)+(2e-27*pow(x,4))))", pTHatMin, pTHatMax);
+      //sigmoid
+      //sigma = TF1("sigma", "((x<=5500)*([0]*pow(x,[2]+[3]*log(0.01*x)+[4]*pow(log(0.01*x),2))*pow(1-2*x/13000.,[1])))+((x>5500)*(3.07464e-12/(0.00001+(TMath::Exp(0.015*(x-5500))))))", pTHatMin, pTHatMax);
+      //sigma = TF1("sigma", "((x<=5500)*([0]*pow(x,[2]+[3]*log(0.01*x)+[4]*pow(log(0.01*x),2))*pow(1-2*x/13000.,[1])))+((x>5500)*(3.07464e-12/(1.0+(TMath::Exp(0.035*(x-5800.0))))))", pTHatMin, pTHatMax);
+      //sigma = TF1("sigma", "((x<=5500)*([0]*pow(x,[2]+[3]*log(0.01*x)+[4]*pow(log(0.01*x),2))*pow(1-2*x/13000.,[1])))+((x>5500)*(3.07464e-12/(1.0+(TMath::Exp(0.017*(x-5600.0))))))", pTHatMin, pTHatMax);
+      //sigma = TF1("sigma", "((x<=5500)*([0]*pow(x,[2]+[3]*log(0.01*x)+[4]*pow(log(0.01*x),2))*pow(1-2*x/13000.,[1])))+((x>5500)*(3.07464e-12/(0.5507+(TMath::Exp(0.016*(x-5550.0))))))", pTHatMin, pTHatMax);
+      //sigma = TF1("sigma", "((x<=5500)*([0]*pow(x,[2]+[3]*log(0.01*x)+[4]*pow(log(0.01*x),2))*pow(1-2*x/13000.,[1])))+((x>5500)*(3.07464e-12/(0.73713+(TMath::Exp(0.0167*(x-5580.0))))))", pTHatMin, pTHatMax);
+      //sigma = TF1("sigma", "((x<=5500)*([0]*pow(x,[2]+[3]*log(0.01*x)+[4]*pow(log(0.01*x),2))*pow(1-2*x/13000.,[1])))+((x>5500)*(3.07464e-12/(0.03624+(TMath::Exp(0.015*(x-5530.0))))))", pTHatMin, pTHatMax);
+      //sigma = TF1("sigma", "((x<=5500)*([0]*pow(x,[2]+[3]*log(0.01*x)+[4]*pow(log(0.01*x),2))*pow(1-2*x/13000.,[1])))+((x>5500)*(3.07464e-12/(1.0+(TMath::Exp(0.022*(x-5680.0))))))", pTHatMin, pTHatMax);
+      std::string fLT5500 = "([0]*pow(x,[2]+[3]*log(0.01*x)+[4]*pow(log(0.01*x),2))*pow(1-2*x/13000.,[1]))";
+      std::string f5500to5700 = "(3.07464e-12/(0.5507+(TMath::Exp(0.016*(x-5550.0)))))";
+      std::string f5700to5800 = "(3.07464e-12/(0.73713+(TMath::Exp(0.0167*(x-5580.0)))))";
+      std::string f5800to6000 = "(3.07464e-12/(1.0+(TMath::Exp(0.017*(x-5600.0)))))";
+      std::string f6000toInf = "(3.07464e-12/(1.0+(TMath::Exp(0.023*(x-5705.0)))))";
+      const char *fmt = "((x<=5500)*%s)+((x>5500)*(x<=5700)*%s)+((x>5700)*(x<=5800)*%s)+((x>5800)*(x<=6000)*%s)+((x>6000)*%s)";
+      int sz = std::snprintf(nullptr, 0, fmt, fLT5500.c_str(), f5500to5700.c_str(), f5700to5800.c_str(), f5800to6000.c_str(), f6000toInf.c_str());
+      std::vector<char> buf(sz + 1); // +1 for null terminator
+      std::snprintf(&buf[0], buf.size(), fmt, fLT5500.c_str(), f5500to5700.c_str(), f5700to5800.c_str(), f5800to6000.c_str(), f6000toInf.c_str());
+      sigma = TF1("sigma", &buf[0], pTHatMin, pTHatMax);
+      sigma.SetParameters(5.66875e+13,9.93446e+00,-3.96986e+00,-2.26690e-01,1.75926e-02);
     }
     virtual ~PtHatEmpReweightUserHook() {}
 
