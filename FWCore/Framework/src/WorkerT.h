@@ -102,9 +102,6 @@ namespace edm {
     virtual void implEndStream(StreamID) override;
     virtual void implRespondToOpenInputFile(FileBlock const& fb) override;
     virtual void implRespondToCloseInputFile(FileBlock const& fb) override;
-    virtual void implPreForkReleaseResources() override;
-    virtual void implPostForkReacquireResources(unsigned int iChildIndex, 
-                                               unsigned int iNumberOfChildren) override;
     virtual void implRegisterThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&) override;
     virtual std::string workerType() const override;
     virtual SerialTaskQueueChain* serializeRunModule() override;

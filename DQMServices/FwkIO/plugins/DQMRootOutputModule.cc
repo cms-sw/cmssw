@@ -193,7 +193,6 @@ private:
   virtual bool isFileOpen() const override;
   virtual void openFile(edm::FileBlock const&) override;
   virtual void reallyCloseFile() override;
-  virtual void postForkReacquireResources(unsigned int childIndex, unsigned int numberOfChildren) override;
 
   void startEndFile();
   void finishEndFile();
@@ -377,27 +376,6 @@ DQMRootOutputModule::openFile(edm::FileBlock const&)
   m_dqmKindToTypeIndex[MonitorElement::DQM_KIND_TH3F]=kTH3FIndex;
   m_dqmKindToTypeIndex[MonitorElement::DQM_KIND_TPROFILE]=kTProfileIndex;
   m_dqmKindToTypeIndex[MonitorElement::DQM_KIND_TPROFILE2D]=kTProfile2DIndex;
-}
-
-
-void
-DQMRootOutputModule::postForkReacquireResources(unsigned int childIndex, unsigned int numberOfChildren) {
-  // this is copied from IOPool/Output/src/PoolOutputModule.cc, for consistency
-  unsigned int digits = 0;
-  while (numberOfChildren != 0) {
-    ++digits;
-    numberOfChildren /= 10;
-  }
-  // protect against zero numberOfChildren
-  if (digits == 0) {
-    digits = 3;
-  }
-
-  char buffer[digits + 2];
-  snprintf(buffer, digits + 2, "_%0*d", digits, childIndex);
-
-  boost::filesystem::path filename(m_fileName);
-  m_fileName = (filename.parent_path() / (filename.stem().string() + buffer + filename.extension().string())).string();
 }
 
 

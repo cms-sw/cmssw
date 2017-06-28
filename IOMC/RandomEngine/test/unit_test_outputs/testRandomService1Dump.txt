@@ -13,7 +13,6 @@ RandomNumberGeneratorService dump
     saveFileNameRecorded_ = 0
     restoreFileName_ = 
     enableChecking_ = 1
-    childIndex_ = 0
     eventSeedOffset_ = 0
     verbose_ = 1
     restoreStateTag_ = InputTag:  label = , instance = , process = @skipCurrentProcess

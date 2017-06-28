@@ -104,11 +104,6 @@ namespace edm {
       virtual void ignoreWarnings_() override;
       virtual void willBeUsingThreads() override;
 
-      void cachePidInfoHandler(unsigned int, unsigned int) {
-        //this is called only on a fork, so the thread doesn't
-        // actually exist anymore
-        helperThread_.reset();
-        cachePidInfo();}
       void cachePidInfo();
       static void stacktraceHelperThread();
 
@@ -791,7 +786,6 @@ namespace edm {
         sigTermHandler_ = std::shared_ptr<const void>(nullptr,[](void*) {
           installCustomHandler(SIGTERM,sig_abort);
         });
-        iReg.watchPostForkReacquireResources(this, &InitRootHandlers::cachePidInfoHandler);
       }
 
       iReg.watchPreallocate([this](edm::service::SystemBounds const& iBounds){
