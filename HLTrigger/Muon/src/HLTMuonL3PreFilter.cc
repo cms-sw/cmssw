@@ -25,7 +25,6 @@
 
 #include "FWCore/Utilities/interface/InputTag.h"
 
-
 //
 // constructors and destructor
 //
