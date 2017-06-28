@@ -23,21 +23,21 @@ void CTPPSPixelClusterProducer::produce(edm::Event& iEvent, const edm::EventSetu
 /// get inputs
   edm::Handle<edm::DetSetVector<CTPPSPixelDigi> > rpd;
   iEvent.getByToken(tokenCTPPSPixelDigi_, rpd);
-
+ 
 // get analysis mask to mask channels
   edm::ESHandle<CTPPSPixelAnalysisMask> aMask;
+
+  if(rpd->size())
   iSetup.get<CTPPSPixelAnalysisMaskRcd>().get("RPix",aMask);
   
-// get calibration DB
-
- theGainCalibrationDB.getDB(iEvent,iSetup);
-
   edm::DetSetVector<CTPPSPixelCluster>  output;
 
 // run clusterisation
-  if (rpd->size())
+  if (rpd->size()){
+// get calibration DB
+    theGainCalibrationDB.getDB(iEvent,iSetup);
     run(*rpd, output, aMask.product());
-
+  }
 // write output
   iEvent.put(std::make_unique<edm::DetSetVector<CTPPSPixelCluster> >(output));
 
