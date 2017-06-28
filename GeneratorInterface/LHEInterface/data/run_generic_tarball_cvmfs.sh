@@ -26,6 +26,8 @@ echo "%MSG-MG5 random seed used for the run = $rnum"
 ncpu=${4}
 echo "%MSG-MG5 thread count requested = $ncpu"
 
+echo "%MSG-MG5 residual arguments = ${@:5}"
+
 LHEWORKDIR=`pwd`
 
 if [[ -d lheevent ]]
@@ -40,7 +42,7 @@ mkdir lheevent; cd lheevent
 tar -xaf ${path} 
 
 #generate events
-./runcmsgrid.sh $nevt $rnum $ncpu
+./runcmsgrid.sh $nevt $rnum $ncpu ${@:5}
 
 mv cmsgrid_final.lhe $LHEWORKDIR/
 
