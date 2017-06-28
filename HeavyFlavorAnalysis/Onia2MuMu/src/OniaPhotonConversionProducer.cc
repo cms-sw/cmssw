@@ -169,7 +169,7 @@ void OniaPhotonConversionProducer::produce(edm::Event& event, const edm::EventSe
      int flags = 0;
      if (flag1 && flag2 && flag3 && flag4){
         flags = PackFlags(*conv,flagTkVtxCompatibility,flagCompatibleInnerHits,flagHighpurity,pizero_rejected,large_pizero_window);
-        pat::CompositeCandidate *pat_conv = makePhotonCandidate(*conv);
+        std::unique_ptr<pat::CompositeCandidate> pat_conv(makePhotonCandidate(*conv));
         pat_conv->addUserInt("flags",flags);
         patoutCollection->push_back(*pat_conv);
      }
@@ -242,16 +242,17 @@ bool OniaPhotonConversionProducer::checkTkVtxCompatibility(const reco::Conversio
       double dz_= tk->dz(vtx.position());
       double dzError_=tk->dzError();
       dzError_=sqrt(dzError_*dzError_+vtx.covariance(2,2));
-
       if(fabs(dz_)/dzError_ > sigmaTkVtxComp_) continue;
-      
       idx[ik].push_back(std::pair<double,short>(fabs(dz_),count));
     }
-    if(idx[ik].size()==0) {return false;}
-    
-    std::stable_sort(idx[ik].begin(),idx[ik].end(),lt_);
+    if (idx[ik].size()==0) return false;
+    if (idx[ik].size()>1) std::stable_sort(idx[ik].begin(),idx[ik].end(),lt_);
   }
-  if (idx[0][0].second==idx[1][0].second || idx[0][1].second==idx[1][0].second || idx[0][0].second==idx[1][1].second) return true;
+  if (ik!=1) return false;
+  if (idx[0][0].second==idx[1][0].second) return true;
+  if (idx[0].size()>1 && idx[0][1].second==idx[1][0].second) return true;
+  if (idx[1].size()>1 && idx[0][0].second==idx[1][1].second) return true;
+
   return false;
 }
 

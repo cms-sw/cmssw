@@ -52,7 +52,7 @@ class ConfigurableAnalysis : public edm::EDFilter {
       virtual bool filter(edm::Event&, const edm::EventSetup&) override;
       virtual void endJob() override ;
 
-  Selections * selections_;
+  FilterSelections * selections_;
   Plotter * plotter_;
   NTupler * ntupler_;
 
@@ -85,7 +85,7 @@ ConfigurableAnalysis::ConfigurableAnalysis(const edm::ParameterSet& iConfig) :
   edm::Service<VariableHelperService>()->init(moduleLabel,iConfig.getParameter<edm::ParameterSet>("Variables"), consumesCollector());
 
   //list of selections
-  selections_ = new Selections(iConfig.getParameter<edm::ParameterSet>("Selections"), consumesCollector());
+  selections_ = new FilterSelections(iConfig.getParameter<edm::ParameterSet>("Selections"), consumesCollector());
 
   //plotting device
   edm::ParameterSet plotPset = iConfig.getParameter<edm::ParameterSet>("Plotter");
@@ -134,7 +134,7 @@ bool ConfigurableAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSe
   bool filledOnce=false;
 
   // loop the requested selections
-  for (Selections::iterator selection=selections_->begin(); selection!=selections_->end();++selection){
+  for (FilterSelections::iterator selection=selections_->begin(); selection!=selections_->end();++selection){
     //was this flow of filter actually asked for
     bool skip=true;
     unsigned int iFlow=0;
@@ -158,7 +158,7 @@ bool ConfigurableAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSe
       plotter_->fill(fullContent,iEvent);
 
     //loop the filters to make cumulative and allButOne job
-    for (Selection::iterator filterIt=selection->begin(); filterIt!=selection->end();++filterIt){
+    for (FilterSelection::iterator filterIt=selection->begin(); filterIt!=selection->end();++filterIt){
       SFilter & filter = (*filterIt);
       //      bool lastCut=((filterIt+1)==selection->end());
 
