@@ -36,7 +36,8 @@ namespace pat {
     std::vector<edm::EDGetTokenT<reco::PFCandidateCollection>> pf_;
     std::vector<edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection>>> pf2pc_;
     const bool linkToPackedPF_;
-    const StringCutObjectSelector<pat::Muon> saveTeVMuons_, dropDirectionalIso_, dropPfP4_, slimCaloVars_, slimKinkVars_, slimCaloMETCorr_, slimMatches_;
+    const StringCutObjectSelector<pat::Muon> saveTeVMuons_, dropDirectionalIso_, dropPfP4_, slimCaloVars_, 
+				             slimKinkVars_, slimCaloMETCorr_, slimMatches_,segmentsMuonSelection_;
     const bool saveSegments_,modifyMuon_;
     std::unique_ptr<pat::ObjectModifier<pat::Muon> > muonModifier_;
   };
@@ -53,6 +54,7 @@ pat::PATMuonSlimmer::PATMuonSlimmer(const edm::ParameterSet & iConfig) :
     slimKinkVars_(iConfig.getParameter<std::string>("slimKinkVars")),
     slimCaloMETCorr_(iConfig.getParameter<std::string>("slimCaloMETCorr")),
     slimMatches_(iConfig.getParameter<std::string>("slimMatches")),
+    segmentsMuonSelection_(iConfig.getParameter<std::string>("segmentsMuonSelection")),
     saveSegments_(iConfig.getParameter<bool>("saveSegments")),
     modifyMuon_(iConfig.getParameter<bool>("modifyMuons"))
 {
@@ -75,7 +77,7 @@ pat::PATMuonSlimmer::PATMuonSlimmer(const edm::ParameterSet & iConfig) :
     produces<std::vector<pat::Muon> >();
     if( saveSegments_ ) {
       produces< DTRecSegment4DCollection >();
-      //FIXME do same for CSC   
+      produces< CSCSegmentCollection >();
     }
 
 }
@@ -98,7 +100,8 @@ pat::PATMuonSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
     auto outDTSegments = std::make_unique<DTRecSegment4DCollection>();
     std::set<DTRecSegment4DRef> dtSegmentsRefs;
-    //FIXME same for CSC   
+    auto outCSCSegments = std::make_unique<CSCSegmentCollection>();
+    std::set<CSCSegmentRef> cscSegmentsRefs;
 
     if( modifyMuon_ ) { muonModifier_->setEvent(iEvent); }
 
@@ -183,9 +186,9 @@ pat::PATMuonSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
                     smatch.yErr = MiniFloatConverter::reduceMantissaToNbitsRounding<12>(smatch.yErr);
                     smatch.dXdZErr = MiniFloatConverter::reduceMantissaToNbitsRounding<12>(smatch.dXdZErr);
                     smatch.dYdZErr = MiniFloatConverter::reduceMantissaToNbitsRounding<12>(smatch.dYdZErr);
-                    if( saveSegments_ ) {
+                    if( saveSegments_ &&  segmentsMuonSelection_(mu) ) {
 		      if(smatch.dtSegmentRef.isNonnull()) dtSegmentsRefs.insert(smatch.dtSegmentRef);
-        //               std::cout << smatch.dtSegmentRef->first << std::endl;
+		      if(smatch.cscSegmentRef.isNonnull()) cscSegmentsRefs.insert(smatch.cscSegmentRef);
                     }
                 }
             }
@@ -195,18 +198,28 @@ pat::PATMuonSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     if( saveSegments_ ) {
       std::map<DTRecSegment4DRef,size_t> dtMap;
       std::vector<DTRecSegment4D> outDTSegmentsTmp; 
+      std::map<CSCSegmentRef,size_t> cscMap;
+      std::vector<CSCSegment> outCSCSegmentsTmp; 
       for(auto & seg : dtSegmentsRefs) {
          dtMap[seg]=outDTSegments->size();
          outDTSegmentsTmp.push_back(*seg);
       }
+      for(auto & seg : cscSegmentsRefs) {
+         cscMap[seg]=outCSCSegments->size();
+         outCSCSegmentsTmp.push_back(*seg);
+      }
       outDTSegments->put(DTChamberId(),outDTSegmentsTmp.begin(),outDTSegmentsTmp.end());
+      outCSCSegments->put(CSCDetId(),outCSCSegmentsTmp.begin(),outCSCSegmentsTmp.end());
       auto dtHandle = iEvent.put(std::move(outDTSegments));
+      auto cscHandle = iEvent.put(std::move(outCSCSegments));
       for( auto & mu : *out) {
         if(mu.isMatchesValid()) {
           for (reco::MuonChamberMatch & cmatch : mu.matches()) {
             for (reco::MuonSegmentMatch & smatch : cmatch.segmentMatches) {
               if (dtMap.find(smatch.dtSegmentRef) != dtMap.end() )
-              smatch.dtSegmentRef=DTRecSegment4DRef(dtHandle,dtMap[smatch.dtSegmentRef]);
+                smatch.dtSegmentRef=DTRecSegment4DRef(dtHandle,dtMap[smatch.dtSegmentRef]);
+              if (cscMap.find(smatch.cscSegmentRef) != cscMap.end() )
+                smatch.cscSegmentRef=CSCSegmentRef(cscHandle,cscMap[smatch.cscSegmentRef]);
             }
           }
         } 

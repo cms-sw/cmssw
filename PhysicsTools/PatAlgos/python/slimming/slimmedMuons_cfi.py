@@ -12,6 +12,7 @@ slimmedMuons = cms.EDProducer("PATMuonSlimmer",
     slimKinkVars = cms.string("1"),
     slimCaloMETCorr = cms.string("1"),
     slimMatches = cms.string("1"),
+    segmentsMuonSelection = cms.string("pt > 50"), #segments are needed for EXO analysis looking at TOF and for very high pt from e.g. Z' 
     saveSegments = cms.bool(True),
     modifyMuons = cms.bool(True),
     modifierConfig = cms.PSet( modifications = cms.VPSet() )
