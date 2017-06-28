@@ -65,8 +65,6 @@ class HLTMuonL3PreFilter : public HLTFilter {
 
       // cuts for L3FromL1
       const int min_MuonStations_L3fromL1_;            // cut on min number of stations - for L3FromL1
-//       const int min_TrkHits_L3fromL1_;
-//       const int min_MuonHits_L3fromL1_;
       const unsigned int allowedTypeMask_L3fromL1_;
       const unsigned int requiredTypeMask_L3fromL1_;
       double maxNormalizedChi2_L3fromL1_;
