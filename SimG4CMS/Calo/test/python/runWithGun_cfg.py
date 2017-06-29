@@ -33,10 +33,10 @@ process.MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(0)
         ),
         G4cerr = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
+            limit = cms.untracked.int32(0)
         ),
         G4cout = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
+            limit = cms.untracked.int32(0)
         ),
         SimTrackManager = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
@@ -48,7 +48,7 @@ process.MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(0)
         ),
         CaloSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
+            limit = cms.untracked.int32(0)
         ),
         EcalGeom = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
@@ -63,7 +63,7 @@ process.MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(0)
         ),
         HcalSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
+            limit = cms.untracked.int32(0)
         )
     )
 )
@@ -74,7 +74,7 @@ process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
 process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(2)
+    input = cms.untracked.int32(100)
 )
 
 process.source = cms.Source("EmptySource",
@@ -84,7 +84,7 @@ process.source = cms.Source("EmptySource",
 
 process.generator = cms.EDProducer("FlatRandomPtGunProducer",
     PGunParameters = cms.PSet(
-        PartID = cms.vint32(211),
+        PartID = cms.vint32(13),
         MinEta = cms.double(-3.0),
         MaxEta = cms.double(3.0),
         MinPhi = cms.double(-3.14159265359),
@@ -93,7 +93,7 @@ process.generator = cms.EDProducer("FlatRandomPtGunProducer",
         MaxPt  = cms.double(100.)
     ),
     Verbosity       = cms.untracked.int32(0),
-    AddAntiParticle = cms.bool(False)
+    AddAntiParticle = cms.bool(True)
 )
 
 process.output = cms.OutputModule("PoolOutputModule",
