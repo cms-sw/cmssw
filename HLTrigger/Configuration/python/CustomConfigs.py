@@ -95,21 +95,6 @@ def L1THLT(process):
     if hasattr(process,'TriggerMenu'):
         delattr(process,'TriggerMenu')
 
-    if hasattr(process,'GlobalTag'):
-       for det in ('EB','EE'):
-           for obj in ('Correction','Uncertainty'):
-               labString = 'pfscecal_'+det+obj+'_online'
-               tagString = labString+'_v0'
-               process.GlobalTag.toGet.append(
-                  cms.PSet(
-                      connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
-                      record = cms.string('GBRDWrapperRcd'),
-                      snapshotTime = cms.string('2016-02-17 21:00:00.000'),
-                      label = cms.untracked.string(labString),
-                      tag = cms.string(tagString)
-                      )
-                  )
-
     process=Base(process)
 
     return(process)
