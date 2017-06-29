@@ -31,7 +31,6 @@
 #include<algorithm>
 
 //#define EDM_ML_DEBUG
-//#define plotDebug
 
 template <class T>
 bool any(const std::vector<T> & v, const T &what) {
@@ -152,22 +151,6 @@ ECalSD::ECalSD(G4String name, const DDCompactView & cpv,
 			  << "\n\ttime Granularity " << p.getParameter<edm::ParameterSet>("ECalSD").getParameter<double>("TimeSliceUnit") << " ns"; 
   if (useWeight) initMap(name,cpv);
 
-#ifdef plotDebug
-  edm::Service<TFileService> tfile;
-  if ( tfile.isAvailable() ) {
-    TFileDirectory ecDir = tfile->mkdir("ProfileFromECalSD");
-    static const std::string ctype[4] = {"EB","EBref","EE","EERef"};
-    for (int k=0; k<4; ++k) {
-      std::string name = "ECLL_"+ctype[k];
-      std::string title= "Local vs Global for "+ctype[k];
-      double xmin = (k > 1) ? 3000.0 : 1000.0;
-      g2L_[k] = ecDir.make<TH2F>(name.c_str(),title.c_str(),100,xmin,
-				 xmin+1000.,100,0.0,3000.);
-    }
-  } else {
-    for (int k=0; k<4; ++k) g2L_[k] = 0;
-  }
-#endif
 }
 
 ECalSD::~ECalSD() {
@@ -295,17 +278,6 @@ uint16_t ECalSD::getRadiationLength(G4Step * aStep) {
       double radl     = hitPoint->GetMaterial()->GetRadlen();
       double detz     = crystalDepth(lv,localPoint);
       thisX0 = (uint16_t)floor(scaleRL*detz/radl);
-#ifdef plotDebug
-      std::string lvname = lv->GetName();
-      int k1 = (lvname.find("EFRY")!=std::string::npos) ? 2 : 0;
-      int k2 = (lvname.find("refl")!=std::string::npos) ? 1 : 0;
-      int kk = k1+k2;
-      double rz = (k1 == 0) ? (hitPoint->GetPosition()).rho() : 
-	std::abs((hitPoint->GetPosition()).z());
-      edm::LogVerbatim("EcalSim") << lvname << " # " << k1 << ":" << k2 << ":" 
-				  << kk << " rz " << rz << " D " << thisX0;
-      g2L_[kk]->Fill(rz,thisX0);
-#endif
 #ifdef EDM_ML_DEBUG
       double crlength = crystalLength(lv);
       edm::LogVerbatim("EcalSim") << lv->GetName() << " Global " 
