@@ -17,11 +17,8 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
+#include "CalibCalorimetry/EcalTPGTools/interface/EcalReadoutTools.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
-
-#include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
-#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
-#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 
 #include "CondFormats/DataRecord/interface/GBRDWrapperRcd.h"
 #include "CondFormats/EgammaObjects/interface/GBRForestD.h"
@@ -41,9 +38,6 @@ class PFClusterEMEnergyCorrector {
   edm::EDGetTokenT<EESrFlagCollection> eeSrFlagToken_; 
 
   //required for reading SR flags
-  const EcalTrigTowerConstituentsMap * triggerTowerMap_;
-  const EcalElectronicsMapping* elecMap_;
-
   edm::EDGetTokenT<EcalRecHitCollection> recHitsEB_;
   edm::EDGetTokenT<EcalRecHitCollection> recHitsEE_;  
   edm::EDGetTokenT<unsigned int> bunchSpacing_; 
@@ -56,9 +50,6 @@ class PFClusterEMEnergyCorrector {
   std::vector<std::string> condnames_mean_50ns_;
   std::vector<std::string> condnames_sigma_50ns_;  
     
-  EcalTrigTowerDetId readOutUnitOf(const EBDetId& xtalId) const;
-  EcalScDetId        readOutUnitOf(const EEDetId& xtalId) const;
-
   bool srfAwareCorrection_;
   bool applyCrackCorrections_;
   bool applyMVACorrections_;
@@ -67,7 +58,8 @@ class PFClusterEMEnergyCorrector {
   int bunchSpacingManual_;
         
   std::unique_ptr<PFEnergyCalibration> calibrator_;
-
+  
+  void getAssociatedPSEnergy(const size_t clusIdx, const reco::PFCluster::EEtoPSAssociation &assoc, float& e1, float& e2);
 
 };
 
