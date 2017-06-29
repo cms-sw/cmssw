@@ -11,6 +11,7 @@ TrackMon = cms.EDAnalyzer("TrackingMonitor",
     TrackProducer    = cms.InputTag("generalTracks"),
     SeedProducer     = cms.InputTag("initialStepSeeds"),
     TCProducer       = cms.InputTag("initialStepTrackCandidates"),
+    MVAProducers     = cms.vstring("initialStepClassifier1", "initialStepClassifier2"),
     ClusterLabels    = cms.vstring('Tot'), # to decide which Seeds-Clusters correlation plots to have default is Total other options 'Strip', 'Pix'
     beamSpot         = cms.InputTag("offlineBeamSpot"),
     primaryVertex    = cms.InputTag('offlinePrimaryVertices'),
@@ -89,6 +90,7 @@ TrackMon = cms.EDAnalyzer("TrackingMonitor",
     doPlotsVsLUMI                       = cms.bool(False),
     doPlotsVsBX                         = cms.bool(False),
     doHIPlots                           = cms.bool(False),                              
+    doMVAPlots                          = cms.bool(False),
     qualityString = cms.string("highPurity"),                      
     #which seed plots to do
     doSeedNumberHisto = cms.bool(False),
@@ -360,6 +362,11 @@ TrackMon = cms.EDAnalyzer("TrackingMonitor",
     TCDzBin = cms.int32(100),
     TCDzMax = cms.double(400.0),
     TCDzMin = cms.double(-400.0),                                                
+
+    # Track selection MVA
+    MVABin  = cms.int32(100),
+    MVAMin  = cms.double(-1),
+    MVAMax  = cms.double(1),
 
 #######################################
 ## needed for tracksVScluster and seedVScluster
