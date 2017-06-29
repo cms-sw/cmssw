@@ -1,3 +1,8 @@
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+
 #include "DQMOffline/CalibTracker/plugins/SiStripPopConHistoryDQMBase.h"
 
 /**
@@ -13,19 +18,25 @@ public:
     : SiStripPopConHistoryDQMBase(pset)
   {}
 
+  void init(const edm::EventSetup&);
+
   virtual ~SiStripPopConHistoryDQM();
 private:
   uint32_t returnDetComponent(const MonitorElement* ME) const;
   bool setDBLabelsForUser(const std::string& keyName, std::vector<std::string>& userDBContent, const std::string& quantity) const;
   bool setDBValuesForUser(const MonitorElement* me, HDQMSummary::InputVector& values, const std::string& quantity) const;
+private:
+  const TrackerTopology* trackerTopo_;
 };
 
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-
 SiStripPopConHistoryDQM::~SiStripPopConHistoryDQM() {}
+
+void SiStripPopConHistoryDQM::init(const edm::EventSetup& setup)
+{
+  edm::ESHandle<TrackerTopology> tTopo;
+  setup.get<TrackerTopologyRcd>().get(tTopo);
+  trackerTopo_ = tTopo.product();
+}
 
 uint32_t SiStripPopConHistoryDQM::returnDetComponent(const MonitorElement* ME) const
 {
@@ -43,13 +54,13 @@ uint32_t SiStripPopConHistoryDQM::returnDetComponent(const MonitorElement* ME) c
   else if ( str.find("TIB") != std::string::npos ) {
     if ( str.find("layer")!= std::string::npos )
       layer = atoi(str.substr(str.find("layer__")+__key_length__,1).c_str());
-    return TIBDetId(layer,0,0,0,0,0).rawId();
+    return trackerTopo_->tibDetId(layer,0,0,0,0,0).rawId();
   }
   //TOB
   else if ( str.find("TOB") != std::string::npos ) {
     if ( str.find("layer") != std::string::npos )
       layer = atoi(str.substr(str.find("layer__")+__key_length__,1).c_str());
-    return TOBDetId(layer,0,0,0,0).rawId();
+    return trackerTopo_->tobDetId(layer,0,0,0,0).rawId();
   }
   //TID
   else if ( str.find("TID") != std::string::npos ) {
@@ -59,7 +70,7 @@ uint32_t SiStripPopConHistoryDQM::returnDetComponent(const MonitorElement* ME) c
 	layer = atoi(str.substr(str.find("wheel__")+__key_length__,1).c_str());
       }
     }
-    return TIDDetId(side,layer,0,0,0,0).rawId();
+    return trackerTopo_->tidDetId(side,layer,0,0,0,0).rawId();
   }
   //TEC
   else if ( str.find("TEC") != std::string::npos ) {
@@ -69,10 +80,10 @@ uint32_t SiStripPopConHistoryDQM::returnDetComponent(const MonitorElement* ME) c
 	layer = atoi(str.substr(str.find("wheel__")+__key_length__,1).c_str());
       }
     }
-    return TECDetId(side,layer,0,0,0,0,0).rawId();
+    return trackerTopo_->tecDetId(side,layer,0,0,0,0,0).rawId();
   }
   else
-    return SiStripDetId(DetId::Tracker,0).rawId(); //Full Tracker
+    return DetId(DetId::Tracker,0).rawId(); //Full Tracker
 }
 
 //Example on how to define an user function for the statistic extraction
@@ -101,7 +112,42 @@ bool SiStripPopConHistoryDQM::setDBValuesForUser(const MonitorElement* me, HDQMS
   return true;
 }
 
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "CondCore/PopCon/interface/PopCon.h"
+
+// copied from popCon::PopConAnalyzer
+// modified to pass an edm::EventSetup reference at begin run
+class SiStripDQMHistoryPopCon : public edm::EDAnalyzer
+{
+public:
+  using SourceHandler = SiStripPopConHistoryDQM;
+
+  SiStripDQMHistoryPopCon(const edm::ParameterSet& pset) :
+    m_populator(pset),
+    m_source(pset.getParameter<edm::ParameterSet>("Source")) {}
+
+  virtual ~SiStripDQMHistoryPopCon() {}
+
+private:
+  virtual void beginJob() {}
+  virtual void endJob  () {
+    write();
+  }
+
+  virtual void beginRun(const edm::Run&, const edm::EventSetup& setup)
+  {
+    m_source.init(setup);
+  }
+
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) {}
+
+  void write() {
+    m_populator.write(m_source);
+  }
+private:
+  popcon::PopCon m_populator;
+  SourceHandler m_source;
+};
+
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "CondCore/PopCon/interface/PopConAnalyzer.h"
-typedef popcon::PopConAnalyzer<SiStripPopConHistoryDQM> SiStripDQMHistoryPopCon;
 DEFINE_FWK_MODULE(SiStripDQMHistoryPopCon);
