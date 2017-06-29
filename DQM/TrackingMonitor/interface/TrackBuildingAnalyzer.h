@@ -60,6 +60,7 @@ class TrackBuildingAnalyzer
         );
         void analyze
         (
+            const edm::View<reco::Track>& trackCollection,
             const std::vector<const MVACollection *>& mvaCollections,
             const std::vector<const QualityMaskCollection *>& qualityMaskCollections
         );
@@ -103,6 +104,10 @@ class TrackBuildingAnalyzer
 
 	std::vector<MonitorElement *> trackMVAs;
 	std::vector<MonitorElement *> trackMVAsHP;
+	std::vector<MonitorElement *> trackMVAsVsPtProfile;
+	std::vector<MonitorElement *> trackMVAsHPVsPtProfile;
+	std::vector<MonitorElement *> trackMVAsVsEtaProfile;
+	std::vector<MonitorElement *> trackMVAsHPVsEtaProfile;
 	
         std::string histname;  //for naming the histograms according to algorithm used
 

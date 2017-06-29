@@ -316,7 +316,8 @@ for _eraName, _postfix, _era in _cfg.allEras():
     for step in locals()["selectedIterTrackingStep"+_postfix]:
         if step in mvaSel:
             locals()["TrackSeedMon"+step].doMVAPlots = True
-            locals()["TrackSeedMon"+step].MVAProducers = mvaSel[step]
+            locals()["TrackSeedMon"+step].TrackProducerForMVA = mvaSel[step][0]
+            locals()["TrackSeedMon"+step].MVAProducers = mvaSel[step][1]
 
         _seq += locals()["TrackSeedMon"+step]
     if _eraName == "":

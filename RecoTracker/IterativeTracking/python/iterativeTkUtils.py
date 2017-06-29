@@ -27,6 +27,6 @@ def getMVASelectors(postfix):
             elif "TrackMVAClassifier" in typeName:
                 classifiers = [iterName]
             if len(classifiers) > 0:
-                ret[iterName] = classifiers
+                ret[iterName] = (iterName+"Tracks", classifiers)
 
     return ret

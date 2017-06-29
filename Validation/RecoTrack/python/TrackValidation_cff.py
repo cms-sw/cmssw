@@ -214,8 +214,8 @@ def _getMVASelectors(postfix):
     mvaSel = _utils.getMVASelectors(postfix)
 
     pset = cms.untracked.PSet()
-    for iteration, classifiers in mvaSel.iteritems():
-        setattr(pset, iteration+"Tracks", cms.untracked.vstring(classifiers))
+    for iteration, (trackProducer, classifiers) in mvaSel.iteritems():
+        setattr(pset, trackProducer, cms.untracked.vstring(classifiers))
     return pset
 for _eraName, _postfix, _era in _relevantEras:
     locals()["_mvaSelectors"+_postfix] = _getMVASelectors(_postfix)
