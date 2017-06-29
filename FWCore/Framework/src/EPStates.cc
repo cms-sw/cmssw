@@ -231,7 +231,7 @@ namespace statemachine {
     beginRunCalled_ = true;
 
     runException_ = true;
-    ep_.beginRun(run);
+    ep_.beginRun(run.processHistoryID(),run.runNumber());
     runException_ = false;
   }
 
@@ -239,7 +239,7 @@ namespace statemachine {
     beginRunCalled_ = false;
 
     runException_ = true;
-    ep_.endRun(run, cleaningUpAfterException);
+    ep_.endRun(run.processHistoryID(),run.runNumber(), cleaningUpAfterException);
     runException_ = false;
   }
 
@@ -253,8 +253,8 @@ namespace statemachine {
     runException_ = true;
 
     if(beginRunCalled_) endRun(currentRun(), cleaningUpAfterException);
-    ep_.writeRun(currentRun_);
-    ep_.deleteRunFromCache(currentRun_);
+    ep_.writeRun(currentRun_.processHistoryID(), currentRun_.runNumber());
+    ep_.deleteRunFromCache(currentRun_.processHistoryID(), currentRun_.runNumber());
     currentRun_ = INVALID_RUN;
     runException_ = false;
   }
