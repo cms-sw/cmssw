@@ -229,6 +229,7 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   auto eeRecHits = std::make_unique<EcalRecHitCollection>();
   auto esRecHits = std::make_unique<EcalRecHitCollection>();
   auto gsfTracks = std::make_unique<reco::GsfTrackCollection>();  //add by me -Hien xinh dep
+  auto AmbgsfTracks = std::make_unique<reco::GsfTrackCollection>();
   auto photonPfCandMap = std::make_unique<edm::ValueMap<std::vector<reco::PFCandidateRef>>>();
   auto gsfElectronPfCandMap = std::make_unique<edm::ValueMap<std::vector<reco::PFCandidateRef>>>();
   
@@ -402,7 +403,7 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     //additionally mark supercluster for full relinking
     if (relink) superClusterFullRelinkMap.insert(mappedscidx);
 
-    /*
+    /*//for testing on 29/06
     //gsftracks, add by me - Hien xinh dep                                                                                                                  
     const reco::GsfTrackRef &gsfTrack = gsfElectron.gsfTrack();
     const auto &mappedgsftk = gsfTrackMap.find(gsfTrack);
@@ -418,7 +419,7 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
       mappedgsftkidx = mappedgsftk->second;
     }
     if (relink) gsfTrackFullRelinkMap.insert(mappedgsftkidx);
-    */
+    /// end adding by Hien*/
     
     //conversions only for full relinking
     if (!relink) continue;
@@ -472,6 +473,7 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     
   }
 
+  /*
   //get gsf track and push back to the output (add by me - Hien xinh dep)
   for (unsigned int igsftk = 0; igsftk<gsfTrackHandle->size(); ++igsftk) {
     const reco::GsfTrack &gsfTrack = (*gsfTrackHandle)[igsftk];
@@ -491,7 +493,7 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     }
     //bool slimRelink = slimRelinkGsfTrackSel_(gsfTrack);
     //bool relink = relinkGsfTrackSel_(gsfTrack);
-  }
+  }*/
   
   //loop over output SuperClusters and fill maps
   //std::cout << "gsf electron size: " << gsfElectrons->size() << std::endl;
@@ -663,7 +665,8 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   const edm::OrphanHandle<reco::ConversionCollection> &outConversionHandle = theEvent.put(std::move(conversions),outConversions_);
   const edm::OrphanHandle<reco::ConversionCollection> &outSingleConversionHandle = theEvent.put(std::move(singleConversions),outSingleConversions_);
   //put gsftrack in the event (add by me - Hien xinh dep)   
-  //const edm::OrphanHandle<reco::GsfTrackCollection> &outGsfTrackHandle = theEvent.put(std::move(gsfTracks),outGsfTracks_);
+  //const edm::OrphanHandle<reco::GsfTrackCollection> &outGsfTrackHandle = theEvent.put(std::move(gsfTracks),outGsfTracks_); //for testing 29.06
+  //const edm::OrphanHandle<reco::GsfTrackCollection> &outAmbGsfTrackHandle = theEvent.put(std::move(AmbgsfTracks), outGsfTracks_);
   
   //loop over photoncores and relink superclusters (and conversions)
   for (reco::PhotonCore &photonCore : *photonCores) {
@@ -727,7 +730,7 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   }
 
   //------------ add by me - Hien xinh dep ------------//
-  const edm::OrphanHandle<reco::GsfTrackCollection> &outGsfTrackHandle = theEvent.put(std::move(gsfTracks),outGsfTracks_);
+  //const edm::OrphanHandle<reco::GsfTrackCollection> &outGsfTrackHandle = theEvent.put(std::move(gsfTracks),outGsfTracks_);
   //loop over gsfelectroncores and relink gsftracks
 
   //for (reco::GsfElectronCore &gsfElectronCore : *gsfElectronCores) {
@@ -746,44 +749,54 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   for (reco::GsfElectron &gsfElectron : *gsfElectrons) {
     //const auto &gsftkmapped = gsfTrackMap.find(gsfElectron.gsfTrack());
 
+    //std::cout << " map of gsf track: " << gsftkmapped->first << std::endl;
     //std::cout << "ambiguous true or false: " << gsfElectron.ambiguous() << std::endl;
     //reco::GsfTrackRef gsfTrackref(gsfTrackHandle,igsftk);
     //gsfTracks->push_back(gsfTrack);
     //const auto &mappedgsftk = gsfTrackMap.find(gsfTrackref);
 
-    if (gsfElectron.ambiguousGsfTracksSize() ) {
-      gsfElectron.setAmbiguous(true);
-    }
+    //if (gsfElectron.ambiguousGsfTracksSize() ) {
+    //gsfElectron.setAmbiguous(true);
+    //}
     
-    int ambgsftksize = gsfElectron.ambiguousGsfTracksSize();
-
-    auto AmbgsfTracks = std::make_unique<reco::GsfTrackCollection>(); 
+    //auto AmbgsfTracks = std::make_unique<reco::GsfTrackCollection>(); 
 
     for (reco::GsfTrackRefVector::const_iterator igsf = gsfElectron.ambiguousGsfTracksBegin(); igsf != gsfElectron.ambiguousGsfTracksEnd(); ++igsf) {
       std::cout << " ---- event number: " << theEvent.id().event() << "\t gsf pt: " << (*igsf)->pt() << "\t gsf eta: " << (*igsf)->eta() << "\t gsf phi: " << (*igsf)->phi() << std::endl;
-      std::cout << "ambiguous true or false: " <<gsfElectron.ambiguous() << std::endl;
+      //std::cout << "ambiguous true or false: " <<gsfElectron.ambiguous() << std::endl;
       const reco::GsfTrackRef &getAmbiguousTrack = *igsf;
       const auto &mappedgsftk = AmbgsfTrackMap.find(getAmbiguousTrack);
       unsigned int mappedgsftkidx = 0;
       if (mappedgsftk==AmbgsfTrackMap.end()) {
 	AmbgsfTracks->push_back(*getAmbiguousTrack);
 	mappedgsftkidx = AmbgsfTracks->size()-1;
-	mappedgsftkidx = 1;
 	AmbgsfTrackMap[getAmbiguousTrack] = mappedgsftkidx; 
 	std::cout << "copy ambiguous track" << std::endl;
       }
+      else {
+	mappedgsftkidx = mappedgsftk->second;
+      }
     }
 
-    gsfElectron.clearAmbiguousGsfTracks();
-
-    //std::cout << "==== ambiguous gsf track size: " << ambgsftksize << std::endl;
-    const auto &gsftkmapped = AmbgsfTrackMap.find(gsfElectron.gsfTrack());
-    if (gsftkmapped != AmbgsfTrackMap.end() && ambgsftksize) {
-      reco::GsfTrackRef Ambgsftkref(&AmbgsfTracks);
-      gsfElectron.addAmbiguousGsfTrack(Ambgsftkref);
-    }
+    //gsfElectron.clearAmbiguousGsfTracks();
 
   }
+
+  const edm::OrphanHandle<reco::GsfTrackCollection> &outAmbGsfTrackHandle = theEvent.put(std::move(AmbgsfTracks), outGsfTracks_);
+  
+  for (reco::GsfElectron &gsfElectron : *gsfElectrons) {
+    //std::cout << " starting add ambiguous track " << std::endl;
+
+    const auto &gsftkmapped = AmbgsfTrackMap.find(gsfElectron.gsfTrack());
+    //if (gsftkmapped != AmbgsfTrackMap.end() && ambgsftksize) {
+    if (gsftkmapped != AmbgsfTrackMap.end()) {
+      reco::GsfTrackRef Ambgsftkref(outAmbGsfTrackHandle, gsftkmapped->second);
+      gsfElectron.addAmbiguousGsfTrack(Ambgsftkref);
+      std::cout << "add ambiguous track to gsf electron" << std::endl;
+      }
+
+  }
+
   // ---------------end adding ----------------//
 
 
