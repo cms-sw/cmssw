@@ -115,7 +115,7 @@ bool HGCSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
     // Apply fiducial cuts
     if (r/z >= slopeMin_) {
       if (getStepInfo(aStep)) {
-	if (((hitExists() == false) || storeAllG4Hits_) && 
+	if ((storeAllG4Hits_ || (hitExists() == false)) && 
 	    (edepositEM+edepositHAD>0.)) currentHit = createNewHit();
       }
     }
