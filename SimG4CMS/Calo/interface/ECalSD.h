@@ -18,6 +18,7 @@
 #include "G4String.hh"
 #include <string>
 #include <map>
+#include <TH2F.h>
 
 class EcalBaseNumber;
 class G4LogicalVolume;
@@ -41,6 +42,7 @@ private:
   void                              initMap(G4String, const DDCompactView &);
   double                            curve_LY(G4Step*); 
   double                            crystalLength(G4LogicalVolume*);
+  double                            crystalDepth(G4LogicalVolume*, const G4ThreeVector&);
   void                              getBaseNumber(const G4Step*); 
   double                            getBirkL3(G4Step*);
   std::vector<double>               getDDDArray(const std::string&,
@@ -56,11 +58,12 @@ private:
   double                            slopeLY, scaleRL;
   std::string                       crystalMat, depth1Name, depth2Name;
   std::map<G4LogicalVolume*,double> xtalLMap;
+  std::map<G4LogicalVolume*,int>    xtalLSign;
   std::vector<G4LogicalVolume*>     useDepth1, useDepth2, noWeight;
   EcalBaseNumber                    theBaseNumber;
   EnergyResolutionVsLumi            ageing;
   bool                              ageingWithSlopeLY;
-
+  TH2F                             *g2L_[4];
 };
 
 #endif // ECalSD_h
