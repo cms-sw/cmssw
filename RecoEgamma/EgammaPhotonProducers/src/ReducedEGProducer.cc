@@ -622,7 +622,6 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     fillMap(outGsfElectronHandle, vals, theEvent, outGsfElectronPFClusterIsos_[index]);
     index++;
   }
-  index = 0;
 }
 
 template <typename T, typename U>
