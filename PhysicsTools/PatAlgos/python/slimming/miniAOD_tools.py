@@ -92,12 +92,15 @@ def miniAOD_customizeCommon(process):
                 PhotonCutBasedIDTight = cms.InputTag('reducedEgamma',
                                                       'PhotonCutBasedIDTight')
               )
-
+    
     process.phPFIsoDepositChargedPAT.src = cms.InputTag("reducedEgamma","reducedGedPhotons")
     process.phPFIsoDepositChargedAllPAT.src = cms.InputTag("reducedEgamma","reducedGedPhotons")
     process.phPFIsoDepositNeutralPAT.src = cms.InputTag("reducedEgamma","reducedGedPhotons")
     process.phPFIsoDepositGammaPAT.src = cms.InputTag("reducedEgamma","reducedGedPhotons")
     process.phPFIsoDepositPUPAT.src = cms.InputTag("reducedEgamma","reducedGedPhotons")
+    #
+    process.patOOTPhotons.photonSource = cms.InputTag("reducedEgamma","reducedOOTPhotons")
+    process.patOOTPhotons.electronSource = cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
     #
     process.selectedPatJets.cut = cms.string("pt > 10")
     process.selectedPatMuons.cut = cms.string("pt > 5 || isPFMuon || (pt > 3 && (isGlobalMuon || isStandAloneMuon || numberOfMatches > 0 || muonID('RPCMuLoose')))")
@@ -341,6 +344,8 @@ def miniAOD_customizeMC(process):
     process.electronMatch.src = cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
     process.photonMatch.matched = "prunedGenParticles"
     process.photonMatch.src = cms.InputTag("reducedEgamma","reducedGedPhotons")
+    process.ootPhotonMatch.matched = "prunedGenParticles"
+    process.ootPhotonMatch.src = cms.InputTag("reducedEgamma","reducedOOTPhotons")
     process.tauMatch.matched = "prunedGenParticles"
     process.tauGenJets.GenParticles = "prunedGenParticles"
     #Boosted taus 
@@ -354,6 +359,7 @@ def miniAOD_customizeMC(process):
     process.patMuons.embedGenMatch = False
     process.patElectrons.embedGenMatch = False
     process.patPhotons.embedGenMatch = False
+    process.patOOTPhotons.embedGenMatch = False
     process.patTaus.embedGenMatch = False
     process.patTausBoosted.embedGenMatch = False
     process.patJets.embedGenPartonMatch = False
