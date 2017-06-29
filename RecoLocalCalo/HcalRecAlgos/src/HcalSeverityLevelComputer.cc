@@ -6,7 +6,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-
 bool HcalSeverityLevelComputer::getChStBit(HcalSeverityDefinition& mydef, 
 					   const std::string& mybit)
 {
@@ -37,16 +36,16 @@ bool HcalSeverityLevelComputer::getRecHitFlag(HcalSeverityDefinition& mydef,
         int phase)
 {
     if(phase==1) // Phase 1 Rechit flags 
-    {
+    { 
         // HB, HE ++++++++++++++++++++
         if (mybit == "HBHEHpdHitMultiplicity")  setBit(HcalPhase1FlagLabels::HBHEHpdHitMultiplicity, mydef.HBHEFlagMask);
+        else if (mybit == "HBHEIsolatedNoise")  setBit(HcalPhase1FlagLabels::HBHEIsolatedNoise, mydef.HBHEFlagMask );
         else if (mybit == "HBHEFlatNoise")      setBit(HcalPhase1FlagLabels::HBHEFlatNoise, mydef.HBHEFlagMask);
         else if (mybit == "HBHESpikeNoise")     setBit(HcalPhase1FlagLabels::HBHESpikeNoise, mydef.HBHEFlagMask);
         else if (mybit == "HBHETS4TS5Noise")    setBit(HcalPhase1FlagLabels::HBHETS4TS5Noise, mydef.HBHEFlagMask);
         else if (mybit == "HBHENegativeNoise")  setBit(HcalPhase1FlagLabels::HBHENegativeNoise, mydef.HBHEFlagMask);
         else if (mybit == "HBHEPulseFitBit")    setBit(HcalPhase1FlagLabels::HBHEPulseFitBit, mydef.HBHEFlagMask);
         else if (mybit == "HBHEOOTPU")          setBit(HcalPhase1FlagLabels::HBHEOOTPU, mydef.HBHEFlagMask);
-        else if (mybit == "HBHEIsolatedNoise")  setBit(HcalPhase1FlagLabels::HBHEIsolatedNoise, mydef.HBHEFlagMask );
 
         // HF ++++++++++++++++++++
         else if (mybit == "HFLongShort")        setBit(HcalPhase1FlagLabels::HFLongShort, mydef.HFFlagMask);
@@ -141,7 +140,7 @@ HcalSeverityLevelComputer::HcalSeverityLevelComputer( const edm::ParameterSet& i
   typedef std::vector< edm::ParameterSet > myParameters;
   myParameters myLevels = iConfig.getParameter<myParameters>((std::string)"SeverityLevels");
 
-  int phase_   = iConfig.getParameter<int>("phase");
+  unsigned int phase_   = iConfig.getParameter<unsigned int>("phase");
 
   // now run through the parameter set vector:
   for ( myParameters::iterator itLevels = myLevels.begin(); itLevels != myLevels.end(); ++itLevels)
@@ -177,7 +176,7 @@ HcalSeverityLevelComputer::HcalSeverityLevelComputer( const edm::ParameterSet& i
 	{
 	  if (myRecHitFlags[k].empty()) break; // empty string
 	  bnonempty++;
-	  bvalid+=getRecHitFlag(mydef, myRecHitFlags[k], phase_);
+	  bvalid+=getRecHitFlag(mydef, myRecHitFlags[k], phase_); 
 	}
 
       //      std::cout << "Made Severity Level:" << std::endl;
