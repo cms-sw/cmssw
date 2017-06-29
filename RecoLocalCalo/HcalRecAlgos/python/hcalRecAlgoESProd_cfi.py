@@ -93,21 +93,23 @@ run2_HCAL_2017.toModify(hcalRecAlgos,
     phase = cms.uint32(1),
     SeverityLevels = {
         0 : dict( RecHitFlags = cms.vstring('TimingFromTDC') ),
+        2 : dict( RecHitFlags = cms.vstring('') ),
         3 : dict( RecHitFlags = cms.vstring('HBHEHpdHitMultiplicity',  
+                                            'HBHEIsolatedNoise',
                                             'HBHEFlatNoise', 
                                             'HBHESpikeNoise', 
-                                            'HBHETriangleNoise',
                                             'HBHETS4TS5Noise', 
                                             'HBHENegativeNoise', 
-                                            'HBHEOOTPU',
-                                            'HBHEPulseFitBit'
+                                            'HBHEPulseFitBit',
+                                            'HBHEOOTPU'
                 )
             ),
         4: dict( RecHitFlags = cms.vstring('HFLongShort', 
-                                           'HFPET', 
                                            'HFS8S1Ratio',  
+                                           'HFPET', 
                                            'HFSignalAsymmetry'
                 )
             ),
     },
+    RecoveredRecHitBits = cms.vstring('')
 )
