@@ -23,7 +23,6 @@
 #include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
 
 #include "PhysicsTools/PatAlgos/plugins/PATJetSelector.h"
-#include "PhysicsTools/PatAlgos/plugins/SlimCaloJetSelector.h"
 
 #include <vector>
 
