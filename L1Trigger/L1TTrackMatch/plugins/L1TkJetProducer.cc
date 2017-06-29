@@ -11,15 +11,12 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/L1TrackTrigger/interface/L1TkJetParticle.h"
@@ -28,14 +25,11 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 
 // L1 tracks
-//#include "SimDataFormats/SLHC/interface/StackedTrackerTypes.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
-
 
 // geometry
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-
 
 #include <string>
 #include "TMath.h"
@@ -84,9 +78,6 @@ private:
   int   TRK_NSTUBMIN;   // minimum number of stubs 
   int   TRK_NSTUBPSMIN; // minimum number of stubs in PS modules 
 
-  // jet cut 
-  //bool JET_HLTETA;  // temporary hack to remove bad jets when using HI HLT jets!
-
   bool doPtComp;
   bool doTightChi2;
 
@@ -110,7 +101,6 @@ L1TkJetProducer::L1TkJetProducer(const edm::ParameterSet& iConfig) :
   TRK_ETAMAX  = (float)iConfig.getParameter<double>("TRK_ETAMAX");
   TRK_NSTUBMIN   = (int)iConfig.getParameter<int>("TRK_NSTUBMIN");
   TRK_NSTUBPSMIN = (int)iConfig.getParameter<int>("TRK_NSTUBPSMIN");
-  //JET_HLTETA = (bool)iConfig.getParameter<bool>("JET_HLTETA");
   doPtComp     = iConfig.getParameter<bool>("doPtComp");
   doTightChi2 = iConfig.getParameter<bool>("doTightChi2");
   
@@ -184,7 +174,7 @@ void L1TkJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     float sumTrk_pt = 0;
 
     int ijet = 0;
-    for (jetIter = CentralJetHandle->begin(0);  jetIter != CentralJetHandle->end(0); ++jetIter) { // considering BX = only 
+    for (jetIter = CentralJetHandle->begin(0);  jetIter != CentralJetHandle->end(0); ++jetIter) { // considering BX = 0 only 
 
       edm::Ref< JetBxCollection > jetRef(CentralJetHandle, ijet);
       ijet++;
@@ -193,12 +183,6 @@ void L1TkJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       //float tmp_jet_pt  = jetIter->pt();
       float tmp_jet_eta = jetIter->eta();
       float tmp_jet_phi = jetIter->phi();
-
-      // for HI-HLT jets, remove jets from "hot spots"
-      //if (JET_HLTETA) {
-	//if ( (tmp_jet_eta > -2.0) && (tmp_jet_eta < -1.5) && (tmp_jet_phi > -1.7) && (tmp_jet_phi < -1.3) ) continue;
-	//if ( (tmp_jet_eta > 0.0) && (tmp_jet_eta < 1.4) && (tmp_jet_phi > -2.0) && (tmp_jet_phi < -1.6) ) continue;
-      //}
 
 
       // ----------------------------------------------------------------------------------------------
@@ -234,11 +218,10 @@ void L1TkJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	float tmp_trk_chi2 = trackIter->getChi2();
 
 	// get pointers to stubs associated to the L1 track
-	//std::vector< edm::Ptr< L1TkStub_PixelDigi_ > > theStubs = trackIter->getStubPtrs();
 	std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > >  theStubs = trackIter -> getStubRefs() ;
 
 	int tmp_trk_nstub = (int) theStubs.size();
-	//int tmp_ndof = tmp_trk_nstub*2-4;
+
 	
 	// track selection
 	if (fabs(tmp_trk_eta) > TRK_ETAMAX) continue;
@@ -262,30 +245,19 @@ void L1TkJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	// more track selection
 	if (tmp_trk_nstubPS < TRK_NSTUBPSMIN) continue;
 
-
-	////_______                                                                                                                                                         
-	////-------                                                                                                                                                         
 	float tmp_trk_consistency = trackIter ->getStubPtConsistency();
 	float chi2dof = tmp_trk_chi2 / (2*tmp_trk_nstub-4);
 	
 	if(doPtComp) {
-	  //              if (trk_nstub < 4) continue;                                                                                                                      
-	  //              if (trk_chi2 > 100.0) continue;                                                                                                                   
 	  if (tmp_trk_nstub == 4) {
 	    if (fabs(tmp_trk_eta)<2.2 && tmp_trk_consistency>10) continue;
 	    else if (fabs(tmp_trk_eta)>2.2 && chi2dof>5.0) continue;
 	  }
 	}
-
-            if(doTightChi2) {
-              if(tmp_trk_pt>10.0 && chi2dof>5.0 ) continue;     
-            }      
 	
-	
-	////_______                                                                                                                                                         
-	////-------                                                                                                                                                         
-	
-
+	if(doTightChi2) {
+	  if(tmp_trk_pt>10.0 && chi2dof>5.0 ) continue;     
+	}
 
 
 	// deltaR

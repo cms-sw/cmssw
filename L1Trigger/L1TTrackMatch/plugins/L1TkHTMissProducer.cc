@@ -55,9 +55,6 @@ private:
   //virtual void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
   //virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
   
-
-  // ---------- member data ---------------------------
-  
   float JET_PTMIN;                // [GeV]
   float JET_ETAMAX;               // [rad]
 
