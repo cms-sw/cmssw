@@ -2,6 +2,7 @@ Process name = PROD1
 paths:
   p
   p2
+  p3
   p11
 end paths:
   e
@@ -20,6 +21,11 @@ modules on path p2:
   a1
   a2
   a3
+modules on path p3:
+  intProducerB
+  intProducerC
+  intProducerD
+  intProducerE
 modules on path p11:
 modules on end path e:
   testManyConsumingProducer
@@ -28,6 +34,10 @@ modules on end path p1ep2:
 All modules and modules in the current process whose products they consume:
 (This does not include modules from previous processes or the source)
   IntProducer/'intProducerA'
+  IntProducer/'intProducerF'
+  IntProducer/'intProducerG'
+  IntProducer/'intProducerH'
+  IntProducer/'intProducerI'
   IntProducer/'intProducerU'
   IntVectorProducer/'intVectorProducer'
   IntProducer/'intProducer'
@@ -42,6 +52,10 @@ All modules and modules in the current process whose products they consume:
   IntProducer/'testStreamingProducer'
   ConsumingStreamAnalyzer/'testStreamingAnalyzer' consumes products from these modules:
     IntProducer/'testStreamingProducer'
+  IntProducer/'intProducerB'
+  IntProducer/'intProducerC'
+  IntProducer/'intProducerD'
+  IntProducer/'intProducerE'
   ConsumingIntProducer/'testManyConsumingProducer' consumes products from these modules:
     TriggerResultInserter/'TriggerResults'
   PoolOutputModule/'out' consumes products from these modules:
@@ -55,6 +69,7 @@ All modules and modules in the current process whose products they consume:
   TriggerResultInserter/'TriggerResults'
   PathStatusInserter/'p'
   PathStatusInserter/'p2'
+  PathStatusInserter/'p3'
   PathStatusInserter/'p11'
   EndPathStatusInserter/'e'
   EndPathStatusInserter/'p1ep2'
@@ -65,6 +80,10 @@ For products that are declared with mayConsume, 'may consume' is added.
 For products consumed for Views, 'element type' is added
 For products only read from previous processes, 'skip current process' is added
   IntProducer/'intProducerA'
+  IntProducer/'intProducerF'
+  IntProducer/'intProducerG'
+  IntProducer/'intProducerH'
+  IntProducer/'intProducerI'
   IntProducer/'intProducerU'
   IntVectorProducer/'intVectorProducer'
   IntProducer/'intProducer'
@@ -83,6 +102,10 @@ For products only read from previous processes, 'skip current process' is added
   IntProducer/'testStreamingProducer'
   ConsumingStreamAnalyzer/'testStreamingAnalyzer' consumes:
     edmtest::IntProduct 'testStreamingProducer' '' '', may consume
+  IntProducer/'intProducerB'
+  IntProducer/'intProducerC'
+  IntProducer/'intProducerD'
+  IntProducer/'intProducerE'
   ConsumingIntProducer/'testManyConsumingProducer' consumes:
     edm::TriggerResults 'TriggerResults' '' ''
     edm::TriggerResults '' '' ''
@@ -98,13 +121,44 @@ For products only read from previous processes, 'skip current process' is added
   TriggerResultInserter/'TriggerResults'
   PathStatusInserter/'p'
   PathStatusInserter/'p2'
+  PathStatusInserter/'p3'
   PathStatusInserter/'p11'
   EndPathStatusInserter/'e'
   EndPathStatusInserter/'p1ep2'
 
+Process name = PROD2
+paths:
+  path1
+end paths:
+modules on path path1:
+  intProducerB
+  intProducerD
+All modules and modules in the current process whose products they consume:
+(This does not include modules from previous processes or the source)
+  IntProducer/'intProducerF'
+  IntProducer/'intProducerH'
+  IntProducer/'intProducerB'
+  IntProducer/'intProducerD'
+  TriggerResultInserter/'TriggerResults'
+  PathStatusInserter/'path1'
+All modules (listed by class and label) and all their consumed products.
+Consumed products are listed by type, label, instance, process.
+For products not in the event, 'run' or 'lumi' is added to indicate the TTree they are from.
+For products that are declared with mayConsume, 'may consume' is added.
+For products consumed for Views, 'element type' is added
+For products only read from previous processes, 'skip current process' is added
+  IntProducer/'intProducerF'
+  IntProducer/'intProducerH'
+  IntProducer/'intProducerB'
+  IntProducer/'intProducerD'
+  TriggerResultInserter/'TriggerResults'
+  PathStatusInserter/'path1'
+
 Process name = COPY
 paths:
   p3
+  path1
+  path2
 end paths:
   ep1
   ep2
@@ -117,12 +171,34 @@ modules on path p3:
   testView2
   testStreamingProducer
   testStreamingAnalyzer
+modules on path path1:
+  intProducerB
+  intProducerC
+modules on path path2:
+  a1
+  a2
+  a3
+  a4
+  a5
+  a6
+  a7
+  a8
+  a9
+  a10
+  a11
+  a12
+  a13
+  a14
+  a15
+  a16
 modules on end path ep1:
   intVectorProducer
   testManyConsumingProducer
 modules on end path ep2:
 All modules and modules in the current process whose products they consume:
 (This does not include modules from previous processes or the source)
+  IntProducer/'intProducerF'
+  IntProducer/'intProducerG'
   IntVectorProducer/'intVectorProducer'
   TestContextAnalyzer/'test'
   ThingWithMergeProducer/'thingWithMergeProducer'
@@ -133,10 +209,34 @@ All modules and modules in the current process whose products they consume:
   IntProducer/'testStreamingProducer'
   ConsumingStreamAnalyzer/'testStreamingAnalyzer' consumes products from these modules:
     IntProducer/'testStreamingProducer'
+  IntProducer/'intProducerB'
+  IntProducer/'intProducerC'
+  TestFindProduct/'a1' consumes products from these modules:
+    IntProducer/'intProducerB'
+  TestFindProduct/'a2'
+  TestFindProduct/'a3' consumes products from these modules:
+    IntProducer/'intProducerC'
+  TestFindProduct/'a4'
+  TestFindProduct/'a5'
+  TestFindProduct/'a6'
+  TestFindProduct/'a7'
+  TestFindProduct/'a8'
+  TestFindProduct/'a9' consumes products from these modules:
+    IntProducer/'intProducerF'
+  TestFindProduct/'a10'
+  TestFindProduct/'a11' consumes products from these modules:
+    IntProducer/'intProducerG'
+  TestFindProduct/'a12'
+  TestFindProduct/'a13'
+  TestFindProduct/'a14'
+  TestFindProduct/'a15'
+  TestFindProduct/'a16'
   ConsumingIntProducer/'testManyConsumingProducer' consumes products from these modules:
     TriggerResultInserter/'TriggerResults'
   TriggerResultInserter/'TriggerResults'
   PathStatusInserter/'p3'
+  PathStatusInserter/'path1'
+  PathStatusInserter/'path2'
   EndPathStatusInserter/'ep1'
   EndPathStatusInserter/'ep2'
 All modules (listed by class and label) and all their consumed products.
@@ -145,6 +245,8 @@ For products not in the event, 'run' or 'lumi' is added to indicate the TTree th
 For products that are declared with mayConsume, 'may consume' is added.
 For products consumed for Views, 'element type' is added
 For products only read from previous processes, 'skip current process' is added
+  IntProducer/'intProducerF'
+  IntProducer/'intProducerG'
   IntVectorProducer/'intVectorProducer'
   TestContextAnalyzer/'test'
   ThingWithMergeProducer/'thingWithMergeProducer'
@@ -169,11 +271,47 @@ For products only read from previous processes, 'skip current process' is added
   IntProducer/'testStreamingProducer'
   ConsumingStreamAnalyzer/'testStreamingAnalyzer' consumes:
     edmtest::IntProduct 'testStreamingProducer' '' '', may consume
+  IntProducer/'intProducerB'
+  IntProducer/'intProducerC'
+  TestFindProduct/'a1' consumes:
+    edmtest::IntProduct 'intProducerB' '' ''
+  TestFindProduct/'a2' consumes:
+    edmtest::IntProduct 'intProducerB' '' '', skip current process
+  TestFindProduct/'a3' consumes:
+    edmtest::IntProduct 'intProducerC' '' ''
+  TestFindProduct/'a4' consumes:
+    edmtest::IntProduct 'intProducerC' '' '', skip current process
+  TestFindProduct/'a5' consumes:
+    edmtest::IntProduct 'intProducerD' '' ''
+  TestFindProduct/'a6' consumes:
+    edmtest::IntProduct 'intProducerD' '' '', skip current process
+  TestFindProduct/'a7' consumes:
+    edmtest::IntProduct 'intProducerE' '' ''
+  TestFindProduct/'a8' consumes:
+    edmtest::IntProduct 'intProducerE' '' '', skip current process
+  TestFindProduct/'a9' consumes:
+    edmtest::IntProduct 'intProducerF' '' ''
+  TestFindProduct/'a10' consumes:
+    edmtest::IntProduct 'intProducerF' '' '', skip current process
+  TestFindProduct/'a11' consumes:
+    edmtest::IntProduct 'intProducerG' '' ''
+  TestFindProduct/'a12' consumes:
+    edmtest::IntProduct 'intProducerG' '' '', skip current process
+  TestFindProduct/'a13' consumes:
+    edmtest::IntProduct 'intProducerH' '' ''
+  TestFindProduct/'a14' consumes:
+    edmtest::IntProduct 'intProducerH' '' '', skip current process
+  TestFindProduct/'a15' consumes:
+    edmtest::IntProduct 'intProducerI' '' ''
+  TestFindProduct/'a16' consumes:
+    edmtest::IntProduct 'intProducerI' '' '', skip current process
   ConsumingIntProducer/'testManyConsumingProducer' consumes:
     edm::TriggerResults 'TriggerResults' '' ''
     edm::TriggerResults '' '' ''
   TriggerResultInserter/'TriggerResults'
   PathStatusInserter/'p3'
+  PathStatusInserter/'path1'
+  PathStatusInserter/'path2'
   EndPathStatusInserter/'ep1'
   EndPathStatusInserter/'ep2'
 
@@ -183,3 +321,19 @@ TestFindProduct sum = 300
 TestFindProduct sum = 33
 TestFindProduct sum = 33
 TestFindProduct sum = 33
+TestFindProduct sum = 9000
+TestFindProduct sum = 6000
+TestFindProduct sum = 9003
+TestFindProduct sum = 3003
+TestFindProduct sum = 6006
+TestFindProduct sum = 6006
+TestFindProduct sum = 3009
+TestFindProduct sum = 3009
+TestFindProduct sum = 9012
+TestFindProduct sum = 6012
+TestFindProduct sum = 9015
+TestFindProduct sum = 3015
+TestFindProduct sum = 6018
+TestFindProduct sum = 6018
+TestFindProduct sum = 3021
+TestFindProduct sum = 3021
