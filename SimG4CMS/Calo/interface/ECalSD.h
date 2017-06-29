@@ -18,7 +18,6 @@
 #include "G4String.hh"
 #include <string>
 #include <map>
-#include <TH2F.h>
 
 class EcalBaseNumber;
 class G4LogicalVolume;
@@ -63,7 +62,6 @@ private:
   EcalBaseNumber                    theBaseNumber;
   EnergyResolutionVsLumi            ageing;
   bool                              ageingWithSlopeLY;
-  TH2F                             *g2L_[4];
 };
 
 #endif // ECalSD_h
