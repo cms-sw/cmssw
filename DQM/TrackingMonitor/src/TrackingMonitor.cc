@@ -127,6 +127,7 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
                                                 return std::make_tuple(consumes<MVACollection>(edm::InputTag(tag, "MVAValues")),
                                                                        consumes<QualityMaskCollection>(edm::InputTag(tag, "QualityMasks")));
                                               });
+    mvaTrackToken_ = consumes<edm::View<reco::Track> >(iConfig.getParameter<edm::InputTag>("TrackProducerForMVA"));
   }
 
   edm::InputTag stripClusterInputTag_ = iConfig.getParameter<edm::InputTag>("stripCluster");
@@ -868,6 +869,9 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	  std::vector<const MVACollection *> mvaCollections;
 	  std::vector<const QualityMaskCollection *> qualityMaskCollections;
 
+	  edm::Handle<edm::View<reco::Track> > htracks;
+	  iEvent.getByToken(mvaTrackToken_, htracks);
+
 	  edm::Handle<MVACollection> hmva;
 	  edm::Handle<QualityMaskCollection> hqual;
 	  for(const auto& tokenTpl: mvaQualityTokens_) {
@@ -877,7 +881,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	    mvaCollections.push_back(hmva.product());
 	    qualityMaskCollections.push_back(hqual.product());
 	  }
-	  theTrackBuildingAnalyzer->analyze(mvaCollections, qualityMaskCollections);
+	  theTrackBuildingAnalyzer->analyze(*htracks, mvaCollections, qualityMaskCollections);
 	}
       }
       

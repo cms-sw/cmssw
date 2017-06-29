@@ -99,6 +99,7 @@ class TrackingMonitor : public DQMEDAnalyzer
 	edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > pixelClustersToken_;
 
 	std::vector<std::tuple<edm::EDGetTokenT<MVACollection>, edm::EDGetTokenT<QualityMaskCollection> > > mvaQualityTokens_;
+	edm::EDGetTokenT<edm::View<reco::Track> > mvaTrackToken_;
 
 	std::string Quality_;
 	std::string AlgoName_;
