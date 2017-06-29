@@ -311,6 +311,27 @@ void SiPixelPhase1Summary::fillTrendPlots(DQMStore::IBooker & iBooker, DQMStore:
     }
   }
 
+  if (!runOnEndLumi_) return; // The following only occurs in the online
+  //Reset some MEs every 10LS here
+  for (auto it : {1,2,3,4}) { //PXBarrel
+    histNameStream.str("");
+    histNameStream << "PixelPhase1/Phase1_MechanicalView/PXBarrel/clusterposition_zphi_PXLayer_" << it;
+    histName = histNameStream.str();
+    MonitorElement * toReset = iGetter.get(histName);
+    if (toReset) {
+      toReset->Reset();
+    }
+  }
+  for (auto it : {-3,-2,-1,1,2,3}){ //PXForward
+    histNameStream.str("");
+    histNameStream << "PixelPhase1/Phase1_MechanicalView/PXForward/clusterposition_xy_PXDisk_" << it;
+    histName = histNameStream.str();
+    MonitorElement * toReset = iGetter.get(histName);
+    if (toReset) {
+      toReset->Reset();
+    }
+  }
+
 }
 
 //define this as a plug-in
