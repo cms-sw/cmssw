@@ -48,7 +48,7 @@ CaloJetSlimmer( edm::ParameterSet const & params ):
          
 
         } 
-        iEvent.put(std::move(caloJets), "");//"slimmedCaloJets");
+        iEvent.put(std::move(caloJets), "");
     }
 
 
