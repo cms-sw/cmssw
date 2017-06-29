@@ -158,14 +158,14 @@ namespace edm {
     output_ << "\tendLumi " << run << "/" << lumi << "\n";
   }
 
-  statemachine::Run MockEventProcessor::readRun() {
+  std::pair<ProcessHistoryID,RunNumber_t> MockEventProcessor::readRun() {
     output_ << "\treadRun " << run_ << "\n";
-    return statemachine::Run(ProcessHistoryID(), run_);
+    return std::make_pair(ProcessHistoryID(), run_);
   }
 
-  statemachine::Run MockEventProcessor::readAndMergeRun() {
+  std::pair<ProcessHistoryID,RunNumber_t> MockEventProcessor::readAndMergeRun() {
     output_ << "\treadAndMergeRun " << run_ << "\n";
-    return statemachine::Run(ProcessHistoryID(), run_);
+    return std::make_pair(ProcessHistoryID(), run_);
   }
 
   int MockEventProcessor::readLuminosityBlock() {

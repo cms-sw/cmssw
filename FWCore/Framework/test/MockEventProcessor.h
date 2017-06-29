@@ -48,8 +48,8 @@ namespace edm {
     virtual void beginLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi) override;
     virtual void endLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi, bool cleaningUpAfterException) override;
 
-    virtual statemachine::Run readRun() override;
-    virtual statemachine::Run readAndMergeRun() override;
+    virtual std::pair<ProcessHistoryID,RunNumber_t> readRun() override;
+    virtual std::pair<ProcessHistoryID,RunNumber_t> readAndMergeRun() override;
     virtual int readLuminosityBlock() override;
     virtual int readAndMergeLumi() override;
     virtual void writeRun(ProcessHistoryID const& phid, RunNumber_t run) override;
