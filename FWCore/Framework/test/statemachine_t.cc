@@ -63,39 +63,21 @@ int main(int argc, char* argv[]) try {
   fileModes.push_back(NOMERGE);
   fileModes.push_back(FULLMERGE);
 
-  std::vector<EmptyRunLumiMode> emptyRunLumiModes;
-  emptyRunLumiModes.push_back(handleEmptyRunsAndLumis);
-  emptyRunLumiModes.push_back(handleEmptyRuns);
-  emptyRunLumiModes.push_back(doNotHandleEmptyRunsAndLumis);
-
   for (size_t k = 0; k < fileModes.size(); ++k) {
     FileMode fileMode = fileModes[k];
 
-    for (size_t i = 0; i < emptyRunLumiModes.size(); ++i) {
-      EmptyRunLumiMode emptyRunLumiMode = emptyRunLumiModes[i];
-      output << "\nMachine parameters:  ";
-      if (fileMode == NOMERGE) output << "mode = NOMERGE";
-      else output << "mode = FULLMERGE";
+    output << "\nMachine parameters:  ";
+    if (fileMode == NOMERGE) output << "mode = NOMERGE";
+    else output << "mode = FULLMERGE";
 
-      output << "  emptyRunLumiMode = ";
-      if  (emptyRunLumiMode == handleEmptyRunsAndLumis) {
-        output << "handleEmptyRunsAndLumis";
-      }
-      else if  (emptyRunLumiMode == handleEmptyRuns) {
-        output << "handleEmptyRuns";
-      }
-      else if  (emptyRunLumiMode == doNotHandleEmptyRunsAndLumis) {
-        output << "doNotHandleEmptyRunsAndLumis";
-      }
-      output << "\n";
+    output << "\n";
 
-      edm::MockEventProcessor mockEventProcessor(mockData,
-                                                 output,
-                                                 fileMode,
-                                                 emptyRunLumiMode);
+    edm::MockEventProcessor mockEventProcessor(mockData,
+                                               output,
+                                               fileMode,
+                                               handleEmptyRunsAndLumis);
 
-      mockEventProcessor.runToCompletion();
-    }
+    mockEventProcessor.runToCompletion();
   }
   return 0;
 } catch(std::exception const& e) {
