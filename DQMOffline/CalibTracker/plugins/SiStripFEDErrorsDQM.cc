@@ -1,17 +1,22 @@
 #include "SiStripFEDErrorsDQM.h"
 
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
-
-using namespace std;
-using namespace edm;
+#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+#include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
+#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
+#include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
+#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
 SiStripFEDErrorsDQM::SiStripFEDErrorsDQM(const edm::ParameterSet& iConfig) :
-  SiStripBaseServiceFromDQM<SiStripBadStrip>::SiStripBaseServiceFromDQM(iConfig),
-  iConfig_(iConfig),
+  SiStripDQMStoreReader(iConfig),
   fp_(iConfig.getUntrackedParameter<edm::FileInPath>("file",edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"))),
-  cablingCacheId_(0),
+  runNumber_{iConfig.getParameter<uint32_t>("RunNb")},
   threshold_(iConfig.getUntrackedParameter<double>("Threshold",0)),
-  debug_(iConfig.getUntrackedParameter<unsigned int>("Debug",0))
+  debug_(iConfig.getUntrackedParameter<unsigned int>("Debug",0)),
+  cablingCacheId_(0)
 {
   obj_ = 0;
   edm::LogInfo("SiStripFEDErrorsDQM") <<  "[SiStripFEDErrorsDQM::SiStripFEDErrorsDQM()]";
@@ -79,7 +84,7 @@ bool SiStripFEDErrorsDQM::readBadAPVs(){
   SiStripDetInfoFileReader lReader(fp_.fullPath());
 
   std::ostringstream lPath;
-  lPath << "Run " << getRunNumber() << "/SiStrip/Run summary/ReadoutView/";
+  lPath << "Run " << runNumber_ << "/SiStrip/Run summary/ReadoutView/";
 
   dqmStore_->setCurrentFolder(lPath.str());
   LogTrace("SiStripFEDErrorsDQM") << "[SiStripFEDErrorsDQM::readBadAPVs] Now in " << dqmStore_->pwd() << std::endl;

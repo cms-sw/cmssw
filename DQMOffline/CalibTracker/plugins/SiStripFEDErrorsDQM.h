@@ -3,30 +3,13 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/Exception.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+class SiStripFedCabling;
+class FedChannelConnection;
 
-#include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
-#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
-#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
-#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
-#include "CondTools/SiStrip/interface/SiStripCondObjBuilderBase.h"
+class SiStripBadStrip;
 
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMOffline/CalibTracker/interface/SiStripBaseServiceFromDQM.h"
-
-#include <TFile.h>
-#include <string>
-#include <map>
+#include "DQMOffline/CalibTracker/plugins/SiStripDQMStoreReader.h"
 
 /**
   @class SiStripFEDErrorsDQM
@@ -34,12 +17,12 @@
   @EDAnalyzer to read modules flagged by the DQM due to FED errors as bad and write in the database with the proper error flag.
 */
 
-class SiStripFEDErrorsDQM : public edm::EDAnalyzer, public SiStripBaseServiceFromDQM<SiStripBadStrip>
+class SiStripFEDErrorsDQM : public edm::EDAnalyzer, private SiStripDQMStoreReader
 {
  public:
   SiStripFEDErrorsDQM(const edm::ParameterSet& iConfig);
   ~SiStripFEDErrorsDQM();
-  
+
  private:
   virtual void beginJob();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
@@ -48,7 +31,7 @@ class SiStripFEDErrorsDQM : public edm::EDAnalyzer, public SiStripBaseServiceFro
   bool readBadAPVs();
 
   void readHistogram(MonitorElement* aMe,
-		     unsigned int & aCounter, 
+		     unsigned int & aCounter,
 		     const float aNorm,
 		     const unsigned int aFedId);
 
@@ -72,14 +55,17 @@ class SiStripFEDErrorsDQM : public edm::EDAnalyzer, public SiStripBaseServiceFro
   //update the cabling if necessary
   void updateCabling(const edm::EventSetup& eventSetup);
 
-  edm::ParameterSet iConfig_;
+ private:
   edm::FileInPath fp_;
+  uint32_t runNumber_;
+  double threshold_;
+  unsigned int debug_;
 
   uint32_t cablingCacheId_;
   const SiStripFedCabling* cabling_;
 
-  double threshold_;
-  unsigned int debug_;
+  SiStripBadStrip* obj_;
+
   std::map<uint32_t, std::vector<unsigned int> > detIdErrors_;
 };
 
