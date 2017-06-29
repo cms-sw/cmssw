@@ -1039,8 +1039,8 @@ namespace edm {
     stateMachineWasInErrorState_ = true;
   }
   
-  void EventProcessor::beginRun(statemachine::Run const& run) {
-    RunPrincipal& runPrincipal = principalCache_.runPrincipal(run.processHistoryID(), run.runNumber());
+  void EventProcessor::beginRun(ProcessHistoryID const& phid, RunNumber_t run) {
+    RunPrincipal& runPrincipal = principalCache_.runPrincipal(phid, run);
     {
       SendSourceTerminationSignalIfException sentry(actReg_.get());
 
@@ -1080,7 +1080,7 @@ namespace edm {
         std::rethrow_exception(* (globalWaitTask->exceptionPtr()) );
       }
     }
-    FDEBUG(1) << "\tbeginRun " << run.runNumber() << "\n";
+    FDEBUG(1) << "\tbeginRun " << run << "\n";
     if(looper_) {
       looper_->doBeginRun(runPrincipal, es, &processContext_);
     }
@@ -1104,14 +1104,14 @@ namespace edm {
         std::rethrow_exception(* (streamLoopWaitTask->exceptionPtr()) );
       }
     }
-    FDEBUG(1) << "\tstreamBeginRun " << run.runNumber() << "\n";
+    FDEBUG(1) << "\tstreamBeginRun " << run << "\n";
     if(looper_) {
       //looper_->doStreamBeginRun(schedule_->streamID(),runPrincipal, es);
     }
   }
 
-  void EventProcessor::endRun(statemachine::Run const& run, bool cleaningUpAfterException) {
-    RunPrincipal& runPrincipal = principalCache_.runPrincipal(run.processHistoryID(), run.runNumber());
+  void EventProcessor::endRun(ProcessHistoryID const& phid, RunNumber_t run, bool cleaningUpAfterException) {
+    RunPrincipal& runPrincipal = principalCache_.runPrincipal(phid, run);
     {
       SendSourceTerminationSignalIfException sentry(actReg_.get());
 
@@ -1150,7 +1150,7 @@ namespace edm {
         std::rethrow_exception(* (streamLoopWaitTask->exceptionPtr()) );
       }
     }
-    FDEBUG(1) << "\tstreamEndRun " << run.runNumber() << "\n";
+    FDEBUG(1) << "\tstreamEndRun " << run << "\n";
     if(looper_) {
       //looper_->doStreamEndRun(schedule_->streamID(),runPrincipal, es);
     }
@@ -1172,7 +1172,7 @@ namespace edm {
         std::rethrow_exception(* (globalWaitTask->exceptionPtr()) );
       }
     }
-    FDEBUG(1) << "\tendRun " << run.runNumber() << "\n";
+    FDEBUG(1) << "\tendRun " << run << "\n";
     if(looper_) {
       looper_->doEndRun(runPrincipal, es, &processContext_);
     }
@@ -1368,16 +1368,16 @@ namespace edm {
     return input_->luminosityBlock();
   }
 
-  void EventProcessor::writeRun(statemachine::Run const& run) {
-    schedule_->writeRun(principalCache_.runPrincipal(run.processHistoryID(), run.runNumber()), &processContext_);
-    for_all(subProcesses_, [&run](auto& subProcess){ subProcess.writeRun(run.processHistoryID(), run.runNumber()); });
-    FDEBUG(1) << "\twriteRun " << run.runNumber() << "\n";
+  void EventProcessor::writeRun(ProcessHistoryID const& phid, RunNumber_t run) {
+    schedule_->writeRun(principalCache_.runPrincipal(phid, run), &processContext_);
+    for_all(subProcesses_, [run,phid](auto& subProcess){ subProcess.writeRun(phid, run); });
+    FDEBUG(1) << "\twriteRun " << run << "\n";
   }
 
-  void EventProcessor::deleteRunFromCache(statemachine::Run const& run) {
-    principalCache_.deleteRun(run.processHistoryID(), run.runNumber());
-    for_all(subProcesses_, [&run](auto& subProcess){ subProcess.deleteRunFromCache(run.processHistoryID(), run.runNumber()); });
-    FDEBUG(1) << "\tdeleteRunFromCache " << run.runNumber() << "\n";
+  void EventProcessor::deleteRunFromCache(ProcessHistoryID const& phid, RunNumber_t run) {
+    principalCache_.deleteRun(phid, run);
+    for_all(subProcesses_, [run,phid](auto& subProcess){ subProcess.deleteRunFromCache(phid, run); });
+    FDEBUG(1) << "\tdeleteRunFromCache " << run << "\n";
   }
 
   void EventProcessor::writeLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi) {

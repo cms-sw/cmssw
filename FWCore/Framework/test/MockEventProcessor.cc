@@ -142,12 +142,12 @@ namespace edm {
     output_ << "\tdoErrorStuff\n";
   }
 
-  void MockEventProcessor::beginRun(statemachine::Run const& run) {
-    output_ << "\tbeginRun " << run.runNumber() << "\n";
+  void MockEventProcessor::beginRun(ProcessHistoryID const& phid, RunNumber_t run) {
+    output_ << "\tbeginRun " << run << "\n";
   }
 
-  void MockEventProcessor::endRun(statemachine::Run const& run, bool /*cleaningUpAfterException*/ ) {
-    output_ << "\tendRun " << run.runNumber() << "\n";
+  void MockEventProcessor::endRun(ProcessHistoryID const& phid, RunNumber_t run, bool /*cleaningUpAfterException*/ ) {
+    output_ << "\tendRun " << run << "\n";
   }
 
   void MockEventProcessor::beginLumi(ProcessHistoryID const&, RunNumber_t run, LuminosityBlockNumber_t lumi) {
@@ -178,12 +178,12 @@ namespace edm {
     return lumi_;
   }
 
-  void MockEventProcessor::writeRun(statemachine::Run const& run) {
-    output_ << "\twriteRun " << run.runNumber() << "\n";
+  void MockEventProcessor::writeRun(ProcessHistoryID const& phid, RunNumber_t run) {
+    output_ << "\twriteRun " << run << "\n";
   }
 
-  void MockEventProcessor::deleteRunFromCache(statemachine::Run const& run) {
-    output_ << "\tdeleteRunFromCache " << run.runNumber() << "\n";
+  void MockEventProcessor::deleteRunFromCache(ProcessHistoryID const& phid, RunNumber_t run) {
+    output_ << "\tdeleteRunFromCache " << run << "\n";
   }
 
   void MockEventProcessor::writeLumi(ProcessHistoryID const&, RunNumber_t run, LuminosityBlockNumber_t lumi) {

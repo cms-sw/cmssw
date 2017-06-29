@@ -194,8 +194,8 @@ namespace edm {
 
     virtual void doErrorStuff() override;
 
-    virtual void beginRun(statemachine::Run const& run) override;
-    virtual void endRun(statemachine::Run const& run, bool cleaningUpAfterException) override;
+    virtual void beginRun(ProcessHistoryID const& phid, RunNumber_t run) override;
+    virtual void endRun(ProcessHistoryID const& phid, RunNumber_t run, bool cleaningUpAfterException) override;
 
     virtual void beginLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi) override;
     virtual void endLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi, bool cleaningUpAfterException) override;
@@ -204,8 +204,8 @@ namespace edm {
     virtual statemachine::Run readAndMergeRun() override;
     virtual int readLuminosityBlock() override;
     virtual int readAndMergeLumi() override;
-    virtual void writeRun(statemachine::Run const& run) override;
-    virtual void deleteRunFromCache(statemachine::Run const& run) override;
+    virtual void writeRun(ProcessHistoryID const& phid, RunNumber_t run) override;
+    virtual void deleteRunFromCache(ProcessHistoryID const& phid, RunNumber_t run) override;
     virtual void writeLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi) override;
     virtual void deleteLumiFromCache(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi) override;
 

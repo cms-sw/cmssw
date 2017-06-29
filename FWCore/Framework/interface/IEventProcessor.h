@@ -58,8 +58,8 @@ namespace edm {
 
     virtual void doErrorStuff() = 0;
 
-    virtual void beginRun(statemachine::Run const& run) = 0;
-    virtual void endRun(statemachine::Run const& run, bool cleaningUpAfterException) = 0;
+    virtual void beginRun(ProcessHistoryID const& phid, RunNumber_t run) = 0;
+    virtual void endRun(ProcessHistoryID const& phid, RunNumber_t run, bool cleaningUpAfterException) = 0;
 
     virtual void beginLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi) = 0;
     virtual void endLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi, bool cleaningUpAfterException) = 0;
@@ -68,8 +68,8 @@ namespace edm {
     virtual statemachine::Run readAndMergeRun() = 0;
     virtual int readLuminosityBlock() = 0;
     virtual int readAndMergeLumi() = 0;
-    virtual void writeRun(statemachine::Run const& run) = 0;
-    virtual void deleteRunFromCache(statemachine::Run const& run) = 0;
+    virtual void writeRun(ProcessHistoryID const& phid, RunNumber_t run) = 0;
+    virtual void deleteRunFromCache(ProcessHistoryID const& phid, RunNumber_t run) = 0;
     virtual void writeLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi) = 0;
     virtual void deleteLumiFromCache(ProcessHistoryID const& phid,RunNumber_t run, LuminosityBlockNumber_t lumi) = 0;
 
