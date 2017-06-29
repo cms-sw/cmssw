@@ -75,6 +75,8 @@ hltBTVmonitoring.workingpoint     = cms.double(-1.) #no cut applied
 
 hltBTVmonitoring.HTdefinition = cms.string('pt>30 & abs(eta)<2.5')
 hltBTVmonitoring.leptJetDeltaRmin = cms.double(0.0)
+hltBTVmonitoring.bJetMuDeltaRmax  = cms.double(9999.)
+hltBTVmonitoring.bJetDeltaEtaMax  = cms.double(9999.)
 #always monitor CSV score for one jet
 hltBTVmonitoring.nbjets = cms.uint32(1)
 hltBTVmonitoring.bjetSelection = cms.string('pt>30 & abs(eta)<2.4')
