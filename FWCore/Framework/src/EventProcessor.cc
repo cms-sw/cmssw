@@ -1760,7 +1760,7 @@ namespace edm {
     }
   }
 
-  statemachine::Run EventProcessor::readRun() {
+  std::pair<ProcessHistoryID,RunNumber_t> EventProcessor::readRun() {
     if (principalCache_.hasRunPrincipal()) {
       throw edm::Exception(edm::errors::LogicError)
         << "EventProcessor::readRun\n"
@@ -1775,10 +1775,10 @@ namespace edm {
     }
     assert(input_->reducedProcessHistoryID() == rp->reducedProcessHistoryID());
     principalCache_.insert(rp);
-    return statemachine::Run(rp->reducedProcessHistoryID(), input_->run());
+    return std::make_pair(rp->reducedProcessHistoryID(), input_->run());
   }
 
-  statemachine::Run EventProcessor::readAndMergeRun() {
+  std::pair<ProcessHistoryID,RunNumber_t> EventProcessor::readAndMergeRun() {
     principalCache_.merge(input_->runAuxiliary(), preg());
     auto runPrincipal =principalCache_.runPrincipalPtr();
     {
@@ -1787,7 +1787,7 @@ namespace edm {
       sentry.completedSuccessfully();
     }
     assert(input_->reducedProcessHistoryID() == runPrincipal->reducedProcessHistoryID());
-    return statemachine::Run(runPrincipal->reducedProcessHistoryID(), input_->run());
+    return std::make_pair(runPrincipal->reducedProcessHistoryID(), input_->run());
   }
 
   int EventProcessor::readLuminosityBlock() {
