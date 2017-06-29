@@ -178,6 +178,10 @@ namespace edm {
     // The following functions are used by the code implementing our
     // boost statemachine
 
+    InputSource::ItemType nextTransitionType();
+    std::pair<edm::ProcessHistoryID, edm::RunNumber_t> nextRunID();
+    edm::LuminosityBlockNumber_t nextLuminosityBlockID();
+    
     virtual void readFile() override;
     virtual void closeInputFile(bool cleaningUpAfterException) override;
     virtual void openOutputFiles() override;
@@ -217,6 +221,10 @@ namespace edm {
     virtual void setExceptionMessageLumis(std::string& message) override;
 
     virtual bool alreadyHandlingException() const override;
+    
+    bool setDeferredException(std::exception_ptr);
+
+    InputSource::ItemType readAndProcessEvents();
 
   private:
     //------------------------------------------------------------------

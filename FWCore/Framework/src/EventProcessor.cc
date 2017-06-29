@@ -701,6 +701,354 @@ namespace edm {
     schedule_->clearCounters();
   }
 
+  namespace {
+    //Transition processing helpers
+    
+    struct FileResources {
+      FileResources(edm::EventProcessor& iEP):
+      ep_(iEP) {}
+      
+      
+      ~FileResources() {
+        try {
+          ep_.respondToCloseInputFile();
+          ep_.closeInputFile(cleaningUpAfterException_);
+          ep_.closeOutputFiles();
+        } catch(...) {
+          if(cleaningUpAfterException_ or not ep_.setDeferredException(std::current_exception()) ) {
+            std::string message("Another exception was caught while trying to clean up files after the primary fatal exception.");
+            ep_.setExceptionMessageFiles(message);
+          }
+        }
+      }
+      
+      void normalEnd() {
+        cleaningUpAfterException_ = false;
+      }
+
+      edm::EventProcessor& ep_;
+      bool cleaningUpAfterException_ = true;
+    };
+    
+    struct RunResources {
+      RunResources(edm::EventProcessor& iEP, edm::ProcessHistoryID iHist,edm::RunNumber_t iRun) noexcept:
+      ep_(iEP), history_(iHist), run_(iRun) {}
+      
+      ~RunResources() noexcept {
+        try {
+          //If we skip empty runs, this would be called conditionally
+          ep_.endRun(processHistoryID(), run(), cleaningUpAfterException_);
+          
+          
+          ep_.writeRun(processHistoryID(), run());
+          ep_.deleteRunFromCache(processHistoryID(), run());
+        }
+        catch(...) {
+          if(cleaningUpAfterException_ or not ep_.setDeferredException(std::current_exception())) {
+            std::string message("Another exception was caught while trying to clean up runs after the primary fatal exception.");
+            ep_.setExceptionMessageRuns(message);
+          }
+        }
+
+      }
+      
+      edm::ProcessHistoryID processHistoryID() const {
+        return history_;
+      }
+      
+      edm::RunNumber_t run() const {
+        return run_;
+      }
+      
+      void normalEnd() {
+        cleaningUpAfterException_ = false;
+      }
+      
+      edm::EventProcessor& ep_;
+      edm::ProcessHistoryID history_;
+      edm::RunNumber_t run_;
+      bool cleaningUpAfterException_ = true;
+    };
+    
+    struct LumiResources {
+      LumiResources(std::shared_ptr<RunResources> run, edm::LuminosityBlockNumber_t lumi) noexcept :
+      run_(std::move(run)),
+      lumi_(lumi) {}
+
+      ~LumiResources() noexcept {
+        try {
+          //If we skip empty lumis, this would be called conditionally
+          run_->ep_.endLumi(processHistoryID(), run(), lumi(), cleaningUpAfterException_);
+          
+          
+          run_->ep_.writeLumi(processHistoryID(), run(), lumi());
+          run_->ep_.deleteLumiFromCache(processHistoryID(), run(), lumi());
+          
+        } catch(...) {
+          if(cleaningUpAfterException_ or not run_->ep_.setDeferredException(std::current_exception())) {
+            std::string message("Another exception was caught while trying to clean up lumis after the primary fatal exception.");
+            run_->ep_.setExceptionMessageLumis(message);
+          }
+        }
+
+      }
+      
+      edm::ProcessHistoryID processHistoryID() const {
+        return run_->processHistoryID();
+      }
+      edm::RunNumber_t run() const {
+        return run_->run();
+      }
+      edm::LuminosityBlockNumber_t lumi() const {
+        return lumi_;
+      }
+      
+      void normalEnd() {
+        cleaningUpAfterException_ = false;
+      }
+      
+      std::shared_ptr<RunResources> run_;
+      edm::LuminosityBlockNumber_t lumi_;
+      bool cleaningUpAfterException_ = true;
+    };
+    
+    struct EventResources {
+      unsigned long long event_;
+      std::shared_ptr<LumiResources> lumi_;
+    };
+    
+    class EventsInLumiProcessor {
+    public:
+      EventsInLumiProcessor(){}
+      
+      InputSource::ItemType processEvents(EventProcessor& iEP, std::shared_ptr<LumiResources> iLumi) {
+        auto ret = iEP.readAndProcessEvents();
+        if(iEP.shouldWeStop()) {
+          //looper requested stopping event processing
+          return InputSource::IsStop;
+        }
+        while( ret == InputSource::IsSynchronize ) {
+          ret = iEP.nextTransitionType();
+        }
+        return ret;
+      }
+      
+    private:
+      //void readEvent(StreamID, InputSource& );
+      //void processEvent(StreamID, InputSource& , std::shared_ptr<LumiResources> ) {
+      //
+      //}
+    };
+    
+    class LumisInRunProcessor {
+    public:
+      InputSource::ItemType processLumis(EventProcessor& iEP, std::shared_ptr<RunResources> iRun) {
+        bool finished = false;
+        auto nextTransition = InputSource::IsLumi;
+        do {
+          switch(nextTransition) {
+            case InputSource::IsLumi:
+            {
+              processLumi(iEP,iRun);
+              nextTransition = iEP.nextTransitionType();
+              break;
+            }
+            case InputSource::IsEvent:
+            {
+              nextTransition = events_.processEvents(iEP,currentLumi_);
+              break;
+            }
+            default:
+              finished = true;
+          }
+          
+        } while(not finished);
+        return nextTransition;
+      }
+
+      void normalEnd() {
+        if (currentLumi_) {
+          currentLumi_->normalEnd();
+        }
+        currentLumi_.reset();
+      }
+    private:
+
+      void processLumi(EventProcessor& iEP, std::shared_ptr<RunResources> iRun) {
+        auto lumiID = iEP.nextLuminosityBlockID();
+        if ( (not currentLumi_) or
+            currentLumi_->run_.get() != iRun.get() or
+            currentLumi_->lumi() != lumiID) {
+          //switching to a different lumi
+          if(currentLumi_) {
+            currentLumi_->normalEnd();
+          }
+          currentLumi_ = std::make_shared<LumiResources>(iRun,lumiID);
+          auto id = iEP.readLuminosityBlock();
+          assert((id >= 0) and (static_cast<unsigned int>(id) == lumiID));
+          iEP.beginLumi(currentLumi_->processHistoryID(), currentLumi_->run(), currentLumi_->lumi());
+        } else {
+          //merge
+          auto id = iEP.readAndMergeLumi();
+          assert((id >= 0) and (static_cast<unsigned int>(id) == lumiID) );
+        }
+      }
+      
+      std::shared_ptr<LumiResources> currentLumi_;
+      EventsInLumiProcessor events_;
+      
+    };
+    
+    class RunsInFileProcessor {
+    public:
+      InputSource::ItemType processRuns(EventProcessor& iEP) {
+        bool finished = false;
+        auto nextTransition = InputSource::IsRun;
+        do {
+          switch(nextTransition) {
+            case InputSource::IsRun:
+            {
+              processRun(iEP);
+              nextTransition = iEP.nextTransitionType();
+              break;
+            }
+            case InputSource::IsLumi:
+            {
+              nextTransition = lumis_.processLumis(iEP, currentRun_);
+              break;
+            }
+            default:
+              finished=true;
+          }
+        } while(not finished);
+        return nextTransition;
+      }
+      
+      void normalEnd() {
+        lumis_.normalEnd();
+        if(currentRun_) {
+          currentRun_->normalEnd();
+        }
+        currentRun_.reset();
+      }
+
+    private:
+      void processRun(EventProcessor& iEP) {
+        auto runID = iEP.nextRunID();
+        if ( (not currentRun_) or
+            (currentRun_->processHistoryID() !=runID.first) or
+            (currentRun_->run() != runID.second) ) {
+          if(currentRun_) {
+            //Both the current run and lumi end here
+            lumis_.normalEnd();
+            currentRun_->normalEnd();
+          }
+          currentRun_ = std::make_shared<RunResources>(iEP,runID.first,runID.second);
+          iEP.readRun();
+          iEP.beginRun(runID.first,runID.second);
+        } else {
+          //merge
+          iEP.readAndMergeRun();
+        }
+      }
+      
+      std::shared_ptr<RunResources> currentRun_;
+      LumisInRunProcessor lumis_;
+      
+    };
+    
+
+    
+    
+    class FilesProcessor {
+    public:
+      explicit FilesProcessor(bool iDoNotMerge): doNotMerge_(iDoNotMerge) {}
+      
+      InputSource::ItemType processFiles(EventProcessor& iEP) {
+        bool finished = false;
+        auto nextTransition = iEP.nextTransitionType();
+        do {
+          switch(nextTransition) {
+            case InputSource::IsFile:
+            {
+              processFile(iEP);
+              nextTransition = iEP.nextTransitionType();
+              break;
+            }
+            case InputSource::IsRun:
+            {
+              nextTransition = runs_.processRuns(iEP);
+              break;
+            }
+            default:
+              finished = true;
+          }
+        } while(not finished);
+        runs_.normalEnd();
+        
+        return nextTransition;
+      }
+      
+      void normalEnd() {
+        runs_.normalEnd();
+        if(filesOpen_) {
+          filesOpen_->normalEnd();
+          filesOpen_.reset();
+        }
+      }
+
+    private:
+      void processFile(EventProcessor& iEP) {
+        if(not filesOpen_) {
+          readFirstFile(iEP);
+        } else {
+          if(shouldWeCloseOutput(iEP)) {
+            gotoNewInputAndOutputFiles(iEP);
+          } else {
+            gotoNewInputFile(iEP);
+          }
+        }
+      }
+      
+      void readFirstFile(EventProcessor& iEP) {
+        iEP.readFile();
+        iEP.respondToOpenInputFile();
+        
+        iEP.openOutputFiles();
+        filesOpen_ = std::make_unique<FileResources>(iEP);
+      }
+      
+      bool shouldWeCloseOutput(EventProcessor& iEP) {
+        if(doNotMerge_) return true;
+        return iEP.shouldWeCloseOutput();
+      }
+      
+      void gotoNewInputFile(EventProcessor& iEP) {
+        iEP.respondToCloseInputFile();
+        iEP.closeInputFile(false);
+        
+        iEP.readFile();
+        iEP.respondToOpenInputFile();
+      }
+      
+      void gotoNewInputAndOutputFiles(EventProcessor& iEP) {
+        iEP.respondToCloseInputFile();
+        iEP.closeInputFile(false);
+        
+        iEP.closeOutputFiles();
+        
+        iEP.readFile();
+        iEP.respondToOpenInputFile();
+        
+        iEP.openOutputFiles();
+      }
+      
+      RunsInFileProcessor runs_;
+      std::unique_ptr<FileResources> filesOpen_;
+      bool doNotMerge_;
+    };
+
+  }
 
   std::unique_ptr<statemachine::Machine>
   EventProcessor::createStateMachine() {
@@ -746,7 +1094,115 @@ namespace edm {
     return returnValue;
   }
 
+  InputSource::ItemType
+  EventProcessor::nextTransitionType() {
+    SendSourceTerminationSignalIfException sentry(actReg_.get());
+    InputSource::ItemType itemType;
+    //For now, do nothing with InputSource::IsSynchronize
+    do {
+      itemType = input_->nextItemType();
+    } while( itemType == InputSource::IsSynchronize);
+    
+    sentry.completedSuccessfully();
+    
+    StatusCode returnCode=epSuccess;
+    
+    if(checkForAsyncStopRequest(returnCode)) {
+      actReg_->preSourceEarlyTerminationSignal_(TerminationOrigin::ExternalSignal);
+      return InputSource::IsStop;
+    }
 
+    return itemType;
+  }
+
+  std::pair<edm::ProcessHistoryID, edm::RunNumber_t>
+  EventProcessor::nextRunID() {
+    return std::make_pair(input_->reducedProcessHistoryID(), input_->run());
+  }
+  
+  edm::LuminosityBlockNumber_t
+  EventProcessor::nextLuminosityBlockID() {
+    return input_->luminosityBlock();
+  }
+
+  EventProcessor::StatusCode
+  EventProcessor::runToCompletion() {
+    
+    StatusCode returnCode=epSuccess;
+    asyncStopStatusCodeFromProcessingEvents_=epSuccess;
+    {
+      beginJob(); //make sure this was called
+      
+      //StatusCode returnCode = epSuccess;
+      stateMachineWasInErrorState_ = false;
+      
+      // make the services available
+      ServiceRegistry::Operate operate(serviceToken_);
+
+      
+      nextItemTypeFromProcessingEvents_=InputSource::IsEvent;
+      asyncStopRequestedWhileProcessingEvents_=false;
+      try {
+        FilesProcessor fp(fileMode_ == std::string("NOMERGE"));
+
+        convertException::wrap([&]() {
+          bool firstTime = true;
+          do {
+            if(not firstTime) {
+              prepareForNextLoop();
+              rewindInput();
+            } else {
+              firstTime = false;
+            }
+            startingNewLoop();
+            
+            auto trans = fp.processFiles(*this);
+            
+            fp.normalEnd();
+            
+            if(deferredExceptionPtrIsSet_.load()) {
+              std::rethrow_exception(deferredExceptionPtr_);
+            }
+            if(trans != InputSource::IsStop) {
+              //problem with the source
+              doErrorStuff();
+              
+              throw cms::Exception("BadTransition")
+              << "Unexpected transition change "
+              << trans;
+
+            }
+          } while(not endOfLoop());
+        }); // convertException::wrap
+        
+      } // Try block
+      catch (cms::Exception & e) {
+        if (!exceptionMessageLumis_.empty()) {
+          e.addAdditionalInfo(exceptionMessageLumis_);
+          if (e.alreadyPrinted()) {
+            LogAbsolute("Additional Exceptions") << exceptionMessageLumis_;
+          }
+        }
+        if (!exceptionMessageRuns_.empty()) {
+          e.addAdditionalInfo(exceptionMessageRuns_);
+          if (e.alreadyPrinted()) {
+            LogAbsolute("Additional Exceptions") << exceptionMessageRuns_;
+          }
+        }
+        if (!exceptionMessageFiles_.empty()) {
+          e.addAdditionalInfo(exceptionMessageFiles_);
+          if (e.alreadyPrinted()) {
+            LogAbsolute("Additional Exceptions") << exceptionMessageFiles_;
+          }
+        }
+        throw;
+      }
+    }
+    
+    return returnCode;
+  }
+
+#if defined(_NOT_DEFINED_)
   EventProcessor::StatusCode
   EventProcessor::runToCompletion() {
 
@@ -921,7 +1377,8 @@ namespace edm {
 
     return returnCode;
   }
-
+#endif
+  
   void EventProcessor::readFile() {
     FDEBUG(1) << " \treadFile\n";
     size_t size = preg_->size();
@@ -1484,6 +1941,9 @@ namespace edm {
   }
 
   void EventProcessor::readAndProcessEvent() {
+    readAndProcessEvents();
+  }
+  InputSource::ItemType EventProcessor::readAndProcessEvents() {
     nextItemTypeFromProcessingEvents_ = InputSource::IsEvent; //needed for looper
     asyncStopRequestedWhileProcessingEvents_ = false;
 
@@ -1516,7 +1976,9 @@ namespace edm {
     if(deferredExceptionPtrIsSet_) {
       std::rethrow_exception(deferredExceptionPtr_);
     }
+    return nextItemTypeFromProcessingEvents_;
   }
+
   void EventProcessor::readEvent(unsigned int iStreamIndex) {
     //TODO this will have to become per stream
     auto& event = principalCache_.eventPrincipal(iStreamIndex);
@@ -1648,6 +2110,15 @@ namespace edm {
 
   bool EventProcessor::alreadyHandlingException() const {
     return alreadyHandlingException_;
+  }
+  
+  bool EventProcessor::setDeferredException(std::exception_ptr iException) {
+    bool expected =false;
+    if(deferredExceptionPtrIsSet_.compare_exchange_strong(expected,true)) {
+      deferredExceptionPtr_ = iException;
+      return true;
+    }
+    return false;
   }
 
   void EventProcessor::terminateMachine(std::unique_ptr<statemachine::Machine> iMachine) {
