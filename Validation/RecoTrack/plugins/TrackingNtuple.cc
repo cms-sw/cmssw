@@ -463,6 +463,7 @@ private:
                  const TrackingParticleRefKeyToIndex& tpKeyToIndex,
                  const reco::BeamSpot& bs,
                  const reco::TrackToTrackingParticleAssociator& associatorByHits,
+                 const ClusterTPAssociation& clusterToTPMap,
                  const TransientTrackingRecHitBuilder& theTTRHBuilder,
                  const MagneticField *theMF,
                  const std::vector<std::pair<int, int> >& monoStereoClusterList,
@@ -1103,6 +1104,9 @@ private:
   std::vector<unsigned short> see_nCands;
   std::vector<int> see_trkIdx;
   std::vector<short> see_isTrue;
+  std::vector<int> see_bestSimTrkIdx;
+  std::vector<float> see_bestSimTrkShareFrac;
+  std::vector<float> see_bestSimTrkShareFracSimDenom;
   std::vector<std::vector<float> > see_shareFrac; // second index runs through matched TrackingParticles
   std::vector<std::vector<int> > see_simTrkIdx;   // second index runs through matched TrackingParticles
   std::vector<std::vector<int> > see_hitIdx;      // second index runs through hits
@@ -1490,10 +1494,13 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
     if(includeTrackingParticles_) {
       t->Branch("see_shareFrac", &see_shareFrac);
       t->Branch("see_simTrkIdx", &see_simTrkIdx  );
+      t->Branch("see_bestSimTrkIdx", &see_bestSimTrkIdx);
     }
     else {
       t->Branch("see_isTrue", &see_isTrue);
     }
+    t->Branch("see_bestSimTrkShareFrac", &see_bestSimTrkShareFrac);
+    t->Branch("see_bestSimTrkShareFracSimDenom", &see_bestSimTrkShareFracSimDenom);
     if(includeAllHits_) {
       t->Branch("see_hitIdx" , &see_hitIdx  );
       t->Branch("see_hitType", &see_hitType );
@@ -1777,10 +1784,11 @@ void TrackingNtuple::clearVariables() {
   see_stopReason.clear();
   see_nCands  .clear();
   see_trkIdx  .clear();
-  if(includeTrackingParticles_) {
-    see_shareFrac.clear();
-    see_simTrkIdx.clear();
-  }
+  see_bestSimTrkIdx.clear();
+  see_bestSimTrkShareFrac.clear();
+  see_bestSimTrkShareFracSimDenom.clear();
+  see_shareFrac.clear();
+  see_simTrkIdx.clear();
   see_hitIdx  .clear();
   see_hitType .clear();
   //seed algo offset
@@ -1955,7 +1963,7 @@ void TrackingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   //seeds
   if(includeSeeds_) {
-    fillSeeds(iEvent, tpCollection, tpKeyToIndex, bs, associatorByHits, *theTTRHBuilder, theMF.product(), monoStereoClusterList, hitProductIds, seedCollToOffset);
+    fillSeeds(iEvent, tpCollection, tpKeyToIndex, bs, associatorByHits, clusterToTPMap, *theTTRHBuilder, theMF.product(), monoStereoClusterList, hitProductIds, seedCollToOffset);
   }
 
   //tracks
@@ -2487,6 +2495,7 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
                                const TrackingParticleRefKeyToIndex& tpKeyToIndex,
                                const reco::BeamSpot& bs,
                                const reco::TrackToTrackingParticleAssociator& associatorByHits,
+                               const ClusterTPAssociation& clusterToTPMap,
                                const TransientTrackingRecHitBuilder& theTTRHBuilder,
                                const MagneticField *theMF,
                                const std::vector<std::pair<int, int> >& monoStereoClusterList,
@@ -2564,13 +2573,20 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
         }
       }
 
+      // Search for a best-matching TrackingParticle for a seed
+      const int nHits = seedTrack.numberOfValidHits();
+      const auto bestKeyCount = findBestMatchingTrackingParticle(seedTrack, clusterToTPMap);
+      const float bestShareFrac = static_cast<float>(bestKeyCount.second)/static_cast<float>(nHits);
+      float bestShareFracSimDenom = 0;
+      if(bestKeyCount.first >= 0) {
+        bestShareFracSimDenom = static_cast<float>(bestKeyCount.second)/static_cast<float>(tpCollection[tpKeyToIndex.at(bestKeyCount.first)]->numberOfTrackerHits());
+      }
 
       const bool seedFitOk = !trackFromSeedFitFailed(seedTrack);
       const int charge = seedTrack.charge();
       const float pt  = seedFitOk ? seedTrack.pt()  : 0;
       const float eta = seedFitOk ? seedTrack.eta() : 0;
       const float phi = seedFitOk ? seedTrack.phi() : 0;
-      const int nHits = seedTrack.numberOfValidHits();
 
       const auto seedIndex = see_fitok.size();
 
@@ -2610,10 +2626,13 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
       if(includeTrackingParticles_) {
         see_shareFrac.push_back( sharedFraction );
         see_simTrkIdx.push_back( tpIdx );
+        see_bestSimTrkIdx.push_back(bestKeyCount.first >= 0 ? tpKeyToIndex.at(bestKeyCount.first) : -1);
       }
       else {
         see_isTrue.push_back(!tpIdx.empty());
       }
+      see_bestSimTrkShareFrac.push_back(bestShareFrac);
+      see_bestSimTrkShareFracSimDenom.push_back(bestShareFracSimDenom);
 
       /// Hmm, the following could make sense instead of plain failing if propagation to beam line fails
       /*
