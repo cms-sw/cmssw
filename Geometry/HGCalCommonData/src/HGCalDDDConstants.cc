@@ -75,6 +75,7 @@ HGCalDDDConstants::HGCalDDDConstants(const HGCalParameters* hp,
     
   }  
   
+  int wminT(9999999), wmaxT(0), kount1(0), kount2(0);
   for (unsigned int i=0; i<getTrFormN(); ++i) {
     int lay0 = getTrForm(i).lay;
     int wmin(9999999), wmax(0), kount(0);
@@ -85,6 +86,10 @@ HGCalDDDConstants::HGCalDDDConstants(const HGCalParameters* hp,
 	++kount;
       }
     }
+    if (wminT  > wmin)  wminT = wmin;
+    if (wmaxT  < wmax)  wmaxT = wmax;
+    if (kount1 < kount) kount1= kount;
+    kount2 += kount;
 #ifdef EDM_ML_DEBUG
     int lay1 = getIndex(lay0,true).first;
     std::cout << "Index " << i << " Layer " << lay0 << ":" << lay1 
@@ -93,6 +98,11 @@ HGCalDDDConstants::HGCalDDDConstants(const HGCalParameters* hp,
     HGCWaferParam a1{ {wmin,wmax,kount} };
     waferLayer_[lay0] = a1;
   }
+  waferMax_ = std::array<int,4>{ {wminT,wmaxT,kount1,kount2} };
+#ifdef EDM_ML_DEBUG
+  std::cout << "Overall wafer statistics: " << wminT << ":" << wmaxT << ":"
+	    << kount1 << ":" << kount2 << std::endl;
+#endif
 }
 
 HGCalDDDConstants::~HGCalDDDConstants() {}
