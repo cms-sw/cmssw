@@ -37,7 +37,7 @@
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 
-#include "DQMOffline/Trigger/plugins/GENERICDQM.h"
+#include "DQMOffline/Trigger/plugins/TriggerDQMBase.h"
 #include "DQMOffline/Trigger/plugins/METDQM.h"
 #include "DQMOffline/Trigger/plugins/JetDQM.h"
 
@@ -62,6 +62,23 @@ protected:
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
 
 private:
+
+  bool looseJetId(const double & abseta,
+		  const double & NHF,
+		  const double & NEMF,
+		  const double & CHF,
+		  const double & CEMF,
+		  const unsigned & NumNeutralParticles,
+		  const unsigned  & CHM);
+  
+  bool tightJetId(const double & abseta,
+		  const double & NHF,
+		  const double & NEMF,
+		  const double & CHF,
+		  const double & CEMF,
+		  const unsigned & NumNeutralParticles,
+		  const unsigned  & CHM);
+  
   std::string folderName_;
   std::string histoSuffix_;
 
@@ -83,6 +100,7 @@ private:
 
   StringCutObjectSelector<reco::MET,true>         metSelection_;
   StringCutObjectSelector<reco::PFJet,true   >    jetSelection_;
+  std::string jetId_;
   StringCutObjectSelector<reco::GsfElectron,true> eleSelection_;
   StringCutObjectSelector<reco::Muon,true>        muoSelection_;
   int njets_;
