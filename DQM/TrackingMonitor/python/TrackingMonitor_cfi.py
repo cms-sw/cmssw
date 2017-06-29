@@ -32,10 +32,8 @@ TrackMon = cms.EDAnalyzer("TrackingMonitor",
     pvLabels = cms.vstring(),
                           
     # output parameters
-    OutputMEsInRootFile = cms.bool(False),
     AlgoName            = cms.string('GenTk'),
     Quality             = cms.string(''),
-    OutputFileName      = cms.string('MonitorTrack.root'),
     FolderName          = cms.string('Tracking/GlobalParameters'),
     BSFolderName        = cms.string('Tracking/ParametersVsBeamSpot'),
     PVFolderName        = cms.string('Tracking/PrimaryVertices'),
