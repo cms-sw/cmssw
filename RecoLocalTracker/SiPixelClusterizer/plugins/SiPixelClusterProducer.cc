@@ -103,6 +103,10 @@
     edm::ESHandle<TrackerGeometry> geom;
     es.get<TrackerDigiGeometryRecord>().get( geom );
 
+    edm::ESHandle<TrackerTopology> trackerTopologyHandle;
+    es.get<TrackerTopologyRcd>().get(trackerTopologyHandle);
+    tTopo_ = trackerTopologyHandle.product();
+
     // Step B: create the final output collection
     auto output = std::make_unique< SiPixelClusterCollectionNew>();
     //FIXME: put a reserve() here
@@ -185,7 +189,7 @@
       // Produce clusters for this DetUnit and store them in 
       // a DetSet
       edmNew::DetSetVector<SiPixelCluster>::FastFiller spc(output, DSViter->detId());
-      clusterizer_->clusterizeDetUnit(*DSViter, pixDet, badChannels, spc);
+      clusterizer_->clusterizeDetUnit(*DSViter, pixDet, tTopo_, badChannels, spc);
       if ( spc.empty() ) {
         spc.abort();
       } else {

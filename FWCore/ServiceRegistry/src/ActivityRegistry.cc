@@ -119,9 +119,6 @@ namespace edm {
      preSourceConstructionSignal_.connect(std::cref(iOther.preSourceConstructionSignal_));
      postSourceConstructionSignal_.connect(std::cref(iOther.postSourceConstructionSignal_));
 
-     preForkReleaseResourcesSignal_.connect(std::cref(iOther.preForkReleaseResourcesSignal_));
-     postForkReacquireResourcesSignal_.connect(std::cref(iOther.postForkReacquireResourcesSignal_));
-    
     preStreamEarlyTerminationSignal_.connect(std::cref(iOther.preStreamEarlyTerminationSignal_));
     preGlobalEarlyTerminationSignal_.connect(std::cref(iOther.preGlobalEarlyTerminationSignal_));
     preSourceEarlyTerminationSignal_.connect(std::cref(iOther.preSourceEarlyTerminationSignal_));
@@ -432,8 +429,6 @@ namespace edm {
     copySlotsToFrom(preSourceConstructionSignal_, iOther.preSourceConstructionSignal_);
     copySlotsToFromReverse(postSourceConstructionSignal_, iOther.postSourceConstructionSignal_);
 
-    copySlotsToFrom(preForkReleaseResourcesSignal_, iOther.preForkReleaseResourcesSignal_);
-    copySlotsToFromReverse(postForkReacquireResourcesSignal_, iOther.postForkReacquireResourcesSignal_);
   }
 
   //
