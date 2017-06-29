@@ -1,5 +1,5 @@
-#ifndef __EcalReadoutTools_H__
-#define __EcalReadoutTools_H__
+#ifndef CalibCalorimetry_EcalTPGTools_EcalReadoutTools_H
+#define CalibCalorimetry_EcalTPGTools_EcalReadoutTools_H
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
