@@ -236,7 +236,7 @@ HLTMuonDimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSet
 	  }
         } //MTL loop
 
-        if ( !( l1CandTag_ == edm::InputTag("")) && check_l1match && matchPreviousCand_){
+        if (not l1CandTag_.label().empty() and check_l1match and matchPreviousCand_){
             iEvent.getByToken(l1CandToken_,level1Cands);
             level1Cands->getObjects(trigger::TriggerL1Mu,vl1cands);
             const unsigned int nL1Muons(vl1cands.size());
@@ -456,17 +456,17 @@ bool HLTMuonDimuonL3Filter::triggeredByLevel2(TrackRef const & staTrack,vector<R
 
 bool HLTMuonDimuonL3Filter::applyMuonSelection(const RecoChargedCandidateRef& cand, const BeamSpot& beamSpot) const{
 	// eta cut
-	if (fabs(cand->eta())>max_Eta_) return false;
+	if (std::abs(cand->eta())>max_Eta_) return false;
 	
 	// cut on number of hits
 	TrackRef tk = cand->track();
 	if (tk->numberOfValidHits()<min_Nhits_) return false;
 	
 	//dr cut
-	if (fabs( (- (cand->vx()-beamSpot.x0()) * cand->py() + (cand->vy()-beamSpot.y0()) * cand->px() ) / cand->pt() ) >max_Dr_) return false;
+	if (std::abs( (- (cand->vx()-beamSpot.x0()) * cand->py() + (cand->vy()-beamSpot.y0()) * cand->px() ) / cand->pt() ) >max_Dr_) return false;
 	
 	//dz cut
-	if (fabs((cand->vz()-beamSpot.z0()) - ((cand->vx()-beamSpot.x0())*cand->px()+(cand->vy()-beamSpot.y0())*cand->py())/cand->pt() * cand->pz()/cand->pt())>max_Dz_) return false;
+	if (std::abs((cand->vz()-beamSpot.z0()) - ((cand->vx()-beamSpot.x0())*cand->px()+(cand->vy()-beamSpot.y0())*cand->py())/cand->pt() * cand->pz()/cand->pt())>max_Dz_) return false;
 
 	return true;
 }
@@ -478,7 +478,7 @@ bool HLTMuonDimuonL3Filter::applyDiMuonSelection(const RecoChargedCandidateRef& 
 	else if (chargeOpt_>0 and (cand1->charge()*cand2->charge()<0)) return false;
 	
 	// Acoplanarity
-	double acop = fabs(cand1->phi()-cand2->phi());
+	double acop = std::abs(cand1->phi()-cand2->phi());
 	if (acop>M_PI) acop = 2*M_PI - acop;
 	acop = M_PI - acop;
 	LogDebug("HLTMuonDimuonL3Filter") << " ... 1-2 acop= " << acop;
@@ -486,7 +486,7 @@ bool HLTMuonDimuonL3Filter::applyDiMuonSelection(const RecoChargedCandidateRef& 
 	if (acop>max_Acop_) return false;
 	
 	// Pt balance
-	double ptbalance = fabs(cand1->pt()-cand2->pt());
+	double ptbalance = std::abs(cand1->pt()-cand2->pt());
 	if (ptbalance<min_PtBalance_) return false;
 	if (ptbalance>max_PtBalance_) return false;
 	
@@ -527,7 +527,7 @@ bool HLTMuonDimuonL3Filter::applyDiMuonSelection(const RecoChargedCandidateRef& 
 	if (!proceed) return false;
 	
 	// Delta Z between the two muons
-	//double DeltaZMuMu = fabs(tk2->dz(beamSpot.position())-tk1->dz(beamSpot.position()));
+	//double DeltaZMuMu = std::abs(tk2->dz(beamSpot.position())-tk1->dz(beamSpot.position()));
 	//if ( DeltaZMuMu > max_DzMuMu_) return false;
 	
 	// DCA between the two muons
@@ -545,7 +545,7 @@ bool HLTMuonDimuonL3Filter::applyDiMuonSelection(const RecoChargedCandidateRef& 
 	}
 	
 	// Max dimuon |rapidity|
-	double rapidity = fabs(p.Rapidity());
+	double rapidity = std::abs(p.Rapidity());
 	if ( rapidity > max_YPair_) return false;
 	
 	// if cutting on cowboys reject muons that bend towards each other
