@@ -1,12 +1,12 @@
 #ifndef DQMOffline_Trigger_METDQM_H
 #define DQMOffline_Trigger_METDQM_H
 
-#include "DQMOffline/Trigger/plugins/GENERICDQM.h"
+#include "DQMOffline/Trigger/plugins/TriggerDQMBase.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class METDQM : public GENERICDQM
+class METDQM : public TriggerDQMBase
 {
  public:
   METDQM();
@@ -20,17 +20,18 @@ class METDQM : public GENERICDQM
 		      const bool passCond);
   static void fillMetDescription(edm::ParameterSetDescription & histoPSet);
 
-  //keep public to fill them directly....
+
+private:
+
   std::vector<double> met_variable_binning_;
   MEbinning           met_binning_;
   MEbinning           phi_binning_;
   MEbinning           ls_binning_;
 
-private:
-  OBJME metME_;
-  OBJME metME_variableBinning_;
-  OBJME metVsLS_;
-  OBJME metPhiME_;
+  ObjME metME_;
+  ObjME metME_variableBinning_;
+  ObjME metVsLS_;
+  ObjME metPhiME_;
 
 };//class
 

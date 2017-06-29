@@ -3,14 +3,14 @@
 
 #include <vector>
 
-#include "DQMOffline/Trigger/plugins/GENERICDQM.h"
+#include "DQMOffline/Trigger/plugins/TriggerDQMBase.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class JetDQM : public GENERICDQM
+class JetDQM : public TriggerDQMBase
 {
  public:
   JetDQM();
@@ -24,7 +24,8 @@ class JetDQM : public GENERICDQM
 		      const bool passCond);
   static void fillJetDescription(edm::ParameterSetDescription & histoPSet);
 
-  //keep public to fill them directly....
+private:
+
   std::vector<double> jetpt_variable_binning_;
   std::vector<double> jet1pt_variable_binning_;
   std::vector<double> jet2pt_variable_binning_;
@@ -36,27 +37,26 @@ class JetDQM : public GENERICDQM
 
   MEbinning           ls_binning_;
 
-private:
   //leading jets pT and eta
-  OBJME jet1ptME_;
-  OBJME jet2ptME_;
-  OBJME jet1etaME_;
-  OBJME jet2etaME_;
+  ObjME jet1ptME_;
+  ObjME jet2ptME_;
+  ObjME jet1etaME_;
+  ObjME jet2etaME_;
   //most central and most forward jets pT and eta
-  OBJME cjetetaME_;
-  OBJME fjetetaME_;
-  OBJME cjetptME_;
-  OBJME fjetptME_;
+  ObjME cjetetaME_;
+  ObjME fjetetaME_;
+  ObjME cjetptME_;
+  ObjME fjetptME_;
   //leading pair quantities
-  OBJME mjjME_;
-  OBJME detajjME_;
-  OBJME dphijjME_;
+  ObjME mjjME_;
+  ObjME detajjME_;
+  ObjME dphijjME_;
   //correlations MET-jets
-  OBJME mindphijmetME_;
+  ObjME mindphijmetME_;
 
-  OBJME jet1etaVsLS_;
-  OBJME mjjVsLS_;
-  OBJME mindphijmetVsLS_;
+  ObjME jet1etaVsLS_;
+  ObjME mjjVsLS_;
+  ObjME mindphijmetVsLS_;
 
 };//class
 

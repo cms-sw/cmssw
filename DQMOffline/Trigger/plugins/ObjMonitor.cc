@@ -27,6 +27,7 @@ ObjMonitor::ObjMonitor( const edm::ParameterSet& iConfig ) :
   , den_genTriggerEventFlag_(std::make_unique<GenericTriggerEventFlag>(iConfig.getParameter<edm::ParameterSet>("denGenericTriggerEventPSet"),consumesCollector(), *this))
   , metSelection_ ( iConfig.getParameter<std::string>("metSelection") )
   , jetSelection_ ( iConfig.getParameter<std::string>("jetSelection") )
+  , jetId_        ( iConfig.getParameter<std::string>("jetId")        )
   , eleSelection_ ( iConfig.getParameter<std::string>("eleSelection") )
   , muoSelection_ ( iConfig.getParameter<std::string>("muoSelection") )
   , njets_      ( iConfig.getParameter<int>("njets" )      )
@@ -81,7 +82,20 @@ void ObjMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   std::vector<reco::PFJet> jets;
   if ( int(jetHandle->size()) < njets_ ) return;
   for ( auto const & j : *jetHandle ) {
-    if ( jetSelection_( j ) ) jets.push_back(j);
+    if ( jetSelection_( j ) ) {
+      if (jetId_=="loose" || jetId_ =="tight"){
+	double abseta = abs(j.eta());
+	double NHF  = j.neutralHadronEnergyFraction();
+	double NEMF = j.neutralEmEnergyFraction();
+	double CHF  = j.chargedHadronEnergyFraction();
+	double CEMF = j.chargedEmEnergyFraction();
+	unsigned NumNeutralParticles =j.neutralMultiplicity();
+	unsigned CHM      = j.chargedMultiplicity();
+	bool passId = (jetId_=="loose" && looseJetId(abseta,NHF,NEMF,CHF,CEMF,NumNeutralParticles,CHM)) || (jetId_=="tight" && tightJetId(abseta,NHF,NEMF,CHF,CEMF,NumNeutralParticles,CHM));
+	if (passId) jets.push_back(j);
+      }
+      else jets.push_back(j);
+    }
   }
   if ( int(jets.size()) < njets_ ) return;
   
@@ -112,6 +126,46 @@ void ObjMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 
 }
 
+bool ObjMonitor::looseJetId(const double & abseta,
+			    const double & NHF,
+			    const double & NEMF,
+			    const double & CHF,
+			    const double & CEMF,
+			    const unsigned & NumNeutralParticles,
+			    const unsigned & CHM)
+{
+  if (abseta<=2.7){
+    unsigned NumConst = CHM+NumNeutralParticles;
+
+    return ((NumConst>1 && NHF<0.99 && NEMF<0.99) && ((abseta<=2.4 && CHF>0 && CHM>0 && CEMF<0.99) || abseta>2.4));
+  }
+  else if (abseta<=3){
+    return (NumNeutralParticles>2 && NEMF>0.01 && NHF<0.98);
+  }
+  else {
+    return NumNeutralParticles>10 && NEMF<0.90;
+  }
+}
+bool ObjMonitor::tightJetId(const double & abseta,
+			    const double & NHF,
+			    const double & NEMF,
+			    const double & CHF,
+			    const double & CEMF,
+			    const unsigned & NumNeutralParticles,
+			    const unsigned & CHM)
+{
+  if (abseta<=2.7){
+    unsigned NumConst = CHM+NumNeutralParticles;
+    return (NumConst>1 && NHF<0.90 && NEMF<0.90 ) && ((abseta<=2.4 && CHF>0 && CHM>0 && CEMF<0.99) || abseta>2.4);
+  }
+  else if (abseta<=3){
+    return (NHF<0.98 && NEMF>0.01 && NumNeutralParticles>2);
+  }
+  else {
+    return (NEMF<0.90 && NumNeutralParticles>10);
+  }
+}
+
 void ObjMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
 {
   edm::ParameterSetDescription desc;
@@ -123,6 +177,7 @@ void ObjMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   desc.add<edm::InputTag>( "muons",    edm::InputTag("muons") );
   desc.add<std::string>("metSelection", "pt > 0");
   desc.add<std::string>("jetSelection", "pt > 0");
+  desc.add<std::string>("jetId", "");
   desc.add<std::string>("eleSelection", "pt > 0");
   desc.add<std::string>("muoSelection", "pt > 0");
   desc.add<int>("njets",      0);

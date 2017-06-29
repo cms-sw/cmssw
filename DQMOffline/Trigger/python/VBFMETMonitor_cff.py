@@ -3,24 +3,22 @@ import FWCore.ParameterSet.Config as cms
 from DQMOffline.Trigger.ObjMonitor_cfi import hltobjmonitoring
 
 # HLT_
-EXO_VBF_METmonitoring = hltobjmonitoring.clone()
-EXO_VBF_METmonitoring.FolderName = cms.string('HLT/Higgs/VBFMET/EXOVBF/')
-EXO_VBF_METmonitoring.numGenericTriggerEventPSet.hltInputTag   = cms.InputTag( "TriggerResults","","reHLT" )
-EXO_VBF_METmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_EXO_VBF")
-#EXO_VBF_METmonitoring.metSelection = cms.string("")
-#EXO_VBF_METmonitoring.jetSelection = cms.string("pt>40 & (eta<4.7 | eta>-4.7)")
-#EXO_VBF_METmonitoring.njets = cms.int32(2)
-#EXO_VBF_METmonitoring.metSelection = cms.string("pt>150")
+DiJetVBFmonitoring = hltobjmonitoring.clone()
+DiJetVBFmonitoring.FolderName = cms.string('HLT/Higgs/VBFMET/DiJet/')
+DiJetVBFmonitoring.numGenericTriggerEventPSet.hltInputTag   = cms.InputTag( "TriggerResults","","HLT" )
+DiJetVBFmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_DiJet110_35_Mjj650_PFMET110_v*","HLT_DiJet110_35_Mjj650_PFMET120_v*","HLT_DiJet110_35_Mjj650_PFMET130_v*")
+#DiJetVBFmonitoring.metSelection = cms.string("")
+DiJetVBFmonitoring.jetSelection = cms.string("pt>40 & abs(eta)<4.7")
+EXO_VBF_METmonitoring.jetId = cms.string("loose")
+DiJetVBFmonitoring.njets = cms.int32(2)
+#DiJetVBFmonitoring.metSelection = cms.string("pt>150")
 
-EXO_VBF_3_METmonitoring = hltobjmonitoring.clone()
-EXO_VBF_3_METmonitoring.FolderName = cms.string('HLT/Higgs/VBFMET/EXOVBF3/')
-EXO_VBF_3_METmonitoring.numGenericTriggerEventPSet.hltInputTag   = cms.InputTag( "TriggerResults","","reHLT" )
-EXO_VBF_3_METmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_EXO_VBF_3")
-#EXO_VBF_3_METmonitoring.jetSelection = cms.string("pt>40 & fabs(eta)<4.7")
-#EXO_VBF_3_METmonitoring.njets = cms.int32(2)
+TripleJetVBFmonitoring = DiJetVBFmonitoring.clone()
+TripleJetVBFmonitoring.FolderName = cms.string('HLT/Higgs/VBFMET/TripleJet/')
+TripleJetVBFmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_TripleJet110_35_35_Mjj650_PFMET110_v*","HLT_TripleJet110_35_35_Mjj650_PFMET120_v*","HLT_TripleJet110_35_35_Mjj650_PFMET130_v*")
 
 higgsinvHLTJetMETmonitoring = cms.Sequence(
-    EXO_VBF_METmonitoring
-    *EXO_VBF_3_METmonitoring
+    DiJetVBFmonitoring
+    *TripleJetVBFmonitoring
 )
 
