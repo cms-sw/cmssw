@@ -1,4 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-higgsClient = cms.Sequence(
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
+from DQMOffline.Trigger.MssmHbbMonitor_Client_cfi import DQMEDHarvester
+
+mssmHbbClient = cms.Sequence(
+   mssmHbbBtagTriggerEfficiency
 )
