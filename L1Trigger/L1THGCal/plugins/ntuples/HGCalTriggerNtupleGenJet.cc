@@ -26,8 +26,6 @@ class HGCalTriggerNtupleGenJet : public HGCalTriggerNtupleBase
         std::vector<float> genjet_eta_;
         std::vector<float> genjet_phi_;
 
-        //std::vector<int>   gen_components_;
-
 };
 
 DEFINE_EDM_PLUGIN(HGCalTriggerNtupleFactory,
@@ -46,7 +44,7 @@ initialize(TTree& tree, const edm::ParameterSet& conf, edm::ConsumesCollector&& 
 {
 
     genjet_token_ = collector.consumes<reco::GenJetCollection>(conf.getParameter<edm::InputTag>("GenJets"));
-    tree.Branch("genjet_n", &genjet_n_, "gen_n/I");
+    tree.Branch("genjet_n", &genjet_n_, "genjet_n/I");
     tree.Branch("genjet_energy", &genjet_energy_);
     tree.Branch("genjet_pt", &genjet_pt_);
     tree.Branch("genjet_eta", &genjet_eta_);
@@ -58,9 +56,9 @@ void
 HGCalTriggerNtupleGenJet::
 fill(const edm::Event& e, const edm::EventSetup& es)
 {
-    edm::Handle<std::vector<reco::GenJet> > genjets_h;
+    edm::Handle< reco::GenJetCollection > genjets_h;
     e.getByToken(genjet_token_, genjets_h);
-    const std::vector<reco::GenJet>& genjets = *genjets_h;
+    const reco::GenJetCollection& genjets = *genjets_h;
 
     clear();
     genjet_n_ = genjets.size();
