@@ -349,6 +349,70 @@ namespace {
 
     return std::make_pair(bestKey, bestKey >= 0 ? bestCount : 0);
   }
+
+  std::pair<int ,int> findMatchingTrackingParticleFromFirstHit(const reco::Track& track,
+                                                               const ClusterTPAssociation& clusterToTPMap) {
+    int bestKey = -1;
+    int bestCount = 0;
+
+    std::vector<unsigned int> validTPs; // first cluster can be associated to multiple TPs, use vector as set as this should be small
+    auto iHit = track.recHitsBegin();
+    {
+      const TrackingRecHit& hit = **iHit;
+      if(!hit.isValid()) {
+        throw cms::Exception("LogicError") << "I expected first track hit to be valid, but encountered an invalid hit...";
+      }
+      auto range = clusterToTPMap.equal_range(dynamic_cast<const BaseTrackerRecHit&>(hit).firstClusterRef());
+      for(auto ip=range.first; ip != range.second; ++ip) {
+        validTPs.push_back(ip->second.key());
+      }
+    }
+    if(validTPs.empty()) {
+      return std::make_pair(bestKey, bestCount);
+    }
+    ++iHit;
+    ++bestCount;
+
+    std::vector<bool> foundTPs(validTPs.size(), false);
+    for(auto iEnd=track.recHitsEnd(); iHit != iEnd; ++iHit) {
+      const TrackingRecHit& hit = **iHit;
+      if(hit.isValid()) {
+        // find out to which first-hit TPs this hit is matched to
+        auto range = clusterToTPMap.equal_range(dynamic_cast<const BaseTrackerRecHit&>(hit).firstClusterRef());
+        for(auto ip=range.first; ip != range.second; ++ip) {
+          auto found = std::find(cbegin(validTPs), cend(validTPs), ip->second.key());
+          if(found != cend(validTPs)) {
+            foundTPs[std::distance(cbegin(validTPs), found)] = true;
+          }
+        }
+
+        // remove the non-found TPs
+        auto iTP = validTPs.size();
+        do {
+          --iTP;
+
+          if(!foundTPs[iTP]) {
+            validTPs.erase(validTPs.begin()+iTP);
+            foundTPs.erase(foundTPs.begin()+iTP);
+          }
+        } while(iTP > 0);
+        if(!validTPs.empty()) {
+          // for multiple TPs the "first one" is a bit arbitrary, but
+          // I hope it is rare that a track would have many
+          // consecutive hits matched to two TPs
+          bestKey = validTPs[0];
+        }
+        else {
+          break;
+        }
+
+        std::fill(begin(foundTPs), end(foundTPs), false);
+        ++bestCount;
+      }
+    }
+
+    return std::make_pair(bestKey, bestCount);
+  }
 }
 
 //
@@ -913,6 +977,9 @@ private:
   std::vector<int> trk_bestSimTrkIdx;
   std::vector<float> trk_bestSimTrkShareFrac;
   std::vector<float> trk_bestSimTrkShareFracSimDenom;
+  std::vector<int> trk_bestFromFirstHitSimTrkIdx;
+  std::vector<float> trk_bestFromFirstHitSimTrkShareFrac;
+  std::vector<float> trk_bestFromFirstHitSimTrkShareFracSimDenom;
   std::vector<std::vector<float> > trk_shareFrac; // second index runs through matched TrackingParticles
   std::vector<std::vector<int> > trk_simTrkIdx;   // second index runs through matched TrackingParticles
   std::vector<std::vector<int> > trk_hitIdx;      // second index runs through hits
@@ -1294,12 +1361,15 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
     t->Branch("trk_shareFrac", &trk_shareFrac);
     t->Branch("trk_simTrkIdx", &trk_simTrkIdx  );
     t->Branch("trk_bestSimTrkIdx", &trk_bestSimTrkIdx);
+    t->Branch("trk_bestFromFirstHitSimTrkIdx", &trk_bestFromFirstHitSimTrkIdx);
   }
   else {
     t->Branch("trk_isTrue",    &trk_isTrue);
   }
   t->Branch("trk_bestSimTrkShareFrac", &trk_bestSimTrkShareFrac);
   t->Branch("trk_bestSimTrkShareFracSimDenom", &trk_bestSimTrkShareFracSimDenom);
+  t->Branch("trk_bestFromFirstHitSimTrkShareFrac", &trk_bestFromFirstHitSimTrkShareFrac);
+  t->Branch("trk_bestFromFirstHitSimTrkShareFracSimDenom", &trk_bestFromFirstHitSimTrkShareFracSimDenom);
   if(includeAllHits_) {
     t->Branch("trk_hitIdx" , &trk_hitIdx);
     t->Branch("trk_hitType", &trk_hitType);
@@ -1616,6 +1686,9 @@ void TrackingNtuple::clearVariables() {
   trk_bestSimTrkIdx.clear();
   trk_bestSimTrkShareFrac.clear();
   trk_bestSimTrkShareFracSimDenom.clear();
+  trk_bestFromFirstHitSimTrkIdx.clear();
+  trk_bestFromFirstHitSimTrkShareFrac.clear();
+  trk_bestFromFirstHitSimTrkShareFracSimDenom.clear();
   trk_shareFrac.clear();
   trk_simTrkIdx.clear();
   trk_hitIdx   .clear();
@@ -2833,10 +2906,12 @@ void TrackingNtuple::fillTracks(const edm::RefToBaseVector<reco::Track>& tracks,
     // Search for a best-matching TrackingParticle for a track
     const auto bestKeyCount = findBestMatchingTrackingParticle(*itTrack, clusterToTPMap);
     const float bestShareFrac = static_cast<float>(bestKeyCount.second)/static_cast<float>(nHits);
-    float bestShareFracSimDenom = 0;
-    if(bestKeyCount.first >= 0) {
-      bestShareFracSimDenom = static_cast<float>(bestKeyCount.second)/static_cast<float>(tpCollection[tpKeyToIndex.at(bestKeyCount.first)]->numberOfTrackerHits());
-    }
+    const float bestShareFracSimDenom = bestKeyCount.first >= 0 ? static_cast<float>(bestKeyCount.second)/static_cast<float>(tpCollection[tpKeyToIndex.at(bestKeyCount.first)]->numberOfTrackerHits()) : 0;
+    // Another way starting from the first hit of the track
+    const auto bestFirstHitKeyCount = findMatchingTrackingParticleFromFirstHit(*itTrack, clusterToTPMap);
+    const float bestFirstHitShareFrac = static_cast<float>(bestFirstHitKeyCount.second)/static_cast<float>(nHits);
+    const float bestFirstHitShareFracSimDenom = bestFirstHitKeyCount.first >= 0 ? static_cast<float>(bestFirstHitKeyCount.second)/static_cast<float>(tpCollection[tpKeyToIndex.at(bestFirstHitKeyCount.first)]->numberOfTrackerHits()) : 0;
+
 
     float chi2_1Dmod = chi2;
     int count1dhits = 0;
@@ -2928,12 +3003,16 @@ void TrackingNtuple::fillTracks(const edm::RefToBaseVector<reco::Track>& tracks,
       trk_simTrkIdx.push_back(tpIdx);
       trk_shareFrac.push_back(sharedFraction);
       trk_bestSimTrkIdx.push_back(bestKeyCount.first >= 0 ? tpKeyToIndex.at(bestKeyCount.first) : -1);
+      trk_bestFromFirstHitSimTrkIdx.push_back(bestFirstHitKeyCount.first >= 0 ? tpKeyToIndex.at(bestFirstHitKeyCount.first) : -1);
     }
     else {
       trk_isTrue.push_back(!tpIdx.empty());
     }
     trk_bestSimTrkShareFrac.push_back(bestShareFrac);
     trk_bestSimTrkShareFracSimDenom.push_back(bestShareFracSimDenom);
+    trk_bestFromFirstHitSimTrkShareFrac.push_back(bestFirstHitShareFrac);
+    trk_bestFromFirstHitSimTrkShareFracSimDenom.push_back(bestFirstHitShareFracSimDenom);
+
     LogTrace("TrackingNtuple") << "Track #" << itTrack.key() << " with q=" << charge
                                << ", pT=" << pt << " GeV, eta: " << eta << ", phi: " << phi
                                << ", chi2=" << chi2
