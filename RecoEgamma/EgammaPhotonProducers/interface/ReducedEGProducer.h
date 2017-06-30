@@ -96,7 +96,7 @@ class ReducedEGProducer : public edm::stream::EDProducer<> {
  const std::string outPhotonPfCandMap_;
  const std::string outGsfElectronPfCandMap_;
  const std::string outGsfTracks_;  //add by me - Hien xinh dep
- const std::string outGsfTrackCores_; //add by me - Hien xinh dep
+ //const std::string outGsfTrackCores_; //add by me - Hien xinh dep
  const std::vector<std::string> outPhotonIds_;
  const std::vector<std::string> outGsfElectronIds_;
  const std::vector<std::string> outPhotonPFClusterIsos_;
@@ -110,7 +110,7 @@ class ReducedEGProducer : public edm::stream::EDProducer<> {
  const StringCutObjectSelector<reco::GsfElectron> relinkGsfElectronSel_; 
 
  //add by Hien
- const StringCutObjectSelector<reco::GsfTrack> keepGsfTrackSel_;
+ // const StringCutObjectSelector<reco::GsfTrack> keepGsfTrackSel_;
  //const StringCutObjectSelector<reco::GsfTrack> slimRelinkGsfTrackSel_;
  //const StringCutObjectSelector<reco::GsfTrack> relinkGsfTrackSel_;
 };
