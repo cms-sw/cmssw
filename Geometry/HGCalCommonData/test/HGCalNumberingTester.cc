@@ -100,8 +100,8 @@ void HGCalNumberingTester::analyze( const edm::Event& iEvent, const edm::EventSe
 	    << hgdc.minSlope() << std::endl;
   if (hexType_) {
     std::cout << "Minimum Wafer # " << hgdc.waferMin() << " Mamximum Wafer # "
-	      << hgdc.waferMax() << " Wafer counts " << hgdc.waferKount(0)
-	      << ":" << hgdc.waferKount(1) << std::endl;
+	      << hgdc.waferMax() << " Wafer counts " << hgdc.waferCount(0)
+	      << ":" << hgdc.waferCount(1) << std::endl;
     for (unsigned int i=0; i<hgdc.layers(true); ++i) 
       std::cout << "Layer " << i+1 << " Wafers " << hgdc.wafers(i+1,0) << ":"
 		<< hgdc.wafers(i+1,1) << ":" << hgdc.wafers(i+1,2) <<std::endl;

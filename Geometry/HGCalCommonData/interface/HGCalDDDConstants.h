@@ -73,7 +73,7 @@ public:
 					int& wafer, int& icell, 
 					int& celltyp) const;
   bool                waferInLayer(int wafer, int lay, bool reco) const;
-  int                 waferKount(const int type) const {return ((type == 0) ? waferMax_[2] : waferMax_[3]);}
+  int                 waferCount(const int type) const {return ((type == 0) ? waferMax_[2] : waferMax_[3]);}
   int                 waferMax() const {return waferMax_[1];}
   int                 waferMin() const {return waferMax_[0];}
   std::pair<double,double> waferPosition(int wafer, bool reco=true) const;
