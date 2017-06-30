@@ -31,12 +31,9 @@ namespace edm {
 
   static ProcessHistory const s_emptyProcessHistory;
 
-  static const std::string kCurrentProcess("@currentProcess");
-
-
   static
   std::string appendCurrentProcessIfAlias(std::string const& processFromInputTag, std::string const& currentProcess) {
-    if (processFromInputTag == kCurrentProcess) {
+    if (processFromInputTag == InputTag::kCurrentProcess) {
       std::string returnValue = processFromInputTag;
       returnValue += " (";
       returnValue += currentProcess;
@@ -663,7 +660,7 @@ namespace edm {
       char const* processName = inputTag.process().c_str();
       if (skipCurrentProcess) {
         processName = "\0";
-      } else if (inputTag.process() == kCurrentProcess) {
+      } else if (inputTag.process() == InputTag::kCurrentProcess) {
         processName = processConfiguration_->processName().c_str();
       }
 
