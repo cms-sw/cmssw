@@ -301,13 +301,13 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es , DQMStore::IBoo
         } else if (det_layer_pair.first == "TOB") {
           substructure.getTOBDetectors(activeDets,layerDetIds,lnumber,0,0);
         } else if (det_layer_pair.first == "TID" && lnumber > 0) {
-          substructure.getTIDDetectors(activeDets,layerDetIds,2,abs(lnumber),0,0);
+          substructure.getTIDDetectors(activeDets,layerDetIds,2,std::abs(lnumber),0,0);
         } else if (det_layer_pair.first == "TID" && lnumber < 0) {
-          substructure.getTIDDetectors(activeDets,layerDetIds,1,abs(lnumber),0,0);
+          substructure.getTIDDetectors(activeDets,layerDetIds,1,std::abs(lnumber),0,0);
         } else if (det_layer_pair.first == "TEC" && lnumber > 0) {
-          substructure.getTECDetectors(activeDets,layerDetIds,2,abs(lnumber),0,0,0,0);
+          substructure.getTECDetectors(activeDets,layerDetIds,2,std::abs(lnumber),0,0,0,0);
         } else if (det_layer_pair.first == "TEC" && lnumber < 0) {
-          substructure.getTECDetectors(activeDets,layerDetIds,1,abs(lnumber),0,0,0,0);
+          substructure.getTECDetectors(activeDets,layerDetIds,1,std::abs(lnumber),0,0,0,0);
         }
 	LayerDetMap[label] = layerDetIds;
 
@@ -811,7 +811,7 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
 
         if (subdetswitchtotclusprofon && (subdet_label.find("TID")!=std::string::npos || subdet_label.find("TEC")!=std::string::npos)){
           std::pair<std::string,int32_t> det_ring_pair = folder_organizer.GetSubDetAndLayer(detid,tTopo,true);
-          ncluster_ring[abs(det_ring_pair.second)] ++ ;
+          ncluster_ring[std::abs(det_ring_pair.second)] ++ ;
         }
 
       } // end loop over clusters
@@ -819,12 +819,12 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
       if (subdetswitchtotclusprofon) {
        std::map<std::string, SubDetMEs>::iterator iSubdet  = SubDetMEsMap.find(subdet_label);
        std::pair<std::string,int32_t> det_layer_pair = folder_organizer.GetSubDetAndLayer(detid, tTopo);
-       iSubdet->second.SubDetNumberOfClusterPerLayerTrend->Fill(trendVar,abs(det_layer_pair.second), ncluster_layer);
+       iSubdet->second.SubDetNumberOfClusterPerLayerTrend->Fill(trendVar,std::abs(det_layer_pair.second), ncluster_layer);
       }
 
       if (subdetswitchtotclusprofon && (subdet_label.find("TID")!=std::string::npos || subdet_label.find("TEC")!=std::string::npos)){
        std::pair<std::string,int32_t> det_ring_pair = folder_organizer.GetSubDetAndLayer(detid,tTopo,true);
-       layer_single.LayerNumberOfClusterPerRingTrend->Fill(trendVar, abs(det_ring_pair.second), ncluster_ring[abs(det_ring_pair.second)]);
+       layer_single.LayerNumberOfClusterPerRingTrend->Fill(trendVar, std::abs(det_ring_pair.second), ncluster_ring[std::abs(det_ring_pair.second)]);
       }
 
       short total_nr_strips = SiStripDetCabling_->nApvPairs(detid) * 2 * 128; // get correct # of avp pairs
