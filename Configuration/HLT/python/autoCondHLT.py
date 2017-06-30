@@ -76,7 +76,7 @@ hltGTs = {
 }
 
 def autoCondHLT(autoCond):
-    autoCond['TSG2_data_relval'] = '91X_dataRun2_PromptLike_v4' # temporary
+    autoCond['TSG2_data_relval'] = '92X_dataRun2_PromptLike_v0' # temporary
     for key,val in hltGTs.iteritems():
         if len(val)==1 :
            autoCond[key] = ( autoCond[val[0]] )
