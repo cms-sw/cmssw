@@ -798,7 +798,6 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   //(finally) store the output photon and electron collections
   const edm::OrphanHandle<reco::PhotonCollection> &outPhotonHandle = theEvent.put(std::move(photons),outPhotons_);
   const edm::OrphanHandle<reco::GsfElectronCollection> &outGsfElectronHandle = theEvent.put(std::move(gsfElectrons),outGsfElectrons_);
-  //const edm::OrphanHandle<reco::GsfTrackCollection> &outGsfTrackHandle = theEvent.put(std::move(gsfTracks),outGsfTracks_);  //add by Hien
 
   //still need to output relinked valuemaps
 
