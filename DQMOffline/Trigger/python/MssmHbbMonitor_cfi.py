@@ -1,43 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-# physics path monitor
-
-from DQMOffline.Trigger.mssmhbb_cfi import mssmHbbPhysicsMonitor
-
-# physics path monitor
-msssHbbAllHadronic100 = mssmHbbPhysicsMonitor.clone()
-msssHbbAllHadronic100.dirname = cms.string("HLT/Higgs/MssmHbb/Allhad/Physics/DoubleBJet100")
-msssHbbAllHadronic100.pathname = cms.string("HLT_DoubleJets100_DoubleBTagCSV_0p92_DoublePFJets100MaxDeta1p6_v")
-msssHbbAllHadronic100.muons = cms.InputTag("dummy")
-
-msssHbbAllHadronic116 = mssmHbbPhysicsMonitor.clone()
-msssHbbAllHadronic116.dirname = cms.string("HLT/Higgs/MssmHbb/Allhad/Physics/DoubleBJet116")
-msssHbbAllHadronic116.pathname = cms.string("HLT_DoubleJets100_DoubleBTagCSV_0p92_DoublePFJets116MaxDeta1p6_v")
-msssHbbAllHadronic116.muons = cms.InputTag("dummy")
-
-msssHbbAllHadronic128 = mssmHbbPhysicsMonitor.clone()
-msssHbbAllHadronic128.dirname = cms.string("HLT/Higgs/MssmHbb/Allhad/Physics/DoubleBJet128")
-msssHbbAllHadronic128.pathname = cms.string("HLT_DoubleJets100_DoubleBTagCSV_0p92_DoublePFJets128MaxDeta1p6_v")
-msssHbbAllHadronic128.muons = cms.InputTag("dummy")
-
-msssHbbSemileptonic40 = mssmHbbPhysicsMonitor.clone()
-msssHbbSemileptonic40.dirname = cms.string("HLT/Higgs/MssmHbb/Semilep/Physics/Mu12DoubleBJet40")
-msssHbbSemileptonic40.pathname = cms.string("HLT_DoubleJets30_Mu12_DoubleBTagCSV_0p92_DoublePFJets40MaxDeta1p6_v")
-
-msssHbbSemileptonic54 = mssmHbbPhysicsMonitor.clone()
-msssHbbSemileptonic54.dirname = cms.string("HLT/Higgs/MssmHbb/Semilep/Physics/Mu12DoubleBJet54")
-msssHbbSemileptonic54.pathname = cms.string("HLT_DoubleJets30_Mu12_DoubleBTagCSV_0p92_DoublePFJets54MaxDeta1p6_v")
-
-msssHbbSemileptonic62 = mssmHbbPhysicsMonitor.clone()
-msssHbbSemileptonic62.dirname = cms.string("HLT/Higgs/MssmHbb/Semilep/Physics/Mu12DoubleBJet62")
-msssHbbSemileptonic62.pathname = cms.string("HLT_DoubleJets30_Mu12_DoubleBTagCSV_0p92_DoublePFJets62MaxDeta1p6_v")
-
-msssHbbSemileptonicNoBtag = mssmHbbPhysicsMonitor.clone()
-msssHbbSemileptonicNoBtag.dirname = cms.string("HLT/Higgs/MssmHbb/Semilep/Physics/Mu12Jet40")
-msssHbbSemileptonicNoBtag.pathname = cms.string("HLT_SingleJet30_Mu12_SinglePFJet40_v")
-
-
-
 # online btagging monitor
 mssmHbbBtagTriggerMonitorSL40noMu = cms.EDAnalyzer(
     "TagAndProbeBtagTriggerMonitor",
