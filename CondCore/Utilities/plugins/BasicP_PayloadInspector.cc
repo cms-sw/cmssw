@@ -108,29 +108,27 @@ namespace {
   
       double xmax(100.),ymax(100.);
 
-      TH2D *h2D = new TH2D("h2D","Example",100,0.,xmax,100,0.,ymax);
+      TH2D h2D("h2D","Example",100,0.,xmax,100,0.,ymax);
 
       if( payload.get() ){
-	std::cout <<" size="<<payload->m_vec.size()<<std::endl;
 	if(payload->m_vec.size()==10000){
           for( size_t i=0;i<100;i++ )
 	    for( size_t j=0;j<100;j++ ) {
-	      std::cout <<"X="<<i<<" Y="<<j<<" z="<<payload->m_vec[i*100+j]<<std::endl;
-              h2D->Fill(i,j,payload->m_vec[i*100+j]);
+              h2D.Fill(i,j,payload->m_vec[i*100+j]);
 	    }
-          h2D->SetStats(0);
+          h2D.SetStats(0);
 	}
       }
          
-      TCanvas *c = new TCanvas("c","",10,10,900,500);
-      c->cd();
-      c->SetLogz();
-      h2D->SetNdivisions(18, "X");
-      h2D->GetXaxis()->SetTickLength(0.00);
-      h2D->GetYaxis()->SetTickLength(0.00);
-      h2D->GetXaxis()->SetTitle("iphi");
-      h2D->GetYaxis()->SetTitle("ieta");
-      h2D->Draw("col");
+      TCanvas c("c","",10,10,900,500);
+      c.cd();
+      c.SetLogz();
+      h2D.SetNdivisions(18, "X");
+      h2D.GetXaxis()->SetTickLength(0.00);
+      h2D.GetYaxis()->SetTickLength(0.00);
+      h2D.GetXaxis()->SetTitle("iphi");
+      h2D.GetYaxis()->SetTitle("ieta");
+      h2D.Draw("col");
 
       //======= drawing lines ========
       ///// this is quite specific to the line style they need
@@ -142,7 +140,7 @@ namespace {
 	l.DrawLine(m, 0., m, 100.);
       }
 
-      c->RedrawAxis();
+      c.RedrawAxis();
 
       //========== writing text in the canvas==============
       //// This is again quite specific part. I just tried to emulate what is there in DQM for EB. 
@@ -173,7 +171,7 @@ namespace {
       //=========================
       
       std::string fileName(m_imageFileName);
-      c->SaveAs(fileName.c_str());
+      c.SaveAs(fileName.c_str());
 
       return true;
     }
