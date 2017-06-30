@@ -5,6 +5,8 @@
 
 #include "CaloLayer1Tokens.h"
 #include "CaloLayer1Packer.h"
+#include "UCTCTP7RawData.h"
+#include "TRandom.h"
 
 namespace l1t {
 namespace stage2 {
@@ -18,10 +20,14 @@ namespace stage2 {
       edm::Handle<L1CaloRegionCollection> caloRegions;
       event.getByToken(static_cast<const CaloLayer1Tokens*>(toks)->getCaloRegionToken(), caloRegions);
 
-      auto ctp7_phi = board();
-
       std::vector<uint32_t> load;
-      load.resize(192);
+      load.resize(192, 0u);
+
+      for(size_t i=0; i<192; ++i) {
+        load[i] = gRandom->Integer(0xffffffff);
+      }
+      auto ctp7_phi = board();
+      uint32_t * ptr = &*load.begin();
 
       unsigned bx_per_l1a = 1;
       // CTP7 uses CMS scheme, starting at 0
