@@ -661,7 +661,7 @@ U2000by1={'--relval': '2000,1'}
 U80by1={'--relval': '80,1'}
 
 hiAlca2011 = {'--conditions':'auto:run1_mc_hi'}
-hiAlca2015 = {'--conditions':'auto:run2_mc_hi', '--era':'Run2_2016,Run2_HI'}
+hiAlca2015 = {'--conditions':'auto:run2_mc_hi', '--era':'Run2_2015,Run2_HI'}
 hiAlca2018 = {'--conditions':'auto:phase1_2017_realistic', '--era':'Run2_2017'}
 
 
