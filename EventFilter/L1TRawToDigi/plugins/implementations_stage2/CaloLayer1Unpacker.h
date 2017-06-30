@@ -1,5 +1,5 @@
-#ifndef L1T_PACKER_STAGE2_ETSUMUNPACKER_H
-#define L1T_PACKER_STAGE2_ETSUMUNPACKER_H
+#ifndef L1T_PACKER_STAGE2_LAYER1UNPACKER_H
+#define L1T_PACKER_STAGE2_LAYER1UNPACKER_H
 
 #include "EventFilter/L1TRawToDigi/interface/Unpacker.h"
 #include "CaloLayer1Collections.h"
