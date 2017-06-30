@@ -28,7 +28,6 @@
 #include "FWCore/Framework/interface/SubProcess.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/src/Breakpoints.h"
-#include "FWCore/Framework/src/EPStates.h"
 #include "FWCore/Framework/src/EventSetupsController.h"
 #include "FWCore/Framework/src/InputSourceFactory.h"
 #include "FWCore/Framework/src/SharedResourcesRegistry.h"
@@ -239,7 +238,6 @@ namespace edm {
     principalCache_(),
     beginJobCalled_(false),
     shouldWeStop_(false),
-    stateMachineWasInErrorState_(false),
     fileMode_(),
     emptyRunLumiMode_(),
     exceptionMessageFiles_(),
@@ -279,7 +277,6 @@ namespace edm {
     principalCache_(),
     beginJobCalled_(false),
     shouldWeStop_(false),
-    stateMachineWasInErrorState_(false),
     fileMode_(),
     emptyRunLumiMode_(),
     exceptionMessageFiles_(),
@@ -322,7 +319,6 @@ namespace edm {
     principalCache_(),
     beginJobCalled_(false),
     shouldWeStop_(false),
-    stateMachineWasInErrorState_(false),
     fileMode_(),
     emptyRunLumiMode_(),
     exceptionMessageFiles_(),
@@ -361,7 +357,6 @@ namespace edm {
     principalCache_(),
     beginJobCalled_(false),
     shouldWeStop_(false),
-    stateMachineWasInErrorState_(false),
     fileMode_(),
     emptyRunLumiMode_(),
     exceptionMessageFiles_(),
@@ -756,9 +751,6 @@ namespace edm {
     {
       beginJob(); //make sure this was called
       
-      //StatusCode returnCode = epSuccess;
-      stateMachineWasInErrorState_ = false;
-      
       // make the services available
       ServiceRegistry::Operate operate(serviceToken_);
 
@@ -825,183 +817,6 @@ namespace edm {
     return returnCode;
   }
 
-#if defined(_NOT_DEFINED_)
-  EventProcessor::StatusCode
-  EventProcessor::runToCompletion() {
-
-    StatusCode returnCode=epSuccess;
-    asyncStopStatusCodeFromProcessingEvents_=epSuccess;
-    std::unique_ptr<statemachine::Machine> machine;
-    {
-      beginJob(); //make sure this was called
-
-      //StatusCode returnCode = epSuccess;
-      stateMachineWasInErrorState_ = false;
-
-      // make the services available
-      ServiceRegistry::Operate operate(serviceToken_);
-
-      machine = createStateMachine();
-      nextItemTypeFromProcessingEvents_=InputSource::IsEvent;
-      asyncStopRequestedWhileProcessingEvents_=false;
-      try {
-        convertException::wrap([&]() {
-
-            InputSource::ItemType itemType;
-
-            while(true) {
-
-              bool more = true;
-              {
-                SendSourceTerminationSignalIfException sentry(actReg_.get());
-                itemType = (more ? input_->nextItemType() : InputSource::IsStop);
-                sentry.completedSuccessfully();
-              }
-
-              FDEBUG(1) << "itemType = " << itemType << "\n";
-
-              if(checkForAsyncStopRequest(returnCode)) {
-                actReg_->preSourceEarlyTerminationSignal_(TerminationOrigin::ExternalSignal);
-                forceLooperToEnd_ = true;
-                machine->process_event(statemachine::Stop());
-                forceLooperToEnd_ = false;
-                break;
-              }
-
-              if(itemType == InputSource::IsEvent) {
-                machine->process_event(statemachine::Event());
-                if(asyncStopRequestedWhileProcessingEvents_) {
-                  forceLooperToEnd_ = true;
-                  machine->process_event(statemachine::Stop());
-                  forceLooperToEnd_ = false;
-                  returnCode = asyncStopStatusCodeFromProcessingEvents_;
-                  break;
-                }
-                itemType = nextItemTypeFromProcessingEvents_;
-              }
-
-              if(itemType == InputSource::IsEvent) {
-              }
-              else if(itemType == InputSource::IsStop) {
-                machine->process_event(statemachine::Stop());
-              }
-              else if(itemType == InputSource::IsFile) {
-                machine->process_event(statemachine::File());
-              }
-              else if(itemType == InputSource::IsRun) {
-                machine->process_event(statemachine::Run(input_->reducedProcessHistoryID(), input_->run()));
-              }
-              else if(itemType == InputSource::IsLumi) {
-                machine->process_event(statemachine::Lumi(input_->luminosityBlock()));
-              }
-              else if(itemType == InputSource::IsSynchronize) {
-                //For now, we don't have to do anything
-              }
-              // This should be impossible
-              else {
-                throw Exception(errors::LogicError)
-                  << "Unknown next item type passed to EventProcessor\n"
-                  << "Please report this error to the Framework group\n";
-              }
-              if(machine->terminated()) {
-                break;
-              }
-            }  // End of loop over state machine events
-          }); // convertException::wrap
-      } // Try block
-      // Some comments on exception handling related to the boost state machine:
-      //
-      // Some states used in the machine are special because they
-      // perform actions while the machine is being terminated, actions
-      // such as close files, call endRun, call endLumi etc ...  Each of these
-      // states has two functions that perform these actions.  The functions
-      // are almost identical.  The major difference is that one version
-      // catches all exceptions and the other lets exceptions pass through.
-      // The destructor catches them and the other function named "exit" lets
-      // them pass through.  On a normal termination, boost will always call
-      // "exit" and then the state destructor.  In our state classes, the
-      // the destructors do nothing if the exit function already took
-      // care of things.  Here's the interesting part.  When boost is
-      // handling an exception the "exit" function is not called (a boost
-      // feature).
-      //
-      // If an exception occurs while the boost machine is in control
-      // (which usually means inside a process_event call), then
-      // the boost state machine destroys its states and "terminates" itself.
-      // This already done before we hit the catch blocks below. In this case
-      // the call to terminateMachine below only destroys an already
-      // terminated state machine.  Because exit is not called, the state destructors
-      // handle cleaning up lumis, runs, and files.  The destructors swallow
-      // all exceptions and only pass through the exceptions messages, which
-      // are tacked onto the original exception below.
-      //
-      // If an exception occurs when the boost state machine is not
-      // in control (outside the process_event functions), then boost
-      // cannot destroy its own states.  The terminateMachine function
-      // below takes care of that.  The flag "alreadyHandlingException"
-      // is set true so that the state exit functions do nothing (and
-      // cannot throw more exceptions while handling the first).  Then the
-      // state destructors take care of this because exit did nothing.
-      //
-      // In both cases above, the EventProcessor::endOfLoop function is
-      // not called because it can throw exceptions.
-      //
-      // One tricky aspect of the state machine is that things that can
-      // throw should not be invoked by the state machine while another
-      // exception is being handled.
-      // Another tricky aspect is that it appears to be important to
-      // terminate the state machine before invoking its destructor.
-      // We've seen crashes that are not understood when that is not
-      // done.  Maintainers of this code should be careful about this.
-
-      catch (cms::Exception & e) {
-        alreadyHandlingException_ = true;
-        terminateMachine(std::move(machine));
-        alreadyHandlingException_ = false;
-        if (!exceptionMessageLumis_.empty()) {
-          e.addAdditionalInfo(exceptionMessageLumis_);
-          if (e.alreadyPrinted()) {
-            LogAbsolute("Additional Exceptions") << exceptionMessageLumis_;
-          }
-        }
-        if (!exceptionMessageRuns_.empty()) {
-          e.addAdditionalInfo(exceptionMessageRuns_);
-          if (e.alreadyPrinted()) {
-            LogAbsolute("Additional Exceptions") << exceptionMessageRuns_;
-          }
-        }
-        if (!exceptionMessageFiles_.empty()) {
-          e.addAdditionalInfo(exceptionMessageFiles_);
-          if (e.alreadyPrinted()) {
-            LogAbsolute("Additional Exceptions") << exceptionMessageFiles_;
-          }
-        }
-        throw;
-      }
-
-      if(machine->terminated()) {
-        FDEBUG(1) << "The state machine reports it has been terminated\n";
-        machine.reset();
-      }
-
-      if(stateMachineWasInErrorState_) {
-        throw cms::Exception("BadState")
-          << "The boost state machine in the EventProcessor exited after\n"
-          << "entering the Error state.\n";
-      }
-
-    }
-    if(machine.get() != nullptr) {
-      terminateMachine(std::move(machine));
-      throw Exception(errors::LogicError)
-        << "State machine not destroyed on exit from EventProcessor::runToCompletion\n"
-        << "Please report this error to the Framework group\n";
-    }
-
-    return returnCode;
-  }
-#endif
-  
   void EventProcessor::readFile() {
     FDEBUG(1) << " \treadFile\n";
     size_t size = preg_->size();
@@ -1116,7 +931,6 @@ namespace edm {
       << "Will attempt to terminate processing normally\n"
       << "(IF using the looper the next loop will be attempted)\n"
       << "This likely indicates a bug in an input module or corrupted input or both\n";
-    stateMachineWasInErrorState_ = true;
   }
   
   void EventProcessor::beginRun(ProcessHistoryID const& phid, RunNumber_t run) {
@@ -1744,19 +1558,4 @@ namespace edm {
     return false;
   }
 
-  void EventProcessor::terminateMachine(std::unique_ptr<statemachine::Machine> iMachine) {
-    if(iMachine.get() != nullptr) {
-      if(!iMachine->terminated()) {
-        forceLooperToEnd_ = true;
-        iMachine->process_event(statemachine::Stop());
-        forceLooperToEnd_ = false;
-      }
-      else {
-        FDEBUG(1) << "EventProcess::terminateMachine  The state machine was already terminated \n";
-      }
-      if(iMachine->terminated()) {
-        FDEBUG(1) << "The state machine reports it has been terminated (3)\n";
-      }
-    }
-  }
 }

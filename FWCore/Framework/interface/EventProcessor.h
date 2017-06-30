@@ -40,10 +40,6 @@ configured in the user's main() function, and is set running.
 #include <exception>
 #include <mutex>
 
-namespace statemachine {
-  class Machine;
-}
-
 namespace edm {
 
   class ExceptionToActionTable;
@@ -234,9 +230,6 @@ namespace edm {
               ServiceToken const& token,
               serviceregistry::ServiceLegacy);
 
-    void terminateMachine(std::unique_ptr<statemachine::Machine>);
-    std::unique_ptr<statemachine::Machine> createStateMachine();
-
     bool readNextEventForStream(unsigned int iStreamIndex,
                                      std::atomic<bool>* finishedProcessingEvents);
 
@@ -300,7 +293,6 @@ namespace edm {
     PrincipalCache                                principalCache_;
     bool                                          beginJobCalled_;
     bool                                          shouldWeStop_;
-    bool                                          stateMachineWasInErrorState_;
     std::string                                   fileMode_;
     std::string                                   emptyRunLumiMode_;
     std::string                                   exceptionMessageFiles_;
