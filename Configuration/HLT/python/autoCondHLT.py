@@ -35,6 +35,7 @@ for det in ('EB','EE'):
         pfLabel  = 'pfscecal_'+det+obj+'_online'
         pfTag    = pfLabel+'_v0'
         pfscecal = pfscecal + (','.join( [ pfTag,pfRecord,connectionString,pfLabel,pfTime] ), )
+pfscecal = pfscecal + (','.join( ['PFCalibration_HLT_2017_25ns_Spring17_V3_newCodeCompliant','PFCalibrationRcd',connectionString,'HLT','2017-06-22 21:00:00.000'] ), )
 
 hltGTs = {
 
