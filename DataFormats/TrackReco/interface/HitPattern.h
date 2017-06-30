@@ -236,6 +236,7 @@ public:
     bool appendHit(const TrackingRecHit &hit, const TrackerTopology& ttopo);
     bool appendHit(const TrackingRecHitRef &ref, const TrackerTopology& ttopo);
     bool appendHit(const DetId &id, TrackingRecHit::Type hitType, const TrackerTopology& ttopo);
+    bool appendHit(const uint16_t pattern, TrackingRecHit::Type hitType);
 
     /**
      * This is meant to be used only in cases where the an
@@ -463,7 +464,6 @@ private:
     bool insertExpectedInnerHit(const uint16_t pattern);
     bool insertExpectedOuterHit(const uint16_t pattern);
     void insertHit(const uint16_t pattern);
-    bool appendHit(const uint16_t pattern, TrackingRecHit::Type hitType);
 
     uint16_t getHitPatternByAbsoluteIndex(int position) const;
 

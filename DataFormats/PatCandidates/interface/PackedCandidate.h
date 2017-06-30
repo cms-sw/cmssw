@@ -526,11 +526,11 @@ namespace pat {
     }
 
     /// Set first hit from HitPattern
-    void setFirstHit(uint32_t hitFromHitPattern) {
-	firstHit_=hitFromHitPattern;
+    void setFirstHit(uint16_t pattern) {
+	firstHit_=pattern;
     }
     /// Return first hit from HitPattern for tracks with high level details
-    uint32_t firstHit() const { return	firstHit_;}
+    uint16_t firstHit() const { return	firstHit_;}
 
     void setMuonID(bool isStandAlone, bool isGlobal) {
         int16_t muonFlags = isStandAlone | (2*isGlobal);
@@ -725,7 +725,7 @@ namespace pat {
         muonFlagsMask = 0x0600, muonFlagsShift=9
     };
   public:
-    uint32_t firstHit_;
+    uint16_t firstHit_;
   };
 
   typedef std::vector<pat::PackedCandidate> PackedCandidateCollection;
