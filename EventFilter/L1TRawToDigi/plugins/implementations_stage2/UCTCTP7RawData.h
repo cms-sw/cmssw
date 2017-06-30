@@ -146,6 +146,24 @@ public:
     return index;
   }
 
+  void setET(CaloType cType, bool negativeEta, uint32_t cEta, uint32_t iPhi, uint32_t et) {
+    size_t index = getIndex(cType, negativeEta, cEta, iPhi);
+    uint32_t & data = myDataPtr[index];
+    if(cType == HF) {
+      // Pick out the correct 8-bits for the iEta chosen
+      // Note that cEta = 41 is special, it only occurs for iPhi == 1 and shares cEta = 40 position
+      if(cEta == 41) {
+        data |= (et & 0xFF) << 16;
+      } else {
+        data |= (et & 0xFF) << (((cEta - 30) % 4) * 8);
+      }
+    }
+    else {
+      // Pick out the correct 8-bits for the iPhi chosen
+      data |= (et & 0xFF) << (iPhi * 8);
+    }
+  }
+
   uint32_t getET(CaloType cType, bool negativeEta, uint32_t cEta, uint32_t iPhi) {
     size_t index = getIndex(cType, negativeEta, cEta, iPhi);
     const uint32_t data = myDataPtr[index];
@@ -161,6 +179,22 @@ public:
       et = ((data >> (iPhi * 8)) & 0xFF);
     }
     return et;
+  }
+
+  void setFB(CaloType cType, bool negativeEta, uint32_t cEta, uint32_t iPhi, uint32_t fb) {
+    if(cType == HF) {
+      setHFFeatureBits(negativeEta, cEta, iPhi, fb);
+    }
+    else {
+      size_t index = getFeatureIndex(cType, negativeEta, cEta, iPhi);
+      uint32_t & data = myDataPtr[index];
+
+      uint32_t tower = iPhi;
+      if(((cEta - 1) % 2) == 1) {
+        tower += 4;
+      }
+      data |= (fb&0x1) << tower;
+    }
   }
 
   uint32_t getFB(CaloType cType, bool negativeEta, uint32_t cEta, uint32_t iPhi) {
@@ -179,6 +213,19 @@ public:
       fb = ((data & (0x1 << tower)) != 0) ? 1 : 0;
     }
     return fb;
+  }
+
+  void setHFFeatureBits(bool negativeEta, uint32_t cEta, uint32_t iPhi, uint32_t fb) {
+    size_t index = getFeatureIndex(HF, negativeEta, cEta, iPhi);
+    uint32_t shift = (cEta - 30) * 2;
+    if(cEta == 41) shift = 20; // 41 occurs on b-fiber but shares the position of 40
+    if ( shift >= 8 ) {
+      uint32_t & data = myDataPtr[index];
+      data |= (fb & 0x3) << (shift-8);
+    } else {
+      uint32_t & data = myDataPtr[index-1];
+      data |= (fb & 0x3) << (shift+24);
+    }
   }
 
   uint32_t getHFFeatureBits(bool negativeEta, uint32_t cEta, uint32_t iPhi) {
@@ -203,6 +250,12 @@ public:
       LogError("UCTCTP7RawData") << "Managed to calculate an out-of-bounds index, buyer beware";
     }
     return index;
+  }
+
+  void setRegionSummary(bool negativeEta, uint32_t region, uint32_t regionData) {
+    size_t index = getSummaryIndex(negativeEta, region);
+    uint32_t & data = myDataPtr[index];
+    data |= (regionData & 0xFFFF) << (16 * (region % 2));
   }
 
   uint32_t getRegionSummary(bool negativeEta, uint32_t region) {
