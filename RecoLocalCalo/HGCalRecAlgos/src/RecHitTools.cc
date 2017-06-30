@@ -70,7 +70,7 @@ void RecHitTools::getEventSetup(const edm::EventSetup& es) {
   auto geomFH = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCHEF));
   bhOffset_ = fhOffset_ + (geomFH->topology().dddConstants()).layers(true);
   unsigned int wmaxFH = 1 + (geomFH->topology().dddConstants()).waferMax();
-  maxNumberOfWafersPerLayer_ = (wmaxEE > wmaxFH) ? wmaxEE : wmaxFH;
+  maxNumberOfWafersPerLayer_ = std::max(wmaxEE,wmaxFH);
 
 }
 
