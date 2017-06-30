@@ -224,7 +224,8 @@ namespace l1t {
             std::unique_ptr<Payload> payload;
             if (ctp7_mode_) {
                LogDebug("L1T") << "Using CTP7 mode";
-               payload.reset(new CTP7Payload(start, end));
+               // CTP7 uses userData in AMC header
+               payload.reset(new CTP7Payload(start, end, amc.header()));
             } else if (mtf7_mode_) {
                LogDebug("L1T") << "Using MTF7 mode";
                payload.reset(new MTF7Payload(start, end));

@@ -65,9 +65,10 @@ if stage1L1Trigger.isChosen() and not stage2L1Trigger.isChosen():
 # Stage-2 Trigger
 #
 if stage2L1Trigger.isChosen():
+    from EventFilter.L1TRawToDigi.caloLayer1Raw_cfi import *
     from EventFilter.L1TRawToDigi.caloStage2Raw_cfi import *
     from EventFilter.L1TRawToDigi.gmtStage2Raw_cfi import *
     from EventFilter.L1TRawToDigi.gtStage2Raw_cfi import *
-    L1TDigiToRaw = cms.Sequence(caloStage2Raw + gmtStage2Raw + gtStage2Raw)
+    L1TDigiToRaw = cms.Sequence(caloLayer1Raw + caloStage2Raw + gmtStage2Raw + gtStage2Raw)
     # Missing: muon TFs, calo layer1
 
