@@ -1,6 +1,10 @@
 #ifndef __RecoParticleFlow_PFClusterProducer_RealisticHitToClusterAssociator_H__
 #define __RecoParticleFlow_PFClusterProducer_RealisticHitToClusterAssociator_H__
-
+/////////////////////////
+// Author: Felice Pantaleo
+// Date:   30/06/2017
+// Email: felice@cern.ch
+/////////////////////////
 #include <vector>
 #include "RealisticCluster.h"
 

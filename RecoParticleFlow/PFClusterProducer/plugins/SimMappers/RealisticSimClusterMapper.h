@@ -1,6 +1,10 @@
 #ifndef __RecoParticleFlow_PFClusterProducer_RealisticSimClusterMapper_H__
 #define __RecoParticleFlow_PFClusterProducer_RealisticSimClusterMapper_H__
-
+/////////////////////////
+// Author: Felice Pantaleo
+// Date:   30/06/2017
+// Email: felice@cern.ch
+/////////////////////////
 #include "RecoParticleFlow/PFClusterProducer/interface/InitialClusteringStepBase.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFraction.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
