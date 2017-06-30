@@ -31,6 +31,7 @@ _reco.hcalLocalRecoSequence.remove(_reco.zdcreco)
 _reco.localreco.remove(_reco.totemRPLocalReconstruction)
 _reco.localreco.remove(_reco.ctppsDiamondLocalReconstruction)
 _reco.localreco.remove(_reco.ctppsLocalTrackLiteProducer)
+_reco.localreco.remove(_reco.ctppsPixelLocalReconstruction)
 
 ##########################################
 # Calo rechits
