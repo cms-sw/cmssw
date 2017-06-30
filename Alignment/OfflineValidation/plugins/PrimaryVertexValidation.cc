@@ -271,7 +271,7 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   // skip events with no PV, this should not happen
   if( vsorted.size() == 0) return;
   // skip events failing vertex cut
-  if( fabs(vsorted[0].z()) > vertexZMax_ ) return; 
+  if( std::abs(vsorted[0].z()) > vertexZMax_ ) return; 
   
   if ( vsorted[0].isValid() ) {
     xOfflineVertex_ = (vsorted)[0].x();
@@ -554,7 +554,7 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 	if(askFirstLayerHit_) pass = this->hasFirstLayerPixelHits(theTTrack);
 	if (pass 
 	    && (theTrack.pt() >=ptOfProbe_) 
-	    && fabs(theTrack.eta()) <= etaOfProbe_ 
+	    && std::abs(theTrack.eta()) <= etaOfProbe_ 
 	    && (theTrack.numberOfValidHits())>=nHitsOfProbe_
 	    && (theTrack.p()) >= pOfProbe_ ){
 	  isGoodTrack_[nTracks_]=1;
@@ -757,7 +757,7 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 		if(debug_)
 		  edm::LogInfo("PrimaryVertexValidation")<<"ipTBin:"<<ipTBin<< " "<<mypT_bins_[ipTBin]<< " < pT < "<<mypT_bins_[ipTBin+1]<<std::endl;
 		
-		if( fabs(tracketa)<1.5 && (trackpt >= pTF && trackpt < pTL) ){
+		if( std::abs(tracketa)<1.5 && (trackpt >= pTF && trackpt < pTL) ){
 		  
 		  if(debug_)
 		    edm::LogInfo("PrimaryVertexValidation")<<"passes this cut: "<<mypT_bins_[ipTBin]<<std::endl;
@@ -766,7 +766,7 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 		  fillByIndex(h_norm_dxy_pT_,ipTBin,dxyFromMyVertex/s_ip2dpv_err);
 		  fillByIndex(h_norm_dz_pT_,ipTBin,dzFromMyVertex/dz_err);
 		  
-		  if(fabs(tracketa)<1.){
+		  if(std::abs(tracketa)<1.){
 		    
 		    if(debug_)
 		      edm::LogInfo("PrimaryVertexValidation")<<"passes tight eta cut: "<<mypT_bins_[ipTBin]<<std::endl;
@@ -780,7 +780,7 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 	      
 	      // checks on the probe track quality
 	      if(trackpt >= ptOfProbe_ 
-		 && fabs(tracketa)<= etaOfProbe_ 
+		 && std::abs(tracketa)<= etaOfProbe_ 
 		 && tracknhits>=nHitsOfProbe_
 		 && trackp >= pOfProbe_){
 
@@ -2463,7 +2463,7 @@ std::pair<double,double> PrimaryVertexValidation::getMAD(TH1F *histo)
   double *weights = new double[nbins];
 
   for (int j = 0; j < nbins; j++) {
-    residuals[j] = TMath::Abs(median - histo->GetBinCenter(j+1));
+    residuals[j] = std::abs(median - histo->GetBinCenter(j+1));
     weights[j]=histo->GetBinContent(j+1);
     newHisto->Fill(residuals[j],weights[j]);
   }
@@ -2732,8 +2732,8 @@ bool PrimaryVertexValidation::passesTrackCuts(const reco::Track & track, const r
    dzsigma = sqrt(track.dzError()*track.dzError()+vzErr*vzErr);
  
    if(track.quality(reco::TrackBase::qualityByName(qualityString_)) != 1)return false;
-   if(fabs(dxy/dxysigma) > dxyErrMax_) return false;
-   if(fabs(dz/dzsigma) > dzErrMax_) return false;
+   if(std::abs(dxy/dxysigma) > dxyErrMax_) return false;
+   if(std::abs(dz/dzsigma) > dzErrMax_) return false;
    if(track.ptError() / track.pt() > ptErrMax_) return false;
 
    return true;
@@ -2849,7 +2849,7 @@ void PrimaryVertexValidation::fillTrackHistos(std::map<std::string, TH1*> & h, c
   if (d0Error>0){
     fill(h,"logtresxy_"+ttype,log(d0Error/0.0001)/log(10.));
     fill(h,"tpullxy_"+ttype,d0/d0Error);
-    fill(h,"tlogDCAxy_"+ttype,log(fabs(d0/d0Error)));
+    fill(h,"tlogDCAxy_"+ttype,log(std::abs(d0/d0Error)));
     
   }
   //double z0=tt->track().vz();
@@ -2857,7 +2857,7 @@ void PrimaryVertexValidation::fillTrackHistos(std::map<std::string, TH1*> & h, c
   if(dzError>0){
     fill(h,"logtresz_"+ttype,log(dzError/0.0001)/log(10.));
     fill(h,"tpullz_"+ttype,dz/dzError);
-    fill(h,"tlogDCAz_"+ttype,log(fabs(dz/dzError)));
+    fill(h,"tlogDCAz_"+ttype,log(std::abs(dz/dzError)));
   }
   
   //
@@ -2891,7 +2891,7 @@ void PrimaryVertexValidation::fillTrackHistos(std::map<std::string, TH1*> & h, c
     double q=sqrt(1.-2.*kappa*D0);
     double s0=(x1*cos(tt->track().phi())+y1*sin(tt->track().phi()))/q;
     // double s1;
-    if (fabs(kappa*s0)>0.001){
+    if (std::abs(kappa*s0)>0.001){
       //s1=asin(kappa*s0)/kappa;
     }else{
       //double ks02=(kappa*s0)*(kappa*s0);
