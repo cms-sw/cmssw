@@ -50,12 +50,6 @@ PFMETTypeOne140_PFMHT140_METmonitoring.FolderName = cms.string('HLT/MET/PFMETTyp
 PFMETTypeOne140_PFMHT140_METmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFMETTypeOne140_PFMHT140_IDTight_v")
 PFMETTypeOne140_PFMHT140_METmonitoring.jetSelection      = cms.string("pt > 100 && abs(eta) < 2.5 && neutralHadronEnergyFraction < 0.8 && chargedHadronEnergyFraction > 0.1")
 
-# HLT_PFMETNoMu90_PFMHTNoMu90_IDTight
-PFMETNoMu90_PFMHTNoMu90_METmonitoring = hltMETmonitoring.clone()
-PFMETNoMu90_PFMHTNoMu90_METmonitoring.FolderName = cms.string('HLT/MET/PFMETNoMu90/')
-PFMETNoMu90_PFMHTNoMu90_METmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFMETNoMu90_PFMHTNoMu90_IDTight_v")
-PFMETNoMu90_PFMHTNoMu90_METmonitoring.jetSelection      = cms.string("pt > 100 && abs(eta) < 2.5 && neutralHadronEnergyFraction < 0.8 && chargedHadronEnergyFraction > 0.1")
-
 # HLT_PFMETNoMu110_PFMHTNoMu110_IDTight
 PFMETNoMu110_PFMHTNoMu110_METmonitoring = hltMETmonitoring.clone()
 PFMETNoMu110_PFMHTNoMu110_METmonitoring.FolderName = cms.string('HLT/MET/PFMETNoMu110/')
@@ -80,11 +74,6 @@ PFMETNoMu140_PFMHTNoMu140_METmonitoring.FolderName = cms.string('HLT/MET/PFMETNo
 PFMETNoMu140_PFMHTNoMu140_METmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFMETNoMu140_PFMHTNoMu140_IDTight_v")
 PFMETNoMu140_PFMHTNoMu140_METmonitoring.jetSelection      = cms.string("pt > 100 && abs(eta) < 2.5 && neutralHadronEnergyFraction < 0.8 && chargedHadronEnergyFraction > 0.1")
 
-# HLT_MET200
-MET200_METmonitoring = hltMETmonitoring.clone()
-MET200_METmonitoring.FolderName = cms.string('HLT/MET/MET200/')
-MET200_METmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_MET200_v")
-
 # HLT_MonoCentralPFJet80_PFMETNoMu110_PFMHTNoMu110_IDTight
 MonoCentralPFJet80_PFMETNoMu110_PFMHTNoMu110_METmonitoring = hltMETmonitoring.clone()
 MonoCentralPFJet80_PFMETNoMu110_PFMHTNoMu110_METmonitoring.FolderName = cms.string('HLT/MET/MonoCentralPFJet80_PFMETNoMu110/')
@@ -108,12 +97,6 @@ MonoCentralPFJet80_PFMETNoMu140_PFMHTNoMu140_METmonitoring = hltMETmonitoring.cl
 MonoCentralPFJet80_PFMETNoMu140_PFMHTNoMu140_METmonitoring.FolderName = cms.string('HLT/MET/MonoCentralPFJet80_PFMETNoMu140/')
 MonoCentralPFJet80_PFMETNoMu140_PFMHTNoMu140_METmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_MonoCentralPFJet80_PFMETNoMu140_PFMHTNoMu140_IDTight_v")
 MonoCentralPFJet80_PFMETNoMu140_PFMHTNoMu140_METmonitoring.jetSelection      = cms.string("pt > 100 && abs(eta) < 2.5 && neutralHadronEnergyFraction < 0.8 && chargedHadronEnergyFraction > 0.1")
-
-# HLT_MonoCentralPFJet80_PFMETNoMu90_PFMHTNoMu90_IDTight
-MonoCentralPFJet80_PFMETNoMu90_PFMHTNoMu90_METmonitoring = hltMETmonitoring.clone()
-MonoCentralPFJet80_PFMETNoMu90_PFMHTNoMu90_METmonitoring.FolderName = cms.string('HLT/MET/MonoCentralPFJet80_PFMETNoMu90/')
-MonoCentralPFJet80_PFMETNoMu90_PFMHTNoMu90_METmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_MonoCentralPFJet80_PFMETNoMu110_PFMHTNoMu110_IDTight_v")
-MonoCentralPFJet80_PFMETNoMu90_PFMHTNoMu90_METmonitoring.jetSelection      = cms.string("pt > 100 && abs(eta) < 2.5 && neutralHadronEnergyFraction < 0.8 && chargedHadronEnergyFraction > 0.1")
 
 # HLT_PFHT500_PFMET100_PFMHT100_IDTight
 PFHT500_PFMET100_PFMHT100_METmonitoring = hltMETmonitoring.clone()
@@ -168,8 +151,5 @@ exoHLTMETmonitoring = cms.Sequence(
     + PFHT700_PFMET95_PFMHT95_METmonitoring
     + PFHT800_PFMET75_PFMHT75_METmonitoring
     + PFHT800_PFMET85_PFMHT85_METmonitoring
-    + PFMETNoMu90_PFMHTNoMu90_METmonitoring
-    + MET200_METmonitoring
-    + MonoCentralPFJet80_PFMETNoMu90_PFMHTNoMu90_METmonitoring
 )
 
