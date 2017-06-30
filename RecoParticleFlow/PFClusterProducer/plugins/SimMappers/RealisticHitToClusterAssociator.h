@@ -92,7 +92,7 @@ class RealisticHitToClusterAssociator
 
         void computeAssociation( float exclusiveFraction, bool useMCFractionsForExclEnergy)
         {
-            //if more than 90% of a hit's energy belongs to a cluster, that rechit is not counted as shared
+            //if more than exclusiveFraction of a hit's energy belongs to a cluster, that rechit is not counted as shared
             unsigned int numberOfHits = layerId_.size();
             std::vector<float> partialEnergies;
 
@@ -121,7 +121,8 @@ class RealisticHitToClusterAssociator
 
                         auto simClusterId = MCAssociatedSimCluster_[hitId][clId];
                         distanceFromMaxHit_[hitId][clId] = -XYdistanceFromMaxHit(hitId,simClusterId);
-
+                        // partial energy is computed based on the distance from the maximum energy hit and its energy
+                        // partial energy is only needed to compute a fraction and it's not the energy assigned to the cluster
                         if(maxEnergyHitAtLayer_[simClusterId][layer]>0.f)
                         partialEnergies[clId] = maxEnergyHitAtLayer_[simClusterId][layer] * std::exp(-distanceFromMaxHit_[hitId][clId]/energyDecayLength);
 
@@ -142,7 +143,9 @@ class RealisticHitToClusterAssociator
                         float assignedEnergy = assignedFraction *totalEnergy_[hitId];
                         RealisticSimClusters_[simClusterIndex].increaseEnergy(assignedEnergy);
                         RealisticSimClusters_[simClusterIndex].addHitAndFraction(hitId, assignedFraction);
-
+                        // if the hits energy belongs for more than exclusiveFraction to a cluster, also the cluster's
+                        // exclusive energy is increased. The exclusive energy will be needed to evaluate if
+                        // a realistic cluster will be invisible, i.e. absorbed by other clusters
                         bool isExclusive = ((!useMCFractionsForExclEnergy && (assignedFraction > exclusiveFraction) )
                                 || (useMCFractionsForExclEnergy && (MCEnergyFraction_[hitId][clId] >exclusiveFraction )));
                         if(isExclusive)
@@ -203,7 +206,8 @@ class RealisticHitToClusterAssociator
                         {
                             for (auto& pair: energyInNeighbors)
                             {
-
+                                // hits that belonged completely to the absorbed cluster are redistributed
+                                // based on the fraction of energy shared in the shared hits
                                 float sharedFraction = pair.second/totalSharedEnergy;
                                 float assignedEnergy = totalEnergy_[hitId]*sharedFraction;
                                 RealisticSimClusters_[pair.first].increaseEnergy(assignedEnergy);
