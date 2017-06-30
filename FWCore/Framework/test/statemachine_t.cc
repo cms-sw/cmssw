@@ -4,8 +4,6 @@ Test of the statemachine classes.
 
 ----------------------------------------------------------------------*/  
 
-#include "FWCore/Framework/src/EPStates.h"
-#include "FWCore/Framework/interface/IEventProcessor.h"
 #include "FWCore/Framework/test/MockEventProcessor.h"
 
 #include <boost/program_options.hpp>
@@ -16,7 +14,6 @@ Test of the statemachine classes.
 
 
 int main(int argc, char* argv[]) try {
-  using namespace statemachine;
   std::cout << "Running test in statemachine_t.cc\n";
 
   // Handle the command line arguments
@@ -59,22 +56,21 @@ int main(int argc, char* argv[]) try {
 
   std::ofstream output(outputFile.c_str());
 
-  std::vector<FileMode> fileModes;
-  fileModes.push_back(NOMERGE);
-  fileModes.push_back(FULLMERGE);
+  std::vector<bool> fileModes;
+  fileModes.push_back(true);
+  fileModes.push_back(false);
 
-  for (size_t k = 0; k < fileModes.size(); ++k) {
-    FileMode fileMode = fileModes[k];
+  for (auto mode: fileModes) {
 
     output << "\nMachine parameters:  ";
-    if (fileMode == NOMERGE) output << "mode = NOMERGE";
+    if (mode) output << "mode = NOMERGE";
     else output << "mode = FULLMERGE";
 
     output << "\n";
 
     edm::MockEventProcessor mockEventProcessor(mockData,
                                                output,
-                                               fileMode == NOMERGE);
+                                               mode);
 
     mockEventProcessor.runToCompletion();
   }
