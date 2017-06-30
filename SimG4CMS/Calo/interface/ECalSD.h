@@ -57,7 +57,6 @@ private:
   double                            slopeLY, scaleRL;
   std::string                       crystalMat, depth1Name, depth2Name;
   std::map<G4LogicalVolume*,double> xtalLMap;
-  std::map<G4LogicalVolume*,int>    xtalLSign;
   std::vector<G4LogicalVolume*>     useDepth1, useDepth2, noWeight;
   EcalBaseNumber                    theBaseNumber;
   EnergyResolutionVsLumi            ageing;

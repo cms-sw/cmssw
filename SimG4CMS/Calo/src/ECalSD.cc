@@ -407,12 +407,10 @@ void ECalSD::initMap(G4String sd, const DDCompactView & cpv) {
 #endif
 	  if (sol.shape() == ddtrap) {
 	    double dz = 2*paras[0];
-	    xtalLMap.insert(std::pair<G4LogicalVolume*,double>(lv,dz));
-	    xtalLSign.insert(std::pair<G4LogicalVolume*,int>(lv,type));
+	    xtalLMap.insert(std::pair<G4LogicalVolume*,double>(lv,dz*type));
 	    lv = nameMap[lvname + "_refl"];
 	    if (lv != 0) {
-	      xtalLMap.insert(std::pair<G4LogicalVolume*,double>(lv,dz));
-	      xtalLSign.insert(std::pair<G4LogicalVolume*,int>(lv,-type));
+	      xtalLMap.insert(std::pair<G4LogicalVolume*,double>(lv,-dz*type));
 	    }
 	  }
 	}
@@ -439,17 +437,12 @@ void ECalSD::initMap(G4String sd, const DDCompactView & cpv) {
 #ifdef EDM_ML_DEBUG
   edm::LogInfo("EcalSim") << "ECalSD: Length Table for " << attribute << " = " 
 			  << sd << ":";   
-  std::map<G4LogicalVolume*,double>::const_iterator ite = xtalLMap.begin();
   int i=0;
   for (auto ite : xtalLMap) {
     G4String name("Unknown");
-    int      type(0);
-    if (ite.first != 0) {
-      name = (ite.first)->GetName();
-      type = xtalLSign[ite.first];
-    }
+    if (ite.first != 0) name = (ite.first)->GetName();
     edm::LogInfo("EcalSim") << " " << i << " " << ite.first << " " << name 
-			    << " L = " << ite.second << " Sign " << type;
+			    << " L = " << ite.second;
     ++i;
   }
 #endif
@@ -489,19 +482,17 @@ double ECalSD::curve_LY(G4Step* aStep) {
 
 double ECalSD::crystalLength(G4LogicalVolume* lv) {
 
-  double length= 230.;
-  std::map<G4LogicalVolume*,double>::const_iterator ite = xtalLMap.find(lv);
-  if (ite != xtalLMap.end()) length = ite->second;
+  auto ite = xtalLMap.find(lv);
+  double length = (ite == xtalLMap.end()) ? 230.0 : std::abs(ite->second);
   return length;
 }
 
 double ECalSD::crystalDepth(G4LogicalVolume* lv, 
 			    const G4ThreeVector& localPoint) {
-  double crlength = crystalLength(lv);
-  auto ite = xtalLSign.find(lv);
-  int type = (ite != xtalLSign.end()) ? ite->second : 1;
-  double depth = (type == 1) ? (0.5*crlength + localPoint.z()) :
-    (0.5*crlength - localPoint.z());
+
+  auto ite = xtalLMap.find(lv);
+  double depth = (ite == xtalLMap.end()) ? 0 :
+    (std::abs(0.5*(ite->second)+localPoint.z()));
   return depth;
 }
 
