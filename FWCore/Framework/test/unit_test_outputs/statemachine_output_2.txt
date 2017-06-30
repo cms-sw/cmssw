@@ -1,7 +1,7 @@
 
 Machine parameters:  mode = NOMERGE
-    *** nextItemType: File 0 ***
 	startingNewLoop
+    *** nextItemType: File 0 ***
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
@@ -105,11 +105,11 @@ Machine parameters:  mode = NOMERGE
 	closeInputFile
 	closeOutputFiles
 	endOfLoop
-The state machine reports it has been terminated
+Left processing loop.
 
 Machine parameters:  mode = FULLMERGE
-    *** nextItemType: File 0 ***
 	startingNewLoop
+    *** nextItemType: File 0 ***
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
@@ -212,4 +212,4 @@ Machine parameters:  mode = FULLMERGE
 	closeInputFile
 	closeOutputFiles
 	endOfLoop
-The state machine reports it has been terminated
+Left processing loop.

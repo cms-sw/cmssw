@@ -1,7 +1,7 @@
 
 Machine parameters:  mode = NOMERGE
-    *** nextItemType: File 1 ***
 	startingNewLoop
+    *** nextItemType: File 1 ***
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
@@ -16,14 +16,17 @@ Machine parameters:  mode = NOMERGE
 	processEvent
 	shouldWeStop
     *** nextItemType: Event ***
+	shouldWeStop
 	readEvent
 	processEvent
 	shouldWeStop
     *** nextItemType: Event ***
+	shouldWeStop
 	readEvent
 	processEvent
 	shouldWeStop
     *** nextItemType: File 0 ***
+	shouldWeStop
 	endLumi 1/1
 	writeLumi 1/1
 	deleteLumiFromCache 1/1
@@ -47,10 +50,12 @@ Machine parameters:  mode = NOMERGE
 	processEvent
 	shouldWeStop
     *** nextItemType: Event ***
+	shouldWeStop
 	readEvent
 	processEvent
 	shouldWeStop
     *** nextItemType: File 0 ***
+	shouldWeStop
 	endLumi 1/1
 	writeLumi 1/1
 	deleteLumiFromCache 1/1
@@ -75,8 +80,10 @@ Machine parameters:  mode = NOMERGE
 	shouldWeStop
     *** nextItemType: Event ***
     *** shouldWeStop will return true this event ***
+	shouldWeStop
 	readEvent
 	processEvent
+	shouldWeStop
 	shouldWeStop
 	endLumi 1/1
 	writeLumi 1/1
@@ -88,15 +95,19 @@ Machine parameters:  mode = NOMERGE
 	closeInputFile
 	closeOutputFiles
 	endOfLoop
-The state machine reports it has been terminated
+Left processing loop.
+	startingNewLoop
     *** nextItemType: Event ***
-The state machine reports it has been terminated
+	doErrorStuff
+Left processing loop.
+	startingNewLoop
     *** nextItemType: Stop 1 ***
-The state machine reports it has been terminated
+	endOfLoop
+Left processing loop.
 
 Machine parameters:  mode = FULLMERGE
-    *** nextItemType: File 1 ***
 	startingNewLoop
+    *** nextItemType: File 1 ***
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
@@ -111,14 +122,17 @@ Machine parameters:  mode = FULLMERGE
 	processEvent
 	shouldWeStop
     *** nextItemType: Event ***
+	shouldWeStop
 	readEvent
 	processEvent
 	shouldWeStop
     *** nextItemType: Event ***
+	shouldWeStop
 	readEvent
 	processEvent
 	shouldWeStop
     *** nextItemType: File 0 ***
+	shouldWeStop
 	shouldWeCloseOutput
 	respondToCloseInputFile
 	closeInputFile
@@ -133,10 +147,12 @@ Machine parameters:  mode = FULLMERGE
 	processEvent
 	shouldWeStop
     *** nextItemType: Event ***
+	shouldWeStop
 	readEvent
 	processEvent
 	shouldWeStop
     *** nextItemType: File 0 ***
+	shouldWeStop
 	shouldWeCloseOutput
 	respondToCloseInputFile
 	closeInputFile
@@ -152,8 +168,10 @@ Machine parameters:  mode = FULLMERGE
 	shouldWeStop
     *** nextItemType: Event ***
     *** shouldWeStop will return true this event ***
+	shouldWeStop
 	readEvent
 	processEvent
+	shouldWeStop
 	shouldWeStop
 	endLumi 1/1
 	writeLumi 1/1
@@ -165,8 +183,12 @@ Machine parameters:  mode = FULLMERGE
 	closeInputFile
 	closeOutputFiles
 	endOfLoop
-The state machine reports it has been terminated
+Left processing loop.
+	startingNewLoop
     *** nextItemType: Event ***
-The state machine reports it has been terminated
+	doErrorStuff
+Left processing loop.
+	startingNewLoop
     *** nextItemType: Stop 1 ***
-The state machine reports it has been terminated
+	endOfLoop
+Left processing loop.

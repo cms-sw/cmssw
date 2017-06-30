@@ -1,12 +1,12 @@
 
 Machine parameters:  mode = NOMERGE
+	startingNewLoop
     *** nextItemType: Restart 0 ***
-	doErrorStuff
 	endOfLoop
 	prepareForNextLoop
 	rewind
-    *** nextItemType: File 0 ***
 	startingNewLoop
+    *** nextItemType: File 0 ***
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
@@ -14,12 +14,11 @@ Machine parameters:  mode = NOMERGE
 	respondToCloseInputFile
 	closeInputFile
 	closeOutputFiles
-	doErrorStuff
 	endOfLoop
 	prepareForNextLoop
 	rewind
-    *** nextItemType: File 0 ***
 	startingNewLoop
+    *** nextItemType: File 0 ***
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
@@ -28,11 +27,9 @@ Machine parameters:  mode = NOMERGE
 	closeInputFile
 	closeOutputFiles
 	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 0 ***
+Left processing loop.
 	startingNewLoop
+    *** nextItemType: File 0 ***
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
@@ -41,11 +38,9 @@ Machine parameters:  mode = NOMERGE
 	closeInputFile
 	closeOutputFiles
 	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 0 ***
+Left processing loop.
 	startingNewLoop
+    *** nextItemType: File 0 ***
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
@@ -195,11 +190,9 @@ Machine parameters:  mode = NOMERGE
 	closeInputFile
 	closeOutputFiles
 	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 1 ***
+Left processing loop.
 	startingNewLoop
+    *** nextItemType: File 1 ***
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
@@ -227,11 +220,9 @@ Machine parameters:  mode = NOMERGE
 	closeInputFile
 	closeOutputFiles
 	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 1 ***
+Left processing loop.
 	startingNewLoop
+    *** nextItemType: File 1 ***
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
@@ -251,23 +242,22 @@ Machine parameters:  mode = NOMERGE
 	respondToCloseInputFile
 	closeInputFile
 	closeOutputFiles
-	doErrorStuff
 	endOfLoop
 	prepareForNextLoop
 	rewind
-    *** nextItemType: Stop 1 ***
 	startingNewLoop
+    *** nextItemType: Stop 1 ***
 	endOfLoop
-The state machine reports it has been terminated
+Left processing loop.
 
 Machine parameters:  mode = FULLMERGE
+	startingNewLoop
     *** nextItemType: Restart 0 ***
-	doErrorStuff
 	endOfLoop
 	prepareForNextLoop
 	rewind
-    *** nextItemType: File 0 ***
 	startingNewLoop
+    *** nextItemType: File 0 ***
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
@@ -275,12 +265,11 @@ Machine parameters:  mode = FULLMERGE
 	respondToCloseInputFile
 	closeInputFile
 	closeOutputFiles
-	doErrorStuff
 	endOfLoop
 	prepareForNextLoop
 	rewind
-    *** nextItemType: File 0 ***
 	startingNewLoop
+    *** nextItemType: File 0 ***
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
@@ -289,11 +278,9 @@ Machine parameters:  mode = FULLMERGE
 	closeInputFile
 	closeOutputFiles
 	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 0 ***
+Left processing loop.
 	startingNewLoop
+    *** nextItemType: File 0 ***
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
@@ -302,11 +289,9 @@ Machine parameters:  mode = FULLMERGE
 	closeInputFile
 	closeOutputFiles
 	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 0 ***
+Left processing loop.
 	startingNewLoop
+    *** nextItemType: File 0 ***
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
@@ -419,11 +404,9 @@ Machine parameters:  mode = FULLMERGE
 	closeInputFile
 	closeOutputFiles
 	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 1 ***
+Left processing loop.
 	startingNewLoop
+    *** nextItemType: File 1 ***
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
@@ -450,11 +433,9 @@ Machine parameters:  mode = FULLMERGE
 	closeInputFile
 	closeOutputFiles
 	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 1 ***
+Left processing loop.
 	startingNewLoop
+    *** nextItemType: File 1 ***
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
@@ -474,11 +455,10 @@ Machine parameters:  mode = FULLMERGE
 	respondToCloseInputFile
 	closeInputFile
 	closeOutputFiles
-	doErrorStuff
 	endOfLoop
 	prepareForNextLoop
 	rewind
-    *** nextItemType: Stop 1 ***
 	startingNewLoop
+    *** nextItemType: Stop 1 ***
 	endOfLoop
-The state machine reports it has been terminated
+Left processing loop.
