@@ -164,7 +164,6 @@ void HTMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
   for ( auto const & j : *jetHandle ) {
     if ( jetSelection_( j ) ) {
       jets.push_back(j);
-      if ( jetSelection_HT_(j)) ht += j.pt();
     }
   }
   for ( auto const & j : *jetHandle ) {
