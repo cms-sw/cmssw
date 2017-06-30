@@ -386,4 +386,5 @@ higgsClient = cms.Sequence(
   + mu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLDZ_effmu
   + mssmHbbBtagTriggerEfficiency 
   + mssmHbbHLTEfficiency 
+
 )
