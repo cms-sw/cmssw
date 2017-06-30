@@ -57,9 +57,28 @@ class PFClusterEMEnergyCorrector {
   bool autoDetectBunchSpacing_;
   int bunchSpacingManual_;
         
-  std::unique_ptr<PFEnergyCalibration> calibrator_;
-  
+  std::unique_ptr<PFEnergyCalibration> calibrator_;  
   void getAssociatedPSEnergy(const size_t clusIdx, const reco::PFCluster::EEtoPSAssociation &assoc, float& e1, float& e2);
+
+  double meanlimlowEB_;
+  double meanlimhighEB_;
+  double meanoffsetEB_;
+  double meanscaleEB_;
+  
+  double meanlimlowEE_;
+  double meanlimhighEE_;
+  double meanoffsetEE_;
+  double meanscaleEE_;
+  
+  double sigmalimlowEB_;
+  double sigmalimhighEB_;
+  double sigmaoffsetEB_;
+  double sigmascaleEB_;
+
+  double sigmalimlowEE_;
+  double sigmalimhighEE_;
+  double sigmaoffsetEE_;
+  double sigmascaleEE_;
 
 };
 
