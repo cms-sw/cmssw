@@ -242,13 +242,13 @@ void PFClusterEMEnergyCorrector::correctEnergies(const edm::Event &evt,
   
   const double sigmalimlowEB = 0.001;
   const double sigmalimhighEB = 0.4;
-  const double sigmaoffsetEB = sigmalimlow + 0.5*(sigmalimhigh-sigmalimlow);
-  const double sigmascaleEB = 0.5*(sigmalimhigh-sigmalimlow);  
+  const double sigmaoffsetEB = sigmalimlowEB + 0.5*(sigmalimhighEB-sigmalimlowEB);
+  const double sigmascaleEB = 0.5*(sigmalimhighEB-sigmalimlowEB);  
 
   const double sigmalimlowEE = 0.001;
   const double sigmalimhighEE = 0.1;
-  const double sigmaoffsetEE = sigmalimlow + 0.5*(sigmalimhigh-sigmalimlow);
-  const double sigmascaleEE = 0.5*(sigmalimhigh-sigmalimlow);  
+  const double sigmaoffsetEE = sigmalimlowEE + 0.5*(sigmalimhighEE-sigmalimlowEE);
+  const double sigmascaleEE = 0.5*(sigmalimhighEE-sigmalimlowEE);  
 
   // Selective Readout Flags
   edm::Handle<EBSrFlagCollection> ebSrFlags;   
