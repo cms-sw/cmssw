@@ -204,31 +204,38 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
 
   edm::Handle<edm::ValueMap<std::vector<reco::PFCandidateRef> > > gsfElectronPfCandMapHandle;
   theEvent.getByToken(gsfElectronPfCandMapT_, gsfElectronPfCandMapHandle);    
+
+  int index = 0; // universal index for range based loops
   
   std::vector<edm::Handle<edm::ValueMap<bool> > > photonIdHandles(photonIdTs_.size());
-  for (unsigned int itok=0; itok<photonIdTs_.size(); ++itok) {
-    theEvent.getByToken(photonIdTs_[itok],photonIdHandles[itok]);
+  for (auto& photonIdT : photonIdTs_) {
+    theEvent.getByToken(photonIdT,photonIdHandles[index++]);
   }
-  
+  index = 0;
+
   std::vector<edm::Handle<edm::ValueMap<float> > > gsfElectronIdHandles(gsfElectronIdTs_.size());
-  for (unsigned int itok=0; itok<gsfElectronIdTs_.size(); ++itok) {
-    theEvent.getByToken(gsfElectronIdTs_[itok],gsfElectronIdHandles[itok]);
+  for (auto& gsfElectronIdT : gsfElectronIdTs_) {
+    theEvent.getByToken(gsfElectronIdT,gsfElectronIdHandles[index++]);
   }  
-  
-  std::vector<edm::Handle<edm::ValueMap<float> > > gsfElectronPFClusterIsoHandles(gsfElectronPFClusterIsoTs_.size());
-  for (unsigned int itok=0; itok<gsfElectronPFClusterIsoTs_.size(); ++itok) {
-    theEvent.getByToken(gsfElectronPFClusterIsoTs_[itok],gsfElectronPFClusterIsoHandles[itok]);
-  }  
-  
+  index = 0;
+
   std::vector<edm::Handle<edm::ValueMap<float> > > photonPFClusterIsoHandles(photonPFClusterIsoTs_.size());
-  for (unsigned int itok=0; itok<photonPFClusterIsoTs_.size(); ++itok) {
-    theEvent.getByToken(photonPFClusterIsoTs_[itok],photonPFClusterIsoHandles[itok]);
+  for (auto& photonPFClusterIsoT : photonPFClusterIsoTs_) {
+    theEvent.getByToken(photonPFClusterIsoT,photonPFClusterIsoHandles[index++]);
   }  
-  
+  index = 0;
+
   std::vector<edm::Handle<edm::ValueMap<float> > > ootPhotonPFClusterIsoHandles(ootPhotonPFClusterIsoTs_.size());
-  for (unsigned int itok=0; itok<ootPhotonPFClusterIsoTs_.size(); ++itok) {
-    theEvent.getByToken(ootPhotonPFClusterIsoTs_[itok],ootPhotonPFClusterIsoHandles[itok]);
+  for (auto& ootPhotonPFClusterIsoT : ootPhotonPFClusterIsoTs_) {
+    theEvent.getByToken(ootPhotonPFClusterIsoT,ootPhotonPFClusterIsoHandles[index++]);
   }  
+  index = 0;
+
+  std::vector<edm::Handle<edm::ValueMap<float> > > gsfElectronPFClusterIsoHandles(gsfElectronPFClusterIsoTs_.size());
+  for (auto& gsfElectronPFClusterIsoT : gsfElectronPFClusterIsoTs_) {
+    theEvent.getByToken(gsfElectronPFClusterIsoT,gsfElectronPFClusterIsoHandles[index++]);
+  }  
+  index = 0;
   
   edm::ESHandle<CaloTopology> theCaloTopology;
   theEventSetup.get<CaloTopologyRecord>().get(theCaloTopology);  
@@ -284,26 +291,28 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   std::vector<std::vector<float> > gsfElectronPFClusterIsoVals(gsfElectronPFClusterIsoHandles.size());
   
   //loop over photons and fill maps
-  for (unsigned int ipho=0; ipho<photonHandle->size(); ++ipho) {
-    const reco::Photon &photon = (*photonHandle)[ipho];
+  for (const auto& photon : *photonHandle) {
     
     bool keep = keepPhotonSel_(photon);
-    if (!keep) continue;
+    if (!keep) {index++; continue;}
     
-    reco::PhotonRef photonref(photonHandle,ipho);
+    reco::PhotonRef photonref(photonHandle,index++);
     
     photons->push_back(photon);
     
     //fill pf candidate value map vector
     pfCandIsoPairVecPho.push_back((*photonPfCandMapHandle)[photonref]);
 
-    //fill photon id valuemap vectors
-    for (unsigned int iid=0; iid<photonIdHandles.size(); ++iid) {
-      photonIdVals[iid].push_back( (*photonIdHandles[iid])[photonref] );
-    }    
+    int subindex = 0;
 
-    for (unsigned int iid=0; iid<photonPFClusterIsoHandles.size(); ++iid) {
-      photonPFClusterIsoVals[iid].push_back( (*photonPFClusterIsoHandles[iid])[photonref] );
+    //fill photon id valuemap vectors
+    for (const auto& photonIdHandle : photonIdHandles) {
+      photonIdVals[subindex++].push_back((*photonIdHandle)[photonref]);
+    }    
+    subindex = 0;
+
+    for (const auto& photonPFClusterIsoHandle : photonPFClusterIsoHandles) {
+      photonPFClusterIsoVals[subindex++].push_back((*photonPFClusterIsoHandle)[photonref]);
     }    
     
     //link photon core
@@ -330,24 +339,26 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     const reco::ConversionRefVector &singleconvrefs = photon.conversionsOneLeg();
     linkConversions(singleconvrefs, *singleConversions, singleConversionMap);
   }
+  index = 0;
 
   //loop over oot photons and fill maps
   //special note1: since not PFCand --> no PF isolation, IDs (but we do have PFClusterIso!)
   //special note2: conversion sequence not run over bcs from oot phos, so skip relinking of oot phos
   //special note3: clusters and superclusters in own collections!
-  for (unsigned int iootpho=0; iootpho<ootPhotonHandle->size(); ++iootpho) {
-    const reco::Photon &ootPhoton = (*ootPhotonHandle)[iootpho];
-    
+  for (const auto& ootPhoton : *ootPhotonHandle) {
+
     bool keep = keepOOTPhotonSel_(ootPhoton);
-    if (!keep) continue;
+    if (!keep) {index++; continue;}
     
-    reco::PhotonRef ootPhotonref(ootPhotonHandle,iootpho);
+    reco::PhotonRef ootPhotonref(ootPhotonHandle,index++);
     
     ootPhotons->push_back(ootPhoton);
         
+    int subindex = 0;
+
     //fill photon pfclusteriso valuemap vectors
-    for (unsigned int iid=0; iid<ootPhotonPFClusterIsoHandles.size(); ++iid) {
-      ootPhotonPFClusterIsoVals[iid].push_back( (*ootPhotonPFClusterIsoHandles[iid])[ootPhotonref] );
+    for (const auto& ootPhotonPFClusterIsoHandle : ootPhotonPFClusterIsoHandles) {
+      ootPhotonPFClusterIsoVals[subindex++].push_back((*ootPhotonPFClusterIsoHandle)[ootPhotonref]);
     }    
 
     //link photon core
@@ -363,26 +374,29 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     const reco::SuperClusterRef &ootSuperCluster = ootPhoton.superCluster();
     linkSuperCluster(ootSuperCluster, ootSuperClusterMap, *ootSuperClusters, relink, ootSuperClusterFullRelinkMap);
   }
+  index = 0;
   
   //loop over electrons and fill maps
-  for (unsigned int iele = 0; iele<gsfElectronHandle->size(); ++iele) {
-    const reco::GsfElectron &gsfElectron = (*gsfElectronHandle)[iele];
+  for (const auto& gsfElectron : *gsfElectronHandle) {
     
     bool keep = keepGsfElectronSel_(gsfElectron);    
-    if (!keep) continue;
+    if (!keep) {index++; continue;}
     
-    reco::GsfElectronRef gsfElectronref(gsfElectronHandle,iele);
+    reco::GsfElectronRef gsfElectronref(gsfElectronHandle,index++);
     
     gsfElectrons->push_back(gsfElectron);
     pfCandIsoPairVecEle.push_back((*gsfElectronPfCandMapHandle)[gsfElectronref]);
     
-    //fill electron id valuemap vectors
-    for (unsigned int iid=0; iid<gsfElectronIdHandles.size(); ++iid) {
-      gsfElectronIdVals[iid].push_back( (*gsfElectronIdHandles[iid])[gsfElectronref] );
-    }    
+    int subindex = 0;
 
-    for (unsigned int iid=0; iid<gsfElectronPFClusterIsoHandles.size(); ++iid) {
-      gsfElectronPFClusterIsoVals[iid].push_back( (*gsfElectronPFClusterIsoHandles[iid])[gsfElectronref] );
+    //fill electron id valuemap vectors
+    for (const auto& gsfElectronIdHandle : gsfElectronIdHandles) {
+      gsfElectronIdVals[subindex++].push_back((*gsfElectronIdHandle)[gsfElectronref]);
+    }    
+    subindex = 0;
+
+    for (const auto& gsfElectronPFClusterIsoHandle : gsfElectronPFClusterIsoHandles) {
+      gsfElectronPFClusterIsoVals[subindex++].push_back((*gsfElectronPFClusterIsoHandle)[gsfElectronref]);
     }    
 
     const reco::GsfElectronCoreRef &gsfElectronCore = gsfElectron.core();
@@ -413,17 +427,17 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     //single leg conversions matched by trackrefs
     linkConversionsByTrackRef(singleConversionHandle, gsfElectron, *singleConversions, singleConversionMap);
   }
+  index = 0;
 
   //loop over output SuperClusters and fill maps
-  for (unsigned int isc = 0; isc<superClusters->size(); ++isc) {
-    reco::SuperCluster &superCluster = (*superClusters)[isc];
+  for (auto& superCluster : *superClusters) {
     
     //link seed cluster no matter what
     const reco::CaloClusterPtr &seedCluster = superCluster.seed();
     linkCaloCluster(seedCluster, *ebeeClusters, ebeeClusterMap);
         
     //only proceed if superCluster is marked for full relinking
-    bool fullrelink = superClusterFullRelinkMap.count(isc);
+    bool fullrelink = superClusterFullRelinkMap.count(index++);
     if (!fullrelink) {
       //zero detid vector which is anyways not useful without stored rechits
       superCluster.clearHitsAndFractions();
@@ -439,17 +453,17 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     //single leg conversions matched by trackrefs
     linkConversionsByTrackRef(singleConversionHandle, superCluster, *singleConversions, singleConversionMap);    
   }
-  
+  index = 0;
+
   //loop over output OOTSuperClusters and fill maps
-  for (unsigned int isc = 0; isc<ootSuperClusters->size(); ++isc) {
-    reco::SuperCluster &ootSuperCluster = (*ootSuperClusters)[isc];
+  for (auto& ootSuperCluster : *ootSuperClusters) {
     
     //link seed cluster no matter what
     const reco::CaloClusterPtr &ootSeedCluster = ootSuperCluster.seed();
     linkCaloCluster(ootSeedCluster, *ootEbeeClusters, ootEbeeClusterMap);
 
     //only proceed if ootSuperCluster is marked for full relinking
-    bool fullrelink = ootSuperClusterFullRelinkMap.count(isc);
+    bool fullrelink = ootSuperClusterFullRelinkMap.count(index++);
     if (!fullrelink) {
       //zero detid vector which is anyways not useful without stored rechits
       ootSuperCluster.clearHitsAndFractions();
@@ -459,6 +473,7 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     // link calo clusters
     linkCaloClusters(ootSuperCluster, *ootEbeeClusters, ootEbeeClusterMap, rechitMap, barrelHitHandle, endcapHitHandle, caloTopology, *ootEsClusters, ootEsClusterMap);
   }
+  index = 0;
 
   //now finalize and add to the event collections in "reverse" order
   
@@ -587,40 +602,34 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     }
     ev.put(std::move(oMap), cAl);
   };
-  int index = 0;
 
   //photon id value maps
   for (auto const& vals : photonIdVals){ 
-    fillMap(outPhotonHandle, vals, theEvent, outPhotonIds_[index]);
-    index++;
+    fillMap(outPhotonHandle, vals, theEvent, outPhotonIds_[index++]);
   }
   index = 0;
 
   //electron id value maps
   for (auto const& vals : gsfElectronIdVals){ 
-    fillMap(outGsfElectronHandle, vals, theEvent, outGsfElectronIds_[index]);
-    index++;
+    fillMap(outGsfElectronHandle, vals, theEvent, outGsfElectronIds_[index++]);
   }
   index = 0;
   
   // photon iso value maps
   for (auto const& vals : photonPFClusterIsoVals){
-    fillMap(outPhotonHandle, vals, theEvent, outPhotonPFClusterIsos_[index]);
-    index++;
+    fillMap(outPhotonHandle, vals, theEvent, outPhotonPFClusterIsos_[index++]);
   }
   index = 0;
 
   //oot photon iso value maps
   for (auto const& vals : ootPhotonPFClusterIsoVals){
-    fillMap(outOOTPhotonHandle, vals, theEvent, outOOTPhotonPFClusterIsos_[index]);
-    index++;
+    fillMap(outOOTPhotonHandle, vals, theEvent, outOOTPhotonPFClusterIsos_[index++]);
   }
   index = 0;
 
   //electron iso value maps
   for (auto const& vals : gsfElectronPFClusterIsoVals){
-    fillMap(outGsfElectronHandle, vals, theEvent, outGsfElectronPFClusterIsos_[index]);
-    index++;
+    fillMap(outGsfElectronHandle, vals, theEvent, outGsfElectronPFClusterIsos_[index++]);
   }
 }
 
@@ -670,9 +679,10 @@ void ReducedEGProducer::linkConversionsByTrackRef(const edm::Handle<reco::Conver
 						  reco::ConversionCollection& conversions, 
 						  std::map<reco::ConversionRef, unsigned int>& conversionMap)
 {
-  for (unsigned int iconv = 0; iconv<conversionHandle->size(); ++iconv) {
-    const reco::Conversion &conversion = (*conversionHandle)[iconv];
-    reco::ConversionRef convref(conversionHandle,iconv);
+  int index = 0;
+  for (const auto& conversion : *conversionHandle) {
+
+    reco::ConversionRef convref(conversionHandle,index++);
     
     bool matched = ConversionTools::matchesConversion(gsfElectron,conversion,true,true);
     if (!matched) continue;
@@ -686,9 +696,10 @@ void ReducedEGProducer::linkConversionsByTrackRef(const edm::Handle<reco::Conver
 						  reco::ConversionCollection& conversions, 
 						  std::map<reco::ConversionRef, unsigned int>& conversionMap)
 {
-  for (unsigned int iconv = 0; iconv<conversionHandle->size(); ++iconv) {
-    const reco::Conversion &conversion = (*conversionHandle)[iconv];
-    reco::ConversionRef convref(conversionHandle,iconv);
+  int index = 0;
+  for (const auto& conversion : *conversionHandle) {
+
+    reco::ConversionRef convref(conversionHandle,index++);
     
     bool matched = ConversionTools::matchesConversion(superCluster,conversion,0.2);
     if (!matched) continue;
