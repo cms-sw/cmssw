@@ -91,10 +91,6 @@ ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config) :
   keepGsfElectronSel_(config.getParameter<std::string>("keepGsfElectrons")),
   slimRelinkGsfElectronSel_(config.getParameter<std::string>("slimRelinkGsfElectrons")),
   relinkGsfElectronSel_(config.getParameter<std::string>("relinkGsfElectrons"))
-  //keepGsfTrackSel_(config.getParameter<std::string>("keepGsfTracks"))
-  ///slimRelinkGsfTrackSel_(config.getParameter<std::string>("slimRelinkGsfTracks")),  //add by Hien
-  //relinkGsfTrackSel_(config.getParameter<std::string>("relinkGsfTracks"))           //add by Hien
-
 {
   const std::vector<edm::InputTag>& photonidinputs =
     config.getParameter<std::vector<edm::InputTag> >("photonIDSources");
@@ -229,7 +225,6 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   auto eeRecHits = std::make_unique<EcalRecHitCollection>();
   auto esRecHits = std::make_unique<EcalRecHitCollection>();
   auto gsfTracks = std::make_unique<reco::GsfTrackCollection>();  //add by me -Hien xinh dep
-  //auto AmbgsfTracks = std::make_unique<reco::GsfTrackCollection>();
   auto photonPfCandMap = std::make_unique<edm::ValueMap<std::vector<reco::PFCandidateRef>>>();
   auto gsfElectronPfCandMap = std::make_unique<edm::ValueMap<std::vector<reco::PFCandidateRef>>>();
 
@@ -262,7 +257,6 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   std::map<reco::CaloClusterPtr, unsigned int> ebeeClusterMap;
   std::map<reco::CaloClusterPtr, unsigned int> esClusterMap;
   std::map<reco::GsfTrackRef, unsigned int> gsfTrackMap; //add by me - Hien xinh dep
-  //std::map<reco::GsfTrackRef, unsigned int> ambiguousGsfTrackMap;
   std::unordered_set<DetId> rechitMap;
 
   std::unordered_set<unsigned int> superClusterFullRelinkMap;
@@ -383,34 +377,34 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
 
     // ----------------
     //gsftracks, add by me - Hien xinh dep
-    
+
     const reco::GsfTrackRef &gsfTrack = gsfElectron.gsfTrack();
 
     // Save the main gsfTrack
     if (!gsfTrackMap.count(gsfTrack)) {
       gsfTracks->push_back(*gsfTrack);
       gsfTrackMap[gsfTrack] = gsfTracks->size() - 1;
-      std::cout << "push back gsftrack to gsftrack ref" << std::endl;
-      std::cout << " gsf track size: " << gsfTracks->size() << std::endl;
+      //std::cout << "push back gsftrack to gsftrack ref" << std::endl;
+      //std::cout << " gsf track size: " << gsfTracks->size() << std::endl;
     }
 
 
-    std::cout << " ---- event number: " << theEvent.id().event() << "\t gsf pt: " << gsfTrack->pt() << "\t gsf eta: "
-	      << gsfTrack->eta() << "\t gsf phi: " << gsfTrack->phi() << std::endl;
-    std::cout << "ambiguous true or false: " <<gsfElectron.ambiguous()
-	      << "  (looks like this flag was never set even when there are ambiguous tracks present)" <<std::endl;
-    
+    //std::cout << " ---- event number: " << theEvent.id().event() << "\t gsf pt: " << gsfTrack->pt() << "\t gsf eta: "
+    //	      << gsfTrack->eta() << "\t gsf phi: " << gsfTrack->phi() << std::endl;
+    //std::cout << "ambiguous true or false: " <<gsfElectron.ambiguous()
+    //	      << "  (looks like this flag was never set even when there are ambiguous tracks present)" <<std::endl;
+
     // Save additional ambiguous gsf tracks:
     for (reco::GsfTrackRefVector::const_iterator igsf = gsfElectron.ambiguousGsfTracksBegin(); igsf != gsfElectron.ambiguousGsfTracksEnd(); ++igsf) {
-      std::cout<<"    **** Found an AMBIGUOUS GSF ***** "<<std::endl;
-      std::cout << " ---- event number: " << theEvent.id().event() << "\t gsf pt: " << (*igsf)->pt() << "\t gsf eta: "
-		<< (*igsf)->eta() << "\t gsf phi: " << (*igsf)->phi() << std::endl;
+      //std::cout<<"    **** Found an AMBIGUOUS GSF ***** "<<std::endl;
+      //std::cout << " ---- event number: " << theEvent.id().event() << "\t gsf pt: " << (*igsf)->pt() << "\t gsf eta: "
+      //	<< (*igsf)->eta() << "\t gsf phi: " << (*igsf)->phi() << std::endl;
 
       const reco::GsfTrackRef &ambigGsfTrack = *igsf;
       if (!gsfTrackMap.count(ambigGsfTrack)) {
 	gsfTracks->push_back(*ambigGsfTrack);
 	gsfTrackMap[ambigGsfTrack] = gsfTracks->size() - 1;
-	std::cout << "Save ambiguous track in the map" << std::endl;
+	//std::cout << "Save ambiguous track in the map" << std::endl;
       }
 
     }
@@ -665,7 +659,6 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   const edm::OrphanHandle<reco::SuperClusterCollection> &outSuperClusterHandle = theEvent.put(std::move(superClusters),outSuperClusters_);
   const edm::OrphanHandle<reco::ConversionCollection> &outConversionHandle = theEvent.put(std::move(conversions),outConversions_);
   const edm::OrphanHandle<reco::ConversionCollection> &outSingleConversionHandle = theEvent.put(std::move(singleConversions),outSingleConversions_);
-  //put gsftrack in the event (add by me - Hien xinh dep)
   const edm::OrphanHandle<reco::GsfTrackCollection> &outGsfTrackHandle = theEvent.put(std::move(gsfTracks),outGsfTracks_);
 
   //loop over photoncores and relink superclusters (and conversions)
@@ -752,14 +745,11 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
       ambigTracksInThisElectron.push_back(*igsf);
     }
 
-    // Now we need to clear them:
+    // Now we need to clear them (they are the refs to original collection):
     gsfElectron.clearAmbiguousGsfTracks();
 
-
-    // Here we add them back, now from a new reduced Collection 
-
+    // And here we add them back, now from a new reduced collection:
     for (std::vector<reco::GsfTrackRef>::const_iterator it = ambigTracksInThisElectron.begin(); it != ambigTracksInThisElectron.end(); ++it) {
-
       const auto &gsftkmapped = gsfTrackMap.find(*it);
 
       if (gsftkmapped != gsfTrackMap.end()) {
@@ -768,13 +758,13 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
       }
       else
 	throw cms::Exception("There must be a problem with linking and mapping of ambiguous gsf tracks...");
-      
+
     }
 
-    if (gsfElectron.ambiguousGsfTracksSize() > 0) 
-      gsfElectron.setAmbiguous(true);
+    if (gsfElectron.ambiguousGsfTracksSize() > 0)
+      gsfElectron.setAmbiguous(true); // Set the flag
 
-    
+
     ambigTracksInThisElectron.clear();
   }
 
