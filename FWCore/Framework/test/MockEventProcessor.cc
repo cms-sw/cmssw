@@ -2,7 +2,8 @@
 */
 
 #include "FWCore/Framework/test/MockEventProcessor.h"
-
+#include "FWCore/Framework/interface/InputSource.h"
+#include <cassert>
 #include <sstream>
 
 namespace {
@@ -17,81 +18,137 @@ namespace {
     if(is >> t.id) is >> t.value;
     return is;
   }
+  
+  //The TransitionProcessors.icc uses the class name
+  // EventProcessor (with no namespace) as the type
+  // to which it interacts.
+  using EventProcessor = edm::MockEventProcessor;
+  
+  
+#include "FWCore/Framework/src/TransitionProcessors.icc"
 }
 namespace edm {
 
   MockEventProcessor::MockEventProcessor(std::string const& mockData,
                                          std::ostream& output,
-                                         statemachine::FileMode const& fileMode,
-                                         statemachine::EmptyRunLumiMode const& emptyRunLumiMode) :
+                                         bool iDoNotMerge) :
     mockData_(mockData),
     output_(output),
-    fileMode_(fileMode),
-    emptyRunLumiMode_(emptyRunLumiMode),
+    input_(mockData_),
     run_(0),
     lumi_(0),
+    doNotMerge_(iDoNotMerge),
     shouldWeCloseOutput_(true),
     shouldWeEndLoop_(true),
-    shouldWeStop_(false)  {
+    shouldWeStop_(false),
+    eventProcessed_(false),
+    reachedEndOfInput_(false)
+  {
   }
+
+  InputSource::ItemType
+  MockEventProcessor::nextTransitionType()
+  {
+    token t;
+    if( not (input_ >> t)) {
+      reachedEndOfInput_ = true;
+      return InputSource::IsStop;
+    }
+
+    char ch = t.id;
+
+    eventProcessed_ = false;
+    if(ch == 'r') {
+      output_ << "    *** nextItemType: Run " << t.value << " ***\n";
+      run_ = t.value;
+      return InputSource::IsRun;
+    } else if(ch == 'l') {
+      output_ << "    *** nextItemType: Lumi " << t.value << " ***\n";
+      lumi_ = t.value;
+      return InputSource::IsLumi;
+    } else if(ch == 'e') {
+      output_ << "    *** nextItemType: Event ***\n";
+      // a special value for test purposes only
+      if(t.value == 7) {
+        shouldWeStop_ = true;
+        output_ << "    *** shouldWeStop will return true this event ***\n";
+      } else {
+        shouldWeStop_ = false;
+      }
+      return InputSource::IsEvent;
+    } else if(ch == 'f') {
+      output_ << "    *** nextItemType: File " << t.value << " ***\n";
+      // a special value for test purposes only
+      if(t.value == 0) shouldWeCloseOutput_ = false;
+      else shouldWeCloseOutput_ = true;
+      return InputSource::IsFile;
+    } else if(ch == 's') {
+      output_ << "    *** nextItemType: Stop " << t.value << " ***\n";
+      // a special value for test purposes only
+      if(t.value == 0) shouldWeEndLoop_ = false;
+      else shouldWeEndLoop_ = true;
+      return InputSource::IsStop;
+    } else if(ch == 'x') {
+      output_ << "    *** nextItemType: Restart " << t.value << " ***\n";
+      shouldWeEndLoop_ = t.value;
+      return InputSource::IsStop;
+    }
+    return InputSource::IsInvalid;
+  }
+  
+  std::pair<edm::ProcessHistoryID, edm::RunNumber_t>
+  MockEventProcessor::nextRunID() {
+    return std::make_pair(edm::ProcessHistoryID{}, run_);
+  }
+
+  edm::LuminosityBlockNumber_t
+  MockEventProcessor::nextLuminosityBlockID() {
+    return lumi_;
+  }
+  
+  InputSource::ItemType
+  MockEventProcessor::readAndProcessEvents() {
+    readAndProcessEvent();
+    if(shouldWeStop()) {
+      return InputSource::IsEvent;
+    }
+    return nextTransitionType();
+  }
+
 
   edm::MockEventProcessor::StatusCode
   MockEventProcessor::runToCompletion() {
-    statemachine::Machine myMachine(this,
-                                    fileMode_,
-                                    emptyRunLumiMode_);
+    StatusCode returnCode=epSuccess;
 
-    myMachine.initiate();
+    do {
+      FilesProcessor fp(doNotMerge_);
 
-    // Loop over the mock data items
-    std::istringstream input(mockData_);
-    token t;
-    while(input >> t) {
-
-      char ch = t.id;
-
-      if(ch == 'r') {
-        output_ << "    *** nextItemType: Run " << t.value << " ***\n";
-        run_ = t.value;
-        myMachine.process_event(statemachine::Run(ProcessHistoryID(), t.value));
-      } else if(ch == 'l') {
-        output_ << "    *** nextItemType: Lumi " << t.value << " ***\n";
-        lumi_ = t.value;
-        myMachine.process_event(statemachine::Lumi(t.value));
-      } else if(ch == 'e') {
-        output_ << "    *** nextItemType: Event ***\n";
-        // a special value for test purposes only
-        if(t.value == 7) {
-          shouldWeStop_ = true;
-          output_ << "    *** shouldWeStop will return true this event ***\n";
+      bool firstTime = true;
+      do {
+        if(not firstTime) {
+          prepareForNextLoop();
+          rewindInput();
         } else {
-          shouldWeStop_ = false;
+          firstTime = false;
         }
-        myMachine.process_event(statemachine::Event());
-      } else if(ch == 'f') {
-        output_ << "    *** nextItemType: File " << t.value << " ***\n";
-        // a special value for test purposes only
-        if(t.value == 0) shouldWeCloseOutput_ = false;
-        else shouldWeCloseOutput_ = true;
-        myMachine.process_event(statemachine::File());
-      } else if(ch == 's') {
-        output_ << "    *** nextItemType: Stop " << t.value << " ***\n";
-        // a special value for test purposes only
-        if(t.value == 0) shouldWeEndLoop_ = false;
-        else shouldWeEndLoop_ = true;
-        myMachine.process_event(statemachine::Stop());
-      } else if(ch == 'x') {
-        output_ << "    *** nextItemType: Restart " << t.value << " ***\n";
-        shouldWeEndLoop_ = t.value;
-        myMachine.process_event(statemachine::Restart());
-      }
-      if(myMachine.terminated()) {
-        output_ << "The state machine reports it has been terminated\n";
-      }
-    }
-    return epSuccess;
+        startingNewLoop();
+        
+        auto trans = fp.processFiles(*this);
+        
+        fp.normalEnd();
+        
+        if(trans != InputSource::IsStop) {
+          //problem with the source
+          doErrorStuff();
+          break;
+        }
+      } while(not endOfLoop());
+      output_ <<"Left processing loop.\n";
+    } while(not reachedEndOfInput_ and not input_.eof());
+      
+    return returnCode;
   }
-
+  
   void MockEventProcessor::readFile() {
     output_ << " \treadFile\n";
   }
@@ -197,11 +254,12 @@ namespace edm {
   void MockEventProcessor::readAndProcessEvent() {
     output_ << "\treadEvent\n";
     output_ << "\tprocessEvent\n";
+    eventProcessed_ = true;
   }
 
   bool MockEventProcessor::shouldWeStop() const {
     output_ << "\tshouldWeStop\n";
-    return shouldWeStop_;
+    return eventProcessed_ and shouldWeStop_;
   }
 
   void MockEventProcessor::setExceptionMessageFiles(std::string&) {}
@@ -209,4 +267,6 @@ namespace edm {
   void MockEventProcessor::setExceptionMessageLumis(std::string&) {}
 
   bool MockEventProcessor::alreadyHandlingException() const { return false; }
+  bool MockEventProcessor::setDeferredException(std::exception_ptr) { return true;}
+
 }

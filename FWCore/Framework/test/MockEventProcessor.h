@@ -10,10 +10,11 @@ Original Authors: W. David Dagenhart, Marc Paterno
 
 #include "FWCore/Framework/interface/IEventProcessor.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
-#include "FWCore/Framework/src/EPStates.h"
+#include "FWCore/Framework/interface/InputSource.h"
 
 #include <iostream>
 #include <string>
+#include <sstream>
 
 namespace edm {
   class MockEventProcessor : public IEventProcessor {
@@ -21,10 +22,13 @@ namespace edm {
 
     MockEventProcessor(std::string const& mockData,
                        std::ostream& output,
-                       statemachine::FileMode const& fileMode,
-                       statemachine::EmptyRunLumiMode const& emptyRunLumiMode);
+                       bool iDoNotMerge);
 
     virtual StatusCode runToCompletion() override;
+
+    InputSource::ItemType nextTransitionType();
+    std::pair<edm::ProcessHistoryID, edm::RunNumber_t> nextRunID();
+    edm::LuminosityBlockNumber_t nextLuminosityBlockID();
 
     virtual void readFile() override;
     virtual void closeInputFile(bool cleaningUpAfterException) override;
@@ -66,18 +70,24 @@ namespace edm {
 
     virtual bool alreadyHandlingException() const override;
 
+    InputSource::ItemType readAndProcessEvents();
+
+    bool setDeferredException(std::exception_ptr);
+
   private:
     std::string mockData_;
     std::ostream & output_;
-    statemachine::FileMode fileMode_;
-    statemachine::EmptyRunLumiMode emptyRunLumiMode_;
-
+    std::istringstream input_;
+    
     int run_;
     int lumi_;
 
+    bool doNotMerge_;
     bool shouldWeCloseOutput_;
     bool shouldWeEndLoop_;
     bool shouldWeStop_;
+    bool eventProcessed_;
+    bool reachedEndOfInput_;
   };
 }
 

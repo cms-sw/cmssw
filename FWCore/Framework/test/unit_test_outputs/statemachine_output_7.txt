@@ -1,7 +1,7 @@
 
 Machine parameters:  mode = NOMERGE
-    *** nextItemType: File 1 ***
 	startingNewLoop
+    *** nextItemType: File 1 ***
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
@@ -16,6 +16,7 @@ Machine parameters:  mode = NOMERGE
 	processEvent
 	shouldWeStop
     *** nextItemType: Lumi 2 ***
+	shouldWeStop
 	endLumi 1/1
 	writeLumi 1/1
 	deleteLumiFromCache 1/1
@@ -26,6 +27,7 @@ Machine parameters:  mode = NOMERGE
 	processEvent
 	shouldWeStop
     *** nextItemType: File 0 ***
+	shouldWeStop
 	endLumi 1/2
 	writeLumi 1/2
 	deleteLumiFromCache 1/2
@@ -55,6 +57,7 @@ Machine parameters:  mode = NOMERGE
 	processEvent
 	shouldWeStop
     *** nextItemType: Stop 1 ***
+	shouldWeStop
 	endLumi 1/3
 	writeLumi 1/3
 	deleteLumiFromCache 1/3
@@ -65,11 +68,11 @@ Machine parameters:  mode = NOMERGE
 	closeInputFile
 	closeOutputFiles
 	endOfLoop
-The state machine reports it has been terminated
+Left processing loop.
 
 Machine parameters:  mode = FULLMERGE
-    *** nextItemType: File 1 ***
 	startingNewLoop
+    *** nextItemType: File 1 ***
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
@@ -84,6 +87,7 @@ Machine parameters:  mode = FULLMERGE
 	processEvent
 	shouldWeStop
     *** nextItemType: Lumi 2 ***
+	shouldWeStop
 	endLumi 1/1
 	writeLumi 1/1
 	deleteLumiFromCache 1/1
@@ -94,6 +98,7 @@ Machine parameters:  mode = FULLMERGE
 	processEvent
 	shouldWeStop
     *** nextItemType: File 0 ***
+	shouldWeStop
 	shouldWeCloseOutput
 	respondToCloseInputFile
 	closeInputFile
@@ -114,6 +119,7 @@ Machine parameters:  mode = FULLMERGE
 	processEvent
 	shouldWeStop
     *** nextItemType: Stop 1 ***
+	shouldWeStop
 	endLumi 1/3
 	writeLumi 1/3
 	deleteLumiFromCache 1/3
@@ -124,4 +130,4 @@ Machine parameters:  mode = FULLMERGE
 	closeInputFile
 	closeOutputFiles
 	endOfLoop
-The state machine reports it has been terminated
+Left processing loop.

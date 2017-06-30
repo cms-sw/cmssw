@@ -74,8 +74,7 @@ int main(int argc, char* argv[]) try {
 
     edm::MockEventProcessor mockEventProcessor(mockData,
                                                output,
-                                               fileMode,
-                                               handleEmptyRunsAndLumis);
+                                               fileMode == NOMERGE);
 
     mockEventProcessor.runToCompletion();
   }
