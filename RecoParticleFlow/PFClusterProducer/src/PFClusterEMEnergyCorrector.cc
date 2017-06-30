@@ -123,24 +123,22 @@ void PFClusterEMEnergyCorrector::correctEnergies(const edm::Event &evt,
     return;
   }
 
-  // Common defintion for SRF-aware and old style corrections
-
-  //magic numbers for MINUIT-like transformation of BDT output onto limited range
-  //(These should be stored inside the conditions object in the future as well)
-  const double meanlimlow = -0.336;
-  const double meanlimhigh = 0.916;
-  const double meanoffset = meanlimlow + 0.5*(meanlimhigh-meanlimlow);
-  const double meanscale = 0.5*(meanlimhigh-meanlimlow);
-  
-  const double sigmalimlow = 0.001;
-  const double sigmalimhigh = 0.4;
-  const double sigmaoffset = sigmalimlow + 0.5*(sigmalimhigh-sigmalimlow);
-  const double sigmascale = 0.5*(sigmalimhigh-sigmalimlow);  
-
+  // Common objects for SRF-aware and old style corrections
   EcalClusterLazyTools lazyTool(evt, es, recHitsEB_, recHitsEE_);
   EcalReadoutTools readoutTool(evt, es);
 
   if (!srfAwareCorrection_) {
+
+    const double meanlimlow = -0.336;
+    const double meanlimhigh = 0.916;
+    const double meanoffset = meanlimlow + 0.5*(meanlimhigh-meanlimlow);
+    const double meanscale = 0.5*(meanlimhigh-meanlimlow);
+    
+    const double sigmalimlow = 0.001;
+    const double sigmalimhigh = 0.4;
+    const double sigmaoffset = sigmalimlow + 0.5*(sigmalimhigh-sigmalimlow);
+    const double sigmascale = 0.5*(sigmalimhigh-sigmalimlow);  
+
     int bunchspacing = 450;  
     if (autoDetectBunchSpacing_) {
       edm::Handle<unsigned int> bunchSpacingH;
@@ -236,6 +234,21 @@ void PFClusterEMEnergyCorrector::correctEnergies(const edm::Event &evt,
     }
     return;
   }
+
+  const double meanlimlow = -0.336;
+  const double meanlimhigh = 0.916;
+  const double meanoffset = meanlimlow + 0.5*(meanlimhigh-meanlimlow);
+  const double meanscale = 0.5*(meanlimhigh-meanlimlow);
+  
+  const double sigmalimlowEB = 0.001;
+  const double sigmalimhighEB = 0.4;
+  const double sigmaoffsetEB = sigmalimlow + 0.5*(sigmalimhigh-sigmalimlow);
+  const double sigmascaleEB = 0.5*(sigmalimhigh-sigmalimlow);  
+
+  const double sigmalimlowEE = 0.001;
+  const double sigmalimhighEE = 0.1;
+  const double sigmaoffsetEE = sigmalimlow + 0.5*(sigmalimhigh-sigmalimlow);
+  const double sigmascaleEE = 0.5*(sigmalimhigh-sigmalimlow);  
 
   // Selective Readout Flags
   edm::Handle<EBSrFlagCollection> ebSrFlags;   
@@ -360,8 +373,10 @@ void PFClusterEMEnergyCorrector::correctEnergies(const edm::Event &evt,
     }
 
     //apply transformation to limited output range (matching the training)
-    double mean = meanoffset + meanscale*vdt::fast_sin(rawmean);
-    double sigma = sigmaoffset + sigmascale*vdt::fast_sin(rawsigma);
+    //the training was done with different transformations for EB and EE (width only)
+    //makes a the code a bit more cumbersome, but it is not a problem per se
+    double mean = meanoffset + meanscale*vdt::fast_sin(rawmean);    
+    double sigma = iseb ? sigmaoffsetEB + sigmascaleEB*vdt::fast_sin(rawsigma) : sigmaoffsetEE + sigmascaleEE*vdt::fast_sin(rawsigma);
     
     //regression target is ln(Etrue/Eraw)
     //so corrected energy is ecor=exp(mean)*e, uncertainty is exp(mean)*eraw*sigma=ecor*sigma
