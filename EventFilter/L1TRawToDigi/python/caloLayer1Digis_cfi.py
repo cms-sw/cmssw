@@ -5,7 +5,7 @@ caloLayer1Digis = cms.EDProducer(
     Setup = cms.string("stage2::CaloLayer1Setup"),
     InputLabel = cms.InputTag("rawDataCollector"),
     FedIds = cms.vint32(1354, 1356, 1358),
-    FWId = cms.uint32(0),
+    FWId = cms.uint32(0x12345678),
     debug = cms.untracked.bool(False),
     CTP7 = cms.untracked.bool(True)
 )

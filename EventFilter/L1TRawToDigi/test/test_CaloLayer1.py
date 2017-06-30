@@ -36,6 +36,10 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(options.maxEvents)
 )
 
+process.options = cms.untracked.PSet(
+    allowUnscheduled = cms.untracked.bool(False),
+    wantSummary = cms.untracked.bool(True),
+)
 
 # Output definition
 process.output = cms.OutputModule(
@@ -45,7 +49,7 @@ process.output = cms.OutputModule(
     outputCommands = cms.untracked.vstring("keep *_*_*_DRD"),
     fileName = cms.untracked.string(options.outputFile),
     dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string(''),
+        filterName = cms.untracked.string('path'),
         dataTier = cms.untracked.string('')
     )
 )
@@ -57,26 +61,26 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup', '')
 
 # enable debug message logging for our modules
-process.MessageLogger = cms.Service(
-    "MessageLogger",
-    threshold  = cms.untracked.string('DEBUG'),
-    categories = cms.untracked.vstring('L1T'),
-    debugModules = cms.untracked.vstring(
-        'caloLayer1Digis',
-        'caloLayer1RawFed1354',
-        'caloLayer1RawFed1356',
-        'caloLayer1RawFed1358',
-    ),
-    destinations = cms.untracked.vstring('cerr'),
-    cerr = cms.untracked.PSet(
-        L1T = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1),
-        ),
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0),
-        ),
-    ),
-)
+# process.MessageLogger = cms.Service(
+#     "MessageLogger",
+#     threshold  = cms.untracked.string('DEBUG'),
+#     categories = cms.untracked.vstring('L1T'),
+#     debugModules = cms.untracked.vstring(
+#         'caloLayer1Digis',
+#         'caloLayer1RawFed1354',
+#         'caloLayer1RawFed1356',
+#         'caloLayer1RawFed1358',
+#     ),
+#     destinations = cms.untracked.vstring('cerr'),
+#     cerr = cms.untracked.PSet(
+#         L1T = cms.untracked.PSet(
+#             limit = cms.untracked.int32(-1),
+#         ),
+#         default = cms.untracked.PSet(
+#             limit = cms.untracked.int32(0),
+#         ),
+#     ),
+# )
 
 
 # user stuff
@@ -84,16 +88,63 @@ process.load('EventFilter.L1TRawToDigi.caloLayer1Digis_cfi')
 process.load('EventFilter.L1TRawToDigi.caloLayer1Raw_cfi')
 process.load("EventFilter.L1TXRawToDigi.caloLayer1Stage2Digis_cfi")
 
+process.unpackMismatch = cms.EDFilter("CaloLayer1MismatchFilter",
+    ecalTPSourceSent = cms.InputTag("l1tCaloLayer1Digis"),
+    hcalTPSourceSent = cms.InputTag("l1tCaloLayer1Digis"),
+    ecalTPSourceRecd = cms.InputTag("caloLayer1Digis"),
+    hcalTPSourceRecd = cms.InputTag("caloLayer1Digis"),
+    fedRawData = cms.InputTag("rawDataCollector"),
+    filterEcalMismatch = cms.bool(True),
+    filterHcalMismatch = cms.bool(True),
+    filterEcalLinkErrors = cms.bool(False),
+    filterHcalLinkErrors = cms.bool(False),
+    printout = cms.bool(True),
+)
+
 for prod in [process.caloLayer1RawFed1354, process.caloLayer1RawFed1356, process.caloLayer1RawFed1358]:
-    prod.ecalDigis = cms.InputTag("simEcalTriggerPrimitiveDigis")
-    prod.hcalDigis = cms.InputTag("simHcalTriggerPrimitiveDigis")
-    prod.caloRegions = cms.InputTag("simCaloStage2Layer1Digis")
+    prod.ecalDigis = cms.InputTag("l1tCaloLayer1Digis")
+    prod.hcalDigis = cms.InputTag("l1tCaloLayer1Digis")
+    prod.caloRegions = cms.InputTag("l1tCaloLayer1Digis")
+
+process.collectPackers = cms.EDProducer("RawDataCollectorByLabel",
+    verbose = cms.untracked.int32(0),     # 0 = quiet, 1 = collection list, 2 = FED list
+    RawCollectionList = cms.VInputTag(
+        cms.InputTag('caloLayer1RawFed1354'),
+        cms.InputTag('caloLayer1RawFed1356'),
+        cms.InputTag('caloLayer1RawFed1358'),
+    ),
+)
+
+process.oldUnpackerNewPacked = process.l1tCaloLayer1Digis.clone()
+process.oldUnpackerNewPacked.fedRawDataLabel = cms.InputTag("collectPackers")
+
+process.newUnpackerNewPacked = process.caloLayer1Digis.clone()
+process.newUnpackerNewPacked.InputLabel = cms.InputTag("collectPackers")
+
+process.packMismatch = cms.EDFilter("CaloLayer1MismatchFilter",
+    ecalTPSourceSent = cms.InputTag("oldUnpackerNewPacked"),
+    hcalTPSourceSent = cms.InputTag("oldUnpackerNewPacked"),
+    ecalTPSourceRecd = cms.InputTag("newUnpackerNewPacked"),
+    hcalTPSourceRecd = cms.InputTag("newUnpackerNewPacked"),
+    fedRawData = cms.InputTag("rawDataCollector"),
+    filterEcalMismatch = cms.bool(True),
+    filterHcalMismatch = cms.bool(True),
+    filterEcalLinkErrors = cms.bool(False),
+    filterHcalLinkErrors = cms.bool(False),
+    printout = cms.bool(True),
+)
+
 
 # Path and EndPath definitions
 process.path = cms.Path(
-    process.l1tCaloLayer1Digis +
-    process.caloLayer1Raw
-    #process.caloLayer1Digis
+    process.l1tCaloLayer1Digis *
+    process.caloLayer1Digis *
+    # process.unpackMismatch *
+    process.caloLayer1Raw *
+    process.collectPackers *
+    process.oldUnpackerNewPacked *
+    process.newUnpackerNewPacked *
+    process.packMismatch
 )
 
 process.out = cms.EndPath(

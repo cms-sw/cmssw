@@ -76,16 +76,21 @@ namespace l1t {
       UnpackerMap
       CaloLayer1Setup::getUnpackers(int fed, int board, int amc, unsigned int fw)
       {
-         auto ctp7_unp = UnpackerFactory::get()->make("stage2::CaloLayer1Unpacker");
-         // if (fw >= 0xa110ca7e) {
-         //    ctp7_unp = UnpackerFactory::get()->make("stage2::CaloLayer1Unpacker_v2");
-         // }
-
          UnpackerMap res;
-         LogDebug("L1T") << "CaloLayer1Setup: about to pick an unpacker for fed " << fed << " board " << board << " amc " << amc << " fw 0x" << std::hex << fw;
+         LogDebug("L1T") << "CaloLayer1Setup: about to pick an unpacker for fed " << fed << " board " << board << " amc " << amc << " fw 0x" << std::hex << fw << std::dec;
          if (fed == 1354 || fed == 1356 || fed == 1358) {
-            if ( board < 18 && board != 4 ) {
-               res[0] = ctp7_unp;
+            if ( board < 18 ) {
+               if (fw == 0x12345678) {
+                  res[0] = UnpackerFactory::get()->make("stage2::CaloLayer1Unpacker");
+               }
+               // e.g.
+               // else if (fw == 0xdeadbeef) {
+               //    res[0] = UnpackerFactory::get()->make("stage2::CaloLayer1Unpacker_v2");
+               // }
+               else {
+                  edm::LogWarning("L1T") << "CaloLayer1Setup: unexpected CTP7 firmware ID, will try unpacking with default unpacker anyway";
+                  res[0] = UnpackerFactory::get()->make("stage2::CaloLayer1Unpacker");
+               }
             }
          }
 
