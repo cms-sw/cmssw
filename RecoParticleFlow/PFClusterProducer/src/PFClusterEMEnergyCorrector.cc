@@ -8,6 +8,9 @@ namespace {
   bool sortByKey(const EEPSPair& a, const EEPSPair& b) {
     return a.first < b.first;
   } 
+
+  double getOffset(const double lo, const double hi) { return lo + 0.5*(hi-lo); }
+  double getScale(const double lo, const double hi) { return 0.5*(hi-lo); }
 }
 
 PFClusterEMEnergyCorrector::PFClusterEMEnergyCorrector(const edm::ParameterSet& conf, edm::ConsumesCollector &&cc) :
@@ -131,13 +134,13 @@ void PFClusterEMEnergyCorrector::correctEnergies(const edm::Event &evt,
 
     const double meanlimlow = -0.336;
     const double meanlimhigh = 0.916;
-    const double meanoffset = meanlimlow + 0.5*(meanlimhigh-meanlimlow);
-    const double meanscale = 0.5*(meanlimhigh-meanlimlow);
+    const double meanoffset = getOffset(meanlimlow, meanlimhigh);
+    const double meanscale = getScale(meanlimlow, meanlimhigh);
     
     const double sigmalimlow = 0.001;
     const double sigmalimhigh = 0.4;
-    const double sigmaoffset = sigmalimlow + 0.5*(sigmalimhigh-sigmalimlow);
-    const double sigmascale = 0.5*(sigmalimhigh-sigmalimlow);  
+    const double sigmaoffset = getOffset(sigmalimlow, sigmalimhigh);
+    const double sigmascale = getScale(sigmalimlow, sigmalimhigh);
 
     int bunchspacing = 450;  
     if (autoDetectBunchSpacing_) {
@@ -237,18 +240,18 @@ void PFClusterEMEnergyCorrector::correctEnergies(const edm::Event &evt,
 
   const double meanlimlow = -0.336;
   const double meanlimhigh = 0.916;
-  const double meanoffset = meanlimlow + 0.5*(meanlimhigh-meanlimlow);
-  const double meanscale = 0.5*(meanlimhigh-meanlimlow);
+  const double meanoffset = getOffset(meanlimlow, meanlimhigh);
+  const double meanscale = getScale(meanlimlow, meanlimhigh);
   
   const double sigmalimlowEB = 0.001;
   const double sigmalimhighEB = 0.4;
-  const double sigmaoffsetEB = sigmalimlowEB + 0.5*(sigmalimhighEB-sigmalimlowEB);
-  const double sigmascaleEB = 0.5*(sigmalimhighEB-sigmalimlowEB);  
+  const double sigmaoffsetEB = getOffset(sigmalimlowEB, sigmalimhighEB);
+  const double sigmascaleEB = getScale(sigmalimlowEB, sigmalimhighEB);
 
   const double sigmalimlowEE = 0.001;
   const double sigmalimhighEE = 0.1;
-  const double sigmaoffsetEE = sigmalimlowEE + 0.5*(sigmalimhighEE-sigmalimlowEE);
-  const double sigmascaleEE = 0.5*(sigmalimhighEE-sigmalimlowEE);  
+  const double sigmaoffsetEE = getOffset(sigmalimlowEE, sigmalimhighEE);
+  const double sigmascaleEE = getScale(sigmalimlowEE, sigmalimhighEE);
 
   // Selective Readout Flags
   edm::Handle<EBSrFlagCollection> ebSrFlags;   
