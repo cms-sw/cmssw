@@ -76,8 +76,6 @@ EDConsumerBase::consumesCollector() {
 
 static const edm::InputTag kWasEmpty("@EmptyLabel@");
 
-static const std::string kCurrentProcess("@currentProcess");
-
 edm::InputTag const&
 EDConsumerBase::checkIfEmpty(edm::InputTag const& iTag) {
   if (iTag.label().empty()) {
@@ -125,7 +123,7 @@ EDConsumerBase::recordConsumes(BranchType iBranch, TypeToGet const& iType, edm::
   }
   {
     const std::string& m = iTag.process();
-    if (m == kCurrentProcess) {
+    if (m == InputTag::kCurrentProcess) {
       containsCurrentProcessAlias_ = true;
     }
     if (!skipCurrentProcess) {
@@ -502,7 +500,7 @@ EDConsumerBase::convertCurrentProcessAlias(std::string const& processName) {
     for(auto iter = m_tokenInfo.begin<kLabels>(), itEnd = m_tokenInfo.end<kLabels>();
         iter != itEnd; ++iter) {
       newProcessName = &m_tokenLabels[iter->m_startOfModuleLabel + iter->m_deltaToProcessName];
-      if (newProcessName == kCurrentProcess) {
+      if (newProcessName == InputTag::kCurrentProcess) {
         newProcessName = processName;
       }
       newSize += (iter->m_deltaToProcessName + newProcessName.size() + 1);
@@ -519,7 +517,7 @@ EDConsumerBase::convertCurrentProcessAlias(std::string const& processName) {
       iter->m_startOfModuleLabel = newStartOfModuleLabel;
 
       newProcessName = &m_tokenLabels[startOfModuleLabel + deltaToProcessName];
-      if (newProcessName == kCurrentProcess) {
+      if (newProcessName == InputTag::kCurrentProcess) {
         newProcessName = processName;
       }
 
