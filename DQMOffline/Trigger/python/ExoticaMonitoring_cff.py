@@ -4,10 +4,14 @@ from DQMOffline.Trigger.METMonitor_cff import *
 from DQMOffline.Trigger.PhotonMonitor_cff import *
 from DQMOffline.Trigger.NoBPTXMonitor_cff import *
 from DQMOffline.Trigger.HTMonitor_cff import *
+from DQMOffline.Trigger.MuonMonitor_cff import *
 
 exoticaMonitorHLT = cms.Sequence(
     exoHLTMETmonitoring
-  + exoHLTNoBPTXmonitoring
-  + exoHLTPhotonmonitoring
-  + exoHLTHTmonitoring
-)
+    + exoHLTNoBPTXmonitoring
+    + exoHLTPhotonmonitoring
+    + exoHLTHTmonitoring
+    + exoHLTMuonmonitoring
+    )
+
+

@@ -22,6 +22,26 @@ photonEfficiency = DQMEDHarvester("DQMGenericClient",
     ),
 )
 
+muonEfficiency = DQMEDHarvester("DQMGenericClient",
+    subDirs        = cms.untracked.vstring("HLT/Muon/*"),
+    verbose        = cms.untracked.uint32(0), # Set to 2 for all messages                                                                                                                                          
+    resolution     = cms.vstring(),
+    efficiency     = cms.vstring(
+        "effic_muon         'Muon turnON;            Muon pt [GeV]; efficiency'     muon_pt_numerator          muon_pt_denominator",
+        "effic_muon_variable 'Muon turnON;            Muon pt [GeV]; efficiency'     muon_pt_variable_numerator muon_pt_variable_denominator",
+        "effic_muonPhi       'efficiency vs phi; Muon phi [rad]; efficiency' muon_phi_numerator       muon_phi_denominator",
+        "effic_muonEta       'efficiency vs eta; Muon eta; efficiency' muon_eta_numerator       muon_eta_denominator",
+        "effic_muonEtaPhi       'Muon phi; Muon eta; efficiency' muon_etaphi_numerator       muon_etaphi_denominator",
+        "effic_muondxy       'efficiency vs dxy; Muon dxy; efficiency' muon_dxy_numerator       muon_dxy_denominator",
+        "effic_muondz       'efficiency vs dz; Muon dz; efficiency' muon_dz_numerator       muon_dz_denominator",
+        "effic_muonetaVB       'efficiency vs eta; Muon eta; efficiency' muon_eta_variablebinning_numerator       muon_eta_variablebinning_denominator",
+    ),
+    efficiencyProfile = cms.untracked.vstring(
+        "effic_muon_vs_LS 'Muon pt efficiency vs LS; LS; PF MET efficiency' muonVsLS_numerator muonVsLS_denominator"
+    ),
+
+)
+
 NoBPTXEfficiency = DQMEDHarvester("DQMGenericClient",
     subDirs        = cms.untracked.vstring("HLT/NoBPTX/*"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
@@ -43,7 +63,8 @@ NoBPTXEfficiency = DQMEDHarvester("DQMGenericClient",
 
 exoticaClient = cms.Sequence(
     NoBPTXEfficiency
-  + photonEfficiency
-  + htClient
-  + metClient
-)
+    + photonEfficiency
+    + htClient
+    + metClient
+    + muonEfficiency
+    )
