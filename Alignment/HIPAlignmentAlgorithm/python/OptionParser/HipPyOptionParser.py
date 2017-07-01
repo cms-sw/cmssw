@@ -74,16 +74,12 @@ class HipPyOptionParser:
    def getTrackDefaults(self):
       if self.flag=="mbvertex":
          self.trkcoll="ALCARECOTkAlMinBias"
-         self.TBDsel=""
-         self.TBDconstraint=""
          self.Bfield="3.8t"
       elif self.flag=="zmumu":
          self.trkcoll="ALCARECOTkAlZMuMu"
-         self.TBDconstraint="fullconstr"
          self.Bfield="3.8t"
       elif self.flag=="ymumu":
          self.trkcoll="ALCARECOTkAlUpsilonMuMu"
-         self.TBDconstraint="fullconstr"
          self.Bfield="3.8t"
       elif self.flag=="cosmics":
          self.trkcoll="ALCARECOTkAlCosmicsCTF0T"
@@ -186,8 +182,10 @@ class HipPyOptionParser:
             val=val.lower()
             if ("momconstr" in val or "fullconstr" in val):
                self.TBDconstraint=val
+            elif (val=="none"):
+               self.TBDconstraint=""
             else:
-               raise ValueError("TBD constraint can only be momconstr... or fullconstr...")
+               raise ValueError("TBD constraint can only be none, momconstr... or fullconstr...")
          ## Options for cosmics
          # Get APV mode
          elif key=="apvmode":
