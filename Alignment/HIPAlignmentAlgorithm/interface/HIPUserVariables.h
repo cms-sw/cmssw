@@ -19,7 +19,7 @@ public:
     alichi2(0.0),
     alindof(0),
     nhit(0),
-    datatype(-1),
+    datatype(-2),
     alipar(npar, 0),
     alierr(npar, 0)
   {}
