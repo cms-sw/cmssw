@@ -116,9 +116,8 @@ namespace edm {
   }
 
 
-  edm::MockEventProcessor::StatusCode
+  void
   MockEventProcessor::runToCompletion() {
-    StatusCode returnCode=epSuccess;
 
     do {
       FilesProcessor fp(doNotMerge_);
@@ -146,7 +145,7 @@ namespace edm {
       output_ <<"Left processing loop.\n";
     } while(not reachedEndOfInput_ and not input_.eof());
       
-    return returnCode;
+    return;
   }
   
   void MockEventProcessor::readFile() {
