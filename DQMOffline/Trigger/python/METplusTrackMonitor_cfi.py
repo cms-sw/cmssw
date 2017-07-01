@@ -5,12 +5,12 @@ from DQMOffline.Trigger.metPlusTrackMonitoring_cfi import metPlusTrackMonitoring
 hltMETplusTrackMonitoring = metPlusTrackMonitoring.clone()
 hltMETplusTrackMonitoring.FolderName = cms.string('HLT/MET/MET105_IsoTrk50/')
 hltMETplusTrackMonitoring.histoPSet.metPSet = cms.PSet(
-  nbins = cms.uint32 (200),
+  nbins = cms.uint32 (100),
   xmin  = cms.double(-0.5),
   xmax  = cms.double(999.5),
 )
 hltMETplusTrackMonitoring.histoPSet.ptPSet = cms.PSet(
-  nbins = cms.uint32 (200),
+  nbins = cms.uint32 (100),
   xmin  = cms.double(-0.5),
   xmax  = cms.double(999.5),
 )
@@ -41,7 +41,7 @@ hltMETplusTrackMonitoring.met       = cms.InputTag("caloMet") # caloMet
 hltMETplusTrackMonitoring.jets      = cms.InputTag("pfJetsEI") # ak4PFJets, ak4PFJetsCHS
 hltMETplusTrackMonitoring.muons     = cms.InputTag("muons") # while pfIsolatedMuonsEI are reco::PFCandidate !
 
-hltMETplusTrackMonitoring.muonSelection = cms.string('pt>26 && abs(eta)<2.1')
+hltMETplusTrackMonitoring.muonSelection = cms.string('pt>26 && abs(eta)<2.1 && (pfIsolationR04.sumChargedHadronPt+pfIsolationR04.sumPhotonEt+pfIsolationR04.sumNeutralHadronEt-0.5*pfIsolationR04.sumPUPt)/pt<0.12')
 hltMETplusTrackMonitoring.vtxSelection = cms.string('ndof>=4 && abs(z)<24.0 && position.Rho<2.0')
 hltMETplusTrackMonitoring.njets = cms.uint32(1)
 hltMETplusTrackMonitoring.nmuons = cms.uint32(1)
