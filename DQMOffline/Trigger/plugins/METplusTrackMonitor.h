@@ -30,6 +30,7 @@
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
@@ -95,7 +96,7 @@ private:
   edm::EDGetTokenT<reco::VertexCollection>  vtxToken_;
   edm::EDGetTokenT<trigger::TriggerEvent>   theTrigSummary_;
 
-  edm::InputTag hltTrk50FilterTag_;
+  edm::InputTag trackLegFilterTag_;
 
   std::vector<double> met_variable_binning_;
   std::vector<double> muonPt_variable_binning_;
@@ -106,7 +107,6 @@ private:
   MEbinning eta_binning_;
   MEbinning phi_binning_;
 
-  METplusTrackME metME_;
   METplusTrackME metME_variableBinning_;
   METplusTrackME metVsLS_;
   METplusTrackME metPhiME_;
@@ -114,12 +114,11 @@ private:
   METplusTrackME metVsHltMet_;
   METplusTrackME metVsHltMetClean_;
 
-  METplusTrackME muonPtME_;
   METplusTrackME muonPtME_variableBinning_;
   METplusTrackME muonPtVsLS_;
   METplusTrackME muonEtaME_;
   METplusTrackME deltaphimetmuonME_;
-  METplusTrackME mTmuonMetME_;
+  METplusTrackME muonEtaVsPhi_;
 
   std::unique_ptr<GenericTriggerEventFlag> num_genTriggerEventFlag_;
   std::unique_ptr<GenericTriggerEventFlag> den_genTriggerEventFlag_;
