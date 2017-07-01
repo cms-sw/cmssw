@@ -1,4 +1,5 @@
 #include <fstream>
+#include <unordered_map>
 
 #include "TFile.h"
 #include "TTree.h"
@@ -104,14 +105,14 @@ HIPAlignmentAlgorithm::HIPAlignmentAlgorithm(
   theDataGroup = cfg.getParameter<int>("DataGroup");
   trackWt = cfg.getParameter<bool>("UseReweighting");
   Scale = cfg.getParameter<double>("Weight");
-  uniEta = cfg.getParameter<bool>("UniformEta");
+  uniEta = trackWt && cfg.getParameter<bool>("UniformEta");
   uniEtaFormula = cfg.getParameter<std::string>("UniformEtaFormula");
   if (uniEtaFormula.empty()){
     edm::LogWarning("Alignment") << "@SUB=HIPAlignmentAlgorithm::HIPAlignmentAlgorithm" << "Uniform eta formula is empty! Resetting to 1.";
     uniEtaFormula="1";
   }
   theEtaFormula = std::make_unique<TFormula>(uniEtaFormula.c_str());
-  rewgtPerAli = cfg.getParameter<bool>("ReweightPerAlignable");
+  rewgtPerAli = trackWt && cfg.getParameter<bool>("ReweightPerAlignable");
   IsCollision = cfg.getParameter<bool>("isCollision");
   SetScanDet=cfg.getParameter<std::vector<double> >("setScanDet");
   col_cut = cfg.getParameter<double>("CLAngleCut");
@@ -1315,6 +1316,56 @@ void HIPAlignmentAlgorithm::collector(void){
 
   std::vector<std::string> monitorFileList;
   HIPUserVariablesIORoot HIPIO;
+
+  typedef int pawt_t;
+  std::unordered_map<Alignable*, std::unordered_map<int, pawt_t> > ali_datatypecountpair_map;
+  if (rewgtPerAli){
+    edm::LogInfo("Alignment") << "@SUB=HIPAlignmentAlgorithm::collector" << "Per-alignable reweighting is turned on. Iterating over the parallel jobs to sum number of hits per alignable for each data type.";
+    // Counting step for per-alignable reweighting
+    for (int ijob=1; ijob<=theCollectorNJobs; ijob++){
+      edm::LogInfo("Alignment") << "@SUB=HIPAlignmentAlgorithm::collector" << "Pre-reading uservar for job " << ijob;
+
+      std::stringstream ss;
+      std::string str;
+      ss << ijob;
+      ss >> str;
+      std::string uvfile = theCollectorPath+"/job"+str+"/"+suvarfilecore;
+
+      std::vector<AlignmentUserVariables*> uvarvec = HIPIO.readHIPUserVariables(theAlignables, uvfile.c_str(), theIteration, ioerr);
+      if (uvarvec.size()!=theAlignables.size()) edm::LogWarning("Alignment")
+        << "@SUB=HIPAlignmentAlgorithm::collector"
+        << "Number of alignables = " << theAlignables.size() << " is not the same as number of user variables = " << uvarvec.size()
+        << ". A mismatch might occur!";
+      if (ioerr!=0){
+        edm::LogError("Alignment") << "@SUB=HIPAlignmentAlgorithm::collector" << "Could not read user variable files for job " << ijob << " in iteration " << theIteration;
+        continue;
+      }
+      std::vector<AlignmentUserVariables*>::const_iterator iuvar=uvarvec.begin(); // This vector should have 1-to-1 correspondence with the alignables vector
+      for (std::vector<Alignable*>::const_iterator it=theAlignables.begin(); it!=theAlignables.end(); ++it){
+        Alignable* ali = *it; // Need this pointer for the key of the unordered map
+        // No need for the user variables already attached to the alignables
+        // Just count from what you read.
+        HIPUserVariables* uvar = dynamic_cast<HIPUserVariables*>(*iuvar);
+        if (uvar!=0){
+          int alijobdtype = uvar->datatype;
+          pawt_t alijobnhits = uvar->nhit;
+          if (ali_datatypecountpair_map.find(ali)==ali_datatypecountpair_map.end()){ // This is a new alignable
+            std::unordered_map<int, pawt_t> newmap;
+            ali_datatypecountpair_map[ali] = newmap;
+            ali_datatypecountpair_map[ali][alijobdtype] = alijobnhits;
+          }
+          else{ // Alignable already exists in the map
+            std::unordered_map<int, pawt_t>& theMap = ali_datatypecountpair_map[ali];
+            if (theMap.find(alijobdtype)==theMap.end()) theMap[alijobdtype]=alijobnhits;
+            else theMap[alijobdtype] += alijobnhits;
+          }
+          delete uvar; // Delete new user variables as they are added
+        }
+        iuvar++;
+      } // End loop over alignables
+    } // End loop over subjobs
+  }
+
   for (int ijob=1; ijob<=theCollectorNJobs; ijob++){
     edm::LogInfo("Alignment") << "@SUB=HIPAlignmentAlgorithm::collector" << "Reading uservar for job " << ijob;
 
@@ -1346,12 +1397,44 @@ void HIPAlignmentAlgorithm::collector(void){
       HIPUserVariables* uvarnew = dynamic_cast<HIPUserVariables*>(*iuvarnew);
 
       HIPUserVariables* uvar = uvarold->clone();
+      uvar->datatype=theDataGroup; // Set the data type of alignable to that specified for the collector job (-2 by default)
+
       if (uvarnew!=0){
-        uvar->nhit = (uvarold->nhit)+(uvarnew->nhit);
-        uvar->jtvj = (uvarold->jtvj)+(uvarnew->jtvj);
-        uvar->jtve = (uvarold->jtve)+(uvarnew->jtve);
-        uvar->alichi2 = (uvarold->alichi2)+(uvarnew->alichi2);
-        uvar->alindof = (uvarold->alindof)+(uvarnew->alindof);
+        double peraliwgt=1;
+        if (rewgtPerAli){
+          int alijobdtype = uvarnew->datatype;
+          if (
+            ali_datatypecountpair_map.find(ali)!=ali_datatypecountpair_map.end()
+            &&
+            ali_datatypecountpair_map[ali].find(alijobdtype)!=ali_datatypecountpair_map[ali].end()
+            ){
+              peraliwgt = ali_datatypecountpair_map[ali][alijobdtype];
+              unsigned int nNonZeroTypes=0;
+              pawt_t sumwgts=0;
+              for (auto it=ali_datatypecountpair_map[ali].cbegin(); it!=ali_datatypecountpair_map[ali].cend(); ++it){
+                sumwgts+=it->second;
+                if (it->second!=pawt_t(0)) nNonZeroTypes++;
+              }
+              edm::LogInfo("Alignment") << "@SUB=HIPAlignmentAlgorithm::collector"
+                << "Reweighting detector " << ali->id() << " / " << ali->alignableObjectId()
+                << " for data type " << alijobdtype << " by " << sumwgts << "/" << peraliwgt << "/" << nNonZeroTypes;
+              peraliwgt=((nNonZeroTypes==0 || peraliwgt==double(0)) ? double(1) : double((double(sumwgts))/peraliwgt/(double(nNonZeroTypes))));
+          }
+          else if (ali_datatypecountpair_map.find(ali)!=ali_datatypecountpair_map.end())
+            edm::LogError("Alignment") << "@SUB=HIPAlignmentAlgorithm::collector"
+            << "Could not find data type " << alijobdtype << " for detector " << ali->id() << " / " << ali->alignableObjectId();
+          else
+            edm::LogError("Alignment") << "@SUB=HIPAlignmentAlgorithm::collector"
+            << "Could not find detector " << ali->id() << " / " << ali->alignableObjectId()
+            << " in the map ali_datatypecountpair_map";
+        }
+
+        uvar->nhit = (uvarold->nhit) + (uvarnew->nhit);
+        uvar->jtvj = (uvarold->jtvj) + peraliwgt*(uvarnew->jtvj);
+        uvar->jtve = (uvarold->jtve) + peraliwgt*(uvarnew->jtve);
+        uvar->alichi2 = (uvarold->alichi2) + peraliwgt*(uvarnew->alichi2);
+        uvar->alindof = (uvarold->alindof) + (uvarnew->alindof);
+
         delete uvarnew; // Delete new user variables as they are added
       }
 
