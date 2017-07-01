@@ -121,7 +121,6 @@ TkMSParameterizationBuilder::produce(TkMSParameterizationRecord const& iRecord) 
     float tanlmd = tl; // 0.1f;
     auto sinth2 = 1.f/(1.f+tanlmd*tanlmd);
     auto sinth = std::sqrt(sinth2);
-    // auto costh = tanlmd*sinth;
     auto overp = sinth/pt; 
     auto pz = pt*tanlmd;
     
@@ -129,14 +128,12 @@ TkMSParameterizationBuilder::produce(TkMSParameterizationRecord const& iRecord) 
     if(debug)  std::cout << tl << ' ' << pz << ' ' << 1./overp << std::endl;
     
     
-    
-    float lastzz=-18;
-    // float lastbz=-18;
+    float lastzz=-18.f;
     bool goFw=false;
     std::string loc=" Barrel";
     for (int iz=0;iz<2; ++iz) {
       if (iz>0) goFw=true;
-      for (float zz=lastzz; zz<18.1; zz+=0.2) {
+      for (float zz=lastzz; zz<18.1f; zz+=0.2f) {
 	float z = zz;
 	GlobalPoint startingPosition(0,0,z);
 	
@@ -156,7 +153,7 @@ TkMSParameterizationBuilder::produce(TkMSParameterizationRecord const& iRecord) 
 	    for(auto it : compLayers){
 	      if (it->basicComponents().empty()) {
 		//this should never happen. but better protect for it
-		std::cout <<"a detlayer with no components: I cannot figure out a DetId from this layer. please investigate." << std::endl;
+		edm::LogError("TkMSParameterizationBuilder") <<"a detlayer with no components: I cannot figure out a DetId from this layer. please investigate.";
 		continue;
 	      }
 	      if (debug) std::cout << il << (it->isBarrel() ? " Barrel" : " Forward") << " layer " << it->seqNum() << " SubDet " << it->subDetector()<< std::endl;
@@ -187,12 +184,10 @@ TkMSParameterizationBuilder::produce(TkMSParameterizationRecord const& iRecord) 
 	      
 	      if (from==0) {
 	        // spawn prop from this layer
-	        // std::cout << tsos.globalPosition() << ' ' << tsos.globalDirection() << ' ' << tsos.localError().positionError() << std::endl;
 	        // constrain it to this location (relevant for layer other than very first)
 	        SiPixelRecHit::ClusterRef pref;
 	        SiPixelRecHit   hitpx(tsos.localPosition(),he,1.,*detWithState.front().first,pref);
 	        auto tsosl = kfu.update(tsos, hitpx);
-	        // std::cout << tsosl.globalPosition() << ' ' << tsosl.globalDirection() << ' ' << tsosl.localError().positionError() << std::endl;
 	        auto z1l = layer->isBarrel() ? tsos.globalPosition().z() : tsos.globalPosition().perp();
 	        auto stidl = layer->seqNum();
 	        propagate(il,tsosl,layer,z1l, stidl);
@@ -288,18 +283,12 @@ TkMSParameterizationBuilder::produce(TkMSParameterizationRecord const& iRecord) 
 	
 	}} // loop on z
     
-    // std::cout << tanlmd << ' ' << lastbz << std::endl;
   } // loop  on tanLa
   
     // sort
   for (auto & e : msParam.data)
     for (auto & d : e.second.data) std::stable_sort(d.data.begin(),d.data.end(),[](auto const & a, auto const & b){return a.vo<b.vo;});
   
-
-
-
-
-
  return product;
 }
 
