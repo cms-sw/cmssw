@@ -230,8 +230,8 @@ namespace edm {
       "If 'true' do not report timing for each event");
       desc.addUntracked<bool>("useJobReport", true)->setComment(
        "If 'true' write summary information to JobReport");
-      desc.addUntracked<double>("excessiveTimeThreshold")->setComment(
-       "Amount of time in seconds before reporting a module has taken excessive time.");
+      desc.addUntracked<double>("excessiveTimeThreshold", 0.)->setComment(
+       "Amount of time in seconds before reporting a module or source has taken excessive time. A value of 0.0 turns off this reporting.");
       descriptions.add("Timing", desc);
       descriptions.setComment(
        "This service reports the time it takes to run each module in a job.");
