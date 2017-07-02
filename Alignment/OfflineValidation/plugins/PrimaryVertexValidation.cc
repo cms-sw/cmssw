@@ -2423,7 +2423,7 @@ void PrimaryVertexValidation::SetVarToZero()
 }
 
 //*************************************************************
-std::pair<double,double> PrimaryVertexValidation::getMedian(TH1F *histo)
+Measurement1D PrimaryVertexValidation::getMedian(TH1F *histo)
 //*************************************************************
 {
   double median = 999;
@@ -2441,20 +2441,19 @@ std::pair<double,double> PrimaryVertexValidation::getMedian(TH1F *histo)
   delete[] x; x = 0;
   delete[] y; y = 0;  
 
-  std::pair<double,double> result;
-  result = std::make_pair(median,median/TMath::Sqrt(histo->GetEntries()));
+  Measurement1D result(median,median/TMath::Sqrt(histo->GetEntries()));
 
   return result;
 
 }
 
 //*************************************************************
-std::pair<double,double> PrimaryVertexValidation::getMAD(TH1F *histo)
+Measurement1D PrimaryVertexValidation::getMAD(TH1F *histo)
 //*************************************************************
 {
 
   int nbins = histo->GetNbinsX();
-  double median = getMedian(histo).first;
+  double median = getMedian(histo).value();
   double x_lastBin = histo->GetBinLowEdge(nbins+1);
   const char *HistoName =histo->GetName();
   TString Finalname = Form("resMed%s",HistoName);
@@ -2468,21 +2467,19 @@ std::pair<double,double> PrimaryVertexValidation::getMAD(TH1F *histo)
     newHisto->Fill(residuals[j],weights[j]);
   }
   
-  double theMAD = (getMedian(newHisto).first)*1.4826;
+  double theMAD = (getMedian(newHisto).value())*1.4826;
   
   delete[] residuals; residuals=0;
   delete[] weights; weights=0;
   newHisto->Delete("");
   
-  std::pair<double,double> result;
-  result = std::make_pair(theMAD,theMAD/histo->GetEntries());
-
+  Measurement1D result(theMAD,theMAD/histo->GetEntries());
   return result;
 
 }
 
 //*************************************************************
-std::pair<std::pair<double,double>, std::pair<double,double>  > PrimaryVertexValidation::fitResiduals(TH1 *hist)
+std::pair<Measurement1D, Measurement1D> PrimaryVertexValidation::fitResiduals(TH1 *hist)
 //*************************************************************
 {
   //float fitResult(9999);
@@ -2512,13 +2509,10 @@ std::pair<std::pair<double,double>, std::pair<double,double>  > PrimaryVertexVal
   float res_mean_err  = func.GetParError(1);
   float res_width_err = func.GetParError(2);
 
-  std::pair<double,double> resultM;
-  std::pair<double,double> resultW;
+  Measurement1D resultM(res_mean,res_mean_err);
+  Measurement1D resultW(res_width,res_width_err);
 
-  resultM = std::make_pair(res_mean,res_mean_err);
-  resultW = std::make_pair(res_width,res_width_err);
-
-  std::pair<std::pair<double,double>, std::pair<double,double>  > result;
+  std::pair<Measurement1D, Measurement1D> result;
   
   result = std::make_pair(resultM,resultW);
   return result;
@@ -2544,32 +2538,32 @@ void PrimaryVertexValidation::fillTrendPlot(TH1F* trendPlot, TH1F* residualsPlot
       {
       case statmode::MEAN:
 	{
-	  float mean_      = fitResiduals(residualsPlot[i]).first.first;
-	  float meanErr_   = fitResiduals(residualsPlot[i]).first.second;
+	  float mean_      = fitResiduals(residualsPlot[i]).first.value();
+	  float meanErr_   = fitResiduals(residualsPlot[i]).first.error();
 	  trendPlot->SetBinContent(i+1,mean_);
 	  trendPlot->SetBinError(i+1,meanErr_);
 	  break;
 	} 
       case statmode::WIDTH:
 	{
-	  float width_     = fitResiduals(residualsPlot[i]).second.first;
-	  float widthErr_  = fitResiduals(residualsPlot[i]).second.second;
+	  float width_     = fitResiduals(residualsPlot[i]).second.value();
+	  float widthErr_  = fitResiduals(residualsPlot[i]).second.error();
 	  trendPlot->SetBinContent(i+1,width_);
 	  trendPlot->SetBinError(i+1,widthErr_);
 	  break;
 	}
       case statmode::MEDIAN:
 	{
-	  float median_    = getMedian(residualsPlot[i]).first;
-	  float medianErr_ = getMedian(residualsPlot[i]).second;
+	  float median_    = getMedian(residualsPlot[i]).value();
+	  float medianErr_ = getMedian(residualsPlot[i]).error();
 	  trendPlot->SetBinContent(i+1,median_);
 	  trendPlot->SetBinError(i+1,medianErr_);
 	  break;
 	} 
       case statmode::MAD:
 	{
-	  float mad_       = getMAD(residualsPlot[i]).first; 
-	  float madErr_    = getMAD(residualsPlot[i]).second;
+	  float mad_       = getMAD(residualsPlot[i]).value(); 
+	  float madErr_    = getMAD(residualsPlot[i]).error();
 	  trendPlot->SetBinContent(i+1,mad_);
 	  trendPlot->SetBinError(i+1,madErr_);
 	  break;
@@ -2597,38 +2591,38 @@ void PrimaryVertexValidation::fillTrendPlotByIndex(TH1F* trendPlot,std::vector<T
   for(auto iterator = h.begin(); iterator != h.end(); iterator++) {
     
     unsigned int bin = std::distance(h.begin(),iterator)+1;
-    std::pair<std::pair<double,double>, std::pair<double,double>  > myFit = fitResiduals((*iterator));
+    std::pair<Measurement1D, Measurement1D> myFit = fitResiduals((*iterator));
 
     switch(fitPar_)
       {
       case statmode::MEAN: 
 	{   
-	  float mean_      = myFit.first.first;
-	  float meanErr_   = myFit.first.second;
+	  float mean_      = myFit.first.value();
+	  float meanErr_   = myFit.first.error();
 	  trendPlot->SetBinContent(bin,mean_);
 	  trendPlot->SetBinError(bin,meanErr_);
 	  break;
 	}
       case statmode::WIDTH:
 	{
-	  float width_     = myFit.second.first;
-	  float widthErr_  = myFit.second.second;
+	  float width_     = myFit.second.value();
+	  float widthErr_  = myFit.second.error();
 	  trendPlot->SetBinContent(bin,width_);
 	  trendPlot->SetBinError(bin,widthErr_);
 	  break;
 	}
       case statmode::MEDIAN:
 	{
-	  float median_    = getMedian(*iterator).first;
-	  float medianErr_ = getMedian(*iterator).second;
+	  float median_    = getMedian(*iterator).value();
+	  float medianErr_ = getMedian(*iterator).error();
 	  trendPlot->SetBinContent(bin,median_);
 	  trendPlot->SetBinError(bin,medianErr_);
 	  break;
 	}
       case statmode::MAD:
 	{
-	  float mad_       = getMAD(*iterator).first; 
-	  float madErr_    = getMAD(*iterator).second;
+	  float mad_       = getMAD(*iterator).value(); 
+	  float madErr_    = getMAD(*iterator).error();
 	  trendPlot->SetBinContent(bin,mad_);
 	  trendPlot->SetBinError(bin,madErr_);
 	  break;
@@ -2666,32 +2660,32 @@ void PrimaryVertexValidation::fillMap(TH2F* trendMap, TH1F* residualsMapPlot[100
 	{ 
 	case statmode::MEAN:
 	  {
-	    float mean_      = fitResiduals(residualsMapPlot[i][j]).first.first;
-	    float meanErr_   = fitResiduals(residualsMapPlot[i][j]).first.second;
+	    float mean_      = fitResiduals(residualsMapPlot[i][j]).first.value();
+	    float meanErr_   = fitResiduals(residualsMapPlot[i][j]).first.error();
 	    trendMap->SetBinContent(j+1,i+1,mean_);
 	    trendMap->SetBinError(j+1,i+1,meanErr_);
 	    break;
 	  }
 	case statmode::WIDTH:
 	  {
-	    float width_     = fitResiduals(residualsMapPlot[i][j]).second.first;
-	    float widthErr_  = fitResiduals(residualsMapPlot[i][j]).second.second;
+	    float width_     = fitResiduals(residualsMapPlot[i][j]).second.value();
+	    float widthErr_  = fitResiduals(residualsMapPlot[i][j]).second.error();
 	    trendMap->SetBinContent(j+1,i+1,width_);
 	    trendMap->SetBinError(j+1,i+1,widthErr_);
 	    break;
 	  }     
 	case statmode::MEDIAN:
 	  {
-	    float median_    = getMedian(residualsMapPlot[i][j]).first;
-	    float medianErr_ = getMedian(residualsMapPlot[i][j]).second;
+	    float median_    = getMedian(residualsMapPlot[i][j]).value();
+	    float medianErr_ = getMedian(residualsMapPlot[i][j]).error();
 	    trendMap->SetBinContent(j+1,i+1,median_);
 	    trendMap->SetBinError(j+1,i+1,medianErr_);
 	    break;
 	  }     
 	case statmode::MAD:
 	  {
-	    float mad_       = getMAD(residualsMapPlot[i][j]).first; 
-	    float madErr_    = getMAD(residualsMapPlot[i][j]).second;
+	    float mad_       = getMAD(residualsMapPlot[i][j]).value(); 
+	    float madErr_    = getMAD(residualsMapPlot[i][j]).error();
 	    trendMap->SetBinContent(j+1,i+1,mad_);
 	    trendMap->SetBinError(j+1,i+1,madErr_);
 	    break;
