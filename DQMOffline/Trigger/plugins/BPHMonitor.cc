@@ -51,7 +51,8 @@ BPHMonitor::BPHMonitor( const edm::ParameterSet& iConfig ) :
   , minprob     ( iConfig.getParameter<double>("minprob" )     )
   , mincos     ( iConfig.getParameter<double>("mincos" )     )
   , minDS     ( iConfig.getParameter<double>("minDS" )     )
-  , hltInputTag_ ( iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet").getParameter<edm::InputTag>("hltInputTag")) 
+  //, hltInputTag_ ( iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet").getParameter<edm::InputTag>("hltInputTag")) 
+  , hltInputTag_ (mayConsume<trigger::TriggerEvent>( iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet").getParameter<edm::InputTag>("hltInputTag"))) 
   , hltpaths_num     ( iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet").getParameter<std::vector<std::string>>("hltPaths"))
   , hltpaths_den     ( iConfig.getParameter<edm::ParameterSet>("denGenericTriggerEventPSet").getParameter<std::vector<std::string>>("hltPaths"))
   , trSelection_ ( iConfig.getParameter<std::string>("muoSelection") )
@@ -214,6 +215,33 @@ void BPHMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   histname =trMuPh+"Eta"; histtitle = trMuPh+"_Eta";
   bookME(ibooker,muEta_,histname,histtitle, eta_binning_.nbins,eta_binning_.xmin, eta_binning_.xmax);
   setMETitle(muEta_,trMuPh+"_#eta","events/ ");
+    }
+  if (nofset_==11){
+  trMuPh = "tr";
+  histname = trMuPh+"1Pt"; histtitle = trMuPh+"1_P_{t}";
+  bookME(ibooker,muPt_,histname,histtitle, pt_binning_.nbins, pt_binning_.xmin, pt_binning_.xmax);
+  setMETitle(mu1Pt_,trMuPh+"_Pt[GeV]","events/1GeV");
+
+  histname =trMuPh+"1Phi"; histtitle =trMuPh+"1Phi";
+  bookME(ibooker,muPhi_,histname,histtitle, phi_binning_.nbins, phi_binning_.xmin, phi_binning_.xmax);
+  setMETitle(mu1Phi_,trMuPh+"_#phi","events / 0.1 rad");
+
+  histname =trMuPh+"1Eta"; histtitle = trMuPh+"1_Eta";
+  bookME(ibooker,muEta_,histname,histtitle, eta_binning_.nbins,eta_binning_.xmin, eta_binning_.xmax);
+  setMETitle(mu1Eta_,trMuPh+"_#eta","events/ ");
+
+  histname = trMuPh+"2Pt"; histtitle = trMuPh+"2_P_{t}";
+  bookME(ibooker,muPt_,histname,histtitle, pt_binning_.nbins, pt_binning_.xmin, pt_binning_.xmax);
+  setMETitle(mu2Pt_,trMuPh+"_Pt[GeV]","events/1GeV");
+
+  histname =trMuPh+"2Phi"; histtitle =trMuPh+"2Phi";
+  bookME(ibooker,muPhi_,histname,histtitle, phi_binning_.nbins, phi_binning_.xmin, phi_binning_.xmax);
+  setMETitle(mu2Phi_,trMuPh+"_#phi","events / 0.1 rad");
+
+  histname =trMuPh+"2Eta"; histtitle = trMuPh+"2_Eta";
+  bookME(ibooker,muEta_,histname,histtitle, eta_binning_.nbins,eta_binning_.xmin, eta_binning_.xmax);
+  setMETitle(mu2Eta_,trMuPh+"_#eta","events/ ");
+
 }
 
 /////
@@ -349,14 +377,15 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   iEvent.getByToken( phToken_, phHandle );
 
   edm::Handle<trigger::TriggerEvent> handleTriggerEvent; 
-//  iEvent.getByLabel( hltInputTag_, handleTriggerEvent);
+//  edm::Handle<trigger::TriggerEventWithRefs> handleTriggerEvent; 
+//  iEvent.getByToken( hltInputTag_, handleTriggerEvent);
 //  if (handleTriggerEvent->sizeFilters()== 0)return;
 //  if(! handleTriggerEvent->isValid() ) return;
 //  edm::Handle<reco::BeamSpot> const& beamSpot;
   // Filter out events if Trigger Filtering is requested
   if (tnp_>0) {//TnP method 
   if (den_genTriggerEventFlag_->on() && ! den_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
-  iEvent.getByLabel( hltInputTag_, handleTriggerEvent);
+  iEvent.getByToken( hltInputTag_, handleTriggerEvent);
   if (handleTriggerEvent->sizeFilters()== 0)return;
   std::string hltpath = hltpaths_num[0]; 
   std::vector<reco::Muon> tagMuons;
@@ -422,7 +451,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 
 //  else{
   if (den_genTriggerEventFlag_->on() && ! den_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
-  iEvent.getByLabel( hltInputTag_, handleTriggerEvent);
+  iEvent.getByToken( hltInputTag_, handleTriggerEvent);
   if (handleTriggerEvent->sizeFilters()== 0)return;
   std::string hltpath = hltpaths_den[0]; 
   for (auto const & m : *muoHandle ) {
@@ -752,6 +781,89 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
     }
     }
     break;
+    case 11:
+
+        if (dimuonCL<minprob)continue;
+        if (fabs(jpsi_cos)<mincos)continue;
+        if ((displacementFromBeamspotJpsi.perp()/sqrt(jerr.rerr(displacementFromBeamspotJpsi)))<minDS)continue;
+
+      if (trHandle.isValid()){
+    ////////////////////////
+
+        for (auto const & t : *trHandle) {
+        if(!trSelection_ref(t))continue;
+        if(!matchToTrigger(hltpath,t, handleTriggerEvent)) continue;
+        for (auto const & t1 : *trHandle) {
+    
+        if(!trSelection_ref(t1))continue;
+        if(!matchToTrigger(hltpath,t1, handleTriggerEvent)) continue;
+            reco::Track itrk1       = t ;                                                
+            reco::Track itrk2       = t1 ;                                                
+            
+            if((reco::deltaR(t.eta(), t.phi(),m1.eta(),m1.phi()) <= 0.001))continue;//checking overlaping
+            if((reco::deltaR(t.eta(), t.phi(),t1.eta(),t1.phi()) <= 0.001))continue;//checking overlaping
+            if((reco::deltaR(t.eta(), t.phi(),m.eta(),m.phi()) <= 0.001)) continue;
+ 
+            if (! itrk1.quality(reco::TrackBase::highPurity))     continue;
+            if (! itrk2.quality(reco::TrackBase::highPurity))     continue;
+
+            reco::Particle::LorentzVector pB, p1, p2, p3, p4;
+            double trackMass2 = 0.493677 *0.493677;
+            double MuMass2 = 0.1056583745 *0.1056583745;
+            double e1   = sqrt(m.momentum().Mag2()  + MuMass2          );
+            double e2   = sqrt(m1.momentum().Mag2()  + MuMass2          );
+            double e3   = sqrt(itrk1.momentum().Mag2() + trackMass2  );
+            double e4   = sqrt(itrk2.momentum().Mag2() + trackMass2  );
+            
+            p1   = reco::Particle::LorentzVector(m.px() , m.py() , m.pz() , e1  );
+            p2   = reco::Particle::LorentzVector(m1.px() , m1.py() , m1.pz() , e2  );
+            p3   = reco::Particle::LorentzVector(itrk1.px(), itrk1.py(), itrk1.pz(), e3  );
+            p3   = reco::Particle::LorentzVector(itrk2.px(), itrk2.py(), itrk2.pz(), e4  );
+            pB   = p1 + p2 + p3 + p4;
+            reco::TransientTrack trTT(itrk1, &(*bFieldHandle));
+            reco::TransientTrack tr1TT(itrk2, &(*bFieldHandle));
+
+            std::vector<reco::TransientTrack> t_tks;
+            t_tks.push_back(mu1TT);
+            t_tks.push_back(mu2TT);
+            t_tks.push_back(trTT);
+            t_tks.push_back(tr1TT);
+            if (t_tks.size()!=4) continue;
+            
+            KalmanVertexFitter kvf;
+            TransientVertex tv  = kvf.vertex(t_tks);
+            reco::Vertex vertex = tv;
+            if (!tv.isValid()) continue;
+            if( pB.mass()> maxmassJpsiTk || pB.mass()< minmassJpsiTk)continue;
+            float JpsiTkCL = 0;
+            if ((vertex.chi2()>=0.0) && (vertex.ndof()>0) )   
+            JpsiTkCL = TMath::Prob(vertex.chi2(), vertex.ndof() );
+            math::XYZVector pperp(m.px() + m1.px() + itrk1.px() + itrk2.px(),
+                                  m.py() + m1.py() + itrk1.py() + itrk2.py(),
+                                  0.);
+            GlobalPoint secondaryVertex = tv.position();
+            GlobalError err             = tv.positionError();
+            GlobalPoint displacementFromBeamspot( -1*((vertexBeamSpot.x0() - secondaryVertex.x()) + 
+                                                      (secondaryVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dxdz()), 
+                                                  -1*((vertexBeamSpot.y0() - secondaryVertex.y()) + 
+                                                      (secondaryVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dydz()), 
+                                                  0);
+            reco::Vertex::Point vperp(displacementFromBeamspot.x(),displacementFromBeamspot.y(),0.);
+            float jpsiKcos = vperp.Dot(pperp)/(vperp.R()*pperp.R());
+        if (JpsiTkCL<minprob)continue;
+        if (fabs(jpsiKcos)<mincos)continue;
+        if ((displacementFromBeamspot.perp()/sqrt(err.rerr(displacementFromBeamspot)))<minDS)continue;
+        mu1Phi_.denominator->Fill(t.phi());
+        mu1Eta_.denominator->Fill(t.eta());
+        mu1Pt_.denominator ->Fill(t.pt());
+        mu2Phi_.denominator->Fill(t1.phi());
+        mu2Eta_.denominator->Fill(t1.eta());
+        mu2Pt_.denominator ->Fill(t1.pt());
+    } 
+    /////////////////////////
+    }
+    }
+    break;
 //
 //
   } 
@@ -772,7 +884,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 /////////
 //filling numerator hists
   if (num_genTriggerEventFlag_->on() && ! num_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
-  iEvent.getByLabel( hltInputTag_, handleTriggerEvent);
+  iEvent.getByToken( hltInputTag_, handleTriggerEvent);
   if (handleTriggerEvent->sizeFilters()== 0)return;
   hltpath = hltpaths_num[0]; 
   for (auto const & m : *muoHandle ) {
@@ -1092,7 +1204,88 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
     }
     }
     break;
+    case 11:
+        if (dimuonCL<minprob)continue;
+        if (fabs(jpsi_cos)<mincos)continue;
+        if ((displacementFromBeamspotJpsi.perp()/sqrt(jerr.rerr(displacementFromBeamspotJpsi)))<minDS)continue;
+
+      if (trHandle.isValid()){
+    ////////////////////////
+
+        for (auto const & t : *trHandle) {
+        if(!trSelection_ref(t))continue;
+        if(!matchToTrigger(hltpath,t, handleTriggerEvent)) continue;
+        for (auto const & t1 : *trHandle) {
     
+        if(!trSelection_ref(t1))continue;
+        if(!matchToTrigger(hltpath,t1, handleTriggerEvent)) continue;
+            reco::Track itrk1       = t ;                                                
+            reco::Track itrk2       = t1 ;                                                
+            
+            if((reco::deltaR(t.eta(), t.phi(),m1.eta(),m1.phi()) <= 0.001))continue;//checking overlaping
+            if((reco::deltaR(t.eta(), t.phi(),t1.eta(),t1.phi()) <= 0.001))continue;//checking overlaping
+            if((reco::deltaR(t.eta(), t.phi(),m.eta(),m.phi()) <= 0.001)) continue;
+ 
+            if (! itrk1.quality(reco::TrackBase::highPurity))     continue;
+            if (! itrk2.quality(reco::TrackBase::highPurity))     continue;
+
+            reco::Particle::LorentzVector pB, p1, p2, p3, p4;
+            double trackMass2 = 0.493677 *0.493677;
+            double MuMass2 = 0.1056583745 *0.1056583745;
+            double e1   = sqrt(m.momentum().Mag2()  + MuMass2          );
+            double e2   = sqrt(m1.momentum().Mag2()  + MuMass2          );
+            double e3   = sqrt(itrk1.momentum().Mag2() + trackMass2  );
+            double e4   = sqrt(itrk2.momentum().Mag2() + trackMass2  );
+            
+            p1   = reco::Particle::LorentzVector(m.px() , m.py() , m.pz() , e1  );
+            p2   = reco::Particle::LorentzVector(m1.px() , m1.py() , m1.pz() , e2  );
+            p3   = reco::Particle::LorentzVector(itrk1.px(), itrk1.py(), itrk1.pz(), e3  );
+            p3   = reco::Particle::LorentzVector(itrk2.px(), itrk2.py(), itrk2.pz(), e4  );
+            pB   = p1 + p2 + p3 + p4;
+            reco::TransientTrack trTT(itrk1, &(*bFieldHandle));
+            reco::TransientTrack tr1TT(itrk2, &(*bFieldHandle));
+
+            std::vector<reco::TransientTrack> t_tks;
+            t_tks.push_back(mu1TT);
+            t_tks.push_back(mu2TT);
+            t_tks.push_back(trTT);
+            t_tks.push_back(tr1TT);
+            if (t_tks.size()!=4) continue;
+            
+            KalmanVertexFitter kvf;
+            TransientVertex tv  = kvf.vertex(t_tks);
+            reco::Vertex vertex = tv;
+            if (!tv.isValid()) continue;
+            if( pB.mass()> maxmassJpsiTk || pB.mass()< minmassJpsiTk)continue;
+            float JpsiTkCL = 0;
+            if ((vertex.chi2()>=0.0) && (vertex.ndof()>0) )   
+            JpsiTkCL = TMath::Prob(vertex.chi2(), vertex.ndof() );
+            math::XYZVector pperp(m.px() + m1.px() + itrk1.px() + itrk2.px(),
+                                  m.py() + m1.py() + itrk1.py() + itrk2.py(),
+                                  0.);
+            GlobalPoint secondaryVertex = tv.position();
+            GlobalError err             = tv.positionError();
+            GlobalPoint displacementFromBeamspot( -1*((vertexBeamSpot.x0() - secondaryVertex.x()) + 
+                                                      (secondaryVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dxdz()), 
+                                                  -1*((vertexBeamSpot.y0() - secondaryVertex.y()) + 
+                                                      (secondaryVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dydz()), 
+                                                  0);
+            reco::Vertex::Point vperp(displacementFromBeamspot.x(),displacementFromBeamspot.y(),0.);
+            float jpsiKcos = vperp.Dot(pperp)/(vperp.R()*pperp.R());
+        if (JpsiTkCL<minprob)continue;
+        if (fabs(jpsiKcos)<mincos)continue;
+        if ((displacementFromBeamspot.perp()/sqrt(err.rerr(displacementFromBeamspot)))<minDS)continue;
+        mu1Phi_.numerator->Fill(t.phi());
+        mu1Eta_.numerator->Fill(t.eta());
+        mu1Pt_.numerator ->Fill(t.pt());
+        mu2Phi_.numerator->Fill(t1.phi());
+        mu2Eta_.numerator->Fill(t1.eta());
+        mu2Pt_.numerator ->Fill(t1.pt());
+    } 
+    /////////////////////////
+    }
+    }
+    break;
   } 
  }
 }
@@ -1163,7 +1356,7 @@ void BPHMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   edm::ParameterSetDescription genericTriggerEventPSet;
   genericTriggerEventPSet.add<bool>("andOr");
   genericTriggerEventPSet.add<edm::InputTag>("dcsInputTag", edm::InputTag("scalersRawToDigi") );
-  genericTriggerEventPSet.add<edm::InputTag>("hltInputTag", edm::InputTag("TriggerResults::HLT") );
+  genericTriggerEventPSet.add<edm::InputTag>("hltInputTag", edm::InputTag("hltTriggerSummaryAOD","","HLT") );
   genericTriggerEventPSet.add<std::vector<int> >("dcsPartitions",{});
   genericTriggerEventPSet.add<bool>("andOrDcs", false);
   genericTriggerEventPSet.add<bool>("errorReplyDcs", true);
@@ -1221,6 +1414,7 @@ void BPHMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
 }
   template <typename T>
   bool BPHMonitor::matchToTrigger(std::string theTriggerName,T t, edm::Handle<trigger::TriggerEvent> handleTriggerEvent){
+  //bool BPHMonitor::matchToTrigger(std::string theTriggerName,T t, edm::Handle<trigger::TriggerEventWithRefs> handleTriggerEvent){
    
     bool matchedToTrigger = false;
     if (handleTriggerEvent->sizeFilters() >0){
