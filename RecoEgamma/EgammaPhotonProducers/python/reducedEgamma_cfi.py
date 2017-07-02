@@ -78,6 +78,6 @@ phase2_common.toModify(reducedEgamma,
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
 run2_miniAOD_80XLegacy.toModify(
     reducedEgamma, 
-    ootPhotonPFClusterIsoSources = cms.VInputTag(cms.InputTag("ootPhotonEcalPFClusterIsolationProducer")),
-    ootPhotonPFClusterIsoOutput = cms.vstring("ootPhoEcalPFClusIso")
+    ootPhotonPFClusterIsoSources = [ "ootPhotonEcalPFClusterIsolationProducer" ],
+    ootPhotonPFClusterIsoOutput = [ "ootPhoEcalPFClusIso" ]
 )
