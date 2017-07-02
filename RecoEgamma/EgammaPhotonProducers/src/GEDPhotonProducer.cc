@@ -335,7 +335,7 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   //
 
 
-  // get Hcal towers collection 
+// get Hcal towers collection 
   Handle<CaloTowerCollection> hcalTowersHandle;
   if (not hcalTowers_.isUninitialized()){
     theEvent.getByToken(hcalTowers_, hcalTowersHandle);
@@ -506,21 +506,27 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
 	ptFast(parentSCRef->energy(),parentSCRef->position(),math::XYZPoint(0,0,0)) <= preselCutValues[0] ) continue;
     // calculate HoE    
 
-    const CaloTowerCollection* hcalTowersColl = nullptr;
-    if (not hcalTowers_.isUninitialized()){
-      hcalTowersColl = hcalTowersHandle.product();
-    }
-    EgammaTowerIsolation towerIso1(hOverEConeSize_,0.,0.,1,hcalTowersColl) ;  
-    EgammaTowerIsolation towerIso2(hOverEConeSize_,0.,0.,2,hcalTowersColl) ;  
-    double HoE1 = (hcalTowersColl != nullptr ? towerIso1.getTowerESum(&(*scRef))/scRef->energy() : 0.f);
-    double HoE2 = (hcalTowersColl != nullptr ? towerIso2.getTowerESum(&(*scRef))/scRef->energy() : 0.f); 
-    
-    EgammaHadTower towerIsoBehindClus(es); 
-    if (hcalTowersColl != nullptr) towerIsoBehindClus.setTowerCollection(hcalTowersColl);
+    double HoE1,HoE2;
+    HoE1=HoE2=0.;
+
     std::vector<CaloTowerDetId> TowersBehindClus;
-    if (hcalTowersColl != nullptr) TowersBehindClus = towerIsoBehindClus.towersOf(*scRef);
-    float hcalDepth1OverEcalBc = (hcalTowersColl != nullptr ? towerIsoBehindClus.getDepth1HcalESum(TowersBehindClus)/scRef->energy() : 0.f);
-    float hcalDepth2OverEcalBc = (hcalTowersColl != nullptr ? towerIsoBehindClus.getDepth2HcalESum(TowersBehindClus)/scRef->energy() : 0.f);
+    float hcalDepth1OverEcalBc,hcalDepth2OverEcalBc;
+    hcalDepth1OverEcalBc=hcalDepth2OverEcalBc=0.f;
+
+    if (not hcalTowers_.isUninitialized()) {
+      const CaloTowerCollection* hcalTowersColl = hcalTowersHandle.product();
+      EgammaTowerIsolation towerIso1(hOverEConeSize_,0.,0.,1,hcalTowersColl) ;  
+      EgammaTowerIsolation towerIso2(hOverEConeSize_,0.,0.,2,hcalTowersColl) ;  
+      HoE1=towerIso1.getTowerESum(&(*scRef))/scRef->energy();
+      HoE2=towerIso2.getTowerESum(&(*scRef))/scRef->energy(); 
+
+      EgammaHadTower towerIsoBehindClus(es); 
+      towerIsoBehindClus.setTowerCollection(hcalTowersHandle.product());
+      TowersBehindClus = towerIsoBehindClus.towersOf(*scRef);
+      hcalDepth1OverEcalBc = towerIsoBehindClus.getDepth1HcalESum(TowersBehindClus)/scRef->energy();
+      hcalDepth2OverEcalBc = towerIsoBehindClus.getDepth2HcalESum(TowersBehindClus)/scRef->energy();
+    }
+
     //    std::cout << " GEDPhotonProducer calculation of HoE with towers in a cone " << HoE1  << "  " << HoE2 << std::endl;
     //std::cout << " GEDPhotonProducer calcualtion of HoE with towers behind the BCs " << hcalDepth1OverEcalBc  << "  " << hcalDepth2OverEcalBc << std::endl;
 
