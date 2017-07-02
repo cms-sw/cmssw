@@ -7,6 +7,7 @@
  */
 #include "DataFormats/Candidate/interface/CompositeRefCandidate.h"
 #include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
+#include "CommonTools/UtilAlgos/interface/StoreManagerTrait.h"
 
 namespace helper {
   class CandDecayStoreManager {
