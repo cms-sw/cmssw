@@ -238,12 +238,10 @@ namespace edm {
     principalCache_(),
     beginJobCalled_(false),
     shouldWeStop_(false),
-    fileMode_(),
-    emptyRunLumiMode_(),
+    fileModeNoMerge_(false),
     exceptionMessageFiles_(),
     exceptionMessageRuns_(),
     exceptionMessageLumis_(),
-    alreadyHandlingException_(false),
     forceLooperToEnd_(false),
     looperBeginJobRun_(false),
     forceESCacheClearOnNewRun_(false),
@@ -277,12 +275,10 @@ namespace edm {
     principalCache_(),
     beginJobCalled_(false),
     shouldWeStop_(false),
-    fileMode_(),
-    emptyRunLumiMode_(),
+    fileModeNoMerge_(false),
     exceptionMessageFiles_(),
     exceptionMessageRuns_(),
     exceptionMessageLumis_(),
-    alreadyHandlingException_(false),
     forceLooperToEnd_(false),
     looperBeginJobRun_(false),
     forceESCacheClearOnNewRun_(false),
@@ -319,12 +315,10 @@ namespace edm {
     principalCache_(),
     beginJobCalled_(false),
     shouldWeStop_(false),
-    fileMode_(),
-    emptyRunLumiMode_(),
+    fileModeNoMerge_(false),
     exceptionMessageFiles_(),
     exceptionMessageRuns_(),
     exceptionMessageLumis_(),
-    alreadyHandlingException_(false),
     forceLooperToEnd_(false),
     looperBeginJobRun_(false),
     forceESCacheClearOnNewRun_(false),
@@ -357,12 +351,10 @@ namespace edm {
     principalCache_(),
     beginJobCalled_(false),
     shouldWeStop_(false),
-    fileMode_(),
-    emptyRunLumiMode_(),
+    fileModeNoMerge_(false),
     exceptionMessageFiles_(),
     exceptionMessageRuns_(),
     exceptionMessageLumis_(),
-    alreadyHandlingException_(false),
     forceLooperToEnd_(false),
     looperBeginJobRun_(false),
     forceESCacheClearOnNewRun_(false),
@@ -402,8 +394,14 @@ namespace edm {
 
     // Now set some parameters specific to the main process.
     ParameterSet const& optionsPset(parameterSet->getUntrackedParameterSet("options", ParameterSet()));
-    fileMode_ = optionsPset.getUntrackedParameter<std::string>("fileMode", "");
-    emptyRunLumiMode_ = optionsPset.getUntrackedParameter<std::string>("emptyRunLumiMode", "");
+    auto const& fileMode = optionsPset.getUntrackedParameter<std::string>("fileMode", "FULLMERGE");
+    if(fileMode != "NOMERGE" and fileMode != "FULLMERGE") {
+        throw Exception(errors::Configuration, "Illegal fileMode parameter value: ")
+        << fileMode << ".\n"
+        << "Legal values are 'NOMERGE' and 'FULLMERGE'.\n";
+    } else {
+      fileModeNoMerge_ = (fileMode == "NOMERGE");
+    }
     forceESCacheClearOnNewRun_ = optionsPset.getUntrackedParameter<bool>("forceEventSetupCacheClearOnNewRun", false);
     //threading
     unsigned int nThreads=1;
@@ -758,7 +756,7 @@ namespace edm {
       nextItemTypeFromProcessingEvents_=InputSource::IsEvent;
       asyncStopRequestedWhileProcessingEvents_=false;
       try {
-        FilesProcessor fp(fileMode_ == std::string("NOMERGE"));
+        FilesProcessor fp(fileModeNoMerge_);
 
         convertException::wrap([&]() {
           bool firstTime = true;
@@ -1377,9 +1375,6 @@ namespace edm {
     });
   }
 
-  void EventProcessor::readAndProcessEvent() {
-    readAndProcessEvents();
-  }
   InputSource::ItemType EventProcessor::readAndProcessEvents() {
     nextItemTypeFromProcessingEvents_ = InputSource::IsEvent; //needed for looper
     asyncStopRequestedWhileProcessingEvents_ = false;
@@ -1545,10 +1540,6 @@ namespace edm {
     exceptionMessageLumis_ = message;
   }
 
-  bool EventProcessor::alreadyHandlingException() const {
-    return alreadyHandlingException_;
-  }
-  
   bool EventProcessor::setDeferredException(std::exception_ptr iException) {
     bool expected =false;
     if(deferredExceptionPtrIsSet_.compare_exchange_strong(expected,true)) {
