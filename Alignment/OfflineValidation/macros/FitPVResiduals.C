@@ -496,7 +496,7 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
 
     fins[i]->cd("PVValidation/EventFeatures/");
 
-    if(fins[i]->GetListOfKeys()->Contains("PVValidation/EventFeatures/etaMax")){
+    if(gDirectory->GetListOfKeys()->Contains("etaMax")){
       gDirectory->GetObject("etaMax",theEtaHistos[i]);
       theEtaMax_[i]   = theEtaHistos[i]->GetBinContent(1);
     } else {
