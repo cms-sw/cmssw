@@ -84,6 +84,7 @@ protected:
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
   template <typename T>
   bool matchToTrigger(std::string theTriggerName,T t, edm::Handle<trigger::TriggerEvent> handleTriggerEvent);
+  //bool matchToTrigger(std::string theTriggerName,T t, edm::Handle<trigger::TriggerEventWithRefs> handleTriggerEvent);
 
 
 private:
@@ -175,9 +176,9 @@ METME  DiMudR_   ;
   double minprob;
   double mincos;
   double minDS;
-  //edm::EDGetTokenT<trigger::TriggerEvent>  hltInputTag_;
+  edm::EDGetTokenT<trigger::TriggerEvent>  hltInputTag_;
   //edm::EDGetTokenT<edm::TriggerResults>  hltInputTag_;
-  edm::InputTag  hltInputTag_;
+  //edm::InputTag  hltInputTag_;
   std::vector<std::string> hltpaths_num;
   std::vector<std::string> hltpaths_den;
   StringCutObjectSelector<reco::Track,true>        trSelection_;
