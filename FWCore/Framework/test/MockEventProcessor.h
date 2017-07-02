@@ -60,20 +60,19 @@ namespace edm {
     void writeLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi);
     void deleteLumiFromCache(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi);
 
-    void readAndProcessEvent();
     bool shouldWeStop() const;
 
     void setExceptionMessageFiles(std::string& message);
     void setExceptionMessageRuns(std::string& message);
     void setExceptionMessageLumis(std::string& message);
 
-    bool alreadyHandlingException() const;
-
     InputSource::ItemType readAndProcessEvents();
 
     bool setDeferredException(std::exception_ptr);
 
   private:
+    void readAndProcessEvent();
+
     std::string mockData_;
     std::ostream & output_;
     std::istringstream input_;

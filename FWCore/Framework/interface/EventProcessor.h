@@ -180,8 +180,8 @@ namespace edm {
     //
     StatusCode runToCompletion();
 
-    // The following functions are used by the code implementing our
-    // boost statemachine
+    // The following functions are used by the code implementing
+    // transition handling.
 
     InputSource::ItemType nextTransitionType();
     std::pair<edm::ProcessHistoryID, edm::RunNumber_t> nextRunID();
@@ -218,15 +218,12 @@ namespace edm {
     void writeLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi);
     void deleteLumiFromCache(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi);
 
-    void readAndProcessEvent();
     bool shouldWeStop() const;
 
     void setExceptionMessageFiles(std::string& message);
     void setExceptionMessageRuns(std::string& message);
     void setExceptionMessageLumis(std::string& message);
 
-    bool alreadyHandlingException() const;
-    
     bool setDeferredException(std::exception_ptr);
 
     InputSource::ItemType readAndProcessEvents();
@@ -303,12 +300,10 @@ namespace edm {
     PrincipalCache                                principalCache_;
     bool                                          beginJobCalled_;
     bool                                          shouldWeStop_;
-    std::string                                   fileMode_;
-    std::string                                   emptyRunLumiMode_;
+    bool                                          fileModeNoMerge_;
     std::string                                   exceptionMessageFiles_;
     std::string                                   exceptionMessageRuns_;
     std::string                                   exceptionMessageLumis_;
-    bool                                          alreadyHandlingException_;
     bool                                          forceLooperToEnd_;
     bool                                          looperBeginJobRun_;
     bool                                          forceESCacheClearOnNewRun_;
