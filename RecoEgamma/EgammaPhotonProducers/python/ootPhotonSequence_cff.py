@@ -7,6 +7,14 @@ from RecoEcal.EgammaClusterProducers.particleFlowSuperClusterOOTECAL_cff import 
 from RecoEgamma.EgammaPhotonProducers.ootPhotonCore_cff import *
 from RecoEgamma.EgammaPhotonProducers.ootPhotons_cff import *
 
-# sequence to make OOT photons from clusters in ECAL from full PFRecHits w/o timing cut
+# task+sequence to make OOT photons from clusters in ECAL from full PFRecHits w/o timing cut
+ootPhotonTask = cms.Task(
+    particleFlowRecHitOOTECAL,
+    particleFlowClusterOOTECALUncorrected,
+    particleFlowClusterOOTECAL, 
+    particleFlowSuperClusterOOTECAL, 
+    ootPhotonCore, 
+    ootPhotons
+    )
 
-ootPhotonSequence = cms.Sequence(particleFlowRecHitOOTECAL*particleFlowClusterOOTECALUncorrected*particleFlowClusterOOTECAL*particleFlowSuperClusterOOTECAL*ootPhotonCore*ootPhotons)
+ootPhotonSequence = cms.Sequence(ootPhotonTask)
