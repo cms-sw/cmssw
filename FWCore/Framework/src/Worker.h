@@ -153,6 +153,8 @@ namespace edm {
                                                  ProductRegistry const& preg,
                                                  std::map<std::string, ModuleDescription const*> const& labelsToDesc) const = 0;
 
+    virtual void convertCurrentProcessAlias(std::string const& processName) = 0;
+
     virtual std::vector<ConsumesInfo> consumesInfo() const = 0;
 
     virtual Types moduleType() const =0;
