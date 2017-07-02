@@ -321,6 +321,7 @@ btagMonitorHLT = cms.Sequence(
     + PFJet400
     + PFJet450
     + PFJet500
+    + PFJet550
     + AK8PFJet40
     + AK8PFJet60
     + AK8PFJet80
@@ -331,4 +332,5 @@ btagMonitorHLT = cms.Sequence(
     + AK8PFJet400
     + AK8PFJet450
     + AK8PFJet500
+    + AK8PFJet550
 )
