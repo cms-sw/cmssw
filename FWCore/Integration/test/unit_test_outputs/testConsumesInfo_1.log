@@ -12,6 +12,7 @@ modules on path p:
   a1
   a2
   a3
+  a4
   test
   testView1
   testStreamingProducer
@@ -45,6 +46,8 @@ All modules and modules in the current process whose products they consume:
   TestFindProduct/'a2' consumes products from these modules:
     IntProducer/'intProducerA'
   TestFindProduct/'a3' consumes products from these modules:
+    IntProducer/'intProducerA'
+  TestFindProduct/'a4' consumes products from these modules:
     IntProducer/'intProducerA'
   TestContextAnalyzer/'test'
   TestFindProduct/'testView1' consumes products from these modules:
@@ -96,6 +99,8 @@ For products only read from previous processes, 'skip current process' is added
     edmtest::IntProduct 'intProducerA' '' ''
   TestFindProduct/'a3' consumes:
     edmtest::IntProduct 'aliasForInt' '' ''
+  TestFindProduct/'a4' consumes:
+    edmtest::IntProduct 'intProducerA' '' 'PROD1'
   TestContextAnalyzer/'test'
   TestFindProduct/'testView1' consumes:
     int 'intVectorProducer' '' 'PROD1', element type
@@ -169,6 +174,7 @@ modules on path p3:
   testMergeResults
   testView1
   testView2
+  testView3
   testStreamingProducer
   testStreamingAnalyzer
 modules on path path1:
@@ -191,6 +197,15 @@ modules on path path2:
   a14
   a15
   a16
+  a17
+  a18
+  a19
+  a20
+  a21
+  a22
+  a23
+  a24
+  a25
 modules on end path ep1:
   intVectorProducer
   testManyConsumingProducer
@@ -205,6 +220,8 @@ All modules and modules in the current process whose products they consume:
   TestMergeResults/'testMergeResults'
   TestFindProduct/'testView1'
   TestFindProduct/'testView2' consumes products from these modules:
+    IntVectorProducer/'intVectorProducer'
+  TestFindProduct/'testView3' consumes products from these modules:
     IntVectorProducer/'intVectorProducer'
   IntProducer/'testStreamingProducer'
   ConsumingStreamAnalyzer/'testStreamingAnalyzer' consumes products from these modules:
@@ -231,6 +248,23 @@ All modules and modules in the current process whose products they consume:
   TestFindProduct/'a14'
   TestFindProduct/'a15'
   TestFindProduct/'a16'
+  TestFindProduct/'a17' consumes products from these modules:
+    IntProducer/'intProducerB'
+  TestFindProduct/'a18' consumes products from these modules:
+    IntProducer/'intProducerC'
+  TestFindProduct/'a19'
+  TestFindProduct/'a20'
+  TestFindProduct/'a21' consumes products from these modules:
+    IntProducer/'intProducerF'
+  TestFindProduct/'a22' consumes products from these modules:
+    IntProducer/'intProducerG'
+  TestFindProduct/'a23'
+  TestFindProduct/'a24'
+  TestFindProduct/'a25' consumes products from these modules:
+    IntProducer/'intProducerB'
+    IntProducer/'intProducerC'
+    IntProducer/'intProducerF'
+    IntProducer/'intProducerG'
   ConsumingIntProducer/'testManyConsumingProducer' consumes products from these modules:
     TriggerResultInserter/'TriggerResults'
   TriggerResultInserter/'TriggerResults'
@@ -267,6 +301,8 @@ For products only read from previous processes, 'skip current process' is added
   TestFindProduct/'testView1' consumes:
     int 'intVectorProducer' '' 'PROD1', element type
   TestFindProduct/'testView2' consumes:
+    int 'intVectorProducer' '' 'COPY', element type
+  TestFindProduct/'testView3' consumes:
     int 'intVectorProducer' '' 'COPY', element type
   IntProducer/'testStreamingProducer'
   ConsumingStreamAnalyzer/'testStreamingAnalyzer' consumes:
@@ -305,6 +341,32 @@ For products only read from previous processes, 'skip current process' is added
     edmtest::IntProduct 'intProducerI' '' ''
   TestFindProduct/'a16' consumes:
     edmtest::IntProduct 'intProducerI' '' '', skip current process
+  TestFindProduct/'a17' consumes:
+    edmtest::IntProduct 'intProducerB' '' 'COPY'
+  TestFindProduct/'a18' consumes:
+    edmtest::IntProduct 'intProducerC' '' 'COPY'
+  TestFindProduct/'a19' consumes:
+    edmtest::IntProduct 'intProducerD' '' 'COPY'
+  TestFindProduct/'a20' consumes:
+    edmtest::IntProduct 'intProducerE' '' 'COPY'
+  TestFindProduct/'a21' consumes:
+    edmtest::IntProduct 'intProducerF' '' 'COPY'
+  TestFindProduct/'a22' consumes:
+    edmtest::IntProduct 'intProducerG' '' 'COPY'
+  TestFindProduct/'a23' consumes:
+    edmtest::IntProduct 'intProducerH' '' 'COPY'
+  TestFindProduct/'a24' consumes:
+    edmtest::IntProduct 'intProducerI' '' 'COPY'
+  TestFindProduct/'a25' consumes:
+    edmtest::IntProduct 'intProducerB' '' 'COPY'
+    edmtest::IntProduct 'intProducerC' '' ''
+    edmtest::IntProduct 'intProducerD' '' ''
+    edmtest::IntProduct 'intProducerF' '' 'COPY'
+    edmtest::IntProduct 'intProducerG' '' 'COPY'
+    edmtest::IntProduct 'intProducerI' '' ''
+    edmtest::IntProduct 'intProducerE' '' 'COPY'
+    edmtest::IntProduct 'intProducerH' '' 'COPY'
+    edmtest::IntProduct 'intProducerQ' 'INSTANCE' 'DOESNOTEXIST'
   ConsumingIntProducer/'testManyConsumingProducer' consumes:
     edm::TriggerResults 'TriggerResults' '' ''
     edm::TriggerResults '' '' ''
@@ -318,9 +380,11 @@ For products only read from previous processes, 'skip current process' is added
 TestFindProduct sum = 12
 TestFindProduct sum = 300
 TestFindProduct sum = 300
+TestFindProduct sum = 300
 TestFindProduct sum = 33
 TestFindProduct sum = 33
-TestFindProduct sum = 33
+TestFindProduct sum = 36
+TestFindProduct sum = 36
 TestFindProduct sum = 9000
 TestFindProduct sum = 6000
 TestFindProduct sum = 9003
@@ -337,3 +401,12 @@ TestFindProduct sum = 6018
 TestFindProduct sum = 6018
 TestFindProduct sum = 3021
 TestFindProduct sum = 3021
+TestFindProduct sum = 9000
+TestFindProduct sum = 9003
+TestFindProduct sum = 0
+TestFindProduct sum = 0
+TestFindProduct sum = 9012
+TestFindProduct sum = 9015
+TestFindProduct sum = 0
+TestFindProduct sum = 0
+TestFindProduct sum = 45057
