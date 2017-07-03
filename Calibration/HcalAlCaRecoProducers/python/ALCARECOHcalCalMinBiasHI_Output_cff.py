@@ -9,7 +9,10 @@ OutALCARECOHcalCalMinBiasHI_noDrop = cms.PSet(
         SelectEvents = cms.vstring('pathALCARECOHcalCalMinBias')
     ),
     outputCommands = cms.untracked.vstring(
-	'keep *_gtDigisAlCaMB_*_*',
+        'keep *_hltTriggerSummaryAOD_*_*',
+        'keep *_TriggerResults_*_*',
+        'keep FEDRawDataCollection_rawDataCollector_*_*',
+        'keep FEDRawDataCollection_source_*_*',
         'keep HBHERecHitsSorted_hbhereco_*_*',
         'keep HORecHitsSorted_horeco_*_*',
         'keep HFRecHitsSorted_hfreco_*_*',
