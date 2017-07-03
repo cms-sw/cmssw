@@ -61,3 +61,4 @@ void MCFileSource::produce(Event &e) {
   e.put(std::move(info) ,"generator");
 }
 
+}
