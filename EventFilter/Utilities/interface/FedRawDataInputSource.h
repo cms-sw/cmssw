@@ -56,8 +56,6 @@ protected:
   virtual void read(edm::EventPrincipal& eventPrincipal) override;
 
 private:
-  virtual void preForkReleaseResources() override;
-  virtual void postForkReacquireResources(std::shared_ptr<edm::multicore::MessageReceiverForSource>) override;
   virtual void rewind_() override;
 
   void maybeOpenNewLumiSection(const uint32_t lumiSection);

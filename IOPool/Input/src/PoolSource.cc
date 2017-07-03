@@ -273,11 +273,6 @@ namespace edm {
     return runHelper_->nextItemType(state(), itemType);
   }
 
-  void
-  PoolSource::preForkReleaseResources() {
-    primaryFileSequence_->closeFile_();
-  }
-
   std::pair<SharedResourcesAcquirer*,std::recursive_mutex*>
   PoolSource::resourceSharedWithDelayedReader_() {
     return std::make_pair(resourceSharedWithDelayedReaderPtr_.get(), mutexSharedWithDelayedReader_.get());

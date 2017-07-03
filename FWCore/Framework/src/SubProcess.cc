@@ -227,6 +227,7 @@ namespace edm {
       fixBranchIDListsForEDAliases(droppedBranchIDToKeptBranchID());
     }
     ServiceRegistry::Operate operate(serviceToken_);
+    schedule_->convertCurrentProcessAlias(processConfiguration_->processName());
     pathsAndConsumesOfModules_.initialize(schedule_.get(), preg_);
     //NOTE: this may throw
     checkForModuleDependencyCorrectness(pathsAndConsumesOfModules_, false);
