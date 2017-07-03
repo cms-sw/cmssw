@@ -343,9 +343,11 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
 # ==================================================
 copadParam = cms.PSet(
      verbosity = cms.uint32(0),
-     maxDeltaPadGE11 = cms.uint32(1),
-     maxDeltaPadGE21 = cms.uint32(1),
-     maxDeltaBX = cms.uint32(0)
+     maxDeltaPadGE11 = cms.uint32(2),
+     maxDeltaPadGE21 = cms.uint32(2),
+     maxDeltaRollGE11 = cms.uint32(1),
+     maxDeltaRollGE21 = cms.uint32(1),
+     maxDeltaBX = cms.uint32(1)
  )
 
 # to be used by ME11 chambers with GEM-CSC ILT
@@ -368,7 +370,7 @@ me11tmbSLHCGEM = cms.PSet(
     maxME11LCTs = cms.uint32(2),
 
     ## run in debug mode
-    debugLUTs = cms.bool(False),
+    debugLUTs = cms.bool(True),
     debugMatching = cms.bool(True),
     debugGEMDphi = cms.bool(False),
 

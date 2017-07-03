@@ -420,11 +420,11 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
     // LUT<roll,<etaMin,etaMax> >
     createGEMRollEtaLUT(isEven);
     if (debug_luts){
-      LogDebug("CSCMotherboardME11GEM") << "me1b Det "<< me1bId<<" "<< me1bId.rawId() <<" "
-					<< (isEven ? "Even":"odd") <<" chamber "<< me1bId.chamber()<<std::endl;
+      std::cout << "me1b Det "<< me1bId<<" "<< me1bId.rawId() <<" "
+                << (isEven ? "Even":"odd") <<" chamber "<< me1bId.chamber()<<std::endl;
       if (gemRollToEtaLimits_.size())
         for(auto p : gemRollToEtaLimits_)
-	  LogDebug("CSCMotherboardME11GEM") << "pad "<< p.first << " min eta " << (p.second).first << " max eta " << (p.second).second << std::endl;
+          std::cout << "pad "<< p.first << " min eta " << (p.second).first << " max eta " << (p.second).second << std::endl;
     }
 
     // loop on all wiregroups to create a LUT <WG,rollMin,rollMax>
@@ -436,7 +436,7 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
     }
     if (debug_luts){
       for(auto p : cscWgToGemRoll_) {
-	LogDebug("CSCMotherboardME11GEM") << "WG "<< p.first << " GEM pads " << (p.second).first << " " << (p.second).second << std::endl;
+        std::cout << "WG "<< p.first << " GEM pads " << (p.second).first << " " << (p.second).second << std::endl;
       }
     }
 
@@ -529,7 +529,10 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
         std::cout << "ALCT-CLCT matching in ME1/1 chamber: " << cscChamberME1b->id() << std::endl;
         std::cout << "------------------------------------------------------------------------" << std::endl;
         std::cout << "+++ Best ALCT Details: " << alct->bestALCT[bx_alct] << std::endl;
-        std::cout << "+++ Second ALCT Details: " << alct->secondALCT[bx_alct] << std::endl;
+        if (not alct->secondALCT[bx_alct].isValid())
+          std::cout << "+++ Second ALCT INVALID" << std::endl;
+        else
+          std::cout << "+++ Second ALCT Details: " << alct->secondALCT[bx_alct] << std::endl;
 
         printGEMTriggerPads(bx_clct_start, bx_clct_stop);
         printGEMTriggerPads(bx_clct_start, bx_clct_stop, true);
@@ -550,8 +553,8 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
           if (debug_gem_matching) std::cout << "++Valid ME1b CLCT: " << clct->bestCLCT[bx_clct] << std::endl;
 
           // pick the pad that corresponds
-          auto matchingPads(matchingGEMPads(clct->bestCLCT[bx_clct], alct->bestALCT[bx_alct], pads_[bx_clct], ME1B, false));
-          auto matchingCoPads(matchingGEMPads(clct->bestCLCT[bx_clct], alct->bestALCT[bx_alct], coPads_[bx_clct], ME1B, true));
+          auto matchingPads(matchingGEMPads(clct->bestCLCT[bx_clct], alct->bestALCT[bx_alct], pads_[bx_alct], ME1B, false));
+          auto matchingCoPads(matchingGEMPads(clct->bestCLCT[bx_clct], alct->bestALCT[bx_alct], coPads_[bx_alct], ME1B, false));
           if (runME11ILT_ and dropLowQualityCLCTsNoGEMs_ME1b_ and quality < 4 and hasPads){
             int nFound(matchingPads.size());
             const bool clctInEdge(clct->bestCLCT[bx_clct].getKeyStrip() < 5 or clct->bestCLCT[bx_clct].getKeyStrip() > 124);
@@ -611,7 +614,7 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
           }
 
           // find the best matching copad - first one
-          auto copads(matchingGEMPads(alct->bestALCT[bx_alct], coPads_[bx_gem], ME1B, true));
+          auto copads(matchingGEMPads(alct->bestALCT[bx_alct], coPads_[bx_gem], ME1B, false));
           if (debug_gem_matching) std::cout << "\t++Number of matching GEM CoPads in BX " << bx_alct << " : "<< copads.size() << std::endl;
           if (copads.size()==0) {
             continue;
@@ -670,8 +673,8 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
           if (debug_gem_matching) std::cout << "++Valid ME1a CLCT: " << clct1a->bestCLCT[bx_clct] << std::endl;
 
 	  // pick the pad that corresponds
-	  auto matchingPads(matchingGEMPads(clct1a->bestCLCT[bx_clct], alct->bestALCT[bx_alct], pads_[bx_clct], ME1A, false));
-	  auto matchingCoPads(matchingGEMPads(clct1a->bestCLCT[bx_clct], alct->bestALCT[bx_alct], coPads_[bx_clct], ME1A, true));
+          auto matchingPads(matchingGEMPads(clct1a->bestCLCT[bx_clct], alct->bestALCT[bx_alct], pads_[bx_alct], ME1A, false));
+          auto matchingCoPads(matchingGEMPads(clct1a->bestCLCT[bx_clct], alct->bestALCT[bx_alct], coPads_[bx_alct], ME1A, false));
           if (runME11ILT_ and dropLowQualityCLCTsNoGEMs_ME1a_ and quality < 4 and hasPads){
             int nFound(matchingPads.size());
             const bool clctInEdge(clct1a->bestCLCT[bx_clct].getKeyStrip() < 4 or clct1a->bestCLCT[bx_clct].getKeyStrip() > 93);
@@ -1549,7 +1552,6 @@ void CSCMotherboardME11GEM::createGEMRollEtaLUT(bool isEven)
   if (chamber==nullptr) return;
 
   int n = 1;
-  if (isEven) n = 2; // this only works for the 9-10 partition geometry!!! FIXME
   for(auto roll : chamber->etaPartitions()) {
     const float half_striplength(roll->specs()->specificTopology().stripLength()/2.);
     const LocalPoint lp_top(0., half_striplength, 0.);
@@ -1679,7 +1681,8 @@ CSCCorrelatedLCTDigi CSCMotherboardME11GEM::constructLCTsGEM(const CSCCLCTDigi& 
 CSCCorrelatedLCTDigi CSCMotherboardME11GEM::constructLCTsGEM(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT,
 							  bool hasPad, bool hasCoPad)
 {
-  std::cout << "Constructing CLCT-ALCT-GEM LCT" << std::endl;
+  if (hasPad)   std::cout << "Constructing CLCT-ALCT-1GEM LCT" << std::endl;
+  if (hasCoPad) std::cout << "Constructing CLCT-ALCT-2GEM LCT" << std::endl;
 
   // CLCT pattern number
   unsigned int pattern = encodePattern(cLCT.getPattern(), cLCT.getStripType());
@@ -1860,7 +1863,7 @@ void CSCMotherboardME11GEM::printGEMTriggerPads(int bx_start, int bx_stop, bool 
     if (hasPads){
       for (const auto& pad : in_pads){
         auto roll_id(GEMDetId(pad.first));
-        std::cout << "\tdetId " << pad.first << " " << roll_id << ", pad = " << pad.second.pad() << ", BX = " << pad.second.bx() + 6;
+        std::cout << "\t" << roll_id << ", pad = " << pad.second.pad() << ", BX = " << pad.second.bx() + 6;
         if (isPadInOverlap(roll_id.roll())) std::cout << " (in overlap)" << std::endl;
         else std::cout << std::endl;
       }
@@ -1934,14 +1937,14 @@ CSCMotherboardME11GEM::matchingGEMPads(const CSCCLCTDigi& clct, const GEMPadsBX&
   int deltaPad(isCoPad ? maxDeltaPadCoPad_ : maxDeltaPadPad_);
   const int lowPad(mymap[clct.getKeyStrip()].first);
   const int highPad(mymap[clct.getKeyStrip()].second);
-  const bool debug(false);
-  if (debug) std::cout << "lowpad " << lowPad << " highpad " << highPad << " delta pad " << deltaPad <<std::endl;
+  const bool debug(true);
+  if (debug) std::cout << "CLCT lowpad " << lowPad << " highpad " << highPad << " delta pad " << deltaPad <<std::endl;
   for (const auto& p: pads){
     if (DetId(p.first).subdetId() != MuonSubdetId::GEM or DetId(p.first).det() != DetId::Muon) {
       continue;
     }
     auto padRoll((p.second).pad());
-    if (debug) std::cout << "padRoll " << padRoll << std::endl;
+    if (debug) std::cout << "Candidate CLCT: " << p.second << std::endl;
     if (std::abs(lowPad - padRoll) <= deltaPad or std::abs(padRoll - highPad) <= deltaPad){
     if (debug) std::cout << "++Matches! " << std::endl;
       result.push_back(p);
@@ -1958,14 +1961,14 @@ CSCMotherboardME11GEM::matchingGEMPads(const CSCALCTDigi& alct, const GEMPadsBX&
   CSCMotherboardME11GEM::GEMPadsBX result;
 
   auto alctRoll(cscWgToGemRoll_[alct.getKeyWG()]);
-  const bool debug(false);
+  const bool debug(true);
   if (debug) std::cout << "ALCT keyWG " << alct.getKeyWG() << ", rolls " << alctRoll.first << " " << alctRoll.second << std::endl;
   for (const auto& p: pads){
     if (DetId(p.first).subdetId() != MuonSubdetId::GEM or DetId(p.first).det() != DetId::Muon) {
       continue;
     }
     auto padRoll(GEMDetId(p.first).roll());
-    if (debug) std::cout << "Candidate ALCT: " << padRoll << std::endl;
+    if (debug) std::cout << "Candidate ALCT: " << p.second << std::endl;
     // only pads in overlap are good for ME1A
     if (part==ME1A and !isPadInOverlap(padRoll)) continue;
     if (alctRoll.first == -99 and alctRoll.second == -99) continue;  //invalid region
@@ -1991,8 +1994,9 @@ CSCMotherboardME11GEM::matchingGEMPads(const CSCCLCTDigi& clct, const CSCALCTDig
   auto padsClct(matchingGEMPads(clct, pads, part, isCoPad, false));
   auto padsAlct(matchingGEMPads(alct, pads, part, isCoPad, false));
 
-  const bool debug(false);
+  const bool debug(true);
   if (debug) std::cout << "-----------------------------------------------------------------------"<<std::endl;
+  if (debug) std::cout << "Finding common pads"<<std::endl;
   // Check if the pads overlap
   for (const auto& p : padsAlct){
     if (debug) std::cout<< "Candidate ALCT: " << p.first << " " << p.second << std::endl;
@@ -2000,7 +2004,9 @@ CSCMotherboardME11GEM::matchingGEMPads(const CSCCLCTDigi& clct, const CSCALCTDig
       if (debug) std::cout<< "++Candidate CLCT: " << q.first << " " << q.second << std::endl;
       // look for exactly the same pads
       if ((p.first != q.first) or GEMPadDigi(p.second) != q.second) continue;
-      if (debug) std::cout << "++Matches! " << std::endl;
+      //      if (debug)
+      if (isCoPad) std::cout << "++Matched copad" << GEMDetId(p.first) << " " << p.second << std::endl;
+      else std::cout << "++Matched pad" << GEMDetId(p.first) << " " << p.second << std::endl;
       result.push_back(p);
       if (first) return result;
     }
