@@ -10,8 +10,8 @@
 //      Defaults: numb=50, type=3, append=true, fiteta=true, iname=2
 //
 //             For plotting stored histograms from FitHist's
-//  PlotHist(infile, prefix, text, modePlot, dataMC, drawStatBox, save);
-//      Defaults: modePlot=0, dataMC=false, drawStatBox=true, save=false
+//  PlotHist(infile, prefix, text, modePlot, iopt, dataMC, drawStatBox, save);
+//      Defaults: modePlot=0, iopt=0, dataMC=false, drawStatBox=true, save=false
 //
 //             For plotting several histograms in the same plot
 //             (fits to different data sets for example)
@@ -56,6 +56,9 @@
 //  text     (std::string)  = Extra text to be put in the text title
 //  modePlot (int)          = Flag to plot E/p distribution (0) or <E/p> as
 //                            a function of ieta (1)
+//  kopt     (int)          = Option in format do where each of d, o can have
+//                            a value of 0 or 1 to select or deselect. 
+//                            o=1 to carry out pol0 fit; d=1 to show grid
 //  save     (bool)         = if true it saves the canvas as a pdf file
 //  nmin     (int)          = minimum # of #ieta points needed to show the
 //                            fitted line
@@ -160,25 +163,27 @@ TFitResultPtr functionFit(TH1D *hist, double *fitrange, double *startvalues,
   ffit->SetParameters(startvalues);
   ffit->SetLineColor(kBlue);
   ffit->SetParNames("Area1","Mean1","Width1","Area2","Mean2","Width2");
-  for (int i=0; i<npar; i++) ffit->SetParLimits(i, parlimitslo[i], parlimitshi[i]);
-  TFitResultPtr Fit = hist->Fit(FunName,"RWLS");
+  for (int i=0; i<npar; i++) 
+    ffit->SetParLimits(i, parlimitslo[i], parlimitshi[i]);
+  TFitResultPtr Fit = hist->Fit(FunName,"QRWLS");
   return Fit;
 }
 
-std::pair<double,double> fitTwoGauss (TH1D* hist) {
+std::pair<double,double> fitTwoGauss (TH1D* hist, bool debug) {
   double mean = hist->GetMean(), rms = hist->GetRMS();
   double LowEdge = mean - 1.0*rms;
   double HighEdge = mean + 1.0*rms;
   if (LowEdge < 0.15) LowEdge = 0.15;
-  char option[20];
-  if (hist->GetEntries() > 100) sprintf (option, "QRS");
-  else                          sprintf (option, "QRWLS");
+  std::string option = (hist->GetEntries() > 100) ? "QRS" : "QRWLS";
   //   TFitResultPtr Fit = hist->Fit("gaus",option,"",LowEdge,HighEdge);
   TF1 *g1    = new TF1("g1","gaus",LowEdge,HighEdge); 
-  g1->SetLineColor(kGreen);//mod
-  TFitResultPtr Fit = hist->Fit(g1,option,"");//mod
+  g1->SetLineColor(kGreen);
+  TFitResultPtr Fit = hist->Fit(g1,option.c_str(),"");
   
-  for (int k=0; k<3; ++k) std::cout << "Initial Parameter[" << k << "] = " << Fit->Value(k) << " +- " << Fit->FitResult::Error(k) << std::endl;
+  if (debug) 
+    for (int k=0; k<3; ++k) 
+      std::cout << "Initial Parameter[" << k << "] = " << Fit->Value(k) 
+		<< " +- " << Fit->FitResult::Error(k) << std::endl;
   double startvalues[6], fitrange[2], lowValue[6], highValue[6];
   startvalues[0] =     Fit->Value(0); lowValue[0] = 0.5*startvalues[0]; highValue[0] = 2.*startvalues[0];
   startvalues[1] =     Fit->Value(1); lowValue[1] = 0.5*startvalues[1]; highValue[1] = 2.*startvalues[1];
@@ -190,7 +195,33 @@ std::pair<double,double> fitTwoGauss (TH1D* hist) {
   TFitResultPtr Fitfun = functionFit(hist, fitrange, startvalues, lowValue, highValue);
   double value = Fitfun->Value(1);
   double error = Fitfun->FitResult::Error(1); 
-  for (int k=0; k<6; ++k) std::cout << hist->GetName() << ":Parameter[" << k << "] = " << Fitfun->Value(k) << " +- " << Fitfun->FitResult::Error(k) << std::endl;
+  if (debug) {
+  for (int k=0; k<6; ++k) 
+    std::cout << hist->GetName() << ":Parameter[" << k << "] = " 
+	      << Fitfun->Value(k) << " +- " << Fitfun->FitResult::Error(k) 
+	      << std::endl;
+  }
+  return std::pair<double,double>(value,error);
+}
+
+std::pair<double,double> fitOneGauss (TH1D* hist, bool debug) {
+  double mean     = hist->GetMean();
+  double rms      = hist->GetRMS();
+  double LowEdge  = ((mean-1.5*rms)<0.15) ? 0.15 : (mean-1.5*rms);
+  double HighEdge = (hist->GetEntries()>100) ? (mean+2.0*rms) : (mean+1.5*rms);
+  std::string option = (hist->GetEntries()>100) ? "QRS" : "QRWLS";
+  TFitResultPtr Fit = hist->Fit("gaus",option.c_str(),"",LowEdge,HighEdge);
+  double value = Fit->Value(1);
+  double error = Fit->FitResult::Error(1); 
+  std::pair<double,double> meaner = GetMean(hist,0.2,2.0);
+  if (debug) std::cout << "Fit " << value << ":" << error << ":" 
+		       << hist->GetMeanError() << " Mean " 
+		       << meaner.first << ":" << meaner.second;
+  double minvalue(0.30);
+  if (value < minvalue || value > 2.0 || error > 0.5) {
+    value = meaner.first; error = meaner.second;
+  }
+  if (debug) std::cout << " Final " << value << ":" << error << std::endl;
   return std::pair<double,double>(value,error);
 }
 
@@ -240,26 +271,8 @@ void FitHistStandard(std::string infile,std::string outfile,std::string prefix,
 	      value = hist->GetMean(); error = hist->GetRMS();
 	    }
 	    if (hist->GetEntries() > 4) {
-	      std::pair<double,double> meaner = GetMean(hist,0.2,2.0);
-	      double mean = hist->GetMean(), rms = hist->GetRMS();
-	      double LowEdge = mean - 1.5*rms;
-	      double HighEdge = mean + 2.0*rms;
-	      if (LowEdge < 0.15) LowEdge = 0.15;
-	      char option[20];
-	      if (hist0->GetEntries() > 100) sprintf (option, "+QRS");
-	      else                           sprintf (option, "+QRWLS");
-	      double minvalue(0.30);
-	      TFitResultPtr Fit = hist->Fit("gaus",option,"",LowEdge,HighEdge);
-	      value = Fit->Value(1);
-	      error = Fit->FitResult::Error(1); 
-	      if (debug) std::cout << "Fit " << value << ":" << error << ":" 
-				   << hist->GetMeanError() << " Mean " 
-				   << meaner.first << ":" << meaner.second;
-	      if (value < minvalue || value > 2.0 || error > 0.5) {
-		value = meaner.first; error = meaner.second;
-	      }
-	      if (debug) std::cout << " Final " << value << ":" << error 
-				   << std::endl;
+	      std::pair<double,double> meaner = fitOneGauss(hist,debug);
+	      value = meaner.first;    error = meaner.second;
 	      if (j != 0) {
 		if (j < jmin) jmin = j;
 		if (j > jmax) jmax = j;
@@ -306,7 +319,7 @@ void FitHistStandard(std::string infile,std::string outfile,std::string prefix,
 void FitHistExtended(std::string infile, std::string outfile,std::string prefix,
 		     int numb=50, int type=3, bool append=true,
 		     bool fiteta=true, int iname=2) {
-  std::string sname("ratio"), lname("Z");
+  std::string sname("ratio"), lname("Z"), ename("etaB");
   bool        debug(false);
   double      xbins[99];
   double xbin[23] = {-23.0, -21.0, -19.0, -17.0, -15.0, -13.0, -11.0, -9.0,
@@ -341,7 +354,7 @@ void FitHistExtended(std::string infile, std::string outfile,std::string prefix,
       }
       int   nbin = hist0->GetNbinsX();
       if (hist0->GetEntries() > 10) {
-	std::pair<double,double> meaner0 = fitTwoGauss(hist0);
+	std::pair<double,double> meaner0 = fitTwoGauss(hist0, debug);
 	std::pair<double,double> meaner1 = GetMean(hist0,0.2,2.0);
 	if (debug) std::cout << "Fit " << meaner0.first << ":" 
 			     << meaner0.second << " Mean1 " 
@@ -363,34 +376,18 @@ void FitHistExtended(std::string infile, std::string outfile,std::string prefix,
 	  for (int i=1; i<=nbin; ++i) total += hist->GetBinContent(i);
 	}
 	if (total > 4) {
-	  double minvalue(0.30);
 	  if (nv1 > j) nv1 = j;
 	  if (nv2 < j) nv2 = j;
 	  if (j == 0) {
-	    std::pair<double,double> meaner0 = fitTwoGauss(hist);
+	    sprintf (name, "%sOne", hist1->GetName());
+	    TH1D* hist2  = (TH1D*)hist1->Clone(name);
+	    fitOneGauss(hist2,debug);
+	    hists.push_back(hist2);
+	    std::pair<double,double> meaner0 = fitTwoGauss(hist,debug);
 	    value = meaner0.first;
 	    error = meaner0.second;
 	  } else {
-	    double mean = hist->GetMean(), rms = hist->GetRMS();
-	    double LowEdge = mean - 1.5*rms;
-	    double HighEdge = mean + 2.0*rms;
-	    if (LowEdge < 0.15) LowEdge = 0.15;
-	    char option[20];
-	    if (total > 100) {
-	      sprintf (option, "+QRS");
-	    } else {
-	      sprintf (option, "+QRWLS");
-	      HighEdge= mean+1.5*rms;
-	    }
-	    TFitResultPtr Fit = hist->Fit("gaus",option,"",LowEdge,HighEdge);
-	    value = Fit->Value(1);
-	    error = Fit->FitResult::Error(1); 
-	  }
-	  std::pair<double,double> meaner = GetMean(hist,0.2,2.0);
-	  if (debug) std::cout << "Fit " << value << ":" << error << ":" 
-			       << hist->GetMeanError() << " Mean " 
-			       << meaner.first << ":" << meaner.second;
-	  if (value < minvalue || value > 2.0 || error > 0.5) {
+	    std::pair<double,double> meaner = fitOneGauss(hist,debug);
 	    value = meaner.first; error = meaner.second;
 	  }
 	  if (j != 0) {
@@ -404,7 +401,7 @@ void FitHistExtended(std::string infile, std::string outfile,std::string prefix,
 	  histo->SetBinError(j, error);
 	}
       }
-      if (histo > 0) {
+      if (histo != 0) {
 	if (histo->GetEntries() > 2 && fiteta) {
 	  int    nbin    = histo->GetNbinsX();
 	  std::cout << "Jmin/max " << jmin << ":" << jmax << ":" << nbin << std::endl;
@@ -422,6 +419,37 @@ void FitHistExtended(std::string infile, std::string outfile,std::string prefix,
 	hists.push_back(histo);
       } else {
 	hists.push_back(hist0);
+      }
+
+      //Barrel,Endcap
+      for (int j=1; j<=3; ++j) {
+	sprintf (name, "%s%s%d%d", prefix.c_str(), ename.c_str(), iname, j);
+	TH1D* hist1 = (TH1D*)file->FindObjectAny(name);
+	if (debug) std::cout << "Get Histogram for " << name << " at " << hist1
+			     << std::endl;
+	if (hist1!=0) {
+	  TH1D* hist  = (TH1D*)hist1->Clone();
+	  double value(0), error(0), total(0);
+	  if (hist->GetEntries() > 0) {
+	    value = hist->GetMean(); error = hist->GetRMS();
+	    for (int i=1; i<=nbin; ++i) total += hist->GetBinContent(i);
+	  }
+	  if (total > 4) {
+	    sprintf (name, "%sOne", hist1->GetName());
+	    TH1D* hist2  = (TH1D*)hist1->Clone(name);
+	    fitOneGauss(hist2,debug);
+	    hists.push_back(hist2);
+	    std::pair<double,double> meaner0 = fitTwoGauss(hist,debug);
+	    value = meaner0.first;
+	    error = meaner0.second;
+	    std::pair<double,double> meaner = GetMean(hist,0.2,2.0);
+	    if (debug) std::cout << "Fit " << value << ":" << error << ":" 
+				 << hist->GetMeanError() << " Mean " 
+				 << meaner.first << ":" << meaner.second
+				 << std::endl;
+	  }
+	  hists.push_back(hist);
+	}
       }
     }
     TFile* theFile(0);
@@ -445,26 +473,32 @@ void FitHistExtended(std::string infile, std::string outfile,std::string prefix,
 }
 
 void PlotHist(std::string infile, std::string prefix, std::string text,
-	      int mode=0, bool dataMC=false, bool drawStatBox=true,
+	      int mode=0, int kopt=0, bool dataMC=false, bool drawStatBox=true,
 	      bool save=false) {
 
   std::string name0[5] = {"ratio00","ratio10","ratio20","ratio30","ratio40"};
   std::string name1[5] = {"Z0", "Z1", "Z2", "Z3", "Z4"};
   std::string name2[5] = {"L0", "L1", "L2", "L3", "L4"};
   std::string name3[5] = {"V0", "V1", "V2", "V3", "V4"};
+  std::string name4[3] = {"etaB21", "etaB22", "etaB23"};
   std::string title[5] = {"Tracks with p = 20:30 GeV",
 			  "Tracks with p = 30:40 GeV",
 			  "Tracks with p = 40:60 GeV",
 			  "Tracks with p = 60:100 GeV",
 			  "Tracks with p = 20:100 GeV"};
-  std::string xtitl[4] = {"E_{HCAL}/(p-E_{ECAL})","i#eta","d_{L1}","# Vertex"};
-  std::string ytitl[4] = {"Tracks","<E_{HCAL}/(p-E_{ECAL})>",
-			  "<E_{HCAL}/(p-E_{ECAL})>","<E_{HCAL}/(p-E_{ECAL})>"};
+  std::string title1[3] = {"Tracks with p = 40:60 GeV (Barrel)",
+			   "Tracks with p = 40:60 GeV (Transition)",
+			   "Tracks with p = 40:60 GeV (Endcap)"};
+  std::string xtitl[5] = {"E_{HCAL}/(p-E_{ECAL})","i#eta","d_{L1}","# Vertex",
+			  "E_{HCAL}/(p-E_{ECAL})"};
+  std::string ytitl[5] = {"Tracks","<E_{HCAL}/(p-E_{ECAL})>",
+			  "<E_{HCAL}/(p-E_{ECAL})>","<E_{HCAL}/(p-E_{ECAL})>",
+			  "Tracks"};
 
   gStyle->SetCanvasBorderMode(0); gStyle->SetCanvasColor(kWhite);
   gStyle->SetPadColor(kWhite);    gStyle->SetFillColor(kWhite);
   gStyle->SetOptTitle(0);
-  if (mode < 0 || mode > 3) mode = 0;
+  if (mode < 0 || mode > 4) mode = 0;
   if (drawStatBox) {
     int iopt(1110);
     if (mode != 0) iopt = 10;
@@ -474,13 +508,16 @@ void PlotHist(std::string infile, std::string prefix, std::string text,
   }
   TFile      *file = new TFile(infile.c_str());
   char name[100], namep[100];
-  for (int k=0; k<5; ++k) {
+  int kmax = (mode == 4) ? 3 : 5;
+  for (int k=0; k<kmax; ++k) {
     if (mode == 1) {
       sprintf (name, "%s%s", prefix.c_str(), name1[k].c_str());
     } else if (mode == 2) {
       sprintf (name, "%s%s", prefix.c_str(), name2[k].c_str());
     } else if (mode == 3) {
       sprintf (name, "%s%s", prefix.c_str(), name3[k].c_str());
+    } else if (mode == 4) {
+      sprintf (name, "%s%s", prefix.c_str(), name4[k].c_str());
     } else {
       sprintf (name, "%s%s", prefix.c_str(), name0[k].c_str());
     }
@@ -491,15 +528,22 @@ void PlotHist(std::string infile, std::string prefix, std::string text,
       TCanvas *pad = new TCanvas(namep, namep, 700, 500);
       pad->SetRightMargin(0.10);
       pad->SetTopMargin(0.10);
+      if ((kopt/10)%10 > 0) gPad->SetGrid();
       hist->GetXaxis()->SetTitle(xtitl[mode].c_str());
       hist->GetYaxis()->SetTitle(ytitl[mode].c_str());
       hist->GetYaxis()->SetLabelOffset(0.005);
       hist->GetYaxis()->SetLabelSize(0.035);
       hist->GetYaxis()->SetTitleOffset(1.10);
-      if (mode == 0) {
+      if (mode == 0 || mode == 4) {
 	hist->GetXaxis()->SetRangeUser(0.0,2.5);
-      } else if (mode > 1) {
-	hist->GetYaxis()->SetRangeUser(0.9,1.15);
+      } else {
+	hist->GetYaxis()->SetRangeUser(0.8,1.25);
+	if (kopt%10 > 0) {
+	  int nbin = hist->GetNbinsX();
+	  double LowEdge = hist->GetBinLowEdge(1);
+	  double HighEdge= hist->GetBinLowEdge(nbin)+hist->GetBinWidth(nbin);
+	  hist->Fit("pol0","+QRWLS","",LowEdge,HighEdge);
+	}
       }
       hist->SetMarkerStyle(20);
       hist->SetMarkerColor(2);
@@ -508,19 +552,24 @@ void PlotHist(std::string infile, std::string prefix, std::string text,
       pad->Update();
       TPaveStats* st1 = (TPaveStats*)hist->GetListOfFunctions()->FindObject("stats");
       if (st1 != NULL) {
-	double ymin = (mode == 0) ? 0.60 : 0.70; 
+	double ymin = (mode == 0 || mode == 4) ? 0.60 : 0.70; 
 	st1->SetY1NDC(ymin); st1->SetY2NDC(0.80);
 	st1->SetX1NDC(0.65); st1->SetX2NDC(0.90);
       }
       double ymin = (dataMC) ? 0.79 : 0.84;
       double ymax = (dataMC) ? 0.84 : 0.89;
       TPaveText *txt1 = (mode == 0) ? 
-	new TPaveText(0.45,ymin,0.90,ymax,"blNDC") :
+	new TPaveText(0.40,ymin,0.90,ymax,"blNDC") :
 	new TPaveText(0.30,ymin,0.90,ymax,"blNDC");
       txt1->SetFillColor(0);
       char txt[100];
-      if (text == "") sprintf (txt, "%s", title[k].c_str());
-      else            sprintf (txt, "%s (%s)", title[k].c_str(), text.c_str());
+      if (text == "") {
+	if (mode == 4) sprintf (txt, "%s", title1[k].c_str());
+	else           sprintf (txt, "%s", title[k].c_str());
+      } else {
+        if (mode == 4) sprintf (txt, "%s (%s)", title1[k].c_str(),text.c_str());
+	else           sprintf (txt, "%s (%s)", title[k].c_str(), text.c_str());
+      }
       txt1->AddText(txt);
       txt1->Draw("same");
       double xmax = (dataMC) ? 0.33 : 0.44;

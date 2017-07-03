@@ -266,6 +266,7 @@ void EcalSelectiveReadoutValidation::analyzeEE(const edm::Event& event,
 					       const edm::EventSetup& es){
   bool eventError = false;
   nEeZsErrors_ = 0;
+  nEeZsErrorsType1_ = 0;
 
   for(int iZ0=0; iZ0<nEndcaps; ++iZ0){
     for(int iX0=0; iX0<nEeX; ++iX0){
@@ -544,6 +545,7 @@ EcalSelectiveReadoutValidation::analyzeEB(const edm::Event& event,
 
   bool eventError = false;
   nEbZsErrors_ = 0;
+  nEbZsErrorsType1_ = 0;
   vector<pair<int,int> > xtalEtaPhi;
 
   xtalEtaPhi.reserve(nEbPhi*nEbEta);

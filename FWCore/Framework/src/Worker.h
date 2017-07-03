@@ -123,8 +123,6 @@ namespace edm {
     void respondToOpenInputFile(FileBlock const& fb) {implRespondToOpenInputFile(fb);}
     void respondToCloseInputFile(FileBlock const& fb) {implRespondToCloseInputFile(fb);}
 
-    void preForkReleaseResources() {implPreForkReleaseResources();}
-    void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {implPostForkReacquireResources(iChildIndex, iNumberOfChildren);}
     void registerThinnedAssociations(ProductRegistry const& registry, ThinnedAssociationsHelper& helper) { implRegisterThinnedAssociations(registry, helper); }
 
     void reset() {
@@ -154,6 +152,8 @@ namespace edm {
     virtual void modulesWhoseProductsAreConsumed(std::vector<ModuleDescription const*>& modules,
                                                  ProductRegistry const& preg,
                                                  std::map<std::string, ModuleDescription const*> const& labelsToDesc) const = 0;
+
+    virtual void convertCurrentProcessAlias(std::string const& processName) = 0;
 
     virtual std::vector<ConsumesInfo> consumesInfo() const = 0;
 
@@ -234,9 +234,6 @@ namespace edm {
     virtual void implRespondToOpenInputFile(FileBlock const& fb) = 0;
     virtual void implRespondToCloseInputFile(FileBlock const& fb) = 0;
 
-    virtual void implPreForkReleaseResources() = 0;
-    virtual void implPostForkReacquireResources(unsigned int iChildIndex,
-                                               unsigned int iNumberOfChildren) = 0;
     virtual void implRegisterThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&) = 0;
     
     virtual SerialTaskQueueChain* serializeRunModule() = 0;

@@ -83,9 +83,6 @@ namespace edm {
       void doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                 ModuleCallingContext const*);
 
-      void doPreForkReleaseResources();
-      void doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
-
       //For now, the following are just dummy implemenations with no ability for users to override
       void doRespondToOpenInputFile(FileBlock const& fb);
       void doRespondToCloseInputFile(FileBlock const& fb);
@@ -105,8 +102,6 @@ namespace edm {
       virtual void beginJob() {}
       virtual void endJob(){}
 
-      virtual void preForkReleaseResources() {}
-      virtual void postForkReacquireResources(unsigned int /*iChildIndex*/, unsigned int /*iNumberOfChildren*/) {}
       virtual void preallocThreads(unsigned int) {}
 
       virtual void doBeginRun_(Run const& rp, EventSetup const& c);

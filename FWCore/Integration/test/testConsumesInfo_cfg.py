@@ -38,7 +38,15 @@ process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('testConsumesInfo.root'),
     outputCommands = cms.untracked.vstring(
         'keep *',
-        'drop *_intProducerA_*_*'
+        'drop *_intProducerA_*_*',
+        'drop *_intProducerB_*_*',
+        'drop *_intProducerC_*_*',
+        'drop *_intProducerD_*_*',
+        'drop *_intProducerE_*_*',
+        'drop *_intProducerF_*_*',
+        'drop *_intProducerG_*_*',
+        'drop *_intProducerH_*_*',
+        'drop *_intProducerI_*_*'
     )
 )
 
@@ -59,6 +67,11 @@ process.a2 = cms.EDAnalyzer("TestFindProduct",
 
 process.a3 = cms.EDAnalyzer("TestFindProduct",
   inputTags = cms.untracked.VInputTag( cms.InputTag("aliasForInt") ),
+  expectedSum = cms.untracked.int32(300)
+)
+
+process.a4 = cms.EDAnalyzer("TestFindProduct",
+  inputTags = cms.untracked.VInputTag( cms.InputTag("intProducerA", processName=cms.InputTag.currentProcess()) ),
   expectedSum = cms.untracked.int32(300)
 )
 
@@ -103,20 +116,72 @@ process.testStreamingAnalyzer = cms.EDAnalyzer("ConsumingStreamAnalyzer",
   moduleLabel = cms.untracked.string("testStreamingProducer")
 )
 
+process.intProducerB = cms.EDProducer("IntProducer", ivalue = cms.int32(1000))
+process.intProducerC = cms.EDProducer("IntProducer", ivalue = cms.int32(1001))
+process.intProducerD = cms.EDProducer("IntProducer", ivalue = cms.int32(1002))
+process.intProducerE = cms.EDProducer("IntProducer", ivalue = cms.int32(1003))
+process.intProducerF = cms.EDProducer("IntProducer", ivalue = cms.int32(1004))
+process.intProducerG = cms.EDProducer("IntProducer", ivalue = cms.int32(1005))
+process.intProducerH = cms.EDProducer("IntProducer", ivalue = cms.int32(1006))
+process.intProducerI = cms.EDProducer("IntProducer", ivalue = cms.int32(1007))
+
 process.p = cms.Path(process.intProducer * process.a1 * process.a2 * process.a3 *
+                     process.a4 *
                      process.test * process.testView1 *
                      process.testStreamingProducer * process.testStreamingAnalyzer)
 process.p2 = cms.Path(process.intProducer * process.a1 * process.a2 * process.a3)
+
+process.p3 = cms.Path(
+    process.intProducerB *
+    process.intProducerC *
+    process.intProducerD *
+    process.intProducerE
+)
+
+
 process.p11 = cms.Path()
 
-process.t = cms.Task(process.intProducerU, process.intProducerA, process.intVectorProducer)
+process.t = cms.Task(
+    process.intProducerU,
+    process.intProducerA,
+    process.intVectorProducer,
+    process.intProducerF,
+    process.intProducerG,
+    process.intProducerH,
+    process.intProducerI
+)
 
 process.e = cms.EndPath(process.testManyConsumingProducer+process.out, process.t)
 
 process.p1ep2 = cms.EndPath()
 
+process2 = cms.Process("PROD2")
+
+process.addSubProcess(cms.SubProcess(process2,
+    outputCommands = cms.untracked.vstring(
+        "keep *",
+        "drop *_intProducerA_*_*"
+    )
+))
+
+process2.intProducerB = cms.EDProducer("IntProducer", ivalue = cms.int32(2000))
+process2.intProducerD = cms.EDProducer("IntProducer", ivalue = cms.int32(2002))
+process2.intProducerF = cms.EDProducer("IntProducer", ivalue = cms.int32(2004))
+process2.intProducerH = cms.EDProducer("IntProducer", ivalue = cms.int32(2006))
+
+process2.task1 = cms.Task(
+    process2.intProducerF,
+    process2.intProducerH
+)
+
+process2.path1 = cms.Path(
+    process2.intProducerB *
+    process2.intProducerD,
+    process2.task1
+)
+
 copyProcess = cms.Process("COPY")
-process.addSubProcess(cms.SubProcess(copyProcess,
+process2.addSubProcess(cms.SubProcess(copyProcess,
     outputCommands = cms.untracked.vstring(
         "keep *",
         "drop *_intProducerA_*_*"
@@ -125,17 +190,25 @@ process.addSubProcess(cms.SubProcess(copyProcess,
 
 copyProcess.intVectorProducer = cms.EDProducer("IntVectorProducer",
   count = cms.int32(9),
-  ivalue = cms.int32(11)
+  ivalue = cms.int32(12)
 )
 
 copyProcess.testView1 = cms.EDAnalyzer("TestFindProduct",
   inputTags = cms.untracked.VInputTag(),
-  inputTagsView = cms.untracked.VInputTag( cms.InputTag("intVectorProducer", "", "PROD1") )
+  inputTagsView = cms.untracked.VInputTag( cms.InputTag("intVectorProducer", "", "PROD1") ),
+  expectedSum = cms.untracked.int32(33)
 )
 
 copyProcess.testView2 = cms.EDAnalyzer("TestFindProduct",
   inputTags = cms.untracked.VInputTag(),
-  inputTagsView = cms.untracked.VInputTag( cms.InputTag("intVectorProducer", "", "COPY") )
+  inputTagsView = cms.untracked.VInputTag( cms.InputTag("intVectorProducer", "", "COPY") ),
+  expectedSum = cms.untracked.int32(36)
+)
+
+copyProcess.testView3 = cms.EDAnalyzer("TestFindProduct",
+  inputTags = cms.untracked.VInputTag(),
+  inputTagsView = cms.untracked.VInputTag( cms.InputTag("intVectorProducer", "", processName=cms.InputTag.currentProcess()) ),
+  expectedSum = cms.untracked.int32(36)
 )
 
 copyProcess.test = cms.EDAnalyzer("TestContextAnalyzer",
@@ -160,8 +233,188 @@ copyProcess.testStreamingAnalyzer = cms.EDAnalyzer("ConsumingStreamAnalyzer",
 )
 
 copyProcess.p3 = cms.Path(copyProcess.intVectorProducer * copyProcess.test * copyProcess.thingWithMergeProducer *
-                          copyProcess.testMergeResults * copyProcess.testView1 * copyProcess.testView2 *
+                          copyProcess.testMergeResults * copyProcess.testView1 * copyProcess.testView2 * copyProcess.testView3 *
                           copyProcess.testStreamingProducer * copyProcess.testStreamingAnalyzer)
 
 copyProcess.ep1 = cms.EndPath(copyProcess.intVectorProducer+copyProcess.testManyConsumingProducer)
 copyProcess.ep2 = cms.EndPath()
+
+copyProcess.intProducerB = cms.EDProducer("IntProducer", ivalue = cms.int32(3000))
+copyProcess.intProducerC = cms.EDProducer("IntProducer", ivalue = cms.int32(3001))
+copyProcess.intProducerF = cms.EDProducer("IntProducer", ivalue = cms.int32(3004))
+copyProcess.intProducerG = cms.EDProducer("IntProducer", ivalue = cms.int32(3005))
+
+copyProcess.task1 = cms.Task(
+    copyProcess.intProducerF,
+    copyProcess.intProducerG
+)
+
+copyProcess.path1 = cms.Path(
+    copyProcess.intProducerB *
+    copyProcess.intProducerC,
+    copyProcess.task1
+)
+
+copyProcess.a1 = cms.EDAnalyzer("TestFindProduct",
+  inputTags = cms.untracked.VInputTag( cms.InputTag("intProducerB") ),
+  expectedSum = cms.untracked.int32(9000)
+)
+
+copyProcess.a2 = cms.EDAnalyzer("TestFindProduct",
+  inputTags = cms.untracked.VInputTag( cms.InputTag("intProducerB", processName=cms.InputTag.skipCurrentProcess()) ),
+  expectedSum = cms.untracked.int32(6000)
+)
+
+copyProcess.a3 = cms.EDAnalyzer("TestFindProduct",
+  inputTags = cms.untracked.VInputTag( cms.InputTag("intProducerC") ),
+  expectedSum = cms.untracked.int32(9003)
+)
+
+copyProcess.a4 = cms.EDAnalyzer("TestFindProduct",
+  inputTags = cms.untracked.VInputTag( cms.InputTag("intProducerC", processName=cms.InputTag.skipCurrentProcess()) ),
+  expectedSum = cms.untracked.int32(3003)
+)
+
+copyProcess.a5 = cms.EDAnalyzer("TestFindProduct",
+  inputTags = cms.untracked.VInputTag( cms.InputTag("intProducerD") ),
+  expectedSum = cms.untracked.int32(6006)
+)
+
+copyProcess.a6 = cms.EDAnalyzer("TestFindProduct",
+  inputTags = cms.untracked.VInputTag( cms.InputTag("intProducerD", processName=cms.InputTag.skipCurrentProcess()) ),
+  expectedSum = cms.untracked.int32(6006)
+)
+
+copyProcess.a7 = cms.EDAnalyzer("TestFindProduct",
+  inputTags = cms.untracked.VInputTag( cms.InputTag("intProducerE") ),
+  expectedSum = cms.untracked.int32(3009)
+)
+
+copyProcess.a8 = cms.EDAnalyzer("TestFindProduct",
+  inputTags = cms.untracked.VInputTag( cms.InputTag("intProducerE", processName=cms.InputTag.skipCurrentProcess()) ),
+  expectedSum = cms.untracked.int32(3009)
+)
+
+copyProcess.a9 = cms.EDAnalyzer("TestFindProduct",
+  inputTags = cms.untracked.VInputTag( cms.InputTag("intProducerF") ),
+  expectedSum = cms.untracked.int32(9012)
+)
+
+copyProcess.a10 = cms.EDAnalyzer("TestFindProduct",
+  inputTags = cms.untracked.VInputTag( cms.InputTag("intProducerF", processName=cms.InputTag.skipCurrentProcess()) ),
+  expectedSum = cms.untracked.int32(6012)
+)
+
+copyProcess.a11 = cms.EDAnalyzer("TestFindProduct",
+  inputTags = cms.untracked.VInputTag( cms.InputTag("intProducerG") ),
+  expectedSum = cms.untracked.int32(9015)
+)
+
+copyProcess.a12 = cms.EDAnalyzer("TestFindProduct",
+  inputTags = cms.untracked.VInputTag( cms.InputTag("intProducerG", processName=cms.InputTag.skipCurrentProcess()) ),
+  expectedSum = cms.untracked.int32(3015)
+)
+
+copyProcess.a13 = cms.EDAnalyzer("TestFindProduct",
+  inputTags = cms.untracked.VInputTag( cms.InputTag("intProducerH") ),
+  expectedSum = cms.untracked.int32(6018)
+)
+
+copyProcess.a14 = cms.EDAnalyzer("TestFindProduct",
+  inputTags = cms.untracked.VInputTag( cms.InputTag("intProducerH", processName=cms.InputTag.skipCurrentProcess()) ),
+  expectedSum = cms.untracked.int32(6018)
+)
+
+copyProcess.a15 = cms.EDAnalyzer("TestFindProduct",
+  inputTags = cms.untracked.VInputTag( cms.InputTag("intProducerI") ),
+  expectedSum = cms.untracked.int32(3021)
+)
+
+copyProcess.a16 = cms.EDAnalyzer("TestFindProduct",
+  inputTags = cms.untracked.VInputTag( cms.InputTag("intProducerI", processName=cms.InputTag.skipCurrentProcess()) ),
+  expectedSum = cms.untracked.int32(3021)
+)
+
+copyProcess.a17 = cms.EDAnalyzer("TestFindProduct",
+  inputTags = cms.untracked.VInputTag( cms.InputTag("intProducerB", processName=cms.InputTag.currentProcess()) ),
+  expectedSum = cms.untracked.int32(9000)
+)
+
+copyProcess.a18 = cms.EDAnalyzer("TestFindProduct",
+  inputTags = cms.untracked.VInputTag( cms.InputTag("intProducerC", processName=cms.InputTag.currentProcess()) ),
+  expectedSum = cms.untracked.int32(9003)
+)
+
+copyProcess.a19 = cms.EDAnalyzer("TestFindProduct",
+  inputTags = cms.untracked.VInputTag(),
+  inputTagsNotFound = cms.untracked.VInputTag( cms.InputTag("intProducerD", processName=cms.InputTag.currentProcess()) )
+)
+
+copyProcess.a20 = cms.EDAnalyzer("TestFindProduct",
+  inputTags = cms.untracked.VInputTag(),
+  inputTagsNotFound = cms.untracked.VInputTag( cms.InputTag("intProducerE", processName=cms.InputTag.currentProcess()) )
+)
+
+copyProcess.a21 = cms.EDAnalyzer("TestFindProduct",
+  inputTags = cms.untracked.VInputTag( cms.InputTag("intProducerF", processName=cms.InputTag.currentProcess()) ),
+  expectedSum = cms.untracked.int32(9012)
+)
+
+copyProcess.a22 = cms.EDAnalyzer("TestFindProduct",
+  inputTags = cms.untracked.VInputTag( cms.InputTag("intProducerG", processName=cms.InputTag.currentProcess()) ),
+  expectedSum = cms.untracked.int32(9015)
+)
+
+copyProcess.a23 = cms.EDAnalyzer("TestFindProduct",
+  inputTags = cms.untracked.VInputTag(),
+  inputTagsNotFound = cms.untracked.VInputTag( cms.InputTag("intProducerH", processName=cms.InputTag.currentProcess()) )
+)
+
+copyProcess.a24 = cms.EDAnalyzer("TestFindProduct",
+  inputTags = cms.untracked.VInputTag(),
+  inputTagsNotFound = cms.untracked.VInputTag( cms.InputTag("intProducerI", processName=cms.InputTag.currentProcess()) )
+)
+
+copyProcess.a25 = cms.EDAnalyzer("TestFindProduct",
+  inputTags = cms.untracked.VInputTag(
+    cms.InputTag("intProducerB", processName=cms.InputTag.currentProcess()),
+    cms.InputTag("intProducerC"),
+    cms.InputTag("intProducerD"),
+    cms.InputTag("intProducerF", processName=cms.InputTag.currentProcess()),
+    cms.InputTag("intProducerG", processName=cms.InputTag.currentProcess()),
+    cms.InputTag("intProducerI")
+  ),
+  inputTagsNotFound = cms.untracked.VInputTag(
+    cms.InputTag("intProducerE", processName=cms.InputTag.currentProcess()),
+    cms.InputTag("intProducerH", processName=cms.InputTag.currentProcess()),
+    cms.InputTag("intProducerQ", "INSTANCE", "DOESNOTEXIST")
+  )
+)
+
+copyProcess.path2 = cms.Path(
+  copyProcess.a1 *
+  copyProcess.a2 *
+  copyProcess.a3 *
+  copyProcess.a4 *
+  copyProcess.a5 *
+  copyProcess.a6 *
+  copyProcess.a7 *
+  copyProcess.a8 *
+  copyProcess.a9 *
+  copyProcess.a10 *
+  copyProcess.a11 *
+  copyProcess.a12 *
+  copyProcess.a13 *
+  copyProcess.a14 *
+  copyProcess.a15 *
+  copyProcess.a16 *
+  copyProcess.a17 *
+  copyProcess.a18 *
+  copyProcess.a19 *
+  copyProcess.a20 *
+  copyProcess.a21 *
+  copyProcess.a22 *
+  copyProcess.a23 *
+  copyProcess.a24 *
+  copyProcess.a25
+)
