@@ -3,17 +3,16 @@
 RandomNumberGeneratorService dump
 
     Contents of seedsAndNameMap (label moduleID engineType seeds)
-        t1  2  HepJamesRandom  81
-        t2  3  RanecuEngine  1  2
-        t3  4  TRandom3  83
-        t4  5  HepJamesRandom  84
+        t1  4  HepJamesRandom  81
+        t2  5  RanecuEngine  1  2
+        t3  6  TRandom3  83
+        t4  7  HepJamesRandom  84
         t5  4294967295  TRandom3  191
     nStreams_ = 3
     saveFileName_ = StashStateStream.data
     saveFileNameRecorded_ = 0
     restoreFileName_ = 
     enableChecking_ = 1
-    childIndex_ = 0
     eventSeedOffset_ = 0
     verbose_ = 1
     restoreStateTag_ = InputTag:  label = , instance = , process = @skipCurrentProcess

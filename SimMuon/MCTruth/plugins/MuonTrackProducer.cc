@@ -170,16 +170,16 @@ void MuonTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
       const reco::Track* trk = &(*trackref);
       // pointer to old track:
-      reco::Track* newTrk = new reco::Track(*trk);
+      std::unique_ptr<reco::Track> newTrk(new reco::Track(*trk));
 
       newTrk->setExtra( reco::TrackExtraRef( rTrackExtras, idx++ ) );
       PropagationDirection seedDir = trk->seedDirection();
       // new copy of track Extras
-      reco::TrackExtra * newExtra = new reco::TrackExtra( trk->outerPosition(), trk->outerMomentum(), 
-                                        trk->outerOk(), trk->innerPosition(), 
-                                        trk->innerMomentum(), trk->innerOk(),
-                                        trk->outerStateCovariance(), trk->outerDetId(),
-                                        trk->innerStateCovariance(), trk->innerDetId() , seedDir ) ;
+      std::unique_ptr<reco::TrackExtra> newExtra(new reco::TrackExtra( trk->outerPosition(), trk->outerMomentum(), 
+								       trk->outerOk(), trk->innerPosition(), 
+								       trk->innerMomentum(), trk->innerOk(),
+								       trk->outerStateCovariance(), trk->outerDetId(),
+								       trk->innerStateCovariance(), trk->innerDetId() , seedDir )) ;
 
       // new copy of the silicon hits; add hit refs to Extra and hits to hit collection
       

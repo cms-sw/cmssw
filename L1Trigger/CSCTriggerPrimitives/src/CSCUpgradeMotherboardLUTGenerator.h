@@ -9,24 +9,15 @@
 
 #include <vector>
 
-namespace
-{
-  // function only makes sense for endcap!
-  RPCDetId getRPCfromCSC(const CSCDetId& csc_id)
-  {
-    const int region(csc_id.zendcap());
-    const int csc_trig_sect(CSCTriggerNumbering::triggerSectorFromLabels(csc_id));
-    const int csc_trig_id( CSCTriggerNumbering::triggerCscIdFromLabels(csc_id));
-    const int csc_trig_chid((3*(csc_trig_sect-1)+csc_trig_id)%18 +1);
-    const int rpc_trig_sect((csc_trig_chid-1)/3+1);
-    const int rpc_trig_subsect((csc_trig_chid-1)%3+1);
-    return RPCDetId(region,1,csc_id.station(),rpc_trig_sect,1,rpc_trig_subsect,0);
-  }
-}
-
 class CSCUpgradeMotherboardLUTGenerator
 {
 public:
+
+  class Helpers {
+  public:
+    // function only makes sense for endcap!
+    static RPCDetId getRPCfromCSC(const CSCDetId& csc_id);
+  };
 
   CSCUpgradeMotherboardLUTGenerator() {}
   ~CSCUpgradeMotherboardLUTGenerator() {}
