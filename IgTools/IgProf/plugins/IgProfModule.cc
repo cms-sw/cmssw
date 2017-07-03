@@ -18,7 +18,7 @@ class IgProfModule : public edm::EDAnalyzer
 {
 public:
   IgProfModule(const edm::ParameterSet &ps)
-    : dump_(0),
+    : dump_(nullptr),
       prescale_(0),
       nrecord_(0),
       nevent_(0),
@@ -35,7 +35,7 @@ public:
       // since the suggested decision seems to be that the syntax should
       // actually be "Conditionally-Supported Behavior" in some 
       // future C++ standard I simply silence the warning.
-      if (void *sym = dlsym(0, "igprof_dump_now"))
+      if (void *sym = dlsym(nullptr, "igprof_dump_now"))
         dump_ = __extension__ (void(*)(const char *)) sym;
       else
 	edm::LogWarning("IgProfModule")

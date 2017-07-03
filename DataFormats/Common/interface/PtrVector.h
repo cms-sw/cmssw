@@ -141,7 +141,7 @@ namespace edm {
     void push_back(Ptr<T> const& iPtr) {
       this->push_back_base(iPtr.refCore(),
                            iPtr.key(),
-                           iPtr.hasProductCache() ? iPtr.operator->() : static_cast<void const*>(0));
+                           iPtr.hasProductCache() ? iPtr.operator->() : static_cast<void const*>(nullptr));
     }
 
     template<typename U>
@@ -150,7 +150,7 @@ namespace edm {
       BOOST_STATIC_ASSERT( (boost::is_base_of<T, U>::value) );
       this->push_back_base(iPtr.refCore(),
                            iPtr.key(),
-                           iPtr.hasProductCache() ? iPtr.operator->() : static_cast<void const*>(0));
+                           iPtr.hasProductCache() ? iPtr.operator->() : static_cast<void const*>(nullptr));
     }
 
     void swap(PtrVector& other) {

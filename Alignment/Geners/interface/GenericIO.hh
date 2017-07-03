@@ -23,7 +23,7 @@ namespace gs {
     inline bool write_item(Stream& os, const Item& item,
                            const bool writeClassId=true)
     {
-        char* ps = 0;
+        char* ps = nullptr;
         return process_const_item<GenericWriter>(item, os, ps, writeClassId);
     }
 
@@ -59,7 +59,7 @@ namespace gs {
     inline CPP11_auto_ptr<Item> read_item(Stream& is, const bool readClassId=true)
     {
         typedef std::vector<ClassId> State;
-        Item* item = 0;
+        Item* item = nullptr;
         State state;
         const bool status = GenericReader<Stream, State, Item*,
             Int2Type<IOTraits<int>::ISNULLPOINTER> >::process(
@@ -67,7 +67,7 @@ namespace gs {
         CPP11_auto_ptr<Item> ptr(item);
         if (is.fail())
             throw IOReadFailure("In gs::read_item: input stream failure");
-        if (!status || item == 0)
+        if (!status || item == nullptr)
             throw IOInvalidData("In gs::read_item: invalid input stream data");
         return ptr;
     }
@@ -82,7 +82,7 @@ namespace gs {
     template <class Stream, class Item>
     inline bool write_array(Stream& os, Item* items, const std::size_t length)
     {
-        char* ps = 0;
+        char* ps = nullptr;
         return process_const_item<GenericWriter>(
             ArrayAdaptor<Item>(items, length), os, ps, false);
     }
@@ -169,7 +169,7 @@ namespace gs {
                                        const bool processClassId)
         {
             CPP11_auto_ptr<T> myptr;
-            if (ptr == 0)
+            if (ptr == nullptr)
                 myptr = CPP11_auto_ptr<T>(new T());
             if (processClassId)
             {
@@ -180,7 +180,7 @@ namespace gs {
             read_pod(str, ptr ? ptr : myptr.get());
             if (str.fail())
                 return false;
-            if (ptr == 0)
+            if (ptr == nullptr)
                 ptr = myptr.release();
             return true;
         }
@@ -628,7 +628,7 @@ namespace gs {
                                        State* , const bool processClassId)
         {
             CPP11_auto_ptr<std::string> myptr;
-            if (ptr == 0)
+            if (ptr == nullptr)
                 myptr = CPP11_auto_ptr<std::string>(new std::string());
             if (processClassId)
             {
@@ -639,7 +639,7 @@ namespace gs {
             read_string<char>(is, ptr ? ptr : myptr.get());
             if (is.fail())
                 return false;
-            if (ptr == 0)
+            if (ptr == nullptr)
                 ptr = myptr.release();
             return true;
         }
@@ -832,7 +832,7 @@ namespace gs {
         inline static bool readIntoPtr(T*& ptr, Stream& str, State* s,
                                        const bool processClassId)
         {
-            T* readback = 0;
+            T* readback = nullptr;
             if (processClassId)
             {
                 ClassId id(str, 1);

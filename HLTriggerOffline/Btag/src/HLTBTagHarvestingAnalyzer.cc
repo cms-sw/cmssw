@@ -87,13 +87,13 @@ bool HLTBTagHarvestingAnalyzer::GetNumDenumerators(DQMStore::IBooker& ibooker, D
    type =1 for eff_vs_pT
    type =2 for eff_vs_eta or eff_vs_phi
  */
-	MonitorElement *denME = NULL;
-	MonitorElement *numME = NULL;
+	MonitorElement *denME = nullptr;
+	MonitorElement *numME = nullptr;
 	denME = igetter.get(den);
 	numME = igetter.get(num);
 	Exception excp(errors::LogicError);
 	
-	if ( denME == NULL || numME == NULL ) 
+	if ( denME == nullptr || numME == nullptr ) 
 	{
 		excp << "Plots not found:\n";
 		if(denME == NULL) excp << den << "\n";

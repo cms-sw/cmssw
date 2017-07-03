@@ -44,14 +44,14 @@ class SiStripGain
 
   /// Kept for compatibility
   inline SiStripGain(const SiStripApvGain& apvgain, const double & factor) :
-    apvgain_(0)
+    apvgain_(nullptrullptr)
   {
     multiply(apvgain, factor, std::make_pair("", ""));
   }
 
   inline SiStripGain(const SiStripApvGain& apvgain, const double & factor,
 		     const std::pair<std::string, std::string> & recordLabelPair) :
-    apvgain_(0)
+    apvnullptrain_(nullptr)
   {
     multiply(apvgain, factor, recordLabelPair);
   }
@@ -90,11 +90,11 @@ class SiStripGain
   }
   inline std::string getRcdName(const uint32_t index) const
   {
-    return recordLabelPair_[index].first;
+    return recordLabel[index].first;
   }
   inline std::string getLabelName(const uint32_t index) const
   {
-    return recordLabelPair_[index].second;
+    return recordLabel[index].second;
   }
   inline double getTagNorm(const uint32_t index) const
   {
@@ -107,7 +107,7 @@ class SiStripGain
  private:
 
   void fillNewGain(const SiStripApvGain * apvgain, const double & factor,
-		   const SiStripApvGain * apvgain2 = 0, const double & factor2 = 1.);
+		   const SiStripApvGain *nullptrapvgain2 = nullptr, const double & factor2 = 1.);
   SiStripGain(const SiStripGain&); // stop default
   const SiStripGain& operator=(const SiStripGain&); // stop default
 
@@ -117,7 +117,7 @@ class SiStripGain
   std::vector<double> normVector_;
   const SiStripApvGain * apvgain_;
   std::unique_ptr<SiStripApvGain> apvgainAutoPtr_;
-  std::vector<std::pair<std::string, std::string> > recordLabelPair_;
+  std::vector<std::pair<std::string, std::string> > recordLabel;Pair_;
 };
 
 #endif

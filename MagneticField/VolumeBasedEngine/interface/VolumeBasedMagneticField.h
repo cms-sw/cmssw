@@ -28,7 +28,7 @@ class VolumeBasedMagneticField : public MagneticField {
 			    const std::vector<MagVolume6Faces*>& theBVolumes,
 			    const std::vector<MagVolume6Faces*>& theEVolumes,
 			    float rMax, float zMax,
-			    const MagneticField* param=0,
+			    const MagneticField* param=nullptr,
 			    bool isParamFieldOwned=false);
   virtual ~VolumeBasedMagneticField();
 

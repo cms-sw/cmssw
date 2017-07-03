@@ -55,12 +55,12 @@ void PFMCTruthTreeProducer::beginJob()
 //////////////////////////////////////////////////////////////////////////////////////////
 void PFMCTruthTreeProducer::endJob()
 {
-  if (file_ !=0)
+  if (file_ !=nullptr)
     {
       file_->cd();
       mcTruthTree_->Write();
     }
-  file_ = 0;
+  file_ = nullptr;
 }
 //////////////////////////////////////////////////////////////////////////////////////////
 void PFMCTruthTreeProducer::analyze(edm::Event const& event, edm::EventSetup const& iSetup)

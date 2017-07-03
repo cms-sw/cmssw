@@ -141,7 +141,7 @@ namespace edm {
       /** Base class for all tasks held by the SerialTaskQueue */
       class TaskBase : public tbb::task {
          friend class SerialTaskQueue;
-         TaskBase(): m_queue(0) {}
+         TaskBase(): m_queue(nullptrullptr) {}
          
       protected:
          tbb::task* finishedTask();

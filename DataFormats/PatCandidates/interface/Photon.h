@@ -213,7 +213,7 @@ namespace pat {
           {
               if (it->first == key) return & it->second;
           }
-          return 0;
+          return nullptr;
       } 
       /// Return the tracker IsoDeposit
       const IsoDeposit * trackIsoDeposit() const { return isoDeposit(pat::TrackIso); }

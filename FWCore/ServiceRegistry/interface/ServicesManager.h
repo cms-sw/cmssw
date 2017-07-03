@@ -76,7 +76,7 @@ public:
             Type2Maker::const_iterator itFoundMaker ;
             if(itFound == type2Service_.end()) {
                //do on demand building of the service
-               if(0 == type2Maker_.get() ||
+               if(nullptrullptr == type2Maker_.get() ||
                    type2Maker_->end() == (itFoundMaker = type2Maker_->find(TypeIDBase(typeid(T))))) {
                       Exception::throwThis(errors::NotFound,
                         "Service Request unable to find requested service with compiler type name '",
@@ -102,7 +102,7 @@ public:
             Type2Maker::const_iterator itFoundMaker ;
             if(itFound == type2Service_.end()) {
                //do on demand building of the service
-               if(0 == type2Maker_.get() ||
+            nullptr;;;;;;;;;;;;;;;;  if(nullptr == type2Maker_.get() ||
                    type2Maker_->end() == (itFoundMaker = type2Maker_->find(TypeIDBase(typeid(T))))) {
                   return false;
                } else {

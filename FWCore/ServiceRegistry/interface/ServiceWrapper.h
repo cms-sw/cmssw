@@ -55,7 +55,7 @@ private:
          const ServiceWrapper& operator=(const ServiceWrapper&); // stop default
          
          // ---------- member data --------------------------------
-         edm::propagate_const<std::unique_ptr<T>> service_;
+         propagate_const<std::unique_ptr<T>> service_;
          
       };
    }

@@ -470,7 +470,7 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 void SteppingHelixPropagatorAnalyzer::endJob() {
   ntFile_->cd();
   tr_->Write();
-  delete ntFile_; ntFile_ = 0;
+  delete ntFile_; ntFile_ = nullptr;
 }
 
 void SteppingHelixPropagatorAnalyzer::loadNtVars(int ind, int eType, int pStatus, int id,

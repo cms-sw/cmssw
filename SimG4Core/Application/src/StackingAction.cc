@@ -50,12 +50,12 @@ StackingAction::StackingAction(const TrackingAction* trka, const edm::ParameterS
   killInCaloEfH = false;
 
   // Russian Roulette
-  regionEcal = 0;
-  regionHcal = 0;
-  regionMuonIron = 0;
-  regionPreShower= 0;
-  regionCastor = 0;
-  regionWorld = 0;
+  regionEcal = nullptr;
+  regionHcal = nullptr;
+  regionMuonIron = nullptr;
+  regionPreShower= nullptr;
+  regionCastor = nullptr;
+  regionWorld = nullptr;
 
   gRusRoEnerLim = p.getParameter<double>("RusRoGammaEnergyLimit")*MeV;
   nRusRoEnerLim = p.getParameter<double>("RusRoNeutronEnergyLimit")*MeV;
@@ -377,7 +377,7 @@ void StackingAction::initPointer()
 
     // time limits
     unsigned int num = maxTimeNames.size();
-    maxTimeRegions.resize(num, 0);
+    maxTimeRegions.resize(num, nullptr);
     if (num > 0) {
       for (unsigned int i=0; i<num; i++) {
 	if (rname == (G4String)(maxTimeNames[i])) {

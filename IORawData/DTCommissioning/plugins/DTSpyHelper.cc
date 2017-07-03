@@ -186,7 +186,7 @@ DTCtcp::WaitData(int timeout)
     tv.tv_sec = timeout;
     tv.tv_usec = 0;
  
-     int retva = select (1,&rfds,0,&rfds,&tv);
+     int retva = select (1,&rfds,nullptr,&rfds,&tv);
      if (retva)
          if (FD_ISSET(0,&rfds)) return 1;
          else return -1;

@@ -10,7 +10,7 @@ using namespace std;
 
 /*****************************************************************/
 EpCombinationTool::EpCombinationTool():
-    m_forest(NULL), m_ownForest(false)
+    m_forest(nullptr), m_ownForest(false)
 /*****************************************************************/
 {
 }

@@ -410,7 +410,7 @@ void EmbeddingLHEProducer::assign_4vector(TLorentzVector &Lepton, const pat::Muo
 
 const reco::Candidate* EmbeddingLHEProducer::find_original_muon(const reco::Candidate* muon)
 {
-    if(muon->mother(0) == 0) return muon;
+    if(muon->mother(0) == nullptr) return muon;
     if(muon->pdgId() == muon->mother(0)->pdgId()) return find_original_muon(muon->mother(0));
     else return muon;
 }

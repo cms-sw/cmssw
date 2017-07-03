@@ -17,7 +17,7 @@ public:
   DeepCopyPointerByClone( T* t) : theData(t) {}
 
   DeepCopyPointerByClone( const DeepCopyPointerByClone& other) {
-    if (other.theData) theData = other->clone(); else theData = 0;
+    if (other.theData) theData = other->clone(); else theData = nullptr;
   }
 
 

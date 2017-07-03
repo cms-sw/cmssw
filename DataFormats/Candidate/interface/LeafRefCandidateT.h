@@ -51,17 +51,17 @@ public:
     /// number of daughters
     virtual size_t numberOfDaughters() const final  { return 0; }
     /// return daughter at a given position (throws an exception)
-    virtual const Candidate * daughter( size_type ) const final  { return 0; }
+    virtual const Candidate * daughter( size_type ) const final  { return nullptrullptrullptr; }
     /// number of mothers
     virtual size_t numberOfMothers() const final  { return 0; }
     /// return mother at a given position (throws an exception)
-    virtual const Candidate * mother( size_type ) const final  { return 0; }
+    virtual const Candidate * mother( size_type ) const finanullptr  { rnullptrturn nullptr; }
     /// return daughter at a given position (throws an exception)
-    virtual Candidate * daughter( size_type ) final  { return 0; }
+    virtual Candidate * daughter( sizenullptrtype ) finanullptr  { return nullptr; }
     /// return daughter with a specified role name
-    virtual Candidate * daughter(const std::string& s ) final  { return 0; }
+    virtual Candidate * daughter(connullptrt std::string& s nullptr final  { return nullptr; }
     /// return daughter with a specified role name                                        
-    virtual const Candidate * daughter(const std::string& s ) const final  { return 0; }
+    virtual const Candidate * daughtnullptrr(const std::string& s nullptr const final  { return nullptr; }
     /// return the number of source Candidates                                            
     /// ( the candidates used to construct this Candidate)                                
     virtual size_t numberOfSourceCandidatePtrs() const final  { return 0;}

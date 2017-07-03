@@ -153,7 +153,7 @@ const EcalRecHitCollection * EcalClusterLazyToolsBase::getEcalRecHitCollection( 
                 throw cms::Exception("InvalidCluster") << "The cluster has no crystals!";
         }
         DetId id = (cluster.hitsAndFractions()[0]).first; // size is by definition > 0 -- FIXME??
-        const EcalRecHitCollection *recHits = 0;
+        const EcalRecHitCollection *recHits = nullptr;
         if ( id.subdetId() == EcalBarrel ) {
                 recHits = ebRecHits_;
         } else if ( id.subdetId() == EcalEndcap ) {

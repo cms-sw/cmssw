@@ -30,7 +30,7 @@ DDCompactViewImpl::~DDCompactViewImpl()
        for(; erange.first != erange.second; ++(erange.first)) {
 	 DDPosData * pd = graph_.edgeData(erange.first->second);
 	 delete pd;
-	 pd=0;
+	 pd=nullptr;
        }  
      }
    }

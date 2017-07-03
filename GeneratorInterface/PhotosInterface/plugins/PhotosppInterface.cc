@@ -23,7 +23,7 @@ PhotosppInterface::PhotosppInterface( const edm::ParameterSet& pset)
   : fOnlyPDG(-1),
     fAvoidTauLeptonicDecays(false),
     fIsInitialized(false),
-    fPSet(0)
+    fPSet(nullptr)
 {
   // add ability to keep brem from hadronizer and only modify specific channels 10/27/2014
   bool UseHadronizerQEDBrem=false;

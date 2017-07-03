@@ -36,7 +36,7 @@ public:
    *  below ptMin.
    */
   PropagatorWithMaterial (PropagationDirection dir, const float mass,
-			  const MagneticField * mf=0,const float maxDPhi=1.6,
+			  const MagneticField * mf=nullptr,const float maxDPhi=1.6,
 			  bool useRungeKutta=false, float ptMin=-1.,bool useOldGeoPropLogic=true);
 
   virtual ~PropagatorWithMaterial();

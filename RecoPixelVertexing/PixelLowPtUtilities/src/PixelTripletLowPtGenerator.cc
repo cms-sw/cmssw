@@ -46,7 +46,7 @@ PixelTripletLowPtGenerator::~PixelTripletLowPtGenerator() {}
 void PixelTripletLowPtGenerator::getTracker
   (const edm::EventSetup& es)
 {
-  if(theTracker == 0)
+  if(theTracker == nullptr)
   {
     // Get tracker geometry
     edm::ESHandle<TrackerGeometry> tracker;

@@ -15,7 +15,7 @@ namespace gs {
         template<typename C> static Two test(...);
 
     public:
-        enum {value = sizeof(IOIsWritableHelper<T>::template test<T>(0)) == 1};
+        enum {value = sizeof(IOIsWritableHelper<T>::template test<T>(nullptr)) == 1};
     };
 
 

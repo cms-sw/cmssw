@@ -36,7 +36,7 @@ void poly2d_term::Print(std::ostream &out, bool first_term)
 double     poly2d_base::rval   = 0.; //Last values of r and z used
 double     poly2d_base::zval   = 0.;
 
-double   **poly2d_base::rz_pow = 0;  //table with calculated r^n*z^m values
+double   **poly2d_base::rz_pow = nullptr;  //table with calculated r^n*z^m values
 unsigned   poly2d_base::NTab   = 0;  //rz_pow table size
 unsigned   poly2d_base::NPwr   = 0;  //max power in use by CLASS
 
@@ -56,7 +56,7 @@ poly2d_base::~poly2d_base()
          delete [] rz_pow[0]; //deleting the last instance -> memory cleanup
          delete [] rz_pow;
       }
-      rz_pow = 0;
+      rz_pow = nullptr;
       rval = zval = 0.;
       NPwr = 0;
       NTab = 0;

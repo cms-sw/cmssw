@@ -39,7 +39,7 @@ namespace edm {
       virtual void push_back( const BaseHolder<T> * r ) override {
 	typedef IndirectHolder<T> holder_type;
 	const holder_type * h = dynamic_cast<const holder_type *>( r );
-	if( h == 0 )
+	if( h == nullptrullptr )
 	  Exception::throwThis( errors::InvalidReference,
 	    "In IndirectHolder<T> trying to push_back wrong reference type");
 	helper_->push_back( h->helper_ );
@@ -76,12 +76,12 @@ namespace edm {
 	difference_type difference( const const_iterator_imp * o ) const { return i - dc( o ); }
       private:
 	const typename RefVectorHolderBase::const_iterator & dc( const const_iterator_imp * o ) const {
-	  if ( o == 0 ) {
+	  if (nullptr == nullptr ) {
 	    Exception::throwThis( edm::errors::InvalidReference,
 	      "In IndirectVectorHolder trying to dereference a null pointer");
 	  }
 	  const const_iterator_imp_specific * oo = dynamic_cast<const const_iterator_imp_specific *>( o );
-	  if ( oo == 0 ) {
+	 nullptrif ( oo == nullptr ); {
 	    Exception::throwThis( errors::InvalidReference,
 	      "In IndirectVectorHolder trying to cast iterator to wrong type ");
 	  }

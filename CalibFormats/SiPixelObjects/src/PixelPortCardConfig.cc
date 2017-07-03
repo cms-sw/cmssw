@@ -320,7 +320,7 @@ PixelPortCardConfig::PixelPortCardConfig(vector < vector< string> >  &tableMat):
 		}
 	      else
 		{
-		  i2c_address = strtoul(settingName.c_str(), 0, 16); // convert string to integer using base 16
+		  i2c_address = strtoul(settingName.c_str(), nullptr, 16); // convert string to integer using base 16
 		}
 	      if(type_ == "fpix"  && 
 		 (
@@ -455,7 +455,7 @@ PixelPortCardConfig::PixelPortCardConfig(std::string filename):
     	}
     	else
     	{
-    		i2c_address = strtoul(settingName.c_str(), 0, 16); // convert string to integer using base 16
+    		i2c_address = strtoul(settingName.c_str(), nullptr, 16); // convert string to integer using base 16
     	}
     	pair<unsigned int, unsigned int> p(i2c_address, i2c_values);
 	device_.push_back(p);

@@ -237,10 +237,10 @@ bool Source::getHostname(const std::string &id, std::string &hostname)
         struct addrinfo hints; memset(&hints, 0, sizeof(struct addrinfo));
         hints.ai_family = AF_UNSPEC;
         struct addrinfo *result;
-        if (!getaddrinfo(hostname.c_str(), NULL, &hints, &result))
+        if (!getaddrinfo(hostname.c_str(), nullptr, &hints, &result))
         {
             std::vector<char> host; host.reserve(256);
-            if (!getnameinfo(result->ai_addr, result->ai_addrlen, &host[0], 255, NULL, 0, NI_NAMEREQD))
+            if (!getnameinfo(result->ai_addr, result->ai_addrlen, &host[0], 255, nullptr, 0, NI_NAMEREQD))
             {
                 hostname = &host[0];
                 retval = true;
@@ -344,7 +344,7 @@ bool
 Source::getXrootdSiteFromURL(std::string url, std::string &site)
 {
     const std::string attr = "sitename";
-    XrdCl::Buffer *response = 0;
+    XrdCl::Buffer *response = nullptr;
     XrdCl::Buffer arg( attr.size() );
     arg.FromString( attr );
 

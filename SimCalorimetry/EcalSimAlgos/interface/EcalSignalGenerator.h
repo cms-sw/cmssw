@@ -53,8 +53,8 @@ public:
 
     EcalSignalGenerator(const edm::InputTag & inputTag, const edm::EDGetTokenT<COLLECTION> &t, const double EBs25notCont, const double EEs25notCont, const double peToABarrel, const double peToAEndcap)
     : EcalBaseSignalGenerator(), 
-      theEvent(0), 
-      theEventPrincipal(0), 
+      theEvent(nullptr), 
+      theEventPrincipal(nullptr), 
       theInputTag(inputTag), 
       tok_(t)
       { 

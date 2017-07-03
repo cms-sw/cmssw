@@ -40,8 +40,8 @@ public:
   virtual LocalPoint localPosition() const {return pos_;}
   virtual LocalError localPositionError() const {return err_;}
 
-  virtual const TrackingRecHit * hit() const {return 0;}//fixme return invalid
-  virtual TrackingRecHit * cloneHit() const { return 0;}
+  virtual const TrackingRecHit * hit() const {return nullptr;}//fixme return invalid
+  virtual TrackingRecHit * cloneHit() const { return nullptr;}
   
   virtual std::vector<const TrackingRecHit*> recHits() const { return std::vector<const TrackingRecHit*>(); }
   virtual std::vector<TrackingRecHit*> recHits() { return std::vector<TrackingRecHit*>(); }
@@ -51,7 +51,7 @@ public:
 
   virtual RecHitPointer clone (const TrajectoryStateOnSurface& ts) const {return RecHitPointer(clone());}
 
-  virtual const GeomDetUnit* detUnit() const {return 0;}
+  virtual const GeomDetUnit* detUnit() const {return nullptr;}
 
   static RecHitPointer build( const LocalPoint& pos, const LocalError& err,
 			      const Surface* surface) {

@@ -20,7 +20,7 @@ MagGeoBuilderFromDDD::bLayer::bLayer(handles::const_iterator begin,
 					handles::const_iterator end) :
   size(end-begin),
   theVolumes(begin,end),
-  mlayer(0) 
+  mlayer(nullptr) 
 {
   // Sort in phi
   precomputed_value_sort(theVolumes.begin(), theVolumes.end(), ExtractPhi());
@@ -136,7 +136,7 @@ double MagGeoBuilderFromDDD::bLayer::minR() const {
 // }
 
 MagBLayer * MagGeoBuilderFromDDD::bLayer::buildMagBLayer() const {
-  if (mlayer==0) {
+  if (mlayer==nullptr) {
 
     // If we have only one volume, do not build any MagBSector.
     if (sectors.size()==0) {

@@ -38,7 +38,7 @@ class LStoreStorageMaker : public StorageMaker
   virtual bool check (const std::string &proto,
               const std::string &path,
               const AuxSettings&,
-              IOOffset *size = 0) const override
+              IOOffset *size = nullptr) const override
   {
 	std::string fullpath = proto + ":" + path;
 	try {

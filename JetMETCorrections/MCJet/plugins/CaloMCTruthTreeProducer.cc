@@ -50,12 +50,12 @@ void CaloMCTruthTreeProducer::beginJob()
 //////////////////////////////////////////////////////////////////////////////////////////
 void CaloMCTruthTreeProducer::endJob()
 {
-  if (file_ !=0)
+  if (file_ !=nullptr)
     {
       file_->cd();
       mcTruthTree_->Write();
     }
-  file_ = 0;
+  file_ = nullptr;
 }
 //////////////////////////////////////////////////////////////////////////////////////////
 void CaloMCTruthTreeProducer::analyze(edm::Event const& event, edm::EventSetup const& iSetup)

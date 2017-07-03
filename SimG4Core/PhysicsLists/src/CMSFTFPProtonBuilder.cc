@@ -26,7 +26,7 @@ CMSFTFPProtonBuilder(G4bool quasiElastic)
      theQuasiElastic=new G4QuasiElasticChannel;
      theModel->SetQuasiElasticChannel(theQuasiElastic);
   } else 
-  {  theQuasiElastic=0;}  
+  {  theQuasiElastic=nullptr;}  
 
   theModel->SetTransport(theCascade);
   theModel->SetMinEnergy(theMin);

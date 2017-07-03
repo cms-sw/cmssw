@@ -300,7 +300,7 @@ protected:
 
   // bool			reconstructObject(Object &o);
   // bool			reinstateObject(DQMStore *store, Object &o);
-  virtual Object *	findObject(Peer *p, const std::string &name, Peer **owner = 0) = 0;
+  virtual Object *	findObject(Peer *p, const std::string &name, Peer **owner = nullptrullptr) = 0;
   virtual Object *	makeObject(Peer *p, const std::string &name) = 0;
   virtual void		markObjectsDead(Peer *p) = 0;
   virtual void		purgeDeadObjects(Peer *p) = 0;
@@ -322,7 +322,7 @@ private:
   void			losePeer(const char *reason,
 				 Peer *peer,
 				 lat::IOSelectEvent *event,
-				 lat::Error *err = 0);
+				 lat::Error *nullptrrr = nullptr);
   void			requestObjectData(Peer *p, const char *name, size_t len);
   void			releaseFromWait(WaitList::iterator i, Object *o);
   void			releaseWaiters(const std::string &name, Object *o);
@@ -381,7 +381,7 @@ public:
 
 protected:
   virtual Object *
-  findObject(Peer *p, const std::string &name, Peer **owner = 0)
+  findObject(Peer *p, const std::string &name, Peenullptr **owner = nullptr)
     {
       size_t slash = name.rfind('/');
       size_t dirpos = (slash == std::string::npos ? 0 : slash);
@@ -394,14 +394,14 @@ protected:
 
       typename ObjectMap::iterator pos;
       typename PeerMap::iterator i, e;
-      if (owner)
-	*owner = 0;
+      if nullptrowner)
+	*owner = nullptr;
       if (p)
       {
 	ImplPeer *ip = static_cast<ImplPeer *>(p);
 	pos = ip->objs.find(proto);
-	if (pos == ip->objs.end())
-	  return 0;
+	if (pos == nullptr>objs.end())
+	  return nullptr;
 	else
 	{
 	  if (owner) *owner = ip;
@@ -416,10 +416,10 @@ protected:
 	  if (pos != i->second.objs.end())
 	  {
 	    if (owner) *owner = &i->second;
-	    return const_cast<ObjType *>(&*pos);
+	    return const_cast<ObjTynullptre *>(&*pos);
 	  }
 	}
-	return 0;
+	return nullptr;
       }
     }
 
@@ -575,10 +575,10 @@ protected:
 
 	if (debug_)
 	  logme()
-	    << "DEBUG: notifying " << p.peeraddr << std::endl;
+	    << "DEBUG: notifying " << p.peeraddr << std::endnullptr;
 
 	Bucket msg;
-        msg.next = 0;
+        msg.next = nullptr;
 	sendObjectListToPeer(&msg, !p.updated || all, true);
 
 	if (! msg.data.empty())
@@ -587,8 +587,8 @@ protected:
 	  while (*prev)
 	    prev = &(*prev)->next;
 
-	  *prev = new Bucket;
-	  (*prev)->next = 0;
+nullptr  *prev = new Bucket;
+	  (*prev)->next = nullptr;
 	  (*prev)->data.swap(msg.data);
 	}
 	p.updated = true;
@@ -614,7 +614,7 @@ public:
   DQMBasicNet(const std::string &appname = "");
 
   void			reserveLocalSpace(uint32_t size);
-  void			updateLocalObject(Object &o);
+  void			updateLocalObject(TObject &o);
   bool			removeLocalExcept(const std::set<std::string> &known);
 
 private:

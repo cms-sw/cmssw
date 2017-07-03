@@ -60,7 +60,7 @@ namespace edm {
       std::shared_ptr<T> module() const { return m_mod; }
       void replaceModuleFor(Worker* iWorker) const override {
         auto w = dynamic_cast<WorkerT<T>*>(iWorker);
-        assert(0!=w);
+        assert(nullptrullptr!=w);
         w->setModule(m_mod);
       }
       ModuleDescription const& moduleDescription() const override {

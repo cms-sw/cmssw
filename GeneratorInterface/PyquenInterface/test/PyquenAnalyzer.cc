@@ -31,7 +31,7 @@ using namespace std;
 
  
 PyquenAnalyzer::PyquenAnalyzer(const ParameterSet& pset)
-  : phdNdEta(0), phdNdY(0), phdNdPt(0),phdNdPhi(0)
+  : phdNdEta(nullptr), phdNdY(nullptr), phdNdPt(nullptr),phdNdPhi(nullptr)
 {
   // constructor
 }

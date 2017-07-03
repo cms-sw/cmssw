@@ -102,17 +102,17 @@ namespace reco {
   
   template<typename D>
   const Candidate * CompositeRefCandidateT<D>::daughter( size_type i ) const { 
-    return ( i < numberOfDaughters() ) ? & * dau[ i ] : 0;
+    return ( i < numberOfDaughters() ) ? & * dau[ i ] : nullptr;
   }
   
   template<typename D>
   const Candidate * CompositeRefCandidateT<D>::mother( size_type i ) const { 
-    return ( i < numberOfMothers() ) ? & * mom[ i ] : 0;
+    return ( i < numberOfMothers() ) ? & * mom[ i ] : nullptr;
   }
   
   template<typename D>
   Candidate * CompositeRefCandidateT<D>::daughter( size_type i ) { 
-    return 0;
+    return nullptr;
   }
   
   template<typename D>

@@ -29,7 +29,7 @@
 #include <set>
 #include <map>
 
-PrintGeomSummary::PrintGeomSummary(const edm::ParameterSet &p) : theTopPV_(0) {
+PrintGeomSummary::PrintGeomSummary(const edm::ParameterSet &p) : theTopPV_(nullptr) {
   std::vector<std::string> defNames;
   nodeNames_  = p.getUntrackedParameter<std::vector<std::string> >("NodeNames",defNames);
   G4cout << "PrintGeomSummary:: initialised for " << nodeNames_.size()

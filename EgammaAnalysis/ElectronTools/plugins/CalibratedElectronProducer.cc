@@ -218,7 +218,7 @@ void CalibratedElectronProducer::produce( edm::Event & event, const edm::EventSe
 	  regressionErrorValues.push_back(regressionEnergyError);
 	  
 	  //    r9
-	  const EcalRecHitCollection * recHits=0;
+	  const EcalRecHitCollection * recHits=nullptr;
 	  if( ele.isEB() )
             {
 	      recHits = pEBRecHits.product();

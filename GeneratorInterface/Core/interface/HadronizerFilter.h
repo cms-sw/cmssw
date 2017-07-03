@@ -99,7 +99,7 @@ namespace edm
     EDFilter(),
     hadronizer_(ps),
     decayer_(0),
-    filter_(0),
+    filter_(nullptr),
     runInfoProductTag_(),
     runInfoProductToken_(),
     eventProductToken_(),

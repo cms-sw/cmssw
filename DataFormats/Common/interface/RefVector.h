@@ -27,7 +27,7 @@ RefVector: A template for a vector of interproduct references.
 namespace edm {
 
   template<typename C,
-            typename T = typename refhelper::ValueTrait<C>::value,
+            typename T = typename ::edm::refhelper::ValueTrait<C>::value,
             typename F = typename refhelper::FindTrait<C, T>::value>
   class RefVector {
   public:

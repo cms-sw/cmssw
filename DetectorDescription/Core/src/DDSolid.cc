@@ -64,7 +64,7 @@ DDSolid::DDSolid(const DDName & n, Solid * s) : DDBase<DDName,Solid*>()
 
 DDSolid::DDSolid( const DDName & n, DDSolidShape s, const std::vector<double> & p )
 {
-  DDI::Solid * solid(0);
+  DDI::Solid * solid(nullptr);
   std::vector<double> dummy;
   switch(s) {
   case ddbox:
@@ -278,7 +278,7 @@ DDBox::halfZ() const
 { return rep().parameters()[2]; }
 
 DDReflectionSolid::DDReflectionSolid(const DDSolid & s)
- : DDSolid(s), reflected_(0)
+ : DDSolid(s), reflected_(nullptr)
 { 
   //FIXME: exception handling!
   reflected_ = dynamic_cast<DDI::Reflection*>(&s.rep());
@@ -614,7 +614,7 @@ double
 DDTubs::deltaPhi() const { return rep().parameters()[4]; }
 
 DDMultiUnionSolid::DDMultiUnionSolid( const DDSolid &s )
- : DDSolid( s ), union_(0)
+ : DDSolid( s ), union_(nullptr)
 {
   union_ = dynamic_cast<DDI::MultiUnion*>(&s.rep());
 }
@@ -638,7 +638,7 @@ DDMultiUnionSolid::rotations() const
 }
 
 DDBooleanSolid::DDBooleanSolid(const DDSolid &s)
- : DDSolid(s), boolean_(0)
+ : DDSolid(s), boolean_(nullptr)
 {
   boolean_ = dynamic_cast<DDI::BooleanSolid*>(&s.rep());
 }

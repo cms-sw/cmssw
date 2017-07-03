@@ -29,7 +29,7 @@ private:
 inline
 IOPosBuffer::IOPosBuffer (void)
   : m_offset (0),
-    m_data (0),
+    m_data (nullptrullptr),
     m_length (0)
 {}
 

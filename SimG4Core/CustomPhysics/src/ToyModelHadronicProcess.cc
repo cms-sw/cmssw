@@ -83,7 +83,7 @@ G4VParticleChange* ToyModelHadronicProcess::PostStepDoIt(const G4Track& track,
   G4DynamicParticle* cloudParticle =  new G4DynamicParticle(); 
            
   //set cloud definition
-  if(CustomIncident==0) {
+  if(CustomIncident==nullptr) {
     G4cout << "ToyModelHadronicProcess::PostStepDoIt  Definition of particle cloud not available!" 
 	   << G4endl;
   } else {
@@ -139,7 +139,7 @@ G4VParticleChange* ToyModelHadronicProcess::PostStepDoIt(const G4Track& track,
       newParticlesRHadron.push_back(productDefinition);
       CustomParticle* cProd = dynamic_cast<CustomParticle*>(productDefinition);
 
-      if( cProd!=0 && m_detachCloud)
+      if( cProd!=nullptr && m_detachCloud)
 	productDefinition=cProd->GetCloud();
 
       newParticles.push_back(productDefinition);

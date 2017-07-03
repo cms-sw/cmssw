@@ -18,8 +18,8 @@ using namespace std;
 using namespace reco;
 
 ReducedESRecHitCollectionProducer::ReducedESRecHitCollectionProducer(const edm::ParameterSet& ps):
-  geometry_p(0),
-  topology_p(0)
+  geometry_p(nullptr),
+  topology_p(nullptr)
 {
 
  scEtThresh_          = ps.getParameter<double>("scEtThreshold");

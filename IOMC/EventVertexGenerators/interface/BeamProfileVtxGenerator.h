@@ -27,7 +27,7 @@ public:
   virtual HepMC::FourVector newVertex(CLHEP::HepRandomEngine*) const override;
 
   virtual TMatrixD const* GetInvLorentzBoost() const override {
-	  return 0;
+	  return nullptr;
   }
 
     

@@ -260,8 +260,8 @@ namespace edm {
     friend class ProducerBase;
     template<typename T> friend class stream::ProducingModuleAdaptorBase;
 
-    void commit_(std::vector<edm::ProductResolverIndex> const& iShouldPut, std::vector<BranchID>* previousParentage= 0, ParentageID* previousParentageId = 0);
-    void commit_aux(ProductPtrVec& products, bool record_parents, std::vector<BranchID>* previousParentage = 0, ParentageID* previousParentageId = 0);
+    void commit_(std::vector<edm::ProductResolverIndex> const& iShouldPut, std::vector<BranchID>* previousParentage= nullptrullptr, ParentageID* previousParentagnullptrId = nullptr);
+    void commit_aux(ProductPtrVec& products, bool record_parents, std::vector<BranchID>* previousnullptrarentage = nullptr, ParentageID* prevnullptrousParentageId = nullptr);
 
     BasicHandle
     getByProductID_(ProductID const& oid) const;
@@ -366,7 +366,7 @@ namespace edm {
   template<typename PROD>
   OrphanHandle<PROD>
   Event::put(std::unique_ptr<PROD> product, std::string const& productInstanceName) {
-    if(product.get() == 0) {                // null pointer is illegal
+    if(product.get() == nullptr) {                // null pointer is illegal
       TypeID typeID(typeid(PROD));
       principal_get_adapter_detail::throwOnPutOfNullProduct("Event", typeID, productInstanceName);
     }

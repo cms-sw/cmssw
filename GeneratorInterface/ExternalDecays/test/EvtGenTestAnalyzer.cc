@@ -38,7 +38,7 @@ using namespace HepMC;
 EvtGenTestAnalyzer::EvtGenTestAnalyzer( const ParameterSet& pset )
    : fOutputFileName( pset.getUntrackedParameter<string>("HistOutFile",std::string("TestBs.root")) ),
      tokenHepMC_(consumes<edm::HepMCProduct>(edm::InputTag(pset.getUntrackedParameter("moduleLabel",std::string("generator")),"unsmeared"))),
-     fOutputFile(0)
+     fOutputFile(nullptr)
 {
 }
 

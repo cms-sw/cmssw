@@ -18,7 +18,7 @@ class TwoTrackMinimumDistanceHelixLine {
 
 public:
 
-  TwoTrackMinimumDistanceHelixLine(): theH(0), theL(0), themaxiter(12),
+  TwoTrackMinimumDistanceHelixLine(): theH(nullptr), theL(nullptr), themaxiter(12),
 	pointsUpdated(false){}
   ~TwoTrackMinimumDistanceHelixLine() {}
 

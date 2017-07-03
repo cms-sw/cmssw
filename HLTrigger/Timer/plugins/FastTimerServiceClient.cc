@@ -123,7 +123,7 @@ void
 FastTimerServiceClient::fillProcessSummaryPlots(DQMStore::IBooker & booker, DQMStore::IGetter & getter, std::string const & current_path) {
 
   MonitorElement * me = getter.get(current_path + "/event time_real");
-  if (me == 0)
+  if (me == nullptr)
     // no FastTimerService DQM information
     return;
 

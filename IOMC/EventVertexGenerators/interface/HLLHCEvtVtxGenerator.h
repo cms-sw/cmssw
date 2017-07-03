@@ -36,7 +36,7 @@ public:
     /// return a new event vertex
     virtual HepMC::FourVector newVertex(CLHEP::HepRandomEngine*) const override;
 
-    virtual TMatrixD const* GetInvLorentzBoost() const override {return 0;};
+    virtual TMatrixD const* GetInvLorentzBoost() const override {return nullptr;};
    
 private:
     /** Copy constructor */

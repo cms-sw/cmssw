@@ -49,12 +49,12 @@ public:
   */
 
   static CylinderPointer build(const PositionType& pos, const RotationType& rot,
-			       Scalar radius, Bounds* bounds=0) {
+			       Scalar radius, Bounds* bounds=nullptr) {
     return CylinderPointer(new Cylinder(radius,pos,rot,bounds));
   }
 
   static CylinderPointer build(Scalar radius, const PositionType& pos, const RotationType& rot,
-			       Bounds* bounds=0) {
+			       Bounds* bounds=nullptr) {
     return CylinderPointer(new Cylinder(radius,pos,rot,bounds));
   }
 

@@ -27,7 +27,7 @@
 #include "CondFormats/DataRecord/interface/CastorQIEDataRcd.h"
 
 class CastorDbRecord : public edm::eventsetup::DependentRecordImplementation <CastorDbRecord,  
-  boost::mpl::vector<CastorPedestalsRcd, CastorPedestalWidthsRcd, CastorGainsRcd, CastorGainWidthsRcd, CastorQIEDataRcd, CastorChannelQualityRcd, CastorElectronicsMapRcd > > {}; 
+  std::vector<CastorPedestalsRcd, CastorPedestalWidthsRcd, CastorGainsRcd, CastorGainWidthsRcd, CastorQIEDataRcd, CastorChannelQualityRcd, CastorElectronicsMapRcd > > {}; 
 
 #endif /* CASTORDBPRODUCER_CASTORDBRECORD_H */
 

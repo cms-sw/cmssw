@@ -104,7 +104,7 @@ reco::SuperCluster EcalClusterPUCleaningTools::CleanedSuperCluster(float xi, con
   
 
   // construct cluster shape to compute ieta and iphi covariances of the SC 
-  const CaloSubdetectorGeometry *geometry_p=0;
+  const CaloSubdetectorGeometry *geometry_p=nullptr;
   if (seed->seed().det() == DetId::Ecal && seed->seed().subdetId() == EcalBarrel){
     geometry_p = geometry_->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
     SuperClusterShapeAlgo  SCShape(   ebRecHits_ , geometry_p); 

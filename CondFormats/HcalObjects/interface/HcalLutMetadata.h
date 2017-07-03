@@ -16,7 +16,7 @@ class HcalLutMetadata: public HcalCondObjectContainer<HcalLutMetadatum>
 {
  public:
 #ifndef HCAL_COND_SUPPRESS_DEFAULT
-  HcalLutMetadata() : HcalCondObjectContainer<HcalLutMetadatum>(0){}
+  HcalLutMetadata() : HcalCondObjectContainer<HcalLutMetadatum>(nullptr){}
 #endif
   HcalLutMetadata(const HcalTopology* topo) : HcalCondObjectContainer<HcalLutMetadatum>(topo){}
     

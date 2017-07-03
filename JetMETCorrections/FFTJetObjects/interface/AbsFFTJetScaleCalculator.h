@@ -21,7 +21,7 @@ public:
     inline double scale(const Jet& jet, const Adjustable& current) const
     {
         const unsigned dim = buffer_.size();
-        double* buf = dim ? &buffer_[0] : static_cast<double*>(0);
+        double* buf = dim ? &buffer_[0] : static_cast<double*>(nullptr);
         this->map(jet, current, buf, dim);
         return (*functor)(buf, dim);
     }

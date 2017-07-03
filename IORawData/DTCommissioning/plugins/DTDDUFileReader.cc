@@ -94,7 +94,7 @@ int DTDDUFileReader::fillRawData(Event& e,
       word = dmaUnpack(dataTag,nread);
       if ( nread<=0 ) {
 	cout<<"[DTDDUFileReader]: ERROR! no more words and failed to get the trailer"<<endl;
-	delete data; data=0;
+	delete data; data=nullptr;
 	return false;
       }
     }
@@ -104,7 +104,7 @@ int DTDDUFileReader::fillRawData(Event& e,
       dataTag = false;
       if ( nread<=0 ) {
 	cout<<"[DTDDUFileReader]: ERROR! failed to get the trailer"<<endl;
-	delete data; data=0;
+	delete data; data=nullptr;
 	return false;
       }
     }
@@ -170,7 +170,7 @@ int DTDDUFileReader::fillRawData(Event& e,
 
 void DTDDUFileReader::produce(Event&e, EventSetup const&es){
    edm::Handle<FEDRawDataCollection> rawdata;
-   FEDRawDataCollection *fedcoll = 0;
+   FEDRawDataCollection *fedcoll = nullptr;
    fillRawData(e,fedcoll);
    std::unique_ptr<FEDRawDataCollection> bare_product(fedcoll);
    e.put(std::move(bare_product));

@@ -171,7 +171,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
       // have the end_vertex with a radius greater than the radius of beampipe 
       // cylinder (no requirement on the Z of the vertex is applyed).
       else if (status == 2) {
-        if ( (*pitr)->end_vertex() != 0  ) { 
+        if ( (*pitr)->end_vertex() != nullptr  ) { 
           double xx = (*pitr)->end_vertex()->position().x();
           double yy = (*pitr)->end_vertex()->position().y();
           double r_dd = xx*xx+yy*yy;
@@ -449,7 +449,7 @@ void Generator::particleAssignDaughters( G4PrimaryParticle* g4p,
       new G4PrimaryParticle((*vpdec)->pdg_id(), pdec.x()*GeV, 
 			    pdec.y()*GeV, pdec.z()*GeV);
 
-    if ( g4daught->GetG4code() != 0 )
+    if ( g4daught->GetG4code() != nullptr )
       { 
         g4daught->SetMass( g4daught->GetG4code()->GetPDGMass() ) ;
         g4daught->SetCharge( g4daught->GetG4code()->GetPDGCharge() ) ;  
@@ -541,7 +541,7 @@ void Generator::nonBeamEvent2G4(const HepMC::GenEvent * evt, G4Event * g4evt)
 	new G4PrimaryParticle(g_id,gp->momentum().px()*GeV,
 			      gp->momentum().py()*GeV,
 			      gp->momentum().pz()*GeV);
-      if (g4p->GetG4code() != 0) { 
+      if (g4p->GetG4code() != nullptr) { 
 	g4p->SetMass(g4p->GetG4code()->GetPDGMass());
 	g4p->SetCharge(g4p->GetG4code()->GetPDGCharge());
       }

@@ -10,7 +10,7 @@
 
 #include "GeneratorInterface/CosmicMuonGenerator/interface/CMSCGEN.h"
  
-CMSCGEN::CMSCGEN() : initialization(0), RanGen2(0), delRanGen(false)
+CMSCGEN::CMSCGEN() : initialization(0), RanGen2(nullptr), delRanGen(false)
 {
 }
 
