@@ -1,7 +1,6 @@
 #include <math.h>
 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -19,17 +18,18 @@ TagAndProbeBtagTriggerMonitor::TagAndProbeBtagTriggerMonitor( const edm::Paramet
 {
   folderName_             = iConfig.getParameter<std::string>("dirname");
   processname_            = iConfig.getParameter<std::string>("processname");
-  pathname_               = iConfig.getParameter<std::string>("pathname");
+//   pathname_               = iConfig.getParameter<std::string>("pathname");
   triggerobjbtag_         = iConfig.getParameter<std::string>("triggerobjbtag");
   jetPtmin_               = iConfig.getParameter<double>("jetPtMin");
   jetEtamax_              = iConfig.getParameter<double>("jetEtaMax");
   tagBtagmin_             = iConfig.getParameter<double>("tagBtagMin");
   probeBtagmin_           = iConfig.getParameter<double>("probeBtagMin");
   triggerSummaryLabel_    = iConfig.getParameter<edm::InputTag>("triggerSummary");
-  triggerResultsLabel_    = iConfig.getParameter<edm::InputTag>("triggerResults");
+//   triggerResultsLabel_    = iConfig.getParameter<edm::InputTag>("triggerResults");
   triggerSummaryToken_    = consumes <trigger::TriggerEvent> (triggerSummaryLabel_);
-  triggerResultsToken_    = consumes <edm::TriggerResults>   (triggerResultsLabel_);
+//   triggerResultsToken_    = consumes <edm::TriggerResults>   (triggerResultsLabel_);
   offlineBtagToken_       = consumes<reco::JetTagCollection> (iConfig.getParameter<edm::InputTag>("offlineBtag"));
+  genTriggerEventFlag_    = new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("genericTriggerEventPSet"),consumesCollector(), *this);
 
   jetPtbins_              = getHistoPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("jetPt"));
   jetEtabins_             = getHistoPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("jetEta"));
@@ -40,6 +40,7 @@ TagAndProbeBtagTriggerMonitor::TagAndProbeBtagTriggerMonitor( const edm::Paramet
 
 TagAndProbeBtagTriggerMonitor::~TagAndProbeBtagTriggerMonitor()
 {
+  if (genTriggerEventFlag_) delete genTriggerEventFlag_;
 
 }
 
@@ -85,39 +86,43 @@ void TagAndProbeBtagTriggerMonitor::bookHistograms(DQMStore::IBooker     & ibook
   discr_offline_btag_jet2_ = ibooker.book1D("discr_offline_btag_jet2","discr_offline_btag_jet2",jetBtagbins_.nbins,jetBtagbins_.xmin,jetBtagbins_.xmax);
   
   // Initialize the GenericTriggerEventFlag
+  if ( genTriggerEventFlag_ && genTriggerEventFlag_->on() ) genTriggerEventFlag_->initRun( iRun, iSetup );
 }
 
 void TagAndProbeBtagTriggerMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
 {
 
-   bool accept = false;
+//    bool accept = false;
    bool match1 = false;
    bool match2 = false;
    
-   edm::Handle<edm::TriggerResults> triggerResultsHandler;
-   iEvent.getByToken(triggerResultsToken_, triggerResultsHandler);
-   if ( ! triggerResultsHandler.isValid() )  return;
+//    edm::Handle<edm::TriggerResults> triggerResultsHandler;
+//    iEvent.getByToken(triggerResultsToken_, triggerResultsHandler);
+//    if ( ! triggerResultsHandler.isValid() )  return;
       
    edm::Handle<reco::JetTagCollection> offlineJetTagPFHandler;
    iEvent.getByToken(offlineBtagToken_, offlineJetTagPFHandler);
       
    if( ! offlineJetTagPFHandler.isValid()) return;
    
-   const edm::TriggerResults & triggers = *(triggerResultsHandler.product());
+//    const edm::TriggerResults & triggers = *(triggerResultsHandler.product());
    
-   for ( size_t j = 0 ; j < hltConfig_.size() ; ++j )
-   {
-      if ( hltConfig_.triggerName(j).find(pathname_) == 0 )
-      {
-         if ( triggers.accept(j) ) 
-         {
-            accept = true;
-            break;
-         }
-      }
-   }
+//    for ( size_t j = 0 ; j < hltConfig_.size() ; ++j )
+//    {
+//       if ( hltConfig_.triggerName(j).find(pathname_) == 0 )
+//       {
+//          if ( triggers.accept(j) ) 
+//          {
+//             accept = true;
+//             break;
+//          }
+//       }
+//    }
+//    if ( accept )
+//    {}
    
-   if ( accept )
+  // applying selection for numerator
+   if (genTriggerEventFlag_->on() && ! genTriggerEventFlag_->accept( iEvent, iSetup) )
    {
       
       reco::JetTagCollection jettags = *(offlineJetTagPFHandler.product());
@@ -196,11 +201,11 @@ void TagAndProbeBtagTriggerMonitor::analyze(edm::Event const& iEvent, edm::Event
 }
 void TagAndProbeBtagTriggerMonitor::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
-    bool changed(true);
-    if (!hltConfig_.init(iRun, iSetup, processname_, changed))
-    {
-       LogDebug("TagAndProbeBtagTriggerMonitor") << "HLTConfigProvider failed to initialize.";
-    }
+//     bool changed(true);
+//     if (!hltConfig_.init(iRun, iSetup, processname_, changed))
+//     {
+//        LogDebug("TagAndProbeBtagTriggerMonitor") << "HLTConfigProvider failed to initialize.";
+//     }
 }
 
 

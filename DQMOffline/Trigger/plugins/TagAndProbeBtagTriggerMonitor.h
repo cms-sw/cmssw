@@ -34,6 +34,8 @@
 
 #include "DataFormats/BTauReco/interface/JetTag.h"
 
+#include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
+
 
 //DataFormats
 
@@ -67,7 +69,7 @@ private:
 
   std::string folderName_;
   std::string processname_;
-  std::string pathname_;
+//   std::string pathname_;
   std::string triggerobjbtag_;
   
   double jetPtmin_;
@@ -81,10 +83,10 @@ private:
   Binning jetBtagbins_;
 
   edm::InputTag triggerSummaryLabel_;
-  edm::InputTag triggerResultsLabel_;
+//   edm::InputTag triggerResultsLabel_;
   
   edm::EDGetTokenT<reco::JetTagCollection> offlineBtagToken_;
-  edm::EDGetTokenT <edm::TriggerResults> triggerResultsToken_;
+//   edm::EDGetTokenT <edm::TriggerResults> triggerResultsToken_;
   edm::EDGetTokenT <trigger::TriggerEvent> triggerSummaryToken_;
 
   MonitorElement * pt_jet1_;
@@ -109,7 +111,8 @@ private:
   MonitorElement * discr_offline_btag_jet1_;
   MonitorElement * discr_offline_btag_jet2_;
   
-  
+  GenericTriggerEventFlag* genTriggerEventFlag_; // tag & probe: trigger flag for num and den
+
   HLTConfigProvider hltConfig_;
 
 
