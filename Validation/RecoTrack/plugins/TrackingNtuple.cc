@@ -1233,6 +1233,9 @@ private:
   std::vector<int> see_bestSimTrkIdx;
   std::vector<float> see_bestSimTrkShareFrac;
   std::vector<float> see_bestSimTrkShareFracSimDenom;
+  std::vector<int> see_bestFromFirstHitSimTrkIdx;
+  std::vector<float> see_bestFromFirstHitSimTrkShareFrac;
+  std::vector<float> see_bestFromFirstHitSimTrkShareFracSimDenom;
   std::vector<std::vector<float> > see_shareFrac; // second index runs through matched TrackingParticles
   std::vector<std::vector<int> > see_simTrkIdx;   // second index runs through matched TrackingParticles
   std::vector<std::vector<int> > see_hitIdx;      // second index runs through hits
@@ -1624,12 +1627,15 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
       t->Branch("see_shareFrac", &see_shareFrac);
       t->Branch("see_simTrkIdx", &see_simTrkIdx  );
       t->Branch("see_bestSimTrkIdx", &see_bestSimTrkIdx);
+      t->Branch("see_bestFromFirstHitSimTrkIdx", &see_bestFromFirstHitSimTrkIdx);
     }
     else {
       t->Branch("see_isTrue", &see_isTrue);
     }
     t->Branch("see_bestSimTrkShareFrac", &see_bestSimTrkShareFrac);
     t->Branch("see_bestSimTrkShareFracSimDenom", &see_bestSimTrkShareFracSimDenom);
+    t->Branch("see_bestFromFirstHitSimTrkShareFrac", &see_bestFromFirstHitSimTrkShareFrac);
+    t->Branch("see_bestFromFirstHitSimTrkShareFracSimDenom", &see_bestFromFirstHitSimTrkShareFracSimDenom);
     if(includeAllHits_) {
       t->Branch("see_hitIdx" , &see_hitIdx  );
       t->Branch("see_hitType", &see_hitType );
@@ -1919,6 +1925,9 @@ void TrackingNtuple::clearVariables() {
   see_bestSimTrkIdx.clear();
   see_bestSimTrkShareFrac.clear();
   see_bestSimTrkShareFracSimDenom.clear();
+  see_bestFromFirstHitSimTrkIdx.clear();
+  see_bestFromFirstHitSimTrkShareFrac.clear();
+  see_bestFromFirstHitSimTrkShareFracSimDenom.clear();
   see_shareFrac.clear();
   see_simTrkIdx.clear();
   see_hitIdx  .clear();
@@ -2709,10 +2718,11 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
       const int nHits = seedTrack.numberOfValidHits();
       const auto bestKeyCount = findBestMatchingTrackingParticle(seedTrack, clusterToTPMap);
       const float bestShareFrac = static_cast<float>(bestKeyCount.countHits)/static_cast<float>(nHits);
-      float bestShareFracSimDenom = 0;
-      if(bestKeyCount.key >= 0) {
-        bestShareFracSimDenom = static_cast<float>(bestKeyCount.countClusters)/static_cast<float>(tpCollection[tpKeyToIndex.at(bestKeyCount.key)]->numberOfTrackerHits());
-      }
+      const float bestShareFracSimDenom = bestKeyCount.key >= 0 ? static_cast<float>(bestKeyCount.countClusters)/static_cast<float>(tpCollection[tpKeyToIndex.at(bestKeyCount.key)]->numberOfTrackerHits()) : 0;
+      // Another way starting from the first hit of the seed
+      const auto bestFirstHitKeyCount = findMatchingTrackingParticleFromFirstHit(seedTrack, clusterToTPMap);
+      const float bestFirstHitShareFrac = static_cast<float>(bestFirstHitKeyCount.countHits)/static_cast<float>(nHits);
+      const float bestFirstHitShareFracSimDenom = bestFirstHitKeyCount.key >= 0 ? static_cast<float>(bestFirstHitKeyCount.countClusters)/static_cast<float>(tpCollection[tpKeyToIndex.at(bestFirstHitKeyCount.key)]->numberOfTrackerHits()) : 0;
 
       const bool seedFitOk = !trackFromSeedFitFailed(seedTrack);
       const int charge = seedTrack.charge();
@@ -2759,12 +2769,15 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
         see_shareFrac.push_back( sharedFraction );
         see_simTrkIdx.push_back( tpIdx );
         see_bestSimTrkIdx.push_back(bestKeyCount.key >= 0 ? tpKeyToIndex.at(bestKeyCount.key) : -1);
+        see_bestFromFirstHitSimTrkIdx.push_back(bestFirstHitKeyCount.key >= 0 ? tpKeyToIndex.at(bestFirstHitKeyCount.key) : -1);
       }
       else {
         see_isTrue.push_back(!tpIdx.empty());
       }
       see_bestSimTrkShareFrac.push_back(bestShareFrac);
       see_bestSimTrkShareFracSimDenom.push_back(bestShareFracSimDenom);
+      see_bestFromFirstHitSimTrkShareFrac.push_back(bestFirstHitShareFrac);
+      see_bestFromFirstHitSimTrkShareFracSimDenom.push_back(bestFirstHitShareFracSimDenom);
 
       /// Hmm, the following could make sense instead of plain failing if propagation to beam line fails
       /*
