@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-from DQMOffline.Trigger.HiggsMonitor_cfi import hltHiggsmonitoring
+from DQMOffline.Trigger.MssmHbbMonitoring_cfi import mssmHbbMonitoring
 
 #Define MssmHbb specific cuts 
-hltMssmHbbmonitoring =  hltHiggsmonitoring.clone()
+hltMssmHbbmonitoring =  mssmHbbMonitoring.clone()
 hltMssmHbbmonitoring.btagalgo  = cms.InputTag("pfCombinedSecondaryVertexV2BJetTags")
 hltMssmHbbmonitoring.workingpoint     = cms.double(0.92) # tight WP
 hltMssmHbbmonitoring.bJetDeltaEtaMax = cms.double(1.6)   # deta cut between leading bjets
