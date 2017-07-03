@@ -71,7 +71,7 @@ void SiPixelLorentzAngleDB::analyze(const edm::Event& e, const edm::EventSetup& 
 	
 	for(TrackerGeometry::DetUnitContainer::const_iterator it = pDD->detUnits().begin(); it != pDD->detUnits().end(); it++){
     
-	   if( dynamic_cast<PixelGeomDetUnit const*>((*it))!=0){
+	   if( dynamic_cast<PixelGeomDetUnit const*>((*it))!=nullptr){
 		DetId detid=(*it)->geographicalId();
                 const DetId detidc = (*it)->geographicalId();
 			

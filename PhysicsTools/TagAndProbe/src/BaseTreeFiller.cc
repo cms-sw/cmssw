@@ -123,7 +123,7 @@ tnp::BaseTreeFiller::BaseTreeFiller(const char *name, const edm::ParameterSet& i
 tnp::BaseTreeFiller::BaseTreeFiller(BaseTreeFiller &main, const edm::ParameterSet &iConfig, edm::ConsumesCollector && iC, const std::string &branchNamePrefix) :
   addRunLumiInfo_(false),
   addEventVariablesInfo_(false),
-  tree_(0)
+  tree_(nullptr)
 {
     addRunLumiInfo_ = main.addRunLumiInfo_;
     storePUweight_  = main.storePUweight_;

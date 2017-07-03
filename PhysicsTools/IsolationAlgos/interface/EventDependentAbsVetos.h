@@ -65,7 +65,7 @@ namespace reco {
       public:
           //! Create a veto specifying the input collection of the jets, the candidates, and the deltaR
           OtherJetConstituentsDeltaRVeto(Direction dir, const edm::InputTag& jets, double dRjet, const edm::InputTag& pfCandAssocMap, double dRconstituent, edm::ConsumesCollector& iC)
-	    : evt_(0),
+	    : evt_(nullptr),
 	      vetoDir_(dir),
 	      srcJets_(iC.consumes<reco::PFJetCollection>(jets)),
 	      dR2jet_(dRjet*dRjet),

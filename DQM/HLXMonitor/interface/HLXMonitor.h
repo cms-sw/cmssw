@@ -71,7 +71,7 @@ class HLXMonitor : public DQMEDAnalyzer {
 
   void EndRun();
 
-  double getUTCtime(timeval* a, timeval* b = NULL);
+  double getUTCtime(timeval* a, timeval* b = nullptr);
 
   // ----------member data ---------------------------
   TCPReceiver HLXTCP;

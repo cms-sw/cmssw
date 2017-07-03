@@ -83,7 +83,7 @@ class CTPPSDiamondDQMSource : public DQMEDAnalyzer
     /// plots related to the whole system
     struct GlobalPlots
     {
-      MonitorElement* h_trackCorr_hor = NULL;
+      MonitorElement* h_trackCorr_hor = nullptr;
 
       GlobalPlots() {}
       GlobalPlots( DQMStore::IBooker& ibooker );
@@ -94,35 +94,35 @@ class CTPPSDiamondDQMSource : public DQMEDAnalyzer
     /// plots related to one Diamond detector package
     struct PotPlots
     {
-      MonitorElement* activity_per_bx = NULL;
-      MonitorElement* activity_per_bx_plus1 = NULL;
-      MonitorElement* activity_per_bx_minus1 = NULL;
+      MonitorElement* activity_per_bx = nullptr;
+      MonitorElement* activity_per_bx_plus1 = nullptr;
+      MonitorElement* activity_per_bx_minus1 = nullptr;
 
-      MonitorElement* hitDistribution2d = NULL;
-      MonitorElement* hitDistribution2dOOT = NULL;
-      MonitorElement* hitDistribution2dOOT_le = NULL;
-      MonitorElement* hitDistribution2dOOT_te = NULL;
-      MonitorElement* activePlanes = NULL;
+      MonitorElement* hitDistribution2d = nullptr;
+      MonitorElement* hitDistribution2dOOT = nullptr;
+      MonitorElement* hitDistribution2dOOT_le = nullptr;
+      MonitorElement* hitDistribution2dOOT_te = nullptr;
+      MonitorElement* activePlanes = nullptr;
 
-      MonitorElement* trackDistribution = NULL;
-      MonitorElement* trackDistributionOOT = NULL;
+      MonitorElement* trackDistribution = nullptr;
+      MonitorElement* trackDistributionOOT = nullptr;
 
-      MonitorElement* stripTomographyAllFar = NULL;
-      MonitorElement* stripTomographyAllFar_plus1 = NULL;
-      MonitorElement* stripTomographyAllFar_minus1 = NULL;
+      MonitorElement* stripTomographyAllFar = nullptr;
+      MonitorElement* stripTomographyAllFar_plus1 = nullptr;
+      MonitorElement* stripTomographyAllFar_minus1 = nullptr;
 
-      MonitorElement* leadingEdgeCumulative_both = NULL, *leadingEdgeCumulative_le = NULL;
-      MonitorElement* timeOverThresholdCumulativePot = NULL, *leadingTrailingCorrelationPot = NULL;
-      MonitorElement* leadingWithoutTrailingCumulativePot = NULL;
+      MonitorElement* leadingEdgeCumulative_both = nullptr, *leadingEdgeCumulative_le = nullptr;
+      MonitorElement* timeOverThresholdCumulativePot = nullptr, *leadingTrailingCorrelationPot = nullptr;
+      MonitorElement* leadingWithoutTrailingCumulativePot = nullptr;
 
-      MonitorElement* ECCheck = NULL;
+      MonitorElement* ECCheck = nullptr;
 
-      MonitorElement* HPTDCErrorFlags_cumulative = NULL;
+      MonitorElement* HPTDCErrorFlags_cumulative = nullptr;
 
-      MonitorElement* clock_Digi1_le = NULL;
-      MonitorElement* clock_Digi1_te = NULL;
-      MonitorElement* clock_Digi3_le = NULL;
-      MonitorElement* clock_Digi3_te = NULL;
+      MonitorElement* clock_Digi1_le = nullptr;
+      MonitorElement* clock_Digi1_te = nullptr;
+      MonitorElement* clock_Digi3_le = nullptr;
+      MonitorElement* clock_Digi3_te = nullptr;
 
       PotPlots() {};
       PotPlots( DQMStore::IBooker& ibooker, unsigned int id );
@@ -134,11 +134,11 @@ class CTPPSDiamondDQMSource : public DQMEDAnalyzer
     /// plots related to one Diamond plane
     struct PlanePlots
     {
-      MonitorElement* digiProfileCumulativePerPlane = NULL;
-      MonitorElement* hitProfile = NULL;
-      MonitorElement* hit_multiplicity = NULL;
+      MonitorElement* digiProfileCumulativePerPlane = nullptr;
+      MonitorElement* hitProfile = nullptr;
+      MonitorElement* hit_multiplicity = nullptr;
 
-      MonitorElement* stripTomography_far = NULL;
+      MonitorElement* stripTomography_far = nullptr;
 
       PlanePlots() {}
       PlanePlots( DQMStore::IBooker& ibooker, unsigned int id );
@@ -149,18 +149,18 @@ class CTPPSDiamondDQMSource : public DQMEDAnalyzer
     /// plots related to one Diamond channel
     struct ChannelPlots
     {
-      MonitorElement* activity_per_bx = NULL;
-      MonitorElement* activity_per_bx_plus1 = NULL;
-      MonitorElement* activity_per_bx_minus1 = NULL;
+      MonitorElement* activity_per_bx = nullptr;
+      MonitorElement* activity_per_bx_plus1 = nullptr;
+      MonitorElement* activity_per_bx_minus1 = nullptr;
 
-      MonitorElement* HPTDCErrorFlags = NULL;
-      MonitorElement* leadingEdgeCumulative_both = NULL, *leadingEdgeCumulative_le = NULL;
-      MonitorElement* TimeOverThresholdCumulativePerChannel = NULL;
-      MonitorElement* LeadingTrailingCorrelationPerChannel = NULL;
-      MonitorElement* leadingWithoutTrailing = NULL;
-      MonitorElement* stripTomography_far = NULL;
-      MonitorElement* hit_rate = NULL;
-      MonitorElement* ECCheckPerChannel = NULL;
+      MonitorElement* HPTDCErrorFlags = nullptr;
+      MonitorElement* leadingEdgeCumulative_both = nullptr, *leadingEdgeCumulative_le = nullptr;
+      MonitorElement* TimeOverThresholdCumulativePerChannel = nullptr;
+      MonitorElement* LeadingTrailingCorrelationPerChannel = nullptr;
+      MonitorElement* leadingWithoutTrailing = nullptr;
+      MonitorElement* stripTomography_far = nullptr;
+      MonitorElement* hit_rate = nullptr;
+      MonitorElement* ECCheckPerChannel = nullptr;
       unsigned long hitsCounterPerLumisection;
 
       ChannelPlots() : hitsCounterPerLumisection( 0 ) {}

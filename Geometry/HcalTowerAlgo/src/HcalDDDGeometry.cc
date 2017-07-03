@@ -223,7 +223,7 @@ HcalDDDGeometry::newCellFast( const GlobalPoint& f1 ,
 const CaloCellGeometry* 
 HcalDDDGeometry::cellGeomPtr( uint32_t din ) const
 {
-  const CaloCellGeometry* cell ( 0 ) ;
+  const CaloCellGeometry* cell ( nullptr ) ;
   if( m_hbCellVec.size() > din )
   {
     cell = &m_hbCellVec[ din ] ;
@@ -263,7 +263,7 @@ HcalDDDGeometry::cellGeomPtr( uint32_t din ) const
       }
     }
   }
-  return ( 0 == cell || 0 == cell->param() ? 0 : cell ) ;
+  return ( nullptr == cell || nullptr == cell->param() ? nullptr : cell ) ;
 }
 
 void HcalDDDGeometry::increaseReserve(unsigned int extra) {

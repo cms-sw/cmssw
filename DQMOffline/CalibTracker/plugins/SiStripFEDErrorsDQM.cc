@@ -13,7 +13,7 @@ SiStripFEDErrorsDQM::SiStripFEDErrorsDQM(const edm::ParameterSet& iConfig) :
   threshold_(iConfig.getUntrackedParameter<double>("Threshold",0)),
   debug_(iConfig.getUntrackedParameter<unsigned int>("Debug",0))
 {
-  obj_ = 0;
+  obj_ = nullptr;
   edm::LogInfo("SiStripFEDErrorsDQM") <<  "[SiStripFEDErrorsDQM::SiStripFEDErrorsDQM()]";
 }
 

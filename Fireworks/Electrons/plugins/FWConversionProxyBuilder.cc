@@ -56,7 +56,7 @@ private:
 
 
 FWConversionProxyBuilder::FWConversionProxyBuilder():
-   m_common(0)
+   m_common(nullptr)
 {
    m_common = new TEveElementList( "common conversion scene" );
    m_common->IncDenyDestroy();

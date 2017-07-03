@@ -125,7 +125,7 @@ void MuonSeedParaFillHisto::FillDTSegmentPair(H2DRecHit3* histo3, double pt1[5],
 
 void MuonSeedParaFillHisto::FillCSCSegmentPairByChamber(H2DRecHit4* hME1[15], double pt1[5],
                  double dPhiP1[2][5][5], double EtaP1[2][5], bool MEPath[2][5][4], double dEtaP1[2][5][5]  ) {
-  H2DRecHit4 *histo4 = 0;
+  H2DRecHit4 *histo4 = nullptr;
   //  Look at different Bxdl btw. stations & rings
   /// All possible segment pairs in CSC 
   ///                 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14   
@@ -153,7 +153,7 @@ void MuonSeedParaFillHisto::FillCSCSegmentPairByChamber(H2DRecHit4* hME1[15], do
 void MuonSeedParaFillHisto::FillDTSegmentPairByChamber(H2DRecHit5* hMB1[26], double pt1[5],
                  double dPhiP3[2][5][5], double EtaP3[2][5], bool MBPath[2][5][3], double dEtaP3[2][5][5] ) {
   
-  H2DRecHit5 *histo5 = 0;
+  H2DRecHit5 *histo5 = nullptr;
   //  Look at different Bxdl btw. stations & rings
   /// All possible segment pair in DT 
   ///               0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 

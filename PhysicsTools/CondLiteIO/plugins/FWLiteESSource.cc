@@ -47,17 +47,17 @@ namespace  {
    struct FWLiteESGenericHandle {
       FWLiteESGenericHandle(const TypeID& iType):
       m_type(iType),
-      m_data(0),
-      m_exception(0){}
+      m_data(nullptr),
+      m_exception(nullptr){}
       
       FWLiteESGenericHandle(const void* iData):
       m_type(),
       m_data(iData),
-      m_exception(0) {}
+      m_exception(nullptr) {}
 
       FWLiteESGenericHandle(cms::Exception* iException):
       m_type(),
-      m_data(0),
+      m_data(nullptr),
       m_exception(iException){}
       
       const std::type_info& typeInfo() const {
@@ -81,7 +81,7 @@ namespace  {
          FWLiteESGenericHandle h(m_type);
          m_record->get(h,iKey.name().value());
          
-         if(0!=h.m_exception) {
+         if(nullptr!=h.m_exception) {
             throw *(h.m_exception);
          }
          return h.m_data;

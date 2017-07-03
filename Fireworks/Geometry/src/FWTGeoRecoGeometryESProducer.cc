@@ -66,7 +66,7 @@ namespace {
 typedef std::map< const float*, TGeoVolume*> CaloVolMap;
 }
 FWTGeoRecoGeometryESProducer::FWTGeoRecoGeometryESProducer( const edm::ParameterSet& pset )
-  : m_dummyMedium(0)
+  : m_dummyMedium(nullptr)
 {
   m_tracker = pset.getUntrackedParameter<bool>( "Tracker", true );
   m_muon = pset.getUntrackedParameter<bool>( "Muon", true );
@@ -119,7 +119,7 @@ TGeoCombiTrans* createPlacement( const GeomDet *det )
 
 TGeoVolume* FWTGeoRecoGeometryESProducer::GetDaughter(TGeoVolume* mother, const char* prefix, ERecoDet cidx, int id)
 {
-   TGeoVolume* res = 0;
+   TGeoVolume* res = nullptr;
    if (mother->GetNdaughters()) { 
       TGeoNode* n = mother->FindNode(Form("%s_%d_1", prefix, id));
       if ( n ) res = n->GetVolume();
@@ -136,7 +136,7 @@ TGeoVolume* FWTGeoRecoGeometryESProducer::GetDaughter(TGeoVolume* mother, const 
 
 TGeoVolume* FWTGeoRecoGeometryESProducer::GetDaughter(TGeoVolume* mother, const char* prefix, ERecoDet cidx)
 {
-   TGeoVolume* res = 0;
+   TGeoVolume* res = nullptr;
    if (mother->GetNdaughters()) { 
       TGeoNode* n = mother->FindNode(Form("%s_1",prefix));
       if ( n ) res = n->GetVolume();
@@ -273,7 +273,7 @@ FWTGeoRecoGeometryESProducer::produce( const FWTGeoRecoGeometryRecord& record )
      record.getRecord<CaloGeometryRecord>().get( m_caloGeom );
 
    TGeoManager* geom = new TGeoManager( "cmsGeo", "CMS Detector" );
-   if( 0 == gGeoIdentity )
+   if( nullptr == gGeoIdentity )
    {
       gGeoIdentity = new TGeoIdentity( "Identity" );
    }
@@ -286,7 +286,7 @@ FWTGeoRecoGeometryESProducer::produce( const FWTGeoRecoGeometryRecord& record )
 
    TGeoVolume *top = geom->MakeBox( "CMS", m_dummyMedium, 270., 270., 120. );
   
-   if( 0 == top )
+   if( nullptr == top )
    {
       return std::shared_ptr<FWTGeoRecoGeometry>();
    }
@@ -350,7 +350,7 @@ FWTGeoRecoGeometryESProducer::produce( const FWTGeoRecoGeometryRecord& record )
 TGeoShape* 
 FWTGeoRecoGeometryESProducer::createShape( const GeomDet *det )
 {
-  TGeoShape* shape = 0;
+  TGeoShape* shape = nullptr;
 
   // Trapezoidal
   const Bounds *b = &((det->surface ()).bounds ());
@@ -376,7 +376,7 @@ FWTGeoRecoGeometryESProducer::createShape( const GeomDet *det )
     // Do not create identical shape,
     // if one already exists
     shape = m_nameToShape[name];
-    if( 0 == shape )
+    if( nullptr == shape )
     {
       shape = new TGeoTrap(
 	name.c_str(),
@@ -395,7 +395,7 @@ FWTGeoRecoGeometryESProducer::createShape( const GeomDet *det )
       m_nameToShape[name] = shape;
     }
   }
-  if( dynamic_cast<const RectangularPlaneBounds *> (b) != 0 )
+  if( dynamic_cast<const RectangularPlaneBounds *> (b) != nullptr )
   {
     // Rectangular
     float length = det->surface().bounds().length();
@@ -412,7 +412,7 @@ FWTGeoRecoGeometryESProducer::createShape( const GeomDet *det )
     // Do not create identical shape,
     // if one already exists
     shape = m_nameToShape[name];
-    if( 0 == shape )
+    if( nullptr == shape )
     {
       shape = new TGeoBBox( name.c_str(), width / 2., length / 2., thickness / 2. ); // dx, dy, dz
 
@@ -710,7 +710,7 @@ FWTGeoRecoGeometryESProducer::addCSCGeometry()
       s << "CSC" << detId;
       std::string name = s.str();
       
-      TGeoVolume* child = 0;
+      TGeoVolume* child = nullptr;
 
       if( auto chamber = dynamic_cast<const CSCChamber*>(*it))
          child = createVolume( name, chamber, kMuonCSC );
@@ -903,7 +903,7 @@ FWTGeoRecoGeometryESProducer::addHcalCaloGeometryBarrel( void )
    
      if (!cell) { printf ("HB not oblique !!!\n"); continue; }
   
-     TGeoVolume* volume = 0;
+     TGeoVolume* volume = nullptr;
      CaloVolMap& caloShapeMap = (cell->etaPos() > 0) ? caloShapeMapP : caloShapeMapN;
      CaloVolMap::iterator volIt =  caloShapeMap.find(cell->param());
      if  (volIt == caloShapeMap.end()) 
@@ -981,7 +981,7 @@ FWTGeoRecoGeometryESProducer::addHcalCaloGeometryEndcap( void )
    
       if (!cell) { printf ("EC not oblique \n"); continue; }
 
-      TGeoVolume* volume = 0;
+      TGeoVolume* volume = nullptr;
       CaloVolMap& caloShapeMap = (cell->etaPos() > 0) ? caloShapeMapP : caloShapeMapN;
       CaloVolMap::iterator volIt =  caloShapeMap.find(cell->param());
       if  ( volIt == caloShapeMap.end()) 
@@ -1059,7 +1059,7 @@ FWTGeoRecoGeometryESProducer::addHcalCaloGeometryOuter()
    
     if (!cell) { printf ("EC not oblique \n"); continue; }
 
-    TGeoVolume* volume = 0;
+    TGeoVolume* volume = nullptr;
     CaloVolMap& caloShapeMap = (cell->etaPos() > 0) ? caloShapeMapP : caloShapeMapN;
     CaloVolMap::iterator volIt =  caloShapeMap.find(cell->param());
     if  ( volIt == caloShapeMap.end()) 
@@ -1126,7 +1126,7 @@ FWTGeoRecoGeometryESProducer::addHcalCaloGeometryForward()
     
     if (!cell) { printf ("EC not Z prism \n"); continue; }
     
-    TGeoVolume* volume = 0;
+    TGeoVolume* volume = nullptr;
     CaloVolMap& caloShapeMap = (cell->etaPos() > 0) ? caloShapeMapP : caloShapeMapN;
     CaloVolMap::iterator volIt =  caloShapeMap.find(cell->param());
     if  ( volIt == caloShapeMap.end()) 
@@ -1190,7 +1190,7 @@ FWTGeoRecoGeometryESProducer::addCaloTowerGeometry()
     CaloTowerDetId detid = CaloTowerDetId(it->rawId());
     const IdealObliquePrism* cell = dynamic_cast<const IdealObliquePrism*> ( m_caloGeom->getGeometry(*it));
     if (!cell) { printf ("EC not oblique \n"); continue; }
-      TGeoVolume* volume = 0;
+      TGeoVolume* volume = nullptr;
       CaloVolMap& caloShapeMap = (cell->etaPos() > 0) ? caloShapeMapP : caloShapeMapN;
       CaloVolMap::iterator volIt =  caloShapeMap.find(cell->param());
       if  ( volIt == caloShapeMap.end()) 
@@ -1328,7 +1328,7 @@ FWTGeoRecoGeometryESProducer::addEcalCaloGeometry( void )
          const TruncatedPyramid* cell = dynamic_cast<const TruncatedPyramid*> ( m_caloGeom->getGeometry( *it ));
          if (!cell) { printf("ecalBarrel cell not a TruncatedPyramid !!\n"); return; }
 
-         TGeoVolume* volume = 0;
+         TGeoVolume* volume = nullptr;
          CaloVolMap::iterator volIt =  caloShapeMap.find(cell->param());
          if  ( volIt == caloShapeMap.end()) 
          {           
@@ -1358,7 +1358,7 @@ FWTGeoRecoGeometryESProducer::addEcalCaloGeometry( void )
          const TruncatedPyramid* cell = dynamic_cast<const TruncatedPyramid*> (m_caloGeom->getGeometry( *it ));
          if (!cell) { printf("ecalEndcap cell not a TruncatedPyramid !!\n"); continue;}
 
-         TGeoVolume* volume = 0;
+         TGeoVolume* volume = nullptr;
          CaloVolMap::iterator volIt =  caloShapeMap.find(cell->param());
          if  ( volIt == caloShapeMap.end()) 
          {

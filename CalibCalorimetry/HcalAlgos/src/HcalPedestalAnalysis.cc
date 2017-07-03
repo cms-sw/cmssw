@@ -14,19 +14,19 @@
 using namespace std;
 
 HcalPedestalAnalysis::HcalPedestalAnalysis(const edm::ParameterSet& ps)
-  : fRefPedestals (0),
-    fRefPedestalWidths (0),
-    fRawPedestals (0),
-    fRawPedestalWidths (0),
-    fValPedestals (0),
-    fValPedestalWidths (0),
-    fTopology(0)
+  : fRefPedestals (nullptr),
+    fRefPedestalWidths (nullptr),
+    fRawPedestals (nullptr),
+    fRawPedestalWidths (nullptr),
+    fValPedestals (nullptr),
+    fValPedestalWidths (nullptr),
+    fTopology(nullptr)
 {
-  m_coder = 0;
-  m_shape = 0;
+  m_coder = nullptr;
+  m_shape = nullptr;
   evt=0;
   sample=0;
-  m_file=0;
+  m_file=nullptr;
   m_AllPedsOK=0;
   for(int i=0; i<4; i++) m_stat[i]=0;
   for(int k=0;k<4;k++) state.push_back(true);

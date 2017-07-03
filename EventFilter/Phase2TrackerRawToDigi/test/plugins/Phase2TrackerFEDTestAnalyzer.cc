@@ -72,7 +72,7 @@ void Phase2TrackerFEDTestAnalyzer::analyze( const edm::Event& event, const edm::
     if(fed.size()!=0 && fedIndex >= Phase2Tracker::FED_ID_MIN && fedIndex <= Phase2Tracker::FED_ID_MAX)
     {
       // construct buffer
-      Phase2Tracker:: Phase2TrackerFEDBuffer* buffer = 0;
+      Phase2Tracker:: Phase2TrackerFEDBuffer* buffer = nullptr;
       buffer = new Phase2Tracker::Phase2TrackerFEDBuffer(fed.data(),fed.size());
 
       cout << " -------------------------------------------- " << endl;

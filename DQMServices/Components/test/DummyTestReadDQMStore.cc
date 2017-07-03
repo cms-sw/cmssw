@@ -34,7 +34,7 @@ class TH1FReader : public ReaderBase {
              bool iSetLumiFlag)
       : folder_(folder),
         m_store(&iStore),
-        m_element(0),
+        m_element(nullptr),
         m_means(iPSet.getUntrackedParameter<std::vector<double> >("means")),
         m_entries(iPSet.getUntrackedParameter<std::vector<double> >("entries")),
         m_indexToCheck(0) {
@@ -49,17 +49,17 @@ class TH1FReader : public ReaderBase {
   virtual ~TH1FReader() {};
  
   void reset() {
-    if (0 == m_element) {
+    if (nullptr == m_element) {
       m_element = m_store->get(folder_ + m_name);
-      if (0 != m_element)
+      if (nullptr != m_element)
         m_element->Reset();
     }
   }
     
   void read() {
-    if (0 == m_element) {
+    if (nullptr == m_element) {
       m_element = m_store->get(folder_ + m_name);
-      if (0 == m_element) {
+      if (nullptr == m_element) {
         throw cms::Exception("MissingElement") << "The element: "
                                                << m_name << " was not found";
       }
@@ -101,7 +101,7 @@ class TH2FReader : public ReaderBase {
   TH2FReader(const edm::ParameterSet& iPSet,DQMStore& iStore, std::string folder, bool iSetLumiFlag):
       folder_(folder),
       m_store(&iStore),
-      m_element(0),
+      m_element(nullptr),
       m_means(iPSet.getUntrackedParameter<std::vector<double> >("means")),
       m_entries(iPSet.getUntrackedParameter<std::vector<double> >("entries")),
       m_indexToCheck(0)
@@ -117,17 +117,17 @@ class TH2FReader : public ReaderBase {
   virtual ~TH2FReader() {};
  
   void reset() {
-    if (0 == m_element) {
+    if (nullptr == m_element) {
       m_element = m_store->get(folder_ + m_name);
-      if (0 != m_element)
+      if (nullptr != m_element)
         m_element->Reset();
     }
   }
 
   void read() {
-    if (0 == m_element) {
+    if (nullptr == m_element) {
       m_element = m_store->get(folder_ + m_name);
-      if (0 == m_element) {
+      if (nullptr == m_element) {
         throw cms::Exception("MissingElement") << "The element: " << m_name
                                                << " was not found";
       }

@@ -45,8 +45,8 @@ MultiIsolator::addIsolator(BaseIsolator *iso, uint32_t mask, pat::IsolationKeys 
 
 BaseIsolator *
 MultiIsolator::make(const edm::ParameterSet &conf, edm::ConsumesCollector & iC, bool withCut) {
-    if (conf.empty()) return 0;
-    if (conf.exists("placeholder") && conf.getParameter<bool>("placeholder")) return 0;
+    if (conf.empty()) return nullptr;
+    if (conf.exists("placeholder") && conf.getParameter<bool>("placeholder")) return nullptr;
     if (conf.exists("deltaR")) {
         return new IsoDepositIsolator(conf, iC, withCut);
     } else {

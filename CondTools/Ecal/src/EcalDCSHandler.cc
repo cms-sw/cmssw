@@ -181,7 +181,7 @@ bool popcon::EcalDCSHandler::insertHVDataSetToOffline( const std::map<EcalLogicI
       int sm= ecid.getID1() ;
       int chan= ecid.getID2();
       
-      int* limits=0;
+      int* limits=nullptr;
       limits=  HVLogicIDToDetID(sm,chan);
       int iz=limits[0];
       int i1=limits[1];
@@ -215,7 +215,7 @@ bool popcon::EcalDCSHandler::insertHVDataSetToOffline( const std::map<EcalLogicI
       int dee= ecid.getID1() ;
       int chan= ecid.getID2();
       
-      int* limits=0;
+      int* limits=nullptr;
       limits=  HVEELogicIDToDetID(dee,chan);
       int iz=limits[0];
       int i1=limits[1];
@@ -522,7 +522,7 @@ bool popcon::EcalDCSHandler::insertLVDataSetToOffline( const std::map<EcalLogicI
       int sm= ecid.getID1() ;
       int chan= ecid.getID2();
 
-      int* limits=0;
+      int* limits=nullptr;
       limits=   LVLogicIDToDetID(sm,chan);
       int iz=limits[0];
       int i1=limits[1];
@@ -752,7 +752,7 @@ void popcon::EcalDCSHandler::getNewObjects()
 	  // always call this method at first run
 
 	  std::map<EcalLogicID, RunDCSHVDat> dataset;
-	  RunIOV *r = NULL;
+	  RunIOV *r = nullptr;
 	  econn->fetchDataSet(&dataset, r);
 	  
 	  if (!dataset.size()) {

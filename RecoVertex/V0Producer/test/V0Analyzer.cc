@@ -546,8 +546,8 @@ void V0Analyzer::analyze(const edm::Event& iEvent,
   for(unsigned int stkidx1 = 0; stkidx1 < theSimTracks.size(); stkidx1++) {
     for(unsigned int stkidx2 = stkidx1 + 1; stkidx2 < theSimTracks.size();
 	stkidx2++) {
-      SimTrack *thePosSimTk = 0;
-      SimTrack *theNegSimTk = 0;
+      SimTrack *thePosSimTk = nullptr;
+      SimTrack *theNegSimTk = nullptr;
       if( theSimTracks[stkidx1].charge() > 0. 
 	  && theSimTracks[stkidx2].charge() < 0. ) {
 	thePosSimTk = &theSimTracks[stkidx1];
@@ -577,7 +577,7 @@ void V0Analyzer::analyze(const edm::Event& iEvent,
 	double k0sInvMass = k0sMomentum.M();
 	simTkMpipiHisto->Fill(k0sInvMass, 1.);
       }
-      thePosSimTk = theNegSimTk = 0;
+      thePosSimTk = theNegSimTk = nullptr;
     }
   }
 

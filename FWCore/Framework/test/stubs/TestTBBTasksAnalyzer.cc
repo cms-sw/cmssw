@@ -73,7 +73,7 @@ namespace {
          }
          usleep(m_usecondsToSleep);
          --(*m_count);
-         return 0;
+         return nullptr;
       }
    private:
       unsigned int m_usecondsToSleep;

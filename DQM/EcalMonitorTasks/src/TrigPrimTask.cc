@@ -16,7 +16,7 @@ namespace ecaldqm
 {
   TrigPrimTask::TrigPrimTask() :
     DQWorkerTask(),
-    realTps_(0),
+    realTps_(nullptr),
     runOnEmul_(false),
     //     HLTCaloPath_(""),
     //     HLTMuonPath_(""),
@@ -71,7 +71,7 @@ namespace ecaldqm
 
     towerReadouts_.clear();
 
-    realTps_ = 0;
+    realTps_ = nullptr;
 
     //     HLTCaloBit_ = false;
     //     HLTMuonBit_ = false;

@@ -67,11 +67,11 @@ TOBLayer* TOBLayerBuilder::build(const GeometricDet* aTOBLayer,
     if(positiveZrods.size()>0){
       for(unsigned int index=0; index!=positiveZrods.size(); index++){
 	if(positiveZrods[index]->positionBounds().perp() < positiveMeanR)
-	  theInnerRods.push_back(myTOBRodBuilder.build(0,
+	  theInnerRods.push_back(myTOBRodBuilder.build(nullptr,
 						       positiveZrods[index],
 						       theGeomDetGeometry)    );       
 	if(positiveZrods[index]->positionBounds().perp() >= positiveMeanR)
-	  theOuterRods.push_back(myTOBRodBuilder.build(0,
+	  theOuterRods.push_back(myTOBRodBuilder.build(nullptr,
 						       positiveZrods[index],
 						       theGeomDetGeometry)    );       
       }
@@ -80,11 +80,11 @@ TOBLayer* TOBLayerBuilder::build(const GeometricDet* aTOBLayer,
       for(unsigned int index=0; index!=negativeZrods.size(); index++){
 	if(negativeZrods[index]->positionBounds().perp() < negativeMeanR)
 	  theInnerRods.push_back(myTOBRodBuilder.build(negativeZrods[index],
-						       0,
+						       nullptr,
 						       theGeomDetGeometry)    );       
 	if(negativeZrods[index]->positionBounds().perp() >= negativeMeanR)
 	  theOuterRods.push_back(myTOBRodBuilder.build(negativeZrods[index],
-						       0,
+						       nullptr,
 						       theGeomDetGeometry)    );
       }
     }

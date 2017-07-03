@@ -474,11 +474,11 @@ const l1t::L1Candidate* l1t::CaloCondition::getCandidate(const int bx, const int
             return (m_uGtB->getCandL1Tau())->at(bx,indexCand);
             break;
         default:
-            return 0;
+            return nullptr;
             break;
     }
 
-    return 0;
+    return nullptr;
 }
 
 /**

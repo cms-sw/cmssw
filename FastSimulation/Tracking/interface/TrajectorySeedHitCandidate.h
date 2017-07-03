@@ -27,7 +27,7 @@ public:
   
   /// Default Constructor
   TrajectorySeedHitCandidate():
-    theHit(0),
+    theHit(nullptr),
     seedingLayer()
     
    {

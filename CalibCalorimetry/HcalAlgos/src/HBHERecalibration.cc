@@ -6,7 +6,7 @@
 //reuse parsing function to read mean energy table
 HBHERecalibration::HBHERecalibration(float intlumi, float cutoff, std::string meanenergies) :
 	intlumi_(intlumi), cutoff_(cutoff), ieta_shift_(0), max_depth_(0),
-	meanenergies_(HBHEDarkening::readDoseMap(meanenergies)), darkening_(NULL)
+	meanenergies_(HBHEDarkening::readDoseMap(meanenergies)), darkening_(nullptr)
 {}
 
 HBHERecalibration::~HBHERecalibration() {}

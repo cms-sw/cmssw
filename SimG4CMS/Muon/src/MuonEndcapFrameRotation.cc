@@ -3,7 +3,7 @@
 #include "G4StepPoint.hh"
 #include "G4TouchableHistory.hh"
 
-Local3DPoint MuonEndcapFrameRotation::transformPoint(const Local3DPoint & point,const G4Step * s=0) const {
+Local3DPoint MuonEndcapFrameRotation::transformPoint(const Local3DPoint & point,const G4Step * s=nullptr) const {
   if (!s)
     return Local3DPoint(0.,0.,0.);
       

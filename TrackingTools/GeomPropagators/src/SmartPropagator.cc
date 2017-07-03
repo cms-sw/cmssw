@@ -54,7 +54,7 @@ SmartPropagator::SmartPropagator(const Propagator& aTkProp, const Propagator& aG
 
 
 SmartPropagator::SmartPropagator(const SmartPropagator& aProp) :
-  Propagator(aProp.propagationDirection()), theTkProp(0), theGenProp(0) { 
+  Propagator(aProp.propagationDirection()), theTkProp(nullptr), theGenProp(nullptr) { 
     if (aProp.theTkProp)
       theTkProp=aProp.getTkPropagator()->clone();
     if (aProp.theGenProp)

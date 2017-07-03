@@ -98,7 +98,7 @@ namespace contrib{
     /// ctor with initialisation
     ///  \param pieces  the pieces of the created jet
     ///  \param rec     the recombiner from the underlying cluster sequence
-    CMSBoostedTauSeedingAlgorithmStructure(const PseudoJet& result_jet, const JetDefinition::Recombiner* rec = 0) 
+    CMSBoostedTauSeedingAlgorithmStructure(const PseudoJet& result_jet, const JetDefinition::Recombiner* rec = nullptr) 
       : CompositeJetStructure(result_jet.pieces(), rec), 
         _mu(0.0), _y(0.0), _dR(0.0), _pt(0.0) 
     {}

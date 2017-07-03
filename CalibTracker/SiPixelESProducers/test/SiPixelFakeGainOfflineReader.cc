@@ -115,7 +115,7 @@ SiPixelFakeGainOfflineReader::beginRun(const edm::Run &run , const edm::EventSet
       uint32_t detid = *detid_iter;
       
       const PixelGeomDetUnit* _PixelGeomDetUnit = dynamic_cast<const PixelGeomDetUnit*>(tkgeom->idToDetUnit(DetId(detid)));
-      if (_PixelGeomDetUnit==0){
+      if (_PixelGeomDetUnit==nullptr){
 	edm::LogError("SiPixelFakeGainOfflineDisplay")<<"[SiPixelFakeGainOfflineReader::beginJob] the detID "<<detid<<" doesn't seem to belong to Tracker"<<std::endl; 
 	continue;
       }     

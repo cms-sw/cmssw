@@ -57,7 +57,7 @@ void L1ValidatorHists::Book(DQMStore::IBooker &iBooker){
 }
 
 void L1ValidatorHists::Fill(int i, const reco::LeafCandidate *GenPart, const reco::LeafCandidate *L1Part){
-  if(L1Part==NULL) {
+  if(L1Part==nullptr) {
      Eff_Pt_Denom[i]->Fill(GenPart->pt());
      if(GenPart->pt()>10)Eff_Eta_Denom[i]->Fill(GenPart->eta());
      TurnOn_15_Denom[i]->Fill(GenPart->pt());

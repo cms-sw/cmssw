@@ -47,7 +47,7 @@ LimitAndTimespan::LimitAndTimespan( int lim, int ts, int ivl )
 CountAndLimit::CountAndLimit( int lim, int ts, int ivl )
 : n         ( 0 )
 , aggregateN( 0 )
-, lastTime  ( time(0) )
+, lastTime  ( time(nullptr) )
 , limit     ( lim )
 , timespan  ( ts  )
 , interval  ( ivl )
@@ -57,7 +57,7 @@ CountAndLimit::CountAndLimit( int lim, int ts, int ivl )
 
 bool  CountAndLimit::add()  {
 
-  time_t  now = time(0);
+  time_t  now = time(nullptr);
 
 #ifdef ELcountTRACE
   std::cerr << "&&&--- CountAndLimit::add \n";

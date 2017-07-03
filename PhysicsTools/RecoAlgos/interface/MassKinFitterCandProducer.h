@@ -13,7 +13,7 @@
 
 class MassKinFitterCandProducer : public edm::EDProducer {
 public:
-  explicit MassKinFitterCandProducer(const edm::ParameterSet&, CandMassKinFitter * = 0);
+  explicit MassKinFitterCandProducer(const edm::ParameterSet&, CandMassKinFitter * = nullptr);
 private:
   edm::EDGetTokenT<reco::CandidateCollection> srcToken_;
   std::unique_ptr<CandMassKinFitter> fitter_;

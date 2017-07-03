@@ -39,7 +39,7 @@ private:
 void
 FWRPCDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*)
 {
-  const RPCDigiCollection* digis = 0;
+  const RPCDigiCollection* digis = nullptr;
  
   iItem->get(digis);
 

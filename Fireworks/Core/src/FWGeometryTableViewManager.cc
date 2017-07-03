@@ -26,7 +26,7 @@
 #include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/interface/fwLog.h"
 
-TGeoManager* FWGeometryTableViewManager::s_geoManager = 0;
+TGeoManager* FWGeometryTableViewManager::s_geoManager = nullptr;
 
 TGeoManager* FWGeometryTableViewManager_GetGeoManager() { return FWGeometryTableViewManager::getGeoMangeur(); }
 

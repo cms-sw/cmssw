@@ -311,8 +311,8 @@ void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c){
   
   for(histo=histolist.begin();histo!=histolist.end();++histo){
   
-  FitFunction = 0;
-  FitFunction2IT = 0;
+  FitFunction = nullptr;
+  FitFunction2IT = nullptr;
   bool Good2ITFit = false;
   bool ModuleHisto = true;
   
@@ -343,7 +343,7 @@ void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c){
     ModuleHisto=false;
     edm::LogInfo("SiStripCalibLorentzAngle")<<"### NO MODULE HISTOGRAM";}
     
-    if(stripdet!=0 && ModuleHisto==true){
+    if(stripdet!=nullptr && ModuleHisto==true){
     
       if(subid.subdetId() == int (StripSubdetector::TIB)){
       
@@ -367,7 +367,7 @@ void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c){
     
     //get magnetic field
     const StripGeomDetUnit* det = dynamic_cast<const StripGeomDetUnit*>(estracker->idToDetUnit(detid));
-    if (det==0){
+    if (det==nullptr){
     edm::LogError("SiStripCalibLorentzAngle") << "[SiStripCalibLorentzAngle::getNewObject] the detID " << id << " doesn't seem to belong to Tracker" <<std::endl; 	
     continue;
     }
@@ -376,7 +376,7 @@ void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c){
     theBfield = (theBfield > 0) ? theBfield : 0.00001; 
     TH1Ds["MagneticField"]->Fill(theBfield);    
     }
-    if(stripdet==0)continue;
+    if(stripdet==nullptr)continue;
       
     if(((*histo)->getEntries()<=FitCuts_Entries)&&ModuleHisto==true){
     if(((*histo)->getEntries()==0)&&ModuleHisto==true){    

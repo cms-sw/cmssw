@@ -92,7 +92,7 @@ class BeamSpotRcdReader : public edm::one::EDAnalyzer<edm::one::SharedResources>
 // constructors and destructor
 //
 BeamSpotRcdReader::BeamSpotRcdReader(const edm::ParameterSet& iConfig) :
-  bstree_(0)
+  bstree_(nullptr)
 {
   //now do what ever initialization is needed
   usesResource("TFileService");

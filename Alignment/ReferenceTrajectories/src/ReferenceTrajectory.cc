@@ -364,7 +364,7 @@ ReferenceTrajectory::createUpdator(MaterialEffects materialEffects, double mass)
     return new CombinedMaterialEffectsUpdator(mass);
 }
 
-  return 0;
+  return nullptr;
 }
 
 //__________________________________________________________________________________

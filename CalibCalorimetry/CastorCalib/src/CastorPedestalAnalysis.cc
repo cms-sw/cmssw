@@ -13,16 +13,16 @@
 using namespace std;
 
 CastorPedestalAnalysis::CastorPedestalAnalysis(const edm::ParameterSet& ps)
-  : fRefPedestals (0),
-    fRefPedestalWidths (0),
-    fRawPedestals (0),
-    fRawPedestalWidths (0),
-    fValPedestals (0),
-    fValPedestalWidths (0)
+  : fRefPedestals (nullptr),
+    fRefPedestalWidths (nullptr),
+    fRawPedestals (nullptr),
+    fRawPedestalWidths (nullptr),
+    fValPedestals (nullptr),
+    fValPedestalWidths (nullptr)
 {
   evt=0;
   sample=0;
-  m_file=0;
+  m_file=nullptr;
   m_AllPedsOK=0;
   for(int i=0; i<4; i++) m_stat[i]=0;
   for(int k=0;k<4;k++) state.push_back(true);

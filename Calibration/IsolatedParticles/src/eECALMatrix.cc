@@ -21,7 +21,7 @@ namespace spr{
     std::vector<DetId> vdets;
     spr::matrixECALIds(detId, ieta, iphi, geo, caloTopology, vdets, debug);
 
-    const EcalRecHitCollection * recHitsEB = 0;
+    const EcalRecHitCollection * recHitsEB = nullptr;
     if (hitsEB.isValid())  recHitsEB = hitsEB.product();
     bool flag = true;
 #ifdef EDM_ML_DEBUG
@@ -98,7 +98,7 @@ namespace spr{
     std::vector<DetId> vdets;
     spr::matrixECALIds(detId, ieta, iphi, geo, caloTopology, vdets, debug);
 
-    const EcalRecHitCollection * recHitsEB = 0;
+    const EcalRecHitCollection * recHitsEB = nullptr;
     if (hitsEB.isValid())  recHitsEB = hitsEB.product();
     bool flag = true;
 #ifdef EDM_ML_DEBUG

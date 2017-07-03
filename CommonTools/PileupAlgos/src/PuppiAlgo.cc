@@ -96,7 +96,7 @@ void PuppiAlgo::add(const fastjet::PseudoJet &iParticle,const double &iVal,const
     int puppi_register = std::numeric_limits<int>::lowest();
     if ( iParticle.has_user_info() ) {
         PuppiContainer::PuppiUserInfo const * pInfo = dynamic_cast<PuppiContainer::PuppiUserInfo const *>( iParticle.user_info_ptr() );
-        if ( pInfo != 0 ) {
+        if ( pInfo != nullptr ) {
             puppi_register = pInfo->puppi_register();
         }
     }

@@ -57,7 +57,7 @@ ME0Geometry* ME0GeometryBuilderFromCondDB::build(const RecoIdealGeometry& rgeo)
                               *(rotStart+3), *(rotStart+4), *(rotStart+5),
                               *(rotStart+6), *(rotStart+7), *(rotStart+8));
     
-    Bounds* bounds = 0;
+    Bounds* bounds = nullptr;
     float be = *(shapeStart+0)/cm;
     float te = *(shapeStart+1)/cm;
     float ap = *(shapeStart+2)/cm;

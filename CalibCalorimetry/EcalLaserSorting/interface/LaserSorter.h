@@ -149,7 +149,7 @@ private:
    * -2 is returned.
    */
   int getDetailedTriggerType(const edm::Handle<FEDRawDataCollection>& rawdata,
-                             double* proba = 0);
+                             double* proba = nullptr);
 
   /** Closes output stream 2 lumi block older than the input 'lumiBlock' ID.
    * @param lumiBlock ID of the reference luminosity block.
@@ -245,8 +245,8 @@ private:
    * @nTowerBlocks if not null, filled with number of tower blocks
    * @return true if event is empty, false otherwise
    */
-  bool isDccEventEmpty(const FEDRawData& data, size_t* dccLen = 0,
-		       int* nTowerBlocks = 0) const;
+  bool isDccEventEmpty(const FEDRawData& data, size_t* dccLen = nullptr,
+		       int* nTowerBlocks = nullptr) const;
   
   /** Computes the list of FEDs which data must be written out.
    * @param data CMS raw event

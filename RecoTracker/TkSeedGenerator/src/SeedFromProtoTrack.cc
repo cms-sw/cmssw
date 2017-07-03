@@ -32,7 +32,7 @@ SeedFromProtoTrack::SeedFromProtoTrack(const reco::Track & proto,
 SeedFromProtoTrack::SeedFromProtoTrack(const reco::Track & proto,  const edm::EventSetup& es)
   : theValid(true)
 {
-  const TrackingRecHit* hit = 0;
+  const TrackingRecHit* hit = nullptr;
   for (unsigned int iHit = 0, nHits = proto.recHitsSize(); iHit < nHits; ++iHit) {
     TrackingRecHitRef refHit = proto.recHit(iHit);
     hit = &(*refHit);

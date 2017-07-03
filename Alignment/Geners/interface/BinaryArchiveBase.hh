@@ -100,7 +100,7 @@ namespace gs {
         inline CPP11_shared_ptr<const CatalogEntry>
         catalogEntry(const unsigned long long id)
             {return catalog_ ? catalog_->retrieveEntry(id) :
-             CPP11_shared_ptr<const CatalogEntry>((const CatalogEntry*)0);}
+             CPP11_shared_ptr<const CatalogEntry>((const CatalogEntry*)nullptr);}
 
         // Inspection methods for compression options
         inline CStringStream::CompressionMode compressionMode() const

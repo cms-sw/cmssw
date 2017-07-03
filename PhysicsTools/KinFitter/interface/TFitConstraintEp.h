@@ -34,9 +34,9 @@ public :
   virtual ~TFitConstraintEp();
 
   void addParticle( TAbsFitParticle* particle );
-  void addParticles( TAbsFitParticle* p1, TAbsFitParticle* p2 = 0, TAbsFitParticle* p3 = 0, TAbsFitParticle* p4 = 0,
-		     TAbsFitParticle* p5 = 0, TAbsFitParticle* p6 = 0, TAbsFitParticle* p7 = 0, TAbsFitParticle* p8 = 0,
-		     TAbsFitParticle* p9 = 0, TAbsFitParticle* p10 = 0);
+  void addParticles( TAbsFitParticle* p1, TAbsFitParticle* p2 = nullptr, TAbsFitParticle* p3 = nullptr, TAbsFitParticle* p4 = nullptr,
+		     TAbsFitParticle* p5 = nullptr, TAbsFitParticle* p6 = nullptr, TAbsFitParticle* p7 = nullptr, TAbsFitParticle* p8 = nullptr,
+		     TAbsFitParticle* p9 = nullptr, TAbsFitParticle* p10 = nullptr);
   void setConstraint(Double_t constraint){_constraint = constraint;};
 
   // returns derivative df/dP with P=(p,E) and f the constraint f=0.

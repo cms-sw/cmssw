@@ -47,9 +47,9 @@ private:
 void
 FWPFTauProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* product, FWViewType::EType viewType , const FWViewContext* vc)
 {
-   reco::PFTauCollection const * pfTaus = 0;
+   reco::PFTauCollection const * pfTaus = nullptr;
    iItem->get( pfTaus );
-   if( pfTaus == 0 ) return;
+   if( pfTaus == nullptr ) return;
 
    for( reco::PFTauCollection::const_iterator it = pfTaus->begin(), itEnd = pfTaus->end(); it != itEnd; ++it)
    { 
@@ -88,7 +88,7 @@ FWPFTauProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* p
          catch (std::exception&  e)
          { 
             fwLog(fwlog::kInfo) << "FWPFTauProxyBuilder missing PFTauTagInfo. Skip drawing of jets.\n";
-            buildBaseTau(*it, 0, comp, viewType, vc);         
+            buildBaseTau(*it, nullptr, comp, viewType, vc);         
          }
       }
       setupAddElement( comp, product );

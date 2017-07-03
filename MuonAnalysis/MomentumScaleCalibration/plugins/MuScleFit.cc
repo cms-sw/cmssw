@@ -616,7 +616,7 @@ MuScleFit::~MuScleFit () {
 	    std::cout<<"  muon2 = "<<it->mu2<<std::endl;
 	  }
 	}
-        rootTreeHandler.writeTree(outputRootTreeFileName_, &(muonPairs_), theMuonType_, 0, saveAllToTree_);
+        rootTreeHandler.writeTree(outputRootTreeFileName_, &(muonPairs_), theMuonType_, nullptr, saveAllToTree_);
       }
       else {
         // rootTreeHandler.writeTree(outputRootTreeFileName_, &(MuScleFitUtils::SavedPair), theMuonType_, &(MuScleFitUtils::genPair), saveAllToTree_ );

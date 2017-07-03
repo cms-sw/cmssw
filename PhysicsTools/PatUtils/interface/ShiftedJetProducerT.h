@@ -45,8 +45,8 @@ template <typename T, typename Textractor>
       src_(cfg.getParameter<edm::InputTag>("src")),
       srcToken_(consumes<JetCollection>(src_)),
       jetCorrPayloadName_(""),
-      jetCorrParameters_(0),
-      jecUncertainty_(0),
+      jetCorrParameters_(nullptr),
+      jecUncertainty_(nullptr),
       jecUncertaintyValue_(-1.)
   {
     if ( cfg.exists("jecUncertaintyValue") ) {

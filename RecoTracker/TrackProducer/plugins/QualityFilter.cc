@@ -80,8 +80,8 @@ QualityFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   
   unique_ptr<TrackCollection> selTracks(new TrackCollection);
-  unique_ptr<TrackingRecHitCollection> selHits(copyExtras_ ? new TrackingRecHitCollection() : 0);
-  unique_ptr<TrackExtraCollection> selTrackExtras(copyExtras_ ? new TrackExtraCollection() : 0);
+  unique_ptr<TrackingRecHitCollection> selHits(copyExtras_ ? new TrackingRecHitCollection() : nullptr);
+  unique_ptr<TrackExtraCollection> selTrackExtras(copyExtras_ ? new TrackExtraCollection() : nullptr);
   unique_ptr<vector<Trajectory> > outputTJ(new vector<Trajectory> );
   unique_ptr<TrajTrackAssociationCollection> trajTrackMap( new TrajTrackAssociationCollection() );
   

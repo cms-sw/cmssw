@@ -107,7 +107,7 @@ void L1MuDTEtaProcessor::reset() {
   while ( iter != m_tseta.end() ) {
     if ( *iter ) {
       delete *iter;
-      *iter = 0;
+      *iter = nullptr;
     }
     iter++;
   }
@@ -119,8 +119,8 @@ void L1MuDTEtaProcessor::reset() {
     m_fine[i] = false;
     m_pattern[i] = 0;
     m_address[i] = 0;
-    m_TrackCand[i] = 0;
-    m_TracKCand[i] = 0;
+    m_TrackCand[i] = nullptr;
+    m_TracKCand[i] = nullptr;
   }
 
   m_foundPattern.clear();
@@ -137,7 +137,7 @@ void L1MuDTEtaProcessor::print() const {
 
   bool empty1 = true;
   for ( int i = 0; i < 15; i++ ) {
-    empty1 &= ( m_tseta[i] == 0 || m_tseta[i]->empty() );
+    empty1 &= ( m_tseta[i] == nullptr || m_tseta[i]->empty() );
   }
 
   bool empty2 = true;
@@ -441,7 +441,7 @@ void L1MuDTEtaProcessor::assign() {
         // find all contributing track segments 
         const L1MuDTEtaPattern p = theEtaPatternLUT->getPattern(m_pattern[i]);
         vector<const L1MuDTTrackSegEta*> TSeta;
-        const L1MuDTTrackSegEta* ts = 0;
+        const L1MuDTTrackSegEta* ts = nullptr;
         for ( int stat = 0; stat < 3; stat++ ) {
           int wh = p.wheel(stat+1);
           int pos = p.position(stat+1);

@@ -34,7 +34,7 @@ void SiStripDetVOffFakeBuilder::initialize( const edm::EventSetup& iSetup ) {
   
   for(TrackerGeometry::DetUnitContainer::const_iterator it = pDD->detUnits().begin(); it != pDD->detUnits().end(); it++){
   
-    if( dynamic_cast<StripGeomDetUnit const*>((*it))!=0){
+    if( dynamic_cast<StripGeomDetUnit const*>((*it))!=nullptr){
       uint32_t detid=((*it)->geographicalId()).rawId();            
       const StripTopology& p = dynamic_cast<StripGeomDetUnit const*>((*it))->specificTopology();
       unsigned short Nstrips = p.nstrips();

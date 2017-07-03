@@ -211,7 +211,7 @@ namespace {
     // this allows SimpleTrackListMerger to be used as a cleaner only if handed just one list
     // if both input lists don't exist, will issue 2 warnings and generate an empty output collection
     //
-    const reco::TrackCollection *TC1 = 0;
+    const reco::TrackCollection *TC1 = nullptr;
     static const reco::TrackCollection s_empty1, s_empty2;
     edm::Handle<reco::TrackCollection> trackCollection1;
     e.getByToken(trackProducer1Token, trackCollection1);
@@ -224,7 +224,7 @@ namespace {
     }
     const reco::TrackCollection tC1 = *TC1;
 
-    const reco::TrackCollection *TC2 = 0;
+    const reco::TrackCollection *TC2 = nullptr;
     edm::Handle<reco::TrackCollection> trackCollection2;
     e.getByToken(trackProducer2Token, trackCollection2);
     if (trackCollection2.isValid()) {

@@ -427,7 +427,7 @@ int DAFTrackProducerAlgorithm::checkHits( Trajectory iInitTraj, const Trajectory
 
       TrajectoryMeasurement imeas = finalmeasurements.at(ihit);
       const TrackingRecHit* finalHit = imeas.recHit()->hit();
-      const TrackingRecHit* MaxWeightHit=0;
+      const TrackingRecHit* MaxWeightHit=nullptr;
       float maxweight = 0;
   
       const SiTrackerMultiRecHit* mrh = dynamic_cast<const SiTrackerMultiRecHit*>(finalHit);

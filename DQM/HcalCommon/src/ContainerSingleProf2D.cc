@@ -4,9 +4,9 @@ namespace hcaldqm
 {
 	ContainerSingleProf2D::ContainerSingleProf2D()
 	{
-		_qx = NULL;
-		_qy = NULL;
-		_qz = NULL;
+		_qx = nullptr;
+		_qy = nullptr;
+		_qz = nullptr;
 	}
 
 	ContainerSingleProf2D::ContainerSingleProf2D(std::string const& folder,

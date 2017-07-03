@@ -141,8 +141,8 @@ void EgHLTOfflineSummaryClient::runClient_()
   MonitorElement* hltEleSumBit = dbe_->get("HLT/EventInfo/reportSummaryContents/HLT_Electron");
   MonitorElement* hltPhoSumBit = dbe_->get("HLT/EventInfo/reportSummaryContents/HLT_Photon");
   dbe_->setCurrentFolder("HLT/EventInfo/reportSummaryContents/");
-  if(hltEleSumBit==NULL) hltEleSumBit = dbe_->bookFloat("HLT_Electron");
-  if(hltPhoSumBit==NULL) hltPhoSumBit = dbe_->bookFloat("HLT_Photon");
+  if(hltEleSumBit==nullptr) hltEleSumBit = dbe_->bookFloat("HLT_Electron");
+  if(hltPhoSumBit==nullptr) hltPhoSumBit = dbe_->bookFloat("HLT_Photon");
 
   
   float eleSumBit=1.;
@@ -185,7 +185,7 @@ void EgHLTOfflineSummaryClient::splitStringsToPairs_(const std::vector<std::stri
 MonitorElement* EgHLTOfflineSummaryClient::getEgHLTSumHist_()
 {
   MonitorElement* egHLTSumHist = dbe_->get(dirName_+"/"+egHLTSumHistName_);
-  if(egHLTSumHist==NULL){
+  if(egHLTSumHist==nullptr){
     TH2F* hist = new TH2F(egHLTSumHistName_.c_str(),"E/g HLT Offline Summary",egHLTSumHistXBins_.size(),0.,1.,egHLTFiltersToMon_.size(),0.,1.);
     for(size_t xBinNr=0;xBinNr<egHLTSumHistXBins_.size();xBinNr++){
       hist->GetXaxis()->SetBinLabel(xBinNr+1,egHLTSumHistXBins_[xBinNr].name.c_str());

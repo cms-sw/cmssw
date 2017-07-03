@@ -43,7 +43,7 @@ MuonBestMeasurementFinder::findBestMeasurement(std::vector<TrajectoryMeasurement
 
   TMContainer validMeasurements;
 
-  TrajectoryMeasurement* bestMeasurement=0;
+  TrajectoryMeasurement* bestMeasurement=nullptr;
 
   // consider only valid TM
   int NumValidMeas=0;

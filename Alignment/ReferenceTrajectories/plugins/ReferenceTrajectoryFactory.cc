@@ -52,7 +52,7 @@ ReferenceTrajectoryFactory::ReferenceTrajectoryFactory( const edm::ParameterSet 
   TrajectoryFactoryBase( config ),
   theMass(config.getParameter<double>("ParticleMass")),
   theUseBzeroIfFieldOff(config.getParameter<bool>("UseBzeroIfFieldOff")),
-  theBzeroFactory(0)
+  theBzeroFactory(nullptr)
 {
   edm::LogInfo("Alignment") << "@SUB=ReferenceTrajectoryFactory"
                             << "mass: " << theMass
@@ -64,7 +64,7 @@ ReferenceTrajectoryFactory::ReferenceTrajectoryFactory(const ReferenceTrajectory
   TrajectoryFactoryBase(other),
   theMass(other.theMass),
   theUseBzeroIfFieldOff(other.theUseBzeroIfFieldOff),
-  theBzeroFactory(0) // copy data members, but no double pointing to same Bzero factory...
+  theBzeroFactory(nullptr) // copy data members, but no double pointing to same Bzero factory...
 {
 }
  

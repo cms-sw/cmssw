@@ -45,7 +45,7 @@ class TrackValidator : public edm::EDAnalyzer {
   }
 
   ~TrackValidator(){
-    if (hFile!=0) {
+    if (hFile!=nullptr) {
       hFile->Close();
       delete hFile;
     }

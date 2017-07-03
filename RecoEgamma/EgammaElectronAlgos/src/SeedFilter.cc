@@ -71,7 +71,7 @@ SeedFilter::SeedFilter(const edm::ParameterSet& conf,
   edm::ParameterSet seedCreatorPSet = conf.getParameter<edm::ParameterSet>("SeedCreatorPSet");
   std::string seedCreatorType = seedCreatorPSet.getParameter<std::string>("ComponentName");
 
-  combinatorialSeedGenerator = new SeedGeneratorFromRegionHits(hitsGenerator,0,
+  combinatorialSeedGenerator = new SeedGeneratorFromRegionHits(hitsGenerator,nullptr,
 							       SeedCreatorFactory::get()->create(seedCreatorType, seedCreatorPSet)
 				                  	       );
   beamSpotTag_ = tokens.token_bs; ;

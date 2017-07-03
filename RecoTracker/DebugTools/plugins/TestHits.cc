@@ -234,7 +234,7 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     for (std::vector<TrajectoryMeasurement>::iterator tm=vtm.begin(); tm!=vtm.end();tm++){
 
       TransientTrackingRecHit::ConstRecHitPointer rhit = tm->recHit();
-      if ((rhit)->isValid()==0&&rhit->det()!=0) continue;
+      if ((rhit)->isValid()==0&&rhit->det()!=nullptr) continue;
       LogTrace("TestHits") << "*****************new hit*****************" ;
 
       int subdetId = rhit->det()->geographicalId().subdetId();
@@ -401,12 +401,12 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	LogTrace("TestHits") << "MONO HIT" << std::endl;
         auto m = dynamic_cast<const SiStripMatchedRecHit2D*>((rhit)->hit())->monoHit();
 	CTTRHp tMonoHit = theBuilder->build(&m);
-	if (tMonoHit==0) continue;
+	if (tMonoHit==nullptr) continue;
 	vector<PSimHit> assMonoSimHits = hitAssociator.associateHit(*tMonoHit->hit());
 	if (assMonoSimHits.size()==0) continue;
 	const PSimHit sMonoHit = *(assSimHits.begin());
 	const Surface * monoSurf = &( tMonoHit->det()->surface() );
-	if (monoSurf==0) continue;
+	if (monoSurf==nullptr) continue;
 	TSOS monoState = thePropagator->propagate(lastState,*monoSurf);
 	if (monoState.isValid()==0) continue;
 
@@ -496,12 +496,12 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         auto s = dynamic_cast<const SiStripMatchedRecHit2D*>((rhit)->hit())->stereoHit();
 	CTTRHp tStereoHit = 
 	  theBuilder->build(&s);
-	if (tStereoHit==0) continue;
+	if (tStereoHit==nullptr) continue;
 	vector<PSimHit> assStereoSimHits = hitAssociator.associateHit(*tStereoHit->hit());
 	if (assStereoSimHits.size()==0) continue;
 	const PSimHit sStereoHit = *(assSimHits.begin());
 	const Surface * stereoSurf = &( tStereoHit->det()->surface() );
-	if (stereoSurf==0) continue;
+	if (stereoSurf==nullptr) continue;
 	TSOS stereoState = thePropagator->propagate(lastState,*stereoSurf);
 	if (stereoState.isValid()==0) continue;
 

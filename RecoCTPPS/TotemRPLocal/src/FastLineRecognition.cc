@@ -63,7 +63,7 @@ void FastLineRecognition::Cluster::add(const Point *p1, const Point *p2, double 
 //----------------------------------------------------------------------------------------------------
 
 FastLineRecognition::FastLineRecognition(double cw_a, double cw_b) :
-  chw_a(cw_a/2.), chw_b(cw_b/2.), geometry(NULL)
+  chw_a(cw_a/2.), chw_b(cw_b/2.), geometry(nullptr)
 {
 }
 

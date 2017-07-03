@@ -563,7 +563,7 @@ void TrackerTrackHitFilter::produceFromTrack(const edm::EventSetup &iSetup, cons
 	    DetId detid = hit->geographicalId();
 
 	    //check that the hit is a real hit and not a constraint
-	    if(hit->isValid() && hit==0 && detid.rawId()==0) continue;
+	    if(hit->isValid() && hit==nullptr && detid.rawId()==0) continue;
 
 	    int verdict=checkHit(iSetup,detid,hit);
 	    if (verdict == 0) {
@@ -600,7 +600,7 @@ void TrackerTrackHitFilter::produceFromTrajectory(const edm::EventSetup &iSetup,
   std::vector<TrajectoryMeasurement> tmColl =itt->measurements();
 
   //---OverlapBegin needed eventually for overlaps, but I must create them here in any case
-  const TrajectoryMeasurement* previousTM(0);
+  const TrajectoryMeasurement* previousTM(nullptr);
   DetId previousId(0);
   //int previousLayer(-1);
   ///---OverlapEnd
@@ -611,7 +611,7 @@ void TrackerTrackHitFilter::produceFromTrajectory(const edm::EventSetup &iSetup,
      TransientTrackingRecHit::ConstRecHitPointer hitpointer = itTrajMeas->recHit();
 
      //check that the hit is a real hit and not a constraint
-     if(hitpointer->isValid() && hitpointer->hit()==0){constrhits++; continue;}
+     if(hitpointer->isValid() && hitpointer->hit()==nullptr){constrhits++; continue;}
 
     const TrackingRecHit *hit=((*hitpointer).hit());
     DetId detid = hit->geographicalId();
@@ -643,7 +643,7 @@ void TrackerTrackHitFilter::produceFromTrajectory(const edm::EventSetup &iSetup,
 	  int subDet = detid.subdetId();
 	  //std::cout  << "  Check Subdet #" <<subDet << ", layer = " <<layer<<" stereo: "<< ((subDet > 2)?(SiStripDetId(detid).stereo()):2);
 
-	    if ( ( previousTM!=0 )&& (layer!=-1 )) {
+	    if ( ( previousTM!=nullptr )&& (layer!=-1 )) {
 	      //std::cout<<"A previous TM exists! "<<std::endl;
 	      for (std::vector<TrajectoryMeasurement>::const_iterator itmCompare =itTrajMeas-1;itmCompare >= tmColl.begin() &&  itmCompare > itTrajMeas - 4;--itmCompare){
 
@@ -756,7 +756,7 @@ bool TrackerTrackHitFilter::checkStoN(const edm::EventSetup &iSetup, const DetId
 	const SiStripCluster* cluster;
 	if (type == typeid(SiStripRecHit2D)) {
 	  const SiStripRecHit2D* hit = dynamic_cast<const SiStripRecHit2D*>(therechit);
-	  if (hit!=0) 	 cluster = &*(hit->cluster());
+	  if (hit!=nullptr) 	 cluster = &*(hit->cluster());
 	  else{
 	    edm::LogError("TrackerTrackHitFilter")<< "TrackerTrackHitFilter::checkStoN : Unknown valid tracker hit in subdet " << id.subdetId()<< "(detID="<<id.rawId()<<")\n ";
 	    keepthishit = false;
@@ -764,7 +764,7 @@ bool TrackerTrackHitFilter::checkStoN(const edm::EventSetup &iSetup, const DetId
 	}
 	else if (type == typeid(SiStripRecHit1D)) {
 	  const SiStripRecHit1D* hit = dynamic_cast<const SiStripRecHit1D*>(therechit);
-	  if (hit!=0) 	 cluster = &*(hit->cluster());
+	  if (hit!=nullptr) 	 cluster = &*(hit->cluster());
 	  else{
 	    edm::LogError("TrackerTrackHitFilter")<< "TrackerTrackHitFilter::checkStoN : Unknown valid tracker hit in subdet " << id.subdetId()<< "(detID="<<id.rawId()<<")\n ";
 	    keepthishit = false;
@@ -800,7 +800,7 @@ bool TrackerTrackHitFilter::checkStoN(const edm::EventSetup &iSetup, const DetId
 
       if(checkPXLQuality_){
       const SiPixelRecHit* pixelhit = dynamic_cast<const SiPixelRecHit*>(therechit);
-      if(pixelhit!=0){
+      if(pixelhit!=nullptr){
 	//std::cout << "ClusterCharge=" <<std::flush<<pixelhit->cluster()->charge() << std::flush;
        	float xyprob=pixelhit->clusterProbability(0);//x-y combined log_e probability of the pixel cluster
 	                                               //singl x- and y-prob not stored sicne CMSSW 3_9_0

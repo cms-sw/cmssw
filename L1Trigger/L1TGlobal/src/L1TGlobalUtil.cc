@@ -41,8 +41,8 @@ l1t::L1TGlobalUtil::L1TGlobalUtil(){
     m_PreScaleColumn = 0;
     m_readPrescalesFromFile = false;
 
-    m_prescaleFactorsAlgoTrig = 0ULL;
-    m_triggerMaskAlgoTrig = 0ULL;
+    m_prescaleFactorsAlgoTrig = nullptr;
+    m_triggerMaskAlgoTrig = nullptr;
 }
 
 l1t::L1TGlobalUtil::L1TGlobalUtil(edm::ParameterSet const& pset,

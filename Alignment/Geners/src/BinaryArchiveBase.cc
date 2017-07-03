@@ -60,11 +60,11 @@ namespace gs {
     BinaryArchiveBase::BinaryArchiveBase(const char* name, const char* mode)
         : AbsArchive(name),
           mode_(parseMode(mode)),
-          errorStream_(0),
-          cStream_(0),
-          catalog_(0),
-          storedEntryId_(0),
-          storedLocationId_(0),
+          errorStream_(nullptr),
+          cStream_(nullptr),
+          catalog_(nullptr),
+          storedEntryId_(nullptr),
+          storedLocationId_(nullptr),
           catalogIsSet_(false),
           addCatalogToData_(false)
     {
@@ -93,8 +93,8 @@ namespace gs {
 
     void BinaryArchiveBase::releaseClassIds()
     {
-        delete storedEntryId_; storedEntryId_ = 0;
-        delete storedLocationId_; storedLocationId_ = 0;
+        delete storedEntryId_; storedEntryId_ = nullptr;
+        delete storedLocationId_; storedLocationId_ = nullptr;
     }
 
 
@@ -277,7 +277,7 @@ namespace gs {
         char* mode = const_cast<char*>(cmode.c_str());
 
         unsigned cnt = 0;
-        for (char* opt = strtok(mode, ":"); opt; opt = strtok(0, ":"), ++cnt)
+        for (char* opt = strtok(mode, ":"); opt; opt = strtok(nullptr, ":"), ++cnt)
         {
             // Skip the first word -- this is the file opening mode
             if (!cnt)

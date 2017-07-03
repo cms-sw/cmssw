@@ -40,8 +40,8 @@ namespace edm {
   class HandleBase {
   public:
     HandleBase() :
-    product_(0),
-    prov_(0) {}
+    product_(nullptr),
+    prov_(nullptr) {}
     
     HandleBase(void const* prod, Provenance const* prov) :
     product_(prod), prov_(prov) {
@@ -52,8 +52,8 @@ namespace edm {
     ~HandleBase() {}
     
     void clear() {
-      product_ = 0;
-      prov_ = 0;
+      product_ = nullptr;
+      prov_ = nullptr;
       whyFailedFactory_.reset();
     }
     
@@ -92,7 +92,7 @@ namespace edm {
     ///Used when the attempt to get the data failed
     HandleBase(std::shared_ptr<HandleExceptionFactory>&& iWhyFailed) :
     product_(),
-    prov_(0),
+    prov_(nullptr),
     whyFailedFactory_(iWhyFailed) {}
     
 

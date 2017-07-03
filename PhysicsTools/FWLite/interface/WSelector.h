@@ -25,7 +25,7 @@ public:
     push_back("Muon Pt", muonPtMin );
     push_back("MET"    , metMin    );
     set("Muon Pt"); set("MET");
-    wMuon_ = 0; met_ = 0;
+    wMuon_ = nullptr; met_ = nullptr;
     if ( params.exists("cutsToIgnore") ){
       setIgnoredCuts( params.getParameter<std::vector<std::string> >("cutsToIgnore") );
     }

@@ -150,7 +150,7 @@ SiStripFEDMonitorPlugin::SiStripFEDMonitorPlugin(const edm::ParameterSet& iConfi
   }
   
   //don;t generate debug mesages if debug is disabled
-  std::ostringstream* pDebugStream = (printDebug_>1 ? &debugStream : NULL);
+  std::ostringstream* pDebugStream = (printDebug_>1 ? &debugStream : nullptr);
   
   fedHists_.initialise(iConfig,pDebugStream);
 

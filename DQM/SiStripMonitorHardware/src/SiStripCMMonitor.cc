@@ -143,7 +143,7 @@ SiStripCMMonitorPlugin::SiStripCMMonitorPlugin(const edm::ParameterSet& iConfig)
                 << "[SiStripCMMonitorPlugin]\tPrintDebugMessages? " << (printDebug_ ? "yes" : "no") << std::endl;
   }
     
- std::ostringstream* pDebugStream = (printDebug_>1 ? &debugStream : NULL);
+ std::ostringstream* pDebugStream = (printDebug_>1 ? &debugStream : nullptr);
 
  cmHists_.initialise(iConfig,pDebugStream);
 

@@ -101,7 +101,7 @@ class LHEReader::XMLHandler : public XMLDocument::Handler {
 	XMLHandler() :
 		impl(nullptr),
 		gotObject(kNone), mode(kNone),
-		xmlHeader(0), xmlEvent(0), headerOk(false), npLO(-99), npNLO(-99) {}
+		xmlHeader(nullptr), xmlEvent(nullptr), headerOk(false), npLO(-99), npNLO(-99) {}
 	~XMLHandler()
 	{ if (xmlHeader) xmlHeader->release(); 
 	  if (xmlEvent) xmlEvent->release();   }
@@ -163,7 +163,7 @@ static void attributesToDom(DOMElement *dom, const Attributes &attributes)
 static void fillHeader(LHERunInfo::Header &header, const char *data,
                        int len = -1)
 {
-	const char *end = len >= 0 ? (data + len) : 0;
+	const char *end = len >= 0 ? (data + len) : nullptr;
 	while(*data && (!end || data < end)) {
 		std::size_t len = std::strcspn(data, "\r\n");
 		if (end && data + len > end)
@@ -244,7 +244,7 @@ void LHEReader::XMLHandler::startElement(const XMLCh *const uri,
     if (!impl)
       impl.reset(DOMImplementationRegistry::getDOMImplementation(XMLUniStr("Core")));
 
-    xmlHeader = impl->createDocument(0, qname, 0);
+    xmlHeader = impl->createDocument(nullptr, qname, nullptr);
     xmlNodes.resize(1);
     xmlNodes[0] = xmlHeader->getDocumentElement();
     mode = kHeader;
@@ -257,7 +257,7 @@ void LHEReader::XMLHandler::startElement(const XMLCh *const uri,
 	impl.reset(DOMImplementationRegistry::getDOMImplementation(XMLUniStr("Core")));
 
       if(xmlEvent)  xmlEvent->release();
-      xmlEvent = impl->createDocument(0, qname, 0);
+      xmlEvent = impl->createDocument(nullptr, qname, nullptr);
       weightsinevent.resize(0);
       scales.clear();
     
@@ -340,7 +340,7 @@ void LHEReader::XMLHandler::endElement(const XMLCh *const uri,
       }
       
       xmlHeader->release();
-      xmlHeader = 0;
+      xmlHeader = nullptr;
     }
     else if (name == "event" && 
 	mode == kEvent && 

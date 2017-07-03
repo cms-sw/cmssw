@@ -41,10 +41,10 @@ FastTimerSD::FastTimerSD(std::string name, const DDCompactView & cpv,
 			 const SensitiveDetectorCatalog & clg, 
 			 edm::ParameterSet const & p, 
 			 const SimTrackManager* manager) :
-  SensitiveTkDetector(name, cpv, clg, p), ftcons(0), name(name),
-  hcID(-1), theHC(0), theManager(manager), currentHit(0), theTrack(0), 
-  currentPV(0), unitID(0),  previousUnitID(0), preStepPoint(0), 
-  postStepPoint(0), eventno(0) {
+  SensitiveTkDetector(name, cpv, clg, p), ftcons(nullptr), name(name),
+  hcID(-1), theHC(nullptr), theManager(manager), currentHit(nullptr), theTrack(nullptr), 
+  currentPV(nullptr), unitID(0),  previousUnitID(0), preStepPoint(nullptr), 
+  postStepPoint(nullptr), eventno(0) {
     
   //Add FastTimer Sentitive Detector Name
   collectionName.insert(name);
@@ -116,7 +116,7 @@ void FastTimerSD::Initialize(G4HCofThisEvent * HCE) {
 
 bool FastTimerSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
 
-  if (aStep == NULL) {
+  if (aStep == nullptr) {
     return true;
   } else {
     GetStepInfo(aStep);
@@ -252,7 +252,7 @@ void FastTimerSD::ResetForNewPrimary() {
 void FastTimerSD::StoreHit(BscG4Hit* hit){
 
   if (primID<0) return;
-  if (hit == 0) {
+  if (hit == nullptr) {
     edm::LogWarning("FastTimerSim") << "FastTimerSD: hit to be stored is NULL !!";
   } else {
     theHC->insert( hit );

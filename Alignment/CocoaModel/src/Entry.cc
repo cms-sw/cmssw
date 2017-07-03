@@ -65,7 +65,7 @@ void Entry::fill( const std::vector<ALIstring>& wordlist )
 
   ALIdouble fre;
   gomgr->getGlobalOptionValue("reportOutReadValue", fre );
-  if( entryData != 0 && fre == 1) {
+  if( entryData != nullptr && fre == 1) {
     //    std::cout << OptOCurrent()->name() << " " << name_ << "call fillFromReportOutFileValue " << type_ <<  std::endl;
     fillFromReportOutFileValue( entryData );
   } else {
@@ -73,13 +73,13 @@ void Entry::fill( const std::vector<ALIstring>& wordlist )
     fillFromInputFileValue( wordlist );
   }
   gomgr->getGlobalOptionValue("reportOutReadSigma", fre );
-  if( entryData != 0 && fre == 1) {
+  if( entryData != nullptr && fre == 1) {
     fillFromReportOutFileSigma( entryData );
   } else {
     fillFromInputFileSigma( wordlist );
   }
   gomgr->getGlobalOptionValue("reportOutReadQuality", fre );
-  if( entryData != 0 && fre == 1) {
+  if( entryData != nullptr && fre == 1) {
     fillFromReportOutFileQuality( entryData );
   } else {
     fillFromInputFileQuality( wordlist );

@@ -66,7 +66,7 @@ vector<DTSegmentCand*> DTSegmentCleaner::solveConflict(const std::vector<DTSegme
 
 	  if(segmCleanerMode == 2) { // mode 2: choose on the basis of the angle
 
-	    DTSegmentCand* badCand = 0;
+	    DTSegmentCand* badCand = nullptr;
 	    if((*cand)->superLayer()->id().superlayer() != 2) { // we are in the phi view
 
 	      LocalVector dir1 = (*cand)->direction();

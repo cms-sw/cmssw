@@ -371,7 +371,7 @@ namespace fwlite {
       }
       branchIDLists_ = std::make_unique<edm::BranchIDLists>();
       edm::BranchIDLists* branchIDListsPtr = branchIDLists_.get();
-      if(metaDataTree->FindBranch(edm::poolNames::branchIDListBranchName().c_str()) != 0) {
+      if(metaDataTree->FindBranch(edm::poolNames::branchIDListBranchName().c_str()) != nullptr) {
         TBranch* b = metaDataTree->GetBranch(edm::poolNames::branchIDListBranchName().c_str());
         b->SetAddress(&branchIDListsPtr);
         b->GetEntry(0);
@@ -495,7 +495,7 @@ namespace fwlite {
 
       branchIDLists_ = std::make_unique<edm::BranchIDLists>();
       edm::BranchIDLists* branchIDListsPtr = branchIDLists_.get();
-      if(metaDataTree->FindBranch(edm::poolNames::branchIDListBranchName().c_str()) != 0) {
+      if(metaDataTree->FindBranch(edm::poolNames::branchIDListBranchName().c_str()) != nullptr) {
         TBranch* b = metaDataTree->GetBranch(edm::poolNames::branchIDListBranchName().c_str());
         b->SetAddress(&branchIDListsPtr);
         b->GetEntry(0);

@@ -2163,7 +2163,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
     for ( HepMC::GenEvent::particle_const_iterator mcIter=myGenEvent->particles_begin(); mcIter != myGenEvent->particles_end(); mcIter++ ) {
       if ( (*mcIter)->pdg_id() != 22 ) continue;
       bool isTheSame= false;
-      HepMC::GenParticle* mother = 0;
+      HepMC::GenParticle* mother = nullptr;
       if ( (*mcIter)->production_vertex() )  {
 	if ( (*mcIter)->production_vertex()->particles_begin(HepMC::parents) !=
 	     (*mcIter)->production_vertex()->particles_end(HepMC::parents))
@@ -2189,10 +2189,10 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
 
 
-      if (  mother ==0
-            ||  (mother != 0  && mother->pdg_id() == 22)
-	    ||  (mother != 0  && mother->pdg_id() == 25)
-	    ||  (mother != 0  && mother->pdg_id() == 35) )
+      if (  mother ==nullptr
+            ||  (mother != nullptr  && mother->pdg_id() == 22)
+	    ||  (mother != nullptr  && mother->pdg_id() == 25)
+	    ||  (mother != nullptr  && mother->pdg_id() == 35) )
       {
         double dPt =  fabs((*mcIter)->momentum().perp() - (*mcPho).fourMomentum().et());
         float phiMother=(*mcIter)->momentum().phi();

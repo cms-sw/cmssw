@@ -49,9 +49,9 @@ void HcalConstantsXMLWriter::writeXML(string& newfile0,const vector<int>& detvec
 
    XMLString::transcode("CalibrationConstants", tempStr, 99);
    mDoc = mDom->createDocument(
-                                0,                    // root element namespace URI.
+                                nullptr,                    // root element namespace URI.
                                 tempStr,         // root element name
-                                0);                   // document type object (DTD).
+                                nullptr);                   // document type object (DTD).
 
    StreamOutFormatTarget formTarget (fOut);
    DOMLSSerializer* domWriter = mDom->createLSSerializer();

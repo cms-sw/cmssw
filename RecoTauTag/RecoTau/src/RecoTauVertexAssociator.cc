@@ -49,7 +49,7 @@ reco::TrackBaseRef RecoTauVertexAssociator::getLeadTrack(const PFJet& jet) const
     {
       for ( std::vector<PFCandidatePtr>::const_iterator pfCand = selectedPFCands.begin();
   	  pfCand != selectedPFCands.end(); ++pfCand ) {
-        const reco::Track* track = 0;
+        const reco::Track* track = nullptr;
         if ( (*pfCand)->trackRef().isNonnull() ) track = (*pfCand)->trackRef().get();
         else if ( (*pfCand)->gsfTrackRef().isNonnull() ) track = (*pfCand)->gsfTrackRef().get();
         if ( !track ) continue;
@@ -127,9 +127,9 @@ namespace {
 }
 
 RecoTauVertexAssociator::RecoTauVertexAssociator(const edm::ParameterSet& pset, edm::ConsumesCollector && iC)
-  : vertexSelector_(0),
-    qcuts_(0),
-    jetToVertexAssociation_(0),
+  : vertexSelector_(nullptr),
+    qcuts_(nullptr),
+    jetToVertexAssociation_(nullptr),
     lastEvent_(0)
 {
   //std::cout << "<RecoTauVertexAssociator::RecoTauVertexAssociator>:" << std::endl;

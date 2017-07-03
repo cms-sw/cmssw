@@ -26,7 +26,7 @@ namespace reco {
     struct SingleComponent {
       static T get( const Candidate & c ) {
 	const C * dc = dynamic_cast<const C *>( & c );
-	if ( dc == 0 ) return T();
+	if ( dc == nullptr ) return T();
 	return (dc->*F)();
       }
     };
@@ -35,12 +35,12 @@ namespace reco {
     struct MultipleComponents {
       static size_t numberOf( const Candidate & c ) { 
 	const C * dc = dynamic_cast<const C *>( & c );
-	if ( dc == 0 ) return 0;
+	if ( dc == nullptr ) return 0;
 	return (dc->*S)(); 
       }
       static T get( const Candidate & c, size_t i ) {
 	const C * dc = dynamic_cast<const C *>( & c );
-	if ( dc == 0 ) return T();
+	if ( dc == nullptr ) return T();
 	if ( i < (dc->*S)() ) return (dc->*F)( i );
 	else throw cms::Exception( "Error" ) << "index " << i << " out ot range";
       }

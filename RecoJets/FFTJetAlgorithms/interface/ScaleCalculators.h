@@ -211,7 +211,7 @@ namespace fftjetcms {
     {
     public:
         inline Polynomial(const std::vector<double>& coeffs)
-            : coeffs_(0), nCoeffs(coeffs.size())
+            : coeffs_(nullptr), nCoeffs(coeffs.size())
         {
             if (nCoeffs)
             {

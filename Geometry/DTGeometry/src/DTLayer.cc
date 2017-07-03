@@ -56,7 +56,7 @@ const DTSuperLayer* DTLayer::superLayer() const {
 }
 
 const DTChamber* DTLayer::chamber() const {
-  return (theSL) ? theSL->chamber() : 0;
+  return (theSL) ? theSL->chamber() : nullptr;
 }
 
 std::vector< const GeomDet*> DTLayer::components() const {

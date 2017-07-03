@@ -6,7 +6,7 @@ VirtualKinematicParticleFactory::VirtualKinematicParticleFactory()
  
 VirtualKinematicParticleFactory::VirtualKinematicParticleFactory(KinematicStatePropagator * pr)
 {
- if(pr!=0)
+ if(pr!=nullptr)
  {
   propagator = pr->clone();
  }else{
@@ -18,11 +18,11 @@ RefCountedKinematicParticle VirtualKinematicParticleFactory::particle(const Kine
           float& chiSquared, float& degreesOfFr, ReferenceCountingPointer<KinematicParticle> previousParticle,
 			                	       KinematicConstraint * lastConstraint)const
 {
- if(previousParticle.get() != 0)
+ if(previousParticle.get() != nullptr)
  {
   KinematicParticle * prp = &(*previousParticle);
   VirtualKinematicParticle * pr = dynamic_cast<VirtualKinematicParticle * >(prp);
-  if(pr == 0){ throw VertexException("KinematicParticleFactoryFromTransientTrack::Previous particle passed is not TransientTrack based!");}
+  if(pr == nullptr){ throw VertexException("KinematicParticleFactoryFromTransientTrack::Previous particle passed is not TransientTrack based!");}
  } 
  return ReferenceCountingPointer<KinematicParticle>(new VirtualKinematicParticle(kineState, chiSquared, degreesOfFr, 
                                                                             lastConstraint, previousParticle, propagator));

@@ -86,7 +86,7 @@ SiPixelClusterSource::~SiPixelClusterSource()
   std::map<uint32_t,SiPixelClusterModule*>::iterator struct_iter;
   for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; struct_iter++){
     delete struct_iter->second;
-    struct_iter->second = 0;
+    struct_iter->second = nullptr;
   }
 }
 
@@ -296,7 +296,7 @@ void SiPixelClusterSource::buildStructure(const edm::EventSetup& iSetup){
   
   for(TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
     
-    if(dynamic_cast<PixelGeomDetUnit const *>((*it))!=0){
+    if(dynamic_cast<PixelGeomDetUnit const *>((*it))!=nullptr){
 
       DetId detId = (*it)->geographicalId();
       const GeomDetUnit      * geoUnit = pDD->idToDetUnit( detId );

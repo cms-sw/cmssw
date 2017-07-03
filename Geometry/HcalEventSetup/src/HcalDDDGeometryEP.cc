@@ -33,7 +33,7 @@
 //
 
 HcalDDDGeometryEP::HcalDDDGeometryEP(const edm::ParameterSet& ps ) :
-  m_loader ( 0 ) ,
+  m_loader ( nullptr ) ,
   m_applyAlignment(ps.getUntrackedParameter<bool>("applyAlignment", false) ) {
 
   //the following line is needed to tell the framework what
@@ -64,7 +64,7 @@ HcalDDDGeometryEP::produceIdeal(const HcalRecNumberingRecord& iRecord) {
   edm::ESHandle<HcalTopology> topology ;
   iRecord.get( topology ) ;
 
-  assert( 0 == m_loader ) ;
+  assert( nullptr == m_loader ) ;
   m_loader = new HcalDDDGeometryLoader(&(*hcons)); 
 #ifdef DebugLog
   LogDebug("HCalGeom")<<"HcalDDDGeometryEP:Initialize HcalDDDGeometryLoader";

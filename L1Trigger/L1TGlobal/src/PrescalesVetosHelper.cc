@@ -21,7 +21,7 @@ PrescalesVetosHelper::PrescalesVetosHelper(L1TGlobalPrescalesVetos * w) {
   read_ = write_; 
 }
 
-PrescalesVetosHelper::PrescalesVetosHelper(const L1TGlobalPrescalesVetos * es) {read_ = es; write_=NULL;}
+PrescalesVetosHelper::PrescalesVetosHelper(const L1TGlobalPrescalesVetos * es) {read_ = es; write_=nullptr;}
 
 void PrescalesVetosHelper::useCopy(){
   write_ = new L1TGlobalPrescalesVetos(*read_);

@@ -157,7 +157,7 @@ void RecAnalyzerHF::beginJob() {
 
   for (auto id : hcalID_) {
     HcalDetId hid = HcalDetId(id);
-    TH1D *h1(0), *h2(0);
+    TH1D *h1(nullptr), *h2(nullptr);
     for (int i=0; i<2; ++i) {
       sprintf (name, "HF%d%d_%d_%d", i, hid.ieta(), hid.iphi(), hid.depth());
       sprintf (title, "The metric F%d for HF i#eta %d i#phi %d depth %d", 

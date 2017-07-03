@@ -91,7 +91,7 @@ AlignmentMuonHIPTrajectorySelector::AlignmentMuonHIPTrajectorySelector(const edm
    , m_minTrackerDOF(iConfig.getParameter<int>("minTrackerDOF"))
    , m_maxMuonResidual(iConfig.getParameter<double>("maxMuonResidual"))
    , m_hists(iConfig.getParameter<bool>("hists"))
-   , m_pt(NULL), m_tracker_forwardredchi2(NULL), m_tracker_dof(NULL)
+   , m_pt(nullptr), m_tracker_forwardredchi2(nullptr), m_tracker_dof(nullptr)
 {
    produces<TrajTrackAssociationCollection>();
 

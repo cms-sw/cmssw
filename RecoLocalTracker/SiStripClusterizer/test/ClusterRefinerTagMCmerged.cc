@@ -43,7 +43,7 @@ refineCluster(const edm::Handle< edmNew::DetSetVector<SiStripCluster> >& input,
     for (edmNew::DetSet<SiStripCluster>::iterator clust = det->begin(); clust != det->end(); clust++) {
       std::vector<uint8_t> amp = clust->amplitudes();
       SiStripCluster* newCluster = new SiStripCluster(clust->firstStrip(), amp.begin(), amp.end());
-      if (associator_ != 0) {
+      if (associator_ != nullptr) {
         std::vector<SimHitIdpr> simtrackid;
 	if (useAssociateHit_) {
 	  std::vector<PSimHit> simhit;

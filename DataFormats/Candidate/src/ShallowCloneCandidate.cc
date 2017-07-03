@@ -25,7 +25,7 @@ const Candidate * ShallowCloneCandidate::mother( size_type i ) const {
 }
 
 Candidate * ShallowCloneCandidate::daughter( size_type i ) { 
-  return 0;
+  return nullptr;
 }
 
 bool ShallowCloneCandidate::hasMasterClone() const {

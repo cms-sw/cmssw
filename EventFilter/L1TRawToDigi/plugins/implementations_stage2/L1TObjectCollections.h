@@ -17,11 +17,11 @@ namespace l1t {
            UnpackerCollections(e) { };
 	 virtual ~L1TObjectCollections() ;
 
-         virtual MuonBxCollection* getMuons(const unsigned int copy) { return  0;}
-	 virtual EGammaBxCollection* getEGammas() { return 0;} //= 0;
-	 virtual EtSumBxCollection* getEtSums() { return 0;}
-	 virtual JetBxCollection* getJets() {return 0; }
-	 virtual TauBxCollection* getTaus() {return 0; }
+         virtual MuonBxCollection* getMuons(const unsigned int copy) { return  nullptr;}
+	 virtual EGammaBxCollection* getEGammas() { return nullptr;} //= 0;
+	 virtual EtSumBxCollection* getEtSums() { return nullptr;}
+	 virtual JetBxCollection* getJets() {return nullptr; }
+	 virtual TauBxCollection* getTaus() {return nullptr; }
 	 
       };
    }

@@ -40,7 +40,7 @@
 #include <algorithm>
 
 SiStripMonitorRawData::SiStripMonitorRawData(edm::ParameterSet const& iConfig):
-  BadFedNumber(0),
+  BadFedNumber(nullptr),
   dqmStore_(edm::Service<DQMStore>().operator->()),
   conf_(iConfig),
   m_cacheID_(0)

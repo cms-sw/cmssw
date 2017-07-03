@@ -170,9 +170,9 @@ void RPCOccupancyTest::fillGlobalME(RPCDetId & detId, MonitorElement * myMe){
 
 if (!myMe) return;
     
-    MonitorElement * AsyMe=NULL;      //Left Right Asymetry 
-    MonitorElement * NormOccup=NULL;
-    MonitorElement * NormOccupD=NULL;
+    MonitorElement * AsyMe=nullptr;      //Left Right Asymetry 
+    MonitorElement * NormOccup=nullptr;
+    MonitorElement * NormOccupD=nullptr;
        
     if(detId.region() ==0){
       AsyMe= AsyMeWheel[detId.ring()+2];

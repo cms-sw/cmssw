@@ -52,7 +52,7 @@ GenericMVAComputer const* GenericMVAComputerCache::getComputer(int index) const
       << "Calibration record " << errorUpdatingLabel
       << " not found in MVAComputerContainer." << std::endl;
   }
-  return index >= 0 ? computers[index].computer.get() : 0;
+  return index >= 0 ? computers[index].computer.get() : nullptr;
 }
 
 bool GenericMVAComputerCache::isEmpty() const {

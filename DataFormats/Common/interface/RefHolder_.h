@@ -94,7 +94,7 @@ namespace edm {
 					   std::string& msg) const
     {
       RefHolder* h = dynamic_cast<RefHolder*>(&fillme);
-      bool conversion_worked = (h != 0);
+      bool conversion_worked = (h != nullptr);
       if (conversion_worked)
 	h->setRef(ref_);
       else

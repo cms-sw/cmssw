@@ -93,7 +93,7 @@ ProcForeach::configureLoop(ConfigCtx::Context *ctx_, ConfigCtx::iterator begin,
 	if (--ctx->count)
 		return ctx;
 	else
-		return 0;
+		return nullptr;
 }
 
 void ProcForeach::eval(ValueIterator iter, unsigned int n) const

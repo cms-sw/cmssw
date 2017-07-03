@@ -64,7 +64,7 @@ PedeSteerer::PedeSteerer(AlignableTracker *aliTracker, AlignableMuon *aliMuon, A
   theMinHieraConstrCoeff(myConfig.getParameter<double>("minHieraConstrCoeff")),
   theMinHieraParPerConstr(myConfig.getParameter<unsigned int>("minHieraParPerConstr")),
   theConstrPrecision(myConfig.getParameter<unsigned int>("constrPrecision")),
-  theCoordMaster(0)
+  theCoordMaster(nullptr)
 {
   if (myParameterSign != 1 && myParameterSign != -1) {
     cms::Exception("BadConfig") << "Expect PedeSteerer.parameterSign = +/-1, "
@@ -233,7 +233,7 @@ PedeSteerer::fixParameters(const std::vector<Alignable*> &alis, const std::strin
   // return number of parameters fixed at 0. and fixed at original position 
   std::pair<unsigned int, unsigned int> numFixNumFixCor(0, 0);
 
-  std::ofstream *filePtr = 0;
+  std::ofstream *filePtr = nullptr;
 
   for (std::vector<Alignable*>::const_iterator iAli = alis.begin() ; iAli != alis.end(); ++iAli) {
 
@@ -360,7 +360,7 @@ void PedeSteerer::defineCoordinates(const std::vector<Alignable*> &alis, Alignab
   AlignmentParameters *par = new RigidBodyAlignmentParameters(aliMaster, false);
   aliMaster->setAlignmentParameters(par); // hierarchyConstraint needs parameters
   this->hierarchyConstraint(aliMaster, alis, *filePtr);
-  aliMaster->setAlignmentParameters(0); // erase dummy parameters
+  aliMaster->setAlignmentParameters(nullptr); // erase dummy parameters
 
   delete filePtr; // automatically flushes, no problem if NULL ptr.   
 }
@@ -374,7 +374,7 @@ bool PedeSteerer::isCorrectToRefSystem(const std::vector<Alignable*> &coordDefin
        it != iE; ++it) {
     SelectionUserVariables *selVar = 
       ((*it)->alignmentParameters() ? 
-       dynamic_cast<SelectionUserVariables*>((*it)->alignmentParameters()->userVariables()) : 0);
+       dynamic_cast<SelectionUserVariables*>((*it)->alignmentParameters()->userVariables()) : nullptr);
     if (!selVar) continue;  // is an error!?
 
     for (unsigned int i = 0; i < selVar->fullSelection().size(); ++i) {
@@ -443,7 +443,7 @@ void PedeSteerer::correctToReferenceSystem()
 unsigned int PedeSteerer::hierarchyConstraints(const std::vector<Alignable*> &alis,
 					       const std::string &fileName)
 {
-  std::ofstream *filePtr = 0;
+  std::ofstream *filePtr = nullptr;
 
   unsigned int nConstraints = 0;
   std::vector<Alignable*> aliDaughts;
@@ -597,7 +597,7 @@ unsigned int PedeSteerer::presigmasFile(const std::string &fileName,
 {
   // Check if 'alis' are in aliPresiMap, 
   // if yes apply presigma - but NOT if parameter is fixed!
-  std::ofstream *filePtr = 0;
+  std::ofstream *filePtr = nullptr;
 
   unsigned int nPresiParam = 0;
   for (std::vector<Alignable*>::const_iterator iAli = alis.begin(), iAliE = alis.end();

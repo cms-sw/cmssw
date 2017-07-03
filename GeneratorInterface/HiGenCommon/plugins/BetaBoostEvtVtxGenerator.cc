@@ -111,7 +111,7 @@ private:
 
 
 BetaBoostEvtVtxGenerator::BetaBoostEvtVtxGenerator(const edm::ParameterSet & p):
-  fVertex(0), boost_(0), fTimeOffset(0),
+  fVertex(nullptr), boost_(nullptr), fTimeOffset(0),
   sourceLabel(consumes<HepMCProduct>(p.getParameter<edm::InputTag>("src"))),
   verbosity_(p.getUntrackedParameter<bool>("verbosity",false))
 {
@@ -138,7 +138,7 @@ BetaBoostEvtVtxGenerator::BetaBoostEvtVtxGenerator(const edm::ParameterSet & p):
 BetaBoostEvtVtxGenerator::~BetaBoostEvtVtxGenerator() 
 {
   delete fVertex ;
-  if (boost_ != 0 ) delete boost_;
+  if (boost_ != nullptr ) delete boost_;
 }
 
 //Hep3Vector* BetaBoostEvtVtxGenerator::newVertex() {
@@ -163,7 +163,7 @@ HepMC::FourVector* BetaBoostEvtVtxGenerator::newVertex(CLHEP::HepRandomEngine* e
   double tmp_sigt = CLHEP::RandGaussQ::shoot(engine, 0.0, fSigmaZ);
   double T = tmp_sigt + fTimeOffset; 
 
-  if ( fVertex == 0 ) fVertex = new HepMC::FourVector();
+  if ( fVertex == nullptr ) fVertex = new HepMC::FourVector();
   fVertex->set(X,Y,Z,T);
 		
   return fVertex;

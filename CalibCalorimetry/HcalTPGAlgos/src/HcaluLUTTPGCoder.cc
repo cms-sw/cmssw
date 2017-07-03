@@ -212,7 +212,7 @@ void HcaluLUTTPGCoder::updateXML(const char* filename) {
 	  if (!topo_->valid(detid)) continue;
 	  int id = getLUTId(subdet[isub], ieta, iphi, depth);
 	  std::vector<unsigned int>* lut = _xml->getLutFast(detid);
-	  if (lut==0) throw cms::Exception("PROBLEM: No inputLUT_ in xml file for ") << detid << std::endl;
+	  if (lut==nullptr) throw cms::Exception("PROBLEM: No inputLUT_ in xml file for ") << detid << std::endl;
 	  if (lut->size()!=INPUT_LUT_SIZE) throw cms::Exception ("PROBLEM: Wrong inputLUT_ size in xml file for ") << detid << std::endl;
 	  for (unsigned int i=0; i<INPUT_LUT_SIZE; ++i) inputLUT_[id][i] = (LutElement)lut->at(i);
 	}
@@ -227,7 +227,7 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 
   HcalCalibrations calibrations;
   const HcalLutMetadata *metadata = conditions.getHcalLutMetadata();
-  assert(metadata !=0);
+  assert(metadata !=nullptr);
   float nominalgain_ = metadata->getNominalGain();
 
   std::map<int, float> cosh_ieta;

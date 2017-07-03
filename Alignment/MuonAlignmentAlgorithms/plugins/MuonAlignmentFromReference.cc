@@ -231,7 +231,7 @@ class MuonAlignmentFromReference : public AlignmentAlgorithmBase
         tfile.ls();
     }
 
-    m_ttree = NULL;
+    m_ttree = nullptr;
     if (m_createNtuple) bookNtuple();
 
     m_counter_events = 0;
@@ -313,7 +313,7 @@ void MuonAlignmentFromReference::initialize(const edm::EventSetup& iSetup,
         AlignableExtras* extras,
         AlignmentParameterStore* alignmentParameterStore)
 {
-    if (alignableMuon == NULL)
+    if (alignableMuon == nullptr)
         throw cms::Exception("MuonAlignmentFromReference") << "doMuon must be set to True" << std::endl;
 
     m_alignableNavigator = new AlignableNavigator(alignableMuon);
@@ -550,7 +550,7 @@ void MuonAlignmentFromReference::processMuonResidualsFromTrack(MuonResidualsFrom
                             MuonChamberResidual *dt2 = mrft.chamberResidual(*chamberId, MuonChamberResidual::kDT2);
 
                             m_counter_station123++;
-                            if (dt13 != NULL  &&  dt2 != NULL)
+                            if (dt13 != nullptr  &&  dt2 != nullptr)
                             {
                                 m_counter_station123valid++;
                                 if (dt13->numHits() >= m_minDT13Hits)
@@ -613,7 +613,7 @@ void MuonAlignmentFromReference::processMuonResidualsFromTrack(MuonResidualsFrom
                             MuonChamberResidual *dt13 = mrft.chamberResidual(*chamberId, MuonChamberResidual::kDT13);
 
                             m_counter_station4++;
-                            if (dt13 != NULL)
+                            if (dt13 != nullptr)
                             {
                                 m_counter_station4valid++;
                                 if (dt13->numHits() >= m_minDT13Hits)
@@ -664,7 +664,7 @@ void MuonAlignmentFromReference::processMuonResidualsFromTrack(MuonResidualsFrom
                         {
                             MuonChamberResidual *csc = mrft.chamberResidual(*chamberId, MuonChamberResidual::kCSC);
                             m_counter_csc++;
-                            if (csc != NULL)
+                            if (csc != nullptr)
                             {
                                 m_counter_cscvalid++;
                                 if (csc->numHits() >= m_minCSCHits)
@@ -1439,7 +1439,7 @@ void MuonAlignmentFromReference::readTmpFiles()
         FILE *file;
         int size;
         file = fopen( (*fileName).c_str(), "r");
-        if (file == NULL)
+        if (file == nullptr)
             throw cms::Exception("MuonAlignmentFromReference") << "file \"" << *fileName << "\" can't be opened (doesn't exist?)" << std::endl;
 
         fread(&size, sizeof(int), 1, file);

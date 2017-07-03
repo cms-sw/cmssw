@@ -34,7 +34,7 @@ bool support::isCmsLocalFile(const char* file)
   if (DirLen==-1)
   {
     DirLen=0;
-    if (LocalDir!=NULL) DirLen=strlen(LocalDir);
+    if (LocalDir!=nullptr) DirLen=strlen(LocalDir);
   }
   if ((DirLen==0) || (strncmp(file,LocalDir,DirLen)!=0) || (strncmp(&file[DirLen],"/src/",5)!=0)) return false;
   return true;
@@ -154,7 +154,7 @@ bool support::isDataClass(const std::string & name) {
           clang::FileManager FM(FSO);
           const char * lPath = std::getenv("LOCALRT");
           const char * rPath = std::getenv("CMSSW_RELEASE_BASE");
-          if ( lPath == NULL || rPath == NULL ) {
+          if ( lPath == nullptr || rPath == nullptr ) {
                llvm::errs()<<"\n\nThe scram runtime envorinment is not set.\nRun 'cmsenv' or 'eval `scram runtime -csh`'.\n\n\n";
                exit(1);
           }
@@ -204,7 +204,7 @@ bool support::isKnownThrUnsafeFunc(const std::string &fname ) {
 
 void support::writeLog(const std::string &ostring,const std::string &tfstring) {
      const char * pPath = std::getenv("LOCALRT");
-     if ( pPath == NULL ) {
+     if ( pPath == nullptr ) {
           llvm::errs()<<"\n\nThe scram runtime envorinment is not set.\nRun 'cmsenv' or 'eval `scram runtime -csh`'.\n\n\n";
           exit(1);
      }
@@ -225,7 +225,7 @@ void support::fixAnonNS(std::string & name, const char * fname ){
      if (name.substr(0, anon_ns.size()) == anon_ns ) {
           const char* sname = "/src/";
           const char* filename = std::strstr(fname, sname);
-          if (filename != NULL) name = name.substr(0, anon_ns.size() - 1)+" in "+filename+")"+name.substr(anon_ns.size());
+          if (filename != nullptr) name = name.substr(0, anon_ns.size() - 1)+" in "+filename+")"+name.substr(anon_ns.size());
           }
      return;
 }

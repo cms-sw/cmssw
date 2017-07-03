@@ -99,7 +99,7 @@ TrackerToMuonPropagator::TrackerToMuonPropagator(const edm::ParameterSet& iConfi
    if (m_refitTracker) {
       m_trackTransformer = new TrackTransformer(iConfig.getParameter<edm::ParameterSet>("trackerTrackTransformer"));
    }
-   else m_trackTransformer = NULL;
+   else m_trackTransformer = nullptr;
   
    produces<std::vector<Trajectory> >();
    produces<TrajTrackAssociationCollection>();

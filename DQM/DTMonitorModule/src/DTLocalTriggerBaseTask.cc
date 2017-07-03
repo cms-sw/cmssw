@@ -61,7 +61,7 @@ private:
 
 
 DTLocalTriggerBaseTask::DTLocalTriggerBaseTask(const edm::ParameterSet& ps) :
-  nEvents(0), nLumis(0), theTrigGeomUtils(0) {
+  nEvents(0), nLumis(0), theTrigGeomUtils(nullptr) {
 
   LogTrace("DTDQM|DTMonitorModule|DTLocalTriggerBaseTask")
     << "[DTLocalTriggerBaseTask]: Constructor"<<endl;
@@ -603,7 +603,7 @@ void DTLocalTriggerBaseTask::setQLabels(MonitorElement* me, short int iaxis){
   TH1* histo = me->getTH1();
   if (!histo) return;
 
-  TAxis* axis=0;
+  TAxis* axis=nullptr;
   if (iaxis==1) {
     axis=histo->GetXaxis();
   }
@@ -625,7 +625,7 @@ void DTLocalTriggerBaseTask::setQLabelsTheta(MonitorElement* me, short int iaxis
   TH1* histo = me->getTH1();
   if (!histo) return;
 
-  TAxis* axis=0;
+  TAxis* axis=nullptr;
   if (iaxis==1) {
     axis=histo->GetXaxis();
   }

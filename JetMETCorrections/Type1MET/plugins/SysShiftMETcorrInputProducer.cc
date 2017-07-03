@@ -11,8 +11,8 @@
 SysShiftMETcorrInputProducer::SysShiftMETcorrInputProducer(const edm::ParameterSet& cfg)
   : moduleLabel_(cfg.getParameter<std::string>("@module_label")),
     useNvtx(false),
-    corrPx_(0),
-    corrPy_(0)
+    corrPx_(nullptr),
+    corrPy_(nullptr)
 {
   token_ = consumes<edm::View<reco::MET> >(cfg.getParameter<edm::InputTag>("src"));
   

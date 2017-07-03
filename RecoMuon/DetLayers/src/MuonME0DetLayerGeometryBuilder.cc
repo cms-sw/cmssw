@@ -58,7 +58,7 @@ MuonME0DetLayerGeometryBuilder::buildLayer(int endcap,
 					   const ME0Geometry& geo) {
 
   const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuonME0DetLayerGeometryBuilder";
-  MuRingForwardLayer * result = 0;
+  MuRingForwardLayer * result = nullptr;
   vector<const ForwardDetRing*> frontRings, backRings;
 
   LogTrace(metname) << "Starting to Build Layer ";
@@ -72,7 +72,7 @@ MuonME0DetLayerGeometryBuilder::buildLayer(int endcap,
       ME0DetId me0Id(endcap,layer,(*chamber), (*roll));
       const GeomDet* geomDet = geo.idToDet(me0Id);
 	  
-      if (geomDet !=0) {
+      if (geomDet !=nullptr) {
 	bool isInFront = isFront(me0Id);
 	if(isInFront)
 	  {
@@ -102,8 +102,8 @@ MuonME0DetLayerGeometryBuilder::buildLayer(int endcap,
   
   LogTrace(metname) << "About to make a MuRingForwardLayer";
   if(frontRings.size()!=0) result = new MuRingForwardLayer(frontRings);
-  else result = 0;
-  if(result != 0){
+  else result = nullptr;
+  if(result != nullptr){
     LogTrace(metname) << "New MuRingForwardLayer with " << frontRings.size()
 	 << " and " << backRings.size()
 	 << " rings, at Z " << result->position().z()

@@ -52,7 +52,7 @@ class AbstractFitter{
     nBackgroundPass("nBackgroundPass","nBackgroundPass",0.,1e10),
     category("category","category"),
     simPdf("simPdf","simPdf",category),
-    data(0),
+    data(nullptr),
     verbose(verbose_)
   {
     //turn on/off default messaging of roofit

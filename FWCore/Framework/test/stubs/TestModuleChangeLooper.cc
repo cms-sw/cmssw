@@ -50,7 +50,7 @@ class TestModuleChangeLooper : public edm::EDLooper {
       Status endOfLoop(edm::EventSetup const&,  unsigned int iCount) {
          //modify the module
          edm::ParameterSet const* pset = scheduleInfo()->parametersForModule(m_tag.label());
-         assert(0 != pset);
+         assert(nullptr != pset);
 
          edm::ParameterSet newPSet(*pset);
          newPSet.addParameter<int>("ivalue", ++m_expectedValue);

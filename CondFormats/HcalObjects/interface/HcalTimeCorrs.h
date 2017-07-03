@@ -18,7 +18,7 @@ class HcalTimeCorrs: public HcalCondObjectContainer<HcalTimeCorr>
 {
  public:
 #ifndef HCAL_COND_SUPPRESS_DEFAULT
-  HcalTimeCorrs():HcalCondObjectContainer<HcalTimeCorr>(0) {}
+  HcalTimeCorrs():HcalCondObjectContainer<HcalTimeCorr>(nullptr) {}
 #endif
   HcalTimeCorrs(const HcalTopology* topo):HcalCondObjectContainer<HcalTimeCorr>(topo) {}
 

@@ -321,7 +321,7 @@ int MiniAODElectronIDValidationAnalyzer::matchToTruth(const reco::GsfElectron &e
 
   // Find the closest status 1 gen electron to the reco electron
   double dR = 999;
-  const reco::Candidate *closestElectron = 0;
+  const reco::Candidate *closestElectron = nullptr;
   for(size_t i=0; i<genParticles->size();i++){
     const reco::Candidate *particle = &(*genParticles)[i];
     // Drop everything that is not electron or not status 1
@@ -336,7 +336,7 @@ int MiniAODElectronIDValidationAnalyzer::matchToTruth(const reco::GsfElectron &e
   }
   // See if the closest electron (if it exists) is close enough.
   // If not, no match found.
-  if( !(closestElectron != 0 && dR < 0.1) ) {
+  if( !(closestElectron != nullptr && dR < 0.1) ) {
     return UNMATCHED;
   }
 
@@ -365,7 +365,7 @@ int MiniAODElectronIDValidationAnalyzer::matchToTruth(const reco::GsfElectron &e
 void MiniAODElectronIDValidationAnalyzer::findFirstNonElectronMother(const reco::Candidate *particle,
 						   int &ancestorPID, int &ancestorStatus){
   
-  if( particle == 0 ){
+  if( particle == nullptr ){
     printf("ElectronNtupler: ERROR! null candidate pointer, this should never happen\n");
     return;
   }

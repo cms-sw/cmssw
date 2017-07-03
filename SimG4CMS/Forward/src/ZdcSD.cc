@@ -23,7 +23,7 @@
 ZdcSD::ZdcSD(G4String name, const DDCompactView & cpv,
 	     const SensitiveDetectorCatalog & clg,
 	     edm::ParameterSet const & p,const SimTrackManager* manager) : 
-  CaloSD(name, cpv, clg, p, manager), numberingScheme(0) {
+  CaloSD(name, cpv, clg, p, manager), numberingScheme(nullptr) {
   edm::ParameterSet m_ZdcSD = p.getParameter<edm::ParameterSet>("ZdcSD");
   useShowerLibrary = m_ZdcSD.getParameter<bool>("UseShowerLibrary");
   useShowerHits    = m_ZdcSD.getParameter<bool>("UseShowerHits");
@@ -79,7 +79,7 @@ bool ZdcSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
 
   NaNTrap( aStep ) ;
 
-  if (aStep == NULL) {
+  if (aStep == nullptr) {
     return true;
   } else {
     if(useShowerLibrary){
@@ -184,7 +184,7 @@ double ZdcSD::getEnergyDeposit(G4Step * aStep, edm::ParameterSet const & p ) {
   float NCherPhot = 0.;
   //std::cout<<"I go through here"<<std::endl;
 
-  if (aStep == NULL) {
+  if (aStep == nullptr) {
     LogDebug("ForwardSim") << "ZdcSD::  getEnergyDeposit: aStep is NULL!";
     return 0;
   } else {
@@ -410,13 +410,13 @@ double ZdcSD::getEnergyDeposit(G4Step * aStep, edm::ParameterSet const & p ) {
 
 uint32_t ZdcSD::setDetUnitId(G4Step* aStep) {
   uint32_t returnNumber = 0;
-  if(numberingScheme != 0)returnNumber = numberingScheme->getUnitID(aStep);
+  if(numberingScheme != nullptr)returnNumber = numberingScheme->getUnitID(aStep);
   // edm: return (numberingScheme == 0 ? 0 : numberingScheme->getUnitID(aStep));
   return returnNumber;
 }
 
 void ZdcSD::setNumberingScheme(ZdcNumberingScheme* scheme) {
-  if (scheme != 0) {
+  if (scheme != nullptr) {
     edm::LogInfo("ForwardSim") << "ZdcSD: updates numbering scheme for " 
 			       << GetName();
     if (numberingScheme) delete numberingScheme;

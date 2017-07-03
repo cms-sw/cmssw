@@ -48,9 +48,9 @@
   //---------------------------------------------------------------------------
   SiPixelClusterProducer::SiPixelClusterProducer(edm::ParameterSet const& conf) 
     : 
-    theSiPixelGainCalibration_(0), 
+    theSiPixelGainCalibration_(nullptr), 
     clusterMode_( conf.getUntrackedParameter<std::string>("ClusterMode","PixelThresholdClusterizer") ),
-    clusterizer_(0),          // the default, in case we fail to make one
+    clusterizer_(nullptr),          // the default, in case we fail to make one
     readyToCluster_(false),   // since we obviously aren't
     maxTotalClusters_( conf.getParameter<int32_t>( "maxNumberOfClusters" ) ),
     payloadType_( conf.getParameter<std::string>( "payloadType" ) )

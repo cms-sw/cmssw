@@ -438,7 +438,7 @@ void pat::PATIsolatedTrackProducer::getIsolation(const LorentzVector& p4,
 // get the estimated DeDx in either the pixels or strips (or both)
 float pat::PATIsolatedTrackProducer::getDeDx(const reco::DeDxHitInfo *hitInfo, bool doPixel, bool doStrip) const
 {
-    if(hitInfo == NULL){
+    if(hitInfo == nullptr){
         return -1;
     }
 

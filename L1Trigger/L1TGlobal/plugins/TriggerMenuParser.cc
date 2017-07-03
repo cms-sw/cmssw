@@ -661,9 +661,9 @@ bool l1t::TriggerMenuParser::parseScales(std::map<std::string, tmeventsetup::esS
     else if (scale.getObjectType() == esObjectType::ETMHF)  scaleParam = &etmHfScales;
     else if (scale.getObjectType() == esObjectType::HTT)    scaleParam = &httScales;
     else if (scale.getObjectType() == esObjectType::HTM)    scaleParam = &htmScales;
-    else scaleParam = 0;
+    else scaleParam = nullptr;
 
-    if(scaleParam != 0) {
+    if(scaleParam != nullptr) {
         switch(scale.getScaleType()) {
 	    case esScaleType::EtScale: {
 	        scaleParam->etMin  = scale.getMinimum();

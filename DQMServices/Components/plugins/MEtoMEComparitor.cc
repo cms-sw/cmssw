@@ -161,7 +161,7 @@ void MEtoMEComparitor::compare(const W& where,const std::string & instance){
       countMe--;
       continue;
     }
-    mapping[pathname]=std::make_pair(&metoedmobject_new[i_new],(const MEtoEDMObject*)0);
+    mapping[pathname]=std::make_pair(&metoedmobject_new[i_new],(const MEtoEDMObject*)nullptr);
   }
   for (unsigned int i_ref=0; i_ref!= metoedmobject_ref.size() ; ++i_ref){
     const std::string & pathname = metoedmobject_ref[i_ref].name;

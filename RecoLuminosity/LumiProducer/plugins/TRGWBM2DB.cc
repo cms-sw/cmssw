@@ -519,7 +519,7 @@ namespace lumi{
       unsigned int& prescale=trgData["PRESCALE"].data<unsigned int>();
      
       trglscount=0;    
-      coral::IBulkOperation* trgInserter=0; 
+      coral::IBulkOperation* trgInserter=nullptr; 
       unsigned int comittedls=0; 
       for(deadIt=deadBeg;deadIt!=deadEnd;++deadIt,++trglscount ){
 	unsigned int cmslscount=trglscount+1;
@@ -587,13 +587,13 @@ namespace lumi{
 	++comittedls;
 	if(comittedls==TRGWBM2DB::COMMITLSINTERVAL){
 	  std::cout<<"\t committing in LS chunck "<<comittedls<<std::endl; 
-	  delete trgInserter; trgInserter=0;
+	  delete trgInserter; trgInserter=nullptr;
 	  lumisession->transaction().commit();
 	  comittedls=0;
 	  std::cout<<"\t committed "<<std::endl; 
 	}else if( trglscount==( totalcmsls-1) ){
 	  std::cout<<"\t committing at the end"<<std::endl; 
-	  delete trgInserter; trgInserter=0;
+	  delete trgInserter; trgInserter=nullptr;
 	  lumisession->transaction().commit();
 	  std::cout<<"\t done"<<std::endl; 
 	}

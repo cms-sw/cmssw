@@ -13,7 +13,7 @@ class CSCTFPtMethods
   enum {kME1andME2=1, kME1andME3, kME2andME3, kME2andME4, 
 	kME3andME4, kME1andME2ovr, kME2andMB1, kME2andMB2};
 
-  CSCTFPtMethods( const L1MuTriggerPtScale* ptScale = 0 ) ;
+  CSCTFPtMethods( const L1MuTriggerPtScale* ptScale = nullptr ) ;
 
   /** First is the parameterizations of Acosta/McDonald */
   

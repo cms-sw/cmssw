@@ -15,7 +15,7 @@ public:
                       FontStruct_t font = GetDefaultFontStruct(),
                       UInt_t option = kSunkenFrame | kDoubleBorder,
                       Pixel_t back = GetWhitePixel());
-   FWNumberEntryField(const TGWindow *parent = 0,
+   FWNumberEntryField(const TGWindow *parent = nullptr,
                       Int_t id = -1, Double_t val = 0,
                       EStyle style = kNESReal,
                       EAttribute attr = kNEAAnyNumber,

@@ -52,8 +52,8 @@ class PFMEtSignInterfaceBase
     double eta  = particle->eta();
     double phi  = particle->phi();
     
-    if ( dynamic_cast<const reco::GsfElectron*>(particle) != 0 ||
-	 dynamic_cast<const pat::Electron*>(particle) != 0 ) {
+    if ( dynamic_cast<const reco::GsfElectron*>(particle) != nullptr ||
+	 dynamic_cast<const pat::Electron*>(particle) != nullptr ) {
       std::string particleType = "electron";
       // WARNING: SignAlgoResolutions::PFtype2 needs to be kept in sync with reco::PFCandidate::e !!
       double dpt  = pfMEtResolution_->eval(metsig::PFtype2, metsig::ET,  pt, phi, eta);
@@ -61,8 +61,8 @@ class PFMEtSignInterfaceBase
       //std::cout << "electron: pt = " << pt << ", eta = " << eta << ", phi = " << phi 
       //          << " --> dpt = " << dpt << ", dphi = " << dphi << std::endl;
       return metsig::SigInputObj(particleType, pt, phi, dpt, dphi);
-    } else if ( dynamic_cast<const reco::Photon*>(particle) != 0 ||
-		dynamic_cast<const pat::Photon*>(particle) != 0 ) {
+    } else if ( dynamic_cast<const reco::Photon*>(particle) != nullptr ||
+		dynamic_cast<const pat::Photon*>(particle) != nullptr ) {
       // CV: assume resolutions for photons to be identical to electron resolutions
       std::string particleType = "electron";
       // WARNING: SignAlgoResolutions::PFtype2 needs to be kept in sync with reco::PFCandidate::e !!
@@ -71,15 +71,15 @@ class PFMEtSignInterfaceBase
       //std::cout << "photon: pt = " << pt << ", eta = " << eta << ", phi = " << phi 
       //          << " --> dpt = " << dpt << ", dphi = " << dphi << std::endl;
       return metsig::SigInputObj(particleType, pt, phi, dpt, dphi);
-    } else if ( dynamic_cast<const reco::Muon*>(particle) != 0 ||
-		dynamic_cast<const pat::Muon*>(particle) != 0 ) {
+    } else if ( dynamic_cast<const reco::Muon*>(particle) != nullptr ||
+		dynamic_cast<const pat::Muon*>(particle) != nullptr ) {
       std::string particleType = "muon";
       double dpt, dphi;
       const reco::Track* muonTrack = nullptr;
-    if ( dynamic_cast<const pat::Muon*>(particle) != 0 ) {
+    if ( dynamic_cast<const pat::Muon*>(particle) != nullptr ) {
       const pat::Muon* muon = dynamic_cast<const pat::Muon*>(particle);
       if ( muon->track().isNonnull() && muon->track().isAvailable() ) muonTrack = muon->track().get();
-    } else if ( dynamic_cast<const reco::Muon*>(particle) != 0 ) {
+    } else if ( dynamic_cast<const reco::Muon*>(particle) != nullptr ) {
       const reco::Muon* muon = dynamic_cast<const reco::Muon*>(particle);
       if ( muon->track().isNonnull() && muon->track().isAvailable() ) muonTrack = muon->track().get();
     } else assert(0);
@@ -94,26 +94,26 @@ class PFMEtSignInterfaceBase
     //std::cout << "muon: pt = " << pt << ", eta = " << eta << ", phi = " << phi 
     //	  << " --> dpt = " << dpt << ", dphi = " << dphi << std::endl;
     return metsig::SigInputObj(particleType, pt, phi, dpt, dphi);
-    } else if ( dynamic_cast<const reco::PFTau*>(particle) != 0 ||
-		dynamic_cast<const pat::Tau*>(particle) != 0 ) {
+    } else if ( dynamic_cast<const reco::PFTau*>(particle) != nullptr ||
+		dynamic_cast<const pat::Tau*>(particle) != nullptr ) {
       // CV: use PFJet resolutions for PFTaus for now...
       //    (until PFTau specific resolutions are available)
-      if ( dynamic_cast<const pat::Tau*>(particle) != 0 ) {
+      if ( dynamic_cast<const pat::Tau*>(particle) != nullptr ) {
 	const pat::Tau* pfTau = dynamic_cast<const pat::Tau*>(particle);
 	//std::cout << "tau: pt = " << pt << ", eta = " << eta << ", phi = " << phi << std::endl;
 	return pfMEtResolution_->evalPFJet(pfTau->pfJetRef().get());
-      } else if ( dynamic_cast<const reco::PFTau*>(particle) != 0  ) {
+      } else if ( dynamic_cast<const reco::PFTau*>(particle) != nullptr  ) {
 	const reco::PFTau* pfTau = dynamic_cast<const reco::PFTau*>(particle);
 	//std::cout << "tau: pt = " << pt << ", eta = " << eta << ", phi = " << phi << std::endl;
 	return pfMEtResolution_->evalPFJet(pfTau->jetRef().get());
       } else assert(0);
-    } else if ( dynamic_cast<const reco::PFJet*>(particle) != 0 ||
-		dynamic_cast<const pat::Jet*>(particle) != 0 ) {
+    } else if ( dynamic_cast<const reco::PFJet*>(particle) != nullptr ||
+		dynamic_cast<const pat::Jet*>(particle) != nullptr ) {
       metsig::SigInputObj pfJetResolution;
-      if ( dynamic_cast<const reco::PFJet*>(particle) != 0 ) {
+      if ( dynamic_cast<const reco::PFJet*>(particle) != nullptr ) {
 	const reco::PFJet* pfJet = dynamic_cast<const reco::PFJet*>(particle);
 	pfJetResolution = pfMEtResolution_->evalPFJet(pfJet);
-      } else if ( dynamic_cast<const pat::Jet*>(particle) != 0 ) {
+      } else if ( dynamic_cast<const pat::Jet*>(particle) != nullptr ) {
 	const pat::Jet* jet = dynamic_cast<const pat::Jet*>(particle);
 	if ( jet->isPFJet() ) {
 	  reco::PFJet pfJet(jet->p4(), jet->vertex(), jet->pfSpecific(), jet->getJetConstituents());
@@ -141,7 +141,7 @@ class PFMEtSignInterfaceBase
 	}
       }
       return pfJetResolution;
-    } else if ( dynamic_cast<const reco::PFCandidate*>(particle) != 0 ) {
+    } else if ( dynamic_cast<const reco::PFCandidate*>(particle) != nullptr ) {
       const reco::PFCandidate* pfCandidate = dynamic_cast<const reco::PFCandidate*>(particle);
       //std::cout << "pfCandidate: pt = " << pt << ", eta = " << eta << ", phi = " << phi << std::endl;
       return pfMEtResolution_->evalPF(pfCandidate);

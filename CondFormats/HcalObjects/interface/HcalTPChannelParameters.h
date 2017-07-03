@@ -10,7 +10,7 @@ class HcalTPChannelParameters: public HcalCondObjectContainer<HcalTPChannelParam
 public:
   //constructor definition: has to contain 
 #ifndef HCAL_COND_SUPPRESS_DEFAULT
-  HcalTPChannelParameters():HcalCondObjectContainer<HcalTPChannelParameter>(0) {}
+  HcalTPChannelParameters():HcalCondObjectContainer<HcalTPChannelParameter>(nullptr) {}
 #endif
   HcalTPChannelParameters(const HcalTopology* topo):HcalCondObjectContainer<HcalTPChannelParameter>(topo) {}
 

@@ -21,7 +21,7 @@ class DiamondVFATFrame : public VFATFrame
 {
   
   public:
-    DiamondVFATFrame(const word* inputData = NULL)
+    DiamondVFATFrame(const word* inputData = nullptr)
     {}
     virtual ~DiamondVFATFrame() {}
 

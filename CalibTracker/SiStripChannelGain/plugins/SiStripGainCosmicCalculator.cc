@@ -105,7 +105,7 @@ void SiStripGainCosmicCalculator::algoBeginJob(const edm::EventSetup& iSetup)
    // get tracker geometry and find nr. of apv pairs for each active detector 
    edm::ESHandle<TrackerGeometry> tkGeom; iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );     
    for(TrackerGeometry::DetContainer::const_iterator it = tkGeom->dets().begin(); it != tkGeom->dets().end(); it++){ // loop over detector modules
-     if( dynamic_cast<const StripGeomDetUnit*>((*it))!=0){
+     if( dynamic_cast<const StripGeomDetUnit*>((*it))!=nullptr){
        uint32_t detid= ((*it)->geographicalId()).rawId();
        // get thickness for all detector modules, not just for active, this is strange 
        double module_thickness = (*it)->surface().bounds().thickness(); // get thickness of detector from GeomDet (DetContainer == vector<GeomDet*>)
@@ -231,7 +231,7 @@ std::pair<double,double> SiStripGainCosmicCalculator::getPeakOfLandau( TH1F * in
   double chi2overndf = chi2 / ndf;
   // in case things went wrong, try to refit in smaller range
   if(adcs< 2. || (error/adcs)>1.8 ){
-     inputHisto->Fit(fitfunction.get(),"0Q",0,0.,400.);
+     inputHisto->Fit(fitfunction.get(),"0Q",nullptr,0.,400.);
      std::cout<<"refitting landau for histogram "<<inputHisto->GetTitle()<<std::endl;
      std::cout<<"initial error/adcs ="<<error<<" / "<<adcs<<std::endl;
      std::cout<<"new     error/adcs ="<<fitfunction->GetParError(1)<<" / "<<fitfunction->GetParameter("MPV")<<std::endl;
@@ -254,7 +254,7 @@ double SiStripGainCosmicCalculator::moduleWidth(const uint32_t detid, const edm:
   edm::ESHandle<TrackerGeometry> tkGeom; iSetup->get<TrackerDigiGeometryRecord>().get( tkGeom );     
   double module_width=0.;
   const GeomDetUnit* it = tkGeom->idToDetUnit(DetId(detid));
-  if (dynamic_cast<const StripGeomDetUnit*>(it)==0 && dynamic_cast<const PixelGeomDetUnit*>(it)==0) {
+  if (dynamic_cast<const StripGeomDetUnit*>(it)==nullptr && dynamic_cast<const PixelGeomDetUnit*>(it)==nullptr) {
     std::cout << "this detID doesn't seem to belong to the Tracker" << std::endl;
   }else{
     module_width = it->surface().bounds().width();
@@ -268,7 +268,7 @@ double SiStripGainCosmicCalculator::moduleThickness(const uint32_t detid, const 
   edm::ESHandle<TrackerGeometry> tkGeom; iSetup->get<TrackerDigiGeometryRecord>().get( tkGeom );
   double module_thickness=0.;
   const GeomDetUnit* it = tkGeom->idToDetUnit(DetId(detid));
-  if (dynamic_cast<const StripGeomDetUnit*>(it)==0 && dynamic_cast<const PixelGeomDetUnit*>(it)==0) {
+  if (dynamic_cast<const StripGeomDetUnit*>(it)==nullptr && dynamic_cast<const PixelGeomDetUnit*>(it)==nullptr) {
     std::cout << "this detID doesn't seem to belong to the Tracker" << std::endl;
   }else{
     module_thickness = it->surface().bounds().thickness();

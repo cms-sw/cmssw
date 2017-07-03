@@ -205,7 +205,7 @@ namespace sistrip {
   //FEDBSChannelUnpacker
 
   inline FEDBSChannelUnpacker::FEDBSChannelUnpacker()
-    : data_(NULL),
+    : data_(nullptr),
       oldWordOffset_(0), currentWordOffset_(0),
       currentBitOffset_(0), currentLocalBitOffset_(0),
       bitOffsetIncrement_(10),
@@ -347,7 +347,7 @@ namespace sistrip {
   //FEDZSChannelUnpacker
   
   inline FEDZSChannelUnpacker::FEDZSChannelUnpacker()
-    : data_(NULL),
+    : data_(nullptr),
       offsetIncrement_(1),
       valuesLeftInCluster_(0),
       channelPayloadOffset_(0),

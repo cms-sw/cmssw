@@ -153,10 +153,10 @@ void CMHistograms::bookTopLevelHistograms(DQMStore::IBooker & ibooker)
     tkmapCM_[3] = new TkHistoMap("SiStrip/TkHisto","TkHMap_RmsCMAPV0minusAPV1",-500.,500);
   }
   else {
-    tkmapCM_[0] = 0;
-    tkmapCM_[1] = 0;
-    tkmapCM_[2] = 0;
-    tkmapCM_[3] = 0;
+    tkmapCM_[0] = nullptr;
+    tkmapCM_[1] = nullptr;
+    tkmapCM_[2] = nullptr;
+    tkmapCM_[3] = nullptr;
   }
 
   for ( unsigned int i = sistrip::FED_ID_MIN; i <= sistrip::FED_ID_MAX; i++ )
@@ -204,8 +204,8 @@ void CMHistograms::bookChannelsHistograms(DQMStore::IBooker & ibooker , unsigned
   fedIdStream << fedId;
 
   ibooker.setCurrentFolder(fedKey.path());
-  medianperChannelMap_[fedId].resize(sistrip::FEDCH_PER_FED,0);
-  medianAPV0minusAPV1perChannelMap_[fedId].resize(sistrip::FEDCH_PER_FED,0);
+  medianperChannelMap_[fedId].resize(sistrip::FEDCH_PER_FED,nullptr);
+  medianAPV0minusAPV1perChannelMap_[fedId].resize(sistrip::FEDCH_PER_FED,nullptr);
 
   for (unsigned int iCh(0); iCh < sistrip::FEDCH_PER_FED; iCh++){
 

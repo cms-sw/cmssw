@@ -153,7 +153,7 @@ PATGenCandsFromSimTracksProducer::findGeantMother(const SimTrack &tk, const Glob
            }
        }
    }
-   return 0;
+   return nullptr;
 }
 
 edm::Ref<reco::GenParticleCollection>
@@ -162,7 +162,7 @@ PATGenCandsFromSimTracksProducer::findRef(const SimTrack &tk, GlobalContext &g) 
     const SimTrack * simMother = findGeantMother(tk, g);
 
     edm::Ref<reco::GenParticleCollection> motherRef;
-    if (simMother != 0) motherRef = findRef(*simMother,g);
+    if (simMother != nullptr) motherRef = findRef(*simMother,g);
 
     if (writeAncestors_) {
         // If writing ancestors, I need to serialize myself, and then to return a ref to me
@@ -297,14 +297,14 @@ void PATGenCandsFromSimTracksProducer::produce(Event& event,
 
       if (!motherPdgIds_.empty()) {
            const SimTrack *motherSimTk = findGeantMother(*isimtrk, globals);
-           if (motherSimTk == 0) continue;
+           if (motherSimTk == nullptr) continue;
            if (motherPdgIds_.find(std::abs(motherSimTk->type())) == motherPdgIds_.end()) continue;
       }
 
       if (makeMotherLink_ || writeAncestors_) {
           Ref<GenParticleCollection> motherRef;
           const SimTrack * mother = findGeantMother(*isimtrk, globals);
-          if (mother != 0) motherRef = findRef(*mother, globals);
+          if (mother != nullptr) motherRef = findRef(*mother, globals);
           if (motherRef.isNonnull()) genp.addMother(motherRef);
       }
 

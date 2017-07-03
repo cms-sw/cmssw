@@ -49,7 +49,7 @@ public:
 
 private:
 
-  const SimTrack *findSimMuon(const edm::Event &ev, const edm::EventSetup &es, const SimTrack *previous=0);
+  const SimTrack *findSimMuon(const edm::Event &ev, const edm::EventSetup &es, const SimTrack *previous=nullptr);
 
   edm::ParameterSet theConfig;
   edm::InputTag g4SimTrackSrc;

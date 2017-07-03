@@ -41,7 +41,7 @@ class PFMETBenchmark {
 	     bool debug, 
 	     bool plotAgainstReco=0, 
              std::string benchmarkLabel_ = "ParticleFlow", 
-	     DQMStore * dbe_store = NULL
+	     DQMStore * dbe_store = nullptr
 	     );
   void process(const reco::PFMETCollection& , 
 	       const reco::GenParticleCollection&, 

@@ -399,7 +399,7 @@ void
 FWGUIEventDataAdder::addNewItem()
 {
    TClass* theClass = TClass::GetClass(m_type.c_str());
-   if(0==theClass) {
+   if(nullptr==theClass) {
       return;
    }
    const std::string moduleLabel = m_moduleLabel;
@@ -461,7 +461,7 @@ void
 FWGUIEventDataAdder::show()
 {
    // Map main frame
-   if(0==m_frame) {
+   if(nullptr==m_frame) {
       createWindow();
    }
    m_frame->MapWindow();

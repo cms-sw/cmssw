@@ -65,9 +65,9 @@ BOOST_AUTO_TEST_CASE( itemfilter )
    fVector.push_back(reco::Track());
    
    TClass* cls=TClass::GetClass("std::vector<reco::Track>");
-   assert(0!=cls);
+   assert(nullptr!=cls);
    
-   fireworks::Context context(&cm,&sm,0,0,0);
+   fireworks::Context context(&cm,&sm,nullptr,nullptr,nullptr);
    
    auto accessor = std::make_shared<TestAccessor>(&fVector);
    FWPhysicsObjectDesc pObj("Tracks",cls,"Tracks");

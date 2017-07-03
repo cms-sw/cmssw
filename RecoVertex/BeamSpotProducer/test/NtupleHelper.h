@@ -75,7 +75,7 @@ public :
    TBranch *b_quality;
    TBranch *b_algo;
 
-   NtupleHelper(const char* fname ,TTree *tree=0);
+   NtupleHelper(const char* fname ,TTree *tree=nullptr);
    virtual ~NtupleHelper();
    virtual Int_t    Cut(Long64_t entry);
    virtual Int_t    GetEntry(Long64_t entry);
@@ -94,7 +94,7 @@ NtupleHelper::NtupleHelper(const char* fname,TTree *tree)
 {
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
-   if (tree == 0) {
+   if (tree == nullptr) {
       TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject(fname);
       if (!f) {
          f = new TFile(fname);
@@ -143,7 +143,7 @@ void NtupleHelper::Init(TTree *tree)
    // Init() will be called many times when running with PROOF.
 
    // Set branch addresses
-   if (tree == 0) return;
+   if (tree == nullptr) return;
    fChain = tree;
    fCurrent = -1;
    fChain->SetMakeClass(1);

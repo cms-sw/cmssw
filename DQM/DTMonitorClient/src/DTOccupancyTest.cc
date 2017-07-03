@@ -136,7 +136,7 @@ void DTOccupancyTest::beginRun(const edm::Run& run, const EventSetup& context){
     MonitorElement * chamberOccupancyHisto = igetter.get(getMEName(nameMonitoredHisto, chId));	
 
     // Run the tests on the plot for the various granularities
-    if(chamberOccupancyHisto != 0) {
+    if(chamberOccupancyHisto != nullptr) {
       // Get the 2D histo
       TH2F* histo = chamberOccupancyHisto->getTH2F();
       float chamberPercentage = 1.;

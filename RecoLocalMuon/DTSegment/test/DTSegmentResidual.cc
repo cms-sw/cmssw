@@ -33,14 +33,14 @@ DTSegmentResidual::DTResidual::DTResidual(double v,
 
 DTSegmentResidual::DTSegmentResidual(const DTRecSegment2D* seg,
                                      const DTSuperLayer* sl) : theSeg(seg),
-                                                               theCh(0) ,
+                                                               theCh(nullptr) ,
                                                                theSL(sl) {
 }
 
 DTSegmentResidual::DTSegmentResidual(const DTChamberRecSegment2D* seg,
                                      const DTChamber* ch) : theSeg(seg),
                                                             theCh(ch) ,
-                                                            theSL(0) {
+                                                            theSL(nullptr) {
 }
 
 /* Operations */ 

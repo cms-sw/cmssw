@@ -274,7 +274,7 @@ namespace edm {
         psetTree->GetEntry(i);
         psetMap.insert(idToBlob);
       }
-      filePtr_->SetCacheRead(0);
+      filePtr_->SetCacheRead(nullptr);
     }
 
     // backward compatibility

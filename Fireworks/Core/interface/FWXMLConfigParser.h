@@ -44,7 +44,7 @@ public:
    FWXMLConfigParser(std::istream &f) 
    : SimpleSAXParser(f),
      m_state(IN_BEGIN_DOCUMENT),
-     m_first(0)
+     m_first(nullptr)
    {}
 
    /** Pushes the configuration on stack eventually */

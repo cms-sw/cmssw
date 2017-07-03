@@ -277,7 +277,7 @@ Alignable* AlignmentParameterStore::alignableFromAlignableDet( const AlignableDe
     mother = mother->mother();
   }
 
-  return 0;
+  return nullptr;
 }
 
 //__________________________________________________________________________________________________
@@ -293,7 +293,7 @@ void AlignmentParameterStore::applyParameters(void)
 void AlignmentParameterStore::applyParameters(Alignable* alignable)
 {
 
-  AlignmentParameters *pars = (alignable ? alignable->alignmentParameters() : 0);
+  AlignmentParameters *pars = (alignable ? alignable->alignmentParameters() : nullptr);
   if (!pars) {
     throw cms::Exception("BadAlignable") 
       << "applyParameters: provided alignable does not have alignment parameters";

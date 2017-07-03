@@ -96,7 +96,7 @@ class ApeSettingAlgorithm : public AlignmentAlgorithmBase
 //____________________________________________________
 ApeSettingAlgorithm::ApeSettingAlgorithm(const edm::ParameterSet &cfg) :
   AlignmentAlgorithmBase(cfg), theConfig(cfg),
-  theAlignableNavigator(0)
+  theAlignableNavigator(nullptr)
 {
   edm::LogInfo("Alignment") << "@SUB=ApeSettingAlgorithm" << "Start.";
   saveApeToAscii_ = theConfig.getUntrackedParameter<bool>("saveApeToASCII");
@@ -223,7 +223,7 @@ void ApeSettingAlgorithm::terminate(const edm::EventSetup& iSetup)
     }
   // clean up at end:  // FIXME: should we delete here or in destructor?
   delete theAlignableNavigator;
-  theAlignableNavigator = 0;
+  theAlignableNavigator = nullptr;
 }
 
 // Run the algorithm on trajectories and tracks -------------------------------

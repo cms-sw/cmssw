@@ -11,7 +11,7 @@ namespace HcalObjectAddons {
     Less less;
     auto item = std::lower_bound (itemsByT.begin(), itemsByT.end(), target, less);
     if (item == itemsByT.end() || !less.equal(*item,target)){
-      return 0;
+      return nullptr;
     }
     return *item;
   }

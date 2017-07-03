@@ -8,7 +8,7 @@ ZGeneratorLineShape::ZGeneratorLineShape(const char *name, const char *title,
 					 ): 
   RooAbsPdf(name,title),
   m("m","m", this,_m),  
-  dataHist(0)
+  dataHist(nullptr)
 {
   TFile *f_gen= TFile::Open(genfile);
   TH1F* mass_th1f = (TH1F*)  f_gen->Get(histoName);

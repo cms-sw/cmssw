@@ -66,7 +66,7 @@ namespace edm {
       virtual void push_back( const BaseHolder<T> * r ) {
         typedef Holder<T, typename REFV::value_type > holder_type;
         const holder_type * h = dynamic_cast<const holder_type *>( r );
-        if( h == 0 )
+        if( h == nullptr )
           Exception::throwThis( errors::InvalidReference,
                                "In VectorHolder<T, REFV> trying to push_back wrong reference type");
         refVector_.push_back( h->getRef() );
@@ -107,11 +107,11 @@ namespace edm {
         difference_type difference( const const_iterator_imp * o ) const { return i - dc( o ); }
       private:
         const typename ref_vector_type::const_iterator & dc( const const_iterator_imp * o ) const {
-          if ( o == 0 )
+          if ( o == nullptr )
             Exception::throwThis( errors::InvalidReference,
                                  "In RefToBaseVector<T> trying to dereference a null pointer");
           const const_iterator_imp_specific * oo = dynamic_cast<const const_iterator_imp_specific *>( o );
-          if ( oo == 0 )
+          if ( oo == nullptr )
             Exception::throwThis( errors::InvalidReference,
                                  "In RefToBaseVector<T> trying to cast iterator to wrong type ");
           return oo->i;

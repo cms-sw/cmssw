@@ -84,7 +84,7 @@ LikelihoodPdf::initFromDB(const ElectronLikelihoodCalibration *calibration) {
 float 
 LikelihoodPdf::getVal(float x, std::string const& gsfClass, 
 		      bool normalized) const {
-  const PhysicsTools::Calibration::HistogramF *thePdf=0;
+  const PhysicsTools::Calibration::HistogramF *thePdf=nullptr;
   if(_splitPdf.size()>1) {
     edm::LogInfo("LikelihoodPdf") << "The PDF " << _name
 				  << " is SPLITTED by category " << gsfClass;

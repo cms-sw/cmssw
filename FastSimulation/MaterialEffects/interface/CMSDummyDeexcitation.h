@@ -21,11 +21,11 @@ class CMSDummyDeexcitation : public G4VPreCompoundModel
 { 
 public:
 
-  CMSDummyDeexcitation():G4VPreCompoundModel(0, "PRECO") {}; 
+  CMSDummyDeexcitation():G4VPreCompoundModel(nullptr, "PRECO") {}; 
 
   virtual ~CMSDummyDeexcitation() {};
 
-  virtual G4HadFinalState* ApplyYourself(const G4HadProjectile&, G4Nucleus&) { return 0; } 
+  virtual G4HadFinalState* ApplyYourself(const G4HadProjectile&, G4Nucleus&) { return nullptr; } 
 
   virtual G4ReactionProductVector* DeExcite(G4Fragment&) { return new G4ReactionProductVector(); };
 

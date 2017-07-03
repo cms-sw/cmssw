@@ -47,7 +47,7 @@ MuonDetLayerMeasurements::MuonDetLayerMeasurements(edm::InputTag dtlabel,
   theRPCEventCacheID(0),
   theGEMEventCacheID(0),
   theME0EventCacheID(0),
-  theEvent(0)
+  theEvent(nullptr)
 {
 
   dtToken_ = iC.consumes<DTRecSegment4DCollection>(dtlabel);

@@ -61,7 +61,7 @@ CSCHaloAlgo::CSCHaloAlgo()
   dt_highthresh_segvsrh_eb=30;
   dt_highthresh_segvsrh_ee=30;
 
-  geo = 0;
+  geo = nullptr;
 
 
   
@@ -93,7 +93,7 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
   bool HCALmatched =false;
 
   //  if(!geo){
-  geo = 0;
+  geo = nullptr;
   edm::ESHandle<CaloGeometry> pGeo;
   TheSetup.get<CaloGeometryRecord>().get(pGeo);
   geo = pGeo.product();

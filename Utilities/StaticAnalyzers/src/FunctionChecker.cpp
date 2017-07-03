@@ -40,7 +40,7 @@ public:
 
   const clang::Stmt * ParentStmt(const Stmt *S) {
   	const Stmt * P = AC->getParentMap().getParentIgnoreParens(S);
-	if (!P) return 0;
+	if (!P) return nullptr;
 	return P;
   }
 

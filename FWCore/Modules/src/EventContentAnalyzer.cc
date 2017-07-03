@@ -126,7 +126,7 @@ namespace edm {
           TypeWithDict pointedType = iObject.typeOf().toType(); // for Pointers, I get the real type this way
           if(TypeWithDict::byName("void") == pointedType ||
              pointedType.isPointer() ||
-             iObject.address() == 0) {
+             iObject.address() == nullptr) {
              return;
           }
           return;
@@ -200,7 +200,7 @@ namespace edm {
           // memory for a ref (which should just be a pointer to the object and not the object itself)
           //So we will create memory on the stack which can be used to hold a reference
           bool const isRef = atReturnType.isReference();
-          void* refMemoryBuffer = 0;
+          void* refMemoryBuffer = nullptr;
           size_t index = 0;
           //The argument to the 'at' function is the index. Since the argument list holds pointers to the arguments
           // we only need to create it once and then when the value of index changes the pointer already

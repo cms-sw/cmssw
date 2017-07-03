@@ -24,7 +24,7 @@ CSCDbStripConditions::CSCDbStripConditions(const edm::ParameterSet & pset)
 
 CSCDbStripConditions::~CSCDbStripConditions()
 {
-  if(theNoisifier != 0) delete theNoisifier;
+  if(theNoisifier != nullptr) delete theNoisifier;
 }
 
 
@@ -107,7 +107,7 @@ void CSCDbStripConditions::fetchNoisifier(const CSCDetId & id, int istrip)
   //matrix(0,1) = matrix(1,2) = matrix(6,7) = avgNeighbor;
   //matrix(0,2) = matrix(1,3) = matrix(5,7) = avg2away;
 
-  if(theNoisifier != 0) delete theNoisifier;
+  if(theNoisifier != nullptr) delete theNoisifier;
   theNoisifier = new CSCCorrelatedNoisifier(matrix);
 }
 

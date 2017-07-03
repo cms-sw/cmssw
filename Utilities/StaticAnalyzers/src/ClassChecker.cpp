@@ -87,7 +87,7 @@ public:
       BR(br),
       AC(ac),
       AD(fd),
-      visitingCallExpr(0),sfile(file) {}
+      visitingCallExpr(nullptr),sfile(file) {}
 
   bool hasWork() const { return !WList.empty(); }
 
@@ -118,7 +118,7 @@ public:
 
   const clang::Stmt * ParentStmt(const Stmt *S) {
      const Stmt * P = AC->getParentMap().getParentIgnoreParens(S);
-     if (!P) return 0;
+     if (!P) return nullptr;
      return P;
   }
 
@@ -129,7 +129,7 @@ public:
      if (!WList.empty()) {
           for (llvm::SmallVectorImpl<const clang::CXXMemberCallExpr *>::iterator 
                I = WList.begin(), E = WList.end(); I != E; I++) {
-               (*I)->printPretty(os, 0 , Policy);
+               (*I)->printPretty(os, nullptr , Policy);
                os <<" ";
           }
      }       
@@ -339,7 +339,7 @@ void WalkAST::ReportDeclRef( const clang::DeclRefExpr * DRE) {
           std::string buf;
           llvm::raw_string_ostream os(buf);
           os << "Non-const variable '" << support::getQualifiedName(*D) << "' is static local and accessed in statement '";
-          PS->printPretty(os,0,Policy);
+          PS->printPretty(os,nullptr,Policy);
           os << "'.\n";
           std::string pname = support::getQualifiedName(*(AD->getParent()));
           support::fixAnonNS(pname,sfile);
@@ -358,7 +358,7 @@ void WalkAST::ReportDeclRef( const clang::DeclRefExpr * DRE) {
           std::string buf;
           llvm::raw_string_ostream os(buf);
           os << "Non-const variable '" << support::getQualifiedName(*D) << "' is static member data and accessed in statement '";
-          PS->printPretty(os,0,Policy);
+          PS->printPretty(os,nullptr,Policy);
           os << "'.\n";
           std::string pname = support::getQualifiedName(*(AD->getParent()));
           support::fixAnonNS(pname,sfile);
@@ -382,7 +382,7 @@ void WalkAST::ReportDeclRef( const clang::DeclRefExpr * DRE) {
           std::string buf;
           llvm::raw_string_ostream os(buf);
           os << "Non-const variable '" << support::getQualifiedName(*D) << "' is global static and accessed in statement '";
-          PS->printPretty(os,0,Policy);
+          PS->printPretty(os,nullptr,Policy);
           os << "'.\n";
           std::string pname = support::getQualifiedName(*(AD->getParent()));
           support::fixAnonNS(pname,sfile);
@@ -480,7 +480,7 @@ void WalkAST::ReportMember(const clang::MemberExpr *ME) {
   R = ME->getSourceRange();
 
   os << "Member data '";
-  ME->printPretty(os,0,Policy);
+  ME->printPretty(os,nullptr,Policy);
   os << "' is directly or indirectly modified in const function\n";
   std::string pname = support::getQualifiedName(*(AD->getParent()));
   support::fixAnonNS(pname,sfile);
@@ -503,9 +503,9 @@ void WalkAST::ReportCall(const clang::CXXMemberCallExpr *CE) {
   LangOpts.CPlusPlus = true;
   clang::PrintingPolicy Policy(LangOpts);
   os << "call expr '";
-  CE->printPretty(os,0,Policy);
+  CE->printPretty(os,nullptr,Policy);
   os << "' with implicit object argument '";
-  CE->getImplicitObjectArgument()->IgnoreParenCasts()->printPretty(os,0,Policy);  
+  CE->getImplicitObjectArgument()->IgnoreParenCasts()->printPretty(os,nullptr,Policy);  
   os << "'";
   os<<"' is a non-const member function '"<<support::getQualifiedName(*MD);
   os<<"' that could modify member data object of type '"<<support::getQualifiedName(*RD)<<"'\n";
@@ -593,7 +593,7 @@ void WalkAST::ReportCallReturn(const clang::ReturnStmt * RS) {
   os << "Returns a pointer or reference to a non-const member data object ";
   os << " or a const std::vector<*> or const std::vector<*>& ";
   os << "in const function in statement '";
-  RS->printPretty(os,0,Policy);
+  RS->printPretty(os,nullptr,Policy);
   os << "\n";
   const clang::CXXMethodDecl * MD = llvm::cast<clang::CXXMethodDecl>(AD);
   clang::ento::PathDiagnosticLocation CELoc =

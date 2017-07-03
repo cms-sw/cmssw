@@ -31,7 +31,7 @@ FineDelayHistosUsingDb::FineDelayHistosUsingDb( const edm::ParameterSet & pset,
     SamplingHistograms( pset.getParameter<edm::ParameterSet>("FineDelayParameters"),
                         bei,
                         sistrip::FINE_DELAY ),
-    tracker_(0)
+    tracker_(nullptr)
 {
   LogTrace(mlDqmClient_) 
     << "[FineDelayHistosUsingDb::" << __func__ << "]"

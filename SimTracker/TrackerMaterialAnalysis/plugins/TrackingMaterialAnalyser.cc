@@ -51,7 +51,7 @@ TrackingMaterialAnalyser::TrackingMaterialAnalyser(const edm::ParameterSet& iPSe
   if (m_saveSummaryPlot)
     m_plotter               = new TrackingMaterialPlotter( 300., 120., 10 );      // 10x10 points per cm2
   else
-    m_plotter               = NULL;
+    m_plotter               = nullptr;
 }
 
 //-------------------------------------------------------------------------

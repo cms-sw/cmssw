@@ -41,7 +41,7 @@ SiStripTrackerMapCreator::SiStripTrackerMapCreator(const edm::EventSetup& eSetup
 {
   cached_detid=0;
   cached_layer=0;
-  trackerMap_ = 0;
+  trackerMap_ = nullptr;
   stripTopLevelDir_="";
   eSetup_.get<SiStripDetCablingRcd>().get(detcabling_);
   //  psumap_.BuildMap("CalibTracker/SiStripDCS/data/StripPSUDetIDMap_FromJan132010.dat",false);
@@ -115,7 +115,7 @@ void SiStripTrackerMapCreator::create(const edm::ParameterSet & tkmapPset,
   }
   trackerMap_->printonline();
   delete trackerMap_;
-  trackerMap_ = 0;
+  trackerMap_ = nullptr;
 }
 //
 // -- Create Tracker Map for Offline process
@@ -235,7 +235,7 @@ void SiStripTrackerMapCreator::createForOffline(const edm::ParameterSet & tkmapP
   }
 
   delete trackerMap_;
-  trackerMap_ = 0;
+  trackerMap_ = nullptr;
 }
 //
 // -- Fill Tracker Map with QTest Alarms and SiStripQuality bad modules
@@ -419,7 +419,7 @@ void SiStripTrackerMapCreator::setTkMapFromHistogram(DQMStore* dqm_store, std::s
     for (std::vector<std::string>::const_iterator iLayer = layerVec.begin(); iLayer != layerVec.end(); iLayer++) { 
       if ((*iLayer).find("BadModuleList") !=std::string::npos) continue;
       std::vector<MonitorElement*> meVec = dqm_store->getContents((*iLayer));
-      MonitorElement* tkhmap_me = 0;
+      MonitorElement* tkhmap_me = nullptr;
       std::string name;
       for (std::vector<MonitorElement*>::const_iterator itkh = meVec.begin();  itkh != meVec.end(); itkh++) {
 	name = (*itkh)->getName();
@@ -433,11 +433,11 @@ void SiStripTrackerMapCreator::setTkMapFromHistogram(DQMStore* dqm_store, std::s
 	  break; 
 	} 
       }
-      if (tkhmap_me != 0) {
+      if (tkhmap_me != nullptr) {
 	if (topModules){
         	paintTkMapFromHistogram(dqm_store,tkhmap_me, htype, topNmodVec);
 	}
-	else paintTkMapFromHistogram(dqm_store,tkhmap_me, htype, 0);
+	else paintTkMapFromHistogram(dqm_store,tkhmap_me, htype, nullptr);
       } 
     }
     dqm_store->cd(mechanicalview_dir);
@@ -481,7 +481,7 @@ void SiStripTrackerMapCreator::printTopModules(std::vector<std::pair<float,uint3
 	  if(tTopo->tecSide(ssdetid)==1) subdetector = "TEC/MINUS ";
 	  if(tTopo->tecSide(ssdetid)==2) subdetector = "TEC/PLUS  ";
        }
-       uint16_t flag = getDetectorFlagAndComment(0, det_id, tTopo, comment);
+       uint16_t flag = getDetectorFlagAndComment(nullptr, det_id, tTopo, comment);
        if (flag == 0) edm::LogVerbatim("TopModules") << subdetector << comment.str() << " value: "<< aPair.first;
    }
    edm::LogVerbatim("TopModules") << "------------------------------------------------------";

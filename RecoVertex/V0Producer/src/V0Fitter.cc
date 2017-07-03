@@ -238,8 +238,8 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup,
       }
 
       if (useRefTracks_ && theRefTracks.size() > 1) {
-         reco::TransientTrack* thePositiveRefTrack = 0;
-         reco::TransientTrack* theNegativeRefTrack = 0;
+         reco::TransientTrack* thePositiveRefTrack = nullptr;
+         reco::TransientTrack* theNegativeRefTrack = nullptr;
          for (std::vector<reco::TransientTrack>::iterator iTrack = theRefTracks.begin(); iTrack != theRefTracks.end(); ++iTrack) {
             if (iTrack->track().charge() > 0.) {
                thePositiveRefTrack = &*iTrack;
@@ -247,7 +247,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup,
                theNegativeRefTrack = &*iTrack;
             }
          }
-         if (thePositiveRefTrack == 0 || theNegativeRefTrack == 0) continue;
+         if (thePositiveRefTrack == nullptr || theNegativeRefTrack == nullptr) continue;
          trajPlus.reset(new TrajectoryStateClosestToPoint(thePositiveRefTrack->trajectoryStateClosestToPoint(vtxPos)));
          trajMins.reset(new TrajectoryStateClosestToPoint(theNegativeRefTrack->trajectoryStateClosestToPoint(vtxPos)));
       } else {
@@ -255,7 +255,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup,
          trajMins.reset(new TrajectoryStateClosestToPoint(negTransTkPtr->trajectoryStateClosestToPoint(vtxPos)));
       }
 
-      if (trajPlus.get() == 0 || trajMins.get() == 0 || !trajPlus->isValid() || !trajMins->isValid()) continue;
+      if (trajPlus.get() == nullptr || trajMins.get() == nullptr || !trajPlus->isValid() || !trajMins->isValid()) continue;
 
       GlobalVector positiveP(trajPlus->momentum());
       GlobalVector negativeP(trajMins->momentum());

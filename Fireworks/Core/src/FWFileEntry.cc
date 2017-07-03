@@ -22,8 +22,8 @@
 #include "Fireworks/Core/interface/fwPaths.h"
 
 FWFileEntry::FWFileEntry(const std::string& name, bool checkVersion) :
-   m_name(name), m_file(0), m_eventTree(0), m_event(0),
-   m_needUpdate(true), m_globalEventList(0)
+   m_name(name), m_file(nullptr), m_eventTree(nullptr), m_event(nullptr),
+   m_needUpdate(true), m_globalEventList(nullptr)
 {
    openFile(checkVersion);
 }
@@ -40,7 +40,7 @@ void FWFileEntry::openFile(bool checkVersion)
 {
    gErrorIgnoreLevel = 3000; // suppress warnings about missing dictionaries
    TFile *newFile = TFile::Open(m_name.c_str());
-   if (newFile == 0 || newFile->IsZombie() || !newFile->Get("Events")) {
+   if (newFile == nullptr || newFile->IsZombie() || !newFile->Get("Events")) {
       //  std::cout << "Invalid file. Ignored." << std::endl;
       // return false;
       throw std::runtime_error("Invalid file. Ignored.");
@@ -55,11 +55,11 @@ void FWFileEntry::openFile(bool checkVersion)
   
       TTree   *metaData = dynamic_cast<TTree*>(m_file->Get("MetaData"));
       TBranch *b = metaData->GetBranch("ProcessHistory");
-      provList *x = 0;
+      provList *x = nullptr;
       b->SetAddress(&x);
       b->GetEntry(0);
       
-      const edm::ProcessConfiguration* dd = 0;
+      const edm::ProcessConfiguration* dd = nullptr;
       int latestVersion =0;
       int currentVersionArr[] = {0, 0, 0};
       for (auto const& processHistory : *x)
@@ -80,7 +80,7 @@ void FWFileEntry::openFile(bool checkVersion)
       if (latestVersion) {
          fwLog(fwlog::kInfo) << "Checking process history. " << m_name.c_str() << " latest process \""  << dd->processName() << "\", version " << dd->releaseVersion() << std::endl;
     
-         b->SetAddress(0);
+         b->SetAddress(nullptr);
          TString v = dd->releaseVersion();
          if (!fireworks::acceptDataFormatsVersion(v))
          {
@@ -107,7 +107,7 @@ void FWFileEntry::openFile(bool checkVersion)
 
    m_eventTree = dynamic_cast<TTree*>(m_file->Get("Events"));
 
-   if (m_eventTree == 0)
+   if (m_eventTree == nullptr)
    { 
       throw std::runtime_error("Cannot find TTree 'Events' in the data file");
    }
@@ -312,7 +312,7 @@ void FWFileEntry::runFilter(Filter* filter, const FWEventItemsManager* eiMng)
    }
 
    m_file->cd();
-   m_eventTree->SetEventList(0);
+   m_eventTree->SetEventList(nullptr);
    
    // Since ROOT will leave any TBranches used in the filtering at the last event,
    // we need to be able to reset them to what fwlite::Event expects them to be
@@ -326,7 +326,7 @@ void FWFileEntry::runFilter(Filter* filter, const FWEventItemsManager* eiMng)
       while (TObject* branchObj = pIt->Next())
       {
          TBranch* b = dynamic_cast<TBranch*> (branchObj);
-         if (0!=b)
+         if (nullptr!=b)
          {
             const char * name = b->GetName();
             unsigned int length = strlen(name);
@@ -335,7 +335,7 @@ void FWFileEntry::runFilter(Filter* filter, const FWEventItemsManager* eiMng)
                // This is not a data branch so we should ignore it.
                continue;
             }
-            if (0 != b->GetAddress())
+            if (nullptr != b->GetAddress())
             {
                if (prevAddrs.find(b) != prevAddrs.end())
                {
@@ -344,7 +344,7 @@ void FWFileEntry::runFilter(Filter* filter, const FWEventItemsManager* eiMng)
                prevAddrs.insert(std::make_pair(b, b->GetAddress()));
 
                // std::cout <<"Zeroing branch: "<< b->GetName() <<" "<< (void*) b->GetAddress() <<std::endl;
-               b->SetAddress(0);
+               b->SetAddress(nullptr);
             }
          }
       }
@@ -392,7 +392,7 @@ FWFileEntry::filterEventsWithCustomParser(Filter* filterEntry)
    }
 
    fwlite::Handle<edm::TriggerResults> hTriggerResults;
-   edm::TriggerNames const* triggerNames(0);
+   edm::TriggerNames const* triggerNames(nullptr);
    try
    {
       hTriggerResults.getByLabel(*m_event,"TriggerResults","", filterEntry->m_selector->m_triggerProcess.c_str());

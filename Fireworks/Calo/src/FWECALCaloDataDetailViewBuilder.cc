@@ -30,7 +30,7 @@ TEveCaloData* FWECALCaloDataDetailViewBuilder::buildCaloData(bool xyEE)
    // get the hits from the event
 
    edm::Handle<EcalRecHitCollection> handle_hits;
-   const EcalRecHitCollection *hits = 0;
+   const EcalRecHitCollection *hits = nullptr;
 
    if (fabs(m_eta) < 1.5)
    {
@@ -138,8 +138,8 @@ TEveCaloData* FWECALCaloDataDetailViewBuilder::buildCaloData(bool xyEE)
    }
 
  
-   TAxis* eta_axis = 0;
-   TAxis* phi_axis = 0; 
+   TAxis* eta_axis = nullptr;
+   TAxis* phi_axis = nullptr; 
    data->GetEtaLimits(etaMin, etaMax);
    data->GetPhiLimits(phiMin, phiMax);
    //  printf("data rng %f %f %f %f\n",etaMin, etaMax, phiMin, phiMax );
@@ -293,7 +293,7 @@ FWECALCaloDataDetailViewBuilder::fillData( const EcalRecHitCollection *hits,
       double centerEta = 0;
       double centerPhi = 0;
       const float* points = m_geom->getCorners( k->id().rawId());
-      if( points != 0 )
+      if( points != nullptr )
       {
          TEveVector v;
          int j = 0;
@@ -327,7 +327,7 @@ FWECALCaloDataDetailViewBuilder::fillData( const EcalRecHitCollection *hits,
                && fabs( centerPhi - m_phi ) < barrelCR )) continue;
          
          double minEta(10), maxEta(-10), minPhi(4), maxPhi(-4);
-         if( points != 0 )
+         if( points != nullptr )
          {
             // calorimeter crystalls have slightly non-symetrical form in eta-phi projection
             // so if we simply get the largest eta and phi, cells will overlap
@@ -379,7 +379,7 @@ FWECALCaloDataDetailViewBuilder::fillData( const EcalRecHitCollection *hits,
                && fabs( centerPhi - m_phi ) < ( crystalSize )))
             continue;
          
-         if( points != 0 )
+         if( points != nullptr )
          {
             double minX(9999), maxX(-9999), minY(9999), maxY(-9999);
             int j = 0;

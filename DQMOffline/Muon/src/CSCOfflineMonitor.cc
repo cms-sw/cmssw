@@ -1427,7 +1427,7 @@ void CSCOfflineMonitor::doEfficiencies(edm::Handle<CSCWireDigiCollection> wires,
 	// Pick which chamber with which segment to test
 	for(unsigned int nCh=0;nCh<ChamberContainer.size();nCh++){
 	  const CSCChamber *cscchamber = ChamberContainer[nCh];
-	  pair <CSCDetId, CSCSegment> * thisSegment = 0;
+	  pair <CSCDetId, CSCSegment> * thisSegment = nullptr;
 	  for(uint iSeg =0;iSeg<theSeg.size();++iSeg ){
 		if(cscchamber->id().endcap() == theSeg[iSeg]->first.endcap()){ 
 		  if(1==cscchamber->id().station() || 3==cscchamber->id().station() ){
@@ -1614,7 +1614,7 @@ void CSCOfflineMonitor::doBXMonitor(edm::Handle<CSCALCTDigiCollection> alcts, ed
 	unsigned long length =  fedData.size();
 
 	if (length>=32){ ///if fed has data then unpack it
-	  CSCDCCExaminer* examiner = NULL;
+	  CSCDCCExaminer* examiner = nullptr;
 	  std::stringstream examiner_out, examiner_err;
 	  goodEvent = true;
 	  examiner = new CSCDCCExaminer();
@@ -1745,7 +1745,7 @@ void CSCOfflineMonitor::doBXMonitor(edm::Handle<CSCALCTDigiCollection> alcts, ed
 	  }// end loop CSCData
 	}// end loop DDU
 	  }// end if good event
-	  if (examiner!=NULL) delete examiner;
+	  if (examiner!=nullptr) delete examiner;
 	}// end if non-zero fed data
   }// end DCC loop for NON-REFERENCE
 
@@ -1902,7 +1902,7 @@ int CSCOfflineMonitor::chamberSerial( CSCDetId id ) {
 }
 
 void CSCOfflineMonitor::applyCSClabels( MonitorElement* me, LabelType t, AxisType a ) {
-  if (me != NULL)
+  if (me != nullptr)
   {
 	me->setAxisTitle("Chamber #");
 	if (t == EXTENDED)

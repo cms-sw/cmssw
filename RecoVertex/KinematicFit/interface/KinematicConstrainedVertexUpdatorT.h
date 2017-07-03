@@ -91,7 +91,7 @@ KinematicConstrainedVertexUpdatorT< nTrk, nConstraint >::update(const ROOT::Math
 
   int vSize = lStates.size();
 
-  assert( nConstraint==0 || cs!=0);
+  assert( nConstraint==0 || cs!=nullptr);
   assert(vSize == nConstraint);
 
   const MagneticField* field=lStates.front().magneticField();

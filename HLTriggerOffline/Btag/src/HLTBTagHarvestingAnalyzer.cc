@@ -28,8 +28,8 @@ HLTBTagHarvestingAnalyzer::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGet
 		dqmFolder_hist = Form("HLT/BTag/Discriminator/%s",hltPathNames_[ind].c_str());
 		std::string effDir = Form("HLT/BTag/Discriminator/%s/efficiency",hltPathNames_[ind].c_str());
 		ibooker.setCurrentFolder(effDir);
-		TH1 *den =NULL;
-		TH1 *num =NULL; 
+		TH1 *den =nullptr;
+		TH1 *num =nullptr; 
 		std::map<TString,TH1F> effics;
 		std::map<TString,bool> efficsOK;
 		for (unsigned int i = 0; i < m_mcLabels.size(); ++i)
@@ -87,17 +87,17 @@ bool HLTBTagHarvestingAnalyzer::GetNumDenumerators(DQMStore::IBooker& ibooker, D
    type =1 for eff_vs_pT
    type =2 for eff_vs_eta or eff_vs_phi
  */
-	MonitorElement *denME = NULL;
-	MonitorElement *numME = NULL;
+	MonitorElement *denME = nullptr;
+	MonitorElement *numME = nullptr;
 	denME = igetter.get(den);
 	numME = igetter.get(num);
 	Exception excp(errors::LogicError);
 	
-	if ( denME == NULL || numME == NULL ) 
+	if ( denME == nullptr || numME == nullptr ) 
 	{
 		excp << "Plots not found:\n";
-		if(denME == NULL) excp << den << "\n";
-		if(numME == NULL) excp << num << "\n";
+		if(denME == nullptr) excp << den << "\n";
+		if(numME == nullptr) excp << num << "\n";
 		excp.raise();
 	}
 	

@@ -121,7 +121,7 @@ bool LatencyHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange devi
   }
 
   // Compute latency and PLL shift from the sampling measurement
-  SamplingAnalysis* anal = NULL;
+  SamplingAnalysis* anal = nullptr;
   for( CommissioningHistograms::Analysis it = data().begin(); it!=data().end();++it) {
     if(dynamic_cast<SamplingAnalysis*>( it->second ) && 
        dynamic_cast<SamplingAnalysis*>( it->second )->granularity()==sistrip::TRACKER)

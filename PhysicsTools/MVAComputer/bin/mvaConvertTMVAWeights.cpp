@@ -69,7 +69,7 @@ getCalibration(const std::string &file, const std::vector<std::string> &names)
 		size += iter->size() + 1;
 	size += (size / 32) + 128;
 
-	char *buffer = 0;
+	char *buffer = nullptr;
 	try {
 		buffer = new char[size];
 		ext::omemstream os(buffer, size);

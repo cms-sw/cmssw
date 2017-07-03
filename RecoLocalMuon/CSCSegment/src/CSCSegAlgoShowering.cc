@@ -24,7 +24,7 @@
 /* Constructor
  *
  */
-CSCSegAlgoShowering::CSCSegAlgoShowering(const edm::ParameterSet& ps) : sfit_(0) {
+CSCSegAlgoShowering::CSCSegAlgoShowering(const edm::ParameterSet& ps) : sfit_(nullptr) {
 //  debug                  = ps.getUntrackedParameter<bool>("CSCSegmentDebug");
   dRPhiFineMax           = ps.getParameter<double>("dRPhiFineMax");
   dPhiFineMax            = ps.getParameter<double>("dPhiFineMax");
@@ -235,7 +235,7 @@ CSCSegment CSCSegAlgoShowering::showerSeg( const CSCChamber* aChamber, const Cha
   CSCSegment temp(sfit_->hits(), sfit_->intercept(), 
   		  sfit_->localdir(), sfit_->covarianceMatrix(), theFlag );
   delete sfit_;
-  sfit_ = 0;
+  sfit_ = nullptr;
 
   return temp;
 } 

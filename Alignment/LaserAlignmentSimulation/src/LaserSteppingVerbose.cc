@@ -52,7 +52,7 @@ void LaserSteppingVerbose::StepInfo()
 		 << std::setw( 6) << G4BestUnit(fTrack->GetTrackLength(),"Length")
 		 << " ";
 
-	  if ( fTrack->GetNextVolume() != 0 )
+	  if ( fTrack->GetNextVolume() != nullptr )
 	    {
 	      G4cout << std::setw(10) << fTrack->GetVolume()->GetName();
 	    }
@@ -61,7 +61,7 @@ void LaserSteppingVerbose::StepInfo()
 	      G4cout << std::setw(10) << "OutOfWorld";
 	    }
 
-	  if ( fStep->GetPostStepPoint()->GetProcessDefinedStep() != 0 )
+	  if ( fStep->GetPostStepPoint()->GetProcessDefinedStep() != nullptr )
 	    {
 	      G4cout << " " << std::setw(10) << fStep->GetPostStepPoint()->GetProcessDefinedStep()
 		->GetProcessName();
@@ -144,7 +144,7 @@ void LaserSteppingVerbose::TrackingStarted()
 	     << std::setw( 6) << G4BestUnit(fStep->GetStepLength(),"Length")
 	     << std::setw( 6) << G4BestUnit(fTrack->GetTrackLength(),"Length") << "   ";
       
-      if (fTrack->GetNextVolume() != 0)
+      if (fTrack->GetNextVolume() != nullptr)
 	{
 	  G4cout << std::setw(10) << fTrack->GetVolume()->GetName();
 	}

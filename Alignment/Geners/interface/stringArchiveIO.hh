@@ -28,14 +28,14 @@ namespace gs {
     // ".gssaz" will be assumed.
     bool writeCompressedStringArchiveExt(const StringArchive& ar,
                                          const char* filename,
-                                         const char* suffix = 0);
+                                         const char* suffix = nullptr);
 
     // The following function will attempt to read a compressed string
     // archive if the file name has the given suffix, otherwise it will
     // attempt to read an uncompressed archive. If the suffix is not
     // provided (i.e., default value of 0 is used), ".gssaz" will be assumed.
     StringArchive* readCompressedStringArchiveExt(const char* filename,
-                                                  const char* suffix = 0);
+                                                  const char* suffix = nullptr);
 
     // This function will extract one string archive from another
     StringArchive* loadStringArchiveFromArchive(AbsArchive& arch,

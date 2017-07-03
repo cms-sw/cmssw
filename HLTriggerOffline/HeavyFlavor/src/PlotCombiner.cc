@@ -55,7 +55,7 @@ void PlotCombiner::makePlot(const ParameterSet& pset, DQMStore::IBooker & ibooke
   for(size_t i=0; i<inputMEnames.size(); i++){
     string MEname = myDQMrootFolder+"/"+inputMEnames[i];
     MonitorElement *ME = igetter_.get(MEname);
-    if(ME==0){
+    if(ME==nullptr){
       LogDebug("HLTriggerOfflineHeavyFlavor") << "Could not find ME: "<<MEname<<endl;
       continue;
     }

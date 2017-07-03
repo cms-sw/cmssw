@@ -35,7 +35,7 @@ void sim_lib_init();
 class signal_storage
 {
 public:
-	signal_storage(){cell = NULL; dim_h = dim_l = 0;};
+	signal_storage(){cell = nullptr; dim_h = dim_l = 0;};
 	ull *r, *rc; // storage for current and registered values, needs to be reserved
 	// initialization before each sim iteration
 	void init();
@@ -56,7 +56,7 @@ public:
 class signal_
 {
 public:
-	signal_(){st = NULL; cell = NULL; dim_h = dim_l = 0;};
+	signal_(){st = nullptr; cell = nullptr; dim_h = dim_l = 0;};
 	// signal_ bitwidth declaration
 	void bw(size_t h, size_t l);
 	void set_storage(signal_storage* st);

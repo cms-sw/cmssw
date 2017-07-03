@@ -42,7 +42,7 @@ private:
 void
 FWSiPixelClusterProxyBuilder::build( const FWEventItem* iItem, TEveElementList* product , const FWViewContext* )
 {
-   const SiPixelClusterCollectionNew* pixels = 0;
+   const SiPixelClusterCollectionNew* pixels = nullptr;
   
    iItem->get( pixels );
   

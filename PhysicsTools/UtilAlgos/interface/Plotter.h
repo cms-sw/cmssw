@@ -101,7 +101,7 @@ class VariablePlotter : public Plotter {
     SubDirectories & currentSetOfSubDirectories=currentDirectory.subDir;
     
     //find the subDirectory requested:
-    SubDirectory * subDirectoryToUse=0;
+    SubDirectory * subDirectoryToUse=nullptr;
     SubDirectories::iterator subDirectoryFindIterator=currentSetOfSubDirectories.find(subDir);
 
     //not found? insert a new directory with this name
@@ -195,7 +195,7 @@ class VariablePlotter : public Plotter {
 
   class SubDirectory {
   public:
-    SubDirectory() : dirName(""),dir(0){}
+    SubDirectory() : dirName(""),dir(nullptr){}
     std::string dirName;
     DirectoryHistos histos;
     TFileDirectory * dir;
@@ -204,7 +204,7 @@ class VariablePlotter : public Plotter {
 
   class Directory {
   public:
-    Directory() : dirName(""),dir(0){}
+    Directory() : dirName(""),dir(nullptr){}
     std::string dirName;
     SubDirectories subDir;
     TFileDirectory * dir;

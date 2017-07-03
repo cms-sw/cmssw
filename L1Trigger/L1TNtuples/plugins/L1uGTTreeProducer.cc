@@ -56,7 +56,7 @@ private:
 
 
 L1uGTTreeProducer::L1uGTTreeProducer(edm::ParameterSet const & config) :
-  results_(NULL), tree_(NULL),
+  results_(nullptr), tree_(nullptr),
   ugt_token_( consumes<GlobalAlgBlkBxCollection>(config.getParameter<edm::InputTag>("ugtToken"))),
   cache_id_( 0 )
 {

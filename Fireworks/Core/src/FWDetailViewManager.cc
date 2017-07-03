@@ -93,7 +93,7 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id, const std::string& i
    }
    assert(match.size() != 0);
    FWDetailViewBase* detailView = FWDetailViewFactory::get()->create(match);
-   assert(0!=detailView);
+   assert(nullptr!=detailView);
 
    TEveWindowSlot* ws  = (TEveWindowSlot*)(eveFrame->GetEveWindow());
    detailView->init(ws);

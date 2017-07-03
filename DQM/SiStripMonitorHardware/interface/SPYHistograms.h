@@ -89,7 +89,7 @@ class SPYHistograms: public HistogramBase {
   };
 
   TkHistoMap * tkHistoMapPointer(unsigned int aIndex=0){
-    return 0;
+    return nullptr;
 };
 
  protected:

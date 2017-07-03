@@ -48,10 +48,10 @@
 BscSD::BscSD(std::string name, const DDCompactView & cpv,
 	     const SensitiveDetectorCatalog & clg,
 	     edm::ParameterSet const & p, const SimTrackManager* manager) :
-  SensitiveTkDetector(name, cpv, clg, p), numberingScheme(0), name(name),
-  hcID(-1), theHC(0), theManager(manager), currentHit(0), theTrack(0), 
-  currentPV(0), unitID(0),  previousUnitID(0), preStepPoint(0), 
-  postStepPoint(0), eventno(0){
+  SensitiveTkDetector(name, cpv, clg, p), numberingScheme(nullptr), name(name),
+  hcID(-1), theHC(nullptr), theManager(manager), currentHit(nullptr), theTrack(nullptr), 
+  currentPV(nullptr), unitID(0),  previousUnitID(0), preStepPoint(nullptr), 
+  postStepPoint(nullptr), eventno(0){
     
   //Add Bsc Sentitive Detector Name
   collectionName.insert(name);
@@ -133,7 +133,7 @@ void BscSD::Initialize(G4HCofThisEvent * HCE) {
 
 bool BscSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
 
-  if (aStep == NULL) {
+  if (aStep == nullptr) {
     return true;
   } else {
     GetStepInfo(aStep);
@@ -201,7 +201,7 @@ void BscSD::GetStepInfo(G4Step* aStep) {
 
 uint32_t BscSD::setDetUnitId(G4Step * aStep) { 
 
-  return (numberingScheme == 0 ? 0 : numberingScheme->getUnitID(aStep));
+  return (numberingScheme == nullptr ? 0 : numberingScheme->getUnitID(aStep));
 }
 
 
@@ -263,7 +263,7 @@ void BscSD::ResetForNewPrimary() {
 void BscSD::StoreHit(BscG4Hit* hit){
 
   if (primID<0) return;
-  if (hit == 0 ) {
+  if (hit == nullptr ) {
     edm::LogWarning("BscSim") << "BscSD: hit to be stored is NULL !!";
     return;
   }
@@ -291,7 +291,7 @@ void BscSD::CreateNewHit() {
   }
 
   LogDebug("BscSim")  << " and created by " ;
-  if (theTrack->GetCreatorProcess()!=NULL)
+  if (theTrack->GetCreatorProcess()!=nullptr)
     LogDebug("BscSim") << theTrack->GetCreatorProcess()->GetProcessName() ;
   else 
     LogDebug("BscSim") << "NO process";

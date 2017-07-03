@@ -18,7 +18,7 @@ class HcalGainWidths: public HcalCondObjectContainer<HcalGainWidth>
 {
  public:
 #ifndef HCAL_COND_SUPPRESS_DEFAULT
-  HcalGainWidths():HcalCondObjectContainer<HcalGainWidth>(0) {}
+  HcalGainWidths():HcalCondObjectContainer<HcalGainWidth>(nullptr) {}
 #endif
   HcalGainWidths(const HcalTopology* topo):HcalCondObjectContainer<HcalGainWidth>(topo) {}
 

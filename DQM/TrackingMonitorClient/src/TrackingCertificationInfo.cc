@@ -49,7 +49,7 @@ TrackingCertificationInfo::TrackingCertificationInfo(edm::ParameterSet const& pS
   checkPixelFEDs_ = pSet_.getParameter<bool>("checkPixelFEDs");
   if ( checkPixelFEDs_ ) {
     std::string QTname        = "pixel";
-    tracking_mes.TrackingFlag = 0;
+    tracking_mes.TrackingFlag = nullptr;
     TrackingMEsMap.insert(std::pair<std::string, TrackingMEs>(QTname, tracking_mes));
   }
 
@@ -57,7 +57,7 @@ TrackingCertificationInfo::TrackingCertificationInfo(edm::ParameterSet const& pS
   for ( auto meQTset : TrackingGlobalQualityMEs ) {
 
     std::string QTname        = meQTset.getParameter<std::string>("QT");
-    tracking_mes.TrackingFlag = 0;
+    tracking_mes.TrackingFlag = nullptr;
 
     if (verbose_) std::cout<< "[TrackingQualityChecker::TrackingCertificationInfo] inserting " << QTname << " in TrackingMEsMap" << std::endl;
     TrackingMEsMap.insert(std::pair<std::string, TrackingMEs>(QTname, tracking_mes));
@@ -69,7 +69,7 @@ TrackingCertificationInfo::TrackingCertificationInfo(edm::ParameterSet const& pS
   for ( auto meQTset : TrackingLSQualityMEs ) {
 
     std::string QTname        = meQTset.getParameter<std::string>("QT");
-    tracking_ls_mes.TrackingFlag = 0;
+    tracking_ls_mes.TrackingFlag = nullptr;
 
     if (verbose_) std::cout<< "[TrackingQualityChecker::TrackingCertificationInfo] inserting " << QTname << " in TrackingMEsMap" << std::endl;
     TrackingLSMEsMap.insert(std::pair<std::string, TrackingLSMEs>(QTname, tracking_ls_mes));
@@ -115,7 +115,7 @@ void TrackingCertificationInfo::beginRun(edm::Run const& run, edm::EventSetup co
   const int siPixelFeds = (siPixelFedIdMax-siPixelFedIdMin+1);
 
   edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
-  if( eSetup.find( recordKey ) != 0) {
+  if( eSetup.find( recordKey ) != nullptr) {
 
     edm::ESHandle<RunInfo> sumFED;
     eSetup.get<RunInfoRcd>().get(sumFED);    

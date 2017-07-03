@@ -13,11 +13,11 @@
 int main( int argc, char** argv ) 
 {
   char* nam = getenv("COCOA_SDF_FILENAME"); 
-  if(nam != 0) Model::setSDFName( nam );
+  if(nam != nullptr) Model::setSDFName( nam );
   nam = getenv("COCOA_REPORT_FILENAME"); 
-  if(nam != 0) Model::setReportFName( nam );
+  if(nam != nullptr) Model::setReportFName( nam );
   nam = getenv("COCOA_MATRICES_FILENAME"); 
-  if(nam != 0) Model::setMatricesFName( nam );
+  if(nam != nullptr) Model::setMatricesFName( nam );
 
   ALIstring COCOA_ver = "COCOA_3_2_4";
   //---------- Read the input arguments to set file names

@@ -135,7 +135,7 @@ CSCTFSectorProcessor::CSCTFSectorProcessor(const unsigned& endcap,
     ptLUT_ = new CSCTFPtLUT(ptLUTset, scales, ptScale);
     LogDebug("CSCTFSectorProcessor") << "Using stand-alone PT LUT for endcap="<<m_endcap<<", sector="<<m_sector;
   } else {
-    ptLUT_=0;
+    ptLUT_=nullptr;
     LogDebug("CSCTFSectorProcessor") << "Looking for PT LUT in EventSetup for endcap="<<m_endcap<<", sector="<<m_sector;
   }
 
@@ -704,14 +704,14 @@ CSCTFSectorProcessor::~CSCTFSectorProcessor()
   for(int i = 0; i < 5; ++i)
     {
       if(srLUTs_[FPGAs[i]]) delete srLUTs_[FPGAs[i]]; // delete the pointer
-      srLUTs_[FPGAs[i]] = NULL; // point it at a safe place
+      srLUTs_[FPGAs[i]] = nullptr; // point it at a safe place
     }
 
   delete core_;
-  core_ = NULL;
+  core_ = nullptr;
 
   if(ptLUT_) delete ptLUT_;
-  ptLUT_ = NULL;
+  ptLUT_ = nullptr;
 }
 
 //returns 0 for no tracks, 1 tracks found, and -1 for "exception" (what used to throw an exception)

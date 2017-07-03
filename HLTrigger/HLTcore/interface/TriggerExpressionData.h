@@ -32,12 +32,12 @@ public:
     m_throw(true),
     // l1 values and status
     m_l1tResults(nullptr),
-    m_l1tMenu(0),
+    m_l1tMenu(nullptr),
     m_l1tCacheID(),
     m_l1tUpdated(false),
     // hlt values and status
-    m_hltResults(0),
-    m_hltMenu(0),
+    m_hltResults(nullptr),
+    m_hltMenu(nullptr),
     m_hltCacheID(),
     m_hltUpdated(false),
     // event values
@@ -55,12 +55,12 @@ public:
     m_throw(config.getParameter<bool>("throw")),
     // l1 values and status
     m_l1tResults(nullptr),
-    m_l1tMenu(0),
+    m_l1tMenu(nullptr),
     m_l1tCacheID(),
     m_l1tUpdated(false),
     // hlt values and status
-    m_hltResults(0),
-    m_hltMenu(0),
+    m_hltResults(nullptr),
+    m_hltMenu(nullptr),
     m_hltCacheID(),
     m_hltUpdated(false),
     // event values
@@ -86,12 +86,12 @@ public:
     m_throw(doThrow),
     // l1 values and status
     m_l1tResults(nullptr),
-    m_l1tMenu(0),
+    m_l1tMenu(nullptr),
     m_l1tCacheID(),
     m_l1tUpdated(false),
     // hlt values and status
-    m_hltResults(0),
-    m_hltMenu(0),
+    m_hltResults(nullptr),
+    m_hltMenu(nullptr),
     m_hltCacheID(),
     m_hltUpdated(false),
     // event values

@@ -329,7 +329,7 @@ TrackListMerger::~TrackListMerger() { }
     std::vector<const reco::TrackCollection *> trackColls;
     std::vector<edm::Handle<reco::TrackCollection> > trackHandles(trackProducers_.size());
     for ( unsigned int i=0; i<trackProducers_.size(); i++) {
-      trackColls.push_back(0);
+      trackColls.push_back(nullptr);
       //edm::Handle<reco::TrackCollection> trackColl;
       e.getByToken(trackProducers_[i].tk, trackHandles[i]);
       if (trackHandles[i].isValid()) {

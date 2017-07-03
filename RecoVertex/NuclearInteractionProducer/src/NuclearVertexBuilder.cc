@@ -123,7 +123,7 @@ ClosestApproachInRPhi* NuclearVertexBuilder::closestApproach( const reco::TrackR
             bool status = theApproach->calculate(primTraj,secTraj);
             if( status ) { return theApproach; }
             else { 
-                   return NULL;
+                   return nullptr;
             }
 }
 

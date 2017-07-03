@@ -324,7 +324,7 @@ void CSCCathodeLCTAnalyzer::digiSimHitAssociator(CSCCathodeLayerInfo& info,
 	   prd != thisLayerDigis.end(); prd++) {
 	double deltaPhiMin = 999.;
 	double bestHitPhi  = 999.;
-	PSimHit* bestHit   = 0;
+	PSimHit* bestHit   = nullptr;
 
 	int strip = prd->getStrip();
 	double digiPhi = getStripPhi(layerId, strip-0.5);

@@ -315,7 +315,7 @@ void GlobalMuonRefitter::checkMuonHits(const reco::Track& muon,
   // loop through all muon hits and calculate the maximum # of hits in each chamber
   for (ConstRecHitContainer::const_iterator imrh = all.begin(); imrh != all.end(); imrh++ ) {
         
-    if ( (*imrh != 0 ) && !(*imrh)->isValid() ) continue;
+    if ( (*imrh != nullptr ) && !(*imrh)->isValid() ) continue;
   
     int detRecHits = 0;
     MuonRecHitContainer dRecHits;

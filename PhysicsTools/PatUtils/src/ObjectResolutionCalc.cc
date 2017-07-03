@@ -16,7 +16,7 @@ ObjectResolutionCalc::ObjectResolutionCalc(const TString& resopath, bool useNN =
   
   TList* keys = resoFile_->GetListOfKeys();
   TIter nextitem(keys);
-  TKey* key = NULL;
+  TKey* key = nullptr;
   while((key = (TKey*)nextitem())) {
     TString name = key->GetName();
     if(useNN_) {

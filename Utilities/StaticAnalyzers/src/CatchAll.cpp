@@ -30,13 +30,13 @@ const clang::Stmt* CatchAll::process(const clang::Stmt* S) const
     return S;
   clang::Stmt::const_child_iterator b=S->child_begin ();
   clang::Stmt::const_child_iterator e=S->child_end ();
-  const clang::Stmt* catchAll = 0;
+  const clang::Stmt* catchAll = nullptr;
   while(b!=e)
   {
     if (*b)
     {
       catchAll = process(*b);
-      if (catchAll!=0) break;
+      if (catchAll!=nullptr) break;
     }
     b++;
   }

@@ -110,7 +110,7 @@ L1TStage2Layer1Producer::L1TStage2Layer1Producer(const edm::ParameterSet& ps) :
   ecalToken_(bxLast_+1-bxFirst_),
   hcalToken_(bxLast_+1-bxFirst_),
   paramsCacheId_(0),
-  params_(0)
+  params_(nullptr)
 {
 
   // register what you produce

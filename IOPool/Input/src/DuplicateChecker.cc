@@ -61,7 +61,7 @@ namespace edm {
       // Compares the current IndexIntoFile to all the previous ones and saves any duplicates.
       // One unintended thing, it also saves the duplicate runs and lumis.
       for(std::vector<std::shared_ptr<IndexIntoFile> >::size_type i = 0; i < currentIndexIntoFile; ++i) {
-        if (indexesIntoFiles[i].get() != 0) {
+        if (indexesIntoFiles[i].get() != nullptr) {
 
           indexIntoFile.set_intersection(*indexesIntoFiles[i], relevantPreviousEvents_);
         }

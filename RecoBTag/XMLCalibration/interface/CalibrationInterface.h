@@ -95,7 +95,7 @@ CalibDataT * CalibrationInterface<CategoryT,CalibDataT>::getCalibData(int i)
  if(i>=0 && ii < m_categoriesWithData.size() )
   return &m_categoriesWithData[i].second;
  else
-  return 0;
+  return nullptr;
 }
 
 template <class CategoryT,class CalibDataT>

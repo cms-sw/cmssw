@@ -33,7 +33,7 @@ using namespace edm;
 using namespace std;
 
 DTLocalTriggerTask::DTLocalTriggerTask(const edm::ParameterSet& ps) :
-  trigGeomUtils(0),
+  trigGeomUtils(nullptr),
   isLocalRun(ps.getUntrackedParameter<bool>("localrun", true))
  {
   if (!isLocalRun) {
@@ -717,7 +717,7 @@ void DTLocalTriggerTask::runSegmentAnalysis(Handle<DTRecSegment4DCollection>& se
   for (chamberId = segments4D->id_begin(); chamberId != segments4D->id_end(); ++chamberId){
 
     DTRecSegment4DCollection::range  range = segments4D->get(*chamberId);
-    const DTRecSegment4D* tmpBest=0;
+    const DTRecSegment4D* tmpBest=nullptr;
     int tmpdof = 0;
     int dof = 0;
 
@@ -918,7 +918,7 @@ void DTLocalTriggerTask::setQLabels(MonitorElement* me, short int iaxis){
   TH1* histo = me->getTH1();
   if (!histo) return;
 
-  TAxis* axis=0;
+  TAxis* axis=nullptr;
   if (iaxis==1) {
     axis=histo->GetXaxis();
   }
@@ -940,7 +940,7 @@ void DTLocalTriggerTask::setQLabelsTheta (MonitorElement* me, short int iaxis){
   TH1* histo = me->getTH1();
   if (!histo) return;
 
-  TAxis* axis=0;
+  TAxis* axis=nullptr;
   if (iaxis==1) {
     axis=histo->GetXaxis();
   }

@@ -148,7 +148,7 @@ CkfTrajectoryBuilder::trajectories(const TrajectorySeed& seed, CkfTrajectoryBuil
 TempTrajectory CkfTrajectoryBuilder::buildTrajectories (const TrajectorySeed&seed,
 							TrajectoryContainer &result,
 							const TrajectoryFilter*) const {
-  if (theMeasurementTracker == 0) {
+  if (theMeasurementTracker == nullptr) {
       throw cms::Exception("LogicError") << "Asking to create trajectories to an un-initialized CkfTrajectoryBuilder.\nYou have to call clone(const MeasurementTrackerEvent *data) and then call trajectories on it instead.\n";
   }
  

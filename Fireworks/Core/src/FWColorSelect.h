@@ -19,7 +19,7 @@ protected:
    Color_t         fColor;
 
 public:
-   FWColorFrame(const TGWindow *p=0, Color_t ci=0);
+   FWColorFrame(const TGWindow *p=nullptr, Color_t ci=0);
    virtual ~FWColorFrame() {}
 
    virtual Bool_t HandleButton(Event_t *event);
@@ -49,7 +49,7 @@ protected:
    virtual void DoRedraw();
 
 public:
-   FWColorRow(const TGWindow *p=0);
+   FWColorRow(const TGWindow *p=nullptr);
    virtual ~FWColorRow();
 
    virtual void AddColor(Color_t color);
@@ -87,7 +87,7 @@ protected:
    static Bool_t fgFreePalette;
 
 public:
-   FWColorPopup(const TGWindow *p=0, Color_t color=0);
+   FWColorPopup(const TGWindow *p=nullptr, Color_t color=0);
    virtual ~FWColorPopup();
 
    virtual Bool_t HandleButton(Event_t *event);

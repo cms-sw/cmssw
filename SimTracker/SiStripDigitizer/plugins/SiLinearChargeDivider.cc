@@ -18,7 +18,7 @@ SiLinearChargeDivider::SiLinearChargeDivider(const edm::ParameterSet& conf) :
   //The value to be used it must be evaluated and depend on the volume defnition used
   //for the cosimc generation (Considering only the tracker the value is 11 ns)
   cosmicShift(conf.getUntrackedParameter<double>("CosmicDelayShift")),
-  theParticleDataTable(0),
+  theParticleDataTable(nullptr),
   // Geant4 engine used to fluctuate the charge from segment to segment
   fluctuate(new SiG4UniversalFluctuation()) {
 }
@@ -37,7 +37,7 @@ SiLinearChargeDivider::divide(const PSimHit* hit, const LocalVector& driftdir, d
 
   // Get the nass if the particle, in MeV.
   // Protect from particles with Mass = 0, assuming then the pion mass
-  assert(theParticleDataTable != 0);
+  assert(theParticleDataTable != nullptr);
   ParticleData const * particle = theParticleDataTable->particle( hit->particleType() );
   double const particleMass = particle ? particle->mass()*1000 : 139.57;
   double const particleCharge = particle ? particle->charge() : 1.;

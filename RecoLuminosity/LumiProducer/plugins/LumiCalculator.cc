@@ -68,7 +68,7 @@ LumiCalculator::LumiCalculator(edm::ParameterSet const& pset):log_( new edm::Log
 // -----------------------------------------------------------------
 
 LumiCalculator::~LumiCalculator(){
-  delete log_; log_=0; 
+  delete log_; log_=nullptr; 
 }
 
 // -----------------------------------------------------------------

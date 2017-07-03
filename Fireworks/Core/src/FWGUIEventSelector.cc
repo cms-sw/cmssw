@@ -11,15 +11,15 @@
 
 FWGUIEventSelector::FWGUIEventSelector(TGCompositeFrame* p, FWEventSelector* sel, std::vector<std::string>& triggerProcessList):
    TGHorizontalFrame(p),
-   m_guiSelector(0),
-   m_origSelector(0),
-   m_text1(0),
-   m_text2(0),
-   m_enableBtn(0),
-   m_deleteBtn(0),
-   m_nEvents(0),
-   m_combo(0),
-   m_validator(0)
+   m_guiSelector(nullptr),
+   m_origSelector(nullptr),
+   m_text1(nullptr),
+   m_text2(nullptr),
+   m_enableBtn(nullptr),
+   m_deleteBtn(nullptr),
+   m_nEvents(nullptr),
+   m_combo(nullptr),
+   m_validator(nullptr)
 {
    m_origSelector = sel;
    m_guiSelector = new FWEventSelector(m_origSelector);

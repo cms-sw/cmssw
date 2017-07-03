@@ -37,7 +37,7 @@ public:
   HcalSignalGenerator():HcalBaseSignalGenerator() { }
 
   HcalSignalGenerator(const edm::InputTag & inputTag, const edm::EDGetTokenT<COLLECTION> &t)
-  : HcalBaseSignalGenerator(), theEvent(0), theEventPrincipal(0), theInputTag(inputTag), tok_(t) 
+  : HcalBaseSignalGenerator(), theEvent(nullptr), theEventPrincipal(nullptr), theInputTag(inputTag), tok_(t) 
   { }
 
   virtual ~HcalSignalGenerator() {}
@@ -63,7 +63,7 @@ public:
 
     theNoiseSignals.clear();
     edm::Handle<COLLECTION> pDigis;
-    const COLLECTION *  digis = 0;
+    const COLLECTION *  digis = nullptr;
     // try accessing by whatever is set, Event or EventPrincipal
     if(theEvent) 
      {

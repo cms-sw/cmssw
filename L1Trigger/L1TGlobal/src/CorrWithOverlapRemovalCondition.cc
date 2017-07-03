@@ -194,9 +194,9 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
         (cond2Categ == CondMuon && (cond1Categ == CondCalo || cond1Categ == CondEnergySum) ) )
 	convertCaloScalesForOverlapRemovalFromLeg1 = true;
 
-    const MuonTemplate* corrMuon = 0;
-    const CaloTemplate* corrCalo = 0;
-    const EnergySumTemplate* corrEnergySum = 0;
+    const MuonTemplate* corrMuon = nullptr;
+    const CaloTemplate* corrCalo = nullptr;
+    const EnergySumTemplate* corrEnergySum = nullptr;
 
     // FIXME copying is slow...
     CombinationsInCond cond0Comb;
@@ -467,9 +467,9 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
     (combinationsInCond()).clear();
 
     // pointers to objects
-    const BXVector<const l1t::Muon*>*        candMuVec    = 0;
-    const BXVector<const l1t::L1Candidate*>* candCaloVec  = 0;
-    const BXVector<const l1t::EtSum*>*       candEtSumVec = 0;
+    const BXVector<const l1t::Muon*>*        candMuVec    = nullptr;
+    const BXVector<const l1t::L1Candidate*>* candCaloVec  = nullptr;
+    const BXVector<const l1t::EtSum*>*       candEtSumVec = nullptr;
 
     bool etSumCond = false;
 
@@ -2223,11 +2223,11 @@ const l1t::L1Candidate* l1t::CorrWithOverlapRemovalCondition::getCandidate(const
             return (m_uGtB->getCandL1Tau())->at(bx,indexCand);
             break;
         default:
-            return 0;
+            return nullptr;
             break;
     }
 
-    return 0;
+    return nullptr;
 }
 
 /**

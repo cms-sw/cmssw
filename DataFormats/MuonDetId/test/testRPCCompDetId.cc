@@ -72,23 +72,23 @@ void testRPCCompDetId::testFail(){
   try {
     // Station number too high
     RPCCompDetId detid(0,1,7,2,2,1,1);
-    CPPUNIT_ASSERT("Failed to throw required exception" == 0);      
+    CPPUNIT_ASSERT("Failed to throw required exception" == nullptr);      
     detid.rawId(); // avoid compiler warning
   } catch (cms::Exception& e) {
     // OK
   } catch (...) {
-    CPPUNIT_ASSERT("Threw wrong kind of exception" == 0);
+    CPPUNIT_ASSERT("Threw wrong kind of exception" == nullptr);
   }
   
   // contruct using an invalid input id
   try {
     RPCCompDetId detid(100);
-    CPPUNIT_ASSERT("Failed to throw required exception" == 0);      
+    CPPUNIT_ASSERT("Failed to throw required exception" == nullptr);      
     detid.rawId(); // avoid compiler warning
   } catch (cms::Exception& e) {
     // OK
   } catch (...) {
-    CPPUNIT_ASSERT("Threw wrong kind of exception" == 0);
+    CPPUNIT_ASSERT("Threw wrong kind of exception" == nullptr);
   }
 }
 

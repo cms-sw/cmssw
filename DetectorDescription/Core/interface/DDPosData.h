@@ -20,7 +20,7 @@ struct DDPosData
       Users normally don't create DDPosData themselves. They get read access
       to relative positionings via DDPosData in DDCompactView.
   */    
-  DDPosData(const DDTranslation & t, const DDRotation& r, int c, const DDDivision * d = NULL )
+  DDPosData(const DDTranslation & t, const DDRotation& r, int c, const DDDivision * d = nullptr )
    : trans_(t), rot_(r), copyno_(c), div_(d)
    {} 
 

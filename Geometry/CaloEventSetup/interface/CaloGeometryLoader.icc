@@ -106,22 +106,22 @@ CaloGeometryLoader<T>::makeGeometry( const DDCompactView*  cpv        ,
 
       const unsigned int which ( geom->alignmentTransformIndexLocal( id ) ) ;
 
-      assert( 0 == alignments ||
+      assert( nullptr == alignments ||
 	      which < alignments->m_align.size() ) ;
 
-      const AlignTransform* at ( 0 == alignments ? 0 :
+      const AlignTransform* at ( nullptr == alignments ? nullptr :
 				 &alignments->m_align[ which ] ) ;
 
-      assert( 0 == at || ( geom->alignmentTransformIndexLocal( DetId( at->rawId() ) ) == which ) ) ;
+      assert( nullptr == at || ( geom->alignmentTransformIndexLocal( DetId( at->rawId() ) ) == which ) ) ;
 
       const unsigned int gIndex ( geom->alignmentTransformIndexGlobal( id ) ) ;
 
-      const AlignTransform* globalT ( 0 == globals ? 0 :
+      const AlignTransform* globalT ( nullptr == globals ? nullptr :
 				      ( globals->m_align.size() > gIndex ? 
-					&globals->m_align[ gIndex ] : 0 ) ) ;
+					&globals->m_align[ gIndex ] : nullptr ) ) ;
 
-      const HepGeom::Transform3D atr ( 0 == at ? ht3d :
-				 ( 0 == globalT ? at->transform()*ht3d :
+      const HepGeom::Transform3D atr ( nullptr == at ? ht3d :
+				 ( nullptr == globalT ? at->transform()*ht3d :
 				   at->transform()*globalT->transform()*ht3d ) ) ;
 
       fillGeom( geom, parameters, atr, id ) ;

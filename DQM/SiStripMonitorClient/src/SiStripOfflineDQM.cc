@@ -127,7 +127,7 @@ void SiStripOfflineDQM::beginRun(edm::Run const& run, edm::EventSetup const& eSe
 
   int nFEDs = 0;
   edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
-  if( eSetup.find( recordKey ) != 0) {
+  if( eSetup.find( recordKey ) != nullptr) {
 
     edm::ESHandle<RunInfo> sumFED;
     eSetup.get<RunInfoRcd>().get(sumFED);    

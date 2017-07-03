@@ -47,7 +47,7 @@ Interceptor::Interceptor(const char *name,
                          const MVAComputer *computer) :
 	VarProcessor(name, calib, computer),
 	interceptor(const_cast<Calibration::Interceptor*>(calib)),
-	values(0)
+	values(nullptr)
 {
 }
 

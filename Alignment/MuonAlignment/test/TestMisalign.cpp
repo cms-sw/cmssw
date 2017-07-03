@@ -75,7 +75,7 @@ TestMisalign::TestMisalign( const edm::ParameterSet& iConfig )
   theTree->Branch("length", &length, "length/F" );
   theTree->Branch("width",  &width,  "width/F"  );
   theTree->Branch("thick",  &thick,  "thick/F"  );
-  rot = 0;
+  rot = nullptr;
   theTree->Branch("rot",    "TRotMatrix", &rot  );
 
 }

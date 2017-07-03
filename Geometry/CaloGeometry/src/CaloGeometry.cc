@@ -7,7 +7,7 @@
 const std::vector<DetId> CaloGeometry::k_emptyVec ( 0 ) ;
 
 CaloGeometry::CaloGeometry() :
-   m_geos ( kLength, 0 )
+   m_geos ( kLength, nullptr )
 {
 }
 

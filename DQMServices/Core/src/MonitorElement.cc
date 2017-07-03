@@ -149,12 +149,12 @@ MonitorElement::initialise(Kind kind, const std::string &value)
 }
 
 MonitorElement::MonitorElement(void)
-  : object_(0),
-    reference_(0),
-    refvalue_(0)
+  : object_(nullptr),
+    reference_(nullptr),
+    refvalue_(nullptr)
 {
   data_.version  = 0;
-  data_.dirname  = 0;
+  data_.dirname  = nullptr;
   data_.run      = 0;
   data_.lumi     = 0;
   data_.streamId = 0;
@@ -170,9 +170,9 @@ MonitorElement::MonitorElement(const std::string *path,
                                uint32_t run /* = 0 */,
                                uint32_t streamId /* = 0 */,
                                uint32_t moduleId /* = 0 */)
-  : object_(0),
-    reference_(0),
-    refvalue_(0)
+  : object_(nullptr),
+    reference_(nullptr),
+    refvalue_(nullptr)
 {
   data_.version  = 0;
   data_.run      = run;
@@ -999,7 +999,7 @@ TAxis *
 MonitorElement::getAxis(const char *func, int axis) const
 {
   TH1 *h = accessRootObject(func, axis-1);
-  TAxis *a = 0;
+  TAxis *a = nullptr;
   if (axis == 1)
     a = h->GetXaxis();
   else if (axis == 2)
@@ -1035,7 +1035,7 @@ MonitorElement::softReset(void)
     if (! r)
     {
       refvalue_ = r = (TH1F*)orig->Clone((std::string(orig->GetName()) + "_ref").c_str());
-      r->SetDirectory(0);
+      r->SetDirectory(nullptr);
       r->Reset();
     }
 
@@ -1049,7 +1049,7 @@ MonitorElement::softReset(void)
     if (! r)
     {
       refvalue_ = r = (TH1S*)orig->Clone((std::string(orig->GetName()) + "_ref").c_str());
-      r->SetDirectory(0);
+      r->SetDirectory(nullptr);
       r->Reset();
     }
 
@@ -1063,7 +1063,7 @@ MonitorElement::softReset(void)
     if (! r)
     {
       refvalue_ = r = (TH1D*)orig->Clone((std::string(orig->GetName()) + "_ref").c_str());
-      r->SetDirectory(0);
+      r->SetDirectory(nullptr);
       r->Reset();
     }
 
@@ -1077,7 +1077,7 @@ MonitorElement::softReset(void)
     if (! r)
     {
       refvalue_ = r = (TH2F*)orig->Clone((std::string(orig->GetName()) + "_ref").c_str());
-      r->SetDirectory(0);
+      r->SetDirectory(nullptr);
       r->Reset();
     }
 
@@ -1091,7 +1091,7 @@ MonitorElement::softReset(void)
     if (! r)
     {
       refvalue_ = r = (TH2S*)orig->Clone((std::string(orig->GetName()) + "_ref").c_str());
-      r->SetDirectory(0);
+      r->SetDirectory(nullptr);
       r->Reset();
     }
 
@@ -1105,7 +1105,7 @@ MonitorElement::softReset(void)
     if (! r)
     {
       refvalue_ = r = (TH2D*)orig->Clone((std::string(orig->GetName()) + "_ref").c_str());
-      r->SetDirectory(0);
+      r->SetDirectory(nullptr);
       r->Reset();
     }
 
@@ -1119,7 +1119,7 @@ MonitorElement::softReset(void)
     if (! r)
     {
       refvalue_ = r = (TH3F*)orig->Clone((std::string(orig->GetName()) + "_ref").c_str());
-      r->SetDirectory(0);
+      r->SetDirectory(nullptr);
       r->Reset();
     }
 
@@ -1133,7 +1133,7 @@ MonitorElement::softReset(void)
     if (! r)
     {
       refvalue_ = r = (TProfile*)orig->Clone((std::string(orig->GetName()) + "_ref").c_str());
-      r->SetDirectory(0);
+      r->SetDirectory(nullptr);
       r->Reset();
     }
 
@@ -1147,7 +1147,7 @@ MonitorElement::softReset(void)
     if (! r)
     {
       refvalue_ = r = (TProfile2D*)orig->Clone((std::string(orig->GetName()) + "_ref").c_str());
-      r->SetDirectory(0);
+      r->SetDirectory(nullptr);
       r->Reset();
     }
 
@@ -1191,7 +1191,7 @@ MonitorElement::disableSoftReset(void)
       incompatible(__PRETTY_FUNCTION__);
 
     delete refvalue_;
-    refvalue_ = 0;
+    refvalue_ = nullptr;
   }
 }
 
@@ -1374,8 +1374,8 @@ MonitorElement::getQReport(bool create, const std::string &qtname, QReport *&qr,
 {
   assert(qreports_.size() == data_.qreports.size());
 
-  qr = 0;
-  qv = 0;
+  qr = nullptr;
+  qv = nullptr;
 
   size_t pos = 0, end = qreports_.size();
   while (pos < end && data_.qreports[pos].qtname != qtname)
@@ -1386,7 +1386,7 @@ MonitorElement::getQReport(bool create, const std::string &qtname, QReport *&qr,
   else if (pos == end)
   {
     data_.qreports.push_back(DQMNet::QValue());
-    qreports_.push_back(QReport(0, 0));
+    qreports_.push_back(QReport(nullptr, nullptr));
 
     DQMNet::QValue &q = data_.qreports.back();
     q.code = dqm::qstatus::DID_NOT_RUN;

@@ -91,9 +91,9 @@ BOOST_AUTO_TEST_CASE( selectionmanager )
    fVector.push_back(reco::Track());
    
    TClass* cls=TClass::GetClass("std::vector<reco::Track>");
-   assert(0!=cls);
+   assert(nullptr!=cls);
    
-   fireworks::Context context(&cm,&sm,0,0,0);
+   fireworks::Context context(&cm,&sm,nullptr,nullptr,nullptr);
    
    auto accessor = std::make_shared<TestAccessor>(&fVector);
    FWPhysicsObjectDesc pObj("Tracks",cls,"Tracks");
@@ -165,7 +165,7 @@ BOOST_AUTO_TEST_CASE( selectionmanager )
    item.select(1);
    item.select(2);
    BOOST_CHECK(sm.selected().size()==2);
-   item.setEvent(0);
+   item.setEvent(nullptr);
    BOOST_CHECK(sm.selected().size()==0);
 }
 

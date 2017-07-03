@@ -250,7 +250,7 @@ unsigned int MomentumDependentPedeLabeler::alignableLabelFromLabel(unsigned int 
 Alignable* MomentumDependentPedeLabeler::alignableFromLabel(unsigned int label) const
 {
   const unsigned int aliLabel = this->alignableLabelFromLabel(label);
-  if (aliLabel < theMinLabel) return 0; // error already given
+  if (aliLabel < theMinLabel) return nullptr; // error already given
   
   if (theIdToAlignableMap.empty()) const_cast<MomentumDependentPedeLabeler*>(this)->buildReverseMap();
   IdToAlignableMap::const_iterator position = theIdToAlignableMap.find(aliLabel);
@@ -263,7 +263,7 @@ Alignable* MomentumDependentPedeLabeler::alignableFromLabel(unsigned int label) 
       edm::LogError("LogicError") << "@SUB=MomentumDependentPedeLabeler::alignableFromLabel"
 				  << "Alignable label " << aliLabel << " not in map.";
     }
-    return 0;
+    return nullptr;
   }
 }
 
@@ -344,8 +344,8 @@ unsigned int MomentumDependentPedeLabeler::buildMomentumDependencyMap(AlignableT
     for (unsigned int iMomentum=0;iMomentum<tempMomentumRanges.size();++iMomentum) {
       std::vector<std::string> tokens = edm::tokenize(tempMomentumRanges[iMomentum], ":");
       
-      lower = strtod(tokens[0].c_str(), 0);
-      upper = strtod(tokens[1].c_str(), 0);
+      lower = strtod(tokens[0].c_str(), nullptr);
+      upper = strtod(tokens[1].c_str(), nullptr);
 
       MomentumRanges.push_back(std::pair<float,float>(lower, upper));
     }
@@ -370,7 +370,7 @@ unsigned int MomentumDependentPedeLabeler::buildMomentumDependencyMap(AlignableT
 	   iAli != alis.end();
 	   ++iAli) {
 
-        if((*iAli)->alignmentParameters() == NULL) {
+        if((*iAli)->alignmentParameters() == nullptr) {
           throw cms::Exception("BadConfig")
             << "@SUB=MomentumDependentPedeLabeler::buildMomentumDependencyMap\n"
             << "Momentum dependence configured for alignable of type "

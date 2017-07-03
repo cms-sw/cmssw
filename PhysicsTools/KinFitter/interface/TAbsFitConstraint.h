@@ -24,7 +24,7 @@ public :
   // new ---  additional parameters
   Int_t getNPar() { return _nPar; } 
 
-  virtual TMatrixD* getDerivativeAlpha() { return 0; }
+  virtual TMatrixD* getDerivativeAlpha() { return nullptr; }
   
   virtual const TMatrixD* getCovMatrix() const { return &_covMatrix; }
   virtual void setCovMatrix(const TMatrixD* theCovMatrix);

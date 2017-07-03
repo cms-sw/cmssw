@@ -29,7 +29,7 @@
 #include "CondFormats/SiPixelObjects/interface/LocalPixel.h"
 #include "TList.h"
 
-TF1* SiPixelOfflineCalibAnalysisBase::fitFunction_ = NULL;
+TF1* SiPixelOfflineCalibAnalysisBase::fitFunction_ = nullptr;
 std::vector<short>  SiPixelOfflineCalibAnalysisBase::vCalValues_(0);
 // constructors and destructor
 //

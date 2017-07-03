@@ -75,7 +75,7 @@ TestAnalyzer::TestAnalyzer( const edm::ParameterSet& iConfig )
   theTree->Branch("length", &length_, "length/F" );
   theTree->Branch("width",  &width_,  "width/F"  );
   theTree->Branch("thick",  &thick_,  "thick/F"  );
-  rot_ = 0;
+  rot_ = nullptr;
   theTree->Branch("rot",    "TRotMatrix", &rot_  );
 
 }

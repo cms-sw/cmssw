@@ -224,15 +224,15 @@ void MonElemFuncs::initStdEleCutHists(std::vector<MonElemWithCutBase<OffEle>*>& 
   histVec.push_back(new MonElemWithCutEBEE<OffEle,float>(iBooker,baseName+"_eta",
 							 baseName+" #eta;#eta",
 							 bins.eta.nr,bins.eta.min,bins.eta.max,
-							 &OffEle::detEta,cut ? cut->clone(): NULL));		
+							 &OffEle::detEta,cut ? cut->clone(): nullptr));		
   histVec.push_back(new MonElemWithCutEBEE<OffEle,float>(iBooker,baseName+"_phi",
 							 baseName+" #phi;#phi (rad)",
 							 bins.phi.nr,bins.phi.min,bins.phi.max,
-							 &OffEle::phi,cut ? cut->clone():NULL));		
+							 &OffEle::phi,cut ? cut->clone():nullptr));		
   histVec.push_back(new MonElemWithCutEBEE<OffEle,int>(iBooker,baseName+"_nVertex",
 							 baseName+" nVertex;nVertex",
 							 bins.nVertex.nr,bins.nVertex.min,bins.nVertex.max,
-							 &OffEle::NVertex,cut ? cut->clone():NULL));
+							 &OffEle::NVertex,cut ? cut->clone():nullptr));
   /*  histVec.push_back(new MonElemWithCutEBEE<OffEle,int>(iBooker,baseName+"_charge",
 						       baseName+" Charge; charge",
 						       bins.charge.nr,bins.charge.min,bins.charge.max,
@@ -248,11 +248,11 @@ void MonElemFuncs::initStdPhoCutHists(std::vector<MonElemWithCutBase<OffPho>*>& 
   histVec.push_back(new MonElemWithCutEBEE<OffPho,float>(iBooker,baseName+"_eta",
 							 baseName+" #eta;#eta",
 							 bins.eta.nr,bins.eta.min,bins.eta.max,
-							 &OffPho::detEta,cut ? cut->clone(): NULL));		
+							 &OffPho::detEta,cut ? cut->clone(): nullptr));		
   histVec.push_back(new MonElemWithCutEBEE<OffPho,float>(iBooker,baseName+"_phi",
 							 baseName+" #phi;#phi (rad)",
 							 bins.phi.nr,bins.phi.min,bins.phi.max,
-							 &OffPho::phi,cut ? cut->clone():NULL));
+							 &OffPho::phi,cut ? cut->clone():nullptr));
   /* histVec.push_back(new MonElemWithCutEBEE<OffPho,int>(iBooker,baseName+"_charge",
 						       baseName+" Charge; charge",
 						       bins.charge.nr,bins.charge.min,bins.charge.max,
@@ -303,14 +303,14 @@ void MonElemFuncs::addTightLooseTrigHist(std::vector<MonElemContainer<OffEle>*>&
 					 EgHLTDQMCut<OffEle>* eleCut,
 					 const std::string& histId,const BinData& bins)
 {
-  MonElemContainer<OffEle>* passMonElem = NULL;
+  MonElemContainer<OffEle>* passMonElem = nullptr;
   passMonElem = new MonElemContainer<OffEle>(tightTrig+"_"+looseTrig+"_"+histId+"_passTrig","",
 					     &(*(new EgMultiCut<OffEle>) << 
 					       new EgObjTrigCut<OffEle>(trigCodes.getCode(tightTrig+":"+looseTrig),EgObjTrigCut<OffEle>::AND)  <<
 					       eleCut->clone()));
   
   
-  MonElemContainer<OffEle>* failMonElem = NULL;
+  MonElemContainer<OffEle>* failMonElem = nullptr;
   failMonElem = new MonElemContainer<OffEle>(tightTrig+"_"+looseTrig+"_"+histId+"_failTrig","",
 					     &(*(new EgMultiCut<OffEle>) << 
 					       new EgObjTrigCut<OffEle>(trigCodes.getCode(looseTrig),EgObjTrigCut<OffEle>::AND,trigCodes.getCode(tightTrig))  << 
@@ -329,14 +329,14 @@ void MonElemFuncs::addTightLooseTrigHist(std::vector<MonElemContainer<OffPho>*>&
 					 EgHLTDQMCut<OffPho>* phoCut,
 					 const std::string& histId,const BinData& bins)
 {
-  MonElemContainer<OffPho>* passMonElem = NULL;
+  MonElemContainer<OffPho>* passMonElem = nullptr;
   passMonElem = new MonElemContainer<OffPho>(tightTrig+"_"+looseTrig+"_"+histId+"_passTrig","",
 					     &(*(new EgMultiCut<OffPho>) << 
 					       new EgObjTrigCut<OffPho>(trigCodes.getCode(tightTrig+":"+looseTrig),EgObjTrigCut<OffPho>::AND)  <<
 					       phoCut->clone()));
   
   
-  MonElemContainer<OffPho>* failMonElem = NULL;
+  MonElemContainer<OffPho>* failMonElem = nullptr;
   failMonElem = new MonElemContainer<OffPho>(tightTrig+"_"+looseTrig+"_"+histId+"_failTrig","",
 					     &(*(new EgMultiCut<OffPho>) << 
 					       new EgObjTrigCut<OffPho>(trigCodes.getCode(looseTrig),EgObjTrigCut<OffPho>::AND,trigCodes.getCode(tightTrig))  << 

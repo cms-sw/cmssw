@@ -247,7 +247,7 @@ ElectronCalibrationUniv::endJob() {
   f->cd();
   time_t start, end;
   time_t cpu_time_used;
-  start = time(NULL);
+  start = time(nullptr);
 
   //In order to do only one loop to use properly looper properties, ask only for 1 iterations!
   int nIterations =10;
@@ -272,7 +272,7 @@ ElectronCalibrationUniv::endJob() {
      }
    }
  }
-   end = time(NULL);
+   end = time(nullptr);
    cpu_time_used = end - start;
    //     std::cout<<"222 solution size "<<Univsolution.size()<<std::endl;
 

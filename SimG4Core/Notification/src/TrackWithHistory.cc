@@ -10,17 +10,17 @@
 
 #include <iostream>
 
-G4ThreadLocal G4Allocator<TrackWithHistory> *fpTrackWithHistoryAllocator = 0;
+G4ThreadLocal G4Allocator<TrackWithHistory> *fpTrackWithHistoryAllocator = nullptr;
 
 //#define DEBUG
 
 TrackWithHistory::TrackWithHistory(const G4Track * g4trk) : 
   trackID_(0),particleID_(0),parentID_(0),momentum_(math::XYZVectorD(0.,0.,0.)),
   totalEnergy_(0),vertexPosition_(math::XYZVectorD(0.,0.,0.)),globalTime_(0),
-  localTime_(0),properTime_(0),creatorProcess_(0),weight_(0),
+  localTime_(0),properTime_(0),creatorProcess_(nullptr),weight_(0),
   storeTrack_(false),saved_(false) {
   
-  if (g4trk!=0) {
+  if (g4trk!=nullptr) {
     TrackInformationExtractor extractor;
     trackID_ = g4trk->GetTrackID();
     particleID_ = G4TrackToParticleID::particleID(g4trk);
@@ -70,7 +70,7 @@ void TrackWithHistory::checkAtEnd(const G4Track * gt) {
 
 int TrackWithHistory::extractGenID(const G4Track* gt) const {
   void * vgprimary = gt->GetDynamicParticle()->GetPrimaryParticle();
-  if (vgprimary == 0) return -1;
+  if (vgprimary == nullptr) return -1;
   // replace old-style cast with appropriate new-style cast...
   G4PrimaryParticle* gprimary = (G4PrimaryParticle*) vgprimary;
   GenParticleInfoExtractor ext;

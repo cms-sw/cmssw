@@ -12,7 +12,7 @@ class HcalMCParams: public HcalCondObjectContainer<HcalMCParam>
 {
  public:
 #ifndef HCAL_COND_SUPPRESS_DEFAULT
-  HcalMCParams():HcalCondObjectContainer<HcalMCParam>(0) {}
+  HcalMCParams():HcalCondObjectContainer<HcalMCParam>(nullptr) {}
 #endif
   HcalMCParams(const HcalTopology* topo):HcalCondObjectContainer<HcalMCParam>(topo) {}
 

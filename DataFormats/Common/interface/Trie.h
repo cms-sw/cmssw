@@ -250,11 +250,11 @@ namespace edm{
     typedef TrieNodeIter<T> self;
     typedef TrieNode<T> const node_base;
     TrieNodeIter()
-      : m_node(0), m_label(0)
+      : m_node(nullptr), m_label(0)
     {}
     
     explicit TrieNodeIter(node_base* p)
-      : m_node(p ? p->subNode() : 0), 
+      : m_node(p ? p->subNode() : nullptr), 
 	m_label(p ? p->subNodeLabel() : 0)
     {}
     
@@ -317,7 +317,7 @@ namespace edm{
 
 template <typename T>
 edm::TrieFactory<T>::TrieFactory(unsigned paquetSize) :
-  _paquetSize(paquetSize), _lastNodes(0x0), _nbUsedInLastNodes(0)
+  _paquetSize(paquetSize), _lastNodes(nullptr), _nbUsedInLastNodes(0)
 {
   _lastNodes = new TrieNode<T>[paquetSize];
 }
@@ -362,7 +362,7 @@ void edm::TrieFactory<T>::clear()
 
 template <typename T>
 edm::TrieNode<T>::TrieNode() :
-  _brother(0), _brotherLabel(0), _firstSubNode(0), _firstSubNodeLabel(0),_value()
+  _brother(nullptr), _brotherLabel(0), _firstSubNode(nullptr), _firstSubNodeLabel(0),_value()
   /// we can not set _value here because type is unknown. assert that
   /// the value is set later with setValue()
 {
@@ -384,7 +384,7 @@ edm::TrieNode<T>::begin() const {
 template <typename T>   
 edm::TrieNodeIter<T> 
 edm::TrieNode<T>::end() const {
-  return const_iterator(0);
+  return const_iterator(nullptr);
 }
 
 template <typename T>
@@ -497,7 +497,7 @@ inline Node edm::TrieNode<T>::_sequentialSearch(Node first, unsigned char label,
 	return first;
       return first->_getBrother(val);
     }
-  return 0x0;
+  return nullptr;
 }
 
 template <typename T>
@@ -525,9 +525,9 @@ void edm::TrieNode<T>::display(std::ostream &os, unsigned offset, unsigned char 
 template <typename T>
 void edm::TrieNode<T>::clear()
 {
-  _brother = 0x0;
+  _brother = nullptr;
   _brotherLabel = 0;
-  _firstSubNode = 0x0;
+  _firstSubNode = nullptr;
   _firstSubNodeLabel = 0;
 }
 
@@ -553,7 +553,7 @@ namespace edm {
 
 template <typename T>
 edm::Trie<T>::Trie(const T &empty) :
-  _empty(empty), _factory(0x0), _initialNode(0x0)
+  _empty(empty), _factory(nullptr), _initialNode(nullptr)
 {
   // initialize nodes by paquets of 10000
   _factory = new TrieFactory<T>(10000);
@@ -583,7 +583,7 @@ edm::TrieNode<T>* edm::Trie<T>::_addEntry(const char *str, unsigned strLen)
 {
   unsigned	pos = 0;
   bool		found = true;
-  TrieNode<T>	*node = _initialNode, *previous = 0x0;
+  TrieNode<T>	*node = _initialNode, *previous = nullptr;
 
   // Look for the part of the word which is in Trie
   while (found && pos < strLen)
@@ -610,7 +610,7 @@ edm::TrieNode<T>* edm::Trie<T>::_addEntry(const char *str, unsigned strLen)
 	  ++pos;
 	}
     }
-  assert(node != 0x0);
+  assert(node != nullptr);
   return node;
 }
 

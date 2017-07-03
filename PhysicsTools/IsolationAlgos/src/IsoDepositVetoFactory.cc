@@ -71,9 +71,9 @@ namespace reco { namespace isodeposit {
 // ---------- THEN THE ACTUAL FACTORY CODE ------------
 reco::isodeposit::AbsVeto *
 IsoDepositVetoFactory::make(const char *string, edm::ConsumesCollector& iC) {
-    reco::isodeposit::EventDependentAbsVeto * evdep = 0;
+    reco::isodeposit::EventDependentAbsVeto * evdep = nullptr;
     std::unique_ptr<reco::isodeposit::AbsVeto> ret(make(string,evdep, iC));
-    if (evdep != 0) {
+    if (evdep != nullptr) {
         throw cms::Exception("Configuration") << "The resulting AbsVeto depends on the edm::Event.\n"
                                               << "Please use the two-arguments IsoDepositVetoFactory::make.\n";
     }
@@ -104,7 +104,7 @@ IsoDepositVetoFactory::make(const char *string, reco::isodeposit::EventDependent
     //std::cout << "<IsoDepositVetoFactory::make>:" << std::endl;
     //std::cout << " string = " << string << std::endl;
 
-    evdep = 0; // by default it does not depend on this
+    evdep = nullptr; // by default it does not depend on this
     if (regex_match(string, match, ecalSwitch)) {
         return new SwitchingEcalVeto(make(match[2].first, iC), (match[1] == "Barrel") );
     } else if (regex_match(string, match, threshold)) {

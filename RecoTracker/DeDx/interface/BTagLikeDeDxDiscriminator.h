@@ -12,7 +12,7 @@ public:
    meVperADCStrip      = iConfig.getParameter<double>("MeVperADCStrip"); //currently needed until the map on the database are redone
    Reccord             = iConfig.getParameter<std::string>  ("Reccord");
    ProbabilityMode     = iConfig.getParameter<std::string>  ("ProbabilityMode");
-   Prob_ChargePath     = NULL;
+   Prob_ChargePath     = nullptr;
  }
 
  virtual void beginRun(edm::Run const& run, const edm::EventSetup& iSetup){

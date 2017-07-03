@@ -66,12 +66,12 @@ namespace evf {
     fulocal_rwlock_fd_(-1),
     fulocal_rwlock_fd2_(-1),
 
-    bu_w_lock_stream(0),
-    bu_r_lock_stream(0),
-    fu_rw_lock_stream(0),
+    bu_w_lock_stream(nullptr),
+    bu_r_lock_stream(nullptr),
+    fu_rw_lock_stream(nullptr),
     //bu_w_monitor_stream(0),
     //bu_t_monitor_stream(0),
-    data_rw_stream(0),
+    data_rw_stream(nullptr),
 
     dirManager_(base_dir_),
 
@@ -200,7 +200,7 @@ namespace evf {
 	  edm::LogInfo("EvFDaqDirector") << "creating filedesc for buwritelock -: "
 					 << bu_writelock_fd_;
 	bu_w_lock_stream = fdopen(bu_writelock_fd_, "w");
-	if (bu_w_lock_stream == 0)
+	if (bu_w_lock_stream == nullptr)
 	  edm::LogWarning("EvFDaqDirector")<< "Error creating write lock stream -: " << strerror(errno);
 
 	// BU INITIALIZES LOCK FILE
@@ -248,7 +248,7 @@ namespace evf {
 	openFULockfileStream(fulockfile, false);
       }
 
-    pthread_mutex_init(&init_lock_,NULL);
+    pthread_mutex_init(&init_lock_,nullptr);
 
     stopFilePath_ = run_dir_+"/CMSSW_STOP";
     std::stringstream sstp;
@@ -499,7 +499,7 @@ namespace evf {
       stop_ls_override_ = 0;
 
     timeval ts_lockbegin;
-    gettimeofday(&ts_lockbegin,0);
+    gettimeofday(&ts_lockbegin,nullptr);
 
     while (retval==-1) {
       retval = fcntl(fu_readwritelock_fd_, F_SETLK, &fu_rw_flk);
@@ -528,7 +528,7 @@ namespace evf {
     }
 
     timeval ts_lockend;
-    gettimeofday(&ts_lockend,0);
+    gettimeofday(&ts_lockend,nullptr);
     long deltat = (ts_lockend.tv_usec-ts_lockbegin.tv_usec) + (ts_lockend.tv_sec-ts_lockbegin.tv_sec)*1000000;
     if (deltat>0.) lockWaitTime=deltat;
 
@@ -542,7 +542,7 @@ namespace evf {
 #endif
 
     // if the stream is readable
-    if (fu_rw_lock_stream != 0) {
+    if (fu_rw_lock_stream != nullptr) {
       unsigned int readLs, readIndex;
       int check = 0;
       // rewind the stream
@@ -792,7 +792,7 @@ namespace evf {
   }
 
   void EvFDaqDirector::tryInitializeFuLockFile() {
-    if (fu_rw_lock_stream == 0)
+    if (fu_rw_lock_stream == nullptr)
       edm::LogError("EvFDaqDirector") << "Error creating fu read/write lock stream "
 				      << strerror(errno);
     else {

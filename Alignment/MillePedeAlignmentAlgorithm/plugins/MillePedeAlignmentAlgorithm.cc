@@ -622,7 +622,7 @@ MillePedeAlignmentAlgorithm::addHitCount(const std::vector<AlignmentParameters*>
   // Loop on all hit information in the input arrays and count valid y-hits:
   unsigned int nHitY = 0;
   for (unsigned int iHit = 0; iHit < validHitVecY.size(); ++iHit) {
-    Alignable *ali = (parVec[iHit] ? parVec[iHit]->alignable() : 0);
+    Alignable *ali = (parVec[iHit] ? parVec[iHit]->alignable() : nullptr);
     // Loop upwards on hierarchy of alignables to add hits to all levels
     // that are currently aligned. If only a non-selected alignable was hit,
     // (i.e. flagXY == 0 in addReferenceTrajectory(..)), there is no loop at all...
@@ -773,7 +773,7 @@ int MillePedeAlignmentAlgorithm::addMeasurementData(const edm::EventSetup &setup
                                                     unsigned int iHit,
                                                     AlignmentParameters *&params)
 {
-  params = 0;
+  params = nullptr;
   theFloatBufferX.clear();
   theFloatBufferY.clear();
   theIntBuffer.clear();
@@ -810,7 +810,7 @@ int MillePedeAlignmentAlgorithm::addGlobalData(const edm::EventSetup &setup, con
                                                     const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
                                                     unsigned int iHit, GblPoint &gblPoint)
 {
-  AlignmentParameters* params = 0;
+  AlignmentParameters* params = nullptr;
   std::vector<double> theDoubleBufferX, theDoubleBufferY;
   theDoubleBufferX.clear();
   theDoubleBufferY.clear();
@@ -1263,7 +1263,7 @@ bool MillePedeAlignmentAlgorithm::addHits(const std::vector<Alignable*> &alis,
        iAli != alis.end() && iUser != mpVars.end(); ++iAli, ++iUser) {
     MillePedeVariables *mpVarNew = dynamic_cast<MillePedeVariables*>(*iUser);
     AlignmentParameters *ps = (*iAli)->alignmentParameters();
-    MillePedeVariables *mpVarOld = (ps ? dynamic_cast<MillePedeVariables*>(ps->userVariables()) : 0);
+    MillePedeVariables *mpVarOld = (ps ? dynamic_cast<MillePedeVariables*>(ps->userVariables()) : nullptr);
     if (!mpVarNew || !mpVarOld || mpVarOld->size() != mpVarNew->size()) {
       allOk = false;
       continue; // FIXME error etc.?
@@ -1602,7 +1602,7 @@ void MillePedeAlignmentAlgorithm::addLasBeam(const EventInfo &eventInfo,
                                              const TkFittedLasBeam &lasBeam,
                                              const std::vector<TrajectoryStateOnSurface> &tsoses)
 {
-  AlignmentParameters *dummyPtr = 0; // for globalDerivativesHierarchy()
+  AlignmentParameters *dummyPtr = nullptr; // for globalDerivativesHierarchy()
   std::vector<float> lasLocalDerivsX; // buffer for local derivatives
   const unsigned int beamLabel = thePedeLabels->lasBeamLabel(lasBeam.getBeamId());// for global par
 

@@ -6,14 +6,14 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 CSCHitAssociator::CSCHitAssociator(const edm::Event& event, const edm::EventSetup& setup, const edm::ParameterSet& conf): 
-  theDigiSimLinks(0),
+  theDigiSimLinks(nullptr),
   linksTag(conf.getParameter<edm::InputTag>("CSClinksTag"))
 {
   initEvent(event,setup);
 }
 
 CSCHitAssociator::CSCHitAssociator( const edm::ParameterSet& conf, edm::ConsumesCollector && iC ): 
-  theDigiSimLinks(0),
+  theDigiSimLinks(nullptr),
   linksTag(conf.getParameter<edm::InputTag>("CSClinksTag"))
 {
   iC.consumes<DigiSimLinks>(linksTag);

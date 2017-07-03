@@ -145,7 +145,7 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload_IOV::beginJob()
 
   PerformanceWorkingPoint * wp = new PerformanceWorkingPoint(cut, tagger);
 
-  PerformancePayloadFromTable * btagpl = 0;
+  PerformancePayloadFromTable * btagpl = nullptr;
 
   if (concreteType == "PerformancePayloadFromTable"){
     btagpl = new PerformancePayloadFromTable(res, bin, stride, pl);

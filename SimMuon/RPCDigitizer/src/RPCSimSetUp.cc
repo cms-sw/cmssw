@@ -208,7 +208,7 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
     current_rpcId = RPCDetId(current_detId);
     // Test whether this roll (picked up from the conditions) is inside the RPC Geometry
     const RPCRoll* roll = theGeometry->roll(current_rpcId);
-    if(roll==0) {
+    if(roll==nullptr) {
       sslognoiseitem <<"Searching for first valid detid :: current_detId = "<<current_detId;
       sslognoiseitem <<" aka "<<current_rpcId<<" is not in current Geometry --> Skip "<<std::endl;
       continue;
@@ -232,7 +232,7 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
     this_rpcId = RPCDetId(this_detId);
     // Test whether this roll (picked up from the conditions) is inside the RPC Geometry
     const RPCRoll* roll = theGeometry->roll(this_rpcId);
-    if(roll==0) {
+    if(roll==nullptr) {
       sslognoiseitem <<"Inside Loop :: ["<<std::setw(6)<<count_all<<"]["<<std::setw(3)<<count_strips<<"] :: this_detId = "<<this_detId<<" aka "<<this_rpcId<<" which is not in current Geometry --> Skip "<<std::endl;
       continue;
     }

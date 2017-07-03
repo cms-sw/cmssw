@@ -380,7 +380,7 @@ int main(int argc, char* argv[]) {
       }
     }
     if (!ex.alreadyPrinted()) {
-      if (jobRep.get() != 0) {
+      if (jobRep.get() != nullptr) {
         edm::printCmsException(ex, &(jobRep->get()), returnCode);
       }
       else {

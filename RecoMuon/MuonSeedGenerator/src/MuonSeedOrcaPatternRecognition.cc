@@ -294,7 +294,7 @@ void MuonSeedOrcaPatternRecognition::produce(const edm::Event& event, const edm:
 
 bool * MuonSeedOrcaPatternRecognition::zero(unsigned listSize)
 {
-  bool * result = 0;
+  bool * result = nullptr;
   if (listSize) {
     result = new bool[listSize]; 
     for ( size_t i=0; i<listSize; i++ ) result[i]=false;
@@ -528,7 +528,7 @@ MuonSeedOrcaPatternRecognition::MuonRecHitPointer
 MuonSeedOrcaPatternRecognition::bestMatch(const ConstMuonRecHitPointer & first,
                                           MuonRecHitContainer & good_rhit) const
 {
-  MuonRecHitPointer best = 0;
+  MuonRecHitPointer best = nullptr;
   if(good_rhit.size() == 1) return good_rhit[0];
   double bestDiscrim = 10000.;
   for (MuonRecHitContainer::iterator iter=good_rhit.begin(); 

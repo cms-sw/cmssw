@@ -240,7 +240,7 @@ HLTTrackClusterRemoverNew::cleanup(const edmNew::DetSetVector<T> &oldClusters, c
     }
     //    double fraction = countNew  / (double) countOld;
     //    std::cout<<"fraction: "<<fraction<<std::endl;
-    if (oldRefs != 0) mergeOld(refs, *oldRefs);
+    if (oldRefs != nullptr) mergeOld(refs, *oldRefs);
     return output;
 }
 

@@ -554,8 +554,8 @@ PixelCalibConfiguration::~PixelCalibConfiguration(){}
 
 void PixelCalibConfiguration::buildROCAndModuleLists(const PixelNameTranslation* translation, const PixelDetectorConfig* detconfig)
 {
-  assert( translation != 0 );
-  assert( detconfig != 0 );
+  assert( translation != nullptr );
+  assert( detconfig != nullptr );
 
   if ( rocAndModuleListsBuilt_ )
     {
@@ -748,7 +748,7 @@ void PixelCalibConfiguration::buildObjectsDependingOnTheNameTranslation(const Pi
 {
   assert( !objectsDependingOnTheNameTranslationBuilt_ );
   assert( rocAndModuleListsBuilt_ );
-  assert( aNameTranslation != 0 );
+  assert( aNameTranslation != nullptr );
   
   // Build the channel list.
   assert ( channels_.empty() );
@@ -1161,7 +1161,7 @@ void PixelCalibConfiguration::nextFECState(std::map<unsigned int, PixelFECConfig
         PixelROCMaskBits* rocMasks=rocInfo_[i].masks_;
         PixelROCTrimBits* rocTrims=rocInfo_[i].trims_;
 
-        if (mode==1) rocMasks=0;
+        if (mode==1) rocMasks=nullptr;
 
         //std::cout << "Will enable pixels!" <<std::endl;
         enablePixels(pixelFECs[theROC.fecnumber()], 
@@ -1275,7 +1275,7 @@ std::vector<std::pair<unsigned int, std::vector<unsigned int> > >& PixelCalibCon
       PixelModuleName module(rocs_[i].rocname());
       if (!detconfig->containsModule(module)) continue;
       const PixelHdwAddress* hdw=translation->getHdwAddress(rocs_[i]);
-	assert(hdw!=0);
+	assert(hdw!=nullptr);
 	//std::cout << "ROC, fednumber:"<<rocs_[i]<<" "<<hdw->fednumber()
 	//	  << std::endl;
         //first check if fed associated with the roc is in the right crate
@@ -1468,7 +1468,7 @@ void PixelCalibConfiguration::enablePixels(PixelFECConfigInterface* pixelFEC,
       unsigned int bits=trims->trim(cols_[icols][icol],rows_[irows][irow]);
 
       //if masks==0 always enable pixel
-      if (masks==0||
+      if (masks==nullptr||
 	  masks->mask(cols_[icols][icol],rows_[irows][irow])) bits|=0x80;
 
       pixelFEC->progpix(theROC.mfec(),

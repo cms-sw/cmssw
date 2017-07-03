@@ -23,7 +23,7 @@
 
 
 RPCTrigger::RPCTrigger(const edm::ParameterSet& iConfig):
-   m_trigConfig(0),m_pacTrigger(0)
+   m_trigConfig(nullptr),m_pacTrigger(nullptr)
 {
   produces<std::vector<L1MuRegionalCand> >("RPCb");
   produces<std::vector<L1MuRegionalCand> >("RPCf");
@@ -52,8 +52,8 @@ RPCTrigger::RPCTrigger(const edm::ParameterSet& iConfig):
 
 
 RPCTrigger::~RPCTrigger(){ 
-   if (m_pacTrigger != 0) delete m_pacTrigger;
-   if (m_trigConfig != 0) delete m_trigConfig;
+   if (m_pacTrigger != nullptr) delete m_pacTrigger;
+   if (m_trigConfig != nullptr) delete m_trigConfig;
 }
 
 

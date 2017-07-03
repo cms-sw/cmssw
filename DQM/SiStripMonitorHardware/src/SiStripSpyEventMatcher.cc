@@ -149,7 +149,7 @@ namespace sistrip {
     std::map<EventKey,SpyEventList>::const_iterator iMatch = eventMatches_.find(eventKey);
     if (iMatch == eventMatches_.end()) {
       LogDebug(mlLabel_) << "No match found for event " << eventId << " with APV address " << uint16_t(apvAddress);
-      return NULL;
+      return nullptr;
     }
     else {
       std::ostringstream ss;
@@ -388,10 +388,10 @@ namespace sistrip {
       totalEventCounters(new std::vector<uint32_t>),
       l1aCounters(new std::vector<uint32_t>),
       apvAddresses(new std::vector<uint32_t>),
-      scopeDigis(theScopeDigisVector ? new edm::DetSetVector<SiStripRawDigi>(*theScopeDigisVector) : NULL),
-      payloadDigis(thePayloadDigisVector ? new edm::DetSetVector<SiStripRawDigi>(*thePayloadDigisVector) : NULL),
-      reorderedDigis(theReorderedDigisVector ? new edm::DetSetVector<SiStripRawDigi>(*theReorderedDigisVector) : NULL),
-      virginRawDigis(theVirginRawDigisVector ? new edm::DetSetVector<SiStripRawDigi>(*theVirginRawDigisVector) : NULL)
+      scopeDigis(theScopeDigisVector ? new edm::DetSetVector<SiStripRawDigi>(*theScopeDigisVector) : nullptr),
+      payloadDigis(thePayloadDigisVector ? new edm::DetSetVector<SiStripRawDigi>(*thePayloadDigisVector) : nullptr),
+      reorderedDigis(theReorderedDigisVector ? new edm::DetSetVector<SiStripRawDigi>(*theReorderedDigisVector) : nullptr),
+      virginRawDigis(theVirginRawDigisVector ? new edm::DetSetVector<SiStripRawDigi>(*theVirginRawDigisVector) : nullptr)
   {
     rawData->swap(theRawData);
     totalEventCounters->swap(theTotalEventCounters);
@@ -412,7 +412,7 @@ namespace sistrip {
   
   SpyEventMatcher::CountersWrapper::CountersWrapper(const Counters* theCounters)
     : pConst(theCounters),
-      p(NULL),
+      p(nullptr),
       deleteP(false)
   {
   }

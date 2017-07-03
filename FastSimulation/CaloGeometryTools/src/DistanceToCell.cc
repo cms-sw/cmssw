@@ -3,7 +3,7 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 
-DistanceToCell::DistanceToCell():det_(0) {;}
+DistanceToCell::DistanceToCell():det_(nullptr) {;}
 
 DistanceToCell::DistanceToCell(const DistanceToCell& dist)
 {

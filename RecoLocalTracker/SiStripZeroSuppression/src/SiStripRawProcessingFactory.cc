@@ -87,7 +87,7 @@ create_Suppressor(const edm::ParameterSet& conf) {
 std::auto_ptr<SiStripAPVRestorer> SiStripRawProcessingFactory::
 create_Restorer( const edm::ParameterSet& conf) {
   if(!conf.exists("APVRestoreMode")) {
-    return std::auto_ptr<SiStripAPVRestorer>( 0 );
+    return std::auto_ptr<SiStripAPVRestorer>( nullptr );
   } else {
     return std::auto_ptr<SiStripAPVRestorer> (new SiStripAPVRestorer(conf));
   }

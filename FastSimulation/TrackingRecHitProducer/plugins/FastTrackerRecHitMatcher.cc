@@ -159,7 +159,7 @@ void FastTrackerRecHitMatcher::produce(edm::Event& iEvent, const edm::EventSetup
 		LocalVector gluedLocalSimTrackDir = gluedDet->surface().toLocal(globalSimTrackDir);
 		
 		// check whether next hit is partner
-		const FastSingleTrackerRecHit * partnerRecHit = 0;
+		const FastSingleTrackerRecHit * partnerRecHit = nullptr;
 		//      - there must be a next hit
 		if(simHitCounter + 1 < simHits->size()){
 		    const FastTrackerRecHitRef & nextRecHitRef = (*simHit2RecHitMap)[simHitCounter + 1];

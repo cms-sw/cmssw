@@ -82,11 +82,11 @@ class MVATrainerLooper : public edm::ESProducerLooper {
 
 template<> inline bool
 MVATrainerLooper::isUntrained(const Calibration::MVAComputer *ptr)
-{ return dynamic_cast<const UntrainedMVAComputer*>(ptr) != 0; }
+{ return dynamic_cast<const UntrainedMVAComputer*>(ptr) != nullptr; }
 
 template<> inline bool
 MVATrainerLooper::isUntrained(const Calibration::MVAComputerContainer *ptr)
-{ return dynamic_cast<const UntrainedMVAComputerContainer*>(ptr) != 0; }
+{ return dynamic_cast<const UntrainedMVAComputerContainer*>(ptr) != nullptr; }
 
 } // namespace PhysicsTools
 

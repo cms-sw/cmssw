@@ -18,7 +18,7 @@ void SiStripGain::multiply(const SiStripApvGain & apvgain, const double & factor
 			   const std::pair<std::string, std::string> & recordLabelPair)
 {
   // When inserting the first ApvGain
-  if( apvgain_ == 0 ) {
+  if( apvgain_ == nullptr ) {
     if( (factor != 1) && (factor != 0) ) {
       fillNewGain( &apvgain, factor );
     }
@@ -59,14 +59,14 @@ void SiStripGain::fillNewGain(const SiStripApvGain * apvgain, const double & fac
       SiStripApvGain::Range range = apvgain->getRange(*it);
 
       SiStripApvGain::Range range2;
-      if( apvgain2 != 0 ) {
+      if( apvgain2 != nullptr ) {
 	range2 = apvgain2->getRange(*it);
       }
 
       for( int apv = 0; apv < detInfoIt->second.nApvs; ++apv ) {
 	float apvGainValue = apvgain->getApvGain( apv, range )/factor;
 
-	if( (apvgain2 != 0) && (factor2 != 0.) ) {
+	if( (apvgain2 != nullptr) && (factor2 != 0.) ) {
 	  apvGainValue *= apvgain2->getApvGain( apv, range2 )/factor2;
 	}
 

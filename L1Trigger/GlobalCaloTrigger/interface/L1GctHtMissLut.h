@@ -46,7 +46,7 @@ public:
   friend std::ostream& operator << (std::ostream& os, const L1GctHtMissLut& lut);
 
   /// Set the functions
-  void setEtScale(const L1CaloEtScale* const fn) { m_etScale = fn; if (fn != 0) { m_setupOk = true; } }
+  void setEtScale(const L1CaloEtScale* const fn) { m_etScale = fn; if (fn != nullptr) { m_setupOk = true; } }
   void setExEyLsb(const double lsb) { m_componentLsb = lsb; }
 
   /// Return the Lut functions and parameters

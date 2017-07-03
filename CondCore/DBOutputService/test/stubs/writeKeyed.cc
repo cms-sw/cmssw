@@ -45,7 +45,7 @@ writeKeyed::endJob() {
   // populated with the keyed payloads (configurations)
   for ( size_t i=0; i<dict.size(); ++i)
     for (size_t j=0;j<7; ++j) {
-      cond::BaseKeyed * bk=0;
+      cond::BaseKeyed * bk=nullptr;
       cond::KeyedElement k( 
 			   (0==i%2) ?
 			   bk = new condex::ConfI(dict[i]+nums[j],10*i+j)

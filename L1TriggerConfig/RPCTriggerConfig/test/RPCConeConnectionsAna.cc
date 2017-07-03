@@ -146,7 +146,7 @@ RPCConeConnectionsAna::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       ++it)
     {
 
-      if( dynamic_cast<const RPCRoll* >( *it ) == 0 ) continue;
+      if( dynamic_cast<const RPCRoll* >( *it ) == nullptr ) continue;
 
       RPCRoll const* roll = dynamic_cast< RPCRoll const*>( *it );
 
@@ -313,7 +313,7 @@ void RPCConeConnectionsAna::printSymetric(RPCDetId det,  edm::ESHandle<RPCGeomet
       ++it)
     {
 
-      if( dynamic_cast<const RPCRoll* >( *it ) == 0 ) continue;
+      if( dynamic_cast<const RPCRoll* >( *it ) == nullptr ) continue;
       RPCRoll const* roll = dynamic_cast< RPCRoll const*>( *it );
 
       if (roll->id() != detSym) continue;

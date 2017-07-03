@@ -71,13 +71,13 @@ class dEdxAnalyzer : public DQMEDAnalyzer {
     MonitorElement* ME_MipHighPtDeDxNHits;
   
     dEdxMEs()
-      :ME_MipDeDx(NULL)
-      ,ME_MipDeDxNHits(NULL)
-      ,ME_MipDeDxNSatHits(NULL)
-      ,ME_MipDeDxMass(NULL)
-      ,ME_HipDeDxMass(NULL)
-      ,ME_MipHighPtDeDx(NULL)
-      ,ME_MipHighPtDeDxNHits(NULL)
+      :ME_MipDeDx(nullptr)
+      ,ME_MipDeDxNHits(nullptr)
+      ,ME_MipDeDxNSatHits(nullptr)
+      ,ME_MipDeDxMass(nullptr)
+      ,ME_HipDeDxMass(nullptr)
+      ,ME_MipHighPtDeDx(nullptr)
+      ,ME_MipHighPtDeDxNHits(nullptr)
     {}
   };
   

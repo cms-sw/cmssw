@@ -9,7 +9,7 @@ namespace pat {
 
 class PackedTriggerPrescales {
     public:
-        PackedTriggerPrescales() : triggerNames_(0) {}
+        PackedTriggerPrescales() : triggerNames_(nullptr) {}
         PackedTriggerPrescales(const edm::Handle<edm::TriggerResults> & handle) ;
         ~PackedTriggerPrescales() {}
 

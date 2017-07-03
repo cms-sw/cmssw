@@ -72,7 +72,7 @@ private:
    TString                 m_name;
    int                     m_ww, m_hh;
    bool                    m_thr_exit = false;
-   std::thread            *m_thr = 0;
+   std::thread            *m_thr = nullptr;
    std::promise<int>       m_prom;
    std::mutex              m_moo;
    std::condition_variable m_cnd;

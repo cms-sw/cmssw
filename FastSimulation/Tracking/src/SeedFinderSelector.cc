@@ -19,9 +19,9 @@
 #include "DataFormats/TrackerRecHit2D/interface/FastTrackerRecHit.h"
 
 SeedFinderSelector::SeedFinderSelector(const edm::ParameterSet & cfg,edm::ConsumesCollector && consumesCollector)
-    : trackingRegion_(0)
-    , eventSetup_(0)
-    , measurementTracker_(0)
+    : trackingRegion_(nullptr)
+    , eventSetup_(nullptr)
+    , measurementTracker_(nullptr)
     , measurementTrackerLabel_(cfg.getParameter<std::string>("measurementTracker"))
 {
     if(cfg.exists("pixelTripletGeneratorFactory"))

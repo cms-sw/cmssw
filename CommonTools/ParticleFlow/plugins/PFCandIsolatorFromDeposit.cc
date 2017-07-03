@@ -60,7 +60,7 @@ PFCandIsolatorFromDeposits::SingleDeposit::SingleDeposit(const edm::ParameterSet
     "New methods can be easily implemented if requested.";
   typedef std::vector<std::string> vstring;
   vstring vetos = iConfig.getParameter< vstring >("vetos");
-  reco::isodeposit::EventDependentAbsVeto *evdep=0;
+  reco::isodeposit::EventDependentAbsVeto *evdep=nullptr;
   static boost::regex ecalSwitch("^Ecal(Barrel|Endcaps):(.*)");
 
   for (vstring::const_iterator it = vetos.begin(), ed = vetos.end(); it != ed; ++it) {

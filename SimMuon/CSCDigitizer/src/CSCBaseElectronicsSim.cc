@@ -14,9 +14,9 @@
 
 CSCBaseElectronicsSim::CSCBaseElectronicsSim(const edm::ParameterSet & p)
 : 
-  theSpecs(0),
-  theLayerGeometry(0),
-  theLayer(0),
+  theSpecs(nullptr),
+  theLayerGeometry(nullptr),
+  theLayer(nullptr),
   theSignalMap(),
   theAmpResponse(),
   theBunchSpacing(25.),
@@ -197,7 +197,7 @@ void CSCBaseElectronicsSim::addLinks(int channelIndex) {
                                 hitItr != channelHitItr.second; ++hitItr){
     const PSimHit * hit = hitItr->second.getSimHit();
     // might be zero for unit tests and such
-    if(hit != 0) {
+    if(hit != nullptr) {
       int simTrackId = hitItr->second.getSimHit()->trackId();
       float charge = hitItr->second.getCharge();
       std::map<int,float>::iterator chargeItr = simTrackChargeMap.find(simTrackId);

@@ -304,7 +304,7 @@ FWMuonBuilder::buildMuon( FWProxyBuilderBase* pb,
 					    muon->outerTrack()->outerPosition().y(),
 					    muon->outerTrack()->outerPosition().z()));
       }
-      TEveTrack* trk = 0;
+      TEveTrack* trk = nullptr;
       if (extraPoints.empty())
          trk = fireworks::prepareTrack( *( muon->globalTrack()),pb->context().getMuonTrackPropagator());
       else

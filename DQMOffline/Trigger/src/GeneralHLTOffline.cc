@@ -101,7 +101,7 @@ class GeneralHLTOffline : public DQMEDAnalyzer {
 //
 GeneralHLTOffline::GeneralHLTOffline(const edm::ParameterSet& ps):streamA_found_(false),
                                                                   hlt_menu_(""),
-                                                                  cppath_(0) {
+                                                                  cppath_(nullptr) {
   debugPrint  = false;
   outputPrint = false;
 
@@ -185,8 +185,8 @@ GeneralHLTOffline::analyze(const edm::Event& iEvent,
         const std::string &label = datasetNames[iPD];
         std::string fullPathToCPP = "HLT/GeneralHLTOffline/"
             + label + "/cppath_" + label + hlt_menu_;
-        MonitorElement * ME_mini_cppath = NULL;
-        TH1F * hist_mini_cppath = NULL;
+        MonitorElement * ME_mini_cppath = nullptr;
+        TH1F * hist_mini_cppath = nullptr;
         if( cppath_mini_.find(fullPathToCPP)!=cppath_mini_.end() ){
 	  ME_mini_cppath = cppath_mini_[fullPathToCPP];
           hist_mini_cppath = ME_mini_cppath->getTH1F();
@@ -462,7 +462,7 @@ void GeneralHLTOffline::setupHltMatrix(DQMStore::IBooker & iBooker, const std::s
 
   std::string dnamez = "cppath_" + label + "_" + hlt_menu_;
   int sizez = PDsVectorPathsVector[iPD].size();
-  TH1F * hist_mini_cppath = NULL;
+  TH1F * hist_mini_cppath = nullptr;
   cppath_mini_[dnamez] = iBooker.book1D(dnamez.c_str(),
 					dnamez.c_str(),
 					sizez,
@@ -534,8 +534,8 @@ void GeneralHLTOffline::fillHltMatrix(const std::string & label,
   
   std::string dnamez = "cppath_" + label + "_" + hlt_menu_;
 
-  TH1F * hist_mini_cppath = NULL;
-  MonitorElement * ME_mini_cppath = NULL;
+  TH1F * hist_mini_cppath = nullptr;
+  MonitorElement * ME_mini_cppath = nullptr;
   if( cppath_mini_.find(dnamez)!=cppath_mini_.end() ){
     ME_mini_cppath = cppath_mini_[dnamez];
     hist_mini_cppath = ME_mini_cppath->getTH1F();
@@ -553,8 +553,8 @@ void GeneralHLTOffline::fillHltMatrix(const std::string & label,
 
     std::string pathName_dataset = "cpfilt_" + label + "_" + pathNameNoVer;
 
-    TH1F * hist_cpfilt_mini = NULL;
-    MonitorElement * ME_cpfilt_mini = NULL;
+    TH1F * hist_cpfilt_mini = nullptr;
+    MonitorElement * ME_cpfilt_mini = nullptr;
     if( cpfilt_mini_.find(pathName_dataset)!=cpfilt_mini_.end() ){
       ME_cpfilt_mini = cpfilt_mini_[pathName_dataset];
       hist_cpfilt_mini = ME_cpfilt_mini->getTH1F();

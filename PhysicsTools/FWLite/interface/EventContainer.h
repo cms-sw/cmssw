@@ -48,7 +48,7 @@ namespace fwlite
          // Constructors and Destructor //
          /////////////////////////////////
          EventContainer (optutl::CommandLineParser &parser, 
-                         FuncPtr funcPtr = 0);
+                         FuncPtr funcPtr = nullptr);
          ~EventContainer();
 
          ////////////////

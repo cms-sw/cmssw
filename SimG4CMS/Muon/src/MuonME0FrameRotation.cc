@@ -23,7 +23,7 @@ MuonME0FrameRotation::~MuonME0FrameRotation() {
   delete g4numbering;
 }
 
-Local3DPoint MuonME0FrameRotation::transformPoint(const Local3DPoint & point,const G4Step * aStep=0) const {
+Local3DPoint MuonME0FrameRotation::transformPoint(const Local3DPoint & point,const G4Step * aStep=nullptr) const {
   if (!aStep) return Local3DPoint(0.,0.,0.);  
 
   edm::LogVerbatim("MuonME0FrameRotation")<<"MuonME0FrameRotation transformPoint :: Local3DPoint (" <<point.x()<<","<<point.z()<<","<<-point.y()<<")" ;

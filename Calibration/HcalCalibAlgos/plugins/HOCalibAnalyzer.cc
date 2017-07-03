@@ -1789,15 +1789,15 @@ HOCalibAnalyzer::endJob() {
   gStyle->SetOptStat(1110);
 
   const int nsample =8;  
-  TF1*  gx0[nsample]={0};
-  TF1* ped0fun[nsample]={0};
-  TF1* signal[nsample]={0};
-  TF1* pedfun[nsample]={0};
-  TF1* sigfun[nsample]={0};
-  TF1* signalx[nsample]={0};
+  TF1*  gx0[nsample]={nullptr};
+  TF1* ped0fun[nsample]={nullptr};
+  TF1* signal[nsample]={nullptr};
+  TF1* pedfun[nsample]={nullptr};
+  TF1* sigfun[nsample]={nullptr};
+  TF1* signalx[nsample]={nullptr};
   
-  TH1F* signall[nsample]={0};
-  TH1F* pedstll[nsample]={0};
+  TH1F* signall[nsample]={nullptr};
+  TH1F* pedstll[nsample]={nullptr};
 
   if (m_constant) { 
 
@@ -2355,14 +2355,14 @@ HOCalibAnalyzer::endJob() {
 	    c0->Update();   
 
 	    for (int kl=0; kl<nsample; kl++) {
-	      if (gx0[kl]) {delete gx0[kl];gx0[kl] = 0;}
-	      if (ped0fun[kl]) {delete ped0fun[kl];ped0fun[kl] = 0;}
-	      if (signal[kl]) {delete signal[kl];signal[kl] = 0;}
-	      if (pedfun[kl]) {delete pedfun[kl];pedfun[kl] = 0;}
-	      if (sigfun[kl]) {delete sigfun[kl];sigfun[kl] = 0;}
-	      if (signalx[kl]) {delete signalx[kl];signalx[kl] = 0;}
-	      if (signall[kl]) {delete signall[kl];signall[kl] = 0;}
-	      if (pedstll[kl]) {delete pedstll[kl];pedstll[kl] = 0;}
+	      if (gx0[kl]) {delete gx0[kl];gx0[kl] = nullptr;}
+	      if (ped0fun[kl]) {delete ped0fun[kl];ped0fun[kl] = nullptr;}
+	      if (signal[kl]) {delete signal[kl];signal[kl] = nullptr;}
+	      if (pedfun[kl]) {delete pedfun[kl];pedfun[kl] = nullptr;}
+	      if (sigfun[kl]) {delete sigfun[kl];sigfun[kl] = nullptr;}
+	      if (signalx[kl]) {delete signalx[kl];signalx[kl] = nullptr;}
+	      if (signall[kl]) {delete signall[kl];signall[kl] = nullptr;}
+	      if (pedstll[kl]) {delete pedstll[kl];pedstll[kl] = nullptr;}
 	    }
 
 	  }
@@ -2382,14 +2382,14 @@ HOCalibAnalyzer::endJob() {
     if (iiter%nsample!=0) { 
       c0->Update(); 
       for (int kl=0; kl<nsample; kl++) {
-	if (gx0[kl]) {delete gx0[kl];gx0[kl] = 0;}
-	if (ped0fun[kl]) {delete ped0fun[kl];ped0fun[kl] = 0;}
-	if (signal[kl]) {delete signal[kl];signal[kl] = 0;}
-	if (pedfun[kl]) {delete pedfun[kl];pedfun[kl] = 0;}
-	if (sigfun[kl]) {delete sigfun[kl];sigfun[kl] = 0;}
-	if (signalx[kl]) {delete signalx[kl];signalx[kl] = 0;}
-	if (signall[kl]) {delete signall[kl];signall[kl] = 0;}
-	if (pedstll[kl]) {delete pedstll[kl];pedstll[kl] = 0;}
+	if (gx0[kl]) {delete gx0[kl];gx0[kl] = nullptr;}
+	if (ped0fun[kl]) {delete ped0fun[kl];ped0fun[kl] = nullptr;}
+	if (signal[kl]) {delete signal[kl];signal[kl] = nullptr;}
+	if (pedfun[kl]) {delete pedfun[kl];pedfun[kl] = nullptr;}
+	if (sigfun[kl]) {delete sigfun[kl];sigfun[kl] = nullptr;}
+	if (signalx[kl]) {delete signalx[kl];signalx[kl] = nullptr;}
+	if (signall[kl]) {delete signall[kl];signall[kl] = nullptr;}
+	if (pedstll[kl]) {delete pedstll[kl];pedstll[kl] = nullptr;}
       }
     }
 

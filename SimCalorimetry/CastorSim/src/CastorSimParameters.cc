@@ -10,7 +10,7 @@
 
 CastorSimParameters::CastorSimParameters(double simHitToPhotoelectrons, double photoelectronsToAnalog,double samplingFactor, double timePhase, bool syncPhase)
 : CaloSimParameters(simHitToPhotoelectrons, photoelectronsToAnalog, samplingFactor, timePhase, 6, 4, false, syncPhase),
-  theDbService(0),
+  theDbService(nullptr),
   theSamplingFactor( samplingFactor )
 {
 }
@@ -18,7 +18,7 @@ CastorSimParameters::CastorSimParameters(double simHitToPhotoelectrons, double p
 
 CastorSimParameters::CastorSimParameters(const edm::ParameterSet & p)
 :  CaloSimParameters(p),
-   theDbService(0),
+   theDbService(nullptr),
    theSamplingFactor( p.getParameter<double>("samplingFactor") )
 {
 }
@@ -49,7 +49,7 @@ double CastorSimParameters::photoelectronsToAnalog(const DetId & detId) const
 
 double CastorSimParameters::fCtoGeV(const DetId & detId) const
 {
-  assert(theDbService != 0);
+  assert(theDbService != nullptr);
   HcalGenericDetId hcalGenDetId(detId);
   const CastorGain* gains = theDbService->getGain(hcalGenDetId);
   const CastorGainWidth* gwidths = theDbService->getGainWidth(hcalGenDetId);

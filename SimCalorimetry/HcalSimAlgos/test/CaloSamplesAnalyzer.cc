@@ -99,7 +99,7 @@ class CaloSamplesAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResource
 // constructors and destructor
 //
 CaloSamplesAnalyzer::CaloSamplesAnalyzer(const edm::ParameterSet& iConfig) :
-	tree(NULL), theGeometry(NULL), theRecNumber(NULL), theResponse(new CaloHitResponse(NULL,(CaloShapes*)NULL)), theParameterMap(new HcalSimParameterMap(iConfig)),
+	tree(nullptr), theGeometry(nullptr), theRecNumber(nullptr), theResponse(new CaloHitResponse(nullptr,(CaloShapes*)nullptr)), theParameterMap(new HcalSimParameterMap(iConfig)),
 	TestNumbering(iConfig.getParameter<bool>("TestNumbering")),
 	tok_sim(consumes<std::vector<PCaloHit>>(edm::InputTag(iConfig.getParameter<std::string>("hitsProducer"), "HcalHits"))),
 	tok_calo(consumes<std::vector<CaloSamples>>(iConfig.getParameter<edm::InputTag>("CaloSamplesTag")))

@@ -89,7 +89,7 @@ VertexFromTrackProducer::produce(edm::StreamID iStreamId, edm::Event& iEvent, co
     }
   }
 
-  const reco::Track* track = 0;
+  const reco::Track* track = nullptr;
   if(fIsRecoCandidate)
   {
     edm::Handle<edm::View<reco::RecoCandidate> > candidateHandle;

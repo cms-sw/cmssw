@@ -1500,7 +1500,7 @@ void CSCValidation::doEfficiencies(edm::Handle<CSCWireDigiCollection> wires, edm
     // Pick which chamber with which segment to test
     for(size_t nCh=0;nCh<ChamberContainer.size();nCh++){
       const CSCChamber *cscchamber = ChamberContainer[nCh];
-      std::pair <CSCDetId, CSCSegment> * thisSegment = 0;
+      std::pair <CSCDetId, CSCSegment> * thisSegment = nullptr;
       for(size_t iSeg =0;iSeg<theSeg.size();++iSeg ){
         if(cscchamber->id().endcap() == theSeg[iSeg]->first.endcap()){ 
           if(1==cscchamber->id().station() || 3==cscchamber->id().station() ){
@@ -2879,7 +2879,7 @@ void CSCValidation::doTimeMonitoring(edm::Handle<CSCRecHit2DCollection> recHits,
     unsigned long length =  fedData.size();
     
     if (length>=32){ ///if fed has data then unpack it
-      CSCDCCExaminer* examiner = NULL;
+      CSCDCCExaminer* examiner = nullptr;
       std::stringstream examiner_out, examiner_err;
       goodEvent = true;
       ///examine event for integrity
@@ -3012,7 +3012,7 @@ void CSCValidation::doTimeMonitoring(edm::Handle<CSCRecHit2DCollection> recHits,
   	  } // end CSCData loop
   	} // end ddu data loop
       } // end if goodEvent
-      if (examiner!=NULL) delete examiner;
+      if (examiner!=nullptr) delete examiner;
     }// end if non-zero fed data
   } // end DCC loop for NON-REFERENCE
 

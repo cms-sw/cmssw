@@ -74,7 +74,7 @@ FWPhotonProxyBuilder::buildViewType( const reco::Photon& photon, unsigned int iI
       {
          const float* corners = geom->getCorners( id->first.rawId() );
       
-         if( corners == 0 )
+         if( corners == nullptr )
          {
             fwLog( fwlog::kWarning )
                << "No corners available for supercluster constituent" << std::endl;

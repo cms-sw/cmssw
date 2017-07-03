@@ -20,7 +20,7 @@ PrimitiveCombiner::PrimitiveCombiner( const PrimitiveCombiner::resolutions & res
 					      edm::ESHandle<DTGeometry> & muonGeom )
   : _resol(res), _muonGeom(muonGeom),
     _bx(-3), _radialAngle(4096), _bendingAngle(-520), _bendingResol(520),
-    _dtHI(0), _dtHO(0), _rpcIn(0), _rpcOut(0)
+    _dtHI(nullptr), _dtHO(nullptr), _rpcIn(nullptr), _rpcOut(nullptr)
 {}
 
 

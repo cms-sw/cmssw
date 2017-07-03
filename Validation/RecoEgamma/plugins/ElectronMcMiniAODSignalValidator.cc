@@ -81,52 +81,52 @@ ElectronMcSignalValidatorMiniAOD::ElectronMcSignalValidatorMiniAOD(const edm::Pa
 
    // so to please coverity...
 
-   h1_recEleNum = 0 ;
+   h1_recEleNum = nullptr ;
 
-   h1_ele_vertexPt = 0 ;
-   h1_ele_vertexEta = 0 ;
-   h1_ele_vertexPt_nocut = 0 ;
+   h1_ele_vertexPt = nullptr ;
+   h1_ele_vertexEta = nullptr ;
+   h1_ele_vertexPt_nocut = nullptr ;
 
-   h1_scl_SigIEtaIEta_mAOD = 0 ;
-   h1_scl_SigIEtaIEta_mAOD_barrel = 0 ;
-   h1_scl_SigIEtaIEta_mAOD_endcaps = 0 ;
+   h1_scl_SigIEtaIEta_mAOD = nullptr ;
+   h1_scl_SigIEtaIEta_mAOD_barrel = nullptr ;
+   h1_scl_SigIEtaIEta_mAOD_endcaps = nullptr ;
 
-   h2_ele_foundHitsVsEta = 0 ;
-   h2_ele_foundHitsVsEta_mAOD = 0 ;
+   h2_ele_foundHitsVsEta = nullptr ;
+   h2_ele_foundHitsVsEta_mAOD = nullptr ;
 
-   h2_ele_PoPtrueVsEta = 0 ;
-   h2_ele_sigmaIetaIetaVsPt = 0 ;
+   h2_ele_PoPtrueVsEta = nullptr ;
+   h2_ele_sigmaIetaIetaVsPt = nullptr ;
 
-   h1_ele_HoE_mAOD = 0 ;
-   h1_ele_HoE_mAOD_barrel = 0 ;
-   h1_ele_HoE_mAOD_endcaps = 0 ;
-   h1_ele_mee_all = 0 ;
-   h1_ele_mee_os = 0 ;
+   h1_ele_HoE_mAOD = nullptr ;
+   h1_ele_HoE_mAOD_barrel = nullptr ;
+   h1_ele_HoE_mAOD_endcaps = nullptr ;
+   h1_ele_mee_all = nullptr ;
+   h1_ele_mee_os = nullptr ;
 
-   h1_ele_fbrem_mAOD = 0 ;
-   h1_ele_fbrem_mAOD_barrel = 0 ;
-   h1_ele_fbrem_mAOD_endcaps = 0 ;
+   h1_ele_fbrem_mAOD = nullptr ;
+   h1_ele_fbrem_mAOD_barrel = nullptr ;
+   h1_ele_fbrem_mAOD_endcaps = nullptr ;
    
-   h1_ele_dEtaSc_propVtx_mAOD = 0 ;
-   h1_ele_dEtaSc_propVtx_mAOD_barrel = 0 ;
-   h1_ele_dEtaSc_propVtx_mAOD_endcaps = 0 ;
-   h1_ele_dPhiCl_propOut_mAOD = 0 ;
-   h1_ele_dPhiCl_propOut_mAOD_barrel = 0 ;
-   h1_ele_dPhiCl_propOut_mAOD_endcaps = 0 ;
+   h1_ele_dEtaSc_propVtx_mAOD = nullptr ;
+   h1_ele_dEtaSc_propVtx_mAOD_barrel = nullptr ;
+   h1_ele_dEtaSc_propVtx_mAOD_endcaps = nullptr ;
+   h1_ele_dPhiCl_propOut_mAOD = nullptr ;
+   h1_ele_dPhiCl_propOut_mAOD_barrel = nullptr ;
+   h1_ele_dPhiCl_propOut_mAOD_endcaps = nullptr ;
 
-   h1_ele_chargedHadronRelativeIso_mAOD = 0 ;
-   h1_ele_chargedHadronRelativeIso_mAOD_barrel = 0 ;
-   h1_ele_chargedHadronRelativeIso_mAOD_endcaps = 0 ;
-   h1_ele_neutralHadronRelativeIso_mAOD = 0 ;
-   h1_ele_neutralHadronRelativeIso_mAOD_barrel = 0 ;
-   h1_ele_neutralHadronRelativeIso_mAOD_endcaps = 0 ;
-   h1_ele_photonRelativeIso_mAOD = 0 ;
-   h1_ele_photonRelativeIso_mAOD_barrel = 0 ;
-   h1_ele_photonRelativeIso_mAOD_endcaps = 0 ;
+   h1_ele_chargedHadronRelativeIso_mAOD = nullptr ;
+   h1_ele_chargedHadronRelativeIso_mAOD_barrel = nullptr ;
+   h1_ele_chargedHadronRelativeIso_mAOD_endcaps = nullptr ;
+   h1_ele_neutralHadronRelativeIso_mAOD = nullptr ;
+   h1_ele_neutralHadronRelativeIso_mAOD_barrel = nullptr ;
+   h1_ele_neutralHadronRelativeIso_mAOD_endcaps = nullptr ;
+   h1_ele_photonRelativeIso_mAOD = nullptr ;
+   h1_ele_photonRelativeIso_mAOD_barrel = nullptr ;
+   h1_ele_photonRelativeIso_mAOD_endcaps = nullptr ;
 
-   h1_ele_chargedHadronRelativeIso_mAOD_recomp = 0 ;
-   h1_ele_neutralHadronRelativeIso_mAOD_recomp = 0 ;
-   h1_ele_photonRelativeIso_mAOD_recomp = 0 ;    
+   h1_ele_chargedHadronRelativeIso_mAOD_recomp = nullptr ;
+   h1_ele_neutralHadronRelativeIso_mAOD_recomp = nullptr ;
+   h1_ele_photonRelativeIso_mAOD_recomp = nullptr ;    
 
 }
 
@@ -293,7 +293,7 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
                 } 
                 // DEBUG LINES - KEEP IT !  */ 
 
-            if ( mother == 0 ) {
+            if ( mother == nullptr ) {
                 matchingMotherID = true ; 
             }
             else if ( mother->pdgId() == matchingMotherIDs_[ii] ) { 

@@ -239,7 +239,7 @@ ELoutput::ELoutput( const ELstring & fileName, bool emitAtStart )
     }
   }
   if (emitAtStart) {
-    ELstring const& ftime = formatTime(time(0)); // Change log 7
+    ELstring const& ftime = formatTime(time(nullptr)); // Change log 7
     emitToken( ftime, true );
     emitToken( "\n=======================================================\n",
                                                                 true );
@@ -645,7 +645,7 @@ void ELoutput::changeFile (std::ostream & os_) {
   os.reset(&os_, do_nothing_deleter());
   emitToken( "\n=======================================================", true );
   emitToken( "\nError Log changed to this stream\n" );
-  ELstring const& ftime = formatTime(time(0)); // Change log 7
+  ELstring const& ftime = formatTime(time(nullptr)); // Change log 7
   emitToken( ftime, true );
   emitToken( "\n=======================================================\n", true );
 }
@@ -654,7 +654,7 @@ void ELoutput::changeFile (const ELstring & filename) {
   os.reset(new std::ofstream( filename.c_str(), std::ios/*_base*/::app), close_and_delete());
   emitToken( "\n=======================================================", true );
   emitToken( "\nError Log changed to this file\n" );
-  ELstring const& ftime = formatTime(time(0)); // Change log 7
+  ELstring const& ftime = formatTime(time(nullptr)); // Change log 7
   emitToken( ftime, true );
   emitToken( "\n=======================================================\n", true );
 }

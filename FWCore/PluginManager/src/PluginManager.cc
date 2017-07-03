@@ -287,7 +287,7 @@ PluginManager::tryToLoad(const std::string& iCategory,
   const boost::filesystem::path& p = loadableFor_(iCategory,iPlugin, ioThrowIfFailElseSucceedStatus);
   
   if( not ioThrowIfFailElseSucceedStatus ) {
-    return 0;
+    return nullptr;
   }
   
 
@@ -325,7 +325,7 @@ PluginManager*
 PluginManager::get()
 {
   PluginManager* manager = singleton();
-  if(0==manager) {
+  if(nullptr==manager) {
     throw cms::Exception("PluginManagerNotConfigured")<<"PluginManager::get() was called before PluginManager::configure.";
   }
   return manager;
@@ -335,7 +335,7 @@ PluginManager&
 PluginManager::configure(const Config& iConfig )
 {
   PluginManager*& s = singleton();
-  if( 0 != s ){
+  if( nullptr != s ){
     throw cms::Exception("PluginManagerReconfigured");
   }
   
@@ -366,14 +366,14 @@ PluginManager::loadingLibraryNamed_()
 
 PluginManager*& PluginManager::singleton()
 {
-  [[cms::thread_safe]] static PluginManager* s_singleton=0;
+  [[cms::thread_safe]] static PluginManager* s_singleton=nullptr;
   return s_singleton;
 }
 
 bool
 PluginManager::isAvailable()
 {
-  return 0 != singleton();
+  return nullptr != singleton();
 }
 
 }

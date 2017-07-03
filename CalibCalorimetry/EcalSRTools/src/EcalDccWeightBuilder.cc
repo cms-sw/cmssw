@@ -358,7 +358,7 @@ void EcalDccWeightBuilder::unbiasWeights(std::vector<double>& weights,
 //   cout << "\n";
   
   //copy result
-  if(encodedWeights!=0) encodedWeights->resize(nw);
+  if(encodedWeights!=nullptr) encodedWeights->resize(nw);
   for(unsigned i = 0; i < nw; ++i){
     weights[i] = decodeWeight(W[i]);
     if(encodedWeights) (*encodedWeights)[i] = W[i];

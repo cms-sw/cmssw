@@ -161,7 +161,7 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
       mutau = true;
       // depending on the muon charge, set the right muon index and specify channel
       int expectedCharge = - muons->begin()->charge();
-      int* tauIdx = NULL;
+      int* tauIdx = nullptr;
       if (expectedCharge<0) {
 	selMuonp = 0;
 	tauIdx = &selTaum;
@@ -209,7 +209,7 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
       etau = true;
       // depending on the electron charge, set the right electron index and specify channel
       int expectedCharge = - electrons->begin()->charge();
-      int* tauIdx = NULL;
+      int* tauIdx = nullptr;
       if (expectedCharge<0) {
 	selElectronp = 0;
 	tauIdx = &selTaum;

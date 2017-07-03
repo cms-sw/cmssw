@@ -142,9 +142,9 @@ void testCallback::uniquePtrTest()
    Record record;
    callback.newRecordComing();
    callback(record);
-   CPPUNIT_ASSERT(0 != handle.get());
+   CPPUNIT_ASSERT(nullptr != handle.get());
    CPPUNIT_ASSERT(prod.value_ == 1);
-   assert(0 != handle.get());
+   assert(nullptr != handle.get());
    CPPUNIT_ASSERT(prod.value_ == handle->value_);
    
    //since haven't cleared, should not have changed
@@ -157,9 +157,9 @@ void testCallback::uniquePtrTest()
    callback.newRecordComing();
    
    callback(record);
-   CPPUNIT_ASSERT(0 != handle.get());
+   CPPUNIT_ASSERT(nullptr != handle.get());
    CPPUNIT_ASSERT(prod.value_ == 2);
-   assert(0 != handle.get());
+   assert(nullptr != handle.get());
    CPPUNIT_ASSERT(prod.value_ == handle->value_);
    
 }

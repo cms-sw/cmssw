@@ -13,14 +13,14 @@ class CutsIsolatorWithCorrection : public muonisolation::MuIsoBaseIsolator {
 
   virtual ResultType resultType() const {return ISOL_BOOL_TYPE;}
 
-  virtual Result result(const DepositContainer& deposits, const edm::Event* = 0) const {
+  virtual Result result(const DepositContainer& deposits, const edm::Event* = nullptr) const {
     Result answer(ISOL_BOOL_TYPE);
     answer.valBool = false;
     // fail miserably...
     return answer;
   }
 
-  virtual Result result(const DepositContainer& deposits, const reco::Track& tk, const edm::Event* = 0) const;
+  virtual Result result(const DepositContainer& deposits, const reco::Track& tk, const edm::Event* = nullptr) const;
   
  private:
   double depSum(const DepositContainer& deposits, double dr, double corr) const;

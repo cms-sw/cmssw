@@ -140,7 +140,7 @@ void L3MuonProducer::produce(Event& event, const EventSetup& eventSetup) {
     
     const reco::TrackRef tk = ( tkUpdated.isNonnull() ) ? tkUpdated : tkRegular ;      
     
-    MuonTrajectoryBuilder::TrackCand L2Cand = MuonTrajectoryBuilder::TrackCand((Trajectory*)(0),tk);
+    MuonTrajectoryBuilder::TrackCand L2Cand = MuonTrajectoryBuilder::TrackCand((Trajectory*)nullptr,tk);
     if( traj->isValid() ) L2Cand.first = &*traj ;
     L2TrackCands.push_back(L2Cand);
   }

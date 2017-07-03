@@ -160,13 +160,13 @@ EventSetupCacheIdentifierChecker::check(edm::EventSetup const& iSetup)
       it != itEnd;
       ++it) {
     EventSetupRecord const* pRecord = iSetup.find(it->first);
-    if(0 == pRecord) {
+    if(nullptr == pRecord) {
       edm::LogWarning("RecordNotInIOV") <<"The EventSetup Record '"<<it->first.name()<<"' is not available for this IOV.";
     }
     if(it->second.size() <= m_index) {
       throw cms::Exception("TooFewCacheIDs")<<"The vector of cacheIdentifiers for the record "<<it->first.name()<<" is too short";
     }
-    if(0 != pRecord && pRecord->cacheIdentifier() != it->second[m_index]) {
+    if(nullptr != pRecord && pRecord->cacheIdentifier() != it->second[m_index]) {
       throw cms::Exception("IncorrectCacheID")<<"The Record "<<it->first.name()<<" was supposed to have cacheIdentifier: "<<it->second[m_index]<<" but instead has "<<pRecord->cacheIdentifier();
     }
   }

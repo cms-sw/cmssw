@@ -48,12 +48,12 @@ namespace edm {
     // General purpose constructor from handle.
     template<typename C>
     Ptr(Handle<C> const& handle, key_type itemKey, bool /*setNow*/ = true):
-    core_(handle.id(), getItem_(handle.product(), itemKey), 0, false), key_(itemKey) {}
+    core_(handle.id(), getItem_(handle.product(), itemKey), nullptr, false), key_(itemKey) {}
 
     // General purpose constructor from orphan handle.
     template<typename C>
     Ptr(OrphanHandle<C> const& handle, key_type itemKey, bool /*setNow*/ = true):
-    core_(handle.id(), getItem_(handle.product(), itemKey), 0, false), key_(itemKey) {}
+    core_(handle.id(), getItem_(handle.product(), itemKey), nullptr, false), key_(itemKey) {}
 
     // General purpose "constructor" from a Ref.
     // Use the conversion function template:
@@ -69,8 +69,8 @@ namespace edm {
 
     template<typename C>
     Ptr(C const* iProduct, key_type iItemKey, bool /*setNow*/ = true):
-      core_(ProductID(), iProduct != 0 ? getItem_(iProduct,iItemKey) : 0, 0, true),
-      key_(iProduct != 0 ? iItemKey : key_traits<key_type>::value) {}
+      core_(ProductID(), iProduct != nullptr ? getItem_(iProduct,iItemKey) : nullptr, nullptr, true),
+      key_(iProduct != nullptr ? iItemKey : key_traits<key_type>::value) {}
 
     Ptr(T const* item, key_type iItemKey):
       core_(ProductID(), item, nullptr, true),
@@ -81,13 +81,13 @@ namespace edm {
     // any object containing this Ptr.
     template<typename C>
     Ptr(TestHandle<C> const& handle, key_type itemKey, bool /*setNow*/ = true):
-    core_(handle.id(), getItem_(handle.product(), itemKey), 0, true), key_(itemKey) {}
+    core_(handle.id(), getItem_(handle.product(), itemKey), nullptr, true), key_(itemKey) {}
 
     /** Constructor for those users who do not have a product handle,
      but have a pointer to a product getter (such as the EventPrincipal).
      prodGetter will ususally be a pointer to the event principal. */
     Ptr(ProductID const& productID, key_type itemKey, EDProductGetter const* prodGetter) :
-    core_(productID, 0, mustBeNonZero(prodGetter, "Ptr", productID), false), key_(itemKey) {
+    core_(productID, nullptr, mustBeNonZero(prodGetter, "Ptr", productID), false), key_(itemKey) {
     }
 
     /** Constructor for use in the various X::fillView(...) functions
@@ -98,7 +98,7 @@ namespace edm {
      Event. The given ProductID must be the id of the collection
      in the Event. */
     Ptr(ProductID const& productID, T const* item, key_type item_key) :
-    core_(productID, item, 0, false),
+    core_(productID, item, nullptr, false),
     key_(item_key) {
     }
 
@@ -112,7 +112,7 @@ namespace edm {
      ProductID). */
 
     explicit Ptr(ProductID const& iId) :
-    core_(iId, 0, 0, false),
+    core_(iId, nullptr, nullptr, false),
     key_(key_traits<key_type>::value)
     { }
 
@@ -122,9 +122,9 @@ namespace edm {
     {}
 
     template<typename U>
-    Ptr(Ptr<U> const& iOther, typename boost::enable_if_c<boost::is_base_of<T, U>::value>::type * = 0):
+    Ptr(Ptr<U> const& iOther, typename boost::enable_if_c<boost::is_base_of<T, U>::value>::type * = nullptr):
     core_(iOther.id(),
-          (iOther.hasProductCache() ? static_cast<T const*>(iOther.get()): static_cast<T const*>(0)),
+          (iOther.hasProductCache() ? static_cast<T const*>(iOther.get()): static_cast<T const*>(nullptr)),
           iOther.productGetter(),
           iOther.isTransient()),
     key_(iOther.key()) {
@@ -137,10 +137,10 @@ namespace edm {
 
     template<typename U>
     explicit
-    Ptr(Ptr<U> const& iOther, typename boost::enable_if_c<boost::is_base_of<U, T>::value>::type * = 0):
+    Ptr(Ptr<U> const& iOther, typename boost::enable_if_c<boost::is_base_of<U, T>::value>::type * = nullptr):
     core_(iOther.id(),
           dynamic_cast<T const*>(iOther.get()),
-          0,
+          nullptr,
           iOther.isTransient()),
     key_(iOther.key()) {
     }
@@ -158,7 +158,7 @@ namespace edm {
 
     /// Returns C++ pointer to the item
     T const* get() const {
-      return isNull() ? 0 : this->operator->();
+      return isNull() ? nullptr : this->operator->();
     }
 
     /// Checks for null
@@ -190,7 +190,7 @@ namespace edm {
     RefCore const& refCore() const {return core_;}
     // ---------- member functions ---------------------------
 
-    void const* product() const {return 0;}
+    void const* product() const {return nullptr;}
 
     //Used by ROOT storage
     CMS_CLASS_VERSION(10)
@@ -228,7 +228,7 @@ namespace edm {
   template<typename T>
   template<typename C>
   T const* Ptr<T>::getItem_(C const* iProduct, key_type iKey) {
-    assert (iProduct != 0);
+    assert (iProduct != nullptr);
     typename C::const_iterator it = iProduct->begin();
     std::advance(it,iKey);
     T const* address = detail::GetProduct<C>::address(it);

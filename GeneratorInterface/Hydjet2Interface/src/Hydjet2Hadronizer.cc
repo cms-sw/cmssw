@@ -160,7 +160,7 @@ Hydjet2Hadronizer::Hydjet2Hadronizer(const edm::ParameterSet& pset):
 
   embedding_(pset.getParameter<bool>("embeddingMode")),
   rotate_(pset.getParameter<bool>("rotateEventPlane")),
-  evt(0),
+  evt(nullptr),
   nsub_(0),
   nhard_(0), 
   nsoft_(0),
@@ -1060,7 +1060,7 @@ double Hydjet2Hadronizer::CharmEnhancementFactor(double Ncc, double Ndth, double
 void Hydjet2Hadronizer::rotateEvtPlane()
 {
   const double pi = 3.14159265358979;
-  phi0_ = 2.*pi*gen::pyr_(0) - pi;
+  phi0_ = 2.*pi*gen::pyr_(nullptr) - pi;
   sinphi0_ = sin(phi0_);
   cosphi0_ = cos(phi0_);
 }
@@ -1131,7 +1131,7 @@ bool Hydjet2Hadronizer::get_particles(HepMC::GenEvent *evt )
           prod_vertex = prods[i];
           prod_vertex->add_particle_in(mother);
           evt->add_vertex(prod_vertex);
-          prods[i]=0; // mark to protect deletion
+          prods[i]=nullptr; // mark to protect deletion
         }
 
         prod_vertex->add_particle_out(part);

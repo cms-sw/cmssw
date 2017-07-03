@@ -252,7 +252,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 
       if (length>=32)  ///if fed has data then unpack it
         {
-          CSCDCCExaminer* examiner = NULL;
+          CSCDCCExaminer* examiner = nullptr;
           goodEvent = true;
           if (useExaminer)  ///examine event for integrity
             {
@@ -266,7 +266,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
               /// If we have DCC or only DDU FED by checking FED ID set examiner to uswe DCC or DDU mode
               if ( isDDU_FED )
                 {
-                  if (examiner != NULL) examiner->modeDDU(true);
+                  if (examiner != nullptr) examiner->modeDDU(true);
                 }
 
               const short unsigned int *data = (short unsigned int *)fedData.data();
@@ -329,7 +329,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 
 
               CSCDCCExaminer * ptrExaminer = examiner;
-              if (!useSelectiveUnpacking) ptrExaminer = NULL;
+              if (!useSelectiveUnpacking) ptrExaminer = nullptr;
 
 
 
@@ -571,7 +571,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
                         {
                           for ( icfeb = 0; icfeb < 7; ++icfeb )  ///loop over status digis
                             {
-                              if ( cscData[iCSC].cfebData(icfeb) != NULL )
+                              if ( cscData[iCSC].cfebData(icfeb) != nullptr )
                                 cfebStatusProduct->
                                 insertDigi(layer, cscData[iCSC].cfebData(icfeb)->statusDigi());
                             }
@@ -613,7 +613,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
                             }
 
 
-                          if (goodTMB && (cscData[iCSC].tmbHeader() != NULL))
+                          if (goodTMB && (cscData[iCSC].tmbHeader() != nullptr))
                             {
                               int nCFEBs = cscData[iCSC].tmbHeader()->NCFEBs();
                               for ( icfeb = 0; icfeb < nCFEBs; ++icfeb )
@@ -655,7 +655,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
               // dccStatusProduct->insertDigi(CSCDetId(1,1,1,1,1), CSCDCCStatusDigi(examiner->errors()));
               // if(instantiateDQM)  monitor->process(examiner, NULL);
             }
-          if (examiner!=NULL) delete examiner;
+          if (examiner!=nullptr) delete examiner;
         } // end of if fed has data
     } // end of loop over DCCs
   // put into the event

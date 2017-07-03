@@ -94,7 +94,7 @@ TagProbeFitTreeProducer::TagProbeFitTreeProducer(const edm::ParameterSet& iConfi
     checkMotherInUnbiasEff_(makeMCUnbiasTree_ ? iConfig.getParameter<bool>("checkMotherInUnbiasEff") : false),
     tagProbePairMaker_(iConfig, consumesCollector()),
     treeFiller_(new tnp::TPTreeFiller(iConfig, consumesCollector())),
-    oldTagFiller_((iConfig.existsAs<bool>("fillTagTree") && iConfig.getParameter<bool>("fillTagTree")) ? new tnp::BaseTreeFiller("tag_tree",iConfig, consumesCollector()) : 0)
+    oldTagFiller_((iConfig.existsAs<bool>("fillTagTree") && iConfig.getParameter<bool>("fillTagTree")) ? new tnp::BaseTreeFiller("tag_tree",iConfig, consumesCollector()) : nullptr)
 {
     if (isMC_) {
         // For mc efficiency we need the MC matches for tags & probes

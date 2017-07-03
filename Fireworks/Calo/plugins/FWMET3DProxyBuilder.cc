@@ -44,7 +44,7 @@ public:
       Arrow(Float_t x, Float_t y, Float_t z,
             Float_t xo, Float_t yo, Float_t zo=0) : 
          TEveArrow(x, y, z, xo, yo, zo),
-         m_et(0), m_energy(0), m_vc(0) {}
+         m_et(0), m_energy(0), m_vc(nullptr) {}
 
       void setScale(FWViewEnergyScale* caloScale)
       {

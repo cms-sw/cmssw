@@ -198,8 +198,8 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config) :
     thePhotonMIPHaloTagger_->setup(mipVariableSet,consumesCollector());
     
   }else{
-    thePhotonIsolationCalculator_=0;
-    thePhotonMIPHaloTagger_=0;
+    thePhotonIsolationCalculator_=nullptr;
+    thePhotonMIPHaloTagger_=nullptr;
   }
   // Register the product
   produces< reco::PhotonCollection >(photonCollection_);

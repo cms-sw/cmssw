@@ -29,7 +29,7 @@ namespace edm {
     Wrapper() : WrapperBase(), present(false), obj() {}
     explicit Wrapper(std::unique_ptr<T> ptr);
     virtual ~Wrapper() {}
-    T const* product() const {return (present ? &obj : 0);}
+    T const* product() const {return (present ? &obj : nullptr);}
     T const* operator->() const {return product();}
 
     //these are used by FWLite
@@ -83,7 +83,7 @@ private:
   template<typename T>
   Wrapper<T>::Wrapper(std::unique_ptr<T> ptr) :
     WrapperBase(),
-    present(ptr.get() != 0),
+    present(ptr.get() != nullptr),
     obj() {
     if (present) {
       // The following will call swap if T has such a function,

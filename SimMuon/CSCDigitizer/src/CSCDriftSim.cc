@@ -28,7 +28,7 @@ CSCDriftSim::CSCDriftSim()
   dNdEIntegral(N_INTEGRAL_STEPS, 0.),
   STEP_SIZE(0.01),
   ELECTRON_DIFFUSION_COEFF(0.0161),
-  theMagneticField(0)
+  theMagneticField(nullptr)
 {
   // just initialize avalanche sim.  There has to be a better
   // way to take the integral of a function!
@@ -74,7 +74,7 @@ CSCDriftSim::getWireHit(const Local3DPoint & pos, const CSCLayer * layer,
   clusterPos = yShift + clusterPos;
   clusterPos = rotation * clusterPos;
   GlobalPoint globalPosition = layer->surface().toGlobal(pos);
-  assert(theMagneticField != 0);
+  assert(theMagneticField != nullptr);
  
   //  bz = theMagneticField->inTesla(globalPosition).z() * 10.;
 

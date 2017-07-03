@@ -17,7 +17,7 @@ class CastorCORData {
   static const int MAXIMUM_SAMPLES_PER_CHANNEL;// = 20;
   
   CastorCORData();
-  ~CastorCORData() { if (m_ownData!=0) delete [] m_ownData; }
+  ~CastorCORData() { if (m_ownData!=nullptr) delete [] m_ownData; }
   CastorCORData(int version_to_create);
   CastorCORData(const unsigned short* data, int length);
   CastorCORData(const CastorCORData&);

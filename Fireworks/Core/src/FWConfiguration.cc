@@ -35,8 +35,8 @@
 //}
 
 FWConfiguration::FWConfiguration(const FWConfiguration& rhs) :
-   m_stringValues( rhs.m_stringValues ? new std::vector<std::string>(*(rhs.m_stringValues)) : 0),
-   m_keyValues( rhs.m_keyValues ? new KeyValues(*(rhs.m_keyValues)) : 0),
+   m_stringValues( rhs.m_stringValues ? new std::vector<std::string>(*(rhs.m_stringValues)) : nullptr),
+   m_keyValues( rhs.m_keyValues ? new KeyValues(*(rhs.m_keyValues)) : nullptr),
    m_version(rhs.m_version)
 {
 }
@@ -147,7 +147,7 @@ FWConfiguration::valueForKey(const std::string& iKey) const
                                              m_keyValues->end(),
                                              boost::bind(&std::pair<std::string,FWConfiguration>::first,_1) == iKey);
    if(itFind == m_keyValues->end()) {
-      return 0;
+      return nullptr;
    }
    return &(itFind->second);
 }

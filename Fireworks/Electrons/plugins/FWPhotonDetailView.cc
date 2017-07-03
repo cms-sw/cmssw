@@ -24,8 +24,8 @@
 // constructors and destructor
 //
 FWPhotonDetailView::FWPhotonDetailView():
-m_data(0),
-m_builder(0)
+m_data(nullptr),
+m_builder(nullptr)
 {
 }
 

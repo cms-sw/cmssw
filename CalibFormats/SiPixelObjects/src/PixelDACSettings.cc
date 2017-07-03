@@ -387,7 +387,7 @@ PixelROCDACSettings* PixelDACSettings::getDACSettings(PixelROCName name){
     if (dacsettings_[i].getROCName()==name) return &(dacsettings_[i]);
   }
 
-  return 0;
+  return nullptr;
 
 }
  

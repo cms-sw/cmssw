@@ -48,7 +48,7 @@
 // Constructors --
 //----------------
 L1MuGMTEtaProjectionUnit::L1MuGMTEtaProjectionUnit(const L1MuGMTMipIsoAU& miau, int id) : 
-  m_MIAU(miau), m_id(id), m_mu(0) {
+  m_MIAU(miau), m_id(id), m_mu(nullptr) {
 
 }
 
@@ -116,7 +116,7 @@ void L1MuGMTEtaProjectionUnit::run() {
 //
 void L1MuGMTEtaProjectionUnit::reset() {
 
-  m_mu = 0;
+  m_mu = nullptr;
   m_ieta = 0;
   m_feta = 0.;
   m_eta_select = (unsigned int) 0;

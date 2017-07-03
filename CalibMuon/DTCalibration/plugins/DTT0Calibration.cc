@@ -69,7 +69,7 @@ DTT0Calibration::DTT0Calibration(const edm::ParameterSet& pset) {
     }
   }
 
-  hT0SectorHisto=0;
+  hT0SectorHisto=nullptr;
 
   nevents=0;
   eventsForLayerT0 = pset.getParameter<unsigned int>("eventsForLayerT0");
@@ -133,7 +133,7 @@ void DTT0Calibration::analyze(const edm::Event & event, const edm::EventSetup& e
 	//Get the per-layer histo from the map
 	TH1I *hT0LayerHisto = theHistoLayerMap[layerId];
 	//If it doesn't exist, book it
-	if(hT0LayerHisto == 0){
+	if(hT0LayerHisto == nullptr){
 	  theFile->cd();
 	  hT0LayerHisto = new TH1I(getHistoName(layerId).c_str(),
 				   "T0 from pulses by layer (TDC counts, 1 TDC count = 0.781 ns)",
@@ -145,7 +145,7 @@ void DTT0Calibration::analyze(const edm::Event & event, const edm::EventSetup& e
     
 	//Fill the histos
 	theFile->cd();
-	if(hT0LayerHisto != 0) {
+	if(hT0LayerHisto != nullptr) {
 	  //  if(debug)
 	  // cout<<"Filling histo "<<hT0LayerHisto->GetName()<<" with digi "<<t0<<" TDC counts"<<endl;
 	  hT0LayerHisto->Fill(t0);
@@ -229,7 +229,7 @@ void DTT0Calibration::analyze(const edm::Event & event, const edm::EventSetup& e
 
       //Take the mean as a first t0 estimation
       if((*lHisto).second->GetRMS()<5.0){
-	if(hT0SectorHisto == 0){
+	if(hT0SectorHisto == nullptr){
 	  hT0SectorHisto = new TH1D("hT0AllLayerOfSector","T0 from pulses per layer in sector", 
 				    //20, (*lHisto).second->GetMean()-100, (*lHisto).second->GetMean()+100);
 				    700, 0, 7000);

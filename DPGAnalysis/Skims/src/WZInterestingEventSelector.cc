@@ -234,7 +234,7 @@ WZInterestingEventSelector::filter(edm::Event& iEvent, const edm::EventSetup& iS
 
   std::vector<const GsfElectron*> goodElectrons;  
   float ptMax=-999.;
-  const GsfElectron* ptMaxEle=0;
+  const GsfElectron* ptMaxEle=nullptr;
   for(reco::GsfElectronCollection::const_iterator myEle=gsfElectrons->begin();myEle!=gsfElectrons->end();++myEle)
     {
       //Apply a minimal isolated electron selection

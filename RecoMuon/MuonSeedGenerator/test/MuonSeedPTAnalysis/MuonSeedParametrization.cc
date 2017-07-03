@@ -231,9 +231,9 @@ void MuonSeedParametrization::analyze(const Event& event, const EventSetup& even
   Handle<SimTrackContainer> simTracks;
   event.getByLabel(simTrackLabel, simTracks);
 
-  H2DRecHit1 *histo1 = 0;   
-  H2DRecHit2 *histo2 = 0;   
-  H2DRecHit3 *histo3 = 0;   
+  H2DRecHit1 *histo1 = nullptr;   
+  H2DRecHit2 *histo2 = nullptr;   
+  H2DRecHit3 *histo3 = nullptr;   
  
   // 0. Run the class SegSelector
   //SegSelector recsegSelector();

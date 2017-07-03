@@ -22,7 +22,7 @@ bool PlotCompareUtility::compare<Plot1D>(HistoData *HD) {
   TH1F *hnew = (TH1F *)HD->getNewHisto();
 
   // do not run comparisons if either histogram is empty/broken
-  if (hnew == NULL || href == NULL || hnew->GetEntries() <= 1 || href->GetEntries() <= 1) {
+  if (hnew == nullptr || href == nullptr || hnew->GetEntries() <= 1 || href->GetEntries() <= 1) {
     //std::cerr << HD->getName() << " error: unable to retrieve histogram (or no entries)\n";
     HD->setIsEmpty(true); return false;
   }

@@ -138,7 +138,7 @@ static struct DummyValueAllocatorInitializer {
 
 
 Value::CommentInfo::CommentInfo()
-   : comment_( 0 )
+   : comment_( nullptr )
 {
 }
 
@@ -174,7 +174,7 @@ Value::CommentInfo::setComment( const char *text )
 // a string is stored.
 
 Value::CZString::CZString( int index )
-   : cstr_( 0 )
+   : cstr_( nullptr )
    , index_( index )
 {
 }
@@ -187,7 +187,7 @@ Value::CZString::CZString( const char *cstr, DuplicationPolicy allocate )
 }
 
 Value::CZString::CZString( const CZString &other )
-: cstr_( other.index_ != noDuplication &&  other.cstr_ != 0
+: cstr_( other.index_ != noDuplication &&  other.cstr_ != nullptr
                 ?  valueAllocator()->makeMemberName( other.cstr_ )
                 : other.cstr_ )
    , index_( other.cstr_ ? (other.index_ == noDuplication ? noDuplication : duplicate)
@@ -270,7 +270,7 @@ Value::CZString::isStaticString() const
 Value::Value( ValueType type )
    : type_( type )
    , allocated_( 0 )
-   , comments_( 0 )
+   , comments_( nullptr )
 # ifdef JSON_VALUE_USE_INTERNAL_MAP
    , itemIsUsed_( 0 )
 #endif
@@ -287,7 +287,7 @@ Value::Value( ValueType type )
       value_.real_ = 0.0;
       break;
    case stringValue:
-      value_.string_ = 0;
+      value_.string_ = nullptr;
       break;
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
    case arrayValue:
@@ -313,7 +313,7 @@ Value::Value( ValueType type )
 
 Value::Value( Int value )
    : type_( intValue )
-   , comments_( 0 )
+   , comments_( nullptr )
 # ifdef JSON_VALUE_USE_INTERNAL_MAP
    , itemIsUsed_( 0 )
 #endif
@@ -324,7 +324,7 @@ Value::Value( Int value )
 
 Value::Value( UInt value )
    : type_( uintValue )
-   , comments_( 0 )
+   , comments_( nullptr )
 # ifdef JSON_VALUE_USE_INTERNAL_MAP
    , itemIsUsed_( 0 )
 #endif
@@ -334,7 +334,7 @@ Value::Value( UInt value )
 
 Value::Value( double value )
    : type_( realValue )
-   , comments_( 0 )
+   , comments_( nullptr )
 # ifdef JSON_VALUE_USE_INTERNAL_MAP
    , itemIsUsed_( 0 )
 #endif
@@ -345,7 +345,7 @@ Value::Value( double value )
 Value::Value( const char *value )
    : type_( stringValue )
    , allocated_( true )
-   , comments_( 0 )
+   , comments_( nullptr )
 # ifdef JSON_VALUE_USE_INTERNAL_MAP
    , itemIsUsed_( 0 )
 #endif
@@ -358,7 +358,7 @@ Value::Value( const char *beginValue,
               const char *endValue )
    : type_( stringValue )
    , allocated_( true )
-   , comments_( 0 )
+   , comments_( nullptr )
 # ifdef JSON_VALUE_USE_INTERNAL_MAP
    , itemIsUsed_( 0 )
 #endif
@@ -371,7 +371,7 @@ Value::Value( const char *beginValue,
 Value::Value( const std::string &value )
    : type_( stringValue )
    , allocated_( true )
-   , comments_( 0 )
+   , comments_( nullptr )
 # ifdef JSON_VALUE_USE_INTERNAL_MAP
    , itemIsUsed_( 0 )
 #endif
@@ -384,7 +384,7 @@ Value::Value( const std::string &value )
 Value::Value( const StaticString &value )
    : type_( stringValue )
    , allocated_( false )
-   , comments_( 0 )
+   , comments_( nullptr )
 # ifdef JSON_VALUE_USE_INTERNAL_MAP
    , itemIsUsed_( 0 )
 #endif
@@ -408,7 +408,7 @@ Value::Value( const CppTL::ConstString &value )
 
 Value::Value( bool value )
    : type_( booleanValue )
-   , comments_( 0 )
+   , comments_( nullptr )
 # ifdef JSON_VALUE_USE_INTERNAL_MAP
    , itemIsUsed_( 0 )
 #endif
@@ -419,7 +419,7 @@ Value::Value( bool value )
 
 Value::Value( const Value &other )
    : type_( other.type_ )
-   , comments_( 0 )
+   , comments_( nullptr )
 # ifdef JSON_VALUE_USE_INTERNAL_MAP
    , itemIsUsed_( 0 )
 #endif
@@ -440,7 +440,7 @@ Value::Value( const Value &other )
          allocated_ = true;
       }
       else
-         value_.string_ = 0;
+         value_.string_ = nullptr;
       break;
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
    case arrayValue:
@@ -582,7 +582,7 @@ Value::operator <( const Value &other ) const
    case booleanValue:
       return value_.bool_ < other.value_.bool_;
    case stringValue:
-      return ( value_.string_ == 0  &&  other.value_.string_ )
+      return ( value_.string_ == nullptr  &&  other.value_.string_ )
              || ( other.value_.string_  
                   &&  value_.string_  
                   && strcmp( value_.string_, other.value_.string_ ) < 0 );
@@ -1346,7 +1346,7 @@ Value::setComment( const std::string &comment,
 bool 
 Value::hasComment( CommentPlacement placement ) const
 {
-   return comments_ != 0  &&  comments_[placement].comment_ != 0;
+   return comments_ != nullptr  &&  comments_[placement].comment_ != nullptr;
 }
 
 std::string 

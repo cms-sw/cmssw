@@ -67,10 +67,10 @@ namespace {
 
 void protobuf_AssignDescriptors() {
   AddDescriptors();
-  ::google::protobuf::MessageFactory* factory = NULL;
+  ::google::protobuf::MessageFactory* factory = nullptr;
   AssignDescriptors(
       "DQMServices/Core/src/ROOTFilePB.proto", schemas, file_default_instances, TableStruct::offsets, factory,
-      file_level_metadata, NULL, NULL);
+      file_level_metadata, nullptr, nullptr);
 }
 
 void protobuf_AssignDescriptorsOnce() {
@@ -145,7 +145,7 @@ const int ROOTFilePB_Histo::kFlagsFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 ROOTFilePB_Histo::ROOTFilePB_Histo()
-  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
+  : ::google::protobuf::Message(), _internal_metadata_(nullptr) {
   if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
     protobuf_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto::InitDefaults();
   }
@@ -154,7 +154,7 @@ ROOTFilePB_Histo::ROOTFilePB_Histo()
 }
 ROOTFilePB_Histo::ROOTFilePB_Histo(const ROOTFilePB_Histo& from)
   : ::google::protobuf::Message(),
-      _internal_metadata_(NULL),
+      _internal_metadata_(nullptr),
       _has_bits_(from._has_bits_),
       _cached_size_(0) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
@@ -207,7 +207,7 @@ const ROOTFilePB_Histo& ROOTFilePB_Histo::default_instance() {
 
 ROOTFilePB_Histo* ROOTFilePB_Histo::New(::google::protobuf::Arena* arena) const {
   ROOTFilePB_Histo* n = new ROOTFilePB_Histo;
-  if (arena != NULL) {
+  if (arena != nullptr) {
     arena->Own(n);
   }
   return n;
@@ -473,7 +473,7 @@ void ROOTFilePB_Histo::MergeFrom(const ::google::protobuf::Message& from) {
   const ROOTFilePB_Histo* source =
       ::google::protobuf::internal::DynamicCastToGenerated<const ROOTFilePB_Histo>(
           &from);
-  if (source == NULL) {
+  if (source == nullptr) {
   // @@protoc_insertion_point(generalized_merge_from_cast_fail:dqmstorepb.ROOTFilePB.Histo)
     ::google::protobuf::internal::ReflectionOps::Merge(from, this);
   } else {
@@ -726,7 +726,7 @@ const int ROOTFilePB::kHistoFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 ROOTFilePB::ROOTFilePB()
-  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
+  : ::google::protobuf::Message(), _internal_metadata_(nullptr) {
   if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
     protobuf_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto::InitDefaults();
   }
@@ -735,7 +735,7 @@ ROOTFilePB::ROOTFilePB()
 }
 ROOTFilePB::ROOTFilePB(const ROOTFilePB& from)
   : ::google::protobuf::Message(),
-      _internal_metadata_(NULL),
+      _internal_metadata_(nullptr),
       _has_bits_(from._has_bits_),
       _cached_size_(0),
       histo_(from.histo_) {
@@ -772,7 +772,7 @@ const ROOTFilePB& ROOTFilePB::default_instance() {
 
 ROOTFilePB* ROOTFilePB::New(::google::protobuf::Arena* arena) const {
   ROOTFilePB* n = new ROOTFilePB;
-  if (arena != NULL) {
+  if (arena != nullptr) {
     arena->Own(n);
   }
   return n;
@@ -898,7 +898,7 @@ void ROOTFilePB::MergeFrom(const ::google::protobuf::Message& from) {
   const ROOTFilePB* source =
       ::google::protobuf::internal::DynamicCastToGenerated<const ROOTFilePB>(
           &from);
-  if (source == NULL) {
+  if (source == nullptr) {
   // @@protoc_insertion_point(generalized_merge_from_cast_fail:dqmstorepb.ROOTFilePB)
     ::google::protobuf::internal::ReflectionOps::Merge(from, this);
   } else {

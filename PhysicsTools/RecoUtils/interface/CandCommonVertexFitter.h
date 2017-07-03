@@ -17,7 +17,7 @@ namespace reco { class VertexCompositeCandidate; }
 class CandCommonVertexFitterBase {
 public:
   typedef reco::Vertex::CovarianceMatrix CovarianceMatrix;
-  CandCommonVertexFitterBase(const edm::ParameterSet &) : bField_(0) { }
+  CandCommonVertexFitterBase(const edm::ParameterSet &) : bField_(nullptr) { }
   virtual ~CandCommonVertexFitterBase() { }
   void set(const MagneticField * bField) { bField_ = bField; }
   void set(reco::VertexCompositeCandidate &) const;

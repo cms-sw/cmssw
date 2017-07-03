@@ -15,7 +15,7 @@ SummaryHistogramFactory<DaqScopeModeAnalysis>::SummaryHistogramFactory() :
   view_(sistrip::UNKNOWN_VIEW),
   level_(sistrip::root_),
   gran_(sistrip::UNKNOWN_GRAN),
-  generator_(0) 
+  generator_(nullptr) 
 {;} 
 
 
@@ -39,7 +39,7 @@ void SummaryHistogramFactory<DaqScopeModeAnalysis>::init( const sistrip::Monitor
   gran_ = gran;
 
   // Retrieve utility class used to generate summary histograms
-  if ( generator_ ) { delete generator_; generator_ = 0; }
+  if ( generator_ ) { delete generator_; generator_ = nullptr; }
   generator_ = SummaryGenerator::instance( view );
   
 }

@@ -191,7 +191,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
             CSCMotherboard* tmb = tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].get();
 
             // Run processors only if chamber exists in geometry.
-            if (tmb == 0 || theGeom->chamber(endc, stat, sect, subs, cham) == 0) continue;
+            if (tmb == nullptr || theGeom->chamber(endc, stat, sect, subs, cham) == nullptr) continue;
 
             int chid = CSCTriggerNumbering::chamberFromTriggerLabels(sect, subs, stat, cham);
 

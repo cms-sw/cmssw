@@ -107,9 +107,9 @@ public:
 
   double candIsolation(const reco::Candidate* c) const {
     const pat::Muon * mu = dynamic_cast<const pat::Muon *>(c);
-    if(mu != 0) return isolation(mu);
+    if(mu != nullptr) return isolation(mu);
     const pat::GenericParticle * trk = dynamic_cast<const pat::GenericParticle*>(c);
-    if(trk != 0) return isolation(trk);
+    if(trk != nullptr) return isolation(trk);
     throw edm::Exception(edm::errors::InvalidReference)
       << "Candidate daughter #0 is neither pat::Muons nor pat::GenericParticle\n";
     return -1;

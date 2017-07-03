@@ -15,7 +15,7 @@ using namespace edm;
 
 void EcalSimpleProducer::produce(edm::Event& evt, const edm::EventSetup&){
   const int ievt = evt.id().event();
-  if(formula_.get()!=0){
+  if(formula_.get()!=nullptr){
     unique_ptr<EBDigiCollection> digis(new EBDigiCollection);
     
     digis->reserve(170*360);
@@ -40,7 +40,7 @@ void EcalSimpleProducer::produce(edm::Event& evt, const edm::EventSetup&){
     //puts an empty digi collecion for endcap:
     evt.put(unique_ptr<EEDigiCollection>(new EEDigiCollection()));
   }
-  if(tpFormula_.get()!=0){
+  if(tpFormula_.get()!=nullptr){
     unique_ptr<EcalTrigPrimDigiCollection> tps
       = unique_ptr<EcalTrigPrimDigiCollection>(new EcalTrigPrimDigiCollection);
     tps->reserve(56*72);
@@ -71,7 +71,7 @@ void EcalSimpleProducer::produce(edm::Event& evt, const edm::EventSetup&){
     }
     evt.put(std::move(tps));
   }
-  if(simHitFormula_.get()!=0){//generation of barrel sim hits
+  if(simHitFormula_.get()!=nullptr){//generation of barrel sim hits
     unique_ptr<PCaloHitContainer> hits
       = unique_ptr<PCaloHitContainer>(new PCaloHitContainer);
     for(int iEta0=0; iEta0<170; ++iEta0){

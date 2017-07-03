@@ -37,7 +37,7 @@ public:
   virtual ~DTDigiSyncTOFCorr();
 
   /// Delays to be added to digi times during digitization, in ns.
-  virtual double digitizerOffset(const DTWireId * id, const DTLayer* layer=0) const;
+  virtual double digitizerOffset(const DTWireId * id, const DTLayer* layer=nullptr) const;
 
   /// Offset to obtain "raw" TDCs for the L1 emulator from digis.
   virtual double emulatorOffset(const DTWireId * id) const;

@@ -58,7 +58,7 @@ AlgebraicSymMatrix MuonTransientTrackingRecHit::parametersError() const {
   AlgebraicVector par = GenericTransientTrackingRecHit::parameters();
 
   const AlignmentPositionError* APE = det()->alignmentPositionError();
-  if (APE != NULL) {
+  if (APE != nullptr) {
     AlgebraicVector positions(2,0);
     AlgebraicVector directions(2,0);
 

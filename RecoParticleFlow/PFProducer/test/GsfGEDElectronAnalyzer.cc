@@ -568,7 +568,7 @@ GsfGEDElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	
 
 	if(dR < 0.05){	  
-	  const reco::PFCandidate* matchPF = NULL;
+	  const reco::PFCandidate* matchPF = nullptr;
 	  if(debug)
 	    cout << " GED ele matched: pt " << theGedEle[j].pt() << " (" << SCEnergy/std::cosh(etareco) << ") "<< " eta,phi " <<  etareco << ", " << phireco << " pfmva " <<  pfmva << endl;
 	  

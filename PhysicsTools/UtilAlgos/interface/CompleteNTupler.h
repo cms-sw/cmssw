@@ -11,9 +11,9 @@ class CompleteNTupler : public NTupler {
     if (iConfig.exists("variablesPSet"))
       if (!iConfig.getParameter<edm::ParameterSet>("variablesPSet").empty())
 	vN = new VariableNTupler(iConfig);
-      else vN=0;
+      else vN=nullptr;
     else
-      vN=0;
+      vN=nullptr;
 
     /*    if (iConfig.exists("AdHocNPSet"))
       if (!iConfig.getParameter<edm::ParameterSet>("AdHocNPSet").empty())

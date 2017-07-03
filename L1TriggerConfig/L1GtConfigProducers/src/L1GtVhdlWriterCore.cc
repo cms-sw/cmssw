@@ -851,7 +851,7 @@ bool L1GtVhdlWriterCore::processAlgorithmMap(std::vector< std::map<int, std::str
             L1GtCondition const* cond = (chip.find(conditions.at(i)) == chip.end()) ? nullptr : chip.at(conditions.at(i));
 
             // check weather condition exists
-            if (cond!=NULL)
+            if (cond!=nullptr)
             {
                 newExpr << objType2Str_[(cond->objectType()).at(0)];
                 newExpr << "_" << condType2Str_[cond->condType()] << "(";

@@ -91,8 +91,8 @@ namespace edm {
 
          template<typename HolderT>
          void get(HolderT& iHolder) const {
-            typename HolderT::value_type const* value = 0;
-            ComponentDescription const* desc = 0;
+            typename HolderT::value_type const* value = nullptr;
+            ComponentDescription const* desc = nullptr;
             std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
             this->getImplementation(value, "", desc, iHolder.transientAccessOnly, whyFailedFactory);
 
@@ -105,8 +105,8 @@ namespace edm {
 
          template<typename HolderT>
          void get(char const* iName, HolderT& iHolder) const {
-            typename HolderT::value_type const* value = 0;
-            ComponentDescription const* desc = 0;
+            typename HolderT::value_type const* value = nullptr;
+            ComponentDescription const* desc = nullptr;
             std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
             this->getImplementation(value, iName, desc, iHolder.transientAccessOnly, whyFailedFactory);
 
@@ -118,8 +118,8 @@ namespace edm {
          }
          template<typename HolderT>
          void get(std::string const& iName, HolderT& iHolder) const {
-            typename HolderT::value_type const* value = 0;
-            ComponentDescription const* desc = 0;
+            typename HolderT::value_type const* value = nullptr;
+            ComponentDescription const* desc = nullptr;
             std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
             this->getImplementation(value, iName.c_str(), desc, iHolder.transientAccessOnly, whyFailedFactory);
 
@@ -132,8 +132,8 @@ namespace edm {
 
          template<typename HolderT>
          void get(ESInputTag const& iTag, HolderT& iHolder) const {
-            typename HolderT::value_type const* value = 0;
-            ComponentDescription const* desc = 0;
+            typename HolderT::value_type const* value = nullptr;
+            ComponentDescription const* desc = nullptr;
             std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
             this->getImplementation(value, iTag.data().c_str(), desc, iHolder.transientAccessOnly, whyFailedFactory);
 
@@ -229,7 +229,7 @@ namespace edm {
                             DataKey::kDoNotCopyMemory);
 
             void const* pValue = this->getFromProxy(dataKey, iDesc, iTransientAccessOnly);
-            if(0 == pValue) {
+            if(nullptr == pValue) {
               whyFailedFactory =
                 makeESHandleExceptionFactory([=]()->std::exception_ptr {
                     NoProxyException<DataT> ex(this->key(), dataKey);

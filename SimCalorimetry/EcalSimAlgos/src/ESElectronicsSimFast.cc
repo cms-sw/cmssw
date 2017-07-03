@@ -9,8 +9,8 @@ ESElectronicsSimFast::ESElectronicsSimFast( bool addNoise , bool PreMix1 ) :
    m_addNoise ( addNoise ) ,
    m_PreMix1  ( PreMix1  ) ,
    m_MIPToGeV (        0 ) ,
-   m_peds     (        0 ) ,
-   m_mips     (        0 )
+   m_peds     (        nullptr ) ,
+   m_mips     (        nullptr )
 {
    // Preshower "Fast" Electronics Simulation
    // gain = 1 : low gain for data taking 
@@ -46,8 +46,8 @@ ESElectronicsSimFast::analogToDigital( CLHEP::HepRandomEngine* engine,
 			               ESDataFrame& df,
 			               bool         isNoise ) const
 {
-   assert( 0 != m_peds &&
-	   0 != m_mips &&
+   assert( nullptr != m_peds &&
+	   nullptr != m_mips &&
 	   0 < m_MIPToGeV ) ; // sanity check
 
    df.setSize( cs.size() ) ;

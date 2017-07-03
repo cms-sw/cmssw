@@ -551,7 +551,7 @@ int EcalDeadCellTriggerPrimitiveFilter::setEvtTPstatus(const double &tpValCut, c
         EcalTrigTowerDetId ttDetId = ttItor->second;
         int ttzside = ttDetId.zside();
 
-        const EcalTrigPrimDigiCollection * tpDigis = 0;
+        const EcalTrigPrimDigiCollection * tpDigis = nullptr;
         tpDigis = pTPDigis.product();
         EcalTrigPrimDigiCollection::const_iterator tp = tpDigis->find( ttDetId );
         if( tp != tpDigis->end() ){

@@ -67,7 +67,7 @@ void HepMCProduct::boostToLab( TMatrixD const* lorentz, std::string const& type 
 	
   
   
-	if ( lorentz == 0 ) {
+	if ( lorentz == nullptr ) {
 
 		//std::cout << " lorentz = 0 " << std::endl;
 		return;

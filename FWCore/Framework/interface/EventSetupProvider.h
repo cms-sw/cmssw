@@ -57,7 +57,7 @@ class EventSetupProvider {
       typedef std::multimap<RecordName, DataKeyInfo> RecordToDataMap;
       typedef std::map<ComponentDescription, RecordToDataMap> PreferredProviderInfo;
 
-      EventSetupProvider(unsigned subProcessIndex = 0U, PreferredProviderInfo const* iInfo = 0);
+      EventSetupProvider(unsigned subProcessIndex = 0U, PreferredProviderInfo const* iInfo = nullptr);
       virtual ~EventSetupProvider();
 
       // ---------- const member functions ---------------------

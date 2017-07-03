@@ -32,16 +32,16 @@ CompositeCandidate::~CompositeCandidate() { }
 CompositeCandidate * CompositeCandidate::clone() const { return new CompositeCandidate(* this); }
 
 const Candidate * CompositeCandidate::daughter(size_type i) const { 
-  return (i < numberOfDaughters()) ? & dau[ i ] : 0; // i >= 0, since i is unsigned
+  return (i < numberOfDaughters()) ? & dau[ i ] : nullptr; // i >= 0, since i is unsigned
 }
 
 Candidate * CompositeCandidate::daughter(size_type i) { 
-  Candidate * d = (i < numberOfDaughters()) ? & dau[ i ] : 0; // i >= 0, since i is unsigned
+  Candidate * d = (i < numberOfDaughters()) ? & dau[ i ] : nullptr; // i >= 0, since i is unsigned
   return d;
 }
 
 const Candidate * CompositeCandidate::mother(size_type i) const { 
-  return 0;
+  return nullptr;
 }
 
 size_t CompositeCandidate::numberOfDaughters() const { return dau.size(); }
@@ -70,7 +70,7 @@ void CompositeCandidate::applyRoles() {
     Candidate * c = CompositeCandidate::daughter(i);
 
     CompositeCandidate * c1 = dynamic_cast<CompositeCandidate *>(c);
-    if (c1 != 0) {
+    if (c1 != nullptr) {
       c1->setName(role);
     }
   }
@@ -126,7 +126,7 @@ void CompositeCandidate::addDaughter(const Candidate & cand, const std::string& 
     }
     roles_.push_back(s);
     CompositeCandidate * c1 = dynamic_cast<CompositeCandidate*>(&*c);
-    if (c1 != 0) {
+    if (c1 != nullptr) {
       c1->setName(s);
     }
   }
@@ -144,7 +144,7 @@ void CompositeCandidate::addDaughter(std::unique_ptr<Candidate> cand, const std:
     }
     roles_.push_back(s);  
     CompositeCandidate * c1 = dynamic_cast<CompositeCandidate*>(&*cand);
-    if (c1 != 0) {
+    if (c1 != nullptr) {
       c1->setName(s);
     }
   }

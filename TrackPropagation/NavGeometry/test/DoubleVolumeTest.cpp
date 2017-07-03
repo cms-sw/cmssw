@@ -193,8 +193,8 @@ int main()
 				    ddshapeless, &theProvider);
 
 
-	NavVolume6Faces vol( volumePos, volumeRot, ddshapeless, MyNavVolumeSides, 0);
-	NavVolume6Faces vol2( volumePos2, volumeRot, ddshapeless, MyNavVolumeSides2, 0);
+	NavVolume6Faces vol( volumePos, volumeRot, ddshapeless, MyNavVolumeSides, nullptr);
+	NavVolume6Faces vol2( volumePos2, volumeRot, ddshapeless, MyNavVolumeSides2, nullptr);
 	
 	cout << "check if starting point is inside volume 1 : " << vol.inside(GlobalPoint(xPos, yPos, zPos),0.1) << endl;
 	cout << "check if starting point is inside volume 2 : " << vol2.inside(GlobalPoint(xPos, yPos, zPos),0.1) << endl;
@@ -261,12 +261,12 @@ int main()
 	    else
 	      HistXY->Fill(CurrentRKState.globalPosition().x(),CurrentRKState.globalPosition().y());
 	    
-	    if (VolumeCrossResult.volume() != 0) {
+	    if (VolumeCrossResult.volume() != nullptr) {
 	      //cout << "YES !!! Found next volume with position: " << VolumeCrossResult.volume()->position() << endl;
 	      cout << "Do a second Iteration step !" << endl;
 
 	      VolumeCrossReturnType VolumeCrossResult2 = VolumeCrossResult.volume()->crossToNextVolume(VolumeCrossResult.tsos(), RKprop);
-	      if (VolumeCrossResult2.volume() != 0) {
+	      if (VolumeCrossResult2.volume() != nullptr) {
 		//		cout << "crossToNextVolume: Succeeded to find THIRD volume with pos, mom, " << 
 		//  VolumeCrossResult2.tsos().globalPosition() << ", " << VolumeCrossResult2.tsos().globalMomentum() << endl;
 		cout << "crossToNextVolume: Succeeded to find THIRD volume with state " << 
@@ -299,8 +299,8 @@ int main()
 
 
 	    int itry = 0;
-	    const NavVolume* nextVol = 0;
-	    const Surface* exitSurface = 0;
+	    const NavVolume* nextVol = nullptr;
+	    const Surface* exitSurface = nullptr;
 
 	    for (NavVolume::Container::const_iterator isur = nsc.begin(); isur!=nsc.end(); isur++) {
 		TSOS state = isur->surface().propagate( propagator, startingState);
@@ -326,7 +326,7 @@ int main()
 
 	    cout << "And here analytical State is " << FinalAnalyticalState << endl;
 
-	    if (nextVol != 0) {
+	    if (nextVol != nullptr) {
 	      //cout << "YES !!! Found next volume with position: " << nextVol->position() << endl;
 	      cout << "Do a second Iteration step !" << endl;
 		
@@ -357,7 +357,7 @@ int main()
 		  ++itry;
 		}
 	      }
-	      if (nextVol != 0) {
+	      if (nextVol != nullptr) {
 		//		cout << "Succeeded to find THIRD volume with pos, mom, " << startingState.globalPosition() << ", " << startingState.globalMomentum() << endl;
 		cout << "Succeeded to find THIRD volume with state " << startingState << endl;
 	      } else {

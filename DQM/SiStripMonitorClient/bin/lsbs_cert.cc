@@ -355,7 +355,7 @@ int getplot( string filename , string iDir , string strplot , TH1F& plot )
     }
 
   plot = *thisplot;
-  thisplot = NULL;
+  thisplot = nullptr;
   delete thisplot;
   
   return 0;  

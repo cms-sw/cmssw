@@ -165,7 +165,7 @@ namespace pat {
    {
        CandRefType ref = get(role, index);
        const T* ret = dynamic_cast<const T*>(ref.get());
-       if ((ret == 0) && (ref.get() != 0)) throw cms::Exception("Type Checking") << createExceptionMessage<T>(ref);
+       if ((ret == nullptr) && (ref.get() != nullptr)) throw cms::Exception("Type Checking") << createExceptionMessage<T>(ref);
        return ret;
    }
    template<typename T> 
@@ -174,7 +174,7 @@ namespace pat {
    {
        CandRefType ref = get(filter, index);
        const T* ret = dynamic_cast<const T*>(ref.get());
-       if ((ret == 0) && (ref.get() != 0)) throw cms::Exception("Type Checking") << createExceptionMessage<T>(ref);
+       if ((ret == 0) && (ref.get() != nullptr)) throw cms::Exception("Type Checking") << createExceptionMessage<T>(ref);
        return ret;
    }
    template<typename T>

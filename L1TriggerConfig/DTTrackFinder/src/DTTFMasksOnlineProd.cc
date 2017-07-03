@@ -119,12 +119,12 @@ DTTFMasksOnlineProd::newObject( const std::string& objectKey )
 					crateMask ) ;
          char* pEnd;
 	 crateMaskL[ icrate ] = std::strtol( crateMask.c_str(), &pEnd, 16 ) ;
-	 crateMaskR[ icrate ] = std::strtol( pEnd, (char **)NULL, 16 ) ;
+	 crateMaskR[ icrate ] = std::strtol( pEnd, (char **)nullptr, 16 ) ;
 
 	 crateMaskResults.fillVariable( crateMaskColumns[ icrate+6 ],
 					crateMask ) ;
 	 krateMaskL[ icrate ] = std::strtol( crateMask.c_str(), &pEnd, 16 ) ;
-	 krateMaskR[ icrate ] = std::strtol( pEnd, (char **)NULL, 16 ) ;
+	 krateMaskR[ icrate ] = std::strtol( pEnd, (char **)nullptr, 16 ) ;
 
 	 std::cout << "Crate " << icrate << " masks"
 		   << " L: " << std::hex << crateMaskL[ icrate ]

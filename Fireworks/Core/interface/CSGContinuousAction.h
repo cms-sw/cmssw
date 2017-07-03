@@ -44,7 +44,7 @@ public:
                                 const TGPicture* disabledPic,
                                 const TGPicture* upRunningPic,
                                 const TGPicture* downRunningPic,
-                                TGLayoutHints* l = 0,
+                                TGLayoutHints* l = nullptr,
                                 Int_t id = -1,
                                 GContext_t norm = TGButton::GetDefaultGC() (),
                                 UInt_t option = 0);

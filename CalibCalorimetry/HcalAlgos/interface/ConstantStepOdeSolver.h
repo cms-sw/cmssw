@@ -15,10 +15,10 @@ class ConstantStepOdeSolver
 {
 public:
     inline ConstantStepOdeSolver()
-        : rhs_(0), dt_(0.0), dim_(0), runLen_(0), lastIntegrated_(0) {}
+        : rhs_(nullptr), dt_(0.0), dim_(0), runLen_(0), lastIntegrated_(0) {}
 
     inline ConstantStepOdeSolver(const AbsODERHS& rhs) :
-        rhs_(0), dt_(0.0), dim_(0), runLen_(0), lastIntegrated_(0)
+        rhs_(nullptr), dt_(0.0), dim_(0), runLen_(0), lastIntegrated_(0)
     {
         rhs_ = rhs.clone();
     }

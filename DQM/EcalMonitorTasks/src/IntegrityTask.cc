@@ -25,7 +25,7 @@ namespace ecaldqm
     // Collection is empty if there are no errors
     if(_ids.size() == 0) return;
 
-    MESet* set(0);
+    MESet* set(nullptr);
     switch(_collection){
     case kEBGainErrors:
     case kEEGainErrors:
@@ -67,7 +67,7 @@ namespace ecaldqm
     // Collection is empty if there are no errors
     if(_ids.size() == 0) return;
 
-    MESet* set(0);
+    MESet* set(nullptr);
     switch(_collection){
     case kTowerIdErrors:
       set = &MEs_.at("TowerId");

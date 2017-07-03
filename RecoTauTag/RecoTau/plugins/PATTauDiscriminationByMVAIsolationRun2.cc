@@ -75,8 +75,8 @@ class PATTauDiscriminationByMVAIsolationRun2 : public PATTauDiscriminationProduc
     explicit PATTauDiscriminationByMVAIsolationRun2(const edm::ParameterSet& cfg)
       : PATTauDiscriminationProducerBase(cfg),
         moduleLabel_(cfg.getParameter<std::string>("@module_label")),
-	mvaReader_(0),
-	mvaInput_(0),
+	mvaReader_(nullptr),
+	mvaInput_(nullptr),
 	category_output_()
     {
        mvaName_ = cfg.getParameter<std::string>("mvaName");

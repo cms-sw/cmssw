@@ -78,7 +78,7 @@ DTT0CalibrationNew::DTT0CalibrationNew(const edm::ParameterSet& pset) {
     }
   }
 
-  hT0SectorHisto=0;
+  hT0SectorHisto=nullptr;
 
   nevents=0;
   eventsForLayerT0 = pset.getParameter<unsigned int>("eventsForLayerT0");
@@ -158,7 +158,7 @@ void DTT0CalibrationNew::analyze(const edm::Event & event, const edm::EventSetup
 	//Get the per-layer histo from the map
 	TH1I *hT0LayerHisto = theHistoLayerMap[layerId];
 	//If it doesn't exist, book it
-	if(hT0LayerHisto == 0){
+	if(hT0LayerHisto == nullptr){
 	  theFile->cd();
 	  float hT0Min = tTrig - 2*tTrigRMS;
 	  float hT0Max = hT0Min + timeBoxWidth;
@@ -172,7 +172,7 @@ void DTT0CalibrationNew::analyze(const edm::Event & event, const edm::EventSetup
     
 	//Fill the histos
 	theFile->cd();
-	if(hT0LayerHisto != 0) {
+	if(hT0LayerHisto != nullptr) {
 	  //  if(debug)
 	  // cout<<"Filling histo "<<hT0LayerHisto->GetName()<<" with digi "<<t0<<" TDC counts"<<endl;
 	  hT0LayerHisto->Fill(t0);
@@ -194,7 +194,7 @@ void DTT0CalibrationNew::analyze(const edm::Event & event, const edm::EventSetup
  	  //Get the per-wire histo from the map
 	  TH1I *hT0WireHisto = theHistoWireMap[wireId];	
 	  //If it doesn't exist, book it
-	  if(hT0WireHisto == 0){
+	  if(hT0WireHisto == nullptr){
 	    theFile->cd(); 
 	    hT0WireHisto = new TH1I(getHistoName(wireId).c_str(),"T0 from pulses by wire (TDC counts, 1 TDC count = 0.781 ns)",7000,0,7000);
 	    //hT0SectorHisto->GetBinCenter(hT0SectorHisto->GetMaximumBin())-100,
@@ -205,7 +205,7 @@ void DTT0CalibrationNew::analyze(const edm::Event & event, const edm::EventSetup
 	  }
 	  //Fill the histos
 	  theFile->cd();
-	  if(hT0WireHisto != 0) {
+	  if(hT0WireHisto != nullptr) {
 	    //if(debug)
 	    // cout<<"Filling histo "<<hT0WireHisto->GetName()<<" with digi "<<t0<<" TDC counts"<<endl;
 	    hT0WireHisto->Fill(t0);

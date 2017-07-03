@@ -348,7 +348,7 @@ namespace HLTOfflineDQMTopSingleLepton {
         if( !event.getByToken(btagVtx_, btagVtx) ) return;
       }
       // load jet corrector if configured such
-      const JetCorrector* corrector=0;
+      const JetCorrector* corrector=nullptr;
       if(!jetCorrector_.empty()){
         // check whether a jet corrector is in the event setup or not
         if(setup.find( edm::eventsetup::EventSetupRecordKey::makeKey<JetCorrectionsRecord>() )){

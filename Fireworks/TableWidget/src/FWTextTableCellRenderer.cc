@@ -35,7 +35,7 @@
 FWTextTableCellRenderer::FWTextTableCellRenderer(const TGGC* iContext, const TGGC* iHighlightContext, Justify iJustify):
    m_context(iContext),
    m_highlightContext(iHighlightContext),
-   m_font(0),
+   m_font(nullptr),
    m_isSelected(false),
    m_justify(iJustify)
 {
@@ -156,7 +156,7 @@ const TGGC &
 FWTextTableCellRenderer::getDefaultHighlightGC()
 {
    // Return graphics context for highlighted frame background.
-   static const TGGC* s_default = 0;
+   static const TGGC* s_default = nullptr;
    if (!s_default) {
       GCValues_t gval;
       gval.fMask = kGCForeground | kGCBackground | kGCStipple | kGCFillStyle  | kGCGraphicsExposures;

@@ -54,7 +54,7 @@ public:
       TEveElement* m_el;
    public:
       FWViewCombo(const TGWindow *p, FWGeometryTableViewBase* t): 
-         TGTextButton(p, "Select Views", -1, TGButton::GetDefaultGC()(), TGTextButton::GetDefaultFontStruct(), kRaisedFrame | kDoubleBorder  ), m_tableView(t), m_el(0) {}
+         TGTextButton(p, "Select Views", -1, TGButton::GetDefaultGC()(), TGTextButton::GetDefaultFontStruct(), kRaisedFrame | kDoubleBorder  ), m_tableView(t), m_el(nullptr) {}
       virtual ~FWViewCombo() {}
       void setElement(TEveElement* x) {m_el = x;}
       virtual Bool_t  HandleButton(Event_t* event);
@@ -73,7 +73,7 @@ public:
    void selectView(int);
  
    bool getEnableHighlight() { return m_enableHighlight.value(); } 
-   virtual  FWGeometryTableManagerBase*  getTableManager() { return 0; }
+   virtual  FWGeometryTableManagerBase*  getTableManager() { return nullptr; }
 
    // ---------- const member functions --------------------- 
 

@@ -54,8 +54,8 @@ class EgammaHLTHcalIsolation
     //first is the sum E, second is the sum Et
     std::pair<float,float> getSum(float candEta,float candPhi,
 				  const HBHERecHitCollection* hbhe, const CaloGeometry* geometry,
-				  const HcalSeverityLevelComputer* hcalSevLvlAlgo=NULL,
-				  const HcalChannelQuality* dbHcalChStatus=NULL)const;
+				  const HcalSeverityLevelComputer* hcalSevLvlAlgo=nullptr,
+				  const HcalChannelQuality* dbHcalChStatus=nullptr)const;
     float getESum(float candEta,float candPhi, 
 		  const HBHERecHitCollection* hbhe,
 		  const CaloGeometry* geometry)const{return getSum(candEta,candPhi,hbhe,geometry).first;}

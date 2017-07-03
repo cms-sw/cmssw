@@ -47,7 +47,7 @@ namespace cscdqm {
     calcEMUFractionHisto(h::EMU_FED_DDU_L1A_MISMATCH_WITH_CSC_DATA_FRACT, h::EMU_FED_ENTRIES, h::EMU_FED_DDU_L1A_MISMATCH_WITH_CSC_DATA);
 
     unsigned int iter = 0, crateId = 0, dmbId = 0;
-    MonitorObject *mo = 0, *mof = 0;
+    MonitorObject *mo = nullptr, *mof = nullptr;
     while (config->fnNextBookedCSC(iter, crateId, dmbId)) {
 
       uint32_t dmbEvents = config->getChamberCounterValue(DMB_EVENTS, crateId, dmbId);
@@ -89,7 +89,7 @@ namespace cscdqm {
    */
   void EventProcessor::calcEMUFractionHisto(const HistoId& result, const HistoId& set, const HistoId& subset) {
 
-    MonitorObject *mo = 0, *mo1 = 0, *mo2 = 0;
+    MonitorObject *mo = nullptr, *mo1 = nullptr, *mo2 = nullptr;
 
     if (getEMUHisto(result, mo) && getEMUHisto(set, mo2) && getEMUHisto(subset, mo1)) {
       LockType lock(mo->mutex);

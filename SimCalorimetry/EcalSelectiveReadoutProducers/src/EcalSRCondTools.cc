@@ -261,7 +261,7 @@ void EcalSRCondTools::importSrpConfigFile(EcalSRSettings& sr, std::istream& f, b
 
     while(((sValue = tokenize(line, " \t", pos))!=string(""))
 	  && (iCh<nChs[iValueSet]) && sErr.str().empty()){
-      value = strtoul(sValue.c_str(), 0, 0);
+      value = strtoul(sValue.c_str(), nullptr, 0);
       const int iSrp = iValueSet%EcalSRSettings::nSrps_;
       if(iValueSet<12){//TCC
 	assert((unsigned)iSrp < sizeof(tccNum) / sizeof(tccNum[0]));

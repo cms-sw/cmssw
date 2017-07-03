@@ -449,7 +449,7 @@ bool VertexClassifier::isCharged(const HepMC::GenParticle * p)
     else
     {
         // the new/improved particle table doesn't know anti-particles
-        return  particleDataTable_->particle( -p->pdg_id() ) != 0;
+        return  particleDataTable_->particle( -p->pdg_id() ) != nullptr;
     }
 }
 

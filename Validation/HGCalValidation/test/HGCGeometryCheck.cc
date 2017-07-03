@@ -62,7 +62,7 @@ private:
 
 };
 
-HGCGeometryCheck::HGCGeometryCheck(const edm::ParameterSet &cfg) : hcons_(0) {
+HGCGeometryCheck::HGCGeometryCheck(const edm::ParameterSet &cfg) : hcons_(nullptr) {
 
   usesResource("TFileService");
 
@@ -116,7 +116,7 @@ void HGCGeometryCheck::beginRun(const edm::Run&, const edm::EventSetup& iSetup) 
       iSetup.get<HcalSimNumberingRecord>().get(pHRNDC);
       if (pHRNDC.isValid()) {
 	hcons_ = &(*pHRNDC);
-	hgcGeometry_.push_back(0);
+	hgcGeometry_.push_back(nullptr);
       } else {
 	edm::LogWarning("HGCalValid") << "Cannot initiate HcalGeometry for "
 				      << geometrySource_[i] << std::endl;

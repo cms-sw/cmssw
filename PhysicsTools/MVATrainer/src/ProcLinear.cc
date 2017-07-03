@@ -148,7 +148,7 @@ void *ProcLinear::requestObject(const std::string &name) const
 	if (name == "linearAnalyzer")
 		return static_cast<void*>(ls.get());
 
-	return 0;
+	return nullptr;
 }
 
 bool ProcLinear::load()

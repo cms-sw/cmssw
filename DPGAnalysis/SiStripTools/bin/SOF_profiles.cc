@@ -11,17 +11,17 @@
 
 TCanvas* printSOF(TFile* file, const int run, const int firstLS,const int zoom) {
 
-  TCanvas* canout = 0;
+  TCanvas* canout = nullptr;
 
   char rname[400];
   sprintf(rname,"run_%d",run);
 
-  if(file==0) return canout;
+  if(file==nullptr) return canout;
 
-  TProfile* badmod = 0;
-  TH1F* evtanydcs = 0;
-  TH1F* evtdcson = 0;
-  TH1F* evtnostrip = 0;
+  TProfile* badmod = nullptr;
+  TH1F* evtanydcs = nullptr;
+  TH1F* evtdcson = nullptr;
+  TH1F* evtnostrip = nullptr;
 
   char dname[400];
 

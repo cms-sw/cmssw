@@ -79,7 +79,7 @@ namespace {
        *m_fullNameBufferPtr = iElement->getFullname();
        m_flagBuffer = iElement->getTag();
        m_bufferPtr = dynamic_cast<T*>(iElement->getRootObject());
-       assert(0!=m_bufferPtr);
+       assert(nullptr!=m_bufferPtr);
        //std::cout <<"#entries: "<<m_bufferPtr->GetEntries()<<std::endl;
        m_tree->Fill();
      }
@@ -90,7 +90,7 @@ namespace {
       m_tree->Branch(kFullNameBranch,&m_fullNameBufferPtr);
       m_tree->Branch(kFlagBranch,&m_flagBuffer);
 
-      m_bufferPtr = 0;
+      m_bufferPtr = nullptr;
       m_tree->Branch(kValueBranch,&m_bufferPtr,128*1024,0);
     }
     TTree* m_tree;
@@ -257,7 +257,7 @@ makeHelper(unsigned int iTypeIndex,
     return new TreeHelper<TProfile2D>(iTree,iFullNameBufferPtr);
   }
   assert(false);
-  return 0;
+  return nullptr;
 }
 
 //
@@ -272,13 +272,13 @@ edm::one::OutputModuleBase::OutputModuleBase(pset),
 edm::one::OutputModule<>(pset),
 m_fileName(pset.getUntrackedParameter<std::string>("fileName")),
 m_logicalFileName(pset.getUntrackedParameter<std::string>("logicalFileName")),
-m_file(0),
+m_file(nullptr),
 m_treeHelpers(kNIndicies,boost::shared_ptr<TreeHelperBase>()),
 m_presentHistoryIndex(0),
 m_filterOnRun(pset.getUntrackedParameter<unsigned int>("filterOnRun")),
 m_enableMultiThread(false),
 m_fullNameBufferPtr(&m_fullNameBuffer),
-m_indicesTree(0)
+m_indicesTree(nullptr)
 {
 }
 
@@ -530,7 +530,7 @@ void DQMRootOutputModule::startEndFile() {
       it !=itEnd;
       ++it) {
     const edm::ProcessHistory* history = m_processHistoryRegistry.getMapped(*it);
-    assert(0!=history);
+    assert(nullptr!=history);
     index = 0;
     for(edm::ProcessHistory::collection_type::const_iterator itPC = history->begin(), itPCEnd = history->end();
         itPC != itPCEnd;
@@ -550,7 +550,7 @@ void DQMRootOutputModule::startEndFile() {
   parameterSetsTree->Branch(kParameterSetBranch,&blob);
 
   edm::pset::Registry* psr = edm::pset::Registry::instance();
-  assert(0!=psr);
+  assert(nullptr!=psr);
   for(edm::pset::Registry::const_iterator it = psr->begin(), itEnd = psr->end();
   it != itEnd;
   ++it) {

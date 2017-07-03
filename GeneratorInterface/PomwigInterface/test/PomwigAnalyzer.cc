@@ -42,8 +42,8 @@ PomwigAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // look for protons
    //std::vector<HepMC::GenParticle*> protons;
-   HepMC::GenParticle* proton1 = 0;
-   HepMC::GenParticle* proton2 = 0;	
+   HepMC::GenParticle* proton1 = nullptr;
+   HepMC::GenParticle* proton2 = nullptr;	
    double pz1max = 0.;
    double pz2min = 0.;
    for(HepMC::GenEvent::particle_iterator it = evt->particles_begin(); it != evt->particles_end(); ++it) {

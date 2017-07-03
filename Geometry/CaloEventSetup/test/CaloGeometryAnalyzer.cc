@@ -344,7 +344,7 @@ CaloGeometryAnalyzer::ovrTst( const CaloGeometry& cg      ,
       const CaloCellGeometry* cell ( geom->getGeometry(id) ) ;
       const CaloSubdetectorGeometry* bar ( cg.getSubdetectorGeometry( DetId::Ecal, EcalBarrel ) );
       const EcalEndcapGeometry::OrderedListOfEBDetId* ol ( eeG->getClosestBarrelCells( id ) ) ;
-      assert ( 0 != ol ) ;
+      assert ( nullptr != ol ) ;
       for( unsigned int i ( 0 ) ; i != ol->size() ; ++i )
       {
 	 fOvr << "           " << i << "  " << (*ol)[i] ;
@@ -373,7 +373,7 @@ CaloGeometryAnalyzer::ovrTst( const CaloGeometry& cg      ,
       const CaloSubdetectorGeometry* ecap ( cg.getSubdetectorGeometry( DetId::Ecal, EcalEndcap ) );
       fOvr << "Endcap Neighbors of Barrel id = " << id << std::endl ;
       const EcalBarrelGeometry::OrderedListOfEEDetId* ol ( ebG->getClosestEndcapCells( id ) ) ;
-      assert ( 0 != ol ) ;
+      assert ( nullptr != ol ) ;
       for( unsigned int i ( 0 ) ; i != ol->size() ; ++i )
       {
 	 fOvr << "           " << i << "  " << (*ol)[i] ;

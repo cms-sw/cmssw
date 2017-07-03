@@ -52,7 +52,7 @@
 // Constructors --
 //----------------
 L1MuGMTPhiProjectionUnit::L1MuGMTPhiProjectionUnit(const L1MuGMTMipIsoAU& miau, int id) : 
-  m_MIAU(miau), m_id(id), m_mu(0) {
+  m_MIAU(miau), m_id(id), m_mu(nullptr) {
 }
 
 //--------------
@@ -125,7 +125,7 @@ void L1MuGMTPhiProjectionUnit::run() {
 //
 void L1MuGMTPhiProjectionUnit::reset() {
 
-  m_mu = 0;
+  m_mu = nullptr;
   m_iphi = 0;
   m_fphi = 0.;
   m_phi_select = (unsigned int) 0;

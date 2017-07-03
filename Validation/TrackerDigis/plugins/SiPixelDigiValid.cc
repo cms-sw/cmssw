@@ -26,7 +26,7 @@
 SiPixelDigiValid::SiPixelDigiValid(const edm::ParameterSet& ps)
   : outputFile_( ps.getUntrackedParameter<std::string>( "outputFile", "pixeldigihisto.root" ) )
   , runStandalone ( ps.getParameter<bool>("runStandalone")  )  
-  , dbe_(0)
+  , dbe_(nullptr)
   , edmDetSetVector_PixelDigi_Token_( consumes< edm::DetSetVector<PixelDigi> >( ps.getParameter<edm::InputTag>( "src" ) ) ) {
  
  

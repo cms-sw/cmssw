@@ -43,7 +43,7 @@ public:
    class QuadId : public TNamed
    {
    public:
-      QuadId():m_ovl(0), m_parentIdx(-1){}
+      QuadId():m_ovl(nullptr), m_parentIdx(-1){}
       QuadId(TGeoOverlap* ovl, int idx){ m_ovl = ovl; m_parentIdx = idx; }
 
       virtual ~QuadId(){}

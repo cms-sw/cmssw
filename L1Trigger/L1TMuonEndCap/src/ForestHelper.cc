@@ -25,7 +25,7 @@ ForestHelper::ForestHelper(L1TMuonEndCapForest * w) {
   read_ = write_; 
 }
 
-ForestHelper::ForestHelper(const L1TMuonEndCapForest * es) {read_ = es; write_=NULL;}
+ForestHelper::ForestHelper(const L1TMuonEndCapForest * es) {read_ = es; write_=nullptr;}
 
 void ForestHelper::useCopy(){
   write_ = new L1TMuonEndCapForest(*read_);
@@ -107,7 +107,7 @@ void ForestHelper::initializeFromXML(const char * dirname, const std::vector<int
 
       // Now try to parse xml file.
       XMLDocPointer_t xmldoc = xml->ParseFile(edm::FileInPath(filename.c_str()).fullPath().c_str());
-      if (xmldoc==0){
+      if (xmldoc==nullptr){
 	delete xml;
 	continue;
       }
@@ -190,11 +190,11 @@ void ForestHelper::loadTreeFromXMLRecursive(TXMLEngine* xml, XMLNodePointer_t xn
   XMLNodePointer_t xleft = xml->GetChild(xnode);
   XMLNodePointer_t xright = xml->GetNext(xleft);
 
-  assert( ((xleft!=0)&&(xright!=0)) || ((xleft==0)&&(xright==0)) );
+  assert( ((xleft!=nullptr)&&(xright!=nullptr)) || ((xleft==nullptr)&&(xright==nullptr)) );
   
   // This seems potentially problematic, but leaving for now until
   // bitwise equivalence is demonstrated...
-  if(xleft == 0 || xright == 0) return;
+  if(xleft == nullptr || xright == nullptr) return;
 
   // append two more nodes at end of tree and update this indices in this node:
   tree[index].ileft  = tree.size();

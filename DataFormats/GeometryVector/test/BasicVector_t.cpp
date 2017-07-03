@@ -70,7 +70,7 @@ long aligned(void * p) {
 
 }
 
-volatile int * vi=0;
+volatile int * vi=nullptr;
 
 template<typename T> 
 void verifyAlign() {

@@ -48,12 +48,12 @@ class TtHadEvtSolution {
   // get the matched gen particles
   //-------------------------------------------
   const edm::RefProd<TtGenEvent> & getGenEvent() const { return theGenEvt_; };
-  const reco::GenParticle * getGenHadb() const { if (!theGenEvt_) return 0; else return theGenEvt_->b(); };
-  const reco::GenParticle * getGenHadbbar() const { if (!theGenEvt_) return 0; else return theGenEvt_->bBar(); };
-  const reco::GenParticle * getGenHadp() const { if (!theGenEvt_) return 0; else return theGenEvt_->daughterQuarkOfWPlus(); };
-  const reco::GenParticle * getGenHadq() const { if (!theGenEvt_) return 0; else return theGenEvt_->daughterQuarkBarOfWPlus(); };
-  const reco::GenParticle * getGenHadj() const { if (!theGenEvt_) return 0; else return theGenEvt_->daughterQuarkOfWMinus(); };
-  const reco::GenParticle * getGenHadk() const { if (!theGenEvt_) return 0; else return theGenEvt_->daughterQuarkBarOfWMinus(); };
+  const reco::GenParticle * getGenHadb() const { if (!theGenEvt_) return nullptr; else return theGenEvt_->b(); };
+  const reco::GenParticle * getGenHadbbar() const { if (!theGenEvt_) return nullptr; else return theGenEvt_->bBar(); };
+  const reco::GenParticle * getGenHadp() const { if (!theGenEvt_) return nullptr; else return theGenEvt_->daughterQuarkOfWPlus(); };
+  const reco::GenParticle * getGenHadq() const { if (!theGenEvt_) return nullptr; else return theGenEvt_->daughterQuarkBarOfWPlus(); };
+  const reco::GenParticle * getGenHadj() const { if (!theGenEvt_) return nullptr; else return theGenEvt_->daughterQuarkOfWMinus(); };
+  const reco::GenParticle * getGenHadk() const { if (!theGenEvt_) return nullptr; else return theGenEvt_->daughterQuarkBarOfWMinus(); };
   
   //-------------------------------------------
   // get (un-)/calibrated reco objects

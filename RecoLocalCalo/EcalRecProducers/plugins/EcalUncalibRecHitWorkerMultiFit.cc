@@ -294,11 +294,11 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
         // intelligence for recHit computation
         float offsetTime = 0;
         
-        const EcalPedestals::Item * aped = 0;
-        const EcalMGPAGainRatio * aGain = 0;
-        const EcalXtalGroupId * gid = 0;
-        const EcalPulseShapes::Item * aPulse = 0;
-        const EcalPulseCovariances::Item * aPulseCov = 0;
+        const EcalPedestals::Item * aped = nullptr;
+        const EcalMGPAGainRatio * aGain = nullptr;
+        const EcalXtalGroupId * gid = nullptr;
+        const EcalPulseShapes::Item * aPulse = nullptr;
+        const EcalPulseCovariances::Item * aPulseCov = nullptr;
 
         if (barrel) {
             unsigned int hashedIndex = EBDetId(detid).hashedIndex();

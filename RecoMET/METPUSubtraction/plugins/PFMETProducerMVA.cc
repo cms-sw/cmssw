@@ -312,7 +312,7 @@ double PFMETProducerMVA::chargedEnFrac(const reco::Candidate *iCand,
   }
   if(iCand->isPhoton()  )   {return chargedFracInCone(iCand, pfCandidates,hardScatterVertex);}
   double lPtTot = 0; double lPtCharged = 0;
-  const reco::PFTau *lPFTau = 0; 
+  const reco::PFTau *lPFTau = nullptr; 
   lPFTau = dynamic_cast<const reco::PFTau*>(iCand);
   if(lPFTau != nullptr) { 
     for (UInt_t i0 = 0; i0 < lPFTau->signalPFCands().size(); i0++) { 

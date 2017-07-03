@@ -297,7 +297,7 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
 	TLeaf* BunchLf = CalibTree->GetLeaf("bunchx");
 	TLeaf* InstLumiLf = CalibTree->GetLeaf("instLumi");
 	TLeaf* PULf = CalibTree->GetLeaf("PU");
-	TLeaf* CMLf = 0;
+	TLeaf* CMLf = nullptr;
 	if(_useCM) CMLf = CalibTree->GetLeaf("commonMode");
 
 	int nevents = CalibTree->GetEntries();
@@ -332,9 +332,9 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
       unsigned int bx = (unsigned int)BunchLf->GetValue();
       if(_bunchx > 0 && _bunchx != bx) continue;
 	  double instLumi = 0;
-	  if(InstLumiLf!=0) instLumi = InstLumiLf->GetValue();
+	  if(InstLumiLf!=nullptr) instLumi = InstLumiLf->GetValue();
 	  double PU = 0;
-	  if(PULf!=0) PU = PULf->GetValue();
+	  if(PULf!=nullptr) PU = PULf->GetValue();
 	  int CM = -100;
 	  if(_useCM) CM = CMLf->GetValue();
 

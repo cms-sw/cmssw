@@ -27,7 +27,7 @@
 using namespace reco;
 using namespace std;
 
-PFMETBenchmark::PFMETBenchmark() : file_(0) {}
+PFMETBenchmark::PFMETBenchmark() : file_(nullptr) {}
 
 PFMETBenchmark::~PFMETBenchmark() {
   if(file_) file_->Close();
@@ -59,7 +59,7 @@ void PFMETBenchmark::setup(
   debug_ = debug; 
   plotAgainstReco_ = plotAgainstReco;
   outputFile_=Filename;
-  file_ = NULL;
+  file_ = nullptr;
   dbe_ = dbe_store;
   // print parameters
   //cout<< "PFMETBenchmark Setup parameters =============================================="<<endl;

@@ -179,10 +179,10 @@ namespace {
   // Arrange to report the error location as furnished by Root
 
     std::string el_location = "@SUB=?";
-    if (location != 0) el_location = std::string("@SUB=")+std::string(location);
+    if (location != nullptr) el_location = std::string("@SUB=")+std::string(location);
 
     std::string el_message  = "?";
-    if (message != 0) el_message  = message;
+    if (message != nullptr) el_message  = message;
 
   // Try to create a meaningful id string using knowledge of ROOT error messages
   //
@@ -410,7 +410,7 @@ namespace {
       sigset_t sigset;
       sigemptyset(&sigset);
       sigaddset(&sigset, RESUME_SIGNAL);
-      pthread_sigmask(SIG_UNBLOCK, &sigset, 0);
+      pthread_sigmask(SIG_UNBLOCK, &sigset, nullptr);
 #endif
       // sleep interrrupts on a handled delivery of the resume signal
       sleep(InitRootHandlers::stackTracePause());
@@ -446,13 +446,13 @@ namespace {
         act.sa_sigaction = sig_pause_for_stacktrace;
         act.sa_flags = 0;
         sigemptyset(&act.sa_mask);
-        sigaction(PAUSE_SIGNAL, &act, NULL);
+        sigaction(PAUSE_SIGNAL, &act, nullptr);
 
         // unblock pause signal globally, resume is unblocked in the pause handler
         sigset_t pausesigset;
         sigemptyset(&pausesigset);
         sigaddset(&pausesigset, PAUSE_SIGNAL);
-        sigprocmask(SIG_UNBLOCK, &pausesigset, 0);
+        sigprocmask(SIG_UNBLOCK, &pausesigset, nullptr);
 
         // send a pause signal to all CMSSW/TBB threads other than self
         for (auto id : tids) {
@@ -464,7 +464,7 @@ namespace {
 #ifdef RESUME_SIGNAL
         // install the "resume" handler
         act.sa_sigaction = sig_resume_handler;
-        sigaction(RESUME_SIGNAL, &act, NULL);
+        sigaction(RESUME_SIGNAL, &act, nullptr);
 #endif
       }
 #endif

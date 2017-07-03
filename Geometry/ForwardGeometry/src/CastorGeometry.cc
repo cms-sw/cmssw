@@ -40,7 +40,7 @@ CastorGeometry::getClosestCell(const GlobalPoint& r) const
 	it != detIds.end(); ++it )
    {
       const CaloCellGeometry* cell ( getGeometry( *it ) ) ;
-      if( 0 != cell &&
+      if( nullptr != cell &&
 	  cell->inside( r ) )
       {
 	 returnId = *it ;
@@ -99,5 +99,5 @@ CastorGeometry::cellGeomPtr( uint32_t index ) const
 {
    const CaloCellGeometry* cell ( &m_cellVec[ index ] ) ;
    return ( m_cellVec.size() < index ||
-	    0 == cell->param() ? 0 : cell ) ;
+	    nullptr == cell->param() ? nullptr : cell ) ;
 }

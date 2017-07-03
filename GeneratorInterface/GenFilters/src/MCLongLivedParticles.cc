@@ -42,7 +42,7 @@ bool MCLongLivedParticles::filter(edm::Event& iEvent, const edm::EventSetup& iSe
   for (p = generated_event->particles_begin(); p != generated_event->particles_end(); p++)
     { 
 
-      if(((*p)->production_vertex() != 0) && ((*p)->end_vertex()!=0))
+      if(((*p)->production_vertex() != nullptr) && ((*p)->end_vertex()!=nullptr))
 	{
 	  float dist = sqrt((((*p)->production_vertex())->position().x()-((*p)->end_vertex())->position().x())*(((*p)->production_vertex())->position().x()-((*p)->end_vertex())->position().x())+
 			    (((*p)->production_vertex())->position().y()-((*p)->end_vertex())->position().y())*(((*p)->production_vertex())->position().y()-((*p)->end_vertex())->position().y()));
@@ -50,7 +50,7 @@ bool MCLongLivedParticles::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 	    pass=true;
 	}
       
-      if(((*p)->production_vertex()==0) && (!((*p)->end_vertex()!=0)))
+      if(((*p)->production_vertex()==nullptr) && (!((*p)->end_vertex()!=nullptr)))
 	{
 	  if(((*p)->end_vertex())->position().perp()>theCut)
 	    pass=true;

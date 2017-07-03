@@ -48,7 +48,7 @@ using namespace edm;
 
 const double DTTrigTest::my_TtoTDC = 32./25.;
 
-DTTrigTest::DTTrigTest(const ParameterSet& pset): my_trig(0) { 
+DTTrigTest::DTTrigTest(const ParameterSet& pset): my_trig(nullptr) { 
 
   my_debug= pset.getUntrackedParameter<bool>("debug");
   string outputfile = pset.getUntrackedParameter<string>("outputFileName");
@@ -63,7 +63,7 @@ DTTrigTest::DTTrigTest(const ParameterSet& pset): my_trig(0) {
 
 DTTrigTest::~DTTrigTest(){ 
 
-  if (my_trig != 0) delete my_trig;
+  if (my_trig != nullptr) delete my_trig;
   delete my_rootfile;
   if (my_debug) 
     cout << "[DTTrigTest] Destructor executed!!!" << endl;

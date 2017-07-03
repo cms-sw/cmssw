@@ -219,14 +219,14 @@ PixelToFEDAssociateFromAscii::Range
   int num2 = -1;
   const char * line = l.c_str();
   while (line) {
-    char * evp = 0;
+    char * evp = nullptr;
     int num = strtol(line, &evp, 10);
     { stringstream s; s<<"raad from line: "; s<<num; LogDebug(s.str()); }
     if (evp != line) {
       line = evp +1;
       if (first) { num1 = num; first = false; }
       num2 = num;
-    } else line = 0;
+    } else line = nullptr;
   }
   if (first) {
     string s = "** PixelToFEDAssociateFromAscii, read data, cant intrpret: " ;

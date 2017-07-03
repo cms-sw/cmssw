@@ -152,7 +152,7 @@ namespace cms
 	     std::map<unsigned int, PixelGeomDetUnit const *>::iterator itDet = detectorUnits.find(detId);	     
 	     if (itDet == detectorUnits.end()) continue;
              auto pixdet = itDet->second;
-	     assert(pixdet !=0);
+	     assert(pixdet !=nullptr);
              //access to magnetic field in global coordinates
              GlobalVector bfield = pSetup->inTesla(pixdet->surface().position());
              LogDebug ("PixelDigitizer ") << "B-field(T) at " << pixdet->surface().position() << "(cm): " 
@@ -191,7 +191,7 @@ namespace cms
         unsigned int detId = (*iu)->geographicalId().rawId();
 	if((*iu)->type().isTrackerPixel()) {
           auto pixdet = dynamic_cast<const PixelGeomDetUnit*>((*iu));
-          assert(pixdet != 0);
+          assert(pixdet != nullptr);
 	  if ((*iu)->subDetector()==GeomDetEnumerators::SubDetector::PixelEndcap) { // true ONLY for the phase 0 pixel deetctor
 	    unsigned int disk = tTopo->layer(detId); // using the generic layer method
 	    //if using pilot blades, then allowing it for current detector only

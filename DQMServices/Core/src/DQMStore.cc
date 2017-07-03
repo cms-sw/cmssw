@@ -134,7 +134,7 @@ fastmatch::fastmatch (std::string const& _fastString) :
 {
   try
   {
-    regexp_ = NULL;
+    regexp_ = nullptr;
     regexp_ = new lat::Regexp(fastString_, 0, lat::Regexp::Wildcard);
     regexp_->study();
   }
@@ -201,7 +201,7 @@ fastmatch::fastmatch (std::string const& _fastString) :
 
 fastmatch::~fastmatch()
 {
-  if (regexp_ != NULL)
+  if (regexp_ != nullptr)
     delete regexp_;
 }
 
@@ -517,8 +517,8 @@ DQMStore::DQMStore(const edm::ParameterSet &pset, edm::ActivityRegistry& ar)
     moduleId_(0),
     stream_(nullptr),
     pwd_ (""),
-    ibooker_(0),
-    igetter_(0)
+    ibooker_(nullptr),
+    igetter_(nullptr)
 {
   if (!ibooker_)
     ibooker_ = new DQMStore::IBooker(this);
@@ -552,8 +552,8 @@ DQMStore::DQMStore(const edm::ParameterSet &pset)
     moduleId_(0),
     stream_(nullptr),
     pwd_ (""),
-    ibooker_(0),
-    igetter_(0)
+    ibooker_(nullptr),
+    igetter_(nullptr)
 {
   if (!ibooker_)
     ibooker_ = new DQMStore::IBooker(this);
@@ -659,7 +659,7 @@ DQMStore::print_trace (const std::string &dir, const std::string &name)
   char * demangled = nullptr; 
   for (; level < size; level++) {
     if (!s_rxtrace.match(strings[level], 0, 0, &m)) continue;
-    demangled = abi::__cxa_demangle(m.matchString(strings[level], 2).c_str(), 0, 0, &r);
+    demangled = abi::__cxa_demangle(m.matchString(strings[level], 2).c_str(), nullptr, nullptr, &r);
     if (!demangled) continue;
     if (!s_rxself.match(demangled, 0, 0)) break;
     free(demangled);
@@ -687,7 +687,7 @@ DQMStore::print_trace (const std::string &dir, const std::string &name)
     for (i = 0; i < size; i++)
       if (s_rxtrace.match(strings[i], 0, 0, &m))
       {
-        char * demangled = abi::__cxa_demangle(m.matchString(strings[i], 2).c_str(), 0, 0, &r);
+        char * demangled = abi::__cxa_demangle(m.matchString(strings[i], 2).c_str(), nullptr, nullptr, &r);
         *stream_ << "\t\t" << i << "/" << size << " "
                << (r ? m.matchString(strings[i], 2) : demangled) << " "
                << m.matchString(strings[i], 1) << std::endl;
@@ -723,7 +723,7 @@ void
 DQMStore::cd(const std::string &subdir)
 {
   std::string clean;
-  const std::string *cleaned = 0;
+  const std::string *cleaned = nullptr;
   cleanTrailingSlashes(subdir, clean, cleaned);
 
   if (! dirExists(*cleaned))
@@ -741,7 +741,7 @@ void
 DQMStore::setCurrentFolder(const std::string &fullpath)
 {
   std::string clean;
-  const std::string *cleaned = 0;
+  const std::string *cleaned = nullptr;
   cleanTrailingSlashes(fullpath, clean, cleaned);
   makeDirectory(*cleaned);
   pwd_ = *cleaned;
@@ -822,7 +822,7 @@ DQMStore::book(const std::string &dir, const std::string &name,
   mergePath(path, dir, name);
 
   // Put us in charge of h.
-  h->SetDirectory(0);
+  h->SetDirectory(nullptr);
 
   // Check if the request monitor element already exists.
   MonitorElement *me = findObject(dir, name, run_, 0, streamId_, moduleId_);
@@ -1718,7 +1718,7 @@ void
 DQMStore::tagAllContents(const std::string &path, unsigned int myTag)
 {
   std::string clean;
-  const std::string *cleaned = 0;
+  const std::string *cleaned = nullptr;
   cleanTrailingSlashes(path, clean, cleaned);
   MonitorElement proto(cleaned, std::string());
 
@@ -1793,7 +1793,7 @@ DQMStore::get(const std::string &path) const
   splitPath(dir, name, path);
   MonitorElement proto(&dir, name);
   MEMap::const_iterator mepos = data_.find(proto);
-  return (mepos == data_.end() ? 0
+  return (mepos == data_.end() ? nullptr
           : const_cast<MonitorElement *>(&*mepos));
 }
 
@@ -1818,7 +1818,7 @@ std::vector<MonitorElement *>
 DQMStore::getContents(const std::string &path) const
 {
   std::string clean;
-  const std::string *cleaned = 0;
+  const std::string *cleaned = nullptr;
   cleanTrailingSlashes(path, clean, cleaned);
   MonitorElement proto(cleaned, std::string());
 
@@ -1837,7 +1837,7 @@ std::vector<MonitorElement *>
 DQMStore::getContents(const std::string &path, unsigned int tag) const
 {
   std::string clean;
-  const std::string *cleaned = 0;
+  const std::string *cleaned = nullptr;
   cleanTrailingSlashes(path, clean, cleaned);
   MonitorElement proto(cleaned, std::string());
 
@@ -1939,7 +1939,7 @@ DQMStore::findObject(const std::string &dir,
   proto.data_.moduleId = moduleId;
 
   MEMap::const_iterator mepos = data_.find(proto);
-  return (mepos == data_.end() ? 0
+  return (mepos == data_.end() ? nullptr
           : const_cast<MonitorElement *>(&*mepos));
 }
 
@@ -2004,7 +2004,7 @@ DQMStore::getAllContents(const std::string &path,
                          uint32_t lumi /* = 0 */) const
 {
   std::string clean;
-  const std::string *cleaned = 0;
+  const std::string *cleaned = nullptr;
   cleanTrailingSlashes(path, clean, cleaned);
   MonitorElement proto(cleaned, std::string(), runNumber);
   proto.setLumi(lumi);
@@ -2178,7 +2178,7 @@ DQMStore::extract(TObject *obj, const std::string &dir,
   bool overwrite, bool collateHistograms)
 {
   // NB: Profile histograms inherit from TH*D, checking order matters.
-  MonitorElement *refcheck = 0;
+  MonitorElement *refcheck = nullptr;
   if (TProfile *h = dynamic_cast<TProfile *>(obj))
   {
     MonitorElement *me = findObject(dir, h->GetName());
@@ -2357,7 +2357,7 @@ DQMStore::extract(TObject *obj, const std::string &dir,
         return false;
       }
       errno = 0;
-      char *endp = 0;
+      char *endp = nullptr;
       unsigned long val = strtoul(value.c_str(), &endp, 10);
       if ((val == 0 && errno) || *endp || val > ~uint32_t(0))
       {
@@ -2390,7 +2390,7 @@ DQMStore::extract(TObject *obj, const std::string &dir,
         if (s_rxmeqr1.match(value, 0, 0, &m))
         {
           qv.code = atoi(m.matchString(value, 1).c_str());
-          qv.qtresult = strtod(m.matchString(value, 2).c_str(), 0);
+          qv.qtresult = strtod(m.matchString(value, 2).c_str(), nullptr);
           qv.message = m.matchString(value, 4);
           qv.qtname = qrname;
           qv.algorithm = m.matchString(value, 3);
@@ -2420,7 +2420,7 @@ DQMStore::extract(TObject *obj, const std::string &dir,
           return false;
         }
 
-        me->addQReport(qv, /* FIXME: getQTest(qv.qtname)? */ 0);
+        me->addQReport(qv, /* FIXME: getQTest(qv.qtname)? */ nullptr);
       }
     }
     else
@@ -3103,9 +3103,9 @@ if there are no more objects in the buffer, or a null pointer was
 serialised at this location. */
 inline TObject * DQMStore::extractNextObject(TBufferFile &buf) const {
   if (buf.Length() == buf.BufferSize())
-    return 0;
+    return nullptr;
   buf.InitMap();
-  void *ptr = buf.ReadObjectAny(0);
+  void *ptr = buf.ReadObjectAny(nullptr);
   return reinterpret_cast<TObject *>(ptr);
 }
 
@@ -3172,7 +3172,7 @@ DQMStore::readFilePB(const std::string &filename,
     std::string path;
     std::string objname;
 
-    TObject *obj = NULL;
+    TObject *obj = nullptr;
     const dqmstorepb::ROOTFilePB::Histo &h = dqmstore_message.histo(i);
     get_info(h, path, objname, &obj);
 
@@ -3214,7 +3214,7 @@ void
 DQMStore::rmdir(const std::string &path)
 {
   std::string clean;
-  const std::string *cleaned = 0;
+  const std::string *cleaned = nullptr;
   cleanTrailingSlashes(path, clean, cleaned);
   MonitorElement proto(cleaned, std::string());
 
@@ -3282,7 +3282,7 @@ DQMStore::getQCriterion(const std::string &qtname) const
 {
   QCMap::const_iterator i = qtests_.find(qtname);
   QCMap::const_iterator e = qtests_.end();
-  return (i == e ? 0 : i->second);
+  return (i == e ? nullptr : i->second);
 }
 
 /// create quality test with unique name <qtname> (analogous to ME name);
@@ -3314,7 +3314,7 @@ DQMStore::useQTest(const std::string &dir, const std::string &qtname)
 {
   // Clean the path
   std::string clean;
-  const std::string *cleaned = 0;
+  const std::string *cleaned = nullptr;
   cleanTrailingSlashes(dir, clean, cleaned);
 
   // Validate the path.
@@ -3387,7 +3387,7 @@ int
 DQMStore::getStatus(const std::string &path /* = "" */) const
 {
   std::string clean;
-  const std::string *cleaned = 0;
+  const std::string *cleaned = nullptr;
   cleanTrailingSlashes(path, clean, cleaned);
 
   int status = dqm::qstatus::STATUS_OK;

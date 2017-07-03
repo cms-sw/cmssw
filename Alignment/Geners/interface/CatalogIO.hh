@@ -92,7 +92,7 @@ namespace gs {
         read_pod(is, mergeLevel);
         read_pod_vector(is, annotations);
         ClassId id(is, 1);
-        Catalog* readback = 0;
+        Catalog* readback = nullptr;
 
         ClassId catId(ClassId::makeId<Catalog>());
         if (id.name() == catId.name())

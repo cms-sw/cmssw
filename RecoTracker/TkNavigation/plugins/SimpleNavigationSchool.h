@@ -20,7 +20,7 @@ class MagneticField;
 class dso_hidden SimpleNavigationSchool : public NavigationSchool {
 public:
   
-  SimpleNavigationSchool() : theField(0),theTracker(0){};
+  SimpleNavigationSchool() : theField(nullptr),theTracker(nullptr){};
   SimpleNavigationSchool(const GeometricSearchTracker* theTracker,
 			 const MagneticField* field);
   ~SimpleNavigationSchool(){cleanMemory();}

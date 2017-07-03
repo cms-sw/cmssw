@@ -678,7 +678,7 @@ bool ProcLikelihood::load()
 				<< std::endl;
 		elem = static_cast<DOMElement*>(node);
 
-		SigBkg *pdf = 0;
+		SigBkg *pdf = nullptr;
 		switch(version) {
 		    case 1:
 			if (cur == pdfs.end())
@@ -707,7 +707,7 @@ bool ProcLikelihood::load()
 		    node && node->getNodeType() != DOMNode::ELEMENT_NODE;
 		    node = node->getNextSibling());
 		DOMElement *elemSig =
-				node ? static_cast<DOMElement*>(node) : 0;
+				node ? static_cast<DOMElement*>(node) : nullptr;
 
 		for(node = node->getNextSibling();
 		    node && node->getNodeType() != DOMNode::ELEMENT_NODE;
@@ -715,7 +715,7 @@ bool ProcLikelihood::load()
 		while(node && node->getNodeType() != DOMNode::ELEMENT_NODE)
 			node = node->getNextSibling();
 		DOMElement *elemBkg =
-				node ? static_cast<DOMElement*>(node) : 0;
+				node ? static_cast<DOMElement*>(node) : nullptr;
 
 		for(node = node->getNextSibling();
 		    node && node->getNodeType() != DOMNode::ELEMENT_NODE;

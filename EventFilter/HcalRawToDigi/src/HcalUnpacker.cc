@@ -289,7 +289,7 @@ void HcalUnpacker::unpackVME(const FEDRawData& raw, const HcalElectronicsMap& em
       continue;
     }
     if ((htr.getFirmwareFlavor()&0xE0)==0x80) { // some kind of TTP data
-      if (colls.ttp!=0) {
+      if (colls.ttp!=nullptr) {
 	HcalTTPUnpacker ttpUnpack;
 	colls.ttp->push_back(HcalTTPDigi());
 	ttpUnpack.unpack(htr,colls.ttp->back());
@@ -639,7 +639,7 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
               ns++;
           }
           // Check QEI11 container exists
-          if (colls.qie11 == 0) {
+          if (colls.qie11 == nullptr) {
               colls.qie11 = new QIE11DigiCollection(ns);
           }
           else if (colls.qie11->samples() != ns) {
@@ -681,7 +681,7 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
 	}
 
 	// Check QEI10 container exists
-	if (colls.qie10ZDC == 0) {
+	if (colls.qie10ZDC == nullptr) {
 	  colls.qie10ZDC = new QIE10DigiCollection(ns);
 	}
 	else if (colls.qie10ZDC->samples() != ns) {
@@ -690,7 +690,7 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
 	  return;
 	}
 	
-	if (colls.qie10 == 0) {
+	if (colls.qie10 == nullptr) {
 	  colls.qie10 = new QIE10DigiCollection(ns);
 	}
 	else if (colls.qie10->samples() != ns) {
@@ -815,17 +815,17 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
 }
 
 HcalUnpacker::Collections::Collections() {
-  hbheCont=0;
-  hoCont=0;
-  hfCont=0;
-  tpCont=0;
-  zdcCont=0;
-  calibCont=0;
-  ttp=0;
-  qie10=0;
-  qie10ZDC=0;
-  qie11=0;
-  umnio=0;
+  hbheCont=nullptr;
+  hoCont=nullptr;
+  hfCont=nullptr;
+  tpCont=nullptr;
+  zdcCont=nullptr;
+  calibCont=nullptr;
+  ttp=nullptr;
+  qie10=nullptr;
+  qie10ZDC=nullptr;
+  qie11=nullptr;
+  umnio=nullptr;
 }
 
 void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap, std::vector<HcalHistogramDigi>& histoDigis) {

@@ -92,7 +92,7 @@ DEFINE_FWK_MODULE(DisplayGeom);
 
 DisplayGeom::DisplayGeom(const edm::ParameterSet& iConfig):
    m_eve(),
-   m_geomList(0),
+   m_geomList(nullptr),
    m_MF_component(0),
    m_geomWatcher(this, &DisplayGeom::remakeGeometry)
 {
@@ -149,7 +149,7 @@ TEveGeoTopNode* DisplayGeom::make_node(const TString& path, Int_t vis_level, Boo
    if (! gGeoManager->cd(path))
    {
       Warning("make_node", "Path '%s' not found.", path.Data());
-      return 0;
+      return nullptr;
    }
 
    TEveGeoTopNode* tn = new TEveGeoTopNode(gGeoManager, gGeoManager->GetCurrentNode());
@@ -182,7 +182,7 @@ DisplayGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
           edm::ESHandle<MagneticField> field;
          iSetup.get<IdealMagneticFieldRecord>().get( field );
 
-	 gStyle->SetPalette(1, 0);
+	 gStyle->SetPalette(1, nullptr);
 
 	 int minval = 0;
 	 int maxval = 4000;
@@ -201,7 +201,7 @@ DisplayGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 TEveRGBAPalette* pal = new TEveRGBAPalette(minval, maxval);
 
 	 
-	 TEveStraightLineSet* ls = 0;
+	 TEveStraightLineSet* ls = nullptr;
 	 if (m_MF_plane_draw_dir) {
 	   new TEveStraightLineSet("MF_line_direction");
 	   ls->SetPickable(false);

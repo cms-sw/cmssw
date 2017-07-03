@@ -43,7 +43,7 @@ TEveElementIter::TEveElementIter( TEveElement* element, const char* regular_expr
 
 TEveElement* TEveElementIter::next()
 {
-   if ( iter == elements.end() ) return 0;
+   if ( iter == elements.end() ) return nullptr;
    ++iter;
    return current();
 }
@@ -51,7 +51,7 @@ TEveElement* TEveElementIter::next()
 TEveElement* TEveElementIter::current()
 {
    if ( iter == elements.end() )
-      return 0;
+      return nullptr;
    else
       return *iter;
 }

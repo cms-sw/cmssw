@@ -332,7 +332,7 @@ ExternalLHEProducer::closeDescriptors(int preserve)
   maxfd = preserve;
   if ((dir = opendir("/proc/self/fd"))) {
     errno = 0;
-    while ((dp = readdir (dir)) != NULL) {
+    while ((dp = readdir (dir)) != nullptr) {
       if ((strcmp(dp->d_name, ".") == 0)  || (strcmp(dp->d_name, "..") == 0)) {
         continue;
       }
@@ -389,7 +389,7 @@ ExternalLHEProducer::executeScript()
   for (unsigned int i=1; i<argc; i++) {
     argv[i] = strdup(args_[i-1].c_str());
   }
-  argv[argc] = NULL;
+  argv[argc] = nullptr;
 
   pid_t pid = fork();
   if (pid == 0) {

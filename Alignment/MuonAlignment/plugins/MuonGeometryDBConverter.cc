@@ -143,7 +143,7 @@ MuonGeometryDBConverter::~MuonGeometryDBConverter() { }
 void
 MuonGeometryDBConverter::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
    if (!m_done) {
-      MuonAlignment *muonAlignment = NULL;
+      MuonAlignment *muonAlignment = nullptr;
 
       if (m_input == std::string("ideal")) {
 	 MuonAlignmentInputMethod inputMethod;

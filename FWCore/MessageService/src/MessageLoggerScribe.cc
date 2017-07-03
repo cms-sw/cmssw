@@ -217,7 +217,7 @@ MessageLoggerScribe::MessageLoggerScribe(std::shared_ptr<ThreadQueue> queue)
 , job_pset_p( )
 , clean_slate_configuration( true )
 , active( true )
-, singleThread (queue.get() == 0)				// changeLog 36
+, singleThread (queue.get() == nullptr)				// changeLog 36
 , done (false)							// changeLog 32
 , purge_mode (false)						// changeLog 32
 , count (false)							// changeLog 32
@@ -262,7 +262,7 @@ void
       break;
     }
     case MessageLoggerQ::END_THREAD:  {
-      assert( operand == 0 );
+      assert( operand == nullptr );
       done = true;
       MessageDrop::instance()->messageLoggerScribeIsRunning = 
 	      (unsigned char) -1; 				// ChangeLog 30
@@ -331,7 +331,7 @@ void
       }
     }
     case MessageLoggerQ::SUMMARIZE: {
-      assert( operand == 0 );
+      assert( operand == nullptr );
       try {
 	triggerStatisticsSummaries();
       }
@@ -362,7 +362,7 @@ void
       break;
     }
     case MessageLoggerQ::SHUT_UP:  {
-      assert( operand == 0 );
+      assert( operand == nullptr );
       active = false;
       break;
     }

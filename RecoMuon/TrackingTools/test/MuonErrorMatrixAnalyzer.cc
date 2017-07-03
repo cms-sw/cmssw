@@ -377,21 +377,21 @@ void
 MuonErrorMatrixAnalyzer::beginJob()
 {
   if (theErrorMatrixStore_Reported_pset.empty()){
-    theErrorMatrixStore_Reported =0;}
+    theErrorMatrixStore_Reported =nullptr;}
   else{
     //create the error matrix provider, saying that you want to construct the things from here
     theErrorMatrixStore_Reported = new MuonErrorMatrix(theErrorMatrixStore_Reported_pset);
   }
   
   if (theErrorMatrixStore_Residual_pset.empty()){
-    theErrorMatrixStore_Residual =0;}
+    theErrorMatrixStore_Residual =nullptr;}
   else{
     //create the error matrix provider for the alternative method
     theErrorMatrixStore_Residual = new MuonErrorMatrix(theErrorMatrixStore_Residual_pset);  
   }
   
   if (theErrorMatrixStore_Pull_pset.empty()){
-    theErrorMatrixStore_Pull =0;}
+    theErrorMatrixStore_Pull =nullptr;}
   else{
     //create the error matrix provider for the alternative method
     theErrorMatrixStore_Pull = new MuonErrorMatrix(theErrorMatrixStore_Pull_pset);  
@@ -399,7 +399,7 @@ MuonErrorMatrixAnalyzer::beginJob()
 
 
   if (thePlotFileName ==""){
-    thePlotFile = 0;
+    thePlotFile = nullptr;
     //    thePlotDir=0;
     gROOT->cd();
   }
@@ -629,7 +629,7 @@ MuonErrorMatrixAnalyzer::endJob() {
   }
 
   //write the file with all the plots in it.
-  TFile*   thePlotFile=0;
+  TFile*   thePlotFile=nullptr;
   if(thePlotFileName!= ""){
     //    std::cout<<"trying to write in: "<<thePlotFileName<<std::endl;
     
@@ -637,7 +637,7 @@ MuonErrorMatrixAnalyzer::endJob() {
     thePlotFile->cd();
     TListIter iter(theBookKeeping);
     //    std::cout<<"number of objects to write: "<<theBookKeeping->GetSize()<<std::endl;
-    TObject * o=0;
+    TObject * o=nullptr;
     while( (o=iter.Next()) )
       {
 	//	std::cout<<"writing: "<<o->GetName()<<" in file: "<<thePlotFile->GetName()<<std::endl;
@@ -693,7 +693,7 @@ MuonErrorMatrixAnalyzer::endJob() {
 	      //please free the memory !!!
 	      LogDebug(theCategory)<<"freing memory of: "<<theH->GetName();
 	      theH->Delete();
-	      theH=0;
+	      theH=nullptr;
 	    }}}//end of loop over the pt,eta,phi
       }}
   
@@ -750,7 +750,7 @@ MuonErrorMatrixAnalyzer::endJob() {
 	      //please free the memory !!!
 	      LogDebug(theCategory)<<"freing memory of: "<<theH->GetName();
 	      theH->Delete();
-	      theH=0;
+	      theH=nullptr;
 	    }}}//end of loop over the pt,eta,phi 
       }
     }

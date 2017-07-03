@@ -390,7 +390,7 @@ bool FEDErrors::fillFEDErrors(const FEDRawData& aFedData,
 
    
   if (printDebug() && aPrintDebug>2) {
-    const sistrip::FEDBufferBase* debugBuffer = NULL;
+    const sistrip::FEDBufferBase* debugBuffer = nullptr;
 
     if (buffer.get()) debugBuffer = buffer.get();
     //else if (bufferBase.get()) debugBuffer = bufferBase.get();

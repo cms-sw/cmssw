@@ -63,8 +63,8 @@ namespace edm
       // Look for the parameter set containing the trigger names in the parameter
       // set registry using the ID from TriggerResults as the key used to find it.
       edm::pset::Registry* psetRegistry = edm::pset::Registry::instance();
-      edm::ParameterSet const* pset=0;
-      if (0!=(pset=psetRegistry->getMapped(triggerResults.parameterSetID()))) {
+      edm::ParameterSet const* pset=nullptr;
+      if (nullptr!=(pset=psetRegistry->getMapped(triggerResults.parameterSetID()))) {
 
 	 if (pset->existsAs<std::vector<std::string> >("@trigger_paths", true)) {
             TriggerNames triggerNames(*pset);
@@ -105,6 +105,6 @@ namespace edm
             triggerNamesMap.insert(std::pair<edm::ParameterSetID, edm::TriggerNames>(fakePset.id(), triggerNames));
          return &(ret.first->second);
       }
-      return 0;
+      return nullptr;
    }
 }

@@ -95,8 +95,8 @@ EcalUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
         Handle< EBDigiCollection > pEBDigis;
         Handle< EEDigiCollection > pEEDigis;
 
-        const EBDigiCollection* ebDigis =0;
-        const EEDigiCollection* eeDigis =0;
+        const EBDigiCollection* ebDigis =nullptr;
+        const EEDigiCollection* eeDigis =nullptr;
 
 
 	evt.getByToken( ebDigiCollectionToken_, pEBDigis);		

@@ -43,7 +43,7 @@ Bounds * TrackerShapeToBounds::buildBounds(const DDSolidShape & _shape, const st
     break;
   default:
     std::cout<<"Wrong DDshape to build...."<<_shape<<std::endl; 
-    Bounds* bounds = 0;
+    Bounds* bounds = nullptr;
     return bounds;
   }
 }      
@@ -52,7 +52,7 @@ Bounds * TrackerShapeToBounds::buildBox(const std::vector<double>& paras ) const
   int indexX = 0;
   int indexY = 1; 
   int indexZ = 2;
-  Bounds* bounds = 0;
+  Bounds* bounds = nullptr;
   
   if(paras[1]<paras[0]&&paras[0]<paras[2]){
     indexX=0;
@@ -69,7 +69,7 @@ Bounds * TrackerShapeToBounds::buildBox(const std::vector<double>& paras ) const
 Bounds * TrackerShapeToBounds::buildTrap(const std::vector<double>& paras ) const{
 
 
-  Bounds* bounds = 0;
+  Bounds* bounds = nullptr;
   /*
     TrapezoidalPlaneBounds (float be, float te, float a, float t)
     constructed from:

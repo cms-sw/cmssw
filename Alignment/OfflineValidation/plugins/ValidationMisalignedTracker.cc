@@ -227,8 +227,8 @@ ValidationMisalignedTracker::~ValidationMisalignedTracker()
   
   // Closing the file deletes the tree.
   file_->Close();
-  tree_eff=0;
-  tree_fake=0;
+  tree_eff=nullptr;
+  tree_fake=nullptr;
 }
 
 

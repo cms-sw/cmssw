@@ -50,7 +50,7 @@ class testEcalClusterFunctions : public edm::EDAnalyzer {
 
 
 testEcalClusterFunctions::testEcalClusterFunctions(const edm::ParameterSet& ps) :
-        ff_(0)
+        ff_(nullptr)
 {
         std::string functionName = ps.getParameter<std::string>("functionName");
         ff_ = EcalClusterFunctionFactory::get()->create( functionName, ps );

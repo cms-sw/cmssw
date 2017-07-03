@@ -11,7 +11,7 @@ using namespace align;
 SurveyResidual::SurveyResidual(const Alignable& ali,
 			       StructureType type,
 			       bool bias):
-  theMother(0),
+  theMother(nullptr),
   theSurface( ali.surface() ),
   theSelector( ali.alignmentParameters()->selector() )
 {

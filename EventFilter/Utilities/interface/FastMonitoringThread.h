@@ -120,7 +120,7 @@ namespace evf{
 	else
 	  fm->registerStreamMonitorableUIntVec("Microstate",&threadMicrostateEncoded_,true,&microstateBins_);
 
-        fm->registerStreamMonitorableUIntVecAtomic("Processed",&processed_,false,0);
+        fm->registerStreamMonitorableUIntVecAtomic("Processed",&processed_,false,nullptr);
 
         //input source state tracking (not stream, but other than first item in vector is set to Ignore state) 
         fm->registerStreamMonitorableUIntVec("Inputstate",&inputState_,true,&inputstateBins_);

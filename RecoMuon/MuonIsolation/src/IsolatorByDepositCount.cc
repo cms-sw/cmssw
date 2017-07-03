@@ -5,7 +5,7 @@ using reco::IsoDeposit;
 using namespace muonisolation;
 
 IsolatorByDepositCount::IsolatorByDepositCount(float conesize, const vector<double>& dThresh) 
-  : theConeSizeFunction(0), theConeSize(conesize), theDepThresholds(dThresh)
+  : theConeSizeFunction(nullptr), theConeSize(conesize), theDepThresholds(dThresh)
 { }
 
 IsolatorByDepositCount::IsolatorByDepositCount(const ConeSizeFunction * conesize, 

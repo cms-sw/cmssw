@@ -235,8 +235,8 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
     // add the FwdPtrs to the CaloTowers
     if ( (ajet.isCaloJet() || ajet.isJPTJet() ) && embedCaloTowers_) {
-      const reco::CaloJet *cj = 0;
-      const reco::JPTJet * jptj = 0;
+      const reco::CaloJet *cj = nullptr;
+      const reco::JPTJet * jptj = nullptr;
       if ( ajet.isCaloJet()) cj = dynamic_cast<const reco::CaloJet *>(jetRef.get());
       else {
 	jptj = dynamic_cast<const reco::JPTJet *>(jetRef.get() );

@@ -153,7 +153,7 @@ PFEGammaCandidateChecker::analyze(const Event& iEvent,
   for( unsigned i=0; i<recoSize; i++ ) {
     
     const reco::PFCandidate & candReco = (rankByPt_) ? pfReco[i] : (*pfCandidatesReco)[i];
-    const reco::PFCandidate * candReReco = NULL;
+    const reco::PFCandidate * candReReco = nullptr;
 
     switch( std::abs(candReco.pdgId()) ) {
     case 11:
@@ -203,7 +203,7 @@ PFEGammaCandidateChecker::analyze(const Event& iEvent,
       break;
     }
 
-    if( candReReco != NULL ) {
+    if( candReReco != nullptr ) {
     
       double deltaE = (candReReco->energy()-candReco.energy())/(candReReco->energy()+candReco.energy());
       double deltaEta = candReReco->eta()-candReco.eta();
@@ -232,7 +232,7 @@ PFEGammaCandidateChecker::analyze(const Event& iEvent,
   std::cout << "========= check ged -> pf =========" << std::endl;
   for( unsigned i=0; i<reRecoSize; i++ ) {
     
-    const reco::PFCandidate * candReco = NULL;
+    const reco::PFCandidate * candReco = nullptr;
     const reco::PFCandidate & candReReco = (rankByPt_) ? pfReReco[i] : (*pfCandidatesReReco)[i];
 
     switch( std::abs(candReReco.pdgId()) ) {
@@ -292,7 +292,7 @@ PFEGammaCandidateChecker::analyze(const Event& iEvent,
       break;
     }
 
-    if( candReco != NULL ) {
+    if( candReco != nullptr ) {
     
       double deltaE = (candReReco.energy()-candReco->energy())/(candReReco.energy()+candReco->energy());
       double deltaEta = candReReco.eta()-candReco->eta();

@@ -45,7 +45,7 @@ void SimG4FluxProducer::produce(edm::Event& e, const edm::EventSetup&) {
 void SimG4FluxProducer::update(const BeginOfRun * run) {
 
   topPV_ = getTopPV();
-  if (topPV_ == 0) {
+  if (topPV_ == nullptr) {
     edm::LogWarning("SimG4FluxProducer") << "Cannot find top level volume\n";
   } else {
     init_ = true;
@@ -77,7 +77,7 @@ void SimG4FluxProducer::update(const BeginOfEvent * evt) {
 
 void SimG4FluxProducer::update(const G4Step * aStep) {
 
-  if (aStep != NULL) {
+  if (aStep != nullptr) {
 
     G4TouchableHistory* touchable = (G4TouchableHistory*)aStep->GetPreStepPoint()->GetTouchable();
     G4LogicalVolume* plv = (G4LogicalVolume*)touchable->GetVolume()->GetLogicalVolume();

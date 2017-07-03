@@ -12,7 +12,7 @@ int main() {
 	      << boost::posix_time::time_duration::num_fractional_digits()
 	      << std::endl;
     ::timeval stv;
-    ::gettimeofday(&stv,0);
+    ::gettimeofday(&stv,nullptr);
     
     cond::Time_t time = cond::time::from_timeval(stv);
     

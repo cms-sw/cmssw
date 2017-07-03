@@ -8,7 +8,7 @@
 
 #include <sstream>
 
-Histos* Histos::myself = 0;
+Histos* Histos::myself = nullptr;
 
 Histos::Histos() {}
 

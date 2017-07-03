@@ -137,7 +137,7 @@ void MCMuonSeedGenerator2::produce(edm::Event& event, const edm::EventSetup& set
     
     const PSimHit* innerSimHit = muonSimHits.front();
 
-    TrajectorySeed* seed = 0;
+    TrajectorySeed* seed = nullptr;
 
     // switch(theSeedType){
 
@@ -216,7 +216,7 @@ TrajectorySeed* MCMuonSeedGenerator2::createSeedFromTrack(const SimTrack &simTra
 
   LogTrace(metname) << "Seed from sim track";
 
-  TrajectorySeed* seed = 0;
+  TrajectorySeed* seed = nullptr;
 
   const GeomDet *geomDet = theService->trackingGeometry()->idToDet(detId);  
   LogTrace(metname) << "Seed geom det: "<<debug.dumpMuonId(geomDet->geographicalId());

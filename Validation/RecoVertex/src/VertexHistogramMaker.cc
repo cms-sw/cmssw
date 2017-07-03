@@ -14,7 +14,7 @@
 
 
 VertexHistogramMaker::VertexHistogramMaker(edm::ConsumesCollector&& iC)
-  : m_currdir(0), m_maxLS(100), m_weightThreshold(0.5), m_trueOnly(true)
+  : m_currdir(nullptr), m_maxLS(100), m_weightThreshold(0.5), m_trueOnly(true)
   , m_runHisto(true), m_runHistoProfile(true), m_runHistoBXProfile(true), m_runHistoBXProfile2D(false), m_runHisto2D(false)
   , m_bsConstrained(false)
   , m_histoParameters()
@@ -22,7 +22,7 @@ VertexHistogramMaker::VertexHistogramMaker(edm::ConsumesCollector&& iC)
   , m_fhm(iC) { }
 
 VertexHistogramMaker::VertexHistogramMaker(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC)
-  : m_currdir(0)
+  : m_currdir(nullptr)
   , m_maxLS(iConfig.getParameter<unsigned int>("maxLSBeforeRebin"))
   , m_weightThreshold(iConfig.getUntrackedParameter<double>("weightThreshold",0.5))
   , m_trueOnly(iConfig.getUntrackedParameter<bool>("trueOnly",true))
@@ -201,7 +201,7 @@ void VertexHistogramMaker::book(const std::string dirname) {
 void VertexHistogramMaker::beginRun(const edm::Run& iRun) {
 
   TFileDirectory* currdir = m_currdir;
-  if(currdir==0) {
+  if(currdir==nullptr) {
     edm::Service<TFileService> tfserv;
     currdir = &(tfserv->tFileDirectory());
   }

@@ -925,7 +925,7 @@ int main(int argc, char ** argv) {
   
   std::cout << "Opening file " << filename << std::endl ;
   TFile* file = TFile::Open(filename.c_str());
-  if (file == 0) {
+  if (file == nullptr) {
     std::cout << "*** Error opening file: " << filename << " ***" << std::endl;
     std::cout << "\n\n" << desc << usage <<  std::endl ;
     return 1 ;
@@ -950,7 +950,7 @@ int main(int argc, char ** argv) {
   
   assert(TBPerfInfo);
   // Additions suggested by Chris Jones and Dan Riley
-  edm::Wrapper<HLTPerformanceInfo>* HLTPerformanceWrapper = 0 ;
+  edm::Wrapper<HLTPerformanceInfo>* HLTPerformanceWrapper = nullptr ;
   TBPerfInfo->SetAddress((void *) & HLTPerformanceWrapper) ;
 
   //--- Additions necessary to get the actual run/event number ---//

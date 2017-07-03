@@ -142,7 +142,7 @@ namespace egHLT {
     {
       if(typeid(*inputCut)==typeid(EgMultiCut)){
 	edm::LogError("EgMultiCut") <<" Error can not currently load an EgMultiCut inside a EgMultiCut, the practical upshot is that the selection you think is being loaded isnt ";
-      }else if(inputCut==NULL){
+      }else if(inputCut==nullptr){
 	edm::LogError("EgMultiCut") << "Error, cut being loaded is null, ignoring";
       }else cuts_.push_back(inputCut);
       return *this;
@@ -269,7 +269,7 @@ namespace egHLT {
   template<class T> bool EgTagProbeCut<T>::pass(const T& obj,const OffEvt& evt)const
     {
       int nrTags=0;
-      const OffEle* tagEle=NULL;
+      const OffEle* tagEle=nullptr;
       const std::vector<OffEle>& eles = evt.eles();
       //we are looking for an *additional* tag
       for(size_t eleNr=0;eleNr<eles.size();eleNr++){

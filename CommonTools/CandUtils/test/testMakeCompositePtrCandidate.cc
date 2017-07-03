@@ -47,8 +47,8 @@ void testMakePtrCompositeCandidate::checkAll() {
   const Candidate & cmp2 = *cmp;
   d[0] = cmp2.daughter(0);
   d[1] = cmp2.daughter(1);
-  CPPUNIT_ASSERT(d[0] != 0);
-  CPPUNIT_ASSERT(d[1] != 0);
+  CPPUNIT_ASSERT(d[0] != nullptr);
+  CPPUNIT_ASSERT(d[1] != nullptr);
   const double epsilon = 1.e-5; 
   CPPUNIT_ASSERT( d[0]->charge() == q1 );
   CPPUNIT_ASSERT( fabs(d[0]->p4().pt() - p1.pt()) < epsilon );

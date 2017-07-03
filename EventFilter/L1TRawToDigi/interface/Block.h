@@ -103,7 +103,7 @@ namespace l1t {
          MTF7Payload(const uint32_t * data, const uint32_t * end);
          // Unused methods - we override getBlock() instead
          virtual unsigned getHeaderSize() const override { return 0; };
-         virtual BlockHeader getHeader() override { return BlockHeader(0); };
+         virtual BlockHeader getHeader() override { return BlockHeader(nullptr); };
          virtual std::unique_ptr<Block> getBlock() override;
       private:
          // sizes in 16 bit words

@@ -14,7 +14,7 @@ CompositeTSG::CompositeTSG(const edm::ParameterSet & par,edm::ConsumesCollector&
     edm::ParameterSet TSGpset = par.getParameter<edm::ParameterSet>(*nIt);
     if (TSGpset.empty()) {
       theNames.push_back((*nIt)+":"+"NULL");
-      theTSGs.push_back((TrackerSeedGenerator*)(0));
+      theTSGs.push_back((TrackerSeedGenerator*)nullptr);
     }else {
       std::string SeedGenName = TSGpset.getParameter<std::string>("ComponentName");
       theNames.push_back((*nIt)+":"+SeedGenName);

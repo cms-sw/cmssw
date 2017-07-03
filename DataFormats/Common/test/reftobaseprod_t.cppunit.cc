@@ -223,14 +223,14 @@ void testRefToBaseProd::getTest() {
    
    CPPUNIT_ASSERT(!prod.hasCache());
 
-   CPPUNIT_ASSERT(0 != prod.get());
+   CPPUNIT_ASSERT(nullptr != prod.get());
    CPPUNIT_ASSERT(prod.hasCache());
    compareTo(prod,*wptr);
 
    
    CPPUNIT_ASSERT(!prodCopy.hasCache());
    
-   CPPUNIT_ASSERT(0 != prodCopy.get());
+   CPPUNIT_ASSERT(nullptr != prodCopy.get());
    CPPUNIT_ASSERT(prodCopy.hasCache());
    compareTo(prodCopy,*wptr);
 
@@ -262,7 +262,7 @@ void testRefToBaseProd::getTest() {
       
       CPPUNIT_ASSERT(!prod.hasCache());
       
-      CPPUNIT_ASSERT(0 != prod.get());
+      CPPUNIT_ASSERT(nullptr != prod.get());
       CPPUNIT_ASSERT(prod.hasCache());
       compareTo(prod,*wptr);
 

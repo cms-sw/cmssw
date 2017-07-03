@@ -93,7 +93,7 @@ namespace sistrip {
     allowIncompleteEvents_(pset.getParameter<bool>("AllowIncompleteEvents")),
     storeCounters_(pset.getParameter<bool>("StoreCounters")),
     storeScopeRawDigis_(pset.getParameter<bool>("StoreScopeRawDigis")),
-    unpacker_(NULL)
+    unpacker_(nullptr)
   {
     productToken_ = consumes<FEDRawDataCollection>(productLabel_);
 

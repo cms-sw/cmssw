@@ -94,8 +94,8 @@ void ElectronRecalibSuperClusterAssociator::produce(edm::Event& e, const edm::Ev
     {
       float DeltaRMineleSCbarrel(0.15); //initial minDeltaR
       float DeltaRMineleSCendcap(0.15); 
-      const reco::SuperCluster* nearestSCbarrel=0;
-      const reco::SuperCluster* nearestSCendcap=0;
+      const reco::SuperCluster* nearestSCbarrel=nullptr;
+      const reco::SuperCluster* nearestSCendcap=nullptr;
       int iscRef=-1, iscRefendcap=-1;
       int iSC=0;
       

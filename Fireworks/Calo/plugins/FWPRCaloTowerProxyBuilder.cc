@@ -23,7 +23,7 @@ private:
 
 void FWPRCaloTowerProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*)
 {
-   const CaloTowerCollection* collection = 0;
+   const CaloTowerCollection* collection = nullptr;
    iItem->get( collection );
    if (! collection)
       return;
@@ -34,7 +34,7 @@ void FWPRCaloTowerProxyBuilder::build(const FWEventItem* iItem, TEveElementList*
    for (std::vector<CaloTower>::const_iterator it = collection->begin() ; it != collection->end(); ++it)
    {  
       const float* corners = item()->getGeom()->getCorners((*it).id().rawId());
-      if (corners == 0) 
+      if (corners == nullptr) 
          continue;
 
       std::vector<float> scaledCorners(24);

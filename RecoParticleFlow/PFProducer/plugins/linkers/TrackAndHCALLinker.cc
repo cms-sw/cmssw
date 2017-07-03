@@ -32,8 +32,8 @@ double TrackAndHCALLinker::testLink
     reco::PFTrajectoryPoint::HCALEntrance;
   constexpr reco::PFTrajectoryPoint::LayerType HCALExit =
     reco::PFTrajectoryPoint::HCALExit;
-  const reco::PFBlockElementCluster *hcalelem(NULL);
-  const reco::PFBlockElementTrack   *tkelem(NULL);
+  const reco::PFBlockElementCluster *hcalelem(nullptr);
+  const reco::PFBlockElementTrack   *tkelem(nullptr);
   double dist(-1.0);
   if( elem1->type() < elem2->type() ) {
     tkelem = static_cast<const reco::PFBlockElementTrack*>(elem1);

@@ -36,7 +36,7 @@ class SiPixelFedCablingMapTestWriter : public edm::EDAnalyzer {
 
 
 SiPixelFedCablingMapTestWriter::SiPixelFedCablingMapTestWriter( const edm::ParameterSet& iConfig ) 
-  : cablingTree(0),
+  : cablingTree(nullptr),
     m_record(iConfig.getParameter<std::string>("record"))
 {
   cout <<" HERE record: "<< m_record<<endl;

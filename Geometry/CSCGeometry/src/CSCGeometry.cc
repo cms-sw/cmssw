@@ -99,7 +99,7 @@ const GeomDetUnit* CSCGeometry::idToDetUnit(DetId id) const
 const GeomDet* CSCGeometry::idToDet(DetId id) const{
   CSCDetMap::const_iterator i = theMap.find(id);
   return (i != theMap.end()) ?
-    i->second : 0 ;
+    i->second : nullptr ;
 }
 
 
@@ -167,7 +167,7 @@ void CSCGeometry::queryModelling() const {
 }
 
 const CSCChamberSpecs* CSCGeometry::findSpecs( int iChamberType ) {
-  const CSCChamberSpecs* aSpecs = 0;
+  const CSCChamberSpecs* aSpecs = nullptr;
   CSCSpecsContainer::const_iterator it = specsContainer.find( iChamberType );
   if (  it != specsContainer.end() )  aSpecs = (*it).second;
   return aSpecs;

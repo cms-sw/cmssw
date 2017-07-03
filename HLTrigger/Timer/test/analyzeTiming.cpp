@@ -59,7 +59,7 @@ int main(int argc, char ** argv)
   TTree * events = dynamic_cast<TTree *>(file.Get("Events") );
   assert(events);
 
-  TBranch * TBevtTime = 0;
+  TBranch * TBevtTime = nullptr;
   TBranch * TBevtAux = events->GetBranch("EventAuxiliary");
   assert(TBevtAux);
   //  std::cout << " TBevtAux = " << int(TBevtAux) << std::endl;
@@ -74,7 +74,7 @@ int main(int argc, char ** argv)
   TBevtAux->SetAddress((void *)&evtAux);
 #endif
 
-  AnalyzeTiming * tt = 0;
+  AnalyzeTiming * tt = nullptr;
 
   char tmp_name[1024];
   snprintf(tmp_name, 1024, "edmEventTime_myTimer__%s.obj", process_name.c_str());

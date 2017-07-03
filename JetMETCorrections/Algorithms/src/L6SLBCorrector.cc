@@ -32,7 +32,7 @@ L6SLBCorrector::L6SLBCorrector(const JetCorrectorParameters& fParam, const edm::
   : addMuonToJet_(fConfig.getParameter<bool>("addMuonToJet"))
   , srcBTagInfoElec_(fConfig.getParameter<edm::InputTag>("srcBTagInfoElectron"))
   , srcBTagInfoMuon_(fConfig.getParameter<edm::InputTag>("srcBTagInfoMuon"))
-  , corrector_(0)
+  , corrector_(nullptr)
 {
   vector<JetCorrectorParameters> vParam;
   vParam.push_back(fParam);

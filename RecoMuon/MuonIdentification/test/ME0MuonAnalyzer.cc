@@ -2786,7 +2786,7 @@ void ME0MuonAnalyzer::endRun(edm::Run const&, edm::EventSetup const&)
   //logout << "Writing this to a file.\n";
   logout.close();
 
-  delete histoFile; histoFile = 0;
+  delete histoFile; histoFile = nullptr;
 }
 
 

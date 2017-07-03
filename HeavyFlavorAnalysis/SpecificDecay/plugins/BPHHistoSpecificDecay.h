@@ -40,7 +40,7 @@ class BPHHistoSpecificDecay:
    public:
     virtual ~CandidateSelect() {}
     virtual bool accept( const pat::CompositeCandidate& cand,
-                         const reco::Vertex* pv = 0 ) const = 0 ;
+                         const reco::Vertex* pv = nullptr ) const = 0 ;
   };
 
  private:

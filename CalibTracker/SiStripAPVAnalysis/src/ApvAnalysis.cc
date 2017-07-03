@@ -9,10 +9,10 @@ using namespace std;
 ApvAnalysis::ApvAnalysis(int nEvForUpdate)
 {
 
-  theTkCommonModeCalculator =0;
-  theTkPedestalCalculator =0;
-  theTkNoiseCalculator =0;
-  theTkApvMask =0;
+  theTkCommonModeCalculator =nullptr;
+  theTkPedestalCalculator =nullptr;
+  theTkNoiseCalculator =nullptr;
+  theTkApvMask =nullptr;
   nEventsForNoiseCalibration_ =0;
   eventsRequiredToUpdate_ = nEvForUpdate;
 

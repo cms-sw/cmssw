@@ -78,7 +78,7 @@ namespace cond {
     class PayloadProxy : public BasePayloadProxy {
     public:
       
-      explicit PayloadProxy( const char * source=0 ) :
+      explicit PayloadProxy( const char * source=nullptr ) :
 	BasePayloadProxy() {}
       
       virtual ~PayloadProxy(){}

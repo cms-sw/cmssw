@@ -53,8 +53,8 @@ TPNtuplizer::TPNtuplizer(edm::ParameterSet const& conf) :
   label_tp_fake_(conf.getParameter< edm::InputTag >("label_tp_fake")),
   UseAssociators_(conf.getParameter< bool >("UseAssociators")),
   associators_(conf.getParameter< std::vector<std::string> >("associators")),
-  tfile_(0), 
-  tptree_(0)
+  tfile_(nullptr), 
+  tptree_(nullptr)
 {
   tpSelector_ = TrackingParticleSelector(conf_.getParameter<double>("ptMinTP"),
                                          conf_.getParameter<double>("minRapidityTP"),

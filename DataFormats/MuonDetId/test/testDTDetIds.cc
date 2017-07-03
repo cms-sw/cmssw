@@ -202,23 +202,23 @@ void testDTDetIds::testFail(){
   try {
     // Invalid sector
     DTChamberId detid(0,1,15);
-    CPPUNIT_ASSERT("Failed to throw required exception" == 0);      
+    CPPUNIT_ASSERT("Failed to throw required exception" == nullptr);      
     detid.rawId(); // avoid compiler warning
   } catch (cms::Exception& e) {
     // OK
   } catch (...) {
-    CPPUNIT_ASSERT("Threw wrong kind of exception" == 0);
+    CPPUNIT_ASSERT("Threw wrong kind of exception" == nullptr);
   }
   
   // Contruct a DTChamberId using an invalid input id
   try {
     DTChamberId detid(3211);
-    CPPUNIT_ASSERT("Failed to throw required exception" == 0);      
+    CPPUNIT_ASSERT("Failed to throw required exception" == nullptr);      
     detid.rawId(); // avoid compiler warning
   } catch (cms::Exception& e) {
     // OK
   } catch (...) {
-    CPPUNIT_ASSERT("Threw wrong kind of exception" == 0);
+    CPPUNIT_ASSERT("Threw wrong kind of exception" == nullptr);
   }
 
 
@@ -227,23 +227,23 @@ void testDTDetIds::testFail(){
   try {
     // Invalid superlayer
     DTSuperLayerId detid(0,1,1,5);
-    CPPUNIT_ASSERT("Failed to throw required exception" == 0);      
+    CPPUNIT_ASSERT("Failed to throw required exception" == nullptr);      
     detid.rawId(); // avoid compiler warning
   } catch (cms::Exception& e) {
     // OK
   } catch (...) {
-    CPPUNIT_ASSERT("Threw wrong kind of exception" == 0);
+    CPPUNIT_ASSERT("Threw wrong kind of exception" == nullptr);
   }
   
   // Contruct a DTSuperLayerId using an invalid input id
   try {
     DTSuperLayerId detid(3211);
-    CPPUNIT_ASSERT("Failed to throw required exception" == 0);      
+    CPPUNIT_ASSERT("Failed to throw required exception" == nullptr);      
     detid.rawId(); // avoid compiler warning
   } catch (cms::Exception& e) {
     // OK
   } catch (...) {
-    CPPUNIT_ASSERT("Threw wrong kind of exception" == 0);
+    CPPUNIT_ASSERT("Threw wrong kind of exception" == nullptr);
   }
 
 
@@ -251,23 +251,23 @@ void testDTDetIds::testFail(){
   try {
     // Invalid layer
     DTLayerId detid(0,1,1,1,7);
-    CPPUNIT_ASSERT("Failed to throw required exception" == 0);      
+    CPPUNIT_ASSERT("Failed to throw required exception" == nullptr);      
     detid.rawId(); // avoid compiler warning
   } catch (cms::Exception& e) {
     // OK
   } catch (...) {
-    CPPUNIT_ASSERT("Threw wrong kind of exception" == 0);
+    CPPUNIT_ASSERT("Threw wrong kind of exception" == nullptr);
   }
   
   // Contruct a DTLayerId using an invalid input id
   try {
     DTLayerId detid(3211);
-    CPPUNIT_ASSERT("Failed to throw required exception" == 0);      
+    CPPUNIT_ASSERT("Failed to throw required exception" == nullptr);      
     detid.rawId(); // avoid compiler warning
   } catch (cms::Exception& e) {
     // OK
   } catch (...) {
-    CPPUNIT_ASSERT("Threw wrong kind of exception" == 0);
+    CPPUNIT_ASSERT("Threw wrong kind of exception" == nullptr);
   }
 
 
@@ -275,24 +275,24 @@ void testDTDetIds::testFail(){
   try {
     // Invalid wire
     DTWireId wireId(0,1,1,1,1,1000);
-    CPPUNIT_ASSERT("Failed to throw required exception" == 0);      
+    CPPUNIT_ASSERT("Failed to throw required exception" == nullptr);      
     wireId.rawId(); // avoid compiler warning
   } catch (cms::Exception& e) {
     // OK
   } catch (...) {
-    CPPUNIT_ASSERT("Threw wrong kind of exception" == 0);
+    CPPUNIT_ASSERT("Threw wrong kind of exception" == nullptr);
   }
 
 
   // Contruct a DTWireId using an invalid input id
   try {
     DTWireId wireId(3211);
-    CPPUNIT_ASSERT("Failed to throw required exception" == 0);      
+    CPPUNIT_ASSERT("Failed to throw required exception" == nullptr);      
     wireId.rawId(); // avoid compiler warning
   } catch (cms::Exception& e) {
     // OK
   } catch (...) {
-    CPPUNIT_ASSERT("Threw wrong kind of exception" == 0);
+    CPPUNIT_ASSERT("Threw wrong kind of exception" == nullptr);
   }
 
 }

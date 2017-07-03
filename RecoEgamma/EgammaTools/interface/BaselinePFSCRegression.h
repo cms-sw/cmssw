@@ -29,7 +29,7 @@
 
 class BaselinePFSCRegression {
  public:
-  BaselinePFSCRegression() : topo_record(NULL), geom_record(NULL) {};
+  BaselinePFSCRegression() : topo_record(nullptr), geom_record(nullptr) {};
   void update(const edm::EventSetup&);
   void set(const reco::SuperCluster&, std::vector<float>&) const;
   void setTokens(const edm::ParameterSet&, edm::ConsumesCollector&&);

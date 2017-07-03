@@ -141,7 +141,7 @@ ZeeCalibration::ZeeCalibration(const edm::ParameterSet& iConfig)
   hlTriggerResults_ = iConfig.getParameter<edm::InputTag> ("HLTriggerResults");
 
   theParameterSet=iConfig;
-  EcalIndexingTools* myIndexTool=0;
+  EcalIndexingTools* myIndexTool=nullptr;
 
   
   myIndexTool = EcalIndexingTools::getInstance();
@@ -682,7 +682,7 @@ ZeeCalibration::duringLoop( const edm::Event& iEvent, const edm::EventSetup& iSe
     loopFlag_ = 0;
 
     //Read miscalibration map if requested
-    CaloMiscalibMapEcal* miscalibMap=0;
+    CaloMiscalibMapEcal* miscalibMap=nullptr;
     if (!barrelfile_.empty() || !barrelfile_.empty())
       {
 	miscalibMap=new CaloMiscalibMapEcal();
@@ -2028,7 +2028,7 @@ void ZeeCalibration::fillMCmap(const std::vector<const reco::GsfElectron*>* elec
   for (unsigned int i=0;i<mcEle.size();i++)
     {
       float minDR=0.1;
-      const reco::GsfElectron* myMatchEle=0;
+      const reco::GsfElectron* myMatchEle=nullptr;
       for (unsigned int j=0;j<electronCollection->size();j++)
         {
           float dr=EvalDR(mcEle[i]->momentum().pseudoRapidity(),(*(*electronCollection)[j]).eta(),mcEle[i]->momentum().phi(),(*(*electronCollection)[j]).phi());
@@ -2174,7 +2174,7 @@ std::pair<DetId, double> ZeeCalibration::getHottestDetId(const std::vector<std::
   
 
   double maxEnergy = -9999.;
-  const EcalRecHit* hottestRecHit=0;
+  const EcalRecHit* hottestRecHit=nullptr;
   
   std::pair<DetId, double> myPair (DetId(0), -9999.);
 

@@ -42,7 +42,7 @@ public:
     //! Classify any vertexes in categories.
     VertexClassifierByProxy<Collection> const & evaluate (edm::Ref<Collection> const & vertex, std::size_t index)
     {
-        const reco::VertexRefVector * vertexes = 0;
+        const reco::VertexRefVector * vertexes = nullptr;
 
         try
         {
@@ -66,7 +66,7 @@ public:
     //! Classify any vertexes in categories.
     VertexClassifierByProxy<Collection> const & evaluate (edm::Ref<Collection> const & vertex)
     {
-        const reco::VertexRefVector * vertexes = 0;
+        const reco::VertexRefVector * vertexes = nullptr;
 
         try
         {

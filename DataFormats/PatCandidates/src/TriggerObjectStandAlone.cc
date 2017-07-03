@@ -408,8 +408,8 @@ std::vector<std::string>  const* TriggerObjectStandAlone::allLabels(edm::Paramet
 
       auto   triggerNames= event.triggerNames(res); //this also ensure that the registry is filled
       edm::pset::Registry* psetRegistry = edm::pset::Registry::instance();
-      edm::ParameterSet const* pset=0;
-      if (0!=(pset=psetRegistry->getMapped(psetid ))) {
+      edm::ParameterSet const* pset=nullptr;
+      if (nullptr!=(pset=psetRegistry->getMapped(psetid ))) {
    	using namespace std;
 	using namespace edm;
    	using namespace trigger;
@@ -439,6 +439,6 @@ std::vector<std::string>  const* TriggerObjectStandAlone::allLabels(edm::Paramet
                allLabelsMap.insert(std::pair<edm::ParameterSetID, std::vector<std::string> >(psetid, allModules));
          return &(ret.first->second);
       }
-      return 0;
+      return nullptr;
    }
 

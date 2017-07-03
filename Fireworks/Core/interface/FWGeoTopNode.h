@@ -67,8 +67,8 @@ public:
    virtual void Paint(Option_t* option="");
    FWGeoTopNodeGLScene    *m_scene;
    
-   virtual FWGeometryTableManagerBase* tableManager() { return 0; }
-   virtual FWGeometryTableViewBase* browser() { return 0; }
+   virtual FWGeometryTableManagerBase* tableManager() { return nullptr; }
+   virtual FWGeometryTableViewBase* browser() { return nullptr; }
    
    std::set<TGLPhysicalShape*> fHted;
    std::set<TGLPhysicalShape*> fSted;

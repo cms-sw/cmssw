@@ -71,7 +71,7 @@
     // this allows ConversionTrackMerger to be used as a cleaner only if handed just one list
     // if both input lists don't exist, will issue 2 warnings and generate an empty output collection
     //
-    const reco::ConversionTrackCollection *TC1 = 0;
+    const reco::ConversionTrackCollection *TC1 = nullptr;
     static const reco::ConversionTrackCollection s_empty1, s_empty2;
     edm::Handle<reco::ConversionTrackCollection> trackCollection1;
     e.getByToken(trackProducer1, trackCollection1);
@@ -86,7 +86,7 @@
     }
     reco::ConversionTrackCollection tC1 = *TC1;
 
-    const reco::ConversionTrackCollection *TC2 = 0;
+    const reco::ConversionTrackCollection *TC2 = nullptr;
     edm::Handle<reco::ConversionTrackCollection> trackCollection2;
     e.getByToken(trackProducer2, trackCollection2);
     if (trackCollection2.isValid()) {

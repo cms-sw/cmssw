@@ -96,7 +96,7 @@ void TestProductResolverIndexHelper::testOneEntry() {
 
   CPPUNIT_ASSERT(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instanceA") == indexEmptyProcess);
   CPPUNIT_ASSERT(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instanceA", "") == indexEmptyProcess);
-  CPPUNIT_ASSERT(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instanceA", 0) == indexEmptyProcess);
+  CPPUNIT_ASSERT(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instanceA", nullptr) == indexEmptyProcess);
   CPPUNIT_ASSERT(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instanceA", "processA") == indexWithProcess);
 
   CPPUNIT_ASSERT(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instance", "processA") == ProductResolverIndexInvalid);

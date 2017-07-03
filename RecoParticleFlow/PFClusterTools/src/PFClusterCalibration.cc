@@ -177,7 +177,7 @@ void PFClusterCalibration::setCorrections(const double& lowEP0,
 
 double PFClusterCalibration::getCalibratedEcalEnergy(const double& ecalE,
 		const double& hcalE, const double& eta, const double& phi) const {
-	const TF1* theFunction(0);
+	const TF1* theFunction(nullptr);
 
 	if (fabs(eta) < barrelEndcapEtaDiv_) {
 		//barrel
@@ -187,7 +187,7 @@ double PFClusterCalibration::getCalibratedEcalEnergy(const double& ecalE,
 		theFunction = &(namesAndFunctions_.find("ecalHcalEcalEndcap")->second);
 	}
 
-	assert(theFunction != 0);
+	assert(theFunction != nullptr);
 	double totalE(ecalE + hcalE);
 	double bCoeff = theFunction->Eval(totalE);
 	return ecalE * bCoeff;
@@ -195,7 +195,7 @@ double PFClusterCalibration::getCalibratedEcalEnergy(const double& ecalE,
 
 double PFClusterCalibration::getCalibratedHcalEnergy(const double& ecalE,
 		const double& hcalE, const double& eta, const double& phi) const {
-	const TF1* theFunction(0);
+	const TF1* theFunction(nullptr);
 
 	if (fabs(eta) < barrelEndcapEtaDiv_) {
 		//barrel
@@ -206,7 +206,7 @@ double PFClusterCalibration::getCalibratedHcalEnergy(const double& ecalE,
 	}
 
 	double totalE(ecalE + hcalE);
-	assert(theFunction != 0);
+	assert(theFunction != nullptr);
 	double cCoeff = theFunction->Eval(totalE);
 	return hcalE * cCoeff;
 }

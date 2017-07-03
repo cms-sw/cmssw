@@ -162,7 +162,7 @@ L1TCaloLayer1::L1TCaloLayer1(const edm::ParameterSet& iConfig) :
 }
 
 L1TCaloLayer1::~L1TCaloLayer1() {
-  if(layer1 != 0) delete layer1;
+  if(layer1 != nullptr) delete layer1;
 }
 
 //

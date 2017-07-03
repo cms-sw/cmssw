@@ -23,7 +23,7 @@ EndCapParamsHelper::EndCapParamsHelper(L1TMuonEndCapParams * w) {
   read_ = write_; 
 }
 
-EndCapParamsHelper::EndCapParamsHelper(const L1TMuonEndCapParams * es) {read_ = es; write_=NULL;}
+EndCapParamsHelper::EndCapParamsHelper(const L1TMuonEndCapParams * es) {read_ = es; write_=nullptr;}
 
 void EndCapParamsHelper::useCopy(){
   write_ = new L1TMuonEndCapParams(*read_);

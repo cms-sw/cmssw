@@ -11,7 +11,7 @@ class FWEveView;
 class FWGLEventHandler : public TEveLegoEventHandler
 {
 public:
-   FWGLEventHandler(TGWindow *w, TObject *obj, TEveCaloLego* l=0);
+   FWGLEventHandler(TGWindow *w, TObject *obj, TEveCaloLego* l=nullptr);
    virtual ~FWGLEventHandler() {}
 
    virtual void   PopupContextMenu(TGLPhysicalShape* pshp, Event_t *event, Int_t gx, Int_t gy);

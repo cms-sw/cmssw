@@ -80,7 +80,7 @@ void ParticleDecayDrawer::analyze( const Event & event, const EventSetup & es ) 
 	for( size_t j = 0; j < p->numberOfMothers(); ++ j ) {
 	  const Candidate * mom = p->mother( j );
 	  const Candidate * grandMom;
-	  while ( ( grandMom = mom->mother() ) != 0 )
+	  while ( ( grandMom = mom->mother() ) != nullptr )
 	    mom = grandMom;
 	  if ( select( * mom ) ) {
 	    moms.push_back( mom );
@@ -139,7 +139,7 @@ string ParticleDecayDrawer::decay( const Candidate & c,
 
   int id = c.pdgId();
   const ParticleData * pd = pdt_->particle( id );
-  assert( pd != 0 );
+  assert( pd != nullptr );
   out += ( pd->name() + printP4( c ) );
 
   size_t validDau = 0, ndau = c.numberOfDaughters();

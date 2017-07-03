@@ -60,7 +60,7 @@ namespace fftjetcms {
     template<class Ptr>
     void checkConfig(const Ptr& ptr, const char* message)
     {
-      if (ptr.get() == NULL)
+      if (ptr.get() == nullptr)
 	throw cms::Exception("FFTJetBadConfig") << message << std::endl;
     }
 

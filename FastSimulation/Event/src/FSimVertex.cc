@@ -1,7 +1,7 @@
 #include "FastSimulation/Event/interface/FSimVertex.h"
 
   /// Default constructor
-FSimVertex::FSimVertex() : SimVertex(), mom_(0), id_(-1) {;}
+FSimVertex::FSimVertex() : SimVertex(), mom_(nullptr), id_(-1) {;}
   
   /// constructor from the embedded vertex index in the FBaseSimEvent
 FSimVertex::FSimVertex(const XYZTLorentzVector& v, int im, int id, FBaseSimEvent* mom) : 

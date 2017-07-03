@@ -20,7 +20,7 @@
 void getCompressedBuffer(const char* fname, Bytef** buffPtr, unsigned long& zippedSize)
 {
    FILE* pFile = fopen ( fname , "r" );
-   if ( pFile==NULL )  { std::cerr << "Can't open " << fname << std::endl; exit(1); }
+   if ( pFile==nullptr )  { std::cerr << "Can't open " << fname << std::endl; exit(1); }
 
    // obtain file size:
    fseek (pFile , 0 , SEEK_END);
