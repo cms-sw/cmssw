@@ -48,6 +48,7 @@ namespace edm {
     void tryToCacheIndex(ProductResolverIndex index, TypeID const& typeID, BranchType branchType, void const* productRegistry) const;
 
     static const std::string kSkipCurrentProcess;
+    static const std::string kCurrentProcess;
 
   private:
 

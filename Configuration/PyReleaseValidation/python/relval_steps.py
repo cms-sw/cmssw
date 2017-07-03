@@ -672,16 +672,17 @@ hiDefaults2018=merge([hiAlca2018,{'--scenario':'HeavyIons','-n':2}])
 
 steps['HydjetQ_B12_5020GeV_2011']=merge([{'-n':1,'--beamspot':'RealisticHI2011Collision'},hiDefaults2011,genS('Hydjet_Quenched_B12_5020GeV_cfi',U2000by1)])
 steps['HydjetQ_B12_5020GeV_2015']=merge([{'-n':1,'--beamspot':'RealisticHICollision2015'},hiDefaults2015,genS('Hydjet_Quenched_B12_5020GeV_cfi',U2000by1)])
-steps['HydjetQ_B12_5020GeV_2018']=merge([{'-n':1,'--beamspot':'Realistic50ns13TeVCollision'},hiDefaults2018,genS('Hydjet_Quenched_B12_5020GeV_cfi',U2000by1)])
+steps['HydjetQ_B12_5020GeV_2018']=merge([{'-n':1},hiDefaults2018,gen2017('Hydjet_Quenched_B12_5020GeV_cfi',U2000by1)])
 
 steps['HydjetQ_MinBias_2760GeVINPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_MinBias_2760GeV/%s/GEN-SIM'%(baseDataSetRelease[1],),location='STD',split=5)}
 steps['HydjetQ_MinBias_5020GeVINPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_MinBias_5020GeV/%s/GEN-SIM'%(baseDataSetRelease[9],),location='STD',split=5)}
 
 
-steps['QCD_Pt_80_120_13_HI']=merge([hiDefaults2018,steps['QCD_Pt_80_120_13']])
-steps['PhotonJets_Pt_10_13_HI']=merge([hiDefaults2018,steps['PhotonJets_Pt_10_13']])
-steps['ZMM_13_HI']=merge([hiDefaults2018,steps['ZMM_13']])
-steps['ZEEMM_13_HI']=merge([hiDefaults2018,steps['ZEEMM_13']])
+steps['QCD_Pt_80_120_13_HI']=merge([hiDefaults2018,gen2017('QCD_Pt_80_120_13TeV_TuneCUETP8M1_cfi',Kby(9,150))])
+steps['PhotonJets_Pt_10_13_HI']=merge([hiDefaults2018,gen2017('PhotonJet_Pt_10_13TeV_TuneCUETP8M1_cfi',Kby(9,150))])
+steps['ZMM_13_HI']=merge([hiDefaults2018,gen2017('ZMM_13TeV_TuneCUETP8M1_cfi',Kby(18,100))])
+steps['ZEEMM_13_HI']=merge([hiDefaults2018,gen2017('ZEEMM_13TeV_TuneCUETP8M1_cfi',Kby(18,300))])
+
 
 #### fastsim section ####
 ##no forseen to do things in two steps GEN-SIM then FASTIM->end: maybe later
