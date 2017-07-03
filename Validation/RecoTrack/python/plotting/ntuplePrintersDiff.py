@@ -811,7 +811,7 @@ class _TrackingParticleMatchPrinter(object):
             if self._bestMatchingTrackingParticle:
                 bestTP = track.bestMatchingTrackingParticle()
                 if bestTP is not None:
-                    lst.extend(self._printTrackingParticles(pfx, [bestTP], "not matched to any TP, but a following TP with >= 3 matched hits is found"))
+                    lst.extend(self._printTrackingParticles(pfx, [bestTP], "not matched to any TP, but a following TP with >= 3 matched hits is found (shared hit fraction %.2f)" % track.bestMatchingTrackingParticleShareFrac()))
                 else:
                     lst.append(prefix+"not matched to any TP")
             else:
