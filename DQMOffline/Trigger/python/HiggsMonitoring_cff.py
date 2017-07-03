@@ -176,4 +176,5 @@ higgsMonitorHLT = cms.Sequence(
   + diMu9Ele9CaloIdLTrackIdL_dz
   + mssmHbbBtagTriggerMonitor 
   + mssmHbbMonitorHLT 
+
 )
