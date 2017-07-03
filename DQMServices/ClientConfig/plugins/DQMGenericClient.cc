@@ -960,7 +960,11 @@ void DQMGenericClient::generic_eff (TH1* denom, TH1* numer, MonitorElement* effi
 
         float errVal = 0;
         if (type == EfficType::simpleratio) {
-          errVal = denomVal ? 1.f/denomVal*effVal*(1+effVal) : 0;
+//          errVal = denomVal ? 1.f/denomVal*effVal*(1+effVal) : 0;
+          float numerErr = numer->GetBinError(globalBinNum);
+          float denomErr = denom->GetBinError(globalBinNum);
+          float denomsq = denomVal*denomVal;
+          errVal = denomVal ? sqrt( pow( 1.f/denomVal*numerErr,2.0) + pow(numerVal/denomsq*denomErr,2)  ): 0;
         } else {
           errVal = (denomVal && (effVal <=1)) ? sqrt(effVal*(1-effVal)/denomVal) : 0;
         }
