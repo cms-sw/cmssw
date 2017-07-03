@@ -31,11 +31,11 @@ class SiStripCommissioningOfflineClient : public edm::EDAnalyzer {
  public:
   
   SiStripCommissioningOfflineClient( const edm::ParameterSet& );
-  virtual ~SiStripCommissioningOfflineClient();
+  ~SiStripCommissioningOfflineClient() override;
   
-  virtual void beginRun( const edm::Run&, const edm::EventSetup& );
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
-  virtual void endJob();
+  void beginRun( const edm::Run&, const edm::EventSetup& ) override;
+  void analyze( const edm::Event&, const edm::EventSetup& ) override;
+  void endJob() override;
   
  protected:
 

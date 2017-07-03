@@ -93,7 +93,7 @@ class ObjectValidator : public ObjectValidatorAbs
     theEcalSevLvlAlgo_(0),
     theEBRecHitCollection_(0),
     theEERecHitCollection_(0) {}
-  virtual ~ObjectValidator();
+  ~ObjectValidator() override;
   
   inline void setHcalChannelQuality(const HcalChannelQuality* q) { theHcalChStatus_=q; }
   inline void setEcalChannelStatus(const EcalChannelStatus* q) { theEcalChStatus_=q; }
@@ -103,9 +103,9 @@ class ObjectValidator : public ObjectValidatorAbs
   inline void setEERecHitCollection(const EcalRecHitCollection* q) { theEERecHitCollection_=q; }
 
 
-  bool validHit(const HBHERecHit&) const;
-  bool validHit(const EcalRecHit&) const;
-  bool validTrack(const reco::Track&) const;
+  bool validHit(const HBHERecHit&) const override;
+  bool validHit(const EcalRecHit&) const override;
+  bool validTrack(const reco::Track&) const override;
 
  private:
 

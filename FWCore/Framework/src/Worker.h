@@ -256,7 +256,7 @@ namespace edm {
     class TransitionIDValue : public TransitionIDValueBase {
     public:
       TransitionIDValue(T const& iP): p_(iP) {}
-      virtual std::string value() const override {
+      std::string value() const override {
         std::ostringstream iost;
         iost<<p_.id();
         return iost.str();

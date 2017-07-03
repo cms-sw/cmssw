@@ -17,7 +17,7 @@
 class GeantPropagatorESProducer: public edm::ESProducer{
  public:
   GeantPropagatorESProducer(const edm::ParameterSet & p);
-  virtual ~GeantPropagatorESProducer() override; 
+  ~GeantPropagatorESProducer() override; 
 
   std::shared_ptr<Propagator> produce(const TrackingComponentsRecord &);
 

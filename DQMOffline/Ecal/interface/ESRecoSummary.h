@@ -15,11 +15,11 @@
 class ESRecoSummary : public DQMEDAnalyzer {
  public:
   explicit ESRecoSummary(const edm::ParameterSet&);
-  ~ESRecoSummary() {}
+  ~ESRecoSummary() override {}
   
  private:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   std::string prefixME_;
 

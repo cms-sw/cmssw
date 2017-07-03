@@ -102,7 +102,7 @@ class EgammaHLTPixelMatchVarProducer : public edm::stream::EDProducer<> {
 public:
 
   explicit EgammaHLTPixelMatchVarProducer(const edm::ParameterSet&);
-  ~EgammaHLTPixelMatchVarProducer();
+  ~EgammaHLTPixelMatchVarProducer() override;
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   void produce(edm::Event&, const edm::EventSetup&) override;

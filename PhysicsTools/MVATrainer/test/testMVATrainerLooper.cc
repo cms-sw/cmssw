@@ -28,10 +28,10 @@ class testMVATrainerLooper : public edm::EDAnalyzer {
     public:
 	explicit testMVATrainerLooper(const edm::ParameterSet &params);
 
-	virtual void beginRun(const edm::Run &run, const edm::EventSetup &iSetup);
+	void beginRun(const edm::Run &run, const edm::EventSetup &iSetup) override;
 
-	virtual void analyze(const edm::Event& iEvent,
-	                     const edm::EventSetup& iSetup);
+	void analyze(const edm::Event& iEvent,
+	                     const edm::EventSetup& iSetup) override;
 
     private:
 	MVAComputerCache		mvaComputer;

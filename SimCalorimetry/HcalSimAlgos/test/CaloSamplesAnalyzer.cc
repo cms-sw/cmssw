@@ -47,7 +47,7 @@
 class CaloSamplesAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 	public:
 		explicit CaloSamplesAnalyzer(const edm::ParameterSet&);
-		~CaloSamplesAnalyzer();
+		~CaloSamplesAnalyzer() override;
 	
 		static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 		

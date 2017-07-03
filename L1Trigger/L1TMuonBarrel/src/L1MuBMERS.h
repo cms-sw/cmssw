@@ -48,13 +48,13 @@ class L1MuBMERS : public L1AbstractProcessor {
     L1MuBMERS(const L1MuBMSEU& );
 
     /// destructor
-    virtual ~L1MuBMERS();
+    ~L1MuBMERS() override;
 
     /// run L1MuBMERS
-    virtual void run();
+    void run() override;
 
     /// reset ERS
-    virtual void reset();
+    void reset() override;
 
     /// return extrapolation quality
     inline unsigned int quality(int id) const { return m_quality[id]; }

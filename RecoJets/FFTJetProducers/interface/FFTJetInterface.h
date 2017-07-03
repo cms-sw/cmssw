@@ -52,7 +52,7 @@ namespace fftjetcms {
   class FFTJetInterface : public edm::EDProducer
   {
   public:
-    virtual ~FFTJetInterface() {}
+    ~FFTJetInterface() override {}
 
   protected:
     explicit FFTJetInterface(const edm::ParameterSet&);

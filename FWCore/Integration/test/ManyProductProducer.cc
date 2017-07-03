@@ -21,9 +21,9 @@ namespace edmtest {
 
     explicit ManyProductProducer(edm::ParameterSet const& iConfig);
 
-    virtual ~ManyProductProducer();
+    ~ManyProductProducer() override;
 
-    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+    void produce(edm::Event& e, edm::EventSetup const& c) override;
 
   private:
     unsigned int nProducts_;
@@ -57,9 +57,9 @@ namespace edmtest {
   public:
     explicit ManyProductAnalyzer(edm::ParameterSet const& iConfig);
 
-    virtual ~ManyProductAnalyzer();
+    ~ManyProductAnalyzer() override;
 
-    void analyze(edm::Event const&, edm::EventSetup const&);
+    void analyze(edm::Event const&, edm::EventSetup const&) override;
   private:
     unsigned int nProducts_;
     std::vector<edm::InputTag> tags_;

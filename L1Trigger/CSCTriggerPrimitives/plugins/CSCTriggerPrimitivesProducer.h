@@ -38,10 +38,10 @@ class CSCTriggerPrimitivesProducer : public edm::one::EDProducer<edm::one::Share
 {
  public:
   explicit CSCTriggerPrimitivesProducer(const edm::ParameterSet&);
-  ~CSCTriggerPrimitivesProducer();
+  ~CSCTriggerPrimitivesProducer() override;
 
   //virtual void beginRun(const edm::EventSetup& setup);
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:
   int iev; // event number

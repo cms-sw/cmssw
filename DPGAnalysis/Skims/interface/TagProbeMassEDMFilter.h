@@ -39,12 +39,12 @@ class TagProbeMassEDMFilter : public edm::EDFilter
 {
    public:
       explicit TagProbeMassEDMFilter(const edm::ParameterSet&);
-      ~TagProbeMassEDMFilter();
+      ~TagProbeMassEDMFilter() override;
 
    private:
-      virtual void beginJob() override;
-      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override;
+      void beginJob() override;
+      bool filter(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override;
       
       // ----------member data ---------------------------
       std::string tpMapName;

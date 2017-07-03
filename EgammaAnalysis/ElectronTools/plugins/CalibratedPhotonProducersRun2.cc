@@ -18,8 +18,8 @@ template<typename T>
 class CalibratedPhotonProducerRun2T: public edm::stream::EDProducer<> {
 public:
   explicit CalibratedPhotonProducerRun2T( const edm::ParameterSet & ) ;
-  virtual ~CalibratedPhotonProducerRun2T();
-  virtual void produce( edm::Event &, const edm::EventSetup & ) override ;
+  ~CalibratedPhotonProducerRun2T() override;
+  void produce( edm::Event &, const edm::EventSetup & ) override ;
 
 private:
   edm::EDGetTokenT<edm::View<T> > thePhotonToken;

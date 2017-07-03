@@ -56,8 +56,8 @@ public:
   typedef reco::tau::PFRecoTauChargedHadronQualityPlugin Ranker;
 
   explicit PFRecoTauChargedHadronProducer(const edm::ParameterSet& cfg);
-  ~PFRecoTauChargedHadronProducer() {}
-  void produce(edm::Event& evt, const edm::EventSetup& es);
+  ~PFRecoTauChargedHadronProducer() override {}
+  void produce(edm::Event& evt, const edm::EventSetup& es) override;
   template <typename T>
   void print(const T& chargedHadrons);
 

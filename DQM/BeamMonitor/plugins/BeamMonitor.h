@@ -34,7 +34,7 @@ class BeamMonitor : public edm::EDAnalyzer {
   public:
 
     BeamMonitor( const edm::ParameterSet& );
-    ~BeamMonitor();
+    ~BeamMonitor() override;
 
   protected:
 

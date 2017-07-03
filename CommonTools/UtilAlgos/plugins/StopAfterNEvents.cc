@@ -4,7 +4,7 @@
 class StopAfterNEvents : public edm::EDFilter {
 public:
   StopAfterNEvents( const edm::ParameterSet & );
-  ~StopAfterNEvents();
+  ~StopAfterNEvents() override;
 private:
   bool filter( edm::Event &, edm::EventSetup const& ) override;
   const int nMax_;

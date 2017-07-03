@@ -55,13 +55,13 @@ class TH1FFiller : public FillerBase {
       assert (valuesToFill_.size() == m_steps);
   }
 
-  virtual ~TH1FFiller() {;}
+  ~TH1FFiller() override {;}
 
-  void reset() {
+  void reset() override {
     m_element->Reset();
   }
 
-  void fill() {
+  void fill() override {
     if (valuesToFill_.size() > 0) {
       for (size_t i = 0; i < valuesToFill_.size(); ++i)
         for (size_t j = 0; j < valuesToFill_[i]; ++j)
@@ -112,13 +112,13 @@ class TH2FFiller : public FillerBase {
       assert (valuesToFill_.size() == m_steps);
   }
 
-  virtual ~TH2FFiller() {;}
+  ~TH2FFiller() override {;}
 
-  void reset() {
+  void reset() override {
     m_element->Reset();
   }
 
-  void fill() {
+  void fill() override {
     if (valuesToFill_.size() > 0) {
       for (size_t i = 0; i < valuesToFill_.size(); ++i)
         for (size_t j = 0; j < valuesToFill_[i]; ++j)
@@ -142,19 +142,19 @@ class DummyBookFillDQMStoreMultiThread :  public DQMEDAnalyzer {
  public:
   typedef std::vector<edm::ParameterSet> PSets;
   explicit DummyBookFillDQMStoreMultiThread(const edm::ParameterSet&);
-  ~DummyBookFillDQMStoreMultiThread();
+  ~DummyBookFillDQMStoreMultiThread() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  private:
   virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endJob();
 
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const&,
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const&,
                                     edm::EventSetup const&) override;
-  virtual void endLuminosityBlock(edm::LuminosityBlock const&,
+  void endLuminosityBlock(edm::LuminosityBlock const&,
                                   edm::EventSetup const&) override;
 
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;

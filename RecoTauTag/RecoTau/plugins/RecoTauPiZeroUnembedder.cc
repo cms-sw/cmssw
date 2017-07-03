@@ -26,7 +26,7 @@
 class RecoTauPiZeroUnembedder : public edm::stream::EDProducer<> {
   public:
     RecoTauPiZeroUnembedder(const edm::ParameterSet& pset);
-    virtual ~RecoTauPiZeroUnembedder(){}
+    ~RecoTauPiZeroUnembedder() override{}
     void produce(edm::Event& evt, const edm::EventSetup& es) override;
   private:
     edm::InputTag src_;

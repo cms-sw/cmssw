@@ -31,13 +31,13 @@ class TestPluginFactory : public CppUnit::TestFixture
 public:
     void test();
     void testTry();
-    void setUp() {   
+    void setUp() override {   
       if (!alreadySetup_) {
         alreadySetup_=true;
         edmplugin::PluginManager::configure(edmplugin::standard::config());
       }
     }
-    void tearDown() {}
+    void tearDown() override {}
     static bool alreadySetup_;
 };
 

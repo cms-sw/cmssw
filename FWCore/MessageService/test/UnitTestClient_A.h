@@ -21,14 +21,14 @@ public:
     UnitTestClient_A( edm::ParameterSet const & )
   { }
 
-  virtual
-    ~UnitTestClient_A()
+  
+    ~UnitTestClient_A() override
   { }
 
-  virtual
+  
     void analyze( edm::Event      const & e
                 , edm::EventSetup const & c
-                );
+                ) override;
 
 private:
 };

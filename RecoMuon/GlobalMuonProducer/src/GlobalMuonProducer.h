@@ -37,10 +37,10 @@ class GlobalMuonProducer : public edm::stream::EDProducer<> {
   GlobalMuonProducer(const edm::ParameterSet&);
   
   /// destructor
-  virtual ~GlobalMuonProducer(); 
+  ~GlobalMuonProducer() override; 
   
   /// reconstruct muons
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
   
  private:
 

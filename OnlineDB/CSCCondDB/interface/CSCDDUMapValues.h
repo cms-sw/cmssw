@@ -22,7 +22,7 @@
 class CSCDDUMapValues: public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
  public:
   CSCDDUMapValues(const edm::ParameterSet&);
-  ~CSCDDUMapValues();
+  ~CSCDDUMapValues() override;
   
   inline static CSCDDUMap * fillDDUMap();
 
@@ -32,7 +32,7 @@ class CSCDDUMapValues: public edm::ESProducer, public edm::EventSetupRecordInter
   
  private:
   // ----------member data ---------------------------
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & );
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & ) override;
   CSCDDUMap *mapObj ;
 
 };

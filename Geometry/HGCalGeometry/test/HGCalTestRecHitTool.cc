@@ -28,7 +28,7 @@
 class HGCalTestRecHitTool : public edm::one::EDAnalyzer<> {
 public:
   explicit HGCalTestRecHitTool(const edm::ParameterSet& );
-  ~HGCalTestRecHitTool();
+  ~HGCalTestRecHitTool() override;
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;

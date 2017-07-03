@@ -15,7 +15,7 @@
 class  PVSSIDReader : public edm::EDAnalyzer {
 public:
   PVSSIDReader(const edm::ParameterSet& iConfig );
-  ~PVSSIDReader();
+  ~PVSSIDReader() override;
   void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) override;
 };
 

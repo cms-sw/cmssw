@@ -42,7 +42,7 @@ public:
     L1GtParametersTrivialProducer(const edm::ParameterSet&);
 
     /// destructor
-    ~L1GtParametersTrivialProducer();
+    ~L1GtParametersTrivialProducer() override;
 
 
     /// public methods

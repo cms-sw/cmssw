@@ -16,8 +16,8 @@ class testPtrVector : public CppUnit::TestFixture {
   CPPUNIT_TEST(get);
   CPPUNIT_TEST_SUITE_END();
 public:
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
   void check();
   void get();
 };
@@ -32,27 +32,27 @@ namespace testPtr {
   };
 
   struct Inherit1 : public Base {
-    virtual int val() const { return 1;}
+    int val() const override { return 1;}
   };
   struct Inherit2 : public Base {
-    virtual int val() const {return 2;}
+    int val() const override {return 2;}
   };
 
   struct TestGetter : public edm::EDProductGetter {
     edm::WrapperBase const* hold_;
-    virtual edm::WrapperBase const* getIt(edm::ProductID const&) const override {
+    edm::WrapperBase const* getIt(edm::ProductID const&) const override {
       return hold_;
     }
-    virtual edm::WrapperBase const*
+    edm::WrapperBase const*
     getThinnedProduct(edm::ProductID const&, unsigned int&) const override {return nullptr;}
 
-    virtual void
+    void
     getThinnedProducts(edm::ProductID const& pid,
                        std::vector<edm::WrapperBase const*>& wrappers,
                        std::vector<unsigned int>& keys) const override { }
 
 
-    virtual unsigned int transitionIndex_() const override {
+    unsigned int transitionIndex_() const override {
     return 0U;
     }
 

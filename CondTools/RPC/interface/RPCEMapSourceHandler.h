@@ -46,9 +46,9 @@ namespace popcon
 
 		public:
     RPCEMapSourceHandler(const edm::ParameterSet& ps);
-    ~RPCEMapSourceHandler();
-    void getNewObjects();
-    std::string id() const {return m_name;}
+    ~RPCEMapSourceHandler() override;
+    void getNewObjects() override;
+    std::string id() const override {return m_name;}
     void ConnectOnlineDB(std::string connect, std::string authPath);
     void DisconnectOnlineDB();
     void readEMap1();

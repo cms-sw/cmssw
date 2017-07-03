@@ -46,7 +46,7 @@ namespace edmtest {
         select_(p.getParameter<int>("select")) {
       produces<product_type>();
     }
-    virtual void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
+    void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
@@ -92,7 +92,7 @@ namespace edmtest {
       target_{consumes<edm::View<int>>(p.getParameter<edm::InputTag>("target"))} {
       produces<product_type>();
     }
-    virtual void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
+    void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
 
   private:
     const edm::EDGetTokenT<edm::View<int>> target_;
@@ -127,7 +127,7 @@ namespace edmtest {
     target_{consumes<edm::View<int>>(p.getParameter<edm::InputTag>("target"))} {
       produces<product_type>();
     }
-    virtual void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
+    void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
 
   private:
     const edm::EDGetTokenT<edm::View<int>> target_;
@@ -163,7 +163,7 @@ namespace edmtest {
     target_(consumes<edm::View<int>>(p.getParameter<edm::InputTag>("target"))) {
       produces<product_type>();
     }
-    virtual void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
+    void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
 
   private:
     const edm::EDGetTokenT<edm::View<int>> target_;

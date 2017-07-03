@@ -21,7 +21,7 @@ namespace reco {
     class MCTruthCompositeMatcher : public edm::EDProducer {
     public:
       explicit MCTruthCompositeMatcher( const edm::ParameterSet & );
-      ~MCTruthCompositeMatcher();
+      ~MCTruthCompositeMatcher() override;
     private:
       edm::EDGetTokenT<CandidateView>  srcToken_;
       std::vector<edm::EDGetTokenT<reco::GenParticleMatch> > matchMapTokens_;

@@ -18,10 +18,10 @@
 class CastorFastTowerProducer : public edm::stream::EDProducer <> {
    public:
       explicit CastorFastTowerProducer(const edm::ParameterSet&);
-      ~CastorFastTowerProducer();
+      ~CastorFastTowerProducer() override;
 
    private:
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
       double make_noise();
       
       // ----------member data ---------------------------

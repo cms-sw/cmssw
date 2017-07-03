@@ -38,11 +38,11 @@ class TauImpactParameterTest : public edm::EDAnalyzer {
 
   public:
         TauImpactParameterTest(const edm::ParameterSet&);
-        ~TauImpactParameterTest();
+        ~TauImpactParameterTest() override;
 
-        virtual void analyze(const edm::Event&, const edm::EventSetup&);
-        virtual void beginJob();
-        virtual void endJob();
+        void analyze(const edm::Event&, const edm::EventSetup&) override;
+        void beginJob() override;
+        void endJob() override;
 
   private:
 	TH1F* h_ip2d_1prong;

@@ -24,9 +24,9 @@ namespace edm {
 class MCPdgIndexFilter : public edm::EDFilter {
    public:
       explicit MCPdgIndexFilter(const edm::ParameterSet&);
-      ~MCPdgIndexFilter() {};
+      ~MCPdgIndexFilter() override {};
 
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      bool filter(edm::Event&, const edm::EventSetup&) override;
    private:
       bool pass(const edm::Event&);
       const edm::EDGetTokenT<edm::HepMCProduct> token_;

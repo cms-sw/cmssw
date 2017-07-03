@@ -11,8 +11,8 @@ CPPUNIT_TEST_SUITE(testmaker);
 CPPUNIT_TEST(makerTest);
 CPPUNIT_TEST_SUITE_END();
 public:
-  void setUp(){}
-  void tearDown(){}
+  void setUp() override{}
+  void tearDown() override{}
   void makerTest();
 };
 

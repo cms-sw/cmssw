@@ -90,7 +90,7 @@
 class ME0MuonAnalyzer : public edm::EDAnalyzer {
 public:
   explicit ME0MuonAnalyzer(const edm::ParameterSet&);
-  ~ME0MuonAnalyzer();
+  ~ME0MuonAnalyzer() override;
   FreeTrajectoryState getFTS(const GlobalVector& , const GlobalVector& , 
 			     int , const AlgebraicSymMatrix66& ,
 			     const MagneticField* );
@@ -103,9 +103,9 @@ public:
 		  int& , AlgebraicSymMatrix66& );
 
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  void beginRun(edm::Run const&, edm::EventSetup const&);
-  void endRun(edm::Run const&, edm::EventSetup const&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
 
   //protected:
   

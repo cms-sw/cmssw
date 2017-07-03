@@ -64,7 +64,7 @@ class testEcalClusterSeverityAlgo : public edm::EDAnalyzer
 public:
   
   explicit testEcalClusterSeverityAlgo(const edm::ParameterSet&);
-  ~testEcalClusterSeverityAlgo();
+  ~testEcalClusterSeverityAlgo() override;
   
   edm::InputTag barrelClusterCollection_;
   edm::InputTag endcapClusterCollection_;
@@ -140,8 +140,8 @@ public:
 
 private:
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
   
   std::string outputFile_;
   TFile *treeFile_;

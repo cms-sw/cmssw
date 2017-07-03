@@ -10,8 +10,8 @@ class ZMuPtScaleAnalyzer : public edm::EDAnalyzer {
 public:
   ZMuPtScaleAnalyzer(const edm::ParameterSet& pset);
 private:
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
-  virtual void endJob() override;
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
+  void endJob() override;
   edm::EDGetTokenT<reco::GenParticleCollection>   genToken_;
   unsigned int nbinsMass_, nbinsPt_, nbinsAng_;
   double massMax_, ptMax_, angMax_;

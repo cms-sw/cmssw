@@ -30,8 +30,8 @@ namespace edmtest
     { }
     explicit  CSCNoiseMatrixReadAnalyzer(int i) 
     { }
-    virtual ~ CSCNoiseMatrixReadAnalyzer() { }
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+    ~ CSCNoiseMatrixReadAnalyzer() override { }
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
   private:
   };
   

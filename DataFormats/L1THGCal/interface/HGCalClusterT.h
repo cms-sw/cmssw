@@ -44,7 +44,7 @@ namespace l1t
         addConstituent(c);
       }
       
-      ~HGCalClusterT() {};
+      ~HGCalClusterT() override {};
       
       const edm::PtrVector<C>& constituents() const {return constituents_;}        
       const_iterator constituents_begin() const {return constituents_.begin();}

@@ -86,8 +86,8 @@ namespace eos {
 		}
 
 		//! override the base class function with our message
-		const char* what() const throw() { return msg.c_str(); }
-		~portable_archive_exception() throw() {}
+		const char* what() const throw() override { return msg.c_str(); }
+		~portable_archive_exception() throw() override {}
 	};
 
 } // namespace eos

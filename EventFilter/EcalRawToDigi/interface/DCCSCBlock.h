@@ -27,13 +27,13 @@ class DCCSCBlock : public DCCFEBlock {
 
     DCCSCBlock(DCCDataUnpacker * u, EcalElectronicsMapper *m, DCCEventBlock * e, bool unpack, bool forceToKeepFRdata);
 	 
-    void updateCollectors();
+    void updateCollectors() override;
 	 
 	 
   protected :
 
-   int unpackXtalData(unsigned int stripID, unsigned int xtalID);
-   void fillEcalElectronicsError( std::unique_ptr<EcalElectronicsIdCollection> * );
+   int unpackXtalData(unsigned int stripID, unsigned int xtalID) override;
+   void fillEcalElectronicsError( std::unique_ptr<EcalElectronicsIdCollection> * ) override;
 	 
    EEDetId                                * pDetId_;
    EEDataFrame                            * pDFId_;

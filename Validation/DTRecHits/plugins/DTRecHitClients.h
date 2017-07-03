@@ -28,13 +28,13 @@ public:
   DTRecHitClients(const edm::ParameterSet& ps);
 
  /// Destructor
-  virtual ~DTRecHitClients();
+  ~DTRecHitClients() override;
 
   /// Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
-  void endJob();
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  void endJob() override;
 void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
-					 edm::EventSetup const& c);
+					 edm::EventSetup const& c) override;
 
 protected:
 

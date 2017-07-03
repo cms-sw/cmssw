@@ -16,7 +16,7 @@ class CaloRecoTauDiscriminationByLeadingTrackPtCut final : public CaloTauDiscrim
       explicit CaloRecoTauDiscriminationByLeadingTrackPtCut(const edm::ParameterSet& iConfig):CaloTauDiscriminationProducerBase(iConfig){   
          minPtLeadTrack_ = iConfig.getParameter<double>("MinPtLeadingTrack");
       }
-      ~CaloRecoTauDiscriminationByLeadingTrackPtCut(){} 
+      ~CaloRecoTauDiscriminationByLeadingTrackPtCut() override{} 
       double discriminate(const CaloTauRef& theCaloTauRef) const override;
 
    private:

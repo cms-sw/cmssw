@@ -41,12 +41,12 @@ class ProxyFactoryTemplate : public ProxyFactoryBase
       //virtual ~ProxyFactoryTemplate();
 
       // ---------- const member functions ---------------------
-      virtual std::unique_ptr<DataProxy> makeProxy() const {
+      std::unique_ptr<DataProxy> makeProxy() const override {
          return std::make_unique<T>();
       }
       
       
-      virtual DataKey makeKey(const std::string& iName) const {
+      DataKey makeKey(const std::string& iName) const override {
          return DataKey(DataKey::makeTypeTag< typename T::value_type>(),iName.c_str());
       }
       

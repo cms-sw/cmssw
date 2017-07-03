@@ -13,11 +13,11 @@ class CalibrationHistograms : virtual public CommissioningHistograms {
   CalibrationHistograms( const edm::ParameterSet& pset,
                          DQMStore*,
                          const sistrip::RunType& task = sistrip::CALIBRATION );
-  virtual ~CalibrationHistograms();
+  ~CalibrationHistograms() override;
   
-  void histoAnalysis( bool debug );
+  void histoAnalysis( bool debug ) override;
 
-  void printAnalyses(); // override
+  void printAnalyses() override; // override
 
  protected: 
 

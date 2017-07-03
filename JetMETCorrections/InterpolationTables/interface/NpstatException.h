@@ -27,7 +27,7 @@ namespace npstat {
         inline explicit NpstatException(const char* description)
             : cms::Exception(description) {}
 
-        virtual ~NpstatException() throw() {}
+        ~NpstatException() throw() override {}
     };
 
     struct NpstatOutOfRange : public NpstatException
@@ -37,7 +37,7 @@ namespace npstat {
         inline explicit NpstatOutOfRange(const std::string& description)
             : NpstatException(description) {}
 
-        virtual ~NpstatOutOfRange() throw() {}
+        ~NpstatOutOfRange() throw() override {}
     };
 
     struct NpstatInvalidArgument : public NpstatException
@@ -47,7 +47,7 @@ namespace npstat {
         inline explicit NpstatInvalidArgument(const std::string& description)
             : NpstatException(description) {}
 
-        virtual ~NpstatInvalidArgument() throw() {}
+        ~NpstatInvalidArgument() throw() override {}
     };
 
     struct NpstatRuntimeError : public NpstatException
@@ -57,7 +57,7 @@ namespace npstat {
         inline explicit NpstatRuntimeError(const std::string& description)
             : NpstatException(description) {}
 
-        virtual ~NpstatRuntimeError() throw() {}
+        ~NpstatRuntimeError() throw() override {}
     };
 
     struct NpstatDomainError : public NpstatException
@@ -67,7 +67,7 @@ namespace npstat {
         inline explicit NpstatDomainError(const std::string& description)
             : NpstatException(description) {}
 
-        virtual ~NpstatDomainError() throw() {}
+        ~NpstatDomainError() throw() override {}
     };
 }
 

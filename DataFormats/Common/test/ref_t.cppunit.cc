@@ -26,8 +26,8 @@ class testRef: public CppUnit::TestFixture {
 
    CPPUNIT_TEST_SUITE_END();
 public:
-      void setUp(){}
-   void tearDown(){}
+      void setUp() override{}
+   void tearDown() override{}
 
    void constructTest();
    void comparisonTest();
@@ -188,19 +188,19 @@ void testRef::comparisonTest() {
 namespace {
    struct TestGetter : public edm::EDProductGetter {
       WrapperBase const* hold_;
-      virtual WrapperBase const* getIt(ProductID const&) const override {
+      WrapperBase const* getIt(ProductID const&) const override {
          return hold_;
       }
 
-      virtual WrapperBase const*
+      WrapperBase const*
       getThinnedProduct(ProductID const&, unsigned int&) const override {return nullptr;}
 
-      virtual void
+      void
       getThinnedProducts(ProductID const& pid,
                          std::vector<WrapperBase const*>& wrappers,
                          std::vector<unsigned int>& keys) const override { }
 
-      virtual unsigned int transitionIndex_() const override {
+      unsigned int transitionIndex_() const override {
         return 0U;
       }
       TestGetter() : hold_(nullptr) {}

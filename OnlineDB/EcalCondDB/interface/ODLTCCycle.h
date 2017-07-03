@@ -15,9 +15,9 @@ class ODLTCCycle :  public IODConfig  {
 
 
   ODLTCCycle();
-  ~ODLTCCycle();
+  ~ODLTCCycle() override;
 
-  inline std::string getTable() { return "ECAL_LTC_CYCLE"; }
+  inline std::string getTable() override { return "ECAL_LTC_CYCLE"; }
 
   inline void setId(int id){m_ID=id;}
   inline int getId()const{ return m_ID;} ;
@@ -35,7 +35,7 @@ class ODLTCCycle :  public IODConfig  {
   int m_ID;
   int  m_ltc_config_id;
   void writeDB() noexcept(false);
-  void prepareWrite() noexcept(false);
+  void prepareWrite() noexcept(false) override;
   void clear();
   void fetchData(ODLTCCycle * result) noexcept(false);
   void insertConfig() noexcept(false);

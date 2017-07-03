@@ -40,12 +40,12 @@
 class SyncDCSO2O : public edm::EDAnalyzer {
 public:
   explicit SyncDCSO2O(const edm::ParameterSet&);
-  ~SyncDCSO2O();
+  ~SyncDCSO2O() override;
 
 private:
-  virtual void beginJob() ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  void beginJob() override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
 
   void getDigis(const edm::Event& iEvent);
   /// Build TGraphs with quantity vs time

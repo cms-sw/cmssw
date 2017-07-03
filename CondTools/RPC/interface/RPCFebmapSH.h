@@ -26,9 +26,9 @@
 namespace popcon{
   class RpcDataFebmap : public popcon::PopConSourceHandler<RPCObFebmap>{
   public:
-    void getNewObjects();
-    std::string id() const { return m_name;}
-    ~RpcDataFebmap(); 
+    void getNewObjects() override;
+    std::string id() const override { return m_name;}
+    ~RpcDataFebmap() override; 
     RpcDataFebmap(const edm::ParameterSet& pset); 
 
     RPCObFebmap* Febdata;

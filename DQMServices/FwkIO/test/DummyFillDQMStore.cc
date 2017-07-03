@@ -65,12 +65,12 @@ namespace {
       m_valueToFill=iPSet.getUntrackedParameter<double>("value");
     }
    
-    virtual ~TH1FFiller() {};
+    ~TH1FFiller() override {};
  
-    void reset() {
+    void reset() override {
       m_element->Reset();
     }
-    void fill() {
+    void fill() override {
       m_hist->Fill(m_valueToFill);
     }
   private:
@@ -105,12 +105,12 @@ namespace {
       m_valueToFill=iPSet.getUntrackedParameter<double>("value");
     }
     
-    virtual ~TH2FFiller() {};
+    ~TH2FFiller() override {};
  
-    void reset() {
+    void reset() override {
       m_element->Reset();
     }
-    void fill() {
+    void fill() override {
       m_hist->Fill(m_valueToFill, m_valueToFill);
     }
   private:
@@ -126,19 +126,19 @@ namespace {
 class DummyFillDQMStore :  public edm::EDAnalyzer {
    public:
       explicit DummyFillDQMStore(const edm::ParameterSet&);
-      ~DummyFillDQMStore();
+      ~DummyFillDQMStore() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      void beginJob() override ;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
       
-      virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-      virtual void endRun(edm::Run const&, edm::EventSetup const&);
-      virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-      virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+      void beginRun(edm::Run const&, edm::EventSetup const&) override;
+      void endRun(edm::Run const&, edm::EventSetup const&) override;
+      void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+      void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
       // ----------member data ---------------------------
       std::vector<boost::shared_ptr<FillerBase> > m_runFillers;

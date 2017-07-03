@@ -12,7 +12,7 @@ public:
   LStoreFile (void * fd);
   LStoreFile (const char *name, int flags = IOFlags::OpenRead, int perms = 0666);
   LStoreFile (const std::string &name, int flags = IOFlags::OpenRead, int perms = 0666);
-  ~LStoreFile (void);
+  ~LStoreFile (void) override;
 
   virtual void	create (const char *name,
     			bool exclusive = false,
@@ -31,13 +31,13 @@ public:
   using Storage::write;
   using Storage::position;
 
-  virtual IOSize	read (void *into, IOSize n);
-  virtual IOSize	write (const void *from, IOSize n);
+  IOSize	read (void *into, IOSize n) override;
+  IOSize	write (const void *from, IOSize n) override;
 
-  virtual IOOffset	position (IOOffset offset, Relative whence = SET);
-  virtual void		resize (IOOffset size);
+  IOOffset	position (IOOffset offset, Relative whence = SET) override;
+  void		resize (IOOffset size) override;
 
-  virtual void		close (void);
+  void		close (void) override;
   virtual void		abort (void);
   
   class MutexWrapper {

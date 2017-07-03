@@ -141,12 +141,12 @@ class GhostInfo : public fastjet::PseudoJet::UserInfoBase{
 class JetFlavourClustering : public edm::stream::EDProducer<> {
    public:
       explicit JetFlavourClustering(const edm::ParameterSet&);
-      ~JetFlavourClustering();
+      ~JetFlavourClustering() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      void produce(edm::Event&, const edm::EventSetup&) override;
   
       void insertGhosts(const edm::Handle<reco::GenParticleRefVector>& particles,
                         const double ghostRescaling,

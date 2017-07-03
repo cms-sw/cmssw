@@ -32,7 +32,7 @@ namespace {
       Base::setSingleIov( true );
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       for ( auto const & iov: iovs) {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
@@ -68,7 +68,7 @@ namespace {
       Base::setSingleIov( true );
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
 
       for( auto const & iov : iovs ) {
 
@@ -106,7 +106,7 @@ namespace {
       Base::setSingleIov( true );
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       for( auto const & iov : iovs ) {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
@@ -152,7 +152,7 @@ namespace {
       Base::setSingleIov( true );
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       for( auto const & iov : iovs ) {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
@@ -200,7 +200,7 @@ namespace {
       Base::setSingleIov( true );
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
 
       for( auto const & iov : iovs ) {
 
@@ -250,7 +250,7 @@ namespace {
       Base::setSingleIov( true );
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       for( auto const & iov : iovs ) {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
@@ -283,7 +283,7 @@ namespace {
       Base::setSingleIov( true );
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       for( auto const & iov : iovs ) {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
@@ -319,7 +319,7 @@ namespace {
       Base::setSingleIov( true );
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
 
       for( auto const & iov : iovs ) {
 
@@ -357,7 +357,7 @@ namespace {
       Base::setSingleIov( true );
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       for( auto const & iov : iovs ) {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
@@ -403,7 +403,7 @@ namespace {
       Base::setSingleIov( true );
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       for( auto const & iov : iovs ) {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
@@ -451,7 +451,7 @@ namespace {
       Base::setSingleIov( true );
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
 
       for( auto const & iov : iovs ) {
 
@@ -501,7 +501,7 @@ namespace {
       Base::setSingleIov( true );
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       for( auto const & iov : iovs ) {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
@@ -548,7 +548,7 @@ namespace {
     }
 
     // Histogram2D::fill (virtual) needs be overridden - the implementation should use fillWithValue
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
 
       for( auto const & iov : iovs ) {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
@@ -592,7 +592,7 @@ namespace {
       Base::setSingleIov( true );
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       for( auto const & iov : iovs ) {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
@@ -631,7 +631,7 @@ namespace {
       Base::setSingleIov( true );
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       for( auto const & iov : iovs ) {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
@@ -680,7 +680,7 @@ namespace {
     }
 
     // Histogram2D::fill (virtual) needs be overridden - the implementation should use fillWithValue
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
 
       for( auto const & iov : iovs ) {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
@@ -734,7 +734,7 @@ namespace {
        Base::setSingleIov( true );
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       for( auto const & iov : iovs ) {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
@@ -785,7 +785,7 @@ namespace {
 "ix", 2.2*IX_MAX, IX_MIN, 2.2*IX_MAX+1, "iy", IY_MAX, IY_MIN, IY_MAX+IY_MIN) {		Base::setSingleIov( true );
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       for( auto const & iov : iovs ) {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
@@ -829,7 +829,7 @@ namespace {
     }
 
     // Histogram2D::fill (virtual) needs be overridden - the implementation should use fillWithValue
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
 
       for( auto const & iov : iovs ) {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
@@ -871,7 +871,7 @@ namespace {
     "iphi", MAX_IPHI, MIN_IPHI, MAX_IPHI+MIN_IPHI, "ieta", 2*MAX_IETA+1, -1*MAX_IETA, MAX_IETA+1) {										Base::setSingleIov( true );
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       for( auto const & iov : iovs ) {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
@@ -908,7 +908,7 @@ namespace {
     "iphi", MAX_IPHI, MIN_IPHI, MAX_IPHI+MIN_IPHI, "ieta", 2*MAX_IETA+1, -1*MAX_IETA, MAX_IETA+1) {								      Base::setSingleIov( true );
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       for( auto const & iov : iovs ) {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
@@ -955,7 +955,7 @@ namespace {
     }
 
     // Histogram2D::fill (virtual) needs be overridden - the implementation should use fillWithValue
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
 
       for( auto const & iov : iovs ) {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
@@ -1008,7 +1008,7 @@ namespace {
       Base::setSingleIov( true );
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       for( auto const & iov : iovs ) {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
@@ -1059,7 +1059,7 @@ namespace {
       Base::setSingleIov( true );
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       for( auto const & iov : iovs ) {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){

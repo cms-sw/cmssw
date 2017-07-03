@@ -42,7 +42,7 @@ class HGCalTopologyBuilder : public edm::ESProducer {
 
 public:
   HGCalTopologyBuilder( const edm::ParameterSet& iP );
-  ~HGCalTopologyBuilder() ;
+  ~HGCalTopologyBuilder() override ;
 
   typedef std::shared_ptr< HGCalTopology > ReturnType;
 

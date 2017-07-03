@@ -44,14 +44,14 @@ class testeventprocessor: public CppUnit::TestFixture {
 
  public:
 
-  void setUp() {
+  void setUp() override {
     //std::cout << "setting up testeventprocessor" << std::endl;
     doInit();
     m_handler = std::make_unique<edm::AssertHandler>(); // propagate_const<T> has no reset() function
     sleep_secs_ = 0;
   }
 
-  void tearDown() { m_handler = nullptr; }
+  void tearDown() override { m_handler = nullptr; }
   void parseTest();
   void beginEndTest();
   void cleanupJobTest();

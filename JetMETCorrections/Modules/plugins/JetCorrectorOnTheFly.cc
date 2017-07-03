@@ -29,13 +29,13 @@ template<class Jet>
 class JetCorrectorOnTheFly : public edm::EDAnalyzer {
 public:
   explicit JetCorrectorOnTheFly(const edm::ParameterSet&);
-  ~JetCorrectorOnTheFly();
+  ~JetCorrectorOnTheFly() override;
 
 private:
   typedef std::vector<Jet> JetCollection;
-  virtual void beginJob() override ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
+  void beginJob() override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
 
   edm::Service<TFileService> fs;
   edm::EDGetTokenT<reco::JetCorrector> mJetCorrector;

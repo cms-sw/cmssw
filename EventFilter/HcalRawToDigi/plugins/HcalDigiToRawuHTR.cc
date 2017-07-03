@@ -41,12 +41,12 @@ using namespace std;
 class HcalDigiToRawuHTR : public edm::stream::EDProducer<> {
 public:
   explicit HcalDigiToRawuHTR(const edm::ParameterSet&);
-  ~HcalDigiToRawuHTR();
+  ~HcalDigiToRawuHTR() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
   void getData(const edm::Event&, const edm::EventSetup&);
 
   int _verbosity;

@@ -34,7 +34,7 @@ class FWTGLViewer : public TGLEmbeddedViewer
 
 public:
    FWTGLViewer(const TGWindow *parent);
-   virtual ~FWTGLViewer();
+   ~FWTGLViewer() override;
 
    // ---------- const member functions ---------------------
 

@@ -32,7 +32,7 @@ class RadialStripTopology : public StripTopology {
   /** 
    * Destructor
    */
-  virtual ~RadialStripTopology(){}
+  ~RadialStripTopology() override{}
 
   // =========================================================
   // StripTopology interface - implement pure virtual methods
@@ -42,7 +42,7 @@ class RadialStripTopology : public StripTopology {
    * LocalPoint on x axis for given 'strip'
    * 'strip' is a float in units of the strip (angular) width
    */
-  virtual LocalPoint localPosition(float strip) const=0;
+  LocalPoint localPosition(float strip) const override =0;
 
   using StripTopology::localPosition;
   /** 
@@ -58,7 +58,7 @@ class RadialStripTopology : public StripTopology {
    * the fractional position along the strip (range -0.5 to +0.5).<BR>
    * BEWARE! The components are not Cartesian.<BR>
    */
-  virtual LocalPoint localPosition(const MeasurementPoint&) const=0;
+  LocalPoint localPosition(const MeasurementPoint&) const override =0;
 
   using StripTopology::localError;
   /** 
@@ -67,14 +67,14 @@ class RadialStripTopology : public StripTopology {
    * stripErr2 is the sigma-squared. Both quantities are expressed in
    * units of theAngularWidth of a strip.
    */
-  virtual LocalError localError(float strip, float stripErr2) const=0;
+  LocalError localError(float strip, float stripErr2) const override =0;
 
   /** 
    * LocalError for a given MeasurementPoint with known MeasurementError.
    * This may be used in Kalman filtering and hence must allow possible
    * correlations between the components.
    */
-  virtual LocalError localError(const MeasurementPoint&, const MeasurementError&) const=0;
+  LocalError localError(const MeasurementPoint&, const MeasurementError&) const override =0;
 
   /** 
    * Strip in which a given LocalPoint lies. This is a float which
@@ -83,7 +83,7 @@ class RadialStripTopology : public StripTopology {
    * detector or BELOW, and float(nstrips) if it falls at the extreme high
    * edge or ABOVE.
    */
-  virtual float strip(const LocalPoint&) const=0;
+  float strip(const LocalPoint&) const override =0;
 
 
   /** 
@@ -92,13 +92,13 @@ class RadialStripTopology : public StripTopology {
    * not sensible for a RadialStripTopology since strip widths vary with local y.
    * Use localPitch(.) instead.
    */
-  virtual float pitch() const final;
+  float pitch() const final;
 
   /** 
    * Pitch (strip width) at a given LocalPoint. <BR>
    * BEWARE: are you sure you really want to call this for a RadialStripTopology?
    */
-  virtual float localPitch(const LocalPoint&) const=0;
+  float localPitch(const LocalPoint&) const override =0;
 
   /** 
    * Angle between strip and symmetry axis (=local y axis)
@@ -111,22 +111,22 @@ class RadialStripTopology : public StripTopology {
    * whereas values 1, 2, ... nstrips correspond to the upper phi edges of
    * the strips.
    */
-  virtual float stripAngle(float strip) const=0;
+  float stripAngle(float strip) const override =0;
 
   /** 
    * Total number of strips 
    */
-  virtual int nstrips() const=0;
+  int nstrips() const override =0;
 
   /** 
    * Height of detector (= length of long symmetry axis of the plane of strips).
    */
-  virtual float stripLength() const=0;
+  float stripLength() const override =0;
 
   /** 
    * Length of a strip passing through a given LocalPpoint
    */
-  virtual float localStripLength(const LocalPoint& ) const=0;
+  float localStripLength(const LocalPoint& ) const override =0;
 
 
   // =========================================================
@@ -134,9 +134,9 @@ class RadialStripTopology : public StripTopology {
   // StripTopology interface)
   // =========================================================
 
-  virtual MeasurementPoint measurementPosition( const LocalPoint& ) const=0;
+  MeasurementPoint measurementPosition( const LocalPoint& ) const override =0;
 
-  virtual MeasurementError measurementError( const LocalPoint&, const LocalError& ) const=0;
+  MeasurementError measurementError( const LocalPoint&, const LocalError& ) const override =0;
 
   /** 
    * Channel number corresponding to a given LocalPoint.<BR>
@@ -145,7 +145,7 @@ class RadialStripTopology : public StripTopology {
    * LocalPoints outside the detector strip plane will be considered
    * as contributing to the edge channels 0 or nstrips-1.
    */
-  virtual int channel( const LocalPoint& ) const=0;
+  int channel( const LocalPoint& ) const override =0;
 
 
   // =========================================================

@@ -28,14 +28,14 @@ public:
   DTT0Analyzer(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~DTT0Analyzer();
+  ~DTT0Analyzer() override;
 
   /// Operations
   //Read the DTGeometry and the t0 DB
-  virtual void beginRun(const edm::Run&, const edm::EventSetup& setup);
-  void analyze(const edm::Event& event, const edm::EventSetup& setup) {}
+  void beginRun(const edm::Run&, const edm::EventSetup& setup) override;
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override {}
   //Do the real work
-  void endJob();
+  void endJob() override;
 
 protected:
 

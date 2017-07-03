@@ -25,11 +25,11 @@ public:
 
   explicit RawDataSelector(const edm::ParameterSet&);
 
-  ~RawDataSelector();
+  ~RawDataSelector() override;
 
 private:
 
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   RawDataFEDSelector * selector; 
 

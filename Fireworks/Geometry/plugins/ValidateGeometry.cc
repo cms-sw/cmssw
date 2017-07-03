@@ -63,12 +63,12 @@ class ValidateGeometry : public edm::EDAnalyzer
 {
 public:
   explicit ValidateGeometry(const edm::ParameterSet&);
-  ~ValidateGeometry();
+  ~ValidateGeometry() override;
 
 private:
-  virtual void beginJob() override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;  
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;  
 
   void validateRPCGeometry(const int regionNumber, 
                            const char* regionName);

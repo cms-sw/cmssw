@@ -59,13 +59,13 @@ public:
    };
 
    FWMET3DProxyBuilder();
-   virtual ~FWMET3DProxyBuilder();
+   ~FWMET3DProxyBuilder() override;
 
    // ---------- const member functions ---------------------
 
-   virtual bool havePerViewProduct(FWViewType::EType) const { return true; } // used energy scaling
-   virtual void scaleProduct(TEveElementList* parent, FWViewType::EType, const FWViewContext* vc);
-   virtual void cleanLocal() { m_arrows.clear(); }
+   bool havePerViewProduct(FWViewType::EType) const override { return true; } // used energy scaling
+   void scaleProduct(TEveElementList* parent, FWViewType::EType, const FWViewContext* vc) override;
+   void cleanLocal() override { m_arrows.clear(); }
 
    // ---------- static member functions --------------------
 
@@ -78,7 +78,7 @@ private:
    const FWMET3DProxyBuilder& operator=(const FWMET3DProxyBuilder&); // stop default
    
    using FWSimpleProxyBuilderTemplate<reco::MET>::build;
-   void build(const reco::MET&, unsigned int, TEveElement&, const FWViewContext*);
+   void build(const reco::MET&, unsigned int, TEveElement&, const FWViewContext*) override;
 
    // ---------- member data --------------------------------
    std::vector<Arrow*> m_arrows;

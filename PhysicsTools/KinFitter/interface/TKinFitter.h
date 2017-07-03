@@ -16,7 +16,7 @@ public :
 
   TKinFitter();
   TKinFitter(const TString &name, const TString &title);  
-  ~TKinFitter();
+  ~TKinFitter() override;
   void reset();         
   void resetStatus();   
 

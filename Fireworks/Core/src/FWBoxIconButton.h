@@ -34,7 +34,7 @@ public:
                    Int_t iID=-1,
                    GContext_t norm = TGButton::GetDefaultGC() (),
                    UInt_t option=0);
-   virtual ~FWBoxIconButton();
+   ~FWBoxIconButton() override;
    
    // ---------- const member functions ---------------------
    
@@ -43,7 +43,7 @@ public:
    // ---------- member functions ---------------------------
    void setNormCG(GContext_t);
 protected:
-   virtual void DoRedraw();
+   void DoRedraw() override;
 private:
    FWBoxIconButton(const FWBoxIconButton&); // stop default
    

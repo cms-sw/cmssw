@@ -22,7 +22,7 @@ class HcalChannelQuality: public HcalCondObjectContainer<HcalChannelStatus>
 #endif
   HcalChannelQuality(const HcalTopology* topo):HcalCondObjectContainer<HcalChannelStatus>(topo) {}
 
-  std::string myname() const {return (std::string)"HcalChannelQuality";}
+  std::string myname() const override {return (std::string)"HcalChannelQuality";}
 
  private:
 

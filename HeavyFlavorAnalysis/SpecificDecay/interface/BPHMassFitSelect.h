@@ -58,13 +58,13 @@ class BPHMassFitSelect: public BPHFitSelect, public BPHMassCuts {
 
   /** Destructor
    */
-  virtual ~BPHMassFitSelect() {
+  ~BPHMassFitSelect() override {
   }
 
   /** Operations
    */
   /// select particle
-  virtual bool accept( const BPHKinematicFit& cand ) const {
+  bool accept( const BPHKinematicFit& cand ) const override {
     switch ( type ) {
     default:
     case none: break;

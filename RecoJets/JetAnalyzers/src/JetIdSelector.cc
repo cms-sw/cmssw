@@ -62,7 +62,7 @@ public:
   typedef std::vector<T> JetCollection;
   // construction/destruction
   explicit JetIdSelector(const edm::ParameterSet& iConfig);
-  virtual ~JetIdSelector();
+  ~JetIdSelector() override;
   
   // member functions
   void produce(edm::Event& iEvent,const edm::EventSetup& iSetup) override;

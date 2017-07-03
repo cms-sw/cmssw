@@ -32,12 +32,12 @@ class SiStripBaseServiceFromDQM : public SiStripCondObjBuilderBase<T>
  public:
 
   explicit SiStripBaseServiceFromDQM(const edm::ParameterSet&);
-  virtual ~SiStripBaseServiceFromDQM();
+  ~SiStripBaseServiceFromDQM() override;
 
   /// Used to fill the logDB
-  virtual void getMetaDataString(std::stringstream& ss);
+  void getMetaDataString(std::stringstream& ss) override;
   /// Check is the transfer is needed
-  virtual bool checkForCompatibility(std::string ss);
+  bool checkForCompatibility(std::string ss) override;
 
  protected:
 

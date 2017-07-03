@@ -30,7 +30,7 @@ public:
   static const IndexIntoFile::EntryType kEvent = IndexIntoFile::kEvent;
   static const IndexIntoFile::EntryType kEnd = IndexIntoFile::kEnd;
 
-  void setUp() {
+  void setUp() override {
     // Make some fake processHistoryID's to work with
     nullPHID = ProcessHistoryID();
 
@@ -54,7 +54,7 @@ public:
     fakePHID3 = ph3.id();
   }
 
-  void tearDown() { }
+  void tearDown() override { }
 
   void testAddEntryAndFixAndSort();
 
@@ -67,8 +67,8 @@ public:
   class TestEventFinder : public IndexIntoFile::EventFinder {
   public:
     explicit TestEventFinder() {}
-    virtual ~TestEventFinder() {}
-    virtual EventNumber_t getEventNumberOfEntry(IndexIntoFile::EntryNumber_t entry) const {
+    ~TestEventFinder() override {}
+    EventNumber_t getEventNumberOfEntry(IndexIntoFile::EntryNumber_t entry) const override {
       return testData_.at(entry);
     }
     void push_back(EventNumber_t e) {testData_.push_back(e); }

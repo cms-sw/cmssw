@@ -53,7 +53,7 @@ class FFTJetPileupAnalyzer : public edm::EDAnalyzer
 {
 public:
     explicit FFTJetPileupAnalyzer(const edm::ParameterSet&);
-    ~FFTJetPileupAnalyzer();
+    ~FFTJetPileupAnalyzer() override;
 
 private:
     FFTJetPileupAnalyzer();
@@ -64,9 +64,9 @@ private:
     // PileupSummaryInfo and fill out the ntuple
     void analyzePileup(const std::vector<PileupSummaryInfo>& pInfo);
 
-    virtual void beginJob() override ;
-    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-    virtual void endJob() override ;
+    void beginJob() override ;
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
+    void endJob() override ;
 
     edm::InputTag histoLabel;
     edm::InputTag summaryLabel;

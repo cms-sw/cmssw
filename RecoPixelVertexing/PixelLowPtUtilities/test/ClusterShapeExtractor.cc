@@ -50,10 +50,10 @@ class ClusterShapeExtractor : public edm::EDAnalyzer
 {
  public:
    explicit ClusterShapeExtractor(const edm::ParameterSet& pset);
-   ~ClusterShapeExtractor();
-   virtual void beginRun(const edm::Run & run, const edm::EventSetup& es) override;
-   virtual void analyze (const edm::Event& ev, const edm::EventSetup& es) override;
-   virtual void endJob() override;
+   ~ClusterShapeExtractor() override;
+   void beginRun(const edm::Run & run, const edm::EventSetup& es) override;
+   void analyze (const edm::Event& ev, const edm::EventSetup& es) override;
+   void endJob() override;
 
  private:
    bool isSuitable(const PSimHit & simHit);

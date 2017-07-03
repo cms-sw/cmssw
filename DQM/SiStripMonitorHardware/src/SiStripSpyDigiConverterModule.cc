@@ -38,8 +38,8 @@ namespace sistrip {
   {
   public:
     SpyDigiConverterModule( const edm::ParameterSet& );
-    ~SpyDigiConverterModule();
-    virtual void produce( edm::Event&, const edm::EventSetup& ) override;
+    ~SpyDigiConverterModule() override;
+    void produce( edm::Event&, const edm::EventSetup& ) override;
 
   private:
     const edm::InputTag productLabel_;

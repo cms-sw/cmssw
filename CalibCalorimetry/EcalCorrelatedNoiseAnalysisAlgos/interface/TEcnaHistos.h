@@ -991,7 +991,7 @@ class TEcnaHistos : public TObject {
 //	      const TEcnaNumbering*,
 //	      const TEcnaWrite*);
   
-  virtual  ~TEcnaHistos();
+   ~TEcnaHistos() override;
   
   void Init();
   void SetEcalSubDetector(const TString&);

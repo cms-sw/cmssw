@@ -16,7 +16,7 @@
 class PhotonConversionTrajectorySeedProducerFromQuadruplets : public edm::stream::EDProducer<> {
 public:
   PhotonConversionTrajectorySeedProducerFromQuadruplets(const edm::ParameterSet& );
-  ~PhotonConversionTrajectorySeedProducerFromQuadruplets(){}
+  ~PhotonConversionTrajectorySeedProducerFromQuadruplets() override{}
   void produce(edm::Event& , const edm::EventSetup& ) override;
 
 private:

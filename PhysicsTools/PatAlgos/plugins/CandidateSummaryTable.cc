@@ -76,13 +76,13 @@ namespace pat {
   class CandidateSummaryTable : public edm::stream::EDAnalyzer<edm::GlobalCache<pathelpers::RecordCache> > {
   public:
     explicit CandidateSummaryTable(const edm::ParameterSet & iConfig, const pathelpers::RecordCache*);
-    ~CandidateSummaryTable();
+    ~CandidateSummaryTable() override;
     
     static std::unique_ptr<pathelpers::RecordCache> initializeGlobalCache(edm::ParameterSet const& conf) {
       return std::make_unique<pathelpers::RecordCache>(conf);
     }
 
-    virtual void analyze(const edm::Event & iEvent, const edm::EventSetup& iSetup) override;
+    void analyze(const edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
     static void globalEndJob(const pathelpers::RecordCache*);
     

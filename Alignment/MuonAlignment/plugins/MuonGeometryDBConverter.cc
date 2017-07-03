@@ -43,14 +43,14 @@
 class MuonGeometryDBConverter : public edm::one::EDAnalyzer<> {
    public:
       explicit MuonGeometryDBConverter(const edm::ParameterSet&);
-      ~MuonGeometryDBConverter();
+      ~MuonGeometryDBConverter() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions&);
       void beginJob() override {};
       void endJob() override {};
 
    private:
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
 
       bool m_done;
       std::string m_input, m_output;

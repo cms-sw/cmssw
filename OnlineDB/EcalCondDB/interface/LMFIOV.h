@@ -22,7 +22,7 @@ class LMFIOV : public LMFUnique {
   LMFIOV(EcalDBConnection *c);
   LMFIOV(const oracle::occi::Environment* env, 
 	 const oracle::occi::Connection* conn);
-  ~LMFIOV();
+  ~LMFIOV() override;
 
   LMFIOV& setStart(const Tm &start);
   LMFIOV& setStop(const Tm &stop);
@@ -36,19 +36,19 @@ class LMFIOV : public LMFUnique {
   int getVmin() const;
   int getVmax() const;
 
-  void dump() const;
+  void dump() const override;
 
  private:
   // Methods from LMFUnique
-  std::string writeDBSql(Statement *stmt);
-  std::string fetchIdSql(Statement *stmt); 
+  std::string writeDBSql(Statement *stmt) override;
+  std::string fetchIdSql(Statement *stmt) override; 
   //  std::string fetchAllSql(Statement *stmt) const;
   std::string setByIDSql(Statement *stmt,
-			 int id);
+			 int id) override;
   
-  void getParameters(ResultSet *rset);
-  void fetchParentIDs() {}
-  LMFUnique * createObject() const;
+  void getParameters(ResultSet *rset) override;
+  void fetchParentIDs() override {}
+  LMFUnique * createObject() const override;
   
   Tm m_iov_start;
   Tm m_iov_stop;

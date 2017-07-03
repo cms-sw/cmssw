@@ -54,14 +54,14 @@ namespace popcon
 
 		public:
                         EcalTPGLutGroupHandler(edm::ParameterSet const & );
-			~EcalTPGLutGroupHandler(); 
+			~EcalTPGLutGroupHandler() override; 
 			
 			std::map<std::string, int> makeTTEBDetId();
 			std::map<std::string, int> makeTTEEDetId();
 			
-			void getNewObjects();
+			void getNewObjects() override;
 			
-			std::string id() const { return m_name;}
+			std::string id() const override { return m_name;}
 			
 			void readFromFile(const char* inputFile) ;
 			void writeFile(const char* inputFile);

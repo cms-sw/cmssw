@@ -46,7 +46,7 @@ namespace edm {
 
             // implicit copy constructor
             // implicit assignment operator
-            ~SiteLocalConfigService();
+            ~SiteLocalConfigService() override;
 
             static void fillDescriptions(ConfigurationDescriptions& descriptions);
 

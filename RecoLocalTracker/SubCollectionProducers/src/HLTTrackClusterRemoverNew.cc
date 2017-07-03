@@ -39,7 +39,7 @@
 class HLTTrackClusterRemoverNew final : public edm::stream::EDProducer<> {
     public:
         HLTTrackClusterRemoverNew(const edm::ParameterSet& iConfig) ;
-        ~HLTTrackClusterRemoverNew() ;
+        ~HLTTrackClusterRemoverNew() override ;
         void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override ;
     private:
         struct ParamBlock {

@@ -36,7 +36,7 @@ namespace pos{
 
     PixelPortcardMap(std::vector< std::vector < std::string> > &tableMat);
 
-    virtual ~PixelPortcardMap();
+    ~PixelPortcardMap() override;
 
     // Get the port card and AOH associated with this module.  If the module has one(two) channels, this vector contains one(two) element(s).
     const std::set< std::pair< std::string, int > > PortCardAndAOHs(const PixelModuleName& aModule) const;
@@ -59,22 +59,22 @@ namespace pos{
     // Added by Dario for Debbie (the PixelPortcardMap::portcards is way to slow for the interactive tool)
     bool getName(std::string moduleName, std::string &portcardName) ;
 
-    virtual void writeASCII(std::string dir) const;
-    void 	 writeXML(        pos::PixelConfigKey key, int version, std::string path) const {;}
-    virtual void writeXMLHeader(  pos::PixelConfigKey key, 
+    void writeASCII(std::string dir) const override;
+    void 	 writeXML(        pos::PixelConfigKey key, int version, std::string path) const override {;}
+    void writeXMLHeader(  pos::PixelConfigKey key, 
 				  int version, 
 				  std::string path, 
 				  std::ofstream *out,
 				  std::ofstream *out1 = NULL,
 				  std::ofstream *out2 = NULL
-				  ) const ;
-    virtual void writeXML(        std::ofstream *out,			                                    
+				  ) const override ;
+    void writeXML(        std::ofstream *out,			                                    
 			   	  std::ofstream *out1 = NULL ,
-			   	  std::ofstream *out2 = NULL ) const ;
-    virtual void writeXMLTrailer( std::ofstream *out, 
+			   	  std::ofstream *out2 = NULL ) const override ;
+    void writeXMLTrailer( std::ofstream *out, 
 				  std::ofstream *out1 = NULL,
 				  std::ofstream *out2 = NULL
-				  ) const ;
+				  ) const override ;
     
   private:
     //                               portcardname, AOH #

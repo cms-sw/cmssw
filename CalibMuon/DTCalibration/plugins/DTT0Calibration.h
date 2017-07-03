@@ -31,15 +31,15 @@ public:
   DTT0Calibration(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~DTT0Calibration();
+  ~DTT0Calibration() override;
 
   // Operations
 
   /// Fill the maps with t0 (by channel)
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
 
   /// Compute the mean and the RMS of the t0 from the maps and write them to the DB with channel granularity
-  void endJob();
+  void endJob() override;
 
 
 protected:

@@ -16,10 +16,10 @@ public:
    FWTEventList(const char* name, const char* title = "", Int_t initsize = 0, Int_t delta = 0) : 
       TEventList(name, title, initsize, delta) {}
 
-   virtual ~FWTEventList() {}
+   ~FWTEventList() override {}
 
-   virtual void	Enter(Long64_t entry);
-   virtual void	Add(const TEventList* list);
+   void	Enter(Long64_t entry) override;
+   void	Add(const TEventList* list) override;
 
 private:
    FWTEventList(const FWTEventList&); // stop default

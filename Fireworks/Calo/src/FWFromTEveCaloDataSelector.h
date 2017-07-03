@@ -36,15 +36,15 @@ class FWFromTEveCaloDataSelector : public FWFromEveSelectorBase
 
 public:
    FWFromTEveCaloDataSelector(TEveCaloData*);
-   virtual ~FWFromTEveCaloDataSelector();
+   ~FWFromTEveCaloDataSelector() override;
    
    // ---------- const member functions ---------------------
    
    // ---------- static member functions --------------------
    
    // ---------- member functions ---------------------------
-   void doSelect();
-   void doUnselect();   
+   void doSelect() override;
+   void doUnselect() override;   
 
    void addSliceSelector(int iSlice, FWFromSliceSelector*);
    void resetSliceSelector(int iSlice);

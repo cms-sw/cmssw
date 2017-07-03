@@ -37,10 +37,10 @@ class MuonDetCleaner : public edm::stream::EDProducer<>
 {
  public:
   explicit MuonDetCleaner(const edm::ParameterSet&);
-  ~MuonDetCleaner();
+  ~MuonDetCleaner() override;
 
  private:
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   typedef edm::RangeMap<T1, edm::OwnVector<T2> > RecHitCollection;
   void fillVetoHits(const TrackingRecHit& , std::vector<uint32_t>* );

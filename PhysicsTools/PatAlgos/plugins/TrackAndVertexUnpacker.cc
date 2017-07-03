@@ -31,9 +31,9 @@ namespace pat {
   public:
     
     explicit PATTrackAndVertexUnpacker(const edm::ParameterSet & iConfig);
-    ~PATTrackAndVertexUnpacker();
+    ~PATTrackAndVertexUnpacker() override;
     
-    virtual void produce(edm::StreamID, edm::Event & iEvent, const edm::EventSetup& iSetup) const override;
+    void produce(edm::StreamID, edm::Event & iEvent, const edm::EventSetup& iSetup) const override;
     
   private:
     typedef std::vector<edm::InputTag> VInputTag;

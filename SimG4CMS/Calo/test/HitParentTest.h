@@ -38,13 +38,13 @@ class HitParentTest: public edm::EDAnalyzer{
 public:
 
   HitParentTest(const edm::ParameterSet& ps);
-  ~HitParentTest() {}
+  ~HitParentTest() override {}
 
 protected:
 
   //  void beginJob () {}
-  void analyze  (const edm::Event& e, const edm::EventSetup& c);
-  void endJob   ();
+  void analyze  (const edm::Event& e, const edm::EventSetup& c) override;
+  void endJob   () override;
 
 private:
 

@@ -29,10 +29,10 @@ namespace lumi{
   public:
     const static unsigned int COMMITLSINTERVAL=20; //commit interval in LS,totalrow=nsl*192
     explicit TRGWBM2DB(const std::string& dest);
-    virtual unsigned long long retrieveData( unsigned int runnumber) override;
-    virtual const std::string dataType() const override;
-    virtual const std::string sourceType() const override;
-    virtual ~TRGWBM2DB();
+    unsigned long long retrieveData( unsigned int runnumber) override;
+    const std::string dataType() const override;
+    const std::string sourceType() const override;
+    ~TRGWBM2DB() override;
   private:
     std::string int2str(unsigned int t,unsigned int width);
     unsigned int str2int(const std::string& s);

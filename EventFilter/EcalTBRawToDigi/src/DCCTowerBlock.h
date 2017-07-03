@@ -32,7 +32,7 @@ class DCCTBTowerBlock : public DCCTBBlockPrototype {
 			uint32_t expectedTowerID
 		);
 		
-		~DCCTBTowerBlock();
+		~DCCTBTowerBlock() override;
 		
 		void parseXtalData();
 		int towerID();

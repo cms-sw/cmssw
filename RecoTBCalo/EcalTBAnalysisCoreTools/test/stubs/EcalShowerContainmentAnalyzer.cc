@@ -47,12 +47,12 @@ class EcalShowerContainmentAnalyzer: public edm::EDAnalyzer{
   
 public:
   EcalShowerContainmentAnalyzer(const edm::ParameterSet& ps);
-  ~EcalShowerContainmentAnalyzer();
+  ~EcalShowerContainmentAnalyzer() override;
   
 protected:
   
-  void analyze( edm::Event const & iEvent, const  edm::EventSetup& iSetup);
-  void endJob() ;
+  void analyze( edm::Event const & iEvent, const  edm::EventSetup& iSetup) override;
+  void endJob() override ;
 
   void readIntercalibrationConstants();
 

@@ -57,10 +57,10 @@ struct FindCorrectedSubjet {
 class BoostedJetMerger : public edm::stream::EDProducer<> {
    public:
       explicit BoostedJetMerger(const edm::ParameterSet&);
-      ~BoostedJetMerger();
+      ~BoostedJetMerger() override;
 
    private:
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
       
       // ----------member data ---------------------------
 

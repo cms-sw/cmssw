@@ -31,9 +31,9 @@ namespace sistrip {
   {
     public:
       SpyEventMatcherModule(const edm::ParameterSet& config);
-      virtual ~SpyEventMatcherModule();
-      virtual void beginJob() override;
-      virtual bool filter(edm::Event& event, const edm::EventSetup& eventSetup) override;  
+      ~SpyEventMatcherModule() override;
+      void beginJob() override;
+      bool filter(edm::Event& event, const edm::EventSetup& eventSetup) override;  
     private:
       void findL1IDandAPVAddress(const edm::Event& event, const SiStripFedCabling& cabling, uint32_t& l1ID, uint8_t& apvAddress) const;
       void copyData(const uint32_t eventId, const uint8_t apvAddress, const SpyEventMatcher::SpyEventList* matches, edm::Event& event,

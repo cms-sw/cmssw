@@ -22,12 +22,12 @@ class PSetTestClient_A
 public:
   explicit
     PSetTestClient_A( edm::ParameterSet const & p);
-  virtual ~PSetTestClient_A() {}
+  ~PSetTestClient_A() override {}
   
-  virtual
+  
     void analyze( edm::Event      const & e
                 , edm::EventSetup const & c
-                );
+                ) override;
 private:
   edm::ParameterSet a;
   edm::ParameterSet b;

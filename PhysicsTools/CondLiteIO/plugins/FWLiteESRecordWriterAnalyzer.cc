@@ -150,15 +150,15 @@ namespace  {
 class FWLiteESRecordWriterAnalyzer : public edm::EDAnalyzer {
    public:
       explicit FWLiteESRecordWriterAnalyzer(const edm::ParameterSet&);
-      ~FWLiteESRecordWriterAnalyzer();
+      ~FWLiteESRecordWriterAnalyzer() override;
 
 
    private:
-      virtual void beginJob() override ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
-      virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-      virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+      void beginJob() override ;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
+      void beginRun(edm::Run const&, edm::EventSetup const&) override;
+      void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
    
       void update(const edm::EventSetup&);
 

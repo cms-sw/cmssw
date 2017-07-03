@@ -25,7 +25,7 @@ public:
   
   TTULogicUnit( const char * );
   
-  virtual ~TTULogicUnit( ); ///< Destructor
+  ~TTULogicUnit( ) override; ///< Destructor
 
   bool initialise();
   

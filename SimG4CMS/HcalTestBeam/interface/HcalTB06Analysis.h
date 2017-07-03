@@ -28,11 +28,11 @@ class HcalTB06Analysis : public edm::one::EDAnalyzer<edm::one::SharedResources>
 public:
 
   explicit HcalTB06Analysis(const edm::ParameterSet &p);
-  virtual ~HcalTB06Analysis();
+  ~HcalTB06Analysis() override;
 
-  virtual void beginJob() override;
-  virtual void endJob() override;
-  virtual void analyze(const edm::Event & e, const edm::EventSetup& c) override;
+  void beginJob() override;
+  void endJob() override;
+  void analyze(const edm::Event & e, const edm::EventSetup& c) override;
 
 private:
 

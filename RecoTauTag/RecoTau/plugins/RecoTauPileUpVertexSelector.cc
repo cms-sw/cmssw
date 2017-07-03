@@ -41,7 +41,7 @@ class VertexTrackPtSumFilter : public std::unary_function<reco::Vertex, bool> {
 class RecoTauPileUpVertexSelector : public edm::stream::EDFilter<> {
   public:
     explicit RecoTauPileUpVertexSelector(const edm::ParameterSet &pset);
-    ~RecoTauPileUpVertexSelector() {}
+    ~RecoTauPileUpVertexSelector() override {}
     bool filter(edm::Event& evt, const edm::EventSetup& es) override;
   private:
     edm::InputTag src_;

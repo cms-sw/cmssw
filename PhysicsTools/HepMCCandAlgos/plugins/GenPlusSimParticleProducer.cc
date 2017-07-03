@@ -39,11 +39,11 @@ namespace pat {
 class GenPlusSimParticleProducer : public edm::EDProducer {
 public:
   explicit GenPlusSimParticleProducer(const edm::ParameterSet&);
-  ~GenPlusSimParticleProducer() {}
+  ~GenPlusSimParticleProducer() override {}
 
 private:
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override {}
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override {}
 
   bool firstEvent_;
   edm::EDGetTokenT<edm::SimTrackContainer> simtracksToken_;

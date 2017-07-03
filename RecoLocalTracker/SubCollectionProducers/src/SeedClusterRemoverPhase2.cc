@@ -40,7 +40,7 @@ class SeedClusterRemoverPhase2 : public edm::stream::EDProducer<> {
 
   public:
     SeedClusterRemoverPhase2(const edm::ParameterSet& iConfig) ;
-    ~SeedClusterRemoverPhase2() ;
+    ~SeedClusterRemoverPhase2() override ;
     void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override ;
   private:
     bool doOuterTracker_, doPixel_;

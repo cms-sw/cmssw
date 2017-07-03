@@ -42,7 +42,7 @@ class DTConfigPedestals : DTConfig {
   DTConfigPedestals();
 
   //! Destructor 
-  ~DTConfigPedestals();
+  ~DTConfigPedestals() override;
 
   //! Get wire by wire delay
   float getOffset(const DTWireId& wire) const;

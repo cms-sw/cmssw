@@ -20,8 +20,8 @@ CPPUNIT_TEST(constPtrTest);
 CPPUNIT_TEST(manyTest);
 CPPUNIT_TEST_SUITE_END();
 public:
-  void setUp(){}
-  void tearDown(){}
+  void setUp() override{}
+  void tearDown() override{}
   void constPtrTest();
   void manyTest();
 };

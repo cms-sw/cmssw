@@ -18,7 +18,7 @@ namespace edmtest {
     
     explicit OtherThingAnalyzer(edm::ParameterSet const& pset);
     
-    virtual void analyze(edm::Event const& e, edm::EventSetup const& c) override;
+    void analyze(edm::Event const& e, edm::EventSetup const& c) override;
     
     void doit(edm::Event const& event, std::string const& label);
     

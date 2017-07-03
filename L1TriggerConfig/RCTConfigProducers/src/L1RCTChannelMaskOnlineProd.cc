@@ -39,9 +39,9 @@ class L1RCTChannelMaskOnlineProd :
    public:
   L1RCTChannelMaskOnlineProd(const edm::ParameterSet& iConfig)
     : L1ConfigOnlineProdBase< L1RCTChannelMaskRcd, L1RCTChannelMask > (iConfig) {}
-  ~L1RCTChannelMaskOnlineProd() {}
+  ~L1RCTChannelMaskOnlineProd() override {}
   
-  virtual std::shared_ptr< L1RCTChannelMask > newObject(const std::string& objectKey ) override ;
+  std::shared_ptr< L1RCTChannelMask > newObject(const std::string& objectKey ) override ;
 
 
    private:

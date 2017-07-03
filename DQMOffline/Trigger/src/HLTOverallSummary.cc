@@ -60,14 +60,14 @@ class HLTOverallSummary : public edm::EDAnalyzer {
 
    public:
       explicit HLTOverallSummary(const edm::ParameterSet& pset);
-      ~HLTOverallSummary();
+      ~HLTOverallSummary() override;
 
 
-      virtual void beginJob() override ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
-      virtual void beginRun(const edm::Run&, const edm::EventSetup&) override ;
-      virtual void endRun(const edm::Run&, const edm::EventSetup&) override ;
+      void beginJob() override ;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
+      void beginRun(const edm::Run&, const edm::EventSetup&) override ;
+      void endRun(const edm::Run&, const edm::EventSetup&) override ;
 
 
 

@@ -64,22 +64,22 @@ class MuonForwardNavigableLayer : public MuonNavigableLayer {
 
 
     /// NavigableLayer interface
-    virtual std::vector<const DetLayer*> nextLayers(NavigationDirection dir) const override;
+    std::vector<const DetLayer*> nextLayers(NavigationDirection dir) const override;
 
     /// NavigableLayer interface
-    virtual std::vector<const DetLayer*> nextLayers(const FreeTrajectoryState& fts, 
+    std::vector<const DetLayer*> nextLayers(const FreeTrajectoryState& fts, 
                                                PropagationDirection dir) const override;
 
-    virtual std::vector<const DetLayer*> compatibleLayers(NavigationDirection dir) const override;
+    std::vector<const DetLayer*> compatibleLayers(NavigationDirection dir) const override;
 
     /// NavigableLayer interface
-    virtual std::vector<const DetLayer*> compatibleLayers(const FreeTrajectoryState& fts,
+    std::vector<const DetLayer*> compatibleLayers(const FreeTrajectoryState& fts,
                                                PropagationDirection dir) const override;
     /// return DetLayer
-    virtual const DetLayer* detLayer() const override;
+    const DetLayer* detLayer() const override;
 
     /// set DetLayer
-    virtual void setDetLayer(const DetLayer*) override;
+    void setDetLayer(const DetLayer*) override;
 
     /// Operations
     MapE getOuterEndcapLayers() const { return theOuterEndcapLayers; }

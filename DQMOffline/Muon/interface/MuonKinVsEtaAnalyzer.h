@@ -38,7 +38,7 @@ class MuonKinVsEtaAnalyzer : public DQMEDAnalyzer {
   MuonKinVsEtaAnalyzer(const edm::ParameterSet& pSet);
   
   /// Destructor
-  ~MuonKinVsEtaAnalyzer();
+  ~MuonKinVsEtaAnalyzer() override;
   
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;

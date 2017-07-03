@@ -15,7 +15,7 @@ class FWL1EtMissParticleLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<l
 {
 public:
    FWL1EtMissParticleLegoProxyBuilder( void ) {}
-   virtual ~FWL1EtMissParticleLegoProxyBuilder( void ) {}
+   ~FWL1EtMissParticleLegoProxyBuilder( void ) override {}
    
    REGISTER_PROXYBUILDER_METHODS();
    
@@ -24,7 +24,7 @@ private:
    const FWL1EtMissParticleLegoProxyBuilder& operator=( const FWL1EtMissParticleLegoProxyBuilder& );    // stop default
    
    using FWSimpleProxyBuilderTemplate<l1extra::L1EtMissParticle>::build;
-   virtual void build( const l1extra::L1EtMissParticle& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext* );
+   void build( const l1extra::L1EtMissParticle& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext* ) override;
 };
 
 void

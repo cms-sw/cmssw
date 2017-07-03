@@ -17,26 +17,26 @@ class GEMRecHitStandardAlgo : public GEMRecHitBaseAlgo {
   GEMRecHitStandardAlgo(const edm::ParameterSet& config);
 
   /// Destructor
-  virtual ~GEMRecHitStandardAlgo();
+  ~GEMRecHitStandardAlgo() override;
 
   // Operations
 
   /// Pass the Event Setup to the algo at each event
-  virtual void setES(const edm::EventSetup& setup);
+  void setES(const edm::EventSetup& setup) override;
 
 
-  virtual bool compute(const GEMEtaPartition& roll,
+  bool compute(const GEMEtaPartition& roll,
                        const GEMCluster& cluster,
                        LocalPoint& point,
-                       LocalError& error) const;
+                       LocalError& error) const override;
 
 
-  virtual bool compute(const GEMEtaPartition& roll,
+  bool compute(const GEMEtaPartition& roll,
                        const GEMCluster& cluster,
                        const float& angle,
                        const GlobalPoint& globPos, 
                        LocalPoint& point,
-                       LocalError& error) const;
+                       LocalError& error) const override;
 };
 #endif
 

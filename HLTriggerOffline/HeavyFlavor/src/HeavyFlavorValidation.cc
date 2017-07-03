@@ -53,11 +53,11 @@ using namespace trigger;
 class HeavyFlavorValidation : public DQMEDAnalyzer {
   public:
     explicit HeavyFlavorValidation(const edm::ParameterSet&);
-    ~HeavyFlavorValidation();
+    ~HeavyFlavorValidation() override;
   protected:
     void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
     void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
   private:
     int getMotherId( const Candidate * p );
     void match( MonitorElement * me, vector<LeafCandidate> & from, vector<LeafCandidate> & to, double deltaRMatchingCut, vector<int> & map );

@@ -38,12 +38,12 @@ namespace pat {
 	produces<edm::OwnVector<reco::BaseTagInfo> > ("tagInfos");
       }
 
-    virtual ~PATJetSelector() {}
+    ~PATJetSelector() override {}
 
     virtual void beginJob() {}
     virtual void endJob() {}
 
-    virtual bool filter(edm::Event& iEvent, const edm::EventSetup& iSetup) override {
+    bool filter(edm::Event& iEvent, const edm::EventSetup& iSetup) override {
 
       auto patJets = std::make_unique<std::vector<Jet>>();
 

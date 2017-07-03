@@ -13,11 +13,11 @@ class PyquenAnalyzer : public edm::EDAnalyzer
 { //analyzer module to analyze pythia events
  public:
   explicit PyquenAnalyzer(const edm::ParameterSet& );
-  virtual ~PyquenAnalyzer() {} 
+  ~PyquenAnalyzer() override {} 
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup& );
-  virtual void beginJob();
-  virtual void endJob();
+  void analyze(const edm::Event&, const edm::EventSetup& ) override;
+  void beginJob() override;
+  void endJob() override;
 
  private:
  

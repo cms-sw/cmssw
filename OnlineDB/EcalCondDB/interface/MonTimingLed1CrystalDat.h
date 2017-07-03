@@ -6,7 +6,7 @@
 class MonTimingLed1CrystalDat : public ITimingDat {
  public:
   // User data methods
-  inline std::string getTable() { return "MON_TIMING_XTAL_L1_DAT";}
+  inline std::string getTable() override { return "MON_TIMING_XTAL_L1_DAT";}
    
 };
 

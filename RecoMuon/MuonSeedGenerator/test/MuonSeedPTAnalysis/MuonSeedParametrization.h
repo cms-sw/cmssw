@@ -77,11 +77,11 @@ public:
   MuonSeedParametrization(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~MuonSeedParametrization();
+  ~MuonSeedParametrization() override;
 
   // Operations
   /// Perform the real analysis
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
 
 
 protected:

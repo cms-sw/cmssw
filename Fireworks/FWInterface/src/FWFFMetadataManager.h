@@ -12,10 +12,10 @@ class FWFFMetadataManager : public FWJobMetadataManager
 {
 public:
    FWFFMetadataManager();
-   virtual bool  hasModuleLabel(std::string& moduleLabel);
+   bool  hasModuleLabel(std::string& moduleLabel) override;
 
 protected:
-   virtual bool doUpdate(FWJobMetadataUpdateRequest*);
+   bool doUpdate(FWJobMetadataUpdateRequest*) override;
 
 private:
    const edm::Event* m_event;

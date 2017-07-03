@@ -41,7 +41,7 @@ public:
       es_(&iES),
       label_(iLabel) {}
 private:
-      virtual const T* getImpl() const {
+      const T* getImpl() const override {
         ESHandle<T> data;
         es_->template get<TRec>().get(label_,data);
         return &(*data);

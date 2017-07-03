@@ -15,9 +15,9 @@ namespace cms {
   class SiPixelPerformanceSummaryReader : public edm::EDAnalyzer {
   public:
     explicit SiPixelPerformanceSummaryReader(const edm::ParameterSet&);
-            ~SiPixelPerformanceSummaryReader();
+            ~SiPixelPerformanceSummaryReader() override;
   
-    void analyze(const edm::Event&, const edm::EventSetup&);
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   private:
     bool printdebug_;

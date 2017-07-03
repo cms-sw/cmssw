@@ -42,10 +42,10 @@ namespace edm {
 class PythiaDauFilter : public edm::EDFilter {
    public:
       explicit PythiaDauFilter(const edm::ParameterSet&);
-      ~PythiaDauFilter();
+      ~PythiaDauFilter() override;
 
 
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      bool filter(edm::Event&, const edm::EventSetup&) override;
    private:
       // ----------memeber function----------------------
 

@@ -27,8 +27,8 @@ class TestPluginFactoryManager : public CppUnit::TestFixture
   CPPUNIT_TEST_SUITE_END();
 public:
     void test();
-    void setUp() {}
-    void tearDown() {}
+    void setUp() override {}
+    void tearDown() override {}
 };
 
 ///registration of the test so that the runner can find it
@@ -39,8 +39,8 @@ public:
   DummyTestPlugin(const std::string& iName): name_(iName) {
     finishedConstruction();
   }
-  const std::string& category() const {return name_;}
-  std::vector<edmplugin::PluginInfo> available() const {
+  const std::string& category() const override {return name_;}
+  std::vector<edmplugin::PluginInfo> available() const override {
     return std::vector<edmplugin::PluginInfo>();
   }
   const std::string name_;

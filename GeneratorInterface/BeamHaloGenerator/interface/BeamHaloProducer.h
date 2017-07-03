@@ -26,7 +26,7 @@ namespace edm
     /// Constructor
     BeamHaloProducer(const ParameterSet &);
     /// Destructor
-    virtual ~BeamHaloProducer();
+    ~BeamHaloProducer() override;
 
     void setRandomEngine(CLHEP::HepRandomEngine* v);
 
@@ -38,10 +38,10 @@ namespace edm
 
   private:
 
-    virtual void produce(Event & e, const EventSetup & es) override;
-    virtual void endRunProduce(Run & r, const EventSetup & es) override;
-    virtual void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
-    virtual void endLuminosityBlock(LuminosityBlock const&, EventSetup const&) override { }
+    void produce(Event & e, const EventSetup & es) override;
+    void endRunProduce(Run & r, const EventSetup & es) override;
+    void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
+    void endLuminosityBlock(LuminosityBlock const&, EventSetup const&) override { }
 
     void clear();
 

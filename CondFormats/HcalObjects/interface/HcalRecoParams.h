@@ -16,7 +16,7 @@ class HcalRecoParams: public HcalCondObjectContainer<HcalRecoParam>
 #endif
   HcalRecoParams(const HcalTopology* topo):HcalCondObjectContainer<HcalRecoParam>(topo) {}
 
-  std::string myname() const {return (std::string)"HcalRecoParams";}
+  std::string myname() const override {return (std::string)"HcalRecoParams";}
 
  private:
 

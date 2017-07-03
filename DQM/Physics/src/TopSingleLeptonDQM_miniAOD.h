@@ -209,10 +209,10 @@ class TopSingleLeptonDQM_miniAOD : public DQMEDAnalyzer {
   /// default constructor
   TopSingleLeptonDQM_miniAOD(const edm::ParameterSet& cfg);
   /// default destructor
-  ~TopSingleLeptonDQM_miniAOD() {};
+  ~TopSingleLeptonDQM_miniAOD() override {};
 
   /// do this during the event loop
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
  
  protected:
   //Book histograms

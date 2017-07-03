@@ -38,9 +38,9 @@ public:
   };
 
   explicit AlignmentRcdScan( const edm::ParameterSet& iConfig );
-  ~AlignmentRcdScan();
+  ~AlignmentRcdScan() override;
 
-  virtual void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup); 
+  void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) override; 
 
 private:
 

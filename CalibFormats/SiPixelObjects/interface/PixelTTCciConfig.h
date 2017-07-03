@@ -25,22 +25,22 @@ namespace pos{
     //std::string getTTCConfigPath() {return ttcConfigPath_;}
     std::stringstream& getTTCConfigStream() {return ttcConfigStream_;}
 
-    virtual void writeASCII(std::string dir) const;
-    virtual void writeXML(        pos::PixelConfigKey key, int version, std::string path) const {;}
-    virtual void writeXMLHeader(  pos::PixelConfigKey key, 
+    void writeASCII(std::string dir) const override;
+    void writeXML(        pos::PixelConfigKey key, int version, std::string path) const override {;}
+    void writeXMLHeader(  pos::PixelConfigKey key, 
 				  int version, 
 				  std::string path, 
 				  std::ofstream *out,
 				  std::ofstream *out1 = NULL,
 				  std::ofstream *out2 = NULL
-				  ) const ;
-    virtual void writeXML( 	  std::ofstream *out,			        			    
+				  ) const override ;
+    void writeXML( 	  std::ofstream *out,			        			    
 			   	  std::ofstream *out1 = NULL ,
-			   	  std::ofstream *out2 = NULL ) const ;
-    virtual void writeXMLTrailer( std::ofstream *out, 
+			   	  std::ofstream *out2 = NULL ) const override ;
+    void writeXMLTrailer( std::ofstream *out, 
 				  std::ofstream *out1 = NULL,
 				  std::ofstream *out2 = NULL
-				  ) const ;
+				  ) const override ;
  
   private:
  

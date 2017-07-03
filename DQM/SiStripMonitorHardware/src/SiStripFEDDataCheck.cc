@@ -55,12 +55,12 @@ class SiStripFEDCheckPlugin : public DQMEDAnalyzer
 {
  public:
   explicit SiStripFEDCheckPlugin(const edm::ParameterSet&);
-  ~SiStripFEDCheckPlugin();
+  ~SiStripFEDCheckPlugin() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
   
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 

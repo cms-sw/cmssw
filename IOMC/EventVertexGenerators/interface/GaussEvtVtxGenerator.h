@@ -17,13 +17,13 @@ class GaussEvtVtxGenerator : public BaseEvtVtxGenerator
 {
 public:
   GaussEvtVtxGenerator(const edm::ParameterSet & p);
-  virtual ~GaussEvtVtxGenerator();
+  ~GaussEvtVtxGenerator() override;
 
   /// return a new event vertex
   //virtual CLHEP::Hep3Vector* newVertex();
-  virtual HepMC::FourVector newVertex(CLHEP::HepRandomEngine*) const override;
+  HepMC::FourVector newVertex(CLHEP::HepRandomEngine*) const override;
 
-  virtual TMatrixD const* GetInvLorentzBoost() const override {
+  TMatrixD const* GetInvLorentzBoost() const override {
 	  return 0;
   }
 

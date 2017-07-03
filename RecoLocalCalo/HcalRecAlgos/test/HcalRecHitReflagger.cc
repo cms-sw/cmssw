@@ -50,13 +50,13 @@ using namespace edm;
 class HcalRecHitReflagger : public edm::EDProducer {
    public:
       explicit HcalRecHitReflagger(const edm::ParameterSet&);
-      ~HcalRecHitReflagger();
+      ~HcalRecHitReflagger() override;
 
 private:
-  virtual void beginJob() override;
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
-  virtual void beginRun(const Run& r, const EventSetup& c) override;
+  void beginJob() override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
+  void beginRun(const Run& r, const EventSetup& c) override;
 
   // Threshold function gets values from polynomial-parameterized functions
   double GetThreshold(const int base, const std::vector<double>& params);

@@ -29,14 +29,14 @@ public:
 
     HLLHCEvtVtxGenerator(const edm::ParameterSet & p);
 
-    virtual ~HLLHCEvtVtxGenerator();
+    ~HLLHCEvtVtxGenerator() override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
     /// return a new event vertex
-    virtual HepMC::FourVector newVertex(CLHEP::HepRandomEngine*) const override;
+    HepMC::FourVector newVertex(CLHEP::HepRandomEngine*) const override;
 
-    virtual TMatrixD const* GetInvLorentzBoost() const override {return 0;};
+    TMatrixD const* GetInvLorentzBoost() const override {return 0;};
    
 private:
     /** Copy constructor */

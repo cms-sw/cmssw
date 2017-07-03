@@ -44,14 +44,14 @@ class MuonErrorMatrixAnalyzer : public edm::EDAnalyzer {
   explicit MuonErrorMatrixAnalyzer(const edm::ParameterSet&);
    
   ///destructor
-  ~MuonErrorMatrixAnalyzer();
+  ~MuonErrorMatrixAnalyzer() override;
      
      
  private:
   /// framework methods
-  virtual void beginJob() ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginJob() override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
      
   /// produce error parametrization from reported errors
   void analyze_from_errormatrix(const edm::Event&, const edm::EventSetup&);

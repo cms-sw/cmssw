@@ -46,13 +46,13 @@ class HLTScoutingEgammaProducer : public edm::global::EDProducer<> {
                                                 unsigned int> > RecoEcalCandMap;
     public:
         explicit HLTScoutingEgammaProducer(const edm::ParameterSet&);
-        ~HLTScoutingEgammaProducer();
+        ~HLTScoutingEgammaProducer() override;
 
         static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
     private:
-        virtual void produce(edm::StreamID sid, edm::Event & iEvent, edm::EventSetup const & setup)
-            const override final;
+        void produce(edm::StreamID sid, edm::Event & iEvent, edm::EventSetup const & setup)
+            const final;
 
         const edm::EDGetTokenT<reco::RecoEcalCandidateCollection> EgammaCandidateCollection_;
         const edm::EDGetTokenT<reco::GsfTrackCollection> EgammaGsfTrackCollection_;

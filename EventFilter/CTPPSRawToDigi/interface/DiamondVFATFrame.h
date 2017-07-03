@@ -23,7 +23,7 @@ class DiamondVFATFrame : public VFATFrame
   public:
     DiamondVFATFrame(const word* inputData = NULL)
     {}
-    virtual ~DiamondVFATFrame() {}
+    ~DiamondVFATFrame() override {}
 
     /// get timing infromation
     uint32_t getLeadingEdgeTime() const

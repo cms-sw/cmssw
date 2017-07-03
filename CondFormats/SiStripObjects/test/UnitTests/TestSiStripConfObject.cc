@@ -14,9 +14,9 @@ class TestSiStripConfObject : public CppUnit::TestFixture
  public:
   TestSiStripConfObject() {}
 
-  void setUp() {}
+  void setUp() override {}
 
-  void tearDown() {}
+  void tearDown() override {}
 
   void testPutAndGet()
   {

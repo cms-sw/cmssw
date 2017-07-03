@@ -51,14 +51,14 @@
 class SiPixelGainCalibrationReadDQMFile : public edm::EDAnalyzer {
    public:
       explicit SiPixelGainCalibrationReadDQMFile(const edm::ParameterSet&);
-      ~SiPixelGainCalibrationReadDQMFile();
+      ~SiPixelGainCalibrationReadDQMFile() override;
 
 
    private:
-      virtual void beginJob() ;
+      void beginJob() override ;
       virtual void beginRun(const edm::EventSetup&) ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
   // functions added by F.B.
   void fillDatabase(const edm::EventSetup& iSetup);
   void getHistograms();

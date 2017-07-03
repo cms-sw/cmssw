@@ -33,17 +33,17 @@ public:
     /** @name constructors and destructor */
     //@{
     StreamOutFormatTarget(std::ostream& fStream) ;
-    ~StreamOutFormatTarget();
+    ~StreamOutFormatTarget() override;
     //@}
 
     // -----------------------------------------------------------------------
     //  Implementations of the format target interface
     // -----------------------------------------------------------------------
-    virtual void writeChars(const XMLByte* const toWrite,
+    void writeChars(const XMLByte* const toWrite,
 			    const XMLSize_t count,
 			    XMLFormatter* const  formatter) override;
 
-    virtual void flush() override;
+    void flush() override;
 
 private:
     std::ostream* mStream;

@@ -23,9 +23,9 @@ class TestMapOfVectors: public CppUnit::TestFixture
 public:
 
   TestMapOfVectors(); 
-  ~TestMapOfVectors();
-  void setUp() {}
-  void tearDown() {}
+  ~TestMapOfVectors() override;
+  void setUp() override {}
+  void tearDown() override {}
   
   void default_ctor();
   void filling();

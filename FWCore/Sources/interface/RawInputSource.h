@@ -17,7 +17,7 @@ namespace edm {
   class RawInputSource : public InputSource {
   public:
     explicit RawInputSource(ParameterSet const& pset, InputSourceDescription const& desc);
-    virtual ~RawInputSource();
+    ~RawInputSource() override;
     static void fillDescription(ParameterSetDescription& description);
 
   protected:
@@ -27,13 +27,13 @@ namespace edm {
     void setInputFileTransitionsEachEvent() {inputFileTransitionsEachEvent_ = true;}
 
   private:
-    virtual void readEvent_(EventPrincipal& eventPrincipal) override;
-    virtual std::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() override;
-    virtual std::shared_ptr<RunAuxiliary> readRunAuxiliary_() override;
+    void readEvent_(EventPrincipal& eventPrincipal) override;
+    std::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() override;
+    std::shared_ptr<RunAuxiliary> readRunAuxiliary_() override;
     virtual void reset_();
-    virtual void rewind_() override;
-    virtual ItemType getNextItemType() override;
-    virtual void closeFile_() override final;
+    void rewind_() override;
+    ItemType getNextItemType() override;
+    void closeFile_() final;
     virtual void genuineCloseFile() { }
 
     bool inputFileTransitionsEachEvent_;

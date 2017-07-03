@@ -41,7 +41,7 @@ namespace one {
       ++m_count;
     }
        
-    ~SharedResourcesProducer() noexcept(false) {
+    ~SharedResourcesProducer() noexcept(false) override {
       if(m_count != trans_) {
         throw cms::Exception("transitions")
           << "SharedResourcesProducer transitions " 
@@ -91,7 +91,7 @@ namespace one {
       er = true;
     }
      
-    ~WatchRunsProducer() noexcept(false) {
+    ~WatchRunsProducer() noexcept(false) override {
        if(m_count != trans_) {
         throw cms::Exception("transitions")
           << "WatchRunsProducer transitions " 
@@ -140,7 +140,7 @@ namespace one {
       el = true;
     }
 
-    ~WatchLumiBlocksProducer() noexcept(false) {
+    ~WatchLumiBlocksProducer() noexcept(false) override {
        if(m_count != trans_) {
         throw cms::Exception("transitions")
           << "WatchLumiBlockProducer transitions " 
@@ -179,7 +179,7 @@ namespace one {
     void endRun(edm::Run const&, edm::EventSetup const&) override { 
     }
 
-    ~TestBeginRunProducer() noexcept(false) {
+    ~TestBeginRunProducer() noexcept(false) override {
      if(m_count != trans_) {
         throw cms::Exception("transitions")
           << "TestBeginRunProducer transitions "
@@ -218,7 +218,7 @@ namespace one {
     void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {
     }
 
-    ~TestBeginLumiBlockProducer() noexcept(false) {
+    ~TestBeginLumiBlockProducer() noexcept(false) override {
      if(m_count != trans_) {
         throw cms::Exception("transitions")
           << "TestBeginLumiBlockProducer transitions " 
@@ -258,7 +258,7 @@ namespace one {
     void endRun(edm::Run const&, edm::EventSetup const&) override { 
     }
 
-    ~TestEndRunProducer() noexcept(false) {
+    ~TestEndRunProducer() noexcept(false) override {
      if(m_count != trans_) {
         throw cms::Exception("transitions")
           << "TestEndRunProducer transitions "
@@ -298,7 +298,7 @@ namespace one {
     void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {
     }
      
-    ~TestEndLumiBlockProducer() noexcept(false) {
+    ~TestEndLumiBlockProducer() noexcept(false) override {
      if(m_count != trans_) {
         throw cms::Exception("transitions")
           << "TestEndLumiBlockProducer transitions " 

@@ -57,10 +57,10 @@ class CSCGEMMotherboardLUTME11 : public CSCGEMMotherboardLUT
  public:
 
   CSCGEMMotherboardLUTME11();
-  virtual ~CSCGEMMotherboardLUTME11();
+  ~CSCGEMMotherboardLUTME11() override;
 
-  virtual std::vector<int> get_gem_pad_to_csc_hs(Parity par, enum CSCPart) const;
-  virtual std::vector<std::pair<int,int> > get_csc_hs_to_gem_pad(Parity par, enum CSCPart) const;
+  std::vector<int> get_gem_pad_to_csc_hs(Parity par, enum CSCPart) const override;
+  std::vector<std::pair<int,int> > get_csc_hs_to_gem_pad(Parity par, enum CSCPart) const override;
   virtual std::vector<std::vector<double> > get_lut_wg_vs_hs(enum CSCPart) const;
 
   // LUT for which ME1/1 wire group can cross which ME1/a halfstrip
@@ -90,10 +90,10 @@ class CSCGEMMotherboardLUTME21 : public CSCGEMMotherboardLUT
  public:
   
   CSCGEMMotherboardLUTME21();
-  virtual ~CSCGEMMotherboardLUTME21();
+  ~CSCGEMMotherboardLUTME21() override;
   
-  virtual std::vector<int> get_gem_pad_to_csc_hs(Parity par, enum CSCPart) const;
-  virtual std::vector<std::pair<int,int> > get_csc_hs_to_gem_pad(Parity par, enum CSCPart) const;
+  std::vector<int> get_gem_pad_to_csc_hs(Parity par, enum CSCPart) const override;
+  std::vector<std::pair<int,int> > get_csc_hs_to_gem_pad(Parity par, enum CSCPart) const override;
   
   // map of pad to HS
   std::vector<int> gem_pad_to_csc_hs_odd;
@@ -141,7 +141,7 @@ class CSCRPCMotherboardLUTME31 : public CSCRPCMotherboardLUT
  public:
   
   CSCRPCMotherboardLUTME31();
-  virtual ~CSCRPCMotherboardLUTME31() {}
+  ~CSCRPCMotherboardLUTME31() override {}
 };
 
 class CSCRPCMotherboardLUTME41 : public CSCRPCMotherboardLUT 
@@ -149,7 +149,7 @@ class CSCRPCMotherboardLUTME41 : public CSCRPCMotherboardLUT
  public:
   
   CSCRPCMotherboardLUTME41();
-  virtual ~CSCRPCMotherboardLUTME41() {}  
+  ~CSCRPCMotherboardLUTME41() override {}  
 };
 
 #endif

@@ -25,14 +25,14 @@ class DTDDUFileReader : public edm::EDProducer {
   DTDDUFileReader(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~DTDDUFileReader();
+  ~DTDDUFileReader() override;
 
   /// Generate and fill FED raw data for a full event
   virtual int fillRawData(edm::Event& e,
 //			  edm::Timestamp& tstamp, 
 			  FEDRawDataCollection*& data);
 
-  virtual void produce(edm::Event&, edm::EventSetup const&);
+  void produce(edm::Event&, edm::EventSetup const&) override;
 
   /// check for a 64 bits word to be a DDU header
   bool isHeader(uint64_t word, bool dataTag);

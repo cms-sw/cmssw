@@ -94,7 +94,7 @@ namespace l1t
     OMDSReader( const std::string& connectString,
 		const std::string& authenticationPath ) ;
 
-    virtual ~OMDSReader();
+    ~OMDSReader() override;
 
       // ---------- const member functions ---------------------
 

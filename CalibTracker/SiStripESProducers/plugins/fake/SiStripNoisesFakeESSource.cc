@@ -29,9 +29,9 @@
 class SiStripNoisesFakeESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
   SiStripNoisesFakeESSource(const edm::ParameterSet&);
-  ~SiStripNoisesFakeESSource();
+  ~SiStripNoisesFakeESSource() override;
 
-  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue& iov, edm::ValidityInterval& iValidity );
+  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue& iov, edm::ValidityInterval& iValidity ) override;
 
   typedef std::shared_ptr<SiStripNoises> ReturnType;
   ReturnType produce(const SiStripNoisesRcd&);

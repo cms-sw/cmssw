@@ -25,7 +25,7 @@ class DQMFileSaverBase
                                      edm::LuminosityBlockCache<NoCache> > {
  public:
   DQMFileSaverBase(const edm::ParameterSet &ps);
-  ~DQMFileSaverBase();
+  ~DQMFileSaverBase() override;
 
  protected:
 
@@ -48,18 +48,18 @@ class DQMFileSaverBase
   //virtual void beginJob(void) const override final;
   //virtual void endJob(void) const override final;
 
-  virtual std::shared_ptr<NoCache> globalBeginRun(
-      const edm::Run &, const edm::EventSetup &) const override final;
+  std::shared_ptr<NoCache> globalBeginRun(
+      const edm::Run &, const edm::EventSetup &) const final;
 
-  virtual std::shared_ptr<NoCache> globalBeginLuminosityBlock(
-      const edm::LuminosityBlock &, const edm::EventSetup &) const override final;
+  std::shared_ptr<NoCache> globalBeginLuminosityBlock(
+      const edm::LuminosityBlock &, const edm::EventSetup &) const final;
 
-  virtual void analyze(edm::StreamID, const edm::Event &e,
-                       const edm::EventSetup &) const override final;
+  void analyze(edm::StreamID, const edm::Event &e,
+                       const edm::EventSetup &) const final;
 
-  virtual void globalEndLuminosityBlock(const edm::LuminosityBlock &,
-                                        const edm::EventSetup &) const override final ;
-  virtual void globalEndRun(const edm::Run &, const edm::EventSetup &) const override final;
+  void globalEndLuminosityBlock(const edm::LuminosityBlock &,
+                                        const edm::EventSetup &) const final ;
+  void globalEndRun(const edm::Run &, const edm::EventSetup &) const final;
 
   // these method (and only these) should be overriden
   // so we need to call all file savers

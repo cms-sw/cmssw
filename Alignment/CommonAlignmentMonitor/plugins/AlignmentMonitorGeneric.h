@@ -36,12 +36,12 @@ class AlignmentMonitorGeneric:
 			  const edm::ParameterSet&
 			  );
 
-  virtual void book();
+  void book() override;
 
-  virtual void event(const edm::Event&,
+  void event(const edm::Event&,
 		     const edm::EventSetup&,
 		     const ConstTrajTrackPairCollection&
-		     );
+		     ) override;
 
   private:
 

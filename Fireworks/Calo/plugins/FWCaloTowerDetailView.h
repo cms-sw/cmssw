@@ -19,12 +19,12 @@ class FWCaloTowerDetailView : public FWDetailViewGL<CaloTower> {
 
 public:
    FWCaloTowerDetailView();
-   virtual ~FWCaloTowerDetailView(); 
+   ~FWCaloTowerDetailView() override; 
 
    using FWDetailViewGL<CaloTower>::build;
-   virtual void build (const FWModelId &id, const CaloTower*);
+   void build (const FWModelId &id, const CaloTower*) override;
 private:
-   virtual void setTextInfo(const FWModelId&, const CaloTower*);
+   void setTextInfo(const FWModelId&, const CaloTower*) override;
    TEveCaloData* m_data;
    FWECALDetailViewBuilder* m_builder;
 };

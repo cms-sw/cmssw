@@ -13,9 +13,9 @@ class CastorTTRecord : public edm::one::EDProducer<>
 public:
 
     explicit CastorTTRecord(const edm::ParameterSet& ps);
-    virtual ~CastorTTRecord();
+    ~CastorTTRecord() override;
     
-    virtual void produce(edm::Event& e, const edm::EventSetup& c);
+    void produce(edm::Event& e, const edm::EventSetup& c) override;
 
     // get fC from digis and save it to array double energy[16 sectors][14 modules]
     void getEnergy_fC(double energy[16][14], edm::Handle<CastorDigiCollection>& CastorDigiColl,

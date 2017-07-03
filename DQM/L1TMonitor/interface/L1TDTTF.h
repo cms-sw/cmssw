@@ -36,16 +36,16 @@ class L1TDTTF : public DQMEDAnalyzer {
   L1TDTTF(const edm::ParameterSet& ps);
 
   // Destructor
-  virtual ~L1TDTTF();
+  ~L1TDTTF() override;
 
  protected:
   // Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   // BeginJob
-  virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  virtual void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) override;
+  void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) override;
 
  private:
 

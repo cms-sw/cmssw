@@ -28,16 +28,16 @@
 class FWItemRandomAccessorBase : public FWItemAccessorBase
 {
 public:
-   virtual ~FWItemRandomAccessorBase();
+   ~FWItemRandomAccessorBase() override;
 
-   const void*    data() const;
-   const TClass*  type() const;
-   const TClass*  modelType() const;
+   const void*    data() const override;
+   const TClass*  type() const override;
+   const TClass*  modelType() const override;
 
-   bool           isCollection() const;
+   bool           isCollection() const override;
 
-   void           setData(const edm::ObjectWithDict&);
-   virtual void   reset();
+   void           setData(const edm::ObjectWithDict&) override;
+   void   reset() override;
 
 protected:
    void *getDataPtr() const;   
@@ -82,14 +82,14 @@ public:
    REGISTER_FWITEMACCESSOR_METHODS();
 
    // ---------- const member functions ---------------------
-   const void*    modelData(int iIndex) const
+   const void*    modelData(int iIndex) const override
       {
          if (!getDataPtr())
             return 0;
          return &(reinterpret_cast<container_type *>(getDataPtr())->operator[](iIndex));
       }
 
-   unsigned int   size() const
+   unsigned int   size() const override
       {
          if (!getDataPtr())
             return 0;
@@ -118,7 +118,7 @@ public:
 
    REGISTER_FWITEMACCESSOR_METHODS();
 
-   const void*    modelData(int iIndex) const
+   const void*    modelData(int iIndex) const override
       {
          if (!getDataPtr())
             return 0;
@@ -135,7 +135,7 @@ public:
          return 0;
       }
 
-   unsigned int   size() const
+   unsigned int   size() const override
       {
          if (!getDataPtr())
             return 0;
@@ -165,7 +165,7 @@ public:
 
    REGISTER_FWITEMACCESSOR_METHODS();
 
-   const void*    modelData(int iIndex) const
+   const void*    modelData(int iIndex) const override
       {
          if (!getDataPtr())
             return 0;
@@ -176,7 +176,7 @@ public:
          return &(c->data().operator[](iIndex));
       }
 
-   unsigned int   size() const
+   unsigned int   size() const override
       {
          if (!getDataPtr())
             return 0;
@@ -199,7 +199,7 @@ public:
 
   REGISTER_FWITEMACCESSOR_METHODS();
 
-   const void*    modelData(int iIndex) const
+   const void*    modelData(int iIndex) const override
       {
          if (!getDataPtr())
             return 0;
@@ -216,7 +216,7 @@ public:
          return 0;
       }
 
-   unsigned int   size() const
+   unsigned int   size() const override
       {
          if (!getDataPtr())
             return 0;
@@ -243,7 +243,7 @@ public:
 
   REGISTER_FWITEMACCESSOR_METHODS();
 
-   const void*    modelData(int iIndex) const
+   const void*    modelData(int iIndex) const override
       {
          if (!getDataPtr())
             return 0;
@@ -265,7 +265,7 @@ public:
          return 0;
       }
 
-   unsigned int   size() const
+   unsigned int   size() const override
       {
          if (!getDataPtr())
             return 0;

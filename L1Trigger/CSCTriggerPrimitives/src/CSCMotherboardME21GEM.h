@@ -34,7 +34,7 @@ class CSCMotherboardME21GEM : public CSCMotherboard
 		 const edm::ParameterSet& conf);
 
   /** Default destructor. */
-  ~CSCMotherboardME21GEM();
+  ~CSCMotherboardME21GEM() override;
 
   void clear();
 

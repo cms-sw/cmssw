@@ -26,12 +26,12 @@ class MCElectronAnalyzer : public edm::EDAnalyzer
 
       //
       explicit MCElectronAnalyzer( const edm::ParameterSet& ) ;
-      virtual ~MCElectronAnalyzer();
+      ~MCElectronAnalyzer() override;
 
 
-      virtual void analyze( const edm::Event&, const edm::EventSetup& ) ;
-      virtual void beginJob() ;
-      virtual void endJob() ;
+      void analyze( const edm::Event&, const edm::EventSetup& ) override ;
+      void beginJob() override ;
+      void endJob() override ;
 
    private:
 

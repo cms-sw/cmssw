@@ -35,9 +35,9 @@ class SimpleTrackListMerger : public edm::stream::EDProducer<> {
 
     explicit SimpleTrackListMerger(const edm::ParameterSet& conf);
 
-    virtual ~SimpleTrackListMerger();
+    ~SimpleTrackListMerger() override;
 
-    virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
+    void produce(edm::Event& e, const edm::EventSetup& c) override;
 
   private:
     edm::ParameterSet conf_;

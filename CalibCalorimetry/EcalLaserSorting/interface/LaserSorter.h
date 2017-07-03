@@ -119,15 +119,15 @@ private:
   //ctors/dtors
 public:
   LaserSorter(const edm::ParameterSet&);
-  ~LaserSorter();
+  ~LaserSorter() override;
 
 
   //methods
 public:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
-  virtual void beginJob();
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
+  void beginJob() override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
 
 private:
   int dcc2Lme(int dccNum, int dccSide);

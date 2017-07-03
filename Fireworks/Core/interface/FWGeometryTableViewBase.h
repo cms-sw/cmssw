@@ -55,14 +55,14 @@ public:
    public:
       FWViewCombo(const TGWindow *p, FWGeometryTableViewBase* t): 
          TGTextButton(p, "Select Views", -1, TGButton::GetDefaultGC()(), TGTextButton::GetDefaultFontStruct(), kRaisedFrame | kDoubleBorder  ), m_tableView(t), m_el(0) {}
-      virtual ~FWViewCombo() {}
+      ~FWViewCombo() override {}
       void setElement(TEveElement* x) {m_el = x;}
-      virtual Bool_t  HandleButton(Event_t* event);
+      Bool_t  HandleButton(Event_t* event) override;
    };
 
 
    FWGeometryTableViewBase(TEveWindowSlot*, FWViewType::EType, FWColorManager*);
-   virtual ~FWGeometryTableViewBase();
+   ~FWGeometryTableViewBase() override;
   
    virtual  void cellClicked(Int_t iRow, Int_t iColumn, 
                              Int_t iButton, Int_t iKeyMod, 
@@ -77,8 +77,8 @@ public:
 
    // ---------- const member functions --------------------- 
 
-   virtual void addTo(FWConfiguration&) const;
-   virtual void saveImageTo( const std::string& iName ) const {}
+   void addTo(FWConfiguration&) const override;
+   void saveImageTo( const std::string& iName ) const override {}
    void nodeColorChangeRequested(Color_t);
 
    void setBackgroundColor();
@@ -149,7 +149,7 @@ protected:
    
    void setTopNodePathFromConfig(const FWConfiguration& iFrom);
 
-   virtual void populateController(ViewerParameterGUI&) const;
+   void populateController(ViewerParameterGUI&) const override;
 
 private:
    int m_tableRowIndexForColorPopup;

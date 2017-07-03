@@ -24,7 +24,7 @@ public:
   
 protected:
 
-  void analyze( const edm::Event & e, const  edm::EventSetup& c);
+  void analyze( const edm::Event & e, const  edm::EventSetup& c) override;
 
 private:
   edm::InputTag EcalDCCHeaderCollection_;

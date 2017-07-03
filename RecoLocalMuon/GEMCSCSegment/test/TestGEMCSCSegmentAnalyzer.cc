@@ -68,14 +68,14 @@ using namespace edm;
 class TestGEMCSCSegmentAnalyzer : public edm::EDAnalyzer {
    public:
       explicit TestGEMCSCSegmentAnalyzer(const edm::ParameterSet&);
-      ~TestGEMCSCSegmentAnalyzer();
+      ~TestGEMCSCSegmentAnalyzer() override;
 
    private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      void beginJob() override ;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
-      virtual void beginRun(edm::Run const&, edm::EventSetup const&);
+      void beginRun(edm::Run const&, edm::EventSetup const&) override;
       //virtual void endRun(edm::Run const&, edm::EventSetup const&);
       //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
       //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);

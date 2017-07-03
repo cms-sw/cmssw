@@ -34,13 +34,13 @@ class TtEvtBuilder : public edm::EDProducer {
   /// default constructor
   explicit TtEvtBuilder(const edm::ParameterSet&);
   /// default destructor
-  ~TtEvtBuilder(){};
+  ~TtEvtBuilder() override{};
 
  private:
 
   /// produce function (this one is not even accessible for
   /// derived classes)
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
   /// fill data members that are decay-channel specific
   virtual void fillSpecific(C&, const edm::Event&);
 

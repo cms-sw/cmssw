@@ -28,10 +28,10 @@
 class JetTesterPostProcessor : public DQMEDHarvester {
    public:
       explicit JetTesterPostProcessor(const edm::ParameterSet&);
-      ~JetTesterPostProcessor();
+      ~JetTesterPostProcessor() override;
 
    private:
-      virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) ;
+      void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override ;
 
       edm::InputTag inputJetLabelRECO_;
       edm::InputTag inputJetLabelMiniAOD_;

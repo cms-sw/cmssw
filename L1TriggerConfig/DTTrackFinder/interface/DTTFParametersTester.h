@@ -26,9 +26,9 @@ class DTTFParametersTester : public edm::EDAnalyzer {
 
   DTTFParametersTester(const edm::ParameterSet& ps);
 
-  ~DTTFParametersTester();
+  ~DTTFParametersTester() override;
   
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
  private:
 

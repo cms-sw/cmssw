@@ -19,12 +19,12 @@
 class ElectronMcSignalValidatorMiniAOD : public ElectronDqmAnalyzerBase {
    public:
       explicit ElectronMcSignalValidatorMiniAOD(const edm::ParameterSet&);
-      virtual ~ElectronMcSignalValidatorMiniAOD();
+      ~ElectronMcSignalValidatorMiniAOD() override;
       bool isAncestor(const reco::Candidate * ancestor, const reco::Candidate * particle);
 
    private:
-      virtual void bookHistograms( DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void bookHistograms( DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override ;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
 
       // ----------member data ---------------------------
       edm::EDGetTokenT<edm::View<reco::GenParticle> > mcTruthCollection_; // prunedGenParticles

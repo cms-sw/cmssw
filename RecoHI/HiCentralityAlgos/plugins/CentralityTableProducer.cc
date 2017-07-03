@@ -40,12 +40,12 @@ using namespace std;
 class CentralityTableProducer : public edm::EDAnalyzer {
    public:
       explicit CentralityTableProducer(const edm::ParameterSet&);
-      ~CentralityTableProducer();
+      ~CentralityTableProducer() override;
 
    private:
       virtual void beginRun(const edm::EventSetup&) ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
    void printBin(const CentralityTable::CBin*);
       // ----------member data ---------------------------
 

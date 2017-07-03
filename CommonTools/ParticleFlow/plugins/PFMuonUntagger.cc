@@ -21,7 +21,7 @@
 class PFMuonUntagger : public edm::global::EDProducer<> {
     public:
         PFMuonUntagger(const edm::ParameterSet&);
-        ~PFMuonUntagger() {};
+        ~PFMuonUntagger() override {};
 
   void produce(edm::StreamID iID, edm::Event&, const edm::EventSetup&) const override;
 

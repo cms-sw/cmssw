@@ -37,7 +37,7 @@ class CSCMotherboardME11GEM : public CSCMotherboard
   CSCMotherboardME11GEM();
 
   /** Default destructor. */
-  ~CSCMotherboardME11GEM();
+  ~CSCMotherboardME11GEM() override;
 
   /** Run function for normal usage.  Runs cathode and anode LCT processors,
       takes results and correlates into CorrelatedLCT. */

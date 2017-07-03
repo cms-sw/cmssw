@@ -55,12 +55,12 @@ bool orderLuminosityBlockRange (edm::LuminosityBlockRange u, edm::LuminosityBloc
 class PickEvents : public edm::EDFilter {
    public:
       explicit PickEvents(const edm::ParameterSet&);
-      ~PickEvents();
+      ~PickEvents() override;
 
    private:
-      virtual void beginJob() override ;
-      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override ;
+      bool filter(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
   std::string listrunevents_; 
   std::string listruneventsinpath_; 

@@ -35,11 +35,11 @@ class FWExpressionValidator : public FWValidatorBase {
 
 public:
    FWExpressionValidator();
-   virtual ~FWExpressionValidator();
+   ~FWExpressionValidator() override;
 
    // ---------- const member functions ---------------------
-   virtual void fillOptions(const char* iBegin, const char* iEnd,
-                            std::vector<std::pair<std::shared_ptr<std::string>, std::string> >& oOptions) const;
+   void fillOptions(const char* iBegin, const char* iEnd,
+                            std::vector<std::pair<std::shared_ptr<std::string>, std::string> >& oOptions) const override;
 
    // ---------- static member functions --------------------
 

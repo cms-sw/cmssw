@@ -85,8 +85,8 @@ class PFTau3ProngReco : public EDProducer {
   typedef std::vector<DiscCutPair*> DiscCutPairVec;
 
   explicit PFTau3ProngReco(const edm::ParameterSet& iConfig);
-  ~PFTau3ProngReco();
-  virtual void produce(edm::Event&,const edm::EventSetup&);
+  ~PFTau3ProngReco() override;
+  void produce(edm::Event&,const edm::EventSetup&) override;
  private:
   edm::InputTag PFTauTag_;
   edm::InputTag PFTauTIPTag_;

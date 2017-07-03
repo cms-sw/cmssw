@@ -16,11 +16,11 @@ class test_FedCablingBuilder : public edm::EDAnalyzer {
  public:
   
   test_FedCablingBuilder( const edm::ParameterSet& ) {;}
-  virtual ~test_FedCablingBuilder() {;}
+  ~test_FedCablingBuilder() override {;}
   
-  void beginJob(){;}
-  void analyze( const edm::Event&, const edm::EventSetup& );
-  void endJob() {;}
+  void beginJob() override{;}
+  void analyze( const edm::Event&, const edm::EventSetup& ) override;
+  void endJob() override {;}
   
 };
 

@@ -57,7 +57,7 @@
 class HighPtTrackEcalDetIdProducer : public edm::EDProducer {
    public:
       explicit HighPtTrackEcalDetIdProducer(const edm::ParameterSet&);
-      ~HighPtTrackEcalDetIdProducer();
+      ~HighPtTrackEcalDetIdProducer() override;
       void beginRun(const edm::Run&, const edm::EventSetup&) override;
       void produce(edm::Event&, const edm::EventSetup&) override;
    private:

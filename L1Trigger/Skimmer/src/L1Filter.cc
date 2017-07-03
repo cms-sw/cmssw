@@ -25,9 +25,9 @@ class L1Filter : public edm::EDFilter
 public:
   explicit L1Filter(edm::ParameterSet const&);
 
-  virtual ~L1Filter();
+  ~L1Filter() override;
 
-  virtual bool filter(edm::Event& e, edm::EventSetup const& c) override;
+  bool filter(edm::Event& e, edm::EventSetup const& c) override;
   void endJob() override;
  
 private:

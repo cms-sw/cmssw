@@ -28,7 +28,7 @@ template<int SUBDET>
 class EcalFEDMonitorTemp : public DQMEDAnalyzer{
  public:
   EcalFEDMonitorTemp(edm::ParameterSet const&);
-  ~EcalFEDMonitorTemp() {}
+  ~EcalFEDMonitorTemp() override {}
 
  private:
   void analyze(edm::Event const&, edm::EventSetup const&) override;

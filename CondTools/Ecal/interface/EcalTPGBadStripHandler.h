@@ -51,13 +51,13 @@ namespace popcon
 
 		public:
                         EcalTPGBadStripHandler(edm::ParameterSet const & );
-			~EcalTPGBadStripHandler(); 
+			~EcalTPGBadStripHandler() override; 
 			
-			void getNewObjects();
+			void getNewObjects() override;
 			
 			std::map<std::string, int> makeTTEEDetId();
 			
-			std::string id() const { return m_name;}
+			std::string id() const override { return m_name;}
 			
 			void readFromFile(const char* inputFile) ;
 			void writeFile(const char* inputFile);

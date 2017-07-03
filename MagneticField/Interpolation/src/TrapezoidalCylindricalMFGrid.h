@@ -14,13 +14,13 @@ public:
   TrapezoidalCylindricalMFGrid( binary_ifstream& istr, 
 				const GloballyPositioned<float>& vol);
 
-  virtual LocalVector uncheckedValueInTesla( const LocalPoint& p) const;
+  LocalVector uncheckedValueInTesla( const LocalPoint& p) const override;
 
-  void dump() const;
+  void dump() const override;
 
-  virtual void toGridFrame( const LocalPoint& p, double& a, double& b, double& c) const;
+  void toGridFrame( const LocalPoint& p, double& a, double& b, double& c) const override;
 
-  virtual LocalPoint fromGridFrame( double a, double b, double c) const;
+  LocalPoint fromGridFrame( double a, double b, double c) const override;
 
 private:
 

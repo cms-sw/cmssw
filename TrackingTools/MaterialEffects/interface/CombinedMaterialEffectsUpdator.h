@@ -18,7 +18,7 @@
 class CombinedMaterialEffectsUpdator final : public MaterialEffectsUpdator
 {  
  public:
- virtual CombinedMaterialEffectsUpdator* clone() const {
+ CombinedMaterialEffectsUpdator* clone() const override {
     return new CombinedMaterialEffectsUpdator(*this);
  }
 
@@ -33,7 +33,7 @@ public:
     theELUpdator(mass) {}
 
   // here comes the actual computation of the values
-  virtual void compute (const TrajectoryStateOnSurface&, const PropagationDirection, Effect & effect) const;
+  void compute (const TrajectoryStateOnSurface&, const PropagationDirection, Effect & effect) const override;
   
  private:
   // objects used for calculations of multiple scattering and energy loss

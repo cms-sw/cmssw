@@ -45,12 +45,12 @@ public:
    FWFramedTextTableCellRenderer(const TGGC* iTextContext=&(getDefaultGC()), 
                            const TGGC* iFillContext=&(getFillGC()),
                            Justify iJustify=kJustifyLeft);
-   virtual ~FWFramedTextTableCellRenderer();
+   ~FWFramedTextTableCellRenderer() override;
    
    // ---------- const member functions ---------------------
    const TGGC* graphicsContext() const { return m_context;}
-   virtual UInt_t width() const;
-   virtual UInt_t height() const;
+   UInt_t width() const override;
+   UInt_t height() const override;
    
    const TGFont* font() const;
    // ---------- static member functions --------------------
@@ -60,7 +60,7 @@ public:
    void setGraphicsContext(const TGGC* iContext) { m_context = iContext;}
    void setJustify(Justify);
    
-   virtual void draw(Drawable_t iID, int iX, int iY, unsigned int iWidth, unsigned int iHeight);
+   void draw(Drawable_t iID, int iX, int iY, unsigned int iWidth, unsigned int iHeight) override;
    
    
 private:

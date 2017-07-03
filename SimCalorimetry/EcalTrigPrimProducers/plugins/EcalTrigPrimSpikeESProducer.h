@@ -20,7 +20,7 @@
 class EcalTrigPrimSpikeESProducer : public edm::ESProducer {
  public:
   EcalTrigPrimSpikeESProducer(const edm::ParameterSet&);
-  ~EcalTrigPrimSpikeESProducer();
+  ~EcalTrigPrimSpikeESProducer() override;
 
   std::unique_ptr<EcalTPGSpike> produceSpike(const EcalTPGSpikeRcd &) ;
 

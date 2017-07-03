@@ -34,16 +34,16 @@ class DataProxy : public edm::eventsetup::DataProxyTemplate<RecordT, DataT >{
   // ---------- member functions ---------------------------
   
   protected:
-  virtual const DataT* make(const RecordT&, const edm::eventsetup::DataKey&) {
+  const DataT* make(const RecordT&, const edm::eventsetup::DataKey&) override {
     m_data->make();
     m_initializer(const_cast<DataT&>((*m_data)()));
     return &(*m_data)();
   }
-  virtual void invalidateCache() {
+  void invalidateCache() override {
     // don't, preserve data for future access
     // m_data->invalidateCache();
   }
-  virtual void invalidateTransientCache() {
+  void invalidateTransientCache() override {
     m_data->invalidateTransientCache();
   }
   private:
@@ -127,8 +127,8 @@ public:
   }
 
   // late initialize (to allow to load ALL library first)
-  virtual void lateInit(cond::persistency::Session& session, const std::string & tag, const boost::posix_time::ptime& snapshotTime,
-			std::string const & il, std::string const & cs) {
+  void lateInit(cond::persistency::Session& session, const std::string & tag, const boost::posix_time::ptime& snapshotTime,
+			std::string const & il, std::string const & cs) override {
     m_proxy.reset(new PayProxy(m_source.empty() ?  (const char *)(0) : m_source.c_str() ) );
     m_proxy->setUp( session );
     m_proxy->loadTag( tag, snapshotTime );
@@ -136,9 +136,9 @@ public:
     addInfo(il, cs, tag);
   }
     
-  virtual edm::eventsetup::TypeTag type() const { return m_type;}
-  virtual ProxyP proxy() const { return m_proxy;}
-  virtual edmProxyP edmProxy() const { return m_edmProxy;}
+  edm::eventsetup::TypeTag type() const override { return m_type;}
+  ProxyP proxy() const override { return m_proxy;}
+  edmProxyP edmProxy() const override { return m_edmProxy;}
  
 private:
   std::string m_source;

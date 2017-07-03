@@ -71,7 +71,7 @@ public:
   explicit EmDQM(const edm::ParameterSet& pset);
 
   /// Destructor
-  ~EmDQM();
+  ~EmDQM() override;
 
   // Operations
 

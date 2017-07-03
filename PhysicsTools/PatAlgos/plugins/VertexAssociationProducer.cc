@@ -33,9 +33,9 @@ namespace pat {
     public:
 
       explicit PATVertexAssociationProducer(const edm::ParameterSet & iConfig);
-      ~PATVertexAssociationProducer();
+      ~PATVertexAssociationProducer() override;
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
+      void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
     private:
       typedef std::vector<edm::InputTag> VInputTag;

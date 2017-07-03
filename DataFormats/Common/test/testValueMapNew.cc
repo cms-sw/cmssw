@@ -15,8 +15,8 @@ class testValueMapNew : public CppUnit::TestFixture {
   typedef std::vector<float> CKey2;
 public:
   testValueMapNew();
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
   void checkAll(); 
   void test(const edm::ValueMap<int> &);
   CKey1 v1;

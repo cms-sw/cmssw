@@ -51,7 +51,7 @@ class L1MuGMTLFDeltaEtaLUT : public L1MuGMTLUT {
   } ;
 
   /// destructor
-  virtual ~L1MuGMTLFDeltaEtaLUT() {};
+  ~L1MuGMTLFDeltaEtaLUT() override {};
 
   /// specific lookup function for delta_eta
   unsigned SpecificLookup_delta_eta (int idx, unsigned eta_dtcsc, unsigned eta_rpc) const {
@@ -73,7 +73,7 @@ class L1MuGMTLFDeltaEtaLUT : public L1MuGMTLUT {
 
   /// access to lookup function with packed input and output
 
-  virtual unsigned LookupFunctionPacked (int idx, unsigned address) const {
+  unsigned LookupFunctionPacked (int idx, unsigned address) const override {
     std::vector<unsigned> addr = u2vec(address, m_Inputs);
     return TheLookupFunction(idx ,addr[0] ,addr[1]);
 

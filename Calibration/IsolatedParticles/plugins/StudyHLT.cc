@@ -65,15 +65,15 @@ class StudyHLT : public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one::Share
 
 public:
   explicit StudyHLT(const edm::ParameterSet&);
-  ~StudyHLT();
+  ~StudyHLT() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void analyze(edm::Event const&, edm::EventSetup const&) override;
-  virtual void beginJob() override;
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void beginJob() override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
   virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
   virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 

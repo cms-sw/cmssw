@@ -41,9 +41,9 @@
 class TrackTimeValueMapProducer : public edm::global::EDProducer<> {
 public:    
   TrackTimeValueMapProducer(const edm::ParameterSet&);
-  ~TrackTimeValueMapProducer() { }
+  ~TrackTimeValueMapProducer() override { }
   
-  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   
 private:
   // inputs

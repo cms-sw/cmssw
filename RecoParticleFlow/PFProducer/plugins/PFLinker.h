@@ -36,9 +36,9 @@ class PFLinker : public edm::stream::EDProducer<> {
 
   explicit PFLinker(const edm::ParameterSet&);
 
-  ~PFLinker();
+  ~PFLinker() override;
   
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:
   template<typename TYPE>

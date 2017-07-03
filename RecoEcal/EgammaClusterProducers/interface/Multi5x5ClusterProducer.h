@@ -28,9 +28,9 @@ class Multi5x5ClusterProducer : public edm::stream::EDProducer<>
 
       Multi5x5ClusterProducer(const edm::ParameterSet& ps);
 
-      ~Multi5x5ClusterProducer();
+      ~Multi5x5ClusterProducer() override;
 
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      void produce(edm::Event&, const edm::EventSetup&) override;
 
    private:
 

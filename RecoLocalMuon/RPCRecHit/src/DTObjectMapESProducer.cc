@@ -16,7 +16,7 @@ public:
     setWhatProduced(this);
   }
 
-  ~DTObjectMapESProducer() {
+  ~DTObjectMapESProducer() override {
   }
 
   std::shared_ptr<DTObjectMap> produce(MuonGeometryRecord const& record) {

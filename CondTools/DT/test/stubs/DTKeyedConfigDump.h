@@ -21,8 +21,8 @@ namespace edmtest {
   public:
     explicit  DTKeyedConfigDump(edm::ParameterSet const& p);
     explicit  DTKeyedConfigDump(int i) ;
-    virtual ~ DTKeyedConfigDump();
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+    ~ DTKeyedConfigDump() override;
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
   private:
     bool dumpCCBKeys;
     bool dumpAllData;

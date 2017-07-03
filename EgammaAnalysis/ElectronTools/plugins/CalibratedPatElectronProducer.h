@@ -21,8 +21,8 @@ class CalibratedPatElectronProducer: public edm::EDProducer
 {
     public:
         explicit CalibratedPatElectronProducer( const edm::ParameterSet & ) ;
-        virtual ~CalibratedPatElectronProducer();
-        virtual void produce( edm::Event &, const edm::EventSetup & ) ;
+        ~CalibratedPatElectronProducer() override;
+        void produce( edm::Event &, const edm::EventSetup & ) override ;
 
     private:
         edm::EDGetTokenT<edm::View<reco::Candidate> > inputPatElectronsToken ;

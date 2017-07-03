@@ -14,7 +14,7 @@ public:
 #endif
   HcalSiPMParameters(const HcalTopology* topo):HcalCondObjectContainer<HcalSiPMParameter>(topo) {}
 
-  std::string myname() const {return (std::string)"HcalSiPMParameters";}
+  std::string myname() const override {return (std::string)"HcalSiPMParameters";}
 
   COND_SERIALIZABLE;
 };

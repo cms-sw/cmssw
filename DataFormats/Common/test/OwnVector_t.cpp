@@ -19,9 +19,9 @@ struct Derived : Base
   explicit Derived(int n);
   Derived(Derived const& other);
   Derived& operator=(Derived const& other);
-  virtual ~Derived();
+  ~Derived() override;
   void swap(Derived& other);
-  virtual Derived* clone() const;
+  Derived* clone() const override;
 
   edm::propagate_const<int*> pointer;
 };

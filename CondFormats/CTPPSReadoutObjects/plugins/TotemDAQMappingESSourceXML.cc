@@ -71,7 +71,7 @@ public:
   static const std::string tagDiamondCh; 
 
   TotemDAQMappingESSourceXML(const edm::ParameterSet &);
-  ~TotemDAQMappingESSourceXML();
+  ~TotemDAQMappingESSourceXML() override;
 
   edm::ESProducts< std::shared_ptr<TotemDAQMapping>, std::shared_ptr<TotemAnalysisMask> > produce( const TotemReadoutRcd & );
 
@@ -168,7 +168,7 @@ private:
 
 protected:
   /// sets infinite validity of this data
-  virtual void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue&, edm::ValidityInterval&);
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue&, edm::ValidityInterval&) override;
 };
 
 //----------------------------------------------------------------------------------------------------

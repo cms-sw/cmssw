@@ -38,10 +38,10 @@ class PFRecoTauEnergyAlgorithmPlugin : public RecoTauModifierPlugin
  public:
 
   explicit PFRecoTauEnergyAlgorithmPlugin(const edm::ParameterSet&, edm::ConsumesCollector &&iC);
-  virtual ~PFRecoTauEnergyAlgorithmPlugin();
-  void operator()(PFTau&) const;
-  virtual void beginEvent();
-  virtual void endEvent();
+  ~PFRecoTauEnergyAlgorithmPlugin() override;
+  void operator()(PFTau&) const override;
+  void beginEvent() override;
+  void endEvent() override;
 
  private:
   

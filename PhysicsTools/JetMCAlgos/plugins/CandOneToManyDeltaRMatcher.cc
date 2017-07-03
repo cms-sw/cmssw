@@ -19,7 +19,7 @@
 class CandOneToManyDeltaRMatcher : public edm::global::EDProducer<> {
  public:
   CandOneToManyDeltaRMatcher( const edm::ParameterSet & );
-  ~CandOneToManyDeltaRMatcher();
+  ~CandOneToManyDeltaRMatcher() override;
  private:
   void produce( edm::StreamID, edm::Event&, const edm::EventSetup& ) const override;
 

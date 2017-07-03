@@ -8,7 +8,7 @@ class FWPRCaloTowerProxyBuilder : public FWDigitSetProxyBuilder
 {
 public:
    FWPRCaloTowerProxyBuilder( void ) {} 
-   virtual ~FWPRCaloTowerProxyBuilder( void ) {}
+   ~FWPRCaloTowerProxyBuilder( void ) override {}
 
    REGISTER_PROXYBUILDER_METHODS();
 
@@ -17,7 +17,7 @@ private:
    const FWPRCaloTowerProxyBuilder& operator=( const FWPRCaloTowerProxyBuilder& ); 	// stop default
 
    using FWDigitSetProxyBuilder::build;
-   virtual void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* );	
+   void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* ) override;	
 };
 
 

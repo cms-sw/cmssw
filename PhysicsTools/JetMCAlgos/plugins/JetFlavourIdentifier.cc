@@ -91,10 +91,10 @@ class JetFlavourIdentifier : public edm::global::EDProducer<>
 		      NULL_DEF};
 
     JetFlavourIdentifier( const edm::ParameterSet & );
-    ~JetFlavourIdentifier();
+    ~JetFlavourIdentifier() override;
 
   private:
-    virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup& ) const override;
+    void produce(edm::StreamID, edm::Event&, const edm::EventSetup& ) const override;
 
     JetFlavour::Leptons findLeptons(const GenParticleRef &) const;
     std::vector<const reco::Candidate*> findCandidates(const reco::Candidate*, int, math::XYZTLorentzVector const&  thePartonLV) const;

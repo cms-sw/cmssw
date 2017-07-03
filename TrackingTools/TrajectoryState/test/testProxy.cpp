@@ -13,24 +13,24 @@ struct A {
   static std::shared_ptr<A> churn(Args && ...args){ return std::allocate_shared<T>(churn_allocator<T>(),std::forward<Args>(args)...);}
 
 };
-template <class T> struct ACloned : public A  { std::shared_ptr<A> clone() const { return std::allocate_shared<T>(std::allocator<T>(),*this);} };
+template <class T> struct ACloned : public A  { std::shared_ptr<A> clone() const override { return std::allocate_shared<T>(std::allocator<T>(),*this);} };
 struct B final : public A { 
-  ~B(){std::cout << "D B " << this << std::endl;} explicit B(int){std::cout << "C B " << this << std::endl;} 
-  std::shared_ptr<A> clone() const { return build<B>(*this); }
+  ~B() override{std::cout << "D B " << this << std::endl;} explicit B(int){std::cout << "C B " << this << std::endl;} 
+  std::shared_ptr<A> clone() const override { return build<B>(*this); }
 };
 struct C final :public A  { 
-  ~C(){std::cout << "D C " << this << std::endl;} explicit C(int,float){std::cout << "C C " << this << std::endl;} 
-  std::shared_ptr<A> clone() const { return build<C>(*this);}
+  ~C() override{std::cout << "D C " << this << std::endl;} explicit C(int,float){std::cout << "C C " << this << std::endl;} 
+  std::shared_ptr<A> clone() const override { return build<C>(*this);}
 };
 
 
 struct BB final : public A { 
-  ~BB(){std::cout << "D BB " << this << std::endl;} explicit BB(int){std::cout << "C BB " << this << std::endl;} 
-  std::shared_ptr<A> clone() const { return churn<BB>(*this); }
+  ~BB() override{std::cout << "D BB " << this << std::endl;} explicit BB(int){std::cout << "C BB " << this << std::endl;} 
+  std::shared_ptr<A> clone() const override { return churn<BB>(*this); }
 };
 struct CC final :public A  { 
-  ~CC(){std::cout << "D CC " << this << std::endl;} explicit CC(int,float){std::cout << "C CC " << this << std::endl;} 
-  std::shared_ptr<A> clone() const { return churn<CC>(*this);}
+  ~CC() override{std::cout << "D CC " << this << std::endl;} explicit CC(int,float){std::cout << "C CC " << this << std::endl;} 
+  std::shared_ptr<A> clone() const override { return churn<CC>(*this);}
 };
 
 

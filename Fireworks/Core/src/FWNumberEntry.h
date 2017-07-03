@@ -22,10 +22,10 @@ public:
                       ELimit limits = kNELNoLimits,
                       Double_t min = 0, Double_t max = 1);
 
-   virtual ~FWNumberEntryField() {}
+   ~FWNumberEntryField() override {}
 
-   virtual Bool_t HandleFocusChange(Event_t* event);
-   virtual void   ReturnPressed();
+   Bool_t HandleFocusChange(Event_t* event) override;
+   void   ReturnPressed() override;
 
    virtual UInt_t    GetUIntNumber();
    virtual void      SetUIntNumber(UInt_t n);

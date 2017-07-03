@@ -30,13 +30,13 @@ namespace edm {
   class ThinningProducer : public stream::EDProducer<> {
   public:
     explicit ThinningProducer(ParameterSet const& pset);
-    virtual ~ThinningProducer();
+    ~ThinningProducer() override;
 
     static void fillDescriptions(ConfigurationDescriptions & descriptions);
 
-    virtual void produce(Event& event, EventSetup const& eventSetup) override;
+    void produce(Event& event, EventSetup const& eventSetup) override;
 
-    virtual void registerThinnedAssociations(ProductRegistry const& productRegistry,
+    void registerThinnedAssociations(ProductRegistry const& productRegistry,
                                              ThinnedAssociationsHelper& thinnedAssociationsHelper) override;
   private:
     edm::propagate_const<std::unique_ptr<Selector>> selector_;

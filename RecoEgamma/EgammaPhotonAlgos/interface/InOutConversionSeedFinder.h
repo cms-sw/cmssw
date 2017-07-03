@@ -50,10 +50,10 @@ class InOutConversionSeedFinder : public ConversionSeedFinder {
   
   
   
-  virtual ~InOutConversionSeedFinder();
+  ~InOutConversionSeedFinder() override;
   
   
-  virtual void  makeSeeds(  const edm::Handle<edm::View<reco::CaloCluster> > & allBc) const;
+  void  makeSeeds(  const edm::Handle<edm::View<reco::CaloCluster> > & allBc) const override;
   
   
   

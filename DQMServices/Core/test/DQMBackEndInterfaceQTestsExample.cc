@@ -46,11 +46,11 @@ const int sample_int_value = 5;
 class DQMStoreQTestsExample : public edm::EDAnalyzer {
 public:
   explicit DQMStoreQTestsExample( const edm::ParameterSet& );
-  ~DQMStoreQTestsExample();
+  ~DQMStoreQTestsExample() override;
   
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  void analyze( const edm::Event&, const edm::EventSetup& ) override;
   
-  virtual void endJob(void);
+  void endJob(void) override;
 
 private:
   // ----------member data ---------------------------

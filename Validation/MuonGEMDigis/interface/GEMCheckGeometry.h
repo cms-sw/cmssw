@@ -14,9 +14,9 @@ class GEMCheckGeometry : public DQMEDAnalyzer
 {
 public:
   explicit GEMCheckGeometry(const edm::ParameterSet& gc);
-  ~GEMCheckGeometry();
+  ~GEMCheckGeometry() override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  virtual void analyze(const edm::Event& e, const edm::EventSetup&) override;
+  void analyze(const edm::Event& e, const edm::EventSetup&) override;
 
  private:
 

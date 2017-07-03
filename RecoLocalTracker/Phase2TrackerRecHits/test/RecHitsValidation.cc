@@ -84,7 +84,7 @@ class Phase2TrackerRecHitsValidation : public edm::EDAnalyzer {
         typedef std::map< unsigned int, SimTrack > SimTracksMap;
 
         explicit Phase2TrackerRecHitsValidation(const edm::ParameterSet&);
-        ~Phase2TrackerRecHitsValidation();
+        ~Phase2TrackerRecHitsValidation() override;
         void beginJob() override;
         void endJob() override;
         void analyze(const edm::Event&, const edm::EventSetup&) override;

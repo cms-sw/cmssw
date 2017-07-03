@@ -43,7 +43,7 @@ class NoBPTXMonitor : public DQMEDAnalyzer
 {
 public:
   NoBPTXMonitor( const edm::ParameterSet& );
-  ~NoBPTXMonitor();
+  ~NoBPTXMonitor() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   static void fillHistoPSetDescription(edm::ParameterSetDescription & pset);
   static void fillHistoLSPSetDescription(edm::ParameterSetDescription & pset);

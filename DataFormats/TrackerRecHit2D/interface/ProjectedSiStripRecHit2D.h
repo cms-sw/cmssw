@@ -40,15 +40,15 @@ public:
     }
 
 
-  virtual void setDet(const GeomDet & idet);
+  void setDet(const GeomDet & idet) override;
 
-  virtual bool canImproveWithTrack() const {return true;}
+  bool canImproveWithTrack() const override {return true;}
 
-  virtual ProjectedSiStripRecHit2D* clone() const {return new ProjectedSiStripRecHit2D( *this); }
+  ProjectedSiStripRecHit2D* clone() const override {return new ProjectedSiStripRecHit2D( *this); }
 
   
-  virtual int dimension() const {return 2;}
-  virtual void getKfComponents( KfComponentsHolder & holder ) const { getKfComponents2D(holder); }
+  int dimension() const override {return 2;}
+  void getKfComponents( KfComponentsHolder & holder ) const override { getKfComponents2D(holder); }
   
   typedef OmniClusterRef::ClusterStripRef         ClusterRef;
   ClusterRef cluster()  const { return cluster_strip() ; }
@@ -61,11 +61,11 @@ public:
   SiStripRecHit2D originalHit() const { return SiStripRecHit2D(originalId(), omniClusterRef());}
   
   
-  virtual std::vector<const TrackingRecHit*> recHits() const{
+  std::vector<const TrackingRecHit*> recHits() const override{
     std::vector<const TrackingRecHit*> rechits;
     return rechits;
   }
-  virtual std::vector<TrackingRecHit*> recHits() {
+  std::vector<TrackingRecHit*> recHits() override {
     std::vector<TrackingRecHit*> rechits;
     return rechits;
   }
@@ -73,11 +73,11 @@ public:
 
 private:
   // double dispatch
-  virtual ProjectedSiStripRecHit2D * clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const {
+  ProjectedSiStripRecHit2D * clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const override {
     return cloner(*this,tsos).release();
   }
 #ifndef __GCCXML__
-  virtual  ConstRecHitPointer cloneSH(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const {
+   ConstRecHitPointer cloneSH(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const override {
     return cloner.makeShared(*this,tsos);
   }
 #endif

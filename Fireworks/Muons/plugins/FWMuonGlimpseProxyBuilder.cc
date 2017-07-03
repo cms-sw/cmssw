@@ -14,7 +14,7 @@ class FWMuonGlimpseProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Muon
 {
 public:
    FWMuonGlimpseProxyBuilder( void ) {}
-   virtual ~FWMuonGlimpseProxyBuilder( void ) {}
+   ~FWMuonGlimpseProxyBuilder( void ) override {}
 
    REGISTER_PROXYBUILDER_METHODS();
 

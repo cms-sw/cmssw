@@ -65,23 +65,23 @@ class TrackAssociatorByChi2Impl : public reco::TrackToTrackingParticleAssociator
 
 
   /// Association Reco To Sim with Collections
-  virtual
+  
   reco::RecoToSimCollection associateRecoToSim(const edm::RefToBaseVector<reco::Track>&,
 					       const edm::RefVector<TrackingParticleCollection>&) const override;
   /// Association Sim To Reco with Collections
-  virtual
+  
   reco::SimToRecoCollection associateSimToReco(const edm::RefToBaseVector<reco::Track>&,
 					       const edm::RefVector<TrackingParticleCollection>&) const override;
   
   /// compare reco to sim the handle of reco::Track and TrackingParticle collections
-  virtual
+  
   reco::RecoToSimCollection associateRecoToSim(const edm::Handle<edm::View<reco::Track> >& tCH, 
 					       const edm::Handle<TrackingParticleCollection>& tPCH) const override {
     return TrackToTrackingParticleAssociatorBaseImpl::associateRecoToSim(tCH,tPCH);
   }
   
   /// compare reco to sim the handle of reco::Track and TrackingParticle collections
-  virtual
+  
   reco::SimToRecoCollection associateSimToReco(const edm::Handle<edm::View<reco::Track> >& tCH, 
 					       const edm::Handle<TrackingParticleCollection>& tPCH) const override {
     return TrackToTrackingParticleAssociatorBaseImpl::associateSimToReco(tCH,tPCH);

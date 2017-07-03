@@ -20,7 +20,7 @@ public:
   /// Standard constructor
   TTUBoardSpecsIO( ); 
 
-  virtual ~TTUBoardSpecsIO( ); ///< Destructor
+  ~TTUBoardSpecsIO( ) override; ///< Destructor
 
   friend std::istream& operator>>(std::istream &, TTUBoardConfig &);
   

@@ -85,12 +85,12 @@ public:
 
   explicit StripClusterMCanalysis(const edm::ParameterSet&);
 
-  ~StripClusterMCanalysis();
+  ~StripClusterMCanalysis() override;
 
 private:
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   typedef std::pair<unsigned int, unsigned int> simHitCollectionID;
   typedef std::pair<simHitCollectionID, unsigned int> simhitAddr;

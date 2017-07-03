@@ -99,14 +99,14 @@ class HLTObjectsMonitor : public DQMEDAnalyzer {
 
    public:
       explicit HLTObjectsMonitor(const edm::ParameterSet&);
-      ~HLTObjectsMonitor() = default;
+      ~HLTObjectsMonitor() override = default;
 
   //      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 
    private:
       void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) override;
+      void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) override;
       void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
 
       static hltPlot getPlotPSet(edm::ParameterSet pset);

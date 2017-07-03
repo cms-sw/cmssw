@@ -25,7 +25,7 @@
 class SiStripQualityFakeESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
  public:
   SiStripQualityFakeESSource(const edm::ParameterSet&);
-  ~SiStripQualityFakeESSource(){};
+  ~SiStripQualityFakeESSource() override{};
   
   
   std::unique_ptr<SiStripQuality> produce(const SiStripQualityRcd&);
@@ -34,7 +34,7 @@ private:
   
   void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
 		       const edm::IOVSyncValue& iov,
-		       edm::ValidityInterval& iValidity);
+		       edm::ValidityInterval& iValidity) override;
   
   SiStripQualityFakeESSource( const SiStripQualityFakeESSource& );
   const SiStripQualityFakeESSource& operator=( const SiStripQualityFakeESSource& );

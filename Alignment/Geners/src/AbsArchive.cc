@@ -46,7 +46,7 @@ namespace {
             : gs::AbsRecord(classId, ioPrototype, name, category) {}
     private:
         NotWritableRecord();
-        inline bool writeData(std::ostream&) const {return false;}
+        inline bool writeData(std::ostream&) const override {return false;}
     };
 }
 

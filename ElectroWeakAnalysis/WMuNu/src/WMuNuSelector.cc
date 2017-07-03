@@ -35,9 +35,9 @@
 class WMuNuSelector : public edm::EDFilter {
 public:
   WMuNuSelector (const edm::ParameterSet &);
-  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-  virtual void beginJob() override;
-  virtual void endJob() override;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void beginJob() override;
+  void endJob() override;
   void init_histograms();
 private:
   bool plotHistograms_;

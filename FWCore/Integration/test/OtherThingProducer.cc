@@ -16,9 +16,9 @@ namespace edmtest {
   public:
     explicit OtherThingProducer(edm::ParameterSet const& ps);
     
-    virtual ~OtherThingProducer();
+    ~OtherThingProducer() override;
     
-    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+    void produce(edm::Event& e, edm::EventSetup const& c) override;
     
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
     

@@ -68,12 +68,12 @@ class CTPPSToFDetector;
 class CTPPSRecHitProducer : public edm::stream::EDProducer<> {
     public:
         explicit CTPPSRecHitProducer(const edm::ParameterSet&);
-        ~CTPPSRecHitProducer();
+        ~CTPPSRecHitProducer() override;
 
     private:
-        virtual void beginStream(edm::StreamID) override;
-        virtual void produce(edm::Event&, const edm::EventSetup&) override;
-        virtual void endStream() override;
+        void beginStream(edm::StreamID) override;
+        void produce(edm::Event&, const edm::EventSetup&) override;
+        void endStream() override;
 
         // ----------member data ---------------------------
         typedef std::vector<PSimHit> PSimHitContainer;

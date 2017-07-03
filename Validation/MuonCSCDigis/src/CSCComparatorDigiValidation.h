@@ -16,9 +16,9 @@ public:
   CSCComparatorDigiValidation(const edm::InputTag & inputTag,
                               const edm::InputTag & stripDigiInputTag,
                               edm::ConsumesCollector && iC);
-  ~CSCComparatorDigiValidation();
+  ~CSCComparatorDigiValidation() override;
   void bookHistograms(DQMStore::IBooker &);
-  void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
  private:
   edm::EDGetTokenT<CSCStripDigiCollection> theStripDigi_Token_;

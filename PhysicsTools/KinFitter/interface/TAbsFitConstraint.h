@@ -13,7 +13,7 @@ public :
 
   TAbsFitConstraint();
   TAbsFitConstraint(const TString &name, const TString &title);
-  virtual ~TAbsFitConstraint();
+  ~TAbsFitConstraint() override;
 
   // returns derivative df/dP with P=(p,E) and f the constraint f=0.
   // The matrix contains one row (df/dp, df/dE).

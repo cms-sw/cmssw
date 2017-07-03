@@ -36,9 +36,9 @@ namespace pat {
     class PATPackedCandidateProducer : public edm::global::EDProducer<> {
         public:
             explicit PATPackedCandidateProducer(const edm::ParameterSet&);
-            ~PATPackedCandidateProducer();
+            ~PATPackedCandidateProducer() override;
 
-            virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+            void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
             //sorting of cands to maximize the zlib compression
             bool candsOrdering(pat::PackedCandidate i,pat::PackedCandidate j) const {

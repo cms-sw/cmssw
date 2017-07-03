@@ -15,7 +15,7 @@
 class Phase2EndcapLayer final : public RingedForwardLayer {
  public:
   Phase2EndcapLayer(std::vector<const Phase2EndcapRing*>& rings, const bool isOT)  __attribute__ ((cold));
-  ~Phase2EndcapLayer()  __attribute__ ((cold));
+  ~Phase2EndcapLayer()  override __attribute__ ((cold));
 
   // Default implementations would not properly manage memory
   Phase2EndcapLayer( const Phase2EndcapLayer& ) = delete;
@@ -23,17 +23,17 @@ class Phase2EndcapLayer final : public RingedForwardLayer {
 
   // GeometricSearchDet interface
   
-  virtual const std::vector<const GeomDet*>& basicComponents() const {return theBasicComps;}
+  const std::vector<const GeomDet*>& basicComponents() const override {return theBasicComps;}
   
-  virtual const std::vector<const GeometricSearchDet*>& components() const __attribute__ ((cold));
+  const std::vector<const GeometricSearchDet*>& components() const override __attribute__ ((cold));
 
   void groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 			       const Propagator& prop,
 			       const MeasurementEstimator& est,
-			       std::vector<DetGroup> & result) const __attribute__ ((hot));
+			       std::vector<DetGroup> & result) const override __attribute__ ((hot));
 
   // DetLayer interface
-  virtual SubDetector subDetector() const { if(isOuterTracker) return GeomDetEnumerators::subDetGeom[GeomDetEnumerators::P2OTEC];
+  SubDetector subDetector() const override { if(isOuterTracker) return GeomDetEnumerators::subDetGeom[GeomDetEnumerators::P2OTEC];
                                             else return GeomDetEnumerators::subDetGeom[GeomDetEnumerators::P2PXEC];}
 
 

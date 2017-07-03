@@ -30,9 +30,9 @@
 class ElectronRegressionEnergyProducer : public edm::EDFilter {
 public:
   explicit ElectronRegressionEnergyProducer(const edm::ParameterSet&);
-  ~ElectronRegressionEnergyProducer();
+  ~ElectronRegressionEnergyProducer() override;
 private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  bool filter(edm::Event&, const edm::EventSetup&) override;
 
   // ----------member data ---------------------------
   bool printDebug_;

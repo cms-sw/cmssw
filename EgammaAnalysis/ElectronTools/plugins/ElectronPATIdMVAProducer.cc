@@ -24,10 +24,10 @@
 class ElectronPATIdMVAProducer : public edm::EDProducer {
 	public:
 		explicit ElectronPATIdMVAProducer(const edm::ParameterSet&);
-		virtual ~ElectronPATIdMVAProducer();
+		~ElectronPATIdMVAProducer() override;
 
 	private:
-		virtual void produce(edm::Event&, const edm::EventSetup&);
+		void produce(edm::Event&, const edm::EventSetup&) override;
 
 		// ----------member data ---------------------------
   bool verbose_;

@@ -22,8 +22,8 @@ class testEcalShowerContainmentCorrections : public CppUnit::TestFixture {
 public:
 
 
-  void setUp();
-  void tearDown();  
+  void setUp() override;
+  void tearDown() override;  
   void testFillandReadBack1();
   void testFillandReadBack2(); 
  

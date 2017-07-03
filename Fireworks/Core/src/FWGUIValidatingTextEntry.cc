@@ -146,7 +146,7 @@ public:
          TTimer(100),
          m_window(iWindow) {
       }
-      virtual Bool_t Notify() override {
+      Bool_t Notify() override {
          TurnOff();
          m_window->RequestFocus();
          return kTRUE;

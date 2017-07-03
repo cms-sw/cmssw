@@ -36,21 +36,21 @@ class JetMatchingMGFastJet : public JetMatching
    
       JetMatchingMGFastJet(const edm::ParameterSet& params);
 
-      ~JetMatchingMGFastJet() { if (fJetFinder) delete fJetFinder; }
+      ~JetMatchingMGFastJet() override { if (fJetFinder) delete fJetFinder; }
             
-      const std::vector<int>* getPartonList() { return typeIdx; }
+      const std::vector<int>* getPartonList() override { return typeIdx; }
    
    protected:
 
-      virtual void init( const lhef::LHERunInfo* runInfo );
+      void init( const lhef::LHERunInfo* runInfo ) override;
 
-      virtual bool initAfterBeams();
-      virtual void beforeHadronisation( const lhef::LHEEvent* );
-      virtual void beforeHadronisationExec() { return; }
+      bool initAfterBeams() override;
+      void beforeHadronisation( const lhef::LHEEvent* ) override;
+      void beforeHadronisationExec() override { return; }
       
-      virtual int match( const lhef::LHEEvent* partonLevel, const std::vector<fastjet::PseudoJet>* jetInput );
+      int match( const lhef::LHEEvent* partonLevel, const std::vector<fastjet::PseudoJet>* jetInput ) override;
 
-      virtual double getJetEtaMax() const;
+      double getJetEtaMax() const override;
 
    private:
                

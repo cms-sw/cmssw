@@ -14,7 +14,7 @@ class TestSiStripBaseDelay : public CppUnit::TestFixture
  public:
   TestSiStripBaseDelay() {}
 
-  void setUp()
+  void setUp() override
   {
     totDelays = 4;
 
@@ -35,7 +35,7 @@ class TestSiStripBaseDelay : public CppUnit::TestFixture
     }
   }
 
-  void tearDown() {}
+  void tearDown() override {}
 
   void testDelays()
   {

@@ -44,10 +44,10 @@ class CocoaAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources>
   
   explicit  CocoaAnalyzer(edm::ParameterSet const& p);
   explicit  CocoaAnalyzer(int i) { }
-  virtual ~ CocoaAnalyzer() { }
+  ~ CocoaAnalyzer() override { }
   
-  virtual void beginJob() override;
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  void beginJob() override;
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
   // see note on endJob() at the bottom of the file.
   // virtual void endJob() ;
 

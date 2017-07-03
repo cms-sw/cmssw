@@ -17,13 +17,13 @@ class FlatEvtVtxGenerator : public BaseEvtVtxGenerator
 {
 public:
   FlatEvtVtxGenerator(const edm::ParameterSet & p);
-  virtual ~FlatEvtVtxGenerator();
+  ~FlatEvtVtxGenerator() override;
 
   /// return a new event vertex
   //virtual CLHEP::Hep3Vector* newVertex();
-  virtual HepMC::FourVector newVertex(CLHEP::HepRandomEngine*) const override ;
+  HepMC::FourVector newVertex(CLHEP::HepRandomEngine*) const override ;
 
-  virtual const TMatrixD* GetInvLorentzBoost() const override {
+  const TMatrixD* GetInvLorentzBoost() const override {
 	  return 0;
   }
 

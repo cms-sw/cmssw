@@ -56,7 +56,7 @@ void InitDefaults();
 class ROOTFilePB_Histo : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:dqmstorepb.ROOTFilePB.Histo) */ {
  public:
   ROOTFilePB_Histo();
-  virtual ~ROOTFilePB_Histo();
+  ~ROOTFilePB_Histo() override;
 
   ROOTFilePB_Histo(const ROOTFilePB_Histo& from);
 
@@ -200,7 +200,7 @@ class ROOTFilePB_Histo : public ::google::protobuf::Message /* @@protoc_insertio
 class ROOTFilePB : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:dqmstorepb.ROOTFilePB) */ {
  public:
   ROOTFilePB();
-  virtual ~ROOTFilePB();
+  ~ROOTFilePB() override;
 
   ROOTFilePB(const ROOTFilePB& from);
 

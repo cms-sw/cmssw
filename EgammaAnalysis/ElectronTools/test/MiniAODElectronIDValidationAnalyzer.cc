@@ -61,7 +61,7 @@
 class MiniAODElectronIDValidationAnalyzer : public edm::EDAnalyzer {
    public:
       explicit MiniAODElectronIDValidationAnalyzer(const edm::ParameterSet&);
-      ~MiniAODElectronIDValidationAnalyzer();
+      ~MiniAODElectronIDValidationAnalyzer() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -71,9 +71,9 @@ class MiniAODElectronIDValidationAnalyzer : public edm::EDAnalyzer {
 			  TRUE_NON_PROMPT_ELECTRON}; // The last does not include tau parents
 
    private:
-      virtual void beginJob() override;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override;
+      void beginJob() override;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override;
 
       //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
       //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;

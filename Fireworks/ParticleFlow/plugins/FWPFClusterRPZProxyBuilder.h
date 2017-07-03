@@ -27,17 +27,17 @@ class FWPFClusterRPZProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::PFC
    public:
    // ---------------- Constructor(s)/Destructor ----------------------
       FWPFClusterRPZProxyBuilder();
-      virtual ~FWPFClusterRPZProxyBuilder();
+      ~FWPFClusterRPZProxyBuilder() override;
 
    // --------------------- Member Functions --------------------------
       using FWSimpleProxyBuilderTemplate<reco::PFCluster>::build;
-      virtual void build( const reco::PFCluster &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *vc );
+      void build( const reco::PFCluster &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *vc ) override;
       using FWSimpleProxyBuilderTemplate<reco::PFCluster>::scaleProduct;
-      virtual void scaleProduct( TEveElementList *parent, FWViewType::EType, const FWViewContext *vc );
+      void scaleProduct( TEveElementList *parent, FWViewType::EType, const FWViewContext *vc ) override;
       using FWSimpleProxyBuilderTemplate<reco::PFCluster>::havePerViewProduct;
-      virtual bool havePerViewProduct( FWViewType::EType ) const { return true; }
+      bool havePerViewProduct( FWViewType::EType ) const override { return true; }
       using FWSimpleProxyBuilderTemplate<reco::PFCluster>::cleanLocal;
-      virtual void cleanLocal() { m_clusters.clear(); }
+      void cleanLocal() override { m_clusters.clear(); }
 
       REGISTER_PROXYBUILDER_METHODS();
 
@@ -66,11 +66,11 @@ class FWPFEcalClusterRPZProxyBuilder : public FWPFClusterRPZProxyBuilder
    public:
    // ---------------- Constructor(s)/Destructor ----------------------
       FWPFEcalClusterRPZProxyBuilder(){}
-      virtual ~FWPFEcalClusterRPZProxyBuilder(){}
+      ~FWPFEcalClusterRPZProxyBuilder() override{}
 
    // --------------------- Member Functions --------------------------
       using FWSimpleProxyBuilderTemplate<reco::PFCluster>::build;
-      virtual void build( const reco::PFCluster &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *vc );
+      void build( const reco::PFCluster &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *vc ) override;
 
       REGISTER_PROXYBUILDER_METHODS();
 
@@ -90,11 +90,11 @@ class FWPFHcalClusterRPZProxyBuilder : public FWPFClusterRPZProxyBuilder
    public:
    // ---------------- Constructor(s)/Destructor ----------------------
       FWPFHcalClusterRPZProxyBuilder(){}
-      virtual ~FWPFHcalClusterRPZProxyBuilder(){}
+      ~FWPFHcalClusterRPZProxyBuilder() override{}
 
    // --------------------- Member Functions --------------------------
       using FWSimpleProxyBuilderTemplate<reco::PFCluster>::build;
-      virtual void build( const reco::PFCluster &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *vc );
+      void build( const reco::PFCluster &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *vc ) override;
 
       REGISTER_PROXYBUILDER_METHODS();
 

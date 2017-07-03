@@ -31,7 +31,7 @@ class RPCSimAsymmetricCls : public RPCSim
 {
  public:
   RPCSimAsymmetricCls(const edm::ParameterSet& config);
-  ~RPCSimAsymmetricCls();
+  ~RPCSimAsymmetricCls() override;
 
   void simulate(const RPCRoll* roll,
 		const edm::PSimHitContainer& rpcHits,

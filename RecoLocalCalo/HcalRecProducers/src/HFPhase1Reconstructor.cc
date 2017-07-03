@@ -54,13 +54,13 @@ class HFPhase1Reconstructor : public edm::stream::EDProducer<>
 {
 public:
     explicit HFPhase1Reconstructor(const edm::ParameterSet&);
-    ~HFPhase1Reconstructor();
+    ~HFPhase1Reconstructor() override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-    virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    void beginRun(const edm::Run&, const edm::EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
     // Configuration parameters
     std::string algoConfigClass_;

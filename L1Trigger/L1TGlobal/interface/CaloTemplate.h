@@ -48,7 +48,7 @@ public:
     CaloTemplate( const CaloTemplate& );
 
     // destructor
-    virtual ~CaloTemplate();
+    ~CaloTemplate() override;
 
     // assign operator
     CaloTemplate& operator= (const CaloTemplate&);
@@ -116,7 +116,7 @@ public:
 
 
     /// print the condition
-    virtual void print(std::ostream& myCout) const;
+    void print(std::ostream& myCout) const override;
 
     /// output stream operator
     friend std::ostream& operator<<(std::ostream&, const CaloTemplate&);

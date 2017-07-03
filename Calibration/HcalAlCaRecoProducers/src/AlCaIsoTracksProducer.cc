@@ -88,20 +88,20 @@ namespace AlCaIsoTracks {
 class AlCaIsoTracksProducer : public edm::stream::EDProducer<edm::GlobalCache<AlCaIsoTracks::Counters> > {
 public:
   explicit AlCaIsoTracksProducer(edm::ParameterSet const&, const AlCaIsoTracks::Counters* count);
-  ~AlCaIsoTracksProducer();
+  ~AlCaIsoTracksProducer() override;
   
   static std::unique_ptr<AlCaIsoTracks::Counters> initializeGlobalCache(edm::ParameterSet const& ) {
     return std::make_unique<AlCaIsoTracks::Counters>();
   }
 
-  virtual void produce(edm::Event &, edm::EventSetup const&) override;
-  virtual void endStream() override;
+  void produce(edm::Event &, edm::EventSetup const&) override;
+  void endStream() override;
   static  void globalEndJob(const AlCaIsoTracks::Counters* counters);
  
 private:
 
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
   reco::HcalIsolatedTrackCandidateCollection* select(edm::Handle<edm::TriggerResults>& triggerResults, const std::vector<std::string> & triggerNames_, edm::Handle<reco::TrackCollection>& trkCollection, math::XYZPoint& leadPV,edm::Handle<EcalRecHitCollection>& barrelRecHitsHandle, edm::Handle<EcalRecHitCollection>& endcapRecHitsHandle, edm::Handle<HBHERecHitCollection>& hbhe, double ptL1, double etaL1, double phiL1);
   void setPtEtaPhi(std::vector< edm::Ref<l1extra::L1JetParticleCollection> >& objref, double &ptL1, double &etaL1, double &phiL1);
 

@@ -17,7 +17,7 @@ public:
 private:
   edm::EDGetTokenT<reco::CandidateCollection> srcToken_;
   std::unique_ptr<CandMassKinFitter> fitter_;
-  void produce( edm::Event &, const edm::EventSetup & );
+  void produce( edm::Event &, const edm::EventSetup & ) override;
 };
 
 #endif

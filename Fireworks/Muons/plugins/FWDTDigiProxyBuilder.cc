@@ -54,9 +54,9 @@ class FWDTDigiProxyBuilder : public FWProxyBuilderBase
 {
 public:
   FWDTDigiProxyBuilder( void ) {}
-  virtual ~FWDTDigiProxyBuilder( void ) {}
+  ~FWDTDigiProxyBuilder( void ) override {}
 
-  virtual bool haveSingleProduct( void ) const override { return false; }
+  bool haveSingleProduct( void ) const override { return false; }
 	   
   REGISTER_PROXYBUILDER_METHODS();
 	
@@ -67,7 +67,7 @@ private:
   const FWDTDigiProxyBuilder& operator=( const FWDTDigiProxyBuilder& );
 	
   using FWProxyBuilderBase::buildViewType;
-  virtual void buildViewType( const FWEventItem* iItem, TEveElementList* product, FWViewType::EType, const FWViewContext* ) override;
+  void buildViewType( const FWEventItem* iItem, TEveElementList* product, FWViewType::EType, const FWViewContext* ) override;
 };
 
 void

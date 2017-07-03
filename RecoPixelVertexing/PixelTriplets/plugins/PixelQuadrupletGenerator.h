@@ -24,11 +24,11 @@ public:
   PixelQuadrupletGenerator( const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC): PixelQuadrupletGenerator(cfg, iC) {}
   PixelQuadrupletGenerator( const edm::ParameterSet& cfg, edm::ConsumesCollector& iC);
 
-  virtual ~PixelQuadrupletGenerator();
+  ~PixelQuadrupletGenerator() override;
 
   static void fillDescriptions(edm::ParameterSetDescription& desc);
 
-  virtual void hitQuadruplets( const TrackingRegion& region, OrderedHitSeeds& result,
+  void hitQuadruplets( const TrackingRegion& region, OrderedHitSeeds& result,
                                const edm::Event & ev, const edm::EventSetup& es,
                                const SeedingLayerSetsHits::SeedingLayerSet& tripletLayers,
                                const std::vector<SeedingLayerSetsHits::SeedingLayer>& fourthLayers) override;

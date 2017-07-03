@@ -27,10 +27,10 @@ public:
   DTT0ChamberReferenceCorrection(const edm::ParameterSet&);
 
   // Destructor
-  virtual ~DTT0ChamberReferenceCorrection();
+  ~DTT0ChamberReferenceCorrection() override;
 
-  virtual void setES(const edm::EventSetup& setup);
-  virtual DTT0Data correction(const DTWireId&);
+  void setES(const edm::EventSetup& setup) override;
+  DTT0Data correction(const DTWireId&) override;
 
 private:
   DTT0Data defaultT0(const DTWireId&);

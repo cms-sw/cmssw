@@ -20,12 +20,12 @@
 class SiPixelGenErrorDBObjectReader : public edm::EDAnalyzer {
    public:
       explicit SiPixelGenErrorDBObjectReader(const edm::ParameterSet&);
-      ~SiPixelGenErrorDBObjectReader();
+      ~SiPixelGenErrorDBObjectReader() override;
 
    private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      void beginJob() override ;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 		
       //edm::ESWatcher<SiPixelGenErrorDBObjectESProducerRcd>  SiPixGenerDBObjectWatcher_;
       //edm::ESWatcher<SiPixelGenErrorDBObjectRcd>  SiPixGenerDBObjWatcher_;

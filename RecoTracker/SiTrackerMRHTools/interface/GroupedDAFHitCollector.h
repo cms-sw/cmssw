@@ -31,9 +31,9 @@ public:
 		theEstimator(est), thePropagator(propagator), theReversePropagator(reversePropagator), debug_(debug){}
 			
 
-	virtual ~GroupedDAFHitCollector(){}
+	~GroupedDAFHitCollector() override{}
 
-	virtual std::vector<TrajectoryMeasurement> recHits(const Trajectory&, 
+	std::vector<TrajectoryMeasurement> recHits(const Trajectory&, 
 							   const MeasurementTrackerEvent *theMT) const override;
 
 	const SiTrackerMultiRecHitUpdator* getUpdator() const {return theUpdator;}

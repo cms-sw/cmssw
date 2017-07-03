@@ -14,11 +14,11 @@ class testSiStripFedKey : public edm::EDAnalyzer {
  public:
   
   testSiStripFedKey( const edm::ParameterSet& );
-  ~testSiStripFedKey();
+  ~testSiStripFedKey() override;
   
-  void beginJob();
-  void analyze( const edm::Event&, const edm::EventSetup& );
-  void endJob() {;}
+  void beginJob() override;
+  void analyze( const edm::Event&, const edm::EventSetup& ) override;
+  void endJob() override {;}
   
 };
 

@@ -24,7 +24,7 @@ class FWCandidatePtrProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Can
       
 public:
    FWCandidatePtrProxyBuilder() {}
-   virtual ~FWCandidatePtrProxyBuilder() {}
+   ~FWCandidatePtrProxyBuilder() override {}
 
    REGISTER_PROXYBUILDER_METHODS();
 

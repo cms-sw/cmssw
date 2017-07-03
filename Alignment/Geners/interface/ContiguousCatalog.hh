@@ -14,20 +14,20 @@ namespace gs {
         // Default constructor creates an empty catalog
         inline ContiguousCatalog(const unsigned long long firstId=1)
             : firstId_(firstId ? firstId : 1ULL) {}
-        inline virtual ~ContiguousCatalog() {}
+        inline ~ContiguousCatalog() override {}
 
-        inline unsigned long long size() const {return records_.size();}
-        inline unsigned long long smallestId() const {return firstId_;}
-        inline unsigned long long largestId() const
+        inline unsigned long long size() const override {return records_.size();}
+        inline unsigned long long smallestId() const override {return firstId_;}
+        inline unsigned long long largestId() const override
             {return firstId_ + records_.size() - 1;}
-        inline bool isContiguous() const {return true;}
+        inline bool isContiguous() const override {return true;}
 
         CPP11_shared_ptr<const CatalogEntry> retrieveEntry(
-            unsigned long long id) const;
+            unsigned long long id) const override;
 
         bool retrieveStreampos(
             unsigned long long id, unsigned* compressionCode,
-            unsigned long long* length, std::streampos* pos) const;
+            unsigned long long* length, std::streampos* pos) const override;
 
         // Add a new entry without an id (id will be generated internally
         // and returned)
@@ -35,26 +35,26 @@ namespace gs {
                                      unsigned compressionCode,
                                      unsigned long long itemLength,
                                      const ItemLocation& loc,
-                                     unsigned long long offset=0ULL);
+                                     unsigned long long offset=0ULL) override;
 
-        inline const CatalogEntry* lastEntryMade() const
+        inline const CatalogEntry* lastEntryMade() const override
             {return lastEntry_.get();}
 
         // Search for matching entries based on item name and category
         void search(const SearchSpecifier& namePattern,
                     const SearchSpecifier& categoryPattern,
-                    std::vector<unsigned long long>* idsFound) const;
+                    std::vector<unsigned long long>* idsFound) const override;
 
         // Methods needed for I/O
-        virtual ClassId classId() const {return ClassId(*this);}
-        virtual bool write(std::ostream& os) const;
+        ClassId classId() const override {return ClassId(*this);}
+        bool write(std::ostream& os) const override;
 
         static inline const char* classname() {return "gs::ContiguousCatalog";}
         static inline unsigned version() {return 2;}
         static ContiguousCatalog* read(const ClassId& id, std::istream& in);
 
     protected:
-        virtual bool isEqual(const AbsCatalog&) const;
+        bool isEqual(const AbsCatalog&) const override;
 
     private:
         typedef CPP11_shared_ptr<const CatalogEntry> SPtr;

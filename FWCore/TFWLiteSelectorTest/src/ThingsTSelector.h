@@ -16,11 +16,11 @@ namespace tfwliteselectortest {
 class ThingsTSelector : public TFWLiteSelectorBasic {
 public :
       ThingsTSelector() : h_a(nullptr), h_refA(nullptr) {}
-      void begin(TList*&);
-      void preProcessing(const TList*, TList&);
-      void process(const edm::Event&);
-      void postProcessing(TList&);
-      void terminate(TList&);
+      void begin(TList*&) override;
+      void preProcessing(const TList*, TList&) override;
+      void process(const edm::Event&) override;
+      void postProcessing(TList&) override;
+      void terminate(TList&) override;
 
 private:
   /// histograms

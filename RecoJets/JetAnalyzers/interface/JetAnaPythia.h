@@ -20,9 +20,9 @@ class JetAnaPythia : public edm::EDAnalyzer
      private:
        typedef std::vector<Jet> JetCollection;
        void FillHist1D(const TString& histName, const Double_t& x, const Double_t& wt);
-       void beginJob();
-       void analyze(edm::Event const& e, edm::EventSetup const& iSetup);
-       void endJob();
+       void beginJob() override;
+       void analyze(edm::Event const& e, edm::EventSetup const& iSetup) override;
+       void endJob() override;
        std::map<TString, TH1*> m_HistNames1D;  
        //// TTree variables //////
        TTree* mcTruthTree_;

@@ -42,10 +42,10 @@
 class TrackMCQuality final : public edm::global::EDProducer<> {
    public:
       explicit TrackMCQuality(const edm::ParameterSet&);
-      ~TrackMCQuality();
+      ~TrackMCQuality() override;
 
    private:
-      virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+      void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
       
       // ----------member data ---------------------------
 

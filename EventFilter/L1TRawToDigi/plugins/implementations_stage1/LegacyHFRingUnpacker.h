@@ -8,7 +8,7 @@ namespace l1t {
       namespace legacy {
          class HFRingUnpacker : public Unpacker {
             public:
-               virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
+               bool unpack(const Block& block, UnpackerCollections *coll) override;
          };
       }
    }

@@ -25,13 +25,13 @@ class TriggerCandProducer : public edm::EDProducer
 {
  public:
   explicit TriggerCandProducer(const edm::ParameterSet&);
-  ~TriggerCandProducer();
+  ~TriggerCandProducer() override;
 
  private:
-  virtual void beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) override;
-  virtual void beginJob()  override;
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob()  override;
+  void beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) override;
+  void beginJob()  override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endJob()  override;
 
   // ----------member data --------------------------
 

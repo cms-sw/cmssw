@@ -22,11 +22,11 @@ class ESDigiToRaw : public edm::EDProducer {
  public:
   
   ESDigiToRaw(const edm::ParameterSet& ps);
-  virtual ~ESDigiToRaw();
+  ~ESDigiToRaw() override;
   
-  void beginJob() ;
-  void produce(edm::Event& e, const edm::EventSetup& es);
-  void endJob() ;
+  void beginJob() override ;
+  void produce(edm::Event& e, const edm::EventSetup& es) override;
+  void endJob() override ;
 
   typedef uint32_t Word32;
   typedef uint64_t Word64;

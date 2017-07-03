@@ -30,43 +30,43 @@ class MomentumDependentPedeLabeler : public PedeLabelerBase
   MomentumDependentPedeLabeler(const PedeLabelerBase::TopLevelAlignables& alignables,
 			       const edm::ParameterSet& config);
   /** non-virtual destructor: do not inherit from this class **/
-  ~MomentumDependentPedeLabeler();
+  ~MomentumDependentPedeLabeler() override;
   
   /// uniqueId of Alignable, 0 if alignable not known
   /// between this ID and the next there is enough 'space' to add parameter
   /// numbers 0...nPar-1 to make unique IDs for the labels of active parameters
-  unsigned int alignableLabel(Alignable *alignable) const;
+  unsigned int alignableLabel(Alignable *alignable) const override;
   /// uniqueId of Alignable for a given parameter index and instance,
   /// 0 if alignable not known between this ID and the next there is enough
   /// 'space' to add parameter numbers 0...nPar-1 to make unique IDs for the
   /// labels of active parameters
   unsigned int alignableLabelFromParamAndInstance(Alignable *alignable,
 						  unsigned int param,
-						  unsigned int instance) const;
-  unsigned int lasBeamLabel(unsigned int lasBeamId) const;
+						  unsigned int instance) const override;
+  unsigned int lasBeamLabel(unsigned int lasBeamId) const override;
   /// returns the label for a given alignable parameter number combination
-  unsigned int parameterLabel(unsigned int aliLabel, unsigned int parNum) const;
+  unsigned int parameterLabel(unsigned int aliLabel, unsigned int parNum) const override;
   /// returns the label for a given alignable parameter number combination
   /// in case the parameters are split into v
   unsigned int parameterLabel(Alignable *alignable, unsigned int parNum,
 			      const AlignmentAlgorithmBase::EventInfo &eventInfo,
-			      const TrajectoryStateOnSurface &tsos) const;
+			      const TrajectoryStateOnSurface &tsos) const override;
   /// returns true if the alignable has parameters that are split into various bins
-  bool hasSplitParameters(Alignable *alignable) const;
+  bool hasSplitParameters(Alignable *alignable) const override;
   /// returns the number of instances for a given parameter
-  unsigned int numberOfParameterInstances(Alignable *alignable, int param=-1) const;
-  unsigned int maxNumberOfParameterInstances() const { return theMaxNumberOfParameterInstances; }
+  unsigned int numberOfParameterInstances(Alignable *alignable, int param=-1) const override;
+  unsigned int maxNumberOfParameterInstances() const override { return theMaxNumberOfParameterInstances; }
 
   /// parameter number, 0 <= .. < theMaxNumParam, belonging to unique parameter label
-  unsigned int paramNumFromLabel(unsigned int paramLabel) const;
+  unsigned int paramNumFromLabel(unsigned int paramLabel) const override;
   /// alignable label from parameter label (works also for alignable label...)
-  unsigned int alignableLabelFromLabel(unsigned int label) const;
+  unsigned int alignableLabelFromLabel(unsigned int label) const override;
   /// Alignable from alignable or parameter label,
   /// null if no alignable (but error only if not las beam, either!)
-  Alignable* alignableFromLabel(unsigned int label) const;
+  Alignable* alignableFromLabel(unsigned int label) const override;
   /// las beam id from las beam or parameter label
   /// zero and error if not a valid las beam label
-  unsigned int lasBeamIdFromLabel(unsigned int label) const;
+  unsigned int lasBeamIdFromLabel(unsigned int label) const override;
 
  private:
   typedef std::map <Alignable*, unsigned int> AlignableToIdMap;

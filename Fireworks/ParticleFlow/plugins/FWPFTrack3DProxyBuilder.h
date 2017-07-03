@@ -27,10 +27,10 @@ class FWPFTrack3DProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Track>
    public:
    // ---------------- Constructor(s)/Destructor ----------------------
       FWPFTrack3DProxyBuilder(){}
-      virtual ~FWPFTrack3DProxyBuilder(){}
+      ~FWPFTrack3DProxyBuilder() override{}
 
       using FWSimpleProxyBuilderTemplate<reco::Track>::build;
-      virtual void build( const reco::Track &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *vc );
+      void build( const reco::Track &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *vc ) override;
       REGISTER_PROXYBUILDER_METHODS();
 
    private:

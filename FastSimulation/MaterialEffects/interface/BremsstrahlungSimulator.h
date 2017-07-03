@@ -32,7 +32,7 @@ class BremsstrahlungSimulator : public MaterialEffectsSimulator
 			  double photonFractECut);
 
   /// Default destructor
-  ~BremsstrahlungSimulator() {}
+  ~BremsstrahlungSimulator() override {}
 
  private:
   
@@ -49,7 +49,7 @@ class BremsstrahlungSimulator : public MaterialEffectsSimulator
   unsigned int poisson(double ymu, RandomEngineAndDistribution const*);
 
   /// Generate Bremsstrahlung photons
-  void compute(ParticlePropagator &Particle, RandomEngineAndDistribution const*);
+  void compute(ParticlePropagator &Particle, RandomEngineAndDistribution const*) override;
 
   /// Compute Brem photon energy and angles, if any.
   XYZTLorentzVector brem(ParticlePropagator& p, RandomEngineAndDistribution const*) const;

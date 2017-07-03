@@ -39,12 +39,12 @@
 class TestESDummyDataAnalyzer : public edm::EDAnalyzer {
    public:
       explicit TestESDummyDataAnalyzer(const edm::ParameterSet&);
-      ~TestESDummyDataAnalyzer();
+      ~TestESDummyDataAnalyzer() override;
 
 
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
    private:
-         virtual void endJob();
+         void endJob() override;
          int m_expectedValue;
          int m_nEventsValue;
          int m_counter;

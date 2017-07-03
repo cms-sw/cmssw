@@ -46,11 +46,11 @@ math::XYZTLorentzVector applyMassConstraint(
 class RecoTauPiZeroStripPlugin : public RecoTauPiZeroBuilderPlugin {
   public:
   explicit RecoTauPiZeroStripPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector && iC);
-    virtual ~RecoTauPiZeroStripPlugin() {}
+    ~RecoTauPiZeroStripPlugin() override {}
     // Return type is auto_ptr<PiZeroVector>
     return_type operator()(const reco::PFJet& jet) const override;
     // Hook to update PV information
-    virtual void beginEvent() override;
+    void beginEvent() override;
 
   private:
     RecoTauQualityCuts qcuts_;

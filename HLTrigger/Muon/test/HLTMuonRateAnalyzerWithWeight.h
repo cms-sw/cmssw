@@ -26,14 +26,14 @@ public:
   HLTMuonRateAnalyzerWithWeight(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~HLTMuonRateAnalyzerWithWeight();
+  ~HLTMuonRateAnalyzerWithWeight() override;
 
   // Operations
 
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
 
-  virtual void beginJob() ;
-  virtual void endJob() ;
+  void beginJob() override ;
+  void endJob() override ;
   virtual bool isbc(HepMC::GenEvent const & evt) ;
   virtual double parentWeight(HepMC::GenEvent const & evt) ;
 

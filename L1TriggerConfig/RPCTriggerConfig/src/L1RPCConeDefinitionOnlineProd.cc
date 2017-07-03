@@ -36,9 +36,9 @@ class L1RPCConeDefinitionOnlineProd : public L1ConfigOnlineProdBase<
   L1RPCConeDefinitionRcd, L1RPCConeDefinition > {
    public:
       L1RPCConeDefinitionOnlineProd(const edm::ParameterSet&);
-      ~L1RPCConeDefinitionOnlineProd();
+      ~L1RPCConeDefinitionOnlineProd() override;
 
-  virtual std::shared_ptr< L1RPCConeDefinition > newObject(
+  std::shared_ptr< L1RPCConeDefinition > newObject(
     const std::string& objectKey ) override ;
 
    private:

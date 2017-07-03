@@ -37,11 +37,11 @@ class JetEnergyShift : public edm::EDProducer {
   /// default constructor
   explicit JetEnergyShift(const edm::ParameterSet&);
   /// default destructor
-  ~JetEnergyShift(){};
+  ~JetEnergyShift() override{};
 
  private:
   /// rescale jet energy and recalculated MET
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:
   /// jet input collection

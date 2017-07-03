@@ -25,7 +25,7 @@ class CompareClusters : public edm::EDAnalyzer {
 
  private:
   
-  void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   void show( uint32_t);
   std::string printDigis(uint32_t);

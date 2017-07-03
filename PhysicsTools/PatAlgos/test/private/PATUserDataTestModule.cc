@@ -66,11 +66,11 @@ namespace edm { using ::std::advance; }
 class PATUserDataTestModule : public edm::EDProducer {
    public:
       explicit PATUserDataTestModule(const edm::ParameterSet&);
-      ~PATUserDataTestModule();
+      ~PATUserDataTestModule() override;
 
 
    private:
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
 
       // ----------member data ---------------------------
       edm::EDGetTokenT<edm::View<pat::Muon> > muonsToken_;

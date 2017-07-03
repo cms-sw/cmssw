@@ -45,13 +45,13 @@ class SiStripMonitorCondData : public edm::EDAnalyzer {
  
    explicit SiStripMonitorCondData(const edm::ParameterSet&);
  
-   ~SiStripMonitorCondData();
+   ~SiStripMonitorCondData() override;
    
-   virtual void beginJob() ;  
-   virtual void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
-   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-   virtual void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
-   virtual void endJob() ;
+   void beginJob() override ;  
+   void beginRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
+   void analyze(const edm::Event&, const edm::EventSetup&) override;
+   void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
+   void endJob() override ;
   
   
  private:  

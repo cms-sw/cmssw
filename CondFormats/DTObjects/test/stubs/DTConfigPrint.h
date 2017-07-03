@@ -23,8 +23,8 @@ namespace edmtest {
   public:
     explicit  DTConfigPrint(edm::ParameterSet const& p);
     explicit  DTConfigPrint(int i) ;
-    virtual ~ DTConfigPrint();
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+    ~ DTConfigPrint() override;
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
   private:
     std::string connect;
     std::string auth_path;

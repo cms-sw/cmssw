@@ -27,7 +27,7 @@ public:
   SubsetHSMLinearizationPointFinder( const RecTracksDistanceMatrix * m,
       const signed int n_pairs = -1 );
 
-  virtual SubsetHSMLinearizationPointFinder * clone() const;
+  SubsetHSMLinearizationPointFinder * clone() const override;
 };
 
 #endif

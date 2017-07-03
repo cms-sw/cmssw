@@ -60,13 +60,13 @@
 class APVCyclePhaseDebuggerFromL1TS : public edm::EDAnalyzer {
 public:
   explicit APVCyclePhaseDebuggerFromL1TS(const edm::ParameterSet&);
-  ~APVCyclePhaseDebuggerFromL1TS();
+  ~APVCyclePhaseDebuggerFromL1TS() override;
   
   static void fillDescriptions( edm::ConfigurationDescriptions & descriptions );
 
 private:
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
       // ----------member data ---------------------------
 

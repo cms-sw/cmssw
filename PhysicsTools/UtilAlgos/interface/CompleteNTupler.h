@@ -24,7 +24,7 @@ class CompleteNTupler : public NTupler {
     */
   }
   
-  uint registerleaves(edm::ProducerBase * producer){
+  uint registerleaves(edm::ProducerBase * producer) override{
     uint nLeaves=0;
     nLeaves+=sN->registerleaves(producer);
     if (vN)
@@ -33,7 +33,7 @@ class CompleteNTupler : public NTupler {
     //      nLeaves+=aN->registerleaves(producer);
     return nLeaves;
   }
-  void fill(edm::Event& iEvent){
+  void fill(edm::Event& iEvent) override{
     sN->fill(iEvent);
     if (vN)
       vN->fill(iEvent);

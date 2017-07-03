@@ -37,15 +37,15 @@ class FTSimHitTest: public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one::Sh
 
 public:
   explicit FTSimHitTest(const edm::ParameterSet& ps);
-  ~FTSimHitTest();
+  ~FTSimHitTest() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 protected:
-  virtual void beginJob() override {}
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) override {}
-  virtual void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void beginJob() override {}
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override {}
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
   void plotHits(const edm::Handle<edm::PSimHitContainer>&, const int);
 
 private:

@@ -75,7 +75,7 @@ namespace {
   public:
     TreeHelper(TTree* iTree, std::string* iFullNameBufferPtr ):
      m_tree(iTree), m_flagBuffer(0),m_fullNameBufferPtr(iFullNameBufferPtr){ setup();}
-     virtual void doFill(MonitorElement* iElement) {
+     void doFill(MonitorElement* iElement) override {
        *m_fullNameBufferPtr = iElement->getFullname();
        m_flagBuffer = iElement->getTag();
        m_bufferPtr = dynamic_cast<T*>(iElement->getRootObject());
@@ -105,7 +105,7 @@ namespace {
      m_tree(iTree), m_flagBuffer(0),m_fullNameBufferPtr(iFullNameBufferPtr)
      {setup();}
 
-    virtual void doFill(MonitorElement* iElement) {
+    void doFill(MonitorElement* iElement) override {
      *m_fullNameBufferPtr = iElement->getFullname();
      m_flagBuffer = iElement->getTag();
      m_buffer = iElement->getIntValue();
@@ -129,7 +129,7 @@ namespace {
     FloatTreeHelper(TTree* iTree, std::string* iFullNameBufferPtr):
      m_tree(iTree), m_flagBuffer(0),m_fullNameBufferPtr(iFullNameBufferPtr)
      {setup();}
-   virtual void doFill(MonitorElement* iElement) {
+   void doFill(MonitorElement* iElement) override {
      *m_fullNameBufferPtr = iElement->getFullname();
      m_flagBuffer = iElement->getTag();
      m_buffer = iElement->getFloatValue();
@@ -153,7 +153,7 @@ namespace {
     StringTreeHelper(TTree* iTree, std::string* iFullNameBufferPtr):
      m_tree(iTree), m_flagBuffer(0),m_fullNameBufferPtr(iFullNameBufferPtr), m_bufferPtr(&m_buffer)
      {setup();}
-   virtual void doFill(MonitorElement* iElement) {
+   void doFill(MonitorElement* iElement) override {
      *m_fullNameBufferPtr = iElement->getFullname();
      m_flagBuffer = iElement->getTag();
      m_buffer = iElement->getStringValue();
@@ -182,17 +182,17 @@ namespace edm {
 class DQMRootOutputModule : public edm::one::OutputModule<> {
 public:
   explicit DQMRootOutputModule(edm::ParameterSet const& pset);
-  virtual void beginJob() override;
-  virtual ~DQMRootOutputModule();
+  void beginJob() override;
+  ~DQMRootOutputModule() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void write(edm::EventForOutput const& e) override;
-  virtual void writeLuminosityBlock(edm::LuminosityBlockForOutput const&) override;
-  virtual void writeRun(edm::RunForOutput const&) override;
-  virtual bool isFileOpen() const override;
-  virtual void openFile(edm::FileBlock const&) override;
-  virtual void reallyCloseFile() override;
+  void write(edm::EventForOutput const& e) override;
+  void writeLuminosityBlock(edm::LuminosityBlockForOutput const&) override;
+  void writeRun(edm::RunForOutput const&) override;
+  bool isFileOpen() const override;
+  void openFile(edm::FileBlock const&) override;
+  void reallyCloseFile() override;
 
   void startEndFile();
   void finishEndFile();

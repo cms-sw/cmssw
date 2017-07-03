@@ -19,7 +19,7 @@ class VpspScanAlgorithm : public CommissioningAlgorithm {
 
   VpspScanAlgorithm( const edm::ParameterSet & pset, VpspScanAnalysis* const );
 
-  virtual ~VpspScanAlgorithm() {;}
+  ~VpspScanAlgorithm() override {;}
 
   /** Histogram pointer and title. */
   const Histo& histo( const uint16_t& apv ) const;
@@ -29,10 +29,10 @@ class VpspScanAlgorithm : public CommissioningAlgorithm {
   VpspScanAlgorithm() {;}
 
   /** Extracts and organises histograms. */
-  void extract( const std::vector<TH1*>& );
+  void extract( const std::vector<TH1*>& ) override;
 
   /** Performs histogram anaysis. */
-  void analyse();
+  void analyse() override;
   
  private:
   

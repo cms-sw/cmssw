@@ -74,11 +74,11 @@
 class TrackerGeometryIntoNtuples : public edm::EDAnalyzer {
 public:
 	explicit TrackerGeometryIntoNtuples(const edm::ParameterSet&);
-	~TrackerGeometryIntoNtuples();
+	~TrackerGeometryIntoNtuples() override;
 	
 	
 private:
-	virtual void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) override;
+	void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) override;
 	
 	void addBranches();
 	

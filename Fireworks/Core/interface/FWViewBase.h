@@ -58,7 +58,7 @@ public:
    sigc::signal<void,Int_t,Int_t> openSelectedModelContextMenu_;
 
 protected:
-   virtual ~FWViewBase();
+   ~FWViewBase() override;
    FWViewType           m_type;
 
 private:

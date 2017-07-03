@@ -42,11 +42,11 @@
 class MeasurementTrackerUpdator : public edm::EDAnalyzer {
 public:
   explicit MeasurementTrackerUpdator(const edm::ParameterSet&);
-  ~MeasurementTrackerUpdator();
+  ~MeasurementTrackerUpdator() override;
 
 
 private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   std::string theMeasurementTrackerName;
 };

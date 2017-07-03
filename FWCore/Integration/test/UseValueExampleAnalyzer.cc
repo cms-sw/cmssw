@@ -37,10 +37,10 @@ Implementation:
 class UseValueExampleAnalyzer : public edm::EDAnalyzer {
 public:
    explicit UseValueExampleAnalyzer(const edm::ParameterSet&);
-   ~UseValueExampleAnalyzer();
+   ~UseValueExampleAnalyzer() override;
    
    
-   virtual void analyze(const edm::Event&, const edm::EventSetup&);
+   void analyze(const edm::Event&, const edm::EventSetup&) override;
 private:
       // ----------member data ---------------------------
 };

@@ -65,7 +65,7 @@ class BPHMultiSelect: public T {
 
   /** Destructor
    */
-  virtual ~BPHMultiSelect() {}
+  ~BPHMultiSelect() override {}
 
   /** Operations
    */
@@ -79,12 +79,12 @@ class BPHMultiSelect: public T {
   }
 
   /// accept function
-  virtual bool accept( const reco::Candidate & cand,
-                       const BPHRecoBuilder*  build ) const { return false; }
-  virtual bool accept( const reco::Candidate & cand ) const { return false; }
-  virtual bool accept( const BPHDecayMomentum& cand ) const { return false; }
-  virtual bool accept( const BPHDecayVertex  & cand ) const { return false; }
-  virtual bool accept( const BPHKinematicFit & cand ) const { return false; }
+  bool accept( const reco::Candidate & cand,
+                       const BPHRecoBuilder*  build ) const override { return false; }
+  bool accept( const reco::Candidate & cand ) const override { return false; }
+  bool accept( const BPHDecayMomentum& cand ) const override { return false; }
+  bool accept( const BPHDecayVertex  & cand ) const override { return false; }
+  bool accept( const BPHKinematicFit & cand ) const override { return false; }
 
  private:
 

@@ -41,11 +41,11 @@ public:
 
   explicit SiPixelFakeGainReader( const edm::ParameterSet& iConfig);
 
-  ~SiPixelFakeGainReader(){};
-  virtual void beginJob();
-  virtual void beginRun(const edm::Run& , const edm::EventSetup& );
-  virtual void analyze(const edm::Event& , const edm::EventSetup& );
-  virtual void endJob() ;
+  ~SiPixelFakeGainReader() override{};
+  void beginJob() override;
+  void beginRun(const edm::Run& , const edm::EventSetup& ) override;
+  void analyze(const edm::Event& , const edm::EventSetup& ) override;
+  void endJob() override ;
 
 private:
 

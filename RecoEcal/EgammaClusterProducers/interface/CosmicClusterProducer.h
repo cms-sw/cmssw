@@ -30,9 +30,9 @@ class CosmicClusterProducer : public edm::stream::EDProducer<>
 
       CosmicClusterProducer(const edm::ParameterSet& ps);
 
-      ~CosmicClusterProducer();
+      ~CosmicClusterProducer() override;
 
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      void produce(edm::Event&, const edm::EventSetup&) override;
 
    private:
 

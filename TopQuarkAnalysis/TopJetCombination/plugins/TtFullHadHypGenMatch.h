@@ -9,17 +9,17 @@ class TtFullHadHypGenMatch : public TtFullHadHypothesis  {
  public:
 
   explicit TtFullHadHypGenMatch(const edm::ParameterSet& cfg);
-  ~TtFullHadHypGenMatch();
+  ~TtFullHadHypGenMatch() override;
 
  private:
 
   /// build the event hypothesis key
-  virtual void buildKey() { key_= TtFullHadronicEvent::kGenMatch; };
+  void buildKey() override { key_= TtFullHadronicEvent::kGenMatch; };
   /// build event hypothesis from the reco objects of a semi-leptonic event
-  virtual void buildHypo(edm::Event& evt,
+  void buildHypo(edm::Event& evt,
 			 const edm::Handle<std::vector<pat::Jet> >& jets,
 			 std::vector<int>& match,
-			 const unsigned int iComb);
+			 const unsigned int iComb) override;
 
  protected:
 

@@ -17,21 +17,21 @@ class AlignmentCorrelationsIORoot : public AlignmentIORootBase, public Alignment
   AlignmentCorrelationsIORoot();
 
   /// open IO 
-  int open(const char* filename, int iteration, bool writemode) {
+  int open(const char* filename, int iteration, bool writemode) override {
     return openRoot(filename,iteration,writemode);
   };
 
   /// close IO 
-  int close(void){ return closeRoot(); };
+  int close(void) override{ return closeRoot(); };
 
   /// write correlations 
-  int write(const align::Correlations& cor, bool validCheck);
+  int write(const align::Correlations& cor, bool validCheck) override;
 
   /// read correlations 
-  align::Correlations read(const align::Alignables& alivec, int& ierr);
+  align::Correlations read(const align::Alignables& alivec, int& ierr) override;
 
-  void createBranches(void);
-  void setBranchAddresses(void);
+  void createBranches(void) override;
+  void setBranchAddresses(void) override;
 
   // data members
 

@@ -12,8 +12,8 @@ namespace edm { class Event; class EventSetup; }
 class dso_hidden SeedGeneratorFromProtoTracksEDProducer : public edm::stream::EDProducer<> {
 public:
   SeedGeneratorFromProtoTracksEDProducer(const edm::ParameterSet& cfg);
-  virtual ~SeedGeneratorFromProtoTracksEDProducer(){}
-  virtual void produce(edm::Event& ev, const edm::EventSetup& es) override;
+  ~SeedGeneratorFromProtoTracksEDProducer() override{}
+  void produce(edm::Event& ev, const edm::EventSetup& es) override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:

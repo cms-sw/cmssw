@@ -40,9 +40,9 @@
 class PATHemisphereProducer : public edm::global::EDProducer<> {
 public:
   explicit PATHemisphereProducer(const edm::ParameterSet&);
-  ~PATHemisphereProducer();
+  ~PATHemisphereProducer() override;
   
-  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   
 private:  
   // ----------member data ---------------------------

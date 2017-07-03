@@ -35,10 +35,10 @@ template <class T> T sqr( T t) {return t*t;}
 class PixelTrackVal : public edm::EDAnalyzer {
 public:
   explicit PixelTrackVal(const edm::ParameterSet& conf);
-  ~PixelTrackVal();
-  virtual void beginJob();
-  virtual void analyze(const edm::Event& ev, const edm::EventSetup& es);
-  virtual void endJob();
+  ~PixelTrackVal() override;
+  void beginJob() override;
+  void analyze(const edm::Event& ev, const edm::EventSetup& es) override;
+  void endJob() override;
 private:
   int verbose_;
   std::string file_;

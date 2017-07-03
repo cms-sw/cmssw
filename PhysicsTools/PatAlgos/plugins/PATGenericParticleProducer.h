@@ -44,9 +44,9 @@ namespace pat {
     public:
 
       explicit PATGenericParticleProducer(const edm::ParameterSet & iConfig);
-      ~PATGenericParticleProducer();
+      ~PATGenericParticleProducer() override;
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
+      void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
     private:
 

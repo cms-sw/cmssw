@@ -13,7 +13,7 @@ namespace ecaldqm
   class RawDataTask : public DQWorkerTask {
   public:
     RawDataTask();
-    ~RawDataTask() {}
+    ~RawDataTask() override {}
 
     void addDependencies(DependencySet&) override;
 

@@ -62,7 +62,7 @@
 class TrackerOfflineValidationSummary : public edm::EDAnalyzer {
    public:
       explicit TrackerOfflineValidationSummary(const edm::ParameterSet&);
-      ~TrackerOfflineValidationSummary();
+      ~TrackerOfflineValidationSummary() override;
 
 
    private:
@@ -97,8 +97,8 @@ class TrackerOfflineValidationSummary : public edm::EDAnalyzer {
 	HarvestingHistos harvestingHistos;
       };
       
-      virtual void analyze(const edm::Event& evt, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void analyze(const edm::Event& evt, const edm::EventSetup&) override;
+      void endJob() override ;
       
       void fillTree(TTree& tree, std::map<int, TrackerOfflineValidationSummary::ModuleHistos>& moduleHist, 
 		TkOffTreeVariables& treeMem, const TrackerGeometry& tkgeom,

@@ -32,8 +32,8 @@ class EgammaHLTRemoveDuplicatedSC : public edm::EDProducer {
   
  public:
   explicit EgammaHLTRemoveDuplicatedSC(const edm::ParameterSet&);
-  ~EgammaHLTRemoveDuplicatedSC();
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  ~EgammaHLTRemoveDuplicatedSC() override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  private:

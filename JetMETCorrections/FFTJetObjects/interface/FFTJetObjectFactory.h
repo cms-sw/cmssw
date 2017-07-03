@@ -20,8 +20,8 @@ struct AbsFFTJetObjectFactory
 template<class Base, class Derived>
 struct ConcreteFFTJetObjectFactory : public AbsFFTJetObjectFactory<Base>
 {
-    virtual ~ConcreteFFTJetObjectFactory() {}
-    inline Derived* create(const edm::ParameterSet& ps) const
+    ~ConcreteFFTJetObjectFactory() override {}
+    inline Derived* create(const edm::ParameterSet& ps) const override
         {return new Derived(ps);}
 };
 

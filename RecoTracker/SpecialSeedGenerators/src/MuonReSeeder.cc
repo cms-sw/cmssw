@@ -31,9 +31,9 @@
 class MuonReSeeder : public edm::stream::EDProducer<> {
     public:
       explicit MuonReSeeder(const edm::ParameterSet & iConfig);
-      virtual ~MuonReSeeder() { }
+      ~MuonReSeeder() override { }
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
+      void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
 
     private:
       /// Labels for input collections

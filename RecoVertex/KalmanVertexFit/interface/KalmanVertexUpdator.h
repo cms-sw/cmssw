@@ -23,7 +23,7 @@ public:
  */
 
    CachingVertex<N> add(const CachingVertex<N> & oldVertex,
-        const RefCountedVertexTrack track) const;
+        const RefCountedVertexTrack track) const override;
 
 /**
  *  Method removing already used VertexTrack from existing CachingVertex
@@ -31,13 +31,13 @@ public:
  */
 
    CachingVertex<N> remove(const CachingVertex<N> & oldVertex,
-        const RefCountedVertexTrack track) const;
+        const RefCountedVertexTrack track) const override;
 
 /**
  * Clone method
  */
 
-   VertexUpdator<N> * clone() const
+   VertexUpdator<N> * clone() const override
    {
     return new KalmanVertexUpdator(* this);
    }

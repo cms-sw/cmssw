@@ -52,14 +52,14 @@ template <typename Mu, typename Ele, typename Jet, typename Met>
 class SusyDQM : public DQMEDAnalyzer {
  public:
   explicit SusyDQM(const edm::ParameterSet&);
-  ~SusyDQM();
+  ~SusyDQM() override;
 
  protected:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&,
                       edm::EventSetup const&) override;
 
  private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual bool goodSusyElectron(const Ele*);
   virtual bool goodSusyMuon(const Mu*);
 

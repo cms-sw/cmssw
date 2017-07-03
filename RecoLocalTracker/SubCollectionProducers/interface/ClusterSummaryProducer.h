@@ -68,11 +68,11 @@ class ClusterSummary;
 class ClusterSummaryProducer : public edm::stream::EDProducer<> {
    public:
       explicit ClusterSummaryProducer(const edm::ParameterSet&);
-      ~ClusterSummaryProducer(){};
+      ~ClusterSummaryProducer() override{};
 
    private:
-      virtual void beginStream(edm::StreamID) override;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      void beginStream(edm::StreamID) override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
       
 
       typedef std::pair<DetIdSelector,ClusterSummary::CMSTracker> ModuleSelection;

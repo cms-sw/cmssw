@@ -24,15 +24,15 @@ class L1TMP7ZeroSupp : public DQMEDAnalyzer {
  public:
 
   L1TMP7ZeroSupp(const edm::ParameterSet& ps);
-  virtual ~L1TMP7ZeroSupp();
+  ~L1TMP7ZeroSupp() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  protected:
 
-  virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-  virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
-  virtual void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
+  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
  private:
 

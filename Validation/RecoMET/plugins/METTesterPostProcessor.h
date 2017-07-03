@@ -28,10 +28,10 @@
 class METTesterPostProcessor : public DQMEDHarvester {
    public:
       explicit METTesterPostProcessor(const edm::ParameterSet&);
-      ~METTesterPostProcessor();
+      ~METTesterPostProcessor() override;
 
    private:
-      virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) ;
+      void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override ;
       std::vector<std::string> met_dirs;
 
       void FillMETRes(std::string metdir,DQMStore::IGetter &);

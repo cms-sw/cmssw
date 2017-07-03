@@ -18,10 +18,10 @@
 class QuarkoniaTrackSelector : public edm::global::EDProducer<> {
 public:
   explicit QuarkoniaTrackSelector(const edm::ParameterSet&);
-  ~QuarkoniaTrackSelector() {}
+  ~QuarkoniaTrackSelector() override {}
 
 private:
-  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
       
 private:
   edm::InputTag muonTag_;          ///< tag for RecoChargedCandidateCollection

@@ -43,14 +43,14 @@ template<class C> class EcalUncalibRecHitRecAnalFitAlgo : public EcalUncalibRecH
 
  public:
   // destructor
-  virtual ~EcalUncalibRecHitRecAnalFitAlgo<C>() { };
+  ~EcalUncalibRecHitRecAnalFitAlgo<C>() override { };
 
 
   /// Compute parameters
-  virtual EcalUncalibratedRecHit makeRecHit(const C& dataFrame, const double* pedestals,
+  EcalUncalibratedRecHit makeRecHit(const C& dataFrame, const double* pedestals,
 					    const double* gainRatios,
 					    const EcalWeightSet::EcalWeightMatrix** weights, 
-					    const EcalWeightSet::EcalChi2WeightMatrix** chi2Matrix)
+					    const EcalWeightSet::EcalChi2WeightMatrix** chi2Matrix) override
     { 
     double amplitude_(-1.),  pedestal_(-1.), jitter_(-1.), chi2_(-1.);
 

@@ -63,7 +63,7 @@ namespace npstat {
     template <typename Result>
     struct Same : public Functor1<Result, Result>
     {
-        inline Result operator()(const Result& a) const {return a;}
+        inline Result operator()(const Result& a) const override {return a;}
     };
 
     /** A simple functor which returns a reference to its argument */

@@ -26,19 +26,19 @@ public:
     identifier = p.getUntrackedParameter<int> ("identifier", 99);
   }
 
-  virtual
-    ~UTC_Vd1()
+  
+    ~UTC_Vd1() override
   { }
 
-  virtual
+  
     void analyze( edm::Event      const & e
                 , edm::EventSetup const & c
-                );
+                ) override;
 
-  virtual void beginJob ();
-  virtual void beginRun (edm::Run const&, edm::EventSetup const&);
-  virtual void beginLuminosityBlock
-  		(edm::LuminosityBlock const&, edm::EventSetup const&);
+  void beginJob () override;
+  void beginRun (edm::Run const&, edm::EventSetup const&) override;
+  void beginLuminosityBlock
+  		(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
 
 
@@ -57,14 +57,14 @@ public:
     identifier = p.getUntrackedParameter<int> ("identifier", 98);
   }
 
-  virtual
-    ~UTC_Vd2()
+  
+    ~UTC_Vd2() override
   { }
 
-  virtual
+  
     void analyze( edm::Event      const & e
                 , edm::EventSetup const & c
-                );
+                ) override;
 
 private:
   int identifier;

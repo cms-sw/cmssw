@@ -58,14 +58,14 @@ class GenFilterEfficiencyProducer : public edm::global::EDProducer<edm::EndLumin
                                                                    edm::LuminosityBlockCache<Sums>> {
 public:
   explicit GenFilterEfficiencyProducer(const edm::ParameterSet&);
-  ~GenFilterEfficiencyProducer();
+  ~GenFilterEfficiencyProducer() override;
   
   
 private:
-  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   void globalEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) const override;
-  virtual void globalEndLuminosityBlockProduce(edm::LuminosityBlock &, const edm::EventSetup &) const override;
+  void globalEndLuminosityBlockProduce(edm::LuminosityBlock &, const edm::EventSetup &) const override;
 
   std::shared_ptr<Sums> globalBeginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) const override;
   // ----------member data ---------------------------

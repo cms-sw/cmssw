@@ -39,11 +39,11 @@ Implementation:
 class HLTL1NumberFilter : public edm::global::EDFilter<> {
 public:
   explicit HLTL1NumberFilter(const edm::ParameterSet&);
-  virtual ~HLTL1NumberFilter();
+  ~HLTL1NumberFilter() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   
 private:
-  virtual bool filter(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
+  bool filter(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
   
   // ----------member data ---------------------------
 

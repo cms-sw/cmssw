@@ -35,13 +35,13 @@
 class LogErrorFilter : public edm::stream::EDFilter<> {
 public:
   explicit LogErrorFilter(edm::ParameterSet const&);
-  ~LogErrorFilter();
+  ~LogErrorFilter() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual bool filter(edm::Event&, edm::EventSetup const&) override;
+  bool filter(edm::Event&, edm::EventSetup const&) override;
 
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override ;
+  void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override ;
 
   // ----------member data ---------------------------
   edm::EDGetTokenT<std::vector<edm::ErrorSummaryEntry>> harvesterToken_;

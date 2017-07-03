@@ -21,7 +21,7 @@ namespace edmtest {
 
     explicit ThingProducer(edm::ParameterSet const& ps);
 
-    virtual ~ThingProducer();
+    ~ThingProducer() override;
 
     void produce(edm::Event& e, edm::EventSetup const& c) override;
 

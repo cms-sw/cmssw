@@ -21,9 +21,9 @@ class TestEcalDigi: public CppUnit::TestFixture
 
  public:
   TestEcalDigi(); 
-  ~TestEcalDigi() {}
-  void setUp() {}
-  void tearDown() {}
+  ~TestEcalDigi() override {}
+  void setUp() override {}
+  void tearDown() override {}
   
   void default_ctor();
   void filling();

@@ -29,10 +29,10 @@ class FWCaloTowerSliceSelector : public FWHistSliceSelector
 {
 public:
   FWCaloTowerSliceSelector(TH2F* h, const FWEventItem* i);
-  virtual ~FWCaloTowerSliceSelector();
+  ~FWCaloTowerSliceSelector() override;
  
 protected:
-   virtual void getItemEntryEtaPhi(int itemIdx, float& eta, float& phi) const; 
+   void getItemEntryEtaPhi(int itemIdx, float& eta, float& phi) const override; 
 };
 
 #endif

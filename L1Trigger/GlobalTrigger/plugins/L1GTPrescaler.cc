@@ -23,7 +23,7 @@ class L1GTPrescaler : public edm::one::EDFilter<> {
 public:
   L1GTPrescaler(edm::ParameterSet const& config);
 
-  virtual bool filter(edm::Event& event, edm::EventSetup const& setup) override;
+  bool filter(edm::Event& event, edm::EventSetup const& setup) override;
 
   static  void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 

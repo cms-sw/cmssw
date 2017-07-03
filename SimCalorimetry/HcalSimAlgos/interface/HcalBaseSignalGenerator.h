@@ -11,7 +11,7 @@ public:
   HcalBaseSignalGenerator()
   : theParameterMap(0), theElectronicsSim(0) {}
 
-  virtual ~HcalBaseSignalGenerator() {}
+  ~HcalBaseSignalGenerator() override {}
 
   void setParameterMap(HcalSimParameterMap * map) {theParameterMap = map;}
 

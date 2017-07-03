@@ -590,25 +590,25 @@ namespace edm {
                                long long indexToEvent,
                                long long nEvents);
 
-        virtual IndexIntoFileItrImpl* clone() const;
+        IndexIntoFileItrImpl* clone() const override;
 
-        virtual int processHistoryIDIndex() const;
-        virtual RunNumber_t run() const;
-        virtual LuminosityBlockNumber_t lumi() const;
-        virtual EntryNumber_t entry() const;
-        virtual LuminosityBlockNumber_t peekAheadAtLumi() const;
-        virtual EntryNumber_t peekAheadAtEventEntry() const;
-        virtual bool skipLumiInRun();
+        int processHistoryIDIndex() const override;
+        RunNumber_t run() const override;
+        LuminosityBlockNumber_t lumi() const override;
+        EntryNumber_t entry() const override;
+        LuminosityBlockNumber_t peekAheadAtLumi() const override;
+        EntryNumber_t peekAheadAtEventEntry() const override;
+        bool skipLumiInRun() override;
 
       private:
 
-        virtual void initializeLumi_();
-        virtual bool nextEventRange();
-        virtual bool previousEventRange();
-        virtual bool setToLastEventInRange(int index);
-        virtual EntryType getRunOrLumiEntryType(int index) const;
-        virtual bool isSameLumi(int index1, int index2) const;
-        virtual bool isSameRun(int index1, int index2) const;
+        void initializeLumi_() override;
+        bool nextEventRange() override;
+        bool previousEventRange() override;
+        bool setToLastEventInRange(int index) override;
+        EntryType getRunOrLumiEntryType(int index) const override;
+        bool isSameLumi(int index1, int index2) const override;
+        bool isSameRun(int index1, int index2) const override;
       };
 
       //*****************************************************************************
@@ -624,24 +624,24 @@ namespace edm {
                                long long indexToEvent,
                                long long nEvents);
 
-        virtual IndexIntoFileItrImpl* clone() const;
-        virtual int processHistoryIDIndex() const;
-        virtual RunNumber_t run() const;
-        virtual LuminosityBlockNumber_t lumi() const;
-        virtual EntryNumber_t entry() const;
-        virtual LuminosityBlockNumber_t peekAheadAtLumi() const;
-        virtual EntryNumber_t peekAheadAtEventEntry() const;
-        virtual bool skipLumiInRun();
+        IndexIntoFileItrImpl* clone() const override;
+        int processHistoryIDIndex() const override;
+        RunNumber_t run() const override;
+        LuminosityBlockNumber_t lumi() const override;
+        EntryNumber_t entry() const override;
+        LuminosityBlockNumber_t peekAheadAtLumi() const override;
+        EntryNumber_t peekAheadAtEventEntry() const override;
+        bool skipLumiInRun() override;
 
       private:
 
-        virtual void initializeLumi_();
-        virtual bool nextEventRange();
-        virtual bool previousEventRange();
-        virtual bool setToLastEventInRange(int index);
-        virtual EntryType getRunOrLumiEntryType(int index) const;
-        virtual bool isSameLumi(int index1, int index2) const;
-        virtual bool isSameRun(int index1, int index2) const;
+        void initializeLumi_() override;
+        bool nextEventRange() override;
+        bool previousEventRange() override;
+        bool setToLastEventInRange(int index) override;
+        EntryType getRunOrLumiEntryType(int index) const override;
+        bool isSameLumi(int index1, int index2) const override;
+        bool isSameRun(int index1, int index2) const override;
       };
 
       //*****************************************************************************

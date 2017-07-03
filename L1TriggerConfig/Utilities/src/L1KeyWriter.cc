@@ -17,10 +17,10 @@
 
 class L1KeyWriter : public edm::EDAnalyzer {
 public:
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
     explicit L1KeyWriter(const edm::ParameterSet&) : edm::EDAnalyzer(){}
-    virtual ~L1KeyWriter(void){}
+    ~L1KeyWriter(void) override{}
 };
 
 void L1KeyWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup){

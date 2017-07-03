@@ -12,10 +12,10 @@ class MonH4TablePositionDat : public IDataItem {
  public:
   friend class EcalCondDBInterface;
   MonH4TablePositionDat();
-  ~MonH4TablePositionDat();
+  ~MonH4TablePositionDat() override;
 
   // User data methods
-  inline std::string getTable() { return "MON_H4_TABLE_POSITION_DAT"; }
+  inline std::string getTable() override { return "MON_H4_TABLE_POSITION_DAT"; }
 
   inline void setTableX(float x) { m_tableX = x; }
   inline float getTableX() const { return m_tableX; }
@@ -25,7 +25,7 @@ class MonH4TablePositionDat : public IDataItem {
 
  private:
   void prepareWrite() 
-    noexcept(false);
+    noexcept(false) override;
 
   void writeDB(const EcalLogicID* ecid, const MonH4TablePositionDat* item, MonRunIOV* iov )
     noexcept(false);

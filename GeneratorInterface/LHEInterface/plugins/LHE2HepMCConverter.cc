@@ -45,7 +45,7 @@
 class LHE2HepMCConverter : public edm::EDProducer {
    public:
       explicit LHE2HepMCConverter(const edm::ParameterSet&);
-      ~LHE2HepMCConverter();
+      ~LHE2HepMCConverter() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -55,8 +55,8 @@ class LHE2HepMCConverter : public edm::EDProducer {
 
    private:
 
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void beginRun(edm::Run const&, edm::EventSetup const&) override;
 
       // ----------member data ---------------------------
       edm::InputTag _lheEventSrcTag;

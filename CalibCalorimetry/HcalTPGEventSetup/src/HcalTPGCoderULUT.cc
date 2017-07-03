@@ -40,7 +40,7 @@
 class HcalTPGCoderULUT : public edm::ESProducer {
 public:
   HcalTPGCoderULUT(const edm::ParameterSet&);
-  ~HcalTPGCoderULUT();
+  ~HcalTPGCoderULUT() override;
      
   typedef std::shared_ptr<HcalTPGCoder> ReturnType;
   void dbRecordCallback(const HcalDbRecord&);

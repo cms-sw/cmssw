@@ -164,9 +164,9 @@ class BPHRecoBuilder {
    public:
     BPHSpecificCollection( const T& c, const std::string& list ):
                            BPHGenericCollection( list ), cPtr( &c ) {}
-    virtual ~BPHSpecificCollection() {}
-    virtual const reco::Candidate& get( int i ) const { return (*cPtr)[i]; }
-    virtual int size() const { return cPtr->size(); }
+    ~BPHSpecificCollection() override {}
+    const reco::Candidate& get( int i ) const override { return (*cPtr)[i]; }
+    int size() const override { return cPtr->size(); }
    private:
     const T* cPtr;
   };

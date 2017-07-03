@@ -19,7 +19,7 @@
 class TestBackgroundHandler : public CppUnit::TestFixture {
 public:
   TestBackgroundHandler() {}
-  void setUp()
+  void setUp() override
   {
     fill_n(back_inserter(identifiers), 3, 2);
     // fill_n(back_inserter(leftWindowFactors), 3, 2);
@@ -42,7 +42,7 @@ public:
     backgroundHandler_ = new BackgroundHandler(identifiers, leftWindowBorders, rightWindowBorders,
                                                ResMass, massWindowHalfWidth);
   }
-  void tearDown()
+  void tearDown() override
   {
     delete backgroundHandler_;
   }

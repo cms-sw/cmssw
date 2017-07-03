@@ -39,7 +39,7 @@ namespace hcaldqm
 					std::vector<uint32_t> const&);
 				//	copy constructor
 				HashFilter(HashFilter const& hf);
-				virtual ~HashFilter() {}
+				~HashFilter() override {}
 				virtual void initialize(FilterType ftype, HashType htype,
 					std::vector<uint32_t> const&);
 				using HashMapper::initialize;

@@ -40,7 +40,7 @@ class SUSY_HLT_VBF_Mu: public DQMEDAnalyzer{
     
 public:
     SUSY_HLT_VBF_Mu(const edm::ParameterSet& ps);
-    virtual ~SUSY_HLT_VBF_Mu();
+    ~SUSY_HLT_VBF_Mu() override;
     
 protected:
     void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;

@@ -19,9 +19,9 @@
 class PFEGammaToCandidateRemapper : public edm::global::EDProducer<> {
     public:
         explicit PFEGammaToCandidateRemapper(const edm::ParameterSet & iConfig);
-        virtual ~PFEGammaToCandidateRemapper() { }
+        ~PFEGammaToCandidateRemapper() override { }
 
-        virtual void produce(edm::StreamID iID, edm::Event & iEvent, const edm::EventSetup & iSetup) const override;
+        void produce(edm::StreamID iID, edm::Event & iEvent, const edm::EventSetup & iSetup) const override;
 
     private:
         edm::EDGetTokenT<std::vector<reco::Photon>> photons_;

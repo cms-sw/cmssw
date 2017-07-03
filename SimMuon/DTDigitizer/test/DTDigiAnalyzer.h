@@ -31,9 +31,9 @@ class DTDigiAnalyzer : public edm::EDAnalyzer{
   
  public:
   explicit DTDigiAnalyzer(const edm::ParameterSet& pset);
-  virtual ~DTDigiAnalyzer();
-  void endJob();
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
+  ~DTDigiAnalyzer() override;
+  void endJob() override;
+  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
   hDigis* WheelHistos(int wheel);
   
  private:

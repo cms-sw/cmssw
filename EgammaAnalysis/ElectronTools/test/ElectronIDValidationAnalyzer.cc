@@ -60,7 +60,7 @@
 class ElectronIDValidationAnalyzer : public edm::stream::EDAnalyzer<> {
    public:
       explicit ElectronIDValidationAnalyzer(const edm::ParameterSet&);
-      ~ElectronIDValidationAnalyzer();
+      ~ElectronIDValidationAnalyzer() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -70,7 +70,7 @@ class ElectronIDValidationAnalyzer : public edm::stream::EDAnalyzer<> {
 			  TRUE_NON_PROMPT_ELECTRON}; // The last does not include tau parents
 
    private:
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
   
       int matchToTruth(const reco::GsfElectron &el, const edm::Handle<edm::View<reco::GenParticle>>  &genParticles);
       void findFirstNonElectronMother(const reco::Candidate *particle, int &ancestorPID, int &ancestorStatus);

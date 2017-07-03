@@ -55,9 +55,9 @@
 class PrimaryVertexProducer : public edm::stream::EDProducer<> {
 public:
   explicit PrimaryVertexProducer(const edm::ParameterSet&);
-  ~PrimaryVertexProducer();
+  ~PrimaryVertexProducer() override;
   
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   // access to config
   edm::ParameterSet config() const { return theConfig; }

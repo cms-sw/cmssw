@@ -51,7 +51,7 @@ public:
     L1GtEnergySumTemplate(const L1GtEnergySumTemplate&);
 
     // destructor
-    virtual ~L1GtEnergySumTemplate();
+    ~L1GtEnergySumTemplate() override;
 
     // assign operator
     L1GtEnergySumTemplate& operator=(const L1GtEnergySumTemplate&);
@@ -85,7 +85,7 @@ public:
     void setConditionParameter(const std::vector<ObjectParameter>&);
 
     /// print the condition
-    virtual void print(std::ostream& myCout) const;
+    void print(std::ostream& myCout) const override;
 
     /// output stream operator
     friend std::ostream& operator<<(std::ostream&, const L1GtEnergySumTemplate&);

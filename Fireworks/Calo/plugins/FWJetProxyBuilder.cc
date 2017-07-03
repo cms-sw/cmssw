@@ -49,13 +49,13 @@ class FWJetProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Jet>
 {
 public:
    FWJetProxyBuilder();
-   virtual ~FWJetProxyBuilder();
+   ~FWJetProxyBuilder() override;
 
-   virtual bool havePerViewProduct(FWViewType::EType) const { return true; }
-   virtual bool haveSingleProduct() const { return false; } // different view types
-   virtual void cleanLocal();
+   bool havePerViewProduct(FWViewType::EType) const override { return true; }
+   bool haveSingleProduct() const override { return false; } // different view types
+   void cleanLocal() override;
 
-   virtual void setItem(const FWEventItem* iItem)
+   void setItem(const FWEventItem* iItem) override
    {
       FWProxyBuilderBase::setItem(iItem);
       if (iItem) {
@@ -70,13 +70,13 @@ public:
    
 protected:
    using FWSimpleProxyBuilderTemplate<reco::Jet>::buildViewType;
-   virtual void buildViewType(const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext*);
+   void buildViewType(const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext*) override;
 
 
-   virtual void localModelChanges(const FWModelId& iId, TEveElement* iCompound,
-                                  FWViewType::EType viewType, const FWViewContext* vc);
+   void localModelChanges(const FWModelId& iId, TEveElement* iCompound,
+                                  FWViewType::EType viewType, const FWViewContext* vc) override;
 
-   virtual void scaleProduct(TEveElementList* parent, FWViewType::EType, const FWViewContext* vc);
+   void scaleProduct(TEveElementList* parent, FWViewType::EType, const FWViewContext* vc) override;
 
 private:
    typedef std::vector<fireworks::jetScaleMarker> Lines_t;  

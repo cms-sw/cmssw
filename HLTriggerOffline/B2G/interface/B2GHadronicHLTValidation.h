@@ -48,13 +48,13 @@
 class B2GHadronicHLTValidation : public DQMEDAnalyzer {
    public:
       explicit B2GHadronicHLTValidation(const edm::ParameterSet&);
-      ~B2GHadronicHLTValidation();
+      ~B2GHadronicHLTValidation() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 
    private:
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
       void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
       /// deduce monitorPath from label, the label is expected
       /// to be of type 'selectionPath:monitorPath'

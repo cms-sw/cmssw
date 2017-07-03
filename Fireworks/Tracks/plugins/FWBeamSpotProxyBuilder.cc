@@ -16,7 +16,7 @@ class FWBeamSpotProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::BeamSpo
 {
 public:
   FWBeamSpotProxyBuilder( void ) {}
-  virtual ~FWBeamSpotProxyBuilder( void ) {}
+  ~FWBeamSpotProxyBuilder( void ) override {}
    
   REGISTER_PROXYBUILDER_METHODS();
 
@@ -25,10 +25,10 @@ private:
   FWBeamSpotProxyBuilder( const FWBeamSpotProxyBuilder& );
   // Disable default assignment operator
   const FWBeamSpotProxyBuilder& operator=( const FWBeamSpotProxyBuilder& );
-  virtual void localModelChanges(const FWModelId& iId, TEveElement* parent, FWViewType::EType viewType, const FWViewContext* vc) override;
+  void localModelChanges(const FWModelId& iId, TEveElement* parent, FWViewType::EType viewType, const FWViewContext* vc) override;
 
   using FWSimpleProxyBuilderTemplate<reco::BeamSpot>::build;
-  virtual void build( const reco::BeamSpot& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;
+  void build( const reco::BeamSpot& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;
 };
 
 void FWBeamSpotProxyBuilder::localModelChanges(const FWModelId& iId, TEveElement* parent, FWViewType::EType viewType, const FWViewContext* vc)

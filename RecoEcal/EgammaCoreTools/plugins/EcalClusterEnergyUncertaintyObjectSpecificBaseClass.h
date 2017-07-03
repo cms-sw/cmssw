@@ -28,7 +28,7 @@ class EcalClusterEnergyUncertaintyObjectSpecificBaseClass : public EcalClusterFu
         public:
                 EcalClusterEnergyUncertaintyObjectSpecificBaseClass();
                 EcalClusterEnergyUncertaintyObjectSpecificBaseClass( const edm::ParameterSet & ) {};
-                virtual ~EcalClusterEnergyUncertaintyObjectSpecificBaseClass();
+                ~EcalClusterEnergyUncertaintyObjectSpecificBaseClass() override;
 
                 // get/set explicit methods for parameters
                 //const EcalClusterEnergyUncertaintyParameters * getParameters() const { return params_; }
@@ -36,12 +36,12 @@ class EcalClusterEnergyUncertaintyObjectSpecificBaseClass : public EcalClusterFu
                 void checkInit() const;
                 
                 // compute the correction
-                virtual float getValue( const reco::BasicCluster &, const EcalRecHitCollection & ) const = 0;
-                virtual float getValue( const reco::SuperCluster &, const int mode ) const = 0;
+                float getValue( const reco::BasicCluster &, const EcalRecHitCollection & ) const override = 0;
+                float getValue( const reco::SuperCluster &, const int mode ) const override = 0;
 
 
                 // set parameters
-                virtual void init( const edm::EventSetup& es );
+                void init( const edm::EventSetup& es ) override;
 
         protected:
                 //edm::ESHandle<EcalClusterEnergyUncertaintyObjectSpecificParameters> esParams_;

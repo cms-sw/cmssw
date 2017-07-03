@@ -29,12 +29,12 @@ class MuonSeedProducer: public edm::stream::EDProducer<> {
   MuonSeedProducer(const edm::ParameterSet&);
   
   /// Destructor
-  virtual ~MuonSeedProducer();
+  ~MuonSeedProducer() override;
   
   // Operations
 
   /// Get event properties to send to builder to fill seed collection
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:
 

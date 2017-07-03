@@ -67,12 +67,12 @@ class PtSorter {
 class JetMETHLTOfflineSource : public DQMEDAnalyzer {
  public:
   explicit JetMETHLTOfflineSource(const edm::ParameterSet&);
-  ~JetMETHLTOfflineSource();
+  ~JetMETHLTOfflineSource() override;
 
  private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const & run, edm::EventSetup const & c) override;
-  virtual void dqmBeginRun(edm::Run const& run, edm::EventSetup const& c) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const & run, edm::EventSetup const & c) override;
+  void dqmBeginRun(edm::Run const& run, edm::EventSetup const& c) override;
 
   //helper functions
   virtual bool   isBarrel(double eta);

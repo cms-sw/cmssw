@@ -10,7 +10,7 @@
 class EcalDQMonitorClient : public DQMEDHarvester, public ecaldqm::EcalDQMonitor {
  public:
   EcalDQMonitorClient(edm::ParameterSet const&);
-  ~EcalDQMonitorClient();
+  ~EcalDQMonitorClient() override;
   
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 

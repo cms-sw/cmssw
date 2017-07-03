@@ -32,7 +32,7 @@
 class EcalRegionCablingESProducer : public edm::ESProducer {
 public:
       EcalRegionCablingESProducer(const edm::ParameterSet&);
-  ~EcalRegionCablingESProducer();
+  ~EcalRegionCablingESProducer() override;
 
   typedef std::shared_ptr<EcalRegionCabling> ReturnType;
 

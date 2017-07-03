@@ -48,13 +48,13 @@
 class TestPythiaDecays : public edm::stream::EDAnalyzer <> {
 public:
   explicit TestPythiaDecays(const edm::ParameterSet&);
-  ~TestPythiaDecays();
+  ~TestPythiaDecays() override;
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
   
 private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   
   //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
   //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;

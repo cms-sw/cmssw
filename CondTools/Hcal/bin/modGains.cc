@@ -22,7 +22,7 @@ class modGains : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 
 public:
   explicit modGains(const edm::ParameterSet&);
-  ~modGains();
+  ~modGains() override;
 
 private:
   void beginRun(edm::Run const& iEvent, edm::EventSetup const&) override {}

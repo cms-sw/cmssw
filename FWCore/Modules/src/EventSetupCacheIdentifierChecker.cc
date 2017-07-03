@@ -44,19 +44,19 @@ namespace edm {
   class EventSetupCacheIdentifierChecker : public edm::EDAnalyzer {
    public:
     explicit EventSetupCacheIdentifierChecker(const edm::ParameterSet&);
-    ~EventSetupCacheIdentifierChecker();
+    ~EventSetupCacheIdentifierChecker() override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 
    private:
     //virtual void beginJob() ;
-    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
     //virtual void endJob() ;
 
-    virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+    void beginRun(edm::Run const&, edm::EventSetup const&) override;
     //virtual void endRun(edm::Run const&, edm::EventSetup const&);
-    virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+    void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
     //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 
     void check(edm::EventSetup const&);

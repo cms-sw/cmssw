@@ -14,7 +14,7 @@ namespace ecaldqm {
   class LedTask : public DQWorkerTask {
   public:
     LedTask();
-    ~LedTask() {}
+    ~LedTask() override {}
 
     void addDependencies(DependencySet&) override;
 

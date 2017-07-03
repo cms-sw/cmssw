@@ -58,10 +58,10 @@
 class TrackExtrapolator : public edm::stream::EDProducer<> {
    public:
       explicit TrackExtrapolator(const edm::ParameterSet&);
-      ~TrackExtrapolator();
+      ~TrackExtrapolator() override;
 
    private:
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
 
       
       // ----------member data ---------------------------

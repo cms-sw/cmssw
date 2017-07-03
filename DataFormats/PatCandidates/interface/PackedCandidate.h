@@ -262,32 +262,32 @@ namespace pat {
     }
 
     /// destructor
-    virtual ~PackedCandidate();
+    ~PackedCandidate() override;
     /// number of daughters
-    virtual size_t numberOfDaughters() const;
+    size_t numberOfDaughters() const override;
     /// return daughter at a given position (throws an exception)
-    virtual const reco::Candidate * daughter( size_type ) const;
+    const reco::Candidate * daughter( size_type ) const override;
     /// number of mothers
-    virtual size_t numberOfMothers() const;
+    size_t numberOfMothers() const override;
     /// return mother at a given position (throws an exception)
-    virtual const reco::Candidate * mother( size_type ) const;
+    const reco::Candidate * mother( size_type ) const override;
     /// return daughter at a given position (throws an exception)
-    virtual reco::Candidate * daughter( size_type );
+    reco::Candidate * daughter( size_type ) override;
     /// return daughter with a specified role name
-    virtual reco::Candidate * daughter(const std::string& s );
+    reco::Candidate * daughter(const std::string& s ) override;
     /// return daughter with a specified role name                                        
-    virtual const reco::Candidate * daughter(const std::string& s ) const;
+    const reco::Candidate * daughter(const std::string& s ) const override;
     /// return the number of source Candidates                                            
     /// ( the candidates used to construct this Candidate)                                
-    virtual size_t numberOfSourceCandidatePtrs() const {return 0;}
+    size_t numberOfSourceCandidatePtrs() const override {return 0;}
     /// return a Ptr to one of the source Candidates                                      
     /// ( the candidates used to construct this Candidate)                                
-    virtual reco::CandidatePtr sourceCandidatePtr( size_type i ) const {
+    reco::CandidatePtr sourceCandidatePtr( size_type i ) const override {
       return reco::CandidatePtr();
     }
 
     /// electric charge
-    virtual int charge() const {
+    int charge() const override {
       switch (abs(pdgId_)) {
       case 211: return (pdgId_>0)-(pdgId_<0);
       case 11:  return (-1)*(pdgId_>0)+(pdgId_<0); //e
@@ -298,47 +298,47 @@ namespace pat {
       }
     }
     /// set electric charge                                                               
-    virtual void setCharge( int charge) {}
+    void setCharge( int charge) override {}
     /// electric charge                                                                   
-    virtual int threeCharge() const {return charge()*3;}
+    int threeCharge() const override {return charge()*3;}
     /// set electric charge                                                               
-    virtual void setThreeCharge( int threecharge) {}
+    void setThreeCharge( int threecharge) override {}
     /// four-momentum Lorentz vecto r                                                      
-    virtual const LorentzVector & p4() const { if (!p4c_) unpack(); return *p4c_; }  
+    const LorentzVector & p4() const override { if (!p4c_) unpack(); return *p4c_; }  
     /// four-momentum Lorentz vector                                                      
-    virtual const PolarLorentzVector & polarP4() const { if (!p4c_) unpack(); return *p4_; }
+    const PolarLorentzVector & polarP4() const override { if (!p4c_) unpack(); return *p4_; }
     /// spatial momentum vector                                                           
-    virtual Vector momentum() const  { if (!p4c_) unpack(); return p4c_.load()->Vect(); }
+    Vector momentum() const override  { if (!p4c_) unpack(); return p4c_.load()->Vect(); }
     /// boost vector to boost a Lorentz vector                                            
     /// to the particle center of mass system                                             
-    virtual Vector boostToCM() const { if (!p4c_) unpack(); return p4c_.load()->BoostToCM(); }
+    Vector boostToCM() const override { if (!p4c_) unpack(); return p4c_.load()->BoostToCM(); }
     /// magnitude of momentum vector                                                      
-    virtual double p() const { if (!p4c_) unpack(); return p4c_.load()->P(); }
+    double p() const override { if (!p4c_) unpack(); return p4c_.load()->P(); }
     /// energy                                                                            
-    virtual double energy() const { if (!p4c_) unpack(); return p4c_.load()->E(); }
+    double energy() const override { if (!p4c_) unpack(); return p4c_.load()->E(); }
    /// transverse energy 
-    double et() const { return (pt()<=0) ? 0 : p4c_.load()->Et(); }  
+    double et() const override { return (pt()<=0) ? 0 : p4c_.load()->Et(); }  
     /// transverse energy squared (use this for cuts)!
-    double et2() const { return (pt()<=0) ? 0 : p4c_.load()->Et2(); }   
+    double et2() const override { return (pt()<=0) ? 0 : p4c_.load()->Et2(); }   
     /// mass                                                                              
-    virtual double mass() const { if (!p4c_) unpack(); return p4_.load()->M(); }
+    double mass() const override { if (!p4c_) unpack(); return p4_.load()->M(); }
     /// mass squared                                                                      
-    virtual double massSqr() const { if (!p4c_) unpack(); auto m = p4_.load()->M(); return m*m;}
+    double massSqr() const override { if (!p4c_) unpack(); auto m = p4_.load()->M(); return m*m;}
 
     /// transverse mass                                                                   
-    virtual double mt() const { if (!p4c_) unpack(); return p4_.load()->Mt(); }
+    double mt() const override { if (!p4c_) unpack(); return p4_.load()->Mt(); }
     /// transverse mass squared                                                           
-    virtual double mtSqr() const { if (!p4c_) unpack(); return p4_.load()->Mt2(); }
+    double mtSqr() const override { if (!p4c_) unpack(); return p4_.load()->Mt2(); }
     /// x coordinate of momentum vector                                                   
-    virtual double px() const { if (!p4c_) unpack(); return p4c_.load()->Px(); }
+    double px() const override { if (!p4c_) unpack(); return p4c_.load()->Px(); }
     /// y coordinate of momentum vector                                                   
-    virtual double py() const { if (!p4c_) unpack(); return p4c_.load()->Py(); }
+    double py() const override { if (!p4c_) unpack(); return p4c_.load()->Py(); }
     /// z coordinate of momentum vector                                                   
-    virtual double pz() const { if (!p4c_) unpack(); return p4c_.load()->Pz(); }
+    double pz() const override { if (!p4c_) unpack(); return p4c_.load()->Pz(); }
     /// transverse momentum                                                               
-    virtual double pt() const { if (!p4c_) unpack(); return p4_.load()->Pt();}
+    double pt() const override { if (!p4c_) unpack(); return p4_.load()->Pt();}
     /// momentum azimuthal angle                                                          
-    virtual double phi() const { if (!p4c_) unpack(); return p4_.load()->Phi(); }
+    double phi() const override { if (!p4c_) unpack(); return p4_.load()->Phi(); }
    
     /// pt from the track (normally identical to pt())
     virtual double ptTrk() const {
@@ -360,32 +360,32 @@ namespace pat {
     }
     
     /// momentum polar angle                                                              
-    virtual double theta() const { if (!p4c_) unpack(); return p4_.load()->Theta(); }
+    double theta() const override { if (!p4c_) unpack(); return p4_.load()->Theta(); }
     /// momentum pseudorapidity                                                           
-    virtual double eta() const { if (!p4c_) unpack(); return p4_.load()->Eta(); }
+    double eta() const override { if (!p4c_) unpack(); return p4_.load()->Eta(); }
     /// rapidity                                                                          
-    virtual double rapidity() const { if (!p4c_) unpack(); return p4_.load()->Rapidity(); }
+    double rapidity() const override { if (!p4c_) unpack(); return p4_.load()->Rapidity(); }
     /// rapidity                                                                          
-    virtual double y() const { if (!p4c_) unpack(); return p4_.load()->Rapidity(); }
+    double y() const override { if (!p4c_) unpack(); return p4_.load()->Rapidity(); }
     /// set 4-momentum                                                                    
-    virtual void setP4( const LorentzVector & p4 ) { 
+    void setP4( const LorentzVector & p4 ) override { 
         maybeUnpackBoth(); // changing px,py,pz changes also mapping between dxy,dz and x,y,z
         *p4_ = PolarLorentzVector(p4.Pt(), p4.Eta(), p4.Phi(), p4.M());
         packBoth();
     }
     /// set 4-momentum                                                                    
-    virtual void setP4( const PolarLorentzVector & p4 ) { 
+    void setP4( const PolarLorentzVector & p4 ) override { 
         maybeUnpackBoth(); // changing px,py,pz changes also mapping between dxy,dz and x,y,z
         *p4_ = p4; 
         packBoth();
     }
     /// set particle mass                                                                 
-    virtual void setMass( double m ) {
+    void setMass( double m ) override {
       if (!p4c_) unpack(); 
       *p4_ = PolarLorentzVector(p4_.load()->Pt(), p4_.load()->Eta(), p4_.load()->Phi(), m); 
       pack();
     }
-    virtual void setPz( double pz ) {
+    void setPz( double pz ) override {
       maybeUnpackBoth(); // changing px,py,pz changes also mapping between dxy,dz and x,y,z
       *p4c_ = LorentzVector(p4c_.load()->Px(), p4c_.load()->Py(), pz, p4c_.load()->E());
       *p4_  = PolarLorentzVector(p4c_.load()->Pt(), p4c_.load()->Eta(), p4c_.load()->Phi(), p4c_.load()->M());
@@ -441,15 +441,15 @@ namespace pat {
 
 	
     /// vertex position
-    virtual const Point & vertex() const { maybeUnpackBoth(); return *vertex_; }//{ if (fromPV_) return Point(0,0,0); else return Point(0,0,100); }
+    const Point & vertex() const override { maybeUnpackBoth(); return *vertex_; }//{ if (fromPV_) return Point(0,0,0); else return Point(0,0,100); }
     /// x coordinate of vertex position                                                   
-    virtual double vx() const  { maybeUnpackBoth(); return vertex_.load()->X(); }//{ return 0; }
+    double vx() const override  { maybeUnpackBoth(); return vertex_.load()->X(); }//{ return 0; }
     /// y coordinate of vertex position                                                   
-    virtual double vy() const  { maybeUnpackBoth(); return vertex_.load()->Y(); }//{ return 0; }
+    double vy() const override  { maybeUnpackBoth(); return vertex_.load()->Y(); }//{ return 0; }
     /// z coordinate of vertex position                                                   
-    virtual double vz() const  { maybeUnpackBoth(); return vertex_.load()->Z(); }//{ if (fromPV_) return 0; else return 100; }
+    double vz() const override  { maybeUnpackBoth(); return vertex_.load()->Z(); }//{ if (fromPV_) return 0; else return 100; }
     /// set vertex                                                                        
-    virtual void setVertex( const Point & vertex ) { maybeUnpackBoth(); *vertex_ = vertex; packVtx(); }
+    void setVertex( const Point & vertex ) override { maybeUnpackBoth(); *vertex_ = vertex; packVtx(); }
 
     ///This refers to the association to PV=ipv. >=PVLoose corresponds to JME definition, >=PVTight to isolation definition
     enum PVAssoc { NoPV=0, PVLoose=1, PVTight=2, PVUsedInFit=3 } ;
@@ -482,16 +482,16 @@ namespace pat {
     virtual float dz(const Point &p)  const ;
 
     /// uncertainty on dz 
-    virtual float dzError() const { maybeUnpackCovariance(); return sqrt((*m_.load())(4,4)); }
+    float dzError() const override { maybeUnpackCovariance(); return sqrt((*m_.load())(4,4)); }
     /// uncertainty on dxy
-    virtual float dxyError() const { maybeUnpackCovariance(); return sqrt((*m_.load())(3,3)); }
+    float dxyError() const override { maybeUnpackCovariance(); return sqrt((*m_.load())(3,3)); }
 
 
     /// Return reference to a pseudo track made with candidate kinematics, parameterized error for eta,phi,pt and full IP covariance	
     virtual const reco::Track & pseudoTrack() const { if (!track_) unpackTrk(); return *track_; }
 
     /// return a pointer to the track if present. otherwise, return a null pointer
-    virtual const reco::Track * bestTrack() const {
+    const reco::Track * bestTrack() const override {
       if (packedHits_!=0 || packedLayers_ !=0) {
         maybeUnpackTrack();
         return track_.load();
@@ -530,75 +530,75 @@ namespace pat {
     }
 
     /// PDG identifier                                                                    
-    virtual int pdgId() const   { return pdgId_; }
+    int pdgId() const override   { return pdgId_; }
     // set PDG identifier                                                                 
-    virtual void setPdgId( int pdgId )   { pdgId_ = pdgId; }
+    void setPdgId( int pdgId ) override   { pdgId_ = pdgId; }
     /// status word                                                                       
-    virtual int status() const   { return qualityFlags_; } /*FIXME*/
+    int status() const override   { return qualityFlags_; } /*FIXME*/
     /// set status word                                                                   
-    virtual void setStatus( int status ) {} /*FIXME*/
+    void setStatus( int status ) override {} /*FIXME*/
     /// long lived flag                                                                   
     static const unsigned int longLivedTag = 0; /*FIXME*/
     /// set long lived flag                                                               
-    virtual void setLongLived() {} /*FIXME*/
+    void setLongLived() override {} /*FIXME*/
     /// is long lived?                                                                    
-    virtual bool longLived() const;
+    bool longLived() const override;
     /// do mass constraint flag
     static const unsigned int massConstraintTag = 0; /*FIXME*/ 
     /// set mass constraint flag
-    virtual void setMassConstraint() {} /*FIXME*/
+    void setMassConstraint() override {} /*FIXME*/
     /// do mass constraint?
-    virtual bool massConstraint() const;
+    bool massConstraint() const override;
 
     /// returns a clone of the Candidate object                                           
-    virtual PackedCandidate * clone() const  {
+    PackedCandidate * clone() const override  {
       return new PackedCandidate( *this );
     }
 
     /// chi-squares                                                                                                    
-    virtual double vertexChi2() const;
+    double vertexChi2() const override;
     /** Number of degrees of freedom                                                                                   
      *  Meant to be Double32_t for soft-assignment fitters:                                                            
      *  tracks may contribute to the vertex with fractional weights.                                                   
      *  The ndof is then = to the sum of the track weights.                                                            
      *  see e.g. CMS NOTE-2006/032, CMS NOTE-2004/002                                                                  
      */
-    virtual double vertexNdof() const;
+    double vertexNdof() const override;
     /// chi-squared divided by n.d.o.f.                                                                                
-    virtual double vertexNormalizedChi2() const;
+    double vertexNormalizedChi2() const override;
     /// (i, j)-th element of error matrix, i, j = 0, ... 2                                                             
-    virtual double vertexCovariance(int i, int j) const;
+    double vertexCovariance(int i, int j) const override;
     /// return SMatrix                                                                                                 
-    CovarianceMatrix vertexCovariance() const   { CovarianceMatrix m; fillVertexCovariance(m); return m; }
+    CovarianceMatrix vertexCovariance() const override   { CovarianceMatrix m; fillVertexCovariance(m); return m; }
     /// fill SMatrix                                                                                                   
-    virtual void fillVertexCovariance(CovarianceMatrix & v) const;
+    void fillVertexCovariance(CovarianceMatrix & v) const override;
     /// returns true if this candidate has a reference to a master clone.                                              
     /// This only happens if the concrete Candidate type is ShallowCloneCandidate                                      
-    virtual bool hasMasterClone() const;
+    bool hasMasterClone() const override;
     /// returns ptr to master clone, if existing.                                                                      
     /// Throws an exception unless the concrete Candidate type is ShallowCloneCandidate                                
-    virtual const reco::CandidateBaseRef & masterClone() const;
+    const reco::CandidateBaseRef & masterClone() const override;
     /// returns true if this candidate has a ptr to a master clone.                                                    
     /// This only happens if the concrete Candidate type is ShallowClonePtrCandidate                                   
-    virtual bool hasMasterClonePtr() const;
+    bool hasMasterClonePtr() const override;
     /// returns ptr to master clone, if existing.                                                                      
     /// Throws an exception unless the concrete Candidate type is ShallowClonePtrCandidate                             
 
-    virtual const reco::CandidatePtr & masterClonePtr() const;
+    const reco::CandidatePtr & masterClonePtr() const override;
 
     /// cast master clone reference to a concrete type
     template<typename Ref>
       Ref masterRef() const { return masterClone().template castTo<Ref>(); }
 
-    virtual bool isElectron() const { return false; }
-    virtual bool isMuon() const { return false; }
-    virtual bool isStandAloneMuon() const { return ((qualityFlags_ & muonFlagsMask) >> muonFlagsShift) & 1; }
-    virtual bool isGlobalMuon() const { return ((qualityFlags_ & muonFlagsMask) >> muonFlagsShift) & 2; }
-    virtual bool isTrackerMuon() const { return false; }
-    virtual bool isCaloMuon() const { return false; }
-    virtual bool isPhoton() const { return false; }
-    virtual bool isConvertedPhoton() const { return false; }
-    virtual bool isJet() const { return false; }
+    bool isElectron() const override { return false; }
+    bool isMuon() const override { return false; }
+    bool isStandAloneMuon() const override { return ((qualityFlags_ & muonFlagsMask) >> muonFlagsShift) & 1; }
+    bool isGlobalMuon() const override { return ((qualityFlags_ & muonFlagsMask) >> muonFlagsShift) & 2; }
+    bool isTrackerMuon() const override { return false; }
+    bool isCaloMuon() const override { return false; }
+    bool isPhoton() const override { return false; }
+    bool isConvertedPhoton() const override { return false; }
+    bool isJet() const override { return false; }
 
     // puppiweights
     void setPuppiWeight(float p, float p_nolep = 0.0);  /// Set both weights at once (with option for only full PUPPI)
@@ -704,7 +704,7 @@ namespace pat {
     }
 
     /// check overlap with another Candidate                                              
-    virtual bool overlap( const reco::Candidate & ) const;
+    bool overlap( const reco::Candidate & ) const override;
     template<typename, typename, typename> friend struct component;
     friend class ::OverlapChecker;
     friend class ShallowCloneCandidate;

@@ -44,7 +44,7 @@ public:
   RBCProcessRPCSimDigis( const edm::ESHandle<RPCGeometry> &, 
                          const edm::Handle<edm::DetSetVector<RPCDigiSimLink> > & );
   
-  int  next();
+  int  next() override;
   
   void reset();
   
@@ -56,14 +56,14 @@ public:
   
   void print_output();
   
-  RPCInputSignal * retrievedata() {
+  RPCInputSignal * retrievedata() override {
     return  m_lbin;
   };
   
   void rewind() {};
   void showfirst() {};
   
-  virtual ~RBCProcessRPCSimDigis( ); ///< Destructor
+  ~RBCProcessRPCSimDigis( ) override; ///< Destructor
   
 protected:
   

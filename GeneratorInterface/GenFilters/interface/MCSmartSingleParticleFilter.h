@@ -42,10 +42,10 @@ namespace HepMC {
 class MCSmartSingleParticleFilter : public edm::EDFilter {
    public:
       explicit MCSmartSingleParticleFilter(const edm::ParameterSet&);
-      ~MCSmartSingleParticleFilter();
+      ~MCSmartSingleParticleFilter() override;
 
 
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      bool filter(edm::Event&, const edm::EventSetup&) override;
    private:
       // ----------memeber function----------------------
        HepMC::FourVector zboost(const HepMC::FourVector&);

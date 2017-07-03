@@ -16,14 +16,14 @@ public:
   // Constructor/Destructor
   //
   HelixPropagationTestGenerator(const MagneticField* field);
-  ~HelixPropagationTestGenerator() {}
+  ~HelixPropagationTestGenerator() override {}
 
   /// Range of charges for helix generation (+/-1)
   void setRangeCharge(const float, const float);
   /// Range of azimuthal angles for helix generation
   void setRangePt(const float, const float);
   /// Generates a new helix.
-  virtual void generateStartValues ();
+  void generateStartValues () override;
   /// Returns position of center (z acc. to starting point).
   GlobalPoint center() const;
 
@@ -31,17 +31,17 @@ public:
    * momentum vector. */
   void setStart(const GlobalPoint&, const GlobalVector&);
   /// Sets start values to current position / momentum
-  virtual void setStartToCurrent();
+  void setStartToCurrent() override;
   /** Sets start values to current position / 
    * inverted momentum vector / inverted charge */
-  virtual void setStartOppositeToCurrent();
+  void setStartOppositeToCurrent() override;
 
 private:
   /** Step in forward or backward direction by 
    *  pathlength = argument. 
    *  Return value = step size.
    */
-  virtual ExtendedDouble bidirectionalStep (const ExtendedDouble);
+  ExtendedDouble bidirectionalStep (const ExtendedDouble) override;
 
 private:
   float qMin;

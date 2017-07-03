@@ -35,12 +35,12 @@ class HarvestingDataCertification : public edm::EDAnalyzer
  public:
 
   explicit HarvestingDataCertification(const edm::ParameterSet&);
-  virtual ~HarvestingDataCertification();
-  virtual void beginJob();
-  virtual void endJob();  
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-  virtual void endRun(const edm::Run&, const edm::EventSetup&);
+  ~HarvestingDataCertification() override;
+  void beginJob() override;
+  void endJob() override;  
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override;
 
   
 private:

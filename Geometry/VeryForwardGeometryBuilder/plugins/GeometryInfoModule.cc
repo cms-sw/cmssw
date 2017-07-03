@@ -31,7 +31,7 @@ class GeometryInfoModule : public edm::one::EDAnalyzer<>
 {
   public:
     explicit GeometryInfoModule(const edm::ParameterSet&);
-    ~GeometryInfoModule();
+    ~GeometryInfoModule() override;
 
     struct MeanRPData
     {
@@ -70,8 +70,8 @@ class GeometryInfoModule : public edm::one::EDAnalyzer<>
     edm::ESWatcher<VeryForwardMisalignedGeometryRecord> watcherMisalignedGeometry;
 
     virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
-    virtual void endJob();
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
+    void endJob() override;
 
     void PrintGeometry(const TotemRPGeometry &, const edm::Event&);
 };

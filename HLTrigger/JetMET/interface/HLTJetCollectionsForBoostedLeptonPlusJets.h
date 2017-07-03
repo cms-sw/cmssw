@@ -40,11 +40,11 @@ namespace edm {
 template <typename jetType> class HLTJetCollectionsForBoostedLeptonPlusJets: public edm::stream::EDProducer<> {
   public:
     explicit HLTJetCollectionsForBoostedLeptonPlusJets(const edm::ParameterSet&);
-    ~HLTJetCollectionsForBoostedLeptonPlusJets();
+    ~HLTJetCollectionsForBoostedLeptonPlusJets() override;
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
   private:
-    virtual void produce(edm::Event&, const edm::EventSetup&);
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
     edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> m_theLeptonToken;
     edm::EDGetTokenT<std::vector<jetType>> m_theJetToken;

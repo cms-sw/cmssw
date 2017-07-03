@@ -20,13 +20,13 @@ public:
   explicit
     makeSignals( edm::ParameterSet const & ) { }
 
-  virtual
-    ~makeSignals() { }
+  
+    ~makeSignals() override { }
 
-  virtual
+  
     void analyze( edm::Event      const & e
                 , edm::EventSetup const & c
-                );
+                ) override;
 
 private:
 };

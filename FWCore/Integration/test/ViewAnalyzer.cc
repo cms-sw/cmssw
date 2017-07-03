@@ -30,7 +30,7 @@ namespace edmtest
   class ViewAnalyzer : public edm::global::EDAnalyzer<> {
   public:
     explicit ViewAnalyzer(edm::ParameterSet const& /* no parameters*/);
-    virtual void analyze(edm::StreamID,
+    void analyze(edm::StreamID,
                          edm::Event const& e,
                          edm::EventSetup const& /* unused */ ) const override;
 

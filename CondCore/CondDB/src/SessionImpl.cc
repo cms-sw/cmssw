@@ -15,17 +15,17 @@ namespace cond {
       CondDBTransaction( const std::shared_ptr<coral::ISessionProxy>& coralSession ):
 	m_session( coralSession ){
       }
-      virtual ~CondDBTransaction(){}
+      ~CondDBTransaction() override{}
      
-      void commit(){
+      void commit() override{
 	m_session->transaction().commit();
       }
       
-      void rollback(){
+      void rollback() override{
 	m_session->transaction().rollback();
       }
 
-      bool isActive(){
+      bool isActive() override{
 	return m_session->transaction().isActive();
       }
     private: 

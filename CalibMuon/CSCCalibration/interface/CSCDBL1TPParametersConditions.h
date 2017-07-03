@@ -20,7 +20,7 @@
 class CSCDBL1TPParametersConditions: public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
  public:
   CSCDBL1TPParametersConditions(const edm::ParameterSet&);
-  ~CSCDBL1TPParametersConditions();
+  ~CSCDBL1TPParametersConditions() override;
   
 
   inline static CSCDBL1TPParameters *  prefillCSCDBL1TPParameters();
@@ -31,7 +31,7 @@ class CSCDBL1TPParametersConditions: public edm::ESProducer, public edm::EventSe
   
  private:
   // ----------member data ---------------------------
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & );
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & ) override;
   CSCDBL1TPParameters *CSCl1TPParameters ;
 
 };

@@ -154,10 +154,10 @@ class TopProjector : public edm::stream::EDProducer<> {
 
   TopProjector(const edm::ParameterSet&);
 
-  ~TopProjector() {};
+  ~TopProjector() override {};
 
 
-  void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 
  private:

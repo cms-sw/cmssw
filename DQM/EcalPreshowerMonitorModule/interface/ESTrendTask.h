@@ -22,7 +22,7 @@ class ESTrendTask: public DQMEDAnalyzer{
   ESTrendTask(const edm::ParameterSet& ps);
 
   // Destructor
-  virtual ~ESTrendTask() {}
+  ~ESTrendTask() override {}
 
  protected:
 

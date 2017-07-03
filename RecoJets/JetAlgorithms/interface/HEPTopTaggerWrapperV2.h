@@ -83,13 +83,13 @@ public:
   {}
 
   /// returns a textual description of the tagger
-  virtual std::string description() const;
+  std::string description() const override;
 
   /// runs the tagger on the given jet and
   /// returns the tagged PseudoJet if successful, or a PseudoJet==0 otherwise
   /// (standard access is through operator()).
   ///  \param jet   the PseudoJet to tag
-  virtual PseudoJet result(const PseudoJet & jet) const;
+  PseudoJet result(const PseudoJet & jet) const override;
 
   void set_rng(CLHEP::HepRandomEngine* engine){ engine_ = engine;}
 
@@ -164,7 +164,7 @@ class HEPTopTaggerV2Structure : public CompositeJetStructure, public TopTaggerBa
     rW_(){}
   
    // Return W subjet
-   inline PseudoJet const & W() const{ 
+   inline PseudoJet const & W() const override{ 
      rW_ = join(_pieces[0], _pieces[1], *W_rec);
      return rW_;
    }
@@ -185,7 +185,7 @@ class HEPTopTaggerV2Structure : public CompositeJetStructure, public TopTaggerBa
    /// returns the non-W subjet
    /// It will have 1 or 2 pieces depending on whether the tagger has
    /// found 3 or 4 pieces
-   inline const PseudoJet & non_W() const{ 
+   inline const PseudoJet & non_W() const override{ 
      return _pieces[2];
    }
  

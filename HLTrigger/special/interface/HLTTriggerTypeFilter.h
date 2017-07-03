@@ -34,12 +34,12 @@ Implementation:
 class HLTTriggerTypeFilter : public edm::global::EDFilter<> {
 public:
   explicit HLTTriggerTypeFilter(const edm::ParameterSet&);
-  ~HLTTriggerTypeFilter();
+  ~HLTTriggerTypeFilter() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   
 private:
-  virtual bool filter(edm::StreamID, edm::Event &, edm::EventSetup const &) const override final;
+  bool filter(edm::StreamID, edm::Event &, edm::EventSetup const &) const final;
   
   // ----------member data ---------------------------  
   unsigned short  selectedTriggerType_;

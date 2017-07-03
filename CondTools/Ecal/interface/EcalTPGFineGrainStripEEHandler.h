@@ -53,14 +53,14 @@ namespace popcon
 
 		public:
                         EcalTPGFineGrainStripEEHandler(edm::ParameterSet const & );
-			~EcalTPGFineGrainStripEEHandler();
+			~EcalTPGFineGrainStripEEHandler() override;
 			
 			std::map<std::string, int> makeStripIdEB();
 			std::map<std::string, int> makeStripIdEE();
 			
-			void getNewObjects();
+			void getNewObjects() override;
 			
-			std::string id() const { return m_name;}
+			std::string id() const override { return m_name;}
 			
 			void readFromFile(const char* inputFile) ;
 			void writeFile(const char* inputFile);

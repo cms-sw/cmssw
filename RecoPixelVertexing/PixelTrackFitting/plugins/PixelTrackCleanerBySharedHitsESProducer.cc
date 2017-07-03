@@ -9,7 +9,7 @@
 class PixelTrackCleanerBySharedHitsESProducer: public edm::ESProducer {
 public:
   PixelTrackCleanerBySharedHitsESProducer(const edm::ParameterSet& iConfig);
-  ~PixelTrackCleanerBySharedHitsESProducer() = default;
+  ~PixelTrackCleanerBySharedHitsESProducer() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 

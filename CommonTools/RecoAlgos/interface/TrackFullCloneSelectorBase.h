@@ -55,7 +55,7 @@ public:
       }
    }
   /// destructor
-  virtual ~TrackFullCloneSelectorBase() { }
+  ~TrackFullCloneSelectorBase() override { }
 
 private:
   /// process one event

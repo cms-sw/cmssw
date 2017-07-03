@@ -146,7 +146,7 @@ public:
   }
 
   // take SIZE measurements
-  void sample() {
+  void sample() override {
     for (unsigned int i = 0; i < SIZE; ++i)
       values[i] = clock_type::now();
   }
@@ -157,7 +157,7 @@ public:
   }
 
   // extract the characteristics of the timer from the measurements
-  void compute() {
+  void compute() override {
     // per-call overhead
     overhead = to_seconds(stop - start) / SIZE;
 
@@ -193,7 +193,7 @@ public:
   }
 
   // print a report
-  void report() {
+  void report() override {
     std::cout << std::setprecision(1) << std::fixed;
     std::cout << "Performance of " << description << std::endl;
     std::cout << "\tAverage time per call: " << std::right << std::setw(10) << overhead    * 1e9 << " ns" << std::endl;

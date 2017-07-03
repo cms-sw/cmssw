@@ -35,8 +35,8 @@ public:
   typedef math::XYZVector Vector;
   ZGlobalVsSAIsolationAnalyzer(const edm::ParameterSet& cfg);
 private:
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
-  virtual void endJob() override;
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
+  void endJob() override;
   EDGetTokenT<CandidateView> srcToken_;
   double dRVeto;
   double dRTrk, dREcal, dRHcal;

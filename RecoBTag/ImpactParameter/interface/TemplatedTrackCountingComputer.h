@@ -52,7 +52,7 @@ class TemplatedTrackCountingComputer : public JetTagComputer
   }
   
   
-  float discriminator(const TagInfoHelper & ti) const 
+  float discriminator(const TagInfoHelper & ti) const override 
   {           
     const TagInfo & tkip = ti.get<TagInfo>();
     std::multiset<float> significances = orderedSignificances(tkip);

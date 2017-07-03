@@ -7,7 +7,7 @@ namespace l1t {
    namespace stage2 {
       class MPUnpacker : public Unpacker {
          public:
-            virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
+            bool unpack(const Block& block, UnpackerCollections *coll) override;
       };
    }
 }

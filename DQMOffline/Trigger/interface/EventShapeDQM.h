@@ -23,7 +23,7 @@
 class EventShapeDQM: public DQMEDAnalyzer{
 public:
 	EventShapeDQM(const edm::ParameterSet& ps);
-	virtual ~EventShapeDQM();
+	~EventShapeDQM() override;
 
 protected:
 	void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;

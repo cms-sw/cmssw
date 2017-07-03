@@ -16,10 +16,10 @@ class ODLaserConfig : public IODConfig {
  public:
   friend class EcalCondDBInterface;
   ODLaserConfig();
-  ~ODLaserConfig();
+  ~ODLaserConfig() override;
 
   // User data methods
-  inline std::string getTable() { return "ECAL_Laser_CONFIGURATION"; }
+  inline std::string getTable() override { return "ECAL_Laser_CONFIGURATION"; }
 
   inline void setId(int id) { m_ID = id; }
   inline int getId() const { return m_ID; }
@@ -194,7 +194,7 @@ class ODLaserConfig : public IODConfig {
   int fetchNextId() noexcept(false);
   
  private:
-  void prepareWrite()  noexcept(false);
+  void prepareWrite()  noexcept(false) override;
   void writeDB()       noexcept(false);
   void clear();
   void fetchData(ODLaserConfig * result)     noexcept(false);

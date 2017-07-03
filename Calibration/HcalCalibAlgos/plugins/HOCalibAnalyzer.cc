@@ -218,14 +218,14 @@ void set_sigma(double& x, bool mdigi) {
 class HOCalibAnalyzer : public edm::EDAnalyzer {
    public:
       explicit HOCalibAnalyzer(const edm::ParameterSet&);
-      ~HOCalibAnalyzer();
+      ~HOCalibAnalyzer() override;
 
 
    private:
 
-      virtual void beginJob() override ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override ;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
       int  getHOieta(int ij) { return  (ij<netamx/2) ? -netamx/2 + ij : -netamx/2 + ij + 1;}
       int  invert_HOieta(int ieta) {return (ieta<0) ? netamx/2 + ieta : netamx/2 + ieta - 1;}

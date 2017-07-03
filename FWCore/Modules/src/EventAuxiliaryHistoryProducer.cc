@@ -12,10 +12,10 @@ namespace edm {
   class EventAuxiliaryHistoryProducer : public EDProducer {
   public:
     explicit EventAuxiliaryHistoryProducer(ParameterSet const&);
-    virtual ~EventAuxiliaryHistoryProducer();
+    ~EventAuxiliaryHistoryProducer() override;
 
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
-    virtual void produce(Event& e, EventSetup const& c) override;
+    void produce(Event& e, EventSetup const& c) override;
     void endJob() override;
 
   private:

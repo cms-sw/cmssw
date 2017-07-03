@@ -24,12 +24,12 @@ class EcalPnGraphs: public edm::EDAnalyzer{
 public:
 
   EcalPnGraphs(const edm::ParameterSet& ps);   
-  ~EcalPnGraphs();
+  ~EcalPnGraphs() override;
     
 private:
-  virtual void analyze(const edm::Event & e, const  edm::EventSetup& c);
-  virtual void beginJob();
-  virtual void endJob();
+  void analyze(const edm::Event & e, const  edm::EventSetup& c) override;
+  void beginJob() override;
+  void endJob() override;
  
   //  void pnGraphs (edm::Handle<EcalPnDiodeDigiCollection> PNs );
 

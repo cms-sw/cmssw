@@ -34,12 +34,12 @@ namespace edm {
     explicit RootEmbeddedFileSequence(ParameterSet const& pset,
                                    EmbeddedRootSource& input,
                                    InputFileCatalog const& catalog);
-    virtual ~RootEmbeddedFileSequence();
+    ~RootEmbeddedFileSequence() override;
 
     RootEmbeddedFileSequence(RootEmbeddedFileSequence const&) = delete; // Disallow copying and moving
     RootEmbeddedFileSequence& operator=(RootEmbeddedFileSequence const&) = delete; // Disallow copying and moving
 
-    virtual void closeFile_() override;
+    void closeFile_() override;
     void endJob();
     void skipEntries(unsigned int offset);
     bool readOneEvent(EventPrincipal& cache, size_t& fileNameHash, CLHEP::HepRandomEngine*, EventID const* id);
@@ -51,8 +51,8 @@ namespace edm {
 
     static void fillDescription(ParameterSetDescription & desc);
   private:
-    virtual void initFile_(bool skipBadFiles) override;
-    virtual RootFileSharedPtr makeRootFile(std::shared_ptr<InputFile> filePtr) override; 
+    void initFile_(bool skipBadFiles) override;
+    RootFileSharedPtr makeRootFile(std::shared_ptr<InputFile> filePtr) override; 
 
     EmbeddedRootSource& input_;
 

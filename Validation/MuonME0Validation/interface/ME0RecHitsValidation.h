@@ -15,7 +15,7 @@ class ME0RecHitsValidation : public ME0BaseValidation
 {
 public:
   explicit ME0RecHitsValidation( const edm::ParameterSet& );
-  ~ME0RecHitsValidation();
+  ~ME0RecHitsValidation() override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(const edm::Event& e, const edm::EventSetup&) override;
  private:

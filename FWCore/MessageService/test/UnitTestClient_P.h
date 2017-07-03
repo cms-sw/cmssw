@@ -28,14 +28,14 @@ public:
     queueFillers = p.getUntrackedParameter<int> ("queueFillers", queueFillers);
   }
 
-  virtual
-    ~UnitTestClient_P()
+  
+    ~UnitTestClient_P() override
   { }
 
-  virtual
+  
     void analyze( edm::Event      const & e
                 , edm::EventSetup const & c
-                );
+                ) override;
 
 private:
   bool useLogFlush;

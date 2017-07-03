@@ -132,7 +132,7 @@ namespace cond {
   class TestGTLoad : public cond::Utilities {
     public:
       TestGTLoad();
-      int execute();
+      int execute() override;
   };
 }
 

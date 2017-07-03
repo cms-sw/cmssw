@@ -35,9 +35,9 @@ class HLTElectronPFMTFilter : public HLTFilter {
 
    public:
       explicit HLTElectronPFMTFilter(const edm::ParameterSet&);
-      ~HLTElectronPFMTFilter();
+      ~HLTElectronPFMTFilter() override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override ;
+      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override ;
 
    private:
       edm::InputTag inputMetTag_; // input tag identifying jets

@@ -41,7 +41,7 @@ class TAPDPulse: public TObject
   TAPDPulse(int, int, int, int, int, int, int, int, double, double, double);
 
   // Destructor: Does nothing
-  virtual ~TAPDPulse();
+  ~TAPDPulse() override;
 
   bool setPulse(double*);
   double getMax();

@@ -45,9 +45,9 @@ namespace pat {
     public:
 
       explicit PATPFParticleProducer(const edm::ParameterSet & iConfig);
-      ~PATPFParticleProducer();
+      ~PATPFParticleProducer() override;
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
+      void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
     private:
 

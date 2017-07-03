@@ -41,9 +41,9 @@ template<class T>
 class FakeTrackProducer : public edm::stream::EDProducer<> {
     public:
       explicit FakeTrackProducer(const edm::ParameterSet & iConfig);
-      virtual ~FakeTrackProducer() { }
+      ~FakeTrackProducer() override { }
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
+      void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
     private:
       /// Labels for input collections
       edm::EDGetTokenT<std::vector<T>> src_;

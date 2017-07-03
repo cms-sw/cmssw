@@ -44,11 +44,11 @@ Implementation:
 class HLTCSCActivityFilter : public HLTFilter {
 public:
   explicit HLTCSCActivityFilter(const edm::ParameterSet&);
-  virtual ~HLTCSCActivityFilter();
+  ~HLTCSCActivityFilter() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+  bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
   edm::EDGetTokenT<CSCStripDigiCollection> m_cscStripDigiToken;
   edm::InputTag m_cscStripDigiTag;

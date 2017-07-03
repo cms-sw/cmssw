@@ -38,14 +38,14 @@
 class PixelPopConCalibChecker : public edm::EDAnalyzer {
    public:
       explicit PixelPopConCalibChecker(const edm::ParameterSet&);
-      ~PixelPopConCalibChecker();
+      ~PixelPopConCalibChecker() override;
 
 
    private:
       //virtual void beginJob(const edm::EventSetup&) ;
-      virtual void beginJob();
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      void beginJob() override;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
       
       std::string _filename;
       int _messageLevel;

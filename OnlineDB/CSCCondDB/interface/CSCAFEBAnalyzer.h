@@ -13,8 +13,8 @@
 class CSCAFEBAnalyzer : public edm::EDAnalyzer {
 public:
   explicit CSCAFEBAnalyzer(edm::ParameterSet const& conf);
-  virtual void analyze(edm::Event const& e, edm::EventSetup const& iSetup);
-  virtual void endJob();
+  void analyze(edm::Event const& e, edm::EventSetup const& iSetup) override;
+  void endJob() override;
 private:
   /// variables persistent across events should be declared here.
   std::string testname;

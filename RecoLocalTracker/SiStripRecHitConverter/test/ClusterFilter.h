@@ -11,9 +11,9 @@ namespace edm {
 class ClusterFilter : public edm::EDFilter {
  public:
   ClusterFilter( const edm::ParameterSet & );
-   ~ClusterFilter();
+   ~ClusterFilter() override;
  private:
-   bool filter( edm::Event &, edm::EventSetup const& );
+   bool filter( edm::Event &, edm::EventSetup const& ) override;
    const int nMax_;
    const edm::ParameterSet  conf_;
    // int n_;

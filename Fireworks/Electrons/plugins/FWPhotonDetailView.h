@@ -24,12 +24,12 @@ class FWPhotonDetailView : public FWDetailViewGL<reco::Photon> {
 
 public:
    FWPhotonDetailView();
-   virtual ~FWPhotonDetailView();
+   ~FWPhotonDetailView() override;
 
    using FWDetailViewGL<reco::Photon>::build;
-   virtual void build (const FWModelId &id, const reco::Photon*);
+   void build (const FWModelId &id, const reco::Photon*) override;
    using FWDetailViewGL<reco::Photon>::setTextInfo;
-   virtual void setTextInfo(const FWModelId &id, const reco::Photon*);
+   void setTextInfo(const FWModelId &id, const reco::Photon*) override;
 
 private:
    FWPhotonDetailView(const FWPhotonDetailView&); // stop default

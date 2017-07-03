@@ -14,7 +14,7 @@ namespace ecaldqm
   public :
     MESetProjection(std::string const&, binning::ObjectType, binning::BinningType, MonitorElement::Kind, binning::AxisSpecs const* = 0);
     MESetProjection(MESetProjection const&);
-    ~MESetProjection();
+    ~MESetProjection() override;
 
     MESet* clone(std::string const& = "") const override;
 

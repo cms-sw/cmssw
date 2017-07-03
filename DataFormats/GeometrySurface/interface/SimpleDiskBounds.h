@@ -16,22 +16,22 @@ public:
   /// Construct the bounds from min and max R and Z in LOCAL coordinates.
   SimpleDiskBounds( float rmin, float rmax, float zmin, float zmax);
 
-  virtual float length()    const { return theZmax - theZmin;}
-  virtual float width()     const { return 2*theRmax;}
-  virtual float thickness() const { return theZmax-theZmin;}
+  float length()    const override { return theZmax - theZmin;}
+  float width()     const override { return 2*theRmax;}
+  float thickness() const override { return theZmax-theZmin;}
 
-  virtual bool inside( const Local3DPoint& p) const {
+  bool inside( const Local3DPoint& p) const override {
     return  ((p.z() > theZmin) & (p.z() < theZmax)) &&
     ( (p.perp2() > theRmin*theRmin) & (p.perp2() < theRmax*theRmax) );
   }
 
   using Bounds::inside;
     
-  virtual bool inside( const Local3DPoint& p, const LocalError& err, float scale) const;
+  bool inside( const Local3DPoint& p, const LocalError& err, float scale) const override;
 
   virtual bool inside( const Local2DPoint& p, const LocalError& err) const;
 
-  virtual Bounds* clone() const;
+  Bounds* clone() const override;
 
   /// Extension of the Bounds interface
   float innerRadius() const {return theRmin;}

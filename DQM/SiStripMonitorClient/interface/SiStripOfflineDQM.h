@@ -47,27 +47,27 @@ class SiStripOfflineDQM: public edm::EDAnalyzer {
   SiStripOfflineDQM(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~SiStripOfflineDQM();
+  ~SiStripOfflineDQM() override;
 
  private:
 
   /// BeginJob
-  void beginJob();
+  void beginJob() override;
 
   /// BeginRun
-  void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
+  void beginRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
 
   /// Analyze
-  void analyze(edm::Event const& e, edm::EventSetup const& eSetup);
+  void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
 
   /// End Of Luminosity
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup);
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) override;
 
   /// EndRun
-  void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
+  void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
 
   /// Endjob
-  void endJob();
+  void endJob() override;
 
 private:
 

@@ -22,10 +22,10 @@ class ESZeroSuppressionProducer : public edm::stream::EDProducer<>
  public:
     
   explicit ESZeroSuppressionProducer(const edm::ParameterSet& ps);
-  virtual ~ESZeroSuppressionProducer();
+  ~ESZeroSuppressionProducer() override;
   
   /**Produces the EDM products,*/
-  virtual void produce(edm::Event& event, const edm::EventSetup& eventSetup) override;
+  void produce(edm::Event& event, const edm::EventSetup& eventSetup) override;
   
   
  private:

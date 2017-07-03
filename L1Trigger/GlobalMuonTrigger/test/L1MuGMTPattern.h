@@ -55,9 +55,9 @@ class L1MuGMTPattern : public edm::EDAnalyzer {
 
     // constructor
     explicit L1MuGMTPattern(const edm::ParameterSet&);
-    virtual ~L1MuGMTPattern();
+    ~L1MuGMTPattern() override;
 
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
     void printRegional(std::string tag, const std::vector<L1MuRegionalCand>& rmc);
     void printGMT(std::string tag, const std::vector<L1MuGMTExtendedCand>& exc);
     void printMipIso(L1CaloRegionCollection const* regions);
@@ -65,8 +65,8 @@ class L1MuGMTPattern : public edm::EDAnalyzer {
     void printCANC();
     unsigned invertQPt(unsigned);
 
-    virtual void beginJob();
-    virtual void endJob();
+    void beginJob() override;
+    void endJob() override;
 
   private:
 

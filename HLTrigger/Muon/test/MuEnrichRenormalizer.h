@@ -16,12 +16,12 @@ class MuEnrichRenormalizer : public edm::EDAnalyzer
   public:
      //
       explicit MuEnrichRenormalizer( const edm::ParameterSet& ) ;
-      virtual ~MuEnrichRenormalizer() {} // no need to delete ROOT stuff
+      ~MuEnrichRenormalizer() override {} // no need to delete ROOT stuff
                                    // as it'll be deleted upon closing TFile
       
-      virtual void analyze( const edm::Event&, const edm::EventSetup& ) ;
-      virtual void beginJob() ;
-      virtual void endJob() ;
+      void analyze( const edm::Event&, const edm::EventSetup& ) override ;
+      void beginJob() override ;
+      void endJob() override ;
  
       //     HepMC::GenEvent  *evt;
  

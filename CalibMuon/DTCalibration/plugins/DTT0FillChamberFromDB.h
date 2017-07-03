@@ -27,10 +27,10 @@ public:
   DTT0FillChamberFromDB(const edm::ParameterSet&);
 
   // Destructor
-  virtual ~DTT0FillChamberFromDB();
+  ~DTT0FillChamberFromDB() override;
 
-  virtual void setES(const edm::EventSetup& setup);
-  virtual DTT0Data correction(const DTWireId&);
+  void setES(const edm::EventSetup& setup) override;
+  DTT0Data correction(const DTWireId&) override;
 
 private:
   std::string dbLabelRef_;

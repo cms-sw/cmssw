@@ -37,12 +37,12 @@ class L1GctEmulator : public edm::EDProducer {
   explicit L1GctEmulator(const edm::ParameterSet& ps);
 
   /// destructor
-  ~L1GctEmulator();
+  ~L1GctEmulator() override;
 
  private:
-  void beginJob() ;
-  void produce(edm::Event& e, const edm::EventSetup& c);
-  void endJob() ;
+  void beginJob() override ;
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
+  void endJob() override ;
 
   int configureGct(const edm::EventSetup& c) ;
 

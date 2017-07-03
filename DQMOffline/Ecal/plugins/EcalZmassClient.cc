@@ -39,7 +39,7 @@ Double_t mygauss(Double_t*, Double_t*);
 class EcalZmassClient: public DQMEDHarvester {
 public:
   explicit EcalZmassClient(const edm::ParameterSet&);
-  ~EcalZmassClient();
+  ~EcalZmassClient() override;
 
 private:
   void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;

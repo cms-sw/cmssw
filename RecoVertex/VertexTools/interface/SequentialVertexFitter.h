@@ -67,7 +67,7 @@ public:
   SequentialVertexFitter(const SequentialVertexFitter & original);
 
 
-  virtual ~SequentialVertexFitter();
+  ~SequentialVertexFitter() override;
 
 
   /**
@@ -93,7 +93,7 @@ public:
   * \param tracks The container of RecTracks to fit.
   * \return The fitted vertex
   */
-  virtual CachingVertex<N> vertex(const std::vector<reco::TransientTrack> & tracks) const;
+  CachingVertex<N> vertex(const std::vector<reco::TransientTrack> & tracks) const override;
 
  /**
   * Method returning the fitted vertex, from a container of VertexTracks.
@@ -104,25 +104,25 @@ public:
   * \param tracks The container of VertexTracks to fit.
   * \return The fitted vertex
   */
-  virtual CachingVertex<N> vertex(const std::vector<RefCountedVertexTrack> & tracks) const;
+  CachingVertex<N> vertex(const std::vector<RefCountedVertexTrack> & tracks) const override;
 
   /**
    * Same as above, only now also with BeamSpot!
    */
-  virtual CachingVertex<N> vertex(const std::vector<RefCountedVertexTrack> & tracks, const reco::BeamSpot & spot ) const;
+  CachingVertex<N> vertex(const std::vector<RefCountedVertexTrack> & tracks, const reco::BeamSpot & spot ) const override;
 
 
   /** Fit vertex out of a set of RecTracks. Uses the specified linearization point.
    */
-  virtual CachingVertex<N>  vertex(const std::vector<reco::TransientTrack> & tracks, 
-  		const GlobalPoint& linPoint) const;
+  CachingVertex<N>  vertex(const std::vector<reco::TransientTrack> & tracks, 
+  		const GlobalPoint& linPoint) const override;
 
   /** Fit vertex out of a set of TransientTracks. 
    *  The specified BeamSpot will be used as priot, but NOT for the linearization.
    * The specified LinearizationPointFinder will be used to find the linearization point.
    */
-  virtual CachingVertex<N> vertex(const std::vector<reco::TransientTrack> & tracks,
-		const reco::BeamSpot& beamSpot) const;
+  CachingVertex<N> vertex(const std::vector<reco::TransientTrack> & tracks,
+		const reco::BeamSpot& beamSpot) const override;
 
 
   /** Fit vertex out of a set of RecTracks. 
@@ -130,17 +130,17 @@ public:
    *   estimate of the vertex position. The error is used for the 
    *   weight of the prior estimate.
    */
-  virtual CachingVertex<N> vertex(const std::vector<reco::TransientTrack> & tracks, 
+  CachingVertex<N> vertex(const std::vector<reco::TransientTrack> & tracks, 
   		const GlobalPoint& priorPos,
-  		const GlobalError& priorError) const;
+  		const GlobalError& priorError) const override;
 
   /** Fit vertex out of a set of VertexTracks
    *   Uses the position and error for the prior estimate of the vertex.
    *   This position is not used to relinearize the tracks.
    */
-  virtual CachingVertex<N> vertex(const std::vector<RefCountedVertexTrack> & tracks, 
+  CachingVertex<N> vertex(const std::vector<RefCountedVertexTrack> & tracks, 
   		const GlobalPoint& priorPos,
-  		const GlobalError& priorError) const;
+  		const GlobalError& priorError) const override;
 
 
 
@@ -177,7 +177,7 @@ public:
   const edm::ParameterSet parameterSet() const 
   {return thePSet;}
 
-  SequentialVertexFitter * clone() const {
+  SequentialVertexFitter * clone() const override {
     return new SequentialVertexFitter(* this);
   }
 

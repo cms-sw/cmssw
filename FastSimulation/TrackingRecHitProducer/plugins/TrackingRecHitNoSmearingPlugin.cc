@@ -45,7 +45,7 @@ class TrackingRecHitNoSmearingPlugin:
             }
         }
 
-        virtual TrackingRecHitProductPtr process(TrackingRecHitProductPtr product) const
+        TrackingRecHitProductPtr process(TrackingRecHitProductPtr product) const override
         {
             for (const std::pair<unsigned int,const PSimHit*>& simHitIdPair: product->getSimHitIdPairs())
             {

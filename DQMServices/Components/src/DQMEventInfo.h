@@ -37,7 +37,7 @@ public:
   DQMEventInfo(const edm::ParameterSet& ps);
 
   /// Destructor
-  virtual ~DQMEventInfo();
+  ~DQMEventInfo() override;
 
 protected:
 

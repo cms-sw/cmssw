@@ -48,9 +48,9 @@ CPPUNIT_TEST(getbyLabelTest);
 CPPUNIT_TEST(failWrongType);
 CPPUNIT_TEST_SUITE_END();
 public:
-  void setUp(){
+  void setUp() override{
   }
-  void tearDown(){}
+  void tearDown() override{}
   void failgetbyLabelTest();
   void failWrongType();
   void getbyLabelTest();

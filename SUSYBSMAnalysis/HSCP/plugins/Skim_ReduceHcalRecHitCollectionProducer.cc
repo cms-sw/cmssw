@@ -65,8 +65,8 @@
 class ReduceHcalRecHitCollectionProducer : public edm::EDProducer {
    public:
       explicit ReduceHcalRecHitCollectionProducer(const edm::ParameterSet&);
-      ~ReduceHcalRecHitCollectionProducer();
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      ~ReduceHcalRecHitCollectionProducer() override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
    private:
       edm::EDGetTokenT<HBHERecHitCollection> recHitsToken_;
       std::string reducedHitsCollection_;

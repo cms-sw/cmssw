@@ -17,12 +17,12 @@
 class HIPixelTrackFilterProducer: public edm::global::EDProducer<> {
 public:
   explicit HIPixelTrackFilterProducer(const edm::ParameterSet& iConfig);
-  ~HIPixelTrackFilterProducer();
+  ~HIPixelTrackFilterProducer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
+  void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
 
   edm::EDGetTokenT<SiPixelClusterShapeCache> theClusterShapeCacheToken;
   edm::EDGetTokenT<reco::VertexCollection> theVertexCollectionToken;

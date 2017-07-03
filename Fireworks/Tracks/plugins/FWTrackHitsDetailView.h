@@ -19,13 +19,13 @@ class FWTrackHitsDetailView: public FWDetailViewGL<reco::Track>,
 {
 public:
    FWTrackHitsDetailView();
-   virtual ~FWTrackHitsDetailView();
+   ~FWTrackHitsDetailView() override;
 
    void pickCameraCenter();
    void transparencyChanged(int);
    void rnrLabels();
 
-   virtual void setBackgroundColor(Color_t);
+   void setBackgroundColor(Color_t) override;
 
 protected:
    TEveElementList*    m_modules;
@@ -39,9 +39,9 @@ private:
    const FWTrackHitsDetailView& operator=(const FWTrackHitsDetailView&); // stop default
 
    using FWDetailView<reco::Track>::build;
-   void build (const FWModelId &id, const reco::Track*);
+   void build (const FWModelId &id, const reco::Track*) override;
    using FWDetailView<reco::Track>::setTextInfo;
-   void setTextInfo (const FWModelId &id, const reco::Track*); 
+   void setTextInfo (const FWModelId &id, const reco::Track*) override; 
    void makeLegend( void );
 
    void

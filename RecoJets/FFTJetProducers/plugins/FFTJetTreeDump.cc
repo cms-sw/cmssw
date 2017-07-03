@@ -51,7 +51,7 @@ class FFTJetTreeDump : public edm::EDAnalyzer
 {
 public:
     explicit FFTJetTreeDump(const edm::ParameterSet&);
-    ~FFTJetTreeDump();
+    ~FFTJetTreeDump() override;
 
 private:
     // Useful local typedefs
@@ -66,9 +66,9 @@ private:
     FFTJetTreeDump(const FFTJetTreeDump&);
     FFTJetTreeDump& operator=(const FFTJetTreeDump&);
 
-    virtual void beginJob() override ;
-    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-    virtual void endJob() override ;
+    void beginJob() override ;
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
+    void endJob() override ;
 
     template<class Real>
     void processTreeData(const edm::Event&, std::ofstream&);

@@ -73,11 +73,11 @@ class L1TEfficiency_Harvesting : public DQMEDHarvester {
 public:
   
   L1TEfficiency_Harvesting(const edm::ParameterSet& ps);   // Constructor
-  virtual ~L1TEfficiency_Harvesting();                     // Destructor
+  ~L1TEfficiency_Harvesting() override;                     // Destructor
   
 protected:
 
-  virtual void dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) override;
+  void dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) override;
   virtual void dqmEndLuminosityBlock(DQMStore::IGetter &igetter, edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
   using DQMEDHarvester::dqmEndLuminosityBlock;
 

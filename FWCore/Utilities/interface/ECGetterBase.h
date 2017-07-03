@@ -60,7 +60,7 @@ namespace edm {
   public:
     ValueHolderECGetter(const T& iValue) : value_(&iValue) {}
   private:
-    virtual const T* getImpl() const {
+    const T* getImpl() const override {
       return value_;
     }
     const T* value_;

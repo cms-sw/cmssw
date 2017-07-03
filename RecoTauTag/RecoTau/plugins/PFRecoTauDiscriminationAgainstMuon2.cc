@@ -64,7 +64,7 @@ class PFRecoTauDiscriminationAgainstMuon2 final : public PFTauDiscriminationProd
     maxWarnings_ = 3;
     verbosity_ = cfg.exists("verbosity") ? cfg.getParameter<int>("verbosity") : 0;
    }
-  ~PFRecoTauDiscriminationAgainstMuon2() {} 
+  ~PFRecoTauDiscriminationAgainstMuon2() override {} 
 
   void beginEvent(const edm::Event&, const edm::EventSetup&) override;
 

@@ -48,13 +48,13 @@ class L1MuDTERS : public L1AbstractProcessor {
     L1MuDTERS(const L1MuDTSEU& );
 
     /// destructor
-    virtual ~L1MuDTERS();
+    ~L1MuDTERS() override;
 
     /// run L1MuDTERS
-    virtual void run();
+    void run() override;
     
     /// reset ERS
-    virtual void reset();
+    void reset() override;
 
     /// return extrapolation quality
     inline unsigned int quality(int id) const { return m_quality[id]; }

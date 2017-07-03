@@ -8,7 +8,7 @@ namespace ecaldqm {
   class RawDataClient : public DQWorkerClient {
   public:
     RawDataClient();
-    ~RawDataClient() {}
+    ~RawDataClient() override {}
 
     void producePlots(ProcessType) override;
 

@@ -21,9 +21,9 @@ namespace popcon
     {
       
     public:
-      void getNewObjects();
-      std::string id() const { return m_name;}
-      ~CSCDBCrosstalkImpl(); 
+      void getNewObjects() override;
+      std::string id() const override { return m_name;}
+      ~CSCDBCrosstalkImpl() override; 
       
       CSCDBCrosstalkImpl(const edm::ParameterSet& pset);
   

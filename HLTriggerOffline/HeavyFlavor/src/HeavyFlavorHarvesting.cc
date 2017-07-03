@@ -24,7 +24,7 @@ class HeavyFlavorHarvesting : public DQMEDHarvester {
 
   public:
     HeavyFlavorHarvesting(const edm::ParameterSet& pset);
-    virtual ~HeavyFlavorHarvesting();
+    ~HeavyFlavorHarvesting() override;
     // virtual void endRun(const edm::Run &, const edm::EventSetup &) override;
   private:
     void calculateEfficiency(const ParameterSet& pset, DQMStore::IBooker &, DQMStore::IGetter &);

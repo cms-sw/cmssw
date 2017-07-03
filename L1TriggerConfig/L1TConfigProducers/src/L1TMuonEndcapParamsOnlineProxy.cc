@@ -15,7 +15,7 @@ public:
     std::shared_ptr<L1TMuonEndCapParams> produce(const L1TMuonEndcapParamsO2ORcd& record);
 
     L1TMuonEndcapParamsOnlineProxy(const edm::ParameterSet&);
-    ~L1TMuonEndcapParamsOnlineProxy(void){}
+    ~L1TMuonEndcapParamsOnlineProxy(void) override{}
 };
 
 L1TMuonEndcapParamsOnlineProxy::L1TMuonEndcapParamsOnlineProxy(const edm::ParameterSet& iConfig) : edm::ESProducer() {

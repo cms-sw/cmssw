@@ -37,13 +37,13 @@
 class ZeePlots : public edm::EDAnalyzer {
 public:
     explicit ZeePlots( const edm::ParameterSet& );
-    ~ZeePlots();
+    ~ZeePlots() override;
 
 
 private:
-    virtual void beginJob() ;
-    virtual void analyze( const edm::Event&, const edm::EventSetup& );
-    virtual void endJob() ;
+    void beginJob() override ;
+    void analyze( const edm::Event&, const edm::EventSetup& ) override;
+    void endJob() override ;
 
     // ----------member data ---------------------------
 

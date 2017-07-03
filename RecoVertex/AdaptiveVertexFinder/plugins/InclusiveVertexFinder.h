@@ -39,7 +39,7 @@ class TemplatedInclusiveVertexFinder : public edm::stream::EDProducer<> {
 	typedef typename InputContainer::value_type TRK;
 	TemplatedInclusiveVertexFinder(const edm::ParameterSet &params);
 
-	virtual void produce(edm::Event &event, const edm::EventSetup &es) override;
+	void produce(edm::Event &event, const edm::EventSetup &es) override;
 
     private:
 	bool trackFilter(const reco::Track &track) const;

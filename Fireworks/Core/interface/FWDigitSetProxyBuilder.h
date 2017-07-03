@@ -33,11 +33,11 @@ class FWDigitSetProxyBuilder : public FWProxyBuilderBase
 
 public:
    FWDigitSetProxyBuilder();
-   virtual ~FWDigitSetProxyBuilder();
+   ~FWDigitSetProxyBuilder() override;
 
    // ---------- const member functions ---------------------
 
-   virtual bool willHandleInteraction() const { return true; }
+   bool willHandleInteraction() const override { return true; }
 
    // ---------- static member functions --------------------
 
@@ -67,7 +67,7 @@ private:
 
    // ---------- member data --------------------------------
 
-   virtual void modelChanges(const FWModelIds&, Product*);
+   void modelChanges(const FWModelIds&, Product*) override;
  
    static TString getTooltip(TEveDigitSet* set, int idx);
 

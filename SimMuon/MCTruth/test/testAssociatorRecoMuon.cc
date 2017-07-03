@@ -17,8 +17,8 @@ class testAssociatorRecoMuon : public edm::EDAnalyzer {
   
  public:
   testAssociatorRecoMuon(const edm::ParameterSet&);
-  virtual ~testAssociatorRecoMuon();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  ~testAssociatorRecoMuon() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   
  private:
   edm::InputTag muonsTag;

@@ -35,9 +35,9 @@ namespace edm {
 class HLTHtMhtProducer : public edm::stream::EDProducer<> {
   public:
     explicit HLTHtMhtProducer(const edm::ParameterSet & iConfig);
-    ~HLTHtMhtProducer();
+    ~HLTHtMhtProducer() override;
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-    virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+    void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
 
   private:
     /// Use pt; otherwise, use et.

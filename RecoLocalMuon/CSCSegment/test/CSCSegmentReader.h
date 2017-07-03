@@ -34,12 +34,12 @@ public:
   CSCSegmentReader(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~CSCSegmentReader();
+  ~CSCSegmentReader() override;
 
   // Operations
 
   /// Perform the real analysis
-  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
   
   /// Phi and theta resolution of the built segments
   void resolution(const edm::Handle<edm::PSimHitContainer> sH, 

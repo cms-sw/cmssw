@@ -46,9 +46,9 @@ public:
                           const reco::BeamSpot& beamSpot,
                           const ReferenceTrajectoryBase::Config& config);
 
-  virtual ~DualReferenceTrajectory() {}
+  ~DualReferenceTrajectory() override {}
 
-  virtual DualReferenceTrajectory* clone() const { return new DualReferenceTrajectory(*this); }
+  DualReferenceTrajectory* clone() const override { return new DualReferenceTrajectory(*this); }
 
 protected:
 

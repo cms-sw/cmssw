@@ -51,15 +51,15 @@ namespace l1t {
 class AMC13DumpToRaw : public edm::EDProducer {
 public:
   explicit AMC13DumpToRaw(const edm::ParameterSet&);
-  ~AMC13DumpToRaw();
+  ~AMC13DumpToRaw() override;
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
   
 private:
-  virtual void beginJob() override;
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
+  void beginJob() override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   void readEvent(std::vector<uint32_t>& load32);
 

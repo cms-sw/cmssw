@@ -45,16 +45,16 @@ namespace edmtest {
   public:
 
     explicit TestMergeResults(edm::ParameterSet const&);
-    virtual ~TestMergeResults();
+    ~TestMergeResults() override;
 
-    virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
-    virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-    virtual void endRun(edm::Run const&, edm::EventSetup const&);
-    virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-    virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-    virtual void respondToOpenInputFile(edm::FileBlock const& fb);
-    virtual void respondToCloseInputFile(edm::FileBlock const& fb);
-    void endJob();
+    void analyze(edm::Event const& e, edm::EventSetup const& c) override;
+    void beginRun(edm::Run const&, edm::EventSetup const&) override;
+    void endRun(edm::Run const&, edm::EventSetup const&) override;
+    void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+    void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+    void respondToOpenInputFile(edm::FileBlock const& fb) override;
+    void respondToCloseInputFile(edm::FileBlock const& fb) override;
+    void endJob() override;
 
   private:
 

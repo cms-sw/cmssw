@@ -42,12 +42,12 @@ public:
   //member functions
   
   /// apply correction using Jet information only
-  virtual double correction(const LorentzVector& fJet) const;
+  double correction(const LorentzVector& fJet) const override;
   /// apply correction using Jet information only
-  virtual double correction(const reco::Jet& fJet) const;
+  double correction(const reco::Jet& fJet) const override;
 
   //----- if correction needs a jet reference -------------
-  virtual bool refRequired() const { return false; }
+  bool refRequired() const override { return false; }
 
 private:
   // member data

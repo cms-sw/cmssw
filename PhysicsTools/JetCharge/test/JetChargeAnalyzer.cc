@@ -35,9 +35,9 @@ class JetChargeAnalyzer : public edm::EDAnalyzer {
         typedef reco::JetFloatAssociation::Container JetChargeCollection;
 
         explicit JetChargeAnalyzer(const edm::ParameterSet&);
-        ~JetChargeAnalyzer() {}
+        ~JetChargeAnalyzer() override {}
 
-        virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+        void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
         virtual void endJob(const edm::EventSetup& iSetup);
     private:
         // physics stuff

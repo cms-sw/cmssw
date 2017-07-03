@@ -47,10 +47,10 @@ class DTAnalyzerDetailed : public edm::EDAnalyzer {
     DTAnalyzerDetailed(const edm::ParameterSet& pset) ;
 
 /* Destructor */ 
-    ~DTAnalyzerDetailed() ;
+    ~DTAnalyzerDetailed() override ;
 
 /* Operations */ 
-    void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
+    void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
 
   private:
     void analyzeDTHits(const edm::Event & event, const edm::EventSetup& eventSetup);

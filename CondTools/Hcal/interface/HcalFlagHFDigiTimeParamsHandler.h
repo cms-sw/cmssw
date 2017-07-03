@@ -25,9 +25,9 @@
 class HcalFlagHFDigiTimeParamsHandler : public popcon::PopConSourceHandler<HcalFlagHFDigiTimeParams>
 {
  public:
-  void getNewObjects();
-  std::string id() const { return m_name;}
-  ~HcalFlagHFDigiTimeParamsHandler();
+  void getNewObjects() override;
+  std::string id() const override { return m_name;}
+  ~HcalFlagHFDigiTimeParamsHandler() override;
   HcalFlagHFDigiTimeParamsHandler(edm::ParameterSet const &);
 
   void initObject(HcalFlagHFDigiTimeParams*);

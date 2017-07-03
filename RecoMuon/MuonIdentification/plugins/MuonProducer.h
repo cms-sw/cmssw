@@ -51,10 +51,10 @@ public:
   MuonProducer(const edm::ParameterSet&);
 
   /// Destructor
-  virtual ~MuonProducer();
+  ~MuonProducer() override;
 
   /// reconstruct muons
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 
   typedef std::vector<edm::InputTag> InputTags;

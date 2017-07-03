@@ -33,12 +33,12 @@ class HadronPhysicsCMS : public G4VPhysicsConstructor {
 public: 
 
   HadronPhysicsCMS(const G4String& name ="QGSP", G4bool quasiElastic=true);
-  virtual ~HadronPhysicsCMS();
+  ~HadronPhysicsCMS() override;
 
 public: 
 
-  virtual void ConstructParticle();
-  virtual void ConstructProcess();
+  void ConstructParticle() override;
+  void ConstructProcess() override;
 
 private:
 

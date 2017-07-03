@@ -30,7 +30,7 @@ class ME0GeometryAnalyzer : public edm::one::EDAnalyzer<>
 public: 
   ME0GeometryAnalyzer( const edm::ParameterSet& pset);
 
-  ~ME0GeometryAnalyzer();
+  ~ME0GeometryAnalyzer() override;
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;

@@ -61,8 +61,8 @@ class GlobalRecHitsHistogrammer : public DQMEDAnalyzer
   typedef std::map<uint32_t,float,std::less<uint32_t> > MapType;
 
   explicit GlobalRecHitsHistogrammer(const edm::ParameterSet&);
-  virtual ~GlobalRecHitsHistogrammer();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  ~GlobalRecHitsHistogrammer() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker &,
     edm::Run const &, edm::EventSetup const &) override;
 

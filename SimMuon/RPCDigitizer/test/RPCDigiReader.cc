@@ -36,7 +36,7 @@ public:
     label = pset.getUntrackedParameter<std::string>("label");
   }
   
-  virtual ~RPCDigiReader(){
+  ~RPCDigiReader() override{
   }
   
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override {

@@ -39,11 +39,11 @@ using std::endl;
 class DQMRootFileReader : public edm::EDAnalyzer {
 public:
   explicit DQMRootFileReader( const edm::ParameterSet& );
-  ~DQMRootFileReader();
+  ~DQMRootFileReader() override;
   
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  void analyze( const edm::Event&, const edm::EventSetup& ) override;
   
-  virtual void endJob(void);
+  void endJob(void) override;
 
 private:
   // ----------member data ---------------------------

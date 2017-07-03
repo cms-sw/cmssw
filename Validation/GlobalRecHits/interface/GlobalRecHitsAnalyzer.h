@@ -147,8 +147,8 @@ class GlobalRecHitsAnalyzer : public DQMEDAnalyzer
   typedef std::map<uint32_t,float,std::less<uint32_t> > MapType;
 
   explicit GlobalRecHitsAnalyzer(const edm::ParameterSet&);
-  virtual ~GlobalRecHitsAnalyzer();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  ~GlobalRecHitsAnalyzer() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
  protected:
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;

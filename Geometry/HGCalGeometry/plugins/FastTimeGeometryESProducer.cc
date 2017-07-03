@@ -39,7 +39,7 @@ class FastTimeGeometryESProducer : public edm::ESProducer {
 
 public:
   FastTimeGeometryESProducer( const edm::ParameterSet& iP );
-  virtual ~FastTimeGeometryESProducer() ;
+  ~FastTimeGeometryESProducer() override ;
 
   typedef std::shared_ptr<FastTimeGeometry> ReturnType;
 

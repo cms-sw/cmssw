@@ -49,7 +49,7 @@ Implementation:
 class testEcalClusterTools : public edm::EDAnalyzer {
         public:
                 explicit testEcalClusterTools(const edm::ParameterSet&);
-                ~testEcalClusterTools();
+                ~testEcalClusterTools() override;
 
                 edm::InputTag barrelClusterCollection_;
                 edm::InputTag endcapClusterCollection_;
@@ -57,7 +57,7 @@ class testEcalClusterTools : public edm::EDAnalyzer {
                 edm::InputTag reducedEndcapRecHitCollection_;
 
         private:
-                virtual void analyze(const edm::Event&, const edm::EventSetup&);
+                void analyze(const edm::Event&, const edm::EventSetup&) override;
 };
 
 

@@ -22,7 +22,7 @@ class HcalQIETypes: public HcalCondObjectContainer<HcalQIEType>
 #endif
   HcalQIETypes(const HcalTopology* topo):HcalCondObjectContainer<HcalQIEType>(topo) {}
 
-  std::string myname() const {return (std::string)"HcalQIETypes";}
+  std::string myname() const override {return (std::string)"HcalQIETypes";}
 
  private:
 

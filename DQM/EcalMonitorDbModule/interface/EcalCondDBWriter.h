@@ -10,7 +10,7 @@
 class EcalCondDBWriter : public DQMEDHarvester {
  public:
   EcalCondDBWriter(edm::ParameterSet const&);
-  ~EcalCondDBWriter();
+  ~EcalCondDBWriter() override;
 
  private:
   void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;

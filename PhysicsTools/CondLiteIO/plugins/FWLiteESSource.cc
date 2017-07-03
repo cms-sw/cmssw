@@ -75,7 +75,7 @@ namespace  {
       m_type(iTypeID),
       m_record(iRecord){}
       
-      virtual const void* getImpl(const edm::eventsetup::EventSetupRecord&, const edm::eventsetup::DataKey& iKey) override {
+      const void* getImpl(const edm::eventsetup::EventSetupRecord&, const edm::eventsetup::DataKey& iKey) override {
          assert(iKey.type() == m_type);
          
          FWLiteESGenericHandle h(m_type);
@@ -87,7 +87,7 @@ namespace  {
          return h.m_data;
       }
       
-      virtual void invalidateCache() override {
+      void invalidateCache() override {
       }
       
    private:
@@ -100,14 +100,14 @@ class FWLiteESSource : public edm::eventsetup::DataProxyProvider, public edm::Ev
    
 public:
    FWLiteESSource(edm::ParameterSet const& iPS);
-   virtual ~FWLiteESSource();
+   ~FWLiteESSource() override;
    
    // ---------- const member functions ---------------------
    
    // ---------- static member functions --------------------
    
    // ---------- member functions ---------------------------
-   virtual void newInterval(const edm::eventsetup::EventSetupRecordKey& iRecordType,
+   void newInterval(const edm::eventsetup::EventSetupRecordKey& iRecordType,
                             const edm::ValidityInterval& iInterval) override;
    
    
@@ -116,15 +116,15 @@ private:
    
    const FWLiteESSource& operator=(const FWLiteESSource&); // stop default
    
-   virtual void registerProxies(const edm::eventsetup::EventSetupRecordKey& iRecordKey ,
+   void registerProxies(const edm::eventsetup::EventSetupRecordKey& iRecordKey ,
                                 KeyedProxies& aProxyList) override;
    
    
-   virtual void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
+   void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
                                const edm::IOVSyncValue& , 
                                edm::ValidityInterval&) override;
    
-   virtual void delaySettingRecords() override;
+   void delaySettingRecords() override;
    
    // ---------- member data --------------------------------
    std::auto_ptr<TFile> m_file;

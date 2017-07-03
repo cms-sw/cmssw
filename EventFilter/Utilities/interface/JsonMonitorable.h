@@ -76,14 +76,14 @@ public:
 	IntJ() : JsonMonitorable(), theVar_(0) {}
 	IntJ(long val) : JsonMonitorable(), theVar_(val) {}
 
-	virtual ~IntJ() {}
+	~IntJ() override {}
 
-	virtual std::string toString() const {
+	std::string toString() const override {
 		std::stringstream ss;
 		ss << theVar_;
 		return ss.str();
 	}
-	virtual void resetValue() {
+	void resetValue() override {
 		theVar_=0;
 		updates_=0;
 		notSame_=0;
@@ -119,14 +119,14 @@ public:
 	DoubleJ() : JsonMonitorable(), theVar_(0) {}
 	DoubleJ(double val) : JsonMonitorable(), theVar_(val) {}
 
-	virtual ~DoubleJ() {}
+	~DoubleJ() override {}
 
-	virtual std::string toString() const {
+	std::string toString() const override {
 		std::stringstream ss;
 		ss << theVar_;
 		return ss.str();
 	}
-	virtual void resetValue() {
+	void resetValue() override {
 		theVar_=0;
 		updates_=0;
 		notSame_=0;
@@ -155,12 +155,12 @@ class StringJ: public JsonMonitorable {
 public:
 	StringJ() :  JsonMonitorable() {}
 
-	virtual ~StringJ() {}
+	~StringJ() override {}
 
-	virtual std::string toString() const {
+	std::string toString() const override {
 		return theVar_;
 	}
-	virtual void resetValue() {
+	void resetValue() override {
 		theVar_=std::string();
 		updates_ = 0;
 		notSame_=0;
@@ -200,7 +200,7 @@ public:
 		if (maxUpdates_ && maxUpdates_<expectedSize_) expectedSize_=maxUpdates_;
 		histo_.reserve(expectedSize_);
 	}
-	virtual ~HistoJ() {}
+	~HistoJ() override {}
 
 	std::string toCSV() const {
 		std::stringstream ss;
@@ -211,7 +211,7 @@ public:
 		return ss.str();
 	}
 
-	virtual std::string toString() const {
+	std::string toString() const override {
 		std::stringstream ss;
 		ss << "[";
 		if (histo_.size())
@@ -229,7 +229,7 @@ public:
                 }
                 return jsonValue;
         }
-	virtual void resetValue() {
+	void resetValue() override {
 		histo_.clear();
 		histo_.reserve(expectedSize_);
 		updates_=0;

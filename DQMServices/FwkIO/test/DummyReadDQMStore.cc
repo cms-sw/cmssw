@@ -60,9 +60,9 @@ namespace {
       m_name = iPSet.getUntrackedParameter<std::string>("name")+extension;
     }
    
-    virtual ~TH1FReader() {};
+    ~TH1FReader() override {};
  
-    void read() {
+    void read() override {
       if(0==m_element) {
         m_element = m_store->get(m_name);
         if(0==m_element) {
@@ -110,9 +110,9 @@ namespace {
       m_name = iPSet.getUntrackedParameter<std::string>("name")+extension;
     }
    
-    virtual ~TH2FReader() {};
+    ~TH2FReader() override {};
  
-    void read() {
+    void read() override {
       if(0==m_element) {
         m_element = m_store->get(m_name);
         if(0==m_element) {
@@ -148,19 +148,19 @@ namespace {
 class DummyReadDQMStore :  public edm::EDAnalyzer {
    public:
       explicit DummyReadDQMStore(const edm::ParameterSet&);
-      ~DummyReadDQMStore();
+      ~DummyReadDQMStore() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      void beginJob() override ;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
       
-      virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-      virtual void endRun(edm::Run const&, edm::EventSetup const&);
-      virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-      virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+      void beginRun(edm::Run const&, edm::EventSetup const&) override;
+      void endRun(edm::Run const&, edm::EventSetup const&) override;
+      void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+      void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
       // ----------member data ---------------------------
       std::vector<boost::shared_ptr<ReaderBase> > m_runReaders;

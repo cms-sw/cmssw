@@ -51,23 +51,23 @@ namespace cms {
 
     explicit SiPixelDigitizer(const edm::ParameterSet& conf, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC);
 
-    virtual ~SiPixelDigitizer();
+    ~SiPixelDigitizer() override;
 
-    virtual void initializeEvent(edm::Event const& e, edm::EventSetup const& c) override;
-    virtual void accumulate(edm::Event const& e, edm::EventSetup const& c) override;
-    virtual void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c, edm::StreamID const&) override;
-    virtual void finalizeEvent(edm::Event& e, edm::EventSetup const& c) override;
+    void initializeEvent(edm::Event const& e, edm::EventSetup const& c) override;
+    void accumulate(edm::Event const& e, edm::EventSetup const& c) override;
+    void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c, edm::StreamID const&) override;
+    void finalizeEvent(edm::Event& e, edm::EventSetup const& c) override;
 
     virtual void beginJob() {}
 
-    virtual void StorePileupInformation( std::vector<int> &numInteractionList,
+    void StorePileupInformation( std::vector<int> &numInteractionList,
 					 std::vector<int> &bunchCrossingList,
 					 std::vector<float> &TrueInteractionList, 
 					 std::vector<edm::EventID> &eventInfoList, int bunchSpacing) override{
       PileupInfo_ = new PileupMixingContent(numInteractionList, bunchCrossingList, TrueInteractionList, eventInfoList, bunchSpacing);
     }
 
-    virtual PileupMixingContent* getEventPileupInfo() override { return PileupInfo_; }
+    PileupMixingContent* getEventPileupInfo() override { return PileupInfo_; }
 
   private:
     void accumulatePixelHits(edm::Handle<std::vector<PSimHit> >,

@@ -60,19 +60,19 @@ class dso_hidden PixelThresholdClusterizer final : public PixelClusterizerBase {
  public:
 
   PixelThresholdClusterizer(edm::ParameterSet const& conf);
-  ~PixelThresholdClusterizer();
+  ~PixelThresholdClusterizer() override;
 
   // Full I/O in DetSet
   void clusterizeDetUnit( const edm::DetSet<PixelDigi> & input,	
 				  const PixelGeomDetUnit * pixDet,
 				  const TrackerTopology* tTopo,
 				  const std::vector<short>& badChannels,
-				  edmNew::DetSetVector<SiPixelCluster>::FastFiller& output) { clusterizeDetUnitT(input, pixDet, tTopo, badChannels, output); }
+				  edmNew::DetSetVector<SiPixelCluster>::FastFiller& output) override { clusterizeDetUnitT(input, pixDet, tTopo, badChannels, output); }
   void clusterizeDetUnit( const edmNew::DetSet<SiPixelCluster> & input,
                           const PixelGeomDetUnit * pixDet,
                           const TrackerTopology* tTopo,
                           const std::vector<short>& badChannels,
-                          edmNew::DetSetVector<SiPixelCluster>::FastFiller& output) { clusterizeDetUnitT(input, pixDet, tTopo, badChannels, output); }
+                          edmNew::DetSetVector<SiPixelCluster>::FastFiller& output) override { clusterizeDetUnitT(input, pixDet, tTopo, badChannels, output); }
 
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 

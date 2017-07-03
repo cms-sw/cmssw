@@ -34,12 +34,12 @@ class MatchedProbeMaker : public edm::EDProducer
 
       explicit MatchedProbeMaker(const edm::ParameterSet& iConfig);
 
-      ~MatchedProbeMaker();
+      ~MatchedProbeMaker() override;
       
    private:
-      virtual void beginJob() override;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override;
+      void beginJob() override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override;
       
       // ----------member data ---------------------------
       edm::InputTag m_candidateSource;

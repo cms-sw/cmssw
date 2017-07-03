@@ -34,14 +34,14 @@ class EvtLb2plnuLCSR:public  EvtDecayAmp  {
 public:
 
   EvtLb2plnuLCSR();
-  virtual ~EvtLb2plnuLCSR();
+  ~EvtLb2plnuLCSR() override;
 
-  std::string getName();
-  EvtDecayBase* clone();
+  std::string getName() override;
+  EvtDecayBase* clone() override;
 
-  void decay(EvtParticle *p);
-  void initProbMax();
-  void init();
+  void decay(EvtParticle *p) override;
+  void initProbMax() override;
+  void init() override;
 
 private:
   EvtSemiLeptonicFF *ffmodel;

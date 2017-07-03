@@ -29,10 +29,10 @@ namespace edmtest {
   public:
 
     explicit TestFindProduct(edm::ParameterSet const& pset);
-    virtual ~TestFindProduct();
+    ~TestFindProduct() override;
 
-    virtual void analyze(edm::Event const& e, edm::EventSetup const& es);
-    virtual void endJob();
+    void analyze(edm::Event const& e, edm::EventSetup const& es) override;
+    void endJob() override;
 
   private:
 

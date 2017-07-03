@@ -27,14 +27,14 @@ public:
     identifier = p.getUntrackedParameter<int> ("identifier", 99);
   }
 
-  virtual
-    ~UTC_T1()
+  
+    ~UTC_T1() override
   { }
 
-  virtual
+  
     void analyze( edm::Event      const & e
                 , edm::EventSetup const & c
-                );
+                ) override;
 
 private:
   int identifier;
@@ -51,14 +51,14 @@ public:
     identifier = p.getUntrackedParameter<int> ("identifier", 98);
   }
 
-  virtual
-    ~UTC_T2()
+  
+    ~UTC_T2() override
   { }
 
-  virtual
+  
     void analyze( edm::Event      const & e
                 , edm::EventSetup const & c
-                );
+                ) override;
 
 private:
   int identifier;

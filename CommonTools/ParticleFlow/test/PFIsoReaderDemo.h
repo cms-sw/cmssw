@@ -18,9 +18,9 @@ class PFIsoReaderDemo : public edm::EDAnalyzer
 {
  public:
   explicit PFIsoReaderDemo(const edm::ParameterSet&);
-  ~PFIsoReaderDemo();
-  virtual void beginRun(edm::Run const&, edm::EventSetup const& );
-  virtual void analyze(const edm::Event & iEvent,const edm::EventSetup & c);
+  ~PFIsoReaderDemo() override;
+  void beginRun(edm::Run const&, edm::EventSetup const& ) override;
+  void analyze(const edm::Event & iEvent,const edm::EventSetup & c) override;
 
   typedef std::vector< edm::Handle< edm::ValueMap<reco::IsoDeposit> > > IsoDepositMaps;
   typedef std::vector< edm::Handle< edm::ValueMap<double> > > IsoDepositVals;

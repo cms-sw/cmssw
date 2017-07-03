@@ -38,12 +38,12 @@ class BPHMuonEtaSelect: public BPHParticleEtaSelect {
 
   /** Destructor
    */
-  virtual ~BPHMuonEtaSelect() {}
+  ~BPHMuonEtaSelect() override {}
 
   /** Operations
    */
   /// select muon
-  virtual bool accept( const reco::Candidate& cand ) const {
+  bool accept( const reco::Candidate& cand ) const override {
     if ( dynamic_cast<const pat::Muon*>( &cand ) == 0 ) return false;
     return BPHParticleEtaSelect::accept( cand );
   }

@@ -26,8 +26,8 @@ class QjetsPlugin: public fastjet::JetDefinition::Plugin{
   void SetRNEngine(CLHEP::HepRandomEngine* rnEngine){
     _rnEngine=rnEngine;
   };
-  double R() const;
-  std::string description() const;
-  void run_clustering(fastjet::ClusterSequence & cs) const;
+  double R() const override;
+  std::string description() const override;
+  void run_clustering(fastjet::ClusterSequence & cs) const override;
 };
 #endif

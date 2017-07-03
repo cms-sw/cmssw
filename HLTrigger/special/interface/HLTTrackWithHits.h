@@ -38,7 +38,7 @@ public:
     srcToken_ = consumes<reco::TrackCollection>(src_);
   }
 
-  ~HLTTrackWithHits() { }
+  ~HLTTrackWithHits() override { }
 
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions)
     {
@@ -55,7 +55,7 @@ public:
     }
 
 private:
-  virtual bool hltFilter(edm::Event& iEvent, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override
+  bool hltFilter(edm::Event& iEvent, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override
   {
     edm::Handle<reco::TrackCollection> oHandle;
     iEvent.getByToken(srcToken_, oHandle);

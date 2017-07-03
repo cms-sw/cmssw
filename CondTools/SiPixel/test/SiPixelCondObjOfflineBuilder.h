@@ -36,10 +36,10 @@ public:
 
   explicit SiPixelCondObjOfflineBuilder( const edm::ParameterSet& iConfig);
 
-  ~SiPixelCondObjOfflineBuilder(){};
-  virtual void beginJob();
-  virtual void analyze(const edm::Event& , const edm::EventSetup& );
-  virtual void endJob() ;
+  ~SiPixelCondObjOfflineBuilder() override{};
+  void beginJob() override;
+  void analyze(const edm::Event& , const edm::EventSetup& ) override;
+  void endJob() override ;
   bool loadFromFile();
 
 private:

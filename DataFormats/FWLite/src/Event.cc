@@ -59,7 +59,7 @@ namespace fwlite {
             public:
                 ProductGetter(Event* iEvent) : event_(iEvent) {}
 
-                virtual
+                
                 edm::WrapperBase const*
                 getIt(edm::ProductID const& iID) const override {
                     return event_->getByProductID(iID);
@@ -72,7 +72,7 @@ namespace fwlite {
                 // in a thinned container and key is modified to be the index into
                 // that thinned container. If the desired element is not found, then
                 // nullptr is returned.
-                virtual edm::WrapperBase const* getThinnedProduct(edm::ProductID const& pid,
+                edm::WrapperBase const* getThinnedProduct(edm::ProductID const& pid,
                                                                   unsigned int& key) const override {
                   return event_->getThinnedProduct(pid, key);
                 }
@@ -89,14 +89,14 @@ namespace fwlite {
                 // is modified to be the key into the container where the element
                 // was found. The WrapperBase pointers might or might not all point
                 // to the same thinned container.
-                virtual void getThinnedProducts(edm::ProductID const& pid,
+                void getThinnedProducts(edm::ProductID const& pid,
                                                 std::vector<edm::WrapperBase const*>& foundContainers,
                                                 std::vector<unsigned int>& keys) const override {
                   event_->getThinnedProducts(pid, foundContainers, keys);
                 }
 
             private:
-                virtual
+                
                 unsigned int
                 transitionIndex_() const override {
                     return 0U;

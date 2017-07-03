@@ -64,7 +64,7 @@ class FFTJetPatRecoProducer : public FFTJetInterface
 {
 public:
     explicit FFTJetPatRecoProducer(const edm::ParameterSet&);
-    ~FFTJetPatRecoProducer();
+    ~FFTJetPatRecoProducer() override;
 
 protected:
     // Useful local typedefs

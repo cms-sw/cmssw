@@ -64,7 +64,7 @@ class HGCalHitValidation : public DQMEDAnalyzer {
 public:
 
   explicit HGCalHitValidation( const edm::ParameterSet& );
-  ~HGCalHitValidation();
+  ~HGCalHitValidation() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 protected:

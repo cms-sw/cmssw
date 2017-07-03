@@ -39,10 +39,10 @@ class GenHTFilter : public edm::EDFilter
 {
    public:
       explicit GenHTFilter(const edm::ParameterSet&);
-      ~GenHTFilter();
+      ~GenHTFilter() override;
 
    private:
-      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
+      bool filter(edm::Event&, const edm::EventSetup&) override;
       
       //Member data 
       edm::EDGetTokenT<reco::GenJetCollection> token_;

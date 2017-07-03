@@ -41,13 +41,13 @@ class DTCCBConfigValidateHandler: public popcon::PopConSourceHandler<DTCCBConfig
 
   /** Destructor
    */
-  virtual ~DTCCBConfigValidateHandler();
+  ~DTCCBConfigValidateHandler() override;
 
   /** Operations
    */
   /// 
-  void getNewObjects();
-  std::string id() const;
+  void getNewObjects() override;
+  std::string id() const override;
 
  private:
 

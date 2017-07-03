@@ -49,7 +49,7 @@ class BPHDecayVertex: public virtual BPHDecayMomentum {
 
   /** Destructor
    */
-  virtual ~BPHDecayVertex();
+  ~BPHDecayVertex() override;
 
   /** Operations
    */
@@ -95,7 +95,7 @@ class BPHDecayVertex: public virtual BPHDecayMomentum {
                      const BPHRecoConstCandPtr& comp );
 
   // utility function used to cash reconstruction results
-  virtual void setNotUpdated() const;
+  void setNotUpdated() const override;
 
  private:
 

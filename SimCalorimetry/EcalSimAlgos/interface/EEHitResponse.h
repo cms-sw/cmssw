@@ -13,25 +13,25 @@ class EEHitResponse : public EcalHitResponse
       EEHitResponse( const CaloVSimParameterMap* parameterMap , 
 		     const CaloVShape*           shape          ) ;
 
-      virtual ~EEHitResponse() ;
+      ~EEHitResponse() override ;
 
       virtual bool keepBlank() const { return false ; }
 
-      virtual unsigned int samplesSize() const ;
+      unsigned int samplesSize() const override ;
 
-      virtual EcalSamples* operator[]( unsigned int i ) ;
+      EcalSamples* operator[]( unsigned int i ) override ;
 
-      virtual const EcalSamples* operator[]( unsigned int i ) const ;
+      const EcalSamples* operator[]( unsigned int i ) const override ;
 
    protected:
 
-      virtual unsigned int samplesSizeAll() const ;
+      unsigned int samplesSizeAll() const override ;
 
-      virtual EcalSamples* vSamAll( unsigned int i ) ;
+      EcalSamples* vSamAll( unsigned int i ) override ;
 
-      virtual const EcalSamples* vSamAll( unsigned int i ) const ;
+      const EcalSamples* vSamAll( unsigned int i ) const override ;
 
-      virtual EcalSamples* vSam( unsigned int i ) ;
+      EcalSamples* vSam( unsigned int i ) override ;
 
    private:
 

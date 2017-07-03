@@ -31,10 +31,10 @@ namespace edmtest
     }
     explicit  PedestalsByLabelAnalyzer(int i) 
     { std::cout<<"PedestalsByLabelAnalyzer "<<i<<std::endl; }
-    virtual ~PedestalsByLabelAnalyzer() {  
+    ~PedestalsByLabelAnalyzer() override {  
       std::cout<<"~PedestalsByLabelAnalyzer "<<std::endl;
     }
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
   private:
   };
   

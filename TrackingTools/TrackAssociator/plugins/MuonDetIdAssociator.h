@@ -41,31 +41,31 @@ class MuonDetIdAssociator: public DetIdAssociator{
    
    virtual void setGeometry(const GlobalTrackingGeometry* ptr) { geometry_ = ptr; }
 
-   virtual void setGeometry(const DetIdAssociatorRecord& iRecord) override;
+   void setGeometry(const DetIdAssociatorRecord& iRecord) override;
 
    virtual void setCSCBadChambers(const CSCBadChambers* ptr) { cscbadchambers_ = ptr; }
 
-   virtual void setConditions(const DetIdAssociatorRecord& iRecord) override{
+   void setConditions(const DetIdAssociatorRecord& iRecord) override{
       edm::ESHandle<CSCBadChambers> cscbadchambersH;
       iRecord.getRecord<CSCBadChambersRcd>().get(cscbadchambersH);
       setCSCBadChambers(cscbadchambersH.product());
    };
 
-   virtual const GeomDet* getGeomDet( const DetId& id ) const override;
+   const GeomDet* getGeomDet( const DetId& id ) const override;
 
-   virtual const char* name() const override { return "AllMuonDetectors"; }
+   const char* name() const override { return "AllMuonDetectors"; }
    
  protected:
    
-   virtual void check_setup() const override;
+   void check_setup() const override;
    
-   virtual GlobalPoint getPosition(const DetId& id) const override;
+   GlobalPoint getPosition(const DetId& id) const override;
    
-   virtual void getValidDetIds(unsigned int, std::vector<DetId>&) const override;
+   void getValidDetIds(unsigned int, std::vector<DetId>&) const override;
    
-   virtual std::pair<const_iterator,const_iterator> getDetIdPoints(const DetId& id, std::vector<GlobalPoint>& points) const override;
+   std::pair<const_iterator,const_iterator> getDetIdPoints(const DetId& id, std::vector<GlobalPoint>& points) const override;
 
-   virtual bool insideElement(const GlobalPoint& point, const DetId& id) const override;
+   bool insideElement(const GlobalPoint& point, const DetId& id) const override;
 
    const GlobalTrackingGeometry* geometry_;
 

@@ -12,10 +12,10 @@ class SherpaPartonSelector : public BasePartonSelector
 {
   public:
     SherpaPartonSelector();
-    virtual ~SherpaPartonSelector();
+    ~SherpaPartonSelector() override;
 
     void run(const edm::Handle<reco::GenParticleCollection> & particles,
-             std::unique_ptr<reco::GenParticleRefVector> & partons);
+             std::unique_ptr<reco::GenParticleRefVector> & partons) override;
 };
 
 #endif

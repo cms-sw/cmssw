@@ -12,7 +12,7 @@ namespace ecaldqm {
   class PedestalTask : public DQWorkerTask {
   public:
     PedestalTask();
-    ~PedestalTask() {}
+    ~PedestalTask() override {}
 
     bool filterRunType(short const*) override;
 

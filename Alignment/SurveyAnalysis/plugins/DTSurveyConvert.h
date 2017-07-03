@@ -29,7 +29,7 @@ class DTSurveyConvert : public edm::EDAnalyzer
       explicit DTSurveyConvert(const edm::ParameterSet&);
 
    private:
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
       std::vector<DTSurvey *> wheelList;
       std::string nameWheel_m2; 
       std::string nameWheel_m1; 

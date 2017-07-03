@@ -36,11 +36,11 @@ public:
   MCMuonSeedGenerator2(const edm::ParameterSet&);
 
   /// Destructor
-  ~MCMuonSeedGenerator2();
+  ~MCMuonSeedGenerator2() override;
 
   // Operations
 
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
   
 private:
   

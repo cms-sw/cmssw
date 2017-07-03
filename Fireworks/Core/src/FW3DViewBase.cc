@@ -41,11 +41,11 @@ namespace {
 class TGLClipsiLogical : public TGLLogicalShape
 {
 protected:
-   virtual void DirectDraw(TGLRnrCtx & rnrCtx) const override{}
+   void DirectDraw(TGLRnrCtx & rnrCtx) const override{}
 
 public:
    TGLClipsiLogical() : TGLLogicalShape() {}
-   virtual ~TGLClipsiLogical() {}
+   ~TGLClipsiLogical() override {}
    void Resize(Double_t ext){}
 };
 
@@ -63,9 +63,9 @@ private:
 
 public:
    Clipsi(TGLRnrCtx* ctx):TGLClip(* new TGLClipsiLogical, TGLMatrix(), fgColor), m_rnrCtx(ctx){}
-   virtual ~Clipsi() {}
+   ~Clipsi() override {}
    using TGLClip::Setup;
-   virtual void Setup(const TGLBoundingBox & bbox) override {}
+   void Setup(const TGLBoundingBox & bbox) override {}
 
    void SetPlaneInfo(TEveVector* vec)
    {
@@ -82,7 +82,7 @@ public:
 
 
    using TGLClip::PlaneSet;
-   virtual void PlaneSet(TGLPlaneSet_t & planeSet) const override
+   void PlaneSet(TGLPlaneSet_t & planeSet) const override
    {
       TGLVertex3 o = appexOffset;
 

@@ -33,7 +33,7 @@ public:
   explicit SingleObjectSelectorBase( const edm::ParameterSet & cfg ) :
     ObjectSelector<SingleElementCollectionSelector<InputCollection, Selector, OutputCollection, StoreContainer, RefAdder>, 
 		   OutputCollection, NonNullNumberSelector, PostProcessor, StoreManager, Base>( cfg ) { }
-  virtual ~SingleObjectSelectorBase() { }
+  ~SingleObjectSelectorBase() override { }
 };
 
 

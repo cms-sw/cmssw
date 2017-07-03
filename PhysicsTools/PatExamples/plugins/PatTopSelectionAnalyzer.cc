@@ -21,15 +21,15 @@ public:
   /// default constructor
   explicit PatTopSelectionAnalyzer(const edm::ParameterSet&);
   /// default destructor
-  ~PatTopSelectionAnalyzer();
+  ~PatTopSelectionAnalyzer() override;
 
 private:
   /// everything that needs to be done before the event loop
-  virtual void beginJob() override ;
+  void beginJob() override ;
   /// everything that needs to be done during the event loop
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   /// everything that needs to be done after the event loop
-  virtual void endJob() override ;
+  void endJob() override ;
 
   /// check if histogram was booked
   bool booked(const std::string histName) const { return hists_.find(histName.c_str())!=hists_.end(); };

@@ -64,10 +64,10 @@ private:
 class WhatsItExtensionCordAnalyzer : public edm::EDAnalyzer {
    public:
       explicit WhatsItExtensionCordAnalyzer(const edm::ParameterSet&);
-      ~WhatsItExtensionCordAnalyzer();
+      ~WhatsItExtensionCordAnalyzer() override;
 
 
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
    private:
       // ----------member data ---------------------------
         edm::ExtensionCord<WhatsIt> cord_;

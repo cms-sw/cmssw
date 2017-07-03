@@ -45,12 +45,12 @@ namespace edm
   class TestMixedSource : public edm::one::EDAnalyzer<> {
    public:
       explicit TestMixedSource(const edm::ParameterSet&);
-      ~TestMixedSource();
+      ~TestMixedSource() override;
 
    private:
-      virtual void beginJob() override ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override ;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
       // ----------member data ---------------------------
       std::ofstream outputFile;

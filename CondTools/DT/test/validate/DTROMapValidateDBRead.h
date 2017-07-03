@@ -17,9 +17,9 @@ class DTROMapValidateDBRead : public edm::EDAnalyzer {
 
   explicit  DTROMapValidateDBRead(edm::ParameterSet const& p);
   explicit  DTROMapValidateDBRead(int i) ;
-  virtual ~ DTROMapValidateDBRead();
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-  virtual void endJob();
+  ~ DTROMapValidateDBRead() override;
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  void endJob() override;
 
  private:
 

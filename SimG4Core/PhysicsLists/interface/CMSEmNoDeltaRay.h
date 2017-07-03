@@ -10,10 +10,10 @@ class CMSEmNoDeltaRay : public G4VPhysicsConstructor {
 
 public:
   CMSEmNoDeltaRay(const G4String& name, G4int ver, std::string reg);
-  virtual ~CMSEmNoDeltaRay();
+  ~CMSEmNoDeltaRay() override;
 
-  virtual void ConstructParticle();
-  virtual void ConstructProcess();
+  void ConstructParticle() override;
+  void ConstructProcess() override;
 
 private:
   G4int               verbose;

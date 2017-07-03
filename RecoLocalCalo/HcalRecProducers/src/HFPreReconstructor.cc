@@ -49,7 +49,7 @@ class HFPreReconstructor : public edm::stream::EDProducer<>
 {
 public:
     explicit HFPreReconstructor(const edm::ParameterSet&);
-    ~HFPreReconstructor();
+    ~HFPreReconstructor() override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -57,8 +57,8 @@ private:
     typedef std::pair<HcalDetId,int> PmtAnodeId;
     typedef std::pair<PmtAnodeId,const HFQIE10Info*> QIE10InfoWithId;
 
-    virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    void beginRun(const edm::Run&, const edm::EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
     // Module configuration parameters
     edm::InputTag inputLabel_;

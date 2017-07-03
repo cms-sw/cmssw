@@ -42,10 +42,10 @@ public:
     explicit L1GtBeamModeFilter(const edm::ParameterSet&);
 
     /// destructor
-    virtual ~L1GtBeamModeFilter();
+    ~L1GtBeamModeFilter() override;
 
     /// filter the event
-    virtual bool filter(edm::Event&, const edm::EventSetup&);
+    bool filter(edm::Event&, const edm::EventSetup&) override;
 
 private:
 

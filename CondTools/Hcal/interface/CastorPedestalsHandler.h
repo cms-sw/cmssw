@@ -25,9 +25,9 @@
 class CastorPedestalsHandler : public popcon::PopConSourceHandler<CastorPedestals>
 {
  public:
-  void getNewObjects();
-  std::string id() const { return m_name;}
-  ~CastorPedestalsHandler();
+  void getNewObjects() override;
+  std::string id() const override { return m_name;}
+  ~CastorPedestalsHandler() override;
   CastorPedestalsHandler(edm::ParameterSet const &);
 
   void initObject(CastorPedestals*);

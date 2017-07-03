@@ -44,13 +44,13 @@ public:
    FWTextTableCellRenderer(const TGGC* iContext=&(getDefaultGC()), 
                            const TGGC* iHighlightContext=&(getDefaultHighlightGC()),
                            Justify iJustify=kJustifyLeft);
-   virtual ~FWTextTableCellRenderer();
+   ~FWTextTableCellRenderer() override;
    
    // ---------- const member functions ---------------------
    const TGGC* graphicsContext() const { return m_context; }
    const TGGC* highlightContext() const { return m_highlightContext; }
-   virtual UInt_t width() const;
-   virtual UInt_t height() const;
+   UInt_t width() const override;
+   UInt_t height() const override;
    
    const TGFont* font() const;
    // ---------- static member functions --------------------
@@ -64,7 +64,7 @@ public:
    void setJustify(Justify);
    bool selected() { return m_isSelected; }
    
-   virtual void draw(Drawable_t iID, int iX, int iY, unsigned int iWidth, unsigned int iHeight);
+   void draw(Drawable_t iID, int iX, int iY, unsigned int iWidth, unsigned int iHeight) override;
    
    
 private:

@@ -32,7 +32,7 @@
 class HBHEDarkeningAnalyzer : public edm::one::EDAnalyzer<> {
 	public:
 		explicit HBHEDarkeningAnalyzer(const edm::ParameterSet&);
-		~HBHEDarkeningAnalyzer();
+		~HBHEDarkeningAnalyzer() override;
 	
 		static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 	

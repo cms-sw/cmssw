@@ -54,7 +54,7 @@ public:
     }
   }
   
-  virtual ~TrackingRegionsFromBeamSpotAndL2Tau() {}
+  ~TrackingRegionsFromBeamSpotAndL2Tau() override {}
     
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
@@ -80,7 +80,7 @@ public:
     descriptions.add("trackingRegionsFromBeamSpotAndL2Tau", descRegion);
   }
 
-  virtual std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& e, const edm::EventSetup& es) const override
+  std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& e, const edm::EventSetup& es) const override
   {
     std::vector<std::unique_ptr<TrackingRegion> > result;
 

@@ -25,8 +25,8 @@ class JetVetoedTracksAssociatorAtVertex : public edm::stream::EDProducer<>
 {
 public:
     JetVetoedTracksAssociatorAtVertex(const edm::ParameterSet&);
-    virtual ~JetVetoedTracksAssociatorAtVertex();
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    ~JetVetoedTracksAssociatorAtVertex() override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
 private:
     edm::EDGetTokenT<edm::View<reco::Jet>> mJets;
     edm::EDGetTokenT<reco::TrackCollection> mTracks;

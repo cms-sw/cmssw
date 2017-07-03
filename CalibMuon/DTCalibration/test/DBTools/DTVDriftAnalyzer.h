@@ -27,14 +27,14 @@ public:
   DTVDriftAnalyzer(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~DTVDriftAnalyzer();
+  ~DTVDriftAnalyzer() override;
 
   /// Operations
   //Read the DTGeometry and the vdrift DB
-  virtual void beginRun(const edm::Run& run, const edm::EventSetup& setup );
-  void analyze(const edm::Event& event, const edm::EventSetup& setup) {}
+  void beginRun(const edm::Run& run, const edm::EventSetup& setup ) override;
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override {}
   //Do the real work
-  void endJob();
+  void endJob() override;
 
 protected:
 

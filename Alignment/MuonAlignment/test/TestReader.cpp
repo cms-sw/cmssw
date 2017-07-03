@@ -51,12 +51,12 @@
 class TestMuonReader : public edm::EDAnalyzer {
 public:
   explicit TestMuonReader( const edm::ParameterSet& );
-  ~TestMuonReader();
+  ~TestMuonReader() override;
 
   void recursiveGetMuChambers(std::vector<Alignable*> &composite, std::vector<Alignable*> &chambers, int kind);
   align::EulerAngles toPhiXYZ(const align::RotationType &);
   
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  void analyze( const edm::Event&, const edm::EventSetup& ) override;
 private:
   // ----------member data ---------------------------
   TTree* theTree;

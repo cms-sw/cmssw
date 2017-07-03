@@ -34,9 +34,9 @@ class TestRef: public CppUnit::TestFixture {
   //typedef edm::Ref<product2_t, int> ref2_t;
 
   TestRef() {}
-  ~TestRef() {}
-  void setUp() {}
-  void tearDown() {}
+  ~TestRef() override {}
+  void setUp() override {}
+  void tearDown() override {}
 
   void default_ctor();
   // void default_ctor_string_key();

@@ -45,7 +45,7 @@ using namespace edm;
 class L1TUtmTriggerMenuESProducer : public edm::ESProducer {
 public:
   L1TUtmTriggerMenuESProducer(const edm::ParameterSet&);
-  ~L1TUtmTriggerMenuESProducer();
+  ~L1TUtmTriggerMenuESProducer() override;
 
   typedef std::shared_ptr<L1TUtmTriggerMenu> ReturnType;
 

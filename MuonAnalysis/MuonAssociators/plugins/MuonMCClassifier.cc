@@ -69,10 +69,10 @@
 class MuonMCClassifier : public edm::EDProducer {
     public:
         explicit MuonMCClassifier(const edm::ParameterSet&);
-        ~MuonMCClassifier();
+        ~MuonMCClassifier() override;
 
     private:
-        virtual void produce(edm::Event&, const edm::EventSetup&) override;
+        void produce(edm::Event&, const edm::EventSetup&) override;
         /// The RECO objects
         edm::EDGetTokenT<edm::View<reco::Muon> > muonsToken_;
 

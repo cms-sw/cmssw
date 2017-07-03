@@ -19,7 +19,7 @@ private:
     std::string hash(void *buf, size_t len) const ;
 
 public:
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
     explicit L1TGlobalPrescalesVetosViewer(const edm::ParameterSet& pset) : edm::EDAnalyzer(){
        prescale_table_verbosity = pset.getUntrackedParameter<int32_t>("prescale_table_verbosity", 0);
@@ -27,7 +27,7 @@ public:
        veto_verbosity           = pset.getUntrackedParameter<int32_t>("veto_verbosity",           0);
     }
 
-    virtual ~L1TGlobalPrescalesVetosViewer(void){}
+    ~L1TGlobalPrescalesVetosViewer(void) override{}
 };
 
 #include <openssl/sha.h>

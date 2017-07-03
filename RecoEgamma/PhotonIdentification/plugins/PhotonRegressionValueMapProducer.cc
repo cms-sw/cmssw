@@ -62,13 +62,13 @@ class PhotonRegressionValueMapProducer : public edm::stream::EDProducer<> {
   public:
   
   explicit PhotonRegressionValueMapProducer(const edm::ParameterSet&);
-  ~PhotonRegressionValueMapProducer();
+  ~PhotonRegressionValueMapProducer() override;
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
   
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   template<typename T>
   void writeValueMap(edm::Event &iEvent,

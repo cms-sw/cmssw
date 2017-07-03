@@ -25,12 +25,12 @@
 class TrackMix : public edm::EDAnalyzer {
 public:
   explicit TrackMix(const edm::ParameterSet&);
-  ~TrackMix();
+  ~TrackMix() override;
   
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-  virtual void beginJob();
-  virtual void endJob();
+  void beginJob() override;
+  void endJob() override;
 
 private:
 

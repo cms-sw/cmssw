@@ -65,12 +65,12 @@
 class TrackCount : public edm::EDAnalyzer {
 public:
   explicit TrackCount(const edm::ParameterSet&);
-  ~TrackCount();
+  ~TrackCount() override;
   
   
 private:
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   
       // ----------member data ---------------------------
 

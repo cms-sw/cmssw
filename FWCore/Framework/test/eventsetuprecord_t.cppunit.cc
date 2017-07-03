@@ -64,8 +64,8 @@ CPPUNIT_TEST_EXCEPTION(doGetExepTest,ExceptionType);
 
 CPPUNIT_TEST_SUITE_END();
 public:
-  void setUp(){}
-  void tearDown(){}
+  void setUp() override{}
+  void tearDown() override{}
 
   void factoryTest();
   void proxyTest();
@@ -97,10 +97,10 @@ HCTYPETAG_HELPER_METHODS(Dummy)
 
 class FailingDummyProxy : public eventsetup::DataProxyTemplate<DummyRecord, Dummy> {
 protected:
-   const value_type* make(const record_type&, const DataKey&) {
+   const value_type* make(const record_type&, const DataKey&) override {
       return 0 ;
    }
-   void invalidateCache() {
+   void invalidateCache() override {
    }   
 };
 
@@ -122,16 +122,16 @@ public:
   }
 protected:
    
-   const value_type* make(const record_type&, const DataKey&) {
+   const value_type* make(const record_type&, const DataKey&) override {
       invalidateCalled_=false;
       invalidateTransientCalled_=false;
       return data_ ;
    }
-   void invalidateCache() {
+   void invalidateCache() override {
       invalidateCalled_=true;
    }
   
-   void invalidateTransientCache() {
+   void invalidateTransientCache() override {
      invalidateTransientCalled_=true;
      //check default behavior
      eventsetup::DataProxyTemplate<DummyRecord, Dummy>::invalidateTransientCache();
@@ -152,12 +152,12 @@ public:
     usingRecord<DummyRecord>();
   }
   
-  virtual void newInterval(const EventSetupRecordKey&,
-                           const ValidityInterval&) {}
+  void newInterval(const EventSetupRecordKey&,
+                           const ValidityInterval&) override {}
 
 protected:
-  virtual void registerProxies(const EventSetupRecordKey&,
-                               KeyedProxies& aProxyList) {
+  void registerProxies(const EventSetupRecordKey&,
+                               KeyedProxies& aProxyList) override {
     aProxyList.emplace_back(m_key, m_proxy);
   }
 private:

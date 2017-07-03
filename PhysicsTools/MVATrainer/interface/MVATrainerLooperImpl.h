@@ -23,7 +23,7 @@ class MVATrainerLooperImpl : public MVATrainerLooper {
 		addTrainer(new Trainer(params));
 	}
 
-	virtual ~MVATrainerLooperImpl() {}
+	~MVATrainerLooperImpl() override {}
 
 	std::shared_ptr<Calibration::MVAComputer>
 	produce(const Record_t &record)
@@ -51,7 +51,7 @@ class MVATrainerContainerLooperImpl : public MVATrainerLooper {
 			addTrainer(new Trainer(*iter));
 	}
 
-	virtual ~MVATrainerContainerLooperImpl() {}
+	~MVATrainerContainerLooperImpl() override {}
 
 	edm::ESProducts<
 		edm::es::L<Calibration::MVAComputerContainer, kTrainer>,

@@ -154,10 +154,10 @@ class TauDQMHistPlotter : public edm::EDAnalyzer
 
  public:
   explicit TauDQMHistPlotter(const edm::ParameterSet&);
-  virtual ~TauDQMHistPlotter();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob(){}  
-  virtual void endRun(const edm::Run& r, const edm::EventSetup& c);
+  ~TauDQMHistPlotter() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override{}  
+  void endRun(const edm::Run& r, const edm::EventSetup& c) override;
 
 private:
   std::map<std::string, cfgEntryProcess> processes_;

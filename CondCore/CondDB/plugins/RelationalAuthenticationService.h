@@ -32,7 +32,7 @@ namespace cond {
       explicit RelationalAuthenticationService( const std::string& name );   
 
       /// Standard Destructor
-      virtual ~RelationalAuthenticationService();
+      ~RelationalAuthenticationService() override;
 
     public:
 
@@ -43,7 +43,7 @@ namespace cond {
        * Returns a reference to the credentials object for a given connection string.
        * If the connection string is not known to the service an UnknownConnectionException is thrown.
        */
-      const coral::IAuthenticationCredentials& credentials( const std::string& connectionString ) const;
+      const coral::IAuthenticationCredentials& credentials( const std::string& connectionString ) const override;
 
       /**
        * Returns a reference to the credentials object for a given connection string.
@@ -51,7 +51,7 @@ namespace cond {
        * If the role is not known to the service an UnknownRoleException is thrown.
        */
       const coral::IAuthenticationCredentials& credentials( const std::string& connectionString,
-                                                            const std::string& role ) const;
+                                                            const std::string& role ) const override;
 
     private:
 

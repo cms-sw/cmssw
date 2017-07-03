@@ -19,9 +19,9 @@ class SiStripNoisesBuilder : public edm::EDAnalyzer {
 
   explicit SiStripNoisesBuilder( const edm::ParameterSet& iConfig);
 
-  ~SiStripNoisesBuilder(){};
+  ~SiStripNoisesBuilder() override{};
 
-  virtual void analyze(const edm::Event& , const edm::EventSetup& );
+  void analyze(const edm::Event& , const edm::EventSetup& ) override;
 
  private:
   edm::FileInPath fp_;

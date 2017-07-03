@@ -30,8 +30,8 @@ namespace l1t {
   public:
     //Stage1Layer2MainProcessorFirmwareImp1(const FirmwareVersion & fwv /*const CaloParamsHelper & dbPars*/);
     Stage1Layer2MainProcessorFirmwareImp1(const int fwv , CaloParamsHelper* dbPars);
-    virtual ~Stage1Layer2MainProcessorFirmwareImp1();
-    virtual void processEvent(const std::vector<CaloEmCand> &,
+    ~Stage1Layer2MainProcessorFirmwareImp1() override;
+    void processEvent(const std::vector<CaloEmCand> &,
                               const std::vector<CaloRegion> &,
 			      std::vector<EGamma> * egammas,
 			      std::vector<Tau> * taus,
@@ -40,7 +40,7 @@ namespace l1t {
 			      std::vector<Jet> * preGtJets,
 			      std::vector<EtSum> * etsums,
 			      CaloSpare * hfSums,
-			      CaloSpare * hfCounts);
+			      CaloSpare * hfCounts) override;
   private:
 
     int m_fwv;

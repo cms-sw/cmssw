@@ -54,7 +54,7 @@ public:
     L1GtCaloCondition(const L1GtCaloCondition&);
 
     // destructor
-    virtual ~L1GtCaloCondition();
+    ~L1GtCaloCondition() override;
 
     // assign operator
     L1GtCaloCondition& operator=(const L1GtCaloCondition&);
@@ -62,10 +62,10 @@ public:
 public:
 
     /// the core function to check if the condition matches
-    const bool evaluateCondition() const;
+    const bool evaluateCondition() const override;
 
     /// print condition
-     void print(std::ostream& myCout) const;
+     void print(std::ostream& myCout) const override;
 
 public:
 

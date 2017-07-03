@@ -31,9 +31,9 @@ class SteppingAction: public G4UserSteppingAction {
 public:
   explicit SteppingAction(EventAction * ea, const edm::ParameterSet & ps, 
 			  const CMSSteppingVerbose*, bool hasW);
-  virtual ~SteppingAction();
+  ~SteppingAction() override;
 
-  virtual void UserSteppingAction(const G4Step * aStep) final;
+  void UserSteppingAction(const G4Step * aStep) final;
   
   SimActivityRegistry::G4StepSignal m_g4StepSignal;
 

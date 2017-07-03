@@ -109,7 +109,7 @@ using namespace reco;
 class GlobalTrackerMuonAlignment : public edm::EDAnalyzer {
  public:
   explicit GlobalTrackerMuonAlignment(const edm::ParameterSet&);
-  ~GlobalTrackerMuonAlignment();
+  ~GlobalTrackerMuonAlignment() override;
 
   void analyzeTrackTrack(const edm::Event&, const edm::EventSetup&);
   void analyzeTrackTrajectory(const edm::Event&, const edm::EventSetup&);
@@ -145,9 +145,9 @@ class GlobalTrackerMuonAlignment : public edm::EDAnalyzer {
 
  private:
 
-  virtual void beginJob() override ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
+  void beginJob() override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
   
   // ----------member data ---------------------------
 

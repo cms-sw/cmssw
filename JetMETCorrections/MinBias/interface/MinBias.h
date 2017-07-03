@@ -42,11 +42,11 @@ namespace cms
 class MinBias : public edm::EDAnalyzer {
    public:
       explicit MinBias(const edm::ParameterSet&);
-      ~MinBias();
+      ~MinBias() override;
 
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void beginJob() ;
-      virtual void endJob() ;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void beginJob() override ;
+      void endJob() override ;
 
    private:
   // ----------member data ---------------------------

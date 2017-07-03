@@ -54,13 +54,13 @@ class DTUserKeyedConfigHandler: public popcon::PopConSourceHandler<DTCCBConfig> 
 
   /** Destructor
    */
-  virtual ~DTUserKeyedConfigHandler();
+  ~DTUserKeyedConfigHandler() override;
 
   /** Operations
    */
   /// 
-  void getNewObjects();
-  std::string id() const;
+  void getNewObjects() override;
+  std::string id() const override;
 
   static void setList( cond::persistency::KeyList* list );
 

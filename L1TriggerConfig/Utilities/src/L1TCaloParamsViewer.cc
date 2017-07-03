@@ -23,7 +23,7 @@ private:
     std::string hash(void *buf, size_t len) const ;
 
 public:
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
     explicit L1TCaloParamsViewer(const edm::ParameterSet& pset) : edm::EDAnalyzer(){
        printPUSParams   = pset.getUntrackedParameter<bool>("printPUSParams",  false);
@@ -34,7 +34,7 @@ public:
        printEgIsoLUT    = pset.getUntrackedParameter<bool>("printEgIsoLUT",   false);
     }
 
-    virtual ~L1TCaloParamsViewer(void){}
+    ~L1TCaloParamsViewer(void) override{}
 };
 
 #include <openssl/sha.h>

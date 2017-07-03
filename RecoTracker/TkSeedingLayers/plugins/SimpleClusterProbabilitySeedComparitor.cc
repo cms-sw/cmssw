@@ -7,12 +7,12 @@
 class SimpleClusterProbabilitySeedComparitor : public SeedComparitor {
     public:
         SimpleClusterProbabilitySeedComparitor(const edm::ParameterSet &cfg, edm::ConsumesCollector& iC) ;
-        virtual ~SimpleClusterProbabilitySeedComparitor() ; 
-        virtual void init(const edm::Event& ev, const edm::EventSetup& es) override {}
-        virtual bool compatible(const SeedingHitSet  &hits) const override { return true; }
-        virtual bool compatible(const TrajectoryStateOnSurface &,
+        ~SimpleClusterProbabilitySeedComparitor() override ; 
+        void init(const edm::Event& ev, const edm::EventSetup& es) override {}
+        bool compatible(const SeedingHitSet  &hits) const override { return true; }
+        bool compatible(const TrajectoryStateOnSurface &,
                 SeedingHitSet::ConstRecHitPointer hit) const override ;
-        virtual bool compatible(const SeedingHitSet  &hits, 
+        bool compatible(const SeedingHitSet  &hits, 
                 const GlobalTrajectoryParameters &helixStateAtVertex,
                 const FastHelix                  &helix) const override { return true; }
 

@@ -16,7 +16,7 @@
 class CSCDigiToPattern : public edm::EDAnalyzer {
 public:
   explicit CSCDigiToPattern(edm::ParameterSet const& conf);
-  virtual void analyze(edm::Event const& e, edm::EventSetup const& iSetup);
+  void analyze(edm::Event const& e, edm::EventSetup const& iSetup) override;
 
   //virtual void endJob();
 private:

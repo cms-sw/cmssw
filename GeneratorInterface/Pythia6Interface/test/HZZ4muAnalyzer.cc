@@ -22,11 +22,11 @@ class HZZ4muAnalyzer : public edm::EDAnalyzer
    
       //
       explicit HZZ4muAnalyzer( const edm::ParameterSet& ) ;
-      virtual ~HZZ4muAnalyzer() {} // no need to delete ROOT stuff
+      ~HZZ4muAnalyzer() override {} // no need to delete ROOT stuff
                                    // as it'll be deleted upon closing TFile
       
-      virtual void analyze( const edm::Event&, const edm::EventSetup& ) override;
-      virtual void beginJob() override;
+      void analyze( const edm::Event&, const edm::EventSetup& ) override;
+      void beginJob() override;
 
    private:
    

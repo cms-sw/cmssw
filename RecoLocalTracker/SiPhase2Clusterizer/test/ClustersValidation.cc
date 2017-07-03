@@ -74,7 +74,7 @@ class Phase2TrackerClusterizerValidation : public edm::EDAnalyzer {
         typedef std::map< unsigned int, SimTrack > SimTracksMap;
 
         explicit Phase2TrackerClusterizerValidation(const edm::ParameterSet&);
-        ~Phase2TrackerClusterizerValidation();
+        ~Phase2TrackerClusterizerValidation() override;
         void beginJob() override;
         void endJob() override;
         void analyze(const edm::Event&, const edm::EventSetup&) override;

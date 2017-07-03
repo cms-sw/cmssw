@@ -14,7 +14,7 @@ namespace ecaldqm {
   class LaserTask : public DQWorkerTask {
   public:
     LaserTask();
-    ~LaserTask() {}
+    ~LaserTask() override {}
 
     void addDependencies(DependencySet&) override;
 

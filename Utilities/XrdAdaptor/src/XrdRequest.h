@@ -58,7 +58,7 @@ public:
         m_stats = stats;
     }
 
-    virtual ~ClientRequest();
+    ~ClientRequest() override;
 
     std::future<IOSize> get_future()
     {
@@ -68,7 +68,7 @@ public:
     /**
      * Handle the response from the Xrootd server.
      */
-    virtual void HandleResponse(XrdCl::XRootDStatus *status, XrdCl::AnyObject *response) override;
+    void HandleResponse(XrdCl::XRootDStatus *status, XrdCl::AnyObject *response) override;
 
     IOSize getSize() const {return m_size;}
 

@@ -22,14 +22,14 @@ class JetPartonCorrector : public JetCorrector
 {
 public:  
   JetPartonCorrector(const edm::ParameterSet& fConfig); 
-  virtual ~JetPartonCorrector();
+  ~JetPartonCorrector() override;
   
-  virtual double   correction (const LorentzVector& fJet) const;
+  double   correction (const LorentzVector& fJet) const override;
    
   void setParameters(std::string aCalibrationType, double aJetFinderRadius, int aPartonMixture);
 
   /// if correction needs event information
-  virtual bool eventRequired () const {return false;}
+  bool eventRequired () const override {return false;}
   
 private:
 

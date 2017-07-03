@@ -46,13 +46,13 @@ class PFRecoTauDiscriminationAgainstElectronMVA5 : public PFTauDiscriminationPro
     produces<PFTauDiscriminator>("category");
   }
 
-  void beginEvent(const edm::Event&, const edm::EventSetup&);
+  void beginEvent(const edm::Event&, const edm::EventSetup&) override;
 
-  double discriminate(const PFTauRef&) const;
+  double discriminate(const PFTauRef&) const override;
 
-  void endEvent(edm::Event&);
+  void endEvent(edm::Event&) override;
 
-  ~PFRecoTauDiscriminationAgainstElectronMVA5()
+  ~PFRecoTauDiscriminationAgainstElectronMVA5() override
   {
     delete mva_;
   }

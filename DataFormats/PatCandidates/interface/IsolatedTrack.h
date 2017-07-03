@@ -51,7 +51,7 @@ namespace pat {
           deltaEta_(dEta), deltaPhi_(dPhi),
           packedCandRef_(pcref) {}
 
-        ~IsolatedTrack() {}
+        ~IsolatedTrack() override {}
 
         const PFIsolation& pfIsolationDR03() const  { return pfIsolationDR03_; }
 
@@ -61,9 +61,9 @@ namespace pat {
         float matchedCaloJetHadEnergy() const { return matchedCaloJetHadEnergy_; }
 
         float dz() const { return dz_; }
-        float dzError() const { return dzError_; }
+        float dzError() const override { return dzError_; }
         float dxy() const { return dxy_; }
-        float dxyError() const { return dxyError_; }
+        float dxyError() const override { return dxyError_; }
 
         int fromPV() const { return fromPV_; }
 

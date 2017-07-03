@@ -24,12 +24,12 @@ class DTSegment4DT0Corrector: public edm::stream::EDProducer<> {
   DTSegment4DT0Corrector(const edm::ParameterSet&) ;
 
   /// Destructor
-  virtual ~DTSegment4DT0Corrector();
+  ~DTSegment4DT0Corrector() override;
 
   // Operations
 
   /// The method which produces the 4D rec segments corrected for t0 offset
-  virtual void produce(edm::Event& event, const edm::EventSetup& setup);
+  void produce(edm::Event& event, const edm::EventSetup& setup) override;
   
 
  protected:

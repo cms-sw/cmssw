@@ -64,7 +64,7 @@ class LHEReader::FileSource : public LHEReader::Source {
 		fileStream.reset(new StorageWrap(std::move(storage)));
 	}
 
-	~FileSource() {}
+	~FileSource() override {}
 
 	XMLDocument *createReader(XMLDocument::Handler &handler) override
 	{ return new XMLDocument(fileStream, handler); }
@@ -86,7 +86,7 @@ class LHEReader::StringSource : public LHEReader::Source {
         fileStream.reset(tmpis);
 	}
 
-	~StringSource() {}
+	~StringSource() override {}
 
 	XMLDocument *createReader(XMLDocument::Handler &handler) override
 	{ return new XMLDocument(fileStream, handler); }
@@ -102,7 +102,7 @@ class LHEReader::XMLHandler : public XMLDocument::Handler {
 		impl(nullptr),
 		gotObject(kNone), mode(kNone),
 		xmlHeader(0), xmlEvent(0), headerOk(false), npLO(-99), npNLO(-99) {}
-	~XMLHandler()
+	~XMLHandler() override
 	{ if (xmlHeader) xmlHeader->release(); 
 	  if (xmlEvent) xmlEvent->release();   }
 
@@ -128,8 +128,8 @@ class LHEReader::XMLHandler : public XMLDocument::Handler {
 	                const XMLCh *const localname,
 	                const XMLCh *const qname) override;
 
-        virtual void characters (const XMLCh *const chars, const XMLSize_t length) override;
-        virtual void comment (const XMLCh *const chars, const XMLSize_t length) override; 	
+        void characters (const XMLCh *const chars, const XMLSize_t length) override;
+        void comment (const XMLCh *const chars, const XMLSize_t length) override; 	
 
     private:
 	friend class LHEReader;

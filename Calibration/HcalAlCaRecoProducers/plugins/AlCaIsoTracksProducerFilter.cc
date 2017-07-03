@@ -39,20 +39,20 @@ class AlCaIsoTracksProducerFilter : public edm::stream::EDFilter<edm::GlobalCach
 public:
   explicit AlCaIsoTracksProducerFilter(edm::ParameterSet const&,
 				       const AlCaIsoTracksProdFilter::Counters* count);
-  ~AlCaIsoTracksProducerFilter();
+  ~AlCaIsoTracksProducerFilter() override;
     
   static std::unique_ptr<AlCaIsoTracksProdFilter::Counters> initializeGlobalCache(edm::ParameterSet const& iConfig) {
     return std::make_unique<AlCaIsoTracksProdFilter::Counters>();
   }
 
-  virtual bool filter(edm::Event&, edm::EventSetup const&) override;
-  virtual void endStream() override;
+  bool filter(edm::Event&, edm::EventSetup const&) override;
+  void endStream() override;
   static  void globalEndJob(const AlCaIsoTracksProdFilter::Counters* counters);
   static  void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
 private:
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
   
   // ----------member data ---------------------------
   HLTConfigProvider             hltConfig_;

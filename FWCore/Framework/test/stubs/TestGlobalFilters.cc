@@ -162,7 +162,7 @@ struct Dummy {
       }      
    }
 
-    ~StreamIntFilter() {
+    ~StreamIntFilter() override {
       if(m_count != trans_) {
         throw cms::Exception("transitions")
           << "StreamIntFilter transitions "
@@ -230,7 +230,7 @@ struct Dummy {
      --(rCache->run);
     }
 
-    ~RunIntFilter() {
+    ~RunIntFilter() override {
       if(m_count != trans_) {
         throw cms::Exception("transitions")
           << "RunIntFilter transitions "     
@@ -302,7 +302,7 @@ struct Dummy {
       }
     }
 
-    ~LumiIntFilter() {
+    ~LumiIntFilter() override {
       if(m_count != trans_) {
         throw cms::Exception("transitions")
           << "LumiIntFilter transitions " 
@@ -364,7 +364,7 @@ struct Dummy {
       --(gCache->run);
     }
 
-    ~RunSummaryIntFilter() {
+    ~RunSummaryIntFilter() override {
       if(m_count != trans_) {
         throw cms::Exception("transitions")
           << "RunSummaryIntFilter transitions " 
@@ -425,7 +425,7 @@ struct Dummy {
       --(gCache->lumi);
     }
 
-    ~LumiSummaryIntFilter() {
+    ~LumiSummaryIntFilter() override {
       if(m_count != trans_) {
         throw cms::Exception("transitions")
           << "LumiSummaryIntFilter transitions "     
@@ -466,7 +466,7 @@ struct Dummy {
     void globalEndRun(edm::Run const& iRun, edm::EventSetup const&) const override {
     }
 
-    ~TestBeginRunFilter() {
+    ~TestBeginRunFilter() override {
      if(m_count != trans_) {
         throw cms::Exception("transitions")
           << "TestBeginRunFilter transitions " 
@@ -507,7 +507,7 @@ struct Dummy {
     void globalEndRun(edm::Run const& iRun, edm::EventSetup const&) const override {
     }
 
-    ~TestEndRunFilter() {
+    ~TestEndRunFilter() override {
      if(m_count != trans_) {
         throw cms::Exception("transitions")
           << "TestEndRunFilter transitions " 
@@ -548,7 +548,7 @@ struct Dummy {
     void globalEndLuminosityBlock(edm::LuminosityBlock const& iLB, edm::EventSetup const&) const override {
     }
 
-    ~TestBeginLumiBlockFilter() {
+    ~TestBeginLumiBlockFilter() override {
      if(m_count != trans_) {
         throw cms::Exception("transitions")
           << "TestBeginLumiBlockFilter transitions " 
@@ -589,7 +589,7 @@ struct Dummy {
     void globalEndLuminosityBlock(edm::LuminosityBlock const& iLB, edm::EventSetup const&) const override {
     }
 
-    ~TestEndLumiBlockFilter() {
+    ~TestEndLumiBlockFilter() override {
      if(m_count != trans_) {
         throw cms::Exception("transitions")
           << "TestEndLumiBlockFilter transitions " 

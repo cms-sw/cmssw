@@ -68,10 +68,10 @@ class JetCrystalsAssociator : public edm::EDProducer {
 
    public:
       explicit JetCrystalsAssociator(const edm::ParameterSet&);
-      ~JetCrystalsAssociator();
+      ~JetCrystalsAssociator() override;
 
 
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
    private:
       std::unique_ptr<JetCrystalsAssociationCollection> associate( 
           const edm::Handle<CaloJetCollection> & jets,

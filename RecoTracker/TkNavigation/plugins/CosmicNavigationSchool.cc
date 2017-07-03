@@ -16,7 +16,7 @@ class dso_hidden CosmicNavigationSchool : public SimpleNavigationSchool {
 public:
   CosmicNavigationSchool(const GeometricSearchTracker* theTracker,
 			 const MagneticField* field);
-  ~CosmicNavigationSchool(){ cleanMemory();}
+  ~CosmicNavigationSchool() override{ cleanMemory();}
 
   class CosmicNavigationSchoolConfiguration{
   public:
@@ -42,7 +42,7 @@ protected:
 private:
 
   //FakeDetLayer* theFakeDetLayer;
-  void linkBarrelLayers( SymmetricLayerFinder& symFinder);
+  void linkBarrelLayers( SymmetricLayerFinder& symFinder) override;
   //void linkForwardLayers( SymmetricLayerFinder& symFinder); 
   void establishInverseRelations( SymmetricLayerFinder& symFinder );
   void buildAdditionalBarrelLinks();
@@ -320,7 +320,7 @@ public:
 				      const MagneticField* field,
 				      const CosmicNavigationSchoolConfiguration conf);
 
-  ~SkippingLayerCosmicNavigationSchool(){cleanMemory();};
+  ~SkippingLayerCosmicNavigationSchool() override{cleanMemory();};
 };
 
 
@@ -362,7 +362,7 @@ class dso_hidden SkippingLayerCosmicNavigationSchoolESProducer final : public ed
 }
 
 
-  ~SkippingLayerCosmicNavigationSchoolESProducer(){}
+  ~SkippingLayerCosmicNavigationSchoolESProducer() override{}
 
    typedef std::shared_ptr<NavigationSchool> ReturnType;
 

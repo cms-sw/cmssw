@@ -46,18 +46,18 @@ namespace cond {
       class Table : public IRunInfoTable {
       public:
 	explicit Table( coral::ISchema& schema );
-	virtual ~Table(){}
-	bool exists();
-	void create();
-	bool select( cond::Time_t runNumber, boost::posix_time::ptime& start, boost::posix_time::ptime& end );
-        cond::Time_t getLastInserted();
+	~Table() override{}
+	bool exists() override;
+	void create() override;
+	bool select( cond::Time_t runNumber, boost::posix_time::ptime& start, boost::posix_time::ptime& end ) override;
+        cond::Time_t getLastInserted() override;
 	bool getInclusiveRunRange( cond::Time_t lower, cond::Time_t upper,
-				   std::vector<std::tuple<cond::Time_t,boost::posix_time::ptime,boost::posix_time::ptime> >& runData );
+				   std::vector<std::tuple<cond::Time_t,boost::posix_time::ptime,boost::posix_time::ptime> >& runData ) override;
 	bool getInclusiveTimeRange( const boost::posix_time::ptime& lower ,const boost::posix_time::ptime& upper, 
-				    std::vector<std::tuple<cond::Time_t,boost::posix_time::ptime,boost::posix_time::ptime> >& runData );
-	void insertOne( cond::Time_t runNumber, const boost::posix_time::ptime& start, const boost::posix_time::ptime& end);
-	void insert( const std::vector<std::tuple<cond::Time_t,boost::posix_time::ptime,boost::posix_time::ptime> >& runs );
-	void updateEnd( cond::Time_t runNumber, const boost::posix_time::ptime& end );
+				    std::vector<std::tuple<cond::Time_t,boost::posix_time::ptime,boost::posix_time::ptime> >& runData ) override;
+	void insertOne( cond::Time_t runNumber, const boost::posix_time::ptime& start, const boost::posix_time::ptime& end) override;
+	void insert( const std::vector<std::tuple<cond::Time_t,boost::posix_time::ptime,boost::posix_time::ptime> >& runs ) override;
+	void updateEnd( cond::Time_t runNumber, const boost::posix_time::ptime& end ) override;
 
       private:
 	coral::ISchema& m_schema;
@@ -68,10 +68,10 @@ namespace cond {
     class RunInfoSchema : public IRunInfoSchema {
     public: 
       explicit RunInfoSchema( coral::ISchema& schema );
-      virtual ~RunInfoSchema(){}
-      bool exists();
-      bool create();
-      IRunInfoTable& runInfoTable();
+      ~RunInfoSchema() override{}
+      bool exists() override;
+      bool create() override;
+      IRunInfoTable& runInfoTable() override;
     private:
       RUN_INFO::Table m_runInfoTable;
     };

@@ -52,12 +52,12 @@ namespace CLHEP {
 class BetaBoostEvtVtxGenerator : public edm::EDProducer{
 public:
   BetaBoostEvtVtxGenerator(const edm::ParameterSet & p);
-  virtual ~BetaBoostEvtVtxGenerator();
+  ~BetaBoostEvtVtxGenerator() override;
 
   /// return a new event vertex
   //virtual CLHEP::Hep3Vector * newVertex();
   virtual HepMC::FourVector* newVertex(CLHEP::HepRandomEngine*) ;
-  virtual void produce( edm::Event&, const edm::EventSetup& ) override;
+  void produce( edm::Event&, const edm::EventSetup& ) override;
   virtual TMatrixD* GetInvLorentzBoost();
 
 

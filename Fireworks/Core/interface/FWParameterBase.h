@@ -32,7 +32,7 @@ class FWParameterBase : public FWConfigurable
 {
 public:
    FWParameterBase(FWParameterizable* iParent, const std::string& iName);
-   virtual ~FWParameterBase();
+   ~FWParameterBase() override;
 
    // ---------- const member functions ---------------------
 

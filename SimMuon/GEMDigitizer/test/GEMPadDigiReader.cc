@@ -33,9 +33,9 @@ public:
 
   explicit GEMPadDigiReader(const edm::ParameterSet& pset);
   
-  virtual ~GEMPadDigiReader(){}
+  ~GEMPadDigiReader() override{}
   
-  void analyze(const edm::Event &, const edm::EventSetup&); 
+  void analyze(const edm::Event &, const edm::EventSetup&) override; 
   
 private:
 

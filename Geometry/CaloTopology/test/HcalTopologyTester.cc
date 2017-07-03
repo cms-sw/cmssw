@@ -23,10 +23,10 @@
 class HcalTopologyTester : public edm::EDAnalyzer {
 public:
   explicit HcalTopologyTester(const edm::ParameterSet& );
-  ~HcalTopologyTester();
+  ~HcalTopologyTester() override;
 
   
-  virtual void analyze(const edm::Event&, const edm::EventSetup& );
+  void analyze(const edm::Event&, const edm::EventSetup& ) override;
   void doTest(const HcalTopology& topology);
 
 private:

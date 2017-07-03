@@ -78,9 +78,9 @@ class TH1FCumulator : public CumulatorBase {
     name_ = iPSet.getUntrackedParameter<std::string>("name") + extension;
   }
 
-  virtual ~TH1FCumulator() {}
+  ~TH1FCumulator() override {}
 
-  void cumulate(int ls) {
+  void cumulate(int ls) override {
     MonitorElement *tmp = NULL;
     if (!(tmp = store_->get(folder_ + name_)))
       throw cms::Exception("MissingHistogram") << name_ << std::endl;
@@ -92,7 +92,7 @@ class TH1FCumulator : public CumulatorBase {
                 << " in LS: " << ls << std::endl;
   }
 
-  void finalizeCumulate() {
+  void finalizeCumulate() override {
     if (DEBUG)
       std::cout << "TH1FCumulator::finalizaCumulate()" << std::endl;
 
@@ -142,9 +142,9 @@ class TH2FCumulator : public CumulatorBase {
     name_ = iPSet.getUntrackedParameter<std::string>("name")+extension;
   }
 
-  virtual ~TH2FCumulator() {}
+  ~TH2FCumulator() override {}
 
-  void cumulate(int ls) {
+  void cumulate(int ls) override {
     MonitorElement *tmp = NULL;
     if (!(tmp = store_->get(folder_ + name_)))
       throw cms::Exception("MissingHistogram") << name_ << std::endl;
@@ -152,7 +152,7 @@ class TH2FCumulator : public CumulatorBase {
     entries_per_LS_[ls] = tmp->getTH2F()->GetEntries();
   };
 
-  void finalizeCumulate() {
+  void finalizeCumulate() override {
     std::map<int, int>::iterator it = entries_per_LS_.begin();
     std::map<int, int>::iterator ite = entries_per_LS_.end();
     std::string extension("_cumulative");
@@ -186,21 +186,21 @@ class DummyHarvestingClient : public edm::EDAnalyzer {
  public:
   typedef std::vector<edm::ParameterSet> PSets;
   explicit DummyHarvestingClient(const edm::ParameterSet&);
-  ~DummyHarvestingClient();
+  ~DummyHarvestingClient() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  private:
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-  virtual void endRun(edm::Run const&, edm::EventSetup const&);
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const&,
-                                    edm::EventSetup const&);
-  virtual void endLuminosityBlock(edm::LuminosityBlock const&,
-                                  edm::EventSetup const&);
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const&,
+                                    edm::EventSetup const&) override;
+  void endLuminosityBlock(edm::LuminosityBlock const&,
+                                  edm::EventSetup const&) override;
 
   void bookHistograms();
   // ----------member data ---------------------------

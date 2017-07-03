@@ -66,15 +66,15 @@ using namespace reco;
 class ValidIsoTrkCalib : public edm::EDAnalyzer {
 public:
   explicit ValidIsoTrkCalib(const edm::ParameterSet&);
-  ~ValidIsoTrkCalib();
+  ~ValidIsoTrkCalib() override;
 
   //  double getDistInPlaneSimple(const GlobalPoint caloPoint, const GlobalPoint rechitPoint);
 
 private:
 
-  virtual void beginJob() override ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
+  void beginJob() override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
 
 
     

@@ -24,7 +24,7 @@ namespace edm {
 class EgammaHLTIslandClusterProducer : public edm::EDProducer {
  public:
   EgammaHLTIslandClusterProducer(const edm::ParameterSet& ps);
-  ~EgammaHLTIslandClusterProducer();
+  ~EgammaHLTIslandClusterProducer() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 

@@ -19,12 +19,12 @@ class DTParametrizedDriftAlgo : public DTRecHitBaseAlgo {
   DTParametrizedDriftAlgo(const edm::ParameterSet& config);
 
   /// Destructor
-  virtual ~DTParametrizedDriftAlgo();
+  ~DTParametrizedDriftAlgo() override;
 
   // Operations
 
   /// Pass the Event Setup to the algo at each event
-  virtual void setES(const edm::EventSetup& setup);
+  void setES(const edm::EventSetup& setup) override;
 
     
   /// First step in computation of Left/Right hits from a Digi.  
@@ -32,11 +32,11 @@ class DTParametrizedDriftAlgo : public DTRecHitBaseAlgo {
   /// Left and Right hit, and the error (which is common). 
   /// The center of the wire is assumed as hit coordinate along y.
   /// Returns false on failure. 
-  virtual bool compute(const DTLayer* layer,
+  bool compute(const DTLayer* layer,
                        const DTDigi& digi,
                        LocalPoint& leftPoint,
                        LocalPoint& rightPoint,
-                       LocalError& error) const;
+                       LocalError& error) const override;
 
 
   /// Second step.
@@ -46,10 +46,10 @@ class DTParametrizedDriftAlgo : public DTRecHitBaseAlgo {
   /// angle=atan(dir.x()/-dir.z()) . This can be used when a SL segment is
   /// built, so the impact angle is known but the position along wire is not.
   /// NOTE: Only position and error of the new hit are modified
-  virtual bool compute(const DTLayer* layer,
+  bool compute(const DTLayer* layer,
                        const DTRecHit1D& recHit1D,
                        const float& angle,
-		       DTRecHit1D& newHit1D) const;
+		       DTRecHit1D& newHit1D) const override;
 
 
   /// Third (and final) step in hits position computation.
@@ -59,11 +59,11 @@ class DTParametrizedDriftAlgo : public DTRecHitBaseAlgo {
   /// wire is available and can be used to correct the drift time for particle
   /// TOF and propagation of signal along the wire.
   /// NOTE: Only position and error of the new hit are modified
-  virtual bool compute(const DTLayer* layer,
+  bool compute(const DTLayer* layer,
                        const DTRecHit1D& recHit1D,
                        const float& angle,
                        const GlobalPoint& globPos, 
-                       DTRecHit1D& newHit1D) const;
+                       DTRecHit1D& newHit1D) const override;
 
 
  private:

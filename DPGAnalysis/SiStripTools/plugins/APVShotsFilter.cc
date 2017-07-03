@@ -56,13 +56,13 @@
 class APVShotsFilter : public edm::EDFilter {
    public:
       explicit APVShotsFilter(const edm::ParameterSet&);
-      ~APVShotsFilter();
+      ~APVShotsFilter() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      bool filter(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
   void updateDetCabling( const edm::EventSetup& setup );
       // ----------member data ---------------------------

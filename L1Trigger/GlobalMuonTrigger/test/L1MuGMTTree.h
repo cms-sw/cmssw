@@ -61,14 +61,14 @@ class L1MuGMTTree : public edm::EDAnalyzer {
 
     // constructor
     explicit L1MuGMTTree(const edm::ParameterSet&);
-    virtual ~L1MuGMTTree();
+    ~L1MuGMTTree() override;
 
     // fill tree
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
     void book();
 
-    virtual void beginJob();
-    virtual void endJob();
+    void beginJob() override;
+    void endJob() override;
 
   private:
 

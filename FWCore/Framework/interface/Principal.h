@@ -74,7 +74,7 @@ namespace edm {
               HistoryAppender* historyAppender,
               bool isForPrimaryProcess = true);
 
-    virtual ~Principal();
+    ~Principal() override;
 
     bool adjustToNewProductRegistry(ProductRegistry const& reg);
 
@@ -230,9 +230,9 @@ namespace edm {
     void addParentProcessProduct(std::shared_ptr<BranchDescription const> bd);
     
 
-    virtual WrapperBase const* getIt(ProductID const&) const override;
-    virtual WrapperBase const* getThinnedProduct(ProductID const&, unsigned int&) const override;
-    virtual void getThinnedProducts(ProductID const&,
+    WrapperBase const* getIt(ProductID const&) const override;
+    WrapperBase const* getThinnedProduct(ProductID const&, unsigned int&) const override;
+    void getThinnedProducts(ProductID const&,
                                     std::vector<WrapperBase const*>&,
                                     std::vector<unsigned int>&) const override;
 

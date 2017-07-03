@@ -57,11 +57,11 @@
 class ECALMultifitAnalyzer_HI : public DQMEDAnalyzer  {
 public:
   explicit ECALMultifitAnalyzer_HI(const edm::ParameterSet&);
-  ~ECALMultifitAnalyzer_HI() {}
+  ~ECALMultifitAnalyzer_HI() override {}
 
 private:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   edm::EDGetTokenT<std::vector<reco::Photon> > recoPhotonsCollection_;
   edm::EDGetTokenT<reco::CaloJetCollection> caloJetToken_;

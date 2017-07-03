@@ -34,11 +34,11 @@ class DrellYanValidation : public DQMEDAnalyzer{
 
   public:
 	explicit DrellYanValidation(const edm::ParameterSet&);
-	virtual ~DrellYanValidation();
+	~DrellYanValidation() override;
 
-        virtual void bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &) override;
-        virtual void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) override;
-        virtual void analyze(edm::Event const&, edm::EventSetup const&) override;
+        void bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &) override;
+        void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) override;
+        void analyze(edm::Event const&, edm::EventSetup const&) override;
 
   private:
 	WeightManager wmanager_;

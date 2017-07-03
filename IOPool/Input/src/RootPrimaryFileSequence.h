@@ -36,13 +36,13 @@ namespace edm {
     explicit RootPrimaryFileSequence(ParameterSet const& pset,
                                    PoolSource& input,
                                    InputFileCatalog const& catalog);
-    virtual ~RootPrimaryFileSequence();
+    ~RootPrimaryFileSequence() override;
 
     RootPrimaryFileSequence(RootPrimaryFileSequence const&) = delete; // Disallow copying and moving
     RootPrimaryFileSequence& operator=(RootPrimaryFileSequence const&) = delete; // Disallow copying and moving
 
     std::unique_ptr<FileBlock> readFile_();
-    virtual void closeFile_() override;
+    void closeFile_() override;
     void endJob();
     InputSource::ItemType getNextItemType(RunNumber_t& run, LuminosityBlockNumber_t& lumi, EventNumber_t& event);
     bool skipEvents(int offset);
@@ -52,8 +52,8 @@ namespace edm {
     ProcessingController::ForwardState forwardState() const;
     ProcessingController::ReverseState reverseState() const;
   private:
-    virtual void initFile_(bool skipBadFiles) override;
-    virtual RootFileSharedPtr makeRootFile(std::shared_ptr<InputFile> filePtr) override; 
+    void initFile_(bool skipBadFiles) override;
+    RootFileSharedPtr makeRootFile(std::shared_ptr<InputFile> filePtr) override; 
     bool nextFile();
     bool previousFile();
     void rewindFile();

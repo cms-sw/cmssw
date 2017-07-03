@@ -35,16 +35,16 @@ class FWPFClusterLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::PF
 
    // ---------------- Constructor(s)/Destructor ----------------------
       FWPFClusterLegoProxyBuilder(){}
-      virtual ~FWPFClusterLegoProxyBuilder(){}
+      ~FWPFClusterLegoProxyBuilder() override{}
 
    // --------------------- Member Functions --------------------------
       using FWSimpleProxyBuilderTemplate<reco::PFCluster>::scaleProduct;
-      virtual void scaleProduct( TEveElementList *parent, FWViewType::EType, const FWViewContext *vc );
+      void scaleProduct( TEveElementList *parent, FWViewType::EType, const FWViewContext *vc ) override;
       using FWSimpleProxyBuilderTemplate<reco::PFCluster>::havePerViewProduct;
-      virtual bool havePerViewProduct(FWViewType::EType) const { return true; }
+      bool havePerViewProduct(FWViewType::EType) const override { return true; }
       using FWSimpleProxyBuilderTemplate<reco::PFCluster>::localModelChanges;
-      virtual void localModelChanges( const FWModelId &iId, TEveElement *el,
-                                        FWViewType::EType viewType, const FWViewContext *vc );
+      void localModelChanges( const FWModelId &iId, TEveElement *el,
+                                        FWViewType::EType viewType, const FWViewContext *vc ) override;
    
       REGISTER_PROXYBUILDER_METHODS();
 
@@ -70,11 +70,11 @@ class FWPFEcalClusterLegoProxyBuilder : public FWPFClusterLegoProxyBuilder
    public:
    // ---------------- Constructor(s)/Destructor ----------------------
       FWPFEcalClusterLegoProxyBuilder(){}
-      virtual ~FWPFEcalClusterLegoProxyBuilder(){}
+      ~FWPFEcalClusterLegoProxyBuilder() override{}
 
    // --------------------- Member Functions --------------------------
       using FWSimpleProxyBuilderTemplate<reco::PFCluster>::build;
-      virtual void build( const reco::PFCluster&, unsigned int, TEveElement&, const FWViewContext* );
+      void build( const reco::PFCluster&, unsigned int, TEveElement&, const FWViewContext* ) override;
 
       REGISTER_PROXYBUILDER_METHODS();
 
@@ -93,11 +93,11 @@ class FWPFHcalClusterLegoProxyBuilder : public FWPFClusterLegoProxyBuilder
    public:
    // ---------------- Constructor(s)/Destructor ----------------------
       FWPFHcalClusterLegoProxyBuilder(){}
-      virtual ~FWPFHcalClusterLegoProxyBuilder(){}
+      ~FWPFHcalClusterLegoProxyBuilder() override{}
 
    // --------------------- Member Functions --------------------------
       using FWSimpleProxyBuilderTemplate<reco::PFCluster>::build;
-      virtual void build( const reco::PFCluster&, unsigned int, TEveElement&, const FWViewContext* );
+      void build( const reco::PFCluster&, unsigned int, TEveElement&, const FWViewContext* ) override;
 
       REGISTER_PROXYBUILDER_METHODS();
 

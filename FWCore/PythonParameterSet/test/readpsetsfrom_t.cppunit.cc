@@ -27,8 +27,8 @@ CPPUNIT_TEST_SUITE(testreadpsetsfrom);
 CPPUNIT_TEST(simpleTest);
 CPPUNIT_TEST_SUITE_END();
 public:
-  void setUp(){}
-  void tearDown(){}
+  void setUp() override{}
+  void tearDown() override{}
   void simpleTest();
 private:
 

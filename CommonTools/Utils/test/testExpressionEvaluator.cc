@@ -18,7 +18,7 @@ class testExpressionEvaluator : public CppUnit::TestFixture {
 
 public:
   testExpressionEvaluator() {} // for crappy pats
-  ~testExpressionEvaluator(){}
+  ~testExpressionEvaluator() override{}
   void checkAll(); 
 
 };

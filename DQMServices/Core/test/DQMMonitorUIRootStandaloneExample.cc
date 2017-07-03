@@ -50,11 +50,11 @@ const float XMAX = 3;
 class DQMStandaloneExample : public edm::EDAnalyzer {
 public:
   explicit DQMStandaloneExample( const edm::ParameterSet& );
-  ~DQMStandaloneExample();
+  ~DQMStandaloneExample() override;
   
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  void analyze( const edm::Event&, const edm::EventSetup& ) override;
   
-  virtual void endJob(void);
+  void endJob(void) override;
 
 private:
   // ----------member data ---------------------------

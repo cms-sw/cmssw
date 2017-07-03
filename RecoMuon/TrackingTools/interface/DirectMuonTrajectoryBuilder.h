@@ -27,16 +27,16 @@ class DirectMuonTrajectoryBuilder: public MuonTrajectoryBuilder {
 			      const MuonServiceProxy*);
   
   /// destructor
-  virtual ~DirectMuonTrajectoryBuilder();
+  ~DirectMuonTrajectoryBuilder() override;
   
     /// return a container of the reconstructed trajectories compatible with a given seed
-  virtual TrajectoryContainer trajectories(const TrajectorySeed&);
+  TrajectoryContainer trajectories(const TrajectorySeed&) override;
   
   /// return a container reconstructed muons starting from a given track
-  virtual CandidateContainer trajectories(const TrackCand&);
+  CandidateContainer trajectories(const TrackCand&) override;
   
   /// pass the Event to the algo at each event
-  virtual void setEvent(const edm::Event& event);
+  void setEvent(const edm::Event& event) override;
   
  private:
      const MuonServiceProxy *theService;

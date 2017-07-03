@@ -13,7 +13,7 @@ namespace edm {
     cms::Exception("MultipleExceptions", iMessage),
     returnValue_(iReturnValue) {}
     
-    virtual Exception* clone() const override {
+    Exception* clone() const override {
       return new MultipleException(*this);
     }
 

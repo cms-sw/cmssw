@@ -26,10 +26,10 @@ class VZeroTest : public edm::EDAnalyzer
 {
  public:
    explicit VZeroTest(const edm::ParameterSet& pset);
-   ~VZeroTest();
-   virtual void beginJob() { }
-   virtual void analyze(const edm::Event& ev, const edm::EventSetup& es);
-   virtual void endJob() { }
+   ~VZeroTest() override;
+   void beginJob() override { }
+   void analyze(const edm::Event& ev, const edm::EventSetup& es) override;
+   void endJob() override { }
 
  private:
    TNtuple * ntuple;

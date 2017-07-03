@@ -122,11 +122,11 @@ public:
   CSCValidation(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~CSCValidation();
+  ~CSCValidation() override;
 
   /// Perform the analysis
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
-  void endJob();
+  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
+  void endJob() override;
 
   // for noise module
   struct ltrh

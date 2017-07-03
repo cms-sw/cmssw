@@ -18,9 +18,9 @@ public:
 
 private:
   //Framwework stuff
-  void beginJob( );
-  void analyze( const edm::Event& , const edm::EventSetup& );
-  void endJob();
+  void beginJob( ) override;
+  void analyze( const edm::Event& , const edm::EventSetup& ) override;
+  void endJob() override;
 
   // Parameters passed via the config file
   std::string DumpLevel;   //How deep into calorimeter reco to dump

@@ -21,7 +21,7 @@ class DaqScopeModeAnalysis : public CommissioningAnalysis {
 
   DaqScopeModeAnalysis();
 
-  virtual ~DaqScopeModeAnalysis() {;}
+  ~DaqScopeModeAnalysis() override {;}
 
   friend class DaqScopeModeAlgorithm;
   
@@ -39,9 +39,9 @@ class DaqScopeModeAnalysis : public CommissioningAnalysis {
 
   inline const float& max() const; 
   
-  void print( std::stringstream&, uint32_t not_used = 0 );
+  void print( std::stringstream&, uint32_t not_used = 0 ) override;
   
-  void reset();
+  void reset() override;
   
  private:
   

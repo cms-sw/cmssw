@@ -16,10 +16,10 @@ class ODDCCConfig : public IODConfig {
  public:
   friend class EcalCondDBInterface;
   ODDCCConfig();
-  ~ODDCCConfig();
+  ~ODDCCConfig() override;
 
   // User data methods
-  inline std::string getTable() { return "ECAL_DCC_CONFIGURATION"; }
+  inline std::string getTable() override { return "ECAL_DCC_CONFIGURATION"; }
 
   inline void setId(int id) { m_ID = id; }
   inline int getId() const { return m_ID; }
@@ -47,7 +47,7 @@ class ODDCCConfig : public IODConfig {
   void setParameters(const std::map<std::string,std::string>& my_keys_map);
   
  private:
-  void prepareWrite()  noexcept(false);
+  void prepareWrite()  noexcept(false) override;
   void writeDB()       noexcept(false);
   void clear();
   void fetchData(ODDCCConfig * result)     noexcept(false);

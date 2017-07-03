@@ -25,10 +25,10 @@ using namespace sipixelobjects;
 class SiPixelFedCablingMapTestWriter : public edm::EDAnalyzer {
  public:
   explicit SiPixelFedCablingMapTestWriter( const edm::ParameterSet& );
-  ~SiPixelFedCablingMapTestWriter();
-  virtual void beginJob();
-  virtual void endJob();
-  virtual void analyze(const edm::Event& , const edm::EventSetup& ){}
+  ~SiPixelFedCablingMapTestWriter() override;
+  void beginJob() override;
+  void endJob() override;
+  void analyze(const edm::Event& , const edm::EventSetup& ) override{}
  private:
   SiPixelFedCablingTree * cablingTree;
   string m_record;

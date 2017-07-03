@@ -44,9 +44,9 @@ namespace gs {
     template<class Base, class Derived>
     struct ConcreteReader : public AbsReader<Base>
     {
-        virtual ~ConcreteReader() {}
+        ~ConcreteReader() override {}
 
-        inline Derived* read(const ClassId& id, std::istream& in) const
+        inline Derived* read(const ClassId& id, std::istream& in) const override
         {
             // Assume that Derived::read(id, in) returns a new object
             // of type "Derived" allocated on the heap

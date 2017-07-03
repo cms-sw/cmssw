@@ -8,7 +8,7 @@ namespace ecaldqm {
   class SelectiveReadoutClient : public DQWorkerClient {
   public:
     SelectiveReadoutClient();
-    ~SelectiveReadoutClient() {}
+    ~SelectiveReadoutClient() override {}
 
     void producePlots(ProcessType) override;
   };

@@ -46,7 +46,7 @@ private:
    
    const FWColorBoxIcon& operator=(const FWColorBoxIcon&); // stop default
 
-   void drawInsideBox(Drawable_t iID, GContext_t iContext, int iX, int iY, unsigned int iSize) const;
+   void drawInsideBox(Drawable_t iID, GContext_t iContext, int iX, int iY, unsigned int iSize) const override;
 
    // ---------- member data --------------------------------
    GContext_t m_colorContext ;

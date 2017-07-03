@@ -58,11 +58,11 @@ namespace popcon
 
 		public:
                         EcalADCToGeVHandler(edm::ParameterSet const & );
-			~EcalADCToGeVHandler(); 
+			~EcalADCToGeVHandler() override; 
 			
-			void getNewObjects();
+			void getNewObjects() override;
 
-			std::string id() const { return m_name;}
+			std::string id() const override { return m_name;}
 			EcalCondDBInterface* econn;
 
 

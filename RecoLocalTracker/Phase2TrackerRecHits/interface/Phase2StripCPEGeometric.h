@@ -14,7 +14,7 @@ class Phase2StripCPEGeometric : public ClusterParameterEstimator<Phase2TrackerCl
 
     Phase2StripCPEGeometric() {};
     Phase2StripCPEGeometric(edm::ParameterSet & conf);
-    LocalValues localParameters(const Phase2TrackerCluster1D & cluster, const GeomDetUnit & det) const;
+    LocalValues localParameters(const Phase2TrackerCluster1D & cluster, const GeomDetUnit & det) const override;
 
 };
 

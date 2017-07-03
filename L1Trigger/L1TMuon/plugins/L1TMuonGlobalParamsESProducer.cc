@@ -42,7 +42,7 @@
 class L1TMuonGlobalParamsESProducer : public edm::ESProducer {
    public:
       L1TMuonGlobalParamsESProducer(const edm::ParameterSet&);
-      ~L1TMuonGlobalParamsESProducer();
+      ~L1TMuonGlobalParamsESProducer() override;
 
       typedef std::shared_ptr<L1TMuonGlobalParams> ReturnType;
 

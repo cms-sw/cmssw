@@ -12,8 +12,8 @@ class testOwnVector : public CppUnit::TestFixture {
   CPPUNIT_TEST(checkAll);
   CPPUNIT_TEST_SUITE_END();
 public:
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
   void checkAll(); 
 };
 
@@ -46,8 +46,8 @@ namespace test {
   class ClassB : public a {
   public:
     ClassB(int i) : ii(i) {memset(&waste, 0, sizeof(waste));}
-    virtual ~ClassB() {}
-    virtual int f() const { return ii;  }
+    ~ClassB() override {}
+    int f() const override { return ii;  }
     int ii;
   private:
     char waste[1024*1024];    

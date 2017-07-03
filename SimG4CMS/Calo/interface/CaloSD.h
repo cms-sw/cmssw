@@ -53,19 +53,19 @@ public:
          const SensitiveDetectorCatalog & clg,
          edm::ParameterSet const & p, const SimTrackManager*,
 	 float timeSlice=1., bool ignoreTkID=false);
-  virtual ~CaloSD();
-  virtual bool     ProcessHits(G4Step * step,G4TouchableHistory * tHistory);
-  virtual bool     ProcessHits(G4GFlashSpot*aSpot,G4TouchableHistory*);
+  ~CaloSD() override;
+  bool     ProcessHits(G4Step * step,G4TouchableHistory * tHistory) override;
+  bool     ProcessHits(G4GFlashSpot*aSpot,G4TouchableHistory*) override;
   virtual double   getEnergyDeposit(G4Step* step); 
-  virtual uint32_t setDetUnitId(G4Step* step)=0;
+  uint32_t setDetUnitId(G4Step* step) override =0;
   
-  virtual void     Initialize(G4HCofThisEvent * HCE);
-  virtual void     EndOfEvent(G4HCofThisEvent * eventHC);
-  virtual void     clear();
-  virtual void     DrawAll();
-  virtual void     PrintAll();
+  void     Initialize(G4HCofThisEvent * HCE) override;
+  void     EndOfEvent(G4HCofThisEvent * eventHC) override;
+  void     clear() override;
+  void     DrawAll() override;
+  void     PrintAll() override;
 
-  void             fillHits(edm::PCaloHitContainer&,std::string n);
+  void             fillHits(edm::PCaloHitContainer&,std::string n) override;
 
 protected:
 
@@ -80,12 +80,12 @@ protected:
   double           getAttenuation(G4Step* aStep, double birk1, double birk2,
                                   double birk3);
 
-  virtual void     update(const BeginOfRun *);
-  virtual void     update(const BeginOfEvent *);
-  virtual void     update(const BeginOfTrack * trk);
-  virtual void     update(const EndOfTrack * trk);
-  virtual void     update(const ::EndOfEvent *);
-  virtual void     clearHits();
+  void     update(const BeginOfRun *) override;
+  void     update(const BeginOfEvent *) override;
+  void     update(const BeginOfTrack * trk) override;
+  void     update(const EndOfTrack * trk) override;
+  void     update(const ::EndOfEvent *) override;
+  void     clearHits() override;
   virtual void     initRun();
   virtual bool     filterHit(CaloG4Hit*, double);
 

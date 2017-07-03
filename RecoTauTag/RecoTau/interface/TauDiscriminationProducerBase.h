@@ -62,9 +62,9 @@ class TauDiscriminationProducerBase : public edm::stream::EDProducer<> {
     // derived!  classes must call the parameterset constructor.
     TauDiscriminationProducerBase();
 
-    virtual ~TauDiscriminationProducerBase(){}
+    ~TauDiscriminationProducerBase() override{}
 
-    void produce(edm::Event&, const edm::EventSetup&);
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
     // called at the beginning of every event - override if necessary.
     virtual void beginEvent(const edm::Event& evt,

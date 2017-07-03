@@ -24,9 +24,9 @@ class FWGEMRecHitProxyBuilder : public FWSimpleProxyBuilderTemplate<GEMRecHit>
 {
 public:
    FWGEMRecHitProxyBuilder() {}
-   virtual ~FWGEMRecHitProxyBuilder() {}
+   ~FWGEMRecHitProxyBuilder() override {}
   
-   virtual bool haveSingleProduct() const 
+   bool haveSingleProduct() const override 
     { 
       return false; 
     }
@@ -38,11 +38,11 @@ private:
   const FWGEMRecHitProxyBuilder& operator=(const FWGEMRecHitProxyBuilder&); 
  
   using FWSimpleProxyBuilderTemplate<GEMRecHit>::buildViewType;
-  virtual void buildViewType(const GEMRecHit& iData, 
+  void buildViewType(const GEMRecHit& iData, 
                              unsigned int iIndex, 
                              TEveElement& oItemHolder, 
                              FWViewType::EType type, 
-                             const FWViewContext*);
+                             const FWViewContext*) override;
 };
 
 

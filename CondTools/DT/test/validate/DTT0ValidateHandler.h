@@ -41,13 +41,13 @@ class DTT0ValidateHandler: public popcon::PopConSourceHandler<DTT0> {
 
   /** Destructor
    */
-  virtual ~DTT0ValidateHandler();
+  ~DTT0ValidateHandler() override;
 
   /** Operations
    */
   /// 
-  void getNewObjects();
-  std::string id() const;
+  void getNewObjects() override;
+  std::string id() const override;
 
  private:
 

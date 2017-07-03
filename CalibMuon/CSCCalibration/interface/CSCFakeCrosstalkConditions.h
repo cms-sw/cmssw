@@ -19,7 +19,7 @@
 class CSCFakeCrosstalkConditions: public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
  public:
   CSCFakeCrosstalkConditions(const edm::ParameterSet&);
-  ~CSCFakeCrosstalkConditions();
+  ~CSCFakeCrosstalkConditions() override;
   
   float mean,min,minchi;
   int seed;long int M;
@@ -32,7 +32,7 @@ class CSCFakeCrosstalkConditions: public edm::ESProducer, public edm::EventSetup
   
  private:
   // ----------member data ---------------------------
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & );
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & ) override;
   CSCcrosstalk *cncrosstalk ;
   
 };

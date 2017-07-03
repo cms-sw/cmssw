@@ -33,8 +33,8 @@ namespace cms
   public:
     typedef std::vector<T> JetCollection;
     explicit JetCorrectionProducer (const edm::ParameterSet& fParameters);
-    virtual ~JetCorrectionProducer () {}
-    virtual void produce(edm::Event&, const edm::EventSetup&);
+    ~JetCorrectionProducer () override {}
+    void produce(edm::Event&, const edm::EventSetup&) override;
   private:
     edm::EDGetTokenT<JetCollection> mInput;
     std::vector <std::string> mCorrectorNames;

@@ -50,7 +50,7 @@ class DTTriggerEfficiencyTask: public DQMEDAnalyzer{
   DTTriggerEfficiencyTask(const edm::ParameterSet& ps );
 
   /// Destructor
-  virtual ~DTTriggerEfficiencyTask();
+  ~DTTriggerEfficiencyTask() override;
 
  protected:
 

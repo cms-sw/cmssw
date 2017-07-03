@@ -41,12 +41,12 @@ namespace edm {
    class EventSetupRecordDataGetter : public edm::stream::EDAnalyzer< > {
 public:
      explicit EventSetupRecordDataGetter(ParameterSet const&);
-     ~EventSetupRecordDataGetter();
+     ~EventSetupRecordDataGetter() override;
       
       
-     virtual void analyze(Event const&, EventSetup const&) override;
-     virtual void beginRun(Run const&, EventSetup const&) override;
-     virtual void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
+     void analyze(Event const&, EventSetup const&) override;
+     void beginRun(Run const&, EventSetup const&) override;
+     void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
 
      static void fillDescriptions(ConfigurationDescriptions& descriptions);
 

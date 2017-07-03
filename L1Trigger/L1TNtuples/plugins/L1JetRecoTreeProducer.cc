@@ -58,13 +58,13 @@
 class L1JetRecoTreeProducer : public edm::EDAnalyzer {
 public:
   explicit L1JetRecoTreeProducer(const edm::ParameterSet&);
-  ~L1JetRecoTreeProducer();
+  ~L1JetRecoTreeProducer() override;
 
 
 private:
-  virtual void beginJob(void) ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginJob(void) override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   void doPFJets(edm::Handle<reco::PFJetCollection> pfJets);
   void doPFJetCorr(edm::Handle<reco::PFJetCollection> pfJets, edm::Handle<reco::JetCorrector> pfJetCorr); 

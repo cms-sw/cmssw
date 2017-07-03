@@ -36,14 +36,14 @@ class BPHWriteSpecificDecay:
  public:
 
   explicit BPHWriteSpecificDecay( const edm::ParameterSet& ps );
-  virtual ~BPHWriteSpecificDecay();
+  ~BPHWriteSpecificDecay() override;
 
   static void fillDescriptions( edm::ConfigurationDescriptions& descriptions );
 
-  virtual void beginJob();
-  virtual void produce( edm::Event& ev, const edm::EventSetup& es );
+  void beginJob() override;
+  void produce( edm::Event& ev, const edm::EventSetup& es ) override;
   virtual void fill( edm::Event& ev, const edm::EventSetup& es );
-  virtual void endJob();
+  void endJob() override;
 
  private:
 

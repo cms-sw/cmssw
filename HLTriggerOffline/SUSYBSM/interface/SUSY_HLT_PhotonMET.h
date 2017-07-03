@@ -31,7 +31,7 @@ class SUSY_HLT_PhotonMET: public DQMEDAnalyzer
 {
 public:
   SUSY_HLT_PhotonMET(const edm::ParameterSet& ps);
-  virtual ~SUSY_HLT_PhotonMET();
+  ~SUSY_HLT_PhotonMET() override;
 
 protected:
   void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;

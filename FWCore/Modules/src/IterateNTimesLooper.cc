@@ -23,16 +23,16 @@ namespace edm {
 
     public:
       IterateNTimesLooper(ParameterSet const&);
-      virtual ~IterateNTimesLooper();
+      ~IterateNTimesLooper() override;
 
       // ---------- const member functions ---------------------
 
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
-      virtual void startingNewLoop(unsigned int) override;
-      virtual Status duringLoop(Event const&, EventSetup const&) override;
-      virtual Status endOfLoop(EventSetup const&, unsigned int) override;
+      void startingNewLoop(unsigned int) override;
+      Status duringLoop(Event const&, EventSetup const&) override;
+      Status endOfLoop(EventSetup const&, unsigned int) override;
 
     private:
       IterateNTimesLooper(IterateNTimesLooper const&); // stop default

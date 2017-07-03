@@ -21,9 +21,9 @@ class BTagSkimLeptonJet : public edm::EDFilter {
 	
   public:
 	explicit BTagSkimLeptonJet( const edm::ParameterSet& );
-	~BTagSkimLeptonJet();
-	virtual bool filter( edm::Event&, const edm::EventSetup& );
-	virtual void endJob();
+	~BTagSkimLeptonJet() override;
+	bool filter( edm::Event&, const edm::EventSetup& ) override;
+	void endJob() override;
 
   private:
 	edm::InputTag CaloJetInput_;

@@ -37,8 +37,8 @@ CPPUNIT_TEST_SUITE_END();
 
 public:
   testProductRegistry();
-  void setUp();
-  void tearDown();
+  void setUp() override;
+  void tearDown() override;
   void testSignal();
   void testWatch();
   void testCircular();

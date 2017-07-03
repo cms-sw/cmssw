@@ -9,7 +9,7 @@ class FWCaloClusterProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Calo
 {
 public:
    FWCaloClusterProxyBuilder( void ) {}  
-   virtual ~FWCaloClusterProxyBuilder( void ) {}
+   ~FWCaloClusterProxyBuilder( void ) override {}
 
    REGISTER_PROXYBUILDER_METHODS();
 
@@ -18,7 +18,7 @@ private:
    const FWCaloClusterProxyBuilder& operator=( const FWCaloClusterProxyBuilder& ); 	// stop default
 
    using FWSimpleProxyBuilderTemplate<reco::CaloCluster>::build;
-   void build( const reco::CaloCluster& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* );
+   void build( const reco::CaloCluster& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;
 };
 
 void

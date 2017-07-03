@@ -32,11 +32,11 @@ CPPUNIT_TEST_SUITE(testeventprocessor2);
 CPPUNIT_TEST(eventprocessor2Test);
 CPPUNIT_TEST_SUITE_END();
 public:
-  void setUp(){
+  void setUp() override{
       //std::cout << "setting up testeventprocessor2" << std::endl;
       doInit();
   }
-  void tearDown(){}
+  void tearDown() override{}
   void eventprocessor2Test();
 };
 

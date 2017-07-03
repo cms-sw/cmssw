@@ -27,8 +27,8 @@ namespace edmtest {
   public:
 
     explicit TestGetterOfProducts(edm::ParameterSet const&);
-    ~TestGetterOfProducts();
-    virtual bool filter(edm::Event&, edm::EventSetup const&);
+    ~TestGetterOfProducts() override;
+    bool filter(edm::Event&, edm::EventSetup const&) override;
 
   private:
 
@@ -117,10 +117,10 @@ namespace edmtest {
   public:
 
     explicit TestGetterOfProductsA(edm::ParameterSet const&);
-    ~TestGetterOfProductsA();
-    virtual void analyze(edm::Event const&, edm::EventSetup const&);
-    virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-    virtual void endRun(edm::Run const&, edm::EventSetup const&);
+    ~TestGetterOfProductsA() override;
+    void analyze(edm::Event const&, edm::EventSetup const&) override;
+    void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+    void endRun(edm::Run const&, edm::EventSetup const&) override;
 
   private:
 

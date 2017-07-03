@@ -80,15 +80,15 @@ struct stAPVGain{unsigned int Index; int DetId; int APVId; int SubDet; float Eta
 class SiStripGainFromData : public ConditionDBWriter<SiStripApvGain> {
    public:
       explicit SiStripGainFromData(const edm::ParameterSet&);
-      ~SiStripGainFromData();
+      ~SiStripGainFromData() override;
 
 
    private:
-      virtual void algoBeginJob(const edm::EventSetup&) override ;
-      virtual void algoEndJob() override ;
-      virtual void algoBeginRun(const edm::Run &, const edm::EventSetup &) override;
+      void algoBeginJob(const edm::EventSetup&) override ;
+      void algoEndJob() override ;
+      void algoBeginRun(const edm::Run &, const edm::EventSetup &) override;
 //      virtual void algoBeginRun(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-      virtual void algoAnalyze(const edm::Event &, const edm::EventSetup &) override;
+      void algoAnalyze(const edm::Event &, const edm::EventSetup &) override;
 
       SiStripApvGain* getNewObject() override;
       DQMStore* dqmStore_;

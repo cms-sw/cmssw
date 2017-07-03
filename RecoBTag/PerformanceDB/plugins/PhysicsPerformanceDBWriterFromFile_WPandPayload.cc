@@ -18,10 +18,10 @@ class PhysicsPerformanceDBWriterFromFile_WPandPayload : public edm::EDAnalyzer
 {
 public:
   PhysicsPerformanceDBWriterFromFile_WPandPayload(const edm::ParameterSet&);
-  virtual void beginJob() override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override {}
-  virtual void endJob() override {}
-  ~PhysicsPerformanceDBWriterFromFile_WPandPayload() {}
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override {}
+  void endJob() override {}
+  ~PhysicsPerformanceDBWriterFromFile_WPandPayload() override {}
 
 private:
   std::string inputTxtFile;

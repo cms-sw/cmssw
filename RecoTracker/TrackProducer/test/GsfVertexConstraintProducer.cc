@@ -21,11 +21,11 @@
 class GsfVertexConstraintProducer: public edm::EDProducer {
 public:
   explicit GsfVertexConstraintProducer(const edm::ParameterSet&);
-  ~GsfVertexConstraintProducer();
+  ~GsfVertexConstraintProducer() override;
 
 private:
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
       
   // ----------member data ---------------------------
   const edm::ParameterSet iConfig_;

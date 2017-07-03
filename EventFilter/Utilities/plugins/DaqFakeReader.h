@@ -25,7 +25,7 @@ class DaqFakeReader : public edm::one::EDProducer<>
   // construction/destruction
   //
   DaqFakeReader(const edm::ParameterSet& pset);
-  virtual ~DaqFakeReader();
+  ~DaqFakeReader() override;
   
 
   //
@@ -36,7 +36,7 @@ class DaqFakeReader : public edm::one::EDProducer<>
   virtual int fillRawData(edm::Event& e,
 			  FEDRawDataCollection*& data);
 
-  virtual void produce(edm::Event&, edm::EventSetup const&);
+  void produce(edm::Event&, edm::EventSetup const&) override;
   
 private:
   //

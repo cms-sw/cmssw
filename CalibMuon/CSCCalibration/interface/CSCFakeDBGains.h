@@ -20,7 +20,7 @@
 class CSCFakeDBGains: public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
    public:
       CSCFakeDBGains(const edm::ParameterSet&);
-      ~CSCFakeDBGains();
+      ~CSCFakeDBGains() override;
 
       inline static CSCDBGains* prefillDBGains(); 
 
@@ -28,7 +28,7 @@ class CSCFakeDBGains: public edm::ESProducer, public edm::EventSetupRecordInterv
       Pointer produceDBGains(const CSCDBGainsRcd&);
 
    private:
-    void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & );
+    void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & ) override;
 
     // member data
     Pointer cndbGains ;

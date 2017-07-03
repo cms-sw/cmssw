@@ -21,14 +21,14 @@ public:
     ProblemTestClient_t1( edm::ParameterSet const & )
   { }
 
-  virtual
-    ~ProblemTestClient_t1()
+  
+    ~ProblemTestClient_t1() override
   { }
 
-  virtual
+  
     void analyze( edm::Event      const & e
                 , edm::EventSetup const & c
-                );
+                ) override;
 
 private:
 };

@@ -92,11 +92,11 @@ template<class C> class EcalUncalibRecHitFixedAlphaBetaAlgo : public EcalUncalib
    dyn_pedestal = true;
   };
 
-  virtual ~EcalUncalibRecHitFixedAlphaBetaAlgo<C>() { };
-  virtual EcalUncalibratedRecHit makeRecHit(const C& dataFrame, const double* pedestals,
+  ~EcalUncalibRecHitFixedAlphaBetaAlgo<C>() override { };
+  EcalUncalibratedRecHit makeRecHit(const C& dataFrame, const double* pedestals,
 					    const double* gainRatios,
 					    const EcalWeightSet::EcalWeightMatrix** weights, 
-					    const EcalWeightSet::EcalChi2WeightMatrix** chi2Matrix); 
+					    const EcalWeightSet::EcalChi2WeightMatrix** chi2Matrix) override; 
   void SetAlphaBeta( double alpha, double beta);
   void SetMinAmpl(double ampl);
   void SetDynamicPedestal(bool dyn_pede);

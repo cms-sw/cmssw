@@ -42,12 +42,12 @@ class BPHMassSymSelect: public BPHMomentumSelect {
 
   /** Destructor
    */
-  virtual ~BPHMassSymSelect() {}
+  ~BPHMassSymSelect() override {}
 
   /** Operations
    */
   /// select particle
-  virtual bool accept( const BPHDecayMomentum& cand ) const {
+  bool accept( const BPHDecayMomentum& cand ) const override {
 
     if ( mSel->accept( cand ) ) return true;
 

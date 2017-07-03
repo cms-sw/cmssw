@@ -43,7 +43,7 @@ class CaloGeometryBuilder : public edm::ESProducer
 
       CaloGeometryBuilder( const edm::ParameterSet& iConfig ) ;
 
-      virtual ~CaloGeometryBuilder() {} ;
+      ~CaloGeometryBuilder() override {} ;
 
       ReturnType produceAligned( const CaloGeometryRecord&  iRecord ) ;
 

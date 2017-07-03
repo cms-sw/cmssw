@@ -37,7 +37,7 @@ public:
     : rot(0) {}
   
   
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  void analyze( const edm::Event&, const edm::EventSetup& ) override;
 private:
   // ----------member data ---------------------------
   float x,y,z,phi,theta,length,thick,width;

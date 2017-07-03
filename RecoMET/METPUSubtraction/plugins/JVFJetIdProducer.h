@@ -27,11 +27,11 @@ class JVFJetIdProducer : public edm::stream::EDProducer<>
  public:
   
   JVFJetIdProducer(const edm::ParameterSet&);
-  ~JVFJetIdProducer();
+  ~JVFJetIdProducer() override;
   
  private:
   
-  void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
   
   edm::EDGetTokenT<reco::PFJetCollection > srcJets_;
 

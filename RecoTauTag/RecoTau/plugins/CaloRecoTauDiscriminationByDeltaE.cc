@@ -24,7 +24,7 @@ class CaloRecoTauDiscriminationByDeltaE final : public CaloTauDiscriminationProd
 		booleanOutput 		= iConfig.getParameter<bool>("BooleanOutput");
 	}
 
-      	~CaloRecoTauDiscriminationByDeltaE(){}
+      	~CaloRecoTauDiscriminationByDeltaE() override{}
 
 	void beginEvent(const edm::Event&, const edm::EventSetup&) override;
 	double discriminate(const reco::CaloTauRef&) const override;

@@ -74,14 +74,14 @@ class testMagneticField : public edm::EDAnalyzer {
     
   }
 
-  ~testMagneticField(){}
+  ~testMagneticField() override{}
 
 
   void go(GlobalPoint g) {
     std::cout << "At: " << g << " phi=" << g.phi()<< " B= " << field->inTesla(g) << std::endl;
   }
 
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) {
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override {
    ESHandle<MagneticField> magfield;
    setup.get<IdealMagneticFieldRecord>().get(magfield);
 

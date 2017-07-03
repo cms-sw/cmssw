@@ -40,7 +40,7 @@ class TotemRPDQMSource: public DQMEDAnalyzer
 {
   public:
     TotemRPDQMSource(const edm::ParameterSet& ps);
-    virtual ~TotemRPDQMSource();
+    ~TotemRPDQMSource() override;
   
   protected:
     void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;

@@ -24,19 +24,19 @@ public:
 	    const MeasurementDet* stereoDet,
 	    const TrackerTopology* tTopo);
 
-  virtual RecHitContainer recHits( const TrajectoryStateOnSurface&, const MeasurementTrackerEvent & data) const;
+  RecHitContainer recHits( const TrajectoryStateOnSurface&, const MeasurementTrackerEvent & data) const override;
 
  // simple hits
-  virtual bool recHits(SimpleHitContainer & result,  
-		       const TrajectoryStateOnSurface& stateOnThisDet, const MeasurementEstimator&, const MeasurementTrackerEvent & data) const;
+  bool recHits(SimpleHitContainer & result,  
+		       const TrajectoryStateOnSurface& stateOnThisDet, const MeasurementEstimator&, const MeasurementTrackerEvent & data) const override;
 
   
 
  const GluedGeomDet& specificGeomDet() const {return static_cast<GluedGeomDet const&>(fastGeomDet());}
 
- virtual bool measurements( const TrajectoryStateOnSurface& stateOnThisDet,
+ bool measurements( const TrajectoryStateOnSurface& stateOnThisDet,
 			     const MeasurementEstimator& est, const MeasurementTrackerEvent & data,
-			    TempMeasurements & result) const;
+			    TempMeasurements & result) const override;
 
   const TkStripMeasurementDet* monoDet() const{ return theMonoDet;} 
   const TkStripMeasurementDet* stereoDet() const{ return theStereoDet;} 
@@ -45,10 +45,10 @@ public:
 
 
   /// return TRUE if both mono and stereo components are active
-  bool isActive(const MeasurementTrackerEvent & data) const {return monoDet()->isActive(data) && stereoDet()->isActive(data); }
+  bool isActive(const MeasurementTrackerEvent & data) const override {return monoDet()->isActive(data) && stereoDet()->isActive(data); }
  	  	 
   /// return TRUE if at least one of the mono and stereo components has badChannels
-  bool hasBadComponents( const TrajectoryStateOnSurface &tsos, const MeasurementTrackerEvent & data ) const {
+  bool hasBadComponents( const TrajectoryStateOnSurface &tsos, const MeasurementTrackerEvent & data ) const override {
     return (monoDet()->hasBadComponents(tsos,data) || stereoDet()->hasBadComponents(tsos,data));}
 
 private:

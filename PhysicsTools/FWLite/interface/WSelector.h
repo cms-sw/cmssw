@@ -32,14 +32,14 @@ public:
     retInternal_ = getBitTemplate();
   }
   /// destructor
-  virtual ~WSelector() {}
+  ~WSelector() override {}
   /// return muon candidate of W boson
   pat::Muon const& wMuon() const { return *wMuon_;}
   /// return MET of W boson
   pat::MET  const& met()   const { return *met_;  }
 
   /// here is where the selection occurs
-  virtual bool operator()( edm::EventBase const & event, pat::strbitset & ret){
+  bool operator()( edm::EventBase const & event, pat::strbitset & ret) override{
     ret.set(false);
     // Handle to the muon collection
     edm::Handle<std::vector<pat::Muon> > muons;    

@@ -56,7 +56,7 @@ class XMLLUTLoader : public XMLDOMBlock
   
   XMLLUTLoader();
   XMLLUTLoader( XMLProcessor::loaderBaseConfig * config, std::string templateBase = "HCAL_TRIG_PRIM_LOOKUP_TABLE.XMLloader.template" );
-  virtual ~XMLLUTLoader();
+  ~XMLLUTLoader() override;
   
   int addLUT( lutDBConfig * config,
   	      std::string templateFileName = "HCAL_TRIG_PRIM_LOOKUP_TABLE.dataset.template" );

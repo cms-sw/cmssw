@@ -72,7 +72,7 @@ public:
   
   
   explicit HGCalSimHitValidation(const edm::ParameterSet&);
-  ~HGCalSimHitValidation();
+  ~HGCalSimHitValidation() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 

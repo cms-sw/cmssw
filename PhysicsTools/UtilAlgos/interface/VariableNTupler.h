@@ -52,7 +52,7 @@ class VariableNTupler : public NTupler{
     }
   }
   
-  uint registerleaves(edm::ProducerBase * producer){
+  uint registerleaves(edm::ProducerBase * producer) override{
     uint nLeaves=0;
     if (useTFileService_){
       //loop the leaves registered
@@ -98,7 +98,7 @@ class VariableNTupler : public NTupler{
     return nLeaves;
   }
   
-  void fill(edm::Event& iEvent){
+  void fill(edm::Event& iEvent) override{
     if (useTFileService_){
       //fill the data holder
       iterator i=leaves_.begin();

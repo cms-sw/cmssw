@@ -10,7 +10,7 @@ class StripCPEgeometric : public StripCPE
  public:
  
   StripClusterParameterEstimator::LocalValues 
-    localParameters( const SiStripCluster&, const GeomDetUnit&, const LocalTrajectoryParameters&) const;
+    localParameters( const SiStripCluster&, const GeomDetUnit&, const LocalTrajectoryParameters&) const override;
 
   StripCPEgeometric( edm::ParameterSet& conf, 
 		     const MagneticField& mag, 

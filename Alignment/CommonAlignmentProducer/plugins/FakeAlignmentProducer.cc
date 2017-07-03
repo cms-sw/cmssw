@@ -44,7 +44,7 @@ reconstruction Geometry should notice that and not pass to GeometryAligner.
 class FakeAlignmentProducer : public edm::ESProducer {
 public:
   FakeAlignmentProducer(const edm::ParameterSet&);
-  ~FakeAlignmentProducer() {}
+  ~FakeAlignmentProducer() override {}
 
   std::unique_ptr<Alignments>
   produceTkAli(const TrackerAlignmentRcd&) { return std::make_unique<Alignments>();}

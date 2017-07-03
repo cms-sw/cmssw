@@ -41,10 +41,10 @@
 class testEcalRingCalibrationTools : public edm::EDAnalyzer {
    public:
       explicit testEcalRingCalibrationTools( const edm::ParameterSet& );
-      ~testEcalRingCalibrationTools();
+      ~testEcalRingCalibrationTools() override;
 
 
-      virtual void analyze( const edm::Event&, const edm::EventSetup& );
+      void analyze( const edm::Event&, const edm::EventSetup& ) override;
    private:
       // ----------member data ---------------------------
   void build(const CaloGeometry& cg, DetId::Detector det, int subdetn, const char* name);

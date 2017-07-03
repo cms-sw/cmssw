@@ -31,9 +31,9 @@ class HLTRHemisphere : public edm::stream::EDFilter<> {
 
 
       explicit HLTRHemisphere(const edm::ParameterSet&);
-      ~HLTRHemisphere();
+      ~HLTRHemisphere() override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      bool filter(edm::Event&, const edm::EventSetup&) override;
 
    private:
       edm::EDGetTokenT<edm::View<reco::Jet>> m_theJetToken;

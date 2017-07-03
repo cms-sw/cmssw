@@ -26,9 +26,9 @@ class TriggerSummaryAnalyzerAOD : public edm::stream::EDAnalyzer<> {
   
  public:
   explicit TriggerSummaryAnalyzerAOD(const edm::ParameterSet&);
-  virtual ~TriggerSummaryAnalyzerAOD();
+  ~TriggerSummaryAnalyzerAOD() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
  private:
   /// InputTag of TriggerEvent to analyze

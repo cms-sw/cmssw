@@ -95,10 +95,10 @@ class JetPartonMatcher : public edm::global::EDProducer<>
 {
   public:
     JetPartonMatcher( const edm::ParameterSet & );
-    ~JetPartonMatcher();
+    ~JetPartonMatcher() override;
 
   private:
-    virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup& ) const override;
+    void produce(edm::StreamID, edm::Event&, const edm::EventSetup& ) const override;
 
     struct WorkingVariables {
       Handle <GenParticleRefVector> particles;
