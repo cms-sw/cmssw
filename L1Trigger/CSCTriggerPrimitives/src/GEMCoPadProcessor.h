@@ -57,6 +57,8 @@ class GEMCoPadProcessor
   unsigned int infoV;
   unsigned int maxDeltaPadGE11_;
   unsigned int maxDeltaPadGE21_;
+  unsigned int maxDeltaRollGE11_;
+  unsigned int maxDeltaRollGE21_;
   unsigned int maxDeltaBX_;
 
   // output collection

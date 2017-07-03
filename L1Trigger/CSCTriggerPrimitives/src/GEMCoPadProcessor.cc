@@ -11,14 +11,16 @@
 GEMCoPadProcessor::GEMCoPadProcessor(unsigned endcap,
                                      unsigned station,
                                      unsigned chamber,
-                                     const edm::ParameterSet& copad) :
+                                     const edm::ParameterSet& config) :
   theEndcap(endcap), theStation(station), theChamber(chamber)
 {
   // Verbosity level, set to 0 (no print) by default.
-  infoV        = copad.getParameter<unsigned int>("verbosity");
-  maxDeltaPadGE11_ = copad.getParameter<unsigned int>("maxDeltaPadGE11");
-  maxDeltaPadGE21_ = copad.getParameter<unsigned int>("maxDeltaPadGE21");
-  maxDeltaBX_ = copad.getParameter<unsigned int>("maxDeltaBX");
+  infoV        = config.getParameter<unsigned int>("verbosity");
+  maxDeltaPadGE11_ = config.getParameter<unsigned int>("maxDeltaPadGE11");
+  maxDeltaPadGE21_ = config.getParameter<unsigned int>("maxDeltaPadGE21");
+  maxDeltaRollGE11_ = config.getParameter<unsigned int>("maxDeltaRollGE11");
+  maxDeltaRollGE21_ = config.getParameter<unsigned int>("maxDeltaRollGE21");
+  maxDeltaBX_ = config.getParameter<unsigned int>("maxDeltaBX");
 }
 
 GEMCoPadProcessor::GEMCoPadProcessor() :
@@ -27,6 +29,8 @@ GEMCoPadProcessor::GEMCoPadProcessor() :
   infoV = 0;
   maxDeltaPadGE11_ = 0;
   maxDeltaPadGE21_ = 0;
+  maxDeltaRollGE11_ = 0;
+  maxDeltaRollGE21_ = 0;
   maxDeltaBX_ = 0;
 }
 
@@ -42,7 +46,13 @@ GEMCoPadProcessor::run(const GEMPadDigiCollection* in_pads)
   const int region((theEndcap == 1) ? 1: -1);
 
   // Build coincidences
+  std::cout << "In copad processor: print all pads" << std::endl;
   for (auto det_range = in_pads->begin(); det_range != in_pads->end(); ++det_range) {
+    const auto& pads_range1 = (*det_range).second;
+    for (auto p = pads_range1.first; p != pads_range1.second; ++p) {
+      std::cout << "++pad " << GEMDetId((*det_range).first) << " " << *p << std::endl;
+    }
+
     const GEMDetId& id = (*det_range).first;
     // same chamber (no restriction on the roll number)
     if (id.region() != region or
@@ -51,34 +61,42 @@ GEMCoPadProcessor::run(const GEMPadDigiCollection* in_pads)
 
     // all coincidences detIDs will have layer=1
     if (id.layer() != 1) continue;
-    // std::cout << "In copad processor: " << id << std::endl;
-    // std::cout << "OK layer" << std::endl;
+    std::cout << "In copad processor: " << id << std::endl;
+    std::cout << "OK layer" << std::endl;
 
-    // find the corresponding id with layer=2 and same roll number
-    GEMDetId co_id(id.region(), id.ring(), id.station(), 2, id.chamber(), id.roll());
-    // std::cout << "co id " << co_id << std::endl;
+    // find all corresponding ids with layer 2 and same roll number
+    // or a roll number that differs at most +/-1
 
-    auto co_pads_range = in_pads->get(co_id);
-    // empty range = no possible coincidence pads
-    if (co_pads_range.first == co_pads_range.second) continue;
-    // std::cout << "...with copads" << std::endl;
+    for (int roll = id.roll() - 1; roll <= id.roll() +1; ++roll){
 
-    // now let's correlate the pads in two layers of this partition
-    const auto& pads_range = (*det_range).second;
-    for (auto p = pads_range.first; p != pads_range.second; ++p) {
-      for (auto co_p = co_pads_range.first; co_p != co_pads_range.second; ++co_p) {
+      GEMDetId co_id(id.region(), id.ring(), id.station(), 2, id.chamber(), roll);
 
-        const unsigned int deltaPad(std::abs(p->pad() - co_p->pad()));
-        // check the match in pad
-        if ((theStation==1 and deltaPad > maxDeltaPadGE11_) or
-            (theStation==2 and deltaPad > maxDeltaPadGE21_)) continue;
+      auto co_pads_range = in_pads->get(co_id);
+      // empty range = no possible coincidence pads
+      if (co_pads_range.first == co_pads_range.second) continue;
 
-        // check the match in BX
-        if ((unsigned)std::abs(p->bx() - co_p->bx()) > maxDeltaBX_) continue;
+      // now let's correlate the pads in two layers of this partition
+      const auto& pads_range = (*det_range).second;
+      for (auto p = pads_range.first; p != pads_range.second; ++p) {
+        for (auto co_p = co_pads_range.first; co_p != co_pads_range.second; ++co_p) {
 
-        // std::cout << "...produce copad" << GEMCoPadDigi(id.roll(),*p,*co_p) << std::endl;
-        // make a new coincidence pad digi
-        gemCoPadV.push_back(GEMCoPadDigi(id.roll(),*p,*co_p));
+          const unsigned int deltaPad(std::abs(p->pad() - co_p->pad()));
+          // check the match in pad
+          if ((theStation==1 and deltaPad > maxDeltaPadGE11_) or
+              (theStation==2 and deltaPad > maxDeltaPadGE21_)) continue;
+
+          // check the match in BX
+          if ((unsigned)std::abs(p->bx() - co_p->bx()) > maxDeltaBX_) continue;
+
+          std::cout << "co id " << co_id << std::endl;
+          std::cout << "...with copads" << std::endl;
+          std::cout << "...pad1" << *p << std::endl;
+          std::cout << "...pad2" << *co_p << std::endl;
+
+          std::cout << "...produce copad" << GEMCoPadDigi(id.roll(),*p,*co_p) << std::endl;
+          // make a new coincidence pad digi
+          gemCoPadV.push_back(GEMCoPadDigi(id.roll(),*p,*co_p));
+        }
       }
     }
   }

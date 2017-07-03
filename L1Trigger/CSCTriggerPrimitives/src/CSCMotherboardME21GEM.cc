@@ -308,7 +308,10 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
         std::cout << "ALCT-CLCT matching in ME2/1 chamber: " << cscChamber->id() << std::endl;
         std::cout << "------------------------------------------------------------------------" << std::endl;
         std::cout << "+++ Best ALCT Details: " << alct->bestALCT[bx_alct] << std::endl;
-        std::cout << "+++ Second ALCT Details: " << alct->secondALCT[bx_alct] << std::endl;
+        if (not alct->secondALCT[bx_alct].isValid())
+          std::cout << "+++ Second ALCT INVALID" << std::endl;
+        else
+          std::cout << "+++ Second ALCT Details: " << alct->secondALCT[bx_alct] << std::endl;
 
         printGEMTriggerPads(bx_clct_start, bx_clct_stop);
         printGEMTriggerPads(bx_clct_start, bx_clct_stop, true);
@@ -335,8 +338,9 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
           if (debug_gem_matching) std::cout << "++Valid ME21 CLCT: " << clct->bestCLCT[bx_clct] << std::endl;
 
             // pick the pad that corresponds
-	  auto matchingPads(matchingGEMPads(clct->bestCLCT[bx_clct], alct->bestALCT[bx_alct], pads_[bx_clct], false));
-	  auto matchingCoPads(matchingGEMPads(clct->bestCLCT[bx_clct], alct->bestALCT[bx_alct], coPads_[bx_clct], true));
+          auto matchingPads(matchingGEMPads(clct->bestCLCT[bx_clct], alct->bestALCT[bx_alct], pads_[bx_alct], false));
+          auto matchingCoPads(matchingGEMPads(clct->bestCLCT[bx_clct], alct->bestALCT[bx_alct], coPads_[bx_alct], false));
+
           if (runME21ILT_ and dropLowQualityCLCTsNoGEMs_ and lowQuality and hasPads){
             int nFound(matchingPads.size());
             const bool clctInEdge(clct->bestCLCT[bx_clct].getKeyStrip() < 5 or clct->bestCLCT[bx_clct].getKeyStrip() > 155);
@@ -395,7 +399,7 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
           }
 
           // find the best matching copad - first one
-          auto copads(matchingGEMPads(alct->bestALCT[bx_alct], coPads_[bx_gem], true));
+          auto copads(matchingGEMPads(alct->bestALCT[bx_alct], coPads_[bx_gem], false));
           if (debug_gem_matching) std::cout << "\t++Number of matching GEM CoPads in BX " << bx_alct << " : "<< copads.size() << std::endl;
           if (copads.size()==0) {
             continue;
@@ -817,7 +821,8 @@ CSCCorrelatedLCTDigi CSCMotherboardME21GEM::constructLCTsGEM(const CSCCLCTDigi& 
 CSCCorrelatedLCTDigi CSCMotherboardME21GEM::constructLCTsGEM(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT,
 							  bool hasPad, bool hasCoPad)
 {
-  std::cout << "Constructing CLCT-ALCT-GEM LCT" << std::endl;
+  if (hasPad)   std::cout << "Constructing CLCT-ALCT-1GEM LCT" << std::endl;
+  if (hasCoPad) std::cout << "Constructing CLCT-ALCT-2GEM LCT" << std::endl;
 
   // CLCT pattern number
   unsigned int pattern = encodePattern(cLCT.getPattern(), cLCT.getStripType());
@@ -1039,8 +1044,8 @@ void CSCMotherboardME21GEM::printGEMTriggerPads(int bx_start, int bx_stop, bool 
         if (DetId(pad.first).subdetId() != MuonSubdetId::GEM or DetId(pad.first).det() != DetId::Muon) {
           continue;
         }
-        auto roll_id(GEMDetId(pad.first));
-        std::cout << "\tdetId " << pad.first << " " << roll_id << ", pad = " << pad.second.pad() << ", BX = " << pad.second.bx() + 6 << std::endl;
+        const auto& roll_id(GEMDetId(pad.first));
+        std::cout << "\t" << roll_id << ", pad = " << pad.second.pad() << ", BX = " << pad.second.bx() + 6 << std::endl;
       }
     }
     else
@@ -1137,7 +1142,9 @@ CSCMotherboardME21GEM::matchingGEMPads(const CSCCLCTDigi& clct, const CSCALCTDig
       if (debug) std::cout<< "++Candidate CLCT: " << q.first << " " << q.second << std::endl;
       // look for exactly the same pads
       if ((p.first != q.first) or p.second != q.second) continue;
-      if (debug) std::cout << "++Matches! " << std::endl;
+      //      if (debug)
+      if (isCoPad) std::cout << "++Matched copad" << GEMDetId(p.first) << " " << p.second << std::endl;
+      else std::cout << "++Matched pad" << GEMDetId(p.first) << " " << p.second << std::endl;
       result.push_back(p);
       if (first) return result;
     }
