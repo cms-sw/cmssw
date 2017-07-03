@@ -105,8 +105,8 @@ process.g4SimHits.HGCSD.RejectMouseBite = True
 process.g4SimHits.HGCSD.RotatedWafer    = True
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
 		HGCPassive = cms.PSet(
-			LVNames = cms.untracked.vstring('HGCalEE','HGCalHE','HGCalAH', 'CMSE'),
-			MotherName = cms.untracked.string('CMSE'),
+			LVNames = cms.vstring('HGCalEE','HGCalHE','HGCalAH', 'CMSE'),
+			MotherName = cms.string('CMSE'),
 			),
 		type = cms.string('HGCPassive'),
 		)

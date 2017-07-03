@@ -23,8 +23,8 @@ HGCPassive::HGCPassive(const edm::ParameterSet &p) : topPV_(0), topLV_(0),
 						     count_(0), init_(false) {
 
   edm::ParameterSet m_Passive = p.getParameter<edm::ParameterSet>("HGCPassive");
-  LVNames_   = m_Passive.getUntrackedParameter<std::vector<std::string> >("LVNames");
-  motherName_= m_Passive.getUntrackedParameter<std::string>("MotherName");
+  LVNames_   = m_Passive.getParameter<std::vector<std::string> >("LVNames");
+  motherName_= m_Passive.getParameter<std::string>("MotherName");
 
 #ifdef EDM_ML_DEBUG
   std::cout << "Name of the mother volume " << motherName_ << std::endl;
