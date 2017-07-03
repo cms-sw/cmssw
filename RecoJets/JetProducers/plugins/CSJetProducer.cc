@@ -78,26 +78,30 @@ void CSJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup const& iS
     if(nParticles==0) continue; //don't subtract ghost jets
     
     //assign rho and rhom to ghosts according to local eta-dependent map
-    std::vector<double> rho;
-    std::vector<double> rhom;
+    double rho  = 1e-6;
+    double rhom = 1e-6;
     for (unsigned int j=0;j<nGhosts; j++) {
       
       if(ghosts[j].eta()<=etaRanges->at(0)) {
-        rho.push_back(rhoRanges->at(0));
-        rhom.push_back(rhomRanges->at(0));
+        rho = rhoRanges->at(0);
+        rhom = rhomRanges->at(0);
       } else if(ghosts[j].eta()>=etaRanges->at(bkgVecSize-1)) {
-        rho.push_back(rhoRanges->at(bkgVecSize-2));
-        rhom.push_back(rhomRanges->at(bkgVecSize-2));
+        rho = rhoRanges->at(bkgVecSize-2);
+        rhom = rhomRanges->at(bkgVecSize-2);
       } else {
         for(int ie = 0; ie<(int)(bkgVecSize-1); ie++) {
           if(ghosts[j].eta()>=etaRanges->at(ie) && ghosts[j].eta()<etaRanges->at(ie+1)) {
-            rho.push_back(rhoRanges->at(ie));
-            rhom.push_back(rhomRanges->at(ie));
+            rho = rhoRanges->at(ie);
+            rhom = rhomRanges->at(ie);
             break;
           }
         }
+        double pt = rho*ghosts[j].area();
+        double mass_squared=pow(rhom*ghosts[j].area()+pt,2)-pow(pt,2);
+        double mass=0;
+        if (mass_squared>0) mass=sqrt(mass_squared);
+        ghosts[j].reset_momentum_PtYPhiM(pt,ghosts[j].rap(),ghosts[j].phi(),mass);
       }
-      
     }
 
     //----------------------------------------------------------------------
