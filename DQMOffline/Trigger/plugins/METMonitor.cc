@@ -20,7 +20,6 @@ METMonitor::METMonitor( const edm::ParameterSet& iConfig ) :
   , muoToken_             ( mayConsume<reco::MuonCollection>       (iConfig.getParameter<edm::InputTag>("muons")     ) )   
   , vtxToken_             ( mayConsume<reco::VertexCollection>      (iConfig.getParameter<edm::InputTag>("vertices")      ) )
   , met_variable_binning_ ( iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("metBinning") )
-  , met_binning_          ( getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("metPSet")    ) )
   , ls_binning_           ( getHistoLSPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("lsPSet")     ) )
   , num_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet"),consumesCollector(), *this))
   , den_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("denGenericTriggerEventPSet"),consumesCollector(), *this))
@@ -115,6 +114,18 @@ void METMonitor::bookME(DQMStore::IBooker &ibooker, METME& me, const std::string
   me.denominator = ibooker.book2D(histname+"_denominator", histtitle+" (denominator)", nbinsX, arrX, nbinsY, arrY);
 }
 
+void METMonitor::bookME(DQMStore::IBooker &ibooker, METME& me, const std::string& histname, const std::string& histtitle, int nbinsX, double xmin, double xmax, const std::vector<double>& binningY)
+{
+
+  int nbinsY = binningY.size()-1;
+  std::vector<float> fbinningY(binningY.begin(),binningY.end());
+  float* arrY = &fbinningY[0];
+
+  me.numerator   = ibooker.book2D(histname+"_numerator",   histtitle+" (numerator)",  nbinsX, xmin, xmax, nbinsY, arrY);
+  me.denominator = ibooker.book2D(histname+"_denominator", histtitle+" (denominator)", nbinsX, xmin, xmax, nbinsY, arrY);
+}
+
+
 void METMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
 				 edm::Run const        & iRun,
 				 edm::EventSetup const & iSetup) 
@@ -133,16 +144,12 @@ void METMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   bookME(ibooker,deltaphij1j2ME_,histname,histtitle,phi_binning_.nbins, phi_binning_.xmin, phi_binning_.xmax);
   setMETitle(deltaphij1j2ME_,"delta phi (j1, j2)","events / 0.1 rad");
 
-  histname = "met"; histtitle = "PFMET";
-  bookME(ibooker,metME_,histname,histtitle,met_binning_.nbins,met_binning_.xmin, met_binning_.xmax);
-  setMETitle(metME_,"PF MET [GeV]","events / [GeV]");
-
   histname = "met_variable"; histtitle = "PFMET";
   bookME(ibooker,metME_variableBinning_,histname,histtitle,met_variable_binning_);
   setMETitle(metME_variableBinning_,"PF MET [GeV]","events / [GeV]");
 
   histname = "metVsLS"; histtitle = "PFMET vs LS";
-  bookME(ibooker,metVsLS_,histname,histtitle,ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax,met_binning_.xmin, met_binning_.xmax);
+  bookME(ibooker,metVsLS_variableBinning_,histname,histtitle,ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax, met_variable_binning_ );
   setMETitle(metVsLS_,"LS","PF MET [GeV]");
 
   histname = "metPhi"; histtitle = "PFMET phi";
