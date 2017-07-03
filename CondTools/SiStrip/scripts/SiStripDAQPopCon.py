@@ -46,6 +46,7 @@ def runjob(args):
                     '_HASHMAPDB_': args.hashmapDb,
                     '_MAPDBFILE_': 'sqlite:///%s' % hashmap_db,
                     '_SKIPPED_'  : '',
+                    '_WHITELISTED_': '',
                     }
     if args.analyzer == 'SiStripO2OApvGain':
         # special treatment for G1 O2O
