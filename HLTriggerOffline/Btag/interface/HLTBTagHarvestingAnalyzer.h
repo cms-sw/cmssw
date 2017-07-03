@@ -49,7 +49,8 @@ class HLTBTagHarvestingAnalyzer : public DQMEDHarvester {
 			// Histogram handler
 			std::map<std::string, MonitorElement *> H1_;
 
-			std::vector<std::string> modules_;
+			enum HCALSpecials {HEP17, HEP18, HEM17};
+			std::map<HLTBTagHarvestingAnalyzer::HCALSpecials,std::string> HCALSpecialsNames;
 
 	};
 
