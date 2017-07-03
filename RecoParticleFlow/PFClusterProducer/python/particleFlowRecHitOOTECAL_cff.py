@@ -13,12 +13,6 @@ run2_miniAOD_80XLegacy.toModify(
     src = "reducedEcalRecHitsEB",
     srFlags = ""
 )
-run2_miniAOD_80XLegacy.toModify(
-    particleFlowRecHitOOTECAL.producers[0].qualityTests[0], 
-    name = "PFRecHitQTestThreshold",
-    threshold = cms.double(0.08),
-    thresholds = None
-) # from CMSSW_8_0_24: RecoParticleFlow/PFClusterProducer/python/particleFlowRecHitECAL_cfi.py
 
 ## EE
 run2_miniAOD_80XLegacy.toModify(
@@ -26,9 +20,3 @@ run2_miniAOD_80XLegacy.toModify(
     src = "reducedEcalRecHitsEE",
     srFlags = ""
 )
-run2_miniAOD_80XLegacy.toModify(
-    particleFlowRecHitOOTECAL.producers[1].qualityTests[0], 
-    name = "PFRecHitQTestThreshold",
-    threshold = cms.double(0.3),
-    thresholds = None
-) # from CMSSW_8_0_24: RecoParticleFlow/PFClusterProducer/python/particleFlowRecHitECAL_cfi.py
