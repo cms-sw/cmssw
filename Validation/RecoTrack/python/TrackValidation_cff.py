@@ -374,6 +374,22 @@ for _eraName, _postfix, _era in _relevantEras:
     )
     _setForEra(trackValidator.histoProducerAlgoBlock, _eraName, _era, seedingLayerSets=locals()["_seedingLayerSets"+_postfix])
 
+# for low-pT
+trackValidatorTPPtLess09 = trackValidator.clone(
+    dirName = "Tracking/TrackTPPtLess09/",
+    label = [x for x in trackValidator.label.value() if ("Pt09" not in x) and ("BtvLike" not in x) and ("AK4PFJets" not in x)],
+    ptMaxTP = 0.9, # set maximum pT globally
+    histoProducerAlgoBlock = dict(
+        TpSelectorForEfficiencyVsEta  = dict(ptMin=0.05), # enough to set min pT here
+        TpSelectorForEfficiencyVsPhi  = dict(ptMin=0.05),
+        TpSelectorForEfficiencyVsVTXR = dict(ptMin=0.05),
+        TpSelectorForEfficiencyVsVTXZ = dict(ptMin=0.05),
+    ),
+    doSimPlots = False,       # same as in trackValidator, no need to repeat here
+    doRecoTrackPlots = False, # fake rates are same as in trackValidator, no need to repeat here
+    doResolutionPlotsForLabels = ["disabled"], # resolutions are same as in trackValidator, no need to repeat here
+)
+
 # For efficiency of signal TPs vs. signal tracks, and fake rate of
 # signal tracks vs. signal TPs
 trackValidatorFromPV = trackValidator.clone(
@@ -526,6 +542,7 @@ fastSim.toReplaceWith(tracksPreValidation, tracksPreValidation.copyAndExclude([
 tracksValidation = cms.Sequence(
     tracksPreValidation +
     trackValidator +
+    trackValidatorTPPtLess09 +
     trackValidatorFromPV +
     trackValidatorFromPVAllTP +
     trackValidatorAllTPEffic +
@@ -562,8 +579,10 @@ _sequenceForEachEra(_addSelectorsBySrc, modDict = globals(),
 
 # MTV instances
 trackValidatorStandalone = trackValidator.clone()
+trackValidatorTPPtLess09Standalone = trackValidatorTPPtLess09.clone()
 for _eraName, _postfix, _era in _relevantEras:
     _setForEra(trackValidatorStandalone, _eraName, _era, label = trackValidator.label + locals()["_selectorsByAlgoMask"+_postfix] + locals()["_selectorsPt09Standalone"+_postfix])
+    _setForEra(trackValidatorTPPtLess09Standalone, _eraName, _era, label = trackValidatorTPPtLess09.label + locals()["_selectorsByAlgoMask"+_postfix] + locals()["_selectorsPt09Standalone"+_postfix])
 
 trackValidatorFromPVStandalone = trackValidatorFromPV.clone()
 for _eraName, _postfix, _era in _relevantEras:
@@ -597,6 +616,7 @@ tracksValidationSelectorsStandalone = cms.Sequence(
 #  and later make modifications from it which change based on era
 _trackValidatorsBase = cms.Sequence(
     trackValidatorStandalone +
+    trackValidatorTPPtLess09Standalone +
     trackValidatorFromPVStandalone +
     trackValidatorFromPVAllTPStandalone +
     trackValidatorAllTPEfficStandalone +
