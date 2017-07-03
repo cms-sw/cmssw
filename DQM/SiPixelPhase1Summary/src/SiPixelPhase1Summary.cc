@@ -158,26 +158,30 @@ void SiPixelPhase1Summary::bookSummaries(DQMStore::IBooker & iBooker){
 void SiPixelPhase1Summary::bookTrendPlots(DQMStore::IBooker & iBooker){
   //We need different plots depending on if we're online (runOnEndLumi) or offline (!runOnEndLumi)
   iBooker.setCurrentFolder("PixelPhase1/");
+  std::vector<string> binAxisLabels = {"Layer 1", "Layer 2", "Layer 3", "Layer 4", "Ring 1", "Ring 2"};
   if (runOnEndLumi_){
-    deadROCTrends_[bpix] = iBooker.book1D("deadRocTrendBPix","BPIX dead ROC trend",500,0.,5000);
-    deadROCTrends_[bpix]->setAxisTitle("Lumisection",1);
-    deadROCTrends_[fpix] = iBooker.book1D("deadRocTrendFPix","FPIX dead ROC trend",500,0.,5000);
-    deadROCTrends_[fpix]->setAxisTitle("Lumisection",1);
-    ineffROCTrends_[bpix] = iBooker.book1D("ineffRocTrendBPix","BPIX inefficient ROC trend",500,0.,5000);
-    ineffROCTrends_[bpix]->setAxisTitle("Lumisection",1);
-    ineffROCTrends_[fpix] = iBooker.book1D("ineffRocTrendFPix","FPIX inefficient ROC trend",500,0.,5000);
-    ineffROCTrends_[fpix]->setAxisTitle("Lumisection",1);
+    std::vector<trendPlots> histoOrder = {layer1,layer2,layer3,layer4,ring1,ring2};
+    std::vector<string> varName ={"Layer_1","Layer_2","Layer_3","Layer_4","Ring_1","Ring_2"};
+    for (unsigned int i = 0; i < histoOrder.size(); i++){
+      string varNameStr = "deadRocTrend"+varName[i];
+      string varTitle = binAxisLabels[i]+" dead ROC trend";
+      deadROCTrends_[histoOrder[i]] = iBooker.book1D(varNameStr,varTitle,500,0.,5000);  
+      varNameStr = "ineffRocTrend"+varName[i];
+      varTitle = binAxisLabels[i]+" inefficient ROC trend";
+      ineffROCTrends_[histoOrder[i]] = iBooker.book1D(varNameStr,varTitle,500,0.,5000);
+      deadROCTrends_[histoOrder[i]]->setAxisTitle("Lumisection",1);
+      ineffROCTrends_[histoOrder[i]]->setAxisTitle("Lumisection",1);
+    }
   }
   else {
-    deadROCTrends_[offline] = iBooker.book1D("deadRocTotal","N dead ROCs",2,0,2);
-    deadROCTrends_[offline]->setBinLabel(1,"Barrel");
-    deadROCTrends_[offline]->setBinLabel(2,"Endcap");
+    deadROCTrends_[offline] = iBooker.book1D("deadRocTotal","N dead ROCs",6,0,6);
+    ineffROCTrends_[offline] = iBooker.book1D("ineffRocTotal","N inefficient ROCs",6,0,6); 
     deadROCTrends_[offline]->setAxisTitle("Subdetector",1);
-    ineffROCTrends_[offline] = iBooker.book1D("ineffRocTotal","N inefficient ROCs",2,0,2); 
-    ineffROCTrends_[offline]->setBinLabel(1,"Barrel");
-    ineffROCTrends_[offline]->setBinLabel(2,"Endcap");
     ineffROCTrends_[offline]->setAxisTitle("Subdetector",1);
-
+    for (unsigned int i = 1; i <= binAxisLabels.size(); i++){
+      deadROCTrends_[offline]->setBinLabel(i,binAxisLabels[i-1]);
+      ineffROCTrends_[offline]->setBinLabel(i,binAxisLabels[i-1]);
+    }
   }
   
 }
@@ -256,56 +260,55 @@ void SiPixelPhase1Summary::fillTrendPlots(DQMStore::IBooker & iBooker, DQMStore:
   
 
   //Find the total number of filled bins and hi efficiency bins
-  int nFilledROCsFPix = 0, nFilledROCsBPix = 0;
-  int hiEffROCsFPix = 0, hiEffROCsBPix = 0;
-  std::vector<int> nRocsPerLayer = {1536,3584,5632,8192};
-  std::vector<int> nRocsPerRing = {4224,6528};
+  std::vector<trendPlots> trendOrder = {layer1,layer2,layer3,layer4,ring1,ring2};
+  std::vector<int> nFilledROCs(trendOrder.size(),0);
+  std::vector<int> hiEffROCs(trendOrder.size(),0);
+  std::vector<int> nRocsPerTrend = {1536,3584,5632,8192,4224,6528};
+  std::vector<string> trendNames = {};
+  string name = "";
+  for (auto it : {1,2,3,4}) {
+    histNameStream.str("");
+    histNameStream << "PXBarrel/digi_occupancy_per_SignedModuleCoord_per_SignedLadderCoord_PXLayer_" << it;
+    histName = histNameStream.str();
+    trendNames.push_back(histName);
+  }
+  for (auto it : {1,2}) {
+    histNameStream.str("");
+    histNameStream << "PXForward/digi_occupancy_per_SignedDiskCoord_per_SignedBladePanelCoord_PXRing_" << it;;
+    histName = histNameStream.str();
+    trendNames.push_back(histName);
+  }
   //Loop over layers. This will also do the rings, but we'll skip the ring calculation for 
-  for (auto it : {1,2,3,4}){
-
+  for (unsigned int trendIt = 0; trendIt < trendOrder.size(); trendIt++){
     iGetter.cd();
     histNameStream.str("");
-    histNameStream << "PixelPhase1/Phase1_MechanicalView/PXBarrel/digi_occupancy_per_SignedModuleCoord_per_SignedLadderCoord_PXLayer_" << it;
+    histNameStream << "PixelPhase1/Phase1_MechanicalView/" << trendNames[trendIt];
     histName = histNameStream.str();
     MonitorElement * tempLayerME = iGetter.get(histName);
     if (!tempLayerME) continue;
-    float lowEffValue = 0.25 * tempLayerME->getTH1()->Integral() / nRocsPerLayer[it-1];
+    float lowEffValue = 0.25 * (tempLayerME->getTH1()->Integral() / nRocsPerTrend[trendIt]);
     for (int i=1; i<=tempLayerME->getTH1()->GetXaxis()->GetNbins(); i++){
       for (int j=1; j<=tempLayerME->getTH1()->GetYaxis()->GetNbins(); j++){
-	if (tempLayerME->getBinContent(i,j) > 0.) nFilledROCsBPix++;
-	if (tempLayerME->getBinContent(i,j) > lowEffValue) hiEffROCsBPix++;
+	if (tempLayerME->getBinContent(i,j) > 0.) nFilledROCs[trendIt]++;
+	if (tempLayerME->getBinContent(i,j) > lowEffValue) hiEffROCs[trendIt]++;
       }
     }
-    if (runOnEndLumi_) tempLayerME->Reset(); //If we're doing online monitoring, reset the digi maps.
-    if (it > 2) continue;
-    //And now do the fpix if we're in the first 2 layers
-    histNameStream.str("");
-    histNameStream << "PixelPhase1/Phase1_MechanicalView/PXForward/digi_occupancy_per_SignedDiskCoord_per_SignedBladePanelCoord_PXRing_" << it;
-    histName = histNameStream.str();
-    MonitorElement * tempDiskME = iGetter.get(histName);
-    lowEffValue = 0.25 * tempDiskME->getTH1()->Integral()/ nRocsPerRing[it-1];
-    for (int i=1; i<=tempDiskME->getTH1()->GetXaxis()->GetNbins(); i++){
-      for (int j=1; j<=tempDiskME->getTH1()->GetYaxis()->GetNbins(); j++){
-	if (tempDiskME->getBinContent(i,j) > 0.) nFilledROCsFPix++;
-	if (tempDiskME->getBinContent(i,j) > lowEffValue) hiEffROCsFPix++;
-      }
+    if (runOnEndLumi_) {
+      tempLayerME->Reset(); //If we're doing online monitoring, reset the digi maps.
     }
-    if (runOnEndLumi_) tempLayerME->Reset();
-
-      
   } // Close layers/ring loop
   
   if (!runOnEndLumi_) { //offline
-    deadROCTrends_[offline]->setBinContent(1,18944-nFilledROCsBPix);
-    deadROCTrends_[offline]->setBinContent(2,10752-nFilledROCsFPix);
-    ineffROCTrends_[offline]->setBinContent(1,nFilledROCsBPix-hiEffROCsBPix);
-    ineffROCTrends_[offline]->setBinContent(2,nFilledROCsFPix-hiEffROCsFPix);
+    for (unsigned int i = 0; i < trendOrder.size(); i++){
+      deadROCTrends_[offline]->setBinContent(i+1,nRocsPerTrend[i]-nFilledROCs[i]);
+      ineffROCTrends_[offline]->setBinContent(i+1,nFilledROCs[i]-hiEffROCs[i]);
+    }
   }
   else { //online
-    deadROCTrends_[fpix]->setBinContent(lumiSec/10,10752-nFilledROCsFPix);
-    deadROCTrends_[bpix]->setBinContent(lumiSec/10,18944-nFilledROCsBPix);
-    ineffROCTrends_[fpix]->setBinContent(lumiSec/10,nFilledROCsFPix-hiEffROCsFPix);
-    ineffROCTrends_[bpix]->setBinContent(lumiSec/10,nFilledROCsBPix-hiEffROCsBPix);
+    for (unsigned int i = 0; i < trendOrder.size(); i++){
+      deadROCTrends_[trendOrder[i]]->setBinContent(lumiSec/10,nRocsPerTrend[i]-nFilledROCs[i]);
+      ineffROCTrends_[trendOrder[i]]->setBinContent(lumiSec/10,nFilledROCs[i]-hiEffROCs[i]);
+    }
   }
 
 }
