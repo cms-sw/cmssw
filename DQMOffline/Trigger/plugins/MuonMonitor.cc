@@ -18,15 +18,22 @@ MuonMonitor::MuonMonitor( const edm::ParameterSet& iConfig ) :
   , metToken_             ( consumes<reco::PFMETCollection>      (iConfig.getParameter<edm::InputTag>("met")       ) )   
   , muonToken_             ( mayConsume<reco::MuonCollection>      (iConfig.getParameter<edm::InputTag>("muons")      ) )   
   , vtxToken_             ( mayConsume<reco::VertexCollection>      (iConfig.getParameter<edm::InputTag>("vertices")      ) )
+  , eleToken_             ( mayConsume<edm::View<reco::GsfElectron> >      (iConfig.getParameter<edm::InputTag>("electrons")      ) )
   , muon_variable_binning_ ( iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("muonBinning") )
   , muoneta_variable_binning_ ( iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("muonetaBinning") )
   , muon_binning_          ( getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("muonPSet")    ) )
   , ls_binning_           ( getHistoLSPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("lsPSet")     ) )
+  , muPt_variable_binning_2D_ ( iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("muPtBinning2D") )
+  , elePt_variable_binning_2D_ ( iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("elePtBinning2D") )
+  , muEta_variable_binning_2D_ ( iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("muEtaBinning2D") )
+  , eleEta_variable_binning_2D_ ( iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("eleEtaBinning2D") )
   , num_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet"),consumesCollector(), *this))
   , den_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("denGenericTriggerEventPSet"),consumesCollector(), *this))
   , metSelection_ ( iConfig.getParameter<std::string>("metSelection") )
   , muonSelection_ ( iConfig.getParameter<std::string>("muonSelection") )
+  , eleSelection_ ( iConfig.getParameter<std::string>("eleSelection") )
   , nmuons_      ( iConfig.getParameter<unsigned int>("nmuons" )      )
+  , nelectrons_      ( iConfig.getParameter<unsigned int>("nelectrons" )      )
 {
 
   muonME_.numerator   = nullptr;
@@ -47,7 +54,15 @@ MuonMonitor::MuonMonitor( const edm::ParameterSet& iConfig ) :
   muondxy_.numerator = nullptr;
   muondz_.denominator = nullptr;
   muondz_.numerator = nullptr;
-  
+  eleME_variableBinning_.numerator   = nullptr;
+  eleME_variableBinning_.denominator = nullptr;
+  eleEtaME_.numerator   = nullptr;
+  eleEtaME_.denominator = nullptr;
+  elePt_muPt_.numerator = nullptr;
+  elePt_muPt_.denominator = nullptr;
+  eleEta_muEta_.numerator = nullptr;
+  eleEta_muEta_.denominator = nullptr;
+
 }
 
 MuonMonitor::~MuonMonitor()
@@ -167,6 +182,26 @@ void MuonMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   bookME(ibooker,muonEtaPhiME_,histname,histtitle, eta_binning_.nbins, eta_binning_.xmin, eta_binning_.xmax,phi_binning_1.nbins, phi_binning_1.xmin, phi_binning_1.xmax);
   setTitle(muonEtaPhiME_,"#eta","#phi"); 
 
+  histname = "electron_pt_variable"; histtitle = "electron PT";
+  bookME(ibooker,eleME_variableBinning_,histname,histtitle,muon_variable_binning_);
+  setTitle(eleME_variableBinning_,"Electron pT [GeV]","events / [GeV]");
+
+  histname = "electron_eta"; histtitle = "electron eta";
+  bookME(ibooker,eleEtaME_,histname,histtitle, eta_binning_.nbins, eta_binning_.xmin,eta_binning_.xmax);
+  setTitle(eleEtaME_,"Electron #eta","events");
+
+  histname = "elePt_muPt"; histtitle = "electron pt vs muon pt";
+  bookME(ibooker,elePt_muPt_,histname,histtitle, elePt_variable_binning_2D_, muPt_variable_binning_2D_);
+  setTitle(elePt_muPt_,"electron pt [GeV]","muon pt [GeV]");
+
+  histname = "eleEta_muEta"; histtitle = "electron #eta vs muon #eta";
+  bookME(ibooker,eleEta_muEta_,histname,histtitle, eleEta_variable_binning_2D_, muEta_variable_binning_2D_);
+  setTitle(eleEta_muEta_,"electron #eta","muon #eta");
+
+
+
+  
+
   // Initialize the GenericTriggerEventFlag
   if ( num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on() ) num_genTriggerEventFlag_->initRun( iRun, iSetup );
   if ( den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on() ) den_genTriggerEventFlag_->initRun( iRun, iSetup );
@@ -218,6 +253,14 @@ void MuonMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   }
   if ( muons.size() < nmuons_ ) return;
 
+  edm::Handle<edm::View<reco::GsfElectron> > eleHandle;
+  iEvent.getByToken( eleToken_, eleHandle );
+  std::vector<reco::GsfElectron> electrons;
+  if ( eleHandle->size() < nelectrons_ ) return;
+  for ( auto const & e : *eleHandle ) {
+    if ( eleSelection_( e )) electrons.push_back(e);
+  }
+  if ( electrons.size() < nelectrons_ ) return;
 
 
   
@@ -235,6 +278,14 @@ void MuonMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
 	  muonEtaPhiME_.denominator -> Fill(muons[0].eta(), muons[0].phi()); 
 	  muondxy_.denominator -> Fill(muons[0].muonBestTrack()->dxy(pv));
 	  muondz_.denominator -> Fill(muons[0].muonBestTrack()->dz(pv));
+	  if(electrons.size()>0)
+	    {
+	      eleME_variableBinning_.denominator -> Fill(electrons[0].pt());
+	      eleEtaME_.denominator->Fill(electrons[0].eta());
+	      eleEta_muEta_.denominator->Fill(electrons[0].eta(),muons[0].eta());
+	      elePt_muPt_.denominator->Fill(electrons[0].pt(),muons[0].pt());
+	    }
+
 	}
       
   // applying selection for numerator
@@ -251,8 +302,16 @@ void MuonMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
       muonEtaPhiME_.numerator -> Fill(muons[0].eta(), muons[0].phi());
       muondxy_.numerator -> Fill(muons[0].muonBestTrack()->dxy(pv));
       muondz_.numerator -> Fill(muons[0].muonBestTrack()->dz(pv));
-      
+      if(electrons.size()>0)
+	{
+	  eleME_variableBinning_.numerator -> Fill(electrons[0].pt());
+	  eleEtaME_.numerator->Fill(electrons[0].eta());
+	  eleEta_muEta_.numerator->Fill(electrons[0].eta(),muons[0].eta());
+	  elePt_muPt_.numerator->Fill(electrons[0].pt(),muons[0].pt());
+	}   
+
     }
+
 
 }
 
@@ -275,10 +334,13 @@ void MuonMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions
   desc.add<edm::InputTag>( "met",      edm::InputTag("pfMet") );
   desc.add<edm::InputTag>( "muons",edm::InputTag("muons") );
   desc.add<edm::InputTag>( "vertices",edm::InputTag("offlinePrimaryVertices") );
+  desc.add<edm::InputTag>( "electrons",edm::InputTag("gedGsfElectrons") );
   desc.add<std::string>("metSelection", "pt > 0");
   desc.add<std::string>("muonSelection", "pt > 6 && eta<2.4 ");
+  desc.add<std::string>("eleSelection", "pt > 0");
   //desc.add<std::string>("muonSelection", "pt > 145");
   desc.add<unsigned int>("nmuons",     0);
+  desc.add<unsigned int>("nelectrons",     0);
 
   edm::ParameterSetDescription genericTriggerEventPSet;
   genericTriggerEventPSet.add<bool>("andOr");
@@ -310,6 +372,14 @@ void MuonMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions
 
   std::vector<double> etabins = {-3.,-2.5,-2.,-1.5,-1.,-.5,0.,.5,1.,1.5,2.,2.5,3.};
   histoPSet.add<std::vector<double> >("muonetaBinning", etabins);
+
+  std::vector<double> bins_2D = {0.,40.,80.,100.,120.,140.,160.,180.,200.,240.,280.,350.,450.,1000.};
+  std::vector<double> eta_bins_2D = {-3.,-2.,-1.,0.,1.,2.,3.};
+  std::vector<double> phi_bins_2D = {-3.1415,-2.5132,-1.8849,-1.2566,-0.6283,0,0.6283,1.2566,1.8849,2.5132,3.1415};
+  histoPSet.add<std::vector<double> >("elePtBinning2D", bins_2D);
+  histoPSet.add<std::vector<double> >("muPtBinning2D", bins_2D);
+  histoPSet.add<std::vector<double> >("eleEtaBinning2D", eta_bins_2D);
+  histoPSet.add<std::vector<double> >("muEtaBinning2D", eta_bins_2D);
 
   edm::ParameterSetDescription lsPSet;
   fillHistoLSPSetDescription(lsPSet);
