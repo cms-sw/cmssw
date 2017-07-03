@@ -155,14 +155,33 @@ calojetEfficiency = DQMEDHarvester("DQMGenericClient",
     ),
   
 )
-jetRatioHemHep17 = DQMEDHarvester("JetPomptDQMPostProcessor",
-    subDir = cms.untracked.string("HLT/JetMET"),
-    PatternJetTrg = cms.untracked.string("HLT_Jet([0-9])+")
+
+pfjetRatio = DQMEDHarvester("DQMGenericClient",
+    subDirs        = cms.untracked.vstring("HLT/JetMET/*"),
+    verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
+    resolution     = cms.vstring(),
+    efficiency     = cms.vstring(
+        "ratio_pfjetpT_HEP17VSHEM17          'HEP17/HEM17 vs pT;            PFJet(pT) [GeV]; Ratio'   effic_pfjetpT_HEP17 effic_pfjetpT_HEM17 simpleratio" ,
+        "ratio_pfjetpT_pTTresh_HEP17VSHEM17  'HEP17/HEM17 vs pT;            PFJet(pT) [GeV]; Ratio'   effic_pfjetpT_HEP17_pTThresh effic_pfjetpT_HEM17_pTThresh simpleratio" ,
+        "ratio_pfjetphi_HEP17VSHEM17         'HEP17/HEM17 vs #phi;          PFJet #phi [GeV]; Ratio'  effic_pfjetphi_HEP17 effic_pfjetphi_HEM17 simpleratio",
+        "ratio_pfjeteta_HEP17VSHEM17         'HEP17/HEM17 vs |#eta|;        PFJet(|#eta|) ; Ratio'    effic_pfjetabseta_HEP17 effic_pfjetabseta_HEM17 simpleratio",
+    )
+)
+calojetRatio = DQMEDHarvester("DQMGenericClient",
+    subDirs        = cms.untracked.vstring("HLT/JetMET/*"),
+    verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
+    resolution     = cms.vstring(),
+    efficiency     = cms.vstring(
+        "ratio_calojetpT_HEP17VSHEM17          'HEP17/HEM17 vs pT;            CaloJet(pT) [GeV]; Ratio'   effic_calojetpT_HEP17 effic_calojetpT_HEM17 simpleratio" ,
+        "ratio_calojetpT_pTTresh_HEP17VSHEM17  'HEP17/HEM17 vs pT;            CaloJet(pT) [GeV]; Ratio'   effic_calojetpT_HEP17_pTThresh effic_calojetpT_HEM17_pTThresh simpleratio" ,
+        "ratio_calojetphi_HEP17VSHEM17         'HEP17/HEM17 vs #phi;          CaloJet #phi [GeV]; Ratio'  effic_calojetphi_HEP17 effic_calojetphi_HEM17 simpleratio",
+        "ratio_calojeteta_HEP17VSHEM17         'HEP17/HEM17 vs |#eta|;        CaloJet(|#eta|) ; Ratio'    effic_calojetabseta_HEP17 effic_calojetabseta_HEM17 simpleratio",
+    )
 )
 
 JetMetPromClient = cms.Sequence(
     pfjetEfficiency
     *calojetEfficiency
-    *jetRatioHemHep17
-  #  *pfmetEfficiency
+    *pfjetRatio
+    *calojetRatio
 )
