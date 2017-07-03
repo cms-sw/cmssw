@@ -38,15 +38,59 @@ DoubleMu48NoFiltersNoVtx_monitoring.denGenericTriggerEventPSet.hltPaths = cms.vs
 Mu43NoFiltersNoVtx_Photon43_CaloIdL_monitoring = hltMuonmonitoring.clone()
 Mu43NoFiltersNoVtx_Photon43_CaloIdL_monitoring.FolderName = cms.string('HLT/Exotica/Mu43NoFiltersNoVtx_Photon43_CaloIdL/')
 Mu43NoFiltersNoVtx_Photon43_CaloIdL_monitoring.nmuons = cms.uint32(1)
+Mu43NoFiltersNoVtx_Photon43_CaloIdL_monitoring.nelectrons = cms.uint32(1)
 Mu43NoFiltersNoVtx_Photon43_CaloIdL_monitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Mu43NoFiltersNoVtx_Photon43_CaloIdL_v*")
 Mu43NoFiltersNoVtx_Photon43_CaloIdL_monitoring.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFMET120_PFMHT120_IDTight_v*","HLT_PFMETTypeOne120_PFMHT120_IDTight_v*","HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight_v*")
+
+
+
+Mu43NoFiltersNoVtx_Photon43_CaloIdL_MuLeg_monitoring = hltMuonmonitoring.clone()
+Mu43NoFiltersNoVtx_Photon43_CaloIdL_MuLeg_monitoring.FolderName = cms.string('HLT/Exotica/Mu43NoFiltersNoVtx_Photon43_CaloIdL_MuLeg/')
+Mu43NoFiltersNoVtx_Photon43_CaloIdL_MuLeg_monitoring.nmuons = cms.uint32(1)
+Mu43NoFiltersNoVtx_Photon43_CaloIdL_MuLeg_monitoring.nelectrons = cms.uint32(1)
+Mu43NoFiltersNoVtx_Photon43_CaloIdL_MuLeg_monitoring.eleSelection = cms.string('pt > 43')
+Mu43NoFiltersNoVtx_Photon43_CaloIdL_MuLeg_monitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Mu43NoFiltersNoVtx_Photon43_CaloIdL_v*")
+Mu43NoFiltersNoVtx_Photon43_CaloIdL_MuLeg_monitoring.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFMET120_PFMHT120_IDTight_v*","HLT_PFMETTypeOne120_PFMHT120_IDTight_v*","HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight_v*")
+
+
+
+
+Mu43NoFiltersNoVtx_Photon43_CaloIdL_EleLeg_monitoring = hltMuonmonitoring.clone()
+Mu43NoFiltersNoVtx_Photon43_CaloIdL_EleLeg_monitoring.FolderName = cms.string('HLT/Exotica/Mu43NoFiltersNoVtx_Photon43_CaloIdL_EleLeg/')
+Mu43NoFiltersNoVtx_Photon43_CaloIdL_EleLeg_monitoring.nmuons = cms.uint32(1)
+Mu43NoFiltersNoVtx_Photon43_CaloIdL_EleLeg_monitoring.nelectrons = cms.uint32(1)
+Mu43NoFiltersNoVtx_Photon43_CaloIdL_EleLeg_monitoring.muonSelection = cms.string('pt > 43')
+Mu43NoFiltersNoVtx_Photon43_CaloIdL_EleLeg_monitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Mu43NoFiltersNoVtx_Photon43_CaloIdL_v*")
+Mu43NoFiltersNoVtx_Photon43_CaloIdL_EleLeg_monitoring.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFMET120_PFMHT120_IDTight_v*","HLT_PFMETTypeOne120_PFMHT120_IDTight_v*","HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight_v*")
 
 
 Mu48NoFiltersNoVtx_Photon48_CaloIdL_monitoring = hltMuonmonitoring.clone()
 Mu48NoFiltersNoVtx_Photon48_CaloIdL_monitoring.FolderName = cms.string('HLT/Exotica/Mu48NoFiltersNoVtx_Photon48_CaloIdL/')
 Mu48NoFiltersNoVtx_Photon48_CaloIdL_monitoring.nmuons = cms.uint32(1)
+Mu48NoFiltersNoVtx_Photon48_CaloIdL_monitoring.nelectrons = cms.uint32(1)
 Mu48NoFiltersNoVtx_Photon48_CaloIdL_monitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Mu48NoFiltersNoVtx_Photon48_CaloIdL_v*")
 Mu48NoFiltersNoVtx_Photon48_CaloIdL_monitoring.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFMET120_PFMHT120_IDTight_v*","HLT_PFMETTypeOne120_PFMHT120_IDTight_v*","HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight_v*")
+
+
+
+Mu48NoFiltersNoVtx_Photon48_CaloIdL_MuLeg_monitoring = hltMuonmonitoring.clone()
+Mu48NoFiltersNoVtx_Photon48_CaloIdL_MuLeg_monitoring.FolderName = cms.string('HLT/Exotica/Mu48NoFiltersNoVtx_Photon48_CaloIdL_MuLeg/')
+Mu48NoFiltersNoVtx_Photon48_CaloIdL_MuLeg_monitoring.nmuons = cms.uint32(1)
+Mu48NoFiltersNoVtx_Photon48_CaloIdL_MuLeg_monitoring.nelectrons = cms.uint32(1)
+Mu48NoFiltersNoVtx_Photon48_CaloIdL_MuLeg_monitoring.eleSelection = cms.string('pt > 48')
+Mu48NoFiltersNoVtx_Photon48_CaloIdL_MuLeg_monitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Mu48NoFiltersNoVtx_Photon48_CaloIdL_v*")
+Mu48NoFiltersNoVtx_Photon48_CaloIdL_MuLeg_monitoring.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFMET120_PFMHT120_IDTight_v*","HLT_PFMETTypeOne120_PFMHT120_IDTight_v*","HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight_v*")
+
+
+
+
+Mu48NoFiltersNoVtx_Photon48_CaloIdL_EleLeg_monitoring = hltMuonmonitoring.clone()
+Mu48NoFiltersNoVtx_Photon48_CaloIdL_EleLeg_monitoring.FolderName = cms.string('HLT/Exotica/Mu48NoFiltersNoVtx_Photon48_CaloIdL_EleLeg/')
+Mu48NoFiltersNoVtx_Photon48_CaloIdL_EleLeg_monitoring.nmuons = cms.uint32(1)
+Mu48NoFiltersNoVtx_Photon48_CaloIdL_EleLeg_monitoring.nelectrons = cms.uint32(1)
+Mu48NoFiltersNoVtx_Photon48_CaloIdL_EleLeg_monitoring.muonSelection = cms.string('pt > 48')
+Mu48NoFiltersNoVtx_Photon48_CaloIdL_EleLeg_monitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Mu48NoFiltersNoVtx_Photon48_CaloIdL_v*")
+Mu48NoFiltersNoVtx_Photon48_CaloIdL_EleLeg_monitoring.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFMET120_PFMHT120_IDTight_v*","HLT_PFMETTypeOne120_PFMHT120_IDTight_v*","HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight_v*")
 
 
 
@@ -58,7 +102,10 @@ exoHLTMuonmonitoring = cms.Sequence(
     + Mu43NoFiltersNoVtx_Photon43_CaloIdL_monitoring
     + DoubleMu48NoFiltersNoVtx_monitoring
     + Mu48NoFiltersNoVtx_Photon48_CaloIdL_monitoring
-    
+    + Mu43NoFiltersNoVtx_Photon43_CaloIdL_MuLeg_monitoring
+    + Mu48NoFiltersNoVtx_Photon48_CaloIdL_MuLeg_monitoring
+    + Mu43NoFiltersNoVtx_Photon43_CaloIdL_EleLeg_monitoring
+    + Mu48NoFiltersNoVtx_Photon48_CaloIdL_EleLeg_monitoring
 )
 
 

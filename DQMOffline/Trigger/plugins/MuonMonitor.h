@@ -86,6 +86,7 @@ private:
   edm::EDGetTokenT<reco::PFMETCollection>       metToken_;
   edm::EDGetTokenT<reco::MuonCollection>     muonToken_;
   edm::EDGetTokenT<reco::VertexCollection>       vtxToken_;
+  edm::EDGetTokenT<edm::View<reco::GsfElectron> > eleToken_;
 
 
   double MAX_PHI1 = 3.2;
@@ -116,7 +117,12 @@ private:
   std::vector<double> muoneta_variable_binning_;
   MEbinning           muon_binning_;
   MEbinning           ls_binning_;
-
+  std::vector<double> muPt_variable_binning_2D_;
+  std::vector<double> elePt_variable_binning_2D_;
+  std::vector<double> muEta_variable_binning_2D_;
+  std::vector<double> eleEta_variable_binning_2D_;
+  
+  
   MuonME muonME_;
   MuonME muonEtaME_;
   MuonME muonPhiME_;
@@ -126,6 +132,10 @@ private:
   MuonME muondxy_;   
   MuonME muondz_;   
   MuonME muonEtaME_variableBinning_;
+  MuonME eleME_variableBinning_;
+  MuonME eleEtaME_;
+  MuonME eleEta_muEta_;
+  MuonME elePt_muPt_;
 
 
   std::unique_ptr<GenericTriggerEventFlag> num_genTriggerEventFlag_;
@@ -133,8 +143,11 @@ private:
 
   StringCutObjectSelector<reco::MET,true>         metSelection_;
   StringCutObjectSelector<reco::Muon,true> muonSelection_;
+  StringCutObjectSelector<reco::GsfElectron,true> eleSelection_;
   unsigned int njets_;
   unsigned int nmuons_;
+  unsigned int nelectrons_;
+  
 
 
 
