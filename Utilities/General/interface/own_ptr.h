@@ -16,7 +16,7 @@
 
 namespace OwnerPolicy {
   struct Transfer{
-    template <class X> static X * copy(X * &p) { X* it=p; p=0; return it;} 
+    template <class X> static X * copy(X * &p) { X* it=p; p=nullptr; return it;} 
     template <class X> static void remove(X * p) { delete p;} 
   };
   struct Copy{
@@ -42,7 +42,7 @@ private:
 public:
   typedef X element_type;
   ///
-  explicit own_ptr(X* p = 0) : ptr(p) {}
+  explicit own_ptr(X* p = nullptr) : ptr(p) {}
   
   ///
   own_ptr(const own_ptr& a)  : ptr(a.release()) {}

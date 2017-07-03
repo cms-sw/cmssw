@@ -32,14 +32,14 @@ __attribute__((visibility("hidden"))) void dummy()
   using namespace gen;
   int dummy = 0;
   double dummy2 = 0;
-  char * dummy3 = 0;
+  char * dummy3 = nullptr;
   pyexec_();
-  pystat_(0);
+  pystat_(nullptr);
   pyjoin_(dummy, &dummy);
   py1ent_(dummy, dummy, dummy2, dummy2, dummy2);
   pygive_(dummy3, dummy);
   pycomp_(dummy);
-  pylist_(0);
+  pylist_(nullptr);
   pyevnt_();
   pyedit_();
 }
@@ -74,7 +74,7 @@ extern "C"
 using namespace gen;
 using namespace edm;
 
-Pythia6Service* Pythia6Service::fPythia6Owner = 0;
+Pythia6Service* Pythia6Service::fPythia6Owner = nullptr;
 
 Pythia6Service::Pythia6Service()
   : fRandomEngine(nullptr), fUnitSLHA(24), fUnitPYUPDA(25)
@@ -161,7 +161,7 @@ Pythia6Service::Pythia6Service( const ParameterSet& ps )
 Pythia6Service::~Pythia6Service()
 {
    if (fPythia6Owner == this)
-      fPythia6Owner = 0;
+      fPythia6Owner = nullptr;
 
    fParamGeneral.clear();
    fParamCSA.clear();

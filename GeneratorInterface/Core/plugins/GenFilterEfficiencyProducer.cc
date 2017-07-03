@@ -92,7 +92,7 @@ GenFilterEfficiencyProducer::GenFilterEfficiencyProducer(const edm::ParameterSet
   if (edm::Service<edm::service::TriggerNamesService>().isAvailable()) {
     // get tns pointer
     tns_ = edm::Service<edm::service::TriggerNamesService>().operator->();
-    if (tns_!=0) {
+    if (tns_!=nullptr) {
       thisProcess = tns_->getProcessName();
       std::vector<std::string> theNames = tns_->getTrigPaths();
       for ( unsigned int i = 0; i < theNames.size(); i++ ) {

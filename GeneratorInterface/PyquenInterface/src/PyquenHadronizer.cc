@@ -268,9 +268,9 @@ bool PyquenHadronizer::pyquen_init(const ParameterSet &pset)
 }
 
 const char* PyquenHadronizer::nucleon(){
-  int* dummy = 0;
+  int* dummy = nullptr;
   double random = gen::pyr_(dummy);
-  const char* nuc = 0;
+  const char* nuc = nullptr;
   if(random > pfrac_) nuc = "n";
   else nuc = "p";
   

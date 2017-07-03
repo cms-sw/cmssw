@@ -152,7 +152,7 @@ class BPHWriteSpecificDecay:
         if ( ( ccrIter = ccRefMap.find( cptr ) ) == ccrIend ) {
           if ( ( jpoIter = jPsiOMap.find( cptr ) ) != jpoIend )
                cptr = jpoIter->second;
-          else cptr = 0;
+          else cptr = nullptr;
         }
         if ( ( ccrIter = ccRefMap.find( cptr ) ) != ccrIend ) {
           compcc_ref cref = ccrIter->second;

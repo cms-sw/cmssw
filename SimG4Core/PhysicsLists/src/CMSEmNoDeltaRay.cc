@@ -127,7 +127,7 @@ void CMSEmNoDeltaRay::ConstructParticle() {
 
 void CMSEmNoDeltaRay::ConstructProcess() {
   // Add standard EM Processes
-  G4Region* reg = 0;
+  G4Region* reg = nullptr;
   if (region != " ") {
     G4RegionStore* regStore = G4RegionStore::GetInstance();
     reg = regStore->GetRegion(region, true);
@@ -152,7 +152,7 @@ void CMSEmNoDeltaRay::ConstructProcess() {
 
       G4eMultipleScattering* msc = new G4eMultipleScattering;
       msc->SetStepLimitType(fMinimal);
-      if (reg != 0) {
+      if (reg != nullptr) {
 	G4UrbanMscModel* msc_el  = new G4UrbanMscModel();
 	msc_el->SetRangeFactor(0.04);
 	msc->AddEmModel(0,msc_el,reg);
@@ -167,7 +167,7 @@ void CMSEmNoDeltaRay::ConstructProcess() {
       //      eioni->SetStepFunction(0.8, 1.0*mm);
       G4eMultipleScattering* msc = new G4eMultipleScattering;
       msc->SetStepLimitType(fMinimal);
-      if (reg != 0) {
+      if (reg != nullptr) {
 	G4UrbanMscModel* msc_pos  = new G4UrbanMscModel();
 	msc_pos->SetRangeFactor(0.04);
 	msc->AddEmModel(0,msc_pos,reg);

@@ -40,7 +40,7 @@ void EcalTBTDCRawInfoDumper::analyze(const edm::Event& e, const edm::EventSetup&
 {
   // Get input
   edm::Handle<EcalTBTDCRawInfo> ecalRawTDC;  
-  const EcalTBTDCRawInfo* tdcRawInfo = 0;
+  const EcalTBTDCRawInfo* tdcRawInfo = nullptr;
   //evt.getByLabel( digiProducer_, digiCollection_, pDigis);
   e.getByLabel( rawInfoProducer_, ecalRawTDC);
   if (!ecalRawTDC.isValid()) {

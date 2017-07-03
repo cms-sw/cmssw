@@ -194,7 +194,7 @@ void TestBPHRecoDecay::analyze( const edm::Event& ev,
     ~MuonChargeSelect() {}
     virtual bool accept( const reco::Candidate& cand ) const {
       const pat::Muon* p = reinterpret_cast<const pat::Muon*>( &cand );
-      if ( p == 0 ) return false;
+      if ( p == nullptr ) return false;
       return ( ( charge * cand.charge() ) > 0 );
     }
    private:
@@ -208,7 +208,7 @@ void TestBPHRecoDecay::analyze( const edm::Event& ev,
     ~MuonPtSelect() {}
     virtual bool accept( const reco::Candidate& cand ) const {
       const pat::Muon* p = reinterpret_cast<const pat::Muon*>( &cand );
-      if ( p == 0 ) return false;
+      if ( p == nullptr ) return false;
       return ( p->p4().pt() > ptCut );
     }
    private:
@@ -222,7 +222,7 @@ void TestBPHRecoDecay::analyze( const edm::Event& ev,
     ~MuonEtaSelect() {}
     virtual bool accept( const reco::Candidate& cand ) const {
       const pat::Muon* p = reinterpret_cast<const pat::Muon*>( &cand );
-      if ( p == 0 ) return false;
+      if ( p == nullptr ) return false;
       return ( fabs( p->p4().eta() ) < etaCut );
     }
    private:
@@ -491,7 +491,7 @@ void TestBPHRecoDecay::dumpRecoCand( const string& name,
   string* type;
   const BPHPlusMinusCandidate* pmCand =
         dynamic_cast<const BPHPlusMinusCandidate*>( cand );
-  if ( pmCand != 0 ) {
+  if ( pmCand != nullptr ) {
     if ( pmCand->isCowboy() ) type = &cType;
     else                      type = &sType;
   }
@@ -520,7 +520,7 @@ void TestBPHRecoDecay::dumpRecoCand( const string& name,
   int    ndof = lround( vx.ndof() );
   double prob = TMath::Prob( chi2, ndof );
   string tdca = "";
-  if ( pmCand != 0 ) {
+  if ( pmCand != nullptr ) {
     stringstream sstr;
     sstr << " - " << pmCand->cAppInRPhi().distance();
     tdca = sstr.str();
@@ -539,7 +539,7 @@ void TestBPHRecoDecay::dumpRecoCand( const string& name,
     GlobalPoint gp( vp.X(), vp.Y(), vp.Z() ); 
     GlobalVector dm( 0.0, 0.0, 0.0 );
     const reco::TransientTrack* tt = cand->getTransientTrack( dp );
-    if ( tt != 0 ) {
+    if ( tt != nullptr ) {
       TrajectoryStateClosestToPoint tscp =
                                     tt->trajectoryStateClosestToPoint( gp );
       dm = tscp.momentum();

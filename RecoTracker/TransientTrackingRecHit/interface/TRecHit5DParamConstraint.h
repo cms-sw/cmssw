@@ -38,17 +38,17 @@ public:
 
   virtual bool canImproveWithTrack() const { return false; }
 
-  virtual const TrackingRecHit* hit() const { return 0; }
-  virtual TrackingRecHit * cloneHit() const { return 0;}
+  virtual const TrackingRecHit* hit() const { return nullptr; }
+  virtual TrackingRecHit * cloneHit() const { return nullptr;}
   
   virtual std::vector<const TrackingRecHit*> recHits() const { return std::vector<const TrackingRecHit*>(); }
   virtual std::vector<TrackingRecHit*> recHits() { return std::vector<TrackingRecHit*>(); }
   virtual bool sharesInput( const TrackingRecHit*, SharedInputType) const { return false;}
 
 
-  virtual const GeomDetUnit* detUnit() const { return 0; }
+  virtual const GeomDetUnit* detUnit() const { return nullptr; }
 
-  virtual const GeomDet* det() const { return 0; }
+  virtual const GeomDet* det() const { return nullptr; }
 
   virtual const Surface* surface() const { return &tsos_.surface(); }
 

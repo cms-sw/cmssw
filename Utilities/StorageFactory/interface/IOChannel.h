@@ -33,7 +33,7 @@ public:
 
 protected:
   // System implementation
-  bool			sysclose (IOFD fd, int *error = 0);
+  bool			sysclose (IOFD fd, int *error = nullptr);
 
 private:
   IOFD			m_fd;		/*< System file descriptor. */

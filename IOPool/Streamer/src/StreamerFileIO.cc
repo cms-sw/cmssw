@@ -16,7 +16,7 @@
       throw cms::Exception("OutputFile","OutputFile")
         << "Error Opening Output File: "<<name<<"\n";
     }
-    ost_->rdbuf()->pubsetbuf(0,0);
+    ost_->rdbuf()->pubsetbuf(nullptr,0);
   }
 
   OutputFile::~OutputFile() 

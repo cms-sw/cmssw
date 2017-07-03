@@ -122,7 +122,7 @@ void CTPPSHector::clear(){
 
 void CTPPSHector::add( const HepMC::GenEvent * evt ,const edm::EventSetup & iSetup, CLHEP::HepRandomEngine * engine) {
 
-    H_BeamParticle* h_p  = NULL;
+    H_BeamParticle* h_p  = nullptr;
     unsigned int line;
 
     for (HepMC::GenEvent::particle_const_iterator eventParticle =evt->particles_begin();
@@ -197,7 +197,7 @@ void CTPPSHector::add( const HepMC::GenEvent * evt ,const edm::EventSetup & iSet
 void CTPPSHector::filterCTPPS(TRandom3* rootEngine){
 
     unsigned int line;
-    H_BeamParticle * part = NULL;
+    H_BeamParticle * part = nullptr;
  
     std::map< unsigned int, H_BeamParticle* >::iterator it;
 

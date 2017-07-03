@@ -24,7 +24,7 @@ using namespace gen;
 
 Pythia6Gun::Pythia6Gun( const ParameterSet& pset ) :
    fPy6Service( new Pythia6Service(pset) ),
-   fEvt(0)
+   fEvt(nullptr)
    // fPDGTable( new DefaultConfig::ParticleDataTable("PDG Table") )
 {
 

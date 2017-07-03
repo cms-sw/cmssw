@@ -18,7 +18,7 @@ class EBDataFrame : public EcalDataFrame
 
   EBDataFrame() {}
   // EBDataFrame(DetId i) :  Base(i) {}
-  EBDataFrame(edm::DataFrame const & base) : Base(base) {}
+  EBDataFrame(EBDataFrame const & base) : Base(base) {}
   EBDataFrame(EcalDataFrame const & base) : Base(base) {}
 
   /** estimator for a signal being a spike

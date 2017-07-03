@@ -111,7 +111,7 @@ const std::string genLumiRaw::s_lumiDetailName="HCAL_HLX::LUMI_DETAIL";
 
 // -----------------------------------------------------------------
 
-genLumiRaw::genLumiRaw(edm::ParameterSet const& iConfig):m_nls(0),m_bsize(64000),m_splitlevel(2),m_file(0),m_runsummary(new HCAL_HLX::RUN_SUMMARY),m_lumisection(new  HCAL_HLX::LUMI_SECTION),m_lumiheader(0),m_lumisummary(0),m_lumidetail(0),m_trg(new HCAL_HLX::LEVEL1_TRIGGER),m_hlt(new HCAL_HLX::HLTRIGGER)
+genLumiRaw::genLumiRaw(edm::ParameterSet const& iConfig):m_nls(0),m_bsize(64000),m_splitlevel(2),m_file(nullptr),m_runsummary(new HCAL_HLX::RUN_SUMMARY),m_lumisection(new  HCAL_HLX::LUMI_SECTION),m_lumiheader(nullptr),m_lumisummary(nullptr),m_lumidetail(nullptr),m_trg(new HCAL_HLX::LEVEL1_TRIGGER),m_hlt(new HCAL_HLX::HLTRIGGER)
 {  
 }
 
@@ -201,7 +201,7 @@ void genLumiRaw::endJob(){
     m_file->Write();
     m_file->Close();
     delete m_file;
-    m_file=0;
+    m_file=nullptr;
   }
 }
 

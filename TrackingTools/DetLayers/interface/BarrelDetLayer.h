@@ -24,7 +24,7 @@ class BarrelDetLayer : public DetLayer {
  public:
 
   BarrelDetLayer(bool doHaveGroup) : DetLayer(doHaveGroup,true),
-    theCylinder(0){}
+    theCylinder(nullptr){}
   
   virtual ~BarrelDetLayer();
 

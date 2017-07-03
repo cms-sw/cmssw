@@ -51,7 +51,7 @@ private:
     virtual AlgebraicMatrix projectionMatrix() const;
     virtual std::vector<const TrackingRecHit*> recHits() const { return std::vector<const TrackingRecHit*>(); }
     virtual std::vector<TrackingRecHit*> recHits() { return std::vector<TrackingRecHit*>(); }
-    virtual const TrackingRecHit * hit() const { return 0; }
+    virtual const TrackingRecHit * hit() const { return nullptr; }
     private:
     LocalPoint localPosition_;
     LocalError localError_;

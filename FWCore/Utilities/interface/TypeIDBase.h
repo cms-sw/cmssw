@@ -41,7 +41,7 @@ namespace edm {
       { }
             
       explicit TypeIDBase(const std::type_info* t) :
-         t_(t == 0 ? &(typeid(Def)) : t)
+         t_(t == nullptrullptr ? &(typeid(Def)) : t)
       { }
             
       // ---------- const member functions ---------------------

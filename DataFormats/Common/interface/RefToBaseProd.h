@@ -113,7 +113,7 @@ namespace edm {
   RefToBaseProd<T>::RefToBaseProd(const RefToBaseProd<T>& ref) :
     product_(ref.product_) {
       if(product_.productPtr()) {
-        product_.setProductPtr(ref.viewPtr() ? (new View<T>(* ref)) : 0);
+        product_.setProductPtr(ref.viewPtr() ? (new View<T>(* ref)) : nullptrullptr);
       }
   }
 

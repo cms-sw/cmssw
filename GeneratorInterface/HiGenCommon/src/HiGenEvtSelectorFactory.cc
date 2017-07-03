@@ -22,7 +22,7 @@ BaseHiGenEvtSelector* HiGenEvtSelectorFactory::get(std::string filterType, const
    }
 
    std::cout<<"Skimmer not recognized. Fail!"<<std::endl;
-   return NULL;
+   return nullptr;
 }
 
 

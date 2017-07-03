@@ -209,7 +209,7 @@ void HLTExoticaPlotter::bookHist(DQMStore::IBooker & iBooker,
     std::string sourceUpper = source;
     sourceUpper[0] = std::toupper(sourceUpper[0]);
     std::string name = source + objType + variable + "_" + _hltPath;
-    TH1F * h = 0;
+    TH1F * h = nullptr;
 
     if (variable.find("SumEt") != std::string::npos) {
         std::string title = "Sum ET of " + sourceUpper + " " + objType;

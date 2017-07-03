@@ -8,7 +8,7 @@ PositionCalc::PositionCalc(const edm::ParameterSet& par) :
   param_T0_endcPresh_  ( par.getParameter<double>("T0_endcPresh")) , 
   param_W0_            ( par.getParameter<double>("W0")) ,
   param_X0_            ( par.getParameter<double>("X0")) ,
-  m_esGeom             ( 0 ) ,
+  m_esGeom             ( nullptr ) ,
   m_esPlus             ( false ) ,
   m_esMinus            ( false )
 {

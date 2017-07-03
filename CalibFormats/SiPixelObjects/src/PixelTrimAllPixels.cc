@@ -211,7 +211,7 @@ PixelROCTrimBits* PixelTrimAllPixels::getTrimBits(PixelROCName name){
     if (trimbits_[i].name()==name) return &(trimbits_[i]);
   }
 
-  return 0;
+  return nullptr;
 
 }
 

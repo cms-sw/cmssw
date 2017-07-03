@@ -142,7 +142,7 @@ protected:
 Geant4ePropagatorAnalyzer::Geant4ePropagatorAnalyzer(const edm::ParameterSet& iConfig):
   theRun(-1),
   theEvent(-1),
-  thePropagator(0),
+  thePropagator(nullptr),
   G4VtxSrc_(iConfig.getParameter<edm::InputTag>("G4VtxSrc")),
   G4TrkSrc_(iConfig.getParameter<edm::InputTag>("G4TrkSrc")) {
 

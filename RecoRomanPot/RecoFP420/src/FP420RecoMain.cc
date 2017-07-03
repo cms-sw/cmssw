@@ -53,7 +53,7 @@ FP420RecoMain::FP420RecoMain(const edm::ParameterSet& conf):conf_(conf)  {
 }
 
 FP420RecoMain::~FP420RecoMain() {
-  if ( finderParameters_ != 0 ) {
+  if ( finderParameters_ != nullptr ) {
     delete finderParameters_;
   }
 }

@@ -292,7 +292,7 @@ namespace edm {
     // able to bind to an lvalue.
     // This should be called only for lvalues.
     data_.push_back(d);
-    d = 0;
+    d = nullptr;
   }
 
   template<typename T, typename P>
@@ -487,7 +487,7 @@ namespace edm {
     size_type key = 0;
     for(typename base::const_iterator i=data_.begin(), e=data_.end(); i!=e; ++i, ++key) {
 
-      if (*i == 0) {
+      if (*i == nullptr) {
         Exception::throwThis(errors::NullPointerError,
           "In OwnVector::fillView() we have intercepted an attempt to put a null pointer\n"
           "into a View and that is not allowed.  It is probably an error that the null\n"

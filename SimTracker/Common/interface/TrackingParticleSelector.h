@@ -56,7 +56,7 @@ public:
     // select only stable particles
     if (stableOnly_) {
       for( TrackingParticle::genp_iterator j = tp.genParticle_begin(); j != tp.genParticle_end(); ++ j ) {
-        if (j->get()==0 || j->get()->status() != 1) {
+        if (j->get()==nullptr || j->get()->status() != 1) {
           return false;
         }
       }

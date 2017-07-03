@@ -25,7 +25,7 @@ public:
 	 *  * The particle name whose properties will be used in the propagation. Without the charge, i.e. "mu", "pi", ...
 	 *  * The propagation direction. It may be: alongMomentum, oppositeToMomentum
 	 */
-	Geant4ePropagator(const MagneticField* field = 0, std::string particleName =
+	Geant4ePropagator(const MagneticField* field = nullptr, std::string particleName =
 			"mu", PropagationDirection dir = alongMomentum);
 
 	virtual ~Geant4ePropagator() override;

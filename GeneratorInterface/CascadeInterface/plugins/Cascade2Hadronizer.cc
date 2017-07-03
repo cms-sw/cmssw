@@ -128,7 +128,7 @@ namespace gen {
   }
 
   Cascade2Hadronizer::~Cascade2Hadronizer(){
-    if(fPy6Service != 0) delete fPy6Service;
+    if(fPy6Service != nullptr) delete fPy6Service;
   }
   
   void Cascade2Hadronizer::doSetRandomEngine(CLHEP::HepRandomEngine* v) {

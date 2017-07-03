@@ -172,7 +172,7 @@ namespace {
   };
 }
 
-PFECALSuperClusterAlgo::PFECALSuperClusterAlgo() : beamSpot_(0) { }
+PFECALSuperClusterAlgo::PFECALSuperClusterAlgo() : beamSpot_(nullptr) { }
 
 void PFECALSuperClusterAlgo::
 setPFClusterCalibration(const std::shared_ptr<PFEnergyCalibration>& calib) {

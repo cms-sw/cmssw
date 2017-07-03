@@ -270,7 +270,7 @@ bool Herwig6Hadronizer:: readSettings( int key )
 
    clear();
    const lhef::HEPRUP* heprup = lheRunInfo()->getHEPRUP();
-   externalPartons = ( heprup != 0 );
+   externalPartons = ( heprup != nullptr );
    
    if ( key == 0 && externalPartons ) return false;
    if ( key > 0 && !externalPartons ) return false;
@@ -455,7 +455,7 @@ bool Herwig6Hadronizer::initialize(const lhef::HEPRUP *heprup)
 {
 	clear();
 
-	externalPartons = (heprup != 0);
+	externalPartons = (heprup != nullptr);
 
 	std::ostringstream info;
 	info << "---------------------------------------------------\n"; 
@@ -777,11 +777,11 @@ void Herwig6Hadronizer::finalizeEvent()
 
   }
     
-  HepMC::GenParticle* incomingParton = NULL;
-  HepMC::GenParticle* targetParton = NULL;
+  HepMC::GenParticle* incomingParton = nullptr;
+  HepMC::GenParticle* targetParton = nullptr;
   
-  HepMC::GenParticle* incomingProton = NULL;
-  HepMC::GenParticle* targetProton = NULL;
+  HepMC::GenParticle* incomingProton = nullptr;
+  HepMC::GenParticle* targetProton = nullptr;
   
   // find incoming parton (first entry with IST=121)
   for(HepMC::GenEvent::particle_const_iterator it = event()->particles_begin(); 
@@ -848,7 +848,7 @@ void Herwig6Hadronizer::finalizeEvent()
 
     
   // find final parton (first entry with IST=123)
-  HepMC::GenParticle* finalParton = NULL;
+  HepMC::GenParticle* finalParton = nullptr;
   for(HepMC::GenEvent::particle_const_iterator it = event()->particles_begin(); 
       (it != event()->particles_end() && finalParton==NULL); it++)
     if((*it)->status()==123) finalParton = (*it);

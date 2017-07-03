@@ -37,7 +37,7 @@ void PrintTrackNumberAction::update(const EndOfTrack * trk)
 	{
 	    const G4VProcess* proccur = 
 		aTrack->GetStep()->GetPostStepPoint()->GetProcessDefinedStep();
-	    if (proccur != 0)
+	    if (proccur != nullptr)
 	    {
 		if (proccur->GetProcessName() == "MinEkineCut") 
 		{
@@ -48,7 +48,7 @@ void PrintTrackNumberAction::update(const EndOfTrack * trk)
 		    // for e+, last step is annihil, while previous is MinEkineCut
 		    const G4VProcess* procprev = 
 			aTrack->GetStep()->GetPreStepPoint()->GetProcessDefinedStep();
-		    if (procprev != 0)
+		    if (procprev != nullptr)
 		    {
 			if (procprev->GetProcessName() == "MinEkineCut") 
 			{

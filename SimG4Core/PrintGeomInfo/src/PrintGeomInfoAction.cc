@@ -125,7 +125,7 @@ void PrintGeomInfoAction::dumpSummary(std::ostream & out) {
 
   //---------- Dump number of objects of each class
   out << " @@@@@@@@@@@@@@@@@@ Dumping G4 geometry objects Summary " << G4endl;
-  if (theTopPV == 0) {
+  if (theTopPV == nullptr) {
     out << " No volume created " << G4endl;
     return;
   }
@@ -267,7 +267,7 @@ void PrintGeomInfoAction::dumpLV(G4LogicalVolume * lv, unsigned int leafDepth, s
     if (_dumpAtts) {
       //--- Visualisation attributes
       const G4VisAttributes * fVA = lv->GetVisAttributes();
-      if (fVA!=0) {
+      if (fVA!=nullptr) {
 	out <<  spaces << "  VISUALISATION ATTRIBUTES: " << G4endl;
 	out <<  spaces << "    IsVisible " << fVA->IsVisible() << G4endl;
 	out <<  spaces << "    IsDaughtersInvisible " << fVA->IsDaughtersInvisible() << G4endl;
@@ -281,7 +281,7 @@ void PrintGeomInfoAction::dumpLV(G4LogicalVolume * lv, unsigned int leafDepth, s
       //--- User Limits
       G4UserLimits * fUL = lv->GetUserLimits();
       G4Track dummy;
-      if (fUL!=0) {
+      if (fUL!=nullptr) {
 	out <<  spaces << "    MaxAllowedStep " << fUL->GetMaxAllowedStep(dummy) << G4endl;
 	out <<  spaces << "    UserMaxTrackLength " << fUL->GetUserMaxTrackLength(dummy) << G4endl;
 	out <<  spaces << "    UserMaxTime " << fUL->GetUserMaxTime(dummy) << G4endl;

@@ -38,7 +38,7 @@ private:
 class HalfHtrData {
 public:
   HalfHtrData(int crate, int slot, int tb);
-  ChannelPattern* getPattern(int chan) { return (chan>=1 && chan<=24)?(&m_patterns[chan-1]):(0); }
+  ChannelPattern* getPattern(int chan) { return (chan>=1 && chan<=24)?(&m_patterns[chan-1]):(nullptr); }
   int getCrate() const { return m_crate; }
   int getSlot() const { return m_slot; }
   int getTB() const { return m_tb; }

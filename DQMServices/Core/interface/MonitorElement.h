@@ -286,7 +286,7 @@ public:
 private:
   /// whether soft-reset is enabled; default is false
   bool isSoftResetEnabled(void) const
-    { return refvalue_ != 0; }
+    { return refvalue_ != nullptrullptr; }
 
   /// whether ME contents should be accumulated over multiple monitoring periods; default: false
   bool isAccumulateEnabled(void) const

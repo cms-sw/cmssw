@@ -96,7 +96,7 @@ void PreshowerClusterShapeProducer::produce(Event& evt, const EventSetup& es) {
   auto ps_cl_for_pi0_disc_y = std::make_unique<reco::PreshowerClusterShapeCollection>();
 
 
-  CaloSubdetectorTopology* topology_p=0;
+  CaloSubdetectorTopology* topology_p=nullptr;
   if (geometry)
       topology_p = new EcalPreshowerTopology(geoHandle);
 

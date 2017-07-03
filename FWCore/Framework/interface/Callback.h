@@ -98,7 +98,7 @@ namespace edm {
                
                DataT* temp = reinterpret_cast< DataT*>(proxyData_[produce::find_index<TReturn,DataT>::value]) ;
                //std::cout <<" setData["<< produce::find_index<TReturn,DataT>::value<<"] "<< temp <<std::endl;
-               if(0 != temp) { copyFromTo(iProducts, *temp); } 
+               if(nullptr != temp) { copyFromTo(iProducts, *temp); } 
             }
          void newRecordComing() {
             wasCalledForThisRecord_ = false;

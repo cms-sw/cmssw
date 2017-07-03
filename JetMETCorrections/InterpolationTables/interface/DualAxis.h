@@ -32,7 +32,7 @@ namespace npstat {
             : a_(dummy_vec()), u_(u), uniform_(true) {}
 
         inline DualAxis(unsigned nCoords, double min, double max,
-                        const char* label=0)
+                        const char* label=nullptr)
             : a_(dummy_vec()), u_(nCoords, min, max, label), uniform_(true) {}
 
         inline explicit DualAxis(const std::vector<double>& coords,
@@ -95,10 +95,10 @@ namespace npstat {
         // constructed type.
         */
         inline const GridAxis* getGridAxis() const
-            {return uniform_ ? static_cast<const GridAxis*>(0) : &a_;}
+            {return uniform_ ? static_cast<const GridAxis*>(nullptr) : &a_;}
 
         inline const UniformAxis* getUniformAxis() const
-            {return uniform_ ? &u_ : static_cast<const UniformAxis*>(0);}
+            {return uniform_ ? &u_ : static_cast<const UniformAxis*>(nullptr);}
         //@}
 
         /** Modify the axis label */

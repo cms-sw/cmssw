@@ -41,7 +41,7 @@ public:
   virtual HitRZCompatibility * checkRZ(const DetLayer* layer,  
 				       const Hit &  outerHit,
 				       const edm::EventSetup& iSetup,
-				       const DetLayer* outerlayer=0,
+				       const DetLayer* outerlayer=nullptr,
 				       float lr=0, float gz=0, float dr=0, float dz=0) const  override;
 
   virtual GlobalTrackingRegion* clone() const override { 

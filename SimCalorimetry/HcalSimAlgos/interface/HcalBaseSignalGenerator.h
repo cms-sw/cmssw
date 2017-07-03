@@ -9,7 +9,7 @@ class HcalBaseSignalGenerator : public CaloVNoiseSignalGenerator
 {
 public:
   HcalBaseSignalGenerator()
-  : theParameterMap(0), theElectronicsSim(0) {}
+  : theParameterMap(nullptr), theElectronicsSim(nullptr) {}
 
   virtual ~HcalBaseSignalGenerator() {}
 
@@ -22,7 +22,7 @@ protected:
 
   void fC2pe(CaloSamples & samples) const
   {
-    assert(theParameterMap != 0);
+    assert(theParameterMap != nullptr);
     float factor = 1./theParameterMap->simParameters(samples.id()).photoelectronsToAnalog(samples.id());
     samples *= factor;
   }

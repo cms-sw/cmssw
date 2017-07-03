@@ -331,7 +331,7 @@ TProfile* EmDQMPostProcessor::dividehistos(DQMStore::IBooker & ibooker, DQMStore
 
   // Check if histograms actually exist
 
-  if(!num || !denom) return 0;
+  if(!num || !denom) return nullptr;
 
   MonitorElement* meOut = ibooker.bookProfile(outName,titel,num->GetXaxis()->GetNbins(),num->GetXaxis()->GetXmin(),num->GetXaxis()->GetXmax(),0.,1.2);
   meOut->setEfficiencyFlag();
@@ -363,10 +363,10 @@ TH1F *
 EmDQMPostProcessor::getHistogram(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, const std::string &histoPath)
 {
   MonitorElement *monElement = igetter.get(histoPath);
-  if (monElement != NULL)
+  if (monElement != nullptr)
     return monElement->getTH1F();
   else
-    return NULL;
+    return nullptr;
 }
 
 //----------------------------------------------------------------------

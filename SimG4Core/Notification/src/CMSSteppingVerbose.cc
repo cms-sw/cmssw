@@ -262,13 +262,13 @@ void CMSSteppingVerbose::NextStep(const G4Step* step,
 
     G4cout << G4endl;
     G4cout << "      Process defined Step: " ;
-    if( preStep->GetProcessDefinedStep() == 0 ){
+    if( preStep->GetProcessDefinedStep() == nullptr ){
       G4cout << std::setw(30) << "Undefined";
     } else {
       G4cout << std::setw(30) 
 	     << preStep->GetProcessDefinedStep()->GetProcessName();
     }
-    if( postStep->GetProcessDefinedStep() == 0){
+    if( postStep->GetProcessDefinedStep() == nullptr){
       G4cout << std::setw(30) << "Undefined";
     } else {
       G4cout << std::setw(30) 

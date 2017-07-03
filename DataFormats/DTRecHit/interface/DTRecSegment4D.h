@@ -94,12 +94,12 @@ class DTRecSegment4D : public RecSegment {
   
   /// The superPhi segment: 0 if no phi projection available
   const DTChamberRecSegment2D *phiSegment() const {
-    return hasPhi()? &thePhiSeg: 0;
+    return hasPhi()? &thePhiSeg: nullptr;
   }
     
   /// The Z segment: 0 if not zed projection available
   const DTSLRecSegment2D *zSegment() const {
-    return hasZed()? &theZedSeg : 0;
+    return hasZed()? &theZedSeg : nullptr;
   }
     
   /// Set position

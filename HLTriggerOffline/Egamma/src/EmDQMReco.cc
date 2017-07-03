@@ -411,7 +411,7 @@ EmDQMReco::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &iRun, edm:
     //--------------------
 
     if (!plotiso[i]) {
-      tmpiso = NULL;
+      tmpiso = nullptr;
       etahistiso.push_back(tmpiso);
       ethistiso.push_back(tmpiso);
       phiHistIso.push_back(tmpiso);

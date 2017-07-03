@@ -239,10 +239,10 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   //tMax(conf.getUntrackedParameter<double>("deltaProductionCut",0.030)),
   tMax(conf.getParameter<double>("deltaProductionCut")),
 
-  fluctuate(fluctuateCharge ? new SiG4UniversalFluctuation() : 0),
-  theNoiser(addNoise ? new GaussianTailNoiseGenerator() : 0),
+  fluctuate(fluctuateCharge ? new SiG4UniversalFluctuation() : nullptr),
+  theNoiser(addNoise ? new GaussianTailNoiseGenerator() : nullptr),
   calmap(doMissCalibrate ? initCal() : std::map<int,CalParameters,std::less<int> >()),
-  theSiPixelGainCalibrationService_(use_ineff_from_db_ ? new SiPixelGainCalibrationOfflineSimService(conf) : 0),
+  theSiPixelGainCalibrationService_(use_ineff_from_db_ ? new SiPixelGainCalibrationOfflineSimService(conf) : nullptr),
   pixelEfficiencies_(conf, AddPixelInefficiency,NumberOfBarrelLayers,NumberOfEndcapDisks),
   pixelAging_(conf,AddPixelAging,NumberOfBarrelLayers,NumberOfEndcapDisks)
 {

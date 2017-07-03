@@ -14,9 +14,9 @@ using namespace sim;
 LocalFieldManager::LocalFieldManager(G4Field* commonField,
                                      G4FieldManager* priFM,
 			             G4FieldManager* altFM)
-   : G4FieldManager(commonField,0,false),
+   : G4FieldManager(commonField,nullptr,false),
      fPrimaryFM(priFM), fAlternativeFM(altFM),
-     fCurrentFM(0),
+     fCurrentFM(nullptr),
      fVerbosity(false)
 {
    this->CopyValuesAndChordFinder(priFM);

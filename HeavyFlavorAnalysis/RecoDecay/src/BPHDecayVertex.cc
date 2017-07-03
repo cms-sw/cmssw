@@ -190,8 +190,8 @@ void BPHDecayVertex::tTracks() const {
   validTks = true;
   while ( n-- ) {
     const reco::Candidate* rp = dL[n];
-    tkMap[rp] = 0;
-    ttMap[rp] = 0;
+    tkMap[rp] = nullptr;
+    ttMap[rp] = nullptr;
     if ( !rp->charge() ) continue;
     const reco::Track* tp;
     const char* searchList = "cfhp";
@@ -199,7 +199,7 @@ void BPHDecayVertex::tTracks() const {
                                                        searchMap.find( rp );
     if ( iter != searchMap.end() ) searchList = iter->second.c_str();
     tp = BPHTrackReference::getTrack( *rp, searchList );
-    if ( tp == 0 ) {
+    if ( tp == nullptr ) {
       edm::LogPrint( "DataNotFound" )
                   << "BPHDecayVertex::tTracks: "
                   << "no track for reco::(PF)Candidate";

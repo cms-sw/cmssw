@@ -417,7 +417,7 @@ void TrackerHitAssociator::associateSimpleRecHitCluster(const SiStripCluster* cl
   if(isearch != stripdigisimlink->end()) {  //if it is not empty
     edm::DetSet<StripDigiSimLink> link_detset = (*isearch);
     
-    if(clust!=0){//the cluster is valid
+    if(clust!=nullptr){//the cluster is valid
       int clusiz = clust->amplitudes().size();
       int first  = clust->firstStrip();     
       int last   = first + clusiz;

@@ -34,10 +34,10 @@ namespace edm {
   template<typename T>
   class ParameterDescriptionCases {
   public:
-    typedef std::map<T, edm::value_ptr<ParameterDescriptionNode> > CaseMap;
+    typedef std::map<T, value_ptr<ParameterDescriptionNode> > CaseMap;
 
     void insert(T caseValue, std::unique_ptr<ParameterDescriptionNode> node) {
-      std::pair<T, edm::value_ptr<ParameterDescriptionNode> > casePair(caseValue,edm::value_ptr<ParameterDescriptionNode>());
+      std::pair<T, value_ptr<ParameterDescriptionNode> > casePair(caseValue,value_ptr<ParameterDescriptionNode>());
       std::pair<typename CaseMap::iterator,bool> status;
       status = caseMap_->insert(casePair);
       (*caseMap_)[caseValue] = std::move(node);
@@ -75,7 +75,7 @@ namespace edm {
       caseMap_(new CaseMap),
       duplicateCaseValues_(false)
     {
-      std::pair<T, edm::value_ptr<ParameterDescriptionNode> > casePair(caseValue,edm::value_ptr<ParameterDescriptionNode>());
+      std::pair<T, value_ptr<ParameterDescriptionNode> > casePair(caseValue,value_ptr<ParameterDescriptionNode>());
       caseMap_->insert(casePair);
       (*caseMap_)[caseValue] = std::move(node);
     }

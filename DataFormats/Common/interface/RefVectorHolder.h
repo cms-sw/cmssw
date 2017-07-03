@@ -59,12 +59,12 @@ namespace edm {
 	difference_type difference(const_iterator_imp const* o) const { return i - dc(o); }
       private:
 	typename REFV::const_iterator const& dc(const_iterator_imp const* o) const {
-	  if (o == 0) {
+	  if (o == nullptr) {
 	    Exception::throwThis(errors::InvalidReference,
 	      "In RefVectorHolder trying to dereference a null pointer\n");
 	  }
 	  const_iterator_imp_specific const* oo = dynamic_cast<const_iterator_imp_specific const*>(o);
-	  if (oo == 0) {
+	  if (oo == nullptr) {
 	    Exception::throwThis(errors::InvalidReference,
 	      "In RefVectorHolder trying to cast iterator to wrong type\n");
 	  }
@@ -190,7 +190,7 @@ namespace edm {
     void RefVectorHolder<REFV>::push_back(RefHolderBase const* h) {
       typedef typename REFV::value_type REF;
       RefHolder<REF> const* rh = dynamic_cast<RefHolder<REF> const*>(h);
-      if(rh == 0) {
+      if(rh == nullptr) {
 	Exception::throwThis(errors::InvalidReference,
 	  "RefVectorHolder: attempting to cast a RefHolderBase "
 	  "to an invalid type.\nExpected: ",

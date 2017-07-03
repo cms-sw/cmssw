@@ -21,7 +21,7 @@
 
 class LHAupLesHouches : public Pythia8::LHAup {
   public:
-    LHAupLesHouches() : setScalesFromLHEF_(false),fEvAttributes(0) {;}
+    LHAupLesHouches() : setScalesFromLHEF_(false),fEvAttributes(nullptr) {;}
 
     //void loadRunInfo(const boost::shared_ptr<lhef::LHERunInfo> &runInfo)
     void loadRunInfo(lhef::LHERunInfo* runInfo)

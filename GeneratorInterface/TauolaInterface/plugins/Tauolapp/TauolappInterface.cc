@@ -54,11 +54,11 @@ extern "C" {
 
 TauolappInterface::TauolappInterface( const edm::ParameterSet& pset):
   fPolarization(false),
-  fPSet(0),
+  fPSet(nullptr),
   fIsInitialized(false),
   fMDTAU(-1),
   fSelectDecayByEvent(false),
-  lhe(NULL),
+  lhe(nullptr),
   dmMatch(0.5),
   dolhe(false),
   dolheBosonCorr(false),
@@ -68,7 +68,7 @@ TauolappInterface::TauolappInterface( const edm::ParameterSet& pset):
   fPSet = new ParameterSet(pset);
 }
 
-TauolappInterface::~TauolappInterface(){if ( fPSet != 0 ) delete fPSet;}
+TauolappInterface::~TauolappInterface(){if ( fPSet != nullptr ) delete fPSet;}
 
 void TauolappInterface::init( const edm::EventSetup& es ){
   if ( fIsInitialized ) return; // do init only once
@@ -212,7 +212,7 @@ HepMC::GenEvent* TauolappInterface::decay( HepMC::GenEvent* evt ){
    if(fSelectDecayByEvent){
      selectDecayByMDTAU();
    }
-   if(dolhe && lhe!=NULL){
+   if(dolhe && lhe!=nullptr){
      std::vector<HepMC::GenParticle> particles;
      std::vector<int> m_idx; 
      std::vector<double> spinup=lhe->getHEPEUP()->SPINUP;

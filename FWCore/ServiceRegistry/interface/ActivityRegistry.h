@@ -91,7 +91,7 @@ namespace edm {
       ActivityRegistry& operator=(ActivityRegistry const&) = delete; // Disallow copying and moving
 
       // ---------- signals ------------------------------------
-      typedef signalslot::Signal<void(service::SystemBounds const&)> Preallocate;
+      typedef ::edm::signalslot::Signal<void(service::SystemBounds const&)> Preallocate;
       ///signal is emitted before beginJob
       Preallocate preallocateSignal_;
       void watchPreallocate(Preallocate::slot_type const& iSlot) {
@@ -99,7 +99,7 @@ namespace edm {
       }
       AR_WATCH_USING_METHOD_1(watchPreallocate)
 
-      typedef signalslot::Signal<void(PathsAndConsumesOfModulesBase const&, ProcessContext const&)> PreBeginJob;
+      typedef ::edm::signalslot::Signal<void(PathsAndConsumesOfModulesBase const&, ProcessContext const&)> PreBeginJob;
       ///signal is emitted before all modules have gotten their beginJob called
       PreBeginJob preBeginJobSignal_;
       ///convenience function for attaching to signal
@@ -108,7 +108,7 @@ namespace edm {
       }
       AR_WATCH_USING_METHOD_2(watchPreBeginJob)
 
-      typedef signalslot::Signal<void()> PostBeginJob;
+      typedef ::edm::signalslot::Signal<void()> PostBeginJob;
       ///signal is emitted after all modules have gotten their beginJob called
       PostBeginJob postBeginJobSignal_;
       ///convenience function for attaching to signal
@@ -117,7 +117,7 @@ namespace edm {
       }
       AR_WATCH_USING_METHOD_0(watchPostBeginJob)
 
-      typedef signalslot::Signal<void()> PreEndJob;
+      typedef ::edm::signalslot::Signal<void()> PreEndJob;
       ///signal is emitted before any modules have gotten their endJob called
       PreEndJob preEndJobSignal_;
       void watchPreEndJob(PreEndJob::slot_type const& iSlot) {
@@ -125,7 +125,7 @@ namespace edm {
       }
       AR_WATCH_USING_METHOD_0(watchPreEndJob)
 
-      typedef signalslot::Signal<void()> PostEndJob;
+      typedef ::edm::signalslot::Signal<void()> PostEndJob;
       ///signal is emitted after all modules have gotten their endJob called
       PostEndJob postEndJobSignal_;
       void watchPostEndJob(PostEndJob::slot_type const& iSlot) {
@@ -133,7 +133,7 @@ namespace edm {
       }
       AR_WATCH_USING_METHOD_0(watchPostEndJob)
 
-      typedef signalslot::Signal<void()> JobFailure;
+      typedef ::edm::signalslot::Signal<void()> JobFailure;
       /// signal is emitted if event processing or end-of-job
       /// processing fails with an uncaught exception.
       JobFailure    jobFailureSignal_;
@@ -144,7 +144,7 @@ namespace edm {
       AR_WATCH_USING_METHOD_0(watchJobFailure)
       
       /// signal is emitted before the source starts creating an Event
-      typedef signalslot::Signal<void(StreamID)> PreSourceEvent;
+      typedef ::edm::signalslot::Signal<void(StreamID)> PreSourceEvent;
       PreSourceEvent preSourceSignal_;
       void watchPreSourceEvent(PreSourceEvent::slot_type const& iSlot) {
         preSourceSignal_.connect(iSlot);
@@ -152,7 +152,7 @@ namespace edm {
       AR_WATCH_USING_METHOD_1(watchPreSourceEvent)
 
       /// signal is emitted after the source starts creating an Event
-      typedef signalslot::Signal<void(StreamID)> PostSourceEvent;
+      typedef ::edm::signalslot::Signal<void(StreamID)> PostSourceEvent;
       PostSourceEvent postSourceSignal_;
       void watchPostSourceEvent(PostSourceEvent::slot_type const& iSlot) {
          postSourceSignal_.connect_front(iSlot);
@@ -160,7 +160,7 @@ namespace edm {
       AR_WATCH_USING_METHOD_1(watchPostSourceEvent)
         
       /// signal is emitted before the source starts creating a Lumi
-      typedef signalslot::Signal<void()> PreSourceLumi;
+      typedef ::edm::signalslot::Signal<void()> PreSourceLumi;
       PreSourceLumi preSourceLumiSignal_;
       void watchPreSourceLumi(PreSourceLumi::slot_type const& iSlot) {
         preSourceLumiSignal_.connect(iSlot);
@@ -168,7 +168,7 @@ namespace edm {
       AR_WATCH_USING_METHOD_0(watchPreSourceLumi)
 
       /// signal is emitted after the source starts creating a Lumi
-      typedef signalslot::Signal<void()> PostSourceLumi;
+      typedef ::edm::signalslot::Signal<void()> PostSourceLumi;
       PostSourceLumi postSourceLumiSignal_;
       void watchPostSourceLumi(PostSourceLumi::slot_type const& iSlot) {
          postSourceLumiSignal_.connect_front(iSlot);
@@ -176,7 +176,7 @@ namespace edm {
       AR_WATCH_USING_METHOD_0(watchPostSourceLumi)
         
       /// signal is emitted before the source starts creating a Run
-      typedef signalslot::Signal<void()> PreSourceRun;
+      typedef ::edm::signalslot::Signal<void()> PreSourceRun;
       PreSourceRun preSourceRunSignal_;
       void watchPreSourceRun(PreSourceRun::slot_type const& iSlot) {
         preSourceRunSignal_.connect(iSlot);
@@ -184,7 +184,7 @@ namespace edm {
       AR_WATCH_USING_METHOD_0(watchPreSourceRun)
 
       /// signal is emitted after the source starts creating a Run
-      typedef signalslot::Signal<void()> PostSourceRun;
+      typedef ::edm::signalslot::Signal<void()> PostSourceRun;
       PostSourceRun postSourceRunSignal_;
       void watchPostSourceRun(PostSourceRun::slot_type const& iSlot) {
          postSourceRunSignal_.connect_front(iSlot);
@@ -192,7 +192,7 @@ namespace edm {
       AR_WATCH_USING_METHOD_0(watchPostSourceRun)
         
       /// signal is emitted before the source opens a file
-      typedef signalslot::Signal<void(std::string const&, bool)> PreOpenFile;
+      typedef ::edm::signalslot::Signal<void(std::string const&, bool)> PreOpenFile;
       PreOpenFile preOpenFileSignal_;
       void watchPreOpenFile(PreOpenFile::slot_type const& iSlot) {
         preOpenFileSignal_.connect(iSlot);

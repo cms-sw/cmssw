@@ -31,7 +31,7 @@ const std::string SteppingHelixStateInfo::ResultName[MAX_RESULT] = {
 };
 
 SteppingHelixStateInfo::SteppingHelixStateInfo(const FreeTrajectoryState& fts): 
-  path_(0), radPath_(0), dir(0), magVol(0), isYokeVol(false), field(0), dEdx(0), dEdXPrime(0), radX0(1e12),
+  path_(0), radPath_(0), dir(0), magVol(nullptr), isYokeVol(false), field(nullptr), dEdx(0), dEdXPrime(0), radX0(1e12),
   status_(UNDEFINED)
 {
   p3.set(fts.momentum().x(), fts.momentum().y(), fts.momentum().z());

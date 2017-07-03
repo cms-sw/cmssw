@@ -11,7 +11,7 @@ namespace gs {
     {
     public:
         inline ItemLocation(std::streampos pos, const char* URI,
-                            const char* cachedItemURI=0)
+                            const char* cachedItemURI=nullptr)
             : pos_(pos),
               URI_(URI ? URI : ""),
               cachedItemURI_(cachedItemURI ? cachedItemURI : "") {}

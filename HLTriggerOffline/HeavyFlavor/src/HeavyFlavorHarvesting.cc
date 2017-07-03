@@ -60,7 +60,7 @@ void HeavyFlavorHarvesting::calculateEfficiency(const ParameterSet& pset, DQMSto
   string numMEname = myDQMrootFolder+"/"+numDenEffMEnames[0];
   MonitorElement *denME = igetter_.get(denMEname);
   MonitorElement *numME = igetter_.get(numMEname);
-  if(denME==0 || numME==0){
+  if(denME==nullptr || numME==nullptr){
     LogDebug("HLTriggerOfflineHeavyFlavor") << "Could not find MEs: "<<denMEname<<" or "<<numMEname<<endl;
     return;
   }

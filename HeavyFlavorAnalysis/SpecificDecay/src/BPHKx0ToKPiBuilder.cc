@@ -90,7 +90,7 @@ vector<BPHPlusMinusConstCandPtr> BPHKx0ToKPiBuilder::build() {
   int nkx = tmpList.size();
   kx0List.clear();
   kx0List.reserve( nkx );
-  BPHPlusMinusConstCandPtr pxt( 0 );
+  BPHPlusMinusConstCandPtr pxt( nullptr );
   for ( ikx = 0; ikx < nkx; ++ikx ) {
     BPHPlusMinusConstCandPtr& px0 = tmpList[ikx];
     BPHPlusMinusCandidatePtr  pxb( new BPHPlusMinusCandidate( evSetup ) );

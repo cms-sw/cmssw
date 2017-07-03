@@ -130,7 +130,7 @@ void CheckBPHWriteDecay::dump( std::ostream& os,
   const reco::Vertex* vptr = 
         ( cand.hasUserData              ( "vertex" ) ? 
           cand.   userData<reco::Vertex>( "vertex" ) : 0 );
-  if ( vptr != 0 ) {
+  if ( vptr != nullptr ) {
     writePosition( os, "vpos : ", *vptr, false );
     os << " --- " << vptr->chi2() << " / " << vptr->ndof()
        << " ( " << ChiSquaredProbability( vptr->chi2(),
@@ -139,7 +139,7 @@ void CheckBPHWriteDecay::dump( std::ostream& os,
   const reco::Vertex* vfit = 
         ( cand.hasUserData              ( "fitVertex" ) ? 
           cand.   userData<reco::Vertex>( "fitVertex" ) : 0 );
-  if ( vfit != 0 ) {
+  if ( vfit != nullptr ) {
     writePosition( os, "vfit : ", *vfit, false );
     os << " --- "  << vfit->chi2() << " / " << vfit->ndof()
        << " ( " << ChiSquaredProbability( vfit->chi2(),

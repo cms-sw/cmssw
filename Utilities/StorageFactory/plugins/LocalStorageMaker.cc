@@ -33,7 +33,7 @@ public:
   virtual bool check (const std::string &/*proto*/,
 		      const std::string &path,
           const AuxSettings&,
-		      IOOffset *size = 0) const override
+		      IOOffset *size = nullptr) const override
     {
       struct stat st;
       if (stat (path.c_str(), &st) != 0)

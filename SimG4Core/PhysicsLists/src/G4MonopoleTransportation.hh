@@ -144,7 +144,7 @@ class G4MonopoleTransportation : public G4VProcess
      G4VParticleChange* AtRestDoIt(
                              const G4Track& ,
                              const G4Step&
-                            ) {return 0;};
+                            ) {return nullptr;};
        // No operation in  AtRestDoIt.
 
   void StartTracking(G4Track* aTrack);

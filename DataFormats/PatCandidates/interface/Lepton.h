@@ -169,7 +169,7 @@ namespace pat {
           {
               if (it->first == key) return & it->second;
           }
-          return 0;
+          return nullptr;
       } 
 
       /// Sets the IsoDeposit associated with some key; if it is already existent, it is overwritten.
