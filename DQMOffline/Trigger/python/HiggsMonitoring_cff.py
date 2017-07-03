@@ -92,6 +92,7 @@ higgsTrielemon.nelectrons = cms.uint32(3)
 higgsTrielemon.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Ele16_Ele12_Ele8_CaloIdL_TrackIdL_v*") #
 higgsTrielemon.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v*")
 
+<<<<<<< HEAD
 ###############################cross flavour trilepton monitor####################################
 #########DiMuon+Single Ele Trigger###################
 diMu9Ele9CaloIdLTrackIdL_muleg = hltHIGmonitoring.clone()
