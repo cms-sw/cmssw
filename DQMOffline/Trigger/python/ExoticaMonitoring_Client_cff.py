@@ -57,8 +57,8 @@ htEfficiency = cms.EDAnalyzer("DQMGenericClient",
 
 )
 
-DisplacedJet_htEfficiency = cms.EDAnalyzer("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/DisplacedJet/*"),
+DisplacedJet_htEfficiency = DQMEDHarvester("DQMGenericClient",
+    subDirs        = cms.untracked.vstring("HLT/EXO/DisplacedJet/HT/*"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
@@ -75,7 +75,7 @@ DisplacedJet_htEfficiency = cms.EDAnalyzer("DQMGenericClient",
 
 
 DisplacedJet_jetEfficiency = DQMEDHarvester("DQMGenericClient",
-     subDirs        = cms.untracked.vstring("HLT/DisplacedJet/*"),
+     subDirs        = cms.untracked.vstring("HLT/EXO/DisplacedJet/Jet/*"),
      verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
      resolution     = cms.vstring(),
      efficiency     = cms.vstring(
@@ -151,11 +151,21 @@ DisplacedJet_jetEfficiency = DQMEDHarvester("DQMGenericClient",
          "effic_calojetpT_HE_pvs_LS 'JET efficiency vs LS; LS; Calo JET efficiency' calojetpTVsLS_HE_p_numerator calojetpTVsLS_HE_p_denominator",
      ),
    
- ) 
+) 
 
-DisplacedJet_jetRatioHemHep17 = DQMEDHarvester("JetPomptDQMPostProcessor",
-    subDir = cms.untracked.string("HLT/JetMET"),
-    PatternJetTrg = cms.untracked.string("HLT_Jet([0-9])+")
+DisplacedJet_jetRatioHemHep17 = DQMEDHarvester("DQMGenericClient",
+    subDirs =  cms.untracked.vstring("HLT/EXO/DisplacedJet/Jet/*"),
+    verbose = cms.untracked.uint32(0),
+    resolution = cms.vstring(),
+    efficiency = cms.vstring(
+         "ratio_calojetpT_HEP17VSHEM17          'HEP17/HEM17 vs pT;            CaloJet(pT) [GeV]; Ratio'   effic_calojetpT_HEP17 effic_calojetpT_HEM17 simpleratio" ,
+         "ratio_calojetpT_pTTresh_HEP17VSHEM17  'HEP17/HEM17 vs pT;            CaloJet(pT) [GeV]; Ratio'   effic_calojetpT_HEP17_pTThresh effic_calojetpT_HEM17_pTThresh simpleratio" ,
+         "ratio_calojetphi_HEP17VSHEM17         'HEP17/HEM17 vs #phi;          CaloJet #phi [GeV]; Ratio'  effic_calojetphi_HEP17 effic_calojetphi_HEM17 simpleratio",
+         "ratio_calojeteta_HEP17VSHEM17         'HEP17/HEM17 vs |#eta|;        CaloJet(|#eta|) ; Ratio'    effic_calojetabseta_HEP17 effic_calojetabseta_HEM17 simpleratio",
+    
+    )
+
+    
  )
 
 from DQMOffline.Trigger.HTMonitoring_Client_cff import *
