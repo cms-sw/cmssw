@@ -51,22 +51,11 @@ makePatOOTPhotonsTask = cms.Task(
 makePatOOTPhotons = cms.Sequence(makePatOOTPhotonsTask)
 
 ## For legacy reprocessing
-## Standard Sequences
-from RecoJets.Configuration.CaloTowersES_cfi import *
-from RecoLocalCalo.EcalRecAlgos.EcalSeverityLevelESProducer_cfi import essourceEcalSev, ecalSeverityLevel
-from RecoParticleFlow.PFClusterProducer.particleFlowRecHitPS_cfi import particleFlowRecHitPS
-from RecoParticleFlow.PFClusterProducer.particleFlowClusterPS_cfi import particleFlowClusterPS
-## OOT Sequences
 from RecoEgamma.EgammaPhotonProducers.ootPhotonSequence_cff import *
 from RecoEgamma.EgammaIsolationAlgos.pfClusterIsolation_cfi import ootPhotonEcalPFClusterIsolationProducer
 
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
 run2_miniAOD_80XLegacy.toReplaceWith(makePatOOTPhotonsTask, cms.Task(
-                                     CaloTowerConstituentsMapBuilder,
-                                     essourceEcalSev,
-                                     ecalSeverityLevel,
-                                     particleFlowRecHitPS,
-                                     particleFlowClusterPS,
                                      ootPhotonTask,
                                      ootPhotonEcalPFClusterIsolationProducer,
                                      makePatOOTPhotonsTask.copy()
