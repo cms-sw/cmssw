@@ -14,10 +14,10 @@ namespace l1t {
       MicroGMTRankPtQualLUT() {};
       explicit MicroGMTRankPtQualLUT(const std::string&, const unsigned, const unsigned);
       explicit MicroGMTRankPtQualLUT(l1t::LUT*);
-      virtual ~MicroGMTRankPtQualLUT() {};
+      ~MicroGMTRankPtQualLUT() override {};
 
       int lookup(int pt, int qual) const;
-      virtual int lookupPacked(int in) const;
+      int lookupPacked(int in) const override;
 
       int hashInput(int pt, int qual) const;
       void unHashInput(int input, int& pt, int& qual) const;

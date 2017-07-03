@@ -89,12 +89,12 @@ public:
   TrackingRegionsFromSuperClustersProducer(const edm::ParameterSet& cfg,
 					   edm::ConsumesCollector && cc);
 
-  virtual ~TrackingRegionsFromSuperClustersProducer(){}
+  ~TrackingRegionsFromSuperClustersProducer() override{}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
     
-  virtual std::vector<std::unique_ptr<TrackingRegion> >
+  std::vector<std::unique_ptr<TrackingRegion> >
   regions (const edm::Event& iEvent, const edm::EventSetup& iSetup)const override;
 
 private:

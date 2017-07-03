@@ -9,7 +9,7 @@ class ZHistogrammer : public edm::EDAnalyzer {
 public:
   ZHistogrammer(const edm::ParameterSet& pset);
 private:
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
   edm::EDGetTokenT<reco::CandidateCollection>  zToken_;
   edm::EDGetTokenT<reco::CandidateCollection>  genToken_;
   edm::EDGetTokenT<reco::CandMatchMap>  matchToken_;

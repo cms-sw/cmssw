@@ -17,8 +17,8 @@ class EcalTBHodoscopeRecInfoProducer : public edm::EDProducer {
  public:
 
   explicit EcalTBHodoscopeRecInfoProducer(const edm::ParameterSet& ps);
-  virtual ~EcalTBHodoscopeRecInfoProducer() ;
-  virtual void produce(edm::Event& e, const edm::EventSetup& es);
+  ~EcalTBHodoscopeRecInfoProducer() override ;
+  void produce(edm::Event& e, const edm::EventSetup& es) override;
 
  private:
 

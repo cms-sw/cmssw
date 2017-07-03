@@ -45,10 +45,10 @@
 class TestMuonAnalyzer : public edm::EDAnalyzer {
 public:
   explicit TestMuonAnalyzer( const edm::ParameterSet& );
-  ~TestMuonAnalyzer();
+  ~TestMuonAnalyzer() override;
   
   
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  void analyze( const edm::Event&, const edm::EventSetup& ) override;
 private:
 
   void fillTree( const GeomDet* geomDet );

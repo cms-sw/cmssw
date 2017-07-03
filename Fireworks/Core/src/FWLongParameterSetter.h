@@ -32,7 +32,7 @@ class FWLongParameterSetter : public FWParameterSetterBase
 {
 public:
    FWLongParameterSetter();
-   virtual ~FWLongParameterSetter();
+   ~FWLongParameterSetter() override;
 
    // ---------- const member functions ---------------------
 
@@ -40,8 +40,8 @@ public:
 
    // ---------- member functions ---------------------------
 
-   virtual void     attach(FWParameterBase*);
-   virtual TGFrame* build(TGFrame* iParent, bool labelBack = true);
+   void     attach(FWParameterBase*) override;
+   TGFrame* build(TGFrame* iParent, bool labelBack = true) override;
 
    void doUpdate(Long_t);
 

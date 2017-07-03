@@ -36,7 +36,7 @@ class DDLSAX2FileHandler : public DDLSAX2Handler
  public:
   
   DDLSAX2FileHandler( DDCompactView& cpv );
-  ~DDLSAX2FileHandler();
+  ~DDLSAX2FileHandler() override;
 
   void init() ;
 

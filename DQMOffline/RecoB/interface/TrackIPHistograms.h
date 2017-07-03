@@ -22,7 +22,7 @@ class TrackIPHistograms : public FlavourHistograms<T>
                     const std::string& plotFirst_, const std::string& folder, 
 		    const unsigned int& mc, const bool& quality, DQMStore::IBooker & ibook);
 
-  virtual ~TrackIPHistograms(){};
+  ~TrackIPHistograms() override{};
 
   void fill(const int& flavour, const reco::TrackBase::TrackQuality& quality, const T& variable, const bool& hasTrack) const;
   void fill(const int& flavour, const reco::TrackBase::TrackQuality& quality, const T& variable, const bool& hasTrack, const T & w) const;

@@ -88,12 +88,12 @@
 class SteppingHelixPropagatorAnalyzer : public edm::EDAnalyzer {
 public:
   explicit SteppingHelixPropagatorAnalyzer(const edm::ParameterSet&);
-  ~SteppingHelixPropagatorAnalyzer();
+  ~SteppingHelixPropagatorAnalyzer() override;
 
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
-  void beginJob();
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
+  void beginJob() override;
 
 protected:
   struct GlobalSimHit {

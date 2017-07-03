@@ -28,7 +28,7 @@ public:
    //Default constructor for testing
   CSCGEMMotherboard();
 
-  virtual ~CSCGEMMotherboard();
+  ~CSCGEMMotherboard() override;
 
   void clear();
 

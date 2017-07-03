@@ -46,7 +46,7 @@ class MakeDataException : public cms::Exception
 {
    public:
       MakeDataException(const EventSetupRecordKey&, const DataKey&);  
-      ~MakeDataException() throw() {}
+      ~MakeDataException() throw() override {}
 
       // ---------- const member functions ---------------------
       const char* myMessage() const throw() {

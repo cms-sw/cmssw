@@ -79,18 +79,18 @@ https://twiki.cern.ch/twiki/bin/view/CMS/TkAlCosmicsRateMonitoring
 class CosmicRateAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one::SharedResources> {
    public:
       explicit CosmicRateAnalyzer(const edm::ParameterSet&);
-      ~CosmicRateAnalyzer();
+      ~CosmicRateAnalyzer() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 
    private:
-      virtual void beginJob() override;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override;
+      void beginJob() override;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override;
 
-      virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-      virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
+      void beginRun(edm::Run const&, edm::EventSetup const&) override;
+      void endRun(edm::Run const&, edm::EventSetup const&) override;
 
       static double stampToReal(edm::Timestamp time) {
 	return time.unixTime() + time.microsecondOffset()*1e-6;

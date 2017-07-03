@@ -27,13 +27,13 @@ class L2MuonIsolationProducer : public edm::stream::EDProducer<> {
   L2MuonIsolationProducer(const edm::ParameterSet&);
   
   /// destructor
-  virtual ~L2MuonIsolationProducer(); 
+  ~L2MuonIsolationProducer() override; 
 
   /// ParameterSet descriptions
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
   /// Produce isolation maps
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
   // ex virtual void reconstruct();
 
  private:

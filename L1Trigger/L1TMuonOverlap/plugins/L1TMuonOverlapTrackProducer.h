@@ -42,15 +42,15 @@ class L1TMuonOverlapTrackProducer : public edm::EDProducer {
  public:
   L1TMuonOverlapTrackProducer(const edm::ParameterSet&);
 
-  ~L1TMuonOverlapTrackProducer();
+  ~L1TMuonOverlapTrackProducer() override;
 
-  virtual void beginJob();
+  void beginJob() override;
 
-  virtual void endJob();
+  void endJob() override;
 
-  virtual void beginRun(edm::Run const& run, edm::EventSetup const& iSetup);
+  void beginRun(edm::Run const& run, edm::EventSetup const& iSetup) override;
   
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:
 

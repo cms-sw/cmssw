@@ -55,7 +55,7 @@ class ShiftedParticleProducerT : public edm::stream::EDProducer<>
 
     produces<ParticleCollection>();
   }
-  ~ShiftedParticleProducerT()
+  ~ShiftedParticleProducerT() override
   {
     for ( typename std::vector<binningEntryType*>::const_iterator it = binning_.begin();
 	  it != binning_.end(); ++it ) {
@@ -65,7 +65,7 @@ class ShiftedParticleProducerT : public edm::stream::EDProducer<>
 
  private:
 
-  void produce(edm::Event& evt, const edm::EventSetup& es)
+  void produce(edm::Event& evt, const edm::EventSetup& es) override
   {
     edm::Handle<ParticleCollection> originalParticles;
     evt.getByToken(srcToken_, originalParticles);

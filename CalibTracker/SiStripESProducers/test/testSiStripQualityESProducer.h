@@ -20,9 +20,9 @@ class testSiStripQualityESProducer : public edm::EDAnalyzer {
 
  public:
   explicit testSiStripQualityESProducer( const edm::ParameterSet& );
-  ~testSiStripQualityESProducer(){};
+  ~testSiStripQualityESProducer() override{};
   
-  void analyze( const edm::Event&, const edm::EventSetup& );
+  void analyze( const edm::Event&, const edm::EventSetup& ) override;
     
  private:
   void printObject(const SiStripQuality*);

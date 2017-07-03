@@ -15,7 +15,7 @@ namespace ecaldqm
   public :
     MESetTrend(std::string const&, binning::ObjectType, binning::BinningType, MonitorElement::Kind, binning::AxisSpecs const* = 0, binning::AxisSpecs const* = 0);
     MESetTrend(MESetTrend const&);
-    ~MESetTrend() {}
+    ~MESetTrend() override {}
 
     MESet& operator=(MESet const&) override;
 

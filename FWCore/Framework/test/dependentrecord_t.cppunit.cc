@@ -48,8 +48,8 @@ CPPUNIT_TEST(extendIOVTest);
 CPPUNIT_TEST_SUITE_END();
 public:
 
-  void setUp(){}
-  void tearDown(){}
+  void setUp() override{}
+  void tearDown() override{}
 
   void dependentConstructorTest();
   void dependentFinder1Test();
@@ -82,11 +82,11 @@ public:
       usingRecord<DummyRecord>();
    }
    void newInterval(const edm::eventsetup::EventSetupRecordKey& /*iRecordType*/,
-                     const edm::ValidityInterval& /*iInterval*/) {
+                     const edm::ValidityInterval& /*iInterval*/) override {
       //do nothing
    }
 protected:
-   void registerProxies(const edm::eventsetup::EventSetupRecordKey&, KeyedProxies& /*iHolder*/) {
+   void registerProxies(const edm::eventsetup::EventSetupRecordKey&, KeyedProxies& /*iHolder*/) override {
    }
    
 };
@@ -97,11 +97,11 @@ public:
       usingRecord<DepRecord>();
    }
    void newInterval(const edm::eventsetup::EventSetupRecordKey& /*iRecordType*/,
-                     const edm::ValidityInterval& /*iInterval*/) {
+                     const edm::ValidityInterval& /*iInterval*/) override {
       //do nothing
    }
 protected:
-   void registerProxies(const edm::eventsetup::EventSetupRecordKey&, KeyedProxies& /*iHolder*/) {
+   void registerProxies(const edm::eventsetup::EventSetupRecordKey&, KeyedProxies& /*iHolder*/) override {
    }
    
 };
@@ -113,11 +113,11 @@ public:
     usingRecord<DepOn2Record>();
   }
   void newInterval(const edm::eventsetup::EventSetupRecordKey& /*iRecordType*/,
-  const edm::ValidityInterval& /*iInterval*/) {
+  const edm::ValidityInterval& /*iInterval*/) override {
     //do nothing
   }
 protected:
-void registerProxies(const edm::eventsetup::EventSetupRecordKey&, KeyedProxies& /*iHolder*/) {
+void registerProxies(const edm::eventsetup::EventSetupRecordKey&, KeyedProxies& /*iHolder*/) override {
 }
 
 };
@@ -132,9 +132,9 @@ public:
     interval_ = iInterval;
   }
 protected:
-  virtual void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
                               const edm::IOVSyncValue& iTime, 
-                              edm::ValidityInterval& iInterval) {
+                              edm::ValidityInterval& iInterval) override {
     if(interval_.validFor(iTime)) {
       iInterval = interval_;
     } else {
@@ -162,9 +162,9 @@ public:
     interval_ = iInterval;
   }
 protected:
-  virtual void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
                               const edm::IOVSyncValue& iTime, 
-                              edm::ValidityInterval& iInterval) {
+                              edm::ValidityInterval& iInterval) override {
     if(interval_.validFor(iTime)) {
       iInterval = interval_;
     } else {

@@ -33,10 +33,10 @@
 class FakeGctInputProducer : public edm::EDProducer {
    public:
       explicit FakeGctInputProducer(const edm::ParameterSet&);
-      ~FakeGctInputProducer();
+      ~FakeGctInputProducer() override;
 
    private:
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      void produce(edm::Event&, const edm::EventSetup&) override;
 
       int rgnMode_;
       int iemMode_;

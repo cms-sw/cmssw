@@ -36,7 +36,7 @@ class FastTrajectoryCleaner final : public TrajectoryCleaner {
     missingHitPenalty_(iConfig.getParameter<double>("MissingHitPenalty")),
     dismissSeed_(iConfig.getParameter<bool>("dismissSeed")){}
 
-  ~FastTrajectoryCleaner(){}
+  ~FastTrajectoryCleaner() override{}
 
   void clean(TempTrajectoryContainer&) const override;
   void clean(TrajectoryPointerContainer&) const override;

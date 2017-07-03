@@ -27,13 +27,13 @@ public:
   FakeTTrig(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~FakeTTrig();
+  ~FakeTTrig() override;
 
   // Operations
-  virtual void beginRun(const edm::Run& run, const edm::EventSetup& setup ) override;
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup)override {}
-  virtual void endJob() override;
+  void beginRun(const edm::Run& run, const edm::EventSetup& setup ) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  void analyze(const edm::Event& event, const edm::EventSetup& setup)override {}
+  void endJob() override;
 
   // TOF computation
   double tofComputation(const DTSuperLayer* superlayer);

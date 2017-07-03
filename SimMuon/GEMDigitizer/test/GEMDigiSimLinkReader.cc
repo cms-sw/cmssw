@@ -43,11 +43,11 @@ public:
 
   explicit GEMDigiSimLinkReader(const edm::ParameterSet& pset);
 
-  virtual ~GEMDigiSimLinkReader()
+  ~GEMDigiSimLinkReader() override
   {
   }
 
-  void analyze(const edm::Event &, const edm::EventSetup&);
+  void analyze(const edm::Event &, const edm::EventSetup&) override;
 
 private:
 

@@ -37,13 +37,13 @@ class SurveyDBUploader:
 		   const edm::ParameterSet&
 		   );
 
-  virtual void analyze(
+  void analyze(
 		       const edm::Event&,
 		       const edm::EventSetup&
-		       ) {}
+		       ) override {}
 
   /// Upload to DB
-  virtual void endJob();
+  void endJob() override;
 
   private:
 

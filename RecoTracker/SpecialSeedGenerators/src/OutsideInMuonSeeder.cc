@@ -40,9 +40,9 @@
 class OutsideInMuonSeeder final : public edm::stream::EDProducer<> {
     public:
       explicit OutsideInMuonSeeder(const edm::ParameterSet & iConfig);
-      virtual ~OutsideInMuonSeeder() { }
+      ~OutsideInMuonSeeder() override { }
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
+      void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
 
     private:
       /// Labels for input collections

@@ -21,15 +21,15 @@ class SiStripPedestalsESSource : public edm::ESProducer, public edm::EventSetupR
  public:
 
   SiStripPedestalsESSource( const edm::ParameterSet& );
-  virtual ~SiStripPedestalsESSource() {;}
+  ~SiStripPedestalsESSource() override {;}
   
   virtual std::unique_ptr<SiStripPedestals> produce( const SiStripPedestalsRcd& );
   
  protected:
 
-  virtual void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
+  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
 			       const edm::IOVSyncValue&,
-			       edm::ValidityInterval& );
+			       edm::ValidityInterval& ) override;
   
  private:
   

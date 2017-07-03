@@ -41,11 +41,11 @@ class L1CaloHcalScaleConfigOnlineProd :
   public L1ConfigOnlineProdBase< L1CaloHcalScaleRcd, L1CaloHcalScale > {
    public:
       L1CaloHcalScaleConfigOnlineProd(const edm::ParameterSet& iConfig);
-      ~L1CaloHcalScaleConfigOnlineProd();
+      ~L1CaloHcalScaleConfigOnlineProd() override;
 
   std::shared_ptr< L1CaloHcalScale > produce(const L1CaloHcalScaleRcd& iRecord) override ;
 
-  virtual std::shared_ptr< L1CaloHcalScale > newObject(
+  std::shared_ptr< L1CaloHcalScale > newObject(
     const std::string& objectKey ) override ;
 
    private:

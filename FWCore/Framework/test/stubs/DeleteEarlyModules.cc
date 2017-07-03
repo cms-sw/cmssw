@@ -32,12 +32,12 @@ namespace edmtest {
       produces<DeleteEarly>();
     }
     
-    virtual void beginJob() {
+    void beginJob() override {
       // Needed because DeleteEarly objects may be allocated and deleted in initialization
       edmtest::DeleteEarly::resetDeleteCount();
     }
 
-    virtual void produce(edm::Event& e, edm::EventSetup const& ){
+    void produce(edm::Event& e, edm::EventSetup const& ) override{
       e.put(std::make_unique<DeleteEarly>());
     }
 
@@ -51,7 +51,7 @@ namespace edmtest {
       consumes<DeleteEarly>(m_tag);
     }
     
-    virtual void analyze(edm::Event const& e, edm::EventSetup const& ) {
+    void analyze(edm::Event const& e, edm::EventSetup const& ) override {
       edm::Handle<DeleteEarly> h;
       e.getByLabel(m_tag,h);
     }
@@ -66,7 +66,7 @@ namespace edmtest {
     m_index(0)
     {}
     
-    virtual void analyze(edm::Event const&, edm::EventSetup const&) {
+    void analyze(edm::Event const&, edm::EventSetup const&) override {
       if (DeleteEarly::nDeletes() != m_expectedValues.at(m_index)) {
         throw cms::Exception("DeleteEarlyError")<<"On index "<<m_index<<" we expected "<<m_expectedValues[m_index]<<" deletes but we see "<<DeleteEarly::nDeletes();
       }

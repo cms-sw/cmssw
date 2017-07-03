@@ -46,13 +46,13 @@ class FWEventItemsManager : public FWConfigurable
 public:
    //does not take ownership of the object to which it points but does keep reference
    FWEventItemsManager(FWModelChangeManager*);
-   virtual ~FWEventItemsManager();
+   ~FWEventItemsManager() override;
 
    typedef std::vector<FWEventItem*>::const_iterator const_iterator;
 
    //configuration management interface
-   void addTo(FWConfiguration&) const;
-   void setFrom(const FWConfiguration&);
+   void addTo(FWConfiguration&) const override;
+   void setFrom(const FWConfiguration&) override;
 
    // ---------- const member functions ---------------------
    ///NOTE: iterator is allowed to return a null object for items that have been removed

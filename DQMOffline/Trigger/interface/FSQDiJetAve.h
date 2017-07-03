@@ -59,16 +59,16 @@ namespace FSQ {
 class FSQDiJetAve : public DQMEDAnalyzer {
    public:
       explicit FSQDiJetAve(const edm::ParameterSet&);
-      ~FSQDiJetAve();
+      ~FSQDiJetAve() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 
    private:
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-      virtual void bookHistograms(DQMStore::IBooker &, edm::Run const & run, edm::EventSetup const & c) override;
-      virtual void dqmBeginRun(edm::Run const& run, edm::EventSetup const& c) override;
+      void bookHistograms(DQMStore::IBooker &, edm::Run const & run, edm::EventSetup const & c) override;
+      void dqmBeginRun(edm::Run const& run, edm::EventSetup const& c) override;
       //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
       //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 

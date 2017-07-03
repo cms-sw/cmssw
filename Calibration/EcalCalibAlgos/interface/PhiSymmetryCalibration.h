@@ -41,19 +41,19 @@ class PhiSymmetryCalibration :  public edm::EDAnalyzer
   PhiSymmetryCalibration( const edm::ParameterSet& iConfig );
   
   /// Destructor
-  ~PhiSymmetryCalibration();
+  ~PhiSymmetryCalibration() override;
 
   /// Called at beginning of job
-  virtual void beginJob();
-  virtual void endRun(edm::Run const&, const edm::EventSetup&);
-  void endLuminosityBlock(edm::LuminosityBlock const& ,edm::EventSetup const&);
+  void beginJob() override;
+  void endRun(edm::Run const&, const edm::EventSetup&) override;
+  void endLuminosityBlock(edm::LuminosityBlock const& ,edm::EventSetup const&) override;
 
 
   /// Called at end of job
-  virtual void endJob();
+  void endJob() override;
 
   /// Called at each event 
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  void analyze( const edm::Event&, const edm::EventSetup& ) override;
 
   /// 
   void setUp(const edm::EventSetup& setup);

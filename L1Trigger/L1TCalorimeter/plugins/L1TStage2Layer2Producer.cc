@@ -55,18 +55,18 @@ using namespace l1t;
   class L1TStage2Layer2Producer : public edm::EDProducer {
   public:
     explicit L1TStage2Layer2Producer(const edm::ParameterSet& ps);
-    ~L1TStage2Layer2Producer();
+    ~L1TStage2Layer2Producer() override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions)
       ;
 
   private:
-    virtual void beginJob() override;
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
-    virtual void endJob() override;
+    void beginJob() override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
+    void endJob() override;
 
-    virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-    virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
+    void beginRun(edm::Run const&, edm::EventSetup const&) override;
+    void endRun(edm::Run const&, edm::EventSetup const&) override;
     //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
     //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 

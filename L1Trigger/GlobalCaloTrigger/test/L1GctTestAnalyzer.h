@@ -35,9 +35,9 @@
 class L1GctTestAnalyzer : public edm::EDAnalyzer {
 public:
   explicit L1GctTestAnalyzer(const edm::ParameterSet&);
-  ~L1GctTestAnalyzer();
+  ~L1GctTestAnalyzer() override;
   
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   
   void doRctEM(const edm::Event&, edm::InputTag label);
   void doInternEM(const edm::Event&, edm::InputTag label);

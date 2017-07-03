@@ -34,8 +34,8 @@ using namespace std;
 class PFRecoTauProducer : public EDProducer {
  public:
   explicit PFRecoTauProducer(const edm::ParameterSet& iConfig);
-  ~PFRecoTauProducer();
-  virtual void produce(edm::Event&,const edm::EventSetup&) override;
+  ~PFRecoTauProducer() override;
+  void produce(edm::Event&,const edm::EventSetup&) override;
  private:
   edm::EDGetTokenT<PFTauTagInfoCollection> PFTauTagInfoProducer_;
   edm::InputTag ElectronPreIDProducer_;

@@ -38,10 +38,10 @@ class CaloCleaner : public  edm::stream::EDProducer<>
 {
  public:
   explicit CaloCleaner(const edm::ParameterSet&);
-  ~CaloCleaner();
+  ~CaloCleaner() override;
 
  private:
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   typedef edm::SortedCollection<T> RecHitCollection;
 

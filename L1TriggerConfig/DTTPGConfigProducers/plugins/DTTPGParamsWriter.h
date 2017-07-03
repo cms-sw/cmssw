@@ -26,15 +26,15 @@ public:
   DTTPGParamsWriter(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~DTTPGParamsWriter();
+  ~DTTPGParamsWriter() override;
 
   // Operations
 
   /// Compute the ttrig by fiting the TB rising edge
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
 
   /// Write ttrig in the DB
-  void endJob();
+  void endJob() override;
 
 private:
 

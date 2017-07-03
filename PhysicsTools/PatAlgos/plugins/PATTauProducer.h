@@ -48,9 +48,9 @@ namespace pat {
     public:
 
       explicit PATTauProducer(const edm::ParameterSet & iConfig);
-      ~PATTauProducer();
+      ~PATTauProducer() override;
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
+      void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 

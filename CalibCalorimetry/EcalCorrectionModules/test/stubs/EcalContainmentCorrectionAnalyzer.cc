@@ -23,11 +23,11 @@ class EcalContainmentCorrectionAnalyzer: public edm::EDAnalyzer{
   
 public:
   EcalContainmentCorrectionAnalyzer(const edm::ParameterSet& ps);
-  ~EcalContainmentCorrectionAnalyzer();
+  ~EcalContainmentCorrectionAnalyzer() override;
   
 protected:
   
-  void analyze( edm::Event const & iEvent, const  edm::EventSetup& iSetup);
+  void analyze( edm::Event const & iEvent, const  edm::EventSetup& iSetup) override;
 
 };
 

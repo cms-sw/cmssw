@@ -14,9 +14,9 @@ class TestRefVector: public CppUnit::TestFixture
 
  public:
   TestRefVector() {}
-  ~TestRefVector() {}
-  void setUp() {}
-  void tearDown() {}
+  ~TestRefVector() override {}
+  void setUp() override {}
+  void tearDown() override {}
 
   void testIteration();
 

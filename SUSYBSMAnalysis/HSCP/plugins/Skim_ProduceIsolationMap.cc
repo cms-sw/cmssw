@@ -71,8 +71,8 @@ using namespace edm;
 class ProduceIsolationMap : public edm::EDProducer {
    public:
       explicit ProduceIsolationMap(const edm::ParameterSet&);
-      ~ProduceIsolationMap();
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      ~ProduceIsolationMap() override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
    private:
       edm::EDGetTokenT<reco::TrackCollection> TKToken_;
       edm::EDGetTokenT<reco::TrackCollection> inputCollectionToken_;

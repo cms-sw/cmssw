@@ -30,7 +30,7 @@ class TestPRegisterModule1 : public edm::EDProducer
 {
 public:
    explicit TestPRegisterModule1(edm::ParameterSet const& p);   
-   void produce(edm::Event& e, edm::EventSetup const&);
+   void produce(edm::Event& e, edm::EventSetup const&) override;
    
 private:
    edm::ParameterSet pset_;

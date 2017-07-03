@@ -34,11 +34,11 @@ namespace pat {
   class HLTL1MuonMatcher : public edm::EDProducer {
     public:
       explicit HLTL1MuonMatcher(const edm::ParameterSet & iConfig);
-      virtual ~HLTL1MuonMatcher() { }
+      ~HLTL1MuonMatcher() override { }
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
+      void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
-      virtual void beginRun(const edm::Run & iRun, const edm::EventSetup& iSetup) override;
+      void beginRun(const edm::Run & iRun, const edm::EventSetup& iSetup) override;
 
 
       /// select L1s with patName_ and filterLabel_ (public, so it can be used by L1MuonMatcherAlgo)

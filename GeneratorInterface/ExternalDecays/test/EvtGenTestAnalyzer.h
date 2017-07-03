@@ -14,12 +14,12 @@ class EvtGenTestAnalyzer : public edm::EDAnalyzer
    
       //
       explicit EvtGenTestAnalyzer( const edm::ParameterSet& ) ;
-      virtual ~EvtGenTestAnalyzer() {} // no need to delete ROOT stuff
+      ~EvtGenTestAnalyzer() override {} // no need to delete ROOT stuff
                                // as it'll be deleted upon closing TFile
       
-      virtual void analyze( const edm::Event&, const edm::EventSetup& ) ;
-      virtual void beginJob() ;
-      virtual void endJob() ;
+      void analyze( const edm::Event&, const edm::EventSetup& ) override ;
+      void beginJob() override ;
+      void endJob() override ;
 
    private:
    

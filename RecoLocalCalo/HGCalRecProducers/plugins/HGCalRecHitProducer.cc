@@ -29,8 +29,8 @@ class HGCalRecHitProducer : public edm::stream::EDProducer<> {
   
  public:
   explicit HGCalRecHitProducer(const edm::ParameterSet& ps);
-  ~HGCalRecHitProducer();
-  virtual void produce(edm::Event& evt, const edm::EventSetup& es);
+  ~HGCalRecHitProducer() override;
+  void produce(edm::Event& evt, const edm::EventSetup& es) override;
   
  private:
   

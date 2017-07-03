@@ -14,7 +14,7 @@ class PulseFitWithShape: public TObject
   PulseFitWithShape() ;
 
   // Destructor: Does nothing
-  virtual ~PulseFitWithShape() ;
+  ~PulseFitWithShape() override ;
 
   // Initialize 
   virtual void init(int,int,int,int,int,const std::vector <double>&,double) ;

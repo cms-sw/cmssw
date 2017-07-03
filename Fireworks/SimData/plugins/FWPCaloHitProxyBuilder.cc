@@ -18,7 +18,7 @@ class FWPCaloHitProxyBuilder : public FWDigitSetProxyBuilder
 {
 public:
    FWPCaloHitProxyBuilder( void ) {} 
-   virtual ~FWPCaloHitProxyBuilder( void ) {}
+   ~FWPCaloHitProxyBuilder( void ) override {}
 
    REGISTER_PROXYBUILDER_METHODS();
 
@@ -27,7 +27,7 @@ private:
    const FWPCaloHitProxyBuilder& operator=( const FWPCaloHitProxyBuilder& );
 
    using FWDigitSetProxyBuilder::build;
-   virtual void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* ) override;
+   void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* ) override;
 };
 
 void FWPCaloHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*)

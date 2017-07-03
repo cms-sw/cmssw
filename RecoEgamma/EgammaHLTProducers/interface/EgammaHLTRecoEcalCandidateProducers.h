@@ -29,7 +29,7 @@ class EgammaHLTRecoEcalCandidateProducers : public edm::global::EDProducer<> {
  public:
 
   EgammaHLTRecoEcalCandidateProducers (const edm::ParameterSet& ps);
-  ~EgammaHLTRecoEcalCandidateProducers();
+  ~EgammaHLTRecoEcalCandidateProducers() override;
 
   void produce(edm::StreamID sid, edm::Event& evt, const edm::EventSetup& es) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);

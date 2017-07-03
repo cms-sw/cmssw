@@ -44,10 +44,10 @@ class TevMuonProducer : public edm::stream::EDProducer<> {
   TevMuonProducer(const edm::ParameterSet&);
   
   /// destructor
-  virtual ~TevMuonProducer(); 
+  ~TevMuonProducer() override; 
   
   /// reconstruct muons
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
   
  private:
     

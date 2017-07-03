@@ -125,7 +125,7 @@ class JetCleanerForType1METT : public edm::stream::EDProducer<>
 
  private:
 
-  void produce(edm::Event& evt, const edm::EventSetup& es)
+  void produce(edm::Event& evt, const edm::EventSetup& es) override
   {
 
     edm::Handle<reco::JetCorrector> jetCorr;

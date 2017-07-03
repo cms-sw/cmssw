@@ -12,8 +12,8 @@ namespace {
   public:
     BasicPayload_data0() : cond::payloadInspector::HistoryPlot<cond::BasicPayload,float>( "Example Trend", "data0"){
     }
-    virtual ~BasicPayload_data0() = default;
-    float getFromPayload( cond::BasicPayload& payload ){
+    ~BasicPayload_data0() override = default;
+    float getFromPayload( cond::BasicPayload& payload ) override{
       return payload.m_data0;
     }
   };
@@ -22,8 +22,8 @@ namespace {
   public:
     BasicPayload_data1() : cond::payloadInspector::RunHistoryPlot<cond::BasicPayload,float>( "Example Run-based Trend", "data0"){
     }
-    virtual ~BasicPayload_data1() = default;
-    float getFromPayload( cond::BasicPayload& payload ){
+    ~BasicPayload_data1() override = default;
+    float getFromPayload( cond::BasicPayload& payload ) override{
       return payload.m_data0;
     }
   };
@@ -32,9 +32,9 @@ namespace {
   public:
     BasicPayload_data2() : cond::payloadInspector::TimeHistoryPlot<cond::BasicPayload,float>( "Example Time-based Trend", "data0"){
     }
-    virtual ~BasicPayload_data2() = default;
+    ~BasicPayload_data2() override = default;
 
-    float getFromPayload( cond::BasicPayload& payload ){
+    float getFromPayload( cond::BasicPayload& payload ) override{
       return payload.m_data0;
     }
   };
@@ -43,9 +43,9 @@ namespace {
   public:
     BasicPayload_data3() : cond::payloadInspector::ScatterPlot<cond::BasicPayload,float,float>( "Example Scatter", "data0","data1"){
     }
-    virtual ~BasicPayload_data3() = default;
+    ~BasicPayload_data3() override = default;
 
-    std::tuple<float,float> getFromPayload( cond::BasicPayload& payload ){
+    std::tuple<float,float> getFromPayload( cond::BasicPayload& payload ) override{
       return std::make_tuple(payload.m_data0,payload.m_data1);
     }
   };
@@ -55,9 +55,9 @@ namespace {
     BasicPayload_data4() : cond::payloadInspector::Histogram1D<cond::BasicPayload>( "Example Histo1d", "x",10,0,10){
       Base::setSingleIov( true );
     }
-    virtual ~BasicPayload_data4() = default;
+    ~BasicPayload_data4() override = default;
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       for( auto iov : iovs ) {
 	std::shared_ptr<cond::BasicPayload> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
@@ -75,9 +75,9 @@ namespace {
     BasicPayload_data5() : cond::payloadInspector::Histogram2D<cond::BasicPayload>( "Example Histo2d", "x",10,0,10,"y",10,0,10){
       Base::setSingleIov( true );
     }
-    virtual ~BasicPayload_data5() = default;
+    ~BasicPayload_data5() override = default;
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       for( auto iov : iovs ) {
 	std::shared_ptr<cond::BasicPayload> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){

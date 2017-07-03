@@ -15,12 +15,12 @@ class FFTGenericScaleCalculator : public AbsFFTSpecificScaleCalculator
 public:
     FFTGenericScaleCalculator(const edm::ParameterSet& ps);
 
-    inline virtual ~FFTGenericScaleCalculator() {}
+    inline ~FFTGenericScaleCalculator() override {}
 
-    virtual void mapFFTJet(const reco::Jet& jet,
+    void mapFFTJet(const reco::Jet& jet,
                            const reco::FFTJet<float>& fftJet,
                            const math::XYZTLorentzVector& current,
-                           double* buf, unsigned dim) const;
+                           double* buf, unsigned dim) const override;
 private:
     inline double f_safeLog(const double x) const
     {

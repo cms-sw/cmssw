@@ -11,11 +11,11 @@ public:
   HcalSiPMShape(unsigned int signalShape=203);
   HcalSiPMShape(const HcalSiPMShape & other);
 
-  virtual ~HcalSiPMShape() {}
+  ~HcalSiPMShape() override {}
 
-  virtual double operator() (double time) const;
+  double operator() (double time) const override;
 
-  virtual double timeToRise() const {return 0.0;}
+  double timeToRise() const override {return 0.0;}
 
 protected:
   void computeShape(unsigned int signalShape);

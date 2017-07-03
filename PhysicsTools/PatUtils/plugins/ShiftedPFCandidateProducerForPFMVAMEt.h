@@ -35,12 +35,12 @@ class ShiftedPFCandidateProducerForPFMVAMEt : public edm::stream::EDProducer<>
  public:
 
   explicit ShiftedPFCandidateProducerForPFMVAMEt(const edm::ParameterSet&);
-  ~ShiftedPFCandidateProducerForPFMVAMEt();
+  ~ShiftedPFCandidateProducerForPFMVAMEt() override;
 
  private:
   typedef edm::View<reco::Candidate> CandidateView;
 
-  void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   std::string moduleLabel_;
 

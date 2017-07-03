@@ -46,10 +46,10 @@ namespace edm {
   public:
     LuminosityBlock(LuminosityBlockPrincipal const& lbp, ModuleDescription const& md,
                     ModuleCallingContext const*);
-    ~LuminosityBlock();
+    ~LuminosityBlock() override;
 
     // AUX functions are defined in LuminosityBlockBase
-    LuminosityBlockAuxiliary const& luminosityBlockAuxiliary() const {return aux_;}
+    LuminosityBlockAuxiliary const& luminosityBlockAuxiliary() const override {return aux_;}
 
     /**\return Reusable index which can be used to separate data for different simultaneous LuminosityBlocks.
      */
@@ -133,7 +133,7 @@ namespace edm {
     luminosityBlockPrincipal() const;
 
     // Override version from LuminosityBlockBase class
-    virtual BasicHandle getByLabelImpl(std::type_info const& iWrapperType, std::type_info const& iProductType, InputTag const& iTag) const;
+    BasicHandle getByLabelImpl(std::type_info const& iWrapperType, std::type_info const& iProductType, InputTag const& iTag) const override;
 
     typedef std::vector<std::pair<edm::propagate_const<std::unique_ptr<WrapperBase>>, BranchDescription const*>> ProductPtrVec;
     ProductPtrVec& putProducts() {return putProducts_;}

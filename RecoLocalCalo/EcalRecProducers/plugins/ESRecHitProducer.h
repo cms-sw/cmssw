@@ -19,8 +19,8 @@ class ESRecHitProducer : public edm::stream::EDProducer<> {
  public:
 
   explicit ESRecHitProducer(const edm::ParameterSet& ps);
-  virtual ~ESRecHitProducer();
-  virtual void produce(edm::Event& e, const edm::EventSetup& es) override;
+  ~ESRecHitProducer() override;
+  void produce(edm::Event& e, const edm::EventSetup& es) override;
 
  private:
 

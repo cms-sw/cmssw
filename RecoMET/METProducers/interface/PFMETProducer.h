@@ -61,8 +61,8 @@ namespace cms
     {
     public:
       explicit PFMETProducer(const edm::ParameterSet&);
-      virtual ~PFMETProducer() { }
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      ~PFMETProducer() override { }
+      void produce(edm::Event&, const edm::EventSetup&) override;
 
     private:
 

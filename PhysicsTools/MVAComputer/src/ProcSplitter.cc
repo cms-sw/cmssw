@@ -29,11 +29,11 @@ class ProcSplitter : public VarProcessor {
 	ProcSplitter(const char *name,
 	             const Calibration::ProcSplitter *calib,
 	             const MVAComputer *computer);
-	virtual ~ProcSplitter() {}
+	~ProcSplitter() override {}
 
-	virtual void configure(ConfIterator iter, unsigned int n) override;
-	virtual void eval(ValueIterator iter, unsigned int n) const override;
-	virtual std::vector<double> deriv(
+	void configure(ConfIterator iter, unsigned int n) override;
+	void eval(ValueIterator iter, unsigned int n) const override;
+	std::vector<double> deriv(
 				ValueIterator iter, unsigned int n) const override;
 
     private:

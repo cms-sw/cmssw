@@ -12,10 +12,10 @@ class RunCommentDat : public IDataItem {
  public:
   friend class EcalCondDBInterface;
   RunCommentDat();
-  ~RunCommentDat();
+  ~RunCommentDat() override;
 
   // User data methods
-  inline std::string getTable() { return "RUN_COMMENT_DAT"; }
+  inline std::string getTable() override { return "RUN_COMMENT_DAT"; }
 
   inline void setSource(std::string x) { m_source = x; }
   inline std::string getSource() const { return m_source; }
@@ -26,7 +26,7 @@ class RunCommentDat : public IDataItem {
 
  private:
   void prepareWrite() 
-    noexcept(false);
+    noexcept(false) override;
 
   void writeDB(const EcalLogicID* ecid, const RunCommentDat* item, RunIOV* iov )
     noexcept(false);

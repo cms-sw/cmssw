@@ -49,12 +49,12 @@ using namespace reco;
 class CaloRecHitsBeamHaloCleaned : public edm::stream::EDProducer<> {
 public:
   explicit CaloRecHitsBeamHaloCleaned(const edm::ParameterSet&);
-  ~CaloRecHitsBeamHaloCleaned();
+  ~CaloRecHitsBeamHaloCleaned() override;
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
 private:
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
   
  
   edm::EDGetTokenT<EcalRecHitCollection> ecalebhits_token;

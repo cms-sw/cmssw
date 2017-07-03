@@ -34,7 +34,7 @@ struct MEPSet {
 class FastTimerServiceClient : public DQMEDHarvester {
 public:
   explicit FastTimerServiceClient(edm::ParameterSet const &);
-  ~FastTimerServiceClient();
+  ~FastTimerServiceClient() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   static void fillLumiMePSetDescription(edm::ParameterSetDescription & pset);

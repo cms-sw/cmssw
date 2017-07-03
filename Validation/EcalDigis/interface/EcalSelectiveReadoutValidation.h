@@ -42,7 +42,7 @@ public:
   EcalSelectiveReadoutValidation(const edm::ParameterSet& ps);
 
   /// Destructor
-  ~EcalSelectiveReadoutValidation();
+  ~EcalSelectiveReadoutValidation() override;
  void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
  void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) override; 
  

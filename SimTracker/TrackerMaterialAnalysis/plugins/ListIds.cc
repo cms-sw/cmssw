@@ -72,7 +72,7 @@ class ListIds : public edm::one::EDAnalyzer<>
 {
 public:
   ListIds(const edm::ParameterSet &);
-  virtual ~ListIds();
+  ~ListIds() override;
 
 private:
   void analyze(const edm::Event &, const edm::EventSetup &) override;

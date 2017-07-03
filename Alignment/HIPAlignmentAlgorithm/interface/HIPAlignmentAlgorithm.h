@@ -28,21 +28,21 @@ class HIPAlignmentAlgorithm : public AlignmentAlgorithmBase
   HIPAlignmentAlgorithm(const edm::ParameterSet& cfg);
 
   /// Destructor
-  ~HIPAlignmentAlgorithm() {};
+  ~HIPAlignmentAlgorithm() override {};
 
   /// Call at beginning of job
   void initialize( const edm::EventSetup& setup, 
                    AlignableTracker* tracker, AlignableMuon* muon, AlignableExtras* extras, 
-                   AlignmentParameterStore* store);
+                   AlignmentParameterStore* store) override;
 
   /// Call at end of job
-  void terminate(const edm::EventSetup& setup);
+  void terminate(const edm::EventSetup& setup) override;
 
   /// Called at start of new loop
-  void startNewLoop(void);
+  void startNewLoop(void) override;
 
   /// Run the algorithm
-  void run(const edm::EventSetup& setup, const EventInfo& eventInfo);
+  void run(const edm::EventSetup& setup, const EventInfo& eventInfo) override;
 
  private:
 

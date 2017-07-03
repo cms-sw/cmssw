@@ -46,7 +46,7 @@ class FFTJetPFPileupCleaner : public edm::EDProducer
 {
 public:
     explicit FFTJetPFPileupCleaner(const edm::ParameterSet&);
-    ~FFTJetPFPileupCleaner();
+    ~FFTJetPFPileupCleaner() override;
 
 protected:
     // methods

@@ -22,40 +22,40 @@ class ConfigurationDatabaseImplOracle: public hcal::ConfigurationDatabaseImpl {
 	public:
 
 		ConfigurationDatabaseImplOracle();
-		virtual ~ConfigurationDatabaseImplOracle();
-		virtual bool canHandleMethod(const std::string& method) const;
-		virtual void connect(const std::string& accessor) noexcept(false);
-		virtual void disconnect();
+		~ConfigurationDatabaseImplOracle() override;
+		bool canHandleMethod(const std::string& method) const override;
+		void connect(const std::string& accessor) noexcept(false) override;
+		void disconnect() override;
 	
-		virtual void getLUTs(const std::string& tag, int crate, int slot,  
+		void getLUTs(const std::string& tag, int crate, int slot,  
 			std::map<hcal::ConfigurationDatabase::LUTId, hcal::ConfigurationDatabase::LUT >& LUTs) 
-							noexcept(false);
+							noexcept(false) override;
 
-		virtual void getLUTChecksums(const std::string& tag, 
+		void getLUTChecksums(const std::string& tag, 
 			std::map<hcal::ConfigurationDatabase::LUTId, hcal::ConfigurationDatabase::MD5Fingerprint>& checksums) 
-							noexcept(false);
+							noexcept(false) override;
 
-		virtual void getPatterns(const std::string& tag, int crate, int slot, 
+		void getPatterns(const std::string& tag, int crate, int slot, 
 			std::map<hcal::ConfigurationDatabase::PatternId, hcal::ConfigurationDatabase::HTRPattern >& patterns) 
-							noexcept(false);
+							noexcept(false) override;
 
-		virtual void getRBXdata(const std::string& tag, const std::string& rbx,
+		void getRBXdata(const std::string& tag, const std::string& rbx,
                                         hcal::ConfigurationDatabase::RBXdatumType dtype,
                                         std::map<hcal::ConfigurationDatabase::RBXdatumId, hcal::ConfigurationDatabase::RBXdatum>& RBXdata)
-                                                        noexcept(false);
+                                                        noexcept(false) override;
 
-	        virtual void getZSThresholds(const std::string& tag, int crate, int slot,
+	        void getZSThresholds(const std::string& tag, int crate, int slot,
                                         std::map<hcal::ConfigurationDatabase::ZSChannelId, int>& thresholds)
-                                        noexcept(false);
+                                        noexcept(false) override;
 
-	        virtual void getHLXMasks(const std::string& tag, int crate, int slot,
+	        void getHLXMasks(const std::string& tag, int crate, int slot,
                                         std::map<hcal::ConfigurationDatabase::FPGAId,
                                                         hcal::ConfigurationDatabase::HLXMasks>& masks)
-                                        noexcept(false);
+                                        noexcept(false) override;
 
   // added by Gena Kukartsev
-  virtual oracle::occi::Connection * getConnection( void );
-  virtual oracle::occi::Environment * getEnvironment( void );
+  oracle::occi::Connection * getConnection( void ) override;
+  oracle::occi::Environment * getEnvironment( void ) override;
 
 	private:
 		//OCCI Env, Conn     

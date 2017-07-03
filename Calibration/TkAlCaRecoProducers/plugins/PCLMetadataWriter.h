@@ -22,14 +22,14 @@ public:
   PCLMetadataWriter(const edm::ParameterSet&);
 
   /// Destructor
-  virtual ~PCLMetadataWriter();
+  ~PCLMetadataWriter() override;
 
   // Operations
 //   virtual void beginJob            (void);
 //   virtual void endJob              (void);  
-  virtual void analyze             (const edm::Event&          , const edm::EventSetup&);
-  virtual void beginRun            (const edm::Run&            , const edm::EventSetup&);
-  virtual void endRun              (const edm::Run&            , const edm::EventSetup&);
+  void analyze             (const edm::Event&          , const edm::EventSetup&) override;
+  void beginRun            (const edm::Run&            , const edm::EventSetup&) override;
+  void endRun              (const edm::Run&            , const edm::EventSetup&) override;
 //   virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
 //   virtual void endLuminosityBlock  (const edm::LuminosityBlock&, const edm::EventSetup&);
 

@@ -22,11 +22,11 @@ class TtFullLepKinSolutionProducer : public edm::EDProducer {
   public:
 
     explicit TtFullLepKinSolutionProducer(const edm::ParameterSet & iConfig);
-    ~TtFullLepKinSolutionProducer();
+    ~TtFullLepKinSolutionProducer() override;
 
-    virtual void beginJob();
-    virtual void produce(edm::Event & evt, const edm::EventSetup & iSetup);
-    virtual void endJob();
+    void beginJob() override;
+    void produce(edm::Event & evt, const edm::EventSetup & iSetup) override;
+    void endJob() override;
 
   private:
 

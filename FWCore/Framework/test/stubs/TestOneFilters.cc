@@ -42,7 +42,7 @@ namespace one {
       return true;
     }
     
-   ~SharedResourcesFilter() {
+   ~SharedResourcesFilter() override {
       if(m_count != trans_) {
         throw cms::Exception("transitions")
           << "SharedResourcesFilter transitions "
@@ -90,7 +90,7 @@ namespace one {
       er = true;
     }
 
-   ~WatchRunsFilter() {
+   ~WatchRunsFilter() override {
       if(m_count != trans_) {
         throw cms::Exception("transitions")
           << "WatchRunsFilter transitions "     
@@ -139,7 +139,7 @@ namespace one {
       el = true;
     }
 
-   ~WatchLumiBlocksFilter() {
+   ~WatchLumiBlocksFilter() override {
       if(m_count != trans_) {
         throw cms::Exception("transitions")
           << "WatchLumiBlocksFilter transitions " 
@@ -179,7 +179,7 @@ namespace one {
     void endRun(edm::Run const&, edm::EventSetup const&) override { 
     }
 
-   ~BeginRunFilter() {
+   ~BeginRunFilter() override {
       if(m_count != trans_) {
         throw cms::Exception("transitions")
           << "BeginRunFilter transitions " 
@@ -220,7 +220,7 @@ namespace one {
     }
 
 
-   ~BeginLumiBlockFilter() {
+   ~BeginLumiBlockFilter() override {
       if(m_count != trans_) {
         throw cms::Exception("transitions")
           << "BeginLumiBlockFilter transitions "     
@@ -259,7 +259,7 @@ namespace one {
     }
 
 
-   ~EndRunFilter() {
+   ~EndRunFilter() override {
       if(m_count != trans_) {
         throw cms::Exception("transitions")
           << "EndRunFilter transitions " 
@@ -298,7 +298,7 @@ namespace one {
     void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {
     }
 
-   ~EndLumiBlockFilter() {
+   ~EndLumiBlockFilter() override {
       if(m_count != trans_) {
         throw cms::Exception("transitions")
           << "EndLumiBlockFilter transitions "     

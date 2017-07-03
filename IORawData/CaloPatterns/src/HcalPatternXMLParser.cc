@@ -56,7 +56,7 @@ HcalPatternXMLParser::~HcalPatternXMLParser() {
       m_items.clear();
       m_parameters.clear();
     }
-    virtual ~ConfigurationDBHandler() {
+    ~ConfigurationDBHandler() override {
       XMLString::release(&xc_Parameter);
       XMLString::release(&xc_Data);
       XMLString::release(&xc_name);
@@ -64,10 +64,10 @@ HcalPatternXMLParser::~HcalPatternXMLParser() {
       XMLString::release(&xc_elements);
       XMLString::release(&xc_encoding);
     }
-    virtual void startElement (const XMLCh *const uri, const XMLCh *const localname, const XMLCh *const qname, const Attributes &attrs) override;
-    virtual void endElement (const XMLCh *const uri, const XMLCh *const localname, const XMLCh *const qname) override;
-    virtual void characters (const XMLCh *const chars, const XMLSize_t length) override;
-    virtual void ignorableWhitespace (const XMLCh *const chars, const XMLSize_t length) override;
+    void startElement (const XMLCh *const uri, const XMLCh *const localname, const XMLCh *const qname, const Attributes &attrs) override;
+    void endElement (const XMLCh *const uri, const XMLCh *const localname, const XMLCh *const qname) override;
+    void characters (const XMLCh *const chars, const XMLSize_t length) override;
+    void ignorableWhitespace (const XMLCh *const chars, const XMLSize_t length) override;
   private:
     inline bool cvt2String(const XMLCh* val, std::string& ou) {
       if (val==0) return false;

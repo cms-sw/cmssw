@@ -35,11 +35,11 @@ static void print_usage(const char* progname)
 namespace {
     class CatalogRecovery : public BinaryArchiveBase
     {
-        inline std::ostream& plainOutputStream() {return f_;}
+        inline std::ostream& plainOutputStream() override {return f_;}
 
         inline std::istream& plainInputStream(
             unsigned long long /* id */, unsigned* /* compressionCode */,
-            unsigned long long* /* length */) {return f_;}
+            unsigned long long* /* length */) override {return f_;}
 
         inline void openFile(const unsigned long count)
         {
@@ -53,7 +53,7 @@ namespace {
 
         inline unsigned long long addToCatalog(
             const AbsRecord& /* record */, unsigned /* compressCode */,
-            unsigned long long /* itemLength */)
+            unsigned long long /* itemLength */) override
         {
             return 0ULL;
         }
@@ -65,7 +65,7 @@ namespace {
         inline CatalogRecovery(const char* name)
             : BinaryArchiveBase(name, "r") {}
 
-        inline ~CatalogRecovery() {if (f_.is_open()) f_.close();}
+        inline ~CatalogRecovery() override {if (f_.is_open()) f_.close();}
 
         inline std::string catalogFileName() const
         {
@@ -130,7 +130,7 @@ namespace {
             }
         }
 
-        inline void flush() {}
+        inline void flush() override {}
     };
 }
 

@@ -21,9 +21,9 @@ class TestDataFrame: public CppUnit::TestFixture
 
  public:
   TestDataFrame(); 
-  ~TestDataFrame() {}
-  void setUp() {}
-  void tearDown() {}
+  ~TestDataFrame() override {}
+  void setUp() override {}
+  void tearDown() override {}
 
   void default_ctor();
   void filling();

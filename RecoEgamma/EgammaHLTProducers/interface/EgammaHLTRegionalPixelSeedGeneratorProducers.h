@@ -34,12 +34,12 @@ class EgammaHLTRegionalPixelSeedGeneratorProducers : public edm::EDProducer
 
   explicit EgammaHLTRegionalPixelSeedGeneratorProducers(const edm::ParameterSet& conf);
 
-  virtual ~EgammaHLTRegionalPixelSeedGeneratorProducers();
+  ~EgammaHLTRegionalPixelSeedGeneratorProducers() override;
 
-  virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  virtual void beginRun(edm::Run const&run, const edm::EventSetup& es) override final;
-  virtual void endRun(edm::Run const&run, const edm::EventSetup& es) override final;
+  void beginRun(edm::Run const&run, const edm::EventSetup& es) final;
+  void endRun(edm::Run const&run, const edm::EventSetup& es) final;
 
 
  private:

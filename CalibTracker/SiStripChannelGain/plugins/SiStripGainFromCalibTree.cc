@@ -93,17 +93,17 @@ using namespace APVGain;
 class SiStripGainFromCalibTree : public ConditionDBWriter<SiStripApvGain> {
 public:
 	explicit SiStripGainFromCalibTree(const edm::ParameterSet&);
-	~SiStripGainFromCalibTree();
+	~SiStripGainFromCalibTree() override;
 
 
 private:
 
   
-	virtual void algoBeginRun(const edm::Run& run, const edm::EventSetup& iSetup) override;
-	virtual void algoEndRun  (const edm::Run& run, const edm::EventSetup& iSetup) override;
-	virtual void algoBeginJob      (const edm::EventSetup& iSetup) override;
-	virtual void algoEndJob        () override;
-	virtual void algoAnalyze       (const edm::Event &, const edm::EventSetup &) override;
+	void algoBeginRun(const edm::Run& run, const edm::EventSetup& iSetup) override;
+	void algoEndRun  (const edm::Run& run, const edm::EventSetup& iSetup) override;
+	void algoBeginJob      (const edm::EventSetup& iSetup) override;
+	void algoEndJob        () override;
+	void algoAnalyze       (const edm::Event &, const edm::EventSetup &) override;
 
         int  statCollectionFromMode(const char* tag) const;
         void bookDQMHistos(const char* dqm_dir, const char* tag);

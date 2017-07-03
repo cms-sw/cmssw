@@ -44,7 +44,7 @@
 class HGCalNumberingTester : public edm::one::EDAnalyzer<> {
 public:
   explicit HGCalNumberingTester( const edm::ParameterSet& );
-  ~HGCalNumberingTester();
+  ~HGCalNumberingTester() override;
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;

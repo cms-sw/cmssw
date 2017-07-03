@@ -14,7 +14,7 @@ namespace {
     SiStripDetVOff_LV(): cond::payloadInspector::TimeHistoryPlot<SiStripDetVOff,int >( "Nr of mod with LV OFF vs time", "nLVOff"){
     }
 
-    int getFromPayload( SiStripDetVOff& payload ){
+    int getFromPayload( SiStripDetVOff& payload ) override{
       return payload.getLVoffCounts();
     }
 
@@ -25,7 +25,7 @@ namespace {
     SiStripDetVOff_HV() : cond::payloadInspector::TimeHistoryPlot<SiStripDetVOff,int >( "Nr of mod with HV OFF vs time","nHVOff"){
     }
 
-    int getFromPayload( SiStripDetVOff& payload ){
+    int getFromPayload( SiStripDetVOff& payload ) override{
       return payload.getHVoffCounts();
     }
 

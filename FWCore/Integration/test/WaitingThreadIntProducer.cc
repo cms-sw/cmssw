@@ -183,12 +183,12 @@ namespace edmtest {
     explicit WaitingThreadIntProducer(edm::ParameterSet const& iConfig);
     ~WaitingThreadIntProducer() override;
     
-    virtual void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
+    void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
 
-    virtual void endJob() override;
+    void endJob() override;
     
   private:
-    virtual void preallocStreams(unsigned int) override;
+    void preallocStreams(unsigned int) override;
 
     std::vector<edm::EDGetTokenT<IntProduct>> m_tokens;
     std::unique_ptr<WaitingServer> m_server;

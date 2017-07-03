@@ -21,9 +21,9 @@ namespace popcon
     {
       
     public:
-      void getNewObjects();
-      std::string id() const { return m_name;}
-      ~CSCFakeDBGainsImpl(); 
+      void getNewObjects() override;
+      std::string id() const override { return m_name;}
+      ~CSCFakeDBGainsImpl() override; 
       
       CSCFakeDBGainsImpl(const edm::ParameterSet& pset);
       

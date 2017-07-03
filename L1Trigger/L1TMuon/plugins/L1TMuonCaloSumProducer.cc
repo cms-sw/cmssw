@@ -48,19 +48,19 @@ using namespace l1t;
 class L1TMuonCaloSumProducer : public edm::EDProducer {
    public:
       explicit L1TMuonCaloSumProducer(const edm::ParameterSet&);
-      ~L1TMuonCaloSumProducer();
+      ~L1TMuonCaloSumProducer() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void beginJob() override ;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override ;
-      virtual void endJob() override ;
+      void beginJob() override ;
+      void produce(edm::Event&, const edm::EventSetup&) override ;
+      void endJob() override ;
 
-      virtual void beginRun(const edm::Run&, edm::EventSetup const&) override ;
-      virtual void endRun(const edm::Run&, edm::EventSetup const&) override ;
-      virtual void beginLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) override ;
-      virtual void endLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) override ;
+      void beginRun(const edm::Run&, edm::EventSetup const&) override ;
+      void endRun(const edm::Run&, edm::EventSetup const&) override ;
+      void beginLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) override ;
+      void endLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) override ;
 
       edm::EDGetTokenT <CaloTowerBxCollection> m_caloTowerToken;
       edm::InputTag m_caloLabel;

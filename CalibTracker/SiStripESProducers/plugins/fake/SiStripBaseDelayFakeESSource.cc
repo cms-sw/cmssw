@@ -25,9 +25,9 @@
 class SiStripBaseDelayFakeESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
   SiStripBaseDelayFakeESSource(const edm::ParameterSet&);
-  ~SiStripBaseDelayFakeESSource();
+  ~SiStripBaseDelayFakeESSource() override;
 
-  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue& iov, edm::ValidityInterval& iValidity );
+  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue& iov, edm::ValidityInterval& iValidity ) override;
 
   typedef std::shared_ptr<SiStripBaseDelay> ReturnType;
   ReturnType produce(const SiStripBaseDelayRcd&);

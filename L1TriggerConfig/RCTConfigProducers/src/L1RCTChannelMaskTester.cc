@@ -43,9 +43,9 @@ class L1RCTChannelMaskTester: public edm::EDAnalyzer {
 public:
     explicit L1RCTChannelMaskTester(const edm::ParameterSet&) {
     }
-    virtual ~L1RCTChannelMaskTester() {
+    ~L1RCTChannelMaskTester() override {
     }
-    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 };
 

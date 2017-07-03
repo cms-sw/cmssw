@@ -22,7 +22,7 @@ class HcalGainWidths: public HcalCondObjectContainer<HcalGainWidth>
 #endif
   HcalGainWidths(const HcalTopology* topo):HcalCondObjectContainer<HcalGainWidth>(topo) {}
 
-  std::string myname() const {return (std::string)"HcalGainWidths";}
+  std::string myname() const override {return (std::string)"HcalGainWidths";}
 
  private:
 

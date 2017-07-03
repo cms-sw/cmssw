@@ -27,9 +27,9 @@ class FWCandidateProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Candid
       
 public:
    FWCandidateProxyBuilder() {}
-   virtual ~FWCandidateProxyBuilder() {}
+   ~FWCandidateProxyBuilder() override {}
 
-   virtual void setItem(const FWEventItem* iItem) override
+   void setItem(const FWEventItem* iItem) override
    {
       FWProxyBuilderBase::setItem(iItem);
       if (iItem)

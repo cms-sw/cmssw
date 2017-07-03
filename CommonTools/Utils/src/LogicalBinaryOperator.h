@@ -21,7 +21,7 @@ namespace reco {
 	rhs_ = selStack.back(); selStack.pop_back();
 	lhs_ = selStack.back(); selStack.pop_back();
       }
-      virtual bool operator()(const edm::ObjectWithDict& o) const ;
+      bool operator()(const edm::ObjectWithDict& o) const override ;
       private:
       Op op_;
       SelectorPtr lhs_, rhs_;

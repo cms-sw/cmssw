@@ -17,14 +17,14 @@
 class SiPixelGenErrorDBObjectUploader : public edm::EDAnalyzer {
    public:
       explicit SiPixelGenErrorDBObjectUploader(const edm::ParameterSet&);
-      ~SiPixelGenErrorDBObjectUploader();
+      ~SiPixelGenErrorDBObjectUploader() override;
 
 			typedef std::vector<std::string> vstring;
 
    private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      void beginJob() override ;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 			
 			vstring theGenErrorCalibrations ;
 			std::string theGenErrorBaseString;

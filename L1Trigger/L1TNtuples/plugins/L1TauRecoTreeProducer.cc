@@ -65,13 +65,13 @@
 class L1TauRecoTreeProducer : public edm::EDAnalyzer {
 public:
   explicit L1TauRecoTreeProducer(const edm::ParameterSet&);
-  ~L1TauRecoTreeProducer();
+  ~L1TauRecoTreeProducer() override;
 
 
 private:
-  virtual void beginJob(void) ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginJob(void) override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
 public:
   L1Analysis::L1AnalysisRecoTau*        tau;

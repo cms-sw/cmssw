@@ -16,8 +16,8 @@ class testAssociationNew : public CppUnit::TestFixture {
   typedef std::vector<float> CKey2;
 public:
   testAssociationNew();
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
   void checkAll(); 
   void test(const edm::Association<CVal> &);
   CVal k;

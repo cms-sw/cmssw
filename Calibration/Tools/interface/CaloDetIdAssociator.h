@@ -31,17 +31,17 @@ class HCaloDetIdAssociator: public HDetIdAssociator{
    virtual void setGeometry(const CaloGeometry* ptr){ geometry_ = ptr; };
    
  protected:
-   virtual void check_setup()
+   void check_setup() override
      {
 	HDetIdAssociator::check_setup();
 	if (geometry_==0) throw cms::Exception("CaloGeometry is not set");
      };
    
-   virtual GlobalPoint getPosition(const DetId& id){
+   GlobalPoint getPosition(const DetId& id) override{
       return geometry_->getSubdetectorGeometry(id)->getGeometry(id)->getPosition();
    };
    
-   virtual std::set<DetId> getASetOfValidDetIds(){
+   std::set<DetId> getASetOfValidDetIds() override{
       std::set<DetId> setOfValidIds;
       const std::vector<DetId>& vectOfValidIds = geometry_->getValidDetIds(DetId::Calo, 1);
       for(std::vector<DetId>::const_iterator it = vectOfValidIds.begin(); it != vectOfValidIds.end(); ++it)
@@ -50,7 +50,7 @@ class HCaloDetIdAssociator: public HDetIdAssociator{
       return setOfValidIds;
    };
    
-   virtual std::vector<GlobalPoint> getDetIdPoints(const DetId& id){
+   std::vector<GlobalPoint> getDetIdPoints(const DetId& id) override{
       std::vector<GlobalPoint> points;
       if(! geometry_->getSubdetectorGeometry(id)){
 	 LogDebug("CaloDetIdAssociator") << "Cannot find sub-detector geometry for " << id.rawId() <<"\n";
@@ -67,7 +67,7 @@ class HCaloDetIdAssociator: public HDetIdAssociator{
       return  points;
    };
 
-   virtual bool insideElement(const GlobalPoint& point, const DetId& id){
+   bool insideElement(const GlobalPoint& point, const DetId& id) override{
       return  geometry_->getSubdetectorGeometry(id)->getGeometry(id)->inside(point);
    };
 

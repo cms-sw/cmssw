@@ -80,10 +80,10 @@ class GlobalHitsProducer : public edm::EDProducer
   typedef std::vector<float> FloatVector;
 
   explicit GlobalHitsProducer(const edm::ParameterSet&);
-  virtual ~GlobalHitsProducer();
-  virtual void beginJob( void ) override;
-  virtual void endJob() override;  
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  ~GlobalHitsProducer() override;
+  void beginJob( void ) override;
+  void endJob() override;  
+  void produce(edm::Event&, const edm::EventSetup&) override;
   
  private:
 

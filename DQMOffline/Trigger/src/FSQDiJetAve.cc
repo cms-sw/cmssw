@@ -147,8 +147,8 @@ class HandlerTemplate: public BaseHandler {
              m_singleObjectDrawables = iConfig.getParameter<  std::vector< edm::ParameterSet > >("singleObjectDrawables");
              m_isSetup = false;
         }
-        virtual ~HandlerTemplate() = default;
-        void book(DQMStore::IBooker & booker){
+        ~HandlerTemplate() override = default;
+        void book(DQMStore::IBooker & booker) override{
             if(!m_isSetup){
                 booker.setCurrentFolder(m_dirname);
                 m_isSetup = true;
@@ -177,7 +177,7 @@ class HandlerTemplate: public BaseHandler {
                 }
             }
         }
-        void getAndStoreTokens(edm::ConsumesCollector && iC){
+        void getAndStoreTokens(edm::ConsumesCollector && iC) override{
                 edm::EDGetTokenT<std::vector<TInputCandidateType>  > tok =  iC.consumes<std::vector<TInputCandidateType> > (m_input);
                 m_tokens[m_input.encode()] = edm::EDGetToken(tok);
         }
@@ -298,7 +298,7 @@ class HandlerTemplate: public BaseHandler {
                      const trigger::TriggerEvent& trgEvent,
                      const edm::TriggerResults & triggerResults, 
                      const edm::TriggerNames  & triggerNames,
-                     float weight)
+                     float weight) override
         {
             size_t found = 0;
             for (size_t i = 0; i<triggerNames.size(); ++i){

@@ -39,9 +39,9 @@
 class HLTHcalPhiSymFilter : public HLTFilter {
    public:
       explicit HLTHcalPhiSymFilter(const edm::ParameterSet&);
-      ~HLTHcalPhiSymFilter();
+      ~HLTHcalPhiSymFilter() override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool hltFilter(edm::Event &, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+      bool hltFilter(edm::Event &, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
    private:
       // ----------member data ---------------------------

@@ -24,7 +24,7 @@ namespace pftools {
 class LinearCalibrator : public Calibrator {
 public:
 	LinearCalibrator();
-	virtual ~LinearCalibrator();
+	~LinearCalibrator() override;
 
 
 	/*
@@ -32,13 +32,13 @@ public:
 	 * the return type but this IS allowed with modern compilers.
 	 * See documentation in Calibrator.h
 	 */
-	LinearCalibrator* clone() const;
-	LinearCalibrator* create() const;
+	LinearCalibrator* clone() const override;
+	LinearCalibrator* create() const override;
 
 protected:
 	
-	virtual std::map<DetectorElementPtr, double>
-			getCalibrationCoefficientsCore() noexcept(false);
+	std::map<DetectorElementPtr, double>
+			getCalibrationCoefficientsCore() noexcept(false) override;
 
 
 	LinearCalibrator(const LinearCalibrator& lc);

@@ -117,14 +117,14 @@ public:
   CSCEfficiency(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~CSCEfficiency();
+  ~CSCEfficiency() override;
 
  private:
-  virtual void beginJob() ;
+  void beginJob() override ;
   //---- analysis + filter
-  virtual bool filter(edm::Event & event, const edm::EventSetup& eventSetup);
+  bool filter(edm::Event & event, const edm::EventSetup& eventSetup) override;
 
-  virtual void endJob() ;
+  void endJob() override ;
 
   //---- (input) parameters
   //---- Root file name

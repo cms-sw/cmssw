@@ -79,7 +79,7 @@
 class TrackerOfflineValidation : public edm::EDAnalyzer {
 public:
   explicit TrackerOfflineValidation(const edm::ParameterSet&);
-  ~TrackerOfflineValidation();
+  ~TrackerOfflineValidation() override;
   
   enum HistogramType { XResidual, NormXResidual, 
 			YResidual, /*NormYResidual, */
@@ -201,8 +201,8 @@ private:
   // 
   // ------------- private member function -------------
   // 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
   
   virtual void checkBookHists(const edm::EventSetup& setup);
 

@@ -39,7 +39,7 @@ public:
   MuonTestSummary(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~MuonTestSummary();
+  ~MuonTestSummary() override;
 
 protected:
 

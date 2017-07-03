@@ -73,12 +73,12 @@ namespace popcon {
       
     public:
       EcalChannelStatusHandler(edm::ParameterSet const &);
-      ~EcalChannelStatusHandler(); 
+      ~EcalChannelStatusHandler() override; 
       
-      void getNewObjects();
+      void getNewObjects() override;
       void setElectronicsMap(const EcalElectronicsMapping*);
       
-      std::string id() const { return m_name;}
+      std::string id() const override { return m_name;}
       EcalCondDBInterface* econn;
 
       

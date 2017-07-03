@@ -25,8 +25,8 @@
 class HitTripletProducer : public edm::EDAnalyzer {
 public:
   explicit HitTripletProducer(const edm::ParameterSet& conf);
-  ~HitTripletProducer();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  ~HitTripletProducer() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 private:
   void init(const edm::EventSetup& es);
   edm::ParameterSet theConfig;

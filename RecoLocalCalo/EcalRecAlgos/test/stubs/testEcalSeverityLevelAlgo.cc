@@ -19,7 +19,7 @@ public:
   
 protected:
   
-  void analyze( edm::Event const & iEvent, const  edm::EventSetup& iSetup);
+  void analyze( edm::Event const & iEvent, const  edm::EventSetup& iSetup) override;
 
 private:
 

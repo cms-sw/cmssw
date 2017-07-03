@@ -32,11 +32,11 @@ public:
    
 public:
    FWNavigatorBase(const CmsShowMainBase &);
-   virtual ~FWNavigatorBase();
+   ~FWNavigatorBase() override;
 
    //configuration management interface
-   virtual void addTo(FWConfiguration&) const = 0;
-   virtual void setFrom(const FWConfiguration&) = 0;
+   void addTo(FWConfiguration&) const override = 0;
+   void setFrom(const FWConfiguration&) override = 0;
 
    virtual void nextEvent() = 0;
    virtual void previousEvent() = 0;

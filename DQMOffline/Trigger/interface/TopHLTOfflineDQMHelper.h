@@ -192,12 +192,12 @@ public:
   /// default constructor
   SelectionStepHLT(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC);
   /// default destructor
-  virtual ~SelectionStepHLT() = default;
+  ~SelectionStepHLT() override = default;
 
   /// apply selection
-  virtual bool select(const edm::Event& event);
+  bool select(const edm::Event& event) override;
   /// apply selection override for jets
-  virtual bool select(const edm::Event& event, const edm::EventSetup& setup); 
+  bool select(const edm::Event& event, const edm::EventSetup& setup) override; 
   bool selectVertex(const edm::Event& event);
 private:
   /// input collection

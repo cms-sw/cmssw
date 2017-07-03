@@ -49,10 +49,10 @@ namespace popcon {
     {
     public:
       EcalDAQHandler(edm::ParameterSet const & );
-      ~EcalDAQHandler(); 
+      ~EcalDAQHandler() override; 
 
-      void getNewObjects();
-      std::string id() const { return m_name;}
+      void getNewObjects() override;
+      std::string id() const override { return m_name;}
       EcalCondDBInterface* econn;
 
       int detIDToLogicID(int, int, int);

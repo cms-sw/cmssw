@@ -17,10 +17,10 @@ class RunAction: public G4UserRunAction
 {
 public:
     explicit RunAction(const edm::ParameterSet & ps, SimRunInterface*, bool master);
-    virtual ~RunAction();
+    ~RunAction() override;
 
-    void BeginOfRunAction(const G4Run * aRun);
-    void EndOfRunAction(const G4Run * aRun);
+    void BeginOfRunAction(const G4Run * aRun) override;
+    void EndOfRunAction(const G4Run * aRun) override;
     
     SimActivityRegistry::BeginOfRunSignal m_beginOfRunSignal;
     SimActivityRegistry::EndOfRunSignal m_endOfRunSignal; 

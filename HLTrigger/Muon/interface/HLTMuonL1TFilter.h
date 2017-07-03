@@ -19,10 +19,10 @@ class HLTMuonL1TFilter : public HLTFilter {
    public:
 
       explicit HLTMuonL1TFilter(const edm::ParameterSet&);
-      ~HLTMuonL1TFilter();
+      ~HLTMuonL1TFilter() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
    private:
 

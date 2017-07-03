@@ -50,7 +50,7 @@ class DTSectCollPhSegm : public DTTrigData {
   DTSectCollPhSegm(const DTSectCollPhSegm&);
   
   //!  Destructor 
-  ~DTSectCollPhSegm();
+  ~DTSectCollPhSegm() override;
 
   // Non-const methods
   
@@ -81,10 +81,10 @@ class DTSectCollPhSegm : public DTTrigData {
   DTSectCollId SCId() const { return m_sectcollid; }
 
   //! Return chamber identifier 
-  DTChamberId ChamberId() const { return m_tsphitrig->ChamberId(); } 
+  DTChamberId ChamberId() const override { return m_tsphitrig->ChamberId(); } 
 
   //! Print
-  void print() const;
+  void print() const override;
 
   //! Return parent TRACO number
   inline int tracoNumber() const { return m_tsphitrig->tracoNumber(); }

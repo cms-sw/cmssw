@@ -91,12 +91,12 @@ class Triplet : public edm::EDAnalyzer {
   
 public:
   explicit Triplet(const edm::ParameterSet&);
-  ~Triplet();
+  ~Triplet() override;
 
 private:
-  virtual void beginJob() ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginJob() override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
   void triplets(double x1,double y1,double z1,double x2,double y2,double z2,double x3,double y3,double z3,
 		double ptsig, double & dc,double & dz);
 

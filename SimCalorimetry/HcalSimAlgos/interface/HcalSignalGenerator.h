@@ -40,7 +40,7 @@ public:
   : HcalBaseSignalGenerator(), theEvent(0), theEventPrincipal(0), theInputTag(inputTag), tok_(t) 
   { }
 
-  virtual ~HcalSignalGenerator() {}
+  ~HcalSignalGenerator() override {}
 
 
   void initializeEvent(const edm::Event * event, const edm::EventSetup * eventSetup)
@@ -111,8 +111,8 @@ private:
     }
   }
 
-  virtual void fillNoiseSignals(CLHEP::HepRandomEngine*) override {}
-  virtual void fillNoiseSignals() override {}
+  void fillNoiseSignals(CLHEP::HepRandomEngine*) override {}
+  void fillNoiseSignals() override {}
 
   bool validDigi(const DIGI & digi){
     int DigiSum = 0;

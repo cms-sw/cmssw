@@ -28,7 +28,7 @@ class CSCMotherboardME11 : public CSCMotherboard
   CSCMotherboardME11();
 
   /** Default destructor. */
-  ~CSCMotherboardME11();
+  ~CSCMotherboardME11() override;
 
   /** Run function for normal usage.  Runs cathode and anode LCT processors,
       takes results and correlates into CorrelatedLCT. */

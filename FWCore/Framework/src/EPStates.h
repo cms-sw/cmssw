@@ -121,7 +121,7 @@ namespace statemachine {
   {
   public:
     Starting(my_context ctx);
-    ~Starting();
+    ~Starting() override;
     
     typedef mpl::list<
       sc::transition<Event, Error>,
@@ -139,7 +139,7 @@ namespace statemachine {
   public:
     HandleFiles(my_context ctx);
     void exit();
-    ~HandleFiles();
+    ~HandleFiles() override;
  
     typedef mpl::list<
       sc::transition<Event, Error>,
@@ -161,7 +161,7 @@ namespace statemachine {
   {
   public:
     EndingLoop(my_context ctx);
-    ~EndingLoop();
+    ~EndingLoop() override;
     typedef mpl::list<
       sc::transition<Restart, Starting, Machine, &Machine::rewindAndPrepareForNextLoop>,
       sc::custom_reaction<Stop> > reactions;
@@ -175,7 +175,7 @@ namespace statemachine {
   {
   public:
     Error(my_context ctx);
-    ~Error();
+    ~Error() override;
     typedef sc::transition<Stop, EndingLoop> reactions;
   private:
     edm::IEventProcessor & ep_;
@@ -187,7 +187,7 @@ namespace statemachine {
   {
   public:
     FirstFile(my_context ctx);
-    ~FirstFile();
+    ~FirstFile() override;
     
     typedef mpl::list<
       sc::transition<Run, HandleRuns>,
@@ -203,7 +203,7 @@ namespace statemachine {
   {
   public:
     HandleNewInputFile1(my_context ctx);
-    ~HandleNewInputFile1();
+    ~HandleNewInputFile1() override;
 
     typedef mpl::list<
       sc::transition<Run, HandleRuns>,
@@ -216,7 +216,7 @@ namespace statemachine {
   {
   public:
     NewInputAndOutputFiles(my_context ctx);
-    ~NewInputAndOutputFiles();
+    ~NewInputAndOutputFiles() override;
 
     typedef mpl::list<
       sc::transition<Run, HandleRuns>,
@@ -238,7 +238,7 @@ namespace statemachine {
   public:
     HandleRuns(my_context ctx);
     void exit();
-    ~HandleRuns();
+    ~HandleRuns() override;
 
     typedef sc::transition<File, NewInputAndOutputFiles> reactions;
 
@@ -265,7 +265,7 @@ namespace statemachine {
   {
   public:
     NewRun(my_context ctx);
-    ~NewRun();
+    ~NewRun() override;
 
     typedef mpl::list<
       sc::transition<Lumi, HandleLumis>,
@@ -282,7 +282,7 @@ namespace statemachine {
   {
   public:
     HandleNewInputFile2(my_context ctx);
-    ~HandleNewInputFile2();
+    ~HandleNewInputFile2() override;
     bool checkInvariant();
 
     typedef mpl::list<
@@ -297,7 +297,7 @@ namespace statemachine {
   {
   public:
     ContinueRun1(my_context ctx);
-    ~ContinueRun1();
+    ~ContinueRun1() override;
     bool checkInvariant();
 
     typedef mpl::list<
@@ -330,7 +330,7 @@ namespace statemachine {
     };
     HandleLumis(my_context ctx);
     void exit();
-    ~HandleLumis();
+    ~HandleLumis() override;
     bool checkInvariant();
 
     LumiID const& currentLumi() const;
@@ -356,7 +356,7 @@ namespace statemachine {
   {
   public:
     FirstLumi(my_context ctx);
-    ~FirstLumi();
+    ~FirstLumi() override;
     bool checkInvariant();
 
     typedef mpl::list<
@@ -372,7 +372,7 @@ namespace statemachine {
   {
   public:
     AnotherLumi(my_context ctx);
-    ~AnotherLumi();
+    ~AnotherLumi() override;
     bool checkInvariant();
 
     typedef mpl::list<
@@ -388,7 +388,7 @@ namespace statemachine {
   {
   public:
     HandleEvent(my_context ctx);
-    ~HandleEvent();
+    ~HandleEvent() override;
     bool checkInvariant();
 
     typedef mpl::list<
@@ -407,7 +407,7 @@ namespace statemachine {
   {
   public:
     HandleNewInputFile3(my_context ctx);
-    ~HandleNewInputFile3();
+    ~HandleNewInputFile3() override;
     bool checkInvariant();
 
     typedef mpl::list<
@@ -422,7 +422,7 @@ namespace statemachine {
   {
   public:
     ContinueRun2(my_context ctx);
-    ~ContinueRun2();
+    ~ContinueRun2() override;
     bool checkInvariant();
 
     typedef mpl::list<
@@ -441,7 +441,7 @@ namespace statemachine {
   {
   public:
     ContinueLumi(my_context ctx);
-    ~ContinueLumi();
+    ~ContinueLumi() override;
     bool checkInvariant();
 
     typedef mpl::list<

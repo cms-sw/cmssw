@@ -291,7 +291,7 @@ class StringBasedNTupler : public NTupler {
 
 
 
-  uint registerleaves(edm::ProducerBase * producer){
+  uint registerleaves(edm::ProducerBase * producer) override{
     uint nLeaves=0;
 
     if (useTFileService_){
@@ -368,7 +368,7 @@ class StringBasedNTupler : public NTupler {
     return nLeaves;
   }
 
-  void fill(edm::Event& iEvent){
+  void fill(edm::Event& iEvent) override{
     //    if (!edm::Service<UpdaterService>()->checkOnce("StringBasedNTupler::fill")) return;
     //well if you do that, you cannot have two ntupler of the same type in the same job...
 
@@ -468,7 +468,7 @@ class StringBasedNTupler : public NTupler {
     }
   }
 
-  ~StringBasedNTupler(){
+  ~StringBasedNTupler() override{
     delete indexDataHolder_;
     delete ev_;
     delete run_;

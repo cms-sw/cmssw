@@ -62,13 +62,13 @@ using namespace std;
 class EgGEDPhotonAnalyzer : public edm::EDAnalyzer {
    public:
       explicit EgGEDPhotonAnalyzer(const edm::ParameterSet&);
-      ~EgGEDPhotonAnalyzer();
+      ~EgGEDPhotonAnalyzer() override;
 
 
    private:
       virtual void beginJob(const edm::EventSetup&) ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
   
   ParameterSet conf_;
 

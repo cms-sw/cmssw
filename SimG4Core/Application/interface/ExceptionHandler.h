@@ -13,11 +13,11 @@ public:
     ExceptionHandler(RunManager * rm);
     ExceptionHandler(RunManagerMT * rm);
     ExceptionHandler() {} ;
-    virtual ~ExceptionHandler();
+    ~ExceptionHandler() override;
     int operator==(const ExceptionHandler & right) const { return (this == &right); }
     int operator!=(const ExceptionHandler & right) const { return (this != &right); }
-    virtual bool Notify(const char * exceptionOrigin, const char * exceptionCode,
-			G4ExceptionSeverity severity, const char * description);
+    bool Notify(const char * exceptionOrigin, const char * exceptionCode,
+			G4ExceptionSeverity severity, const char * description) override;
 private:
     ExceptionHandler(const ExceptionHandler &) : G4VExceptionHandler() {}
     ExceptionHandler& operator=(const ExceptionHandler &right) { return *this; }

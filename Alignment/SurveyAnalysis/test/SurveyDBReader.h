@@ -29,12 +29,12 @@ class SurveyDBReader:
 		 );
 
   /// Read from DB and print survey info.
-  virtual void beginJob() { theFirstEvent = true; }
+  void beginJob() override { theFirstEvent = true; }
 
-  virtual void analyze(
+  void analyze(
 		       const edm::Event&,
 		       const edm::EventSetup&
-		       );
+		       ) override;
 
   private:
 

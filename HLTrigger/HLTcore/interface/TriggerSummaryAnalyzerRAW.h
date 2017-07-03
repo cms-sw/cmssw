@@ -26,9 +26,9 @@ class TriggerSummaryAnalyzerRAW : public edm::stream::EDAnalyzer<> {
   
  public:
   explicit TriggerSummaryAnalyzerRAW(const edm::ParameterSet&);
-  virtual ~TriggerSummaryAnalyzerRAW();
+  ~TriggerSummaryAnalyzerRAW() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   
  private:
   /// InputTag of TriggerEventWithRefs to analyze

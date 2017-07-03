@@ -17,11 +17,11 @@
 class MultiHitFromChi2EDProducer: public edm::stream::EDProducer<> {
 public:
   MultiHitFromChi2EDProducer(const edm::ParameterSet& iConfig);
-  ~MultiHitFromChi2EDProducer() = default;
+  ~MultiHitFromChi2EDProducer() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
 private:
   edm::EDGetTokenT<IntermediateHitDoublets> doubletToken_;

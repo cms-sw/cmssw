@@ -26,14 +26,14 @@
 class Z2muAnalyzer : public edm::EDAnalyzer {
    public:
       explicit Z2muAnalyzer(const edm::ParameterSet&);
-      ~Z2muAnalyzer();
+      ~Z2muAnalyzer() override;
 
 
    private:
       //virtual void beginJob(const edm::EventSetup&);
-      virtual void beginJob();
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      void beginJob() override;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
       // ----------member data ---------------------------
       

@@ -23,7 +23,7 @@ class L6SLBCorrector : public JetCorrector
   //
 public:
   L6SLBCorrector (const JetCorrectorParameters& fParam, const edm::ParameterSet& fConfig);
-  virtual ~L6SLBCorrector ();
+  ~L6SLBCorrector () override;
   
 
   //
@@ -31,20 +31,20 @@ public:
   //
 public:
   /// apply correction using Jet information only
-  virtual double correction (const LorentzVector& fJet) const;
+  double correction (const LorentzVector& fJet) const override;
   /// apply correction using Jet information only
-  virtual double correction (const reco::Jet& fJet) const;
+  double correction (const reco::Jet& fJet) const override;
   /// apply correction using all event information
-  virtual double correction (const reco::Jet& fJet,
+  double correction (const reco::Jet& fJet,
 			     const edm::RefToBase<reco::Jet>& refToRawJet,
 			     const edm::Event& fEvent, 
-			     const edm::EventSetup& fSetup) const;
+			     const edm::EventSetup& fSetup) const override;
   
   /// if correction needs event information
-  virtual bool eventRequired () const {return true;} 
+  bool eventRequired () const override {return true;} 
 
   //----- if correction needs a jet reference -------------
-  virtual bool refRequired () const {return true;} 
+  bool refRequired () const override {return true;} 
   
   //
   // private member functions

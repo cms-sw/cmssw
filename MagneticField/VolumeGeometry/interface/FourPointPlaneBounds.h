@@ -16,20 +16,20 @@ public:
  */
     FourPointPlaneBounds( const LocalPoint& a, const LocalPoint& b, 
 			  const LocalPoint& c, const LocalPoint& d); 
-    ~FourPointPlaneBounds() {}
+    ~FourPointPlaneBounds() override {}
 
-  virtual float length() const;
-  virtual float width() const;
-  virtual float thickness() const;
+  float length() const override;
+  float width() const override;
+  float thickness() const override;
 
     // basic bounds function
-    virtual bool inside( const Local3DPoint& lp) const;
+    bool inside( const Local3DPoint& lp) const override;
     
-    virtual bool inside( const Local3DPoint& lp , const LocalError& e, float scale) const {
+    bool inside( const Local3DPoint& lp , const LocalError& e, float scale) const override {
       return inside( lp);
     }
 
-    virtual Bounds* clone() const {return new FourPointPlaneBounds(*this);}
+    Bounds* clone() const override {return new FourPointPlaneBounds(*this);}
 
 private:
 

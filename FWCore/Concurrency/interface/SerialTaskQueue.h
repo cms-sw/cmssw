@@ -158,7 +158,7 @@ namespace edm {
          m_action(iAction) {}
          
       private:
-         tbb::task* execute();
+         tbb::task* execute() override;
          
          T m_action;
       };

@@ -33,12 +33,12 @@ public:
 	       const edm::InputSourceDescription &desc);
 
   /// Destructor
-  virtual ~AlpgenSource();
+  ~AlpgenSource() override;
 
 private:
-  virtual bool setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&, edm::EventAuxiliary::ExperimentType&) override;
-  virtual void produce(edm::Event &event) override;
-  virtual void beginRun(edm::Run &run) override;
+  bool setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&, edm::EventAuxiliary::ExperimentType&) override;
+  void produce(edm::Event &event) override;
+  void beginRun(edm::Run &run) override;
 
   /// Function to get parameter by name from AlpgenHeader.
   template<typename T>

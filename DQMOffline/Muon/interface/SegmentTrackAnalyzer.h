@@ -36,7 +36,7 @@ class SegmentTrackAnalyzer : public DQMEDAnalyzer {
   SegmentTrackAnalyzer(const edm::ParameterSet&);
   
   /// Destructor
-  virtual ~SegmentTrackAnalyzer() {
+  ~SegmentTrackAnalyzer() override {
     delete theService;
     delete theSegmentsAssociator;
   };

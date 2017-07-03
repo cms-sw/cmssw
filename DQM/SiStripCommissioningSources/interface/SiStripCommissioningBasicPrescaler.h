@@ -26,11 +26,11 @@ class SiStripCommissioningBasicPrescaler : public edm::EDFilter {
    public:
 
       explicit SiStripCommissioningBasicPrescaler(const edm::ParameterSet&);
-      ~SiStripCommissioningBasicPrescaler() {}
+      ~SiStripCommissioningBasicPrescaler() override {}
 
    private:
 
-      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
+      bool filter(edm::Event&, const edm::EventSetup&) override;
 
       // ----------member data ---------------------------
       uint32_t factor_;

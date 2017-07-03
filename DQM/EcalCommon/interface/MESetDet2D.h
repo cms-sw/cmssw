@@ -14,7 +14,7 @@ namespace ecaldqm
   public :
     MESetDet2D(std::string const&, binning::ObjectType, binning::BinningType, MonitorElement::Kind, binning::AxisSpecs const* = 0);
     MESetDet2D(MESetDet2D const&);
-    ~MESetDet2D();
+    ~MESetDet2D() override;
 
     MESet* clone(std::string const& = "") const override;
 

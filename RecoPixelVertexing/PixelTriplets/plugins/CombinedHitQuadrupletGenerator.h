@@ -28,11 +28,11 @@ public:
 
   CombinedHitQuadrupletGenerator( const edm::ParameterSet& cfg, edm::ConsumesCollector& iC);
 
-  virtual ~CombinedHitQuadrupletGenerator();
+  ~CombinedHitQuadrupletGenerator() override;
 
   /// from base class
-  virtual void hitQuadruplets( const TrackingRegion& reg, OrderedHitSeeds & triplets,
-      const edm::Event & ev,  const edm::EventSetup& es);
+  void hitQuadruplets( const TrackingRegion& reg, OrderedHitSeeds & triplets,
+      const edm::Event & ev,  const edm::EventSetup& es) override;
 
 private:
   edm::EDGetTokenT<SeedingLayerSetsHits> theSeedingLayerToken;

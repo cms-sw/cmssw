@@ -21,7 +21,7 @@ struct T : public B {
   float v;
   bool operator==(T t) const { return v==t.v;}
 
-  virtual T * clone() const { return new T(*this); }
+  T * clone() const override { return new T(*this); }
 };
 
 bool operator==(T const& t, B const& b) {
@@ -55,9 +55,9 @@ class TestDetSet: public CppUnit::TestFixture
 
 public:
   TestDetSet();
-  ~TestDetSet() {}
-  void setUp() {}
-  void tearDown() {}
+  ~TestDetSet() override {}
+  void setUp() override {}
+  void tearDown() override {}
 
   void default_ctor();
   void inserting();

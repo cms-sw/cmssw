@@ -14,7 +14,7 @@ struct SterneSorter {
 };
 
 class SterneBinomialInterval : public BinomialNoncentralInterval<SterneSorter> {
-  const char* name() const { return "Feldman-Cousins"; }
+  const char* name() const override { return "Feldman-Cousins"; }
 
 #if (defined (STANDALONE) or defined (__CINT__) )
 ClassDef(SterneBinomialInterval,1)

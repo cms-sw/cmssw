@@ -230,7 +230,7 @@ namespace {
       public:
         TreeObjectReader():m_tree(0),m_fullName(0),m_buffer(0),m_tag(0){
         }
-        virtual MonitorElement* doRead(ULong64_t iIndex, DQMStore& iStore, bool iIsLumi) override {
+        MonitorElement* doRead(ULong64_t iIndex, DQMStore& iStore, bool iIsLumi) override {
           m_tree->GetEntry(iIndex);
           MonitorElement* element = iStore.get(*m_fullName);
           if(0 == element) {
@@ -248,7 +248,7 @@ namespace {
           }
           return element;
         }
-        virtual void setTree(TTree* iTree) override  {
+        void setTree(TTree* iTree) override  {
           m_tree = iTree;
           m_tree->SetBranchAddress(kFullNameBranch,&m_fullName);
           m_tree->SetBranchAddress(kFlagBranch,&m_tag);
@@ -266,7 +266,7 @@ namespace {
       public:
         TreeSimpleReader():m_tree(0),m_fullName(0),m_buffer(0),m_tag(0){
         }
-        virtual MonitorElement* doRead(ULong64_t iIndex, DQMStore& iStore,bool iIsLumi) override {
+        MonitorElement* doRead(ULong64_t iIndex, DQMStore& iStore,bool iIsLumi) override {
           m_tree->GetEntry(iIndex);
           MonitorElement* element = iStore.get(*m_fullName);
           if(0 == element) {
@@ -284,7 +284,7 @@ namespace {
           }
           return element;
         }
-        virtual void setTree(TTree* iTree) override  {
+        void setTree(TTree* iTree) override  {
           m_tree = iTree;
           m_tree->SetBranchAddress(kFullNameBranch,&m_fullName);
           m_tree->SetBranchAddress(kFlagBranch,&m_tag);
@@ -304,7 +304,7 @@ class DQMRootSource : public edm::InputSource
 
    public:
       DQMRootSource(edm::ParameterSet const&, const edm::InputSourceDescription&);
-      virtual ~DQMRootSource();
+      ~DQMRootSource() override;
 
       // ---------- const member functions ---------------------
 
@@ -356,16 +356,16 @@ class DQMRootSource : public edm::InputSource
         unsigned int lumi_;
       };
 
-      virtual edm::InputSource::ItemType getNextItemType() override;
+      edm::InputSource::ItemType getNextItemType() override;
       //NOTE: the following is really read next run auxiliary
-      virtual std::shared_ptr<edm::RunAuxiliary> readRunAuxiliary_() override ;
-      virtual std::shared_ptr<edm::LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() override ;
-      virtual void readRun_(edm::RunPrincipal& rpCache) override;
-      virtual void readLuminosityBlock_(edm::LuminosityBlockPrincipal& lbCache) override;
-      virtual void readEvent_(edm::EventPrincipal&) override ;
+      std::shared_ptr<edm::RunAuxiliary> readRunAuxiliary_() override ;
+      std::shared_ptr<edm::LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() override ;
+      void readRun_(edm::RunPrincipal& rpCache) override;
+      void readLuminosityBlock_(edm::LuminosityBlockPrincipal& lbCache) override;
+      void readEvent_(edm::EventPrincipal&) override ;
       
-      virtual std::unique_ptr<edm::FileBlock> readFile_() override;
-      virtual void closeFile_() override;
+      std::unique_ptr<edm::FileBlock> readFile_() override;
+      void closeFile_() override;
       
       void logFileAction(char const* msg, char const* fileName) const;
       

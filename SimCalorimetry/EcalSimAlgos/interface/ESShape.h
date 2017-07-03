@@ -21,11 +21,11 @@ class ESShape : public CaloVShape
   /// ctor
   ESShape();
   /// dtor
-  ~ESShape(){}
+  ~ESShape() override{}
   
   void setGain (const int gain) { theGain_ = gain; }
-  virtual double operator () (double time) const;
-  virtual double timeToRise()              const ;
+  double operator () (double time) const override;
+  double timeToRise()              const override ;
   
   void display () const {}
 

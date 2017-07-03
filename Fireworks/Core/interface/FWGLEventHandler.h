@@ -12,16 +12,16 @@ class FWGLEventHandler : public TEveLegoEventHandler
 {
 public:
    FWGLEventHandler(TGWindow *w, TObject *obj, TEveCaloLego* l=0);
-   virtual ~FWGLEventHandler() {}
+   ~FWGLEventHandler() override {}
 
-   virtual void   PopupContextMenu(TGLPhysicalShape* pshp, Event_t *event, Int_t gx, Int_t gy);
+   void   PopupContextMenu(TGLPhysicalShape* pshp, Event_t *event, Int_t gx, Int_t gy) override;
 
-   virtual Bool_t HandleKey(Event_t *event);
+   Bool_t HandleKey(Event_t *event) override;
 
-   virtual Bool_t HandleButton(Event_t *event);
+   Bool_t HandleButton(Event_t *event) override;
 
-   virtual Bool_t HandleFocusChange(Event_t *event);
-   virtual Bool_t HandleCrossing(Event_t *event);
+   Bool_t HandleFocusChange(Event_t *event) override;
+   Bool_t HandleCrossing(Event_t *event) override;
 
    sigc::signal<void,Int_t,Int_t> openSelectedModelContextMenu_;
 

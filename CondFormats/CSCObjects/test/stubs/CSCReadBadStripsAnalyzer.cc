@@ -31,8 +31,8 @@ namespace edmtest
 
     explicit  CSCReadBadStripsAnalyzer(int i) 
     { }
-    virtual ~ CSCReadBadStripsAnalyzer() { }
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+    ~ CSCReadBadStripsAnalyzer() override { }
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
     // Test code from CSCConditions
 

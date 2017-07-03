@@ -38,12 +38,12 @@ class BPHParticlePtSelect: public BPHRecoSelect {
 
   /** Destructor
    */
-  virtual ~BPHParticlePtSelect() {}
+  ~BPHParticlePtSelect() override {}
 
   /** Operations
    */
   /// select particle
-  virtual bool accept( const reco::Candidate& cand ) const {
+  bool accept( const reco::Candidate& cand ) const override {
     return ( cand.p4().pt() > ptMin );
   }
 

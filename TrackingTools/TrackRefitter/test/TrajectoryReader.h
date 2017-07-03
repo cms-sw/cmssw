@@ -38,13 +38,13 @@ class TrajectoryReader: public edm::EDAnalyzer {
   TrajectoryReader(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~TrajectoryReader();
+  ~TrajectoryReader() override;
 
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
 
   // Operations
-  void beginJob();
-  void endJob();
+  void beginJob() override;
+  void endJob() override;
   
 protected:
   void printTrajectoryRecHits(const Trajectory &, edm::ESHandle<GlobalTrackingGeometry>) const;

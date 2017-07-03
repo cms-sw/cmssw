@@ -57,12 +57,12 @@ namespace contrib{
     CMSBoostedTauSeedingAlgorithm(double ptMin, double muMin, double muMax, double yMin, double yMax, double dRMin, double dRMax, int maxDepth, int verbosity = 0);
 
     // destructor
-    virtual ~CMSBoostedTauSeedingAlgorithm(){}
+    ~CMSBoostedTauSeedingAlgorithm() override{}
 
     // standard usage
-    virtual std::string description() const;
+    std::string description() const override;
 
-    virtual PseudoJet result(const PseudoJet & jet) const;
+    PseudoJet result(const PseudoJet & jet) const override;
 
     // the type of the associated structure
     typedef CMSBoostedTauSeedingAlgorithmStructure StructureType;

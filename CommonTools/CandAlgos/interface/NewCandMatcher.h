@@ -14,7 +14,7 @@ namespace reco {
     class CandMatcher : public Matcher<C1, C2, S, D> {
     public:
       CandMatcher(const edm::ParameterSet & cfg ) : Matcher<C1, C2, S, D>( cfg ) { }
-      ~CandMatcher() { }
+      ~CandMatcher() override { }
     };
 
   }

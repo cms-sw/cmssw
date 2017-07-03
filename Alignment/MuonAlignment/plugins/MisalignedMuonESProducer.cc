@@ -46,7 +46,7 @@ public:
   MisalignedMuonESProducer( const edm::ParameterSet & p );
   
   /// Destructor
-  virtual ~MisalignedMuonESProducer(); 
+  ~MisalignedMuonESProducer() override; 
   
   /// Produce the misaligned Muon geometry and store it
   edm::ESProducts< std::shared_ptr<DTGeometry>,

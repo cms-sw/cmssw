@@ -13,10 +13,10 @@ class HFShape : public CaloVShape
 {
 public:
   HFShape();
-  virtual ~HFShape(){}
+  ~HFShape() override{}
   
-  virtual double operator () (double time) const;
-  virtual double timeToRise() const;
+  double operator () (double time) const override;
+  double timeToRise() const override;
 
  private:
    HcalPulseShapes::Shape shape_; 

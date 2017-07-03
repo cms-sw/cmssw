@@ -19,10 +19,10 @@ class HGCalGeometryClient : public DQMEDHarvester {
  
 public:
   explicit HGCalGeometryClient(const edm::ParameterSet& );
-  virtual ~HGCalGeometryClient();
+  ~HGCalGeometryClient() override;
   
-  virtual void beginRun(const edm::Run& run, const edm::EventSetup& c) {}
-  void dqmEndJob(DQMStore::IBooker &ib, DQMStore::IGetter &ig);
+  void beginRun(const edm::Run& run, const edm::EventSetup& c) override {}
+  void dqmEndJob(DQMStore::IBooker &ib, DQMStore::IGetter &ig) override;
 
 private:
   std::string  subDirectory_;

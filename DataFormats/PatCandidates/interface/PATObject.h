@@ -60,7 +60,7 @@ namespace pat {
       /// constructor from reference
       PATObject(const edm::Ptr<ObjectType> & ref);
       /// destructor
-      virtual ~PATObject() {}
+      ~PATObject() override {}
       // returns a clone                                  // NO: ObjectType can be an abstract type like reco::Candidate
       // virtual PATObject<ObjectType> * clone() const ;  //     for which the clone() can't be defined
 

@@ -20,11 +20,11 @@ public:
   /// Standard constructor
   TTUWedgeORLogic( ); 
   
-  virtual ~TTUWedgeORLogic( ); ///< Destructor
+  ~TTUWedgeORLogic( ) override; ///< Destructor
   
-  bool process( const TTUInput & );
+  bool process( const TTUInput & ) override;
   
-  void setBoardSpecs( const TTUBoardSpecs::TTUBoardConfig & );
+  void setBoardSpecs( const TTUBoardSpecs::TTUBoardConfig & ) override;
   
 protected:
   

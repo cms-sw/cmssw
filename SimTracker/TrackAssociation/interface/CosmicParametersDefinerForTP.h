@@ -14,17 +14,17 @@ class CosmicParametersDefinerForTP : public ParametersDefinerForTP {
 
  public:
   CosmicParametersDefinerForTP(){};
-  virtual ~CosmicParametersDefinerForTP() {};
+  ~CosmicParametersDefinerForTP() override {};
 
-  virtual TrackingParticle::Vector momentum(const edm::Event& iEvent, const edm::EventSetup& iSetup, const TrackingParticleRef& tpr) const override;
-  virtual TrackingParticle::Point vertex(const edm::Event& iEvent, const edm::EventSetup& iSetup, const TrackingParticleRef& tpr) const override;
+  TrackingParticle::Vector momentum(const edm::Event& iEvent, const edm::EventSetup& iSetup, const TrackingParticleRef& tpr) const override;
+  TrackingParticle::Point vertex(const edm::Event& iEvent, const edm::EventSetup& iSetup, const TrackingParticleRef& tpr) const override;
 
-  virtual TrackingParticle::Vector momentum(const edm::Event& iEvent, const edm::EventSetup& iSetup, 
+  TrackingParticle::Vector momentum(const edm::Event& iEvent, const edm::EventSetup& iSetup, 
 	const Charge ch, const Point & vertex, const LorentzVector& lv) const override {
     return TrackingParticle::Vector();
   }
 
-  virtual TrackingParticle::Point vertex(const edm::Event& iEvent, const edm::EventSetup& iSetup,
+  TrackingParticle::Point vertex(const edm::Event& iEvent, const edm::EventSetup& iSetup,
 	const Charge ch, const Point & vertex, const LorentzVector& lv) const override {
     return TrackingParticle::Point();
   }

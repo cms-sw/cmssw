@@ -47,11 +47,11 @@ class PFRecoTauChargedHadronFromTrackPlugin : public PFRecoTauChargedHadronBuild
 {
  public:
   explicit PFRecoTauChargedHadronFromTrackPlugin(const edm::ParameterSet&, edm::ConsumesCollector && iC);
-  virtual ~PFRecoTauChargedHadronFromTrackPlugin();
+  ~PFRecoTauChargedHadronFromTrackPlugin() override;
   // Return type is auto_ptr<ChargedHadronVector>
-  return_type operator()(const reco::PFJet&) const;
+  return_type operator()(const reco::PFJet&) const override;
   // Hook to update PV information
-  virtual void beginEvent();
+  void beginEvent() override;
   
  private:
   typedef std::vector<reco::PFCandidatePtr> PFCandPtrs;

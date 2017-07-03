@@ -18,10 +18,10 @@ class RunDCSMagnetDat : public IDataItem {
 
   friend class EcalCondDBInterface;
   RunDCSMagnetDat();
-  ~RunDCSMagnetDat();
+  ~RunDCSMagnetDat() override;
 
   // User data methods
-  inline std::string getTable() { return "CMSFWMAGNET_LV"; }
+  inline std::string getTable() override { return "CMSFWMAGNET_LV"; }
   inline std::string getMagnetAccount() { return "CMS_DCS_ENV_PVSS_COND"; }
   inline void setMagnetCurrent(float t) { m_current = t; }
   inline float getMagnetCurrent() const { return m_current; }
@@ -37,7 +37,7 @@ class RunDCSMagnetDat : public IDataItem {
   void fillTheMap(ResultSet *, std::map< EcalLogicID, RunDCSMagnetDat >* );
 
   void prepareWrite() 
-    noexcept(false);
+    noexcept(false) override;
 
   void writeDB(const EcalLogicID* ecid, const RunDCSMagnetDat* item, RunIOV* iov )
     noexcept(false);

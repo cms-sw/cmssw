@@ -530,7 +530,7 @@ class TEcnaRun: public TObject {
 
   //................. destructor
   
-  virtual ~TEcnaRun();
+  ~TEcnaRun() override;
   
   //...................................................... methods that will (should) be private
 

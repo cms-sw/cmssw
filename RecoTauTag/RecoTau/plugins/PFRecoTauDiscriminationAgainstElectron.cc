@@ -59,7 +59,7 @@ class PFRecoTauDiscriminationAgainstElectron final : public PFTauDiscriminationP
 
       double discriminate(const PFTauRef& pfTau) const override;
 
-      ~PFRecoTauDiscriminationAgainstElectron(){}
+      ~PFRecoTauDiscriminationAgainstElectron() override{}
 
    private:
       bool isInEcalCrack(double) const;

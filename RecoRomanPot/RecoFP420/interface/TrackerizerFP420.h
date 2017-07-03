@@ -34,12 +34,12 @@ namespace cms
     explicit TrackerizerFP420(const edm::ParameterSet& conf);
     //TrackerizerFP420();
     
-    virtual ~TrackerizerFP420();
+    ~TrackerizerFP420() override;
     
-    virtual void beginJob();
+    void beginJob() override;
     
     //  virtual void produce(ClusterCollectionFP420 &, TrackCollectionFP420 &);
-    virtual void produce(edm::Event& e, const edm::EventSetup& c);
+    void produce(edm::Event& e, const edm::EventSetup& c) override;
     
   private:
     typedef std::vector<std::string> vstring;

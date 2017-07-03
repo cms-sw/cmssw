@@ -18,16 +18,16 @@ class ExhaustiveMuonTrajectoryBuilder : public MuonTrajectoryBuilder
 {
 public:
   ExhaustiveMuonTrajectoryBuilder(const edm::ParameterSet & pset, const MuonServiceProxy*,edm::ConsumesCollector& );
-  virtual ~ExhaustiveMuonTrajectoryBuilder();
+  ~ExhaustiveMuonTrajectoryBuilder() override;
 
   /// return a container of the reconstructed trajectories compatible with a given seed
-  virtual TrajectoryContainer trajectories(const TrajectorySeed&);
+  TrajectoryContainer trajectories(const TrajectorySeed&) override;
 
   /// return a container reconstructed muons starting from a given track
-  virtual CandidateContainer trajectories(const TrackCand&);
+  CandidateContainer trajectories(const TrackCand&) override;
 
   /// pass the Event to the algo at each event
-  virtual void setEvent(const edm::Event& event);
+  void setEvent(const edm::Event& event) override;
 
 
 private:

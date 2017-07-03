@@ -21,9 +21,9 @@ namespace popcon
     {
       
     public:
-      void getNewObjects();
-      std::string id() const { return m_name;}
-      ~CSCDBChipSpeedCorrectionImpl(); 
+      void getNewObjects() override;
+      std::string id() const override { return m_name;}
+      ~CSCDBChipSpeedCorrectionImpl() override; 
       CSCDBChipSpeedCorrectionImpl(const edm::ParameterSet& pset);
       
     private:

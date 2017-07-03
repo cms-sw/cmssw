@@ -116,7 +116,7 @@ private:
    {
    public:
       XTReqTimer() : TTimer() {}
-      virtual ~XTReqTimer() {}
+      ~XTReqTimer() override {}
 
       void FireAway()
       {
@@ -124,7 +124,7 @@ private:
          gSystem->AddTimer(this);
       }
 
-      virtual Bool_t Notify() override
+      Bool_t Notify() override
       {
          gSystem->RemoveTimer(this);
          TRootXTReq::ProcessQueue();
@@ -136,9 +136,9 @@ private:
 
 public:
    RootSig2XTReqHandler() : TSignalHandler(kSigUser1), mTimer() { Add(); }
-   virtual ~RootSig2XTReqHandler() {}
+   ~RootSig2XTReqHandler() override {}
 
-   virtual Bool_t Notify() override
+   Bool_t Notify() override
    {
       printf("Usr1 Woof Woof in Root thread! Starting Timer.\n");
       mTimer.FireAway();

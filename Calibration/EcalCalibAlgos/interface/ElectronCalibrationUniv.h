@@ -57,12 +57,12 @@
 class ElectronCalibrationUniv : public edm::EDAnalyzer {
    public:
       explicit ElectronCalibrationUniv(const edm::ParameterSet&);
-      ~ElectronCalibrationUniv();
+      ~ElectronCalibrationUniv() override;
 
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void beginJob();
-      virtual void beginRun(edm::Run const &, edm::EventSetup const&);
-      virtual void endJob();
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void beginJob() override;
+      void beginRun(edm::Run const &, edm::EventSetup const&) override;
+      void endJob() override;
    private:
       DetId  findMaxHit(const std::vector<DetId> & v1,const EBRecHitCollection *EBhits,const EERecHitCollection *EEhits);
       bool TestEEvalidDetId(int crystal_ix, int crystal_iy, int iz);     

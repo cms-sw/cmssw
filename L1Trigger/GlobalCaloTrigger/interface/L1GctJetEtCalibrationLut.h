@@ -33,7 +33,7 @@ class L1GctJetEtCalibrationLut : public L1GctLut<JET_ET_CAL_LUT_ADD_BITS,JET_ET_
   static const unsigned JET_ENERGY_BITWIDTH;   ///< Input bitwidth of jet energy; must be 10 or more
 
   L1GctJetEtCalibrationLut();
-  virtual ~L1GctJetEtCalibrationLut();
+  ~L1GctJetEtCalibrationLut() override;
 
   // set components
   void setFunction(const L1GctJetFinderParams * const lutfn);
@@ -51,7 +51,7 @@ class L1GctJetEtCalibrationLut : public L1GctLut<JET_ET_CAL_LUT_ADD_BITS,JET_ET_
  protected:
   
 
-  virtual uint16_t value (const uint16_t lutAddress) const;
+  uint16_t value (const uint16_t lutAddress) const override;
 
  private:
 

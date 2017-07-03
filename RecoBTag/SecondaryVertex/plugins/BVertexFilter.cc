@@ -43,10 +43,10 @@ template<typename VTX>
 class BVertexFilterT : public edm::stream::EDFilter<> {
    public:
       explicit BVertexFilterT(const edm::ParameterSet&);
-      ~BVertexFilterT();
+      ~BVertexFilterT() override;
 
    private:
-      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
+      bool filter(edm::Event&, const edm::EventSetup&) override;
       edm::EDGetTokenT<reco::VertexCollection> token_primaryVertex;
       edm::EDGetTokenT<edm::View<VTX> >        token_secondaryVertex;
       reco::VertexFilter                      svFilter;

@@ -51,15 +51,15 @@ public:
 
   TSGForRoadSearch(const edm::ParameterSet &pset,edm::ConsumesCollector& IC);
 
-  virtual ~TSGForRoadSearch();
+  ~TSGForRoadSearch() override;
 
   /// initialize the service
-  void init(const MuonServiceProxy *service);
+  void init(const MuonServiceProxy *service) override;
   /// set the event: update the MeasurementTracker
-  void setEvent(const edm::Event &event);
+  void setEvent(const edm::Event &event) override;
 
   /// generated seed(s) for a track. the tracking region is not used.
-  void  trackerSeeds(const TrackCand&, const TrackingRegion&, const TrackerTopology *, BTSeedCollection&);
+  void  trackerSeeds(const TrackCand&, const TrackingRegion&, const TrackerTopology *, BTSeedCollection&) override;
 
 private:
   //concrete implementation

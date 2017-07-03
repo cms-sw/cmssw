@@ -25,8 +25,8 @@ class CSCTFPtLUT;
 class CSCMakePTLUT : public edm::EDAnalyzer {
  public:
   explicit CSCMakePTLUT(edm::ParameterSet const& conf);
-  virtual ~CSCMakePTLUT();
-  virtual void analyze(edm::Event const& e, edm::EventSetup const& iSetup);
+  ~CSCMakePTLUT() override;
+  void analyze(edm::Event const& e, edm::EventSetup const& iSetup) override;
   //virtual void endJob();
  private:
   // variables persistent across events should be declared here.

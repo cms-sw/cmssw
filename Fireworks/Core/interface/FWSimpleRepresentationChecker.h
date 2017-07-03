@@ -34,10 +34,10 @@ public:
                                  unsigned int iBitPackedViews,
                                  bool iRepresentsSubPart,
                                  bool iRequiresFF = false);
-   virtual ~FWSimpleRepresentationChecker();
+   ~FWSimpleRepresentationChecker() override;
 
    // ---------- const member functions ---------------------
-   virtual FWRepresentationInfo infoFor(const std::string& iTypeName) const;
+   FWRepresentationInfo infoFor(const std::string& iTypeName) const override;
 
    // ---------- static member functions --------------------
 

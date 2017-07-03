@@ -15,7 +15,7 @@ namespace l1t {
        public:
          L1TObjectCollections(edm::Event& e) :
            UnpackerCollections(e) { };
-	 virtual ~L1TObjectCollections() ;
+	 ~L1TObjectCollections() override ;
 
          virtual MuonBxCollection* getMuons(const unsigned int copy) { return  0;}
 	 virtual EGammaBxCollection* getEGammas() { return 0;} //= 0;

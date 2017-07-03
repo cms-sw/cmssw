@@ -21,7 +21,7 @@ class RPCSimParam : public RPCSim
 {
  public:
   RPCSimParam(const edm::ParameterSet& config);
-  ~RPCSimParam();
+  ~RPCSimParam() override;
 
   void simulate(const RPCRoll* roll,
 		const edm::PSimHitContainer& rpcHits,

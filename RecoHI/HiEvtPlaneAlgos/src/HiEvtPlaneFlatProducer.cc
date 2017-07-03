@@ -63,10 +63,10 @@ using std::vector;
 class HiEvtPlaneFlatProducer : public edm::stream::EDProducer<> {
 public:
   explicit HiEvtPlaneFlatProducer(const edm::ParameterSet&);
-  ~HiEvtPlaneFlatProducer();
+  ~HiEvtPlaneFlatProducer() override;
 
 private:
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   // ----------member data ---------------------------
 

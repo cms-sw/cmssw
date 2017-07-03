@@ -29,9 +29,9 @@ namespace egHLT {
       barrel_(iBooker, name+"_eb","Barrel "+title,nrBins,min,max,varFunc),
       endcap_(iBooker, name+"_ee","Endcap "+title,nrBins,min,max,varFunc){}
     
-    ~MonElemMgrEBEE(){}
+    ~MonElemMgrEBEE() override{}
     
-    void fill(const T& obj,float weight);
+    void fill(const T& obj,float weight) override;
     
   };
   

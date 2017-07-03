@@ -36,14 +36,14 @@
 class SimpleTestPrintOutPixelCalibAnalyzer : public edm::EDAnalyzer {
 public:
   explicit SimpleTestPrintOutPixelCalibAnalyzer(const edm::ParameterSet&);
-  ~SimpleTestPrintOutPixelCalibAnalyzer();
+  ~SimpleTestPrintOutPixelCalibAnalyzer() override;
   
   
 private:
-  virtual void beginJob() ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void beginJob() override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void printInfo(const edm::Event&, const edm::EventSetup&); // print method added by Freya, this way the analyzer stays clean
-  virtual void endJob() ;
+  void endJob() override ;
 
       // ----------member data ---------------------------
   edm::EDGetTokenT<edm::DetSetVector<SiPixelCalibDigi> > tPixelCalibDigi;

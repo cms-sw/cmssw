@@ -45,17 +45,17 @@ namespace { // anonymous
 	class BaseInterceptor : public Calibration::Interceptor {
 	    public:
 		BaseInterceptor() : calib(0) {}
-		virtual ~BaseInterceptor() {}
+		~BaseInterceptor() override {}
 
 		inline void setCalibration(MVATrainerComputer *calib)
 		{ this->calib = calib; }
 
-		virtual std::vector<Variable::Flags>
+		std::vector<Variable::Flags>
 		configure(const MVAComputer *computer, unsigned int n,
-		          const std::vector<Variable::Flags> &flags) = 0;
+		          const std::vector<Variable::Flags> &flags) override = 0;
 
-		virtual double
-		intercept(const std::vector<double> *values) const = 0;
+		double
+		intercept(const std::vector<double> *values) const override = 0;
 
 		virtual void init() {}
 		virtual void finish(bool save) {}
@@ -67,32 +67,32 @@ namespace { // anonymous
 	class InitInterceptor : public BaseInterceptor {
 	    public:
 		InitInterceptor() {}
-		virtual ~InitInterceptor() {}
+		~InitInterceptor() override {}
 
-		virtual std::vector<Variable::Flags>
+		std::vector<Variable::Flags>
 		configure(const MVAComputer *computer, unsigned int n,
 		          const std::vector<Variable::Flags> &flags) override;
 
-		virtual double
+		double
 		intercept(const std::vector<double> *values) const override;
 	};
 
 	class TrainInterceptor : public BaseInterceptor {
 	    public:
 		TrainInterceptor(TrainProcessor *proc) : proc(proc) {}
-		virtual ~TrainInterceptor() {}
+		~TrainInterceptor() override {}
 
 		inline TrainProcessor *getProcessor() const { return proc; }
 
-		virtual std::vector<Variable::Flags>
+		std::vector<Variable::Flags>
 		configure(const MVAComputer *computer, unsigned int n,
 		          const std::vector<Variable::Flags> &flags) override;
 
-		virtual double
+		double
 		intercept(const std::vector<double> *values) const override;
 
-		virtual void init() override;
-		virtual void finish(bool save) override;
+		void init() override;
+		void finish(bool save) override;
 
 	    private:
 		unsigned int					targetIdx;
@@ -109,11 +109,11 @@ namespace { // anonymous
 							&interceptors,
 		                   bool autoSave, UInt_t seed, double split);
 
-		virtual ~MVATrainerComputer();
+		~MVATrainerComputer() override;
 
-		virtual std::vector<Calibration::VarProcessor*>
+		std::vector<Calibration::VarProcessor*>
 							getProcessors() const override;
-		virtual void initFlags(std::vector<Variable::Flags>
+		void initFlags(std::vector<Variable::Flags>
 							&flags) const override;
 
 		void configured(BaseInterceptor *interceptor) const;

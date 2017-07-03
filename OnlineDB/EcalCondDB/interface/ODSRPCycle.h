@@ -14,9 +14,9 @@ class ODSRPCycle :  public IODConfig  {
   friend class ODEcalCycle;
 
   ODSRPCycle();
-  ~ODSRPCycle();
+  ~ODSRPCycle() override;
 
-  inline std::string getTable() { return "ECAL_SRP_CYCLE"; }
+  inline std::string getTable() override { return "ECAL_SRP_CYCLE"; }
 
   inline void setId(int id){m_ID=id;}
   inline int getId()const{ return m_ID;} ;
@@ -34,7 +34,7 @@ class ODSRPCycle :  public IODConfig  {
   int m_ID;
   int  m_srp_config_id;
   void writeDB() noexcept(false);
-  void prepareWrite() noexcept(false);
+  void prepareWrite() noexcept(false) override;
   void clear();
   void fetchData(ODSRPCycle * result) noexcept(false);
    void insertConfig() noexcept(false);

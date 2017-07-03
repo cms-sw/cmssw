@@ -34,7 +34,7 @@ class FWCaloTauProxyBuilder : public FWTauProxyBuilderBase
 {
 public:
    FWCaloTauProxyBuilder() {}
-   virtual ~FWCaloTauProxyBuilder() {}
+   ~FWCaloTauProxyBuilder() override {}
   
    REGISTER_PROXYBUILDER_METHODS();
 
@@ -43,7 +43,7 @@ private:
    const FWCaloTauProxyBuilder& operator=(const FWCaloTauProxyBuilder&);    // stop default
 
    using FWTauProxyBuilderBase::buildViewType;
-   virtual void buildViewType( const FWEventItem* iItem, TEveElementList* product, FWViewType::EType viewType , const FWViewContext* vc);
+   void buildViewType( const FWEventItem* iItem, TEveElementList* product, FWViewType::EType viewType , const FWViewContext* vc) override;
 
 };
 

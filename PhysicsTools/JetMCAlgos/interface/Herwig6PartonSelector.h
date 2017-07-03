@@ -12,10 +12,10 @@ class Herwig6PartonSelector : public BasePartonSelector
 {
   public:
     Herwig6PartonSelector();
-    virtual ~Herwig6PartonSelector();
+    ~Herwig6PartonSelector() override;
 
     void run(const edm::Handle<reco::GenParticleCollection> & particles,
-             std::unique_ptr<reco::GenParticleRefVector> & partons);
+             std::unique_ptr<reco::GenParticleRefVector> & partons) override;
 };
 
 #endif

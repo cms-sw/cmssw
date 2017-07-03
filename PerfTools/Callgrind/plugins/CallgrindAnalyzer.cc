@@ -39,13 +39,13 @@ using namespace std;
 class Profiler : public edm::EDAnalyzer {
 public:
   explicit Profiler(const edm::ParameterSet&);
-  ~Profiler();
+  ~Profiler() override;
 
 
 private:
-  virtual void beginJob() override ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
+  void beginJob() override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
   
   // ----------member data ---------------------------
       int m_firstEvent;

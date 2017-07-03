@@ -34,8 +34,8 @@
 class printJetFlavour : public edm::EDAnalyzer {
   public:
     explicit printJetFlavour(const edm::ParameterSet & );
-    ~printJetFlavour() {};
-    void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+    ~printJetFlavour() override {};
+    void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
   private:
     edm::InputTag sourcePartons_;

@@ -42,10 +42,10 @@ class HGCalTriggerThresholdTriggerCellTester : public edm::EDAnalyzer
 {
     public:
         explicit HGCalTriggerThresholdTriggerCellTester(const edm::ParameterSet& );
-        ~HGCalTriggerThresholdTriggerCellTester();
+        ~HGCalTriggerThresholdTriggerCellTester() override;
 
-        virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-        virtual void analyze(const edm::Event&, const edm::EventSetup&);
+        void beginRun(const edm::Run&, const edm::EventSetup&) override;
+        void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 
     private:

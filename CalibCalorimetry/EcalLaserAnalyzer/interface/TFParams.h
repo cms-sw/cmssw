@@ -63,7 +63,7 @@
  public:
 
  TFParams( int size = SDIM2, int size_sh = PLSHDIM );
-~TFParams(){};
+~TFParams() override{};
 double fitpj(double **, double *,double ** , double noise_val, int debug) ;
  void set_const( int ,int ,int ,double ,double ,int);
  void produit_mat(matrice,matrice,matrice) ;

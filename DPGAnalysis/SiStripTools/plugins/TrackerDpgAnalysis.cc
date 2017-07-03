@@ -109,7 +109,7 @@ typedef math::XYZPoint Point;
 class TrackerDpgAnalysis : public edm::EDAnalyzer {
    public:
       explicit TrackerDpgAnalysis(const edm::ParameterSet&);
-      ~TrackerDpgAnalysis();
+      ~TrackerDpgAnalysis() override;
 
    protected:
       std::vector<double> onTrackAngles(edm::Handle<edmNew::DetSetVector<SiStripCluster> >&,const std::vector<Trajectory>& );
@@ -128,9 +128,9 @@ class TrackerDpgAnalysis : public edm::EDAnalyzer {
       std::map<uint32_t,float> delay(const std::vector<std::string>&);
 
    private:
-      virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginRun(const edm::Run&, const edm::EventSetup&) override;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
       // ----------member data ---------------------------
       static const int nMaxPVs_ = 50;

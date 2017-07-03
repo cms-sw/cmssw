@@ -37,7 +37,7 @@ namespace {
 class SherpaHadronizer : public gen::BaseHadronizer {
 public:
   SherpaHadronizer(const edm::ParameterSet &params);
-  ~SherpaHadronizer();
+  ~SherpaHadronizer() override;
 
   bool readSettings( int ) { return true; }
   bool initializeForInternalPartons();
@@ -55,7 +55,7 @@ public:
 
 private:
 
-  virtual void doSetRandomEngine(CLHEP::HepRandomEngine* v) override;
+  void doSetRandomEngine(CLHEP::HepRandomEngine* v) override;
 
   std::string SherpaProcess;
   std::string SherpaChecksum;

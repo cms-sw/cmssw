@@ -54,15 +54,15 @@ namespace l1t {
 class L1TGlobalAnalyzer : public edm::EDAnalyzer {
 public:
   explicit L1TGlobalAnalyzer(const edm::ParameterSet&);
-  ~L1TGlobalAnalyzer();
+  ~L1TGlobalAnalyzer() override;
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
   
 private:
-  virtual void beginJob() override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
   
   //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
   //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;

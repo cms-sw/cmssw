@@ -12,7 +12,7 @@ class L1GctLutFromFile : public L1GctLut<NAddressBits, NDataBits>
 {
  public:
   static L1GctLutFromFile<NAddressBits, NDataBits>* setupLut(const std::string filename);
-  virtual ~L1GctLutFromFile<NAddressBits, NDataBits>();
+  ~L1GctLutFromFile<NAddressBits, NDataBits>() override;
 
   void readFromFile(const std::string filename);
   
@@ -20,7 +20,7 @@ class L1GctLutFromFile : public L1GctLut<NAddressBits, NDataBits>
   
   L1GctLutFromFile<NAddressBits, NDataBits>();
 
-  virtual uint16_t value (const uint16_t lutAddress) const;
+  uint16_t value (const uint16_t lutAddress) const override;
 
  private:
 

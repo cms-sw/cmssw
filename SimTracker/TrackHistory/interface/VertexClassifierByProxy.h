@@ -24,7 +24,7 @@ public:
     }
 
     //! Pre-process event information (for accessing reconstraction information).
-    virtual void newEvent(edm::Event const & event, edm::EventSetup const & config)
+    void newEvent(edm::Event const & event, edm::EventSetup const & config) override
     {
         // Get the association part of the proxy to the collection
         event.getByLabel(proxy_, proxyHandler_);

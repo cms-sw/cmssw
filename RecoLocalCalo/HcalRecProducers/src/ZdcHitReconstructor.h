@@ -35,10 +35,10 @@ class HcalTopology;
     class ZdcHitReconstructor : public edm::stream::EDProducer<> {
     public:
       explicit ZdcHitReconstructor(const edm::ParameterSet& ps);
-      virtual ~ZdcHitReconstructor();
-      virtual void beginRun(edm::Run const&r, edm::EventSetup const & es) override final;
-      virtual void endRun(edm::Run const&r, edm::EventSetup const & es) override final;
-      virtual void produce(edm::Event& e, const edm::EventSetup& c) override final;
+      ~ZdcHitReconstructor() override;
+      void beginRun(edm::Run const&r, edm::EventSetup const & es) final;
+      void endRun(edm::Run const&r, edm::EventSetup const & es) final;
+      void produce(edm::Event& e, const edm::EventSetup& c) final;
     private:      
       ZdcSimpleRecAlgo reco_;
       HcalADCSaturationFlag* saturationFlagSetter_;

@@ -22,10 +22,10 @@ class TFormulaWriter : public edm::EDAnalyzer
 {
  public:
   TFormulaWriter(const edm::ParameterSet&);
-  ~TFormulaWriter();
+  ~TFormulaWriter() override;
   
  private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   std::string moduleLabel_;
 

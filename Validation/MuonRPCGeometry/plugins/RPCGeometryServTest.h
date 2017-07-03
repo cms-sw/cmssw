@@ -32,9 +32,9 @@ class RPCGeometryServTest : public edm::EDAnalyzer {
  public: 
   RPCGeometryServTest( const edm::ParameterSet& pset);
 
-  ~RPCGeometryServTest();
+  ~RPCGeometryServTest() override;
 
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  void analyze( const edm::Event&, const edm::EventSetup& ) override;
  
   const std::string& myName() { return myName_;}
 

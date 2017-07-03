@@ -18,7 +18,7 @@ class LMFRunDat : public LMFDat {
   LMFRunDat(EcalDBConnection *conn);
   LMFRunDat(oracle::occi::Environment* env,
 	    oracle::occi::Connection* conn);
-  ~LMFRunDat() { }
+  ~LMFRunDat() override { }
 
   int getEvents(const EcalLogicID &id) {
     return (int)rint(LMFDat::getData(id, "NEVENTS"));

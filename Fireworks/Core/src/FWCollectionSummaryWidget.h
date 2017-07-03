@@ -51,7 +51,7 @@ class FWCollectionSummaryWidget : public TGCompositeFrame
 
 public:
    FWCollectionSummaryWidget(TGFrame* iParent, FWEventItem& iItem, TGLayoutHints*);
-   virtual ~FWCollectionSummaryWidget();
+   ~FWCollectionSummaryWidget() override;
    
    // ---------- const member functions ---------------------
 

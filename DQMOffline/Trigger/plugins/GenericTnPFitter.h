@@ -260,8 +260,8 @@ class GaussianPlusLinearFitter: public AbstractFitter{
     simPdf.addPdf(pdfFail,"fail");
     simPdf.addPdf(pdfPass,"pass");
   };
-  ~GaussianPlusLinearFitter(){};
-  void fit(TH1* pass, TH1* all){
+  ~GaussianPlusLinearFitter() override{};
+  void fit(TH1* pass, TH1* all) override{
     using namespace RooFit;
     all->Add(pass,-1);
     TH1* &fail = all;
@@ -324,7 +324,7 @@ class VoigtianPlusExponentialFitter: public AbstractFitter{
     simPdf.addPdf(pdfFail,"fail");
     simPdf.addPdf(pdfPass,"pass");
   };
-  ~VoigtianPlusExponentialFitter(){};
+  ~VoigtianPlusExponentialFitter() override{};
   void setup(double expectedMean_, double massLow, double massHigh, double expectedSigma_, double width_){
     expectedMean = expectedMean_;
     expectedSigma = expectedSigma_;
@@ -332,7 +332,7 @@ class VoigtianPlusExponentialFitter: public AbstractFitter{
     mean.setRange(massLow,massHigh);
     width.setVal(width_);
   }
-  void fit(TH1* pass, TH1* all){
+  void fit(TH1* pass, TH1* all) override{
     using namespace RooFit;
     all->Add(pass,-1);
     TH1* &fail = all;

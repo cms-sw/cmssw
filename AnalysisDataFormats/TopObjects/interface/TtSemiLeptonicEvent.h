@@ -28,7 +28,7 @@ class TtSemiLeptonicEvent: public TtEvent {
   /// empty constructor
   TtSemiLeptonicEvent(){};
   /// default destructor
-  virtual ~TtSemiLeptonicEvent(){};
+  ~TtSemiLeptonicEvent() override{};
 
   /// get hadronic top of the given hypothesis
   const reco::Candidate* hadronicDecayTop(const std::string& key, const unsigned& cmb=0) const { return hadronicDecayTop(hypoClassKeyFromString(key), cmb); };

@@ -37,7 +37,7 @@ namespace gen
   class HydjetHadronizer : public BaseHadronizer {
   public:
     HydjetHadronizer(const edm::ParameterSet &);
-    virtual ~HydjetHadronizer();
+    ~HydjetHadronizer() override;
 
     bool generatePartonsAndHadronize();
     bool hadronize();
@@ -55,8 +55,8 @@ namespace gen
 
   private:
 
-    virtual void doSetRandomEngine(CLHEP::HepRandomEngine* v) override;
-    virtual std::vector<std::string> const& doSharedResources() const override { return theSharedResources; }
+    void doSetRandomEngine(CLHEP::HepRandomEngine* v) override;
+    std::vector<std::string> const& doSharedResources() const override { return theSharedResources; }
 
     static const std::vector<std::string> theSharedResources;
 

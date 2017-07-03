@@ -52,7 +52,7 @@ class DTLocalTriggerLutTask: public DQMEDAnalyzer{
   DTLocalTriggerLutTask(const edm::ParameterSet& ps );
 
   /// Destructor
-  virtual ~DTLocalTriggerLutTask();
+  ~DTLocalTriggerLutTask() override;
 
   /// bookHistograms
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;

@@ -31,9 +31,9 @@ class TotemRPClusterProducer : public edm::stream::EDProducer<>
   
     explicit TotemRPClusterProducer(const edm::ParameterSet& conf);
   
-    virtual ~TotemRPClusterProducer() {}
+    ~TotemRPClusterProducer() override {}
   
-    virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
+    void produce(edm::Event& e, const edm::EventSetup& c) override;
   
   private:
     edm::ParameterSet conf_;

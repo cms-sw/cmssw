@@ -46,9 +46,9 @@ namespace { // anonymous
 		typedef typename T::Stream_t Stream_t;
 
 		XMLInputSourceWrapper(std::unique_ptr<Stream_t>& obj) : obj(obj) {}
-		virtual ~XMLInputSourceWrapper() {}
+		~XMLInputSourceWrapper() override {}
 
-		virtual XERCES_CPP_NAMESPACE_QUALIFIER BinInputStream*
+		XERCES_CPP_NAMESPACE_QUALIFIER BinInputStream*
 							makeStream() const override
 		{ return new T(*obj); }
 
@@ -62,14 +62,14 @@ namespace { // anonymous
 	        typedef std::istream Stream_t;
 
 	        STLInputStream(std::istream &in) : in(in) {}
-	        virtual ~STLInputStream() {}
+	        ~STLInputStream() override {}
 
-	        virtual XMLFilePos curPos() const override { return pos; }
+	        XMLFilePos curPos() const override { return pos; }
 
-	        virtual XMLSize_t readBytes(XMLByte *const buf,
+	        XMLSize_t readBytes(XMLByte *const buf,
 					    const XMLSize_t size) override;
 	  
-	        virtual const XMLCh* getContentType() const override { return 0; }
+	        const XMLCh* getContentType() const override { return 0; }
 
 	    private:
 	        std::istream    &in;
@@ -86,7 +86,7 @@ namespace { // anonymous
 			file_(file), filebuf_(file, std::ios_base::in)
 		{ this->init(&filebuf_); }
 
-		~stdio_istream()
+		~stdio_istream() override
 		{ close(file_); }
 
 		__filebuf_type *rdbuf() const

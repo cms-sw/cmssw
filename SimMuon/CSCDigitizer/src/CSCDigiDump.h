@@ -11,7 +11,7 @@
 class CSCDigiDump : public edm::one::EDAnalyzer<> {
 public:
   explicit CSCDigiDump(edm::ParameterSet const& conf);
-  virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
+  void analyze(edm::Event const& e, edm::EventSetup const& c) override;
 
 private:
   edm::EDGetTokenT<CSCWireDigiCollection> wd_token;

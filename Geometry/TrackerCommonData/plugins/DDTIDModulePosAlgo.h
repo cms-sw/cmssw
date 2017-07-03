@@ -11,14 +11,14 @@ class DDTIDModulePosAlgo : public DDAlgorithm {
  public:
   //Constructor and Destructor
   DDTIDModulePosAlgo(); 
-  virtual ~DDTIDModulePosAlgo();
+  ~DDTIDModulePosAlgo() override;
   
   void initialize(const DDNumericArguments & nArgs,
                   const DDVectorArguments & vArgs,
                   const DDMapArguments & mArgs,
                   const DDStringArguments & sArgs,
-                  const DDStringVectorArguments & vsArgs);
-  void execute(DDCompactView& cpv);
+                  const DDStringVectorArguments & vsArgs) override;
+  void execute(DDCompactView& cpv) override;
 
 private:
 

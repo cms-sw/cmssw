@@ -19,9 +19,9 @@ class FWPSimHitProxyBuilder : public FWSimpleProxyBuilderTemplate<PSimHit>
 {
 public:
    FWPSimHitProxyBuilder( void ) {} 
-   virtual ~FWPSimHitProxyBuilder( void ) {}
+   ~FWPSimHitProxyBuilder( void ) override {}
 
-   virtual bool haveSingleProduct() const override { return false; }
+   bool haveSingleProduct() const override { return false; }
 
    REGISTER_PROXYBUILDER_METHODS();
 

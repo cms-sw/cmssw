@@ -31,21 +31,21 @@ class IntegralOverPhiFunction : public ROOT::Math::ParamFunction<ROOT::Math::IPa
 {
  public:
   IntegralOverPhiFunction();
-  ~IntegralOverPhiFunction();
+  ~IntegralOverPhiFunction() override;
 
   void SetParameterTheta0(double theta0);
   void SetParameterPhi0(double phi0);
   void SetParameterAlpha(double alpha);
 
-  virtual ROOT::Math::IGenFunction* Clone () const override { return new IntegralOverPhiFunction(*this); }
+  ROOT::Math::IGenFunction* Clone () const override { return new IntegralOverPhiFunction(*this); }
 
  private:
   void SetParameters(double const * param) override;
 
   double DoEval(double x) const override;
-  virtual double DoEvalPar(double x, const double* param) const override;
+  double DoEvalPar(double x, const double* param) const override;
   double DoDerivative(double x) const;
-  virtual double DoParameterDerivative(double, const double*, unsigned int) const override;
+  double DoParameterDerivative(double, const double*, unsigned int) const override;
   void DoParameterGradient(double x, double* paramGradient) const;
 
   mutable double theta0_; // polar angle of cone axis

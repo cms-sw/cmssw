@@ -51,7 +51,7 @@ class FFTJetEFlowSmoother : public FFTJetInterface
 {
 public:
     explicit FFTJetEFlowSmoother(const edm::ParameterSet&);
-    ~FFTJetEFlowSmoother();
+    ~FFTJetEFlowSmoother() override;
 
 protected:
     // methods

@@ -53,12 +53,12 @@ namespace egHLT {
   public:
     MonElemManagerHist(DQMStore::IBooker &iBooker, std::string name,std::string title,int nrBins,double xMin,double xMax);
     MonElemManagerHist(DQMStore::IBooker &iBooker, std::string name,std::string title,int nrBinsX,double xMin,double xMax,int nrBinsY,double yMin,double yMax);
-    virtual ~MonElemManagerHist();
+    ~MonElemManagerHist() override;
     
     MonitorElement* monElem(){return monElem_;}
     const MonitorElement* monElem()const{return monElem_;}
     
-    virtual void fill(const T& obj,float weight)=0;
+    void fill(const T& obj,float weight) override =0;
     
     
   };
@@ -100,10 +100,10 @@ namespace egHLT {
 		   varType (T::*varFunc)()const):
       MonElemManagerHist<T>(iBooker, name,title,nrBins,xMin,xMax),
       varFunc_(varFunc){}
-    ~MonElemManager();
+    ~MonElemManager() override;
     
     
-    void fill(const T& obj,float weight);
+    void fill(const T& obj,float weight) override;
 
   };
 
@@ -136,10 +136,10 @@ namespace egHLT {
 		     varTypeX (T::*varFuncX)()const,varTypeY (T::*varFuncY)()const):
       MonElemManagerHist<T>(iBooker, name,title,nrBinsX,xMin,xMax,nrBinsY,yMin,yMax),
       varFuncX_(varFuncX),varFuncY_(varFuncY){}
-    ~MonElemManager2D();
+    ~MonElemManager2D() override;
     
     
-    void fill(const T& obj,float weight);
+    void fill(const T& obj,float weight) override;
     
     
   };

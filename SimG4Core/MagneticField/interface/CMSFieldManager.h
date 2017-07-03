@@ -20,9 +20,9 @@ public:
 
   explicit CMSFieldManager();
 
-  virtual ~CMSFieldManager();
+  ~CMSFieldManager() override;
 
-  virtual void ConfigureForTrack(const G4Track*); 
+  void ConfigureForTrack(const G4Track*) override; 
 
   void InitialiseForVolume(const edm::ParameterSet&, sim::Field*, G4ChordFinder*, G4ChordFinder*, 
                            const std::string& vol, const std::string& type, 

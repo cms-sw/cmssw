@@ -38,7 +38,7 @@
 class RPCTriggerHsbConfig : public edm::ESProducer {
    public:
       RPCTriggerHsbConfig(const edm::ParameterSet&);
-      ~RPCTriggerHsbConfig();
+      ~RPCTriggerHsbConfig() override;
 
       typedef std::unique_ptr<L1RPCHsbConfig> ReturnType;
 

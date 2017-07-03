@@ -74,13 +74,13 @@ using namespace std;
 class BlockAnalyzer : public edm::EDAnalyzer {
 public:
   explicit BlockAnalyzer(const edm::ParameterSet&);
-  ~BlockAnalyzer();
+  ~BlockAnalyzer() override;
   
   
 private:
-  virtual void beginRun(const edm::Run& run, const edm::EventSetup& iSetup);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  void beginRun(const edm::Run& run, const edm::EventSetup& iSetup) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
   double InvMass (const vector<TLorentzVector> &par);
   
   ParameterSet conf_;

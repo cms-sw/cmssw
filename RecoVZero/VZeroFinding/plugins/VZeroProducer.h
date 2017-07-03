@@ -11,9 +11,9 @@ class VZeroProducer :  public edm::EDProducer {
 public:
   explicit VZeroProducer(const edm::ParameterSet& pset);
 
-  ~VZeroProducer();
+  ~VZeroProducer() override;
 
-  virtual void produce(edm::Event& ev, const edm::EventSetup& es);
+  void produce(edm::Event& ev, const edm::EventSetup& es) override;
 
 private:
 

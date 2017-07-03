@@ -49,7 +49,7 @@ private:
 public:
   AliDaqPosition2D() : fX(0), fY(0), fX_error(0), fY_error(0),
                  fID(""), fTimeStamp(0) { }
-  virtual ~AliDaqPosition2D() { }
+  ~AliDaqPosition2D() override { }
   Float_t  GetX()         const { return fX; }
   Float_t  GetY()         const { return fY; }
   Float_t  GetXerror()    const { return fX_error; }
@@ -83,7 +83,7 @@ public:
                    fDCOPS_up_error(0),   fDCOPS_down_error(0),
                    fDCOPS_left_error(0), fDCOPS_right_error(0),
                    fID(""),              fTimeStamp(0) { }
-  virtual ~AliDaqPositionCOPS() { }
+  ~AliDaqPositionCOPS() override { }
   Float_t  GetUp()    const { return fDCOPS_up; }
   Float_t  GetDown()  const { return fDCOPS_down; }
   Float_t  GetLeft()  const { return fDCOPS_left; }
@@ -111,7 +111,7 @@ private:
 
 public:
   AliDaqTilt() : fTilt(0), fTilt_error(0), fID(""), fTimeStamp(0) { }
-  virtual ~AliDaqTilt() { }
+  ~AliDaqTilt() override { }
   Float_t  GetTilt()      const { return fTilt; }
   Float_t  GetTiltError() const { return fTilt_error; }
   TString  GetID() { return fID; }
@@ -133,7 +133,7 @@ private:
 public:
   AliDaqDistance() : fDistance(0), fDistance_error(0), 
                fID(""), fTimeStamp(0) { }
-  virtual ~AliDaqDistance() { }
+  ~AliDaqDistance() override { }
   Float_t  GetDistance()      const { return fDistance; }
   Float_t  GetDistanceError() const { return fDistance_error; }
   TString  GetID() { return fID; }
@@ -156,7 +156,7 @@ private:
 public:
   AliDaqTemperature() : fTemperature(0), fTemperature_error(0),
                   fID(""), fTimeStamp(0) { }
-  virtual ~AliDaqTemperature() { }
+  ~AliDaqTemperature() override { }
   Float_t  GetTemperature()      const { return fTemperature; }
   Float_t  GetTemperatureError() const { return fTemperature_error; }
   TString  GetID()  { return fID; }
@@ -197,7 +197,7 @@ public:
 
 public:
   CocoaDaqRootEvent();
-  virtual ~CocoaDaqRootEvent() { };
+  ~CocoaDaqRootEvent() override { };
   void     SetHeader(int run, int evt) {Header->SetRunEvt(run,evt); }
   void     DumpIt();
 

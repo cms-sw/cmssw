@@ -68,17 +68,17 @@ namespace edm {
       void set(std::shared_ptr<ProductRegistry const> iReg) { reg_ = iReg;}
      private:
       std::unique_ptr<WrapperBase> getTheProduct(BranchKey const& k) const;
-      virtual std::unique_ptr<WrapperBase> getProduct_(BranchKey const& k, EDProductGetter const* ep) override;
+      std::unique_ptr<WrapperBase> getProduct_(BranchKey const& k, EDProductGetter const* ep) override;
       virtual std::unique_ptr<EventEntryDescription> getProvenance_(BranchKey const&) const {
         return std::unique_ptr<EventEntryDescription>();
       }
-      virtual void mergeReaders_(DelayedReader*) override {}
-      virtual void reset_() override {}
+      void mergeReaders_(DelayedReader*) override {}
+      void reset_() override {}
       
-      virtual signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* preEventReadFromSourceSignal() const override {
+      signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* preEventReadFromSourceSignal() const override {
         return nullptr;
       }
-      virtual signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* postEventReadFromSourceSignal() const override {
+      signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* postEventReadFromSourceSignal() const override {
         return nullptr;
       };
 

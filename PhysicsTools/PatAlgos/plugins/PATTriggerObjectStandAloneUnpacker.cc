@@ -30,11 +30,11 @@ namespace pat {
   public:
     
     explicit PATTriggerObjectStandAloneUnpacker( const edm::ParameterSet & iConfig );
-    ~PATTriggerObjectStandAloneUnpacker() {};
+    ~PATTriggerObjectStandAloneUnpacker() override {};
     
   private:
     
-    virtual void produce(edm::StreamID, edm::Event & iEvent, const edm::EventSetup& iSetup) const override;
+    void produce(edm::StreamID, edm::Event & iEvent, const edm::EventSetup& iSetup) const override;
     
     const edm::EDGetTokenT< TriggerObjectStandAloneCollection > patTriggerObjectsStandAloneToken_;
     const edm::EDGetTokenT< edm::TriggerResults > triggerResultsToken_;

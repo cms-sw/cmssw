@@ -27,8 +27,8 @@ public:
   HLTEventSelector (const edm::ParameterSet& pset, edm::ConsumesCollector && iC) :
     HLTEventSelector(pset, iC) {}
   HLTEventSelector (const edm::ParameterSet& pset, edm::ConsumesCollector & iC);
-  virtual bool select (const edm::Event&) const;
-  virtual ~HLTEventSelector () {}
+  bool select (const edm::Event&) const override;
+  ~HLTEventSelector () override {}
 private:
   edm::InputTag triggerResults_;        ///< tag for input collection
   edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;

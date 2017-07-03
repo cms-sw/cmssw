@@ -42,7 +42,7 @@ class TrainProcessor : public Source,
 	TrainProcessor(const char *name,
 	               const AtomicId *id,
 	               MVATrainer *trainer);
-	virtual ~TrainProcessor();
+	~TrainProcessor() override;
 
 	virtual Variable::Flags getDefaultFlags() const
 	{ return Variable::FLAG_ALL; }

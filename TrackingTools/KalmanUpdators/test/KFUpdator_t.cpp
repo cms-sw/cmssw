@@ -18,7 +18,7 @@
 class ConstMagneticField : public MagneticField {
 public:
 
-  virtual GlobalVector inTesla ( const GlobalPoint& ) const {
+  GlobalVector inTesla ( const GlobalPoint& ) const override {
     return GlobalVector(0,0,4);
   }
 
@@ -59,12 +59,12 @@ class MyDet : public GeomDet {
   MyDet(BoundPlane * bp, DetId id) :
     GeomDet(bp){setDetId(id);}
   
-  virtual std::vector< const GeomDet*> components() const {
+  std::vector< const GeomDet*> components() const override {
     return std::vector< const GeomDet*>();
   }
   
   /// Which subdetector
-  virtual SubDetector subDetector() const {return GeomDetEnumerators::DT;}
+  SubDetector subDetector() const override {return GeomDetEnumerators::DT;}
   
 };  
 
@@ -81,7 +81,7 @@ public:
   My2DHit(const GeomDet & geom, TrackingRecHit* rh) :
     GenericTransientTrackingRecHit(geom,  rh) {}
 
-  virtual void getKfComponents( KfComponentsHolder & holder ) const {
+  void getKfComponents( KfComponentsHolder & holder ) const override {
     HelpertRecHit2DLocalPos::getKfComponents(holder, *hit(), *det()); 
   }
 };

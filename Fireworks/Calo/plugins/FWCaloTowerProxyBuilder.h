@@ -36,14 +36,14 @@ class FWCaloTowerProxyBuilderBase : public FWCaloDataHistProxyBuilder
 {
 public:
    FWCaloTowerProxyBuilderBase();
-   virtual ~FWCaloTowerProxyBuilderBase();
+   ~FWCaloTowerProxyBuilderBase() override;
 
    virtual double getEt(const CaloTower&) const = 0;
    
 protected:
-   virtual void fillCaloData();
-   virtual FWHistSliceSelector* instantiateSliceSelector();
-   virtual void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*);
+   void fillCaloData() override;
+   FWHistSliceSelector* instantiateSliceSelector() override;
+   void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
 
 private:
    FWCaloTowerProxyBuilderBase(const FWCaloTowerProxyBuilderBase&); // stop default
@@ -60,12 +60,12 @@ class FWECalCaloTowerProxyBuilder : public FWCaloTowerProxyBuilderBase {
 public:
    FWECalCaloTowerProxyBuilder() {
    }
-   virtual ~FWECalCaloTowerProxyBuilder() {
+   ~FWECalCaloTowerProxyBuilder() override {
    }
 
    // ---------- const member functions ---------------------
 
-   virtual double getEt(const CaloTower& iTower) const {
+   double getEt(const CaloTower& iTower) const override {
       return iTower.emEt();
    }
 
@@ -84,12 +84,12 @@ class FWHCalCaloTowerProxyBuilder : public FWCaloTowerProxyBuilderBase {
 public:
    FWHCalCaloTowerProxyBuilder() {
    }
-   virtual ~FWHCalCaloTowerProxyBuilder(){
+   ~FWHCalCaloTowerProxyBuilder() override{
    }
 
    // ---------- const member functions ---------------------
 
-   virtual double getEt(const CaloTower& iTower) const {
+   double getEt(const CaloTower& iTower) const override {
       return iTower.hadEt();
    }
 
@@ -108,12 +108,12 @@ class FWHOCaloTowerProxyBuilder : public FWCaloTowerProxyBuilderBase {
 public:
    FWHOCaloTowerProxyBuilder() {
    }
-   virtual ~FWHOCaloTowerProxyBuilder(){
+   ~FWHOCaloTowerProxyBuilder() override{
    }
    
    // ---------- const member functions ---------------------
    
-   virtual double getEt(const CaloTower& iTower) const {
+   double getEt(const CaloTower& iTower) const override {
       return iTower.outerEt();
    }
    

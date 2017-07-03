@@ -29,7 +29,7 @@ class PixelDCSObjectReader:
 
   PixelDCSObjectReader( const edm::ParameterSet& ) {}
 
-  void analyze( const edm::Event&, const edm::EventSetup& );
+  void analyze( const edm::Event&, const edm::EventSetup& ) override;
 };
 
 template <class Record>

@@ -14,9 +14,9 @@
 class dso_hidden MeasurementTrackerEventProducer final : public edm::stream::EDProducer<> {
 public:
       explicit MeasurementTrackerEventProducer(const edm::ParameterSet &iConfig) ;
-      ~MeasurementTrackerEventProducer() {}
+      ~MeasurementTrackerEventProducer() override {}
 private:
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
 
 protected:
       void updatePixels( const edm::Event&, PxMeasurementDetSet & thePxDets, std::vector<bool> & pixelClustersToSkip ) const;

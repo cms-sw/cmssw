@@ -23,12 +23,12 @@ class SurveyInputTest:
 		  );
 
   /// Read data from cfg file
-  virtual void beginJob();
+  void beginJob() override;
   
-  virtual void analyze(
+  void analyze(
 		       const edm::Event&,
 		       const edm::EventSetup&
-		       ) {}
+		       ) override {}
 
   private:
 

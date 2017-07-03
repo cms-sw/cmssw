@@ -1383,7 +1383,7 @@ public:
   Fourvec_Constraint_Calculator (Fourvec_Event& ev,
                                  const vector<Constraint>& constraints,
                                  const Fourvec_Constrainer_Args& args);
-  virtual ~Fourvec_Constraint_Calculator () {}
+  ~Fourvec_Constraint_Calculator () override {}
 
   // Evaluate constraints at the point described by X and Y (well-measured
   // and poorly-measured variables, respectively).  The results should
@@ -1393,7 +1393,7 @@ public:
   // Return true if the point X, Y is accepted.
   // Return false if it is rejected (i.e., in an unphysical region).
   // The constraints need not be evaluated in that case.
-  virtual bool eval (const Column_Vector& x,
+  bool eval (const Column_Vector& x,
                      const Column_Vector& y,
                      Row_Vector& F,
                      Matrix& Bx,

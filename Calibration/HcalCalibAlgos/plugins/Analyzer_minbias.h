@@ -55,13 +55,13 @@ namespace cms{
   class Analyzer_minbias : public edm::EDAnalyzer {
   public:
     explicit Analyzer_minbias(const edm::ParameterSet&);
-    ~Analyzer_minbias();
+    ~Analyzer_minbias() override;
 
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
-    virtual void beginJob() ;
-    virtual void endJob() ;
-    virtual void beginRun( const edm::Run& r, const edm::EventSetup& iSetup);
-    virtual void endRun( const edm::Run& r, const edm::EventSetup& iSetup);
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
+    void beginJob() override ;
+    void endJob() override ;
+    void beginRun( const edm::Run& r, const edm::EventSetup& iSetup) override;
+    void endRun( const edm::Run& r, const edm::EventSetup& iSetup) override;
 
   private:
     // ----------member data ---------------------------

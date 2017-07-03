@@ -6,14 +6,14 @@ class FWJetLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Jet>
 {
 public:
    FWJetLegoProxyBuilder() {}
-   virtual ~FWJetLegoProxyBuilder() {}
+   ~FWJetLegoProxyBuilder() override {}
   
    REGISTER_PROXYBUILDER_METHODS();
 
 protected:
    using FWSimpleProxyBuilderTemplate<reco::Jet>::build;
-   virtual void build(const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder,
-                      const FWViewContext*);
+   void build(const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder,
+                      const FWViewContext*) override;
 
 private:
    FWJetLegoProxyBuilder( const FWJetLegoProxyBuilder& ); // stop default

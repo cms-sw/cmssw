@@ -48,27 +48,27 @@ public:
 
   /** Access methods
    */
-  virtual BasicSingleVertexState* clone() const
+  BasicSingleVertexState* clone() const override
   {
     return new BasicSingleVertexState(*this);
   }
 
-  GlobalPoint position() const;
-  GlobalError error() const;
-  GlobalError error4D() const;
-  double time() const;
-  double timeError() const;
-  GlobalWeight weight() const;
-  GlobalWeight weight4D() const;
-  AlgebraicVector3 weightTimesPosition() const;
-  AlgebraicVector4 weightTimesPosition4D() const;
-  double weightInMixture() const;
+  GlobalPoint position() const override;
+  GlobalError error() const override;
+  GlobalError error4D() const override;
+  double time() const override;
+  double timeError() const override;
+  GlobalWeight weight() const override;
+  GlobalWeight weight4D() const override;
+  AlgebraicVector3 weightTimesPosition() const override;
+  AlgebraicVector4 weightTimesPosition4D() const override;
+  double weightInMixture() const override;
 
   /**
    * The validity of the vertex
    */
-  bool isValid() const {return valid;}
-  bool is4D() const { return vertexIs4D; }
+  bool isValid() const override {return valid;}
+  bool is4D() const override { return vertexIs4D; }
 
 private:
 

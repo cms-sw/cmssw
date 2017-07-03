@@ -17,14 +17,14 @@
 class SiPixelTemplateDBObjectUploader : public edm::EDAnalyzer {
    public:
       explicit SiPixelTemplateDBObjectUploader(const edm::ParameterSet&);
-      ~SiPixelTemplateDBObjectUploader();
+      ~SiPixelTemplateDBObjectUploader() override;
 
 			typedef std::vector<std::string> vstring;
 
    private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      void beginJob() override ;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 			
 			vstring theTemplateCalibrations ;
 			std::string theTemplateBaseString;

@@ -8,7 +8,7 @@ namespace ecaldqm
   class TestPulseClient : public DQWorkerClient {
   public:
     TestPulseClient();
-    ~TestPulseClient() {}
+    ~TestPulseClient() override {}
 
     void producePlots(ProcessType) override;
 

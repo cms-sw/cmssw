@@ -57,10 +57,10 @@ public:
   explicit SiStripLorentzAngleCalibration(const edm::ParameterSet &cfg);
   
   /// Destructor
-  virtual ~SiStripLorentzAngleCalibration();
+  ~SiStripLorentzAngleCalibration() override;
 
   /// How many parameters does this calibration define?
-  virtual unsigned int numParameters() const override;
+  unsigned int numParameters() const override;
 
   // /// Return all derivatives,
   // /// default implementation uses other derivatives(..) method,
@@ -72,7 +72,7 @@ public:
 
   /// Return non-zero derivatives for x- and y-measurements with their indices by reference.
   /// Return value is their number.
-  virtual unsigned int derivatives(std::vector<ValuesIndexPair> &outDerivInds,
+  unsigned int derivatives(std::vector<ValuesIndexPair> &outDerivInds,
 				   const TransientTrackingRecHit &hit,
 				   const TrajectoryStateOnSurface &tsos,
 				   const edm::EventSetup &setup,
@@ -80,29 +80,29 @@ public:
 
   /// Setting the determined parameter identified by index,
   /// returns false if out-of-bounds, true otherwise.
-  virtual bool setParameter(unsigned int index, double value) override;
+  bool setParameter(unsigned int index, double value) override;
 
   /// Setting the determined parameter uncertainty identified by index,
   /// returns false if out-of-bounds, true otherwise.
-  virtual bool setParameterError(unsigned int index, double error) override;
+  bool setParameterError(unsigned int index, double error) override;
 
   /// Return current value of parameter identified by index.
   /// Returns 0. if index out-of-bounds.
-  virtual double getParameter(unsigned int index) const override;
+  double getParameter(unsigned int index) const override;
 
   /// Return current value of parameter identified by index.
   /// Returns 0. if index out-of-bounds or if errors undetermined.
-  virtual double getParameterError(unsigned int index) const override;
+  double getParameterError(unsigned int index) const override;
 
   // /// Call at beginning of job:
-  virtual void beginOfJob(AlignableTracker *tracker,
+  void beginOfJob(AlignableTracker *tracker,
   			  AlignableMuon *muon,
   			  AlignableExtras *extras) override;
   
 
   /// Called at end of a the job of the AlignmentProducer.
   /// Write out determined parameters.
-  virtual void endOfJob() override;
+  void endOfJob() override;
 
 private:
   /// If called the first time, fill 'siStripLorentzAngleInput_',

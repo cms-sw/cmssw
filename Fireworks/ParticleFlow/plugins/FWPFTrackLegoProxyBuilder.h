@@ -30,7 +30,7 @@ class FWPFTrackLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Trac
    public:
    // ---------------- Constructor(s)/Destructor ----------------------
       FWPFTrackLegoProxyBuilder(){}
-      virtual ~FWPFTrackLegoProxyBuilder(){}
+      ~FWPFTrackLegoProxyBuilder() override{}
 
       REGISTER_PROXYBUILDER_METHODS();
 
@@ -40,7 +40,7 @@ class FWPFTrackLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Trac
 
    // --------------------- Member Functions --------------------------
       using FWSimpleProxyBuilderTemplate<reco::Track>::build;
-      virtual void build( const reco::Track &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *vc );
+      void build( const reco::Track &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *vc ) override;
 };
 #endif
 //=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_

@@ -35,10 +35,10 @@ class FWConversionProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Conve
 
 public:
    FWConversionProxyBuilder() ;
-   virtual ~FWConversionProxyBuilder();
+   ~FWConversionProxyBuilder() override;
 
-   virtual bool haveSingleProduct() const override { return false; }
-   virtual void cleanLocal() override;
+   bool haveSingleProduct() const override { return false; }
+   void cleanLocal() override;
 
    REGISTER_PROXYBUILDER_METHODS();
 
@@ -47,7 +47,7 @@ private:
    const FWConversionProxyBuilder& operator=( const FWConversionProxyBuilder& ); // stop default
   
    using FWSimpleProxyBuilderTemplate<reco::Conversion>::buildViewType;
-   virtual void buildViewType(const reco::Conversion& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext*) override;
+   void buildViewType(const reco::Conversion& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext*) override;
 
    TEveElementList* requestCommon();
 

@@ -22,7 +22,7 @@ class HcalZSThresholds: public HcalCondObjectContainer<HcalZSThreshold>
 #endif
   HcalZSThresholds(const HcalTopology* topo):HcalCondObjectContainer<HcalZSThreshold>(topo) {}
 
-  std::string myname() const {return (std::string)"HcalZSThresholds";}
+  std::string myname() const override {return (std::string)"HcalZSThresholds";}
 
  private:
 

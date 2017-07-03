@@ -21,14 +21,14 @@ public:
     MessageLoggerClient( edm::ParameterSet const & )
   { }
 
-  virtual
-    ~MessageLoggerClient()
+  
+    ~MessageLoggerClient() override
   { }
 
-  virtual
+  
     void analyze( edm::Event      const & e
                 , edm::EventSetup const & c
-                );
+                ) override;
 
 private:
 };

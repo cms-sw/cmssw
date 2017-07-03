@@ -33,7 +33,7 @@
 class L1MuTriggerScalesProducer : public edm::ESProducer {
 public:
   L1MuTriggerScalesProducer(const edm::ParameterSet&);
-  ~L1MuTriggerScalesProducer();
+  ~L1MuTriggerScalesProducer() override;
   
   std::unique_ptr<L1MuTriggerScales> produceL1MuTriggerScales(const L1MuTriggerScalesRcd&);
 

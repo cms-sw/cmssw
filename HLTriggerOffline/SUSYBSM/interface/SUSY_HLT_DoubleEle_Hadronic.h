@@ -36,7 +36,7 @@ class SUSY_HLT_DoubleEle_Hadronic: public DQMEDAnalyzer{
     
 public:
     SUSY_HLT_DoubleEle_Hadronic(const edm::ParameterSet& ps);
-    virtual ~SUSY_HLT_DoubleEle_Hadronic();
+    ~SUSY_HLT_DoubleEle_Hadronic() override;
     
 protected:
     void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;

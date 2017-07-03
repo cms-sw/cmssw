@@ -14,8 +14,8 @@ class HLTPixelIsolTrackFilter : public HLTFilter {
 
    public:
       explicit HLTPixelIsolTrackFilter(const edm::ParameterSet&);
-      ~HLTPixelIsolTrackFilter();
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+      ~HLTPixelIsolTrackFilter() override;
+      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:

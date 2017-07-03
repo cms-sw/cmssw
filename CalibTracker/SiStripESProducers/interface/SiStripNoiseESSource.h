@@ -21,15 +21,15 @@ class SiStripNoiseESSource : public edm::ESProducer, public edm::EventSetupRecor
  public:
 
   SiStripNoiseESSource( const edm::ParameterSet& );
-  virtual ~SiStripNoiseESSource() {;}
+  ~SiStripNoiseESSource() override {;}
   
   virtual std::unique_ptr<SiStripNoises> produce( const SiStripNoisesRcd& );
   
  protected:
 
-  virtual void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
+  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
 			       const edm::IOVSyncValue&,
-			       edm::ValidityInterval& );
+			       edm::ValidityInterval& ) override;
   
  private:
   

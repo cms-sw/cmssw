@@ -21,7 +21,7 @@ class EcalRecalibRecHitProducer : public edm::global::EDProducer<> {
 
         public:
                 explicit EcalRecalibRecHitProducer(const edm::ParameterSet& ps);
-                virtual void produce(edm::StreamID sid, edm::Event& evt, const edm::EventSetup& es) const override;
+                void produce(edm::StreamID sid, edm::Event& evt, const edm::EventSetup& es) const override;
 
         private:
 		const edm::InputTag EBRecHitCollection_;

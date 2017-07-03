@@ -27,9 +27,9 @@ class PreshowerClusterShapeProducer : public edm::stream::EDProducer<> {
 
   explicit PreshowerClusterShapeProducer (const edm::ParameterSet& ps);
 
-  ~PreshowerClusterShapeProducer();
+  ~PreshowerClusterShapeProducer() override;
 
-  virtual void produce( edm::Event& evt, const edm::EventSetup& es);
+  void produce( edm::Event& evt, const edm::EventSetup& es) override;
 
  private:
 

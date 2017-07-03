@@ -15,9 +15,9 @@ class JetCollectionReducerT : public edm::global::EDProducer<> {
 
 public:
   explicit JetCollectionReducerT(const edm::ParameterSet & iConfig);
-  virtual ~JetCollectionReducerT() {}
+  ~JetCollectionReducerT() override {}
 
-  virtual void produce(edm::StreamID id, edm::Event & iEvent, const edm::EventSetup & iSetup) const override;
+  void produce(edm::StreamID id, edm::Event & iEvent, const edm::EventSetup & iSetup) const override;
 
 private:
 

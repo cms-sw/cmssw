@@ -17,9 +17,9 @@ class testView: public CppUnit::TestFixture
 
  public:
   testView() {}
-  ~testView() {}
-  void setUp() {}
-  void tearDown() {}
+  ~testView() override {}
+  void setUp() override {}
+  void tearDown() override {}
 
   void basic();
   void createFromArray();

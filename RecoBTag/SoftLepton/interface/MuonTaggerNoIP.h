@@ -25,10 +25,10 @@ public:
   }
 
   /// dtor
-  virtual ~MuonTaggerNoIP() { }
+  ~MuonTaggerNoIP() override { }
 
   /// b-tag a jet based on track-to-jet parameters in the extened info collection
-  virtual float discriminator(const TagInfoHelper & tagInfo) const;
+  float discriminator(const TagInfoHelper & tagInfo) const override;
 
 private:
 

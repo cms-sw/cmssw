@@ -41,10 +41,10 @@
 class TestAnalyzer : public edm::EDAnalyzer {
 public:
   explicit TestAnalyzer( const edm::ParameterSet& );
-  ~TestAnalyzer();
+  ~TestAnalyzer() override;
   
   
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  void analyze( const edm::Event&, const edm::EventSetup& ) override;
 private:
   // ----------member data ---------------------------
   TTree* theTree;

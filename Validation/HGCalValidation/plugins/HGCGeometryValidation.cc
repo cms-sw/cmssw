@@ -43,7 +43,7 @@ class HGCGeometryValidation : public DQMEDAnalyzer {
 public:
 
   explicit HGCGeometryValidation( const edm::ParameterSet& );
-  ~HGCGeometryValidation();
+  ~HGCGeometryValidation() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 protected:

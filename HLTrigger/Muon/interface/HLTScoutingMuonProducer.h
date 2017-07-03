@@ -47,13 +47,13 @@ class HLTScoutingMuonProducer : public edm::global::EDProducer<> {
                                                 unsigned int> > RecoChargedCandMap;
     public:
         explicit HLTScoutingMuonProducer(const edm::ParameterSet&);
-        ~HLTScoutingMuonProducer();
+        ~HLTScoutingMuonProducer() override;
 
         static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
     private:
-        virtual void produce(edm::StreamID sid, edm::Event & iEvent, edm::EventSetup const & setup)
-            const override final;
+        void produce(edm::StreamID sid, edm::Event & iEvent, edm::EventSetup const & setup)
+            const final;
 
         const edm::EDGetTokenT<reco::RecoChargedCandidateCollection> ChargedCandidateCollection_;
         const edm::EDGetTokenT<reco::TrackCollection> TrackCollection_;

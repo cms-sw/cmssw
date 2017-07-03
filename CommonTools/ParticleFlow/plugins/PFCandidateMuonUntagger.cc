@@ -24,7 +24,7 @@
 class PFCandidateMuonUntagger : public edm::global::EDProducer<> {
     public:
         PFCandidateMuonUntagger(const edm::ParameterSet&);
-        ~PFCandidateMuonUntagger() {};
+        ~PFCandidateMuonUntagger() override {};
 
         void produce(edm::StreamID iID, edm::Event&, const edm::EventSetup&) const override;
 

@@ -63,9 +63,9 @@ public:
   typedef TrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
   enum RecHitType { Single=0, Matched=1, Projected=2, Null=3};
   explicit SiStripMonitorTrack(const edm::ParameterSet&);
-  ~SiStripMonitorTrack();
+  ~SiStripMonitorTrack() override;
   void dqmBeginRun(const edm::Run& run, const edm::EventSetup& es)  override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 private:

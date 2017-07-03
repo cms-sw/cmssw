@@ -19,11 +19,11 @@ class BoostTester : public edm::EDAnalyzer
    
       //
       explicit BoostTester( const edm::ParameterSet& ) ;
-      virtual ~BoostTester() {}
+      ~BoostTester() override {}
       
-      virtual void analyze( const edm::Event&, const edm::EventSetup&) override;
-      virtual void beginJob() override ;
-      virtual void endJob() override ;
+      void analyze( const edm::Event&, const edm::EventSetup&) override;
+      void beginJob() override ;
+      void endJob() override ;
 
    private:
    

@@ -59,12 +59,12 @@ class GenHFHadronMatcher : public edm::EDProducer
 {
 public:
     explicit GenHFHadronMatcher ( const edm::ParameterSet& );
-    ~GenHFHadronMatcher();
+    ~GenHFHadronMatcher() override;
 
     static void fillDescriptions ( edm::ConfigurationDescriptions& descriptions );
 
 private:
-    virtual void produce( edm::Event&, const edm::EventSetup& );
+    void produce( edm::Event&, const edm::EventSetup& ) override;
 
     std::vector<int> findHadronJets( const reco::GenParticleCollection* genParticles, const reco::JetFlavourInfoMatchingCollection* jetFlavourInfos,
                                      std::vector<int> &hadIndex, std::vector<reco::GenParticle> &hadMothersGenPart, 

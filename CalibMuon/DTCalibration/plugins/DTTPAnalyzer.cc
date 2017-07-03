@@ -20,7 +20,7 @@ class TFile;
 class DTTPAnalyzer : public edm::EDAnalyzer {
 public:
   DTTPAnalyzer( const edm::ParameterSet& );
-  virtual ~DTTPAnalyzer();
+  ~DTTPAnalyzer() override;
 
   //void beginJob();
   void beginRun( const edm::Run& , const edm::EventSetup& ) override;

@@ -59,9 +59,9 @@ class SimG4HGCalValidation : public SimProducer,
 
 public:
   SimG4HGCalValidation(const edm::ParameterSet &p);
-  virtual ~SimG4HGCalValidation();
+  ~SimG4HGCalValidation() override;
 
-  void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
   SimG4HGCalValidation(const SimG4HGCalValidation&); // stop default
@@ -70,9 +70,9 @@ private:
   void  init();
 
   // observer classes
-  void update(const BeginOfJob * job);
-  void update(const BeginOfEvent * evt);
-  void update(const G4Step * step);
+  void update(const BeginOfJob * job) override;
+  void update(const BeginOfEvent * evt) override;
+  void update(const G4Step * step) override;
 
   // analysis related class
   void layerAnalysis(PHGCalValidInfo&);

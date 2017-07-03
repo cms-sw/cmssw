@@ -70,8 +70,8 @@ CPPUNIT_TEST(iovExtentionTest);
 
 CPPUNIT_TEST_SUITE_END();
 public:
-  void setUp(){}
-  void tearDown(){}
+  void setUp() override{}
+  void tearDown() override{}
 
   void constructTest();
   void getTest();
@@ -188,9 +188,9 @@ public:
       interval_ = iInterval;
    }
 protected:
-   virtual void setIntervalFor(const eventsetup::EventSetupRecordKey&,
+   void setIntervalFor(const eventsetup::EventSetupRecordKey&,
                                 const IOVSyncValue& iTime, 
-                                ValidityInterval& iInterval) {
+                                ValidityInterval& iInterval) override {
       if(interval_.validFor(iTime)) {
          iInterval = interval_;
       } else {
@@ -264,11 +264,11 @@ public:
       usingRecord<DummyRecord>();
    }
    void newInterval(const eventsetup::EventSetupRecordKey& /*iRecordType*/,
-                     const ValidityInterval& /*iInterval*/) {
+                     const ValidityInterval& /*iInterval*/) override {
       //do nothing
    }
 protected:
-   void registerProxies(const eventsetup::EventSetupRecordKey&, KeyedProxies& /*iHolder*/) {
+   void registerProxies(const eventsetup::EventSetupRecordKey&, KeyedProxies& /*iHolder*/) override {
    }
 
 };

@@ -30,13 +30,13 @@
 class FilterOutLowPt : public edm::stream::EDFilter<> {
 public:
   explicit FilterOutLowPt( const edm::ParameterSet & );
-  ~FilterOutLowPt();
+  ~FilterOutLowPt() override;
   
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
   virtual void beginJob() ;
-  virtual bool filter ( edm::Event &, const edm::EventSetup&); 
+  bool filter ( edm::Event &, const edm::EventSetup&) override; 
   virtual void endJob() ;
 
   // ----------member data --------

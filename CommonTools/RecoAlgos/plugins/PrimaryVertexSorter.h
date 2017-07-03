@@ -40,9 +40,9 @@ class PrimaryVertexSorter : public edm::stream::EDProducer<> {
 
   explicit PrimaryVertexSorter(const edm::ParameterSet&);
 
-  ~PrimaryVertexSorter() {}
+  ~PrimaryVertexSorter() override {}
 
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:
 

@@ -333,13 +333,13 @@ namespace {
 class TrackingNtuple : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit TrackingNtuple(const edm::ParameterSet&);
-  ~TrackingNtuple();
+  ~TrackingNtuple() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 
 private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   void clearVariables();
 

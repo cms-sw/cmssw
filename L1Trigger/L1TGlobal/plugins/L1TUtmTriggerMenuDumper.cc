@@ -37,19 +37,19 @@ using namespace tmeventsetup;
 class L1TUtmTriggerMenuDumper : public EDAnalyzer {
 public:
   explicit L1TUtmTriggerMenuDumper(const ParameterSet&);
-  ~L1TUtmTriggerMenuDumper();
+  ~L1TUtmTriggerMenuDumper() override;
   
   static void fillDescriptions(ConfigurationDescriptions& descriptions);
   
 private:
-  virtual void beginJob();
-  virtual void analyze(Event const&, EventSetup const&);
-  virtual void endJob();
+  void beginJob() override;
+  void analyze(Event const&, EventSetup const&) override;
+  void endJob() override;
   
-  virtual void beginRun(Run const&, EventSetup const&);
-  virtual void endRun(Run const&, EventSetup const&);
-  virtual void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&);
-  virtual void endLuminosityBlock(LuminosityBlock const&, EventSetup const&);
+  void beginRun(Run const&, EventSetup const&) override;
+  void endRun(Run const&, EventSetup const&) override;
+  void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
+  void endLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
       
 
 };

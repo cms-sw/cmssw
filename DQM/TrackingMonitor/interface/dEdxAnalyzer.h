@@ -35,19 +35,19 @@ class GenericTriggerEventFlag;
 class dEdxAnalyzer : public DQMEDAnalyzer {
  public:
   explicit dEdxAnalyzer(const edm::ParameterSet&);
-  ~dEdxAnalyzer();
+  ~dEdxAnalyzer() override;
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
   virtual void beginJob();
-  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
   virtual void endJob() ;
 
   double mass(double P, double I);
   
   //  virtual void beginRun(const edm::Run&, const edm::EventSetup&); 
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   

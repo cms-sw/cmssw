@@ -27,13 +27,13 @@ class TestBPHSpecificDecay:
  public:
 
   explicit TestBPHSpecificDecay( const edm::ParameterSet& ps );
-  virtual ~TestBPHSpecificDecay();
+  ~TestBPHSpecificDecay() override;
 
   static void fillDescriptions( edm::ConfigurationDescriptions& descriptions );
 
-  virtual void beginJob();
-  virtual void analyze( const edm::Event& ev, const edm::EventSetup& es );
-  virtual void endJob();
+  void beginJob() override;
+  void analyze( const edm::Event& ev, const edm::EventSetup& es ) override;
+  void endJob() override;
 
  private:
 

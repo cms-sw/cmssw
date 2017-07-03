@@ -32,10 +32,10 @@ class FWConfigurableParameterizable : public FWParameterizable, public FWConfigu
 
 public:
    FWConfigurableParameterizable(unsigned int iVersion = 1);
-   virtual ~FWConfigurableParameterizable();
+   ~FWConfigurableParameterizable() override;
 
    // ---------- const member functions ---------------------
-   virtual void addTo(FWConfiguration&) const;
+   void addTo(FWConfiguration&) const override;
 
    unsigned int version() const {
       return m_version;
@@ -43,7 +43,7 @@ public:
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
-   virtual void setFrom(const FWConfiguration&);
+   void setFrom(const FWConfiguration&) override;
 
 private:
    FWConfigurableParameterizable(const FWConfigurableParameterizable&);    // stop default

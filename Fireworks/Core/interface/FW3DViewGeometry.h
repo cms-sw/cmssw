@@ -32,7 +32,7 @@ class FW3DViewGeometry : public FWViewGeometryList
 
 public:
    FW3DViewGeometry( const fireworks::Context& context );
-   virtual ~FW3DViewGeometry();
+   ~FW3DViewGeometry() override;
 
    // ---------- const member functions ---------------------
 

@@ -21,11 +21,11 @@
 class PixelQuadrupletMergerEDProducer: public edm::stream::EDProducer<> {
 public:
   PixelQuadrupletMergerEDProducer(const edm::ParameterSet& iConfig);
-  ~PixelQuadrupletMergerEDProducer() = default;
+  ~PixelQuadrupletMergerEDProducer() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
 private:
   edm::EDGetTokenT<RegionsSeedingHitSets> tripletToken_;

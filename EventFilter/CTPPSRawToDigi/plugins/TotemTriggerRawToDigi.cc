@@ -28,9 +28,9 @@ class TotemTriggerRawToDigi : public edm::stream::EDProducer<>
 {
   public:
     explicit TotemTriggerRawToDigi(const edm::ParameterSet&);
-    ~TotemTriggerRawToDigi();
+    ~TotemTriggerRawToDigi() override;
 
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
   private:
     unsigned int fedId;

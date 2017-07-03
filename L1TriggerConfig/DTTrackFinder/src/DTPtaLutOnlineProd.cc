@@ -37,9 +37,9 @@ class DTPtaLutOnlineProd :
 {
    public:
       DTPtaLutOnlineProd(const edm::ParameterSet&);
-      ~DTPtaLutOnlineProd();
+      ~DTPtaLutOnlineProd() override;
 
-  virtual std::shared_ptr< L1MuDTPtaLut > newObject(
+  std::shared_ptr< L1MuDTPtaLut > newObject(
     const std::string& objectKey ) override ;
 
    private:

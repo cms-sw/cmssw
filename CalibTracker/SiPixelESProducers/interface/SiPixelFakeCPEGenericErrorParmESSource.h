@@ -13,15 +13,15 @@ class SiPixelFakeCPEGenericErrorParmESSource : public edm::ESProducer, public ed
 
  public:
   SiPixelFakeCPEGenericErrorParmESSource(const edm::ParameterSet &);
-  ~SiPixelFakeCPEGenericErrorParmESSource();
+  ~SiPixelFakeCPEGenericErrorParmESSource() override;
   
    virtual std::unique_ptr<SiPixelCPEGenericErrorParm>  produce(const SiPixelCPEGenericErrorParmRcd &);
   
  protected:
   
-  virtual void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
+  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
 			       const edm::IOVSyncValue&,
-			       edm::ValidityInterval& );
+			       edm::ValidityInterval& ) override;
   
  private:
   

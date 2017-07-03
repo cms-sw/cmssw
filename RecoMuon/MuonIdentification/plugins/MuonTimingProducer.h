@@ -43,10 +43,10 @@
 class MuonTimingProducer : public edm::stream::EDProducer<> {
    public:
       explicit MuonTimingProducer(const edm::ParameterSet&);
-      ~MuonTimingProducer();
+      ~MuonTimingProducer() override;
 
    private:
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
       
       // ----------member data ---------------------------
       edm::InputTag m_muonCollection;

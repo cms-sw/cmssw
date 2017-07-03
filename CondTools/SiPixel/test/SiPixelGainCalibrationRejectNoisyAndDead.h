@@ -38,7 +38,7 @@
 class SiPixelGainCalibrationRejectNoisyAndDead : public edm::EDAnalyzer {
    public:
       explicit SiPixelGainCalibrationRejectNoisyAndDead(const edm::ParameterSet&);
-      ~SiPixelGainCalibrationRejectNoisyAndDead();
+      ~SiPixelGainCalibrationRejectNoisyAndDead() override;
 
    private:
       edm::ParameterSet conf_;
@@ -49,9 +49,9 @@ class SiPixelGainCalibrationRejectNoisyAndDead : public edm::EDAnalyzer {
       SiPixelGainCalibrationForHLTService SiPixelGainCalibrationForHLTService_;
       SiPixelGainCalibrationForHLT *theGainCalibrationDbInputForHLT_;
 
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      void beginJob() override ;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
       
       std::map < int,std::vector < std::pair < int,int > > > noisypixelkeeper;
       std::map < int,std::vector < std::pair < int,int > > > insertednoisypixel;

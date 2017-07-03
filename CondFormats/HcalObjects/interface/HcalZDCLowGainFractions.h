@@ -15,7 +15,7 @@ class HcalZDCLowGainFractions: public HcalCondObjectContainer<HcalZDCLowGainFrac
 #endif
   HcalZDCLowGainFractions(const HcalTopology* topo):HcalCondObjectContainer<HcalZDCLowGainFraction>(topo) {}
 
-  std::string myname() const {return (std::string)"HcalZDCLowGainFractions";}
+  std::string myname() const override {return (std::string)"HcalZDCLowGainFractions";}
 
  private:
 

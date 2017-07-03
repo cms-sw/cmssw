@@ -32,19 +32,19 @@ namespace  {
    public:
       TestAccessor(const reco::TrackCollection* iCollection):
       m_collection(iCollection) {}
-      virtual const void* modelData(int iIndex) const {return &((*m_collection)[iIndex]);}
-      virtual const void* data() const {return m_collection;}
-      virtual unsigned int size() const {return m_collection->size();}
-      virtual const TClass* modelType() const {return TClass::GetClass("reco::Track");}
-      virtual const TClass* type() const {return TClass::GetClass("reco::TrackCollection");}
+      const void* modelData(int iIndex) const override {return &((*m_collection)[iIndex]);}
+      const void* data() const override {return m_collection;}
+      unsigned int size() const override {return m_collection->size();}
+      const TClass* modelType() const override {return TClass::GetClass("reco::Track");}
+      const TClass* type() const override {return TClass::GetClass("reco::TrackCollection");}
       
-      virtual bool isCollection() const {return true;}
+      bool isCollection() const override {return true;}
       
       ///override if id of an object should be different than the index
       //virtual std::string idForIndex(int iIndex) const;
       // ---------- member functions ---------------------------
-      virtual void setData(const edm::ObjectWithDict& ) {}
-      virtual void reset(){}
+      void setData(const edm::ObjectWithDict& ) override {}
+      void reset() override{}
       
    private:
       const reco::TrackCollection* m_collection;

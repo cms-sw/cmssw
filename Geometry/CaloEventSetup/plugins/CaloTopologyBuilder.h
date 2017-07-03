@@ -35,7 +35,7 @@ class CaloTopologyBuilder : public edm::ESProducer
 {
    public:
       CaloTopologyBuilder( const edm::ParameterSet& iP );
-      ~CaloTopologyBuilder() ;
+      ~CaloTopologyBuilder() override ;
 
       typedef std::shared_ptr< CaloTopology > ReturnType;
 

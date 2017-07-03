@@ -33,12 +33,12 @@ class LHAupLesHouches : public Pythia8::LHAup {
       
     void setScalesFromLHEF(bool b) { setScalesFromLHEF_ = b; }
 
-    ~LHAupLesHouches() {if(fEvAttributes) delete fEvAttributes;}
+    ~LHAupLesHouches() override {if(fEvAttributes) delete fEvAttributes;}
 
   private:
 
-    bool setInit();
-    bool setEvent(int idProcIn);
+    bool setInit() override;
+    bool setEvent(int idProcIn) override;
 
     //boost::shared_ptr<lhef::LHERunInfo> runInfo;
     lhef::LHERunInfo* runInfo;

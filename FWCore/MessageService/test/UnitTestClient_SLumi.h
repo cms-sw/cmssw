@@ -26,14 +26,14 @@ public:
     edm::GroupLogStatistics("grouped_cat");  
   }
 
-  virtual
-    ~UTC_SL1()
+  
+    ~UTC_SL1() override
   { }
 
-  virtual
+  
     void analyze( edm::Event      const & e
                 , edm::EventSetup const & c
-                );
+                ) override;
 
 private:
   int identifier;
@@ -51,14 +51,14 @@ public:
     identifier = p.getUntrackedParameter<int> ("identifier", 98);
   }
 
-  virtual
-    ~UTC_SL2()
+  
+    ~UTC_SL2() override
   { }
 
-  virtual
+  
     void analyze( edm::Event      const & e
                 , edm::EventSetup const & c
-                );
+                ) override;
 
 private:
   int identifier;
@@ -74,19 +74,19 @@ public:
   { 
   }
 
-  virtual
-    ~UTC_SLUMMARY()
+  
+    ~UTC_SLUMMARY() override
   { }
 
-  virtual
+  
     void analyze( edm::Event      const & e
                 , edm::EventSetup const & c
-                );
+                ) override;
 
-  virtual
+  
     void endLuminosityBlock ( edm::LuminosityBlock const & lb
                 	    , edm::EventSetup 	   const & c
-                	    );
+                	    ) override;
 
 private:
 };

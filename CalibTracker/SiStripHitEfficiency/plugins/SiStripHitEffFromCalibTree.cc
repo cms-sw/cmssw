@@ -93,12 +93,12 @@ struct hit{
 class SiStripHitEffFromCalibTree : public ConditionDBWriter<SiStripBadStrip> {
   public:
     explicit SiStripHitEffFromCalibTree(const edm::ParameterSet&);
-    ~SiStripHitEffFromCalibTree();
+    ~SiStripHitEffFromCalibTree() override;
 
   private:
     virtual void algoBeginJob();
-    virtual void algoEndJob() override;
-    virtual void algoAnalyze(const edm::Event& e, const edm::EventSetup& c) override;
+    void algoEndJob() override;
+    void algoAnalyze(const edm::Event& e, const edm::EventSetup& c) override;
     void SetBadComponents(int i, int component,SiStripQuality::BadComponent& BC, std::stringstream ssV[4][19], int NBadComponent[4][19][4]);
     void makeTKMap();
     void makeHotColdMaps();

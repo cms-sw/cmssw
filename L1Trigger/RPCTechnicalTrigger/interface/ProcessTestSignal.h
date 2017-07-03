@@ -32,9 +32,9 @@ public:
   
   ProcessTestSignal( const char * );
   
-  virtual ~ProcessTestSignal( ); ///< Destructor
+  ~ProcessTestSignal( ) override; ///< Destructor
   
-  int  next();
+  int  next() override;
   
   void rewind();
   
@@ -42,7 +42,7 @@ public:
   
   void reset();
   
-  RPCInputSignal * retrievedata() {
+  RPCInputSignal * retrievedata() override {
     return  m_lbin;
   };
   

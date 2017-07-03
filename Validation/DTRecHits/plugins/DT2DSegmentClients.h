@@ -28,11 +28,11 @@ public:
  DT2DSegmentClients(const edm::ParameterSet& ps);
 
  /// Destructor
- virtual ~DT2DSegmentClients();
- void analyze(const edm::Event& e, const edm::EventSetup& c);
-  void endJob();
+ ~DT2DSegmentClients() override;
+ void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  void endJob() override;
 void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
-					 edm::EventSetup const& c);
+					 edm::EventSetup const& c) override;
 
 protected:
 

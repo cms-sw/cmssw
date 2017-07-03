@@ -41,7 +41,7 @@ namespace {
     /// constructor
     explicit DuplicateTrackMerger(const edm::ParameterSet& iPara);
     /// destructor
-    virtual ~DuplicateTrackMerger();
+    ~DuplicateTrackMerger() override;
     
     using CandidateToDuplicate = std::vector<std::pair<int, int>>;
 	 

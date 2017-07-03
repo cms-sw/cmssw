@@ -15,7 +15,7 @@ class FWMETLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::MET>
 {
 public:
    FWMETLegoProxyBuilder( void ) {}
-   virtual ~FWMETLegoProxyBuilder( void ) {}
+   ~FWMETLegoProxyBuilder( void ) override {}
    
    REGISTER_PROXYBUILDER_METHODS();
    
@@ -24,7 +24,7 @@ private:
    const FWMETLegoProxyBuilder& operator=( const FWMETLegoProxyBuilder& );    // stop default
    
    using FWSimpleProxyBuilderTemplate<reco::MET>::build;
-   virtual void build( const reco::MET& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext* );
+   void build( const reco::MET& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext* ) override;
 };
 
 void

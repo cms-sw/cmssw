@@ -17,7 +17,7 @@ namespace ecaldqm
   public :
     MESetEcal(std::string const&, binning::ObjectType, binning::BinningType, MonitorElement::Kind, unsigned, binning::AxisSpecs const* = 0, binning::AxisSpecs const* = 0, binning::AxisSpecs const* = 0);
     MESetEcal(MESetEcal const&);
-    ~MESetEcal();
+    ~MESetEcal() override;
 
     MESet& operator=(MESet const&) override;
 

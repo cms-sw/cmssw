@@ -30,8 +30,8 @@ namespace edmtest
     { }
     explicit  CSCGainsReadAnalyzer(int i) 
     { }
-    virtual ~ CSCGainsReadAnalyzer() { }
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+    ~ CSCGainsReadAnalyzer() override { }
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
   private:
   };
   

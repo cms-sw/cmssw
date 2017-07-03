@@ -60,11 +60,11 @@ namespace sistrip
   public:
 
     explicit FEDEmulatorModule(const edm::ParameterSet&);
-    ~FEDEmulatorModule();
+    ~FEDEmulatorModule() override;
 
   private:
 
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
     //virtual void endJob();
 
     //tag of spydata collection

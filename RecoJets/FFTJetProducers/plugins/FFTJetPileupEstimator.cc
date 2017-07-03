@@ -47,7 +47,7 @@ class FFTJetPileupEstimator : public edm::EDProducer
 {
 public:
     explicit FFTJetPileupEstimator(const edm::ParameterSet&);
-    ~FFTJetPileupEstimator();
+    ~FFTJetPileupEstimator() override;
 
 protected:
     // methods

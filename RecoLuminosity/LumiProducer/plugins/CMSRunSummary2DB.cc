@@ -40,11 +40,11 @@ namespace lumi{
   class CMSRunSummary2DB : public DataPipe{
   public:
     CMSRunSummary2DB( const std::string& dest);
-    virtual unsigned long long retrieveData( unsigned int runnumber ) override;
-    virtual const std::string dataType() const override;
-    virtual const std::string sourceType() const override;
+    unsigned long long retrieveData( unsigned int runnumber ) override;
+    const std::string dataType() const override;
+    const std::string sourceType() const override;
     unsigned int str2int(const std::string& s) const;
-    virtual ~CMSRunSummary2DB();
+    ~CMSRunSummary2DB() override;
   private:
     struct cmsrunsum{
       std::string l1key;

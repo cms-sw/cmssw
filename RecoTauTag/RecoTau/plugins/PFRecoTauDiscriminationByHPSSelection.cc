@@ -22,7 +22,7 @@ class PFRecoTauDiscriminationByHPSSelection : public PFTauDiscriminationProducer
 {
  public:
   explicit PFRecoTauDiscriminationByHPSSelection(const edm::ParameterSet&);
-  ~PFRecoTauDiscriminationByHPSSelection();
+  ~PFRecoTauDiscriminationByHPSSelection() override;
   double discriminate(const reco::PFTauRef&) const override;
 
  private:

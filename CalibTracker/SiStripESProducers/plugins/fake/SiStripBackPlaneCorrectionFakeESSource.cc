@@ -25,9 +25,9 @@
 class SiStripBackPlaneCorrectioNFakeESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
   SiStripBackPlaneCorrectioNFakeESSource(const edm::ParameterSet&);
-  ~SiStripBackPlaneCorrectioNFakeESSource();
+  ~SiStripBackPlaneCorrectioNFakeESSource() override;
 
-  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue& iov, edm::ValidityInterval& iValidity );
+  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue& iov, edm::ValidityInterval& iValidity ) override;
 
   typedef std::shared_ptr<SiStripBackPlaneCorrection> ReturnType;
   ReturnType produce(const SiStripBackPlaneCorrectionRcd&);

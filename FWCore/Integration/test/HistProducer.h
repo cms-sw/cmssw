@@ -14,9 +14,9 @@ namespace edmtest {
 
     explicit HistProducer(edm::ParameterSet const& ps);
 
-    virtual ~HistProducer();
+    ~HistProducer() override;
 
-    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+    void produce(edm::Event& e, edm::EventSetup const& c) override;
 
   private:
   };

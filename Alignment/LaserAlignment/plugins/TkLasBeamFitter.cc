@@ -65,12 +65,12 @@ using namespace std;
 class TkLasBeamFitter : public edm::one::EDProducer<edm::EndRunProducer> {
 public:
   explicit TkLasBeamFitter(const edm::ParameterSet &config);
-  ~TkLasBeamFitter();
+  ~TkLasBeamFitter() override;
   
   //virtual void beginJob(const edm::EventSetup& /*access deprecated*/) {}
-  virtual void produce(edm::Event &event, const edm::EventSetup &setup) override;
+  void produce(edm::Event &event, const edm::EventSetup &setup) override;
   // virtual void beginRun(edm::Run &run, const edm::EventSetup &setup);
-  virtual void endRunProduce(edm::Run &run, const edm::EventSetup &setup) override;
+  void endRunProduce(edm::Run &run, const edm::EventSetup &setup) override;
   //virtual void endJob() {}
 
 private:

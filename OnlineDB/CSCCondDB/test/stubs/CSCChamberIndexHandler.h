@@ -22,9 +22,9 @@ namespace popcon
     {
       
     public:
-      void getNewObjects();
-      std::string id() const { return m_name;}
-      ~CSCChamberIndexImpl(); 
+      void getNewObjects() override;
+      std::string id() const override { return m_name;}
+      ~CSCChamberIndexImpl() override; 
       
       CSCChamberIndexImpl(const edm::ParameterSet& pset);
       

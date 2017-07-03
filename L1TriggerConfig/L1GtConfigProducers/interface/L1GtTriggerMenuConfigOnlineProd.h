@@ -55,10 +55,10 @@ public:
     L1GtTriggerMenuConfigOnlineProd(const edm::ParameterSet&);
 
     /// destructor
-    ~L1GtTriggerMenuConfigOnlineProd();
+    ~L1GtTriggerMenuConfigOnlineProd() override;
 
     /// public methods
-    virtual std::shared_ptr<L1GtTriggerMenu> newObject(const std::string& objectKey);
+    std::shared_ptr<L1GtTriggerMenu> newObject(const std::string& objectKey) override;
 
     /// initialize the class (mainly reserve/resize)
     void init(const int numberConditionChips);

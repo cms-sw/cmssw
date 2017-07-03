@@ -58,13 +58,13 @@ Implementation:
 class CTPPSSimHitProducer : public edm::stream::EDProducer<> {
     public:
         explicit CTPPSSimHitProducer(const edm::ParameterSet&);
-        ~CTPPSSimHitProducer();
+        ~CTPPSSimHitProducer() override;
         typedef CLHEP::HepLorentzVector LorentzVector;
 
     private:
-        virtual void beginStream(edm::StreamID) override;
-        virtual void produce(edm::Event&, const edm::EventSetup&) override;
-        virtual void endStream() override;
+        void beginStream(edm::StreamID) override;
+        void produce(edm::Event&, const edm::EventSetup&) override;
+        void endStream() override;
 
         edm::EDGetTokenT< edm::HepMCProduct > mcEventToken; // label of MC event
         edm::Handle< edm::HepMCProduct > EvtHandle ;

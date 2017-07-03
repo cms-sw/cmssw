@@ -29,12 +29,12 @@ class L1CaloGeometry ;
 class L1GctInternJetProducer : public edm::EDProducer {
    public:
       explicit L1GctInternJetProducer(const edm::ParameterSet&);
-      ~L1GctInternJetProducer();
+      ~L1GctInternJetProducer() override;
 
    private:
-      virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      void beginJob() override ;
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
       math::PtEtaPhiMLorentzVector gctLorentzVector( const double& et,
 						     const L1GctCand& cand,

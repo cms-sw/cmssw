@@ -28,8 +28,8 @@ namespace edmtest
     { }
     explicit  CSCChipSpeedCorrectionDBReadAnalyzer(int i) 
     { }
-    virtual ~ CSCChipSpeedCorrectionDBReadAnalyzer() { }
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+    ~ CSCChipSpeedCorrectionDBReadAnalyzer() override { }
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
   private:
   };
   

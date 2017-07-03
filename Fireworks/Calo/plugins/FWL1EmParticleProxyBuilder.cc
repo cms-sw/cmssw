@@ -19,7 +19,7 @@ class FWL1EmParticleProxyBuilder : public FWSimpleProxyBuilderTemplate<l1extra::
 {
 public:
    FWL1EmParticleProxyBuilder( void ) {}
-   virtual ~FWL1EmParticleProxyBuilder( void ) {}
+   ~FWL1EmParticleProxyBuilder( void ) override {}
 
    REGISTER_PROXYBUILDER_METHODS();
 
@@ -28,7 +28,7 @@ private:
    const FWL1EmParticleProxyBuilder& operator=( const FWL1EmParticleProxyBuilder& );    // stop default
   
    using FWSimpleProxyBuilderTemplate<l1extra::L1EmParticle>::build;
-   virtual void build( const l1extra::L1EmParticle& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext* );
+   void build( const l1extra::L1EmParticle& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext* ) override;
 };
 
 void

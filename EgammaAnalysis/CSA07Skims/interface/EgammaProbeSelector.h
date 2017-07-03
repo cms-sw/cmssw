@@ -32,9 +32,9 @@ class EgammaProbeSelector : public edm::EDFilter {
 
     public:
         explicit EgammaProbeSelector(const edm::ParameterSet&);
-        ~EgammaProbeSelector();
+        ~EgammaProbeSelector() override;
 
-  	virtual bool filter(edm::Event&, const edm::EventSetup& );
+  	bool filter(edm::Event&, const edm::EventSetup& ) override;
 
    private:
 	bool 		debug;

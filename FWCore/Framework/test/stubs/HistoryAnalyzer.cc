@@ -31,8 +31,8 @@ namespace edmtest {
   public:
 
     explicit HistoryAnalyzer(edm::ParameterSet const& params);
-    void analyze(edm::Event const& event, edm::EventSetup const&);
-    void endJob();
+    void analyze(edm::Event const& event, edm::EventSetup const&) override;
+    void endJob() override;
 
   private:
 

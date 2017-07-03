@@ -18,9 +18,9 @@ namespace edm {
 class  ESDBCopy : public edm::EDAnalyzer {
  public:
   explicit  ESDBCopy(const edm::ParameterSet& iConfig );
-  ~ESDBCopy();
+  ~ESDBCopy() override;
 
-  virtual void analyze( const edm::Event& evt, const edm::EventSetup& evtSetup);
+  void analyze( const edm::Event& evt, const edm::EventSetup& evtSetup) override;
 
  private:
   bool shouldCopy(const edm::EventSetup& evtSetup, std::string container);

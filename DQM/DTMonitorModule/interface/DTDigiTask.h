@@ -57,7 +57,7 @@ public:
   DTDigiTask(const edm::ParameterSet& ps);
 
   /// Destructor
-  virtual ~DTDigiTask();
+  ~DTDigiTask() override;
 
 protected:
 

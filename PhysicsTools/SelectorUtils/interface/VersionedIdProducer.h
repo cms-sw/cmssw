@@ -32,9 +32,9 @@ public:
   using TokenType = edm::EDGetTokenT<Collection>;
 
   explicit VersionedIdProducer(const edm::ParameterSet&);
-  ~VersionedIdProducer() {}
+  ~VersionedIdProducer() override {}
   
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:  
   // ----------member data ---------------------------

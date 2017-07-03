@@ -25,12 +25,12 @@ using namespace std;
 class MyMagneticField : public MagneticField
 {
  public:
-  virtual GlobalVector inTesla ( const GlobalPoint& ) const {return GlobalVector(0,0,4);}
+  GlobalVector inTesla ( const GlobalPoint& ) const override {return GlobalVector(0,0,4);}
 };
 
 class ConstantMagneticFieldProvider4T : public MagneticFieldProvider<float> {
 public:
-  virtual LocalVectorType valueInTesla( const LocalPointType& p) const {return LocalVectorType(0,0,4.);}
+  LocalVectorType valueInTesla( const LocalPointType& p) const override {return LocalVectorType(0,0,4.);}
 };
 
 class ConstantMagVolume4T : public MagVolume {
@@ -39,10 +39,10 @@ public:
 		       DDSolidShape shape, const MagneticFieldProvider<float> * mfp) :
     MagVolume( pos, rot, shape, mfp) {}
  
-  virtual bool inside( const GlobalPoint& gp, double tolerance=0.) const {return true;}
+  bool inside( const GlobalPoint& gp, double tolerance=0.) const override {return true;}
 
   /// Access to volume faces
-  virtual const std::vector<VolumeSide>& faces() const {return theFaces;}
+  const std::vector<VolumeSide>& faces() const override {return theFaces;}
 private:
   std::vector<VolumeSide> theFaces;
 };

@@ -39,7 +39,7 @@ namespace edm {
     typedef EDProducer ModuleType;
 
     EDProducer ();
-    virtual ~EDProducer();
+    ~EDProducer() override;
 
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
     static void prevalidate(ConfigurationDescriptions& descriptions);

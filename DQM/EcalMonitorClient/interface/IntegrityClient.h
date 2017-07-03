@@ -12,7 +12,7 @@ namespace ecaldqm
   class IntegrityClient : public DQWorkerClient {
   public:
     IntegrityClient();
-    ~IntegrityClient() {}
+    ~IntegrityClient() override {}
 
     void producePlots(ProcessType) override;
     void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;

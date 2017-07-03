@@ -17,9 +17,9 @@ class DTPerformanceValidateDBRead : public edm::EDAnalyzer {
 
   explicit  DTPerformanceValidateDBRead(edm::ParameterSet const& p);
   explicit  DTPerformanceValidateDBRead(int i) ;
-  virtual ~ DTPerformanceValidateDBRead();
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-  virtual void endJob();
+  ~ DTPerformanceValidateDBRead() override;
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  void endJob() override;
 
  private:
 

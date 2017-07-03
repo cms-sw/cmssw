@@ -24,7 +24,7 @@ class MVAValueMapProducer : public edm::stream::EDProducer< edm::GlobalCache<ega
   public:
   
   MVAValueMapProducer(const edm::ParameterSet&, const egamma::MVAObjectCache*);
-  ~MVAValueMapProducer();
+  ~MVAValueMapProducer() override;
   
   static std::unique_ptr<egamma::MVAObjectCache>
   initializeGlobalCache(const edm::ParameterSet& conf) {
@@ -38,7 +38,7 @@ class MVAValueMapProducer : public edm::stream::EDProducer< edm::GlobalCache<ega
   
   private:
   
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   template<typename T>
   void writeValueMap(edm::Event &iEvent,

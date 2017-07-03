@@ -57,9 +57,9 @@ public:
    CmsShowModelPopup(FWDetailViewManager*, FWSelectionManager*, 
                      const FWColorManager*, const TGWindow* p = 0, 
                      UInt_t w = 1, UInt_t h = 1);
-   virtual ~CmsShowModelPopup();
+   ~CmsShowModelPopup() override;
 
-   virtual void CloseWindow() { UnmapWindow(); }
+   void CloseWindow() override { UnmapWindow(); }
    // ---------- const member functions ---------------------
 
    // ---------- static member functions --------------------

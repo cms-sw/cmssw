@@ -11,21 +11,21 @@ namespace gs {
     public:
         // Default constructor creates an empty catalog
         GeneralCatalog();
-        inline virtual ~GeneralCatalog() {}
+        inline ~GeneralCatalog() override {}
 
-        inline unsigned long long size() const {return records_.size();}
-        inline unsigned long long smallestId() const {return smallestId_;}
-        inline unsigned long long largestId() const {return largestId_;}
-        inline bool isContiguous() const {return false;}
-        inline bool itemExists(const unsigned long long id) const
+        inline unsigned long long size() const override {return records_.size();}
+        inline unsigned long long smallestId() const override {return smallestId_;}
+        inline unsigned long long largestId() const override {return largestId_;}
+        inline bool isContiguous() const override {return false;}
+        inline bool itemExists(const unsigned long long id) const override
             {return records_.find(id) != records_.end();}
 
         CPP11_shared_ptr<const CatalogEntry> retrieveEntry(
-            const unsigned long long id) const;
+            const unsigned long long id) const override;
 
         bool retrieveStreampos(
             unsigned long long id, unsigned* compressionCode,
-            unsigned long long* length, std::streampos* pos) const;
+            unsigned long long* length, std::streampos* pos) const override;
 
         // Add a new entry without an id (id will be generated internally
         // and returned)
@@ -33,9 +33,9 @@ namespace gs {
                                      unsigned compressionCode,
                                      unsigned long long itemLength,
                                      const ItemLocation& loc,
-                                     unsigned long long offset=0ULL);
+                                     unsigned long long offset=0ULL) override;
 
-        inline const CatalogEntry* lastEntryMade() const
+        inline const CatalogEntry* lastEntryMade() const override
             {return lastEntry_.get();}
 
         // Add a new entry with id (presumably, from another catalog).
@@ -50,18 +50,18 @@ namespace gs {
         // Search for matching entries based on item name and category
         void search(const SearchSpecifier& namePattern,
                     const SearchSpecifier& categoryPattern,
-                    std::vector<unsigned long long>* idsFound) const;
+                    std::vector<unsigned long long>* idsFound) const override;
 
         // Methods needed for I/O
-        virtual ClassId classId() const {return ClassId(*this);}
-        virtual bool write(std::ostream& os) const;
+        ClassId classId() const override {return ClassId(*this);}
+        bool write(std::ostream& os) const override;
 
         static inline const char* classname() {return "gs::GeneralCatalog";}
         static inline unsigned version() {return 2;}
         static GeneralCatalog* read(const ClassId& id, std::istream& in);
 
     protected:
-        virtual bool isEqual(const AbsCatalog&) const;
+        bool isEqual(const AbsCatalog&) const override;
 
     private:
         typedef CPP11_shared_ptr<const CatalogEntry> SPtr;

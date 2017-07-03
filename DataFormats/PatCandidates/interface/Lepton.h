@@ -36,9 +36,9 @@ namespace pat {
       Lepton(const LeptonType & aLepton);
       Lepton(const edm::RefToBase<LeptonType> & aLeptonRef);
       Lepton(const edm::Ptr<LeptonType> & aLeptonRef);
-      virtual ~Lepton();
+      ~Lepton() override;
 
-      virtual Lepton<LeptonType> * clone() const { return new Lepton<LeptonType>(*this); }
+      Lepton<LeptonType> * clone() const override { return new Lepton<LeptonType>(*this); }
 
       const reco::GenParticle * genLepton() const { return PATObject<LeptonType>::genParticle(); }
 

@@ -300,10 +300,10 @@ class SingleTopTChannelLeptonDQM : public DQMEDAnalyzer {
   /// default constructor
   SingleTopTChannelLeptonDQM(const edm::ParameterSet& cfg);
   /// default destructor
-  ~SingleTopTChannelLeptonDQM() {};
+  ~SingleTopTChannelLeptonDQM() override {};
 
   /// do this during the event loop
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
  
  protected:
   //Book histograms

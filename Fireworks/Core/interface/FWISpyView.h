@@ -29,10 +29,10 @@ class FWISpyView : public FW3DViewBase
 {
 public:
    FWISpyView(TEveWindowSlot*, FWViewType::EType, unsigned int version=9);
-   virtual ~FWISpyView();
-   virtual void setContext(const fireworks::Context& x);
+   ~FWISpyView() override;
+   void setContext(const fireworks::Context& x) override;
 
-   virtual void populateController(ViewerParameterGUI&) const;
+   void populateController(ViewerParameterGUI&) const override;
    // ---------- const member functions ---------------------
 
    // ---------- static member functions --------------------

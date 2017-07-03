@@ -8,9 +8,9 @@ class ElectronOfflineClient : public ElectronDqmHarvesterBase
   public:
 
     explicit ElectronOfflineClient( const edm::ParameterSet & ) ;
-    virtual ~ElectronOfflineClient() ;
+    ~ElectronOfflineClient() override ;
 
-    virtual void finalize( DQMStore::IBooker & iBooker,DQMStore::IGetter & iGetter ) ;
+    void finalize( DQMStore::IBooker & iBooker,DQMStore::IGetter & iGetter ) override ;
 
   private:
 

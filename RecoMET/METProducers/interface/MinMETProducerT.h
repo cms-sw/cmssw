@@ -41,7 +41,7 @@ class MinMETProducerT : public edm::stream::EDProducer<>
     }
     produces<METCollection>();
   }
-  ~MinMETProducerT() {}
+  ~MinMETProducerT() override {}
 
  private:
 

@@ -20,10 +20,10 @@ template<typename T>
 class HLTJetL1MatchProducer : public edm::stream::EDProducer<> {
  public:
   explicit HLTJetL1MatchProducer(const edm::ParameterSet&);
-  ~HLTJetL1MatchProducer();
+  ~HLTJetL1MatchProducer() override;
   static  void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   virtual void beginJob() ; 
-  virtual void produce(edm::Event &, const edm::EventSetup&);
+  void produce(edm::Event &, const edm::EventSetup&) override;
  private:
   edm::EDGetTokenT<std::vector<T>> m_theJetToken;
   edm::EDGetTokenT<l1extra::L1JetParticleCollection> m_theL1TauJetToken;

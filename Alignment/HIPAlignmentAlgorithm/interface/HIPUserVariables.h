@@ -24,7 +24,7 @@ class HIPUserVariables : public AlignmentUserVariables {
   {}
 
   /** destructor */
-  virtual ~HIPUserVariables() {};
+  ~HIPUserVariables() override {};
 
   /** data members */
 
@@ -43,7 +43,7 @@ class HIPUserVariables : public AlignmentUserVariables {
   //int niter;
 
  /** clone method (copy constructor) */
-  HIPUserVariables* clone(void) const { 
+  HIPUserVariables* clone(void) const override { 
     return new HIPUserVariables(*this);
   }
 

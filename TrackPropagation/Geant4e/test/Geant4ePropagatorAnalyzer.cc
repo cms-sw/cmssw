@@ -60,11 +60,11 @@ class Geant4ePropagatorAnalyzer: public edm::EDAnalyzer {
 
 public:
   explicit Geant4ePropagatorAnalyzer(const edm::ParameterSet&);
-  virtual ~Geant4ePropagatorAnalyzer() {}
+  ~Geant4ePropagatorAnalyzer() override {}
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
-  virtual void beginJob();
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
+  void beginJob() override;
   void iterateOverHits(edm::Handle<edm::PSimHitContainer> simHits,
 		       testMuChamberType muonChamberType,
 		       unsigned int trkIndex,

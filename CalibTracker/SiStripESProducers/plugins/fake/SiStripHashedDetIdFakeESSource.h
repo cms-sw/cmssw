@@ -19,18 +19,18 @@ class SiStripHashedDetIdFakeESSource : public SiStripHashedDetIdESProducer, publ
  public:
   
   explicit SiStripHashedDetIdFakeESSource( const edm::ParameterSet& );
-  virtual ~SiStripHashedDetIdFakeESSource();
+  ~SiStripHashedDetIdFakeESSource() override;
   
  protected:
   
-  virtual void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
+  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
 			       const edm::IOVSyncValue&,
-			       edm::ValidityInterval& );
+			       edm::ValidityInterval& ) override;
   
  private:
   
   /** Builds hashed DetId map based on ascii file. */
-  virtual SiStripHashedDetId* make( const SiStripHashedDetIdRcd& ); 
+  SiStripHashedDetId* make( const SiStripHashedDetIdRcd& ) override; 
   
   /** Location of ascii file containing DetIds. */
   edm::FileInPath detIds_;

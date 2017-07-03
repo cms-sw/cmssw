@@ -35,11 +35,11 @@ ITimingDat()
 
 
 
- ~ITimingDat(){};
+ ~ITimingDat() override{};
 
 
   // User data methods
-  inline std::string getTable() { return m_table_name;}
+  inline std::string getTable() override { return m_table_name;}
   inline void setTable(std::string x) { m_table_name=x; }
 
   inline void setTimingMean(float mean) { m_timingMean = mean; }
@@ -53,7 +53,7 @@ ITimingDat()
   
 
  private:
-void prepareWrite() noexcept(false)
+void prepareWrite() noexcept(false) override
 {
   this->checkConnection();
 

@@ -41,16 +41,16 @@ class EventShapeVarsProducer : public edm::EDProducer
  public:
 
   explicit EventShapeVarsProducer(const edm::ParameterSet&);
-  ~EventShapeVarsProducer() {}
+  ~EventShapeVarsProducer() override {}
 
  private:
 
   edm::EDGetTokenT<edm::View<reco::Candidate> > srcToken_;
   double r_;
 
-  void beginJob() {}
-  void produce(edm::Event&, const edm::EventSetup&);
-  void endJob() {}
+  void beginJob() override {}
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override {}
 
 };
 

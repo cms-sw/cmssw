@@ -6,10 +6,10 @@
 class WeakEffectsWeightProducer: public edm::EDProducer {
 public:
       WeakEffectsWeightProducer(const edm::ParameterSet& pset);
-      virtual ~WeakEffectsWeightProducer();
-      virtual void beginJob() override ;
-      virtual void produce(edm::Event &, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      ~WeakEffectsWeightProducer() override;
+      void beginJob() override ;
+      void produce(edm::Event &, const edm::EventSetup&) override;
+      void endJob() override ;
 private:
       edm::EDGetTokenT<reco::GenParticleCollection> genParticlesToken_;
       double rhoParameter_;

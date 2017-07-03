@@ -46,9 +46,9 @@ namespace pat {
     /// default constructir
     explicit PATMuonProducer(const edm::ParameterSet & iConfig);
     /// default destructur
-    ~PATMuonProducer();
+    ~PATMuonProducer() override;
     /// everything that needs to be done during the event loop
-    virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
+    void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
     /// description of config file parameters
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 

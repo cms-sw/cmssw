@@ -77,14 +77,14 @@ public:
    void setIsOpen(bool value) {m_isOpen = value; }
    void setBlackIcon(bool value) { m_blackIcon = value; }
 
-   virtual UInt_t width() const
+   UInt_t width() const override
    {
       int w = FWTextTableCellRenderer::width() + 15 + m_indentation;
       if (m_isParent)   w += iconWidth();
       return w;
    }
 
-   virtual void draw(Drawable_t iID, int iX, int iY, unsigned int iWidth, unsigned int iHeight)
+   void draw(Drawable_t iID, int iX, int iY, unsigned int iWidth, unsigned int iHeight) override
    {      
       if (m_showEditor && m_editor)
       {

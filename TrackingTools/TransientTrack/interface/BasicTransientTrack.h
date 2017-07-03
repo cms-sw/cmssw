@@ -34,7 +34,7 @@ namespace reco {
     
   public:
 
-    virtual ~BasicTransientTrack() {}
+    ~BasicTransientTrack() override {}
 
     virtual void setES(const edm::EventSetup& es) = 0;
 

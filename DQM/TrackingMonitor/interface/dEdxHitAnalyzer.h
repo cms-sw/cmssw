@@ -35,11 +35,11 @@ class GenericTriggerEventFlag;
 class dEdxHitAnalyzer : public DQMEDAnalyzer {
  public:
   explicit dEdxHitAnalyzer(const edm::ParameterSet&);
-  ~dEdxHitAnalyzer();
+  ~dEdxHitAnalyzer() override;
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
-  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
   double harmonic2(const reco::DeDxHitInfo* dedxHits);
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void dqmBeginRun(const edm::Run &, const edm::EventSetup &) override;

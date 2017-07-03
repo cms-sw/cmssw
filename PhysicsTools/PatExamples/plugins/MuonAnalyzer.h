@@ -28,14 +28,14 @@ public:
   ExampleMuonAnalyzer(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~ExampleMuonAnalyzer();
+  ~ExampleMuonAnalyzer() override;
 
   // Operations
 
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
 
-  virtual void beginJob() ;
-  virtual void endJob() ;
+  void beginJob() override ;
+  void endJob() override ;
 protected:
 
 private:

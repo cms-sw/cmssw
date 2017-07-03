@@ -45,7 +45,7 @@ std::auto_ptr<TGraph> buildTransform(const edm::ParameterSet &pset) {
 class RecoTauMVATransform : public PFTauDiscriminationProducerBase {
   public:
     explicit RecoTauMVATransform(const edm::ParameterSet& pset);
-    ~RecoTauMVATransform() {}
+    ~RecoTauMVATransform() override {}
 
     void beginEvent(const edm::Event&, const edm::EventSetup&) override;
     double discriminate(const reco::PFTauRef&) const override;

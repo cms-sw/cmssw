@@ -6,7 +6,7 @@
 class HttpStorageMaker : public StorageMaker
 {
 public:
-  virtual std::unique_ptr<Storage> open (const std::string &proto,
+  std::unique_ptr<Storage> open (const std::string &proto,
 			 const std::string &path,
 			 int mode,
        const AuxSettings&) const override

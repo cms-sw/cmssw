@@ -47,15 +47,15 @@ public:
                          std::unique_ptr<PulseShapeFitOOTPileupCorrection> m2,
                          std::unique_ptr<HcalDeterministicFit> detFit);
 
-    inline virtual ~SimpleHBHEPhase1Algo() {}
+    inline ~SimpleHBHEPhase1Algo() override {}
 
     // Methods to override from the base class
-    virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
-    virtual void endRun() override;
+    void beginRun(const edm::Run&, const edm::EventSetup&) override;
+    void endRun() override;
 
-    inline virtual bool isConfigurable() const override {return false;}
+    inline bool isConfigurable() const override {return false;}
 
-    virtual HBHERecHit reconstruct(const HBHEChannelInfo& info,
+    HBHERecHit reconstruct(const HBHEChannelInfo& info,
                                    const HcalRecoParam* params,
                                    const HcalCalibrations& calibs,
                                    bool isRealData) override;

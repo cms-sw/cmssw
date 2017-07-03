@@ -34,17 +34,17 @@ class RawEventOutputModuleForBU : public edm::one::OutputModule<edm::one::WatchR
 
  public:
   explicit RawEventOutputModuleForBU(edm::ParameterSet const& ps);  
-  ~RawEventOutputModuleForBU();
+  ~RawEventOutputModuleForBU() override;
 
  private:
-  virtual void write(edm::EventForOutput const& e) override;
-  virtual void beginRun(edm::RunForOutput const&) override;
-  virtual void endRun(edm::RunForOutput const&) override;
-  virtual void writeRun(const edm::RunForOutput&) override {}
-  virtual void writeLuminosityBlock(const edm::LuminosityBlockForOutput&) override {}
+  void write(edm::EventForOutput const& e) override;
+  void beginRun(edm::RunForOutput const&) override;
+  void endRun(edm::RunForOutput const&) override;
+  void writeRun(const edm::RunForOutput&) override {}
+  void writeLuminosityBlock(const edm::LuminosityBlockForOutput&) override {}
 
-  virtual void beginLuminosityBlock(edm::LuminosityBlockForOutput const&) override;
-  virtual void endLuminosityBlock(edm::LuminosityBlockForOutput const&) override;
+  void beginLuminosityBlock(edm::LuminosityBlockForOutput const&) override;
+  void endLuminosityBlock(edm::LuminosityBlockForOutput const&) override;
 
   std::auto_ptr<Consumer> templateConsumer_;
   std::string label_;

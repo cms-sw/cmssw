@@ -9,7 +9,7 @@
 class CBin : public TObject {
  public:
    CBin(){;}
-   ~CBin(){;}
+   ~CBin() override{;}
 
    float bin_edge;
    float n_part_mean;
@@ -47,7 +47,7 @@ class CentralityBins : public TNamed {
 	 table_.push_back(b); 
       }
    }
-      ~CentralityBins() {;}
+      ~CentralityBins() override {;}
       int getBin(double value) const;
       int getNbins() const {return table_.size();}
       float lowEdge(double value) const { return lowEdgeOfBin(getBin(value));}

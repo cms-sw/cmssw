@@ -62,7 +62,7 @@ class BinomialNoncentralInterval : public BinomialInterval {
 
   // Construct nrho acceptance sets in rho = [0,1] given ntot trials
   // and put the results in already-allocated x_l and x_r.
-  bool neyman(const int ntot, const int nrho, double* rho, double* x_l, double* x_r) {
+  bool neyman(const int ntot, const int nrho, double* rho, double* x_l, double* x_r) override {
     int xL, xR;
     for (int i = 0; i < nrho; ++i) {
       rho[i] = double(i)/nrho;
@@ -75,7 +75,7 @@ class BinomialNoncentralInterval : public BinomialInterval {
 
   // Given X successes and n trials, calculate the interval using the
   // rho acceptance sets implemented above.
-  void calculate(const double X, const double n) {
+  void calculate(const double X, const double n) override {
     set(0, 1);
 
     const double tol = 1e-9;

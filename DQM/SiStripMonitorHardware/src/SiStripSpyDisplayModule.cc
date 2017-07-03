@@ -95,13 +95,13 @@ enum FEDSpyHistogramType {SCOPE_MODE,
 class SiStripSpyDisplayModule : public edm::EDAnalyzer {
   public:
     explicit SiStripSpyDisplayModule(const edm::ParameterSet&);
-    ~SiStripSpyDisplayModule();
+    ~SiStripSpyDisplayModule() override;
 
   private:
-    virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
-    virtual void beginJob() override ;
-    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-    virtual void endJob() override ;
+    void beginRun(const edm::Run&, const edm::EventSetup&) override;
+    void beginJob() override ;
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
+    void endJob() override ;
 
   Bool_t MakeRawDigiHist_(const edm::Handle< edm::DetSetVector<SiStripRawDigi> > & digi_handle,
                             uint32_t specifier,

@@ -25,9 +25,9 @@
 class ProbeMulteplicityProducer : public edm::EDProducer {
     public:
         explicit ProbeMulteplicityProducer(const edm::ParameterSet & iConfig);
-        virtual ~ProbeMulteplicityProducer() ;
+        ~ProbeMulteplicityProducer() override ;
 
-        virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+        void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
 
     private:
         edm::EDGetTokenT<reco::CandidateView> pairs_;            

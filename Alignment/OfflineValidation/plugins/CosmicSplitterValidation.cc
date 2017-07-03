@@ -62,13 +62,13 @@
 class CosmicSplitterValidation : public edm::EDAnalyzer {
 public:
         explicit CosmicSplitterValidation(const edm::ParameterSet&);
-        ~CosmicSplitterValidation();
+        ~CosmicSplitterValidation() override;
 
 
 private:
-        virtual void beginJob() override;
-        virtual void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) override;
-        virtual void endJob() override ;
+        void beginJob() override;
+        void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) override;
+        void endJob() override ;
 
         bool is_gold_muon(const edm::Event& e);
 

@@ -59,7 +59,7 @@ class FastPrimaryVertexWithWeightsProducer : public edm::stream::EDProducer<> {
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      void produce(edm::Event&, const edm::EventSetup&) override;
 
 
 

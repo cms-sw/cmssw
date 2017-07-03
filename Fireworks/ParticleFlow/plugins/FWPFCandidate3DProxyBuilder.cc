@@ -33,7 +33,7 @@ class FWPFCandidate3DProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::PF
    public:
    // ---------------- Constructor(s)/Destructor ----------------------
       FWPFCandidate3DProxyBuilder() {}
-      virtual ~FWPFCandidate3DProxyBuilder();
+      ~FWPFCandidate3DProxyBuilder() override;
    
       REGISTER_PROXYBUILDER_METHODS();
 
@@ -43,7 +43,7 @@ class FWPFCandidate3DProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::PF
 
    // --------------------- Member Functions --------------------------
       using FWSimpleProxyBuilderTemplate<reco::PFCandidate>::build;
-      void build( const reco::PFCandidate& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* );
+      void build( const reco::PFCandidate& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;
 
 };
 //=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_

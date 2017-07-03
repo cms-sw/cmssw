@@ -20,13 +20,13 @@ class SiPixelDynamicInefficiencyDB : public edm::EDAnalyzer
   
   explicit SiPixelDynamicInefficiencyDB(const edm::ParameterSet& conf);
   
-  virtual ~SiPixelDynamicInefficiencyDB();
+  ~SiPixelDynamicInefficiencyDB() override;
   
-  virtual void beginJob();
+  void beginJob() override;
   
-  virtual void endJob(); 
+  void endJob() override; 
   
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
   
   
  private:

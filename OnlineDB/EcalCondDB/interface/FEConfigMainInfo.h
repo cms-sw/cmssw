@@ -21,9 +21,9 @@ class FEConfigMainInfo : public IODConfig {
   friend class EcalCondDBInterface;
 
   FEConfigMainInfo();
-  ~FEConfigMainInfo();
+  ~FEConfigMainInfo() override;
 
-  inline std::string getTable() { return "FE_CONFIG_MAIN"; }
+  inline std::string getTable() override { return "FE_CONFIG_MAIN"; }
 
   // Methods for user data
   inline void setId(int id) { m_ID = id; }
@@ -96,7 +96,7 @@ int getBstId()const {return m_bst_id;  }
   Tm m_db_time;
   std::string m_description;
 
-  void prepareWrite() noexcept(false);
+  void prepareWrite() noexcept(false) override;
   void writeDB() noexcept(false);
   void clear();
   void fetchData(FEConfigMainInfo * result) noexcept(false);

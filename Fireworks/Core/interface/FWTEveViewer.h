@@ -39,7 +39,7 @@ class FWTEveViewer : public TEveViewer
 
 public:
    FWTEveViewer(const char* n="FWTEveViewer", const char* t="");
-   virtual ~FWTEveViewer();
+   ~FWTEveViewer() override;
 
    // ---------- const member functions ---------------------
 

@@ -33,8 +33,8 @@ namespace edmtest
     { }
     explicit  CSCReadChamberIndexValuesAnalyzer(int i) 
     { }
-    virtual ~ CSCReadChamberIndexValuesAnalyzer() { }
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+    ~ CSCReadChamberIndexValuesAnalyzer() override { }
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
   private:
   };
   

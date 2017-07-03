@@ -25,7 +25,7 @@ public:
  */
 
    CachingVertex<5> add(const CachingVertex<5> & oldVertex,
-        const RefCountedVertexTrack track) const;
+        const RefCountedVertexTrack track) const override;
 
 /**
  *  Method removing already used VertexTrack from existing CachingVertex
@@ -33,13 +33,13 @@ public:
  */
 
    CachingVertex<5> remove(const CachingVertex<5> & oldVertex,
-        const RefCountedVertexTrack track) const;
+        const RefCountedVertexTrack track) const override;
 
 /**
  * Clone method
  */
 
-   VertexUpdator<5> * clone() const
+   VertexUpdator<5> * clone() const override
    {
     return new GsfVertexUpdator(* this);
    }

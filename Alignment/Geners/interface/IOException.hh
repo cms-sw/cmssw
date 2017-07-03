@@ -17,7 +17,7 @@ namespace gs {
         inline explicit IOException(const char* description)
             : cms::Exception(description) {}
 
-        virtual ~IOException() throw() {}
+        ~IOException() throw() override {}
     };
 
     struct IOLengthError : public IOException
@@ -27,7 +27,7 @@ namespace gs {
         inline explicit IOLengthError(const std::string& description)
             : IOException(description) {}
 
-        virtual ~IOLengthError() throw() {}
+        ~IOLengthError() throw() override {}
     };
 
     struct IOOutOfRange : public IOException
@@ -37,7 +37,7 @@ namespace gs {
         inline explicit IOOutOfRange(const std::string& description)
             : IOException(description) {}
 
-        virtual ~IOOutOfRange() throw() {}
+        ~IOOutOfRange() throw() override {}
     };
 
     struct IOInvalidArgument : public IOException
@@ -47,7 +47,7 @@ namespace gs {
         inline explicit IOInvalidArgument(const std::string& description)
             : IOException(description) {}
 
-        virtual ~IOInvalidArgument() throw() {}
+        ~IOInvalidArgument() throw() override {}
     };
 
     /* Automatic replacement end} */
@@ -81,7 +81,7 @@ namespace gs {
                                 const std::string& filename)
             : IOException(fileOpeningFailure(whereInTheCode, filename)) {}
 
-        virtual ~IOOpeningFailure() throw() {}
+        ~IOOpeningFailure() throw() override {}
     };
 
     /**
@@ -96,7 +96,7 @@ namespace gs {
         inline explicit IOWriteFailure(const std::string& description)
             : IOException(description) {}
 
-        virtual ~IOWriteFailure() throw() {}
+        ~IOWriteFailure() throw() override {}
     };
 
     /**
@@ -111,7 +111,7 @@ namespace gs {
         inline explicit IOReadFailure(const std::string& description)
             : IOException(description) {}
 
-        virtual ~IOReadFailure() throw() {}
+        ~IOReadFailure() throw() override {}
     };
 
     /**
@@ -125,7 +125,7 @@ namespace gs {
         inline explicit IOInvalidData(const std::string& description)
             : IOException(description) {}
 
-        virtual ~IOInvalidData() throw() {}
+        ~IOInvalidData() throw() override {}
     };
 }
 

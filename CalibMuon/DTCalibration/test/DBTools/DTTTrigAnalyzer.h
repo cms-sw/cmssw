@@ -27,14 +27,14 @@ public:
   DTTTrigAnalyzer(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~DTTTrigAnalyzer();
+  ~DTTTrigAnalyzer() override;
 
   /// Operations
   //Read the DTGeometry and teh t0 DB
-  virtual void beginRun(const edm::Run&,const edm::EventSetup& setup);
-  void analyze(const edm::Event& event, const edm::EventSetup& setup) {}
+  void beginRun(const edm::Run&,const edm::EventSetup& setup) override;
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override {}
   //Do the real work
-  void endJob();
+  void endJob() override;
 
 protected:
 

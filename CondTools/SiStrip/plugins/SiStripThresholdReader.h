@@ -26,9 +26,9 @@ class SiStripThresholdReader : public edm::EDAnalyzer {
 
  public:
   explicit SiStripThresholdReader( const edm::ParameterSet& );
-  ~SiStripThresholdReader();
+  ~SiStripThresholdReader() override;
   
-  void analyze( const edm::Event&, const edm::EventSetup& );
+  void analyze( const edm::Event&, const edm::EventSetup& ) override;
 
  private:
   uint32_t printdebug_;

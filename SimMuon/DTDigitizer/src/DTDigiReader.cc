@@ -44,7 +44,7 @@ public:
     DTd_token = consumes<DTDigiCollection>( edm::InputTag(label) );
   }
   
-  virtual ~DTDigiReader(){
+  ~DTDigiReader() override{
     file->cd();
     DigiTimeBox->Write();
     DigiTimeBoxW0->Write();

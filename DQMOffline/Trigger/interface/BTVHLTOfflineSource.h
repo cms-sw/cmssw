@@ -47,12 +47,12 @@
 class BTVHLTOfflineSource : public DQMEDAnalyzer {
  public:
   explicit BTVHLTOfflineSource(const edm::ParameterSet&);
-  ~BTVHLTOfflineSource();
+  ~BTVHLTOfflineSource() override;
 
  private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const & run, edm::EventSetup const & c) override;
-  virtual void dqmBeginRun(edm::Run const& run, edm::EventSetup const& c) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const & run, edm::EventSetup const & c) override;
+  void dqmBeginRun(edm::Run const& run, edm::EventSetup const& c) override;
 
   bool verbose_;
   std::string dirname_;

@@ -27,9 +27,9 @@ class TauGenJetProducer : public edm::global::EDProducer<> {
 
   explicit TauGenJetProducer(const edm::ParameterSet&);
 
-  ~TauGenJetProducer();
+  ~TauGenJetProducer() override;
 
-  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
  private:
 

@@ -430,7 +430,7 @@ namespace {
 class PackedCandidateTrackValidator: public DQMEDAnalyzer{
  public:
   PackedCandidateTrackValidator(const edm::ParameterSet& pset);
-  virtual ~PackedCandidateTrackValidator();
+  ~PackedCandidateTrackValidator() override;
 
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void analyze(const edm::Event&, const edm::EventSetup& ) override;

@@ -30,11 +30,11 @@ namespace popcon{
 
     //---------------------------------------
     //
-    ~DQMHistoryPopConHandler(){}; 
+    ~DQMHistoryPopConHandler() override{}; 
 
     //---------------------------------------
     //
-    void getNewObjects(){
+    void getNewObjects() override{
       edm::LogInfo   ("DQMHistoryPopConHandler") << "[DQMHistoryPopConHandler::getNewObjects] for PopCon application " << m_name;
      
 	std::stringstream ss;
@@ -81,7 +81,7 @@ namespace popcon{
 
     //---------------------------------------
     //
-    std::string id() const { return m_name;}
+    std::string id() const override { return m_name;}
 
     private:
     //methods

@@ -49,10 +49,10 @@
 class MCVerticesWeight : public edm::global::EDFilter<> {
    public:
       explicit MCVerticesWeight(const edm::ParameterSet&);
-      ~MCVerticesWeight();
+      ~MCVerticesWeight() override;
 
    private:
-      virtual bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+      bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
       
       // ----------member data ---------------------------
 

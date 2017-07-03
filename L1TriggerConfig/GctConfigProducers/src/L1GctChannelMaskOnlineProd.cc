@@ -6,9 +6,9 @@ class L1GctChannelMaskOnlineProd : public L1ConfigOnlineProdBase< L1GctChannelMa
    public:
       L1GctChannelMaskOnlineProd(const edm::ParameterSet& iConfig)
          : L1ConfigOnlineProdBase< L1GctChannelMaskRcd, L1GctChannelMask >( iConfig ) {}
-      ~L1GctChannelMaskOnlineProd() {}
+      ~L1GctChannelMaskOnlineProd() override {}
 
-      virtual std::shared_ptr< L1GctChannelMask > newObject( const std::string& objectKey ) override ;
+      std::shared_ptr< L1GctChannelMask > newObject( const std::string& objectKey ) override ;
    private:
 };
 

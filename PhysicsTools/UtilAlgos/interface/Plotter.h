@@ -79,7 +79,7 @@ class VariablePlotter : public Plotter {
     }
   }
 
-  void setDir(std::string dir){
+  void setDir(std::string dir) override{
     //insert a new one
     Directory & insertedDirectory = directories_[dir];
 
@@ -93,7 +93,7 @@ class VariablePlotter : public Plotter {
     currentDir_=dir;
   }
   
-  void fill(std::string subDir,const edm::Event& iEvent){
+  void fill(std::string subDir,const edm::Event& iEvent) override{
     //what is the current directory
     Directory & currentDirectory= directories_[currentDir_];
 
@@ -142,7 +142,7 @@ class VariablePlotter : public Plotter {
       { histogramIterator->second->fill(iEvent); }
   }
 
-  ~VariablePlotter(){
+  ~VariablePlotter() override{
     // CANNOT DO THAT because of TFileService holding the histograms
     /*    //loop over all subdirectories and delete all ConfigurableHistograms
 	  Directories::iterator dir_It = directories_.begin();
@@ -166,7 +166,7 @@ class VariablePlotter : public Plotter {
 	  }
     */
   }
-  void complete(){
+  void complete() override{
     
     //loop over all subdirectories and call complete() on all ConfigurableHistograms
     

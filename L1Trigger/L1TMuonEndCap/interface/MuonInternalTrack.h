@@ -38,7 +38,7 @@ namespace L1TMuon{
   public:
     enum subsystem_offset{ kDT, kRPCb, kCSC, kRPCf };
     InternalTrack():_endcap(0),_wheel(0),_sector(0),_type(5),_mode(0) {}
-    ~InternalTrack() {}
+    ~InternalTrack() override {}
     
     InternalTrack(const L1MuDTTrackCand&);
     InternalTrack(const csc::L1Track&);
@@ -67,7 +67,7 @@ namespace L1TMuon{
     unsigned long rpcbMode() const { return (_mode & 0xf<<4*kRPCb)>>4*kRPCb; }
     unsigned long rpcfMode() const { return (_mode & 0xf<<4*kRPCf)>>4*kRPCf; }
 
-    void print() const;
+    void print() const override;
     
     /// TEMPORARY ADDITION by G. Brown ///
     //struct varStorage

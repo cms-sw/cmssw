@@ -29,7 +29,7 @@ namespace edm {
     public:
 
       EDLooper();
-      virtual ~EDLooper();
+      ~EDLooper() override;
 
       EDLooper(EDLooper const&) = delete; // Disallow copying and moving
       EDLooper& operator=(EDLooper const&) = delete; // Disallow copying and moving
@@ -42,7 +42,7 @@ namespace edm {
     
     /**override base class interface and just call the above duringLoop
      */
-    virtual Status duringLoop(const edm::Event&, const edm::EventSetup&, ProcessingController& );
+    Status duringLoop(const edm::Event&, const edm::EventSetup&, ProcessingController& ) override;
     
     
   };

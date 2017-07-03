@@ -30,7 +30,7 @@ public:
   DTSegmentsTask(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~DTSegmentsTask();
+  ~DTSegmentsTask() override;
 
   /// book the histos
   void analyze(const edm::Event&, const edm::EventSetup&) override;

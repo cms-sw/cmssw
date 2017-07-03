@@ -34,7 +34,7 @@ class MuonNumberingInitialization : public edm::ESProducer
 public:
   
   MuonNumberingInitialization( const edm::ParameterSet& );
-  ~MuonNumberingInitialization();
+  ~MuonNumberingInitialization() override;
 
   typedef std::unique_ptr<MuonDDDConstants> ReturnType;
 

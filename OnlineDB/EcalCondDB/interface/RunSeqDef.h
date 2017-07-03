@@ -16,7 +16,7 @@ class RunSeqDef : public IDef {
  friend class EcalCondDBInterface;
   
   RunSeqDef();
-  virtual ~RunSeqDef();
+  ~RunSeqDef() override;
 
   // Methods for user data
   std::string getRunSeq() const;
@@ -30,8 +30,8 @@ class RunSeqDef : public IDef {
 
   
   // Methods from IUniqueDBObject
-  int fetchID() noexcept(false);
-  void setByID(int id) noexcept(false);
+  int fetchID() noexcept(false) override;
+  void setByID(int id) noexcept(false) override;
 
   // Operators.  m_desc is not considered, it cannot be written to DB anyhow
   inline bool operator==(const RunSeqDef &t) const { return m_runSeq == t.m_runSeq; }

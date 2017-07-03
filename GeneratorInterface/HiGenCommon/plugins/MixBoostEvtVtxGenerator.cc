@@ -50,10 +50,10 @@ class FourVector ;
 class MixBoostEvtVtxGenerator : public edm::EDProducer{
 public:
   MixBoostEvtVtxGenerator(const edm::ParameterSet & p);
-  virtual ~MixBoostEvtVtxGenerator();
+  ~MixBoostEvtVtxGenerator() override;
 
   /// return a new event vertex
-  virtual void produce( edm::Event&, const edm::EventSetup& ) override;
+  void produce( edm::Event&, const edm::EventSetup& ) override;
   virtual TMatrixD* GetInvLorentzBoost();
   virtual HepMC::FourVector* getVertex(edm::Event&);
   virtual HepMC::FourVector* getRecVertex(edm::Event&);

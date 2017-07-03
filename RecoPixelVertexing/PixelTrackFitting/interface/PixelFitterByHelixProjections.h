@@ -16,8 +16,8 @@ class PixelFitterByHelixProjections final : public PixelFitterBase {
 public:
   explicit PixelFitterByHelixProjections(const edm::EventSetup *es, const MagneticField *field,
                                          bool scaleErrorsForBPix1, float scaleFactor);
-  virtual ~PixelFitterByHelixProjections() {}
-  virtual std::unique_ptr<reco::Track> run(const std::vector<const TrackingRecHit *>& hits,
+  ~PixelFitterByHelixProjections() override {}
+  std::unique_ptr<reco::Track> run(const std::vector<const TrackingRecHit *>& hits,
                                            const TrackingRegion& region) const override;
 
 private:

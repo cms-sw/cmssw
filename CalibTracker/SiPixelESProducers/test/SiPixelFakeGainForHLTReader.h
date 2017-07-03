@@ -41,11 +41,11 @@ public:
 
   explicit SiPixelFakeGainForHLTReader( const edm::ParameterSet& iConfig);
 
-  ~SiPixelFakeGainForHLTReader(){};
-  virtual void beginJob() {;}
-  virtual void beginRun(const edm::Run& , const edm::EventSetup& );
-  virtual void analyze(const edm::Event& , const edm::EventSetup& );
-  virtual void endJob() ;
+  ~SiPixelFakeGainForHLTReader() override{};
+  void beginJob() override {;}
+  void beginRun(const edm::Run& , const edm::EventSetup& ) override;
+  void analyze(const edm::Event& , const edm::EventSetup& ) override;
+  void endJob() override ;
 
 private:
 

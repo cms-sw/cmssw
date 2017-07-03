@@ -17,25 +17,25 @@ public:
   /// Construct from  half width (extension in local X),
   /// half length (Y) and half thickness (Z)
   RectangularPlaneBounds( float w, float h, float t);
-  ~RectangularPlaneBounds();
+  ~RectangularPlaneBounds() override;
 
   /// Lenght along local Y
-  virtual float length()    const { return 2*halfLength;}
+  float length()    const override { return 2*halfLength;}
   /// Width along local X
-  virtual float width()     const { return 2*halfWidth;}
+  float width()     const override { return 2*halfWidth;}
   /// Thickness of the volume in local Z 
-  virtual float thickness() const { return 2*halfThickness;}
+  float thickness() const override { return 2*halfThickness;}
 
   // basic bounds function
   using Bounds::inside;
 
-  virtual bool inside( const Local2DPoint& p) const {
+  bool inside( const Local2DPoint& p) const override {
     return
      (std::abs(p.x()) < halfWidth) &
      (std::abs(p.y()) < halfLength);
   }
 
-  virtual bool inside( const Local3DPoint& p) const {
+  bool inside( const Local3DPoint& p) const override {
     return
      (std::abs(p.x()) < halfWidth) &
      (std::abs(p.y()) < halfLength) &
@@ -44,22 +44,22 @@ public:
 
 
 
-  virtual bool inside(const Local2DPoint& p, float tollerance) const {
+  bool inside(const Local2DPoint& p, float tollerance) const override {
     return (std::abs(p.x()) < (halfWidth  + tollerance) ) &
            (std::abs(p.y()) < (halfLength + tollerance) );
   }
 
 
-  virtual bool inside( const Local3DPoint& p, const LocalError& err,
-		       float scale=1.f) const;
+  bool inside( const Local3DPoint& p, const LocalError& err,
+		       float scale=1.f) const override;
 
-  virtual bool inside( const Local2DPoint& p, const LocalError& err, float scale=1.f) const;
+  bool inside( const Local2DPoint& p, const LocalError& err, float scale=1.f) const override;
 
   // compatible of being inside or outside...
  std::pair<bool,bool> inout( const Local3DPoint& p, const LocalError& err, float scale=1.f) const;
 
 
-  virtual Bounds* clone() const;
+  Bounds* clone() const override;
 
 private:
   float halfWidth;

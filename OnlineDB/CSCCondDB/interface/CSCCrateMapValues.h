@@ -22,7 +22,7 @@
 class CSCCrateMapValues: public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
  public:
   CSCCrateMapValues(const edm::ParameterSet&);
-  ~CSCCrateMapValues();
+  ~CSCCrateMapValues() override;
   
   inline static CSCCrateMap * fillCrateMap();
 
@@ -32,7 +32,7 @@ class CSCCrateMapValues: public edm::ESProducer, public edm::EventSetupRecordInt
   
  private:
   // ----------member data ---------------------------
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & );
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & ) override;
   CSCCrateMap *mapObj ;
 
 };

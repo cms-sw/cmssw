@@ -33,13 +33,13 @@ class SiStripLAProfileBooker : public edm::EDAnalyzer
   
   explicit SiStripLAProfileBooker(const edm::ParameterSet& conf);
   
-  ~SiStripLAProfileBooker();
+  ~SiStripLAProfileBooker() override;
   
-  void beginRun(edm::Run const&,const edm::EventSetup& c);
+  void beginRun(edm::Run const&,const edm::EventSetup& c) override;
   
-  void endJob(); 
+  void endJob() override; 
   
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
   
   void getlayer(const DetId & detid, const TrackerTopology* tTopo, std::string &name,unsigned int &layerid);
   

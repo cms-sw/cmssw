@@ -55,7 +55,7 @@ public:
     typedef fftjet::SparseClusteringTree<fftjet::Peak,long> SparseTree;
 
     explicit FFTJetDijetFilter(const edm::ParameterSet&);
-    ~FFTJetDijetFilter();
+    ~FFTJetDijetFilter() override;
 
 private:
     typedef reco::PattRecoTree<float,reco::PattRecoPeak<float> > StoredTree;

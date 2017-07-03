@@ -5,7 +5,7 @@ class FWFTLRecHitProxyBuilder : public FWCaloRecHitDigitSetProxyBuilder
 {
 public:
    FWFTLRecHitProxyBuilder( void ) { invertBox(true); }
-   virtual ~FWFTLRecHitProxyBuilder( void ) {}
+   ~FWFTLRecHitProxyBuilder( void ) override {}
 
    REGISTER_PROXYBUILDER_METHODS();
 

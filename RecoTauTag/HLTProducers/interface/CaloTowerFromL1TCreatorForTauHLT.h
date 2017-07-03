@@ -32,7 +32,7 @@ class CaloTowerFromL1TCreatorForTauHLT : public edm::global::EDProducer<> {
   /// constructor from parameter set
   CaloTowerFromL1TCreatorForTauHLT( const edm::ParameterSet & );
   /// destructor
-  ~CaloTowerFromL1TCreatorForTauHLT();
+  ~CaloTowerFromL1TCreatorForTauHLT() override;
   /// 
   static void fillDescriptions( edm::ConfigurationDescriptions& desc );
 

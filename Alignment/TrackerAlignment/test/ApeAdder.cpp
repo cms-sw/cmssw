@@ -38,10 +38,10 @@
 class ApeAdder : public edm::EDAnalyzer {
 public:
   explicit ApeAdder( const edm::ParameterSet& );
-  ~ApeAdder() {};
+  ~ApeAdder() override {};
   
   
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  void analyze( const edm::Event&, const edm::EventSetup& ) override;
 
 private:
     // methods

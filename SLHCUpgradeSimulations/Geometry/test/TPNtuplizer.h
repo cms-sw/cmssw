@@ -28,11 +28,11 @@ class TPNtuplizer : public edm::EDAnalyzer
  public:
   
   explicit TPNtuplizer(const edm::ParameterSet& conf);
-  virtual ~TPNtuplizer();
+  ~TPNtuplizer() override;
   /// Method called before the event loop
-  void beginRun(edm::Run const&, edm::EventSetup const&);
-  virtual void endJob();
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& es);
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endJob() override;
+  void analyze(const edm::Event& e, const edm::EventSetup& es) override;
 
  protected:
 

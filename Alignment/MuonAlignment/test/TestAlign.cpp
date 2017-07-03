@@ -36,9 +36,9 @@ public:
 
   explicit TestAlign( const edm::ParameterSet& );
 
-  virtual ~TestAlign();
+  ~TestAlign() override;
 
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  void analyze( const edm::Event&, const edm::EventSetup& ) override;
 
 
 private:

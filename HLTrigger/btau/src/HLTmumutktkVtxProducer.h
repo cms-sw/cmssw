@@ -37,9 +37,9 @@ class MagneticField;
 class HLTmumutktkVtxProducer : public edm::stream::EDProducer<> {
  public:
   explicit HLTmumutktkVtxProducer(const edm::ParameterSet&);
-  ~HLTmumutktkVtxProducer();
+  ~HLTmumutktkVtxProducer() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:
 

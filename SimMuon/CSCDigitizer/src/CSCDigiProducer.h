@@ -15,10 +15,10 @@ public:
   typedef CSCDigitizer::DigiSimLinks DigiSimLinks;
 
   explicit CSCDigiProducer(const edm::ParameterSet& ps);
-  virtual ~CSCDigiProducer();
+  ~CSCDigiProducer() override;
 
   /**Produces the EDM products,*/
-  virtual void produce(edm::Event& e, const edm::EventSetup& c);
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
 
 private:
 

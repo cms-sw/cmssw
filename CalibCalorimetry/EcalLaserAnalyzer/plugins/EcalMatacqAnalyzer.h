@@ -16,12 +16,12 @@ class EcalMatacqAnalyzer: public edm::EDAnalyzer{
  public:
   
   explicit EcalMatacqAnalyzer(const edm::ParameterSet& iConfig);  
-  ~EcalMatacqAnalyzer();
+  ~EcalMatacqAnalyzer() override;
   
   
-  virtual void analyze( const edm::Event & e, const  edm::EventSetup& c);
-  virtual void beginJob();
-  virtual void endJob();
+  void analyze( const edm::Event & e, const  edm::EventSetup& c) override;
+  void beginJob() override;
+  void endJob() override;
   
   enum VarCol  { iBlue, iRed, nColor }; 
   enum VarSide { iSide0, iSide1, nSide }; 

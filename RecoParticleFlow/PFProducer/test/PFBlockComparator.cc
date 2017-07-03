@@ -224,9 +224,9 @@ public:
   PFBlockComparator(const PSet& c) : 
     _src(c.getParameter<edm::InputTag>("source")),
     _srcOld(c.getParameter<edm::InputTag>("sourceOld")){};
-  ~PFBlockComparator() {}
+  ~PFBlockComparator() override {}
 
-  void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 private:    
   edm::InputTag _src;
   edm::InputTag _srcOld;

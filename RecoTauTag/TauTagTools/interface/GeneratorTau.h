@@ -39,7 +39,7 @@ class GeneratorTau : public reco::GenParticle {
       };
       GeneratorTau();
 
-      ~GeneratorTau(){};
+      ~GeneratorTau() override{};
 
       std::vector<const reco::Candidate*>         getGenChargedPions() const;
       std::vector<const reco::Candidate*>         getGenGammas() const;

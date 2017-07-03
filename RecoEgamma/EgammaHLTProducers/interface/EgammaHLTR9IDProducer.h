@@ -38,7 +38,7 @@ class RecoEcalCandidateProducers;
 class EgammaHLTR9IDProducer : public edm::global::EDProducer<> {
 public:
   explicit EgammaHLTR9IDProducer(const edm::ParameterSet&);
-  ~EgammaHLTR9IDProducer();
+  ~EgammaHLTR9IDProducer() override;
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   void produce(edm::StreamID sid, edm::Event&, const edm::EventSetup&) const override;

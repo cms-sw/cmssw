@@ -21,9 +21,9 @@ class FWTrackingParticleProxyBuilder : public FWSimpleProxyBuilderTemplate<Track
 {
 public:
    FWTrackingParticleProxyBuilder( void ) {} 
-   virtual ~FWTrackingParticleProxyBuilder( void ) {}
+   ~FWTrackingParticleProxyBuilder( void ) override {}
 
-   virtual void setItem(const FWEventItem* iItem) override {
+   void setItem(const FWEventItem* iItem) override {
       FWProxyBuilderBase::setItem(iItem);
       iItem->getConfig()->assertParam("Point Size", 1l, 3l, 1l);
    }

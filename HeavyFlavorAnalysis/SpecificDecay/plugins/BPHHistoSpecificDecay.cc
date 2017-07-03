@@ -136,7 +136,7 @@ class BPHDaughterSelect: public BPHHistoSpecificDecay::CandidateSelect {
                                                    sms( softMuonselector ) {
   }
   bool accept( const pat::CompositeCandidate& cand,
-               const reco::Vertex* pv = 0 ) const {
+               const reco::Vertex* pv = 0 ) const override {
     const reco::Candidate* dptr0 = cand.daughter( 0 );
     const reco::Candidate* dptr1 = cand.daughter( 1 );
     if ( dptr0 == 0 ) return false;
@@ -182,7 +182,7 @@ class BPHCompositeBasicSelect: public BPHHistoSpecificDecay::CandidateSelect {
                                                        yMax( rapidityMax ) {
   }
   bool accept( const pat::CompositeCandidate& cand,
-               const reco::Vertex* pv = 0 ) const {
+               const reco::Vertex* pv = 0 ) const override {
     if ( ( ( mMin > 0 ) && ( mMax < 0 ) ) ||
          ( ( mMin < 0 ) && ( mMax > 0 ) ) ||
          ( ( mMin > 0 ) && ( mMax > 0 ) && ( mMin < mMax ) ) ) {
@@ -221,7 +221,7 @@ class BPHFittedBasicSelect: public BPHHistoSpecificDecay::CandidateSelect {
                                                     rMax( rapidityMax ) {
   }
   bool accept( const pat::CompositeCandidate& cand,
-               const reco::Vertex* pv = 0 ) const {
+               const reco::Vertex* pv = 0 ) const override {
     if ( !cand.hasUserFloat( "fitMass"     ) ) return false;
     float mass = cand.userFloat( "fitMass" );
     if ( ( ( mMin > 0 ) && ( mMax < 0 ) ) ||
@@ -269,7 +269,7 @@ class BPHCompositeVertexSelect: public BPHHistoSpecificDecay::CandidateSelect {
                                                     sMin(  sigMin ) {
   }
   bool accept( const pat::CompositeCandidate& cand,
-               const reco::Vertex* pvtx = 0 ) const {
+               const reco::Vertex* pvtx = 0 ) const override {
     const reco::Vertex* svtx = BPHUserData::get
          <reco::Vertex>( cand, "vertex" );
     if ( svtx == 0 ) return false;
@@ -317,7 +317,7 @@ class BPHFittedVertexSelect: public BPHHistoSpecificDecay::CandidateSelect {
                                                  sMin(  sigMin ) {
   }
   bool accept( const pat::CompositeCandidate& cand,
-               const reco::Vertex* pvtx ) const {
+               const reco::Vertex* pvtx ) const override {
     const reco::Vertex* svtx = BPHUserData::get
          <reco::Vertex>( cand, "fitVertex" );
     if ( svtx == 0 ) return false;

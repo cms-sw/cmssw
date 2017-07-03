@@ -45,7 +45,7 @@
             /// constructor
             explicit TrackMultiSelector( const edm::ParameterSet & cfg ) ;
             /// destructor
-            virtual ~TrackMultiSelector() ;
+            ~TrackMultiSelector() override ;
 
         private:
             typedef math::XYZPoint Point;

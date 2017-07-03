@@ -103,7 +103,7 @@ namespace edm {
          FillViewHelperVector const& helpers,
          EDProductGetter const* getter);
 
-    virtual ~View();
+    ~View() override;
 
     void swap(View& other);
 

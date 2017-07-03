@@ -13,17 +13,17 @@ class DCUVFETempDat : public IDataItem {
  public:
   friend class EcalCondDBInterface;
   DCUVFETempDat();
-  ~DCUVFETempDat();
+  ~DCUVFETempDat() override;
 
   // User data methods
-  inline std::string getTable() { return "DCU_VFE_TEMP_DAT"; }
+  inline std::string getTable() override { return "DCU_VFE_TEMP_DAT"; }
 
   inline void setVFETemp(float temp) { m_vfeTemp = temp; }
   inline float getVFETemp() const { return m_vfeTemp; }
   
  private:
   void prepareWrite() 
-    noexcept(false);
+    noexcept(false) override;
 
   void writeDB(const EcalLogicID* ecid, const DCUVFETempDat* item, DCUIOV* iov)
     noexcept(false);

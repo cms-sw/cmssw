@@ -12,11 +12,11 @@ class SiStripFedCablingReader : public edm::EDAnalyzer {
   
   SiStripFedCablingReader( const edm::ParameterSet& );
   
-  ~SiStripFedCablingReader() {;}
+  ~SiStripFedCablingReader() override {;}
 
-  void beginRun( const edm::Run&, const edm::EventSetup& );
+  void beginRun( const edm::Run&, const edm::EventSetup& ) override;
 
-  void analyze(const edm::Event&, const edm::EventSetup&){;}
+  void analyze(const edm::Event&, const edm::EventSetup&) override{;}
   
  private:
 

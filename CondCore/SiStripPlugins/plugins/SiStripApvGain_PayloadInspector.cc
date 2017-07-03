@@ -24,7 +24,7 @@ namespace {
       Base::setSingleIov( true );
     }
     
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       for ( auto const & iov: iovs) {
 	std::shared_ptr<SiStripApvGain> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
@@ -54,9 +54,9 @@ namespace {
   class SiStripApvGainByRunMeans : public cond::payloadInspector::HistoryPlot<SiStripApvGain,float> {
   public:
     SiStripApvGainByRunMeans() : cond::payloadInspector::HistoryPlot<SiStripApvGain,float>( "SiStripApv Gains average","average Strip APV gain value"){}
-    virtual ~SiStripApvGainByRunMeans() = default;
+    ~SiStripApvGainByRunMeans() override = default;
 
-    float getFromPayload( SiStripApvGain& payload ){
+    float getFromPayload( SiStripApvGain& payload ) override{
      
       std::vector<uint32_t> detid;
       payload.getDetIds(detid);
@@ -83,9 +83,9 @@ namespace {
   class SiStripApvTIBGainByRunMeans : public cond::payloadInspector::HistoryPlot<SiStripApvGain,float> {
   public:
     SiStripApvTIBGainByRunMeans() : cond::payloadInspector::HistoryPlot<SiStripApvGain,float>( "SiStripApv Gains average","average Tracker Inner Barrel APV gain value"){}
-    virtual ~SiStripApvTIBGainByRunMeans() = default;
+    ~SiStripApvTIBGainByRunMeans() override = default;
 
-    float getFromPayload( SiStripApvGain& payload ){
+    float getFromPayload( SiStripApvGain& payload ) override{
      
       std::vector<uint32_t> detid;
       payload.getDetIds(detid);
@@ -117,9 +117,9 @@ namespace {
   class SiStripApvTOBGainByRunMeans : public cond::payloadInspector::HistoryPlot<SiStripApvGain,float> {
   public:
     SiStripApvTOBGainByRunMeans() : cond::payloadInspector::HistoryPlot<SiStripApvGain,float>( "SiStripApv Gains average","average Tracker Outer Barrel gain value"){}
-    virtual ~SiStripApvTOBGainByRunMeans() = default;
+    ~SiStripApvTOBGainByRunMeans() override = default;
 
-    float getFromPayload( SiStripApvGain& payload ){
+    float getFromPayload( SiStripApvGain& payload ) override{
      
       std::vector<uint32_t> detid;
       payload.getDetIds(detid);
@@ -151,9 +151,9 @@ namespace {
   class SiStripApvTIDGainByRunMeans : public cond::payloadInspector::HistoryPlot<SiStripApvGain,float> {
   public:
     SiStripApvTIDGainByRunMeans() : cond::payloadInspector::HistoryPlot<SiStripApvGain,float>( "SiStripApv Gains average","average Tracker Inner Disks APV gain value"){}
-    virtual ~SiStripApvTIDGainByRunMeans() = default;
+    ~SiStripApvTIDGainByRunMeans() override = default;
 
-    float getFromPayload( SiStripApvGain& payload ){
+    float getFromPayload( SiStripApvGain& payload ) override{
      
       std::vector<uint32_t> detid;
       payload.getDetIds(detid);
@@ -184,9 +184,9 @@ namespace {
   class SiStripApvTECGainByRunMeans : public cond::payloadInspector::HistoryPlot<SiStripApvGain,float> {
   public:
     SiStripApvTECGainByRunMeans() : cond::payloadInspector::HistoryPlot<SiStripApvGain,float>( "SiStripApv Gains average in TEC","average Tracker Endcaps APV gain value"){}
-    virtual ~SiStripApvTECGainByRunMeans() = default;
+    ~SiStripApvTECGainByRunMeans() override = default;
 
-    float getFromPayload( SiStripApvGain& payload ){
+    float getFromPayload( SiStripApvGain& payload ) override{
      
       std::vector<uint32_t> detid;
       payload.getDetIds(detid);

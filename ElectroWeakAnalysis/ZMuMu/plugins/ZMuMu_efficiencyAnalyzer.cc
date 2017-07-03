@@ -48,13 +48,13 @@ class ZMuMu_efficiencyAnalyzer : public edm::EDAnalyzer {
 public:
   ZMuMu_efficiencyAnalyzer(const edm::ParameterSet& pset);
 private:
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
   bool check_ifZmumu(const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2);
   float getParticlePt(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2);
   float getParticleEta(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2);
   float getParticlePhi(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2);
   Particle::LorentzVector getParticleP4(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2);
-  virtual void endJob() override;
+  void endJob() override;
 
   EDGetTokenT<CandidateView> zMuMuToken_;
   EDGetTokenT<GenParticleMatch> zMuMuMatchMapToken_;

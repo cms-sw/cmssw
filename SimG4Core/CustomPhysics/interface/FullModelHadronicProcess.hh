@@ -20,12 +20,12 @@ public:
   FullModelHadronicProcess(G4ProcessHelper * aHelper, 
 			   const G4String& processName = "FullModelHadronicProcess");
     
-  virtual ~FullModelHadronicProcess();
+  ~FullModelHadronicProcess() override;
 
   
-  G4bool IsApplicable(const G4ParticleDefinition& aP);
+  G4bool IsApplicable(const G4ParticleDefinition& aP) override;
   
-  G4VParticleChange *PostStepDoIt(const G4Track &aTrack, const G4Step &aStep);
+  G4VParticleChange *PostStepDoIt(const G4Track &aTrack, const G4Step &aStep) override;
 
 protected:
   
@@ -40,7 +40,7 @@ private:
 					       const G4Element *anElement, 
 					       G4double aTemp );
 
-  G4double GetMeanFreePath(const G4Track& aTrack, G4double, G4ForceCondition*);
+  G4double GetMeanFreePath(const G4Track& aTrack, G4double, G4ForceCondition*) override;
   
   void CalculateMomenta( G4FastVector<G4ReactionProduct,MYGHADLISTSIZE> &vec,
 			 G4int &vecLen,

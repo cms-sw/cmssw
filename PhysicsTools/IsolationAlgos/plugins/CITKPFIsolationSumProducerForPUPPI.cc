@@ -28,12 +28,12 @@ namespace citk {
   public:  
     PFIsolationSumProducerForPUPPI(const edm::ParameterSet&);
     
-    virtual ~PFIsolationSumProducerForPUPPI() {}
+    ~PFIsolationSumProducerForPUPPI() override {}
     
-    virtual void beginLuminosityBlock(const edm::LuminosityBlock&,
-			      const edm::EventSetup&) override final;
+    void beginLuminosityBlock(const edm::LuminosityBlock&,
+			      const edm::EventSetup&) final;
 
-    virtual void produce(edm::Event&, const edm::EventSetup&) override final;
+    void produce(edm::Event&, const edm::EventSetup&) final;
 
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
     

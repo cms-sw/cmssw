@@ -50,13 +50,13 @@
 class L1MetFilterRecoTreeProducer : public edm::EDAnalyzer {
 public:
   explicit L1MetFilterRecoTreeProducer(const edm::ParameterSet&);
-  ~L1MetFilterRecoTreeProducer();
+  ~L1MetFilterRecoTreeProducer() override;
 
 
 private:
-  virtual void beginJob(void) ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginJob(void) override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   void doMetFilters(edm::Handle<edm::TriggerResults> trigRes, edm::TriggerNames trigNames, bool hbheNFRes);
 

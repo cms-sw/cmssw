@@ -14,9 +14,9 @@ class testParticle : public CppUnit::TestFixture {
   CPPUNIT_TEST(checkFloatLarge);
   CPPUNIT_TEST_SUITE_END();
 public:
-  void setUp() {
+  void setUp() override {
   }
-  void tearDown() {}
+  void tearDown() override {}
   void checkXYZ();
   void checkPolar();
   void checkFloat();

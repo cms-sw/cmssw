@@ -47,10 +47,10 @@ class L1CaloGeometry ;
 class L1TMuonLegacyConverter : public edm::stream::EDProducer<> {
    public:
       explicit L1TMuonLegacyConverter(const edm::ParameterSet&);
-      ~L1TMuonLegacyConverter();
+      ~L1TMuonLegacyConverter() override;
 
    private:
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
 
       // //      math::XYZTLorentzVector gctLorentzVector( const double& et,
       // math::PtEtaPhiMLorentzVector gctLorentzVector( const double& et,

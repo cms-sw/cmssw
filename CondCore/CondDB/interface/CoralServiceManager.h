@@ -24,10 +24,10 @@ namespace coral{
 namespace cond{
   class CoralServiceManager : public coral::IPluginManager{
   public:
-    virtual coral::ILoadableComponent* newComponent( const std::string& componentName );
+    coral::ILoadableComponent* newComponent( const std::string& componentName ) override;
     /// Returns the list of known components
-    virtual std::set<std::string> knownPlugins() const;
-    virtual ~CoralServiceManager(){}
+    std::set<std::string> knownPlugins() const override;
+    ~CoralServiceManager() override{}
   };
 }
 #endif

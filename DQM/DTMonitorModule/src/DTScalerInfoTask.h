@@ -45,7 +45,7 @@ class DTScalerInfoTask: public DQMEDAnalyzer{
   DTScalerInfoTask(const edm::ParameterSet& ps );
 
   /// Destructor
-  virtual ~DTScalerInfoTask();
+  ~DTScalerInfoTask() override;
 
  protected:
 

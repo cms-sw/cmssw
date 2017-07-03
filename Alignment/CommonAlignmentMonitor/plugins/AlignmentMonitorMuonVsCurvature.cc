@@ -35,7 +35,7 @@ class AlignmentMonitorMuonVsCurvature: public AlignmentMonitorBase
 {
 public:
   AlignmentMonitorMuonVsCurvature(const edm::ParameterSet& cfg);
-  virtual ~AlignmentMonitorMuonVsCurvature() {}
+  ~AlignmentMonitorMuonVsCurvature() override {}
 
   void book() override;
 

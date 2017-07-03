@@ -18,15 +18,15 @@ class TrackProbabilityTagPlotter: public BaseTagInfoPlotter {
                   const edm::ParameterSet& pSet, 
                   const unsigned int& mc, const bool& wf, DQMStore::IBooker & ibook);
 
-  ~TrackProbabilityTagPlotter();
+  ~TrackProbabilityTagPlotter() override;
 
-  void analyzeTag(const reco::BaseTagInfo * tagInfo, double jec, int jetFlavour, float w=1);
+  void analyzeTag(const reco::BaseTagInfo * tagInfo, double jec, int jetFlavour, float w=1) override;
 
-  virtual void finalize(DQMStore::IBooker & ibook_, DQMStore::IGetter & igetter_);
+  void finalize(DQMStore::IBooker & ibook_, DQMStore::IGetter & igetter_) override;
 
-  void epsPlot(const std::string & name);
+  void epsPlot(const std::string & name) override;
 
-  void psPlot(const std::string & name);
+  void psPlot(const std::string & name) override;
 
  private:
 

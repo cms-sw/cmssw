@@ -35,7 +35,7 @@ class FWViewGeometryList: public TEveElementList
 {
 public:
    FWViewGeometryList( const fireworks::Context& context, bool projected = true );
-   virtual ~FWViewGeometryList();
+   ~FWViewGeometryList() override;
 
    void updateColors();
    void updateTransparency(bool projectedType);

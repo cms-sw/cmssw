@@ -33,7 +33,7 @@ class FWTrajectorySeedProxyBuilder : public FWSimpleProxyBuilderTemplate<Traject
 
 public:
    FWTrajectorySeedProxyBuilder();
-   virtual ~FWTrajectorySeedProxyBuilder();
+   ~FWTrajectorySeedProxyBuilder() override;
 
    REGISTER_PROXYBUILDER_METHODS();
 

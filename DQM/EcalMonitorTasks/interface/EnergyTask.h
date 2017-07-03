@@ -10,7 +10,7 @@ namespace ecaldqm {
   class EnergyTask : public DQWorkerTask {
   public:
     EnergyTask();
-    ~EnergyTask() {}
+    ~EnergyTask() override {}
 
     bool filterRunType(short const*) override;
 

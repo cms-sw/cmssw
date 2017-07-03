@@ -20,10 +20,10 @@ class  RPCDBSimSetUp;
 
   class RPCDBPerformanceHandler: public popcon::PopConSourceHandler<RPCStripNoises>{
   public:
-    void getNewObjects();
-    ~RPCDBPerformanceHandler(); 
+    void getNewObjects() override;
+    ~RPCDBPerformanceHandler() override; 
     RPCDBPerformanceHandler(const edm::ParameterSet& pset); 
-    std::string id() const;
+    std::string id() const override;
 
   private:
  

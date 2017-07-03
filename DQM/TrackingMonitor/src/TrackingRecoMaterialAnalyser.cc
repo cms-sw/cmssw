@@ -34,11 +34,11 @@ static const std::vector<std::string> sDETS{ "", "PXB", "PXF", "TIB", "TID", "TO
 class TrackingRecoMaterialAnalyser : public DQMEDAnalyzer {
   public:
     explicit TrackingRecoMaterialAnalyser(const edm::ParameterSet&);
-    virtual void bookHistograms(DQMStore::IBooker &i,
+    void bookHistograms(DQMStore::IBooker &i,
                                 edm::Run const&,
                                 edm::EventSetup const&) override;
     void analyze(const edm::Event &, const edm::EventSetup &) override ;
-    virtual ~TrackingRecoMaterialAnalyser();
+    ~TrackingRecoMaterialAnalyser() override;
   private:
     inline bool isDoubleSided(SiStripDetId strip_id) {
       return ((strip_id.subDetector() != SiStripDetId::UNKNOWN) && strip_id.glued());

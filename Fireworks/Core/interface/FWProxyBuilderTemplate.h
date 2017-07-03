@@ -31,7 +31,7 @@ class FWProxyBuilderTemplate : public FWProxyBuilderBase
 {
 public:
    FWProxyBuilderTemplate() : m_helper(typeid(T)) {}
-   virtual ~FWProxyBuilderTemplate() {}
+   ~FWProxyBuilderTemplate() override {}
 
    // ---------- const member functions ---------------------
 

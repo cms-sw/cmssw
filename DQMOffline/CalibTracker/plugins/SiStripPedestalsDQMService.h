@@ -26,9 +26,9 @@ class SiStripPedestalsDQMService : public SiStripBaseServiceFromDQM<SiStripPedes
  public:
 
   explicit SiStripPedestalsDQMService(const edm::ParameterSet&,const edm::ActivityRegistry&);
-  ~SiStripPedestalsDQMService();
+  ~SiStripPedestalsDQMService() override;
   
-  void getObj(SiStripPedestals* & obj)
+  void getObj(SiStripPedestals* & obj) override
   {
     readPedestals(); obj=obj_;
   }

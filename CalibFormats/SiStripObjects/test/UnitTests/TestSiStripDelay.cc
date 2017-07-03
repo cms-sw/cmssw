@@ -20,7 +20,7 @@
 class TestSiStripDelay : public CppUnit::TestFixture {
 public:
   TestSiStripDelay() {}
-  void setUp()
+  void setUp() override
   {
     baseDelay1 = new SiStripBaseDelay;
     baseDelaySign1 = 1;
@@ -41,7 +41,7 @@ public:
     }
   }
 
-  void tearDown()
+  void tearDown() override
   {
     delete baseDelay1;
     delete baseDelay2;

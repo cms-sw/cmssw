@@ -37,15 +37,15 @@ public:
 
   OMTFPatternMaker(const edm::ParameterSet & cfg);
 
-  virtual ~OMTFPatternMaker();
+  ~OMTFPatternMaker() override;
 
-  virtual void beginRun(edm::Run const& run, edm::EventSetup const& iSetup);
+  void beginRun(edm::Run const& run, edm::EventSetup const& iSetup) override;
 
-  virtual void beginJob();
+  void beginJob() override;
 
-  virtual void endJob();
+  void endJob() override;
   
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);  
+  void analyze(const edm::Event&, const edm::EventSetup&) override;  
 
 private:
 

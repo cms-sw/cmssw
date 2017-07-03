@@ -53,7 +53,7 @@ public:
 		  );
 
   /// Destructor
-  ~CSCChamberSpecs();
+  ~CSCChamberSpecs() override;
 
   /// Allow comparison of Specs objects
   bool operator!=( const CSCChamberSpecs& specs ) const;
@@ -63,7 +63,7 @@ public:
   //@@ But still there as of Aug-2007. So much for design.
 
   /// Returns StripTopology of the odd-layer, positive-z geometry
-  virtual const Topology& topology() const;
+  const Topology& topology() const override;
 
   /// Accessors for LayerGeometry's
   const CSCLayerGeometry* oddLayerGeometry( int iendcap ) const 

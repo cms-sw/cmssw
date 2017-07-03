@@ -23,10 +23,10 @@
 class testMaterialEffects : public DQMEDAnalyzer {
 public :
   explicit testMaterialEffects(const edm::ParameterSet&);
-  ~testMaterialEffects(){};
+  ~testMaterialEffects() override{};
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup& ) override;
-  virtual void dqmBeginRun(edm::Run const& ,edm::EventSetup const& ) override;
+  void analyze(const edm::Event&, const edm::EventSetup& ) override;
+  void dqmBeginRun(edm::Run const& ,edm::EventSetup const& ) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   
 private:

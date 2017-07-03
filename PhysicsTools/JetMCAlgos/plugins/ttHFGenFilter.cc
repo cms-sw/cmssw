@@ -46,14 +46,14 @@
 class ttHFGenFilter : public edm::stream::EDFilter<> {
    public:
       explicit ttHFGenFilter(const edm::ParameterSet&);
-      ~ttHFGenFilter();
+      ~ttHFGenFilter() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void beginStream(edm::StreamID) override;
-      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-      virtual void endStream() override;
+      void beginStream(edm::StreamID) override;
+      bool filter(edm::Event&, const edm::EventSetup&) override;
+      void endStream() override;
 
       virtual bool HasAdditionalBHadron(const std::vector<int>&, const std::vector<int>&,const std::vector<reco::GenParticle>&,std::vector<const reco::Candidate*>&);
       virtual bool analyzeMothersRecursive(const reco::Candidate*,std::vector<const reco::Candidate*>& AllTopMothers);

@@ -46,9 +46,9 @@ public:
       QuadId():m_ovl(0), m_parentIdx(-1){}
       QuadId(TGeoOverlap* ovl, int idx){ m_ovl = ovl; m_parentIdx = idx; }
 
-      virtual ~QuadId(){}
-      virtual const char* GetName() const { return m_ovl->GetTitle(); }
-      virtual const char* GetTitle() const { return m_ovl->GetTitle(); }
+      ~QuadId() override{}
+      const char* GetName() const override { return m_ovl->GetTitle(); }
+      const char* GetTitle() const override { return m_ovl->GetTitle(); }
 
       TGeoOverlap* m_ovl;
       int m_parentIdx;
@@ -56,23 +56,23 @@ public:
    };
 
    FWOverlapTableManager(FWOverlapTableView*);
-   virtual ~FWOverlapTableManager();
+   ~FWOverlapTableManager() override;
 
-  virtual void recalculateVisibility();
+  void recalculateVisibility() override;
   virtual void recalculateVisibilityNodeRec(int);
   void importOverlaps(std::string path, double precision);
-   virtual int numberOfColumns() const {return 6;}
+   int numberOfColumns() const override {return 6;}
 
-   virtual std::vector<std::string> getTitles() const;
+   std::vector<std::string> getTitles() const override;
  
-  FWTableCellRendererBase* cellRenderer(int iSortedRowNumber, int iCol) const;
+  FWTableCellRendererBase* cellRenderer(int iSortedRowNumber, int iCol) const override;
   
   void getOverlapTitles(int,TString&) const;
   void printOverlaps(int) const;
 
-   void setDaughtersSelfVisibility(int i, bool v);
+   void setDaughtersSelfVisibility(int i, bool v) override;
 protected:
-   virtual bool nodeIsParent(const NodeInfo&) const;
+   bool nodeIsParent(const NodeInfo&) const override;
    //   virtual  const char* cellName(const NodeInfo& data) const;
 
 private:

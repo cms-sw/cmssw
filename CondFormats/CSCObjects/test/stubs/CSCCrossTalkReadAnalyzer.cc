@@ -30,8 +30,8 @@ namespace edmtest
     { }
     explicit  CSCCrossTalkReadAnalyzer(int i) 
     { }
-    virtual ~ CSCCrossTalkReadAnalyzer() { }
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+    ~ CSCCrossTalkReadAnalyzer() override { }
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
   private:
   };
   

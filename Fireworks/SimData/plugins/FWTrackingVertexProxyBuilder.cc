@@ -17,7 +17,7 @@ class FWTrackingVertexProxyBuilder : public FWSimpleProxyBuilderTemplate<Trackin
 {
 public:
    FWTrackingVertexProxyBuilder( void ) {} 
-   virtual ~FWTrackingVertexProxyBuilder( void ) {}
+   ~FWTrackingVertexProxyBuilder( void ) override {}
 
    REGISTER_PROXYBUILDER_METHODS();
 

@@ -40,7 +40,7 @@ namespace edm {
          //virtual ~EventSetupRecordImplementation();
 
          // ---------- const member functions ---------------------
-         virtual EventSetupRecordKey key() const {
+         EventSetupRecordKey key() const override {
             return EventSetupRecordKey::makeKey<T>();
          }
 

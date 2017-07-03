@@ -31,7 +31,7 @@ public:
   EfficiencyPlotter(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~EfficiencyPlotter();
+  ~EfficiencyPlotter() override;
 
 protected:
 

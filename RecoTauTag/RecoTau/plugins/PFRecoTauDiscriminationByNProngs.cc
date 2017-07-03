@@ -19,7 +19,7 @@ using namespace edm;
 class PFRecoTauDiscriminationByNProngs : public PFTauDiscriminationProducerBase  {
     public:
 	explicit PFRecoTauDiscriminationByNProngs(const ParameterSet&);
-      	~PFRecoTauDiscriminationByNProngs(){}
+      	~PFRecoTauDiscriminationByNProngs() override{}
 
 	void beginEvent(const edm::Event&, const edm::EventSetup&) override;
 	double discriminate(const reco::PFTauRef&) const override;

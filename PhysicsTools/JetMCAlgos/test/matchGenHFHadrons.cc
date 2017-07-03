@@ -26,11 +26,11 @@
 class matchGenHFHadrons : public edm::EDAnalyzer {
     public: 
         explicit matchGenHFHadrons(const edm::ParameterSet & );
-        ~matchGenHFHadrons() {};
+        ~matchGenHFHadrons() override {};
         
     private:
-        virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
-        virtual void beginJob();
+        void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
+        void beginJob() override;
         void bookHadronBranches(TTree* tree, const int flavour);
         void clearEventVariables();
         void clearHadronVariables();

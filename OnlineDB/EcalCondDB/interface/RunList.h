@@ -18,7 +18,7 @@ class RunList  : public IDBObject {
   friend class EcalCondDBInterface;
 
   RunList();
-  ~RunList();
+  ~RunList() override;
 
   // Methods for user data
   

@@ -66,7 +66,7 @@ public:
       if(!theGeometry) theGeometry = &dummyGeometry;
     }
 
-  ~KFTrajectoryFitter(){
+  ~KFTrajectoryFitter() override{
     if (owner) {
       delete thePropagator;
       delete theUpdator;
@@ -86,7 +86,7 @@ public:
   const TrajectoryStateUpdator* updator() const {return theUpdator;}
   const MeasurementEstimator* estimator() const {return theEstimator;}
 
-  virtual std::unique_ptr<TrajectoryFitter> clone() const override
+  std::unique_ptr<TrajectoryFitter> clone() const override
   {
     return owner ?
         std::unique_ptr<TrajectoryFitter>(new KFTrajectoryFitter(*thePropagator,
@@ -101,7 +101,7 @@ public:
   }
 
  // FIXME a prototype:	final inplementaiton may differ 
-  virtual void setHitCloner(TkCloner const * hc) override {  theHitCloner = hc;}
+  void setHitCloner(TkCloner const * hc) override {  theHitCloner = hc;}
 
 
 private:

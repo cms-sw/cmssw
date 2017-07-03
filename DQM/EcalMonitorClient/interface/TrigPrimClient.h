@@ -8,7 +8,7 @@ namespace ecaldqm
   class TrigPrimClient : public DQWorkerClient {
   public:
     TrigPrimClient();
-    ~TrigPrimClient() {}
+    ~TrigPrimClient() override {}
 
     void producePlots(ProcessType) override;
 

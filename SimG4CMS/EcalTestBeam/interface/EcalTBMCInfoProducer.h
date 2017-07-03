@@ -28,10 +28,10 @@ public:
   explicit EcalTBMCInfoProducer(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~EcalTBMCInfoProducer();
+  ~EcalTBMCInfoProducer() override;
   
   /// Produce digis out of raw data
-  void produce(edm::Event & event, const edm::EventSetup& eventSetup);
+  void produce(edm::Event & event, const edm::EventSetup& eventSetup) override;
   
 private:
 

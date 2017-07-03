@@ -68,7 +68,7 @@ public:
 
       }
 
-  virtual ~EcalSignalGenerator() {}
+  ~EcalSignalGenerator() override {}
 
 
   void initializeEvent(const edm::Event * event, const edm::EventSetup * eventSetup)
@@ -183,8 +183,8 @@ private:
     return(DigiSum>0);
   }
 
-  virtual void fillNoiseSignals() override {}
-  virtual void fillNoiseSignals(CLHEP::HepRandomEngine*) override {}
+  void fillNoiseSignals() override {}
+  void fillNoiseSignals(CLHEP::HepRandomEngine*) override {}
 
   // much of this stolen from EcalSimAlgos/EcalCoder
 

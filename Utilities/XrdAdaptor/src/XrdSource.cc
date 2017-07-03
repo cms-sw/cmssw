@@ -55,10 +55,10 @@ public:
     }
 
 
-    virtual ~DelayedClose() = default;
+    ~DelayedClose() override = default;
 
 
-    virtual void HandleResponseWithHosts(XrdCl::XRootDStatus *status, XrdCl::AnyObject *response, XrdCl::HostList *hostList) override
+    void HandleResponseWithHosts(XrdCl::XRootDStatus *status, XrdCl::AnyObject *response, XrdCl::HostList *hostList) override
     {
         if (status && !status->IsOK())
         {
@@ -91,7 +91,7 @@ class QueryAttrHandler : public XrdCl::ResponseHandler
 
 public:
 
-    virtual ~QueryAttrHandler() = default;
+    ~QueryAttrHandler() override = default;
     QueryAttrHandler(const QueryAttrHandler&) = delete;
     QueryAttrHandler& operator=(const QueryAttrHandler&) = delete;
 
@@ -137,7 +137,7 @@ private:
     QueryAttrHandler() {}
 
 
-    virtual void HandleResponse(XrdCl::XRootDStatus *status, XrdCl::AnyObject *response ) override
+    void HandleResponse(XrdCl::XRootDStatus *status, XrdCl::AnyObject *response ) override
     {
         // NOTE: we own the status and response pointers.
         std::unique_ptr<XrdCl::AnyObject> response_mgr;

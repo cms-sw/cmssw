@@ -57,7 +57,7 @@ using namespace reco;
 class DeepFlavourJetTagsProducer : public edm::stream::EDProducer<> {
 public:
 	explicit DeepFlavourJetTagsProducer(const edm::ParameterSet&);
-	~DeepFlavourJetTagsProducer();
+	~DeepFlavourJetTagsProducer() override;
 
 	static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -70,9 +70,9 @@ public:
 
 private:
 	typedef std::vector<reco::ShallowTagInfo> INFOS;
-	virtual void beginStream(edm::StreamID) override {}
-	virtual void produce(edm::Event&, const edm::EventSetup&) override;
-	virtual void endStream() override {}
+	void beginStream(edm::StreamID) override {}
+	void produce(edm::Event&, const edm::EventSetup&) override;
+	void endStream() override {}
 
 	// ----------member data ---------------------------
 	const edm::EDGetTokenT< INFOS > src_;

@@ -22,7 +22,7 @@ class HcalLUTCorrs: public HcalCondObjectContainer<HcalLUTCorr>
 #endif
   HcalLUTCorrs(const HcalTopology* topo):HcalCondObjectContainer<HcalLUTCorr>(topo) {}
 
-  std::string myname() const {return (std::string)"HcalLUTCorrs";}
+  std::string myname() const override {return (std::string)"HcalLUTCorrs";}
 
  private:
 

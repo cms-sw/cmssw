@@ -56,11 +56,11 @@ using namespace l1t;
 class L1TMicroGMTLUTDumper : public edm::EDAnalyzer {
    public:
       explicit L1TMicroGMTLUTDumper(const edm::ParameterSet&);
-      ~L1TMicroGMTLUTDumper();
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      ~L1TMicroGMTLUTDumper() override;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
 
    private:
-      virtual void beginRun(edm::Run const&, edm::EventSetup const&);
+      void beginRun(edm::Run const&, edm::EventSetup const&) override;
 
       void dumpLut(MicroGMTLUT*, const std::string&);
 

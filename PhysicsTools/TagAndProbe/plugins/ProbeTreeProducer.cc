@@ -28,11 +28,11 @@
 class ProbeTreeProducer : public edm::EDFilter {
   public:
     explicit ProbeTreeProducer(const edm::ParameterSet&);
-    ~ProbeTreeProducer();
+    ~ProbeTreeProducer() override;
 
   private:
-    virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-    virtual void endJob() override;
+    bool filter(edm::Event&, const edm::EventSetup&) override;
+    void endJob() override;
 
     /// InputTag to the collection of all probes
     edm::EDGetTokenT<reco::CandidateView> probesToken_;

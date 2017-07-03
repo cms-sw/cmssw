@@ -10,7 +10,7 @@ public:
 
   SiStripRecHit2D() {}
 
-  ~SiStripRecHit2D() {} 
+  ~SiStripRecHit2D() override {} 
 
   typedef OmniClusterRef::ClusterStripRef         ClusterRef;
 
@@ -29,22 +29,22 @@ public:
   ClusterRef cluster()  const { return cluster_strip() ; }
   void setClusterRef(ClusterRef const & ref)  {setClusterStripRef(ref);}
 
-  virtual SiStripRecHit2D * clone() const override {return new SiStripRecHit2D( * this); }
+  SiStripRecHit2D * clone() const override {return new SiStripRecHit2D( * this); }
 #ifndef __GCCXML__
-  virtual RecHitPointer cloneSH() const override { return std::make_shared<SiStripRecHit2D>(*this);}
+  RecHitPointer cloneSH() const override { return std::make_shared<SiStripRecHit2D>(*this);}
 #endif
   
-  virtual int dimension() const override {return 2;}
-  virtual void getKfComponents( KfComponentsHolder & holder ) const override { getKfComponents2D(holder); }
+  int dimension() const override {return 2;}
+  void getKfComponents( KfComponentsHolder & holder ) const override { getKfComponents2D(holder); }
 
-  virtual bool canImproveWithTrack() const override {return true;}
+  bool canImproveWithTrack() const override {return true;}
 private:
   // double dispatch
-  virtual SiStripRecHit2D* clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const override {
+  SiStripRecHit2D* clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const override {
     return cloner(*this,tsos).release();
   }
 #ifndef __GCCXML__
-  virtual  RecHitPointer cloneSH(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const override {
+   RecHitPointer cloneSH(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const override {
     return cloner.makeShared(*this,tsos);
   }
 #endif 

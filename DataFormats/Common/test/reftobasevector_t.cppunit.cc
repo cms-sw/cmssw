@@ -14,8 +14,8 @@ class testRefToBaseVector : public CppUnit::TestFixture {
   CPPUNIT_TEST(check);
   CPPUNIT_TEST_SUITE_END();
 public:
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
   void check();
 };
 
@@ -29,10 +29,10 @@ namespace testreftobase {
   };  
 
   struct Inherit1 : public Base {
-    virtual int val() const { return 1;}
+    int val() const override { return 1;}
   };
   struct Inherit2 : public Base {
-    virtual int val() const {return 2;}
+    int val() const override {return 2;}
   };
 }
 

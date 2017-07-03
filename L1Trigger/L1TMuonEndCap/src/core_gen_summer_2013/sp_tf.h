@@ -82,13 +82,13 @@ class sptf : public edm::EDProducer
 
     sptf(const PSet&);
     //sptf(std::vector<edm::InputTag>, std::vector<edm::InputTag>);
-    ~sptf() {}
+    ~sptf() override {}
     sptf() {std::cout << "Hello there.\n";}
-    void produce(edm::Event&, const edm::EventSetup&);
-    void beginJob();
+    void produce(edm::Event&, const edm::EventSetup&) override;
+    void beginJob() override;
     //void beginRun(const edm::Run&, const edm::EventSetup&);
     //void endRun(const edm::Run&, const edm::EventSetup&);
-    void endJob();
+    void endJob() override;
     //void runEvent();
 
  private:

@@ -27,13 +27,13 @@ public:
   L2MuonIsolationAnalyzer(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~L2MuonIsolationAnalyzer();
+  ~L2MuonIsolationAnalyzer() override;
 
   // Operations
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
 
-  virtual void beginJob() ;
-  virtual void endJob() ;
+  void beginJob() override ;
+  void endJob() override ;
 
 private:
   void Puts(const char* fmt, ...);

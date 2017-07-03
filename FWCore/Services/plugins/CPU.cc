@@ -39,11 +39,11 @@ namespace edm {
     class CPU : public CPUServiceBase {
     public:
       CPU(ParameterSet const&, ActivityRegistry&);
-      ~CPU();
+      ~CPU() override;
 
       static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
-      virtual bool cpuInfo(std::string &models, double &avgSpeed) override;
+      bool cpuInfo(std::string &models, double &avgSpeed) override;
 
     private:
       const bool reportCPUProperties_;

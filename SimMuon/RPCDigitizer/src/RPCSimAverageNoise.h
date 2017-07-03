@@ -30,7 +30,7 @@ class RPCSimAverageNoise : public RPCSim
  public:
 
   RPCSimAverageNoise(const edm::ParameterSet& config);
-  ~RPCSimAverageNoise();
+  ~RPCSimAverageNoise() override;
 
   void simulate(const RPCRoll* roll,
 		const edm::PSimHitContainer& rpcHits,

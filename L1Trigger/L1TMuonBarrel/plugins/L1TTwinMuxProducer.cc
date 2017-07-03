@@ -27,8 +27,8 @@ using namespace std;
 class L1TTwinMuxProducer: public edm::one::EDProducer<edm::one::SharedResources> {
 public:
   L1TTwinMuxProducer(const edm::ParameterSet & pset);
-  ~L1TTwinMuxProducer() {}
-  void produce(edm::Event & e, const edm::EventSetup& c);
+  ~L1TTwinMuxProducer() override {}
+  void produce(edm::Event & e, const edm::EventSetup& c) override;
 private:
   std::unique_ptr<L1TTwinMuxAlgortithm>  m_l1tma;
   edm::EDGetToken m_dtdigi, m_dtthetadigi, m_rpcsource;

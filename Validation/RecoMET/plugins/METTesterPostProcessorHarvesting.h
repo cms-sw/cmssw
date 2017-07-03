@@ -28,10 +28,10 @@
 class METTesterPostProcessorHarvesting : public DQMEDHarvester {
    public:
       explicit METTesterPostProcessorHarvesting(const edm::ParameterSet&);
-      ~METTesterPostProcessorHarvesting();
+      ~METTesterPostProcessorHarvesting() override;
 
    private:
-      virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) ;
+      void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override ;
 
       edm::InputTag inputMETLabelRECO_;
       edm::InputTag inputMETLabelMiniAOD_;

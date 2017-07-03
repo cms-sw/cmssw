@@ -41,15 +41,15 @@ class HcalTestAnalysis : public SimWatcher,
 
 public:
   HcalTestAnalysis(const edm::ParameterSet &p);
-  virtual ~HcalTestAnalysis();
+  ~HcalTestAnalysis() override;
 
 private:
   // observer classes
-  void update(const BeginOfJob * run);
-  void update(const BeginOfRun * run);
-  void update(const BeginOfEvent * evt);
-  void update(const EndOfEvent * evt);
-  void update(const G4Step * step);
+  void update(const BeginOfJob * run) override;
+  void update(const BeginOfRun * run) override;
+  void update(const BeginOfEvent * evt) override;
+  void update(const EndOfEvent * evt) override;
+  void update(const G4Step * step) override;
 
   // analysis-related stuff
   std::vector<int> layerGrouping(int);

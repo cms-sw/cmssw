@@ -14,9 +14,9 @@ using namespace edm;
 class TagProbeFitTreeAnalyzer : public edm::EDAnalyzer{
   public:
     TagProbeFitTreeAnalyzer(const edm::ParameterSet& pset);
-    virtual ~TagProbeFitTreeAnalyzer(){};
-    virtual void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override {};
-    virtual void endRun(const edm::Run &run, const edm::EventSetup &setup) override{};
+    ~TagProbeFitTreeAnalyzer() override{};
+    void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override {};
+    void endRun(const edm::Run &run, const edm::EventSetup &setup) override{};
     void calculateEfficiency(string name, const edm::ParameterSet& pset);
   private:
     TagProbeFitter fitter;

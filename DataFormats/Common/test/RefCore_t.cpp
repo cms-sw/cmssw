@@ -19,9 +19,9 @@ class TestRefCore: public CppUnit::TestFixture
 
  public:
   TestRefCore() { } 
-  ~TestRefCore() {}
-  void setUp() {}
-  void tearDown() {}
+  ~TestRefCore() override {}
+  void setUp() override {}
+  void tearDown() override {}
 
   void default_ctor();
   void nondefault_ctor();

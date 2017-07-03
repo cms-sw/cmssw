@@ -20,7 +20,7 @@ class FWTracksModulesProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Tr
 {
 public:
    FWTracksModulesProxyBuilder( void ) {}
-   virtual ~FWTracksModulesProxyBuilder( void ) {}
+   ~FWTracksModulesProxyBuilder( void ) override {}
 
    REGISTER_PROXYBUILDER_METHODS();
   

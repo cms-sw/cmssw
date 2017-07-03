@@ -19,14 +19,14 @@ class L1TStage2EMTF : public DQMEDAnalyzer {
  public:
 
   L1TStage2EMTF(const edm::ParameterSet& ps);
-  virtual ~L1TStage2EMTF();
+  ~L1TStage2EMTF() override;
 
  protected:
 
-  virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-  virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
-  virtual void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
+  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
  private:
 

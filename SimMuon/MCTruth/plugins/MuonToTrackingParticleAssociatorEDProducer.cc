@@ -168,12 +168,12 @@ namespace {
 class MuonToTrackingParticleAssociatorEDProducer : public edm::stream::EDProducer<> {
 public:
   explicit MuonToTrackingParticleAssociatorEDProducer(const edm::ParameterSet&);
-  ~MuonToTrackingParticleAssociatorEDProducer();
+  ~MuonToTrackingParticleAssociatorEDProducer() override;
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
 private:
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
   
   // ----------member data ---------------------------
   edm::ParameterSet const config_;

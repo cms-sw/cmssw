@@ -39,18 +39,18 @@ class HGCPassive : public SimProducer,
   
 public:
   HGCPassive(const edm::ParameterSet &p);
-  virtual ~HGCPassive();
+  ~HGCPassive() override;
 
-  void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
   HGCPassive(const HGCPassive&); // stop default
   const HGCPassive& operator=(const HGCPassive&);
 
   // observer classes
-  void update(const BeginOfRun * run);
-  void update(const BeginOfEvent * evt);
-  void update(const G4Step * step);
+  void update(const BeginOfRun * run) override;
+  void update(const BeginOfEvent * evt) override;
+  void update(const G4Step * step) override;
   
   //void endOfEvent(edm::PassiveHitContainer &HGCEEAbsE);
   void endOfEvent(edm::PassiveHitContainer& hgcPH, unsigned int k);

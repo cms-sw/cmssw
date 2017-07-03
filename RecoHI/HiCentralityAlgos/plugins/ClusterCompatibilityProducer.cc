@@ -38,9 +38,9 @@ class ClusterCompatibilityProducer : public edm::stream::EDProducer<> {
 
   public:
     explicit ClusterCompatibilityProducer(const edm::ParameterSet&);
-    ~ClusterCompatibilityProducer();
+    ~ClusterCompatibilityProducer() override;
 
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
   private:
 

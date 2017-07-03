@@ -63,16 +63,16 @@ public:
  L1TRPCTPG(const edm::ParameterSet& ps);
 
 // Destructor
- virtual ~L1TRPCTPG();
+ ~L1TRPCTPG() override;
 
 protected:
 // Analyze
  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
 // BeginRun
- virtual void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override;
- virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
- virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+ void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override;
+ void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
+ void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
 private:
   // ----------member data ---------------------------

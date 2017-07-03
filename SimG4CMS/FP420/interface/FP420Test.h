@@ -65,7 +65,7 @@ class Fp420AnalysisHistManager : public TNamed {
         public:
 
                 Fp420AnalysisHistManager(const TString& managername);
-                ~Fp420AnalysisHistManager();
+                ~Fp420AnalysisHistManager() override;
 
                 TH1F* GetHisto(Int_t Number);
                 TH1F* GetHisto(const TObjString& histname);
@@ -171,20 +171,20 @@ class FP420Test : public SimWatcher,
 {
 public:
   FP420Test(const edm::ParameterSet &p);
-  virtual ~FP420Test();
+  ~FP420Test() override;
   //MyActions();
   //MyActions();
 private:
 
   // observer classes
-  void update(const BeginOfJob * run);
-  void update(const BeginOfRun * run);
-  void update(const EndOfRun * run);
-  void update(const BeginOfEvent * evt);
-  void update(const BeginOfTrack * trk);
-  void update(const G4Step * step);
-  void update(const EndOfTrack * trk);
-  void update(const EndOfEvent * evt);
+  void update(const BeginOfJob * run) override;
+  void update(const BeginOfRun * run) override;
+  void update(const EndOfRun * run) override;
+  void update(const BeginOfEvent * evt) override;
+  void update(const BeginOfTrack * trk) override;
+  void update(const G4Step * step) override;
+  void update(const EndOfTrack * trk) override;
+  void update(const EndOfEvent * evt) override;
 
 private:
 

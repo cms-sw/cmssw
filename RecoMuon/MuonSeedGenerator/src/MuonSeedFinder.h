@@ -26,14 +26,14 @@ public:
   MuonSeedFinder(const edm::ParameterSet & pset);
 
   /// Destructor
-  virtual ~MuonSeedFinder(){delete thePtExtractor;}
+  ~MuonSeedFinder() override{delete thePtExtractor;}
 
   // Operations
 
-  virtual void setBField(const MagneticField * field);
+  void setBField(const MagneticField * field) override;
 
   void seeds(const MuonTransientTrackingRecHit::MuonRecHitContainer & hits,
-             std::vector<TrajectorySeed> & result);
+             std::vector<TrajectorySeed> & result) override;
 
 private:
   

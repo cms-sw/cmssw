@@ -30,10 +30,10 @@ class testNuclearInteractions : public DQMEDAnalyzer {
 
 public :
   explicit testNuclearInteractions(const edm::ParameterSet&);
-  ~testNuclearInteractions();
+  ~testNuclearInteractions() override;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup& ) override;
-  virtual void dqmBeginRun(edm::Run const&,  const edm::EventSetup & ) override;
+  void analyze(const edm::Event&, const edm::EventSetup& ) override;
+  void dqmBeginRun(edm::Run const&,  const edm::EventSetup & ) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 private:
   

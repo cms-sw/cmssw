@@ -34,9 +34,9 @@ class HLTSummaryFilter : public HLTFilter {
    public:
 
       explicit HLTSummaryFilter(const edm::ParameterSet&);
-      ~HLTSummaryFilter();
+      ~HLTSummaryFilter() override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
    private:
       edm::InputTag                           summaryTag_;   // input tag identifying TriggerSummaryAOD

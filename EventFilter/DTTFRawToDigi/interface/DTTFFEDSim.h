@@ -34,7 +34,7 @@ class DTTFFEDSim : public edm::stream::EDProducer<> {
   DTTFFEDSim(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~DTTFFEDSim();
+  ~DTTFFEDSim() override;
 
   /// Produce digis out of raw data
   void produce(edm::Event & e, const edm::EventSetup& c) override;

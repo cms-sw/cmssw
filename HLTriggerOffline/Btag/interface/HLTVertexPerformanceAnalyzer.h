@@ -33,11 +33,11 @@
 class HLTVertexPerformanceAnalyzer : public DQMEDAnalyzer {
 	public:
 		explicit HLTVertexPerformanceAnalyzer(const edm::ParameterSet&);
-		~HLTVertexPerformanceAnalyzer();
+		~HLTVertexPerformanceAnalyzer() override;
 			void dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) override;
 
 	private:
-		virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+		void analyze(const edm::Event&, const edm::EventSetup&) override;
 		void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 		// variables from python configuration

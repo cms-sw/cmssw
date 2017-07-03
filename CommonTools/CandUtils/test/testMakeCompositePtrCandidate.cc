@@ -12,7 +12,7 @@ namespace test {
   class DummyCandidate : public reco::LeafCandidate {
   public:
     DummyCandidate( const LorentzVector & p, Charge q = 0 ) : reco::LeafCandidate( q, p ) { }
-    virtual DummyCandidate * clone() const { return new DummyCandidate( * this ); }
+    DummyCandidate * clone() const override { return new DummyCandidate( * this ); }
   };
 
   typedef std::vector<DummyCandidate> DummyCandidateCollection;
@@ -23,8 +23,8 @@ class testMakePtrCompositeCandidate : public CppUnit::TestFixture {
   CPPUNIT_TEST(checkAll);
   CPPUNIT_TEST_SUITE_END();
 public:
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
   void checkAll(); 
 };
 

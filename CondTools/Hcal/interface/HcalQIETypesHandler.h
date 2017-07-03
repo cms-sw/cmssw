@@ -25,9 +25,9 @@
 class HcalQIETypesHandler : public popcon::PopConSourceHandler<HcalQIETypes>
 {
  public:
-  void getNewObjects();
-  std::string id() const { return m_name;}
-  ~HcalQIETypesHandler();
+  void getNewObjects() override;
+  std::string id() const override { return m_name;}
+  ~HcalQIETypesHandler() override;
   HcalQIETypesHandler(edm::ParameterSet const &);
 
   void initObject(HcalQIETypes*);

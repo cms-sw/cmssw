@@ -45,7 +45,7 @@ public:
   /// Copy constructor
   L1GctHfEtSumsLut(const L1GctHfEtSumsLut& lut);
   /// Destructor
-  virtual ~L1GctHfEtSumsLut();
+  ~L1GctHfEtSumsLut() override;
   
   /// Overload = operator
   L1GctHfEtSumsLut operator= (const L1GctHfEtSumsLut& lut);
@@ -69,7 +69,7 @@ public:
 protected:
   
 
-  virtual uint16_t value (const uint16_t lutAddress) const;
+  uint16_t value (const uint16_t lutAddress) const override;
 
 private:
 

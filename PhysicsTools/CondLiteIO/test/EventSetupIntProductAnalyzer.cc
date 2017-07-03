@@ -44,10 +44,10 @@ namespace edmtest {
 class EventSetupIntProductAnalyzer : public edm::EDAnalyzer {
    public:
       explicit EventSetupIntProductAnalyzer(const edm::ParameterSet&);
-      ~EventSetupIntProductAnalyzer();
+      ~EventSetupIntProductAnalyzer() override;
 
 
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
    private:
       // ----------member data ---------------------------
       std::vector<int> expectedValues_;

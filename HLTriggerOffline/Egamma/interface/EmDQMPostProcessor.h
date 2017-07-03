@@ -8,7 +8,7 @@
 class EmDQMPostProcessor : public DQMEDHarvester {
  public:
   EmDQMPostProcessor(const edm::ParameterSet& pset);
-  ~EmDQMPostProcessor() {};
+  ~EmDQMPostProcessor() override {};
 
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
   TProfile* dividehistos(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, const std::string& num, const std::string& denom, const std::string& out,const std::string& label, const std::string& titel= "");

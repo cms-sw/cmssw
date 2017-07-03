@@ -89,7 +89,7 @@ class FakeCaloAlignmentEP : public edm::ESProducer
 	 setWhatProduced( this, &FakeCaloAlignmentEP::produceCastorAliErr ) ;
       }
 
-      ~FakeCaloAlignmentEP() {}
+      ~FakeCaloAlignmentEP() override {}
 
 //-------------------------------------------------------------------
  

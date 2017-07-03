@@ -17,7 +17,7 @@ namespace ecaldqm
 
     MESetMulti(MESet const&, ReplCandidates const&);
     MESetMulti(MESetMulti const&);
-    ~MESetMulti();
+    ~MESetMulti() override;
 
     MESet& operator=(MESet const&) override;
 

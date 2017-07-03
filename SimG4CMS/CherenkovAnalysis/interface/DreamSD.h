@@ -22,14 +22,14 @@ public:
 
   DreamSD(G4String, const DDCompactView &, const SensitiveDetectorCatalog &,
 	  edm::ParameterSet const &, const SimTrackManager*);
-  virtual ~DreamSD() {}
-  virtual bool   ProcessHits(G4Step * step,G4TouchableHistory * tHistory);
-  virtual uint32_t setDetUnitId(G4Step*);
+  ~DreamSD() override {}
+  bool   ProcessHits(G4Step * step,G4TouchableHistory * tHistory) override;
+  uint32_t setDetUnitId(G4Step*) override;
 
 protected:
 
-  virtual G4bool getStepInfo(G4Step* aStep);
-  virtual void   initRun();
+  G4bool getStepInfo(G4Step* aStep) override;
+  void   initRun() override;
 
 private:    
 

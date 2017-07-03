@@ -14,8 +14,8 @@ class ODRunConfigInfo : public IODConfig {
   friend class EcalCondDBInterface;
 
   ODRunConfigInfo();
-  ~ODRunConfigInfo();
-  inline std::string getTable() { return "ECAL_RUN_CONFIGURATION_DAT"; }
+  ~ODRunConfigInfo() override;
+  inline std::string getTable() override { return "ECAL_RUN_CONFIGURATION_DAT"; }
 
   inline void setId(int id) { m_ID = id; }
   inline int getId() const { return m_ID; }
@@ -82,7 +82,7 @@ std::string getUsageStatus() const{  return m_usage_status;}
   int fetchIDLast() noexcept(false);
   void setByID(int id) noexcept(false);
 
-  void prepareWrite()  noexcept(false);
+  void prepareWrite()  noexcept(false) override;
   void writeDB()       noexcept(false);
   void fetchData(ODRunConfigInfo * result)     noexcept(false);
   int updateDefaultCycle()   noexcept(false);

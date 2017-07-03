@@ -31,7 +31,7 @@ namespace ecaldqm
   class CrystalConsistencyReader : public DBReaderWorker {
   public:
     CrystalConsistencyReader(edm::ParameterSet const& _ps) : DBReaderWorker("CrystalConsistencyReader", _ps) {}
-    ~CrystalConsistencyReader() {}
+    ~CrystalConsistencyReader() override {}
 
     std::map<DetId, double> run(EcalCondDBInterface*, MonRunIOV&, std::string const&) override;
   };
@@ -39,7 +39,7 @@ namespace ecaldqm
   class TTConsistencyReader : public DBReaderWorker {
   public:
     TTConsistencyReader(edm::ParameterSet const& _ps) : DBReaderWorker("TTConsistencyReader", _ps) {}
-    ~TTConsistencyReader() {}
+    ~TTConsistencyReader() override {}
 
     std::map<DetId, double> run(EcalCondDBInterface*, MonRunIOV&, std::string const&) override;
   };
@@ -47,7 +47,7 @@ namespace ecaldqm
   class MemChConsistencyReader : public DBReaderWorker {
   public:
     MemChConsistencyReader(edm::ParameterSet const& _ps) : DBReaderWorker("MemChConsistencyReader", _ps) {}
-    ~MemChConsistencyReader() {}
+    ~MemChConsistencyReader() override {}
 
     std::map<DetId, double> run(EcalCondDBInterface*, MonRunIOV&, std::string const&) override;
   };
@@ -55,7 +55,7 @@ namespace ecaldqm
   class MemTTConsistencyReader : public DBReaderWorker {
   public:
     MemTTConsistencyReader(edm::ParameterSet const& _ps) : DBReaderWorker("MemTTConsistencyReader", _ps) {}
-    ~MemTTConsistencyReader() {}
+    ~MemTTConsistencyReader() override {}
 
     std::map<DetId, double> run(EcalCondDBInterface*, MonRunIOV&, std::string const&) override;
   };
@@ -63,7 +63,7 @@ namespace ecaldqm
   class LaserBlueReader : public DBReaderWorker {
   public:
     LaserBlueReader(edm::ParameterSet const& _ps) : DBReaderWorker("LaserBlueReader", _ps) {}
-    ~LaserBlueReader() {}
+    ~LaserBlueReader() override {}
 
     std::map<DetId, double> run(EcalCondDBInterface*, MonRunIOV&, std::string const&) override;
   };
@@ -71,7 +71,7 @@ namespace ecaldqm
   class TimingLaserBlueCrystalReader : public DBReaderWorker {
   public:
     TimingLaserBlueCrystalReader(edm::ParameterSet const& _ps) : DBReaderWorker("TimingLaserBlueCrystalReader", _ps) {}
-    ~TimingLaserBlueCrystalReader() {}
+    ~TimingLaserBlueCrystalReader() override {}
 
     std::map<DetId, double> run(EcalCondDBInterface*, MonRunIOV&, std::string const&) override;
   };
@@ -79,7 +79,7 @@ namespace ecaldqm
   class PNBlueReader : public DBReaderWorker {
   public:
     PNBlueReader(edm::ParameterSet const& _ps) : DBReaderWorker("PNBlueReader", _ps) {}
-    ~PNBlueReader() {}
+    ~PNBlueReader() override {}
 
     std::map<DetId, double> run(EcalCondDBInterface*, MonRunIOV&, std::string const&) override;
   };
@@ -87,7 +87,7 @@ namespace ecaldqm
   class LaserGreenReader : public DBReaderWorker {
   public:
     LaserGreenReader(edm::ParameterSet const& _ps) : DBReaderWorker("LaserGreenReader", _ps) {}
-    ~LaserGreenReader() {}
+    ~LaserGreenReader() override {}
 
     std::map<DetId, double> run(EcalCondDBInterface*, MonRunIOV&, std::string const&) override;
   };
@@ -95,7 +95,7 @@ namespace ecaldqm
   class TimingLaserGreenCrystalReader : public DBReaderWorker {
   public:
     TimingLaserGreenCrystalReader(edm::ParameterSet const& _ps) : DBReaderWorker("TimingLaserGreenCrystalReader", _ps) {}
-    ~TimingLaserGreenCrystalReader() {}
+    ~TimingLaserGreenCrystalReader() override {}
 
     std::map<DetId, double> run(EcalCondDBInterface*, MonRunIOV&, std::string const&) override;
   };
@@ -103,7 +103,7 @@ namespace ecaldqm
   class PNGreenReader : public DBReaderWorker {
   public:
     PNGreenReader(edm::ParameterSet const& _ps) : DBReaderWorker("PNGreenReader", _ps) {}
-    ~PNGreenReader() {}
+    ~PNGreenReader() override {}
 
     std::map<DetId, double> run(EcalCondDBInterface*, MonRunIOV&, std::string const&) override;
   };
@@ -111,7 +111,7 @@ namespace ecaldqm
   class LaserIRedReader : public DBReaderWorker {
   public:
     LaserIRedReader(edm::ParameterSet const& _ps) : DBReaderWorker("LaserIRedReader", _ps) {}
-    ~LaserIRedReader() {}
+    ~LaserIRedReader() override {}
 
     std::map<DetId, double> run(EcalCondDBInterface*, MonRunIOV&, std::string const&) override;
   };
@@ -119,7 +119,7 @@ namespace ecaldqm
   class TimingLaserIRedCrystalReader : public DBReaderWorker {
   public:
     TimingLaserIRedCrystalReader(edm::ParameterSet const& _ps) : DBReaderWorker("TimingLaserIRedCrystalReader", _ps) {}
-    ~TimingLaserIRedCrystalReader() {}
+    ~TimingLaserIRedCrystalReader() override {}
 
     std::map<DetId, double> run(EcalCondDBInterface*, MonRunIOV&, std::string const&) override;
   };
@@ -127,7 +127,7 @@ namespace ecaldqm
   class PNIRedReader : public DBReaderWorker {
   public:
     PNIRedReader(edm::ParameterSet const& _ps) : DBReaderWorker("PNIRedReader", _ps) {}
-    ~PNIRedReader() {}
+    ~PNIRedReader() override {}
 
     std::map<DetId, double> run(EcalCondDBInterface*, MonRunIOV&, std::string const&) override;
   };
@@ -135,7 +135,7 @@ namespace ecaldqm
   class LaserRedReader : public DBReaderWorker {
   public:
     LaserRedReader(edm::ParameterSet const& _ps) : DBReaderWorker("LaserRedReader", _ps) {}
-    ~LaserRedReader() {}
+    ~LaserRedReader() override {}
 
     std::map<DetId, double> run(EcalCondDBInterface*, MonRunIOV&, std::string const&) override;
   };
@@ -143,7 +143,7 @@ namespace ecaldqm
   class TimingLaserRedCrystalReader : public DBReaderWorker {
   public:
     TimingLaserRedCrystalReader(edm::ParameterSet const& _ps) : DBReaderWorker("TimingLaserRedCrystalReader", _ps) {}
-    ~TimingLaserRedCrystalReader() {}
+    ~TimingLaserRedCrystalReader() override {}
 
     std::map<DetId, double> run(EcalCondDBInterface*, MonRunIOV&, std::string const&) override;
   };
@@ -151,7 +151,7 @@ namespace ecaldqm
   class PNRedReader : public DBReaderWorker {
   public:
     PNRedReader(edm::ParameterSet const& _ps) : DBReaderWorker("PNRedReader", _ps) {}
-    ~PNRedReader() {}
+    ~PNRedReader() override {}
 
     std::map<DetId, double> run(EcalCondDBInterface*, MonRunIOV&, std::string const&) override;
   };
@@ -159,7 +159,7 @@ namespace ecaldqm
   class PedestalsReader : public DBReaderWorker {
   public:
     PedestalsReader(edm::ParameterSet const& _ps) : DBReaderWorker("PedestalsReader", _ps) {}
-    ~PedestalsReader() {}
+    ~PedestalsReader() override {}
 
     std::map<DetId, double> run(EcalCondDBInterface*, MonRunIOV&, std::string const&) override;
   };
@@ -167,7 +167,7 @@ namespace ecaldqm
   class PNPedReader : public DBReaderWorker {
   public:
     PNPedReader(edm::ParameterSet const& _ps) : DBReaderWorker("PNPedReader", _ps) {}
-    ~PNPedReader() {}
+    ~PNPedReader() override {}
 
     std::map<DetId, double> run(EcalCondDBInterface*, MonRunIOV&, std::string const&) override;
   };
@@ -175,7 +175,7 @@ namespace ecaldqm
   class PedestalsOnlineReader : public DBReaderWorker {
   public:
     PedestalsOnlineReader(edm::ParameterSet const& _ps) : DBReaderWorker("PedestalsOnlineReader", _ps) {}
-    ~PedestalsOnlineReader() {}
+    ~PedestalsOnlineReader() override {}
 
     std::map<DetId, double> run(EcalCondDBInterface*, MonRunIOV&, std::string const&) override;
   };
@@ -183,7 +183,7 @@ namespace ecaldqm
   class TestPulseReader : public DBReaderWorker {
   public:
     TestPulseReader(edm::ParameterSet const& _ps) : DBReaderWorker("TestPulseReader", _ps) {}
-    ~TestPulseReader() {}
+    ~TestPulseReader() override {}
 
     std::map<DetId, double> run(EcalCondDBInterface*, MonRunIOV&, std::string const&) override;
   };
@@ -191,7 +191,7 @@ namespace ecaldqm
   class PulseShapeReader : public DBReaderWorker {
   public:
     PulseShapeReader(edm::ParameterSet const& _ps) : DBReaderWorker("PulseShapeReader", _ps) {}
-    ~PulseShapeReader() {}
+    ~PulseShapeReader() override {}
 
     std::map<DetId, double> run(EcalCondDBInterface*, MonRunIOV&, std::string const&) override;
   };
@@ -199,7 +199,7 @@ namespace ecaldqm
   class PNMGPAReader : public DBReaderWorker {
   public:
     PNMGPAReader(edm::ParameterSet const& _ps) : DBReaderWorker("PNMGPAReader", _ps) {}
-    ~PNMGPAReader() {}
+    ~PNMGPAReader() override {}
 
     std::map<DetId, double> run(EcalCondDBInterface*, MonRunIOV&, std::string const&) override;
   };
@@ -207,7 +207,7 @@ namespace ecaldqm
   class TimingCrystalReader : public DBReaderWorker {
   public:
     TimingCrystalReader(edm::ParameterSet const& _ps) : DBReaderWorker("TimingCrystalReader", _ps) {}
-    ~TimingCrystalReader() {}
+    ~TimingCrystalReader() override {}
 
     std::map<DetId, double> run(EcalCondDBInterface*, MonRunIOV&, std::string const&) override;
   };
@@ -215,7 +215,7 @@ namespace ecaldqm
   class Led1Reader : public DBReaderWorker {
   public:
     Led1Reader(edm::ParameterSet const& _ps) : DBReaderWorker("Led1Reader", _ps) {}
-    ~Led1Reader() {}
+    ~Led1Reader() override {}
 
     std::map<DetId, double> run(EcalCondDBInterface*, MonRunIOV&, std::string const&) override;
   };
@@ -223,7 +223,7 @@ namespace ecaldqm
   class TimingLed1CrystalReader : public DBReaderWorker {
   public:
     TimingLed1CrystalReader(edm::ParameterSet const& _ps) : DBReaderWorker("TimingLed1CrystalReader", _ps) {}
-    ~TimingLed1CrystalReader() {}
+    ~TimingLed1CrystalReader() override {}
 
     std::map<DetId, double> run(EcalCondDBInterface*, MonRunIOV&, std::string const&) override;
   };
@@ -231,7 +231,7 @@ namespace ecaldqm
   class Led2Reader : public DBReaderWorker {
   public:
     Led2Reader(edm::ParameterSet const& _ps) : DBReaderWorker("Led2Reader", _ps) {}
-    ~Led2Reader() {}
+    ~Led2Reader() override {}
 
     std::map<DetId, double> run(EcalCondDBInterface*, MonRunIOV&, std::string const&) override;
   };
@@ -239,7 +239,7 @@ namespace ecaldqm
   class TimingLed2CrystalReader : public DBReaderWorker {
   public:
     TimingLed2CrystalReader(edm::ParameterSet const& _ps) : DBReaderWorker("TimingLed2CrystalReader", _ps) {}
-    ~TimingLed2CrystalReader() {}
+    ~TimingLed2CrystalReader() override {}
 
     std::map<DetId, double> run(EcalCondDBInterface*, MonRunIOV&, std::string const&) override;
   };
@@ -247,7 +247,7 @@ namespace ecaldqm
   class OccupancyReader : public DBReaderWorker {
   public:
     OccupancyReader(edm::ParameterSet const& _ps) : DBReaderWorker("OccupancyReader", _ps) {}
-    ~OccupancyReader() {}
+    ~OccupancyReader() override {}
 
     std::map<DetId, double> run(EcalCondDBInterface*, MonRunIOV&, std::string const&) override;
   };

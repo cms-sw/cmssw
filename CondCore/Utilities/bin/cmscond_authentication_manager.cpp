@@ -55,7 +55,7 @@ namespace cond {
   class AuthenticationManager : public Utilities {
     public:
       AuthenticationManager();
-      ~AuthenticationManager();
+      ~AuthenticationManager() override;
       int execute() override;
   };
 }

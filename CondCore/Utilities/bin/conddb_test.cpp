@@ -11,8 +11,8 @@ namespace cond {
   class TestIovUtilities : public cond::Utilities {
     public:
       TestIovUtilities();
-      ~TestIovUtilities();
-      int execute();
+      ~TestIovUtilities() override;
+      int execute() override;
   };
 }
 

@@ -54,12 +54,12 @@ public:
   ELoutput( std::ostream & os, bool emitAtStart = false );	// 6/11/07 mf
   ELoutput( const ELstring & fileName, bool emitAtStart = false );
   ELoutput( const ELoutput & orig );
-  virtual ~ELoutput();
+  ~ELoutput() override;
 
   // ---  Methods invoked by the ELadministrator:
   //
 public:
-  virtual bool log( const edm::ErrorObj & msg ) override;
+  bool log( const edm::ErrorObj & msg ) override;
 
 protected:
     // trivial clearSummary(), wipe(), zero() from base class
@@ -71,28 +71,28 @@ protected:
 protected:
   void emitToken( const ELstring & s, bool nl=false ) ;
 
-  virtual void suppressTime() override;
-  virtual void includeTime() override;
-  virtual void suppressModule()override;
-  virtual void includeModule() override;
-  virtual void suppressSubroutine() override;
-  virtual void includeSubroutine() override;
-  virtual void suppressText() override;
-  virtual void includeText() override;
-  virtual void suppressContext() override;
-  virtual void includeContext() override;
-  virtual void suppressSerial() override;
-  virtual void includeSerial() override;
-  virtual void useFullContext() override;
-  virtual void useContext() override;
-  virtual void separateTime() override;
-  virtual void attachTime() override;
-  virtual void separateEpilogue() override;
-  virtual void attachEpilogue() override;
+  void suppressTime() override;
+  void includeTime() override;
+  void suppressModule()override;
+  void includeModule() override;
+  void suppressSubroutine() override;
+  void includeSubroutine() override;
+  void suppressText() override;
+  void includeText() override;
+  void suppressContext() override;
+  void includeContext() override;
+  void suppressSerial() override;
+  void includeSerial() override;
+  void useFullContext() override;
+  void useContext() override;
+  void separateTime() override;
+  void attachTime() override;
+  void separateEpilogue() override;
+  void attachEpilogue() override;
 
-  virtual void changeFile (std::ostream & os) override;
-  virtual void changeFile (const ELstring & filename) override;
-  virtual void flush() override;
+  void changeFile (std::ostream & os) override;
+  void changeFile (const ELstring & filename) override;
+  void flush() override;
 
 
 protected:

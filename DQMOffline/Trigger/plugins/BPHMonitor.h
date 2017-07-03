@@ -54,7 +54,7 @@ class BPHMonitor : public DQMEDAnalyzer
 {
 public:
   BPHMonitor( const edm::ParameterSet& );
-  ~BPHMonitor();
+  ~BPHMonitor() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   static void fillHistoPSetDescription(edm::ParameterSetDescription & pset);
   static void fillHistoLSPSetDescription(edm::ParameterSetDescription & pset);

@@ -24,7 +24,7 @@ namespace {
   class  KFTrajectorySmootherESProducer final : public edm::ESProducer{
   public:
     KFTrajectorySmootherESProducer(const edm::ParameterSet & p);
-    ~KFTrajectorySmootherESProducer(); 
+    ~KFTrajectorySmootherESProducer() override; 
     std::shared_ptr<TrajectorySmoother> produce(const TrajectoryFitterRecord &);
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

@@ -58,7 +58,7 @@ class RazorMonitor : public DQMEDAnalyzer
 {
 public:
   RazorMonitor( const edm::ParameterSet& );
-  ~RazorMonitor();
+  ~RazorMonitor() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
   static double CalcMR(const math::XYZTLorentzVector& ja, const math::XYZTLorentzVector& jb);

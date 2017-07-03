@@ -21,9 +21,9 @@ namespace popcon
     {
       
     public:
-      void getNewObjects();
-      std::string id() const { return m_name;}
-      ~CSCDBGainsImpl(); 
+      void getNewObjects() override;
+      std::string id() const override { return m_name;}
+      ~CSCDBGainsImpl() override; 
       
       CSCDBGainsImpl(const edm::ParameterSet& pset);
       

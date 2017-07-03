@@ -48,16 +48,16 @@ class MuonServiceProxy;
 class MuonTimingValidator : public edm::EDAnalyzer {
 public:
   explicit MuonTimingValidator(const edm::ParameterSet&);
-  ~MuonTimingValidator();
+  ~MuonTimingValidator() override;
   
   typedef std::pair< reco::TrackRef, SimTrackRef> CandToSim;
   typedef std::pair< reco::TrackRef, SimTrackRef> CandStaSim;
   typedef std::pair< reco::TrackRef, SimTrackRef> CandMuonSim;
   
 private:
-  virtual void beginJob() ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  void beginJob() override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
 
   virtual float calculateDistance(const math::XYZVector&, const math::XYZVector&);
   virtual TH1F* divideErr(TH1F*, TH1F*, TH1F*);

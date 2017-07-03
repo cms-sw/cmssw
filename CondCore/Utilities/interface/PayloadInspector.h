@@ -185,7 +185,7 @@ namespace cond {
 	m_plotAnnotations.m[PlotAnnotations::YAXIS_K] = yLabel;
         m_plotAnnotations.m[PlotAnnotations::PAYLOAD_TYPE_K] = cond::demangledName( typeid(PayloadType) );
       }
-      virtual ~Plot2D() = default;
+      ~Plot2D() override = default;
       std::string serializeData(){
 	return serialize( m_plotAnnotations, m_plotData);
       }
@@ -215,7 +215,7 @@ namespace cond {
         m_plotAnnotations.m[PlotAnnotations::ZAXIS_K] = zLabel;
         m_plotAnnotations.m[PlotAnnotations::PAYLOAD_TYPE_K] = cond::demangledName( typeid(PayloadType) );
       }
-      virtual ~Plot3D() = default;
+      ~Plot3D() override = default;
       std::string serializeData(){
 	return serialize( m_plotAnnotations, m_plotData);
       }
@@ -241,7 +241,7 @@ namespace cond {
       HistoryPlot( const std::string& title, const std::string& yLabel ) : 
 	Base( "History", title, "iov_since" , yLabel ){
       }
-      virtual ~HistoryPlot() = default;
+      ~HistoryPlot() override = default;
       bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override {
 	for( auto iov : iovs ) {
 	  std::shared_ptr<PayloadType> payload = Base::fetchPayload( std::get<1>(iov) );
@@ -264,7 +264,7 @@ namespace cond {
       RunHistoryPlot( const std::string& title, const std::string& yLabel ) :
         Base( "RunHistory", title, "iov_since" , yLabel ){
       }
-      virtual ~RunHistoryPlot() = default;
+      ~RunHistoryPlot() override = default;
       bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override {
         // for the lumi iovs we need to count the number of lumisections in every runs
 	std::map<cond::Time_t,unsigned int> runs;
@@ -333,7 +333,7 @@ namespace cond {
       TimeHistoryPlot( const std::string& title, const std::string& yLabel ) : 
 	Base( "TimeHistory", title, "iov_since" , yLabel ){
       }
-      virtual ~TimeHistoryPlot() = default;
+      ~TimeHistoryPlot() override = default;
       bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override {
 	cond::persistency::RunInfoProxy runInfo;
 	if(  Base::tagTimeType()==cond::lumiid ||  Base::tagTimeType()==cond::runnumber){
@@ -388,7 +388,7 @@ namespace cond {
       ScatterPlot( const std::string& title, const std::string& xLabel, const std::string& yLabel ) :
 	Base( "Scatter", title, xLabel , yLabel ){
       }
-      virtual ~ScatterPlot() = default;
+      ~ScatterPlot() override = default;
       bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override {
 	for( auto iov : iovs ) {
 	  std::shared_ptr<PayloadType> payload = Base::fetchPayload( std::get<1>(iov) );
@@ -412,9 +412,9 @@ namespace cond {
     Histogram1D( const std::string& title, const std::string& xLabel, size_t nbins, float min, float max, const std::string& yLabel="entries"):
 	Base( "Histo1D", title, xLabel , yLabel),m_nbins(nbins),m_min(min),m_max(max){
       }
-      virtual ~Histogram1D() = default;
+      ~Histogram1D() override = default;
       // 
-      void init(){
+      void init() override{
 	Base::m_plotData.clear();
 	float binSize = (m_max-m_min)/m_nbins;
 	if( binSize>0 ){
@@ -443,7 +443,7 @@ namespace cond {
       }
 
       // this one can ( and in general should ) be overridden - the implementation should use fillWithValue
-      virtual bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override {
+      bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override {
 	for( auto iov : iovs ) {
 	  std::shared_ptr<PayloadType> payload = Base::fetchPayload( std::get<1>(iov) );
           if( payload.get() ){
@@ -476,9 +476,9 @@ namespace cond {
 	Base( "Histo2D", title, xLabel , yLabel, "entries" ),m_nxbins( nxbins), m_xmin(xmin),m_xmax(xmax),m_nybins(nybins),m_ymin(ymin),m_ymax(ymax){
       }
 
-      virtual ~Histogram2D() = default;
+      ~Histogram2D() override = default;
       //
-      void init(){
+      void init() override{
 	Base::m_plotData.clear();
 	float xbinSize = (m_xmax-m_xmin)/m_nxbins;
         float ybinSize = (m_ymax-m_ymin)/m_nybins;
@@ -505,7 +505,7 @@ namespace cond {
       }
 
       // this one can ( and in general should ) be overridden - the implementation should use fillWithValue
-      virtual bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override {
+      bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override {
 	for( auto iov : iovs ) {
 	  std::shared_ptr<PayloadType> payload = Base::fetchPayload( std::get<1>(iov) );
           if( payload.get() ){

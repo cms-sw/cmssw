@@ -67,11 +67,11 @@ class AnalyzerMinbias : public edm::EDAnalyzer {
 
 public:
   explicit AnalyzerMinbias(const edm::ParameterSet&);
-  ~AnalyzerMinbias();
+  ~AnalyzerMinbias() override;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void beginJob() override;
-  virtual void endJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginJob() override;
+  void endJob() override;
   
 private:
     

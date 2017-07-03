@@ -58,8 +58,8 @@ namespace sistrip {
     {
       public:
         SpyUnpackerModule( const edm::ParameterSet& );
-        virtual ~SpyUnpackerModule();
-        virtual void produce( edm::Event&, const edm::EventSetup& ) override;
+        ~SpyUnpackerModule() override;
+        void produce( edm::Event&, const edm::EventSetup& ) override;
       private:
         static const char* msgLb_;
 

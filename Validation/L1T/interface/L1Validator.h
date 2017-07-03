@@ -68,7 +68,7 @@
 class L1Validator : public DQMEDAnalyzer {
   public:
     explicit L1Validator(const edm::ParameterSet&);
-    ~L1Validator();
+    ~L1Validator() override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
     void analyze(const edm::Event&, const edm::EventSetup&) override;

@@ -62,7 +62,7 @@ public:
 
    T value() const { return m_value; }
 
-   virtual void addTo(FWConfiguration& iTo) const 
+   void addTo(FWConfiguration& iTo) const override 
    {
       std::ostringstream s;
       s<<m_value;
@@ -73,7 +73,7 @@ public:
 
    // ---------- member functions ---------------------------
 
-   virtual void setFrom(const FWConfiguration&iFrom)
+   void setFrom(const FWConfiguration&iFrom) override
    {
       if (const FWConfiguration* config = iFrom.valueForKey(name()))
       {

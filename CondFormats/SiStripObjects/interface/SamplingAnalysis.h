@@ -22,7 +22,7 @@ class SamplingAnalysis : public CommissioningAnalysis {
 
   SamplingAnalysis();
 
-  virtual ~SamplingAnalysis() {;}
+  ~SamplingAnalysis() override {;}
 
   friend class SamplingAlgorithm;
 
@@ -34,9 +34,9 @@ class SamplingAnalysis : public CommissioningAnalysis {
 
   float getSoNcut() const { return sOnCut_; }
   
-  void print( std::stringstream&, uint32_t not_used = 0 );
+  void print( std::stringstream&, uint32_t not_used = 0 ) override;
   
-  void reset();
+  void reset() override;
 
   float limit(float SoNcut) const;
 

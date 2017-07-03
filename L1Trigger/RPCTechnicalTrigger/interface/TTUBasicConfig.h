@@ -21,11 +21,11 @@ public:
   
   TTUBasicConfig( const TTUBoardSpecs * );
   
-  virtual ~TTUBasicConfig( ); ///< Destructor
+  ~TTUBasicConfig( ) override; ///< Destructor
 
-  bool initialise( int , int );
+  bool initialise( int , int ) override;
 
-  void preprocess( TTUInput & );
+  void preprocess( TTUInput & ) override;
   
 protected:
   

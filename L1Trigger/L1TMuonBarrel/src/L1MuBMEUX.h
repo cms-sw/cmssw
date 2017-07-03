@@ -57,16 +57,16 @@ class L1MuBMEUX : public L1AbstractProcessor {
     L1MuBMEUX(const L1MuBMSectorProcessor& sp, const L1MuBMSEU& seu, int id );
 
     /// destructor
-    virtual ~L1MuBMEUX();
+    ~L1MuBMEUX() override;
 
     /// equal operator
     bool operator==(const L1MuBMEUX&) const;
 
     /// run Extrapolator
-    virtual void run(const edm::EventSetup& c);
+    void run(const edm::EventSetup& c) override;
 
     /// reset Extrapolator
-    virtual void reset();
+    void reset() override;
 
     /// load data into EUX
     void load(const L1MuBMTrackSegPhi* start_ts, const L1MuBMTrackSegPhi* target_ts);

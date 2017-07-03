@@ -31,7 +31,7 @@ class  StringCutEventSelector : public EventSelector {
 	    order_ = new StringObjectFunction<Object>( pset.getParameter<std::string>("order"));
       }
 
-    bool select (const edm::Event& e) const{
+    bool select (const edm::Event& e) const override{
       edm::Handle<edm::View<Object> > oH;
       e.getByToken(srcToken_, oH);
       std::vector<const Object*> copyToSort(oH->size());
@@ -99,7 +99,7 @@ class  StringCutsEventSelector : public EventSelector {
 	if (pset.exists("order"))
 	  order_ = new StringObjectFunction<Object>( pset.getParameter<std::string>("order"));
       }
-  ~StringCutsEventSelector(){
+  ~StringCutsEventSelector() override{
     unsigned int i=0; 
     for (;i!=f_.size();i++) 
       if (f_[i]){ 
@@ -108,7 +108,7 @@ class  StringCutsEventSelector : public EventSelector {
     if (order_) delete order_;
   }
 
-    bool select (const edm::Event& e) const{
+    bool select (const edm::Event& e) const override{
       edm::Handle<edm::View<Object> > oH;
       e.getByToken(srcToken_, oH);
       std::vector<const Object*> copyToSort(oH->size());

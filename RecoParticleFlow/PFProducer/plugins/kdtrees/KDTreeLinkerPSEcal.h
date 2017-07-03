@@ -13,30 +13,30 @@ class KDTreeLinkerPSEcal : public KDTreeLinkerBase
 {
  public:
   KDTreeLinkerPSEcal();
-  ~KDTreeLinkerPSEcal();
+  ~KDTreeLinkerPSEcal() override;
   
   // With this method, we create the list of psCluster that we want to link.
-  void insertTargetElt(reco::PFBlockElement		*psCluster);
+  void insertTargetElt(reco::PFBlockElement		*psCluster) override;
 
   // Here, we create the list of ecalCluster that we want to link. From ecalCluster
   // and fraction, we will create a second list of rechits that will be used to
   // build the KDTree.
-  void insertFieldClusterElt(reco::PFBlockElement	*ecalCluster);  
+  void insertFieldClusterElt(reco::PFBlockElement	*ecalCluster) override;  
 
   // The KDTree building from rechits list.
-  void buildTree();
+  void buildTree() override;
   
   // Here we will iterate over all psCluster. For each one, we will search the closest
   // rechits in the KDTree, from rechits we will find the ecalClusters and after that
   // we will check the links between the psCluster and all closest ecalClusters.
-  void searchLinks();
+  void searchLinks() override;
   
   // Here, we will store all PS/ECAL founded links in the PFBlockElement class
   // of each psCluster in the PFmultilinks field.
-  void updatePFBlockEltWithLinks();
+  void updatePFBlockEltWithLinks() override;
   
   // Here we free all allocated structures.
-  void clear();
+  void clear() override;
   
 
  private:

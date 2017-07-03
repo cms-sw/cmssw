@@ -40,13 +40,13 @@
 class DumpL1RPCBxOrConfig : public edm::EDAnalyzer {
    public:
       explicit DumpL1RPCBxOrConfig(const edm::ParameterSet&);
-      ~DumpL1RPCBxOrConfig();
+      ~DumpL1RPCBxOrConfig() override;
 
 
    private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      void beginJob() override ;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
       
       // ----------member data ---------------------------

@@ -72,7 +72,7 @@
 class SeedMultiplicityAnalyzer : public edm::EDAnalyzer {
 public:
   explicit SeedMultiplicityAnalyzer(const edm::ParameterSet&);
-  ~SeedMultiplicityAnalyzer();
+  ~SeedMultiplicityAnalyzer() override;
   
   class FromTrackRefSeedFilter {
   public:
@@ -94,7 +94,7 @@ public:
   };
   
 private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
       // ----------member data ---------------------------
 

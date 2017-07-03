@@ -49,10 +49,10 @@ class SmartPropagator final : public Propagator {
     SmartPropagator( const SmartPropagator& );
 
     /** virtual destructor */
-    virtual ~SmartPropagator() ;
+    ~SmartPropagator() override ;
 
     ///Virtual constructor (using copy c'tor)
-    virtual SmartPropagator* clone() const override {
+    SmartPropagator* clone() const override {
       return new SmartPropagator(getTkPropagator(),getGenPropagator(),magneticField());
     }
 
@@ -80,10 +80,10 @@ class SmartPropagator final : public Propagator {
       propagateWithPath(const FreeTrajectoryState& fts,
                         const Cylinder& cylinder) const override;
     
-    virtual std::pair< TrajectoryStateOnSurface, double>
+    std::pair< TrajectoryStateOnSurface, double>
       propagateWithPath (const TrajectoryStateOnSurface& tsos, const Plane& sur) const override;
     
-    virtual std::pair< TrajectoryStateOnSurface, double>
+    std::pair< TrajectoryStateOnSurface, double>
       propagateWithPath (const TrajectoryStateOnSurface& tsos, const Cylinder& sur) const override;
 
  public:
@@ -102,7 +102,7 @@ class SmartPropagator final : public Propagator {
     ///return the propagator used outside tracker
     const Propagator* getGenPropagator() const ;
     ///return the magneticField
-    virtual const MagneticField* magneticField() const override {return theField;}
+    const MagneticField* magneticField() const override {return theField;}
 
   private:
     ///build the tracker volume

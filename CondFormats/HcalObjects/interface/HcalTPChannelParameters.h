@@ -14,7 +14,7 @@ public:
 #endif
   HcalTPChannelParameters(const HcalTopology* topo):HcalCondObjectContainer<HcalTPChannelParameter>(topo) {}
 
-  std::string myname() const {return (std::string)"HcalTPChannelParameters";}
+  std::string myname() const override {return (std::string)"HcalTPChannelParameters";}
 
   COND_SERIALIZABLE;
 };

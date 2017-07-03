@@ -50,12 +50,12 @@ private:
   };
 public:
   explicit ElectronHEEPIDValueMapProducer(const edm::ParameterSet&);
-  ~ElectronHEEPIDValueMapProducer();
+  ~ElectronHEEPIDValueMapProducer() override;
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
 private:
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   template<typename T>
   static void writeValueMap(edm::Event &iEvent,

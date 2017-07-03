@@ -33,7 +33,7 @@ class FWLegoCandidate : public TEveStraightLineSet
       FWLegoCandidate( const FWViewContext *vc, const fireworks::Context &context, 
             float et, float energy, float pt, float eta, float phi );
       FWLegoCandidate(){}
-      virtual ~FWLegoCandidate(){}
+      ~FWLegoCandidate() override{}
 
    // --------------------- Member Functions --------------------------
       void updateScale( const FWViewContext *vc, const fireworks::Context& );

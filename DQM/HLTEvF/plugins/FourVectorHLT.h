@@ -49,19 +49,19 @@
 class FourVectorHLT : public edm::EDAnalyzer {
    public:
       explicit FourVectorHLT(const edm::ParameterSet&);
-      ~FourVectorHLT();
+      ~FourVectorHLT() override;
 
 
    private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      void beginJob() override ;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
       // BeginRun
-      void beginRun(const edm::Run& run, const edm::EventSetup& c);
+      void beginRun(const edm::Run& run, const edm::EventSetup& c) override;
 
       // EndRun
-      void endRun(const edm::Run& run, const edm::EventSetup& c);
+      void endRun(const edm::Run& run, const edm::EventSetup& c) override;
 
 
       // ----------member data --------------------------- 

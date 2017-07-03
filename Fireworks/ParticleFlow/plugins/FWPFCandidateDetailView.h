@@ -25,7 +25,7 @@ class FWPFCandidateDetailView: public FWDetailViewGL<reco::PFCandidate>,
 {
 public:
    FWPFCandidateDetailView();
-   virtual ~FWPFCandidateDetailView();
+   ~FWPFCandidateDetailView() override;
 
 
 protected:
@@ -35,8 +35,8 @@ private:
    const FWPFCandidateDetailView& operator=(const FWPFCandidateDetailView&); // stop default
 
    using FWDetailView<reco::PFCandidate>::build;
-   void build (const FWModelId &id, const reco::PFCandidate*);
-   void setTextInfo (const FWModelId &id, const reco::PFCandidate*); 
+   void build (const FWModelId &id, const reco::PFCandidate*) override;
+   void setTextInfo (const FWModelId &id, const reco::PFCandidate*) override; 
    void makeLegend( void );
 
    bool isPntInRng(float x, float y);

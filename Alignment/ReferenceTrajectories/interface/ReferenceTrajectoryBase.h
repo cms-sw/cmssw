@@ -133,7 +133,7 @@ public:
     bool allowZeroMaterial{false};
   };
 
-  virtual ~ReferenceTrajectoryBase() {}
+  ~ReferenceTrajectoryBase() override {}
 
   bool isValid() { return theValidityFlag; }
 

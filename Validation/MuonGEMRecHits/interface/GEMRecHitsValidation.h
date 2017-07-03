@@ -10,7 +10,7 @@ class GEMRecHitsValidation : public GEMBaseValidation
 {
 public:
   explicit GEMRecHitsValidation( const edm::ParameterSet& );
-  ~GEMRecHitsValidation();
+  ~GEMRecHitsValidation() override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(const edm::Event& e, const edm::EventSetup&) override;
   MonitorElement* BookHist1D( DQMStore::IBooker &, const char* name, const char* label, unsigned int region_num, unsigned int station_num, unsigned int layer_num, const unsigned int Nbin, const Float_t xMin, const Float_t xMax);

@@ -32,7 +32,7 @@ public:
   explicit TBHodoActiveVolumeRawInfoProducer(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~TBHodoActiveVolumeRawInfoProducer();
+  ~TBHodoActiveVolumeRawInfoProducer() override;
   
   /// Produce digis out of raw data
   void produce(edm::Event & event, const edm::EventSetup& eventSetup) override;

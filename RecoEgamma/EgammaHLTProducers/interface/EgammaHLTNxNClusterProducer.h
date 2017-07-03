@@ -48,7 +48,7 @@ class EgammaHLTNxNClusterProducer : public edm::stream::EDProducer<> {
  public:
 
   EgammaHLTNxNClusterProducer(const edm::ParameterSet& ps);
-  ~EgammaHLTNxNClusterProducer();
+  ~EgammaHLTNxNClusterProducer() override;
   
   void produce(edm::Event&, const edm::EventSetup&) override ;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);

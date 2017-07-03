@@ -7,7 +7,7 @@
 class CurvilinearLorentzForceException : public std::exception {
 public:
     CurvilinearLorentzForceException() throw() {}
-    virtual ~CurvilinearLorentzForceException() throw() {}
+    ~CurvilinearLorentzForceException() throw() override {}
 };
 
 

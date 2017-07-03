@@ -51,10 +51,10 @@
 class CastorTowerProducer : public edm::stream::EDProducer<> {
    public:
       explicit CastorTowerProducer(const edm::ParameterSet&);
-      ~CastorTowerProducer();
+      ~CastorTowerProducer() override;
 
    private:
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
       virtual void ComputeTowerVariable(const edm::RefVector<edm::SortedCollection<CastorRecHit> >& usedRecHits, double&  Ehot, double& depth);
       
       // member data

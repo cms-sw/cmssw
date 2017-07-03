@@ -65,13 +65,13 @@ using namespace std;
 class GsfGEDElectronAnalyzer : public edm::EDAnalyzer {
    public:
       explicit GsfGEDElectronAnalyzer(const edm::ParameterSet&);
-      ~GsfGEDElectronAnalyzer();
+      ~GsfGEDElectronAnalyzer() override;
 
 
    private:
       virtual void beginJob(const edm::EventSetup&) ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
   
   ParameterSet conf_;
 

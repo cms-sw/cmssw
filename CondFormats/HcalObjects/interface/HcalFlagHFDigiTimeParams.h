@@ -15,7 +15,7 @@ class HcalFlagHFDigiTimeParams: public HcalCondObjectContainer<HcalFlagHFDigiTim
 #endif
   HcalFlagHFDigiTimeParams(const HcalTopology* ht):HcalCondObjectContainer<HcalFlagHFDigiTimeParam>(ht) {}
 
-  std::string myname() const {return (std::string)"HcalFlagHFDigiTimeParams";}
+  std::string myname() const override {return (std::string)"HcalFlagHFDigiTimeParams";}
 
  private:
 

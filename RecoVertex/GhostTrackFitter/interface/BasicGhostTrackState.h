@@ -34,7 +34,7 @@ class BasicGhostTrackState : public ReferenceCountedInEvent {
 	typedef std::pair<GlobalPoint, GlobalError> Vertex;
 
 	BasicGhostTrackState() : lambda_(0.), weight_(1.) {}
-	virtual ~BasicGhostTrackState() {}
+	~BasicGhostTrackState() override {}
 
 	virtual GlobalPoint globalPosition() const = 0;
 	virtual GlobalError cartesianError() const = 0;

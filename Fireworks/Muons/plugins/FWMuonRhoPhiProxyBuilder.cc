@@ -15,9 +15,9 @@ class FWMuonRhoPhiProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Muon>
 {
 public:
    FWMuonRhoPhiProxyBuilder( void ) {}
-   virtual ~FWMuonRhoPhiProxyBuilder( void ) {}
+   ~FWMuonRhoPhiProxyBuilder( void ) override {}
 
-   virtual void setItem(const FWEventItem* iItem) override;
+   void setItem(const FWEventItem* iItem) override;
 
    REGISTER_PROXYBUILDER_METHODS();
 
@@ -30,7 +30,7 @@ private:
    using FWSimpleProxyBuilderTemplate<reco::Muon>::build;
    void build( const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;
 
-   virtual void localModelChanges( const FWModelId& iId, TEveElement* iCompound,
+   void localModelChanges( const FWModelId& iId, TEveElement* iCompound,
                                    FWViewType::EType viewType, const FWViewContext* vc ) override;
 
    mutable FWMuonBuilder m_builder;

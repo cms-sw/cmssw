@@ -27,7 +27,7 @@ class TkTransientTrackingRecHitBuilder final : public TransientTrackingRecHitBui
 				    const PixelClusterParameterEstimator * ,
 				    const ClusterParameterEstimator<Phase2TrackerCluster1D> * );
 
-  TransientTrackingRecHit::RecHitPointer build (const TrackingRecHit * p) const ;
+  TransientTrackingRecHit::RecHitPointer build (const TrackingRecHit * p) const override ;
 
 
   const PixelClusterParameterEstimator * pixelClusterParameterEstimator() const {return pixelCPE;}

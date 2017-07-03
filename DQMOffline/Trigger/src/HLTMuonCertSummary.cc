@@ -60,12 +60,12 @@ class HLTMuonCertSummary : public DQMEDHarvester {
 
    public:
       explicit HLTMuonCertSummary(const edm::ParameterSet& pset);
-      ~HLTMuonCertSummary();
+      ~HLTMuonCertSummary() override;
 
 
-      virtual void beginJob() override;
-      virtual void beginRun(const edm::Run&, const edm::EventSetup&) override ;
-      virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override ;
+      void beginJob() override;
+      void beginRun(const edm::Run&, const edm::EventSetup&) override ;
+      void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override ;
 
 
 

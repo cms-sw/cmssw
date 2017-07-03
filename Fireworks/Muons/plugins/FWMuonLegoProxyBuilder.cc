@@ -15,7 +15,7 @@ class FWMuonLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Muon>
 {
 public:
    FWMuonLegoProxyBuilder( void ) {}
-   virtual ~FWMuonLegoProxyBuilder( void ) {}
+   ~FWMuonLegoProxyBuilder( void ) override {}
 
    REGISTER_PROXYBUILDER_METHODS();
 
@@ -26,7 +26,7 @@ private:
    const FWMuonLegoProxyBuilder& operator=( const FWMuonLegoProxyBuilder& );
 
    using FWSimpleProxyBuilderTemplate<reco::Muon>::build;
-   virtual void build( const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;
+   void build( const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;
 };
 
 void

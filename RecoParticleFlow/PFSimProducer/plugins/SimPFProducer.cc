@@ -58,9 +58,9 @@
 class SimPFProducer : public edm::global::EDProducer<> {
 public:    
   SimPFProducer(const edm::ParameterSet&);
-  ~SimPFProducer() { }
+  ~SimPFProducer() override { }
   
-  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   
 private:  
   // parameters

@@ -41,13 +41,13 @@ class PATTauDiscriminationAgainstElectronMVA6 : public PATTauDiscriminationProdu
     produces<PATTauDiscriminator>("category");
   }
 
-  void beginEvent(const edm::Event&, const edm::EventSetup&);
+  void beginEvent(const edm::Event&, const edm::EventSetup&) override;
 
-  double discriminate(const TauRef&) const;
+  double discriminate(const TauRef&) const override;
 
-  void endEvent(edm::Event&);
+  void endEvent(edm::Event&) override;
 
-  ~PATTauDiscriminationAgainstElectronMVA6(){}
+  ~PATTauDiscriminationAgainstElectronMVA6() override{}
 
 private:
   bool isInEcalCrack(double) const;

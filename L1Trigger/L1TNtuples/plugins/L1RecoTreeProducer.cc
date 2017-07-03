@@ -43,13 +43,13 @@
 class L1RecoTreeProducer : public edm::EDAnalyzer {
 public:
   explicit L1RecoTreeProducer(const edm::ParameterSet&);
-  ~L1RecoTreeProducer();
+  ~L1RecoTreeProducer() override;
 
 
 private:
-  virtual void beginJob(void) ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginJob(void) override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
 public:
   L1Analysis::L1AnalysisRecoVertexDataFormat*              vtxData_;

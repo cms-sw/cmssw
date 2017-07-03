@@ -71,14 +71,14 @@ class CSCChamberMasker : public edm::stream::EDProducer<>
 
 public:
   explicit CSCChamberMasker(const edm::ParameterSet&);
-  ~CSCChamberMasker();
+  ~CSCChamberMasker() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
       
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
 
   void createMaskedChamberCollection(edm::ESHandle<CSCGeometry> &); 
 

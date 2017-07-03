@@ -71,7 +71,7 @@ namespace pos{
     PixelCalibConfiguration(std::string filename="");
     PixelCalibConfiguration(std::vector<std::vector<std::string> > &);
 
-    virtual ~PixelCalibConfiguration();
+    ~PixelCalibConfiguration() override;
 
     // This must be run before using commands that require the ROC list.
     void buildROCAndModuleLists(const PixelNameTranslation* translation, const PixelDetectorConfig* detconfig);
@@ -172,19 +172,19 @@ namespace pos{
 
     friend std::ostream& pos::operator<<(std::ostream& s, const PixelCalibConfiguration& calib);
 
-    virtual void writeASCII(std::string dir="") const override;
+    void writeASCII(std::string dir="") const override;
     void 	 writeXML(        pos::PixelConfigKey key, int version, std::string path) const override{;}
-    virtual void writeXMLHeader(  pos::PixelConfigKey key, 
+    void writeXMLHeader(  pos::PixelConfigKey key, 
 				  int version, 
 				  std::string path, 
 				  std::ofstream *out,
 				  std::ofstream *out1 = NULL,
 				  std::ofstream *out2 = NULL
 				  ) const override;
-    virtual void writeXML(        std::ofstream *out,			                                    
+    void writeXML(        std::ofstream *out,			                                    
 			   	  std::ofstream *out1 = NULL ,
 			   	  std::ofstream *out2 = NULL ) const override;
-    virtual void writeXMLTrailer( std::ofstream *out, 
+    void writeXMLTrailer( std::ofstream *out, 
 				  std::ofstream *out1 = NULL,
 				  std::ofstream *out2 = NULL
 				  ) const override;

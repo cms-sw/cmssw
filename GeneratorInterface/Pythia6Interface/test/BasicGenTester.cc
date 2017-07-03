@@ -27,14 +27,14 @@ class BasicGenTester : public edm::EDAnalyzer
    
       //
       explicit BasicGenTester( const edm::ParameterSet& ) ;
-      virtual ~BasicGenTester() {} // no need to delete ROOT stuff
+      ~BasicGenTester() override {} // no need to delete ROOT stuff
                                    // as it'll be deleted upon closing TFile
       
-      virtual void analyze( const edm::Event&, const edm::EventSetup& ) ;
-      virtual void beginJob() ;
-      virtual void beginRun( const edm::Run &, const edm::EventSetup& );
-      virtual void endRun( const edm::Run&, const edm::EventSetup& ) ;
-      virtual void endJob() ;
+      void analyze( const edm::Event&, const edm::EventSetup& ) override ;
+      void beginJob() override ;
+      void beginRun( const edm::Run &, const edm::EventSetup& ) override;
+      void endRun( const edm::Run&, const edm::EventSetup& ) override ;
+      void endJob() override ;
 
    private:
    

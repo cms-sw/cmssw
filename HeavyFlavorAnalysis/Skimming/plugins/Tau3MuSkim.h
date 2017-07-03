@@ -22,12 +22,12 @@ class Tau3MuSkim : public edm::EDFilter
 {
  public:
     explicit Tau3MuSkim(const edm::ParameterSet&);
-    ~Tau3MuSkim();
+    ~Tau3MuSkim() override;
     
  private:
-    virtual void beginJob() ;
-    virtual bool filter(edm::Event&, const edm::EventSetup&);
-    virtual void endJob() ;
+    void beginJob() override ;
+    bool filter(edm::Event&, const edm::EventSetup&) override;
+    void endJob() override ;
     
     // ----------member data ---------------------------
     Tau3MuReco* m_Tau3MuReco;

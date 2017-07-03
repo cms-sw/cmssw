@@ -48,10 +48,10 @@
 class HLTInclusiveVBFSource : public DQMEDAnalyzer {
  public:
   explicit HLTInclusiveVBFSource(const edm::ParameterSet&);
-  ~HLTInclusiveVBFSource();
+  ~HLTInclusiveVBFSource() override;
 
-  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  virtual void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
  private:
   virtual bool isBarrel(double eta);
   virtual bool isEndCap(double eta); 

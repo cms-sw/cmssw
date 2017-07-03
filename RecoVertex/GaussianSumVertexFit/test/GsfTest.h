@@ -35,12 +35,12 @@
 class GsfTest : public edm::EDAnalyzer {
 public:
   explicit GsfTest(const edm::ParameterSet&);
-  ~GsfTest();
+  ~GsfTest() override;
   
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-  virtual void beginJob();
-  virtual void endJob();
+  void beginJob() override;
+  void endJob() override;
 
 private:
 

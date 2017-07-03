@@ -76,7 +76,7 @@ namespace pat {
       TriggerObject( const reco::Particle::PolarLorentzVector & vec, int id = 0 );
 
       /// Destructor
-      virtual ~TriggerObject() {};
+      ~TriggerObject() override {};
 
       /// Methods
 

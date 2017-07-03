@@ -9,8 +9,8 @@ class testRangeMap : public CppUnit::TestFixture {
   CPPUNIT_TEST(checkAll);
   CPPUNIT_TEST_SUITE_END();
 public:
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
   void checkAll();
 };
 

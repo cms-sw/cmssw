@@ -22,10 +22,10 @@ class OuterTrackerMonitorTTStub : public edm::EDAnalyzer {
 
 public:
   explicit OuterTrackerMonitorTTStub(const edm::ParameterSet&);
-  ~OuterTrackerMonitorTTStub();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
+  ~OuterTrackerMonitorTTStub() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
  
   // TTStub stacks
   // * Global position of the stubs * //

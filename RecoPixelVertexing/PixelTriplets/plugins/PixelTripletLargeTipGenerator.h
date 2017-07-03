@@ -24,12 +24,12 @@ public:
   PixelTripletLargeTipGenerator( const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC): PixelTripletLargeTipGenerator(cfg, iC) {}
   PixelTripletLargeTipGenerator( const edm::ParameterSet& cfg, edm::ConsumesCollector& iC);
 
-  virtual ~PixelTripletLargeTipGenerator();
+  ~PixelTripletLargeTipGenerator() override;
 
   static void fillDescriptions(edm::ParameterSetDescription& desc);
   static const char *fillDescriptionsLabel() { return "pixelTripletLargeTip"; }
 
-  virtual void hitTriplets( const TrackingRegion& region, OrderedHitTriplets & trs,
+  void hitTriplets( const TrackingRegion& region, OrderedHitTriplets & trs,
                             const edm::Event & ev, const edm::EventSetup& es,
                             const SeedingLayerSetsHits::SeedingLayerSet& pairLayers,
                             const std::vector<SeedingLayerSetsHits::SeedingLayer>& thirdLayers) override;

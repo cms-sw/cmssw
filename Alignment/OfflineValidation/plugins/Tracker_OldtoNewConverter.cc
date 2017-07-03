@@ -40,13 +40,13 @@
 class Tracker_OldtoNewConverter : public edm::EDAnalyzer {
 public:
 	explicit Tracker_OldtoNewConverter(const edm::ParameterSet&);
-	~Tracker_OldtoNewConverter();
+	~Tracker_OldtoNewConverter() override;
 	
 	
 private:
-	virtual void beginJob() override;
-	virtual void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) override;
-	virtual void endJob() override ;
+	void beginJob() override;
+	void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) override;
+	void endJob() override ;
 	
 	void createMap();
 	void addBranches();

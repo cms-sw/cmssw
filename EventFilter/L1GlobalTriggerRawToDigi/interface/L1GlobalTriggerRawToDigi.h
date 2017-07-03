@@ -55,13 +55,13 @@ public:
     explicit L1GlobalTriggerRawToDigi(const edm::ParameterSet&);
 
     /// destructor
-    virtual ~L1GlobalTriggerRawToDigi();
+    ~L1GlobalTriggerRawToDigi() override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
 
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
     /// block unpackers
 

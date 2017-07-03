@@ -56,15 +56,15 @@ class HGCalTBAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one
 
 public:
   explicit HGCalTBAnalyzer(edm::ParameterSet const&);
-  ~HGCalTBAnalyzer();
+  ~HGCalTBAnalyzer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void beginJob() override ;
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) override {}
-  virtual void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void beginJob() override ;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override {}
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
   void analyzeSimHits(int type, std::vector<PCaloHit>& hits, double zFront);
   void analyzeSimTracks(edm::Handle<edm::SimTrackContainer> const& SimTk, 
 			edm::Handle<edm::SimVertexContainer> const& SimVtx);

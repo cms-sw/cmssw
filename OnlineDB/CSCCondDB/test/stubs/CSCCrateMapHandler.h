@@ -22,9 +22,9 @@ namespace popcon
     {
       
     public:
-      void getNewObjects();
-      std::string id() const { return m_name;}
-      ~CSCCrateMapImpl(); 
+      void getNewObjects() override;
+      std::string id() const override { return m_name;}
+      ~CSCCrateMapImpl() override; 
       CSCCrateMapImpl(const edm::ParameterSet& pset);
       
       

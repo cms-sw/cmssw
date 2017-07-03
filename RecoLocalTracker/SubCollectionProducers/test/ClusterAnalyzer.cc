@@ -49,12 +49,12 @@ using namespace std;
 class ClusterAnalyzer : public edm::EDAnalyzer {
    public:
       explicit ClusterAnalyzer(const edm::ParameterSet&);
-      ~ClusterAnalyzer();
+      ~ClusterAnalyzer() override;
 
 
    private:
-      virtual void beginJob() override ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void beginJob() override ;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
    
    
       // ----------member data ---------------------------

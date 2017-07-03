@@ -66,13 +66,13 @@ public:
   CMSTopTagger(double delta_p=0.05, double delta_r=0.4, double A=0.0004);
 
   /// returns a textual description of the tagger
-  virtual std::string description() const;
+  std::string description() const override;
 
   /// runs the tagger on the given jet and
   /// returns the tagged PseudoJet if successful, or a PseudoJet==0 otherwise
   /// (standard access is through operator()).
   ///  \param jet   the PseudoJet to tag
-  virtual PseudoJet result(const PseudoJet & jet) const;
+  PseudoJet result(const PseudoJet & jet) const override;
 
   // the type of the associated structure
   typedef CMSTopTaggerStructure StructureType;

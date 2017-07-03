@@ -13,7 +13,7 @@ namespace cond {
   class KeyMgrUtilities : public Utilities {
     public:
       KeyMgrUtilities();
-      ~KeyMgrUtilities();
+      ~KeyMgrUtilities() override;
       int execute() override;
   };
 }

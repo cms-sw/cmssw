@@ -14,15 +14,15 @@ class LocationDef : public IDef {
   friend class EcalCondDBInterface;
   
   LocationDef();
-  virtual ~LocationDef();
+  ~LocationDef() override;
 
   // Methods for user data
   std::string getLocation() const;
   void setLocation(std::string loc);
 
   // Methods from IUniqueDBObject
-  int fetchID() noexcept(false);
-  void setByID(int id) noexcept(false);
+  int fetchID() noexcept(false) override;
+  void setByID(int id) noexcept(false) override;
 
   inline bool operator==(const LocationDef& l) const { return m_loc == l.m_loc; }
   inline bool operator!=(const LocationDef& l) const { return m_loc != l.m_loc; }

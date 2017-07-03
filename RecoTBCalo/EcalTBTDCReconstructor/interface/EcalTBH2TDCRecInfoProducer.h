@@ -17,8 +17,8 @@ class EcalTBH2TDCRecInfoProducer : public edm::EDProducer {
  public:
 
   explicit EcalTBH2TDCRecInfoProducer(const edm::ParameterSet& ps);
-  virtual ~EcalTBH2TDCRecInfoProducer() ;
-  virtual void produce(edm::Event& e, const edm::EventSetup& es);
+  ~EcalTBH2TDCRecInfoProducer() override ;
+  void produce(edm::Event& e, const edm::EventSetup& es) override;
 
  private:
 

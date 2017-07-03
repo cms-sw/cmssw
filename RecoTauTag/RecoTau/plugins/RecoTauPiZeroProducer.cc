@@ -43,7 +43,7 @@ class RecoTauPiZeroProducer : public edm::stream::EDProducer<> {
     typedef reco::tau::RecoTauPiZeroQualityPlugin Ranker;
 
     explicit RecoTauPiZeroProducer(const edm::ParameterSet& pset);
-    ~RecoTauPiZeroProducer() {}
+    ~RecoTauPiZeroProducer() override {}
     void produce(edm::Event& evt, const edm::EventSetup& es) override;
     void print(const std::vector<reco::RecoTauPiZero>& piZeros,
                std::ostream& out);

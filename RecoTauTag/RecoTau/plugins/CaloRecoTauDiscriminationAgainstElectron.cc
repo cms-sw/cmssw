@@ -24,7 +24,7 @@ class CaloRecoTauDiscriminationAgainstElectron final  : public  CaloTauDiscrimin
          maxleadTrackHCAL3x3hottesthitDEta_          = iConfig.getParameter<double>("maxleadTrackHCAL3x3hottesthitDEta");
          ApplyCut_leadTrackavoidsECALcrack_          = iConfig.getParameter<bool>("ApplyCut_leadTrackavoidsECALcrack");
       }
-      ~CaloRecoTauDiscriminationAgainstElectron(){} 
+      ~CaloRecoTauDiscriminationAgainstElectron() override{} 
       double discriminate(const CaloTauRef& theCaloTauRef) const override;
       void beginEvent(const edm::Event& event, const edm::EventSetup& eventSetup) override;
    private:  

@@ -25,12 +25,12 @@ template <typename DetIdT>
 class EcalDeadChannelRecoveryProducers : public edm::EDProducer {
  public:
   explicit EcalDeadChannelRecoveryProducers(const edm::ParameterSet&);
-  ~EcalDeadChannelRecoveryProducers();
+  ~EcalDeadChannelRecoveryProducers() override;
 
  private:
-  virtual void beginJob();
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginJob() override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   // ----------member data ---------------------------
   edm::EDGetTokenT<EcalRecHitCollection> hitToken_;

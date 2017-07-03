@@ -24,10 +24,10 @@ namespace edmtest
     }
     explicit  NoisesAnalyzer(int i) 
     { std::cout<<"NoisesAnalyzer "<<i<<std::endl; }
-    virtual ~NoisesAnalyzer() {  
+    ~NoisesAnalyzer() override {  
       std::cout<<"~NoisesAnalyzer "<<std::endl;
     }
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
   private:
   };
   

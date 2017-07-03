@@ -63,13 +63,13 @@
 class WriteVHDL : public edm::EDAnalyzer {
    public:
       explicit WriteVHDL(const edm::ParameterSet&);
-      ~WriteVHDL();
+      ~WriteVHDL() override;
 
 
    private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      void beginJob() override ;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
       int getDCCNumber(int iTower, int iSec);
       int getDCC(int iSec);
       int getTBNumber(int iTower);

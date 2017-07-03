@@ -12,7 +12,7 @@ public:
 
   ElectronNeuralNet(){};
 
-  virtual ~ElectronNeuralNet(){};
+  ~ElectronNeuralNet() override{};
 
   void setup(const edm::ParameterSet& conf) override {} ;
   using ElectronIDAlgo::result;

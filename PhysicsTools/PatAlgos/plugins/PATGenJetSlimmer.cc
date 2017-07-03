@@ -25,9 +25,9 @@ namespace pat {
   class PATGenJetSlimmer : public edm::stream::EDProducer<> {
   public:
     explicit PATGenJetSlimmer(const edm::ParameterSet & iConfig);
-    virtual ~PATGenJetSlimmer() { }
+    ~PATGenJetSlimmer() override { }
     
-    virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+    void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
     
   private:
     const edm::EDGetTokenT<edm::View<reco::GenJet> > src_;

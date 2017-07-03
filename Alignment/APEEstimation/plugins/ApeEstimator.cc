@@ -129,7 +129,7 @@
 class ApeEstimator : public edm::EDAnalyzer {
    public:
       explicit ApeEstimator(const edm::ParameterSet&);
-      ~ApeEstimator();
+      ~ApeEstimator() override;
 
 
    private:
@@ -143,9 +143,9 @@ class ApeEstimator : public edm::EDAnalyzer {
       };
       typedef std::pair<TrackStruct::HitState,PositionAndError2> StatePositionAndError2;
       
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob();
+      void beginJob() override ;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override;
       
       bool isHit2D(const TrackingRecHit&)const;
       

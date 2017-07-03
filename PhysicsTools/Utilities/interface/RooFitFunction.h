@@ -52,18 +52,18 @@ namespace root {
       pars_.push_back(std::make_pair(b.ptr(), RooRealProxy(b.name().c_str(), b.name().c_str(), this, rB)));
       pars_.push_back(std::make_pair(c.ptr(), RooRealProxy(c.name().c_str(), c.name().c_str(), this, rC)));
     } 
-    virtual ~RooFitFunction() { }
+    ~RooFitFunction() override { }
     void add(RooAbsReal & rA, funct::Parameter & a) {
       pars_.push_back(std::make_pair(a.ptr(), RooRealProxy(a.name().c_str(), a.name().c_str(), this, rA)));      
     }
-    virtual TObject* clone(const char* newName) const { 
+    TObject* clone(const char* newName) const override { 
       return new RooFitFunction<X, Expr>(* this, newName);
     }
   private:
     Expr e_;
     RooRealProxy x_;
     std::vector<std::pair<boost::shared_ptr<double>, RooRealProxy> > pars_;
-    Double_t evaluate() const {
+    Double_t evaluate() const override {
       X::set(x_);
       std::vector<std::pair<boost::shared_ptr<double>, RooRealProxy> >::const_iterator 
 	i = pars_.begin(), end = pars_.end();

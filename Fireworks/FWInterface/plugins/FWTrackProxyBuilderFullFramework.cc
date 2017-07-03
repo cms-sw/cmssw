@@ -35,12 +35,12 @@ class FWTrackProxyBuilderFullFramework : public FWProxyBuilderBase {
 
 public:
    FWTrackProxyBuilderFullFramework();
-   virtual ~FWTrackProxyBuilderFullFramework();
+   ~FWTrackProxyBuilderFullFramework() override;
 
    REGISTER_PROXYBUILDER_METHODS();
    
-   virtual void setItem(const FWEventItem* iItem) override;
-   virtual bool visibilityModelChanges(const FWModelId&, TEveElement*, FWViewType::EType, const FWViewContext*) override;
+   void setItem(const FWEventItem* iItem) override;
+   bool visibilityModelChanges(const FWModelId&, TEveElement*, FWViewType::EType, const FWViewContext*) override;
    
 private:
    FWTrackProxyBuilderFullFramework(const FWTrackProxyBuilderFullFramework&); // stop default

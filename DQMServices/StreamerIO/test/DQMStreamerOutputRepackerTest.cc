@@ -35,18 +35,18 @@ namespace dqmservices {
 class DQMStreamerOutputRepackerTest : public edm::StreamerOutputModuleBase {
  public:
   explicit DQMStreamerOutputRepackerTest(edm::ParameterSet const& ps);
-  virtual ~DQMStreamerOutputRepackerTest();
+  ~DQMStreamerOutputRepackerTest() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  private:
-  virtual void start() override;
-  virtual void stop() override;
-  virtual void doOutputHeader(InitMsgBuilder const& init_message) override;
-  virtual void doOutputEvent(EventMsgBuilder const& msg) override;
+  void start() override;
+  void stop() override;
+  void doOutputHeader(InitMsgBuilder const& init_message) override;
+  void doOutputEvent(EventMsgBuilder const& msg) override;
 
-  virtual void beginLuminosityBlock(
+  void beginLuminosityBlock(
       edm::LuminosityBlockForOutput const&) override{};
-  virtual void endLuminosityBlock(
+  void endLuminosityBlock(
       edm::LuminosityBlockForOutput const&) override{};
 
  private:

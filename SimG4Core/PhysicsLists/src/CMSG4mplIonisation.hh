@@ -68,17 +68,17 @@ public:
 
   CMSG4mplIonisation(G4double mCharge = 0.0, const G4String& name = "mplIoni");
 
-  virtual ~CMSG4mplIonisation();
+  ~CMSG4mplIonisation() override;
 
-  virtual G4bool IsApplicable(const G4ParticleDefinition& p);
+  G4bool IsApplicable(const G4ParticleDefinition& p) override;
 
   // Print out of the class parameters
-  virtual void PrintInfo();
+  void PrintInfo() override;
 
 protected:
 
-  virtual void InitialiseEnergyLossProcess(const G4ParticleDefinition*,
-					   const G4ParticleDefinition*);
+  void InitialiseEnergyLossProcess(const G4ParticleDefinition*,
+					   const G4ParticleDefinition*) override;
 
 private:
 

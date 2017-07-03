@@ -31,8 +31,8 @@ public:
    CmsShowHelpPopup (const std::string &filename,
                      const std::string &windowname, const TGWindow* p = 0,
                      UInt_t w = 1, UInt_t h = 1);
-   virtual ~CmsShowHelpPopup();
-   virtual void CloseWindow() { UnmapWindow(); }
+   ~CmsShowHelpPopup() override;
+   void CloseWindow() override { UnmapWindow(); }
 
  
 protected:

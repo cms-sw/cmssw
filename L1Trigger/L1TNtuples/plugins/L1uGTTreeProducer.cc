@@ -28,13 +28,13 @@
 class L1uGTTreeProducer : public edm::EDAnalyzer {
 public:
   explicit L1uGTTreeProducer(edm::ParameterSet const &);
-  ~L1uGTTreeProducer();
+  ~L1uGTTreeProducer() override;
   
   
 private:
-  virtual void beginJob() override;
-  virtual void analyze(edm::Event const &, edm::EventSetup const &) override;
-  virtual void endJob() override;
+  void beginJob() override;
+  void analyze(edm::Event const &, edm::EventSetup const &) override;
+  void endJob() override;
 
 private:
   // output file

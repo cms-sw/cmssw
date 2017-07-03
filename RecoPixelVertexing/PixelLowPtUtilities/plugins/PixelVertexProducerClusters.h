@@ -14,8 +14,8 @@ class PixelVertexProducerClusters : public edm::global::EDProducer<>
 {
 public:
   explicit PixelVertexProducerClusters(const edm::ParameterSet& ps);
-  ~PixelVertexProducerClusters();
-  virtual void produce(edm::StreamID, edm::Event& ev, const edm::EventSetup& es) const override;
+  ~PixelVertexProducerClusters() override;
+  void produce(edm::StreamID, edm::Event& ev, const edm::EventSetup& es) const override;
 
 private:
   edm::EDGetTokenT<SiPixelRecHitCollection> pixelToken_;

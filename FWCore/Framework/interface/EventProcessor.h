@@ -89,7 +89,7 @@ namespace edm {
     /// meant for unit tests
     EventProcessor(std::string const& config, bool isPython);
 
-    ~EventProcessor();
+    ~EventProcessor() override;
 
     EventProcessor(EventProcessor const&) = delete; // Disallow copying and moving
     EventProcessor& operator=(EventProcessor const&) = delete; // Disallow copying and moving
@@ -173,50 +173,50 @@ namespace edm {
     //                     requested by the argument
     //   epSuccess - all other cases
     //
-    virtual StatusCode runToCompletion() override;
+    StatusCode runToCompletion() override;
 
     // The following functions are used by the code implementing our
     // boost statemachine
 
-    virtual void readFile() override;
-    virtual void closeInputFile(bool cleaningUpAfterException) override;
-    virtual void openOutputFiles() override;
-    virtual void closeOutputFiles() override;
+    void readFile() override;
+    void closeInputFile(bool cleaningUpAfterException) override;
+    void openOutputFiles() override;
+    void closeOutputFiles() override;
 
-    virtual void respondToOpenInputFile() override;
-    virtual void respondToCloseInputFile() override;
+    void respondToOpenInputFile() override;
+    void respondToCloseInputFile() override;
 
-    virtual void startingNewLoop() override;
-    virtual bool endOfLoop() override;
-    virtual void rewindInput() override;
-    virtual void prepareForNextLoop() override;
-    virtual bool shouldWeCloseOutput() const override;
+    void startingNewLoop() override;
+    bool endOfLoop() override;
+    void rewindInput() override;
+    void prepareForNextLoop() override;
+    bool shouldWeCloseOutput() const override;
 
-    virtual void doErrorStuff() override;
+    void doErrorStuff() override;
 
-    virtual void beginRun(statemachine::Run const& run) override;
-    virtual void endRun(statemachine::Run const& run, bool cleaningUpAfterException) override;
+    void beginRun(statemachine::Run const& run) override;
+    void endRun(statemachine::Run const& run, bool cleaningUpAfterException) override;
 
-    virtual void beginLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi) override;
-    virtual void endLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi, bool cleaningUpAfterException) override;
+    void beginLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi) override;
+    void endLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi, bool cleaningUpAfterException) override;
 
-    virtual statemachine::Run readRun() override;
-    virtual statemachine::Run readAndMergeRun() override;
-    virtual int readLuminosityBlock() override;
-    virtual int readAndMergeLumi() override;
-    virtual void writeRun(statemachine::Run const& run) override;
-    virtual void deleteRunFromCache(statemachine::Run const& run) override;
-    virtual void writeLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi) override;
-    virtual void deleteLumiFromCache(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi) override;
+    statemachine::Run readRun() override;
+    statemachine::Run readAndMergeRun() override;
+    int readLuminosityBlock() override;
+    int readAndMergeLumi() override;
+    void writeRun(statemachine::Run const& run) override;
+    void deleteRunFromCache(statemachine::Run const& run) override;
+    void writeLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi) override;
+    void deleteLumiFromCache(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi) override;
 
-    virtual void readAndProcessEvent() override;
-    virtual bool shouldWeStop() const override;
+    void readAndProcessEvent() override;
+    bool shouldWeStop() const override;
 
-    virtual void setExceptionMessageFiles(std::string& message) override;
-    virtual void setExceptionMessageRuns(std::string& message) override;
-    virtual void setExceptionMessageLumis(std::string& message) override;
+    void setExceptionMessageFiles(std::string& message) override;
+    void setExceptionMessageRuns(std::string& message) override;
+    void setExceptionMessageLumis(std::string& message) override;
 
-    virtual bool alreadyHandlingException() const override;
+    bool alreadyHandlingException() const override;
 
   private:
     //------------------------------------------------------------------

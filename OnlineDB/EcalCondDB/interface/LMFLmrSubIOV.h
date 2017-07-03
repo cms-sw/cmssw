@@ -18,7 +18,7 @@ class LMFLmrSubIOV : public LMFUnique {
   LMFLmrSubIOV(EcalDBConnection *c);
   LMFLmrSubIOV(oracle::occi::Environment* env,
 	       oracle::occi::Connection* conn);
-  ~LMFLmrSubIOV();
+  ~LMFLmrSubIOV() override;
 
   LMFLmrSubIOV& setLMFIOV(const LMFIOV &iov);
   LMFLmrSubIOV& setLMFIOV(int i);
@@ -90,10 +90,10 @@ class LMFLmrSubIOV : public LMFUnique {
   int m_lmfIOV;
   Tm m_t[3];
 
-  std::string fetchIdSql(Statement *stmt);
-  std::string setByIDSql(Statement *stmt, int id);
-  std::string writeDBSql(Statement *stmt);
-  void getParameters(ResultSet *rset);
+  std::string fetchIdSql(Statement *stmt) override;
+  std::string setByIDSql(Statement *stmt, int id) override;
+  std::string writeDBSql(Statement *stmt) override;
+  void getParameters(ResultSet *rset) override;
   void init();
 };
 

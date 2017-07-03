@@ -23,7 +23,7 @@ namespace reco
 	   const LorentzVector& fP4, const Point& fVertex )
       : MET( sumet_, fP4, fVertex ), pf_data( pf_data_ ) {}
 
-    virtual ~PFMET() {}
+    ~PFMET() override {}
     
     //getters
     double photonEtFraction() const { return pf_data.NeutralEMFraction; }

@@ -41,7 +41,7 @@ class FWPFBlockProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::PFBlock>
 
    // ---------------- Constructor(s)/Destructor ----------------------
       FWPFBlockProxyBuilder() : e_builderType(BASE) {}
-      virtual ~FWPFBlockProxyBuilder(){}
+      ~FWPFBlockProxyBuilder() override{}
 
       REGISTER_PROXYBUILDER_METHODS();
 
@@ -53,19 +53,19 @@ class FWPFBlockProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::PFBlock>
       void           clusterSharedBuild( const reco::PFCluster&, TEveElement&, const FWViewContext* );
 
       using FWProxyBuilderBase::havePerViewProduct;
-      virtual bool   havePerViewProduct( FWViewType::EType ) const { return true; }
+      bool   havePerViewProduct( FWViewType::EType ) const override { return true; }
 
       using FWProxyBuilderBase::haveSingleProduct;
-      virtual bool   haveSingleProduct() const { return false; } // different view types
+      bool   haveSingleProduct() const override { return false; } // different view types
 
        using FWProxyBuilderBase::scaleProduct;
-      virtual void   scaleProduct( TEveElementList *parent, FWViewType::EType, const FWViewContext *vc );
+      void   scaleProduct( TEveElementList *parent, FWViewType::EType, const FWViewContext *vc ) override;
 
       using FWProxyBuilderBase::cleanLocal;
-      virtual void   cleanLocal() { m_clusters.clear(); }
+      void   cleanLocal() override { m_clusters.clear(); }
       
       using FWSimpleProxyBuilderTemplate<reco::PFBlock>::buildViewType;
-      virtual void   buildViewType( const reco::PFBlock&, unsigned int, TEveElement&, FWViewType::EType, const FWViewContext* );
+      void   buildViewType( const reco::PFBlock&, unsigned int, TEveElement&, FWViewType::EType, const FWViewContext* ) override;
 
     
    // ----------------------- Data Members ----------------------------
@@ -86,7 +86,7 @@ class FWPFBlockEcalProxyBuilder : public FWPFBlockProxyBuilder
 {
    public:
       FWPFBlockEcalProxyBuilder(){ e_builderType = ECAL; }
-      virtual ~FWPFBlockEcalProxyBuilder(){}
+      ~FWPFBlockEcalProxyBuilder() override{}
 
       REGISTER_PROXYBUILDER_METHODS();
 
@@ -104,7 +104,7 @@ class FWPFBlockHcalProxyBuilder : public FWPFBlockProxyBuilder
 {
    public:
       FWPFBlockHcalProxyBuilder(){ e_builderType = HCAL; }
-      virtual ~FWPFBlockHcalProxyBuilder(){}
+      ~FWPFBlockHcalProxyBuilder() override{}
 
       REGISTER_PROXYBUILDER_METHODS();
 

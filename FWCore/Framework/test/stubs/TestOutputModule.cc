@@ -65,13 +65,13 @@ namespace edmtest
   {
   public:
     explicit TestOutputModule(edm::ParameterSet const&);
-    virtual ~TestOutputModule();
+    ~TestOutputModule() override;
 
   private:
-    virtual void write(edm::EventForOutput const& e) override;
-    virtual void writeLuminosityBlock(edm::LuminosityBlockForOutput const&) override;
-    virtual void writeRun(edm::RunForOutput const&) override;
-    virtual void endJob() override;
+    void write(edm::EventForOutput const& e) override;
+    void writeLuminosityBlock(edm::LuminosityBlockForOutput const&) override;
+    void writeRun(edm::RunForOutput const&) override;
+    void endJob() override;
 
     std::string name_;
     int bitMask_;

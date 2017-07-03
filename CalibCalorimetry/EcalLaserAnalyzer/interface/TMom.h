@@ -45,7 +45,7 @@ class TMom: public TObject
   TMom(const std::vector<double>&,const std::vector<double>&);
 
   // Destructor: Does nothing
-  virtual ~TMom();
+  ~TMom() override;
 
   void setCut(double, double);
   void setCut(const std::vector<double>&,const std::vector<double>&);

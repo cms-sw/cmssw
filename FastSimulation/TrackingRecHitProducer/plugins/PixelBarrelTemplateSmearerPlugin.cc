@@ -35,7 +35,7 @@ class PixelBarrelTemplateSmearerPlugin:
             const edm::ParameterSet& config,
             edm::ConsumesCollector& consumesCollector
         );
-        virtual ~PixelBarrelTemplateSmearerPlugin();
+        ~PixelBarrelTemplateSmearerPlugin() override;
 
     private:
         void initializeBarrel();

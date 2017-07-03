@@ -40,11 +40,11 @@
 class testTkHistoMap : public edm::EDAnalyzer {
 public:
   explicit testTkHistoMap ( const edm::ParameterSet& );
-  ~testTkHistoMap ();
+  ~testTkHistoMap () override;
    
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  void analyze( const edm::Event&, const edm::EventSetup& ) override;
 
-  virtual void endJob(void);
+  void endJob(void) override;
 
 private:
   

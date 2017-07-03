@@ -45,10 +45,10 @@ class StdHitNtuplizer : public edm::EDAnalyzer
  public:
   
   explicit StdHitNtuplizer(const edm::ParameterSet& conf);
-  virtual ~StdHitNtuplizer();
-  virtual void beginJob();
-  virtual void endJob();
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& es);
+  ~StdHitNtuplizer() override;
+  void beginJob() override;
+  void endJob() override;
+  void analyze(const edm::Event& e, const edm::EventSetup& es) override;
 
  protected:
 

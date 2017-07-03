@@ -13,11 +13,11 @@ class TSGSmart : public TrackerSeedGenerator {
 public:
   TSGSmart(const edm::ParameterSet &pset, edm::ConsumesCollector& iC);
 
-  virtual ~TSGSmart();
+  ~TSGSmart() override;
 
 private:
-  virtual void run(TrajectorySeedCollection &seeds, 
-      const edm::Event &ev, const edm::EventSetup &es, const TrackingRegion& region);
+  void run(TrajectorySeedCollection &seeds, 
+      const edm::Event &ev, const edm::EventSetup &es, const TrackingRegion& region) override;
 
 private:
   edm::ParameterSet theConfig;

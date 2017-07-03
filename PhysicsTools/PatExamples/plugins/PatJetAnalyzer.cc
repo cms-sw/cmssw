@@ -46,11 +46,11 @@ public:
   /// default contructor
   explicit PatJetAnalyzer(const edm::ParameterSet& cfg);
   /// default destructor
-  ~PatJetAnalyzer(){};
+  ~PatJetAnalyzer() override{};
 
 private:
   /// everything that needs to be done during the even loop
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
 
   /// check if histogram was booked
   bool booked(const std::string histName) const { return hists_.find(histName.c_str())!=hists_.end(); };

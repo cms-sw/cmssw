@@ -62,7 +62,7 @@ struct CSCDMBTrailer2013: public CSCVDMBTrailerFormat {
 */
 
   ///@@ NEEDS TO BE DONE
-  virtual void setEventInformation(const CSCDMBHeader & dmbHeader) 
+  void setEventInformation(const CSCDMBHeader & dmbHeader) override 
     {
 	bits.dmb_id = dmbHeader.dmbID();
         bits.crate_id = dmbHeader.crateID();
@@ -70,50 +70,50 @@ struct CSCDMBTrailer2013: public CSCVDMBTrailerFormat {
         bits.dmb_bxn = dmbHeader.bxn();
     };
 
-  virtual unsigned crateID() const { return bits.crate_id; };
-  virtual unsigned dmbID() const { return bits.dmb_id; };
+  unsigned crateID() const override { return bits.crate_id; };
+  unsigned dmbID() const override { return bits.dmb_id; };
 
-  virtual unsigned dmb_l1a() const { return bits.dmb_l1a; };
-  virtual unsigned dmb_bxn() const { return bits.dmb_bxn; };
+  unsigned dmb_l1a() const override { return bits.dmb_l1a; };
+  unsigned dmb_bxn() const override { return bits.dmb_bxn; };
 
-  virtual unsigned alct_endtimeout() const { return bits.alct_endtimeout; };
-  virtual unsigned tmb_endtimeout() const { return bits.tmb_endtimeout; };
-  virtual unsigned cfeb_endtimeout() const { return bits.cfeb_endtimeout; };
+  unsigned alct_endtimeout() const override { return bits.alct_endtimeout; };
+  unsigned tmb_endtimeout() const override { return bits.tmb_endtimeout; };
+  unsigned cfeb_endtimeout() const override { return bits.cfeb_endtimeout; };
 
-  virtual unsigned alct_starttimeout() const { return bits.alct_starttimeout; };
-  virtual unsigned tmb_starttimeout() const { return bits.tmb_starttimeout; };
-  virtual unsigned cfeb_starttimeout() const { return bits.cfeb_starttimeout; };
+  unsigned alct_starttimeout() const override { return bits.alct_starttimeout; };
+  unsigned tmb_starttimeout() const override { return bits.tmb_starttimeout; };
+  unsigned cfeb_starttimeout() const override { return bits.cfeb_starttimeout; };
 
-  virtual unsigned cfeb_movlp() const { return bits.cfeb_movlp; };
-  virtual unsigned dmb_l1pipe() const { return bits.dmb_l1pipe; };
+  unsigned cfeb_movlp() const override { return bits.cfeb_movlp; };
+  unsigned dmb_l1pipe() const override { return bits.dmb_l1pipe; };
 
   /// Empty bits don't exists in new format
-  virtual unsigned alct_empty() const { return 0; };
-  virtual unsigned tmb_empty() const { return 0 ; };
-  virtual unsigned cfeb_empty() const { return 0; };
+  unsigned alct_empty() const override { return 0; };
+  unsigned tmb_empty() const override { return 0 ; };
+  unsigned cfeb_empty() const override { return 0; };
 
 
-  virtual unsigned alct_half() const { return bits.alct_half; };
-  virtual unsigned tmb_half() const { return bits.tmb_half; };
-  virtual unsigned cfeb_half() const { return bits.cfeb_half; };
+  unsigned alct_half() const override { return bits.alct_half; };
+  unsigned tmb_half() const override { return bits.tmb_half; };
+  unsigned cfeb_half() const override { return bits.cfeb_half; };
 
-  virtual unsigned alct_full() const { return bits.alct_full; };
-  virtual unsigned tmb_full() const { return bits.tmb_full; };
-  virtual unsigned cfeb_full() const { return (bits.cfeb_full_lowo | (bits.cfeb_full_hiwo << 3)); };
+  unsigned alct_full() const override { return bits.alct_full; };
+  unsigned tmb_full() const override { return bits.tmb_full; };
+  unsigned cfeb_full() const override { return (bits.cfeb_full_lowo | (bits.cfeb_full_hiwo << 3)); };
   
-  virtual unsigned crc22() const { return (bits.dmb_crc_1 | (bits.dmb_crc_2 << 11)); };
-  virtual unsigned crc_lo_parity() const { return bits.dmb_parity_1; };
-  virtual unsigned crc_hi_parity() const { return bits.dmb_parity_2; };
+  unsigned crc22() const override { return (bits.dmb_crc_1 | (bits.dmb_crc_2 << 11)); };
+  unsigned crc_lo_parity() const override { return bits.dmb_parity_1; };
+  unsigned crc_hi_parity() const override { return bits.dmb_parity_2; };
  
-  virtual unsigned short * data() { return (unsigned short *)(&bits); }
-  virtual unsigned short * data() const { return (unsigned short *)(&bits); }
+  unsigned short * data() override { return (unsigned short *)(&bits); }
+  unsigned short * data() const override { return (unsigned short *)(&bits); }
 
-  bool check() const {return bits.ddu_code_1 == 0xF && bits.ddu_code_2 == 0xF
+  bool check() const override {return bits.ddu_code_1 == 0xF && bits.ddu_code_2 == 0xF
                           && bits.ddu_code_3 == 0xF && bits.ddu_code_4 == 0xF
                           && bits.ddu_code_5 == 0xE && bits.ddu_code_6 == 0xE
                           && bits.ddu_code_7 == 0xE && bits.ddu_code_8 == 0xE;}
 
-  unsigned sizeInWords() const { return 8; }
+  unsigned sizeInWords() const override { return 8; }
 
   struct {
   /// 1st Trailer word

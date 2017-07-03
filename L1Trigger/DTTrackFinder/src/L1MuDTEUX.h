@@ -53,16 +53,16 @@ class L1MuDTEUX : public L1AbstractProcessor {
     L1MuDTEUX(const L1MuDTSectorProcessor& sp, const L1MuDTSEU& seu, int id );
 
     /// destructor
-    virtual ~L1MuDTEUX();
+    ~L1MuDTEUX() override;
 
     /// equal operator
     bool operator==(const L1MuDTEUX&) const;
     
     /// run Extrapolator
-    virtual void run(const edm::EventSetup& c);
+    void run(const edm::EventSetup& c) override;
     
     /// reset Extrapolator
-    virtual void reset();
+    void reset() override;
     
     /// load data into EUX 
     void load(const L1MuDTTrackSegPhi* start_ts, const L1MuDTTrackSegPhi* target_ts);

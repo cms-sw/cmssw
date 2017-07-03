@@ -45,10 +45,10 @@ namespace HepMC {
 class MCParticlePairFilter : public edm::EDFilter {
    public:
       explicit MCParticlePairFilter(const edm::ParameterSet&);
-      ~MCParticlePairFilter();
+      ~MCParticlePairFilter() override;
 
 
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      bool filter(edm::Event&, const edm::EventSetup&) override;
    private:
       // ----------memeber function----------------------
        int charge(const int& Id);

@@ -24,7 +24,7 @@ class SiPixelPhase1GeometryDebug : public SiPixelPhase1Base {
     : SiPixelPhase1Base(conf) {
   }
 
-  void analyze(const edm::Event& iEvent, const edm::EventSetup&) {
+  void analyze(const edm::Event& iEvent, const edm::EventSetup&) override {
     auto& all = geometryInterface.allModules();
     GeometryInterface::Column ladder = geometryInterface.intern("PXLadder");
     GeometryInterface::Column blade  = geometryInterface.intern("PXBlade");

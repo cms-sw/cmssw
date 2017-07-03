@@ -26,8 +26,8 @@
 class JetCoreClusterSplitter : public edm::stream::EDProducer<> {
  public:
   JetCoreClusterSplitter(const edm::ParameterSet& iConfig);
-  ~JetCoreClusterSplitter();
-  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
+  ~JetCoreClusterSplitter() override;
+  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
  private:
   bool split(const SiPixelCluster& aCluster,

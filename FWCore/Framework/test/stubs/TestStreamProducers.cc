@@ -80,7 +80,7 @@ struct UnsafeCache {
       }
     }
 
-    ~GlobalIntProducer() {
+    ~GlobalIntProducer() override {
       if(m_count != trans_) {
         throw cms::Exception("transitions")
           << m_count << " but it was supposed to be " << trans_;
@@ -154,7 +154,7 @@ struct UnsafeCache {
       }
     }
 
-    ~RunIntProducer() {
+    ~RunIntProducer() override {
        if(m_count != trans_) {
         throw cms::Exception("transitions")
           << m_count << " but it was supposed to be " << trans_;
@@ -231,7 +231,7 @@ struct UnsafeCache {
    }
 
 
-    ~LumiIntProducer() {
+    ~LumiIntProducer() override {
        if(m_count != trans_) {
         throw cms::Exception("transitions")
           << m_count<< " but it was supposed to be " << trans_;
@@ -334,7 +334,7 @@ struct UnsafeCache {
       br = false;
     }   
 
-    ~RunSummaryIntProducer() {
+    ~RunSummaryIntProducer() override {
      if(m_count != trans_) {
         throw cms::Exception("transitions")
           << m_count<< " but it was supposed to be " << trans_;
@@ -444,7 +444,7 @@ struct UnsafeCache {
       bl = false;
     }
 
-    ~LumiSummaryIntProducer() {
+    ~LumiSummaryIntProducer() override {
      if(m_count != trans_) {
         throw cms::Exception("transitions")
           << m_count<< " but it was supposed to be " << trans_;
@@ -500,7 +500,7 @@ struct UnsafeCache {
     }
 
 
-    ~TestBeginRunProducer() {
+    ~TestBeginRunProducer() override {
     if(m_count != trans_) {
        throw cms::Exception("transitions")
          << m_count<< " but it was supposed to be " << trans_;
@@ -557,7 +557,7 @@ struct UnsafeCache {
     }
 
 
-    ~TestEndRunProducer() {
+    ~TestEndRunProducer() override {
     if(m_count != trans_) {
        throw cms::Exception("transitions")
          << m_count<< " but it was supposed to be " << trans_;
@@ -613,7 +613,7 @@ struct UnsafeCache {
     }
 
 
-    ~TestBeginLumiBlockProducer() {
+    ~TestBeginLumiBlockProducer() override {
     if(m_count != trans_) {
        throw cms::Exception("transitions")
          << m_count<< " but it was supposed to be " << trans_;
@@ -663,7 +663,7 @@ struct UnsafeCache {
    }
 
 
-    ~TestEndLumiBlockProducer() {
+    ~TestEndLumiBlockProducer() override {
     if(m_count != trans_) {
        throw cms::Exception("transitions")
          << m_count<< " but it was supposed to be " << trans_;

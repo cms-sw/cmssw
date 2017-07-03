@@ -44,10 +44,10 @@ namespace popcon {
     {
     public:
       EcalSRPHandler(edm::ParameterSet const & );
-      ~EcalSRPHandler(); 
+      ~EcalSRPHandler() override; 
 
-      void getNewObjects();
-      std::string id() const { return m_name;}
+      void getNewObjects() override;
+      std::string id() const override { return m_name;}
       EcalCondDBInterface* econn;
       void importDccConfigFile(EcalSRSettings& sr, const std::string& filename, bool debug = false);
       void PrintPayload(EcalSRSettings& sr, std::ofstream& fout);

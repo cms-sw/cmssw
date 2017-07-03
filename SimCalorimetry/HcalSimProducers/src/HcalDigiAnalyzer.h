@@ -25,7 +25,7 @@ class HcalDigiAnalyzer : public edm::one::EDAnalyzer<>
 public:
 
   explicit HcalDigiAnalyzer(edm::ParameterSet const& conf);
-  virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
+  void analyze(edm::Event const& e, edm::EventSetup const& c) override;
 
 
 private:

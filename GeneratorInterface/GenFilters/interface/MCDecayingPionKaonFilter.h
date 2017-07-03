@@ -41,10 +41,10 @@ namespace edm {
 class MCDecayingPionKaonFilter : public edm::EDFilter {
    public:
       explicit MCDecayingPionKaonFilter(const edm::ParameterSet&);
-      ~MCDecayingPionKaonFilter();
+      ~MCDecayingPionKaonFilter() override;
 
 
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      bool filter(edm::Event&, const edm::EventSetup&) override;
    private:
       // ----------member data ---------------------------
       

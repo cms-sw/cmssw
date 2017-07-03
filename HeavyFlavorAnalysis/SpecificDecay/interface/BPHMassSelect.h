@@ -40,12 +40,12 @@ class BPHMassSelect: public BPHMomentumSelect, public BPHMassCuts {
 
   /** Destructor
    */
-  virtual ~BPHMassSelect() {}
+  ~BPHMassSelect() override {}
 
   /** Operations
    */
   /// select particle
-  virtual bool accept( const BPHDecayMomentum& cand ) const {
+  bool accept( const BPHDecayMomentum& cand ) const override {
     double mass = cand.composite().mass();
     return ( ( mass > mMin ) && ( mass < mMax ) );
   }

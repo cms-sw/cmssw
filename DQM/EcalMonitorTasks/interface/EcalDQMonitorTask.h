@@ -19,7 +19,7 @@ namespace edm
 class EcalDQMonitorTask : public DQMEDAnalyzer, public ecaldqm::EcalDQMonitor {
  public:
   EcalDQMonitorTask(edm::ParameterSet const&);
-  ~EcalDQMonitorTask() {}
+  ~EcalDQMonitorTask() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 

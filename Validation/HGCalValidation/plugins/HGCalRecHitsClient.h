@@ -40,10 +40,10 @@ private:
 
 public:
   explicit HGCalRecHitsClient(const edm::ParameterSet& );
-  virtual ~HGCalRecHitsClient();
+  ~HGCalRecHitsClient() override;
   
-  virtual void beginRun(const edm::Run& run, const edm::EventSetup& c);
-  void dqmEndJob(DQMStore::IBooker &ib, DQMStore::IGetter &ig);
+  void beginRun(const edm::Run& run, const edm::EventSetup& c) override;
+  void dqmEndJob(DQMStore::IBooker &ib, DQMStore::IGetter &ig) override;
   virtual void runClient_(DQMStore::IBooker &ib, DQMStore::IGetter &ig);   
 
   int recHitsEndjob(const std::vector<MonitorElement*> &hcalMEs);

@@ -23,8 +23,8 @@ class printGenJetRatio : public edm::EDAnalyzer {
     typedef reco::JetFloatAssociation::Container JetBCEnergyRatioCollection;
 
     explicit printGenJetRatio(const edm::ParameterSet & );
-    ~printGenJetRatio() {};
-    void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+    ~printGenJetRatio() override {};
+    void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
   private:
 

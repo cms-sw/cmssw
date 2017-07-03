@@ -19,7 +19,7 @@
 class TestCrossSectionHandler : public CppUnit::TestFixture {
 public:
   TestCrossSectionHandler() {}
-  void setUp()
+  void setUp() override
   {
     crossSection.push_back(1.233);
     crossSection.push_back(2.07);
@@ -64,7 +64,7 @@ public:
     crossSectionHandler_6 = new CrossSectionHandler(crossSection, resfind_6);
   }
 
-  void tearDown()
+  void tearDown() override
   {
     delete crossSectionHandler_1;
     delete crossSectionHandler_2;

@@ -27,11 +27,11 @@ class PrintGeomSummary : public SimWatcher,
 
 public:
   PrintGeomSummary(edm::ParameterSet const & p);
-  ~PrintGeomSummary();
+  ~PrintGeomSummary() override;
 
 private:
-  void update(const BeginOfJob * job);
-  void update(const BeginOfRun * run);
+  void update(const BeginOfJob * job) override;
+  void update(const BeginOfRun * run) override;
   void addSolid(const DDLogicalPart & part);
   void fillLV(G4LogicalVolume * lv);
   void dumpSummary(std::ostream& out, std::string name);

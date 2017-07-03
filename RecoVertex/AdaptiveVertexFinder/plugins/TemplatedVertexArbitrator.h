@@ -55,7 +55,7 @@ class TemplatedVertexArbitrator : public edm::stream::EDProducer<> {
 	TemplatedVertexArbitrator(const edm::ParameterSet &params); 
 
 
-	virtual void produce(edm::Event &event, const edm::EventSetup &es) override ;
+	void produce(edm::Event &event, const edm::EventSetup &es) override ;
 
     private:
 	bool trackFilter(const reco::TrackRef &track) const;

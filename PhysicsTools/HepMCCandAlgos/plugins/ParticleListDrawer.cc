@@ -42,7 +42,7 @@ using namespace edm;
 class ParticleListDrawer : public edm::EDAnalyzer {
   public:
     explicit ParticleListDrawer(const edm::ParameterSet & );
-    ~ParticleListDrawer() {};
+    ~ParticleListDrawer() override {};
     void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
   private:

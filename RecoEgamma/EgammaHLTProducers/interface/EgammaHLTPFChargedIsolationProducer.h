@@ -31,7 +31,7 @@ namespace edm {
 class EgammaHLTPFChargedIsolationProducer : public edm::EDProducer {
  public:
   explicit EgammaHLTPFChargedIsolationProducer(const edm::ParameterSet&);
-  ~EgammaHLTPFChargedIsolationProducer() {};
+  ~EgammaHLTPFChargedIsolationProducer() override {};
 
   void produce(edm::Event&, const edm::EventSetup&) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);

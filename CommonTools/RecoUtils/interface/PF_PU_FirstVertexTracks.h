@@ -47,12 +47,12 @@ typedef edm::AssociationMap<edm::OneToManyWithQuality<reco::TrackCollection, rec
 class PF_PU_FirstVertexTracks : public edm::EDProducer {
    public:
       explicit PF_PU_FirstVertexTracks(const edm::ParameterSet&);
-      ~PF_PU_FirstVertexTracks();
+      ~PF_PU_FirstVertexTracks() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      void produce(edm::Event&, const edm::EventSetup&) override;
       virtual bool TrackMatch(const reco::Track&,const reco::Track&);
 
       // ----------member data ---------------------------

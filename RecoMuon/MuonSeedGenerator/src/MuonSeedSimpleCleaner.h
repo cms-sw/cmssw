@@ -7,7 +7,7 @@ class MuonSeedSimpleCleaner: public MuonSeedVCleaner
 {
 public:
 
-  virtual void clean(TrajectorySeedCollection & seeds);
+  void clean(TrajectorySeedCollection & seeds) override;
 
 private:
   bool checkPt(const TrajectorySeed & seed) const;

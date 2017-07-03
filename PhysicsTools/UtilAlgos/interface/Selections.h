@@ -84,7 +84,7 @@ class SFilter {
 
 class FilterOR : public Filter{
  public:
-  ~FilterOR(){}
+  ~FilterOR() override{}
   FilterOR(const std::string & filterORlist,
 	   const std::map<std::string, Filter*> & filters){
     std::string filterORlistCopy=filterORlist;
@@ -119,7 +119,7 @@ class FilterOR : public Filter{
     }
     description_.push_back(ss.str());
   }
-  bool accept(edm::Event& iEvent) {
+  bool accept(edm::Event& iEvent) override {
     for (unsigned int i=0 ; i!=filters_.size();++i)
       if (filters_[i].second->accept(iEvent))
 	return true;
@@ -164,7 +164,7 @@ class FilterSelection : public Filter {
   iterator begin() { return filters_.begin();}
   iterator end() { return filters_.end();}
 
-  virtual bool accept(edm::Event& iEvent){
+  bool accept(edm::Event& iEvent) override{
     if (std::numeric_limits<edm::Event::CacheIdentifier_t>::max() != eventCacheID_ and eventCacheID_ != iEvent.cacheIdentifier()){
       this->acceptMap(iEvent);
     }

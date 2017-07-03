@@ -57,7 +57,7 @@ class METMonitor : public DQMEDAnalyzer
 {
 public:
   METMonitor( const edm::ParameterSet& );
-  ~METMonitor();
+  ~METMonitor() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   static void fillHistoPSetDescription(edm::ParameterSetDescription & pset);
   static void fillHistoLSPSetDescription(edm::ParameterSetDescription & pset);

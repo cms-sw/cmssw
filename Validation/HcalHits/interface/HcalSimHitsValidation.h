@@ -44,11 +44,11 @@ class HcalSimHitsValidation : public DQMEDAnalyzer {
 
 public:
   HcalSimHitsValidation(edm::ParameterSet const& conf);
-  ~HcalSimHitsValidation();
+  ~HcalSimHitsValidation() override;
 
-  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const & );
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const & ) override;
 
-  virtual void analyze(edm::Event const& ev, edm::EventSetup const& c);
+  void analyze(edm::Event const& ev, edm::EventSetup const& c) override;
   virtual void endJob() ;
 
 private:

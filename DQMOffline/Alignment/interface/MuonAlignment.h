@@ -70,16 +70,16 @@ public:
     MuonAlignment(const edm::ParameterSet&);
   
     /// Destructor
-    virtual ~MuonAlignment();
+    ~MuonAlignment() override;
   
     /// Inizialize parameters for histo binning
-    void beginJob();
+    void beginJob() override;
 
     /// Get the analysis
-    void analyze(const edm::Event&, const edm::EventSetup&);
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
     /// Save the histos
-    void endJob(void);
+    void endJob(void) override;
 
 private:
     // ----------member data ---------------------------

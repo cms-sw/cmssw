@@ -38,11 +38,11 @@ namespace edm {
 class HLTEventNumberFilter : public edm::EDFilter {
 public:
   explicit HLTEventNumberFilter(const edm::ParameterSet&);
-  ~HLTEventNumberFilter();
+  ~HLTEventNumberFilter() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   
 private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  bool filter(edm::Event&, const edm::EventSetup&) override;
   
   // ----------member data ---------------------------
 

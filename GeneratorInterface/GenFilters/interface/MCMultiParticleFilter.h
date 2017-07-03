@@ -41,11 +41,11 @@ namespace edm {
 class MCMultiParticleFilter : public edm::EDFilter {
  public:
   explicit MCMultiParticleFilter(const edm::ParameterSet&);
-  ~MCMultiParticleFilter();
+  ~MCMultiParticleFilter() override;
   
  private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
   
   // ----------member data ---------------------------
   

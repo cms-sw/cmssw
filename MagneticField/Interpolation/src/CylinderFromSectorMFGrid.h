@@ -10,19 +10,19 @@ public:
   CylinderFromSectorMFGrid(const GloballyPositioned<float>& vol,
 			   double phiMin, double phiMax, MFGrid* sectorGrid);
 
-  ~CylinderFromSectorMFGrid();
+  ~CylinderFromSectorMFGrid() override;
 
-  virtual LocalVector valueInTesla( const LocalPoint& p) const;
+  LocalVector valueInTesla( const LocalPoint& p) const override;
 
-  virtual void toGridFrame( const LocalPoint& p, double& a, double& b, double& c) const ;
+  void toGridFrame( const LocalPoint& p, double& a, double& b, double& c) const override ;
 
-  virtual LocalPoint fromGridFrame( double a, double b, double c) const ;
+  LocalPoint fromGridFrame( double a, double b, double c) const override ;
 
-  virtual Dimensions dimensions() const;
+  Dimensions dimensions() const override;
 
-  virtual LocalPoint  nodePosition( int i, int j, int k) const ;
+  LocalPoint  nodePosition( int i, int j, int k) const override ;
 
-  virtual LocalVector nodeValue( int i, int j, int k) const ;
+  LocalVector nodeValue( int i, int j, int k) const override ;
 
 
 private:

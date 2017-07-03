@@ -45,11 +45,11 @@ class CaloTruthAccumulator : public DigiAccumulatorMixMod {
  public:
   explicit CaloTruthAccumulator( const edm::ParameterSet& config, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC);
  private:
-  virtual void initializeEvent( const edm::Event& event, const edm::EventSetup& setup ) override;
-  virtual void accumulate( const edm::Event& event, const edm::EventSetup& setup ) override;
-  virtual void accumulate( const PileUpEventPrincipal& event, const edm::EventSetup& setup, edm::StreamID const& ) override;
-  virtual void finalizeEvent( edm::Event& event, const edm::EventSetup& setup ) override;
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) override;
+  void initializeEvent( const edm::Event& event, const edm::EventSetup& setup ) override;
+  void accumulate( const edm::Event& event, const edm::EventSetup& setup ) override;
+  void accumulate( const PileUpEventPrincipal& event, const edm::EventSetup& setup, edm::StreamID const& ) override;
+  void finalizeEvent( edm::Event& event, const edm::EventSetup& setup ) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) override;
   
   /** @brief Both forms of accumulate() delegate to this templated method. */
   template<class T> void accumulateEvent( const T& event, const edm::EventSetup& setup, const edm::Handle< edm::HepMCProduct >& hepMCproduct );

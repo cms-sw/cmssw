@@ -62,13 +62,13 @@
 class ApeEstimatorSummary : public edm::EDAnalyzer {
    public:
       explicit ApeEstimatorSummary(const edm::ParameterSet&);
-      ~ApeEstimatorSummary();
+      ~ApeEstimatorSummary() override;
 
 
    private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      void beginJob() override ;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
       
       void openInputFile();
       void getTrackerSectorStructs();

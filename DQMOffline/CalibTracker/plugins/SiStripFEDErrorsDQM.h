@@ -38,12 +38,12 @@ class SiStripFEDErrorsDQM : public edm::EDAnalyzer, public SiStripBaseServiceFro
 {
  public:
   SiStripFEDErrorsDQM(const edm::ParameterSet& iConfig);
-  ~SiStripFEDErrorsDQM();
+  ~SiStripFEDErrorsDQM() override;
   
  private:
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
 
   bool readBadAPVs();
 

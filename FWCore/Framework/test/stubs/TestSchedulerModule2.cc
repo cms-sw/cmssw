@@ -26,7 +26,7 @@ namespace edm{
        produces<edmtest::StringProduct>();
     }
 
-    void produce(Event& e, EventSetup const&);
+    void produce(Event& e, EventSetup const&) override;
 
   private:
     ParameterSet pset_;

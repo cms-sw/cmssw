@@ -87,13 +87,13 @@ class RPCSeedFinder;
 class RPCSeedGenerator : public edm::EDProducer {
     public:
         explicit RPCSeedGenerator(const edm::ParameterSet& iConfig);
-        ~RPCSeedGenerator();
+        ~RPCSeedGenerator() override;
 
     private:
-        virtual void beginJob() override;
-        virtual void beginRun(const edm::Run&, const edm::EventSetup& iSetup) override;
-        virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
-        virtual void endJob() override;
+        void beginJob() override;
+        void beginRun(const edm::Run&, const edm::EventSetup& iSetup) override;
+        void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+        void endJob() override;
 
         // ----------member data ---------------------------
         RPCSeedFinder Finder;

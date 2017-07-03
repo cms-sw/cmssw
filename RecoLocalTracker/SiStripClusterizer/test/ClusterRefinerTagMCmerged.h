@@ -21,7 +21,7 @@ class ClusterRefinerTagMCmerged : public edm::stream::EDProducer<>  {
 public:
 
   explicit ClusterRefinerTagMCmerged(const edm::ParameterSet& conf);
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
 

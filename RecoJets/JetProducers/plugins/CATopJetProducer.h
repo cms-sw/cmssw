@@ -80,12 +80,12 @@ namespace cms
 
     CATopJetProducer(const edm::ParameterSet& ps);
 
-    virtual ~CATopJetProducer() {}
+    ~CATopJetProducer() override {}
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-    virtual void produce( edm::Event& iEvent, const edm::EventSetup& iSetup );
+    void produce( edm::Event& iEvent, const edm::EventSetup& iSetup ) override;
 
-    virtual void runAlgorithm( edm::Event& iEvent, const edm::EventSetup& iSetup );
+    void runAlgorithm( edm::Event& iEvent, const edm::EventSetup& iSetup ) override;
 
   private:
     std::auto_ptr<CATopJetAlgorithm>        legacyCMSTopTagger_;         /// The algorithm to do the work

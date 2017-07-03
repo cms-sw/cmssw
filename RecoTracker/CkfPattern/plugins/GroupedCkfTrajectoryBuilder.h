@@ -28,7 +28,7 @@ class dso_internal GroupedCkfTrajectoryBuilder final : public BaseCkfTrajectoryB
   GroupedCkfTrajectoryBuilder(const edm::ParameterSet& conf, edm::ConsumesCollector& iC);
 
   /// destructor
-  virtual ~GroupedCkfTrajectoryBuilder(){}
+  ~GroupedCkfTrajectoryBuilder() override{}
 
   /// set Event for the internal MeasurementTracker data member
   //  virtual void setEvent(const edm::Event& event) const;

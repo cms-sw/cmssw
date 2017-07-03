@@ -76,7 +76,7 @@ public:
     produces<CColl>();
   }
   /// destructor
-  ~CandidateProducer() { }
+  ~CandidateProducer() override { }
 
 private:
   /// begin job (first run)

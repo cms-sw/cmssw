@@ -22,10 +22,10 @@ class OuterTrackerMonitorTTCluster : public edm::EDAnalyzer {
 
 public:
   explicit OuterTrackerMonitorTTCluster(const edm::ParameterSet&);
-  ~OuterTrackerMonitorTTCluster();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
+  ~OuterTrackerMonitorTTCluster() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
  
   // TTCluster stacks
   MonitorElement* Cluster_IMem_Barrel = 0;

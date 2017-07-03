@@ -19,14 +19,14 @@ namespace edmtest {
 
     explicit RunLumiEventAnalyzer(edm::ParameterSet const& pset);
 
-    virtual ~RunLumiEventAnalyzer() {}
+    ~RunLumiEventAnalyzer() override {}
 
-    virtual void analyze(edm::Event const& event, edm::EventSetup const& es);
-    virtual void beginRun(edm::Run const& run, edm::EventSetup const& es);
-    virtual void endRun(edm::Run const& run, edm::EventSetup const& es);
-    virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& es);
-    virtual void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& es);
-    virtual void endJob();
+    void analyze(edm::Event const& event, edm::EventSetup const& es) override;
+    void beginRun(edm::Run const& run, edm::EventSetup const& es) override;
+    void endRun(edm::Run const& run, edm::EventSetup const& es) override;
+    void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& es) override;
+    void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& es) override;
+    void endJob() override;
 
   private:
 

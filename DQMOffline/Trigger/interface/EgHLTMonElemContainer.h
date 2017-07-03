@@ -48,7 +48,7 @@ namespace egHLT {
       baseTitle_(baseTitle),
       cut_(cut){}
     
-    ~MonElemContainer();
+    ~MonElemContainer() override;
     
   //yes this is little more than a struct with some unnecessary function wrapers
     std::vector<MonElemWithCutBase<T>*>& cutMonElems(){return cutMonElems_;}
@@ -60,7 +60,7 @@ namespace egHLT {
     const std::string& name()const{return baseName_;}
     const std::string& title()const{return baseTitle_;}
     
-    void fill(const T& obj,const OffEvt& evt,float weight);
+    void fill(const T& obj,const OffEvt& evt,float weight) override;
     
   };
   

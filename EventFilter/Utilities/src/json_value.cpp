@@ -61,22 +61,22 @@ class DefaultValueAllocator : public ValueAllocator
 public:
    DefaultValueAllocator() {}
 
-   virtual ~DefaultValueAllocator()
+   ~DefaultValueAllocator() override
    {
    }
 
-   virtual char *makeMemberName( const char *memberName ) const
+   char *makeMemberName( const char *memberName ) const override
    {
       return duplicateStringValue( memberName );
    }
 
-   virtual void releaseMemberName( char *memberName ) const 
+   void releaseMemberName( char *memberName ) const override 
    {
       releaseStringValue( memberName );
    }
 
-   virtual char *duplicateStringValue( const char *value, 
-                                       unsigned int length = unknown ) const
+   char *duplicateStringValue( const char *value, 
+                                       unsigned int length = unknown ) const override
    {
       // invesgate this old optimization
       //if ( !value  ||  value[0] == 0 )
@@ -90,7 +90,7 @@ public:
       return newString;
    }
 
-   virtual void releaseStringValue( char *value ) const
+   void releaseStringValue( char *value ) const override
    {
       if ( value )
          free( value );

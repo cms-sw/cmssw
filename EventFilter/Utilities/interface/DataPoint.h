@@ -42,18 +42,18 @@ public:
 	DataPoint(std::string const& source, std::string const& definition, bool fast=false) :
                  source_(source), definition_(definition), isFastOnly_(fast) { }
 
-	~DataPoint();
+	~DataPoint() override;
 
 	/**
 	 * JSON serialization procedure for this class
 	 */
 
-	virtual void serialize(Json::Value& root) const;
+	void serialize(Json::Value& root) const override;
 
 	/**
 	 * JSON deserialization procedure for this class
 	 */
-	virtual void deserialize(Json::Value& root);
+	void deserialize(Json::Value& root) override;
 
 	std::vector<std::string>& getData() {return data_;}
 	std::string& getDefinition() {return definition_;}

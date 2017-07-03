@@ -35,10 +35,10 @@ namespace edmtest {
     typedef std::vector<std::string> Strings;
 
     explicit TestTriggerNames(edm::ParameterSet const&);
-    virtual ~TestTriggerNames();
+    ~TestTriggerNames() override;
 
-    virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
-    void endJob();
+    void analyze(edm::Event const& e, edm::EventSetup const& c) override;
+    void endJob() override;
 
   private:
 

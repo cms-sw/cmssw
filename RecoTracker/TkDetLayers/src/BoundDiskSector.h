@@ -9,7 +9,7 @@ class BoundDiskSector final : public Plane {
  public:
  
  
-  virtual ~BoundDiskSector() {}
+  ~BoundDiskSector() override {}
  
   BoundDiskSector( const PositionType& pos, 
 		   const RotationType& rot, 

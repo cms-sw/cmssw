@@ -15,8 +15,8 @@
 class HcalLaserReco : public edm::EDProducer {
 public:
   explicit HcalLaserReco(const edm::ParameterSet& ps);
-  virtual ~HcalLaserReco();
-  virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
+  ~HcalLaserReco() override;
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
 private:
   int qdctdcFed_;
   HcalLaserUnpacker unpacker_;

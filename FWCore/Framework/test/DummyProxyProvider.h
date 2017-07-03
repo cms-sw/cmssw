@@ -38,10 +38,10 @@ public:
    
 protected:
    
-   const value_type* make(const record_type&, const DataKey&) {
+   const value_type* make(const record_type&, const DataKey&) override {
       return data_ ;
    }
-   void invalidateCache() {
+   void invalidateCache() override {
    }   
 private:
    const DummyData* data_;
@@ -55,11 +55,11 @@ public:
       usingRecord<DummyRecord>();
    }
    void newInterval(const eventsetup::EventSetupRecordKey& /*iRecordType*/,
-                     const ValidityInterval& /*iInterval*/) {
+                     const ValidityInterval& /*iInterval*/) override {
       //do nothing
    }
 protected:
-   void registerProxies(const eventsetup::EventSetupRecordKey&, KeyedProxies& iProxies) {
+   void registerProxies(const eventsetup::EventSetupRecordKey&, KeyedProxies& iProxies) override {
       //std::cout <<"registered proxy"<<std::endl;
       
       std::shared_ptr<WorkingDummyProxy> pProxy = std::make_shared<WorkingDummyProxy>(&dummy_);

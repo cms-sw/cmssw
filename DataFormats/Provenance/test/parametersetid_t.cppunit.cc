@@ -29,12 +29,12 @@ class testParameterSetID: public CppUnit::TestFixture
   std::string cow16;
 
  public:
-  void setUp()
+  void setUp() override
   {
     default_id_string = "d41d8cd98f00b204e9800998ecf8427e";
     cow16 = "DEADBEEFDEADBEEF";
   }
-  void tearDown(){}
+  void tearDown() override{}
    
   void constructTest();
   void badConstructTest();

@@ -21,9 +21,9 @@ class TauDQMSimpleFileSaver : public edm::EDAnalyzer
 {
  public:
   explicit TauDQMSimpleFileSaver(const edm::ParameterSet&);
-  virtual ~TauDQMSimpleFileSaver();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();  
+  ~TauDQMSimpleFileSaver() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;  
 
 private:
   std::string outputFileName_;

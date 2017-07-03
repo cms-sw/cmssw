@@ -20,7 +20,7 @@ public:
   /// Standard constructor
   RBCBoardSpecsIO( );
 
-  virtual ~RBCBoardSpecsIO( ); ///< Destructor
+  ~RBCBoardSpecsIO( ) override; ///< Destructor
   
   friend std::istream& operator>>(std::istream &, RBCBoardConfig &);
   

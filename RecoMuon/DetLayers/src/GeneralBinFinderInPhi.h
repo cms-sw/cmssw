@@ -41,11 +41,11 @@ public:
     theNbins=theBins.size();
   }
 
-  virtual ~GeneralBinFinderInPhi(){};
+  ~GeneralBinFinderInPhi() override{};
 
   /// Returns an index in the valid range for the bin that contains 
   /// AND is closest to phi
-  virtual int binIndex( T phi) const {
+  int binIndex( T phi) const override {
     
     const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|GeneralBinFinderInPhi";
 
@@ -76,13 +76,13 @@ public:
   }
   
   /// Returns an index in the valid range, modulo Nbins
-  virtual int binIndex( int i) const {
+  int binIndex( int i) const override {
     int ind = i % (int)theNbins;
     return (ind < 0) ? ind+theNbins : ind;
   }
 
   /// the middle of the bin in radians
-  virtual T binPosition( int ind) const {
+  T binPosition( int ind) const override {
     return theBins[binIndex(ind)];
   }
 

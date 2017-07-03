@@ -102,7 +102,7 @@ namespace pat {
       TriggerObjectStandAlone( const reco::Particle::PolarLorentzVector & vec, int id = 0 );
 
       /// Destructor
-      virtual ~TriggerObjectStandAlone() {};
+      ~TriggerObjectStandAlone() override {};
 
       /// Methods
 
@@ -133,8 +133,8 @@ namespace pat {
       /// Checks, if a certain L1 algorithm name is assigned
       bool hasAlgorithmName( const std::string & algorithmName, bool algoCondAccepted = true ) const { return hasPathOrAlgorithm( algorithmName, algoCondAccepted, false ); };
       /// Checks, if a certain label of original collection is assigned (method overrides)
-      virtual bool hasCollection( const std::string & collName ) const;
-      virtual bool hasCollection( const edm::InputTag & collName ) const { return hasCollection( collName.encode() ); };
+      bool hasCollection( const std::string & collName ) const override;
+      bool hasCollection( const edm::InputTag & collName ) const override { return hasCollection( collName.encode() ); };
       /// Checks, if the usage indicator vector has been filled
       bool hasPathLastFilterAccepted() const { return hasLastFilter(); };
       bool hasAlgoCondAccepted() const { return hasLastFilter(); };
@@ -153,7 +153,7 @@ namespace pat {
       /// Calls 'hasAlgorithmName(...)'
       bool algo( const std::string & algorithmName, unsigned algoCondAccepted = 1 ) const { return hasAlgorithmName( algorithmName, bool( algoCondAccepted ) ); };
       /// Calls 'hasCollection(...)' (method override)
-      virtual bool coll( const std::string & collName ) const { return hasCollection( collName ); };
+      bool coll( const std::string & collName ) const override { return hasCollection( collName ); };
 
       ///set the psetid of the trigger process
       void setPSetID(const edm::ParameterSetID &psetId){psetId_=psetId;}

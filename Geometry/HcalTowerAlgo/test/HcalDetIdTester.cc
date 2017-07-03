@@ -14,7 +14,7 @@ class HcalDetIdTester : public edm::one::EDAnalyzer<> {
 
 public:
   explicit HcalDetIdTester( const edm::ParameterSet& );
-  ~HcalDetIdTester( void );
+  ~HcalDetIdTester( void ) override;
     
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;

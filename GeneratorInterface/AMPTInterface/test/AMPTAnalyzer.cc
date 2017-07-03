@@ -78,13 +78,13 @@ struct AMPTEvent{
 class AMPTAnalyzer : public edm::EDAnalyzer {
    public:
       explicit AMPTAnalyzer(const edm::ParameterSet&);
-      ~AMPTAnalyzer();
+      ~AMPTAnalyzer() override;
 
 
    private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      void beginJob() override ;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
       // ----------member data ---------------------------
 

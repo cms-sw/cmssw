@@ -13,16 +13,16 @@ public:
     
   MedianCommonModeCalculator();
 
-  virtual ~MedianCommonModeCalculator();
+  ~MedianCommonModeCalculator() override;
 
-  ApvAnalysis::PedestalType doIt(const ApvAnalysis::PedestalType&); 
+  ApvAnalysis::PedestalType doIt(const ApvAnalysis::PedestalType&) override; 
   
-  void setCM(TkCommonMode* in) {theTkCommonMode = in;}
-  void setCM(const std::vector<float>& in) {theTkCommonMode->setCommonMode(in);}
-  TkCommonMode* commonMode() {return theTkCommonMode;}
+  void setCM(TkCommonMode* in) override {theTkCommonMode = in;}
+  void setCM(const std::vector<float>& in) override {theTkCommonMode->setCommonMode(in);}
+  TkCommonMode* commonMode() override {return theTkCommonMode;}
 
-  void newEvent();
-  float getCMSlope() { return slope;}
+  void newEvent() override;
+  float getCMSlope() override { return slope;}
   
 protected:
   

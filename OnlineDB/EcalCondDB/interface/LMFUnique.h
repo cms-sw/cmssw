@@ -41,7 +41,7 @@ class LMFUnique: public IUniqueDBObject {
     setConnection(c->getEnv(), c->getConn());
   }
 
-  virtual ~LMFUnique();
+  ~LMFUnique() override;
 
   virtual bool isValid() const { return true; }
   virtual bool isValid() { return true; }
@@ -55,12 +55,12 @@ class LMFUnique: public IUniqueDBObject {
   std::string getClassName() const { return m_className; }
   std::string getString(std::string fieldname) const;
 
-  int fetchID() noexcept(false); 
+  int fetchID() noexcept(false) override; 
 
   LMFUnique& setString(std::string key, std::string value);
   LMFUnique& setInt(std::string key, int value);
   void attach(std::string name, LMFUnique *u);
-  void setByID(int id) noexcept(false);
+  void setByID(int id) noexcept(false) override;
 
   virtual void dump() const ;
   virtual void dump(int n) const ;

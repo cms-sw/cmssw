@@ -69,7 +69,7 @@ long long timeDiffMS(const timespec &a, const timespec &b)
  */
 class SendMonitoringInfoHandler : boost::noncopyable, public XrdCl::ResponseHandler
 {
-    virtual void HandleResponse(XrdCl::XRootDStatus *status, XrdCl::AnyObject *response) override
+    void HandleResponse(XrdCl::XRootDStatus *status, XrdCl::AnyObject *response) override
     {
         if (response)
         {

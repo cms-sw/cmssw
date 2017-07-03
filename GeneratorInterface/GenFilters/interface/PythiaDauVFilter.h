@@ -42,10 +42,10 @@ namespace edm {
 class PythiaDauVFilter : public edm::EDFilter {
  public:
   explicit PythiaDauVFilter(const edm::ParameterSet&);
-  ~PythiaDauVFilter();
+  ~PythiaDauVFilter() override;
   
   
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  bool filter(edm::Event&, const edm::EventSetup&) override;
  private:
   int fVerbose;  
   edm::EDGetTokenT<edm::HepMCProduct> token_;

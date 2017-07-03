@@ -41,7 +41,7 @@ class HITrackingRegionProducer : public TrackingRegionProducer {
     theDirection = GlobalVector(xDir, yDir, zDir);
   }   
   
-  virtual ~HITrackingRegionProducer(){}
+  ~HITrackingRegionProducer() override{}
   
   int estimateMultiplicity
     (const edm::Event& ev, const edm::EventSetup& es) const
@@ -72,7 +72,7 @@ class HITrackingRegionProducer : public TrackingRegionProducer {
     return numRecHits;
   }
   
-  virtual std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& ev, const edm::EventSetup& es) const override {
+  std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& ev, const edm::EventSetup& es) const override {
     
     int estMult = estimateMultiplicity(ev, es);
     

@@ -26,11 +26,11 @@ template <typename T_Generator>
 class CAHitNtupletEDProducerT: public edm::stream::EDProducer<> {
 public:
   CAHitNtupletEDProducerT(const edm::ParameterSet& iConfig);
-  ~CAHitNtupletEDProducerT() = default;
+  ~CAHitNtupletEDProducerT() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
 private:
   edm::EDGetTokenT<IntermediateHitDoublets> doubletToken_;

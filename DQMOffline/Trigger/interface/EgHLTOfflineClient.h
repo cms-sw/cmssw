@@ -79,13 +79,13 @@ class EgHLTOfflineClient : public DQMEDHarvester {
 
  public:
   explicit EgHLTOfflineClient(const edm::ParameterSet& );
-  virtual ~EgHLTOfflineClient();
+  ~EgHLTOfflineClient() override;
 
 
   // virtual void beginJob();
   // virtual void analyze(const edm::Event&, const edm::EventSetup&); //dummy
   // virtual void endJob();
-  virtual void beginRun(const edm::Run& run, const edm::EventSetup& c) override;
+  void beginRun(const edm::Run& run, const edm::EventSetup& c) override;
   // virtual void endRun(const edm::Run& run, const edm::EventSetup& c);
 
   // virtual void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& context){}

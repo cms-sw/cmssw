@@ -21,7 +21,7 @@ class HIPixelClusterVtxAnalyzer : public edm::EDAnalyzer
 {
 public:
   explicit HIPixelClusterVtxAnalyzer(const edm::ParameterSet& ps);
-  ~HIPixelClusterVtxAnalyzer();
+  ~HIPixelClusterVtxAnalyzer() override;
  
 private:
   struct VertexHit
@@ -31,7 +31,7 @@ private:
     float w;
   };
 
-  virtual void analyze(const edm::Event& ev, const edm::EventSetup& es);
+  void analyze(const edm::Event& ev, const edm::EventSetup& es) override;
   int getContainedHits(const std::vector<VertexHit> &hits, double z0, double &chi);
 
   edm::EDGetTokenT<SiPixelRecHitCollection> srcPixels_; //pixel rec hits

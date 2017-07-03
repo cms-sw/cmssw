@@ -45,7 +45,7 @@ public:
   
     explicit TrackCandidateProducer(const edm::ParameterSet& conf);
   
-    virtual void produce(edm::Event& e, const edm::EventSetup& es) override;
+    void produce(edm::Event& e, const edm::EventSetup& es) override;
   
 private:
 

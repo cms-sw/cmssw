@@ -47,20 +47,20 @@ public:
   GlobalCosmicMuonTrajectoryBuilder(const edm::ParameterSet&,const MuonServiceProxy* service,edm::ConsumesCollector& iC);
 
   /// Destructor
-  virtual ~GlobalCosmicMuonTrajectoryBuilder();
+  ~GlobalCosmicMuonTrajectoryBuilder() override;
 
   /// dummy implementation, unused in this class
-  std::vector<Trajectory*> trajectories(const TrajectorySeed&) {return std::vector<Trajectory*>();}
+  std::vector<Trajectory*> trajectories(const TrajectorySeed&) override {return std::vector<Trajectory*>();}
 
   const Propagator* propagator() const {return &*theService->propagator(thePropagatorName);}
 
   /// choose tk Track and build combined trajectories
-  virtual CandidateContainer trajectories(const TrackCand&);
+  CandidateContainer trajectories(const TrackCand&) override;
 
   /// check if tk and muon Tracks are matched
   std::vector<TrackCand> match(const TrackCand&, const edm::Handle<reco::TrackCollection>& );
 
-  virtual void setEvent(const edm::Event&);
+  void setEvent(const edm::Event&) override;
 
 private:
 

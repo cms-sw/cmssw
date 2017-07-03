@@ -27,12 +27,12 @@ class testMagGeometryAnalyzer : public edm::EDAnalyzer {
   testMagGeometryAnalyzer(const edm::ParameterSet& pset) {};
 
   /// Destructor
-  virtual ~testMagGeometryAnalyzer() {};
+  ~testMagGeometryAnalyzer() override {};
 
   /// Perform the real analysis
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
 
-  virtual void endJob() {
+  void endJob() override {
   }
   
  private:

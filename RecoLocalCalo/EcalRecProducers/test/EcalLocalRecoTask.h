@@ -47,18 +47,18 @@ class EcalLocalRecoTask: public edm::EDAnalyzer
   EcalLocalRecoTask(const edm::ParameterSet& ps);
   
   /// Destructor
-  ~EcalLocalRecoTask();
+  ~EcalLocalRecoTask() override;
   
  protected:
   
   /// Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
   
   // BeginJob
-  void beginJob();
+  void beginJob() override;
   
   // EndJob
-  void endJob(void);
+  void endJob(void) override;
   
  private:
   typedef std::map<uint32_t,float,std::less<uint32_t> >  MapType;  

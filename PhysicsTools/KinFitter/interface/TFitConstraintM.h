@@ -21,7 +21,7 @@ public :
 		  std::vector<TAbsFitParticle*>* ParList2,
 		  Double_t Mass = 0);
 
-  virtual ~TFitConstraintM();
+  ~TFitConstraintM() override;
 
   void addParticle1( TAbsFitParticle* particle );
   void addParticle2( TAbsFitParticle* particle );
@@ -35,15 +35,15 @@ public :
 
   // returns derivative df/dP with P=(p,E) and f the constraint f=0 for 
   // one particle. The matrix contains one row (df/dp, df/dE).
-  virtual TMatrixD* getDerivative( TAbsFitParticle* particle );
-  virtual Double_t getInitValue();
-  virtual Double_t getCurrentValue();
+  TMatrixD* getDerivative( TAbsFitParticle* particle ) override;
+  Double_t getInitValue() override;
+  Double_t getCurrentValue() override;
 
   Bool_t OnList(std::vector<TAbsFitParticle*>* List, TAbsFitParticle* particle);
   Double_t CalcMass(std::vector<TAbsFitParticle*>* List, Bool_t IniVal);
 
-  virtual TString getInfoString();
-  virtual void print(); 
+  TString getInfoString() override;
+  void print() override; 
 
 protected :
   

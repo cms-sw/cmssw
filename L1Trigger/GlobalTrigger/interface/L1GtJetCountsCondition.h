@@ -46,7 +46,7 @@ public:
     L1GtJetCountsCondition(const L1GtJetCountsCondition&);
 
     // destructor
-    virtual ~L1GtJetCountsCondition();
+    ~L1GtJetCountsCondition() override;
 
     // assign operator
     L1GtJetCountsCondition& operator=(const L1GtJetCountsCondition&);
@@ -54,10 +54,10 @@ public:
 public:
 
     /// the core function to check if the condition matches
-     const bool evaluateCondition() const;
+     const bool evaluateCondition() const override;
 
     /// print condition
-     void print(std::ostream& myCout) const;
+     void print(std::ostream& myCout) const override;
 
 public:
 

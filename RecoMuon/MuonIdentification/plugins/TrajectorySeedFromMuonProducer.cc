@@ -49,7 +49,7 @@ class TrajectorySeedFromMuonProducer : public edm::stream::EDProducer<>
 
 public:
     explicit TrajectorySeedFromMuonProducer( const edm::ParameterSet & );   
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
   edm::InputTag  muonCollectionTag_;

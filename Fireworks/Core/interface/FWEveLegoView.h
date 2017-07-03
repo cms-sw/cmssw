@@ -26,10 +26,10 @@ class FWEveLegoView: public FWLegoViewBase
 {
 public:
    FWEveLegoView(TEveWindowSlot*, FWViewType::EType);
-   virtual ~FWEveLegoView();
+   ~FWEveLegoView() override;
 
-   virtual void setContext(const fireworks::Context&);
-   virtual void setBackgroundColor(Color_t);
+   void setContext(const fireworks::Context&) override;
+   void setBackgroundColor(Color_t) override;
 
    // ---------- const member functions ---------------------
 

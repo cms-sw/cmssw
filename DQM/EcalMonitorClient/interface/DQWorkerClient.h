@@ -20,7 +20,7 @@ namespace ecaldqm
     };
 
     DQWorkerClient();
-    virtual ~DQWorkerClient() {}
+    ~DQWorkerClient() override {}
 
     static void fillDescriptions(edm::ParameterSetDescription&);
 

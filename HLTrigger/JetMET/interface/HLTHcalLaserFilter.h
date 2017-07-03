@@ -23,9 +23,9 @@ class HLTHcalLaserFilter : public edm::EDFilter {
   
  public:
   explicit HLTHcalLaserFilter(const edm::ParameterSet&);
-  ~HLTHcalLaserFilter();
+  ~HLTHcalLaserFilter() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  bool filter(edm::Event&, const edm::EventSetup&) override;
   
  private:
   edm::EDGetTokenT<HcalCalibDigiCollection> m_theCalibToken;
