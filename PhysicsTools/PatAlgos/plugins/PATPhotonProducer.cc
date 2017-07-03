@@ -75,7 +75,9 @@ hConversionsToken_ = consumes<reco::ConversionCollection>(iConfig.getParameter<e
   if (addPFClusterIso_)
   {
     ecalPFClusterIsoT_ = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("ecalPFClusterIsoMap"));
-    hcalPFClusterIsoT_ = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("hcalPFClusterIsoMap"));
+    auto hcPFC = iConfig.getParameter<edm::InputTag>("hcalPFClusterIsoMap");
+    if (not hcPFC.label().empty())
+      hcalPFClusterIsoT_ = consumes<edm::ValueMap<float> >(hcPFC);
   }
 
   // photon ID configurables
@@ -415,10 +417,16 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
     if (addPFClusterIso_) {
       edm::Handle<edm::ValueMap<float> > ecalPFClusterIsoMapH;
       iEvent.getByToken(ecalPFClusterIsoT_, ecalPFClusterIsoMapH);
-      edm::Handle<edm::ValueMap<float> > hcalPFClusterIsoMapH;
-      iEvent.getByToken(hcalPFClusterIsoT_, hcalPFClusterIsoMapH);
       aPhoton.setEcalPFClusterIso((*ecalPFClusterIsoMapH)[photonRef]);
-      aPhoton.setHcalPFClusterIso((*hcalPFClusterIsoMapH)[photonRef]);
+      edm::Handle<edm::ValueMap<float> > hcalPFClusterIsoMapH;
+      if (not hcalPFClusterIsoT_.isUninitialized()){
+	iEvent.getByToken(hcalPFClusterIsoT_, hcalPFClusterIsoMapH);
+	aPhoton.setHcalPFClusterIso((*hcalPFClusterIsoMapH)[photonRef]);
+      }
+      else
+      {
+	aPhoton.setHcalPFClusterIso(-999.);
+      }
     } else {
       aPhoton.setEcalPFClusterIso(-999.);
       aPhoton.setHcalPFClusterIso(-999.);
