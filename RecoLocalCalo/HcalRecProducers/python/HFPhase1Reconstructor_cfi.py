@@ -60,7 +60,7 @@ hfreco = cms.EDProducer("HFPhase1Reconstructor",
     algoConfigClass = cms.string("HFPhase1PMTParams"),
 
     # Turn on/off the noise cleanup algorithms
-    setNoiseFlags = cms.bool(False),
+    setNoiseFlags = cms.bool(True),
 
     # Parameters for the S9S1 test.
     #
