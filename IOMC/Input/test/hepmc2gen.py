@@ -91,12 +91,13 @@ process.outpath = cms.EndPath(process.GEN)
 #       GenEventInfoProduct                   "source"             "generator"   "GEN"     
 #       edm::HepMCProduct                     "generatorSmeared"   ""            "GEN"     
 #       edm::HepMCProduct                     "source"             "generator"   "GEN"   
+# NOT needed to be changed if you smear the generator
 #process.g4SimHits.HepMCProductLabel = cms.InputTag("source","generator","GEN")
 #process.g4SimHits.Generator.HepMCProductLabel = cms.InputTag("source","generator","GEN")
 #process.genParticles.src=  cms.InputTag("source","generator","GEN")
 
 
-### ADD in the different step the following 
+### ADD in the different step the following  (always!)
 #
 #process.AODSIMoutput.outputCommands.extend([
 #		'keep GenRunInfoProduct_*_*_*',
@@ -111,5 +112,4 @@ process.outpath = cms.EndPath(process.GEN)
 #	])
 #
 # and finally in the ntuples
-#process.nero.generator = cms.InputTag("source","generator")
-#process.InfoProducer.generator = cms.InputTag("source","generator")
+#process.myanalyzer.generator = cms.InputTag("source","generator")
