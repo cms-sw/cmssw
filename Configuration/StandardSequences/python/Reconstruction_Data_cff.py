@@ -18,7 +18,7 @@ for qTest in particleFlowRecHitHF.producers[0].qualityTests:
              
 
 import RecoLocalCalo.HcalRecAlgos.RemoveAddSevLevel as HcalRemoveAddSevLevel
-HcalRemoveAddSevLevel.AddFlag(hcalRecAlgos,"HFDigiTime",11)
+HcalRemoveAddSevLevel.AddFlag(hcalRecAlgos,"HFDigiTime",11,verbose=False)
 HcalRemoveAddSevLevel.AddFlag(hcalRecAlgos,"HBHEFlatNoise",12)
 HcalRemoveAddSevLevel.AddFlag(hcalRecAlgos,"HBHENegativeNoise",12)
 
