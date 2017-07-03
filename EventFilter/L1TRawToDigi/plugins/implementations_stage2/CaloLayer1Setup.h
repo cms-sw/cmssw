@@ -1,5 +1,5 @@
-#ifndef L1T_PACKER_STAGE2_CALOSETUP_H
-#define L1T_PACKER_STAGE2_CALOSETUP_H
+#ifndef L1T_PACKER_STAGE2_CALOLAYER1SETUP_H
+#define L1T_PACKER_STAGE2_CALOLAYER1SETUP_H
 
 #include "EventFilter/L1TRawToDigi/interface/Packer.h"
 #include "EventFilter/L1TRawToDigi/interface/Unpacker.h"
