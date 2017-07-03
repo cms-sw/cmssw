@@ -21,6 +21,7 @@
 <use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="RecoEgamma/EgammaHLTAlgos"/>
 <use   name="RecoEgamma/EgammaIsolationAlgos"/>
+<use   name="DataFormats/EgammaCandidates"/>
 <use   name="HLTrigger/HLTcore"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="RecoJets/JetAssociationAlgorithms"/>
