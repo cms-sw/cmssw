@@ -26,7 +26,7 @@ except RuntimeError:
 else:
     dasgoversion = dasgoversion.split()[1].split("git=v")[1]
     dasgoversion = tuple(int(_) for _ in dasgoversion.split("."))
-    if dasgoversion < (1, 0, 4):
+    if dasgoversion < (1, 0, 5):
         olddas = True
     else:
         olddas = False
@@ -550,7 +550,11 @@ class Dataset(object):
                         return float(line.replace("#magnetic field: ", "").split(",")[1].split("#")[0].strip())
 
         if run > 0:
-            dasQuery = ('run=%s instance=%s'%(run, self.__dasinstance))                         #for data
+            dasQuery = ('run=%s instance=%s detail=true'%(run, self.__dasinstance))   #for data
+            #####################################################################
+            #can remove this once dasgoclient is updated
+            if olddas: dasQuery = dasQuery.replace("detail=true", "")
+            #####################################################################
             data = self.__getData(dasQuery)
             try:
                 return self.__findInJson(data, ["run","bfield"])
