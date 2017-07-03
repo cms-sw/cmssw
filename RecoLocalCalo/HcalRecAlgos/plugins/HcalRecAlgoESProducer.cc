@@ -42,6 +42,8 @@ class HcalRecAlgoESProducer : public edm::ESProducer {
 
       ~HcalRecAlgoESProducer();
 
+      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
       typedef std::shared_ptr<HcalSeverityLevelComputer> ReturnType;
 
       ReturnType produce(const HcalSeverityLevelComputerRcd&);
@@ -92,6 +94,13 @@ HcalRecAlgoESProducer::produce(const HcalSeverityLevelComputerRcd& iRecord)
    using namespace edm::es;
 
    return myComputer ;
+}
+
+void HcalRecAlgoESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.setAllowAnything();
+  desc.add<uint32_t>("phase",0);
+  descriptions.add("hcalRecAlgos",desc);
 }
 
 //define this as a plug-in
