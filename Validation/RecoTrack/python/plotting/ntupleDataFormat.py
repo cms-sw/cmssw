@@ -325,28 +325,35 @@ class _TrackingParticleMatchAdaptor(object):
         fulfilling the same number of hits, the one inducing the
         innermost hit of the track is chosen.
         """
-        self._checkIsValid()
-        if self._nMatchedTrackingParticles() == 1:
-            return next(self.matchedTrackingParticleInfos()).trackingParticle()
-
-        tps = collections.OrderedDict()
-        for hit in self.hits():
-            if not isinstance(hit, _SimHitMatchAdaptor):
-                continue
-            for shInfo in hit.matchedSimHitInfos():
-                tp = shInfo.simHit().trackingParticle()
-                if tp.index() in tps:
-                    tps[tp.index()] += 1
-                else:
-                    tps[tp.index()] = 1
-
-        best = (None, 2)
-        for tpIndex, nhits in tps.iteritems():
-            if nhits > best[1]:
-                best = (tpIndex, nhits)
-        if best[0] is None:
+        idx = self.bestSimTrkIdx()
+        if idx < 0:
             return None
-        return TrackingParticles(self._tree)[best[0]]
+        return TrackingParticle(self._tree, idx)
+
+    def bestMatchingTrackingParticleShareFrac(self):
+        return self.bestSimTrkShareFrac()
+
+    def bestMatchingTrackingParticleShareFracSimDenom(self):
+        return self.bestSimTrkShareFracSimDenom()
+
+    def bestMatchingTrackingParticleFromFirstHit(self):
+        """Returns best-matching TrackingParticle, even for fake tracks, or None if there is no best-matching TrackingParticle.
+
+        Best-matching is defined as the one with largest number of
+        hits matched to the hits of a track (>= 3). If there are many
+        fulfilling the same number of hits, the one inducing the
+        innermost hit of the track is chosen.
+        """
+        idx = self.bestFromFirstHitSimTrkIdx()
+        if idx < 0:
+            return None
+        return TrackingParticle(self._tree, idx)
+
+    def bestMatchingTrackingParticleFromFirstHitShareFrac(self):
+        return self.bestFromFirstHitSimTrkShareFrac()
+
+    def bestMatchingTrackingParticleFromFirstHitShareFracSimDenom(self):
+        return self.bestFromFirstHitSimTrkShareFracSimDenom()
 
 ##########
 class TrackingNtuple(object):
