@@ -13,6 +13,7 @@ from EventFilter.RawDataCollector.rawDataCollector_cfi import *
 from Configuration.Eras.Modifier_stage1L1Trigger_cff import stage1L1Trigger
 stage1L1Trigger.toModify( rawDataCollector.RawCollectionList, func = lambda list: list.append(cms.InputTag("caloStage1Raw")) )
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+stage2L1Trigger.toModify( rawDataCollector.RawCollectionList, func = lambda list: list.extend([cms.InputTag("caloLayer1RawFed1354"), cms.InputTag("caloLayer1RawFed1356"), cms.InputTag("caloLayer1RawFed1358")]) )
 stage2L1Trigger.toModify( rawDataCollector.RawCollectionList, func = lambda list: list.append(cms.InputTag("caloStage2Raw")) )
 stage2L1Trigger.toModify( rawDataCollector.RawCollectionList, func = lambda list: list.append(cms.InputTag("gmtStage2Raw")) )
 stage2L1Trigger.toModify( rawDataCollector.RawCollectionList, func = lambda list: list.append(cms.InputTag("gtStage2Raw")) )
