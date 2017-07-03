@@ -113,6 +113,10 @@ namespace edm {
       module_->modulesWhoseProductsAreConsumed(modules, preg, labelsToDesc, module_->moduleDescription().processName());
     }
 
+    virtual void convertCurrentProcessAlias(std::string const& processName) override {
+      module_->convertCurrentProcessAlias(processName);
+    }
+
     virtual std::vector<ConsumesInfo> consumesInfo() const override {
       return module_->consumesInfo();
     }

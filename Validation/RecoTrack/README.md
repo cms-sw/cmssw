@@ -18,7 +18,13 @@ There is also an ntuple-version of MultiTrackValidator, called
 `cmsDriver.py`-generated workflow containing `VALIDATION` sequence by
 including
 `--customise Validation/RecoTrack/customiseTrackingNtuple.customiseTrackingNtuple`
-argument to the `cmsDriver.py`. The customise function disables all
+argument to the `cmsDriver.py`, or adding the following near the end
+of an existing job configuration file
+```
+from Validation.RecoTrack.customiseTrackingNtuple import customiseTrackingNtuple
+process = customiseTrackingNtuple(process)
+```
+The customise function disables all
 output modules and replaces the validation sequence with a sequence
 producing the ntuple in `trackingNtuple.root` file. If ran without
 RECO, it needs both RECO and DIGI files as an input.
@@ -64,6 +70,30 @@ more information see
 If the "playback mode" is not enabled, an exception will be thrown in
 the C++ code for a missing SimHit.
 
+### Using tracks from a single iteration as an input
+
+The ntuple can be used to study the tracks produced by a single
+iteration (without going throught generalTracks) as well. Below is an
+example (for highPtTripletStep) what modifications need to be done in
+the job configuration file (after the `customiseTrackingNtuple()` call)
+```
+process.trackingNtuple.tracks = "highPtTripletStepTracks"
+
+# following are needed only if _includeSeeds is True
+process.trackingNtuple.seedTracks = ["seedTrackshighPtTripletStepSeeds"]
+process.trackingNtuple.trackCandidates = ["highPtTripletStepTrackCandidates"]
+
+# following is needed only if _includeMVA is True
+# it also shows how to add MVA output of multiple classifiers
+process.trackingNtuple.trackMVAs = ["highPtTripletStepClassifier1",
+                                    "highPtTripletStepClassifier2"]
+
+# Especially for iteration-specific MVA studies, it is important to
+# use firstStepPrimaryVertices instead of offlinePrimaryVertices as
+# that is the collection used in the MVA input variable calculations
+process.trackingNtuple.vertices = "firstStepPrimaryVertices"
+```
+
 ### Applications
 
 Use `--help` to check out the parameters.
@@ -75,7 +105,9 @@ Use `--help` to check out the parameters.
 
 * [`trackingNtupleExample.py`](test/trackingNtupleExample.py) examples of various links
 * [`analyseDuplicateFake.py`](test/analyseDuplicateFake.py) examples of printouts
+* [`analyseMVA.py`](test/analyseMVA.py) simple analysis for debugging track MVA selection
 * [`fakeAnalysis/main.py`](test/fakeAnalysis/main.py) complete analysis code for fake tracks
+
 
 ### Caveats
 
