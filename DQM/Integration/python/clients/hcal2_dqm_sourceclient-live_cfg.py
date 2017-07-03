@@ -130,7 +130,7 @@ if useMap:
 #-------------------------------------
 
 #-------------------------------------
-#	Settigns for the Primary Modules
+#	Settings for the Primary Modules
 #-------------------------------------
 oldsubsystem = subsystem
 process.recHitTask.tagHBHE = cms.untracked.InputTag("hbheplan1")
@@ -142,6 +142,13 @@ process.recHitTask.tagRaw = rawTagUntracked
 process.recHitTask.subsystem = cms.untracked.string(subsystem)
 
 process.hcalOnlineHarvesting.subsystem = cms.untracked.string(subsystem)
+
+#-------------------------------------
+#	Phase 1 upgrade modifiers
+#-------------------------------------
+from Configuration.Eras.Modifier_run2_HF_2017_cff import run2_HF_2017
+run2_HF_2017.toModify(process.recHitTask, hfPreRecHitsAvailable=cms.untracked.bool(True))
+run2_HF_2017.toModify(process.recHitTask, tagPreHF=cms.untracked.InputTag("hfprereco"))
 
 #-------------------------------------
 #	Hcal DQM Tasks/Clients Sequences Definition
