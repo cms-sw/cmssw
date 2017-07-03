@@ -867,20 +867,20 @@ class Process(object):
         setattr(self,label,new)
     def _insertInto(self, parameterSet, itemDict):
         for name,value in itemDict.iteritems():
-            value.insertInto(parameterSet, name)
+            value.insertInto(parameterSet, name, self.name_())
     def _insertOneInto(self, parameterSet, label, item, tracked):
         vitems = []
         if not item == None:
             newlabel = item.nameInProcessDesc_(label)
             vitems = [newlabel]
-            item.insertInto(parameterSet, newlabel)
+            item.insertInto(parameterSet, newlabel, self.name_())
         parameterSet.addVString(tracked, label, vitems)
     def _insertManyInto(self, parameterSet, label, itemDict, tracked):
         l = []
         for name,value in itemDict.iteritems():
           newLabel = value.nameInProcessDesc_(name)
           l.append(newLabel)
-          value.insertInto(parameterSet, name)
+          value.insertInto(parameterSet, name, self.name_())
         # alphabetical order is easier to compare with old language
         l.sort()
         parameterSet.addVString(tracked, label, l)
@@ -1087,7 +1087,7 @@ class Process(object):
         services = []
         for serviceName, serviceObject in self.services_().iteritems():
              if serviceObject in nodeVisitor.services or not (serviceObject in processNodeVisitor.services):
-                 serviceObject.insertInto(ServiceInjectorAdaptor(adaptor,services))
+                 serviceObject.insertInto(ServiceInjectorAdaptor(adaptor,services), self.name_())
         adaptor.addVPSet(False,"services",services)
         return processPSet
 
@@ -1249,8 +1249,8 @@ class SubProcess(_Unlabelable):
       topPSet = parameterSet.newPSet()
       self.__process.fillProcessDesc(topPSet)
       subProcessPSet = parameterSet.newPSet()
-      self.__SelectEvents.insertInto(subProcessPSet,"SelectEvents")
-      self.__outputCommands.insertInto(subProcessPSet,"outputCommands")
+      self.__SelectEvents.insertInto(subProcessPSet, "SelectEvents", self.__process.name_())
+      self.__outputCommands.insertInto(subProcessPSet, "outputCommands", self.__process.name_())
       subProcessPSet.addPSet(False,"process",topPSet)
       return subProcessPSet
 

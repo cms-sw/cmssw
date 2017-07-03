@@ -12,10 +12,10 @@ class Service(_ConfigureComponent,_TypedParameterizable,_Unlabelable):
     def _placeImpl(self,name,proc):
         self._inProcess = True
         proc._placeService(self.type_(),self)
-    def insertInto(self, processDesc):
+    def insertInto(self, processDesc, processName):
         newpset = processDesc.newPSet()
         newpset.addString(True, "@service_type", self.type_())
-        self.insertContentsInto(newpset)
+        self.insertContentsInto(newpset, processName)
         processDesc.addService(newpset)
     def dumpSequencePython(self, options=PrintOptions()):
         return "process." + self.type_()
@@ -148,14 +148,14 @@ class _Module(_ConfigureComponent,_TypedParameterizable,_Labelable,_SequenceLeaf
     def setPrerequisites(self, *libs):
         self.__dict__["libraries_"] = libs
 
-    def insertInto(self, parameterSet, myname):
+    def insertInto(self, parameterSet, myname, processName):
         if "libraries_" in self.__dict__:
             from ctypes import LibraryLoader, CDLL
             import platform
             loader = LibraryLoader(CDLL)
             ext = platform.uname()[0] == "Darwin" and "dylib" or "so"
             [loader.LoadLibrary("lib%s.%s" % (l, ext)) for l in self.libraries_]
-        super(_Module,self).insertInto(parameterSet,myname)
+        super(_Module,self).insertInto(parameterSet,myname, processName)
 
 class EDProducer(_Module):
     def __init__(self,type_,*arg,**kargs):

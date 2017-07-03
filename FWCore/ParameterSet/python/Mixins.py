@@ -314,10 +314,10 @@ class _Parameterizable(object):
         return ',\n'.join(resultList)+'\n'
     def __repr__(self):
         return self.dumpPython()
-    def insertContentsInto(self, parameterSet):
+    def insertContentsInto(self, parameterSet, processName):
         for name in self.parameterNames_():
             param = getattr(self,name)
-            param.insertInto(parameterSet, name)
+            param.insertInto(parameterSet, name, processName)
 
 
 class _TypedParameterizable(_Parameterizable):
@@ -435,12 +435,12 @@ class _TypedParameterizable(_Parameterizable):
         return myname;
     def moduleLabel_(self, myname):
         return myname
-    def insertInto(self, parameterSet, myname):
+    def insertInto(self, parameterSet, myname, processName):
         newpset = parameterSet.newPSet()
         newpset.addString(True, "@module_label", self.moduleLabel_(myname))
         newpset.addString(True, "@module_type", self.type_())
         newpset.addString(True, "@module_edm_type", type(self).__name__)
-        self.insertContentsInto(newpset)
+        self.insertContentsInto(newpset, processName)
         parameterSet.addPSet(True, self.nameInProcessDesc_(myname), newpset)
 
 
