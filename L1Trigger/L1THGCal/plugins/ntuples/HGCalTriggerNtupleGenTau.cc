@@ -129,24 +129,25 @@ fill(const edm::Event& e, const edm::EventSetup& es)
             /* loop over tau daughters */
             for(size_t j = 0; j < n; ++ j) {
                 const reco::Candidate * daughter = particle.daughter( j );                
+                 
+                if( ( fabs(daughter->pdgId()) == 11 || fabs(daughter->pdgId()) == 13 ) && daughter->status()==1){
+                    if( fabs(daughter->pdgId()) == 11){
+                        n_ele++;
+                    }
+                    else{
+                        n_mu++;
+                    }
+                    LorentzVector finalProd_p4 = daughter->p4();                      
+                    tau_p4vis+=finalProd_p4;
+                    tau_products_pt.emplace_back(finalProd_p4.Pt());
+                    tau_products_eta.emplace_back(finalProd_p4.Eta());
+                    tau_products_phi.emplace_back(finalProd_p4.Phi());
+                    tau_products_energy.emplace_back(finalProd_p4.E());
+                    tau_products_mass.emplace_back(finalProd_p4.M());                                    
+                    tau_products_id.emplace_back(daughter->pdgId());
+                }        
                 
                 if(isPythia8generator_){
-                    if( ( fabs(daughter->pdgId()) == 11 || fabs(daughter->pdgId()) == 13 ) && daughter->status()==1){
-                        if( fabs(daughter->pdgId()) == 11){
-                            n_ele++;
-                        }
-                        else{
-                            n_mu++;
-                        }
-                        LorentzVector finalProd_p4 = daughter->p4();                      
-                        tau_p4vis+=finalProd_p4;
-                        tau_products_pt.emplace_back(finalProd_p4.Pt());
-                        tau_products_eta.emplace_back(finalProd_p4.Eta());
-                        tau_products_phi.emplace_back(finalProd_p4.Phi());
-                        tau_products_energy.emplace_back(finalProd_p4.E());
-                        tau_products_mass.emplace_back(finalProd_p4.M());                                    
-                        tau_products_id.emplace_back(daughter->pdgId());
-                    }        
                     if( fabs(daughter->pdgId()) == 211 && daughter->status()==1){
                         n_pi++;
                         LorentzVector finalProd_p4 = daughter->p4();                      
