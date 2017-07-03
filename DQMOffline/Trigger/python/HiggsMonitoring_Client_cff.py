@@ -366,7 +366,6 @@ diphotonEfficiency = DQMEDHarvester("DQMGenericClient",
 )
 
 higgsClient = cms.Sequence(
-
     diphotonEfficiency
   + vbfmetClient
   + vbftauClient
@@ -386,5 +385,4 @@ higgsClient = cms.Sequence(
   + mu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLDZ_effmu
   + mssmHbbBtagTriggerEfficiency 
   + mssmHbbHLTEfficiency 
-
 )
