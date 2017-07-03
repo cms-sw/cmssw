@@ -96,12 +96,12 @@ void CSJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup const& iS
             break;
           }
         }
-        double pt = rho*ghosts[j].area();
-        double mass_squared=pow(rhom*ghosts[j].area()+pt,2)-pow(pt,2);
-        double mass=0;
-        if (mass_squared>0) mass=sqrt(mass_squared);
-        ghosts[j].reset_momentum_PtYPhiM(pt,ghosts[j].rap(),ghosts[j].phi(),mass);
       }
+      double pt = rho*ghosts[j].area();
+      double mass_squared=pow(rhom*ghosts[j].area()+pt,2)-pow(pt,2);
+      double mass=0;
+      if (mass_squared>0) mass=sqrt(mass_squared);
+      ghosts[j].reset_momentum_PtYPhiM(pt,ghosts[j].rap(),ghosts[j].phi(),mass);
     }
 
     //----------------------------------------------------------------------
@@ -111,6 +111,7 @@ void CSJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup const& iS
     subtractor.set_distance_type(fastjet::contrib::ConstituentSubtractor::deltaR); // distance in eta-phi plane
     subtractor.set_max_distance(csRParam_); // free parameter for the maximal allowed distance between particle i and ghost k
     subtractor.set_alpha(csAlpha_);  // free parameter for the distance measure (the exponent of particle pt). Note that in older versions of the package alpha was multiplied by two but in newer versions this is not the case anymore
+    subtractor.set_do_mass_subtraction(true);
 
     std::vector<fastjet::PseudoJet> subtracted_particles = subtractor.do_subtraction(particles,ghosts);
 
