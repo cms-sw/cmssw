@@ -49,3 +49,16 @@ makePatOOTPhotonsTask = cms.Task(
     )
 
 makePatOOTPhotons = cms.Sequence(makePatOOTPhotonsTask)
+
+## For legacy reprocessing
+from RecoEgamma.EgammaPhotonProducers.ootPhotonSequence_cff import *
+from RecoEgamma.EgammaIsolationAlgos.pfClusterIsolation_cfi import ootPhotonEcalPFClusterIsolationProducer
+
+from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
+run2_miniAOD_80XLegacy.toReplaceWith(makePatOOTPhotonsTask, cms.Task(
+                                     ootPhotonTask,
+                                     ootPhotonEcalPFClusterIsolationProducer,
+                                     makePatOOTPhotonsTask.copy()
+                                     ))
+
+run2_miniAOD_80XLegacy.toModify(patOOTPhotons, hcalPFClusterIsoMap = "")
