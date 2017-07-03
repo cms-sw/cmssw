@@ -16,7 +16,6 @@ HTMonitor::HTMonitor( const edm::ParameterSet& iConfig ) :
   , muoToken_             ( mayConsume<reco::MuonCollection>       (iConfig.getParameter<edm::InputTag>("muons")     ) )   
   , vtxToken_             ( mayConsume<reco::VertexCollection>      (iConfig.getParameter<edm::InputTag>("vertices")      ) )
   , ht_variable_binning_ ( iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("htBinning") )
-  , ht_binning_          ( getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("htPSet")    ) )
   , ls_binning_           ( getHistoLSPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("lsPSet")     ) )
   , num_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet"),consumesCollector(), *this))
   , den_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("denGenericTriggerEventPSet"),consumesCollector(), *this))
@@ -108,6 +107,17 @@ void HTMonitor::bookME(DQMStore::IBooker &ibooker, HTME& me, const std::string& 
   me.denominator = ibooker.book2D(histname+"_denominator", histtitle+" (denominator)", nbinsX, arrX, nbinsY, arrY);
 }
 
+void HTMonitor::bookME(DQMStore::IBooker &ibooker, HTME& me, const std::string& histname, const std::string& histtitle,int nbinsX, double xmin, double xmax , const std::vector<double>& binningY)
+{
+
+  int nbinsY = binningY.size()-1;
+  std::vector<float> fbinningY(binningY.begin(),binningY.end());
+  float* arrY = &fbinningY[0];
+
+  me.numerator   = ibooker.book2D(histname+"_numerator",   histtitle+" (numerator)", nbinsX, xmin, xmax  , nbinsY, arrY);
+  me.denominator = ibooker.book2D(histname+"_denominator", histtitle+" (denominator)", nbinsX, xmin, xmax , nbinsY, arrY);
+}
+
 void HTMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
 				 edm::Run const        & iRun,
 				 edm::EventSetup const & iSetup) 
@@ -123,7 +133,7 @@ void HTMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   setHTitle(htME_variableBinning_,"HT [GeV]","events / [GeV]");
 
   histname = "htVsLS"; histtitle = "HT vs LS";
-  bookME(ibooker,htVsLS_,histname,histtitle,ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax,ht_binning_.xmin, ht_binning_.xmax);
+  bookME(ibooker,htVsLS_,histname,histtitle,ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax,ht_variable_binning_);
   setHTitle(htVsLS_,"LS","HT [GeV]");
 
   histname = "deltaphi_metjet1"; histtitle = "DPHI_METJ1";
