@@ -39,13 +39,6 @@
 
 //DataFormats
 
-struct Binning {
-  int nbins;
-  double xmin;
-  double xmax;
-};
-
-
 //
 // class declaration
 //
@@ -65,11 +58,8 @@ protected:
 
 private:
 
-  static Binning getHistoPSet  (edm::ParameterSet pset); 
-
   std::string folderName_;
   std::string processname_;
-//   std::string pathname_;
   std::string triggerobjbtag_;
   
   double jetPtmin_;
@@ -77,10 +67,10 @@ private:
   double tagBtagmin_;
   double probeBtagmin_;
   
-  Binning jetPtbins_;
-  Binning jetEtabins_;
-  Binning jetPhibins_;
-  Binning jetBtagbins_;
+  std::vector<double> jetPtbins_;
+  std::vector<double> jetEtabins_;
+  std::vector<double> jetPhibins_;
+  std::vector<double> jetBtagbins_;
 
   edm::InputTag triggerSummaryLabel_;
   
