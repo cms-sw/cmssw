@@ -5,40 +5,40 @@ from DQMOffline.Trigger.topMonitoring_cfi import topMonitoring
 hltHIGmonitoring = topMonitoring.clone()
 hltHIGmonitoring.FolderName = cms.string('HLT/Higgs/default/')
 hltHIGmonitoring.histoPSet.metPSet = cms.PSet(
-  nbins = cms.int32 (  30   ),
+  nbins = cms.uint32 (  30   ),
   xmin  = cms.double(   0   ),
   xmax  = cms.double(  300  ),
 )
 hltHIGmonitoring.histoPSet.ptPSet = cms.PSet(
-  nbins = cms.int32 (  60   ),
+  nbins = cms.uint32 (  60   ),
   xmin  = cms.double(   0   ),
   xmax  = cms.double(  300  ),
 )
 hltHIGmonitoring.histoPSet.phiPSet = cms.PSet(
-  nbins = cms.int32 (  32  ),
+  nbins = cms.uint32 (  32  ),
   xmin  = cms.double( -3.2 ),
   xmax  = cms.double(  3.2 ),
 )
 hltHIGmonitoring.histoPSet.etaPSet = cms.PSet(
-  nbins = cms.int32 (  30  ),
+  nbins = cms.uint32 (  30  ),
   xmin  = cms.double( -3.0 ),
   xmax  = cms.double(  3.0 ),
 )
 hltHIGmonitoring.histoPSet.htPSet = cms.PSet(
-  nbins = cms.int32 (   60  ),
+  nbins = cms.uint32 (   60  ),
   xmin  = cms.double(   0   ),
   xmax  = cms.double(  600  ),
 )
 
 # Marina
 hltHIGmonitoring.histoPSet.csvPSet = cms.PSet(
-  nbins = cms.int32 ( 50 ),
+  nbins = cms.uint32 ( 50 ),
   xmin  = cms.double( 0.0 ),
   xmax  = cms.double( 1.0  ),
 )
 
 hltHIGmonitoring.histoPSet.DRPSet = cms.PSet(
-   nbins = cms.int32 ( 60  ),
+   nbins = cms.uint32 ( 60  ),
    xmin  = cms.double( 0.0 ),
    xmax  = cms.double( 6.0 ),
 )
