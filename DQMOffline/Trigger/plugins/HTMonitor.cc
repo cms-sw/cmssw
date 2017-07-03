@@ -218,7 +218,8 @@ void HTMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
   std::vector<reco::Muon> muons;
   muons.clear();
   for ( auto const & m : *muoHandle ) {
-    if ( muoSelection_( m ) && m.isGlobalMuon() && m.isPFMuon() && m.globalTrack()->normalizedChi2() < 10. && m.globalTrack()->hitPattern().numberOfValidMuonHits() > 0 && m.numberOfMatchedStations() > 1 && fabs(m.muonBestTrack()->dxy(pv)) < 0.2 && fabs(m.muonBestTrack()->dz(pv)) < 0.5 && m.innerTrack()->hitPattern().numberOfValidPixelHits() > 0 && m.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 )  muons.push_back(m);
+    bool pass = m.isGlobalMuon() && m.isPFMuon() && m.globalTrack()->normalizedChi2() < 10. && m.globalTrack()->hitPattern().numberOfValidMuonHits() > 0 && m.numberOfMatchedStations() > 1 && fabs(m.muonBestTrack()->dxy(pv)) < 0.2 && fabs(m.muonBestTrack()->dz(pv)) < 0.5 && m.innerTrack()->hitPattern().numberOfValidPixelHits() > 0 && m.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5;
+    if ( muoSelection_( m ) && pass ) muons.push_back(m);
   }
   if ( muons.size() < nmuons_ ) return;
 
