@@ -337,23 +337,31 @@ namespace {
 
   TrackTPMatch findBestMatchingTrackingParticle(const reco::Track& track,
                                                 const ClusterTPAssociation& clusterToTPMap) {
-    // pair: (hits, clusters)
-    std::unordered_map<int, std::pair<int, int> > count;
-    auto fillCount = [&](const auto& clusterRef) {
+    struct Count {
+      int hits = 0;
+      int clusters = 0;
+      int innermostHit = std::numeric_limits<int>::max();
+    };
+
+    std::unordered_map<int, Count> count;
+    auto fillCount = [&](int hitIndex, const auto& clusterRef) {
       auto range = clusterToTPMap.equal_range(clusterRef);
       for(auto ip=range.first; ip != range.second; ++ip) {
-        count[ip->second.key()].first += 1;
-        count[ip->second.key()].second += 1;
+        auto& elem = count[ip->second.key()];
+        ++elem.hits;
+        ++elem.clusters;
+        elem.innermostHit = std::min(elem.innermostHit, hitIndex);
       }
     };
-    auto fillCountAnd = [&](const auto& range1, const auto& range2) {
+    auto fillCountAnd = [&](int hitIndex, const auto& range1, const auto& range2) {
       for(auto i1=range1.first; i1!=range1.second; ++i1) {
         if(range2.second != std::find_if(range2.first, range2.second, [&](const auto& clusterTP) {
               return clusterTP.second.key() == i1->second.key();
             })) {
           auto& elem = count[i1->second.key()];
-          elem.first += 1; // 1 hit
-          elem.second += 2; // 2 clusters
+          elem.hits += 1; //
+          elem.clusters += 2; //
+          elem.innermostHit = std::min(elem.innermostHit, hitIndex);
         }
       }
     };
@@ -365,22 +373,27 @@ namespace {
         if(const auto *mhit = dynamic_cast<const SiStripMatchedRecHit2D*>(&hit)) {
           auto rangeMono = clusterToTPMap.equal_range(mhit->monoClusterRef());
           auto rangeStereo = clusterToTPMap.equal_range(mhit->stereoClusterRef());
-          fillCountAnd(rangeMono, rangeStereo);
+          fillCountAnd(std::distance(track.recHitsBegin(), iHit), rangeMono, rangeStereo);
         }
         // else if hit is VectorHit? SiTrackerMultiRecHit perhaps?
         else {
-          fillCount(dynamic_cast<const BaseTrackerRecHit&>(hit).firstClusterRef());
+          fillCount(std::distance(track.recHitsBegin(), iHit), dynamic_cast<const BaseTrackerRecHit&>(hit).firstClusterRef());
         }
       }
     }
 
+    // In case there are many matches with the same number of hits,
+    // select the one with innermost hit
     TrackTPMatch best;
     int bestCount = 2; // require >= 3 hits for the best match
+    int bestInnermostHit = std::numeric_limits<int>::max();
     for(auto& keyCount: count) {
-      if(keyCount.second.first > bestCount) {
+      if(keyCount.second.hits > bestCount ||
+         (keyCount.second.hits == bestCount && keyCount.second.innermostHit < bestInnermostHit)) {
         best.key = keyCount.first;
-        best.countHits = bestCount = keyCount.second.first;
-        best.countClusters = keyCount.second.second;
+        best.countHits = bestCount = keyCount.second.hits;
+        best.countClusters = keyCount.second.clusters;
+        bestInnermostHit = keyCount.second.innermostHit;
       }
     }
 
