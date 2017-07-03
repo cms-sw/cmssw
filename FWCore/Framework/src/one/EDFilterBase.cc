@@ -140,16 +140,6 @@ namespace edm {
       //respondToCloseInputFile(fb);
     }
     
-    void
-    EDFilterBase::doPreForkReleaseResources() {
-      preForkReleaseResources();
-    }
-    
-    void
-    EDFilterBase::doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {
-      postForkReacquireResources(iChildIndex, iNumberOfChildren);
-    }
-    
     void EDFilterBase::doBeginRun_(Run const& rp, EventSetup const& c) {}
     void EDFilterBase::doEndRun_(Run const& rp, EventSetup const& c) {}
     void EDFilterBase::doBeginLuminosityBlock_(LuminosityBlock const& lbp, EventSetup const& c) {}

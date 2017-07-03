@@ -181,6 +181,14 @@ def customiseFor19181_pixel_phase0(process):
         producer.ClusterThreshold_L1 = cms.int32(4000)
     return process
 
+# Add new parameters to RecoTrackRefSelector
+def customiseFor19029(process):
+    for producer in producers_by_type(process, "RecoTrackRefSelector"):
+        if not hasattr(producer, "minPhi"):
+            producer.minPhi = cms.double(-3.2)
+            producer.maxPhi = cms.double(3.2)
+    return process
+
 def customiseFor19181_pixel_phase1(process):
     for producer in producers_by_type(process, "SiPixelClusterProducer"):
         producer.VCaltoElectronGain    = cms.int32(47)
@@ -200,16 +208,17 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
         process = customiseFor17792(process)
         process = customiseFor17794(process)
         process = customiseFor18330(process)
+        process = customiseFor18429(process)
+        process = customiseFor18559(process)
+        process = customiseFor19098(process)
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
-    process = customiseFor18429(process)
-    process = customiseFor18559(process)
-    process = customiseFor19098(process)
 
     if (menuType == "GRun2016"):
         process = customiseFor19181_pixel_phase0(process)
     else:
         process = customiseFor19181_pixel_phase1(process)
+    process = customiseFor19029(process)
 
     return process

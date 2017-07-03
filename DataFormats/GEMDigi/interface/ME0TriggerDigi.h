@@ -8,7 +8,7 @@
  * \author Sven Dildick (TAMU)
  */
 
-#include <boost/cstdint.hpp>
+#include <cstdint>
 #include <iosfwd>
 
 class ME0TriggerDigi 
@@ -17,9 +17,10 @@ class ME0TriggerDigi
   
   /// Constructors
   ME0TriggerDigi(const int trknmb, const int quality,
-	     const int strip, const int pattern,
-	     const int bend, const int bx);
-
+		 const int strip, const int partition, 
+		 const int pattern,
+		 const int bend, const int bx);
+  
   /// default
   ME0TriggerDigi();                               
 
@@ -32,51 +33,58 @@ class ME0TriggerDigi
   { return !(this->operator==(rhs)); }
 
   /// return track number
-  int getTrknmb()  const { return trknmb; }
+  int getTrknmb()  const { return trknmb_; }
 
   /// return the Quality
-  int getQuality() const { return quality; }
+  int getQuality() const { return quality_; }
 
   /// return the key strip
-  int getStrip()   const { return strip; }
+  int getStrip()   const { return strip_; }
+
+  /// return the key "partition"
+  int getPartition()   const { return partition_; }
 
   /// return pattern
-  int getPattern() const { return pattern; }
+  int getPattern() const { return pattern_; }
 
   /// return bend
-  int getBend()    const { return bend; }
+  int getBend()    const { return bend_; }
 
   /// return BX
-  int getBX()      const { return bx; }
+  int getBX()      const { return bx_; }
 	
   /// is valid?
-  bool isValid() const { return pattern!=0; }
+  bool isValid() const { return pattern_!=0; }
 
   /// Set track number.
-  void setTrknmb(const uint16_t number) {trknmb = number;}
+  void setTrknmb(const uint16_t number) {trknmb_ = number;}
 
   /// set quality code
-  void setQuality(unsigned int q) {quality=q;}
+  void setQuality(unsigned int q) {quality_=q;}
 
   /// set strip
-  void setStrip(unsigned int s) {strip=s;}
+  void setStrip(unsigned int s) {strip_=s;}
+
+  /// set partition
+  void setPartition(unsigned int s) {partition_=s;}
 
   /// set pattern
-  void setPattern(unsigned int p) {pattern=p;}
+  void setPattern(unsigned int p) {pattern_=p;}
 
   /// set bend
-  void setBend(unsigned int b) {bend=b;}
+  void setBend(unsigned int b) {bend_=b;}
 
   /// set bx
-  void setBX(unsigned int b) {bx=b;}
+  void setBX(unsigned int b) {bx_=b;}
 
  private:
-  uint16_t trknmb;
-  uint16_t quality;
-  uint16_t strip;
-  uint16_t pattern;
-  uint16_t bend;
-  uint16_t bx;
+  uint16_t trknmb_;
+  uint16_t quality_;
+  uint16_t strip_;
+  uint16_t partition_;
+  uint16_t pattern_;
+  uint16_t bend_;
+  uint16_t bx_;
 };
 
 std::ostream & operator<<(std::ostream & o, const ME0TriggerDigi& digi);

@@ -22,6 +22,26 @@ metEfficiency = DQMEDHarvester("DQMGenericClient",
   
 )
 
+
+NoBPTXEfficiency = DQMEDHarvester("DQMGenericClient",
+    subDirs        = cms.untracked.vstring("HLT/NoBPTX/*"),
+    verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
+    resolution     = cms.vstring(),
+    efficiency     = cms.vstring(
+        "effic_jetE          'Calo jet energy turnON;            Jet E [GeV]; Efficiency'     jetE_numerator          jetE_denominator",
+        "effic_jetE_variable 'Calo jet energy turnON;            Jet E [GeV]; Efficiency'     jetE_variable_numerator jetE_variable_denominator",
+        "effic_jetEta          'Calo jet eta eff;            Jet #eta; Efficiency'     jetEta_numerator          jetEta_denominator",
+        "effic_jetPhi          'Calo jet phi eff;            Jet #phi; Efficiency'     jetPhi_numerator          jetPhi_denominator",
+        "effic_muonPt          'Muon pt turnON; DisplacedStandAlone Muon p_{T} [GeV]; Efficiency'     muonPt_numerator          muonPt_denominator",
+        "effic_muonPt_variable 'Muon pt turnON; DisplacedStandAlone Muon p_{T} [GeV]; Efficiency'     muonPt_variable_numerator muonPt_variable_denominator",
+        "effic_muonEta          'Muon eta eff; DisplacedStandAlone Muon #eta; Efficiency'     muonEta_numerator          muonEta_denominator",
+        "effic_muonPhi          'Muon phi eff; DisplacedStandAlone Muon #phi; Efficiency'     muonPhi_numerator          muonPhi_denominator",
+    ),
+    efficiencyProfile = cms.untracked.vstring(
+        "effic_jetE_vs_LS 'Calo jet energy efficiency vs LS; LS; Jet p_{T} Efficiency' jetEVsLS_numerator jetEVsLS_denominator",
+    ), 
+)
+
 htEfficiency = cms.EDAnalyzer("DQMGenericClient",
     subDirs        = cms.untracked.vstring("HLT/HT/*"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
@@ -34,6 +54,7 @@ htEfficiency = cms.EDAnalyzer("DQMGenericClient",
         "effic_ht_vs_LS 'HT efficiency vs LS; LS; PF HT efficiency' htVsLS_numerator htVsLS_denominator"
     ),
   
+
 )
 
 from DQMOffline.Trigger.HTMonitoring_Client_cff import *
@@ -41,6 +62,10 @@ from DQMOffline.Trigger.METMonitoring_Client_cff import *
 
 
 exoticaClient = cms.Sequence(
-    htClient *
-    metClient
+    metEfficiency
+    + NoBPTXEfficiency
+    + htEfficiency
+    + htClient
+    + metClient
 )
+

@@ -287,6 +287,32 @@ void HcalDDDRecConstants::getLayerDepth(const int ieta,
 #endif
 }
 
+int HcalDDDRecConstants::getLayerFront(const int idet, const int ieta,
+				       const int iphi, const int depth) const {
+  int subdet = (idet == 1) ? 1 : 2;
+  int zside  = (ieta > 0) ? 1 : -1;
+  int eta    = zside*ieta;
+  int layFront = hcons.ldMap()->getLayerFront(subdet,eta,iphi,zside,depth);
+  if (layFront < 0) {
+    int laymin  = hcons.getFrontLayer(subdet, ieta);
+    if (eta <= hpar->etaMax[1]) {
+      for (unsigned int k=0; k<layerGroupSize(eta-1); ++k) {
+	if (depth == (int)layerGroup(eta-1, k)) {
+	  if ((int)(k) >= laymin) {
+	    layFront = k;
+	    break;
+	  }
+	}
+      }
+    }
+  }
+#ifdef EDM_ML_DEBUG
+  std::cout << "getLayerFront::Input " << idet << ":" << ieta << ":"
+	    << iphi << ":" << depth << " Output " << layFront << std::endl;
+#endif
+  return layFront;
+}
+
 int HcalDDDRecConstants::getMaxDepth (const int itype, const int ieta,
 				      const int iphi, const int zside) const {
   
@@ -377,31 +403,36 @@ int HcalDDDRecConstants::getPhiZOne(std::vector<std::pair<int,int>>& phiz) const
 
 double HcalDDDRecConstants::getRZ(int subdet, int ieta, int depth) const {
 
-  int ietaAbs = (ieta > 0) ? ieta : -ieta;
-  double rz(0);
+  return getRZ(subdet, ieta, 1, depth);
+}
+
+double HcalDDDRecConstants::getRZ(int subdet, int ieta, int iphi,
+				  int depth) const {
+  int    layf  = getLayerFront(subdet,ieta,iphi,depth);
+  double rz    = (layf < 0) ? 0.0 : 
+    ((subdet == static_cast<int>(HcalBarrel)) ? (gconsHB[layf].first) :
+     (gconsHE[layf].first));
 #ifdef EDM_ML_DEBUG
-  int    lay(0);
-#endif
-  if (ietaAbs < hpar->etaMax[1]) {
-    for (unsigned int k=0; k< layerGroupSize(ietaAbs-1); ++k) {
-      if (depth == (int)layerGroup(ietaAbs-1, k)) {
-	rz = ((subdet == static_cast<int>(HcalBarrel)) ? (gconsHB[k].first) :
-	      (gconsHE[k].first));
-	if (rz > 10.) {
-#ifdef EDM_ML_DEBUG
-	  lay = k;
-#endif
-	  break;
-	}
-      }
-    }
-  }
-#ifdef EDM_ML_DEBUG
-  std::cout << "getRZ: subdet|ieta|depth " << subdet << "|" << ieta << "|"
-	    << depth << " lay|rz " << lay << "|" << rz << std::endl;
+  std::cout << "getRZ: subdet|ieta|ipho|depth " << subdet << "|" << ieta << "|"
+	    << iphi << "|" << depth << " lay|rz " << layf << "|" << rz 
+	    << std::endl;
 #endif
   return rz;
 }
+
+double HcalDDDRecConstants::getRZ(int subdet, int layer) const {
+
+  double rz(0);
+  if (layer > 0 && layer <= (int)(layerGroupSize(0)))
+    rz = ((subdet == static_cast<int>(HcalBarrel)) ? (gconsHB[layer-1].first) :
+	  (gconsHE[layer-1].first));
+#ifdef EDM_ML_DEBUG
+  std::cout << "getRZ: subdet|layer " << subdet << "|" << layer << " rz "
+	    << rz << std::endl;
+#endif
+  return rz;
+}
+
  	
 std::vector<HcalDDDRecConstants::HcalActiveLength> 
 HcalDDDRecConstants::getThickActive(const int type) const {
@@ -413,6 +444,8 @@ HcalDDDRecConstants::getThickActive(const int type) const {
 #endif
   for (unsigned int k=0; k<bins.size(); ++k) {
     int    ieta  = bins[k].ieta;
+    int    zside = bins[k].zside;
+    int    stype = (bins[k].phis.size() > 4) ? 0 : 1;
     double eta   = 0.5*(bins[k].etaMin+bins[k].etaMax);
     double theta = 2*atan(exp(-eta));
     double scale = 1.0/((type == 0) ? sin(theta) : cos(theta));
@@ -426,13 +459,14 @@ HcalDDDRecConstants::getThickActive(const int type) const {
 	}
       }
       thick *= (2.*scale);
-      HcalDDDRecConstants::HcalActiveLength active(ieta,depth,eta,thick);
+      HcalDDDRecConstants::HcalActiveLength active(ieta,depth,zside,stype,zside*eta,thick);
       actives.push_back(active);
       ++depth;
 #ifdef EDM_ML_DEBUG
       kount++;
       std::cout << "getThickActive: [" << kount << "] eta:" << active.ieta 
-		<< ":" << active.eta << " depth " << active.depth << " thick " 
+		<< ":" << active.eta << " zside " << active.zside << " depth " 
+		<< active.depth << " type " << active.stype << " thick "
 		<< active.thick << std::endl;
 #endif
     }
@@ -448,29 +482,28 @@ HcalDDDRecConstants::HcalCellTypes(HcalSubdetector subdet) const {
     int isub   = (subdet == HcalBarrel) ? 0 : 1;
     std::vector<HcalDDDRecConstants::HcalEtaBin> etabins = getEtaBins(isub);
     std::vector<int> missPhi;
-    for (unsigned int bin=0; bin<etabins.size(); ++bin) {
+    for (const auto& etabin : etabins) {
       std::vector<HcalCellType> temp;
       std::vector<int>          count;
       std::vector<double>       dmin, dmax;
-      for (unsigned int il=0; il<etabins[bin].layer.size(); ++il) {
-	HcalCellType cell(subdet, etabins[bin].ieta, etabins[bin].zside, 0,
+      for (unsigned int il=0; il<etabin.layer.size(); ++il) {
+	HcalCellType cell(subdet, etabin.ieta, etabin.zside, 0,
 			  HcalCellType::HcalCell());
-	double foff = (etabins[bin].ieta <= iEtaMax[0]) ? hpar->phioff[0] : hpar->phioff[1];
-	int unit    = hcons.unitPhi(etabins[bin].dphi);
-	cell.setPhi(etabins[bin].phis, missPhi, foff, etabins[bin].dphi, unit);
 	temp.push_back(cell);
 	count.push_back(0);
 	dmin.push_back(0);
 	dmax.push_back(0);
       }
-      int ieta = etabins[bin].ieta;
+      int ieta = etabin.ieta;
       for (int keta=etaSimValu[ieta-1].first; keta<=etaSimValu[ieta-1].second;
 	   ++keta) {
 	std::vector<HcalCellType> cellsm = hcons.HcalCellTypes(subdet,keta,-1);
-	for (unsigned int ic=0; ic<cellsm.size(); ++ic) {
-	  for (unsigned int il=0; il<etabins[bin].layer.size(); ++il) {
-	    if (cellsm[ic].depthSegment() >= etabins[bin].layer[il].first &&
-		cellsm[ic].depthSegment() <= etabins[bin].layer[il].second) {
+	for (unsigned int il=0; il<etabin.layer.size(); ++il) {
+	  for (unsigned int ic=0; ic<cellsm.size(); ++ic) {
+	    if (cellsm[ic].depthSegment() >= etabin.layer[il].first &&
+		cellsm[ic].depthSegment() <= etabin.layer[il].second &&
+		cellsm[ic].etaBin() == temp[il].etaBin() && 
+		cellsm[ic].zside()  == temp[il].zside()) {
 	      if (count[il] == 0) {
 		temp[il] = cellsm[ic];
 		dmin[il] = cellsm[ic].depthMin();
@@ -481,20 +514,23 @@ HcalDDDRecConstants::HcalCellTypes(HcalSubdetector subdet) const {
 		dmin[il] = cellsm[ic].depthMin();
 	      if (cellsm[ic].depthMax() > dmax[il]) 
 		dmax[il] = cellsm[ic].depthMax();
-	      break;
 	    }
 	  }
 	}
       }
-      for (unsigned int il=0; il<etabins[bin].layer.size(); ++il) {
-	int depth = etabins[bin].depthStart + (int)(il);
-	temp[il].setEta(ieta,etabins[bin].etaMin,etabins[bin].etaMax);
+      for (unsigned int il=0; il<etabin.layer.size(); ++il) {
+	int depth = etabin.depthStart + (int)(il);
+	temp[il].setEta(ieta,etabin.etaMin,etabin.etaMax);
 	temp[il].setDepth(depth,dmin[il],dmax[il]);
+	double foff = (etabin.ieta <= iEtaMax[0]) ? hpar->phioff[0] : hpar->phioff[1];
+	int unit    = hcons.unitPhi(etabin.dphi);
+	temp[il].setPhi(etabin.phis, missPhi, foff, etabin.dphi, unit);
 	cells.push_back(temp[il]);
       }
     }
 #ifdef EDM_ML_DEBUG
-    std::cout << "HcalDDDRecConstants: found " << cells.size() << " cells for sub-detector type " << isub << std::endl;
+    std::cout << "HcalDDDRecConstants: found " << cells.size() 
+	      << " cells for sub-detector type " << isub << std::endl;
     for (unsigned int ic=0; ic<cells.size(); ++ic)
       std::cout << "Cell[" << ic << "] " << cells[ic] << std::endl;
 #endif
@@ -950,20 +986,20 @@ void HcalDDDRecConstants::initialize(void) {
     std::cout << "Map for merging new channels to old channel IDs with "
 	      << detIdSp_.size() << " entries" << std::endl;
     int l(0);
-    for (std::map<HcalDetId,HcalDetId>::const_iterator itr=detIdSp_.begin();
-	 itr != detIdSp_.end(); ++itr,++l) {
-      std::cout << "[" << l << "] Special " << itr->first << " Standard "
-		<< itr->second << std::endl;
+    for (auto itr : detIdSp_) {
+      std::cout << "[" << l << "] Special " << itr.first << " Standard "
+		<< itr.second << std::endl;
+      ++l;
     }
     std::cout << "Reverse Map for mapping old to new IDs with "
 	      << detIdSpR_.size() << " entries" << std::endl;
     l = 0;
-    for (std::map<HcalDetId,std::vector<HcalDetId> >::const_iterator itr=detIdSpR_.begin();
-	 itr != detIdSpR_.end(); ++itr,++l) {
-      std::cout << "[" << l << "] Standard " << itr->first << " Special";
-      for (unsigned int k=0; k < itr->second.size(); ++k)
-	std::cout << " " << (itr->second)[k];
+    for (auto itr : detIdSpR_) {
+      std::cout << "[" << l << "] Standard " << itr.first << " Special";
+      for (auto itr1 : itr.second) 
+	std::cout << " " << (itr1);
       std::cout << std::endl;
+      ++l;
     }
 #endif
   }

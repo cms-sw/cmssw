@@ -10,7 +10,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelClusterShapeCache.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterData.h"
 

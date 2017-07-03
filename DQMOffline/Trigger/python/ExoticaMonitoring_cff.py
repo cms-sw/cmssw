@@ -1,9 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-from DQMOffline.Trigger.METMonitor_cff import *
-from DQMOffline.Trigger.HTMonitor_cff import *
+from DQMOffline.Trigger.HLTEGTnPMonitor_cfi import egmGsfElectronIDsForDQM,egHLTDQMOfflineTnPSource,egmPhotonIDSequenceForDQM,egHLTElePhoDQMOfflineTnPSource,photonIDValueMapProducer,egmPhotonIDsForDQM
 
-exoticaMonitorHLT = cms.Sequence(
-    exoHLTMETmonitoring
-    + exoHLTHTmonitoring
+egammaMonitorHLT = cms.Sequence(
+    egmGsfElectronIDsForDQM*
+    egHLTDQMOfflineTnPSource*
+    egmPhotonIDSequenceForDQM*
+    egHLTElePhoDQMOfflineTnPSource
 )

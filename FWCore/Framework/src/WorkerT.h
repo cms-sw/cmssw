@@ -102,9 +102,6 @@ namespace edm {
     virtual void implEndStream(StreamID) override;
     virtual void implRespondToOpenInputFile(FileBlock const& fb) override;
     virtual void implRespondToCloseInputFile(FileBlock const& fb) override;
-    virtual void implPreForkReleaseResources() override;
-    virtual void implPostForkReacquireResources(unsigned int iChildIndex, 
-                                               unsigned int iNumberOfChildren) override;
     virtual void implRegisterThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&) override;
     virtual std::string workerType() const override;
     virtual SerialTaskQueueChain* serializeRunModule() override;
@@ -114,6 +111,10 @@ namespace edm {
                                                  ProductRegistry const& preg,
                                                  std::map<std::string, ModuleDescription const*> const& labelsToDesc) const override {
       module_->modulesWhoseProductsAreConsumed(modules, preg, labelsToDesc, module_->moduleDescription().processName());
+    }
+
+    virtual void convertCurrentProcessAlias(std::string const& processName) override {
+      module_->convertCurrentProcessAlias(processName);
     }
 
     virtual std::vector<ConsumesInfo> consumesInfo() const override {

@@ -2,7 +2,7 @@
 
 #define FastSimulation_Tracking_TrajectorySeedHitCandidate_H_
 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"

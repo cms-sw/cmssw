@@ -12,7 +12,7 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/trackerHierarchy.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 #include "DataFormats/Common/interface/Trie.h"

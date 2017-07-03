@@ -5,15 +5,17 @@
 ME0TriggerDigi::ME0TriggerDigi(const int itrknmb,
 			       const int iquality,
 			       const int istrip,
+			       const int ipartition,
 			       const int ipattern, 
 			       const int ibend,
 			       const int ibx):
-  trknmb(itrknmb),
-  quality(iquality),
-  strip(istrip),
-  pattern(ipattern),
-  bend(ibend),
-  bx(ibx)
+  trknmb_(itrknmb),
+  quality_(iquality),
+  strip_(istrip),
+  partition_(ipartition),
+  pattern_(ipattern),
+  bend_(ibend),
+  bx_(ibx)
 {}
 
 ME0TriggerDigi::ME0TriggerDigi() {
@@ -21,18 +23,20 @@ ME0TriggerDigi::ME0TriggerDigi() {
 }
 
 void ME0TriggerDigi::clear() {
-  trknmb  = 0;
-  quality = 0;
-  strip   = 0;
-  pattern = 0;
-  bend    = 0;
-  bx      = 0;
+  trknmb_  = 0;
+  quality_ = 0;
+  strip_   = 0;
+  partition_   = 0;
+  pattern_ = 0;
+  bend_    = 0;
+  bx_      = 0;
 }
 
 bool ME0TriggerDigi::operator==(const ME0TriggerDigi &rhs) const {
-  return ((trknmb == rhs.trknmb) && (quality == rhs.quality) &&
-	  (strip == rhs.strip)   && (pattern == rhs.pattern) && 
-	  (bend == rhs.bend)     && (bx == rhs.bx) );
+  return ((trknmb_ == rhs.trknmb_) && (quality_ == rhs.quality_) &&
+	  (strip_ == rhs.strip_)   && (partition_ == rhs.partition_)   && 
+	  (pattern_ == rhs.pattern_) && 
+	  (bend_ == rhs.bend_)     && (bx_ == rhs.bx_) );
 }
 
 std::ostream & operator<<(std::ostream & o,
@@ -40,6 +44,7 @@ std::ostream & operator<<(std::ostream & o,
   return o << "ME0 Trigger #" << digi.getTrknmb()
            << ": Quality = "  << digi.getQuality()
            << " Strip = "     << digi.getStrip()
+           << " Partition = "     << digi.getPartition()
 	   << " Pattern = "   << digi.getPattern()
            << " Bend = "      << ((digi.getBend() == 0) ? 'L' : 'R') << "\n"
            << " BX = "        << digi.getBX()

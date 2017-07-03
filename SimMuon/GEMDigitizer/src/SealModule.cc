@@ -39,3 +39,6 @@ DEFINE_EDM_PLUGIN(ME0DigiModelFactory, ME0SimpleModel, "ME0SimpleModel");
 
 #include "SimMuon/GEMDigitizer/interface/ME0PadDigiProducer.h"
 DEFINE_FWK_MODULE(ME0PadDigiProducer);
+
+#include "SimMuon/GEMDigitizer/interface/ME0PadDigiClusterProducer.h"
+DEFINE_FWK_MODULE(ME0PadDigiClusterProducer);
