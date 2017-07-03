@@ -18,16 +18,13 @@ TagAndProbeBtagTriggerMonitor::TagAndProbeBtagTriggerMonitor( const edm::Paramet
 {
   folderName_             = iConfig.getParameter<std::string>("dirname");
   processname_            = iConfig.getParameter<std::string>("processname");
-//   pathname_               = iConfig.getParameter<std::string>("pathname");
   triggerobjbtag_         = iConfig.getParameter<std::string>("triggerobjbtag");
   jetPtmin_               = iConfig.getParameter<double>("jetPtMin");
   jetEtamax_              = iConfig.getParameter<double>("jetEtaMax");
   tagBtagmin_             = iConfig.getParameter<double>("tagBtagMin");
   probeBtagmin_           = iConfig.getParameter<double>("probeBtagMin");
   triggerSummaryLabel_    = iConfig.getParameter<edm::InputTag>("triggerSummary");
-//   triggerResultsLabel_    = iConfig.getParameter<edm::InputTag>("triggerResults");
   triggerSummaryToken_    = consumes <trigger::TriggerEvent> (triggerSummaryLabel_);
-//   triggerResultsToken_    = consumes <edm::TriggerResults>   (triggerResultsLabel_);
   offlineBtagToken_       = consumes<reco::JetTagCollection> (iConfig.getParameter<edm::InputTag>("offlineBtag"));
   genTriggerEventFlag_    = new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("genericTriggerEventPSet"),consumesCollector(), *this);
 
@@ -96,32 +93,12 @@ void TagAndProbeBtagTriggerMonitor::analyze(edm::Event const& iEvent, edm::Event
    bool match1 = false;
    bool match2 = false;
    
-//    edm::Handle<edm::TriggerResults> triggerResultsHandler;
-//    iEvent.getByToken(triggerResultsToken_, triggerResultsHandler);
-//    if ( ! triggerResultsHandler.isValid() )  return;
-      
    edm::Handle<reco::JetTagCollection> offlineJetTagPFHandler;
    iEvent.getByToken(offlineBtagToken_, offlineJetTagPFHandler);
       
    if( ! offlineJetTagPFHandler.isValid()) return;
    
-//    const edm::TriggerResults & triggers = *(triggerResultsHandler.product());
-   
-//    for ( size_t j = 0 ; j < hltConfig_.size() ; ++j )
-//    {
-//       if ( hltConfig_.triggerName(j).find(pathname_) == 0 )
-//       {
-//          if ( triggers.accept(j) ) 
-//          {
-//             accept = true;
-//             break;
-//          }
-//       }
-//    }
-//    if ( accept )
-//    {}
-   
-  // applying selection for numerator
+   // applying selection for event; tag & probe -> selection  for all events
    if (genTriggerEventFlag_->on() && ! genTriggerEventFlag_->accept( iEvent, iSetup) )
    {
       
@@ -195,17 +172,9 @@ void TagAndProbeBtagTriggerMonitor::analyze(edm::Event const& iEvent, edm::Event
       } // at least two offline jets
    } // accept trigger
    
-  // Filter out events if Trigger Filtering is requested
-//  if (den_genTriggerEventFlag_->on() && ! den_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
-
 }
 void TagAndProbeBtagTriggerMonitor::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
-//     bool changed(true);
-//     if (!hltConfig_.init(iRun, iSetup, processname_, changed))
-//     {
-//        LogDebug("TagAndProbeBtagTriggerMonitor") << "HLTConfigProvider failed to initialize.";
-//     }
 }
 
 

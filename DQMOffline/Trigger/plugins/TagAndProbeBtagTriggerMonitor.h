@@ -83,10 +83,8 @@ private:
   Binning jetBtagbins_;
 
   edm::InputTag triggerSummaryLabel_;
-//   edm::InputTag triggerResultsLabel_;
   
   edm::EDGetTokenT<reco::JetTagCollection> offlineBtagToken_;
-//   edm::EDGetTokenT <edm::TriggerResults> triggerResultsToken_;
   edm::EDGetTokenT <trigger::TriggerEvent> triggerSummaryToken_;
 
   MonitorElement * pt_jet1_;
