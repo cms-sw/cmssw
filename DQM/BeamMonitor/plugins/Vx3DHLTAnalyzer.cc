@@ -800,7 +800,7 @@ void Vx3DHLTAnalyzer::writeToFile (vector<double>* vals,
       outputFile << "rmsPV 0"      << endl;
       outputFile << "rmsErrPV 0"   << endl;
       outputFile << "maxPV 0"      << endl;
-      outputFile << "nPV 0"        << endl;
+      outputFile << "nPV " << counterVx << endl;
     }
   outputFile.close();
   
@@ -859,14 +859,14 @@ void Vx3DHLTAnalyzer::writeToFile (vector<double>* vals,
 	  
       outputDebugFile << "EmittanceX 0" << endl;
       outputDebugFile << "EmittanceY 0" << endl;
-      outputDebugFile << "BetaStar 0" << endl;
-      outputDebugFile << "events 0" << endl;
-      outputDebugFile << "meanPV 0" << endl;
-      outputDebugFile << "meanErrPV 0" << endl;
-      outputDebugFile << "rmsPV 0" << endl;
-      outputDebugFile << "rmsErrPV 0" << endl;
-      outputDebugFile << "maxPV 0" << endl;
-      outputDebugFile << "nPV 0" << endl;
+      outputDebugFile << "BetaStar 0"   << endl;
+      outputDebugFile << "events 0"     << endl;
+      outputDebugFile << "meanPV 0"     << endl;
+      outputDebugFile << "meanErrPV 0"  << endl;
+      outputDebugFile << "rmsPV 0"      << endl;
+      outputDebugFile << "rmsErrPV 0"   << endl;
+      outputDebugFile << "maxPV 0"      << endl;
+      outputDebugFile << "nPV " << counterVx << endl;
 
       outputDebugFile << "\n" << "Used vertices: " << counterVx << "\n" << endl;
     }
