@@ -39,6 +39,7 @@ class TotemRPLocalTrackFitter : public edm::stream::EDProducer<>
     virtual ~TotemRPLocalTrackFitter() {}
 
     virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
+    static void fillDescriptions( edm::ConfigurationDescriptions& );
 
   private:
     int verbosity_;
@@ -182,6 +183,7 @@ void TotemRPLocalTrackFitter::produce(edm::Event& e, const edm::EventSetup& setu
   e.put(make_unique<DetSetVector<TotemRPLocalTrack>>(output));
 }
 
+//----------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------
 
 DEFINE_FWK_MODULE(TotemRPLocalTrackFitter);
