@@ -43,7 +43,7 @@ SUSY_HLT_Mu_HT_BTag_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
                                                   csvThreshold = cms.untracked.double(0.898)
                                                   )
 
-SUSY_HLT_Mu_HT_BTag_SingleLepton_POSTPROCESSING = DQMEDHarvester('DQMGenericClient',
+SUSYoHLToMuHToBTagSingleLeptonPOSTPROCESSING = DQMEDHarvester('DQMGenericClient',
                                                                  subDirs = cms.untracked.vstring('HLT/SUSYBSM/HLT_Mu15_IsoVVVL_BTagCSV_p067_PFHT400'),
                                                                  efficiency = cms.vstring(
         "leptonTurnOn_eff ';Offline Muon p_{T} [GeV];#epsilon' leptonTurnOn_num leptonTurnOn_den",

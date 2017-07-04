@@ -43,7 +43,7 @@ SUSY_HLT_Ele_HT_Control_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
                                                       csvThreshold = cms.untracked.double(-1.0)
                                                       )
 
-SUSY_HLT_Ele_HT_Control_SingleLepton_POSTPROCESSING = DQMEDHarvester('DQMGenericClient',
+SUSYoHLToEleHToControlSingleLeptonPOSTPROCESSING = DQMEDHarvester('DQMGenericClient',
                                                                      subDirs = cms.untracked.vstring('HLT/SUSYBSM/HLT_Ele15_IsoVVVL_PFHT350'),
                                                                      efficiency = cms.vstring(
         "leptonTurnOn_eff ';Offline Electron p_{T} [GeV];#epsilon' leptonTurnOn_num leptonTurnOn_den",
