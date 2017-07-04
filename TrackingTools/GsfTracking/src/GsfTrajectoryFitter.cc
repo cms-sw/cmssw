@@ -9,7 +9,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/TkCloner.h"
 #include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
 
-#include "DebugHelpers.h"
+#include "TrackingTools/TrackFitters/interface/DebugHelpers.h"
 
 
 GsfTrajectoryFitter::GsfTrajectoryFitter(const Propagator& aPropagator,
@@ -62,7 +62,7 @@ Trajectory GsfTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
 
   TSOS predTsos(firstPredTsos);
   if(!predTsos.isValid()) {
-    edm::LogInfo("GsfTrackFitter") 
+    edm::LogInfo("GsfTrackFitters")
       << "GsfTrajectoryFitter: predicted tsos of first measurement not valid!";
     return Trajectory();
   } 
@@ -74,7 +74,7 @@ Trajectory GsfTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
      assert( (!(ihit)->canImproveWithTrack()) | (nullptr!=theHitCloner));
      assert( (!(ihit)->canImproveWithTrack()) | (nullptr!=dynamic_cast<BaseTrackerRecHit const*>(ihit.get())));
      auto preciseHit = theHitCloner->makeShared(ihit,predTsos);
-     dump(*preciseHit,1);
+     dump(*preciseHit,1,"GsfTrackFitters");
     {
       currTsos = updator()->update(predTsos, *preciseHit);
     }
@@ -132,7 +132,7 @@ Trajectory GsfTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
       assert( (!(*ihit)->canImproveWithTrack()) | (nullptr!=theHitCloner));
       assert( (!(*ihit)->canImproveWithTrack()) | (nullptr!=dynamic_cast<BaseTrackerRecHit const*>((*ihit).get())));
       auto preciseHit = theHitCloner->makeShared(*ihit,predTsos);
-      dump(*preciseHit,hitcounter);
+      dump(*preciseHit,hitcounter,"GsfTrackFitters");
       currTsos = updator()->update(predTsos, *preciseHit);     
       if (!predTsos.isValid() || !currTsos.isValid()){
 	edm::LogError("InvalidState")<<"inside hit";
@@ -151,8 +151,8 @@ Trajectory GsfTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
       }
       myTraj.push(TM(predTsos, *ihit,0., theGeometry->idToLayer( (*ihit)->geographicalId()) ));
     }
-    dump(predTsos,"predTsos");
-    dump(currTsos,"currTsos");
+    dump(predTsos,"predTsos","GsfTrackFitters");
+    dump(currTsos,"currTsos","GsfTrackFitters");
   }
   return myTraj;
 }

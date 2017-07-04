@@ -82,7 +82,6 @@ namespace edm {
 
       void preModuleConstruction(ModuleDescription const& description);
       void preallocate(SystemBounds const&);
-      void postForkReacquireResources(unsigned childIndex, unsigned kMaxChildren);
 
       virtual void preBeginLumi(LuminosityBlock const& lumi) override;
       virtual void postEventRead(Event const& event) override;
@@ -265,10 +264,6 @@ namespace edm {
       // numbers are generated in a module during stream
       // beginStream, beginRun, endLuminosityBlock, or endRun.
       bool enableChecking_;
-
-      // In a multiprocess job this will have the index of the child process
-      // incremented by one as each child is forked
-      unsigned childIndex_;
 
       std::uint32_t eventSeedOffset_;
 

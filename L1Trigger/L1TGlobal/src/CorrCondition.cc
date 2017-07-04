@@ -159,6 +159,9 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
     CombinationsInCond cond0Comb;
     CombinationsInCond cond1Comb;
 
+    int cond0bx(0);
+    int cond1bx(0);
+
     switch (cond0Categ) {
         case CondMuon: {
             corrMuon = static_cast<const MuonTemplate*>(m_gtCond0);
@@ -169,6 +172,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
             reqObjResult = muCondition.condLastResult();
 
             cond0Comb = (muCondition.getCombinationsInCond());
+            cond0bx = (corrMuon->condRelativeBx());
             cndObjTypeVec[0] = (corrMuon->objectType())[0];
 
             if (m_verbosity ) {
@@ -189,6 +193,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
             reqObjResult = caloCondition.condLastResult();
 
             cond0Comb = (caloCondition.getCombinationsInCond());
+            cond0bx = (corrCalo->condRelativeBx());
             cndObjTypeVec[0] = (corrCalo->objectType())[0];
 
             if (m_verbosity) {
@@ -208,6 +213,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
             reqObjResult = eSumCondition.condLastResult();
 
             cond0Comb = (eSumCondition.getCombinationsInCond());
+            cond0bx = (corrEnergySum->condRelativeBx());
             cndObjTypeVec[0] = (corrEnergySum->objectType())[0];
 
             if (m_verbosity ) {
@@ -246,6 +252,8 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
             reqObjResult = muCondition.condLastResult();
 
             cond1Comb = (muCondition.getCombinationsInCond());
+            cond1bx = (corrMuon->condRelativeBx());
+
             cndObjTypeVec[1] = (corrMuon->objectType())[0];
 
             if (m_verbosity) {
@@ -265,6 +273,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
             reqObjResult = caloCondition.condLastResult();
 
             cond1Comb = (caloCondition.getCombinationsInCond());
+            cond1bx = (corrCalo->condRelativeBx());
             cndObjTypeVec[1] = (corrCalo->objectType())[0];
 
             if (m_verbosity ) {
@@ -285,6 +294,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
             reqObjResult = eSumCondition.condLastResult();
 
             cond1Comb = (eSumCondition.getCombinationsInCond());
+            cond1bx = (corrEnergySum->condRelativeBx());
             cndObjTypeVec[1] = (corrEnergySum->objectType())[0];
 
             if (m_verbosity) {
@@ -410,10 +420,10 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
             case CondMuon: {
 	        lutObj0 = "MU";
                 candMuVec = m_uGtB->getCandL1Mu();
-                phiIndex0 =  (candMuVec->at(bxEval,obj0Index))->hwPhiAtVtx(); //(*candMuVec)[obj0Index]->phiIndex();
-                etaIndex0 =  (candMuVec->at(bxEval,obj0Index))->hwEtaAtVtx();
-		etIndex0  =  (candMuVec->at(bxEval,obj0Index))->hwPt();
-		chrg0     =  (candMuVec->at(bxEval,obj0Index))->hwCharge();
+                phiIndex0 =  (candMuVec->at(cond0bx,obj0Index))->hwPhiAtVtx(); //(*candMuVec)[obj0Index]->phiIndex();
+                etaIndex0 =  (candMuVec->at(cond0bx,obj0Index))->hwEtaAtVtx();
+		etIndex0  =  (candMuVec->at(cond0bx,obj0Index))->hwPt();
+		chrg0     =  (candMuVec->at(cond0bx,obj0Index))->hwCharge();
 		int etaBin0 = etaIndex0;
 		if(etaBin0<0) etaBin0 = m_gtScales->getMUScales().etaBins.size() + etaBin0; //twos complement
 //		LogDebug("L1TGlobal") << "Muon phi" << phiIndex0 << " eta " << etaIndex0 << " etaBin0 = " << etaBin0  << " et " << etIndex0 << std::endl;
@@ -445,9 +455,9 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 	         case gtEG: {
 		    lutObj0 = "EG";
 		    candCaloVec = m_uGtB->getCandL1EG();
-		    phiIndex0 =  (candCaloVec->at(bxEval,obj0Index))->hwPhi();
-		    etaIndex0 =  (candCaloVec->at(bxEval,obj0Index))->hwEta();
-		    etIndex0  =  (candCaloVec->at(bxEval,obj0Index))->hwPt();
+		    phiIndex0 =  (candCaloVec->at(cond0bx,obj0Index))->hwPhi();
+		    etaIndex0 =  (candCaloVec->at(cond0bx,obj0Index))->hwEta();
+		    etIndex0  =  (candCaloVec->at(cond0bx,obj0Index))->hwPt();
 		    etaBin0   = etaIndex0;
 		    if(etaBin0<0) etaBin0 = m_gtScales->getEGScales().etaBins.size() + etaBin0;
 //		    LogDebug("L1TGlobal") << "EG0 phi" << phiIndex0 << " eta " << etaIndex0 << " etaBin0 = " << etaBin0 << " et " << etIndex0 << std::endl;
@@ -473,9 +483,9 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		 case gtJet: {
 		    lutObj0 = "JET";
 		    candCaloVec = m_uGtB->getCandL1Jet();
-		    phiIndex0 =  (candCaloVec->at(bxEval,obj0Index))->hwPhi();
-		    etaIndex0 =  (candCaloVec->at(bxEval,obj0Index))->hwEta();
-		    etIndex0  =  (candCaloVec->at(bxEval,obj0Index))->hwPt();
+		    phiIndex0 =  (candCaloVec->at(cond0bx,obj0Index))->hwPhi();
+		    etaIndex0 =  (candCaloVec->at(cond0bx,obj0Index))->hwEta();
+		    etIndex0  =  (candCaloVec->at(cond0bx,obj0Index))->hwPt();
 		    etaBin0 = etaIndex0;
 		    if(etaBin0<0) etaBin0 = m_gtScales->getJETScales().etaBins.size() + etaBin0;
 
@@ -499,9 +509,9 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		   break;
 		 case gtTau: {
 		    candCaloVec = m_uGtB->getCandL1Tau();
-		    phiIndex0 =  (candCaloVec->at(bxEval,obj0Index))->hwPhi();
-		    etaIndex0 =  (candCaloVec->at(bxEval,obj0Index))->hwEta();
-		    etIndex0  =  (candCaloVec->at(bxEval,obj0Index))->hwPt();
+		    phiIndex0 =  (candCaloVec->at(cond0bx,obj0Index))->hwPhi();
+		    etaIndex0 =  (candCaloVec->at(cond0bx,obj0Index))->hwEta();
+		    etIndex0  =  (candCaloVec->at(cond0bx,obj0Index))->hwPt();
 		    etaBin0 = etaIndex0;
 		    if(etaBin0<0) etaBin0 = m_gtScales->getTAUScales().etaBins.size() + etaBin0;
 
@@ -597,11 +607,11 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 
                 candEtSumVec = m_uGtB->getCandL1EtSum();
 
-                for( int iEtSum=0; iEtSum < (int)candEtSumVec->size(bxEval); iEtSum++) {
-		  if( (candEtSumVec->at(bxEval,iEtSum))->getType() == type ) {
-                    phiIndex0 =  (candEtSumVec->at(bxEval,iEtSum))->hwPhi();
-                    etaIndex0 =  (candEtSumVec->at(bxEval,iEtSum))->hwEta();
-		    etIndex0  =  (candEtSumVec->at(bxEval,iEtSum))->hwPt();
+                for( int iEtSum=0; iEtSum < (int)candEtSumVec->size(cond0bx); iEtSum++) {
+		  if( (candEtSumVec->at(cond0bx,iEtSum))->getType() == type ) {
+                    phiIndex0 =  (candEtSumVec->at(cond0bx,iEtSum))->hwPhi();
+                    etaIndex0 =  (candEtSumVec->at(cond0bx,iEtSum))->hwEta();
+		    etIndex0  =  (candEtSumVec->at(cond0bx,iEtSum))->hwPt();
 
 
 
@@ -705,10 +715,10 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
                 case CondMuon: {
 		   lutObj1 = "MU";
                    candMuVec = m_uGtB->getCandL1Mu();
-                   phiIndex1 =  (candMuVec->at(bxEval,obj1Index))->hwPhiAtVtx(); //(*candMuVec)[obj0Index]->phiIndex();
-                   etaIndex1 =  (candMuVec->at(bxEval,obj1Index))->hwEtaAtVtx();
-		   etIndex1  =  (candMuVec->at(bxEval,obj1Index))->hwPt();
-		   chrg1     =  (candMuVec->at(bxEval,obj1Index))->hwCharge();
+                   phiIndex1 =  (candMuVec->at(cond1bx,obj1Index))->hwPhiAtVtx(); //(*candMuVec)[obj0Index]->phiIndex();
+                   etaIndex1 =  (candMuVec->at(cond1bx,obj1Index))->hwEtaAtVtx();
+		   etIndex1  =  (candMuVec->at(cond1bx,obj1Index))->hwPt();
+		   chrg1     =  (candMuVec->at(cond1bx,obj1Index))->hwCharge();
 		   etaBin1 = etaIndex1;
 		   if(etaBin1<0) etaBin1 = m_gtScales->getMUScales().etaBins.size() + etaBin1;
 //		   LogDebug("L1TGlobal") << "Muon phi" << phiIndex1 << " eta " << etaIndex1 << " etaBin1 = " << etaBin1  << " et " << etIndex1 << std::endl;
@@ -735,9 +745,9 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
         	   switch(cndObjTypeVec[1]) {
 	             case gtEG: {
 			candCaloVec = m_uGtB->getCandL1EG();
-			phiIndex1 =  (candCaloVec->at(bxEval,obj1Index))->hwPhi();
-			etaIndex1 =  (candCaloVec->at(bxEval,obj1Index))->hwEta();
-			etIndex1  =  (candCaloVec->at(bxEval,obj1Index))->hwPt();
+			phiIndex1 =  (candCaloVec->at(cond1bx,obj1Index))->hwPhi();
+			etaIndex1 =  (candCaloVec->at(cond1bx,obj1Index))->hwEta();
+			etIndex1  =  (candCaloVec->at(cond1bx,obj1Index))->hwPt();
 			etaBin1   =   etaIndex1;
 			if(etaBin1<0) etaBin1 = m_gtScales->getEGScales().etaBins.size() + etaBin1;
 
@@ -761,9 +771,9 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		       break;
 		     case gtJet: {
 			candCaloVec = m_uGtB->getCandL1Jet();
-			phiIndex1 =  (candCaloVec->at(bxEval,obj1Index))->hwPhi();
-			etaIndex1 =  (candCaloVec->at(bxEval,obj1Index))->hwEta();
-			etIndex1  =  (candCaloVec->at(bxEval,obj1Index))->hwPt();
+			phiIndex1 =  (candCaloVec->at(cond1bx,obj1Index))->hwPhi();
+			etaIndex1 =  (candCaloVec->at(cond1bx,obj1Index))->hwEta();
+			etIndex1  =  (candCaloVec->at(cond1bx,obj1Index))->hwPt();
 			etaBin1 = etaIndex1;
 			if(etaBin1<0) etaBin1 = m_gtScales->getJETScales().etaBins.size() + etaBin1;
 
@@ -789,9 +799,9 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		       break;
 		     case gtTau: {
 			candCaloVec = m_uGtB->getCandL1Tau();
-			phiIndex1 =  (candCaloVec->at(bxEval,obj1Index))->hwPhi();
-			etaIndex1 =  (candCaloVec->at(bxEval,obj1Index))->hwEta();
-			etIndex1  =  (candCaloVec->at(bxEval,obj1Index))->hwPt();
+			phiIndex1 =  (candCaloVec->at(cond1bx,obj1Index))->hwPhi();
+			etaIndex1 =  (candCaloVec->at(cond1bx,obj1Index))->hwEta();
+			etIndex1  =  (candCaloVec->at(cond1bx,obj1Index))->hwPt();
 			etaBin1 = etaIndex1;
 			if(etaBin1<0) etaBin1 = m_gtScales->getTAUScales().etaBins.size() + etaBin1;
 
@@ -890,12 +900,12 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 
 		   candEtSumVec = m_uGtB->getCandL1EtSum();
 
-		   LogDebug("L1TGlobal") << "obj " << lutObj1 << " Vector Size " << candEtSumVec->size(bxEval) << std::endl;
-                   for( int iEtSum=0; iEtSum < (int)candEtSumVec->size(bxEval); iEtSum++) {
-		     if( (candEtSumVec->at(bxEval,iEtSum))->getType() == type ) {
-                       phiIndex1 =  (candEtSumVec->at(bxEval,iEtSum))->hwPhi();
-                       etaIndex1 =  (candEtSumVec->at(bxEval,iEtSum))->hwEta();
-		       etIndex1  =  (candEtSumVec->at(bxEval,iEtSum))->hwPt();
+		   LogDebug("L1TGlobal") << "obj " << lutObj1 << " Vector Size " << candEtSumVec->size(cond1bx) << std::endl;
+                   for( int iEtSum=0; iEtSum < (int)candEtSumVec->size(cond1bx); iEtSum++) {
+		     if( (candEtSumVec->at(cond1bx,iEtSum))->getType() == type ) {
+                       phiIndex1 =  (candEtSumVec->at(cond1bx,iEtSum))->hwPhi();
+                       etaIndex1 =  (candEtSumVec->at(cond1bx,iEtSum))->hwEta();
+		       etIndex1  =  (candEtSumVec->at(cond1bx,iEtSum))->hwPt();
 
 		       // Determine Floating Pt numbers for floating point caluclation
 

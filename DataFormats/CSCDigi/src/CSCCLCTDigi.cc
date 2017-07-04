@@ -6,7 +6,7 @@
  * \author N. Terentiev, CMU
  */
 
-#include <DataFormats/CSCDigi/interface/CSCCLCTDigi.h>
+#include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iomanip>
 #include <iostream>
