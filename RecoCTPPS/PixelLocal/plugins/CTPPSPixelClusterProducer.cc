@@ -6,8 +6,8 @@ CTPPSPixelClusterProducer::CTPPSPixelClusterProducer(const edm::ParameterSet& co
   param_(conf) ,
   clusterizer_(conf){
   
-  src_ = conf.getUntrackedParameter<std::string>("label");
-  verbosity_ = conf.getParameter<int> ("RPixVerbosity");
+  src_ = conf.getParameter<std::string>("label");
+  verbosity_ = conf.getUntrackedParameter<int> ("RPixVerbosity");
 	 
   tokenCTPPSPixelDigi_ = consumes<edm::DetSetVector<CTPPSPixelDigi> >(edm::InputTag(src_));
  
