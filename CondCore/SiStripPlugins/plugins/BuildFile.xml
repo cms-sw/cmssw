@@ -19,5 +19,6 @@
   <use   name="CondCore/CondDB"/>
   <use   name="CondFormats/Common"/>
   <use   name="CondFormats/SiStripObjects"/>
+  <use   name="CommonTools/TrackerMap"/>
   <use   name="boost_python"/>
 </library>
