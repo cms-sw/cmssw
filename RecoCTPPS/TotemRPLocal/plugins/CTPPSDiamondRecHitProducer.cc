@@ -81,10 +81,12 @@ CTPPSDiamondRecHitProducer::produce( edm::Event& iEvent, const edm::EventSetup& 
 void
 CTPPSDiamondRecHitProducer::fillDescriptions( edm::ConfigurationDescriptions& descr )
 {
-  // The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
+
+  desc.add<edm::InputTag>( "digiTag", edm::InputTag( "ctppsDiamondRawToDigi", "TimingDiamond" ) );
+  desc.add<double>( "timeSliceNs", 25.0/1024.0 );
+  desc.add<int>( "timeShift", 0 ); // to be determined at calibration level, will be replaced by a map channel id -> time shift
+
   descr.addDefault( desc );
 }
 
