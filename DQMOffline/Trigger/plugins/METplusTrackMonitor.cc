@@ -247,10 +247,10 @@ void METplusTrackMonitor::bookHistograms(DQMStore::IBooker     &ibooker,
   std::vector<reco::Muon> muons;
   muons.clear();
   for(auto const & m : *muonHandle) {
-    bool passTightID = muon::isTightMuon(m, *pv);
-    bool passMissHits = m.innerTrack()->hitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::MISSING_INNER_HITS) == 0 &&
-                        m.innerTrack()->hitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::TRACK_HITS) == 0;
-    if(muonSelection_(m) && passTightID && passMissHits) muons.push_back(m);
+    bool passTightID = muon::isTightMuon(m, *pv) &&
+		       m.innerTrack()->hitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::MISSING_INNER_HITS) == 0 &&
+                       m.innerTrack()->hitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::TRACK_HITS) == 0;
+    if(muonSelection_(m) && passTightID) muons.push_back(m);
   }
   if(muons.size() < nmuons_) return;
 
