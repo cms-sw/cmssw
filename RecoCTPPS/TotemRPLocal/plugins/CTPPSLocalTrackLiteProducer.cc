@@ -31,6 +31,7 @@ class CTPPSLocalTrackLiteProducer : public edm::stream::EDProducer<>
     virtual ~CTPPSLocalTrackLiteProducer() {}
 
     virtual void produce( edm::Event&, const edm::EventSetup& ) override;
+    static void fillDescriptions( edm::ConfigurationDescriptions& );
 
   private:
     edm::EDGetTokenT< edm::DetSetVector<TotemRPLocalTrack> > siStripTrackToken_;
@@ -97,6 +98,20 @@ CTPPSLocalTrackLiteProducer::produce( edm::Event& iEvent, const edm::EventSetup&
 
   // save output to event
   iEvent.put( std::move( pOut ) );
+}
+
+//----------------------------------------------------------------------------------------------------
+
+void
+CTPPSLocalTrackLiteProducer::fillDescriptions( edm::ConfigurationDescriptions& descr )
+{
+  edm::ParameterSetDescription desc;
+
+  desc.add<edm::InputTag>( "tagSiStripTrack", edm::InputTag( "totemRPLocalTrackFitter" ) );
+  desc.add<edm::InputTag>( "tagDiamondTrack", edm::InputTag( "ctppsDiamondLocalTracks" ) );
+  desc.add<bool>( "doNothing", true ); // disable the module by default
+
+  descr.addDefault( desc );
 }
 
 //----------------------------------------------------------------------------------------------------
