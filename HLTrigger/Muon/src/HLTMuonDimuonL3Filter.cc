@@ -18,6 +18,8 @@
 #include "TrackingTools/PatternTools/interface/ClosestApproachInRPhi.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/Math/interface/deltaR.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 using namespace edm;
 using namespace std;
@@ -218,13 +220,12 @@ HLTMuonDimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSet
 	RecoChargedCandidateRef cand(mucands,i);
         TrackRef tk = cand->track(); // is inner track
 	check_l1match = true;
-        int nlink = 0;
 	for(auto const & link : *links){
-	  nlink++;
 
 	  // Using the same method that was used to create the links between L3 and L2
 	  // ToDo: there should be a better way than dR,dPt matching
 	  const reco::Track& trackerTrack = *link.trackerTrack();
+          if (tk->pt()==0 or trackerTrack.pt()==0) continue;
 
 	  float dR2 = deltaR2(tk->eta(),tk->phi(),trackerTrack.eta(),trackerTrack.phi());
 	  float dPt = std::abs(tk->pt() - trackerTrack.pt())/tk->pt();
@@ -523,6 +524,7 @@ bool HLTMuonDimuonL3Filter::applyDiMuonSelection(const RecoChargedCandidateRef& 
 	  if (pt12<min_PtPair_[iv]) return false;
 	  if (pt12>max_PtPair_[iv]) return false;
 	  proceed=true;
+          break;
 	}
 	if (!proceed) return false;
 	
