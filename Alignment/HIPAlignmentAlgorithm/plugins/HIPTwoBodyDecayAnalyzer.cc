@@ -238,7 +238,7 @@ void HIPTwoBodyDecayAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
   analyzeTrackCollection("alcareco", theTTBuilder, alcarecotracks);
   analyzeTrackCollection("refit1", theTTBuilder, refit1tracks);
   analyzeTrackCollection("refit2", theTTBuilder, ctftracks);
-  analyzeTrackCollection("final", theTTBuilder, finaltracks, true);
+  analyzeTrackCollection("final", theTTBuilder, finaltracks);
 
   tree->Fill();
 }
