@@ -22,7 +22,7 @@ CaloJetSlimmer( edm::ParameterSet const & params ):
     cut_( params.getParameter<std::string>("cut") ),
     selector_( cut_ )
     {
-        produces< reco::CaloJetCollection> ();//("slimmedCaloJets");
+        produces< reco::CaloJetCollection> ();
     }
    
     virtual ~CaloJetSlimmer() {}
