@@ -161,7 +161,6 @@ class RealisticHitToClusterAssociator
         {
             unsigned int numberOfRealSimClusters = RealisticSimClusters_.size();
 
-
             for(unsigned int clId= 0; clId < numberOfRealSimClusters; ++clId)
             {
 
@@ -184,15 +183,27 @@ class RealisticHitToClusterAssociator
                             {
                                 if(HitToRealisticSimCluster_[hitId][i] != clId && RealisticSimClusters_[HitToRealisticSimCluster_[hitId][i]].isVisible())
                                 {
-                                    float oldEnergy = HitToRealisticEnergyFraction_[hitId][i]*totalEnergy_[hitId];
-                                    HitToRealisticEnergyFraction_[hitId][i]*=correction;
+                                    float oldFraction = HitToRealisticEnergyFraction_[hitId][i];
+                                    float newFraction = oldFraction*correction;
+                                    float oldEnergy = oldFraction*totalEnergy_[hitId];
 
-                                    float newEnergy= HitToRealisticEnergyFraction_[hitId][i]*totalEnergy_[hitId];
+                                    float newEnergy= newFraction*totalEnergy_[hitId];
                                     float sharedEnergy = newEnergy-oldEnergy;
                                     energyInNeighbors[HitToRealisticSimCluster_[hitId][i]] +=sharedEnergy;
                                     totalSharedEnergy +=sharedEnergy;
                                     RealisticSimClusters_[HitToRealisticSimCluster_[hitId][i]].increaseEnergy(sharedEnergy);
-                                    RealisticSimClusters_[HitToRealisticSimCluster_[hitId][i]].modifyFractionForHitId(HitToRealisticEnergyFraction_[hitId][i], hitId);
+                                    RealisticSimClusters_[HitToRealisticSimCluster_[hitId][i]].modifyFractionForHitId(newFraction, hitId);
+                                    HitToRealisticEnergyFraction_[hitId][i] = newFraction;
+                                    if(newFraction > exclusiveFraction)
+                                    {
+
+                                        RealisticSimClusters_[HitToRealisticSimCluster_[hitId][i]].increaseExclusiveEnergy(sharedEnergy);
+                                        if(oldFraction <=exclusiveFraction)
+                                        {
+                                            RealisticSimClusters_[HitToRealisticSimCluster_[hitId][i]].increaseExclusiveEnergy(oldEnergy);
+                                        }
+                                    }
+
                                 }
                             }
                         }
@@ -202,7 +213,7 @@ class RealisticHitToClusterAssociator
                     {
                         unsigned int hitId = elt.first;
                         float fraction = elt.second;
-                        if(fraction==1.f)
+                        if(HitToRealisticSimCluster_[hitId].size()==1)
                         {
                             for (auto& pair: energyInNeighbors)
                             {
