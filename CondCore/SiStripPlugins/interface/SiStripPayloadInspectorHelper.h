@@ -2,6 +2,7 @@
 #define CONDCORE_SISTRIPPLUGINS_SISTRIPPAYLOADINSPECTORHELPER_H
 
 #include <vector>
+#include <numeric>
 
 std::pair<float,float> getTheRange(std::map<uint32_t,float> values){
   
