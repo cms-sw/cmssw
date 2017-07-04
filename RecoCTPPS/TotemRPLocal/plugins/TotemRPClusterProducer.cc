@@ -107,7 +107,7 @@ TotemRPClusterProducer::fillDescriptions( edm::ConfigurationDescriptions& descr 
   desc.add<edm::InputTag>( "tagDigi", edm::InputTag( "totemRPRawToDigi", "TrackingStrip" ) );
   desc.add<int>( "verbosity", 0 );
 
-  descr.addDefault( desc );
+  descr.add( "totemRPClusterProducer", desc );
 }
 
 //----------------------------------------------------------------------------------------------------

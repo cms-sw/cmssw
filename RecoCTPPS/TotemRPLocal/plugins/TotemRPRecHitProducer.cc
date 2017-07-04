@@ -95,7 +95,7 @@ TotemRPRecHitProducer::fillDescriptions( edm::ConfigurationDescriptions& descr )
   desc.add<edm::InputTag>( "tagCluster", edm::InputTag( "totemRPClusterProducer" ) );
   desc.add<int>( "verbosity", 0 );
 
-  descr.addDefault( desc );
+  descr.add( "totemRPRecHitProducer", desc );
 }
 
 //----------------------------------------------------------------------------------------------------
