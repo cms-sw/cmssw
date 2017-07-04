@@ -184,6 +184,18 @@ void TotemRPLocalTrackFitter::produce(edm::Event& e, const edm::EventSetup& setu
 }
 
 //----------------------------------------------------------------------------------------------------
+
+void
+TotemRPLocalTrackFitter::fillDescriptions( edm::ConfigurationDescriptions& descr )
+{
+  edm::ParameterSetDescription desc;
+
+  desc.add<edm::InputTag>( "tagUVPattern", edm::InputTag( "totemRPUVPatternFinder" ) );
+  desc.add<int>( "verbosity", 0 );
+
+  descr.addDefault( desc );
+}
+
 //----------------------------------------------------------------------------------------------------
 
 DEFINE_FWK_MODULE(TotemRPLocalTrackFitter);
