@@ -93,6 +93,7 @@ namespace {
     auto const &  pixelClusters = iConfig.getParameter<edm::InputTag>("pixelClusters");
     auto const &  stripClusters = iConfig.getParameter<edm::InputTag>("stripClusters");
 
+    if (pixelClusters.label().empty() && stripClusters.label().empty() )  throw edm::Exception(edm::errors::Configuration) << "Configuration Error: TrackClusterRemover used without input cluster collections";
     if ( !pixelClusters.label().empty() ){
 		 pixelClusters_ = consumes<edmNew::DetSetVector<SiPixelCluster> >(pixelClusters);
     		 produces<edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > >();
