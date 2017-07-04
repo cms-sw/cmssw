@@ -165,9 +165,17 @@ void pat::PackedCandidate::unpackTrk() const {
     LostInnerHits innerLost = lostInnerHits();
     
     auto track = std::make_unique<reco::Track>(normalizedChi2_*ndof,ndof,*vertex_,math::XYZVector(p3.x(),p3.y(),p3.z()),charge(),*(m_.load()),reco::TrackBase::undefAlgorithm,reco::TrackBase::loose);
-    
-    track->appendHitPattern(firstHit_,TrackingRecHit::valid);
-    int i=1; // we added already one hit in the line above
+    int i=0;
+    if ( firstHit_ == 0) { 
+	   if(innerLost == validHitInFirstPixelBarrelLayer){
+	      track->appendTrackerHitPattern(PixelSubdetector::PixelBarrel, 1, 0, TrackingRecHit::valid); 		
+	      i=1;
+	   } 
+
+    } else {
+	   track->appendHitPattern(firstHit_,TrackingRecHit::valid);
+	   i=1;
+    }
 
     // add hits to match the number of laters and validHitInFirstPixelBarrelLayer
     if(innerLost == validHitInFirstPixelBarrelLayer){
