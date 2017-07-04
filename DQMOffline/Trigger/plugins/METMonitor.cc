@@ -149,7 +149,7 @@ void METMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   setMETitle(metME_variableBinning_,"PF MET [GeV]","events / [GeV]");
 
   histname = "metVsLS"; histtitle = "PFMET vs LS";
-  bookME(ibooker,metVsLS_variableBinning_,histname,histtitle,ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax, met_variable_binning_ );
+  bookME(ibooker,metVsLS_ ,histname,histtitle,ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax, met_variable_binning_ );
   setMETitle(metVsLS_,"LS","PF MET [GeV]");
 
   histname = "metPhi"; histtitle = "PFMET phi";
