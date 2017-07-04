@@ -212,7 +212,6 @@ class RealisticHitToClusterAssociator
                     for(auto& elt : hAndF)
                     {
                         unsigned int hitId = elt.first;
-                        float fraction = elt.second;
                         if(HitToRealisticSimCluster_[hitId].size()==1)
                         {
                             for (auto& pair: energyInNeighbors)
