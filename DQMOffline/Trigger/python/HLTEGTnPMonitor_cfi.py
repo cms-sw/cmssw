@@ -18,6 +18,19 @@ ecalEndcapEtaCut=cms.PSet(
     rangeVar=cms.string("scEta"),
     allowedRanges=cms.vstring("-2.5:-1.556","1.556:2.5")
     )
+ecalEndcapHighEtaCut=cms.PSet(
+    rangeVar=cms.string("scEta"),
+    allowedRanges=cms.vstring("-3.0:-2.5","2.5:3.0")
+    )
+ecalEndcapPosHighEtaCut= cms.PSet(
+    rangeVar=cms.string("scEta"),
+    allowedRanges=cms.vstring("2.5:3.0"),
+    )
+ecalEndcapNegHighEtaCut= cms.PSet(
+    rangeVar=cms.string("scEta"),
+    allowedRanges=cms.vstring("-3.0:-2.5"),
+    )
+
 ecalBarrelAndEndcapEtaCut = cms.PSet(
     rangeVar=cms.string("scEta"),
     allowedRanges=cms.vstring("-1.4442:1.4442","-2.5:-1.556","1.556:2.5"),
@@ -26,6 +39,7 @@ hcalPosEtaCut= cms.PSet(
     rangeVar=cms.string("scEta"),
     allowedRanges=cms.vstring("1.3:1.4442","1.556:2.5"),
     )
+
 hcalNegEtaCut= cms.PSet(
     rangeVar=cms.string("scEta"),
     allowedRanges=cms.vstring("-2.5:-1.556","-1.4442:-1.3"),
@@ -38,7 +52,8 @@ hcalPhi17Cut = cms.PSet(
 
 tagAndProbeConfigEle27WPTight = cms.PSet(
     trigEvent = cms.InputTag("hltTriggerSummaryAOD","","HLT"),
-    objColl = cms.InputTag("gedGsfElectrons"),
+    tagColl = cms.InputTag("gedGsfElectrons"),
+    probeColl = cms.InputTag("gedGsfElectrons"),
     tagVIDCuts = cms.InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-Summer16-80X-V1-tight"),
     probeVIDCuts = cms.InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-Summer16-80X-V1-tight"),
     sampleTrigRequirements = cms.PSet(
@@ -60,6 +75,7 @@ tagAndProbeConfigEle27WPTight = cms.PSet(
     probeFilters = cms.vstring(),
     probeFiltersORed = cms.bool(False),
     probeRangeCuts = cms.VPSet(ecalBarrelAndEndcapEtaCut),
+    minTagProbeDR = cms.double(0),
     minMass = cms.double(70.0),
     maxMass = cms.double(110.0),
     requireOpSign = cms.bool(False),
@@ -78,7 +94,23 @@ tagAndProbeConfigEle27WPTightHEM17 = tagAndProbeConfigEle27WPTight.clone(
         hcalNegEtaCut,
         hcalPhi17Cut,
 ))
-    
+
+tagAndProbeElePhoConfigEle27WPTight = tagAndProbeConfigEle27WPTight.clone(
+    probeColl=cms.InputTag("gedPhotons"),
+    probeVIDCuts=cms.InputTag("cutBasedPhotonID-Spring16-V2p2-loose"),
+    probeRangeCuts = cms.VPSet(),
+    minTagProbeDR=cms.double(0.1)
+)
+tagAndProbeElePhoConfigEle27WPTightHEP17 = tagAndProbeElePhoConfigEle27WPTight.clone(
+     probeRangeCuts = cms.VPSet(
+        ecalEndcapPosHighEtaCut,
+        hcalPhi17Cut,
+))
+tagAndProbeElePhoConfigEle27WPTightHEM17 = tagAndProbeElePhoConfigEle27WPTight.clone(
+     probeRangeCuts = cms.VPSet(
+        ecalEndcapPosHighEtaCut,
+        hcalPhi17Cut,
+))
 
 egammaStdHistConfigs = cms.VPSet(
     cms.PSet(
@@ -123,6 +155,39 @@ egammaStdHistConfigs = cms.VPSet(
         nameSuffex=cms.string("_vsSCEtaPhi"), 
         rangeCuts=cms.VPSet(),
         xBinLowEdges=scEtaBinsStd,
+        yBinLowEdges=phiBinsStd,
+        ),
+    
+    )
+egammaHighEtaHistConfigs = cms.VPSet(
+    cms.PSet(
+        histType=cms.string("1D"),
+        vsVar=cms.string("et"),
+        nameSuffex=cms.string("_vsEt"),
+        rangeCuts=cms.VPSet(),
+        binLowEdges=etBinsStd,
+        ),
+    cms.PSet(
+        histType=cms.string("1D"),
+        vsVar=cms.string("scEta"),
+        nameSuffex=cms.string("_vsSCEta"),
+        rangeCuts=cms.VPSet(),
+        binLowEdges=cms.vdouble(-3.0,-2.9,-2.8,-2.7,-2.6,-2.5,2.5,2.6,2.7,2.8,2.9,3.0),
+        ),
+    cms.PSet(
+        histType=cms.string("1D"),
+        vsVar=cms.string("phi"),
+        nameSuffex=cms.string("_vsPhi"),
+        rangeCuts=cms.VPSet(),
+        binLowEdges=phiBinsStd,
+        ),
+    cms.PSet(
+        histType=cms.string("2D"),
+        xVar=cms.string("scEta"),
+        yVar=cms.string("phi"),
+        nameSuffex=cms.string("_vsSCEtaPhi"), 
+        rangeCuts=cms.VPSet(),
+        xBinLowEdges=cms.vdouble(-3.0,-2.9,-2.8,-2.7,-2.6,-2.5,2.5,2.6,2.7,2.8,2.9,3.0),
         yBinLowEdges=phiBinsStd,
         ),
     
@@ -319,10 +384,84 @@ egammaStdFiltersToMonitor= cms.VPSet(
         histTitle = cms.string(""),
         tagExtraFilter = cms.string(""),
         ),
-   
+    cms.PSet(
+        folderName = cms.string("HLT/EGTagAndProbeEffs/HLT_Ele28_HighEta_SC20_Mass55"),
+        rangeCuts = cms.VPSet(etRangeCut.clone(allowedRanges=cms.vstring("32:99999")),),
+        filterName = cms.string("hltEle28HighEtaSC20TrackIsoFilter"),
+        histTitle = cms.string(""),
+        tagExtraFilter = cms.string(""),
+        ),
+    cms.PSet(
+        folderName = cms.string("HLT/EGTagAndProbeEffs/HLT_Ele50_CaloIdVT_GsfTrkIdT_PFJet165"),
+        rangeCuts = cms.VPSet(etRangeCut.clone(allowedRanges=cms.vstring("55:99999")),),
+        filterName = cms.string("hltEle50CaloIdVTGsfTrkIdTGsfDphiFilter"),
+        histTitle = cms.string(""),
+        tagExtraFilter = cms.string(""), 
+        ),
+    cms.PSet(
+        folderName = cms.string("HLT/EGTagAndProbeEffs/HLT_Ele115_CaloIdVT_GsfTrkIdT"),
+        rangeCuts = cms.VPSet(etRangeCut.clone(allowedRanges=cms.vstring("120:99999")),),
+        filterName = cms.string("hltEle115CaloIdVTGsfTrkIdTGsfDphiFilter"),
+        histTitle = cms.string(""),
+        tagExtraFilter = cms.string(""),
+        ),
+    cms.PSet(
+        folderName = cms.string("HLT/EGTagAndProbeEffs/HLT_Ele135_CaloIdVT_GsfTrkIdT"),
+        rangeCuts = cms.VPSet(etRangeCut.clone(allowedRanges=cms.vstring("140:99999")),),
+        filterName = cms.string("hltEle135CaloIdVTGsfTrkIdTGsfDphiFilter"),
+        histTitle = cms.string(""),
+        tagExtraFilter = cms.string(""),
+        ),
+    cms.PSet(
+        folderName = cms.string("HLT/EGTagAndProbeEffs/HLT_Ele145_CaloIdVT_GsfTrkIdT"),
+        rangeCuts = cms.VPSet(etRangeCut.clone(allowedRanges=cms.vstring("150:99999")),),
+        filterName = cms.string("hltEle145CaloIdVTGsfTrkIdTGsfDphiFilter"),
+        histTitle = cms.string(""),
+        tagExtraFilter = cms.string(""),
+        ), 
+    cms.PSet(
+        folderName = cms.string("HLT/EGTagAndProbeEffs/HLT_Ele200_CaloIdVT_GsfTrkIdT"),
+        rangeCuts = cms.VPSet(etRangeCut.clone(allowedRanges=cms.vstring("210:99999")),),
+        filterName = cms.string("hltEle200CaloIdVTGsfTrkIdTGsfDphiFilter"),
+        histTitle = cms.string(""),
+        tagExtraFilter = cms.string(""),
+        ),
+    cms.PSet(
+        folderName = cms.string("HLT/EGTagAndProbeEffs/HLT_Ele250_CaloIdVT_GsfTrkIdT"),
+        rangeCuts = cms.VPSet(etRangeCut.clone(allowedRanges=cms.vstring("260:99999")),),
+        filterName = cms.string("hltEle250CaloIdVTGsfTrkIdTGsfDphiFilter"),
+        histTitle = cms.string(""),
+        tagExtraFilter = cms.string(""),
+        ),
+    cms.PSet(
+        folderName = cms.string("HLT/EGTagAndProbeEffs/HLT_Ele300_CaloIdVT_GsfTrkIdT"),
+        rangeCuts = cms.VPSet(etRangeCut.clone(allowedRanges=cms.vstring("310:99999")),),
+        filterName = cms.string("hltEle300CaloIdVTGsfTrkIdTGsfDphiFilter"),
+        histTitle = cms.string(""),
+        tagExtraFilter = cms.string(""),
+        ),
      )
   
- 
+egammaPhoFiltersToMonitor= cms.VPSet(
+    cms.PSet(
+        folderName = cms.string("HLT/EGTagAndProbeEffs/HLT_Ele28_HighEta_SC20_Mass55"),
+        rangeCuts = cms.VPSet(etRangeCut.clone(allowedRanges=cms.vstring("22:99999")),
+                              ecalEndcapHighEtaCut
+                              ),
+        filterName = cms.string("hltEle28HighEtaSC20Mass55Filter"),
+        histTitle = cms.string(""),
+        tagExtraFilter = cms.string("hltEle28HighEtaSC20TrackIsoFilter"),
+        ), 
+    cms.PSet(
+        folderName = cms.string("HLT/EGTagAndProbeEffs/HLT_Ele28_HighEta_SC20_Mass55"),
+        rangeCuts = cms.VPSet(etRangeCut.clone(allowedRanges=cms.vstring("22:99999")),
+                              ecalEndcapHighEtaCut
+                              ),
+        filterName = cms.string("hltEle28HighEtaSC20HcalIsoFilterUnseeded"),
+        histTitle = cms.string(""),
+        tagExtraFilter = cms.string("hltEle28HighEtaSC20TrackIsoFilter"),
+        ),
+) 
 
 egHLTDQMOfflineTnPSource = cms.EDAnalyzer("HLTEleTagAndProbeOfflineSource",
                                           tagAndProbeCollections = cms.VPSet(
@@ -348,6 +487,30 @@ egHLTDQMOfflineTnPSource = cms.EDAnalyzer("HLTEleTagAndProbeOfflineSource",
         )
                                          )
 
+egHLTElePhoDQMOfflineTnPSource = cms.EDAnalyzer("HLTElePhoTagAndProbeOfflineSource",
+                                                tagAndProbeCollections = cms.VPSet(
+        cms.PSet( 
+            tagAndProbeElePhoConfigEle27WPTight,
+            histConfigs = egammaHighEtaHistConfigs,
+            baseHistName = cms.string("eleWPTightTagPhoProbe_"),
+            filterConfigs = egammaPhoFiltersToMonitor,
+        ),
+        cms.PSet(
+            tagAndProbeElePhoConfigEle27WPTightHEM17,
+            histConfigs = egammaHighEtaHistConfigs,
+            baseHistName = cms.string("eleWPTightTagPhoProbe-HEM17_"),
+            filterConfigs = egammaPhoFiltersToMonitor,
+        ),
+        cms.PSet(
+            tagAndProbeElePhoConfigEle27WPTightHEP17,
+            histConfigs = egammaHighEtaHistConfigs,
+            baseHistName = cms.string("eleWPTightTagPhoProbe-HEP17_"),
+            filterConfigs = egammaPhoFiltersToMonitor,
+        ),
+           
+        )
+                                                )
+
 from RecoEgamma.ElectronIdentification.egmGsfElectronIDs_cff import egmGsfElectronIDs
 
 egmGsfElectronIDsForDQM = egmGsfElectronIDs.clone()
@@ -363,3 +526,22 @@ for id_module_name in my_id_modules:
         item = getattr(idmod,name)
         if hasattr(item,'idName') and hasattr(item,'cutFlow'):
             setupVIDSelection(egmGsfElectronIDsForDQM,item)
+
+
+from RecoEgamma.PhotonIdentification.PhotonIDValueMapProducer_cfi import photonIDValueMapProducer
+from RecoEgamma.PhotonIdentification.egmPhotonIDs_cfi import egmPhotonIDs
+egmPhotonIDsForDQM = egmPhotonIDs.clone()
+egmPhotonIDsForDQM.physicsObjectsIDs = cms.VPSet()
+egmPhotonIDsForDQM.physicsObjectSrc == cms.InputTag('gedPhotons')
+#note: be careful here to when selecting new ids that the vid tools dont do extra setup for them
+#for example the HEEP cuts need an extra producer which vid tools automatically handles
+from PhysicsTools.SelectorUtils.tools.vid_id_tools import setupVIDSelection
+my_id_modules = ['RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Spring16_V2p2_cff']
+for id_module_name in my_id_modules: 
+    idmod= __import__(id_module_name, globals(), locals(), ['idName','cutFlow'])
+    for name in dir(idmod):
+        item = getattr(idmod,name)
+        if hasattr(item,'idName') and hasattr(item,'cutFlow'):
+            setupVIDSelection(egmPhotonIDsForDQM,item)
+egmPhotonIDSequenceForDQM = cms.Sequence(photonIDValueMapProducer*
+                                         egmPhotonIDsForDQM)

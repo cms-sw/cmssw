@@ -1062,6 +1062,9 @@ class Frame:
         if nrows == 2:
             yoffsetFactor *= 2
             xoffsetFactor *= 2
+        elif nrows >= 5:
+            yoffsetFactor *= 1.5
+            xoffsetFactor *= 1.5
         elif nrows >= 3:
             yoffsetFactor *= 4
             xoffsetFactor *= 3

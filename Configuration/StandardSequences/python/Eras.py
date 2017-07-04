@@ -25,11 +25,9 @@ class Eras (object):
                  'Run2_2017_trackingLowPU',
                  'Run2_2018',
                  'Run3',
-                 'Phase2C1',
-                 'Phase2C2',
-                 'Phase2C1_timing',
-                 'Phase2C2_timing',
-                 'Phase2C2_timing_layer']
+                 'Phase2',
+                 'Phase2_timing',
+                 'Phase2_timing_layer']
 
         internalUseMods = ['run2_common', 'run2_25ns_specific',
                            'run2_50ns_specific', 'run2_HI_specific',

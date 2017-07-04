@@ -337,62 +337,6 @@ namespace edm {
       }
     }
 
-  namespace {
-    void
-    toFileName(std::string const& jobReportFile, unsigned int childIndex, unsigned int numberOfChildren, std::ostringstream& ofilename) {
-      char filler = ofilename.fill();
-      unsigned int numberOfDigitsInIndex = 0U;
-      while (numberOfChildren != 0) {
-        ++numberOfDigitsInIndex;
-        numberOfChildren /= 10;
-      }
-      if(numberOfDigitsInIndex == 0) {
-        numberOfDigitsInIndex = 3; // Protect against zero numberOfChildren
-      }
-      std::string::size_type offset = jobReportFile.rfind('.');
-      if(offset == std::string::npos) {
-        ofilename << jobReportFile;
-        ofilename << '_' << std::setw(numberOfDigitsInIndex) << std::setfill('0') << childIndex << std::setfill(filler);
-      } else {
-        ofilename << jobReportFile.substr(0, offset);
-        ofilename << '_' << std::setw(numberOfDigitsInIndex) << std::setfill('0') << childIndex << std::setfill(filler);
-        ofilename << jobReportFile.substr(offset);
-      }
-    }
-  }
-
-  void
-  JobReport::parentBeforeFork(std::string const& jobReportFile, unsigned int numberOfChildren) {
-    if(impl_->ost_) {
-      *(impl_->ost_) << "<ChildProcessFiles>\n";
-      for(unsigned int i = 0; i < numberOfChildren; ++i) {
-        std::ostringstream ofilename;
-        toFileName(jobReportFile, i, numberOfChildren, ofilename);
-        *(impl_->ost_) << "  <ChildProcessFile>" << ofilename.str() << "</ChildProcessFile>\n";
-      }
-      *(impl_->ost_) << "</ChildProcessFiles>\n";
-      *(impl_->ost_) << "</FrameworkJobReport>\n";
-      std::ofstream* p = dynamic_cast<std::ofstream *>(impl_->ost());
-      if(p) {
-        p->close();
-      }
-    }
-  }
-
-  void
-  JobReport::parentAfterFork(std::string const& /*jobReportFile*/) {
-  }
-
-  void
-  JobReport::childAfterFork(std::string const& jobReportFile, unsigned int childIndex, unsigned int numberOfChildren) {
-    std::ofstream* p = dynamic_cast<std::ofstream*>(impl_->ost());
-    if(!p) return;
-    std::ostringstream ofilename;
-    toFileName(jobReportFile, childIndex, numberOfChildren, ofilename);
-    p->open(ofilename.str().c_str());
-    *p << "<FrameworkJobReport>\n";
-  }
-
   JobReport::Token
   JobReport::inputFileOpened(std::string const& physicalFileName,
                              std::string const& logicalFileName,

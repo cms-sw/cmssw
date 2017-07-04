@@ -32,7 +32,9 @@ class PFEcalBarrelRecHitCreator :  public  PFRecHitCreatorBase {
   PFRecHitCreatorBase(iConfig,iC)
     {
       recHitToken_ = iC.consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("src"));
-      srFlagToken_ = iC.consumes<EBSrFlagCollection>(iConfig.getParameter<edm::InputTag>("srFlags"));
+      auto srF = iConfig.getParameter<edm::InputTag>("srFlags");
+      if (not srF.label().empty())
+	srFlagToken_ = iC.consumes<EBSrFlagCollection>(srF);
       triggerTowerMap_ = nullptr;
     }
     
@@ -45,7 +47,11 @@ class PFEcalBarrelRecHitCreator :  public  PFRecHitCreatorBase {
     edm::ESHandle<CaloGeometry> geoHandle;
     iSetup.get<CaloGeometryRecord>().get(geoHandle);
   
-    iEvent.getByToken(srFlagToken_,srFlagHandle_);
+    bool useSrF = false;
+    if (not srFlagToken_.isUninitialized()){
+      iEvent.getByToken(srFlagToken_,srFlagHandle_);
+      useSrF = true;
+    }
 
     // get the ecal geometry
     const CaloSubdetectorGeometry *gTmp = 
@@ -58,7 +64,7 @@ class PFEcalBarrelRecHitCreator :  public  PFRecHitCreatorBase {
       const DetId& detid = erh.detid();
       auto energy = erh.energy();
       auto time = erh.time();
-      bool hi = isHighInterest(detid);
+      bool hi = (useSrF ? isHighInterest(detid) : true);
 
       const CaloCellGeometry * thisCell= ecalGeo->getGeometry(detid);
   

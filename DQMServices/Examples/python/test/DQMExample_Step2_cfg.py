@@ -37,8 +37,8 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:mc', '')  #for MC
 
 
 # Path and EndPath definitions
-process.myHarvesting = cms.Path(process.DQMExample_Step2)
-process.myEff = cms.Path(process.DQMExample_GenericClient)
+process.myHarvesting = cms.Path(process.DQMExampleStep2)
+process.myEff = cms.Path(process.DQMExampleGenericClient)
 process.myTest = cms.Path(process.DQMExample_qTester)
 process.dqmsave_step = cms.Path(process.DQMSaver)
 

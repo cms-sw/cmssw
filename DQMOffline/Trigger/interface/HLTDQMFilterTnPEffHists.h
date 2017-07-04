@@ -24,7 +24,7 @@
 
 #include <string>
 
-template <typename ObjType>
+template <typename TagType,typename ProbeType=TagType>
 class HLTDQMFilterTnPEffHists  {
 public:
   HLTDQMFilterTnPEffHists(const edm::ParameterSet& config,
@@ -35,18 +35,18 @@ public:
     hltProcess_(hltProcess){}
 
   static edm::ParameterSetDescription makePSetDescription(){
-    edm::ParameterSetDescription desc = HLTDQMFilterEffHists<ObjType>::makePSetDescription();
+    edm::ParameterSetDescription desc = HLTDQMFilterEffHists<ProbeType>::makePSetDescription();
     desc.add<std::string>("tagExtraFilter","");
     return desc;
   }
   static edm::ParameterSetDescription makePSetDescriptionHistConfigs(){
-    return HLTDQMFilterEffHists<ObjType>::makePSetDescriptionHistConfigs();
+    return HLTDQMFilterEffHists<ProbeType>::makePSetDescriptionHistConfigs();
   }
 
   void bookHists(DQMStore::IBooker& iBooker,const std::vector<edm::ParameterSet>& histConfigs){
     histColl_.bookHists(iBooker,histConfigs);
   }
-  void fillHists(const ObjType& tag,const ObjType& probe,
+  void fillHists(const TagType& tag,const ProbeType& probe,
 		 const edm::Event& event,const edm::EventSetup& setup,
 		 const trigger::TriggerEvent& trigEvt){
     if(tagExtraFilter_.empty() || hltdqm::passTrig(tag.eta(),tag.phi(),trigEvt,tagExtraFilter_,hltProcess_)){
@@ -54,7 +54,8 @@ public:
     } 
   }
 private:
-  HLTDQMFilterEffHists<ObjType> histColl_;
+  //these hists take the probe as input hence they are of ProbeType
+  HLTDQMFilterEffHists<ProbeType> histColl_;
   std::string tagExtraFilter_;
   //really wondering whether to put an accessor to HLTDQMFilterEffHists for this
   //feels ineligant though so I made another copy here
