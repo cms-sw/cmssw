@@ -6,33 +6,33 @@ hltobjmonitoring = objMonitoring.clone()
 hltobjmonitoring.FolderName = cms.string('HLT/GENERIC/')
 hltobjmonitoring.doMETHistos = cms.bool(True)
 hltobjmonitoring.histoPSet.metPSet = cms.PSet(
-  nbins = cms.int32 (  200  ),
+  nbins = cms.uint32 (  200  ),
   xmin  = cms.double(   -0.5),
   xmax  = cms.double(19999.5),
 )
 hltobjmonitoring.histoPSet.phiPSet = cms.PSet(
-  nbins = cms.int32 (  64  ),
+  nbins = cms.uint32 (  64  ),
   xmin  = cms.double(   -3.1416),
   xmax  = cms.double(3.1416),
 )
 hltobjmonitoring.doJetHistos = cms.bool(True)
 hltobjmonitoring.histoPSet.jetetaPSet = cms.PSet(
-  nbins = cms.int32 (  100  ),
+  nbins = cms.uint32 (  100  ),
   xmin  = cms.double(   -5),
   xmax  = cms.double(5),
 )
 hltobjmonitoring.histoPSet.detajjPSet = cms.PSet(
-  nbins = cms.int32 (  90  ),
+  nbins = cms.uint32 (  90  ),
   xmin  = cms.double(   0),
   xmax  = cms.double(9),
 )
 hltobjmonitoring.histoPSet.dphijjPSet = cms.PSet(
-  nbins = cms.int32 (  64  ),
+  nbins = cms.uint32 (  64  ),
   xmin  = cms.double(   0),
   xmax  = cms.double(3.1416),
 )
 hltobjmonitoring.histoPSet.mindphijmetPSet = cms.PSet(
-  nbins = cms.int32 (  64  ),
+  nbins = cms.uint32 (  64  ),
   xmin  = cms.double(   0),
   xmax  = cms.double(3.1416),
 )
