@@ -203,12 +203,8 @@ namespace {
 	if ( chi2sX5[h] > maxChi2x5_ ) continue; // skip outliers
         auto const & thit = reinterpret_cast<BaseTrackerRecHit const&>(hit);
         auto const & cluster = thit.firstClusterRef();
-	if(!stripClusters_.isUninitialized()){
-		if (cluster.isStrip()) collectedStrips[cluster.key()]=true;
-	}
-	if(!pixelClusters_.isUninitialized()){
-		if (cluster.isPixel()) collectedPixels[cluster.key()]=true;
-	}
+	if(!stripClusters_.isUninitialized() && cluster.isStrip()) collectedStrips[cluster.key()]=true;
+	if(!pixelClusters_.isUninitialized() && cluster.isPixel()) collectedPixels[cluster.key()]=true;
 	if (trackerHitRTTI::isMatched(thit))
 	  collectedStrips[reinterpret_cast<SiStripMatchedRecHit2D const&>(hit).stereoClusterRef().key()]=true;
       }
