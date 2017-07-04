@@ -572,15 +572,15 @@ def _summaryBinRename(binLabel, highPurity, byOriginalAlgo, byAlgoMask, ptCut, s
     ret = None
 
     if byOriginalAlgo:
-        if algo != "generalTracks" and "ByOriginalAlgo" not in quality:
+        if algo != "generalTracks" and "ByOriginalAlgo" not in quality: # keep generalTracks bin as well
             return None
         quality = quality.replace("ByOriginalAlgo", "")
     if byAlgoMask:
-        if algo != "generalTracks" and "ByAlgoMask" not in quality:
+        if algo != "generalTracks" and "ByAlgoMask" not in quality: # keep generalTracks bin as well
             return None
         quality = quality.replace("ByAlgoMask", "")
     if ptCut:
-        if algo != "generalTracks" and "Pt09" not in quality:
+        if "Pt09" not in quality:
             return None
         quality = quality.replace("Pt09", "")
 
