@@ -108,10 +108,10 @@ CTPPSDiamondLocalTrackFitter::fillDescriptions( edm::ConfigurationDescriptions& 
   edm::ParameterSetDescription trackingAlgoParams;
   trackingAlgoParams.add<double>( "threshold", 1.5 );
   trackingAlgoParams.add<double>( "thresholdFromMaximum", 0.5 );
-  trackingAlgoParams.add<double>( "resolution", 0.01 ); // in mm
+  trackingAlgoParams.add<double>( "resolution", 0.01 /* mm */ );
   trackingAlgoParams.add<double>( "sigma", 0.1 );
-  trackingAlgoParams.add<double>( "startFromX", -0.5 ); // in mm
-  trackingAlgoParams.add<double>( "stopAtX", 19.5 ); // in mm
+  trackingAlgoParams.add<double>( "startFromX", -0.5 /* mm */ );
+  trackingAlgoParams.add<double>( "stopAtX", 19.5 /* mm */ );
   trackingAlgoParams.add<std::string>( "pixelEfficiencyFunction", "(TMath::Erf((x-[0]+0.5*[1])/([2]/4)+2)+1)*TMath::Erfc((x-[0]-0.5*[1])/([2]/4)-2)/4" );
   trackingAlgoParams.add<double>( "yPosition", 0.0 );
   trackingAlgoParams.add<double>( "yWidth", 0.0 );
