@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 clusterProd = cms.EDProducer("CTPPSPixelClusterProducer",
-                                     label=cms.untracked.string("ctppsPixelDigis"),
-                                     RPixVerbosity = cms.int32(0),
+                                     label=cms.string("ctppsPixelDigis"),
+                                     RPixVerbosity = cms.untracked.int32(0),
                                      SeedADCThreshold = cms.int32(10),
                                      ADCThreshold = cms.int32(10),
                                      ElectronADCGain = cms.double(135.0),

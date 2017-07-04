@@ -15,7 +15,7 @@ namespace {
 RPixDetClusterizer::RPixDetClusterizer(edm::ParameterSet const& conf):
   params_(conf), SeedVector_(0)
 {
-verbosity_ = conf.getParameter<int>("RPixVerbosity");
+verbosity_ = conf.getUntrackedParameter<int>("RPixVerbosity");
 SeedADCThreshold_ = conf.getParameter<int>("SeedADCThreshold");
 ADCThreshold_ = conf.getParameter<int>("ADCThreshold");
 ElectronADCGain_ = conf.getParameter<double>("ElectronADCGain");
@@ -135,8 +135,7 @@ int RPixDetClusterizer::calibrate(unsigned int detId, int adc, int row, int col,
 
   float gain=0;
   float pedestal=0;
-  float electrons=0;
-
+  int electrons=0;
 
   if(!doSingleCalibration_){
 
@@ -147,7 +146,6 @@ int RPixDetClusterizer::calibrate(unsigned int detId, int adc, int row, int col,
       pedestal = DetCalibs.getPed(col,row);
       float vcal = (adc - pedestal)*gain;
       electrons = int(vcal*VcaltoElectronGain_ + VcaltoElectronOffset_);
-
     }
     else{
       gain = ElectronADCGain_;
