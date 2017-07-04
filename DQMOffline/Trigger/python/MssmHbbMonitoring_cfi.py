@@ -99,13 +99,13 @@ mssmHbbMonitoring.HTdefinition = cms.string('pt>30 & abs(eta)<2.5')
 
 mssmHbbMonitoring.numGenericTriggerEventPSet.andOr         = cms.bool( False )
 mssmHbbMonitoring.numGenericTriggerEventPSet.andOrHlt      = cms.bool(True)# True:=OR; False:=AND
-mssmHbbMonitoring.numGenericTriggerEventPSet.hltInputTag   = cms.InputTag( "TriggerResults::reHLT" ) #change to HLT for PR !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+mssmHbbMonitoring.numGenericTriggerEventPSet.hltInputTag   = cms.InputTag( "TriggerResults::HLT" ) #change to HLT for PR !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 mssmHbbMonitoring.numGenericTriggerEventPSet.errorReplyHlt = cms.bool( False )
 mssmHbbMonitoring.numGenericTriggerEventPSet.verbosityLevel = cms.uint32(0)
 
 mssmHbbMonitoring.denGenericTriggerEventPSet.andOr         = cms.bool( False )
 mssmHbbMonitoring.denGenericTriggerEventPSet.andOrHlt      = cms.bool(True)# True:=OR; False:=AND
-mssmHbbMonitoring.denGenericTriggerEventPSet.hltInputTag   = cms.InputTag( "TriggerResults::reHLT" )  #change to HLT for PR !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+mssmHbbMonitoring.denGenericTriggerEventPSet.hltInputTag   = cms.InputTag( "TriggerResults::HLT" )  #change to HLT for PR !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 mssmHbbMonitoring.denGenericTriggerEventPSet.errorReplyHlt = cms.bool( False )
 mssmHbbMonitoring.denGenericTriggerEventPSet.dcsInputTag   = cms.InputTag( "scalersRawToDigi" )
 mssmHbbMonitoring.denGenericTriggerEventPSet.dcsPartitions = cms.vint32 ( 24, 25, 26, 27, 28, 29 ) # 24-27: strip, 28-29: pixel, we should add all other detectors !
