@@ -214,43 +214,42 @@ bool HLTMuonL3PreFilter::hltFilter(Event& iEvent, const EventSetup& iSetup, trig
 	  const reco::Track& trackerTrack = *link.trackerTrack();
 
 	  float dR2 = deltaR2(tk->eta(),tk->phi(),trackerTrack.eta(),trackerTrack.phi());
-	  float dPt = std::abs(tk->pt() - trackerTrack.pt())/tk->pt();
+          float dPt = std::abs(tk->pt() - trackerTrack.pt());
+          if (tk->pt() != 0) dPt = dPt/tk->pt();
 
-	  if (matchPreviousCand_ && dR2 < 0.02*0.02 and dPt < 0.001) {
-	      const TrackRef staTrack = link.standAloneTrack();
-	      L2toL3s[staTrack].push_back(RecoChargedCandidateRef(cand));
-	      check_l1match = false;
-	  }
+          if (matchPreviousCand_ && dR2 < 0.02*0.02 and dPt < 0.001) {
+            const TrackRef staTrack = link.standAloneTrack();
+            L2toL3s[staTrack].push_back(RecoChargedCandidateRef(cand));
+            check_l1match = false;
+          }
         } //MTL loop
      
         
         if ( !l1CandTag_.label().empty() && check_l1match && matchPreviousCand_){
-            iEvent.getByToken(l1CandToken_,level1Cands);
-            level1Cands->getObjects(trigger::TriggerL1Mu,vl1cands);
-            const unsigned int nL1Muons(vl1cands.size());
-	    for (unsigned int il1=0; il1!=nL1Muons; ++il1) {
-                if (deltaR(cand->eta(), cand->phi(), vl1cands[il1]->eta(), vl1cands[il1]->phi()) < L1MatchingdR_) { 
-  	          MuonToL3s[i] = RecoChargedCandidateRef(cand);
-                }
-	    }
+          iEvent.getByToken(l1CandToken_,level1Cands);
+          level1Cands->getObjects(trigger::TriggerL1Mu,vl1cands);
+          const unsigned int nL1Muons(vl1cands.size());
+          for (unsigned int il1=0; il1!=nL1Muons; ++il1) {
+            if (deltaR(cand->eta(), cand->phi(), vl1cands[il1]->eta(), vl1cands[il1]->phi()) < L1MatchingdR_) { 
+               MuonToL3s[i] = RecoChargedCandidateRef(cand);
+            }
+          }
         }     
      } //RCC loop
    } //end of using normal TrajectorySeeds
 
    // look at all mucands,  check cuts and add to filter object
-   auto L2toL3s_it = L2toL3s.begin();
-   auto L2toL3s_end = L2toL3s.end();
    LogDebug("HLTMuonL3PreFilter")<<"looking at: "<<L2toL3s.size()<<" L2->L3s from: "<<mucands->size();
-   for (; L2toL3s_it!=L2toL3s_end; ++L2toL3s_it){
+   for ( const auto& L2toL3s_it : L2toL3s ) {
   
-     if (matchPreviousCand_ && !( triggeredByLevel2(L2toL3s_it->first,vl2cands))) continue;
+     if (matchPreviousCand_ && !( triggeredByLevel2(L2toL3s_it.first,vl2cands))) continue;
   
      //loop over the L3Tk reconstructed for this L2.
      unsigned int iTk=0;
-     unsigned int maxItk=L2toL3s_it->second.size();
+     unsigned int maxItk=L2toL3s_it.second.size();
      for (; iTk!=maxItk; iTk++){
   
-       RecoChargedCandidateRef & cand=L2toL3s_it->second[iTk];
+       const RecoChargedCandidateRef & cand=L2toL3s_it.second[iTk];
        if (! applySelection(cand, beamSpot)) continue;
            
        filterproduct.addObject(TriggerMuon,cand);
@@ -263,11 +262,9 @@ bool HLTMuonL3PreFilter::hltFilter(Event& iEvent, const EventSetup& iSetup, trig
    edm::Handle<reco::MuonCollection> recomuons;
    iEvent.getByToken(recoMuToken_,recomuons);
 
-   auto MuonToL3s_it  = MuonToL3s.begin();
-   auto MuonToL3s_end = MuonToL3s.end();
-   for (; MuonToL3s_it!=MuonToL3s_end; ++MuonToL3s_it){
+   for ( const auto& MuonToL3s_it : MuonToL3s ) {
 
-     const reco::Muon& muon(recomuons->at(MuonToL3s_it->first));  
+     const reco::Muon& muon(recomuons->at(MuonToL3s_it.first));  
 
      // applys specific cuts for TkMu
      if ( (muon.type() & allowedTypeMask_L3fromL1_ ) == 0 ) continue;
@@ -278,7 +275,7 @@ bool HLTMuonL3PreFilter::hltFilter(Event& iEvent, const EventSetup& iSetup, trig
      }
      if ( muon.isTrackerMuon() && !muon::isGoodMuon(muon,trkMuonId_) ) continue;
 
-     RecoChargedCandidateRef & cand=MuonToL3s_it->second;
+     const RecoChargedCandidateRef & cand=MuonToL3s_it.second;
      // apply common selection
      if (! applySelection(cand, beamSpot)) continue;
      filterproduct.addObject(TriggerMuon,cand);
