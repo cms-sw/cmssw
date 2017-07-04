@@ -104,6 +104,7 @@ CTPPSDiamondLocalTrackFitter::fillDescriptions( edm::ConfigurationDescriptions& 
 {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>( "recHitsTag", edm::InputTag( "ctppsDiamondRecHits" ) );
+  desc.add<int>( "verbosity", 0 );
 
   edm::ParameterSetDescription trackingAlgoParams;
   trackingAlgoParams.add<double>( "threshold", 1.5 );

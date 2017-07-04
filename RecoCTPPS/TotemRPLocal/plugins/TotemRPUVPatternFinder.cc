@@ -303,7 +303,7 @@ TotemRPUVPatternFinder::fillDescriptions( edm::ConfigurationDescriptions& descr 
   edm::ParameterSetDescription desc;
 
   desc.add<edm::InputTag>( "tagRecHit", edm::InputTag( "totemRPRecHitProducer" ) ); // input selection
-  desc.add<int>( "verbosity", 0 );
+  desc.addUntracked<unsigned int>( "verbosity", 0 );
   desc.add<unsigned int>( "maxHitsPerPlaneToSearch", 5 ); // if a plane has more hits than this parameter, it is considered as dirty
   desc.add<unsigned int>( "minPlanesPerProjectionToSearch", 3 ); // minimal number of reasonable (= not empty and not dirty) planes per projeciton and per RP, to start the pattern search
   desc.add<double>( "clusterSize_a", 0.02 /* rad */ ); // (full) cluster size in slope-intercept space
