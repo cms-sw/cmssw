@@ -101,7 +101,11 @@ void RPixDetClusterizer::make_cluster(RPixCalibDigi aSeed,  std::vector<CTPPSPix
 	for(std::set<RPixCalibDigi>::iterator RPCDit2 = calib_rpix_digi_set_.begin(); RPCDit2 != calib_rpix_digi_set_.end(); ){
 	  if( (*RPCDit2).column() == c && (*RPCDit2).row() == r && (*RPCDit2).electrons() > ADCThreshold_*ElectronADCGain_ ){
 	    
-	    if(!atempCluster.addPixel( r,c,(*RPCDit2).electrons() )) {goto endClus;}
+	    if(!atempCluster.addPixel( r,c,(*RPCDit2).electrons() )) {
+	      CTPPSPixelCluster acluster(atempCluster.isize,atempCluster.adc, atempCluster.row,atempCluster.col, atempCluster.rowmin,atempCluster.colmin);
+	      clusters.push_back(acluster);
+	      return;
+	    }
 	    RPCDit2 =  calib_rpix_digi_set_.erase(RPCDit2);
 	    
 	  }else{
@@ -114,9 +118,6 @@ void RPixDetClusterizer::make_cluster(RPixCalibDigi aSeed,  std::vector<CTPPSPix
     }
 	     
   }  // while accretion
-
-
- endClus:
 
   CTPPSPixelCluster cluster(atempCluster.isize,atempCluster.adc, atempCluster.row,atempCluster.col, atempCluster.rowmin,atempCluster.colmin);
   clusters.push_back(cluster);
