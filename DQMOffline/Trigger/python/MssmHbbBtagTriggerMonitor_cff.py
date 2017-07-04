@@ -1,15 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-from DQMOffline.Trigger.MssmHbbMonitor_cfi import *
+from DQMOffline.Trigger.MssmHbbBtagTriggerMonitor_cfi import *
 
-mssmHbbMonitor = cms.Sequence(
-    msssHbbAllHadronic100 +
-    msssHbbAllHadronic116 +
-    msssHbbAllHadronic128 +
-    msssHbbSemileptonic40 +
-    msssHbbSemileptonic54 +
-    msssHbbSemileptonic62 +
-    msssHbbSemileptonicNoBtag +
+mssmHbbBtagTriggerMonitor = cms.Sequence(
     mssmHbbBtagTriggerMonitorSL40noMu +
     mssmHbbBtagTriggerMonitorSL40 +
     mssmHbbBtagTriggerMonitorSL100 +

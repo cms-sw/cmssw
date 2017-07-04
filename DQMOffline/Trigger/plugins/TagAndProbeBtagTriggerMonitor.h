@@ -34,15 +34,10 @@
 
 #include "DataFormats/BTauReco/interface/JetTag.h"
 
+#include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
+
 
 //DataFormats
-
-struct Binning {
-  int nbins;
-  double xmin;
-  double xmax;
-};
-
 
 //
 // class declaration
@@ -63,11 +58,8 @@ protected:
 
 private:
 
-  static Binning getHistoPSet  (edm::ParameterSet pset); 
-
   std::string folderName_;
   std::string processname_;
-  std::string pathname_;
   std::string triggerobjbtag_;
   
   double jetPtmin_;
@@ -75,16 +67,14 @@ private:
   double tagBtagmin_;
   double probeBtagmin_;
   
-  Binning jetPtbins_;
-  Binning jetEtabins_;
-  Binning jetPhibins_;
-  Binning jetBtagbins_;
+  std::vector<double> jetPtbins_;
+  std::vector<double> jetEtabins_;
+  std::vector<double> jetPhibins_;
+  std::vector<double> jetBtagbins_;
 
   edm::InputTag triggerSummaryLabel_;
-  edm::InputTag triggerResultsLabel_;
   
   edm::EDGetTokenT<reco::JetTagCollection> offlineBtagToken_;
-  edm::EDGetTokenT <edm::TriggerResults> triggerResultsToken_;
   edm::EDGetTokenT <trigger::TriggerEvent> triggerSummaryToken_;
 
   MonitorElement * pt_jet1_;
@@ -109,7 +99,8 @@ private:
   MonitorElement * discr_offline_btag_jet1_;
   MonitorElement * discr_offline_btag_jet2_;
   
-  
+  GenericTriggerEventFlag* genTriggerEventFlag_; // tag & probe: trigger flag for num and den
+
   HLTConfigProvider hltConfig_;
 
 

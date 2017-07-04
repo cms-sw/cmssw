@@ -1,7 +1,6 @@
 #include <math.h>
 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -19,41 +18,28 @@ TagAndProbeBtagTriggerMonitor::TagAndProbeBtagTriggerMonitor( const edm::Paramet
 {
   folderName_             = iConfig.getParameter<std::string>("dirname");
   processname_            = iConfig.getParameter<std::string>("processname");
-  pathname_               = iConfig.getParameter<std::string>("pathname");
   triggerobjbtag_         = iConfig.getParameter<std::string>("triggerobjbtag");
   jetPtmin_               = iConfig.getParameter<double>("jetPtMin");
   jetEtamax_              = iConfig.getParameter<double>("jetEtaMax");
   tagBtagmin_             = iConfig.getParameter<double>("tagBtagMin");
   probeBtagmin_           = iConfig.getParameter<double>("probeBtagMin");
   triggerSummaryLabel_    = iConfig.getParameter<edm::InputTag>("triggerSummary");
-  triggerResultsLabel_    = iConfig.getParameter<edm::InputTag>("triggerResults");
   triggerSummaryToken_    = consumes <trigger::TriggerEvent> (triggerSummaryLabel_);
-  triggerResultsToken_    = consumes <edm::TriggerResults>   (triggerResultsLabel_);
   offlineBtagToken_       = consumes<reco::JetTagCollection> (iConfig.getParameter<edm::InputTag>("offlineBtag"));
-
-  jetPtbins_              = getHistoPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("jetPt"));
-  jetEtabins_             = getHistoPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("jetEta"));
-  jetPhibins_             = getHistoPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("jetPhi"));
-  jetBtagbins_            = getHistoPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("jetBtag"));
+  genTriggerEventFlag_    = new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("genericTriggerEventPSet"),consumesCollector(), *this);
+  
+  jetPtbins_              = iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("jetPt");
+  jetEtabins_             = iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("jetEta");
+  jetPhibins_             = iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("jetPhi");
+  jetBtagbins_            = iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("jetBtag");
   
 }
 
 TagAndProbeBtagTriggerMonitor::~TagAndProbeBtagTriggerMonitor()
 {
+  if (genTriggerEventFlag_) delete genTriggerEventFlag_;
 
 }
-
-Binning TagAndProbeBtagTriggerMonitor::getHistoPSet(edm::ParameterSet pset)
-{
-   return Binning
-   {
-      pset.getParameter<int32_t>("nbins"),
-      pset.getParameter<double>("xmin"),
-      pset.getParameter<double>("xmax"),
-   };
-}
-
-
 
 void TagAndProbeBtagTriggerMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
 				 edm::Run const        & iRun,
@@ -63,61 +49,61 @@ void TagAndProbeBtagTriggerMonitor::bookHistograms(DQMStore::IBooker     & ibook
   std::string currentFolder = folderName_ ;
   ibooker.setCurrentFolder(currentFolder.c_str());
   
-  pt_jet1_  = ibooker.book1D("pt_jet1","pt_jet1",jetPtbins_.nbins,jetPtbins_.xmin,jetPtbins_.xmax);
-  pt_jet2_  = ibooker.book1D("pt_jet2","pt_jet2",jetPtbins_.nbins,jetPtbins_.xmin,jetPtbins_.xmax);
-  eta_jet1_ = ibooker.book1D("eta_jet1","eta_jet1",jetEtabins_.nbins,jetEtabins_.xmin,jetEtabins_.xmax);
-  eta_jet2_ = ibooker.book1D("eta_jet2","eta_jet2",jetEtabins_.nbins,jetEtabins_.xmin,jetEtabins_.xmax);
-  phi_jet1_ = ibooker.book1D("phi_jet1","phi_jet1",jetPhibins_.nbins,jetPhibins_.xmin,jetPhibins_.xmax);
-  phi_jet2_ = ibooker.book1D("phi_jet2","phi_jet2",jetPhibins_.nbins,jetPhibins_.xmin,jetPhibins_.xmax);
-  eta_phi_jet1_ = ibooker.book2D("eta_phi_jet1","eta_phi_jet1",jetEtabins_.nbins,jetEtabins_.xmin,jetEtabins_.xmax,jetPhibins_.nbins,jetPhibins_.xmin,jetPhibins_.xmax);
-  eta_phi_jet2_ = ibooker.book2D("eta_phi_jet2","eta_phi_jet2",jetEtabins_.nbins,jetEtabins_.xmin,jetEtabins_.xmax,jetPhibins_.nbins,jetPhibins_.xmin,jetPhibins_.xmax);
+  int ptnbins   = jetPtbins_.size()-1;
+  int etanbins  = jetEtabins_.size()-1;
+  int phinbins  = jetPhibins_.size()-1;
+  int btagnbins = jetBtagbins_.size()-1;
   
-  pt_probe_        = ibooker.book1D("pt_probe","pt_probe",jetPtbins_.nbins,jetPtbins_.xmin,jetPtbins_.xmax);
-  pt_probe_match_  = ibooker.book1D("pt_probe_match","pt_probe_match",jetPtbins_.nbins,jetPtbins_.xmin,jetPtbins_.xmax);
-  eta_probe_       = ibooker.book1D("eta_probe","eta_probe",jetEtabins_.nbins,jetEtabins_.xmin,jetEtabins_.xmax);
-  eta_probe_match_ = ibooker.book1D("eta_probe_match","eta_probe_match",jetEtabins_.nbins,jetEtabins_.xmin,jetEtabins_.xmax);
-  phi_probe_       = ibooker.book1D("phi_probe","phi_probe",jetPhibins_.nbins,jetPhibins_.xmin,jetPhibins_.xmax);
-  phi_probe_match_ = ibooker.book1D("phi_probe_match","phi_probe_match",jetPhibins_.nbins,jetPhibins_.xmin,jetPhibins_.xmax);
-  eta_phi_probe_       = ibooker.book2D("eta_phi_probe","eta_phi_probe",jetEtabins_.nbins,jetEtabins_.xmin,jetEtabins_.xmax,jetPhibins_.nbins,jetPhibins_.xmin,jetPhibins_.xmax);
-  eta_phi_probe_match_ = ibooker.book2D("eta_phi_probe_match","eta_phi_match",jetEtabins_.nbins,jetEtabins_.xmin,jetEtabins_.xmax,jetPhibins_.nbins,jetPhibins_.xmin,jetPhibins_.xmax);
+  std::vector<float> fptbins(jetPtbins_.begin(),jetPtbins_.end());
+  std::vector<float> fetabins(jetEtabins_.begin(),jetEtabins_.end());
+  std::vector<float> fphibins(jetPhibins_.begin(),jetPhibins_.end());
+  std::vector<float> fbtagbins(jetBtagbins_.begin(),jetBtagbins_.end());
+  
+  float * ptbins = &fptbins[0];
+  float * etabins = &fetabins[0];
+  float * phibins = &fphibins[0];
+  float * btagbins = &fbtagbins[0];
+  
+   
+  pt_jet1_  = ibooker.book1D("pt_jet1","pt_jet1",ptnbins, ptbins);
+  pt_jet2_  = ibooker.book1D("pt_jet2","pt_jet2",ptnbins, ptbins);
+  eta_jet1_ = ibooker.book1D("eta_jet1","eta_jet1",etanbins, etabins);
+  eta_jet2_ = ibooker.book1D("eta_jet2","eta_jet2",etanbins, etabins);
+  phi_jet1_ = ibooker.book1D("phi_jet1","phi_jet1",phinbins, phibins);
+  phi_jet2_ = ibooker.book1D("phi_jet2","phi_jet2",phinbins, phibins);
+  eta_phi_jet1_ = ibooker.book2D("eta_phi_jet1","eta_phi_jet1",etanbins, etabins,phinbins, phibins);
+  eta_phi_jet2_ = ibooker.book2D("eta_phi_jet2","eta_phi_jet2",etanbins, etabins,phinbins, phibins);
+  
+  pt_probe_        = ibooker.book1D("pt_probe","pt_probe",ptnbins, ptbins);
+  pt_probe_match_  = ibooker.book1D("pt_probe_match","pt_probe_match",ptnbins, ptbins);
+  eta_probe_       = ibooker.book1D("eta_probe","eta_probe",etanbins, etabins);
+  eta_probe_match_ = ibooker.book1D("eta_probe_match","eta_probe_match",etanbins, etabins);
+  phi_probe_       = ibooker.book1D("phi_probe","phi_probe",phinbins, phibins);
+  phi_probe_match_ = ibooker.book1D("phi_probe_match","phi_probe_match",phinbins, phibins);
+  eta_phi_probe_       = ibooker.book2D("eta_phi_probe","eta_phi_probe",etanbins, etabins,phinbins, phibins);
+  eta_phi_probe_match_ = ibooker.book2D("eta_phi_probe_match","eta_phi_match",etanbins, etabins,phinbins, phibins);
 
-  discr_offline_btag_jet1_ = ibooker.book1D("discr_offline_btag_jet1","discr_offline_btag_jet1",jetBtagbins_.nbins,jetBtagbins_.xmin,jetBtagbins_.xmax);
-  discr_offline_btag_jet2_ = ibooker.book1D("discr_offline_btag_jet2","discr_offline_btag_jet2",jetBtagbins_.nbins,jetBtagbins_.xmin,jetBtagbins_.xmax);
+  discr_offline_btag_jet1_ = ibooker.book1D("discr_offline_btag_jet1","discr_offline_btag_jet1",btagnbins, btagbins);
+  discr_offline_btag_jet2_ = ibooker.book1D("discr_offline_btag_jet2","discr_offline_btag_jet2",btagnbins, btagbins);
   
   // Initialize the GenericTriggerEventFlag
+  if ( genTriggerEventFlag_ && genTriggerEventFlag_->on() ) genTriggerEventFlag_->initRun( iRun, iSetup );
 }
 
 void TagAndProbeBtagTriggerMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
 {
 
-   bool accept = false;
+//    bool accept = false;
    bool match1 = false;
    bool match2 = false;
    
-   edm::Handle<edm::TriggerResults> triggerResultsHandler;
-   iEvent.getByToken(triggerResultsToken_, triggerResultsHandler);
-   if ( ! triggerResultsHandler.isValid() )  return;
-      
    edm::Handle<reco::JetTagCollection> offlineJetTagPFHandler;
    iEvent.getByToken(offlineBtagToken_, offlineJetTagPFHandler);
       
    if( ! offlineJetTagPFHandler.isValid()) return;
    
-   const edm::TriggerResults & triggers = *(triggerResultsHandler.product());
-   
-   for ( size_t j = 0 ; j < hltConfig_.size() ; ++j )
-   {
-      if ( hltConfig_.triggerName(j).find(pathname_) == 0 )
-      {
-         if ( triggers.accept(j) ) 
-         {
-            accept = true;
-            break;
-         }
-      }
-   }
-   
-   if ( accept )
+   // applying selection for event; tag & probe -> selection  for all events
+   if (genTriggerEventFlag_->on() && ! genTriggerEventFlag_->accept( iEvent, iSetup) )
    {
       
       reco::JetTagCollection jettags = *(offlineJetTagPFHandler.product());
@@ -190,17 +176,9 @@ void TagAndProbeBtagTriggerMonitor::analyze(edm::Event const& iEvent, edm::Event
       } // at least two offline jets
    } // accept trigger
    
-  // Filter out events if Trigger Filtering is requested
-//  if (den_genTriggerEventFlag_->on() && ! den_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
-
 }
 void TagAndProbeBtagTriggerMonitor::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
-    bool changed(true);
-    if (!hltConfig_.init(iRun, iSetup, processname_, changed))
-    {
-       LogDebug("TagAndProbeBtagTriggerMonitor") << "HLTConfigProvider failed to initialize.";
-    }
 }
 
 
