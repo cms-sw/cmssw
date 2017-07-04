@@ -251,7 +251,7 @@ void HGCalTBAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<std::string>("CaloHitSrcBH","HcalHits");
   desc.add<edm::InputTag>("DigiSrcBH",edm::InputTag("mix","HGCDigisHEback"));
   desc.add<edm::InputTag>("RecHitSrcBH",edm::InputTag("HGCalRecHit","HGCHEBRecHits"));
-  desc.add<std::string>("DetectorBeam","HcalTB06BeamDetectorl");
+  desc.add<std::string>("DetectorBeam","HcalTB06BeamDetector");
   desc.add<bool>("UseBeam",false);
   desc.add<std::string>("CaloHitSrcBeam","HcalTB06BeamHits");
   std::vector<int> ids = {1000,1001,1002,1003,1004,1005,1006,1007,1008,1011,1012,1013,1014,2001,2002,2003,2004,2005};
