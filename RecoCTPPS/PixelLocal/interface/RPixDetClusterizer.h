@@ -74,8 +74,6 @@ private:
   int VcaltoElectronOffset_;
   bool doSingleCalibration_;
   std::string CalibrationFile_;
-  std::vector<RPixCalibDigi> SeedVector_;
-  
 };
 
 
