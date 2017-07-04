@@ -84,7 +84,7 @@ L1TMuonOverlapParamsESProducer::produceParams(const L1TMuonOverlapParamsRcd& iRe
 {
    using namespace edm::es;
   
-   return std::shared_ptr<L1TMuonOverlapParams>(new L1TMuonOverlapParams(params));
+   return std::make_shared<L1TMuonOverlapParams>(params);
 }
 ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////

@@ -68,7 +68,7 @@ HcalRecAlgoESProducer::HcalRecAlgoESProducer(const edm::ParameterSet& iConfig)
    setWhatProduced(this);
 
    //now do what ever other initialization is needed
-   myComputer = ReturnType(new HcalSeverityLevelComputer(iConfig));
+   myComputer = std::make_shared<HcalSeverityLevelComputer>(iConfig);
 }
 
 
