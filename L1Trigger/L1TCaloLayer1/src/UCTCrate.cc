@@ -1,6 +1,6 @@
 #include <iostream>
-#include <stdlib.h>
-#include <stdint.h>
+#include <cstdlib>
+#include <cstdint>
 
 #include "UCTCrate.hh"
 #include "UCTCard.hh"

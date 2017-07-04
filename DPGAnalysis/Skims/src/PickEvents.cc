@@ -29,7 +29,7 @@
 #include <vector>
 #include <sstream>
 #include <limits>
-#include <assert.h>
+#include <cassert>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"

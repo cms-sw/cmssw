@@ -1,8 +1,8 @@
-#include <time.h>
+#include <ctime>
 #include <iostream>
 #include <string>
 #include <stdexcept>
-#include <math.h>
+#include <cmath>
 #include <cstdio>
 
 #include "OnlineDB/EcalCondDB/interface/Tm.h"

@@ -12,7 +12,7 @@
 #include <sys/unistd.h>
 #include <sys/socket.h>
 #include <netdb.h>
-#include <stdio.h>
+#include <cstdio>
 #include <fstream>
 
 // -----------------------------------------------------------------------------

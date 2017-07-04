@@ -35,7 +35,7 @@
 
 #include <map>
 #include <memory>
-#include <stdlib.h>
+#include <cstdlib>
 #include <vector>
 
 TrackerHitAnalyzer::TrackerHitAnalyzer(const edm::ParameterSet& ps)

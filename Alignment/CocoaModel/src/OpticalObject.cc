@@ -44,7 +44,7 @@
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <iostream>
 
 

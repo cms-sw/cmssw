@@ -260,7 +260,7 @@ bool DDLogicalPart::hasDDValue(const DDValue & v) const
 // - nm corresponds to a regular expression, but will be anchored ( ^regexp$ )
 // - ns corresponds to a regular expression, but will be anchored ( ^regexp$ )
 #include <regex.h>
-#include <stddef.h>
+#include <cstddef>
 
 namespace
 {

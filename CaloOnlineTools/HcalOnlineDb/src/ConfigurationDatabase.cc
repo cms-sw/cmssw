@@ -2,7 +2,7 @@
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationDatabase.hh"
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationItemNotFoundException.hh"
 #include "CaloOnlineTools/HcalOnlineDb/interface/PluginManager.hh"
-#include <ctype.h>
+#include <cctype>
 
 #ifdef HAVE_XDAQ
 #include <toolbox/string.h>

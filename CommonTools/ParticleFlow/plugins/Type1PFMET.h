@@ -12,7 +12,7 @@
 
 // system include files
 #include <memory>
-#include <string.h>
+#include <cstring>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"

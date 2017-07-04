@@ -47,7 +47,7 @@
 #include <set>
 #include <algorithm>
 #include <functional>
-#include <math.h>
+#include <cmath>
 
 class PFRecoTauChargedHadronProducer : public edm::stream::EDProducer<> 
 {

@@ -20,8 +20,8 @@
 
 #include <vector>
 #include "GBRTreeD.h"
-#include <math.h>
-#include <stdio.h>
+#include <cmath>
+#include <cstdio>
 #include "Rtypes.h"
 
 class GBRForestD {

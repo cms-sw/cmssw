@@ -3,8 +3,8 @@
 #include <istream>
 #include <fstream>
 #include <iomanip>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 
 #include "HLTrigger/HLTanalyzers/interface/EventHeader.h"
 

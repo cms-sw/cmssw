@@ -17,7 +17,7 @@
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include <iostream>
-#include <string.h>
+#include <cstring>
 
 int
 main(int argc, char* argv[])

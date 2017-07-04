@@ -15,7 +15,7 @@
 #include "TMath.h"
 
 #include <iostream>
-#include <time.h>
+#include <ctime>
 
 
 //ClassImp(TFParams)

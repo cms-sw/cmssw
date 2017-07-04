@@ -20,7 +20,7 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h" 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include <math.h>
+#include <cmath>
 #include "TH1F.h"
 
 #include "HFPMTHitAnalyzer.h"

@@ -26,7 +26,7 @@
 
 #include <sstream>
 #include <iostream>
-#include <math.h>
+#include <cmath>
 
 
 using namespace edm;

@@ -2,9 +2,9 @@
 #include <iomanip>
 #include <string>
 #include <vector>
-#include <time.h>
+#include <ctime>
 #include <cstdlib>
-#include <limits.h>
+#include <climits>
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 #include "OnlineDB/EcalCondDB/interface/all_lmf_types.h"
 

@@ -2,7 +2,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <algorithm> // for "max"
-#include <math.h>
+#include <cmath>
 #include <iostream>
 
 HcalHFStatusBitFromDigis::HcalHFStatusBitFromDigis()

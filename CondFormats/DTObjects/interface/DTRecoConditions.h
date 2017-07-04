@@ -18,7 +18,7 @@
 #include <map>
 #include <vector>
 #include <string>
-#include <stdint.h>
+#include <cstdint>
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
 #include <atomic>
 #endif

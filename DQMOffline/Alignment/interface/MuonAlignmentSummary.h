@@ -9,7 +9,7 @@
  *  \author J. Fernandez - Univ. Oviedo <Javier.Fernandez@cern.ch>
  */
 
-#include <math.h>
+#include <cmath>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ESHandle.h"

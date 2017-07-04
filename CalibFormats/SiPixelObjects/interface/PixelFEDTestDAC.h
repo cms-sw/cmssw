@@ -12,7 +12,7 @@
 #include <string>
 #include <vector>
 #include <fstream>
-#include <stdlib.h>
+#include <cstdlib>
 #include "CalibFormats/SiPixelObjects/interface/PixelCalibBase.h"
 
 namespace pos{

@@ -8,7 +8,7 @@
 #include <pthread.h>
 #include <dlfcn.h>
 #include <iostream>
-#include <string.h>
+#include <cstring>
 
 
 

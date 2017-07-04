@@ -1,5 +1,5 @@
 #include <iostream>
-#include <stdio.h>
+#include <cstdio>
 #include <TDirectory.h>
 #include <TFile.h>
 #include <TKey.h>
@@ -11,7 +11,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
-#include <stdint.h>
+#include <cstdint>
 #include <cstdlib>
 #include <cstdio>
 

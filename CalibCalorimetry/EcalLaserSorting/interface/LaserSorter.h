@@ -7,7 +7,7 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
-#include <inttypes.h>
+#include <cinttypes>
 #include "boost/ptr_container/ptr_list.hpp"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -19,7 +19,7 @@
 #include "DataFormats/Provenance/interface/RunID.h"
 
 #include <sys/time.h>
-#include <time.h>
+#include <ctime>
 #include <map>
 
 /**

@@ -21,7 +21,7 @@
 #include <memory>
 #include <map>
 #include <sstream>
-#include <math.h>
+#include <cmath>
 #include <tuple>
 #include <utility>
 #include <vector>

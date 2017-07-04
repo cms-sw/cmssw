@@ -9,7 +9,7 @@
 #include <cstring>
 
 #include <cmath>
-#include <float.h> //in order to use DBL_EPSILON (1+DBL_EPSILON > 1)
+#include <cfloat> //in order to use DBL_EPSILON (1+DBL_EPSILON > 1)
 
 /////////////////////////////////////////////////////////////////////////////////
 //                                                                             //

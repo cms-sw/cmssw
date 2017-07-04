@@ -11,8 +11,8 @@
 #include "TF1.h"
 #include <ctime>
 #include "TGraph.h"
-#include <stdio.h>
-#include <math.h>
+#include <cstdio>
+#include <cmath>
 #include "TH2.h"
 #include "TH1.h"
 #include "TStyle.h"

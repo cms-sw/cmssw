@@ -11,7 +11,7 @@
 //
 
 // system include files
-#include <stdlib.h>
+#include <cstdlib>
 #include <algorithm>
 #include <memory>
 #include <iostream>

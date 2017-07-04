@@ -2,7 +2,7 @@
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctHtMissLut.h"
 
-#include <math.h>
+#include <cmath>
 
 L1GctMet::L1GctMet(const unsigned ex, const unsigned ey, const L1GctMet::metAlgoType algo) :
   m_exComponent(ex),

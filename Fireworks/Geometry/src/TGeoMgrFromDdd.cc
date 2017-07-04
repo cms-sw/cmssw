@@ -44,7 +44,7 @@
 #include "Math/GenVector/RotationZ.h"
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include <math.h>
+#include <cmath>
 
 TGeoMgrFromDdd::TGeoMgrFromDdd( const edm::ParameterSet& pset )
   : m_level( pset.getUntrackedParameter<int> ( "level", 10 )),

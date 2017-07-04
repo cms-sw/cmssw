@@ -20,7 +20,7 @@
 // system include files
 #include <memory>
 #include <vector>
-#include <math.h>
+#include <cmath>
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"

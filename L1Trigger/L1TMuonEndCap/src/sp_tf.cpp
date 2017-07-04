@@ -10,7 +10,7 @@
 #include "L1Trigger/L1TMuonEndCap/src/core_gen_summer_2013/sp_tf.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 
-#include "math.h"
+#include <cmath>
 #include "Riostream.h"
 #include "TFile.h"
 #include "TTree.h"

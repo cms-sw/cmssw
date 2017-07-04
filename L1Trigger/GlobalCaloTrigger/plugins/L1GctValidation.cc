@@ -18,7 +18,7 @@
 
 #include "DataFormats/Math/interface/deltaPhi.h"
 
-#include <math.h>
+#include <cmath>
 
 L1GctValidation::L1GctValidation(const edm::ParameterSet& iConfig) :
   m_gctinp_tag(iConfig.getUntrackedParameter<edm::InputTag>("rctInputTag", edm::InputTag("rctDigis"))),

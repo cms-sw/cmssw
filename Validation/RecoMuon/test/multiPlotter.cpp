@@ -19,7 +19,7 @@
  **/
 
 
-#include <string.h>
+#include <cstring>
 #include <TROOT.h>
 #include <TSystem.h>
 #include <TStyle.h>

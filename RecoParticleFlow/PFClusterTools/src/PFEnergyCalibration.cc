@@ -4,7 +4,7 @@
 #include "CondFormats/ESObjects/interface/ESEEIntercalibConstants.h"
 
 #include <TMath.h>
-#include <math.h>
+#include <cmath>
 #include <vector>
 #include <TF1.h>
 #include <map>

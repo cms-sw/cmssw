@@ -8,7 +8,7 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinderBase.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelJetFpga.h"
 
-#include <math.h>
+#include <cmath>
 #include <iostream>
 #include <cassert>
 

@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <string>
-#include <inttypes.h>
+#include <cinttypes>
 #include <fstream>
 
 #include "FWCore/Sources/interface/ProducerSourceBase.h"

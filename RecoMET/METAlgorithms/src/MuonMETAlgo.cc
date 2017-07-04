@@ -8,7 +8,7 @@
 //
 
 //____________________________________________________________________________||
-#include <math.h>
+#include <cmath>
 #include <vector>
 #include "RecoMET/METAlgorithms/interface/MuonMETAlgo.h"
 #include "DataFormats/METReco/interface/CaloMET.h"

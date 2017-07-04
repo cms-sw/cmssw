@@ -1,5 +1,5 @@
 #include <memory>
-#include <math.h>
+#include <cmath>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"

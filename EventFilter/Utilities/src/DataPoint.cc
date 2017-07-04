@@ -10,7 +10,7 @@
 #include <tbb/concurrent_vector.h>
 
 #include <algorithm>
-#include <assert.h>
+#include <cassert>
 
 //max collected updates per lumi
 #define MAXUPDATES 0xffffffff

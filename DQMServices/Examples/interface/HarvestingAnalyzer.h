@@ -24,7 +24,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include <iostream>
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 #include <memory>
 #include <vector>

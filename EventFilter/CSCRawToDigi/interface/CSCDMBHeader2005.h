@@ -3,7 +3,7 @@
 
 #include <cassert>
 #include <iosfwd>
-#include <string.h> // bzero
+#include <cstring> // bzero
 #include "DataFormats/CSCDigi/interface/CSCDMBStatusDigi.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCVDMBHeaderFormat.h"
 

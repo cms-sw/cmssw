@@ -14,7 +14,7 @@
 #include <sstream>
 #include <boost/bind.hpp>
 #include <boost/program_options.hpp>
-#include <string.h>
+#include <cstring>
 
 #include "TSystem.h"
 #include "TGLWidget.h"

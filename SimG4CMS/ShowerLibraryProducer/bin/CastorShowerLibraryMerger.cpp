@@ -25,7 +25,7 @@
 #include <iostream>
 #include <sstream>
 #include <iomanip>
-#include <stdlib.h>
+#include <cstdlib>
 #include <cassert>
 #include <unistd.h>
 #include <string>

@@ -1,6 +1,6 @@
 #include "DetectorDescription/Parser/src/DDLMap.h"
 
-#include <stddef.h>
+#include <cstddef>
 #include <utility>
 
 #include "DetectorDescription/Core/interface/ClhepEvaluator.h"

@@ -1,6 +1,6 @@
 #include "vppc_sim_lib.h"
-#include "string.h"
-#include "stdio.h"
+#include <cstring>
+#include <cstdio>
 using namespace std;
 bool   __glob_change__ = false; // global change flag
 size_t __glob_alwaysn__ = 0; // current always block number

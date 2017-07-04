@@ -37,11 +37,11 @@
 #include <fstream>
 #include <string>
 #include <cmath>
-#include <math.h>
+#include <cmath>
 #include <map>
 #include <vector>
 #include <utility>
-#include <math.h>
+#include <cmath>
 
 #include <TMatrixD.h>
 

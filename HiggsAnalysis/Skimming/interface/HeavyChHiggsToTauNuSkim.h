@@ -27,7 +27,7 @@
 #include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
-#include <math.h>
+#include <cmath>
 
 class HeavyChHiggsToTauNuSkim : public edm::EDFilter {
 

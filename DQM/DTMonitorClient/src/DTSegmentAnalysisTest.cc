@@ -31,10 +31,10 @@
 #include "DQM/DTMonitorModule/interface/DTTimeEvolutionHisto.h"
 
 #include <iostream>
-#include <stdio.h>
+#include <cstdio>
 #include <string>
 #include <sstream>
-#include <math.h>
+#include <cmath>
 
 
 using namespace edm;

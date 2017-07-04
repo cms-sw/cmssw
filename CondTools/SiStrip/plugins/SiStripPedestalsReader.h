@@ -19,7 +19,7 @@
 #include "CondFormats/DataRecord/interface/SiStripPedestalsRcd.h"
 
 #include <iostream>
-#include <stdio.h>
+#include <cstdio>
 #include <sys/time.h>
 
 class SiStripPedestalsReader : public edm::EDAnalyzer {

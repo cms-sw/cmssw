@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 #include <utility>
-#include <stdint.h>
+#include <cstdint>
 
 
 namespace APVGain {

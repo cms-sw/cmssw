@@ -39,7 +39,7 @@
 #include <TMath.h>
 
 #include <memory>
-#include <math.h>
+#include <cmath>
 
 namespace reco { namespace tau {
 

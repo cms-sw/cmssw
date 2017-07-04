@@ -7,7 +7,7 @@
 #else
 #include "CastorCORData.h"
 #endif
-#include <string.h>
+#include <cstring>
 #include <iostream>
 #include <algorithm>
 #include <iomanip>

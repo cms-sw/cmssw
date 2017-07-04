@@ -23,7 +23,7 @@
 #include <iosfwd>
 #include <iostream>
 #include <algorithm>
-#include <stdio.h>
+#include <cstdio>
 
    
 using namespace std;

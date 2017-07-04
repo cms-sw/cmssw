@@ -18,7 +18,7 @@
 #include <set>
 
 #include <sys/types.h>
-#include <signal.h>
+#include <csignal>
 
 EcalDetIdToBeRecoveredProducer::EcalDetIdToBeRecoveredProducer(const edm::ParameterSet& ps)
 {

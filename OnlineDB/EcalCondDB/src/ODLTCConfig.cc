@@ -1,6 +1,6 @@
 #include <fstream>
 #include <iostream>
-#include <stdio.h>
+#include <cstdio>
 #include <stdexcept>
 #include <string>
 #include "OnlineDB/Oracle/interface/Oracle.h"

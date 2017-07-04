@@ -4,7 +4,7 @@
 #include <DetectorDescription/Core/interface/DDSolidShapes.h>
 #include <DetectorDescription/Core/interface/DDSpecifics.h>
 #include <DetectorDescription/OfflineDBLoader/interface/DDCoreToDDXMLOutput.h>
-#include <stddef.h>
+#include <cstddef>
 #include <iomanip>
 #include <vector>
 

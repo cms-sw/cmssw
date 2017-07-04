@@ -3,7 +3,7 @@
 
 #include <memory>
 #include <vector>
-#include <stdint.h>
+#include <cstdint>
 
 namespace amc {
    static const unsigned int split_block_size = 0x1000;

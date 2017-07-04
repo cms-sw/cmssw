@@ -12,7 +12,7 @@
 
 #include "H_Parameters.h"
 
-#include <math.h>
+#include <cmath>
 
 Hector::Hector(const edm::ParameterSet & param, bool verbosity, bool FP420Transport,bool ZDCTransport) : 
   m_verbosity(verbosity), 

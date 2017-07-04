@@ -1,7 +1,7 @@
 #include <stdexcept>
 #include <cstdlib>
 #include <string>
-#include <string.h>
+#include <cstring>
 #include "OnlineDB/Oracle/interface/Oracle.h"
 
 #include "OnlineDB/EcalCondDB/interface/ODFEDelaysInfo.h"

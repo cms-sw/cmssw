@@ -1,6 +1,6 @@
 #include "DetectorDescription/Parser/src/DDLPolyGenerator.h"
 
-#include <stddef.h>
+#include <cstddef>
 #include <map>
 #include <utility>
 #include <vector>

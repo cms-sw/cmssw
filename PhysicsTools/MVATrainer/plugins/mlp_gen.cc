@@ -1,7 +1,7 @@
-#include <math.h>
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstring>
+#include <cstdio>
+#include <cstdlib>
 
 #include "mlp_gen.h"
 #include "mlp_sigmoide.h"

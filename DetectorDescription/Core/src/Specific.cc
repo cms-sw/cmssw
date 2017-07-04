@@ -1,8 +1,8 @@
 #include "DetectorDescription/Core/src/Specific.h"
 
-#include <assert.h>
+#include <cassert>
 #include <ext/alloc_traits.h>
-#include <stddef.h>
+#include <cstddef>
 #include <memory>
 
 #include "DetectorDescription/Core/interface/DDBase.h"

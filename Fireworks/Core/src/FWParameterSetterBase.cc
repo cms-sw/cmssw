@@ -14,7 +14,7 @@
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "FWCore/Utilities/interface/ObjectWithDict.h"
 
-#include <assert.h>
+#include <cassert>
 #include <iostream>
 #include <boost/bind.hpp>
 

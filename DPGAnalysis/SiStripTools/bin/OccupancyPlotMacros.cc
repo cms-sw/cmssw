@@ -16,7 +16,7 @@
 #include "TROOT.h"
 #include <cstring>
 #include <iostream>
-#include <math.h>
+#include <cmath>
 #include <algorithm>
 #include "TROOT.h"
 #include "DPGAnalysis/SiStripTools/interface/CommonAnalyzer.h"

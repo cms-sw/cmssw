@@ -16,7 +16,7 @@
 #include <stdexcept>
 #include <sstream>
 #include <iostream>
-#include <time.h>
+#include <ctime>
 #include <unistd.h>
 #include <cstdio>
 

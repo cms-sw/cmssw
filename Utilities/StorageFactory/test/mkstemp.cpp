@@ -1,9 +1,9 @@
 #include "Utilities/StorageFactory/test/Test.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include <errno.h>
+#include <cerrno>
 #include <iostream>
-#include <stdlib.h>
+#include <cstdlib>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>

@@ -11,8 +11,8 @@
 #include <fstream>
 #include <sstream>
 #include <string>
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDFilter.h"

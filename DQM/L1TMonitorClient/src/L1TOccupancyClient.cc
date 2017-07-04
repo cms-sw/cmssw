@@ -9,12 +9,12 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/Histograms/interface/MEtoEDMFormat.h"
-#include <stdio.h>
+#include <cstdio>
 #include <sstream>
-#include <math.h>
+#include <cmath>
 #include <vector>
 #include <TMath.h>
-#include <limits.h>
+#include <climits>
 #include <TFile.h>
 #include <TDirectory.h>
 #include <TProfile.h>

@@ -9,8 +9,8 @@
 #include <CalibCalorimetry/EcalLaserAnalyzer/interface/TFParams.h>
 
 #include <iostream>
-#include <math.h>
-#include <time.h>
+#include <cmath>
+#include <ctime>
 #include <cassert>
 
 #include <TFile.h>

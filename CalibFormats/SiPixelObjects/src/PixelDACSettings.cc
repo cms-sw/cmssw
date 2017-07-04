@@ -14,7 +14,7 @@
 #include <fstream>
 #include <iostream>
 #include <ios>
-#include <assert.h>
+#include <cassert>
 #include <stdexcept>
 #include <map>
 #include <sstream>

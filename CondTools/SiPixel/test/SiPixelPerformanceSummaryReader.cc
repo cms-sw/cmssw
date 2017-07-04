@@ -6,7 +6,7 @@
 #include "CondTools/SiPixel/test/SiPixelPerformanceSummaryReader.h"
 
 #include <iostream>
-#include <stdio.h>
+#include <cstdio>
 #include <sys/time.h>
 
 

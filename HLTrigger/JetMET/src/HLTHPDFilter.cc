@@ -6,7 +6,7 @@
 
 #include "HLTrigger/JetMET/interface/HLTHPDFilter.h"
 
-#include <math.h>
+#include <cmath>
 
 #include <set>
 

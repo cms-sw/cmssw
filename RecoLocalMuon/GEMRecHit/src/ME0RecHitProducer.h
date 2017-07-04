@@ -13,7 +13,7 @@
 #include <memory>
 #include <fstream>
 #include <iostream>
-#include <stdint.h>
+#include <cstdint>
 #include <cstdlib>
 #include <bitset>
 #include <map>

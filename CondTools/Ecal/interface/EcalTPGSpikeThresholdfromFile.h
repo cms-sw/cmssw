@@ -6,7 +6,7 @@
 #include <string>
 #include <map>
 #include <iostream>
-#include <time.h>
+#include <ctime>
 
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"

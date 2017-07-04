@@ -1,6 +1,6 @@
 #include <iostream>
 #include <iomanip>
-#include <string.h>
+#include <cstring>
 #include <fstream>
 #include <cmath>
 #include <TFile.h>

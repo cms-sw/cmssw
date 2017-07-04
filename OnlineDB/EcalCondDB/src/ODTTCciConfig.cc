@@ -1,7 +1,7 @@
 #include <fstream>
 #include <cstdlib>
 #include <iostream>
-#include <stdio.h>
+#include <cstdio>
 #include <stdexcept>
 #include <string>
 

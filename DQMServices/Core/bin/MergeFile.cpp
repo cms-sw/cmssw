@@ -6,7 +6,7 @@
 #include "TROOT.h"
 #include <iostream>
 #include <cstdlib>
-#include <errno.h>
+#include <cerrno>
 
 #ifndef _NSIG
 #define _NSIG NSIG

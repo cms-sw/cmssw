@@ -11,7 +11,7 @@
 #ifdef USE_WINDOWS_FILE
 #include <windows.h>
 #else
-#include <stdio.h>
+#include <cstdio>
 #endif
 
 #include "Types.h"

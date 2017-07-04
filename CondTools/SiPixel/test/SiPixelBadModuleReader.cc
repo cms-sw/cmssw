@@ -23,9 +23,9 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
-#include <stdio.h>
+#include <cstdio>
 #include <sys/time.h>
-#include <math.h>
+#include <cmath>
 #include <string>
 
 

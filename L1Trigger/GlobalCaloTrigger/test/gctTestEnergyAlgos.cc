@@ -8,7 +8,7 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctGlobalEnergyAlgos.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinderBase.h"
 
-#include <math.h>
+#include <cmath>
 #include <algorithm>
 #include <cassert>
 #include <iostream>

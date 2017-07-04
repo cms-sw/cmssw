@@ -1,5 +1,5 @@
 #include "Geometry/CaloGeometry/interface/IdealObliquePrism.h"
-#include <math.h>
+#include <cmath>
 
 typedef IdealObliquePrism::CCGFloat CCGFloat ;
 typedef IdealObliquePrism::Pt3D     Pt3D     ;

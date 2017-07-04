@@ -32,7 +32,7 @@
 
 #include<iostream>
 #include<vector>
-#include<math.h>
+#include<cmath>
 #include <stdexcept>
 #ifdef GBL_EIGEN_SUPPORT_ROOT
 #include "TVectorD.h"

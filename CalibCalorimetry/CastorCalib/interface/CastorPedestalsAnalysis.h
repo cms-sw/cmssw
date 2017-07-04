@@ -43,7 +43,7 @@
 #include "TCanvas.h"
 #include "TStyle.h"
 
-#include <math.h>
+#include <cmath>
 #include <iostream>
 #include <map>
 #include <iomanip>

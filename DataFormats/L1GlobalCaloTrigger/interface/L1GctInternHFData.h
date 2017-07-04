@@ -3,7 +3,7 @@
 
 #include <ostream>
 #include <string>
-#include <stdint.h>
+#include <cstdint>
 
 /// \class L1GctInternHFData
 /// \brief L1 GCT internal ring sums and/or bit counts

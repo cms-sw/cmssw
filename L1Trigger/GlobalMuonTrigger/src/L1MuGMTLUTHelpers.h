@@ -25,8 +25,8 @@
 
 #include <vector>
 #include <string>
-#include <stdlib.h>
-#include <stdio.h>
+#include <cstdlib>
+#include <cstdio>
 
 //              ---------------------
 //              -- Class Interface --

@@ -15,7 +15,7 @@
 #include <iostream>
 #include <memory>
 
-#include <stdio.h>
+#include <cstdio>
 
 #include <fstream>
 #include <iomanip>
@@ -24,7 +24,7 @@
 
 #include <sys/types.h>
 #include <unistd.h>
-#include <signal.h>
+#include <csignal>
 #include <sys/stat.h>
 #include <glob.h>
 

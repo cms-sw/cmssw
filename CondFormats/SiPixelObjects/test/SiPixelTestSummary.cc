@@ -1,6 +1,6 @@
 //#include <memory>
 
-#include <string.h>
+#include <cstring>
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 

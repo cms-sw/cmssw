@@ -12,7 +12,7 @@
 //
 
 // system include files
-#include <assert.h>
+#include <cassert>
 #include <cmath>
 #include <algorithm>
 

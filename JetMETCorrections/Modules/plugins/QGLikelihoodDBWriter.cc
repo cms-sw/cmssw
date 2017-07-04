@@ -7,7 +7,7 @@
 #include "TKey.h"
 #include "TH1.h"
 #include <sstream>
-#include <stdlib.h>  
+#include <cstdlib>  
 #include <vector>
 #include <memory>
 #include <string>

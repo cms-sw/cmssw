@@ -21,7 +21,7 @@
 // system include files
 #include <vector>
 #include <string>
-#include <time.h>
+#include <ctime>
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/util/XMLString.hpp>
 #include "FWCore/Concurrency/interface/Xerces.h"

@@ -23,7 +23,7 @@
 #include "CondTools/L1Trigger/interface/L1ObjectKeysOnlineProdBase.h"
 #include <sstream>
 #include "CoralBase/TimeStamp.h"
-#include <math.h>
+#include <cmath>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

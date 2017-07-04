@@ -36,8 +36,8 @@
 #include <xercesc/dom/DOMNamedNodeMap.hpp>
 #include <xercesc/dom/DOMAttr.hpp>
 #include "DOMCount.hpp"
-#include <string.h>
-#include <stdlib.h>
+#include <cstring>
+#include <cstdlib>
 
 #if defined(XERCES_NEW_IOSTREAMS)
 #include <fstream>

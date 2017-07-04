@@ -12,7 +12,7 @@
 */
 
 #include <memory>
-#include <ctype.h>
+#include <cctype>
 #include "boost/bind.hpp"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDFilter.h"

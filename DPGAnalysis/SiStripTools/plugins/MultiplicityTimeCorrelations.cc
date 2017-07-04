@@ -25,7 +25,7 @@
 
 #include <vector>
 #include <map>
-#include <limits.h>
+#include <climits>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"

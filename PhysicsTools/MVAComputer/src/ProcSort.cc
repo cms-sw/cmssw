@@ -14,7 +14,7 @@
 // Created:     Sun Sep 16 14:52 CEST 2007
 //
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <algorithm>
 #include <functional>
 #include <iterator>

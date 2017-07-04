@@ -14,13 +14,13 @@
 #include "DQM/L1TMonitorClient/interface/L1TEventInfoClient.h"
 
 // system include files
-#include <stdio.h>
+#include <cstdio>
 #include <sstream>
 #include <fstream>
 #include <iostream>
 #include <iomanip>
 
-#include <math.h>
+#include <cmath>
 #include <memory>
 
 #include <vector>

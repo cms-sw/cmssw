@@ -1,6 +1,6 @@
 #include "DetectorDescription/Core/interface/DDComparator.h"
 
-#include <stddef.h>
+#include <cstddef>
 #include <memory>
 
 #include "DetectorDescription/Core/interface/DDBase.h"

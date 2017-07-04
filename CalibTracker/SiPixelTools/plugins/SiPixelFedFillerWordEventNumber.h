@@ -2,7 +2,7 @@
 #define SiPixelFedFillerWordEventNumber_H
 
 // user include files
-#include <stdio.h>
+#include <cstdio>
 #include <vector>
 #include <iostream>
 #include "FWCore/Framework/interface/Frameworkfwd.h"

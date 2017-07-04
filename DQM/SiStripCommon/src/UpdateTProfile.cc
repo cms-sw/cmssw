@@ -1,7 +1,7 @@
 #include "DQM/SiStripCommon/interface/UpdateTProfile.h"
 #include "TProfile.h"
 #include <iostream>
-#include <math.h>
+#include <cmath>
 
 
 // -----------------------------------------------------------------------------

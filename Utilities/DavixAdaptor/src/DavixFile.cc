@@ -4,9 +4,9 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include <cassert>
 #include <davix.hpp>
-#include <errno.h>
+#include <cerrno>
 #include <fcntl.h>
-#include <stdlib.h>
+#include <cstdlib>
 #include <unistd.h>
 #include <vector>
 #include <mutex>

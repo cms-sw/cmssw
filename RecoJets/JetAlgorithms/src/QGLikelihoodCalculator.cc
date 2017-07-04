@@ -2,7 +2,7 @@
 #include "CondFormats/JetMETObjects/interface/QGLikelihoodObject.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include <math.h>
+#include <cmath>
 
 /// Compute likelihood for a jet using the QGLikelihoodObject information and a set of variables
 float QGLikelihoodCalculator::computeQGLikelihood(edm::ESHandle<QGLikelihoodObject> &QGLParamsColl, float pt, float eta, float rho, std::vector<float> vars) const{

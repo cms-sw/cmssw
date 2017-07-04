@@ -19,7 +19,7 @@
 
 #include <string>
 #include <iostream>
-#include <math.h>
+#include <cmath>
 
 //---------------------------------------------------------------------------------------
 /// A set of histograms of residuals and pulls for 1D RecHits

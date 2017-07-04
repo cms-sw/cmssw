@@ -8,11 +8,11 @@
  * version 1.0, 1st August 2012
 */
 
-#include <stdlib.h>
-#include <stdio.h>
+#include <cstdlib>
+#include <cstdio>
 #include <string>
-#include <string.h>
-#include <assert.h>
+#include <cstring>
+#include <cassert>
 #include <zlib.h>
 /* This is for mkdir(); this may need to be changed for some platforms. */
 #include <sys/stat.h>  /* For mkdir() */

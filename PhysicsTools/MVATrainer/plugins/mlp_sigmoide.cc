@@ -1,4 +1,4 @@
-#include <math.h>
+#include <cmath>
 #include "mlp_gen.h"
 
 #ifdef __cplusplus

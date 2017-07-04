@@ -8,8 +8,8 @@
 
 #ifdef _POSIX_C_SOURCE
 #	include <sys/time.h>
-#	include <signal.h>
-#	include <setjmp.h>
+#	include <csignal>
+#	include <csetjmp>
 #endif
 
 #include <CLHEP/Random/RandomEngine.h>

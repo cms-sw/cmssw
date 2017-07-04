@@ -1,6 +1,6 @@
-#include <assert.h>
+#include <cassert>
 #include <iostream>
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 using namespace std;
 

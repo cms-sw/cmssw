@@ -3,7 +3,7 @@
 #include "DCCDataMapper.h"
 #include "ECALParserBlockException.h"
 
-#include <stdio.h>
+#include <cstdio>
 #include <sstream>
 
 

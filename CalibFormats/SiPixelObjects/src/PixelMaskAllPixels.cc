@@ -17,7 +17,7 @@
 #include <fstream>
 #include <map>
 #include <iostream>
-#include <assert.h>
+#include <cassert>
 #include <stdexcept>
 
 using namespace pos;

@@ -1,7 +1,7 @@
 #ifndef LMFRUNDAT_H
 #define LMFRUNDAT_H
 
-#include <math.h>
+#include <cmath>
 
 /*
  Last updated by  Giovanni.Organtini@roma1.infn.it 2010

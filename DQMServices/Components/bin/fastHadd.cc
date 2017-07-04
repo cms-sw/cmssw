@@ -104,7 +104,7 @@ PATH=/afs/cern.ch/work/r/rovere/protocolbuf/bin
 
 #include <sys/prctl.h>
 #include <sys/wait.h>
-#include <signal.h>
+#include <csignal>
 
 #define DEBUG(x, msg) if (debug >= x) std::cout << "DEBUG: " << msg << std::flush
 

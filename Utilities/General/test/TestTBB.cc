@@ -1,5 +1,5 @@
 #include <iostream>
-#include <stdlib.h>
+#include <cstdlib>
 #include "tbb/task_scheduler_init.h"
 #include "tbb/parallel_for.h"
 #include "tbb/blocked_range.h"

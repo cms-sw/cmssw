@@ -13,7 +13,7 @@
 
 #include "CLHEP/Random/RandPoissonQ.h"
 
-#include <math.h>
+#include <cmath>
 #include <list>
 
 HcalSiPMHitResponse::HcalSiPMHitResponse(const CaloVSimParameterMap * parameterMap,

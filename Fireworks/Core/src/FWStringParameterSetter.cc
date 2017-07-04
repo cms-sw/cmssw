@@ -14,7 +14,7 @@
 #include "TGLabel.h"
 #include "TGTextEntry.h"
 
-#include <assert.h>
+#include <cassert>
 #include <iostream>
 
 // user include files

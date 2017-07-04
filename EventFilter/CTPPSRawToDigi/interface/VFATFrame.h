@@ -11,7 +11,7 @@
 
 #include <vector>
 #include <cstddef>
-#include <stdint.h>
+#include <cstdint>
 
 /**
  * Representation of VFAT frame plus extra info added by DAQ.

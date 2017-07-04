@@ -32,7 +32,7 @@ V00-03-25
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include <numeric>
-#include <math.h>
+#include <cmath>
 #include <memory>
 #include <TMath.h>
 #include <iostream>

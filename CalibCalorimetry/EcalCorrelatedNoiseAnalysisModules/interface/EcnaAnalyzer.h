@@ -27,11 +27,11 @@
 #include <iomanip>
 #include <string>
 #include <vector>
-#include <time.h>
+#include <ctime>
 #include "Riostream.h"
 
 #include <sys/time.h>
-#include <signal.h>
+#include <csignal>
 
 // ROOT include files
 #include "TObject.h"

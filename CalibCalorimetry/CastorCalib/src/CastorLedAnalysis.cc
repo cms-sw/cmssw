@@ -9,7 +9,7 @@
 
 #include "CalibCalorimetry/CastorCalib/interface/CastorLedAnalysis.h"
 #include <TFile.h>
-#include <math.h>
+#include <cmath>
 
 using namespace std;
 

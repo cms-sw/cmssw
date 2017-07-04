@@ -13,7 +13,7 @@
 //
 
 // system include files
-#include <assert.h>
+#include <cassert>
 #include "TClass.h"
 
 // user include files

@@ -2,7 +2,7 @@
 #ifndef HcalUHTRData_H
 #define HcalUHTRData_H
 
-#include <stdint.h>
+#include <cstdint>
 
 /**  \class HcalUHTRData
  *

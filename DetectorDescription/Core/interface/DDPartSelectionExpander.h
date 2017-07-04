@@ -1,7 +1,7 @@
 #ifndef DD_DDPartSelectionExpander_h
 #define DD_DDPartSelectionExpander_h
 
-#include <stddef.h>
+#include <cstddef>
 
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDPartSelection.h"

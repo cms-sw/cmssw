@@ -127,12 +127,12 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h" 
 
 #include <iostream>
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 #include <memory>
 #include <vector>
 #include <map>
-#include <math.h>
+#include <cmath>
 
 #include "TString.h"
 #include "DQMServices/Core/interface/MonitorElement.h"

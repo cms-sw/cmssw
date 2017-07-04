@@ -7,7 +7,7 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctGlobalHfSumAlgos.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GlobalCaloTrigger.h"
 
-#include <math.h>
+#include <cmath>
 #include <iostream>
 #include <cassert>
 

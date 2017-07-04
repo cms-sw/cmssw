@@ -21,7 +21,7 @@
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 
 #include <iostream>
-#include <stdlib.h>
+#include <cstdlib>
 
 
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>

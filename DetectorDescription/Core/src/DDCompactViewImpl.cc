@@ -1,6 +1,6 @@
 #include "DetectorDescription/Core/interface/DDCompactViewImpl.h"
 
-#include <math.h>
+#include <cmath>
 #include <ostream>
 #include <utility>
 #include <vector>

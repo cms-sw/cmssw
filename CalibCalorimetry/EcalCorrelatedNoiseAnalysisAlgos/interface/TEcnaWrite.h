@@ -6,8 +6,8 @@
 #include "TObject.h"
 #include "TSystem.h"
 #include "Riostream.h"
-#include <math.h>
-#include <time.h>
+#include <cmath>
+#include <ctime>
 
 #include "TVectorD.h"
 #include "TMatrixD.h"

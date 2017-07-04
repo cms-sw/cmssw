@@ -43,7 +43,7 @@
 
 //
 #include <string>
-#include <stdlib.h>
+#include <cstdlib>
 #include <iostream>
 using namespace std;
 using namespace edm;

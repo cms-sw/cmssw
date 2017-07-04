@@ -1,11 +1,11 @@
-#include <assert.h>
+#include <cassert>
 #include <iostream>
 #include <iomanip>
 #include <sstream>
 #include <memory>
 #include <string>
 #include <cstdio>
-#include <stdio.h>
+#include <cstdio>
 #include <ext/stdio_filebuf.h>
 
 #include "FWCore/Concurrency/interface/Xerces.h"

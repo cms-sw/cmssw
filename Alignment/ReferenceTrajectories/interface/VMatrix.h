@@ -34,7 +34,7 @@
 #include<iomanip>
 #include<vector>
 #include<cstring>
-#include<math.h>
+#include<cmath>
 
 //! Namespace for the general broken lines package
 namespace gbl {

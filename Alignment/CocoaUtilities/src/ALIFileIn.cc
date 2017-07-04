@@ -8,7 +8,7 @@
 
 #include "Alignment/CocoaUtilities/interface/ALIFileIn.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <strstream>
 //#include <strstream.h>
 

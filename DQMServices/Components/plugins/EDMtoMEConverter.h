@@ -34,7 +34,7 @@
 
 // helper files
 #include <iostream>
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 #include <memory>
 #include <vector>

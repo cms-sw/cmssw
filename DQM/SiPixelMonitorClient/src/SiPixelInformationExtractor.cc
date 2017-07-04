@@ -53,7 +53,7 @@
 #include "TProfile.h"
 
 #include <iostream>
-#include <math.h>
+#include <cmath>
 #include <map>
 
 #include <cstdlib> // for free() - Root can allocate with malloc() - sigh...

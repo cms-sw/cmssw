@@ -1,7 +1,7 @@
 #include "PhysicsTools/Heppy/interface/TriggerBitChecker.h"
 
 #include "FWCore/Common/interface/TriggerNames.h"
-#include <assert.h>
+#include <cassert>
 #include <iostream>
 
 namespace heppy {

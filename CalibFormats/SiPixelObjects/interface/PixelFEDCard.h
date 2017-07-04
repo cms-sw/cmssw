@@ -11,7 +11,7 @@
 
 #include <vector>
 #include <string>
-#include <stdint.h>
+#include <cstdint>
 
 namespace pos{
 /*!  \ingroup ConfigurationObjects "Configuration Objects"

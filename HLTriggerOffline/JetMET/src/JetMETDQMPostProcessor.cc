@@ -9,10 +9,10 @@
 
 
 #include <iostream>
-#include <string.h>
+#include <cstring>
 #include <iomanip>
 #include<fstream>
-#include <math.h>
+#include <cmath>
 
 
 JetMETDQMPostProcessor::JetMETDQMPostProcessor(const edm::ParameterSet& pset)

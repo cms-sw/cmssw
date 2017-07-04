@@ -11,7 +11,7 @@
 #include "FastSimulation/ForwardDetectors/plugins/AcceptanceTableHelper.h"
 
 #include <iostream>
-#include <math.h>
+#include <cmath>
 
 /** Read from root file <f> acceptance tables named <basename> and <basename>_hight */
 

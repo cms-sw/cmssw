@@ -14,7 +14,7 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 #include <fstream>
-#include <stdio.h>
+#include <cstdio>
 #include <iostream>
 
 using namespace std;

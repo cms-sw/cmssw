@@ -9,7 +9,7 @@
 #include <vector>
 #include <numeric>
 #include <fstream>
-#include <math.h>
+#include <cmath>
 #include "TNamed.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"

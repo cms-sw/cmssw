@@ -11,7 +11,7 @@
 #include "TSystem.h"
 #include "TROOT.h"
 #include "TEnv.h"
-#include <errno.h>
+#include <cerrno>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>

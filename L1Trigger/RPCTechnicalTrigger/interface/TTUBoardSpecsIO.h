@@ -4,7 +4,7 @@
 // Include files
 #include "CondFormats/RPCObjects/interface/TTUBoardSpecs.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <iostream>
 #include <fstream>
 #include <ios>

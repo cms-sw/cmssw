@@ -1,5 +1,5 @@
 #include "EventFilter/HcalRawToDigi/interface/HcalUHTRData.h"
-#include <string.h>
+#include <cstring>
 
 static const int HEADER_LENGTH_16BIT=2*sizeof(uint64_t)/sizeof(uint16_t);
 

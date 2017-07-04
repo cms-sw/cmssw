@@ -11,7 +11,7 @@
 #include <DataFormats/Math/interface/deltaPhi.h>
 
 //STL
-#include <math.h>
+#include <cmath>
 //ROOT
 #include "TLorentzVector.h"
 

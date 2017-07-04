@@ -1,7 +1,7 @@
 #ifndef UCTDAQRawData_hh
 #define UCTDAQRawData_hh
 
-#include <stdint.h>
+#include <cstdint>
 #include <iostream>
 #include <iomanip>
 

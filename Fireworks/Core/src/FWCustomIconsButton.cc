@@ -12,7 +12,7 @@
 
 // system include files
 #include <algorithm>
-#include <assert.h>
+#include <cassert>
 #include "TGPicture.h"
 
 // user include files

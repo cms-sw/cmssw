@@ -8,7 +8,7 @@
 
 #include "CalibCalorimetry/CastorCalib/interface/CastorPedestalAnalysis.h"
 #include <TFile.h>
-#include <math.h>
+#include <cmath>
 
 using namespace std;
 

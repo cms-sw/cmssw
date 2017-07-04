@@ -22,9 +22,9 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <stdio.h>
+#include <cstdio>
 #include <sstream>
-#include <math.h>
+#include <cmath>
 
 
 using namespace edm;

@@ -1,5 +1,5 @@
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 #include <xercesc/sax2/SAX2XMLReader.hpp>
 #include <xercesc/sax2/XMLReaderFactory.hpp>
 #include <fstream>

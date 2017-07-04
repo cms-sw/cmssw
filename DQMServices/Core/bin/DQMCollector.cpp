@@ -8,7 +8,7 @@
 #include "classlib/utils/DebugAids.h"
 #include "classlib/utils/Signal.h"
 #include <iostream>
-#include <signal.h>
+#include <csignal>
 #include <unistd.h>
 #include <cstdlib>
 

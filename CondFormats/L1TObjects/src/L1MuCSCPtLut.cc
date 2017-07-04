@@ -2,7 +2,7 @@
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include <sstream>
 #include <iostream>
-#include <errno.h>
+#include <cerrno>
 
 void L1MuCSCPtLut::readFromDBS( std::string& ptLUT )
 {

@@ -2,7 +2,7 @@
 #ifndef HcalHTRData_H
 #define HcalHTRData_H
 
-#include <stdint.h>
+#include <cstdint>
 
 /**  \class HcalHTRData
  *

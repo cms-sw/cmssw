@@ -1,7 +1,7 @@
 #include "CalibCalorimetry/EcalPedestalOffsets/interface/TPedValues.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <math.h>
+#include <cmath>
 #include <iostream>
 #include <cassert>
 #include "TGraphErrors.h"

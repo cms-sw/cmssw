@@ -9,7 +9,7 @@
 #include "TROOT.h"
 #include "TRint.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 #include "TString.h"
 

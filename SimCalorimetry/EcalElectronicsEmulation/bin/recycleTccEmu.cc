@@ -1,11 +1,11 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <inttypes.h>
+#include <cinttypes>
 #include <iomanip>
 #include <cstdlib>
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 using namespace std;
 
 const int nChs = 68;
