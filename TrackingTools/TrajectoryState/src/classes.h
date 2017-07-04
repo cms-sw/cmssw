@@ -31,6 +31,7 @@ typedef edm::RefVector<TrackParamConstraintAssociationCollection> TrackParamCons
 
 namespace TrackingTools_TrajectoryState {
   struct dictionary {
+    TrajectoryStateOnSurface dummytsos;
     std::vector<TrajectoryStateOnSurface> jjj2;
     edm::Wrapper<std::vector<TrajectoryStateOnSurface> > jjj3;
   
