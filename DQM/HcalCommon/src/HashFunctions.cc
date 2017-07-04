@@ -315,12 +315,11 @@ namespace hcaldqm
             else
             {
                 //  tmp - we need to hash HF's FEDs with slot in mind
-                bool isHF = eid.crateId()==22 || eid.crateId()==29 || eid.crateId()==32;
+                //bool isHF = eid.crateId()==22 || eid.crateId()==29 || eid.crateId()==32;
                 //  for HF, slot number is either
-                int slotToUse = eid.slot()>6 ? SLOT_uTCA_MIN+6 :  SLOT_uTCA_MIN;
+            	int slotToUse = eid.slot()>6 ? SLOT_uTCA_MIN+6 :  SLOT_uTCA_MIN;
                 return utilities::hash(HcalElectronicsId(eid.crateId(),
-					isHF ? slotToUse : SLOT_uTCA_MIN, 
-                    FIBER_uTCA_MIN1, FIBERCH_MIN, false));
+					slotToUse, FIBER_uTCA_MIN1, FIBERCH_MIN, false));
             }
 		}
 
