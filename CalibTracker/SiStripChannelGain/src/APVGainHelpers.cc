@@ -33,10 +33,10 @@ int APVGain::subdetectorId(uint32_t det_id) {
  */
 int APVGain::subdetectorId(const std::string& tag) {
     std::string d = tag.substr(0,3);
-    if ( d.compare("TIB")==0 ) return 3;
-    if ( d.compare("TID")==0 ) return 4;
-    if ( d.compare("TOB")==0 ) return 5;
-    if ( d.compare("TEC")==0 ) return 6;
+    if ( d=="TIB" ) return 3;
+    if ( d=="TID" ) return 4;
+    if ( d=="TOB" ) return 5;
+    if ( d=="TEC" ) return 6;
     return 0;
 };
 

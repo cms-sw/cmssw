@@ -62,7 +62,7 @@ ElectronLikelihood::Setup (const ElectronLikelihoodCalibration *calibration,
   _EB0lt15lh->addSpecies ("electrons") ;
   _EB0lt15lh->addSpecies ("hadrons") ;
 
-  if(signalWeightSplitting.compare("class")==0) {
+  if(signalWeightSplitting=="class") {
     _EB0lt15lh->setSplitFrac ("electrons", "class0") ;
     _EB0lt15lh->setSplitFrac ("electrons", "class1") ;
   }
@@ -81,7 +81,7 @@ ElectronLikelihood::Setup (const ElectronLikelihoodCalibration *calibration,
   if (m_eleIDSwitches.m_useFBrem)        _EB0lt15lh->addPdf ("electrons", "fBrem",         splitSignalPdfs) ;
   if (m_eleIDSwitches.m_useOneOverEMinusOneOverP)        _EB0lt15lh->addPdf ("electrons", "OneOverEMinusOneOverP",         splitSignalPdfs) ;
 
-  if(backgroundWeightSplitting.compare("class")==0) {
+  if(backgroundWeightSplitting=="class") {
     _EB0lt15lh->setSplitFrac ("hadrons", "class0") ;
     _EB0lt15lh->setSplitFrac ("hadrons", "class1") ;
   }
@@ -105,7 +105,7 @@ ElectronLikelihood::Setup (const ElectronLikelihoodCalibration *calibration,
   _EB0gt15lh->addSpecies ("electrons") ;  
   _EB0gt15lh->addSpecies ("hadrons") ;
 
-  if(signalWeightSplitting.compare("class")==0) {
+  if(signalWeightSplitting=="class") {
     _EB0gt15lh->setSplitFrac ("electrons", "class0") ;
     _EB0gt15lh->setSplitFrac ("electrons", "class1") ;
   }
@@ -123,7 +123,7 @@ ElectronLikelihood::Setup (const ElectronLikelihoodCalibration *calibration,
   if (m_eleIDSwitches.m_useFBrem)        _EB0gt15lh->addPdf ("electrons", "fBrem",         splitSignalPdfs) ;
   if (m_eleIDSwitches.m_useOneOverEMinusOneOverP)        _EB0gt15lh->addPdf ("electrons", "OneOverEMinusOneOverP",         splitSignalPdfs) ;
 
-  if(backgroundWeightSplitting.compare("class")==0) {
+  if(backgroundWeightSplitting=="class") {
     _EB0gt15lh->setSplitFrac ("hadrons", "class0") ;
     _EB0gt15lh->setSplitFrac ("hadrons", "class1") ;
   }
@@ -148,7 +148,7 @@ ElectronLikelihood::Setup (const ElectronLikelihoodCalibration *calibration,
   _EB1lt15lh->addSpecies ("electrons") ;
   _EB1lt15lh->addSpecies ("hadrons") ;
 
-  if(signalWeightSplitting.compare("class")==0) {
+  if(signalWeightSplitting=="class") {
     _EB1lt15lh->setSplitFrac ("electrons", "class0") ;
     _EB1lt15lh->setSplitFrac ("electrons", "class1") ;
   }
@@ -167,7 +167,7 @@ ElectronLikelihood::Setup (const ElectronLikelihoodCalibration *calibration,
   if (m_eleIDSwitches.m_useFBrem)        _EB1lt15lh->addPdf ("electrons", "fBrem",         splitSignalPdfs) ;
   if (m_eleIDSwitches.m_useOneOverEMinusOneOverP)        _EB1lt15lh->addPdf ("electrons", "OneOverEMinusOneOverP",         splitSignalPdfs) ;
 
-  if(backgroundWeightSplitting.compare("class")==0) {
+  if(backgroundWeightSplitting=="class") {
     _EB1lt15lh->setSplitFrac ("hadrons", "class0") ;
     _EB1lt15lh->setSplitFrac ("hadrons", "class1") ;
   }
@@ -191,7 +191,7 @@ ElectronLikelihood::Setup (const ElectronLikelihoodCalibration *calibration,
   _EB1gt15lh->addSpecies ("electrons") ;  
   _EB1gt15lh->addSpecies ("hadrons") ;
 
-  if(signalWeightSplitting.compare("class")==0) {
+  if(signalWeightSplitting=="class") {
     _EB1gt15lh->setSplitFrac ("electrons", "class0") ;
     _EB1gt15lh->setSplitFrac ("electrons", "class1") ;
   }
@@ -209,7 +209,7 @@ ElectronLikelihood::Setup (const ElectronLikelihoodCalibration *calibration,
   if (m_eleIDSwitches.m_useFBrem)        _EB1gt15lh->addPdf ("electrons", "fBrem",         splitSignalPdfs) ;
   if (m_eleIDSwitches.m_useOneOverEMinusOneOverP)        _EB1gt15lh->addPdf ("electrons", "OneOverEMinusOneOverP",         splitSignalPdfs) ;
 
-  if(backgroundWeightSplitting.compare("class")==0) {
+  if(backgroundWeightSplitting=="class") {
     _EB1gt15lh->setSplitFrac ("hadrons", "class0") ;
     _EB1gt15lh->setSplitFrac ("hadrons", "class1") ;
   }
@@ -233,7 +233,7 @@ ElectronLikelihood::Setup (const ElectronLikelihoodCalibration *calibration,
   _EElt15lh->addSpecies ("electrons") ;
   _EElt15lh->addSpecies ("hadrons") ;
 
-  if(signalWeightSplitting.compare("class")==0) {
+  if(signalWeightSplitting=="class") {
     _EElt15lh->setSplitFrac ("electrons", "class0") ;
     _EElt15lh->setSplitFrac ("electrons", "class1") ;
   }
@@ -251,7 +251,7 @@ ElectronLikelihood::Setup (const ElectronLikelihoodCalibration *calibration,
   if (m_eleIDSwitches.m_useFBrem)        _EElt15lh->addPdf ("electrons", "fBrem",         splitSignalPdfs) ;
   if (m_eleIDSwitches.m_useOneOverEMinusOneOverP)        _EElt15lh->addPdf ("electrons", "OneOverEMinusOneOverP",         splitSignalPdfs) ;
 
-  if(backgroundWeightSplitting.compare("class")==0) {
+  if(backgroundWeightSplitting=="class") {
     _EElt15lh->setSplitFrac ("hadrons", "class0") ;
     _EElt15lh->setSplitFrac ("hadrons", "class1") ;
   }
@@ -275,7 +275,7 @@ ElectronLikelihood::Setup (const ElectronLikelihoodCalibration *calibration,
   _EEgt15lh->addSpecies ("electrons") ;
   _EEgt15lh->addSpecies ("hadrons") ;
 
-  if(signalWeightSplitting.compare("class")==0) {
+  if(signalWeightSplitting=="class") {
     _EEgt15lh->setSplitFrac ("electrons", "class0") ;
     _EEgt15lh->setSplitFrac ("electrons", "class1") ;
   }
@@ -293,7 +293,7 @@ ElectronLikelihood::Setup (const ElectronLikelihoodCalibration *calibration,
   if (m_eleIDSwitches.m_useFBrem)        _EEgt15lh->addPdf ("electrons", "fBrem",         splitSignalPdfs) ;
   if (m_eleIDSwitches.m_useOneOverEMinusOneOverP)        _EEgt15lh->addPdf ("electrons", "OneOverEMinusOneOverP",         splitSignalPdfs) ;
 
-  if(backgroundWeightSplitting.compare("class")==0) {
+  if(backgroundWeightSplitting=="class") {
     _EEgt15lh->setSplitFrac ("hadrons", "class0") ;
     _EEgt15lh->setSplitFrac ("hadrons", "class1") ;
   }
@@ -364,7 +364,7 @@ ElectronLikelihood::result (const reco::GsfElectron &electron,
   int bitVal=(electron.numberOfBrems()==0) ? 0 : 1 ;
   
   char className[20];
-  if(m_signalWeightSplitting.compare("class")==0) {
+  if(m_signalWeightSplitting=="class") {
     snprintf(className, 20, "class%d", bitVal);
   } else {
     throw cms::Exception("BadConfig") << "Only class (0 brem clusters / >=1 brem clusters)"
@@ -408,7 +408,7 @@ ElectronLikelihood::resultLog (const reco::GsfElectron &electron,
   int bitVal=(electron.numberOfBrems()==0) ? 0 : 1 ;
   
   char className[20];
-  if(m_signalWeightSplitting.compare("class")==0) {
+  if(m_signalWeightSplitting=="class") {
     snprintf(className, 20, "class%d", bitVal);
   } else {
     throw cms::Exception("BadConfig") << "Only class (0 brem clusters / >=1 brem clusters)"

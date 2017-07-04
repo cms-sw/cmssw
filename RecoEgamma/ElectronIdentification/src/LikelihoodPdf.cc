@@ -65,7 +65,7 @@ LikelihoodPdf::initFromDB(const ElectronLikelihoodCalibration *calibration) {
     std::vector<ElectronLikelihoodCalibration::Entry>::const_iterator entryItr;
     bool foundPdf=false;
     for(entryItr=calibration->data.begin(); entryItr!=calibration->data.end(); entryItr++) {
-      if(entryItr->category.label.compare(ruleItr->second)==0) { 
+      if(entryItr->category.label==ruleItr->second) { 
 	const PhysicsTools::Calibration::HistogramF *histo = &(entryItr->histogram);
 	_splitPdf.insert( std::make_pair(ruleItr->first,histo) );
 	foundPdf=true;

@@ -147,7 +147,7 @@ PatElectronAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup
 	float deltaR = ROOT::Math::VectorUtil::DeltaR(elec->genLepton()->p4(), elec->p4());
 	deltaR_->Fill(TMath::Log10(deltaR));
 	if( deltaR<maxDeltaR_ ){
-	  if( electronID_.compare("none")!=0 ){
+	  if( electronID_!="none" ){
 	    if( elec->electronID(electronID_)<0.5 )
 	      continue;
 	  }
@@ -183,7 +183,7 @@ PatElectronAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup
 
 	  // check for the Z mass
 	  if( fabs( zMass-90. )<maxDeltaM_ ){
-	    if( electronID_.compare("none")!=0 ){
+	    if( electronID_!="none" ){
 	      if( probe->electronID(electronID_)<0.5 )
 		continue;
 	    }

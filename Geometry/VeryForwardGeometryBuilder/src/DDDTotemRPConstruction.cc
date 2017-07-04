@@ -59,7 +59,7 @@ void DDDTotemRPContruction::buildDetGeomDesc(DDFilteredView *fv, DetGeomDesc *gd
     DetGeomDesc* newGD = new DetGeomDesc(fv);
 
     // add ID (only for detectors/sensors)
-    if (fv->logicalPart().name().name().compare(DDD_TOTEM_RP_DETECTOR_NAME) == 0)
+    if (fv->logicalPart().name().name() == DDD_TOTEM_RP_DETECTOR_NAME)
     {
       const vector<int> &cN = fv->copyNumbers();
       // check size of copy numubers array
@@ -76,7 +76,7 @@ void DDDTotemRPContruction::buildDetGeomDesc(DDFilteredView *fv, DetGeomDesc *gd
       newGD->setGeographicalID(TotemRPDetId(arm, station, rp, detector));
     }
 
-    if (fv->logicalPart().name().name().compare(DDD_TOTEM_RP_PRIMARY_VACUUM_NAME) == 0)
+    if (fv->logicalPart().name().name() == DDD_TOTEM_RP_PRIMARY_VACUUM_NAME)
     {
       const uint32_t decRPId = fv->copyno();
       const uint32_t armIdx = (decRPId / 100) % 10;
@@ -86,7 +86,7 @@ void DDDTotemRPContruction::buildDetGeomDesc(DDFilteredView *fv, DetGeomDesc *gd
       newGD->setGeographicalID(TotemRPDetId(armIdx, stIdx, rpIdx));
     }
 
-    if (fv->logicalPart().name().name().compare(DDD_CTPPS_DIAMONDS_DETECTOR_NAME) == 0)
+    if (fv->logicalPart().name().name() == DDD_CTPPS_DIAMONDS_DETECTOR_NAME)
     {
       const vector<int>& copy_num = fv->copyNumbers();
       const unsigned int id = copy_num[copy_num.size()-1],
