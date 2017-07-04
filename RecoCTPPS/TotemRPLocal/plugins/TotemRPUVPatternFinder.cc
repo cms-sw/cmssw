@@ -326,18 +326,25 @@ TotemRPUVPatternFinder::fillDescriptions( edm::ConfigurationDescriptions& descr 
   // huge value -> no constraint
   desc.add<double>( "max_a_toFit", 10.0 );
 
-  desc.add<std::vector<edm::ParameterSet> >( "exceptionalSettings", std::vector<edm::ParameterSet() );
-  /* if a RP or projection needs adjustment of the above settings, you can use the following format
-       exceptionalSettings = cms.VPSet(
-           cms.PSet(
-               rpId = cms.uint32(1998061568), # RP id according to CTPPSDetId
-               minPlanesPerProjectionToFit_U = cms.uint32(2),
-               minPlanesPerProjectionToFit_V = cms.uint32(3),
-               threshold_U = cms.double(1.99),
-               threshold_V = cms.double(2.99)
-           )
-       )
-  */
+  edm::ParameterSetDescription exceptions_validator;
+  exceptions_validator.add<unsigned int>( "rpId" ); // RP id according to CTPPSDetId
+  exceptions_validator.add<unsigned int>( "minPlanesPerProjectionToFit_U" );
+  exceptions_validator.add<unsigned int>( "minPlanesPerProjectionToFit_V" );
+  exceptions_validator.add<double>( "threshold_U" );
+  exceptions_validator.add<double>( "threshold_V" );
+
+  std::vector<edm::ParameterSet> exceptions_default;
+
+  // if a RP or projection needs adjustment of the above settings, you can use the following format:
+  /*edm::ParameterSet except0;
+  except0.addParameter<unsigned int>( "rpId", 1998061568 ); // RP id according to CTPPSDetId
+  except0.addParameter<unsigned int>( "minPlanesPerProjectionToFit_U", 2 );
+  except0.addParameter<unsigned int>( "minPlanesPerProjectionToFit_V", 3 );
+  except0.addParameter<double>( "threshold_U", 1.99 );
+  except0.addParameter<double>( "threshold_V", 2.99 );
+  exceptions_default.push_back( except0 );*/
+
+  desc.addVPSet( "exceptionalSettings", exceptions_validator, exceptions_default );
 
   descr.addDefault( desc );
 }
