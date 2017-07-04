@@ -46,8 +46,6 @@ public:
 
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
-  CTPPSPixelGainCalibrationDBService theGainCalibrationDB;
-
 private:
   edm::ParameterSet param_;
   int verbosity_;
@@ -58,7 +56,8 @@ private:
   RPixDetClusterizer clusterizer_;
   
   void run(const edm::DetSetVector<CTPPSPixelDigi> &input, edm::DetSetVector<CTPPSPixelCluster> &output, const CTPPSPixelAnalysisMask *mask);
- 
+
+  CTPPSPixelGainCalibrationDBService theGainCalibrationDB; 
 };
 
 

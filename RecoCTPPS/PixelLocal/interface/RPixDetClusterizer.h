@@ -40,6 +40,8 @@ RPixCalibDigi() : CTPPSPixelDigi(){}
     electrons_=a;
   }
 
+private:
+
   int electrons_;
 
 };
