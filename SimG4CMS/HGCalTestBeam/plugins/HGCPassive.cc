@@ -198,10 +198,10 @@ void HGCPassive::storeInfo(const HGCPassive::volumeIterator it,
   std::pair<G4LogicalVolume*,unsigned int> key(plv,copy);
   auto itr = store_.find(key);
   if (itr == store_.end()) {
-    store_[key] = std::pair<double,double>(time,0.0);
-    itr         = store_.find(key);
+    store_[key] = std::pair<double,double>(time,energy);
+  } else {
+    (itr->second).second += energy;
   }
-  (itr->second).second += energy;
 #ifdef EDM_ML_DEBUG
   std::cout << "HGCPassive: Element " << (it->second).first << ":" 
 	    << (it->second).second << ":" << copy << " T " 
