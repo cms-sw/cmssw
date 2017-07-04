@@ -236,7 +236,25 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
     }
 
     auto randRoll(gemChamberLong->chamber(1)->etaPartition(2));
+    // pick any roll
+    const int nGEMPads(randRoll->npads());
+    for (int i = 0; i< nGEMPads; ++i){
+      const LocalPoint lpGEM(randRoll->centreOfPad(i));
+      const GlobalPoint gp(randRoll->toGlobal(lpGEM));
+      const LocalPoint lpCSC(keyLayer->toLocal(gp));
+      const float strip(keyLayerGeometry->strip(lpCSC));
+      // HS are wrapped-around
+      gemPadToCscHs_[i] = (int) (strip*2);
+    }
+    if (debug_luts){
+      std::cout << "detId " << csc_id << std::endl;
+      for(auto p : gemPadToCscHs_) {
+        std::cout << "GEM Pad "<< p.first << " CSC HS : " << p.second << std::endl;
+      }
+    }
+
     auto nStrips(keyLayerGeometry->numberOfStrips());
+    /*
     for (float i = 0; i< nStrips; i = i+0.5){
       const LocalPoint lpCSC(keyLayerGeometry->topology()->localPosition(i));
       const GlobalPoint gp(keyLayer->toGlobal(lpCSC));
@@ -247,6 +265,57 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
       // HS are wrapped-around
       cscHsToGemPad_[HS] = std::make_pair(std::floor(pad),std::ceil(pad));
     }
+    */
+    for (int i=0; i<nStrips*2; ++i){
+      std::vector<int> temp;
+      std::cout << "key " << i << std::endl;
+      for (auto& p: gemPadToCscHs_){
+        if (p.second == i) {
+          std::cout << "value " << p.first << std::endl;
+          temp.push_back(p.first);
+        }
+      }
+      // get unique values
+      std::sort(temp.begin(),temp.end());
+      temp.erase(std::unique(temp.begin(),temp.end()),temp.end());
+      // keep only the middle two or middle element
+      std::set<int> temp2;
+      if (temp.size()==2){
+        // pick middle two
+        temp2.insert(temp[0]);
+        temp2.insert(temp[1]);
+      }
+      if (temp.size()==4){
+        // pick middle two
+        temp2.insert(temp[1]);
+        temp2.insert(temp[2]);
+      }
+      if (temp.size()==6){
+        // pick middle two
+        temp2.insert(temp[2]);
+        temp2.insert(temp[3]);
+      }
+      if (temp.size()==8){
+        // pick middle two
+        temp2.insert(temp[3]);
+        temp2.insert(temp[4]);
+      }
+      if (temp.size()==10){
+        // pick middle two
+        temp2.insert(temp[4]);
+        temp2.insert(temp[5]);
+      }
+      if (temp.size()%2==1){
+        // pick middle
+        temp2.insert(temp[temp.size()/2]);
+      }
+
+      if (temp.size()==0) {
+        temp2.insert(-99);
+      }
+      cscHsToGemPad_[i] = std::make_pair(*temp2.begin(), *temp2.rbegin());
+    }
+
     if (debug_luts){
       std::cout << "detId " << csc_id << std::endl;
       for(auto p : cscHsToGemPad_) {
@@ -254,22 +323,7 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
       }
     }
 
-    // pick any roll
-    const int nGEMPads(randRoll->npads());
-    for (int i = 0; i< nGEMPads; ++i){
-      const LocalPoint lpGEM(randRoll->centreOfPad(i));
-      const GlobalPoint gp(randRoll->toGlobal(lpGEM));
-      const LocalPoint lpCSC(keyLayer->toLocal(gp));
-      const float strip(keyLayerGeometry->strip(lpCSC));
-      // HS are wrapped-around
-      gemPadToCscHs_[i] = (int) (strip - 0.25)/0.5;
-    }
-    if (debug_luts){
-      std::cout << "detId " << csc_id << std::endl;
-      for(auto p : gemPadToCscHs_) {
-        std::cout << "GEM Pad "<< p.first << " CSC HS : " << p.second << std::endl;
-      }
-    }
+
 
     //select correct scenario, even or odd
     maxDeltaPadPad_ = (isEven ? maxDeltaPadPadEven_ : maxDeltaPadPadOdd_);
@@ -823,6 +877,7 @@ CSCCorrelatedLCTDigi CSCMotherboardME21GEM::constructLCTsGEM(const CSCALCTDigi& 
 {
   if (hasPad)   std::cout << "Constructing CLCT-ALCT-1GEM LCT" << std::endl;
   if (hasCoPad) std::cout << "Constructing CLCT-ALCT-2GEM LCT" << std::endl;
+  if (not hasPad and not hasCoPad) std::cout << "Constructing ALCT-CLCT LCT without GEM!!" << std::endl;
 
   // CLCT pattern number
   unsigned int pattern = encodePattern(cLCT.getPattern(), cLCT.getStripType());
