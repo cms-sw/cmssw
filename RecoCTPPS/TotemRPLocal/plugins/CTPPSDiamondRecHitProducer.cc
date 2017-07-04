@@ -87,7 +87,7 @@ CTPPSDiamondRecHitProducer::fillDescriptions( edm::ConfigurationDescriptions& de
   desc.add<double>( "timeSliceNs", 25.0/1024.0 );
   desc.add<int>( "timeShift", 0 ); // to be determined at calibration level, will be replaced by a map channel id -> time shift
 
-  descr.addDefault( desc );
+  descr.add( "ctppsDiamondRecHits", desc );
 }
 
 DEFINE_FWK_MODULE( CTPPSDiamondRecHitProducer );

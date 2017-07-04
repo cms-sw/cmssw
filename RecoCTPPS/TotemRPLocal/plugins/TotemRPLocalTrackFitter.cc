@@ -193,7 +193,7 @@ TotemRPLocalTrackFitter::fillDescriptions( edm::ConfigurationDescriptions& descr
   desc.add<edm::InputTag>( "tagUVPattern", edm::InputTag( "totemRPUVPatternFinder" ) );
   desc.add<int>( "verbosity", 0 );
 
-  descr.addDefault( desc );
+  descr.add( "totemRPLocalTrackFitter", desc );
 }
 
 //----------------------------------------------------------------------------------------------------
