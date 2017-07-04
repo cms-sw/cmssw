@@ -41,6 +41,7 @@ class TotemRPUVPatternFinder : public edm::stream::EDProducer<>
     virtual ~TotemRPUVPatternFinder();
 
     virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
+    static void fillDescriptions( edm::ConfigurationDescriptions& );
   
   private:
     edm::InputTag tagRecHit;
@@ -294,6 +295,53 @@ void TotemRPUVPatternFinder::produce(edm::Event& event, const edm::EventSetup& e
   event.put(make_unique<DetSetVector<TotemRPUVPattern>>(patternsVector));
 }
  
+//----------------------------------------------------------------------------------------------------
+
+void
+TotemRPUVPatternFinder::fillDescriptions( edm::ConfigurationDescriptions& descr )
+{
+  edm::ParameterSetDescription desc;
+
+  desc.add<edm::InputTag>( "tagRecHit", edm::InputTag( "totemRPRecHitProducer" ) ); // input selection
+  desc.add<int>( "verbosity", 0 );
+  desc.add<unsigned int>( "maxHitsPerPlaneToSearch", 5 ); // if a plane has more hits than this parameter, it is considered as dirty
+  desc.add<unsigned int>( "minPlanesPerProjectionToSearch", 3 ); // minimal number of reasonable (= not empty and not dirty) planes per projeciton and per RP, to start the pattern search
+  desc.add<double>( "clusterSize_a", 0.02 /* rad */ ); // (full) cluster size in slope-intercept space
+  desc.add<double>( "clusterSize_b", 0.3 /* mm */ );
+
+  // minimal weight of (Hough) cluster to accept it as candidate
+  //   weight of cluster = sum of weights of contributing points
+  //   weight of point = sigma0 / sigma_of_point
+  //   most often: weight of point ~ 1, thus cluster weight is roughly number of contributing points
+  desc.add<double>( "threshold", 2.99 );
+
+  // minimal number of planes (in the recognised patterns) per projeciton and per RP, to tag the candidate as fittable
+  desc.add<unsigned int>( "minPlanesPerProjectionToFit", 3 );
+
+  // whether to allow combination of most significant U and V pattern, in case there several of them
+  // don't set it to True, unless you have reason
+  desc.add<bool>( "allowAmbiguousCombination", false );
+
+  // maximal angle (in any projection) to mark the candidate as fittable -> controls track parallelity with beam
+  // huge value -> no constraint
+  desc.add<double>( "max_a_toFit", 10.0 );
+
+  desc.add<std::vector<edm::ParameterSet> >( "exceptionalSettings", std::vector<edm::ParameterSet() );
+  /* if a RP or projection needs adjustment of the above settings, you can use the following format
+       exceptionalSettings = cms.VPSet(
+           cms.PSet(
+               rpId = cms.uint32(1998061568), # RP id according to CTPPSDetId
+               minPlanesPerProjectionToFit_U = cms.uint32(2),
+               minPlanesPerProjectionToFit_V = cms.uint32(3),
+               threshold_U = cms.double(1.99),
+               threshold_V = cms.double(2.99)
+           )
+       )
+  */
+
+  descr.addDefault( desc );
+}
+
 //----------------------------------------------------------------------------------------------------
 
 DEFINE_FWK_MODULE(TotemRPUVPatternFinder);
