@@ -354,7 +354,7 @@ Stage2l1TriggerDqmOfflineClient = cms.Sequence(
                                 l1tStage2EmulatorMonitorClient *
                                 l1tStage2MonitorClient *
                                 DQMHarvestL1Trigger *
-                                l1tEfficiencyMuons_Harvesting
+                                l1tEfficiencyMuonsHarvesting
                                 )
 
 

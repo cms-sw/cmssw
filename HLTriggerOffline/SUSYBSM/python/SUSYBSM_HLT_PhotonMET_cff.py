@@ -37,7 +37,7 @@ SUSY_HLT_PhotonMET_pt75 = cms.EDAnalyzer("SUSY_HLT_PhotonMET",
    metThrOffline = cms.untracked.double(100),
 )
 
-SUSY_HLT_PhotonMET_pt36_POSTPROCESSING = DQMEDHarvester("DQMGenericClient",
+SUSYoHLToPhotonMETpt36oPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
    subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_Photon36_R9Id90_HE10_Iso40_EBOnly_PFMET40_v"),
    verbose        = cms.untracked.uint32(2), # Set to 2 for all messages
    resolution     = cms.vstring(""),
@@ -47,7 +47,7 @@ SUSY_HLT_PhotonMET_pt36_POSTPROCESSING = DQMEDHarvester("DQMGenericClient",
    )
 )
 
-SUSY_HLT_PhotonMET_pt50_POSTPROCESSING = DQMEDHarvester("DQMGenericClient",
+SUSYoHLToPhotonMETpt50oPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
    subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_Photon50_R9Id90_HE10_Iso40_EBOnly_PFMET40_v"),
    verbose        = cms.untracked.uint32(2), # Set to 2 for all messages
    resolution     = cms.vstring(""),
@@ -57,7 +57,7 @@ SUSY_HLT_PhotonMET_pt50_POSTPROCESSING = DQMEDHarvester("DQMGenericClient",
    )
 )
 
-SUSY_HLT_PhotonMET_pt75_POSTPROCESSING = DQMEDHarvester("DQMGenericClient",
+SUSYoHLToPhotonMETpt75oPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
    subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_Photon75_R9Id90_HE10_Iso40_EBOnly_PFMET40_v"),
    verbose        = cms.untracked.uint32(2), # Set to 2 for all messages
    resolution     = cms.vstring(""),
