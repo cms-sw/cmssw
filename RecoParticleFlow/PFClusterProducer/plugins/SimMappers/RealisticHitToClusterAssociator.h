@@ -110,9 +110,16 @@ class RealisticHitToClusterAssociator
                 float sumE = 0.f;
                 if(numberOfClusters == 1)
                 {
-                    sumE = 1.f;
-                    partialEnergies[0] = sumE;
-                    distanceFromMaxHit_[hitId][0] = -XYdistanceFromMaxHit(hitId,MCAssociatedSimCluster_[hitId][0]);
+
+                    unsigned int simClusterIndex = MCAssociatedSimCluster_[hitId][0];
+                    HitToRealisticSimCluster_[hitId][0] = simClusterIndex;
+                    float assignedFraction = 1.f;
+                    HitToRealisticEnergyFraction_[hitId][0] = assignedFraction;
+                    float assignedEnergy = totalEnergy_[hitId];
+                    RealisticSimClusters_[simClusterIndex].increaseEnergy(assignedEnergy);
+                    RealisticSimClusters_[simClusterIndex].addHitAndFraction(hitId, assignedFraction);
+                    RealisticSimClusters_[simClusterIndex].increaseExclusiveEnergy(assignedEnergy);
+
                 }
                 else
                 {
@@ -120,37 +127,50 @@ class RealisticHitToClusterAssociator
                     {
 
                         auto simClusterId = MCAssociatedSimCluster_[hitId][clId];
-                        distanceFromMaxHit_[hitId][clId] = -XYdistanceFromMaxHit(hitId,simClusterId);
+                        distanceFromMaxHit_[hitId][clId] = XYdistanceFromMaxHit(hitId,simClusterId);
                         // partial energy is computed based on the distance from the maximum energy hit and its energy
                         // partial energy is only needed to compute a fraction and it's not the energy assigned to the cluster
                         if(maxEnergyHitAtLayer_[simClusterId][layer]>0.f)
-                        partialEnergies[clId] = maxEnergyHitAtLayer_[simClusterId][layer] * std::exp(-distanceFromMaxHit_[hitId][clId]/energyDecayLength);
+                        {
+                            partialEnergies[clId] = 0.0001f+ maxEnergyHitAtLayer_[simClusterId][layer] * std::exp(-distanceFromMaxHit_[hitId][clId]/energyDecayLength);
+
+                        }
 
                         sumE += partialEnergies[clId];
 
                     }
-                }
-                if(sumE != 0.f)
-                {
-                    float invSumE = 1.f/sumE;
-                    for(unsigned int clId = 0; clId < numberOfClusters; ++clId )
-                    {
 
-                        unsigned int simClusterIndex = MCAssociatedSimCluster_[hitId][clId];
-                        HitToRealisticSimCluster_[hitId][clId] = simClusterIndex;
-                        float assignedFraction = partialEnergies[clId]*invSumE;
-                        HitToRealisticEnergyFraction_[hitId][clId] = assignedFraction;
-                        float assignedEnergy = assignedFraction *totalEnergy_[hitId];
-                        RealisticSimClusters_[simClusterIndex].increaseEnergy(assignedEnergy);
-                        RealisticSimClusters_[simClusterIndex].addHitAndFraction(hitId, assignedFraction);
-                        // if the hits energy belongs for more than exclusiveFraction to a cluster, also the cluster's
-                        // exclusive energy is increased. The exclusive energy will be needed to evaluate if
-                        // a realistic cluster will be invisible, i.e. absorbed by other clusters
-                        bool isExclusive = ((!useMCFractionsForExclEnergy && (assignedFraction > exclusiveFraction) )
-                                || (useMCFractionsForExclEnergy && (MCEnergyFraction_[hitId][clId] >exclusiveFraction )));
-                        if(isExclusive)
+                    if(sumE > 0.f)
+                    {
+                        float invSumE = 1.f/sumE;
+                        for(unsigned int clId = 0; clId < numberOfClusters; ++clId )
                         {
-                            RealisticSimClusters_[simClusterIndex].increaseExclusiveEnergy(assignedEnergy);
+
+                            unsigned int simClusterIndex = MCAssociatedSimCluster_[hitId][clId];
+                            HitToRealisticSimCluster_[hitId][clId] = simClusterIndex;
+                            float assignedFraction = partialEnergies[clId]*invSumE;
+                            HitToRealisticEnergyFraction_[hitId][clId] = assignedFraction;
+                            float assignedEnergy = assignedFraction *totalEnergy_[hitId];
+                            RealisticSimClusters_[simClusterIndex].increaseEnergy(assignedEnergy);
+                            RealisticSimClusters_[simClusterIndex].addHitAndFraction(hitId, assignedFraction);
+                            // if the hits energy belongs for more than exclusiveFraction to a cluster, also the cluster's
+                            // exclusive energy is increased. The exclusive energy will be needed to evaluate if
+                            // a realistic cluster will be invisible, i.e. absorbed by other clusters
+
+                            if(useMCFractionsForExclEnergy)
+                            {
+                                if(MCEnergyFraction_[hitId][clId] >exclusiveFraction)
+                                {
+                                    RealisticSimClusters_[simClusterIndex].increaseExclusiveEnergy(assignedEnergy);
+                                }
+                            }
+                            else
+                            {
+                                if(assignedFraction > exclusiveFraction)
+                                {
+                                    RealisticSimClusters_[simClusterIndex].increaseExclusiveEnergy(assignedEnergy);
+                                }
+                            }
                         }
                     }
                 }
