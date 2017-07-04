@@ -88,21 +88,16 @@ void RPixDetClusterizer::buildClusters(unsigned int detId, const std::vector<CTP
 
 
 void RPixDetClusterizer::make_cluster(RPixCalibDigi aSeed,  std::vector<CTPPSPixelCluster> &clusters ){
-
 /// check if seed already used
   if(calib_rpix_digi_set_.size()==0 || calib_rpix_digi_set_.find(aSeed)==calib_rpix_digi_set_.end() ){
     return;
   }
-
-
 // creating a temporary cluster
-
   tempCluster atempCluster;
 
 // filling the cluster with the seed
   atempCluster.addPixel(aSeed.row(),aSeed.column(),aSeed.electrons());
   calib_rpix_digi_set_.erase( aSeed );
-
 
   while ( ! atempCluster.empty()) {
   //This is the standard algorithm to find and add a pixel

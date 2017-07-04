@@ -54,7 +54,6 @@ void CTPPSPixelRawToDigi::produce( edm::Event& ev,
   ev.getByToken(FEDRawDataCollection_, buffers);
 
   edm::ESHandle<CTPPSPixelDAQMapping> mapping;
-//  if(buffers->size())
 
   bool data_exist=false;
   for(int fed = FEDNumbering::MINCTPPSPixelsFEDID; fed <=  FEDNumbering::MAXCTPPSPixelsFEDID; fed++){

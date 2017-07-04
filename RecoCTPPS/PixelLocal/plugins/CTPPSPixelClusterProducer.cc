@@ -49,8 +49,6 @@ void CTPPSPixelClusterProducer::run(const edm::DetSetVector<CTPPSPixelDigi> &inp
   for (const auto &ds_digi : input)
     {
       edm::DetSet<CTPPSPixelCluster> &ds_cluster = output.find_or_insert(ds_digi.id);
-
-
       clusterizer_.buildClusters(ds_digi.id, ds_digi.data, ds_cluster.data, theGainCalibrationDB.getCalibs(), mask);
 
       if(verbosity_){
@@ -60,9 +58,6 @@ void CTPPSPixelClusterProducer::run(const edm::DetSetVector<CTPPSPixelDigi> &inp
 					       << (*iit).avg_row()<< " avg col " << (*iit).avg_col()<<" ADC.size " << (*iit).size();
 	}
       }
-
-
-
     }
 }
 
