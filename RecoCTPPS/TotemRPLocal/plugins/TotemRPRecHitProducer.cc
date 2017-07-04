@@ -32,6 +32,7 @@ class TotemRPRecHitProducer : public edm::stream::EDProducer<>
     virtual ~TotemRPRecHitProducer() {}
   
     virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
+    static void fillDescriptions( edm::ConfigurationDescriptions& );
   
   private:
     const edm::ParameterSet conf_;
@@ -82,6 +83,19 @@ void TotemRPRecHitProducer::produce(edm::Event& e, const edm::EventSetup& es)
    
   // save output
   e.put(make_unique<DetSetVector<TotemRPRecHit>>(output));
+}
+
+//----------------------------------------------------------------------------------------------------
+
+void
+TotemRPRecHitProducer::fillDescriptions( edm::ConfigurationDescriptions& descr )
+{
+  edm::ParameterSetDescription desc;
+
+  desc.add<edm::InputTag>( "tagCluster", edm::InputTag( "totemRPClusterProducer" ) );
+  desc.add<int>( "verbosity", 0 );
+
+  descr.addDefault( desc );
 }
 
 //----------------------------------------------------------------------------------------------------
