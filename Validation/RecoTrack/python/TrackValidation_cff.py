@@ -248,8 +248,12 @@ _sequenceForEachEra(_addSelectorsByHp, args=["_algos"], names="_selectorsByAlgoH
 # by originalAlgo
 for _eraName, _postfix, _era in _relevantEras:
     locals()["_selectorsByAlgoAndHp"+_postfix] = locals()["_selectorsByAlgo"+_postfix] + locals()["_selectorsByAlgoHp"+_postfix]
+    # For ByAlgoMask
+    locals()["_selectorsByAlgoAndHpNoGenTk"+_postfix] = filter(lambda n: n not in ["generalTracks", "cutsRecoTracksHp"], locals()["_selectorsByAlgoAndHp"+_postfix])
+    # For ByOriginalAlgo
+    locals()["_selectorsByAlgoAndHpNoGenTkDupMerge"+_postfix] = filter(lambda n: n not in ["cutsRecoTracksDuplicateMerge", "cutsRecoTracksDuplicateMergeHp"], locals()["_selectorsByAlgoAndHpNoGenTk"+_postfix])
 _sequenceForEachEra(_addSelectorsByOriginalAlgoMask, modDict = globals(),
-                    args = ["_selectorsByAlgoAndHp"], plainArgs = ["ByOriginalAlgo", "originalAlgorithm"],
+                    args = ["_selectorsByAlgoAndHpNoGenTkDupMerge"], plainArgs = ["ByOriginalAlgo", "originalAlgorithm"],
                     names = "_selectorsByOriginalAlgo", sequence = "_tracksValidationSelectorsByOriginalAlgo")
 
 
@@ -559,7 +563,7 @@ fastSim.toReplaceWith(tracksValidation, tracksValidation.copyAndExclude([
 
 # Select by originalAlgo and algoMask
 _sequenceForEachEra(_addSelectorsByOriginalAlgoMask, modDict = globals(),
-                    args = ["_selectorsByAlgoAndHp"], plainArgs = ["ByAlgoMask", "algorithmMaskContains"],
+                    args = ["_selectorsByAlgoAndHpNoGenTk"], plainArgs = ["ByAlgoMask", "algorithmMaskContains"],
                     names = "_selectorsByAlgoMask", sequence = "_tracksValidationSelectorsByAlgoMaskStandalone")
 
 # Select pT>0.9 by iteration
