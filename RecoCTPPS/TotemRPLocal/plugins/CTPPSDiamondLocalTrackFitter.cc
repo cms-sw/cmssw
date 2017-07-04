@@ -118,7 +118,7 @@ CTPPSDiamondLocalTrackFitter::fillDescriptions( edm::ConfigurationDescriptions& 
 
   desc.add<edm::ParameterSetDescription>( "trackingAlgorithmParams", trackingAlgoParams );
 
-  descr.addDefault( desc );
+  descr.add( "ctppsDiamondLocalTracks", desc );
 }
 
 DEFINE_FWK_MODULE( CTPPSDiamondLocalTrackFitter );

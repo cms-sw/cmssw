@@ -346,7 +346,7 @@ TotemRPUVPatternFinder::fillDescriptions( edm::ConfigurationDescriptions& descr 
 
   desc.addVPSet( "exceptionalSettings", exceptions_validator, exceptions_default );
 
-  descr.addDefault( desc );
+  descr.add( "totemRPUVPatternFinder", desc );
 }
 
 //----------------------------------------------------------------------------------------------------

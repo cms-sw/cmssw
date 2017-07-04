@@ -111,7 +111,7 @@ CTPPSLocalTrackLiteProducer::fillDescriptions( edm::ConfigurationDescriptions& d
   desc.add<edm::InputTag>( "tagDiamondTrack", edm::InputTag( "ctppsDiamondLocalTracks" ) );
   desc.add<bool>( "doNothing", true ); // disable the module by default
 
-  descr.addDefault( desc );
+  descr.add( "ctppsLocalTrackLiteProducer", desc );
 }
 
 //----------------------------------------------------------------------------------------------------
