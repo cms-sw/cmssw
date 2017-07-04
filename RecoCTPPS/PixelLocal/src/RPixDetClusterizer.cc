@@ -13,7 +13,7 @@ namespace {
 
 
 RPixDetClusterizer::RPixDetClusterizer(edm::ParameterSet const& conf):
-  params_(conf), SeedVector_(0)
+  params_(conf)
 {
 verbosity_ = conf.getUntrackedParameter<int>("RPixVerbosity");
 SeedADCThreshold_ = conf.getParameter<int>("SeedADCThreshold");
@@ -70,20 +70,12 @@ void RPixDetClusterizer::buildClusters(unsigned int detId, const std::vector<CTP
   }
   if(verbosity_) edm::LogInfo("RPixDetClusterizer")<<" RPix set size = "<<calib_rpix_digi_set_.size();
 
-// storing the seeds
-  SeedVector_.clear();
+// clusterizing without storing the seeds
   for (const auto &rpcd : calib_rpix_digi_set_){
     if(rpcd.electrons() > SeedADCThreshold_*ElectronADCGain_){
-      SeedVector_.push_back(rpcd);
+      make_cluster( rpcd, clusters);
     }
   }
-  if(verbosity_) edm::LogInfo("RPixDetClusterizer")<<" SeedVector size = "<<SeedVector_.size();
-
-// Looping on the seeds to make a cluster around the seed
-  for(std::vector<RPixCalibDigi>::iterator SeedIt = SeedVector_.begin(); SeedIt!=SeedVector_.end();++SeedIt){
-    make_cluster( *SeedIt, clusters);
-  }
-
 }
 
 
