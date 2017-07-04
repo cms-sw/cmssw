@@ -175,11 +175,18 @@ namespace edm {
       iRegistry.watchPreEvent(this, &Timing::preEvent);
       iRegistry.watchPostEvent(this, &Timing::postEvent);
 
-      if( (not summary_only_) || (threshold_ > 0.) ) {
+      bool checkThreshold = true;
+      if (threshold_ <= 0.0) {
+        //we need to ignore the threshold check
+        threshold_ = std::numeric_limits<double>::max();
+        checkThreshold = false;
+      }
+          
+      if( (not summary_only_) || (checkThreshold) ) {
         iRegistry.watchPreModuleEvent(this, &Timing::preModule);
         iRegistry.watchPostModuleEvent(this, &Timing::postModule);
       } 
-      if(threshold_ > 0.) {
+      if(checkThreshold) {
         iRegistry.watchPreSourceEvent(this, &Timing::preSourceEvent);
         iRegistry.watchPostSourceEvent(this, &Timing::postSourceEvent);
       
