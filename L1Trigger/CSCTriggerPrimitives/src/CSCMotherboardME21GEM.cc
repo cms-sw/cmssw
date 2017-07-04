@@ -69,6 +69,12 @@ CSCMotherboardME21GEM::CSCMotherboardME21GEM(unsigned endcap, unsigned station,
     << "+++ Upgrade CSCMotherboardME21GEM constructed while isSLHC is not set! +++\n";
 
   const edm::ParameterSet me21tmbParams(conf.getParameter<edm::ParameterSet>("me21tmbSLHCGEM"));
+  std::cout << "ME21 tmbParams " << me21tmbParams << std::endl;
+  const edm::ParameterSet alctParams(conf.getParameter<edm::ParameterSet>("alctSLHCME21"));
+  std::cout << "ME21 alctParams " << alctParams << std::endl;
+  const edm::ParameterSet clctParams(conf.getParameter<edm::ParameterSet>("clctSLHCME21"));
+  std::cout << "ME21 clctParams " << clctParams << std::endl;
+
   const edm::ParameterSet coPadParams(conf.getParameter<edm::ParameterSet>("copadParam"));
   int gemChamber(CSCTriggerNumbering::chamberFromTriggerLabels(theSector,theSubsector,theStation,theTrigChamber));
   std::cout << "CSC chamber " << theTrigChamber << " " << gemChamber << std::endl;
