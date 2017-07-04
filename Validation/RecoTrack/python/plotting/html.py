@@ -470,7 +470,7 @@ class Page(object):
         for section in _sectionNameMapOrder.keys():
             if section in keys_sorted:
                 ret.append(section)
-                keys.remove(section)
+                keys_sorted.remove(section)
         ret.extend(keys_sorted)
         return ret
 
