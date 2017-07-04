@@ -81,6 +81,8 @@ from DQMOffline.Trigger.BTaggingMonitoring_cff import *
 from DQMOffline.Trigger.BPHMonitor_cff import *
 # remove quadJetAna
 from DQMOffline.Trigger.topHLTOfflineDQM_cff import *
+from DQMOffline.Trigger.JetMETPromptMonitor_cff import *
+
 offlineHLTSource = cms.Sequence(
     hltResults *
     lumiMonitorHLTsequence *
@@ -108,7 +110,8 @@ offlineHLTSource = cms.Sequence(
     topMonitorHLT *
     btagMonitorHLT *
     bphMonitorHLT *
-    hltObjectsMonitor
+    hltObjectsMonitor *
+    jetmetMonitorHLT
     )
 
 # offline DQM for the HLTMonitoring stream
