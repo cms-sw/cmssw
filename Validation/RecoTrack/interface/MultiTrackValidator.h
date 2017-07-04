@@ -123,7 +123,6 @@ class MultiTrackValidator : public DQMEDAnalyzer {
   TrackingParticleSelector tpSelector;				      
   CosmicTrackingParticleSelector cosmictpSelector;
   TrackingParticleSelector dRtpSelector;				      
-  TrackingParticleSelector dRtpSelectorNoPtCut;
   std::unique_ptr<RecoTrackSelectorBase> dRTrackSelector;
 
   edm::EDGetTokenT<SimHitTPAssociationProducer::SimHitTPAssociationList> _simHitTpMapTag;
@@ -132,7 +131,6 @@ class MultiTrackValidator : public DQMEDAnalyzer {
   edm::EDGetTokenT<reco::VertexToTrackingVertexAssociator> vertexAssociatorToken_;
 
   std::vector<MonitorElement *> h_reco_coll, h_assoc_coll, h_assoc2_coll, h_simul_coll, h_looper_coll, h_pileup_coll;
-  std::vector<MonitorElement *> h_assoc_coll_allPt, h_simul_coll_allPt;
 };
 
 
