@@ -380,8 +380,8 @@ me11tmbSLHCGEM = cms.PSet(
     ## matching to pads in case LowQ CLCT
     maxDeltaBXPadEven = cms.int32(1),
     maxDeltaBXPadOdd = cms.int32(1),
-    maxDeltaPadPadEven = cms.int32(2),
-    maxDeltaPadPadOdd = cms.int32(3),
+    maxDeltaPadPadEven = cms.int32(4),
+    maxDeltaPadPadOdd = cms.int32(4),
 
     ## matching to pads in case absent CLCT
     maxDeltaBXCoPadEven = cms.int32(0),
@@ -429,7 +429,7 @@ me21tmbSLHCGEM = cms.PSet(
     maxME21LCTs = cms.uint32(2),
 
     ## run in debug mode
-    debugLUTs = cms.bool(False),
+    debugLUTs = cms.bool(True),
     debugMatching = cms.bool(True),
     debugGEMDphi = cms.bool(False),
 
@@ -438,7 +438,7 @@ me21tmbSLHCGEM = cms.PSet(
 
     ## matching to pads in case LowQ CLCT
     maxDeltaBXPad = cms.int32(1),
-    maxDeltaPadPadOdd = cms.int32(4),
+    maxDeltaPadPadOdd = cms.int32(3),
     maxDeltaPadPadEven = cms.int32(3),
     maxDeltaWg = cms.int32(2),
 
