@@ -771,7 +771,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	// ##############################################
 	// fill RecoAssociated SimTracks' histograms
 	// ##############################################
-	const reco::Track* matchedTrackPointer=0;
+	const reco::Track* matchedTrackPointer=nullptr;
         unsigned int selectsLoose = mvaCollections.size();
         unsigned int selectsHP = mvaCollections.size();
 	if(simRecColl.find(tpr) != simRecColl.end()){

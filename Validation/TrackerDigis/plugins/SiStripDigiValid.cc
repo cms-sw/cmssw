@@ -22,7 +22,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 
 SiStripDigiValid::SiStripDigiValid(const edm::ParameterSet& ps)
-  : dbe_(0)
+  : dbe_(nullptr)
   , runStandalone ( ps.getParameter<bool>("runStandalone")  )  
   , outputFile_( ps.getUntrackedParameter<std::string>( "outputFile", "stripdigihisto.root" ) )
   , edmDetSetVector_SiStripDigi_Token_( consumes< edm::DetSetVector<SiStripDigi> >( ps.getParameter<edm::InputTag>( "src" ) ) ) {

@@ -21,7 +21,7 @@ public:
   virtual reco::Track* run(
       const edm::EventSetup& es,
       const std::vector<const TrackingRecHit *>& hits,
-      const TrackingRegion& region) const { return 0;}
+      const TrackingRegion& region) const { return nullptr;}
 
   virtual reco::Track* run(
       const edm::Event& ev,

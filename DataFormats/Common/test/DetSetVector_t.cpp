@@ -240,7 +240,7 @@ void refTest() {
     TestHandle<coll_type> pc2(&c, ProductID(1, 1));
     RefDet refDet = makeRefToDetSetVector(pc2,det_id_type(12),c[3].data.begin());
 
-    assert("Failed to throw required exception" == 0);
+    assert("Failed to throw required exception" == nullptr);
   }
   catch (edm::Exception const& x) {
     //std::cout <<x.what()<<std::endl;
@@ -253,7 +253,7 @@ void refTest() {
     TestHandle<coll_type> pc2(&c, ProductID(1, 1));
     RefDet refDet = makeRefToDetSetVector(pc2,det_id_type(1),c[3].data.begin());
 
-    assert("Failed to throw required exception" == 0);
+    assert("Failed to throw required exception" == nullptr);
   }
   catch (edm::Exception const& x) {
     //std::cout <<x.what()<<std::endl;
@@ -348,7 +348,7 @@ void work() {
     // We should not find ID=100; op[] should throw.
     try {
       coll_type::reference r = c[edm::det_id_type(100)];
-      assert("Failed to throw required exception" == 0);
+      assert("Failed to throw required exception" == nullptr);
       assert(is_null(&r)); // to silence warning of unused r
     }
     catch (edm::Exception const& x) {
@@ -356,7 +356,7 @@ void work() {
       assert(x.categoryCode() == edm::errors::InvalidReference);
     }
     catch (...) {
-      assert("Failed to throw correct exception type" == 0);
+      assert("Failed to throw correct exception type" == nullptr);
     }
   }
 
@@ -365,7 +365,7 @@ void work() {
     try {
       coll_type::const_reference r
         = static_cast<coll_type const&>(c)[edm::det_id_type(100)];
-      assert("Failed to throw required exception" == 0);
+      assert("Failed to throw required exception" == nullptr);
       assert(is_null(&r)); // to silence warning of unused r
     }
     catch (edm::Exception const& x) {
@@ -373,7 +373,7 @@ void work() {
       assert(x.categoryCode() == edm::errors::InvalidReference);
     }
     catch (...) {
-      assert("Failed to throw correct exception type" == 0);
+      assert("Failed to throw correct exception type" == nullptr);
     }
   }
   {

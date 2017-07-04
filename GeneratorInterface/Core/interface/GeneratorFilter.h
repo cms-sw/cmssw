@@ -77,7 +77,7 @@ namespace edm
   GeneratorFilter<HAD,DEC>::GeneratorFilter(ParameterSet const& ps) :
     EDFilter(),
     hadronizer_(ps),
-    decayer_(0),
+    decayer_(nullptr),
     nEventsInLumiBlock_(0)
   {
     // TODO:

@@ -20,7 +20,7 @@ HFWedgeSD::HFWedgeSD(std::string name, const DDCompactView & cpv,
 		 const SensitiveDetectorCatalog & clg, edm::ParameterSet const & p,
 		 const SimTrackManager* manager) :
   SensitiveCaloDetector(name, cpv, clg, p), theName(name),
-  m_trackManager(manager), hcID(-1), theHC(0), currentHit(0) {
+  m_trackManager(manager), hcID(-1), theHC(nullptr), currentHit(nullptr) {
 
   collectionName.insert(name);
   LogDebug("FiberSim") << "***************************************************"

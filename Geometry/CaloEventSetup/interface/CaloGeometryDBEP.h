@@ -61,8 +61,8 @@ class CaloGeometryDBEP : public edm::ESProducer
     
       PtrType produceAligned( const typename T::AlignedRecord& iRecord ) 
       {
-	 const Alignments* alignPtr  ( 0 ) ;
-	 const Alignments* globalPtr ( 0 ) ;
+	 const Alignments* alignPtr  ( nullptr ) ;
+	 const Alignments* globalPtr ( nullptr ) ;
 	 if( m_applyAlignment ) // get ptr if necessary
 	 {
 	    edm::ESHandle< Alignments >                                      alignments ;
@@ -142,24 +142,24 @@ class CaloGeometryDBEP : public edm::ESProducer
 
 	    const DetId id ( T::DetIdType::detIdFromDenseIndex( i ) ) ;
     
-	    const unsigned int iGlob ( 0 == globalPtr ? 0 :
+	    const unsigned int iGlob ( nullptr == globalPtr ? 0 :
 				       T::alignmentTransformIndexGlobal( id ) ) ;
 
-	    assert( 0 == globalPtr || iGlob < globalPtr->m_align.size() ) ;
+	    assert( nullptr == globalPtr || iGlob < globalPtr->m_align.size() ) ;
 
-	    const AlignTransform* gt ( 0 == globalPtr ? 0 : &globalPtr->m_align[ iGlob ] ) ;
+	    const AlignTransform* gt ( nullptr == globalPtr ? nullptr : &globalPtr->m_align[ iGlob ] ) ;
 
-	    assert( 0 == gt || iGlob == T::alignmentTransformIndexGlobal( DetId( gt->rawId() ) ) ) ;
+	    assert( nullptr == gt || iGlob == T::alignmentTransformIndexGlobal( DetId( gt->rawId() ) ) ) ;
 
-	    const unsigned int iLoc ( 0 == alignPtr ? 0 :
+	    const unsigned int iLoc ( nullptr == alignPtr ? 0 :
 				      T::alignmentTransformIndexLocal( id ) ) ;
 
-	    assert( 0 == alignPtr || iLoc < alignPtr->m_align.size() ) ;
+	    assert( nullptr == alignPtr || iLoc < alignPtr->m_align.size() ) ;
 
-	    const AlignTransform* at ( 0 == alignPtr ? 0 :
+	    const AlignTransform* at ( nullptr == alignPtr ? nullptr :
 				       &alignPtr->m_align[ iLoc ] ) ;
 
-	    assert( 0 == at || ( T::alignmentTransformIndexLocal( DetId( at->rawId() ) ) == iLoc ) ) ;
+	    assert( nullptr == at || ( T::alignmentTransformIndexLocal( DetId( at->rawId() ) ) == iLoc ) ) ;
 
 	    const CaloGenericDetId gId ( id ) ;
 
@@ -187,8 +187,8 @@ class CaloGeometryDBEP : public edm::ESProducer
 		       CLHEP::Hep3Vector(dx,dy,dz)     );
 
 	    // now prepend alignment(s) for final transform
-	    const Tr3D atr ( 0 == at ? tr :
-			     ( 0 == gt ? at->transform()*tr :
+	    const Tr3D atr ( nullptr == at ? tr :
+			     ( nullptr == gt ? at->transform()*tr :
 			       at->transform()*gt->transform()*tr ) ) ;
 	    //--------------------------------- done making transform  ---------------
 

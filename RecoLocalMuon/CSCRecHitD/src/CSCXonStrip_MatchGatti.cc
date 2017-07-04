@@ -36,7 +36,7 @@
                                                                                                  
 
 CSCXonStrip_MatchGatti::CSCXonStrip_MatchGatti(const edm::ParameterSet& ps) :
-  recoConditions_( 0 )  {
+  recoConditions_( nullptr )  {
 
   useCalib                   = ps.getParameter<bool>("CSCUseCalibrations");
   xtalksOffset               = ps.getParameter<double>("CSCStripxtalksOffset");

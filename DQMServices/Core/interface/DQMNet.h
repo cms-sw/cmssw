@@ -300,7 +300,7 @@ protected:
 
   // bool			reconstructObject(Object &o);
   // bool			reinstateObject(DQMStore *store, Object &o);
-  virtual Object *	findObject(Peer *p, const std::string &name, Peer **owner = 0) = 0;
+  virtual Object *	findObject(Peer *p, const std::string &name, Peer **owner = nullptr) = 0;
   virtual Object *	makeObject(Peer *p, const std::string &name) = 0;
   virtual void		markObjectsDead(Peer *p) = 0;
   virtual void		purgeDeadObjects(Peer *p) = 0;
@@ -322,7 +322,7 @@ private:
   void			losePeer(const char *reason,
 				 Peer *peer,
 				 lat::IOSelectEvent *event,
-				 lat::Error *err = 0);
+				 lat::Error *err = nullptr);
   void			requestObjectData(Peer *p, const char *name, size_t len);
   void			releaseFromWait(WaitList::iterator i, Object *o);
   void			releaseWaiters(const std::string &name, Object *o);
@@ -381,7 +381,7 @@ public:
 
 protected:
   virtual Object *
-  findObject(Peer *p, const std::string &name, Peer **owner = 0)
+  findObject(Peer *p, const std::string &name, Peer **owner = nullptr)
     {
       size_t slash = name.rfind('/');
       size_t dirpos = (slash == std::string::npos ? 0 : slash);
@@ -395,13 +395,13 @@ protected:
       typename ObjectMap::iterator pos;
       typename PeerMap::iterator i, e;
       if (owner)
-	*owner = 0;
+	*owner = nullptr;
       if (p)
       {
 	ImplPeer *ip = static_cast<ImplPeer *>(p);
 	pos = ip->objs.find(proto);
 	if (pos == ip->objs.end())
-	  return 0;
+	  return nullptr;
 	else
 	{
 	  if (owner) *owner = ip;
@@ -419,7 +419,7 @@ protected:
 	    return const_cast<ObjType *>(&*pos);
 	  }
 	}
-	return 0;
+	return nullptr;
       }
     }
 
@@ -484,15 +484,15 @@ protected:
     {
       typename PeerMap::iterator pos = peers_.find(s);
       typename PeerMap::iterator end = peers_.end();
-      return pos == end ? 0 : &pos->second;
+      return pos == end ? nullptr : &pos->second;
     }
 
   virtual Peer *
   createPeer(lat::Socket *s)
     {
       ImplPeer *ip = &peers_[s];
-      ip->socket = 0;
-      ip->sendq = 0;
+      ip->socket = nullptr;
+      ip->sendq = nullptr;
       ip->sendpos = 0;
       ip->mask = 0;
       ip->source = false;
@@ -500,7 +500,7 @@ protected:
       ip->updated = false;
       ip->updates = 0;
       ip->waiting = 0;
-      ip->automatic = 0;
+      ip->automatic = nullptr;
       return ip;
     }
 
@@ -578,7 +578,7 @@ protected:
 	    << "DEBUG: notifying " << p.peeraddr << std::endl;
 
 	Bucket msg;
-        msg.next = 0;
+        msg.next = nullptr;
 	sendObjectListToPeer(&msg, !p.updated || all, true);
 
 	if (! msg.data.empty())
@@ -588,7 +588,7 @@ protected:
 	    prev = &(*prev)->next;
 
 	  *prev = new Bucket;
-	  (*prev)->next = 0;
+	  (*prev)->next = nullptr;
 	  (*prev)->data.swap(msg.data);
 	}
 	p.updated = true;

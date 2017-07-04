@@ -53,8 +53,8 @@ CaloExtractorByAssociator::CaloExtractorByAssociator(const ParameterSet& par, ed
   theNoise_HO(par.getParameter<double>("Noise_HO")),
   theNoiseTow_EB(par.getParameter<double>("NoiseTow_EB")),
   theNoiseTow_EE(par.getParameter<double>("NoiseTow_EE")),
-  theService(0),
-  theAssociator(0),
+  theService(nullptr),
+  theAssociator(nullptr),
   thePrintTimeReport(par.getUntrackedParameter<bool>("PrintTimeReport"))
 {
   ParameterSet serviceParameters = par.getParameter<ParameterSet>("ServiceParameters");

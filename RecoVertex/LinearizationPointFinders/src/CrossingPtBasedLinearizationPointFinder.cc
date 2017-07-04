@@ -105,7 +105,7 @@ void graphicsDebug ( const std::vector < PointAndDistance > & input )
 
 CrossingPtBasedLinearizationPointFinder::CrossingPtBasedLinearizationPointFinder(
     const ModeFinder3d & algo, const signed int n_pairs ) :
-        useMatrix ( false ) , theNPairs ( n_pairs ), theMatrix ( 0 ),
+        useMatrix ( false ) , theNPairs ( n_pairs ), theMatrix ( nullptr ),
         theAlgo ( algo.clone() )
 {}
 

@@ -38,7 +38,7 @@ private:
 void
 FWCSCStripDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*)
 {
-   const CSCStripDigiCollection* digis = 0;
+   const CSCStripDigiCollection* digis = nullptr;
   
    iItem->get(digis);
 

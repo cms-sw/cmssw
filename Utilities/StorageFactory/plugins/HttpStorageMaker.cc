@@ -17,7 +17,7 @@ public:
     std::string    newurl ((proto == "web" ? "http" : proto) + ":" + path);
     const char     *curlopts [] = {
       "curl", "-L", "-f", "-o", temp.c_str(), "-q", "-s", "--url",
-      newurl.c_str (), 0
+      newurl.c_str (), nullptr
     };
 
     return RemoteFile::get (localfd, temp, (char **) curlopts, mode);

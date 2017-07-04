@@ -12,7 +12,7 @@ using namespace oracle::occi;
 
 RunList::RunList()
 {
-  m_conn = NULL;
+  m_conn = nullptr;
 }
 
 RunList::~RunList()

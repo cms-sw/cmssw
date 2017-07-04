@@ -4,17 +4,17 @@ namespace ecaldqm
 {
   MESetNonObject::MESetNonObject(std::string const& _fullPath, binning::ObjectType _otype, binning::BinningType _btype, MonitorElement::Kind _kind, binning::AxisSpecs const* _xaxis/* = 0*/, binning::AxisSpecs const* _yaxis/* = 0*/, binning::AxisSpecs const* _zaxis/* = 0*/) :
     MESet(_fullPath, _otype, _btype, _kind),
-    xaxis_(_xaxis ? new binning::AxisSpecs(*_xaxis) : 0),
-    yaxis_(_yaxis ? new binning::AxisSpecs(*_yaxis) : 0),
-    zaxis_(_zaxis ? new binning::AxisSpecs(*_zaxis) : 0)
+    xaxis_(_xaxis ? new binning::AxisSpecs(*_xaxis) : nullptr),
+    yaxis_(_yaxis ? new binning::AxisSpecs(*_yaxis) : nullptr),
+    zaxis_(_zaxis ? new binning::AxisSpecs(*_zaxis) : nullptr)
   {
   }
 
   MESetNonObject::MESetNonObject(MESetNonObject const& _orig) :
     MESet(_orig),
-    xaxis_(_orig.xaxis_ ? new binning::AxisSpecs(*_orig.xaxis_) : 0),
-    yaxis_(_orig.yaxis_ ? new binning::AxisSpecs(*_orig.yaxis_) : 0),
-    zaxis_(_orig.zaxis_ ? new binning::AxisSpecs(*_orig.zaxis_) : 0)
+    xaxis_(_orig.xaxis_ ? new binning::AxisSpecs(*_orig.xaxis_) : nullptr),
+    yaxis_(_orig.yaxis_ ? new binning::AxisSpecs(*_orig.yaxis_) : nullptr),
+    zaxis_(_orig.zaxis_ ? new binning::AxisSpecs(*_orig.zaxis_) : nullptr)
   {
   }
 
@@ -31,9 +31,9 @@ namespace ecaldqm
     delete xaxis_;
     delete yaxis_;
     delete zaxis_;
-    xaxis_ = 0;
-    yaxis_ = 0;
-    zaxis_ = 0;
+    xaxis_ = nullptr;
+    yaxis_ = nullptr;
+    zaxis_ = nullptr;
 
     MESetNonObject const* pRhs(dynamic_cast<MESetNonObject const*>(&_rhs));
     if(pRhs){
@@ -68,7 +68,7 @@ namespace ecaldqm
     string name(path_.substr(slashPos + 1));
     _ibooker.setCurrentFolder(path_.substr(0, slashPos));
 
-    MonitorElement* me(0);
+    MonitorElement* me(nullptr);
 
     switch(kind_) {
     case MonitorElement::DQM_KIND_REAL :

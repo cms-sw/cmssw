@@ -148,7 +148,7 @@ void GeometryAligner::attachSurfaceDeformations( C* geometry,
 
       // remove SurfaceDeformation from GeomDetUnit (i.e. set NULL pointer)
       GeomDetUnit* geomDetUnit = const_cast<GeomDetUnit*>((*iPair).second);
-      this->setSurfaceDeformation( *geomDetUnit, 0 );
+      this->setSurfaceDeformation( *geomDetUnit, nullptr );
 
       ++iPair;
       if ( iPair==theMap.end() )

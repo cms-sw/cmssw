@@ -72,8 +72,8 @@ PlotCompareUtility::PlotCompareUtility(std::string Reference, std::string New, s
 PlotCompareUtility::~PlotCompareUtility() {
 
   // close TFiles
-  if (refFile != NULL) refFile->Close();
-  if (newFile != NULL) newFile->Close();
+  if (refFile != nullptr) refFile->Close();
+  if (newFile != nullptr) newFile->Close();
 
 }
 
@@ -163,8 +163,8 @@ bool PlotCompareUtility::isValid() const {
   string newPath = newBasePath + "/" + newPrefix;
   string refPath = refBasePath + "/" + refPrefix;
   // check the files and that the paths are valid
-  bool refValid = (refFile != NULL) && (refFile->Get(refPath.c_str()) != NULL);
-  bool newValid = (newFile != NULL) && (newFile->Get(newPath.c_str()) != NULL);
+  bool refValid = (refFile != nullptr) && (refFile->Get(refPath.c_str()) != nullptr);
+  bool newValid = (newFile != nullptr) && (newFile->Get(newPath.c_str()) != nullptr);
 
   return refValid && newValid;
 

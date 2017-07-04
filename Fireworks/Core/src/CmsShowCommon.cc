@@ -37,7 +37,7 @@
 //
 CmsShowCommon::CmsShowCommon(fireworks::Context* c):
    FWConfigurableParameterizable(2),
-   m_view(0),
+   m_view(nullptr),
    m_context(c),  
    m_trackBreak(this, "     ", 2l, 0l, 2l), // do not want to render text at setter
    m_drawBreakPoints(this, "Show y=0 points as markers", false),

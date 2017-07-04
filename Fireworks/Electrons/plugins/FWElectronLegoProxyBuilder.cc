@@ -38,7 +38,7 @@ void FWElectronLegoProxyBuilder::build(const reco::GsfElectron& iData, unsigned 
    TEveStraightLineSet *marker = new TEveStraightLineSet("marker");
    setupAddElement(marker, &oItemHolder);
  
-   TEveTrack* track(0);
+   TEveTrack* track(nullptr);
    
    if( iData.gsfTrack().isAvailable() )
      track = fireworks::prepareTrack(*iData.gsfTrack(), context().getTrackPropagator());     

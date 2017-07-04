@@ -1194,10 +1194,10 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     if(!patmetcoll.isValid()) return;
   }
 
-  const MET *met=NULL;
-  const pat::MET *patmet=NULL;
-  const PFMET *pfmet=NULL;
-  const CaloMET *calomet=NULL;
+  const MET *met=nullptr;
+  const pat::MET *patmet=nullptr;
+  const PFMET *pfmet=nullptr;
+  const CaloMET *calomet=nullptr;
   //if(isTCMet_){
   //met=&(tcmetcoll->front());
   //}

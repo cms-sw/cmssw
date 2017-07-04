@@ -42,7 +42,7 @@
 // constructors and destructor
 //
 FWCaloDataProxyBuilderBase::FWCaloDataProxyBuilderBase() :
-   m_caloData(0),
+   m_caloData(nullptr),
    m_sliceIndex(-1)
 {
 }

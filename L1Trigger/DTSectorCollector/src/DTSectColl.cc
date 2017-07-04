@@ -55,8 +55,8 @@ DTSectColl::DTSectColl(DTSectCollId id) : _sectcollid(id){
       _tsc[istep][istat] = new DTSC(istat+1);
     }
   }
-  for (int istat=0;istat<5;istat++) _tsphi[istat]=0;
-  for (int istat=0;istat<3;istat++) _tstheta[istat]=0;
+  for (int istat=0;istat<5;istat++) _tsphi[istat]=nullptr;
+  for (int istat=0;istat<3;istat++) _tstheta[istat]=nullptr;
 
 }
 
@@ -202,7 +202,7 @@ DTSectColl::loadSectColl() {
     }
   }
 
-  if(!(_tsphi[4]==0)){  // only for double stations
+  if(!(_tsphi[4]==nullptr)){  // only for double stations
     pend=_tsphi[4]->end();
     for(p=_tsphi[4]->begin();p!=pend;p++){
       int step = p->step();
@@ -321,13 +321,13 @@ DTSectColl::getDTSC(int step, int istat) const {
   if(step<DTConfigSectColl::NSTEPF||step>DTConfigSectColl::NSTEPL){
     std::cout << "DTSectColl::getDTSC: step out of range: " << step;
     std::cout << " empty pointer returned!" << std::endl;
-    return 0;
+    return nullptr;
   }
 
   if(istat<1 || istat>4){
     std::cout << "DTSectColl::getDTSC: station out of SC range: " << istat;
     std::cout << " emty pointer returned!" << std::endl;
-    return 0;
+    return nullptr;
   }
 
   return _tsc[step-DTConfigSectColl::NSTEPF][istat-1];  
@@ -402,12 +402,12 @@ DTSectColl::getDTSectCollPhCand(int ifs, unsigned n) const {
   if(ifs<1||ifs>2){
     std::cout << "DTSectColl::getDTSectCollPhCand: wrong track number: " << ifs;
     std::cout << " empty pointer returned!" << std::endl;
-    return 0;
+    return nullptr;
   }
   if(n<1 || n>nCandPh(ifs)) {
     std::cout << "DTSectColl::getDTSectCollPhCand: requested trigger not present: " << n;
     std::cout << " empty pointer returned!" << std::endl;
-    return 0;
+    return nullptr;
   }
 
   std::vector<DTSectCollPhCand*>::const_iterator p = _incand_ph[ifs-1].begin()+n-1;
@@ -421,7 +421,7 @@ DTSectColl::getDTSectCollThCand(unsigned n) const {
   if(n<1 || n>nCandTh()) {
     std::cout << "DTSectColl::getDTSectCollThCand: requested trigger not present: " << n;
     std::cout << " empty pointer returned!" << std::endl;
-    return 0;
+    return nullptr;
   }
 
   std::vector<DTSectCollThCand*>::const_iterator p = _incand_th.begin()+n-1;
@@ -436,7 +436,7 @@ DTSectColl::getTrackPh(int n) const {
   if(n<1 || n>nTracksPh()) {
     std::cout << "DTSectColl::getTrackPh: requested track not present: " << n;
     std::cout << " empty pointer returned!" << std::endl;
-    return 0;
+    return nullptr;
   }
 
   std::vector<DTSectCollPhCand*>::const_iterator p = _outcand_ph.begin()+n-1;
@@ -450,7 +450,7 @@ DTSectColl::getTrackTh(int n) const {
   if(n<1 || n>nTracksTh()) {
     std::cout << "DTSectColl::getTrackTh: requested track not present: " << n;
     std::cout << " empty pointer returned!" << std::endl;
-    return 0;
+    return nullptr;
   }
 
   std::vector<DTSectCollThCand*>::const_iterator p = _outcand_th.begin()+n-1;
@@ -518,7 +518,7 @@ DTSectColl::SectCollPhSegment(int step, unsigned n) {
       return &(*p); 
   }
 
-  return 0;
+  return nullptr;
 
 }
 
@@ -532,6 +532,6 @@ DTSectColl::SectCollThSegment(int step) {
       return &(*p); 
   }
 
-  return 0;
+  return nullptr;
 
 }

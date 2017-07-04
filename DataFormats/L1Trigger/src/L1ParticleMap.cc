@@ -371,7 +371,7 @@ L1ParticleMap::candidateInCombo( int aIndexInCombo,
    }
    else
    {
-      return 0 ;
+      return nullptr ;
    }
 }
 
@@ -388,7 +388,7 @@ L1ParticleMap::emParticleInCombo( int aIndexInCombo,
    }
    else
    {
-      return 0 ;
+      return nullptr ;
    }
 }
 
@@ -405,7 +405,7 @@ L1ParticleMap::jetParticleInCombo( int aIndexInCombo,
    }
    else
    {
-      return 0 ;
+      return nullptr ;
    }
 }
 
@@ -422,7 +422,7 @@ L1ParticleMap::muonParticleInCombo( int aIndexInCombo,
    }
    else
    {
-      return 0 ;
+      return nullptr ;
    }
 }
 
@@ -438,7 +438,7 @@ L1ParticleMap::etMissParticleInCombo( int aIndexInCombo,
    }
    else
    {
-      return 0 ;
+      return nullptr ;
    }
 }
 

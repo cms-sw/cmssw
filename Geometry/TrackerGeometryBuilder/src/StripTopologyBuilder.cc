@@ -13,7 +13,7 @@ StripTopologyBuilder::build( const Bounds* bs, double apvnumb, std::string part 
 {
   theAPVNumb = apvnumb;
 
-  StripTopology* result = 0;
+  StripTopology* result = nullptr;
   if( part == "barrel" )
   {
     result = constructBarrel( bs->length(), bs->width());

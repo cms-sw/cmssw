@@ -279,7 +279,7 @@ namespace cscdqm {
   const int Collection::ParseAxisLabels(const std::string& s, std::map<int, std::string>& labels) {
     std::string tmp = s;
     std::string::size_type pos = tmp.find("|");
-    char* stopstring = NULL;
+    char* stopstring = nullptr;
   
     while (pos != std::string::npos) {
       std::string label_pair = tmp.substr(0, pos);
@@ -423,7 +423,7 @@ namespace cscdqm {
    */
   void Collection::book(const HistoDef& h, const CoHistoProps& p, const std::string& folder) const {
 
-    MonitorObject* me = NULL;
+    MonitorObject* me = nullptr;
     std::string name = h.getName(), type, title, s;
 
     /** Check if this histogram is included in booking by filters */
@@ -506,7 +506,7 @@ namespace cscdqm {
       throw Exception("Can not book histogram with type: " + type);
     }
 
-    if(me != NULL) {
+    if(me != nullptr) {
 
       LockType lock(me->mutex);
       TH1 *th = me->getTH1Lock();

@@ -84,7 +84,7 @@ void testMagGeometryAnalyzer::testGrids(const vector<MagVolume6Faces const*>& bv
     }
 
     const MagProviderInterpol* prov = (**i).provider();
-    if (prov == 0) {
+    if (prov == nullptr) {
       cout << (*i)->volumeNo << " No interpolator; skipping " <<  endl;
       continue;
     }

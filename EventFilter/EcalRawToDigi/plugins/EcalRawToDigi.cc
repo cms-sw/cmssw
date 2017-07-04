@@ -65,9 +65,9 @@ EcalRawToDigi::EcalRawToDigi(edm::ParameterSet const& conf):
 
 
 
-  myMap_(0),
+  myMap_(nullptr),
   
-  theUnpacker_(0)
+  theUnpacker_(nullptr)
 
 {
   

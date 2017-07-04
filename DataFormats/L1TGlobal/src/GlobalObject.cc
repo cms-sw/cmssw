@@ -46,7 +46,7 @@ l1t::GlobalObject l1TGtObjectStringToEnum(const std::string& label) {
 	    {"ETTem", gtETTem},
             {"External", gtExternal},
             {"ObjNull", ObjNull},
-            {0, (GlobalObject) - 1}
+            {nullptr, (GlobalObject) - 1}
     };
 
     l1t::GlobalObject value = (GlobalObject) - 1;

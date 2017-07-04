@@ -11,7 +11,7 @@ const std::string& RecoTauNamedPlugin::name() const
 
 // ctor
 RecoTauEventHolderPlugin::RecoTauEventHolderPlugin(const edm::ParameterSet& pset)
-  :RecoTauNamedPlugin(pset),evt_(NULL),es_(NULL) {}
+  :RecoTauNamedPlugin(pset),evt_(nullptr),es_(nullptr) {}
 
 const edm::Event* RecoTauEventHolderPlugin::evt() const { return evt_; }
 edm::Event* RecoTauEventHolderPlugin::evt() { return evt_; }

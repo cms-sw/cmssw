@@ -43,7 +43,7 @@ IsolatorByNominalEfficiency::mapNomEff_Cone
   mapNomEff_Cone result;
   for (vector<string>::const_iterator is = usrVec.begin();
          is != usrVec.end(); is++) {
-    char * evp = 0;
+    char * evp = nullptr;
     int  cone = strtol( (*is).c_str(), &evp, 10);
     float effic = strtod(evp+1, &evp);
     result.insert(make_pair(effic,cone));
@@ -130,7 +130,7 @@ double IsolatorByNominalEfficiency::weightedSum(const DepositContainer& deposits
   vector<double>::const_iterator dThresh = theDepThresholds.begin();
   for (DepositContainer::const_iterator dep = deposits.begin();
        dep != deposits.end(); dep++) {
-    if (dep->vetos != 0){
+    if (dep->vetos != nullptr){
       sumDep += dep->dep->depositAndCountWithin(dRcone, *dep->vetos, *dThresh).first * (*w);
     } else {
       sumDep += dep->dep->depositAndCountWithin(dRcone, Vetos(), *dThresh).first * (*w);

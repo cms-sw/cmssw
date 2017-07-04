@@ -123,10 +123,10 @@ namespace
 //==============================================================================
 
 EveService::EveService(const edm::ParameterSet&, edm::ActivityRegistry& ar) :
-   m_EveManager(0), m_Rint(0),
-   m_MagField(0),
+   m_EveManager(nullptr), m_Rint(nullptr),
+   m_MagField(nullptr),
    m_AllowStep(true), m_ShowEvent(true),
-   m_ContinueButton(0), m_StepButton(0), m_StepLabel(0)
+   m_ContinueButton(nullptr), m_StepButton(nullptr), m_StepLabel(nullptr)
 {
    printf("EveService::EveService CTOR\n");
 

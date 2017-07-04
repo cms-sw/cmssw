@@ -69,7 +69,7 @@ ZJetsAnalyzer::ZJetsAnalyzer( const edm::ParameterSet& pset ) :
 tokenGenEvent_(consumes<GenEventInfoProduct>(edm::InputTag(pset.getUntrackedParameter("moduleLabel",std::string("generator")),""))),
 tokenHepMC_(consumes<edm::HepMCProduct>(edm::InputTag(pset.getUntrackedParameter("moduleLabel",std::string("generator")),"unsmeared"))),
 tokenGenRun_(consumes<GenRunInfoProduct,edm::InRun>(edm::InputTag(pset.getUntrackedParameter("moduleLabel",std::string("generator")),""))),
-fHist2muMass(0)
+fHist2muMass(nullptr)
 {
 // actually, pset is NOT in use - we keep it here just for illustratory putposes
 }

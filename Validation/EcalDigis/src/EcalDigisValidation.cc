@@ -54,18 +54,18 @@ EcalDigisValidation::EcalDigisValidation(const edm::ParameterSet& ps):
   barrelADCtoGeV_ = 0.035;
   endcapADCtoGeV_ = 0.06;
  
-  meGunEnergy_ = 0;
-  meGunEta_ = 0;   
-  meGunPhi_ = 0;   
+  meGunEnergy_ = nullptr;
+  meGunEta_ = nullptr;   
+  meGunPhi_ = nullptr;   
 
-  meEBDigiSimRatio_ = 0;
-  meEEDigiSimRatio_ = 0;
+  meEBDigiSimRatio_ = nullptr;
+  meEEDigiSimRatio_ = nullptr;
 
-  meEBDigiSimRatiogt10ADC_ = 0;
-  meEEDigiSimRatiogt20ADC_ = 0;
+  meEBDigiSimRatiogt10ADC_ = nullptr;
+  meEEDigiSimRatiogt20ADC_ = nullptr;
 
-  meEBDigiSimRatiogt100ADC_ = 0;
-  meEEDigiSimRatiogt100ADC_ = 0;
+  meEBDigiSimRatiogt100ADC_ = nullptr;
+  meEEDigiSimRatiogt100ADC_ = nullptr;
 
 }
 
@@ -135,9 +135,9 @@ void EcalDigisValidation::analyze(edm::Event const & e, edm::EventSetup const & 
   e.getByToken( g4TkInfoToken_, SimTk );
   e.getByToken( g4VtxInfoToken_, SimVtx );
 
-  const EBDigiCollection* EBdigis =0;
-  const EEDigiCollection* EEdigis =0;
-  const ESDigiCollection* ESdigis =0;
+  const EBDigiCollection* EBdigis =nullptr;
+  const EEDigiCollection* EEdigis =nullptr;
+  const ESDigiCollection* ESdigis =nullptr;
 
   bool isBarrel = true;
   e.getByToken( EBdigiCollectionToken_, EcalDigiEB );

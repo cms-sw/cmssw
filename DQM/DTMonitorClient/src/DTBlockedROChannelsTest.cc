@@ -28,7 +28,7 @@ DTBlockedROChannelsTest::DTBlockedROChannelsTest(const ParameterSet& ps) : neven
   neventsPrev(0),
   prevNLumiSegs(0),
   prevTotalPerc(0),
-  hSystFractionVsLS(0) 
+  hSystFractionVsLS(nullptr) 
 {
   LogTrace("DTDQM|DTRawToDigi|DTMonitorClient|DTBlockedROChannelsTest")
     << "[DTBlockedROChannelsTest]: Constructor";
@@ -164,7 +164,7 @@ void DTBlockedROChannelsTest::performClientDiagnostic(DQMStore::IGetter & igette
 
   //if(nevents == 0) { // hack to work also in offline DQM
    MonitorElement *procEvt =  igetter.get("DT/EventInfo/processedEvents");
-   if(procEvt != 0) {
+   if(procEvt != nullptr) {
      int procEvents = procEvt->getIntValue();
      nevents = procEvents - neventsPrev;
      neventsPrev = procEvents;
@@ -243,8 +243,8 @@ DTBlockedROChannelsTest::DTRobBinsMap::DTRobBinsMap(DQMStore::IGetter & igetter,
 }
 
 DTBlockedROChannelsTest::DTRobBinsMap::DTRobBinsMap() : init_(true),
-  meROS(0),
-  meDDU(0){}
+  meROS(nullptr),
+  meDDU(nullptr){}
 
   DTBlockedROChannelsTest::DTRobBinsMap::~DTRobBinsMap() {}
 

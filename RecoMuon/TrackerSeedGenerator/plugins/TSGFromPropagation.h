@@ -101,7 +101,7 @@ private:
 
   struct isInvalid {
     bool operator()(const TrajectoryMeasurement& measurement) {
-      return ( ((measurement).recHit() == 0) || !((measurement).recHit()->isValid()) || !((measurement).updatedState().isValid()) ); 
+      return ( ((measurement).recHit() == nullptr) || !((measurement).recHit()->isValid()) || !((measurement).updatedState().isValid()) ); 
     }
   };
 

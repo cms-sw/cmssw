@@ -52,7 +52,7 @@ CSCTFTrackBuilder::~CSCTFTrackBuilder()
 	  s <= CSCTriggerNumbering::maxTriggerSectorId(); ++s)
 	{
 	  delete my_SPs[e-1][s-1];
-	  my_SPs[e-1][s-1] = NULL;
+	  my_SPs[e-1][s-1] = nullptr;
 	}
     }
 }

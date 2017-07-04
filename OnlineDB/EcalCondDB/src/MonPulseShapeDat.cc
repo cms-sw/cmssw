@@ -11,10 +11,10 @@ using namespace oracle::occi;
 
 MonPulseShapeDat::MonPulseShapeDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   m_samplesG1.assign(10, 0);
   m_samplesG6.assign(10, 0);

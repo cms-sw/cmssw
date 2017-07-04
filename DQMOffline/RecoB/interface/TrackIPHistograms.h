@@ -112,7 +112,7 @@ void TrackIPHistograms<T>::fill(const int& flavour, const reco::TrackBase::Track
   const int& theIndexToPlot = FlavourHistograms<T>::indexToPlot();
 
   FlavourHistograms<T>::fill(flavour, variable);
-  if( theArrayDimension == 0 && quality_) {
+  if( theArrayDimension == nullptr && quality_) {
     fillVariable( quality, *variable);
   } else {
       int iMax = (*theArrayDimension > theMaxDimension) ? theMaxDimension : *theArrayDimension ;
@@ -137,7 +137,7 @@ void TrackIPHistograms<T>::fill(const int& flavour, const reco::TrackBase::Track
   const int& theIndexToPlot = FlavourHistograms<T>::indexToPlot();
 
   FlavourHistograms<T>::fill(flavour, variable ,w);
-  if( theArrayDimension == 0 && quality_) {
+  if( theArrayDimension == nullptr && quality_) {
     fillVariable( quality, *variable,w);
   } else {
       int iMax = (*theArrayDimension > theMaxDimension) ? theMaxDimension : *theArrayDimension ;

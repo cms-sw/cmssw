@@ -84,7 +84,7 @@ void PuppiPhoton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     if(!passObject && usePhotonId_) continue;
     if(runOnMiniAOD_) {
       const pat::Photon *pPho = dynamic_cast<const pat::Photon*>(&(*itPho));
-      if(pPho != 0) {
+      if(pPho != nullptr) {
         for( const edm::Ref<pat::PackedCandidateCollection> & ref : pPho->associatedPackedPFCandidates() ) {
 	  if(fabs(ref->eta()) < eta_ ) {
 	    phoIndx.push_back(ref.key());
@@ -94,7 +94,7 @@ void PuppiPhoton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
         continue;
       }
       const pat::Electron *pElectron = dynamic_cast<const pat::Electron*>(&(*itPho));
-      if(pElectron != 0) {
+      if(pElectron != nullptr) {
         for( const edm::Ref<pat::PackedCandidateCollection> & ref : pElectron->associatedPackedPFCandidates() )
 	  if(fabs(ref->eta()) < eta_ )  {
 	    phoIndx.push_back(ref.key());

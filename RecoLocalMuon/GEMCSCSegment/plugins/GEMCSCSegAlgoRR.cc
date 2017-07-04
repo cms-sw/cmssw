@@ -29,7 +29,7 @@
 /**
  *  Constructor
  */
-GEMCSCSegAlgoRR::GEMCSCSegAlgoRR(const edm::ParameterSet& ps) : GEMCSCSegmentAlgorithm(ps), myName("GEMCSCSegAlgoRR"), sfit_(0) 
+GEMCSCSegAlgoRR::GEMCSCSegAlgoRR(const edm::ParameterSet& ps) : GEMCSCSegmentAlgorithm(ps), myName("GEMCSCSegAlgoRR"), sfit_(nullptr) 
 {	 
   debug                     = ps.getUntrackedParameter<bool>("GEMCSCDebug");
   minHitsPerSegment         = ps.getParameter<unsigned int>("minHitsPerSegment");
@@ -268,13 +268,13 @@ std::vector<const TrackingRecHit*> GEMCSCSegAlgoRR::chainHitsToSegm(const CSCSeg
       // maxima given by the configuration of the algorithm
       bool phiRequirementOK_l1 = Dphi_min_l1 < dPhiChainBoxMax;
       bool thetaRequirementOK_l1 = Dtheta_min_l1 < dThetaChainBoxMax;
-      if(phiRequirementOK_l1 && thetaRequirementOK_l1 && gemrh_min_l1!=0) 
+      if(phiRequirementOK_l1 && thetaRequirementOK_l1 && gemrh_min_l1!=nullptr) 
 	{
 	  chainedRecHits.push_back(gemrh_min_l1->clone());  
 	}
       bool phiRequirementOK_l2 = Dphi_min_l2 < dPhiChainBoxMax;
       bool thetaRequirementOK_l2 = Dtheta_min_l2 < dThetaChainBoxMax;
-      if(phiRequirementOK_l2 && thetaRequirementOK_l2 && gemrh_min_l2!=0) 
+      if(phiRequirementOK_l2 && thetaRequirementOK_l2 && gemrh_min_l2!=nullptr) 
 	{
 	  chainedRecHits.push_back(gemrh_min_l2->clone());
 	}

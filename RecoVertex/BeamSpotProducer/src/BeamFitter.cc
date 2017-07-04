@@ -37,7 +37,7 @@ void BeamFitter::updateBTime() {
 
 
 BeamFitter::BeamFitter(const edm::ParameterSet& iConfig,
-                       edm::ConsumesCollector &&iColl): fPVTree_(0)
+                       edm::ConsumesCollector &&iColl): fPVTree_(nullptr)
 {
 
   debug_             = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<bool>("Debug");
@@ -246,7 +246,7 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
 
   //------ Beam Spot in current event
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-  const reco::BeamSpot *refBS =  0;
+  const reco::BeamSpot *refBS =  nullptr;
   if ( iEvent.getByToken(beamSpotToken_, recoBeamSpotHandle) )
       refBS = recoBeamSpotHandle.product();
   //-------

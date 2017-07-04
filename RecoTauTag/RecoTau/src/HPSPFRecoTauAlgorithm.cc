@@ -16,7 +16,7 @@ HPSPFRecoTauAlgorithm::HPSPFRecoTauAlgorithm(const edm::ParameterSet& config):
 
 HPSPFRecoTauAlgorithm::~HPSPFRecoTauAlgorithm()
 {
-  if(candidateMerger_ !=0 ) delete candidateMerger_;
+  if(candidateMerger_ !=nullptr ) delete candidateMerger_;
 }
 
 PFTau
@@ -60,7 +60,7 @@ HPSPFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& tagInfo,const Vertex& v
     pfTau = getBestTauCandidate(pfTaus_);
 
     //Set the IP for the leading track
-    if(TransientTrackBuilder_!=0 &&pfTau.leadPFChargedHadrCand()->trackRef().isNonnull()) {
+    if(TransientTrackBuilder_!=nullptr &&pfTau.leadPFChargedHadrCand()->trackRef().isNonnull()) {
       const TransientTrack leadTrack=TransientTrackBuilder_->build(pfTau.leadPFChargedHadrCand()->trackRef());
       if(pfTau.pfTauTagInfoRef().isNonnull())
         if(pfTau.pfTauTagInfoRef()->pfjetRef().isNonnull()) {

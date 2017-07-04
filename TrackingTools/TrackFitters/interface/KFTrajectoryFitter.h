@@ -35,7 +35,7 @@ public:
 		     const TrajectoryStateUpdator& aUpdator,
 		     const MeasurementEstimator& aEstimator,
 		     int minHits = 3,
-		     const DetLayerGeometry* detLayerGeometry=0, 
+		     const DetLayerGeometry* detLayerGeometry=nullptr, 
                      TkCloner const * hc=nullptr) :
     thePropagator(aPropagator.clone()),
     theUpdator(aUpdator.clone()),
@@ -54,7 +54,7 @@ public:
 		     const TrajectoryStateUpdator* aUpdator,
 		     const MeasurementEstimator* aEstimator,
 		     int minHits = 3,
-		     const DetLayerGeometry* detLayerGeometry=0,
+		     const DetLayerGeometry* detLayerGeometry=nullptr,
                      TkCloner const * hc=nullptr) :
     thePropagator(aPropagator),
     theUpdator(aUpdator),

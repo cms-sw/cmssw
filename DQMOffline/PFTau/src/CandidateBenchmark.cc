@@ -13,11 +13,11 @@ using namespace std;
 
 
 CandidateBenchmark::CandidateBenchmark(Mode mode) : Benchmark(mode) {
-  pt_     = 0; 
-  eta_    = 0; 
-  phi_    = 0; 
-  charge_ = 0;
-  pdgId_  = 0;
+  pt_     = nullptr; 
+  eta_    = nullptr; 
+  phi_    = nullptr; 
+  charge_ = nullptr;
+  pdgId_  = nullptr;
 
   histogramBooked_ = false;
  

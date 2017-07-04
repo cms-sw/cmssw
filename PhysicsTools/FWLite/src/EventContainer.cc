@@ -23,7 +23,7 @@ bool EventContainer::sm_autoloaderCalled = false;
 
 EventContainer::EventContainer (optutl::CommandLineParser &parser, 
                                 FuncPtr funcPtr) : 
-   m_eventsSeen (0), m_maxWanted (0), m_parserPtr (0)
+   m_eventsSeen (0), m_maxWanted (0), m_parserPtr (nullptr)
 {
    // get the user-defined tag
    string tag;

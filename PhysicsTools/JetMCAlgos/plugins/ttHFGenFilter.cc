@@ -156,19 +156,19 @@ bool ttHFGenFilter::HasAdditionalBHadron(const std::vector<int>& genBHadIndex, c
 
   for(uint i=0; i<genBHadIndex.size();i++){
 
-    const reco::GenParticle* bhadron = genBHadIndex[i]>=0&&genBHadIndex[i]<int(genBHadPlusMothers.size()) ? &(genBHadPlusMothers[genBHadIndex[i]]) : 0;
+    const reco::GenParticle* bhadron = genBHadIndex[i]>=0&&genBHadIndex[i]<int(genBHadPlusMothers.size()) ? &(genBHadPlusMothers[genBHadIndex[i]]) : nullptr;
     int motherflav = genBHadFlavour[i];
     bool from_tth=(abs(motherflav)==6||abs(motherflav)==25); //b-hadron comes from top or higgs decay
     bool fromhp=false;
 
   if(!OnlyHardProcessBHadrons_){
-    if(bhadron!=0&&!from_tth){
+    if(bhadron!=nullptr&&!from_tth){
       return true;
     }
   }
 
   if(OnlyHardProcessBHadrons_){
-    if(bhadron!=0&&!from_tth){
+    if(bhadron!=nullptr&&!from_tth){
       //std::cout << "PT: " << bhadron->pt() << " , eta: " << bhadron->eta() << std::endl;
 
       fromhp=analyzeMothersRecursive(bhadron,AllTopMothers);
@@ -215,8 +215,8 @@ bool ttHFGenFilter::analyzeMothersRecursive(const reco::Candidate* particle,std:
 }
 
 std::vector< const reco::Candidate*> ttHFGenFilter::GetTops(const std::vector<reco::GenParticle>& genParticles, std::vector<const reco::Candidate*>& AllTopMothers){
-  const reco::GenParticle* FirstTop = 0;
-  const reco::GenParticle* FirstTopBar = 0;
+  const reco::GenParticle* FirstTop = nullptr;
+  const reco::GenParticle* FirstTopBar = nullptr;
   bool FoundTop = false;
   bool FoundTopBar =false;
   std::vector<const reco::GenParticle*> Tops;

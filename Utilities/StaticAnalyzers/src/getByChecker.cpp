@@ -81,7 +81,7 @@ void Walker::VisitCXXMemberCallExpr( CXXMemberCallExpr *CE ) {
 				}
 				else { 
 					os<<" "<< qtname <<" ";
-					(*I)->printPretty(os,0,Policy);
+					(*I)->printPretty(os,nullptr,Policy);
 					os <<", ";
 				}
 			}

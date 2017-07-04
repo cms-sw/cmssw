@@ -85,7 +85,7 @@ namespace sistrip {
     //vectors are guarenteed to be contiguous
     if (lengthInBytes()) return &data_[0];
     //return NULL if there is no data yet
-    else return NULL;
+    else return nullptr;
   }
   
   uint16_t FEDBufferPayload::getFELength(const uint8_t internalFEUnitNum) const

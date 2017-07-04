@@ -130,7 +130,7 @@ void ProcMatrix::configure(DOMElement *elem)
 Calibration::VarProcessor *ProcMatrix::getCalibration() const
 {
 	if (doRanking)
-		return 0;
+		return nullptr;
 
 	Calibration::ProcMatrix *calib = new Calibration::ProcMatrix;
 
@@ -268,7 +268,7 @@ void *ProcMatrix::requestObject(const std::string &name) const
 	if (name == "linearAnalyzer")
 		return static_cast<void*>(ls.get());
 
-	return 0;
+	return nullptr;
 }
 
 bool ProcMatrix::load()

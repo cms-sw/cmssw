@@ -305,7 +305,7 @@ void EvtGenInterface::init(){
   //Setup evtGen following instructions on http://evtgen.warwick.ac.uk/docs/external/ 
   bool convertPythiaCodes=fPSet->getUntrackedParameter<bool>("convertPythiaCodes",true); // Specify if we want to use Pythia 6 physics codes for decays
   std::string pythiaDir = getenv ("PYTHIA8DATA"); // Specify the pythia xml data directory to use the default PYTHIA8DATA location
-  if(pythiaDir==NULL){ 
+  if(pythiaDir==nullptr){ 
     edm::LogError("EvtGenInterface::~EvtGenInterface") << "EvtGenInterface::init() PYTHIA8DATA not defined. Terminating program "; 
     exit(0);
   }
@@ -314,7 +314,7 @@ void EvtGenInterface::init(){
   
   // Set up the default external generator list: Photos, Pythia and/or Tauola
   EvtExternalGenList genList(convertPythiaCodes, pythiaDir, photonType, useEvtGenRandom);
-  EvtAbsRadCorr* radCorrEngine=0; 
+  EvtAbsRadCorr* radCorrEngine=nullptr; 
   if(usePhotos) radCorrEngine = genList.getPhotosModel(); // Get interface to radiative correction engine
   std::list<EvtDecayBase*> extraModels = genList.getListOfModels(); // get interface to Pythia and Tauola
   std::list<EvtDecayBase*> myExtraModels;

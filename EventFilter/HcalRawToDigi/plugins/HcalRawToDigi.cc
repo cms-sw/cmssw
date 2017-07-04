@@ -200,15 +200,15 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   auto ho_prod = std::make_unique<HODigiCollection>();
   auto htp_prod = std::make_unique<HcalTrigPrimDigiCollection>();
   auto hotp_prod = std::make_unique<HOTrigPrimDigiCollection>();
-  if (colls.qie10 == 0) {
+  if (colls.qie10 == nullptr) {
     colls.qie10 = new QIE10DigiCollection(); 
   }
   std::unique_ptr<QIE10DigiCollection> qie10_prod(colls.qie10);
-  if (colls.qie10ZDC == 0) {
+  if (colls.qie10ZDC == nullptr) {
     colls.qie10ZDC = new QIE10DigiCollection(); 
   }
   std::unique_ptr<QIE10DigiCollection> qie10ZDC_prod(colls.qie10ZDC);
-  if (colls.qie11 == 0) {
+  if (colls.qie11 == nullptr) {
     colls.qie11 = new QIE11DigiCollection(); 
   }
   std::unique_ptr<QIE11DigiCollection> qie11_prod(colls.qie11);
@@ -293,7 +293,7 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   e.put(std::move(report));
   /// umnio
   if (unpackUMNio_) {
-    if(colls.umnio != 0) {
+    if(colls.umnio != nullptr) {
       e.put(std::make_unique<HcalUMNioDigi>(umnio));
     }
 

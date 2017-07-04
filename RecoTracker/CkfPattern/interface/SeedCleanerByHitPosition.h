@@ -16,7 +16,7 @@ class SeedCleanerByHitPosition : public RedundantSeedCleaner  {
    virtual bool good(const TrajectorySeed *seed) ;
 
    
-   SeedCleanerByHitPosition() : RedundantSeedCleaner(), trajectories(0) /*,comps_(0), tracks_(0), calls_(0)*/ {}
+   SeedCleanerByHitPosition() : RedundantSeedCleaner(), trajectories(nullptr) /*,comps_(0), tracks_(0), calls_(0)*/ {}
   private:
    const std::vector<Trajectory> *trajectories; 
    //uint64_t comps_, tracks_, calls_;

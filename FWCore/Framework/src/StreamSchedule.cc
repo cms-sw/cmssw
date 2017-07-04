@@ -292,7 +292,7 @@ namespace edm {
     for (auto w :allWorkers()) {
       //determine if this module could read a branch we want to delete early
       auto pset = pset::Registry::instance()->getMapped(w->description().parameterSetID());
-      if(0!=pset) {
+      if(nullptr!=pset) {
         auto branches = pset->getUntrackedParameter<std::vector<std::string>>("mightGet",kEmpty);
         if(not branches.empty()) {
           ++upperLimitOnReadingWorker;
@@ -422,7 +422,7 @@ namespace edm {
 
       bool isTracked;
       ParameterSet* modpset = proc_pset.getPSetForUpdate(moduleLabel, isTracked);
-      if (modpset == 0) {
+      if (modpset == nullptr) {
         std::string pathType("endpath");
         if (!search_all(endPathNames, pathName)) {
           pathType = std::string("path");

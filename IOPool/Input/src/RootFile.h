@@ -177,7 +177,7 @@ namespace edm {
     int whyNotFastClonable() const {return whyNotFastClonable_;}
     std::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const {return hasNewlyDroppedBranch_;}
     bool branchListIndexesUnchanged() const {return branchListIndexesUnchanged_;}
-    bool modifiedIDs() const {return daqProvenanceHelper_.get() != 0;}
+    bool modifiedIDs() const {return daqProvenanceHelper_.get() != nullptr;}
     std::unique_ptr<FileBlock> createFileBlock() const;
     bool setEntryAtItem(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event) {
       return (event != 0) ? setEntryAtEvent(run, lumi, event) : (lumi ? setEntryAtLumi(run, lumi) : setEntryAtRun(run));

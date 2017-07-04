@@ -39,7 +39,7 @@ EcalMatacqHist::~EcalMatacqHist(){
        ++it){
       it->Write();
     }
-    if(hTTrig!=0) hTTrig->Write();
+    if(hTTrig!=nullptr) hTTrig->Write();
     dsave->cd();
   }
 }
@@ -97,7 +97,7 @@ EcalMatacqHist:: analyze( const edm::Event & e, const  edm::EventSetup& c){
 				  -.5,
 				  -.5+digis.size(),
 				  "I"));
-      profiles.back().SetDirectory(0);//mem. management done by std::vector
+      profiles.back().SetDirectory(nullptr);//mem. management done by std::vector
       profChId.push_back(digis.chId());
     }
     

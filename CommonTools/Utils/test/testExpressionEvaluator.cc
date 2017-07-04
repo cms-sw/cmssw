@@ -43,7 +43,7 @@ namespace {
     } catch(cms::Exception const & e) {
       // if compilation fails, the compiler output is part of the exception message
       std::cerr << e.what()  << std::endl;
-      CPPUNIT_ASSERT("ExpressionEvaluator threw"==0);
+      CPPUNIT_ASSERT("ExpressionEvaluator threw"==nullptr);
     }
   }
 
@@ -75,7 +75,7 @@ namespace {
         CPPUNIT_ASSERT(m_selector);
       } catch(cms::Exception const & e) {
         std::cerr << e.what()  << std::endl;
-        CPPUNIT_ASSERT("ExpressionEvaluator threw"==0);
+        CPPUNIT_ASSERT("ExpressionEvaluator threw"==nullptr);
       }
 
     }
@@ -110,7 +110,7 @@ namespace {
         CPPUNIT_ASSERT(m_selector);
       } catch(cms::Exception const & e) {
         std::cerr << e.what()  << std::endl;
-        CPPUNIT_ASSERT("ExpressionEvaluator threw"==0);
+        CPPUNIT_ASSERT("ExpressionEvaluator threw"==nullptr);
       }                                                                                                     
     }
 
@@ -140,8 +140,8 @@ void testExpressionEvaluator::checkAll() {
   cand.addDaughter(c1);
   cand.addDaughter(c2);
   CPPUNIT_ASSERT(cand.numberOfDaughters()==2);
-  CPPUNIT_ASSERT(cand.daughter(0)!=0);
-  CPPUNIT_ASSERT(cand.daughter(1)!=0);
+  CPPUNIT_ASSERT(cand.daughter(0)!=nullptr);
+  CPPUNIT_ASSERT(cand.daughter(1)!=nullptr);
   {
     checkCandidate(cand,"cand.numberOfDaughters()", cand.numberOfDaughters());
     checkCandidate(cand,"cand.daughter(0)->isStandAloneMuon()", cand.daughter(0)->isStandAloneMuon());  
@@ -193,7 +193,7 @@ void testExpressionEvaluator::checkAll() {
     } catch(cms::Exception const & e) {
       // if compilation fails, the compiler output is part of the exception message
       std::cerr << e.what()  << std::endl;
-      CPPUNIT_ASSERT("ExpressionEvaluator threw"==0);
+      CPPUNIT_ASSERT("ExpressionEvaluator threw"==nullptr);
     }
   }
 

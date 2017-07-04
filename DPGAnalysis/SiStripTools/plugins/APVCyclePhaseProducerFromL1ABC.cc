@@ -102,7 +102,7 @@ APVCyclePhaseProducerFromL1ABC::APVCyclePhaseProducerFromL1ABC(const edm::Parame
   _orbitoffsetSOR(iConfig.getParameter<int>("StartOfRunOrbitOffset")),
   _wantHistos(iConfig.getUntrackedParameter<bool>("wantHistos",false)),
   m_rhm(consumesCollector()),
-  _hbx(0),_hdbx(0),_hdorbit(0),_firstgoodrun(110878),
+  _hbx(nullptr),_hdbx(nullptr),_hdorbit(nullptr),_firstgoodrun(110878),
   _offsets(), _curroffset(0), _curroffevent(0)
 {
 

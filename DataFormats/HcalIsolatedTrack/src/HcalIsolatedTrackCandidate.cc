@@ -41,5 +41,5 @@ math::XYZTLorentzVector HcalIsolatedTrackCandidate::l1jetp() const {
 
 bool HcalIsolatedTrackCandidate::overlap( const Candidate & c ) const {
   const RecoCandidate * o = dynamic_cast<const RecoCandidate *>( & c );
-  return ( o != 0 &&  checkOverlap( track(), o->track() ) );
+  return ( o != nullptr &&  checkOverlap( track(), o->track() ) );
 }

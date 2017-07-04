@@ -68,8 +68,8 @@ class PFRecoTauDiscriminationAgainstMuonMVA final : public PFTauDiscriminationPr
   explicit PFRecoTauDiscriminationAgainstMuonMVA(const edm::ParameterSet& cfg)
     : PFTauDiscriminationProducerBase(cfg),
       moduleLabel_(cfg.getParameter<std::string>("@module_label")),
-      mvaReader_(0),
-      mvaInput_(0)
+      mvaReader_(nullptr),
+      mvaInput_(nullptr)
   {
     mvaName_ = cfg.getParameter<std::string>("mvaName");
     loadMVAfromDB_ = cfg.exists("loadMVAfromDB") ? cfg.getParameter<bool>("loadMVAfromDB") : false;

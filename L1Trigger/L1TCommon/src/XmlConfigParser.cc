@@ -427,8 +427,8 @@ void XmlConfigParser::readContext(const DOMElement* element, const std::string& 
                     char *cStr = xercesc::XMLString::transcode( colChilds->item(k)->getNodeValue() );
                     char *saveptr, first = 1;
                     for(char *item=strtok_r(cStr,delim.c_str(),&saveptr);
-                              item != NULL;
-                              item = strtok_r(NULL,delim.c_str(),&saveptr), first=0
+                              item != nullptr;
+                              item = strtok_r(nullptr,delim.c_str(),&saveptr), first=0
                        ) columnsStr += (first ? std::string("") : delim) + pruneString(item);
                     xercesc::XMLString::release( &cStr );
                   }
@@ -447,8 +447,8 @@ void XmlConfigParser::readContext(const DOMElement* element, const std::string& 
                     char *tStr = xercesc::XMLString::transcode( colTypesChilds->item(k)->getNodeValue() );
                     char *saveptr, first = 1;
                     for(char *item=strtok_r(tStr,delim.c_str(),&saveptr);
-                              item != NULL;
-                              item = strtok_r(NULL,delim.c_str(),&saveptr), first=0
+                              item != nullptr;
+                              item = strtok_r(nullptr,delim.c_str(),&saveptr), first=0
                        ) typesStr += (first ? std::string("") : delim) + pruneString(item);
                     xercesc::XMLString::release( &tStr );
                   }
@@ -469,8 +469,8 @@ void XmlConfigParser::readContext(const DOMElement* element, const std::string& 
                     char *saveptr, first = 1;
                     std::string row;
                     for(char *item=strtok_r(rStr,delim.c_str(),&saveptr);
-                              item != NULL;
-                              item = strtok_r(NULL,delim.c_str(),&saveptr), first=0
+                              item != nullptr;
+                              item = strtok_r(nullptr,delim.c_str(),&saveptr), first=0
                        ) row += (first ? std::string("") : delim) + pruneString(item);
 
                     rowStrs.push_back(row);

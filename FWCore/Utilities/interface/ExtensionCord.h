@@ -65,7 +65,7 @@ namespace edm {
 
       ///Returns true if the ExtensionCord is connected to an outlet and can therefore deliver data
       bool connected() const {
-        return 0 != holder_->getter_;
+        return nullptr != holder_->getter_;
       }
       // ---------- static member functions --------------------
 

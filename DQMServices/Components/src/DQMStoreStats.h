@@ -120,7 +120,7 @@ public:
   Folder(const std::string name):totalHistos_(0),totalBins_(0),
                                  totalEmptyBins_(0),totalMemory_(0),
                                  id_(10),level_(0),folderName_(name),
-                                 father_(0){;}
+                                 father_(nullptr){;}
 
   ~Folder(void) {
     for(std::vector<Folder*>::iterator i = subfolders_.begin(), e = subfolders_.end() ; i != e ; ++i)

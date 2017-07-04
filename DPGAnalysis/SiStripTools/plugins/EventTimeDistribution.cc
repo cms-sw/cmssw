@@ -120,7 +120,7 @@ EventTimeDistribution::EventTimeDistribution(const edm::ParameterSet& iConfig):
   m_LSfrac(iConfig.getUntrackedParameter<unsigned int>("startingLSFraction",4)),
   m_ewhdepthHisto(iConfig.getUntrackedParameter<bool>("wantEWHDepthHisto",false)),
   _rhm(consumesCollector()),
-  _dbxvsbxincycle(0),   _dbxvsbx(0),   _bxincyclevsbx(0),   _orbitvsbxincycle(0), m_ewhdepth(0)
+  _dbxvsbxincycle(nullptr),   _dbxvsbx(nullptr),   _bxincyclevsbx(nullptr),   _orbitvsbxincycle(nullptr), m_ewhdepth(nullptr)
 {
    //now do what ever initialization is needed
 

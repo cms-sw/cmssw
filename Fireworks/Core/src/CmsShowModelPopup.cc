@@ -58,7 +58,7 @@ CmsShowModelPopup::CmsShowModelPopup(FWDetailViewManager* iManager,
    TGTransientFrame(gClient->GetDefaultRoot(),p,w,h),
    m_detailViewManager(iManager),
    m_colorManager(iColorMgr),
-   m_dialogBuilder(0)
+   m_dialogBuilder(nullptr)
 {
    m_changes = iSelMgr->selectionChanged_.connect(boost::bind(&CmsShowModelPopup::fillModelPopup, this, _1));
 

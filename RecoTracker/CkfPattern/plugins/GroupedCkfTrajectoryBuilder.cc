@@ -179,7 +179,7 @@ GroupedCkfTrajectoryBuilder::trajectories (const TrajectorySeed& seed) const
 {
   TrajectoryContainer ret; 
   ret.reserve(10);
-  buildTrajectories(seed, ret, 0);
+  buildTrajectories(seed, ret, nullptr);
   return ret; 
 }
 
@@ -197,7 +197,7 @@ GroupedCkfTrajectoryBuilder::trajectories (const TrajectorySeed& seed,
 void 
 GroupedCkfTrajectoryBuilder::trajectories (const TrajectorySeed& seed, GroupedCkfTrajectoryBuilder::TrajectoryContainer &ret) const 
 {
-  buildTrajectories(seed,ret,0);
+  buildTrajectories(seed,ret,nullptr);
 }
 
 void
@@ -257,7 +257,7 @@ GroupedCkfTrajectoryBuilder::buildTrajectories (const TrajectorySeed& seed,
                                                 GroupedCkfTrajectoryBuilder::TrajectoryContainer &result,
 						const TrajectoryFilter* regionalCondition) const
 {
-  if (theMeasurementTracker == 0) {
+  if (theMeasurementTracker == nullptr) {
       throw cms::Exception("LogicError") << "Asking to create trajectories to an un-initialized GroupedCkfTrajectoryBuilder.\nYou have to call clone(const MeasurementTrackerEvent *data) and then call trajectories on it instead.\n";
   }
  

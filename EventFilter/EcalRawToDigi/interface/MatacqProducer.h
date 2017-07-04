@@ -151,7 +151,7 @@ private:
    * found.
    */
   bool
-  getMatacqFile(uint32_t runNumber, uint32_t orbitId, bool* fileChange =0);
+  getMatacqFile(uint32_t runNumber, uint32_t orbitId, bool* fileChange =nullptr);
 
   bool
   getMatacqEvent(uint32_t runNumber, int32_t orbitId,
@@ -176,7 +176,7 @@ private:
    * @param mess text to insert in the eventual error message.
    * @return true on success, false on failure
    */  
-  bool mseek(filepos_t offset, int whence = SEEK_SET, const char* mess = 0);
+  bool mseek(filepos_t offset, int whence = SEEK_SET, const char* mess = nullptr);
 
   bool mtell(filepos_t& pos);
   
@@ -188,7 +188,7 @@ private:
    * @param peek if true file position is restored after the data read
    * @return true on success, false on failure
    */
-  bool mread(char* buf, size_t n, const char* mess = 0, bool peek = false);
+  bool mread(char* buf, size_t n, const char* mess = nullptr, bool peek = false);
 
   bool mcheck(const std::string& name);
 

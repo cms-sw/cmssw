@@ -29,7 +29,7 @@ HcalDDDGeometryLoader::load(const HcalTopology& topo, DetId::Detector det, int s
 
   HcalDDDGeometry* geom ( new HcalDDDGeometry(topo) );
 
-  if ( geom->cornersMgr() == 0 ) {
+  if ( geom->cornersMgr() == nullptr ) {
      const unsigned int count (hcalConstants->numberOfCells(HcalBarrel ) +
 			       hcalConstants->numberOfCells(HcalEndcap ) +
 			       2*hcalConstants->numberOfCells(HcalForward) +
@@ -39,7 +39,7 @@ HcalDDDGeometryLoader::load(const HcalTopology& topo, DetId::Detector det, int s
 
   //  if( geom->cornersMgr() == 0 )  geom->allocateCorners( 2592 ) ;
 
-  if ( geom->parMgr()     == 0 ) geom->allocatePar( 500, 3 ) ;
+  if ( geom->parMgr()     == nullptr ) geom->allocatePar( 500, 3 ) ;
 
   fill (hsub, geom );
   //fast insertion of valid ids requires sort at end
@@ -52,14 +52,14 @@ HcalDDDGeometryLoader::load(const HcalTopology& topo) {
 
   HcalDDDGeometry* geom ( new HcalDDDGeometry(topo) );
 
-  if( geom->cornersMgr() == 0 ) {
+  if( geom->cornersMgr() == nullptr ) {
     const unsigned int count (hcalConstants->numberOfCells(HcalBarrel ) +
 			      hcalConstants->numberOfCells(HcalEndcap ) +
 			      2*hcalConstants->numberOfCells(HcalForward) +
 			      hcalConstants->numberOfCells(HcalOuter  ) );
     geom->allocateCorners( count ) ;
   }
-  if( geom->parMgr()     == 0 ) geom->allocatePar( 500, 3 ) ;
+  if( geom->parMgr()     == nullptr ) geom->allocatePar( 500, 3 ) ;
   
   fill(HcalBarrel,  geom); 
   fill(HcalEndcap,  geom); 

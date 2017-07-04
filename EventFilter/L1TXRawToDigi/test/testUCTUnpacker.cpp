@@ -17,11 +17,11 @@ int main(int argc, char **argv) {
   char line[256];
   while(cin.getline(line, 256)) {
     char* iToken = strtok(line, ":");
-    if(iToken == 0) continue;
+    if(iToken == nullptr) continue;
     if(sscanf(iToken, "%d", &index) == 1) {
       if(index < 694) {
-	char* fToken = strtok(NULL, "\n");
-	if(fToken == 0) continue;
+	char* fToken = strtok(nullptr, "\n");
+	if(fToken == nullptr) continue;
 	if(sscanf(fToken, "%lX", &fedRawDataArray[index]) != 1) {
 	  cerr << "oops! format error :(" << endl;
 	  continue;

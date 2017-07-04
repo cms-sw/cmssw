@@ -31,7 +31,7 @@
 
 #include "CondCore/CondDB/interface/Serialization.h"
 
-CocoaDBMgr* CocoaDBMgr::instance = 0;
+CocoaDBMgr* CocoaDBMgr::instance = nullptr;
 
 //----------------------------------------------------------------------
 CocoaDBMgr* CocoaDBMgr::getInstance()
@@ -370,7 +370,7 @@ std::cout << "@@@ CocoaDBMgr::GetAlignInfoFromOptO errms filled " << opto->name(
   
   std::cout << alignError << "@@@ CocoaDBMgr::GetAlignInfoFromOptO error built " << opto->name() << std::endl;
   //t  return alignError;
-  return (AlignTransformErrorExtended*)(0);
+  return (AlignTransformErrorExtended*)nullptr;
 }
 
 

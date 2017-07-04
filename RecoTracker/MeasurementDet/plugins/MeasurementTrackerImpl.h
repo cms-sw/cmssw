@@ -62,7 +62,7 @@ public:
                      const SiPixelFedCabling *pixelCabling,
                      int   pixelQualityFlags,
                      int   pixelQualityDebugFlags,
-		     const ClusterParameterEstimator<Phase2TrackerCluster1D>* phase2OTCPE = 0);
+		     const ClusterParameterEstimator<Phase2TrackerCluster1D>* phase2OTCPE = nullptr);
 
   virtual ~MeasurementTrackerImpl();
  
@@ -93,7 +93,7 @@ public:
       //throw exception;
     }
     
-    return 0; //to avoid compile warning
+    return nullptr; //to avoid compile warning
   }
 
   typedef std::unordered_map<unsigned int,MeasurementDet*>   DetContainer;

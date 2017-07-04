@@ -50,7 +50,7 @@ class LEPBandPlot : public StatisticalPlot {
                 double* sb_vals,
                 double* b_vals,
                 double* b_rms,
-                double* exp_vals=0);
+                double* exp_vals=nullptr);
     /// Constructor
     LEPBandPlot(const char* name,
                 const char* title,
@@ -62,7 +62,7 @@ class LEPBandPlot : public StatisticalPlot {
                 double* b_down_bars1,
                 double* b_up_bars2,
                 double* b_down_bars2,
-                double* exp_vals=0);
+                double* exp_vals=nullptr);
 
     /// Set the title of the x axis
     void setXaxisTitle(const char* title);

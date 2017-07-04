@@ -40,7 +40,7 @@ class IDBObject {
   
   void checkConnection() const noexcept(false)
     {
-      if (m_conn == NULL) {
+      if (m_conn == nullptr) {
 	throw std::runtime_error("ERROR:  Connection was not set");
       }
     }

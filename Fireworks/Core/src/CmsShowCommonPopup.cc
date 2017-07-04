@@ -31,12 +31,12 @@
 CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, UInt_t w, UInt_t h) :
    TGTransientFrame(gClient->GetDefaultRoot(),p,w,h),
    m_common(model),
-   m_backgroundButton(0),
-   m_gammaSlider(0),
-   m_gammaButton(0),
-   m_colorRnrCtxHighlightWidget(0),
-   m_colorRnrCtxSelectWidget(0),
-   m_combo(0)
+   m_backgroundButton(nullptr),
+   m_gammaSlider(nullptr),
+   m_gammaButton(nullptr),
+   m_colorRnrCtxHighlightWidget(nullptr),
+   m_colorRnrCtxSelectWidget(nullptr),
+   m_combo(nullptr)
 {
    SetCleanup(kDeepCleanup);
 
@@ -94,7 +94,7 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
       makeSetter(hf, &m_common->m_gamma);
    }
 
-   TGFont* smallFont = 0;
+   TGFont* smallFont = nullptr;
    FontStruct_t defaultFontStruct = m_backgroundButton->GetDefaultFontStruct();
    try
    { 
@@ -185,8 +185,8 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
       vf2->AddFrame(xx, new TGLayoutHints(kLHintsLeft,2,2,8,0));
    }
 
-   TGHSlider* transpWidget2D = 0;
-   TGHSlider* transpWidget3D = 0;
+   TGHSlider* transpWidget2D = nullptr;
+   TGHSlider* transpWidget3D = nullptr;
    TGCompositeFrame* top  = new TGVerticalFrame(vf2);
    vf2->AddFrame(top, new TGLayoutHints(kLHintsNormal, 2, 2, 2, 0));
 

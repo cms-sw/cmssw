@@ -53,5 +53,5 @@ SurfaceDeformation* SurfaceDeformationFactory::create(int type, const std::vecto
 				   << ") or params.size() (" << params.size()
 				   << ") does not match.\n";
   
-  return 0;
+  return nullptr;
 }

@@ -239,7 +239,7 @@ template <typename Object>
 SelectionStepHLT<Object>::SelectionStepHLT(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC) :
   src_( iC.consumes< edm::View<Object> >(cfg.getParameter<edm::InputTag>( "src"   ))),
   select_( cfg.getParameter<std::string>("select")),
-  jetIDSelect_(0)
+  jetIDSelect_(nullptr)
 {
   // construct min/max if the corresponding params
   // exist otherwise they are initialized with -1

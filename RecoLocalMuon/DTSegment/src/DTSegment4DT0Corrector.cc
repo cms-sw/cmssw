@@ -80,7 +80,7 @@ void DTSegment4DT0Corrector::produce(Event& event, const EventSetup& setup){
 
       DTRecSegment4D *newSeg = tmpseg.clone();
 
-      if(newSeg == 0) continue;
+      if(newSeg == nullptr) continue;
 
       theUpdator->update(newSeg,true,0);
       result.push_back(*newSeg);

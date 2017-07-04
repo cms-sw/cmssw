@@ -18,7 +18,7 @@ using namespace std;
 
 CaloTPGTranscoderULUT::CaloTPGTranscoderULUT(const std::string& compressionFile,
                                              const std::string& decompressionFile)
-                                                : theTopology(0),
+                                                : theTopology(nullptr),
                                                   nominal_gain_(0.), lsb_factor_(0.), rct_factor_(1.), nct_factor_(1.),
                                                   compressionFile_(compressionFile),
                                                   decompressionFile_(decompressionFile)

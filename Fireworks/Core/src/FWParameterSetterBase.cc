@@ -38,7 +38,7 @@
 // constructors and destructor
 //
 FWParameterSetterBase::FWParameterSetterBase() :
-   m_frame(0)
+   m_frame(nullptr)
 {
 }
 
@@ -82,7 +82,7 @@ FWParameterSetterBase::attach(FWParameterBase* iBase, FWParameterSetterEditorBas
 void
 FWParameterSetterBase::update() const
 {
-   if (m_frame != 0)
+   if (m_frame != nullptr)
       m_frame->updateEditor();
 }
 

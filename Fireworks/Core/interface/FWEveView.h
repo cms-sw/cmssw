@@ -99,7 +99,7 @@ protected:
    virtual void cameraGuideChanged();
 
    // scales
-   virtual TEveCaloViz* getEveCalo() const { return 0; }
+   virtual TEveCaloViz* getEveCalo() const { return nullptr; }
 
    // config
    void addToOrthoCamera(TGLOrthoCamera*, FWConfiguration&) const;

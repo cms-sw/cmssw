@@ -133,7 +133,7 @@ void AlignmentPrescaler::produce(edm::Event &iEvent, const edm::EventSetup &iSet
 	if(stripType==1) { 
 	  //	  const SiStripRecHit1D* stripHit1D = dynamic_cast<const SiStripRecHit1D*>(hit);
 	  
-	  if(stripHit1D!=0){
+	  if(stripHit1D!=nullptr){
 	    SiStripRecHit1D::ClusterRef stripclust(stripHit1D->cluster());
 	    tmpflag=InValMap[stripclust];
 	    tmpflag.SetDetId(hit->geographicalId());
@@ -146,7 +146,7 @@ void AlignmentPrescaler::produce(edm::Event &iEvent, const edm::EventSetup &iSet
 	}
 	else if (stripType==2) {
 	  //const SiStripRecHit2D* stripHit2D = dynamic_cast<const SiStripRecHit2D*>(hit);
-	  if(stripHit2D!=0){
+	  if(stripHit2D!=nullptr){
 	    SiStripRecHit2D::ClusterRef stripclust(stripHit2D->cluster());
 	    tmpflag=InValMap[stripclust];
 	    tmpflag.SetDetId(hit->geographicalId());
@@ -160,7 +160,7 @@ void AlignmentPrescaler::produce(edm::Event &iEvent, const edm::EventSetup &iSet
       }//end if is a strip hit
       else{
 	//	const SiPixelRecHit*   pixelhit= dynamic_cast<const SiPixelRecHit*>(hit);
-	if(pixelhit!=0){
+	if(pixelhit!=nullptr){
 	  //npxlhits++;
 	  SiPixelClusterRefNew pixclust(pixelhit->cluster());
 	  tmpflag=InValMap[pixclust];

@@ -55,8 +55,8 @@ private:
 };
 
 FWTrackProxyBuilderFullFramework::FWTrackProxyBuilderFullFramework(): 
-m_trackerPropagator(0),
-m_trajToTrackMap(0)
+m_trackerPropagator(nullptr),
+m_trajToTrackMap(nullptr)
 {
    m_trackerPropagator = new TEveTrackPropagator();
    m_trackerPropagator->SetStepper( TEveTrackPropagator::kRungeKutta );
@@ -83,9 +83,9 @@ void FWTrackProxyBuilderFullFramework::setItem(const FWEventItem* iItem)
 void
 FWTrackProxyBuilderFullFramework::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext* vc)
 {    
-   const reco::TrackCollection * tracks = 0;
+   const reco::TrackCollection * tracks = nullptr;
    iItem->get( tracks );
-   if( tracks == 0 ) return;
+   if( tracks == nullptr ) return;
    
    try {
       const edm::EventBase* event = item()->getEvent();
@@ -96,7 +96,7 @@ FWTrackProxyBuilderFullFramework::build(const FWEventItem* iItem, TEveElementLis
    }
    catch (cms::Exception &exception)
    {
-      m_trajToTrackMap =0;
+      m_trajToTrackMap =nullptr;
       std::cout << exception.what() << std::endl;
    }
     

@@ -52,10 +52,10 @@ void RPCClusterSizeTest::clientOperation() {
   //check some statements and prescale Factor
   if(myClusterMe_.size()==0 || myDetIds_.size()==0)return;
         
-  MonitorElement * CLS   = NULL;  // ClusterSize in 1 bin, Roll vs Sector
-  MonitorElement * CLSD  = NULL;  // ClusterSize in 1 bin, Distribution
-  MonitorElement * MEAN  = NULL;  // Mean ClusterSize, Roll vs Sector
-  MonitorElement * MEAND = NULL;  // Mean ClusterSize, Distribution
+  MonitorElement * CLS   = nullptr;  // ClusterSize in 1 bin, Roll vs Sector
+  MonitorElement * CLSD  = nullptr;  // ClusterSize in 1 bin, Distribution
+  MonitorElement * MEAN  = nullptr;  // Mean ClusterSize, Roll vs Sector
+  MonitorElement * MEAND = nullptr;  // Mean ClusterSize, Distribution
   
   
   std::stringstream meName;

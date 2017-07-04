@@ -11,9 +11,9 @@ using namespace oracle::occi;
 
 CaliCrystalIntercalDat::CaliCrystalIntercalDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
 
   m_cali = 0;
   m_caliRMS = 0;

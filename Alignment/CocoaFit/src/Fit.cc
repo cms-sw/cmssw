@@ -38,7 +38,7 @@
 #include "Alignment/CocoaFit/interface/CocoaDBMgr.h"
 
  
-Fit* Fit::instance = 0;
+Fit* Fit::instance = nullptr;
 
 ALIMatrix* Fit::AMatrix;
 ALIMatrix* Fit::AtMatrix;
@@ -148,7 +148,7 @@ void Fit::startFit()
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 ALIbool Fit::fitNextEvent( ALIuint& nEvent )
 {
-  if( Model::getFittedEntriesReader() != 0 ) Model::getFittedEntriesReader()->readFittedEntriesFromFile();
+  if( Model::getFittedEntriesReader() != nullptr ) Model::getFittedEntriesReader()->readFittedEntriesFromFile();
 
   //----- Reset coordinates to those read at the start
   std::vector< OpticalObject* >::iterator voite;
@@ -171,7 +171,7 @@ ALIbool Fit::fitNextEvent( ALIuint& nEvent )
   
   //----- Check if there are more data sets
   ALIbool moreDataSets = 1;
-  if(CocoaDaqReader::GetDaqReader() != 0) moreDataSets = CocoaDaqReader::GetDaqReader()->ReadNextEvent();
+  if(CocoaDaqReader::GetDaqReader() != nullptr) moreDataSets = CocoaDaqReader::GetDaqReader()->ReadNextEvent();
   
   if(ALIUtils::debug >= 5)  std::cout << CocoaDaqReader::GetDaqReader() << "$$$$$$$$$$$$$$$ More Data Sets to be processed: " << moreDataSets << std::endl;
   
@@ -300,7 +300,7 @@ ALIbool Fit::fitNextEvent( ALIuint& nEvent )
     
     //---- If no measurement file, break after looping once
     //-      std::cout << " Measurement::measurementsFileName() " << Measurement::measurementsFileName() << " Measurement::measurementsFileName()" <<std::endl;
-    if( CocoaDaqReader::GetDaqReader() == 0 ) {
+    if( CocoaDaqReader::GetDaqReader() == nullptr ) {
       //m    if( Measurement::measurementsFileName() == "" ) {
   if( ALIUtils::debug >= 1 ) std::cout << std::endl << "@@@@@@@@@@@@@@@@@@ Fit has ended : only one measurement " << nEvent << std::endl;
       lastEvent = 1;
@@ -1001,7 +1001,7 @@ ALIdouble Fit::GetSChi2( ALIbool useDa )
 {
   if(ALIUtils::debug >= 3) std::cout << "@@@ Fit::GetSChi2  useDa= " << useDa << std::endl;
 
-  ALIMatrix* SMat = 0;
+  ALIMatrix* SMat = nullptr;
   if( useDa ){
     //----- Calculate variables to check quality of this set of parameters
     

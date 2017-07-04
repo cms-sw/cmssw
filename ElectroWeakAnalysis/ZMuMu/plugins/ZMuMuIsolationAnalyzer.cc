@@ -78,7 +78,7 @@ ZMuMuIsolationAnalyzer::MuTag ZMuMuIsolationAnalyzer::muTag(const T& mu) const {
  return muFromOther;
   }
   const Candidate * moth1 = p->mother();
-  if(moth1 == 0) {
+  if(moth1 == nullptr) {
     return muFromOther;
     //cout<<"no mother "<<endl;
   }
@@ -88,7 +88,7 @@ ZMuMuIsolationAnalyzer::MuTag ZMuMuIsolationAnalyzer::muTag(const T& mu) const {
     //cout<<"mother is not a muon"<<endl;
   }
   const Candidate * moth2 = moth1->mother();
-  if(moth2 == 0) {
+  if(moth2 == nullptr) {
     return muFromOther;
     //cout<<"no mother "<<endl;
 }

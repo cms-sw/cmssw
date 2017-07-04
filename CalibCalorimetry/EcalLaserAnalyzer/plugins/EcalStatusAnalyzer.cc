@@ -97,7 +97,7 @@ void EcalStatusAnalyzer:: analyze( const edm::Event & e, const  edm::EventSetup&
 
   // retrieving DCC header
   edm::Handle<EcalRawDataCollection> pDCCHeader;
-  const  EcalRawDataCollection* DCCHeader=0;
+  const  EcalRawDataCollection* DCCHeader=nullptr;
   try {
     e.getByLabel(eventHeaderProducer_,eventHeaderCollection_, pDCCHeader);
     DCCHeader=pDCCHeader.product();
@@ -108,7 +108,7 @@ void EcalStatusAnalyzer:: analyze( const edm::Event & e, const  edm::EventSetup&
   // retrieving TB event header
 
   edm::Handle<EcalTBEventHeader> pEventHeader; 
-  const EcalTBEventHeader* evtHeader=0;
+  const EcalTBEventHeader* evtHeader=nullptr;
   if ( _dataType == "h4" ){
     try {
       e.getByLabel( eventHeaderProducer_ , pEventHeader );

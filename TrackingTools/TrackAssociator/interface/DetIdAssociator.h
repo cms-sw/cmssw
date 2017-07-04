@@ -139,7 +139,7 @@ class DetIdAssociator{
 			       const GlobalPoint&, 
 			       const DetId&,
 			       const double toleranceInSigmas = -1,
-			       const SteppingHelixStateInfo* = 0 ) const { return false; }
+			       const SteppingHelixStateInfo* = nullptr ) const { return false; }
    virtual bool nearElement(const GlobalPoint& point, 
 			    const DetId& id, 
 			    const double distance) const;

@@ -332,7 +332,7 @@ void DQMGenericClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter 
   // this endRun function
 
   // needed to access the DQMStore::save method
-  theDQM = 0;
+  theDQM = nullptr;
   theDQM = Service<DQMStore>().operator->();
 
   // Process wildcard in the sub-directory
@@ -537,7 +537,7 @@ void DQMGenericClient::computeEfficiency (DQMStore::IBooker& ibooker, DQMStore::
     // Here is where you have trouble --- you need
     // to understand what type of hist you have.
 
-    ME* efficME = 0;
+    ME* efficME = nullptr;
 
     // Parse the class name
     // This works, but there might be a better way

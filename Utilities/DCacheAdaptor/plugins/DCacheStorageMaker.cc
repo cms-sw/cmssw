@@ -55,7 +55,7 @@ public:
   {
     setTimeout(aux.timeout);
     std::string npath = normalise(proto, path);
-    if (dc_stage(npath.c_str(), 0, 0) != 0) {
+    if (dc_stage(npath.c_str(), 0, nullptr) != 0) {
       cms::Exception ex("FileStageInError");
       ex << "Cannot stage in file '" << npath
 	 << "', error was: " << dc_strerror(dc_errno)
@@ -68,7 +68,7 @@ public:
   virtual bool check (const std::string &proto,
 		      const std::string &path,
           const AuxSettings& aux,
-		      IOOffset *size = 0) const override
+		      IOOffset *size = nullptr) const override
   {
     setTimeout(aux.timeout);
     std::string testpath (normalise (proto, path));

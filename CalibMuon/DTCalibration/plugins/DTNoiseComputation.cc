@@ -217,10 +217,10 @@ void DTNoiseComputation::beginRun(const edm::Run&, const EventSetup& setup)
 void DTNoiseComputation::endJob(){
 
   cout << "[DTNoiseComputation] endjob called!" <<endl;
-  TH1F *hEvtDistance=0;
+  TH1F *hEvtDistance=nullptr;
   TF1 *ExpoFit = new TF1("ExpoFit","expo", 0.5, 1000.5);
   ExpoFit->SetMarkerColor();//just silence gcc complaining about unused vars
-  TF1 *funct=0;
+  TF1 *funct=nullptr;
   TProfile *theNoiseHisto = new TProfile("theNoiseHisto","Time Constant versus Average Noise",100000,0,100000);
   
 

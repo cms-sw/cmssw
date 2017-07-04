@@ -144,7 +144,7 @@ void SiPixelDynamicInefficiencyReader::analyze( const edm::Event& e, const edm::
   unsigned int match=0,mismatch=0,pu_match=0,pu_mismatch=0;
 
   for(TrackerGeometry::DetUnitContainer::const_iterator it = pDD->detUnits().begin(); it != pDD->detUnits().end(); it++){
-    if( dynamic_cast<PixelGeomDetUnit const*>((*it))==0) continue;
+    if( dynamic_cast<PixelGeomDetUnit const*>((*it))==nullptr) continue;
     const DetId detid=(*it)->geographicalId();
     double scale_db=1;
 

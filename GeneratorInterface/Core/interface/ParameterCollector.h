@@ -36,7 +36,7 @@ public:
       public boost::iterator_facade<const_iterator, const std::string,
                                     boost::forward_traversal_tag> {
    public:
-      const_iterator() : collector_(0), dump_(0) {}
+      const_iterator() : collector_(nullptr), dump_(nullptr) {}
 
    protected:
       friend class ParameterCollector;
@@ -44,7 +44,7 @@ public:
       inline const_iterator(const ParameterCollector *collector,
                             std::vector<std::string>::const_iterator begin,
                             std::vector<std::string>::const_iterator end,
-                            bool special = false, std::ostream *dump = 0);
+                            bool special = false, std::ostream *dump = nullptr);
 
    private:
       friend class boost::iterator_core_access;

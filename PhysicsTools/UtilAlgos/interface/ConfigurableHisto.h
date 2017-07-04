@@ -39,7 +39,7 @@ class ConfigurableAxis {
   double Min(){if (variableSize()) return vBins_.front(); else return Min_;}
   double Max(){if (variableSize()) return vBins_.back(); else return Max_;}
   const std::string & Label(){ return Label_;}
-  const double * xBins(){ if (vBins_.size()!=0) return &(vBins_.front()); else return 0;}
+  const double * xBins(){ if (vBins_.size()!=0) return &(vBins_.front()); else return nullptr;}
 
  private:
   std::vector<double> vBins_;
@@ -54,7 +54,7 @@ class ConfigurableHisto {
  public:
   enum HType { h1 ,h2, prof };
   ConfigurableHisto(HType t, std::string name, edm::ParameterSet & iConfig) :
-    type_(t),h_(0),name_(name), conf_(iConfig),x_(0),y_(0),z_(0),w_(0){}
+    type_(t),h_(nullptr),name_(name), conf_(iConfig),x_(nullptr),y_(nullptr),z_(nullptr),w_(nullptr){}
 
   virtual ~ConfigurableHisto(){}
 
@@ -164,8 +164,8 @@ class ConfigurableHisto {
       }
     }
     
-    TProfile * pcast(0);
-    TH2 * h2cast(0);
+    TProfile * pcast(nullptr);
+    TH2 * h2cast(nullptr);
     switch(type_){
     case h1:
       if (!h_) throw;
@@ -203,7 +203,7 @@ class ConfigurableHisto {
  protected:
   ConfigurableHisto(const ConfigurableHisto & master){
     type_=master.type_;
-    h_=0; //no histogram attached in copy constructor
+    h_=nullptr; //no histogram attached in copy constructor
     name_=master.name_;
     conf_=master.conf_;
     x_=master.x_;
@@ -225,7 +225,7 @@ class ConfigurableHisto {
 class SplittingConfigurableHisto : public ConfigurableHisto {
  public:
   SplittingConfigurableHisto(HType t, std::string name, edm::ParameterSet & pset) :
-    ConfigurableHisto(t,name,pset) , splitter_(0) {
+    ConfigurableHisto(t,name,pset) , splitter_(nullptr) {
     std::string title=pset.getParameter<std::string>("title");
 
     //allow for many splitters ...

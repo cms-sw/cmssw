@@ -61,7 +61,7 @@ class TTree;
 class JetCorretPair : protected std::pair<const reco::PFJet*, double> {
  public:
   JetCorretPair() {
-    first=0;
+    first=nullptr;
     second=1.0;
   }
   JetCorretPair(const reco::PFJet* j, double s) {

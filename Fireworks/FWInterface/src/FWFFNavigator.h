@@ -22,7 +22,7 @@ public:
 
    FWFFNavigator(CmsShowMainBase &main)
       : FWNavigatorBase(main),
-        m_currentEvent(0),
+        m_currentEvent(nullptr),
         m_currentTransition(kNoTransition)
       {}
    // Discard configuration for the time being.

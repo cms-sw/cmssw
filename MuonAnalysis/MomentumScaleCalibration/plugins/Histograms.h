@@ -38,15 +38,15 @@ public:
 
   // Constructor
   // -----------
-  Histograms() : theWeight_(1), histoDir_(0) {};
-  Histograms( const TString & name ) : theWeight_(1), name_(name), histoDir_(0) {}
+  Histograms() : theWeight_(1), histoDir_(nullptr) {};
+  Histograms( const TString & name ) : theWeight_(1), name_(name), histoDir_(nullptr) {}
   Histograms( TFile * outputFile, const TString & name ) :
     theWeight_(1),
     name_(name),
     outputFile_(outputFile),
     histoDir_( outputFile->GetDirectory(name) )
   {
-    if( histoDir_ == 0 ) {
+    if( histoDir_ == nullptr ) {
       histoDir_ = outputFile->mkdir(name);
     }
     histoDir_->cd();
@@ -145,7 +145,7 @@ public:
     tProfile_->Fill(x,y);
   }
   virtual void Write() {
-    if(histoDir_ != 0) histoDir_->cd();
+    if(histoDir_ != nullptr) histoDir_->cd();
     tH2d_->Write();
     tProfile_->Write();
   }
@@ -182,7 +182,7 @@ public:
     tH1D_->Fill(x, y);
   }
   virtual void Write() {
-    if(histoDir_ != 0) histoDir_->cd();
+    if(histoDir_ != nullptr) histoDir_->cd();
     tH1D_->Write();
   }
   virtual void Clear() {
@@ -214,7 +214,7 @@ public:
     tProfile_->Fill(x,y);
   }
   virtual void Write() {
-    if(histoDir_ != 0) histoDir_->cd();
+    if(histoDir_ != nullptr) histoDir_->cd();
     tProfile_->Write();
   }
   virtual void Clear() {
@@ -359,7 +359,7 @@ class HParticle : public Histograms {
 
   virtual void Write()
   {
-    if(histoDir_ != 0) histoDir_->cd();
+    if(histoDir_ != nullptr) histoDir_->cd();
     hPt_->Write();
     hPtVsEta_->Write();
    
@@ -490,7 +490,7 @@ class HDelta : public Histograms
   }
   
   virtual void Write() {
-    if(histoDir_ != 0) histoDir_->cd();
+    if(histoDir_ != nullptr) histoDir_->cd();
 
     hEta_->Write();
     hEtaSign_->Write();
@@ -1294,7 +1294,7 @@ class HResolutionVSPart : public Histograms
   }
 
   virtual void Write() {
-    if(histoDir_ != 0) histoDir_->cd();
+    if(histoDir_ != nullptr) histoDir_->cd();
 
     hReso_->Write();
     hResoVSPtEta_->Write();
@@ -1571,7 +1571,7 @@ class HFunctionResolution : public Histograms
   }
 
   virtual void Write() {
-    if(histoDir_ != 0) histoDir_->cd();
+    if(histoDir_ != nullptr) histoDir_->cd();
 
     hReso_->Write();
 
@@ -1692,7 +1692,7 @@ public:
     HFunctionResolution::Fill( p4, resValue, charge );
   }
   void Write() {
-    if(histoDir_ != 0) histoDir_->cd();
+    if(histoDir_ != nullptr) histoDir_->cd();
     for( int xBin=0; xBin<totBinsX_; ++xBin ) {
       for( int yBin=0; yBin<totBinsY_; ++yBin ) {
         histoVarianceCheck_[xBin][yBin]->Write();
@@ -1716,16 +1716,16 @@ class HResolution : public TH1F {
 public:
   HResolution( const TString & name, const TString & title,
                const int totBins, const double & xMin, const double & xMax,
-               const double & yMin, const double & yMax, TDirectory * dir = 0) :
+               const double & yMin, const double & yMax, TDirectory * dir = nullptr) :
     dir_(dir),
-    dir2D_(0),
-    diffDir_(0)
+    dir2D_(nullptr),
+    diffDir_(nullptr)
   {
-    if( dir_ != 0 ) {
+    if( dir_ != nullptr ) {
       dir2D_ = (TDirectory*) dir_->Get("2D");
-      if(dir2D_ == 0) dir2D_ = dir_->mkdir("2D");
+      if(dir2D_ == nullptr) dir2D_ = dir_->mkdir("2D");
       diffDir_ = (TDirectory*) dir_->Get("deltaXoverX");
-      if(diffDir_ == 0) diffDir_ = dir->mkdir("deltaXoverX");
+      if(diffDir_ == nullptr) diffDir_ = dir->mkdir("deltaXoverX");
     }
     diffHisto_ = new TProfile(name+"_prof", title+" profile", totBins, xMin, xMax, yMin, yMax);
     histo2D_ = new TH2F(name+"2D", title, totBins, xMin, xMax, 4000, yMin, yMax);
@@ -1741,7 +1741,7 @@ public:
     histo2D_->Fill(x, y);
     return 0;
   }
-  virtual Int_t	Write(const char* name = 0, Int_t option = 0, Int_t bufsize = 0) {
+  virtual Int_t	Write(const char* name = nullptr, Int_t option = 0, Int_t bufsize = 0) {
     // Loop on all the bins and take the rms.
     // The TProfile bin error is by default the standard error on the mean, that is
     // rms/sqrt(N). If it is created with the "S" option (as we did NOT do), it would
@@ -1754,11 +1754,11 @@ public:
       // std::cout << "iBin = " << iBin << ", " << diffHisto_->GetBinError(iBin)*sqrt(diffHisto_->GetBinEntries(iBin)) << std::endl;
       resoHisto_->SetBinContent( iBin, diffHisto_->GetBinError(iBin)*sqrt(diffHisto_->GetBinEntries(iBin)) );
     }
-    if( dir_ != 0 ) dir_->cd();
+    if( dir_ != nullptr ) dir_->cd();
     resoHisto_->Write();
-    if( diffDir_ != 0 ) diffDir_->cd();
+    if( diffDir_ != nullptr ) diffDir_->cd();
     diffHisto_->Write();
-    if( dir2D_ != 0 ) dir2D_->cd();
+    if( dir2D_ != nullptr ) dir2D_->cd();
     histo2D_->Write();
 
     return 0;
@@ -1821,7 +1821,7 @@ class HCovarianceVSxy : public Histograms
   HCovarianceVSxy( const TString & name, const TString & title,
                    const int totBinsX, const double & xMin, const double & xMax,
                    const int totBinsY, const double & yMin, const double & yMax,
-                   TDirectory * dir = 0, bool varianceCheck = false ) :
+                   TDirectory * dir = nullptr, bool varianceCheck = false ) :
     totBinsX_(totBinsX), totBinsY_(totBinsY),
     xMin_(xMin), deltaX_(xMax-xMin), yMin_(yMin), deltaY_(yMax-yMin),
     readMode_(false),
@@ -1854,7 +1854,7 @@ class HCovarianceVSxy : public Histograms
     readMode_(true)
   {
     histoDir_ = (TDirectory*)(inputFile->Get(dirName.Data()));
-    if( histoDir_ == 0 ) {
+    if( histoDir_ == nullptr ) {
       std::cout << "Error: directory not found" << std::endl;
       exit(0);
     }
@@ -1926,7 +1926,7 @@ class HCovarianceVSxy : public Histograms
           histoCovariance_->SetBinContent(xBin+1, yBin+1, covariance);
         }
       }
-      if( histoDir_ != 0 ) histoDir_->cd();
+      if( histoDir_ != nullptr ) histoDir_->cd();
       TCanvas canvas(TString(histoCovariance_->GetName())+"_canvas", TString(histoCovariance_->GetTitle())+" canvas", 1000, 800);
       canvas.Divide(2);
       canvas.cd(1);
@@ -1936,11 +1936,11 @@ class HCovarianceVSxy : public Histograms
       canvas.Write();
       histoCovariance_->Write();
 
-      TDirectory * binsDir = 0;
+      TDirectory * binsDir = nullptr;
       if( varianceCheck_ ) {
-        if ( histoDir_ != 0 ) {
+        if ( histoDir_ != nullptr ) {
           histoDir_->cd();
-          if( binsDir == 0 ) binsDir = histoDir_->mkdir(name_+"Bins");
+          if( binsDir == nullptr ) binsDir = histoDir_->mkdir(name_+"Bins");
           binsDir->cd();
         }
         for( int xBin=0; xBin<totBinsX_; ++xBin ) {

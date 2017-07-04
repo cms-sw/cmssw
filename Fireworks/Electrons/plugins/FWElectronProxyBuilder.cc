@@ -62,7 +62,7 @@ private:
 
 
 FWElectronProxyBuilder::FWElectronProxyBuilder():
-   m_common(0)
+   m_common(nullptr)
 {
    m_common = new TEveElementList( "common electron scene" );
    m_common->IncDenyDestroy();
@@ -95,7 +95,7 @@ FWElectronProxyBuilder::requestCommon()
       {
          const reco::GsfElectron& electron = modelData(i);
 
-         TEveTrack* track(0);
+         TEveTrack* track(nullptr);
          if( electron.gsfTrack().isAvailable() )
             track = fireworks::prepareTrack( *electron.gsfTrack(),
                                              context().getTrackPropagator());

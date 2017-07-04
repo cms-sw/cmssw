@@ -11,14 +11,14 @@ void
 raiseDQMError(const char *context, const char *fmt, ...)
 {
   va_list args;
-  char *message = 0;
+  char *message = nullptr;
 
   va_start(args, fmt);
   vasprintf(&message, fmt, args);
   va_end(args);
 
 #if WITHOUT_CMS_FRAMEWORK
-  char *final = 0;
+  char *final = nullptr;
   asprintf(&final, "%s: %s", context, message ? message : FAILED);
   std::runtime_error err(final ? final : FAILED);
   free(final);

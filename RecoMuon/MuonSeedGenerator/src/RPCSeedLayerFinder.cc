@@ -53,7 +53,7 @@ void RPCSeedLayerFinder::unsetInput() {
     isInputset = false;
 }
 
-void RPCSeedLayerFinder::setOutput(RPCSeedrecHitFinder* Ref = NULL, RPCCosmicSeedrecHitFinder* CosmicRef = NULL) {
+void RPCSeedLayerFinder::setOutput(RPCSeedrecHitFinder* Ref = nullptr, RPCCosmicSeedrecHitFinder* CosmicRef = nullptr) {
 
     RPCrecHitFinderRef = Ref;
     RPCCosmicrecHitFinderRef = CosmicRef;
@@ -73,13 +73,13 @@ void RPCSeedLayerFinder::fill() {
 
     // Now fill the Layers
     if(isCosmic == true) {
-        if(RPCCosmicrecHitFinderRef != NULL)
+        if(RPCCosmicrecHitFinderRef != nullptr)
             fillCosmicLayers();
         else
             cout << "RPCCosmicrecHitFinderRef not set" << endl;
     }
     else {
-        if(RPCrecHitFinderRef != NULL)
+        if(RPCrecHitFinderRef != nullptr)
             fillLayers();
         else
             cout << "RPCrecHitFinderRef not set" << endl;

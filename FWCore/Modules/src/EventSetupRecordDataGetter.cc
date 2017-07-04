@@ -177,7 +177,7 @@ private:
                 itRKey != itRKeyEnd;
                 ++itRKey) {               
                eventsetup::EventSetupRecord const* record = iSetup.find(*itRKey);
-               assert(record != 0);
+               assert(record != nullptr);
                dataKeys.clear();
                record->fillRegisteredDataKeys(dataKeys);
                recordToDataKeys_.insert(std::make_pair(*itRKey, dataKeys));
@@ -194,10 +194,10 @@ private:
            itRecord != itRecordEnd;
            ++itRecord) {
          EventSetupRecord const* pRecord = iSetup.find(itRecord->first);
-         if(0 == pRecord) {
+         if(nullptr == pRecord) {
            edm::LogWarning("RecordNotInIOV") <<"The EventSetup Record '"<<itRecord->first.name()<<"' is not available for this IOV.";
          }
-         if(0 != pRecord && pRecord->cacheIdentifier() != recordToCacheIdentifier_[itRecord->first]) {
+         if(nullptr != pRecord && pRecord->cacheIdentifier() != recordToCacheIdentifier_[itRecord->first]) {
             recordToCacheIdentifier_[itRecord->first] = pRecord->cacheIdentifier();
             typedef std::vector<DataKey> Keys;
             Keys const& keys = itRecord->second;

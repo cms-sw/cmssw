@@ -591,7 +591,7 @@ void WriteVHDL::prepareEncdap4thPlaneConnections(edm::ESHandle<RPCGeometry> rpcG
       it != rpcGeom->dets().end();
       ++it)
   {
-    if( dynamic_cast<const RPCRoll* >( *it ) == 0 ) continue;
+    if( dynamic_cast<const RPCRoll* >( *it ) == nullptr ) continue;
     RPCRoll const* roll = dynamic_cast< RPCRoll const*>( *it );
     int detId = roll->id().rawId();
     
@@ -654,7 +654,7 @@ void WriteVHDL::prepareEncdap4thPlaneConnections(edm::ESHandle<RPCGeometry> rpcG
      ++it)
  {
    RPCRoll const* roll = dynamic_cast< RPCRoll const*>( *it );
-   if( roll == 0 ) continue;
+   if( roll == nullptr ) continue;
    RPCDetId d = roll->id();
    if ( std::abs(d.region()) !=1) continue;
    if (d.station()!=4 && d.station() != -4) continue;
@@ -671,7 +671,7 @@ void WriteVHDL::prepareEncdap4thPlaneConnections(edm::ESHandle<RPCGeometry> rpcG
                   ++it3)
    {
      RPCRoll const* roll3 = dynamic_cast< RPCRoll const*>( *it3 );
-     if( roll3 == 0 ) continue;
+     if( roll3 == nullptr ) continue;
      RPCDetId d3 = roll3->id().rawId();
      if (d3 != matching4stDetId ) continue;
      /*
@@ -851,7 +851,7 @@ std::string WriteVHDL::writeConeDef(const edm::EventSetup& evtSetup, int tower, 
       it != rpcGeom->dets().end();
       ++it)
     {
-      if( dynamic_cast<const RPCRoll* >( *it ) == 0 ) continue;
+      if( dynamic_cast<const RPCRoll* >( *it ) == nullptr ) continue;
       RPCRoll const* roll = dynamic_cast< RPCRoll const*>( *it );
       
       int detId = roll->id().rawId();

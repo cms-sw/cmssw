@@ -73,7 +73,7 @@ private:
 void
 FWDTDigiProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* product, FWViewType::EType type, const FWViewContext* )
 {
-   const DTDigiCollection* digis = 0;
+   const DTDigiCollection* digis = nullptr;
    iItem->get( digis );
 	
    if( ! digis )

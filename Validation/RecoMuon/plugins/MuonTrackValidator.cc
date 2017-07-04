@@ -737,10 +737,10 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
 	double phiErrorRec(0);
 	
 	//loop to decide whether to take gsfTrack (utilisation of mode-function) or common track
-	const GsfTrack* gsfTrack(0);
+	const GsfTrack* gsfTrack(nullptr);
 	if(useGsf){
 	  gsfTrack = dynamic_cast<const GsfTrack*>(&(*track));
-	  if (gsfTrack==0) edm::LogInfo("MuonTrackValidator") << "Trying to access mode for a non-GsfTrack";
+	  if (gsfTrack==nullptr) edm::LogInfo("MuonTrackValidator") << "Trying to access mode for a non-GsfTrack";
 	}
 	
 	if (gsfTrack) {

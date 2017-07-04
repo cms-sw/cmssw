@@ -78,7 +78,7 @@ STAnalyzer::STAnalyzer(const ParameterSet& pset) : _ev(0){
   theSTAMuonLabel = pset.getParameter<string>("SALabel");
 
   thePropagatorName = pset.getParameter<std::string>("PropagatorName");
-  thePropagator = 0;
+  thePropagator = nullptr;
 
   doSA = pset.getParameter<bool>("doSA");
 

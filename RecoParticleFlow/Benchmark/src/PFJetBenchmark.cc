@@ -39,7 +39,7 @@
 using namespace reco;
 using namespace std;
 
-PFJetBenchmark::PFJetBenchmark() : file_(0), entry_(0) {}
+PFJetBenchmark::PFJetBenchmark() : file_(nullptr), entry_(0) {}
 
 PFJetBenchmark::~PFJetBenchmark() {
   if(file_) file_->Close();
@@ -79,7 +79,7 @@ void PFJetBenchmark::setup(
   outputFile_=Filename;
   recPt_cut = recPt;
   maxEta_cut= maxEta;
-  file_ = NULL;
+  file_ = nullptr;
   dbe_ = dbe_store;
   // print parameters
   cout<< "PFJetBenchmark Setup parameters =============================================="<<endl;
@@ -395,7 +395,7 @@ void PFJetBenchmark::process(const reco::PFJetCollection& pfJets, const reco::Ge
 		  << std::endl;
 
 	// check overlapping PF jets
-	const reco::PFJet* pfoj = 0; 
+	const reco::PFJet* pfoj = nullptr; 
 	double dRo = 1E9;
 	for(unsigned j=0; j<pfJets.size(); j++) { 
 	  const reco::PFJet& pfo = pfJets[j];
@@ -407,7 +407,7 @@ void PFJetBenchmark::process(const reco::PFJetCollection& pfJets, const reco::Ge
 	
 	// Check overlapping Gen Jet 
 	math::XYZTLorentzVector overlappinGenJet(0.,0.,0.,0.);
-	const reco::GenJet* genoj = 0;
+	const reco::GenJet* genoj = nullptr;
 	double dRgo = 1E9;
 	for(unsigned j=0; j<genJets.size(); j++) { 
 	  const reco::GenJet* gjo = &(genJets[j]);

@@ -36,9 +36,9 @@
 // constructors and destructor
 //
 FWElectronDetailView::FWElectronDetailView() :
-   m_data(0),
-   m_builder(0),
-   m_legend(0)
+   m_data(nullptr),
+   m_builder(nullptr),
+   m_legend(nullptr)
 {
 }
 
@@ -83,7 +83,7 @@ FWElectronDetailView::build( const FWModelId &id, const reco::GsfElectron* iElec
    m_data = lego->GetData();
    m_eveScene->AddElement( lego );
 
-   m_legend = new TLegend(0.01, 0.01, 0.99, 0.99, 0, "NDC");
+   m_legend = new TLegend(0.01, 0.01, 0.99, 0.99, nullptr, "NDC");
    m_legend->SetTextSize(0.075);
    m_legend->SetBorderSize(0);
    m_legend->SetMargin(0.15);
@@ -188,7 +188,7 @@ FWElectronDetailView::setTextInfo( const FWModelId& id, const reco::GsfElectron 
 
    m_legend->SetY2(y);
    m_legend->Draw();
-   m_legend = 0; // Deleted together with TPad.
+   m_legend = nullptr; // Deleted together with TPad.
 }
 
 void

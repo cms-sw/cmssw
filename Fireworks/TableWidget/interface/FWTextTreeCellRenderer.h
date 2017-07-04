@@ -25,7 +25,7 @@ public:
                           Justify iJustify = kJustifyLeft)
       : FWTextTableCellRenderer(iContext, iHighlightContext, iJustify),
         m_indentation(0),
-        m_editor(0),
+        m_editor(nullptr),
         m_showEditor(false),
         m_isParent(false),
         m_isOpen(false),

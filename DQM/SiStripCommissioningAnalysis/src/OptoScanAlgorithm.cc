@@ -16,7 +16,7 @@ using namespace sistrip;
 // 
 OptoScanAlgorithm::OptoScanAlgorithm( const edm::ParameterSet & pset, OptoScanAnalysis* const anal ) 
   : CommissioningAlgorithm(anal),
-    histos_( 4, std::vector<Histo>( 3, Histo(0,"") ) ),
+    histos_( 4, std::vector<Histo>( 3, Histo(nullptr,"") ) ),
     targetGain_(pset.getParameter<double>("TargetGain"))
 {
   edm::LogInfo(mlCommissioning_)
@@ -407,5 +407,5 @@ void OptoScanAlgorithm::analyse() {
 CommissioningAlgorithm::Histo OptoScanAlgorithm::histo( const uint16_t& gain, 
 							const uint16_t& digital_level ) const {
   if ( gain <= 3 && digital_level <= 1 ) { return histos_[gain][digital_level]; }
-  else { return Histo(0,""); }
+  else { return Histo(nullptr,""); }
 }

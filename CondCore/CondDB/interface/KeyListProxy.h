@@ -15,7 +15,7 @@ namespace cond {
       typedef PayloadProxy<DataT> super;
 
     
-      explicit PayloadProxy( const char * source=0 ) :
+      explicit PayloadProxy( const char * source=nullptr ) :
 	super( source ),
 	m_keyList() {
 	if( source ) m_name = source;

@@ -120,7 +120,7 @@ namespace edm {
           break;
         }
         case MessageLoggerQ::SUMMARIZE: {
-          assert( operand == 0 );
+          assert( operand == nullptr );
           try {
             triggerStatisticsSummaries();
           }
@@ -151,7 +151,7 @@ namespace edm {
           break;
         }
         case MessageLoggerQ::SHUT_UP:  {
-          assert( operand == 0 );
+          assert( operand == nullptr );
           active = false;
           break;
         }

@@ -98,8 +98,8 @@ namespace edm
   HadronizerFilter<HAD,DEC>::HadronizerFilter(ParameterSet const& ps) :
     EDFilter(),
     hadronizer_(ps),
-    decayer_(0),
-    filter_(0),
+    decayer_(nullptr),
+    filter_(nullptr),
     runInfoProductTag_(),
     runInfoProductToken_(),
     eventProductToken_(),

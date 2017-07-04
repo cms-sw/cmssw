@@ -140,7 +140,7 @@ namespace evf{
   void ExceptionGenerator::beginRun(const edm::Run& r, const edm::EventSetup& iSetup)
   {
 
-    gettimeofday(&tv_start_,0);
+    gettimeofday(&tv_start_,nullptr);
   }
 
   void __attribute__((optimize("O0"))) ExceptionGenerator::analyze(const edm::Event & e, const edm::EventSetup& c)
@@ -149,7 +149,7 @@ namespace evf{
       unsigned int iterations = 0;
       if(actionRequired_) 
 	{
-	  int *pi = 0;//null-pointer used with actionId_ 8 and 12 to intentionally cause segfault
+	  int *pi = nullptr;//null-pointer used with actionId_ 8 and 12 to intentionally cause segfault
 	  int ind = 0; 
 	  int step = 1; 
 	  switch(actionId_)
@@ -216,7 +216,7 @@ namespace evf{
 	    case 12:
 	      {
 		timeval tv_now;
-	        gettimeofday(&tv_now,0);
+	        gettimeofday(&tv_now,nullptr);
 		if ((unsigned)(tv_now.tv_sec-tv_start_.tv_sec)>intqualifier_)
 		  *pi=0;//intentionally caused segfault by assigning null pointer (this produces static-checker warning)
 	      }

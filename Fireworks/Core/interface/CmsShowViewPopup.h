@@ -75,7 +75,7 @@ private:
 class CmsShowViewPopup : public TGTransientFrame
 {
 public:
-   CmsShowViewPopup(const TGWindow* p = 0, UInt_t w = 200, UInt_t h = 200, FWColorManager* cm=0, FWViewBase* wb=0, TEveWindow* ew = 0);
+   CmsShowViewPopup(const TGWindow* p = nullptr, UInt_t w = 200, UInt_t h = 200, FWColorManager* cm=nullptr, FWViewBase* wb=nullptr, TEveWindow* ew = nullptr);
    virtual ~CmsShowViewPopup();
 
    // ---------- const member functions ---------------------

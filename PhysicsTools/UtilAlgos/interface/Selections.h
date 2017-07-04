@@ -11,10 +11,10 @@
 
 class Filter {
  public:
-  Filter() :  selector_(0){}
+  Filter() :  selector_(nullptr){}
   Filter(const edm::ParameterSet& iConfig, edm::ConsumesCollector & iC);
   Filter(std::string name, edm::ParameterSet& iConfig, edm::ConsumesCollector & iC) :
-  name_(name), selector_(0),cached_decision_(false),eventCacheID_(0)
+  name_(name), selector_(nullptr),cached_decision_(false),eventCacheID_(0)
   {
     dump_=iConfig.dump();
     if (!iConfig.empty()){

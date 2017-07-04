@@ -41,7 +41,7 @@ namespace edm {
         bool isForPrimaryProcess=true);
     ~RunPrincipal() {}
 
-    void fillRunPrincipal(ProcessHistoryRegistry const& processHistoryRegistry, DelayedReader* reader = 0);
+    void fillRunPrincipal(ProcessHistoryRegistry const& processHistoryRegistry, DelayedReader* reader = nullptr);
 
     /** Multiple Runs may be processed simultaneously. The
      return value can be used to identify a particular Run.

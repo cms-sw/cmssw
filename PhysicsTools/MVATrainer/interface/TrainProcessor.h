@@ -53,7 +53,7 @@ class TrainProcessor : public Source,
 	virtual void
 	passFlags(const std::vector<Variable::Flags> &flags) {}
 
-	virtual Calibration::VarProcessor *getCalibration() const { return 0; }
+	virtual Calibration::VarProcessor *getCalibration() const { return nullptr; }
 
 	void doTrainBegin();
 	void doTrainData(const std::vector<double> *values,
@@ -78,7 +78,7 @@ class TrainProcessor : public Source,
 	virtual void trainEnd() { trained = true; }
 
 	virtual void *requestObject(const std::string &name) const
-	{ return 0; }
+	{ return nullptr; }
 
 	inline bool exists(const std::string &name)
 	{ return boost::filesystem::exists(name.c_str()); }

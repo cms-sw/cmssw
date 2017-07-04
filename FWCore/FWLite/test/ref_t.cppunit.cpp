@@ -175,7 +175,7 @@ static void checkMatch(const edmtest::OtherThingCollection* pOthers,
 }
 
 static void testTree(TTree* events) {
-  CPPUNIT_ASSERT(events !=0);
+  CPPUNIT_ASSERT(events !=nullptr);
   
   /*
    edmtest::OtherThingCollection* pOthers = nullptr;

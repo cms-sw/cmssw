@@ -24,7 +24,7 @@ RBCLinkBoardGLSignal::RBCLinkBoardGLSignal( std::map< int, RBCInput* >  * in ) {
 //=============================================================================
 RBCLinkBoardGLSignal::~RBCLinkBoardGLSignal() {
 
-  m_linkboardin = NULL;
+  m_linkboardin = nullptr;
     
 } 
 

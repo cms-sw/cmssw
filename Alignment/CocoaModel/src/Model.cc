@@ -49,7 +49,7 @@
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-Model* Model::theInstance = 0;
+Model* Model::theInstance = nullptr;
 //map< ALIstring, ALIdouble, std::less<ALIstring> > Model::theParameters;
 std::vector< std::vector<ALIstring> > Model::theOptODictionary;
 //-map< ALIstring, int, std::less<ALIstring> > Model::theStandardMeasurerTypes;
@@ -72,7 +72,7 @@ ALIstring Model::theMatricesFName = "matrices.out";
 //struct tm Model::theMeasurementsTime = struct tm();
 // struct tm Model::theMeasurementsTime;
 cocoaStatus Model::theCocoaStatus = COCOA_Init;
-FittedEntriesReader* Model::theFittedEntriesReader = 0;
+FittedEntriesReader* Model::theFittedEntriesReader = nullptr;
 std::vector<OpticalAlignInfo> Model::theOpticalAlignments;
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -384,7 +384,7 @@ void Model::readSystemDescription()
 	  exit(9);
 	}
 
-        OpticalObject* OptOsystem = new OpticalObject( 0, "system", wordlist[1], 0 );
+        OpticalObject* OptOsystem = new OpticalObject( nullptr, "system", wordlist[1], 0 );
         OptOsystem->construct();
 	    //-              Model::_OptOtree.insert( std::multimap< ALIstring, OpticalObject*, std::less<ALIstring> >::value_type(OptOsystem->type(), OptOsystem) );
 	    //              theOptOlist[OptOsystem->name()] = OptOsystem; 
@@ -401,7 +401,7 @@ void Model::readSystemDescription()
 //----------------------------------- Reading MEASUREMENTS section
     } else if( currentSectionNo == sectMeasurements ) {
       //---------- Create Measurement with appropiate dimension
-      Measurement* meastemp = 0;
+      Measurement* meastemp = nullptr;
       ALIstring measType = wordlist[0];
       ALIstring measName;
       if( wordlist.size() == 2 ) {
@@ -672,7 +672,7 @@ Measurement* Model::getMeasurementByName( const ALIstring& meas_name, ALIbool ex
       abort();
       //       return (OpticalObject*)0;
     } else {
-      return 0;
+      return nullptr;
     }
 
   } 
@@ -737,7 +737,7 @@ ALIbool Model::getComponentOptOs( const ALIstring& opto_name, std::vector<Optica
   if ( ALIUtils::debug >= 99) std::cout << "optolist size " << OptOList().size() << std::endl;
   ALIbool opto_found = 0; 
   for (vocite = OptOList().begin(); vocite != OptOList().end(); ++vocite) {
-    if( (*vocite)->parent() != 0 ) {
+    if( (*vocite)->parent() != nullptr ) {
       //        std::cout << "looping OptOlist" << (*vocite)->name() << " parent " <<(*vocite)->parent()->name() << std::endl; 
       if( (*vocite)->parent()->name() == opto_name ) {
         opto_found = 1;
@@ -1480,7 +1480,7 @@ void Model::copyMeasurements( const std::vector<ALIstring>& wl )
   }
 
   //---- Build new measurements
-  Measurement* meastemp = 0;
+  Measurement* meastemp = nullptr;
   for( mite = measToCopy.begin(); mite != measToCopy.end(); ++mite) {
     Measurement* meas = (*mite);
     std::vector<ALIstring> wlt;
@@ -1583,7 +1583,7 @@ void Model::BuildSystemDescriptionFromOA( OpticalAlignments& optAlig )
 
   OpticalAlignInfo oai_system = FindOptAlignInfoByType( "system" );
 
-  OpticalObject* OptOsystem = new OpticalObject( 0, "system", oai_system.name_, 0 );
+  OpticalObject* OptOsystem = new OpticalObject( nullptr, "system", oai_system.name_, 0 );
  
   OptOsystem->constructFromOptAligInfo( oai_system );
 
@@ -1634,7 +1634,7 @@ void Model::BuildMeasurementsFromOA( OpticalAlignMeasurements& measList )
     std::string measName = (*mite).name_;
   if( ALIUtils::debug >= 4 ) std::cout << " BuildMeasurementsFromOA measType " << measType << " measName " << measName << std::endl;
     //---------- Create Measurement with appropiate dimension
-    Measurement* meastemp = 0;
+    Measurement* meastemp = nullptr;
     if ( measType == ALIstring("SENSOR2D") ) {
       meastemp = new MeasurementSensor2D( 2, measType, measName );  
     } else if ( measType == ALIstring("DISTANCEMETER3DIM") ) {

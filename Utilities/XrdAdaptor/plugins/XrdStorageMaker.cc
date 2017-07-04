@@ -97,7 +97,7 @@ public:
   virtual bool check (const std::string &proto,
 		      const std::string &path,
           const AuxSettings& aux,
-		      IOOffset *size = 0) const override
+		      IOOffset *size = nullptr) const override
   {
     setDebugLevel(aux.debugLevel);
     setTimeout(aux.timeout);

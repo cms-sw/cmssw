@@ -41,7 +41,7 @@ void CaloGeometryHelper::initialize(double bField)
   buildCrystalArray();
   buildNeighbourArray();
   bfield_ = bField;
-  preshowerPresent_=(getEcalPreshowerGeometry()!=0);
+  preshowerPresent_=(getEcalPreshowerGeometry()!=nullptr);
     
   if(preshowerPresent_)
     {
@@ -459,7 +459,7 @@ void CaloGeometryHelper::buildCrystalArray()
   //std::cout << " Building the array of crystals (barrel) " ;
   const std::vector<DetId>&  vec(EcalBarrelGeometry_->getValidDetIds(DetId::Ecal,EcalBarrel));
   unsigned size=vec.size();    
-  const CaloCellGeometry * geom=0;
+  const CaloCellGeometry * geom=nullptr;
   for(unsigned ic=0; ic<size; ++ic) 
     {
       unsigned hashedindex=EBDetId(vec[ic]).hashedIndex();

@@ -104,7 +104,7 @@ SimDigiDumper::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup 
 
   bool isBarrel = true;
   edm::Handle<EBDigiCollection> EcalDigiEB;
-  const EBDigiCollection *EBdigis = 0;
+  const EBDigiCollection *EBdigis = nullptr;
   iEvent.getByToken(ECalEBSrc_, EcalDigiEB);
   if (!EcalDigiEB.isValid()) {
     std::cout << "Unable to find EcalDigiEB in event!" << std::endl;
@@ -127,7 +127,7 @@ SimDigiDumper::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup 
   // ECAL Endcap
   bool isEndcap = true;
   edm::Handle<EEDigiCollection> EcalDigiEE;
-  const EEDigiCollection *EEdigis = 0;
+  const EEDigiCollection *EEdigis = nullptr;
   iEvent.getByToken(ECalEESrc_, EcalDigiEE);
   if (!EcalDigiEE.isValid()) {
     std::cout << "Unable to find EcalDigiEE in event!" << std::endl;
@@ -150,7 +150,7 @@ SimDigiDumper::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup 
   // ECAL Preshower
   bool isPreshower = true;
   edm::Handle<ESDigiCollection> EcalDigiES;
-  const ESDigiCollection *ESdigis = 0;
+  const ESDigiCollection *ESdigis = nullptr;
   iEvent.getByToken(ECalESSrc_, EcalDigiES);
   if (!EcalDigiES.isValid()) {
     std::cout << "Unable to find EcalDigiES in event!" << std::endl;
@@ -173,7 +173,7 @@ SimDigiDumper::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup 
   // HBHE
   bool isHBHE = true;
   edm::Handle<HBHEDigiCollection> hbhe;
-  const HBHEDigiCollection *HBHEdigis = 0;
+  const HBHEDigiCollection *HBHEdigis = nullptr;
   iEvent.getByToken(HCalDigi_, hbhe);
   if (!hbhe.isValid()) {
     std::cout << "Unable to find HBHEDataFrame in event!" << std::endl;
@@ -199,7 +199,7 @@ SimDigiDumper::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup 
   // HO
   bool isHO = true;
   edm::Handle<HODigiCollection> ho;
-  const HODigiCollection *HOdigis = 0;
+  const HODigiCollection *HOdigis = nullptr;
   iEvent.getByToken(HCalHODigi_, ho);
   if (!ho.isValid()) {
     std::cout << "Unable to find HODataFrame in event!" << std::endl;
@@ -221,7 +221,7 @@ SimDigiDumper::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup 
   // HF
   bool isHF = true;
   edm::Handle<HFDigiCollection> hf;
-  const HFDigiCollection *HFdigis = 0;
+  const HFDigiCollection *HFdigis = nullptr;
   iEvent.getByToken(HCalHFDigi_,hf);
   if (!hf.isValid()) {
     std::cout << "Unable to find HFDataFrame in event!" << std::endl;
@@ -243,7 +243,7 @@ SimDigiDumper::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup 
   // ZDC
   bool isZDC = true;
   edm::Handle<ZDCDigiCollection> zdc;
-  const ZDCDigiCollection *ZDCdigis = 0;
+  const ZDCDigiCollection *ZDCdigis = nullptr;
   iEvent.getByToken(ZdcDigi_, zdc);
   if (!zdc.isValid()) {
     std::cout << "Unable to find ZDCDataFrame in event!" << std::endl;

@@ -266,7 +266,7 @@ HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   auto evtplaneOutput = std::make_unique<EvtPlaneCollection>();
   EvtPlane * ep[NumEPNames];
   for(int i = 0; i<NumEPNames; i++) {
-    ep[i]=0;
+    ep[i]=nullptr;
   }
   int indx = 0;
   for (EvtPlaneCollection::const_iterator rp = evtPlanes_->begin();rp !=evtPlanes_->end(); rp++) {
@@ -291,7 +291,7 @@ HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     }
   
   for(int i = 0; i< NumEPNames; i++) {
-    if(ep[i]!=0) evtplaneOutput->push_back(*ep[i]);
+    if(ep[i]!=nullptr) evtplaneOutput->push_back(*ep[i]);
     
   }
   iEvent.put(std::move(evtplaneOutput));

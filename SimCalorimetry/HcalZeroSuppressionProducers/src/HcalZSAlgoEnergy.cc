@@ -72,4 +72,4 @@ bool HcalZSAlgoEnergy::shouldKeep(const QIE11DataFrame& digi) const {
 }
 
 void HcalZSAlgoEnergy::prepare(const HcalDbService* db) { db_=db; }
-void HcalZSAlgoEnergy::done() { db_=0; }
+void HcalZSAlgoEnergy::done() { db_=nullptr; }

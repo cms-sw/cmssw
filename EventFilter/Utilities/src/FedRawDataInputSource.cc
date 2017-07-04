@@ -72,7 +72,7 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
   eventID_(),
   processHistoryID_(),
   currentLumiSection_(0),
-  tcds_pointer_(0),
+  tcds_pointer_(nullptr),
   eventsThisLumi_(0),
   dpd_(nullptr)
 {
@@ -344,7 +344,7 @@ void FedRawDataInputSource::maybeOpenNewLumiSection(const uint32_t lumiSection)
     resetLuminosityBlockAuxiliary();
 
     timeval tv;
-    gettimeofday(&tv, 0);
+    gettimeofday(&tv, nullptr);
     const edm::Timestamp lsopentime( (unsigned long long) tv.tv_sec * 1000000 + (unsigned long long) tv.tv_usec );
 
     edm::LuminosityBlockAuxiliary* lumiBlockAuxiliary =
@@ -679,7 +679,7 @@ void FedRawDataInputSource::read(edm::EventPrincipal& eventPrincipal)
     aux.setProcessHistoryID(processHistoryID_);
     makeEvent(eventPrincipal, aux);
   }
-  else if(tcds_pointer_==0){
+  else if(tcds_pointer_==nullptr){
     assert(GTPEventID_);
     eventID_ = edm::EventID(eventRunNumber_, currentLumiSection_, GTPEventID_);
     edm::EventAuxiliary aux(eventID_, processGUID(), tstamp, true,
@@ -744,7 +744,7 @@ edm::Timestamp FedRawDataInputSource::fillFEDRawDataCollection(FEDRawDataCollect
 {
   edm::TimeValue_t time;
   timeval stv;
-  gettimeofday(&stv,0);
+  gettimeofday(&stv,nullptr);
   time = stv.tv_sec;
   time = (time << 32) + stv.tv_usec;
   edm::Timestamp tstamp(time);
@@ -752,7 +752,7 @@ edm::Timestamp FedRawDataInputSource::fillFEDRawDataCollection(FEDRawDataCollect
   uint32_t eventSize = event_->eventSize();
   char* event = (char*)event_->payload();
   GTPEventID_=0;
-  tcds_pointer_ = 0;
+  tcds_pointer_ = nullptr;
   while (eventSize > 0) {
     assert(eventSize>=sizeof(fedt_t));
     eventSize -= sizeof(fedt_t);

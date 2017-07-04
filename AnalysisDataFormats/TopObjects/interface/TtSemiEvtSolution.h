@@ -59,16 +59,16 @@ class TtSemiEvtSolution {
   // get the matched gen particles
   //-------------------------------------------
   const edm::RefProd<TtGenEvent> & getGenEvent() const { return theGenEvt_; };
-  const reco::GenParticle * getGenHadt() const { if (!theGenEvt_) return 0; else return this->getGenEvent()->hadronicDecayTop(); };
-  const reco::GenParticle * getGenHadW() const { if (!theGenEvt_) return 0; else return this->getGenEvent()->hadronicDecayW(); };
-  const reco::GenParticle * getGenHadb() const { if (!theGenEvt_) return 0; else return this->getGenEvent()->hadronicDecayB(); };
-  const reco::GenParticle * getGenHadp() const { if (!theGenEvt_) return 0; else return this->getGenEvent()->hadronicDecayQuark(); };
-  const reco::GenParticle * getGenHadq() const { if (!theGenEvt_) return 0; else return this->getGenEvent()->hadronicDecayQuarkBar(); };
-  const reco::GenParticle * getGenLept() const { if (!theGenEvt_) return 0; else return this->getGenEvent()->leptonicDecayTop(); };
-  const reco::GenParticle * getGenLepW() const { if (!theGenEvt_) return 0; else return this->getGenEvent()->leptonicDecayW(); };
-  const reco::GenParticle * getGenLepb() const { if (!theGenEvt_) return 0; else return this->getGenEvent()->leptonicDecayB(); };
-  const reco::GenParticle * getGenLepl() const { if (!theGenEvt_) return 0; else return this->getGenEvent()->singleLepton(); };
-  const reco::GenParticle * getGenLepn() const { if (!theGenEvt_) return 0; else return this->getGenEvent()->singleNeutrino(); };
+  const reco::GenParticle * getGenHadt() const { if (!theGenEvt_) return nullptr; else return this->getGenEvent()->hadronicDecayTop(); };
+  const reco::GenParticle * getGenHadW() const { if (!theGenEvt_) return nullptr; else return this->getGenEvent()->hadronicDecayW(); };
+  const reco::GenParticle * getGenHadb() const { if (!theGenEvt_) return nullptr; else return this->getGenEvent()->hadronicDecayB(); };
+  const reco::GenParticle * getGenHadp() const { if (!theGenEvt_) return nullptr; else return this->getGenEvent()->hadronicDecayQuark(); };
+  const reco::GenParticle * getGenHadq() const { if (!theGenEvt_) return nullptr; else return this->getGenEvent()->hadronicDecayQuarkBar(); };
+  const reco::GenParticle * getGenLept() const { if (!theGenEvt_) return nullptr; else return this->getGenEvent()->leptonicDecayTop(); };
+  const reco::GenParticle * getGenLepW() const { if (!theGenEvt_) return nullptr; else return this->getGenEvent()->leptonicDecayW(); };
+  const reco::GenParticle * getGenLepb() const { if (!theGenEvt_) return nullptr; else return this->getGenEvent()->leptonicDecayB(); };
+  const reco::GenParticle * getGenLepl() const { if (!theGenEvt_) return nullptr; else return this->getGenEvent()->singleLepton(); };
+  const reco::GenParticle * getGenLepn() const { if (!theGenEvt_) return nullptr; else return this->getGenEvent()->singleNeutrino(); };
 
   //-------------------------------------------
   // get (un-)/calibrated reco objects

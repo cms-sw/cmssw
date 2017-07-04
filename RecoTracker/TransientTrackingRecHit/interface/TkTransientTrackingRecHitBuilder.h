@@ -38,7 +38,7 @@ class TkTransientTrackingRecHitBuilder final : public TransientTrackingRecHitBui
 
   // for the time being here...
   TkClonerImpl cloner() const { 
-    if(phase2OTCPE == 0)
+    if(phase2OTCPE == nullptr)
       return TkClonerImpl(pixelCPE,stripCPE,theMatcher);
     else
       return TkClonerImpl(pixelCPE,phase2OTCPE);

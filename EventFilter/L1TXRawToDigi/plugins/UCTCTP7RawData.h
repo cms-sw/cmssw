@@ -11,7 +11,7 @@ public:
   enum CaloType {EBEE=0, HBHE, HF};
 
   UCTCTP7RawData(const uint32_t *d) : myDataPtr(d) {
-    if(myDataPtr != 0) {
+    if(myDataPtr != nullptr) {
       if(sof() != 0xA110CA7E) {
 	LogError("UCTCTP7RawData") << "Failed to see 0xA110CA7E at start - but continuing" << std::endl;
       }

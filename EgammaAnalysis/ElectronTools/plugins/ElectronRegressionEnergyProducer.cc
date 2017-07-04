@@ -173,7 +173,7 @@ bool ElectronRegressionEnergyProducer::filter(edm::Event& iEvent, const edm::Eve
   for ( reco::GsfElectronCollection::const_iterator egIter = egCandidates.begin();
         egIter != egCandidates.end(); ++egIter) {
 
-    const EcalRecHitCollection * recHits=0;
+    const EcalRecHitCollection * recHits=nullptr;
     if(egIter->isEB())
         recHits = pEBRecHits.product();
     else

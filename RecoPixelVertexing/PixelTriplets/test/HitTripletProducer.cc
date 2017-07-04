@@ -36,7 +36,7 @@ private:
 };
 
 HitTripletProducer::HitTripletProducer(const edm::ParameterSet& conf) 
-  : theConfig(conf), theGenerator(0)
+  : theConfig(conf), theGenerator(nullptr)
 {
   edm::LogInfo("HitTripletProducer")<<" CTOR";
   hCPU = new TH1D ("hCPU","hCPU",140,0.,0.070);

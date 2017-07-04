@@ -28,7 +28,7 @@ public:
  TransientTrackKinematicParticle(const KinematicState& kineState,float& chiSquared,
                        float& degreesOfFr,KinematicConstraint * lastConstraint,
                    ReferenceCountingPointer<KinematicParticle> previousParticle,
-		   KinematicStatePropagator * pr,const reco::TransientTrack * initialTrack = 0);
+		   KinematicStatePropagator * pr,const reco::TransientTrack * initialTrack = nullptr);
 		   	
  virtual ~TransientTrackKinematicParticle();
  					   
@@ -62,7 +62,7 @@ public:
  * RCP<TransientTrackKinematicParticle> is  returned.
  */ 
  ReferenceCountingPointer<KinematicParticle> refittedParticle(const KinematicState& state,
-                            float chi2, float ndf, KinematicConstraint * cons = 0)const;
+                            float chi2, float ndf, KinematicConstraint * cons = nullptr)const;
 			    
 /**
  * Method returning LinearizedTrackState of the particle needed for

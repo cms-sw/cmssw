@@ -43,7 +43,7 @@ class PFJetBenchmark {
              std::string benchmarkLabel_ = "ParticleFlow", 
 	     double recPt = -1, 
 	     double maxEta = -1,
-	     DQMStore * dbe_store = NULL
+	     DQMStore * dbe_store = nullptr
 	     );
   void process(const reco::PFJetCollection& , const reco::GenJetCollection& );
   void gettrue (const reco::GenJet* truth, double& true_ChargedHadEnergy, 

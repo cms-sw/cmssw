@@ -17,7 +17,7 @@ MuonRPCFrameRotation::~MuonRPCFrameRotation(){
   delete g4numbering;
 }
 
-Local3DPoint MuonRPCFrameRotation::transformPoint(const Local3DPoint & point,const G4Step * aStep=0) const {
+Local3DPoint MuonRPCFrameRotation::transformPoint(const Local3DPoint & point,const G4Step * aStep=nullptr) const {
   if (!aStep)
     return Local3DPoint(0.,0.,0.);  
 

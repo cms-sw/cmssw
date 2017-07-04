@@ -131,7 +131,7 @@ FFTJetPileupAnalyzer::FFTJetPileupAnalyzer(const edm::ParameterSet& ps)
       init_param(bool, verbosePileupInfo),
       init_param(double, vertexNdofCut),
       init_param(double, crazyEnergyCut),
-      nt(0),
+      nt(nullptr),
       totalNpu(-1),
       totalNPV(-1),
       counter(0)

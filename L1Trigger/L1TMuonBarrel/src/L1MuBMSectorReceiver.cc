@@ -107,7 +107,7 @@ void L1MuBMSectorReceiver::receiveBBMXData(int bx, const edm::Event& e, const ed
   edm::Handle<L1MuDTChambPhContainer> dttrig;
   //e.getByLabel(L1MuBMTFConfig::getBMDigiInputTag(),dttrig);
   e.getByToken(m_DTDigiToken,dttrig);
-  L1MuDTChambPhDigi const* ts=0;
+  L1MuDTChambPhDigi const* ts=nullptr;
 
   // const int bx_offset = dttrig->correctBX();
   int bx_offset=0;

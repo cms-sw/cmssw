@@ -85,13 +85,13 @@ void testCSCTriggerNumbering::testFail()
   try 
     {
       CSCTriggerNumbering::triggerSectorFromLabels(0,1,2);
-      CPPUNIT_ASSERT("Failed to throw required exception" == 0); 
+      CPPUNIT_ASSERT("Failed to throw required exception" == nullptr); 
     } 
   catch (cms::Exception& e) 
     { } 
   catch (...) 
     {
-      CPPUNIT_ASSERT("Threw wrong kind of exception" == 0);
+      CPPUNIT_ASSERT("Threw wrong kind of exception" == nullptr);
     }
 
   // Give triggerSubSectorFromLabels a bad input
@@ -99,13 +99,13 @@ void testCSCTriggerNumbering::testFail()
   try
     {
       CSCTriggerNumbering::triggerSubSectorFromLabels(0, 34);
-      CPPUNIT_ASSERT("Failed to throw required exception" == 0); 
+      CPPUNIT_ASSERT("Failed to throw required exception" == nullptr); 
     }
   catch(cms::Exception& e)
     { }
   catch(...)
     {
-      CPPUNIT_ASSERT("Threw wrong kind of exception" == 0);
+      CPPUNIT_ASSERT("Threw wrong kind of exception" == nullptr);
     }
 
   // Give triggerCscIdFromLabels a bad input
@@ -113,38 +113,38 @@ void testCSCTriggerNumbering::testFail()
   try 
     {
       CSCTriggerNumbering::triggerCscIdFromLabels(0,1,2);
-      CPPUNIT_ASSERT("Failed to throw required exception" == 0); 
+      CPPUNIT_ASSERT("Failed to throw required exception" == nullptr); 
     } 
   catch (cms::Exception& e) 
     { } 
   catch (...) 
     {
-      CPPUNIT_ASSERT("Threw wrong kind of exception" == 0);
+      CPPUNIT_ASSERT("Threw wrong kind of exception" == nullptr);
     }
 
   // Give ringFromTriggerLabels a bad input
   try
     {
       CSCTriggerNumbering::ringFromTriggerLabels(0,2);
-      CPPUNIT_ASSERT("Failed to throw required exception" == 0); 
+      CPPUNIT_ASSERT("Failed to throw required exception" == nullptr); 
     }
   catch (cms::Exception& e)
     { }
   catch(...)
     {
-      CPPUNIT_ASSERT("Threw wrong kind of exception" == 0);
+      CPPUNIT_ASSERT("Threw wrong kind of exception" == nullptr);
     }
 
   // Give ringFromTriggerLabels a bad input
   try
     {
       CSCTriggerNumbering::chamberFromTriggerLabels(0,1,2,9);
-      CPPUNIT_ASSERT("Failed to throw required exception" == 0); 
+      CPPUNIT_ASSERT("Failed to throw required exception" == nullptr); 
     }
   catch (cms::Exception& e)
     { }
   catch(...)
     {
-      CPPUNIT_ASSERT("Threw wrong kind of exception" == 0);
+      CPPUNIT_ASSERT("Threw wrong kind of exception" == nullptr);
     } 
 }

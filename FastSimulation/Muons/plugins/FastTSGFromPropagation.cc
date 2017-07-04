@@ -92,7 +92,7 @@ void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const Tracki
 
      for (std::vector<const DetLayer*>::const_iterator inl = nls.begin();
          inl != nls.end(); inl++, ndesLayer++ ) {
-         if ( (*inl == 0) ) break;
+         if ( (*inl == nullptr) ) break;
 //         if ( (inl != nls.end()-1 ) && ( (*inl)->subDetector() == GeomDetEnumerators::TEC ) && ( (*(inl+1))->subDetector() == GeomDetEnumerators::TOB ) ) continue; 
          alltm = findMeasurements_new(*inl, staState);
          if ( (!alltm.empty()) ) {
@@ -265,7 +265,7 @@ void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const Tracki
      for (std::vector<const DetLayer*>::const_iterator inl = nls.begin();
          inl != nls.end(); inl++ ) {
 
-         if ( !result.empty() || *inl == 0 ) {
+         if ( !result.empty() || *inl == nullptr ) {
             break;
          }
          std::vector<DetLayer::DetWithState> compatDets = (*inl)->compatibleDets(staState, *propagator(), *estimator());

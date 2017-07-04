@@ -38,7 +38,7 @@ private:
 void
 FWSiStripDigiProxyBuilder::build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* )
 {
-  const edm::DetSetVector<SiStripDigi>* digis = 0;
+  const edm::DetSetVector<SiStripDigi>* digis = nullptr;
 
   iItem->get( digis );
 

@@ -7,7 +7,7 @@
 #include <iostream>
 using namespace std;
 
-ConfigurationDatabaseStandardXMLParser::ConfigurationDatabaseStandardXMLParser() : m_parser(0) {
+ConfigurationDatabaseStandardXMLParser::ConfigurationDatabaseStandardXMLParser() : m_parser(nullptr) {
 }
 #include <xercesc/framework/MemBufInputSource.hpp>
 XERCES_CPP_NAMESPACE_USE
@@ -67,7 +67,7 @@ XERCES_CPP_NAMESPACE_USE
     virtual void ignorableWhitespace (const XMLCh *const chars, const XMLSize_t length) override;
   private:
     inline bool cvt2String(const XMLCh* val, std::string& ou) {
-      if (val==0) return false;
+      if (val==nullptr) return false;
       char* tool=XMLString::transcode(val);
       ou=tool;
       XMLString::release(&tool);
@@ -178,7 +178,7 @@ void ConfigurationDatabaseStandardXMLParser::parse(const std::string& xmlDocumen
   ConfigurationDBHandler handler(theItems);
     
   try {
-    if (m_parser==0) {
+    if (m_parser==nullptr) {
       m_parser=xercesc::XMLReaderFactory::createXMLReader();
     }
     
@@ -206,7 +206,7 @@ void ConfigurationDatabaseStandardXMLParser::parseMultiple(const std::string& xm
   ConfigurationDBHandler handler(items);
     
   try {
-    if (m_parser==0) {
+    if (m_parser==nullptr) {
       m_parser=xercesc::XMLReaderFactory::createXMLReader();
     }
     
@@ -226,6 +226,6 @@ std::vector<unsigned int> ConfigurationDatabaseStandardXMLParser::Item::convert(
       
   // convert the data
   for (unsigned int j=0; j<items.size(); j++) 
-    values.push_back(strtol(items[j].c_str(),0,strtol_base));
+    values.push_back(strtol(items[j].c_str(),nullptr,strtol_base));
   return values;
 }

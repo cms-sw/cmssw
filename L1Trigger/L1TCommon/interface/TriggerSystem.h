@@ -75,7 +75,7 @@ public:
 
     TriggerSystem(void){
         isConfigured = false;
-        logs = 0;
+        logs = nullptr;
     }
 
     ~TriggerSystem(void){}

@@ -4,7 +4,7 @@
 class FWPopupMenu : public TGPopupMenu
 {
 public:
-   FWPopupMenu(const TGWindow* p=0, UInt_t w=10, UInt_t h=10, UInt_t options=0) :
+   FWPopupMenu(const TGWindow* p=nullptr, UInt_t w=10, UInt_t h=10, UInt_t options=0) :
       TGPopupMenu(p, w, h, options)
    {
       AddInput(kKeyPressMask);
@@ -78,8 +78,8 @@ public:
          }
          case kKey_Escape:
          {
-            fCurrent = 0;
-            void *dummy = 0;
+            fCurrent = nullptr;
+            void *dummy = nullptr;
             return EndMenu(dummy);
          }
          default:

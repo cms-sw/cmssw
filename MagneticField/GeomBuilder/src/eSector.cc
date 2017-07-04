@@ -21,7 +21,7 @@ using namespace std;
 MagGeoBuilderFromDDD::eSector::eSector(handles::const_iterator begin,
 				       handles::const_iterator end) :
   theVolumes(begin,end),
-  msector(0)
+  msector(nullptr)
 {
   //FIXME!!!
   //precomputed_value_sort(theVolumes.begin(), theVolumes.end(), ExtractAbsZ());
@@ -80,7 +80,7 @@ MagGeoBuilderFromDDD::eSector::~eSector(){}
 
 
 MagESector* MagGeoBuilderFromDDD::eSector::buildMagESector() const{
-  if (msector==0) {
+  if (msector==nullptr) {
     vector<MagELayer*> mLayers;
     for (vector<eLayer>::const_iterator lay = layers.begin();
 	 lay!=layers.end(); ++lay) {

@@ -87,7 +87,7 @@ TransientTrackingRecHit::RecHitPointer SiTrackerMultiRecHitUpdator::update( Tran
   }
   
   std::vector<TransientTrackingRecHit::RecHitPointer> updatedcomponents;
-  const GeomDet* geomdet = 0;
+  const GeomDet* geomdet = nullptr;
 
   //running on all over the MRH components 
   for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator iter = tcomponents.begin(); iter != tcomponents.end(); iter++){

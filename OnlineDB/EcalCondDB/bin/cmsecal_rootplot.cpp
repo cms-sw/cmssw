@@ -57,7 +57,7 @@ public:
     gROOT->SetStyle("Plain");
     gStyle->SetOptStat(111111);
     gStyle->SetOptFit();
-    gStyle->SetPalette(1,0);
+    gStyle->SetPalette(1,nullptr);
 
     int pCol[2] = { 2, 3 };
     if((m_type == "Map" || m_type == "EBEEMap") && (TString(m_title).Contains("status")) ) {

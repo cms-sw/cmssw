@@ -103,9 +103,9 @@ class AlignmentMonitorAsAnalyzer : public edm::EDAnalyzer {
 AlignmentMonitorAsAnalyzer::AlignmentMonitorAsAnalyzer(const edm::ParameterSet& iConfig)
    : m_tjTag(iConfig.getParameter<edm::InputTag>("tjTkAssociationMapTag"))
    , m_aliParamStoreCfg(iConfig.getParameter<edm::ParameterSet>("ParameterStore"))
-   , m_alignableTracker(NULL)
-   , m_alignableMuon(NULL)
-   , m_alignmentParameterStore(NULL)
+   , m_alignableTracker(nullptr)
+   , m_alignableMuon(nullptr)
+   , m_alignmentParameterStore(nullptr)
 {
    std::vector<std::string> monitors = iConfig.getUntrackedParameter<std::vector<std::string> >( "monitors" );
 

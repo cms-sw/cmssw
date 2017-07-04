@@ -85,9 +85,9 @@ BOOST_AUTO_TEST_CASE( changemanager )
    fVector.push_back(reco::Track());
    
    TClass* cls=TClass::GetClass("std::vector<reco::Track>");
-   assert(0!=cls);
+   assert(nullptr!=cls);
    
-   fireworks::Context context(&cm,0,0,0,0);
+   fireworks::Context context(&cm,nullptr,nullptr,nullptr,nullptr);
    
    auto accessor = std::make_shared<TestAccessor>(&fVector);
    FWPhysicsObjectDesc pObj("Tracks",cls,"Tracks");
@@ -149,13 +149,13 @@ BOOST_AUTO_TEST_CASE( changemanager )
    BOOST_CHECK(listener.nHeard_ ==1 );
    
    BOOST_CHECK(iListener.nHeard_ ==0 );
-   item.setEvent(0);
+   item.setEvent(nullptr);
    BOOST_CHECK(iListener.nHeard_ ==1 );
 
    iListener.nHeard_=0;
    {
       FWChangeSentry sentry(cm);
-      item.setEvent(0);
+      item.setEvent(nullptr);
       BOOST_CHECK(iListener.nHeard_ ==0 );
    }
    BOOST_CHECK(iListener.nHeard_ ==1 );

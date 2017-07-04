@@ -1551,7 +1551,7 @@ GammaJetAnalysis::endJob() {
     misc_tree_->Branch("nProcessed",&nProcessed_,"nProcessed/l");
     // put time stamp
     time_t ltime;
-    ltime=time(NULL);
+    ltime=time(nullptr);
     TString str = TString(asctime(localtime(&ltime)));
     if (str[str.Length()-1]=='\n') str.Remove(str.Length()-1,1);
     TObjString date(str);

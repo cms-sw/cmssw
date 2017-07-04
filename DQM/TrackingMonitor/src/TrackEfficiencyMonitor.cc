@@ -696,7 +696,7 @@ int TrackEfficiencyMonitor::compatibleLayers(const NavigationSchool& navigationS
 	      startTSOS = nextLayer.first;
 	      layers++;         
 	    }
-	    else firstLay=0;
+	    else firstLay=nullptr;
           }
 	}
 	nwhile++;

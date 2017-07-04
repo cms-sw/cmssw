@@ -36,7 +36,7 @@ public:
 			const MultiTrajectoryStateMerger& merger,
 			float errorRescaling,
 			const bool materialBeforeUpdate = true,
-			const DetLayerGeometry* detLayerGeometry=0);
+			const DetLayerGeometry* detLayerGeometry=nullptr);
 
   virtual ~GsfTrajectorySmoother();
 

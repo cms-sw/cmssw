@@ -251,7 +251,7 @@ FWFFService::postBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
    //        this is not possible at the moment.
    if (m_firstTime == true)
    {
-      if (m_context->getGeom() == 0)
+      if (m_context->getGeom() == nullptr)
       {
          guiManager()->updateStatus("Loading geometry...");
          edm::ESTransientHandle<FWRecoGeometry> geoh;

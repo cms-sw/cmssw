@@ -54,7 +54,7 @@ class VirtualKinematicParticle:public KinematicParticle
  * RCP<VirtualKinematicParticle> is  returned.
  */ 
  RefCountedKinematicParticle refittedParticle(const KinematicState& state,
-                               float chi2, float ndf, KinematicConstraint * cons = 0)const;
+                               float chi2, float ndf, KinematicConstraint * cons = nullptr)const;
 			       
 /**
  * Method returning LinearizedTrackState of the particle needed for

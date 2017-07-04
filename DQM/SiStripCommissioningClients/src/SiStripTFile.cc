@@ -19,8 +19,8 @@ SiStripTFile::SiStripTFile( const char* fname,
   runType_(sistrip::UNKNOWN_RUN_TYPE),
   view_(sistrip::UNKNOWN_VIEW),
   top_(gDirectory),
-  dqmTop_(0),
-  sistripTop_(0),
+  dqmTop_(nullptr),
+  sistripTop_(nullptr),
   dqmFormat_(false)
 {
   readDQMFormat();
@@ -59,7 +59,7 @@ TDirectory* SiStripTFile::setDQMFormat( sistrip::RunType run_type,
     edm::LogWarning(mlDqmClient_)
       << "[CommissioningFile::setDQMFormat]: Currently only implemented for Control View." 
       << std::endl; 
-    return 0;
+    return nullptr;
   }
   
   return top_;
@@ -122,7 +122,7 @@ TDirectory* SiStripTFile::dqmTop() {
     edm::LogWarning(mlDqmClient_)
       << "[SiStripTFile::dqm]: Error requested dqm directory when not in dqm format." 
       << std::endl; 
-    return 0;
+    return nullptr;
   }
 
   return dqmTop_;}
@@ -135,7 +135,7 @@ TDirectory* SiStripTFile::sistripTop() {
     edm::LogWarning(mlDqmClient_)
       << "[SiStripTFile::dqm]: Error requested dqm directory when not in dqm format."
       << std::endl; 
-    return 0;
+    return nullptr;
   }
 
   return sistripTop_;}

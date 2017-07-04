@@ -67,7 +67,7 @@ const char *AtomicId::lookup(const char *string) throw()
 	if (string)
 		return getAtomicIdCache().findOrInsert(string);
 
-	return 0;
+	return nullptr;
 }
 
 } // namespace PhysicsTools

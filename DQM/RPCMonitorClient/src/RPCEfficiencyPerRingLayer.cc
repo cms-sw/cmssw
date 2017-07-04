@@ -75,7 +75,7 @@ void RPCEfficiencyPerRingLayer::dqmEndJob(DQMStore::IBooker & ibooker , DQMStore
 			binName<<"RE+"<<abs(i)<<"/"<<j;
 			k++;}
 
-		myMe1 = NULL; myMe1 = NULL;
+		myMe1 = nullptr; myMe1 = nullptr;
        		myMe1 = igetter.get(meName1.str());
        		myMe2 = igetter.get(meName2.str());
 
@@ -125,7 +125,7 @@ void RPCEfficiencyPerRingLayer::dqmEndJob(DQMStore::IBooker & ibooker , DQMStore
 		else{
 			meName1<<globalFolder_<<"BarrelPerLayer/ExpLayerW"<<j;
 	       		meName2<<globalFolder_<<"BarrelPerLayer/ObsLayerW"<<j;}
-		myMe1 = NULL; myMe1 = NULL;
+		myMe1 = nullptr; myMe1 = nullptr;
 		myMe1 = igetter.get(meName1.str());
 	       	myMe2 = igetter.get(meName2.str());
 		if(myMe1 && myMe2){

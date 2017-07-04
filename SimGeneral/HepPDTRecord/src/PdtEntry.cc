@@ -21,7 +21,7 @@ std::string const& PdtEntry::name() const {
 }
 
 HepPDT::ParticleData const& PdtEntry::data() const { 
-  if(data_ == 0)
+  if(data_ == nullptr)
     throw cms::Exception("ConfigError")
       << "PdtEntry::name was not set."
       << "please, call PdtEntry::setup(const EventSetup & es)";
@@ -31,17 +31,17 @@ HepPDT::ParticleData const& PdtEntry::data() const {
 void PdtEntry::setup(edm::EventSetup const& es) {
   edm::ESHandle<HepPDT::ParticleDataTable> pdt;
   es.getData(pdt);
-  HepPDT::ParticleData const* p = 0;
+  HepPDT::ParticleData const* p = nullptr;
   if (pdgId_ == 0) {
     p = pdt->particle(name_);
-    if (p == 0) 
+    if (p == nullptr) 
       throw cms::Exception("ConfigError")
 	<< "PDT has no entry for " << name_ << "."
 	<< "PdtEntry can't be set.";
     pdgId_ = p->pid();
   } else {
     p = pdt->particle(pdgId_);
-    if (p == 0) 
+    if (p == nullptr) 
       throw cms::Exception("ConfigError")
 	<< "PDT has no entry for " << pdgId_ << "."
 	<< "PdtEntry can't be set.";

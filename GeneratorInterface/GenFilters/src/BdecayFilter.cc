@@ -57,7 +57,7 @@ HepMC::GenParticle * BdecayFilter::findParticle(HepMC::GenVertex* vertex,
       cout << "particle Id: "<<event_particle_id<<"\n";
       if (requested_id == event_particle_id) return *p;
     }
-  return 0;
+  return nullptr;
 }
 
 HepMC::GenEvent::particle_const_iterator BdecayFilter::getNextBs(const HepMC::GenEvent::particle_const_iterator start, const HepMC::GenEvent::particle_const_iterator end)
@@ -91,8 +91,8 @@ bool BdecayFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     HepMC::GenVertex* outVertex = (*bs)->end_vertex();
     //***
     
-    GenParticle * jpsi = 0;
-    GenParticle * phi = 0;
+    GenParticle * jpsi = nullptr;
+    GenParticle * phi = nullptr;
     // cout << "bs size "<<bsChild.size()<<endl;
     //***
     int numChildren = outVertex->particles_out_size();
@@ -106,8 +106,8 @@ bool BdecayFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     */
     
     //***
-    if( (numChildren==2) && ((jpsi = findParticle(outVertex, firstDaughter.type))!=0) && 
-	((phi = findParticle(outVertex, secondDaughter.type))!=0)) {
+    if( (numChildren==2) && ((jpsi = findParticle(outVertex, firstDaughter.type))!=nullptr) && 
+	((phi = findParticle(outVertex, secondDaughter.type))!=nullptr)) {
       
       cout << jpsi->momentum().rho() <<" "<<jpsi->momentum().eta() <<" "<<phi->momentum().rho()<<" "<<phi->momentum().eta()<<endl;
       //cout <<"bs dec trouve"<<endl;

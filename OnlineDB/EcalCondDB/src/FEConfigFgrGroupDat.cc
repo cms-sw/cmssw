@@ -10,10 +10,10 @@ using namespace oracle::occi;
 
 FEConfigFgrGroupDat::FEConfigFgrGroupDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   m_group_id=0;
   m_thresh_low = 0;

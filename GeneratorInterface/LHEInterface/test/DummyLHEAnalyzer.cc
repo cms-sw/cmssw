@@ -41,7 +41,7 @@ private:
 
     std::cout << "Number of particles = " << nup_ << std::endl;
 
-    if ( evt->pdf() != NULL ) {
+    if ( evt->pdf() != nullptr ) {
       std::cout << "PDF scale = " << std::setw(14) << std::fixed << evt->pdf()->scalePDF << std::endl;  
       std::cout << "PDF 1 : id = " << std::setw(14) << std::fixed << evt->pdf()->id.first 
                 << " x = " << std::setw(14) << std::fixed << evt->pdf()->x.first 

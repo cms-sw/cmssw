@@ -75,7 +75,7 @@ class PFTau3ProngReco : public EDProducer {
   enum Alg{useKalmanFit=0, useTrackHelix};
 
   struct DiscCutPair{
-    DiscCutPair():cutFormula_(0){}
+    DiscCutPair():cutFormula_(nullptr){}
     ~DiscCutPair(){delete cutFormula_;}
     edm::Handle<reco::PFTauDiscriminator> handle_;
     edm::InputTag inputTag_;

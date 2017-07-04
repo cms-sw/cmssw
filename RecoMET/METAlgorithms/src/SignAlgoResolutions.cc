@@ -33,8 +33,8 @@
 
 metsig::SignAlgoResolutions::SignAlgoResolutions(const edm::ParameterSet &iConfig):
     functionmap_(),
-    ptResol_(0),
-    phiResol_(0)
+    ptResol_(nullptr),
+    phiResol_(nullptr)
 {
   addResolutions(iConfig);
 }
@@ -384,7 +384,7 @@ metsig::SignAlgoResolutions::initializeJetResolutions( const edm::ParameterSet &
   using namespace std;
   
   // only reinitialize the resolutsion if the pointers are zero
-  if ( ptResol_ == 0 ) {
+  if ( ptResol_ == nullptr ) {
     string resolutionsAlgo  = iConfig.getParameter<std::string>("resolutionsAlgo");     
     string resolutionsEra   = iConfig.getParameter<std::string>("resolutionsEra");     
 

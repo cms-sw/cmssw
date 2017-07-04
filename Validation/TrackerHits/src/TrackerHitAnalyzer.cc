@@ -53,7 +53,7 @@ TrackerHitAnalyzer::TrackerHitAnalyzer(const edm::ParameterSet& ps)
   , edmPSimHitContainer_siTECLow_Token_( consumes<edm::PSimHitContainer>( ps.getParameter<edm::InputTag>( "SiTECLowSrc" ) ) )
   , edmPSimHitContainer_siTECHigh_Token_( consumes<edm::PSimHitContainer>( ps.getParameter<edm::InputTag>( "SiTECHighSrc" ) ) )
   , edmSimTrackContainerToken_( consumes<edm::SimTrackContainer>( ps.getParameter<edm::InputTag>( "G4TrkSrc" ) ) )
-  , fDBE( NULL )
+  , fDBE( nullptr )
   , conf_(ps)
   , runStandalone ( ps.getParameter<bool>("runStandalone")  ) 
   , fOutputFile( ps.getUntrackedParameter<std::string>( "outputFile", "TrackerHitHisto.root" ) ) {
@@ -82,7 +82,7 @@ void TrackerHitAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,const edm::R
     if ( verbose_ ) fDBE->showDirStructure();
   } 
 
-  if ( fDBE != NULL ) {
+  if ( fDBE != nullptr ) {
 //   fDBE->setCurrentFolder("TrackerHitsV/TrackerHitTask");
      
      // is there any way to record CPU Info ???

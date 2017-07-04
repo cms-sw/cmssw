@@ -901,7 +901,7 @@ double HLTObjectMonitor::dxyFinder(double eta, double phi, edm::Handle<reco::Rec
 double HLTObjectMonitor::get_wall_time()
 {
   struct timeval time;
-  if (gettimeofday(&time,NULL)) return 0;
+  if (gettimeofday(&time,nullptr)) return 0;
   return (double)time.tv_sec + (double)time.tv_usec * .000001;
 }
 

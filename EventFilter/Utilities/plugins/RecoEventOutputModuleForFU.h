@@ -298,7 +298,7 @@ namespace evf {
         std::string deschecksum = edm::Service<evf::EvFDaqDirector>()->getMergedDatChecksumFilePath(ls.luminosityBlock(), stream_label_);
 
         struct stat istat;
-        FILE * cf = NULL;
+        FILE * cf = nullptr;
         uint32_t mergedAdler32=1;
         //get adler32 accumulated checksum for the merged file
         if (!stat(deschecksum.c_str(), &istat)) {

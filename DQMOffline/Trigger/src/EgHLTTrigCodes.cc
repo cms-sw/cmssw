@@ -50,7 +50,7 @@ TrigCodes::TrigBitSet TrigCodes::getCode(const char* descript)const
   TrigBitSet code; 
   char* codeKey = strtok(localDescript,":");
   //  std::map<std::string,int> ::const_iterator mapIt;
-  while(codeKey!=NULL){
+  while(codeKey!=nullptr){
     bool found=false;
 
     for(size_t i=0;i<codeDefs_.size() && !found;i++){
@@ -62,7 +62,7 @@ TrigCodes::TrigBitSet TrigCodes::getCode(const char* descript)const
     }
    
     //  if(!found)  edm::LogError("TrigCodes::TrigBitSetMap") <<"TrigCodes::TrigBitSetMap::getCode : Error, Key "<<codeKey<<" not found";
-    codeKey = strtok(NULL,":"); //getting new substring
+    codeKey = strtok(nullptr,":"); //getting new substring
     
   }
   return code;

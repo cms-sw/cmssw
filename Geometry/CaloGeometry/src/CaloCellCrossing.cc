@@ -25,7 +25,7 @@ CaloCellCrossing::CaloCellCrossing( const GlobalPoint&              gp ,
 
    LogDebug("CaloCellCrossing") << "*** Line: pt=" << line.pt() << ", unitvec=" << line.uv();
 
-   const DetIds& ids ( 0 == di ? sg->getValidDetIds( det, subdet ) : *di ) ;
+   const DetIds& ids ( nullptr == di ? sg->getValidDetIds( det, subdet ) : *di ) ;
 //------------------------------------------------------------
    for( DetIds::const_iterator id ( ids.begin() ) ; id != ids.end() ; ++id )
    {

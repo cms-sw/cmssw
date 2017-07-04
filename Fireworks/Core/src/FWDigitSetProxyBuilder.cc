@@ -70,7 +70,7 @@ private:
 //==============================================================================
 
 FWDigitSetProxyBuilder::FWDigitSetProxyBuilder():
-   m_boxSet(0)
+   m_boxSet(nullptr)
 {
 }
 

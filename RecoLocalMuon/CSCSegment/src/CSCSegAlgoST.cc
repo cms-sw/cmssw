@@ -31,7 +31,7 @@
  *
  */
 CSCSegAlgoST::CSCSegAlgoST(const edm::ParameterSet& ps) : 
-  CSCSegmentAlgorithm(ps), myName_("CSCSegAlgoST"), ps_(ps),  showering_(0) {
+  CSCSegmentAlgorithm(ps), myName_("CSCSegAlgoST"), ps_(ps),  showering_(nullptr) {
 	
   debug                  = ps.getUntrackedParameter<bool>("CSCDebug");
   //  minLayersApart         = ps.getParameter<int>("minLayersApart");

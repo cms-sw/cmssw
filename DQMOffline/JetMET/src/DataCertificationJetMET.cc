@@ -656,12 +656,12 @@ DataCertificationJetMET::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter&
   // Four types of jets {AK5 Barrel, AK5 EndCap, AK5 Forward, PF}, removed JPT which is 5th type of jets
   //----------------------------------------------------------------------------
   // Kolmogorov (KS) tests
-  const QReport* QReport_JetEta[4] = {0};
-  const QReport* QReport_JetPhi[4] = {0};
+  const QReport* QReport_JetEta[4] = {nullptr};
+  const QReport* QReport_JetPhi[4] = {nullptr};
   // Mean and KS tests for Calo and PF jets
-  const QReport* QReport_JetConstituents[4][2] = {{0}};
-  const QReport* QReport_JetEFrac[4][2]        = {{0}};
-  const QReport* QReport_JetPt[4][2]           = {{0}};
+  const QReport* QReport_JetConstituents[4][2] = {{nullptr}};
+  const QReport* QReport_JetEFrac[4][2]        = {{nullptr}};
+  const QReport* QReport_JetPt[4][2]           = {{nullptr}};
 
   // Mean and KS tests for JPT jets
   //const QReport* QReport_JetNTracks[2] = {0, 0};
@@ -910,11 +910,11 @@ DataCertificationJetMET::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter&
   // 2 types of MET {CaloMET, PfMET}  // It is 5 if CaloMETNoHF is included, 4 for MuonCorMET
   // removed 3rd type of TcMET
   // 2 types of tests Mean test/Kolmogorov test
-  const QReport * QReport_MExy[2][2][2]={{{0}}};
-  const QReport * QReport_MEt[2][2]={{0}};
-  const QReport * QReport_SumEt[2][2]={{0}};
+  const QReport * QReport_MExy[2][2][2]={{{nullptr}}};
+  const QReport * QReport_MEt[2][2]={{nullptr}};
+  const QReport * QReport_SumEt[2][2]={{nullptr}};
   //2 types of tests phiQTest and Kolmogorov test
-  const QReport * QReport_METPhi[2][2]={{0}};
+  const QReport * QReport_METPhi[2][2]={{nullptr}};
 
 
   float qr_MET_MExy[2][2][2] = {{{-999.}}};

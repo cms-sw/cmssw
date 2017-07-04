@@ -47,7 +47,7 @@ class LutXml : public XMLDOMBlock
   virtual ~LutXml();
   
   void init( void );
-  void addLut( Config & _config, XMLDOMBlock * checksums_xml = 0 );
+  void addLut( Config & _config, XMLDOMBlock * checksums_xml = nullptr );
   std::string & getCurrentBrick( void );
   
   std::vector<unsigned int> * getLutFast( uint32_t det_id );

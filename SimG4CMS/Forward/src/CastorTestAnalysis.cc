@@ -234,26 +234,26 @@ void CastorTestAnalysis::update(const EndOfEvent * evt) {
     // Find Primary info:
       int trackID = 0;
       int particleType = 0;
-      G4PrimaryParticle* thePrim=0;
+      G4PrimaryParticle* thePrim=nullptr;
       G4int nvertex = (*evt)()->GetNumberOfPrimaryVertex();
       std::cout << "Event has " << nvertex << " vertex" << std::endl; 
       if (nvertex==0) std::cout << "CASTORTest End Of Event  ERROR: no vertex" << std::endl;
 
       for (int i = 0 ; i<nvertex; i++) {
         G4PrimaryVertex* avertex = (*evt)()->GetPrimaryVertex(i);
-        if (avertex == 0) 
+        if (avertex == nullptr) 
 	  std::cout << "CASTORTest End Of Event ERR: pointer to vertex = 0" << std::endl;
         std::cout << "Vertex number :" <<i << std::endl;
         int npart = avertex->GetNumberOfParticle();
         if (npart ==0)
 	  std::cout << "CASTORTest End Of Event ERR: no primary!" << std::endl;
-        if (thePrim==0) thePrim=avertex->GetPrimary(trackID);
+        if (thePrim==nullptr) thePrim=avertex->GetPrimary(trackID);
       }
     
       double px=0.,py=0.,pz=0., pInit=0;
       double eta = 0., phi = 0.;
     
-      if (thePrim != 0) {
+      if (thePrim != nullptr) {
         px = thePrim->GetPx();
         py = thePrim->GetPy();
         pz = thePrim->GetPz();

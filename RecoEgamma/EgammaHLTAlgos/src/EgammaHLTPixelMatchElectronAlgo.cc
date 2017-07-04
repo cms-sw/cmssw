@@ -52,7 +52,7 @@ EgammaHLTPixelMatchElectronAlgo::EgammaHLTPixelMatchElectronAlgo(const edm::Para
   useGsfTracks_(conf.getParameter<bool>("UseGsfTracks")),
   bsProducer_(iC.consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("BSProducer"))), 
   mtsMode_(new MultiTrajectoryStateMode()),
-  mtsTransform_(0),
+  mtsTransform_(nullptr),
   cacheIDTDGeom_(0),
   cacheIDMagField_(0)
 {

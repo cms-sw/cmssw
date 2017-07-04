@@ -145,7 +145,7 @@ template<class Item> const Item*
 HcalCondObjectContainer<Item>::getValues(DetId fId, bool throwOnFail) const {
   unsigned int index=indexFor(fId);
   
-  const Item* cell = NULL;
+  const Item* cell = nullptr;
 
   if (index<0xFFFFFFFu) {
     if (fId.det()==DetId::Hcal) {
@@ -190,7 +190,7 @@ HcalCondObjectContainer<Item>::getValues(DetId fId, bool throwOnFail) const {
       throw cms::Exception ("Conditions mismatch") 
 	<< "Requested conditions of type " << myname() << " for cell " << textForId(fId) << " got conditions for cell " << textForId(DetId(cell->rawId()));
     } 
-    cell=0;
+    cell=nullptr;
   }
 
   return cell;
@@ -213,7 +213,7 @@ HcalCondObjectContainer<Item>::addValues(const Item& myItem) {
   DetId fId(myItem.rawId());
   unsigned int index=indexFor(fId);
   
-  Item* cell = NULL;
+  Item* cell = nullptr;
 
   if (index<0xFFFFFFFu) {
     if (fId.det()==DetId::Hcal) {
@@ -258,7 +258,7 @@ HcalCondObjectContainer<Item>::addValues(const Item& myItem) {
     }
   }
 
-  if (cell!=0) {
+  if (cell!=nullptr) {
     (*cell)=myItem;
     success=true;
   }

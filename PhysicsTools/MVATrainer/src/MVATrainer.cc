@@ -44,7 +44,7 @@ namespace { // anonymous
 
 	class BaseInterceptor : public Calibration::Interceptor {
 	    public:
-		BaseInterceptor() : calib(0) {}
+		BaseInterceptor() : calib(nullptr) {}
 		virtual ~BaseInterceptor() {}
 
 		inline void setCalibration(MVATrainerComputer *calib)
@@ -421,7 +421,7 @@ static std::string escape(const std::string &in)
 
 MVATrainer::MVATrainer(const std::string &fileName, bool useXSLT,
 	const char *styleSheet) :
-	input(0), output(0), name("MVATrainer"),
+	input(nullptr), output(nullptr), name("MVATrainer"),
 	doAutoSave(true), doCleanup(false),
 	doMonitoring(false), randomSeed(65539), crossValidation(0.0)
 {
@@ -621,10 +621,10 @@ void MVATrainer::saveState()
 
 void MVATrainer::makeProcessor(DOMElement *elem, AtomicId id, const char *name)
 {
-	DOMElement *xmlInput = 0;
-	DOMElement *xmlConfig = 0;
-	DOMElement *xmlOutput = 0;
-	DOMElement *xmlData = 0;
+	DOMElement *xmlInput = nullptr;
+	DOMElement *xmlConfig = nullptr;
+	DOMElement *xmlOutput = nullptr;
+	DOMElement *xmlData = nullptr;
 
 	static struct NameExpect {
 		const char	*tag;
@@ -635,7 +635,7 @@ void MVATrainer::makeProcessor(DOMElement *elem, AtomicId id, const char *name)
 		{ "config",	true,	&xmlConfig },
 		{ "output",	true,	&xmlOutput },
 		{ "data",	false,	&xmlData },
-		{ 0, }
+		{ nullptr, }
 	};
 
 	const NameExpect *cur = expect;
@@ -710,7 +710,7 @@ std::string MVATrainer::trainFileName(const TrainProcessor *proc,
 TrainerMonitoring::Module *MVATrainer::bookMonitor(const std::string &name)
 {
 	if (!doMonitoring)
-		return 0;
+		return nullptr;
 
 	if (!monitoring.get()) {
 		std::string fileName = 
@@ -726,7 +726,7 @@ SourceVariable *MVATrainer::getVariable(AtomicId source, AtomicId name) const
 {
 	std::map<AtomicId, Source*>::const_iterator pos = sources.find(source);
 	if (pos == sources.end())
-		return 0;
+		return nullptr;
 
 	return pos->second->getOutput(name);
 }
@@ -736,7 +736,7 @@ SourceVariable *MVATrainer::createVariable(Source *source, AtomicId name,
 {
 	SourceVariable *var = getVariable(source->getName(), name);
 	if (var)
-		return 0;
+		return nullptr;
 
 	var = new SourceVariable(source, name, flags);
 	variables.push_back(var);
@@ -747,8 +747,8 @@ void MVATrainer::fillInputVars(SourceVariableSet &vars,
                                XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *xml)
 {
 	std::vector<SourceVariable*> tmp;
-	SourceVariable *target = 0;
-	SourceVariable *weight = 0;
+	SourceVariable *target = nullptr;
+	SourceVariable *weight = nullptr;
 
 	for(DOMNode *node = xml->getFirstChild(); node;
 	    node = node->getNextSibling()) {
@@ -910,7 +910,7 @@ MVATrainer::connectProcessors(Calibration::MVAComputer *calib,
 	for(std::vector<CalibratedProcessor>::const_iterator iter =
 				procs.begin(); iter != procs.end(); iter++) {
 		bool isInterceptor = dynamic_cast<BaseInterceptor*>(
-							iter->calib) != 0;
+							iter->calib) != nullptr;
 
 		BitSet inputSet(size);
 
@@ -980,7 +980,7 @@ MVATrainer::makeTrainCalibration(const AtomicId *compute,
 
 	BaseInterceptor *interceptor = new InitInterceptor;
 	baseInterceptors.push_back(std::make_pair(0, interceptor));
-	processors.push_back(CalibratedProcessor(0, interceptor));
+	processors.push_back(CalibratedProcessor(nullptr, interceptor));
 
 	for(const AtomicId *iter = train; *iter; iter++) {
 		TrainProcessor *source;
@@ -1160,7 +1160,7 @@ Calibration::MVAComputer *MVATrainer::getCalibration() const
 				dynamic_cast<TrainProcessor*>(pos->second);
 		assert(source);
 		if (!source->isTrained())
-			return 0;
+			return nullptr;
 
 		Calibration::VarProcessor *proc = source->getCalibration();
 		if (!proc)
@@ -1244,10 +1244,10 @@ Calibration::MVAComputer *MVATrainer::getTrainCalibration() const
 	findUntrainedComputers(compute, train);
 
 	if (train.empty())
-		return 0;
+		return nullptr;
 
-	compute.push_back(0);
-	train.push_back(0);
+	compute.push_back(nullptr);
+	train.push_back(nullptr);
 
 	return makeTrainCalibration(&compute.front(), &train.front());
 }

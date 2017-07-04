@@ -170,7 +170,7 @@ void SeedFromConsecutiveHitsCreator::buildSeed(
   TrajectoryStateOnSurface updatedState;
   edm::OwnVector<TrackingRecHit> seedHits;
   
-  const TrackingRecHit* hit = 0;
+  const TrackingRecHit* hit = nullptr;
   for ( unsigned int iHit = 0; iHit < hits.size(); iHit++) {
     hit = hits[iHit]->hit();
     TrajectoryStateOnSurface state = (iHit==0) ? 

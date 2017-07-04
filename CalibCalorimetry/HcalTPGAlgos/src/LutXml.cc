@@ -77,7 +77,7 @@ LutXml::Config::_Config()
   creationtag = "default_tag";
 
   char timebuf[50];
-  time_t _time = time( NULL );
+  time_t _time = time( nullptr );
   //time_t _time = 1193697120;
   //strftime( timebuf, 50, "%c", gmtime( &_time ) );
   strftime( timebuf, 50, "%Y-%m-%d %H:%M:%S", gmtime( &_time ) );
@@ -119,7 +119,7 @@ void LutXml::init( void )
 {
   root  = XMLString::transcode("CFGBrickSet");
   brick = XMLString::transcode("CFGBrick");
-  brickElem = 0;
+  brickElem = nullptr;
   //lut_map = 0;
 }
 
@@ -136,7 +136,7 @@ std::vector<unsigned int> * LutXml::getLutFast( uint32_t det_id ){
   */
    if (lut_map.find(det_id) != lut_map.end()) return &(lut_map)[det_id];
    edm::LogError("LutXml") << "LUT not found, null pointer is returned";
-   return 0;
+   return nullptr;
 }
 
 //
@@ -378,7 +378,7 @@ int LutXml::test_access( std::string filename ){
   edm::LogInfo("LutXml") << "Created map size: " << lut_map.size();
 
   struct timeval _t;
-  gettimeofday( &_t, NULL );
+  gettimeofday( &_t, nullptr );
   double _time =(double)(_t . tv_sec) + (double)(_t . tv_usec)/1000000.0;
 
   HcalEmap _emap("./backup/official_emap_v6.04_080905.txt");
@@ -412,7 +412,7 @@ int LutXml::test_access( std::string filename ){
       if (l) _counter++;
     }
   }
-  gettimeofday( &_t, NULL );
+  gettimeofday( &_t, nullptr );
   edm::LogInfo("LutXml") << "access to " << _counter << " HCAL channels took: " << (double)(_t . tv_sec) + (double)(_t . tv_usec)/1000000.0 - _time << "sec";
 
   //std::cout << std::endl;

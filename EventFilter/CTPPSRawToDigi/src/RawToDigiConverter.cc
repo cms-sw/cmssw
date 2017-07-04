@@ -57,7 +57,7 @@ void RawToDigiConverter::RunCommon(const VFATFrameCollection &input, const Totem
   {
     TotemVFATStatus st;
     st.setMissing(true);
-    records[p.first] = { &p.second, NULL,  st };
+    records[p.first] = { &p.second, nullptr,  st };
   }
 
   // event error message buffer

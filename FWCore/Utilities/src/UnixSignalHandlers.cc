@@ -60,10 +60,10 @@ namespace edm {
 
 
 	  MUST_BE_ZERO(sigaddset(&myset,num));
-	  MUST_BE_ZERO(sigaction(num,&tmpact,NULL));
+	  MUST_BE_ZERO(sigaction(num,&tmpact,nullptr));
       }
       
-      MUST_BE_ZERO(pthread_sigmask(SIG_BLOCK,&myset,0));
+      MUST_BE_ZERO(pthread_sigmask(SIG_BLOCK,&myset,nullptr));
 #endif
     }
 
@@ -72,7 +72,7 @@ namespace edm {
     void reenableSigs( sigset_t* oldset )
     {
       // reenable the signals
-      MUST_BE_ZERO(pthread_sigmask(SIG_SETMASK,oldset,0));
+      MUST_BE_ZERO(pthread_sigmask(SIG_SETMASK,oldset,nullptr));
     }
 
 //--------------------------------------------------------------
@@ -125,7 +125,7 @@ namespace edm {
 	return;
       }
       
-      if(sigaction(mysig,&act,NULL) != 0) {
+      if(sigaction(mysig,&act,nullptr) != 0) {
 	  perror("sigaction failed");
 	  abort();
       }
@@ -133,7 +133,7 @@ namespace edm {
       sigset_t newset;
       MUST_BE_ZERO(sigemptyset(&newset));
       MUST_BE_ZERO(sigaddset(&newset,mysig));
-      MUST_BE_ZERO(pthread_sigmask(SIG_UNBLOCK,&newset,0));
+      MUST_BE_ZERO(pthread_sigmask(SIG_UNBLOCK,&newset,nullptr));
     }
 
 //--------------------------------------------------------------

@@ -171,7 +171,7 @@ void L1MuGMTSorter::reset() {
 
   std::vector<const L1MuGMTExtendedCand*>::iterator iter;
   for ( iter = m_MuonCands.begin(); iter != m_MuonCands.end(); iter++ ) {
-    *iter = 0;
+    *iter = nullptr;
   }
   m_MuonCands.clear();
 

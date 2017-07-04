@@ -5,7 +5,7 @@
 
 #include "G4Track.hh"
 
-std::ofstream * TkSimHitPrinter::theFile(0);
+std::ofstream * TkSimHitPrinter::theFile(nullptr);
 
 TkSimHitPrinter::TkSimHitPrinter(std::string filename){
   if (theFile) return;

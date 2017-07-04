@@ -43,7 +43,7 @@ typedef TransientTrackingRecHit::ConstRecHitPointer   ConstRecHitPointer;
 
 //__________________________________________________________________
 MillePedeMonitor::MillePedeMonitor(const TrackerTopology* tTopo, const char *rootFileName)
-  : myRootDir(0), myDeleteDir(false), trackerTopology(tTopo)
+  : myRootDir(nullptr), myDeleteDir(false), trackerTopology(tTopo)
 {
   myRootDir = TFile::Open(rootFileName, "recreate");
   myDeleteDir = true;
@@ -53,7 +53,7 @@ MillePedeMonitor::MillePedeMonitor(const TrackerTopology* tTopo, const char *roo
 
 //__________________________________________________________________
 MillePedeMonitor::MillePedeMonitor(TDirectory *rootDir, const TrackerTopology* tTopo) 
-  : myRootDir(0), myDeleteDir(false), trackerTopology(tTopo)
+  : myRootDir(nullptr), myDeleteDir(false), trackerTopology(tTopo)
 {
   //  cout << "MillePedeMonitor using input TDirectory" << endl;
 

@@ -54,7 +54,7 @@ EcalBarrelMonitorDbModule::EcalBarrelMonitorDbModule(const edm::ParameterSet& ps
   if ( dqmStore_ ) dqmStore_->showDirStructure();
 
   icycle_ = 0;
-  session_ = 0;
+  session_ = nullptr;
 }
 
 EcalBarrelMonitorDbModule::~EcalBarrelMonitorDbModule(){

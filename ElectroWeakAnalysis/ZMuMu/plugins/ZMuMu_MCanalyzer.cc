@@ -137,9 +137,9 @@ double isolation(const T * t, double ptThreshold, double etEcalThreshold, double
 
 double candidateIsolation( const reco::Candidate* c, double ptThreshold, double etEcalThreshold, double etHcalThreshold , double dRVetoTrk, double dRTrk, double dREcal , double dRHcal,  double alpha, double beta, bool relativeIsolation) {
   const pat::Muon * mu = dynamic_cast<const pat::Muon *>(&*c->masterClone());
-  if(mu != 0) return isolation(mu, ptThreshold, etEcalThreshold, etHcalThreshold ,dRVetoTrk, dRTrk, dREcal , dRHcal,  alpha, beta, relativeIsolation);
+  if(mu != nullptr) return isolation(mu, ptThreshold, etEcalThreshold, etHcalThreshold ,dRVetoTrk, dRTrk, dREcal , dRHcal,  alpha, beta, relativeIsolation);
   const pat::GenericParticle * trk = dynamic_cast<const pat::GenericParticle*>(&*c->masterClone());
-  if(trk != 0) return isolation(trk,  ptThreshold, etEcalThreshold, etHcalThreshold ,dRVetoTrk, dRTrk, dREcal ,
+  if(trk != nullptr) return isolation(trk,  ptThreshold, etEcalThreshold, etHcalThreshold ,dRVetoTrk, dRTrk, dREcal ,
 				dRHcal,  alpha, beta, relativeIsolation);
   throw edm::Exception(edm::errors::InvalidReference)
     << "Candidate daughter #0 is neither pat::Muons nor pat::GenericParticle\n";

@@ -94,7 +94,7 @@ void HcalSiPMHitResponse::add(const CaloSamples& signal) {
 
 void HcalSiPMHitResponse::add(const PCaloHit& hit, CLHEP::HepRandomEngine* engine) {
     if (!edm::isNotFinite(hit.time()) &&
-	((theHitFilter == 0) || (theHitFilter->accepts(hit)))) {
+	((theHitFilter == nullptr) || (theHitFilter->accepts(hit)))) {
       HcalDetId id(hit.id());
       const HcalSimParameters& pars = dynamic_cast<const HcalSimParameters&>(theParameterMap->simParameters(id));
       //divide out mean of crosstalk distribution 1/(1-lambda) = multiply by (1-lambda)

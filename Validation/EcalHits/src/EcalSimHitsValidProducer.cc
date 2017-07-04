@@ -209,7 +209,7 @@ void
 EcalSimHitsValidProducer::update(const EndOfEvent* evt){
 
   int trackID = 0;
-  G4PrimaryParticle * thePrim = 0;
+  G4PrimaryParticle * thePrim = nullptr;
   int nvertex = (*evt)()->GetNumberOfPrimaryVertex();
   if ( nvertex <= 0) {
           edm::LogWarning("EcalSimHitsValidProducer")
@@ -217,7 +217,7 @@ EcalSimHitsValidProducer::update(const EndOfEvent* evt){
   }else {
     for ( int i = 0; i< nvertex; i++){
           G4PrimaryVertex * avertex =(*evt)()->GetPrimaryVertex(i);
-          if ( avertex == 0 )
+          if ( avertex == nullptr )
                   edm::LogWarning("EcalSimHitsValidProducer")
                   <<" Pointer to vertex is NULL!";
           else {
@@ -232,7 +232,7 @@ EcalSimHitsValidProducer::update(const EndOfEvent* evt){
                 edm::LogWarning("EcalSimHitsValidProducer")
                 <<" No primary particle in this event";
              else {
-                 if ( thePrim == 0)
+                 if ( thePrim == nullptr)
                    thePrim = avertex->GetPrimary(trackID);
              }
           }
@@ -240,7 +240,7 @@ EcalSimHitsValidProducer::update(const EndOfEvent* evt){
 
    // the direction of momentum of primary particles
     double pInit =0; // etaInit =0, phiInit =0, // UNUSED
-     if ( thePrim != 0){
+     if ( thePrim != nullptr){
           double  px = thePrim -> GetPx();
           double  py = thePrim -> GetPy();
           double  pz = thePrim -> GetPz();

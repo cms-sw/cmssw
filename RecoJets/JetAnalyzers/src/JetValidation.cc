@@ -201,7 +201,7 @@ void JetValidation::analyze(edm::Event const& evt, edm::EventSetup const& iSetup
 void JetValidation::endJob() 
 {
   /////////// Write Histograms in output ROOT file ////////
-  if (m_file !=0) 
+  if (m_file !=nullptr) 
     {
       m_file->cd();
       for (std::map<TString, TH1*>::iterator hid = m_HistNames1D.begin(); hid != m_HistNames1D.end(); hid++)
@@ -211,7 +211,7 @@ void JetValidation::endJob()
       for (std::map<TString, TProfile*>::iterator hid = m_HistNamesProfile.begin(); hid != m_HistNamesProfile.end(); hid++)
         hid->second->Write(); 
       delete m_file;
-      m_file = 0;      
+      m_file = nullptr;      
     }
 }
 ////////////////////////////////////////////////////////////////////////////////////////

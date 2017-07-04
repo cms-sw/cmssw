@@ -170,13 +170,13 @@ void Tm::setToMicrosTime(uint64_t micros)
 
 void Tm::setToCurrentLocalTime()
 {
-  time_t t = time(NULL);
+  time_t t = time(nullptr);
   m_tm = *localtime( &t );
 }
 
 void Tm::setToCurrentGMTime()
 {
-  time_t t = time(NULL);
+  time_t t = time(nullptr);
   m_tm = *gmtime( &t );
 }
 

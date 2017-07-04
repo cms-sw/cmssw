@@ -137,7 +137,7 @@ namespace popcon{
     void setForTransfer(){
       edm::LogInfo   ("DQMHistoryPopConHandler") << "[DQMHistoryPopConHandler::setForTransfer] " << m_name << " getting data to be transferred "  << std::endl;
       
-      HDQMSummary *obj=0; 
+      HDQMSummary *obj=nullptr; 
       condObjBuilder->getObj(obj);
  
       if(!this->tagInfo().size)
@@ -146,7 +146,7 @@ namespace popcon{
 	if (m_debugMode)
 	  m_since=this->tagInfo().lastInterval.first+1; 
 
-      if (obj!=0){
+      if (obj!=nullptr){
 
 	edm::LogInfo   ("DQMHistoryPopConHandler") <<"setting since = "<< m_since <<std::endl;
 	this->m_to_transfer.push_back(std::make_pair(obj,m_since));

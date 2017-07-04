@@ -171,7 +171,7 @@ void testEsproducer::getFromTest()
       const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(time));
       edm::ESHandle<DummyData> pDummy;
       eventSetup.get<DummyRecord>().get(pDummy);
-      CPPUNIT_ASSERT(0 != pDummy.product());
+      CPPUNIT_ASSERT(nullptr != pDummy.product());
       CPPUNIT_ASSERT(iTime == pDummy->value_);
    }
 }
@@ -192,7 +192,7 @@ void testEsproducer::getfromShareTest()
       const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(time));
       edm::ESHandle<DummyData> pDummy;
       eventSetup.get<DummyRecord>().get(pDummy);
-      CPPUNIT_ASSERT(0 != pDummy.product());
+      CPPUNIT_ASSERT(nullptr != pDummy.product());
       CPPUNIT_ASSERT(iTime == pDummy->value_);
    }
 }
@@ -213,7 +213,7 @@ void testEsproducer::getfromUniqueTest()
       const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(time));
       edm::ESHandle<DummyData> pDummy;
       eventSetup.get<DummyRecord>().get(pDummy);
-      CPPUNIT_ASSERT(0 != pDummy.product());
+      CPPUNIT_ASSERT(nullptr != pDummy.product());
       CPPUNIT_ASSERT(iTime == pDummy->value_);
    }
 }
@@ -235,15 +235,15 @@ void testEsproducer::labelTest()
       const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(time));
       edm::ESHandle<DummyData> pDummy;
       eventSetup.get<DummyRecord>().get("foo",pDummy);
-      CPPUNIT_ASSERT(0 != pDummy.product());
+      CPPUNIT_ASSERT(nullptr != pDummy.product());
       CPPUNIT_ASSERT(iTime == pDummy->value_);
       
       eventSetup.get<DummyRecord>().get("fi",pDummy);
-      CPPUNIT_ASSERT(0 != pDummy.product());
+      CPPUNIT_ASSERT(nullptr != pDummy.product());
       CPPUNIT_ASSERT(iTime == pDummy->value_);
       
       eventSetup.get<DummyRecord>().get("fum",pDummy);
-      CPPUNIT_ASSERT(0 != pDummy.product());
+      CPPUNIT_ASSERT(nullptr != pDummy.product());
       CPPUNIT_ASSERT(iTime == pDummy->value_);
    }
    } catch(const cms::Exception& iException) {
@@ -301,7 +301,7 @@ void testEsproducer::decoratorTest()
       CPPUNIT_ASSERT(iTime - 1 == TestDecorator::s_pre);
       CPPUNIT_ASSERT(iTime - 1 == TestDecorator::s_post);
       eventSetup.get<DummyRecord>().get(pDummy);
-      CPPUNIT_ASSERT(0 != pDummy.product());
+      CPPUNIT_ASSERT(nullptr != pDummy.product());
       CPPUNIT_ASSERT(iTime == TestDecorator::s_pre);
       CPPUNIT_ASSERT(iTime == TestDecorator::s_post);
       CPPUNIT_ASSERT(iTime == pDummy->value_);
@@ -350,7 +350,7 @@ void testEsproducer::dependsOnTest()
       edm::ESHandle<DummyData> pDummy;
       
       eventSetup.get<DepRecord>().get(pDummy);
-      CPPUNIT_ASSERT(0 != pDummy.product());
+      CPPUNIT_ASSERT(nullptr != pDummy.product());
       CPPUNIT_ASSERT(3*iTime == pDummy->value_);
    }
 }
@@ -376,14 +376,14 @@ void testEsproducer::forceCacheClearTest()
    {
       edm::ESHandle<DummyData> pDummy;
       eventSetup.get<DummyRecord>().get(pDummy);
-      CPPUNIT_ASSERT(0 != pDummy.product());
+      CPPUNIT_ASSERT(nullptr != pDummy.product());
       CPPUNIT_ASSERT(1 == pDummy->value_);
    }
    provider.forceCacheClear();
    {
       edm::ESHandle<DummyData> pDummy;
       eventSetup.get<DummyRecord>().get(pDummy);
-      CPPUNIT_ASSERT(0 != pDummy.product());
+      CPPUNIT_ASSERT(nullptr != pDummy.product());
       CPPUNIT_ASSERT(2 == pDummy->value_);
    }
 }

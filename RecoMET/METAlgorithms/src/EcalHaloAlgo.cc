@@ -26,7 +26,7 @@ EcalHaloAlgo::EcalHaloAlgo()
   SumEnergyThreshold = 0.;
   NHitsThreshold =0;
 
-  geo = 0;
+  geo = nullptr;
 }
 
 EcalHaloData EcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::Handle<reco::PhotonCollection>& ThePhotons, edm::Handle<reco::SuperClusterCollection>& TheSuperClusters, edm::Handle<EBRecHitCollection>& TheEBRecHits, edm::Handle<EERecHitCollection>& TheEERecHits, edm::Handle<ESRecHitCollection>& TheESRecHits, edm::Handle<HBHERecHitCollection>& TheHBHERecHits, const edm::EventSetup& TheSetup)
@@ -60,8 +60,8 @@ EcalHaloData EcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
       
       // Get Det Id of the rechit
       DetId id = DetId(hit->id()); 
-      const CaloSubdetectorGeometry* TheSubGeometry = 0;                                                                         
-      const CaloCellGeometry* cell = 0 ;                                                                                    
+      const CaloSubdetectorGeometry* TheSubGeometry = nullptr;                                                                         
+      const CaloCellGeometry* cell = nullptr ;                                                                                    
 
       // Get EB geometry 
       TheSubGeometry = TheCaloGeometry.getSubdetectorGeometry(DetId::Ecal, 1);                                                         
@@ -194,7 +194,7 @@ EcalHaloData EcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
 
 
 
-  geo = 0;
+  geo = nullptr;
   edm::ESHandle<CaloGeometry> pGeo;
   TheSetup.get<CaloGeometryRecord>().get(pGeo);
   geo = pGeo.product();

@@ -96,8 +96,8 @@ public:
       const DetLayer* layer,
       const Hit & outerHit,
       const edm::EventSetup& iSetup, 
-      const DetLayer* outerlayer=0,
-      float lr=0, float gz=0, float dr=0, float dz=0) const override {return 0; }
+      const DetLayer* outerlayer=nullptr,
+      float lr=0, float gz=0, float dr=0, float dz=0) const override {return nullptr; }
    
    CosmicTrackingRegion * clone() const override {     return new CosmicTrackingRegion(*this);  }
    

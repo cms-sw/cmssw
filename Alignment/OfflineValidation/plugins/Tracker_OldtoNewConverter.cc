@@ -87,7 +87,7 @@ private:
 // constructors and destructor
 //
 Tracker_OldtoNewConverter::Tracker_OldtoNewConverter(const edm::ParameterSet& iConfig) :
-  m_inputTFile(0), m_outputTFile(0), m_inputTree(0), m_outputTree(0),
+  m_inputTFile(nullptr), m_outputTFile(nullptr), m_inputTree(nullptr), m_outputTree(nullptr),
   rawid_i(0), rawid_f(0),
   x_i(0.), y_i(0.), z_i(0.), a_i(0.), b_i(0.), c_i(0.),
   x_f(0.), y_f(0.), z_f(0.), a_f(0.), b_f(0.), c_f(0.)

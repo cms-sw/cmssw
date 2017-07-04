@@ -14,8 +14,8 @@ class CPUSpender: public edm::stream::EDAnalyzer<> {
   virtual ~CPUSpender() {}
 
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) {
-    time_t s = time(0);
-    while (time(0)-s < timePerEvent_) { continue;}
+    time_t s = time(nullptr);
+    while (time(nullptr)-s < timePerEvent_) { continue;}
   }
 
   // Operations

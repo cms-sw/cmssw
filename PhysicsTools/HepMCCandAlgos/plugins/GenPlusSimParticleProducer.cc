@@ -139,7 +139,7 @@ void GenPlusSimParticleProducer::addGenParticle( const SimTrack &stMom,
   GenParticle genp(charge, p4, vtx, stDau.type(), setStatus_, true);
 
   // Maybe apply filter on the particle
-  if (filter_.get() != 0) {
+  if (filter_.get() != nullptr) {
     if (!(*filter_)(genp)) return;
   }
 

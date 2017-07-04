@@ -106,7 +106,7 @@ class ShiftedParticleProducerT : public edm::stream::EDProducer<>
   struct binningEntryType
   {
     binningEntryType(double uncertainty)
-      : binSelection_(0),
+      : binSelection_(nullptr),
         binUncertainty_(uncertainty)
     {}
     binningEntryType(const edm::ParameterSet& cfg)

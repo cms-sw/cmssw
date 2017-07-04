@@ -100,7 +100,7 @@ int HIPUserVariablesIORoot::writeOne(Alignable* ali)
 {
   AlignmentParameters* ap=ali->alignmentParameters();
 
-  if ((ap->userVariables())==0) { 
+  if ((ap->userVariables())==nullptr) { 
     edm::LogError("Alignment") <<"UserVariables not found!"; 
     return -1; 
   }
@@ -178,7 +178,7 @@ AlignmentUserVariables* HIPUserVariablesIORoot::readOne(Alignable* ali,
   }
 
   //  ierr=-1;
-  return 0 ;
+  return nullptr ;
 }
 
 //-----------------------------------------------------------------------------

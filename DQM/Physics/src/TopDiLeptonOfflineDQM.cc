@@ -459,7 +459,7 @@ void MonitorEnsemble::fill(const edm::Event& event,
   ------------------------------------------------------------
   */
 
-  const JetCorrector* corrector = 0;
+  const JetCorrector* corrector = nullptr;
   if (!jetCorrector_.empty()) {
     // check whether a jet correcto is in the event setup or not
     if (setup.find(edm::eventsetup::EventSetupRecordKey::makeKey<
@@ -892,14 +892,14 @@ void TopDiLeptonOfflineDQM::analyze(const edm::Event& event,
       if (type == "empty") {
         selection_[key].second->fill(event, setup);
       }
-      if (type == "muons" && MuonStep != 0) {
+      if (type == "muons" && MuonStep != nullptr) {
         if (MuonStep->select(event)) {
           ++passed;
           selection_[key].second->fill(event, setup);
         } else
           break;
       }
-      if (type == "elecs" && ElectronStep != 0) {
+      if (type == "elecs" && ElectronStep != nullptr) {
         if (ElectronStep->select(event, "electron")) {
           ++passed;
           selection_[key].second->fill(event, setup);
@@ -908,7 +908,7 @@ void TopDiLeptonOfflineDQM::analyze(const edm::Event& event,
       }
       if (type == "jets" && JetSteps.size() != 0) {
         nJetSteps++;
-        if (JetSteps[nJetSteps] != NULL) {
+        if (JetSteps[nJetSteps] != nullptr) {
           if (JetSteps[nJetSteps]->select(event, setup)) {
             ++passed;
             selection_[key].second->fill(event, setup);
@@ -919,7 +919,7 @@ void TopDiLeptonOfflineDQM::analyze(const edm::Event& event,
 
       if (type == "jets/pf" && PFJetSteps.size() != 0) {
         nPFJetSteps++;
-        if (PFJetSteps[nPFJetSteps] != NULL) {
+        if (PFJetSteps[nPFJetSteps] != nullptr) {
           if (PFJetSteps[nPFJetSteps]->select(event, setup)) {
             ++passed;
             selection_[key].second->fill(event, setup);
@@ -930,7 +930,7 @@ void TopDiLeptonOfflineDQM::analyze(const edm::Event& event,
 
       if (type == "jets/calo" && CaloJetSteps.size() != 0) {
         nCaloJetSteps++;
-        if (CaloJetSteps[nCaloJetSteps] != NULL) {
+        if (CaloJetSteps[nCaloJetSteps] != nullptr) {
           if (CaloJetSteps[nCaloJetSteps]->select(event, setup)) {
             ++passed;
             selection_[key].second->fill(event, setup);
@@ -939,7 +939,7 @@ void TopDiLeptonOfflineDQM::analyze(const edm::Event& event,
         }
       }
 
-      if (type == "met" && METStep != 0) {
+      if (type == "met" && METStep != nullptr) {
         ++passed;
         if (METStep->select(event)) {
           selection_[key].second->fill(event, setup);

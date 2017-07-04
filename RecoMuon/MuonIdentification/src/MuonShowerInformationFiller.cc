@@ -66,7 +66,7 @@ using namespace edm;
 // Constructor
 //
 MuonShowerInformationFiller::MuonShowerInformationFiller(const edm::ParameterSet& par,edm::ConsumesCollector& iC) :
-  theService(0),
+  theService(nullptr),
   theDTRecHitLabel(par.getParameter<InputTag>("DTRecSegmentLabel")),
   theCSCRecHitLabel(par.getParameter<InputTag>("CSCRecSegmentLabel")),
   theCSCSegmentsLabel(par.getParameter<InputTag>("CSCSegmentLabel")),

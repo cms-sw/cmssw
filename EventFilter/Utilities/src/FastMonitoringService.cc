@@ -396,7 +396,7 @@ namespace evf{
   void FastMonitoringService::preGlobalBeginLumi(edm::GlobalContext const& gc)
   {
 	  timeval lumiStartTime;
-	  gettimeofday(&lumiStartTime, 0);
+	  gettimeofday(&lumiStartTime, nullptr);
 	  unsigned int newLumi = gc.luminosityBlockID().luminosityBlock();
 
           std::lock_guard<std::mutex> lock(fmt_.monlock_);
@@ -423,7 +423,7 @@ namespace evf{
           LogDebug("FastMonitoringService") << "Lumi ended. Writing JSON information. LUMI -: "
                                                 << lumi;
 	  timeval lumiStopTime;
-	  gettimeofday(&lumiStopTime, 0);
+	  gettimeofday(&lumiStopTime, nullptr);
 
           std::lock_guard<std::mutex> lock(fmt_.monlock_);
 
@@ -667,7 +667,7 @@ namespace evf{
   }
 
   void FastMonitoringService::startedLookingForFile() {
-	  gettimeofday(&fileLookStart_, 0);
+	  gettimeofday(&fileLookStart_, nullptr);
 	  /*
 	 std::cout << "Started looking for .raw file at: s=" << fileLookStart_.tv_sec << ": ms = "
 	 << fileLookStart_.tv_usec / 1000.0 << std::endl;
@@ -675,7 +675,7 @@ namespace evf{
   }
 
   void FastMonitoringService::stoppedLookingForFile(unsigned int lumi) {
-	  gettimeofday(&fileLookStop_, 0);
+	  gettimeofday(&fileLookStop_, nullptr);
 	  /*
 	 std::cout << "Stopped looking for .raw file at: s=" << fileLookStop_.tv_sec << ": ms = "
 	 << fileLookStop_.tv_usec / 1000.0 << std::endl;

@@ -57,12 +57,12 @@ void testRecordWriter::testNoInheritance()
    {
       TFile f("testRecordWriter.root","READ");
       TTree* recordTree = reinterpret_cast<TTree*>(f.Get("TestRecord"));
-      CPPUNIT_ASSERT(0!=recordTree);
+      CPPUNIT_ASSERT(nullptr!=recordTree);
       
-      edm::ESRecordAuxiliary* aux=0;
+      edm::ESRecordAuxiliary* aux=nullptr;
       recordTree->SetBranchAddress("ESRecordAuxiliary",&aux);
 
-      std::vector<int>* pV=0;
+      std::vector<int>* pV=nullptr;
       recordTree->SetBranchAddress((fwlite::format_type_to_mangled("std::vector<int>")+"__").c_str(),&pV);
 
       for(int index=0; index < recordTree->GetEntries(); ++index) {
@@ -96,19 +96,19 @@ void testRecordWriter::testInheritance()
    {
       TFile f("testRecordWriter.root","READ");
       TTree* recordTree = reinterpret_cast<TTree*>(f.Get("TestRecord"));
-      CPPUNIT_ASSERT(0!=recordTree);
+      CPPUNIT_ASSERT(nullptr!=recordTree);
       
-      edm::ESRecordAuxiliary* aux=0;
+      edm::ESRecordAuxiliary* aux=nullptr;
       recordTree->SetBranchAddress("ESRecordAuxiliary",&aux);
 
-      edmtest::Simple* pS=0;
+      edmtest::Simple* pS=nullptr;
       recordTree->SetBranchAddress((fwlite::format_type_to_mangled("edmtest::Simple")+"__").c_str(),&pS);
 
       for(int index=0; index < recordTree->GetEntries(); ++index) {
          recordTree->GetEntry(index);
          CPPUNIT_ASSERT( aux->eventID().run()==static_cast<unsigned int>(index+1));
          CPPUNIT_ASSERT( pS->key==index);
-         CPPUNIT_ASSERT(0 != dynamic_cast<edmtest::SimpleDerived*>(pS));
+         CPPUNIT_ASSERT(nullptr != dynamic_cast<edmtest::SimpleDerived*>(pS));
          CPPUNIT_ASSERT(index == dynamic_cast<edmtest::SimpleDerived*>(pS)->dummy);
       }      
    }

@@ -56,18 +56,18 @@ L1RetrieveL1Extra::L1RetrieveL1Extra(const edm::ParameterSet& paramSet, edm::Con
     m_validL1ExtraHfRingEtSums(false),
 
     //
-    m_l1ExtraMuon(0),
-    m_l1ExtraIsoEG(0),
-    m_l1ExtraNoIsoEG(0),
-    m_l1ExtraCenJet(0),
-    m_l1ExtraForJet(0),
-    m_l1ExtraTauJet(0),
-    m_l1ExtraETT(0),
-    m_l1ExtraETM(0),
-    m_l1ExtraHTT(0),
-    m_l1ExtraHTM(0),
-    m_l1ExtraHfBitCounts(0),
-    m_l1ExtraHfRingEtSums(0)
+    m_l1ExtraMuon(nullptr),
+    m_l1ExtraIsoEG(nullptr),
+    m_l1ExtraNoIsoEG(nullptr),
+    m_l1ExtraCenJet(nullptr),
+    m_l1ExtraForJet(nullptr),
+    m_l1ExtraTauJet(nullptr),
+    m_l1ExtraETT(nullptr),
+    m_l1ExtraETM(nullptr),
+    m_l1ExtraHTT(nullptr),
+    m_l1ExtraHTM(nullptr),
+    m_l1ExtraHfBitCounts(nullptr),
+    m_l1ExtraHfRingEtSums(nullptr)
     //
 
     {
@@ -112,7 +112,7 @@ void L1RetrieveL1Extra::retrieveL1ExtraObjects(const edm::Event& iEvent,
                 << std::endl;
 
         m_validL1ExtraMuon = false;
-        m_l1ExtraMuon = 0;
+        m_l1ExtraMuon = nullptr;
 
     }
 
@@ -131,7 +131,7 @@ void L1RetrieveL1Extra::retrieveL1ExtraObjects(const edm::Event& iEvent,
                 << std::endl;
 
         m_validL1ExtraIsoEG = false;
-        m_l1ExtraIsoEG = 0;
+        m_l1ExtraIsoEG = nullptr;
 
     }
 
@@ -149,7 +149,7 @@ void L1RetrieveL1Extra::retrieveL1ExtraObjects(const edm::Event& iEvent,
                 << std::endl;
 
         m_validL1ExtraNoIsoEG = false;
-        m_l1ExtraNoIsoEG = 0;
+        m_l1ExtraNoIsoEG = nullptr;
 
     }
 
@@ -168,7 +168,7 @@ void L1RetrieveL1Extra::retrieveL1ExtraObjects(const edm::Event& iEvent,
                 << std::endl;
 
         m_validL1ExtraCenJet = false;
-        m_l1ExtraCenJet = 0;
+        m_l1ExtraCenJet = nullptr;
 
     }
 
@@ -186,7 +186,7 @@ void L1RetrieveL1Extra::retrieveL1ExtraObjects(const edm::Event& iEvent,
                 << std::endl;
 
         m_validL1ExtraForJet = false;
-        m_l1ExtraForJet = 0;
+        m_l1ExtraForJet = nullptr;
 
     }
 
@@ -204,7 +204,7 @@ void L1RetrieveL1Extra::retrieveL1ExtraObjects(const edm::Event& iEvent,
                 << std::endl;
 
         m_validL1ExtraTauJet = false;
-        m_l1ExtraTauJet = 0;
+        m_l1ExtraTauJet = nullptr;
 
     }
 
@@ -226,8 +226,8 @@ void L1RetrieveL1Extra::retrieveL1ExtraObjects(const edm::Event& iEvent,
 
         m_validL1ExtraETT = false;
         m_validL1ExtraETM = false;
-        m_l1ExtraETT = 0;
-        m_l1ExtraETM = 0;
+        m_l1ExtraETT = nullptr;
+        m_l1ExtraETM = nullptr;
 
     }
 
@@ -248,8 +248,8 @@ void L1RetrieveL1Extra::retrieveL1ExtraObjects(const edm::Event& iEvent,
 
         m_validL1ExtraHTT = false;
         m_validL1ExtraHTM = false;
-        m_l1ExtraHTT = 0;
-        m_l1ExtraHTM = 0;
+        m_l1ExtraHTT = nullptr;
+        m_l1ExtraHTM = nullptr;
 
     }
 
@@ -271,8 +271,8 @@ void L1RetrieveL1Extra::retrieveL1ExtraObjects(const edm::Event& iEvent,
 
         m_validL1ExtraHfBitCounts = false;
         m_validL1ExtraHfRingEtSums = false;
-        m_l1ExtraHfBitCounts = 0;
-        m_l1ExtraHfRingEtSums = 0;
+        m_l1ExtraHfBitCounts = nullptr;
+        m_l1ExtraHfRingEtSums = nullptr;
 
     }
 

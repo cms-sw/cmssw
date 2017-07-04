@@ -73,9 +73,9 @@ void RestoreGlobalPrintLevel(int value) {
 HybridMinimizer::HybridMinimizer(EMinimizerType type ) : 
    Minimizer(),
    fDim(0),
-   fMinimizer(0),
-   fMinuitFCN(0),
-   fMinimum(0)   
+   fMinimizer(nullptr),
+   fMinuitFCN(nullptr),
+   fMinimum(nullptr)   
 {
    // Default constructor implementation depending on minimizer type 
    SetMinimizerType(type); 
@@ -84,9 +84,9 @@ HybridMinimizer::HybridMinimizer(EMinimizerType type ) :
 HybridMinimizer::HybridMinimizer(const char *  type ) : 
    Minimizer(),
    fDim(0),
-   fMinimizer(0),
-   fMinuitFCN(0),
-   fMinimum(0)   
+   fMinimizer(nullptr),
+   fMinuitFCN(nullptr),
+   fMinimum(nullptr)   
 {   
    // constructor from a string
 
@@ -162,7 +162,7 @@ void HybridMinimizer::Clear() {
    fState = MnUserParameterState();
    // clear also the function minimum
    if (fMinimum) delete fMinimum; 
-   fMinimum = 0;
+   fMinimum = nullptr;
 }
 
 
@@ -308,11 +308,11 @@ bool HybridMinimizer::Minimize() {
       return false; 
   }
 
-   assert(GetMinimizer() != 0 );
+   assert(GetMinimizer() != nullptr );
 
    // delete result of previous minimization
    if (fMinimum) delete fMinimum; 
-   fMinimum = 0;
+   fMinimum = nullptr;
 
 
    int maxfcn = MaxFunctionCalls(); 
@@ -381,7 +381,7 @@ bool HybridMinimizer::Minimize() {
    }
       
    const ROOT::Minuit2::FCNGradientBase * gradFCN = dynamic_cast<const ROOT::Minuit2::FCNGradientBase *>( fMinuitFCN ); 
-   if ( gradFCN != 0) {
+   if ( gradFCN != nullptr) {
       // use gradient
       //SetPrintLevel(3);
       ROOT::Minuit2::FunctionMinimum min =  GetMinimizer()->Minimize(*gradFCN, fState, strategy, maxfcn, tol);
@@ -511,7 +511,7 @@ void HybridMinimizer::PrintResults() {
 const double * HybridMinimizer::X() const { 
    // return values at minimum 
    const std::vector<MinuitParameter> & paramsObj = fState.MinuitParameters();
-   if (paramsObj.size() == 0) return 0;
+   if (paramsObj.size() == 0) return nullptr;
    assert(fDim == paramsObj.size());
    // be careful for multiple calls of this function. I will redo an allocation here
    // only when size of vectors has changed (e.g. after a new minimization)
@@ -527,7 +527,7 @@ const double * HybridMinimizer::X() const {
 const double * HybridMinimizer::Errors() const { 
    // return error at minimum (set to zero for fixed and constant params)
    const std::vector<MinuitParameter> & paramsObj = fState.MinuitParameters();
-   if (paramsObj.size() == 0) return 0;
+   if (paramsObj.size() == 0) return nullptr;
    assert(fDim == paramsObj.size());
    // be careful for multiple calls of this function. I will redo an allocation here
    // only when size of vectors has changed (e.g. after a new minimization)
@@ -664,7 +664,7 @@ bool HybridMinimizer::GetMinosError(unsigned int i, double & errLow, double & er
 //    ROOT::Minuit2::FunctionMinimum min =  
 //       GetMinimizer()->Minimize(*GetFCN(),fState, ROOT::Minuit2::MnStrategy(strategy), MaxFunctionCalls(), Tolerance());
 //    fState = min.UserState();
-   if (fMinimum == 0) { 
+   if (fMinimum == nullptr) { 
       MN_ERROR_MSG("HybridMinimizer::GetMinosErrors:  failed - no function minimum existing");
       return false;
    }
@@ -845,7 +845,7 @@ bool HybridMinimizer::Scan(unsigned int ipar, unsigned int & nstep, double * x, 
 bool HybridMinimizer::Contour(unsigned int ipar, unsigned int jpar, unsigned int & npoints, double * x, double * y) {
    // contour plot for parameter i and j
    // need a valid FunctionMinimum otherwise exits
-   if (fMinimum == 0) { 
+   if (fMinimum == nullptr) { 
       MN_ERROR_MSG2("HybridMinimizer::Contour"," no function minimum existing. Must minimize function before");
       return false;
    }

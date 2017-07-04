@@ -423,7 +423,7 @@ int main (int argc, char* argv[])
 	  hists["hist_fHPD"]->Fill( jet.jetID().fHPD );
 	  hists["hist_nConstituents"]->Fill( jet.nConstituents() );
 
-	  if ( useMC && jet.genJet() != 0 ) {
+	  if ( useMC && jet.genJet() != nullptr ) {
 	    hists["hist_jetGenEmE"]->Fill( jet.genJet()->emEnergy() );
 	    hists["hist_jetGenHadE"]->Fill( jet.genJet()->hadEnergy() );
 	    hists["hist_jetEoverGenE"]->Fill( jet.energy() / jet.genJet()->energy() );
@@ -511,7 +511,7 @@ int main (int argc, char* argv[])
 	hists["hist_pf_jetNHF"]->Fill( jet.neutralHadronEnergyFraction()  );
 
 
-	if ( useMC && jet.genJet() != 0 ) {
+	if ( useMC && jet.genJet() != nullptr ) {
 	  hists["hist_pf_jetGenEmE"]->Fill( jet.genJet()->emEnergy() );
 	  hists["hist_pf_jetGenHadE"]->Fill( jet.genJet()->hadEnergy() );
 	  hists["hist_pf_jetEoverGenE"]->Fill( jet.energy() / jet.genJet()->energy() );

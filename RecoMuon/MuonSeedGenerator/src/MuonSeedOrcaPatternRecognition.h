@@ -28,7 +28,7 @@ private:
     std::vector<MuonRecHitContainer> & result);
 
   void complete(MuonRecHitContainer& seedSegments,
-                const MuonRecHitContainer &recHits, bool* used=0) const;
+                const MuonRecHitContainer &recHits, bool* used=nullptr) const;
 
   MuonRecHitPointer
   bestMatch(const ConstMuonRecHitPointer & first,  MuonRecHitContainer & good_rhit) const;

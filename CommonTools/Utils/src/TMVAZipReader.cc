@@ -21,7 +21,7 @@ bool reco::details::hasEnding(std::string const &fullString, std::string const &
 char* reco::details::readGzipFile(const std::string& weightFile)
 {
   FILE *f = fopen(weightFile.c_str(), "r");
-  if (f==NULL) {
+  if (f==nullptr) {
     throw cms::Exception("InvalidFileState")
       << "Failed to open MVA file = " << weightFile << " !!\n";
   }

@@ -570,7 +570,7 @@ double L1TOccupancyClient::xySymmetry(const ParameterSet  &              ps,
 double L1TOccupancyClient::getAvrg(TH2F* iHist, string iTestName, int iAxis, int iNBins, int iBinStrip, int iAvgMode) {
 
   double avg = 0.0;
-  TH1D* proj = NULL;
+  TH1D* proj = nullptr;
   TH2F* histo = new TH2F(*iHist);
 
   std::vector<double> values;

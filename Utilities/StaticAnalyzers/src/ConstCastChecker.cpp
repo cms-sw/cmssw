@@ -20,7 +20,7 @@ void ConstCastChecker::checkPreStmt(const clang::CXXConstCastExpr *CE,
 		clang::ento::CheckerContext &C) const
 {
 	const Expr * SE = CE->getSubExprAsWritten();	
-	const CXXRecordDecl * CRD = 0;
+	const CXXRecordDecl * CRD = nullptr;
 	if (SE->getType()->isPointerType()) CRD = SE->getType()->getPointeeCXXRecordDecl();
 	else CRD = SE->getType()->getAsCXXRecordDecl();
 	if (CRD) {

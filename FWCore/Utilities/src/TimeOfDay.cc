@@ -19,7 +19,7 @@ namespace edm {
   timeval
   TimeOfDay::setTime_() {
     timeval tv;
-    gettimeofday(&tv, 0);
+    gettimeofday(&tv, nullptr);
     return tv;
   }
 

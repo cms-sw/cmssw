@@ -26,7 +26,7 @@ int ComCodes::getCode(const char* descript)const
   int code = 0x0000; 
   char* codeKey = strtok(localDescript,":");
   //  std::map<std::string,int> ::const_iterator mapIt;
-  while(codeKey!=NULL){
+  while(codeKey!=nullptr){
     bool found=false;
 
     for(size_t i=0;i<_codeDefs.size() && !found;i++){
@@ -38,7 +38,7 @@ int ComCodes::getCode(const char* descript)const
     }
    
     if(!found)  edm::LogWarning("EgHLTComCodes") <<"ComCodes::getCode : Error, Key "<<codeKey<<" not found (likely mistyped, practical upshot is the selection is not what you think it is)";//<<std::endl;
-    codeKey = strtok(NULL,":"); //getting new substring
+    codeKey = strtok(nullptr,":"); //getting new substring
     
   }
   return code;

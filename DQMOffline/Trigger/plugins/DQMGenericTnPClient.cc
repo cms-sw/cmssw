@@ -47,7 +47,7 @@ DQMGenericTnPClient::DQMGenericTnPClient(const edm::ParameterSet& pset):
   efficiencies( pset.getUntrackedParameter<VParameterSet>("Efficiencies") )
 {
   TString savePlotsInRootFileName = pset.getUntrackedParameter<string>("SavePlotsInRootFileName","");
-  plots = savePlotsInRootFileName!="" ? new TFile(savePlotsInRootFileName,"recreate") : 0;
+  plots = savePlotsInRootFileName!="" ? new TFile(savePlotsInRootFileName,"recreate") : nullptr;
   GPLfitter = new GaussianPlusLinearFitter(verbose);
   VPEfitter = new VoigtianPlusExponentialFitter(verbose);
 }
@@ -101,7 +101,7 @@ void DQMGenericTnPClient::calculateEfficiency(std::string dirName, const Paramet
   string passMEname = dirName+"/"+pset.getUntrackedParameter<string>("NumeratorMEname");
   MonitorElement *allME = dqmStore->get(allMEname);
   MonitorElement *passME = dqmStore->get(passMEname);
-  if(allME==0 || passME==0){
+  if(allME==nullptr || passME==nullptr){
     LogDebug("DQMGenericTnPClient")<<"Could not find MEs: "<<allMEname<<" or "<<passMEname<<endl;
     return;
   }
@@ -109,7 +109,7 @@ void DQMGenericTnPClient::calculateEfficiency(std::string dirName, const Paramet
   TH1 *pass = passME->getTH1();
   //setup the fitter  
   string fitFunction = pset.getUntrackedParameter<string>("FitFunction");
-  AbstractFitter *fitter = 0;
+  AbstractFitter *fitter = nullptr;
   if(fitFunction=="GaussianPlusLinear"){
     GPLfitter->setup(
       pset.getUntrackedParameter<double>("ExpectedMean"),
@@ -151,8 +151,8 @@ void DQMGenericTnPClient::calculateEfficiency(std::string dirName, const Paramet
   prefix.ReplaceAll('/','_');
   //calculate and book efficiency
   if(dimensions==2){
-    TProfile* eff = 0;
-    TProfile* effChi2 = 0;
+    TProfile* eff = nullptr;
+    TProfile* effChi2 = nullptr;
     TString error = fitter->calculateEfficiency((TH2*)pass, (TH2*)all, massDimension, eff, effChi2, plots?prefix+effName.c_str():"");
     if(error!=""){
       LogError("DQMGenericTnPClient")<<error<<endl;
@@ -163,8 +163,8 @@ void DQMGenericTnPClient::calculateEfficiency(std::string dirName, const Paramet
     delete eff;
     delete effChi2;
   }else if(dimensions==3){
-    TProfile2D* eff = 0;
-    TProfile2D* effChi2 = 0;
+    TProfile2D* eff = nullptr;
+    TProfile2D* effChi2 = nullptr;
     TString error = fitter->calculateEfficiency((TH3*)pass, (TH3*)all, massDimension, eff, effChi2, plots?prefix+effName.c_str():"");
     if(error!=""){
       LogError("DQMGenericTnPClient")<<error<<endl;

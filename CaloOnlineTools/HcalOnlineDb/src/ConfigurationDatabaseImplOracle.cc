@@ -48,7 +48,7 @@ void ConfigurationDatabaseImplOracle::connect(const std::string& accessor) noexc
    }
 
 
-  if (env_ == NULL || conn_ == NULL) {
+  if (env_ == nullptr || conn_ == nullptr) {
     std::string message("Error connecting on accessor '");
     message+=accessor;
     XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,message);
@@ -90,7 +90,7 @@ void ConfigurationDatabaseImplOracle::getLUTChecksums(const std::string& tag,
 		std::map<hcal::ConfigurationDatabase::LUTId,
 		hcal::ConfigurationDatabase::MD5Fingerprint>& checksums) noexcept(false) {
 
-	if (env_ == NULL || conn_ == NULL) XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,"Database is not open");
+	if (env_ == nullptr || conn_ == nullptr) XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,"Database is not open");
   	checksums.clear();
 
    try {
@@ -210,7 +210,7 @@ void ConfigurationDatabaseImplOracle::getLUTs_real(const std::string& tag, int c
 
 				// convert the data
 				for (unsigned int j=0; j<i->items.size(); j++)
-					lut.push_back(strtol(i->items[j].c_str(),0,strtol_base));
+					lut.push_back(strtol(i->items[j].c_str(),nullptr,strtol_base));
 
 				LUTs.insert(make_pair(lut_id, lut));
 			//}
@@ -281,7 +281,7 @@ void ConfigurationDatabaseImplOracle::getPatterns_real(const std::string& tag, i
 
                                 // convert the data
                                 for (unsigned int j=0; j<i->items.size(); j++)
-                                        pat.push_back(strtol(i->items[j].c_str(),0,strtol_base));
+                                        pat.push_back(strtol(i->items[j].c_str(),nullptr,strtol_base));
                         //}
                 }
         }

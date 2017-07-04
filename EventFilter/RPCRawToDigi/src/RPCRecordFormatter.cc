@@ -106,7 +106,7 @@ int RPCRecordFormatter::recordUnpack(
      if(counter) counter->addReadoutError(currentFED, ReadoutError(eleIndex,ReadoutError::EOD));
   }
 
-  if(readoutMapping == 0) return error.type();
+  if(readoutMapping == nullptr) return error.type();
   const LinkBoardSpec* linkBoard = readoutMapping->location(eleIndex);
   if (!linkBoard) {
     if (debug) LogDebug("")<<" ** PROBLEM ** Invalid Linkboard location, skip CD event, " 

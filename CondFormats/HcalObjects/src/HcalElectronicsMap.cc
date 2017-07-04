@@ -54,7 +54,7 @@ const HcalElectronicsMap::PrecisionItem* HcalElectronicsMap::findPByElId (unsign
   HcalElectronicsId eid(fElId);
   const PrecisionItem* i=&(mPItems[eid.linearIndex()]);
   
-  if (i!=0 && i->mElId!=fElId) i=0;
+  if (i!=nullptr && i->mElId!=fElId) i=nullptr;
   return i;
 }
 
@@ -62,7 +62,7 @@ const HcalElectronicsMap::TriggerItem* HcalElectronicsMap::findTByElId (unsigned
   HcalElectronicsId eid(fElId);
   const TriggerItem* i=&(mTItems[eid.linearIndex()]);
   
-  if (i!=0 && i->mElId!=fElId) i=0;
+  if (i!=nullptr && i->mElId!=fElId) i=nullptr;
   return i;
 }
 
@@ -94,7 +94,7 @@ const HcalElectronicsId HcalElectronicsMap::lookupTrigger(DetId fId) const {
 
 bool HcalElectronicsMap::lookup(const HcalElectronicsId pid, HcalElectronicsId& eid, HcalGenericDetId& did) const {
   const PrecisionItem* i=&(mPItems[pid.linearIndex()]);
-  if (i!=0 && i->mId!=0) {
+  if (i!=nullptr && i->mId!=0) {
     eid=HcalElectronicsId(i->mElId);
     did=HcalGenericDetId(i->mId);
     return true;
@@ -103,7 +103,7 @@ bool HcalElectronicsMap::lookup(const HcalElectronicsId pid, HcalElectronicsId& 
 
 bool HcalElectronicsMap::lookup(const HcalElectronicsId pid, HcalElectronicsId& eid, HcalTrigTowerDetId& did) const {
   const TriggerItem* i=&(mTItems[pid.linearIndex()]);
-  if (i!=0 && i->mTrigId!=0) {
+  if (i!=nullptr && i->mTrigId!=0) {
     eid=HcalElectronicsId(i->mElId);
     did=HcalGenericDetId(i->mTrigId);
     return true;

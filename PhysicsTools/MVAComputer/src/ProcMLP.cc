@@ -125,7 +125,7 @@ void ProcMLP::eval(ValueIterator iter, unsigned int n) const
 	for(double *pos = tmp; iter; iter++, pos++)
 		*pos = *iter;
 
-	double *output = 0;
+	double *output = nullptr;
 	for(std::vector<Layer>::const_iterator layer = layers.begin();
 	    layer != layers.end(); layer++, flip = !flip) {
 		const double *input = &tmp[flip ? maxTmp : 0];

@@ -151,13 +151,13 @@ private:
 //
 FFTJetPatRecoProducer::FFTJetPatRecoProducer(const edm::ParameterSet& ps)
     : FFTJetInterface(ps),
-      clusteringTree(0),
+      clusteringTree(nullptr),
       completeEventDataCutoff(ps.getParameter<double>("completeEventDataCutoff")),
       makeClusteringTree(ps.getParameter<bool>("makeClusteringTree")),
       verifyDataConversion(ps.getUntrackedParameter<bool>("verifyDataConversion",false)),
       storeDiscretizationGrid(ps.getParameter<bool>("storeDiscretizationGrid")),
       sparsify(ps.getParameter<bool>("sparsify")),
-      extGrid(0)
+      extGrid(nullptr)
 {
     // register your products
     if (makeClusteringTree)

@@ -101,7 +101,7 @@ using namespace edm;
 
 	if(doPixel_) {
 	 
-	  SiPixelRecHitCollection::DetSet::const_iterator pixelrechitRangeIteratorBegin(0);
+	  SiPixelRecHitCollection::DetSet::const_iterator pixelrechitRangeIteratorBegin(nullptr);
 	  SiPixelRecHitCollection::DetSet::const_iterator pixelrechitRangeIteratorEnd = pixelrechitRangeIteratorBegin;
           SiPixelRecHitCollection::const_iterator pixelrechitMatch = pixelrechits->find(detid);
           if ( pixelrechitMatch != pixelrechits->end()) {

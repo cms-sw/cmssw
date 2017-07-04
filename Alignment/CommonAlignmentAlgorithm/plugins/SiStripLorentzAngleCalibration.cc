@@ -152,8 +152,8 @@ SiStripLorentzAngleCalibration::SiStripLorentzAngleCalibration(const edm::Parame
     recordNameDBwrite_(cfg.getParameter<std::string>("recordNameDBwrite")),
     outFileName_(cfg.getParameter<std::string>("treeFile")),
     mergeFileNames_(cfg.getParameter<std::vector<std::string> >("mergeTreeFiles")),
-    siStripLorentzAngleInput_(0),
-    moduleGroupSelector_(0),
+    siStripLorentzAngleInput_(nullptr),
+    moduleGroupSelector_(nullptr),
     moduleGroupSelCfg_(cfg.getParameter<edm::ParameterSet>("LorentzAngleModuleGroups"))
 {
 
@@ -525,17 +525,17 @@ SiStripLorentzAngleCalibration::createFromTree(const char *fileName, const char 
 {
   // Check for file existence on your own to work around
   // https://hypernews.cern.ch/HyperNews/CMS/get/swDevelopment/2715.html:
-  TFile* file = 0;
+  TFile* file = nullptr;
   FILE* testFile = fopen(fileName,"r");
   if (testFile) {
     fclose(testFile);
     file = TFile::Open(fileName, "READ");
   } // else not existing, see error below
 
-  TTree *tree = 0;
+  TTree *tree = nullptr;
   if (file) file->GetObject(treeName, tree);
 
-  SiStripLorentzAngle *result = 0;
+  SiStripLorentzAngle *result = nullptr;
   if (tree) {
     unsigned int id = 0;
     float value = 0.;

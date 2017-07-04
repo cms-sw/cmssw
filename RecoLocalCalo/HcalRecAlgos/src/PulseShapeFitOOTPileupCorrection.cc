@@ -473,7 +473,7 @@ void PulseShapeFitOOTPileupCorrection::fit(int iFit,float &timevalfit,float &cha
    //a special number to label the initial condition
    chi2=-1;
    //3 fits why?!
-   const double *results = 0;
+   const double *results = nullptr;
    for(int tries=0; tries<=3;++tries){
      if( fitTimes_ != 2 || tries !=1 ){
         hybridfitter->SetMinimizerType(PSFitter::HybridMinimizer::kMigrad);

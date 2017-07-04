@@ -34,7 +34,7 @@ using namespace std;
 using namespace edm;
 
 // Constructor
-MuonServiceProxy::MuonServiceProxy(const edm::ParameterSet& par):theTrackingGeometry(0),theMGField(0),theDetLayerGeometry(0),theEventSetup(0),theSchool(0){
+MuonServiceProxy::MuonServiceProxy(const edm::ParameterSet& par):theTrackingGeometry(nullptr),theMGField(nullptr),theDetLayerGeometry(nullptr),theEventSetup(nullptr),theSchool(nullptr){
   
   // load the propagators map
   vector<string> noPropagators;
@@ -72,7 +72,7 @@ MuonServiceProxy::MuonServiceProxy(const edm::ParameterSet& par):theTrackingGeom
   
   for(vector<string>::iterator propagatorName = propagatorNames.begin();
       propagatorName != propagatorNames.end(); ++propagatorName)
-    thePropagators[ *propagatorName ] = ESHandle<Propagator>(0);
+    thePropagators[ *propagatorName ] = ESHandle<Propagator>(nullptr);
 
   theCacheId_GTG = 0;
   theCacheId_MG = 0;  
@@ -157,7 +157,7 @@ ESHandle<Propagator> MuonServiceProxy::propagator(std::string propagatorName) co
   if (prop == thePropagators.end()){
     LogError("Muon|RecoMuon|MuonServiceProxy") 
       << "MuonServiceProxy: propagator with name: "<< propagatorName <<" not found! Please load it in the MuonServiceProxy.cff"; 
-    return ESHandle<Propagator>(0);
+    return ESHandle<Propagator>(nullptr);
   }
   
   return prop->second;

@@ -47,9 +47,9 @@ struct dso_hidden TkStripRecHitIter {
     : mdet(&imdet),tsos(&itsos),data(&idata), clusterI(ci), clusterE(ce) {}
   
   
-  const TkStripMeasurementDet * mdet = 0;
-  const TrajectoryStateOnSurface * tsos=0;
-  const MeasurementTrackerEvent * data=0;
+  const TkStripMeasurementDet * mdet = nullptr;
+  const TrajectoryStateOnSurface * tsos=nullptr;
+  const MeasurementTrackerEvent * data=nullptr;
   
   new_const_iterator clusterI;
   new_const_iterator clusterE;

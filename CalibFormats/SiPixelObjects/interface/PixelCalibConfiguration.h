@@ -178,15 +178,15 @@ namespace pos{
 				  int version, 
 				  std::string path, 
 				  std::ofstream *out,
-				  std::ofstream *out1 = NULL,
-				  std::ofstream *out2 = NULL
+				  std::ofstream *out1 = nullptr,
+				  std::ofstream *out2 = nullptr
 				  ) const override;
     virtual void writeXML(        std::ofstream *out,			                                    
-			   	  std::ofstream *out1 = NULL ,
-			   	  std::ofstream *out2 = NULL ) const override;
+			   	  std::ofstream *out1 = nullptr ,
+			   	  std::ofstream *out2 = nullptr ) const override;
     virtual void writeXMLTrailer( std::ofstream *out, 
-				  std::ofstream *out1 = NULL,
-				  std::ofstream *out2 = NULL
+				  std::ofstream *out1 = nullptr,
+				  std::ofstream *out2 = nullptr
 				  ) const override;
 
 

@@ -175,13 +175,13 @@ void
 void
   MessageLoggerQ::MLqEND()
 {
-  simpleCommand (END_THREAD, (void *)0); 
+  simpleCommand (END_THREAD, (void *)nullptr); 
 }  // MessageLoggerQ::END()
 
 void
   MessageLoggerQ::MLqSHT()
 {
-  simpleCommand (SHUT_UP, (void *)0); 
+  simpleCommand (SHUT_UP, (void *)nullptr); 
 }  // MessageLoggerQ::SHT()
 
 void
@@ -200,7 +200,7 @@ void
 void
   MessageLoggerQ::MLqSUM( )
 {
-  simpleCommand (SUMMARIZE, 0); 
+  simpleCommand (SUMMARIZE, nullptr); 
 }  // MessageLoggerQ::SUM()
 
 void
@@ -217,7 +217,7 @@ void
   // place to convey exception information.  FLS does not need this, nor does
   // it need the parameter set, but we are reusing ConfigurationHandshake 
   // rather than reinventing the mechanism.
-  handshakedCommand(FLUSH_LOG_Q, 0, "FLS" );
+  handshakedCommand(FLUSH_LOG_Q, nullptr, "FLS" );
 }  // MessageLoggerQ::FLS()
 
 void

@@ -40,16 +40,16 @@ using namespace std;
 #undef D0
 #endif
 EvtLb2plnuLCSR::EvtLb2plnuLCSR():
-  ffmodel(0)
-  ,calcamp(0)
+  ffmodel(nullptr)
+  ,calcamp(nullptr)
 {}
 
 
 EvtLb2plnuLCSR::~EvtLb2plnuLCSR() {
   delete ffmodel;
-  ffmodel=0;
+  ffmodel=nullptr;
   delete calcamp;
-  calcamp=0;
+  calcamp=nullptr;
 }
 
 std::string EvtLb2plnuLCSR::getName(){

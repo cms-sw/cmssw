@@ -79,7 +79,7 @@ class PFRecoTauChargedHadronFromTrackPlugin : public PFRecoTauChargedHadronBuild
   PFRecoTauChargedHadronFromTrackPlugin::PFRecoTauChargedHadronFromTrackPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector && iC)
     : PFRecoTauChargedHadronBuilderPlugin(pset,std::move(iC)),
       vertexAssociator_(pset.getParameter<edm::ParameterSet>("qualityCuts"),std::move(iC)),
-    qcuts_(0)
+    qcuts_(nullptr)
 {
   edm::ParameterSet qcuts_pset = pset.getParameterSet("qualityCuts").getParameterSet("signalQualityCuts");
   qcuts_ = new RecoTauQualityCuts(qcuts_pset);

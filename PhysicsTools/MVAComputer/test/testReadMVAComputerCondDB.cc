@@ -72,14 +72,14 @@ void testReadMVAComputerCondDB::analyze(const edm::Event& iEvent,
 	unsigned int i = 0;
 	uint64_t n = 0;
 	struct timeval start;
-	gettimeofday(&start, 0);
+	gettimeofday(&start, nullptr);
 	for(;;) {
 		computer.eval(values, values + 6);
 		n++;
 		if (++i == 1000) {
 			i = 0;
 			struct timeval now;
-			gettimeofday(&now, NULL);
+			gettimeofday(&now, nullptr);
 			if (now.tv_sec < start.tv_sec + 5)
 				continue;
 			if (now.tv_sec > start.tv_sec + 5)

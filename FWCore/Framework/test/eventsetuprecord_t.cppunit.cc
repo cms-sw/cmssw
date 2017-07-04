@@ -89,7 +89,7 @@ void testEventsetupRecord::factoryTest()
    EventSetupRecordProviderFactoryManager::instance().makeRecordProvider(
                               EventSetupRecordKey::makeKey<DummyRecord>());
    
-   CPPUNIT_ASSERT(0 != dynamic_cast<EventSetupRecordProviderTemplate<DummyRecord>*>(&(*dummyProvider)));
+   CPPUNIT_ASSERT(nullptr != dynamic_cast<EventSetupRecordProviderTemplate<DummyRecord>*>(&(*dummyProvider)));
 
 }   
 
@@ -98,7 +98,7 @@ HCTYPETAG_HELPER_METHODS(Dummy)
 class FailingDummyProxy : public eventsetup::DataProxyTemplate<DummyRecord, Dummy> {
 protected:
    const value_type* make(const record_type&, const DataKey&) {
-      return 0 ;
+      return nullptr ;
    }
    void invalidateCache() {
    }   
@@ -174,7 +174,7 @@ void testEventsetupRecord::proxyTest()
    const DataKey dummyDataKey(DataKey::makeTypeTag<FailingDummyProxy::value_type>(),
                               "");
    
-   CPPUNIT_ASSERT(0 == dummyRecord.find(dummyDataKey));
+   CPPUNIT_ASSERT(nullptr == dummyRecord.find(dummyDataKey));
 
    
    dummyRecord.add(dummyDataKey,
@@ -184,7 +184,7 @@ void testEventsetupRecord::proxyTest()
 
    const DataKey dummyFredDataKey(DataKey::makeTypeTag<FailingDummyProxy::value_type>(),
                                   "fred");
-   CPPUNIT_ASSERT(0 == dummyRecord.find(dummyFredDataKey));
+   CPPUNIT_ASSERT(nullptr == dummyRecord.find(dummyFredDataKey));
 
 }
 
@@ -456,8 +456,8 @@ void testEventsetupRecord::proxyResetTest()
                                                                         EventSetupRecordKey::makeKey<DummyRecord>());
   
   EventSetupRecordProviderTemplate<DummyRecord>* prov= dynamic_cast<EventSetupRecordProviderTemplate<DummyRecord>*>(&(*dummyProvider)); 
-  CPPUNIT_ASSERT(0 !=prov);
-  if(prov == 0) return; // To silence Coverity
+  CPPUNIT_ASSERT(nullptr !=prov);
+  if(prov == nullptr) return; // To silence Coverity
   const EventSetupRecordProviderTemplate<DummyRecord>* constProv = prov;
    
   const EventSetupRecord& dummyRecord = constProv->record();
@@ -470,8 +470,8 @@ void testEventsetupRecord::proxyResetTest()
                                "");
 
   std::shared_ptr<WorkingDummyProvider> wdProv = std::make_shared<WorkingDummyProvider>(workingDataKey, workingProxy);
-  CPPUNIT_ASSERT(0 != wdProv.get());
-  if(wdProv.get() == 0) return; // To silence Coverity
+  CPPUNIT_ASSERT(nullptr != wdProv.get());
+  if(wdProv.get() == nullptr) return; // To silence Coverity
   prov->add( wdProv );
 
   //this causes the proxies to actually be placed in the Record
@@ -507,8 +507,8 @@ void testEventsetupRecord::transientTest()
                                                                          EventSetupRecordKey::makeKey<DummyRecord>());
    
    EventSetupRecordProviderTemplate<DummyRecord>* prov= dynamic_cast<EventSetupRecordProviderTemplate<DummyRecord>*>(&(*dummyProvider)); 
-   CPPUNIT_ASSERT(0 !=prov);
-  if(prov == 0) return; // To silence Coverity
+   CPPUNIT_ASSERT(nullptr !=prov);
+  if(prov == nullptr) return; // To silence Coverity
    
    const EventSetupRecordProviderTemplate<DummyRecord>* constProv = prov;
    const EventSetupRecord& dummyRecord = constProv->record();

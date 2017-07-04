@@ -57,7 +57,7 @@ public:
    virtual void eventBegin();
 
    //returns the new element created from this import
-   void importElements(TEveElement* iProjectableChild, float layer, TEveElement* iProjectedParent=0);
+   void importElements(TEveElement* iProjectableChild, float layer, TEveElement* iProjectedParent=nullptr);
  
    void shiftOrigin(TEveVector& center);
    void resetOrigin();

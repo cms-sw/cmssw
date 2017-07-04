@@ -201,8 +201,8 @@ void TotemRPIncludeAlignments::setIntervalFor(const edm::eventsetup::EventSetupR
   }
 
   // determine what sequence and corrections should be used
-  RPAlignmentCorrectionsDataSequence *seq = NULL;
-  RPAlignmentCorrectionsData *corr = NULL;
+  RPAlignmentCorrectionsDataSequence *seq = nullptr;
+  RPAlignmentCorrectionsData *corr = nullptr;
 
   if (strcmp(key.name(), "RPMeasuredAlignmentRecord") == 0)
   {
@@ -222,7 +222,7 @@ void TotemRPIncludeAlignments::setIntervalFor(const edm::eventsetup::EventSetupR
     corr = &acMisaligned;
   }
 
-  if (seq == NULL)
+  if (seq == nullptr)
     throw cms::Exception("TotemRPIncludeAlignments::setIntervalFor") << "Unknown record " << key.name();
 
   // find the corresponding time interval

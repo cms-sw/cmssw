@@ -40,8 +40,8 @@ class TRecHit1DMomConstraint final : public TransientTrackingRecHit {
   int charge() const {return charge_;}
 
 
-  virtual const TrackingRecHit * hit() const override {return 0;}//fixme return invalid
-  virtual TrackingRecHit * cloneHit() const override { return 0;}
+  virtual const TrackingRecHit * hit() const override {return nullptr;}//fixme return invalid
+  virtual TrackingRecHit * cloneHit() const override { return nullptr;}
 
   virtual std::vector<const TrackingRecHit*> recHits() const override { return std::vector<const TrackingRecHit*>(); }
   virtual std::vector<TrackingRecHit*> recHits() override { return std::vector<TrackingRecHit*>(); }
@@ -51,7 +51,7 @@ class TRecHit1DMomConstraint final : public TransientTrackingRecHit {
 
   virtual RecHitPointer clone (const TrajectoryStateOnSurface& ts) const {return RecHitPointer(clone());}
 
-  virtual const GeomDetUnit* detUnit() const override {return 0;}
+  virtual const GeomDetUnit* detUnit() const override {return nullptr;}
 
   static RecHitPointer build(const int charge,
 			     const double mom,

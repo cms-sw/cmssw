@@ -28,8 +28,8 @@
 //#define mkdebug
 
 HFShowerParam::HFShowerParam(std::string & name, const DDCompactView & cpv,
-                             edm::ParameterSet const & p) : showerLibrary(0), 
-                                                            fibre(0), gflash(0),
+                             edm::ParameterSet const & p) : showerLibrary(nullptr), 
+                                                            fibre(nullptr), gflash(nullptr),
                                                             fillHisto(false) { 
   edm::ParameterSet m_HF  = p.getParameter<edm::ParameterSet>("HFShower");
   pePerGeV                = m_HF.getParameter<double>("PEPerGeV");

@@ -233,7 +233,7 @@ void DataMixingSiPixelMCDigiWorker::PixelEfficiencies::init_from_db(const edm::E
   
   // Loop on all modules, calculate geometrical scale factors and store in map for easy access
   for(TrackerGeometry::DetUnitContainer::const_iterator it_module = geom->detUnits().begin(); it_module != geom->detUnits().end(); it_module++) {
-    if( dynamic_cast<PixelGeomDetUnit const*>((*it_module))==0) continue;
+    if( dynamic_cast<PixelGeomDetUnit const*>((*it_module))==nullptr) continue;
     const DetId detid = (*it_module)->geographicalId();
     uint32_t rawid = detid.rawId();
     PixelGeomFactors[rawid] = 1;
@@ -250,7 +250,7 @@ void DataMixingSiPixelMCDigiWorker::PixelEfficiencies::init_from_db(const edm::E
   for (auto factor : PUFactors) {
     const DetId db_id = DetId(factor.first);
     for(TrackerGeometry::DetUnitContainer::const_iterator it_module = geom->detUnits().begin(); it_module != geom->detUnits().end(); it_module++) {
-      if( dynamic_cast<PixelGeomDetUnit const*>((*it_module))==0) continue;
+      if( dynamic_cast<PixelGeomDetUnit const*>((*it_module))==nullptr) continue;
       const DetId detid = (*it_module)->geographicalId();
       if (!matches(detid, db_id, DetIdmasks)) continue;
       if (iPU.count(detid.rawId())) {

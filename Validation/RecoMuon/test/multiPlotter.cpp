@@ -156,7 +156,7 @@ int main(int argc, char *argv[] )
   }
 
   TCanvas* c1 = new TCanvas("c1") ;
-  pdf = 0 ;
+  pdf = nullptr ;
   if (makePdf) pdf = new TPDF(TString(pdfname)) ;
   //  int pageNumber = 2 ;
   // double titleSize = 0.050 ; 
@@ -192,7 +192,7 @@ void drawLoop( TDirectory *target, TList *sourcelist, TCanvas *c1 )
 
   // loop over all keys in this directory
   TIter nextkey( current_sourcedir->GetListOfKeys() );
-  TKey *key, *oldkey=0;
+  TKey *key, *oldkey=nullptr;
   while ( (key = (TKey*)nextkey())) {
 
     //keep only the highest cycle number for each key

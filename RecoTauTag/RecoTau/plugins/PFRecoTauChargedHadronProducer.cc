@@ -214,7 +214,7 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
       // discard candidates which fail final output selection
       if ( !(*outputSelector_)(*nextChargedHadron) ) continue;
 
-      const reco::Track* track = 0;
+      const reco::Track* track = nullptr;
       if ( nextChargedHadron->getChargedPFCandidate().isNonnull() ) {
 	const reco::PFCandidatePtr& chargedPFCand = nextChargedHadron->getChargedPFCandidate();
 	if ( chargedPFCand->trackRef().isNonnull() ) track = chargedPFCand->trackRef().get();

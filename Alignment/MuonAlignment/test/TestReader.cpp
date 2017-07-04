@@ -70,9 +70,9 @@ private:
 // constructors and destructor
 //
 TestMuonReader::TestMuonReader( const edm::ParameterSet& iConfig ) :
-  theTree(0), theFile(0),
+  theTree(nullptr), theFile(nullptr),
   x(0.), y(0.), z(0.), phi(0.), theta(0.), length(0.), thick(0.), width(0.),
-  rot(0)
+  rot(nullptr)
 { 
 }
 
@@ -204,10 +204,10 @@ TestMuonReader::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
     me += nme;
     
     // find this chamber in ideal geometry
-    const Alignable* ideal=0;
+    const Alignable* ideal=nullptr;
     for (std::vector<Alignable*>::const_iterator cideal = ideal_me_chambers.begin(); cideal != ideal_me_chambers.end(); cideal++)
       if ((*cideal)->geomDetId().rawId() == (*it).rawId()) { ideal = *cideal; break; }
-    if (ideal==0) {
+    if (ideal==nullptr) {
       std::cout<<" no ideal chamber for "<<id<<std::endl;
       continue;
     }

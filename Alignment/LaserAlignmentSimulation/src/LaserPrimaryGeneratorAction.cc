@@ -52,9 +52,9 @@ LaserPrimaryGeneratorAction::~LaserPrimaryGeneratorAction()
 {
   // {{{ LaserPrimaryGeneratorAction destructor
 
-  if ( theLaserBeamsInTEC1 != 0 ) { delete theLaserBeamsInTEC1; }
-  if ( theLaserBeamsInTEC2 != 0 ) { delete theLaserBeamsInTEC2; }
-  if ( theLaserBeamsInTECTIBTOBTEC != 0 ) { delete theLaserBeamsInTECTIBTOBTEC; }
+  if ( theLaserBeamsInTEC1 != nullptr ) { delete theLaserBeamsInTEC1; }
+  if ( theLaserBeamsInTEC2 != nullptr ) { delete theLaserBeamsInTEC2; }
+  if ( theLaserBeamsInTECTIBTOBTEC != nullptr ) { delete theLaserBeamsInTECTIBTOBTEC; }
   // }}}
 }
 

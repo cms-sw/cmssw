@@ -97,8 +97,8 @@ namespace edm {
   std::string
   typeDemangle(char const* mangledName) {
     int status = 0;
-    size_t* const nullSize = 0;
-    char* const null = 0;
+    size_t* const nullSize = nullptr;
+    char* const null = nullptr;
     
     // The demangled C style string is allocated with malloc, so it must be deleted with free().
     char* demangled = abi::__cxa_demangle(mangledName, null, nullSize, &status);

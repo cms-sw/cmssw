@@ -53,7 +53,7 @@ void HGCPassive::produce(edm::Event& e, const edm::EventSetup&) {
 void HGCPassive::update(const BeginOfRun * run) {
 
   topPV_ = getTopPV();
-  if (topPV_ == 0) {
+  if (topPV_ == nullptr) {
     edm::LogWarning("HGCPassive") << "Cannot find top level volume\n";
   } else {
     init_ = true;
@@ -88,10 +88,10 @@ void HGCPassive::update(const BeginOfEvent * evt) {
 //=================================================================== each STEP
 void HGCPassive::update(const G4Step * aStep) {
 
-  if (aStep != NULL) {
+  if (aStep != nullptr) {
 
     G4VSensitiveDetector* curSD = aStep->GetPreStepPoint()->GetSensitiveDetector();
-    if (curSD==NULL) {
+    if (curSD==nullptr) {
       
       G4TouchableHistory* touchable = (G4TouchableHistory*)aStep->GetPreStepPoint()->GetTouchable();
       G4LogicalVolume* plv = (G4LogicalVolume*)touchable->GetVolume()->GetLogicalVolume();

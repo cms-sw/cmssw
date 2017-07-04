@@ -466,7 +466,7 @@ const TrajectorySeedCollection QuadrupletSeedMerger::mergeTriplets( const Trajec
   // the idea here is to fetch the same SeedCreator and PSet
   // as those used by the plugin which is calling the merger
   // (at the moment that's SeedGeneratorFromRegionHitsEDProducer)
-  theSeedCreator_->init(region, es, 0);
+  theSeedCreator_->init(region, es, nullptr);
   for ( unsigned int i=0; i< quadrupletHitSets.size(); i++) {
     // add trajectory seed to result collection
     theSeedCreator_->makeSeed( theResult, quadrupletHitSets[i]);

@@ -18,7 +18,7 @@ class HcalLUTCorrs: public HcalCondObjectContainer<HcalLUTCorr>
 {
  public:
 #ifndef HCAL_COND_SUPPRESS_DEFAULT
-  HcalLUTCorrs():HcalCondObjectContainer<HcalLUTCorr>(0) {}
+  HcalLUTCorrs():HcalCondObjectContainer<HcalLUTCorr>(nullptr) {}
 #endif
   HcalLUTCorrs(const HcalTopology* topo):HcalCondObjectContainer<HcalLUTCorr>(topo) {}
 

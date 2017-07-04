@@ -46,8 +46,8 @@ L3MuonCombinedRelativeIsolationProducer::L3MuonCombinedRelativeIsolationProducer
   theCaloDepsLabel(par.existsAs<InputTag>("CaloDepositsLabel") ?
                    par.getParameter<InputTag>("CaloDepositsLabel") :
                    InputTag("hltL3CaloMuonCorrectedIsolations")),
-  caloExtractor(0),
-  trkExtractor(0),
+  caloExtractor(nullptr),
+  trkExtractor(nullptr),
   theTrackPt_Min(-1),
   printDebug (par.getParameter<bool>("printDebug"))
   {

@@ -59,7 +59,7 @@ _xsection(-1.)
   }
   if (_produceDQM){
     // book stuff needed for DQM
-    dbe = 0;
+    dbe = nullptr;
     dbe = edm::Service<DQMStore>().operator->();
     dbe->setVerbose(50);
   }  

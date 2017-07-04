@@ -37,7 +37,7 @@ SourceVariable *SourceVariableSet::find(AtomicId name) const
 			                 name, PosVar::VarNameLess);
 
 	if (pos == vars.end() || pos->var->getName() != name)
-		return 0;
+		return nullptr;
 
 	return pos->var;
 }
@@ -49,7 +49,7 @@ SourceVariable *SourceVariableSet::find(Magic magic) const
 		if (pos->magic == magic)
 			return pos->var;
 
-	return 0;
+	return nullptr;
 }
 
 std::vector<SourceVariable*> SourceVariableSet::get(bool withMagic) const

@@ -160,7 +160,7 @@ void BuildTrackerMapPlugin::read(bool aMechView,
   std::vector<TkHistoMap *> tkHistoMap;
 
   unsigned int nHists = tkHistoMapNameVec_.size();
-  tkHistoMap.resize(nHists,0);
+  tkHistoMap.resize(nHists,nullptr);
   aValidVec.resize(nHists,true);
 
   std::string dirName = folderName_;

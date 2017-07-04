@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-EcalIndexingTools* EcalIndexingTools::instance_ = 0;
+EcalIndexingTools* EcalIndexingTools::instance_ = nullptr;
  
 
 void EcalIndexingTools::setBinRange(int nBinsEta, double minEta, double maxEta, int nBinsEt, double minEt, double maxEt){

@@ -190,7 +190,7 @@ void SiPixelRawDataErrorSource::buildStructure(const edm::EventSetup& iSetup){
 
     const GeomDetUnit* geoUnit = dynamic_cast<const GeomDetUnit*>(*it);
     //check if it is a detUnit
-    if ( geoUnit == 0 )
+    if ( geoUnit == nullptr )
       LogError ("PixelDQM") << "Pixel GeomDet is not a GeomDetUnit!" << std::endl;
     const PixelGeomDetUnit * pixDet  = dynamic_cast<const PixelGeomDetUnit*>(geoUnit);
     int nrows = (pixDet->specificTopology()).nrows();
@@ -210,7 +210,7 @@ void SiPixelRawDataErrorSource::buildStructure(const edm::EventSetup& iSetup){
 
     const GeomDetUnit* geoUnit = dynamic_cast<const GeomDetUnit*>(*it);
     //check if it is a detUnit
-    if ( geoUnit == 0 )
+    if ( geoUnit == nullptr )
       LogError ("PixelDQM") << "Pixel GeomDet is not a GeomDetUnit!" << std::endl;
     const PixelGeomDetUnit * pixDet  = dynamic_cast<const PixelGeomDetUnit*>(geoUnit);
     int nrows = (pixDet->specificTopology()).nrows();

@@ -9,7 +9,7 @@ class CaloVShape;
 class CaloShapes
 {
 public:
-  CaloShapes(): theShape(0) {}
+  CaloShapes(): theShape(nullptr) {}
   // doesn't take ownership of the pointer
   CaloShapes(const CaloVShape * shape) : theShape(shape) {}
   virtual const CaloVShape * shape(const DetId & detId, bool precise=false) const {return theShape;}

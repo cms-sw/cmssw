@@ -668,7 +668,7 @@ L1MuonRecoTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
 	  const CSCSegment* cscSegment =dynamic_cast<const CSCSegment*>(&**hit);
           //std::cout << "cscSegment = " << cscSegment << std::endl;
-	  if (cscSegment == NULL) continue;
+	  if (cscSegment == nullptr) continue;
           // const CSCRecHit2D* CSChit =(CSCRecHit2D*)(&**hit);
 
 	  // std::cout << " after CSCRecHit2D, CSChit = "  << CSChit << std::endl; 

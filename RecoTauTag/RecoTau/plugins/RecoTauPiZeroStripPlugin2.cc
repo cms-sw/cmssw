@@ -93,7 +93,7 @@ class RecoTauPiZeroStripPlugin2 : public RecoTauPiZeroBuilderPlugin
 RecoTauPiZeroStripPlugin2::RecoTauPiZeroStripPlugin2(const edm::ParameterSet& pset, edm::ConsumesCollector &&iC)
   : RecoTauPiZeroBuilderPlugin(pset, std::move(iC)),
     vertexAssociator_(pset.getParameter<edm::ParameterSet>("qualityCuts"), std::move(iC)),
-    qcuts_(0)
+    qcuts_(nullptr)
 {
   minGammaEtStripSeed_ = pset.getParameter<double>("minGammaEtStripSeed");
   minGammaEtStripAdd_ = pset.getParameter<double>("minGammaEtStripAdd");

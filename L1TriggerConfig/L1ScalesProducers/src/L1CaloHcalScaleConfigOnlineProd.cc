@@ -90,7 +90,7 @@ L1CaloHcalScaleConfigOnlineProd::~L1CaloHcalScaleConfigOnlineProd()
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
 
-  if(caloTPG != 0)
+  if(caloTPG != nullptr)
     delete caloTPG;
 }
 

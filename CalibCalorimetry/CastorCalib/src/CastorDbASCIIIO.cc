@@ -344,7 +344,7 @@ bool getObject (std::istream& fInput, CastorChannelQuality* fObject)
 //    else
 //      {
     uint32_t mystatus;
-    CastorChannelStatus* fCondObject = NULL;
+    CastorChannelStatus* fCondObject = nullptr;
     if (items[4].substr(0,2)=="0x") {
        sscanf(items[4].c_str(),"%X", &mystatus);
        fCondObject = new CastorChannelStatus(id,mystatus);

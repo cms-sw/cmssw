@@ -44,7 +44,7 @@ private:
 void
 FWGEMDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*)
 {
-  const GEMDigiCollection* digis = 0;
+  const GEMDigiCollection* digis = nullptr;
  
   iItem->get(digis);
 
@@ -131,7 +131,7 @@ private:
 void
 FWGEMPadDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*)
 {
-  const GEMPadDigiCollection* digis = 0;
+  const GEMPadDigiCollection* digis = nullptr;
  
   iItem->get(digis);
 

@@ -250,7 +250,7 @@ void MultiTrackValidatorGenPs::analyze(const edm::Event& event, const edm::Event
       // fill RecoAssociated GenTracks' histograms
       // ##############################################
       // bool isRecoMatched(false); // UNUSED
-      const reco::Track* matchedTrackPointer=0;
+      const reco::Track* matchedTrackPointer=nullptr;
       std::vector<std::pair<RefToBase<Track>, double> > rt;
       if(genRecColl.find(tpr) != genRecColl.end()){
         rt = (std::vector<std::pair<RefToBase<Track>, double> >) genRecColl[tpr];

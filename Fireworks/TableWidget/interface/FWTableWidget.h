@@ -36,7 +36,7 @@ class FWTableWidget : public TGCompositeFrame
 {
 
 public:
-   FWTableWidget(FWTableManagerBase* iManager,const TGWindow* p=0);
+   FWTableWidget(FWTableManagerBase* iManager,const TGWindow* p=nullptr);
    virtual ~FWTableWidget();
 
    // ---------- const member functions ---------------------

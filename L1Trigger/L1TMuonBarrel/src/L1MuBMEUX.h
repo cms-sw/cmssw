@@ -77,11 +77,11 @@ class L1MuBMEUX : public L1AbstractProcessor {
     /// helper class for finding the best and second best extrapolation
     class EUX_Comp : std::binary_function< L1MuBMEUX*, L1MuBMEUX*, bool> {
       public :
-        EUX_Comp( const L1MuBMEUX* k = 0 ) : _not(k) {}
+        EUX_Comp( const L1MuBMEUX* k = nullptr ) : _not(k) {}
         bool operator()( const L1MuBMEUX* first, const L1MuBMEUX* second ) const {
           if ( !second->result() ) return false;
-          if ( _not != 0 && *first  == *_not ) return true;
-          if ( _not != 0 && *second == *_not ) return false;
+          if ( _not != nullptr && *first  == *_not ) return true;
+          if ( _not != nullptr && *second == *_not ) return false;
           return ( first->quality() < second->quality() );
         }
       private:

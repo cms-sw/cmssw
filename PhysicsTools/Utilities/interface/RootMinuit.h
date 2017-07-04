@@ -242,7 +242,7 @@ namespace fit {
   Function RootMinuit<Function>::f_;
 
   template<class Function>
-  std::vector<boost::shared_ptr<double> > * RootMinuit<Function>::fPars_ = 0;
+  std::vector<boost::shared_ptr<double> > * RootMinuit<Function>::fPars_ = nullptr;
 }
 
 #endif

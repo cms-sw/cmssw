@@ -357,7 +357,7 @@ void Measurement::buildOptOList()
     }
     OpticalObject* OptOitem = Model::getOptOByName( referenceOptO );
     if ( ALIUtils::debug >= 3 ) std::cout << "Measurement::buildOptOList: OptO in Measurement: " << OptOitem->name() << std::endl;
-    if ( OptOitem != (OpticalObject*)0 ) {
+    if ( OptOitem != (OpticalObject*)nullptr ) {
       _OptOList.push_back( OptOitem);
     } else {
       std::cerr << "!!! Error in Measurement: can't find Optical Object " <<
@@ -412,7 +412,7 @@ void Measurement::addAffectingEntriesFromOptO( const OpticalObject* optoP )
       if(ALIUtils::debug >= 4)  std::cout << "Entry that may affect Measurement: " << (*vecite)->name() << std::endl;
     }
   }
-  if(optoP->parent() != 0) {
+  if(optoP->parent() != nullptr) {
     addAffectingEntriesFromOptO( optoP->parent() );
   }
 }

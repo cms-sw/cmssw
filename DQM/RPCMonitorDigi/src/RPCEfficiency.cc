@@ -144,7 +144,7 @@ void RPCEfficiency::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const &
   
   for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){ //Loop on all detector units
 
-    if(dynamic_cast< const RPCChamber* >( *it ) != 0 ){ // check if chamber exists
+    if(dynamic_cast< const RPCChamber* >( *it ) != nullptr ){ // check if chamber exists
       const RPCChamber* ch = dynamic_cast< const RPCChamber* >( *it ); 
       std::vector< const RPCRoll*> roles = (ch->rolls()); //get all rolls in a chambers
 

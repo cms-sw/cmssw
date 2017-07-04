@@ -30,7 +30,7 @@ HcalHaloAlgo::HcalHaloAlgo()
   SumEnergyThreshold = 0.;
   NHitsThreshold = 0;
 
-  geo = 0;
+  geo = nullptr;
 }
 
 HcalHaloData HcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::Handle<HBHERecHitCollection>& TheHBHERecHits, edm::Handle<EBRecHitCollection>& TheEBRecHits,edm::Handle<EERecHitCollection>& TheEERecHits,const edm::EventSetup& TheSetup){
@@ -224,7 +224,7 @@ HcalHaloData HcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
     prevHadEt = tower->hadEt();
   }
 
-  geo = 0;
+  geo = nullptr;
   edm::ESHandle<CaloGeometry> pGeo;
   TheSetup.get<CaloGeometryRecord>().get(pGeo);
   geo = pGeo.product();

@@ -71,12 +71,12 @@ namespace cms{
     theMaxNSeeds(conf.getParameter<unsigned int>("maxNSeeds")),
     theTrajectoryBuilder(createBaseCkfTrajectoryBuilder(conf.getParameter<edm::ParameterSet>("TrajectoryBuilderPSet"), iC)),
     theTrajectoryCleanerName(conf.getParameter<std::string>("TrajectoryCleaner")),
-    theTrajectoryCleaner(0),
+    theTrajectoryCleaner(nullptr),
     theInitialState(new TransientInitialStateEstimator(conf.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters"))),
     theMagFieldName(conf.exists("SimpleMagneticField") ? conf.getParameter<std::string>("SimpleMagneticField") : ""),
     theNavigationSchoolName(conf.getParameter<std::string>("NavigationSchool")),
-    theNavigationSchool(0),
-    theSeedCleaner(0),
+    theNavigationSchool(nullptr),
+    theSeedCleaner(nullptr),
     maxSeedsBeforeCleaning_(0),
     theMTELabel(iC.consumes<MeasurementTrackerEvent>(conf.getParameter<edm::InputTag>("MeasurementTrackerEvent"))),
     skipClusters_(false),
@@ -113,7 +113,7 @@ namespace cms{
 	conf.getParameter<bool>("onlyPixelHitsForSeedCleaner") : false;
       theSeedCleaner = new CachingSeedCleanerBySharedInput(numHitsForSeedCleaner,onlyPixelHits);
     } else if (cleaner == "none") {
-        theSeedCleaner = 0;
+        theSeedCleaner = nullptr;
     } else {
         throw cms::Exception("RedundantSeedCleaner not found", cleaner);
     }
@@ -432,7 +432,7 @@ namespace cms{
         for (auto it = unsmoothedResult.begin(), ed = unsmoothedResult.end(); it != ed; ++it) {
           // reverse the trajectory only if it has valid hit on the last measurement (should happen)
           if (it->lastMeasurement().updatedState().isValid() &&
-              it->lastMeasurement().recHit().get() != 0     &&
+              it->lastMeasurement().recHit().get() != nullptr     &&
               it->lastMeasurement().recHit()->isValid()) {
             // I can't use reverse in place, because I want to change the seed
             // 1) reverse propagation direction

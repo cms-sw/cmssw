@@ -53,7 +53,7 @@ PedeLabelerBase::calibrationParamFromLabel(unsigned int label) const
   }
 
   // Return that nothing fits:
-  return std::pair<IntegratedCalibrationBase*, unsigned int>(0,0);
+  return std::pair<IntegratedCalibrationBase*, unsigned int>(nullptr,0);
 }
 
 //___________________________________________________________________________

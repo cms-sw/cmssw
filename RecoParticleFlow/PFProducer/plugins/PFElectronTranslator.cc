@@ -575,7 +575,7 @@ void PFElectronTranslator::createGsfElectronCoreRefs(const edm::OrphanHandle<rec
 
 void PFElectronTranslator::getAmbiguousGsfTracks(const reco::PFBlockElement & PFBE, std::vector<reco::GsfTrackRef>& tracks) const {
   const reco::PFBlockElementGsfTrack *  GsfEl =  dynamic_cast<const reco::PFBlockElementGsfTrack*>(&PFBE);
-  if(GsfEl==0) return;
+  if(GsfEl==nullptr) return;
   const std::vector<reco::GsfPFRecTrackRef>& ambPFRecTracks(GsfEl->GsftrackRefPF()->convBremGsfPFRecTrackRef());
   unsigned ntracks=ambPFRecTracks.size();
   for(unsigned it=0;it<ntracks;++it) {

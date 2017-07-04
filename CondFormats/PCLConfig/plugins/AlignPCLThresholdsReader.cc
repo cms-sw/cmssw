@@ -72,7 +72,7 @@ namespace edmtest
       thresholds->printAll();
     }
  
-    FILE* pFile=NULL;
+    FILE* pFile=nullptr;
     if(formatedOutput_!="")pFile=fopen(formatedOutput_.c_str(), "w");
     if(pFile){
 

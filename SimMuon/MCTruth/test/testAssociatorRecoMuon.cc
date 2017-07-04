@@ -56,7 +56,7 @@ void testAssociatorRecoMuon::analyze(const edm::Event& event, const edm::EventSe
   edm::ESHandle<MuonToSimAssociatorBase> associatorBase;
   setup.get<TrackAssociatorRecord>().get(associatorLabel_, associatorBase);
   const MuonToSimAssociatorBase* assoByHits = associatorBase.product();
-  if (assoByHits == 0) throw cms::Exception("Configuration") << "The Track Associator with label '" << associatorLabel_ << "' is not a MuonAssociatorByHits.\n";
+  if (assoByHits == nullptr) throw cms::Exception("Configuration") << "The Track Associator with label '" << associatorLabel_ << "' is not a MuonAssociatorByHits.\n";
 
   edm::Handle<edm::View<reco::Muon> > muonCollectionH;
   LogTrace("testAssociatorRecoMuon") << "getting reco::Track collection "<<muonsTag;

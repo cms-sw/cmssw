@@ -59,7 +59,7 @@ private:
 };
 
 
-FTSimHitTest::FTSimHitTest(const edm::ParameterSet& ps) : ftcons_(0) {
+FTSimHitTest::FTSimHitTest(const edm::ParameterSet& ps) : ftcons_(nullptr) {
 
   usesResource("TFileService");
 

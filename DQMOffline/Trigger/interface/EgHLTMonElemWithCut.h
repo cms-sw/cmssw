@@ -73,7 +73,7 @@ namespace egHLT {
   template<class T,typename varTypeX,typename varTypeY> 
   void MonElemWithCut<T,varTypeX,varTypeY>::fill(const T& obj,const OffEvt& evt,float weight)
   {
-    if(cut_==NULL || cut_->pass(obj,evt)) monElemMgr_->fill(obj,weight);
+    if(cut_==nullptr || cut_->pass(obj,evt)) monElemMgr_->fill(obj,weight);
   }
   
 }

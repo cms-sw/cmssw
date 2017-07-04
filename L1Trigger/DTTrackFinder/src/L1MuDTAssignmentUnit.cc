@@ -163,11 +163,11 @@ void L1MuDTAssignmentUnit::PhiAU(const edm::EventSetup& c) {
     phi2 = second->phi() >> sh_phi;
     sector = second->sector();
   }
-  else if ( second == 0 && first ) {
+  else if ( second == nullptr && first ) {
     phi2 = first->phi() >> sh_phi;
     sector = first->sector();
   }
-  else if ( second == 0 && forth ) {
+  else if ( second == nullptr && forth ) {
     phi2 = forth->phi() >> sh_phi;
     sector = forth->sector();
   }
@@ -191,11 +191,11 @@ void L1MuDTAssignmentUnit::PhiAU(const edm::EventSetup& c) {
   double phi_f = static_cast<double>(phi2);
   int phi_8 = static_cast<int>(floor(phi_f*k));     
 
-  if ( second == 0 && first ) {
+  if ( second == nullptr && first ) {
     int bend_angle = (first->phib() >> sh_phib) << sh_phib;
     phi_8 = phi_8 + thePhiLUTs->getDeltaPhi(0,bend_angle);
   }
-  else if ( second == 0 && forth ) {
+  else if ( second == nullptr && forth ) {
     int bend_angle = (forth->phib() >> sh_phib) << sh_phib;
     phi_8 = phi_8 + thePhiLUTs->getDeltaPhi(1,bend_angle);
   }
@@ -280,12 +280,12 @@ void L1MuDTAssignmentUnit::QuaAU() {
 void L1MuDTAssignmentUnit::TSR() {
 
   // get the track segments from the data buffer 
-  const L1MuDTTrackSegPhi* ts = 0;
+  const L1MuDTTrackSegPhi* ts = nullptr;
   for ( int stat = 1; stat <= 4; stat++ ) {
     int adr = m_addArray.station(stat);
     if ( adr != 15 ) {
       ts = m_sp.data()->getTSphi(stat,adr);
-      if ( ts != 0 ) m_TSphi.push_back( ts );
+      if ( ts != nullptr ) m_TSphi.push_back( ts );
     }
   }
 
@@ -306,7 +306,7 @@ const L1MuDTTrackSegPhi* L1MuDTAssignmentUnit::getTSphi(int station) const {
     }
   }
 
-  return 0;
+  return nullptr;
 
 }
 
@@ -409,9 +409,9 @@ PtAssMethod L1MuDTAssignmentUnit::getPtMethod() const {
   int threshold = thePtaLUTs->getPtLutThreshold(method);
   
   // phib values of track segments from stations 1, 2 and 4
-  int phib1 = ( getTSphi(1) != 0 ) ? getTSphi(1)->phib() : 0;
-  int phib2 = ( getTSphi(2) != 0 ) ? getTSphi(2)->phib() : 0;
-  int phib4 = ( getTSphi(4) != 0 ) ? getTSphi(4)->phib() : 0;
+  int phib1 = ( getTSphi(1) != nullptr ) ? getTSphi(1)->phib() : 0;
+  int phib2 = ( getTSphi(2) != nullptr ) ? getTSphi(2)->phib() : 0;
+  int phib4 = ( getTSphi(4) != nullptr ) ? getTSphi(4)->phib() : 0;
 
   PtAssMethod pam = NODEF;
   

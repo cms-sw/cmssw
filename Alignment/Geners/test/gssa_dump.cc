@@ -56,7 +56,7 @@ int main(int argc, char const* argv[])
         return 1;
     }
 
-    StringArchive* ar = 0;
+    StringArchive* ar = nullptr;
     try
     {
         ar = readCompressedStringArchiveExt(inputfile.c_str());

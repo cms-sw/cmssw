@@ -38,5 +38,5 @@ const MagVolume* MagBSlab::findVolume(const GlobalPoint & gp, double tolerance) 
     if ( (*ivol)->inside(gp,tolerance) ) return (*ivol);
   }
 
-  return 0;
+  return nullptr;
 }

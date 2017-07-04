@@ -257,7 +257,7 @@ ApeEstimator::sectorBuilder(){
     edm::LogError("SectorBuilder")<<"TrackerTreeFile not found";
     return;
   }
-  TTree* tkTree(0);
+  TTree* tkTree(nullptr);
   tkTreeFile->GetObject("TrackerTreeGenerator/TrackerTree/TrackerTree",tkTree);
   if(tkTree){
     edm::LogInfo("SectorBuilder")<<"TrackerTree OK";
@@ -1240,7 +1240,7 @@ ApeEstimator::fillHitVariables(const TrajectoryMeasurement& i_meas, const edm::E
       edm::LogError("FillHitVariables")<<"RecHit in Strip is 'Matched' or 'Projected', but here all should be monohits per module";
       hitParams.hitState = TrackStruct::invalid; return hitParams;
     }
-    const SiStripCluster* clusterPtr(0);
+    const SiStripCluster* clusterPtr(nullptr);
     if(m_tkTreeVar_[rawId].subdetId==StripSubdetector::TIB || m_tkTreeVar_[rawId].subdetId==StripSubdetector::TOB){
       if(dynamic_cast<const SiStripRecHit1D*>(&recHit)){
         const SiStripRecHit1D& stripHit = dynamic_cast<const SiStripRecHit1D&>(recHit);

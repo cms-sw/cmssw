@@ -128,7 +128,7 @@ bool HGCalTBMB::stopAfter(const G4Step* aStep) {
   bool   flag(false);
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
   G4ThreeVector hitPoint    = aStep->GetPreStepPoint()->GetPosition();
-  if (aStep->GetPostStepPoint() != 0) 
+  if (aStep->GetPostStepPoint() != nullptr) 
     hitPoint = aStep->GetPostStepPoint()->GetPosition();
   double zz    = hitPoint.z();
 

@@ -87,11 +87,11 @@ void Jet::tryImportSpecific(const reco::Jet& source)
   } else if( type == typeid(reco::JPTJet) ){
     reco::JPTJet const & jptJet = static_cast<reco::JPTJet const &>(source);
     specificJPT_.push_back( jptJet.getSpecific() );
-    reco::CaloJet const * caloJet = 0;
+    reco::CaloJet const * caloJet = nullptr;
     if ( jptJet.getCaloJetRef().isNonnull() && jptJet.getCaloJetRef().isAvailable() ) {
       caloJet = dynamic_cast<reco::CaloJet const *>( jptJet.getCaloJetRef().get() );
     }
-    if ( caloJet != 0 ) {
+    if ( caloJet != nullptr ) {
       specificCalo_.push_back( caloJet->getSpecific() );
     }
     else {
@@ -129,7 +129,7 @@ CaloTowerPtr Jet::getCaloConstituent (unsigned fIndex) const {
     else {
       Constituent dau = daughterPtr (fIndex);
       const CaloTower* caloTower = dynamic_cast <const CaloTower*> (dau.get());
-      if (caloTower != 0) {
+      if (caloTower != nullptr) {
 	return CaloTowerPtr(dau.id(), caloTower, dau.key() );
       }
       else {
@@ -366,10 +366,10 @@ const reco::BaseTagInfo * Jet::tagInfo(const std::string &label) const {
     if (tagInfoLabels_[i] == label) {
       if ( tagInfosFwdPtr_.size() > 0 ) return tagInfosFwdPtr_[i].get();
       else if ( tagInfos_.size() > 0 )  return & tagInfos_[i];
-      return 0;
+      return nullptr;
     }
   }
-  return 0;
+  return nullptr;
 }
 
 

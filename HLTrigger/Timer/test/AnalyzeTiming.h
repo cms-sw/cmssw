@@ -20,7 +20,7 @@ class AnalyzeTiming
  public:
   // create object with # of bins and range for histogram (in msecs)
   AnalyzeTiming(unsigned NBINS, double Xlow, double Xmax)
-    : tot_time(0)
+    : tot_time(nullptr)
   {
     Nbins = NBINS; xlow = Xlow; xmax = Xmax;
     moduleTimes.clear();
@@ -44,7 +44,7 @@ class AnalyzeTiming
       { // loop over all modules of event
 
 	std::string module_name = evtTime.name(i);
-	TH1F * tmp = 0;
+	TH1F * tmp = nullptr;
 	cIt it = moduleTimes.find(module_name);
 	if(it != moduleTimes.end())
 	  tmp = it->second;
@@ -93,7 +93,7 @@ class AnalyzeTiming
     TH1F * newHistogram = new TH1F(name.c_str(), title, Nbins, xlow, xmax);
     newHistogram->GetXaxis()->SetTitle("t (ms)");
     // will do our own memory management
-    newHistogram->SetDirectory(0);
+    newHistogram->SetDirectory(nullptr);
     return newHistogram;
   }
 

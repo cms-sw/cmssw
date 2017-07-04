@@ -141,10 +141,10 @@ testSimActivityRegistry::enrollerTest()
    TwoSignals twoSignals(int2Signals);
    enroller.enroll(registry, &twoSignals);
 
-   const BeginOfEvent* pBegin=0;
+   const BeginOfEvent* pBegin=nullptr;
    registry.beginOfEventSignal_(pBegin);
    
-   const EndOfEvent* pEnd=0;
+   const EndOfEvent* pEnd=nullptr;
    registry.endOfEventSignal_(pEnd);
    
    CPPUNIT_ASSERT(1==int1Signal);

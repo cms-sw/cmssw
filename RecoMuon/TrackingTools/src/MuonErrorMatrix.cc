@@ -14,7 +14,7 @@ using namespace std;
 
 const TString MuonErrorMatrix::vars[5]={"#frac{q}{|p|}","#lambda","#varphi_{0}","X_{T}","Y_{T}"};
 
-MuonErrorMatrix::MuonErrorMatrix(const edm::ParameterSet & iConfig):theD(0){
+MuonErrorMatrix::MuonErrorMatrix(const edm::ParameterSet & iConfig):theD(nullptr){
   theCategory="MuonErrorMatrix";
   std::string action = iConfig.getParameter<std::string>("action");
 
@@ -28,12 +28,12 @@ MuonErrorMatrix::MuonErrorMatrix(const edm::ParameterSet & iConfig):theD(0){
 
    int NPt=5;
    std::vector<double> xBins;
-   double * xBinsArray = 0;
+   double * xBinsArray = nullptr;
    double minPt=1;
    double maxPt=200;
    int NEta=5;
    std::vector<double> yBins;
-   double * yBinsArray =0;
+   double * yBinsArray =nullptr;
    double minEta=0;
    double maxEta=2.5;
    int NPhi=1;
@@ -132,7 +132,7 @@ MuonErrorMatrix::MuonErrorMatrix(const edm::ParameterSet & iConfig):theD(0){
 
   for (int i=0;i!=5;i++){for (int j=i;j!=5;j++){
       TString pfname(Form("pf3_V%1d%1d",i+1,j+1));
-      TProfile3D * pf =0;
+      TProfile3D * pf =nullptr;
       if (a==use && !madeFromCff ){
 	//read from the rootfile
 	edm::LogVerbatim(theCategory)<<"getting "<<pfname<<" from "<<fileName;

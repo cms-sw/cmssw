@@ -20,7 +20,7 @@ SelectionType selectionTypeFromString( const std::string &label )
       { "VeryLoose", VeryLoose },
       { "Loose", Loose },
       { "Tight", Tight },
-      { 0, (SelectionType)-1 }
+      { nullptr, (SelectionType)-1 }
    };
 
    SelectionType value = (SelectionType)-1;

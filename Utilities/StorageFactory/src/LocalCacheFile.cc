@@ -72,7 +72,7 @@ LocalCacheFile::cache(IOOffset start, IOOffset end)
     IOSize len = std::min(image_ - start, CHUNK_SIZE);
     if (! present_[index])
     {
-      void *window = mmap(0, len, PROT_READ | PROT_WRITE, MAP_SHARED, file_->fd(), start);
+      void *window = mmap(nullptr, len, PROT_READ | PROT_WRITE, MAP_SHARED, file_->fd(), start);
       if (window == MAP_FAILED)
       {
         edm::Exception ex(edm::errors::FileReadError);

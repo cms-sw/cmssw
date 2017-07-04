@@ -250,7 +250,7 @@ void AnalyzerMinbias::endJob() {
 void AnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     
   rnnum = (float)iEvent.run(); 
-  const HcalRespCorrs* myRecalib=0;
+  const HcalRespCorrs* myRecalib=nullptr;
   if (theRecalib_) {
     edm::ESHandle <HcalRespCorrs> recalibCorrs;
     iSetup.get<HcalRespCorrsRcd>().get("recalibrate",recalibCorrs);

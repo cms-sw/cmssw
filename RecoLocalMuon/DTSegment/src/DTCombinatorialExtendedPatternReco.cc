@@ -302,7 +302,7 @@ DTCombinatorialExtendedPatternReco::buildBestSegment(std::vector<DTSegmentCand::
     hits.size()  << endl;
   if (hits.size()<3) {
     //cout << "buildBestSegment: hits " << hits.size()<< endl;
-    return 0; // a least 3 point
+    return nullptr; // a least 3 point
   }
 
   // hits with defined LR
@@ -364,7 +364,7 @@ DTCombinatorialExtendedPatternReco::buildBestSegment(std::vector<DTSegmentCand::
   if (bestCandIter != extendedCands.end()) {
     return (*bestCandIter);
   }
-  return 0;
+  return nullptr;
 }
 
 void

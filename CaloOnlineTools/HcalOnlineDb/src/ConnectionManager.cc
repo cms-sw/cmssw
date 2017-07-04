@@ -6,7 +6,7 @@
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConnectionManager.h"
 #include <cctype>
 
-ConnectionManager::ConnectionManager() : env(0), conn(0) {
+ConnectionManager::ConnectionManager() : env(nullptr), conn(nullptr) {
 }
 
 static const std::string keyFile("/nfshome0/hcalsw/.ReadOMDSKey");
@@ -18,7 +18,7 @@ static void clean(char* s) {
 }
 
 bool ConnectionManager::connect() {
-  if (env!=0) return true;
+  if (env!=nullptr) return true;
   std::string username,password,database;
 
   char s[100];
@@ -38,12 +38,12 @@ bool ConnectionManager::connect() {
   return true;
 }
 oracle::occi::Statement* ConnectionManager::getStatement(const std::string& query) {
-  if (env==0) return 0;
+  if (env==nullptr) return nullptr;
   return conn->createStatement(query);
 }
 void ConnectionManager::disconnect() {
-  if (env==0) return;
+  if (env==nullptr) return;
   env->terminateConnection(conn);
   oracle::occi::Environment::terminateEnvironment(env);
-  env=0; conn=0;
+  env=nullptr; conn=nullptr;
 }

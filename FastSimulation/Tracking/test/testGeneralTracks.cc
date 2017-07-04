@@ -77,15 +77,15 @@ private:
 };
 
 testGeneralTracks::testGeneralTracks(const edm::ParameterSet& p) :
-  mySimEvent(2, static_cast<FSimEvent*>(0)),
-  h0(2,static_cast<MonitorElement*>(0)),
-  TracksvsEtaP(2,static_cast<MonitorElement*>(0)),
-  HitsvsP(2,static_cast<MonitorElement*>(0)),
-  HitsvsEta(2,static_cast<MonitorElement*>(0)),
-  LayersvsP(2,static_cast<MonitorElement*>(0)),
-  LayersvsEta(2,static_cast<MonitorElement*>(0)),
+  mySimEvent(2, static_cast<FSimEvent*>(nullptr)),
+  h0(2,static_cast<MonitorElement*>(nullptr)),
+  TracksvsEtaP(2,static_cast<MonitorElement*>(nullptr)),
+  HitsvsP(2,static_cast<MonitorElement*>(nullptr)),
+  HitsvsEta(2,static_cast<MonitorElement*>(nullptr)),
+  LayersvsP(2,static_cast<MonitorElement*>(nullptr)),
+  LayersvsEta(2,static_cast<MonitorElement*>(nullptr)),
 
-  Num(2,static_cast<MonitorElement*>(0)),
+  Num(2,static_cast<MonitorElement*>(nullptr)),
 
   totalNEvt(0)
 {

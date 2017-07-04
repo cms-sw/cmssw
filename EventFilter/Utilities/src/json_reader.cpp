@@ -161,8 +161,8 @@ Reader::parse( const char *beginDoc, const char *endDoc,
    end_ = endDoc;
    collectComments_ = collectComments;
    current_ = begin_;
-   lastValueEnd_ = 0;
-   lastValue_ = 0;
+   lastValueEnd_ = nullptr;
+   lastValue_ = nullptr;
    commentsBefore_ = "";
    errors_.clear();
    while ( !nodes_.empty() )
@@ -410,7 +410,7 @@ Reader::addComment( Location begin,
    assert( collectComments_ );
    if ( placement == commentAfterOnSameLine )
    {
-      assert( lastValue_ != 0 );
+      assert( lastValue_ != nullptr );
       lastValue_->setComment( std::string( begin, end ), placement );
    }
    else

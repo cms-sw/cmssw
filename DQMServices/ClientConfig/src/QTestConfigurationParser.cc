@@ -31,7 +31,7 @@ QTestConfigurationParser::QTestConfigurationParser(){
 
 QTestConfigurationParser::~QTestConfigurationParser(){
 	delete qtestParamNames;
-	qtestParamNames = 0;
+	qtestParamNames = nullptr;
 }
 
 bool QTestConfigurationParser::parseQTestsConfiguration(){

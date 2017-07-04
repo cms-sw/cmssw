@@ -40,8 +40,8 @@ namespace edm {
     bool isTracked() const { return isTracked_; }
     bool hasDefault() const { return hasDefault_; }
 
-    virtual ParameterSetDescription const* parameterSetDescription() const { return 0; }
-    virtual ParameterSetDescription * parameterSetDescription() { return 0; }
+    virtual ParameterSetDescription const* parameterSetDescription() const { return nullptr; }
+    virtual ParameterSetDescription * parameterSetDescription() { return nullptr; }
 
   protected:
     void throwParameterWrongTrackiness() const;

@@ -72,7 +72,7 @@ DQMStoreStats::DQMStoreStats( const edm::ParameterSet& ps )
   runineventloop_ = ps.getUntrackedParameter<bool>( "runInEventLoop", false );
   dumpToFWJR_     = ps.getUntrackedParameter<bool>( "dumpToFWJR", false );
 
-  startingTime_ = time( 0 );
+  startingTime_ = time( nullptr );
 }
 
 DQMStoreStats::~DQMStoreStats(){
@@ -612,7 +612,7 @@ std::pair<unsigned int, unsigned int> DQMStoreStats::readMemoryEntry( void ) con
     }
 
     procFile.close();
-    return std::pair<time_t, unsigned int>( time( 0 ), memSize );
+    return std::pair<time_t, unsigned int>( time( nullptr ), memSize );
   }
 
   return std::pair<time_t, unsigned int>( 0, 0 );

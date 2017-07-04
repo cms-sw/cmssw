@@ -203,7 +203,7 @@ Onia2MuMuPAT::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      const reco::Muon *rmu2 = dynamic_cast<const reco::Muon *>(it2->originalObject());
 	      // check that muons are truly from reco::Muons (and not, e.g., from PF Muons)
 	      // also check that the tracks really come from the track collection used for the BS
-	      if (rmu1 != 0 && rmu2 != 0 && rmu1->track().id() == pvtracks.id() && rmu2->track().id() == pvtracks.id()) { 
+	      if (rmu1 != nullptr && rmu2 != nullptr && rmu1->track().id() == pvtracks.id() && rmu2->track().id() == pvtracks.id()) { 
 		// Save the keys of the tracks in the primary vertex
 		// std::vector<size_t> vertexTracksKeys;
 		// vertexTracksKeys.reserve(thePrimaryV.tracksSize());
@@ -254,9 +254,9 @@ Onia2MuMuPAT::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      if (tkPVdist.second.significance()>3) continue;
 	      if (track.ptError()/track.pt()>0.1) continue;
 	      // do not count the two muons
-	      if (rmu1 != 0 && rmu1->innerTrack().key() == itVtx->key())
+	      if (rmu1 != nullptr && rmu1->innerTrack().key() == itVtx->key())
 		continue;
-	      if (rmu2 != 0 && rmu2->innerTrack().key() == itVtx->key())
+	      if (rmu2 != nullptr && rmu2->innerTrack().key() == itVtx->key())
 		continue;
 	      
 	      vertexWeight += theOriginalPV.trackWeight(*itVtx);

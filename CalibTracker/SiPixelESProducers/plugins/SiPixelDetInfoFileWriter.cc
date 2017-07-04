@@ -56,7 +56,7 @@ void SiPixelDetInfoFileWriter::beginRun(const edm::Run &run , const edm::EventSe
   
       const PixelGeomDetUnit* mit = dynamic_cast<PixelGeomDetUnit const *>(*it);
 
-      if(mit!=0){
+      if(mit!=nullptr){
 	nPixelDets++;
       const PixelTopology & topol = mit->specificTopology();       
       // Get the module sizes.

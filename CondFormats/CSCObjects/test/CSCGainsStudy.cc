@@ -161,7 +161,7 @@ void CSCGainsStudy::analyze(const Event & event, const EventSetup& eventSetup){
   
   if (debug) std::cout << "Global average gain is " << AvgStripGain << std::endl;
 
-  HCSCGains *histo = 0;
+  HCSCGains *histo = nullptr;
   
   TString prefix = "ME_";
   float thegain = -10.;

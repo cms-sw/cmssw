@@ -13,7 +13,7 @@
 
 
 TransverseImpactPointExtrapolator::TransverseImpactPointExtrapolator () :
-  thePropagator(0) {}
+  thePropagator(nullptr) {}
 
 
 TransverseImpactPointExtrapolator::TransverseImpactPointExtrapolator (const MagneticField* field) :

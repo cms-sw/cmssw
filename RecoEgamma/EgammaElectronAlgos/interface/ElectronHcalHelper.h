@@ -43,9 +43,9 @@ class ElectronHcalHelper {
   void readEvent( const edm::Event & ) ;
   ~ElectronHcalHelper() ;
   
-  double hcalESum( const reco::SuperCluster & , const std::vector<CaloTowerDetId> * excludeTowers = 0) ;
-  double hcalESumDepth1( const reco::SuperCluster &, const std::vector<CaloTowerDetId> * excludeTowers = 0) ;
-  double hcalESumDepth2( const reco::SuperCluster & ,const std::vector<CaloTowerDetId> * excludeTowers = 0 ) ;
+  double hcalESum( const reco::SuperCluster & , const std::vector<CaloTowerDetId> * excludeTowers = nullptr) ;
+  double hcalESumDepth1( const reco::SuperCluster &, const std::vector<CaloTowerDetId> * excludeTowers = nullptr) ;
+  double hcalESumDepth2( const reco::SuperCluster & ,const std::vector<CaloTowerDetId> * excludeTowers = nullptr ) ;
   double hOverEConeSize() const { return cfg_.hOverEConeSize ; }
   
   // Behind clusters

@@ -20,8 +20,8 @@
 // 
 TrackingActionExecutor::TrackingActionExecutor(edm::ParameterSet const& ps):pSet_(ps) {
   edm::LogInfo("TrackingActionExecutor") << " Creating TrackingActionExecutor " << "\n" ;
-  qualityChecker_ = NULL; 
-  configWriter_   = NULL;
+  qualityChecker_ = nullptr; 
+  configWriter_   = nullptr;
 }
 //
 // --  Destructor
@@ -114,7 +114,7 @@ void TrackingActionExecutor::createShiftReport(DQMStore::IBooker & ibooker, DQMS
   report_file.close();
   configWriter_->write("tracking_shift_report.xml");
   delete configWriter_;
-  configWriter_ = 0;
+  configWriter_ = nullptr;
 }
 //
 //  -- Print Report Summary

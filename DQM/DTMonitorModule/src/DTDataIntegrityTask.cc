@@ -176,7 +176,7 @@ void DTDataIntegrityTask::bookHistos(DQMStore::IBooker & ibooker, string folder,
   string histoType;
   string histoName;
   string histoTitle;
-  MonitorElement* histo = 0;
+  MonitorElement* histo = nullptr;
 
   // DDU Histograms
   if (folder == "DDU") {
@@ -501,7 +501,7 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
   MonitorElement* ROSSummary = rosSHistos["ROSSummary"][code.getDDUID()];
 
   // Summary of all ROB errors
-  MonitorElement* ROSError = 0;
+  MonitorElement* ROSError = nullptr;
   if(mode <= 2) ROSError = rosHistos["ROSError"][code.getROSID()];
 
   if ( (mode<=2) && (!ROSError) ) {

@@ -60,7 +60,7 @@ class InputTagDistributorService{
     if (f != multipleInstance_.end()) SetInputTagDistributorUniqueInstance_ = f->second;
     else{
       //do not say anything but set it to zero to get a safe crash in get() if ever called
-      SetInputTagDistributorUniqueInstance_=0;}
+      SetInputTagDistributorUniqueInstance_=nullptr;}
   }
   /*  InputTagDistributor & set(std::string & user){
     std::map<std::string, InputTagDistributor*>::iterator f=multipleInstance_.find(user);

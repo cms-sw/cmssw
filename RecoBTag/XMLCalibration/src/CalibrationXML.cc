@@ -18,7 +18,7 @@ using namespace std;
 
 XERCES_CPP_NAMESPACE_USE
 
-CalibrationXML::CalibrationXML() : errHandler(0), parser(0)
+CalibrationXML::CalibrationXML() : errHandler(nullptr), parser(nullptr)
 {
 
 }
@@ -131,7 +131,7 @@ DOMElement * CalibrationXML::addChild(DOMNode *dom,const std::string & name)
 	   n1 = n1->getParentNode();
 	  }
 	  assert(dom); 
-	  if(dom->getFirstChild()==0)
+	  if(dom->getFirstChild()==nullptr)
              dom->appendChild(dom->getOwnerDocument()->createTextNode(XMLString::transcode(indent.c_str()))); 
          
 	  DOMElement * child = (DOMElement *)dom->appendChild(dom->getOwnerDocument()->createElement(XMLString::transcode(name.c_str()))); 

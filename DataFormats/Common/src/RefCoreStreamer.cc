@@ -78,34 +78,34 @@ namespace edm {
     {
       TClass *cl = TClass::GetClass("edm::RefCore");
       TClassStreamer *st = cl->GetStreamer();
-      if (st == 0) {
+      if (st == nullptr) {
         cl->AdoptStreamer(new RefCoreStreamer());
       }
       {
         TClass *cl = TClass::GetClass("edm::RefCoreWithIndex");
         TClassStreamer *st = cl->GetStreamer();
-        if (st == 0) {
+        if (st == nullptr) {
           cl->AdoptStreamer(new RefCoreWithIndexStreamer());
         }
       }
     }
-    EDProductGetter::switchProductGetter(0);
+    EDProductGetter::switchProductGetter(nullptr);
   }
 
   EDProductGetter const* setRefCoreStreamer(EDProductGetter const* ep) {
-    EDProductGetter const* returnValue=0;
-    if (ep != 0) {
+    EDProductGetter const* returnValue=nullptr;
+    if (ep != nullptr) {
       {
         TClass *cl = TClass::GetClass("edm::RefCore");
         TClassStreamer *st = cl->GetStreamer();
-        if (st == 0) {
+        if (st == nullptr) {
           cl->AdoptStreamer(new RefCoreStreamer());
         }
       }
       {
         TClass *cl = TClass::GetClass("edm::RefCoreWithIndex");
         TClassStreamer *st = cl->GetStreamer();
-        if (st == 0) {
+        if (st == nullptr) {
           cl->AdoptStreamer(new RefCoreWithIndexStreamer());
         }
       }

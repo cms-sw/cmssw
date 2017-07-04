@@ -62,8 +62,8 @@ L1RCTSaveInput::L1RCTSaveInput(const edm::ParameterSet& conf) :
 
 L1RCTSaveInput::~L1RCTSaveInput()
 {
-  if(rct != 0) delete rct;
-  if(rctLookupTables != 0) delete rctLookupTables;
+  if(rct != nullptr) delete rct;
+  if(rctLookupTables != nullptr) delete rctLookupTables;
 }
 
 void

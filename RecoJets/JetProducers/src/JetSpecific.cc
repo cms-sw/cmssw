@@ -137,7 +137,7 @@ bool reco::makeSpecific(vector<reco::CandidatePtr> const & towers,
 			CaloJet::Specific* caloJetSpecific,
 			const HcalTopology &topology)
 {
-  if (0==caloJetSpecific) return false;
+  if (nullptr==caloJetSpecific) return false;
 
   // 1.- Loop over the tower Ids, 
   // 2.- Get the corresponding CaloTower
@@ -242,7 +242,7 @@ bool reco::makeSpecific(vector<reco::CandidatePtr> const & towers,
 bool reco::makeSpecific(vector<reco::CandidatePtr> const & particles,	   
 			PFJet::Specific* pfJetSpecific)
 {
-  if (0==pfJetSpecific) return false;
+  if (nullptr==pfJetSpecific) return false;
   
   // 1.- Loop over PFCandidates, 
   // 2.- Get the corresponding PFCandidate
@@ -377,7 +377,7 @@ bool reco::makeSpecific(vector<reco::CandidatePtr> const & particles,
 bool reco::makeSpecific(vector<reco::CandidatePtr> const & mcparticles, 
 			GenJet::Specific* genJetSpecific)
 {
-  if (0==genJetSpecific) return false;
+  if (nullptr==genJetSpecific) return false;
 
   vector<reco::CandidatePtr>::const_iterator itMcParticle=mcparticles.begin();
   for (;itMcParticle!=mcparticles.end();++itMcParticle) {

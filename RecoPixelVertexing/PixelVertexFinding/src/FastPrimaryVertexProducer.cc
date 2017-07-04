@@ -124,7 +124,7 @@ FastPrimaryVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const edm:
     if(it->pt() > 40 && fabs(it->eta()) < 1.6)
     {
       const CaloJet * ca = dynamic_cast<const CaloJet *>( &(*it));
-      if(ca ==0) abort();
+      if(ca ==nullptr) abort();
       selectedJets.push_back(*ca);
 //    std::cout << "Jet eta,phi,pt: "<< it->eta() << "," << it->phi() << "," << it->pt()   << std::endl;
     }

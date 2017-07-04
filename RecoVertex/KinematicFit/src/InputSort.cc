@@ -13,7 +13,7 @@ std::pair<std::vector<RefCountedKinematicParticle>, std::vector<FreeTrajectorySt
 //correcting them for the top ones otherwise 
  for(std::vector<RefCountedKinematicParticle>::const_iterator i = particles.begin(); i != particles.end(); i++)
  {
-  if((*i)->correspondingTree() != 0)
+  if((*i)->correspondingTree() != nullptr)
   {
    sortedParticles.push_back((*i)->correspondingTree()->topParticle());
    sortedStates.push_back((*i)->correspondingTree()->topParticle()->currentState().freeTrajectoryState());

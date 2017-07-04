@@ -58,7 +58,7 @@ typedef math::XYZTLorentzVector LorentzVector;
 
 //____________________________________________________________________________||
 TCMETAlgo::TCMETAlgo()
-  : response_function_(0), showerRF_(0)
+  : response_function_(nullptr), showerRF_(nullptr)
 { }
 
 //____________________________________________________________________________||
@@ -142,7 +142,7 @@ void TCMETAlgo::configure(const edm::ParameterSet& iConfig, edm::ConsumesCollect
 
 
   showerRF_          = getResponseFunction_shower();
-  response_function_ = 0;
+  response_function_ = nullptr;
 
   int rfType = iConfig.getParameter<int>("rf_type");
 

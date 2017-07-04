@@ -53,7 +53,7 @@ public:
 
   void settitle(const char* title) ;
   
-  void plot (TPad * theCanvas = 0) ;
+  void plot (TPad * theCanvas = nullptr) ;
 
   void epsPlot(const std::string& name);
 
@@ -158,7 +158,7 @@ FlavourHistograms<T>::FlavourHistograms (const std::string& baseNameTitle_, cons
   thePlotFirst ( plotFirst_ ), theMin(-1.), theMax(-1.), mcPlots_(mc)
 {
   // defaults for array dimensions
-  theArrayDimension = 0  ;
+  theArrayDimension = nullptr  ;
     
   // check plot order string 
   if ( thePlotFirst == "l" || thePlotFirst == "c" || thePlotFirst == "b" ) {
@@ -172,7 +172,7 @@ FlavourHistograms<T>::FlavourHistograms (const std::string& baseNameTitle_, cons
   }
 
   if(mcPlots_%2==0) theHisto_all = iget.get("Btag/" + folder + "/" +theBaseNameTitle + "ALL" ) ; 
-  else theHisto_all = 0;
+  else theHisto_all = nullptr;
   if (mcPlots_) {  
     if (mcPlots_>2 ) {
       theHisto_d     = iget.get("Btag/" + folder + "/" +theBaseNameTitle + "D"   ) ; 
@@ -182,11 +182,11 @@ FlavourHistograms<T>::FlavourHistograms (const std::string& baseNameTitle_, cons
       theHisto_dus   = iget.get("Btag/" + folder + "/" +theBaseNameTitle + "DUS" ) ; 
     } 
     else{
-      theHisto_d = 0;
-      theHisto_u = 0;
-      theHisto_s = 0;
-      theHisto_g = 0;
-      theHisto_dus = 0;
+      theHisto_d = nullptr;
+      theHisto_u = nullptr;
+      theHisto_s = nullptr;
+      theHisto_g = nullptr;
+      theHisto_dus = nullptr;
     }
     theHisto_c     = iget.get("Btag/" + folder + "/" +theBaseNameTitle + "C"   ) ; 
     theHisto_b     = iget.get("Btag/" + folder + "/" +theBaseNameTitle + "B"   ) ; 
@@ -195,19 +195,19 @@ FlavourHistograms<T>::FlavourHistograms (const std::string& baseNameTitle_, cons
     theHisto_pu    = iget.get("Btag/" + folder + "/" +theBaseNameTitle + "PU") ;
   }
   else{
-    theHisto_d = 0;
-    theHisto_u = 0;
-    theHisto_s = 0;
-    theHisto_c = 0;
-    theHisto_b = 0;
-    theHisto_g = 0;
-    theHisto_ni = 0;
-    theHisto_dus = 0;
-    theHisto_dusg = 0;
-    theHisto_pu = 0;
+    theHisto_d = nullptr;
+    theHisto_u = nullptr;
+    theHisto_s = nullptr;
+    theHisto_c = nullptr;
+    theHisto_b = nullptr;
+    theHisto_g = nullptr;
+    theHisto_ni = nullptr;
+    theHisto_dus = nullptr;
+    theHisto_dusg = nullptr;
+    theHisto_pu = nullptr;
   }
   // defaults for other data members
-  theCanvas = 0 ;
+  theCanvas = nullptr ;
 }
 
 template <class T>
@@ -222,7 +222,7 @@ FlavourHistograms<T>::FlavourHistograms (const std::string& baseNameTitle_ , con
   thePlotFirst ( plotFirst_ ), theMin(-1.), theMax(-1.), mcPlots_(mc)
 {
   // defaults for array dimensions
-  theArrayDimension = 0  ;
+  theArrayDimension = nullptr  ;
     
   // check plot order string 
   if ( thePlotFirst == "l" || thePlotFirst == "c" || thePlotFirst == "b" ) {
@@ -238,7 +238,7 @@ FlavourHistograms<T>::FlavourHistograms (const std::string& baseNameTitle_ , con
   // book histos
   HistoProviderDQM prov("Btag",folder,ibook);
   if(mcPlots_%2==0) theHisto_all   = (prov.book1D( theBaseNameTitle + "ALL"  , theBaseNameDescription + " all jets"  , theNBins , theLowerBound , theUpperBound )) ; 
-  else theHisto_all = 0;
+  else theHisto_all = nullptr;
   if (mcPlots_) {
     if(mcPlots_>2) {
       theHisto_d     = (prov.book1D ( theBaseNameTitle + "D"    , theBaseNameDescription + " d-jets"    , theNBins , theLowerBound , theUpperBound )) ; 
@@ -248,11 +248,11 @@ FlavourHistograms<T>::FlavourHistograms (const std::string& baseNameTitle_ , con
       theHisto_dus   = (prov.book1D ( theBaseNameTitle + "DUS"  , theBaseNameDescription + " dus-jets"  , theNBins , theLowerBound , theUpperBound )) ; 
     }
     else{
-      theHisto_d = 0;
-      theHisto_u = 0;
-      theHisto_s = 0;
-      theHisto_g = 0;
-      theHisto_dus = 0;
+      theHisto_d = nullptr;
+      theHisto_u = nullptr;
+      theHisto_s = nullptr;
+      theHisto_g = nullptr;
+      theHisto_dus = nullptr;
     }
     theHisto_c     = (prov.book1D ( theBaseNameTitle + "C"    , theBaseNameDescription + " c-jets"    , theNBins , theLowerBound , theUpperBound )) ; 
     theHisto_b     = (prov.book1D ( theBaseNameTitle + "B"    , theBaseNameDescription + " b-jets"    , theNBins , theLowerBound , theUpperBound )) ; 
@@ -260,16 +260,16 @@ FlavourHistograms<T>::FlavourHistograms (const std::string& baseNameTitle_ , con
     theHisto_dusg  = (prov.book1D ( theBaseNameTitle + "DUSG" , theBaseNameDescription + " dusg-jets" , theNBins , theLowerBound , theUpperBound )) ;
     theHisto_pu    = (prov.book1D ( theBaseNameTitle + "PU"   , theBaseNameDescription + " pu-jets"   , theNBins , theLowerBound , theUpperBound )) ; 
   }else{
-    theHisto_d = 0;
-    theHisto_u = 0;
-    theHisto_s = 0;
-    theHisto_c = 0;
-    theHisto_b = 0;
-    theHisto_g = 0;
-    theHisto_ni = 0;
-    theHisto_dus = 0;
-    theHisto_dusg = 0;
-    theHisto_pu = 0;
+    theHisto_d = nullptr;
+    theHisto_u = nullptr;
+    theHisto_s = nullptr;
+    theHisto_c = nullptr;
+    theHisto_b = nullptr;
+    theHisto_g = nullptr;
+    theHisto_ni = nullptr;
+    theHisto_dus = nullptr;
+    theHisto_dusg = nullptr;
+    theHisto_pu = nullptr;
   }
 
   // statistics if requested
@@ -291,7 +291,7 @@ FlavourHistograms<T>::FlavourHistograms (const std::string& baseNameTitle_ , con
     }
   }
   // defaults for other data members
-  theCanvas = 0 ;
+  theCanvas = nullptr ;
 }
 
 
@@ -386,7 +386,7 @@ void FlavourHistograms<T>::plot (TPad * theCanvas /* = 0 */) {
   if ( thePlotLog ) gPad->SetLogy ( 1 ) ; 
   gPad->SetGridx ( 0 ) ;
   gPad->SetGridy ( 0 ) ;
-  gPad->SetTitle ( 0 ) ;
+  gPad->SetTitle ( nullptr ) ;
 
   MonitorElement * histo[4];
   int col[4], lineStyle[4], markerStyle[4];
@@ -399,7 +399,7 @@ void FlavourHistograms<T>::plot (TPad * theCanvas /* = 0 */) {
   //CW histo_1 = theHisto_dus ;
   histo[1] = theHisto_b ;
   histo[2] = theHisto_c ;
-  histo[3]= 0 ;
+  histo[3]= nullptr ;
 
   double max = theMax;
   if (theMax<=0.) {
@@ -471,7 +471,7 @@ void FlavourHistograms<T>::plot (TPad * theCanvas /* = 0 */) {
   histo[0] ->getTH1F()->GetYaxis()->SetTitleOffset(1.25) ;
 
   for (int i=0; i != 4; ++i) {
-    if (histo[i]== 0 ) continue;
+    if (histo[i]== nullptr ) continue;
     histo[i] ->getTH1F()->SetStats ( false ) ;
     histo[i] ->getTH1F()->SetLineStyle ( lineStyle[i] ) ;
     histo[i] ->getTH1F()->SetLineWidth ( lineWidth ) ;
@@ -485,7 +485,7 @@ void FlavourHistograms<T>::plot (TPad * theCanvas /* = 0 */) {
     if (histo[0]->getTH1F()->GetEntries() != 0) {histo[0]->getTH1F() ->DrawNormalized() ;} else {    histo[0]->getTH1F() ->SetMaximum(1.0); histo[0] ->getTH1F()->Draw() ;}
     if (histo[1]->getTH1F()->GetEntries() != 0) histo[1] ->getTH1F()->DrawNormalized("Same") ;
     if (histo[2]->getTH1F()->GetEntries() != 0) histo[2]->getTH1F() ->DrawNormalized("Same") ;
-    if ((histo[3] != 0) && (histo[3]->getTH1F()->GetEntries() != 0))  histo[3] ->getTH1F()->DrawNormalized("Same") ;
+    if ((histo[3] != nullptr) && (histo[3]->getTH1F()->GetEntries() != 0))  histo[3] ->getTH1F()->DrawNormalized("Same") ;
   }
   else {
     histo[0]->getTH1F()->SetMaximum(max*1.05);
@@ -493,7 +493,7 @@ void FlavourHistograms<T>::plot (TPad * theCanvas /* = 0 */) {
     histo[0]->getTH1F()->Draw() ;
     histo[1]->getTH1F()->Draw("Same") ;
     histo[2]->getTH1F()->Draw("Same") ;
-    if ( histo[3] != 0 ) histo[3]->getTH1F()->Draw("Same") ;
+    if ( histo[3] != nullptr ) histo[3]->getTH1F()->Draw("Same") ;
   }
 
 }

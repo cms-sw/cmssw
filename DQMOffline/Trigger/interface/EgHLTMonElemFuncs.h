@@ -45,8 +45,8 @@ namespace egHLT {
     void initStdEffHists(std::vector<MonElemWithCutBase<OffPho>*>& histVec,const std::string& filterName,const std::string& baseName,const BinData::Data1D& bins,float (OffPho::*vsVarFunc)()const,const CutMasks& masks);
 
     //we own the passed in pointer
-    void initStdEleCutHists(std::vector<MonElemWithCutBase<OffEle>*>& histVec,const std::string& filterName,const std::string& baseName,const BinData& bins,EgHLTDQMCut<OffEle>* cut=NULL);
-    void initStdPhoCutHists(std::vector<MonElemWithCutBase<OffPho>*>& histVec,const std::string& filterName,const std::string& baseName,const BinData& bins,EgHLTDQMCut<OffPho>* cut=NULL);
+    void initStdEleCutHists(std::vector<MonElemWithCutBase<OffEle>*>& histVec,const std::string& filterName,const std::string& baseName,const BinData& bins,EgHLTDQMCut<OffEle>* cut=nullptr);
+    void initStdPhoCutHists(std::vector<MonElemWithCutBase<OffPho>*>& histVec,const std::string& filterName,const std::string& baseName,const BinData& bins,EgHLTDQMCut<OffPho>* cut=nullptr);
 
 
     

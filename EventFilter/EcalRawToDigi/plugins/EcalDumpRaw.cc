@@ -223,7 +223,7 @@ EcalDumpRaw::analyze(const edm::Event& event, const edm::EventSetup& es){
       (last_event_ > 0 && last_event_ < iEvent_)) return;
   timeval start;
   timeval stop;
-  gettimeofday(&start, 0);
+  gettimeofday(&start, nullptr);
 
   edm::Handle<FEDRawDataCollection> rawdata;
   event.getByToken(fedRawDataCollectionToken_, rawdata);
@@ -444,7 +444,7 @@ EcalDumpRaw::analyze(const edm::Event& event, const edm::EventSetup& es){
 
 #endif
 
-  gettimeofday(&stop, 0);
+  gettimeofday(&stop, nullptr);
   //  double dt  = (stop.tv_sec-start.tv_sec)*1.e3
   //  + (stop.tv_usec-start.tv_usec)*1.e-3;
   //  histo_.fillD("hCodeTime", "Code execution time;Duration (ms);Event count",

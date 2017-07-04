@@ -140,7 +140,7 @@ void RPCRecHitProducer::produce(Event& event, const EventSetup& setup) {
 
     // Get the GeomDet from the setup
     const RPCRoll* roll = rpcGeom->roll(rpcId);
-    if (roll == 0){
+    if (roll == nullptr){
       edm::LogError("BadDigiInput")<<"Failed to find RPCRoll for ID "<<rpcId;
       continue;
     }

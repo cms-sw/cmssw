@@ -58,7 +58,7 @@ void SiStripDetInfoFileWriter::beginRun(const edm::Run&, const edm::EventSetup& 
   
       const StripGeomDetUnit* mit = dynamic_cast<StripGeomDetUnit const *>(*it);
 
-      if(mit!=0){
+      if(mit!=nullptr){
 
 	uint32_t detid=(mit->geographicalId()).rawId();
 	double stripLength = mit->specificTopology().stripLength();

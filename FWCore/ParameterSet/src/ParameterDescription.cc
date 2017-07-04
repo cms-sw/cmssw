@@ -481,7 +481,7 @@ namespace edm {
         std::string resultLessPrecision = s.str();
 
         if(resultLessPrecision.size() < result.size() - 2) {
-          double test = std::strtod(resultLessPrecision.c_str(), 0);
+          double test = std::strtod(resultLessPrecision.c_str(), nullptr);
           if(test == value) {
             result = resultLessPrecision;
           }

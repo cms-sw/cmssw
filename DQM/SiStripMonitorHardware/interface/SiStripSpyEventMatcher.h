@@ -177,7 +177,7 @@ namespace sistrip {
     if (productWrapper) {
       return productWrapper->product();
     } else {
-      return NULL;
+      return nullptr;
     }
   }
   

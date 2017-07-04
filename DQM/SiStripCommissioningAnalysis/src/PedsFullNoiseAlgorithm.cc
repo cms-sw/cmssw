@@ -17,9 +17,9 @@ using namespace sistrip;
 // 
 PedsFullNoiseAlgorithm::PedsFullNoiseAlgorithm( const edm::ParameterSet & pset, PedsFullNoiseAnalysis* const anal ) 
   : CommissioningAlgorithm(anal),
-    hPeds_(0,""),
-    hNoise_(0,""),
-    hNoise1D_(0,""),
+    hPeds_(nullptr,""),
+    hNoise_(nullptr,""),
+    hNoise1D_(nullptr,""),
     deadStripMax_(pset.getParameter<double>("DeadStripMax")),
     noisyStripMin_(pset.getParameter<double>("NoisyStripMin")),
     noiseDef_(pset.getParameter<std::string>("NoiseDefinition")),

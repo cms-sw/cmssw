@@ -32,7 +32,7 @@ HcalZSAlgoRealistic::HcalZSAlgoRealistic(bool mp, std::pair<int,int> HBsearchTS,
   
 template <class Digi>
 bool HcalZSAlgoRealistic::keepMe(const Digi& inp, int start, int finish, int threshold, uint32_t zsmask) const{
-  if ((usingDBvalues) && (threshold < 0) && (m_dbService != 0)){
+  if ((usingDBvalues) && (threshold < 0) && (m_dbService != nullptr)){
     threshold = (m_dbService->getHcalZSThreshold(inp.id()))->getValue();
   }
 
@@ -48,7 +48,7 @@ bool HcalZSAlgoRealistic::keepMe(const Digi& inp, int start, int finish, int thr
 
 template<>
 bool HcalZSAlgoRealistic::keepMe<QIE10DataFrame>(const QIE10DataFrame& inp, int start, int finish, int threshold, uint32_t zsmask) const{
-  if ((usingDBvalues) && (threshold < 0) && (m_dbService != 0)){
+  if ((usingDBvalues) && (threshold < 0) && (m_dbService != nullptr)){
     threshold = (m_dbService->getHcalZSThreshold(inp.id()))->getValue();
   }
   
@@ -61,7 +61,7 @@ bool HcalZSAlgoRealistic::keepMe<QIE10DataFrame>(const QIE10DataFrame& inp, int 
 
 template<>
 bool HcalZSAlgoRealistic::keepMe<QIE11DataFrame>(const QIE11DataFrame& inp, int start, int finish, int threshold, uint32_t zsmask) const{
-  if ((usingDBvalues) && (threshold < 0) && (m_dbService != 0)){
+  if ((usingDBvalues) && (threshold < 0) && (m_dbService != nullptr)){
     threshold = (m_dbService->getHcalZSThreshold(inp.id()))->getValue();
   }
   

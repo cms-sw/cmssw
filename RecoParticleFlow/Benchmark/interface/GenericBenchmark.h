@@ -28,7 +28,7 @@ class GenericBenchmark{
   GenericBenchmark();
   virtual ~GenericBenchmark() noexcept(false);
 
-  void setup(DQMStore *DQM = NULL, 
+  void setup(DQMStore *DQM = nullptr, 
 	     bool PlotAgainstReco_=true, 
 	     float minDeltaEt = -100., float maxDeltaEt = 50., 
 	     float minDeltaPhi = -0.5, float maxDeltaPhi = 0.5,
@@ -159,7 +159,7 @@ void GenericBenchmark::fill(const C *RecoCollection,
       // generate histograms comparing the reco and truth candidate (truth = closest in delta-R)
       const reco::Candidate *particle = &(*RecoCollection)[i];
       
-      assert( particle!=NULL ); 
+      assert( particle!=nullptr ); 
       if( !accepted(particle, recPt_cut, 
 		    minEta_cut, maxEta_cut)) continue;
 
@@ -177,7 +177,7 @@ void GenericBenchmark::fill(const C *RecoCollection,
       
       const reco::Candidate *gen_particle = algo_->matchByDeltaR(particle,
 								 GenCollection);
-      if(gen_particle==NULL) continue; 
+      if(gen_particle==nullptr) continue; 
 
 
 

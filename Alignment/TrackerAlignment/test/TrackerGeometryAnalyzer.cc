@@ -38,8 +38,8 @@ TrackerGeometryAnalyzer
   analyzeTOB_     (config.getParameter<bool>("analyzeTOB")),
   analyzeTEC_     (config.getParameter<bool>("analyzeTEC")),
 
-  trackerTopology(0),
-  trackerGeometry(0),
+  trackerTopology(nullptr),
+  trackerGeometry(nullptr),
   // will be reset once the geometry is known:
   alignableObjectId_{AlignableObjectId::Geometry::General}
 {

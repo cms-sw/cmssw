@@ -335,7 +335,7 @@ void SelectedElectronFEDListProducer<TEle,TCand>::produce(edm::Event & iEvent, c
   // take the calo tower collection
   edm::Handle<HBHERecHitCollection> hbheRecHitHandle;
   if(!(HBHERecHitTag_ == edm::InputTag("")))  iEvent.getByToken(hbheRecHitToken_,hbheRecHitHandle);
-  const HBHERecHitCollection* hcalRecHitCollection = NULL;
+  const HBHERecHitCollection* hcalRecHitCollection = nullptr;
   if(!hbheRecHitHandle.failedToGet()) hcalRecHitCollection = hbheRecHitHandle.product();   
 
   double radTodeg = 180. / Geom::pi();

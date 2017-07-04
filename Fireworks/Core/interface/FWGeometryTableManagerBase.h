@@ -53,7 +53,7 @@ public:
 
    struct NodeInfo
    {
-      NodeInfo():m_node(0), m_parent(-1), m_color(0), m_level(-1), 
+      NodeInfo():m_node(nullptr), m_parent(-1), m_color(0), m_level(-1), 
                  m_flags(kVisNodeSelf|kVisNodeChld) {}  
 
       NodeInfo(TGeoNode* n, Int_t p, Color_t col, Char_t l, UChar_t f = kVisNodeSelf|kVisNodeChld ):m_node(n), m_parent(p), m_color(col), m_level(l), 
@@ -122,7 +122,7 @@ public:
    FWGeometryTableManagerBase();
    virtual ~FWGeometryTableManagerBase();
    //   virtual std::string& cellName(const NodeInfo& ) const { return &std::string("ddd");} 
-   virtual const char* cellName(const NodeInfo& ) const { return 0;} 
+   virtual const char* cellName(const NodeInfo& ) const { return nullptr;} 
 
    // virtual functions of FWTableManagerBase
    

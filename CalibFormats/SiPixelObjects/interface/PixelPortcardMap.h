@@ -54,7 +54,7 @@ namespace pos{
     std::set< PixelModuleName > modules(std::string portCardName) const;
 
     // all port cards in the map
-    std::set< std::string > portcards(const PixelDetectorConfig* detconfig=0);
+    std::set< std::string > portcards(const PixelDetectorConfig* detconfig=nullptr);
 
     // Added by Dario for Debbie (the PixelPortcardMap::portcards is way to slow for the interactive tool)
     bool getName(std::string moduleName, std::string &portcardName) ;
@@ -65,15 +65,15 @@ namespace pos{
 				  int version, 
 				  std::string path, 
 				  std::ofstream *out,
-				  std::ofstream *out1 = NULL,
-				  std::ofstream *out2 = NULL
+				  std::ofstream *out1 = nullptr,
+				  std::ofstream *out2 = nullptr
 				  ) const ;
     virtual void writeXML(        std::ofstream *out,			                                    
-			   	  std::ofstream *out1 = NULL ,
-			   	  std::ofstream *out2 = NULL ) const ;
+			   	  std::ofstream *out1 = nullptr ,
+			   	  std::ofstream *out2 = nullptr ) const ;
     virtual void writeXMLTrailer( std::ofstream *out, 
-				  std::ofstream *out1 = NULL,
-				  std::ofstream *out2 = NULL
+				  std::ofstream *out1 = nullptr,
+				  std::ofstream *out2 = nullptr
 				  ) const ;
     
   private:

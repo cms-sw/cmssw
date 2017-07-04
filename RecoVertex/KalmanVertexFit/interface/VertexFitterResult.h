@@ -28,16 +28,16 @@ public:
 //   typedef std::vector<const TkSimTrack*>	SimTrackCont;
   typedef std::vector<reco::TransientTrack>		TTrackCont;
 
-  VertexFitterResult(const int maxTracks = 100, const MagneticField* = 0);
+  VertexFitterResult(const int maxTracks = 100, const MagneticField* = nullptr);
   ~VertexFitterResult();
 
-  void fill(const TransientVertex & recv, const TrackingVertex * simv = 0, 
-  	    reco::RecoToSimCollection *recSimColl = 0,
+  void fill(const TransientVertex & recv, const TrackingVertex * simv = nullptr, 
+  	    reco::RecoToSimCollection *recSimColl = nullptr,
   	    const float &time = 0);
 
   void fill(const TransientVertex & recVertex, const TTrackCont & recTrackV,
-	    const TrackingVertex * simv = 0, 
-      	    reco::RecoToSimCollection *recSimColl = 0, const float &time = 0);
+	    const TrackingVertex * simv = nullptr, 
+      	    reco::RecoToSimCollection *recSimColl = nullptr, const float &time = 0);
 
 
   const float* simVertexPos() const {return simPos;}
@@ -57,27 +57,27 @@ public:
   const float* recTrackWeight() {return trackWeight;}
   const float* recParameters (const int i) const
   {
-    if ( i<0 || i>=5 )  return 0;
+    if ( i<0 || i>=5 )  return nullptr;
     return recPars[i];
   }
   const float* refParameters (const int i) const
   {
-    if ( i<0 || i>=5 )  return 0;
+    if ( i<0 || i>=5 )  return nullptr;
     return refPars[i];
   }
   const float* simParameters (const int i) const
   {
-    if ( i<0 || i>=5 )  return 0;
+    if ( i<0 || i>=5 )  return nullptr;
     return simPars[i];
   }
   const float* recErrors (const int i) const
   {
-    if ( i<0 || i>=5 )  return 0;
+    if ( i<0 || i>=5 )  return nullptr;
     return recErrs[i];
   }
   const float* refErrors (const int i) const
   {
-    if ( i<0 || i>=5 )  return 0;
+    if ( i<0 || i>=5 )  return nullptr;
     return refErrs[i];
   }
 

@@ -40,15 +40,15 @@
 
 TRootXTReq::lpXTReq_t  TRootXTReq::sQueue;
 pthread_t              TRootXTReq::sRootThread = 0;
-TMutex                *TRootXTReq::sQueueMutex = 0;
-TSignalHandler        *TRootXTReq::sSigHandler = 0;
+TMutex                *TRootXTReq::sQueueMutex = nullptr;
+TSignalHandler        *TRootXTReq::sSigHandler = nullptr;
 bool                   TRootXTReq::sSheduled   = false;
 
 
 //==============================================================================
 
 TRootXTReq::TRootXTReq(const char* n) :
-   m_return_condition(0),
+   m_return_condition(nullptr),
    mName(n)
 {}
 
@@ -81,7 +81,7 @@ void TRootXTReq::ShootRequest()
    if (m_return_condition)
    {
       delete m_return_condition;
-      m_return_condition = 0;
+      m_return_condition = nullptr;
    }
 
    post_request();
@@ -170,8 +170,8 @@ void TRootXTReq::Shutdown()
    // Should lock and drain queue ... or sth.
 
    sRootThread = 0;
-   delete sSigHandler; sSigHandler = 0;
-   delete sQueueMutex; sQueueMutex = 0;
+   delete sSigHandler; sSigHandler = nullptr;
+   delete sQueueMutex; sQueueMutex = nullptr;
 }
 
 void TRootXTReq::ProcessQueue()
@@ -180,7 +180,7 @@ void TRootXTReq::ProcessQueue()
 
    while (true)
    {
-      TRootXTReq *req = 0;
+      TRootXTReq *req = nullptr;
       {
          TLockGuard _lck(sQueueMutex);
 

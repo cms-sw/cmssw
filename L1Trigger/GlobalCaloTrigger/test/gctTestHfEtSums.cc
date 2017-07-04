@@ -43,7 +43,7 @@ void gctTestHfEtSums::configure(const L1CaloEtScale* scale)
 
 bool gctTestHfEtSums::setupOk() const
 {
-  return (m_etScale != 0) ;
+  return (m_etScale != nullptr) ;
 }
 //=================================================================================================================
 //

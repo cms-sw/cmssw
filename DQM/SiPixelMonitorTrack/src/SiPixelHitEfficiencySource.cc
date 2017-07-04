@@ -109,7 +109,7 @@ SiPixelHitEfficiencySource::~SiPixelHitEfficiencySource() {
   std::map<uint32_t,SiPixelHitEfficiencyModule*>::iterator struct_iter;
   for (struct_iter = theSiPixelStructure.begin() ; struct_iter != theSiPixelStructure.end() ; struct_iter++){
     delete struct_iter->second;
-    struct_iter->second = 0;
+    struct_iter->second = nullptr;
   }
 }
 
@@ -168,14 +168,14 @@ void SiPixelHitEfficiencySource::dqmBeginRun(const edm::Run& r, edm::EventSetup 
   // build theSiPixelStructure with the pixel barrel and endcap dets from TrackerGeometry
   for (TrackerGeometry::DetContainer::const_iterator pxb = TG->detsPXB().begin();  
        pxb!=TG->detsPXB().end(); pxb++) {
-    if (dynamic_cast<PixelGeomDetUnit const *>((*pxb))!=0) {
+    if (dynamic_cast<PixelGeomDetUnit const *>((*pxb))!=nullptr) {
       SiPixelHitEfficiencyModule* module = new SiPixelHitEfficiencyModule((*pxb)->geographicalId().rawId());
       theSiPixelStructure.insert(pair<uint32_t, SiPixelHitEfficiencyModule*>((*pxb)->geographicalId().rawId(), module));
     }
   }
   for (TrackerGeometry::DetContainer::const_iterator pxf = TG->detsPXF().begin(); 
        pxf!=TG->detsPXF().end(); pxf++) {
-    if (dynamic_cast<PixelGeomDetUnit const *>((*pxf))!=0) {
+    if (dynamic_cast<PixelGeomDetUnit const *>((*pxf))!=nullptr) {
       SiPixelHitEfficiencyModule* module = new SiPixelHitEfficiencyModule((*pxf)->geographicalId().rawId());
       theSiPixelStructure.insert(pair<uint32_t, SiPixelHitEfficiencyModule*>((*pxf)->geographicalId().rawId(), module));
     }

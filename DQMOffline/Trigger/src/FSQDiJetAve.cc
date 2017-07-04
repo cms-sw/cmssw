@@ -152,7 +152,7 @@ class HandlerTemplate: public BaseHandler {
             if(!m_isSetup){
                 booker.setCurrentFolder(m_dirname);
                 m_isSetup = true;
-                std::vector< std::vector< edm::ParameterSet > * > todo(2, (std::vector< edm::ParameterSet > * )0);
+                std::vector< std::vector< edm::ParameterSet > * > todo(2, (std::vector< edm::ParameterSet > * )nullptr);
                 todo[CombinedObjectPlotter]=&m_combinedObjectDrawables;
                 todo[SingleObjectPlotter]=&m_singleObjectDrawables;
                 for (size_t ti =0; ti<todo.size();++ti){
@@ -335,7 +335,7 @@ class HandlerTemplate: public BaseHandler {
             if (!triggerResults.accept(indexNum)) return;*/
 
             std::vector<TOutputCandidateType> cands;
-            getFilteredCands((TInputCandidateType *)0, cands, iEvent, iSetup, hltConfig, trgEvent, weight);
+            getFilteredCands((TInputCandidateType *)nullptr, cands, iEvent, iSetup, hltConfig, trgEvent, weight);
 
             if (cands.size()==0) return;
 

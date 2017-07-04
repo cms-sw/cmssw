@@ -122,7 +122,7 @@ namespace cmdline {
 class CmdLineError
 {
 public:
-    inline CmdLineError(const char* msg = 0)
+    inline CmdLineError(const char* msg = nullptr)
         : os_(new std::ostringstream()) {if (msg) *os_ << msg;}
 
     template<typename T>
@@ -157,7 +157,7 @@ public:
 
     inline operator void*() const
     {
-        return valid_ && !readout_ ? (void*)this : (void*)0;
+        return valid_ && !readout_ ? (void*)this : (void*)nullptr;
     }
 
     template<typename T>
@@ -204,7 +204,7 @@ private:
     {
         int status;
         const std::type_info &ti = typeid(obj);
-        char *realname = abi::__cxa_demangle(ti.name(), 0, 0, &status);
+        char *realname = abi::__cxa_demangle(ti.name(), nullptr, nullptr, &status);
         std::string s(realname);
         free(realname);
         return s;
@@ -303,7 +303,7 @@ public:
 
     inline const char* progname() const {return progname_.c_str();}
 
-    inline bool has(const char* shortOpt, const char* longOpt=0)
+    inline bool has(const char* shortOpt, const char* longOpt=nullptr)
     {
         bool found = false;
         for (Optlist::iterator it = find(shortOpt, longOpt);
@@ -319,7 +319,7 @@ public:
         return found;
     }
 
-    inline OneShotIStream option(const char* shortOpt, const char* longOpt=0)
+    inline OneShotIStream option(const char* shortOpt, const char* longOpt=nullptr)
     {
         OneShotIStream result;
         for (Optlist::iterator it = find(shortOpt, longOpt);
@@ -341,7 +341,7 @@ public:
         return result;
     }
 
-    inline OneShotIStream require(const char* shortOpt, const char* longOpt=0)
+    inline OneShotIStream require(const char* shortOpt, const char* longOpt=nullptr)
     {
         const OneShotIStream& is(option(shortOpt, longOpt));
         if (!is.isValid())

@@ -130,7 +130,7 @@ void DigiSimLinkAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
 		  if(APVSaturationFromHIP&&!zeroSuppression){
 		    int pdg_id = ((*simHitIter).first)->particleType();
 			particle = pdt->particle(pdg_id);
-			if(particle != NULL){
+			if(particle != nullptr){
 				float charge = particle->charge();
 				bool isHadron = particle->isHadron();
 			    if(charge!=0 && isHadron){

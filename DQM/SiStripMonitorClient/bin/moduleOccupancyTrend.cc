@@ -101,7 +101,7 @@ int main(int argc, char *argv[]) {
 	return 0;
       }
 
-      histo->SetDirectory(0);
+      histo->SetDirectory(nullptr);
       histo->SetStats(kFALSE);
 
       if (hn.find("Summary")==std::string::npos) histo->Scale(1/EvtNum);

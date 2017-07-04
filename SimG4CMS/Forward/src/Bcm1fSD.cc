@@ -35,8 +35,8 @@ Bcm1fSD::Bcm1fSD(std::string name,
 					   const SensitiveDetectorCatalog & clg,
 					   edm::ParameterSet const & p,
 					   const SimTrackManager* manager) : 
-  SensitiveTkDetector(name, cpv, clg, p), myName(name), mySimHit(0),
-  oldVolume(0), lastId(0), lastTrack(0), eventno(0) {
+  SensitiveTkDetector(name, cpv, clg, p), myName(name), mySimHit(nullptr),
+  oldVolume(nullptr), lastId(0), lastTrack(0), eventno(0) {
   
   edm::ParameterSet m_TrackerSD = p.getParameter<edm::ParameterSet>("Bcm1fSD");
   energyCut           = m_TrackerSD.getParameter<double>("EnergyThresholdForPersistencyInGeV")*GeV; //default must be 0.5 (?)
@@ -154,7 +154,7 @@ void Bcm1fSD::EndOfEvent(G4HCofThisEvent *) {
   
   LogDebug("Bcm1fSD")<< " Saving the last hit in a ROU " << myName;
 
-  if (mySimHit == 0) return;
+  if (mySimHit == nullptr) return;
   sendHit();
 }
 
@@ -163,7 +163,7 @@ void Bcm1fSD::fillHits(edm::PSimHitContainer& c, std::string n){
 }
 
 void Bcm1fSD::sendHit() {  
-  if (mySimHit == 0) return;
+  if (mySimHit == nullptr) return;
   LogDebug("Bcm1fSD") << " Storing PSimHit: " << pname << " " << mySimHit->detUnitId() 
 				   << " " << mySimHit->trackId() << " " << mySimHit->energyLoss() 
 				   << " " << mySimHit->entryPoint() << " " << mySimHit->exitPoint();
@@ -172,7 +172,7 @@ void Bcm1fSD::sendHit() {
 
   // clean up
   delete mySimHit;
-  mySimHit = 0;
+  mySimHit = nullptr;
   lastTrack = 0;
   lastId = 0;
 }
@@ -203,14 +203,14 @@ bool Bcm1fSD::newHit(G4Step * aStep) {
   LogDebug("Bcm1fSD") << " OLD (d,t) = (" << lastId << "," << lastTrack 
 				   << "), new = (" << theDetUnitId << "," << theTrackID << ") return "
 				   << ((theTrackID == lastTrack) && (lastId == theDetUnitId));
-  if ((mySimHit != 0) && (theTrackID == lastTrack) && (lastId == theDetUnitId) && closeHit(aStep))
+  if ((mySimHit != nullptr) && (theTrackID == lastTrack) && (lastId == theDetUnitId) && closeHit(aStep))
     return false;
   return true;
 }
 
 bool Bcm1fSD::closeHit(G4Step * aStep) {
 
-  if (mySimHit == 0) return false; 
+  if (mySimHit == nullptr) return false; 
   const float tolerance = 0.05 * mm; // 50 micron are allowed between the exit 
   // point of the current hit and the entry point of the new hit
   Local3DPoint theEntryPoint = SensitiveDetector::InitialStepPosition(aStep,LocalCoordinates);  
@@ -222,9 +222,9 @@ bool Bcm1fSD::closeHit(G4Step * aStep) {
 
 void Bcm1fSD::createHit(G4Step * aStep) {
 
-  if (mySimHit != 0) {
+  if (mySimHit != nullptr) {
     delete mySimHit;
-    mySimHit=0;
+    mySimHit=nullptr;
   }
     
   G4Track * theTrack  = aStep->GetTrack(); 
@@ -272,7 +272,7 @@ void Bcm1fSD::update(const BeginOfEvent * i) {
 
   clearHits();
   eventno = (*i)()->GetEventID();
-  mySimHit = 0;
+  mySimHit = nullptr;
 }
 
 void Bcm1fSD::update(const BeginOfTrack *bot) {
@@ -287,12 +287,12 @@ void Bcm1fSD::clearHits() {
 
 TrackInformation* Bcm1fSD::getOrCreateTrackInformation( const G4Track* gTrack) {
   G4VUserTrackInformation* temp = gTrack->GetUserInformation();
-  if (temp == 0){
+  if (temp == nullptr){
     edm::LogError("Bcm1fSD") <<" ERROR: no G4VUserTrackInformation available";
     abort();
   }else{
     TrackInformation* info = dynamic_cast<TrackInformation*>(temp);
-    if (info == 0){
+    if (info == nullptr){
       edm::LogError("Bcm1fSD") <<" ERROR: TkSimTrackSelection: the UserInformation does not appear to be a TrackInformation";
       abort();
     }

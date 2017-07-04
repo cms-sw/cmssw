@@ -554,8 +554,8 @@ public:
   FixedFlatOccupancy1d(const std::string &name) : SimpleTest(name)
   {
     Nbins = 0;
-    FailedBins[0] = 0;
-    FailedBins[1] = 0;
+    FailedBins[0] = nullptr;
+    FailedBins[1] = nullptr;
     setAlgoName(getAlgoName());
   }
 

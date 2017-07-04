@@ -155,7 +155,7 @@ void CustomParticleFactory::addCustomParticle(int pdgCode, double mass, const st
 						      0,              +1,             0,          
 						      0,              0,             0,             
 						      cloudtype,               0,            +1, 0,
-						      true,            -1.0,          NULL );
+						      true,            -1.0,          nullptr );
     particle->SetCloud(tmpParticle);
     particle->SetSpectator(spectator);
     
@@ -190,7 +190,7 @@ void CustomParticleFactory::addCustomParticle(int pdgCode, double mass, const st
                                                       0,              +1,             0,
                                                       0,              0,             0,
                                                       cloudtype,               0,            +1, 0,
-                                                      true,            -1.0,          NULL );
+                                                      true,            -1.0,          nullptr );
     particle->SetCloud(tmpParticle);
     particle->SetSpectator(spectator);
 
@@ -204,8 +204,8 @@ void CustomParticleFactory::addCustomParticle(int pdgCode, double mass, const st
       <<particle->GetSpectator()->GetPDGMass()/GeV<<" GeV."; 
   }
   else{
-    particle->SetCloud(0);
-    particle->SetSpectator(0);
+    particle->SetCloud(nullptr);
+    particle->SetSpectator(nullptr);
   } 
   m_particles.push_back(particle);
 }

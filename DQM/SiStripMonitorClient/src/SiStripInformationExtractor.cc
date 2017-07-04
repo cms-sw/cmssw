@@ -22,9 +22,9 @@
 SiStripInformationExtractor::SiStripInformationExtractor() {
   edm::LogInfo("SiStripInformationExtractor") << 
     " Creating SiStripInformationExtractor " << "\n" ;
-  layoutParser_ = 0;
+  layoutParser_ = nullptr;
   layoutMap.clear();
-  histoPlotter_=0;
+  histoPlotter_=nullptr;
   histoPlotter_ = new SiStripHistoPlotter();
   readConfiguration();
 }
@@ -43,7 +43,7 @@ SiStripInformationExtractor::~SiStripInformationExtractor() {
 //
 void SiStripInformationExtractor::readConfiguration() {
   std::string localPath = std::string("DQM/SiStripMonitorClient/data/sistrip_plot_layout.xml");
-  if (layoutParser_ == 0) {
+  if (layoutParser_ == nullptr) {
     layoutParser_ = new SiStripLayoutParser();
     layoutParser_->getDocument(edm::FileInPath(localPath).fullPath());
   }

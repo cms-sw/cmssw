@@ -139,7 +139,7 @@ public:
    virtual const double *  X() const; 
  
    /// return pointer to gradient values at the minimum 
-   virtual const double *  MinGradient() const { return 0; } // not available in Minuit2 
+   virtual const double *  MinGradient() const { return nullptr; } // not available in Minuit2 
 
    /// number of function calls to reach the minimum 
    virtual unsigned int NCalls() const { return fState.NFcn(); } 

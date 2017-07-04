@@ -144,7 +144,7 @@ GhostTrackPrediction::GhostTrackPrediction(const Track &track) :
 			    GlobalTrajectoryParameters(
 						       GlobalPoint(track.vx(), track.vy(), track.vz()),
 						       GlobalVector(track.px(), track.py(), track.pz()),
-						       0, 0))),
+						       0, nullptr))),
 	covariance_(convert(prediction_, track.covariance()))
 {
 }

@@ -34,7 +34,7 @@ public:
                        const TGPicture* iUpIcon,
                        const TGPicture* iDownIcon,
                        const TGPicture* iDisableIcon,
-                       const TGPicture* iBelowMouseIcon = 0,
+                       const TGPicture* iBelowMouseIcon = nullptr,
                        Int_t id = -1,
                        GContext_t norm = TGButton::GetDefaultGC() (),
                        UInt_t option=0);
@@ -55,7 +55,7 @@ public:
    void setIcons(const TGPicture* iUpIcon,
                  const TGPicture* iDownIcon,
                  const TGPicture* iDisabledIcon,
-                 const TGPicture* ibelowMouseIcon = 0);
+                 const TGPicture* ibelowMouseIcon = nullptr);
 
    const TGPicture* upIcon() const { return m_upIcon; }
    const TGPicture* downIcon() const { return m_downIcon; }

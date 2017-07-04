@@ -46,11 +46,11 @@ ostream& operator<<(ostream& os, const vector<T>& v) {
 // if entries are too small
 TH1 * getHisto(TFile * file, const char * name, unsigned int rebin) {
   TObject * h = file->Get(name);
-  if(h == 0)
+  if(h == nullptr)
     throw edm::Exception(edm::errors::Configuration) 
       << "Can't find object " << name << "\n";
   TH1 * histo = dynamic_cast<TH1*>(h);
-  if(histo == 0)
+  if(histo == nullptr)
     throw edm::Exception(edm::errors::Configuration) 
       << "Object " << name << " is of type " << h->ClassName() << ", not TH1\n";
   histo->Rebin(rebin);  

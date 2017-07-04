@@ -8,7 +8,7 @@
 FinalTreeBuilder::FinalTreeBuilder()
 {
  kvFactory = new KinematicVertexFactory();
- KinematicStatePropagator * ksp = 0;
+ KinematicStatePropagator * ksp = nullptr;
  pFactory = new VirtualKinematicParticleFactory(ksp);
 }
 
@@ -89,7 +89,7 @@ RefCountedKinematicTree FinalTreeBuilder::buildTree(const CachingVertex<6>& vtx,
  KinematicState nState(kPar, kEr, ch, field);
 
 //invalid previous particle and empty constraint:
- KinematicParticle * zp = 0;
+ KinematicParticle * zp = nullptr;
  RefCountedKinematicParticle pPart = ReferenceCountingPointer<KinematicParticle>(zp);
 
  float vChi = vtx.totalChiSquared();
@@ -119,7 +119,7 @@ RefCountedKinematicTree FinalTreeBuilder::buildTree(const CachingVertex<6>& vtx,
   KinematicState nState(lkPar,lkCov,lch, field);
   RefCountedKinematicParticle nPart = (*j)->refittedParticle(nState,vChi,vNdf);
   rrP.push_back(nPart);
-  if((*j)->correspondingTree() != 0)
+  if((*j)->correspondingTree() != nullptr)
   {
 
 //here are the particles having trees after them

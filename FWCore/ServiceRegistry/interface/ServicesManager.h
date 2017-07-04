@@ -76,7 +76,7 @@ public:
             Type2Maker::const_iterator itFoundMaker ;
             if(itFound == type2Service_.end()) {
                //do on demand building of the service
-               if(0 == type2Maker_.get() ||
+               if(nullptr == type2Maker_.get() ||
                    type2Maker_->end() == (itFoundMaker = type2Maker_->find(TypeIDBase(typeid(T))))) {
                       Exception::throwThis(errors::NotFound,
                         "Service Request unable to find requested service with compiler type name '",
@@ -91,7 +91,7 @@ public:
             }
             //convert it to its actual type
             std::shared_ptr<ServiceWrapper<T> > ptr(std::dynamic_pointer_cast<ServiceWrapper<T> >(itFound->second));
-            assert(0 != ptr.get());
+            assert(nullptr != ptr.get());
             return ptr->get();
          }
 
@@ -102,7 +102,7 @@ public:
             Type2Maker::const_iterator itFoundMaker ;
             if(itFound == type2Service_.end()) {
                //do on demand building of the service
-               if(0 == type2Maker_.get() ||
+               if(nullptr == type2Maker_.get() ||
                    type2Maker_->end() == (itFoundMaker = type2Maker_->find(TypeIDBase(typeid(T))))) {
                   return false;
                } else {

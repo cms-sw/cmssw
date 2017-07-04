@@ -154,7 +154,7 @@ TkDetLayersAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& i
 
   using namespace trackerTrie;
   // create a Trie
-  DetTrie trie(0);
+  DetTrie trie(nullptr);
 
   {
     const TrackingGeometry::DetUnitContainer&  modules = pTrackerGeometry->detUnits(); 

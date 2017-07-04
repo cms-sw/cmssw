@@ -29,7 +29,7 @@
 
 //-------------------------------------------------------------------------
 MaterialBudgetAction::MaterialBudgetAction(const edm::ParameterSet& iPSet)
-  : theHistoMgr(0)
+  : theHistoMgr(nullptr)
 {
   theData = new MaterialBudgetData;
   
@@ -343,7 +343,7 @@ bool MaterialBudgetAction::StopAfterProcess( const G4Step* aStep )
 {
   if( theProcessToStop == "" ) return false;
 
-  if(aStep->GetPostStepPoint()->GetProcessDefinedStep() == NULL) return false;
+  if(aStep->GetPostStepPoint()->GetProcessDefinedStep() == nullptr) return false;
   if( aStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName() == theProcessToStop ) {
     std::cout << " MaterialBudgetAction::StopAfterProcess " << aStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName() << std::endl;
     return true;

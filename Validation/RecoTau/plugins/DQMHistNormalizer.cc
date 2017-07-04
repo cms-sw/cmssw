@@ -68,7 +68,7 @@ void DQMHistNormalizer::analyze(const edm::Event&, const edm::EventSetup&)
 
 lat::Regexp* DQMHistNormalizer::buildRegex(const string & expr)
 {
-  lat::Regexp* rx = 0;
+  lat::Regexp* rx = nullptr;
   try
   {
     rx = new lat::Regexp(expr, 0, lat::Regexp::Wildcard);

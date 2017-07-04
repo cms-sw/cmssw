@@ -160,7 +160,7 @@ public:
                             ViewBuildFunctor& iBuilder);
    
    
-   ViewMap_i createView(const std::string& iName, TEveWindowSlot* slot = 0);
+   ViewMap_i createView(const std::string& iName, TEveWindowSlot* slot = nullptr);
    void newViewSlot(const std::string& iName);
    
    void connectSubviewAreaSignals(FWGUISubviewArea*);

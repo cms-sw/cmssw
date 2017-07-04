@@ -84,7 +84,7 @@ class TtGenEvent: public TopGenEvent {
   const reco::GenParticle* neutrinoBar(bool excludeTauLeptons=false) const;
 
   /// return combined 4-vector of top and topBar
-  const math::XYZTLorentzVector* topPair() const { return isTtBar() ? &topPair_ : 0; };
+  const math::XYZTLorentzVector* topPair() const { return isTtBar() ? &topPair_ : nullptr; };
 
  protected:
 

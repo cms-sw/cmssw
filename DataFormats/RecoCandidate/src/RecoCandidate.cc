@@ -55,7 +55,7 @@ const Track * RecoCandidate::bestTrack() const {
   TrackRef staRef = standAloneMuon(); 
   if ( staRef.isNonnull() ) 
     return staRef.get(); 
-  return 0;
+  return nullptr;
 }
 
 TrackBaseRef RecoCandidate::bestTrackRef() const {

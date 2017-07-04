@@ -20,7 +20,7 @@ HFChamberSD::HFChamberSD(std::string name, const DDCompactView & cpv,
 		 const SensitiveDetectorCatalog & clg, edm::ParameterSet const & p,
 		 const SimTrackManager* manager) :
   SensitiveCaloDetector(name, cpv, clg, p), theName(name),
-  m_trackManager(manager), theHCID(-1), theHC(0), theNSteps(0) {
+  m_trackManager(manager), theHCID(-1), theHC(nullptr), theNSteps(0) {
 
   collectionName.insert(name);
   LogDebug("FiberSim") << "***************************************************"
@@ -63,7 +63,7 @@ G4bool HFChamberSD::ProcessHits(G4Step * aStep, G4TouchableHistory*) {
   //do not process hits other than primary particle hits:
   double charge = aStep->GetTrack()->GetDefinition()->GetPDGCharge();
   int trackID = aStep->GetTrack()->GetTrackID();
-  if(charge == 0. || trackID != 1 ||aStep->GetTrack()->GetParentID() != 0 || aStep->GetTrack()->GetCreatorProcess() != NULL) return false;
+  if(charge == 0. || trackID != 1 ||aStep->GetTrack()->GetParentID() != 0 || aStep->GetTrack()->GetCreatorProcess() != nullptr) return false;
   ++theNSteps;
   //if(theNSteps>1)return false;
 

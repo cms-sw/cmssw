@@ -14,7 +14,7 @@
 //__________________________________________________________________________________________________
 AlignableDet::AlignableDet( const GeomDet* geomDet, bool addComponents ) : 
   AlignableComposite( geomDet ), 
-  theAlignmentPositionError(0)
+  theAlignmentPositionError(nullptr)
 {
   // ensure that the surface is not constrained to the average position of the
   // components:

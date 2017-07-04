@@ -99,7 +99,7 @@ void testSiStripHashedDetId::initialize( const edm::EventSetup& setup ) {
   
   // Retrieve hashed indices
   std::vector<uint32_t> hashes;
-  uint32_t istart = time(NULL);
+  uint32_t istart = time(nullptr);
   for( uint16_t tt = 0; tt < 10000; ++tt ) { // 10000 loops just to see some non-negligible time meaasurement!
     hashes.clear();
     hashes.reserve(dets.size());
@@ -147,12 +147,12 @@ void testSiStripHashedDetId::initialize( const edm::EventSetup& setup ) {
   edm::LogVerbatim(mlDqmCommon_)
     << "[testSiStripHashedDetId::" << __func__ << "]"
     << " Processed " << hashes.size()
-    << " DetIds in " << (time(NULL)-istart)
+    << " DetIds in " << (time(nullptr)-istart)
     << " seconds";
   
   // Retrieve DetIds
   std::vector<uint32_t> detids;
-  uint32_t jstart = time(NULL);
+  uint32_t jstart = time(nullptr);
   for( uint16_t ttt = 0; ttt < 10000; ++ttt ) { // 10000 loops just to see some non-negligible time meaasurement!
     detids.clear();
     detids.reserve(dets.size());
@@ -184,7 +184,7 @@ void testSiStripHashedDetId::initialize( const edm::EventSetup& setup ) {
   edm::LogVerbatim(mlDqmCommon_)
     << "[testSiStripHashedDetId::" << __func__ << "]"
     << " Processed " << detids.size()
-    << " hashed indices in " << (time(NULL)-jstart)
+    << " hashed indices in " << (time(nullptr)-jstart)
     << " seconds";
  
 }

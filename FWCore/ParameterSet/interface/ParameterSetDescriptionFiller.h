@@ -76,7 +76,7 @@ namespace edm {
     template<typename T>
     struct has_fillDescriptions_function {
       static bool const value =
-        sizeof(has_fillDescriptions_helper<T>(0)) == sizeof(yes_tag);
+        sizeof(has_fillDescriptions_helper<T>(nullptr)) == sizeof(yes_tag);
     };
 
     template <typename T>
@@ -102,7 +102,7 @@ namespace edm {
     template<typename T>
     struct has_prevalidate_function {
       static bool const value =
-      sizeof(has_prevalidate_helper<T>(0)) == sizeof(yes_tag);
+      sizeof(has_prevalidate_helper<T>(nullptr)) == sizeof(yes_tag);
     };
 
     template <typename T>

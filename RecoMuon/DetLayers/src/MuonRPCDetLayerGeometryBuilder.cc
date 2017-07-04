@@ -159,7 +159,7 @@ MuonRPCDetLayerGeometryBuilder::buildLayer(int endcap,const std::vector<int>& ri
     }
   }
 
-   MuRingForwardDoubleLayer * result = 0;
+   MuRingForwardDoubleLayer * result = nullptr;
 
   if(!backRings.empty() || !frontRings.empty())
   {

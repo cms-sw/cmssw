@@ -39,7 +39,7 @@ public:
    virtual Bool_t DestroyPhysical(Int_t);
 
    using TGLScenePad::AddObject;
-   virtual Int_t  AddObject(const TBuffer3D& buffer, Bool_t* addChildren = 0);
+   virtual Int_t  AddObject(const TBuffer3D& buffer, Bool_t* addChildren = nullptr);
 };
 
 //==============================================================================

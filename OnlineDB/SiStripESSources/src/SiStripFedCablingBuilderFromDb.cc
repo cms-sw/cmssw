@@ -20,7 +20,7 @@ using namespace sistrip;
 /** */
 SiStripFedCablingBuilderFromDb::SiStripFedCablingBuilderFromDb( const edm::ParameterSet& pset ) 
   : SiStripFedCablingESProducer( pset ),
-    db_(0),
+    db_(nullptr),
     source_(sistrip::UNDEFINED_CABLING_SOURCE)
 {
   findingRecord<SiStripFedCablingRcd>();

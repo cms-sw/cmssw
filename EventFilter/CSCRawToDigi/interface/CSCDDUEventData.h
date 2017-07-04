@@ -23,7 +23,7 @@ public:
 
   // buf may need to stay pinned in memory as long
   // as this data is used.  Not sure
-  explicit CSCDDUEventData(unsigned short *buf, CSCDCCExaminer* examiner=NULL);
+  explicit CSCDDUEventData(unsigned short *buf, CSCDCCExaminer* examiner=nullptr);
 
   ~CSCDDUEventData();
 
@@ -69,7 +69,7 @@ public:
 
   /// a good test routine would be to unpack data, then pack it again.
 protected:
-  void unpack_data(unsigned short * buf, CSCDCCExaminer* examiner=NULL);
+  void unpack_data(unsigned short * buf, CSCDCCExaminer* examiner=nullptr);
   CSCDCCHeader theDCCHeader;
   CSCDDUHeader theDDUHeader;
   // CSCData is unpacked and stored in this vector

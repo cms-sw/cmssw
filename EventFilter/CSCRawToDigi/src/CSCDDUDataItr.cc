@@ -6,7 +6,7 @@
 // theCurrentCSC starts at -1, since user is expected to next() before he dereferences
 // for the first time
 CSCDDUDataItr::CSCDDUDataItr() :
-  theDDUData(0),
+  theDDUData(nullptr),
   theCurrentCSC(-1),
   theNumberOfCSCs(0),
   theDataIsOwnedByMe(true)
@@ -14,7 +14,7 @@ CSCDDUDataItr::CSCDDUDataItr() :
 
 
 CSCDDUDataItr::CSCDDUDataItr(const char * buf) :
-  theDDUData(0),
+  theDDUData(nullptr),
   theCurrentCSC(-1),
   theNumberOfCSCs(0),
   theDataIsOwnedByMe(true)
@@ -53,7 +53,7 @@ CSCDDUDataItr::CSCDDUDataItr(const CSCDDUDataItr & i) :
 {
   if(theDataIsOwnedByMe) 
     {
-      if(i.theDDUData != 0) 
+      if(i.theDDUData != nullptr) 
 	{
 	  theDDUData = new CSCDDUEventData(*(i.theDDUData));
 	}
@@ -70,7 +70,7 @@ void CSCDDUDataItr::operator=(const CSCDDUDataItr & i)
   if(theDataIsOwnedByMe) 
     {
       delete theDDUData;
-      if(i.theDDUData != 0) 
+      if(i.theDDUData != nullptr) 
 	{
 	  theDDUData = new CSCDDUEventData(*(i.theDDUData));
 	}

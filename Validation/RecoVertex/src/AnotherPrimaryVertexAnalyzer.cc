@@ -88,7 +88,7 @@ AnotherPrimaryVertexAnalyzer::AnotherPrimaryVertexAnalyzer(const edm::ParameterS
   , _firstOnly(iConfig.getUntrackedParameter<bool>("firstOnly",false))
   , _weightprov(iConfig.getParameter<bool>("usePrescaleWeight")
 		? new PrescaleWeightProvider(iConfig.getParameter<edm::ParameterSet>("prescaleWeightProviderPSet"), consumesCollector(), *this)
-		: 0
+		: nullptr
 		)
 {
    //now do what ever initialization is needed

@@ -74,19 +74,19 @@ TrackingRecoMaterialAnalyser::TrackingRecoMaterialAnalyser(const edm::ParameterS
   verticesToken_(mayConsume<reco::VertexCollection>(iPSet.getParameter<edm::InputTag>("vertices"))),
   usePV_(iPSet.getParameter<bool>("usePV")),
   folder_(iPSet.getParameter<std::string>("folder")),
-  histo_RZ_(0),
-  histo_RZ_Ori_(0),
-  deltaPt_in_out_2d_(0),
-  deltaP_in_out_vs_eta_(0),
-  deltaP_in_out_vs_z_(0),
-  deltaP_in_out_vs_eta_2d_(0),
-  deltaP_in_out_vs_eta_vs_phi_2d_(0),
-  deltaP_in_out_vs_z_2d_(0),
-  deltaPt_in_out_vs_eta_(0),
-  deltaPt_in_out_vs_z_(0),
-  deltaPl_in_out_vs_eta_(0),
-  deltaPl_in_out_vs_z_(0),
-  P_vs_eta_2d_(0)
+  histo_RZ_(nullptr),
+  histo_RZ_Ori_(nullptr),
+  deltaPt_in_out_2d_(nullptr),
+  deltaP_in_out_vs_eta_(nullptr),
+  deltaP_in_out_vs_z_(nullptr),
+  deltaP_in_out_vs_eta_2d_(nullptr),
+  deltaP_in_out_vs_eta_vs_phi_2d_(nullptr),
+  deltaP_in_out_vs_z_2d_(nullptr),
+  deltaPt_in_out_vs_eta_(nullptr),
+  deltaPt_in_out_vs_z_(nullptr),
+  deltaPl_in_out_vs_eta_(nullptr),
+  deltaPl_in_out_vs_z_(nullptr),
+  P_vs_eta_2d_(nullptr)
 {
 }
 

@@ -36,7 +36,7 @@ FWECALDetailViewBuilder::FWECALDetailViewBuilder(const edm::EventBase *event, co
                                                 
 : m_event(event), m_geom(geom),
   m_eta(eta), m_phi(phi), m_size(size),
-  m_defaultColor(defaultColor), m_towerList(0)
+  m_defaultColor(defaultColor), m_towerList(nullptr)
 {
 }
 
@@ -64,8 +64,8 @@ TEveCaloData* FWECALDetailViewBuilder::buildCaloData(bool)
    
 
  
-   TAxis* eta_axis = 0;
-   TAxis* phi_axis = 0; 
+   TAxis* eta_axis = nullptr;
+   TAxis* phi_axis = nullptr; 
 
    //  printf("data rng %f %f %f %f\n",etaMin, etaMax, phiMin, phiMax );  
    std::vector<double> etaBinsWithinLimits;
@@ -245,7 +245,7 @@ FWECALDetailViewBuilder::fillEtaPhi( const EcalRecHitCollection *hits,TEveCaloDa
        float energy, et;
        std::vector<TEveVector> etaphiCorners(8);
 
-       if( corners == 0 )
+       if( corners == nullptr )
            continue;
 
 
@@ -314,7 +314,7 @@ void
 FWECALDetailViewBuilder::fillData(  TEveCaloDataVec *data)
 {
    { // barrel
-      const EcalRecHitCollection *hitsEB = 0;
+      const EcalRecHitCollection *hitsEB = nullptr;
       edm::Handle<EcalRecHitCollection> handle_hitsEB;
 
       // RECO
@@ -378,7 +378,7 @@ FWECALDetailViewBuilder::fillData(  TEveCaloDataVec *data)
 
    {// endcap
 
-      const EcalRecHitCollection *hitsEE = 0;
+      const EcalRecHitCollection *hitsEE = nullptr;
       edm::Handle<EcalRecHitCollection> handle_hitsEE;
 
       // RECO

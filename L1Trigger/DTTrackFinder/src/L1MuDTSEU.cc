@@ -49,7 +49,7 @@ using namespace std;
 
 L1MuDTSEU::L1MuDTSEU(const L1MuDTSectorProcessor& sp, Extrapolation ext, unsigned int tsId) : 
      m_sp(sp), m_ext(ext), 
-     m_startTS_Id(tsId), m_startTS(0), m_EUXs(), m_ERS() {
+     m_startTS_Id(tsId), m_startTS(nullptr), m_EUXs(), m_ERS() {
  
   m_EUXs.reserve(12);
 
@@ -71,10 +71,10 @@ L1MuDTSEU::~L1MuDTSEU() {
   vector<L1MuDTEUX*>::iterator iter_eux;
   for ( iter_eux = m_EUXs.begin(); iter_eux != m_EUXs.end(); iter_eux++ ) {
     delete (*iter_eux);
-    *iter_eux = 0;
+    *iter_eux = nullptr;
   }
 
-  m_startTS = 0;
+  m_startTS = nullptr;
   m_EUXs.clear();
 
   delete m_ERS;
@@ -154,7 +154,7 @@ void L1MuDTSEU::run(const edm::EventSetup& c) {
 //
 void L1MuDTSEU::reset() {
 
-  m_startTS = 0;
+  m_startTS = nullptr;
   vector<L1MuDTEUX*>::iterator iter_eux;
   for ( iter_eux = m_EUXs.begin(); iter_eux != m_EUXs.end(); iter_eux++ ) {
     (*iter_eux)->reset();

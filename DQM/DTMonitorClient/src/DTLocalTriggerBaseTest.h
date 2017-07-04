@@ -126,7 +126,7 @@ protected:
 
 template <class T>
 T* DTLocalTriggerBaseTest::getHisto(MonitorElement* me) {
-  return me ? dynamic_cast<T*>(me->getRootObject()) : 0;
+  return me ? dynamic_cast<T*>(me->getRootObject()) : nullptr;
 }
 
 #endif

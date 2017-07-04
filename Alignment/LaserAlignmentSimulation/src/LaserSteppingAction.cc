@@ -37,10 +37,10 @@ void LaserSteppingAction::UserSteppingAction(const G4Step * myStep)
     if ( isGood == fStopAndKill ) 
       LogDebug("LaserAlignmentSimulationStepping") << "<LaserSteppingAction::UserSteppingAction(const G4Step *)>: AC1CMS: Track Status = fStopAndKill ";
       
-    if ( theStep->GetPreStepPoint()->GetProcessDefinedStep() != 0 )
+    if ( theStep->GetPreStepPoint()->GetProcessDefinedStep() != nullptr )
       LogDebug("LaserAlignmentSimulationStepping") << "<LaserSteppingAction::UserSteppingAction(const G4Step *)>: AC1CMS: PreStep Process  = " 
 					    << theStep->GetPreStepPoint()->GetProcessDefinedStep()->GetProcessName();
-    if ( theStep->GetPostStepPoint()->GetProcessDefinedStep() != 0 )
+    if ( theStep->GetPostStepPoint()->GetProcessDefinedStep() != nullptr )
       LogDebug("LaserAlignmentSimulationStepping") << "<LaserSteppingAction::UserSteppingAction(const G4Step *)>: AC1CMS: PostStep Process = " 
 					    << theStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName();
   }

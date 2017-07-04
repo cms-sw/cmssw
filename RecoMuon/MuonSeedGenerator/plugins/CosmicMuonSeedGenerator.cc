@@ -244,13 +244,13 @@ MuonRecHitContainer CosmicMuonSeedGenerator::selectSegments(const MuonRecHitCont
 
   //avoid selecting Segments with similar direction
   for (MuonRecHitContainer::iterator hit = result.begin(); hit != result.end(); hit++) {
-    if (*hit == 0) continue;
+    if (*hit == nullptr) continue;
     if ( !(*hit)->isValid() ) continue;
     bool good = true;
     //UNUSED:    GlobalVector dir1 = (*hit)->globalDirection();
     //UNUSED:    GlobalPoint pos1 = (*hit)->globalPosition();
     for (MuonRecHitContainer::iterator hit2 = hit + 1; hit2 != result.end(); hit2++) {
-        if (*hit2 == 0) continue;
+        if (*hit2 == nullptr) continue;
         if ( !(*hit2)->isValid() ) continue;
 
           //compare direction and position
@@ -260,7 +260,7 @@ MuonRecHitContainer CosmicMuonSeedGenerator::selectSegments(const MuonRecHitCont
 
         if ( !leftIsBetter((*hit),(*hit2)) ) { 
           good = false;
-        } else (*hit2) = 0;
+        } else (*hit2) = nullptr;
     }
 
     if ( good ) result2.push_back(*hit);

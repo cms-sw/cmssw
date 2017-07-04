@@ -237,7 +237,7 @@ void L1TRate_Offline::endLuminosityBlock(LuminosityBlock const& lumiBlock, Event
   unsigned int         prescalesIndex=0;
 
   bool isDefCount;
-  map<TString,double>* counts=0;
+  map<TString,double>* counts=nullptr;
 
   // Resetting MonitorElements so we can refill them
   for(map<string,string>::const_iterator i=m_selectedTriggers.begin() ; i!=m_selectedTriggers.end() ; i++){

@@ -180,11 +180,11 @@ EcalUncalibRecHitWorkerFixedAlphaBetaFit::run(const edm::Event& evt,
                         b = betaEB_;
                 }
                 algoEB_.SetAlphaBeta(a,b);
-                result.push_back( algoEB_.makeRecHit( *itdg, pedVec, gainRatios, 0, 0) );
+                result.push_back( algoEB_.makeRecHit( *itdg, pedVec, gainRatios, nullptr, nullptr) );
         } else {
                 //FIX ME load in a and b from a file
                 algoEE_.SetAlphaBeta(alphaEE_,betaEE_);
-                result.push_back( algoEE_.makeRecHit(*itdg, pedVec, gainRatios, 0 , 0) );
+                result.push_back( algoEE_.makeRecHit(*itdg, pedVec, gainRatios, nullptr , nullptr) );
         }
         return true;
 }

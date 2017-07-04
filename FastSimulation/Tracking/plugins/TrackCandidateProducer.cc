@@ -163,7 +163,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	    }
 
 	    // prepare to skip seed hits
-	    const FastTrackerRecHit * lastHitToSkip = 0;
+	    const FastTrackerRecHit * lastHitToSkip = nullptr;
 	    if(selectedRecHits.size() > 0)
 	    {
 		lastHitToSkip = selectedRecHits.back();
@@ -185,7 +185,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 		{
 		    if(lastHitToSkip->sameId(selectedRecHit))
 		    {
-			lastHitToSkip=0;
+			lastHitToSkip=nullptr;
 		    }
 		    continue;
 		}

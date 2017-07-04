@@ -60,10 +60,10 @@ class dEdxHitAnalyzer : public DQMEDAnalyzer {
     MonitorElement* ME_Harm2DeDx;
   
     dEdxMEs()
-      :ME_StripHitDeDx(NULL)
-      ,ME_PixelHitDeDx(NULL)
-      ,ME_NHitDeDx(NULL)
-      ,ME_Harm2DeDx(NULL)
+      :ME_StripHitDeDx(nullptr)
+      ,ME_PixelHitDeDx(nullptr)
+      ,ME_NHitDeDx(nullptr)
+      ,ME_Harm2DeDx(nullptr)
     {}
   };
   

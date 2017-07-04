@@ -173,10 +173,10 @@ bool PythiaFilterGammaGamma::filter(edm::Event& iEvent, const edm::EventSetup& i
 	      while (mom->pdg_id() == this_id) {
 	   
 		const GenParticle* mother = mom->production_vertex() ?       
-		  *(mom->production_vertex()->particles_in_const_begin()) : 0;
+		  *(mom->production_vertex()->particles_in_const_begin()) : nullptr;
 
 		mom = mother;
-		if (mom == 0) {
+		if (mom == nullptr) {
 		  break;
 		}	  
 	      }

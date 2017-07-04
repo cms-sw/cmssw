@@ -130,7 +130,7 @@ namespace popcon{
     void setForTransfer(){
       edm::LogInfo   ("SiStripPopPopConConfigDbObjHandler") << "[setForTransfer] " << m_name << " getting data to be transferred "  << std::endl;
       
-      T *obj=0; 
+      T *obj=nullptr; 
       condObjBuilder->getValue(obj);
 
       edm::LogInfo   ("SiStripPopPopConConfigDbObjHandler") << "[setForTransfer] " << m_name << " got data to be transferred from condObjBuilder "  << std::endl;
@@ -142,7 +142,7 @@ namespace popcon{
 	  m_since=this->tagInfo().lastInterval.first+1; 
       edm::LogInfo   ("SiStripPopPopConConfigDbObjHandler") <<"[setForTransfer] setting since = "<< m_since <<std::endl;
 
-      if (obj!=0){
+      if (obj!=nullptr){
 
 	edm::LogInfo   ("SiStripPopPopConConfigDbObjHandler") <<"[setForTransfer] filling map m_to_transfer" <<std::endl;
 	this->m_to_transfer.push_back(std::make_pair(obj,m_since));

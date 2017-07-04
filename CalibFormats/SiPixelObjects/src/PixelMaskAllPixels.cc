@@ -213,7 +213,7 @@ PixelROCMaskBits* PixelMaskAllPixels::getMaskBits(PixelROCName name) {
     if (maskbits_[i].name()==name) return &(maskbits_[i]);
   }
 
-  return 0;
+  return nullptr;
 
 }
 

@@ -104,7 +104,7 @@ coral_bridge::AuthenticationCredentialSet::get( const std::string& connectionStr
 const coral::IAuthenticationCredentials*
 coral_bridge::AuthenticationCredentialSet::get( const std::string& connectionString, const std::string& role ) const
 {
-  const coral::IAuthenticationCredentials* ret = 0;
+  const coral::IAuthenticationCredentials* ret = nullptr;
   std::pair<std::string,std::string> connKey( connectionString, role );
   std::map< std::pair<std::string,std::string>, coral::AuthenticationCredentials* >::const_iterator iData = m_data.find( connKey );
   if ( iData != m_data.end() ){
@@ -683,7 +683,7 @@ cond::CredentialStore::CredentialStore():
   m_principalId(-1),
   m_principalKey(""),
   m_serviceName(""),
-  m_serviceData(0),
+  m_serviceData(nullptr),
   m_key(){
 }
 
@@ -697,7 +697,7 @@ cond::CredentialStore::setUpForService( const std::string& serviceName,
     throwException( "Service name has not been provided.","cond::CredentialStore::setUpConnection" );        
   }
   m_serviceName.clear();
-  m_serviceData = 0;
+  m_serviceData = nullptr;
 
   if( authPath.empty() ){
     throwException( "The authentication Path has not been provided.","cond::CredentialStore::setUpForService" );

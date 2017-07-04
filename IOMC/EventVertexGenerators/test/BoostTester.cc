@@ -21,7 +21,7 @@ using namespace std;
 
 BoostTester::BoostTester( const ParameterSet& )
 {
-	fOutputFile = 0 ;
+	fOutputFile = nullptr ;
 
 	ftreevtx = new TTree("vtxtree","vtxtree");
 	ftreevtx->Branch("vx",&fvx,"fvx/D");

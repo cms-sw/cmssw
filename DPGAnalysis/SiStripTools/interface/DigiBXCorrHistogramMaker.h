@@ -366,7 +366,7 @@ void DigiBXCorrHistogramMaker<T>::fill(const T& he, const std::map<int,int>& ndi
 
 	if(m_runHisto) {
 	  if(m_ndigivscycletime.find(i)!=m_ndigivscycletime.end()) {
-	    if(m_ndigivscycletime[i]!=0 && (*m_ndigivscycletime[i])!=0 ) (*m_ndigivscycletime[i])->Fill(tbx%70,(int)he._orbit,digi->second);
+	    if(m_ndigivscycletime[i]!=nullptr && (*m_ndigivscycletime[i])!=nullptr ) (*m_ndigivscycletime[i])->Fill(tbx%70,(int)he._orbit,digi->second);
 	  }
 	}
 

@@ -239,10 +239,10 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   //tMax(conf.getUntrackedParameter<double>("deltaProductionCut",0.030)),
   tMax(conf.getParameter<double>("deltaProductionCut")),
 
-  fluctuate(fluctuateCharge ? new SiG4UniversalFluctuation() : 0),
-  theNoiser(addNoise ? new GaussianTailNoiseGenerator() : 0),
+  fluctuate(fluctuateCharge ? new SiG4UniversalFluctuation() : nullptr),
+  theNoiser(addNoise ? new GaussianTailNoiseGenerator() : nullptr),
   calmap(doMissCalibrate ? initCal() : std::map<int,CalParameters,std::less<int> >()),
-  theSiPixelGainCalibrationService_(use_ineff_from_db_ ? new SiPixelGainCalibrationOfflineSimService(conf) : 0),
+  theSiPixelGainCalibrationService_(use_ineff_from_db_ ? new SiPixelGainCalibrationOfflineSimService(conf) : nullptr),
   pixelEfficiencies_(conf, AddPixelInefficiency,NumberOfBarrelLayers,NumberOfEndcapDisks),
   pixelAging_(conf,AddPixelAging,NumberOfBarrelLayers,NumberOfEndcapDisks)
 {
@@ -502,7 +502,7 @@ void SiPixelDigitizerAlgorithm::PixelEfficiencies::init_from_db(const edm::ESHan
   
   // Loop on all modules, calculate geometrical scale factors and store in map for easy access
   for(TrackerGeometry::DetUnitContainer::const_iterator it_module = geom->detUnits().begin(); it_module != geom->detUnits().end(); it_module++) {
-    if( dynamic_cast<PixelGeomDetUnit const*>((*it_module))==0) continue;
+    if( dynamic_cast<PixelGeomDetUnit const*>((*it_module))==nullptr) continue;
     const DetId detid = (*it_module)->geographicalId();
     uint32_t rawid = detid.rawId();
     PixelGeomFactors[rawid] = 1;
@@ -519,7 +519,7 @@ void SiPixelDigitizerAlgorithm::PixelEfficiencies::init_from_db(const edm::ESHan
   for (auto factor : PUFactors) {
     const DetId db_id = DetId(factor.first);
     for(TrackerGeometry::DetUnitContainer::const_iterator it_module = geom->detUnits().begin(); it_module != geom->detUnits().end(); it_module++) {
-      if( dynamic_cast<PixelGeomDetUnit const*>((*it_module))==0) continue;
+      if( dynamic_cast<PixelGeomDetUnit const*>((*it_module))==nullptr) continue;
       const DetId detid = (*it_module)->geographicalId();
       if (!matches(detid, db_id, DetIdmasks)) continue;
       if (iPU.count(detid.rawId())) {

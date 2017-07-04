@@ -237,7 +237,7 @@ void CSCAnodeLCTAnalyzer::digiSimHitAssociator(CSCAnodeLayerInfo& info,
 	   prd != thisLayerDigis.end(); prd++) {
 	double deltaEtaMin = 999.;
 	double bestHitEta  = 999.;
-	PSimHit* bestHit   = 0;
+	PSimHit* bestHit   = nullptr;
 
 	int wiregroup = prd->getWireGroup(); // counted from 1
 	double digiEta = getWGEta(layerId, wiregroup-1);

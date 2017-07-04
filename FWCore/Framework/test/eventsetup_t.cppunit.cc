@@ -38,7 +38,7 @@
 using namespace edm;
 namespace {
   bool non_null(const void* iPtr) {
-    return iPtr != 0;
+    return iPtr != nullptr;
   }
 }
 
@@ -712,7 +712,7 @@ void testEventsetup::introspectionTest()
     eventSetup.fillAvailableRecordKeys(recordKeys);
     CPPUNIT_ASSERT(1==recordKeys.size());
     const eventsetup::EventSetupRecord* record = eventSetup.find(recordKeys[0]);
-    CPPUNIT_ASSERT(0!=record);
+    CPPUNIT_ASSERT(nullptr!=record);
     
   } catch (const cms::Exception& iException) {
     std::cout <<"caught "<<iException.explainSelf()<<std::endl;

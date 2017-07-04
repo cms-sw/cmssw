@@ -25,7 +25,7 @@ namespace edm {
 
     template<typename T>
     struct has_swap_function {
-      static bool const value = sizeof(has_swap<T>(0)) == sizeof(yes_tag);
+      static bool const value = sizeof(has_swap<T>(nullptr)) == sizeof(yes_tag);
     };
 
     template<typename T, bool = has_swap_function<T>::value> struct doSwapOrAssign;
@@ -100,7 +100,7 @@ namespace edm {
     template<typename T>
     struct has_mergeProduct_function {
       static bool const value =
-        sizeof(has_mergeProduct<T>(0)) == sizeof(yes_tag);
+        sizeof(has_mergeProduct<T>(nullptr)) == sizeof(yes_tag);
     };
 
     template<typename T, bool = has_mergeProduct_function<T>::value> struct getHasMergeFunction;
@@ -136,7 +136,7 @@ namespace edm {
     template<typename T>
     struct has_isProductEqual_function {
       static bool const value =
-        sizeof(has_isProductEqual<T>(0)) == sizeof(yes_tag);
+        sizeof(has_isProductEqual<T>(nullptr)) == sizeof(yes_tag);
     };
 
     template<typename T, bool = has_isProductEqual_function<T>::value> struct getHasIsProductEqual;

@@ -52,7 +52,7 @@ protected:
       Int_t  fValue;  
       void  *fUserData;
       Float_t fVertices[8][3]; 
-      BFreeBox_t(Int_t v=0) : fValue(v), fUserData(0) {}
+      BFreeBox_t(Int_t v=0) : fValue(v), fUserData(nullptr) {}
    };
 
 

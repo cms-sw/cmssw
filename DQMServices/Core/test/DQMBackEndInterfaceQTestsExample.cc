@@ -208,7 +208,7 @@ DQMStoreQTestsExample::~DQMStoreQTestsExample()
 
 void DQMStoreQTestsExample::endJob(void)
 {
-  setReference(0);
+  setReference(nullptr);
   
   // attempt to run tests w/o a reference histogram
   runTests(dqm::qstatus::INVALID, "tests w/o reference");

@@ -2009,7 +2009,7 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalTPParameters* fObject) 
     //    std::cout << "HcalTPParameters-> processing line: " << buffer << std::endl;
     int      version = atoi (items [0].c_str());
     int      adcCut  = atoi (items [1].c_str());
-    uint64_t tdcMask = strtoull(items [2].c_str(),NULL,16);
+    uint64_t tdcMask = strtoull(items [2].c_str(),nullptr,16);
     uint32_t tbits   = atoi (items [3].c_str());
     int      auxi1   = atoi (items [4].c_str());
     int      auxi2   = atoi (items [5].c_str());

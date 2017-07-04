@@ -146,7 +146,7 @@ namespace edmtest {
           // This is probably overkill, but also check it can be retrieved by ID from the registry 
           edm::ParameterSetID id = pset.id();
 	  edm::ParameterSet const* result = reg->getMapped(id);
-          assert(result != 0);
+          assert(result != nullptr);
         }
       }
 

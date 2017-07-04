@@ -28,18 +28,18 @@
 
 IsoTrig::IsoTrig(const edm::ParameterSet& iConfig) :
   hltPrescaleProvider_(iConfig, consumesCollector(), *this),
-  changed(false), t_timeL2Prod(0), t_nPixCand(0), t_nPixSeed(0), t_nGoodTk(0),
-  t_TrkhCone(0), t_TrkP(0), t_TrkselTkFlag(0), t_TrkqltyFlag(0),
-  t_TrkMissFlag(0), t_TrkPVFlag(0), t_TrkNuIsolFlag(0),
-  t_PixcandP(0), t_PixcandPt(0), t_PixcandEta(0),  t_PixcandPhi(0),
-  t_PixcandMaxP(0), t_PixTrkcandP(0), t_PixTrkcandPt(0), t_PixTrkcandEta(0),
-  t_PixTrkcandPhi(0), t_PixTrkcandMaxP(0), t_PixTrkcandselTk(0),
-  t_NFcandP(0), t_NFcandPt(0), t_NFcandEta(0), t_NFcandPhi(0),
-  t_NFcandEmip(0), t_NFTrkcandP(0), t_NFTrkcandPt(0), t_NFTrkcandEta(0),
-  t_NFTrkcandPhi(0), t_NFTrkcandEmip(0), t_NFTrkMinDR(0), t_NFTrkMinDP1(0),
-  t_NFTrkselTkFlag(0), t_NFTrkqltyFlag(0), t_NFTrkMissFlag(0), 
-  t_NFTrkPVFlag(0), t_NFTrkPropFlag(0), t_NFTrkChgIsoFlag(0), 
-  t_NFTrkNeuIsoFlag(0), t_NFTrkMipFlag(0), t_ECone(0) {
+  changed(false), t_timeL2Prod(nullptr), t_nPixCand(nullptr), t_nPixSeed(nullptr), t_nGoodTk(nullptr),
+  t_TrkhCone(nullptr), t_TrkP(nullptr), t_TrkselTkFlag(nullptr), t_TrkqltyFlag(nullptr),
+  t_TrkMissFlag(nullptr), t_TrkPVFlag(nullptr), t_TrkNuIsolFlag(nullptr),
+  t_PixcandP(nullptr), t_PixcandPt(nullptr), t_PixcandEta(nullptr),  t_PixcandPhi(nullptr),
+  t_PixcandMaxP(nullptr), t_PixTrkcandP(nullptr), t_PixTrkcandPt(nullptr), t_PixTrkcandEta(nullptr),
+  t_PixTrkcandPhi(nullptr), t_PixTrkcandMaxP(nullptr), t_PixTrkcandselTk(nullptr),
+  t_NFcandP(nullptr), t_NFcandPt(nullptr), t_NFcandEta(nullptr), t_NFcandPhi(nullptr),
+  t_NFcandEmip(nullptr), t_NFTrkcandP(nullptr), t_NFTrkcandPt(nullptr), t_NFTrkcandEta(nullptr),
+  t_NFTrkcandPhi(nullptr), t_NFTrkcandEmip(nullptr), t_NFTrkMinDR(nullptr), t_NFTrkMinDP1(nullptr),
+  t_NFTrkselTkFlag(nullptr), t_NFTrkqltyFlag(nullptr), t_NFTrkMissFlag(nullptr), 
+  t_NFTrkPVFlag(nullptr), t_NFTrkPropFlag(nullptr), t_NFTrkChgIsoFlag(nullptr), 
+  t_NFTrkNeuIsoFlag(nullptr), t_NFTrkMipFlag(nullptr), t_ECone(nullptr) {
   //now do whatever initialization is neededOA
   trigNames                           = iConfig.getUntrackedParameter<std::vector<std::string> >("Triggers");
   PixcandTag_                          = iConfig.getParameter<edm::InputTag> ("PixcandTag");

@@ -175,7 +175,7 @@ SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig) :
   // Create DCS Status
   bool checkDCS    = conf_.getParameter<bool>("UseDCSFiltering");
   if (checkDCS) dcsStatus_ = new SiStripDCSStatus(consumesCollector());
-  else dcsStatus_ = 0; 
+  else dcsStatus_ = nullptr; 
 
   //initialize boolean for the data-presence check (needed for TotalNumberOfDigisFailure histogram)
   isStableBeams = false;
@@ -239,7 +239,7 @@ void SiStripMonitorDigi::dqmBeginRun(const edm::Run& run, const edm::EventSetup&
     //const int siStripFedIdMax = FEDNumbering::MAXSiStripFEDID; 
     
     edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
-    if( es.find( recordKey ) != 0) {
+    if( es.find( recordKey ) != nullptr) {
       
       edm::ESHandle<RunInfo> sumFED;
       es.get<RunInfoRcd>().get(sumFED);    
@@ -361,12 +361,12 @@ void SiStripMonitorDigi::createMEs(DQMStore::IBooker & ibooker , const edm::Even
 
       ModMEs local_modmes;
       
-      local_modmes.NumberOfDigis         = 0;
-      local_modmes.NumberOfDigisPerStrip = 0;
-      local_modmes.ADCsHottestStrip      = 0;
-      local_modmes.ADCsCoolestStrip      = 0;
-      local_modmes.DigiADCs              = 0;
-      local_modmes.StripOccupancy        = 0;
+      local_modmes.NumberOfDigis         = nullptr;
+      local_modmes.NumberOfDigisPerStrip = nullptr;
+      local_modmes.ADCsHottestStrip      = nullptr;
+      local_modmes.ADCsCoolestStrip      = nullptr;
+      local_modmes.DigiADCs              = nullptr;
+      local_modmes.StripOccupancy        = nullptr;
 
       if (Mod_On_) {
 
@@ -505,8 +505,8 @@ void SiStripMonitorDigi::createMEs(DQMStore::IBooker & ibooker , const edm::Even
     // Book new histogram to monitor digi in last LS
     //
 
-    digiFailureMEs.SubDetTotDigiProfLS   = 0;
-    digiFailureMEs.SubDetDigiFailures2D  = 0;
+    digiFailureMEs.SubDetTotDigiProfLS   = nullptr;
+    digiFailureMEs.SubDetDigiFailures2D  = nullptr;
 
     std::stringstream ss;
 
@@ -639,7 +639,7 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
 	if (shotschargehistomapon) FillApvShotsMap(tkmapMedianChargeApvshots,shots,detid,2);
       }
 
-      if(Mod_On_ && moduleswitchnumdigison && (local_modmes.NumberOfDigis != NULL))
+      if(Mod_On_ && moduleswitchnumdigison && (local_modmes.NumberOfDigis != nullptr))
 	(local_modmes.NumberOfDigis)->Fill(ndigi_det); 
       
       if (layerswitchnumdigisprofon) 
@@ -671,10 +671,10 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
 	if(this_adc>largest_adc) largest_adc  = this_adc; 
 	if(this_adc<smallest_adc) smallest_adc  = this_adc; 
 
-	if(Mod_On_ && moduleswitchnumdigispstripon && (local_modmes.NumberOfDigisPerStrip != NULL) && (this_adc > 0.0) )
+	if(Mod_On_ && moduleswitchnumdigispstripon && (local_modmes.NumberOfDigisPerStrip != nullptr) && (this_adc > 0.0) )
           (local_modmes.NumberOfDigisPerStrip)->Fill(digiIter->strip());
 
-	if(Mod_On_ && moduleswitchdigiadcson && (local_modmes.DigiADCs != NULL) )
+	if(Mod_On_ && moduleswitchdigiadcson && (local_modmes.DigiADCs != nullptr) )
 	  (local_modmes.DigiADCs)->Fill(static_cast<float>(this_adc));
 	
 	//Fill #ADCs for this digi at layer level
@@ -692,7 +692,7 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
       short nstrips = SiStripDetCabling_->nApvPairs(detid) * 2 * 128;
       if (nstrips > 0 && det_occupancy > 0 ) {
 	det_occupancy = det_occupancy/nstrips;
-	if (Mod_On_ && moduleswitchstripoccupancyon && (local_modmes.StripOccupancy != NULL))
+	if (Mod_On_ && moduleswitchstripoccupancyon && (local_modmes.StripOccupancy != nullptr))
 	  (local_modmes.StripOccupancy)->Fill(det_occupancy);
 	if (layerswitchstripoccupancyon) {
 	  fillME(local_layermes.LayerStripOccupancy, det_occupancy);
@@ -704,11 +704,11 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
       if  (smallest_adc < smallest_adc_layer) smallest_adc_layer = smallest_adc;
       
       // nr. of adcs for hottest strip
-      if( Mod_On_ && moduleswitchadchotteston && (local_modmes.ADCsHottestStrip != NULL)) 
+      if( Mod_On_ && moduleswitchadchotteston && (local_modmes.ADCsHottestStrip != nullptr)) 
 	(local_modmes.ADCsHottestStrip)->Fill(static_cast<float>(largest_adc));
       
       // nr. of adcs for coolest strip	
-      if(Mod_On_ && moduleswitchadccooleston && (local_modmes.ADCsCoolestStrip != NULL)) 
+      if(Mod_On_ && moduleswitchadccooleston && (local_modmes.ADCsCoolestStrip != nullptr)) 
 	(local_modmes.ADCsCoolestStrip)->Fill(static_cast<float>(smallest_adc));
       
     }//end of loop over DetIds
@@ -980,18 +980,18 @@ void SiStripMonitorDigi::createLayerMEs( DQMStore::IBooker & ibooker , std::stri
   if(iLayerME==LayerMEsMap.end()){
     SiStripHistoId hidmanager;
     LayerMEs layerMEs; 
-    layerMEs.LayerNumberOfDigis         = 0;
-    layerMEs.LayerNumberOfDigisTrend    = 0;
-    layerMEs.LayerADCsHottestStrip      = 0;
-    layerMEs.LayerADCsHottestStripTrend = 0;
-    layerMEs.LayerADCsCoolestStrip      = 0;
-    layerMEs.LayerADCsCoolestStripTrend = 0;
-    layerMEs.LayerDigiADCs              = 0;
-    layerMEs.LayerDigiADCsTrend         = 0;
-    layerMEs.LayerStripOccupancy        = 0;
-    layerMEs.LayerStripOccupancyTrend   = 0;
-    layerMEs.LayerNumberOfDigisProfile  = 0;
-    layerMEs.LayerDigiADCProfile        = 0;
+    layerMEs.LayerNumberOfDigis         = nullptr;
+    layerMEs.LayerNumberOfDigisTrend    = nullptr;
+    layerMEs.LayerADCsHottestStrip      = nullptr;
+    layerMEs.LayerADCsHottestStripTrend = nullptr;
+    layerMEs.LayerADCsCoolestStrip      = nullptr;
+    layerMEs.LayerADCsCoolestStripTrend = nullptr;
+    layerMEs.LayerDigiADCs              = nullptr;
+    layerMEs.LayerDigiADCsTrend         = nullptr;
+    layerMEs.LayerStripOccupancy        = nullptr;
+    layerMEs.LayerStripOccupancyTrend   = nullptr;
+    layerMEs.LayerNumberOfDigisProfile  = nullptr;
+    layerMEs.LayerDigiADCProfile        = nullptr;
     
 
     //#Digis
@@ -1046,15 +1046,15 @@ void SiStripMonitorDigi::createSubDetMEs(DQMStore::IBooker & ibooker , std::stri
 
   SubDetMEs subdetMEs; 
   subdetMEs.totNDigis         = 0;
-  subdetMEs.SubDetTotDigiProf = 0;
-  subdetMEs.SubDetDigiApvProf = 0;
-  subdetMEs.SubDetDigiApvTH2  = 0;
+  subdetMEs.SubDetTotDigiProf = nullptr;
+  subdetMEs.SubDetDigiApvProf = nullptr;
+  subdetMEs.SubDetDigiApvTH2  = nullptr;
 
   subdetMEs.SubDetApvShots.clear();
-  subdetMEs.SubDetNApvShotsTH1            = 0;
-  subdetMEs.SubDetChargeMedianApvShotsTH1 = 0;
-  subdetMEs.SubDetNStripsApvShotsTH1      = 0;
-  subdetMEs.SubDetNApvShotsProf           = 0;
+  subdetMEs.SubDetNApvShotsTH1            = nullptr;
+  subdetMEs.SubDetChargeMedianApvShotsTH1 = nullptr;
+  subdetMEs.SubDetNStripsApvShotsTH1      = nullptr;
+  subdetMEs.SubDetNApvShotsProf           = nullptr;
 
   std::string HistoName;
   

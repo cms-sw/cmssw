@@ -35,7 +35,7 @@ testSiStripFedKey::~testSiStripFedKey() {
 void testSiStripFedKey::beginJob() {
   
   uint32_t cntr = 0;
-  uint32_t start = time(NULL);
+  uint32_t start = time(nullptr);
 
   edm::LogInfo(mlDqmCommon_)
     << "[SiStripFedKey::" << __func__ << "]"
@@ -107,8 +107,8 @@ void testSiStripFedKey::beginJob() {
   edm::LogVerbatim(mlDqmCommon_)
     << "[SiStripFedKey::" << __func__ << "]"
     << " Processed " << cntr
-    << " FedKeys in " << (time(NULL)-start)
-    << " seconds at an average rate of " << (cntr*1.) / ((time(NULL)-start)*1.)
+    << " FedKeys in " << (time(nullptr)-start)
+    << " seconds at an average rate of " << (cntr*1.) / ((time(nullptr)-start)*1.)
     << " per second...";
 
   // Tests for utility methods

@@ -42,7 +42,7 @@ Photon * Photon::clone() const {
 
 bool Photon::overlap( const Candidate & c ) const {
   const RecoCandidate * o = dynamic_cast<const RecoCandidate *>( & c );
-  return ( o != 0 &&
+  return ( o != nullptr &&
 	   ( checkOverlap( superCluster(), o->superCluster() ) )
 	   );
   return false;

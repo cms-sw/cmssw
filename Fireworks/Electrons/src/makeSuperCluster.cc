@@ -39,7 +39,7 @@ bool makeRhoPhiSuperCluster( FWProxyBuilderBase* pb,
    for( std::vector<std::pair<DetId, float> >::const_iterator id = detids.begin(), end = detids.end(); id != end; ++id )
    {
       const float* corners = pb->context().getGeom()->getCorners( id->first.rawId());
-      if( corners != 0 )
+      if( corners != nullptr )
       {
          std::vector<float> centre( 3, 0 );
 
@@ -78,7 +78,7 @@ bool makeRhoZSuperCluster( FWProxyBuilderBase* pb,
    for( std::vector<std::pair<DetId, float> >::const_iterator id = detids.begin(), end = detids.end(); id != end; ++id )
    {
       const float* corners = pb->context().getGeom()->getCorners( id->first.rawId());
-      if( corners != 0 )
+      if( corners != nullptr )
       {
          std::vector<float> centre( 3, 0 );
 

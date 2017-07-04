@@ -35,7 +35,7 @@ class GeneratorTau : public reco::GenParticle {
 
       //default constructor
       GeneratorTau(const reco::GenParticle& input):GenParticle(input){
-        theLeadTrack_ = NULL;
+        theLeadTrack_ = nullptr;
       };
       GeneratorTau();
 

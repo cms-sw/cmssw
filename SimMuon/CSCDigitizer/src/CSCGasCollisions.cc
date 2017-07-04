@@ -56,8 +56,8 @@ CSCGasCollisions::CSCGasCollisions( const edm::ParameterSet & pset )
   gasDensity( 2.1416e-03 ), 
   deCut( 1.e05 ), eion( 14.95 ), ework( 34.0 ), clusterExtent( 0.001 ),
   theGammaBins(N_GAMMA, 0.), theEnergyBins(N_ENERGY, 0.), 
-  theCollisionTable(N_ENTRIES, 0.), theCrossGap( 0 ),
-  theParticleDataTable(0),
+  theCollisionTable(N_ENTRIES, 0.), theCrossGap( nullptr ),
+  theParticleDataTable(nullptr),
   saveGasCollisions_ ( false ), dumpGasCollisions_( false )
 {
 
@@ -100,7 +100,7 @@ void CSCGasCollisions::readCollisionTable() {
   // TODO make configurable
   string colliFile = "SimMuon/CSCDigitizer/data/collisions.dat";
   FileInPath f1( path, colliFile );
-  if (f1() == 0 ) {
+  if (f1() == nullptr ) {
     string errorMessage = "Input file " + colliFile + "not found";
     edm::LogError("CSCGasCollisions") << errorMessage << " in path " << path
           << "\nSet Muon:Endcap:CollisionsFile in .orcarc to the "
@@ -168,10 +168,10 @@ void CSCGasCollisions::simulate( const PSimHit& simhit,
   double mom    = simhit.pabs();                   // in GeV/c - see MuonSensitiveDetector.cc
   //  int iam       = simhit.particleType();           // PDG type
   delete theCrossGap;                              // before building new one
-  assert(theParticleDataTable != 0);
+  assert(theParticleDataTable != nullptr);
   ParticleData const * particle = theParticleDataTable->particle( simhit.particleType() );
   double mass = 0.105658; // assume a muon
-  if(particle == 0)
+  if(particle == nullptr)
   {
      edm::LogError("CSCGasCollisions") << "Cannot find particle of type " << simhit.particleType()
             << " in the PDT";

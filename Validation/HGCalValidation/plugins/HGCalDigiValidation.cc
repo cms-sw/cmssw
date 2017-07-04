@@ -78,8 +78,8 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent,
   OccupancyMap_plus_.clear();
   OccupancyMap_minus_.clear();
   
-  const HGCalGeometry* geom0(0);
-  const CaloGeometry*  geom1(0);
+  const HGCalGeometry* geom0(nullptr);
+  const CaloGeometry*  geom1(nullptr);
   if (nameDetector_ == "HCal") {
     edm::ESHandle<CaloGeometry> geom;
     iSetup.get<CaloGeometryRecord>().get(geom);
