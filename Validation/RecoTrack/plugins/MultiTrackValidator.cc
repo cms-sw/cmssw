@@ -172,19 +172,6 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):
 					  psetVsPhi.getParameter<bool>("stableOnly"),
 					  psetVsPhi.getParameter<std::vector<int> >("pdgId"));
 
-  dRtpSelectorNoPtCut = TrackingParticleSelector(0.0,
-                                                 psetVsPhi.getParameter<double>("ptMax"),
-                                                 psetVsPhi.getParameter<double>("minRapidity"),
-                                                 psetVsPhi.getParameter<double>("maxRapidity"),
-                                                 psetVsPhi.getParameter<double>("tip"),
-                                                 psetVsPhi.getParameter<double>("lip"),
-                                                 psetVsPhi.getParameter<int>("minHit"),
-                                                 psetVsPhi.getParameter<bool>("signalOnly"),
-                                                 psetVsPhi.getParameter<bool>("intimeOnly"),
-                                                 psetVsPhi.getParameter<bool>("chargedOnly"),
-                                                 psetVsPhi.getParameter<bool>("stableOnly"),
-                                                 psetVsPhi.getParameter<std::vector<int> >("pdgId"));
-
   dRTrackSelector = MTVHistoProducerAlgoForTracker::makeRecoTrackSelectorFromTPSelectorParameters(psetVsPhi, beamSpotTag, consumesCollector());
 
   useGsf = pset.getParameter<bool>("useGsf");
@@ -245,10 +232,6 @@ void MultiTrackValidator::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
       if(doSimTrackPlots_) {
         h_assoc_coll.push_back(binLabels( ibook.book1D("num_assoc(simToReco)_coll", "N of associated (simToReco) tracks vs track collection", nintColl, minColl, maxColl) ));
         h_simul_coll.push_back(binLabels( ibook.book1D("num_simul_coll", "N of simulated tracks vs track collection", nintColl, minColl, maxColl) ));
-
-        h_assoc_coll_allPt.push_back(binLabels( ibook.book1D("num_assoc(simToReco)_coll_allPt", "N of associated (simToReco) tracks vs track collection", nintColl, minColl, maxColl) ));
-        h_simul_coll_allPt.push_back(binLabels( ibook.book1D("num_simul_coll_allPt", "N of simulated tracks vs track collection", nintColl, minColl, maxColl) ));
-
       }
       if(doRecoTrackPlots_) {
         h_reco_coll.push_back(binLabels( ibook.book1D("num_reco_coll", "N of reco track vs track collection", nintColl, minColl, maxColl) ));
@@ -877,17 +860,10 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
         }
 
           if(doSummaryPlots_) {
-            if(dRtpSelectorNoPtCut(tp)) {
-              h_simul_coll_allPt[ww]->Fill(www);
+            if(dRtpSelector(tp)) {
+              h_simul_coll[ww]->Fill(www);
               if (matchedTrackPointer) {
-                h_assoc_coll_allPt[ww]->Fill(www);
-              }
-
-              if(dRtpSelector(tp)) {
-                h_simul_coll[ww]->Fill(www);
-                if (matchedTrackPointer) {
-                  h_assoc_coll[ww]->Fill(www);
-                }
+                h_assoc_coll[ww]->Fill(www);
               }
             }
           }

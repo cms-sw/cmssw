@@ -616,7 +616,6 @@ def _constructSummary(mapping=None, highPurity=False, byOriginalAlgo=False, byAl
     prefix = "summary"+midfix
 
     h_eff = "effic_vs_coll"
-    h_eff_allpt = "effic_vs_coll_allPt"
     h_fakerate = "fakerate_vs_coll"
     h_duplicaterate = "duplicatesRate_coll"
     h_pileuprate = "pileuprate_coll"
@@ -628,7 +627,6 @@ def _constructSummary(mapping=None, highPurity=False, byOriginalAlgo=False, byAl
     h_pileup = "num_pileup_coll"
     if mapping is not None:
         h_eff = AggregateBins("efficiency", h_eff, **_commonAB)
-        h_eff_allpt = AggregateBins("efficiencyAllPt", h_eff_allpt, **_commonAB)
         h_fakerate = AggregateBins("fakerate", h_fakerate, **_commonAB)
         h_duplicaterate = AggregateBins("duplicatesRate", h_duplicaterate, **_commonAB)
         h_pileuprate = AggregateBins("pileuprate", h_pileuprate, **_commonAB)
@@ -641,12 +639,13 @@ def _constructSummary(mapping=None, highPurity=False, byOriginalAlgo=False, byAl
 
     summary = PlotGroup(prefix, [
         Plot(h_eff, title="Efficiency vs collection", ytitle="Efficiency", ymin=1e-3, ymax=1, ylog=True, **_common),
-        Plot(h_eff_allpt, title="Efficiency vs collection (no pT cut in denominator)", ytitle="Efficiency", ymin=1e-3, ymax=1, ylog=True, **_common),
-
         Plot(h_fakerate, title="Fakerate vs collection", ytitle="Fake rate", ymax=_maxFake, **_common),
+        #
         Plot(h_duplicaterate, title="Duplicates rate vs collection", ytitle="Duplicates rate", ymax=_maxFake, **_common),
         Plot(h_pileuprate, title="Pileup rate vs collection", ytitle="Pileup rate", ymax=_maxFake, **_common),
-    ])
+        ],
+                        legendDy=_legendDy_2rows
+    )
     summaryN = PlotGroup(prefix+"_ntracks", [
         Plot(h_reco, ytitle="Tracks/event", title="Number of tracks/event vs collection", **_commonN),
         Plot(h_true, ytitle="True tracks/event", title="Number of true tracks/event vs collection", **_commonN),
