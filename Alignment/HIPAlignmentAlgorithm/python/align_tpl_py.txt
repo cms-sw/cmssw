@@ -95,28 +95,42 @@ for key in monitorfileList:
 # angle cut : degrees-65,70,75,80 ; rads-1.134,1.222,1.309,1.396 ; sin-0.9,0.95,0.97,0.99  
 # angle cut : rad 1.33 1.35, 1.37
 if strflaglower == "cosmics":
-    process.AlignmentProducer.algoConfig.isCollision=False
+    process.AlignmentProducer.algoConfig.isCollision=cms.bool(False)
 #    process.AlignmentProducer.algoConfig.CSAngleCut=0.95
 
 elif strflaglower == "cdcs":
-    process.AlignmentProducer.algoConfig.isCollision=False
+    process.AlignmentProducer.algoConfig.isCollision=cms.bool(False)
 #    process.AlignmentProducer.algoConfig.CSAngleCut=0.95
 
 else:
-    process.AlignmentProducer.algoConfig.isCollision=True
-#    process.AlignmentProducer.algoConfig.UniformEta=True
-# The following formula comes from Run2015D
-#    process.AlignmentProducer.algoConfig.UniformEtaFormula=cms.string("2.51469/(2.51469+4.11684*x-16.7847*pow(x,2)+46.1574*pow(x,3)-55.22*pow(x,4)+29.5591*pow(x,5)-5.39816*pow(x,6))")
+    process.AlignmentProducer.algoConfig.isCollision=cms.bool(True)
 #    process.AlignmentProducer.algoConfig.CLAngleCut=1.37
+
+
+## Reweighting
+# Override common configuration, then turn on selectively using the option parser
+process.AlignmentProducer.algoConfig.UseReweighting=cms.bool(False)
+process.AlignmentProducer.algoConfig.ReweightPerAlignable=cms.bool(False) # No need to turn on in the subjobs
+process.AlignmentProducer.algoConfig.UniformEta=cms.bool(False)
+process.AlignmentProducer.algoConfig.Weight=cms.double(1)
 
 # Assign overall weight from options if specified
 if hasattr(optpy, "overallweight"):
-   process.AlignmentProducer.algoConfig.UseReweighting=True
+   process.AlignmentProducer.algoConfig.UseReweighting=cms.bool(True)
    process.AlignmentProducer.algoConfig.Weight=cms.double(optpy.overallweight)
 
-# Assign datatype from options (always defaulted to -1, contrary to collection jobs, which default to -2)
+# Assign track eta-dependent weight from options if specified
+# One can use the following formula from Run2015D or create a new one
+#    process.AlignmentProducer.algoConfig.UniformEtaFormula=cms.string("2.51469/(2.51469+4.11684*x-16.7847*pow(x,2)+46.1574*pow(x,3)-55.22*pow(x,4)+29.5591*pow(x,5)-5.39816*pow(x,6))")
+if hasattr(optpy, "uniformetaformula"):
+   process.AlignmentProducer.algoConfig.UseReweighting=cms.bool(True)
+   process.AlignmentProducer.algoConfig.UniformEta=cms.bool(True)
+   process.AlignmentProducer.algoConfig.UniformEtaFormula=cms.string(optpy.uniformetaformula)
+
+# Assign datatype from options (always present and defaulted to -1, contrary to collection jobs, which default to -2)
 if hasattr(optpy, "datatype"):
    process.AlignmentProducer.algoConfig.DataGroup = cms.int32(optpy.datatype)
+
 
 process.AlignmentProducer.algoConfig.applyAPE = False
 #process.AlignmentProducer.algoConfig.applyAPE = True 

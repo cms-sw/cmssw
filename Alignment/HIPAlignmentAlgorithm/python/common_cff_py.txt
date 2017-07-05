@@ -25,8 +25,7 @@ process.load("Alignment.CommonAlignmentProducer.AlignmentProducer_cff")
 
 # loading DB constants
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "92X_dataRun2_Express_v2"
-#process.GlobalTag.globaltag = "92X_dataRun2_Prompt_v2"
+process.GlobalTag.globaltag = "92X_dataRun2_Prompt_v2"
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 10000
@@ -72,6 +71,13 @@ process.AlignmentProducer.algoConfig.IOVrange=cms.vuint32(<iovs>)
 process.AlignmentProducer.algoConfig.monitorConfig.fillTrackMonitoring = cms.bool(False)
 process.AlignmentProducer.algoConfig.monitorConfig.fillTrackHitMonitoring = cms.bool(False)
 
+# Apply reweighting
+process.AlignmentProducer.algoConfig.UseReweighting=cms.bool(True) # Turned on for collectors to behave properly
+process.AlignmentProducer.algoConfig.ReweightPerAlignable=cms.bool(True) # One needs to specify the DataType; otherwise everything will be multiplied by 1
+process.AlignmentProducer.algoConfig.UniformEta=cms.bool(False) # Turned off, not needed in collection jobs
+process.AlignmentProducer.algoConfig.Weight=cms.double(1)
+
+# Apply surface deformations, determined through batchHippy
 SurfDefFlag = <SURFDEFOPT>
 # See Alignment/CommonAlignmentParametrization/src/AlignmentParametersFactory.cc::parametersType for the second string
 process.AlignmentProducer.ParameterBuilder.parameterTypes = cms.vstring(
@@ -175,7 +181,11 @@ SelectorRigidAlignables = tmprigidalignables
 
 process.AlignmentProducer.ParameterBuilder.SelectorBowed = cms.PSet(
     alignParams = cms.vstring(SelectorBowedAlignables),
-    tecSingleSens = cms.PSet(tecDetId = cms.PSet(ringRanges = cms.vint32(1,4))),
+    tecSingleSens = cms.PSet(
+        tecDetId = cms.PSet(
+            ringRanges = cms.vint32(1,4)
+        )
+    ),
 )
 process.AlignmentProducer.ParameterBuilder.SelectorTwoBowed = cms.PSet(
     alignParams = cms.vstring(SelectorTwoBowedAlignables),
@@ -311,5 +321,3 @@ process.AlignmentProducer.algoConfig.cutsPerComponent = cms.VPSet(
         maxPixelProbQ = cms.double(1),
     ),
 )
-
-
