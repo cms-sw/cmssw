@@ -27,10 +27,9 @@ doSingleCalibration_ = conf.getParameter<bool>("doSingleCalibration");
 
 RPixDetClusterizer::~RPixDetClusterizer(){}
 
-
 void RPixDetClusterizer::buildClusters(unsigned int detId, const std::vector<CTPPSPixelDigi> &digi, std::vector<CTPPSPixelCluster> &clusters, const CTPPSPixelGainCalibrations * pcalibrations,const CTPPSPixelAnalysisMask* maskera)
 {
-
+  
   std::map<uint32_t, CTPPSPixelROCAnalysisMask> mask = maskera->analysisMask;
   std::map<uint32_t, CTPPSPixelROCAnalysisMask>::iterator mask_it = mask.find(detId); 
 
@@ -129,7 +128,7 @@ int RPixDetClusterizer::calibrate(unsigned int detId, int adc, int row, int col,
   float gain=0;
   float pedestal=0;
   int electrons=0;
-
+  
   if(!doSingleCalibration_){
 
     CTPPSPixelGainCalibration DetCalibs = pcalibrations->getGainCalibration(detId);
