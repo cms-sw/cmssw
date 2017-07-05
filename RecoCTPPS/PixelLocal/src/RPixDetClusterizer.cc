@@ -15,13 +15,13 @@ namespace {
 RPixDetClusterizer::RPixDetClusterizer(edm::ParameterSet const& conf):
   params_(conf), SeedVector_(0)
 {
-verbosity_ = conf.getUntrackedParameter<int>("RPixVerbosity");
-SeedADCThreshold_ = conf.getParameter<int>("SeedADCThreshold");
-ADCThreshold_ = conf.getParameter<int>("ADCThreshold");
-ElectronADCGain_ = conf.getParameter<double>("ElectronADCGain");
-VcaltoElectronGain_ = conf.getParameter<int>("VCaltoElectronGain");
-VcaltoElectronOffset_ = conf.getParameter<int>("VCaltoElectronOffset");
-doSingleCalibration_ = conf.getParameter<bool>("doSingleCalibration");
+  verbosity_ = conf.getUntrackedParameter<int>("RPixVerbosity");
+  SeedADCThreshold_ = conf.getParameter<int>("SeedADCThreshold");
+  ADCThreshold_ = conf.getParameter<int>("ADCThreshold");
+  ElectronADCGain_ = conf.getParameter<double>("ElectronADCGain");
+  VcaltoElectronGain_ = conf.getParameter<int>("VCaltoElectronGain");
+  VcaltoElectronOffset_ = conf.getParameter<int>("VCaltoElectronOffset");
+  doSingleCalibration_ = conf.getParameter<bool>("doSingleCalibration");
 
 }
 
@@ -49,8 +49,8 @@ void RPixDetClusterizer::buildClusters(unsigned int detId, const std::vector<CTP
   for( std::set<CTPPSPixelDigi>::iterator RPdit = rpix_digi_set_.begin(); RPdit != rpix_digi_set_.end();++RPdit){
 
     if((*RPdit).row() > maxRow || (*RPdit).column() > maxCol)
-       throw cms::Exception("CTPPSDigiOutofRange") 
-	 << " row = " << (*RPdit).row() << "  column = "<< (*RPdit).column();
+      throw cms::Exception("CTPPSDigiOutofRange") 
+	<< " row = " << (*RPdit).row() << "  column = "<< (*RPdit).column();
 
     unsigned char row = (*RPdit).row();
     unsigned char column = (*RPdit).column();
@@ -62,9 +62,9 @@ void RPixDetClusterizer::buildClusters(unsigned int detId, const std::vector<CTP
     const bool is_in = maskedPixels.find(pixel) != maskedPixels.end();
     if(!is_in){
 //calibrate digi and store the new ones
-    electrons = calibrate(detId,adc,row,column,pcalibrations);
-    RPixCalibDigi calibDigi(row,column,adc,electrons);
-    calib_rpix_digi_set_.insert(calibDigi);
+      electrons = calibrate(detId,adc,row,column,pcalibrations);
+      RPixCalibDigi calibDigi(row,column,adc,electrons);
+      calib_rpix_digi_set_.insert(calibDigi);
     }
   }
   if(verbosity_) edm::LogInfo("RPixDetClusterizer")<<" RPix set size = "<<calib_rpix_digi_set_.size();
@@ -77,8 +77,8 @@ void RPixDetClusterizer::buildClusters(unsigned int detId, const std::vector<CTP
       SeedVector_.push_back(rpcd);
     }
   }
-
- for(std::vector<RPixCalibDigi>::iterator SeedIt = SeedVector_.begin(); SeedIt!=SeedVector_.end();++SeedIt){
+  
+  for(std::vector<RPixCalibDigi>::iterator SeedIt = SeedVector_.begin(); SeedIt!=SeedVector_.end();++SeedIt){
     make_cluster( *SeedIt, clusters);
   }
 }
@@ -105,7 +105,7 @@ void RPixDetClusterizer::make_cluster(RPixCalibDigi aSeed,  std::vector<CTPPSPix
 	for(std::set<RPixCalibDigi>::iterator RPCDit2 = calib_rpix_digi_set_.begin(); RPCDit2 != calib_rpix_digi_set_.end(); ){
 	  if( (*RPCDit2).column() == c && (*RPCDit2).row() == r && (*RPCDit2).electrons() > ADCThreshold_*ElectronADCGain_ ){
 
-	     if(!atempCluster.addPixel( r,c,(*RPCDit2).electrons() )) {
+	    if(!atempCluster.addPixel( r,c,(*RPCDit2).electrons() )) {
 	      CTPPSPixelCluster acluster(atempCluster.isize,atempCluster.adc, atempCluster.row,atempCluster.col, atempCluster.rowmin,atempCluster.colmin);
 	      clusters.push_back(acluster);
 	      return;
