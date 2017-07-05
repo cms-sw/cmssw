@@ -34,3 +34,5 @@ MessageLogger Summary
 Severity    # Occurrences   Total Occurrences
 --------    -------------   -----------------
 Error                   6                   6
+
+dropped waiting message count 0

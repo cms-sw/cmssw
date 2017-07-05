@@ -114,7 +114,7 @@ void EgammaHLTFilteredSuperClusterProducer::
 fillDescriptions(edm::ConfigurationDescriptions & descriptions)
 {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("cands",edm::InputTag());
+  desc.add<edm::InputTag>("cands",edm::InputTag("hltEgammaCandidates"));
   
   edm::ParameterSetDescription cutsDesc;
   edm::ParameterSetDescription regionCutsDesc;
@@ -122,10 +122,19 @@ fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   regionCutsDesc.add<double>("cutOverE",-1);
   regionCutsDesc.add<double>("cutOverE2",-1);
   regionCutsDesc.add<bool>("useEt",false);
+  edm::ParameterSet cutDefaults;
+  cutDefaults.addParameter<double>("cutOverE",0.2);
+  cutDefaults.addParameter<double>("useEt",false);
+  
   cutsDesc.add<edm::ParameterSetDescription>("barrelCut",regionCutsDesc);
   cutsDesc.add<edm::ParameterSetDescription>("endcapCut",regionCutsDesc);
-  cutsDesc.add<edm::InputTag>("var");
-  desc.addVPSet("cuts",cutsDesc);
+  cutsDesc.add<edm::InputTag>("var",edm::InputTag("hltEgammaHoverE"));
+  
+  edm::ParameterSet defaults;
+  defaults.addParameter<edm::InputTag>("var",edm::InputTag("hltEgammaHoverE"));
+  defaults.addParameter<edm::ParameterSet>("barrelCut",cutDefaults);
+  defaults.addParameter<edm::ParameterSet>("endcapCut",cutDefaults);
+  desc.addVPSet("cuts",cutsDesc,std::vector<edm::ParameterSet>{defaults});
  
   descriptions.add("egammaHLTFilteredSuperClusterProducer",desc);
 

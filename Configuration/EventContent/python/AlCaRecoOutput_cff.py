@@ -68,6 +68,7 @@ from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalEtaCalib_Output_cff import
 # ECAL ES alignment
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalESAlign_Output_cff import *
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalTrg_Output_cff import *
+from Calibration.EcalAlCaRecoProducers.ALCARECOEcalTestPulsesRaw_Output_cff import *
 
 ###############################################################
 # HCAL Calibration
@@ -136,9 +137,16 @@ from Alignment.CommonAlignmentProducer.ALCARECOPromptCalibProdSiPixelAli_Output_
 
 from Calibration.EcalCalibAlgos.ALCARECOPromptCalibProdEcalPedestals_Output_cff import *
 
-# stream for the LumiPixels workflow
-from Calibration.TkAlCaRecoProducers.ALCARECOLumiPixels_Output_cff import *
-from Calibration.TkAlCaRecoProducers.ALCARECOLumiPixelsMinBias_Output_cff import *
+# Pixel Cluster Counting ALCARECOs
+# in AlCaLumiPixels stream
+from Calibration.LumiAlCaRecoProducers.ALCARECOLumiPixels_Output_cff import *
+from Calibration.LumiAlCaRecoProducers.ALCARECOAlCaPCCZeroBias_Output_cff import *
+from Calibration.LumiAlCaRecoProducers.ALCARECOAlCaPCCRandom_Output_cff import *
+
+# on top of prompt RECO
+from Calibration.LumiAlCaRecoProducers.ALCARECOLumiPixelsMinBias_Output_cff import *
+from Calibration.LumiAlCaRecoProducers.ALCARECOAlCaPCCZeroBiasFromRECO_Output_cff import *
+from Calibration.LumiAlCaRecoProducers.ALCARECOAlCaPCCRandomFromRECO_Output_cff import *
 
 ###############################################################
 # hotline skim workflows

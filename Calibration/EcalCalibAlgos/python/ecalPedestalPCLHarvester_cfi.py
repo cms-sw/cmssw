@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
-ECALpedestalPCLHarvester = cms.EDAnalyzer('ECALpedestalPCLHarvester',
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
+
+ECALpedestalPCLHarvester = DQMEDHarvester('ECALpedestalPCLHarvester',
                                           MinEntries = cms.int32(100), #skip channel if stat is low
                                           ChannelStatusToExclude = cms.vstring(), # db statuses to exclude
                                           checkAnomalies  = cms.bool(False), # whether or not to avoid creating sqlite file in case of many changed pedestals

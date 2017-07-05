@@ -16,7 +16,7 @@ PFMultiDepthClusterizer(const edm::ParameterSet& conf) :
   PFClusterBuilderBase(conf) 
 {
   
-  _allCellsPosCalc.reset(NULL);
+  _allCellsPosCalc.reset(nullptr);
   if( conf.exists("allCellsPositionCalc") ) {
     const edm::ParameterSet& acConf = 
       conf.getParameterSet("allCellsPositionCalc");

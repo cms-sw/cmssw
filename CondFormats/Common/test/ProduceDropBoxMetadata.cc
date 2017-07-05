@@ -31,11 +31,11 @@ using namespace edm;
 ProduceDropBoxMetadata::ProduceDropBoxMetadata(const edm::ParameterSet& pSet) {
   
 
-  read = pSet.getUntrackedParameter<bool>("read");
-  write = pSet.getUntrackedParameter<bool>("write");
+  read     = pSet.getUntrackedParameter<bool>("read");
+  write    = pSet.getUntrackedParameter<bool>("write");
 
   fToWrite =  pSet.getParameter<vector<ParameterSet> >("toWrite");
-  fToRead =  pSet.getUntrackedParameter<vector<string> >("toRead");
+  fToRead  =  pSet.getUntrackedParameter<vector<string> >("toRead");
 
 }
 
@@ -58,7 +58,7 @@ void ProduceDropBoxMetadata::beginRun(const edm::Run& run, const edm::EventSetup
  
 
   if(write) {
-    
+    cout << "\n\n[ProduceDropBoxMetadata] entering write, to loop over toWrite\n" << endl;
     DropBoxMetadata *metadata = new DropBoxMetadata;
 
     // loop over all the pSets for the TF1 that we want to write to DB
@@ -67,7 +67,7 @@ void ProduceDropBoxMetadata::beginRun(const edm::Run& run, const edm::EventSetup
 	++fSetup) {
       
       string record = (*fSetup).getUntrackedParameter<string>("record");
-      cout << "--- record: " << record << endl;
+      cout << "\n--- record: " << record << endl;
       DropBoxMetadata::Parameters params;
       vector<string> paramKeys = (*fSetup).getParameterNames();
       for(vector<string>::const_iterator key = paramKeys.begin();
@@ -93,6 +93,7 @@ void ProduceDropBoxMetadata::beginRun(const edm::Run& run, const edm::EventSetup
 
   if(read) {
     // Read the objects
+    cout << "\n\n[ProduceDropBoxMetadata] entering read, to loop over toRead\n" << endl;
     edm::ESHandle<DropBoxMetadata> mdPayload;
     eSetup.get<DropBoxMetadataRcd>().get(mdPayload);
 
@@ -101,7 +102,7 @@ void ProduceDropBoxMetadata::beginRun(const edm::Run& run, const edm::EventSetup
     // loop 
     for(vector<string>::const_iterator name = fToRead.begin();
 	name != fToRead.end(); ++name) {
-      cout << "--- record: " << *name << endl;
+      cout << "\n--- record: " << *name << endl;
       if(metadata->knowsRecord(*name)) {
 	const map<string, string>  & params = metadata->getRecordParameters(*name).getParameterMap();
 	for(map<string, string>::const_iterator par = params.begin();

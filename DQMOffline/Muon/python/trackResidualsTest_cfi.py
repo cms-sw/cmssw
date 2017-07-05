@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-muTrackResidualsTest = cms.EDAnalyzer("MuonTrackResidualsTest",
+muTrackResidualsTest = DQMEDHarvester("MuonTrackResidualsTest",
     sigmaTestName = cms.untracked.string('ResidualsSigmaInRange'),
     meanTestName = cms.untracked.string('ResidualsMeanInRange'),
     # number of luminosity block to analyse

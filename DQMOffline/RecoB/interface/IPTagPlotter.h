@@ -13,13 +13,12 @@ class IPTagPlotter : public BaseTagInfoPlotter {
 
  public:
   IPTagPlotter (const std::string & tagName, const EtaPtBin & etaPtBin,
-		     const edm::ParameterSet& pSet, const unsigned int& mc, 
-		     const bool& wf, DQMStore::IBooker & ibook);
+		     const edm::ParameterSet& pSet, unsigned int mc, 
+		     bool wf, DQMStore::IBooker & ibook);
 
-  ~IPTagPlotter () ;
+  ~IPTagPlotter ();
 
-  void analyzeTag (const reco::BaseTagInfo * baseTagInfo, const double & jec, const int & jetFlavour);
-  void analyzeTag (const reco::BaseTagInfo * baseTagInfo, const double & jec, const int & jetFlavour, const float & w);
+  void analyzeTag (const reco::BaseTagInfo * baseTagInfo, double jec, int jetFlavour, float w=1);
 
   virtual void finalize (DQMStore::IBooker & ibook_, DQMStore::IGetter & igetter_);
 
@@ -31,52 +30,55 @@ class IPTagPlotter : public BaseTagInfoPlotter {
 
  private:
 
-  int	nBinEffPur_ ;
-  double startEffPur_ ; 
-  double endEffPur_ ; 
+  int nBinEffPur_;
+  double startEffPur_; 
+  double endEffPur_; 
   unsigned int mcPlots_;
   bool willFinalize_;
   bool makeQualityPlots_;
 
-  TrackIPHistograms<double> * tkcntHistosSig3D[5];
-  TrackIPHistograms<double> * tkcntHistosSig2D[5];
-  TrackIPHistograms<double> * tkcntHistosErr3D[5];
-  TrackIPHistograms<double> * tkcntHistosErr2D[5];
-  TrackIPHistograms<double> * tkcntHistosVal3D[5];
-  TrackIPHistograms<double> * tkcntHistosVal2D[5];
-  TrackIPHistograms<double> * tkcntHistosDecayLengthVal2D[5];
-  TrackIPHistograms<double> * tkcntHistosDecayLengthVal3D[5];
-  TrackIPHistograms<double> * tkcntHistosJetDistVal2D[5];
-  TrackIPHistograms<double> * tkcntHistosJetDistVal3D[5];
-  TrackIPHistograms<double> * tkcntHistosJetDistSign2D[5];
-  TrackIPHistograms<double> * tkcntHistosJetDistSign3D[5];
-  TrackIPHistograms<double> * tkcntHistosTkNChiSqr2D[5];
-  TrackIPHistograms<double> * tkcntHistosTkNChiSqr3D[5];
-  TrackIPHistograms<double> * tkcntHistosTkPt2D[5];
-  TrackIPHistograms<double> * tkcntHistosTkPt3D[5];
-  TrackIPHistograms<int> * tkcntHistosTkNHits2D[5];
-  TrackIPHistograms<int> * tkcntHistosTkNHits3D[5];
-  TrackIPHistograms<int> * tkcntHistosTkNPixelHits2D[5];
-  TrackIPHistograms<int> * tkcntHistosTkNPixelHits3D[5];
-  FlavourHistograms<int> * trkNbr3D, * trkNbr2D;
-  double lowerIPSBound, upperIPSBound,lowerIPBound, upperIPBound,lowerIPEBound, upperIPEBound ;
+  std::vector< std::unique_ptr<TrackIPHistograms<double>> > tkcntHistosSig3D;
+  std::vector< std::unique_ptr<TrackIPHistograms<double>> > tkcntHistosSig2D;
+  std::vector< std::unique_ptr<TrackIPHistograms<double>> > tkcntHistosErr3D;
+  std::vector< std::unique_ptr<TrackIPHistograms<double>> > tkcntHistosErr2D;
+  std::vector< std::unique_ptr<TrackIPHistograms<double>> > tkcntHistosVal3D;
+  std::vector< std::unique_ptr<TrackIPHistograms<double>> > tkcntHistosVal2D;
+  std::vector< std::unique_ptr<TrackIPHistograms<double>> > tkcntHistosDecayLengthVal2D;
+  std::vector< std::unique_ptr<TrackIPHistograms<double>> > tkcntHistosDecayLengthVal3D;
+  std::vector< std::unique_ptr<TrackIPHistograms<double>> > tkcntHistosJetDistVal2D;
+  std::vector< std::unique_ptr<TrackIPHistograms<double>> > tkcntHistosJetDistVal3D;
+  std::vector< std::unique_ptr<TrackIPHistograms<double>> > tkcntHistosJetDistSign2D;
+  std::vector< std::unique_ptr<TrackIPHistograms<double>> > tkcntHistosJetDistSign3D;
+  std::vector< std::unique_ptr<TrackIPHistograms<double>> > tkcntHistosTkNChiSqr2D;
+  std::vector< std::unique_ptr<TrackIPHistograms<double>> > tkcntHistosTkNChiSqr3D;
+  std::vector< std::unique_ptr<TrackIPHistograms<double>> > tkcntHistosTkPt2D;
+  std::vector< std::unique_ptr<TrackIPHistograms<double>> > tkcntHistosTkPt3D;
+  std::vector< std::unique_ptr<TrackIPHistograms<int>> >    tkcntHistosTkNHits2D;
+  std::vector< std::unique_ptr<TrackIPHistograms<int>> >    tkcntHistosTkNHits3D;
+  std::vector< std::unique_ptr<TrackIPHistograms<int>> >    tkcntHistosTkNPixelHits2D;
+  std::vector< std::unique_ptr<TrackIPHistograms<int>> >    tkcntHistosTkNPixelHits3D;
+  
+  std::unique_ptr<FlavourHistograms<int>> trkNbr3D, trkNbr2D;
+  
+  double lowerIPSBound, upperIPSBound,lowerIPBound, upperIPBound,lowerIPEBound, upperIPEBound;
   int nBinsIPS, nBinsIP, nBinsIPE;
   double minDecayLength, maxDecayLength, minJetDistance, maxJetDistance;
 
-  EffPurFromHistos * effPurFromHistos[4] ;
+  std::vector< std::unique_ptr<EffPurFromHistos> > effPurFromHistos;
 
-  TrackIPHistograms<float> * tkcntHistosProb3D[5];
-  TrackIPHistograms<float> * tkcntHistosProb2D[5];
-  TrackIPHistograms<float> * tkcntHistosTkProbIPneg2D, * tkcntHistosTkProbIPpos2D;
-  TrackIPHistograms<float> * tkcntHistosTkProbIPneg3D, * tkcntHistosTkProbIPpos3D;
-  TrackIPHistograms<double> * ghostTrackWeightHisto;
-  TrackIPHistograms<double> * ghostTrackDistanceValuHisto, * ghostTrackDistanceSignHisto;
+  std::vector< std::unique_ptr<TrackIPHistograms<float>> > tkcntHistosProb3D;
+  std::vector< std::unique_ptr<TrackIPHistograms<float>> > tkcntHistosProb2D;
+  
+  std::unique_ptr<TrackIPHistograms<float>> tkcntHistosTkProbIPneg2D, tkcntHistosTkProbIPpos2D;
+  std::unique_ptr<TrackIPHistograms<float>> tkcntHistosTkProbIPneg3D, tkcntHistosTkProbIPpos3D;
+  std::unique_ptr<TrackIPHistograms<double>> ghostTrackWeightHisto;
+  std::unique_ptr<TrackIPHistograms<double>> ghostTrackDistanceValuHisto, ghostTrackDistanceSignHisto;
 
-  FlavourHistograms<int> * trackQualHisto;
-  FlavourHistograms<int> * selectedTrackQualHisto;
-  FlavourHistograms2D<double, int> * trackMultVsJetPtHisto;
-  FlavourHistograms2D<double, int> * selectedTrackMultVsJetPtHisto;
-} ;
+  std::unique_ptr<FlavourHistograms<int>> trackQualHisto;
+  std::unique_ptr<FlavourHistograms<int>> selectedTrackQualHisto;
+  std::unique_ptr<FlavourHistograms2D<double, int>> trackMultVsJetPtHisto;
+  std::unique_ptr<FlavourHistograms2D<double, int>> selectedTrackMultVsJetPtHisto;
+};
 
 #include "DQMOffline/RecoB/interface/IPTagPlotter_cc.h"
 

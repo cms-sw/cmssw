@@ -30,8 +30,8 @@ from RecoTracker.TkTrackingRegions.globalTrackingRegionFromBeamSpot_cfi import g
 from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
 trackingPhase2PU140.toReplaceWith(detachedQuadStepTrackingRegions, _globalTrackingRegionFromBeamSpot.clone(RegionPSet = dict(
     ptMin = 0.45,
-    originRadius = 0.7,
-    nSigmaZ = 4.0
+    originRadius = 0.9,
+    nSigmaZ = 5.0
 )))
 
 # seeding
@@ -75,7 +75,6 @@ detachedQuadStepSeeds = _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProduc
 
 from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
 trackingPhase1QuadProp.toModify(detachedQuadStepHitDoublets, layerPairs = [0])
-trackingPhase2PU140.toModify(detachedQuadStepHitDoublets, layerPairs = [0])
 detachedQuadStepHitTriplets = _pixelTripletLargeTipEDProducer.clone(
     doublets = "detachedQuadStepHitDoublets",
     produceIntermediateHitTriplets = True,
@@ -100,7 +99,6 @@ _detachedQuadStepHitQuadruplets_propagation = _pixelQuadrupletEDProducer.clone(
     fitFastCircleChi2Cut = True,
 )
 trackingPhase1QuadProp.toReplaceWith(detachedQuadStepHitQuadruplets, _detachedQuadStepHitQuadruplets_propagation)
-trackingPhase2PU140.toReplaceWith(detachedQuadStepHitQuadruplets, _detachedQuadStepHitQuadruplets_propagation)
 
 
 # QUALITY CUTS DURING TRACK BUILDING
@@ -135,7 +133,7 @@ detachedQuadStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstima
     clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTight'),
 )
 trackingPhase2PU140.toModify(detachedQuadStepChi2Est,
-    MaxChi2 = 16.0,
+    MaxChi2 = 12.0,
     clusterChargeCut = dict(refToPSet_ = "SiStripClusterChargeCutNone")
 )
 
@@ -162,9 +160,6 @@ detachedQuadStepTrajectoryCleanerBySharedHits = trajectoryCleanerBySharedHits.cl
     ComponentName = cms.string('detachedQuadStepTrajectoryCleanerBySharedHits'),
     fractionShared = cms.double(0.13),
     allowSharedFirstHit = cms.bool(True)
-)
-trackingPhase2PU140.toModify(detachedQuadStepTrajectoryCleanerBySharedHits,
-    fractionShared = 0.09
 )
 
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
@@ -269,15 +264,15 @@ detachedQuadStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cf
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
             name = 'detachedQuadStepTrk',
             preFilterName = 'detachedQuadStepTrkTight',
-            chi2n_par = 0.45,
+            chi2n_par = 0.5,
             res_par = ( 0.003, 0.001 ),
             minNumberLayers = 4,
-            maxNumberLostLayers = 0,
+            maxNumberLostLayers = 1,
             minNumber3DLayers = 3,
-            d0_par1 = ( 0.8, 4.0 ),
-            dz_par1 = ( 0.8, 4.0 ),
-            d0_par2 = ( 0.8, 4.0 ),
-            dz_par2 = ( 0.8, 4.0 )
+            d0_par1 = ( 0.9, 4.0 ),
+            dz_par1 = ( 0.9, 4.0 ),
+            d0_par2 = ( 0.9, 4.0 ),
+            dz_par2 = ( 0.9, 4.0 )
             )
     ] #end of vpset
 ) #end of clone
@@ -310,6 +305,6 @@ DetachedQuadStep = cms.Sequence(detachedQuadStepClusters*
 _DetachedQuadStep_Phase1Prop = DetachedQuadStep.copy()
 _DetachedQuadStep_Phase1Prop.replace(detachedQuadStepHitDoublets, detachedQuadStepHitDoublets+detachedQuadStepHitTriplets)
 trackingPhase1QuadProp.toReplaceWith(DetachedQuadStep, _DetachedQuadStep_Phase1Prop)
-_DetachedQuadStep_Phase2PU140 = _DetachedQuadStep_Phase1Prop.copy()
+_DetachedQuadStep_Phase2PU140 = DetachedQuadStep.copy()
 _DetachedQuadStep_Phase2PU140.replace(detachedQuadStep, detachedQuadStepSelector+detachedQuadStep)
 trackingPhase2PU140.toReplaceWith(DetachedQuadStep, _DetachedQuadStep_Phase2PU140)

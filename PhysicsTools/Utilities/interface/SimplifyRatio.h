@@ -7,8 +7,11 @@
 #include "PhysicsTools/Utilities/interface/Minus.h"
 #include "PhysicsTools/Utilities/interface/Fraction.h"
 #include "PhysicsTools/Utilities/interface/DecomposePower.h"
+#include "PhysicsTools/Utilities/interface/ParametricTrait.h"
 
 #include "PhysicsTools/Utilities/interface/Simplify_begin.h"
+
+#include <boost/mpl/if.hpp>
 
 namespace funct {
 

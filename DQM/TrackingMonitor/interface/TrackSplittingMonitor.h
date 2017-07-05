@@ -34,7 +34,6 @@
 
 
 class DQMStore;
-class TrackAnalyzer;
 class TProfile;
 
 #include "DataFormats/MuonReco/interface/Muon.h"

@@ -842,7 +842,7 @@ int HcalTopology::etaRing(HcalSubdetector bc, double abseta) const {
         break;
       }
     }
-    if (abseta > etaTable[etaTable.size()-1]) etaring = lastHERing_;
+    if (abseta >= etaTable[etaTable.size()-1]) etaring = lastHERing_;
   }
   return etaring;
 }

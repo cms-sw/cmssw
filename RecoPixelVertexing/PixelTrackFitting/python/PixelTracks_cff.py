@@ -33,11 +33,9 @@ from RecoPixelVertexing.PixelTriplets.pixelQuadrupletMergerEDProducer_cfi import
 from RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff import *
 
 from Configuration.Eras.Modifier_trackingLowPU_cff import trackingLowPU
-from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
 
 # TrackingRegion
 pixelTracksTrackingRegions = _globalTrackingRegionFromBeamSpot.clone()
-trackingPhase2PU140.toModify(pixelTracksTrackingRegions, RegionPSet = dict(originRadius =  0.02))
 
 # Hit ntuplets
 pixelTracksHitDoublets = _hitPairEDProducer.clone(
@@ -47,23 +45,14 @@ pixelTracksHitDoublets = _hitPairEDProducer.clone(
     maxElement = 0,
     produceIntermediateHitDoublets = True,
 )
-_seedingLayers = dict(seedingLayers = "PixelLayerTripletsPreSplitting")
-trackingLowPU.toModify(pixelTracksHitDoublets, **_seedingLayers)
-trackingPhase2PU140.toModify(pixelTracksHitDoublets, **_seedingLayers)
+trackingLowPU.toModify(pixelTracksHitDoublets, seedingLayers = "PixelLayerTripletsPreSplitting")
 
 pixelTracksHitTriplets = _pixelTripletHLTEDProducer.clone(
     doublets = "pixelTracksHitDoublets",
     produceSeedingHitSets = True,
     SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor.clone()
 )
-_SeedComparitorPSet = dict(SeedComparitorPSet = dict(clusterShapeCacheSrc = "siPixelClusterShapeCachePreSplitting"))
-trackingLowPU.toModify(pixelTracksHitTriplets, **_SeedComparitorPSet)
-trackingPhase2PU140.toModify(pixelTracksHitTriplets, maxElement=0, **_SeedComparitorPSet)
-
-pixelTracksHitQuadruplets = _pixelQuadrupletMergerEDProducer.clone(
-    triplets = "pixelTracksHitTriplets",
-    layerList = dict(refToPSet_ = cms.string("PixelSeedMergerQuadruplets")),
-)
+trackingLowPU.toModify(pixelTracksHitTriplets, SeedComparitorPSet = dict(clusterShapeCacheSrc = "siPixelClusterShapeCachePreSplitting"))
 
 pixelTracksSequence = cms.Sequence(
     pixelTracksTrackingRegions +
@@ -73,6 +62,3 @@ pixelTracksSequence = cms.Sequence(
     pixelTrackFilterByKinematics +
     pixelTracks
 )
-_pixelTracksSequence_quad = pixelTracksSequence.copy()
-_pixelTracksSequence_quad.replace(pixelTracksHitTriplets, pixelTracksHitTriplets+pixelTracksHitQuadruplets)
-trackingPhase2PU140.toReplaceWith(pixelTracksSequence, _pixelTracksSequence_quad)

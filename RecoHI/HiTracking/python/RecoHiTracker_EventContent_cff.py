@@ -11,6 +11,7 @@ RecoHiTrackerFEVT = cms.PSet(
 		'keep recoVertexs_hiPixelMedianVertex_*_*',
 		'keep recoVertexs_hiPixelAdaptiveVertex_*_*',
 		'keep recoVertexs_hiSelectedVertex_*_*',
+		'keep recoVertexs_hiSelectedPixelVertex_*_*',
                 'keep recoVertexs_hiPixelClusterVertex_*_*'	
     )
 )
@@ -31,6 +32,7 @@ RecoHiTrackerRECO = cms.PSet(
 		'keep recoVertexs_hiPixelMedianVertex_*_*',  
 		'keep recoVertexs_hiPixelAdaptiveVertex_*_*',  
 		'keep recoVertexs_hiSelectedVertex_*_*',
+		'keep recoVertexs_hiSelectedPixelVertex_*_*',
                 'keep recoVertexs_hiPixelClusterVertex_*_*'		
     )
 )
@@ -47,6 +49,6 @@ RecoHiTrackerLocalRECO = cms.PSet(
 RecoHiTrackerAOD = cms.PSet(
     outputCommands = cms.untracked.vstring('keep recoTracks_hiGeneralTracks_*_*',
                                            'keep recoTracks_hiGeneralAndPixelTracks_*_*',
-                                           'keep recoVertexs_hiSelectedVertex_*_*'		
+                                           'keep recoVertexs_hiSelectedVertex_*_*',		
     )
 )

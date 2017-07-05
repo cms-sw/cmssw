@@ -8,13 +8,9 @@
 <use   name="CondFormats/EcalObjects"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="vdt_headers"/>
-
 <use   name="root"/>
 <use   name="rootminuit"/>
-
 <use   name="eigen"/>
-
-<Flags CXXFLAGS="-Ofast"/>
 
 <export>
   <lib   name="1"/>

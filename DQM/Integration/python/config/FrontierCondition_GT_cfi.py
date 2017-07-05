@@ -1,3 +1,3 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import * 
-GlobalTag.globaltag = "90X_dataRun2_HLT_v2"
+GlobalTag.globaltag = "92X_dataRun2_HLT_v4"

@@ -1,6 +1,8 @@
 #ifndef EScales_h
 #define EScales_h
 
+#include <string>
+
 struct EScales{
   double HBPiOvere=0;
   double HESPiOvere=0;

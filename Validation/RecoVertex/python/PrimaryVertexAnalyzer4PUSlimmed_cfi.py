@@ -37,7 +37,11 @@ vertexAnalysisTrackingOnly = vertexAnalysis.clone(
 from Configuration.Eras.Modifier_trackingLowPU_cff import trackingLowPU
 trackingLowPU.toModify(vertexAnalysisTrackingOnly, vertexRecoCollections = vertexAnalysis.vertexRecoCollections.value())
 from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
-trackingPhase2PU140.toModify(vertexAnalysisTrackingOnly, vertexRecoCollections = vertexAnalysis.vertexRecoCollections.value())
+trackingPhase2PU140.toModify(vertexAnalysisTrackingOnly,
+    vertexRecoCollections = vertexAnalysis.vertexRecoCollections.value() + [
+        "firstStepPrimaryVertices"
+    ]
+)
 
 pixelVertexAnalysisTrackingOnly = vertexAnalysis.clone(
     do_generic_sim_plots = False,
@@ -79,4 +83,3 @@ _vertexAnalysisSequenceTrackingOnly_trackingLowPU += (
     + pixelVertexAnalysisTrackingOnly
 )
 trackingLowPU.toReplaceWith(vertexAnalysisSequenceTrackingOnly, _vertexAnalysisSequenceTrackingOnly_trackingLowPU)
-trackingPhase2PU140.toReplaceWith(vertexAnalysisSequenceTrackingOnly, _vertexAnalysisSequenceTrackingOnly_trackingLowPU)

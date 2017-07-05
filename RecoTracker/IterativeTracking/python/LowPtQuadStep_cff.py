@@ -26,7 +26,7 @@ lowPtQuadStepTrackingRegions = _globalTrackingRegionFromBeamSpot.clone(RegionPSe
 from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
 from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
 trackingPhase1QuadProp.toModify(lowPtQuadStepTrackingRegions, RegionPSet = dict(ptMin = 0.2))
-trackingPhase2PU140.toModify(lowPtQuadStepTrackingRegions, RegionPSet = dict(ptMin = 0.35))
+trackingPhase2PU140.toModify(lowPtQuadStepTrackingRegions, RegionPSet = dict(ptMin = 0.35,originRadius = 0.025))
 
 
 # seeding
@@ -56,13 +56,14 @@ lowPtQuadStepHitQuadruplets = _caHitQuadrupletEDProducer.clone(
     CAThetaCut = 0.0017,
     CAPhiCut = 0.3,
 )
+trackingPhase2PU140.toModify(lowPtQuadStepHitQuadruplets,CAThetaCut = 0.0015,CAPhiCut = 0.25)
+
 from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsEDProducer_cff import seedCreatorFromRegionConsecutiveHitsEDProducer as _seedCreatorFromRegionConsecutiveHitsEDProducer
 lowPtQuadStepSeeds = _seedCreatorFromRegionConsecutiveHitsEDProducer.clone(
     seedingHitSets = "lowPtQuadStepHitQuadruplets",
 )
 
 trackingPhase1QuadProp.toModify(lowPtQuadStepHitDoublets, layerPairs = [0])
-trackingPhase2PU140.toModify(lowPtQuadStepHitDoublets, layerPairs = [0])
 lowPtQuadStepHitTriplets = _pixelTripletHLTEDProducer.clone(
     doublets = "lowPtQuadStepHitDoublets",
     produceIntermediateHitTriplets = True,
@@ -89,7 +90,6 @@ _lowPtQuadStepHitQuadruplets_propagation = _pixelQuadrupletEDProducer.clone(
     SeedComparitorPSet = lowPtQuadStepHitTriplets.SeedComparitorPSet,
 )
 trackingPhase1QuadProp.toReplaceWith(lowPtQuadStepHitQuadruplets, _lowPtQuadStepHitQuadruplets_propagation)
-trackingPhase2PU140.toReplaceWith(lowPtQuadStepHitQuadruplets, _lowPtQuadStepHitQuadruplets_propagation)
 
 
 
@@ -122,7 +122,7 @@ lowPtQuadStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator
     clusterChargeCut = dict(refToPSet_ = ('SiStripClusterChargeCutTight')),
 )
 trackingPhase2PU140.toModify(lowPtQuadStepChi2Est,
-    MaxChi2 = 25.0,
+    MaxChi2 = 16.0,
     clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutNone')
 )
 
@@ -138,7 +138,11 @@ lowPtQuadStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuil
     # of the outermost Tracker barrel layer (with B=3.8T)
     maxPtForLooperReconstruction = cms.double(0.7) 
 )
-trackingPhase2PU140.toModify(lowPtQuadStepTrajectoryBuilder, maxCand = 5)
+trackingPhase2PU140.toModify(lowPtQuadStepTrajectoryBuilder,
+    minNrOfHitsForRebuild = 1,
+    keepOriginalIfRebuildFails = True,
+)
+
 
 # MAKING OF TRACK CANDIDATES
 from TrackingTools.TrajectoryCleaning.TrajectoryCleanerBySharedHits_cfi import trajectoryCleanerBySharedHits as _trajectoryCleanerBySharedHits
@@ -243,6 +247,6 @@ LowPtQuadStep = cms.Sequence(lowPtQuadStepClusters*
 _LowPtQuadStep_Phase1Prop = LowPtQuadStep.copy()
 _LowPtQuadStep_Phase1Prop.replace(lowPtQuadStepHitDoublets, lowPtQuadStepHitDoublets+lowPtQuadStepHitTriplets)
 trackingPhase1QuadProp.toReplaceWith(LowPtQuadStep, _LowPtQuadStep_Phase1Prop)
-_LowPtQuadStep_Phase2PU140 = _LowPtQuadStep_Phase1Prop.copy()
+_LowPtQuadStep_Phase2PU140 = LowPtQuadStep.copy()
 _LowPtQuadStep_Phase2PU140.replace(lowPtQuadStep, lowPtQuadStepSelector)
 trackingPhase2PU140.toReplaceWith(LowPtQuadStep, _LowPtQuadStep_Phase2PU140)

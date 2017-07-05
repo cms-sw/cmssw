@@ -15,7 +15,7 @@ def makeStepNameSim(key,frag,step,suffix):
 def makeStepName(key,frag,step,suffix):
    return step+suffix+'_'+key
 
-neutronKeys = ['2023D12','2023D13','2023D14','2023D15','2023D16','2023D17']
+neutronKeys = ['2023D14','2023D16','2023D17']
 neutronFrags = ['ZMM_14','MinBias_14TeV']
 
 #just define all of them

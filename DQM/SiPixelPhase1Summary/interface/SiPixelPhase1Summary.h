@@ -32,6 +32,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -61,17 +62,29 @@
        bool runOnEndJob_;
 
     private:
+       enum trendPlots { offline,fpix,bpix,layer1,layer2,layer3,layer4,ring1,ring2 };
        edm::ParameterSet conf_;
        edm::InputTag src_;
        bool firstLumi;
 
        std::map<std::string,MonitorElement*> summaryMap_;
+       MonitorElement * reportSummary; //Float value of the average of the ins in the grand summary
 
        std::map<std::string,std::string> summaryPlotName_;
 
+       //The dead and innefficient roc trend plot
+       std::map<trendPlots,MonitorElement*>  deadROCTrends_;
+       std::map<trendPlots,MonitorElement*> ineffROCTrends_;
+
+       //book the summary plots
        void bookSummaries(DQMStore::IBooker & iBooker);
 
+       //Book trend plots
+       void bookTrendPlots(DQMStore::IBooker & iBooker);
+
        void fillSummaries(DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter);
+
+       void fillTrendPlots(DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter, int lumiSeg = 0);
 
  };
 

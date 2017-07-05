@@ -5,9 +5,9 @@ Different versions of various subdetectors can be combined. The available versio
 Tracker:
 * T1: Phase2 tilted tracker (v2016-04-12) w/ phase 1 (extended) pixel - DEPRECATED, superseded by T3
 * T2: Phase2 flat tracker (v2016-04-12) w/ phase 1 (extended) pixel- DEPRECATED, superseded by T4
-* T3: Phase2 tilted tracker (v3.6.5) w/ phase 2 pixel (v4.0.2.6)
+* T3: Phase2 tilted tracker (v3.6.5) w/ phase 2 pixel (v4.0.2.6) - DEPRECATED, superseded by T5
 * T4: Phase2 flat tracker (v2016-04-12) w/ phase 2 pixel (v4.0.2.6)
-* T5: Phase2 tilted tracker (v3.6.13) w/ phase 2 pixel (v4.0.2.5)
+* T5: Phase2 tilted tracker (v6.1.3) w/ phase 2 pixel (v4.0.2.5) 
 
 Calorimeters:
 * C1: Run2 calorimeters
@@ -29,20 +29,12 @@ The script also handles the common and forward elements of the geometry:
 * F2: modifications needed to accommodate detailed cavern, ZDC description is removed.
 
 Several detector combinations have been generated:
-* D7 = T3+C1+M1+I1+O1+F1
-* D4 = T3+C2+M1+I1+O1+F1
-* D8 = T3+C2+M1+I2+O1+F1
-* D9 = T3+C1+M2+I1+O1+F1
 * D10 = T4+C1+M1+I1+O1+F1
-* D11 = T5+C2+M1+I1+O1+F1
-* D12 = T3+C2+M2+I1+O2+F2 
-* D13 = T3+C3+M2+I1+O1+F1
+* D11 = T5+C2+M1+I1+O1+F1 
 * D14 = T5+C2+M2+I1+O2+F2 
-* D15 = T3+C3+M2+I1+O2+F2 
 * D16 = T5+C3+M2+I1+O1+F1
 * D17 = T5+C3+M2+I1+O2+F2 
-
-Currently, D4 is considered to be the baseline for the Phase 2 Tracker and L1 Trigger TDRs,
-and D12 is considered to be the baseline for the Phase 2 Muon and Barrel TDRs.
+* D18 = T5+C2+M1+I2+O1+F1
+Currently, D17 is considered to be the baseline for the Phase 2 Muon and Barrel TDRs.
 
 

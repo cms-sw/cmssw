@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-chamberEfficiencyTest = cms.EDAnalyzer("DTChamberEfficiencyTest",
+chamberEfficiencyTest = DQMEDHarvester("DTChamberEfficiencyTest",
     runningStandalone = cms.untracked.bool(True),
     #Names of the quality tests: they must match those specified in "qtList"
     XEfficiencyTestName = cms.untracked.string('ChEfficiencyInRangeX'),

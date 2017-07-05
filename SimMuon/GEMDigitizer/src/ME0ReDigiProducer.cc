@@ -136,6 +136,7 @@ TrapezoidalStripTopology * ME0ReDigiProducer::TemporaryGeometry::buildTopo(const
 ME0ReDigiProducer::ME0ReDigiProducer(const edm::ParameterSet& ps) :
 		bxWidth            (25.0),
 		useCusGeoFor1PartGeo(ps.getParameter<bool>("useCusGeoFor1PartGeo")),
+		usePads(ps.getParameter<bool>("usePads")),
 		numberOfStrips      (ps.getParameter<unsigned int>("numberOfStrips")),
 		numberOfPartitions (ps.getParameter<unsigned int>("numberOfPartitions")),
 		neutronAcceptance  (ps.getParameter<double>("neutronAcceptance")),
@@ -160,6 +161,8 @@ ME0ReDigiProducer::ME0ReDigiProducer(const edm::ParameterSet& ps) :
 	useBuiltinGeo = true;
 
 	if(useCusGeoFor1PartGeo){
+	        if (usePads)
+		        numberOfStrips = numberOfStrips/2;
 		if(numberOfStrips == 0)
 			throw cms::Exception("Setup") << "ME0ReDigiProducer::ME0PreRecoDigiProducer() - Must have at least one strip if using custom geometry.";
 		if(numberOfPartitions == 0)
@@ -397,14 +400,18 @@ void ME0ReDigiProducer::getStripProperties(const ME0EtaPartition* etaPart, const
 	//convert to relative to partition
 	tof -= tofs[etaPart->id().layer()-1][etaPart->id().roll() -1];
 
+	const TrapezoidalStripTopology * origTopo = (const TrapezoidalStripTopology*)(&etaPart->specificTopology());
+	TrapezoidalStripTopology padTopo(origTopo->nstrips()/2,origTopo->pitch()*2,origTopo->stripLength(),origTopo->radius());
+	const auto & topo = usePads ?  padTopo : etaPart->specificTopology();
+
 	//find channel
 	const LocalPoint partLocalPoint(inDigi->x(), inDigi->y(),0.);
-	strip = etaPart->specificTopology().channel(partLocalPoint);
+	strip = topo.channel(partLocalPoint);
 	const float stripF = float(strip)+0.5;
 
 	//get digitized location
-	digiLocalPoint = etaPart->specificTopology().localPosition(stripF);
-	digiLocalError = etaPart->specificTopology().localError(stripF, 1./sqrt(12.));
+	digiLocalPoint = topo.localPosition(stripF);
+	digiLocalError = topo.localError(stripF, 1./sqrt(12.));
 }
 
 unsigned int ME0ReDigiProducer::fillDigiMap(ChamberDigiMap& chDigiMap, unsigned int bx, unsigned int part, unsigned int strip, unsigned int currentIDX) const {

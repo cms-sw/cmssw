@@ -17,7 +17,7 @@ class PFClusterEnergyCorrectorBase {
  public:
   PFClusterEnergyCorrectorBase(const edm::ParameterSet& conf) :
     _algoName(conf.getParameter<std::string>("algoName")) { }
-  ~PFClusterEnergyCorrectorBase() { }
+  virtual ~PFClusterEnergyCorrectorBase() = default;
   //get rid of things we should never use
   PFClusterEnergyCorrectorBase(const Corrector&) = delete;
   Corrector& operator=(const Corrector&) = delete;
