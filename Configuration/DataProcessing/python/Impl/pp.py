@@ -20,6 +20,7 @@ class pp(Reco):
         self.cbSc='pp'
         self.promptCustoms= [ 'Configuration/DataProcessing/RecoTLR.customisePrompt' ]
         self.expressCustoms=[ ]
+        self.alcaHarvCustoms=[]
         self.expressModifiers = modifyExpress
         self.visCustoms=[ ]
         self.visModifiers = modifyExpress
@@ -97,6 +98,12 @@ class pp(Reco):
 
         """
 
+        if not 'customs' in args:
+            args['customs']=[ ]
+
+        for c in self.alcaHarvCustoms:
+            args['customs'].append(c)
+
 
         if not 'skims' in args and not 'alcapromptdataset' in args:
             args['skims']=['BeamSpotByRun',
@@ -104,4 +111,3 @@ class pp(Reco):
                            'SiStripQuality']
             
         return Reco.alcaHarvesting(self, globalTag, datasetName, **args)
-
