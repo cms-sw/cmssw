@@ -219,21 +219,16 @@ if (process.runType.getRunType() == process.runType.hi_run):
     # Pixel-Tracks&Vertices Config
     #----------------------------
     from RecoHI.HiTracking.HIPixelVerticesPreSplitting_cff import *
-    
     process.PixelLayerTriplets.BPix.HitProducer = cms.string("siPixelRecHitsPreSplitting")
     process.PixelLayerTriplets.FPix.HitProducer = cms.string("siPixelRecHitsPreSplitting")
-
     process.hiPixel3PrimTracksFilter = process.hiFilter.clone(VertexCollection     = cms.InputTag("hiSelectedVertexPreSplitting"),
                                                               clusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCachePreSplitting"))
-
-    process.hiPixel3PrimTracks.Filter               = cms.InputTag("hiPixel3PrimTracksFilter")
-    process.hiPixel3PrimTracks.ComponentName        = cms.string("GlobalTrackingRegionWithVerticesProducer")
-    process.hiPixel3PrimTracks.VertexCollection     = cms.InputTag("hiSelectedVertexPreSplitting")
-    process.hiPixel3PrimTracks.ptMin                = cms.double(0.9)
-    process.hiPixel3PrimTracks.clusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCachePreSplitting")
-
+    process.hiPixel3PrimTracks.Filter                    = cms.InputTag("hiPixel3PrimTracksFilter")
+    process.hiPixel3PrimTracks.ComponentName             = cms.string("GlobalTrackingRegionWithVerticesProducer")
+    process.hiPixel3PrimTracks.VertexCollection          = cms.InputTag("hiSelectedVertexPreSplitting")
+    process.hiPixel3PrimTracks.ptMin                     = cms.double(0.9)
+    process.hiPixel3PrimTracks.clusterShapeCacheSrc      = cms.InputTag("siPixelClusterShapeCachePreSplitting")
     process.hiPixel3ProtoTracksPreSplitting.originRadius = cms.double(0.4)
-
     process.hiPixelAdaptiveVertexPreSplitting.vertexCollections.useBeamConstraint = cms.bool(False)
 
 
