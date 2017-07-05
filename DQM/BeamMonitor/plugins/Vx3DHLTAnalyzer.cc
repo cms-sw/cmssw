@@ -125,6 +125,8 @@ void Vx3DHLTAnalyzer::analyze (const Event& iEvent, const EventSetup& iSetup)
 	  if (internalDebug == true)
 	    {
 	      cout << "[Vx3DHLTAnalyzer]::\tVertex selections:" << endl;
+  	      cout << "[Vx3DHLTAnalyzer]::\tEvent ID = " << iEvent.id() << endl;
+              cout << "[Vx3DHLTAnalyzer]::\tVertex number = " << it3DVx - Vx3DCollection->begin() << endl;
 	      cout << "[Vx3DHLTAnalyzer]::\tisValid = " << it3DVx->isValid() << endl;
 	      cout << "[Vx3DHLTAnalyzer]::\tisFake = " << it3DVx->isFake() << endl;
 	      cout << "[Vx3DHLTAnalyzer]::\tnodof = " << it3DVx->ndof() << endl;
