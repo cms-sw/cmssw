@@ -56,9 +56,11 @@ $success*=replace( "$odir/common_cff_py.txt", "<SURFDEFOPT>", "$strUseSD" );
 foreach $data1 ( @dataFileInput1 ) {
 
    chomp $data1;
+   next if (index($data1, '#') == -1);
 
    my @dataspecs = split(',', $data1);
    $datafile = $dataspecs[0];
+   #($dataskim,$path,$suffix) = fileparse($datafile,,qr"\..[^.]*$");
    $trkselfile = $dataspecs[1];
    chomp $trkselfile;
    $flag = $dataspecs[2];
@@ -85,9 +87,6 @@ foreach $data1 ( @dataFileInput1 ) {
    open (datafile) or die "Can't open the file!";
    @dataFileInput = <datafile>;
 
-   #($dataskim,$path,$suffix) = fileparse($datafile,,qr"\..[^.]*$");
-
-
    system( "
    cp $intrkselcfg/$trkselfile $odir/;
    " );
@@ -99,41 +98,43 @@ foreach $data1 ( @dataFileInput1 ) {
    @commonFileInput = <COMMON>;
 
    # open selections
-   $SELECTION = "$odir/$dataskim\TrackSelection_cff_py.txt";
+   $SELECTION = "$odir/$trkselfile";
    open (SELECTION) or die "Can't open the file!";
    @selectionsInput = <SELECTION>;
 
    ## setting up parallel jobs
    foreach $data ( @dataFileInput ) {
       chomp($data);
-      $jsuccess=1;
-      $j++;
-      # do stuff
-      # print "$data";
-      system( "
-      mkdir -p $odir/job$j;
-      cp $odir/align_tpl_py.txt $odir/job$j/align_cfg.py;
-      cp $odir/runScript.csh $odir/job$j/;
-      " );
-      # run script
-      open OUTFILE,"$odir/job$j/runScript.csh";
-      insertBlock( "$odir/job$j/align_cfg.py", "<COMMON>", @commonFileInput );
-      insertBlock( "$odir/job$j/align_cfg.py", "<SELECTION>", @selectionsInput );
-      # $success*=replaces for align job
-      $jsuccess*=replace( "$odir/job$j/align_cfg.py", "<FILE>", "$data" );
-      $jsuccess*=replace( "$odir/job$j/align_cfg.py", "<PATH>", "$odir/job$j" );
-      $jsuccess*=replace( "$odir/job$j/align_cfg.py", "<SKIM>", "$dataskim" );
-      $jsuccess*=replace( "$odir/job$j/align_cfg.py", "<FLAGOPTS>", "$flagopts" );
-      $jsuccess*=replace( "$odir/job$j/align_cfg.py", "<FLAG>", "$flag" );
-      # $success*=replaces for runScript
-      $jsuccess*=replace( "$odir/job$j/runScript.csh", "<ODIR>", "$odir/job$j" );
-      $jsuccess*=replace( "$odir/job$j/runScript.csh", "<JOBTYPE>", "align_cfg.py" );
-      close OUTFILE;
-      system "chmod a+x $odir/job$j/runScript.csh";
-      if ($jsuccess == 0){
-         print "Job $j did not setup successfully. Decrementing job number back.\n";
-         system "rm -rf $odir/job$j";
-         $j--;
+      if ( ( $data ne "" ) and ( index($data, '#') == -1 ) ){
+         $jsuccess=1;
+         $j++;
+         # do stuff
+         # print "$data";
+         system( "
+         mkdir -p $odir/job$j;
+         cp $odir/align_tpl_py.txt $odir/job$j/align_cfg.py;
+         cp $odir/runScript.csh $odir/job$j/;
+         " );
+         # run script
+         open OUTFILE,"$odir/job$j/runScript.csh";
+         insertBlock( "$odir/job$j/align_cfg.py", "<COMMON>", @commonFileInput );
+         insertBlock( "$odir/job$j/align_cfg.py", "<SELECTION>", @selectionsInput );
+         # $success*=replaces for align job
+         $jsuccess*=replace( "$odir/job$j/align_cfg.py", "<FILE>", "$data" );
+         $jsuccess*=replace( "$odir/job$j/align_cfg.py", "<PATH>", "$odir/job$j" );
+         $jsuccess*=replace( "$odir/job$j/align_cfg.py", "<SKIM>", "$dataskim" );
+         $jsuccess*=replace( "$odir/job$j/align_cfg.py", "<FLAGOPTS>", "$flagopts" );
+         $jsuccess*=replace( "$odir/job$j/align_cfg.py", "<FLAG>", "$flag" );
+         # $success*=replaces for runScript
+         $jsuccess*=replace( "$odir/job$j/runScript.csh", "<ODIR>", "$odir/job$j" );
+         $jsuccess*=replace( "$odir/job$j/runScript.csh", "<JOBTYPE>", "align_cfg.py" );
+         close OUTFILE;
+         system "chmod a+x $odir/job$j/runScript.csh";
+         if ($jsuccess == 0){
+            print "Job $j did not setup successfully. Decrementing job number back.\n";
+            system "rm -rf $odir/job$j";
+            $j--;
+         }
       }
    }
 

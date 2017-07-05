@@ -171,6 +171,9 @@ class HipPyOptionParser:
                self.overallweight=fval
             except ValueError:
                print "Overall weight is not a float"
+         # Get uniform eta formula. Turns reweighting on
+         elif key=="uniformetaformula":
+            self.uniformetaformula=val
          ## Options for mMin. bias
          # Get custom track selection for TBD
          elif (key=="twobodytrackselection" or key=="twobodydecayselection" or key=="tbdselection"):
