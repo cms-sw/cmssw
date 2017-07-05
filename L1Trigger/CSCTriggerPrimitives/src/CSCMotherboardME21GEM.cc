@@ -293,6 +293,8 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
         cscHsToGemPad_[159] = std::make_pair(384,384);
       } else {
         cscHsToGemPad_[0] = std::make_pair(384,384);
+        cscHsToGemPad_[1] = std::make_pair(384,384);
+        cscHsToGemPad_[158] = std::make_pair(1,1);
         cscHsToGemPad_[159] = std::make_pair(1,1);
       }
       // // get unique values
@@ -1055,7 +1057,6 @@ CSCMotherboardME21GEM::createGEMRollEtaLUT()
     const LocalPoint lp_bottom(0., -half_striplength, 0.);
     const GlobalPoint gp_top(roll->toGlobal(lp_top));
     const GlobalPoint gp_bottom(roll->toGlobal(lp_bottom));
-    //result[i] = std::make_pair(floorf(gp_top.eta() * 100) / 100, ceilf(gp_bottom.eta() * 100) / 100);
     result[i] = std::make_pair(gp_top.eta(), gp_bottom.eta());
   }
   return result;
@@ -1220,7 +1221,9 @@ int CSCMotherboardME21GEM::assignGEMRoll(double eta)
   for(auto p : gemRollToEtaLimits_) {
     const float minEta((p.second).first);
     const float maxEta((p.second).second);
-    if (minEta <= eta and eta <= maxEta) {
+    // this is to make sure that there is no chance that a wire group that falls
+    // between two rolls is assigned to neither!!!!!
+    if (minEta-0.00035 <= eta and eta <= maxEta+0.00035) {
       result = p.first;
       break;
     }
