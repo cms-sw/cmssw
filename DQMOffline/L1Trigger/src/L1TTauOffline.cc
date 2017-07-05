@@ -168,26 +168,73 @@ void L1TTauOffline::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
   edm::Handle<reco::PFTauCollection> taus;
   e.getByToken(theTauCollection_, taus);
 
+  if(!taus.isValid())
+    {
+      edm::LogError("L1TTauOffline") << "invalid collection: reco::PFTauCollection " << std::endl;
+      return; 
+    }
+
   edm::Handle<reco::MuonCollection> muons;
   e.getByToken(MuonInputTag_, muons);
+
+  if(!muons.isValid())
+    {
+      edm::LogError("L1TTauOffline") << "invalid collection: reco::MuonCollection " << std::endl;
+      return; 
+    }    
 
   edm::Handle<reco::BeamSpot> beamSpot;
   e.getByToken(BsInputTag_, beamSpot);
 
+  if(!beamSpot.isValid())
+    {
+      edm::LogError("L1TTauOffline") << "invalid collection: reco::BeamSpot " << std::endl;
+      return; 
+    }
+
   edm::Handle<reco::VertexCollection> vertex;
   e.getByToken(VtxInputTag_, vertex);
-  edm::Handle<l1t::TauBxCollection> l1tCands;				
 
+  if(!vertex.isValid())
+    {
+      edm::LogError("L1TTauOffline") << "invalid collection: reco::VertexCollection " << std::endl;
+      return; 
+    }
+
+  edm::Handle<l1t::TauBxCollection> l1tCands;				
   e.getByToken(stage2CaloLayer2TauToken_,l1tCands);
+  
+  if(!l1tCands.isValid())
+    {
+      edm::LogError("L1TTauOffline") << "invalid collection: l1t::TauBxCollection " << std::endl;
+      return;        
+    }
   
   edm::Handle<edm::TriggerResults> trigResults;
   e.getByToken(triggerResults_,trigResults);
+
+  if(!trigResults.isValid())
+    {
+      edm::LogError("L1TTauOffline") << "invalid collection: edm::TriggerResults " << std::endl;
+      return;      
+    }
   
   edm::Handle<trigger::TriggerEvent> trigEvent;
   e.getByToken(triggerEvent_,trigEvent);
 
+  if(!trigEvent.isValid())
+    {
+      edm::LogError("L1TTauOffline") << "invalid collection: trigger::TriggerEvent " << std::endl;
+      return;      
+    }
+
   edm::Handle<reco::PFMETCollection> mets;
   e.getByToken(MetInputTag_, mets);
+
+  if(!mets.isValid()) {
+    edm::LogError("L1TTauOffline") << "invalid collection: reco::PFMETCollection " << std::endl;
+    return;
+  }
 
   eSetup.get<IdealMagneticFieldRecord>().get(m_BField);									
   const reco::Vertex primaryVertex = getPrimaryVertex(vertex,beamSpot);
@@ -578,12 +625,35 @@ void L1TTauOffline::getProbeTaus(const edm::Event & iEvent,edm::Handle<reco::PFT
 
   edm::Handle<reco::PFTauDiscriminator> antimu;
   iEvent.getByToken(AntiMuInputTag_, antimu);
+  if(!antimu.isValid())
+    {
+      edm::LogError("L1TTauOffline") << "invalid collection: reco::PFTauDiscriminator " << std::endl;
+      return;  
+    }
+
   edm::Handle<reco::PFTauDiscriminator> dmf;
   iEvent.getByToken(DecayModeFindingInputTag_, dmf);
+  if(!dmf.isValid())
+    {
+      edm::LogError("L1TTauOffline") << "invalid collection: reco::PFTauDiscriminator " << std::endl;
+      return;  
+    }
+
   edm::Handle<reco::PFTauDiscriminator> antiele;
   iEvent.getByToken(AntiEleInputTag_, antiele);
+  if(!antiele.isValid())
+    {
+      edm::LogError("L1TTauOffline") << "invalid collection: reco::PFTauDiscriminator " << std::endl;
+      return;  
+    }
+
   edm::Handle<reco::PFTauDiscriminator> comb3T;
   iEvent.getByToken(comb3TInputTag_, comb3T);
+  if(!comb3T.isValid())
+    {
+      edm::LogError("L1TTauOffline") << "invalid collection: reco::PFTauDiscriminator " << std::endl;
+      return;  
+    }
 
   if (m_TightMuons.size()>0){
      TLorentzVector mymu;
