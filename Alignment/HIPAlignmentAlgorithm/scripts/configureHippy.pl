@@ -56,7 +56,7 @@ $success*=replace( "$odir/common_cff_py.txt", "<SURFDEFOPT>", "$strUseSD" );
 foreach $data1 ( @dataFileInput1 ) {
 
    chomp $data1;
-   next if (index($data1, '#') == -1);
+   next if (index($data1, '#') >= 0);
 
    my @dataspecs = split(',', $data1);
    $datafile = $dataspecs[0];
@@ -122,7 +122,7 @@ foreach $data1 ( @dataFileInput1 ) {
          # $success*=replaces for align job
          $jsuccess*=replace( "$odir/job$j/align_cfg.py", "<FILE>", "$data" );
          $jsuccess*=replace( "$odir/job$j/align_cfg.py", "<PATH>", "$odir/job$j" );
-         $jsuccess*=replace( "$odir/job$j/align_cfg.py", "<SKIM>", "$dataskim" );
+         #$jsuccess*=replace( "$odir/job$j/align_cfg.py", "<SKIM>", "$dataskim" );
          $jsuccess*=replace( "$odir/job$j/align_cfg.py", "<FLAGOPTS>", "$flagopts" );
          $jsuccess*=replace( "$odir/job$j/align_cfg.py", "<FLAG>", "$flag" );
          # $success*=replaces for runScript
