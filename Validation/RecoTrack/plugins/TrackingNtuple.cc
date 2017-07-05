@@ -105,6 +105,14 @@ add local angle, path length!
 */
 
 namespace {
+  // This pattern is copied from QuickTrackAssociatorByHitsImpl. If
+  // further needs arises, it wouldn't hurt to abstract it somehow.
+  using TrackingParticleRefKeyToIndex = std::unordered_map<reco::RecoToSimCollection::index_type, size_t>;
+  using TrackingVertexRefKeyToIndex = TrackingParticleRefKeyToIndex;
+  using SimHitFullKey = std::pair<TrackPSimHitRef::key_type, edm::ProductID>;
+  using SimHitRefKeyToIndex = std::map<SimHitFullKey, size_t>;
+
+
   std::string subdetstring(int subdet) {
     switch(subdet) {
     case StripSubdetector::TIB:         return "- TIB";
@@ -336,7 +344,8 @@ namespace {
   };
 
   TrackTPMatch findBestMatchingTrackingParticle(const reco::Track& track,
-                                                const ClusterTPAssociation& clusterToTPMap) {
+                                                const ClusterTPAssociation& clusterToTPMap,
+                                                const TrackingParticleRefKeyToIndex& tpKeyToIndex) {
     struct Count {
       int hits = 0;
       int clusters = 0;
@@ -347,10 +356,15 @@ namespace {
     auto fillCount = [&](int hitIndex, const auto& clusterRef) {
       auto range = clusterToTPMap.equal_range(clusterRef);
       for(auto ip=range.first; ip != range.second; ++ip) {
-        auto& elem = count[ip->second.key()];
+        const auto tpKey = ip->second.key();
+        if(tpKeyToIndex.find(tpKey) == tpKeyToIndex.end()) // filter out TPs not given as an input
+          continue;
+
+        auto& elem = count[tpKey];
         ++elem.hits;
         ++elem.clusters;
         elem.innermostHit = std::min(elem.innermostHit, hitIndex);
+        //edm::LogPrint("Foo") << "key " << ip->second.key() << " event:BX " << ip->second->eventId().event() << ":" << ip->second->eventId().bunchCrossing();
       }
     };
     auto fillCountAnd = [&](int hitIndex, const auto& range1, const auto& range2) {
@@ -358,7 +372,11 @@ namespace {
         if(range2.second != std::find_if(range2.first, range2.second, [&](const auto& clusterTP) {
               return clusterTP.second.key() == i1->second.key();
             })) {
-          auto& elem = count[i1->second.key()];
+          const auto tpKey = i1->second.key();
+          if(tpKeyToIndex.find(tpKey) == tpKeyToIndex.end()) // filter out TPs not given as an input
+            continue;
+
+          auto& elem = count[tpKey];
           elem.hits += 1; //
           elem.clusters += 2; //
           elem.innermostHit = std::min(elem.innermostHit, hitIndex);
@@ -397,11 +415,14 @@ namespace {
       }
     }
 
+    //edm::LogPrint("Foo") << "findBestMatchingTrackingParticle key " << best.key;
+
     return best;
   }
 
   TrackTPMatch findMatchingTrackingParticleFromFirstHit(const reco::Track& track,
-                                                        const ClusterTPAssociation& clusterToTPMap) {
+                                                        const ClusterTPAssociation& clusterToTPMap,
+                                                        const TrackingParticleRefKeyToIndex& tpKeyToIndex) {
     TrackTPMatch best;
 
     auto operateHit = [&](const TrackingRecHit& hit, const auto& func) {
@@ -412,7 +433,11 @@ namespace {
           if(rangeStereo.second != std::find_if(rangeStereo.first, rangeStereo.second, [&](const auto& clusterTP) {
                 return clusterTP.second.key() == i1->second.key();
               })) {
-            func(i1->second.key());
+            const auto tpKey = i1->second.key();
+            if(tpKeyToIndex.find(tpKey) == tpKeyToIndex.end()) // filter out TPs not given as an input
+              continue;
+
+            func(tpKey);
           }
         }
       }
@@ -420,7 +445,10 @@ namespace {
       else {
         auto range = clusterToTPMap.equal_range(dynamic_cast<const BaseTrackerRecHit&>(hit).firstClusterRef());
         for(auto ip=range.first; ip != range.second; ++ip) {
-          func(ip->second.key());
+          const auto tpKey = ip->second.key();
+          if(tpKeyToIndex.find(tpKey) == tpKeyToIndex.end()) // filter out TPs not given as an input
+            continue;
+          func(tpKey);
         }
       }
     };
@@ -503,13 +531,6 @@ private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   void clearVariables();
-
-  // This pattern is copied from QuickTrackAssociatorByHitsImpl. If
-  // further needs arises, it wouldn't hurt to abstract it somehow.
-  typedef std::unordered_map<reco::RecoToSimCollection::index_type, size_t> TrackingParticleRefKeyToIndex;
-  typedef TrackingParticleRefKeyToIndex TrackingVertexRefKeyToIndex;
-  typedef std::pair<TrackPSimHitRef::key_type, edm::ProductID> SimHitFullKey;
-  typedef std::map<SimHitFullKey, size_t> SimHitRefKeyToIndex;
 
   enum class HitType {
     Pixel = 0,
@@ -2741,11 +2762,11 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
 
       // Search for a best-matching TrackingParticle for a seed
       const int nHits = seedTrack.numberOfValidHits();
-      const auto bestKeyCount = findBestMatchingTrackingParticle(seedTrack, clusterToTPMap);
+      const auto bestKeyCount = findBestMatchingTrackingParticle(seedTrack, clusterToTPMap, tpKeyToIndex);
       const float bestShareFrac = static_cast<float>(bestKeyCount.countHits)/static_cast<float>(nHits);
       const float bestShareFracSimDenom = bestKeyCount.key >= 0 ? static_cast<float>(bestKeyCount.countClusters)/static_cast<float>(tpCollection[tpKeyToIndex.at(bestKeyCount.key)]->numberOfTrackerHits()) : 0;
       // Another way starting from the first hit of the seed
-      const auto bestFirstHitKeyCount = findMatchingTrackingParticleFromFirstHit(seedTrack, clusterToTPMap);
+      const auto bestFirstHitKeyCount = findMatchingTrackingParticleFromFirstHit(seedTrack, clusterToTPMap, tpKeyToIndex);
       const float bestFirstHitShareFrac = static_cast<float>(bestFirstHitKeyCount.countHits)/static_cast<float>(nHits);
       const float bestFirstHitShareFracSimDenom = bestFirstHitKeyCount.key >= 0 ? static_cast<float>(bestFirstHitKeyCount.countClusters)/static_cast<float>(tpCollection[tpKeyToIndex.at(bestFirstHitKeyCount.key)]->numberOfTrackerHits()) : 0;
 
@@ -3001,11 +3022,11 @@ void TrackingNtuple::fillTracks(const edm::RefToBaseVector<reco::Track>& tracks,
     }
 
     // Search for a best-matching TrackingParticle for a track
-    const auto bestKeyCount = findBestMatchingTrackingParticle(*itTrack, clusterToTPMap);
+    const auto bestKeyCount = findBestMatchingTrackingParticle(*itTrack, clusterToTPMap, tpKeyToIndex);
     const float bestShareFrac = static_cast<float>(bestKeyCount.countHits)/static_cast<float>(nHits);
     const float bestShareFracSimDenom = bestKeyCount.key >= 0 ? static_cast<float>(bestKeyCount.countClusters)/static_cast<float>(tpCollection[tpKeyToIndex.at(bestKeyCount.key)]->numberOfTrackerHits()) : 0;
     // Another way starting from the first hit of the track
-    const auto bestFirstHitKeyCount = findMatchingTrackingParticleFromFirstHit(*itTrack, clusterToTPMap);
+    const auto bestFirstHitKeyCount = findMatchingTrackingParticleFromFirstHit(*itTrack, clusterToTPMap, tpKeyToIndex);
     const float bestFirstHitShareFrac = static_cast<float>(bestFirstHitKeyCount.countHits)/static_cast<float>(nHits);
     const float bestFirstHitShareFracSimDenom = bestFirstHitKeyCount.key >= 0 ? static_cast<float>(bestFirstHitKeyCount.countClusters)/static_cast<float>(tpCollection[tpKeyToIndex.at(bestFirstHitKeyCount.key)]->numberOfTrackerHits()) : 0;
 
