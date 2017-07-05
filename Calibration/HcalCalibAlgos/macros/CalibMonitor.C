@@ -87,6 +87,7 @@ public :
   Int_t                      t_Event;
   Int_t                      t_DataType;
   Int_t                      t_ieta;
+  Int_t                      t_iphi;
   Double_t                   t_EventWeight;
   Int_t                      t_nVtx;
   Int_t                      t_nTrk;
@@ -107,6 +108,7 @@ public :
   Double_t                   t_eHcal10;
   Double_t                   t_eHcal30;
   Double_t                   t_hmaxNearP;
+  Double_t                   t_rhoh;
   Bool_t                     t_selectTk;
   Bool_t                     t_qltyFlag;
   Bool_t                     t_qltyMissFlag;
@@ -125,6 +127,7 @@ public :
   TBranch                   *b_t_Event;         //!
   TBranch                   *b_t_DataType;      //!
   TBranch                   *b_t_ieta;          //!
+  TBranch                   *b_t_iphi;          //!
   TBranch                   *b_t_EventWeight;   //!
   TBranch                   *b_t_nVtx;          //!
   TBranch                   *b_t_nTrk;          //!
@@ -145,6 +148,7 @@ public :
   TBranch                   *b_t_eHcal10;       //!
   TBranch                   *b_t_eHcal30;       //!
   TBranch                   *b_t_hmaxNearP;     //!
+  TBranch                   *b_t_rhoh;          //!
   TBranch                   *b_t_selectTk;      //!
   TBranch                   *b_t_qltyFlag;      //!
   TBranch                   *b_t_qltyMissFlag;  //!
@@ -202,10 +206,10 @@ private:
   double                    log2by16_;
   std::vector<Long64_t>     entries_;
   std::vector<double>       etas_, ps_, dl1_;
-  std::vector<int>          nvx_;
+  std::vector<int>          nvx_, ietas_;
   TH1D                     *h_p[5], *h_eta[5];
   std::vector<TH1D*>        h_eta0, h_eta1, h_eta2, h_eta3, h_eta4;
-  std::vector<TH1D*>        h_dL1,  h_vtx, h_etaF[npbin];
+  std::vector<TH1D*>        h_dL1,  h_vtx, h_etaF[npbin], h_etaB[npbin];
   std::vector<TProfile*>    h_etaX[npbin];
   std::vector<TH1D*>        h_etaR[npbin], h_nvxR[npbin], h_dL1R[npbin];
   std::map<std::pair<int,int>,double> cfactors_;
@@ -299,6 +303,7 @@ void CalibMonitor::Init(TTree *tree, std::string& dupFileName) {
   fChain->SetBranchAddress("t_Event", &t_Event, &b_t_Event);
   fChain->SetBranchAddress("t_DataType", &t_DataType, &b_t_DataType);
   fChain->SetBranchAddress("t_ieta", &t_ieta, &b_t_ieta);
+  fChain->SetBranchAddress("t_iphi", &t_iphi, &b_t_iphi);
   fChain->SetBranchAddress("t_EventWeight", &t_EventWeight, &b_t_EventWeight);
   fChain->SetBranchAddress("t_nVtx", &t_nVtx, &b_t_nVtx);
   fChain->SetBranchAddress("t_nTrk", &t_nTrk, &b_t_nTrk);
@@ -319,6 +324,7 @@ void CalibMonitor::Init(TTree *tree, std::string& dupFileName) {
   fChain->SetBranchAddress("t_eHcal10", &t_eHcal10, &b_t_eHcal10);
   fChain->SetBranchAddress("t_eHcal30", &t_eHcal30, &b_t_eHcal30);
   fChain->SetBranchAddress("t_hmaxNearP", &t_hmaxNearP, &b_t_hmaxNearP);
+  fChain->SetBranchAddress("t_rhoh", &t_rhoh, &b_t_rhoh);
   fChain->SetBranchAddress("t_selectTk", &t_selectTk, &b_t_selectTk);
   fChain->SetBranchAddress("t_qltyFlag", &t_qltyFlag, &b_t_qltyFlag);
   fChain->SetBranchAddress("t_qltyMissFlag", &t_qltyMissFlag, &b_t_qltyMissFlag);
@@ -384,6 +390,8 @@ void CalibMonitor::Init(TTree *tree, std::string& dupFileName) {
   int npvtx[6]  = {0, 7,10, 13, 16,100};
   for (int i=0; i<6; ++i)  nvx_.push_back(npvtx[i]);
   double dl1s[9]= {0, 0.10, 0.20, 0.50, 1.0, 2.0, 2.5, 3.0, 10.0};
+  int ietas[4] = {0, 13, 18, 25};
+  for (int i=0; i<4; ++i)  ietas_.push_back(ietas[i]);
 
   char        name[20], title[200];
   std::string titl[5] = {"All tracks", "Good quality tracks", "Selected tracks",
@@ -457,6 +465,13 @@ void CalibMonitor::Init(TTree *tree, std::string& dupFileName) {
 	kk = h_etaR[k].size()-1;
 	h_etaR[k][kk]->Sumw2();
       }
+      for (unsigned int j=1; j<ietas_.size(); ++j) {
+	sprintf (name, "%setaB%d%d", prefix_.c_str(), k, j);
+	sprintf (title,"E/p for %s (p = %d:%d GeV |#eta| %d:%d)",titl[4].c_str(),ipbin[k],ipbin[k+1],ietas_[j-1],ietas_[j]);
+	h_etaB[k].push_back(new TH1D(name,title,100,0.,5.));
+	unsigned int kk = h_etaB[k].size()-1;
+	h_etaB[k][kk]->Sumw2();
+      }
       for (unsigned int j=0; j<dl1_.size(); ++j) {
 	sprintf (name, "%sdl1R%d%d", prefix_.c_str(), k, j);
 	if (j == 0) {
@@ -504,6 +519,13 @@ void CalibMonitor::Init(TTree *tree, std::string& dupFileName) {
       kk = h_etaR[npbin-1].size()-1;
       h_etaR[npbin-1][kk]->Sumw2();
     }
+    for (unsigned int j=1; j<ietas_.size(); ++j) {
+      sprintf (name, "%setaB%d%d", prefix_.c_str(), kp, j);
+      sprintf (title,"E/p for %s (All momentum |#eta| %d:%d)",titl[4].c_str(),ietas_[j-1],ietas_[j]);
+      h_etaB[npbin-1].push_back(new TH1D(name,title,100,0.,5.));
+      unsigned int kk = h_etaB[npbin-1].size()-1;
+      h_etaB[npbin-1][kk]->Sumw2();
+    }
     for (unsigned int j=0; j<dl1_.size(); ++j) {
       sprintf (name, "%sdl1R%d%d", prefix_.c_str(), kp, j);
       if (j == 0) {
@@ -527,6 +549,13 @@ void CalibMonitor::Init(TTree *tree, std::string& dupFileName) {
       h_etaF[kp50].push_back(new TH1D(name,title,100,0.,5.));
       unsigned int kk = h_etaF[kp50].size()-1;
       h_etaF[kp50][kk]->Sumw2();
+    }
+    for (unsigned int j=1; j<ietas_.size(); ++j) {
+      sprintf (name, "%setaB%d%d", prefix_.c_str(), kp50, j);
+      sprintf (title,"E/p for %s (p = %d:%d GeV |#eta| %d:%d)",titl[4].c_str(),ipbin[kp50],ipbin[kp50+1],ietas_[j-1],ietas_[j]);
+      h_etaB[kp50].push_back(new TH1D(name,title,100,0.,5.));
+      unsigned int kk = h_etaB[kp50].size()-1;
+      h_etaB[kp50][kk]->Sumw2();
     }
   }
 }
@@ -625,7 +654,7 @@ void CalibMonitor::Loop() {
     }
 
     // if (Cut(ientry) < 0) continue;
-    int kp(-1), jp(-1);
+    int kp(-1), jp(-1), jp1(-1);
     double pmom = (useGen_ && (t_gentrackP > 0)) ? t_gentrackP : t_p;
     for (unsigned int k=1; k<ps_.size(); ++k ) {
       if (pmom >= ps_[k-1] && pmom < ps_[k]) {
@@ -651,9 +680,14 @@ void CalibMonitor::Loop() {
 	jp = j; break;
       }
     }
+    for (unsigned int j=1; j<ietas_.size(); ++j) {
+      if (std::abs(t_ieta) > ietas_[j-1] && std::abs(t_ieta) < ietas_[j]) {
+	jp1 = j-1; break;
+      }
+    }
     if (debug) std::cout << "Bin " << kp << ":" << kp1 << ":" << kv << ":" 
-			 << kv1 << ":" << kd << ":" << kd1 << ":" << jp 
-			 << std::endl;
+			 << kv1 << ":" << kd << ":" << kd1 << ":" << jp << ":"
+			 << jp1 << std::endl;
     if (plotType_ <= 1) {
       h_p[0]->Fill(pmom,t_EventWeight);
       h_eta[0]->Fill(t_ieta,t_EventWeight);
@@ -741,6 +775,7 @@ void CalibMonitor::Loop() {
 	    if (debug) std::cout << "kp " << kp << h_etaF[kp].size() << std::endl;
 	    if (jp > 0) h_etaF[kp][jp]->Fill(rat,t_EventWeight);
 	    h_etaF[kp][0]->Fill(rat,t_EventWeight);
+	    if (jp1 >= 0) h_etaB[kp][jp1]->Fill(rat,t_EventWeight);
 	  }
 	}
 	if (pmom > 20.0) {
@@ -753,6 +788,7 @@ void CalibMonitor::Loop() {
 	    h_dL1R[kp1][kd1]->Fill(rat,t_EventWeight);
 	    if (jp > 0) h_etaR[kp1][jp]->Fill(rat,t_EventWeight);
 	    h_etaR[kp1][0]->Fill(rat,t_EventWeight);
+	    if (jp1 >= 0) h_etaB[kp][jp1]->Fill(rat,t_EventWeight);
 	  }
 	}
       }
@@ -997,6 +1033,12 @@ void CalibMonitor::SavePlot(std::string theName, bool append, bool all) {
 	  TH1D* hist = (TH1D*)h_dL1R[k][j]->Clone();
 	  hist->Write();
 	}
+      }
+    }
+    for (unsigned int j=0; j<ietas_.size(); ++j) {
+      if (h_etaB[k].size() > j && h_etaB[k][j] != 0) {
+	TH1D* hist = (TH1D*)h_etaB[k][j]->Clone();
+	hist->Write();
       }
     }
     if (all && (plotType_ <= 1) && ((k+1) < ps_.size())) {

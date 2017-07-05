@@ -385,6 +385,8 @@ PathContext: pathName = e pathID = 0 (EndPath)
 ++++++++++ finished: event delayed read from source: stream = 0 label = 'out' id = 5
 ++++++++++ starting: event delayed read from source: stream = 0 label = 'out' id = 5
 ++++++++++ finished: event delayed read from source: stream = 0 label = 'out' id = 5
+++++++++++ starting: event delayed read from source: stream = 0 label = 'out' id = 5
+++++++++++ finished: event delayed read from source: stream = 0 label = 'out' id = 5
 ++++++++ finished: prefetching before processing event for module: stream = 0 label = 'out' id = 5
 ++++++++ starting: processing event for module: stream = 0 label = 'out' id = 5
 ++++++++ finished: processing event for module: stream = 0 label = 'out' id = 5
@@ -533,6 +535,8 @@ PathContext: pathName = e pathID = 0 (EndPath)
 ++++++++++ finished: event delayed read from source: stream = 0 label = 'out' id = 5
 ++++++++++ starting: event delayed read from source: stream = 0 label = 'out' id = 5
 ++++++++++ finished: event delayed read from source: stream = 0 label = 'out' id = 5
+++++++++++ starting: event delayed read from source: stream = 0 label = 'out' id = 5
+++++++++++ finished: event delayed read from source: stream = 0 label = 'out' id = 5
 ++++++++ finished: prefetching before processing event for module: stream = 0 label = 'out' id = 5
 ++++++++ starting: processing event for module: stream = 0 label = 'out' id = 5
 ++++++++ finished: processing event for module: stream = 0 label = 'out' id = 5
@@ -667,6 +671,8 @@ PathContext: pathName = e pathID = 0 (EndPath)
 ++++++++++ finished: prefetching before processing event for module: stream = 0 label = 'intProducerU' id = 6
 ++++++++++ starting: processing event for module: stream = 0 label = 'intProducerU' id = 6
 ++++++++++ finished: processing event for module: stream = 0 label = 'intProducerU' id = 6
+++++++++++ starting: event delayed read from source: stream = 0 label = 'out' id = 5
+++++++++++ finished: event delayed read from source: stream = 0 label = 'out' id = 5
 ++++++++++ starting: event delayed read from source: stream = 0 label = 'out' id = 5
 ++++++++++ finished: event delayed read from source: stream = 0 label = 'out' id = 5
 ++++++++++ starting: event delayed read from source: stream = 0 label = 'out' id = 5

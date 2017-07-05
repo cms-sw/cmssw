@@ -203,7 +203,7 @@ SUSY_HLT_HT400_alphaT0p52 = cms.EDAnalyzer("SUSY_HLT_alphaT",
   caloHtThrTurnon = cms.untracked.double(400),
 )
 
-SUSY_HLT_alphaT_POSTPROCESSING = DQMEDHarvester("DQMGenericClient",
+SUSYoHLTalphaToPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
     subDirs        = cms.untracked.vstring(
         "HLT/SUSYBSM/HLT_PFHT200_DiPFJetAve90_PFAlphaT0p51_v"
         "HLT/SUSYBSM/HLT_PFHT200_DiPFJetAve90_PFAlphaT0p57_v",

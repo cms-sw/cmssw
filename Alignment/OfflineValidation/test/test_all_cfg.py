@@ -69,7 +69,7 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 ####################################################################
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_realistic', '')
 
 if allFromGT:
      print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: All is taken from GT"
@@ -82,7 +82,7 @@ else:
                                              connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
                                              timetype = cms.string("runnumber"),
                                              toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerAlignmentRcd'),
-                                                                        tag = cms.string('TrackerAlignment_2015StartupPessimisticScenario_mc')
+                                                                        tag = cms.string('TrackerAlignment_Upgrade2017_design_v4')
                                                                         )
                                                                )
                                              )
