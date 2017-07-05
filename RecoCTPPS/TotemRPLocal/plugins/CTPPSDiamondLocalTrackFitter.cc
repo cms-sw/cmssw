@@ -113,7 +113,24 @@ CTPPSDiamondLocalTrackFitter::fillDescriptions( edm::ConfigurationDescriptions& 
   trackingAlgoParams.add<double>( "sigma", 0.1 );
   trackingAlgoParams.add<double>( "startFromX", -0.5 /* mm */ );
   trackingAlgoParams.add<double>( "stopAtX", 19.5 /* mm */ );
+
   trackingAlgoParams.add<std::string>( "pixelEfficiencyFunction", "(TMath::Erf((x-[0]+0.5*[1])/([2]/4)+2)+1)*TMath::Erfc((x-[0]-0.5*[1])/([2]/4)-2)/4" );
+  /*
+   * NOTE: pixelEfficiencyFunction can be defined as following:
+   *
+   *  Precise:
+   *    "(TMath::Erf((x-[0]+0.5*[1])/([2]/4)+2)+1)*TMath::Erfc((x-[0]-0.5*[1])/([2]/4)-2)/4"
+   *  Fast:
+   *    "(x>[0]-0.5*[1])*(x<[0]+0.5*[1])+((x-[0]+0.5*[1]+[2])/[2])*(x>[0]-0.5*[1]-[2])*(x<[0]-0.5*[1])+(2-(x-[0]-0.5*[1]+[2])/[2])*(x>[0]+0.5*[1])*(x<[0]+0.5*[1]+[2])"
+   *  Legacy:
+   *    "(1/(1+exp(-(x-[0]+0.5*[1])/[2])))*(1/(1+exp((x-[0]-0.5*[1])/[2])))"
+   *
+   *  with:
+   *    [0]: centre of pad
+   *    [1]: width of pad
+   *    [2]: sigma: distance between efficiency ~100 -> 0 outside width
+   */
+
   trackingAlgoParams.add<double>( "yPosition", 0.0 );
   trackingAlgoParams.add<double>( "yWidth", 0.0 );
 
