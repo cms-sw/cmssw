@@ -506,7 +506,6 @@ private:
 
   // This pattern is copied from QuickTrackAssociatorByHitsImpl. If
   // further needs arises, it wouldn't hurt to abstract it somehow.
-  typedef std::unordered_set<reco::RecoToSimCollection::index_type> TrackingParticleRefKeySet;
   typedef std::unordered_map<reco::RecoToSimCollection::index_type, size_t> TrackingParticleRefKeyToIndex;
   typedef TrackingParticleRefKeyToIndex TrackingVertexRefKeyToIndex;
   typedef std::pair<TrackPSimHitRef::key_type, edm::ProductID> SimHitFullKey;
@@ -2014,7 +2013,6 @@ void TrackingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   // TrackingParticles... Unfortunately it has non-trivial
   // consequences on the associator/association interfaces etc.
   TrackingParticleRefVector tmpTP;
-  TrackingParticleRefKeySet tmpTPkeys;
   const TrackingParticleRefVector *tmpTPptr = nullptr;
   edm::Handle<TrackingParticleCollection>  TPCollectionH;
   edm::Handle<TrackingParticleRefVector>  TPCollectionHRefVector;
@@ -2029,9 +2027,6 @@ void TrackingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   else {
     iEvent.getByToken(trackingParticleRefToken_, TPCollectionHRefVector);
     tmpTPptr = TPCollectionHRefVector.product();
-    for(const auto& ref: *tmpTPptr) {
-      tmpTPkeys.insert(ref.key());
-    }
   }
   const TrackingParticleRefVector& tpCollection = *tmpTPptr;
 
