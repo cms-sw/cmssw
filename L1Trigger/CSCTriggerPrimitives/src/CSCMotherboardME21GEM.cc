@@ -245,7 +245,7 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
     auto randRoll(gemChamberLong->chamber(1)->etaPartition(2));
     // pick any roll
     const int nGEMPads(randRoll->npads());
-    for (int i = 0; i< nGEMPads; ++i){
+    for (int i = 1; i<= nGEMPads; ++i){
       const LocalPoint lpGEM(randRoll->centreOfPad(i));
       const GlobalPoint gp(randRoll->toGlobal(lpGEM));
       const LocalPoint lpCSC(keyLayer->toLocal(gp));
@@ -286,6 +286,15 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
         temp.push_back(-99);
       }
       cscHsToGemPad_[i] = std::make_pair(temp.front(), temp.back());
+      if (isEven){
+        cscHsToGemPad_[0] = std::make_pair(1,1);
+        cscHsToGemPad_[0] = std::make_pair(1,2);
+        cscHsToGemPad_[158] = std::make_pair(384,384);
+        cscHsToGemPad_[159] = std::make_pair(384,384);
+      } else {
+        cscHsToGemPad_[0] = std::make_pair(384,384);
+        cscHsToGemPad_[159] = std::make_pair(1,1);
+      }
       // // get unique values
       // std::sort(temp.begin(),temp.end());
       // temp.erase(std::unique(temp.begin(),temp.end()),temp.end());

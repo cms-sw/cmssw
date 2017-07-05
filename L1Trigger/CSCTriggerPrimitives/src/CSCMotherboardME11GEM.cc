@@ -517,6 +517,18 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
         temp2.insert(-99);
       }
       cscHsToGemPadME1a_[i] = std::make_pair(*temp2.begin(), *temp2.rbegin());
+      // special cases
+      if (isEven){
+        cscHsToGemPadME1a_[0] = std::make_pair(1,1);
+        cscHsToGemPadME1a_[1] = std::make_pair(1,1);
+        cscHsToGemPadME1a_[94] = std::make_pair(192,192);
+        cscHsToGemPadME1a_[95] = std::make_pair(192,192);
+      } else {
+        cscHsToGemPadME1a_[0] = std::make_pair(192,192);
+        cscHsToGemPadME1a_[1] = std::make_pair(192,192);
+        cscHsToGemPadME1a_[94] = std::make_pair(1,1);
+        cscHsToGemPadME1a_[95] = std::make_pair(1,1);
+      }
     }
 
     for (int i=0; i<nStripsME1b*2; ++i){
@@ -565,7 +577,29 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
         temp2.insert(-99);
       }
       cscHsToGemPadME1b_[i] = std::make_pair(*temp2.begin(), *temp2.rbegin());
+      if (isEven){
+        cscHsToGemPadME1a_[0] = std::make_pair(1,1);
+        cscHsToGemPadME1a_[1] = std::make_pair(1,1);
+        cscHsToGemPadME1a_[2] = std::make_pair(1,1);
+        cscHsToGemPadME1a_[3] = std::make_pair(1,1);
+        cscHsToGemPadME1a_[124] = std::make_pair(192,192);
+        cscHsToGemPadME1a_[125] = std::make_pair(192,192);
+        cscHsToGemPadME1a_[126] = std::make_pair(192,192);
+        cscHsToGemPadME1a_[127] = std::make_pair(192,192);
+      } else {
+        cscHsToGemPadME1a_[0] = std::make_pair(192,192);
+        cscHsToGemPadME1a_[1] = std::make_pair(192,192);
+        cscHsToGemPadME1a_[2] = std::make_pair(192,192);
+        cscHsToGemPadME1a_[3] = std::make_pair(192,192);
+        cscHsToGemPadME1a_[124] = std::make_pair(1,1);
+        cscHsToGemPadME1a_[125] = std::make_pair(1,1);
+        cscHsToGemPadME1a_[126] = std::make_pair(1,1);
+        cscHsToGemPadME1a_[127] = std::make_pair(1,1);
+      }
     }
+
+    // fill up the last few rows and first few rows with consistent pad numbers
+
 
     /*
     // code below does not work properly!!!
