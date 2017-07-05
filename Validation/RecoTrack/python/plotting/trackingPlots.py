@@ -33,6 +33,7 @@ _max3DLayers = [5, 10, 20]
 _minPU = [0, 10, 20, 50, 100, 150]
 _maxPU = [20, 50, 65, 80, 100, 150, 200, 250]
 _minMaxTracks = [0, 200, 500, 1000, 1500, 2000]
+_minMaxMVA = [-1.025, -0.5, 0, 0.5, 1.025]
 
 _legendDy_1row = 0.46
 _legendDy_2rows = -0.025
@@ -125,22 +126,32 @@ def _makeMVAPlots(num, hp=False):
     argsroc2.update(argsroc)
     argsroc2["drawStyle"] = "pcolz"
 
+    argsprofile = dict(ymin=_minMaxMVA, ymax=_minMaxMVA)
+
     true_cuteff = CutEfficiency("trueeff_vs_mva%dcut%s"%(num,pfix), "num_assoc(recoToSim)_mva%dcut%s"%(num,pfix))
     fake_cuteff = CutEfficiency("fakeeff_vs_mva%dcut%s"%(num,pfix), Subtract("num_fake_mva%dcut%s"%(num,pfix), "num_reco_mva%dcut%s"%(num,pfix), "num_assoc(recoToSim)_mva%dcut%s"%(num,pfix)))
 
-    return PlotGroup("mva%d%s"%(num,pfix2), [
-        Plot("num_assoc(recoToSim)_mva%d%s"%(num,pfix), ytitle="true tracks", **args),
-        Plot(Subtract("num_fake_mva%d%s"%(num,pfix), "num_reco_mva%d%s"%(num,pfix), "num_assoc(recoToSim)_mva%d%s"%(num,pfix)), ytitle="fake tracks", **args),
-        Plot("effic_vs_mva%dcut%s"%(num,pfix), xtitle=xtitlecut, ytitle="Efficiency (excl. trk eff)", ymax=_maxEff),
-        #
-        Plot("fakerate_vs_mva%dcut%s"%(num,pfix), xtitle=xtitlecut, ytitle="Fake rate", ymax=_maxFake),
-        Plot(ROC("effic_vs_fake_mva%d%s"%(num,pfix), "effic_vs_mva%dcut%s"%(num,pfix), "fakerate_vs_mva%dcut%s"%(num,pfix)), **argsroc),
-        Plot(ROC("effic_vs_fake_mva%d%s"%(num,pfix), "effic_vs_mva%dcut%s"%(num,pfix), "fakerate_vs_mva%dcut%s"%(num,pfix), zaxis=True), **argsroc2),
-        # Same signal efficiency, background efficiency, and ROC definitions as in TMVA
-        Plot(true_cuteff, xtitle=xtitlecut, ytitle="True track selection efficiency", ymax=_maxEff),
-        Plot(fake_cuteff, xtitle=xtitlecut, ytitle="Fake track selection efficiency", ymax=_maxEff),
-        Plot(ROC("true_eff_vs_fake_rej_mva%d%s"%(num,pfix), true_cuteff, Transform("fake_rej_mva%d%s"%(num,pfix), fake_cuteff, lambda x: 1-x)), xtitle="True track selection efficiency", ytitle="Fake track rejection", xmax=_maxEff, ymax=_maxEff),
-    ], ncols=3, legendDy=_legendDy_1row)
+    return [
+        PlotGroup("mva%d%s"%(num,pfix2), [
+            Plot("num_assoc(recoToSim)_mva%d%s"%(num,pfix), ytitle="true tracks", **args),
+            Plot(Subtract("num_fake_mva%d%s"%(num,pfix), "num_reco_mva%d%s"%(num,pfix), "num_assoc(recoToSim)_mva%d%s"%(num,pfix)), ytitle="fake tracks", **args),
+            Plot("effic_vs_mva%dcut%s"%(num,pfix), xtitle=xtitlecut, ytitle="Efficiency (excl. trk eff)", ymax=_maxEff),
+            #
+            Plot("fakerate_vs_mva%dcut%s"%(num,pfix), xtitle=xtitlecut, ytitle="Fake rate", ymax=_maxFake),
+            Plot(ROC("effic_vs_fake_mva%d%s"%(num,pfix), "effic_vs_mva%dcut%s"%(num,pfix), "fakerate_vs_mva%dcut%s"%(num,pfix)), **argsroc),
+            Plot(ROC("effic_vs_fake_mva%d%s"%(num,pfix), "effic_vs_mva%dcut%s"%(num,pfix), "fakerate_vs_mva%dcut%s"%(num,pfix), zaxis=True), **argsroc2),
+            # Same signal efficiency, background efficiency, and ROC definitions as in TMVA
+            Plot(true_cuteff, xtitle=xtitlecut, ytitle="True track selection efficiency", ymax=_maxEff),
+            Plot(fake_cuteff, xtitle=xtitlecut, ytitle="Fake track selection efficiency", ymax=_maxEff),
+            Plot(ROC("true_eff_vs_fake_rej_mva%d%s"%(num,pfix), true_cuteff, Transform("fake_rej_mva%d%s"%(num,pfix), fake_cuteff, lambda x: 1-x)), xtitle="True track selection efficiency", ytitle="Fake track rejection", xmax=_maxEff, ymax=_maxEff),
+        ], ncols=3, legendDy=_legendDy_1row),
+        PlotGroup("mva%d%sPtEta"%(num,pfix2), [
+            Plot("mva_assoc(recoToSim)_mva%d%s_pT"%(num,pfix), xtitle="Track p_{T} (GeV)", ytitle=xtitle+" for true tracks", xlog=True, **argsprofile),
+            Plot("mva_fake_mva%d%s_pT"%(num,pfix), xtitle="Track p_{T} (GeV)", ytitle=xtitle+" for fake tracks", xlog=True, **argsprofile),
+            Plot("mva_assoc(recoToSim)_mva%d%s_eta"%(num,pfix), xtitle="Track #eta", ytitle=xtitle+" for true tracks", **argsprofile),
+            Plot("mva_fake_mva%d%s_eta"%(num,pfix), xtitle="Track #eta", ytitle=xtitle+" for fake tracks", **argsprofile),
+        ], legendDy=_legendDy_2rows)
+    ]
 
 _effandfake1 = PlotGroup("effandfake1", [
     Plot("efficPt", title="Efficiency vs p_{T}", xtitle="TP p_{T} (GeV)", ytitle="efficiency vs p_{T}", xlog=True, ymax=_maxEff),
@@ -950,12 +961,12 @@ _seedingBuildingPlots = _simBasedPlots + [
     _dupandfake4,
     _dupandfake5,
     _hitsAndPt,
-    _makeMVAPlots(1),
-    _makeMVAPlots(2),
-    _makeMVAPlots(2, hp=True),
-    _makeMVAPlots(3), # add more if needed
-    _makeMVAPlots(3, hp=True), # add more if needed
-]
+] + _makeMVAPlots(1) \
+  + _makeMVAPlots(2) \
+  + _makeMVAPlots(2, hp=True) \
+  + _makeMVAPlots(3) \
+  + _makeMVAPlots(3, hp=True)
+# add more if needed
 _extendedPlots = [
     _extDist1,
     _extDist2,

@@ -73,6 +73,23 @@ namespace {
       }
     }
   }
+
+  void fillMVAHistos(double xval,
+                     std::vector<MonitorElement *>& h_mva,
+                     std::vector<MonitorElement *>& h_mva_hp,
+                     const std::vector<float>& mvas,
+                     unsigned int selectsLoose, unsigned int selectsHP) {
+    // Fill MVA1 histos with all tracks, MVA2 histos only with tracks
+    // not selected by MVA1, etc.
+    for(size_t i=0; i<mvas.size(); ++i) {
+      if(i<=selectsLoose) {
+        h_mva[i]->Fill(xval, mvas[i]);
+      }
+      if(i>=1 && i<=selectsHP) {
+        h_mva_hp[i]->Fill(xval, mvas[i]);
+      }
+    }
+  }
 }
 
 MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::ParameterSet& pset, const edm::InputTag& beamSpotTag, const bool doSeedPlots, edm::ConsumesCollector & iC):
@@ -817,6 +834,15 @@ void MTVHistoProducerAlgoForTracker::bookMVAHistos(DQMStore::IBooker& ibook, siz
   h_assoc2_mvacut_hp.emplace_back();
   h_simul2_mvacut_hp.emplace_back();
 
+  h_assoc2_mva_vs_pt.emplace_back();
+  h_fake_mva_vs_pt.emplace_back();
+  h_assoc2_mva_vs_pt_hp.emplace_back();
+  h_fake_mva_vs_pt_hp.emplace_back();
+  h_assoc2_mva_vs_eta.emplace_back();
+  h_fake_mva_vs_eta.emplace_back();
+  h_assoc2_mva_vs_eta_hp.emplace_back();
+  h_fake_mva_vs_eta_hp.emplace_back();
+
   for(size_t i=1; i <= nMVAs; ++i) {
     auto istr = std::to_string(i);
     std::string pfix;
@@ -829,6 +855,11 @@ void MTVHistoProducerAlgoForTracker::bookMVAHistos(DQMStore::IBooker& ibook, siz
       h_assoc_mvacut_hp.back().push_back(nullptr);
       h_assoc2_mvacut_hp.back().push_back(nullptr);
       h_simul2_mvacut_hp.back().push_back(nullptr);
+
+      h_assoc2_mva_vs_pt_hp.back().push_back(nullptr);
+      h_fake_mva_vs_pt_hp.back().push_back(nullptr);
+      h_assoc2_mva_vs_eta_hp.back().push_back(nullptr);
+      h_fake_mva_vs_eta_hp.back().push_back(nullptr);
     }
     else {
       pfix = " (not loose-selected)";
@@ -841,6 +872,11 @@ void MTVHistoProducerAlgoForTracker::bookMVAHistos(DQMStore::IBooker& ibook, siz
       h_assoc_mvacut_hp.back().push_back(ibook.book1D("num_assoc(simToReco)_mva"+istr+"cut_hp", "N of associated tracks (simToReco) vs cut on MVA"+istr+pfix2, nintMVA, minMVA, maxMVA) );
       h_assoc2_mvacut_hp.back().push_back(ibook.book1D("num_assoc(recoToSim)_mva"+istr+"cut_hp", "N of associated tracks (recoToSim) vs cut on MVA"+istr+pfix2, nintMVA, minMVA, maxMVA) );
       h_simul2_mvacut_hp.back().push_back(ibook.book1D("num_simul2_mva"+istr+"cut_hp", "N of simulated tracks (associated to any track) vs cut on MVA"+istr+pfix2, nintMVA, minMVA, maxMVA) );
+
+      h_assoc2_mva_vs_pt_hp.back().push_back(ibook.bookProfile("mva_assoc(recoToSim)_mva"+istr+"_pT_hp", "MVA"+istr+" of associated tracks (recoToSim) vs. track p_{T}"+pfix2, nintPt, minPt, maxPt, nintMVA, minMVA, maxMVA));
+      h_fake_mva_vs_pt_hp.back().push_back(ibook.bookProfile("mva_fake_mva"+istr+"pT_hp", "MVA"+istr+" of non-associated tracks (recoToSim) vs. track p_{T}"+pfix2, nintPt, minPt, maxPt, nintMVA, minMVA, maxMVA));
+      h_assoc2_mva_vs_eta_hp.back().push_back(ibook.bookProfile("mva_assoc(recoToSim)_mva"+istr+"_eta_hp", "MVA"+istr+" of associated tracks (recoToSim) vs. track #eta"+pfix2, nintEta, minEta, maxEta, nintMVA, minMVA, maxMVA));
+      h_fake_mva_vs_eta_hp.back().push_back(ibook.bookProfile("mva_fake_mva"+istr+"eta_hp", "MVA"+istr+" of non-associated tracks (recoToSim) vs. track #eta"+pfix2, nintEta, minEta, maxEta, nintMVA, minMVA, maxMVA));
     }
 
     h_reco_mva.back().push_back(ibook.book1D("num_reco_mva"+istr, "N of reco track vs MVA"+istr+pfix, nintMVA, minMVA, maxMVA) );
@@ -850,6 +886,20 @@ void MTVHistoProducerAlgoForTracker::bookMVAHistos(DQMStore::IBooker& ibook, siz
     h_assoc_mvacut.back().push_back(ibook.book1D("num_assoc(simToReco)_mva"+istr+"cut", "N of associated tracks (simToReco) vs cut on MVA"+istr+pfix, nintMVA, minMVA, maxMVA) );
     h_assoc2_mvacut.back().push_back(ibook.book1D("num_assoc(recoToSim)_mva"+istr+"cut", "N of associated tracks (recoToSim) vs cut on MVA"+istr+pfix, nintMVA, minMVA, maxMVA) );
     h_simul2_mvacut.back().push_back(ibook.book1D("num_simul2_mva"+istr+"cut", "N of simulated tracks (associated to any track) vs cut on MVA"+istr+pfix, nintMVA, minMVA, maxMVA) );
+
+    h_assoc2_mva_vs_pt.back().push_back(ibook.bookProfile("mva_assoc(recoToSim)_mva"+istr+"_pT", "MVA"+istr+" of associated tracks (recoToSim) vs. track p_{T}"+pfix, nintPt, minPt, maxPt, nintMVA, minMVA, maxMVA));
+    h_fake_mva_vs_pt.back().push_back(ibook.bookProfile("mva_fake_mva"+istr+"_pT", "MVA"+istr+" of non-associated tracks (recoToSim) vs. track p_{T}"+pfix, nintPt, minPt, maxPt, nintMVA, minMVA, maxMVA));
+    h_assoc2_mva_vs_eta.back().push_back(ibook.bookProfile("mva_assoc(recoToSim)_mva"+istr+"_eta", "MVA"+istr+" of associated tracks (recoToSim) vs. track #eta"+pfix, nintEta, minEta, maxEta, nintMVA, minMVA, maxMVA));
+    h_fake_mva_vs_eta.back().push_back(ibook.bookProfile("mva_fake_mva"+istr+"_eta", "MVA"+istr+" of non-associated tracks (recoToSim) vs. track #eta"+pfix, nintEta, minEta, maxEta, nintMVA, minMVA, maxMVA));
+
+    if(useLogPt){
+      BinLogX(h_assoc2_mva_vs_pt.back().back()->getTProfile());
+      BinLogX(h_fake_mva_vs_pt.back().back()->getTProfile());
+      if(i > 1) {
+        BinLogX(h_assoc2_mva_vs_pt_hp.back().back()->getTProfile());
+        BinLogX(h_fake_mva_vs_pt_hp.back().back()->getTProfile());
+      }
+    }
   }
 }
 
@@ -1148,6 +1198,8 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
     fillPlotNoFlow(h_assoc2pu[count],numVertices);
 
     fillMVAHistos(h_assoc2_mva[count], h_assoc2_mvacut[count], h_assoc2_mva_hp[count], h_assoc2_mvacut_hp[count], mvas, selectsLoose, selectsHP);
+    fillMVAHistos(pt, h_assoc2_mva_vs_pt[count], h_assoc2_mva_vs_pt_hp[count], mvas, selectsLoose, selectsHP);
+    fillMVAHistos(eta, h_assoc2_mva_vs_eta[count], h_assoc2_mva_vs_eta_hp[count], mvas, selectsLoose, selectsHP);
 
     if(nrecHit_vs_nsimHit_rec2sim[count]) nrecHit_vs_nsimHit_rec2sim[count]->Fill( track.numberOfValidHits(),nSimHits);
     h_assocFraction[count]->Fill( sharedFraction);
@@ -1231,6 +1283,10 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
       fillPlotNoFlow(h_pileup3Dlayer[count], n3DLayers);
       fillPlotNoFlow(h_pileuppu[count], numVertices);
     }
+  }
+  else { // !isMatched
+    fillMVAHistos(pt, h_fake_mva_vs_pt[count], h_fake_mva_vs_pt_hp[count], mvas, selectsLoose, selectsHP);
+    fillMVAHistos(eta, h_fake_mva_vs_eta[count], h_fake_mva_vs_eta_hp[count], mvas, selectsLoose, selectsHP);
   }
 }
 

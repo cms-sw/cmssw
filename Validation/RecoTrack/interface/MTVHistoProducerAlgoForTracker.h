@@ -236,6 +236,9 @@ class MTVHistoProducerAlgoForTracker {
   std::vector<std::vector<MonitorElement*> > h_reco_mva_hp, h_assoc2_mva_hp;
   std::vector<std::vector<MonitorElement*> > h_reco_mvacut_hp, h_assoc_mvacut_hp, h_assoc2_mvacut_hp, h_simul2_mvacut_hp;
 
+  std::vector<std::vector<MonitorElement*> > h_assoc2_mva_vs_pt, h_fake_mva_vs_pt, h_assoc2_mva_vs_pt_hp, h_fake_mva_vs_pt_hp;
+  std::vector<std::vector<MonitorElement*> > h_assoc2_mva_vs_eta, h_fake_mva_vs_eta, h_assoc2_mva_vs_eta_hp, h_fake_mva_vs_eta_hp;
+
   // dE/dx
   // in the future these might become an array
   std::vector<std::vector<MonitorElement*>> h_dedx_estim;
