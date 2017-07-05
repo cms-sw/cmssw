@@ -124,7 +124,7 @@ hgchebackDigitizer = cms.PSet(
     verbosity         = cms.untracked.uint32(0),
     digiCfg = cms.PSet( 
         keV2MIP           = cms.double(1./616.0),
-        noise_MIP         = cms.double(1.0/7.0),
+        noise_MIP         = cms.double(1.0/7.0), #expectation based on latest SiPM performance
         doTimeSamples = cms.bool(False),
         nPEperMIP = cms.double(11.0),
         nTotalPE  = cms.double(1156), #1156 pixels => saturation ~600MIP
