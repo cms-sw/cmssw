@@ -74,7 +74,8 @@ from DQMOffline.Trigger.HiggsMonitoring_cff import *
 from DQMOffline.Trigger.StandardModelMonitoring_cff import *
 # TOP
 from DQMOffline.Trigger.TopMonitoring_cff import *
-
+#SUS
+from DQMOffline.Trigger.LepHTMonitor_cff import *
 # BTV
 from DQMOffline.Trigger.BTaggingMonitoring_cff import *
 # BPH
@@ -105,6 +106,7 @@ offlineHLTSource = cms.Sequence(
     higgsMonitorHLT *
     smpMonitorHLT *
     topMonitorHLT *
+    LepHTMonitor *
     btagMonitorHLT *
     bphMonitorHLT *
     hltObjectsMonitor
