@@ -578,23 +578,23 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
       }
       cscHsToGemPadME1b_[i] = std::make_pair(*temp2.begin(), *temp2.rbegin());
       if (isEven){
-        cscHsToGemPadME1a_[0] = std::make_pair(1,1);
-        cscHsToGemPadME1a_[1] = std::make_pair(1,1);
-        cscHsToGemPadME1a_[2] = std::make_pair(1,1);
-        cscHsToGemPadME1a_[3] = std::make_pair(1,1);
-        cscHsToGemPadME1a_[124] = std::make_pair(192,192);
-        cscHsToGemPadME1a_[125] = std::make_pair(192,192);
-        cscHsToGemPadME1a_[126] = std::make_pair(192,192);
-        cscHsToGemPadME1a_[127] = std::make_pair(192,192);
+        cscHsToGemPadME1b_[0] = std::make_pair(1,1);
+        cscHsToGemPadME1b_[1] = std::make_pair(1,1);
+        cscHsToGemPadME1b_[2] = std::make_pair(1,1);
+        cscHsToGemPadME1b_[3] = std::make_pair(1,1);
+        cscHsToGemPadME1b_[124] = std::make_pair(192,192);
+        cscHsToGemPadME1b_[125] = std::make_pair(192,192);
+        cscHsToGemPadME1b_[126] = std::make_pair(192,192);
+        cscHsToGemPadME1b_[127] = std::make_pair(192,192);
       } else {
-        cscHsToGemPadME1a_[0] = std::make_pair(192,192);
-        cscHsToGemPadME1a_[1] = std::make_pair(192,192);
-        cscHsToGemPadME1a_[2] = std::make_pair(192,192);
-        cscHsToGemPadME1a_[3] = std::make_pair(192,192);
-        cscHsToGemPadME1a_[124] = std::make_pair(1,1);
-        cscHsToGemPadME1a_[125] = std::make_pair(1,1);
-        cscHsToGemPadME1a_[126] = std::make_pair(1,1);
-        cscHsToGemPadME1a_[127] = std::make_pair(1,1);
+        cscHsToGemPadME1b_[0] = std::make_pair(192,192);
+        cscHsToGemPadME1b_[1] = std::make_pair(192,192);
+        cscHsToGemPadME1b_[2] = std::make_pair(192,192);
+        cscHsToGemPadME1b_[3] = std::make_pair(192,192);
+        cscHsToGemPadME1b_[124] = std::make_pair(1,1);
+        cscHsToGemPadME1b_[125] = std::make_pair(1,1);
+        cscHsToGemPadME1b_[126] = std::make_pair(1,1);
+        cscHsToGemPadME1b_[127] = std::make_pair(1,1);
       }
     }
 
