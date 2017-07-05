@@ -409,6 +409,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         TimeSliceUnit    = cms.double(0.001), #stepping = 1 ps (for timing)
         IgnoreTrackID    = cms.bool(False),
         EminHit          = cms.double(0.0),
+        StoreAllG4Hits   = cms.bool(False),
         RejectMouseBite  = cms.bool(False),
         RotatedWafer     = cms.bool(False),
         WaferAngles      = cms.untracked.vdouble(90.0,30.0),

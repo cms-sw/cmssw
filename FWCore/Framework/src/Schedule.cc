@@ -1095,6 +1095,12 @@ namespace edm {
     return globalSchedule_->allWorkers();
   }
 
+  void Schedule::convertCurrentProcessAlias(std::string const& processName) {
+    for (auto const& worker : allWorkers()) {
+      worker->convertCurrentProcessAlias(processName);
+    }
+  }
+
   void
   Schedule::availablePaths(std::vector<std::string>& oLabelsToFill) const {
     streamSchedules_[0]->availablePaths(oLabelsToFill);

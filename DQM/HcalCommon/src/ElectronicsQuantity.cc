@@ -5,42 +5,46 @@ namespace hcaldqm
 	namespace quantity
 	{
 		int getValue_FED(HcalElectronicsId const& eid)
-		{
-			int v = 0;
-			if (eid.isVMEid())
-				v = eid.dccid();
-			else
-			  v = utilities::crate2fed(eid.crateId(),eid.slot())-FED_uTCA_MIN + 
-					constants::FED_VME_NUM;
-			return v;
+		{			
+			unsigned int fed = utilities::crate2fed(eid.crateId(), eid.slot());
+			auto it_fed = std::find(std::begin(fedList), std::end(fedList), fed);
+			return ((it_fed == std::end(fedList)) ? -1 : std::distance(fedList.begin(), it_fed));
 		}
 
 		int getValue_FEDuTCA(HcalElectronicsId const& eid)
 		{
-		  return utilities::crate2fed(eid.crateId(),eid.slot())-FED_uTCA_MIN;
+			unsigned int fed = utilities::crate2fed(eid.crateId(), eid.slot());
+			auto it_fed = std::find(std::begin(fedListuTCA), std::end(fedListuTCA), fed);
+			return ((it_fed == std::end(fedListuTCA)) ? -1 : std::distance(fedListuTCA.begin(), it_fed));
 		}
 
 		int getValue_FEDVME(HcalElectronicsId const& eid)
 		{
-			return eid.dccid();
+			unsigned int fed = utilities::crate2fed(eid.crateId(), eid.slot());
+			auto it_fed = std::find(std::begin(fedListVME), std::end(fedListVME), fed);
+			return ((it_fed == std::end(fedListVME)) ? -1 : std::distance(fedListVME.begin(), it_fed));
+
 		}
 
 		int getValue_Crate(HcalElectronicsId const& eid)
 		{
-			int c = eid.crateId();
-			if (eid.isUTCAid())
-				c = CRATE_VME_NUM + eid.crateId()-CRATE_uTCA_MIN;
-			return c;
+			unsigned int crate = eid.crateId();
+			auto it_crate = std::find(std::begin(crateList), std::end(crateList), crate);
+			return ((it_crate == std::end(crateList)) ? -1 : std::distance(crateList.begin(), it_crate));
 		}
 
 		int getValue_CrateuTCA(HcalElectronicsId const& eid)
 		{
-			return eid.crateId()-CRATE_uTCA_MIN;
+			unsigned int crate = eid.crateId();
+			auto it_crate = std::find(std::begin(crateListuTCA), std::end(crateListuTCA), crate);
+			return ((it_crate == std::end(crateListuTCA)) ? -1 : std::distance(crateListuTCA.begin(), it_crate));
 		}
 
 		int getValue_CrateVME(HcalElectronicsId const& eid)
 		{
-			return eid.crateId();
+			unsigned int crate = eid.crateId();
+			auto it_crate = std::find(std::begin(crateListVME), std::end(crateListVME), crate);
+			return ((it_crate == std::end(crateListVME)) ? -1 : std::distance(crateListVME.begin(), it_crate));			
 		}
 
 		int getValue_SlotuTCA(HcalElectronicsId const& eid)
