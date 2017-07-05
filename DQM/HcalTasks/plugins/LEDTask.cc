@@ -348,10 +348,11 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 		HcalDetId const& did = digi.detid();
 		uint32_t rawid = _ehashmap.lookup(did);
 		if (!rawid) {
-			char unknown_id_string[50];
-			sprintf(unknown_id_string, "Detid %d, ieta %d, iphi %d, depth %d, is not in emap. Skipping.", int(did), did.ieta(), did.iphi(), did.depth());
-			_logger.warn(unknown_id_string);
-			continue;
+		  std::string unknown_id_string="Detid "+std::to_string(int(did))+", ieta "+std::to_string(did.ieta());
+		  unknown_id_string+=", iphi "+std::to_string(did.iphi())+", depth "+std::to_string(did.depth());
+		  unknown_id_string+=", is not in emap. Skipping.";
+		  _logger.warn(unknown_id_string.c_str());
+		  continue;
 		}
 		HcalElectronicsId const& eid(rawid);
 
