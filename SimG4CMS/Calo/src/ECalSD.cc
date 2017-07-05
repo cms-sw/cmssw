@@ -31,7 +31,6 @@
 #include<algorithm>
 
 //#define EDM_ML_DEBUG
-//#define plotDebug
 
 template <class T>
 bool any(const std::vector<T> & v, const T &what) {

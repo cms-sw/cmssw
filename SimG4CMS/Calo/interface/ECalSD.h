@@ -7,6 +7,7 @@
 // Use in your sensitive detector builder:
 //    ECalSD* ecalSD = new ECalSD(SDname, new CaloNumberingScheme());
 ///////////////////////////////////////////////////////////////////////////////
+//#define plotDebug
 
 #include "SimG4CMS/Calo/interface/CaloSD.h"
 #include "SimG4CMS/Calo/interface/EnergyResolutionVsLumi.h"
@@ -16,8 +17,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4String.hh"
+#ifdef plotDebug
 #include <TH2F.h>
-
+#endif
 #include <string>
 #include <map>
 
@@ -63,7 +65,9 @@ private:
   EcalBaseNumber                    theBaseNumber;
   EnergyResolutionVsLumi            ageing;
   bool                              ageingWithSlopeLY;
+#ifdef plotDebug
   TH2F                             *g2L_[4];
+#endif
 };
 
 #endif // ECalSD_h
