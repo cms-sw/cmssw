@@ -24,7 +24,7 @@
 #define LOGERR(x) edm::LogError(x)
 #define LOGDRESSED(x) LogDebug(x)
 #endif
-
+#define FP_DEBUG
 void RealisticSimClusterMapper::updateEvent(const edm::Event& ev)
 {
     ev.getByToken(_simClusterToken, _simClusterH);
@@ -48,7 +48,6 @@ void RealisticSimClusterMapper::buildClusters(const edm::Handle<reco::PFRecHitCo
     constexpr const int numberOfLayers = 52;
     //TODO: get number of layers+1 from geometry
     realisticAssociator.init(hits.size(), simClusters.size(), numberOfLayers + 1);
-
     // for quick indexing back to hit energy
     std::unordered_map < uint32_t, size_t > detIdToIndex(hits.size());
     for (uint32_t i = 0; i < hits.size(); ++i)
@@ -87,7 +86,6 @@ void RealisticSimClusterMapper::buildClusters(const edm::Handle<reco::PFRecHitCo
 
     }
     realisticAssociator.computeAssociation(_exclusiveFraction, _useMCFractionsForExclEnergy);
-
     realisticAssociator.findAndMergeInvisibleClusters(_invisibleFraction, _exclusiveFraction);
     auto realisticClusters = std::move(realisticAssociator.realisticClusters());
     unsigned int nClusters = realisticClusters.size();
@@ -113,7 +111,6 @@ void RealisticSimClusterMapper::buildClusters(const edm::Handle<reco::PFRecHitCo
                     seed = ref;
                 }
             }
-
             if (back.hitsAndFractions().size() != 0)
             {
                 back.setSeed(seed->detId());
@@ -126,8 +123,6 @@ void RealisticSimClusterMapper::buildClusters(const edm::Handle<reco::PFRecHitCo
                 back.setEnergy(0.f);
             }
         }
-
     }
-
 }
 
