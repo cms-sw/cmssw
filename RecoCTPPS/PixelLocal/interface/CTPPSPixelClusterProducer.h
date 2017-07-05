@@ -9,7 +9,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSet.h"
-
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -32,10 +33,8 @@
 #include "RecoCTPPS/PixelLocal/interface/CTPPSPixelGainCalibrationDBService.h"
 #include "RecoCTPPS/PixelLocal/interface/RPixDetClusterizer.h"
 
-
 #include <vector>
 #include <set>
-
 
 class CTPPSPixelClusterProducer : public edm::stream::EDProducer<>
 {
@@ -45,6 +44,7 @@ public:
   ~CTPPSPixelClusterProducer();
 
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
   edm::ParameterSet param_;

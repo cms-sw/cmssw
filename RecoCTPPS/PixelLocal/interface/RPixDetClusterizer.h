@@ -56,7 +56,6 @@ public:
   void buildClusters(unsigned int detId, const std::vector<CTPPSPixelDigi> &digi, std::vector<CTPPSPixelCluster> &clusters, const CTPPSPixelGainCalibrations * pcalibration, const CTPPSPixelAnalysisMask*  mask);
   int calibrate(unsigned int, int, int, int ,const CTPPSPixelGainCalibrations * pcalibration);
 
-
   void make_cluster( RPixCalibDigi aSeed,  std::vector<CTPPSPixelCluster> &clusters );
   ~RPixDetClusterizer();
 
