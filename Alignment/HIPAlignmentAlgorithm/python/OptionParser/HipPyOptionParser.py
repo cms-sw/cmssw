@@ -81,6 +81,9 @@ class HipPyOptionParser:
       elif self.flag=="ymumu":
          self.trkcoll="ALCARECOTkAlUpsilonMuMu"
          self.Bfield="3.8t"
+      elif self.flag=="jpsimumu":
+         self.trkcoll="ALCARECOTkAlJpsiMuMu"
+         self.Bfield="3.8t"
       elif self.flag=="cosmics":
          self.trkcoll="ALCARECOTkAlCosmicsCTF0T"
          self.useTrkSplittingInCosmics=False
@@ -182,10 +185,8 @@ class HipPyOptionParser:
             val=val.lower()
             if ("momconstr" in val or "fullconstr" in val):
                self.TBDconstraint=val
-            elif (val=="none"):
-               self.TBDconstraint=""
             else:
-               raise ValueError("TBD constraint can only be none, momconstr... or fullconstr...")
+               raise ValueError("TBD constraint can only be momconstr... or fullconstr...")
          ## Options for cosmics
          # Get APV mode
          elif key=="apvmode":
@@ -212,9 +213,25 @@ class HipPyOptionParser:
             insertPSetToVPSet(ps,self.GTtoGet)
 
 
+   def doCheckOptions(self,optstocheck):
+      for oc in optstocheck:
+         if not hasattr(self,oc):
+            raise RuntimeError("Option {} needs to specified in {}.".format(oc, self.flag))
 
 
-
-
-
+   def checkOptions(self):
+      optstocheck=[]
+      checkcosmics=(self.flag=="cosmics" or self.flag=="cdcs")
+      checkymumuconstr=(self.flag=="ymumu" and hasattr(sel, "TBDconstraint"))
+      if checkcosmics:
+         optstocheck=[
+            "Bfield",
+            "APVmode",
+            "useTrkSplittingInCosmics"
+         ]
+      if checkymumuconstr:
+         optstocheck=[
+            "TBDsel"
+         ]
+      self.doCheckOptions(optstocheck)
 

@@ -210,6 +210,27 @@ def getSequence(process, collection,
         options["TrackHitFilter"]["Tracker"].update({
                 "minimumHits": 10,
                 })
+    elif collection == "ALCARECOTkAlJpsiMuMu":
+        options["TrackSelector"]["Alignment"].update({
+                "ptMin": 1.0,
+                "etaMin": -2.4,
+                "etaMax": 2.4,
+                "nHitMin": 10,
+                "applyMultiplicityFilter": True,
+                "minMultiplicity": 2,
+                "maxMultiplicity": 2,
+                ("minHitsPerSubDet", "inPIXEL"): 1,
+                ("TwoBodyDecaySelector", "applyChargeFilter"): True,
+                ("TwoBodyDecaySelector", "charge"): 0,
+                ("TwoBodyDecaySelector",
+                 "applyMassrangeFilter"): not openMassWindow,
+                ("TwoBodyDecaySelector", "minXMass"): 2.7,
+                ("TwoBodyDecaySelector", "maxXMass"): 3.4,
+                ("TwoBodyDecaySelector", "daughterMass"): 0.105
+                })
+        options["TrackHitFilter"]["Tracker"].update({
+                "minimumHits": 10,
+                })
     else:
         raise ValueError("Unknown input track collection: {}".format(collection))
 

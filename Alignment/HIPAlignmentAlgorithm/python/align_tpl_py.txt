@@ -97,19 +97,13 @@ for key in monitorfileList:
 if strflaglower == "cosmics":
     process.AlignmentProducer.algoConfig.isCollision=False
 #    process.AlignmentProducer.algoConfig.CSAngleCut=0.95
-    process.AlignmentProducer.algoConfig.UseReweighting=False
-    process.AlignmentProducer.algoConfig.Weight=1
 
 elif strflaglower == "cdcs":
     process.AlignmentProducer.algoConfig.isCollision=False
 #    process.AlignmentProducer.algoConfig.CSAngleCut=0.95
-    process.AlignmentProducer.algoConfig.UseReweighting=False
-    process.AlignmentProducer.algoConfig.Weight=1
 
 else:
     process.AlignmentProducer.algoConfig.isCollision=True
-    process.AlignmentProducer.algoConfig.UseReweighting=False
-    process.AlignmentProducer.algoConfig.Weight=1
 #    process.AlignmentProducer.algoConfig.UniformEta=True
 # The following formula comes from Run2015D
 #    process.AlignmentProducer.algoConfig.UniformEtaFormula=cms.string("2.51469/(2.51469+4.11684*x-16.7847*pow(x,2)+46.1574*pow(x,3)-55.22*pow(x,4)+29.5591*pow(x,5)-5.39816*pow(x,6))")
