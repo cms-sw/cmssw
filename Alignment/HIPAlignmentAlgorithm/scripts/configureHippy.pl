@@ -59,11 +59,18 @@ foreach $data1 ( @dataFileInput1 ) {
 
    my @dataspecs = split(',', $data1);
    $datafile = $dataspecs[0];
-   $flag = $dataspecs[1];
+   $trkselfile = $dataspecs[1];
+   chomp $trkselfile;
+   $flag = $dataspecs[2];
+   $flaglower = lc($flag);
+   if ( $trkselfile eq "" ){
+      $trkselfile = "$flaglower\TrackSelection_cff_py.txt";
+   }
+   print "Picking track selection configuration from $trkselfile \n";
    $flagopts = "NOOPTS";
-   if (defined($dataspecs[2])){
+   if (defined($dataspecs[3])){
       print "A flag option is defined.\n";
-      $flagopts = $dataspecs[2];
+      $flagopts = $dataspecs[3];
    }
    else{
       print "No flag option is defined.\n";
@@ -78,11 +85,11 @@ foreach $data1 ( @dataFileInput1 ) {
    open (datafile) or die "Can't open the file!";
    @dataFileInput = <datafile>;
 
-   #$dataskim = basename( $datafile, ".dat" );
-   ($dataskim,$path,$suffix) = fileparse($datafile,,qr"\..[^.]*$");
+   #($dataskim,$path,$suffix) = fileparse($datafile,,qr"\..[^.]*$");
+
 
    system( "
-   cp $intrkselcfg/$dataskim\TrackSelection_cff_py.txt $odir/;
+   cp $intrkselcfg/$trkselfile $odir/;
    " );
 
 
