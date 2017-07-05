@@ -16,6 +16,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4String.hh"
+#include <TH2F.h>
+
 #include <string>
 #include <map>
 
@@ -61,6 +63,7 @@ private:
   EcalBaseNumber                    theBaseNumber;
   EnergyResolutionVsLumi            ageing;
   bool                              ageingWithSlopeLY;
+  TH2F                             *g2L_[4];
 };
 
 #endif // ECalSD_h
