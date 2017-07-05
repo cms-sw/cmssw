@@ -8,5 +8,4 @@
 <bin   file="testHistograms.cpp" name="testHistograms">
 </bin>
 <bin   file="testPngHistograms.cpp" name="testPngHistograms">
-  <flags NO_TESTRUN="1"/>
 </bin>
