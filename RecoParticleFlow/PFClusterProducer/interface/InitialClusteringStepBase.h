@@ -58,7 +58,7 @@ class InitialClusteringStepBase {
 			  std::make_pair(thresh_E,thresh_pT2));
   }
   }
-  virtual ~InitialClusteringStepBase() { }
+  virtual ~InitialClusteringStepBase() = default;
   // get rid of things we should never use...
   InitialClusteringStepBase(const ICSB&) = delete;
   ICSB& operator=(const ICSB&) = delete;

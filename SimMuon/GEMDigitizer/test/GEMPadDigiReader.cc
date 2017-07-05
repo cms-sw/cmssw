@@ -69,8 +69,8 @@ void GEMPadDigiReader::analyze(const edm::Event & event, const edm::EventSetup& 
  
   for (auto pad_range_it = pads->begin(); pad_range_it != pads->end(); ++pad_range_it)
   {
-    auto id = (*pad_range_it).first;
-    auto roll = geometry->etaPartition(id);
+    const auto& id = (*pad_range_it).first;
+    const auto& roll = geometry->etaPartition(id);
 
     // GEMDetId print-out
     cout<<"--------------"<<endl;
@@ -85,7 +85,7 @@ void GEMPadDigiReader::analyze(const edm::Event & event, const edm::EventSetup& 
     for (auto d = digis_in_det.first; d != digis_in_det.second; ++d)
     {
       int pad_num = 1 + static_cast<int>( roll->padOfStrip(d->strip()) ); // d->strip() is int
-      digi_map[ make_pair(pad_num, d->bx()) ].push_back( d->strip() );
+      digi_map[{pad_num, d->bx()}].push_back( d->strip() );
       cout<<"  ("<<d->strip()<<","<<d->bx()<<") -> "<<pad_num;
     }
     cout<<endl;
@@ -102,7 +102,7 @@ void GEMPadDigiReader::analyze(const edm::Event & event, const edm::EventSetup& 
         cout <<" XXXXXXXXXXXXX Problem! "<<id<<" has pad digi with too large pad# = "<<p->pad()<<endl;
       }
 
-      auto& strips = digi_map[ make_pair(p->pad(), p->bx()) ];
+      auto& strips = digi_map[{p->pad(), p->bx()}];
       std::vector<int> pads_strips;
       remove_copy_if(strips.begin(), strips.end(), inserter(pads_strips, pads_strips.end()),
                      [first_strip, last_strip](int s)
@@ -119,5 +119,5 @@ void GEMPadDigiReader::analyze(const edm::Event & event, const edm::EventSetup& 
   }// for (detids with pads)
 }
 
-#include <FWCore/Framework/interface/MakerMacros.h>
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(GEMPadDigiReader);

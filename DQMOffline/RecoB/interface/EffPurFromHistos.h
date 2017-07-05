@@ -14,16 +14,16 @@ class EffPurFromHistos {
 
  public:
 
-  EffPurFromHistos ( const std::string & ext, TH1F * h_d, TH1F * h_u,
-		     TH1F * h_s, TH1F * h_c, TH1F * h_b, TH1F * h_g,	TH1F * h_ni,
-		     TH1F * h_dus, TH1F * h_dusg, TH1F * h_pu, 
-		     const std::string& label, const unsigned int& mc,
-		     int nBin = 100 , double startO = 0.005 , double endO = 1.005 ) ;
+  EffPurFromHistos(const std::string & ext, TH1F * h_d, TH1F * h_u,
+             TH1F * h_s, TH1F * h_c, TH1F * h_b, TH1F * h_g, TH1F * h_ni,
+             TH1F * h_dus, TH1F * h_dusg, TH1F * h_pu, 
+             const std::string& label, unsigned int mc,
+             int nBin = 100, double startO = 0.005, double endO = 1.005);
 
-  EffPurFromHistos (const FlavourHistograms<double> * dDiscriminatorFC, const std::string& label, const unsigned int& mc, 
-		    DQMStore::IBooker & ibook, int nBin = 100 , double startO = 0.005 , double endO = 1.005 ) ;
+  EffPurFromHistos(const FlavourHistograms<double>& dDiscriminatorFC, const std::string& label, unsigned int mc, 
+            DQMStore::IBooker & ibook, int nBin = 100, double startO = 0.005, double endO = 1.005);
 
-  ~EffPurFromHistos () ;
+  ~EffPurFromHistos();
 
   // do the computation
   void compute (DQMStore::IBooker & ibook) ;
@@ -44,27 +44,27 @@ class EffPurFromHistos {
   void epsPlot(const std::string & name);
   void psPlot(const std::string & name);
 
-  void plot(TPad * theCanvas = 0) ;
+  void plot(TPad * theCanvas = 0);
   void plot(const std::string & name, const std::string & ext);
 
-  FlavourHistograms<double> * discriminatorNoCutEffic() const {return discrNoCutEffic.get();}
-  FlavourHistograms<double> * discriminatorCutEfficScan() const {return discrCutEfficScan.get();}
+  FlavourHistograms<double>& discriminatorNoCutEffic() const { return *discrNoCutEffic; }
+  FlavourHistograms<double>& discriminatorCutEfficScan() const { return *discrCutEfficScan; }
 
-  bool doCTagPlots(bool Ctag) {doCTagPlots_ = Ctag; return doCTagPlots_;};
+  bool doCTagPlots(bool Ctag) { doCTagPlots_ = Ctag; return doCTagPlots_; }
  
  private:
 
   // consistency check (same binning)
-  void check () ;
+  void check();
   bool fromDiscriminatorDistr;
 
   unsigned int mcPlots_;
   bool doCTagPlots_;
   std::string label_;
   // the string for the histo name extension
-  std::string histoExtension ;
+  std::string histoExtension;
 
-  std::unique_ptr<FlavourHistograms<double> > discrNoCutEffic, discrCutEfficScan;
+  std::unique_ptr<FlavourHistograms<double>> discrNoCutEffic, discrCutEfficScan;
 
   // the input histograms (efficiency versus discriminator cut)
   // IMPORTANT: IT'S ASSUMED THAT ALL HISTOS HAVE THE SAME BINNING!!
@@ -84,9 +84,9 @@ class EffPurFromHistos {
   // the corresponding output histograms (flavour-eff vs. b-efficiency)
 
   // binning for output histograms
-  int   nBinOutput ;
-  double startOutput ;
-  double endOutput ;
+  int nBinOutput;
+  double startOutput;
+  double endOutput;
 
   MonitorElement * EffFlavVsXEff_d    ;
   MonitorElement * EffFlavVsXEff_u    ;

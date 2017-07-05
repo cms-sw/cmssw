@@ -58,10 +58,22 @@ class AlCa(Scenario):
         AlcaReco processing & skims for proton collisions
 
         """
+        step = ""
+        pclWflws = [x for x in skims if "PromptCalibProd" in x]
+        skims = filter(lambda x: x not in pclWflws, skims)
+
+        if len(pclWflws):
+            step += 'ALCA:'+('+'.join(pclWflws))
+
+        if len(skims) > 0:
+            if step != "":
+                step += ","
+            step += "ALCAOUTPUT:"+('+'.join(skims))
+
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "pp"
-        options.step = "ALCAOUTPUT:"+('+'.join(skims))
+        options.step = step
         options.conditions = args['globaltag'] if 'globaltag' in args else 'None'
         if 'globalTagConnect' in args and args['globalTagConnect'] != '':
             options.conditions += ','+args['globalTagConnect']
@@ -69,15 +81,21 @@ class AlCa(Scenario):
         options.triggerResultsProcess = 'RECO'
 
         process = cms.Process('ALCA', self.eras)
-        cb = ConfigBuilder(options, process = process)
+        cb = ConfigBuilder(options, process=process)
 
         # Input source
         process.source = cms.Source(
            "PoolSource",
-           fileNames = cms.untracked.vstring()
+           fileNames=cms.untracked.vstring()
         )
 
         cb.prepare()
+
+        # FIXME: dirty hack..any way around this?
+        # Tier0 needs the dataset used for ALCAHARVEST step to be a different data-tier
+        for wfl in pclWflws:
+            methodToCall = getattr(process, 'ALCARECOStream'+wfl)
+            methodToCall.dataset.dataTier = cms.untracked.string('ALCAPROMPT')
 
         return process
 

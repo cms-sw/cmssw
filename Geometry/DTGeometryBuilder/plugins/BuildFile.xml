@@ -7,7 +7,6 @@
  <use name="FWCore/ParameterSet"/>
  <use name="Geometry/MuonNumbering"/>
  <use name="Geometry/Records"/>
- <use name="Geometry/TrackingGeometryAligner"/>
  <use name="Geometry/DTGeometryBuilder"/>
 
 <library file="DTGeometryESModule.cc">

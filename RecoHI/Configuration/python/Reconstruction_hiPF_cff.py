@@ -23,6 +23,9 @@ gedGsfElectronsTmp.maxHOverEEndcaps = cms.double(0.25)
 gedGsfElectronsTmp.maxEOverPBarrel = cms.double(2.)
 gedGsfElectronsTmp.maxEOverPEndcaps = cms.double(2.)
 
+ootPhotons.primaryVertexProducer = cms.InputTag("hiSelectedVertex")
+ootPhotons.isolationSumsCalculatorSet.trackProducer = cms.InputTag("hiGeneralTracks")
+
 from RecoParticleFlow.Configuration.RecoParticleFlow_cff import *
 
 particleFlowClusterECAL.energyCorrector.verticesLabel = cms.InputTag('hiPixelAdaptiveVertex')

@@ -9,30 +9,27 @@
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DQMOffline/RecoB/interface/EffPurFromHistos2D.h"
 
-class TagCorrelationPlotter : public BaseBTagPlotter {
+class TagCorrelationPlotter: public BaseBTagPlotter {
   public:
     TagCorrelationPlotter(const std::string& tagName1, const std::string& tagName2, const EtaPtBin& etaPtBin,
-	                  const edm::ParameterSet& pSet, const unsigned int& mc, const bool doCTagPlots, const bool finalize, DQMStore::IBooker & ibook);
+	                  const edm::ParameterSet& pSet, unsigned int mc, bool doCTagPlots, bool finalize, DQMStore::IBooker & ibook);
 
     virtual ~TagCorrelationPlotter();
 
     void finalize(DQMStore::IBooker & ibook_, DQMStore::IGetter & igetter_);
 
     void epsPlot(const std::string & name);
-    void psPlot (const std::string& name) {}
+    void psPlot(const std::string& name) {}
 
-    void analyzeTags(const reco::JetTag& jetTag1, const reco::JetTag& jetTag2, const int& jetFlavour);
-    void analyzeTags(const reco::JetTag& jetTag1, const reco::JetTag& jetTag2, const int& jetFlavour, const float & w);
-
-    void analyzeTags(const float& discr1, const float& discr2, const int& jetFlavour);
-    void analyzeTags(const float& discr1, const float& discr2, const int& jetFlavour, const float & w);
+    void analyzeTags(const reco::JetTag& jetTag1, const reco::JetTag& jetTag2, int jetFlavour, float w=1);
+    void analyzeTags(float discr1, float discr2, int jetFlavour, float w=1);
 
   protected:
     double lowerBound1_, lowerBound2_;
     double upperBound1_, upperBound2_;
-    int   nBinEffPur_ ;
-    double startEffPur_ ;
-    double endEffPur_ ;
+    int nBinEffPur_;
+    double startEffPur_;
+    double endEffPur_;
     bool createProfile_;
 
     std::vector<double> fixedEff_;
@@ -41,9 +38,9 @@ class TagCorrelationPlotter : public BaseBTagPlotter {
     bool doCTagPlots_;
     bool finalize_;
 
-    FlavourHistograms2D<double, double> * correlationHisto_;
+    std::unique_ptr<FlavourHistograms2D<double, double>> correlationHisto_;
 
-    EffPurFromHistos2D * effPurFromHistos2D ;
+    std::unique_ptr<EffPurFromHistos2D> effPurFromHistos2D;
 };
 
 #endif

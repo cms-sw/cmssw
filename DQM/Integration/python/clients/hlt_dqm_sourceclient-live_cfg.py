@@ -32,6 +32,72 @@ process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 #from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
 #process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
 
+process.hltESSHcalSeverityLevel = cms.ESSource( "EmptyESSource",
+    iovIsRunNotTime = cms.bool( True ),
+    recordName = cms.string( "HcalSeverityLevelComputerRcd" ),
+    firstValid = cms.vuint32( 1 )
+)
+process.hcalRecAlgos = cms.ESProducer( "HcalRecAlgoESProducer",
+  RecoveredRecHitBits = cms.vstring( 'TimingAddedBit',
+    'TimingSubtractedBit' ),
+  SeverityLevels = cms.VPSet(
+    cms.PSet(  ChannelStatus = cms.vstring(  ),
+      RecHitFlags = cms.vstring(  ),
+      Level = cms.int32( 0 )
+    ),
+    cms.PSet(  ChannelStatus = cms.vstring( 'HcalCellCaloTowerProb' ),
+      RecHitFlags = cms.vstring(  ),
+      Level = cms.int32( 1 )
+    ),
+    cms.PSet(  ChannelStatus = cms.vstring( 'HcalCellExcludeFromHBHENoiseSummary' ),
+      RecHitFlags = cms.vstring( 'HSCP_R1R2',
+        'HSCP_FracLeader',
+        'HSCP_OuterEnergy',
+        'HSCP_ExpFit',
+        'ADCSaturationBit',
+        'HBHEIsolatedNoise',
+        'AddedSimHcalNoise' ),
+      Level = cms.int32( 5 )
+    ),
+    cms.PSet(  ChannelStatus = cms.vstring(  ),
+      RecHitFlags = cms.vstring( 'HBHEHpdHitMultiplicity',
+        'HBHEPulseShape',
+        'HOBit',
+        'HFInTimeWindow',
+        'ZDCBit',
+        'CalibrationBit',
+        'TimingErrorBit',
+        'HBHETriangleNoise',
+        'HBHETS4TS5Noise' ),
+      Level = cms.int32( 8 )
+    ),
+    cms.PSet(  ChannelStatus = cms.vstring(  ),
+      RecHitFlags = cms.vstring( 'HFLongShort',
+        'HFPET',
+        'HFS8S1Ratio',
+        'HFDigiTime' ),
+      Level = cms.int32( 11 )
+    ),
+    cms.PSet(  ChannelStatus = cms.vstring( 'HcalCellCaloTowerMask' ),
+      RecHitFlags = cms.vstring( 'HBHEFlatNoise',
+        'HBHESpikeNoise' ),
+      Level = cms.int32( 12 )
+    ),
+    cms.PSet(  ChannelStatus = cms.vstring( 'HcalCellHot' ),
+      RecHitFlags = cms.vstring(  ),
+      Level = cms.int32( 15 )
+    ),
+    cms.PSet(  ChannelStatus = cms.vstring( 'HcalCellOff',
+  'HcalCellDead' ),
+      RecHitFlags = cms.vstring(  ),
+      Level = cms.int32( 20 )
+    )
+  ),
+  DropChannelStatusBits = cms.vstring( 'HcalCellMask',
+    'HcalCellOff',
+    'HcalCellDead' )
+)
+
 ### for pp collisions
 process.load("DQM.HLTEvF.HLTObjectMonitor_cff")
 

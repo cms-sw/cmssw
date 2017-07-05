@@ -4,7 +4,7 @@
 void 
 GEMDigiModel::fillDigis(int rollDetId, GEMDigiCollection& digis)
 {
-  for (auto d: strips_)
+  for (const auto& d: strips_)
   {
     if (d.second == -999) continue;
 
@@ -49,7 +49,7 @@ GEMDigiModel::addLinks(unsigned int strip, int bx)
     totalCharge += charge;
   }
 
-  for(auto &charge: simTrackChargeMap)
+  for (const auto& charge: simTrackChargeMap)
   {
     const int simTrackId(charge.first);
     auto link(StripDigiSimLink(strip, simTrackId, eventIdMap[simTrackId], charge.second/totalCharge));

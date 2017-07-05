@@ -16,11 +16,12 @@ class StripRecHit1D;
 
 class SimpleDAFHitCollector :public MultiRecHitCollector {
 	public:
-	explicit SimpleDAFHitCollector(const MeasurementTracker* measurementTracker,
+	explicit SimpleDAFHitCollector(const TrackerTopology* trackerTopology,
+                                 const MeasurementTracker* measurementTracker,
 				 const SiTrackerMultiRecHitUpdator* updator,
 			         const MeasurementEstimator* est,
 				 const Propagator* propagator, bool debug
-				 ):MultiRecHitCollector(measurementTracker), theUpdator(updator), theEstimator(est), thePropagator(propagator), debug_(debug){
+				 ):MultiRecHitCollector(measurementTracker), theTopology(trackerTopology), theUpdator(updator), theEstimator(est), thePropagator(propagator), debug_(debug){
     theHitCloner = static_cast<TkTransientTrackingRecHitBuilder const *>(theUpdator->getBuilder())->cloner();
 }
 			
@@ -76,6 +77,7 @@ class SimpleDAFHitCollector :public MultiRecHitCollector {
         }
 
 	private:
+	const TrackerTopology* theTopology;
 	const SiTrackerMultiRecHitUpdator* theUpdator;
 	const MeasurementEstimator* theEstimator;
 	//this actually is not used in the fastMeasurement method 	

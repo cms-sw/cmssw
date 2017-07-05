@@ -63,6 +63,11 @@ process.a5 = cms.EDAnalyzer("TestFindProduct",
   expectedSum = cms.untracked.int32(9)
 )
 
+process.a6 = cms.EDAnalyzer("TestFindProduct",
+  inputTags = cms.untracked.VInputTag( cms.InputTag("intProducer", "", processName=cms.InputTag.currentProcess()) ),
+  expectedSum = cms.untracked.int32(9)
+)
+
 process.a10 = cms.EDAnalyzer("TestFindProduct",
   inputTags = cms.untracked.VInputTag( cms.InputTag("intProducerU") ),
   expectedSum = cms.untracked.int32(90)
@@ -86,6 +91,19 @@ process.a40 = cms.EDAnalyzer("TestFindProduct",
 process.a50 = cms.EDAnalyzer("TestFindProduct",
   inputTags = cms.untracked.VInputTag( cms.InputTag("intProducerU", "", "PROD3") ),
   expectedSum = cms.untracked.int32(90)
+)
+
+process.a60 = cms.EDAnalyzer("TestFindProduct",
+  inputTags = cms.untracked.VInputTag( cms.InputTag("intProducerU", "", processName=cms.InputTag.currentProcess()) ),
+  expectedSum = cms.untracked.int32(90),
+  inputTagsNotFound = cms.untracked.VInputTag(
+    cms.InputTag("intProducerB", processName=cms.InputTag.currentProcess())
+  )
+)
+
+process.a70 = cms.EDAnalyzer("TestFindProduct",
+  inputTags = cms.untracked.VInputTag( cms.InputTag("intProducerB", processName=cms.InputTag.skipCurrentProcess()) ),
+  expectedSum = cms.untracked.int32(3000)
 )
 
 process.a100 = cms.EDAnalyzer("TestFindProduct",
@@ -149,9 +167,15 @@ process.a1005 = cms.EDAnalyzer("TestFindProduct",
   expectedSum = cms.untracked.int32(63)
 )
 
-process.p = cms.Path(process.intProducer * process.a1 * process.a2 * process.a3 * process.a4 * process.a5)
+process.a1006 = cms.EDAnalyzer("TestFindProduct",
+  inputTags = cms.untracked.VInputTag(),
+  inputTagsView = cms.untracked.VInputTag( cms.InputTag("intVectorProducer", processName=cms.InputTag.currentProcess()) ),
+  expectedSum = cms.untracked.int32(93)
+)
 
-process.p0 = cms.Path(process.a10 * process.a20 * process.a30 * process.a40 * process.a50)
+process.p = cms.Path(process.intProducer * process.a1 * process.a2 * process.a3 * process.a4 * process.a5 * process.a6)
+
+process.p0 = cms.Path(process.a10 * process.a20 * process.a30 * process.a40 * process.a50 * process.a60 * process.a70)
 
 process.p00 = cms.Path(process.a100 * process.a200 * process.a300 * process.a400)
 
@@ -172,7 +196,7 @@ process.p00 = cms.Path(process.a100 * process.a200 * process.a300 * process.a400
 
 process.p1004 = cms.Path(process.a1004)
 
-process.p1005 = cms.Path(process.a1005)
+process.p1005 = cms.Path(process.a1005 * process.a1006)
 
 process.t = cms.Task(process.intProducerU, process.intProducerA, process.nonProducer,
                      process.intVectorSetProducer, process.intVectorProducer)

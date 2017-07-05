@@ -34,6 +34,7 @@ SiStripMonitorTrack::SiStripMonitorTrack(const edm::ParameterSet& conf):
   Mod_On_        = conf.getParameter<bool>("Mod_On");
   Trend_On_      = conf.getParameter<bool>("Trend_On");
   TkHistoMap_On_ = conf.getParameter<bool>("TkHistoMap_On");
+  clchCMoriginTkHmap_On_ = conf.getParameter<bool>("clchCMoriginTkHmap_On");
 
   TrackProducer_ = conf_.getParameter<std::string>("TrackProducer");
   TrackLabel_    = conf_.getParameter<std::string>("TrackLabel");
@@ -121,6 +122,8 @@ void SiStripMonitorTrack::analyze(const edm::Event& e, const edm::EventSetup& es
   //Summary Counts of clusters
   std::map<std::string, MonitorElement*>::iterator iME;
   std::map<std::string, LayerMEs>::iterator        iLayerME;
+
+  fillControlViewHistos(e,es);
 
   if (Trend_On_) {
  // for (std::map<std::string, SubDetMEs>::iterator iSubDet = SubDetMEsMap.begin(), iterEnd=SubDetMEsMaps.end();
@@ -268,6 +271,58 @@ void SiStripMonitorTrack::book(DQMStore::IBooker & ibooker , const TrackerTopolo
       }
     }//end loop on detectors detid
   }
+
+
+  //book control view plots
+  ibooker.setCurrentFolder(topFolderName_+"/ControlView/");
+
+  ClusterStoNCorr_OnTrack_TIBTID =
+    ibooker.book1D("ClusterStoNCorr_OnTrack_TIBTID","TIB/TID [FECCrate=1] (OnTrack)",100,0.,100.);
+  ClusterStoNCorr_OnTrack_TIBTID->setAxisTitle("S/N",1);
+
+  ClusterStoNCorr_OnTrack_TOB =
+    ibooker.book1D("ClusterStoNCorr_OnTrack_TOB","TOB [FECCrate=4] (OnTrack)",100,0.,100.);
+  ClusterStoNCorr_OnTrack_TOB->setAxisTitle("S/N",1);
+
+  ClusterStoNCorr_OnTrack_TECM =
+    ibooker.book1D("ClusterStoNCorr_OnTrack_TECM","TECM [FECCrate=3] (OnTrack)",100,0.,100.);
+  ClusterStoNCorr_OnTrack_TECM->setAxisTitle("S/N",1);
+
+  ClusterStoNCorr_OnTrack_TECP =
+    ibooker.book1D("ClusterStoNCorr_OnTrack_TECP","TECP [FECCrate=2] (OnTrack)",100,0.,100.);
+  ClusterStoNCorr_OnTrack_TECP->setAxisTitle("S/N",1);
+
+
+  ClusterStoNCorr_OnTrack_FECCratevsFECSlot =
+    ibooker.book2D("ClusterStoNCorr_OnTrack_FECCratevsFECSlot"," S/N (On track)",22,0.5,22.5,4,0.5,4.5);
+  ClusterStoNCorr_OnTrack_FECCratevsFECSlot->setAxisTitle("FEC Slot",1);
+  ClusterStoNCorr_OnTrack_FECCratevsFECSlot->setAxisTitle("FEC Crate (TTC partition)",2);
+  ClusterStoNCorr_OnTrack_FECCratevsFECSlot->setBinLabel(1,"TIB/TID",2);
+  ClusterStoNCorr_OnTrack_FECCratevsFECSlot->setBinLabel(2,"TEC+",2);
+  ClusterStoNCorr_OnTrack_FECCratevsFECSlot->setBinLabel(3,"TEC-",2);
+  ClusterStoNCorr_OnTrack_FECCratevsFECSlot->setBinLabel(4,"TOB",2);
+
+ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TIBTID =
+  ibooker.book2D("ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TIBTID","TIB/TID [FECCrate=1] (OnTrack)",10,-0.5,9.5,22,0.5,22.5)\
+  ;
+ ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TIBTID->setAxisTitle("FEC Ring",1);
+ ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TIBTID->setAxisTitle("FEC Slot",2);
+
+  ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TOB =
+    ibooker.book2D("ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TOB","TOB [FECCrate=4] (OnTrack)",10,-0.5,9.5,22,0.5,22.5);
+  ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TOB->setAxisTitle("FEC Ring",1);
+  ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TOB->setAxisTitle("FEC Slot",2);
+
+  ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECM =
+    ibooker.book2D("ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECM","TEC- [FECCrate=3] (OnTrack)",10,-0.5,9.5,22,0.5,22.5);
+  ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECM->setAxisTitle("FEC Ring",1);
+  ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECM->setAxisTitle("FEC Slot",2);
+
+  ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECP =
+    ibooker.book2D("ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECP","TEC- [FECCrate=2] (OnTrack)",10,-0.5,9.5,22,0.5,22.5);
+  ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECP->setAxisTitle("FEC Ring",1);
+  ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECP->setAxisTitle("FEC Slot",2);
+
 }
 
 //--------------------------------------------------------------------------------
@@ -1141,6 +1196,111 @@ SiStripMonitorTrack::Det2MEs SiStripMonitorTrack::findMEs(const TrackerTopology*
 
   return me;
 }
+
+
+bool SiStripMonitorTrack::fillControlViewHistos(const edm::Event& ev, const edm::EventSetup& es) {
+
+  edm::Handle<reco::TrackCollection > tracks;
+  ev.getByToken(trackToken_, tracks);//takes the track collection
+
+  //check that tracks are valid
+  if( !tracks.isValid() )     return false;
+
+  // loop over the tracks
+  for ( const auto & track : *tracks) {
+
+    // loop over the rechits of this track
+    for (trackingRecHit_iterator hit = track.recHitsBegin(), ehit = track.recHitsEnd();
+         hit!=ehit; ++hit) {
+
+      uint32_t thedetid = (*hit)->rawId();
+      if ( !(DetId(thedetid).subdetId() >=3 &&  DetId(thedetid).subdetId() <=6) ) { continue; }
+
+      if (!(*hit)->isValid()) continue;
+
+      const TrackingRecHit* theHit = (*hit);
+      if ( theHit == NULL ) { continue; }
+
+      edm::ESHandle<TrackerTopology> tTopoHandle;
+      es.get<TrackerTopologyRcd>().get(tTopoHandle);
+      const TrackerTopology* const tTopo = tTopoHandle.product();
+
+      const SiStripRecHit1D* hit1D = dynamic_cast<const SiStripRecHit1D*>( theHit );
+      const SiStripRecHit2D* hit2D = dynamic_cast<const SiStripRecHit2D*>( theHit );
+
+      float sovn = -1.;
+      if (hit1D && !hit2D) {
+        const SiStripCluster* SiStripCluster_ = &*(hit1D->cluster());
+        SiStripClusterInfo SiStripClusterInfo_(*SiStripCluster_,es,thedetid);
+        sovn = SiStripClusterInfo_.signalOverNoise();
+      }
+
+      else if (!hit1D && hit2D) {
+        const SiStripCluster* SiStripCluster_ = &*(hit2D->cluster());
+        SiStripClusterInfo SiStripClusterInfo_(*SiStripCluster_,es,thedetid);
+        sovn = SiStripClusterInfo_.signalOverNoise();
+      }
+
+
+      std::vector<const FedChannelConnection *> getFedChanConnections; 
+      getFedChanConnections = SiStripDetCabling_->getConnections(thedetid);
+
+      //      SiStripFolderOrganizer folder_organizer;
+      //      std::string sistripsubdet = folder_organizer.getSubDetFolderAndTag(thedetid, tTopo).second;
+
+      // loop over the fed chan connections
+      for ( const auto & getFedChanConnection : getFedChanConnections ) {
+
+        if (getFedChanConnection==0) { continue; }
+
+        int binfeccrate = getFedChanConnection->fecCrate();
+        int binfecslot  = getFedChanConnection->fecSlot();
+        int binfecring  = getFedChanConnection->fecRing();
+        //int binccuchan  = getFedChanConnections[i0]->ccuChan(); //will be used in a new PR
+        //int binccuadd   = getFedChanConnections[i0]->ccuAddr(); //will be used in a new PR
+
+        return2DME(ClusterStoNCorr_OnTrack_FECCratevsFECSlot,binfecslot,binfeccrate,sovn);
+
+	// TIB/TID
+	//        if ((sistripsubdet.find("TIB")) || (sistripsubdet.find("TID"))) {
+        if ((DetId(thedetid).subdetId()==SiStripDetId::TIB) || ((DetId(thedetid).subdetId()==SiStripDetId::TID)) ) {
+	  ClusterStoNCorr_OnTrack_TIBTID->Fill(sovn);
+          return2DME(ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TIBTID,binfecring,binfecslot,sovn);
+        }
+
+	// TOB
+        if ( DetId(thedetid).subdetId()==SiStripDetId::TOB ) {
+          ClusterStoNCorr_OnTrack_TOB->Fill(sovn);
+          return2DME(ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TOB,binfecring,binfecslot,sovn);
+        }
+
+        // TECM
+        if ( (DetId(thedetid).subdetId()==SiStripDetId::TEC) && (tTopo->tecSide(thedetid)==1) ) {
+          ClusterStoNCorr_OnTrack_TECM->Fill(sovn);
+          return2DME(ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECM,binfecring,binfecslot,sovn);
+        }
+
+	// TECP
+        if ( (DetId(thedetid).subdetId()==SiStripDetId::TEC) && (tTopo->tecSide(thedetid)==2) ) {
+          ClusterStoNCorr_OnTrack_TECP->Fill(sovn);
+          return2DME(ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECP,binfecring,binfecslot,sovn);
+        }
+
+      } // end of looping over the fed chan connections
+    } // end of looping over the rechits of the track
+  } // end of looping over the tracks
+
+  return true;
+}
+
+
+void SiStripMonitorTrack::return2DME(MonitorElement* input, int binx, int biny, double value) {
+
+  if (input->getBinContent(binx,biny)==0.) { input->setBinContent(binx,biny,value); }
+  else { input->setBinContent(binx,biny,((input->getBinContent(binx,biny)+value)/2.)); }
+
+}
+
 
 //------------------------------------------------------------------------
 #include "DataFormats/SiStripCluster/interface/SiStripClusterTools.h"

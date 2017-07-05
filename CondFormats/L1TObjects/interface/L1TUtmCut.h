@@ -39,38 +39,41 @@ class L1TUtmCut
     // ctor
     L1TUtmCut()
       : name_(), object_type_(), cut_type_(),
-        minimum_(), maximum_(), data_() { };
+        minimum_(), maximum_(), data_(), key_(), version(0) { };
 
     // dtor
     virtual ~L1TUtmCut() { };
 
 
     /** set cut name */
-    void setName(const std::string& x) { name_ = x; };
+    void setName(const std::string& name) { name_ = name; };
 
     /** set object type */
-    void setObjectType(const int x) { object_type_ = x; };
+    void setObjectType(const int type) { object_type_ = type; };
 
     /** set cut type */
-    void setCutType(const int x) { cut_type_ = x; };
+    void setCutType(const int type) { cut_type_ = type; };
 
     /** set minimum value of cut range (double) */
-    void setMinimum(const double x) { minimum_.value = x; };
+    void setMinimumValue(const double value) { minimum_.value = value; };
 
     /** set minimum value of cut range (HW index) */
-    void setMinimum(const unsigned int x) { minimum_.index = x; };
+    void setMinimumIndex(const unsigned int index) { minimum_.index = index; };
 
     /** set minimum value of cut range (L1TUtmCutValue struct) */
-    void setMinimum(const L1TUtmCutValue& x) { minimum_ = x; };
+    void setMinimum(const L1TUtmCutValue& minimum) { minimum_ = minimum; };
 
     /** set maximum value of cut range (double) */
-    void setMaximum(const double x) { maximum_.value = x; };
+    void setMaximumValue(const double value) { maximum_.value = value; };
 
     /** set maximum value of cut range (HW index) */
-    void setMaximum(const unsigned int x) { maximum_.index = x; };
+    void setMaximumIndex(const unsigned int index) { maximum_.index = index; };
 
     /** set maximum value of cut range (L1TUtmCutValue struct) */
-    void setMaximum(const L1TUtmCutValue& x) { maximum_ = x; };
+    void setMaximum(const L1TUtmCutValue& maximum) { maximum_ = maximum; };
+
+    /** set precision for cut value calculations */
+    void setPrecision(const unsigned int precision) { setMaximumIndex(precision); setMinimumIndex(precision); }; // HACK
 
     /** get cut name */
     const std::string& getName() const { return name_; };
@@ -104,6 +107,9 @@ class L1TUtmCut
 
     /** get key */
     const std::string& getKey() const { return key_; };
+
+    /** get precision */
+    const unsigned int getPrecision() const { return getMinimumIndex(); }; // HACK
 
 
   protected:
