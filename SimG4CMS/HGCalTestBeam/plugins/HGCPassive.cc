@@ -115,7 +115,7 @@ void HGCPassive::update(const G4Step * aStep) {
 		  << (it != mapLV_.end()) << std::endl;
 #endif
 	double time   = aStep->GetTrack()->GetGlobalTime();
-	double energy = (aStep->GetTrack()->GetKineticEnergy() +
+	double energy = (aStep->GetPreStepPoint()->GetKineticEnergy() +
 			 aStep->GetTotalEnergyDeposit())/CLHEP::GeV;
 	if (it != mapLV_.end()) {
 	  storeInfo(it, plv, 0, time, energy);
