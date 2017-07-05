@@ -14,6 +14,8 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 #include "RecoEgamma/EgammaTools/interface/BaselinePFSCRegression.h"
 #include "RecoEgamma/EgammaTools/interface/SCEnergyCorrectorSemiParm.h"
@@ -109,6 +111,8 @@ class PFECALSuperClusterAlgo {
   //void setThreshPFClusterMustacheOutBarrel(double thresh){ threshPFClusterMustacheOutBarrel_ = thresh;}
   //void setThreshPFClusterMustacheOutEndcap(double thresh){ threshPFClusterMustacheOutEndcap_ = thresh;}
 
+  void setIsOOTCollection( bool isOOTCollection ){ isOOTCollection_ = isOOTCollection; }
+
   void setCrackCorrections( bool applyCrackCorrections) { applyCrackCorrections_ = applyCrackCorrections;}
   
   void setTokens(const edm::ParameterSet&, edm::ConsumesCollector&&);
@@ -180,6 +184,12 @@ class PFECALSuperClusterAlgo {
 
   bool usePS;
 
+  // OOT photons
+  bool isOOTCollection_;
+  edm::EDGetTokenT<EcalRecHitCollection> inputTagBarrelRecHits_;
+  edm::EDGetTokenT<EcalRecHitCollection> inputTagEndcapRecHits_;
+  const EcalRecHitCollection * barrelRecHits_;
+  const EcalRecHitCollection * endcapRecHits_;
 };
 
 #endif

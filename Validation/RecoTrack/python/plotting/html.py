@@ -55,6 +55,7 @@ _trackQualityNameOrder = collections.OrderedDict([
     ("seeding_seeds", "Seeds"),
     ("seeding_seedsa", "Seeds A"),
     ("seeding_seedsb", "Seeds B"),
+    ("seeding_seedsc", "Seeds C"),
     ("seeding_seedstripl", "Seeds triplets"),
     ("seeding_seedspair", "Seeds pairs"),
     ("building_", "Built tracks"),

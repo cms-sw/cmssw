@@ -54,8 +54,8 @@ public:
   static const unsigned int TPGMAX = 256;
 
   // Typedef
-  typedef unsigned int LUT;
-  typedef std::array<double, TPGMAX> RCTdecompression;
+  typedef uint8_t LUT;
+  typedef std::array<float, TPGMAX> RCTdecompression;
 
   const HcalTopology* theTopology;
   static const bool newHFphi = true;

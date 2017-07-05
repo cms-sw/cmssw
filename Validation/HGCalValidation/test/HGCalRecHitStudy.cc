@@ -111,7 +111,7 @@ HGCalRecHitStudy::HGCalRecHitStudy(const edm::ParameterSet& iConfig) {
     recHitSource_    = consumes<HGCRecHitCollection>(temp);
   } else if ( nameDetector_ == "HCal" ) {
     if (ifHCAL_) recHitSource_ = consumes<HBHERecHitCollection>(temp);
-    else         recHitSource_ = consumes<HGChebRecHitCollection>(temp);
+    else         recHitSource_ = consumes<HGCRecHitCollection>(temp);
   } else {
     throw cms::Exception("BadHGCRecHitSource")
       << "HGCal DetectorName given as " << nameDetector_ << " must be: "
@@ -158,7 +158,7 @@ void HGCalRecHitStudy::analyze(const edm::Event& iEvent,
 	edm::LogWarning("HGCalValidation") << "HBHERecHitCollection Handle does not exist !!!";
       }
     } else {
-      edm::Handle<HGChebRecHitCollection> hbhecoll;
+      edm::Handle<HGCRecHitCollection> hbhecoll;
       iEvent.getByToken(recHitSource_, hbhecoll);
       if (hbhecoll.isValid()) {
 	if (verbosity_>0) 

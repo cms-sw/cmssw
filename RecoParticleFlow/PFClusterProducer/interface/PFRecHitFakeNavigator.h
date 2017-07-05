@@ -25,9 +25,9 @@ template <typename DET>
 class PFRecHitFakeNavigator : public PFRecHitNavigatorBase {
  public:
 
- virtual ~PFRecHitFakeNavigator() {  }
+ ~PFRecHitFakeNavigator() override = default;
 
-  void associateNeighbours(reco::PFRecHit& hit,std::unique_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refProd) { }
+  void associateNeighbours(reco::PFRecHit& hit,std::unique_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refProd) override { }
 
 
 

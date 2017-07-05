@@ -58,7 +58,8 @@ run2_HF_2017.toReplaceWith( hfrecoMB, _phase1_hfrecoMB )
 from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
 run2_HCAL_2017.toModify( hbherecoMB,
     processQIE11 = cms.bool(True),
-    setNoiseFlagsQIE11 = cms.bool(True),
+# temporarily disabled until RecoLocalCalo/HcalRecProducers/python/HBHEPhase1Reconstructor_cfi.py:flagParametersQIE11 is filled
+#    setNoiseFlagsQIE11 = cms.bool(True),
 )
 
 _plan1_hcalLocalRecoSequenceNZS = _phase1_hcalLocalRecoSequenceNZS.copy()

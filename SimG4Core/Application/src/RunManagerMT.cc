@@ -158,8 +158,11 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
 
   m_physicsList->SetDefaultCutValue(m_pPhysics.getParameter<double>("DefaultCutValue")*CLHEP::cm);
   m_physicsList->SetCutsWithDefault();
-  m_prodCuts.reset(new DDG4ProductionCuts(map_, verb, m_pPhysics));	
-  m_prodCuts->update();
+
+  if(m_pPhysics.getParameter<bool>("CutsPerRegion")) {
+    m_prodCuts.reset(new DDG4ProductionCuts(map_, verb, m_pPhysics));	
+    m_prodCuts->update();
+  }
   
   m_kernel->SetPhysics(phys);
   m_kernel->InitializePhysics();

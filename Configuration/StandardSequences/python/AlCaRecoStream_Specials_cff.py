@@ -44,7 +44,7 @@ ALCARECOStreamEcalCalPi0Calib = cms.FilteredStream(
 # HCAL calibration with min.bias
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalMinBias_cff import *
 
-pathALCARECOHcalCalMinBias = cms.Path(seqALCARECOHcalCalMinBias*ALCARECOHcalCalPhisymDQM)
+pathALCARECOHcalCalMinBias = cms.Path(seqALCARECOHcalCalMinBiasDigi*seqALCARECOHcalCalMinBias*ALCARECOHcalCalPhisymDQM)
 
 from Configuration.EventContent.AlCaRecoOutput_cff import *
 
@@ -60,7 +60,7 @@ ALCARECOStreamHcalCalMinBias = cms.FilteredStream(
 # HCAL Pedestals
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalPedestal_cff import *
 
-pathALCARECOHcalCalPedestal = cms.Path(seqALCARECOHcalCalPedestal*ALCARECOHcalCalPhisymDQM)
+pathALCARECOHcalCalPedestal = cms.Path(seqALCARECOHcalCalPedestalDigi*seqALCARECOHcalCalPedestal*ALCARECOHcalCalPhisymDQM)
 
 from Configuration.EventContent.AlCaRecoOutput_cff import *
 
@@ -74,13 +74,17 @@ ALCARECOStreamHcalCalPedestal = cms.FilteredStream(
         )
 
 # AlCaReco for LumiPixel stream
-from Calibration.TkAlCaRecoProducers.ALCARECOLumiPixels_cff import *
+from Calibration.LumiAlCaRecoProducers.ALCARECOLumiPixels_cff import *
+from Calibration.LumiAlCaRecoProducers.ALCARECOAlCaPCCZeroBias_cff import *
+from Calibration.LumiAlCaRecoProducers.ALCARECOAlCaPCCRandom_cff import *
 
 # FIXME: in case we need to add a DQM step
 #from DQMOffline.Configuration.AlCaRecoDQM_cff import *
 #pathALCARECOLumiPixels = cms.Path(seqALCARECOLumiPixels*ALCARECOLumiPixelsDQM)
 
-pathALCARECOLumiPixels = cms.Path(seqALCARECOLumiPixels)
+pathALCARECOLumiPixels      = cms.Path(seqALCARECOLumiPixels)
+pathALCARECOAlCaPCCZeroBias = cms.Path(seqALCARECOAlCaPCCZeroBias)
+pathALCARECOAlCaPCCRandom   = cms.Path(seqALCARECOAlCaPCCRandom)
 
 from Configuration.EventContent.AlCaRecoOutput_cff import *
 
@@ -92,5 +96,23 @@ ALCARECOStreamLumiPixels = cms.FilteredStream(
         selectEvents = OutALCARECOLumiPixels.SelectEvents,
         dataTier = cms.untracked.string('ALCARECO')
         )
+
+ALCARECOStreamAlCaPCCZeroBias = cms.FilteredStream(
+	      responsible = 'Chris Palmer',
+	      name = 'AlCaPCCZeroBias',
+	      paths  = (pathALCARECOAlCaPCCZeroBias),
+	      content = OutALCARECOAlCaPCCZeroBias.outputCommands,
+	      selectEvents = OutALCARECOAlCaPCCZeroBias.SelectEvents,
+	      dataTier = cms.untracked.string('ALCARECO')
+	      )
+
+ALCARECOStreamAlCaPCCRandom = cms.FilteredStream(
+	      responsible = 'Chris Palmer',
+	      name = 'AlCaPCCRandom',
+	      paths  = (pathALCARECOAlCaPCCRandom),
+	      content = OutALCARECOAlCaPCCRandom.outputCommands,
+	      selectEvents = OutALCARECOAlCaPCCRandom.SelectEvents,
+	      dataTier = cms.untracked.string('ALCARECO')
+	      )
 
 

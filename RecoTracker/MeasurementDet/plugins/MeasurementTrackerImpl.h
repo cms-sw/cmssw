@@ -52,6 +52,7 @@ public:
 		     const PixelClusterParameterEstimator* pixelCPE,
 		     const StripClusterParameterEstimator* stripCPE,
 		     const SiStripRecHitMatcher*  hitMatcher,
+		     const TrackerTopology*  trackerTopology,
 		     const TrackerGeometry*  trackerGeom,
 		     const GeometricSearchTracker* geometricSearchTracker,
                      const SiStripQuality *stripQuality,
@@ -126,7 +127,7 @@ public:
 
   const SiPixelFedCabling*              thePixelCabling;
 
-  void initialize();
+  void initialize(const TrackerTopology* trackerTopology);
   void initStMeasurementConditionSet(std::vector<TkStripMeasurementDet> & stripDets);
   void initPxMeasurementConditionSet(std::vector<TkPixelMeasurementDet> & pixelDets);
   void initPhase2OTMeasurementConditionSet(std::vector<TkPhase2OTMeasurementDet> & phase2Dets);
@@ -138,7 +139,7 @@ public:
   void addGluedDet( const GluedGeomDet* gd);
   void addStackDet( const StackGeomDet* gd);
 
-  void initGluedDet( TkGluedMeasurementDet & det);
+  void initGluedDet( TkGluedMeasurementDet & det, const TrackerTopology* trackerTopology);
   void initStackDet( TkStackMeasurementDet & det);
 
   void addDets( const TrackingGeometry::DetContainer& dets, bool subIsPixel, bool subIsOT);

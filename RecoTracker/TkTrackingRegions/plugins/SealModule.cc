@@ -25,3 +25,6 @@ DEFINE_FWK_MODULE(GlobalTrackingRegionFromBeamSpotEDProducer);
 
 using GlobalTrackingRegionWithVerticesEDProducer = TrackingRegionEDProducerT<GlobalTrackingRegionWithVerticesProducer>;
 DEFINE_FWK_MODULE(GlobalTrackingRegionWithVerticesEDProducer);
+
+using PointSeededTrackingRegionsEDProducer = TrackingRegionEDProducerT<PointSeededTrackingRegionsProducer>;
+DEFINE_FWK_MODULE(PointSeededTrackingRegionsEDProducer);

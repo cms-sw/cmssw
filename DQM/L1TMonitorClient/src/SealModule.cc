@@ -26,3 +26,6 @@ DEFINE_FWK_MODULE(L1EmulatorErrorFlagClient);
 
 #include <DQM/L1TMonitorClient/interface/L1TStage2CaloLayer2DEClient.h>
 DEFINE_FWK_MODULE(L1TStage2CaloLayer2DEClient);
+
+#include <DQM/L1TMonitorClient/interface/L1TStage2RatioClient.h>
+DEFINE_FWK_MODULE(L1TStage2RatioClient);

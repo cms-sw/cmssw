@@ -1,11 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
 hcalRecoAnalyzer = cms.EDAnalyzer("HcalRecHitsValidation",
+    TopFolderName             = cms.string('HcalRecHitsV/HcalRecHitTask'),
     outputFile                = cms.untracked.string('HcalRecHitValidationRelVal.root'),
 
     HBHERecHitCollectionLabel = cms.untracked.InputTag("hbhereco"),
     HFRecHitCollectionLabel   = cms.untracked.InputTag("hfreco"),
     HORecHitCollectionLabel   = cms.untracked.InputTag("horeco"),
+    EBRecHitCollectionLabel   = cms.InputTag("ecalRecHit:EcalRecHitsEB"),
+    EERecHitCollectionLabel   = cms.InputTag("ecalRecHit:EcalRecHitsEE"),
 
     ecalselector              = cms.untracked.string('yes'),
     hcalselector              = cms.untracked.string('all'),

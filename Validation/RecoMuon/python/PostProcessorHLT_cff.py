@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-postProcessorMuonMultiTrackHLT = cms.EDAnalyzer("DQMGenericClient",
+postProcessorMuonMultiTrackHLT = DQMEDHarvester("DQMGenericClient",
     subDirs = cms.untracked.vstring("HLT/Muon/MultiTrack/*"),
     efficiency = cms.vstring(
     "effic 'Efficiency vs #eta' num_assoc(simToReco)_eta num_simul_eta",
@@ -48,7 +49,7 @@ postProcessorMuonMultiTrackHLT = cms.EDAnalyzer("DQMGenericClient",
     outputFileName = cms.untracked.string("")
 )
 
-postProcessorMuonMultiTrackHLTComp = cms.EDAnalyzer(
+postProcessorMuonMultiTrackHLTComp = DQMEDHarvester(
     "DQMGenericClient",
     subDirs = cms.untracked.vstring("HLT/Muon/MultiTrack/"), 
     efficiency = cms.vstring(
@@ -63,7 +64,7 @@ postProcessorMuonMultiTrackHLTComp = cms.EDAnalyzer(
     outputFileName = cms.untracked.string("")
     )
 
-postProcessorMuonMultiTrackHLTCompFS = cms.EDAnalyzer(
+postProcessorMuonMultiTrackHLTCompFS = DQMEDHarvester(
     "DQMGenericClient",
     subDirs = cms.untracked.vstring("HLT/Muon/MultiTrack/"), 
     efficiency = cms.vstring(

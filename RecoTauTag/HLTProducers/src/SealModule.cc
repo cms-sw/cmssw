@@ -19,6 +19,14 @@
 //#include "RecoTauTag/HLTProducers/interface/L2TauPixelTrackMatch.h"
 #include "HLTPFTauPairLeadTrackDzMatchFilter.h"
 #include "RecoTauTag/HLTProducers/interface/L2TauPixelIsoTagProducer.h"
+#include "RecoTauTag/HLTProducers/interface/PFJetsTauOverlapRemoval.h"
+
+#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "RecoTauTag/HLTProducers/interface/L1TJetsMatching.h"
+
+typedef L1TJetsMatching<reco::PFJet> L1TPFJetsMatching ;
+typedef L1TJetsMatching<reco::CaloJet> L1TCaloJetsMatching ;
 
 DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, TauRegionalPixelSeedGenerator, "TauRegionalPixelSeedGenerator");      
 DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, TrackingRegionsFromBeamSpotAndL2Tau, "TrackingRegionsFromBeamSpotAndL2Tau");
@@ -45,4 +53,6 @@ DEFINE_FWK_MODULE(VertexFromTrackProducer);
 //DEFINE_FWK_MODULE(L2TauPixelTrackMatch);
 DEFINE_FWK_MODULE(HLTPFTauPairLeadTrackDzMatchFilter);
 DEFINE_FWK_MODULE(L2TauPixelIsoTagProducer);
-
+DEFINE_FWK_MODULE(L1TCaloJetsMatching);
+DEFINE_FWK_MODULE(L1TPFJetsMatching);
+DEFINE_FWK_MODULE(PFJetsTauOverlapRemoval);

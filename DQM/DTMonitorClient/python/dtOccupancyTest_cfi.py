@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-dtOccupancyTest = cms.EDAnalyzer("DTOccupancyTest",
+dtOccupancyTest = DQMEDHarvester("DTOccupancyTest",
                                  testPulseMode = cms.untracked.bool(False),
                                  runOnAllHitsOccupancies = cms.untracked.bool(True),
                                  runOnNoiseOccupancies = cms.untracked.bool(False),

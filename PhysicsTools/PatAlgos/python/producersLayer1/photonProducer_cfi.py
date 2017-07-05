@@ -39,6 +39,7 @@ patPhotons = cms.EDProducer("PATPhotonProducer",
     embedBasicClusters             = cms.bool(True),  ## embed in AOD externally stored the photon's basic clusters 
     embedPreshowerClusters         = cms.bool(True),  ## embed in AOD externally stored the photon's preshower clusters 
     embedRecHits         = cms.bool(True),  ## embed in AOD externally stored the RecHits - can be called from the PATPhotonProducer 
+    saveRegressionData   = cms.bool(True),  ## save regression input variables
     
     # embed IsoDeposits to recompute isolation
     isoDeposits = cms.PSet(),

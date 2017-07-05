@@ -33,10 +33,10 @@ class PFEcalBarrelRecHitCreator :  public  PFRecHitCreatorBase {
     {
       recHitToken_ = iC.consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("src"));
       srFlagToken_ = iC.consumes<EBSrFlagCollection>(iConfig.getParameter<edm::InputTag>("srFlags"));
-      triggerTowerMap_ = 0;
+      triggerTowerMap_ = nullptr;
     }
     
-  void importRecHits(std::unique_ptr<reco::PFRecHitCollection>&out,std::unique_ptr<reco::PFRecHitCollection>& cleaned ,const edm::Event& iEvent,const edm::EventSetup& iSetup) {
+  void importRecHits(std::unique_ptr<reco::PFRecHitCollection>&out,std::unique_ptr<reco::PFRecHitCollection>& cleaned ,const edm::Event& iEvent,const edm::EventSetup& iSetup) override {
 
     beginEvent(iEvent,iSetup);
       
@@ -94,7 +94,7 @@ class PFEcalBarrelRecHitCreator :  public  PFRecHitCreatorBase {
     }
   }
 
-  void init(const edm::EventSetup &es) {
+  void init(const edm::EventSetup &es) override {
 
     edm::ESHandle<EcalTrigTowerConstituentsMap> hTriggerTowerMap;
     es.get<IdealGeometryRecord>().get(hTriggerTowerMap);
@@ -107,7 +107,7 @@ class PFEcalBarrelRecHitCreator :  public  PFRecHitCreatorBase {
 
   bool isHighInterest(const EBDetId& detid) {
     bool result=false;
-    EBSrFlagCollection::const_iterator srf = srFlagHandle_->find(readOutUnitOf(detid));
+    auto srf = srFlagHandle_->find(readOutUnitOf(detid));
     if(srf==srFlagHandle_->end()) return false;
     else result = ((srf->value() & ~EcalSrFlag::SRF_FORCED_MASK) == EcalSrFlag::SRF_FULL);
     return result;

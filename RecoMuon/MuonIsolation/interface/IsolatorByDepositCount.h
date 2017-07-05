@@ -19,6 +19,7 @@ public:
   typedef MuIsoBaseIsolator::DepositContainer DepositContainer;
 
   struct ConeSizeFunction {
+   virtual ~ConeSizeFunction() = default;
    virtual float  coneSize( float eta, float pt) const = 0;
   };
 
@@ -26,7 +27,7 @@ public:
   IsolatorByDepositCount(float conesize, const std::vector<double>& thresh);
   IsolatorByDepositCount(const ConeSizeFunction * conesize, const std::vector<double>& thresh);
 
-  virtual ~IsolatorByDepositCount() {}
+  virtual ~IsolatorByDepositCount() = default;
 
   //! Compute the deposit within the cone and return the isolation result
   virtual Result result(const DepositContainer& deposits, const edm::Event* = 0) const;

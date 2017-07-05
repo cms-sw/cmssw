@@ -57,7 +57,7 @@ void SiPixelPhase1TrackEfficiency::analyze(const edm::Event& iEvent, const edm::
     int nStripHits = 0;
 
     // first, look at the full track to see whether it is good
-    auto const & trajParams = track.extra()->trajParams();
+    // auto const & trajParams = track.extra()->trajParams();
     auto hb = track.recHitsBegin();
     for(unsigned int h=0;h<track.recHitsSize();h++){
       
@@ -91,11 +91,15 @@ void SiPixelPhase1TrackEfficiency::analyze(const edm::Event& iEvent, const edm::
 
       bool isHitValid   = hit->getType()==TrackingRecHit::valid;
       bool isHitMissing = hit->getType()==TrackingRecHit::missing;
-
+      
+      /*
       const SiPixelRecHit* pixhit = dynamic_cast<const SiPixelRecHit*>(hit);
       const PixelGeomDetUnit* geomdetunit = dynamic_cast<const PixelGeomDetUnit*> ( tracker->idToDet(id) );
       const PixelTopology& topol = geomdetunit->specificTopology();
+
+      // this commented part is useful if one wants ROC level maps of hits, however the local position may fall out of a ROC and the ROC maps will look very strange (with no white cross)
       LocalPoint lp;
+
       if (pixhit) {
         lp = pixhit->localPosition();
       } else {
@@ -105,14 +109,15 @@ void SiPixelPhase1TrackEfficiency::analyze(const edm::Event& iEvent, const edm::
       MeasurementPoint mp = topol.measurementPosition(lp);
       int row = (int) mp.x();
       int col = (int) mp.y();
+      */
 
       if (isHitValid)   {
-        histo[VALID].fill(id, &iEvent, col, row);
-        histo[EFFICIENCY].fill(1, id, &iEvent, col, row);
+        histo[VALID].fill(id, &iEvent);
+        histo[EFFICIENCY].fill(1, id, &iEvent);
       }
       if (isHitMissing) {
-        histo[MISSING].fill(id, &iEvent, col, row);
-        histo[EFFICIENCY].fill(0, id, &iEvent, col, row);
+        histo[MISSING].fill(id, &iEvent);
+        histo[EFFICIENCY].fill(0, id, &iEvent);
       }
     }
   }

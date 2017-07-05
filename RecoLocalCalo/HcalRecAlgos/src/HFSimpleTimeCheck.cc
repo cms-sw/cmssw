@@ -107,12 +107,12 @@ HFRecHit HFSimpleTimeCheck::reconstruct(const HFPreRecHit& prehit,
     bool isTimingReliable[2] = {true, true};
     for (unsigned ianode=0; ianode<2; ++ianode)
     {
-        const HFQIE10Info* anodeInfo = prehit.getHFQIE10Info(ianode);
-        if (anodeInfo)
+        if (flaggedBadInDB[ianode])
+            states[ianode] = HFAnodeStatus::FLAGGED_BAD;
+        else
         {
-            if (flaggedBadInDB[ianode])
-                states[ianode] = HFAnodeStatus::FLAGGED_BAD;
-            else
+            const HFQIE10Info* anodeInfo = prehit.getHFQIE10Info(ianode);
+            if (anodeInfo)
                 states[ianode] = determineAnodeStatus(ianode, *anodeInfo,
                                                       &isTimingReliable[ianode]);
         }

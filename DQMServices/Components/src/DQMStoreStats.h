@@ -72,6 +72,7 @@ class DQMStoreStatsTopLevel : public std::vector<DQMStoreStatsSubsystem> {
 template <class Item>
 class Iterator {
   public:
+    virtual ~Iterator() = default;
     virtual void First() = 0;
     virtual void Next() = 0;
     virtual bool IsDone() const = 0;
@@ -85,7 +86,7 @@ class VIterator : public Iterator<Item>
 {
   public:
     VIterator(const std::vector<Item>* aVector):vector_(aVector),index(0) {;} 
-                     
+    virtual ~VIterator() = default; 
     virtual void First()     {index=0;}
     virtual void Next()      { ++index;}
     virtual int  size()      { return vector_->size();}

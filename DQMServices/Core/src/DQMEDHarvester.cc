@@ -20,3 +20,6 @@ void DQMEDHarvester::endLuminosityBlock(edm::LuminosityBlock const& iLumi,
       this->dqmEndLuminosityBlock(b, g, iLumi, iSetup);
     });
 }
+
+void DQMEDHarvester::endLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&) {}
+

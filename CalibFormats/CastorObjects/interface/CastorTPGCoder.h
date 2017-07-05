@@ -22,7 +22,7 @@ namespace edm {
   */
 class CastorTPGCoder {
 public:
-
+  virtual ~CastorTPGCoder() = default;
   //  virtual void adc2Linear(const CastorDataFrame& df, IntegerCaloSamples& ics) const = 0;
 
   virtual unsigned short adc2Linear(HcalQIESample sample,HcalDetId id) const = 0;
