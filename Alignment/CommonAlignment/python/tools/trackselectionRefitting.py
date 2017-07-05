@@ -311,6 +311,8 @@ def getSequence(process, collection,
                if procsrcconstr.src != module.src:
                   module.srcConstr=''
                   module.constraint=''
+               else:
+                  moduleSum += procsrcconstr
 
         moduleSum += module # append the other modules
 
