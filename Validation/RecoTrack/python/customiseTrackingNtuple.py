@@ -27,7 +27,7 @@ def customiseTrackingNtuple(process):
 #    process.eda = cms.EDAnalyzer("EventContentAnalyzer")
 
     ntuplePath = cms.EndPath(process.trackingNtupleSequence)
-    if process.trackingNtuple.includeAllHits and usePileupSimHits:
+    if process.trackingNtuple.includeAllHits and process.trackingNtuple.includeTrackingParticles and usePileupSimHits:
         ntuplePath.insert(0, cms.SequencePlaceholder("mix"))
 
         process.load("Validation.RecoTrack.crossingFramePSimHitToPSimHits_cfi")

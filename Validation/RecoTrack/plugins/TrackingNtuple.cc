@@ -1496,9 +1496,11 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
     if(includeSeeds_) {
       t->Branch("pix_seeIdx"    , &pix_seeIdx   );
     }
-    t->Branch("pix_simHitIdx" , &pix_simHitIdx);
-    t->Branch("pix_chargeFraction", &pix_chargeFraction);
-    t->Branch("pix_simType", &pix_simType);
+    if(includeTrackingParticles_) {
+      t->Branch("pix_simHitIdx" , &pix_simHitIdx);
+      t->Branch("pix_chargeFraction", &pix_chargeFraction);
+      t->Branch("pix_simType", &pix_simType);
+    }
     t->Branch("pix_x"     , &pix_x    );
     t->Branch("pix_y"     , &pix_y    );
     t->Branch("pix_z"     , &pix_z    );
@@ -1519,9 +1521,11 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
       if(includeSeeds_) {
         t->Branch("str_seeIdx"    , &str_seeIdx   );
       }
-      t->Branch("str_simHitIdx" , &str_simHitIdx);
-      t->Branch("str_chargeFraction", &str_chargeFraction);
-      t->Branch("str_simType", &str_simType);
+      if(includeTrackingParticles_) {
+        t->Branch("str_simHitIdx" , &str_simHitIdx);
+        t->Branch("str_chargeFraction", &str_chargeFraction);
+        t->Branch("str_simType", &str_simType);
+      }
       t->Branch("str_x"     , &str_x    );
       t->Branch("str_y"     , &str_y    );
       t->Branch("str_z"     , &str_z    );
@@ -1561,8 +1565,10 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
       if(includeSeeds_) {
         t->Branch("ph2_seeIdx"    , &ph2_seeIdx   );
       }
-      t->Branch("ph2_simHitIdx" , &ph2_simHitIdx);
-      t->Branch("ph2_simType", &ph2_simType);
+      if(includeTrackingParticles_) {
+        t->Branch("ph2_simHitIdx" , &ph2_simHitIdx);
+        t->Branch("ph2_simType", &ph2_simType);
+      }
       t->Branch("ph2_x"     , &ph2_x    );
       t->Branch("ph2_y"     , &ph2_y    );
       t->Branch("ph2_z"     , &ph2_z    );
@@ -1582,19 +1588,20 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
     else                   inv_detId_phase2.book("inv", t);
     t->Branch("inv_type"      , &inv_type    );
     //simhits
-    if(includeStripHits_) simhit_detId.book("simhit", t);
-    else                  simhit_detId_phase2.book("simhit", t);
-    t->Branch("simhit_x"       ,  &simhit_x);
-    t->Branch("simhit_y"       ,  &simhit_y);
-    t->Branch("simhit_z"       ,  &simhit_z);
-    t->Branch("simhit_particle",  &simhit_particle);
-    t->Branch("simhit_process" ,  &simhit_process);
-    t->Branch("simhit_eloss"   ,  &simhit_eloss);
-    t->Branch("simhit_tof"     ,  &simhit_tof);
-    //t->Branch("simhit_simTrackId", &simhit_simTrackId);
-    t->Branch("simhit_simTrkIdx", &simhit_simTrkIdx);
-    t->Branch("simhit_hitIdx"  ,  &simhit_hitIdx);
-    t->Branch("simhit_hitType" ,  &simhit_hitType);
+    if(includeTrackingParticles_) {
+      if(includeStripHits_) simhit_detId.book("simhit", t);
+      else                  simhit_detId_phase2.book("simhit", t);
+      t->Branch("simhit_x"       ,  &simhit_x);
+      t->Branch("simhit_y"       ,  &simhit_y);
+      t->Branch("simhit_z"       ,  &simhit_z);
+      t->Branch("simhit_particle",  &simhit_particle);
+      t->Branch("simhit_process" ,  &simhit_process);
+      t->Branch("simhit_eloss"   ,  &simhit_eloss);
+      t->Branch("simhit_tof"     ,  &simhit_tof);
+      t->Branch("simhit_simTrkIdx", &simhit_simTrkIdx);
+      t->Branch("simhit_hitIdx"  ,  &simhit_hitIdx);
+      t->Branch("simhit_hitType" ,  &simhit_hitType);
+    }
   }
   //beam spot
   t->Branch("bsp_x" , &bsp_x , "bsp_x/F");
@@ -2092,8 +2099,10 @@ void TrackingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   //prapare list to link matched hits to collection
   vector<pair<int,int> > monoStereoClusterList;
   if(includeAllHits_) {
-    // simhits
-    fillSimHits(tracker, tpKeyToIndex, *simHitsTPAssoc, tTopo, simHitRefKeyToIndex, tpHitList);
+    // simhits, only if TPs are saved as well
+    if(includeTrackingParticles_) {
+      fillSimHits(tracker, tpKeyToIndex, *simHitsTPAssoc, tTopo, simHitRefKeyToIndex, tpHitList);
+    }
 
     //pixel hits
     fillPixelHits(iEvent, clusterToTPMap, tpKeyToIndex, *simHitsTPAssoc, pixelDigiSimLinks, *theTTRHBuilder, tTopo, simHitRefKeyToIndex, hitProductIds);
@@ -2410,15 +2419,11 @@ void TrackingNtuple::fillPixelHits(const edm::Event& iEvent,
 
       const int key = hit->cluster().key();
       const int lay = tTopo.layer(hitId);
-      SimHitData simHitData = matchCluster(hit->firstClusterRef(), hitId, key, ttrh,
-                                           clusterToTPMap, tpKeyToIndex, simHitsTPAssoc, digiSimLink, simHitRefKeyToIndex, HitType::Pixel);
 
       pix_isBarrel .push_back( hitId.subdetId()==1 );
       pix_detId    .push_back( tTopo, hitId );
       pix_trkIdx   .emplace_back(); // filled in fillTracks
       pix_seeIdx   .emplace_back(); // filled in fillSeeds
-      pix_simHitIdx.push_back( simHitData.matchingSimHit );
-      pix_simType.push_back( static_cast<int>(simHitData.type) );
       pix_x    .push_back( ttrh->globalPosition().x() );
       pix_y    .push_back( ttrh->globalPosition().y() );
       pix_z    .push_back( ttrh->globalPosition().z() );
@@ -2428,24 +2433,31 @@ void TrackingNtuple::fillPixelHits(const edm::Event& iEvent,
       pix_yz   .push_back( ttrh->globalPositionError().czy() );
       pix_zz   .push_back( ttrh->globalPositionError().czz() );
       pix_zx   .push_back( ttrh->globalPositionError().czx() );
-      pix_chargeFraction.push_back( simHitData.chargeFraction );
       pix_radL .push_back( ttrh->surface()->mediumProperties().radLen() );
       pix_bbxi .push_back( ttrh->surface()->mediumProperties().xi() );
+
       LogTrace("TrackingNtuple") << "pixHit cluster=" << key
                                  << " subdId=" << hitId.subdetId()
                                  << " lay=" << lay
                                  << " rawId=" << hitId.rawId()
-                                 << " pos =" << ttrh->globalPosition()
-                                 << " nMatchingSimHit=" << simHitData.matchingSimHit.size();
-      if(!simHitData.matchingSimHit.empty()) {
-        const auto simHitIdx = simHitData.matchingSimHit[0];
-        LogTrace("TrackingNtuple") << " firstMatchingSimHit=" << simHitIdx
-                                   << " simHitPos=" << GlobalPoint(simhit_x[simHitIdx], simhit_y[simHitIdx], simhit_z[simHitIdx])
-                                   << " energyLoss=" << simhit_eloss[simHitIdx]
-                                   << " particleType=" << simhit_particle[simHitIdx]
-                                   << " processType=" << simhit_process[simHitIdx]
-                                   << " bunchCrossing=" << simHitData.bunchCrossing[0]
-                                   << " event=" << simHitData.event[0];
+                                 << " pos =" << ttrh->globalPosition();
+      if(includeTrackingParticles_) {
+        SimHitData simHitData = matchCluster(hit->firstClusterRef(), hitId, key, ttrh,
+                                           clusterToTPMap, tpKeyToIndex, simHitsTPAssoc, digiSimLink, simHitRefKeyToIndex, HitType::Pixel);
+        pix_simHitIdx.push_back( simHitData.matchingSimHit );
+        pix_simType.push_back( static_cast<int>(simHitData.type) );
+        pix_chargeFraction.push_back( simHitData.chargeFraction );
+        LogTrace("TrackingNtuple") << " nMatchingSimHit=" << simHitData.matchingSimHit.size();
+        if(!simHitData.matchingSimHit.empty()) {
+          const auto simHitIdx = simHitData.matchingSimHit[0];
+          LogTrace("TrackingNtuple") << " firstMatchingSimHit=" << simHitIdx
+                                     << " simHitPos=" << GlobalPoint(simhit_x[simHitIdx], simhit_y[simHitIdx], simhit_z[simHitIdx])
+                                     << " energyLoss=" << simhit_eloss[simHitIdx]
+                                     << " particleType=" << simhit_particle[simHitIdx]
+                                     << " processType=" << simhit_process[simHitIdx]
+                                     << " bunchCrossing=" << simHitData.bunchCrossing[0]
+                                     << " event=" << simHitData.event[0];
+        }
       }
     }
   }
@@ -2474,6 +2486,7 @@ void TrackingNtuple::fillStripRphiStereoHits(const edm::Event& iEvent,
   str_seeIdx   .resize(totalStripHits); // filled in fillSeeds
   str_simHitIdx.resize(totalStripHits);
   str_simType  .resize(totalStripHits);
+  str_chargeFraction.resize(totalStripHits);
   str_x    .resize(totalStripHits);
   str_y    .resize(totalStripHits);
   str_z    .resize(totalStripHits);
@@ -2483,7 +2496,6 @@ void TrackingNtuple::fillStripRphiStereoHits(const edm::Event& iEvent,
   str_yz   .resize(totalStripHits);
   str_zz   .resize(totalStripHits);
   str_zx   .resize(totalStripHits);
-  str_chargeFraction.resize(totalStripHits);
   str_radL .resize(totalStripHits);
   str_bbxi .resize(totalStripHits);
 
@@ -2497,12 +2509,8 @@ void TrackingNtuple::fillStripRphiStereoHits(const edm::Event& iEvent,
 
         const int key = hit.cluster().key();
         const int lay = tTopo.layer(hitId);
-        SimHitData simHitData = matchCluster(hit.firstClusterRef(), hitId, key, ttrh,
-                                             clusterToTPMap, tpKeyToIndex, simHitsTPAssoc, digiSimLink, simHitRefKeyToIndex, HitType::Strip);
         str_isBarrel [key] = (hitId.subdetId()==StripSubdetector::TIB || hitId.subdetId()==StripSubdetector::TOB);
         str_detId.set(key, tTopo, hitId);
-        str_simHitIdx[key] = simHitData.matchingSimHit;
-        str_simType  [key] = static_cast<int>(simHitData.type);
         str_x    [key] = ttrh->globalPosition().x();
         str_y    [key] = ttrh->globalPosition().y();
         str_z    [key] = ttrh->globalPosition().z();
@@ -2512,25 +2520,32 @@ void TrackingNtuple::fillStripRphiStereoHits(const edm::Event& iEvent,
         str_yz   [key] = ttrh->globalPositionError().czy();
         str_zz   [key] = ttrh->globalPositionError().czz();
         str_zx   [key] = ttrh->globalPositionError().czx();
-        str_chargeFraction[key] = simHitData.chargeFraction;
         str_radL [key] = ttrh->surface()->mediumProperties().radLen();
         str_bbxi [key] = ttrh->surface()->mediumProperties().xi();
         LogTrace("TrackingNtuple") << name << " cluster=" << key
                                    << " subdId=" << hitId.subdetId()
                                    << " lay=" << lay
                                    << " rawId=" << hitId.rawId()
-                                   << " pos =" << ttrh->globalPosition()
-                                   << " nMatchingSimHit=" << simHitData.matchingSimHit.size();
-        if(!simHitData.matchingSimHit.empty()) {
-          const auto simHitIdx = simHitData.matchingSimHit[0];
-          LogTrace("TrackingNtuple") << " firstMatchingSimHit=" << simHitIdx
-                                     << " simHitPos=" << GlobalPoint(simhit_x[simHitIdx], simhit_y[simHitIdx], simhit_z[simHitIdx])
-                                     << " simHitPos=" << GlobalPoint(simhit_x[simHitIdx], simhit_y[simHitIdx], simhit_z[simHitIdx])
-                                     << " energyLoss=" << simhit_eloss[simHitIdx]
-                                     << " particleType=" << simhit_particle[simHitIdx]
-                                     << " processType=" << simhit_process[simHitIdx]
-                                     << " bunchCrossing=" << simHitData.bunchCrossing[0]
-                                     << " event=" << simHitData.event[0];
+                                   << " pos =" << ttrh->globalPosition();
+
+        if(includeTrackingParticles_) {
+          SimHitData simHitData = matchCluster(hit.firstClusterRef(), hitId, key, ttrh,
+                                               clusterToTPMap, tpKeyToIndex, simHitsTPAssoc, digiSimLink, simHitRefKeyToIndex, HitType::Strip);
+          str_simHitIdx[key] = simHitData.matchingSimHit;
+          str_simType  [key] = static_cast<int>(simHitData.type);
+          str_chargeFraction[key] = simHitData.chargeFraction;
+          LogTrace("TrackingNtuple") << " nMatchingSimHit=" << simHitData.matchingSimHit.size();
+          if(!simHitData.matchingSimHit.empty()) {
+            const auto simHitIdx = simHitData.matchingSimHit[0];
+            LogTrace("TrackingNtuple") << " firstMatchingSimHit=" << simHitIdx
+                                       << " simHitPos=" << GlobalPoint(simhit_x[simHitIdx], simhit_y[simHitIdx], simhit_z[simHitIdx])
+                                       << " simHitPos=" << GlobalPoint(simhit_x[simHitIdx], simhit_y[simHitIdx], simhit_z[simHitIdx])
+                                       << " energyLoss=" << simhit_eloss[simHitIdx]
+                                       << " particleType=" << simhit_particle[simHitIdx]
+                                       << " processType=" << simhit_process[simHitIdx]
+                                       << " bunchCrossing=" << simHitData.bunchCrossing[0]
+                                       << " event=" << simHitData.event[0];
+          }
         }
       }
     }
@@ -2601,15 +2616,11 @@ void TrackingNtuple::fillPhase2OTHits(const edm::Event& iEvent,
 
       const int key = hit->cluster().key();
       const int lay = tTopo.layer(hitId);
-      SimHitData simHitData = matchCluster(hit->firstClusterRef(), hitId, key, ttrh,
-                                           clusterToTPMap, tpKeyToIndex, simHitsTPAssoc, digiSimLink, simHitRefKeyToIndex, HitType::Phase2OT);
 
       ph2_isBarrel .push_back( hitId.subdetId()==1 );
       ph2_detId    .push_back( tTopo, hitId );
       ph2_trkIdx   .emplace_back(); // filled in fillTracks
       ph2_seeIdx   .emplace_back(); // filled in fillSeeds
-      ph2_simHitIdx.push_back( simHitData.matchingSimHit );
-      ph2_simType.push_back( static_cast<int>(simHitData.type) );
       ph2_x    .push_back( ttrh->globalPosition().x() );
       ph2_y    .push_back( ttrh->globalPosition().y() );
       ph2_z    .push_back( ttrh->globalPosition().z() );
@@ -2626,18 +2637,24 @@ void TrackingNtuple::fillPhase2OTHits(const edm::Event& iEvent,
                                  << " subdId=" << hitId.subdetId()
                                  << " lay=" << lay
                                  << " rawId=" << hitId.rawId()
-                                 << " pos =" << ttrh->globalPosition()
-                                 << " nMatchingSimHit=" << simHitData.matchingSimHit.size();
+                                 << " pos =" << ttrh->globalPosition();
 
-      if(!simHitData.matchingSimHit.empty()) {
-        const auto simHitIdx = simHitData.matchingSimHit[0];
-        LogTrace("TrackingNtuple") << " firstMatchingSimHit=" << simHitIdx
-                                   << " simHitPos=" << GlobalPoint(simhit_x[simHitIdx], simhit_y[simHitIdx], simhit_z[simHitIdx])
-                                   << " energyLoss=" << simhit_eloss[simHitIdx]
-                                   << " particleType=" << simhit_particle[simHitIdx]
-                                   << " processType=" << simhit_process[simHitIdx]
-                                   << " bunchCrossing=" << simHitData.bunchCrossing[0]
-                                   << " event=" << simHitData.event[0];
+      if(includeTrackingParticles_) {
+        SimHitData simHitData = matchCluster(hit->firstClusterRef(), hitId, key, ttrh,
+                                             clusterToTPMap, tpKeyToIndex, simHitsTPAssoc, digiSimLink, simHitRefKeyToIndex, HitType::Phase2OT);
+        ph2_simHitIdx.push_back( simHitData.matchingSimHit );
+        ph2_simType.push_back( static_cast<int>(simHitData.type) );
+        LogTrace("TrackingNtuple") << " nMatchingSimHit=" << simHitData.matchingSimHit.size();
+        if(!simHitData.matchingSimHit.empty()) {
+          const auto simHitIdx = simHitData.matchingSimHit[0];
+          LogTrace("TrackingNtuple") << " firstMatchingSimHit=" << simHitIdx
+                                     << " simHitPos=" << GlobalPoint(simhit_x[simHitIdx], simhit_y[simHitIdx], simhit_z[simHitIdx])
+                                     << " energyLoss=" << simhit_eloss[simHitIdx]
+                                     << " particleType=" << simhit_particle[simHitIdx]
+                                     << " processType=" << simhit_process[simHitIdx]
+                                     << " bunchCrossing=" << simHitData.bunchCrossing[0]
+                                     << " event=" << simHitData.event[0];
+        }
       }
     }
   }
