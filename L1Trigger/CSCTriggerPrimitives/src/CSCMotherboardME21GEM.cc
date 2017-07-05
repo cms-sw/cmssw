@@ -117,7 +117,8 @@ CSCMotherboardME21GEM::CSCMotherboardME21GEM(unsigned endcap, unsigned station,
 
   //  deltas used to match to GEM coincidence pads
   maxDeltaBXCoPad_ = me21tmbParams.getParameter<int>("maxDeltaBXCoPad");
-  maxDeltaPadCoPad_ = me21tmbParams.getParameter<int>("maxDeltaPadCoPad");
+  maxDeltaPadCoPadEven_ = me21tmbParams.getParameter<int>("maxDeltaPadCoPadEven");
+  maxDeltaPadCoPadOdd_ = me21tmbParams.getParameter<int>("maxDeltaPadCoPadOdd");
 
   // drop low quality stubs if they don't have GEMs
   dropLowQualityCLCTsNoGEMs_ = me21tmbParams.getParameter<bool>("dropLowQualityCLCTsNoGEMs");
@@ -274,52 +275,51 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
     */
     for (int i=0; i<nStrips*2; ++i){
       std::vector<int> temp;
-      std::cout << "key " << i << std::endl;
+      // std::cout << "key " << i << std::endl;
       for (auto& p: gemPadToCscHs_){
         if (p.second == i) {
-          std::cout << "value " << p.first << std::endl;
+          // std::cout << "value " << p.first << std::endl;
           temp.push_back(p.first);
         }
       }
-      // get unique values
-      std::sort(temp.begin(),temp.end());
-      temp.erase(std::unique(temp.begin(),temp.end()),temp.end());
-      // keep only the middle two or middle element
-      std::set<int> temp2;
-      if (temp.size()==2){
-        // pick middle two
-        temp2.insert(temp[0]);
-        temp2.insert(temp[1]);
-      }
-      if (temp.size()==4){
-        // pick middle two
-        temp2.insert(temp[1]);
-        temp2.insert(temp[2]);
-      }
-      if (temp.size()==6){
-        // pick middle two
-        temp2.insert(temp[2]);
-        temp2.insert(temp[3]);
-      }
-      if (temp.size()==8){
-        // pick middle two
-        temp2.insert(temp[3]);
-        temp2.insert(temp[4]);
-      }
-      if (temp.size()==10){
-        // pick middle two
-        temp2.insert(temp[4]);
-        temp2.insert(temp[5]);
-      }
-      if (temp.size()%2==1){
-        // pick middle
-        temp2.insert(temp[temp.size()/2]);
-      }
-
       if (temp.size()==0) {
-        temp2.insert(-99);
+        temp.push_back(-99);
       }
-      cscHsToGemPad_[i] = std::make_pair(*temp2.begin(), *temp2.rbegin());
+      cscHsToGemPad_[i] = std::make_pair(temp.front(), temp.back());
+      // // get unique values
+      // std::sort(temp.begin(),temp.end());
+      // temp.erase(std::unique(temp.begin(),temp.end()),temp.end());
+      // // keep only the middle two or middle element
+      // std::set<int> temp2;
+      // if (temp.size()==2){
+      //   // pick middle two
+      //   temp2.insert(temp[0]);
+      //   temp2.insert(temp[1]);
+      // }
+      // if (temp.size()==4){
+      //   // pick middle two
+      //   temp2.insert(temp[1]);
+      //   temp2.insert(temp[2]);
+      // }
+      // if (temp.size()==6){
+      //   // pick middle two
+      //   temp2.insert(temp[2]);
+      //   temp2.insert(temp[3]);
+      // }
+      // if (temp.size()==8){
+      //   // pick middle two
+      //   temp2.insert(temp[3]);
+      //   temp2.insert(temp[4]);
+      // }
+      // if (temp.size()==10){
+      //   // pick middle two
+      //   temp2.insert(temp[4]);
+      //   temp2.insert(temp[5]);
+      // }
+      // if (temp.size()%2==1){
+      //   // pick middle
+      //   temp2.insert(temp[temp.size()/2]);
+      // }
     }
 
     if (debug_luts){
@@ -333,6 +333,7 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
 
     //select correct scenario, even or odd
     maxDeltaPadPad_ = (isEven ? maxDeltaPadPadEven_ : maxDeltaPadPadOdd_);
+    maxDeltaPadCoPad_ = isEven ? maxDeltaPadCoPadEven_ : maxDeltaPadCoPadOdd_;
 
     // retrieve pads and copads in a certain BX window for this CSC
     pads_.clear();
@@ -1126,18 +1127,18 @@ CSCMotherboardME21GEM::matchingGEMPads(const CSCCLCTDigi& clct, const GEMPadsBX&
   int clct_bx = clct.getBX();
   const int lowPad(cscHsToGemPad_[clct.getKeyStrip()].first);
   const int highPad(cscHsToGemPad_[clct.getKeyStrip()].second);
-  const bool debug(false);
-  if (debug) std::cout << "lowpad " << lowPad << " highpad " << highPad << " delta pad " << deltaPad <<std::endl;
+  const bool debug(true);
+  if (debug) std::cout << "CLCT lowpad " << lowPad << " highpad " << highPad << " delta pad " << deltaPad <<std::endl;
   for (const auto& p: pads){
     if (DetId(p.first).subdetId() != MuonSubdetId::GEM or DetId(p.first).det() != DetId::Muon) {
       continue;
     }
     auto padRoll((p.second).pad());
     int pad_bx = (p.second).bx()+lct_central_bx;
-    if (debug) std::cout << "padRoll " << padRoll << std::endl;
+    if (debug) std::cout << "Candidate CLCT: " << padRoll << std::endl;
     if (std::abs(clct_bx-pad_bx)>deltaBX) continue;
     if (std::abs(lowPad - padRoll) <= deltaPad or std::abs(padRoll - highPad) <= deltaPad){
-    if (debug) std::cout << "++Matches! " << std::endl;
+      if (debug) std::cout << "++Matches! " << std::endl;
       result.push_back(p);
       if (first) return result;
     }
@@ -1152,33 +1153,21 @@ CSCMotherboardME21GEM::matchingGEMPads(const CSCALCTDigi& alct, const GEMPadsBX&
   CSCMotherboardME21GEM::GEMPadsBX result;
   int deltaBX(isCoPad ? maxDeltaBXCoPad_ : maxDeltaBXPad_);
   int alct_bx = alct.getBX();
-  int Wg = alct.getKeyWG();
-  std::vector<int> Rolls;
-  Rolls.push_back(cscWgToGemRoll_[Wg]);
-  if (Wg>=maxDeltaWg_ && cscWgToGemRoll_[Wg] != cscWgToGemRoll_[Wg-maxDeltaWg_])
-      Rolls.push_back(cscWgToGemRoll_[Wg-maxDeltaWg_]);
-  if ((unsigned int)(Wg+maxDeltaWg_)<cscWgToGemRoll_.size() && cscWgToGemRoll_[Wg] != cscWgToGemRoll_[Wg+maxDeltaWg_])
-      Rolls.push_back(cscWgToGemRoll_[Wg+maxDeltaWg_]);
-
-  const bool debug(false);
-  if (debug) std::cout << "ALCT keyWG " << alct.getKeyWG() << std::endl;
-  for (const auto& alctRoll : Rolls)
-  {
-  if (debug) std::cout <<"roll " << alctRoll << std::endl;
+  auto alctRoll(cscWgToGemRoll_[alct.getKeyWG()]);
+  const bool debug(true);
+  if (debug) std::cout << "ALCT keyWG " << alct.getKeyWG() << ", roll " << alctRoll << std::endl;
   for (const auto& p: pads){
     if (DetId(p.first).subdetId() != MuonSubdetId::GEM or DetId(p.first).det() != DetId::Muon) {
       continue;
     }
     auto padRoll(GEMDetId(p.first).roll());
     int pad_bx = (p.second).bx()+lct_central_bx;
-    if (debug) std::cout<<"Detid "<< GEMDetId(p.first) <<"  "<< p.second<<std::endl;
-    if (debug) std::cout << "Candidate ALCT: " << padRoll << std::endl;
+    if (debug) std::cout << "Candidate ALCT: " << p.second << std::endl;
     if (std::abs(alct_bx-pad_bx)>deltaBX) continue;
-    if (alctRoll !=  padRoll) continue;
+    if (std::abs(alctRoll -  padRoll)>1) continue;
     if (debug) std::cout << "++Matches! " << std::endl;
     result.push_back(p);
     if (first) return result;
-  }
   }
   return result;
 }
@@ -1194,8 +1183,9 @@ CSCMotherboardME21GEM::matchingGEMPads(const CSCCLCTDigi& clct, const CSCALCTDig
   auto padsClct(matchingGEMPads(clct, pads, isCoPad, false));
   auto padsAlct(matchingGEMPads(alct, pads, isCoPad, false));
 
-  const bool debug(false);
+  const bool debug(true);
   if (debug) std::cout << "-----------------------------------------------------------------------"<<std::endl;
+  if (debug) std::cout << "Finding common pads"<<std::endl;
   // Check if the pads overlap
   for (const auto& p : padsAlct){
     if (debug) std::cout<< "Candidate ALCT: " << p.first << " " << p.second << std::endl;

@@ -2044,6 +2044,8 @@ CSCMotherboardME11GEM::matchingGEMPads(const CSCCLCTDigi& clct, const GEMPadsBX&
   // fetch the low and high pad edges
   auto mymap(part==ME1A ? cscHsToGemPadME1a_ : cscHsToGemPadME1b_);
   int deltaPad(isCoPad ? maxDeltaPadCoPad_ : maxDeltaPadPad_);
+  int deltaBX(isCoPad ? maxDeltaBXCoPad_ : maxDeltaBXPad_);
+  int clct_bx = clct.getBX();
   const int lowPad(mymap[clct.getKeyStrip()].first);
   const int highPad(mymap[clct.getKeyStrip()].second);
   const bool debug(true);
@@ -2053,9 +2055,11 @@ CSCMotherboardME11GEM::matchingGEMPads(const CSCCLCTDigi& clct, const GEMPadsBX&
       continue;
     }
     auto padRoll((p.second).pad());
+    int pad_bx = (p.second).bx()+lct_central_bx;
     if (debug) std::cout << "Candidate CLCT: " << p.second << std::endl;
+    if (std::abs(clct_bx-pad_bx)>deltaBX) continue;
     if (std::abs(lowPad - padRoll) <= deltaPad or std::abs(padRoll - highPad) <= deltaPad){
-    if (debug) std::cout << "++Matches! " << std::endl;
+      if (debug) std::cout << "++Matches! " << std::endl;
       result.push_back(p);
       if (first) return result;
     }
@@ -2079,12 +2083,12 @@ CSCMotherboardME11GEM::matchingGEMPads(const CSCALCTDigi& alct, const GEMPadsBX&
     auto padRoll(GEMDetId(p.first).roll());
     if (debug) std::cout << "Candidate ALCT: " << p.second << std::endl;
     // only pads in overlap are good for ME1A
-    if (part==ME1A and !isPadInOverlap(padRoll)) continue;
+    //    if (part==ME1A and !isPadInOverlap(padRoll)) continue;    /// eliminate this
     if (alctRoll.first == -99 and alctRoll.second == -99) continue;  //invalid region
     else if (alctRoll.first == -99 and !(padRoll <= alctRoll.second)) continue; // top of the chamber
     else if (alctRoll.second == -99 and !(padRoll >= alctRoll.first)) continue; // bottom of the chamber
     else if ((alctRoll.first != -99 and alctRoll.second != -99) and // center
-             (alctRoll.first > padRoll or padRoll > alctRoll.second)) continue;
+             (alctRoll.first-1 > padRoll or padRoll > alctRoll.second+1)) continue;
     if (debug) std::cout << "++Matches! " << std::endl;
     result.push_back(p);
     if (first) return result;

@@ -380,14 +380,14 @@ me11tmbSLHCGEM = cms.PSet(
     ## matching to pads in case LowQ CLCT
     maxDeltaBXPadEven = cms.int32(1),
     maxDeltaBXPadOdd = cms.int32(1),
-    maxDeltaPadPadEven = cms.int32(4),
-    maxDeltaPadPadOdd = cms.int32(4),
+    maxDeltaPadPadEven = cms.int32(12),
+    maxDeltaPadPadOdd = cms.int32(24),
 
     ## matching to pads in case absent CLCT
     maxDeltaBXCoPadEven = cms.int32(0),
     maxDeltaBXCoPadOdd = cms.int32(0),
-    maxDeltaPadCoPadEven = cms.int32(2),
-    maxDeltaPadCoPadOdd = cms.int32(3),
+    maxDeltaPadCoPadEven = cms.int32(12),
+    maxDeltaPadCoPadOdd = cms.int32(24),
 
     ## efficiency recovery switches
     dropLowQualityCLCTsNoGEMs_ME1a = cms.bool(False),
@@ -438,13 +438,14 @@ me21tmbSLHCGEM = cms.PSet(
 
     ## matching to pads in case LowQ CLCT
     maxDeltaBXPad = cms.int32(1),
-    maxDeltaPadPadOdd = cms.int32(3),
-    maxDeltaPadPadEven = cms.int32(3),
+    maxDeltaPadPadEven = cms.int32(6),
+    maxDeltaPadPadOdd = cms.int32(12),
     maxDeltaWg = cms.int32(2),
 
     ## matching to pads in case absent CLCT
     maxDeltaBXCoPad = cms.int32(0),
-    maxDeltaPadCoPad = cms.int32(2),
+    maxDeltaPadCoPadEven = cms.int32(6),
+    maxDeltaPadCoPadOdd = cms.int32(12),
 
     ## efficiency recovery switches
     dropLowQualityALCTsNoGEMs = cms.bool(False),
