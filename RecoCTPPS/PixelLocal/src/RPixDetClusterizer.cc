@@ -42,21 +42,22 @@ void RPixDetClusterizer::buildClusters(unsigned int detId, const std::vector<CTP
 
   rpix_digi_set_.clear();
   rpix_digi_set_.insert(digi.begin(),digi.end());
+  SeedVector_.clear();
 
 // calibrate digis here
   calib_rpix_digi_set_.clear();
 
-  for( std::set<CTPPSPixelDigi>::iterator RPdit = rpix_digi_set_.begin(); RPdit != rpix_digi_set_.end();++RPdit){
+  for( auto RPdit : rpix_digi_set_){
 
-    if((*RPdit).row() > maxRow || (*RPdit).column() > maxCol)
+    unsigned char row = RPdit.row();
+    unsigned char column = RPdit.column();
+    if( row > maxRow || column > maxCol)
       throw cms::Exception("CTPPSDigiOutofRange") 
-	<< " row = " << (*RPdit).row() << "  column = "<< (*RPdit).column();
+	<< " row = " << row << "  column = "<<column;
 
-    unsigned char row = (*RPdit).row();
-    unsigned char column = (*RPdit).column();
-    unsigned short adc = (*RPdit).adc();
-    unsigned short electrons = 0;
     std::pair<unsigned char, unsigned char> pixel = std::make_pair(row,column);
+    unsigned short adc = RPdit.adc();
+    unsigned short electrons = 0;
 
 // check if pixel is noisy or dead (i.e. in the mask)
     const bool is_in = maskedPixels.find(pixel) != maskedPixels.end();
@@ -65,21 +66,14 @@ void RPixDetClusterizer::buildClusters(unsigned int detId, const std::vector<CTP
       electrons = calibrate(detId,adc,row,column,pcalibrations);
       RPixCalibDigi calibDigi(row,column,adc,electrons);
       calib_rpix_digi_set_.insert(calibDigi);
+      if(calibDigi.electrons() > SeedADCThreshold_*ElectronADCGain_)
+	SeedVector_.push_back(calibDigi);
     }
   }
   if(verbosity_) edm::LogInfo("RPixDetClusterizer")<<" RPix set size = "<<calib_rpix_digi_set_.size();
-
-  SeedVector_.clear();
-
-// clusterizing and storing the seeds
-  for (const auto &rpcd : calib_rpix_digi_set_){
-    if(rpcd.electrons() > SeedADCThreshold_*ElectronADCGain_){
-      SeedVector_.push_back(rpcd);
-    }
-  }
   
-  for(std::vector<RPixCalibDigi>::iterator SeedIt = SeedVector_.begin(); SeedIt!=SeedVector_.end();++SeedIt){
-    make_cluster( *SeedIt, clusters);
+  for(auto SeedIt : SeedVector_){
+    make_cluster( SeedIt, clusters);
   }
 }
 
