@@ -62,7 +62,7 @@ SiPixelPhase1ClustersSizeY = DefaultHistoDigiCluster.clone(
 SiPixelPhase1ClustersNClusters = DefaultHistoDigiCluster.clone(
   name = "clusters",
   title = "Clusters",
-  range_min = 0, range_max = 30, range_nbins = 30,
+  range_min = 0, range_max = 30, range_nbins = 60,
   xlabel = "clusters",
   dimensions = 0,
 
