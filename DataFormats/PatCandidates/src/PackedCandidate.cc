@@ -166,16 +166,16 @@ void pat::PackedCandidate::unpackTrk() const {
     
     auto track = std::make_unique<reco::Track>(normalizedChi2_*ndof,ndof,*vertex_,math::XYZVector(p3.x(),p3.y(),p3.z()),charge(),*(m_.load()),reco::TrackBase::undefAlgorithm,reco::TrackBase::loose);
     int i=0;
-    if ( firstHit_ == 0) { 
+    if ( firstHit_ == 0) { //Backward compatible 
 	   if(innerLost == validHitInFirstPixelBarrelLayer){
 	      track->appendTrackerHitPattern(PixelSubdetector::PixelBarrel, 1, 0, TrackingRecHit::valid); 		
 	      i=1;
 	   } 
-
     } else {
 	   track->appendHitPattern(firstHit_,TrackingRecHit::valid);
-	   i=1;
     }
+
+    if(firstHit_!=0 && reco::HitPattern::pixelHitFilter(firstHit_)) i=1;
 
     // add hits to match the number of laters and validHitInFirstPixelBarrelLayer
     if(innerLost == validHitInFirstPixelBarrelLayer){
@@ -189,17 +189,20 @@ void pat::PackedCandidate::unpackTrk() const {
         }
     } else {
         // to encode the information on the layers, we add one valid hits per layer but skipping PXB1
+    	int iOffset=0;	
+        if(firstHit_!=0 && reco::HitPattern::pixelHitFilter(firstHit_)) {
+         iOffset=reco::HitPattern::getLayer(firstHit_);
+         if(reco::HitPattern::getSubStructure(firstHit_)==PixelSubdetector::PixelEndcap) iOffset+=3;
+	} else {iOffset=1; }
         for(;i<numberOfPixelLayers; i++) {
-            if (i <= 2 ) { 
-                track->appendTrackerHitPattern(PixelSubdetector::PixelBarrel, i+2, 0, TrackingRecHit::valid); 
-            } else {    
-                track->appendTrackerHitPattern(PixelSubdetector::PixelEndcap, i-3, 0, TrackingRecHit::valid); 
-            }
+            if (i+iOffset <= 2 ) { track->appendTrackerHitPattern(PixelSubdetector::PixelBarrel, i+iOffset+1, 0, TrackingRecHit::valid);   }
+	    else {track->appendTrackerHitPattern(PixelSubdetector::PixelEndcap, i+iOffset-3+1, 0, TrackingRecHit::valid);  }
+
         }
     }
     // add extra hits (overlaps, etc), all on the first layer with a hit - to avoid increasing the layer count
     for(;i<numberOfPixelHits; i++) { 
-       if(reco::HitPattern::pixelHitFilter(firstHit_)) { 
+       if(firstHit_ !=0 && reco::HitPattern::pixelHitFilter(firstHit_)) { 
           track->appendTrackerHitPattern(reco::HitPattern::getSubStructure(firstHit_), reco::HitPattern::getLayer(firstHit_), 0, TrackingRecHit::valid); 
 	} else {
           track->appendTrackerHitPattern(PixelSubdetector::PixelBarrel, (innerLost == validHitInFirstPixelBarrelLayer ? 1 : 2), 0, TrackingRecHit::valid); 
@@ -208,11 +211,19 @@ void pat::PackedCandidate::unpackTrk() const {
     // now start adding strip layers, putting one hit on each layer so that the hitPattern.stripLayersWithMeasurement works.
     // we don't know what the layers where, so we just start with TIB (4 layers), then TOB (6 layers), then TEC (9)
     // and then TID(3), so that we can get a number of valid strip layers up to 4+6+9+3
-    for(int sl = 0; sl < numberOfStripLayers; ++sl, ++i) {
+    if(firstHit_!=0 && reco::HitPattern::stripHitFilter(firstHit_)) i+=1;
+    int slOffset=0;	
+    if(firstHit_!=0 && reco::HitPattern::stripHitFilter(firstHit_)) { 
+         slOffset=reco::HitPattern::getLayer(firstHit_)-1;
+         if(reco::HitPattern::getSubStructure(firstHit_)==StripSubdetector::TID) slOffset+=4;
+         if(reco::HitPattern::getSubStructure(firstHit_)==StripSubdetector::TOB) slOffset+=7;
+         if(reco::HitPattern::getSubStructure(firstHit_)==StripSubdetector::TEC) slOffset+=13;
+    }
+    for(int sl=slOffset; sl < numberOfStripLayers+slOffset; ++sl, ++i) {
         if      (sl < 4)    track->appendTrackerHitPattern(StripSubdetector::TIB,   sl   +1, 1, TrackingRecHit::valid);
-        else if (sl < 4+6)  track->appendTrackerHitPattern(StripSubdetector::TOB, (sl- 4)+1, 1, TrackingRecHit::valid);
-        else if (sl < 10+9) track->appendTrackerHitPattern(StripSubdetector::TEC, (sl-10)+1, 1, TrackingRecHit::valid);
-        else if (sl < 19+3) track->appendTrackerHitPattern(StripSubdetector::TID, (sl-13)+1, 1, TrackingRecHit::valid);
+        else if (sl < 4+3)  track->appendTrackerHitPattern(StripSubdetector::TID, (sl- 4)+1, 1, TrackingRecHit::valid);
+        else if (sl < 7+6) track->appendTrackerHitPattern(StripSubdetector::TOB, (sl-7)+1, 1, TrackingRecHit::valid);
+        else if (sl < 13+9) track->appendTrackerHitPattern(StripSubdetector::TEC, (sl-13)+1, 1, TrackingRecHit::valid);
         else break; // wtf?
     }
     // finally we account for extra strip hits beyond the one-per-layer added above. we put them all on TIB1,
