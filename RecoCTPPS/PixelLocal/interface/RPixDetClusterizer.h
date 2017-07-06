@@ -80,18 +80,18 @@ private:
 
 
 
-class tempCluster{
+class RPixTempCluster{
 
 public:
 
-  tempCluster()
+  RPixTempCluster()
   {
     isize=0; 
     curr=0; 
     rowmin=255; 
     colmin=255;
   }
-  ~tempCluster(){}
+  ~RPixTempCluster(){}
 
   static constexpr unsigned short MAXSIZE = 256;
   unsigned short adc[MAXSIZE];

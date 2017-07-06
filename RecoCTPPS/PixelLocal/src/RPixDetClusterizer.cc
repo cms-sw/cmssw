@@ -83,7 +83,7 @@ void RPixDetClusterizer::make_cluster(RPixCalibDigi aSeed,  std::vector<CTPPSPix
     return;
   }
 // creating a temporary cluster
-  tempCluster atempCluster;
+  RPixTempCluster atempCluster;
 
 // filling the cluster with the seed
   atempCluster.addPixel(aSeed.row(),aSeed.column(),aSeed.electrons());
