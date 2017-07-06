@@ -109,10 +109,30 @@ class LHCOpticsApproximator : public TNamed
 		return apertures_;
 	}
 
+    double GetSBegin() const
+    {
+      return s_begin_;
+    }
+
+    double GetSEnd() const
+    {
+      return s_end_;
+    }
+
 	beam_type GetBeamType() const
 	{
 		return beam;
 	}
+
+    double GetBeamEnergy() const
+    {
+      return nominal_beam_energy_;
+    }
+
+    double GetBeamMomentum() const
+    {
+      return nominal_beam_momentum_;
+    }
 
   private:
     void Init();
