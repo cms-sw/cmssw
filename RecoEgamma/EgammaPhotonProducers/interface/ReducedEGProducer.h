@@ -1,7 +1,7 @@
 #ifndef RecoEgamma_EgammaPhotonProducers_ReducedEGProducer_h
 #define RecoEgamma_EgammaPhotonProducers_ReducedEGProducer_h
 /** \class ReducedEGProducer
- **  
+ **
  **  Select subset of electrons and photons from input collections and
  **  produced consistently relinked output collections including
  **  associated SuperClusters, CaloClusters and ecal RecHits
@@ -10,7 +10,7 @@
  **
  ***/
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -33,8 +33,8 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoEgamma/PhotonIdentification/interface/PhotonMIPHaloTagger.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h" 
-#include "CondFormats/EcalObjects/interface/EcalFunctionParameters.h" 
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
+#include "CondFormats/EcalObjects/interface/EcalFunctionParameters.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/PhotonEnergyCorrector.h"
 
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
@@ -42,6 +42,8 @@
 
 #include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"
 
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrackExtra.h"
 
 // ReducedEGProducer inherits from EDProducer, so it can be a module:
 class ReducedEGProducer : public edm::stream::EDProducer<> {
@@ -53,22 +55,24 @@ class ReducedEGProducer : public edm::stream::EDProducer<> {
 
   virtual void produce(edm::Event& evt, const edm::EventSetup& es) override final;
 
- private: 
-  
+ private:
+
  //tokens for input collections
  const edm::EDGetTokenT<reco::PhotonCollection> photonT_;
- const edm::EDGetTokenT<reco::GsfElectronCollection> gsfElectronT_; 
+ const edm::EDGetTokenT<reco::GsfElectronCollection> gsfElectronT_;
+ const edm::EDGetTokenT<reco::GsfTrackCollection> gsfTrackT_;  //add by Hien
  const edm::EDGetTokenT<reco::ConversionCollection> conversionT_;
  const edm::EDGetTokenT<reco::ConversionCollection> singleConversionT_;
- 
+
  const edm::EDGetTokenT<EcalRecHitCollection> barrelEcalHits_;
  const edm::EDGetTokenT<EcalRecHitCollection> endcapEcalHits_;
  const bool                                   doPreshowerEcalHits_;
  const edm::EDGetTokenT<EcalRecHitCollection> preshowerEcalHits_;
- 
+
  const edm::EDGetTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef> > > photonPfCandMapT_;
  const edm::EDGetTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef> > > gsfElectronPfCandMapT_;
- 
+
+
  std::vector<edm::EDGetTokenT<edm::ValueMap<bool> > > photonIdTs_;
  std::vector<edm::EDGetTokenT<edm::ValueMap<float> > > gsfElectronIdTs_;
 
@@ -90,18 +94,23 @@ class ReducedEGProducer : public edm::stream::EDProducer<> {
  const std::string outESRecHits_;
  const std::string outPhotonPfCandMap_;
  const std::string outGsfElectronPfCandMap_;
+ const std::string outGsfTracks_;  //add by me - Hien xinh dep
+ //const std::string outGsfTrackCores_; //add by me - Hien xinh dep
  const std::vector<std::string> outPhotonIds_;
  const std::vector<std::string> outGsfElectronIds_;
  const std::vector<std::string> outPhotonPFClusterIsos_;
  const std::vector<std::string> outGsfElectronPFClusterIsos_;
- 
+
  const StringCutObjectSelector<reco::Photon> keepPhotonSel_;
- const StringCutObjectSelector<reco::Photon> slimRelinkPhotonSel_; 
+ const StringCutObjectSelector<reco::Photon> slimRelinkPhotonSel_;
  const StringCutObjectSelector<reco::Photon> relinkPhotonSel_;
  const StringCutObjectSelector<reco::GsfElectron> keepGsfElectronSel_;
  const StringCutObjectSelector<reco::GsfElectron> slimRelinkGsfElectronSel_;
- const StringCutObjectSelector<reco::GsfElectron> relinkGsfElectronSel_; 
+ const StringCutObjectSelector<reco::GsfElectron> relinkGsfElectronSel_;
+
+ //add by Hien
+ // const StringCutObjectSelector<reco::GsfTrack> keepGsfTrackSel_;
+ //const StringCutObjectSelector<reco::GsfTrack> slimRelinkGsfTrackSel_;
+ //const StringCutObjectSelector<reco::GsfTrack> relinkGsfTrackSel_;
 };
 #endif
-
-
