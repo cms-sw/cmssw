@@ -225,7 +225,7 @@ class HipPyOptionParser:
    def checkOptions(self):
       optstocheck=[]
       checkcosmics=(self.flag=="cosmics" or self.flag=="cdcs")
-      checkymumuconstr=(self.flag=="ymumu" and hasattr(sel, "TBDconstraint"))
+      checkymumuconstr=(self.flag=="ymumu" and hasattr(self, "TBDconstraint"))
       if checkcosmics:
          optstocheck=[
             "Bfield",
