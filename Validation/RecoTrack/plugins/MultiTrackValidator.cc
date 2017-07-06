@@ -95,6 +95,18 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):
     const bool doResol = doResolutionPlotsForLabels.empty() || (std::find(cbegin(doResolutionPlotsForLabels), cend(doResolutionPlotsForLabels), itag) != cend(doResolutionPlotsForLabels));
     doResolutionPlots_.push_back(doResol);
   }
+  { // check for duplicates
+    auto labelTmp = edm::vector_transform(label, [&](const edm::InputTag& tag) { return tag.label(); });
+    std::sort(begin(labelTmp), end(labelTmp));
+    std::string empty;
+    const std::string* prev = &empty;
+    for(const std::string& l: labelTmp) {
+      if(l == *prev) {
+        throw cms::Exception("Configuration") << "Duplicate InputTag in labels: " << l;
+      }
+      prev = &l;
+    }
+  }
 
   edm::InputTag beamSpotTag = pset.getParameter<edm::InputTag>("beamSpot");
   bsSrc = consumes<reco::BeamSpot>(beamSpotTag);
