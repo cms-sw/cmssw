@@ -186,6 +186,7 @@ void PuppiPhoton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 }
 // ------------------------------------------------------------------------------------------
 bool PuppiPhoton::matchPFCandidate(const reco::Candidate *iPF,const reco::Candidate *iPho) { 
+  if(iPF->pdgId() != iPho->pdgId()) return false;
   double lDR = deltaR(iPF->eta(),iPF->phi(),iPho->eta(),iPho->phi());
   for(unsigned int i0 = 0; i0 < pdgIds_.size(); i0++) {
     if(std::abs(iPF->pdgId()) == pdgIds_[i0] && lDR < dRMatch_[i0])  return true;
