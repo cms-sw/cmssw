@@ -13,6 +13,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/transform.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQM/TrackingMonitor/interface/TrackBuildingAnalyzer.h"
 #include "DQM/TrackingMonitor/interface/TrackAnalyzer.h"
@@ -118,6 +119,16 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
   trackToken_          = consumes<edm::View<reco::Track> >(trackProducer);
   trackCandidateToken_ = consumes<TrackCandidateCollection>(tcProducer); 
   seedToken_           = consumes<edm::View<TrajectorySeed> >(seedProducer);
+
+  doMVAPlots = iConfig.getParameter<bool>("doMVAPlots");
+  if(doMVAPlots) {
+    mvaQualityTokens_ = edm::vector_transform(iConfig.getParameter<std::vector<std::string> >("MVAProducers"),
+                                              [&](const std::string& tag) {
+                                                return std::make_tuple(consumes<MVACollection>(edm::InputTag(tag, "MVAValues")),
+                                                                       consumes<QualityMaskCollection>(edm::InputTag(tag, "QualityMasks")));
+                                              });
+    mvaTrackToken_ = consumes<edm::View<reco::Track> >(iConfig.getParameter<edm::InputTag>("TrackProducerForMVA"));
+  }
 
   edm::InputTag stripClusterInputTag_ = iConfig.getParameter<edm::InputTag>("stripCluster");
   edm::InputTag pixelClusterInputTag_ = iConfig.getParameter<edm::InputTag>("pixelCluster");
@@ -851,6 +862,26 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	  }
 	} else {
 	  edm::LogWarning("TrackingMonitor") << "No Track Candidates in the event.  Not filling associated histograms";
+	}
+
+	if(doMVAPlots) {
+	  // Get MVA and quality mask collections
+	  std::vector<const MVACollection *> mvaCollections;
+	  std::vector<const QualityMaskCollection *> qualityMaskCollections;
+
+	  edm::Handle<edm::View<reco::Track> > htracks;
+	  iEvent.getByToken(mvaTrackToken_, htracks);
+
+	  edm::Handle<MVACollection> hmva;
+	  edm::Handle<QualityMaskCollection> hqual;
+	  for(const auto& tokenTpl: mvaQualityTokens_) {
+	    iEvent.getByToken(std::get<0>(tokenTpl), hmva);
+	    iEvent.getByToken(std::get<1>(tokenTpl), hqual);
+
+	    mvaCollections.push_back(hmva.product());
+	    qualityMaskCollections.push_back(hqual.product());
+	  }
+	  theTrackBuildingAnalyzer->analyze(*htracks, mvaCollections, qualityMaskCollections);
 	}
       }
       
