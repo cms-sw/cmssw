@@ -160,7 +160,6 @@ class CSCMotherboardME21GEM : public CSCMotherboard
   int maxDeltaPadPad_;
   int maxDeltaPadPadEven_;
   int maxDeltaPadPadOdd_;
-  int maxDeltaWg_;
 
   //  deltas used to match to GEM coincidence pads
   int maxDeltaBXCoPad_;
