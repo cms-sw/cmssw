@@ -138,7 +138,7 @@ hltSiPixelPhase1TrackClustersConf = cms.VPSet(
 
 hltSiPixelPhase1TrackClustersAnalyzer = cms.EDAnalyzer("SiPixelPhase1TrackClusters",
         clusters   = cms.InputTag("hltSiPixelClusters"),
-        tracks     = cms.InputTag("hltIter2Merged"),
+        tracks     = cms.InputTag("hltTracksMerged"), #hltIter2Merged"
         histograms = hltSiPixelPhase1TrackClustersConf,
         geometry   = hltSiPixelPhase1Geometry
 )
