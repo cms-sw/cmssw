@@ -5,8 +5,8 @@
 
 namespace {
   constexpr int max16bits = 65535;
-  constexpr int maxCol = 155;
-  constexpr int maxRow = 159;
+  constexpr int maxCol = CTPPSPixelCluster::MAXCOL;
+  constexpr int maxRow = CTPPSPixelCluster::MAXROW;
   constexpr double highRangeCal = 1800.;
   constexpr double lowRangeCal = 260.;
 }
