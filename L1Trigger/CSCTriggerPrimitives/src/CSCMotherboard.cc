@@ -116,7 +116,6 @@ CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
       }
     }
     else if (theStation == 2 and runME21ILT) {
-      std::cout << "Initializing ME21 config " << std::endl;
       tmbParams = me21tmbGemParams;
       alctParams = conf.getParameter<edm::ParameterSet>("alctSLHCME21");
       clctParams = conf.getParameter<edm::ParameterSet>("clctSLHCME21");
