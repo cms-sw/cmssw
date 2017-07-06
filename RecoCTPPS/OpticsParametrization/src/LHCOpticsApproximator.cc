@@ -1,4 +1,5 @@
 #include "SimDataFormats/CTPPS/interface/LHCOpticsApproximator.h"
+
 #include <vector>
 #include <iostream>
 #include "TROOT.h"
@@ -211,6 +212,7 @@ LHCOpticsApproximator & LHCOpticsApproximator::operator=(const LHCOpticsApproxim
     nominal_beam_energy_ = org.nominal_beam_energy_;
     nominal_beam_momentum_ = org.nominal_beam_momentum_;
   }
+
   return *this;
 }
 
@@ -219,6 +221,8 @@ void LHCOpticsApproximator::Train(TTree *inp_tree, std::string data_prefix, poly
 {
   if(inp_tree==NULL)
     return;
+
+  //PrintCurrentMemoryUsage("Train, begin");
 
   InitializeApproximators(mode, max_degree_x, max_degree_tx, max_degree_y, max_degree_ty, common_terms);
   std::cout<<this->GetName()<<" is being trained..."<<std::endl;
@@ -311,9 +315,6 @@ void LHCOpticsApproximator::Train(TTree *inp_tree, std::string data_prefix, poly
     if(prec)
       best_precision = prec[i];
     out_polynomials[i]->FindParameterization(best_precision);
-    //std::cout<<"Out variable "<<coord_names[i]<<" polynomial"<<std::endl;
-    //out_polynomials[i]->PrintPolynomialsSpecial("M");
-    //std::cout<<std::endl;
   }
 
   trained_ = true;
