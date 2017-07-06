@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <fstream>
+#include <cassert>
 #include <Riostream.h>
 #include "TFile.h"
 #include "TPaveStats.h"
@@ -528,27 +529,14 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
 	// DCA absolute residuals
 
 	fins[i]->cd("PVValidation/Abs_Transv_Phi_Residuals/");
-	
 	gDirectory->GetObject(Form("histo_dxy_phi_plot%i",j),dxyPhiResiduals[i][j]);
 	gDirectory->GetObject(Form("histo_dx_phi_plot%i",j),dxPhiResiduals[i][j]);
 	gDirectory->GetObject(Form("histo_dy_phi_plot%i",j),dyPhiResiduals[i][j]);
-	
-	/*
-	dxyPhiResiduals[i][j] = (TH1F*)fins[i]->Get(Form("PVValidation/Abs_Transv_Phi_Residuals/histo_dxy_phi_plot%i",j));
-	dxPhiResiduals[i][j]  = (TH1F*)fins[i]->Get(Form("PVValidation/Abs_Transv_Phi_Residuals/histo_dx_phi_plot%i",j));
-	dyPhiResiduals[i][j]  = (TH1F*)fins[i]->Get(Form("PVValidation/Abs_Transv_Phi_Residuals/histo_dy_phi_plot%i",j));
-	*/
-	
+		
 	fins[i]->cd("PVValidation/Abs_Transv_Eta_Residuals/");
 	gDirectory->GetObject(Form("histo_dxy_eta_plot%i",j),dxyEtaResiduals[i][j]);
 	gDirectory->GetObject(Form("histo_dx_eta_plot%i",j),dxEtaResiduals[i][j]);
 	gDirectory->GetObject(Form("histo_dy_eta_plot%i",j),dyEtaResiduals[i][j]);
-
-	/*
-	dxyEtaResiduals[i][j] = (TH1F*)fins[i]->Get(Form("PVValidation/Abs_Transv_Eta_Residuals/histo_dxy_eta_plot%i",j));
-	dxEtaResiduals[i][j]  = (TH1F*)fins[i]->Get(Form("PVValidation/Abs_Transv_Eta_Residuals/histo_dx_eta_plot%i",j));				
-	dyEtaResiduals[i][j]  = (TH1F*)fins[i]->Get(Form("PVValidation/Abs_Transv_Eta_Residuals/histo_dy_eta_plot%i",j));
-	*/
 
 	dzPhiResiduals[i][j]  = (TH1F*)fins[i]->Get(Form("PVValidation/Abs_Long_Phi_Residuals/histo_dz_phi_plot%i",j));
 	dzEtaResiduals[i][j]  = (TH1F*)fins[i]->Get(Form("PVValidation/Abs_Long_Eta_Residuals/histo_dz_eta_plot%i",j));
@@ -565,14 +553,6 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
 
 	  for(Int_t k=0;k<theNBINS[i];k++){
 	  
-	    /*
-	    dxyMapResiduals[i][j][k] = (TH1F*)fins[i]->Get(Form("PVValidation/Abs_DoubleDiffResiduals/histo_dxy_eta_plot%i_phi_plot%i",j,k));	  
-	    dzMapResiduals[i][j][k]  = (TH1F*)fins[i]->Get(Form("PVValidation/Abs_DoubleDiffResiduals/histo_dz_eta_plot%i_phi_plot%i",j,k));  
-	   
-	    dxyNormMapResiduals[i][j][k] = (TH1F*)fins[i]->Get(Form("PVValidation/Norm_DoubleDiffResiduals/histo_norm_dxy_eta_plot%i_phi_plot%i",j,k));  
-	    dzNormMapResiduals[i][j][k]  = (TH1F*)fins[i]->Get(Form("PVValidation/Norm_DoubleDiffResiduals/histo_norm_dz_eta_plot%i_phi_plot%i",j,k));
-	    */
-
 	    // absolute residuals
 	    fins[i]->cd("PVValidation/Abs_DoubleDiffResiduals/");
 	    gDirectory->GetObject(Form("histo_dxy_eta_plot%i_phi_plot%i",j,k),dxyMapResiduals[i][j][k]);
@@ -605,12 +585,14 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
 	  for(Int_t k=0;k<theNBINS[i];k++){
 
 	    // absolute residuals
-	    dxyMapResiduals[i][j][k] = (TH1F*)fins[i]->Get(Form("PVValidation/Abs_DoubleDiffResiduals/histo_dxy_eta_plot%i_phi_plot%i",j,k));
-	    dzMapResiduals[i][j][k]  = (TH1F*)fins[i]->Get(Form("PVValidation/Abs_DoubleDiffResiduals/histo_dz_eta_plot%i_phi_plot%i",j,k));  
+	    fins[i]->cd("PVValidation/Abs_DoubleDiffResiduals");
+	    gDirectory->GetObject(Form("PVValidation/Abs_DoubleDiffResiduals/histo_dxy_eta_plot%i_phi_plot%i",j,k),dxyMapResiduals[i][j][k]);
+	    gDirectory->GetObject(Form("PVValidation/Abs_DoubleDiffResiduals/histo_dz_eta_plot%i_phi_plot%i",j,k),dzMapResiduals[i][j][k]);  
 	    
 	    // normalized residuals
-	    dxyNormMapResiduals[i][j][k] = (TH1F*)fins[i]->Get(Form("PVValidation/Norm_DoubleDiffResiduals/histo_norm_dxy_eta_plot%i_phi_plot%i",j,k));  
-	    dzNormMapResiduals[i][j][k]  = (TH1F*)fins[i]->Get(Form("PVValidation/Norm_DoubleDiffResiduals/histo_norm_dz_eta_plot%i_phi_plot%i",j,k));
+	    fins[i]->cd("PVValidation/Norm_DoubleDiffResiduals");
+	    gDirectory->GetObject(Form("PVValidation/Norm_DoubleDiffResiduals/histo_norm_dxy_eta_plot%i_phi_plot%i",j,k),dxyNormMapResiduals[i][j][k]);  
+	    gDirectory->GetObject(Form("PVValidation/Norm_DoubleDiffResiduals/histo_norm_dz_eta_plot%i_phi_plot%i",j,k),dzNormMapResiduals[i][j][k]);
 	  }
 	} // if do2DMaps
       } 
@@ -2000,6 +1982,9 @@ params::measurement getMAD(TH1F *histo)
 std::pair<params::measurement, params::measurement  > fitResiduals(TH1 *hist,bool singleTime)
 //*************************************************************
 {
+  
+  assert(hist!=nullptr) ;
+
   if (hist->GetEntries() < 10){ 
     // std::cout<<"hist name: "<<hist->GetName() << std::endl;
     return std::make_pair(std::make_pair(0.,0.),std::make_pair(0.,0.));
