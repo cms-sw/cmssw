@@ -238,7 +238,7 @@ void ClusterTPAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, co
     }
 
   }
-  clusterTPList->sort();
+  clusterTPList->sortAndUnique();
   iEvent.put(std::move(clusterTPList));
 }
 
