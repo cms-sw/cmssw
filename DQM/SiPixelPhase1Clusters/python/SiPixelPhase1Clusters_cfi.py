@@ -172,6 +172,7 @@ SiPixelPhase1ClustersSizeVsEta = DefaultHistoDigiCluster.clone(
   range_y_min =  0, range_y_max = 40, range_y_nbins = 40,
   dimensions = 2,
   specs = VPSet(
+    Specification().groupBy("PXBarrel/PXLayer").save(),
     Specification().groupBy("PXBarrel").save()
   )
 )
