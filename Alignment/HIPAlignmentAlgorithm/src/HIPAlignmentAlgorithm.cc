@@ -157,6 +157,7 @@ void HIPAlignmentAlgorithm::initialize(
             suvarfile.replace(suvarfile.end()-5, suvarfile.end(), iovapp);
           }
 
+          edm::LogInfo("Alignment") << "@SUB=HIPAlignmentAlgorithm::initialize" << "Found the IOV file matching IOV first run " << firstrun;
           findMatchIOV=true;
           break;
         }
