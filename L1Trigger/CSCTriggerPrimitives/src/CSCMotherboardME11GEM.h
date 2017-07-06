@@ -23,13 +23,13 @@ class GEMSuperChamber;
 
 class CSCMotherboardME11GEM : public CSCMotherboard
 {
-  typedef std::pair<unsigned int, const GEMPadDigi> GEMPadBX;
+  typedef std::pair<unsigned int, GEMPadDigi> GEMPadBX;
   typedef std::vector<GEMPadBX> GEMPadsBX;
   typedef std::map<int, GEMPadsBX> GEMPads;
 
  public:
   /** Normal constructor. */
-  CSCMotherboardME11GEM(unsigned endcap, unsigned station, unsigned sector, 
+  CSCMotherboardME11GEM(unsigned endcap, unsigned station, unsigned sector,
 		 unsigned subsector, unsigned chamber,
 		 const edm::ParameterSet& conf);
 
@@ -59,7 +59,7 @@ class CSCMotherboardME11GEM : public CSCMotherboard
   std::vector<CSCCorrelatedLCTDigi> sortLCTsByGEMDPhi(int bx, enum ME11Part = ME1B);
   std::vector<CSCCorrelatedLCTDigi> sortLCTsByGEMDPhi(enum ME11Part = ME1B);
   std::vector<CSCCorrelatedLCTDigi> sortLCTsByGEMDPhi(std::vector<CSCCorrelatedLCTDigi>);
-  
+
   /** Returns vectors of found ALCTs in ME1a and ME1b, if any. */
   std::vector<CSCALCTDigi> getALCTs1b() {return alctV;}
 
@@ -139,29 +139,29 @@ class CSCMotherboardME11GEM : public CSCMotherboard
   int deltaPad(int hs, int pad);
 
   CSCCorrelatedLCTDigi constructLCTsGEM(const CSCALCTDigi& alct, const GEMPadDigi& gem,
-                                        int me, bool oldDataFormat = false); 
+                                        int me, bool oldDataFormat = false);
   CSCCorrelatedLCTDigi constructLCTsGEM(const CSCCLCTDigi& clct, const GEMPadDigi& gem, int roll,
-                                        int me, bool oldDataFormat = true); 
-  CSCCorrelatedLCTDigi constructLCTsGEM(const CSCALCTDigi& alct, const CSCCLCTDigi& clct, 
-					bool hasPad, bool hasCoPad); 
-  
+                                        int me, bool oldDataFormat = true);
+  CSCCorrelatedLCTDigi constructLCTsGEM(const CSCALCTDigi& alct, const CSCCLCTDigi& clct,
+					bool hasPad, bool hasCoPad);
+
   unsigned int encodePatternGEM(const int ptn, const int highPt);
   unsigned int findQualityGEM(const CSCALCTDigi& aLCT, const GEMPadDigi& gem);
   unsigned int findQualityGEM(const CSCCLCTDigi& cLCT, const GEMPadDigi& gem);
-  unsigned int findQualityGEM(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT, 
+  unsigned int findQualityGEM(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT,
 			      bool hasPad, bool hasCoPad);
-  
+
   void printGEMTriggerPads(int minBX, int maxBx, bool iscopad = false);
-  
+
   bool isPadInOverlap(int roll);
-  
-  GEMPadsBX matchingGEMPads(const CSCCLCTDigi& cLCT, const GEMPadsBX& pads = GEMPadsBX(), 
-                            enum ME11Part = ME1B, bool isCopad = false, bool first = true);  
-  GEMPadsBX matchingGEMPads(const CSCALCTDigi& aLCT, const GEMPadsBX& pads = GEMPadsBX(), 
-                            enum ME11Part = ME1B, bool isCopad = false, bool first = true);  
-  GEMPadsBX matchingGEMPads(const CSCCLCTDigi& cLCT, const CSCALCTDigi& aLCT, const GEMPadsBX& pads = GEMPadsBX(), 
-                            enum ME11Part = ME1B, bool isCopad = false, bool first = true);  
-  
+
+  GEMPadsBX matchingGEMPads(const CSCCLCTDigi& cLCT, const GEMPadsBX& pads = GEMPadsBX(),
+                            enum ME11Part = ME1B, bool isCopad = false, bool first = true);
+  GEMPadsBX matchingGEMPads(const CSCALCTDigi& aLCT, const GEMPadsBX& pads = GEMPadsBX(),
+                            enum ME11Part = ME1B, bool isCopad = false, bool first = true);
+  GEMPadsBX matchingGEMPads(const CSCCLCTDigi& cLCT, const CSCALCTDigi& aLCT, const GEMPadsBX& pads = GEMPadsBX(),
+                            enum ME11Part = ME1B, bool isCopad = false, bool first = true);
+
   std::vector<CSCALCTDigi> alctV;
   std::vector<CSCCLCTDigi> clctV1b;
   std::vector<CSCCLCTDigi> clctV1a;
@@ -212,7 +212,7 @@ class CSCMotherboardME11GEM : public CSCMotherboard
   int maxDeltaPadCoPadEven_;
   int maxDeltaBXCoPadOdd_;
   int maxDeltaPadCoPadOdd_;
-  
+
   // Drop low quality stubs if they don't have GEMs
   bool dropLowQualityCLCTsNoGEMs_ME1a_;
   bool dropLowQualityCLCTsNoGEMs_ME1b_;
