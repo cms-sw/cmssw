@@ -51,6 +51,9 @@ class GenericTriggerEventFlag;
 class TrackingMonitor : public DQMEDAnalyzer 
 {
     public:
+        using MVACollection = std::vector<float>;
+        using QualityMaskCollection = std::vector<unsigned char>;
+
         explicit TrackingMonitor(const edm::ParameterSet&);
         ~TrackingMonitor();
         virtual void beginJob(void);
@@ -94,6 +97,9 @@ class TrackingMonitor : public DQMEDAnalyzer
 	edm::InputTag pixelClusterInputTag_;
 	edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > stripClustersToken_;
 	edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > pixelClustersToken_;
+
+	std::vector<std::tuple<edm::EDGetTokenT<MVACollection>, edm::EDGetTokenT<QualityMaskCollection> > > mvaQualityTokens_;
+	edm::EDGetTokenT<edm::View<reco::Track> > mvaTrackToken_;
 
 	std::string Quality_;
 	std::string AlgoName_;
@@ -181,6 +187,7 @@ class TrackingMonitor : public DQMEDAnalyzer
 	bool doGeneralPropertiesPlots_;
 	bool doHitPropertiesPlots_;
 	bool doTkCandPlots;
+	bool doMVAPlots;
 	bool doSeedNumberPlot;
 	bool doSeedLumiAnalysis_;
 	bool doSeedVsClusterPlot;
