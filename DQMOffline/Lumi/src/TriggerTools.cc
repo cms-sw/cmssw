@@ -15,7 +15,7 @@ TriggerObjects TriggerTools::matchHLT(const double eta, const double phi,
   TriggerObjects matchBits;
   for(unsigned int irec=0; irec<triggerRecords.size(); irec++) {     
     for(unsigned int iobj=0; iobj<triggerRecords[irec].objectMap.size(); iobj++) {
-      const std::string   filterName = triggerRecords[irec].objectMap[iobj].first;
+      const std::string   &filterName = triggerRecords[irec].objectMap[iobj].first;
       const unsigned int  filterBit  = triggerRecords[irec].objectMap[iobj].second;
       
       edm::InputTag filterTag(filterName,"","HLT");
