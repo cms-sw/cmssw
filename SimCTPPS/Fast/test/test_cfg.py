@@ -57,7 +57,7 @@ process.load("geometryRP_cfi")
 
 # RP simulation
 process.ctppsFastProtonSimulation = cms.EDProducer("CTPPSFastProtonSimulation",
-  verbosity = cms.untracked.uint32(10),
+  verbosity = cms.untracked.uint32(1),
 
   tagHepMC = cms.InputTag("generator", "unsmeared"),
 

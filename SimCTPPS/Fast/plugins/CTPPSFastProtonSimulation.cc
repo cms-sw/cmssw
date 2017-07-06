@@ -336,19 +336,6 @@ CTPPSFastProtonSimulation::CTPPSFastProtonSimulation(const ParameterSet &ps) :
 
   opticsApproximator_56 = new LHCOpticsApproximator(*opticsApproximator_56);
 
-  // TODO: debug
-  {
-    //mRPOptics[0] = (LHCOpticsApproximator *) f_in_45->Get("ip5_to_station_150_v_1_lhcb2");
-    mRPOptics[2] = (LHCOpticsApproximator *) f_in_45->Get("ip5_to_station_150_h_1_lhcb2");
-    mRPOptics[3] = (LHCOpticsApproximator *) f_in_45->Get("ip5_to_station_150_h_2_lhcb2");
-    //mRPOptics[5] = (LHCOpticsApproximator *) f_in_45->Get("ip5_to_station_150_v_2_lhcb2");
-    //mRPOptics[100] = (LHCOpticsApproximator *) f_in_56->Get("ip5_to_station_150_v_1_lhcb1");
-    mRPOptics[102] = (LHCOpticsApproximator *) f_in_56->Get("ip5_to_station_150_h_1_lhcb1");
-    mRPOptics[103] = (LHCOpticsApproximator *) f_in_56->Get("ip5_to_station_150_h_2_lhcb1");
-    //mRPOptics[105] = (LHCOpticsApproximator *) f_in_56->Get("ip5_to_station_150_v_2_lhcb1");
-  }
-
-  // TODO: uncomment
   delete f_in_45;
   delete f_in_56;
 }
@@ -384,11 +371,9 @@ void CTPPSFastProtonSimulation::produce(edm::Event &event, const EventSetup &es)
   const GenEvent *mcEvent = hepMCProduct->GetEvent();
   for (GenEvent::vertex_const_iterator vit = mcEvent->vertices_begin(); vit != mcEvent->vertices_end(); ++vit)
   {
-    // TODO: revert
-    //const FourVector &vertex = (*vit)->position(); // in mm
-    FourVector vertex = FourVector(0E-3, 100E-3, 0., 0.); // in mm
+    const FourVector &vertex = (*vit)->position(); // in mm
 
-    printf("vertex: x=%f, y=%f, z=%f\n", vertex.x(), vertex.y(), vertex.z());
+    //printf("vertex: x=%f, y=%f, z=%f\n", vertex.x(), vertex.y(), vertex.z());
     
     // loop over outgoing particles
     for (GenVertex::particles_out_const_iterator pit = (*vit)->particles_out_const_begin(); pit != (*vit)->particles_out_const_end(); ++pit)
@@ -397,26 +382,9 @@ void CTPPSFastProtonSimulation::produce(edm::Event &event, const EventSetup &es)
       if ((*pit)->pdg_id() != 2212)
         continue;
 
-      // TODO: revert
-      //const FourVector &momentum = (*pit)->momentum();
-      FourVector momentum = (*pit)->momentum();
+      const FourVector &momentum = (*pit)->momentum();
 
-      // TODO
-      {
-        double th_x = 0E-6;
-        double th_y = 0E-6;
-        double xi = 0.;
-        double p0 = 6500.;
-
-        double p = (1.-xi) * p0;
-        double px = th_x * p;
-        double py = th_y * p;
-        double pz = (momentum.z() > 0) ? p : -p;
-
-        momentum = FourVector(px, py, pz, p);
-      }
-
-      printf("momentum: px=%f, py=%f, pz=%f, E=%f\n", momentum.x(), momentum.y(), momentum.z(), momentum.e());
+      //printf("momentum: px=%f, py=%f, pz=%f, E=%f\n", momentum.x(), momentum.y(), momentum.z(), momentum.e());
 
       // determine the arm of action 
       double th = momentum.theta();
@@ -428,7 +396,7 @@ void CTPPSFastProtonSimulation::produce(edm::Event &event, const EventSetup &es)
       if (arm > 1)
         continue;
 
-      printf("    arm = %u\n", arm);
+      //printf("    arm = %u\n", arm);
 
       // transport proton
       LHCOpticsApproximator *opticsApproximator = (arm == 1) ? opticsApproximator_56 : opticsApproximator_45;
@@ -458,21 +426,8 @@ void CTPPSFastProtonSimulation::produce(edm::Event &event, const EventSetup &es)
       const double b_x_be = kin_be_out[0], b_y_be = kin_be_out[2];
       const double a_x_be = kin_be_out[1], a_y_be = kin_be_out[3];
 
-      printf("    track: ax=%f, bx=%f, ay=%f, by=%f\n", a_x_tr, b_x_tr, a_y_tr, b_y_tr);
-      printf("    beam: ax=%f, bx=%f, ay=%f, by=%f\n", a_x_be, b_x_be, a_y_be, b_y_be);
-
-      // TODO: remove
-      {
-        for (const auto &it : mRPOptics)
-        {
-          if ((it.first / 100) != arm)
-            continue;
-
-          double out[5];
-          it.second->Transport(kin_tr_in, out, check_appertures, invert_beam_coord_sytems);
-          printf("    RP: %u, x = %f, y = %f\n", it.first, out[0]*1e3, out[2]*1e3);
-        }
-      }
+      //printf("    track: ax=%f, bx=%f, ay=%f, by=%f\n", a_x_tr, b_x_tr, a_y_tr, b_y_tr);
+      //printf("    beam: ax=%f, bx=%f, ay=%f, by=%f\n", a_x_be, b_x_be, a_y_be, b_y_be);
 
       // stop if proton not transported
       if (!proton_transported)
