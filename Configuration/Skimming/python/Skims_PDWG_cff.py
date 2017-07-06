@@ -228,7 +228,7 @@ SKIMStreamEXOMONOPOLE = cms.FilteredStream(
         paths = (EXOMONOPOLEPath),
         content = EXOMonopoleAODContent.outputCommands,
         selectEvents = cms.untracked.PSet(),
-        dataTier = cms.untracked.string('AOD')
+        dataTier = cms.untracked.string('USER')
         )
 
 #####################
