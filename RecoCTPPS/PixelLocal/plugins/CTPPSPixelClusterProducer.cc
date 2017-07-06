@@ -28,7 +28,7 @@ void CTPPSPixelClusterProducer::fillDescriptions(edm::ConfigurationDescriptions 
   desc.add<int>("VCaltoElectronGain",50);
   desc.add<int>("VCaltoElectronOffset",-411);
   desc.add<bool>("doSingleCalibration",false); 
- descriptions.add("clusterProd", desc);
+ descriptions.add("ctppsPixelClusters", desc);
 }
 
 void CTPPSPixelClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
