@@ -139,12 +139,6 @@ AlignableAbsData AlignableDataIORoot::readAbsRaw(Alignable* ali,int& ierr)
     pos=pos2;
     rot=rot2;
 
-    // FIXME: Should add reading of deformation values?
-    //        Then call Alignable::setSurfaceDeformation(..) ...
-    // Heshy note: I'm leaving the previous comment here.  The first line
-    //             was fixed by Jered in the lines below.  Should still
-    //             call Alignable::setSurfaceDeformation but this is tricky
-    //             apparently.
     for (unsigned int i = 0; i < numDeformationValues_; ++i) {
       deformPars.push_back((double)deformationValues_[i]);
     }
@@ -176,9 +170,6 @@ AlignableRelData AlignableDataIORoot::readRelRaw(Alignable* ali,int& ierr)
     pos=pos2;
     rot=rot2;
 
-    // FIXME: Should add reading of deformation values?
-    //        Then call Alignable::setSurfaceDeformation(..) ...
-    // Heshy note: See my other note in readAbsRaw, same thing here
     for (unsigned int i = 0; i < numDeformationValues_; ++i) {
       deformPars.push_back((double)deformationValues_[i]);
     }
