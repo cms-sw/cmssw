@@ -31,7 +31,9 @@ RPixCalibDigi(unsigned char row, unsigned char col, unsigned short adc, unsigned
     electrons_ = ele;
   }
 
-RPixCalibDigi() : CTPPSPixelDigi(){}
+RPixCalibDigi() : CTPPSPixelDigi(){
+    electrons_ = 0;
+}
 
   int electrons() const {
     return electrons_;
