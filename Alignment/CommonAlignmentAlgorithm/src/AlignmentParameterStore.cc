@@ -468,8 +468,6 @@ applyAlignableAbsolutePositions(const align::Alignables& alivec, const Alignable
             dold = dold_obj->parameters();
             dtype = (SurfaceDeformationFactory::Type)dold_obj->type();
           }
-          else if (ali->surfaceDeformationIdPairs(dold_id_pairs)>1) edm::LogError("Alignment") << "@SUB=AlignmentParameterStore::applyAlignableAbsolutePositions"
-            << "There are more than one surface deformation id pairs for detector " << id;
 
           // shift needed to move from current to new position
           align::GlobalVector posDiff = pnew - pold;
@@ -560,8 +558,6 @@ applyAlignableRelativePositions(const align::Alignables& alivec, const Alignable
             dold = dold_obj->parameters();
             dtype = (SurfaceDeformationFactory::Type)dold_obj->type();
           }
-          else if (ali->surfaceDeformationIdPairs(dold_id_pairs)>1) edm::LogError("Alignment") << "@SUB=AlignmentParameterStore::applyAlignableRelativePositions"
-            << "There are more than one surface deformation id pairs for detector " << id;
 
           ali->move(ipos->pos());
           ali->rotateInGlobalFrame(ipos->rot());
