@@ -174,4 +174,4 @@ LepHTMonitor = cms.Sequence(  DQMOffline_Ele15_HT600
                             + DQMOffline_Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT350
 )
 
-LepHTClient = cms.Sequence(  DQMOffline_LepHT_POSTPROCESSING )y
+LepHTClient = cms.Sequence(  DQMOffline_LepHT_POSTPROCESSING )
