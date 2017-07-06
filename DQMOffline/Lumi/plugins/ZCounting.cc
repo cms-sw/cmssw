@@ -8,7 +8,7 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 
-#include "DQMOffline/Lumi/interface/MiniBaconDefs.h"
+#include "DQMOffline/Lumi/interface/TriggerDefs.h"
 #include "DQMOffline/Lumi/interface/TTrigger.h"
 #include "DQMOffline/Lumi/interface/TriggerTools.h"
 
@@ -424,20 +424,18 @@ void ZCounting::initHLT(const edm::TriggerResults& result, const edm::TriggerNam
 }
 
 //--------------------------------------------------------------------------------------------------
-bool ZCounting::isMuonTrigger(ZCountingTrigger::TTrigger triggerMenu, TriggerBits hltBits)
+bool ZCounting::isMuonTrigger(const ZCountingTrigger::TTrigger &triggerMenu, const TriggerBits &hltBits)
 {
-  return triggerMenu.pass("HLT_IsoMu24_v*",hltBits);
-  //return triggerMenu.pass("HLT_IsoMu27_v*",hltBits);
+  return triggerMenu.pass("HLT_IsoMu27_v*",hltBits);
 }
 
 //--------------------------------------------------------------------------------------------------
-bool ZCounting::isMuonTriggerObj(ZCountingTrigger::TTrigger triggerMenu, TriggerObjects hltMatchBits)
+bool ZCounting::isMuonTriggerObj(const ZCountingTrigger::TTrigger &triggerMenu, const TriggerObjects &hltMatchBits)
 {
-  return triggerMenu.passObj("HLT_IsoMu24_v*","hltL3crIsoL1sSingleMu22L1f0L2f10QL3f24QL3trkIsoFiltered0p07",hltMatchBits);
-  //return triggerMenu.passObj("HLT_IsoMu27_v*","hltL3crIsoL1sMu22Or25L1f0L2f10QL3f27QL3trkIsoFiltered0p07",hltMatchBits);
+  return triggerMenu.passObj("HLT_IsoMu27_v*","hltL3crIsoL1sMu22Or25L1f0L2f10QL3f27QL3trkIsoFiltered0p07",hltMatchBits);
 }
 //--------------------------------------------------------------------------------------------------
-bool ZCounting::passMuonID(const reco::Muon& muon, const reco::Vertex& vtx, const MuonIDTypes idType)
+bool ZCounting::passMuonID(const reco::Muon& muon, const reco::Vertex& vtx, const MuonIDTypes &idType)
 {//Muon ID selection, using internal function "DataFormats/MuonReco/src/MuonSelectors.cc
 
   if     (idType == LooseID  && muon::isLooseMuon(muon))      return true;
@@ -447,7 +445,7 @@ bool ZCounting::passMuonID(const reco::Muon& muon, const reco::Vertex& vtx, cons
   else                                                        return false;
 }
 //--------------------------------------------------------------------------------------------------
-bool ZCounting::passMuonIso(const reco::Muon& muon, const MuonIsoTypes isoType, const float isoCut)
+bool ZCounting::passMuonIso(const reco::Muon& muon, const MuonIsoTypes &isoType, const float isoCut)
 {//Muon isolation selection, up-to-date with MUO POG recommendation
 
     if(isoType == TrackerIso && muon.isolationR03().sumPt < isoCut) return true;

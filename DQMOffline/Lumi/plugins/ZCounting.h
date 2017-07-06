@@ -23,7 +23,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-#include "DQMOffline/Lumi/interface/MiniBaconDefs.h"
+#include "DQMOffline/Lumi/interface/TriggerDefs.h"
 #include "DQMOffline/Lumi/interface/TTrigger.h"
 #include "DQMOffline/Lumi/interface/TriggerTools.h"
 
@@ -59,10 +59,10 @@ protected:
 
 private:
   //other functions
-  bool isMuonTrigger(ZCountingTrigger::TTrigger triggerMenu, TriggerBits hltBits);
-  bool isMuonTriggerObj(ZCountingTrigger::TTrigger triggerMenu, TriggerObjects hltMatchBits);
-  bool passMuonID(const reco::Muon& muon, const reco::Vertex& vtx, const MuonIDTypes idType);
-  bool passMuonIso(const reco::Muon& muon, const MuonIsoTypes isoType, const float isoCut);
+  bool isMuonTrigger(const ZCountingTrigger::TTrigger &triggerMenu, const TriggerBits &hltBits);
+  bool isMuonTriggerObj(const ZCountingTrigger::TTrigger &triggerMenu, const TriggerObjects &hltMatchBits);
+  bool passMuonID(const reco::Muon& muon, const reco::Vertex& vtx, const MuonIDTypes &idType);
+  bool passMuonIso(const reco::Muon& muon, const MuonIsoTypes &isoType, const float isoCut);
 
   // initialization from HLT menu; needs to be called on every change in HLT menu
   void initHLT(const edm::TriggerResults&, const edm::TriggerNames&);
