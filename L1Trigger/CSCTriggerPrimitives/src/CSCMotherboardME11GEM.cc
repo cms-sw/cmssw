@@ -996,7 +996,13 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
         const int bx_clct_stop(bx_alct + match_trig_window_size/2);
 
         // matching in ME1b
-        if (buildLCTfromCLCTandGEM_ME1b_) {
+        if (buildLCTfromCLCTandGEM_ME1b_ and not allLCTs1b[bx_alct][0][0].isValid()) {
+          if (debug_gem_matching){
+            std::cout << "========================================================================" << std::endl;
+            std::cout <<"GEM-CLCT matching in ME1/b chamber: "<< cscChamberME1b->id()<< "in bx:"<<bx_alct<<std::endl;
+            std::cout << "------------------------------------------------------------------------" << std::endl;
+          }
+
           for (int bx_clct = bx_clct_start; bx_clct <= bx_clct_stop; bx_clct++) {
             if (bx_clct < 0 or bx_clct >= CSCCathodeLCTProcessor::MAX_CLCT_BINS) continue;
             if (drop_used_clcts and used_clct_mask[bx_clct]) continue;
@@ -1012,6 +1018,7 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
                 std::cout << "Successful GEM-CLCT match in ME1b: bx_alct = " << bx_alct
                           << "; match window: [" << bx_clct_start << "; " << bx_clct_stop
                           << "]; bx_clct = " << bx_clct << std::endl;
+                std::cout << "+++ Best CLCT Details: " << clct->bestCLCT[bx_clct] << std::endl;
                 if (not clct->secondCLCT[bx_clct].isValid())
                   std::cout << "+++ Second CLCT INVALID" << std::endl;
                 else
@@ -1026,7 +1033,12 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
         }
 
         // matching in ME1a
-        if (buildLCTfromCLCTandGEM_ME1a_) {
+        if (buildLCTfromCLCTandGEM_ME1a_ and not allLCTs1a[bx_alct][0][0].isValid()) {
+          if (debug_gem_matching){
+            std::cout << "========================================================================" << std::endl;
+            std::cout <<"GEM-CLCT matching in ME1/a chamber: "<< cscChamberME1a->id()<< "in bx:"<<bx_alct<<std::endl;
+            std::cout << "------------------------------------------------------------------------" << std::endl;
+          }
           for (int bx_clct = bx_clct_start; bx_clct <= bx_clct_stop; bx_clct++) {
             if (bx_clct < 0 || bx_clct >= CSCCathodeLCTProcessor::MAX_CLCT_BINS) continue;
             if (drop_used_clcts && used_clct_mask_1a[bx_clct]) continue;
@@ -1042,6 +1054,7 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
                 std::cout << "Successful GEM-CLCT match in ME1a: bx_alct = " << bx_alct
                           << "; match window: [" << bx_clct_start << "; " << bx_clct_stop
                           << "]; bx_clct = " << bx_clct << std::endl;
+                std::cout << "+++ Best CLCT Details: " << clct1a->bestCLCT[bx_clct] << std::endl;
                 if (not clct1a->secondCLCT[bx_clct].isValid())
                   std::cout << "+++ Second CLCT INVALID" << std::endl;
                 else
