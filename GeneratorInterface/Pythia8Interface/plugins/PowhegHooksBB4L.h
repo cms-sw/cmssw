@@ -1,5 +1,4 @@
 // PowhegHooksBB4L.h 
-// Copyright (C) 2017 Tomas Jezo, Markus Seidel, Ben Nachman 
 
 // Author: Tomas Jezo, Markus Seidel and Ben Nachman based on 
 // PowhegHooks.h by Richard Corke
@@ -58,15 +57,15 @@ public:
 			// No radiating resonance found
 			scale = 0.8;
 		}
-		else if (abs(event[iRes].id()) == 6) {
+		else if (std::abs(event[iRes].id()) == 6) {
 			// Find top daughters
 			int idw = -1, idb = -1, idg = -1;
 			
 			for (int i = 0; i < nDau; i++) {
 				int iDau = event[iRes].daughterList()[i];
-				if (abs(event[iDau].id()) == 24) idw = iDau;
-				if (abs(event[iDau].id()) ==  5) idb = iDau;
-				if (abs(event[iDau].id()) == 21) idg = iDau;
+				if (std::abs(event[iDau].id()) == 24) idw = iDau;
+				if (std::abs(event[iDau].id()) ==  5) idb = iDau;
+				if (std::abs(event[iDau].id()) == 21) idg = iDau;
 			}
 			
 			// Get daughter 4-vectors in resonance frame
@@ -133,6 +132,7 @@ public:
 
 
 	inline double getdechardness(int topcharge, const Event &e){
+		// construct pdg ids of top and its decay products
 		int tid = 6*topcharge, wid = 24*topcharge, bid = 5*topcharge, gid = 21, wildcard = 0;
 		// find last top in the record
 		int i_top = -1;
@@ -254,7 +254,7 @@ public:
 			// find the top resonance the radiator originates from
 			int iTop = e[iRadBef].mother1();
 			int distance = 1;
-			while (abs(e[iTop].id()) != 6 && iTop > 0) {
+			while (std::abs(e[iTop].id()) != 6 && iTop > 0) {
 				iTop = e[iTop].mother1();
 				distance ++;
 			}
@@ -272,7 +272,7 @@ public:
 			if (e[iRadBef].id() == 21)
 				scale = gSplittingScale(pt, pr, pe);
 			// quark emitting a gluon
-			else if (abs(e[iRadBef].id()) <= 5)
+			else if (std::abs(e[iRadBef].id()) <= 5)
 				scale = qSplittingScale(pt, pr, pe);
 			// other stuff (which we should not veto)
 			else {

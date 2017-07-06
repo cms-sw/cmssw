@@ -36,6 +36,7 @@ bool ResonanceDecayFilterHook::initAfterBeams() {
     if ( (did == 2 || did==3 || did==4 || did==5 ) && udscbAsEquivalent_) {
       did = 1;
     }
+
     ++requestedDaughters_[std::abs(did)];
   }
   
@@ -64,13 +65,14 @@ bool ResonanceDecayFilterHook::checkVetoResonanceDecays(const Event& process) {
     }
     if ( (did == 14 || did == 16) && allNuAsEquivalent_) {
       did = 12;
-    }    
+    }   
     if ( (did == 2 || did==3 || did==4 ) && udscAsEquivalent_) {
       did = 1;
     }
     if ( (did == 2 || did==3 || did==4 || did==5 ) && udscbAsEquivalent_) {
       did = 1;
     } 
+    
     int mid = p.mother1()>0 ? std::abs(process[p.mother1()].id()) : 0;
     
     //if no list of mothers is provided, then all particles
