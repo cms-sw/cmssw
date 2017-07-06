@@ -57,7 +57,7 @@ private:
   ForwardSubdetector              myFwdSubdet_;
   double                          slopeMin_;
   int                             levelT_;
-  bool                            rejectMB_, waferRot_;
+  bool                            storeAllG4Hits_, rejectMB_, waferRot_;
   double                          mouseBiteCut_;
   std::vector<double>             angles_;
 };

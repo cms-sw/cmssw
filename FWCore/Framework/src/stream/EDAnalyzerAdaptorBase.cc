@@ -123,6 +123,13 @@ EDAnalyzerAdaptorBase::modulesWhoseProductsAreConsumed(std::vector<ModuleDescrip
   return m_streamModules[0]->modulesWhoseProductsAreConsumed(modules, preg, labelsToDesc, processName);
 }
 
+void
+EDAnalyzerAdaptorBase::convertCurrentProcessAlias(std::string const& processName) {
+  for(auto mod: m_streamModules) {
+    mod->convertCurrentProcessAlias(processName);
+  }
+}
+
 std::vector<edm::ConsumesInfo>
 EDAnalyzerAdaptorBase::consumesInfo() const {
   assert(not m_streamModules.empty());
@@ -213,20 +220,6 @@ void
 EDAnalyzerAdaptorBase::doRespondToOpenInputFile(FileBlock const&){}
 void
 EDAnalyzerAdaptorBase::doRespondToCloseInputFile(FileBlock const&){}
-void
-EDAnalyzerAdaptorBase::doPreForkReleaseResources()
-{
-  for(auto mod: m_streamModules) {
-    mod->preForkReleaseResources();
-  }
-}
-void
-EDAnalyzerAdaptorBase::doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren)
-{
-  for(auto mod: m_streamModules) {
-    mod->postForkReacquireResources(iChildIndex,iNumberOfChildren);
-  }
-}
 
 void
 EDAnalyzerAdaptorBase::setModuleDescriptionPtr(EDAnalyzerBase* m) {

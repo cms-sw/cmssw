@@ -81,6 +81,7 @@ private:
   //paramters
   const float bxWidth;              // ns
   bool         useCusGeoFor1PartGeo      ; //Use custom strips and partitions for digitization for single partition geometry
+  bool         usePads                   ; //sets strip granularity to x2 coarser
   unsigned int numberOfStrips     ; // Custom number of strips per partition
   unsigned int numberOfPartitions; // Custom number of partitions per chamber
   double       neutronAcceptance ; // fraction of neutron events to keep in event (>= 1 means no filtering)

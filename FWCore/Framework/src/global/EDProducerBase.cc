@@ -187,16 +187,6 @@ namespace edm {
       //respondToCloseInputFile(fb);
     }
     
-    void
-    EDProducerBase::doPreForkReleaseResources() {
-      preForkReleaseResources();
-    }
-    
-    void
-    EDProducerBase::doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {
-      postForkReacquireResources(iChildIndex, iNumberOfChildren);
-    }
-    
     void EDProducerBase::preallocStreams(unsigned int) {}
     void EDProducerBase::doBeginStream_(StreamID id){}
     void EDProducerBase::doEndStream_(StreamID id) {}

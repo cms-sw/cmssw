@@ -65,15 +65,21 @@ hConversionsToken_ = consumes<reco::ConversionCollection>(iConfig.getParameter<e
     efficiencyLoader_ = pat::helper::EfficiencyLoader(iConfig.getParameter<edm::ParameterSet>("efficiencies"), consumesCollector());
   }
   // PFCluster Isolation maps
-  addPFClusterIso_   = iConfig.getParameter<bool>("addPFClusterIso");
   addPuppiIsolation_   = iConfig.getParameter<bool>("addPuppiIsolation");
   if (addPuppiIsolation_){
     PUPPIIsolation_charged_hadrons_ = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("puppiIsolationChargedHadrons"));
     PUPPIIsolation_neutral_hadrons_ = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("puppiIsolationNeutralHadrons"));
     PUPPIIsolation_photons_ = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("puppiIsolationPhotons"));
   }
-  ecalPFClusterIsoT_ = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("ecalPFClusterIsoMap"));
-  hcalPFClusterIsoT_ = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("hcalPFClusterIsoMap"));
+  addPFClusterIso_   = iConfig.getParameter<bool>("addPFClusterIso");
+  if (addPFClusterIso_)
+  {
+    ecalPFClusterIsoT_ = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("ecalPFClusterIsoMap"));
+    auto hcPFC = iConfig.getParameter<edm::InputTag>("hcalPFClusterIsoMap");
+    if (not hcPFC.label().empty())
+      hcalPFClusterIsoT_ = consumes<edm::ValueMap<float> >(hcPFC);
+  }
+
   // photon ID configurables
   addPhotonID_ = iConfig.getParameter<bool>( "addPhotonID" );
   if (addPhotonID_) {
@@ -114,7 +120,7 @@ hConversionsToken_ = consumes<reco::ConversionCollection>(iConfig.getParameter<e
   }
   // produces vector of photons
   produces<std::vector<Photon> >();
-
+  
   // read isoDeposit labels, for direct embedding
   readIsolationLabels(iConfig, "isoDeposits", isoDepositLabels_, isoDepositTokens_);
   // read isolation value labels, for direct embedding
@@ -411,10 +417,16 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
     if (addPFClusterIso_) {
       edm::Handle<edm::ValueMap<float> > ecalPFClusterIsoMapH;
       iEvent.getByToken(ecalPFClusterIsoT_, ecalPFClusterIsoMapH);
-      edm::Handle<edm::ValueMap<float> > hcalPFClusterIsoMapH;
-      iEvent.getByToken(hcalPFClusterIsoT_, hcalPFClusterIsoMapH);
       aPhoton.setEcalPFClusterIso((*ecalPFClusterIsoMapH)[photonRef]);
-      aPhoton.setHcalPFClusterIso((*hcalPFClusterIsoMapH)[photonRef]);
+      edm::Handle<edm::ValueMap<float> > hcalPFClusterIsoMapH;
+      if (not hcalPFClusterIsoT_.isUninitialized()){
+	iEvent.getByToken(hcalPFClusterIsoT_, hcalPFClusterIsoMapH);
+	aPhoton.setHcalPFClusterIso((*hcalPFClusterIsoMapH)[photonRef]);
+      }
+      else
+      {
+	aPhoton.setHcalPFClusterIso(-999.);
+      }
     } else {
       aPhoton.setEcalPFClusterIso(-999.);
       aPhoton.setHcalPFClusterIso(-999.);
