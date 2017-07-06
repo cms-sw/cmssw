@@ -56,6 +56,7 @@ namespace std {
 ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config) :
   photonT_(consumes<reco::PhotonCollection>(config.getParameter<edm::InputTag>("photons"))),
   gsfElectronT_(consumes<reco::GsfElectronCollection>(config.getParameter<edm::InputTag>("gsfElectrons"))),
+  gsfTrackT_(consumes<reco::GsfTrackCollection>(config.getParameter<edm::InputTag>("gsfTracks"))),  //add by Hien
   conversionT_(consumes<reco::ConversionCollection>(config.getParameter<edm::InputTag>("conversions"))),
   singleConversionT_(consumes<reco::ConversionCollection>(config.getParameter<edm::InputTag>("singleConversions"))),
   barrelEcalHits_(consumes<EcalRecHitCollection>(config.getParameter<edm::InputTag>("barrelEcalHits"))),
@@ -64,7 +65,6 @@ ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config) :
   preshowerEcalHits_(doPreshowerEcalHits_ ? consumes<EcalRecHitCollection>(config.getParameter<edm::InputTag>("preshowerEcalHits")) : edm::EDGetTokenT<EcalRecHitCollection>()),
   photonPfCandMapT_(consumes<edm::ValueMap<std::vector<reco::PFCandidateRef> > >(config.getParameter<edm::InputTag>("photonsPFValMap"))),
   gsfElectronPfCandMapT_(consumes<edm::ValueMap<std::vector<reco::PFCandidateRef> > >(config.getParameter<edm::InputTag>("gsfElectronsPFValMap"))),
-  gsfTrackT_(consumes<reco::GsfTrackCollection>(config.getParameter<edm::InputTag>("gsfTracks"))),  //add by Hien
   //output collections
   outPhotons_("reducedGedPhotons"),
   outPhotonCores_("reducedGedPhotonCores"),
