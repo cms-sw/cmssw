@@ -567,18 +567,21 @@ _sequenceForEachEra(_addSelectorsByOriginalAlgoMask, modDict = globals(),
                     names = "_selectorsByAlgoMask", sequence = "_tracksValidationSelectorsByAlgoMaskStandalone")
 
 # Select pT>0.9 by iteration
+# Need to avoid generalTracks+HP because those are already included in the standard validator
 _sequenceForEachEra(_addSelectorsBySrc, modDict = globals(),
-                    args = ["_selectorsByAlgoAndHp"], plainArgs = ["Pt09", "generalTracksPt09"],
+                    args = ["_selectorsByAlgoAndHpNoGenTk"], plainArgs = ["Pt09", "generalTracksPt09"],
                     names = "_selectorsPt09Standalone", sequence = "_tracksValidationSelectorsPt09Standalone")
 
 # Select fromPV by iteration
+# Need to avoid generalTracks+HP because those are already included in the standard validator
 _sequenceForEachEra(_addSelectorsBySrc, modDict = globals(),
-                    args = ["_selectorsByAlgoAndHp"], plainArgs = ["FromPV", "generalTracksFromPV"],
+                    args = ["_selectorsByAlgoAndHpNoGenTk"], plainArgs = ["FromPV", "generalTracksFromPV"],
                     names = "_selectorsFromPVStandalone", sequence = "_tracksValidationSelectorsFromPVStandalone")
 
 # Select pt>0.9 and fromPV by iteration
+# Need to avoid generalTracks+HP because those are already included in the standard validator
 _sequenceForEachEra(_addSelectorsBySrc, modDict = globals(),
-                    args = ["_selectorsByAlgoAndHp"], plainArgs = ["FromPVPt09", "generalTracksFromPVPt09"],
+                    args = ["_selectorsByAlgoAndHpNoGenTk"], plainArgs = ["FromPVPt09", "generalTracksFromPVPt09"],
                     names = "_selectorsFromPVPt09Standalone", sequence = "_tracksValidationSelectorsFromPVPt09Standalone")
 
 # MTV instances
