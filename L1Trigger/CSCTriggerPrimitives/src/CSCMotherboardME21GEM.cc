@@ -236,6 +236,12 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
       auto eta(isEven ? lut_wg_eta_even[i][1] : lut_wg_eta_odd[i][1]);
       cscWgToGemRoll_[i] = assignGEMRoll(eta);
     }
+    cscWgToGemRoll_[107] = 1;
+    cscWgToGemRoll_[108] = 1;
+    cscWgToGemRoll_[109] = 1;
+    cscWgToGemRoll_[110] = 1;
+    cscWgToGemRoll_[111] = 1;
+
     if (debug_luts){
       for(auto p : cscWgToGemRoll_) {
         std::cout << "WG "<< p.first << " GEM roll " << p.second << std::endl;
@@ -895,7 +901,7 @@ CSCCorrelatedLCTDigi CSCMotherboardME21GEM::constructLCTsGEM(const CSCALCTDigi& 
 {
   if (hasPad)   std::cout << "Constructing CLCT-ALCT-1GEM LCT" << std::endl;
   if (hasCoPad) std::cout << "Constructing CLCT-ALCT-2GEM LCT" << std::endl;
-  if (not hasPad and not hasCoPad) std::cout << "Constructing ALCT-CLCT LCT without GEM!!" << std::endl;
+  if (not hasPad and not hasCoPad) std::cout << "Constructing ME21 ALCT-CLCT LCT without GEM!!" << std::endl;
 
   // CLCT pattern number
   unsigned int pattern = encodePattern(cLCT.getPattern(), cLCT.getStripType());
@@ -1145,7 +1151,7 @@ CSCMotherboardME21GEM::matchingGEMPads(const CSCCLCTDigi& clct, const GEMPadsBX&
     }
     auto padRoll((p.second).pad());
     int pad_bx = (p.second).bx()+lct_central_bx;
-    if (debug) std::cout << "Candidate CLCT: " << padRoll << std::endl;
+    if (debug) std::cout << "Candidate CLCT: " << p.second << std::endl;
     if (std::abs(clct_bx-pad_bx)>deltaBX) continue;
     if (std::abs(lowPad - padRoll) <= deltaPad or std::abs(padRoll - highPad) <= deltaPad){
       if (debug) std::cout << "++Matches! " << std::endl;
@@ -1195,7 +1201,7 @@ CSCMotherboardME21GEM::matchingGEMPads(const CSCCLCTDigi& clct, const CSCALCTDig
 
   const bool debug(true);
   if (debug) std::cout << "-----------------------------------------------------------------------"<<std::endl;
-  if (debug) std::cout << "Finding common pads"<<std::endl;
+  if (debug) std::cout << "Finding ommon pads"<<std::endl;
   // Check if the pads overlap
   for (const auto& p : padsAlct){
     if (debug) std::cout<< "Candidate ALCT: " << p.first << " " << p.second << std::endl;
