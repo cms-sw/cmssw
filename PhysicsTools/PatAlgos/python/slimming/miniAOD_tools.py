@@ -189,6 +189,7 @@ def miniAOD_customizeCommon(process):
 	 valueLabels = cms.vstring('pt','emEnergyFraction'),
 	 lazyParser = cms.bool(True) )
     task.add(process.caloJetMap)
+    process.patJets.userData.userFloats.src += [ cms.InputTag("caloJetMap:pt"), cms.InputTag("caloJetMap:emEnergyFraction") ]
 
     #Muon object modifications 
     from PhysicsTools.PatAlgos.slimming.muonIsolationsPUPPI_cfi import makeInputForPUPPIIsolationMuon
