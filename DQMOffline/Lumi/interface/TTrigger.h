@@ -2,7 +2,7 @@
 #define DQMOFFLINE_LUMI_TTRIGGER_H
 
 #include "DQMOffline/Lumi/interface/TriggerRecord.h"       // class to handle user specified trigger info
-#include "DQMOffline/Lumi/interface/MiniBaconDefs.h"
+#include "DQMOffline/Lumi/interface/TriggerDefs.h"
 
 namespace ZCountingTrigger
 {
@@ -13,12 +13,10 @@ namespace ZCountingTrigger
       ~TTrigger(){}
 
       // Methods
-      int  getTriggerBit(const std::string iName) const;
-      int  getTriggerObjectBit(const std::string iName, const int iLeg) const;
-      int  getTriggerObjectBit(const std::string iName, const std::string iObjName) const;
-      bool pass(const std::string iName, const TriggerBits &iTrig) const;
-      bool passObj(const std::string iName, const int iLeg,             const TriggerObjects &iTrigObj) const;
-      bool passObj(const std::string iName, const std::string iObjName, const TriggerObjects &iTrigObj) const;
+      int  getTriggerBit(const std::string &iName) const;
+      int  getTriggerObjectBit(const std::string &iName, const std::string &iObjName) const;
+      bool pass(const std::string &iName, const TriggerBits &iTrig) const;
+      bool passObj(const std::string &iName, const std::string &iObjName, const TriggerObjects &iTrigObj) const;
 
       std::vector<ZCountingTrigger::TriggerRecord> fRecords;
   };

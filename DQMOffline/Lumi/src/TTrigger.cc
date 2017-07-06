@@ -24,14 +24,12 @@ using namespace ZCountingTrigger;
 //
 TTrigger::TTrigger() { 
 
-  fRecords.push_back(ZCountingTrigger::TriggerRecord("HLT_IsoMu24_v*",0));
-  //fRecords.push_back(ZCountingTrigger::TriggerRecord("HLT_IsoMu27_v*",0));
-  fRecords.back().objectMap.push_back(std::pair<std::string, int>("hltL3crIsoL1sSingleMu22L1f0L2f10QL3f24QL3trkIsoFiltered0p07",0));
-  //fRecords.back().objectMap.push_back(std::pair<std::string, int>("hltL3crIsoL1sMu22Or25L1f0L2f10QL3f27QL3trkIsoFiltered0p07",0));    
+  fRecords.push_back(ZCountingTrigger::TriggerRecord("HLT_IsoMu27_v*",0));
+  fRecords.back().objectMap.push_back(std::pair<std::string, int>("hltL3crIsoL1sMu22Or25L1f0L2f10QL3f27QL3trkIsoFiltered0p07",0));    
 }
 
 //--------------------------------------------------------------------------------------------------
-int TTrigger::getTriggerBit(const std::string iName) const { 
+int TTrigger::getTriggerBit(const std::string &iName) const { 
   int lId = -1;
   for(unsigned int i0 = 0; i0 < fRecords.size(); i0++) { 
     if(iName == fRecords[i0].hltPattern) lId = i0;    
@@ -41,37 +39,7 @@ int TTrigger::getTriggerBit(const std::string iName) const {
 }
 
 //--------------------------------------------------------------------------------------------------
-int TTrigger::getTriggerObjectBit(const std::string iName, const int iLeg) const { 
-  int lId = getTriggerBit(iName);
-  if(lId == -1) return -1;
-
-  //
-  // Assumes trigger object legs are numbered 1,2,3, etc.
-  // The logic below looks for index changes in the objectMap.
-  // For example, if looking for the trigger object bit for leg 3, looping through the objectMap
-  // list one needs to find the 3rd unique object bit associated with the trigger record.
-  //
-  if(iLeg==1) {
-    return fRecords[lId].objectMap[0].second;
-  }
-  int tmp = 1;
-  unsigned int lastObjIndex = fRecords[lId].objectMap[0].second;
-  for(unsigned int i0 = 1; i0 < fRecords[lId].objectMap.size(); i0++) {
-    unsigned int newId = fRecords[lId].objectMap[i0].second;
-    if(lastObjIndex != newId) {
-      lastObjIndex = newId;
-      tmp++;
-      if(tmp==iLeg) {
-        return fRecords[lId].objectMap[i0].second;
-      }
-    }
-  }
-
-  return -1;
-}
-
-//--------------------------------------------------------------------------------------------------
-int TTrigger::getTriggerObjectBit(const std::string iName, const std::string iObjName) const {
+int TTrigger::getTriggerObjectBit(const std::string &iName, const std::string &iObjName) const {
   int lId = getTriggerBit(iName);
   if(lId == -1) return -1;
 
@@ -84,7 +52,7 @@ int TTrigger::getTriggerObjectBit(const std::string iName, const std::string iOb
 }
 
 //--------------------------------------------------------------------------------------------------
-bool TTrigger::pass(const std::string iName, const TriggerBits &iTrig) const {
+bool TTrigger::pass(const std::string &iName, const TriggerBits &iTrig) const {
   int lId = getTriggerBit(iName);
   if(lId == -1) return false;
 
@@ -92,15 +60,7 @@ bool TTrigger::pass(const std::string iName, const TriggerBits &iTrig) const {
 }
 
 //--------------------------------------------------------------------------------------------------
-bool TTrigger::passObj(const std::string iName, const int iLeg, const TriggerObjects &iTrigObj) const {
-  int lId = getTriggerObjectBit(iName,iLeg);
-  if(lId == -1) return false;
-
-  return iTrigObj[lId];
-}
-
-//--------------------------------------------------------------------------------------------------
-bool TTrigger::passObj(const std::string iName, const std::string iObjName, const TriggerObjects &iTrigObj) const {
+bool TTrigger::passObj(const std::string &iName, const std::string &iObjName, const TriggerObjects &iTrigObj) const {
   int lId = getTriggerObjectBit(iName,iObjName);
   if(lId == -1) return false;
 

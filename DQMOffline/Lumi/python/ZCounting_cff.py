@@ -7,12 +7,12 @@ zcounting = cms.EDAnalyzer('ZCounting',
                                  edmName       = cms.untracked.string('muons'),
                                  edmTrackName = cms.untracked.string('generalTracks'),
 
-                                 IDType   = cms.untracked.string("Medium"),# Tight, Medium, Loose
+                                 IDType   = cms.untracked.string("Tight"),# Tight, Medium, Loose
                                  IsoType  = cms.untracked.string("NULL"),  # Tracker-based, PF-based
                                  IsoCut   = cms.untracked.double(0.),     # {0.05, 0.10} for Tracker-based, {0.15, 0.25} for PF-based
 
-                                 PtCutL1  = cms.untracked.double(27.0),
-                                 PtCutL2  = cms.untracked.double(27.0),
+                                 PtCutL1  = cms.untracked.double(30.0),
+                                 PtCutL2  = cms.untracked.double(30.0),
                                  EtaCutL1 = cms.untracked.double(2.4),
                                  EtaCutL2 = cms.untracked.double(2.4),
 
@@ -20,7 +20,7 @@ zcounting = cms.EDAnalyzer('ZCounting',
                                  MassMin  = cms.untracked.double(66.0),
                                  MassMax  = cms.untracked.double(116.0),
 
-                                 LumiBin  = cms.untracked.int32(500),
+                                 LumiBin  = cms.untracked.int32(2500),
                                  LumiMin  = cms.untracked.double(0.0),
                                  LumiMax  = cms.untracked.double(2500.0),
 
