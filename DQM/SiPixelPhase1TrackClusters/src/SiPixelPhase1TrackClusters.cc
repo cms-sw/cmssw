@@ -21,25 +21,39 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 
 
 SiPixelPhase1TrackClusters::SiPixelPhase1TrackClusters(const edm::ParameterSet& iConfig) :
   SiPixelPhase1Base(iConfig) 
 {
   clustersToken_ = consumes<edmNew::DetSetVector<SiPixelCluster>>(iConfig.getParameter<edm::InputTag>("clusters"));
+
   tracksToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"));
+
+  offlinePrimaryVerticesToken_ = consumes<reco::VertexCollection>(std::string("offlinePrimaryVertices"));
+
+  applyVertexCut_=iConfig.getUntrackedParameter<bool>("VertexCut",true);
 }
 
 void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+
+  if (! (histo.size() > ONTRACK_SIZE_VS_ETA)) return;
 
   // get geometry
   edm::ESHandle<TrackerGeometry> tracker;
   iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
   assert(tracker.isValid());
   
+  edm::Handle<reco::VertexCollection> vertices;
+  iEvent.getByToken(offlinePrimaryVerticesToken_, vertices);
+
+  if (applyVertexCut_ && (!vertices.isValid() || vertices->size() == 0)) return;
+
   //get the map
   edm::Handle<reco::TrackCollection> tracks;
   iEvent.getByToken( tracksToken_, tracks);
+
   if ( !tracks.isValid() ) {
     edm::LogWarning("SiPixelPhase1TrackClusters")  << "track collection is not valid";
     return;
@@ -48,6 +62,7 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
   // get clusters
   edm::Handle< edmNew::DetSetVector<SiPixelCluster> >  clusterColl;
   iEvent.getByToken( clustersToken_, clusterColl );
+
   if ( !clusterColl.isValid() ) {
     edm::LogWarning("SiPixelPhase1TrackClusters")  << "pixel cluster collection is not valid";
     return;
@@ -59,8 +74,11 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
   // corr_charge is not strictly needed but cleaner to have it.
   std::vector<bool>  ontrack    (clusterColl->data().size(), false);
   std::vector<float> corr_charge(clusterColl->data().size(), -1.0f);
+  std::vector<float> etatk(clusterColl->data().size(), -1.0f);
 
   for (auto const & track : *tracks) {
+
+    if (applyVertexCut_ && (track.pt() < 0.75 || std::abs( track.dxy(vertices->at(0).position()) ) > 5*track.dxyError())) continue;
 
     bool isBpixtrack = false, isFpixtrack = false, crossesPixVol=false;
 
@@ -100,6 +118,7 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
                                                           1.0/pow( tan(clust_beta ), 2 ) + 
                                                           1.0 ));
       corr_charge[clust.key()] = (float) corrCharge;
+      etatk[clust.key()]=(float) track.eta();
     }
 
     // statistics on tracks
@@ -142,6 +161,7 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
         histo[ONTRACK_SIZE      ].fill(double(cluster.size()  ), id, &iEvent);
         histo[ONTRACK_POSITION_B].fill(clustgp.z(),   clustgp.phi(),   id, &iEvent);
         histo[ONTRACK_POSITION_F].fill(clustgp.x(),   clustgp.y(),     id, &iEvent);
+	histo[ONTRACK_SIZE_VS_ETA].fill(etatk[key], cluster.sizeY(), id, &iEvent);
       } else {
         histo[OFFTRACK_NCLUSTERS ].fill(id, &iEvent);
         histo[OFFTRACK_CHARGE    ].fill(double(cluster.charge()), id, &iEvent);
