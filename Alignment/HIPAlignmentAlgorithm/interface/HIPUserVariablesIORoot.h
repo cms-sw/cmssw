@@ -6,22 +6,29 @@
 
 /** concrete class for ROOT based IO of AlignmentUserVariables */
 
-class HIPUserVariablesIORoot : public AlignmentIORootBase, public AlignmentUserVariablesIO{
-public:
+class HIPUserVariablesIORoot : public AlignmentIORootBase,
+                                 public AlignmentUserVariablesIO
+{
+
+  public:
+
   typedef std::vector<Alignable*> Alignables;
 
   /** constructor */
-  HIPUserVariablesIORoot();
+  HIPUserVariablesIORoot(); 
 
   /** write user variables */
-  void writeHIPUserVariables(const Alignables& alivec, const char* filename, int iter, bool validCheck, int& ierr);
+  void writeHIPUserVariables (const Alignables& alivec, 
+    const char* filename, int iter, bool validCheck, int& ierr);
 
   /** read user variables */
-  std::vector<AlignmentUserVariables*> readHIPUserVariables(const Alignables& alivec, const char* filename, int iter, int& ierr);
+  std::vector<AlignmentUserVariables*> readHIPUserVariables 
+    (const Alignables& alivec, const char* filename, int iter, int& ierr);
 
 
 
-private:
+  private:
+
   /** write AlignmentParameters of one Alignable */
   int writeOne(Alignable* ali);
 
@@ -29,14 +36,15 @@ private:
   AlignmentUserVariables* readOne(Alignable* ali, int& ierr);
 
   /** open IO */
-  int open(const char* filename, int iteration, bool writemode){ newopen=true; return openRoot(filename, iteration, writemode); }
+  int open(const char* filename, int iteration, bool writemode)
+    {newopen=true; return openRoot(filename,iteration,writemode);};
 
   /** close IO */
-  int close(void){ return closeRoot(); }
+  int close(void) {return closeRoot();};
 
   // helper functions
 
-  int findEntry(unsigned int detId, int comp);
+  int findEntry(unsigned int detId,int comp);
   void createBranches(void);
   void setBranchAddresses(void);
 
@@ -47,8 +55,7 @@ private:
   /** alignment parameter tree */
   int ObjId;
   unsigned int Id;
-  int Nhit, Nparj, Npare;
-  int DataType;
+  int Nhit,Nparj,Npare;
   double Jtvj[nparmax*(nparmax+1)/2];
   double Jtve[nparmax];
   double AlignableChi2;
@@ -57,7 +64,7 @@ private:
   double ParError[nparmax];
 
   bool newopen;
-  typedef  std::map< std::pair<int, int>, int > treemaptype;
+  typedef  std::map< std::pair<int,int> , int > treemaptype;
   treemaptype treemap;
 
 };

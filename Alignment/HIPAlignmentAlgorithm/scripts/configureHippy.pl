@@ -9,17 +9,6 @@ $datafile1 = $ARGV[1];
 $iovrange = $ARGV[2];
 $incommoncfg = $ARGV[3];
 $inaligncfg = $ARGV[4];
-$intrkselcfg = $ARGV[5];
-$inuseSurfDef = $ARGV[6];
-
-$strUseSD = "";
-if ($inuseSurfDef == 0){
-   $strUseSD = "False";
-}
-else{
-   $strUseSD = "True";
-}
-
 
 open (datafile1) or die "Can't open the file!";
 @dataFileInput1 = <datafile1>;
@@ -27,7 +16,7 @@ open (datafile1) or die "Can't open the file!";
 open (iovrange) or die "Can't open the iovfile!";
 @iovInput1 = <iovrange>;
 
-print "IOV file: $iovrange \n";
+print "iovfile: $iovrange \n";
 
 $j = 0;
 $k = 0;
@@ -37,7 +26,7 @@ foreach $iovv ( @iovInput1) {
    $iovstr .= "$iovv,";
 }
 chop($iovstr);
-print "IOVs: $iovstr\n";
+print "$iovstr";
 
 system( "
 mkdir -p $odir/main/;
@@ -51,44 +40,28 @@ cp scripts/runControl.csh $odir/main/;
 cp scripts/checkError.sh $odir/main/;
 ");
 $success*=replace( "$odir/common_cff_py.txt", "<iovs>", "$iovstr" );
-$success*=replace( "$odir/common_cff_py.txt", "<SURFDEFOPT>", "$strUseSD" );
 
 foreach $data1 ( @dataFileInput1 ) {
 
-   chomp $data1;
-   next if (index($data1, '#') >= 0);
-
-   my @dataspecs = split(',', $data1);
-   $datafile = $dataspecs[0];
-   #($dataskim,$path,$suffix) = fileparse($datafile,,qr"\..[^.]*$");
-   $trkselfile = $dataspecs[1];
-   chomp $trkselfile;
-   $flag = $dataspecs[2];
-   $flaglower = lc($flag);
-   if ( $trkselfile eq "" ){
-      $trkselfile = "$flaglower\TrackSelection_cff_py.txt";
-   }
-   print "Picking track selection configuration from $trkselfile \n";
-   $flagopts = "NOOPTS";
-   if (defined($dataspecs[3])){
-      print "A flag option is defined.\n";
-      $flagopts = $dataspecs[3];
-   }
-   else{
-      print "No flag option is defined.\n";
-   }
+   $data1 =~ m/\,/;
+   $datafile = $`;
+   $flag1 = $';
+   $flag1 =~ m/$/;
+   $flag = $`;
+   #$flag = $';
 
    print "Output directory: $odir \n";
    print "Datafile: $datafile \n";
-   print "Flag: $flag \n";
-   print "Flag options: $flagopts \n";
 
    # open datafile, get skim name
    open (datafile) or die "Can't open the file!";
    @dataFileInput = <datafile>;
 
+   #$dataskim = basename( $datafile, ".dat" );
+   ($dataskim,$path,$suffix) = fileparse($datafile,,qr"\..[^.]*$");
+
    system( "
-   cp $intrkselcfg/$trkselfile $odir/;
+   cp python/$dataskim\TrackSelection_cff_py.txt $odir/.;
    " );
 
 
@@ -98,43 +71,39 @@ foreach $data1 ( @dataFileInput1 ) {
    @commonFileInput = <COMMON>;
 
    # open selections
-   $SELECTION = "$odir/$trkselfile";
+   $SELECTION = "$odir/$dataskim\TrackSelection_cff_py.txt";
    open (SELECTION) or die "Can't open the file!";
    @selectionsInput = <SELECTION>;
 
    ## setting up parallel jobs
    foreach $data ( @dataFileInput ) {
-      chomp($data);
-      if ( ( $data ne "" ) and ( index($data, '#') == -1 ) ){
-         $jsuccess=1;
-         $j++;
-         # do stuff
-         # print "$data";
-         system( "
-         mkdir -p $odir/job$j;
-         cp $odir/align_tpl_py.txt $odir/job$j/align_cfg.py;
-         cp $odir/runScript.csh $odir/job$j/;
-         " );
-         # run script
-         open OUTFILE,"$odir/job$j/runScript.csh";
-         insertBlock( "$odir/job$j/align_cfg.py", "<COMMON>", @commonFileInput );
-         insertBlock( "$odir/job$j/align_cfg.py", "<SELECTION>", @selectionsInput );
-         # $success*=replaces for align job
-         $jsuccess*=replace( "$odir/job$j/align_cfg.py", "<FILE>", "$data" );
-         $jsuccess*=replace( "$odir/job$j/align_cfg.py", "<PATH>", "$odir/job$j" );
-         #$jsuccess*=replace( "$odir/job$j/align_cfg.py", "<SKIM>", "$dataskim" );
-         $jsuccess*=replace( "$odir/job$j/align_cfg.py", "<FLAGOPTS>", "$flagopts" );
-         $jsuccess*=replace( "$odir/job$j/align_cfg.py", "<FLAG>", "$flag" );
-         # $success*=replaces for runScript
-         $jsuccess*=replace( "$odir/job$j/runScript.csh", "<ODIR>", "$odir/job$j" );
-         $jsuccess*=replace( "$odir/job$j/runScript.csh", "<JOBTYPE>", "align_cfg.py" );
-         close OUTFILE;
-         system "chmod a+x $odir/job$j/runScript.csh";
-         if ($jsuccess == 0){
-            print "Job $j did not setup successfully. Decrementing job number back.\n";
-            system "rm -rf $odir/job$j";
-            $j--;
-         }
+      $jsuccess=1;
+      $j++;
+      # do stuff
+      # print "$data";
+      system( "
+      mkdir -p $odir/job$j;
+      cp $odir/align_tpl_py.txt $odir/job$j/align_cfg.py;
+      cp $odir/runScript.csh $odir/job$j/.;
+      " );
+      # run script
+      open OUTFILE,"$odir/job$j/runScript.csh";
+      insertBlock( "$odir/job$j/align_cfg.py", "<COMMON>", @commonFileInput );
+      insertBlock( "$odir/job$j/align_cfg.py", "<SELECTION>", @selectionsInput );
+      # $success*=replaces for align job
+      $jsuccess*=replace( "$odir/job$j/align_cfg.py", "<FILE>", "$data" );
+      $jsuccess*=replace( "$odir/job$j/align_cfg.py", "<PATH>", "$odir/job$j" );
+      $jsuccess*=replace( "$odir/job$j/align_cfg.py", "<SKIM>", "$dataskim" );
+      $jsuccess*=replace( "$odir/job$j/align_cfg.py", "<FLAG>", "$flag" );
+      # $success*=replaces for runScript
+      $jsuccess*=replace( "$odir/job$j/runScript.csh", "<ODIR>", "$odir/job$j" );
+      $jsuccess*=replace( "$odir/job$j/runScript.csh", "<JOBTYPE>", "align_cfg.py" );
+      close OUTFILE;
+      system "chmod a+x $odir/job$j/runScript.csh";
+      if ($jsuccess == 0){
+         print "Job $j did nor setup successfully. Decrementing job number back.\n";
+         system "rm -rf $odir/job$j";
+         $j--;
       }
    }
 
@@ -142,8 +111,8 @@ foreach $data1 ( @dataFileInput1 ) {
 }
 
 foreach $iov ( @iovInput1) {
+   print "$iov";
    chomp($iov);
-   print "Configuring IOV $iov\n";
    $k++;
    system( "
    cp $odir/upload_tpl_py.txt $odir/upload_cfg_$k.py;
