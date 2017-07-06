@@ -4,8 +4,8 @@
  * September 2016
  *
  **********************************************************************/
-#ifndef RecoCTPPS_PixelCluster_DET_CLUSTERIZER_H
-#define RecoCTPPS_PixelCluster_DET_CLUSTERIZER_H
+#ifndef RecoCTPPS_PixelLocal_RPixDetClusterizer_H
+#define RecoCTPPS_PixelLocal_RPixDetClusterizer_H
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
