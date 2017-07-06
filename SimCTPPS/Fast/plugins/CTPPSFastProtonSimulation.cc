@@ -249,6 +249,9 @@ class CTPPSFastProtonSimulation : public edm::EDProducer
 
     /// angular limit to distinguish between forward, central and backward particles
     double thetaLimit;
+
+    /// whether the beam position should be subracted from hit positions
+    bool produceHitsRelativeToBeam;
     
     /// whether measurement values shall be rounded to the nearest strip
     bool roundToPitch;
@@ -268,6 +271,8 @@ class CTPPSFastProtonSimulation : public edm::EDProducer
     double vtx0_y_45, vtx0_y_56;
     double half_crossing_angle_45, half_crossing_angle_56;
 
+    std::map<unsigned int, LHCOpticsApproximator *> mRPOptics;
+
     virtual void produce(edm::Event &, const edm::EventSetup&) override;
 };
 
@@ -286,6 +291,7 @@ CTPPSFastProtonSimulation::CTPPSFastProtonSimulation(const ParameterSet &ps) :
     tokenHepMC(consumes<HepMCProduct>(ps.getParameter<InputTag>("tagHepMC"))),
 
     thetaLimit(ps.getParameter<double>("thetaLimit")),
+    produceHitsRelativeToBeam(ps.getParameter<bool>("produceHitsRelativeToBeam")),
     roundToPitch(ps.getParameter<bool>("roundToPitch")),
     pitch(ps.getParameter<double>("pitch")),
 
@@ -330,6 +336,19 @@ CTPPSFastProtonSimulation::CTPPSFastProtonSimulation(const ParameterSet &ps) :
 
   opticsApproximator_56 = new LHCOpticsApproximator(*opticsApproximator_56);
 
+  // TODO: debug
+  {
+    //mRPOptics[0] = (LHCOpticsApproximator *) f_in_45->Get("ip5_to_station_150_v_1_lhcb2");
+    mRPOptics[2] = (LHCOpticsApproximator *) f_in_45->Get("ip5_to_station_150_h_1_lhcb2");
+    mRPOptics[3] = (LHCOpticsApproximator *) f_in_45->Get("ip5_to_station_150_h_2_lhcb2");
+    //mRPOptics[5] = (LHCOpticsApproximator *) f_in_45->Get("ip5_to_station_150_v_2_lhcb2");
+    //mRPOptics[100] = (LHCOpticsApproximator *) f_in_56->Get("ip5_to_station_150_v_1_lhcb1");
+    mRPOptics[102] = (LHCOpticsApproximator *) f_in_56->Get("ip5_to_station_150_h_1_lhcb1");
+    mRPOptics[103] = (LHCOpticsApproximator *) f_in_56->Get("ip5_to_station_150_h_2_lhcb1");
+    //mRPOptics[105] = (LHCOpticsApproximator *) f_in_56->Get("ip5_to_station_150_v_2_lhcb1");
+  }
+
+  // TODO: uncomment
   delete f_in_45;
   delete f_in_56;
 }
@@ -345,17 +364,18 @@ CTPPSFastProtonSimulation::~CTPPSFastProtonSimulation()
 void CTPPSFastProtonSimulation::produce(edm::Event &event, const EventSetup &es)
 {
   if (verbosity > 5)
-    printf("\n>> CTPPSFastProtonSimulation::produce > event %llu\n", event.id().event());
+  {
+    printf("\n--------------------------------------------------------------------------------------\n");
+    printf(">> CTPPSFastProtonSimulation::produce > event %llu\n", event.id().event());
+  }
 
   // get input
   Handle<HepMCProduct> hepMCProduct;
   event.getByToken(tokenHepMC, hepMCProduct);
 
   // get geometry
-  printf("dupa1\n");
   ESHandle<TotemRPGeometry> geometry;
   es.get<VeryForwardMisalignedGeometryRecord>().get(geometry);
-  printf("dupa2\n");
 
   // prepare output
   unique_ptr<DetSetVector<TotemRPRecHit>> stripHitColl(new DetSetVector<TotemRPRecHit>());
@@ -364,7 +384,9 @@ void CTPPSFastProtonSimulation::produce(edm::Event &event, const EventSetup &es)
   const GenEvent *mcEvent = hepMCProduct->GetEvent();
   for (GenEvent::vertex_const_iterator vit = mcEvent->vertices_begin(); vit != mcEvent->vertices_end(); ++vit)
   {
-    const FourVector &vertex = (*vit)->position(); // in mm
+    // TODO: revert
+    //const FourVector &vertex = (*vit)->position(); // in mm
+    FourVector vertex = FourVector(0E-3, 100E-3, 0., 0.); // in mm
 
     printf("vertex: x=%f, y=%f, z=%f\n", vertex.x(), vertex.y(), vertex.z());
     
@@ -375,7 +397,24 @@ void CTPPSFastProtonSimulation::produce(edm::Event &event, const EventSetup &es)
       if ((*pit)->pdg_id() != 2212)
         continue;
 
-      const FourVector &momentum = (*pit)->momentum();
+      // TODO: revert
+      //const FourVector &momentum = (*pit)->momentum();
+      FourVector momentum = (*pit)->momentum();
+
+      // TODO
+      {
+        double th_x = 0E-6;
+        double th_y = 0E-6;
+        double xi = 0.;
+        double p0 = 6500.;
+
+        double p = (1.-xi) * p0;
+        double px = th_x * p;
+        double py = th_y * p;
+        double pz = (momentum.z() > 0) ? p : -p;
+
+        momentum = FourVector(px, py, pz, p);
+      }
 
       printf("momentum: px=%f, py=%f, pz=%f, E=%f\n", momentum.x(), momentum.y(), momentum.z(), momentum.e());
 
@@ -394,6 +433,7 @@ void CTPPSFastProtonSimulation::produce(edm::Event &event, const EventSetup &es)
       // transport proton
       LHCOpticsApproximator *opticsApproximator = (arm == 1) ? opticsApproximator_56 : opticsApproximator_45;
       const double opticsZ0 = (arm == 1) ? opticsZ0_56 : opticsZ0_45;
+      const double z_sign = (arm == 1) ? +1. : -1.;
       const double vtx0_y = (arm == 1) ? vtx0_y_56 : vtx0_y_45;
       const double half_crossing_angle = (arm == 1) ? half_crossing_angle_56 : half_crossing_angle_45;
 
@@ -403,17 +443,36 @@ void CTPPSFastProtonSimulation::produce(edm::Event &event, const EventSetup &es)
       const double th_x_phys = momentum.x() / p;
       const double th_y_phys = momentum.y() / p;
 
-      double kin_tr_in[5] = { vertex.x(), (th_x_phys + half_crossing_angle) * (1.-xi), vertex.y() + vtx0_y, th_y_phys * (1.-xi), -xi };
-      double kin_be_in[5] = { 0., half_crossing_angle, vtx0_y, 0., 0. };
-
       const bool check_appertures = false;
       const bool invert_beam_coord_sytems = true;
 
+      double kin_tr_in[5] = { vertex.x()*1E-3, (th_x_phys + half_crossing_angle) * (1.-xi), vertex.y()*1E-3 + vtx0_y, th_y_phys * (1.-xi), -xi };
       double kin_tr_out[5];
-      double kin_be_out[5];
-
       bool proton_transported = opticsApproximator->Transport(kin_tr_in, kin_tr_out, check_appertures, invert_beam_coord_sytems);
+      const double b_x_tr = kin_tr_out[0], b_y_tr = kin_tr_out[2];
+      const double a_x_tr = kin_tr_out[1]/(1.-xi), a_y_tr = kin_tr_out[3]/(1.-xi);
+
+      double kin_be_in[5] = { 0., half_crossing_angle, vtx0_y, 0., 0. };
+      double kin_be_out[5];
       opticsApproximator->Transport(kin_be_in, kin_be_out, check_appertures, invert_beam_coord_sytems);
+      const double b_x_be = kin_be_out[0], b_y_be = kin_be_out[2];
+      const double a_x_be = kin_be_out[1], a_y_be = kin_be_out[3];
+
+      printf("    track: ax=%f, bx=%f, ay=%f, by=%f\n", a_x_tr, b_x_tr, a_y_tr, b_y_tr);
+      printf("    beam: ax=%f, bx=%f, ay=%f, by=%f\n", a_x_be, b_x_be, a_y_be, b_y_be);
+
+      // TODO: remove
+      {
+        for (const auto &it : mRPOptics)
+        {
+          if ((it.first / 100) != arm)
+            continue;
+
+          double out[5];
+          it.second->Transport(kin_tr_in, out, check_appertures, invert_beam_coord_sytems);
+          printf("    RP: %u, x = %f, y = %f\n", it.first, out[0]*1e3, out[2]*1e3);
+        }
+      }
 
       // stop if proton not transported
       if (!proton_transported)
@@ -424,137 +483,60 @@ void CTPPSFastProtonSimulation::produce(edm::Event &event, const EventSetup &es)
       {
         // so far only works for strips
         CTPPSDetId detId(it->first);
-        if (detId.subdetId() != CTPPSDetId::sdTrackingPixel)
+        if (detId.subdetId() != CTPPSDetId::sdTrackingStrip)
+          continue;
+
+        // is in the correct arm?
+        if (detId.arm() != arm)
           continue;
 
         // get geometry
         Hep3Vector gl_o = geometry->LocalToGlobal(detId, Hep3Vector(0, 0, 0));
 
-        cout << TotemRPDetId(it->first) << "z = " << gl_o.z() << endl;
-      }
-    
-#if 0
-      // loop over all stations of the arm
-      const set<unsigned int> stations = geom->StationsInArm(arm);
-      for (set<unsigned int>::const_iterator st = stations.begin(); st != stations.end(); ++st)
-      {
-        //printf("station %u\n", *st);
-        // beam misalignment for the station
-        map<unsigned int, BeamMisalignment>::iterator bm = bms.find(*st);
-  
-        const set<unsigned int> RPs = geom->RPsInStation(*st);
-        for (set<unsigned int>::const_iterator rp = RPs.begin(); rp != RPs.end(); ++rp)
-        {
-            //printf("RP %u\n", *rp);
-            // center of the RP box, in mm
-            double z0 = geom->GetRPDevice(*rp)->translation().z();
-        
-            // optical functions for the RP
-            LHCOpticsApproximator *of = optFun->GetFunction(*rp);
-            if (!of)
-              throw cms::Exception("CTPPSFastProtonSimulation::produce") << "No optical function found for RP " << *rp;
-        
-            // get position and direction of the proton at the center of the RP box
-            double xi = p.e() / optPar->GetBeamEnergy() - 1.;
-            double parIn[5] = {vertex.x() * 1E-3, p.x()/p.rho(), vertex.y() * 1E-3, p.y()/p.rho(), xi};
-            double parOut[5]; // in m, rad and xi dimensionless
-            bool transportable = of->Transport(parIn, parOut, true);
-        
-            if (verbosity > 5)
-              printf("RP%u\tz0 = %E\t p.z = %E\t transportable = %i, beam type = %i\n", *rp, z0, p.z(), transportable, of->GetBeamType());
-  
-            if (verbosity > 8)
-            {
-              printf("param input:  %E\t%E\t%E\t%E\t%E\n", parIn[0], parIn[1], parIn[2], parIn[3], parIn[4]);
-              printf("param output: %E\t%E\t%E\t%E\t%E\n", parOut[0], parOut[1], parOut[2], parOut[3], parOut[4]);
-            }
-        
-            // do not continue if the proton is stopped
-            if (!transportable)
-              continue;
-        
-            // collection of hits
-            vector<RPRecoHit> hits;
-  
-            // u and v hit counter
-            unsigned uHits = 0, vHits = 0;
-        
-            // loop over all detectors within the RP
-            set<unsigned int> dets = geom->DetsInRP(*rp);
-            for (set<unsigned int>::iterator dit = dets.begin(); dit != dets.end(); ++dit)
-            {
-              // calculate hit position in global coordinates
-              unsigned int rawId = TotRPDetId::DecToRawId(*dit);
-              double z = geom->GetDetector(rawId)->translation().z(); // in mm
-              double x = parOut[0]*1E3  + parOut[1] * (z - z0); // in mm
-              double y = parOut[2]*1E3  + parOut[3] * (z - z0); // in mm
-  
-              // apply beam misalignment
-              if (bm != bms.end())
-              {
-                double dx = 0., dy = 0.; // in mm
-                bm->second.CalculateShift(z, dx, dy);
-                x += dx;
-                y += dy;
-              }
-        
-              if (verbosity > 5)
-                printf("\t%u\t%u\t%E\t%e\t%E\n", *dit, rawId, z, x, y);
-        
-              // convert to local coordinates
-              CLHEP::Hep3Vector hit(x, y, z);
-              hit = geom->GlobalToLocal(rawId, hit);
-              double u = hit.x(); // in mm
-              double v = hit.y(); // in mm
-        
-              // is it within detector?
-              if (!RPTopology::IsHit(u, v, insensitiveMargin))
-                continue;
-  
-              if (TotRPDetId::IsStripsCoordinateUDirection(*dit))
-                uHits++;
-              else
-                vHits++;
-        
-              // round the measurement
-              if (roundToPitch)
-              {
-                double m = stripZeroPosition - v;
-                signed int strip = (int) floor(m / pitch);
-                double offset = m - strip*pitch;
-                double dstrip = 0.;
-        
-                if (offset < dscrStart)
-                {
-                  dstrip = 0.;
-                } else {
-                  if (offset < dscrEnd)
-                    dstrip = 0.5;
-                  else
-                    dstrip = 1.;
-                }
-        
-                v = stripZeroPosition - pitch * (strip + dstrip);
-                if (verbosity > 5)
-                  printf(" | stripZeroPosition = %+8.4f, strip = %+6.1f", stripZeroPosition, strip+dstrip);
-              }
-        
-              if (verbosity > 5)
-                printf("\t\tv = %E\n", v);
-        
-              hits.push_back(RPRecoHit(rawId, v, pitch / sqrt(12.)));
-            }
-        
-            if (verbosity > 5)
-              printf("\tRP %i has %lu hits\n", *rp, hits.size());
-        
-            // insert to output collection
-            bool fittable = (uHits > minUVSensorsPerRP && vHits > minUVSensorsPerRP);
-            (*output)[*rp] = RPTrackCandidate(hits, fittable);
-        }
-      }
-#endif
+        // evaluate positions (in mm) of track and beam
+        const double de_z = (gl_o.z() - opticsZ0) * z_sign;
 
+        const double x_tr = a_x_tr * de_z + b_x_tr * 1E3;
+        const double y_tr = a_y_tr * de_z + b_y_tr * 1E3;
+
+        const double x_be = a_x_be * de_z + b_x_be * 1E3;
+        const double y_be = a_y_be * de_z + b_y_be * 1E3;
+
+        /*
+        cout << TotemRPDetId(it->first) << ", z = " << gl_o.z() << ", de z = " << (gl_o.z() - opticsZ0) <<
+          " | track: x=" << x_tr << ", y=" << y_tr <<
+          " | beam: x=" << x_be << ", y=" << y_be <<
+          endl;
+        */
+
+        // global hit in coordinates "aligned to beam" (as in the RP alignment)
+        Hep3Vector h_glo = (produceHitsRelativeToBeam) ? Hep3Vector(x_tr - x_be, y_tr - y_be, gl_o.z()) :
+          Hep3Vector(x_tr, y_tr, gl_o.z());
+
+        // transform hit global to local coordinates
+        Hep3Vector h_loc = geometry->GlobalToLocal(detId, h_glo);
+
+        double u = h_loc.x();
+        double v = h_loc.y();
+
+        // is it within detector?
+        if (!RPTopology::IsHit(u, v, insensitiveMargin))
+          continue;
+
+        // round the measurement
+        if (roundToPitch)
+        {
+          double m = stripZeroPosition - v;
+          signed int strip = (int) floor(m / pitch + 0.5);
+
+          v = stripZeroPosition - pitch * strip;
+        }
+
+        const double sigma = pitch / sqrt(12.);
+
+        DetSet<TotemRPRecHit> &hits = stripHitColl->find_or_insert(detId);
+        hits.push_back(TotemRPRecHit(v, sigma));
+      }
     }
   }
 

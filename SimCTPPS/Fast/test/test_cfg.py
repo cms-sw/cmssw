@@ -32,7 +32,7 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 # particle generator
 process.generator = cms.EDProducer("RandomtXiGunProducer",
-  Verbosity = cms.untracked.int32(10),
+  Verbosity = cms.untracked.int32(0),
 
   FireBackward = cms.bool(True),
   FireForward = cms.bool(True),
@@ -42,7 +42,7 @@ process.generator = cms.EDProducer("RandomtXiGunProducer",
     ECMS = cms.double(13E3),
 
     Mint = cms.double(0),
-    Maxt = cms.double(0.1),
+    Maxt = cms.double(1),
     MinXi = cms.double(0.05),
     MaxXi = cms.double(0.010),
 
@@ -53,7 +53,7 @@ process.generator = cms.EDProducer("RandomtXiGunProducer",
 
 
 # geometry
-process.load("Geometry.VeryForwardGeometry.geometryRP_cfi")
+process.load("geometryRP_cfi")
 
 # RP simulation
 process.ctppsFastProtonSimulation = cms.EDProducer("CTPPSFastProtonSimulation",
@@ -79,17 +79,31 @@ process.ctppsFastProtonSimulation = cms.EDProducer("CTPPSFastProtonSimulation",
   half_crossing_angle_45 = cms.double(+179.394E-6),
   half_crossing_angle_56 = cms.double(+191.541E-6),
 
+  produceHitsRelativeToBeam = cms.bool(False),
+
   roundToPitch = cms.bool(False),
   pitch = cms.double(66E-3), # mm
 
   insensitiveMargin = cms.double(34E-3)  # mm
 )
 
+process.geomInfo = cms.EDAnalyzer("GeometryInfoModule")
+
 process.eca = cms.EDAnalyzer("EventContentAnalyzer")
+
+from RecoCTPPS.TotemRPLocal.totemRPUVPatternFinder_cfi import *
+process.load("RecoCTPPS.TotemRPLocal.totemRPUVPatternFinder_cfi")
+process.totemRPUVPatternFinder.tagRecHit = cms.InputTag("ctppsFastProtonSimulation")
+
+from RecoCTPPS.TotemRPLocal.totemRPLocalTrackFitter_cfi import *
+process.load("RecoCTPPS.TotemRPLocal.totemRPLocalTrackFitter_cfi")
 
 # processing sequence
 process.p = cms.Path(
     process.generator
+    #* process.geomInfo
     #* process.eca
     * process.ctppsFastProtonSimulation
+    * process.totemRPUVPatternFinder
+    * process.totemRPLocalTrackFitter
 )
