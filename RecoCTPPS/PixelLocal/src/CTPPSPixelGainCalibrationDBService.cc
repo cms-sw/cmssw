@@ -30,8 +30,8 @@ void CTPPSPixelGainCalibrationDBService::getDB(const edm::Event& iEvent, const e
 
  edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("CTPPSPixelGainCalibrationsRcd"));
  if( recordKey.type() == edm::eventsetup::EventSetupRecordKey::TypeTag()) {
-  //record not found
-   edm::LogError(" CTPPSPixelGainCalibrationDBService")<<"Record CTPPSPixelGainCalibrationsRcd does not exist ";
+  //record not found   
+   throw cms::Exception("CTPPSPixelGainCalibrationService") << "Record CTPPSPixelGainCalibrationsRcd does not exist";
  }
  edm::ESHandle<CTPPSPixelGainCalibrations> calhandle;
  iSetup.get<CTPPSPixelGainCalibrationsRcd>().get(calhandle);
