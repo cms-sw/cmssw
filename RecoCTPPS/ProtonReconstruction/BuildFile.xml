@@ -1,0 +1,10 @@
+<use name="root"/>
+<use name="rootmath"/>
+<use name="rootrflx"/>
+
+<use name="RecoCTPPS/OpticsParametrization"/>
+<use name="SimDataFormats/CTPPS"/>
+
+<export>
+  <lib name="1"/>
+</export>
