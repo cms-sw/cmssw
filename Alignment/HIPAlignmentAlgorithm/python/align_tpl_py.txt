@@ -1,94 +1,147 @@
-import FWCore.ParameterSet.Config as cms
-
-process = cms.Process("Alignment")
-process.load("Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi")
-process.load("RecoTracker.FinalTrackSelectors.TrackerTrackHitFilter_cff")
-#process.load("RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilderWithoutRefit_cfi")
-process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
-process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
-
 # "including" common configuration
 <COMMON>
 
-if 'COSMICS'=='<FLAG>' :
-    process.source = cms.Source("PoolSource",
-#                                useCSA08Kludge = cms.untracked.bool(True),
-                                fileNames = cms.untracked.vstring(<FILE>)
-                                )
-elif 'CDCS'=='<FLAG>' :
-    process.source = cms.Source("PoolSource",
-#                                useCSA08Kludge = cms.untracked.bool(True),
-                                fileNames = cms.untracked.vstring(<FILE>)
-                                )
-else :
-    process.source = cms.Source("PoolSource",
-                                #useCSA08Kludge = cms.untracked.bool(True),
-                                fileNames = cms.untracked.vstring(<FILE>)      
-                                )
-    import FWCore.PythonUtilities.LumiList as LumiList
-    process.source.lumisToProcess = LumiList.LumiList(filename ='/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/DCSOnly/json_DCSONLY.txt').getVLuminosityBlockRange()
-    
-process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
+strflag="<FLAG>"
+strflaglower=strflag.lower()
+strflagopts="<FLAGOPTS>"
+
+from Alignment.HIPAlignmentAlgorithm.OptionParser.HipPyOptionParser import HipPyOptionParser
+from Alignment.HIPAlignmentAlgorithm.OptionParser.HipPyOptionParser import matchPSetsByRecord
+from Alignment.HIPAlignmentAlgorithm.OptionParser.HipPyOptionParser import mergeVPSets
+optpy=HipPyOptionParser(strflag,strflagopts)
+
+# Track collection name is now interpreted from the flag and may be replaced if an option is specified
+# optpy.trkcoll is guaranteed to exist, else python should have already given an error.
+strtrackcollname=optpy.trkcoll
+
+# Replace GT specifics if a custom option is specified
+if hasattr(optpy, "GlobalTag"):
+   process.GlobalTag.globaltag = optpy.GlobalTag
+if hasattr(optpy, "GTtoGet"):
+   process.GlobalTag.toGet = mergeVPSets(process.GlobalTag.toGet, optpy.GTtoGet, matchPSetsByRecord)
+
+###############################################################################
+# Setup common options
+strTTRHBuilder = "WithAngleAndTemplate"
+if "generic" in optpy.CPEtype: # CPE type is defaulted to "template" in HipPyOptionParser
+  strTTRHBuilder = "WithTrackAngle"
+###############################################################################
+
+
+sourceFileList=[
+  <FILE>
+]
+if strflaglower == "cosmics":
+  process.source = cms.Source("PoolSource",
+                              #useCSA08Kludge = cms.untracked.bool(True),
+                              fileNames = cms.untracked.vstring(sourceFileList)
+                              )
+elif strflaglower == "cdcs":
+  process.source = cms.Source("PoolSource",
+                              #useCSA08Kludge = cms.untracked.bool(True),
+                              fileNames = cms.untracked.vstring(sourceFileList)
+                              )
+else:
+  process.source = cms.Source("PoolSource",
+                              #useCSA08Kludge = cms.untracked.bool(True),
+                              fileNames = cms.untracked.vstring(sourceFileList)
+                              )
+
+if hasattr(optpy, "LumiJSON"):
+   import FWCore.PythonUtilities.LumiList as LumiList
+   process.source.lumisToProcess = optpy.LumiJSON
+
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 
 # "including" selection for this track sample
 <SELECTION>
 
 # parameters for HIP
-if 'MBVertex'=='<FLAG>':
-   process.AlignmentProducer.tjTkAssociationMapTag = 'TrackRefitter2'
-elif 'ZMuMuMomConstr'=='<FLAG>':
-   process.AlignmentProducer.tjTkAssociationMapTag = 'TrackRefitter3'
-elif 'ZMuMuFull'=='<FLAG>':
-   process.AlignmentProducer.tjTkAssociationMapTag = 'TrackRefitter4'
-elif 'Y1SMuMuMomConstr'=='<FLAG>':
-   process.AlignmentProducer.tjTkAssociationMapTag = 'TrackRefitter3'
-elif 'Y1SMuMuFull'=='<FLAG>':
-   process.AlignmentProducer.tjTkAssociationMapTag = 'TrackRefitter4'
-elif 'COSMICS'=='<FLAG>':
-   process.AlignmentProducer.tjTkAssociationMapTag = 'TrackRefitter2'
-elif 'CDCS'=='<FLAG>':
-   process.AlignmentProducer.tjTkAssociationMapTag = 'TrackRefitter2'
-else :
-   process.AlignmentProducer.tjTkAssociationMapTag = 'TrackRefitter2'
+process.AlignmentProducer.tjTkAssociationMapTag = 'FinalTrackRefitter'
+
 # process.AlignmentProducer.hitPrescaleMapTag= 'TkAlHitAssoMapCTF' #if this is not empty, turn on the usage of prescaled hits
 process.AlignmentProducer.hitPrescaleMapTag=''
+
+# Outpath is empty here because input (./) and output directories are different, and HIP does not have inputpath.
 process.AlignmentProducer.algoConfig.outpath = ''
-process.AlignmentProducer.algoConfig.uvarFile = '<PATH>/IOUserVariables.root'
-###process.AlignmentProducer.algoConfig.uvarFile = './IOUserVariables.root'
+outfileList = [
+   "uvarFile",
+#   "alignedFile",
+   "misalignedFile",
+   "trueFile",
+   "parameterFile",
+#   "iterationFile",
+#   "outfile2",
+   "surveyFile"
+]
+monitorfileList=[
+   "outfile"
+]
+strcommonoutpath = '<PATH>/'
+for key in outfileList:
+   val = str(getattr(process.AlignmentProducer.algoConfig, key).value())
+   fname = val.split('/')[-1]
+   fname = strcommonoutpath + fname
+   setattr(process.AlignmentProducer.algoConfig, key, fname)
+for key in monitorfileList:
+   val = str(getattr(process.AlignmentProducer.algoConfig.monitorConfig, key).value())
+   fname = val.split('/')[-1]
+   fname = strcommonoutpath + fname
+   setattr(process.AlignmentProducer.algoConfig.monitorConfig, key, fname)
 
 #when etaCutRW=0, there's no eta cut and the eventWeight will apply to all hits.
-
 # TEC disk 1-9 in +z half : 470311204,470327588,470343972,470360388,470376772,470393156,470409572,470425956,470442372
 # TEC disk 1-9 in -z half : 470049060,470065444,470081828,470098244,470114628,470131012,470147428,470163812,470180228 
 # angle cut : degrees-65,70,75,80 ; rads-1.134,1.222,1.309,1.396 ; sin-0.9,0.95,0.97,0.99  
 # angle cut : rad 1.33 1.35, 1.37
-if 'COSMICS'=='<FLAG>':
-    process.AlignmentProducer.algoConfig.isCollision=False
+if strflaglower == "cosmics":
+    process.AlignmentProducer.algoConfig.isCollision=cms.bool(False)
 #    process.AlignmentProducer.algoConfig.CSAngleCut=0.95
 
-elif 'CDCS'=='<FLAG>':
-    process.AlignmentProducer.algoConfig.isCollision=False
+elif strflaglower == "cdcs":
+    process.AlignmentProducer.algoConfig.isCollision=cms.bool(False)
 #    process.AlignmentProducer.algoConfig.CSAngleCut=0.95
 
-else :
-    process.AlignmentProducer.algoConfig.isCollision=True
-    process.AlignmentProducer.algoConfig.UseReweighting=True
-    process.AlignmentProducer.algoConfig.Weight=1
-#    process.AlignmentProducer.algoConfig.UniformEta=True
+else:
+    process.AlignmentProducer.algoConfig.isCollision=cms.bool(True)
 #    process.AlignmentProducer.algoConfig.CLAngleCut=1.37
 
-process.AlignmentProducer.algoConfig.outfile =  '<PATH>/HIPAlignmentEvents.root'
-process.AlignmentProducer.algoConfig.outfile2 = '<PATH>/HIPAlignmentAlignables.root'
+
+## Reweighting
+# Override common configuration, then turn on selectively using the option parser
+process.AlignmentProducer.algoConfig.UseReweighting=cms.bool(False)
+process.AlignmentProducer.algoConfig.ReweightPerAlignable=cms.bool(False) # No need to turn on in the subjobs
+process.AlignmentProducer.algoConfig.UniformEta=cms.bool(False)
+process.AlignmentProducer.algoConfig.Weight=cms.double(1)
+
+# Assign overall weight from options if specified
+if hasattr(optpy, "overallweight"):
+   process.AlignmentProducer.algoConfig.UseReweighting=cms.bool(True)
+   process.AlignmentProducer.algoConfig.Weight=cms.double(optpy.overallweight)
+
+# Assign track eta-dependent weight from options if specified
+# One can use the following formula from Run2015D or create a new one
+#    process.AlignmentProducer.algoConfig.UniformEtaFormula=cms.string("2.51469/(2.51469+4.11684*x-16.7847*pow(x,2)+46.1574*pow(x,3)-55.22*pow(x,4)+29.5591*pow(x,5)-5.39816*pow(x,6))")
+if hasattr(optpy, "uniformetaformula"):
+   process.AlignmentProducer.algoConfig.UseReweighting=cms.bool(True)
+   process.AlignmentProducer.algoConfig.UniformEta=cms.bool(True)
+   process.AlignmentProducer.algoConfig.UniformEtaFormula=cms.string(optpy.uniformetaformula)
+
+# Assign datatype from options (always present and defaulted to -1, contrary to collection jobs, which default to -2)
+if hasattr(optpy, "datatype"):
+   process.AlignmentProducer.algoConfig.DataGroup = cms.int32(optpy.datatype)
+
+
 process.AlignmentProducer.algoConfig.applyAPE = False
 #process.AlignmentProducer.algoConfig.applyAPE = True 
 process.AlignmentProducer.algoConfig.apeParam = cms.VPSet(
          cms.PSet(function = cms.string('linear'), #choose from linear,exponential,step
-                  apeRPar = cms.vdouble(0.0001, 0.0, 20.0), #100 micro-rad
-                  apeSPar = cms.vdouble(0.01, 0.0, 20.0), # 100 micron
+                  apeRPar = cms.vdouble(0.001, 0.0, 30.0), # 100 micro-rad
+                  apeSPar = cms.vdouble(0.002, 0.0, 30.0), # Units in 1 cm
                      Selector = cms.PSet(
                        alignParams = cms.vstring(
-                                'TrackerTPBHalfBarrel,111111',
-                                'TrackerTPEHalfCylinder,111111',
+                                'TrackerP1PXBHalfBarrel,111111',
+                                'TrackerP1PXECHalfCylinder,111111',
                          )
                       )
                   ),
@@ -114,33 +167,32 @@ process.AlignmentProducer.algoConfig.apeParam = cms.VPSet(
 #                       alignParams = cms.vstring(
 #                               'TrackerTIDEndcap,111111',
 #                               'TrackerTECEndcap,111111',
-#                               'TrackerTPEHalfCylinder,111111'
+#                               'TrackerP1PXECHalfCylinder,111111'
 #                         )
 #                      )
 #                  ),
          )	
 
 #### If we are in collisions, apply selections on PhysDeclared bit, L1 trigger bits, LumiSections
-if 'COSMICS'!='<FLAG>':
-  if 'CDCS'!='<FLAG>':
-# process only some lumi sections: from LS69, run 123596 till LS 999 in event 124119
+#if (strflaglower != "cosmics" and strflaglower != "cdcs"):
+    # process only some lumi sections: from LS69, run 123596 till LS 999 in event 124119
     #process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange('123596:69-124119:999')
-# do not process some other runs: in this case: skip all events from event#1 in run 124120 till last event of run 124120
+    # do not process some other runs: in this case: skip all events from event#1 in run 124120 till last event of run 124120
     #process.source.eventsToSkip = cms.untracked.VEventRange('124120:1-124120:MAX')
-#filters on L1 trigger bits
-    process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskTechTrigConfig_cff')
-    process.load('HLTrigger/HLTfilters/hltLevel1GTSeed_cfi')
-    process.hltLevel1GTSeed.L1TechTriggerSeeding = cms.bool(True)
-    process.hltLevel1GTSeed.L1SeedsLogicalExpression = cms.string('0 AND (40 OR 41) AND NOT (36 OR 37 OR 38 OR 39) AND NOT ((42 AND (NOT 43)) OR (43 AND (NOT 42)))')
-  ##   process.load("RecoLocalTracker.SiStripRecHitConverter.OutOfTime_cff")
-##     process.OutOfTime.TOBlateBP=0.071
-##     process.OutOfTime.TIBlateBP=0.036
+    #filters on L1 trigger bits
+    #process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskTechTrigConfig_cff')
+    #process.load('HLTrigger/HLTfilters/hltLevel1GTSeed_cfi')
+    #process.hltLevel1GTSeed.L1TechTriggerSeeding = cms.bool(True)
+    #process.hltLevel1GTSeed.L1SeedsLogicalExpression = cms.string('0 AND (40 OR 41) AND NOT (36 OR 37 OR 38 OR 39) AND NOT ((42 AND (NOT 43)) OR (43 AND (NOT 42)))')
+    ##process.load("RecoLocalTracker.SiStripRecHitConverter.OutOfTime_cff")
+    ##process.OutOfTime.TOBlateBP=0.071
+    ##process.OutOfTime.TIBlateBP=0.036
  
-##     process.stripLorentzAngle = cms.ESSource("PoolDBESSource",CondDBSetup,
-##                                              connect = cms.string('sqlite_file:/afs/cern.ch/user/b/benhoob/public/LorentzAngle/SiStripLorentzAngle_Deco.db'),
-##                                              toGet = cms.VPSet(cms.PSet(record = cms.string('SiStripLorentzAngleRcd'),tag =cms.string('SiStripLorentzAngle_Deco') ))
-##                                              )
-##     process.es_prefer_stripLorentzAngle = cms.ESPrefer("PoolDBESSource","stripLorentzAngle")
+    ##process.stripLorentzAngle = cms.ESSource("PoolDBESSource",CondDBSetup,
+    ##                                          connect = cms.string('sqlite_file:/afs/cern.ch/user/b/benhoob/public/LorentzAngle/SiStripLorentzAngle_Deco.db'),
+    ##                                          toGet = cms.VPSet(cms.PSet(record = cms.string('SiStripLorentzAngleRcd'),tag =cms.string('SiStripLorentzAngle_Deco') ))
+    ##                                        )
+    ##process.es_prefer_stripLorentzAngle = cms.ESPrefer("PoolDBESSource","stripLorentzAngle")
 
 
 #constraints
@@ -152,28 +204,12 @@ if 'COSMICS'!='<FLAG>':
 #process.MeasurementTrackerEvent.inactiveStripDetectorLabels = cms.VInputTag()
 
 #filter on PhysDecl bit
-process.skimming = cms.EDFilter("PhysDecl",
-                                applyfilter = cms.untracked.bool(True),
-                                HLTriggerResults = cms.InputTag('gtDigis')
-                                )
+#process.skimming = cms.EDFilter("PhysDecl",
+#                                applyfilter = cms.untracked.bool(True),
+#                                HLTriggerResults = cms.InputTag('gtDigis')
+#                                )
 
-if 'MBVertex'=='<FLAG>':
-   process.p =cms.Path(process.offlineBeamSpot*process.initialAlignmentTrackSelector*process.TrackRefitter1*process.TrackerTrackHitFilter*process.ctfProducerCustomised*process.AlignmentTrackSelector*process.TrackRefitter2)
-elif 'ZMuMuMomConstr'=='<FLAG>':
-   process.p =cms.Path(process.offlineBeamSpot*process.initialAlignmentTrackSelector*process.TrackRefitter1*process.TrackerTrackHitFilter*process.ctfProducerCustomised*process.AlignmentTrackSelector*process.TwoBodyDecayMomConstraint*process.TrackRefitter3)
-elif 'ZMuMuFull'=='<FLAG>':
-   process.p =cms.Path(process.offlineBeamSpot*process.initialAlignmentTrackSelector*process.TrackRefitter1*process.TrackerTrackHitFilter*process.ctfProducerCustomised*process.AlignmentTrackSelector*process.TwoBodyDecayConstraint*process.TrackRefitter4)
-elif 'Y1SMuMuMomConstr'=='<FLAG>':
-   process.p =cms.Path(process.offlineBeamSpot*process.initialAlignmentTrackSelector*process.TrackRefitter1*process.TrackerTrackHitFilter*process.ctfProducerCustomised*process.AlignmentTrackSelector*process.TwoBodyDecayMomConstraint*process.TrackRefitter3)
-elif 'Y1SMuMuFull'=='<FLAG>':
-   process.p =cms.Path(process.offlineBeamSpot*process.initialAlignmentTrackSelector*process.TrackRefitter1*process.TrackerTrackHitFilter*process.ctfProducerCustomised*process.AlignmentTrackSelector*process.TwoBodyDecayConstraint*process.TrackRefitter4)
-elif 'COSMICS'=='<FLAG>':
-#    process.p = cms.Path(process.offlineBeamSpot*process.MeasurementTrackerEvent*process.TrackRefitter1*process.TrackerTrackHitFilter*process.ctfProducerCustomised*process.AlignmentTrackSelector*process.TrackRefitter2)
-    process.p = cms.Path(process.offlineBeamSpot*process.TrackRefitter1*process.TrackerTrackHitFilter*process.ctfProducerCustomised*process.AlignmentTrackSelector*process.TrackRefitter2)
-elif 'CDCS'=='<FLAG>':
-#    process.p = cms.Path(process.offlineBeamSpot*process.MeasurementTrackerEvent*process.TrackRefitter1*process.TrackerTrackHitFilter*process.ctfProducerCustomised*process.AlignmentTrackSelector*process.TrackRefitter2)
-    process.p = cms.Path(process.offlineBeamSpot*process.TrackRefitter1*process.TrackerTrackHitFilter*process.ctfProducerCustomised*process.AlignmentTrackSelector*process.TrackRefitter2)
-
-else :
-    process.p = cms.Path(process.hltLevel1GTSeed*process.skimming*process.offlineBeamSpot*process.TrackRefitter1*process.TrackerTrackHitFilter*process.ctfProducerCustomised*process.AlignmentTrackSelector*process.TrackRefitter2)
+process.p =cms.Path(process.TrackRefitterSequence)
+#else:
+#  process.p = cms.Path(process.hltLevel1GTSeed*process.skimming*process.offlineBeamSpot*process.TrackRefitter1*process.TrackerTrackHitFilter*process.ctfProducerCustomised*process.AlignmentTrackSelector*process.TrackRefitter2)
 
