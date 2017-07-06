@@ -484,6 +484,7 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
             std::cout << "Successful ALCT-CLCT match in ME21: bx_alct = " << bx_alct
                       << "; match window: [" << bx_clct_start << "; " << bx_clct_stop
                       << "]; bx_clct = " << bx_clct << std::endl;
+            std::cout << "+++ Best CLCT Details: " << clct->bestCLCT[bx_clct] << std::endl;
             if (not clct->secondCLCT[bx_clct].isValid())
               std::cout << "+++ Second CLCT INVALID" << std::endl;
             else
@@ -567,7 +568,6 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
 
         if (debug_gem_matching){
           std::cout << "========================================================================" << std::endl;
-          // std::cout << "GEM-CLCT matching in ME2/1 chamber: " << cscChamber->id() << " in bx range: [" << bx_clct_start << "," << bx_clct_stop << "]" << std::endl;
           std::cout <<"GEM-CLCT matching in ME2/1 chamber: "<< cscChamber->id()<< "in bx:"<<bx_alct<<std::endl;
           std::cout << "------------------------------------------------------------------------" << std::endl;
         }
@@ -594,6 +594,7 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
               std::cout << "Successful GEM-CLCT match in ME21: bx_alct = " << bx_alct <<std::endl;
                         //<< "; match window: [" << bx_clct_start << "; " << bx_clct_stop
                         //<< "]; bx_clct = " << bx_clct << std::endl;
+            std::cout << "+++ Best CLCT Details: " << clct->bestCLCT[bx_alct] << std::endl;
             if (not clct->secondCLCT[bx_alct].isValid())
               std::cout << "+++ Second CLCT INVALID" << std::endl;
             else
