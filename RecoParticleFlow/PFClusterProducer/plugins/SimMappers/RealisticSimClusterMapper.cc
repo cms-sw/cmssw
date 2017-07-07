@@ -41,7 +41,6 @@ void RealisticSimClusterMapper::buildClusters(const edm::Handle<reco::PFRecHitCo
         reco::PFClusterCollection& output)
 {
 
-
     const SimClusterCollection& simClusters = *_simClusterH;
     auto const& hits = *input;
     RealisticHitToClusterAssociator realisticAssociator;

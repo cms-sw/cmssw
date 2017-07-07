@@ -10,11 +10,12 @@ class RealisticCluster
 
     public:
 
-        RealisticCluster()
+        RealisticCluster():
+            totalEnergy(0.f),
+            exclusiveEnergy(0.f),
+            visible(true)
         {
-            totalEnergy = 0.f;
-            exclusiveEnergy = 0.f;
-            visible = true;
+
         }
         void increaseEnergy(float value)
         {
