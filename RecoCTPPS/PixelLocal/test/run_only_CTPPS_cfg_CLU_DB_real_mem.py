@@ -11,7 +11,7 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-        input = cms.untracked.int32(10000)
+        input = cms.untracked.int32(1000)
         )
 
 process.MessageLogger = cms.Service("MessageLogger",
@@ -37,30 +37,8 @@ process.source = cms.Source("PoolSource",
 duplicateCheckMode = cms.untracked.string("checkEachFile")
 )
 
-
-from CondCore.CondDB.CondDB_cfi import *
-process.PoolDBESSource = cms.ESSource("PoolDBESSource",
-        CondDB.clone(
-connect = cms.string('frontier://FrontierPrep/CMS_CONDITIONS')),
-    toGet = cms.VPSet(cms.PSet(
-        record = cms.string('CTPPSPixelGainCalibrationsRcd'),
-        tag = cms.string("CTPPSPixelGainCalibNew_v4_test")
-    ),
-      cms.PSet(
-        record = cms.string('CTPPSPixelDAQMappingRcd'),
-        tag = cms.string("CTPPSPixelDAQMapping_v1_test"),
-        label = cms.untracked.string("RPix")
-      ),
-      cms.PSet(
-        record = cms.string('CTPPSPixelAnalysisMaskRcd'),
-        tag = cms.string("CTPPSPixelAnalysisMask_v1_test"),
-        label = cms.untracked.string("RPix")
-      )
-
-
-)
-)
-
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_hlt_relval', '')
 
 
 # raw-to-digi conversion
@@ -69,8 +47,8 @@ process.load("EventFilter.CTPPSRawToDigi.ctppsRawToDigi_cff")
 ############
 process.o1 = cms.OutputModule("PoolOutputModule",
         outputCommands = cms.untracked.vstring('drop *',
-                                               'keep CTPPSPixelClusteredmDetSetVector_ctppsPixelClusters_*_*',
-                                               'keep CTPPSPixelRecHitedmDetSetVector_recHitProd_*_*',
+                                               'keep CTPPSPixelClusteredmDetSetVector_ctppsPixelClusters_*_*'
+    
 ),
         fileName = cms.untracked.string('simevent_CTPPS_CLU_DB_real_mem.root')
         )
