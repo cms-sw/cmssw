@@ -232,8 +232,7 @@ class RealisticHitToClusterAssociator
                                 RealisticSimClusters_[pair.first].increaseEnergy(assignedEnergy);
                                 RealisticSimClusters_[pair.first].addHitAndFraction(hitId, sharedFraction);
                                 if(sharedFraction > exclusiveFraction)
-                                RealisticSimClusters_[pair.first].increaseExclusiveEnergy(assignedEnergy);
-
+                                    RealisticSimClusters_[pair.first].increaseExclusiveEnergy(assignedEnergy);
                             }
 
                         }
