@@ -64,7 +64,7 @@ void RealisticSimClusterMapper::buildClusters(const edm::Handle<reco::PFRecHitCo
     for (unsigned int ic = 0; ic < simClusters.size(); ++ic)
     {
         const auto & sc = simClusters[ic];
-        auto hitsAndFractions = std::move(sc.hits_and_fractions());
+        const auto& hitsAndFractions = sc.hits_and_fractions();
         for (const auto& hAndF : hitsAndFractions)
         {
             auto itr = detIdToIndex.find(hAndF.first);
