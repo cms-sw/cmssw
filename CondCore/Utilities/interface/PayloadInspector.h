@@ -10,6 +10,9 @@
 #include <vector>
 #include <boost/python/list.hpp>
 #include <boost/python/extract.hpp>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
 
 namespace cond {
 
@@ -109,6 +112,16 @@ namespace cond {
         first = false;
       }
       ss << "]";
+      ss << "}";
+      return ss.str();
+    }
+
+    std::string serialize( const PlotAnnotations& annotations, const std::string& imageFileName ){
+      std::stringstream ss;
+      ss << "{";
+      ss << serializeAnnotations( annotations );
+      ss <<",";
+      ss << "\"file\": \""<<imageFileName<<"\"";
       ss << "}";
       return ss.str();
     }
@@ -532,6 +545,36 @@ namespace cond {
       size_t m_nybins; 
       float m_ymin;
       float m_ymax;
+    };
+
+    // 
+    template <typename PayloadType> class PlotImage : public PlotBase {
+    public:
+      explicit PlotImage( const std::string& title ) : 
+	PlotBase(){
+	m_plotAnnotations.m[PlotAnnotations::PLOT_TYPE_K] = "Image";
+        m_plotAnnotations.m[PlotAnnotations::TITLE_K] = title;
+	std::string payloadTypeName = cond::demangledName( typeid(PayloadType) );
+        m_plotAnnotations.m[PlotAnnotations::PAYLOAD_TYPE_K] = payloadTypeName;
+	m_imageFileName = boost::lexical_cast<std::string>( ( boost::uuids::random_generator())() )+".png";
+      }
+
+      std::string serializeData(){
+	return serialize( m_plotAnnotations, m_imageFileName);
+      }
+
+      std::string processData( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override {
+	fill( iovs );
+	return serializeData();
+      }
+
+      std::shared_ptr<PayloadType> fetchPayload( const cond::Hash& payloadHash ){
+      	return PlotBase::fetchPayload<PayloadType>( payloadHash );
+      }
+
+      virtual bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) = 0;
+    protected:
+      std::string m_imageFileName;
     };
 
   }
