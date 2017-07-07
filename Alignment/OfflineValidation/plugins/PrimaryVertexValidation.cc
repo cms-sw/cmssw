@@ -866,27 +866,6 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 		n_dxyVsEta->Fill(tracketa,dxyFromMyVertex/s_ip2dpv_err); 
 		n_dzVsEta->Fill(tracketa,z0/z0_error); 
 
-		if( ladder_num > 0 && module_num > 0 ) {
-		  
-		  fillByIndex(h_dxy_modZ_,module_num-1,dxyFromMyVertex*cmToum);
-		  fillByIndex(h_dz_modZ_,module_num-1,dzFromMyVertex*cmToum);	  
-		  fillByIndex(h_norm_dxy_modZ_,module_num-1,dxyFromMyVertex/s_ip2dpv_err);	  
-		  fillByIndex(h_norm_dz_modZ_,module_num-1,dzFromMyVertex/dz_err);	  
-		  
-		  fillByIndex(h_dxy_ladder_,ladder_num-1,dxyFromMyVertex*cmToum);	  
-
-		  if(L1BPixHitCount==1){
-		    fillByIndex(h_dxy_ladderNoOverlap_,ladder_num-1,dxyFromMyVertex*cmToum);	  
-		  } else {
-		    fillByIndex(h_dxy_ladderOverlap_,ladder_num-1,dxyFromMyVertex*cmToum);	  
-		  }
-
-		  fillByIndex(h_dz_ladder_,ladder_num-1,dzFromMyVertex*cmToum);	  
-		  fillByIndex(h_norm_dxy_ladder_,ladder_num-1,dxyFromMyVertex/s_ip2dpv_err);  
-		  fillByIndex(h_norm_dz_ladder_,ladder_num-1,dzFromMyVertex/dz_err);   
-		  
-		}
-
 		// filling the binned distributions
 		for(int i=0; i<nBins_; i++){
 		  
@@ -1336,41 +1315,6 @@ void PrimaryVertexValidation::beginJob()
   TFileDirectory NormLongpTCentralRes  = fs->mkdir("Norm_Long_pTCentral_Residuals"); 
   h_norm_dz_Central_pT_  = bookResidualsHistogram(NormLongpTCentralRes,nPtBins_,"norm_dz","pTCentral");   
 
-  // book residuals vs module number
-  
-  TFileDirectory AbsTransModZRes  = fs->mkdir("Abs_Transv_modZ_Residuals"); 
-  h_dxy_modZ_      = bookResidualsHistogram(AbsTransModZRes,8,"dxy","modZ");	       
-
-  TFileDirectory AbsLongModZRes   = fs->mkdir("Abs_Long_modZ_Residuals"); 
-  h_dz_modZ_       = bookResidualsHistogram(AbsLongModZRes,8,"dz","modZ");		       
-
-  TFileDirectory NormTransModZRes = fs->mkdir("Norm_Transv_modZ_Residuals"); 
-  h_norm_dxy_modZ_ = bookResidualsHistogram(NormTransModZRes,8,"norm_dxy","modZ");	       
-
-  TFileDirectory NormLongModZRes  = fs->mkdir("Norm_Long_modZ_Residuals"); 
-  h_norm_dz_modZ_  = bookResidualsHistogram(NormLongModZRes,8,"norm_dz","modZ");	       
-
-  // book residuals vs ladder
-               
-  TFileDirectory AbsTransLadderRes  = fs->mkdir("Abs_Transv_ladder_Residuals"); 
-  h_dxy_ladder_ = bookResidualsHistogram(AbsTransLadderRes,12,"dxy","ladder");
-
-  TFileDirectory AbsTransLadderResOverlap  = fs->mkdir("Abs_Transv_ladderOverlap_Residuals"); 
-  h_dxy_ladderOverlap_ = bookResidualsHistogram(AbsTransLadderResOverlap,12,"dxy","ladder");       
-
-  TFileDirectory AbsTransLadderResNoOverlap  = fs->mkdir("Abs_Transv_ladderNoOverlap_Residuals"); 
-  h_dxy_ladderNoOverlap_ = bookResidualsHistogram(AbsTransLadderResNoOverlap,12,"dxy","ladder");       
-
-  TFileDirectory AbsLongLadderRes   = fs->mkdir("Abs_Long_ladder_Residuals"); 
-  h_dz_ladder_  = bookResidualsHistogram(AbsLongLadderRes,12,"dz","ladder");	       
-
-  TFileDirectory NormTransLadderRes = fs->mkdir("Norm_Transv_ladder_Residuals"); 
-  h_norm_dxy_ladder_ = bookResidualsHistogram(NormTransLadderRes,12,"norm_dxy","ladder");  
-
-  TFileDirectory NormLongLadderRes  = fs->mkdir("Norm_Long_ladder_Residuals"); 
-  h_norm_dz_ladder_  = bookResidualsHistogram(NormLongLadderRes,12,"norm_dz","ladder");   
-
-
   // book residuals as function of phi and eta
 
   for ( int i=0; i<nBins_; ++i ) {
@@ -1733,72 +1677,6 @@ void PrimaryVertexValidation::beginJob()
   n_dzpTCentralWidthTrend  = WidthTrendsDir.make<TH1F>("norm_widths_dz_pTCentral",
 						       "width(d_{z}/#sigma_{d_{z}}) vs p_{T};p_{T}(|#eta|<1.) [GeV];width(d_{z}/#sigma_{d_{z}})",
 						       48,mypT_bins_); 
-
-  // means and widhts vs ladder and module number
-  
-  a_dxymodZMeanTrend  = MeanTrendsDir.make<TH1F> ("means_dxy_modZ",
-						  "#LT d_{xy} #GT vs modZ;module number (Z);#LT d_{xy} #GT [#mum]",
-						  8,0.,8.); 
-  
-  a_dxymodZWidthTrend = WidthTrendsDir.make<TH1F>("widths_dxy_modZ",
-						  "#sigma_{d_{xy}} vs modZ;module number (Z);#sigma_{d_{xy}} [#mum]",
-						  8,0.,8.);
-  
-  a_dzmodZMeanTrend   = MeanTrendsDir.make<TH1F> ("means_dz_modZ",
-						  "#LT d_{z} #GT vs modZ;module number (Z);#LT d_{z} #GT [#mum]",
-						  8,0.,8.); 
-  
-  a_dzmodZWidthTrend  = WidthTrendsDir.make<TH1F>("widths_dz_modZ",
-						  "#sigma_{d_{z}} vs modZ;module number (Z);#sigma_{d_{z}} [#mum]",
-						  8,0.,8.);
- 
-  a_dxyladderMeanTrend  = MeanTrendsDir.make<TH1F> ("means_dxy_ladder",
-						    "#LT d_{xy} #GT vs ladder;ladder number (#phi);#LT d_{xy} #GT [#mum]",
-						    12,0.,12.);
-  
-  a_dxyladderWidthTrend = WidthTrendsDir.make<TH1F>("widths_dxy_ladder",
-						    "#sigma_{d_{xy}} vs ladder;ladder number (#phi);#sigma_{d_{xy}} [#mum]",
-						    12,0.,12.);
-  
-  a_dzladderMeanTrend   = MeanTrendsDir.make<TH1F> ("means_dz_ladder",
-						    "#LT d_{z} #GT vs ladder;ladder number (#phi);#LT d_{z} #GT [#mum]"
-						    ,12,0.,12.); 
-  
-  a_dzladderWidthTrend  = WidthTrendsDir.make<TH1F>("widths_dz_ladder",
-						    "#sigma_{d_{z}} vs ladder;ladder number (#phi);#sigma_{d_{z}} [#mum]",
-						    12,0.,12.);
-  
-  n_dxymodZMeanTrend  = MeanTrendsDir.make<TH1F> ("norm_means_dxy_modZ",
-						  "#LT d_{xy}/#sigma_{d_{xy}} #GT vs modZ;module number (Z);#LT d_{xy}/#sigma_{d_{xy}} #GT",
-						  8,0.,8.);
-  
-  n_dxymodZWidthTrend = WidthTrendsDir.make<TH1F>("norm_widths_dxy_modZ",
-						  "width(d_{xy}/#sigma_{d_{xy}}) vs modZ;module number (Z); width(d_{xy}/#sigma_{d_{xy}})",
-						  8,0.,8.);
-  
-  n_dzmodZMeanTrend   = MeanTrendsDir.make<TH1F> ("norm_means_dz_modZ",
-						  "#LT d_{z}/#sigma_{d_{z}} #GT vs modZ;module number (Z);#LT d_{z}/#sigma_{d_{z}} #GT",
-						  8,0.,8.); 
-  
-  n_dzmodZWidthTrend  = WidthTrendsDir.make<TH1F>("norm_widths_dz_modZ",
-						  "width(d_{z}/#sigma_{d_{z}}) vs pT;module number (Z);width(d_{z}/#sigma_{d_{z}})",
-						  8,0.,8.);
-  
-  n_dxyladderMeanTrend  = MeanTrendsDir.make<TH1F> ("norm_means_dxy_ladder",
-						    "#LT d_{xy}/#sigma_{d_{xy}} #GT vs ladder;ladder number (#phi);#LT d_{xy}/#sigma_{d_{z}} #GT",
-						    12,0.,12.);
-  
-  n_dxyladderWidthTrend = WidthTrendsDir.make<TH1F>("norm_widths_dxy_ladder",
-						    "width(d_{xy}/#sigma_{d_{xy}}) vs ladder;ladder number (#phi);width(d_{xy}/#sigma_{d_{z}})",
-						    12,0.,12.);
-  
-  n_dzladderMeanTrend   = MeanTrendsDir.make<TH1F> ("norm_means_dz_ladder",
-						    "#LT d_{z}/#sigma_{d_{z}} #GT vs ladder;ladder number (#phi);#LT d_{z}/#sigma_{d_{z}} #GT",
-						    12,0.,12.);  
-  
-  n_dzladderWidthTrend  = WidthTrendsDir.make<TH1F>("norm_widths_dz_ladder",
-						    "width(d_{z}/#sigma_{d_{z}}) vs ladder;ladder number (#phi);width(d_{z}/#sigma_{d_{z}})",
-						    12,0.,12.); 
 
   // 2D maps
 
@@ -2274,28 +2152,6 @@ void PrimaryVertexValidation::endJob()
   fillTrendPlotByIndex(n_dxypTCentralWidthTrend,h_norm_dxy_Central_pT_,statmode::WIDTH);
   fillTrendPlotByIndex(n_dzpTCentralMeanTrend  ,h_norm_dz_Central_pT_ ,statmode::MEAN ); 
   fillTrendPlotByIndex(n_dzpTCentralWidthTrend ,h_norm_dz_Central_pT_ ,statmode::WIDTH);
-
-  // vs ladder and module number
-
-  fillTrendPlotByIndex(a_dxymodZMeanTrend   ,h_dxy_modZ_,statmode::MEAN);  
-  fillTrendPlotByIndex(a_dxymodZWidthTrend  ,h_dxy_modZ_,statmode::WIDTH);
-  fillTrendPlotByIndex(a_dzmodZMeanTrend    ,h_dz_modZ_,statmode::MEAN);   
-  fillTrendPlotByIndex(a_dzmodZWidthTrend   ,h_dz_modZ_,statmode::WIDTH);  
-  		       		      
-  fillTrendPlotByIndex(a_dxyladderMeanTrend ,h_dxy_ladder_,statmode::MEAN); 
-  fillTrendPlotByIndex(a_dxyladderWidthTrend,h_dxy_ladder_,statmode::WIDTH);
-  fillTrendPlotByIndex(a_dzladderMeanTrend  ,h_dz_ladder_,statmode::MEAN); 
-  fillTrendPlotByIndex(a_dzladderWidthTrend ,h_dz_ladder_,statmode::WIDTH);
-  		       		      
-  fillTrendPlotByIndex(n_dxymodZMeanTrend   ,h_norm_dxy_modZ_,statmode::MEAN); 
-  fillTrendPlotByIndex(n_dxymodZWidthTrend  ,h_norm_dxy_modZ_,statmode::WIDTH);
-  fillTrendPlotByIndex(n_dzmodZMeanTrend    ,h_norm_dz_modZ_,statmode::MEAN); 
-  fillTrendPlotByIndex(n_dzmodZWidthTrend   ,h_norm_dz_modZ_,statmode::WIDTH);
-  		       		      
-  fillTrendPlotByIndex(n_dxyladderMeanTrend ,h_norm_dxy_ladder_,statmode::MEAN); 
-  fillTrendPlotByIndex(n_dxyladderWidthTrend,h_norm_dxy_ladder_,statmode::WIDTH);
-  fillTrendPlotByIndex(n_dzladderMeanTrend  ,h_norm_dz_ladder_,statmode::MEAN); 
-  fillTrendPlotByIndex(n_dzladderWidthTrend ,h_norm_dz_ladder_,statmode::WIDTH);
 
   // medians and MADs	  
   
