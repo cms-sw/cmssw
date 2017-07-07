@@ -10,7 +10,7 @@ namespace ZCountingTrigger {
 class TriggerRecord
 {
 public:
-  TriggerRecord(const std::string name="", const unsigned int value=0) {
+  TriggerRecord(const std::string &name="", const unsigned int value=0) {
     hltPattern   = name;
     baconTrigBit = value;
     hltPathName  = "";
