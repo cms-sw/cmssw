@@ -115,8 +115,8 @@ void TotemRPGeometryESModule::ApplyAlignments(const ESHandle<DetGeomDesc> &ideal
     bufferNew.pop_front();
 
     // Is it sensor? If yes, apply full sensor alignments
-    if ( pD->name().name().compare( DDD_TOTEM_RP_DETECTOR_NAME) == 0
-      or pD->name().name().compare( DDD_CTPPS_DIAMONDS_DETECTOR_NAME ) == 0 )
+    if ( pD->name().name() == DDD_TOTEM_RP_DETECTOR_NAME
+      or pD->name().name() == DDD_CTPPS_DIAMONDS_DETECTOR_NAME )
     {
       unsigned int plId = pD->geographicalID();
 

@@ -216,7 +216,7 @@ namespace cscdqm {
        */
       static const bool getHistoIdByName(const std::string& p_name, HistoId& p_id) {
         for (HistoId i = 0; i < h::namesSize; i++) {
-          if (p_name.compare(h::names[i]) == 0) {
+          if (p_name == h::names[i]) {
             p_id = i;
             return true;
           }
