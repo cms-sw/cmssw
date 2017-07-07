@@ -25,8 +25,8 @@ class RealisticSimClusterMapper : public InitialClusteringStepBase {
 
     }
   virtual ~RealisticSimClusterMapper() {}
-  RealisticSimClusterMapper(const B2DGT&) = delete;
-  B2DGT& operator=(const B2DGT&) = delete;
+  RealisticSimClusterMapper(const RealisticSimClusterMapper&) = delete;
+  RealisticSimClusterMapper& operator=(const RealisticSimClusterMapper&) = delete;
 
   virtual void updateEvent(const edm::Event&) override final;
   virtual void update(const edm::EventSetup&) override final;
