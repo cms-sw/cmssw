@@ -40,13 +40,13 @@ class EcalPreshowerGeometry final : public CaloSubdetectorGeometry
 
       static std::string dbString() { return "PEcalPreshowerRcd" ; }
 
-      virtual unsigned int numberOfShapes() const override { return k_NumberOfShapes ; }
-      virtual unsigned int numberOfParametersPerShape() const override { return k_NumberOfParametersPerShape ; }
+      unsigned int numberOfShapes() const override { return k_NumberOfShapes ; }
+      unsigned int numberOfParametersPerShape() const override { return k_NumberOfParametersPerShape ; }
 
       EcalPreshowerGeometry() ;
   
       /// The EcalPreshowerGeometry will delete all its cell geometries at destruction time
-      virtual ~EcalPreshowerGeometry();
+      ~EcalPreshowerGeometry() override;
 
       void setzPlanes( CCGFloat z1minus, 
 		       CCGFloat z2minus,
@@ -54,7 +54,7 @@ class EcalPreshowerGeometry final : public CaloSubdetectorGeometry
 		       CCGFloat z2plus ) ;
 
       // Get closest cell
-      virtual DetId getClosestCell( const GlobalPoint& r ) const override;
+      DetId getClosestCell( const GlobalPoint& r ) const override;
 
 
       // Get closest cell in arbitrary plane (1 or 2)
@@ -62,8 +62,8 @@ class EcalPreshowerGeometry final : public CaloSubdetectorGeometry
 					   int                plane   ) const ;
 
 
-      virtual void initializeParms() override;
-      virtual unsigned int numberOfTransformParms() const override { return 3 ; }
+      void initializeParms() override;
+      unsigned int numberOfTransformParms() const override { return 3 ; }
 
       static std::string hitString() { return "EcalHitsES" ; }
 
@@ -82,7 +82,7 @@ class EcalPreshowerGeometry final : public CaloSubdetectorGeometry
 				unsigned int    i   ,
 				Pt3D&           ref   ) ;
 
-      virtual void newCell( const GlobalPoint& f1 ,
+      void newCell( const GlobalPoint& f1 ,
 			    const GlobalPoint& f2 ,
 			    const GlobalPoint& f3 ,
 			    const CCGFloat*    parm ,

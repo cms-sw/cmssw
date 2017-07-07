@@ -34,7 +34,7 @@ class EcalElectronicsMappingBuilder : public edm::ESProducer
 {
  public:
   EcalElectronicsMappingBuilder(const edm::ParameterSet&);
-  ~EcalElectronicsMappingBuilder();
+  ~EcalElectronicsMappingBuilder() override;
   
   typedef std::unique_ptr<EcalElectronicsMapping> ReturnType;
   

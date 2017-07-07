@@ -30,9 +30,9 @@ public:
     setDetId(id);
 }
 
-  const GeomDetType& type() const { return chamber()->type(); }
+  const GeomDetType& type() const override { return chamber()->type(); }
 
-  const Topology& topology() const { return *(geometry()->topology()); }
+  const Topology& topology() const override { return *(geometry()->topology()); }
 
 
   /**

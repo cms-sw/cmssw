@@ -21,8 +21,8 @@ namespace DDI {
 		     const std::vector<double> & zy,
 		     const std::vector<double> & zscale ); 
 
-    double volume() const;
-    void stream( std::ostream & ) const;
+    double volume() const override;
+    void stream( std::ostream & ) const override;
   };		  
 }
 #endif // DDI_ExtrudedPolygon_h

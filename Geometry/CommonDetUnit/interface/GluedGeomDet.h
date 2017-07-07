@@ -9,13 +9,13 @@ public:
 
   GluedGeomDet( BoundPlane* sp, const GeomDetUnit* monoDet,  const GeomDetUnit* stereoDet, const DetId gluedDetId);
   
-  virtual ~GluedGeomDet();
+  ~GluedGeomDet() override;
 
   bool isLeaf() const override { return false;}
-  virtual std::vector<const GeomDet*> components() const override;
+  std::vector<const GeomDet*> components() const override;
 
   // Which subdetector
-  virtual SubDetector subDetector() const override {return theMonoDet->subDetector();}
+  SubDetector subDetector() const override {return theMonoDet->subDetector();}
 
   const GeomDetUnit* monoDet() const { return theMonoDet;}
   const GeomDetUnit* stereoDet() const { return theStereoDet;}

@@ -16,9 +16,9 @@ namespace DDI {
 	    double lx, double ly, double lz,
 	    double tx, double ty, double tz);
     
-    double volume() const { return -1; }
+    double volume() const override { return -1; }
     
-    void stream(std::ostream & os) const;
+    void stream(std::ostream & os) const override;
    };
 }
 

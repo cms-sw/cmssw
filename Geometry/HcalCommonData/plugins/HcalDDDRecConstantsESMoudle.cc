@@ -38,7 +38,7 @@ class HcalDDDRecConstantsESModule : public edm::ESProducer {
 
 public:
   HcalDDDRecConstantsESModule(const edm::ParameterSet&);
-  ~HcalDDDRecConstantsESModule();
+  ~HcalDDDRecConstantsESModule() override;
 
   typedef std::shared_ptr<HcalDDDRecConstants> ReturnType;
 

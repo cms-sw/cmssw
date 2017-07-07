@@ -16,28 +16,28 @@ class ME0Geometry : public TrackingGeometry {
   ME0Geometry();
 
   /// Destructor
-  virtual ~ME0Geometry();
+  ~ME0Geometry() override;
 
   // Return a vector of all det types
-  virtual const DetTypeContainer&  detTypes() const;
+  const DetTypeContainer&  detTypes() const override;
 
   // Return a vector of all GeomDetUnit
-  virtual const DetUnitContainer& detUnits() const;
+  const DetUnitContainer& detUnits() const override;
 
   // Return a vector of all GeomDet
-  virtual const DetContainer& dets() const;
+  const DetContainer& dets() const override;
   
   // Return a vector of all GeomDetUnit DetIds
-  virtual const DetIdContainer& detUnitIds() const;
+  const DetIdContainer& detUnitIds() const override;
 
   // Return a vector of all GeomDet DetIds
-  virtual const DetIdContainer& detIds() const;
+  const DetIdContainer& detIds() const override;
 
   // Return the pointer to the GeomDetUnit corresponding to a given DetId
-  virtual const GeomDetUnit* idToDetUnit(DetId) const;
+  const GeomDetUnit* idToDetUnit(DetId) const override;
 
   // Return the pointer to the GeomDet corresponding to a given DetId
-  virtual const GeomDet* idToDet(DetId) const;
+  const GeomDet* idToDet(DetId) const override;
 
 
   //---- Extension of the interface
