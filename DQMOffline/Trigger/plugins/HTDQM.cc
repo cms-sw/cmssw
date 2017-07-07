@@ -11,8 +11,6 @@ void HTDQM::initialise(const edm::ParameterSet& iConfig ){
   ht_binning_ = getHistoPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("htPSet"));
   ls_binning_ = getHistoLSPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("htlsPSet"));
   
-  htME_.numerator   = nullptr;
-  htME_.denominator = nullptr;
   htME_variableBinning_.numerator   = nullptr;
   htME_variableBinning_.denominator = nullptr;
   htVsMET_.numerator   = nullptr;
@@ -25,10 +23,6 @@ void HTDQM::bookHistograms(DQMStore::IBooker     & ibooker)
 {  
   
   std::string histname, histtitle;
-
-  histname = "ht"; histtitle = "PFHT";
-  bookME(ibooker,htME_,histname,histtitle,ht_binning_.nbins,ht_binning_.xmin, ht_binning_.xmax);
-  setMETitle(htME_,"PF HT [GeV]","events / [GeV]");
 
   histname = "ht_variable"; histtitle = "PFHT";
   bookME(ibooker,htME_variableBinning_,histname,histtitle,ht_variable_binning_);
@@ -55,7 +49,6 @@ void HTDQM::fillHistograms(const std::vector<reco::PFJet> & htjets,
     htSum += htjets[ij].pt(); 
   }
 
-  htME_.denominator -> Fill(htSum);
   htME_variableBinning_.denominator -> Fill(htSum);
 
   htVsMET_.denominator -> Fill(met, htSum);
@@ -64,7 +57,6 @@ void HTDQM::fillHistograms(const std::vector<reco::PFJet> & htjets,
   // applying selection for numerator
   if (passCond){
     // filling histograms (num_genTriggerEventFlag_)  
-    htME_.numerator -> Fill(htSum);
     htME_variableBinning_.numerator -> Fill(htSum);
     htVsMET_.numerator -> Fill(met, htSum);
     htVsLS_.numerator -> Fill(ls, htSum);
