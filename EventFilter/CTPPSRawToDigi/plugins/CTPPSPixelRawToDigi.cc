@@ -68,7 +68,7 @@ void CTPPSPixelRawToDigi::produce( edm::Event& ev,
 
 
   if(data_exist){
-  es.get<CTPPSPixelDAQMappingRcd>().get(mappingLabel_, mapping);
+  es.get<CTPPSPixelDAQMappingRcd>().get( mapping);
 
 
     fedIds_   = mapping->fedIds();
