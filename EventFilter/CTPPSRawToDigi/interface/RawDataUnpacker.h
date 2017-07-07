@@ -26,7 +26,8 @@ class RawDataUnpacker
     typedef uint64_t word;
 
     /// VFAT transmission modes
-    enum { vmCluster = 0x80, vmRaw = 0x90 };
+    enum { vmCluster = 0x80, vmRaw = 0x90, vmDiamondCompact = 0xB0 };
+    enum {VFAT_DAIMOND_2=0x7800, VFAT_DAIMOND_3=0x7000, VFAT_DAIMOND_5=0x6800, VFAT_DAIMOND_7=0x6000};
 
     RawDataUnpacker() {}
     
