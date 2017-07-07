@@ -349,28 +349,6 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
   TH1F* n_dzpTCentralMeanTrend;
   TH1F* n_dzpTCentralWidthTrend;
 
-  // --- trend as a function of the ladder/module number
-
-  TH1F* a_dxymodZMeanTrend;					     		
-  TH1F* a_dxymodZWidthTrend; 					      			
-  TH1F* a_dzmodZMeanTrend; 		       		      			
-  TH1F* a_dzmodZWidthTrend; 
-					       			
-  TH1F* a_dxyladderMeanTrend;  						 			
-  TH1F* a_dxyladderWidthTrend; 					        		       
-  TH1F* a_dzladderMeanTrend;   					        			
-  TH1F* a_dzladderWidthTrend;  
-						 		      
-  TH1F* n_dxymodZMeanTrend;   						 			
-  TH1F* n_dxymodZWidthTrend;  					        			
-  TH1F* n_dzmodZMeanTrend;   					        			
-  TH1F* n_dzmodZWidthTrend;  
-						 			
-  TH1F* n_dxyladderMeanTrend;  						 			
-  TH1F* n_dxyladderWidthTrend; 						 			
-  TH1F* n_dzladderMeanTrend;   						 			
-  TH1F* n_dzladderWidthTrend;  
-
   // ---- medians and MAD
 
   TH1F* a_dxyPhiMedianTrend;
@@ -603,22 +581,6 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
   std::vector<TH1F*> h_dz_Central_pT_;
   std::vector<TH1F*> h_norm_dxy_Central_pT_;
   std::vector<TH1F*> h_norm_dz_Central_pT_;   
-
-  // histograms for the plots as function of module ladder and number
-
-  std::vector<TH1F*> h_dxy_modZ_;
-  std::vector<TH1F*> h_dz_modZ_;
-  std::vector<TH1F*> h_norm_dxy_modZ_;
-  std::vector<TH1F*> h_norm_dz_modZ_;
-
-  std::vector<TH1F*> h_dxy_ladder_;
-
-  std::vector<TH1F*> h_dxy_ladderOverlap_;
-  std::vector<TH1F*> h_dxy_ladderNoOverlap_;
-
-  std::vector<TH1F*> h_dz_ladder_;
-  std::vector<TH1F*> h_norm_dxy_ladder_;
-  std::vector<TH1F*> h_norm_dz_ladder_;   
 
 };
 
