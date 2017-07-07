@@ -173,15 +173,19 @@ namespace {
 	firstmap[d]=(Gain/nAPV);
       } // loop over detIds
       
+
+      std::map<uint32_t,float> cachedRatio; 
       for(const auto &d : detid){
 	float ratio = firstmap[d]/lastmap[d];
 	tmap->fill(d,ratio);
+	cachedRatio[d] = ratio;
       }
     
       //=========================
-      
+      auto range = getTheRange(cachedRatio);
+
       std::string fileName(m_imageFileName);
-      tmap->save(true,0.99,1.01,fileName.c_str());
+      tmap->save(true,range.first,range.second,fileName.c_str());
 
       return true;
     }
