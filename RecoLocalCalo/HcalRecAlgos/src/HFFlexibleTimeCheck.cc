@@ -25,8 +25,18 @@ unsigned HFFlexibleTimeCheck::determineAnodeStatus(
         return HFAnodeStatus::OK;
     }
 
-    // Check if the rise time information is meaningful
+    // Special handling of under/overshoot TDC values
     float trise = anode.timeRising();
+    if ((trise == HcalSpecialTimes::UNKNOWN_T_UNDERSHOOT &&
+         charge < minChargeForUndershoot()) ||
+        (trise == HcalSpecialTimes::UNKNOWN_T_OVERSHOOT &&
+         charge < minChargeForOvershoot()))
+    {
+        *isTimingReliable = false;
+        return HFAnodeStatus::OK;
+    }
+
+    // Check if the rise time information is meaningful
     if (HcalSpecialTimes::isSpecial(trise))
         return HFAnodeStatus::FAILED_TIMING;
 
