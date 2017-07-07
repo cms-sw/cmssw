@@ -362,6 +362,7 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
 
   const bool hasPads(pads_.size()!=0);
   const bool hasCoPads(hasPads and coPads_.size()!=0);
+  bool hasLCTs = false;
 
   // ALCT centric matching
   for (int bx_alct = 0; bx_alct < CSCAnodeLCTProcessor::MAX_ALCT_BINS; bx_alct++)
@@ -472,6 +473,7 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
           }
 
           ++nSuccesFulMatches;
+          hasLCTs = true;
 
           int mbx = bx_clct-bx_clct_start;
 
@@ -593,6 +595,7 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
             if (quality < 4) continue;
 
             ++nSuccesFulMatches;
+            hasLCTs = true;
 
             int mbx = std::abs(clct->bestCLCT[bx_alct].getBX()-bx_alct);
             int bx_gem = (coPads[0].second).bx()+lct_central_bx;
@@ -616,6 +619,16 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
         }
       }
     }
+  }
+
+  if (hasLCTs and debug_gem_matching){
+    std::cout << "========================================================================" << std::endl;
+    std::cout << "Counting the LCTs" << std::endl;
+    std::cout << "========================================================================" << std::endl;
+  }else if (debug_gem_matching){
+    std::cout << "========================================================================" << std::endl;
+    std::cout << "No LCT is Built" << std::endl;
+    std::cout << "========================================================================" << std::endl;
   }
 
   // reduction of nLCTs per each BX
@@ -1081,16 +1094,13 @@ void CSCMotherboardME21GEM::printGEMTriggerPads(int bx_start, int bx_stop, bool 
   const bool hasPads(thePads.size()!=0);
 
   std::cout << "------------------------------------------------------------------------" << std::endl;
-  bool first = true;
+  if (!iscopad) std::cout << "* GEM trigger pads ["<< bx_start <<","<< bx_stop <<"]: " << std::endl;
+  else          std::cout << "* GEM trigger coincidence pads ["<< bx_start <<","<< bx_stop <<"]: " << std::endl;
+
   for (int bx = bx_start; bx <= bx_stop; bx++) {
     // print only the pads for the central BX
     //if (bx!=lct_central_bx and iscopad) continue;
     std::vector<std::pair<unsigned int, GEMPadDigi> > in_pads = thePads[bx];
-    if (first) {
-      if (!iscopad) std::cout << "* GEM trigger pads: " << std::endl;
-      else          std::cout << "* GEM trigger coincidence pads: " << std::endl;
-    }
-    first = false;
     if (!iscopad) std::cout << "N(pads) BX " << bx << " : " << in_pads.size() << std::endl;
     else          std::cout << "N(copads) BX " << bx << " : " << in_pads.size() << std::endl;
     if (hasPads){
