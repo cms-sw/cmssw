@@ -8,7 +8,7 @@
 
 #include "Geometry/VeryForwardGeometryBuilder/interface/TotemRPGeometry.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "Geometry/VeryForwardGeometryBuilder/interface/DDDTotemRPCommon.h"
+#include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSDDDNames.h"
 #include <iostream>
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 
