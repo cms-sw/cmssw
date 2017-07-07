@@ -13,8 +13,8 @@
  *
  */
 
-#include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboard.h>
-#include <DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h>
+#include "L1Trigger/CSCTriggerPrimitives/src/CSCMotherboard.h"
+#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
 
 class CSCMotherboardME11 : public CSCMotherboard
 {
