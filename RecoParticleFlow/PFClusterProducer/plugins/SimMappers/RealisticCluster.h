@@ -59,7 +59,7 @@ class RealisticCluster
         {
             hitIdsAndFractions_.emplace_back(hit,fraction);
         }
-//TODO: hits are sorted, replace with binary search.
+
         void modifyFractionForHitId(float fraction, unsigned int hitId)
         {
 
