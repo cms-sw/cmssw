@@ -9,7 +9,6 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include <string>                                        // string class
-#include <TMath.h>
 #include <cassert>
 
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
