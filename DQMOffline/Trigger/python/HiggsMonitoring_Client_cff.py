@@ -1,8 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-from DQMOffline.Trigger.VBFMETMonitor_Client_cff import *
-
 diphotonEfficiency = DQMEDHarvester("DQMGenericClient",
     subDirs        = cms.untracked.vstring("HLT/photon/HLT_Diphoton30_22_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90_v","HLT/photon/HLT_Diphoton30_22_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass95_v","HLT_Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_PixelVeto_Mass55_v","HLT_Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_NoPixelVeto_Mass55_v","HLT_Diphoton30EB_18EB_R9Id_OR_IsoCaloId_AND_HE_R9Id_NoPixelVeto_Mass55_v","HLT_Diphoton30EB_18EB_R9Id_OR_IsoCaloId_AND_HE_R9Id_PixelVeto_Mass55_v"),
                                     #subDirs        = cms.untracked.vstring("HLT/Higgs/*"),
@@ -31,5 +29,4 @@ diphotonEfficiency = DQMEDHarvester("DQMGenericClient",
                                     )
 higgsClient = cms.Sequence(
     diphotonEfficiency
-    +vbfmetClient
     )
