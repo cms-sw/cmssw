@@ -141,9 +141,13 @@ namespace edm {
     using namespace edm::graph;
     //Need to lookup ids to names quickly
     std::unordered_map<unsigned int, std::string> moduleIndexToNames;
-    
+
+    std::unordered_map<std::string, unsigned int> pathStatusInserterModuleLabelToModuleID;
+
     //for testing, state that TriggerResults is at the end of all paths
     const std::string kTriggerResults("TriggerResults");
+    const std::string kPathStatusInserter("PathStatusInserter");
+    const std::string kEndPathStatusInserter("EndPathStatusInserter");
     unsigned int kTriggerResultsIndex = kInvalidIndex;
     unsigned int largestIndex = 0;
     unsigned int kPathToTriggerResultsDependencyLastIndex = kInvalidIndex;
@@ -155,6 +159,9 @@ namespace edm {
       }
       if(description->id() > largestIndex) {
         largestIndex = description->id();
+      }
+      if(description->moduleName() == kPathStatusInserter || description->moduleName() == kEndPathStatusInserter) {
+        pathStatusInserterModuleLabelToModuleID[description->moduleLabel()] = description->id();
       }
     }
     kPathToTriggerResultsDependencyLastIndex = largestIndex ;
@@ -254,18 +261,24 @@ namespace edm {
         }
         //Have TriggerResults depend on the end of all paths 
         // Have all EndPaths depend on TriggerResults
+        auto labelToID = pathStatusInserterModuleLabelToModuleID.find(pathNames[pathIndex]);
+        if(labelToID == pathStatusInserterModuleLabelToModuleID.end()) {
+          // should never happen
+          throw Exception(errors::LogicError)
+            << "PathsAndConsumesOfModules::moduleDescription:checkForModuleDependencyCorrectness Could not find PathStatusInserter\n";
+        }
+        unsigned int pathStatusInserterModuleID = labelToID->second;
         if( pathIndex < kFirstEndPathIndex) {
           if( (lastModuleIndex  != kInvalidIndex) ) {
-            ++kPathToTriggerResultsDependencyLastIndex;
-            edgeToPathMap[std::make_pair(kPathToTriggerResultsDependencyLastIndex,lastModuleIndex)].push_back(pathIndex);
-            moduleIndexToNames.insert(std::make_pair(kPathToTriggerResultsDependencyLastIndex,
+            edgeToPathMap[std::make_pair(pathStatusInserterModuleID, lastModuleIndex)].push_back(pathIndex);
+            moduleIndexToNames.insert(std::make_pair(pathStatusInserterModuleID,
                                                      kPathEnded));
             if (kTriggerResultsIndex != kInvalidIndex) {
-              edgeToPathMap[std::make_pair(kTriggerResultsIndex, kPathToTriggerResultsDependencyLastIndex)].push_back(kDataDependencyIndex);
+              edgeToPathMap[std::make_pair(kTriggerResultsIndex, pathStatusInserterModuleID)].push_back(kDataDependencyIndex);
             }
             //Need to make dependency for finished process
-            edgeToPathMap[std::make_pair(kFinishedProcessingIndex, kPathToTriggerResultsDependencyLastIndex)].push_back(kDataDependencyIndex);
-            pathOrder.push_back(kPathToTriggerResultsDependencyLastIndex);
+            edgeToPathMap[std::make_pair(kFinishedProcessingIndex, pathStatusInserterModuleID)].push_back(kDataDependencyIndex);
+            pathOrder.push_back(pathStatusInserterModuleID);
           }
         } else {
           if( (not moduleDescriptions->empty()) ) {
@@ -279,11 +292,11 @@ namespace edm {
             }
             //Need to make dependency for finished process
             ++kPathToTriggerResultsDependencyLastIndex;
-            edgeToPathMap[std::make_pair(kPathToTriggerResultsDependencyLastIndex,lastModuleIndex)].push_back(pathIndex);
-            moduleIndexToNames.insert(std::make_pair(kPathToTriggerResultsDependencyLastIndex,
+            edgeToPathMap[std::make_pair(pathStatusInserterModuleID, lastModuleIndex)].push_back(pathIndex);
+            moduleIndexToNames.insert(std::make_pair(pathStatusInserterModuleID,
                                                      kPathEnded));
-            edgeToPathMap[std::make_pair(kFinishedProcessingIndex, kPathToTriggerResultsDependencyLastIndex)].push_back(kDataDependencyIndex);
-            pathOrder.push_back(kPathToTriggerResultsDependencyLastIndex);
+            edgeToPathMap[std::make_pair(kFinishedProcessingIndex, pathStatusInserterModuleID)].push_back(kDataDependencyIndex);
+            pathOrder.push_back(pathStatusInserterModuleID);
           }
         }
       }

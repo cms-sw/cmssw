@@ -12,7 +12,7 @@ pfClient = DQMEDHarvester("PFClient",
                           )
 
 # need a different Client to store the slices  
-pfClient_JetRes = DQMEDHarvester("PFClient_JetRes",
+pfClientJetRes = DQMEDHarvester("PFClient_JetRes",
                                   FolderNames = cms.vstring("PFJet/CompWithGenJet","PFJet/CompWithCaloJet"),
                                   HistogramNames = cms.vstring( "delta_et_Over_et_VS_et_"),
                                   CreateEfficiencyPlots = cms.bool(False),

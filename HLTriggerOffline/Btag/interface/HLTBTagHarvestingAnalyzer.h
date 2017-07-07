@@ -33,6 +33,7 @@ class HLTBTagHarvestingAnalyzer : public DQMEDHarvester {
 			TH1F  calculateEfficiency1D( DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, TH1 & num, TH1 & den, std::string name );
 			bool GetNumDenumerators(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, std::string num, std::string den,TH1 * & ptrnum,TH1* & ptrden,int type);
 			void mistagrate( DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, TH1F* num, TH1F* den, std::string effName );
+			void modulesrate( DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, TH1F* num, TH1F* den, std::string effName );
 
 		private:
 			// ----------member data ---------------------------
@@ -47,6 +48,9 @@ class HLTBTagHarvestingAnalyzer : public DQMEDHarvester {
 
 			// Histogram handler
 			std::map<std::string, MonitorElement *> H1_;
+
+			enum HCALSpecials {HEP17, HEP18, HEM17};
+			std::map<HLTBTagHarvestingAnalyzer::HCALSpecials,std::string> HCALSpecialsNames;
 
 	};
 

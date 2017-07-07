@@ -122,8 +122,11 @@ EDConsumerBase::recordConsumes(BranchType iBranch, TypeToGet const& iType, edm::
     m_tokenLabels.push_back('\0');
   }
   {
+    const std::string& m = iTag.process();
+    if (m == InputTag::kCurrentProcess) {
+      containsCurrentProcessAlias_ = true;
+    }
     if (!skipCurrentProcess) {
-      const std::string& m =iTag.process();
       m_tokenLabels.insert(m_tokenLabels.end(),m.begin(),m.end());
       m_tokenLabels.push_back('\0');
     } else {
@@ -139,6 +142,7 @@ EDConsumerBase::updateLookup(BranchType iBranchType,
                              bool iPrefetchMayGet)
 {
   frozen_ = true;
+  assert(!containsCurrentProcessAlias_);
   {
     auto itKind = m_tokenInfo.begin<kKind>();
     auto itLabels = m_tokenInfo.begin<kLabels>();
@@ -477,6 +481,57 @@ EDConsumerBase::modulesWhoseProductsAreConsumed(std::vector<ModuleDescription co
         }
       }
     }
+  }
+}
+
+void
+EDConsumerBase::convertCurrentProcessAlias(std::string const& processName) {
+
+  frozen_ = true;
+
+  if (containsCurrentProcessAlias_) {
+    containsCurrentProcessAlias_ = false;
+
+    std::vector<char> newTokenLabels;
+
+    // first calculate the size of the new vector and reserve memory for it
+    std::vector<char>::size_type newSize = 0;
+    std::string newProcessName;
+    for(auto iter = m_tokenInfo.begin<kLabels>(), itEnd = m_tokenInfo.end<kLabels>();
+        iter != itEnd; ++iter) {
+      newProcessName = &m_tokenLabels[iter->m_startOfModuleLabel + iter->m_deltaToProcessName];
+      if (newProcessName == InputTag::kCurrentProcess) {
+        newProcessName = processName;
+      }
+      newSize += (iter->m_deltaToProcessName + newProcessName.size() + 1);
+    }
+    newTokenLabels.reserve(newSize);
+
+    unsigned int newStartOfModuleLabel = 0;
+    for(auto iter = m_tokenInfo.begin<kLabels>(), itEnd = m_tokenInfo.end<kLabels>();
+        iter != itEnd; ++iter) {
+
+      unsigned int startOfModuleLabel = iter->m_startOfModuleLabel;
+      unsigned short deltaToProcessName = iter->m_deltaToProcessName;
+
+      iter->m_startOfModuleLabel = newStartOfModuleLabel;
+
+      newProcessName = &m_tokenLabels[startOfModuleLabel + deltaToProcessName];
+      if (newProcessName == InputTag::kCurrentProcess) {
+        newProcessName = processName;
+      }
+
+      newStartOfModuleLabel += (deltaToProcessName + newProcessName.size() + 1);
+
+      // Copy in both the module label and instance, they are the same
+      newTokenLabels.insert(newTokenLabels.end(),
+                            m_tokenLabels.begin() + startOfModuleLabel,
+                            m_tokenLabels.begin() + (startOfModuleLabel + deltaToProcessName));
+
+      newTokenLabels.insert(newTokenLabels.end(), newProcessName.begin(), newProcessName.end());
+      newTokenLabels.push_back('\0');
+    }
+    m_tokenLabels = std::move(newTokenLabels);
   }
 }
 

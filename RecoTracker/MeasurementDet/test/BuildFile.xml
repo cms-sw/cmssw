@@ -1,6 +1,7 @@
 <use   name="FWCore/MessageLogger"/>
 <use   name="RecoTracker/MeasurementDet"/>
 <use   name="RecoTracker/Record"/>
+<use   name="TrackingTools/KalmanUpdators"/>
 <library   file="*.cc" name="RecoTrackerMeasurementDetTest">
   <flags   EDM_PLUGIN="1"/>
 </library>
