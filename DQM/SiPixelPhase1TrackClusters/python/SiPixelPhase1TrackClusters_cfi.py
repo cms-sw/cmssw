@@ -236,16 +236,58 @@ SiPixelPhase1ClustersSizeVsEtaOnTrackOuter = DefaultHistoTrack.clone(
     Specification().groupBy("PXBarrel/PXLayer").save()
   )
 )
-
 SiPixelPhase1ClustersSizeVsEtaOnTrackInner = SiPixelPhase1ClustersSizeVsEtaOnTrackOuter.clone(
   name = "sizeyvseta_on_track_inner",
   title = "Cluster Size along Beamline vs. Track #eta (OnTrack) inner ladders",
 )
 
+
+SiPixelPhase1TrackClustersOnTrackSizeYOuter = SiPixelPhase1ClustersSizeVsEtaOnTrackOuter.clone(
+  name = "sizey_on_track_outer",
+  title = "Cluster Size along Beamline vs. prediction (OnTrack) outer ladders",
+  xlabel = "prediction",
+  ylabel = "length [pixels]",
+  range_min = 0, range_max  = 30, range_nbins   = 60
+)
+SiPixelPhase1TrackClustersOnTrackSizeYInner = SiPixelPhase1TrackClustersOnTrackSizeYOuter.clone(
+  name = "sizey_on_track_inner",
+  title = "Cluster Size along Beamline vs. prediction (OnTrack) inner ladders",
+)
+
+
+SiPixelPhase1TrackClustersOnTrackSizeXOuter = SiPixelPhase1TrackClustersOnTrackSizeYOuter.clone(
+  name = "sizex_on_track_outer",
+  title = "Cluster Size along radial vs. prediction (OnTrack) outer ladders",
+  range_min = 0, range_max  = 6, range_nbins   = 12,
+  range_y_min =  0, range_y_max = 6, range_y_nbins = 6
+
+)
+SiPixelPhase1TrackClustersOnTrackSizeXInner = SiPixelPhase1TrackClustersOnTrackSizeXOuter.clone(
+  name = "sizex_on_track_inner",
+  title = "Cluster Size along radial vs. prediction (OnTrack) inner ladders",
+)
+
+
+SiPixelPhase1TrackClustersOnTrackSizeXYOuter = SiPixelPhase1TrackClustersOnTrackSizeYOuter.clone(
+  name = "sizexy_on_track_outer",
+  title = "prediction - Cluster Size x vs y (OnTrack) outer ladders",
+  xlabel = "y diff",
+  ylabel = "x diff",
+  range_min = -6, range_max  = 6, range_nbins   = 24,
+  range_y_min = -6, range_y_max = 6, range_y_nbins = 24 
+)
+SiPixelPhase1TrackClustersOnTrackSizeXYInner = SiPixelPhase1TrackClustersOnTrackSizeXYOuter.clone(
+ name = "sizexy_on_track_inner",
+ title = "prediction - Cluster Size x vs y (OnTrack) outer ladders"
+)
+
+
+
+
 SiPixelPhase1TrackClustersOnTrackChargeOuter = DefaultHistoTrack.clone(
   name = "chargeOuter",
   title = "Corrected Cluster Charge (OnTrack) outer ladders",
-  range_min = 0, range_max = 1500e3, range_nbins = 150,
+  range_min = 0, range_max = 150e3, range_nbins = 150,
   xlabel = "Charge (electrons)",
 
   specs = VPSet(
@@ -256,6 +298,20 @@ SiPixelPhase1TrackClustersOnTrackChargeInner = SiPixelPhase1TrackClustersOnTrack
   name = "chargeInner",
   title = "Corrected Cluster Charge (OnTrack) inner ladders"
 )  
+
+SiPixelPhase1TrackClustersOnTrackShapeOuter = DefaultHistoTrack.clone(
+  name = "shapeFilterOuter",
+  title = "Shape filter (OnTrack) Outer Ladders",
+  range_min = 0, range_max = 2, range_nbins = 2,
+  xlabel = "shapeFilter",
+  specs = VPSet(
+    Specification().groupBy("PXBarrel/PXLayer").save()
+  )
+)
+SiPixelPhase1TrackClustersOnTrackShapeInner = SiPixelPhase1TrackClustersOnTrackShapeOuter.clone(
+  name = "shapeFilterInner",
+  title = "Shape filter (OnTrack) Inner Ladders",
+)
 
 
 
@@ -273,7 +329,19 @@ SiPixelPhase1TrackClustersConf = cms.VPSet(
   SiPixelPhase1ClustersSizeVsEtaOnTrackOuter,
   SiPixelPhase1ClustersSizeVsEtaOnTrackInner,
   SiPixelPhase1TrackClustersOnTrackChargeOuter,
-  SiPixelPhase1TrackClustersOnTrackChargeInner
+  SiPixelPhase1TrackClustersOnTrackChargeInner,
+
+  SiPixelPhase1TrackClustersOnTrackShapeOuter,
+  SiPixelPhase1TrackClustersOnTrackShapeInner,
+
+  SiPixelPhase1TrackClustersOnTrackSizeXOuter,
+  SiPixelPhase1TrackClustersOnTrackSizeXInner,
+  SiPixelPhase1TrackClustersOnTrackSizeYOuter,
+  SiPixelPhase1TrackClustersOnTrackSizeYInner,
+
+  SiPixelPhase1TrackClustersOnTrackSizeXYOuter,
+  SiPixelPhase1TrackClustersOnTrackSizeXYInner
+
 )
 
 
