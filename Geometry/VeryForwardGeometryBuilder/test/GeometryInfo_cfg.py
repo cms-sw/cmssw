@@ -19,7 +19,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.GeomInfo = cms.EDAnalyzer("GeometryInfoModule")
+process.GeomInfo = cms.EDAnalyzer("CTPPSGeometryInfo")
 
 process.p = cms.Path(
     process.GeomInfo
