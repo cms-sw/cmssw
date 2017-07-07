@@ -22,7 +22,7 @@ class CSCGangedWireGrouping : public CSCWireGrouping {
   typedef std::vector<int> Container;
   typedef Container::const_iterator CIterator;
 
-  virtual ~CSCGangedWireGrouping() {}
+  ~CSCGangedWireGrouping() override {}
      
   /**
    * Constructor from endcap muon wire information parsed from DDD
@@ -37,24 +37,24 @@ class CSCGangedWireGrouping : public CSCWireGrouping {
    * This is the number which would fill the region covered
    * by wires, assuming the constant wire spacing.
    */
-  int numberOfWires() const {
+  int numberOfWires() const override {
     return theNumberOfWires; }
 
   /**
    * How many wire groups
    */
-  int numberOfWireGroups() const {
+  int numberOfWireGroups() const override {
     return theNumberOfGroups; }
 
   /**
    * How many wires in a wiregroup
    */
-  int numberOfWiresPerGroup( int wireGroup ) const;
+  int numberOfWiresPerGroup( int wireGroup ) const override;
 
   /**
    * Wire group containing a given wire
    */
-  int wireGroup( int wire ) const;
+  int wireGroup( int wire ) const override;
 
   /**
    * Middle of wire-group.
@@ -62,13 +62,13 @@ class CSCGangedWireGrouping : public CSCWireGrouping {
    * This is a pseudo-wire no. for a group with an even no. of wires.
    * Accordingly, it is non-integer.
    */
-  float middleWireOfGroup( int wireGroup ) const;
+  float middleWireOfGroup( int wireGroup ) const override;
 
   /**
    * Clone to handle correct copy of component objects referenced
    * by base class pointer.
    */
-  CSCWireGrouping* clone() const {
+  CSCWireGrouping* clone() const override {
     return new CSCGangedWireGrouping(*this);
   }
 

@@ -18,12 +18,12 @@ public:
   StripGeomDetType(TopologyType* t, std::string const & name,SubDetector& det,bool stereo) : GeomDetType(name,det),
     theTopology(t),theStereoFlag(stereo){}
 
-  virtual ~StripGeomDetType() {
+  ~StripGeomDetType() override {
     delete theTopology;
   }
 
   // Access to topologies
-  virtual const Topology&  topology() const { return *theTopology;}
+  const Topology&  topology() const override { return *theTopology;}
   
   virtual const  TopologyType& specificTopology() const { return *theTopology;}
 

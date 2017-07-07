@@ -14,18 +14,18 @@ class GEMEtaPartition : public GeomDetUnit
 public:
   
   GEMEtaPartition(GEMDetId id, BoundPlane::BoundPlanePointer bp, GEMEtaPartitionSpecs* rrs);
-  ~GEMEtaPartition();
+  ~GEMEtaPartition() override;
 
   const GEMEtaPartitionSpecs* specs() const { return specs_; }
   GEMDetId id() const { return id_; }
 
-  const Topology& topology() const;
+  const Topology& topology() const override;
   const StripTopology& specificTopology() const;
 
   const Topology& padTopology() const;
   const StripTopology& specificPadTopology() const;
 
-  const GeomDetType& type() const; 
+  const GeomDetType& type() const override; 
  
   // strip-related methods:
 

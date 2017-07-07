@@ -43,7 +43,7 @@
 class HcalRecNumberingTester : public edm::one::EDAnalyzer<> {
 public:
   explicit HcalRecNumberingTester( const edm::ParameterSet& );
-  ~HcalRecNumberingTester();
+  ~HcalRecNumberingTester() override;
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;

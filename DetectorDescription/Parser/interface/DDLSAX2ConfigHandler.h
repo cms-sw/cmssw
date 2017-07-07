@@ -36,13 +36,13 @@ class DDLSAX2ConfigHandler : public DDLSAX2Handler
   //  Constructor and Destructor
   // -----------------------------------------------------------------------
   DDLSAX2ConfigHandler( DDCompactView& cpv);
-  ~DDLSAX2ConfigHandler();
+  ~DDLSAX2ConfigHandler() override;
 
   // -----------------------------------------------------------------------
   //  Handlers for the SAX ContentHandler interface
   // -----------------------------------------------------------------------
   void startElement(const XMLCh* const uri, const XMLCh* const localname
-		    , const XMLCh* const qname, const Attributes& attrs);
+		    , const XMLCh* const qname, const Attributes& attrs) override;
 
   const std::vector<std::string>& getFileNames() const;
   const std::vector<std::string>& getURLs() const;

@@ -18,10 +18,10 @@ namespace DDI {
     { 
       p_.push_back(rMax);
     }  
-    ~Orb() { }
+    ~Orb() override { }
     
-    double volume() const { return (4.*Geom::pi()*p_[0]*p_[0]*p_[0])/3.; }
-    void stream(std::ostream & os) const;
+    double volume() const override { return (4.*Geom::pi()*p_[0]*p_[0]*p_[0])/3.; }
+    void stream(std::ostream & os) const override;
   };
 
 }
