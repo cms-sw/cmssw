@@ -65,7 +65,7 @@ void SiStripNoisesDQMService::readNoises()
 
 
     MonitorElement * mE = 0;
-    std::string MEname("CMSubNoisePerStrip__det__"+boost::lexical_cast<string>(it->first));
+    std::string MEname("CMSubNoisePerStrip__det__"+std::to_string(it->first));
     for( std::vector<MonitorElement*>::const_iterator MEit = MEs.begin();
          MEit != MEs.end(); ++MEit ) {
       if( (*MEit)->getName() == MEname ) {

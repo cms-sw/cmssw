@@ -132,7 +132,7 @@ std::unique_ptr<MagneticField> VolumeBasedMagneticFieldESProducerFromDB::produce
     // Build the geomeytry (DDDCompactView) from the DB blob
     // (code taken from GeometryReaders/XMLIdealGeometryESSource/src/XMLIdealMagneticFieldGeometryESProducer.cc) 
     edm::ESTransientHandle<FileBlob> gdd;
-    iRecord.getRecord<MFGeometryFileRcd>().get( boost::lexical_cast<string>(conf->geometryVersion), gdd );
+    iRecord.getRecord<MFGeometryFileRcd>().get( std::to_string(conf->geometryVersion), gdd );
     
     DDName ddName("cmsMagneticField:MAGF");
     DDLogicalPart rootNode(ddName);

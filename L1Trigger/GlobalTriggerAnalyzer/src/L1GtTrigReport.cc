@@ -648,7 +648,7 @@ void L1GtTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& ev
 
             //std::string ttName = itAlgo->first;
             //int ttBitNumber = ( itAlgo->second ).algoBitNumber();
-            std::string ttName = boost::lexical_cast<std::string>(iTechTrig);
+            std::string ttName = std::to_string(iTechTrig);
             int ttBitNumber = iTechTrig;
 
             int prescaleFactor = prescaleFactorsTechTrig.at(ttBitNumber);

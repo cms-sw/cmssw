@@ -930,8 +930,8 @@ void L1ExtraDQM::L1ExtraMonElement<CollectionType>::bookhistograms(
 
         for (int iCount = 0; iCount < l1extra::L1HFRings::kNumRings; ++iCount) {
 
-            histName = l1ExtraObject + "_Count_" + boost::lexical_cast<std::string>(iCount);
-            histTitle = l1ExtraObject + ": count " + boost::lexical_cast<std::string>(iCount);
+            histName = l1ExtraObject + "_Count_" + std::to_string(iCount);
+            histTitle = l1ExtraObject + ": count " + std::to_string(iCount);
             xAxisTitle = l1ExtraObject;
             yAxisTitle = "Entries";
 
@@ -1018,8 +1018,8 @@ void L1ExtraDQM::L1ExtraMonElement<CollectionType>::bookhistograms(
 
         for (int iCount = 0; iCount < l1extra::L1HFRings::kNumRings; ++iCount) {
 
-            histName = l1ExtraObject + "_Count_" + boost::lexical_cast<std::string>(iCount);
-            histTitle = l1ExtraObject + ": count " + boost::lexical_cast<std::string>(iCount);
+            histName = l1ExtraObject + "_Count_" + std::to_string(iCount);
+            histTitle = l1ExtraObject + ": count " + std::to_string(iCount);
             xAxisTitle = l1ExtraObject;
             yAxisTitle = "Entries";
 
