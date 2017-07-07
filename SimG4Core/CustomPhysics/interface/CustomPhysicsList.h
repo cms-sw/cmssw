@@ -16,10 +16,10 @@ class CustomPhysicsList : public G4VPhysicsConstructor
 {
 public:
   CustomPhysicsList(std::string name, const edm::ParameterSet & p);
-  virtual ~CustomPhysicsList();
+  ~CustomPhysicsList() override;
 
-  virtual void ConstructParticle();
-  virtual void ConstructProcess();
+  void ConstructParticle() override;
+  void ConstructProcess() override;
 
 private:
 

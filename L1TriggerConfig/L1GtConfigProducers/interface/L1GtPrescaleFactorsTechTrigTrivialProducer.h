@@ -42,7 +42,7 @@ public:
     L1GtPrescaleFactorsTechTrigTrivialProducer(const edm::ParameterSet&);
 
     /// destructor
-    ~L1GtPrescaleFactorsTechTrigTrivialProducer();
+    ~L1GtPrescaleFactorsTechTrigTrivialProducer() override;
 
     /// public methods
 

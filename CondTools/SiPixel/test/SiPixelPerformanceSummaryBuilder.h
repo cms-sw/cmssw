@@ -15,11 +15,11 @@ namespace cms {
   class SiPixelPerformanceSummaryBuilder : public edm::EDAnalyzer {
   public:
     explicit SiPixelPerformanceSummaryBuilder(const edm::ParameterSet&);
-  	    ~SiPixelPerformanceSummaryBuilder();
+  	    ~SiPixelPerformanceSummaryBuilder() override;
   private:
-    virtual void beginJob() ;
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
-    virtual void endJob() ;
+    void beginJob() override ;
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
+    void endJob() override ;
 
   private:
     std::vector<uint32_t> detectorModules_;

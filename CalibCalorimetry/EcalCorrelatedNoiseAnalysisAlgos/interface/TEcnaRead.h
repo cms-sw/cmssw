@@ -432,7 +432,7 @@ class TEcnaRead: public TObject {
   TEcnaRead&  operator=(const TEcnaRead&);  //  overloading of the operator=
 
   //................. destructor
-  virtual ~TEcnaRead();
+  ~TEcnaRead() override;
   
   //========================================================================
   //

@@ -21,9 +21,9 @@ class SurveyTest:
 
   SurveyTest(const edm::ParameterSet&);
 
-  virtual void beginJob();
+  void beginJob() override;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) {}
+  void analyze(const edm::Event&, const edm::EventSetup&) override {}
 
   private:
 

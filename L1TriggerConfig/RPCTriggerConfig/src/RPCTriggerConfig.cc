@@ -42,7 +42,7 @@
 class RPCTriggerConfig : public edm::ESProducer {
    public:
       RPCTriggerConfig(const edm::ParameterSet&);
-      ~RPCTriggerConfig();
+      ~RPCTriggerConfig() override;
 
       typedef std::unique_ptr<L1RPCConfig> ReturnType;
 

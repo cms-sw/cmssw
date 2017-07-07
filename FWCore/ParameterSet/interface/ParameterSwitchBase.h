@@ -15,7 +15,7 @@ namespace edm {
 
   class ParameterSwitchBase : public ParameterDescriptionNode {
   public:
-    virtual ~ParameterSwitchBase();
+    ~ParameterSwitchBase() override;
 
   protected:
     void insertAndCheckLabels(std::string const& switchLabel,
@@ -42,7 +42,7 @@ namespace edm {
                    bool isTracked,
                    std::string const& typeString) const;
 
-    virtual bool hasNestedContent_() const;
+    bool hasNestedContent_() const override;
 
     void printNestedContentBase(std::ostream & os,
                                 DocFormatHelper & dfh,
@@ -78,9 +78,9 @@ namespace edm {
                           DocFormatHelper & dfh,
                           std::string const& switchLabel);
 
-    virtual bool partiallyExists_(ParameterSet const& pset) const;
+    bool partiallyExists_(ParameterSet const& pset) const override;
 
-    virtual int howManyXORSubNodesExist_(ParameterSet const& pset) const;
+    int howManyXORSubNodesExist_(ParameterSet const& pset) const override;
 
   };
 }

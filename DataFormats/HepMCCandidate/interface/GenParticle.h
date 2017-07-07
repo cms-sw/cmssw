@@ -32,9 +32,9 @@ namespace reco {
     GenParticle(Charge q, const PolarLorentzVector & p4, const Point & vtx, 
 		int pdgId, int status, bool integerCharge);
     /// destructor
-    virtual ~GenParticle();
+    ~GenParticle() override;
     /// return a clone
-    GenParticle * clone() const;
+    GenParticle * clone() const override;
     void setCollisionId(int s) {collisionId_ = s;}
     int collisionId() const {return collisionId_;}
 
@@ -104,7 +104,7 @@ namespace reco {
     
   private:
     /// checp overlap with another candidate
-    bool overlap(const Candidate &) const;
+    bool overlap(const Candidate &) const override;
     int collisionId_;
     GenStatusFlags statusFlags_;
  };

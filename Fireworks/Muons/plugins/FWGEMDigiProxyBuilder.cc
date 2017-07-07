@@ -30,13 +30,13 @@ class FWGEMDigiProxyBuilder : public FWProxyBuilderBase
 {
 public:
   FWGEMDigiProxyBuilder() {}
-  virtual ~FWGEMDigiProxyBuilder() {}
+  ~FWGEMDigiProxyBuilder() override {}
 
   REGISTER_PROXYBUILDER_METHODS();
 
 private:
   using FWProxyBuilderBase::build;
-  virtual void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*);
+  void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
   FWGEMDigiProxyBuilder(const FWGEMDigiProxyBuilder&);    
   const FWGEMDigiProxyBuilder& operator=(const FWGEMDigiProxyBuilder&);
 };
@@ -118,12 +118,12 @@ class FWGEMPadDigiProxyBuilder : public FWProxyBuilderBase
 {
 public:
   FWGEMPadDigiProxyBuilder() {}
-  virtual ~FWGEMPadDigiProxyBuilder() {}
+  ~FWGEMPadDigiProxyBuilder() override {}
 
   REGISTER_PROXYBUILDER_METHODS();
 
 private:
-  virtual void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*);
+  void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
   FWGEMPadDigiProxyBuilder(const FWGEMPadDigiProxyBuilder&);    
   const FWGEMPadDigiProxyBuilder& operator=(const FWGEMPadDigiProxyBuilder&);
 };

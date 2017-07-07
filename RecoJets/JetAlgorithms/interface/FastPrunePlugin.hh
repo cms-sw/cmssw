@@ -114,15 +114,15 @@ public:
 	virtual std::vector<std::vector<PseudoJet> > pruned_subjets() const {return _pruned_subjets;}
 
 	// The things that are required by base class.
-	virtual std::string description () const;
-	virtual void run_clustering(ClusterSequence &) const;
+	std::string description () const override;
+	void run_clustering(ClusterSequence &) const override;
 
 	// Sets minimum pT for unpruned jets (default is 20 GeV)
 	//  (Just to save time by not pruning jets we don't care about)
 	virtual void set_unpruned_minpT(double pt) {_minpT = pt;}
 	
 	// Access to parameters.
-	virtual double R() const {return _find_definition.R();}
+	double R() const override {return _find_definition.R();}
 	virtual double zcut() const {return _cut_setter->zcut;}
 	virtual double Rcut() const {return _cut_setter->Rcut;}
 	// only meaningful for DefaultCutSetter:
@@ -141,7 +141,7 @@ public:
 	//  finding unpruned jets.
 	virtual ClusterSequence *get_unpruned_sequence() const {return _unpruned_seq;}
 
-	virtual ~FastPrunePlugin() {delete _unpruned_seq; delete _pruned_recombiner;
+	~FastPrunePlugin() override {delete _unpruned_seq; delete _pruned_recombiner;
                               delete _cut_setter;}
 
 protected:
@@ -185,8 +185,8 @@ public:
 		DefaultCutSetter(const double & z = 0.1, const double &Rcut_fact = 0.5)
 			: CutSetter(z), Rcut_factor(Rcut_fact) {}
 		double Rcut_factor;
-		virtual void SetCuts(const PseudoJet &jet,
-		                     const ClusterSequence &clust_seq) {
+		void SetCuts(const PseudoJet &jet,
+		                     const ClusterSequence &clust_seq) override {
 			PseudoJet p1, p2;
 			if (! clust_seq.has_parents(jet, p1, p2))
 				Rcut = 0.0;

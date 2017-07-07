@@ -66,7 +66,7 @@ class TrackClusterSplitter : public edm::stream::EDProducer<>
 
 public:
   TrackClusterSplitter(const edm::ParameterSet& iConfig) ;
-  ~TrackClusterSplitter() ;
+  ~TrackClusterSplitter() override ;
   void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override ;
   
 private:

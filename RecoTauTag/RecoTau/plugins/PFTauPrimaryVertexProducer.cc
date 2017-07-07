@@ -71,8 +71,8 @@ class PFTauPrimaryVertexProducer final : public edm::stream::EDProducer<> {
   typedef std::vector<DiscCutPair*> DiscCutPairVec;
 
   explicit PFTauPrimaryVertexProducer(const edm::ParameterSet& iConfig);
-  ~PFTauPrimaryVertexProducer();
-  virtual void produce(edm::Event&,const edm::EventSetup&);
+  ~PFTauPrimaryVertexProducer() override;
+  void produce(edm::Event&,const edm::EventSetup&) override;
 
  private:
   edm::InputTag PFTauTag_;

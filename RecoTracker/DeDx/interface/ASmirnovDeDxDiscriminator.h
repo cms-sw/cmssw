@@ -15,11 +15,11 @@ public:
    Prob_ChargePath     = NULL;
  }
 
- virtual void beginRun(edm::Run const& run, const edm::EventSetup& iSetup){
+ void beginRun(edm::Run const& run, const edm::EventSetup& iSetup) override{
     DeDxTools::buildDiscrimMap(run, iSetup, Reccord,  ProbabilityMode, Prob_ChargePath);
  }
 
- virtual std::pair<float,float> dedx(const reco::DeDxHitCollection& Hits){
+ std::pair<float,float> dedx(const reco::DeDxHitCollection& Hits) override{
     std::vector<float> vect_probs;
     for(size_t i = 0; i< Hits.size(); i ++){
        float path   = Hits[i].pathLength() * 10.0;  //x10 in order to be compatible with the map content

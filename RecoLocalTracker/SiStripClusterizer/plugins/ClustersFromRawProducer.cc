@@ -118,7 +118,7 @@ namespace {
       }
     
     
-    ~ClusterFiller() { printStat();}
+    ~ClusterFiller() override { printStat();}
     
     void fill(StripClusterizerAlgorithm::output_t::TSFastFiller & record) override;
     
@@ -201,12 +201,12 @@ class SiStripClusterizerFromRaw final : public edm::stream::EDProducer<>  {
       }
   
 
-  void beginRun( const edm::Run&, const edm::EventSetup& es) {
+  void beginRun( const edm::Run&, const edm::EventSetup& es) override {
     initialize(es);
   }
   
   
-  void produce(edm::Event& ev, const edm::EventSetup& es) {
+  void produce(edm::Event& ev, const edm::EventSetup& es) override {
     
     initialize(es);
     

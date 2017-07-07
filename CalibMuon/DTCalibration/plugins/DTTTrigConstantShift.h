@@ -27,10 +27,10 @@ public:
   DTTTrigConstantShift(const edm::ParameterSet&);
 
   // Destructor
-  virtual ~DTTTrigConstantShift();
+  ~DTTTrigConstantShift() override;
 
-  virtual void setES(const edm::EventSetup& setup);
-  virtual DTTTrigData correction(const DTSuperLayerId&);
+  void setES(const edm::EventSetup& setup) override;
+  DTTTrigData correction(const DTSuperLayerId&) override;
 
 private:
   std::string dbLabel_;

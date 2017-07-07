@@ -53,13 +53,13 @@ using namespace reco;
 class SinglePhotonJetPlusHOFilter : public edm::EDFilter {
    public:
       explicit SinglePhotonJetPlusHOFilter(const edm::ParameterSet&);
-      ~SinglePhotonJetPlusHOFilter();
+      ~SinglePhotonJetPlusHOFilter() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
 
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      bool filter(edm::Event&, const edm::EventSetup&) override;
 
       // ----------member data ---------------------------
   int Nevt;

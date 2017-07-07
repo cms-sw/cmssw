@@ -52,22 +52,22 @@ public Observer<const EndOfEvent*>
   MuonSensitiveDetector(std::string, const DDCompactView &,
 			const SensitiveDetectorCatalog &, edm::ParameterSet const &,
 			const SimTrackManager*);
-  virtual ~MuonSensitiveDetector();
-  virtual G4bool ProcessHits(G4Step *,G4TouchableHistory *);
-  virtual uint32_t setDetUnitId(G4Step *);
-  virtual void EndOfEvent(G4HCofThisEvent*);
+  ~MuonSensitiveDetector() override;
+  G4bool ProcessHits(G4Step *,G4TouchableHistory *) override;
+  uint32_t setDetUnitId(G4Step *) override;
+  void EndOfEvent(G4HCofThisEvent*) override;
 
-  void fillHits(edm::PSimHitContainer&, std::string use);
-  std::vector<std::string> getNames();
+  void fillHits(edm::PSimHitContainer&, std::string use) override;
+  std::vector<std::string> getNames() override;
   std::string type();
 
   const MuonSlaveSD* GetSlaveMuon() const {
     return slaveMuon; }
   
  private:
-  void update(const BeginOfEvent *);
-  void update(const ::EndOfEvent *);
-  virtual void clearHits();
+  void update(const BeginOfEvent *) override;
+  void update(const ::EndOfEvent *) override;
+  void clearHits() override;
 
   Local3DPoint toOrcaRef(Local3DPoint in ,G4Step * s);
   Local3DPoint toOrcaUnits(Local3DPoint);

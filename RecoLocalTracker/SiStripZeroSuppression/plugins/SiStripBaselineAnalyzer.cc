@@ -76,13 +76,13 @@
 class SiStripBaselineAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
    public:
       explicit SiStripBaselineAnalyzer(const edm::ParameterSet&);
-      ~SiStripBaselineAnalyzer();
+      ~SiStripBaselineAnalyzer() override;
 
 
    private:
-      virtual void beginJob() override ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override ;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
       
 	  std::auto_ptr<SiStripPedestalsSubtractor>   subtractorPed_;
           edm::ESHandle<SiStripPedestals> pedestalsHandle;

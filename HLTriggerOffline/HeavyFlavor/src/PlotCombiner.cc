@@ -19,7 +19,7 @@ using namespace std;
 class PlotCombiner : public DQMEDHarvester{
   public:
     PlotCombiner(const edm::ParameterSet& pset);
-    virtual ~PlotCombiner();
+    ~PlotCombiner() override;
   private:
   void makePlot(const ParameterSet& pset, DQMStore::IBooker &, DQMStore::IGetter &);
 

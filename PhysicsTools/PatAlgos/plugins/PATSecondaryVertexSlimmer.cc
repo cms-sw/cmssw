@@ -22,9 +22,9 @@ namespace pat {
   class PATSecondaryVertexSlimmer : public edm::global::EDProducer<> {
   public:
     explicit PATSecondaryVertexSlimmer(const edm::ParameterSet&);
-    ~PATSecondaryVertexSlimmer();
+    ~PATSecondaryVertexSlimmer() override;
     
-    virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const;
+    void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   private:
     const edm::EDGetTokenT<reco::VertexCompositePtrCandidateCollection> src_;
     const edm::EDGetTokenT<std::vector<reco::Vertex> > srcLegacy_;

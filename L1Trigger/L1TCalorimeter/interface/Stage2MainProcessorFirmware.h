@@ -36,9 +36,9 @@ namespace l1t {
   public:
     Stage2MainProcessorFirmwareImp1(unsigned fwv, CaloParamsHelper* params);
 
-    virtual ~Stage2MainProcessorFirmwareImp1();
+    ~Stage2MainProcessorFirmwareImp1() override;
 
-    virtual void processEvent(const std::vector<l1t::CaloTower> & inTowers,
+    void processEvent(const std::vector<l1t::CaloTower> & inTowers,
 			      std::vector<l1t::CaloTower> & outTowers,
 			      std::vector<l1t::CaloCluster> & clusters,
 			      std::vector<l1t::EGamma> & mpEGammas,
@@ -48,7 +48,7 @@ namespace l1t {
 			      std::vector<l1t::EGamma> & egammas,
 			      std::vector<l1t::Tau> & taus,
 			      std::vector<l1t::Jet> & jets,
-			      std::vector<l1t::EtSum> & etSums);
+			      std::vector<l1t::EtSum> & etSums) override;
 
     void print(std::ostream&) const;
 

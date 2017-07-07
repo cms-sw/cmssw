@@ -15,7 +15,7 @@ class FWMETGlimpseProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::MET>
 {
 public:
    FWMETGlimpseProxyBuilder( void ) {}
-   virtual ~FWMETGlimpseProxyBuilder( void ) {}
+   ~FWMETGlimpseProxyBuilder( void ) override {}
    
    REGISTER_PROXYBUILDER_METHODS();
    
@@ -24,7 +24,7 @@ private:
    const FWMETGlimpseProxyBuilder& operator=( const FWMETGlimpseProxyBuilder& );    // stop default
    
    using FWSimpleProxyBuilderTemplate<reco::MET>::build;
-   virtual void build( const reco::MET& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext* );
+   void build( const reco::MET& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext* ) override;
 };
 
 void 

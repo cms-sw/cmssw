@@ -46,7 +46,7 @@ protected:
    const T& modelData(int index) { return *reinterpret_cast<const T*>(m_helper.offsetObject(item()->modelData(index))); }
 
    using FWSimpleProxyBuilder::build;
-   virtual void build(const void*iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* context)
+   void build(const void*iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* context) override
    {
       if(0!=iData) {
          build(*reinterpret_cast<const T*> (iData), iIndex, oItemHolder, context);
@@ -54,7 +54,7 @@ protected:
    }
 
    using FWSimpleProxyBuilder::buildViewType;
-   virtual void buildViewType(const void*iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType viewType, const FWViewContext* context)
+   void buildViewType(const void*iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType viewType, const FWViewContext* context) override
    {
       if(0!=iData) {
          buildViewType(*reinterpret_cast<const T*> (iData), iIndex, oItemHolder, viewType, context);

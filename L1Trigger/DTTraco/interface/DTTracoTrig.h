@@ -51,7 +51,7 @@ class DTTracoTrig : public DTTrigData {
     DTTracoTrig(DTTracoChip*, DTTracoTrigData) ;
   
     /// Destructor 
-    ~DTTracoTrig();
+    ~DTTracoTrig() override;
 
     /// Set the parent TRACO
     inline void setParent(DTTracoChip* parent) { 
@@ -135,12 +135,12 @@ class DTTracoTrig : public DTTrigData {
     }
   
     /// Return chamber identifier
-    inline DTChamberId ChamberId() const {
+    inline DTChamberId ChamberId() const override {
       return _data.ChamberId(); 
     }
 
     /// Print
-    inline void print() const { 
+    inline void print() const override { 
       _data.print();
     }
 

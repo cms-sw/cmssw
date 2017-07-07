@@ -53,9 +53,9 @@ namespace edm {
 class HLTEcalPhiSymFilter : public edm::global::EDFilter<> {
 public:
   HLTEcalPhiSymFilter(const edm::ParameterSet&);
-  ~HLTEcalPhiSymFilter();
+  ~HLTEcalPhiSymFilter() override;
 
-  virtual bool filter(edm::StreamID, edm::Event & event, const edm::EventSetup & setup) const override final;
+  bool filter(edm::StreamID, edm::Event & event, const edm::EventSetup & setup) const final;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:

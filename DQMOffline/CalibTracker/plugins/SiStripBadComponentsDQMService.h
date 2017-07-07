@@ -23,15 +23,15 @@ class SiStripBadComponentsDQMService : public SiStripCondObjBuilderBase<SiStripB
  public:
 
   explicit SiStripBadComponentsDQMService(const edm::ParameterSet&,const edm::ActivityRegistry&);
-  ~SiStripBadComponentsDQMService();
+  ~SiStripBadComponentsDQMService() override;
   
   /// Used to fill the logDB
-  void getMetaDataString(std::stringstream& ss);
+  void getMetaDataString(std::stringstream& ss) override;
 
   /// Check is the transfer is needed
-  virtual bool checkForCompatibility(std::string ss);
+  bool checkForCompatibility(std::string ss) override;
 
-  void getObj(SiStripBadStrip* & obj){readBadComponents(); obj=obj_;}
+  void getObj(SiStripBadStrip* & obj) override{readBadComponents(); obj=obj_;}
 
  private:
 

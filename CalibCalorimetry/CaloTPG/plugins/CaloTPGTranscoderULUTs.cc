@@ -44,7 +44,7 @@
 class CaloTPGTranscoderULUTs : public edm::ESProducer {
 public:
   CaloTPGTranscoderULUTs(const edm::ParameterSet&);
-  ~CaloTPGTranscoderULUTs();
+  ~CaloTPGTranscoderULUTs() override;
   
   typedef std::unique_ptr<CaloTPGTranscoder> ReturnType;
   

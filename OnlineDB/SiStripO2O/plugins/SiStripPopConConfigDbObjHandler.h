@@ -35,11 +35,11 @@ namespace popcon{
 
     //---------------------------------------
     //
-    ~SiStripPopConConfigDbObjHandler(){}; 
+    ~SiStripPopConConfigDbObjHandler() override{}; 
 
     //---------------------------------------
     //
-    void getNewObjects(){
+    void getNewObjects() override{
       edm::LogInfo   ("SiStripPopPopConConfigDbObjHandler") << "[getNewObjects] for PopCon application " << m_name;
      
       if (m_debugMode){
@@ -80,7 +80,7 @@ namespace popcon{
 
     //---------------------------------------
     //
-    std::string id() const { return m_name;}
+    std::string id() const override { return m_name;}
 
     //---------------------------------------
     //

@@ -55,9 +55,9 @@ class CmsShowEDI : public TGTransientFrame
 public:
    CmsShowEDI(const TGWindow* p = 0, UInt_t w = 1, UInt_t h = 1, FWSelectionManager* selMgr = 0,
               FWColorManager* colorMgr=0);
-   virtual ~CmsShowEDI();
+   ~CmsShowEDI() override;
 
-   virtual void CloseWindow() { UnmapWindow(); }
+   void CloseWindow() override { UnmapWindow(); }
 
    // ---------- const member functions ---------------------
    

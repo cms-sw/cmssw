@@ -17,10 +17,10 @@ class test_AnalyzeCabling : public edm::EDAnalyzer {
  public:
   
   test_AnalyzeCabling( const edm::ParameterSet& ) {;}
-  virtual ~test_AnalyzeCabling() {;}
+  ~test_AnalyzeCabling() override {;}
   
-  void beginRun( const edm::Run&, const edm::EventSetup& );
-  void analyze( const edm::Event&, const edm::EventSetup& ) {;}
+  void beginRun( const edm::Run&, const edm::EventSetup& ) override;
+  void analyze( const edm::Event&, const edm::EventSetup& ) override {;}
   
 };
 

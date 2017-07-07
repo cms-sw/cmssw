@@ -28,13 +28,13 @@ public:
   DT4DSegmentClients(const edm::ParameterSet& ps);
 
  /// Destructor
- ~DT4DSegmentClients();
- void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
+ ~DT4DSegmentClients() override;
+ void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c) override;
 
 protected:
 
   /// Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
 private:
 

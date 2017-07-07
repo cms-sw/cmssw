@@ -15,7 +15,7 @@ class FWSimVertexProxyBuilder : public FWSimpleProxyBuilderTemplate<SimVertex>
 {
 public:
    FWSimVertexProxyBuilder( void ) {} 
-   virtual ~FWSimVertexProxyBuilder( void ) {}
+   ~FWSimVertexProxyBuilder( void ) override {}
 
    REGISTER_PROXYBUILDER_METHODS();
 

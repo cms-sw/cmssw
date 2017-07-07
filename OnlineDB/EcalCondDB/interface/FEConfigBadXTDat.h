@@ -11,10 +11,10 @@ class FEConfigBadXTDat : public IODConfig {
  public:
   friend class EcalCondDBInterface;
   FEConfigBadXTDat();
-  ~FEConfigBadXTDat();
+  ~FEConfigBadXTDat() override;
 
   // User data methods
-  inline std::string getTable() { return "FE_CONFIG_BadCRYSTALS_DAT"; }
+  inline std::string getTable() override { return "FE_CONFIG_BadCRYSTALS_DAT"; }
 
   inline void setId(int dac) { m_ID = dac; }
   inline int getId() const { return m_ID; }
@@ -37,7 +37,7 @@ class FEConfigBadXTDat : public IODConfig {
 
  private:
   void prepareWrite() 
-    noexcept(false);
+    noexcept(false) override;
 
   void writeDB(const FEConfigBadXTDat* item, FEConfigBadXTInfo* iov )
     noexcept(false);

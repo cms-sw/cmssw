@@ -31,13 +31,13 @@ class EventCountProducer : public edm::one::EDProducer<edm::one::WatchLuminosity
                                                        edm::EndLuminosityBlockProducer> {
 public:
   explicit EventCountProducer(const edm::ParameterSet&);
-  ~EventCountProducer();
+  ~EventCountProducer() override;
 
 private:
-  virtual void produce(edm::Event &, const edm::EventSetup&) override;
-  virtual void beginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup&) override;
-  virtual void endLuminosityBlock(edm::LuminosityBlock const&, const edm::EventSetup&) override;
-  virtual void endLuminosityBlockProduce(edm::LuminosityBlock &, const edm::EventSetup&) override;
+  void produce(edm::Event &, const edm::EventSetup&) override;
+  void beginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup&) override;
+  void endLuminosityBlock(edm::LuminosityBlock const&, const edm::EventSetup&) override;
+  void endLuminosityBlockProduce(edm::LuminosityBlock &, const edm::EventSetup&) override;
       
   // ----------member data ---------------------------
 

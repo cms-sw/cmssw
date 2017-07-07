@@ -34,9 +34,9 @@
 class L1RCT_RSKeysOnlineProd : public L1ObjectKeysOnlineProdBase {
 public: 
   L1RCT_RSKeysOnlineProd(const edm::ParameterSet& iConfig);
-  ~L1RCT_RSKeysOnlineProd() {}
+  ~L1RCT_RSKeysOnlineProd() override {}
 
-      virtual void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
+      void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
    private:
       // ----------member data ---------------------------
        bool m_enableL1RCTChannelMask;

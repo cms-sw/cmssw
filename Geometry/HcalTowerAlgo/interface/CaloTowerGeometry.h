@@ -36,13 +36,13 @@ class CaloTowerGeometry : public CaloSubdetectorGeometry
 
       static std::string dbString() { return "PCaloTowerRcd" ; }
 
-      virtual unsigned int numberOfShapes() const { return k_NumberOfShapes ; }
-      virtual unsigned int numberOfParametersPerShape() const { return k_NumberOfParametersPerShape ; }
+      unsigned int numberOfShapes() const override { return k_NumberOfShapes ; }
+      unsigned int numberOfParametersPerShape() const override { return k_NumberOfParametersPerShape ; }
       virtual unsigned int numberOfCellsForCorners() const { return k_NumberOfCellsForCorners ; }
 
 
       CaloTowerGeometry(const CaloTowerTopology *cttopo_);
-      virtual ~CaloTowerGeometry();  
+      ~CaloTowerGeometry() override;  
 
       static std::string producerTag() { return "TOWER" ; }
 
@@ -59,26 +59,26 @@ class CaloTowerGeometry : public CaloSubdetectorGeometry
 				unsigned int    i   ,
 				Pt3D&           ref   ) ;
 
-      virtual void newCell( const GlobalPoint& f1 ,
+      void newCell( const GlobalPoint& f1 ,
 			    const GlobalPoint& f2 ,
 			    const GlobalPoint& f3 ,
 			    const CCGFloat*    parm,
-			    const DetId&       detId     ) ;
+			    const DetId&       detId     ) override ;
 				
-      virtual const CaloCellGeometry* getGeometry( const DetId& id ) const {
+      const CaloCellGeometry* getGeometry( const DetId& id ) const override {
           return cellGeomPtr( cttopo->denseIndex(id) ) ;
       }
 
-  virtual void getSummary( CaloSubdetectorGeometry::TrVec&  trVector,
+  void getSummary( CaloSubdetectorGeometry::TrVec&  trVector,
 			   CaloSubdetectorGeometry::IVec&   iVector,
 			   CaloSubdetectorGeometry::DimVec& dimVector,
-			   CaloSubdetectorGeometry::IVec& dinsVector ) const ;
+			   CaloSubdetectorGeometry::IVec& dinsVector ) const override ;
 
    protected:
 
-      virtual const CaloCellGeometry* cellGeomPtr( uint32_t index ) const ;
-      virtual unsigned int indexFor(const DetId& id) const { return  cttopo->denseIndex(id); }
-      virtual unsigned int sizeForDenseIndex(const DetId& id) const { return cttopo->sizeForDenseIndexing(); }
+      const CaloCellGeometry* cellGeomPtr( uint32_t index ) const override ;
+      unsigned int indexFor(const DetId& id) const override { return  cttopo->denseIndex(id); }
+      unsigned int sizeForDenseIndex(const DetId& id) const override { return cttopo->sizeForDenseIndexing(); }
 
    private:
       const CaloTowerTopology* cttopo;

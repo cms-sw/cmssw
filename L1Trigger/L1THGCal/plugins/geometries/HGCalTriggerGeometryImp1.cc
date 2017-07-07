@@ -13,7 +13,7 @@ class HGCalTriggerGeometryImp1 : public HGCalTriggerGeometryGenericMapping
     public:
         HGCalTriggerGeometryImp1(const edm::ParameterSet& conf);
 
-        virtual void initialize(const es_info& ) override final;
+        void initialize(const es_info& ) final;
 
     private:
         edm::FileInPath l1tCellsMapping_;

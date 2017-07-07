@@ -44,7 +44,7 @@ class DTBtiTrigData : public DTTrigData {
   DTBtiTrigData() {}
   
   //! Destructor 
-  ~DTBtiTrigData() {}
+  ~DTBtiTrigData() override {}
 
   //! Set the parent BTI identifier
   inline void setParent(DTBtiId btiid) {
@@ -99,12 +99,12 @@ class DTBtiTrigData : public DTTrigData {
   }  
 
   //! Return chamber identifier
-  DTChamberId ChamberId() const {
+  DTChamberId ChamberId() const override {
     return DTChamberId(_btiid.wheel(),_btiid.station(),_btiid.sector()); 
   }
 
   //! Print
-  void print() const;
+  void print() const override;
 
   //! Return parent BTI identifier
   inline DTBtiId parentId() const { 

@@ -11,8 +11,8 @@ class testAssociationMapFilterValues : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
   void checkOneToOne();
   void checkOneToMany();
   void checkOneToManyQuality();
@@ -34,7 +34,7 @@ namespace {
   class Derived: public Base {
   public:
     explicit Derived(double v): Base(v) {}
-    virtual ~Derived() {}
+    ~Derived() override {}
   };
 }
 

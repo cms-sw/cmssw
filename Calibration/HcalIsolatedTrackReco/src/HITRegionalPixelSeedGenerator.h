@@ -64,10 +64,10 @@ class HITRegionalPixelSeedGenerator : public TrackingRegionProducer {
     if (usejets_) token_l1jet = iC.consumes<l1extra::L1JetParticleCollection>(regionPSet.getParameter<edm::InputTag>("l1tjetSrc"));
   }
 
-  virtual ~HITRegionalPixelSeedGenerator() {}
+  ~HITRegionalPixelSeedGenerator() override {}
   
   
-  virtual std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& e, const edm::EventSetup& es) const override
+  std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& e, const edm::EventSetup& es) const override
     {
       std::vector<std::unique_ptr<TrackingRegion> > result;
       float originz =0.;

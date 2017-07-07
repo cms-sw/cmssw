@@ -6,7 +6,7 @@ public:
     HGCalTriggerGeometryGenericMapping(conf) {
   }
 
-  virtual void initialize(const es_info& ) override final {}
+  void initialize(const es_info& ) final {}
 };
 
 DEFINE_EDM_PLUGIN(HGCalTriggerGeometryFactory, 

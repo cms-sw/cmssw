@@ -19,12 +19,12 @@ public:
                     );
   HcalSimParameters(const edm::ParameterSet & p);
 
-  virtual ~HcalSimParameters() {}
+  ~HcalSimParameters() override {}
 
   void setDbService(const HcalDbService * service);
 
-  virtual double simHitToPhotoelectrons(const DetId & detId) const;
-  virtual double photoelectronsToAnalog(const DetId & detId) const;
+  double simHitToPhotoelectrons(const DetId & detId) const override;
+  double photoelectronsToAnalog(const DetId & detId) const override;
 
   double fCtoGeV(const DetId & detId) const;
 

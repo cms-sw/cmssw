@@ -47,7 +47,7 @@ public:
   explicit TestTrackerHierarchy( const edm::ParameterSet& pSet) 
     : dumpAlignments_(pSet.getUntrackedParameter<bool>("dumpAlignments")) {}
   
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  void analyze( const edm::Event&, const edm::EventSetup& ) override;
 private:
   // ----------member data ---------------------------
   void dumpAlignable( const Alignable*, unsigned int, unsigned int );

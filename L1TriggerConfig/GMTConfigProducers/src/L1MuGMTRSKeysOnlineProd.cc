@@ -19,9 +19,9 @@
 class L1MuGMTRSKeysOnlineProd : public L1ObjectKeysOnlineProdBase {
    public:
       L1MuGMTRSKeysOnlineProd(const edm::ParameterSet& iConfig) ;
-      ~L1MuGMTRSKeysOnlineProd() {}
+      ~L1MuGMTRSKeysOnlineProd() override {}
 
-      virtual void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
+      void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
    private:
       bool m_enableL1MuGMTChannelMask ;
 };

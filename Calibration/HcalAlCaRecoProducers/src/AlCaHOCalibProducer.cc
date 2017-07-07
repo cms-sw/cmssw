@@ -154,7 +154,7 @@ Ring 0 L0 : Width Tray 6:266.6, 5&4:325.6, 3:330.6, 2:341.6, 1:272.6
 class AlCaHOCalibProducer : public edm::EDProducer {
 public:
   explicit AlCaHOCalibProducer(const edm::ParameterSet&);
-  ~AlCaHOCalibProducer();
+  ~AlCaHOCalibProducer() override;
 
   typedef Basic3DVector<float>   PositionType;
   typedef Basic3DVector<float>   DirectionType;
@@ -162,10 +162,10 @@ public:
 
 
 private:
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void beginJob() override ;
-  virtual void endJob() override ;
-  virtual void beginRun(edm::Run const &, edm::EventSetup const &) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void beginJob() override ;
+  void endJob() override ;
+  void beginRun(edm::Run const &, edm::EventSetup const &) override;
   void fillHOStore(const reco::TrackRef& ncosm,
 		   HOCalibVariables& tmpHOCalib,
 		   std::unique_ptr<HOCalibVariableCollection> &hostore,

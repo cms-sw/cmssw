@@ -56,7 +56,7 @@ namespace edm {
     class ModuleHolderT : public ModuleHolder {
     public:
       ModuleHolderT(std::shared_ptr<T> iModule, Maker const* iMaker) :ModuleHolder(iMaker), m_mod(iModule) {}
-      ~ModuleHolderT() {}
+      ~ModuleHolderT() override {}
       std::shared_ptr<T> module() const { return m_mod; }
       void replaceModuleFor(Worker* iWorker) const override {
         auto w = dynamic_cast<WorkerT<T>*>(iWorker);

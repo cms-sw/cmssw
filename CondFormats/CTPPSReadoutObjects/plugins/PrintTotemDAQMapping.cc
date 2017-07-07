@@ -26,13 +26,13 @@ class PrintTotemDAQMapping : public edm::one::EDAnalyzer<>
 {
   public:
     PrintTotemDAQMapping(const edm::ParameterSet &ps);
-    ~PrintTotemDAQMapping() {}
+    ~PrintTotemDAQMapping() override {}
 
   private:
     /// label of the CTPPS sub-system
     std::string subSystemName;
 
-    virtual void analyze(const edm::Event &e, const edm::EventSetup &es) override;
+    void analyze(const edm::Event &e, const edm::EventSetup &es) override;
 };
 
 using namespace std;

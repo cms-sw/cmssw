@@ -34,12 +34,12 @@
 class TestModuleChangeLooper : public edm::EDLooper {
    public:
       TestModuleChangeLooper(edm::ParameterSet const&);
-      ~TestModuleChangeLooper();
+      ~TestModuleChangeLooper() override;
 
-      void startingNewLoop(unsigned int) {
+      void startingNewLoop(unsigned int) override {
 
       }
-      Status duringLoop(edm::Event const& iEvent, edm::EventSetup const&) {
+      Status duringLoop(edm::Event const& iEvent, edm::EventSetup const&) override {
          edm::Handle<edmtest::IntProduct> handle;
          iEvent.getByLabel(m_tag, handle);
          if(handle->value != m_expectedValue) {
@@ -47,7 +47,7 @@ class TestModuleChangeLooper : public edm::EDLooper {
          }
          return kContinue;
       }
-      Status endOfLoop(edm::EventSetup const&,  unsigned int iCount) {
+      Status endOfLoop(edm::EventSetup const&,  unsigned int iCount) override {
          //modify the module
          edm::ParameterSet const* pset = scheduleInfo()->parametersForModule(m_tag.label());
          assert(0 != pset);

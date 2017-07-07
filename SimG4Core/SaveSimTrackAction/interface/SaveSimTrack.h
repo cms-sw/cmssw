@@ -13,8 +13,8 @@ class SaveSimTrack : public SimWatcher,
 
 public:
   SaveSimTrack(edm::ParameterSet const & p);
-  ~SaveSimTrack();
-  void update(const BeginOfTrack * trk);
+  ~SaveSimTrack() override;
+  void update(const BeginOfTrack * trk) override;
 
 private:
   std::vector<int> pdgs_;

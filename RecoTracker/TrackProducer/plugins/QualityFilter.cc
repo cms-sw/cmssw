@@ -11,10 +11,10 @@
 class dso_hidden QualityFilter final : public edm::stream::EDProducer<> {
  public:
   explicit QualityFilter(const edm::ParameterSet&);
-  ~QualityFilter();
+  ~QualityFilter() override;
   
  private:
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() ;
   
   // ----------member data ---------------------------

@@ -17,10 +17,10 @@
 class MuonTrackProducer : public edm::stream::EDProducer<> {
   public:
     explicit MuonTrackProducer(const edm::ParameterSet&);
-    virtual ~MuonTrackProducer();
+    ~MuonTrackProducer() override;
 
   private:
-    virtual void produce(edm::Event&, const edm::EventSetup&);
+    void produce(edm::Event&, const edm::EventSetup&) override;
   
     edm::Handle<reco::MuonCollection> muonCollectionH;
     edm::Handle<DTRecSegment4DCollection> dtSegmentCollectionH_;

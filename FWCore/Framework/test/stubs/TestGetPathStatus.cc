@@ -21,7 +21,7 @@ namespace edmtest {
   public:
 
     explicit TestGetPathStatus(edm::ParameterSet const& pset);
-    virtual ~TestGetPathStatus() {}
+    ~TestGetPathStatus() override {}
 
     void analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const override;
 

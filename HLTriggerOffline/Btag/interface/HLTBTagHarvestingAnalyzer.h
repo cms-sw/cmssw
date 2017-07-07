@@ -27,9 +27,9 @@
 class HLTBTagHarvestingAnalyzer : public DQMEDHarvester { 
 		public:
 			explicit HLTBTagHarvestingAnalyzer(const edm::ParameterSet&);
-			~HLTBTagHarvestingAnalyzer();
+			~HLTBTagHarvestingAnalyzer() override;
 
-			virtual void dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter);
+			void dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) override;
 			TH1F  calculateEfficiency1D( DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, TH1 & num, TH1 & den, std::string name );
 			bool GetNumDenumerators(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, std::string num, std::string den,TH1 * & ptrnum,TH1* & ptrden,int type);
 			void mistagrate( DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, TH1F* num, TH1F* den, std::string effName );

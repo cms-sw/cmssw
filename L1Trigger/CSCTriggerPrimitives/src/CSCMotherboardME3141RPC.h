@@ -36,7 +36,7 @@ class CSCMotherboardME3141RPC : public CSCMotherboard
 		 const edm::ParameterSet& conf);
 
   /** Default destructor. */
-  ~CSCMotherboardME3141RPC();
+  ~CSCMotherboardME3141RPC() override;
 
   /** Run function for normal usage.  Runs cathode and anode LCT processors,
       takes results and correlates into CorrelatedLCT. */

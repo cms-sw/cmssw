@@ -13,7 +13,7 @@ namespace l1t{
 		class BMTFUnpackerInputsOldQual : public Unpacker
 		{
 			public:
-				virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
+				bool unpack(const Block& block, UnpackerCollections *coll) override;
 			private:
 				qualityHits linkAndQual_;
 				//std::map<int, qualityHits> linkAndQual_;
@@ -22,7 +22,7 @@ namespace l1t{
 		class BMTFUnpackerInputsNewQual : public Unpacker
 		{
 			public:
-				virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
+				bool unpack(const Block& block, UnpackerCollections *coll) override;
 			private:
 				qualityHits linkAndQual_;
 				//std::map<int, qualityHits> linkAndQual_;

@@ -24,12 +24,12 @@
 class LHECOMWeightProducer : public edm::EDProducer {
    public:
       explicit LHECOMWeightProducer(const edm::ParameterSet&);
-      ~LHECOMWeightProducer();
+      ~LHECOMWeightProducer() override;
 
    private:
-      virtual void beginJob() override;
-      virtual void beginRun(edm::Run const& run, const edm::EventSetup &es) override;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      void beginJob() override;
+      void beginRun(edm::Run const& run, const edm::EventSetup &es) override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
 
       edm::InputTag lheTag_;
       int _pdfset;

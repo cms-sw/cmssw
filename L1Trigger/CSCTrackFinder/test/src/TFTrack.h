@@ -27,20 +27,20 @@ namespace csctf_analysis
 	TFTrack(const L1CSCTrack& track, const edm::EventSetup& iSetup );
 	TFTrack(L1MuGMTExtendedCand track);
 //	double distanceTo(RefTrack* reftrack);
-        void print();
-	double getPt() const {return Pt;};
-	double getPhi() const {return Phi;};
-	double getEta() const {return Eta;};
-	double getTFPt() const {return Pt;};
-	double getRank() const {return Rank;};
-	int getMode() const {return Mode;};  
-	int getPtPacked() const {return PtPacked;};
-	int getEtaPacked() const {return EtaPacked;};
-	int getPhiPacked() const {return PhiPacked;};
-	int getChargePacked() const {return ChargePacked;};
-	int getFR() const {return FR;};
-	int getBX() const {return Bx;};
-	int getLUTAddress() const {return LUTAddress;}
+        void print() override;
+	double getPt() const override {return Pt;};
+	double getPhi() const override {return Phi;};
+	double getEta() const override {return Eta;};
+	double getTFPt() const override {return Pt;};
+	double getRank() const override {return Rank;};
+	int getMode() const override {return Mode;};  
+	int getPtPacked() const override {return PtPacked;};
+	int getEtaPacked() const override {return EtaPacked;};
+	int getPhiPacked() const override {return PhiPacked;};
+	int getChargePacked() const override {return ChargePacked;};
+	int getFR() const override {return FR;};
+	int getBX() const override {return Bx;};
+	int getLUTAddress() const override {return LUTAddress;}
 	int getEndcap() const {if(isEndcap1==true){return 1;} else{return 2;}}
 	//added by josh and nathaniel
     private:

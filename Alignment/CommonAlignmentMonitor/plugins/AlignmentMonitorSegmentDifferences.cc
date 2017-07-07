@@ -35,7 +35,7 @@ class AlignmentMonitorSegmentDifferences: public AlignmentMonitorBase
 {
 public:
   AlignmentMonitorSegmentDifferences(const edm::ParameterSet& cfg);
-  ~AlignmentMonitorSegmentDifferences() {}
+  ~AlignmentMonitorSegmentDifferences() override {}
 
   void book() override;
 

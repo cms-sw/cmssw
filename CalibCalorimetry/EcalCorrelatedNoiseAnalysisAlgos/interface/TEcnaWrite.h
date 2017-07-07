@@ -152,7 +152,7 @@ class TEcnaWrite : public TObject {
   TEcnaWrite(const TString&, const TEcnaParPaths*, const TEcnaParCout*,
 	     const TEcnaParEcal*, const TEcnaNumbering*);
 
-  virtual  ~TEcnaWrite();
+   ~TEcnaWrite() override;
   
   void     Init();
   void     SetEcalSubDetector(const TString&);

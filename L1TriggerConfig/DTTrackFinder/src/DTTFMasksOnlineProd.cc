@@ -34,9 +34,9 @@ class DTTFMasksOnlineProd :
   public L1ConfigOnlineProdBase< L1MuDTTFMasksRcd, L1MuDTTFMasks > {
    public:
       DTTFMasksOnlineProd(const edm::ParameterSet&);
-      ~DTTFMasksOnlineProd();
+      ~DTTFMasksOnlineProd() override;
 
-      virtual std::shared_ptr< L1MuDTTFMasks > newObject(
+      std::shared_ptr< L1MuDTTFMasks > newObject(
         const std::string& objectKey ) override ;
 
    private:

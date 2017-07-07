@@ -9,8 +9,8 @@ namespace edmtest {
   class ProdigalAnalyzer : public edm::EDAnalyzer {
   public:
     explicit ProdigalAnalyzer(edm::ParameterSet const& pset);
-    virtual ~ProdigalAnalyzer() {}
-    virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
+    ~ProdigalAnalyzer() override {}
+    void analyze(edm::Event const& e, edm::EventSetup const& c) override;
   };
 
 }

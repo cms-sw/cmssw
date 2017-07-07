@@ -36,9 +36,9 @@ namespace cms
     
     explicit DigitizerFP420(const edm::ParameterSet& conf);
     
-    virtual ~DigitizerFP420();
+    ~DigitizerFP420() override;
     
-    virtual void produce(edm::Event& e, const edm::EventSetup& c);
+    void produce(edm::Event& e, const edm::EventSetup& c) override;
 
   private:
     typedef std::vector<std::string> vstring;

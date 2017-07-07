@@ -13,7 +13,7 @@ class MuonToSimAssociatorByHits : public MuonToSimAssociatorBase {
  public:
   
   MuonToSimAssociatorByHits (const edm::ParameterSet& conf, edm::ConsumesCollector && iC);   
-  ~MuonToSimAssociatorByHits();
+  ~MuonToSimAssociatorByHits() override;
 
 
 

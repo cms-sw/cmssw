@@ -28,7 +28,7 @@ class LMFTestPulseConfigDat : public LMFDat {
     m_keys["PN_GAIN"] = 2;
     m_keys["PN_VINJ"] = 3;
   }
-  ~LMFTestPulseConfigDat() {}
+  ~LMFTestPulseConfigDat() override {}
 
   LMFTestPulseConfigDat& setVFEGain(EcalLogicID &id, float g) {
     LMFDat::setData(id, "VFE_GAIN", g);

@@ -7,7 +7,7 @@ class ReadMath : public edm::EDAnalyzer {
 public:
   ReadMath( const edm::ParameterSet& );
 private:
-  void analyze( const edm::Event &, const edm::EventSetup & );
+  void analyze( const edm::Event &, const edm::EventSetup & ) override;
   edm::InputTag src;
 };
 

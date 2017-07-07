@@ -25,13 +25,13 @@ class SiPixelLorentzAngleDB : public edm::EDAnalyzer
   
   explicit SiPixelLorentzAngleDB(const edm::ParameterSet& conf);
   
-  virtual ~SiPixelLorentzAngleDB();
+  ~SiPixelLorentzAngleDB() override;
   
-  virtual void beginJob();
+  void beginJob() override;
   
-  virtual void endJob(); 
+  void endJob() override; 
   
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
   
   
  private:

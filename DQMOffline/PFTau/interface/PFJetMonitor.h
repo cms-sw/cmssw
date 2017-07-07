@@ -20,7 +20,7 @@ class PFJetMonitor : public Benchmark {
   PFJetMonitor( float dRMax = 0.3, bool matchCharge = true, 
 		Benchmark::Mode mode=Benchmark::DEFAULT); 
   
-  virtual ~PFJetMonitor();
+  ~PFJetMonitor() override;
   
   /// set the parameters locally
   void setParameters(float dRMax, bool matchCharge, Benchmark::Mode mode,
@@ -35,7 +35,7 @@ class PFJetMonitor : public Benchmark {
   void setParameters( const edm::ParameterSet& parameterSet);
   
   /// set directory (to use in ROOT)
-  void setDirectory(TDirectory* dir);
+  void setDirectory(TDirectory* dir) override;
 
   /// book histograms
   void setup(DQMStore::IBooker& b);

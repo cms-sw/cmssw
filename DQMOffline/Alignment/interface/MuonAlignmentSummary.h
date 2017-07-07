@@ -39,7 +39,7 @@ public:
     MuonAlignmentSummary(const edm::ParameterSet&);
 
     /// Destructor
-    virtual ~MuonAlignmentSummary();
+    ~MuonAlignmentSummary() override;
 
     //Book histograms
     void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob

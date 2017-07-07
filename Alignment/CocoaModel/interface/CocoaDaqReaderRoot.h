@@ -13,10 +13,10 @@ class OpticalAlignMeasurementInfo;
 class CocoaDaqReaderRoot : public CocoaDaqReader {
  public:
   CocoaDaqReaderRoot(const std::string& m_inFileName );
-  ~CocoaDaqReaderRoot();
-  virtual bool ReadNextEvent() override;
-  virtual bool ReadEvent( int nev ) override;
-  virtual void BuildMeasurementsFromOptAlign( std::vector<OpticalAlignMeasurementInfo>& measList ) override;
+  ~CocoaDaqReaderRoot() override;
+  bool ReadNextEvent() override;
+  bool ReadEvent( int nev ) override;
+  void BuildMeasurementsFromOptAlign( std::vector<OpticalAlignMeasurementInfo>& measList ) override;
 
  public:
   int GetNEvents() const { return nev; }

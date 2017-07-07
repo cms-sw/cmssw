@@ -25,14 +25,14 @@ public:
   DTT0Correction(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~DTT0Correction();
+  ~DTT0Correction() override;
 
   // Operations
 
-  virtual void beginJob() {}
-  virtual void beginRun( const edm::Run& run, const edm::EventSetup& setup );
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup){}
-  virtual void endJob();
+  void beginJob() override {}
+  void beginRun( const edm::Run& run, const edm::EventSetup& setup ) override;
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override{}
+  void endJob() override;
 
 protected:
 

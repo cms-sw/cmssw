@@ -14,12 +14,12 @@ class MultiVertexBSeeder : public VertexReconstructor
 public:
   MultiVertexBSeeder ( double nsigma=50. );
   std::vector<TransientVertex> vertices(
-      const std::vector<reco::TransientTrack> &) const; 
+      const std::vector<reco::TransientTrack> &) const override; 
   std::vector<TransientVertex> vertices(
       const std::vector<reco::TransientTrack> &,
-      const reco::BeamSpot & ) const; 
+      const reco::BeamSpot & ) const override; 
 
-  MultiVertexBSeeder * clone() const;
+  MultiVertexBSeeder * clone() const override;
 
 private:
   double theNSigma;

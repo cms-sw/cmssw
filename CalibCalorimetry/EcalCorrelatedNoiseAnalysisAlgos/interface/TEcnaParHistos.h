@@ -83,7 +83,7 @@ class TEcnaParHistos : public TObject {
            TEcnaParHistos();
            TEcnaParHistos(TEcnaObject*, const TString&);
            TEcnaParHistos(const TString&, const TEcnaParEcal*, const TEcnaNumbering*);
-  virtual  ~TEcnaParHistos();
+   ~TEcnaParHistos() override;
 
   void     Init();
   void     SetEcalSubDetector(const TString&);

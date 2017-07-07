@@ -32,19 +32,19 @@ public:
       {}
 
   //dtor
-  virtual ~SeedFromConsecutiveHitsCreator();
+  ~SeedFromConsecutiveHitsCreator() override;
 
   static void fillDescriptions(edm::ParameterSetDescription& desc);
   static const char *fillDescriptionsLabel() { return "ConsecutiveHits"; }
 
   // initialize the "event dependent state"
-  virtual void init(const TrackingRegion & region,
+  void init(const TrackingRegion & region,
 	       const edm::EventSetup& es,
 	       const SeedComparitor *filter) final;
 
   // make job
   // fill seedCollection with the "TrajectorySeed"
-  virtual void makeSeed(TrajectorySeedCollection & seedCollection,
+  void makeSeed(TrajectorySeedCollection & seedCollection,
 			const SeedingHitSet & hits) final;
 
 

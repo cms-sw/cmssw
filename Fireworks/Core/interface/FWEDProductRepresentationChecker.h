@@ -36,7 +36,7 @@ public:
                                     bool iRequiresFF = false);
 
    // ---------- const member functions ---------------------
-   virtual FWRepresentationInfo infoFor(const std::string& iTypeName) const;
+   FWRepresentationInfo infoFor(const std::string& iTypeName) const override;
 
    // ---------- static member functions --------------------
 

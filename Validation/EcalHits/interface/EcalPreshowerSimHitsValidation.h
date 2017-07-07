@@ -44,18 +44,18 @@ public:
 EcalPreshowerSimHitsValidation(const edm::ParameterSet& ps);
 
 /// Destructor
-~EcalPreshowerSimHitsValidation();
+~EcalPreshowerSimHitsValidation() override;
 
 protected:
 
 /// Analyze
-void analyze(const edm::Event& e, const edm::EventSetup& c);
+void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
 // BeginJob
-void beginJob();
+void beginJob() override;
 
 // EndJob
-void endJob(void);
+void endJob(void) override;
 
 private:
 

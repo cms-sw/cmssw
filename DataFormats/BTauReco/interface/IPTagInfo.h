@@ -68,10 +68,10 @@ public:
 
   IPTagInfo() {}
   
-  virtual ~IPTagInfo() {}
+  ~IPTagInfo() override {}
   
   /// clone
-  virtual IPTagInfo * clone(void) const
+  IPTagInfo * clone(void) const override
   { return new IPTagInfo(*this); }
 
  /**
@@ -128,7 +128,7 @@ public:
   Container sorted(const std::vector<size_t>& indexes) const;
   Container sortedTracks(const std::vector<size_t>& indexes) const {return sorted(indexes);}
 
-  virtual TaggingVariableList taggingVariables(void) const; 
+  TaggingVariableList taggingVariables(void) const override; 
  
   const edm::Ref<VertexCollection> & primaryVertex() const { return m_pv; }
 

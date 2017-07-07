@@ -30,11 +30,11 @@ namespace l1t {
   class Stage1Layer2EtSumAlgorithmImpPP : public Stage1Layer2EtSumAlgorithm {
   public:
     Stage1Layer2EtSumAlgorithmImpPP(CaloParamsHelper* params);
-    virtual ~Stage1Layer2EtSumAlgorithmImpPP();
-    virtual void processEvent(const std::vector<l1t::CaloRegion> & regions,
+    ~Stage1Layer2EtSumAlgorithmImpPP() override;
+    void processEvent(const std::vector<l1t::CaloRegion> & regions,
 			      const std::vector<l1t::CaloEmCand> & EMCands,
 			      const std::vector<l1t::Jet> * jets,
-			      std::vector<l1t::EtSum> * sums);
+			      std::vector<l1t::EtSum> * sums) override;
 
   private:
     CaloParamsHelper* const params_;
@@ -49,11 +49,11 @@ namespace l1t {
   class Stage1Layer2EtSumAlgorithmImpHW : public Stage1Layer2EtSumAlgorithm {
   public:
     Stage1Layer2EtSumAlgorithmImpHW(CaloParamsHelper* params);
-    virtual ~Stage1Layer2EtSumAlgorithmImpHW();
-    virtual void processEvent(const std::vector<l1t::CaloRegion> & regions,
+    ~Stage1Layer2EtSumAlgorithmImpHW() override;
+    void processEvent(const std::vector<l1t::CaloRegion> & regions,
 			      const std::vector<l1t::CaloEmCand> & EMCands,
 			      const std::vector<l1t::Jet> * jets,
-			      std::vector<l1t::EtSum> * sums);
+			      std::vector<l1t::EtSum> * sums) override;
 
   private:
     CaloParamsHelper* const params_;
@@ -88,11 +88,11 @@ namespace l1t {
   class Stage1Layer2EtSumAlgorithmImpHI : public Stage1Layer2EtSumAlgorithm {
   public:
     Stage1Layer2EtSumAlgorithmImpHI(CaloParamsHelper* params);
-    virtual ~Stage1Layer2EtSumAlgorithmImpHI();
-    virtual void processEvent(const std::vector<l1t::CaloRegion> & regions,
+    ~Stage1Layer2EtSumAlgorithmImpHI() override;
+    void processEvent(const std::vector<l1t::CaloRegion> & regions,
 			      const std::vector<l1t::CaloEmCand> & EMCands,
 			      const std::vector<l1t::Jet> * jets,
-			      std::vector<l1t::EtSum> * sums);
+			      std::vector<l1t::EtSum> * sums) override;
 
   private:
     CaloParamsHelper* const params_;

@@ -40,11 +40,11 @@
 class  AlCaRecoTriggerBitsRcdRead : public edm::EDAnalyzer {
 public:
   explicit  AlCaRecoTriggerBitsRcdRead(const edm::ParameterSet &cfg);
-  ~AlCaRecoTriggerBitsRcdRead() {}
+  ~AlCaRecoTriggerBitsRcdRead() override {}
   
-  virtual void analyze(const edm::Event &evt, const edm::EventSetup &evtSetup) override {}
-  virtual void beginRun(const edm::Run &run, const edm::EventSetup &evtSetup) override;
-  virtual void endJob() override;
+  void analyze(const edm::Event &evt, const edm::EventSetup &evtSetup) override {}
+  void beginRun(const edm::Run &run, const edm::EventSetup &evtSetup) override;
+  void endJob() override;
 
   
 private:

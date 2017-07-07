@@ -95,10 +95,10 @@ class EgHLTOfflineSource : public DQMEDAnalyzer {
 
  public:
   explicit EgHLTOfflineSource(const edm::ParameterSet& );
-  virtual ~EgHLTOfflineSource();
+  ~EgHLTOfflineSource() override;
   
-  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  virtual void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
 
   void addEleTrigPath(egHLT::MonElemFuncs& monElemFuncs,const std::string& name);
   void addPhoTrigPath(egHLT::MonElemFuncs& monElemFuncs,const std::string& name);

@@ -25,7 +25,7 @@ class FWSecVertexCandidateProxyBuilder : public FWSimpleProxyBuilderTemplate<rec
    
 public:
    FWSecVertexCandidateProxyBuilder(){}
-   virtual ~FWSecVertexCandidateProxyBuilder(){}
+   ~FWSecVertexCandidateProxyBuilder() override{}
   
    REGISTER_PROXYBUILDER_METHODS();
  

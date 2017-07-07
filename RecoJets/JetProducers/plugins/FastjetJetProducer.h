@@ -22,7 +22,7 @@ public:
   DynamicRfilt(double Rmax, double deltaR_factor) : _Rmax(Rmax), _deltaR_factor(deltaR_factor){}
 
   // action of the function
-  double result(const fastjet::PseudoJet &j) const{
+  double result(const fastjet::PseudoJet &j) const override{
     if (! j.has_pieces()) return _Rmax;
 
     std::vector<fastjet::PseudoJet> pieces = j.pieces();
@@ -50,11 +50,11 @@ public:
   // construction/destruction
   //
   explicit FastjetJetProducer(const edm::ParameterSet& iConfig);
-  virtual ~FastjetJetProducer();
+  ~FastjetJetProducer() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   static void fillDescriptionsFromFastJetProducer(edm::ParameterSetDescription& desc);
 
-  virtual void produce( edm::Event & iEvent, const edm::EventSetup & iSetup );
+  void produce( edm::Event & iEvent, const edm::EventSetup & iSetup ) override;
 
   // typedefs
   typedef boost::shared_ptr<DynamicRfilt>  DynamicRfiltPtr;
@@ -66,7 +66,7 @@ protected:
   //
 
   virtual void produceTrackJets( edm::Event & iEvent, const edm::EventSetup & iSetup );
-  virtual void runAlgorithm( edm::Event& iEvent, const edm::EventSetup& iSetup );
+  void runAlgorithm( edm::Event& iEvent, const edm::EventSetup& iSetup ) override;
 
  private:
 

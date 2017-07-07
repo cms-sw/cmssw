@@ -43,10 +43,10 @@
 class TestTranslation : public edm::EDAnalyzer {
 public:
   explicit TestTranslation( const edm::ParameterSet& );
-  ~TestTranslation();
+  ~TestTranslation() override;
   
   
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  void analyze( const edm::Event&, const edm::EventSetup& ) override;
 private:
   // ----------member data ---------------------------
   TTree* theTree;

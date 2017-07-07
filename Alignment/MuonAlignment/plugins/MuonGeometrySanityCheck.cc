@@ -95,10 +95,10 @@ class MuonGeometrySanityCheckPoint {
 class MuonGeometrySanityCheck : public edm::EDAnalyzer {
    public:
       explicit MuonGeometrySanityCheck(const edm::ParameterSet &iConfig);
-      ~MuonGeometrySanityCheck();
+      ~MuonGeometrySanityCheck() override;
 
    private:
-      virtual void analyze(const edm::Event&, const edm::EventSetup &iConfig) override;
+      void analyze(const edm::Event&, const edm::EventSetup &iConfig) override;
 
       std::string printout;
       double tolerance;

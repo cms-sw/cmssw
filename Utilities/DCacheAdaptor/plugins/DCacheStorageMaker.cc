@@ -29,7 +29,7 @@ public:
 
   /** Open a storage object for the given URL (protocol + path), using the
       @a mode bits.  No temporary files are downloaded.  */
-  virtual std::unique_ptr<Storage> open (const std::string &proto,
+  std::unique_ptr<Storage> open (const std::string &proto,
 			 const std::string &path,
 			 int mode,
        AuxSettings const& aux) const override
@@ -49,7 +49,7 @@ public:
     return f->wrapNonLocalFile(std::move(file), proto, std::string(), mode);
   }
 
-  virtual void stagein (const std::string &proto,
+  void stagein (const std::string &proto,
 		        const std::string &path,
             const AuxSettings& aux) const override
   {
@@ -65,7 +65,7 @@ public:
     }
   }
 
-  virtual bool check (const std::string &proto,
+  bool check (const std::string &proto,
 		      const std::string &path,
           const AuxSettings& aux,
 		      IOOffset *size = 0) const override

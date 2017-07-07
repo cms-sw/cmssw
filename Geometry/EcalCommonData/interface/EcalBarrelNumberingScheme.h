@@ -10,8 +10,8 @@
 class EcalBarrelNumberingScheme : public EcalNumberingScheme {
  public:
   EcalBarrelNumberingScheme();
-  ~EcalBarrelNumberingScheme();
-  virtual uint32_t getUnitID(const EcalBaseNumber& baseNumber) const ;
+  ~EcalBarrelNumberingScheme() override;
+  uint32_t getUnitID(const EcalBaseNumber& baseNumber) const override ;
 };
 
 #endif

@@ -46,15 +46,15 @@
 class CheckPhase2Cabling : public edm::EDAnalyzer {
    public:
       explicit CheckPhase2Cabling(const edm::ParameterSet&);
-      ~CheckPhase2Cabling();
+      ~CheckPhase2Cabling() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 
    private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      void beginJob() override ;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
       //virtual void beginRun(edm::Run const&, edm::EventSetup const&);
       //virtual void endRun(edm::Run const&, edm::EventSetup const&);

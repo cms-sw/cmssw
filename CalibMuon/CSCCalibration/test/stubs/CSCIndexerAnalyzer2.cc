@@ -25,9 +25,9 @@ class CSCIndexerAnalyzer2 : public edm::EDAnalyzer {
 public:
  
   explicit CSCIndexerAnalyzer2( const edm::ParameterSet& );
-  ~CSCIndexerAnalyzer2();
+  ~CSCIndexerAnalyzer2() override;
 
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  void analyze( const edm::Event&, const edm::EventSetup& ) override;
  
   const std::string& myName() const { return myName_;}
   const std::string& myAlgo() const { return algoName_;}

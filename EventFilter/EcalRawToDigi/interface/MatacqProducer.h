@@ -126,14 +126,14 @@ public:
 
   /** Destructor
    */
-  ~MatacqProducer();
+  ~MatacqProducer() override;
 
   /** Produces the EDM products
    * @param CMS event
    * @param eventSetup event conditions
    */
-  virtual void
-  produce(edm::Event& event, const edm::EventSetup& eventSetup);
+  void
+  produce(edm::Event& event, const edm::EventSetup& eventSetup) override;
 
 private:
   /** Add matacq digi to the event

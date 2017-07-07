@@ -32,10 +32,10 @@ private:
 
 
 public:
-	void analyze(const edm::Event& e, const edm::EventSetup& c);
+	void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
 	explicit CSCTFAnalyzer(const edm::ParameterSet &conf);
-	~CSCTFAnalyzer(void){ file->cd(); tree->Write(); file->Close(); }
+	~CSCTFAnalyzer(void) override{ file->cd(); tree->Write(); file->Close(); }
 };
 
 #endif

@@ -25,7 +25,7 @@
 class TSCBLBuilderNoMaterialESProducer : public edm::ESProducer {
    public:
       TSCBLBuilderNoMaterialESProducer(const edm::ParameterSet&);
-      ~TSCBLBuilderNoMaterialESProducer();
+      ~TSCBLBuilderNoMaterialESProducer() override;
 
       typedef std::shared_ptr<TrajectoryStateClosestToBeamLineBuilder> ReturnType;
 

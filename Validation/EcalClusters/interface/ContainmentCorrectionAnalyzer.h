@@ -48,11 +48,11 @@ class EcalSimPhotonMCTruth;
 class ContainmentCorrectionAnalyzer : public edm::EDAnalyzer {
  public:
   explicit ContainmentCorrectionAnalyzer( const edm::ParameterSet& );
-  ~ContainmentCorrectionAnalyzer();
+  ~ContainmentCorrectionAnalyzer() override;
     
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
-  virtual void beginJob();
-  virtual void endJob();
+  void analyze( const edm::Event&, const edm::EventSetup& ) override;
+  void beginJob() override;
+  void endJob() override;
 
  private:
   

@@ -32,11 +32,11 @@
 class SimDigiDumper : public edm::EDAnalyzer{
 public:
   explicit SimDigiDumper( const edm::ParameterSet& );
-  virtual ~SimDigiDumper() {};
+  ~SimDigiDumper() override {};
 
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
-  virtual void beginJob(){};
-  virtual void endJob(){};
+  void analyze( const edm::Event&, const edm::EventSetup& ) override;
+  void beginJob() override{};
+  void endJob() override{};
 private:
 
   edm::EDGetTokenT<EBDigiCollection> ECalEBSrc_;

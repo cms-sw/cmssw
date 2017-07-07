@@ -19,29 +19,29 @@ class PreshowerProperties : public CalorimeterProperties
 
   PreshowerProperties() {;} 
 
-  ~PreshowerProperties() {
+  ~PreshowerProperties() override {
     ;
   }
     
   /// Effective A
-  inline double theAeff() const { return 207.2; }
+  inline double theAeff() const override { return 207.2; }
   /// Effective Z
-  inline double theZeff() const { return 82.; }
+  inline double theZeff() const override { return 82.; }
   /// Density in g/cm3
-  inline double rho() const { return 11.350; }
+  inline double rho() const override { return 11.350; }
   /// Radiation length in cm
-  inline double radLenIncm() const { return 0.56; }
+  inline double radLenIncm() const override { return 0.56; }
   /// Radiation length in g/cm^2
-  inline double radLenIngcm2() const { return 6.370; }
+  inline double radLenIngcm2() const override { return 6.370; }
   /// Moliere Radius in cm
-  inline double moliereRadius() const { return 1.53; }
+  inline double moliereRadius() const override { return 1.53; }
   /// Electron critical energy in GeV 
-  inline double criticalEnergy() const { return 7.79E-3; }
+  inline double criticalEnergy() const override { return 7.79E-3; }
   /// Muon critical energy in GeV 
   //inline double muonCriticalEnergy() const { return 141.; }
 
   ///Interaction length in cm
-  inline double interactionLength() const { return 17.1; }
+  inline double interactionLength() const override { return 17.1; }
   
   /// Fraction of energy collected on sensitive detectors
   virtual double sensitiveFraction() const=0;

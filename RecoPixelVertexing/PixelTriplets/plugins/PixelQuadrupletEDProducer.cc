@@ -18,11 +18,11 @@
 class PixelQuadrupletEDProducer: public edm::stream::EDProducer<> {
 public:
   PixelQuadrupletEDProducer(const edm::ParameterSet& iConfig);
-  ~PixelQuadrupletEDProducer() = default;
+  ~PixelQuadrupletEDProducer() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
 private:
   edm::EDGetTokenT<IntermediateHitTriplets> tripletToken_;

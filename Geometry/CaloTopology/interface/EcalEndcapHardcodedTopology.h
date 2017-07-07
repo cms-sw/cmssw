@@ -13,13 +13,13 @@ class EcalEndcapHardcodedTopology final : public CaloSubdetectorTopology
   /// create a new Topology
   EcalEndcapHardcodedTopology() {};
 
-  virtual ~EcalEndcapHardcodedTopology() {};
+  ~EcalEndcapHardcodedTopology() override {};
   
    /// move the Topology north (increment iy)  
-  virtual DetId  goNorth(const DetId& id) const {
+  DetId  goNorth(const DetId& id) const override {
     return incrementIy(EEDetId(id));
   }
-  virtual std::vector<DetId> north(const DetId& id) const
+  std::vector<DetId> north(const DetId& id) const override
   { 
     EEDetId nextId= goNorth(id);
     std::vector<DetId> vNeighborsDetId;
@@ -29,10 +29,10 @@ class EcalEndcapHardcodedTopology final : public CaloSubdetectorTopology
   }
   
   /// move the Topology south (decrement iy)
-  virtual DetId goSouth(const DetId& id) const {
+  DetId goSouth(const DetId& id) const override {
     return decrementIy(EEDetId(id));
   }
-  virtual std::vector<DetId> south(const DetId& id) const
+  std::vector<DetId> south(const DetId& id) const override
   { 
     EEDetId nextId= goSouth(id);
     std::vector<DetId> vNeighborsDetId;
@@ -42,10 +42,10 @@ class EcalEndcapHardcodedTopology final : public CaloSubdetectorTopology
   }
   
   /// move the Topology east (positive ix)
-  virtual DetId  goEast(const DetId& id) const {
+  DetId  goEast(const DetId& id) const override {
     return incrementIx(EEDetId(id));
   }
-  virtual std::vector<DetId> east(const DetId& id) const
+  std::vector<DetId> east(const DetId& id) const override
   { 
     EEDetId nextId=goEast(id);
     std::vector<DetId> vNeighborsDetId;
@@ -55,10 +55,10 @@ class EcalEndcapHardcodedTopology final : public CaloSubdetectorTopology
   }
   
   /// move the Topology west (negative ix)
-  virtual DetId goWest(const DetId& id) const {
+  DetId goWest(const DetId& id) const override {
     return decrementIx(EEDetId(id));
   }
-  virtual std::vector<DetId> west(const DetId& id) const
+  std::vector<DetId> west(const DetId& id) const override
   { 
     EEDetId nextId=goWest(id);
     std::vector<DetId> vNeighborsDetId;
@@ -67,14 +67,14 @@ class EcalEndcapHardcodedTopology final : public CaloSubdetectorTopology
     return vNeighborsDetId;
   }
   
-  virtual std::vector<DetId> up(const DetId& /*id*/) const
+  std::vector<DetId> up(const DetId& /*id*/) const override
   {
     std::cout << "EcalEndcapHardcodedTopology::up() not yet implemented" << std::endl; 
     std::vector<DetId> vNeighborsDetId;
     return  vNeighborsDetId;
   }
   
-  virtual std::vector<DetId> down(const DetId& /*id*/) const
+  std::vector<DetId> down(const DetId& /*id*/) const override
   {
     std::cout << "EcalEndcapHardcodedTopology::down() not yet implemented" << std::endl; 
     std::vector<DetId> vNeighborsDetId;

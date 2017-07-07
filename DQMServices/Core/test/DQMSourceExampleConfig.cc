@@ -48,11 +48,11 @@ using std::cout; using std::endl; using std::string;
 class DQMSourceExampleConfig : public edm::EDAnalyzer {
 public:
    explicit DQMSourceExampleConfig ( const edm::ParameterSet& );
-   ~DQMSourceExampleConfig ();
+   ~DQMSourceExampleConfig () override;
    
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  void analyze( const edm::Event&, const edm::EventSetup& ) override;
 
-  virtual void endJob(void);
+  void endJob(void) override;
 
     void recursiveBuild (string, int, int, int, DQMStore * , int);
     

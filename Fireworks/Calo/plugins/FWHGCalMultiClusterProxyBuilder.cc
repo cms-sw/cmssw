@@ -9,7 +9,7 @@ class FWHGCalMultiClusterProxyBuilder : public FWSimpleProxyBuilderTemplate<reco
 {
 public:
    FWHGCalMultiClusterProxyBuilder( void ) {}
-   virtual ~FWHGCalMultiClusterProxyBuilder( void ) {}
+   ~FWHGCalMultiClusterProxyBuilder( void ) override {}
 
    REGISTER_PROXYBUILDER_METHODS();
 
@@ -18,7 +18,7 @@ private:
    const FWHGCalMultiClusterProxyBuilder& operator=( const FWHGCalMultiClusterProxyBuilder& ); 	// stop default
 
    using FWSimpleProxyBuilderTemplate<reco::HGCalMultiCluster>::build;
-   void build( const reco::HGCalMultiCluster& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* );
+   void build( const reco::HGCalMultiCluster& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;
 };
 
 void

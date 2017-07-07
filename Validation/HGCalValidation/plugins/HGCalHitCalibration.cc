@@ -44,14 +44,14 @@
 class HGCalHitCalibration : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
 public:
   explicit HGCalHitCalibration(const edm::ParameterSet&);
-  ~HGCalHitCalibration();
+  ~HGCalHitCalibration() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void beginJob() override {}
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override {}
+  void beginJob() override {}
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override {}
 
   edm::EDGetTokenT<HGCRecHitCollection> _recHitsEE;
   edm::EDGetTokenT<HGCRecHitCollection> _recHitsFH;

@@ -28,8 +28,8 @@ class  EcalDetailedTimeRecHitProducer : public edm::stream::EDProducer<> {
 
         public:
                 explicit  EcalDetailedTimeRecHitProducer(const edm::ParameterSet& ps);
-                ~ EcalDetailedTimeRecHitProducer();
-                virtual void produce(edm::Event& evt, const edm::EventSetup& es);
+                ~ EcalDetailedTimeRecHitProducer() override;
+                void produce(edm::Event& evt, const edm::EventSetup& es) override;
 
         private:
 

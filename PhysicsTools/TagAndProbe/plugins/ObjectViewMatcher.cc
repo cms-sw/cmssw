@@ -53,7 +53,7 @@ class ObjectViewMatcher : public edm::EDProducer
 public:
   // construction/destruction
   ObjectViewMatcher(const edm::ParameterSet& iConfig);
-  virtual ~ObjectViewMatcher();
+  ~ObjectViewMatcher() override;
 
   // member functions
   void produce(edm::Event& iEvent,const edm::EventSetup& iSetup) override;

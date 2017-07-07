@@ -30,7 +30,7 @@ public:
 public:
 
     Phase2StripCPE(edm::ParameterSet & conf, const MagneticField &,const TrackerGeometry&);
-    LocalValues localParameters(const Phase2TrackerCluster1D & cluster, const GeomDetUnit & det) const;
+    LocalValues localParameters(const Phase2TrackerCluster1D & cluster, const GeomDetUnit & det) const override;
     LocalVector driftDirection(const Phase2TrackerGeomDetUnit & det) const;
 
 private:

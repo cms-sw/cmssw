@@ -71,16 +71,16 @@ class LEPBandPlot : public StatisticalPlot {
     void setTitle(const char* title);
 
     /// Destructor
-    ~LEPBandPlot();
+    ~LEPBandPlot() override;
 
     /// Draw on canvas
-    void draw (const char* options="");
+    void draw (const char* options="") override;
 
     /// Print the relevant information
-    void print (const char* options="");
+    void print (const char* options="") override;
 
     /// All the objects are written to rootfile
-    void dumpToFile (const char* RootFileName, const char* options);
+    void dumpToFile (const char* RootFileName, const char* options) override;
 
   private:
 

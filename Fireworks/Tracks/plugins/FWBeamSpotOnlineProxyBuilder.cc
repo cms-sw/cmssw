@@ -18,7 +18,7 @@ class FWBeamSpotOnlineProxyBuilder : public FWSimpleProxyBuilderTemplate<BeamSpo
 {
 public:
   FWBeamSpotOnlineProxyBuilder( void ) {}
-  virtual ~FWBeamSpotOnlineProxyBuilder( void ) {}
+  ~FWBeamSpotOnlineProxyBuilder( void ) override {}
    
   REGISTER_PROXYBUILDER_METHODS();
 
@@ -29,7 +29,7 @@ private:
   const FWBeamSpotOnlineProxyBuilder& operator=( const FWBeamSpotOnlineProxyBuilder& );
 
   using FWSimpleProxyBuilderTemplate<BeamSpotOnline>::build;
-  virtual void build( const BeamSpotOnline& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;
+  void build( const BeamSpotOnline& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;
 };
 
 void

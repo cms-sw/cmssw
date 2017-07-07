@@ -56,9 +56,9 @@ class FWEveView : public FWViewBase
 {
 public:
    FWEveView(TEveWindowSlot*, FWViewType::EType, unsigned int version = 7);
-   virtual ~FWEveView();
+   ~FWEveView() override;
 
-   virtual void setFrom(const FWConfiguration&);
+   void setFrom(const FWConfiguration&) override;
    virtual void setBackgroundColor(Color_t);
    virtual void eventEnd();
    virtual void eventBegin();
@@ -68,10 +68,10 @@ public:
 
    // ---------- const member functions --------------------- 
 
-   virtual void addTo(FWConfiguration&) const;
-   virtual FWViewContextMenuHandlerBase* contextMenuHandler() const;
-   virtual void saveImageTo(const std::string& iName) const;
-   virtual void populateController(ViewerParameterGUI&) const;
+   void addTo(FWConfiguration&) const override;
+   FWViewContextMenuHandlerBase* contextMenuHandler() const override;
+   void saveImageTo(const std::string& iName) const override;
+   void populateController(ViewerParameterGUI&) const override;
 
    TGLViewer*    viewerGL()    const;
    TEveViewer*   viewer();

@@ -27,10 +27,10 @@ class PrintGeomInfoAction : public SimWatcher,
 
 public:
   PrintGeomInfoAction(edm::ParameterSet const & p);
-  ~PrintGeomInfoAction();
+  ~PrintGeomInfoAction() override;
 private:
-  void update(const BeginOfJob * job);
-  void update(const BeginOfRun * run);
+  void update(const BeginOfJob * job) override;
+  void update(const BeginOfRun * run) override;
   void dumpSummary(std::ostream& out = std::cout);
   void dumpG4LVList(std::ostream& out = std::cout);
   void dumpG4LVTree(std::ostream& out = std::cout);

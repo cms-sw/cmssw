@@ -24,7 +24,7 @@ class FWSiPixelDigiProxyBuilder : public FWProxyBuilderBase
 {
 public:
   FWSiPixelDigiProxyBuilder( void ) {}
-  virtual ~FWSiPixelDigiProxyBuilder( void ) {}
+  ~FWSiPixelDigiProxyBuilder( void ) override {}
 
   REGISTER_PROXYBUILDER_METHODS();
 
@@ -35,7 +35,7 @@ private:
   const FWSiPixelDigiProxyBuilder& operator=( const FWSiPixelDigiProxyBuilder& );
 
   using FWProxyBuilderBase::build;
-  virtual void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* ) override;
+  void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* ) override;
 };
 
 void FWSiPixelDigiProxyBuilder::build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* )

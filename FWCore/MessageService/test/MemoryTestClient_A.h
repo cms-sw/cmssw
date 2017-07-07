@@ -25,14 +25,14 @@ public:
   explicit
     MemoryTestClient_A( edm::ParameterSet const & );
 
-  virtual
-    ~MemoryTestClient_A()
+  
+    ~MemoryTestClient_A() override
   { }
 
-  virtual
+  
     void analyze( edm::Event      const & e
                 , edm::EventSetup const & c
-                );
+                ) override;
 
 private:
   static int nevent;

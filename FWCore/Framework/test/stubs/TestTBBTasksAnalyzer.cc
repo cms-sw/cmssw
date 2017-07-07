@@ -41,12 +41,12 @@
 class TestTBBTasksAnalyzer : public edm::EDAnalyzer {
    public:
       explicit TestTBBTasksAnalyzer(const edm::ParameterSet&);
-      ~TestTBBTasksAnalyzer();
+      ~TestTBBTasksAnalyzer() override;
 
 
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
    private:
-         virtual void endJob();
+         void endJob() override;
          unsigned int m_nTasksToRun;
          unsigned int m_expectedNumberOfSimultaneousTasks;
          unsigned int m_maxCountedTasks;
@@ -58,7 +58,7 @@ namespace {
    class WaitTask : public tbb::task {
    public:
       WaitTask(unsigned int iSleepUSecs, std::atomic<unsigned int>* iCount, std::atomic<unsigned int>* iMaxCount): m_usecondsToSleep(iSleepUSecs),m_count(iCount),m_maxCount(iMaxCount) {}
-      tbb::task* execute() {
+      tbb::task* execute() override {
          unsigned int c = ++(*m_count);
          __sync_synchronize();
          while(true) {

@@ -32,7 +32,7 @@ class TPNPulse: public TObject
   TPNPulse(int, int);
 
   // Destructor: Does nothing
-  virtual ~TPNPulse();
+  ~TPNPulse() override;
 
   bool setPulse(double*);
   double getMax();

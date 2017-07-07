@@ -28,24 +28,24 @@ public:
 			    double tolerance = 5.e-5) : 
     Propagator(dir), theVolume( &vol), theTolerance( tolerance) {}
 
-  ~RKPropagatorInS() {}
+  ~RKPropagatorInS() override {}
 
   using Propagator::propagate;
   using Propagator::propagateWithPath;
 
 private:
-  virtual std::pair< TrajectoryStateOnSurface, double> 
-  propagateWithPath (const FreeTrajectoryState&, const Plane&) const;
+  std::pair< TrajectoryStateOnSurface, double> 
+  propagateWithPath (const FreeTrajectoryState&, const Plane&) const override;
 
-  virtual std::pair< TrajectoryStateOnSurface, double> 
-  propagateWithPath (const FreeTrajectoryState&, const Cylinder&) const;
+  std::pair< TrajectoryStateOnSurface, double> 
+  propagateWithPath (const FreeTrajectoryState&, const Cylinder&) const override;
 
   
 
 public:
-  virtual Propagator * clone() const;
+  Propagator * clone() const override;
 
-  virtual const MagneticField* magneticField() const {return theVolume;}
+  const MagneticField* magneticField() const override {return theVolume;}
 
 private:
 

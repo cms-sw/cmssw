@@ -22,8 +22,8 @@ class EcalTBWeightUncalibRecHitProducer : public edm::EDProducer {
   public:
     typedef std::vector<double> EcalRecoAmplitudes;
     explicit EcalTBWeightUncalibRecHitProducer(const edm::ParameterSet& ps);
-    ~EcalTBWeightUncalibRecHitProducer();
-    virtual void produce(edm::Event& evt, const edm::EventSetup& es);
+    ~EcalTBWeightUncalibRecHitProducer() override;
+    void produce(edm::Event& evt, const edm::EventSetup& es) override;
 
   private:
 

@@ -19,12 +19,12 @@ class MtvClusterizer1D : public Clusterizer1D<T>
 public:
     MtvClusterizer1D ( const WeightEstimator<T> & est = TrivialWeightEstimator<T>() );
     MtvClusterizer1D ( const MtvClusterizer1D & );
-    ~MtvClusterizer1D();
+    ~MtvClusterizer1D() override;
 
     std::pair < std::vector < Cluster1D<T> >, std::vector < const T * > >
-    operator() ( const std::vector< Cluster1D<T> > & ) const;
+    operator() ( const std::vector< Cluster1D<T> > & ) const override;
 
-    virtual MtvClusterizer1D * clone() const;
+    MtvClusterizer1D * clone() const override;
 
 private:
     WeightEstimator<T> * theEstimator;

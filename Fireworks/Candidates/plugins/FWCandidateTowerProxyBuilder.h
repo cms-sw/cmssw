@@ -19,16 +19,16 @@ class FWCandidateTowerProxyBuilder : public FWCaloDataHistProxyBuilder
 {
 public:
    FWCandidateTowerProxyBuilder();
-   virtual ~FWCandidateTowerProxyBuilder();
+   ~FWCandidateTowerProxyBuilder() override;
    static std::string typeOfBuilder() { return std::string("simple#");}
    virtual double getEt(const reco::Candidate& cand) const { return cand.pt(); }
 
 
    REGISTER_PROXYBUILDER_METHODS();
 protected:
-   virtual void fillCaloData();
-   virtual FWHistSliceSelector* instantiateSliceSelector();
-   virtual void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*);
+   void fillCaloData() override;
+   FWHistSliceSelector* instantiateSliceSelector() override;
+   void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
 
 private:
    FWCandidateTowerProxyBuilder(const FWCandidateTowerProxyBuilder&); // stop default

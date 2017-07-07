@@ -26,8 +26,8 @@ class PFJetsTauOverlapRemoval: public edm::global::EDProducer<> {
 
  public:
   explicit PFJetsTauOverlapRemoval(const edm::ParameterSet&);
-  ~PFJetsTauOverlapRemoval();
-  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  ~PFJetsTauOverlapRemoval() override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 };
 #endif

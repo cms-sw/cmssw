@@ -55,7 +55,7 @@ class DTChambPhSegm : public DTTrigData {
     DTChambPhSegm(const DTChambPhSegm&); 
 
     /// Destructor 
-    ~DTChambPhSegm();
+    ~DTChambPhSegm() override;
 
   
     /// Assignment operator
@@ -78,10 +78,10 @@ class DTChambPhSegm : public DTTrigData {
     inline int step() const { return m_step; }
 
     /// Return chamber identifier
-    DTChamberId ChamberId() const { return m_chamberid; }
+    DTChamberId ChamberId() const override { return m_chamberid; }
 
     /// Print
-    void print() const;
+    void print() const override;
 
     /// Return parent TRACO number
     inline int tracoNumber() const { return m_tracotrig->tracoNumber(); }

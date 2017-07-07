@@ -52,11 +52,11 @@ Surface::RotationType rotation( const GlobalVector& zDir)
 class MeasurementTrackerTest : public edm::EDAnalyzer {
 public:
   explicit MeasurementTrackerTest(const edm::ParameterSet&);
-  ~MeasurementTrackerTest();
+  ~MeasurementTrackerTest() override;
 
 
 private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   std::string theMeasurementTrackerName;
   std::string theNavigationSchoolName;

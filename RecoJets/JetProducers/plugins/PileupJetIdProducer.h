@@ -49,12 +49,12 @@ Implementation:
 class PileupJetIdProducer : public edm::stream::EDProducer<> {
 public:
 	explicit PileupJetIdProducer(const edm::ParameterSet&);
-	~PileupJetIdProducer();
+	~PileupJetIdProducer() override;
 
 	static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-	virtual void produce(edm::Event&, const edm::EventSetup&) override;
+	void produce(edm::Event&, const edm::EventSetup&) override;
       
 
 	void initJetEnergyCorrector(const edm::EventSetup &iSetup, bool isData);

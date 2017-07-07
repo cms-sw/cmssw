@@ -13,10 +13,10 @@ class CaliTempDat : public IDataItem {
  public:
   friend class EcalCondDBInterface;
   CaliTempDat();
-  ~CaliTempDat();
+  ~CaliTempDat() override;
   
   // User data methods
-  inline std::string getTable() { return "CALI_TEMP_DAT"; }
+  inline std::string getTable() override { return "CALI_TEMP_DAT"; }
 
   inline void setBeta(float c) { m_beta = c; }
   inline float getBeta() const { return m_beta; }
@@ -32,7 +32,7 @@ class CaliTempDat : public IDataItem {
 
  private:
   void prepareWrite() 
-    noexcept(false);
+    noexcept(false) override;
   
   void writeDB(const EcalLogicID* ecid, const CaliTempDat* item, CaliIOV* iov)
     noexcept(false);

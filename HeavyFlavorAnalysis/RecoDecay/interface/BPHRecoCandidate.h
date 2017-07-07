@@ -58,7 +58,7 @@ class BPHRecoCandidate: public virtual BPHKinematicFit {
 
   /** Destructor
    */
-  virtual ~BPHRecoCandidate();
+  ~BPHRecoCandidate() override;
 
   /** Operations
    */

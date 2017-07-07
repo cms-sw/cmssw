@@ -138,10 +138,10 @@ class IPProducer : public edm::stream::EDProducer<> {
       
 
       explicit IPProducer(const edm::ParameterSet&);
-      ~IPProducer();
+      ~IPProducer() override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      void produce(edm::Event&, const edm::EventSetup&) override;
    private:
     void  checkEventSetup(const edm::EventSetup & iSetup);
 

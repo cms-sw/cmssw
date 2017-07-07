@@ -32,13 +32,13 @@ class L1TTestsSummary: public DQMEDHarvester {
     L1TTestsSummary(const edm::ParameterSet& ps);
   
     // Destructor
-    virtual ~L1TTestsSummary();
+    ~L1TTestsSummary() override;
  
   protected:
 
-    virtual void dqmEndLuminosityBlock  (DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c) override;     // DQM Client Diagnostic
+    void dqmEndLuminosityBlock  (DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c) override;     // DQM Client Diagnostic
 
-    virtual void dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter)override;
+    void dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter)override;
     virtual void book(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter);
     
   private:

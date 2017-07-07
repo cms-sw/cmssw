@@ -27,11 +27,11 @@ class SiStripTrivialClusterSource : public edm::EDProducer {
  public:
   
   SiStripTrivialClusterSource(const edm::ParameterSet&);
-  ~SiStripTrivialClusterSource();
+  ~SiStripTrivialClusterSource() override;
   
   virtual void beginRun( edm::Run&, const edm::EventSetup& );
-  virtual void endJob();
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void endJob() override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
   
  private: 
 

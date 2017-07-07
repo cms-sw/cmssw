@@ -34,11 +34,11 @@ class GctFibreAnalyzer : public edm::EDAnalyzer {
  public:
 
   explicit GctFibreAnalyzer(const edm::ParameterSet&);
-  ~GctFibreAnalyzer();
+  ~GctFibreAnalyzer() override;
 
  private:
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   bool CheckFibreWord(const L1GctFibreWord fibre);
   bool CheckForBC0(const L1GctFibreWord fibre);

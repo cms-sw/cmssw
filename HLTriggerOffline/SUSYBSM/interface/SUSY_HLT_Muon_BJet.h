@@ -33,7 +33,7 @@ class SUSY_HLT_Muon_BJet: public DQMEDAnalyzer{
     
 public:
     SUSY_HLT_Muon_BJet(const edm::ParameterSet& ps);
-    virtual ~SUSY_HLT_Muon_BJet();
+    ~SUSY_HLT_Muon_BJet() override;
     
 protected:
     void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;

@@ -27,12 +27,12 @@ class SimAnalyzer : public edm::EDAnalyzer
 	/// constructor
   explicit SimAnalyzer(edm::ParameterSet const& theConf);
 	/// destructor
-  ~SimAnalyzer();
+  ~SimAnalyzer() override;
   
   /// this method will do the user analysis 
-  virtual void analyze(edm::Event const& theEvent, edm::EventSetup const& theSetup);
+  void analyze(edm::Event const& theEvent, edm::EventSetup const& theSetup) override;
 	/// begin job
-  virtual void beginJob();
+  void beginJob() override;
     
  private:
 	/// return angle in radian betwee 0 and 2*pi

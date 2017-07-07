@@ -6,12 +6,12 @@ class PtHatReweightUserHook : public Pythia8::UserHooks
   public:
     PtHatReweightUserHook(double _pt = 15, double _power = 4.5) :
       pt(_pt), power(_power) {}
-    virtual ~PtHatReweightUserHook() {}
+    ~PtHatReweightUserHook() override {}
 
-    virtual bool canBiasSelection() { return true; }
+    bool canBiasSelection() override { return true; }
 
-    virtual double biasSelectionBy(const Pythia8::SigmaProcess* sigmaProcessPtr,
-                      const Pythia8::PhaseSpace* phaseSpacePtr, bool inEvent)
+    double biasSelectionBy(const Pythia8::SigmaProcess* sigmaProcessPtr,
+                      const Pythia8::PhaseSpace* phaseSpacePtr, bool inEvent) override
     {
       //the variable selBias of the base class should be used;
       if ((sigmaProcessPtr->nFinal() == 2)) {
@@ -41,12 +41,12 @@ class RapReweightUserHook : public Pythia8::UserHooks
       yLabsigma = TF1("yLabsigma", yLabsigma_func.c_str(), pTHatMin, pTHatMax);
       yCMsigma = TF1("yCMsigma", yLabsigma_func.c_str(), pTHatMin, pTHatMax);
     }
-    virtual ~RapReweightUserHook() {}
+    ~RapReweightUserHook() override {}
 
-    virtual bool canBiasSelection() { return true; }
+    bool canBiasSelection() override { return true; }
 
-    virtual double biasSelectionBy(const Pythia8::SigmaProcess* sigmaProcessPtr,
-                      const Pythia8::PhaseSpace* phaseSpacePtr, bool inEvent)
+    double biasSelectionBy(const Pythia8::SigmaProcess* sigmaProcessPtr,
+                      const Pythia8::PhaseSpace* phaseSpacePtr, bool inEvent) override
     {
       //the variable selBias of the base class should be used;
       if ((sigmaProcessPtr->nFinal() == 2)) {
@@ -88,12 +88,12 @@ class PtHatRapReweightUserHook : public Pythia8::UserHooks
       yLabsigma = TF1("yLabsigma", yLabsigma_func.c_str(), pTHatMin, pTHatMax);
       yCMsigma = TF1("yCMsigma", yLabsigma_func.c_str(), pTHatMin, pTHatMax);
     }
-    virtual ~PtHatRapReweightUserHook() {}
+    ~PtHatRapReweightUserHook() override {}
 
-    virtual bool canBiasSelection() { return true; }
+    bool canBiasSelection() override { return true; }
 
-    virtual double biasSelectionBy(const Pythia8::SigmaProcess* sigmaProcessPtr,
-                      const Pythia8::PhaseSpace* phaseSpacePtr, bool inEvent)
+    double biasSelectionBy(const Pythia8::SigmaProcess* sigmaProcessPtr,
+                      const Pythia8::PhaseSpace* phaseSpacePtr, bool inEvent) override
     {
       //the variable selBias of the base class should be used;
       if ((sigmaProcessPtr->nFinal() == 2)) {

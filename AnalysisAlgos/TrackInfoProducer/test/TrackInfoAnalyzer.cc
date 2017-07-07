@@ -24,7 +24,7 @@ using namespace edm;
 class TrackInfoAnalyzer : public edm::EDAnalyzer {
  public:
   TrackInfoAnalyzer(const edm::ParameterSet& pset);
-  void beginJob(){
+  void beginJob() override{
     //       cout << "beginJob" <<endl;
     //     edm::ESHandle<TrackerGeometry> tkgeom;
     //    c.get<TrackerDigiGeometryRecord>().get( tkgeom );
@@ -40,11 +40,11 @@ class TrackInfoAnalyzer : public edm::EDAnalyzer {
     tib4ext = new TH1F("Tib4Ext", "Tib Layer 4 Ext", 100, -0.5, 0.5);
   }
 
-  ~TrackInfoAnalyzer(){
+  ~TrackInfoAnalyzer() override{
     delete output;
   }
 
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup){ //analyze
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override{ //analyze
 
     using namespace reco;
 
@@ -97,7 +97,7 @@ class TrackInfoAnalyzer : public edm::EDAnalyzer {
     }
   }
 }
-  void endJob(){
+  void endJob() override{
     output->Write();
     output->Close();
   }

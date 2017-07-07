@@ -29,23 +29,23 @@ public:
     setDetId(id);
   }
 
-  ~CSCChamber();
+  ~CSCChamber() override;
 
-  const GeomDetType& type() const { return *(specs()); }
+  const GeomDetType& type() const override { return *(specs()); }
 
   /// Get the (concrete) DetId.
   CSCDetId id() const { return geographicalId(); }
 
   // Which subdetector
-  virtual SubDetector subDetector() const {return GeomDetEnumerators::CSC;}
+  SubDetector subDetector() const override {return GeomDetEnumerators::CSC;}
 
   const CSCChamberSpecs* specs() const { return theChamberSpecs; }
 
   /// Return the layers in this chamber
-  virtual std::vector< const GeomDet* > components() const;
+  std::vector< const GeomDet* > components() const override;
 
   /// Return the layer with a given id in this chamber
-  virtual const GeomDet* component(DetId id) const;
+  const GeomDet* component(DetId id) const override;
 
 
   // Extension of the interface

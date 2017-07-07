@@ -38,13 +38,13 @@ class EcalFEtoDigi : public edm::one::EDProducer<> {
 public:
 
   explicit EcalFEtoDigi(const edm::ParameterSet&);
-  ~EcalFEtoDigi(){}
+  ~EcalFEtoDigi() override{}
   
 private:
 
-  virtual void beginJob() ;
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginJob() override ;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   void readInput();
   EcalTrigTowerDetId         create_TTDetId (TCCinput);

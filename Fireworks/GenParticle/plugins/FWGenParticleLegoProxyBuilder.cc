@@ -12,9 +12,9 @@ class FWGenParticleLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::
 
 public:
    FWGenParticleLegoProxyBuilder() {}
-   virtual ~FWGenParticleLegoProxyBuilder() {}
+   ~FWGenParticleLegoProxyBuilder() override {}
 
-  virtual void setItem(const FWEventItem* iItem) override
+  void setItem(const FWEventItem* iItem) override
   {
     FWProxyBuilderBase::setItem(iItem);
     if (iItem)

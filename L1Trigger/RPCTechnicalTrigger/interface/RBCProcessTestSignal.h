@@ -29,15 +29,15 @@ public:
   
   RBCProcessTestSignal( const char * ); 
   
-  virtual ~RBCProcessTestSignal( ); ///< Destructor
+  ~RBCProcessTestSignal( ) override; ///< Destructor
   
-  int  next();
+  int  next() override;
   
   void rewind();
   
   void showfirst();
   
-  RPCInputSignal * retrievedata() { 
+  RPCInputSignal * retrievedata() override { 
     return  m_lbin; 
   };
   

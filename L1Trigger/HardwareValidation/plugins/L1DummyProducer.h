@@ -40,14 +40,14 @@ class L1DummyProducer : public edm::EDProducer {
  public:
 
   explicit L1DummyProducer(const edm::ParameterSet&);
-  ~L1DummyProducer();
+  ~L1DummyProducer() override;
   
  private:
 
-  virtual void beginJob(void) {};
+  void beginJob(void) override {};
   //virtual void beginRun(edm::Run&, const edm::EventSetup&);
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() {};
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override {};
 
  public:
 

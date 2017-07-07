@@ -26,11 +26,11 @@
 namespace {
    struct Conf : public FWConfigurable {
 
-      virtual void addTo(FWConfiguration& iTop) const {
+      void addTo(FWConfiguration& iTop) const override {
          iTop = m_config;
       }
       
-      virtual void setFrom(const FWConfiguration& iFrom) {
+      void setFrom(const FWConfiguration& iFrom) override {
          m_config = iFrom;
       }
       

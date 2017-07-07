@@ -87,7 +87,7 @@ namespace cond {
   class TestGTPerf : public cond::Utilities {
     public:
       TestGTPerf();
-      int execute();
+      int execute() override;
   }; // end class TestGTLoad
   
 } // end namespace cond

@@ -54,8 +54,8 @@ public:
    sigc::signal<void> stopped_;
 
    //override
-   virtual void globalEnable();
-   virtual void globalDisable();
+   void globalEnable() override;
+   void globalDisable() override;
 
    void switchMode();
 

@@ -21,7 +21,7 @@ class MultiTrackValidator : public DQMEDAnalyzer, protected MultiTrackValidatorB
   MultiTrackValidator(const edm::ParameterSet& pset);
   
   /// Destructor
-  virtual ~MultiTrackValidator();
+  ~MultiTrackValidator() override;
 
 
   /// Method called once per event

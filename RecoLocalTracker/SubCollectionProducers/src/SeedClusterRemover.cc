@@ -41,7 +41,7 @@
 class SeedClusterRemover : public edm::stream::EDProducer<> {
     public:
         SeedClusterRemover(const edm::ParameterSet& iConfig) ;
-        ~SeedClusterRemover() ;
+        ~SeedClusterRemover() override ;
         void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override ;
     private:
         struct ParamBlock {

@@ -48,7 +48,7 @@ public:
     fitter_(reco::modules::make<Fitter>(cfg)) { 
   }
   bool fit(TransientVertex & vertex, 
-	   const std::vector<reco::TransientTrack> & tracks) const {
+	   const std::vector<reco::TransientTrack> & tracks) const override {
     try {
       vertex = fitter_.vertex(tracks);
     } catch (std::exception & err) {

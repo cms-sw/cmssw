@@ -20,8 +20,8 @@
 class HcalSimpleAmplitudeZS : public edm::stream::EDProducer<> {
 public:
   explicit HcalSimpleAmplitudeZS(const edm::ParameterSet& ps);
-  virtual ~HcalSimpleAmplitudeZS();
-  virtual void produce(edm::Event& e, const edm::EventSetup& c);
+  ~HcalSimpleAmplitudeZS() override;
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
 private:
   std::unique_ptr<HcalZSAlgoEnergy> hbhe_,ho_,hf_,hfQIE10_,hbheQIE11_;
   std::string inputLabel_;

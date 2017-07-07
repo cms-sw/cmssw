@@ -29,7 +29,7 @@ class JetResolutionESProducer : public edm::ESProducer
             setWhatProduced(this, m_label);
         }
 
-        ~JetResolutionESProducer() {}
+        ~JetResolutionESProducer() override {}
 
         std::shared_ptr<JME::JetResolution> produce(JetResolutionRcd const& iRecord) {
             
@@ -55,7 +55,7 @@ class JetResolutionScaleFactorESProducer : public edm::ESProducer
             setWhatProduced(this, m_label);
         }
 
-        ~JetResolutionScaleFactorESProducer() {}
+        ~JetResolutionScaleFactorESProducer() override {}
 
         std::shared_ptr<JME::JetResolutionScaleFactor> produce(JetResolutionScaleFactorRcd const& iRecord) {
             

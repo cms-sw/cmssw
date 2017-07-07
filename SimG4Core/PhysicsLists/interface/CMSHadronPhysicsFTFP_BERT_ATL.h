@@ -40,10 +40,10 @@ class CMSHadronPhysicsFTFP_BERT_ATL : public G4VPhysicsConstructor
 {
   public: 
     CMSHadronPhysicsFTFP_BERT_ATL(G4int verbose =1);
-    virtual ~CMSHadronPhysicsFTFP_BERT_ATL();
+    ~CMSHadronPhysicsFTFP_BERT_ATL() override;
 
-    virtual void ConstructParticle();
-    virtual void ConstructProcess();
+    void ConstructParticle() override;
+    void ConstructProcess() override;
 
   private:
     void CreateModels();

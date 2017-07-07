@@ -24,10 +24,10 @@ namespace l1t {
   public:
     Stage2PreProcessorFirmwareImp1(unsigned fwv, CaloParamsHelper* params);
 
-    virtual ~Stage2PreProcessorFirmwareImp1();
+    ~Stage2PreProcessorFirmwareImp1() override;
 
-    virtual void processEvent(const std::vector<l1t::CaloTower> & inTowers,
-			      std::vector<l1t::CaloTower> & outTowers);
+    void processEvent(const std::vector<l1t::CaloTower> & inTowers,
+			      std::vector<l1t::CaloTower> & outTowers) override;
 
     void print(std::ostream&) const;
 

@@ -10,8 +10,8 @@
 class writeKeyed : public edm::EDAnalyzer {
  public:
   explicit writeKeyed(const edm::ParameterSet& iConfig );
-  virtual void analyze( const edm::Event&, const edm::EventSetup& ){}
-  virtual void endJob();
+  void analyze( const edm::Event&, const edm::EventSetup& ) override{}
+  void endJob() override;
  private:
   std::string confcont, confiov;
 };

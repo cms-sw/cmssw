@@ -55,7 +55,7 @@
 class TrackerMapTool : public edm::one::EDAnalyzer<> {
 public:
   explicit TrackerMapTool( const edm::ParameterSet& );
-  ~TrackerMapTool();
+  ~TrackerMapTool() override;
   
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;

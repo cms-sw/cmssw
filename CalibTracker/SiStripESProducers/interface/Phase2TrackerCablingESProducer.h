@@ -14,7 +14,7 @@ class Phase2TrackerCablingESProducer : public edm::ESProducer {
  public:
   
   Phase2TrackerCablingESProducer( const edm::ParameterSet& );
-  virtual ~Phase2TrackerCablingESProducer();
+  ~Phase2TrackerCablingESProducer() override;
   
   virtual std::unique_ptr<Phase2TrackerCabling> produce( const Phase2TrackerCablingRcd& );
   

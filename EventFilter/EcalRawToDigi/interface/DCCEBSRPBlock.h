@@ -36,14 +36,14 @@ class DCCEBSRPBlock : public DCCSRPBlock{
 
     DCCEBSRPBlock( DCCDataUnpacker * u,EcalElectronicsMapper * m, DCCEventBlock * e, bool unpack);
     
-    void updateCollectors();
+    void updateCollectors() override;
 	 
 	 
   protected :
   
-    void addSRFlagToCollection();
+    void addSRFlagToCollection() override;
 	 
-    bool checkSrpIdAndNumbSRFlags();
+    bool checkSrpIdAndNumbSRFlags() override;
     
     std::unique_ptr<EBSrFlagCollection>  * ebSrFlagsDigis_;
     

@@ -22,7 +22,7 @@ class Type2CorrectionProducer : public edm::stream::EDProducer<>
 {
 public:
   explicit Type2CorrectionProducer(const edm::ParameterSet&);
-  ~Type2CorrectionProducer() { }
+  ~Type2CorrectionProducer() override { }
 
 private:
 

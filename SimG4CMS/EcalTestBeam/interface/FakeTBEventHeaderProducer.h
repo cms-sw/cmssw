@@ -31,7 +31,7 @@ public:
   explicit FakeTBEventHeaderProducer(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~FakeTBEventHeaderProducer();
+  ~FakeTBEventHeaderProducer() override;
   
   /// Produce digis out of raw data
   void produce(edm::Event & event, const edm::EventSetup& eventSetup) override;

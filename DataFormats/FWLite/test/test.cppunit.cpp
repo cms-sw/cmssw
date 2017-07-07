@@ -54,7 +54,7 @@ class testRefInROOT: public CppUnit::TestFixture
   CPPUNIT_TEST_SUITE_END();
 public:
   testRefInROOT() { }
-  void setUp() {
+  void setUp() override {
     if(!sWasRun_) {
       FWLiteEnabler::enable();
       sWasRun_ = true;
@@ -63,7 +63,7 @@ public:
     tmpdir += getenv("SCRAM_ARCH");
     tmpdir += "/";
   }
-  void tearDown(){ }
+  void tearDown() override{ }
 
   void testRefFirst();
   void testAllLabels();

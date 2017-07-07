@@ -5,7 +5,7 @@ class  FWTrackECALDetailView: public FWECALDetailViewBase<reco::TrackBase>
 {
 public:
    FWTrackECALDetailView() {}
-   virtual ~FWTrackECALDetailView() {}
+   ~FWTrackECALDetailView() override {}
 
 private:
    FWTrackECALDetailView(const FWTrackECALDetailView&); // stop default

@@ -35,11 +35,11 @@ class SimWatcherMaker : public SimWatcherMakerBase
       SimWatcherMaker(){}
 
       // ---------- const member functions ---------------------
-      virtual void make(const edm::ParameterSet& p,
+      void make(const edm::ParameterSet& p,
 			SimActivityRegistry& reg,
 			std::shared_ptr<SimWatcher>& oWatcher,
 			std::shared_ptr<SimProducer>& oProd
-	 ) const
+	 ) const override
       {
 	auto returnValue = std::make_shared<T>(p);
 	SimActivityRegistryEnroller::enroll(reg, returnValue.get());

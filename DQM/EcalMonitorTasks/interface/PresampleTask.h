@@ -11,7 +11,7 @@ namespace ecaldqm
   class PresampleTask : public DQWorkerTask {
   public:
     PresampleTask();
-    ~PresampleTask() {}
+    ~PresampleTask() override {}
 
     bool filterRunType(short const*) override;
 

@@ -11,7 +11,7 @@ namespace l1t {
       public:
 	virtual int  checkFormat(const Block& block); 
 	// virtual bool checkFormat() override; // Return "false" if block format does not match expected format
-	virtual bool unpack(const Block& block, UnpackerCollections *coll) override; // Apparently it's always good to use override in C++
+	bool unpack(const Block& block, UnpackerCollections *coll) override; // Apparently it's always good to use override in C++
 	// virtual bool packBlock(const Block& block, UnpackerCollections *coll) override;
       };
       

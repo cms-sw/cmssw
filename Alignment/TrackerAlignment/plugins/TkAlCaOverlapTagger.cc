@@ -30,7 +30,7 @@
 class TkAlCaOverlapTagger : public edm::EDProducer {
  public:
   TkAlCaOverlapTagger(const edm::ParameterSet &iConfig);
-  ~TkAlCaOverlapTagger();
+  ~TkAlCaOverlapTagger() override;
   void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override;
 
  private:

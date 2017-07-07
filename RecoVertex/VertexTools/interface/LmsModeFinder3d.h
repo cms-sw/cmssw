@@ -7,8 +7,8 @@
  */
 class LmsModeFinder3d : public ModeFinder3d {
 public:
-  virtual GlobalPoint operator () ( const std::vector< PointAndDistance> & values ) const;
-  virtual LmsModeFinder3d * clone() const;
+  GlobalPoint operator () ( const std::vector< PointAndDistance> & values ) const override;
+  LmsModeFinder3d * clone() const override;
 };
 
 #endif

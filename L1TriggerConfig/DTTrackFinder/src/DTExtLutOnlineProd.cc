@@ -37,9 +37,9 @@ class DTExtLutOnlineProd :
 {
    public:
       DTExtLutOnlineProd(const edm::ParameterSet&);
-      ~DTExtLutOnlineProd();
+      ~DTExtLutOnlineProd() override;
 
-  virtual std::shared_ptr< L1MuDTExtLut > newObject(
+  std::shared_ptr< L1MuDTExtLut > newObject(
     const std::string& objectKey ) override ;
 
    private:

@@ -97,7 +97,7 @@ class CaloJetMETcorrInputProducerT final : public edm::global::EDProducer<>
     produces<CorrMETData>("type2");
     produces<CorrMETData>("offset");
   }
-  ~CaloJetMETcorrInputProducerT() {}
+  ~CaloJetMETcorrInputProducerT() override {}
 
  private:
 

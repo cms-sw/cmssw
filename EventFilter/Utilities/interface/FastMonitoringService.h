@@ -131,7 +131,7 @@ namespace evf{
       // moved into base class in EventFilter/Utilities for compatibility with MicroStateServiceClassic
       static const std::string nopath_;
       FastMonitoringService(const edm::ParameterSet&,edm::ActivityRegistry&);
-      ~FastMonitoringService();
+      ~FastMonitoringService() override;
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
      
       std::string makePathLegendaJson();
@@ -168,8 +168,8 @@ namespace evf{
       void setExceptionDetected(unsigned int ls);
 
       //this is still needed for use in special functions like DQM which are in turn framework services
-      void setMicroState(MicroStateService::Microstate);
-      void setMicroState(edm::StreamID, MicroStateService::Microstate);
+      void setMicroState(MicroStateService::Microstate) override;
+      void setMicroState(edm::StreamID, MicroStateService::Microstate) override;
 
       void accumulateFileSize(unsigned int lumi, unsigned long fileSize);
       void startedLookingForFile();

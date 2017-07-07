@@ -50,7 +50,7 @@ Implementation:
 class testEcalClusterLazyTools : public edm::EDAnalyzer {
 public:
   explicit testEcalClusterLazyTools(const edm::ParameterSet&);
-  ~testEcalClusterLazyTools();
+  ~testEcalClusterLazyTools() override;
   
   edm::EDGetTokenT<reco::BasicClusterCollection> barrelClusterToken_;
   edm::EDGetTokenT<reco::BasicClusterCollection> endcapClusterToken_;
@@ -58,7 +58,7 @@ public:
   edm::EDGetTokenT<EcalRecHitCollection> reducedEndcapRecHitToken_;
   
 private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   
 };
 

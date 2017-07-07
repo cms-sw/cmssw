@@ -12,13 +12,13 @@ class L1TStage2RatioClient: public DQMEDHarvester
   public:
 
     L1TStage2RatioClient(const edm::ParameterSet&);
-    virtual ~L1TStage2RatioClient();
+    ~L1TStage2RatioClient() override;
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   protected:
 
-    virtual void dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter)override;
-    virtual void dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,DQMStore::IGetter& igetter,const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c) override;
+    void dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter)override;
+    void dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,DQMStore::IGetter& igetter,const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c) override;
 
   private:
 

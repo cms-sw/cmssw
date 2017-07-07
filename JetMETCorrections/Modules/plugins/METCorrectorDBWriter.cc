@@ -19,10 +19,10 @@ class  METCorrectorDBWriter : public edm::one::EDAnalyzer<>
 {
  public:
   METCorrectorDBWriter(const edm::ParameterSet&);
-  virtual void beginJob() override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override {}
-  virtual void endJob() override {}
-  ~METCorrectorDBWriter() {}
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override {}
+  void endJob() override {}
+  ~METCorrectorDBWriter() override {}
 
  private:
   std::string era;

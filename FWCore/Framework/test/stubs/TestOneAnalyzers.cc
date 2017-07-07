@@ -42,7 +42,7 @@ namespace one {
        
     }
     
-   ~SharedResourcesAnalyzer() {
+   ~SharedResourcesAnalyzer() override {
       if(m_count != trans_) {
         throw cms::Exception("transitions")
           << "SharedResourcesAnalyzer transitions "
@@ -89,7 +89,7 @@ namespace one {
       er = true;
     }
  
-   ~WatchRunsAnalyzer() {
+   ~WatchRunsAnalyzer() override {
       if(m_count != trans_) {
         throw cms::Exception("transitions")
           << "WatchRunsAnalyzer transitions "
@@ -137,7 +137,7 @@ namespace one {
       el = true;
     }
 
-   ~WatchLumiBlocksAnalyzer() {
+   ~WatchLumiBlocksAnalyzer() override {
       if(m_count != trans_) {
         throw cms::Exception("transitions")
           << "WatchLumiBlocksAnalyzer transitions "

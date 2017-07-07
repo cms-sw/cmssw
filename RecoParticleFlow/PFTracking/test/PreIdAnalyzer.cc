@@ -15,10 +15,10 @@ class PreIdAnalyzer : public edm::EDAnalyzer {
 
  public:
   explicit PreIdAnalyzer(const edm::ParameterSet &);
-  ~PreIdAnalyzer();
+  ~PreIdAnalyzer() override;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup& );
-  virtual void beginRun(edm::Run const&, edm::EventSetup const& );
+  void analyze(const edm::Event&, const edm::EventSetup& ) override;
+  void beginRun(edm::Run const&, edm::EventSetup const& ) override;
   //  virtual void beginJobAnalyze(const edm::EventSetup & c);
  private:
   edm::InputTag PreIdMapLabel_;

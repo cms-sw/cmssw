@@ -94,7 +94,7 @@
 class IsolatedTracksCone : public edm::EDAnalyzer {
 public:
   explicit IsolatedTracksCone(const edm::ParameterSet&);
-  ~IsolatedTracksCone();
+  ~IsolatedTracksCone() override;
   
   //  static const int NEtaBins = 4;
   static const int NEtaBins = 4;
@@ -104,9 +104,9 @@ public:
   double genPartPBins[22], genPartEtaBins[5];
   
 private:
-  virtual void beginJob() ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  void beginJob() override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
 
   void printTrack(const reco::Track* pTrack);
 

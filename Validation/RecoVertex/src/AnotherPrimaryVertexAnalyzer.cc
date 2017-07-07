@@ -52,15 +52,15 @@
 class AnotherPrimaryVertexAnalyzer : public edm::EDAnalyzer {
    public:
       explicit AnotherPrimaryVertexAnalyzer(const edm::ParameterSet&);
-      ~AnotherPrimaryVertexAnalyzer();
+      ~AnotherPrimaryVertexAnalyzer() override;
 
 
 private:
-  virtual void beginJob() ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-  virtual void endRun(const edm::Run&, const edm::EventSetup&);
-  virtual void endJob() ;
+  void beginJob() override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override;
+  void endJob() override ;
 
       // ----------member data ---------------------------
 

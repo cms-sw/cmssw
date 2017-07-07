@@ -63,7 +63,7 @@ namespace reco {
   class PhysObjectMatcher : public edm::stream::EDProducer<> {
   public:
     PhysObjectMatcher(const edm::ParameterSet & cfg);
-    ~PhysObjectMatcher();
+    ~PhysObjectMatcher() override;
   private:
     typedef typename C1::value_type T1;
     typedef typename C2::value_type T2;

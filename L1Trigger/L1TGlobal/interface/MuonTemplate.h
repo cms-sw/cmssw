@@ -48,7 +48,7 @@ public:
     MuonTemplate( const MuonTemplate& );
 
     // destructor
-    virtual ~MuonTemplate();
+    ~MuonTemplate() override;
 
     // assign operator
     MuonTemplate& operator= (const MuonTemplate&);
@@ -128,7 +128,7 @@ public:
 
 
     /// print the condition
-    virtual void print(std::ostream& myCout) const;
+    void print(std::ostream& myCout) const override;
 
     /// output stream operator
     friend std::ostream& operator<<(std::ostream&, const MuonTemplate&);

@@ -13,7 +13,7 @@ class CaloTopology;
 class InterestingEcalDetIdProducer : public edm::stream::EDProducer<> {
  public:
   explicit InterestingEcalDetIdProducer(const edm::ParameterSet&);
-  ~InterestingEcalDetIdProducer();
+  ~InterestingEcalDetIdProducer() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
 

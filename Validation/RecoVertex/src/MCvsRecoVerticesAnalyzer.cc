@@ -59,10 +59,10 @@
 class MCvsRecoVerticesAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit MCvsRecoVerticesAnalyzer(const edm::ParameterSet&);
-  ~MCvsRecoVerticesAnalyzer();
+  ~MCvsRecoVerticesAnalyzer() override;
   
 private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   
       // ----------member data ---------------------------
 

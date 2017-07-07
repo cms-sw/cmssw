@@ -10,7 +10,7 @@ namespace ecaldqm
   public :
     MESetNonObject(std::string const&, binning::ObjectType, binning::BinningType, MonitorElement::Kind, binning::AxisSpecs const* = 0, binning::AxisSpecs const* = 0, binning::AxisSpecs const* = 0);
     MESetNonObject(MESetNonObject const&);
-    ~MESetNonObject();
+    ~MESetNonObject() override;
 
     MESet& operator=(MESet const&) override;
 

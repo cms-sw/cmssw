@@ -24,7 +24,7 @@ namespace l1t {
       theta_int(-999), theta_loc(-999), theta_deg(-999), theta_rad(-999), eta(-999)
       {};
     
-    virtual ~EMTFHitExtra() {};
+    ~EMTFHitExtra() override {};
 
     void ImportCSCCorrelatedLCTDigi (const CSCCorrelatedLCTDigi& _digi);
     EMTFHit CreateEMTFHit();

@@ -29,10 +29,10 @@ class TtSemiLepEvtPartons : public TtEventPartons {
   /// default constructor
   TtSemiLepEvtPartons(const std::vector<std::string>& partonsToIgnore = std::vector<std::string>());
   /// default destructor
-  ~TtSemiLepEvtPartons(){};
+  ~TtSemiLepEvtPartons() override{};
 
   /// return vector of partons in the order defined in the corresponding enum
-  std::vector<const reco::Candidate*> vec(const TtGenEvent& genEvt);
+  std::vector<const reco::Candidate*> vec(const TtGenEvent& genEvt) override;
 
 };
 

@@ -83,7 +83,7 @@ template <typename T, typename Textractor>
 
     produces<JetCollection>();
   }
-  ~ShiftedJetProducerT()
+  ~ShiftedJetProducerT() override
   {
     delete jetCorrParameters_;
     delete jecUncertainty_;
@@ -91,7 +91,7 @@ template <typename T, typename Textractor>
 
  private:
 
-  void produce(edm::Event& evt, const edm::EventSetup& es)
+  void produce(edm::Event& evt, const edm::EventSetup& es) override
   {
     if ( verbosity_ ) {
       std::cout << "<ShiftedJetProducerT::produce>:" << std::endl;

@@ -33,12 +33,12 @@ class JGJFilter : public edm::EDFilter
 {
    public:
       explicit JGJFilter(const edm::ParameterSet&);
-      ~JGJFilter();
+      ~JGJFilter() override;
 
    private:
-      virtual void beginJob() ;
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      void beginJob() override ;
+      bool filter(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
       
       // ----------member data ---------------------------
 

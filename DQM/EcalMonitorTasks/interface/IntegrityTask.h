@@ -14,7 +14,7 @@ namespace ecaldqm
   class IntegrityTask : public DQWorkerTask {
   public:
     IntegrityTask();
-    ~IntegrityTask() {}
+    ~IntegrityTask() override {}
 
     void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 

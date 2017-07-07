@@ -27,8 +27,8 @@ class testRecord: public CppUnit::TestFixture
    CPPUNIT_TEST_SUITE_END();
    static bool s_firstSetup;
 public:
-   void setUp();
-   void tearDown(){}
+   void setUp() override;
+   void tearDown() override{}
    
    void testGood();
    void testFailures();

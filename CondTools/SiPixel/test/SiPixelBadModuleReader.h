@@ -28,9 +28,9 @@ class SiPixelBadModuleReader : public edm::EDAnalyzer {
 
  public:
   explicit SiPixelBadModuleReader( const edm::ParameterSet& );
-  ~SiPixelBadModuleReader();
+  ~SiPixelBadModuleReader() override;
   
-  void analyze( const edm::Event&, const edm::EventSetup& );
+  void analyze( const edm::Event&, const edm::EventSetup& ) override;
     
  private:
   uint32_t printdebug_;

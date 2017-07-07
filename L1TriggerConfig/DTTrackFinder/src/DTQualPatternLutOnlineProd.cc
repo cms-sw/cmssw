@@ -37,9 +37,9 @@ class DTQualPatternLutOnlineProd :
 {
    public:
       DTQualPatternLutOnlineProd(const edm::ParameterSet&);
-      ~DTQualPatternLutOnlineProd();
+      ~DTQualPatternLutOnlineProd() override;
 
-  virtual std::shared_ptr< L1MuDTQualPatternLut > newObject(
+  std::shared_ptr< L1MuDTQualPatternLut > newObject(
     const std::string& objectKey ) override ;
 
    private:

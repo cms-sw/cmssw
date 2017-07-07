@@ -10,7 +10,7 @@ class METDQM : public TriggerDQMBase
 {
  public:
   METDQM();
-  virtual ~METDQM();
+  ~METDQM() override;
 
   void initialise(const edm::ParameterSet& iConfig);
   void bookHistograms(DQMStore::IBooker &);

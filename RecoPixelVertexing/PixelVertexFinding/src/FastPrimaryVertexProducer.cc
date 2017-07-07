@@ -76,7 +76,7 @@ class FastPrimaryVertexProducer : public edm::global::EDProducer<> {
       explicit FastPrimaryVertexProducer(const edm::ParameterSet&);
 
    private:
-      virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+      void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
       edm::EDGetTokenT<SiPixelClusterCollectionNew> m_clusters;
       edm::EDGetTokenT<edm::View<reco::Jet> > m_jets;
       edm::EDGetTokenT<reco::BeamSpot> m_beamSpot;

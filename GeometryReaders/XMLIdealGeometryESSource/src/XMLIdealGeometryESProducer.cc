@@ -50,7 +50,7 @@
 class XMLIdealGeometryESProducer : public edm::ESProducer {
 public:
   XMLIdealGeometryESProducer(const edm::ParameterSet&);
-  ~XMLIdealGeometryESProducer();
+  ~XMLIdealGeometryESProducer() override;
   
   typedef std::unique_ptr<DDCompactView> ReturnType;
   

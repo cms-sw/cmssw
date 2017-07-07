@@ -10,7 +10,7 @@
 class TrackCleanerESProducer: public edm::ESProducer {
 public:
   TrackCleanerESProducer(const edm::ParameterSet& iConfig);
-  ~TrackCleanerESProducer() = default;
+  ~TrackCleanerESProducer() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 

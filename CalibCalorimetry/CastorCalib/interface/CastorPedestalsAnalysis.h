@@ -76,9 +76,9 @@ class CastorPedestalsAnalysis : public edm::EDAnalyzer
    //Constructor
    CastorPedestalsAnalysis(const edm::ParameterSet& ps);
    //Destructor
-   virtual ~CastorPedestalsAnalysis();
+   ~CastorPedestalsAnalysis() override;
    //Analysis
-   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
+   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
 
    private:
    //Container for data, 1 per channel

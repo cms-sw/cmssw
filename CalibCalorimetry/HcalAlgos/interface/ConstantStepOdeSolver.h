@@ -137,12 +137,12 @@ public:
     inline explicit EulerOdeSolver(const AbsODERHS& rhs)
         : ConstantStepOdeSolver(rhs) {}
 
-    inline const char* methodName() const {return "Euler";}
+    inline const char* methodName() const override {return "Euler";}
 
 private:
     void step(double t, double dt,
               const double* x, unsigned lenX,
-              double* coordIncrement) const;
+              double* coordIncrement) const override;
 };
 
 
@@ -153,12 +153,12 @@ public:
 
     inline explicit RK2(const AbsODERHS& rhs) : ConstantStepOdeSolver(rhs) {}
 
-    inline const char* methodName() const {return "2nd order Runge-Kutta";}
+    inline const char* methodName() const override {return "2nd order Runge-Kutta";}
 
 private:
     void step(double t, double dt,
               const double* x, unsigned lenX,
-              double* coordIncrement) const;
+              double* coordIncrement) const override;
 
     mutable std::vector<double> buf_;
 };
@@ -171,12 +171,12 @@ public:
 
     inline explicit RK4(const AbsODERHS& rhs) : ConstantStepOdeSolver(rhs) {}
 
-    inline const char* methodName() const {return "4th order Runge-Kutta";}
+    inline const char* methodName() const override {return "4th order Runge-Kutta";}
 
 private:
     void step(double t, double dt,
               const double* x, unsigned lenX,
-              double* coordIncrement) const;
+              double* coordIncrement) const override;
 
     mutable std::vector<double> buf_;
 };

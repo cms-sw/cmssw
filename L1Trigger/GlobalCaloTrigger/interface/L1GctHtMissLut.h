@@ -37,7 +37,7 @@ public:
   /// Copy constructor
   L1GctHtMissLut(const L1GctHtMissLut& lut);
   /// Destructor
-  virtual ~L1GctHtMissLut();
+  ~L1GctHtMissLut() override;
   
   /// Overload = operator
   L1GctHtMissLut operator= (const L1GctHtMissLut& lut);
@@ -60,7 +60,7 @@ public:
 protected:
   
 
-  virtual uint16_t value (const uint16_t lutAddress) const;
+  uint16_t value (const uint16_t lutAddress) const override;
 
 private:
 

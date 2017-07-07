@@ -40,11 +40,11 @@ class SiStripCalibLorentzAngle : public ConditionDBWriter<SiStripLorentzAngle>
   
   explicit SiStripCalibLorentzAngle(const edm::ParameterSet& conf);
   
-  virtual ~SiStripCalibLorentzAngle();
+  ~SiStripCalibLorentzAngle() override;
   
-  SiStripLorentzAngle* getNewObject();
+  SiStripLorentzAngle* getNewObject() override;
   
-  void algoBeginJob(const edm::EventSetup&);
+  void algoBeginJob(const edm::EventSetup&) override;
   
  private:
  

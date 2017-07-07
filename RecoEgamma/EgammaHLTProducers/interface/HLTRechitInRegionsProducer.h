@@ -40,7 +40,7 @@ class HLTRechitInRegionsProducer : public edm::stream::EDProducer<> {
  public:
   
   HLTRechitInRegionsProducer(const edm::ParameterSet& ps);
-  ~HLTRechitInRegionsProducer();
+  ~HLTRechitInRegionsProducer() override;
 
   void produce(edm::Event&, const edm::EventSetup&) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);

@@ -23,10 +23,10 @@
 class CorrectECALIsolation : public edm::EDAnalyzer {
 public:
   explicit CorrectECALIsolation(const edm::ParameterSet&);
-  ~CorrectECALIsolation();
+  ~CorrectECALIsolation() override;
 
 private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   edm::ParameterSet conf_;
 

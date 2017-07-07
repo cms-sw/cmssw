@@ -17,9 +17,9 @@ namespace pat {
   class PATVertexSlimmer : public edm::global::EDProducer<> {
   public:
     explicit PATVertexSlimmer(const edm::ParameterSet&);
-    ~PATVertexSlimmer();
+    ~PATVertexSlimmer() override;
     
-    virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const;
+    void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   private:
     const edm::EDGetTokenT<std::vector<reco::Vertex> > src_;
     const edm::EDGetTokenT<edm::ValueMap<float> > score_;

@@ -24,7 +24,7 @@
 class AlcaBeamMonitorClient : public edm::EDAnalyzer {
  public:
   AlcaBeamMonitorClient( const edm::ParameterSet& );
-  ~AlcaBeamMonitorClient();
+  ~AlcaBeamMonitorClient() override;
 
  protected:
 

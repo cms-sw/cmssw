@@ -36,7 +36,7 @@ class RecoTauDiscriminantCutMultiplexer : public PFTauDiscriminationProducerBase
  public:
   explicit RecoTauDiscriminantCutMultiplexer(const edm::ParameterSet& pset);
 
-  ~RecoTauDiscriminantCutMultiplexer();
+  ~RecoTauDiscriminantCutMultiplexer() override;
   double discriminate(const reco::PFTauRef&) const override;
   void beginEvent(const edm::Event& event, const edm::EventSetup& eventSetup) override;
   

@@ -28,9 +28,9 @@ class CTPPSLocalTrackLiteProducer : public edm::stream::EDProducer<>
 {
   public:
     explicit CTPPSLocalTrackLiteProducer( const edm::ParameterSet& );
-    virtual ~CTPPSLocalTrackLiteProducer() {}
+    ~CTPPSLocalTrackLiteProducer() override {}
 
-    virtual void produce( edm::Event&, const edm::EventSetup& ) override;
+    void produce( edm::Event&, const edm::EventSetup& ) override;
 
   private:
     edm::EDGetTokenT< edm::DetSetVector<TotemRPLocalTrack> > siStripTrackToken_;

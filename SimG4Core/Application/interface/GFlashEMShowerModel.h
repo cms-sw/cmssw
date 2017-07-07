@@ -32,11 +32,11 @@ public:
   
   GFlashEMShowerModel (const G4String& name, G4Envelope* env, 
 		       const edm::ParameterSet& parSet);
-  virtual ~GFlashEMShowerModel ();  
+  ~GFlashEMShowerModel () override;  
 
-  G4bool ModelTrigger(const G4FastTrack &); 
-  G4bool IsApplicable(const G4ParticleDefinition&);
-  void DoIt(const G4FastTrack&, G4FastStep&);
+  G4bool ModelTrigger(const G4FastTrack &) override; 
+  G4bool IsApplicable(const G4ParticleDefinition&) override;
+  void DoIt(const G4FastTrack&, G4FastStep&) override;
 
 private:
 

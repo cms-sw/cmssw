@@ -44,7 +44,7 @@ class LutXml : public XMLDOMBlock
   LutXml();
   LutXml( XERCES_CPP_NAMESPACE::InputSource & _source );
   LutXml( std::string filename );
-  virtual ~LutXml();
+  ~LutXml() override;
   
   void init( void );
   void addLut( Config & _config, XMLDOMBlock * checksums_xml = 0 );

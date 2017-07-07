@@ -54,9 +54,9 @@ template <typename BT= reco::Candidate>
   public:
   MuIsolatorResultProducer(const edm::ParameterSet&);
   
-  virtual ~MuIsolatorResultProducer();
+  ~MuIsolatorResultProducer() override;
   
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
   
   private:
   typedef muisorhelper::Isolator Isolator;

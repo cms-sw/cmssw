@@ -39,7 +39,7 @@ namespace reco {
         m_function(iFunc) {}
        
       // ---------- const member functions ---------------------
-      virtual double evaluate(double const* iVariables, double const* iParameters) const override final {
+      double evaluate(double const* iVariables, double const* iParameters) const final {
         return m_function( m_arg->evaluate(iVariables,iParameters) );
       }
 

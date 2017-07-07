@@ -162,9 +162,9 @@ class TrainerMonitoring {
 	    public:
 		RootObject(const std::string &name, T *object) :
 			Object(name), object(object) {}
-		virtual ~RootObject() {}
+		~RootObject() override {}
 
-		virtual void write(TDirectory *dir)
+		void write(TDirectory *dir) override
 		{
 			dir->WriteObjectAny(object.get(),
 			                    TClass::GetClass(typeid(T)),

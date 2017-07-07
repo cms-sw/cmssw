@@ -38,8 +38,8 @@ namespace edmtest {
     explicit ToyDoubleProducer(double d) : value_(d) {
       produces<DoubleProduct>();
     }
-    virtual ~ToyDoubleProducer() {}
-    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+    ~ToyDoubleProducer() override {}
+    void produce(edm::Event& e, edm::EventSetup const& c) override;
   private:
     double value_;
   };

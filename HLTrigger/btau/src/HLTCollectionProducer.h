@@ -37,9 +37,9 @@ class HLTCollectionProducer : public edm::global::EDProducer<> {
 
   public:
     explicit HLTCollectionProducer(const edm::ParameterSet&);
-    virtual ~HLTCollectionProducer();
+    ~HLTCollectionProducer() override;
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-    virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+    void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   
   private:
     const edm::InputTag                                          hltObjectTag_;

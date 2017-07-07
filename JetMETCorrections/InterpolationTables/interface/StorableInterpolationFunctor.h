@@ -120,11 +120,11 @@ namespace npstat {
                      vAxis, leftV, rightV, functionLabel) {}
         //@}
 
-        virtual ~StorableInterpolationFunctor() {}
+        ~StorableInterpolationFunctor() override {}
 
-        virtual unsigned minDim() const {return table_.dim();};
+        unsigned minDim() const override {return table_.dim();};
 
-        virtual double operator()(const double* point, unsigned dim) const
+        double operator()(const double* point, unsigned dim) const override
             {return conv_(table_(point, dim));}
 
         //@{
@@ -144,8 +144,8 @@ namespace npstat {
 
         //@{
         // Method related to "geners" I/O
-        virtual gs::ClassId classId() const {return gs::ClassId(*this);}
-        virtual bool write(std::ostream& of) const;
+        gs::ClassId classId() const override {return gs::ClassId(*this);}
+        bool write(std::ostream& of) const override;
         //@}
 
         // I/O methods needed for reading
@@ -155,7 +155,7 @@ namespace npstat {
             const gs::ClassId& id, std::istream& in);
 
     protected:
-        virtual bool isEqual(const StorableMultivariateFunctor& other) const
+        bool isEqual(const StorableMultivariateFunctor& other) const override
         {
             // Note the use of static_cast rather than dynamic_cast below.
             // static_cast works faster and it is guaranteed to succeed here.

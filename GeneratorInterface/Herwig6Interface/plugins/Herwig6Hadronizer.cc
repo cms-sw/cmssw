@@ -86,7 +86,7 @@ class Herwig6Hadronizer : public gen::BaseHadronizer,
                           public gen::Herwig6Instance {
     public:
 	Herwig6Hadronizer(const edm::ParameterSet &params);
-	~Herwig6Hadronizer();
+	~Herwig6Hadronizer() override;
 
 	void setSLHAFromHeader(const std::vector<std::string> &lines);
 	bool initialize(const lhef::HEPRUP *heprup);
@@ -115,16 +115,16 @@ class Herwig6Hadronizer : public gen::BaseHadronizer,
 
     private:
 
-        virtual void doSetRandomEngine(CLHEP::HepRandomEngine* v) override;
-        virtual std::vector<std::string> const& doSharedResources() const override { return theSharedResources; }
+        void doSetRandomEngine(CLHEP::HepRandomEngine* v) override;
+        std::vector<std::string> const& doSharedResources() const override { return theSharedResources; }
 
 	void clear();
 
 	int pythiaStatusCode(const HepMC::GenParticle *p) const;
 	void pythiaStatusCodes();
 
-	virtual void upInit() override;
-	virtual void upEvnt() override;
+	void upInit() override;
+	void upEvnt() override;
 
         static const std::vector<std::string> theSharedResources;
 

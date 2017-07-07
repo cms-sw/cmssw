@@ -12,10 +12,10 @@ class FEConfigLinDat : public IDataItem {
  public:
   friend class EcalCondDBInterface; // XXX temp should not need
   FEConfigLinDat();
-  ~FEConfigLinDat();
+  ~FEConfigLinDat() override;
 
   // User data methods
-  inline std::string getTable() { return "FE_CONFIG_LIN_DAT"; }
+  inline std::string getTable() override { return "FE_CONFIG_LIN_DAT"; }
 
   inline void setMultX12(int x) { m_multx12 = x; }
   inline void setMultX6(int x) { m_multx6 = x; }
@@ -33,7 +33,7 @@ class FEConfigLinDat : public IDataItem {
   inline int getShift1() const { return m_shift1; }
 
  private:
-  void prepareWrite() noexcept(false);
+  void prepareWrite() noexcept(false) override;
 
   void writeDB(const EcalLogicID* ecid, const FEConfigLinDat* item, FEConfigLinInfo* iconf) noexcept(false);
 

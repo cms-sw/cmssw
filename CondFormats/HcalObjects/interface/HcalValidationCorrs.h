@@ -22,7 +22,7 @@ class HcalValidationCorrs: public HcalCondObjectContainer<HcalValidationCorr>
 #endif
   HcalValidationCorrs(const HcalTopology* topo):HcalCondObjectContainer<HcalValidationCorr>(topo) {}
 
-  std::string myname() const {return (std::string)"HcalValidationCorrs";}
+  std::string myname() const override {return (std::string)"HcalValidationCorrs";}
 
  private:
 

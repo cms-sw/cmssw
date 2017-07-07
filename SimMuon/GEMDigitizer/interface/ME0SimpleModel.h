@@ -27,7 +27,7 @@ public:
 
   ME0SimpleModel(const edm::ParameterSet&);
 
-  ~ME0SimpleModel();
+  ~ME0SimpleModel() override;
 
   void setup() override;
 

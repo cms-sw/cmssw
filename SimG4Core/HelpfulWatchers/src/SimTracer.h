@@ -69,7 +69,7 @@ UPDATE(BeginOfJob)
 UPDATE(BeginOfRun)
 UPDATE(BeginOfEvent)
 UPDATE(BeginOfTrack)
-   void update(const G4Step* iStep) { 
+   void update(const G4Step* iStep) override { 
    std::cout <<"++ signal G4Step " ;
    if(m_verbose) {
       const G4StepPoint* post = iStep->GetPostStepPoint();

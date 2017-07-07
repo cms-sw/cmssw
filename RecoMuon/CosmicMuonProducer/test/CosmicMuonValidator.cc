@@ -61,15 +61,15 @@ using namespace edm;
 class CosmicMuonValidator : public edm::EDAnalyzer {
    public:
       explicit CosmicMuonValidator(const edm::ParameterSet&);
-      ~CosmicMuonValidator();
+      ~CosmicMuonValidator() override;
 
    private:
 
-      virtual void beginJob();
+      void beginJob() override;
 
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-      virtual void endJob();
+      void endJob() override;
 
       reco::Track bestTrack(const reco::TrackCollection&) const;
 

@@ -34,9 +34,9 @@ class AlignableCSCRing : public AlignableComposite
 
   AlignableCSCRing( const std::vector<AlignableCSCChamber*>& cscChambers );
 
-  ~AlignableCSCRing();
+  ~AlignableCSCRing() override;
   
-  virtual std::vector<Alignable*> components() const 
+  std::vector<Alignable*> components() const override 
   {
 
         std::vector<Alignable*> result;
@@ -60,7 +60,7 @@ class AlignableCSCRing : public AlignableComposite
   friend std::ostream& operator << ( std::ostream&, const AlignableCSCRing& ); 
 
   /// Recursive printout of the muon CSC Ring structure
-  void dump( void ) const;
+  void dump( void ) const override;
 
 
 

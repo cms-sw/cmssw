@@ -31,9 +31,9 @@ class SiStripNoiseNormalizedWithApvGainBuilder : public edm::EDAnalyzer
 
   explicit SiStripNoiseNormalizedWithApvGainBuilder( const edm::ParameterSet& iConfig);
 
-  ~SiStripNoiseNormalizedWithApvGainBuilder(){};
+  ~SiStripNoiseNormalizedWithApvGainBuilder() override{};
 
-  virtual void analyze(const edm::Event& , const edm::EventSetup& );
+  void analyze(const edm::Event& , const edm::EventSetup& ) override;
 
  private:
   /// Fills the parameters read from cfg and matching the name in the given map

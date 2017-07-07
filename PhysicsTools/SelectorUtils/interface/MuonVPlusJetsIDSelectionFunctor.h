@@ -196,7 +196,7 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
   }
 
   // Allow for multiple definitions of the cuts.
-  bool operator()( const pat::Muon & muon, edm::EventBase const & event, pat::strbitset & ret )
+  bool operator()( const pat::Muon & muon, edm::EventBase const & event, pat::strbitset & ret ) override
   {
 
     if (version_ == FALL10 ) return fall10Cuts(muon, event, ret);
@@ -213,7 +213,7 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
   }
 
   // For compatibility with older versions.
-  bool operator()( const pat::Muon & muon, pat::strbitset & ret )
+  bool operator()( const pat::Muon & muon, pat::strbitset & ret ) override
   {
 
     if (version_ == SPRING10 || version_ == FALL10 ) throw cms::Exception("LogicError")

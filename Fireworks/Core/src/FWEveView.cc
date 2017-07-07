@@ -62,7 +62,7 @@ class ScaleAnnotation : public TGLAnnotation
 public:
    ScaleAnnotation(TGLViewerBase* parent, const char* text, Float_t posx, Float_t posy):
       TGLAnnotation(parent, text, posx, posy) {}
-   virtual ~ScaleAnnotation() {}
+   ~ScaleAnnotation() override {}
 
    void setText(const char* txt)
    {

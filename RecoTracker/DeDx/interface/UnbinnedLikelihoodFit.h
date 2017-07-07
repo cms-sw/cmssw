@@ -26,7 +26,7 @@ class UnbinnedLikelihoodFit : public TObject
   public:
     // Constructor and destructor
     UnbinnedLikelihoodFit();
-    ~UnbinnedLikelihoodFit();
+    ~UnbinnedLikelihoodFit() override;
 
     // Set the data for the fit: a set of measurements
     void setData(uint32_t n, double* x);

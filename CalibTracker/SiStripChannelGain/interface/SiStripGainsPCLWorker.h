@@ -80,9 +80,9 @@ public:
 
 private:
     virtual void beginJob() ;
-    virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);   
-    virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&);
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;   
+    void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
     virtual void endJob() ;
     
     void processEvent(const TrackerTopology* topo); //what really does the job

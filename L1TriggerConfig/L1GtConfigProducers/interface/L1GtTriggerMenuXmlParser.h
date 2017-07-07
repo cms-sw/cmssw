@@ -59,7 +59,7 @@ public:
     L1GtTriggerMenuXmlParser();
 
     /// destructor
-    virtual ~L1GtTriggerMenuXmlParser();
+    ~L1GtTriggerMenuXmlParser() override;
 
 public:
 

@@ -37,18 +37,18 @@ class MaterialBudgetAction : public SimWatcher,
 {
  public:
   MaterialBudgetAction(const edm::ParameterSet&);
-  virtual ~MaterialBudgetAction();
+  ~MaterialBudgetAction() override;
   
  private:
   MaterialBudgetAction(const MaterialBudgetAction&); // stop default
   
   const MaterialBudgetAction& operator=(const MaterialBudgetAction&); // stop default
   
-  void update(const BeginOfRun*);
-  void update(const BeginOfTrack*);
-  void update(const G4Step*);
-  void update(const EndOfTrack*);
-  void update(const EndOfRun*);
+  void update(const BeginOfRun*) override;
+  void update(const BeginOfTrack*) override;
+  void update(const G4Step*) override;
+  void update(const EndOfTrack*) override;
+  void update(const EndOfRun*) override;
   
   bool CheckTouchableInSelectedVolumes( const G4VTouchable* touch );
   bool StopAfterProcess( const G4Step* aStep );

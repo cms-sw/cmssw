@@ -53,14 +53,14 @@ public:
 private:
 
   // Analyzer Methods
-  virtual void dqmBeginRun(const edm::Run &,
+  void dqmBeginRun(const edm::Run &,
 			   const edm::EventSetup &) override;
-  virtual void bookHistograms(DQMStore::IBooker &,
+  void bookHistograms(DQMStore::IBooker &,
 			      edm::Run const &,
 			      edm::EventSetup const &) override;  
-  virtual void analyze(const edm::Event &,
+  void analyze(const edm::Event &,
 		       const edm::EventSetup &) override;
-  virtual void endRun(const edm::Run &,
+  void endRun(const edm::Run &,
 		      const edm::EventSetup &) override;
   bool isMonitoredTriggerAccepted(const edm::TriggerNames,
 				  const edm::Handle<edm::TriggerResults>); 

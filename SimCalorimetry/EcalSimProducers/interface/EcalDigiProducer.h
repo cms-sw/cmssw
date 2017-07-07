@@ -62,13 +62,13 @@ class EcalDigiProducer : public DigiAccumulatorMixMod {
 
       EcalDigiProducer( const edm::ParameterSet& params , edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC);
       EcalDigiProducer( const edm::ParameterSet& params , edm::ConsumesCollector& iC);
-      virtual ~EcalDigiProducer();
+      ~EcalDigiProducer() override;
 
-      virtual void initializeEvent(edm::Event const& e, edm::EventSetup const& c) override;
-      virtual void accumulate(edm::Event const& e, edm::EventSetup const& c) override;
-      virtual void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c, edm::StreamID const&) override;
-      virtual void finalizeEvent(edm::Event& e, edm::EventSetup const& c) override;
-      virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) override;
+      void initializeEvent(edm::Event const& e, edm::EventSetup const& c) override;
+      void accumulate(edm::Event const& e, edm::EventSetup const& c) override;
+      void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c, edm::StreamID const&) override;
+      void finalizeEvent(edm::Event& e, edm::EventSetup const& c) override;
+      void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) override;
 
       void setEBNoiseSignalGenerator(EcalBaseSignalGenerator * noiseGenerator);
       void setEENoiseSignalGenerator(EcalBaseSignalGenerator * noiseGenerator);

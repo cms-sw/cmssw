@@ -74,17 +74,17 @@ class EmbeddingLHEProducer : public edm::one::EDProducer<edm::BeginRunProducer,
                                                         edm::EndRunProducer> {
    public:
       explicit EmbeddingLHEProducer(const edm::ParameterSet&);
-      ~EmbeddingLHEProducer();
+      ~EmbeddingLHEProducer() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void beginJob() override;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override;
+      void beginJob() override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override;
       
-      virtual void beginRunProduce(edm::Run& run, edm::EventSetup const& es) override;
-      virtual void endRunProduce(edm::Run&, edm::EventSetup const&) override;
+      void beginRunProduce(edm::Run& run, edm::EventSetup const& es) override;
+      void endRunProduce(edm::Run&, edm::EventSetup const&) override;
 
       void fill_lhe_from_mumu(TLorentzVector &positiveLepton, TLorentzVector &negativeLepton, lhef::HEPEUP &outlhe, CLHEP::HepRandomEngine* engine);
       void fill_lhe_with_particle(lhef::HEPEUP &outlhe, TLorentzVector &particle, int pdgid, double spin, double ctau);     

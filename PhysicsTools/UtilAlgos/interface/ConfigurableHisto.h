@@ -279,7 +279,7 @@ class SplittingConfigurableHisto : public ConfigurableHisto {
     }
   }//end of ctor
     
-  void book(TFileDirectory* dir){
+  void book(TFileDirectory* dir) override{
     //book the base histogram
     ConfigurableHisto::book(dir);
 
@@ -303,9 +303,9 @@ class SplittingConfigurableHisto : public ConfigurableHisto {
     
   }
 
-  ConfigurableHisto * clone() const {    return new SplittingConfigurableHisto(*this);  }
+  ConfigurableHisto * clone() const override {    return new SplittingConfigurableHisto(*this);  }
 
-  void fill(const edm::Event & e) {
+  void fill(const edm::Event & e) override {
     //fill the base histogram
     ConfigurableHisto::fill(e);
     

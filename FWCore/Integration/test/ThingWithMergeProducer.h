@@ -18,7 +18,7 @@ namespace edmtest {
 
     explicit ThingWithMergeProducer(edm::ParameterSet const& ps);
 
-    virtual ~ThingWithMergeProducer();
+    ~ThingWithMergeProducer() override;
 
     void produce(edm::Event& e, edm::EventSetup const& c) override;
 

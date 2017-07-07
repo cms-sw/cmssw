@@ -34,12 +34,12 @@ class FastTrackerRecHitMatcher : public edm::stream::EDProducer<>  {
     public:
 
     explicit FastTrackerRecHitMatcher(const edm::ParameterSet&);
-    ~FastTrackerRecHitMatcher(){;}
+    ~FastTrackerRecHitMatcher() override{;}
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
     private:
     
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
     // ---------- typedefs -----------------------------
     typedef std::pair<LocalPoint,LocalPoint>                   StripPosition; 

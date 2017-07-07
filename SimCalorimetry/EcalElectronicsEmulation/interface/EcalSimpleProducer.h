@@ -47,17 +47,17 @@ public:
 
   /**Destructor
    */
-  virtual ~EcalSimpleProducer(){};
+  ~EcalSimpleProducer() override{};
 
   /** Called at start of job.
    * @param es the event setup
    */
-  void beginJob(){};
+  void beginJob() override{};
 
   /** The main method. It produces the event.
    * @param evt [out] produced event.
    */
-  virtual void produce(edm::Event& evt, const edm::EventSetup&);
+  void produce(edm::Event& evt, const edm::EventSetup&) override;
   
   //method(s)
 public:

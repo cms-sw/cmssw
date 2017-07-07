@@ -23,8 +23,8 @@ using namespace std;
 class SiPixelTestSummary : public edm::EDAnalyzer {
 public:
   explicit SiPixelTestSummary(const edm::ParameterSet&) {}
-  ~SiPixelTestSummary();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  ~SiPixelTestSummary() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 private:
 };
 

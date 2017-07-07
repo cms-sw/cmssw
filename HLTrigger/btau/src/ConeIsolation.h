@@ -24,9 +24,9 @@
 class ConeIsolation : public edm::EDProducer {
    public:
       explicit ConeIsolation(const edm::ParameterSet&);
-      ~ConeIsolation();
+      ~ConeIsolation() override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      void produce(edm::Event&, const edm::EventSetup&) override;
 
    private:
       edm::InputTag                                          jetTrackTag;

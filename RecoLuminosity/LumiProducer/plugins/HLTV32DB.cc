@@ -38,10 +38,10 @@ namespace lumi{
     const static unsigned int COMMITLSINTERVAL=500; //commit interval in LS
     
     explicit HLTV32DB(const std::string& dest);
-    virtual unsigned long long retrieveData( unsigned int ) override;
-    virtual const std::string dataType() const override;
-    virtual const std::string sourceType() const override;
-    virtual ~HLTV32DB();
+    unsigned long long retrieveData( unsigned int ) override;
+    const std::string dataType() const override;
+    const std::string sourceType() const override;
+    ~HLTV32DB() override;
     struct hltinfo{
       unsigned int cmsluminr;
       std::string pathname;

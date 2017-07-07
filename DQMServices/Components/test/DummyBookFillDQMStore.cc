@@ -54,13 +54,13 @@ class TH1FFiller : public FillerBase {
       assert (valuesToFill_.size() == m_steps);
   }
 
-  virtual ~TH1FFiller() {;}
+  ~TH1FFiller() override {;}
 
-  void reset() {
+  void reset() override {
     m_element->Reset();
   }
 
-  void fill() {
+  void fill() override {
     if (valuesToFill_.size() > 0) {
       for (size_t i = 0; i < valuesToFill_.size(); ++i)
         for (size_t j = 0; j < valuesToFill_[i]; ++j)
@@ -111,13 +111,13 @@ class TH2FFiller : public FillerBase {
       assert (valuesToFill_.size() == m_steps);
   }
 
-  virtual ~TH2FFiller() {;}
+  ~TH2FFiller() override {;}
 
-  void reset() {
+  void reset() override {
     m_element->Reset();
   }
 
-  void fill() {
+  void fill() override {
     if (valuesToFill_.size() > 0) {
       for (size_t i = 0; i < valuesToFill_.size(); ++i)
         for (size_t j = 0; j < valuesToFill_[i]; ++j)
@@ -141,21 +141,21 @@ class DummyBookFillDQMStore :  public edm::EDAnalyzer {
  public:
   typedef std::vector<edm::ParameterSet> PSets;
   explicit DummyBookFillDQMStore(const edm::ParameterSet&);
-  ~DummyBookFillDQMStore();
+  ~DummyBookFillDQMStore() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  private:
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-  virtual void endRun(edm::Run const&, edm::EventSetup const&);
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const&,
-                                    edm::EventSetup const&);
-  virtual void endLuminosityBlock(edm::LuminosityBlock const&,
-                                  edm::EventSetup const&);
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const&,
+                                    edm::EventSetup const&) override;
+  void endLuminosityBlock(edm::LuminosityBlock const&,
+                                  edm::EventSetup const&) override;
 
   void bookHistograms();
   void fillerDispose();

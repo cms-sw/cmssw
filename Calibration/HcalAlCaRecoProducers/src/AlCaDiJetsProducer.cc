@@ -40,10 +40,10 @@
 class AlCaDiJetsProducer : public edm::EDProducer {
  public:
   explicit AlCaDiJetsProducer(const edm::ParameterSet&);
-  ~AlCaDiJetsProducer();
-  virtual void beginJob() ;
-  virtual void produce(edm::Event &, const edm::EventSetup&);
-  virtual void endJob();
+  ~AlCaDiJetsProducer() override;
+  void beginJob() override ;
+  void produce(edm::Event &, const edm::EventSetup&) override;
+  void endJob() override;
  private:
   bool select (reco::PFJetCollection);                                             
 

@@ -26,7 +26,7 @@ namespace reco { namespace tau {
 class RecoTauPiZeroTrivialPlugin : public RecoTauPiZeroBuilderPlugin {
   public:
   explicit RecoTauPiZeroTrivialPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector &&iC);
-    ~RecoTauPiZeroTrivialPlugin() {}
+    ~RecoTauPiZeroTrivialPlugin() override {}
     return_type operator()(const reco::PFJet& jet) const override;
   private:
     RecoTauQualityCuts qcuts_;

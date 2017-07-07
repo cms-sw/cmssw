@@ -50,13 +50,13 @@
 class FEDBadModuleFilter : public edm::EDFilter {
    public:
       explicit FEDBadModuleFilter(const edm::ParameterSet&);
-      ~FEDBadModuleFilter();
+      ~FEDBadModuleFilter() override;
 
 private:
-  virtual void beginJob() override ;
-  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
+  void beginJob() override ;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endJob() override ;
 
       // ----------member data ---------------------------
 

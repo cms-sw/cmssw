@@ -25,11 +25,11 @@ class HCALForwardProperties : public HCALProperties
 
   HCALForwardProperties(const edm::ParameterSet& fastDet):HCALProperties(fastDet) {; } 
 
-  virtual ~HCALForwardProperties() { }
+  ~HCALForwardProperties() override { }
 
   double getHcalDepth(double);
 
-  double thickness(double eta) const { 
+  double thickness(double eta) const override { 
     
     double feta = fabs(eta);
     if(feta > 3.0 && feta < 5.19)

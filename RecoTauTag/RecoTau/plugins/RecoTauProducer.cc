@@ -51,7 +51,7 @@ class RecoTauProducer : public edm::stream::EDProducer<>
   typedef boost::ptr_vector<Modifier> ModifierList;
 
   explicit RecoTauProducer(const edm::ParameterSet& pset);
-  ~RecoTauProducer() {}
+  ~RecoTauProducer() override {}
   void produce(edm::Event& evt, const edm::EventSetup& es) override;
 
  private:

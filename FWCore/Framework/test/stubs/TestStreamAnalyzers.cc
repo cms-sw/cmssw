@@ -56,7 +56,7 @@ struct Cache {
       cvalue_ = p.getParameter<int>("cachevalue");
     }
 
-    void analyze(edm::Event const&, edm::EventSetup const&) {
+    void analyze(edm::Event const&, edm::EventSetup const&) override {
       ++m_count;
       ++((globalCache())->value);
        
@@ -70,7 +70,7 @@ struct Cache {
       }
     }
 
-    ~GlobalIntAnalyzer() {
+    ~GlobalIntAnalyzer() override {
       if(m_count != trans_) {
         throw cms::Exception("transitions")
           << m_count << " but it was supposed to be " << trans_;
@@ -148,7 +148,7 @@ struct Cache {
       }
     }
 
-    ~RunIntAnalyzer() {
+    ~RunIntAnalyzer() override {
        if(m_count != trans_) {
         throw cms::Exception("transitions")
           << m_count << " but it was supposed to be " << trans_;
@@ -224,7 +224,7 @@ struct Cache {
       }      
    }
 
-    ~LumiIntAnalyzer() {
+    ~LumiIntAnalyzer() override {
        if(m_count != trans_) {
         throw cms::Exception("transitions")
           << m_count<< " but it was supposed to be " << trans_;
@@ -327,7 +327,7 @@ struct Cache {
     }   
 
 
-    ~RunSummaryIntAnalyzer() {
+    ~RunSummaryIntAnalyzer() override {
      if(m_count != trans_) {
         throw cms::Exception("transitions")
           << m_count<< " but it was supposed to be " << trans_;
@@ -437,7 +437,7 @@ struct Cache {
     }
 
 
-    ~LumiSummaryIntAnalyzer() {
+    ~LumiSummaryIntAnalyzer() override {
      if(m_count != trans_) {
         throw cms::Exception("transitions")
           << m_count<< " but it was supposed to be " << trans_;

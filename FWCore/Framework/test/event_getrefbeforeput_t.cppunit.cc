@@ -44,9 +44,9 @@ CPPUNIT_TEST(failGetProductNotRegisteredTest);
 CPPUNIT_TEST(getRefTest);
 CPPUNIT_TEST_SUITE_END();
 public:
-  void setUp(){
+  void setUp() override{
   }
-  void tearDown(){}
+  void tearDown() override{}
   void failGetProductNotRegisteredTest();
   void getRefTest();
 private:

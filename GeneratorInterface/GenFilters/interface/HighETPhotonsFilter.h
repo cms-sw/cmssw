@@ -28,9 +28,9 @@
 class HighETPhotonsFilter : public edm::EDFilter {
  public:
   explicit HighETPhotonsFilter(const edm::ParameterSet&);
-  ~HighETPhotonsFilter();
+  ~HighETPhotonsFilter() override;
   
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  bool filter(edm::Event&, const edm::EventSetup&) override;
   
  private:
   HighETPhotonsFilterAlgo *HighETPhotonsAlgo_;

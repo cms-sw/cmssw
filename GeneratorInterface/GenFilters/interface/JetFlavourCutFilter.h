@@ -28,9 +28,9 @@ class JetFlavourCutFilter : public edm::EDFilter
 public:
 
   explicit JetFlavourCutFilter(const edm::ParameterSet&);
-  ~JetFlavourCutFilter();
+  ~JetFlavourCutFilter() override;
   
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  bool filter(edm::Event&, const edm::EventSetup&) override;
 
 private:
 

@@ -57,9 +57,9 @@ namespace egHLT {
 		   varTypeX (T::*varFuncX)()const,varTypeY (T::*varFuncY)()const,const EgHLTDQMCut<T>* cut=NULL):
       monElemMgr_(new MonElemManager2D<T,varTypeX,varTypeY>(iBooker,name,title,nrBinsX,xMin,xMax,nrBinsY,yMin,yMax,varFuncX,varFuncY)),
       cut_(cut){}
-    ~MonElemWithCut();
+    ~MonElemWithCut() override;
     
-    void fill(const T& obj,const OffEvt& evt,float weight);
+    void fill(const T& obj,const OffEvt& evt,float weight) override;
     
   };
   

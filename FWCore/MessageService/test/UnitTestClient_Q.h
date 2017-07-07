@@ -29,14 +29,14 @@ public:
 				       // by moduels for statistics
   }
 
-  virtual
-    ~UTC_Q1()
+  
+    ~UTC_Q1() override
   { }
 
-  virtual
+  
     void analyze( edm::Event      const & e
                 , edm::EventSetup const & c
-                );
+                ) override;
 
 private:
   int identifier;
@@ -52,14 +52,14 @@ public:
     identifier = p.getUntrackedParameter<int> ("identifier", 98);
   }
 
-  virtual
-    ~UTC_Q2()
+  
+    ~UTC_Q2() override
   { }
 
-  virtual
+  
     void analyze( edm::Event      const & e
                 , edm::EventSetup const & c
-                );
+                ) override;
 
 private:
   int identifier;

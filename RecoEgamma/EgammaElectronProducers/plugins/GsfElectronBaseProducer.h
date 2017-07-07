@@ -33,7 +33,7 @@ class GsfElectronBaseProducer : public edm::stream::EDProducer< edm::GlobalCache
     static void fillDescription( edm::ParameterSetDescription & ) ;
 
     explicit GsfElectronBaseProducer( const edm::ParameterSet &, const gsfAlgoHelpers::HeavyObjectCache* ) ;
-    virtual ~GsfElectronBaseProducer() ;
+    ~GsfElectronBaseProducer() override ;
 
     static std::unique_ptr<gsfAlgoHelpers::HeavyObjectCache> 
     initializeGlobalCache( const edm::ParameterSet& conf ) {

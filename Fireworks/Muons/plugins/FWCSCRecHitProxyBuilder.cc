@@ -19,7 +19,7 @@ class FWCSCRecHitProxyBuilder : public FWSimpleProxyBuilderTemplate<CSCRecHit2D>
 {
 public:
   FWCSCRecHitProxyBuilder( void ) {}
-  virtual ~FWCSCRecHitProxyBuilder( void ) {}
+  ~FWCSCRecHitProxyBuilder( void ) override {}
   
   REGISTER_PROXYBUILDER_METHODS();
 

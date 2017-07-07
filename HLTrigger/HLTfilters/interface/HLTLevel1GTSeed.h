@@ -58,13 +58,13 @@ public:
     explicit HLTLevel1GTSeed(const edm::ParameterSet&);
 
     /// destructor
-    virtual ~HLTLevel1GTSeed();
+    ~HLTLevel1GTSeed() override;
 
     /// parameter description
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
     /// filter the event
-    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
+    bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
 
 private:
 

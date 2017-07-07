@@ -49,17 +49,17 @@ Implementation:
 class GeneralHLTOffline : public DQMEDAnalyzer {
  public:
   explicit GeneralHLTOffline(const edm::ParameterSet&);
-  ~GeneralHLTOffline();
+  ~GeneralHLTOffline() override;
 
  private:
   // virtual void beginJob() override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const & iRun,
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const & iRun,
 			      edm::EventSetup const & iSetup) override;
-  virtual void dqmBeginRun(edm::Run const& iRun,edm::EventSetup const& iSetup) override;
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const&,
+  void dqmBeginRun(edm::Run const& iRun,edm::EventSetup const& iSetup) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const&,
                                     edm::EventSetup const&) override;
-  virtual void endLuminosityBlock(edm::LuminosityBlock const&,
+  void endLuminosityBlock(edm::LuminosityBlock const&,
                                   edm::EventSetup const&) override;
   virtual void setupHltMatrix(DQMStore::IBooker & iBooker, const std::string &, int);
   virtual void fillHltMatrix(const std::string &,

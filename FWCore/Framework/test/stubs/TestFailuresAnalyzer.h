@@ -26,13 +26,13 @@
 class TestFailuresAnalyzer : public edm::EDAnalyzer {
 public:
    explicit TestFailuresAnalyzer(const edm::ParameterSet&);
-   ~TestFailuresAnalyzer();
+   ~TestFailuresAnalyzer() override;
    
    
-   virtual void analyze(const edm::Event&, const edm::EventSetup&);
+   void analyze(const edm::Event&, const edm::EventSetup&) override;
    
-   virtual void beginJob();
-   virtual void endJob();
+   void beginJob() override;
+   void endJob() override;
    
 private:
       // ----------member data ---------------------------

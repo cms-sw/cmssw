@@ -88,7 +88,7 @@ public:
       }
     }
   }
-  virtual ~HLTConfigDataEx()  = default;
+  ~HLTConfigDataEx()  override = default;
   std::string const & processName() const override {
     return data_.processName();
   }
@@ -151,7 +151,7 @@ public:
       config_(config),
       index_(index)
     { }
-    virtual ~View()  = default;
+    ~View()  override = default;
     std::string const & processName() const override;
     unsigned int size() const override;
     unsigned int size(unsigned int trigger) const override;

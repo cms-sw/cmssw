@@ -45,7 +45,7 @@ class EcalTBHodoscopeGeometryAnalyzer : public edm::one::EDAnalyzer<>
 {
 public:
   explicit EcalTBHodoscopeGeometryAnalyzer( const edm::ParameterSet& );
-  ~EcalTBHodoscopeGeometryAnalyzer();
+  ~EcalTBHodoscopeGeometryAnalyzer() override;
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;

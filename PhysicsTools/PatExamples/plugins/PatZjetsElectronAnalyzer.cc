@@ -16,13 +16,13 @@ class PatZjetsElectronAnalyzer : public edm::EDAnalyzer {
 
 public:
   explicit PatZjetsElectronAnalyzer(const edm::ParameterSet&);
-  ~PatZjetsElectronAnalyzer();
+  ~PatZjetsElectronAnalyzer() override;
 
 private:
 
-  virtual void beginJob() override ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
+  void beginJob() override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
 
   // simple map to contain all histograms;
   // histograms are booked in the beginJob()

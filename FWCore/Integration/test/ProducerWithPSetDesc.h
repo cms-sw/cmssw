@@ -20,9 +20,9 @@ namespace edmtest {
 
     explicit ProducerWithPSetDesc(edm::ParameterSet const& ps);
 
-    virtual ~ProducerWithPSetDesc();
+    ~ProducerWithPSetDesc() override;
 
-    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+    void produce(edm::Event& e, edm::EventSetup const& c) override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 

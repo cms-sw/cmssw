@@ -26,7 +26,7 @@ class SiPixelPhase1RecHits : public SiPixelPhase1Base {
 
   public:
   explicit SiPixelPhase1RecHits(const edm::ParameterSet& conf);
-  void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   private:
     edm::EDGetTokenT<reco::TrackCollection> srcToken_;

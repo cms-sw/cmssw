@@ -20,12 +20,12 @@
 class SiPixelTemplateDBObjectReader : public edm::EDAnalyzer {
    public:
       explicit SiPixelTemplateDBObjectReader(const edm::ParameterSet&);
-      ~SiPixelTemplateDBObjectReader();
+      ~SiPixelTemplateDBObjectReader() override;
 
    private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      void beginJob() override ;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 		
 			edm::ESWatcher<SiPixelTemplateDBObjectESProducerRcd>  SiPixTemplDBObjectWatcher_;
       edm::ESWatcher<SiPixelTemplateDBObjectRcd>  SiPixTemplDBObjWatcher_;

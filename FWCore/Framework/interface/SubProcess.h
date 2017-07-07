@@ -55,7 +55,7 @@ namespace edm {
                PreallocationConfiguration const& preallocConfig,
                ProcessContext const* parentProcessContext);
 
-    virtual ~SubProcess();
+    ~SubProcess() override;
 
     SubProcess(SubProcess const&) = delete; // Disallow copying
     SubProcess& operator=(SubProcess const&) = delete; // Disallow copying

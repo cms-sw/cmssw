@@ -26,13 +26,13 @@ class HLTMuonL2SelectorForL3IO : public edm::stream::EDProducer<> {
   HLTMuonL2SelectorForL3IO(const edm::ParameterSet&);
   
   /// destructor
-  virtual ~HLTMuonL2SelectorForL3IO(); 
+  ~HLTMuonL2SelectorForL3IO() override; 
   
   /// default values
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
   /// select muons
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
   
  private:
   const edm::EDGetTokenT<reco::TrackCollection> l2Src_;

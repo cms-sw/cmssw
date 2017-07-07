@@ -22,7 +22,7 @@ class HcalPFCorrs: public HcalCondObjectContainer<HcalPFCorr>
 #endif
   HcalPFCorrs(const HcalTopology* topo):HcalCondObjectContainer<HcalPFCorr>(topo) {}
 
-  std::string myname() const {return (std::string)"HcalPFCorrs";}
+  std::string myname() const override {return (std::string)"HcalPFCorrs";}
 
  private:
 

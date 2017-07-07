@@ -17,7 +17,7 @@ namespace fftjetcms {
                                double relativePtBandwidth);
 
         double operator()(const fftjet::RecombinedJet<VectorLike>& jet1,
-                          const fftjet::RecombinedJet<VectorLike>& jet2) const;
+                          const fftjet::RecombinedJet<VectorLike>& jet2) const override;
     private:
         JetConvergenceDistance();
 

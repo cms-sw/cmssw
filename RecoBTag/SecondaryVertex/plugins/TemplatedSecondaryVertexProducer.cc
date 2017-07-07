@@ -106,14 +106,14 @@ template <class IPTI,class VTX>
 class TemplatedSecondaryVertexProducer : public edm::stream::EDProducer<> {
     public:
 	explicit TemplatedSecondaryVertexProducer(const edm::ParameterSet &params);
-	~TemplatedSecondaryVertexProducer();
+	~TemplatedSecondaryVertexProducer() override;
 	static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 	typedef std::vector<TemplatedSecondaryVertexTagInfo<IPTI,VTX> > Product;
 	typedef TemplatedSecondaryVertex<VTX> SecondaryVertex;
 	typedef typename IPTI::input_container input_container;
 	typedef typename IPTI::input_container::value_type input_item;
 	typedef typename std::vector<reco::btag::IndexedTrackData> TrackDataVector;
-	virtual void produce(edm::Event &event, const edm::EventSetup &es) override;
+	void produce(edm::Event &event, const edm::EventSetup &es) override;
 
     private:
         template<class CONTAINER>

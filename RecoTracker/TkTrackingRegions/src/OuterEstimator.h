@@ -35,7 +35,7 @@ public:
    : theDetCompatibility(detCompatibility), 
      theHitCompatibility (hitCompatibility) { }
   
-  ~OuterEstimator(){}
+  ~OuterEstimator() override{}
 
   std::pair<bool,double> estimate(
       const TrajectoryStateOnSurface& ts, 

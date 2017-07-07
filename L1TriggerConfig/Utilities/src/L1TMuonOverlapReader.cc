@@ -22,13 +22,13 @@ class L1TMuonOverlapReader: public edm::EDAnalyzer {
 private:
     bool printLayerMap;
 public:
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
     string hash(void *buf, size_t len) const ;
 
     explicit L1TMuonOverlapReader(const edm::ParameterSet& pset) : edm::EDAnalyzer(){
        printLayerMap   = pset.getUntrackedParameter<bool>("printLayerMap",  false);
     }
-    virtual ~L1TMuonOverlapReader(void){}
+    ~L1TMuonOverlapReader(void) override{}
 };
 
 

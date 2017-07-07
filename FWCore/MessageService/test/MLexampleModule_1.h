@@ -21,14 +21,14 @@ public:
     MLexampleModule_1( edm::ParameterSet const & )
   { }
 
-  virtual
-    ~MLexampleModule_1()
+  
+    ~MLexampleModule_1() override
   { }
 
-  virtual
+  
     void analyze( edm::Event      const & e
                 , edm::EventSetup const & c
-                );
+                ) override;
 
 private:
 };

@@ -30,18 +30,18 @@ class EcalBarrelMonitorDbModule: public edm::EDAnalyzer{
   EcalBarrelMonitorDbModule( const edm::ParameterSet& ps );
 
   /// Destructor
-  virtual ~EcalBarrelMonitorDbModule();
+  ~EcalBarrelMonitorDbModule() override;
 
  protected:
 
   /// Analyze
-  void analyze( const edm::Event& e, const edm::EventSetup& c );
+  void analyze( const edm::Event& e, const edm::EventSetup& c ) override;
 
   // BeginJob
-  void beginJob( void );
+  void beginJob( void ) override;
 
   // EndJob
-  void endJob( void );
+  void endJob( void ) override;
 
  private:
   

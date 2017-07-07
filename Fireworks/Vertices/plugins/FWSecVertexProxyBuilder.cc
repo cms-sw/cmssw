@@ -22,7 +22,7 @@ class FWSecVertexProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Second
    
 public:
    FWSecVertexProxyBuilder(){}
-   virtual ~FWSecVertexProxyBuilder(){}
+   ~FWSecVertexProxyBuilder() override{}
   
    REGISTER_PROXYBUILDER_METHODS();
  

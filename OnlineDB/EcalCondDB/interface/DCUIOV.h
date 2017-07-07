@@ -15,7 +15,7 @@ class DCUIOV : public IIOV {
   friend class EcalCondDBInterface;
 
   DCUIOV();
-  ~DCUIOV();
+  ~DCUIOV() override;
 
   // Methods for user data
   void setSince(const Tm& since);
@@ -27,8 +27,8 @@ class DCUIOV : public IIOV {
 
   // Methods from IUniqueDBObject
   int getID(){ return m_ID;} ;
-  int fetchID() noexcept(false);
-  void setByID(int id) noexcept(false);
+  int fetchID() noexcept(false) override;
+  void setByID(int id) noexcept(false) override;
 
   // Operators
   inline bool operator==(const DCUIOV &m) const

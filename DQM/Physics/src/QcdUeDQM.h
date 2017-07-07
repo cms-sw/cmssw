@@ -54,7 +54,7 @@ class PtSorter {
 class QcdUeDQM : public DQMEDAnalyzer {
  public:
   QcdUeDQM(const edm::ParameterSet &parameters);
-  virtual ~QcdUeDQM();
+  ~QcdUeDQM() override;
   void dqmBeginRun(const edm::Run &, const edm::EventSetup &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &,
                       edm::EventSetup const &) override;

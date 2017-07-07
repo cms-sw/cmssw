@@ -55,13 +55,13 @@
 class TestOutliers : public edm::EDAnalyzer {
 public:
   explicit TestOutliers(const edm::ParameterSet&);
-  ~TestOutliers();
+  ~TestOutliers() override;
 
 
 private:
-  virtual void beginRun(edm::Run const& run, const edm::EventSetup&) override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
+  void beginRun(edm::Run const& run, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
 
   // ----------member data ---------------------------
   edm::InputTag trackTagsOut_; //used to select what tracks to read from configuration file

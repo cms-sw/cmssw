@@ -11,7 +11,7 @@ class TemplatedNegativeTrackCountingComputer : public TemplatedTrackCountingComp
   {
   }
  
-  float discriminator(const JetTagComputer::TagInfoHelper & ti) const 
+  float discriminator(const JetTagComputer::TagInfoHelper & ti) const override 
   {
     const typename TemplatedTrackCountingComputer<Container,Base>::TagInfo & tkip = ti.get<typename TemplatedTrackCountingComputer<Container,Base>::TagInfo>();
     std::multiset<float> significances = this->orderedSignificances(tkip);

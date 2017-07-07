@@ -47,17 +47,17 @@ public:
    };
 
    FWTriggerTableView(TEveWindowSlot *, FWViewType::EType );
-   virtual ~FWTriggerTableView( void );
+   ~FWTriggerTableView( void ) override;
 
    // ---------- const member functions ---------------------
-   virtual void   addTo( FWConfiguration& ) const;
-   virtual void   saveImageTo( const std::string& iName ) const;
+   void   addTo( FWConfiguration& ) const override;
+   void   saveImageTo( const std::string& iName ) const override;
    Color_t backgroundColor() const { return m_backgroundColor; }
 
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
-   virtual void setFrom( const FWConfiguration& );
+   void setFrom( const FWConfiguration& ) override;
    void setBackgroundColor( Color_t );
    //void resetColors( const class FWColorManager& );
    void dataChanged( void );
@@ -81,7 +81,7 @@ private:
    const FWTriggerTableView& operator=( const FWTriggerTableView& );      // stop default
 
    bool isProcessValid()const;
-   virtual void populateController(ViewerParameterGUI&) const;
+   void populateController(ViewerParameterGUI&) const override;
 
    mutable TGComboBox*             m_combo;
 

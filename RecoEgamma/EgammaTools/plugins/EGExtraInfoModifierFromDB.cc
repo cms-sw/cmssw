@@ -50,18 +50,18 @@ public:
   };
 
   EGExtraInfoModifierFromDB(const edm::ParameterSet& conf);
-  ~EGExtraInfoModifierFromDB();
+  ~EGExtraInfoModifierFromDB() override;
     
-  void setEvent(const edm::Event&) override final;
-  void setEventContent(const edm::EventSetup&) override final;
-  void setConsumes(edm::ConsumesCollector&) override final;
+  void setEvent(const edm::Event&) final;
+  void setEventContent(const edm::EventSetup&) final;
+  void setConsumes(edm::ConsumesCollector&) final;
   
-  void modifyObject(reco::GsfElectron&) const override final;
-  void modifyObject(reco::Photon&) const override final;
+  void modifyObject(reco::GsfElectron&) const final;
+  void modifyObject(reco::Photon&) const final;
   
   // just calls reco versions
-  void modifyObject(pat::Electron&) const override final; 
-  void modifyObject(pat::Photon&) const override final;
+  void modifyObject(pat::Electron&) const final; 
+  void modifyObject(pat::Photon&) const final;
 
 private:
   electron_config e_conf;

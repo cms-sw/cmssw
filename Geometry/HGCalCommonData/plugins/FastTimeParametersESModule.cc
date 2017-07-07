@@ -15,7 +15,7 @@
 class  FastTimeParametersESModule : public edm::ESProducer {
 public:
   FastTimeParametersESModule(const edm::ParameterSet &);
-  ~FastTimeParametersESModule(void);
+  ~FastTimeParametersESModule(void) override;
   
   typedef std::shared_ptr<FastTimeParameters> ReturnType;
 

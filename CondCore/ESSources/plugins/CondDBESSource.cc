@@ -50,7 +50,7 @@ namespace {
   class CondGetterFromESSource : public cond::persistency::CondGetter {
   public:
     CondGetterFromESSource(CondDBESSource::ProxyMap const & ip) : m_proxies(ip){}
-    virtual ~CondGetterFromESSource(){}
+    ~CondGetterFromESSource() override{}
 
     cond::persistency::IOVProxy get(std::string name) const override {
       CondDBESSource::ProxyMap::const_iterator p = m_proxies.find(name);

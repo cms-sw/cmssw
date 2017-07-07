@@ -18,17 +18,17 @@ namespace edm {
   class StreamerOutputModuleBase : public one::OutputModule<one::WatchRuns, one::WatchLuminosityBlocks> {
   public:
     explicit StreamerOutputModuleBase(ParameterSet const& ps);
-    virtual ~StreamerOutputModuleBase();
+    ~StreamerOutputModuleBase() override;
     static void fillDescription(ParameterSetDescription & desc);
 
   private:
-    virtual void beginRun(RunForOutput const&) override;
-    virtual void endRun(RunForOutput const&) override;
-    virtual void beginJob() override;
-    virtual void endJob() override;
-    virtual void writeRun(RunForOutput const&) override;
-    virtual void writeLuminosityBlock(LuminosityBlockForOutput const&) override;
-    virtual void write(EventForOutput const& e) override;
+    void beginRun(RunForOutput const&) override;
+    void endRun(RunForOutput const&) override;
+    void beginJob() override;
+    void endJob() override;
+    void writeRun(RunForOutput const&) override;
+    void writeLuminosityBlock(LuminosityBlockForOutput const&) override;
+    void write(EventForOutput const& e) override;
 
     virtual void start() = 0;
     virtual void stop() = 0;

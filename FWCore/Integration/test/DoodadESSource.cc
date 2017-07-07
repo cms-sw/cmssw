@@ -38,9 +38,9 @@ public:
 
 protected:
    
-   virtual void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
+   void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
                                 const edm::IOVSyncValue& iTime, 
-                                edm::ValidityInterval& iInterval);
+                                edm::ValidityInterval& iInterval) override;
    
 private:
    DoodadESSource(const DoodadESSource&); // stop default

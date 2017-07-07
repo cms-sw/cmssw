@@ -15,11 +15,11 @@ class TrackingFailureFilter : public edm::global::EDFilter<> {
   public:
 
     explicit TrackingFailureFilter(const edm::ParameterSet & iConfig);
-    ~TrackingFailureFilter() {}
+    ~TrackingFailureFilter() override {}
 
   private:
 
-    virtual bool filter(edm::StreamID, edm::Event & iEvent, const edm::EventSetup & iSetup) const override;
+    bool filter(edm::StreamID, edm::Event & iEvent, const edm::EventSetup & iSetup) const override;
 
     edm::EDGetTokenT<edm::View<reco::Jet> > jetSrcToken_;
     edm::EDGetTokenT<std::vector<reco::Track> > trackSrcToken_;

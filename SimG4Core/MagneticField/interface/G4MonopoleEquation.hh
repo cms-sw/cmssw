@@ -57,16 +57,16 @@ public:  // with description
 
   G4MonopoleEquation(G4ElectroMagneticField *emField );
 
-  ~G4MonopoleEquation();
+  ~G4MonopoleEquation() override;
 
-  virtual void  SetChargeMomentumMass( G4ChargeState particleChargeState,
+  void  SetChargeMomentumMass( G4ChargeState particleChargeState,
                                        G4double      momentum, 
-                                       G4double      mass);
+                                       G4double      mass) override;
   // magnetic charge in e+ units
                                  
-  virtual void EvaluateRhsGivenB(const G4double y[],
+  void EvaluateRhsGivenB(const G4double y[],
                          const G4double Field[],
-                         G4double dydx[] ) const;
+                         G4double dydx[] ) const override;
   // Given the value of the electromagnetic field, this function 
   // calculates the value of the derivative dydx.
 

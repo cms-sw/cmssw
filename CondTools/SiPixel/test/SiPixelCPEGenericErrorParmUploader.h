@@ -14,13 +14,13 @@
 class SiPixelCPEGenericErrorParmUploader : public edm::EDAnalyzer {
    public:
       explicit SiPixelCPEGenericErrorParmUploader(const edm::ParameterSet&);
-      ~SiPixelCPEGenericErrorParmUploader();
+      ~SiPixelCPEGenericErrorParmUploader() override;
 
 
    private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      void beginJob() override ;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 			edm::FileInPath theFileName ;
 			double theVersion;
 

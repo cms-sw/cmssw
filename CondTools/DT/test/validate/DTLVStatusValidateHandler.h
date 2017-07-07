@@ -41,13 +41,13 @@ class DTLVStatusValidateHandler: public popcon::PopConSourceHandler<DTLVStatus> 
 
   /** Destructor
    */
-  virtual ~DTLVStatusValidateHandler();
+  ~DTLVStatusValidateHandler() override;
 
   /** Operations
    */
   /// 
-  void getNewObjects();
-  std::string id() const;
+  void getNewObjects() override;
+  std::string id() const override;
 
  private:
 

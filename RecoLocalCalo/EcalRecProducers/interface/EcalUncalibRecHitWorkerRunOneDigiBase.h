@@ -13,11 +13,11 @@ class EcalUncalibRecHitWorkerRunOneDigiBase : public EcalUncalibRecHitWorkerBase
   EcalUncalibRecHitWorkerRunOneDigiBase(const edm::ParameterSet& p, edm::ConsumesCollector& c) : EcalUncalibRecHitWorkerBaseClass(p,c){}
   EcalUncalibRecHitWorkerRunOneDigiBase(const edm::ParameterSet& p) : EcalUncalibRecHitWorkerBaseClass(p) {}
   EcalUncalibRecHitWorkerRunOneDigiBase() {}
-  virtual ~EcalUncalibRecHitWorkerRunOneDigiBase() {}
+  ~EcalUncalibRecHitWorkerRunOneDigiBase() override {}
   
   virtual bool run(const edm::Event& evt, const EcalDigiCollection::const_iterator & digi, EcalUncalibratedRecHitCollection & result) = 0;
 
-  virtual void run(const edm::Event& evt, const EcalDigiCollection & digis, EcalUncalibratedRecHitCollection & result) override
+  void run(const edm::Event& evt, const EcalDigiCollection & digis, EcalUncalibratedRecHitCollection & result) override
   {
     result.reserve(result.size() + digis.size());
     for (auto it = digis.begin(); it != digis.end(); ++it)

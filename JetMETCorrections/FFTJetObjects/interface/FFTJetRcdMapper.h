@@ -33,15 +33,15 @@ struct AbsFFTJetRcdMapper
 template<class DataType, class RecordType>
 struct ConcreteFFTJetRcdMapper : public AbsFFTJetRcdMapper<DataType>
 {
-    virtual ~ConcreteFFTJetRcdMapper() {}
+    ~ConcreteFFTJetRcdMapper() override {}
 
     inline void load(const edm::EventSetup& iSetup,
-                      edm::ESHandle<DataType>& handle) const
+                      edm::ESHandle<DataType>& handle) const override
         {iSetup.get<RecordType>().get(handle);}
 
     inline void load(const edm::EventSetup& iSetup,
                      const std::string& label,
-                     edm::ESHandle<DataType>& handle) const
+                     edm::ESHandle<DataType>& handle) const override
         {iSetup.get<RecordType>().get(label, handle);}
 };
 

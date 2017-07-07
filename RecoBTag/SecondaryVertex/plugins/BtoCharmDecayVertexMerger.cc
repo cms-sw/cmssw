@@ -42,7 +42,7 @@ class BtoCharmDecayVertexMergerT : public edm::stream::EDProducer<> {
     public:
        BtoCharmDecayVertexMergerT(const edm::ParameterSet &params);
 
-       virtual void produce(edm::Event &event, const edm::EventSetup &es);
+       void produce(edm::Event &event, const edm::EventSetup &es) override;
 
        typedef reco::TemplatedSecondaryVertex<VTX> SecondaryVertex;
 

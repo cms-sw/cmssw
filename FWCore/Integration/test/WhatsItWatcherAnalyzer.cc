@@ -43,10 +43,10 @@ namespace edmtest {
 class WhatsItWatcherAnalyzer : public edm::EDAnalyzer {
    public:
       explicit WhatsItWatcherAnalyzer(const edm::ParameterSet&);
-      ~WhatsItWatcherAnalyzer();
+      ~WhatsItWatcherAnalyzer() override;
 
 
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
    private:
       // ----------member data ---------------------------
         void watch1(const GadgetRcd& );

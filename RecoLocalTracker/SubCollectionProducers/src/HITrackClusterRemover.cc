@@ -44,7 +44,7 @@
 class HITrackClusterRemover : public edm::stream::EDProducer<> {
     public:
         HITrackClusterRemover(const edm::ParameterSet& iConfig) ;
-        ~HITrackClusterRemover() ;
+        ~HITrackClusterRemover() override ;
         void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override ;
     private:
         struct ParamBlock {

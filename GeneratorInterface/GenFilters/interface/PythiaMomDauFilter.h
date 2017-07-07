@@ -43,10 +43,10 @@ namespace edm {
 class PythiaMomDauFilter : public edm::EDFilter {
    public:
       explicit PythiaMomDauFilter(const edm::ParameterSet&);
-      ~PythiaMomDauFilter();
+      ~PythiaMomDauFilter() override;
 
 
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      bool filter(edm::Event&, const edm::EventSetup&) override;
    private:
       // ----------memeber function----------------------
 

@@ -54,17 +54,17 @@ class DisplayGeom : public edm::EDAnalyzer {
 
 public:
    explicit DisplayGeom(const edm::ParameterSet&);
-   ~DisplayGeom();
+   ~DisplayGeom() override;
 
 protected:
    TEveGeoTopNode* make_node(const TString& path, Int_t vis_level, Bool_t global_cs);
 
   
 private:
-   virtual void beginJob() override ;
-   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+   void beginJob() override ;
+   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-   virtual void endJob() override ;
+   void endJob() override ;
 
    edm::Service<EveService>  m_eve;
 

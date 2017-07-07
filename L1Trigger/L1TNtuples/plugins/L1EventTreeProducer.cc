@@ -50,13 +50,13 @@ Implementation:
 class L1EventTreeProducer : public edm::EDAnalyzer {
 public:
   explicit L1EventTreeProducer(const edm::ParameterSet&);
-  ~L1EventTreeProducer();
+  ~L1EventTreeProducer() override;
   
   
 private:
-  virtual void beginJob(void) ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginJob(void) override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
 public:
   

@@ -17,10 +17,10 @@ class testSiStripGainBuilderFromDb : public edm::EDAnalyzer {
  public:
   
   testSiStripGainBuilderFromDb( const edm::ParameterSet& ) {;}
-  virtual ~testSiStripGainBuilderFromDb() {;}
+  ~testSiStripGainBuilderFromDb() override {;}
   
-  void beginRun( const edm::Run&, const edm::EventSetup& );
-  void analyze( const edm::Event&, const edm::EventSetup& ) {;}
+  void beginRun( const edm::Run&, const edm::EventSetup& ) override;
+  void analyze( const edm::Event&, const edm::EventSetup& ) override {;}
   
 };
 

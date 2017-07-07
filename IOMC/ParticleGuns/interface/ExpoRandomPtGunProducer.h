@@ -17,11 +17,11 @@ namespace edm
   
   public:
     ExpoRandomPtGunProducer(const ParameterSet & pset);
-    virtual ~ExpoRandomPtGunProducer();
+    ~ExpoRandomPtGunProducer() override;
 
   private:
    
-    virtual void produce(Event & e, const EventSetup& es) override;
+    void produce(Event & e, const EventSetup& es) override;
     
   protected :
   

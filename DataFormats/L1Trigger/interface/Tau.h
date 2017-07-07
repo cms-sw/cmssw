@@ -31,7 +31,7 @@ namespace l1t {
 	    int iso=0);
 
 
-    ~Tau();
+    ~Tau() override;
 
     void setTowerIEta(short int ieta);  // ieta of seed tower
     void setTowerIPhi(short int iphi);  // iphi of seed tower

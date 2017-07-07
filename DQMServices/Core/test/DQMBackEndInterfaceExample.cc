@@ -41,11 +41,11 @@ const int NBINS = 50;
 class DQMStoreExample : public edm::EDAnalyzer {
 public:
   explicit DQMStoreExample( const edm::ParameterSet& );
-  ~DQMStoreExample();
+  ~DQMStoreExample() override;
   
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  void analyze( const edm::Event&, const edm::EventSetup& ) override;
   
-  virtual void endJob(void);
+  void endJob(void) override;
 
 private:
   // ----------member data ---------------------------

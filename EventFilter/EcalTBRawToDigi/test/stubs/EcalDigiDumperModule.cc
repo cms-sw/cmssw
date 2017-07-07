@@ -114,7 +114,7 @@ class EcalDigiDumperModule: public edm::EDAnalyzer{
 
 
 
-  void analyze( const edm::Event & e, const  edm::EventSetup& c){
+  void analyze( const edm::Event & e, const  edm::EventSetup& c) override{
 
     if (!inputIsOk) return;
     

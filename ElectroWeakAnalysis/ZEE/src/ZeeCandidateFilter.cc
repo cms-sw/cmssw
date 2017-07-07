@@ -104,13 +104,13 @@ public:
 
     explicit ZeeCandidateFilter(const edm::ParameterSet&);
 
-    ~ZeeCandidateFilter();
+    ~ZeeCandidateFilter() override;
 
 private:
 
-    virtual Bool_t filter(edm::Event&, const edm::EventSetup&) override;
+    Bool_t filter(edm::Event&, const edm::EventSetup&) override;
 
-    virtual void endJob() override ;
+    void endJob() override ;
 
     Bool_t isInFiducial(Double_t eta);
 

@@ -31,10 +31,10 @@ namespace lumi{
   class HLTConf2DB : public DataPipe{
   public:
     explicit HLTConf2DB( const std::string& dest);
-    virtual unsigned long long retrieveData( unsigned int ) override;
-    virtual const std::string dataType() const override;
-    virtual const std::string sourceType() const override;
-    virtual ~HLTConf2DB();
+    unsigned long long retrieveData( unsigned int ) override;
+    const std::string dataType() const override;
+    const std::string sourceType() const override;
+    ~HLTConf2DB() override;
   };//cl HLTConf2DB
   //
   //implementation

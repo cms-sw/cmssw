@@ -38,11 +38,11 @@ class HLTMuonRefMethod : public DQMEDHarvester {
 
 public:
   explicit HLTMuonRefMethod(const edm::ParameterSet& set);
-  ~HLTMuonRefMethod() {};
+  ~HLTMuonRefMethod() override {};
 
-  virtual void beginJob() override;
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override ;
-  virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override ;
+  void beginJob() override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override ;
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override ;
   
 
 private:

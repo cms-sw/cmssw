@@ -24,7 +24,7 @@ class FWSimTrackProxyBuilder : public FWProxyBuilderBase
 {
 public:
    FWSimTrackProxyBuilder( void ) {} 
-   virtual ~FWSimTrackProxyBuilder( void ) {}
+   ~FWSimTrackProxyBuilder( void ) override {}
 
    REGISTER_PROXYBUILDER_METHODS();
 
@@ -35,7 +35,7 @@ private:
    const FWSimTrackProxyBuilder& operator=( const FWSimTrackProxyBuilder& );
 
    using FWProxyBuilderBase::build;
-   virtual void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* ) override;
+   void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* ) override;
 
    void addParticlesToPdgDataBase( void );
 };

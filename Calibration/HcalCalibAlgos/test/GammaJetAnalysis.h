@@ -119,7 +119,7 @@ private:
 class GammaJetAnalysis : public edm::EDAnalyzer {
 public:
   explicit GammaJetAnalysis(const edm::ParameterSet&);
-  ~GammaJetAnalysis();
+  ~GammaJetAnalysis() override;
 
   float pfEcalIso(const reco::Photon* localPho1, edm::Handle<reco::PFCandidateCollection> pfHandle, float dRmax, float dRVetoBarrel, float dRVetoEndcap, float etaStripBarrel, float etaStripEndcap, float energyBarrel, float energyEndcap, reco::PFCandidate::ParticleType pfToUse);
 
@@ -128,10 +128,10 @@ public:
   std::vector<float> pfTkIsoWithVertex(const reco::Photon* localPho1, edm::Handle<reco::PFCandidateCollection> pfHandle, edm::Handle<reco::VertexCollection> vtxHandle, float dRmax, float dRvetoBarrel, float dRvetoEndcap, float ptMin, float dzMax, float dxyMax, reco::PFCandidate::ParticleType pfToUse);
 
 private:
-  virtual void beginJob();//(const edm::EventSetup&);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
-  void beginRun(const edm::Run&, const edm::EventSetup&);
+  void beginJob() override;//(const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
 
   
   // parameters

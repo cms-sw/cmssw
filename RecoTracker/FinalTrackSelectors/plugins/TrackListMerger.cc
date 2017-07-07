@@ -35,9 +35,9 @@ class dso_hidden TrackListMerger : public edm::stream::EDProducer<>
 
     explicit TrackListMerger(const edm::ParameterSet& conf);
 
-    virtual ~TrackListMerger();
+    ~TrackListMerger() override;
 
-    virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
+    void produce(edm::Event& e, const edm::EventSetup& c) override;
 
   private:
 

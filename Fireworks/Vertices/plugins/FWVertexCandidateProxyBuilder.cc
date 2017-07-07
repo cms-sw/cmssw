@@ -41,9 +41,9 @@ class FWVertexCandidateProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::
 {
 public:
    FWVertexCandidateProxyBuilder() {}
-   virtual ~FWVertexCandidateProxyBuilder() {}
+   ~FWVertexCandidateProxyBuilder() override {}
    
-   virtual void setItem(const FWEventItem* iItem) override
+   void setItem(const FWEventItem* iItem) override
    {
       FWProxyBuilderBase::setItem(iItem);
       if (iItem)
@@ -63,9 +63,9 @@ private:
    const FWVertexCandidateProxyBuilder& operator=(const FWVertexCandidateProxyBuilder&); // stop default
 
    using FWSimpleProxyBuilderTemplate<reco::VertexCompositePtrCandidate> ::build;
-   virtual void build(const reco::VertexCompositePtrCandidate& iData, unsigned int iIndex,TEveElement& oItemHolder, const FWViewContext*) override;
+   void build(const reco::VertexCompositePtrCandidate& iData, unsigned int iIndex,TEveElement& oItemHolder, const FWViewContext*) override;
 
-   virtual void localModelChanges(const FWModelId& iId, TEveElement* iCompound,
+   void localModelChanges(const FWModelId& iId, TEveElement* iCompound,
                                   FWViewType::EType viewType, const FWViewContext* vc) override;
 
 };

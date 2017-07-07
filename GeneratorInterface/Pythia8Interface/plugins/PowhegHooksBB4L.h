@@ -23,11 +23,11 @@ public:
 
 	// Constructor and destructor.
 	PowhegHooksBB4L() {}
-	~PowhegHooksBB4L() {}
+	~PowhegHooksBB4L() override {}
 //--------------------------------------------------------------------------
 
 	// Initialize settings
-	bool initAfterBeams() {			
+	bool initAfterBeams() override {			
 		// settings of the parent class
 //		PowhegHook::initAfterBeams();
 		// settings of this class
@@ -202,8 +202,8 @@ public:
 //--------------------------------------------------------------------------
 
 	// called after shower -- cannot be used for veto, because the event will get discarded
-	inline bool canVetoPartonLevel() { return true; }
-	inline bool doVetoPartonLevel(const Event &e) {
+	inline bool canVetoPartonLevel() override { return true; }
+	inline bool doVetoPartonLevel(const Event &e) override {
 		double topdechardness = getdechardness(1, e),  atopdechardness = getdechardness(-1, e);
 		if ((topdechardness > topresscale) or (atopdechardness > atopresscale)) {
 //			cout << " PYTHIA Warning in PowhegHooksBB4L::doVetoPartonLevel: passed doVetoFSREmission veto, but wouldn't have passed veto based on the full event listing" << endl;
@@ -217,8 +217,8 @@ public:
 	}
 
 	// called before each resonance decay shower
-	inline bool canSetResonanceScale() { return true; }
-	inline double scaleResonance(int iRes, const Event &e) {		
+	inline bool canSetResonanceScale() override { return true; }
+	inline double scaleResonance(int iRes, const Event &e) override {		
 		double scale = 1e30;
 		if (e[iRes].id() == 6) 
 			scale = topresscale = findresscale(iRes, e);
@@ -233,13 +233,13 @@ public:
 //--------------------------------------------------------------------------
 
 	// FSR veto
-	inline bool canVetoFSREmission() { 
+	inline bool canVetoFSREmission() override { 
 		if (useScaleResonanceInstead) 
 			return false;
 		else 
 			return true; 
 	}
-	inline bool doVetoFSREmission(int sizeOld, const Event &e, int iSys, bool inResonance) {
+	inline bool doVetoFSREmission(int sizeOld, const Event &e, int iSys, bool inResonance) override {
 
 		// call parent PowhegHook veto
 //		if (PowhegHooks::doVectoFSREmission(sizeOld, Event &e, iSys, inResonance)) return true;

@@ -43,12 +43,12 @@
 class EventWithHistoryProducerFromL1ABC : public edm::stream::EDProducer<> {
    public:
       explicit EventWithHistoryProducerFromL1ABC(const edm::ParameterSet&);
-      ~EventWithHistoryProducerFromL1ABC();
+      ~EventWithHistoryProducerFromL1ABC() override;
 
    private:
-      virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endRun(const edm::Run&, const edm::EventSetup&) override;
+      void beginRun(const edm::Run&, const edm::EventSetup&) override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void endRun(const edm::Run&, const edm::EventSetup&) override;
       
       // ----------member data ---------------------------
 

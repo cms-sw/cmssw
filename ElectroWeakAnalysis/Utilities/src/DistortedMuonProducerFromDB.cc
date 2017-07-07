@@ -16,12 +16,12 @@
 class DistortedMuonProducerFromDB : public edm::EDProducer {
    public:
       explicit DistortedMuonProducerFromDB(const edm::ParameterSet&);
-      ~DistortedMuonProducerFromDB();
+      ~DistortedMuonProducerFromDB() override;
 
    private:
-      virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginRun(const edm::Run&, const edm::EventSetup&) override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
       edm::EDGetTokenT<edm::View<reco::Muon> > muonToken_;
 

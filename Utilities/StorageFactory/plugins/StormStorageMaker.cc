@@ -54,7 +54,7 @@ class StormStorageMaker : public StorageMaker
 
 
 public:
-  virtual std::unique_ptr<Storage> open (const std::string &proto,
+  std::unique_ptr<Storage> open (const std::string &proto,
 			 const std::string &surl,
 			 int mode,
        const AuxSettings&) const override
@@ -74,7 +74,7 @@ public:
     return f->wrapNonLocalFile (std::move(file), proto, path, mode);
   }
 
-  virtual bool check (const std::string &/*proto*/,
+  bool check (const std::string &/*proto*/,
 		      const std::string &path,
           const AuxSettings&,
 		      IOOffset *size = 0) const override

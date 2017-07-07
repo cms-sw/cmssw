@@ -16,10 +16,10 @@ class TrackCleaner : public PixelTrackCleaner
 {
   public:
     explicit TrackCleaner(const TrackerTopology *tTopo);
-    virtual ~TrackCleaner();
+    ~TrackCleaner() override;
 
-    virtual TracksWithRecHits cleanTracks
-      (const TracksWithRecHits & tracksWithRecHits) const;
+    TracksWithRecHits cleanTracks
+      (const TracksWithRecHits & tracksWithRecHits) const override;
 
   private:
     bool areSame(const TrackingRecHit * a,

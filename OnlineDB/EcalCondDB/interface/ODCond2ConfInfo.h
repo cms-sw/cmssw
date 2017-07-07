@@ -13,10 +13,10 @@ class ODCond2ConfInfo : public IODConfig {
  public:
   friend class EcalCondDBInterface;
   ODCond2ConfInfo();
-  ~ODCond2ConfInfo();
+  ~ODCond2ConfInfo() override;
 
   // User data methods
-  inline std::string getTable() { return "COND_2_CONF_INFO"; }
+  inline std::string getTable() override { return "COND_2_CONF_INFO"; }
 
   inline void setId(int id) { m_ID = id; }
   inline int getId() const { return m_ID; }
@@ -47,7 +47,7 @@ class ODCond2ConfInfo : public IODConfig {
   void setParameters(const std::map<std::string,std::string>& my_keys_map);
   
  private:
-  void prepareWrite()  noexcept(false);
+  void prepareWrite()  noexcept(false) override;
 
   void writeDB()       noexcept(false);
 

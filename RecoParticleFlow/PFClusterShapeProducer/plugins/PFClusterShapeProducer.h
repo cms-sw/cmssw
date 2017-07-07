@@ -36,9 +36,9 @@ class PFClusterShapeProducer : public edm::EDProducer
 
   explicit PFClusterShapeProducer(const edm::ParameterSet &);
 
-  ~PFClusterShapeProducer();
+  ~PFClusterShapeProducer() override;
 
-  virtual void produce(edm::Event & ev, const edm::EventSetup & es);
+  void produce(edm::Event & ev, const edm::EventSetup & es) override;
 
  private:
 

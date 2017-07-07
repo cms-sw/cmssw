@@ -42,12 +42,12 @@ class TwoBodyDecayConstraintProducer: public edm::EDProducer
 public:
 
   explicit TwoBodyDecayConstraintProducer(const edm::ParameterSet&);
-  ~TwoBodyDecayConstraintProducer();
+  ~TwoBodyDecayConstraintProducer() override;
 
 private:
 
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
 
   std::pair<bool, TrajectoryStateOnSurface> innermostState( const reco::TransientTrack& ttrack ) const;
   bool match( const TrajectoryStateOnSurface& newTsos, const TrajectoryStateOnSurface& oldTsos ) const;

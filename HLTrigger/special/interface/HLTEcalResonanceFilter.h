@@ -74,9 +74,9 @@ namespace edm {
 class HLTEcalResonanceFilter : public edm::EDFilter {
    public:
       explicit HLTEcalResonanceFilter(const edm::ParameterSet&);
-      ~HLTEcalResonanceFilter();
+      ~HLTEcalResonanceFilter() override;
 
-      virtual bool filter(edm::Event &, const edm::EventSetup&);
+      bool filter(edm::Event &, const edm::EventSetup&) override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
    private:
       // ----------member data ---------------------------

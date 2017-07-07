@@ -42,12 +42,12 @@ namespace gen {
   class Py8GunBase : public Py8InterfaceBase {
   public:
     Py8GunBase( edm::ParameterSet const& ps );
-    virtual ~Py8GunBase() {}
+    ~Py8GunBase() override {}
     
     virtual bool residualDecay(); // common func
-    bool initializeForInternalPartons();
-    void finalizeEvent(); 
-    void statistics();
+    bool initializeForInternalPartons() override;
+    void finalizeEvent() override; 
+    void statistics() override;
     
     void setRandomEngine(CLHEP::HepRandomEngine* v) { p8SetRandomEngine(v); }
     std::vector<std::string> const& sharedResources() const { return p8SharedResources; }

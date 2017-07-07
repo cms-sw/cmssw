@@ -127,7 +127,7 @@ class PFJetMETcorrInputProducerT : public edm::stream::EDProducer<>
       produces<CorrMETData>((*type2BinningEntry)->getInstanceLabel_full("offset"));
     }
   }
-  ~PFJetMETcorrInputProducerT()
+  ~PFJetMETcorrInputProducerT() override
   {
     delete skipMuonSelection_;
 
@@ -155,7 +155,7 @@ class PFJetMETcorrInputProducerT : public edm::stream::EDProducer<>
 
  private:
 
-  void produce(edm::Event& evt, const edm::EventSetup& es)
+  void produce(edm::Event& evt, const edm::EventSetup& es) override
   {
 
     std::unique_ptr<CorrMETData> type1Correction(new CorrMETData());

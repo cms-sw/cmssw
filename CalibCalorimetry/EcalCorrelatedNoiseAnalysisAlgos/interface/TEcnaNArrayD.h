@@ -52,7 +52,7 @@ public:
   TEcnaNArrayD(TEcnaObject*, Int_t,Int_t,Int_t,Int_t);
   TEcnaNArrayD(TEcnaObject*, Int_t,Int_t,Int_t,Int_t,Int_t);
   TEcnaNArrayD(TEcnaObject*, Int_t,Int_t,Int_t,Int_t,Int_t,Int_t);
-  virtual ~TEcnaNArrayD();
+  ~TEcnaNArrayD() override;
   void     Clean();
   Double_t GetOverFlow() const { return fA[fNL-1]; }
   void     ReSet(Int_t);

@@ -47,10 +47,10 @@ public:
 
   explicit SiPixelCondObjAllPayloadsReader( const edm::ParameterSet& iConfig);
 
-  ~SiPixelCondObjAllPayloadsReader(){};
-  virtual void beginJob();
-  virtual void analyze(const edm::Event& , const edm::EventSetup& );
-  virtual void endJob() ;
+  ~SiPixelCondObjAllPayloadsReader() override{};
+  void beginJob() override;
+  void analyze(const edm::Event& , const edm::EventSetup& ) override;
+  void endJob() override ;
 
 private:
 

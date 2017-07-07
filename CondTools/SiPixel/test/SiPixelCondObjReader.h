@@ -42,10 +42,10 @@ public:
 
   explicit SiPixelCondObjReader( const edm::ParameterSet& iConfig);
 
-  ~SiPixelCondObjReader(){};
-  virtual void beginJob();
-  virtual void analyze(const edm::Event& , const edm::EventSetup& );
-  virtual void endJob() ;
+  ~SiPixelCondObjReader() override{};
+  void beginJob() override;
+  void analyze(const edm::Event& , const edm::EventSetup& ) override;
+  void endJob() override ;
 
 private:
 

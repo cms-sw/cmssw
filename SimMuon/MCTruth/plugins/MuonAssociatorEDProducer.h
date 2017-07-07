@@ -13,11 +13,11 @@
 class MuonAssociatorEDProducer : public edm::stream::EDProducer<> {
 public:
   explicit MuonAssociatorEDProducer(const edm::ParameterSet&);
-  ~MuonAssociatorEDProducer();
+  ~MuonAssociatorEDProducer() override;
   
 private:
   virtual void beginJob() ;
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
   virtual void endJob();
 
   edm::InputTag tracksTag;

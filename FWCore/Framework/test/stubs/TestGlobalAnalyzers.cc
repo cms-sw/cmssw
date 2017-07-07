@@ -110,7 +110,7 @@ struct UnsafeCache {
       }
     } 
 
-    ~StreamIntAnalyzer() {
+    ~StreamIntAnalyzer() override {
       if(m_count != trans_) {
         throw cms::Exception("transitions")
           << "StreamIntAnalyzer transitions "
@@ -149,7 +149,7 @@ struct UnsafeCache {
       }
     }
 
-    ~RunIntAnalyzer() {
+    ~RunIntAnalyzer() override {
       if(m_count != trans_) {
         throw cms::Exception("transitions")
           << "RunIntAnalyzer transitions "
@@ -189,7 +189,7 @@ struct UnsafeCache {
       }
     }
 
-    ~LumiIntAnalyzer() {
+    ~LumiIntAnalyzer() override {
       if(m_count != trans_) {
         throw cms::Exception("transitions")
           << "LumiIntAnalyzer transitions "
@@ -239,7 +239,7 @@ struct UnsafeCache {
       } 
     }
 
-    ~RunSummaryIntAnalyzer() {
+    ~RunSummaryIntAnalyzer() override {
       if(m_count != trans_) {
         throw cms::Exception("transitions")
           << "RunSummaryIntAnalyzer transitions "
@@ -289,7 +289,7 @@ struct UnsafeCache {
       }
     }
 
-    ~LumiSummaryIntAnalyzer() {
+    ~LumiSummaryIntAnalyzer() override {
       if(m_count != trans_) {
         throw cms::Exception("transitions")
           << "LumiSummaryIntAnalyzer transitions "

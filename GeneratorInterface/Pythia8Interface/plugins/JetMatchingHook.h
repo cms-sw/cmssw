@@ -21,7 +21,7 @@ class JetMatchingHook : public Pythia8::UserHooks
 public:
 
   JetMatchingHook( const edm::ParameterSet&, Pythia8::Info* );
-  virtual ~JetMatchingHook();
+  ~JetMatchingHook() override;
   
   //
   // Julia Yarba, Jan.8, 2013
@@ -30,13 +30,13 @@ public:
   //
   // virtual bool canVetoPartonLevelEarly() { return true; }  
   // virtual bool doVetoPartonLevelEarly( const Pythia8::Event& event );
-  virtual bool canVetoPartonLevel() { return true; }  
-  virtual bool doVetoPartonLevel( const Pythia8::Event& event );
+  bool canVetoPartonLevel() override { return true; }  
+  bool doVetoPartonLevel( const Pythia8::Event& event ) override;
     
   void setEventNumber( int ievt ) { fEventNumber = ievt; return ; }
   
   virtual void init( lhef::LHERunInfo* runInfo );
-  virtual bool initAfterBeams() { if ( fIsInitialized ) return true; fJetMatching->initAfterBeams(); fIsInitialized=true; return true; }
+  bool initAfterBeams() override { if ( fIsInitialized ) return true; fJetMatching->initAfterBeams(); fIsInitialized=true; return true; }
   void resetMatchingStatus() { fJetMatching->resetMatchingStatus(); return; }
   virtual void beforeHadronization( lhef::LHEEvent* lhee );
   

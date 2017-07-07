@@ -77,10 +77,10 @@ namespace {
 class HcalDbAnalyzer : public edm::EDAnalyzer {
    public:
       explicit HcalDbAnalyzer( const edm::ParameterSet& );
-      ~HcalDbAnalyzer ();
+      ~HcalDbAnalyzer () override;
 
 
-      virtual void analyze( const edm::Event&, const edm::EventSetup& );
+      void analyze( const edm::Event&, const edm::EventSetup& ) override;
    private:
       // ----------member data ---------------------------
 };

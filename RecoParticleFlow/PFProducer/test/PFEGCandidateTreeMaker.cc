@@ -104,9 +104,9 @@ class PFEGCandidateTreeMaker : public edm::EDAnalyzer {
   typedef TTree* treeptr;  
 public:
   PFEGCandidateTreeMaker(const PSet&);
-  ~PFEGCandidateTreeMaker() {}
+  ~PFEGCandidateTreeMaker() override {}
 
-  void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 private:    
   edm::Service<TFileService> _fs;
   bool _dogen;

@@ -25,15 +25,15 @@ class MVATrainerSaveImpl : public MVATrainerSave {
 		MVATrainerSave(params) {}
 
     protected:
-	virtual const Calibration::MVAComputer *
-	getToPut(const edm::EventSetup& es) const
+	const Calibration::MVAComputer *
+	getToPut(const edm::EventSetup& es) const override
 	{
 		edm::ESHandle<Calibration::MVAComputer> handle;
 		es.get<Record_t>().get("trained", handle);
 		return handle.product();
 	}
 
-	virtual std::string getRecordName() const
+	std::string getRecordName() const override
 	{ return Record_t::keyForClass().type().name(); }
 };
 
@@ -44,23 +44,23 @@ class MVATrainerContainerSaveImpl : public MVATrainerContainerSave {
 		MVATrainerContainerSave(params) {}
 
     protected:
-	virtual const Calibration::MVAComputerContainer *
-	getToPut(const edm::EventSetup& es) const
+	const Calibration::MVAComputerContainer *
+	getToPut(const edm::EventSetup& es) const override
 	{
 		edm::ESHandle<Calibration::MVAComputerContainer> handle;
 		es.get<Record_t>().get("trained", handle);
 		return handle.product();
 	}
 
-	virtual const Calibration::MVAComputerContainer *
-	getToCopy(const edm::EventSetup& es) const
+	const Calibration::MVAComputerContainer *
+	getToCopy(const edm::EventSetup& es) const override
 	{
 		edm::ESHandle<Calibration::MVAComputerContainer> handle;
 		es.get<Record_t>().get(handle);
 		return handle.product();
 	}
 
-	virtual std::string getRecordName() const
+	std::string getRecordName() const override
 	{ return Record_t::keyForClass().type().name(); }
 };
 

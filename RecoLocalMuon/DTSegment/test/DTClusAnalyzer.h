@@ -42,10 +42,10 @@ class DTClusAnalyzer : public edm::EDAnalyzer {
     DTClusAnalyzer(const edm::ParameterSet& pset) ;
 
 /* Destructor */ 
-    ~DTClusAnalyzer() ;
+    ~DTClusAnalyzer() override ;
 
 /* Operations */ 
-    void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
+    void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
 
   private:
     TH1F* histo(const std::string& name) const;

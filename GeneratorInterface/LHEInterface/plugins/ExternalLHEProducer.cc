@@ -66,16 +66,16 @@ class ExternalLHEProducer : public edm::one::EDProducer<edm::BeginRunProducer,
                                                         edm::EndRunProducer> {
 public:
   explicit ExternalLHEProducer(const edm::ParameterSet& iConfig);
-  virtual ~ExternalLHEProducer() override;
+  ~ExternalLHEProducer() override;
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
 private:
 
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void beginRunProduce(edm::Run& run, edm::EventSetup const& es) override;
-  virtual void endRunProduce(edm::Run&, edm::EventSetup const&) override;
-  virtual void preallocThreads(unsigned int) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void beginRunProduce(edm::Run& run, edm::EventSetup const& es) override;
+  void endRunProduce(edm::Run&, edm::EventSetup const&) override;
+  void preallocThreads(unsigned int) override;
 
   int closeDescriptors(int preserve);
   void executeScript();

@@ -27,7 +27,7 @@ class TtFullLeptonicEvent: public TtEvent {
   /// empty constructor
   TtFullLeptonicEvent(){};
   /// default destructor
-  virtual ~TtFullLeptonicEvent(){};
+  ~TtFullLeptonicEvent() override{};
 
   /// get top of the given hypothesis
   const reco::Candidate* top(const std::string& key, const unsigned& cmb=0) const { return top(hypoClassKeyFromString(key), cmb); };

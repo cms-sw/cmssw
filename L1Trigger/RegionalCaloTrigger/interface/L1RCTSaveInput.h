@@ -38,8 +38,8 @@ class L1RCT;
 class L1RCTSaveInput : public edm::EDAnalyzer {
 public:
   explicit L1RCTSaveInput(const edm::ParameterSet&);
-  ~L1RCTSaveInput();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  ~L1RCTSaveInput() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 private:
   std::string fileName;
   L1RCTLookupTables* rctLookupTables;

@@ -16,7 +16,7 @@ class HcalLongRecoParams: public HcalCondObjectContainer<HcalLongRecoParam>
 #endif
   HcalLongRecoParams(const HcalTopology* topo):HcalCondObjectContainer<HcalLongRecoParam>(topo) {}
 
-  std::string myname() const {return (std::string)"HcalLongRecoParams";}
+  std::string myname() const override {return (std::string)"HcalLongRecoParams";}
 
  private:
 

@@ -59,10 +59,10 @@ public:
   explicit SiStripBackplaneCalibration(const edm::ParameterSet &cfg);
   
   /// Destructor
-  virtual ~SiStripBackplaneCalibration();
+  ~SiStripBackplaneCalibration() override;
 
   /// How many parameters does this calibration define?
-  virtual unsigned int numParameters() const;
+  unsigned int numParameters() const override;
 
   // /// Return all derivatives,
   // /// default implementation uses other derivatives(..) method,
@@ -74,36 +74,36 @@ public:
 
   /// Return non-zero derivatives for x- and y-measurements with their indices by reference.
   /// Return value is their number.
-  virtual unsigned int derivatives(std::vector<ValuesIndexPair> &outDerivInds,
+  unsigned int derivatives(std::vector<ValuesIndexPair> &outDerivInds,
 				   const TransientTrackingRecHit &hit,
 				   const TrajectoryStateOnSurface &tsos,
 				   const edm::EventSetup &setup,
-				   const EventInfo &eventInfo) const;
+				   const EventInfo &eventInfo) const override;
 
   /// Setting the determined parameter identified by index,
   /// returns false if out-of-bounds, true otherwise.
-  virtual bool setParameter(unsigned int index, double value);
+  bool setParameter(unsigned int index, double value) override;
 
   /// Setting the determined parameter uncertainty identified by index,
   /// returns false if out-of-bounds, true otherwise.
-  virtual bool setParameterError(unsigned int index, double error);
+  bool setParameterError(unsigned int index, double error) override;
 
   /// Return current value of parameter identified by index.
   /// Returns 0. if index out-of-bounds.
-  virtual double getParameter(unsigned int index) const;
+  double getParameter(unsigned int index) const override;
 
   /// Return current value of parameter identified by index.
   /// Returns 0. if index out-of-bounds or if errors undetermined.
-  virtual double getParameterError(unsigned int index) const;
+  double getParameterError(unsigned int index) const override;
 
   // /// Call at beginning of job:
-  virtual void beginOfJob(AlignableTracker *tracker,
+  void beginOfJob(AlignableTracker *tracker,
   			  AlignableMuon *muon,
-  			  AlignableExtras *extras);
+  			  AlignableExtras *extras) override;
 
   /// Called at end of a the job of the AlignmentProducer.
   /// Write out determined parameters.
-  virtual void endOfJob();
+  void endOfJob() override;
 
 private:
   /// If called the first time, fill 'siStripBackPlaneCorrInput_',

@@ -26,9 +26,9 @@
 
   public:
     explicit SiPixelLorentzAngleReader( const edm::ParameterSet& );
-    ~SiPixelLorentzAngleReader();
+    ~SiPixelLorentzAngleReader() override;
   
-    void analyze( const edm::Event&, const edm::EventSetup& );
+    void analyze( const edm::Event&, const edm::EventSetup& ) override;
 
   private:
     bool printdebug_;

@@ -35,12 +35,12 @@ public:
   typedef std::vector<OmniClusterRef> OmniClusterCollection;
 
   explicit ClusterTPAssociationProducer(const edm::ParameterSet&);
-  ~ClusterTPAssociationProducer();
+  ~ClusterTPAssociationProducer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   template <typename T>
   std::vector<std::pair<uint32_t, EncodedEventId> >

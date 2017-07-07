@@ -24,8 +24,8 @@ class MuonChi2MeasurementEstimator : public Chi2MeasurementEstimatorBase {
   MuonChi2MeasurementEstimator(double dtMaxChi2, double cscMaxChi2, double rpcMaxChi2, double nSigma);
   
   /// Chi2 estimator
-  virtual std::pair<bool,double> estimate(const TrajectoryStateOnSurface&,
-					  const TrackingRecHit&) const;
+  std::pair<bool,double> estimate(const TrajectoryStateOnSurface&,
+					  const TrackingRecHit&) const override;
 
 
  private:

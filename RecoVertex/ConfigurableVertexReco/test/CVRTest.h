@@ -11,9 +11,9 @@ class CVRTest : public edm::EDAnalyzer {
    */
    public:
       explicit CVRTest( const edm::ParameterSet & );
-      ~CVRTest();
+      ~CVRTest() override;
 
-      virtual void analyze( const edm::Event &, const edm::EventSetup &);
+      void analyze( const edm::Event &, const edm::EventSetup &) override;
 
    private:
       void discussPrimary( const edm::Event & ) const;

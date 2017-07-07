@@ -72,11 +72,11 @@ using namespace std;
 class EcalDeadCellTriggerPrimitiveFilter : public edm::stream::EDFilter<> {
 public:
   explicit EcalDeadCellTriggerPrimitiveFilter(const edm::ParameterSet&);
-  ~EcalDeadCellTriggerPrimitiveFilter();
+  ~EcalDeadCellTriggerPrimitiveFilter() override;
 
 private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
   virtual void envSet(const edm::EventSetup&);
 
   // ----------member data ---------------------------

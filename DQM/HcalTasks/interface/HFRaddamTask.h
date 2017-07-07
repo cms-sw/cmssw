@@ -19,16 +19,16 @@ class HFRaddamTask : public hcaldqm::DQTask
 {
 	public:
 		HFRaddamTask(edm::ParameterSet const&);
-		virtual ~HFRaddamTask()
+		~HFRaddamTask() override
 		{}
 
-		virtual void bookHistograms(DQMStore::IBooker&,
-			edm::Run const&, edm::EventSetup const&);
+		void bookHistograms(DQMStore::IBooker&,
+			edm::Run const&, edm::EventSetup const&) override;
 
 	protected:
 		//	funcs
-		virtual void _process(edm::Event const&, edm::EventSetup const&);
-		virtual bool _isApplicable(edm::Event const&);
+		void _process(edm::Event const&, edm::EventSetup const&) override;
+		bool _isApplicable(edm::Event const&) override;
 
 		//	Tags and Tokens
 		edm::InputTag	_tagHF;

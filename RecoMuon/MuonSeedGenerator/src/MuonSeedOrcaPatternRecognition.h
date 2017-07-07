@@ -12,7 +12,7 @@ public:
   explicit MuonSeedOrcaPatternRecognition(const edm::ParameterSet & pset,edm::ConsumesCollector& iC); 
 
   void produce(const edm::Event& event, const edm::EventSetup& eSetup,
-               std::vector<MuonRecHitContainer> & result);
+               std::vector<MuonRecHitContainer> & result) override;
 
 private:
 

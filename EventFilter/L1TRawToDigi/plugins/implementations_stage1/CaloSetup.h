@@ -13,13 +13,13 @@ namespace l1t {
    namespace stage1 {
       class CaloSetup : public PackingSetup {
          public:
-            virtual ~CaloSetup() {};
-            virtual std::unique_ptr<PackerTokens> registerConsumes(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc) override;
-            virtual void fillDescription(edm::ParameterSetDescription& desc) override;
-            virtual PackerMap getPackers(int fed, unsigned int fw) override;
-            virtual void registerProducts(edm::stream::EDProducerBase& prod) override;
-            virtual std::unique_ptr<UnpackerCollections> getCollections(edm::Event& e) override;
-            virtual UnpackerMap getUnpackers(int fed, int board, int amc, unsigned int fw) override;
+            ~CaloSetup() override {};
+            std::unique_ptr<PackerTokens> registerConsumes(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc) override;
+            void fillDescription(edm::ParameterSetDescription& desc) override;
+            PackerMap getPackers(int fed, unsigned int fw) override;
+            void registerProducts(edm::stream::EDProducerBase& prod) override;
+            std::unique_ptr<UnpackerCollections> getCollections(edm::Event& e) override;
+            UnpackerMap getUnpackers(int fed, int board, int amc, unsigned int fw) override;
       };
    }
 }

@@ -46,7 +46,7 @@ class TTTrackAssociator : public edm::stream::EDProducer<>
     explicit TTTrackAssociator( const edm::ParameterSet& iConfig );
 
     /// Destructor
-    ~TTTrackAssociator();
+    ~TTTrackAssociator() override;
 
   private:
     /// Data members
@@ -62,9 +62,9 @@ class TTTrackAssociator : public edm::stream::EDProducer<>
     //    edm::InputTag TTStubTruthInputTag;
 
     /// Mandatory methods
-    virtual void beginRun( const edm::Run& run, const edm::EventSetup& iSetup );
-    virtual void endRun( const edm::Run& run, const edm::EventSetup& iSetup );
-    virtual void produce( edm::Event& iEvent, const edm::EventSetup& iSetup );
+    void beginRun( const edm::Run& run, const edm::EventSetup& iSetup ) override;
+    void endRun( const edm::Run& run, const edm::EventSetup& iSetup ) override;
+    void produce( edm::Event& iEvent, const edm::EventSetup& iSetup ) override;
 
 }; /// Close class
 

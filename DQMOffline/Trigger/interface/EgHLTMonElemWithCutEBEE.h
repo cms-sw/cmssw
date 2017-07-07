@@ -34,9 +34,9 @@ namespace egHLT {
 		       varType (T::*varFunc)()const,const EgHLTDQMCut<T>* cut):
       barrel_(iBooker,name+"_eb","Barrel "+title,nrBins,min,max,varFunc,cut),
       endcap_(iBooker,name+"_ee","Endcap "+title,nrBins,min,max,varFunc,cut ? cut->clone() : NULL){}
-    ~MonElemWithCutEBEE(){}
+    ~MonElemWithCutEBEE() override{}
     
-    void fill(const T& obj,const OffEvt& evt,float weight);
+    void fill(const T& obj,const OffEvt& evt,float weight) override;
     
   };
 }

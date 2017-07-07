@@ -123,9 +123,9 @@ namespace {
                                 kEnterWindowMask | kLeaveWindowMask);
       }
 
-      virtual ~FWGeometryVF() {};
+      ~FWGeometryVF() override {};
 
-      virtual Bool_t HandleKey(Event_t *event) override
+      Bool_t HandleKey(Event_t *event) override
       {
          if (event->fCode == (UInt_t) gVirtualX->KeysymToKeycode(kKey_Escape)) {
             m_tv->getTableManager()->cancelEditor(true);
@@ -140,9 +140,9 @@ namespace {
    {
    public:
       FWTranspEntry(const TGWindow* p, FWGeometryTableViewBase* tv) :TGTextEntry(p), m_tv (tv){}
-      virtual ~FWTranspEntry() {}
+      ~FWTranspEntry() override {}
 
-      virtual Bool_t HandleKey(Event_t *event) override
+      Bool_t HandleKey(Event_t *event) override
       {
          if (event->fCode == (UInt_t) gVirtualX->KeysymToKeycode(kKey_Escape)) {
             m_tv->getTableManager()->cancelEditor(true);

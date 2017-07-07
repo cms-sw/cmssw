@@ -41,11 +41,11 @@ Implementation:
 class MomentumConstraintProducer: public edm::EDProducer {
 public:
   explicit MomentumConstraintProducer(const edm::ParameterSet&);
-  ~MomentumConstraintProducer();
+  ~MomentumConstraintProducer() override;
 
 private:
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
 
   // ----------member data ---------------------------
   const edm::InputTag srcTag_;

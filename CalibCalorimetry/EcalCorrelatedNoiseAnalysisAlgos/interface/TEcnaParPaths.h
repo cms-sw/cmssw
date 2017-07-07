@@ -62,7 +62,7 @@ class TEcnaParPaths : public TObject {
 
            TEcnaParPaths();
            TEcnaParPaths(TEcnaObject*);
-  virtual  ~TEcnaParPaths();
+   ~TEcnaParPaths() override;
 
   void    Init();
 

@@ -15,14 +15,14 @@ namespace dqm {
 class DQMFileSaverOnline : public DQMFileSaverBase {
  public:
   DQMFileSaverOnline(const edm::ParameterSet& ps);
-  ~DQMFileSaverOnline();
+  ~DQMFileSaverOnline() override;
 
   static const std::string fillOrigin(const std::string filename,
                                       const std::string final_filename);
 
  protected:
-  virtual void saveLumi(const FileParameters& fp) const override;
-  virtual void saveRun(const FileParameters& fp) const override;
+  void saveLumi(const FileParameters& fp) const override;
+  void saveRun(const FileParameters& fp) const override;
 
  protected:
   int backupLumiCount_;

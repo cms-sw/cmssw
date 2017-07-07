@@ -16,13 +16,13 @@
 class SiPixelCPEGenericErrorParmReader : public edm::EDAnalyzer {
    public:
       explicit SiPixelCPEGenericErrorParmReader(const edm::ParameterSet&);
-      ~SiPixelCPEGenericErrorParmReader();
+      ~SiPixelCPEGenericErrorParmReader() override;
 
 
    private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      void beginJob() override ;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 			
 			edm::ESWatcher<SiPixelCPEGenericErrorParmRcd> SiPixelCPEGenericErrorParmWatcher_;
 };

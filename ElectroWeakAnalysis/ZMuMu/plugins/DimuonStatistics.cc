@@ -7,8 +7,8 @@
 class DimuonStatistics : public edm::EDAnalyzer {
 public:
   DimuonStatistics(const edm::ParameterSet & cfg);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 private:
   edm::InputTag src_;
   edm::EDGetTokenT<reco::CandidateView> srcToken_;

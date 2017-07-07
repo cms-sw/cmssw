@@ -49,9 +49,9 @@ public:
                                const reco::BeamSpot& beamSpot,
                                const ReferenceTrajectoryBase::Config& config);
 
-  virtual ~DualBzeroReferenceTrajectory() {}
+  ~DualBzeroReferenceTrajectory() override {}
 
-  virtual DualBzeroReferenceTrajectory* clone() const { return new DualBzeroReferenceTrajectory(*this); }
+  DualBzeroReferenceTrajectory* clone() const override { return new DualBzeroReferenceTrajectory(*this); }
 
 protected:
   using DualReferenceTrajectory::construct;
@@ -64,7 +64,7 @@ protected:
 					 bool useBeamSpot,
 					 const reco::BeamSpot &beamSpot) const;
 
-  virtual AlgebraicVector extractParameters(const TrajectoryStateOnSurface &referenceTsos) const;
+  AlgebraicVector extractParameters(const TrajectoryStateOnSurface &referenceTsos) const override;
 
   double theMomentumEstimate;
 

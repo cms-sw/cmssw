@@ -14,11 +14,11 @@ class testSiStripEnumsAndStrings : public edm::EDAnalyzer {
  public:
   
   testSiStripEnumsAndStrings( const edm::ParameterSet& );
-  ~testSiStripEnumsAndStrings();
+  ~testSiStripEnumsAndStrings() override;
   
-  void beginJob();
-  void analyze( const edm::Event&, const edm::EventSetup& );
-  void endJob() {;}
+  void beginJob() override;
+  void analyze( const edm::Event&, const edm::EventSetup& ) override;
+  void endJob() override {;}
   
 };
 

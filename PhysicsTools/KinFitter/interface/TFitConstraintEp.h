@@ -31,7 +31,7 @@ public :
 		     std::vector<TAbsFitParticle*>* particles, 
 		     TFitConstraintEp::component thecomponent, 
 		     Double_t constraint = 0.);
-  virtual ~TFitConstraintEp();
+  ~TFitConstraintEp() override;
 
   void addParticle( TAbsFitParticle* particle );
   void addParticles( TAbsFitParticle* p1, TAbsFitParticle* p2 = 0, TAbsFitParticle* p3 = 0, TAbsFitParticle* p4 = 0,
@@ -41,12 +41,12 @@ public :
 
   // returns derivative df/dP with P=(p,E) and f the constraint f=0.
   // The matrix contains one row (df/dp, df/dE).
-  virtual TMatrixD* getDerivative( TAbsFitParticle* particle );
-  virtual Double_t getInitValue();
-  virtual Double_t getCurrentValue();
+  TMatrixD* getDerivative( TAbsFitParticle* particle ) override;
+  Double_t getInitValue() override;
+  Double_t getCurrentValue() override;
 
-  virtual TString getInfoString();
-  virtual void print(); 
+  TString getInfoString() override;
+  void print() override; 
  
 protected :
 

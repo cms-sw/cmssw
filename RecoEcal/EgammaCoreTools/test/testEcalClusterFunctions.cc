@@ -39,10 +39,10 @@ Implementation:
 class testEcalClusterFunctions : public edm::EDAnalyzer {
         public:
                 explicit testEcalClusterFunctions(const edm::ParameterSet&);
-                ~testEcalClusterFunctions();
+                ~testEcalClusterFunctions() override;
 
         private:
-                virtual void analyze(const edm::Event&, const edm::EventSetup&);
+                void analyze(const edm::Event&, const edm::EventSetup&) override;
                 EcalClusterFunctionBaseClass *ff_;
 
 };

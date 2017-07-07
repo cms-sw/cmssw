@@ -31,8 +31,8 @@ public:
   void testMergeDouble();
   void testMergeTString();
   void testMergeT();
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
 };
 
 

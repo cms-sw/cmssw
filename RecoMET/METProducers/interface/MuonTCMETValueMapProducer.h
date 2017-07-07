@@ -43,11 +43,11 @@ class MuonTCMETValueMapProducer : public edm::stream::EDProducer<>
 
 public:
   explicit MuonTCMETValueMapProducer(const edm::ParameterSet&);
-  ~MuonTCMETValueMapProducer();
+  ~MuonTCMETValueMapProducer() override;
 
 
 private:
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
       
   edm::Handle<reco::MuonCollection>    muons_;
   edm::Handle<reco::BeamSpot>          beamSpot_;

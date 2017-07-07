@@ -172,7 +172,7 @@ namespace edm {
   private:
 
     //PtrVector const& operator=(PtrVector const&); // stop default
-    std::type_info const& typeInfo() const {return typeid(T);}
+    std::type_info const& typeInfo() const override {return typeid(T);}
 
     // ---------- member data --------------------------------
     Ptr<T> fromItr(std::vector<void const*>::const_iterator const& iItr) const {

@@ -27,7 +27,7 @@ public:
   DTLocalTriggerSynchTest(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~DTLocalTriggerSynchTest();
+  ~DTLocalTriggerSynchTest() override;
 
 protected:
 
@@ -43,17 +43,17 @@ protected:
   float getFloatFromME(DQMStore::IGetter &,DTChamberId chId, std::string meType);
 
   /// begin Run
-  void beginRun(const edm::Run& run, const edm::EventSetup& c);
+  void beginRun(const edm::Run& run, const edm::EventSetup& c) override;
 
 
-  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &);
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
   /// DQM Client Diagnostic
 
-  void runClientDiagnostic(DQMStore::IBooker &, DQMStore::IGetter &);
+  void runClientDiagnostic(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
   void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, 
-                          edm::LuminosityBlock const &, edm::EventSetup const &);
+                          edm::LuminosityBlock const &, edm::EventSetup const &) override;
 
  private:
 

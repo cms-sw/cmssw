@@ -26,10 +26,10 @@ class FWL1TriggerTableView : public FWTriggerTableView
 {
 public:
    FWL1TriggerTableView( TEveWindowSlot*);
-   virtual ~FWL1TriggerTableView() {}
+   ~FWL1TriggerTableView() override {}
 
 protected:
-   virtual void fillTable(fwlite::Event* event);
+   void fillTable(fwlite::Event* event) override;
 };
 
 #endif

@@ -33,13 +33,13 @@ class ZdcGeometry : public CaloSubdetectorGeometry
 
       static std::string dbString() { return "PZdcRcd" ; }
 
-      virtual unsigned int numberOfShapes() const { return k_NumberOfShapes ; }
-      virtual unsigned int numberOfParametersPerShape() const { return k_NumberOfParametersPerShape ; }
+      unsigned int numberOfShapes() const override { return k_NumberOfShapes ; }
+      unsigned int numberOfParametersPerShape() const override { return k_NumberOfParametersPerShape ; }
 
       ZdcGeometry() ;
 
       explicit ZdcGeometry(const ZdcTopology * topology);
-      virtual ~ZdcGeometry();
+      ~ZdcGeometry() override;
   
 //      virtual DetId getClosestCell(const GlobalPoint& r) const ;
 
@@ -56,15 +56,15 @@ class ZdcGeometry : public CaloSubdetectorGeometry
 				unsigned int    i   ,
 				Pt3D&           ref   ) ;
 
-      virtual void newCell( const GlobalPoint& f1 ,
+      void newCell( const GlobalPoint& f1 ,
 			    const GlobalPoint& f2 ,
 			    const GlobalPoint& f3 ,
 			    const CCGFloat*    parm,
-			    const DetId&       detId     ) ;
+			    const DetId&       detId     ) override ;
 
    protected:
 
-      virtual const CaloCellGeometry* cellGeomPtr( uint32_t index ) const ;
+      const CaloCellGeometry* cellGeomPtr( uint32_t index ) const override ;
 					
    private:
 

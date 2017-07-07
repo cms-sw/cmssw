@@ -118,7 +118,7 @@ class QcdLowPtDQM : public DQMEDAnalyzer {
   };
 
   QcdLowPtDQM(const edm::ParameterSet &parameters);
-  virtual ~QcdLowPtDQM();
+  ~QcdLowPtDQM() override;
   void dqmBeginRun(const edm::Run &, const edm::EventSetup &) override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const&,
                       edm::EventSetup const&) override;

@@ -22,16 +22,16 @@ class FWTriggerTableViewManager : public FWViewManagerBase, public FWConfigurabl
 
 public:
    FWTriggerTableViewManager(FWGUIManager*);
-   virtual ~FWTriggerTableViewManager();
+   ~FWTriggerTableViewManager() override;
 
    // dummy functions of FWViewManagerBase
-   virtual FWTypeToRepresentations supportedTypesAndRepresentations() const
+   FWTypeToRepresentations supportedTypesAndRepresentations() const override
    { return FWTypeToRepresentations();}
-   virtual void newItem(const FWEventItem*) {}
+   void newItem(const FWEventItem*) override {}
 
    // backward compatibility
-   void addTo(FWConfiguration&) const {}
-   void setFrom(const FWConfiguration&) {}
+   void addTo(FWConfiguration&) const override {}
+   void setFrom(const FWConfiguration&) override {}
 
    FWViewBase *buildView (TEveWindowSlot *iParent, const std::string& type);
 
@@ -40,11 +40,11 @@ protected:
    FWTriggerTableViewManager();
 
 
-   virtual void modelChangesComing() {}
-   virtual void modelChangesDone() {}
+   void modelChangesComing() override {}
+   void modelChangesDone() override {}
 
-   virtual void eventEnd();
-   virtual void colorsChanged();
+   void eventEnd() override;
+   void colorsChanged() override;
 
    void updateProcessList();
 

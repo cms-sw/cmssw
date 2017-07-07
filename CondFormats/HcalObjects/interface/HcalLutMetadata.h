@@ -20,7 +20,7 @@ class HcalLutMetadata: public HcalCondObjectContainer<HcalLutMetadatum>
 #endif
   HcalLutMetadata(const HcalTopology* topo) : HcalCondObjectContainer<HcalLutMetadatum>(topo){}
     
-  std::string myname() const {return (std::string)"HcalLutMetadata";}
+  std::string myname() const override {return (std::string)"HcalLutMetadata";}
     
   bool  setRctLsb(float rctlsb);
   float getRctLsb() const {return mNonChannelData.mRctLsb;}

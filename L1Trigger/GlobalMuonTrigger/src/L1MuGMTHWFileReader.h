@@ -42,7 +42,7 @@ class L1MuGMTHWFileReader : public edm::ProducerSourceFromFiles {
   explicit L1MuGMTHWFileReader(edm::ParameterSet const&,
                                edm::InputSourceDescription const&);
 
-  ~L1MuGMTHWFileReader();
+  ~L1MuGMTHWFileReader() override;
 
   //read an event from the input stream
   //returns an event with run and event number zero when no more events
@@ -50,8 +50,8 @@ class L1MuGMTHWFileReader : public edm::ProducerSourceFromFiles {
 
 
  private:
-   virtual bool setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time, edm::EventAuxiliary::ExperimentType& eType);
-   virtual void produce(edm::Event&);
+   bool setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time, edm::EventAuxiliary::ExperimentType& eType) override;
+   void produce(edm::Event&) override;
 
    std::ifstream m_in;
    L1MuGMTInputEvent m_evt;

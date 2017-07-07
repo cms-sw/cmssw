@@ -54,7 +54,7 @@ class FFTJetPileupProcessor : public FFTJetInterface
 {
 public:
     explicit FFTJetPileupProcessor(const edm::ParameterSet&);
-    ~FFTJetPileupProcessor();
+    ~FFTJetPileupProcessor() override;
 
 protected:
     // methods

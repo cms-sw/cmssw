@@ -46,7 +46,7 @@ class FFTJetVertexAdder : public edm::EDProducer
 {
 public:
     explicit FFTJetVertexAdder(const edm::ParameterSet&);
-    ~FFTJetVertexAdder();
+    ~FFTJetVertexAdder() override;
 
 protected:
     // methods

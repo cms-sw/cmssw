@@ -5,14 +5,14 @@ class HLTTauRelvalQTester : public QualityTester
 {
  public:
   HLTTauRelvalQTester(const edm::ParameterSet& ps);
-  ~HLTTauRelvalQTester();
+  ~HLTTauRelvalQTester() override;
 
  protected:
 
-  void analyze(const edm::Event& e, const edm::EventSetup& c) ;
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
-  void endRun(const edm::Run& r, const edm::EventSetup& c);
-  void endJob();
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override ;
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c) override;
+  void endRun(const edm::Run& r, const edm::EventSetup& c) override;
+  void endJob() override;
 
  private:
   edm::EDGetTokenT<std::vector<int> > refMothers_;

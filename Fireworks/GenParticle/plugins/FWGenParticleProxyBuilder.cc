@@ -29,7 +29,7 @@ class FWGenParticleProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::GenP
 
 public:
    FWGenParticleProxyBuilder() {}
-   virtual ~FWGenParticleProxyBuilder() {}
+   ~FWGenParticleProxyBuilder() override {}
 
    // ---------- member functions ---------------------------
    REGISTER_PROXYBUILDER_METHODS();

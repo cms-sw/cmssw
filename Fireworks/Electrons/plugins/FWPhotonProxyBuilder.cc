@@ -27,9 +27,9 @@ class FWPhotonProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Photon>
 public:
    FWPhotonProxyBuilder( void ) {}
 
-   virtual ~FWPhotonProxyBuilder( void ) {}
+   ~FWPhotonProxyBuilder( void ) override {}
   
-   virtual bool haveSingleProduct( void ) const override { return false; }
+   bool haveSingleProduct( void ) const override { return false; }
   
    REGISTER_PROXYBUILDER_METHODS();
 
@@ -38,7 +38,7 @@ private:
    const FWPhotonProxyBuilder& operator=( const FWPhotonProxyBuilder& );
   
    using FWSimpleProxyBuilderTemplate<reco::Photon> ::buildViewType;
-   virtual void buildViewType( const reco::Photon& photon, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext*) override;
+   void buildViewType( const reco::Photon& photon, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext*) override;
 };
 
 void

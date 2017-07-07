@@ -44,10 +44,10 @@ namespace edmtest {
 class WhatsItAnalyzer : public edm::EDAnalyzer {
    public:
       explicit WhatsItAnalyzer(const edm::ParameterSet&);
-      ~WhatsItAnalyzer();
+      ~WhatsItAnalyzer() override;
 
 
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
    private:
       // ----------member data ---------------------------
       std::vector<int> expectedValues_;

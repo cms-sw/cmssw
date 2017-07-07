@@ -49,7 +49,7 @@ class DummyEvelyser : public edm::EDAnalyzer
 {
 public:
   explicit DummyEvelyser(const edm::ParameterSet&);
-  ~DummyEvelyser();
+  ~DummyEvelyser() override;
 
 protected:
    TEveGeoTopNode* make_node(const TString& path, Int_t vis_level, Bool_t global_cs);
@@ -57,13 +57,13 @@ protected:
    
 
 private:
-   virtual void beginJob() override;
-   virtual void endJob() override;
+   void beginJob() override;
+   void endJob() override;
 
-   virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
-   virtual void endRun  (const edm::Run&, const edm::EventSetup&) override;
+   void beginRun(const edm::Run&, const edm::EventSetup&) override;
+   void endRun  (const edm::Run&, const edm::EventSetup&) override;
 
-   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
    edm::Service<EveService>  m_eve;
 

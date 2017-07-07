@@ -41,11 +41,11 @@ class Py8toJetInputHEPEVT : public Py8toJetInput
    public:
    
       Py8toJetInputHEPEVT() {}
-      virtual ~Py8toJetInputHEPEVT() {}
+      ~Py8toJetInputHEPEVT() override {}
       
       const std::vector<fastjet::PseudoJet> fillJetAlgoInput( const Event&, const Event&, 
                                                               const lhef::LHEEvent*,
-                                                              const std::vector<int>* partonList=0 ); 
+                                                              const std::vector<int>* partonList=0 ) override; 
 };
 
 #endif

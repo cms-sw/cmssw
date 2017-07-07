@@ -51,11 +51,11 @@ namespace popcon
 
 		public:
                         EcalTPGFineGrainEBIdMapHandler(edm::ParameterSet const & );
-			~EcalTPGFineGrainEBIdMapHandler(); 
+			~EcalTPGFineGrainEBIdMapHandler() override; 
 			
-			void getNewObjects();
+			void getNewObjects() override;
 			
-			std::string id() const { return m_name;}
+			std::string id() const override { return m_name;}
 			
 			void readFromFile(const char* inputFile) ;
 			void writeFile(const char* inputFile);

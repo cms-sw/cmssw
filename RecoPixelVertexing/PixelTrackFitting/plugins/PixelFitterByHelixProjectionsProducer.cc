@@ -23,7 +23,7 @@ public:
     , thescaleFactor(iConfig.getParameter<double>("scaleFactor"))  {
     produces<PixelFitter>();
   }
-  ~PixelFitterByHelixProjectionsProducer() {}
+  ~PixelFitterByHelixProjectionsProducer() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
@@ -33,7 +33,7 @@ public:
   }
 
 private:
-  virtual void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
+  void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
   const bool thescaleErrorsForBPix1;
   const float thescaleFactor;
 };

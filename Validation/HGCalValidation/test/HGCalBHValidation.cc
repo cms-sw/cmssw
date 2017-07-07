@@ -40,15 +40,15 @@ class HGCalBHValidation: public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::on
 
 public:
   explicit HGCalBHValidation(const edm::ParameterSet& ps);
-  ~HGCalBHValidation();
+  ~HGCalBHValidation() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 protected:
-  virtual void beginJob() override {}
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) override {}
-  virtual void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void beginJob() override {}
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override {}
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
   void analyzeDigi(HcalDetId const& , double const& , unsigned int &);
 private:
 

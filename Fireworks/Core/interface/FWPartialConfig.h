@@ -12,7 +12,7 @@ class FWPartialConfigGUI : public TGTransientFrame
 {
  public:
   FWPartialConfigGUI(const char* path,  FWConfigurationManager*);
-  ~FWPartialConfigGUI() {}
+  ~FWPartialConfigGUI() override {}
   void Cancel();
 
  protected:
@@ -29,7 +29,7 @@ class FWPartialConfigLoadGUI : public FWPartialConfigGUI
 {
  public:
   FWPartialConfigLoadGUI( const char* path,  FWConfigurationManager* ,FWEventItemsManager*);
-  ~FWPartialConfigLoadGUI();
+  ~FWPartialConfigLoadGUI() override;
 
   void Load();
 
@@ -46,7 +46,7 @@ class FWPartialConfigSaveGUI : public FWPartialConfigGUI
 {
  public:
    FWPartialConfigSaveGUI( const char* path_out,const char* path_in, FWConfigurationManager* );
-  ~FWPartialConfigSaveGUI() {}
+  ~FWPartialConfigSaveGUI() override {}
 
   void WriteConfig();
 

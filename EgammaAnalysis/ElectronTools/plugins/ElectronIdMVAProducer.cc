@@ -24,10 +24,10 @@
 class ElectronIdMVAProducer : public edm::EDFilter {
 public:
   explicit ElectronIdMVAProducer(const edm::ParameterSet&);
-  ~ElectronIdMVAProducer();
+  ~ElectronIdMVAProducer() override;
   
 private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  bool filter(edm::Event&, const edm::EventSetup&) override;
   
   // ----------member data ---------------------------
   bool verbose_;

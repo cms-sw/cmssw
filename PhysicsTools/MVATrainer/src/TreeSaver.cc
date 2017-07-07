@@ -51,15 +51,15 @@ class TreeSaver : public TrainProcessor {
 
 	TreeSaver(const char *name, const AtomicId *id,
 	         MVATrainer *trainer);
-	virtual ~TreeSaver();
+	~TreeSaver() override;
 
-	virtual void configure(DOMElement *elem) override;
-	virtual void passFlags(const std::vector<Variable::Flags> &flags) override;
+	void configure(DOMElement *elem) override;
+	void passFlags(const std::vector<Variable::Flags> &flags) override;
 
-	virtual void trainBegin() override;
-	virtual void trainData(const std::vector<double> *values,
+	void trainBegin() override;
+	void trainData(const std::vector<double> *values,
 	                       bool target, double weight) override;
-	virtual void trainEnd() override;
+	void trainEnd() override;
 
     private:
 	void init();

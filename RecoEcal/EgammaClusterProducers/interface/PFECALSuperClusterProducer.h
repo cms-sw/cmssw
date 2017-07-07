@@ -43,10 +43,10 @@ class GBRWrapperRcd;
 class PFECALSuperClusterProducer : public edm::stream::EDProducer<> {
  public:  
   explicit PFECALSuperClusterProducer(const edm::ParameterSet&);
-  ~PFECALSuperClusterProducer();
+  ~PFECALSuperClusterProducer() override;
 
-  virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions); 
 

@@ -31,11 +31,11 @@ class EcalPnGraphDumperModule: public edm::EDAnalyzer{
 public:
 
   EcalPnGraphDumperModule(const edm::ParameterSet& ps);   
-  ~EcalPnGraphDumperModule();
+  ~EcalPnGraphDumperModule() override;
     
   std::string intToString(int num);
   
-  void analyze( const edm::Event & e, const  edm::EventSetup& c);
+  void analyze( const edm::Event & e, const  edm::EventSetup& c) override;
   
   
 protected:

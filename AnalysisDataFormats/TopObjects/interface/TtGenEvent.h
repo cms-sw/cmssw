@@ -24,7 +24,7 @@ class TtGenEvent: public TopGenEvent {
   /// default constructor from decaySubset and initSubset
   TtGenEvent(reco::GenParticleRefProd& decaySubset, reco::GenParticleRefProd& initSubset);
   /// default destructor
-  virtual ~TtGenEvent() {};
+  ~TtGenEvent() override {};
 
   /// check if the event can be classified as ttbar
   bool isTtBar() const {return (top() && topBar());}

@@ -88,8 +88,8 @@ class EcalCondDBInterface : public EcalDBConnection {
   /**
    * Destructor
    */
-  virtual ~EcalCondDBInterface()
-    noexcept(false)
+  ~EcalCondDBInterface()
+    noexcept(false) override
     {
       // call the parent destructor
       

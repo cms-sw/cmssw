@@ -36,12 +36,12 @@ namespace edm {
     class Timing : public TimingServiceBase {
     public:
       Timing(ParameterSet const&, ActivityRegistry&);
-      ~Timing();
+      ~Timing() override;
       
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
       
-      virtual void addToCPUTime(StreamID id, double iTime) override;
-      virtual double getTotalCPU() const override;
+      void addToCPUTime(StreamID id, double iTime) override;
+      double getTotalCPU() const override;
       
     private:
       

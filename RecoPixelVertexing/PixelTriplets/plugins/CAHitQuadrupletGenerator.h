@@ -41,7 +41,7 @@ public:
     CAHitQuadrupletGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC, bool needSeedingLayerSetsHits=true): CAHitQuadrupletGenerator(cfg, iC, needSeedingLayerSetsHits) {}
     CAHitQuadrupletGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC, bool needSeedingLayerSetsHits=true);
 
-    virtual ~CAHitQuadrupletGenerator();
+    ~CAHitQuadrupletGenerator() override;
 
     static void fillDescriptions(edm::ParameterSetDescription& desc);
     static const char *fillDescriptionsLabel() { return "caHitQuadruplet"; }
@@ -50,8 +50,8 @@ public:
 
 
     /// from base class
-    virtual void hitQuadruplets(const TrackingRegion& reg, OrderedHitSeeds & quadruplets,
-            const edm::Event & ev, const edm::EventSetup& es);
+    void hitQuadruplets(const TrackingRegion& reg, OrderedHitSeeds & quadruplets,
+            const edm::Event & ev, const edm::EventSetup& es) override;
 
     // new-style
     void hitNtuplets(const IntermediateHitDoublets& regionDoublets,

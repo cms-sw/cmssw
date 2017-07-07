@@ -27,10 +27,10 @@ public:
   DTRecHitProducer(const edm::ParameterSet&);
 
   /// Destructor
-  virtual ~DTRecHitProducer();
+  ~DTRecHitProducer() override;
 
   /// The method which produces the rechits
-  virtual void produce(edm::Event& event, const edm::EventSetup& setup);
+  void produce(edm::Event& event, const edm::EventSetup& setup) override;
 
 private:
   // Switch on verbosity

@@ -142,7 +142,7 @@ struct Dummy {
       }      
     }
 
-    ~StreamIntProducer() {
+    ~StreamIntProducer() override {
       if(m_count != trans_) {
         throw cms::Exception("transitions")
           << "StreamIntProducer transitions " 
@@ -210,7 +210,7 @@ struct Dummy {
     }
 
 
-    ~RunIntProducer() {
+    ~RunIntProducer() override {
        if(m_count != trans_) {
         throw cms::Exception("transitions")
           << "RunIntProducer transitions " 
@@ -282,7 +282,7 @@ struct Dummy {
      }
 
 
-    ~LumiIntProducer() {
+    ~LumiIntProducer() override {
        if(m_count != trans_) {
         throw cms::Exception("transitions")
           << "LumiIntProducer transitions " 
@@ -343,7 +343,7 @@ struct Dummy {
     }
 
 
-    ~RunSummaryIntProducer() {
+    ~RunSummaryIntProducer() override {
      if(m_count != trans_) {
         throw cms::Exception("transitions")
           << "RunSummaryIntProducer transitions "
@@ -403,7 +403,7 @@ struct Dummy {
       --(gCache->lumi);
     }
 
-    ~LumiSummaryIntProducer() {
+    ~LumiSummaryIntProducer() override {
      if(m_count != trans_) {
         throw cms::Exception("transitions")
           << "LumiSummaryIntProducer transitions " 
@@ -442,7 +442,7 @@ struct Dummy {
     void globalEndRun(edm::Run const& iRun, edm::EventSetup const&) const override {
     }
 
-    ~TestBeginRunProducer() {
+    ~TestBeginRunProducer() override {
      if(m_count != trans_) {
         throw cms::Exception("transitions")
           << "TestBeginRunProducer transitions " 
@@ -482,7 +482,7 @@ struct Dummy {
     void globalEndRun(edm::Run const& iRun, edm::EventSetup const&) const override {
     }
 
-    ~TestEndRunProducer() {
+    ~TestEndRunProducer() override {
      if(m_count != trans_) {
         throw cms::Exception("transitions")
           << "TestEndRunProducer transitions " 
@@ -521,7 +521,7 @@ struct Dummy {
     void globalEndLuminosityBlock(edm::LuminosityBlock const& iLB, edm::EventSetup const&) const override {
     }
 
-    ~TestBeginLumiBlockProducer() {
+    ~TestBeginLumiBlockProducer() override {
      if(m_count != trans_) {
         throw cms::Exception("transitions")
           << "TestBeginLumiBlockProducer transitions " 
@@ -561,7 +561,7 @@ struct Dummy {
     void globalEndLuminosityBlock(edm::LuminosityBlock const& iLB, edm::EventSetup const&) const override {
     }
 
-    ~TestEndLumiBlockProducer() {
+    ~TestEndLumiBlockProducer() override {
      if(m_count != trans_) {
         throw cms::Exception("transitions")
           << "TestEndLumiBlockProducer transitions " 

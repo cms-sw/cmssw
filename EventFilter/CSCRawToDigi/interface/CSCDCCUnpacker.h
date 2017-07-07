@@ -20,12 +20,12 @@ class CSCDCCUnpacker: public edm::stream::EDProducer<> {
   CSCDCCUnpacker(const edm::ParameterSet & pset);
   
   /// Destructor
-  virtual ~CSCDCCUnpacker();
+  ~CSCDCCUnpacker() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
   /// Produce digis out of raw data
-  void produce(edm::Event & e, const edm::EventSetup& c);
+  void produce(edm::Event & e, const edm::EventSetup& c) override;
   
   /// Visualization of raw data in FED-less events (Robert Harr and Alexander Sakharov)
   void visual_raw(int hl,int id, int run, int event, bool fedshort, bool fDump, short unsigned int* buf) const; 

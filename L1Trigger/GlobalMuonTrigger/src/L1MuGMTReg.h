@@ -84,10 +84,10 @@ class L1MuGMTRegMMConfig : public L1MuGMTReg {
   };
 
   //// destructor
-  virtual ~L1MuGMTRegMMConfig() {};
+  ~L1MuGMTRegMMConfig() override {};
 
   //// get Name
-  virtual std::string getName() { return "MMConfig_" + m_param; };
+  std::string getName() override { return "MMConfig_" + m_param; };
 
   //// read the merge method from .orcarc
   void setMergeMethod() {
@@ -204,7 +204,7 @@ class L1MuGMTRegMMConfigMIPISO : public L1MuGMTRegMMConfig {
   };
 
   //// destructor
-  virtual ~L1MuGMTRegMMConfigMIPISO() {};
+  ~L1MuGMTRegMMConfigMIPISO() override {};
 } ;
 
 
@@ -257,7 +257,7 @@ class L1MuGMTRegMMConfigSRK : public L1MuGMTRegMMConfig {
   };
 
   //// destructor
-  virtual ~L1MuGMTRegMMConfigSRK() {};
+  ~L1MuGMTRegMMConfigSRK() override {};
 } ;
 
 //
@@ -283,10 +283,10 @@ class L1MuGMTRegSortRankOffset : public L1MuGMTReg {
   };
 
   //// get Name
-  virtual std::string getName() { return "SortRankOffset"; };
+  std::string getName() override { return "SortRankOffset"; };
 
   //// destructor
-  virtual ~L1MuGMTRegSortRankOffset() {};
+  ~L1MuGMTRegSortRankOffset() override {};
 } ;
 
 //
@@ -304,10 +304,10 @@ class L1MuGMTRegCDLConfig : public L1MuGMTReg {
   };
 
   //// destructor
-  virtual ~L1MuGMTRegCDLConfig() {};
+  ~L1MuGMTRegCDLConfig() override {};
 
   //// get Name
-  virtual std::string getName() { return std::string("CDLConfig"); };
+  std::string getName() override { return std::string("CDLConfig"); };
 
   //// read the merge method from .orcarc
   void setCDLConfig() {

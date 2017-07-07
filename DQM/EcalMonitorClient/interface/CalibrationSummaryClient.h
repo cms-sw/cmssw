@@ -8,7 +8,7 @@ namespace ecaldqm {
   class CalibrationSummaryClient : public DQWorkerClient {
   public:
     CalibrationSummaryClient();
-    ~CalibrationSummaryClient() {}
+    ~CalibrationSummaryClient() override {}
 
     void producePlots(ProcessType) override;
 

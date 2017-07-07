@@ -33,7 +33,7 @@
 class L1MuGMTScalesProducer : public edm::ESProducer {
 public:
   L1MuGMTScalesProducer(const edm::ParameterSet&);
-  ~L1MuGMTScalesProducer();
+  ~L1MuGMTScalesProducer() override;
   
   std::unique_ptr<L1MuGMTScales> produceL1MuGMTScales(const L1MuGMTScalesRcd&);
 

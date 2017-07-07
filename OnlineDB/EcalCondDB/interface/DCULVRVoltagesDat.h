@@ -13,10 +13,10 @@ class DCULVRVoltagesDat : public IDataItem {
  public:
   friend class EcalCondDBInterface;
   DCULVRVoltagesDat();
-  ~DCULVRVoltagesDat();
+  ~DCULVRVoltagesDat() override;
 
   // User data methods
-  inline std::string getTable() { return "DCU_LVR_VOLTAGES_DAT"; }
+  inline std::string getTable() override { return "DCU_LVR_VOLTAGES_DAT"; }
 
   inline void setVFE1_A(float v) { m_vfe1_A = v; }
   inline float getVFE1_A() const { return m_vfe1_A; }
@@ -66,7 +66,7 @@ class DCULVRVoltagesDat : public IDataItem {
 
  private:
   void prepareWrite() 
-    noexcept(false);
+    noexcept(false) override;
 
   void writeDB(const EcalLogicID* ecid, const DCULVRVoltagesDat* item, DCUIOV* iov)
     noexcept(false);

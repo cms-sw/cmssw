@@ -43,8 +43,8 @@ class GEMTrackMatch : public DQMEDAnalyzer
 {
 public:
   explicit GEMTrackMatch( const edm::ParameterSet&  cfg);
-  virtual ~GEMTrackMatch();
-  virtual void analyze(const edm::Event& e, const edm::EventSetup&) = 0 ;
+  ~GEMTrackMatch() override;
+  void analyze(const edm::Event& e, const edm::EventSetup&) override = 0 ;
 
   void buildLUT(const int maxChamberId);
   std::pair<int,int> getClosestChambers(const int maxChamberId, int region, float phi);

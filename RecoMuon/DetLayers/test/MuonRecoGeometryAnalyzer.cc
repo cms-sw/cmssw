@@ -39,7 +39,7 @@ class MuonRecoGeometryAnalyzer : public EDAnalyzer {
 
   MuonRecoGeometryAnalyzer( const ParameterSet& pset);
 
-  virtual void analyze( const Event& ev, const EventSetup& es);
+  void analyze( const Event& ev, const EventSetup& es) override;
 
   void testDTLayers(const MuonDetLayerGeometry*, const MagneticField* field);
   void testCSCLayers(const MuonDetLayerGeometry*, const MagneticField* field);

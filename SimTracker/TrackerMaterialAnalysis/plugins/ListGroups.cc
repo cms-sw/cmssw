@@ -86,7 +86,7 @@ class ListGroups : public edm::one::EDAnalyzer<>
 {
 public:
   ListGroups(const edm::ParameterSet &);
-  virtual ~ListGroups();
+  ~ListGroups() override;
 
 private:
   void analyze(const edm::Event &, const edm::EventSetup &) override;

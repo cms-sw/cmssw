@@ -20,7 +20,7 @@ namespace edm {
     TRandomAdaptor( long seed );
     TRandomAdaptor( int rowIndex, int colIndex );
     TRandomAdaptor( std::istream & is );
-    virtual ~TRandomAdaptor();
+    ~TRandomAdaptor() override;
 
     // Returns a pseudo random number in ]0,1[ (i. e., excluding the end points).
     double flat() override { return trand_->Rndm(); }
@@ -50,16 +50,16 @@ namespace edm {
     // Returns an unsigned int (32-bit) flat 
     operator unsigned int() override { return (unsigned int)((trand_->Rndm())*exponent_bit_32()); }
 
-    virtual std::ostream & put(std::ostream & os) const override;
-    virtual std::istream & get(std::istream & is) override;
+    std::ostream & put(std::ostream & os) const override;
+    std::istream & get(std::istream & is) override;
     std::string beginTag ( ) { return std::string(trand_->GetName())+std::string("-begin"); }
-    virtual std::istream & getState ( std::istream & is ) override;
+    std::istream & getState ( std::istream & is ) override;
 
     // Returns the engine name as a string
     std::string name() const override { return std::string("T")+std::string(trand_->GetName()); }
     static std::string engineName() { return std::string("TRandomAdaptor"); }
 
-    virtual std::vector<unsigned long> put () const override;
+    std::vector<unsigned long> put () const override;
     bool get (std::vector<unsigned long> const& v) override;
     bool getState (std::vector<unsigned long> const& v) override { return get(v); }
 

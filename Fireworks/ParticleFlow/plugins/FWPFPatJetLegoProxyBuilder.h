@@ -30,20 +30,20 @@ class FWPFPatJetLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<T>
    public:
    // ---------------- Constructor(s)/Destructor ----------------------
       FWPFPatJetLegoProxyBuilder();
-      virtual ~FWPFPatJetLegoProxyBuilder();
+      ~FWPFPatJetLegoProxyBuilder() override;
 
    // --------------------- Member Functions --------------------------
       using FWProxyBuilderBase::havePerViewProduct;
-      virtual bool havePerViewProduct(FWViewType::EType) const { return true; }
+      bool havePerViewProduct(FWViewType::EType) const override { return true; }
 
       using FWProxyBuilderBase::scaleProduct;
-      virtual void scaleProduct(TEveElementList* parent, FWViewType::EType, const FWViewContext* vc);
+      void scaleProduct(TEveElementList* parent, FWViewType::EType, const FWViewContext* vc) override;
 
       using FWProxyBuilderBase::localModelChanges;
-      virtual void localModelChanges(const FWModelId& iId, TEveElement* iCompound, FWViewType::EType viewType, const FWViewContext* vc);
+      void localModelChanges(const FWModelId& iId, TEveElement* iCompound, FWViewType::EType viewType, const FWViewContext* vc) override;
 
       using FWSimpleProxyBuilderTemplate<T>::build;
-      void build( const T&, unsigned int, TEveElement&, const FWViewContext* );
+      void build( const T&, unsigned int, TEveElement&, const FWViewContext* ) override;
    private:
       FWPFPatJetLegoProxyBuilder(const FWPFPatJetLegoProxyBuilder&);             //stop default
       const FWPFPatJetLegoProxyBuilder& operator=(FWPFPatJetLegoProxyBuilder&);  //stop default

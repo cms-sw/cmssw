@@ -36,11 +36,11 @@ namespace edm {
         InputFileWatcher(edm::ParameterSet const&iPSet): OutputModuleBase(iPSet) {}
         InputFileWatcher(InputFileWatcher const&) = delete;
         InputFileWatcher& operator=(InputFileWatcher const&) = delete;
-        ~InputFileWatcher() noexcept(false) {};
+        ~InputFileWatcher() noexcept(false) override {};
         
       private:
-        void doRespondToOpenInputFile_(FileBlock const&) override final;
-        void doRespondToCloseInputFile_(FileBlock const&) override final;
+        void doRespondToOpenInputFile_(FileBlock const&) final;
+        void doRespondToCloseInputFile_(FileBlock const&) final;
         
         virtual void respondToOpenInputFile(FileBlock const&) = 0;
         virtual void respondToCloseInputFile(FileBlock const&) = 0;

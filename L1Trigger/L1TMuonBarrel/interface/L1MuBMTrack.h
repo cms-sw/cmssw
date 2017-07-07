@@ -64,7 +64,7 @@ class L1MuBMTrack : public l1t::RegionalMuonCand {
     L1MuBMTrack(const L1MuBMTrack&);
 
     /// destructor
-    virtual ~L1MuBMTrack();
+    ~L1MuBMTrack() override;
 
     /// reset muon candidate
     void reset();

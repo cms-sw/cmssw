@@ -34,14 +34,14 @@ class EgammaTowerIsolation;
 class EgammaHLTBcHcalIsolationProducersRegional : public edm::stream::EDProducer<> {
 public:
   explicit EgammaHLTBcHcalIsolationProducersRegional(const edm::ParameterSet&);
-  ~EgammaHLTBcHcalIsolationProducersRegional();
+  ~EgammaHLTBcHcalIsolationProducersRegional() override;
 
   // non-copiable
   EgammaHLTBcHcalIsolationProducersRegional(EgammaHLTBcHcalIsolationProducersRegional const &) = delete;
   EgammaHLTBcHcalIsolationProducersRegional& operator=(EgammaHLTBcHcalIsolationProducersRegional const &) = delete;
 
 public:
-  virtual void produce(edm::Event&, const edm::EventSetup&) override final;
+  void produce(edm::Event&, const edm::EventSetup&) final;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:

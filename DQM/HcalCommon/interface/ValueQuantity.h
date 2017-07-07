@@ -273,24 +273,24 @@ namespace hcaldqm
 				ValueQuantity(ValueQuantityType type, bool isLog=false) :
 					Quantity(name_value.at(type), isLog), _type(type)
 				{}
-				virtual ~ValueQuantity() {}
+				~ValueQuantity() override {}
 
-				virtual ValueQuantity* makeCopy()
+				ValueQuantity* makeCopy() override
 				{return new ValueQuantity(_type, _isLog);}
 
 				//	get Value to be overriden
-				virtual int getValue(int x)
+				int getValue(int x) override
 				{return x;}
-				virtual double getValue(double x)
+				double getValue(double x) override
 				{return x;}
 
 				//	standard properties
-				virtual QuantityType type() {return fValueQuantity;}
-				virtual int nbins() {return nbins_value.at(_type);}
-				virtual double min() {return min_value.at(_type);}
-				virtual double max() {return max_value.at(_type);}
+				QuantityType type() override {return fValueQuantity;}
+				int nbins() override {return nbins_value.at(_type);}
+				double min() override {return min_value.at(_type);}
+				double max() override {return max_value.at(_type);}
 
-				virtual void setBits(TH1* o)
+				void setBits(TH1* o) override
 				{Quantity::setBits(o);setLS(o);}
 				virtual void setLS(TH1* o)
 				{
@@ -313,18 +313,18 @@ namespace hcaldqm
 				FlagQuantity(){}
 				FlagQuantity(std::vector<flag::Flag> const& flags) :
 					_flags(flags) {}
-				virtual ~FlagQuantity() {}
+				~FlagQuantity() override {}
 				
-				virtual FlagQuantity* makeCopy()
+				FlagQuantity* makeCopy() override
 				{return new FlagQuantity(_flags);}
 
-				virtual std::string name() {return "Flag";}
-				virtual int nbins() {return _flags.size();}
-				virtual double min() {return 0;}
-				virtual double max() {return _flags.size();}
-				virtual int getValue(int f) {return f;}
-				virtual uint32_t getBin(int f) {return f+1;}
-				virtual std::vector<std::string> getLabels()
+				std::string name() override {return "Flag";}
+				int nbins() override {return _flags.size();}
+				double min() override {return 0;}
+				double max() override {return _flags.size();}
+				int getValue(int f) override {return f;}
+				uint32_t getBin(int f) override {return f+1;}
+				std::vector<std::string> getLabels() override
 				{
 					std::vector<std::string> vnames;
 					for (std::vector<flag::Flag>::const_iterator
@@ -346,19 +346,19 @@ namespace hcaldqm
 				LumiSection(int n) : ValueQuantity(fLS), 
 					_n(n) 
 				{}
-				virtual ~LumiSection() {}
+				~LumiSection() override {}
 				
-				virtual LumiSection* makeCopy()
+				LumiSection* makeCopy() override
 				{return new LumiSection(_n);}
 
-				virtual std::string name() {return "LS";}
-				virtual int nbins() {return _n;}
-				virtual double min() {return 1;}
-				virtual double max() {return _n+1;}
-				virtual int getValue(int l) {return l;}
-				virtual uint32_t getBin(int l) 
+				std::string name() override {return "LS";}
+				int nbins() override {return _n;}
+				double min() override {return 1;}
+				double max() override {return _n+1;}
+				int getValue(int l) override {return l;}
+				uint32_t getBin(int l) override 
 				{return getValue(l);}
-				virtual void setMax(double x) {_n=x;}
+				void setMax(double x) override {_n=x;}
 
 			protected:
 				int _n;
@@ -371,13 +371,13 @@ namespace hcaldqm
 				RunNumber(std::vector<int> runs) :
 					_runs(runs) 
 				{}
-				virtual ~RunNumber() {}
+				~RunNumber() override {}
 
-				virtual std::string name() {return "Run";}
-				virtual int nbins() {return _runs.size();}
-				virtual double min() {return 0;}
-				virtual double max() {return _runs.size();}
-				virtual std::vector<std::string> getLabels()
+				std::string name() override {return "Run";}
+				int nbins() override {return _runs.size();}
+				double min() override {return 0;}
+				double max() override {return _runs.size();}
+				std::vector<std::string> getLabels() override
 				{
 					char name[10];
 					std::vector<std::string> labels;
@@ -388,7 +388,7 @@ namespace hcaldqm
 					}
 					return labels;
 				}
-				virtual int getValue(int run)
+				int getValue(int run) override
 				{
 					int ir = -1;
 					for (uint32_t i=0; i<_runs.size(); i++)
@@ -405,7 +405,7 @@ namespace hcaldqm
 					return ir;
 				}
 
-				virtual uint32_t getBin(int run)
+				uint32_t getBin(int run) override
 				{
 					return (this->getValue(run)+1);
 				}
@@ -421,12 +421,12 @@ namespace hcaldqm
 				EventNumber(int nevents) :
 					ValueQuantity(fN), _nevents(nevents)
 				{}
-				virtual ~EventNumber() {}
+				~EventNumber() override {}
 
-				virtual std::string name() {return "Event";}
-				virtual int nbins() {return _nevents;}
-				virtual double min() {return 0.5;}
-				virtual double max() {return _nevents+0.5;}
+				std::string name() override {return "Event";}
+				int nbins() override {return _nevents;}
+				double min() override {return 0.5;}
+				double max() override {return _nevents+0.5;}
 
 			protected:
 				int _nevents;
@@ -439,7 +439,7 @@ namespace hcaldqm
 				EventType(std::vector<uint32_t> const& vtypes):
 					ValueQuantity(fN)
 				{this->setup(vtypes);}
-				virtual ~EventType() {}
+				~EventType() override {}
 
 				virtual void setup(std::vector<uint32_t> const& vtypes)
 				{
@@ -447,26 +447,26 @@ namespace hcaldqm
 					for (uint32_t i=0; i<vtypes.size(); i++)
 						_types.insert(std::make_pair((uint32_t)vtypes[i], i));
 				}
-				virtual int getValue(int v)
+				int getValue(int v) override
 				{
 					return _types[(uint32_t)v];
 				}
-				virtual uint32_t getBin(int v)
+				uint32_t getBin(int v) override
 				{
 					return getValue(v)+1;
 				}
 
-				virtual int nbins() {return _types.size();}
-				virtual double min() {return 0;}
-				virtual double max() {return _types.size();}
-				virtual std::string name() {return "Event Type";}
+				int nbins() override {return _types.size();}
+				double min() override {return 0;}
+				double max() override {return _types.size();}
+				std::string name() override {return "Event Type";}
 
 			protected:
 				typedef boost::unordered_map<uint32_t, int> TypeMap;
 				TypeMap _types;
 
 			public:
-				virtual std::vector<std::string> getLabels()
+				std::vector<std::string> getLabels() override
 				{
 					std::vector<std::string> labels(_types.size());
 					std::cout << "SIZE = " << _types.size() << std::endl;
@@ -477,7 +477,7 @@ namespace hcaldqm
 					}
 					return labels;
 				}
-				virtual EventType* makeCopy()
+				EventType* makeCopy() override
 				{
 					std::vector<uint32_t> vtypes;
 					BOOST_FOREACH(TypeMap::value_type &p, _types)

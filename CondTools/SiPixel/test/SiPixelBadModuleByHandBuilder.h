@@ -18,12 +18,12 @@ class SiPixelBadModuleByHandBuilder : public ConditionDBWriter<SiPixelQuality> {
 public:
 
   explicit SiPixelBadModuleByHandBuilder(const edm::ParameterSet&);
-  ~SiPixelBadModuleByHandBuilder();
+  ~SiPixelBadModuleByHandBuilder() override;
 
 
 private:
 
-  SiPixelQuality* getNewObject();
+  SiPixelQuality* getNewObject() override;
 
 private:
   bool printdebug_;

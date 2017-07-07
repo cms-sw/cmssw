@@ -12,13 +12,13 @@ class GenericHistoryDQMService : public DQMHistoryServiceBase {
  public:
 
   explicit GenericHistoryDQMService(const edm::ParameterSet&,const edm::ActivityRegistry&);
-  ~GenericHistoryDQMService();
+  ~GenericHistoryDQMService() override;
   
  private:
   //Methods to be specified by each subdet
-  uint32_t returnDetComponent(const MonitorElement* ME);
-  bool setDBLabelsForUser  (std::string& keyName, std::vector<std::string>& userDBContent, std::string& quantity );
-  bool setDBValuesForUser(std::vector<MonitorElement*>::const_iterator iterMes, HDQMSummary::InputVector& values, std::string& quantity );
+  uint32_t returnDetComponent(const MonitorElement* ME) override;
+  bool setDBLabelsForUser  (std::string& keyName, std::vector<std::string>& userDBContent, std::string& quantity ) override;
+  bool setDBValuesForUser(std::vector<MonitorElement*>::const_iterator iterMes, HDQMSummary::InputVector& values, std::string& quantity ) override;
    
   edm::ParameterSet iConfig_;
 };

@@ -21,9 +21,9 @@ public:
   /// constructor
   explicit MuonME0DigisHarvestor(const edm::ParameterSet&);
   /// destructor
-  ~MuonME0DigisHarvestor();
+  ~MuonME0DigisHarvestor() override;
 
-  virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &);
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
   void ProcessBooking( DQMStore::IBooker& , DQMStore::IGetter&, std::string nameHist, TH1F* num, TH1F* den );
   void ProcessBookingBKG( DQMStore::IBooker& ibooker, DQMStore::IGetter& ig, std::string nameHist, TH1F* hist, TH1F* hist2 );
   TProfile* ComputeEff(TH1F* num, TH1F* denum, std::string nameHist );

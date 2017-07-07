@@ -17,7 +17,7 @@
 
 namespace testedmplugin {
   struct DummyOne : public DummyBase {
-    int value() const {
+    int value() const override {
       return 1;
     }
   };

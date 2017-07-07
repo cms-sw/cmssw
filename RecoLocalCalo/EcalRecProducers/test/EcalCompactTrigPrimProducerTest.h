@@ -29,11 +29,11 @@ public:
     err_(false){}
   
   /// Destructor
-  ~EcalCompactTrigPrimProducerTest();
+  ~EcalCompactTrigPrimProducerTest() override;
   
 protected:
   /// Analyzes the event.
-  void analyze(edm::Event const & e, edm::EventSetup const & c); 
+  void analyze(edm::Event const & e, edm::EventSetup const & c) override; 
 
 private:
   std::ostream& err(const char* mess);

@@ -22,12 +22,12 @@
 template <typename DetIdT> class EcalChannelKiller : public edm::EDProducer {
  public:
   explicit EcalChannelKiller(const edm::ParameterSet&);
-  ~EcalChannelKiller();
+  ~EcalChannelKiller() override;
 
  private:
-  virtual void beginJob();
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginJob() override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   // ----------member data ---------------------------
   std::string reducedHitCollection_;

@@ -24,7 +24,7 @@ class EcalDCCHeaderDumperModule: public edm::EDAnalyzer{
   
  protected:
   
-  void analyze( const edm::Event & e, const  edm::EventSetup& c){
+  void analyze( const edm::Event & e, const  edm::EventSetup& c) override{
     
     edm::Handle<EcalRawDataCollection> DCCHeaders;
     e.getByLabel("ecalEBunpacker", DCCHeaders);

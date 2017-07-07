@@ -46,11 +46,11 @@ class EcalZmassTask: public DQMEDAnalyzer {
 
 public:
   explicit EcalZmassTask (const edm::ParameterSet &);
-  ~EcalZmassTask () {}
+  ~EcalZmassTask () override {}
 
 private:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
-  virtual void analyze (const edm::Event &, const edm::EventSetup &) override;
+  void analyze (const edm::Event &, const edm::EventSetup &) override;
 
   const edm::EDGetTokenT<reco::GsfElectronCollection> electronCollectionToken_;
   const edm::EDGetTokenT<reco::GsfTrackCollection> trackCollectionToken_;

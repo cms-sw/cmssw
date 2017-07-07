@@ -45,7 +45,7 @@ class TShapeAnalysis: public TObject
   TShapeAnalysis(TTree *tAB, double, double, double, double);
 
   // Destructor: Does nothing
-  virtual ~TShapeAnalysis();
+  ~TShapeAnalysis() override;
 
   void set_const(int,int,int,int,int,double,double);
   void set_presample(int);

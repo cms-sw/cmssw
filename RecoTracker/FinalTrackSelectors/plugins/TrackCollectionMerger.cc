@@ -92,7 +92,7 @@ namespace {
     reco::TrackBase::TrackQuality m_minQuality;
     bool  m_allowFirstHitShare;
     
-    virtual void produce(edm::StreamID, edm::Event& evt, const edm::EventSetup&) const override;
+    void produce(edm::StreamID, edm::Event& evt, const edm::EventSetup&) const override;
     
 
     bool areDuplicate(IHitV const& rh1, IHitV const& rh2) const;

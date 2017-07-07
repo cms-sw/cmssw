@@ -48,7 +48,7 @@ class HGCalRecHitStudy : public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::on
 public:
 
   explicit HGCalRecHitStudy(const edm::ParameterSet&);
-  ~HGCalRecHitStudy();
+  ~HGCalRecHitStudy() override;
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -68,11 +68,11 @@ private:
     float layer;
   };
 
-  virtual void beginJob() override;
-  virtual void endJob() override {}
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) override {}
-  virtual void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void beginJob() override;
+  void endJob() override {}
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override {}
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
 
   template<class T1, class T2>
     void recHitValidation(DetId & detId, int layer, const T1* geom, T2 it);

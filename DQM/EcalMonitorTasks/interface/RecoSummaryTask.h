@@ -13,7 +13,7 @@ namespace ecaldqm {
   class RecoSummaryTask : public DQWorkerTask {
   public:
     RecoSummaryTask();
-    ~RecoSummaryTask() {}
+    ~RecoSummaryTask() override {}
 
     bool filterRunType(short const*) override;
 

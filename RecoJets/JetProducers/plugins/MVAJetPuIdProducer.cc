@@ -28,7 +28,7 @@ public:
    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-   virtual void produce(edm::Event&, const edm::EventSetup&) override;
+   void produce(edm::Event&, const edm::EventSetup&) override;
 
 
    void initJetEnergyCorrector(const edm::EventSetup &iSetup, bool isData);

@@ -70,7 +70,7 @@ namespace HGCalTriggerBackend {
     	HGCalTriggerBackendAlgorithmBase(conf, cc), 
     	codec_(conf.getParameterSet("FECodec")){ }
 
-    virtual void setGeometry(const HGCalTriggerGeometryBase* const geom) override final {
+    void setGeometry(const HGCalTriggerGeometryBase* const geom) final {
       HGCalTriggerBackendAlgorithmBase::setGeometry(geom);
       codec_.setGeometry(geom);
     }

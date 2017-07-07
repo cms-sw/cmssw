@@ -21,8 +21,8 @@ class reusableobjectholder_test : public CppUnit::TestFixture {
       void testDeletion();
       void testSimultaneousUse();
 
-      void setUp(){}
-      void tearDown(){}   
+      void setUp() override{}
+      void tearDown() override{}   
 };
 
 void reusableobjectholder_test::testConstruction()

@@ -28,8 +28,8 @@ namespace edmtest
     { }
     explicit  CSCPedestalDBReadAnalyzer(int i) 
     { }
-    virtual ~ CSCPedestalDBReadAnalyzer() { }
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+    ~ CSCPedestalDBReadAnalyzer() override { }
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
   private:
   };
   

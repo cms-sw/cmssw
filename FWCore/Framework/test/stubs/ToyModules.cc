@@ -46,8 +46,8 @@ namespace edmtest {
       assert (size_ > 1);
     }
 
-    virtual ~SCSimpleProducer() {}
-    virtual void produce(edm::Event& e, edm::EventSetup const& c) override;
+    ~SCSimpleProducer() override {}
+    void produce(edm::Event& e, edm::EventSetup const& c) override;
 
   private:
     int size_;  // number of Simples to put in the collection
@@ -92,8 +92,8 @@ namespace edmtest {
       assert (size_ > 1);
     }
 
-    virtual ~OVSimpleProducer() {}
-    virtual void produce(edm::Event& e, edm::EventSetup const& c) override;
+    ~OVSimpleProducer() override {}
+    void produce(edm::Event& e, edm::EventSetup const& c) override;
 
   private:
     int size_;  // number of Simples to put in the collection
@@ -147,8 +147,8 @@ namespace edmtest {
       assert (size_ > 1);
     }
 
-    virtual ~VSimpleProducer() {}
-    virtual void produce(edm::Event& e, edm::EventSetup const& c) override;
+    ~VSimpleProducer() override {}
+    void produce(edm::Event& e, edm::EventSetup const& c) override;
 
   private:
     int size_;  // number of Simples to put in the collection
@@ -185,7 +185,7 @@ namespace edmtest {
       consumes<std::vector<edmtest::Simple>>(src_);
     }
 
-    virtual void produce(edm::Event& e, edm::EventSetup const& c) override;
+    void produce(edm::Event& e, edm::EventSetup const& c) override;
 
   private:
     edm::InputTag src_;
@@ -232,9 +232,9 @@ namespace edmtest {
       assert(size_ > 1);
     }
 
-    virtual ~DSVProducer() {}
+    ~DSVProducer() override {}
 
-    virtual void produce(edm::Event& e, edm::EventSetup const&) override;
+    void produce(edm::Event& e, edm::EventSetup const&) override;
 
   private:
     template<typename PROD> void make_a_product(edm::Event& e);
@@ -302,9 +302,9 @@ namespace edmtest {
       assert(size_ > 1);
     }
 
-    virtual ~DSTVProducer() {}
+    ~DSTVProducer() override {}
 
-    virtual void produce(edm::Event& e, edm::EventSetup const&) override;
+    void produce(edm::Event& e, edm::EventSetup const&) override;
 
   private:
     template<typename PROD> void make_a_product(edm::Event& e);
@@ -367,8 +367,8 @@ namespace edmtest {
       produces<Prodigal>();
       consumes<IntProduct>(edm::InputTag{label_});
     }
-    virtual ~ProdigalProducer() {}
-    virtual void produce(edm::Event& e, edm::EventSetup const& c) override;
+    ~ProdigalProducer() override {}
+    void produce(edm::Event& e, edm::EventSetup const& c) override;
 
   private:
     std::string label_;

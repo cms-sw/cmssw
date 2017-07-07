@@ -40,9 +40,9 @@ public:
     
     CATopJetTagInfo(void) {}
 
-    virtual ~CATopJetTagInfo(void) {}
+    ~CATopJetTagInfo(void) override {}
   
-    virtual CATopJetTagInfo* clone(void) const { return new CATopJetTagInfo(*this); }
+    CATopJetTagInfo* clone(void) const override { return new CATopJetTagInfo(*this); }
     
     const properties_type & properties() const {
       return properties_;

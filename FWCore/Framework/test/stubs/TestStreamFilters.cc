@@ -73,7 +73,7 @@ struct Cache {
       }
     }
 
-    ~GlobalIntFilter() {
+    ~GlobalIntFilter() override {
       if(m_count != trans_) {
         throw cms::Exception("transitions")
           << m_count << " but it was supposed to be " << trans_;
@@ -131,7 +131,7 @@ struct Cache {
       }
     }
 
-    ~RunIntFilter() {
+    ~RunIntFilter() override {
        if(m_count != trans_) {
         throw cms::Exception("transitions")
           << m_count << " but it was supposed to be " << trans_;
@@ -203,7 +203,7 @@ struct Cache {
    }
    
 
-    ~LumiIntFilter() {
+    ~LumiIntFilter() override {
        if(m_count != trans_) {
         throw cms::Exception("transitions")
           << m_count<< " but it was supposed to be " << trans_;
@@ -309,7 +309,7 @@ struct Cache {
 
 
 
-    ~RunSummaryIntFilter() {
+    ~RunSummaryIntFilter() override {
      if(m_count != trans_) {
         throw cms::Exception("transitions")
           << m_count<< " but it was supposed to be " << trans_;
@@ -420,7 +420,7 @@ struct Cache {
     }
 
 
-    ~LumiSummaryIntFilter() {
+    ~LumiSummaryIntFilter() override {
      if(m_count != trans_) {
         throw cms::Exception("transitions")
           << m_count<< " but it was supposed to be " << trans_;
@@ -476,7 +476,7 @@ struct Cache {
       ger=true;
     }
 
-    ~TestBeginRunFilter() {
+    ~TestBeginRunFilter() override {
     if(m_count != trans_) {
        throw cms::Exception("transitions")
          << m_count<< " but it was supposed to be " << trans_;
@@ -535,7 +535,7 @@ struct Cache {
     }
 
 
-    ~TestEndRunFilter() {
+    ~TestEndRunFilter() override {
     if(m_count != trans_) {
        throw cms::Exception("transitions")
          << m_count<< " but it was supposed to be " << trans_;
@@ -593,7 +593,7 @@ struct Cache {
     }
 
 
-    ~TestBeginLumiBlockFilter() {
+    ~TestBeginLumiBlockFilter() override {
     if(m_count != trans_) {
        throw cms::Exception("transitions")
          << m_count<< " but it was supposed to be " << trans_;
@@ -647,7 +647,7 @@ struct Cache {
       ++m_count;
     }
 
-    ~TestEndLumiBlockFilter() {
+    ~TestEndLumiBlockFilter() override {
     if(m_count != trans_) {
        throw cms::Exception("transitions")
          << m_count<< " but it was supposed to be " << trans_;

@@ -58,7 +58,7 @@ public:
     return CylinderPointer(new Cylinder(radius,pos,rot,bounds));
   }
 
-  ~Cylinder(){}
+  ~Cylinder() override{}
 
 
   // -- Extension of Surface interface for cylinder
@@ -69,12 +69,12 @@ public:
   // -- Implementation of Surface interface    
 
   using Surface::side;
-  virtual Side side( const LocalPoint& p, Scalar toler) const;
+  Side side( const LocalPoint& p, Scalar toler) const override;
 
   /// tangent plane to surface from global point
-  virtual ConstReferenceCountingPointer<TangentPlane> tangentPlane (const GlobalPoint&) const;
+  ConstReferenceCountingPointer<TangentPlane> tangentPlane (const GlobalPoint&) const override;
   /// tangent plane to surface from local point
-  virtual ConstReferenceCountingPointer<TangentPlane> tangentPlane (const LocalPoint&) const;
+  ConstReferenceCountingPointer<TangentPlane> tangentPlane (const LocalPoint&) const override;
 
   /// tangent plane to surface from global point
   Plane fastTangent(const GlobalPoint& aPoint) const{

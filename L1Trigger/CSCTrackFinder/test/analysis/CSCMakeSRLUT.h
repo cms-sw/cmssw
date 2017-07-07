@@ -25,8 +25,8 @@ class CSCSectorReceiverLUT;
 class CSCMakeSRLUT : public edm::EDAnalyzer {
  public:
   explicit CSCMakeSRLUT(edm::ParameterSet const& conf);
-  virtual ~CSCMakeSRLUT();
-  virtual void analyze(edm::Event const& e, edm::EventSetup const& iSetup);
+  ~CSCMakeSRLUT() override;
+  void analyze(edm::Event const& e, edm::EventSetup const& iSetup) override;
   //virtual void endJob();
  private:
   // variables persistent across events should be declared here.

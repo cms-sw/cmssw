@@ -30,10 +30,10 @@
 class EcalRecHitWorkerRecover : public EcalRecHitWorkerBaseClass {
         public: 
                 EcalRecHitWorkerRecover(const edm::ParameterSet&, edm::ConsumesCollector& c);
-                virtual ~EcalRecHitWorkerRecover() {};
+                ~EcalRecHitWorkerRecover() override {};
 
-                void set(const edm::EventSetup& es);
-                bool run(const edm::Event& evt, const EcalUncalibratedRecHit& uncalibRH, EcalRecHitCollection & result);
+                void set(const edm::EventSetup& es) override;
+                bool run(const edm::Event& evt, const EcalUncalibratedRecHit& uncalibRH, EcalRecHitCollection & result) override;
 
         protected:
 

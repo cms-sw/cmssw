@@ -15,9 +15,9 @@ class HGCalTriggerNtupleManager : public edm::EDAnalyzer
 
     public:
         explicit HGCalTriggerNtupleManager(const edm::ParameterSet& conf);
-        ~HGCalTriggerNtupleManager(){};
-        virtual void beginRun(const edm::Run&, const edm::EventSetup&) {};
-        virtual void analyze(const edm::Event&, const edm::EventSetup&);
+        ~HGCalTriggerNtupleManager() override{};
+        void beginRun(const edm::Run&, const edm::EventSetup&) override {};
+        void analyze(const edm::Event&, const edm::EventSetup&) override;
 
     private:
         edm::Service<TFileService> file_service_;

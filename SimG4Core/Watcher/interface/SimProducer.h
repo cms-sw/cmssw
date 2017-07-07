@@ -57,7 +57,7 @@ namespace simproducer {
 	 ProductInfo(const std::string& iInstanceName) :
 	    ProductInfoBase(iInstanceName) {}
 
-         void registerProduct(edm::ProducerBase* iProd) const {
+         void registerProduct(edm::ProducerBase* iProd) const override {
 	    (*iProd). template produces<T>(this->instanceName());
 	 }
    };

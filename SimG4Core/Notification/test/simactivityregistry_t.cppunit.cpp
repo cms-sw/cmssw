@@ -23,8 +23,8 @@ class testSimActivityRegistry: public CppUnit::TestFixture
    
    CPPUNIT_TEST_SUITE_END();
 public:
-      void setUp(){}
-   void tearDown(){}
+      void setUp() override{}
+   void tearDown() override{}
    
    void signalTest();
    void signalForwardingTest();
@@ -38,7 +38,7 @@ namespace {
    template<class T> struct MyObserver : public Observer<const T*> {
       mutable bool saw_;
       MyObserver() : saw_(false) {}     
-      void update(const T*) {
+      void update(const T*) override {
          saw_=true;
       }
    };
@@ -101,7 +101,7 @@ namespace {
    template<class T> struct Counting : public Observer<const T*> {
       int& count_;
       Counting(int& iCount) : count_(iCount) {}     
-      void update(const T*) {
+      void update(const T*) override {
          ++count_;
       }
    };

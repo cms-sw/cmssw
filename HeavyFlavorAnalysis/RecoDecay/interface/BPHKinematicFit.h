@@ -42,7 +42,7 @@ class BPHKinematicFit: public virtual BPHDecayVertex {
 
   /** Destructor
    */
-  virtual ~BPHKinematicFit();
+  ~BPHKinematicFit() override;
 
   /** Operations
    */
@@ -106,7 +106,7 @@ class BPHKinematicFit: public virtual BPHDecayVertex {
                      const BPHRecoConstCandPtr& comp );
 
   // utility function used to cash reconstruction results
-  virtual void setNotUpdated() const;
+  void setNotUpdated() const override;
 
  private:
 

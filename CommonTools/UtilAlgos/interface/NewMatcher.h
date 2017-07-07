@@ -24,7 +24,7 @@ namespace reco {
     class Matcher : public edm::EDProducer {
     public:
       Matcher(const edm::ParameterSet & cfg);
-      ~Matcher();
+      ~Matcher() override;
     private:
       typedef typename C1::value_type T1;
       typedef typename C2::value_type T2;

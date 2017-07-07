@@ -45,7 +45,7 @@
 class MapTester : public edm::EDAnalyzer {
    public:
       explicit MapTester(const edm::ParameterSet&);
-      ~MapTester();
+      ~MapTester() override;
 
 
    private:
@@ -54,7 +54,7 @@ class MapTester : public edm::EDAnalyzer {
       bool generateTextfiles_;
       bool generateEmap_;
 
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
 
       // ----------member data ---------------------------
 };

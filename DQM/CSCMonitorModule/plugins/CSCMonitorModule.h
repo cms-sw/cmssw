@@ -83,7 +83,7 @@ class CSCMonitorModule: public DQMEDAnalyzer, public cscdqm::MonitorObjectProvid
   public:
 
     CSCMonitorModule(const edm::ParameterSet& ps);
-    virtual ~CSCMonitorModule();
+    ~CSCMonitorModule() override;
 
   private:
 

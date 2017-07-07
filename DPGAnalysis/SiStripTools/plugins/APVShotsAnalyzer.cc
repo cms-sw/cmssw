@@ -70,15 +70,15 @@
 class APVShotsAnalyzer : public edm::EDAnalyzer {
 public:
   explicit APVShotsAnalyzer(const edm::ParameterSet&);
-  ~APVShotsAnalyzer();
+  ~APVShotsAnalyzer() override;
 
 
 private:
-  virtual void beginJob() override ;
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
-  virtual void endRun(const edm::Run&, const edm::EventSetup&) override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
+  void beginJob() override ;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
 
   void updateDetCabling( const edm::EventSetup& setup );
 

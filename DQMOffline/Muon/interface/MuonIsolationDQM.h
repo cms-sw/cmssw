@@ -67,7 +67,7 @@ class MuonIsolationDQM : public DQMEDAnalyzer {
 public:
   //---------methods----------------------------
   explicit MuonIsolationDQM(const edm::ParameterSet&);
-  ~MuonIsolationDQM();
+  ~MuonIsolationDQM() override;
   
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;

@@ -20,7 +20,7 @@ namespace l1t {
       type(-999), rank(-999), layer(-999), straightness(-999), strip(-999), isGMT(-999), numHitsExtra(0)
 	{};
     
-    virtual ~EMTFTrackExtra() {};
+    ~EMTFTrackExtra() override {};
 
     EMTFTrack CreateEMTFTrack();
 

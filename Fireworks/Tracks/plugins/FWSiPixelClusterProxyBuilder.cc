@@ -25,7 +25,7 @@ class FWSiPixelClusterProxyBuilder : public FWProxyBuilderBase
 {
 public:
   FWSiPixelClusterProxyBuilder( void ) {}
-  virtual ~FWSiPixelClusterProxyBuilder( void ) {}
+  ~FWSiPixelClusterProxyBuilder( void ) override {}
 
   REGISTER_PROXYBUILDER_METHODS();
 
@@ -36,7 +36,7 @@ private:
   const FWSiPixelClusterProxyBuilder& operator=( const FWSiPixelClusterProxyBuilder& );
 
   using FWProxyBuilderBase::build;
-  virtual void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* ) override;
+  void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* ) override;
 };
 
 void

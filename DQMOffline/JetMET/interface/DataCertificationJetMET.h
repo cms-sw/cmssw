@@ -28,10 +28,10 @@
 class DataCertificationJetMET : public DQMEDHarvester {
    public:
       explicit DataCertificationJetMET(const edm::ParameterSet&);
-      ~DataCertificationJetMET();
+      ~DataCertificationJetMET() override;
 
    private:
-      virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) ;
+      void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override ;
 
       MonitorElement*  reportSummary;
       MonitorElement*  CertificationSummary;

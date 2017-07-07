@@ -38,7 +38,7 @@ class PATTauDiscriminantCutMultiplexer : public PATTauDiscriminationProducerBase
   public:
     explicit PATTauDiscriminantCutMultiplexer(const edm::ParameterSet& pset);
 
-    ~PATTauDiscriminantCutMultiplexer();
+    ~PATTauDiscriminantCutMultiplexer() override;
     double discriminate(const pat::TauRef&) const override;
     void beginEvent(const edm::Event& event, const edm::EventSetup& eventSetup) override;
 	

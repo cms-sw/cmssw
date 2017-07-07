@@ -8,7 +8,7 @@ class MuonCSCSeedFromRecHits : public MuonSeedFromRecHits
 public:
 
   MuonCSCSeedFromRecHits();
-  virtual ~MuonCSCSeedFromRecHits() {}
+  ~MuonCSCSeedFromRecHits() override {}
 
   virtual TrajectorySeed seed() const;
 

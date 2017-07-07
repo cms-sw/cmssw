@@ -41,7 +41,7 @@ public:
   MuonTrackResidualsTest(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~MuonTrackResidualsTest() {};
+  ~MuonTrackResidualsTest() override {};
 
 protected:
   

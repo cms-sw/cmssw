@@ -45,9 +45,9 @@ namespace pat {
           typedef pat::IsolatedTrack::LorentzVector LorentzVector;
 
           explicit PATIsolatedTrackProducer(const edm::ParameterSet&);
-          ~PATIsolatedTrackProducer();
+          ~PATIsolatedTrackProducer() override;
 
-          virtual void produce(edm::Event&, const edm::EventSetup&) override;
+          void produce(edm::Event&, const edm::EventSetup&) override;
         
           // compute iso/miniiso
           void getIsolation(const LorentzVector& p4, const pat::PackedCandidateCollection* pc, int pc_idx,

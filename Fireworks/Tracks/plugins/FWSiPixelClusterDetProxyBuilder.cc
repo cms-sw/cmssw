@@ -21,13 +21,13 @@ class FWSiPixelClusterDetProxyBuilder : public FWProxyBuilderBase
 {
 public:
   FWSiPixelClusterDetProxyBuilder() {}
-  virtual ~FWSiPixelClusterDetProxyBuilder() {}
+  ~FWSiPixelClusterDetProxyBuilder() override {}
   
   REGISTER_PROXYBUILDER_METHODS();
 
 private:
   using FWProxyBuilderBase::build;
-  virtual void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
+  void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
   FWSiPixelClusterDetProxyBuilder(const FWSiPixelClusterDetProxyBuilder&);
   const FWSiPixelClusterDetProxyBuilder& operator=(const FWSiPixelClusterDetProxyBuilder&);
 };

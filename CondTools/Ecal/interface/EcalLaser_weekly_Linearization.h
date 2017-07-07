@@ -50,11 +50,11 @@ namespace popcon
   {
     
   public:
-    void getNewObjects();
-    ~EcalLaser_weekly_Linearization();
+    void getNewObjects() override;
+    ~EcalLaser_weekly_Linearization() override;
     EcalLaser_weekly_Linearization(edm::ParameterSet const & ); 
     
-    std::string id() const { return m_name;}
+    std::string id() const override { return m_name;}
 
   private:
     enum { kEBChannels = 61200, kEEChannels = 14648, kGains = 3};

@@ -38,10 +38,10 @@
 class TestMisalign : public edm::EDAnalyzer {
 public:
   explicit TestMisalign( const edm::ParameterSet& );
-  ~TestMisalign();
+  ~TestMisalign() override;
   
   
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  void analyze( const edm::Event&, const edm::EventSetup& ) override;
 private:
 
   void fillTree( const GeomDet* geomDet );

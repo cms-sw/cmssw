@@ -49,7 +49,7 @@ public:
     L1GtCaloTemplate( const L1GtCaloTemplate& );
 
     // destructor
-    virtual ~L1GtCaloTemplate();
+    ~L1GtCaloTemplate() override;
 
     // assign operator
     L1GtCaloTemplate& operator= (const L1GtCaloTemplate&);
@@ -97,7 +97,7 @@ public:
 
 
     /// print the condition
-    virtual void print(std::ostream& myCout) const;
+    void print(std::ostream& myCout) const override;
 
     /// output stream operator
     friend std::ostream& operator<<(std::ostream&, const L1GtCaloTemplate&);

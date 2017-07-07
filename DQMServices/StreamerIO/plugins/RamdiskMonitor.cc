@@ -27,15 +27,15 @@ namespace dqm {
 class RamdiskMonitor : public DQMEDAnalyzer {
  public:
   RamdiskMonitor(const edm::ParameterSet &ps);
-  virtual ~RamdiskMonitor();
+  ~RamdiskMonitor() override;
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
  protected:
-  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &,
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
                               edm::EventSetup const &) override;
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const &lumi,
+  void beginLuminosityBlock(edm::LuminosityBlock const &lumi,
                                     edm::EventSetup const &eSetup) override;
-  virtual void analyze(edm::Event const &e,
+  void analyze(edm::Event const &e,
                        edm::EventSetup const &eSetup) override{};
 
   void analyzeFile(std::string fn, unsigned int run, unsigned int lumi,

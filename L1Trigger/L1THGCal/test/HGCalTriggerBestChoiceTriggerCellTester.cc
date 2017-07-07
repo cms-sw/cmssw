@@ -42,10 +42,10 @@ class HGCalTriggerBestChoiceTriggerCellTester : public edm::EDAnalyzer
 {
     public:
         explicit HGCalTriggerBestChoiceTriggerCellTester(const edm::ParameterSet& );
-        ~HGCalTriggerBestChoiceTriggerCellTester();
+        ~HGCalTriggerBestChoiceTriggerCellTester() override;
 
-        virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-        virtual void analyze(const edm::Event&, const edm::EventSetup&);
+        void beginRun(const edm::Run&, const edm::EventSetup&) override;
+        void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 
     private:

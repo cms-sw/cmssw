@@ -23,10 +23,10 @@ class DummyProxy : public DataProxyTemplate<DummyRecord, DummyData> {
 public:
    DummyProxy() {}
 protected:
-   const value_type* make(const record_type&, const DataKey&) {
+   const value_type* make(const record_type&, const DataKey&) override {
       return static_cast<const value_type*>(nullptr) ;
    }
-   void invalidateCache() {
+   void invalidateCache() override {
    }   
 private:
 };
@@ -55,8 +55,8 @@ CPPUNIT_TEST(appendLabelTest);
 
 CPPUNIT_TEST_SUITE_END();
 public:
-  void setUp(){}
-  void tearDown(){}
+  void setUp() override{}
+  void tearDown() override{}
 
   void registerProxyfactorytemplateTest();
   void appendLabelTest();

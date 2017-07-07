@@ -50,13 +50,13 @@ Implementation:
 class L1UpgradeTreeProducer : public edm::EDAnalyzer {
 public:
   explicit L1UpgradeTreeProducer(const edm::ParameterSet&);
-  ~L1UpgradeTreeProducer();
+  ~L1UpgradeTreeProducer() override;
   
   
 private:
-  virtual void beginJob(void) ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginJob(void) override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
 public:
   

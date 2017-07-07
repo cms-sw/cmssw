@@ -42,7 +42,7 @@ namespace edmtest {
     explicit FailingProducer(edm::ParameterSet const& /*p*/) {
       produces<IntProduct>();
     }
-    virtual void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
+    void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
   };
 
   void
@@ -62,7 +62,7 @@ namespace edmtest {
     explicit FailingInRunProducer(edm::ParameterSet const& /*p*/) {
       produces<IntProduct,edm::Transition::BeginRun>();
     }
-    virtual void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
+    void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
     
     void globalBeginRunProduce( edm::Run&, edm::EventSetup const&) const override;
 
@@ -87,7 +87,7 @@ namespace edmtest {
     explicit NonProducer(edm::ParameterSet const& /*p*/) {
       produces<IntProduct>();
     }
-    virtual void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
+    void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
   };
 
   void
@@ -108,7 +108,7 @@ namespace edmtest {
     explicit IntProducer(int i) : value_(i) {
       produces<IntProduct>();
     }
-    virtual void produce(edm::Event& e, edm::EventSetup const& c) override;
+    void produce(edm::Event& e, edm::EventSetup const& c) override;
 
   private:
     int value_;
@@ -133,7 +133,7 @@ namespace edmtest {
     explicit IntLegacyProducer(int i) : value_(i) {
       produces<IntProduct>();
     }
-    virtual void produce(edm::Event& e, edm::EventSetup const& c) override;
+    void produce(edm::Event& e, edm::EventSetup const& c) override;
     
   private:
     int value_;
@@ -159,7 +159,7 @@ namespace edmtest {
       produces<IntProduct>();
     }
 
-    virtual void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
+    void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
     
   private:
     const int value_;
@@ -190,7 +190,7 @@ namespace edmtest {
       produces<IntProduct>();
     }
     
-    virtual void produce(edm::Event& e, edm::EventSetup const& c) override;
+    void produce(edm::Event& e, edm::EventSetup const& c) override;
     
   private:
     const int value_;
@@ -228,8 +228,8 @@ namespace edmtest {
       consumes<edm::TriggerResults>(edm::InputTag("TriggerResults"));
       consumesMany<edm::TriggerResults>();
     }
-    virtual ~ConsumingIntProducer() {}
-    virtual void produce(edm::Event& e, edm::EventSetup const& c) override;
+    ~ConsumingIntProducer() override {}
+    void produce(edm::Event& e, edm::EventSetup const& c) override;
 
   private:
     int value_;
@@ -253,7 +253,7 @@ namespace edmtest {
     EventNumberIntProducer() {
       produces<UInt64Product>();
     }
-    virtual void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
+    void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
 
   private:
   };
@@ -278,7 +278,7 @@ namespace edmtest {
     explicit TransientIntProducer(int i) : value_(i) {
       produces<TransientIntProduct>();
     }
-    virtual void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
+    void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
 
   private:
     int value_;
@@ -303,8 +303,8 @@ namespace edmtest {
     explicit IntProducerFromTransient() {
       produces<IntProduct>();
     }
-    virtual ~IntProducerFromTransient() {}
-    virtual void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
+    ~IntProducerFromTransient() override {}
+    void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
 
   private:
   };
@@ -331,7 +331,7 @@ namespace edmtest {
     explicit Int16_tProducer(boost::int16_t i, boost::uint16_t) : value_(i) {
       produces<Int16_tProduct>();
     }
-    virtual void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
+    void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
 
   private:
     const boost::int16_t value_;
@@ -360,7 +360,7 @@ namespace edmtest {
         consumes<IntProduct>(edm::InputTag{label});
       }
     }
-    virtual void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
+    void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
   private:
     std::vector<std::string> labels_;
     unsigned int onlyGetOnEvent_;

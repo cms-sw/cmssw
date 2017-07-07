@@ -29,7 +29,7 @@ class HcalPedestalWidths: public HcalCondObjectContainer<HcalPedestalWidth>
   // set unit boolean
   void setUnitADC(bool isADC) {unitIsADC = isADC;}
 
-  std::string myname() const {return (std::string)"HcalPedestalWidths";}
+  std::string myname() const override {return (std::string)"HcalPedestalWidths";}
 
  private:
   bool unitIsADC;

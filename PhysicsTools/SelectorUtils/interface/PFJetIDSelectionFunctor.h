@@ -257,7 +257,7 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
   //
   // Accessor from PAT jets
   //
-  bool operator()( const pat::Jet & jet, pat::strbitset & ret )
+  bool operator()( const pat::Jet & jet, pat::strbitset & ret ) override
   {
     if ( version_ == FIRSTDATA || version_ == RUNIISTARTUP || version_ == WINTER16) {
       if ( jet.currentJECLevel() == "Uncorrected" || !jet.jecSetsAvailable() )

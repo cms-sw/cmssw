@@ -25,7 +25,7 @@ class FWCSCSegmentProxyBuilder : public FWSimpleProxyBuilderTemplate<CSCSegment>
 {
 public:
   FWCSCSegmentProxyBuilder( void ) {}
-  virtual ~FWCSCSegmentProxyBuilder( void ) {}
+  ~FWCSCSegmentProxyBuilder( void ) override {}
   
   REGISTER_PROXYBUILDER_METHODS();
 

@@ -38,20 +38,20 @@ namespace AlCaIsolatedBunch {
 class AlCaIsolatedBunchSelector : public edm::stream::EDFilter<edm::GlobalCache<AlCaIsolatedBunch::Counters> > {
 public:
   explicit AlCaIsolatedBunchSelector(edm::ParameterSet const&, const AlCaIsolatedBunch::Counters* count);
-  ~AlCaIsolatedBunchSelector();
+  ~AlCaIsolatedBunchSelector() override;
     
   static std::unique_ptr<AlCaIsolatedBunch::Counters> initializeGlobalCache(edm::ParameterSet const& iConfig) {
     return std::unique_ptr<AlCaIsolatedBunch::Counters>(new AlCaIsolatedBunch::Counters());
   }
 
-  virtual bool filter(edm::Event&, edm::EventSetup const&) override;
-  virtual void endStream() override;
+  bool filter(edm::Event&, edm::EventSetup const&) override;
+  void endStream() override;
   static  void globalEndJob(const AlCaIsolatedBunch::Counters* counters);
   static  void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
 private:
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
   
   // ----------member data ---------------------------
   HLTConfigProvider             hltConfig_;

@@ -6,9 +6,9 @@ class L1MuGMTChannelMaskOnlineProducer : public L1ConfigOnlineProdBase< L1MuGMTC
    public:
       L1MuGMTChannelMaskOnlineProducer(const edm::ParameterSet& iConfig)
          : L1ConfigOnlineProdBase< L1MuGMTChannelMaskRcd, L1MuGMTChannelMask >( iConfig ) {}
-      ~L1MuGMTChannelMaskOnlineProducer() {}
+      ~L1MuGMTChannelMaskOnlineProducer() override {}
 
-      virtual std::shared_ptr< L1MuGMTChannelMask > newObject( const std::string& objectKey ) override ;
+      std::shared_ptr< L1MuGMTChannelMask > newObject( const std::string& objectKey ) override ;
    private:
 };
 

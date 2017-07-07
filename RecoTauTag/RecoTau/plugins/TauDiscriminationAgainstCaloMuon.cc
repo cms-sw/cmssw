@@ -95,7 +95,7 @@ class TauDiscriminationAgainstCaloMuon final : public TauDiscriminationProducerB
   typedef edm::Ref<TauCollection> TauRef;    
 
   explicit TauDiscriminationAgainstCaloMuon(const edm::ParameterSet&);
-  ~TauDiscriminationAgainstCaloMuon() {} 
+  ~TauDiscriminationAgainstCaloMuon() override {} 
 
   // called at the beginning of every event
   void beginEvent(const edm::Event&, const edm::EventSetup&) override;

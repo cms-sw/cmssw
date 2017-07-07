@@ -14,9 +14,9 @@
 class BadGlobalMuonTagger : public edm::global::EDFilter<> {
     public:
         explicit BadGlobalMuonTagger(const edm::ParameterSet & iConfig);
-        virtual ~BadGlobalMuonTagger() {}
+        ~BadGlobalMuonTagger() override {}
 
-        virtual bool filter(edm::StreamID iID, edm::Event & iEvent, const edm::EventSetup & iSetup) const override;
+        bool filter(edm::StreamID iID, edm::Event & iEvent, const edm::EventSetup & iSetup) const override;
 
     private:
         edm::EDGetTokenT<edm::View<reco::Muon>> muons_;            

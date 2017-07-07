@@ -42,7 +42,7 @@ class DTTrackFinderConfig : public edm::ESProducer {
 
   DTTrackFinderConfig(const edm::ParameterSet&);
 
-  ~DTTrackFinderConfig();
+  ~DTTrackFinderConfig() override;
   
   std::unique_ptr<L1MuDTExtLut> produceL1MuDTExtLut(const L1MuDTExtLutRcd&);
 

@@ -16,16 +16,16 @@ namespace reco {
     RecoChargedRefCandidate() {}
     RecoChargedRefCandidate(TrackRef ref, float m) : LeafRefCandidateT( ref, m) {}
     
-    ~RecoChargedRefCandidate() {}
+    ~RecoChargedRefCandidate() override {}
 
-    RecoChargedRefCandidate * clone() const { return new RecoChargedRefCandidate(*this);}
+    RecoChargedRefCandidate * clone() const override { return new RecoChargedRefCandidate(*this);}
 
     reco::TrackRef track() const {
       return getRef<reco::TrackRef>();
     }
     // return a pointer to the best track, if available.
     // otherwise, return a null pointer
-    virtual const reco::Track * bestTrack() const {
+    const reco::Track * bestTrack() const override {
       if ( track().isNonnull() && track().isAvailable() )
         return &(*track());
       else
@@ -33,9 +33,9 @@ namespace reco {
     }
 
     /// uncertainty on dz 
-    virtual float dzError() const { const Track * tr=bestTrack(); if(tr!=nullptr) return tr->dzError(); else return 0; }
+    float dzError() const override { const Track * tr=bestTrack(); if(tr!=nullptr) return tr->dzError(); else return 0; }
     /// uncertainty on dxy
-    virtual float dxyError() const { const Track * tr=bestTrack(); if(tr!=nullptr) return tr->dxyError(); else return 0; }
+    float dxyError() const override { const Track * tr=bestTrack(); if(tr!=nullptr) return tr->dxyError(); else return 0; }
  
   };
 }

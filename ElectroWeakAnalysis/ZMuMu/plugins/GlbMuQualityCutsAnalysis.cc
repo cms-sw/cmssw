@@ -8,7 +8,7 @@
 class GlbMuQualityCutsAnalysis : public edm::EDAnalyzer {
 public:
   GlbMuQualityCutsAnalysis(const edm::ParameterSet & cfg);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   //  virtual void endJob();
 private:
   edm::InputTag src_;

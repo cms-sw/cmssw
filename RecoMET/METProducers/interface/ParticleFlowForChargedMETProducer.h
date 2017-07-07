@@ -21,11 +21,11 @@ namespace reco
     
   public:
     explicit ParticleFlowForChargedMETProducer(const edm::ParameterSet&);
-    ~ParticleFlowForChargedMETProducer();
+    ~ParticleFlowForChargedMETProducer() override;
     
   private:
     
-    virtual void produce(edm::Event&, const edm::EventSetup&);
+    void produce(edm::Event&, const edm::EventSetup&) override;
     
     edm::InputTag pfCollectionLabel;
     edm::InputTag pvCollectionLabel;

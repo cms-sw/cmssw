@@ -58,11 +58,11 @@
 class APVCyclePhaseProducerFromL1TS : public edm::stream::EDProducer<> {
    public:
       explicit APVCyclePhaseProducerFromL1TS(const edm::ParameterSet&);
-      ~APVCyclePhaseProducerFromL1TS();
+      ~APVCyclePhaseProducerFromL1TS() override;
 
 private:
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   bool isBadRun(const unsigned int) const;
   void printConfiguration(std::stringstream& ss) const;

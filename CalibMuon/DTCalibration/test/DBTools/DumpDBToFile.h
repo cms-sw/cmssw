@@ -30,14 +30,14 @@ public:
   DumpDBToFile(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~DumpDBToFile();
+  ~DumpDBToFile() override;
 
   // Operations
-  virtual void beginRun(const edm::Run& run, const edm::EventSetup& setup );
+  void beginRun(const edm::Run& run, const edm::EventSetup& setup ) override;
 
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup){}
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override{}
 
-  virtual void endJob();
+  void endJob() override;
 
 protected:
 

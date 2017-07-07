@@ -44,7 +44,7 @@ class TrackValidator : public edm::EDAnalyzer {
     hFile = new TFile( out.c_str(), open.c_str() );
   }
 
-  ~TrackValidator(){
+  ~TrackValidator() override{
     if (hFile!=0) {
       hFile->Close();
       delete hFile;
@@ -118,7 +118,7 @@ class TrackValidator : public edm::EDAnalyzer {
 
   }
 
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override{
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override{
 std::cout << "In TrackValidator\n";
     edm::ESHandle<TransientTrackBuilder> theB;
     setup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);

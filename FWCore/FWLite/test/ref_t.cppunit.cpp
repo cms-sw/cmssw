@@ -88,8 +88,8 @@ class testRefInROOT: public CppUnit::TestFixture
   CPPUNIT_TEST_SUITE_END();
 public:
   testRefInROOT() { }
-  ~testRefInROOT() { }
-  void setUp()
+  ~testRefInROOT() override { }
+  void setUp() override
   {
     if(!sWasRun_) {
       gSystem->Load("libFWCoreFWLite.so");
@@ -107,7 +107,7 @@ public:
       sWasRun_ = true;
     }
   }
-  void tearDown(){}
+  void tearDown() override{}
   
   void testOneGoodFile();
   void testTwoGoodFiles();

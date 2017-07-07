@@ -39,11 +39,11 @@
 class Zto2lFilter : public edm::EDFilter {
    public:
       explicit Zto2lFilter(const edm::ParameterSet&);
-      ~Zto2lFilter();
+      ~Zto2lFilter() override;
 
    private:
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      bool filter(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
       
   // ----------member data ---------------------------
   std::string fLabel_;

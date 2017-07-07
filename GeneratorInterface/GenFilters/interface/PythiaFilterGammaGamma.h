@@ -24,9 +24,9 @@
 class PythiaFilterGammaGamma : public edm::EDFilter {
  public:
   explicit PythiaFilterGammaGamma(const edm::ParameterSet&);
-  ~PythiaFilterGammaGamma();
+  ~PythiaFilterGammaGamma() override;
   
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  bool filter(edm::Event&, const edm::EventSetup&) override;
  private:
 
   const HepMC::GenEvent *myGenEvent;

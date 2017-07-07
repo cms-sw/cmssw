@@ -12,7 +12,7 @@ namespace ecaldqm
   class OccupancyTask : public DQWorkerTask {
   public:
     OccupancyTask();
-    ~OccupancyTask() {}
+    ~OccupancyTask() override {}
 
     bool filterRunType(short const*) override;
 

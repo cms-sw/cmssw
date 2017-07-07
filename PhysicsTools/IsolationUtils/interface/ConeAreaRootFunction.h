@@ -31,7 +31,7 @@ class ConeAreaRootFunction : public ConeAreaFunction
  public:
   ConeAreaRootFunction();
   ConeAreaRootFunction(const ConeAreaRootFunction& bluePrint);
-  ~ConeAreaRootFunction();
+  ~ConeAreaRootFunction() override;
   
   ConeAreaRootFunction& operator=(const ConeAreaRootFunction& bluePrint);
 

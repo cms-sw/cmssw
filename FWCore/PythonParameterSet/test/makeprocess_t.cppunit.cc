@@ -35,8 +35,8 @@ CPPUNIT_TEST(taskTestWithSchedule);
 //CPPUNIT_TEST_EXCEPTION(emptyPsetTest,edm::Exception);
 CPPUNIT_TEST_SUITE_END();
 public:
-  void setUp(){}
-  void tearDown(){}
+  void setUp() override{}
+  void tearDown() override{}
   void simpleProcessTest();
   void usingTest();
   void pathTest();

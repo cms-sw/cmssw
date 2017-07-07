@@ -25,10 +25,10 @@ class testReadMVAComputerCondDB : public edm::EDAnalyzer {
     public:
 	explicit testReadMVAComputerCondDB(const edm::ParameterSet &params);
 
-	virtual void analyze(const edm::Event& iEvent,
-	                     const edm::EventSetup& iSetup);
+	void analyze(const edm::Event& iEvent,
+	                     const edm::EventSetup& iSetup) override;
 
-	virtual void endJob();
+	void endJob() override;
 };
 
 testReadMVAComputerCondDB::testReadMVAComputerCondDB(const edm::ParameterSet &params)

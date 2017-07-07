@@ -41,7 +41,7 @@ public:
       : Exception(code), m_code(xrootd_status.code)
     {}
 
-    virtual ~XrootdException() throw() {};
+    ~XrootdException() throw() override {};
 
     uint16_t getCode() { return m_code; }
 
@@ -250,12 +250,12 @@ private:
             return instance;
         }
 
-        ~OpenHandler();
+        ~OpenHandler() override;
 
         /**
          * Handle the file-open response
          */
-        virtual void HandleResponseWithHosts(XrdCl::XRootDStatus *status, XrdCl::AnyObject *response, XrdCl::HostList *hostList) override;
+        void HandleResponseWithHosts(XrdCl::XRootDStatus *status, XrdCl::AnyObject *response, XrdCl::HostList *hostList) override;
 
         /**
          * Future-based version of the handler

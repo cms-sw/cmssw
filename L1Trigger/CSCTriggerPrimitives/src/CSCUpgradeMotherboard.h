@@ -46,7 +46,7 @@ public:
    //Default constructor for testing
   CSCUpgradeMotherboard();
 
-  virtual ~CSCUpgradeMotherboard();
+  ~CSCUpgradeMotherboard() override;
 
   template <class S>
   bool compare(const S& p, const S& q);

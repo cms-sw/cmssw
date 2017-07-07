@@ -62,12 +62,12 @@ class SiStripFEDMonitorPlugin : public DQMEDAnalyzer
 {
  public:
   explicit SiStripFEDMonitorPlugin(const edm::ParameterSet&);
-  ~SiStripFEDMonitorPlugin();
+  ~SiStripFEDMonitorPlugin() override;
  private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
 				    const edm::EventSetup& context) override;
-  virtual void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
+  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
 				  const edm::EventSetup& context) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 

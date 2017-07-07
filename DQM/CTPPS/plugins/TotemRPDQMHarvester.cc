@@ -22,7 +22,7 @@ class TotemRPDQMHarvester: public DQMEDHarvester
 {
   public:
     TotemRPDQMHarvester(const edm::ParameterSet& ps);
-    virtual ~TotemRPDQMHarvester();
+    ~TotemRPDQMHarvester() override;
   
   protected:
     void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override {}

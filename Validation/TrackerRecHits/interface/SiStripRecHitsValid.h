@@ -51,7 +51,7 @@ class SiStripRecHitsValid : public DQMEDAnalyzer {
   
   SiStripRecHitsValid(const edm::ParameterSet& conf);
   
-  ~SiStripRecHitsValid();
+  ~SiStripRecHitsValid() override;
  
   struct TotalMEs{ // MEs for total detector Level
     MonitorElement*  meNumTotrphi;
@@ -126,8 +126,8 @@ class SiStripRecHitsValid : public DQMEDAnalyzer {
 
  protected:
 
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-  void bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es);
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  void bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es) override;
   void beginJob(const edm::EventSetup& es);
 
  private: 

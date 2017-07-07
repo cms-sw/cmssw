@@ -9,7 +9,7 @@
 class EcalCondDBReader : public DQMEDHarvester {
  public:
   EcalCondDBReader(edm::ParameterSet const&);
-  ~EcalCondDBReader();
+  ~EcalCondDBReader() override;
 
  private:
   void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;

@@ -12,11 +12,11 @@ class L1TriggerKeyListExtReader : public edm::EDAnalyzer {
 private:
 
 public:
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
     explicit L1TriggerKeyListExtReader(const edm::ParameterSet&) : edm::EDAnalyzer(){
     }
-    virtual ~L1TriggerKeyListExtReader(void){}
+    ~L1TriggerKeyListExtReader(void) override{}
 };
 
 #include <iostream>

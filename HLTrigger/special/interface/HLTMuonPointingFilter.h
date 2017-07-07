@@ -37,10 +37,10 @@ public:
   HLTMuonPointingFilter(const edm::ParameterSet&) ;
 
   /// Destructor
-  ~HLTMuonPointingFilter() ;
+  ~HLTMuonPointingFilter() override ;
 
   /* Operations */
-  virtual bool filter(edm::Event &, edm::EventSetup const &) override;
+  bool filter(edm::Event &, edm::EventSetup const &) override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 

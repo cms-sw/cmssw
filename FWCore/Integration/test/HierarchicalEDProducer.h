@@ -19,9 +19,9 @@ namespace edmtest {
 
     explicit HierarchicalEDProducer(edm::ParameterSet const& ps);
 
-    virtual ~HierarchicalEDProducer();
+    ~HierarchicalEDProducer() override;
 
-    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+    void produce(edm::Event& e, edm::EventSetup const& c) override;
 
   private:
     double       radius_;

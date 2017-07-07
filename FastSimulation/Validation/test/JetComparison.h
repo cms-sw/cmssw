@@ -41,9 +41,9 @@
 class JetComparison : public edm::stream::EDAnalyzer <> {
  public:
    JetComparison(edm::ParameterSet const& conf);
-  ~JetComparison();
-  virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) ;
+  ~JetComparison() override;
+  void analyze(edm::Event const& e, edm::EventSetup const& c) override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override ;
   virtual void endJob() ;
   double deltaR2(double eta0, double phi0, double eta, double phi);
  private:

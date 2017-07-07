@@ -52,12 +52,12 @@ class GenJetBCEnergyRatio : public edm::global::EDProducer<>
 {
   public:
     GenJetBCEnergyRatio( const edm::ParameterSet & );
-    ~GenJetBCEnergyRatio();
+    ~GenJetBCEnergyRatio() override;
 
     typedef reco::JetFloatAssociation::Container JetBCEnergyRatioCollection;
 
   private:
-    virtual void produce(StreamID, edm::Event&, const edm::EventSetup& ) const override;
+    void produce(StreamID, edm::Event&, const edm::EventSetup& ) const override;
     edm::EDGetTokenT< View <Jet> > m_genjetsSrcToken;
 
 };

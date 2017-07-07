@@ -22,9 +22,9 @@ class CSCDetIdAnalyzer : public edm::EDAnalyzer {
    public:
  
      explicit CSCDetIdAnalyzer( const edm::ParameterSet& );
-      ~CSCDetIdAnalyzer();
+      ~CSCDetIdAnalyzer() override;
 
-      virtual void analyze( const edm::Event&, const edm::EventSetup& );
+      void analyze( const edm::Event&, const edm::EventSetup& ) override;
  
       const std::string& myName() { return myName_;}
 

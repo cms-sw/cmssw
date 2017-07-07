@@ -262,10 +262,10 @@ namespace edm {
   class EventContentAnalyzer : public EDAnalyzer {
   public:
      explicit EventContentAnalyzer(ParameterSet const&);
-     ~EventContentAnalyzer();
+     ~EventContentAnalyzer() override;
 
-     virtual void analyze(Event const&, EventSetup const&) override;
-     virtual void endJob() override;
+     void analyze(Event const&, EventSetup const&) override;
+     void endJob() override;
 
      static void fillDescriptions(ConfigurationDescriptions& descriptions);
 

@@ -36,9 +36,9 @@ public:
 
 protected:
   //overriding from ContextRecordIntervalFinder
-  virtual void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
+  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
                                const edm::IOVSyncValue& ,
-                               edm::ValidityInterval& ) ;
+                               edm::ValidityInterval& ) override ;
   
    private:
   virtual std::unique_ptr<CentralityTable> produceTable( const HeavyIonRcd& );

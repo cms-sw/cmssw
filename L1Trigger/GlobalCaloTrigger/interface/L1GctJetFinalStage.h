@@ -31,16 +31,16 @@ public:
 
   /// Takes a vector of 2 wheel jet FPGA pointers, with which to get input data from
 	L1GctJetFinalStage(const std::vector<L1GctWheelJetFpga*>& m_wheelFpgas);
-	~L1GctJetFinalStage();
+	~L1GctJetFinalStage() override;
 
   /// Overload << operator
   friend std::ostream& operator << (std::ostream& os, const L1GctJetFinalStage& fpga);
 
   /// get input data from sources
-  virtual void fetchInput();
+  void fetchInput() override;
 
   /// process the data, fill output buffers
-  virtual void process();
+  void process() override;
     	
   void setInputCentralJet(int i, const L1GctJetCand& jet);  ///< set the central jets input data
   void setInputForwardJet(int i, const L1GctJetCand& jet);  ///< set the forward jets input data
@@ -58,11 +58,11 @@ public:
  protected:
 
   /// Separate reset methods for the processor itself and any data stored in pipelines
-  virtual void resetProcessor();
-  virtual void resetPipelines();
+  void resetProcessor() override;
+  void resetPipelines() override;
 
   /// Initialise inputs with null objects for the correct bunch crossing if required
-  virtual void setupObjects() {}
+  void setupObjects() override {}
 
 private:
   static const int MAX_JETS_IN;  ///< Max number of jets of each type coming in

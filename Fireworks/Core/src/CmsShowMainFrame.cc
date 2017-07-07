@@ -67,7 +67,7 @@ class FWPack : public TGPack
    friend class CmsShowMainFrame;
 public:
    FWPack(const TGWindow* w) : TGPack(w, 100, 100) {}
-   virtual ~FWPack() {}
+   ~FWPack() override {}
 };
 
 //
@@ -747,9 +747,9 @@ CmsShowMainFrame::makeFixedSizeLabel(TGHorizontalFrame* p, const char* txt,
 class InfoFrame : public TGMainFrame {
 public:
    InfoFrame(const TGWindow* p, UInt_t w, UInt_t h, UInt_t opts) : TGMainFrame(p, w, h, opts) {}
-   virtual ~InfoFrame() {}
+   ~InfoFrame() override {}
    
-   virtual void CloseWindow() override
+   void CloseWindow() override
    {
       UnmapWindow();  
    }

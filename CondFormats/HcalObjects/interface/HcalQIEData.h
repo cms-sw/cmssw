@@ -44,7 +44,7 @@ class HcalQIEData: public HcalCondObjectContainer<HcalQIECoder>
   // sort values by channelId - remove in the next version  
   void sort () {}
   
-  std::string myname() const {return (std::string)"HcalQIEData";}
+  std::string myname() const override {return (std::string)"HcalQIEData";}
 
   //not needed/not used  HcalQIEData(const HcalQIEData&);
 

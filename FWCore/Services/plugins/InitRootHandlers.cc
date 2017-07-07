@@ -73,7 +73,7 @@ namespace edm {
         ThreadTracker() : tbb::task_scheduler_observer() {
           observe(true);
         }
-        void on_scheduler_entry(bool) {
+        void on_scheduler_entry(bool) override {
           // ensure thread local has been allocated; not necessary on Linux with
           // the current cmsRun linkage, but could be an issue if the platform
           // or linkage leads to "lazy" allocation of the thread local.  By
@@ -89,7 +89,7 @@ namespace edm {
       };
 
       explicit InitRootHandlers(ParameterSet const& pset, ActivityRegistry& iReg);
-      virtual ~InitRootHandlers();
+      ~InitRootHandlers() override;
       
       static void fillDescriptions(ConfigurationDescriptions& descriptions);
       static void stacktraceFromThread();
@@ -100,9 +100,9 @@ namespace edm {
       static std::atomic<std::size_t> nextModule_, doneModules_;
     private:
       static char *const *getPstackArgv();
-      virtual void enableWarnings_() override;
-      virtual void ignoreWarnings_() override;
-      virtual void willBeUsingThreads() override;
+      void enableWarnings_() override;
+      void ignoreWarnings_() override;
+      void willBeUsingThreads() override;
 
       void cachePidInfo();
       static void stacktraceHelperThread();

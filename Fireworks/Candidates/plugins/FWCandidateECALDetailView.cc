@@ -5,7 +5,7 @@ class  FWCandidateECALDetailView: public FWECALDetailViewBase<reco::Candidate>
 {
 public:
    FWCandidateECALDetailView() {}
-   virtual ~FWCandidateECALDetailView() {}
+   ~FWCandidateECALDetailView() override {}
 
 private:
    FWCandidateECALDetailView(const FWCandidateECALDetailView&); // stop default

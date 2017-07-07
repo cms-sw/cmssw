@@ -47,12 +47,12 @@ using namespace l1t;
   class L1TExtCondProducer : public stream::EDProducer<> {
   public:
     explicit L1TExtCondProducer(const ParameterSet&);
-    ~L1TExtCondProducer();
+    ~L1TExtCondProducer() override;
 
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
   private:
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
     // ----------member data ---------------------------
     // unsigned long long m_paramsCacheId; // Cache-ID from current parameters, to check if needs to be updated.

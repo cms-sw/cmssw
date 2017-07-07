@@ -28,9 +28,9 @@ class CPEAccessTester : public edm::EDAnalyzer {
  public:
   CPEAccessTester(const edm::ParameterSet& pset) {conf_ = pset;}
 
-  ~CPEAccessTester(){}
+  ~CPEAccessTester() override{}
 
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup){
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override{
     //
     // access the CPE
     //

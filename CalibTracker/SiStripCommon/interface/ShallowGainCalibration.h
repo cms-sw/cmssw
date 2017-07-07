@@ -66,7 +66,7 @@ private:
   std::string Suffix;
   std::string Prefix;
 
-  void   produce( edm::Event &, const edm::EventSetup & );
+  void   produce( edm::Event &, const edm::EventSetup & ) override;
 //  virtual void beginJob(EventSetup const&);
 //  virtual void beginRun(Run&, EventSetup const&);
   bool   IsFarFromBorder(TrajectoryStateOnSurface* trajState, const uint32_t detid, const edm::EventSetup* iSetup);

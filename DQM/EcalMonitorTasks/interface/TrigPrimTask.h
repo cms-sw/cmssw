@@ -15,7 +15,7 @@ namespace ecaldqm {
   class TrigPrimTask : public DQWorkerTask {
   public:
     TrigPrimTask();
-    ~TrigPrimTask() {}
+    ~TrigPrimTask() override {}
 
     void addDependencies(DependencySet&) override;
 

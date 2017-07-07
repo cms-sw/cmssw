@@ -40,7 +40,7 @@ public:
     CAHitTripletGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC, bool needSeedingLayerSetsHits=true): CAHitTripletGenerator(cfg, iC, needSeedingLayerSetsHits) {}
     CAHitTripletGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC, bool needSeedingLayerSetsHits=true);
 
-    virtual ~CAHitTripletGenerator();
+    ~CAHitTripletGenerator() override;
 
     static void fillDescriptions(edm::ParameterSetDescription& desc);
     static const char *fillDescriptionsLabel() { return "caHitTriplet"; }
@@ -48,8 +48,8 @@ public:
     void initEvent(const edm::Event& ev, const edm::EventSetup& es);
 
     /// from base class
-    virtual void hitTriplets(const TrackingRegion& reg, OrderedHitTriplets & triplets,
-            const edm::Event & ev, const edm::EventSetup& es);
+    void hitTriplets(const TrackingRegion& reg, OrderedHitTriplets & triplets,
+            const edm::Event & ev, const edm::EventSetup& es) override;
 
     void hitNtuplets(const IntermediateHitDoublets& regionDoublets,
                      std::vector<OrderedHitSeeds>& result,

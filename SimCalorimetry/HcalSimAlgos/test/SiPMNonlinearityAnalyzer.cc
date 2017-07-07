@@ -41,7 +41,7 @@
 class SiPMNonlinearityAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 	public:
 		explicit SiPMNonlinearityAnalyzer(const edm::ParameterSet&);
-		~SiPMNonlinearityAnalyzer();
+		~SiPMNonlinearityAnalyzer() override;
 	
 		static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 	

@@ -76,14 +76,14 @@
 class V0Analyzer : public edm::EDAnalyzer {
    public:
       explicit V0Analyzer(const edm::ParameterSet&);
-      ~V0Analyzer();
+      ~V0Analyzer() override;
 
 
    private:
   //virtual void beginJob() ;
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
 
   std::string algoLabel;
   std::string recoAlgoLabel;

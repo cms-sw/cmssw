@@ -43,7 +43,7 @@ public:
 EcalBarrelDigisValidation(const edm::ParameterSet& ps);
 
 /// Destructor
-~EcalBarrelDigisValidation();
+~EcalBarrelDigisValidation() override;
 
 void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) override;
 

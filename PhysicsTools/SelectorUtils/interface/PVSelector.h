@@ -35,7 +35,7 @@ public:
   }
 #endif
 
-  bool operator() ( edm::EventBase const & event,  pat::strbitset & ret ) {
+  bool operator() ( edm::EventBase const & event,  pat::strbitset & ret ) override {
     ret.set(false);
     event.getByLabel(pvSrc_, h_primVtx);
 

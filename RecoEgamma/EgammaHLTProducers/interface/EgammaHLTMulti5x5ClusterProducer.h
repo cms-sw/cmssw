@@ -26,7 +26,7 @@ namespace edm {
 class EgammaHLTMulti5x5ClusterProducer : public edm::EDProducer {
  public:
   EgammaHLTMulti5x5ClusterProducer(const edm::ParameterSet& ps);
-  ~EgammaHLTMulti5x5ClusterProducer();
+  ~EgammaHLTMulti5x5ClusterProducer() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 

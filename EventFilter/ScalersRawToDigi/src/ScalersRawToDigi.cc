@@ -41,10 +41,10 @@ class ScalersRawToDigi : public edm::stream::EDProducer<>
 {
   public:
     explicit ScalersRawToDigi(const edm::ParameterSet&);
-    ~ScalersRawToDigi();
+    ~ScalersRawToDigi() override;
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
   private:
     edm::InputTag inputTag_;

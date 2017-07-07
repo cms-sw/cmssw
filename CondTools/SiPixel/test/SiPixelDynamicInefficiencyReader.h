@@ -23,9 +23,9 @@
 
   public:
     explicit SiPixelDynamicInefficiencyReader( const edm::ParameterSet& );
-    ~SiPixelDynamicInefficiencyReader();
+    ~SiPixelDynamicInefficiencyReader() override;
   
-    void analyze( const edm::Event&, const edm::EventSetup& );
+    void analyze( const edm::Event&, const edm::EventSetup& ) override;
 
   private:
     bool printdebug_;

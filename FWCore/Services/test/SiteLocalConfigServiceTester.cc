@@ -24,7 +24,7 @@ namespace edmtest {
    public:
       SiteLocalConfigServiceTester(const edm::ParameterSet& iPSet);
       
-      void analyze(const edm::Event&, const edm::EventSetup&);
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
       
    private:
       std::string m_cacheHint;

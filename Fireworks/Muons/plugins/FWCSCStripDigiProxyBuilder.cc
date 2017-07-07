@@ -24,13 +24,13 @@ class FWCSCStripDigiProxyBuilder : public FWProxyBuilderBase
 {
 public:
   FWCSCStripDigiProxyBuilder() {}
-  virtual ~FWCSCStripDigiProxyBuilder() {}
+  ~FWCSCStripDigiProxyBuilder() override {}
 
   REGISTER_PROXYBUILDER_METHODS();
 
 private:
   using FWProxyBuilderBase::build;
-  virtual void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
+  void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
   FWCSCStripDigiProxyBuilder(const FWCSCStripDigiProxyBuilder&);    
   const FWCSCStripDigiProxyBuilder& operator=(const FWCSCStripDigiProxyBuilder&);
 };

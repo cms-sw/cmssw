@@ -43,13 +43,13 @@ public:
   typedef L1GlobalCaloTrigger::lutPtrVector lutPtrVector;
 
   explicit L1GctTest(const edm::ParameterSet&);
-  ~L1GctTest();
+  ~L1GctTest() override;
 
 
 private:
-  virtual void beginJob() ;
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-  virtual void endJob() ;
+  void beginJob() override ;
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  void endJob() override ;
 
   void configureGct(const edm::EventSetup& c);
   void configParamsPrint(std::ostream & out);

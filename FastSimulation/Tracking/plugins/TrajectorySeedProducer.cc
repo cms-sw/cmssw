@@ -80,7 +80,7 @@ private:
 public:
     TrajectorySeedProducer(const edm::ParameterSet& conf);
 
-    virtual void produce(edm::Event& e, const edm::EventSetup& es);
+    void produce(edm::Event& e, const edm::EventSetup& es) override;
 
 
 };

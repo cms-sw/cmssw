@@ -43,7 +43,7 @@ public:
   
   /// Returns an index in the valid range for the bin that contains
   /// AND is closest to R
-  virtual int binIndex( T R) const {
+  int binIndex( T R) const override {
     int i;
     for (i = 0; i<theNbins; i++) {
       if (R < theBorders[i]){
@@ -54,12 +54,12 @@ public:
   }
 
   /// Returns an index in the valid range
-  virtual int binIndex( int i) const {
+  int binIndex( int i) const override {
     return std::min( std::max( i, 0), theNbins-1);
   }
    
   /// The middle of the bin
-  virtual T binPosition( int ind) const {
+  T binPosition( int ind) const override {
     return theBins[binIndex(ind)];
   }
 

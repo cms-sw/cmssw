@@ -36,7 +36,7 @@
 class L1CaloInputScalesProducer : public edm::ESProducer {
    public:
       L1CaloInputScalesProducer(const edm::ParameterSet&);
-      ~L1CaloInputScalesProducer();
+      ~L1CaloInputScalesProducer() override;
 
       //typedef std::shared_ptr<L1CaloInputScale> ReturnType;
 

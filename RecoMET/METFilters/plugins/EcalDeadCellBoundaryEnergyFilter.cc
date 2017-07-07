@@ -60,12 +60,12 @@
 class EcalDeadCellBoundaryEnergyFilter: public edm::global::EDFilter<> {
    public:
       explicit EcalDeadCellBoundaryEnergyFilter(const edm::ParameterSet&);
-      ~EcalDeadCellBoundaryEnergyFilter();
+      ~EcalDeadCellBoundaryEnergyFilter() override;
 
    private:
-      virtual void beginJob() override;
-      virtual bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
-      virtual void endJob() override;
+      void beginJob() override;
+      bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+      void endJob() override;
 
       // ----------member data ---------------------------
       const int kMAX;

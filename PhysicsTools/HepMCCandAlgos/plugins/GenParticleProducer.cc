@@ -81,12 +81,12 @@ class GenParticleProducer : public edm::global::EDProducer<edm::RunCache<IDto3Ch
   /// constructor
   GenParticleProducer( const edm::ParameterSet & );
   /// destructor
-  ~GenParticleProducer();
+  ~GenParticleProducer() override;
 
   /// process one event
-  virtual void produce( edm::StreamID, edm::Event& e, const edm::EventSetup&) const override;
-  virtual std::shared_ptr<IDto3Charge> globalBeginRun(const edm::Run&, const edm::EventSetup&) const override;
-  virtual void globalEndRun(edm::Run const&, edm::EventSetup const&) const override {};
+  void produce( edm::StreamID, edm::Event& e, const edm::EventSetup&) const override;
+  std::shared_ptr<IDto3Charge> globalBeginRun(const edm::Run&, const edm::EventSetup&) const override;
+  void globalEndRun(edm::Run const&, edm::EventSetup const&) const override {};
 
   bool convertParticle(reco::GenParticle& cand, const HepMC::GenParticle * part, const IDto3Charge& id2Charge) const;
   bool fillDaughters(reco::GenParticleCollection& cand, const HepMC::GenParticle * part, reco::GenParticleRefProd const& ref, size_t index, std::unordered_map<int, size_t>& barcodes) const;

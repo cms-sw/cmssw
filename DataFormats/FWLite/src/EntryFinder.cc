@@ -34,8 +34,8 @@ namespace fwlite {
   class FWLiteEventFinder : public edm::IndexIntoFile::EventFinder {
   public:
     explicit FWLiteEventFinder(TBranch* auxBranch) : auxBranch_(auxBranch) {}
-    virtual ~FWLiteEventFinder() {}
-    virtual
+    ~FWLiteEventFinder() override {}
+    
     edm::EventNumber_t getEventNumberOfEntry(edm::IndexIntoFile::EntryNumber_t entry) const override {
       void* saveAddress = auxBranch_->GetAddress();
       edm::EventAuxiliary eventAux;

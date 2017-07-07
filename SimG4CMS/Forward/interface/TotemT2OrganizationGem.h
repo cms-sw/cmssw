@@ -29,11 +29,11 @@ public:
 
   // ---------- Constructor and destructor -----------------
   TotemT2OrganizationGem();
-  virtual          ~TotemT2OrganizationGem();
+           ~TotemT2OrganizationGem() override;
 
   // ---------- member functions ---------------------------
   uint32_t         GetUnitID(const G4Step* aStep);
-  uint32_t         GetUnitID(const G4Step* aStep) const;
+  uint32_t         GetUnitID(const G4Step* aStep) const override;
 
 private:
 

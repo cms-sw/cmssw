@@ -30,7 +30,7 @@ using namespace reco;
 class PFTauDecayModeCutMultiplexer : public PFTauDiscriminationProducerBase {
    public:
       explicit PFTauDecayModeCutMultiplexer(const edm::ParameterSet&);
-      ~PFTauDecayModeCutMultiplexer(){}
+      ~PFTauDecayModeCutMultiplexer() override{}
 
       struct  ComputerAndCut {
          std::string computerName;

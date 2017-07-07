@@ -39,9 +39,9 @@ class MonitorTrackResidualsBase : public DQMEDAnalyzer {
  public:
   // constructors and EDAnalyzer Methods
   explicit MonitorTrackResidualsBase(const edm::ParameterSet&);
-  ~MonitorTrackResidualsBase();
+  ~MonitorTrackResidualsBase() override;
   void dqmBeginRun(const edm::Run& , const edm::EventSetup& ) override ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
  private:
 

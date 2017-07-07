@@ -25,7 +25,7 @@ class LMFRunIOV : public LMFUnique {
 	    oracle::occi::Connection* conn);
   LMFRunIOV(EcalDBConnection *c);
   LMFRunIOV(const LMFRunIOV &r);
-  ~LMFRunIOV();
+  ~LMFRunIOV() override;
 
   // Methods for user data
   LMFRunIOV& setLMFRunTag(const LMFRunTag &tag);
@@ -57,9 +57,9 @@ class LMFRunIOV : public LMFUnique {
   Tm getSubRunStart() const;
   Tm getSubRunEnd() const;
   Tm getDBInsertionTime() const;
-  bool isValid();
+  bool isValid() override;
   
-  virtual void dump() const;
+  void dump() const override;
   virtual LMFRunIOV& operator=(const LMFRunIOV &r); 
   std::list<LMFRunIOV> fetchBySequence(const LMFSeqDat &s);
   std::list<LMFRunIOV> fetchBySequence(const LMFSeqDat &s, int lmr);
@@ -83,10 +83,10 @@ class LMFRunIOV : public LMFUnique {
   
   bool operator!=(const LMFRunIOV &m) const { return !(*this == m); }
   
-  std::string fetchIdSql(Statement *stmt);
-  std::string setByIDSql(Statement *stmt, int id);
-  std::string writeDBSql(Statement *stmt);
-  void getParameters(ResultSet *rset);
+  std::string fetchIdSql(Statement *stmt) override;
+  std::string setByIDSql(Statement *stmt, int id) override;
+  std::string writeDBSql(Statement *stmt) override;
+  void getParameters(ResultSet *rset) override;
 
  private:
   void checkFabric();

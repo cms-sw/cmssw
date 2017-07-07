@@ -37,12 +37,12 @@ class HarvestingAnalyzer : public edm::EDAnalyzer
  public:
 
   explicit HarvestingAnalyzer(const edm::ParameterSet&);
-  virtual ~HarvestingAnalyzer();
-  virtual void beginJob();
-  virtual void endJob();  
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-  virtual void endRun(const edm::Run&, const edm::EventSetup&);
+  ~HarvestingAnalyzer() override;
+  void beginJob() override;
+  void endJob() override;  
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override;
 
   
 private:

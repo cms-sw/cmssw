@@ -29,10 +29,10 @@ namespace pat {
   class PATGenCandsFromSimTracksProducer : public edm::stream::EDProducer<> {
   public:
     explicit PATGenCandsFromSimTracksProducer(const edm::ParameterSet&);
-    ~PATGenCandsFromSimTracksProducer() {}
+    ~PATGenCandsFromSimTracksProducer() override {}
     
   private:
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
     
     bool firstEvent_;
     edm::EDGetTokenT<edm::SimTrackContainer> simTracksToken_;

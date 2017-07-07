@@ -41,13 +41,13 @@ class DTROMapValidateHandler: public popcon::PopConSourceHandler<DTReadOutMappin
 
   /** Destructor
    */
-  virtual ~DTROMapValidateHandler();
+  ~DTROMapValidateHandler() override;
 
   /** Operations
    */
   /// 
-  void getNewObjects();
-  std::string id() const;
+  void getNewObjects() override;
+  std::string id() const override;
 
  private:
 

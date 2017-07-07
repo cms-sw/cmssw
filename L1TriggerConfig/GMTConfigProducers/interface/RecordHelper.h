@@ -66,7 +66,7 @@ template <class TOutput, class TCField, class TDBField> class FieldHandler : pub
   { }
 
   /** Actual data extraction. */
-  virtual void extractValue(const AttributeList& src, TOutput& dest) { 
+  void extractValue(const AttributeList& src, TOutput& dest) override { 
 #ifdef RECORDHELPER_DEBUG
     std::cout << "Parsing field " << this->getName() << " with type " << typeid(TCField).name() ;
 #endif
@@ -100,7 +100,7 @@ template <class TOutput, char FalseCharacter> class ASCIIBoolFieldHandler : publ
     {   }
 
    /** Extract value as char, then see compare it to '0' to get its truth value. */
-  virtual void extractValue(const AttributeList& src, TOutput& dest)
+  void extractValue(const AttributeList& src, TOutput& dest) override
   {
     char value = src[this->getColumnName()].template data<char>();
 #ifdef RECORDHELPER_DEBUG

@@ -26,9 +26,9 @@ class SiStripNoisesDQMService : public SiStripBaseServiceFromDQM<SiStripNoises>
  public:
 
   explicit SiStripNoisesDQMService(const edm::ParameterSet&,const edm::ActivityRegistry&);
-  ~SiStripNoisesDQMService();
+  ~SiStripNoisesDQMService() override;
   
-  void getObj(SiStripNoises* & obj)
+  void getObj(SiStripNoises* & obj) override
   {
     readNoises(); obj=obj_;
   }

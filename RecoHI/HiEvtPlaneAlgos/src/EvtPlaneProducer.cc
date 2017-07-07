@@ -158,12 +158,12 @@ namespace hi {
 class EvtPlaneProducer : public edm::stream::EDProducer<> {
 public:
   explicit EvtPlaneProducer(const edm::ParameterSet&);
-  ~EvtPlaneProducer();
+  ~EvtPlaneProducer() override;
 
 private:
   GenPlane *rp[NumEPNames];
 
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   // ----------member data ---------------------------
 

@@ -21,12 +21,12 @@
 class PileUpFilter : public edm::global::EDFilter<> {
    public:
       explicit PileUpFilter(const edm::ParameterSet&);
-      ~PileUpFilter() = default;
+      ~PileUpFilter() override = default;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+      bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
       // ----------member data ---------------------------
    private:

@@ -19,9 +19,9 @@ struct TestSeedingLayers final : public edm::EDAnalyzer {
 
   }
 
-  virtual ~TestSeedingLayers(){}
+  ~TestSeedingLayers() override{}
   
-  virtual void analyze(const edm::Event& e, const edm::EventSetup&) {
+  void analyze(const edm::Event& e, const edm::EventSetup&) override {
     edm::Handle<SeedingLayerSetsHits> layersH;
 
     std::string layerProd = "MixedLayerTriplets";

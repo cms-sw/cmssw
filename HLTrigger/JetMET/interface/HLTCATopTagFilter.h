@@ -56,9 +56,9 @@ struct GreaterByPtCandPtrUser {
 class HLTCATopTagFilter : public HLTFilter {
  public:
   explicit HLTCATopTagFilter(const edm::ParameterSet&);
-  ~HLTCATopTagFilter();
+  ~HLTCATopTagFilter() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  virtual bool hltFilter( edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterobject) const override;
+  bool hltFilter( edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterobject) const override;
 
  private:
   // ----------member data ---------------------------

@@ -14,7 +14,7 @@ class FWTrackTrackingRecHitProxyBuilder : public FWSimpleProxyBuilderTemplate<re
 {
 public:
    FWTrackTrackingRecHitProxyBuilder( void ) {}
-   virtual ~FWTrackTrackingRecHitProxyBuilder( void ) {}
+   ~FWTrackTrackingRecHitProxyBuilder( void ) override {}
   
    REGISTER_PROXYBUILDER_METHODS();
   

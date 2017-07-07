@@ -35,7 +35,7 @@ class AlignmentMonitorMuonSystemMap1D: public AlignmentMonitorBase
 {
 public:
   AlignmentMonitorMuonSystemMap1D(const edm::ParameterSet& cfg);
-  virtual ~AlignmentMonitorMuonSystemMap1D() {}
+  ~AlignmentMonitorMuonSystemMap1D() override {}
 
   void book() override;
 

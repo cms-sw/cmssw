@@ -16,12 +16,12 @@ class FWME0DigiProxyBuilder : public FWProxyBuilderBase
 {
 public:
   FWME0DigiProxyBuilder() {}
-  virtual ~FWME0DigiProxyBuilder() {}
+  ~FWME0DigiProxyBuilder() override {}
 
   REGISTER_PROXYBUILDER_METHODS();
 
 private:
-  virtual void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*);
+  void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
   FWME0DigiProxyBuilder(const FWME0DigiProxyBuilder&);    
   const FWME0DigiProxyBuilder& operator=(const FWME0DigiProxyBuilder&);
 };

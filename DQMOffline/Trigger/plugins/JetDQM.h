@@ -14,7 +14,7 @@ class JetDQM : public TriggerDQMBase
 {
  public:
   JetDQM();
-  virtual ~JetDQM();
+  ~JetDQM() override;
 
   void initialise(const edm::ParameterSet& iConfig);
   void bookHistograms(DQMStore::IBooker &);

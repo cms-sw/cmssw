@@ -67,7 +67,7 @@ class TauRegionalPixelSeedGenerator : public TrackingRegionProducer {
       }
     }
   
-    virtual ~TauRegionalPixelSeedGenerator() {}
+    ~TauRegionalPixelSeedGenerator() override {}
     
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
@@ -95,7 +95,7 @@ class TauRegionalPixelSeedGenerator : public TrackingRegionProducer {
   }
 
 
-    virtual std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& e, const edm::EventSetup& es) const override {
+    std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& e, const edm::EventSetup& es) const override {
       std::vector<std::unique_ptr<TrackingRegion> > result;
 
       //      double originZ;

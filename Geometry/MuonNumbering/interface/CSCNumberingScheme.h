@@ -21,9 +21,9 @@ class CSCNumberingScheme : public MuonNumberingScheme {
 
   CSCNumberingScheme( const MuonDDDConstants& muonConstants );
   CSCNumberingScheme( const DDCompactView& cpv );
-  ~CSCNumberingScheme(){};
+  ~CSCNumberingScheme() override{};
   
-  virtual int baseNumberToUnitNumber(const MuonBaseNumber&);
+  int baseNumberToUnitNumber(const MuonBaseNumber&) override;
   
  private:
 

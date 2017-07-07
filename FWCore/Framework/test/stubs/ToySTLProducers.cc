@@ -37,8 +37,8 @@ namespace edmtest {
       delta_(p.getParameter<int>("delta")) {
       produces<std::vector<int> >();
     }
-    virtual ~IntVectorProducer() {}
-    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+    ~IntVectorProducer() override {}
+    void produce(edm::Event& e, edm::EventSetup const& c) override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
@@ -76,8 +76,8 @@ namespace edmtest {
       produces<std::vector<int> >();
       produces<std::set<int> >();
     }
-    virtual ~IntVectorSetProducer() {}
-    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+    ~IntVectorSetProducer() override {}
+    void produce(edm::Event& e, edm::EventSetup const& c) override;
   };
 
   void
@@ -99,8 +99,8 @@ namespace edmtest {
         count_(p.getParameter<int>("count")) {
       produces<std::list<int> >();
     }
-    virtual ~IntListProducer() {}
-    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+    ~IntListProducer() override {}
+    void produce(edm::Event& e, edm::EventSetup const& c) override;
   private:
     int    value_;
     size_t count_;
@@ -123,8 +123,8 @@ namespace edmtest {
         count_(p.getParameter<int>("count")) {
       produces<std::deque<int> >();
     }
-    virtual ~IntDequeProducer() {}
-    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+    ~IntDequeProducer() override {}
+    void produce(edm::Event& e, edm::EventSetup const& c) override;
   private:
     int    value_;
     size_t count_;
@@ -147,8 +147,8 @@ namespace edmtest {
         stop_(p.getParameter<int>("stop")) {
       produces<std::set<int> >();
     }
-    virtual ~IntSetProducer() {}
-    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+    ~IntSetProducer() override {}
+    void produce(edm::Event& e, edm::EventSetup const& c) override;
   private:
     int start_;
     int stop_;

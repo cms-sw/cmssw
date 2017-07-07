@@ -14,7 +14,7 @@ public:
     std::shared_ptr<L1TMuonOverlapParams> produce(const L1TMuonOverlapParamsO2ORcd& record);
 
     L1TMuonOverlapParamsOnlineProxy(const edm::ParameterSet&);
-    ~L1TMuonOverlapParamsOnlineProxy(void){}
+    ~L1TMuonOverlapParamsOnlineProxy(void) override{}
 };
 
 L1TMuonOverlapParamsOnlineProxy::L1TMuonOverlapParamsOnlineProxy(const edm::ParameterSet& iConfig) : edm::ESProducer() {

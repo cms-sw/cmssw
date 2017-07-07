@@ -9,11 +9,11 @@ class CSCTruthTest : public edm::stream::EDAnalyzer<> {
 
 public:
   explicit CSCTruthTest(const edm::ParameterSet&);
-  virtual ~CSCTruthTest();
+  ~CSCTruthTest() override;
 
 private:
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   const edm::ParameterSet& conf_;
 
 };

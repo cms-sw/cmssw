@@ -12,8 +12,8 @@
 class RHStopDump : public edm::one::EDAnalyzer<edm::one::SharedResources> {
  public:
   explicit RHStopDump(const edm::ParameterSet&);
-  virtual ~RHStopDump() {};
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  ~RHStopDump() override {};
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
  private:
   std::ofstream mStream;
   std::string mProducer;

@@ -13,10 +13,10 @@ class MonDelaysTTDat : public IDataItem {
  public:
   friend class EcalCondDBInterface;
   MonDelaysTTDat();
-  ~MonDelaysTTDat();
+  ~MonDelaysTTDat() override;
 
   // User data methods
-  inline std::string getTable() { return "MON_DELAYS_TT_DAT"; }
+  inline std::string getTable() override { return "MON_DELAYS_TT_DAT"; }
 
   inline void setDelayMean(float mean) { m_delayMean = mean; }
   inline float getDelayMean() const { return m_delayMean; }
@@ -30,7 +30,7 @@ class MonDelaysTTDat : public IDataItem {
 
  private:
   void prepareWrite() 
-    noexcept(false);
+    noexcept(false) override;
 
   void writeDB(const EcalLogicID* ecid, const MonDelaysTTDat* item, MonRunIOV* iov)
     noexcept(false);

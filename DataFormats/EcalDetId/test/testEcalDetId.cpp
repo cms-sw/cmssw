@@ -36,8 +36,8 @@ class testEcalDetId: public CppUnit::TestFixture {
 public:
 
 
-  void setUp(){}
-  void tearDown(){}  
+  void setUp() override{}
+  void tearDown() override{}  
   void testEBDetId();
   void testEEDetId();
   void testESDetId();

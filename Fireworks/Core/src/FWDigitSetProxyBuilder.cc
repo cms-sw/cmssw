@@ -29,14 +29,14 @@ class FWSecondarySelectableSelector : public FWFromEveSelectorBase
 {
 public:
    FWSecondarySelectableSelector(const TEveSecondarySelectable::SelectionSet_t& s, const FWEventItem* i): m_selected(s), m_item(i) {}
-   ~FWSecondarySelectableSelector() {}
+   ~FWSecondarySelectableSelector() override {}
 
-   virtual void doSelect() override
+   void doSelect() override
    {
       syncSelection();
    }
 
-   virtual void doUnselect() override
+   void doUnselect() override
    { 
       syncSelection(); 
    }
