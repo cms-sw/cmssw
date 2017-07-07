@@ -12,7 +12,6 @@
 #include "SimDataFormats/CaloAnalysis/interface/SimClusterFwd.h"
 
 class RealisticSimClusterMapper : public InitialClusteringStepBase {
-  typedef RealisticSimClusterMapper B2DGT;
  public:
  RealisticSimClusterMapper(const edm::ParameterSet& conf,
 			 edm::ConsumesCollector& sumes) :
