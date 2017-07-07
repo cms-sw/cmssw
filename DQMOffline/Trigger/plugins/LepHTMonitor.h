@@ -92,6 +92,8 @@ private:
 
   std::string folderName_;
 
+  int muonIDlevel_;
+
   double jetPtCut_;
   double jetEtaCut_;
   double metCut_;
