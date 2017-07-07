@@ -16,6 +16,7 @@
 
 // CMSSW includes
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
@@ -102,6 +103,7 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
   void fill(std::map<std::string, TH1*>& h,const std::string& s, double x);
   void fill(std::map<std::string, TH1*>& h,const std::string& s, double x, double y);
   void fillByIndex(std::vector<TH1F*>& h, unsigned int index, double x); 
+  void shrinkHistVectorToFit(std::vector<TH1F*>&h,unsigned int desired_size);
   void fillMap(TH2F* trendMap, TH1F* residualsMapPlot[100][100], statmode::estimator fitPar_);
   
   inline double square(double x){
@@ -160,7 +162,9 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
 
   float phiSect_;
   float etaSect_;
-
+  int   nLadders_= 20;
+  int   nModZ_   =  8;
+  
   // pT binning as in paragraph 3.2 of CMS-PAS-TRK-10-005 (https://cds.cern.ch/record/1279383/files/TRK-10-005-pas.pdf)
 
   //                                      0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20  21  22  23  24  25  26  27  28  29  30  31  32  33  34  35  36   37  38   39  40  41  42  43  44  45   46  47  48
@@ -242,6 +246,16 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
 
   int   hasRecVertex_[nMaxtracks_];
   int   isGoodTrack_[nMaxtracks_];
+
+  edm::Service<TFileService> fs;
+
+  TFileDirectory MeanTrendsDir;
+  TFileDirectory WidthTrendsDir; 
+  TFileDirectory MedianTrendsDir;
+  TFileDirectory MADTrendsDir;   
+  				
+  TFileDirectory Mean2DMapsDir;  
+  TFileDirectory Width2DMapsDir; 
 
   // histogram for max(eta)
   TH1F* h_etaMax;
