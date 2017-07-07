@@ -245,7 +245,7 @@ class RealisticHitToClusterAssociator
         const std::vector< RealisticCluster > & realisticClusters() const
         {   return RealisticSimClusters_;}
 
-        private:
+    private:
 
         std::vector<Hit3DPosition> hitPosition_;
         std::vector<float> totalEnergy_;
