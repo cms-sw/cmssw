@@ -204,7 +204,7 @@ SiStripMonitorCluster::SiStripMonitorCluster(const edm::ParameterSet& iConfig)
   // Create DCS Status
   bool checkDCS    = conf_.getParameter<bool>("UseDCSFiltering");
   if (checkDCS) dcsStatus_ = new SiStripDCSStatus(consumesCollector());
-  else dcsStatus_ = 0;
+  else dcsStatus_ = nullptr;
 
 }
 
@@ -719,7 +719,7 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
 	tkmapcluster->fill(detid,static_cast<float>(cluster_detset.size()));
       }
 
-      if(moduleswitchncluson && found_module_me && (mod_single.NumberOfClusters != NULL)){ // nr. of clusters per module
+      if(moduleswitchncluson && found_module_me && (mod_single.NumberOfClusters != nullptr)){ // nr. of clusters per module
 	(mod_single.NumberOfClusters)->Fill(static_cast<float>(cluster_detset.size()));
       }
 
@@ -1112,22 +1112,22 @@ void SiStripMonitorCluster::createLayerMEs(std::string label, int ndets , DQMSto
   SiStripHistoId hidmanager;
 
   LayerMEs layerMEs;
-  layerMEs.LayerClusterStoN = 0;
-  layerMEs.LayerClusterStoNTrend = 0;
-  layerMEs.LayerClusterCharge = 0;
-  layerMEs.LayerClusterChargeTrend = 0;
-  layerMEs.LayerClusterNoise = 0;
-  layerMEs.LayerClusterNoiseTrend = 0;
-  layerMEs.LayerClusterWidth = 0;
-  layerMEs.LayerClusterWidthTrend = 0;
-  layerMEs.LayerLocalOccupancy = 0;
-  layerMEs.LayerLocalOccupancyTrend = 0;
-  layerMEs.LayerNumberOfClusterProfile = 0;
-  layerMEs.LayerNumberOfClusterTrend = 0;
-  layerMEs.LayerNumberOfClusterPerRingTrend = 0;
-  layerMEs.LayerClusterWidthProfile = 0;
-  layerMEs.LayerClusWidthVsAmpTH2 = 0;
-  layerMEs.LayerClusterPosition = 0;
+  layerMEs.LayerClusterStoN = nullptr;
+  layerMEs.LayerClusterStoNTrend = nullptr;
+  layerMEs.LayerClusterCharge = nullptr;
+  layerMEs.LayerClusterChargeTrend = nullptr;
+  layerMEs.LayerClusterNoise = nullptr;
+  layerMEs.LayerClusterNoiseTrend = nullptr;
+  layerMEs.LayerClusterWidth = nullptr;
+  layerMEs.LayerClusterWidthTrend = nullptr;
+  layerMEs.LayerLocalOccupancy = nullptr;
+  layerMEs.LayerLocalOccupancyTrend = nullptr;
+  layerMEs.LayerNumberOfClusterProfile = nullptr;
+  layerMEs.LayerNumberOfClusterTrend = nullptr;
+  layerMEs.LayerNumberOfClusterPerRingTrend = nullptr;
+  layerMEs.LayerClusterWidthProfile = nullptr;
+  layerMEs.LayerClusWidthVsAmpTH2 = nullptr;
+  layerMEs.LayerClusterPosition = nullptr;
 
   //Cluster Width
   if(layerswitchcluswidthon) {
@@ -1214,16 +1214,16 @@ void SiStripMonitorCluster::createSubDetMEs(std::string label , DQMStore::IBooke
 
   SubDetMEs subdetMEs;
   subdetMEs.totNClusters              = 0;
-  subdetMEs.SubDetTotClusterTH1       = 0;
-  subdetMEs.SubDetTotClusterProf      = 0;
-  subdetMEs.SubDetClusterApvProf      = 0;
-  subdetMEs.SubDetClusterApvTH2       = 0;
-  subdetMEs.SubDetClusterDBxCycleProf = 0;
-  subdetMEs.SubDetApvDBxProf2         = 0;
-  subdetMEs.SubDetClusterChargeTH1    = 0;
-  subdetMEs.SubDetClusterWidthTH1     = 0;
-  subdetMEs.SubDetClusWidthVsAmpTH2	  = 0;
-  subdetMEs.SubDetNumberOfClusterPerLayerTrend    = 0;
+  subdetMEs.SubDetTotClusterTH1       = nullptr;
+  subdetMEs.SubDetTotClusterProf      = nullptr;
+  subdetMEs.SubDetClusterApvProf      = nullptr;
+  subdetMEs.SubDetClusterApvTH2       = nullptr;
+  subdetMEs.SubDetClusterDBxCycleProf = nullptr;
+  subdetMEs.SubDetApvDBxProf2         = nullptr;
+  subdetMEs.SubDetClusterChargeTH1    = nullptr;
+  subdetMEs.SubDetClusterWidthTH1     = nullptr;
+  subdetMEs.SubDetClusWidthVsAmpTH2	  = nullptr;
+  subdetMEs.SubDetNumberOfClusterPerLayerTrend    = nullptr;
 
   std::string HistoName;
   // cluster charge

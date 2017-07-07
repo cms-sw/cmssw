@@ -231,7 +231,7 @@ void FFTJetEFlowSmoother::produce(
                  nEta, g.etaMin(), g.etaMax(),
                  nPhi, bin0edge, bin0edge+2.0*M_PI);
     TH3F* h = pTable.get();
-    h->SetDirectory(0);
+    h->SetDirectory(nullptr);
     h->GetXaxis()->SetTitle("Scale");
     h->GetYaxis()->SetTitle("Eta");
     h->GetZaxis()->SetTitle("Phi");

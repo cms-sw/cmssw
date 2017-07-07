@@ -162,8 +162,8 @@ class JetCleanerForType1METT : public edm::stream::EDProducer<>
 	for ( std::vector<reco::CandidatePtr>::const_iterator cand = cands.begin();
 	      cand != cands.end(); ++cand ) {
 	  const reco::PFCandidate *pfcand = dynamic_cast<const reco::PFCandidate *>(cand->get());
-	  const reco::Candidate *mu = (pfcand != 0 ? ( pfcand->muonRef().isNonnull() ? pfcand->muonRef().get() : 0) : cand->get());
-	  if ( mu != 0 && (*skipMuonSelection_)(*mu) ) {
+	  const reco::Candidate *mu = (pfcand != nullptr ? ( pfcand->muonRef().isNonnull() ? pfcand->muonRef().get() : nullptr) : cand->get());
+	  if ( mu != nullptr && (*skipMuonSelection_)(*mu) ) {
 	    reco::Candidate::LorentzVector muonP4 = (*cand)->p4();
 	    rawJetP4 -= muonP4;
 	  }

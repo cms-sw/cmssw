@@ -103,7 +103,7 @@ FWCSCWireDigiProxyBuilder::getAverageWireSpacing(const int station, const int ri
 void
 FWCSCWireDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*)
 {
-  const CSCWireDigiCollection* digis = 0;
+  const CSCWireDigiCollection* digis = nullptr;
  
   iItem->get(digis);
 

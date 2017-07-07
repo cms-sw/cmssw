@@ -68,7 +68,7 @@ class MuonNavigationSchool : public NavigationSchool {
         if( p)
         {
           delete p;
-          p = 0;
+          p = nullptr;
         }
       }
     };

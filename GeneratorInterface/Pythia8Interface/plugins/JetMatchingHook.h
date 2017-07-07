@@ -47,14 +47,14 @@ protected:
   
   void setLHERunInfo( lhef::LHERunInfo* lheri ) { 
      fRunBlock=lheri;
-     if ( fRunBlock == 0 ) return;
+     if ( fRunBlock == nullptr ) return;
      const lhef::HEPRUP* heprup = fRunBlock->getHEPRUP();
      lhef::CommonBlocks::fillHEPRUP(heprup); 
      return;
   }
   void setLHEEvent( lhef::LHEEvent* lhee ) { 
      fEventBlock=lhee; 
-     if ( fEventBlock == 0 ) return;
+     if ( fEventBlock == nullptr ) return;
      const lhef::HEPEUP* hepeup = fEventBlock->getHEPEUP();
      lhef::CommonBlocks::fillHEPEUP(hepeup);
      return;

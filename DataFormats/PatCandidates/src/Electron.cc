@@ -307,7 +307,7 @@ void Electron::embedTrack() {
 
 // method to store the RecHits internally
 void Electron::embedRecHits(const EcalRecHitCollection * rechits) {
-  if (rechits!=0) {
+  if (rechits!=nullptr) {
     recHits_ = *rechits;
     embeddedRecHits_ = true;
   }

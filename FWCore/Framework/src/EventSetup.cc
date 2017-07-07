@@ -93,7 +93,7 @@ EventSetup::find(const eventsetup::EventSetupRecordKey& iKey) const
    std::map<eventsetup::EventSetupRecordKey, eventsetup::EventSetupRecord const *>::const_iterator itFind
    = recordMap_.find(iKey);
    if(itFind == recordMap_.end()) {
-      return 0;
+      return nullptr;
    }
    return itFind->second;
 }

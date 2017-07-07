@@ -52,7 +52,7 @@ TH1Store::add (TH1 *histPtr, const std::string &directory)
       cout << "THStore::add() : Adding " << name << endl;
    }   
    m_ptrMap[name] = histPtr;
-   histPtr->SetDirectory(0);
+   histPtr->SetDirectory(nullptr);
    if (directory.length())
    {
       m_nameDirMap[name] = directory;
@@ -141,7 +141,7 @@ TH1Store::_createDir (const string &dirName, TFile *filePtr) const
    // directory a subdirectory?
    const boost::regex subdirRE ("(.+?)/([^/]+)");
    boost::smatch matches;
-   TDirectory *parentDir = 0;
+   TDirectory *parentDir = nullptr;
    string useName = dirName;
    if( boost::regex_match (dirName, matches, subdirRE) )
    {

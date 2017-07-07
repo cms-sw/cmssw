@@ -61,7 +61,7 @@ namespace edm {
       // ---------- const member functions ---------------------
       template<typename T>
       T& get() const {
-         if(0 == manager_.get()) {
+         if(nullptr == manager_.get()) {
             Exception::throwThis(errors::NotFound,
               "Service"
               " no ServiceRegistry has been set for this thread");
@@ -71,7 +71,7 @@ namespace edm {
 
       template<typename T>
       bool isAvailable() const {
-         if(0 == manager_.get()) {
+         if(nullptr == manager_.get()) {
             Exception::throwThis(errors::NotFound,
               "Service"
               " no ServiceRegistry has been set for this thread");

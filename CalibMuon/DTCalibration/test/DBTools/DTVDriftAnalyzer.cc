@@ -58,7 +58,7 @@ void DTVDriftAnalyzer::endJob() {
     //Define an histo for each wheel and each superlayer type
     TH1D *hVDriftHisto = theVDriftHistoMap[make_pair(wireId.wheel(),wireId.superlayer())];
     TH1D *hResoHisto = theResoHistoMap[make_pair(wireId.wheel(),wireId.superlayer())];
-    if(hVDriftHisto == 0) {
+    if(hVDriftHisto == nullptr) {
       theFile->cd();
       TString name = getHistoName(wireId).c_str();
       if(wireId.superlayer() != 2){
@@ -98,7 +98,7 @@ void DTVDriftAnalyzer::endJob() {
     Wh_St_SL.push_back(wireId.superlayer());
     TH1D *hVDriftDistrib = theVDriftDistribMap[Wh_St_SL];
     TH1D *hResoDistrib = theResoDistribMap[Wh_St_SL];
-    if(hVDriftDistrib == 0) {
+    if(hVDriftDistrib == nullptr) {
       theFile->cd();
       TString name = getDistribName(wireId).c_str();
       hVDriftDistrib = new TH1D(name+"_VDrift",

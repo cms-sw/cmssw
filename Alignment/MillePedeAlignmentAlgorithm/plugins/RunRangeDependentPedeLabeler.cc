@@ -250,7 +250,7 @@ unsigned int RunRangeDependentPedeLabeler::alignableLabelFromLabel(unsigned int 
 Alignable* RunRangeDependentPedeLabeler::alignableFromLabel(unsigned int label) const
 {
   const unsigned int aliLabel = this->alignableLabelFromLabel(label);
-  if (aliLabel < theMinLabel) return 0; // error already given
+  if (aliLabel < theMinLabel) return nullptr; // error already given
   
   if (theIdToAlignableMap.empty()) const_cast<RunRangeDependentPedeLabeler*>(this)->buildReverseMap();
   IdToAlignableMap::const_iterator position = theIdToAlignableMap.find(aliLabel);
@@ -263,7 +263,7 @@ Alignable* RunRangeDependentPedeLabeler::alignableFromLabel(unsigned int label) 
       edm::LogError("LogicError") << "@SUB=RunRangeDependentPedeLabeler::alignableFromLabel"
 				  << "Alignable label " << aliLabel << " not in map.";
     }
-    return 0;
+    return nullptr;
   }
 }
 
@@ -377,7 +377,7 @@ unsigned int RunRangeDependentPedeLabeler::buildRunRangeDependencyMap(AlignableT
       if ((*iRunRange).find(':')==std::string::npos) {
 	
 	first = cond::timeTypeSpecs[cond::runnumber].beginValue;
-	temp = strtol((*iRunRange).c_str(), 0, 0);
+	temp = strtol((*iRunRange).c_str(), nullptr, 0);
 	if (temp!=-1) first = temp;
 	
       } else {
@@ -392,7 +392,7 @@ unsigned int RunRangeDependentPedeLabeler::buildRunRangeDependencyMap(AlignableT
 
 	std::vector<std::string> tokens = edm::tokenize(*iRunRange, ":");
 	first = cond::timeTypeSpecs[cond::runnumber].beginValue;
-	temp = strtol(tokens[0].c_str(), 0, 0);
+	temp = strtol(tokens[0].c_str(), nullptr, 0);
 	if (temp!=-1) first = temp;
 	
       }
@@ -429,7 +429,7 @@ unsigned int RunRangeDependentPedeLabeler::buildRunRangeDependencyMap(AlignableT
 	   iAli != alis.end();
 	   ++iAli) {
         
-        if((*iAli)->alignmentParameters() == NULL) {
+        if((*iAli)->alignmentParameters() == nullptr) {
           throw cms::Exception("BadConfig")
             << "@SUB=RunRangeDependentPedeLabeler::buildRunRangeDependencyMap\n"
             << "Run dependence configured for alignable of type "

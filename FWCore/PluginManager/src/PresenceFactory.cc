@@ -25,7 +25,7 @@ namespace edm {
   makePresence(std::string const & presence_type) const {
     std::unique_ptr<Presence> sp(PresencePluginFactory::get()->create(presence_type));
 
-    if(sp.get()==0) {
+    if(sp.get()==nullptr) {
 	throw edm::Exception(errors::Configuration, "NoPresenceModule")
 	  << "Presence Factory:\n"
 	  << "Cannot find presence type: "

@@ -57,7 +57,7 @@ void TestRef::default_ctor() {
   CPPUNIT_ASSERT(default_ref.isNull());
   CPPUNIT_ASSERT(default_ref.isNonnull()==false);
   CPPUNIT_ASSERT(!default_ref);
-  CPPUNIT_ASSERT(default_ref.productGetter()==0);
+  CPPUNIT_ASSERT(default_ref.productGetter()==nullptr);
   CPPUNIT_ASSERT(default_ref.id().isValid()==false);
   CPPUNIT_ASSERT(default_ref.isAvailable()==false);
 }

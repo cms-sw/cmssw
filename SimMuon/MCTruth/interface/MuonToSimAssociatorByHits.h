@@ -20,12 +20,12 @@ class MuonToSimAssociatorByHits : public MuonToSimAssociatorBase {
   void associateMuons(MuonToSimCollection & recoToSim, SimToMuonCollection & simToReco,
                       const edm::RefToBaseVector<reco::Muon> &, MuonTrackType ,
                       const edm::RefVector<TrackingParticleCollection>&,
-                      const edm::Event * event = 0, const edm::EventSetup * setup = 0) const override ; 
+                      const edm::Event * event = nullptr, const edm::EventSetup * setup = nullptr) const override ; 
 
   void associateMuons(MuonToSimCollection & recoToSim, SimToMuonCollection & simToReco,
                       const edm::Handle<edm::View<reco::Muon> > &, MuonTrackType , 
                       const edm::Handle<TrackingParticleCollection>&,
-                      const edm::Event * event = 0, const edm::EventSetup * setup = 0) const override;
+                      const edm::Event * event = nullptr, const edm::EventSetup * setup = nullptr) const override;
 
  private:
 

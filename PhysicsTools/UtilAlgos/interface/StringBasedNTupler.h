@@ -151,7 +151,7 @@ public:
         value_.reset(new std::vector<float>());
         value_->reserve(oH->size());
 
-	StringCutObjectSelector<Object> * selection=0;
+	StringCutObjectSelector<Object> * selection=nullptr;
 	if (B.selection()!=""){
 	  //std::cout<<"trying to get to a selection"<<std::endl;
 	  selection = new StringCutObjectSelector<Object>(B.selection());

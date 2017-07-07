@@ -81,12 +81,12 @@ namespace ecaldqm
     MESet& meQualitySummary(MEs_.at("QualitySummary"));
     MESet& meReportSummaryMap(MEs_.at("ReportSummaryMap"));
 
-    MESet const* sIntegrity(using_("Integrity") ? &sources_.at("Integrity") : 0);
+    MESet const* sIntegrity(using_("Integrity") ? &sources_.at("Integrity") : nullptr);
     MESet const& sRawData(sources_.at("RawData"));
-    MESet const* sPresample(using_("Presample") ? &sources_.at("Presample") : 0);
-    MESet const* sTiming(using_("Timing") ? &sources_.at("Timing") : 0);
-    MESet const* sTriggerPrimitives(using_("TriggerPrimitives") ? &sources_.at("TriggerPrimitives") : 0);
-    MESet const* sHotCell(using_("HotCell") ? &sources_.at("HotCell") : 0);
+    MESet const* sPresample(using_("Presample") ? &sources_.at("Presample") : nullptr);
+    MESet const* sTiming(using_("Timing") ? &sources_.at("Timing") : nullptr);
+    MESet const* sTriggerPrimitives(using_("TriggerPrimitives") ? &sources_.at("TriggerPrimitives") : nullptr);
+    MESet const* sHotCell(using_("HotCell") ? &sources_.at("HotCell") : nullptr);
 
     float totalChannels(0.);
     float totalGood(0.), totalGoodRaw(0);

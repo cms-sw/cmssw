@@ -304,7 +304,7 @@ std::set< std::string > PixelPortcardMap::portcards(const PixelDetectorConfig* d
 {
 	std::set< std::string > returnThis;
 
-	if(detconfig != 0){
+	if(detconfig != nullptr){
 	
 	  //still done done in an awkward way, but this avoids an
           //double nested loop that we had in the first implementation

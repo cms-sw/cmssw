@@ -34,7 +34,7 @@ using namespace reco;
 
 NuclearTrackCorrector::NuclearTrackCorrector(const edm::ParameterSet& iConfig) :
 conf_(iConfig),
-theInitialState(0)
+theInitialState(nullptr)
 {
      str_Input_Trajectory           = iConfig.getParameter<std::string>     ("InputTrajectory");
      str_Input_NuclearInteraction   = iConfig.getParameter<std::string>     ("InputNuclearInteraction");

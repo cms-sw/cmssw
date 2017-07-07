@@ -116,12 +116,12 @@ void EcalDigiSelector::produce(edm::Event& evt, const edm::EventSetup& es)
 
       //get barrel digi collection
       edm::Handle<EBDigiCollection> pdigis;
-      const EBDigiCollection* digis=0;
+      const EBDigiCollection* digis=nullptr;
       evt.getByToken(EcalEBDigiToken_,pdigis);
       digis = pdigis.product(); // get a ptr to the product
 
 	  edm::Handle<EcalRecHitCollection> prechits;
-      const EcalRecHitCollection* rechits=0;
+      const EcalRecHitCollection* rechits=nullptr;
       evt.getByToken(EcalEBRecHitToken_,prechits);
       rechits = prechits.product(); // get a ptr to the product
 
@@ -178,12 +178,12 @@ void EcalDigiSelector::produce(edm::Event& evt, const edm::EventSetup& es)
       //Get endcap rec hit collection
       //get endcap digi collection
       edm::Handle<EEDigiCollection> pdigis;
-      const EEDigiCollection* digis=0;
+      const EEDigiCollection* digis=nullptr;
       evt.getByToken(EcalEEDigiToken_,pdigis);
       digis = pdigis.product(); // get a ptr to the product
   
       edm::Handle<EcalRecHitCollection> prechits;
-      const EcalRecHitCollection* rechits=0;
+      const EcalRecHitCollection* rechits=nullptr;
       evt.getByToken(EcalEERecHitToken_,prechits);
       rechits = prechits.product(); // get a ptr to the product
 

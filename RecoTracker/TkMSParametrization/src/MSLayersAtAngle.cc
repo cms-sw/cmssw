@@ -35,7 +35,7 @@ const MSLayer * MSLayersAtAngle::findLayer(const MSLayer & layer) const
 {
   vector<MSLayer>::const_iterator it =
      find(theLayers.begin(), theLayers.end(), layer);
-  return it==theLayers.end() ? 0 : &(*it);  
+  return it==theLayers.end() ? nullptr : &(*it);  
 }
 
 //------------------------------------------------------------------------------

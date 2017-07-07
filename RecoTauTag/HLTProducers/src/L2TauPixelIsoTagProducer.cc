@@ -70,7 +70,7 @@ void L2TauPixelIsoTagProducer::produce(edm::StreamID sid, edm::Event& ev, const 
   ev.getByToken(m_vertexSrc_token, vertices);
 
   // find the primary vertex (the 1st valid non-fake vertex in the collection)
-  const Vertex *pv = 0;
+  const Vertex *pv = nullptr;
   for(const auto & v : *(vertices.product()) )
   {
     if(!v.isValid() || v.isFake()) continue;

@@ -99,7 +99,7 @@ MuonTCMETValueMapProducer::MuonTCMETValueMapProducer(const edm::ParameterSet& iC
   useCaloMuons_ = iConfig.getParameter<bool>("useCaloMuons");
   muonMinValidStaHits_ = iConfig.getParameter<int>("muonMinValidStaHits");
 
-  response_function = 0;
+  response_function = nullptr;
   tcmetAlgo_=new TCMETAlgo();
 
   if( rfType_ == 1 )

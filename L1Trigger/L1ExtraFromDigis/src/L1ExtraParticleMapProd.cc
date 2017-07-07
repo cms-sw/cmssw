@@ -2442,8 +2442,8 @@ L1ExtraParticleMapProd::evaluateDoubleDifferentCaloObjectTrigger(
 
 	    // Check for identical region only if both HW objects are non-null.
 	    if( refj.get()->et() >= etThreshold2 &&
-		( refi.get()->gctEmCand() == 0 ||
-		  refj.get()->gctJetCand() == 0 ||
+		( refi.get()->gctEmCand() == nullptr ||
+		  refj.get()->gctJetCand() == nullptr ||
 		  refi.get()->gctEmCand()->regionId() !=
 		  refj.get()->gctJetCand()->regionId() ) )
 	    {

@@ -208,9 +208,9 @@ void HcalTestAnalysis::update(const BeginOfRun * run) {
  
   std::string sdname = names[0];
   G4SDManager* sd = G4SDManager::GetSDMpointerIfExist();
-  if (sd != 0) {
+  if (sd != nullptr) {
     G4VSensitiveDetector* aSD = sd->FindSensitiveDetector(sdname);
-    if (aSD==0) {
+    if (aSD==nullptr) {
       edm::LogWarning("HcalSim") << "HcalTestAnalysis::beginOfRun: No SD with "
 				 << "name " << sdname << " in this Setup";
     } else {
@@ -251,7 +251,7 @@ void HcalTestAnalysis::update(const BeginOfEvent * evt) {
 //=================================================================== each STEP
 void HcalTestAnalysis::update(const G4Step * aStep) {
 
-  if (aStep != NULL) {
+  if (aStep != nullptr) {
     G4VPhysicalVolume* curPV  = aStep->GetPreStepPoint()->GetPhysicalVolume();
     G4String name = curPV->GetName();
     name.assign(name,0,3);

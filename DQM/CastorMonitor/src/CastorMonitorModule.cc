@@ -39,9 +39,9 @@ CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet& ps)
 
   irun_= ilumisec_=  ievent_ = ibunch_=0;
 
-  DigiMon_ = NULL; 
-  RecHitMon_ = NULL;
-  LedMon_ = NULL;
+  DigiMon_ = nullptr; 
+  RecHitMon_ = nullptr;
+  LedMon_ = nullptr;
  
   if ( ps.getUntrackedParameter<bool>("DigiMonitor", false) )
     DigiMon_ = new CastorDigiMonitor(ps);
@@ -58,9 +58,9 @@ CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet& ps)
 }
 
 CastorMonitorModule::~CastorMonitorModule() { 
-  if (DigiMon_ != NULL)  delete DigiMon_;
-  if (RecHitMon_ != NULL) delete RecHitMon_; 
-  if (LedMon_ != NULL) delete LedMon_;
+  if (DigiMon_ != nullptr)  delete DigiMon_;
+  if (RecHitMon_ != nullptr) delete RecHitMon_; 
+  if (LedMon_ != nullptr) delete LedMon_;
 }
 
 void CastorMonitorModule::dqmBeginRun(const edm::Run& iRun,
@@ -79,9 +79,9 @@ void CastorMonitorModule::bookHistograms(DQMStore::IBooker& ibooker,
 {
  if(fVerbosity>0) std::cout<<"CastorMonitorModule::beginRun (start)" << std::endl;
 
- if (DigiMon_ != NULL) { DigiMon_->bookHistograms(ibooker,iRun,iSetup);}
- if (RecHitMon_ != NULL) { RecHitMon_->bookHistograms(ibooker,iRun,iSetup); }
- if (LedMon_ != NULL) { LedMon_->bookHistograms(ibooker,iRun,iSetup); }
+ if (DigiMon_ != nullptr) { DigiMon_->bookHistograms(ibooker,iRun,iSetup);}
+ if (RecHitMon_ != nullptr) { RecHitMon_->bookHistograms(ibooker,iRun,iSetup); }
+ if (LedMon_ != nullptr) { LedMon_->bookHistograms(ibooker,iRun,iSetup); }
 
   ibooker.setCurrentFolder(subsystemname_); 
  char s[60];
@@ -197,21 +197,21 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
   if(digiOK_) DigiMon_->processEvent(*CastorDigi,*conditions_);
   if (showTiming_){
    cpu_timer.stop();
-   if (DigiMon_!=NULL) std::cout <<"TIMER:: DIGI MONITOR ->"<<cpu_timer.cpuTime()<<std::endl;
+   if (DigiMon_!=nullptr) std::cout <<"TIMER:: DIGI MONITOR ->"<<cpu_timer.cpuTime()<<std::endl;
    cpu_timer.reset(); cpu_timer.start();
   }
 
  if(rechitOK_)	RecHitMon_->processEvent(*CastorHits);
  if(showTiming_){
   cpu_timer.stop();
-  if (RecHitMon_!=NULL) std::cout<<"TIMER:: RECHIT MONITOR->"<<cpu_timer.cpuTime()<<std::endl;
+  if (RecHitMon_!=nullptr) std::cout<<"TIMER:: RECHIT MONITOR->"<<cpu_timer.cpuTime()<<std::endl;
   cpu_timer.reset(); cpu_timer.start();
  }
 
  if(digiOK_) LedMon_->processEvent(*CastorDigi,*conditions_);
  if (showTiming_){
    cpu_timer.stop();
-   if(LedMon_!=NULL) std::cout <<"TIMER:: LED MONITOR ->"<<cpu_timer.cpuTime()<<std::endl;
+   if(LedMon_!=nullptr) std::cout <<"TIMER:: LED MONITOR ->"<<cpu_timer.cpuTime()<<std::endl;
    cpu_timer.reset(); cpu_timer.start();
  }
 

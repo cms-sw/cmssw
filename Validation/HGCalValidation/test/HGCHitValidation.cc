@@ -143,15 +143,15 @@ HGCHitValidation::HGCHitValidation( const edm::ParameterSet &cfg ) {
     bhRecHitTokenh_ = consumes<HBHERecHitCollection>(cfg.getParameter<edm::InputTag>("bhRecHitSource"));
   else
     bhRecHitTokeng_ = consumes<HGChebRecHitCollection>(cfg.getParameter<edm::InputTag>("bhRecHitSource"));
-  hgcHits  = 0;
-  heeRecX  = heeRecY  = heeRecZ  = heeRecEnergy = 0;
-  hefRecX  = hefRecY  = hefRecZ  = hefRecEnergy = 0;
-  hebRecX  = hebRecY  = hebRecZ  = hebRecEnergy = 0;
-  heeSimX  = heeSimY  = heeSimZ  = heeSimEnergy = 0;
-  hefSimX  = hefSimY  = hefSimZ  = hefSimEnergy = 0;
-  hebSimX  = hebSimY  = hebSimZ  = hebSimEnergy = 0;
-  hebSimEta= hebRecEta= hebSimPhi= hebRecPhi    = 0;
-  heeDetID = hefDetID = hebDetID = 0;
+  hgcHits  = nullptr;
+  heeRecX  = heeRecY  = heeRecZ  = heeRecEnergy = nullptr;
+  hefRecX  = hefRecY  = hefRecZ  = hefRecEnergy = nullptr;
+  hebRecX  = hebRecY  = hebRecZ  = hebRecEnergy = nullptr;
+  heeSimX  = heeSimY  = heeSimZ  = heeSimEnergy = nullptr;
+  hefSimX  = hefSimY  = hefSimZ  = hefSimEnergy = nullptr;
+  hebSimX  = hebSimY  = hebSimZ  = hebSimEnergy = nullptr;
+  hebSimEta= hebRecEta= hebSimPhi= hebRecPhi    = nullptr;
+  heeDetID = hefDetID = hebDetID = nullptr;
 
 #ifdef EDM_ML_DEBUG
   edm::LogInfo("HGCalValid") << "Exclude the following " 
@@ -221,7 +221,7 @@ void HGCHitValidation::beginRun(edm::Run const& iRun,
       iSetup.get<HcalSimNumberingRecord>().get(pHSNDC);
       if (pHSNDC.isValid()) {
         hcCons_ = pHSNDC.product();
-        hgcCons_.push_back(0);
+        hgcCons_.push_back(nullptr);
       } else {
         edm::LogWarning("HGCalValid") << "Cannot initiate HcalDDDSimConstants: "
                                       << geometrySource_[i] << std::endl;
@@ -239,7 +239,7 @@ void HGCHitValidation::beginRun(edm::Run const& iRun,
       if (caloG.isValid()) {
 	const CaloGeometry* geo = caloG.product();
 	hcGeometry_ = geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
-	hgcGeometry_.push_back(0);
+	hgcGeometry_.push_back(nullptr);
       } else {
         edm::LogWarning("HGCalValid") << "Cannot initiate HcalGeometry for "
                                       << geometrySource_[i] << std::endl;

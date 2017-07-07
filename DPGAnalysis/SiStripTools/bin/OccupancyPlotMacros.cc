@@ -146,15 +146,15 @@ void PlotOccupancyMapGeneric(TFile* ff, const char* module, const float min, con
       }
 
       TH1D* haveoccu = aveoccu->ProjectionX("haveoccu");
-      haveoccu->SetDirectory(0);
+      haveoccu->SetDirectory(nullptr);
       haveoccu->Divide(nchannels);
 
       TH1D* havemult = avemult->ProjectionX("havemult");
-      havemult->SetDirectory(0);
+      havemult->SetDirectory(nullptr);
       havemult->Divide(nchannels);
 
       TH1D* havewidth = (TH1D*)haveoccu->Clone("havewidth");
-      havewidth->SetDirectory(0);
+      havewidth->SetDirectory(nullptr);
       havewidth->SetTitle("Average Cluster Size");
       havewidth->Divide(havemult);
 
@@ -365,10 +365,10 @@ void PlotOnTrackOccupancyGeneric(TFile* ff, const char* module, const char* ontr
   
   gROOT->SetStyle("Plain");
 
-  TProfile* avemult=0;
-  TProfile* aveontrkmult=0;
-  TProfile* averadius =0;
-  TProfile* avez =0;
+  TProfile* avemult=nullptr;
+  TProfile* aveontrkmult=nullptr;
+  TProfile* averadius =nullptr;
+  TProfile* avez =nullptr;
 
   if(ff->cd(module)) {
     avemult= (TProfile*)gDirectory->Get("avemult");
@@ -383,8 +383,8 @@ void PlotOnTrackOccupancyGeneric(TFile* ff, const char* module, const char* ontr
 
     TH1D* havemult = avemult->ProjectionX("havemult");
     TH1D* haveontrkmult = aveontrkmult->ProjectionX("haveontrkmult");
-      havemult->SetDirectory(0);
-      haveontrkmult->SetDirectory(0);
+      havemult->SetDirectory(nullptr);
+      haveontrkmult->SetDirectory(nullptr);
       haveontrkmult->Divide(havemult);
 
       new TCanvas("ontrkmult","ontrkmult",1200,500);
@@ -575,7 +575,7 @@ TCanvas* drawMap(const char* cname, const TH1* hval, const TProfile* averadius, 
     
   }
 
-  TGaxis *mpaxis=0;
+  TGaxis *mpaxis=nullptr;
   if(scale(1)!=1) {
     mpaxis = new TGaxis(330,0,330,140,mmin,mmax,510,"SLG+");
   }
@@ -701,8 +701,8 @@ TH1D* TrendPlotSingleBin(TFile* ff, const char* module, const char* hname, const
       caoccu.setPath(runpath);
       
       
-      TProfile* occu=0;
-      if(occu==0) occu = (TProfile*)caoccu.getObject(hname);
+      TProfile* occu=nullptr;
+      if(occu==nullptr) occu = (TProfile*)caoccu.getObject(hname);
       if(occu) {
 
 	const int ibin=occu->FindBin(bin);

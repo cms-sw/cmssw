@@ -174,7 +174,7 @@ namespace edm {
   template <typename PROD>
   void
   Run::put(std::unique_ptr<PROD> product, std::string const& productInstanceName) {
-    if (product.get() == 0) {                // null pointer is illegal
+    if (product.get() == nullptr) {                // null pointer is illegal
       TypeID typeID(typeid(PROD));
       principal_get_adapter_detail::throwOnPutOfNullProduct("Run", typeID, productInstanceName);
     }

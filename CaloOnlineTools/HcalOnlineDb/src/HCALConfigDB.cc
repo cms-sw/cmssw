@@ -30,14 +30,14 @@ using namespace hcal;
 
 HCALConfigDB::HCALConfigDB( void )
 {    
-  database = 0;
-  database2 = 0;
+  database = nullptr;
+  database2 = nullptr;
 }
 
 HCALConfigDB::HCALConfigDB( std::string _accessor )
 {    
-  database = 0;
-  database2 = 0;
+  database = nullptr;
+  database2 = nullptr;
   accessor = _accessor;
 }
 
@@ -99,8 +99,8 @@ void HCALConfigDB::connect( std::string _accessor1, std::string _accessor2 )
 
 void HCALConfigDB::disconnect( void )
 {
-  if ( database != NULL ) database -> disconnect();
-  if ( database2 != NULL ) database2 -> disconnect();
+  if ( database != nullptr ) database -> disconnect();
+  if ( database2 != nullptr ) database2 -> disconnect();
 }
 
 

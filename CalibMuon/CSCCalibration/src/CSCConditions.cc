@@ -38,7 +38,7 @@ CSCConditions::CSCConditions( const edm::ParameterSet& ps )
 : theGains(), theCrosstalk(), thePedestals(), theNoiseMatrix(),
   theBadStrips(), theBadWires(), theBadChambers(),
   theChipCorrections(), theChamberTimingCorrections(), theGasGainCorrections(),
-  indexer_(0), mapper_(0),
+  indexer_(nullptr), mapper_(nullptr),
   readBadChannels_(false), readBadChambers_(false),
   useTimingCorrections_(false), useGasGainCorrections_(false), 
   idOfBadChannelWords_(CSCDetId()), badStripWord_(0), badWireWord_(0), theAverageGain( -1.0 )

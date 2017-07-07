@@ -28,7 +28,7 @@ private:
 
 void FWME0DigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*)
 {
-  const ME0DigiPreRecoCollection* digis = 0;
+  const ME0DigiPreRecoCollection* digis = nullptr;
  
   iItem->get(digis);
 

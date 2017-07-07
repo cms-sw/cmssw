@@ -37,7 +37,7 @@ void HistogramBase::getConfigForHistogram(HistogramConfig & aConfig,
 					  )
 {
 
-  aConfig.monitorEle = 0;
+  aConfig.monitorEle = nullptr;
   aConfig.enabled = false;
   aConfig.nBins = 0;
   aConfig.min = aConfig.max = 0.;
@@ -98,7 +98,7 @@ void HistogramBase::bookHistogram(DQMStore::IBooker & ibooker , HistogramConfig 
     aConfig.monitorEle = ibooker.book1D(name,title,nBins,min,max);
     aConfig.monitorEle->setAxisTitle(xAxisTitle,1);
   } else {
-    aConfig.monitorEle = 0;
+    aConfig.monitorEle = nullptr;
   }
 
 }
@@ -118,7 +118,7 @@ void HistogramBase::bookHistogram(DQMStore::IBooker & ibooker , HistogramConfig 
     aHist = ibooker.book1D(name,title,nBins,min,max);
     aHist->setAxisTitle(xAxisTitle,1);
   } else {
-    aHist = 0;
+    aHist = nullptr;
   }
 
 }
@@ -151,7 +151,7 @@ void HistogramBase::book2DHistogram(DQMStore::IBooker & ibooker , HistogramConfi
     aConfig.monitorEle->setAxisTitle(xAxisTitle,1);
     aConfig.monitorEle->setAxisTitle(yAxisTitle,2);
   } else {
-    aConfig.monitorEle=NULL;
+    aConfig.monitorEle=nullptr;
   }
 }
 
@@ -175,7 +175,7 @@ void HistogramBase::book2DHistogram(DQMStore::IBooker & ibooker , HistogramConfi
     aHist->setAxisTitle(xAxisTitle,1);
     aHist->setAxisTitle(yAxisTitle,2);
   } else {
-    aHist=NULL;
+    aHist=nullptr;
   }
 }
 
@@ -206,7 +206,7 @@ void HistogramBase::bookProfile(DQMStore::IBooker & ibooker , HistogramConfig & 
     aConfig.monitorEle->setAxisTitle(xAxisTitle,1);
     aConfig.monitorEle->setAxisTitle(yAxisTitle,2);
   } else {
-    aConfig.monitorEle = NULL;
+    aConfig.monitorEle = nullptr;
   }
 }
 

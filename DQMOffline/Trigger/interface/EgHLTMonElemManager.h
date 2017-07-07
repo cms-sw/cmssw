@@ -64,7 +64,7 @@ namespace egHLT {
   };
   
   template <class T> MonElemManagerHist<T>::MonElemManagerHist(DQMStore::IBooker &iBooker, std::string name,std::string title,int nrBins,double xMin,double xMax):
-    monElem_(NULL)
+    monElem_(nullptr)
   {
     monElem_ = iBooker.book1D(name,title,nrBins,xMin,xMax);
   }
@@ -72,7 +72,7 @@ namespace egHLT {
   template <class T> MonElemManagerHist<T>::MonElemManagerHist(DQMStore::IBooker &iBooker, std::string name,std::string title,
 							       int nrBinsX,double xMin,double xMax,
 							       int nrBinsY,double yMin,double yMax):
-    monElem_(NULL)
+    monElem_(nullptr)
   {
     monElem_ = iBooker.book2D(name,title,nrBinsX,xMin,xMax,nrBinsY,yMin,yMax);
   }

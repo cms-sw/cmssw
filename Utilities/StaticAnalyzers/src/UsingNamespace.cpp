@@ -25,7 +25,7 @@ void UsingNamespace::checkASTDecl (const clang::UsingDecl *D, clang::ento::Analy
 
 bool UsingNamespace::isDeclOK (const clang::NamedDecl *D, clang::ento::BugReporter &BR) const
 {
-  if (D->getDeclContext ()->getParent()!=0) return true;
+  if (D->getDeclContext ()->getParent()!=nullptr) return true;
   const char *sfile=BR.getSourceManager().getPresumedLoc(D->getLocation ()).getFilename();
   if (!support::isCmsLocalFile(sfile)) return true;
   size_t flen = strlen(sfile);

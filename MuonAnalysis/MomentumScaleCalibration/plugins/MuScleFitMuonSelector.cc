@@ -11,7 +11,7 @@ MuScleFitMuonSelector::getStatus1Muon(const reco::Candidate* status3Muon){
   const reco::Candidate* tempMuon = status3Muon;
   //  bool lastCopy = ((reco::GenParticle*)tempMuon)->isLastCopy();                      //  isLastCopy() likely not enough robust
   bool isPromptFinalState = ((reco::GenParticle*)tempMuon)->isPromptFinalState();        //  pre-CMSSW_74X code: int status = tempStatus1Muon->status();
-  while(tempMuon == 0 || tempMuon->numberOfDaughters()!=0){
+  while(tempMuon == nullptr || tempMuon->numberOfDaughters()!=0){
     if ( isPromptFinalState ) break;                                                     //  pre-CMSSW_74X code: if (status == 1) break;
     //std::vector<const reco::Candidate*> daughters;
     for (unsigned int i=0; i<tempMuon->numberOfDaughters(); ++i){
@@ -30,7 +30,7 @@ const reco::Candidate*
 MuScleFitMuonSelector::getStatus3Muon(const reco::Candidate* status3Muon){
   const reco::Candidate* tempMuon = status3Muon;
   bool lastCopy = ((reco::GenParticle*)tempMuon)->isLastCopyBeforeFSR();        //  pre-CMSSW_74X code: int status = tempStatus1Muon->status();
-  while(tempMuon == 0 || tempMuon->numberOfDaughters()!=0){
+  while(tempMuon == nullptr || tempMuon->numberOfDaughters()!=0){
     if ( lastCopy ) break;                                                      //  pre-CMSSW_74X code: if (status == 3) break;
     //std::vector<const reco::Candidate*> daughters;
     for (unsigned int i=0; i<tempMuon->numberOfDaughters(); ++i){
@@ -276,7 +276,7 @@ void MuScleFitMuonSelector::selectGeneratedMuons(const edm::Handle<pat::Composit
       genPatParticles->push_back(*(const_cast<reco::GenParticle*>(genMu2.get())));
 
       unsigned int motherId = 0;
-      if( genMu1->mother() != 0 ) {
+      if( genMu1->mother() != nullptr ) {
 	 motherId = genMu1->mother()->pdgId();
       }
       if(genMu1->pdgId()==13)
@@ -476,7 +476,7 @@ std::pair<lorentzVector, lorentzVector> MuScleFitMuonSelector::findSimMuFromRes(
       //If tracks from IP than find mother
       if ((*simTrack).genpartIndex()>0) {
 	HepMC::GenParticle* gp = evtMC->GetEvent()->barcode_to_particle ((*simTrack).genpartIndex());
-        if( gp != 0 ) {
+        if( gp != nullptr ) {
 
           for (HepMC::GenVertex::particle_iterator mother = gp->production_vertex()->particles_begin(HepMC::ancestors);
                mother!=gp->production_vertex()->particles_end(HepMC::ancestors); ++mother) {

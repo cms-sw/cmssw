@@ -60,7 +60,7 @@ private:
 
 AlignmentRcdScan::AlignmentRcdScan( const edm::ParameterSet& iConfig )
   :verbose_(iConfig.getUntrackedParameter<bool>("verbose")),
-   refAlignments_(0)
+   refAlignments_(nullptr)
 {
   std::string modestring = iConfig.getUntrackedParameter<std::string>("mode");
   if (modestring=="Tk") {

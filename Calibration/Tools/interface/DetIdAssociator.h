@@ -29,9 +29,9 @@
 
 class HDetIdAssociator{
  public:
-   HDetIdAssociator():theMap_(0),nPhi_(0),nEta_(0),etaBinSize_(0),ivProp_(0){};
+   HDetIdAssociator():theMap_(nullptr),nPhi_(0),nEta_(0),etaBinSize_(0),ivProp_(nullptr){};
    HDetIdAssociator(const int nPhi, const int nEta, const double etaBinSize)
-     :theMap_(0),nPhi_(nPhi),nEta_(nEta),etaBinSize_(etaBinSize),ivProp_(0){};
+     :theMap_(nullptr),nPhi_(nPhi),nEta_(nEta),etaBinSize_(etaBinSize),ivProp_(nullptr){};
    
    virtual ~HDetIdAssociator(){};
    virtual std::vector<GlobalPoint> getTrajectory( const FreeTrajectoryState&,
@@ -71,7 +71,7 @@ class HDetIdAssociator{
      {
 	if (nEta_==0) throw cms::Exception("FatalError") << "Number of eta bins is not set.\n";
 	if (nPhi_==0) throw cms::Exception("FatalError") << "Number of phi bins is not set.\n";
-	if (ivProp_==0) throw cms::Exception("FatalError") << "Track propagator is not defined\n";
+	if (ivProp_==nullptr) throw cms::Exception("FatalError") << "Track propagator is not defined\n";
 	if (etaBinSize_==0) throw cms::Exception("FatalError") << "Eta bin size is not set.\n";
      }
    

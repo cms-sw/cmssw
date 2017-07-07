@@ -272,11 +272,11 @@ bool pat::PackedCandidate::overlap( const reco::Candidate & o ) const {
 }
 
 const reco::Candidate * pat::PackedCandidate::daughter( size_type ) const {
-  return 0;
+  return nullptr;
 }
 
 const reco::Candidate * pat::PackedCandidate::mother( size_type ) const {
-  return 0;
+  return nullptr;
 }
 
 const reco::Candidate * pat::PackedCandidate::daughter(const std::string&) const {
@@ -294,7 +294,7 @@ reco::Candidate * pat::PackedCandidate::daughter(const std::string&) {
 
 
 reco::Candidate * pat::PackedCandidate::daughter( size_type ) {
-  return 0;
+  return nullptr;
 }
 
 double pat::PackedCandidate::vertexChi2() const {

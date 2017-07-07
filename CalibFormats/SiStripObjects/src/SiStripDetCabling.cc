@@ -12,7 +12,7 @@
 #include <iostream>
 
 //---- default constructor / destructor
-SiStripDetCabling::SiStripDetCabling(const TrackerTopology* const topology) : fedCabling_(0), tTopo(topology) {}
+SiStripDetCabling::SiStripDetCabling(const TrackerTopology* const topology) : fedCabling_(nullptr), tTopo(topology) {}
 SiStripDetCabling::~SiStripDetCabling() {}
 
 //---- construct detector view (DetCabling) out of readout view (FedCabling)
@@ -147,7 +147,7 @@ const std::vector<const FedChannelConnection *>& SiStripDetCabling::getConnectio
 const FedChannelConnection& SiStripDetCabling::getConnection( uint32_t det_id, unsigned short apv_pair ) const{
   const std::vector<const FedChannelConnection *>& fcconns = getConnections(det_id);
   for(std::vector<const FedChannelConnection *>::const_iterator iconn = fcconns.begin(); iconn!=fcconns.end();++iconn){
-    if ( ((*iconn) != 0) && (((*iconn)->apvPairNumber()) == apv_pair) ) { // check if apvPairNumber() of present FedChannelConnection is the same as requested one
+    if ( ((*iconn) != nullptr) && (((*iconn)->apvPairNumber()) == apv_pair) ) { // check if apvPairNumber() of present FedChannelConnection is the same as requested one
       return (**iconn); // if yes, return the FedChannelConnection object
     }
   }
@@ -176,7 +176,7 @@ const uint16_t SiStripDetCabling::nApvPairs(uint32_t det_id) const{
   if(fcconns.size()!=0) {
     // patch needed to take into account the possibility that the first component of fcconns is invalid
     for(size_t i=0;i<fcconns.size();++i) {
-      if ( (fcconns.at(i) != 0) && (fcconns.at(i)->nApvPairs() != sistrip::invalid_) ) {
+      if ( (fcconns.at(i) != nullptr) && (fcconns.at(i)->nApvPairs() != sistrip::invalid_) ) {
         return fcconns.at(i)->nApvPairs(); // nr of apvpairs for associated module
       }
     }

@@ -405,7 +405,7 @@ void HGCalTBAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
       iSetup.get<IdealGeometryRecord>().get(detectorEE_, geom);
       hgeom_[0] = geom.product();
     } else {
-      hgeom_[0] = 0;
+      hgeom_[0] = nullptr;
     }
     for (unsigned int l=0; l<hgcons_[0]->layers(false); ++l) {
       sprintf (name, "SimHitEnA%d%s", l, detectorEE_.c_str());
@@ -424,8 +424,8 @@ void HGCalTBAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
 	      << hgcons_[0]->layers(false) << " layers" << std::endl;
 #endif
   } else {
-    hgcons_[0] = 0;
-    hgeom_[0]  = 0;
+    hgcons_[0] = nullptr;
+    hgeom_[0]  = nullptr;
   }
 
   if (ifFH_) {
@@ -437,7 +437,7 @@ void HGCalTBAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
       iSetup.get<IdealGeometryRecord>().get(detectorFH_, geom);
       hgeom_[1] = geom.product();
     } else {
-      hgeom_[1] = 0;
+      hgeom_[1] = nullptr;
     }
     for (unsigned int l=0; l<hgcons_[1]->layers(false); ++l) {
       sprintf (name, "SimHitEnA%d%s", l, detectorFH_.c_str());
@@ -456,8 +456,8 @@ void HGCalTBAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
 	      << hgcons_[1]->layers(false) << " layers" << std::endl;
 #endif
   } else {
-    hgcons_[1] = 0;
-    hgeom_[1]  = 0;
+    hgcons_[1] = nullptr;
+    hgeom_[1]  = nullptr;
   }
 
   if (ifBH_) {

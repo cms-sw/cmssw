@@ -1272,7 +1272,7 @@ namespace sistrip {
 
 
   FEDBufferBase::FEDBufferBase(const uint8_t* fedBuffer, const size_t fedBufferSize, const bool allowUnrecognizedFormat)
-    : channels_(FEDCH_PER_FED,FEDChannel(NULL,0,0)),
+    : channels_(FEDCH_PER_FED,FEDChannel(nullptr,0,0)),
       originalBuffer_(fedBuffer),
       bufferSize_(fedBufferSize)
   {
@@ -1284,7 +1284,7 @@ namespace sistrip {
       bufferSize_(fedBufferSize)
   {
     init(fedBuffer,fedBufferSize,allowUnrecognizedFormat);
-    if (fillChannelVector) channels_.assign(FEDCH_PER_FED,FEDChannel(NULL,0,0));
+    if (fillChannelVector) channels_.assign(FEDCH_PER_FED,FEDChannel(nullptr,0,0));
   }
   
   void FEDBufferBase::init(const uint8_t* fedBuffer, const size_t fedBufferSize, const bool allowUnrecognizedFormat)

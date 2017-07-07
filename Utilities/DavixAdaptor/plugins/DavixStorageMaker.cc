@@ -20,13 +20,13 @@ public:
   }
 
   virtual bool check(const std::string &proto, const std::string &path, const AuxSettings &aux,
-                     IOOffset *size = 0) const override {
+                     IOOffset *size = nullptr) const override {
     std::string newurl((proto == "web" ? "http" : proto) + ":" + path);
     Davix::DavixError *err = nullptr;
     Davix::Context c;
     Davix::DavPosix davixPosix(&c);
     Davix::StatInfo info;
-    davixPosix.stat64(NULL, newurl, &info, &err);
+    davixPosix.stat64(nullptr, newurl, &info, &err);
     if (err) {
       std::unique_ptr<Davix::DavixError> davixErrManaged(err);
       cms::Exception ex("FileCheckError");

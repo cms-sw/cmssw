@@ -280,7 +280,7 @@ OutsideInMuonSeeder::doDebug(const reco::Track &tk) const {
     for (unsigned int i = 0; i < tk.recHitsSize(); ++i) {
         const TrackingRecHit *hit = &*tk.recHit(i);
         const GeomDet *det = geometry_->idToDet(hit->geographicalId());
-        if (det == 0) continue;
+        if (det == nullptr) continue;
         if (i != 0) tsos = pmuon_cloned->propagate(tsos, det->surface());
         if (!tsos.isValid()) continue;
         LogDebug("OutsideInMuonSeeder") << "  state " << i << " at x = " << tsos.globalPosition() << ", p = " << tsos.globalMomentum() << std::endl;

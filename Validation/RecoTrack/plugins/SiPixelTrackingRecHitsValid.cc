@@ -111,7 +111,7 @@ void SiPixelTrackingRecHitsValid::beginJob()
 
 SiPixelTrackingRecHitsValid::SiPixelTrackingRecHitsValid(const edm::ParameterSet& ps) :
   trackerHitAssociatorConfig_(ps, consumesCollector()),
-  dbe_(0), tfile_(0), t_(0)
+  dbe_(nullptr), tfile_(nullptr), t_(nullptr)
 {
   //Read config file
   MTCCtrack_ = ps.getParameter<bool>("MTCCtrack");

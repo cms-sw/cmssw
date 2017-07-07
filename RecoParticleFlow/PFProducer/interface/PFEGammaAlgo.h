@@ -80,7 +80,7 @@ class PFEGammaAlgo {
     float > KFValMap;  
     
   struct ProtoEGObject {
-    ProtoEGObject() : parentSC(NULL) {}
+    ProtoEGObject() : parentSC(nullptr) {}
     reco::PFBlockRef parentBlock;
     const PFSCElement* parentSC; // if ECAL driven
     reco::ElectronSeedRef electronSeed; // if there is one

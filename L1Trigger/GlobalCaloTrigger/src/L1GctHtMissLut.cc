@@ -13,12 +13,12 @@ L1GctHtMissLut::L1GctHtMissLut(const L1CaloEtScale* const scale, const double ls
   m_etScale(scale),
   m_componentLsb(lsb)
 {
-  if (scale != 0) m_setupOk = true;
+  if (scale != nullptr) m_setupOk = true;
 }
 
 L1GctHtMissLut::L1GctHtMissLut() :
   L1GctLut<NAddress,NData>(),
-  m_etScale(0),
+  m_etScale(nullptr),
   m_componentLsb(1.0)
 {
 }
@@ -28,7 +28,7 @@ L1GctHtMissLut::L1GctHtMissLut(const L1GctHtMissLut& lut) :
   m_etScale(lut.etScale()),
   m_componentLsb(lut.componentLsb())
 {
-  if (m_etScale != 0) m_setupOk = true;
+  if (m_etScale != nullptr) m_setupOk = true;
 }
 
 L1GctHtMissLut::~L1GctHtMissLut()

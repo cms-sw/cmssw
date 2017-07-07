@@ -71,7 +71,7 @@ FWConfigurationManager::~FWConfigurationManager()
 void
 FWConfigurationManager::add(const std::string& iName, FWConfigurable* iConf)
 {
-   assert(0!=iConf);
+   assert(nullptr!=iConf);
    m_configurables[iName]=iConf;
 }
 
@@ -81,7 +81,7 @@ FWConfigurationManager::add(const std::string& iName, FWConfigurable* iConf)
 void
 FWConfigurationManager::setFrom(const FWConfiguration& iConfig) const
 {
-   assert(0!=iConfig.keyValues());
+   assert(nullptr!=iConfig.keyValues());
    for(FWConfiguration::KeyValues::const_iterator it = iConfig.keyValues()->begin(),
                                                   itEnd = iConfig.keyValues()->end();
        it != itEnd;
@@ -199,7 +199,7 @@ FWConfigurationManager::guessAndReadFromFile( FWJobMetadataManager* dataMng) con
         int cnt;
         const FWConfiguration* cfg;
 
-        CMatch(std::string f):file(f), cnt(0), cfg(0) {}
+        CMatch(std::string f):file(f), cnt(0), cfg(nullptr) {}
         bool operator < (const CMatch& x) const { return cnt < x.cnt; }
     };
 
@@ -223,7 +223,7 @@ FWConfigurationManager::guessAndReadFromFile( FWJobMetadataManager* dataMng) con
         parser->parse();
 
         c->cfg = parser->config();
-        const FWConfiguration::KeyValues* keyValues = 0;
+        const FWConfiguration::KeyValues* keyValues = nullptr;
         for(FWConfiguration::KeyValues::const_iterator it = c->cfg->keyValues()->begin(),
                 itEnd = c->cfg->keyValues()->end();  it != itEnd; ++it) {
             if (it->first == "EventItems" )  {

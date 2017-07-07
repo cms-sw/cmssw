@@ -81,7 +81,7 @@ class TH1FCumulator : public CumulatorBase {
   virtual ~TH1FCumulator() {}
 
   void cumulate(int ls) {
-    MonitorElement *tmp = NULL;
+    MonitorElement *tmp = nullptr;
     if (!(tmp = store_->get(folder_ + name_)))
       throw cms::Exception("MissingHistogram") << name_ << std::endl;
 
@@ -145,7 +145,7 @@ class TH2FCumulator : public CumulatorBase {
   virtual ~TH2FCumulator() {}
 
   void cumulate(int ls) {
-    MonitorElement *tmp = NULL;
+    MonitorElement *tmp = nullptr;
     if (!(tmp = store_->get(folder_ + name_)))
       throw cms::Exception("MissingHistogram") << name_ << std::endl;
 

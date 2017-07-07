@@ -135,7 +135,7 @@ int main()
         ConstantMagneticFieldProvider4T theProvider;
 	ConstantMagVolume4T theMagVolume( MagVolume::PositionType(0,0,0), MagVolume::RotationType(),
 				    ddshapeless, &theProvider);
-	NavVolume6Faces vol( volumePos, volumeRot, ddshapeless, MyNavVolumeSides, 0);
+	NavVolume6Faces vol( volumePos, volumeRot, ddshapeless, MyNavVolumeSides, nullptr);
 	
 	UniformMomentumGenerator momentumGenerator;
 	//MM: Added MyTestField needed for Analytical Propagator

@@ -96,7 +96,7 @@ static TreeSaver::Registry registry("TreeSaver");
 TreeSaver::TreeSaver(const char *name, const AtomicId *id,
                    MVATrainer *trainer) :
 	TrainProcessor(name, id, trainer),
-	iteration(ITER_EXPORT), tree(0), flagsPassed(false), begun(false)
+	iteration(ITER_EXPORT), tree(nullptr), flagsPassed(false), begun(false)
 {
 }
 
@@ -133,7 +133,7 @@ void TreeSaver::configure(DOMElement *elem)
 		Var var;
 		var.name = name;
 		var.flags = Variable::FLAG_NONE;
-		var.ptr = 0;
+		var.ptr = nullptr;
 		vars.push_back(var);
 	}
 }

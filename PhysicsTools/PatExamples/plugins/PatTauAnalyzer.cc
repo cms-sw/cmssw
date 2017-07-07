@@ -18,7 +18,7 @@ const reco::GenParticle* getGenTau(const pat::Tau& patTau)
     }
   }
 
-  return 0;
+  return nullptr;
 }
 
 PatTauAnalyzer::PatTauAnalyzer(const edm::ParameterSet& cfg)

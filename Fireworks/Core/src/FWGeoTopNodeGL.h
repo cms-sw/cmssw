@@ -15,7 +15,7 @@ public:
 
    virtual void   SetBBox();
 
-   virtual Bool_t SetModel(TObject* obj, const Option_t* opt=0);
+   virtual Bool_t SetModel(TObject* obj, const Option_t* opt=nullptr);
    virtual void   DirectDraw(TGLRnrCtx& rnrCtx) const;
 
    // virtual void   DrawHighlight(TGLRnrCtx& rnrCtx, const TGLPhysicalShape* pshp, Int_t lvl=-1) const;

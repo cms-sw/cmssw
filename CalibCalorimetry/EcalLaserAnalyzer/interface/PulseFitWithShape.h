@@ -21,7 +21,7 @@ class PulseFitWithShape: public TObject
 
   // Compute amplitude of a channel
 
-  virtual double doFit(double *,double *cova=0) ;
+  virtual double doFit(double *,double *cova=nullptr) ;
   
   double fAmp_fitted_max ; // amplitude maximum fitted
   double fTim_fitted_max ; // time of amplitude maximum fitted 

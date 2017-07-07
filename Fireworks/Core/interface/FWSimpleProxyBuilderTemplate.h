@@ -48,7 +48,7 @@ protected:
    using FWSimpleProxyBuilder::build;
    virtual void build(const void*iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* context)
    {
-      if(0!=iData) {
+      if(nullptr!=iData) {
          build(*reinterpret_cast<const T*> (iData), iIndex, oItemHolder, context);
       }
    }
@@ -56,7 +56,7 @@ protected:
    using FWSimpleProxyBuilder::buildViewType;
    virtual void buildViewType(const void*iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType viewType, const FWViewContext* context)
    {
-      if(0!=iData) {
+      if(nullptr!=iData) {
          buildViewType(*reinterpret_cast<const T*> (iData), iIndex, oItemHolder, viewType, context);
       }
    }

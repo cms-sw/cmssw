@@ -32,7 +32,7 @@ private:
 
 void FWPCaloHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*)
 {
-   const edm::PCaloHitContainer *collection = 0;
+   const edm::PCaloHitContainer *collection = nullptr;
    iItem->get( collection );
    if (! collection)
       return;

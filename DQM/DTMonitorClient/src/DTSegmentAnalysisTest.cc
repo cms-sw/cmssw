@@ -115,12 +115,12 @@ void DTSegmentAnalysisTest::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGe
 
   if(normalizeHistoPlots) {
     LogTrace ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") << " Performing time-histo normalization" << endl;
-    MonitorElement* hNevtPerLS = 0;
+    MonitorElement* hNevtPerLS = nullptr;
 
     if(hltDQMMode) hNevtPerLS = igetter.get(topHistoFolder + "/NevtPerLS");
     else  hNevtPerLS = igetter.get("DT/EventInfo/NevtPerLS");
 
-    if(hNevtPerLS != 0) {
+    if(hNevtPerLS != nullptr) {
       for(int wheel = -2; wheel != 3; ++wheel) { // loop over wheels
 	for(int sector = 1; sector <= 12; ++sector) { // loop over sectors
 	  stringstream wheelstr; wheelstr << wheel;	

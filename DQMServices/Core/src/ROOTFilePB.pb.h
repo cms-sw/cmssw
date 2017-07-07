@@ -85,7 +85,7 @@ class ROOTFilePB_Histo : public ::google::protobuf::Message /* @@protoc_insertio
 
   // implements Message ----------------------------------------------
 
-  inline ROOTFilePB_Histo* New() const PROTOBUF_FINAL { return New(NULL); }
+  inline ROOTFilePB_Histo* New() const PROTOBUF_FINAL { return New(nullptr); }
 
   ROOTFilePB_Histo* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
   void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
@@ -115,10 +115,10 @@ class ROOTFilePB_Histo : public ::google::protobuf::Message /* @@protoc_insertio
   void InternalSwap(ROOTFilePB_Histo* other);
   private:
   inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
-    return NULL;
+    return nullptr;
   }
   inline void* MaybeArenaPtr() const {
-    return NULL;
+    return nullptr;
   }
   public:
 
@@ -229,7 +229,7 @@ class ROOTFilePB : public ::google::protobuf::Message /* @@protoc_insertion_poin
 
   // implements Message ----------------------------------------------
 
-  inline ROOTFilePB* New() const PROTOBUF_FINAL { return New(NULL); }
+  inline ROOTFilePB* New() const PROTOBUF_FINAL { return New(nullptr); }
 
   ROOTFilePB* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
   void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
@@ -259,10 +259,10 @@ class ROOTFilePB : public ::google::protobuf::Message /* @@protoc_insertion_poin
   void InternalSwap(ROOTFilePB* other);
   private:
   inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
-    return NULL;
+    return nullptr;
   }
   inline void* MaybeArenaPtr() const {
-    return NULL;
+    return nullptr;
   }
   public:
 
@@ -356,7 +356,7 @@ inline ::std::string* ROOTFilePB_Histo::release_full_pathname() {
   return full_pathname_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline void ROOTFilePB_Histo::set_allocated_full_pathname(::std::string* full_pathname) {
-  if (full_pathname != NULL) {
+  if (full_pathname != nullptr) {
     set_has_full_pathname();
   } else {
     clear_has_full_pathname();
@@ -442,7 +442,7 @@ inline ::std::string* ROOTFilePB_Histo::release_streamed_histo() {
   return streamed_histo_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline void ROOTFilePB_Histo::set_allocated_streamed_histo(::std::string* streamed_histo) {
-  if (streamed_histo != NULL) {
+  if (streamed_histo != nullptr) {
     set_has_streamed_histo();
   } else {
     clear_has_streamed_histo();

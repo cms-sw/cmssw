@@ -89,7 +89,7 @@ BOOST_AUTO_TEST_CASE( parameters )
       t.m_double.addTo(config);
       BOOST_CHECK(not t.m_wasChanged);
       
-      BOOST_REQUIRE( 0 != config.keyValues() );
+      BOOST_REQUIRE( nullptr != config.keyValues() );
       BOOST_CHECK( 1 == config.keyValues()->size() );
       BOOST_CHECK( std::string("double") == config.keyValues()->front().first );
 
@@ -109,7 +109,7 @@ BOOST_AUTO_TEST_CASE( parameters )
       t.m_long.addTo(config);
       BOOST_CHECK(not t.m_wasChanged);
       
-      BOOST_REQUIRE( 0 != config.keyValues() );
+      BOOST_REQUIRE( nullptr != config.keyValues() );
       BOOST_CHECK( 1 == config.keyValues()->size() );
       BOOST_CHECK( std::string("long") == config.keyValues()->front().first );
       

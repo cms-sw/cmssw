@@ -131,7 +131,7 @@ namespace edm {
 
       eventsetup::EventSetupRecord const* rec = iSetup.find(*itrecords);
 
-      if (0 != rec && cacheIdentifiers_[*itrecords] != rec->cacheIdentifier()) {
+      if (nullptr != rec && cacheIdentifiers_[*itrecords] != rec->cacheIdentifier()) {
         cacheIdentifiers_[*itrecords] = rec->cacheIdentifier();
         rec->fillRegisteredDataKeys(data);
         if (compact_) {

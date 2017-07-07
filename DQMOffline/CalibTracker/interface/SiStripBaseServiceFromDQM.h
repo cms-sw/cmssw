@@ -86,7 +86,7 @@ SiStripBaseServiceFromDQM<T>::SiStripBaseServiceFromDQM(const edm::ParameterSet&
 {
   // Needed because this is a template inheriting from another template, so it cannot
   // access directly unnamed (independent from the template parameters) members.
-  this->obj_ = 0;
+  this->obj_ = nullptr;
 }
 
 template <class T>

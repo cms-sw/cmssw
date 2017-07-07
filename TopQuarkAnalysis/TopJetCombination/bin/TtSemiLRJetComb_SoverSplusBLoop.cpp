@@ -127,9 +127,9 @@ void doEventloop(){
     if (!gSystem->AccessPathName(ft)) {
       TFile *file = TFile::Open(ft);
       TTree * events = dynamic_cast<TTree*>( file->Get( "Events" ) );
-      assert( events != 0 );
+      assert( events != nullptr );
       TBranch * solsbranch = events->GetBranch( "TtSemiEvtSolutions_solutions__TtEventReco.obj" );
-      assert( solsbranch != 0 );
+      assert( solsbranch != nullptr );
       std::vector<TtSemiEvtSolution> sols;
       solsbranch->SetAddress( & sols );
     

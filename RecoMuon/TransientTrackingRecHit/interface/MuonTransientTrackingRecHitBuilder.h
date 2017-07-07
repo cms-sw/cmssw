@@ -16,7 +16,7 @@ class MuonTransientTrackingRecHitBuilder: public TransientTrackingRecHitBuilder 
   typedef TransientTrackingRecHit::RecHitPointer RecHitPointer;
   typedef TransientTrackingRecHit::ConstRecHitContainer ConstRecHitContainer;   
 
-  MuonTransientTrackingRecHitBuilder(edm::ESHandle<GlobalTrackingGeometry> trackingGeometry = 0);
+  MuonTransientTrackingRecHitBuilder(edm::ESHandle<GlobalTrackingGeometry> trackingGeometry = nullptr);
 
   virtual ~MuonTransientTrackingRecHitBuilder() {} ;
 

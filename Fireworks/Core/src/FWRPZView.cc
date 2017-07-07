@@ -45,11 +45,11 @@ const float FWRPZView::s_distortFInv = 1000;
 //
 FWRPZView::FWRPZView(TEveWindowSlot* iParent, FWViewType::EType id) :
    FWEveView(iParent, id, 7),
-   m_geometryList(0),
-   m_projMgr(0),
-   m_axes(0),
+   m_geometryList(nullptr),
+   m_projMgr(nullptr),
+   m_axes(nullptr),
 
-   m_calo(0),
+   m_calo(nullptr),
 
    m_showPixelBarrel(this, "Show Pixel Barrel", false ),
    m_showPixelEndcap(this, "Show Pixel Endcap", false),
@@ -68,8 +68,8 @@ FWRPZView::FWRPZView(TEveWindowSlot* iParent, FWViewType::EType id) :
    m_showProjectionAxes(this,"Show projection axis", false),
    m_projectionAxesLabelSize(this,"Projection axis label size", 0.015, 0.001, 0.2),
    m_compressMuon(this,"Compress detectors",false),
-   m_showHF(0),
-   m_showEndcaps(0)
+   m_showHF(nullptr),
+   m_showEndcaps(nullptr)
 {
    TEveProjection::EPType_e projType = (id == FWViewType::kRhoZ) ? TEveProjection::kPT_RhoZ : TEveProjection::kPT_RPhi;
 

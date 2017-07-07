@@ -33,7 +33,7 @@ namespace fireworks {
 
 struct jetScaleMarker : public  scaleMarker {
    jetScaleMarker(TEveScalableStraightLineSet* ls, float et, float e, const FWViewContext* vc):
-      scaleMarker(ls, et, e, vc) , m_text(0) {}
+      scaleMarker(ls, et, e, vc) , m_text(nullptr) {}
    
    FWEveText* m_text;
 };
@@ -95,7 +95,7 @@ private:
 
 //______________________________________________________________________________
 FWJetProxyBuilder::FWJetProxyBuilder():
-   m_common(0)
+   m_common(nullptr)
 {
    m_common = new TEveElementList( "common electron scene" );
    m_common->IncDenyDestroy();

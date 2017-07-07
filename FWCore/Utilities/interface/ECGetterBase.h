@@ -30,12 +30,12 @@ namespace edm {
     {
       
      public:
-      ECGetterBase(): data_(0) {}
+      ECGetterBase(): data_(nullptr) {}
       virtual ~ECGetterBase() {}
 
       // ---------- const member functions ---------------------
       const T* get() const  {
-        if(data_==0) {
+        if(data_==nullptr) {
           data_ = this->getImpl();
         }
         return data_;

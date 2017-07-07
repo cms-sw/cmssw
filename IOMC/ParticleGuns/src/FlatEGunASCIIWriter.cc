@@ -35,7 +35,7 @@ using namespace edm;
 using namespace std;
       
 FlatEGunASCIIWriter::FlatEGunASCIIWriter( const ParameterSet& pset )
-   : fEvt(0), 
+   : fEvt(nullptr), 
      fOutFileName( pset.getUntrackedParameter<string>("OutFileName","FlatEGunHepMC.dat") ),
      fCurrentEvent(0)
 {
@@ -54,7 +54,7 @@ FlatEGunASCIIWriter::FlatEGunASCIIWriter( const ParameterSet& pset )
 FlatEGunASCIIWriter::~FlatEGunASCIIWriter()
 {
    
-  if ( fEvt != NULL ) delete fEvt ;
+  if ( fEvt != nullptr ) delete fEvt ;
   if( fOutStream) delete fOutStream;
 
 }
@@ -84,7 +84,7 @@ void FlatEGunASCIIWriter::analyze( const Event& ,
          
    // clean up GenEvent memory : also deletes all vtx/part in it
    // 
-   if ( fEvt != NULL ) delete fEvt ;
+   if ( fEvt != nullptr ) delete fEvt ;
    
    // here re-create fEvt (memory)
    fEvt = new HepMC::GenEvent() ;

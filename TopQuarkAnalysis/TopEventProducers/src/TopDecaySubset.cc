@@ -719,7 +719,7 @@ TopDecaySubset::fillReferences(const reco::GenParticleRefProd& ref, reco::GenPar
       for(std::vector<int>::const_iterator daughter = daughters->second.begin();
 	  daughter!=daughters->second.end(); ++daughter){
 	reco::GenParticle* part = dynamic_cast<reco::GenParticle* > (&(*p));
-	if(part == 0){
+	if(part == nullptr){
 	 throw edm::Exception( edm::errors::InvalidReference, "Not a GenParticle" );
 	}
 	part->addDaughter( reco::GenParticleRef(ref, *daughter) );

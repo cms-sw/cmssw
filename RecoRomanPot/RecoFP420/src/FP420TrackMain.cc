@@ -127,7 +127,7 @@ FP420TrackMain::FP420TrackMain(const edm::ParameterSet& conf):conf_(conf)  {
 }
 
 FP420TrackMain::~FP420TrackMain() {
-  if ( finderParameters_ != 0 ) {
+  if ( finderParameters_ != nullptr ) {
     delete finderParameters_;
   }
 }

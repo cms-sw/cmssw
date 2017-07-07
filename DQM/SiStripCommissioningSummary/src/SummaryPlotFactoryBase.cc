@@ -14,7 +14,7 @@ SummaryPlotFactoryBase::SummaryPlotFactoryBase() :
   view_(sistrip::UNKNOWN_VIEW),
   level_(sistrip::root_),
   gran_(sistrip::UNKNOWN_GRAN),
-  generator_(0) 
+  generator_(nullptr) 
 {;} 
 
 // -----------------------------------------------------------------------------
@@ -32,7 +32,7 @@ void SummaryPlotFactoryBase::init( const sistrip::Monitorable& mon,
 				   const sistrip::Granularity& gran ) {
   
   // Create generator object
-  if ( generator_ ) { delete generator_; generator_ = 0; }
+  if ( generator_ ) { delete generator_; generator_ = nullptr; }
   generator_ = SummaryGenerator::instance( view );
   
   // Check if generator object exists

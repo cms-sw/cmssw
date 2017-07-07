@@ -88,11 +88,11 @@ public:
          }
 
          virtual bool saveConfiguration() const {
-            return ServiceMakerBase::testSaveConfiguration(static_cast<typename TMaker::concrete_t const*>(0));
+            return ServiceMakerBase::testSaveConfiguration(static_cast<typename TMaker::concrete_t const*>(nullptr));
          }
 
          virtual bool processWideService() const {
-            return service::isProcessWideService(static_cast<typename TMaker::concrete_t const*>(0));
+            return service::isProcessWideService(static_cast<typename TMaker::concrete_t const*>(nullptr));
          }
 
          // ---------- static member functions --------------------

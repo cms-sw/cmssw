@@ -21,7 +21,7 @@ using namespace std;
 
 class MonitorElement;
 
-PFTauElecRejectionBenchmark::PFTauElecRejectionBenchmark() : file_(0) {}
+PFTauElecRejectionBenchmark::PFTauElecRejectionBenchmark() : file_(nullptr) {}
 
 PFTauElecRejectionBenchmark::~PFTauElecRejectionBenchmark() {
   if(file_) file_->Close();
@@ -65,7 +65,7 @@ void PFTauElecRejectionBenchmark::setup(
   sGenMatchObjectLabel_ = sGenMatchObjectLabel;
   applyEcalCrackCut_= applyEcalCrackCut;
 
-  file_ = NULL;
+  file_ = nullptr;
   db_ = db_store;
 
   // print parameters

@@ -325,10 +325,10 @@ StripClusterMCanalysis::analyze(const edm::Event& iEvent, const edm::EventSetup&
     int subDet = theDet.subdetId();
 
     // Find the path length of a straight track from the primary vertex
-    const StripGeomDetUnit* DetUnit = 0;
+    const StripGeomDetUnit* DetUnit = nullptr;
     DetUnit = (const StripGeomDetUnit*) tracker.idToDetUnit(theDet);
     float thickness = 0;
-    if (DetUnit != 0) thickness = DetUnit->surface().bounds().thickness();
+    if (DetUnit != nullptr) thickness = DetUnit->surface().bounds().thickness();
     int layer = 0;
     int stereo = 0;
     if (subDet == int(StripSubdetector::TIB)) {

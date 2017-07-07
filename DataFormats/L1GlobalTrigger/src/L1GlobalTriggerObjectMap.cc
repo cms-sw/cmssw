@@ -52,7 +52,7 @@ const CombinationsInCond* L1GlobalTriggerObjectMap::getCombinationsInCond(
         << "\n  does not exists in the operand token vector."
         << "\n  Returning zero pointer for getCombinationsInCond\n\n" << std::endl;
 
-    return 0;
+    return nullptr;
 
 }
 
@@ -73,7 +73,7 @@ const CombinationsInCond* L1GlobalTriggerObjectMap::getCombinationsInCond(const 
         << "\n  does not exists in the operand token vector."
         << "\n  Returning zero pointer for getCombinationsInCond\n\n" << std::endl;
 
-    return 0;
+    return nullptr;
 
 }
 // return the result for the condition condNameVal

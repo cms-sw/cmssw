@@ -830,7 +830,7 @@ bool Pythia8Hadronizer::residualDecay()
 
 void Pythia8Hadronizer::finalizeEvent()
 {
-  bool lhe = lheEvent() != 0;
+  bool lhe = lheEvent() != nullptr;
 
   // now create the GenEventInfo product from the GenEvent and fill
   // the missing pieces

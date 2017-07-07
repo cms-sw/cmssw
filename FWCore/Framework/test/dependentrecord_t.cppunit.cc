@@ -674,8 +674,8 @@ void testdependentrecord::oneOfTwoRecordTest()
       depRecord.getRecord<Dummy2Record>();
     } catch(edm::eventsetup::NoRecordException<Dummy2Record>& e) {
        //make sure that the record name appears in the error message.
-       CPPUNIT_ASSERT(0!=strstr(e.what(), "DepOn2Record"));
-       CPPUNIT_ASSERT(0!=strstr(e.what(), "Dummy2Record"));
+       CPPUNIT_ASSERT(nullptr!=strstr(e.what(), "DepOn2Record"));
+       CPPUNIT_ASSERT(nullptr!=strstr(e.what(), "Dummy2Record"));
        //	std::cout<<e.what()<<std::endl;
     }
   }

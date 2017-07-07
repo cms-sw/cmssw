@@ -68,7 +68,7 @@ private:
 DTTPAnalyzer::DTTPAnalyzer(const edm::ParameterSet& pset):
   subtractT0_(pset.getParameter<bool>("subtractT0")),
   digiLabel_(pset.getParameter<edm::InputTag>("digiLabel")),
-  tTrigSync_(0) {
+  tTrigSync_(nullptr) {
 
   std::string rootFileName = pset.getUntrackedParameter<std::string>("rootFileName");
   rootFile_ = new TFile(rootFileName.c_str(), "RECREATE");
@@ -124,7 +124,7 @@ void DTTPAnalyzer::analyze(const edm::Event & event, const edm::EventSetup& setu
        //FIXME: Reject digis not coming from TP
 
        if(subtractT0_) {
-          const DTLayer* layer = 0; //fake
+          const DTLayer* layer = nullptr; //fake
 	  const GlobalPoint glPt; //fake
 	  double offset = tTrigSync_->offset(layer, wireId, glPt);
           t0 -= offset;

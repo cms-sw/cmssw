@@ -246,7 +246,7 @@ TrackAssociatorByHitsImpl::associateSimToReco(const edm::RefToBaseVector<reco::T
 	      continue;
 
 	    //unsigned int dRawId = dId.rawId();
-	    SiStripDetId* stripDetId = 0;
+	    SiStripDetId* stripDetId = nullptr;
 	    if (subdetId==SiStripDetId::TIB||subdetId==SiStripDetId::TOB||
 		subdetId==SiStripDetId::TID||subdetId==SiStripDetId::TEC)
 	      stripDetId= new SiStripDetId(dId);
@@ -268,13 +268,13 @@ TrackAssociatorByHitsImpl::associateSimToReco(const edm::RefToBaseVector<reco::T
 	      if (!UseGrouped && UseSplitting)
 		if (tTopo->layer(dId)==tTopo->layer(dIdOK) &&
 		    dId.subdetId()==dIdOK.subdetId() &&
-		    (stripDetId==0 || stripDetId->partnerDetId()!=dIdOK.rawId()))
+		    (stripDetId==nullptr || stripDetId->partnerDetId()!=dIdOK.rawId()))
 		  newhit = false;
 	      //grouped, no splitting
 	      if (UseGrouped && !UseSplitting)
 		if (tTopo->layer(dId)==tTopo->layer(dIdOK) &&
 		    dId.subdetId()==dIdOK.subdetId() &&
-		    stripDetId!=0 && stripDetId->partnerDetId()==dIdOK.rawId())
+		    stripDetId!=nullptr && stripDetId->partnerDetId()==dIdOK.rawId())
 		  newhit = false;
 	      //grouped, splitting
 	      if (UseGrouped && UseSplitting)

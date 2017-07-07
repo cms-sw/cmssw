@@ -97,7 +97,7 @@ MessageSender::MessageSender( ELseverityLevel const & sev,
 // boost::thread_resoruce_error is thrown at static destruction time,
 // if the MessageLogger library is loaded -- even if it is not used.
 void MessageSender::ErrorObjDeleter::operator()(ErrorObj * errorObjPtr) {
-  if (errorObjPtr == 0) {
+  if (errorObjPtr == nullptr) {
     return;
   }
   try 

@@ -153,7 +153,7 @@ void CSCMonitorModule::bookHistograms(DQMStore::IBooker & ib, edm::Run const &, 
  */
 cscdqm::MonitorObject* CSCMonitorModule::bookMonitorObject(const cscdqm::HistoBookRequest& req) {
 
-  cscdqm::MonitorObject *me = NULL;
+  cscdqm::MonitorObject *me = nullptr;
   std::string name = req.hdef->getName();
 
   std::string path = req.folder;

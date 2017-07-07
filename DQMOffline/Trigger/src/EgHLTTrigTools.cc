@@ -56,7 +56,7 @@ std::vector<int> trigTools::getMinNrObjsRequiredByFilter(const std::vector<std::
 
   //will return out of for loop once its found it to save time
   const edm::pset::Registry* psetRegistry = edm::pset::Registry::instance();
-  if(psetRegistry==NULL) { retVal=std::vector<int>(filterNames.size(),-1); return retVal;}
+  if(psetRegistry==nullptr) { retVal=std::vector<int>(filterNames.size(),-1); return retVal;}
   for(edm::pset::Registry::const_iterator psetIt=psetRegistry->begin();psetIt!=psetRegistry->end();++psetIt){ //loop over every pset for every module ever run
     const std::map<std::string,edm::Entry>& mapOfPara  = psetIt->second.tbl(); //contains the parameter name and value for all the parameters of the pset
     const std::map<std::string,edm::Entry>::const_iterator itToModLabel = mapOfPara.find(mag0); 

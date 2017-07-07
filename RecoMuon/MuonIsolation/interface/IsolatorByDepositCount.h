@@ -30,10 +30,10 @@ public:
   virtual ~IsolatorByDepositCount() = default;
 
   //! Compute the deposit within the cone and return the isolation result
-  virtual Result result(const DepositContainer& deposits, const edm::Event* = 0) const;
+  virtual Result result(const DepositContainer& deposits, const edm::Event* = nullptr) const;
 
 
-  void setConeSize(float conesize) { theConeSize = conesize; theConeSizeFunction = 0;} 
+  void setConeSize(float conesize) { theConeSize = conesize; theConeSizeFunction = nullptr;} 
 
   void setConeSize(ConeSizeFunction * conesize) { theConeSizeFunction = conesize; }
 

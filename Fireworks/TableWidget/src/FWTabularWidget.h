@@ -36,7 +36,7 @@ public:
    static const int kTextBuffer;
    static const int kSeperatorWidth;
 
-   FWTabularWidget(FWTableManagerBase* iManager,const TGWindow* p=0, GContext_t context = getDefaultGC()());
+   FWTabularWidget(FWTableManagerBase* iManager,const TGWindow* p=nullptr, GContext_t context = getDefaultGC()());
    virtual ~FWTabularWidget();
 
    // ---------- const member functions ---------------------

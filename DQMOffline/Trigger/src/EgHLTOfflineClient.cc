@@ -216,7 +216,7 @@ void EgHLTOfflineClient::createHLTvsOfflineHists(const std::string& filterName,
   for (size_t varNr = 0; varNr < varNames.size(); varNr++) {
     MonitorElement* numer = igetter.get(dirName_+"/Source_Histos/"+filterName+"/"+baseName+"_HLT"+varNames[varNr]+"_"+region);
     MonitorElement* denom = igetter.get(dirName_+"/Source_Histos/"+filterName+"/"+baseName+"_"+varNames[varNr]+"_"+region);
-    if (numer != NULL && denom != NULL) {
+    if (numer != nullptr && denom != nullptr) {
       std::string effHistName(baseName + "_HLToverOffline_" + varNames[varNr] + "_" + region);//std::cout<<"hltVSoffline:  "<<effHistName<<std::endl;
       std::string effHistTitle(effHistName);
       if (region == "eb" || region == "ee") {
@@ -242,7 +242,7 @@ MonitorElement* EgHLTOfflineClient::FillHLTvsOfflineHist(const std::string& filt
   h_eff->Divide(num, den, 1, 1, "B");
   h_eff->SetTitle(title.c_str());
   MonitorElement* eff = igetter.get(dirName_ + "/Client_Histos/" + filter + "/" + name);
-  if (eff == NULL) {
+  if (eff == nullptr) {
     eff = ibooker.book1D(name, h_eff);
   } else { //I was having problems with collating the histograms, hence why I'm just resetting the histogram value
     *eff->getTH1F() = *h_eff;
@@ -260,7 +260,7 @@ void EgHLTOfflineClient::createN1EffHists(const std::string& filterName,
 
   for (size_t varNr = 0; varNr < varNames.size(); varNr++) {
     MonitorElement* denom = igetter.get(dirName_+"/Source_Histos/"+filterName+"/"+baseName+"_n1_"+varNames[varNr]+"_"+region);
-    if (numer != NULL && denom != NULL) {
+    if (numer != nullptr && denom != nullptr) {
       std::string effHistName(baseName+"_n1Eff_"+varNames[varNr]+"_"+region);//std::cout<<"N1:  "<<effHistName<<std::endl;
       //std::cout<<region<<"  ";
       //----Morse-----------
@@ -285,7 +285,7 @@ void EgHLTOfflineClient::createSingleEffHists(const std::string& filterName,
 
   for (size_t varNr = 0; varNr < varNames.size(); varNr++) {
     MonitorElement* numer = igetter.get(dirName_+"/Source_Histos/"+filterName+"/"+baseName+"_single_"+varNames[varNr]+"_"+region);
-    if (numer != NULL && denom != NULL) {
+    if (numer != nullptr && denom != nullptr) {
       std::string effHistName(baseName + "_singleEff_" + varNames[varNr] + "_" + region);//std::cout<<"Si:  "<<effHistName<<std::endl;
       //----Morse-----------
       std::string effHistTitle(effHistName);//std::cout<<effHistTitle<<std::endl;
@@ -307,12 +307,12 @@ void EgHLTOfflineClient::createTrigTagProbeEffHists(const std::string& filterNam
   for (size_t varNr = 0; varNr < vsVarNames.size(); varNr++) {
     std::string allName(dirName_ + "/Source_Histos/" + filterName + "/" + filterName + "_trigTagProbe_" + objName + "_all_" + vsVarNames[varNr] + "_" + region);
     MonitorElement* all = igetter.get(allName);
-    if (all == NULL) {
+    if (all == nullptr) {
       continue;
     }
     std::string passName(dirName_ + "/Source_Histos/" + filterName + "/" + filterName + "_trigTagProbe_" + objName + "_pass_" + vsVarNames[varNr] + "_" + region);
     MonitorElement* pass = igetter.get(passName);
-    if (pass == NULL) {
+    if (pass == nullptr) {
       continue;
     }
     //----Morse-----
@@ -343,19 +343,19 @@ void EgHLTOfflineClient::createTrigTagProbeEffHistsNewAlgo(const std::string& fi
        }*/
     std::string passName(dirName_+"/Source_Histos/"+filterName+"/"+filterName+"_trigTagProbe_"+objName+"_passNotTag_"+vsVarNames[varNr]+"_"+region);
     MonitorElement* passNotTag = igetter.get(passName);
-    if (passNotTag == NULL) {
+    if (passNotTag == nullptr) {
       //edm::LogInfo("EgHLTOfflineClient") <<" couldnt get hist "<<passName;
       continue;
     }
     std::string passTagTagName(dirName_+"/Source_Histos/"+filterName+"/"+filterName+"_trigTagProbe_"+objName+"_passTagTag_"+vsVarNames[varNr]+"_"+region);
     MonitorElement* passTagTag = igetter.get(passTagTagName);
-    if (passTagTag == NULL) {
+    if (passTagTag == nullptr) {
       //edm::LogInfo("EgHLTOfflineClient") <<" couldnt get hist "<<passTagTagName;
       continue;
     }
     std::string failName(dirName_+"/Source_Histos/"+filterName+"/"+filterName+"_trigTagProbe_"+objName+"_fail_"+vsVarNames[varNr]+"_"+region);
     MonitorElement* fail = igetter.get(failName);
-    if (fail == NULL) {
+    if (fail == nullptr) {
       //edm::LogInfo("EgHLTOfflineClient") <<" couldnt get hist "<<failName;
       continue;
     }
@@ -381,21 +381,21 @@ void EgHLTOfflineClient::createTrigTagProbeEffHists2Leg(const std::string& filte
 
     std::string allName(dirName_+"/Source_Histos/"+filterNameLeg2+"/"+filterNameLeg2+"_trigTagProbe_"+objName+"_all_"+vsVarNames[varNr]+"_"+region);
     MonitorElement* all = igetter.get(allName);
-    if (all == NULL) {
+    if (all == nullptr) {
       edm::LogInfo("EgHLTOfflineClient") <<" couldnt get hist "<<allName;
       continue;
     }
 
     std::string Leg2NotLeg1SourceName(dirName_+"/Source_Histos/"+filterNameLeg2+"/"+filterNameLeg2+"_trigTagProbe_"+objName+"_passLeg2failLeg1_"+vsVarNames[varNr]+"_"+region);
     MonitorElement* Leg2NotLeg1Source = igetter.get(Leg2NotLeg1SourceName);
-    if (Leg2NotLeg1Source == NULL) {
+    if (Leg2NotLeg1Source == nullptr) {
       edm::LogInfo("EgHLTOfflineClient") <<" couldnt get hist "<<Leg2NotLeg1SourceName;
       continue;
     }
 
     std::string Leg1EffName(dirName_+"/Client_Histos/"+filterNameLeg1+"/"+filterNameLeg1+"_trigTagProbeEff_"+objName+"_vs_"+vsVarNames[varNr]+"_"+region);
     MonitorElement *Leg1Eff = igetter.get(Leg1EffName);
-    if (Leg1Eff == NULL) {
+    if (Leg1Eff == nullptr) {
       edm::LogInfo("EgHLTOfflineClient") <<" couldnt get hist "<<Leg1EffName;
       continue;
     }
@@ -428,12 +428,12 @@ void EgHLTOfflineClient::createLooseTightTrigEff(
       const std::string& tightTrig = splitString[0];
       const std::string& looseTrig = splitString[1];
       MonitorElement* fail = igetter.get(dirName_ + "/Source_Histos/" + tightTrig + "_" + looseTrig + "_" + objName + "_failTrig_" + vsVarNames[varNr] + "_" + region);
-      if (fail == NULL) {
+      if (fail == nullptr) {
         continue;
       }
 
       MonitorElement* pass = igetter.get(dirName_ + "/Source_Histos/" + tightTrig + "_" + looseTrig + "_" + objName + "_passTrig_" + vsVarNames[varNr] + "_" + region);
-      if (pass == NULL) {
+      if (pass == nullptr) {
         continue;
       }
 
@@ -467,7 +467,7 @@ MonitorElement* EgHLTOfflineClient::makeEffMonElemFromPassAndAll(const std::stri
   effHist->SetTitle(title.c_str());
   //------------------
   MonitorElement* eff = igetter.get(dirName_+"/Client_Histos/"+filterName+"/"+name);
-  if (eff == NULL) {
+  if (eff == nullptr) {
     eff = ibooker.book1D(name,effHist);
   } else { //I was having problems with collating the histograms, hence why I'm just resetting the histogram value
     *eff->getTH1F()=*effHist;
@@ -502,7 +502,7 @@ MonitorElement* EgHLTOfflineClient::makeEffMonElemFromPassAndFailAndTagTag(
   effHist->SetTitle(title.c_str());
   //------------------
   MonitorElement* eff = igetter.get(dirName_+"/Client_Histos/"+filter+"/"+name);
-  if (eff == NULL) {
+  if (eff == nullptr) {
     eff = ibooker.book1D(name, effHist);
   }
   else { //I was having problems with collating the histograms, hence why I'm just resetting the histogram value
@@ -519,33 +519,33 @@ MonitorElement* EgHLTOfflineClient::makeEffMonElem2Leg(const std::string& filter
     DQMStore::IGetter& igetter) {
 
   TH1F* allHist = all->getTH1F();
-  if (allHist->GetSumw2() == 0) allHist->Sumw2();
+  if (allHist->GetSumw2() == nullptr) allHist->Sumw2();
   TH1F* Leg2NotLeg1SourceHist = Leg2NotLeg1Source->getTH1F();
-  if (Leg2NotLeg1SourceHist->GetSumw2() == 0) Leg2NotLeg1SourceHist->Sumw2();
+  if (Leg2NotLeg1SourceHist->GetSumw2() == nullptr) Leg2NotLeg1SourceHist->Sumw2();
 
   TH1F* effHistLeg2NotLeg1 = (TH1F*)allHist->Clone(name.c_str());
-  if (effHistLeg2NotLeg1->GetSumw2() == 0) effHistLeg2NotLeg1->Sumw2();
+  if (effHistLeg2NotLeg1->GetSumw2() == nullptr) effHistLeg2NotLeg1->Sumw2();
   effHistLeg2NotLeg1->Divide(Leg2NotLeg1SourceHist, allHist, 1, 1, "B");
 
   TH1F* Leg1EffHist = Leg1Eff->getTH1F();
-  if (Leg1EffHist->GetSumw2() == 0) Leg1EffHist->Sumw2();
+  if (Leg1EffHist->GetSumw2() == nullptr) Leg1EffHist->Sumw2();
 
   TH1F* effHistTerm1 = (TH1F*)allHist->Clone(name.c_str());
-  if (effHistTerm1->GetSumw2() == 0) effHistTerm1->Sumw2();
+  if (effHistTerm1->GetSumw2() == nullptr) effHistTerm1->Sumw2();
   effHistTerm1->Multiply(Leg1EffHist, Leg1EffHist, 1, 1, "B");
 
   TH1F* effHistTerm2 = (TH1F*)allHist->Clone(name.c_str());
-  if (effHistTerm2->GetSumw2() == 0) effHistTerm2->Sumw2();
+  if (effHistTerm2->GetSumw2() == nullptr) effHistTerm2->Sumw2();
   effHistTerm2->Multiply(Leg1EffHist, effHistLeg2NotLeg1, 1, 1, "B");
   effHistTerm2->Scale(2);
 
   TH1F* effHist = (TH1F*)allHist->Clone(name.c_str());
-  if (effHist->GetSumw2() == 0) effHist->Sumw2();
+  if (effHist->GetSumw2() == nullptr) effHist->Sumw2();
   effHist->Add(effHistTerm1, effHistTerm2, 1, 1);
   effHist->SetTitle(title.c_str());
   
   MonitorElement* eff = igetter.get(dirName_ + "/Client_Histos/" + filter + "/" + name);
-  if (eff == NULL) {
+  if (eff == nullptr) {
     eff = ibooker.book1D(name, effHist); 
   } else { //I was having problems with collating the histograms, hence why I'm just resetting the histogram value
     *eff->getTH1F() = *effHist; 
@@ -571,7 +571,7 @@ MonitorElement* EgHLTOfflineClient::makeEffMonElemFromPassAndFail(const std::str
   effHist->SetTitle(title.c_str());
   //------------------  
   MonitorElement* eff = igetter.get(dirName_ + "/Client_Histos/" + filterName + "/" + name);
-  if (eff == NULL) {
+  if (eff == nullptr) {
     eff = ibooker.book1D(name, effHist);
   } else { //I was having problems with collating the histograms, hence why I'm just reseting the histogram value
     *eff->getTH1F() = *effHist;

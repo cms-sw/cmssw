@@ -283,7 +283,7 @@ void Phase2TrackerRecHitsValidation::analyze(const edm::Event& event, const edm:
 	    // find the closest simhit
 	    // this is needed because otherwise you get cases with simhits and clusters being swapped
 	    // when there are more than 1 cluster with common simtrackids
-	    const PSimHit * simhit = 0; // bad naming to avoid changing code below. This is the closest simhit in x
+	    const PSimHit * simhit = nullptr; // bad naming to avoid changing code below. This is the closest simhit in x
 	    float minx=10000;
             for (unsigned int simhitidx = 0; simhitidx < 2; ++simhitidx) { // loop over both barrel and endcap hits
               for (edm::PSimHitContainer::const_iterator simhitIt(simHitsRaw[simhitidx]->begin()); simhitIt != simHitsRaw[simhitidx]->end(); ++simhitIt) {

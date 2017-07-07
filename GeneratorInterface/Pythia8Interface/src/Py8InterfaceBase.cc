@@ -13,7 +13,7 @@ namespace gen {
 
 Py8InterfaceBase::Py8InterfaceBase( edm::ParameterSet const& ps ) :
 BaseHadronizer(ps),
-useEvtGen(false), evtgenDecays(0)
+useEvtGen(false), evtgenDecays(nullptr)
 {  
   fParameters = ps;
   

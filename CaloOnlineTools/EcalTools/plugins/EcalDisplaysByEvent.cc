@@ -578,7 +578,7 @@ void EcalDisplaysByEvent::makeHistos(Handle<EcalRecHitCollection> hits)
     }
     // Fill FED-by-FED timing histos (all events)
     TH1F* timingHist = FEDsAndTimingHists_[FEDid];
-    if(timingHist==0)
+    if(timingHist==nullptr)
     {
       initHists(FEDid);
       timingHist = FEDsAndTimingHists_[FEDid];

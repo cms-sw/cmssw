@@ -54,7 +54,7 @@ class VFATFrameCollection
 
       public:
         /// constructor, automatically sets the iterator to the beginning
-        Iterator(const VFATFrameCollection* c = NULL) : collection(c)
+        Iterator(const VFATFrameCollection* c = nullptr) : collection(c)
           { if (collection) value = collection->BeginIterator(); }
 
         /// returns the DAQ position of the current element

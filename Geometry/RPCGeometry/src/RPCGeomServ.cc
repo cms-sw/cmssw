@@ -529,7 +529,7 @@ RPCGeomServ::aclockwise()
   return _a;
 }
 
-RPCGeomServ::RPCGeomServ() : _id(0), _n(""), _sn(""), _cn(""), _t (-99), _z(false), _a(false)
+RPCGeomServ::RPCGeomServ() : _id(nullptr), _n(""), _sn(""), _cn(""), _t (-99), _z(false), _a(false)
 {} 
 
 

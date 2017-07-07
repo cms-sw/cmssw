@@ -11,8 +11,8 @@ using namespace oracle::occi;
 
 ODRunConfigInfo::ODRunConfigInfo()
 {
-  m_env = NULL;
-  m_conn = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
   m_ID = 0;
   //
   m_tag ="";

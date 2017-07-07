@@ -39,7 +39,7 @@ FWHGCalMultiClusterProxyBuilder::build( const reco::HGCalMultiCluster& iData, un
 	   it != itEnd; ++it )
 	{
 	  const float* corners = item()->getGeom()->getCorners( (*it).first );
-	  if( corners == 0 ) {
+	  if( corners == nullptr ) {
 	    continue;
 	  }
 	  std::vector<float> pnts(24);

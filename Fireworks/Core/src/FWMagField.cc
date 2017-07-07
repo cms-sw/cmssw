@@ -18,7 +18,7 @@ FWMagField::FWMagField() :
    m_reverse(true),
    m_simpleModel(false),
 
-   m_guessValHist(0),
+   m_guessValHist(nullptr),
    m_numberOfFieldIsOnEstimates(0),
    m_numberOfFieldEstimates(0),
    m_updateFieldEstimate(true),
@@ -26,7 +26,7 @@ FWMagField::FWMagField() :
 {
    m_guessValHist = new TH1F("FieldEstimations", "Field estimations from tracks and muons",
                              200, -4.5, 4.5);
-   m_guessValHist->SetDirectory(0);
+   m_guessValHist->SetDirectory(nullptr);
 }
 
 FWMagField::~FWMagField()

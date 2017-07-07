@@ -3187,7 +3187,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	edm::Handle<reco::CaloMETCollection> calometcoll;
 	edm::Handle<reco::PFMETCollection> pfmetcoll;
 	//edm::Handle<pat::METCollection> patmetcoll;
-	const MET *met=NULL;
+	const MET *met=nullptr;
 	if(isCaloJet_){
 	  iEvent.getByToken(caloMetToken_, calometcoll);
 	  if(!calometcoll.isValid()) return;

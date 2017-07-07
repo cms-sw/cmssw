@@ -23,8 +23,8 @@ TrajectoryStateOnSurface TrackAssociatorByPositionImpl::getState(const TrackingP
   
   //  TrackingParticle* simtrack = const_cast<TrackingParticle*>(&st);
   //loop over PSimHits
-  const PSimHit * psimhit=0;
-  const BoundPlane * plane=0;
+  const PSimHit * psimhit=nullptr;
+  const BoundPlane * plane=nullptr;
   double dLim=thePositionMinimumDistance;
 
   //    look for the further most hit beyond a certain limit

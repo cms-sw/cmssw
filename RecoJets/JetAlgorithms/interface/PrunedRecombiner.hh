@@ -32,7 +32,7 @@ public:
 	
 	PrunedRecombiner(const RecombinationScheme scheme,
 	                 const double & zcut = 0.1, const double & Rcut = 0.5) :
-		_zcut(zcut), _Rcut(Rcut), _recombiner(0), _default_recombiner(scheme) {
+		_zcut(zcut), _Rcut(Rcut), _recombiner(nullptr), _default_recombiner(scheme) {
 		_recombiner = &_default_recombiner;
 	}
 

@@ -163,7 +163,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
     muPhi_.denominator->Fill(m.phi());
     muEta_.denominator->Fill(m.eta());
     muPt_.denominator ->Fill(m.pt());
-    const reco::Track * track = 0;
+    const reco::Track * track = nullptr;
     if (m.isTrackerMuon()) track = & * m.innerTrack();
     else if (m.isStandAloneMuon()) track = & * m.outerTrack();
     if (track) {
@@ -180,7 +180,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
     muPhi_.numerator->Fill(m.phi());
     muEta_.numerator->Fill(m.eta());
     muPt_.numerator ->Fill(m.pt());
-    const reco::Track * track = 0;
+    const reco::Track * track = nullptr;
     if (m.isTrackerMuon()) track = & * m.innerTrack();
     else if (m.isStandAloneMuon()) track = & * m.outerTrack();
     if (track) {

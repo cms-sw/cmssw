@@ -460,7 +460,7 @@ Bool_t SiStripSpyDisplayModule::MakeRawDigiHist_(
     else if (type==POST_COMMON_MODE)       hist = dir.make<TH1S>("PostCommonMode",      ";Strip number;ADC counts / strip",  768, 0, 768);
     else if (type==ZERO_SUPPRESSED_PADDED) hist = dir.make<TH1S>("ZeroSuppressedRaw" ,  ";Strip number;ADC counts / strip",  768, 0, 768);
     else if (type==VR_COMP)                hist = dir.make<TH1S>("VirginRawCom" ,       ";Strip number;ADC counts / strip",  768, 0, 768);
-    else                                  {hist = 0; return false;}
+    else                                  {hist = nullptr; return false;}
 
     // TODO: May need to make this error checking independent when refactoring...
     //std::cout << "| * digis for " << type << " and detID " << specifier;
@@ -492,7 +492,7 @@ Bool_t SiStripSpyDisplayModule::MakeProcessedRawDigiHist_(
     TH1F * hist;
     if (type==NOISE_VALUES) hist = dir.make<TH1F>("NoiseValues",";Strip number;Noise / strip",768, 0, 768);
     else {
-      hist = 0; 
+      hist = nullptr; 
       return false;
     }
 
@@ -527,7 +527,7 @@ Bool_t SiStripSpyDisplayModule::MakeDigiHist_(
     TH1S * hist;
     if      (type==ZERO_SUPPRESSED)        hist = dir.make<TH1S>("ZeroSuppressedDigi",      ";Strip number;ADC counts / strip",  768, 0, 768);
     else if (type==ZERO_SUPPRESSED_COMP)   hist = dir.make<TH1S>("ZeroSuppressedDigiComp",  ";Strip number;ADC counts / strip",  768, 0, 768);
-    else                                  {hist = 0; return false;}
+    else                                  {hist = nullptr; return false;}
     
     // TODO: May need to make this error checking independent when refactoring...
     std::vector< edm::DetSet<SiStripDigi> >::const_iterator digis_it = digi_handle->find( detID );

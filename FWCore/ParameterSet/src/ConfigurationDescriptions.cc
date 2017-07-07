@@ -116,7 +116,7 @@ namespace edm {
     if (defaultDescDefined_) {
       return &defaultDesc_;
     }
-    return 0;
+    return nullptr;
   }
   
   ConfigurationDescriptions::iterator 
@@ -130,14 +130,14 @@ namespace edm {
   ConfigurationDescriptions::validate(ParameterSet & pset,
                                       std::string const& moduleLabel) const {
     
-    ParameterSetDescription const* psetDesc = 0;
+    ParameterSetDescription const* psetDesc = nullptr;
     for_all(descriptions_, std::bind(&matchLabel,
                                        std::placeholders::_1,
                                        std::cref(moduleLabel),
                                        std::ref(psetDesc)));
 
     // If there is a matching label
-    if (psetDesc != 0) {
+    if (psetDesc != nullptr) {
       psetDesc->validate(pset);
     }
     // Is there an explicit description to be used for a non standard label

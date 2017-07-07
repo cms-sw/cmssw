@@ -273,7 +273,7 @@ void Photon::embedPreshowerClusters() {
 
 // method to store the RecHits internally
 void Photon::embedRecHits(const EcalRecHitCollection * rechits) {
-  if (rechits!=0) {
+  if (rechits!=nullptr) {
     recHits_ = *rechits;
     embeddedRecHits_ = true;
   }

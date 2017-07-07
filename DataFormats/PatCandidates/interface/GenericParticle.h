@@ -220,7 +220,7 @@ namespace pat {
           {
               if (it->first == key) return & it->second;
           }
-          return 0;
+          return nullptr;
       } 
 
       /// Sets the IsoDeposit associated with some key; if it is already existent, it is overwritten.
@@ -245,7 +245,7 @@ namespace pat {
       void userIsoDeposit(const IsoDeposit &dep, uint8_t index=0) { setIsoDeposit(IsolationKeys(UserBaseIso + index), dep); }
 
       /// Vertex association (or associations, if any). Return null pointer if none has been set
-      const pat::VertexAssociation              * vertexAssociation(size_t index=0) const { return vtxAss_.size() > index ? & vtxAss_[index] : 0; }
+      const pat::VertexAssociation              * vertexAssociation(size_t index=0) const { return vtxAss_.size() > index ? & vtxAss_[index] : nullptr; }
       /// Vertex associations. Can be empty if it was not enabled in the config file
       const std::vector<pat::VertexAssociation> & vertexAssociations()              const { return vtxAss_; }
       /// Set a single vertex association

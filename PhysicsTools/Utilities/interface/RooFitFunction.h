@@ -14,7 +14,7 @@ namespace root {
   template<typename X, typename Expr>
   class RooFitFunction : public RooAbsReal {
   public:
-    RooFitFunction(const RooFitFunction<X, Expr> & other, const char* name=0) :
+    RooFitFunction(const RooFitFunction<X, Expr> & other, const char* name=nullptr) :
       RooAbsReal(other, name), e_(other.e_), x_(X::name(), this, other.x_) {
       std::cout << ">>> making new RooFitFunction" << std::endl;
       std::vector<std::pair<boost::shared_ptr<double>, RooRealProxy> >::const_iterator 

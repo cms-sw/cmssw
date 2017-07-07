@@ -137,7 +137,7 @@ void CSCOfflineClient::dqmEndJob(DQMStore::IBooker& ib, DQMStore::IGetter& igett
  */
 cscdqm::MonitorObject* CSCOfflineClient::bookMonitorObject(const cscdqm::HistoBookRequest& req) {
 
-  cscdqm::MonitorObject *me = NULL;
+  cscdqm::MonitorObject *me = nullptr;
   std::string name = req.hdef->getName();
 
   std::string path = req.folder;

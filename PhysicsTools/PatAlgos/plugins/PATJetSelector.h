@@ -94,7 +94,7 @@ namespace pat {
 	  }
 
 	  // Copy the gen jet
-	  if ( ijet->genJet() != 0 ) {
+	  if ( ijet->genJet() != nullptr ) {
 	    genJetsOut->push_back( *(ijet->genJet()) );
 	  }
 
@@ -170,7 +170,7 @@ namespace pat {
 	  }
 
 	  // Copy the gen jet
-	  if ( ijet->genJet() != 0 ) {
+	  if ( ijet->genJet() != nullptr ) {
 	    patJets->back().updateFwdGenJetFwdRef( edm::Ref<reco::GenJetCollection>( oh_genJetsOut, genJetIndex) // ref to "this" genjet in the global list
 						   );
 	    ++genJetIndex;

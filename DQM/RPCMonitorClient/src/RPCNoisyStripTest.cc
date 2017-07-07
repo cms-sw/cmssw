@@ -122,9 +122,9 @@ void  RPCNoisyStripTest::fillGlobalME(RPCDetId & detId, MonitorElement * myMe){
 
     std::stringstream meName;
     
-    MonitorElement *  NOISE=NULL;
-    MonitorElement * DEVD=NULL;
-    MonitorElement * NOISED=NULL;
+    MonitorElement *  NOISE=nullptr;
+    MonitorElement * DEVD=nullptr;
+    MonitorElement * NOISED=nullptr;
 
     if (detId.region()==0) { //BARREL
       NOISE = NOISEWheel[detId.ring()+2];

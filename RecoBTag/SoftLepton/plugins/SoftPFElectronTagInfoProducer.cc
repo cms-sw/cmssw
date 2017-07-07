@@ -90,7 +90,7 @@ void SoftPFElectronTagInfoProducer::produce(edm::Event& iEvent, const edm::Event
 			//Make sure that the electron is inside the jet
 			if(reco::deltaR2((*recoelectron),(*jetRef))>DeltaRElectronJet*DeltaRElectronJet) continue;
 			// Need a gsfTrack
-			if(recoelectron->gsfTrack().get()==NULL) continue;
+			if(recoelectron->gsfTrack().get()==nullptr) continue;
 			reco::SoftLeptonProperties properties;
 			// reject if it has issues with the track
 			if(!isElecClean(iEvent,recoelectron) ) continue;

@@ -19,7 +19,7 @@ TkPixelMeasurementDet::TkPixelMeasurementDet( const GeomDet* gdet,
     MeasurementDet (gdet),
     theDetConditions(&conditions)
   {
-    if ( dynamic_cast<const PixelGeomDetUnit*>(gdet) == 0) {
+    if ( dynamic_cast<const PixelGeomDetUnit*>(gdet) == nullptr) {
       throw MeasurementDetException( "TkPixelMeasurementDet constructed with a GeomDet which is not a PixelGeomDetUnit");
     }
   }
@@ -95,7 +95,7 @@ TkPixelMeasurementDet::compHits( const TrajectoryStateOnSurface& ts, const Measu
   RecHitContainer result;
   if (isEmpty(data.pixelData())== true ) return result;
   if (isActive(data) == false) return result;
-  const SiPixelCluster* begin=0;
+  const SiPixelCluster* begin=nullptr;
   if (0 != data.pixelData().handle()->data().size()) {
      begin = &(data.pixelData().handle()->data().front());
   }

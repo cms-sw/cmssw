@@ -85,7 +85,7 @@ public:
    const void*    modelData(int iIndex) const
       {
          if (!getDataPtr())
-            return 0;
+            return nullptr;
          return &(reinterpret_cast<container_type *>(getDataPtr())->operator[](iIndex));
       }
 
@@ -121,7 +121,7 @@ public:
    const void*    modelData(int iIndex) const
       {
          if (!getDataPtr())
-            return 0;
+            return nullptr;
          const container_type *c = reinterpret_cast<const container_type*>(getDataPtr());
          size_t collectionOffset = 0;
          for (typename container_type::const_iterator ci = c->begin(), ce = c->end(); ci != ce; ++ci)
@@ -132,7 +132,7 @@ public:
             collectionOffset += ci->size();
          }
 
-         return 0;
+         return nullptr;
       }
 
    unsigned int   size() const
@@ -168,10 +168,10 @@ public:
    const void*    modelData(int iIndex) const
       {
          if (!getDataPtr())
-            return 0;
+            return nullptr;
          const container_type *c = reinterpret_cast<const container_type*>(getDataPtr());
          if (iIndex < 0)
-            return 0;
+            return nullptr;
 
          return &(c->data().operator[](iIndex));
       }
@@ -202,7 +202,7 @@ public:
    const void*    modelData(int iIndex) const
       {
          if (!getDataPtr())
-            return 0;
+            return nullptr;
          const container_type *c = reinterpret_cast<const container_type*>(getDataPtr());
          size_t collectionOffset = 0;
          for (typename container_type::const_iterator ci = c->begin(), ce = c->end(); ci != ce; ++ci)
@@ -213,7 +213,7 @@ public:
             collectionOffset += ci->size();
          }
 
-         return 0;
+         return nullptr;
       }
 
    unsigned int   size() const
@@ -246,7 +246,7 @@ public:
    const void*    modelData(int iIndex) const
       {
          if (!getDataPtr())
-            return 0;
+            return nullptr;
          const container_type *c = reinterpret_cast<const container_type*>(getDataPtr());
          size_t collectionOffset = 0;
 
@@ -262,7 +262,7 @@ public:
             collectionOffset += std::distance(vt.second.first, vt.second.second);
          }
 
-         return 0;
+         return nullptr;
       }
 
    unsigned int   size() const

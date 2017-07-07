@@ -4,7 +4,7 @@
 G4ThreadLocal G4Allocator<FiberG4Hit> *fFiberG4HitAllocator = nullptr;
 
 FiberG4Hit::FiberG4Hit() : theTowerId(0), theDepth(0), theTrackId(0),
-			   theNpe(0), theTime(0), theLogV(0) {
+			   theNpe(0), theTime(0), theLogV(nullptr) {
   theHitPos.SetCoordinates(0.,0.,0.);
 }
 

@@ -161,7 +161,7 @@ namespace egHLT {
     OffHelper(const OffHelper&) = delete;
     
   public:
-    OffHelper(): eleLooseCuts_(),eleCuts_(),phoLooseCuts_(),phoCuts_(),hltEleTrkIsolAlgo_(NULL),hltPhoTrkIsolAlgo_(NULL){}
+    OffHelper(): eleLooseCuts_(),eleCuts_(),phoLooseCuts_(),phoCuts_(),hltEleTrkIsolAlgo_(nullptr),hltPhoTrkIsolAlgo_(nullptr){}
     ~OffHelper();
     
     void setup(const edm::ParameterSet& conf, edm::ConsumesCollector && iC);

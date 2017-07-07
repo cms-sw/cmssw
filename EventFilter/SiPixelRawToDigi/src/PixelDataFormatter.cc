@@ -55,7 +55,7 @@ namespace {
 }
 
 PixelDataFormatter::PixelDataFormatter( const SiPixelFedCabling* map, bool phase)
-  : theDigiCounter(0), theWordCounter(0), theCablingTree(map), badPixelInfo(0), modulesToUnpack(0), phase1(phase)
+  : theDigiCounter(0), theWordCounter(0), theCablingTree(map), badPixelInfo(nullptr), modulesToUnpack(nullptr), phase1(phase)
 {
   int s32 = sizeof(Word32);
   int s64 = sizeof(Word64);

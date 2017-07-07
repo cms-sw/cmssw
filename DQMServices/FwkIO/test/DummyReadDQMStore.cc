@@ -47,7 +47,7 @@ namespace {
   public:
     TH1FReader(const edm::ParameterSet& iPSet,DQMStore& iStore,bool iSetLumiFlag):
     m_store(&iStore),
-    m_element(0),
+    m_element(nullptr),
     m_means(iPSet.getUntrackedParameter<std::vector<double> >("means")),
     m_entries(iPSet.getUntrackedParameter<std::vector<double> >("entries")),
     m_indexToCheck(0)
@@ -63,9 +63,9 @@ namespace {
     virtual ~TH1FReader() {};
  
     void read() {
-      if(0==m_element) {
+      if(nullptr==m_element) {
         m_element = m_store->get(m_name);
-        if(0==m_element) {
+        if(nullptr==m_element) {
           throw cms::Exception("MissingElement")<<"The element: "<<m_name<<" was not found";
         }
       }
@@ -97,7 +97,7 @@ namespace {
   public:
     TH2FReader(const edm::ParameterSet& iPSet,DQMStore& iStore,bool iSetLumiFlag):
     m_store(&iStore),
-    m_element(0),
+    m_element(nullptr),
     m_means(iPSet.getUntrackedParameter<std::vector<double> >("means")),
     m_entries(iPSet.getUntrackedParameter<std::vector<double> >("entries")),
     m_indexToCheck(0)
@@ -113,9 +113,9 @@ namespace {
     virtual ~TH2FReader() {};
  
     void read() {
-      if(0==m_element) {
+      if(nullptr==m_element) {
         m_element = m_store->get(m_name);
-        if(0==m_element) {
+        if(nullptr==m_element) {
           throw cms::Exception("MissingElement")<<"The element: "<<m_name<<" was not found";
         }
       }

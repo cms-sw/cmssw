@@ -34,12 +34,12 @@ SiStripQualityStatistics::SiStripQualityStatistics( const edm::ParameterSet& iCo
   TkMapFileName_(iConfig.getUntrackedParameter<std::string>("TkMapFileName","")),
   fp_(iConfig.getUntrackedParameter<edm::FileInPath>("file",edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"))),
   saveTkHistoMap_(iConfig.getUntrackedParameter<bool>("SaveTkHistoMap",true)),
-  tkMap(0),tkMapFullIOVs(0)
+  tkMap(nullptr),tkMapFullIOVs(nullptr)
 {  
   reader = new SiStripDetInfoFileReader(fp_.fullPath());
 
   tkMapFullIOVs=new TrackerMap( "BadComponents" );
-  tkhisto=0;
+  tkhisto=nullptr;
   if (TkMapFileName_!=""){
     tkhisto   =new TkHistoMap("BadComp","BadComp",-1.); //here the baseline (the value of the empty,not assigned bins) is put to -1 (default is zero)
   }
@@ -205,7 +205,7 @@ void SiStripQualityStatistics::analyze( const edm::Event& e, const edm::EventSet
 
     //------- Global Statistics on percentage of bad components along the IOVs ------//
     tkMapFullIOVs->fill(detid,percentage);
-    if(tkhisto!=NULL)
+    if(tkhisto!=nullptr)
       tkhisto->fill(detid,percentage);
   }
   

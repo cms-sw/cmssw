@@ -64,7 +64,7 @@ EcalLocalRecoTask::EcalLocalRecoTask(const edm::ParameterSet& ps)
     edm::LogInfo("EcalLocalRecoTaskInfo") << "verbose switch is OFF";
   }
                                                                                                                                           
-  dbe_ = 0;
+  dbe_ = nullptr;
                                                                                                                                           
   // get hold of back-end interface
   dbe_ = edm::Service<DQMStore>().operator->();
@@ -82,10 +82,10 @@ EcalLocalRecoTask::EcalLocalRecoTask(const edm::ParameterSet& ps)
   }
 
 
-  meEBUncalibRecHitMaxSampleRatio_ = 0;
-  meEBUncalibRecHitPedestal_ = 0;
-  meEBUncalibRecHitOccupancy_ = 0;
-  meEBRecHitSimHitRatio_ = 0;
+  meEBUncalibRecHitMaxSampleRatio_ = nullptr;
+  meEBUncalibRecHitPedestal_ = nullptr;
+  meEBUncalibRecHitOccupancy_ = nullptr;
+  meEBRecHitSimHitRatio_ = nullptr;
 
   Char_t histo[70];
  

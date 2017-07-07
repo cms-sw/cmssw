@@ -20,7 +20,7 @@ namespace ecaldqm
     sources_(),
     qualitySummaries_(),
     hasLumiPlots_(false),
-    statusManager_(0)
+    statusManager_(nullptr)
   {
   }
 

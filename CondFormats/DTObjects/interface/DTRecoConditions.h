@@ -49,7 +49,7 @@ public:
 
   /// Get the value correspoding to the given WireId, 
   //// using x[] as parameters of the parametrization when relevant
-  float get(const DTWireId& wireid, double* x=0) const;
+  float get(const DTWireId& wireid, double* x=nullptr) const;
 
   /// Set the expression representing the formula used for parametrization
   void setFormulaExpr(const std::string& expr) {

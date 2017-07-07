@@ -108,7 +108,7 @@ FP420ClusterMain::FP420ClusterMain(const edm::ParameterSet& conf, int dn, int sn
 }
 
 FP420ClusterMain::~FP420ClusterMain() {
-  if ( threeThreshold_ != 0 ) {
+  if ( threeThreshold_ != nullptr ) {
     delete threeThreshold_;
   }
 }

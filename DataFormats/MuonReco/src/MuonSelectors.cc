@@ -38,7 +38,7 @@ SelectionType selectionTypeFromString( const std::string &label )
       { "ME0MuonArbitrated", ME0MuonArbitrated },
       { "AllGEMMuons", AllGEMMuons },
       { "GEMMuonArbitrated", GEMMuonArbitrated },
-      { 0, (SelectionType)-1 }
+      { nullptr, (SelectionType)-1 }
    };
 
    SelectionType value = (SelectionType)-1;

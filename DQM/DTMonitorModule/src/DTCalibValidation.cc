@@ -199,7 +199,7 @@ DTCalibValidation::findBestRecHit(const DTLayer* layer,
                                 const vector<type>& recHits,
                                 const float segmDist) {
   float res = 99999;
-  const type* theBestRecHit = 0;
+  const type* theBestRecHit = nullptr;
   // Loop over RecHits within the cell
   for(typename vector<type>::const_iterator recHit = recHits.begin();
       recHit != recHits.end();

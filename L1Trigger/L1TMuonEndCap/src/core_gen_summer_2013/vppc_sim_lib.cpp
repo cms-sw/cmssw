@@ -28,15 +28,15 @@ signal_& get_stemp()
 {
 	signal_& res = stemp[stemp_i = (stemp_i + 1) & temp_i_mask];
 	res.rc = res.rt; // set storage pointer to temp storage, because it may have been repointed
-	res.st = NULL; // no permanent storage
-	res.ca1 = res.ca2 = NULL; // reset concatenation pointers
+	res.st = nullptr; // no permanent storage
+	res.ca1 = res.ca2 = nullptr; // reset concatenation pointers
 	res.alwaysn = __glob_alwaysn__; // assigned in current AB  
 	return res;
 }
 
 void signal_::attach(signal_& src)
 {
-	if (cell == NULL) // single signal
+	if (cell == nullptr) // single signal
 	{
 		// copy all parameters but storage indexes
 		st      = src.st;       
@@ -64,7 +64,7 @@ void signal_::attach(signal_& src)
 void signal_storage::bw(size_t ih, size_t il)
 {
 
-	if (cell == NULL)
+	if (cell == nullptr)
 	{
 		btw = ih - il + 1; // bit width
 		wn = (btw-1) / sull + 2; // number of words for storage, one extra word for more efficient calculations
@@ -88,7 +88,7 @@ void signal_storage::bw(size_t ih, size_t il)
 
 void signal_storage::init()
 {
-	if (cell == NULL)
+	if (cell == nullptr)
 	{
 		// check for changes
 		if (assigned)
@@ -130,7 +130,7 @@ void signal_storage::init()
 
 void signal_::bw(size_t ih, size_t il)
 {
-	if (cell == NULL) // single signal
+	if (cell == nullptr) // single signal
 	{
 		// store bit indexes 
 		dl = il;
@@ -138,7 +138,7 @@ void signal_::bw(size_t ih, size_t il)
 		sl = 0;
 		sh = ih - il;
 		// reset concatenation pointers
-		ca1 = ca2 = NULL;
+		ca1 = ca2 = nullptr;
 		alwaysn = 0;
 	}
 	else // memory
@@ -151,7 +151,7 @@ void signal_::bw(size_t ih, size_t il)
 
 void signal_::set_storage(signal_storage* st)
 {
-	if (cell == NULL) // single signal
+	if (cell == nullptr) // single signal
 	{
 		this->st = st;
 		r = st->r;
@@ -168,9 +168,9 @@ void signal_::set_storage(signal_storage* st)
 
 signal_& signal_::operator=(signal_& oth)
 {
-	if (cell == NULL) // single signal
+	if (cell == nullptr) // single signal
 	{
-		if (ca1 == NULL)
+		if (ca1 == nullptr)
 		{
 			// not concatenation
 			if (dh == 0) // single bit assignment simplified for performance
@@ -251,7 +251,7 @@ signal_& signal_::operator=(ull n)
 
 signal_& signal_::operator[](ull i) // signle bit or memory cell selection
 {
-	if (cell == NULL)
+	if (cell == nullptr)
 	{
 		signal_& t = get_stemp();
 		t.set_storage(st); // same storage as in this
@@ -297,7 +297,7 @@ ull* signal_::getval()
 ull signal_::get_ull(size_t bnum)
 {
 	dull res;
-	if (ca1 == NULL) // regular signal
+	if (ca1 == nullptr) // regular signal
 	{
  
         size_t lowb = sl + bnum;
@@ -642,7 +642,7 @@ void Sfwrite(signal_& fd, string format, ... )
 	ifd = fd.rc[0];
 	if (sizeof (ifd) > 4) ifd |= ((dull)fd.rc[1]) << 32;  
 	ff = (FILE*)ifd;
-	if (ff == NULL) ff = stdout;
+	if (ff == nullptr) ff = stdout;
 
 	va_list ap;
     va_start(ap, format); //Requires the last fixed parameter (to get the address)
@@ -730,7 +730,7 @@ void Sreadmemh(string fname, signal_& dest, size_t adr)
 signal_ Sfopen(string fname, string mode)
 {
 	FILE* fp = fopen(fname.c_str(), mode.c_str());
-	if (fp == NULL)
+	if (fp == nullptr)
 	{
 		cout << "ERROR: file " << fname.c_str() << " cannot be opened\n";
 	}
@@ -738,8 +738,8 @@ signal_ Sfopen(string fname, string mode)
 	t->rc = t->rt = new ull[3];
 	t->dl = t->sl = 0; 
 	t->dh = t->sh = 63;
-	t->st = NULL; // no permanent storage
-	t->ca1 = t->ca2 = NULL; // reset concatenation pointers
+	t->st = nullptr; // no permanent storage
+	t->ca1 = t->ca2 = nullptr; // reset concatenation pointers
 	t->alwaysn = __glob_alwaysn__; // assigned in current AB  
 
 	t->rc[0] = (dull)fp & mull;
@@ -855,7 +855,7 @@ void endalways()
 
 void signal_::add_dim(size_t h, size_t l)
 {
-	if (cell == NULL)
+	if (cell == nullptr)
 	{ // these are my dimensions, reserve cells
 		cell = new signal_[h-l+1];
 		// store my dimensions
@@ -876,7 +876,7 @@ void signal_::build()
 
 void signal_storage::add_dim(size_t h, size_t l)
 {
-	if (cell == NULL)
+	if (cell == nullptr)
 	{ // these are my dimensions, reserve cells
 		cell = new signal_storage[h-l+1];
 		// store my dimensions

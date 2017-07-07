@@ -300,7 +300,7 @@ int Vx3DHLTAnalyzer::MyFit (vector<double>* vals)
   // # -5 == NO OK - maxLumiIntegration reached #
   // ############################################
 
-  if ((vals != NULL) && (vals->size() == nParams*2))
+  if ((vals != nullptr) && (vals->size() == nParams*2))
     {
       double nSigmaXY       = 10.;
       double nSigmaZ        = 10.;
@@ -738,7 +738,7 @@ void Vx3DHLTAnalyzer::writeToFile (vector<double>* vals,
 
   outputFile.open(fileName.c_str(), ios::out);
 
-  if ((outputFile.is_open() == true) && (vals != NULL) && (vals->size() == (nParams-1)*2))
+  if ((outputFile.is_open() == true) && (vals != nullptr) && (vals->size() == (nParams-1)*2))
     {
       vector<double>::const_iterator it = vals->begin();
 
@@ -804,7 +804,7 @@ void Vx3DHLTAnalyzer::writeToFile (vector<double>* vals,
     }
   outputFile.close();
   
-  if ((debugMode == true) && (outputDebugFile.is_open() == true) && (vals != NULL) && (vals->size() == (nParams-1)*2))
+  if ((debugMode == true) && (outputDebugFile.is_open() == true) && (vals != nullptr) && (vals->size() == (nParams-1)*2))
     {
       vector<double>::const_iterator it = vals->begin();
 

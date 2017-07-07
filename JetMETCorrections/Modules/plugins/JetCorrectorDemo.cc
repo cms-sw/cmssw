@@ -81,7 +81,7 @@ void JetCorrectorDemo::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 {
   edm::Handle<reco::JetCorrector> corrector;
   iEvent.getByToken(mJetCorrector, corrector);
-  JetCorrectionUncertainty *jecUnc(0);
+  JetCorrectionUncertainty *jecUnc(nullptr);
   if (mUncertaintyTag != "")
     {
       if (mUseCondDB)

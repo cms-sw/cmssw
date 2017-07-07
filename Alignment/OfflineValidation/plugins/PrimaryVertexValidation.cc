@@ -2243,8 +2243,8 @@ std::pair<Double_t,Double_t> PrimaryVertexValidation::getMedian(TH1F *histo)
   }
   median = TMath::Median(nbins, x, y);
   
-  delete[] x; x = 0;
-  delete[] y; y = 0;  
+  delete[] x; x = nullptr;
+  delete[] y; y = nullptr;  
 
   std::pair<Double_t,Double_t> result;
   result = std::make_pair(median,median/TMath::Sqrt(histo->GetEntries()));
@@ -2275,8 +2275,8 @@ std::pair<Double_t,Double_t> PrimaryVertexValidation::getMAD(TH1F *histo)
   
   Double_t theMAD = (getMedian(newHisto).first)*1.4826;
   
-  delete[] residuals; residuals=0;
-  delete[] weights; weights=0;
+  delete[] residuals; residuals=nullptr;
+  delete[] weights; weights=nullptr;
   newHisto->Delete("");
   
   std::pair<Double_t,Double_t> result;

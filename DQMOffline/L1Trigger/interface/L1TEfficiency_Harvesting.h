@@ -43,7 +43,7 @@ class L1TEfficiencyPlotHandler {
  public:
 
  L1TEfficiencyPlotHandler(std::string dir, std::string plotName)  : 
-  m_dir(dir), m_plotName(plotName), m_effHisto(0) { };
+  m_dir(dir), m_plotName(plotName), m_effHisto(nullptr) { };
 
   L1TEfficiencyPlotHandler(const L1TEfficiencyPlotHandler &handler);
 

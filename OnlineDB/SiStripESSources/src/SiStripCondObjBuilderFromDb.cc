@@ -416,7 +416,7 @@ bool SiStripCondObjBuilderFromDb::setValuesApvTiming(SiStripConfigDb* const db, 
     iii++;
   }
 
-  TimingAnalysisDescription *anal=0;
+  TimingAnalysisDescription *anal=nullptr;
   if ( iii != jjj ) { anal = dynamic_cast<TimingAnalysisDescription*>(*iii); }
   if ( !anal ) {
     edm::LogWarning(mlESSources_) << "[SiStripCondObjBuilderFromDb::" << __func__ << "]"

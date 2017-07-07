@@ -91,15 +91,15 @@ void testeventprocessor::parseTest() {
   catch (cms::Exception& e) {
       std::cerr << "cms exception caught: "
                 << e.explainSelf() << std::endl;
-      CPPUNIT_ASSERT("Caught cms::Exception " == 0);
+      CPPUNIT_ASSERT("Caught cms::Exception " == nullptr);
   }
   catch (std::exception& e) {
       std::cerr << "Standard library exception caught: "
                 << e.what() << std::endl;
-      CPPUNIT_ASSERT("Caught std::exception " == 0);
+      CPPUNIT_ASSERT("Caught std::exception " == nullptr);
   }
   catch (...) {
-      CPPUNIT_ASSERT("Caught unknown exception " == 0);
+      CPPUNIT_ASSERT("Caught unknown exception " == nullptr);
   }
 }
 
@@ -440,7 +440,7 @@ testeventprocessor::activityRegistryTest() {
   for (ModuleDescs::const_iterator i = allModules.begin(), e = allModules.end();
        i != e ;
        ++i) {
-    CPPUNIT_ASSERT(*i != 0);
+    CPPUNIT_ASSERT(*i != nullptr);
     //std::cout << **i << '\n';
   }
   //std::cout << "--- end of ModuleDescriptions\n";
@@ -482,10 +482,10 @@ testeventprocessor::moduleFailureTest() {
       } catch(cms::Exception const& iException) {
         if(!findModuleName(iException.explainSelf())) {
           std::cout << iException.explainSelf() << std::endl;
-          CPPUNIT_ASSERT(0 == "module name not in exception message");
+          CPPUNIT_ASSERT(nullptr == "module name not in exception message");
         }
       }
-      CPPUNIT_ASSERT(threw && 0 != "exception never thrown");
+      CPPUNIT_ASSERT(threw && nullptr != "exception never thrown");
     }
     {
       std::string const configuration = preC +"1"+postC;
@@ -498,10 +498,10 @@ testeventprocessor::moduleFailureTest() {
       } catch(cms::Exception const& iException) {
         if(!findModuleName(iException.explainSelf())) {
           std::cout << iException.explainSelf() << std::endl;
-          CPPUNIT_ASSERT(0 == "module name not in exception message");
+          CPPUNIT_ASSERT(nullptr == "module name not in exception message");
         }
       }
-      CPPUNIT_ASSERT(threw && 0 != "exception never thrown");
+      CPPUNIT_ASSERT(threw && nullptr != "exception never thrown");
     }
 
     {
@@ -516,10 +516,10 @@ testeventprocessor::moduleFailureTest() {
       } catch(cms::Exception const& iException) {
         if(!findModuleName(iException.explainSelf())) {
           std::cout << iException.explainSelf() << std::endl;
-          CPPUNIT_ASSERT(0 == "module name not in exception message");
+          CPPUNIT_ASSERT(nullptr == "module name not in exception message");
         }
       }
-      CPPUNIT_ASSERT(threw && 0 != "exception never thrown");
+      CPPUNIT_ASSERT(threw && nullptr != "exception never thrown");
       proc.endJob();
     }
     {
@@ -534,10 +534,10 @@ testeventprocessor::moduleFailureTest() {
       } catch(cms::Exception const& iException) {
         if(!findModuleName(iException.explainSelf())) {
           std::cout << iException.explainSelf() << std::endl;
-          CPPUNIT_ASSERT(0 == "module name not in exception message");
+          CPPUNIT_ASSERT(nullptr == "module name not in exception message");
         }
       }
-      CPPUNIT_ASSERT(threw && 0 != "exception never thrown");
+      CPPUNIT_ASSERT(threw && nullptr != "exception never thrown");
     }
     ///
     {
@@ -557,10 +557,10 @@ testeventprocessor::moduleFailureTest() {
         static std::regex const expr("m1");
         if(!regex_search(iException.explainSelf(), expr)) {
           std::cout << iException.explainSelf() << std::endl;
-          CPPUNIT_ASSERT(0 == "module name not in exception message");
+          CPPUNIT_ASSERT(nullptr == "module name not in exception message");
         }
       }
-      CPPUNIT_ASSERT(threw && 0 != "exception never thrown");
+      CPPUNIT_ASSERT(threw && nullptr != "exception never thrown");
     }
   } catch(cms::Exception const& iException) {
     std::cout << "Unexpected exception " << iException.explainSelf() << std::endl;

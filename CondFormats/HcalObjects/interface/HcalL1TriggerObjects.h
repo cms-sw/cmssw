@@ -15,7 +15,7 @@ class HcalL1TriggerObjects: public HcalCondObjectContainer<HcalL1TriggerObject>
 {
  public:
 #ifndef HCAL_COND_SUPPRESS_DEFAULT
- HcalL1TriggerObjects():HcalCondObjectContainer<HcalL1TriggerObject>(0) { }
+ HcalL1TriggerObjects():HcalCondObjectContainer<HcalL1TriggerObject>(nullptr) { }
 #endif
   HcalL1TriggerObjects(const HcalTopology* topo):HcalCondObjectContainer<HcalL1TriggerObject>(topo) {}
 

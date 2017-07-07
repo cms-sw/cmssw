@@ -82,7 +82,7 @@ SiPixelCondObjForHLTReader::analyze(const edm::Event& iEvent, const edm::EventSe
 
     DetId detIdObject(detid);
     const PixelGeomDetUnit* _PixelGeomDetUnit = dynamic_cast<const PixelGeomDetUnit*>(tkgeom->idToDetUnit(DetId(detid)));
-    if (_PixelGeomDetUnit==0){
+    if (_PixelGeomDetUnit==nullptr){
       edm::LogError("SiPixelCondObjHLTDisplay")<<"[SiPixelCondObjHLTReader::beginJob] the detID "<<detid<<" doesn't seem to belong to Tracker"<<std::endl; 
       continue;
     }     

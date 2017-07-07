@@ -194,7 +194,7 @@ const TinyEvent* EventWithHistory::get(const unsigned int ev) const {
 
   if(ev==0) return this;
   if(ev<=_prevse.size()) return &_prevse[ev-1];
-  return 0;
+  return nullptr;
 
 }
 

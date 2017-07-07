@@ -21,7 +21,7 @@ MiscalibReaderFromXMLDomUtils::getIntAttribute(XERCES_CPP_NAMESPACE::DOMNamedNod
   XMLCh *buffer = XERCES_CPP_NAMESPACE::XMLString::transcode(attr_name.c_str());
 
   // we could also use XMLString::parseInt(...) here..
-  char *endptr = NULL;
+  char *endptr = nullptr;
   int retval = strtol(toString(attributes->getNamedItem(buffer)->getNodeValue()).c_str(),
                       &endptr,0);
   if (*endptr != '\0')
@@ -41,7 +41,7 @@ MiscalibReaderFromXMLDomUtils::getFloatAttribute(XERCES_CPP_NAMESPACE::DOMNamedN
 {
   XMLCh *buffer = XERCES_CPP_NAMESPACE::XMLString::transcode(attr_name.c_str());
 
-  char *endptr = NULL;
+  char *endptr = nullptr;
   double retval = strtod(toString(attributes->getNamedItem(buffer)->getNodeValue()).c_str(),
                          &endptr);
   if (*endptr != '\0')
@@ -76,7 +76,7 @@ MiscalibReaderFromXMLDomUtils::hasAttribute(XERCES_CPP_NAMESPACE::DOMNamedNodeMa
 {
   bool retval;
   XMLCh *buffer = XERCES_CPP_NAMESPACE::XMLString::transcode(attr_name.c_str());
-  retval = attributes->getNamedItem(buffer) != NULL;
+  retval = attributes->getNamedItem(buffer) != nullptr;
   delete [] buffer;
     
   return retval;

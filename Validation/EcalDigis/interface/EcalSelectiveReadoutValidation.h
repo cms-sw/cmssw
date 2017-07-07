@@ -316,7 +316,7 @@ private:
   static int dccZsFIR(const EcalDataFrame& frame,
 		      const std::vector<int>& firWeights,
 		      int firstFIRSample,
-		      bool* saturated = 0);
+		      bool* saturated = nullptr);
   
 
   /** Computes the ZS FIR filter weights from the normalized weights.

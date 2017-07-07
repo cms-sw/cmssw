@@ -116,7 +116,7 @@ static int countChildElements(DOMNode *n, bool printOutEncounteredEles)
             }
 			++count;
 		}
-        for (child = n->getFirstChild(); child != 0; child=child->getNextSibling())
+        for (child = n->getFirstChild(); child != nullptr; child=child->getNextSibling())
             count += countChildElements(child, printOutEncounteredEles);
     }
     return count;
@@ -137,7 +137,7 @@ int main(int argC, char* argV[])
         return 1;
     }
 
-    const char*                xmlFile = 0;
+    const char*                xmlFile = nullptr;
     AbstractDOMParser::ValSchemes valScheme = AbstractDOMParser::Val_Auto;
     bool                       doNamespaces       = false;
     bool                       doSchema           = false;
@@ -263,7 +263,7 @@ int main(int argC, char* argV[])
     // Instantiate the DOM parser.
     static const XMLCh gLS[] = { chLatin_L, chLatin_S, chNull };
     DOMImplementation *impl = DOMImplementationRegistry::getDOMImplementation(gLS);
-    DOMLSParser       *parser = ((DOMImplementationLS*)impl)->createLSParser(DOMImplementationLS::MODE_SYNCHRONOUS, 0);
+    DOMLSParser       *parser = ((DOMImplementationLS*)impl)->createLSParser(DOMImplementationLS::MODE_SYNCHRONOUS, nullptr);
     DOMConfiguration  *config = parser->getDomConfig();
 
     config->setParameter(XMLUni::fgDOMNamespaces, doNamespaces);
@@ -336,7 +336,7 @@ int main(int argC, char* argV[])
         //reset error count first
         errorHandler.resetErrors();
 
-        XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *doc = 0;
+        XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *doc = nullptr;
 
         try
         {

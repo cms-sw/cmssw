@@ -361,7 +361,7 @@ if( xmlModel > 2016 ){
             first = 0;
             last = 3563;
         } else {
-            char *dash = 0;
+            char *dash = nullptr;
             first = strtoul(s2.data(), &dash, 0);
             while( *dash != '\0' && *dash != '-' ) ++dash;
             last  = (*dash != '\0' ? strtoul(++dash, &dash, 0) : first);

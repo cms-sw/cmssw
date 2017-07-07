@@ -109,7 +109,7 @@ StatisticsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     {
       std::string me_name = (*iter)->getName();
 
-      if ( strstr(me_name.c_str(),"TotalNumberOfCluster__T")!=NULL && strstr(me_name.c_str(),"Profile")==NULL )
+      if ( strstr(me_name.c_str(),"TotalNumberOfCluster__T")!=nullptr && strstr(me_name.c_str(),"Profile")==nullptr )
 	{
 	  TotNumberOfEvents = ((TH1F*)(*iter)->getTH1F())->GetEntries();
 

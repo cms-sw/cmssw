@@ -66,7 +66,7 @@ namespace edm
         InitMsgView const* header = pr_->getHeader();
         deserializeAndMergeWithRegistry(*header, true);
     } 
-    if (eview == 0) {
+    if (eview == nullptr) {
         return  false;
     }
     deserializeEvent(*eview);

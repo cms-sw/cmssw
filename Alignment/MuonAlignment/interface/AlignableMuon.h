@@ -53,7 +53,7 @@ public:
   virtual align::Alignables components() const { return theMuonComponents; }
 
   /// Alignable tracker has no mother
-  virtual Alignable* mother() { return 0; }
+  virtual Alignable* mother() { return nullptr; }
 
   /// Methods to return specific of components
   align::Alignables DTLayers();

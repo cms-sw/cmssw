@@ -310,7 +310,7 @@ bool IsSpanningOver2APV(unsigned int FirstStrip, unsigned int ClusterSize)
 
 bool IsFarFromBorder(const TrajectoryStateOnSurface& trajState, const GeomDetUnit* it)
 {
-  if (dynamic_cast<const StripGeomDetUnit*>(it)==0 && dynamic_cast<const PixelGeomDetUnit*>(it)==0) {
+  if (dynamic_cast<const StripGeomDetUnit*>(it)==nullptr && dynamic_cast<const PixelGeomDetUnit*>(it)==nullptr) {
      edm::LogInfo("DeDxTools::IsFarFromBorder") << "this detID doesn't seem to belong to the Tracker" << std::endl;
      return false;
   }

@@ -56,8 +56,8 @@ using namespace edm;
 using namespace std;
 
 BasicGenTester::BasicGenTester( const ParameterSet& pset )
-  : fNChgPartFinalState(0),  fNNeuPartFinalState(0), fNPartFinalState(0),
-    fPtChgPartFinalState(0), fPtNeuPartFinalState(0)
+  : fNChgPartFinalState(nullptr),  fNNeuPartFinalState(nullptr), fNPartFinalState(nullptr),
+    fPtChgPartFinalState(nullptr), fPtNeuPartFinalState(nullptr)
 {
 
    fNPart = pset.getUntrackedParameter<int>( "NPartForHisto", 500 );

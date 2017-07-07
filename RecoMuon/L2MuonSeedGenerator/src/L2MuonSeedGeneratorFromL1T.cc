@@ -171,7 +171,7 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
       // Update the services
       theService->update(iSetup);
 
-      const DetLayer *detLayer = 0;
+      const DetLayer *detLayer = nullptr;
       float radius = 0.;
 
       CLHEP::Hep3Vector vec(0.,1.,0.);
@@ -271,7 +271,7 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
           const TrajectorySeed *assoOffseed = 
    	        associateOfflineSeedToL1(offlineSeedHandle, offlineSeedMap, tsos, dRcone );
     
-          if(assoOffseed!=0) {
+          if(assoOffseed!=nullptr) {
             PTrajectoryStateOnDet const & seedTSOS = assoOffseed->startingState();
             TrajectorySeed::const_iterator 
             tsci  = assoOffseed->recHits().first,
@@ -332,7 +332,7 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
               const TrajectorySeed *assoOffseed = 
                 associateOfflineSeedToL1(offlineSeedHandle, offlineSeedMap, newTSOS, dRcone);
   
-              if(assoOffseed!=0) {
+              if(assoOffseed!=nullptr) {
                 PTrajectoryStateOnDet const & seedTSOS = assoOffseed->startingState();
                 TrajectorySeed::const_iterator 
                   tsci  = assoOffseed->recHits().first,
@@ -378,7 +378,7 @@ const TrajectorySeed* L2MuonSeedGeneratorFromL1T::associateOfflineSeedToL1( edm:
   MuonPatternRecoDumper debugtmp;
 
   edm::View<TrajectorySeed>::const_iterator offseed, endOffseed = offseeds->end();
-  const TrajectorySeed *selOffseed = 0;
+  const TrajectorySeed *selOffseed = nullptr;
   double bestDr = 99999.;
   unsigned int nOffseed(0);
   int lastOffseed(-1);

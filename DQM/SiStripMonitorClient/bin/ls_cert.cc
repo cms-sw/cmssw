@@ -248,7 +248,7 @@ void ls_cert_type(string iDir, float threshold, string filename, vector <string>
 	tempvalue = atof(detvalue.c_str());
 	
 	for (j=0; j<smax; j++){
-	  if ( strstr(typecert.c_str(),certflag[j].c_str())!=NULL)
+	  if ( strstr(typecert.c_str(),certflag[j].c_str())!=nullptr)
 	    v[j][i] = tempvalue;
 	  if (debug) std::cout << "Entering value " << tempvalue << " " << v[j][i] << " for " << certflag[j].c_str() << std::endl;
 	}

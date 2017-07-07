@@ -18,7 +18,7 @@ bool VolumeGridTester::testInside() const
 
 
   const MFGrid * grid = dynamic_cast<const MFGrid *>(magProvider_);
-  if (grid == 0) {
+  if (grid == nullptr) {
     cout << "VolumeGridTester: magProvider is not a MFGrid3D, cannot test it..." << endl
 	 << "expected ";
     return false;

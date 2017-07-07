@@ -40,7 +40,7 @@ public:
   void book() override;
 
   void event(const edm::Event &iEvent, const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& iTrajTracks) override;
-  void processMuonResidualsFromTrack(MuonResidualsFromTrack &mrft, const Trajectory* traj = NULL);
+  void processMuonResidualsFromTrack(MuonResidualsFromTrack &mrft, const Trajectory* traj = nullptr);
 
 private:
   
@@ -265,7 +265,7 @@ void AlignmentMonitorMuonVsCurvature::processMuonResidualsFromTrack(MuonResidual
       DTChamberId dtid(chamberId->rawId());
       MuonChamberResidual *dt13 = mrft.chamberResidual(*chamberId, MuonChamberResidual::kDT13);
       
-      if (dt13 != NULL  &&  dt13->numHits() >= m_minDT13Hits)
+      if (dt13 != nullptr  &&  dt13->numHits() >= m_minDT13Hits)
       {
         int wheel = dtid.wheel() + 2;
         int station = dtid.station() -1;
@@ -289,7 +289,7 @@ void AlignmentMonitorMuonVsCurvature::processMuonResidualsFromTrack(MuonResidual
       CSCDetId cscid(chamberId->rawId());
       MuonChamberResidual *csc = mrft.chamberResidual(*chamberId, MuonChamberResidual::kCSC);
 
-      if (csc != NULL  &&  csc->numHits() >= m_minCSCHits)
+      if (csc != nullptr  &&  csc->numHits() >= m_minCSCHits)
       {
         int station = 4*cscid.endcap() + cscid.station() - 5;
         int ring = cscid.ring() - 1;

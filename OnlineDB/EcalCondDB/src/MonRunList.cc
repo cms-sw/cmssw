@@ -13,7 +13,7 @@ using namespace oracle::occi;
 
 MonRunList::MonRunList()
 {
-  m_conn = NULL;
+  m_conn = nullptr;
 }
 
 MonRunList::~MonRunList()

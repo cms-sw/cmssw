@@ -49,7 +49,7 @@ void TAbsFitConstraint::reset() {
   // Reset parameters to initial values
 
   _parameters = _iniparameters;  
-  setCovMatrixFit( 0 );
+  setCovMatrixFit( nullptr );
 
 }
 
@@ -57,7 +57,7 @@ void TAbsFitConstraint::setCovMatrix(const TMatrixD* theCovMatrix) {
   // Set measured alpha covariance matrix
 
   _covMatrix.ResizeTo(_nPar, _nPar);
-  if(theCovMatrix==0) {
+  if(theCovMatrix==nullptr) {
     _covMatrix.Zero();
   } else if (theCovMatrix->GetNcols() ==_nPar && theCovMatrix->GetNrows() ==_nPar) {
     _covMatrix = (*theCovMatrix);
@@ -73,7 +73,7 @@ void TAbsFitConstraint::setCovMatrixFit(const TMatrixD* theCovMatrixFit) {
   // Set the fitted covariance matrix
 
   _covMatrixFit.ResizeTo(_nPar, _nPar);
-  if(theCovMatrixFit==0) {
+  if(theCovMatrixFit==nullptr) {
     _covMatrixFit.Zero();
   } else if (theCovMatrixFit->GetNcols() ==_nPar && theCovMatrixFit->GetNrows() ==_nPar) {
     _covMatrixFit = (*theCovMatrixFit);
@@ -110,7 +110,7 @@ void TAbsFitConstraint::applyDeltaAlpha(TMatrixD* corrMatrix) {
 void TAbsFitConstraint::setParIni(const TMatrixD* parini) {
   // Set initial parameter values (before the fit)
 
-  if (parini == 0) return;
+  if (parini == nullptr) return;
   else if( parini->GetNrows() == _iniparameters.GetNrows() &&
 	   parini->GetNcols() == _iniparameters.GetNcols() )
     _iniparameters = (*parini) ;

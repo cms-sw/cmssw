@@ -109,7 +109,7 @@ static ProcTMVA::Registry registry("ProcTMVA");
 ProcTMVA::ProcTMVA(const char *name, const AtomicId *id,
                    MVATrainer *trainer) :
 	TrainProcessor(name, id, trainer),
-	iteration(ITER_EXPORT), treeSig(0), treeBkg(0), needCleanup(false),
+	iteration(ITER_EXPORT), treeSig(nullptr), treeBkg(nullptr), needCleanup(false),
 	doUserTreeSetup(false), setupOptions("SplitMode = Block:!V")
 {
 }
@@ -406,8 +406,8 @@ void ProcTMVA::trainEnd()
 			runTMVATrainer();
 
 			file->Close();
-			treeSig = 0;
-			treeBkg = 0;
+			treeSig = nullptr;
+			treeBkg = nullptr;
 			file.reset();
 		}
 		vars.clear();

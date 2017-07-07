@@ -18,7 +18,7 @@ class HcalGains: public HcalCondObjectContainer<HcalGain>
 {
  public:
 #ifndef HCAL_COND_SUPPRESS_DEFAULT
-  HcalGains():HcalCondObjectContainer<HcalGain>(0) {}
+  HcalGains():HcalCondObjectContainer<HcalGain>(nullptr) {}
 #endif
   HcalGains(const HcalTopology* topo):HcalCondObjectContainer<HcalGain>(topo) {}
 

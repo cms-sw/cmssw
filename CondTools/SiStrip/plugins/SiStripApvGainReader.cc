@@ -30,7 +30,7 @@ void SiStripApvGainReader::analyze( const edm::Event& e, const edm::EventSetup& 
   SiStripApvGain_->getDetIds(detid);
   edm::LogInfo("Number of detids ")  << detid.size() << std::endl;
 
-  FILE* pFile=NULL;
+  FILE* pFile=nullptr;
   if(formatedOutput_!="")pFile=fopen(formatedOutput_.c_str(), "w");
 
   for (size_t id=0;id<detid.size();id++){

@@ -67,7 +67,7 @@ class TreeReader {
 		Value() {}
 		Value(int index, bool multiple, bool optional, char type) :
 			index(index), optional(optional), multiple(multiple),
-			optVal(TreeReader::kOptVal), type(type), ptr(0) {}
+			optVal(TreeReader::kOptVal), type(type), ptr(nullptr) {}
 		~Value() {}
 
 		void setOpt(bool opt, double optVal)

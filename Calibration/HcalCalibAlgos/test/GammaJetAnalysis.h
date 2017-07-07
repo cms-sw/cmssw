@@ -66,7 +66,7 @@ class PhotonPair : protected std::pair<const reco::Photon*, double> {
 
 public:
   PhotonPair() {
-    first=0;
+    first=nullptr;
     second=0.0;
     fIdx=-1;
   }
@@ -83,7 +83,7 @@ public:
   inline void pt(double d) { second=d; return; }
   void idx(int set_idx) { fIdx=set_idx; };
   int idx() const { return fIdx; }
-  bool isValid() const { return (first!=NULL) ? true:false; }
+  bool isValid() const { return (first!=nullptr) ? true:false; }
 
 private:
   int fIdx; // index in the photon collection
@@ -92,7 +92,7 @@ private:
 class PFJetCorretPair : protected std::pair<const reco::PFJet*, double> {
 public:
   PFJetCorretPair() {
-    first=0;
+    first=nullptr;
     second=1.0;
   }
   PFJetCorretPair(const reco::PFJet* j, double s) {
@@ -106,7 +106,7 @@ public:
   inline double scale(void) const { return second; }
   inline void scale(double d) { second=d; return; }
   double scaledEt() const { return first->et() * second; }
-  bool isValid() const { return (first!=NULL) ? true:false; }
+  bool isValid() const { return (first!=nullptr) ? true:false; }
 
 private:
   

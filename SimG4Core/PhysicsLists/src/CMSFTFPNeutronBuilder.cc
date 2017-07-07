@@ -28,7 +28,7 @@ CMSFTFPNeutronBuilder(G4bool quasiElastic)
      theQuasiElastic=new G4QuasiElasticChannel;
      theModel->SetQuasiElasticChannel(theQuasiElastic);
   } else 
-  {  theQuasiElastic=0;}  
+  {  theQuasiElastic=nullptr;}  
 
   theModel->SetMinEnergy(theMin);
   theModel->SetMaxEnergy(100*TeV);

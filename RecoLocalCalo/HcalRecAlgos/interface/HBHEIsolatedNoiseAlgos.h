@@ -87,12 +87,12 @@ class ObjectValidator : public ObjectValidatorAbs
     MinValidTrackPt_(MinValidTrackPt),
     MinValidTrackPtBarrel_(MinValidTrackPtBarrel),
     MinValidTrackNHits_(MinValidTrackNHits),
-    theHcalChStatus_(0),
-    theEcalChStatus_(0),
-    theHcalSevLvlComputer_(0),
-    theEcalSevLvlAlgo_(0),
-    theEBRecHitCollection_(0),
-    theEERecHitCollection_(0) {}
+    theHcalChStatus_(nullptr),
+    theEcalChStatus_(nullptr),
+    theHcalSevLvlComputer_(nullptr),
+    theEcalSevLvlAlgo_(nullptr),
+    theEBRecHitCollection_(nullptr),
+    theEERecHitCollection_(nullptr) {}
   virtual ~ObjectValidator();
   
   inline void setHcalChannelQuality(const HcalChannelQuality* q) { theHcalChStatus_=q; }

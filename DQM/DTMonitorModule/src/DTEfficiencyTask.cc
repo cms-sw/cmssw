@@ -239,7 +239,7 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
 	continue;
       }
       copy(phiRecHits.begin(), phiRecHits.end(), back_inserter(recHits1D));
-      const DTSLRecSegment2D* zSeg = 0;
+      const DTSLRecSegment2D* zSeg = nullptr;
       if((*segment4D).dimension() == 4) {
 	rZ = true;
 	zSeg = (*segment4D).zSegment();

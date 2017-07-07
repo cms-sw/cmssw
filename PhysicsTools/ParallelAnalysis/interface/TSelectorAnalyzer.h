@@ -7,7 +7,7 @@ template<typename Algo>
 class TSelectorAnalyzer : public edm::EDAnalyzer {
 public:
   TSelectorAnalyzer( const edm::ParameterSet & cfg ) :
-    list_(), algo_( 0, list_ ) {
+    list_(), algo_( nullptr, list_ ) {
   }
   void analyze( const edm::Event & evt, const edm::EventSetup & ) override {
     algo_.process( evt );

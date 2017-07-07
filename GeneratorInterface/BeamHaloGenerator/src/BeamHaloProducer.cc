@@ -57,7 +57,7 @@ BeamHaloProducer::~BeamHaloProducer() {
 
 
 BeamHaloProducer::BeamHaloProducer( const ParameterSet & pset) :
-  evt(0),
+  evt(nullptr),
   isInitialized_(false)
 {
 

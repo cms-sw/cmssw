@@ -37,14 +37,14 @@ void MVATrainerContainerSave::analyze(const edm::Event& event,
 	if (calib.get() || saved)
 		return;
 
-	const Calibration::MVAComputerContainer *toPutCalib = 0;
+	const Calibration::MVAComputerContainer *toPutCalib = nullptr;
 	if (!toPut.empty()) {
 		toPutCalib = getToPut(es);
 		if (MVATrainerLooper::isUntrained(toPutCalib))
 			return;
 	}
 
-	const Calibration::MVAComputerContainer *toCopyCalib = 0;
+	const Calibration::MVAComputerContainer *toCopyCalib = nullptr;
 	if (!toCopy.empty())
 		toCopyCalib = getToCopy(es);
 

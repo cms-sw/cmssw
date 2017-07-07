@@ -117,7 +117,7 @@ void GeometryProducer::produce(edm::Event & e, const edm::EventSetup & es)
     edm::LogInfo("GeometryProducer") << "Producing G4 Geom";   
 
     m_kernel = G4RunManagerKernel::GetRunManagerKernel();   
-    if (m_kernel==0) m_kernel = new G4RunManagerKernel();
+    if (m_kernel==nullptr) m_kernel = new G4RunManagerKernel();
     edm::LogInfo("GeometryProducer") << " GeometryProducer initializing ";
     // DDDWorld: get the DDCV from the ES and use it to build the World
     edm::ESTransientHandle<DDCompactView> pDD;
@@ -135,7 +135,7 @@ void GeometryProducer::produce(edm::Event & e, const edm::EventSetup & es)
        edm::LogInfo("GeometryProducer") << " instantiating sensitive detectors ";
        // instantiate and attach the sensitive detectors
        m_trackManager = std::auto_ptr<SimTrackManager>(new SimTrackManager);
-       if (m_attach==0) m_attach = new AttachSD;
+       if (m_attach==nullptr) m_attach = new AttachSD;
        {
            std::pair< std::vector<SensitiveTkDetector*>,
                std::vector<SensitiveCaloDetector*> > 

@@ -25,7 +25,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-DDG4DispContainer * DDG4Builder::theVectorOfDDG4Dispatchables_ = 0;
+DDG4DispContainer * DDG4Builder::theVectorOfDDG4Dispatchables_ = nullptr;
 
 DDG4DispContainer * DDG4Builder::theVectorOfDDG4Dispatchables() { 
   return theVectorOfDDG4Dispatchables_; 
@@ -67,7 +67,7 @@ G4VSolid * DDG4Builder::convertSolid(const DDSolid & solid) {
 
 G4Material * DDG4Builder::convertMaterial(const DDMaterial & material) {
   LogDebug("SimG4CoreGeometry") << "DDDetConstr::ConvertMaterial: material=" << material << "\n";
-  G4Material * result = 0;
+  G4Material * result = nullptr;
   if (material) {
     // only if it's a valid DDD-material
     if ((result = mats_[material])) {

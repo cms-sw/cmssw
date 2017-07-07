@@ -131,10 +131,10 @@ void testOwnVector::checkAll() {
     v.setPtr( typeid(test::a), index, data );
     test::a const * data_a = static_cast<test::a const *>(data);
     test::ClassB const * data_b = dynamic_cast<test::ClassB const *>(data_a);
-    CPPUNIT_ASSERT( data != 0);
-    CPPUNIT_ASSERT( data_a != 0);
-    CPPUNIT_ASSERT( data_b != 0);
-    if(data_b != 0) { // To silence Coverity
+    CPPUNIT_ASSERT( data != nullptr);
+    CPPUNIT_ASSERT( data_a != nullptr);
+    CPPUNIT_ASSERT( data_b != nullptr);
+    if(data_b != nullptr) { // To silence Coverity
       CPPUNIT_ASSERT( data_b->f() == 3);
     }
   }

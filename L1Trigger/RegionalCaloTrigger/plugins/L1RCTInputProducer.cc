@@ -51,8 +51,8 @@ L1RCTInputProducer::L1RCTInputProducer(const edm::ParameterSet& conf) :
 
 L1RCTInputProducer::~L1RCTInputProducer()
 {
-  if(rct != 0) delete rct;
-  if(rctLookupTables != 0) delete rctLookupTables;
+  if(rct != nullptr) delete rct;
+  if(rctLookupTables != nullptr) delete rctLookupTables;
 }
 
 

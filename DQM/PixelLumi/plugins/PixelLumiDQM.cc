@@ -662,7 +662,7 @@ PixelLumiDQM::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock,
   logFile_.open(fLogFileName_.c_str(),std::ios_base::trunc);		
 
   timeval tv;
-  gettimeofday(&tv,0);
+  gettimeofday(&tv,nullptr);
   tm *ts = gmtime(&tv.tv_sec);
   char datestring[256];
   strftime(datestring, sizeof(datestring),"%Y.%m.%d %T GMT %s",ts);

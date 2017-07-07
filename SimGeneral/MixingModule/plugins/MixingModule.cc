@@ -229,7 +229,7 @@ namespace edm {
 	}
         std::unique_ptr<DigiAccumulatorMixMod> accumulator = std::unique_ptr<DigiAccumulatorMixMod>(DigiAccumulatorMixModFactory::get()->makeDigiAccumulator(pset, *this, iC));
         // Create appropriate DigiAccumulator
-        if(accumulator.get() != 0) {
+        if(accumulator.get() != nullptr) {
           digiAccumulators_.push_back(accumulator.release());
         }
     }

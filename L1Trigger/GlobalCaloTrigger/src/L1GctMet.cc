@@ -186,7 +186,7 @@ L1GctMet::useHtMissLutAlgo (const int ex, const int ey, const bool of) const
 
   etmiss_internal result;
 
-  if (m_htMissLut == 0) {
+  if (m_htMissLut == nullptr) {
 
     result.mag = 0;
     result.phi = 0;

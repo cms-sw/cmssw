@@ -391,12 +391,12 @@ void EmbeddingLHEProducer::transform_mumu_to_tautau(TLorentzVector &positiveLept
 
 void EmbeddingLHEProducer::assign_4vector(TLorentzVector &Lepton, const pat::Muon* muon, std::string FSRmode)
 {
-    if("afterFSR" == FSRmode && muon->genParticle() != 0)
+    if("afterFSR" == FSRmode && muon->genParticle() != nullptr)
     {
         const reco::GenParticle* afterFSRMuon = muon->genParticle();
         Lepton.SetPxPyPzE(afterFSRMuon->p4().px(),afterFSRMuon->p4().py(),afterFSRMuon->p4().pz(), afterFSRMuon->p4().e());
     }
-    else if ("beforeFSR" == FSRmode && muon->genParticle() != 0)
+    else if ("beforeFSR" == FSRmode && muon->genParticle() != nullptr)
     {
         const reco::Candidate* beforeFSRMuon = find_original_muon(muon->genParticle());
         Lepton.SetPxPyPzE(beforeFSRMuon->p4().px(),beforeFSRMuon->p4().py(),beforeFSRMuon->p4().pz(), beforeFSRMuon->p4().e());
@@ -410,7 +410,7 @@ void EmbeddingLHEProducer::assign_4vector(TLorentzVector &Lepton, const pat::Muo
 
 const reco::Candidate* EmbeddingLHEProducer::find_original_muon(const reco::Candidate* muon)
 {
-    if(muon->mother(0) == 0) return muon;
+    if(muon->mother(0) == nullptr) return muon;
     if(muon->pdgId() == muon->mother(0)->pdgId()) return find_original_muon(muon->mother(0));
     else return muon;
 }

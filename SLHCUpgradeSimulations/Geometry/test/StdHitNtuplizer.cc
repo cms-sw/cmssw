@@ -71,10 +71,10 @@ StdHitNtuplizer::StdHitNtuplizer(edm::ParameterSet const& conf) :
   rphiRecHits_( conf.getParameter<edm::InputTag>("rphiRecHits") ),
   stereoRecHits_( conf.getParameter<edm::InputTag>("stereoRecHits") ),
   matchedRecHits_( conf.getParameter<edm::InputTag>("matchedRecHits") ),
-  tfile_(0), 
-  pixeltree_(0), 
-  striptree_(0),
-  pixeltree2_(0)
+  tfile_(nullptr), 
+  pixeltree_(nullptr), 
+  striptree_(nullptr),
+  pixeltree2_(nullptr)
 {
 }
 

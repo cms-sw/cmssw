@@ -2,7 +2,7 @@
 
 void MultipleKinematicConstraint::addConstraint(KinematicConstraint * newConst) const
 {
- if(newConst == 0)throw VertexException("MultipleKinematicConstraint::zero constraint pointer passed");
+ if(newConst == nullptr)throw VertexException("MultipleKinematicConstraint::zero constraint pointer passed");
  cts.push_back(newConst);
  em = false;
 }

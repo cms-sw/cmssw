@@ -28,7 +28,7 @@ MagBSector::~MagBSector(){
 }
 
 const MagVolume * MagBSector::findVolume(const GlobalPoint & gp, double tolerance) const {
-  const MagVolume * result = 0;
+  const MagVolume * result = nullptr;
   Geom::Phi<float> phi = gp.phi();
 
   // FIXME : use a binfinder
@@ -38,10 +38,10 @@ const MagVolume * MagBSector::findVolume(const GlobalPoint & gp, double toleranc
     if (verbose::debugOut) cout << "     Trying rod at phi " << (*irod)->minPhi()
 				<< " " << phi << endl ;
     result = (*irod)->findVolume(gp, tolerance);
-    if (result!=0) return result;
+    if (result!=nullptr) return result;
   }
 
-  return 0;
+  return nullptr;
 }
 
 

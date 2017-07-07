@@ -49,10 +49,10 @@ using namespace reco;
 
 HTrackAssociator::HTrackAssociator() 
 {
-   ivProp_ = 0;
-   defProp_ = 0;
+   ivProp_ = nullptr;
+   defProp_ = nullptr;
    debug_ = 0;
-   caloTowerMap_ = 0;
+   caloTowerMap_ = nullptr;
    useDefaultPropagator_ = false;
 }
 

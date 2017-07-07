@@ -349,7 +349,7 @@ protected:
 
   void storeOnDbNow()
   {
-    T * objPointer = 0;
+    T * objPointer = nullptr;
     
     if(AlgoDrivenMode_){
       

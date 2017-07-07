@@ -43,7 +43,7 @@ namespace egHLT {
   public:
     
     MonElemContainer(std::string baseName="",std::string baseTitle="",
-		     EgHLTDQMCut<T>* cut=NULL):
+		     EgHLTDQMCut<T>* cut=nullptr):
       baseName_(baseName),
       baseTitle_(baseTitle),
       cut_(cut){}
@@ -68,13 +68,13 @@ namespace egHLT {
   {
     for(size_t i=0;i<monElems_.size();i++) delete monElems_[i];
     for(size_t i=0;i<cutMonElems_.size();i++) delete cutMonElems_[i];
-    if(cut_!=NULL) delete cut_;
+    if(cut_!=nullptr) delete cut_;
   }
   
   
   template<class T> void MonElemContainer<T>::fill(const T& obj,const OffEvt& evt,float weight)
   {
-    if(cut_==NULL || cut_->pass(obj,evt)){
+    if(cut_==nullptr || cut_->pass(obj,evt)){
     for(size_t i=0;i<monElems_.size();i++) monElems_[i]->fill(obj,weight);
     for(size_t i=0;i<cutMonElems_.size();i++) cutMonElems_[i]->fill(obj,evt,weight);
     }

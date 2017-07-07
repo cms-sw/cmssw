@@ -59,7 +59,7 @@ onAssertFail (const char *message)
 int main (int argc, char **argv)
 {
   lat::DebugAids::failHook(&onAssertFail);
-  lat::Signal::handleFatal(argv[0], IOFD_INVALID, 0, 0, FATAL_OPTS);
+  lat::Signal::handleFatal(argv[0], IOFD_INVALID, nullptr, nullptr, FATAL_OPTS);
   lat::Signal::handle(SIGINT, (lat::Signal::HandlerType) &interrupt);
   lat::Signal::ignore(SIGPIPE);
 

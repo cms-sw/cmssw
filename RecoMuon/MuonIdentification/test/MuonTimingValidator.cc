@@ -116,7 +116,7 @@ MuonTimingValidator::~MuonTimingValidator()
  
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
-  if (hFile!=0) {
+  if (hFile!=nullptr) {
     hFile->Close();
     delete hFile;
   }

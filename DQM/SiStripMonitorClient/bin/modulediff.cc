@@ -213,7 +213,7 @@ int get_filename  ( int run , string repro_type , string& filename )
   string thisdir2 = thisdir.str();
   DIR *dp;
   
-  if ( ( dp = opendir( thisdir2.c_str() ) ) == NULL )
+  if ( ( dp = opendir( thisdir2.c_str() ) ) == nullptr )
     {
       cout << "dir " << thisdir2.c_str() << " not found" << endl;
       return -1;
@@ -223,7 +223,7 @@ int get_filename  ( int run , string repro_type , string& filename )
 
   string dqmfile;
 
-  while ( ( dirp = readdir ( dp ) ) != NULL )
+  while ( ( dirp = readdir ( dp ) ) != nullptr )
     {
       string dirfile = string ( dirp->d_name );
       if ( 

@@ -46,17 +46,17 @@ using namespace edm;
 struct deleter {
   void operator()(TH3F *&h) {
     delete h;
-    h = 0;
+    h = nullptr;
   }
 };
 
 QcdUeDQM::QcdUeDQM(const ParameterSet &parameters)
     : hltResName_(parameters.getUntrackedParameter<string>("hltTrgResults")),
       verbose_(parameters.getUntrackedParameter<int>("verbose", 3)),
-      tgeo_(0),
-      repSumMap_(0),
-      repSummary_(0),
-      h2TrigCorr_(0),
+      tgeo_(nullptr),
+      repSumMap_(nullptr),
+      repSummary_(nullptr),
+      h2TrigCorr_(nullptr),
       ptMin_(parameters.getParameter<double>("ptMin")),
       minRapidity_(parameters.getParameter<double>("minRapidity")),
       maxRapidity_(parameters.getParameter<double>("maxRapidity")),

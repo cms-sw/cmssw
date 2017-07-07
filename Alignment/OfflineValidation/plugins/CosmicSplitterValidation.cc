@@ -212,7 +212,7 @@ CosmicSplitterValidation::CosmicSplitterValidation(const edm::ParameterSet& iCon
         twoTracksCtr(0),
         goldenPlusTwoTracksCtr(0),
         _passesTracksPlusMuonsCuts(0),
-        splitterTree_(0),
+        splitterTree_(nullptr),
         runNumber_(0), eventNumber_(0), luminosityBlock_(0),
         dcaX1_spl_(0), dcaY1_spl_(0), dcaZ1_spl_(0),
         dcaX2_spl_(0), dcaY2_spl_(0), dcaZ2_spl_(0),

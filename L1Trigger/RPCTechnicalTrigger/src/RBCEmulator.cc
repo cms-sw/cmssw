@@ -17,7 +17,7 @@
 //=============================================================================
 RBCEmulator::RBCEmulator( ) {
   
-  m_signal  = NULL;
+  m_signal  = nullptr;
   m_logtype = std::string("TestLogic");
   m_rbcinfo = new RBCId();
   m_input   = new RBCInput();
@@ -33,7 +33,7 @@ RBCEmulator::RBCEmulator( ) {
 
 RBCEmulator::RBCEmulator( const char * logic_type ) {
   
-  m_signal  = NULL;
+  m_signal  = nullptr;
   m_logtype = std::string( logic_type );
   m_rbcinfo = new RBCId();
   m_input   = new RBCInput();

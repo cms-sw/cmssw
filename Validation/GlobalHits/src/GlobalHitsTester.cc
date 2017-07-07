@@ -43,14 +43,14 @@ GlobalHitsTester::~GlobalHitsTester()
 void GlobalHitsTester::bookHistograms(DQMStore::IBooker & ibooker,
   edm::Run const &, edm::EventSetup const & ){
 
-  meTestString = 0;
-  meTestInt = 0;
-  meTestFloat = 0;
-  meTestTH1F = 0;
-  meTestTH2F = 0;
-  meTestTH3F = 0;
-  meTestProfile1 = 0;
-  meTestProfile2 = 0;
+  meTestString = nullptr;
+  meTestInt = nullptr;
+  meTestFloat = nullptr;
+  meTestTH1F = nullptr;
+  meTestTH2F = nullptr;
+  meTestTH3F = nullptr;
+  meTestProfile1 = nullptr;
+  meTestProfile2 = nullptr;
   Random = new TRandom3();
 
   ibooker.setCurrentFolder("GlobalTestV/String");

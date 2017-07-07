@@ -204,7 +204,7 @@ void SiStripFEDRawDataAnalyzer::analyze( const edm::Event& event, const edm::Eve
     const FEDRawData& fed = buffers->FEDData( static_cast<int>(ifed) );
     
     // construct buffer
-    sistrip:: FEDBuffer* buffer = 0;
+    sistrip:: FEDBuffer* buffer = nullptr;
     try {buffer = new sistrip::FEDBuffer(fed.data(),fed.size());}
     catch (const cms::Exception& e) {construct[ifed].push_back(0);}
 

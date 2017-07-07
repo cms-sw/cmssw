@@ -55,7 +55,7 @@ namespace edm {
     /// Returns C++ pointer to the product
     /// Will attempt to retrieve product
     product_type const* get() const {
-      return isNull() ? 0 : this->operator->();
+      return isNull() ? nullptr : this->operator->();
     }
 
     /// Returns C++ pointer to the product
@@ -80,7 +80,7 @@ namespace edm {
     EDProductGetter const* productGetter() const {return product_.productGetter();}
 
     /// Checks if product is in memory.
-    bool hasCache() const {return product_.productPtr() != 0;}
+    bool hasCache() const {return product_.productPtr() != nullptr;}
 
     RefToBaseProd<T>& operator=(const RefToBaseProd<T>& other);
 
@@ -104,7 +104,7 @@ namespace edm {
   template<typename T>
   inline
   RefToBaseProd<T>::RefToBaseProd(Handle<View<T> > const& handle) :
-    product_(handle.id(), 0, 0, false){
+    product_(handle.id(), nullptr, nullptr, false){
     product_.setProductPtr(new View<T>(* handle));
   }
 
@@ -113,7 +113,7 @@ namespace edm {
   RefToBaseProd<T>::RefToBaseProd(const RefToBaseProd<T>& ref) :
     product_(ref.product_) {
       if(product_.productPtr()) {
-        product_.setProductPtr(ref.viewPtr() ? (new View<T>(* ref)) : 0);
+        product_.setProductPtr(ref.viewPtr() ? (new View<T>(* ref)) : nullptr);
       }
   }
 
@@ -211,22 +211,22 @@ namespace edm {
   template<typename C>
   inline
   RefToBaseProd<T>::RefToBaseProd(Handle<C> const& handle) :
-    product_(handle.id(), handle.product(), 0, false) {
+    product_(handle.id(), handle.product(), nullptr, false) {
     std::vector<void const*> pointers;
     FillViewHelperVector helpers;
     fillView(* handle, handle.id(), pointers, helpers);
-    product_.setProductPtr(new View<T>(pointers, helpers,0));
+    product_.setProductPtr(new View<T>(pointers, helpers,nullptr));
   }
 
   template<typename T>
   template<typename C>
   inline
   RefToBaseProd<T>::RefToBaseProd(OrphanHandle<C> const& handle) :
-    product_(handle.id(), handle.product(), 0, false) {
+    product_(handle.id(), handle.product(), nullptr, false) {
     std::vector<void const*> pointers;
     FillViewHelperVector helpers;
     fillView(* handle, handle.id(), pointers, helpers);
-    product_.setProductPtr(new View<T>(pointers, helpers,0));
+    product_.setProductPtr(new View<T>(pointers, helpers,nullptr));
   }
 
   template<typename T>

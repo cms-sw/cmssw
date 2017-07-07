@@ -152,7 +152,7 @@ class BPHWriteSpecificDecay:
         if ( ( ccrIter = ccRefMap.find( cptr ) ) == ccrIend ) {
           if ( ( jpoIter = jPsiOMap.find( cptr ) ) != jpoIend )
                cptr = jpoIter->second;
-          else cptr = 0;
+          else cptr = nullptr;
         }
         if ( ( ccrIter = ccRefMap.find( cptr ) ) != ccrIend ) {
           compcc_ref cref = ccrIter->second;
@@ -161,7 +161,7 @@ class BPHWriteSpecificDecay:
       }
       const BPHPlusMinusCandidate* pmp =
             dynamic_cast<const BPHPlusMinusCandidate*>( ptr.get() );
-      if ( pmp != 0 ) cc.addUserData( "cowboy", pmp->isCowboy() );
+      if ( pmp != nullptr ) cc.addUserData( "cowboy", pmp->isCowboy() );
       if ( ptr->isEmpty() ) {
         if ( writeVertex ) cc.addUserData( "vertex" , ptr->vertex() );
         continue;

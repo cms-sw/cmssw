@@ -351,7 +351,7 @@ EcalShowerContainmentAnalyzer::contCorrection(const edm::Event& iEvent,
 
  
   Handle< EBRecHitCollection > pEBRecHits ;
-  const EBRecHitCollection*  EBRecHits = 0 ;
+  const EBRecHitCollection*  EBRecHits = nullptr ;
   
   const std::string RecHitProducer_("ecal2006TBRecHit");
   const std::string EBRecHitCollection_("EcalRecHitsEB");

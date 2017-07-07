@@ -103,7 +103,7 @@ void HcalRecHitsDQMClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGet
 // hcalMEs are within that directory
 int HcalRecHitsDQMClient::HcalRecHitsEndjob(const std::vector<MonitorElement*> &hcalMEs){
 
-   MonitorElement* Nhf=0;
+   MonitorElement* Nhf=nullptr;
 
    //Search for emap histograms, and collect them into this vector
    //All subdtectors are plotted together in these histograms. We only need to look for different depths

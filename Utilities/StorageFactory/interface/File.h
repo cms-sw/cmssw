@@ -69,7 +69,7 @@ private:
   static IOFD		sysduplicate (IOFD fd);
   static void		sysopen (const char *name, int flags, int perms,
 				 IOFD &newfd, unsigned &newflags);
-  static bool		sysclose (IOFD fd, int *error = 0);
+  static bool		sysclose (IOFD fd, int *error = nullptr);
 
   unsigned		m_flags;
 };

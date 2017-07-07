@@ -143,7 +143,7 @@ void OptOSensor2D::fastTraversesLightRay( LightRay& lightray )
     //--------- get measurement value of the current sensor
     std::vector< Measurement* >& measv = Model::MeasurementList();
     unsigned int ii;
-    Measurement *omeas = 0;
+    Measurement *omeas = nullptr;
     for( ii = 0; ii < measv.size(); ii++ ) {
       //-   std::cout << " sensor2d finding meas " <<  measv[ii]->sensorName() << " " << name() << std::endl;
       if( measv[ii]->sensorName() == name() ) {
@@ -151,7 +151,7 @@ void OptOSensor2D::fastTraversesLightRay( LightRay& lightray )
 	break;
       }
     }
-    if( omeas == 0 ) {
+    if( omeas == nullptr ) {
       std::cerr << "!!!EXITING OptOSensor2D::fastTraversesLightRay: meas " << name() << " not found " << std::endl;
     }
 

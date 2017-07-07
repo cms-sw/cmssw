@@ -149,10 +149,10 @@ private:
 //  void fillModMEs(SiStripClusterInfo* cluster,std::string name, float cos, const uint32_t detid, const LocalVector LV);
 //  void fillMEs(SiStripClusterInfo*,const uint32_t detid, float,enum ClusterFlags,  const LocalVector LV, const Det2MEs& MEs);
 
-  inline void fillME(MonitorElement* ME,float value1){if (ME!=0)ME->Fill(value1);}
-  inline void fillME(MonitorElement* ME,float value1,float value2){if (ME!=0)ME->Fill(value1,value2);}
-  inline void fillME(MonitorElement* ME,float value1,float value2,float value3){if (ME!=0)ME->Fill(value1,value2,value3);}
-  inline void fillME(MonitorElement* ME,float value1,float value2,float value3,float value4){if (ME!=0)ME->Fill(value1,value2,value3,value4);}
+  inline void fillME(MonitorElement* ME,float value1){if (ME!=nullptr)ME->Fill(value1);}
+  inline void fillME(MonitorElement* ME,float value1,float value2){if (ME!=nullptr)ME->Fill(value1,value2);}
+  inline void fillME(MonitorElement* ME,float value1,float value2,float value3){if (ME!=nullptr)ME->Fill(value1,value2,value3);}
+  inline void fillME(MonitorElement* ME,float value1,float value2,float value3,float value4){if (ME!=nullptr)ME->Fill(value1,value2,value3,value4);}
 
   Det2MEs findMEs(const TrackerTopology* tTopo, const uint32_t detid);
 
@@ -294,15 +294,15 @@ private:
 
 
   // control view plots
-  MonitorElement* ClusterStoNCorr_OnTrack_TIBTID = 0;
-  MonitorElement* ClusterStoNCorr_OnTrack_TOB    = 0;
-  MonitorElement* ClusterStoNCorr_OnTrack_TECM   = 0;
-  MonitorElement* ClusterStoNCorr_OnTrack_TECP   = 0;
-  MonitorElement* ClusterStoNCorr_OnTrack_FECCratevsFECSlot = 0;
-  MonitorElement* ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TIBTID = 0;
-  MonitorElement* ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TOB    = 0;
-  MonitorElement* ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECM   = 0;
-  MonitorElement* ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECP   = 0;
+  MonitorElement* ClusterStoNCorr_OnTrack_TIBTID = nullptr;
+  MonitorElement* ClusterStoNCorr_OnTrack_TOB    = nullptr;
+  MonitorElement* ClusterStoNCorr_OnTrack_TECM   = nullptr;
+  MonitorElement* ClusterStoNCorr_OnTrack_TECP   = nullptr;
+  MonitorElement* ClusterStoNCorr_OnTrack_FECCratevsFECSlot = nullptr;
+  MonitorElement* ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TIBTID = nullptr;
+  MonitorElement* ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TOB    = nullptr;
+  MonitorElement* ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECM   = nullptr;
+  MonitorElement* ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECP   = nullptr;
 
 
 };

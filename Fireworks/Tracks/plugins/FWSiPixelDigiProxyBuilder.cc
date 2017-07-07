@@ -40,7 +40,7 @@ private:
 
 void FWSiPixelDigiProxyBuilder::build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* )
 {
-  const edm::DetSetVector<PixelDigi>* digis = 0;
+  const edm::DetSetVector<PixelDigi>* digis = nullptr;
   iItem->get( digis );
 
   if( ! digis )

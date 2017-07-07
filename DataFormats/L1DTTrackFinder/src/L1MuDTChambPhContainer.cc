@@ -83,7 +83,7 @@ int L1MuDTChambPhContainer::bxSize(int step1, int step2) const {
 
 L1MuDTChambPhDigi const* L1MuDTChambPhContainer::chPhiSegm1(int wheel, int stat, int sect, int step) const {
 
-  L1MuDTChambPhDigi const* rT=0;
+  L1MuDTChambPhDigi const* rT=nullptr;
 
   for ( Phi_iterator i  = phiSegments.begin();
                      i != phiSegments.end();
@@ -98,7 +98,7 @@ L1MuDTChambPhDigi const* L1MuDTChambPhContainer::chPhiSegm1(int wheel, int stat,
 
 L1MuDTChambPhDigi const* L1MuDTChambPhContainer::chPhiSegm2(int wheel, int stat, int sect, int step) const {
 
-  L1MuDTChambPhDigi const* rT=0;
+  L1MuDTChambPhDigi const* rT=nullptr;
 
   for ( Phi_iterator i  = phiSegments.begin();
                      i != phiSegments.end();

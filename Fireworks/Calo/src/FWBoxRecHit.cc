@@ -8,7 +8,7 @@
 
 //______________________________________________________________________________
 FWBoxRecHit::FWBoxRecHit( const std::vector<TEveVector> &corners, TEveElement *list,float e , float et):
-    m_tower(0), m_ls(0), m_energy(e), m_et(et), m_isTallest(false)
+    m_tower(nullptr), m_ls(nullptr), m_energy(e), m_et(et), m_isTallest(false)
 {
    buildTower( corners);
    buildLineSet( corners);

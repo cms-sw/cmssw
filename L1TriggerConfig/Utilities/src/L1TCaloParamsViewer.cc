@@ -70,7 +70,7 @@ void L1TCaloParamsViewer::analyze(const edm::Event& iEvent, const edm::EventSetu
     evSetup.get<L1TCaloParamsRcd>().get( handle1 ) ;
     boost::shared_ptr<l1t::CaloParams> ptr(new l1t::CaloParams(*(handle1.product ())));
 
-    l1t::CaloParamsHelper *ptr1 = 0;
+    l1t::CaloParamsHelper *ptr1 = nullptr;
     ptr1 = (l1t::CaloParamsHelper*) (&(*ptr));
 
     edm::LogInfo("")<<"L1TCaloParamsViewer:";

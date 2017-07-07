@@ -22,7 +22,7 @@ namespace {
 }
 
 ConfigurableVertexReconstructor::ConfigurableVertexReconstructor ( 
-    const edm::ParameterSet & p ) : theRector ( 0 )
+    const edm::ParameterSet & p ) : theRector ( nullptr )
 {
   string finder=p.getParameter<string>("finder");
   theRector = VertexRecoManager::Instance().get ( finder ).release();

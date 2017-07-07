@@ -25,7 +25,7 @@ CommissioningTask::CommissioningTask( DQMStore* dqm,
   fecKey_(0),
   booked_(false),
   myName_(my_name),
-  eventSetup_(0)
+  eventSetup_(nullptr)
 {
   uint16_t fed_ch = connection_.fedCh();
   fedKey_ = SiStripFedKey( connection_.fedId(), 
@@ -89,8 +89,8 @@ CommissioningTask::HistoSet::HistoSet() :
   vSumOfSquares_(), 
   isProfile_(true),
   explicitFill_(false),
-  histo_(0),
-  axis_(0)
+  histo_(nullptr),
+  axis_(nullptr)
 {;}
 
 // -----------------------------------------------------------------------------
@@ -98,7 +98,7 @@ CommissioningTask::HistoSet::HistoSet() :
 CommissioningTask::CompactHistoSet::CompactHistoSet() :
   vNumOfEntries_(), 
   explicitFill_(false),
-  histo_(0)
+  histo_(nullptr)
 {;}
 
 // -----------------------------------------------------------------------------

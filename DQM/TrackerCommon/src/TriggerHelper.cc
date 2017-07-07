@@ -16,7 +16,7 @@
 
 /// To be called from the ED module's c'tor
 TriggerHelper::TriggerHelper( const edm::ParameterSet & config )
-  : watchDB_( 0 )
+  : watchDB_( nullptr )
   , gtDBKey_( "" )
   , l1DBKey_( "" )
   , hltDBKey_( "" )

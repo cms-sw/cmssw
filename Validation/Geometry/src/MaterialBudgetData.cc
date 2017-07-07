@@ -12,7 +12,7 @@
 MaterialBudgetData::MaterialBudgetData() 
 {
   //instantiate categorizer to assign an ID to volumes and materials
-  myMaterialBudgetCategorizer = 0;
+  myMaterialBudgetCategorizer = nullptr;
   allStepsToTree = false;
   densityConvertionFactor = 6.24E18;
 }
@@ -101,7 +101,7 @@ void MaterialBudgetData::dataStartTrack( const G4Track* aTrack )
 {
   const G4ThreeVector& dir = aTrack->GetMomentum() ;
   
-  if( myMaterialBudgetCategorizer == 0) myMaterialBudgetCategorizer = new MaterialBudgetCategorizer;
+  if( myMaterialBudgetCategorizer == nullptr) myMaterialBudgetCategorizer = new MaterialBudgetCategorizer;
   
   theStepN=0;
   theTotalMB=0;

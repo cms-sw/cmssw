@@ -7,9 +7,9 @@
 //using namespace HepPDT;
 
 FSimTrack:: FSimTrack() : 
-  SimTrack(), mom_(0), id_(-1), endv_(-1),
+  SimTrack(), mom_(nullptr), id_(-1), endv_(-1),
   layer1(0), layer2(0), ecal(0), hcal(0), vfcal(0), hcalexit(0), hoentr(0), 
-  prop(false), closestDaughterId_(-1), info_(0),
+  prop(false), closestDaughterId_(-1), info_(nullptr),
   properDecayTime(1E99) {;}
   
 FSimTrack::FSimTrack(const RawParticle* p, 

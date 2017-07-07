@@ -12,7 +12,7 @@ class EcalEndcapTopology final : public CaloSubdetectorTopology {
 
  public:
   /// create a new Topology
-  EcalEndcapTopology() : theGeom_(0) {};
+  EcalEndcapTopology() : theGeom_(nullptr) {};
 
   /// virtual destructor
   virtual ~EcalEndcapTopology() { }  

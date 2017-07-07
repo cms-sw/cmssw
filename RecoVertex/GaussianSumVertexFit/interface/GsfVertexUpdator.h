@@ -18,7 +18,7 @@ public:
   typedef CachingVertex<5>::RefCountedVertexTrack RefCountedVertexTrack;
   typedef VertexTrack<5>::RefCountedLinearizedTrackState RefCountedLinearizedTrackState;
 
-  GsfVertexUpdator(bool limit = false, const GsfVertexMerger * merger = 0);
+  GsfVertexUpdator(bool limit = false, const GsfVertexMerger * merger = nullptr);
 /**
  *  Method to add a track to an existing CachingVertex
  *  An invalid vertex is returned in case of problems during the update.

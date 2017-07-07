@@ -31,7 +31,7 @@ class OutletBase
 
    protected:
       OutletBase( ExtensionCord<T>& iCord) : cord_(iCord) {}
-      virtual ~OutletBase() { this->setGetter(0); }
+      virtual ~OutletBase() { this->setGetter(nullptr); }
 
       void setGetter( extensioncord::ECGetterBase<T>* iGetter) {
         cord_.setGetter(iGetter);

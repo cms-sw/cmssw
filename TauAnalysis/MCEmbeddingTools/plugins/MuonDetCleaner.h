@@ -83,7 +83,7 @@ void MuonDetCleaner<T1,T2>::produce(edm::Event& iEvent, const edm::EventSetup& e
    iEvent.getByToken(mu_input_, muonHandle);
    edm::View<pat::Muon> muons = *muonHandle;
    for (edm::View<pat::Muon>::const_iterator iMuon = muons.begin(); iMuon != muons.end(); ++iMuon) {     
-      const reco::Track* track = 0;
+      const reco::Track* track = nullptr;
       if( iMuon->isGlobalMuon() ) track = iMuon->outerTrack().get();
       else if  ( iMuon->isStandAloneMuon() ) track =   iMuon->outerTrack().get();
       else if  ( iMuon->isRPCMuon() ) track =   iMuon->innerTrack().get(); // To add, try to access the rpc track 

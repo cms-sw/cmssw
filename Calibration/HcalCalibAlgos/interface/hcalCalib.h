@@ -86,7 +86,7 @@ public :
    TBranch        *b_probeJetP4;   //!
 
 
-   hcalCalib(TTree * /*tree*/ =0) { }
+   hcalCalib(TTree * /*tree*/ =nullptr) { }
    virtual ~hcalCalib() { }
    virtual Int_t   Version() const { return 2; }
    virtual void    Begin(TTree *tree);
@@ -219,9 +219,9 @@ void hcalCalib::Init(TTree *tree)
    // (once per file to be processed).
 
    // Set object pointer
-   cells = 0;
-   tagJetP4 = 0;
-   probeJetP4 = 0;
+   cells = nullptr;
+   tagJetP4 = nullptr;
+   probeJetP4 = nullptr;
    
    // Set branch addresses and branch pointers
    if (!tree) return;

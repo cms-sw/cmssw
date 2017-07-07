@@ -22,7 +22,7 @@ private:
   
 public:
 
-  KFSwitching1DUpdator(const edm::ParameterSet * pset=0) : theDoEndCap(false) {
+  KFSwitching1DUpdator(const edm::ParameterSet * pset=nullptr) : theDoEndCap(false) {
     if (pset){
       theDoEndCap=pset->getParameter<bool>("doEndCap");
     }

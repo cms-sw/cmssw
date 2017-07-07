@@ -99,7 +99,7 @@ L1CaloEcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
      if(objectKey == "NULL" || objectKey == "")  // return default blank ecal scale	 
         return std::shared_ptr< L1CaloEcalScale >( ecalScale );
      if(objectKey == "IDENTITY"){  // return identity ecal scale  
-       ecalScale = 0;
+       ecalScale = nullptr;
        ecalScale = new L1CaloEcalScale(1);
        return std::shared_ptr< L1CaloEcalScale >( ecalScale);
      }

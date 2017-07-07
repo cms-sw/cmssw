@@ -42,9 +42,9 @@ using namespace std;
 // -----------------------------------------------------------------------------
 SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf ) 
   : config_(conf), 
-    badPixelInfo_(0),
-    regions_(0),
-    hCPU(0), hDigi(0)
+    badPixelInfo_(nullptr),
+    regions_(nullptr),
+    hCPU(nullptr), hDigi(nullptr)
 {
 
   includeErrors = config_.getParameter<bool>("IncludeErrors");

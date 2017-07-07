@@ -87,7 +87,7 @@ EcalSelectiveReadoutValidation::EcalSelectiveReadoutValidation(const ParameterSe
   tmin(numeric_limits<int64_t>::max()),
   l1aOfTmin(0),
   l1aOfTmax(0),
-  triggerTowerMap_(0),
+  triggerTowerMap_(nullptr),
   localReco_(ps.getParameter<bool>("LocalReco")),
   weights_(ps.getParameter<vector<double> >("weights")),
   tpInGeV_(ps.getParameter<bool>("tpInGeV")),
@@ -418,9 +418,9 @@ void EcalSelectiveReadoutValidation::analyzeEE(const edm::Event& event,
     }
 
     if(highInterest){
-      fill(meEeHiZsFir_, dccZsFIR(frame, firWeights_, firstFIRSample_, 0));
+      fill(meEeHiZsFir_, dccZsFIR(frame, firWeights_, firstFIRSample_, nullptr));
     } else{
-      int v = dccZsFIR(frame, firWeights_, firstFIRSample_, 0);
+      int v = dccZsFIR(frame, firWeights_, firstFIRSample_, nullptr);
       fill(meEeLiZsFir_, v);
       if(v < eeZsThr_){
         eventError = true;
@@ -684,9 +684,9 @@ EcalSelectiveReadoutValidation::analyzeEB(const edm::Event& event,
 
 
     if(highInterest){
-      fill(meEbHiZsFir_, dccZsFIR(frame, firWeights_, firstFIRSample_, 0));
+      fill(meEbHiZsFir_, dccZsFIR(frame, firWeights_, firstFIRSample_, nullptr));
     } else{
-      int v = dccZsFIR(frame, firWeights_, firstFIRSample_, 0);
+      int v = dccZsFIR(frame, firWeights_, firstFIRSample_, nullptr);
       fill(meEbLiZsFir_, v);
       if(v < ebZsThr_){
         eventError = true;
@@ -1715,9 +1715,9 @@ EcalSelectiveReadoutValidation::setTtEtSums(const edm::EventSetup& es,
 					    const EBDigiCollection& ebDigis,
 					    const EEDigiCollection& eeDigis){
   //ecal geometry:
-  static const CaloSubdetectorGeometry* eeGeometry = 0;
-  static const CaloSubdetectorGeometry* ebGeometry = 0;
-  if(eeGeometry==0 || ebGeometry==0){
+  static const CaloSubdetectorGeometry* eeGeometry = nullptr;
+  static const CaloSubdetectorGeometry* ebGeometry = nullptr;
+  if(eeGeometry==nullptr || ebGeometry==nullptr){
     edm::ESHandle<CaloGeometry> geoHandle;
     es.get<CaloGeometryRecord>().get(geoHandle);
     eeGeometry
@@ -1830,9 +1830,9 @@ double EcalSelectiveReadoutValidation::frame2EnergyForTp(const T& frame,
 }
 
 MonitorElement* EcalSelectiveReadoutValidation::bookFloat(DQMStore::IBooker& ibook, const std::string& name){
-  if(!registerHist(name, "")) return 0; //this histo is disabled
+  if(!registerHist(name, "")) return nullptr; //this histo is disabled
   MonitorElement* result = ibook.bookFloat(name);
-  if(result==0){
+  if(result==nullptr){
     throw cms::Exception("DQM")
       << "Failed to book integer DQM monitor element" << name;
   }
@@ -1841,9 +1841,9 @@ MonitorElement* EcalSelectiveReadoutValidation::bookFloat(DQMStore::IBooker& ibo
 
 
 MonitorElement* EcalSelectiveReadoutValidation::book1D(DQMStore::IBooker& ibook, const std::string& name, const std::string& title, int nbins, double xmin, double xmax){
-  if(!registerHist(name, title)) return 0; //this histo is disabled
+  if(!registerHist(name, title)) return nullptr; //this histo is disabled
   MonitorElement* result = ibook.book1D(name, title, nbins, xmin, xmax);
-  if(result==0){
+  if(result==nullptr){
     throw cms::Exception("Histo")
       << "Failed to book histogram " << name;
   }
@@ -1851,10 +1851,10 @@ MonitorElement* EcalSelectiveReadoutValidation::book1D(DQMStore::IBooker& ibook,
 }
 
 MonitorElement* EcalSelectiveReadoutValidation::book2D(DQMStore::IBooker& ibook, const std::string& name, const std::string& title, int nxbins, double xmin, double xmax, int nybins, double ymin, double ymax){
-  if(!registerHist(name, title)) return 0; //this histo is disabled
+  if(!registerHist(name, title)) return nullptr; //this histo is disabled
   MonitorElement* result = ibook.book2D(name, title, nxbins, xmin, xmax,
 					nybins, ymin, ymax);
-  if(result==0){
+  if(result==nullptr){
     throw cms::Exception("Histo")
       << "Failed to book histogram " << name;
   }
@@ -1862,10 +1862,10 @@ MonitorElement* EcalSelectiveReadoutValidation::book2D(DQMStore::IBooker& ibook,
 }
 
 MonitorElement* EcalSelectiveReadoutValidation::bookProfile(DQMStore::IBooker& ibook, const std::string& name, const std::string& title, int nbins, double xmin, double xmax){
-  if(!registerHist(name, title)) return 0; //this histo is disabled
+  if(!registerHist(name, title)) return nullptr; //this histo is disabled
   MonitorElement* result = ibook.bookProfile(name, title, nbins, xmin, xmax,
 					     0, 0, 0);
-  if(result==0){
+  if(result==nullptr){
     throw cms::Exception("Histo")
       << "Failed to book histogram " << name;
   }
@@ -1873,7 +1873,7 @@ MonitorElement* EcalSelectiveReadoutValidation::bookProfile(DQMStore::IBooker& i
 }
 
 MonitorElement* EcalSelectiveReadoutValidation::bookProfile2D(DQMStore::IBooker& ibook, const std::string& name, const std::string& title, int nbinx, double xmin, double xmax, int nbiny, double ymin, double ymax, const char* option){
-  if(!registerHist(name, title)) return 0; //this histo is disabled
+  if(!registerHist(name, title)) return nullptr; //this histo is disabled
   MonitorElement* result
     = ibook.bookProfile2D(name,
 			  title,
@@ -1881,7 +1881,7 @@ MonitorElement* EcalSelectiveReadoutValidation::bookProfile2D(DQMStore::IBooker&
 			  nbiny, ymin, ymax,
 			  0, 0, 0,
 			  option);
-  if(result==0){
+  if(result==nullptr){
     throw cms::Exception("Histo")
       << "Failed to book histogram " << name;
   }

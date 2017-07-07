@@ -120,7 +120,7 @@ SiPixel2DTemplateDBObjectUploader::analyze(const edm::Event& iEvent, const edm::
 	}
 
 	for(TrackerGeometry::DetUnitContainer::const_iterator it = pDD->detUnits().begin(); it != pDD->detUnits().end(); it++){	
-		if( (*it)!=0){
+		if( (*it)!=nullptr){
 			// Here is the actual looping step over all DetIds:				
 			DetId detid=(*it)->geographicalId();
                         const DetId detidc = (*it)->geographicalId();

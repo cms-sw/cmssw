@@ -294,7 +294,7 @@ namespace
 
     bool match( const std::string & s ) const {
       if( m_ok )
-	return !regexec( &m_regex, s.c_str(), 0, 0, 0 );
+	return !regexec( &m_regex, s.c_str(), 0, nullptr, 0 );
       else
 	return me == s;
     }

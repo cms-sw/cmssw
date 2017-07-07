@@ -220,9 +220,9 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
         EcalUncalibratedRecHit uncalibRecHit;
         
         
-        const EcalPedestals::Item * aped = 0;
-        const EcalMGPAGainRatio * aGain = 0;
-        const EcalXtalGroupId * gid = 0;
+        const EcalPedestals::Item * aped = nullptr;
+        const EcalMGPAGainRatio * aGain = nullptr;
+        const EcalXtalGroupId * gid = nullptr;
 	float offsetTime = 0;
 
         if (detid.subdetId()==EcalEndcap) {

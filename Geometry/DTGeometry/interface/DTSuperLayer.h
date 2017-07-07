@@ -29,7 +29,7 @@ class DTSuperLayer : public GeomDet {
 /* Constructor */ 
     DTSuperLayer(DTSuperLayerId id,
                  ReferenceCountingPointer<BoundPlane>& plane,
-                 const DTChamber* ch=0);
+                 const DTChamber* ch=nullptr);
 
 /* Destructor */ 
     virtual ~DTSuperLayer() ;

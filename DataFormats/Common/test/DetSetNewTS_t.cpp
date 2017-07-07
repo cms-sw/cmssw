@@ -35,7 +35,7 @@ inline void spinlock(std::atomic<T> const & lock, T val) {
 
 template<typename T>
 inline void spinlockSleep(std::atomic<T> const & lock, T val) {
-  while (lock.load(std::memory_order_acquire)!=val){nanosleep(0,0);}
+  while (lock.load(std::memory_order_acquire)!=val){nanosleep(nullptr,nullptr);}
 }
 
 // syncronize all threads in a parallel section (for testing purposes)

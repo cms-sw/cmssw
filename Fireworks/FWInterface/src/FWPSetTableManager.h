@@ -60,7 +60,7 @@ public:
          matches(false),
          childMatches(false),
 
-       editable(false) , pset(0){}
+       editable(false) , pset(nullptr){}
 
       std::string label;
       std::string value;

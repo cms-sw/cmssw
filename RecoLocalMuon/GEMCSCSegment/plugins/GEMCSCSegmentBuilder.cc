@@ -30,7 +30,7 @@
 #include <DataFormats/GEMRecHit/interface/GEMRecHitCollection.h>
 
 
-GEMCSCSegmentBuilder::GEMCSCSegmentBuilder(const edm::ParameterSet& ps) : gemgeom_(0), cscgeom_(0) 
+GEMCSCSegmentBuilder::GEMCSCSegmentBuilder(const edm::ParameterSet& ps) : gemgeom_(nullptr), cscgeom_(nullptr) 
 {
 
     // Algo name
@@ -57,7 +57,7 @@ void GEMCSCSegmentBuilder::LinkGEMRollsToCSCChamberIndex(const GEMGeometry* gemG
   for (TrackingGeometry::DetContainer::const_iterator it=gemGeo->dets().begin();it<gemGeo->dets().end();it++)
     {
       const GEMChamber* ch = dynamic_cast< const GEMChamber* >( *it );
-      if(ch != 0 )
+      if(ch != nullptr )
 	{
 	  std::vector< const GEMEtaPartition*> rolls = (ch->etaPartitions());
 	  for(std::vector<const GEMEtaPartition*>::const_iterator r = rolls.begin(); r != rolls.end(); ++r)

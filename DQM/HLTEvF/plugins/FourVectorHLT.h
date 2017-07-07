@@ -114,7 +114,7 @@ class FourVectorHLT : public edm::EDAnalyzer {
 	PathInfo(std::string pathName, size_t type, float ptmin, 
 		 float ptmax):
 	  pathName_(pathName), objectType_(type),
-	  et_(0), eta_(0), phi_(0), etavsphi_(0),
+	  et_(nullptr), eta_(nullptr), phi_(nullptr), etavsphi_(nullptr),
 	  ptmin_(ptmin), ptmax_(ptmax)
 	  {
 	  };

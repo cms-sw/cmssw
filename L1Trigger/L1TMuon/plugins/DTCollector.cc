@@ -18,7 +18,7 @@ DTCollector::DTCollector( const edm::ParameterSet& ps ):
     edm::ParameterSet bxccfg = ps.getParameterSet("bxCleanerCfg");
     _bxc.reset(new DTBunchCrossingCleaner(bxccfg));
   } else {
-    _bxc.reset(NULL);
+    _bxc.reset(nullptr);
   }
 }
 

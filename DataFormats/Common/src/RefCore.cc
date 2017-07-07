@@ -272,7 +272,7 @@ namespace edm {
       }
     }
     auto prodGetter = productToBeInserted.productGetter();
-    if (productGetter() == 0 &&  prodGetter != 0) {
+    if (productGetter() == nullptr &&  prodGetter != nullptr) {
       setProductGetter(prodGetter);
     }
   }

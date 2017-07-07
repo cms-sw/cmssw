@@ -183,7 +183,7 @@ namespace pat {
       /// get list of tag info labels
       std::vector<std::string> const & tagInfoLabels() const { return tagInfoLabels_; }
       /// check to see if the given tag info is nonzero
-      bool hasTagInfo( const std::string label) const { return tagInfo(label) != 0; }
+      bool hasTagInfo( const std::string label) const { return tagInfo(label) != nullptr; }
       /// get a tagInfo with the given name, or NULL if none is found.
       /// You should omit the 'TagInfos' part from the label
       const reco::BaseTagInfo            * tagInfo(const std::string &label) const;
@@ -601,7 +601,7 @@ namespace pat {
             return static_cast<const T *>( baseTagInfo );
           }
         }
-        return 0;
+        return nullptr;
       }
 
       template<typename T> const T * tagInfoByTypeOrLabel(const std::string &label="") const

@@ -39,7 +39,7 @@ namespace pat {
         barrying the use of ROOT::Reflex and all the edm::Ptr technicalities.
         I'd say we can live without polymorphic storage of polymorphic data */
     template<typename T> const T * get() const {
-        if (typeid(T) != typeId()) return 0;
+        if (typeid(T) != typeId()) return nullptr;
         return static_cast<const T *>(data_());
     }
 

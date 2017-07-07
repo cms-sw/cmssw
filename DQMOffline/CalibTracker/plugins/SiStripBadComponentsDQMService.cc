@@ -17,7 +17,7 @@ SiStripBadComponentsDQMService::SiStripBadComponentsDQMService(const edm::Parame
   fp_(iConfig.getUntrackedParameter<edm::FileInPath>("file",edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"))),
   notAlreadyRead_(true)
 {
-  obj_ = 0;
+  obj_ = nullptr;
   edm::LogInfo("SiStripBadComponentsDQMService") <<  "[SiStripBadComponentsDQMService::SiStripBadComponentsDQMService]";
 }
 

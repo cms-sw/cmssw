@@ -742,7 +742,7 @@ void CastorShowerLibraryMaker::GetKinematics(int thePrim,double& px, double& py,
 void CastorShowerLibraryMaker::GetKinematics(G4PrimaryParticle* thePrim,double& px, double& py, double& pz, double& pInit, double& eta, double& phi)
 {
     px=py=pz=phi=eta=0.0;
-    if (thePrim==0) return;
+    if (thePrim==nullptr) return;
     px = thePrim->GetMomentum().x()/GeV;
     py = thePrim->GetMomentum().y()/GeV;
     pz = thePrim->GetMomentum().z()/GeV;
@@ -761,7 +761,7 @@ std::vector<G4PrimaryParticle*> CastorShowerLibraryMaker::GetPrimary(const G4Eve
   // Find Primary info:
   int trackID = 0;
   std::vector<G4PrimaryParticle*> thePrims;
-  G4PrimaryParticle* thePrim = 0;
+  G4PrimaryParticle* thePrim = nullptr;
   G4int nvertex = evt->GetNumberOfPrimaryVertex();
   edm::LogInfo("CastorShowerLibraryMaker")  << "Event has " << nvertex << " vertex";   
   if (nvertex!=1) {
@@ -771,7 +771,7 @@ std::vector<G4PrimaryParticle*> CastorShowerLibraryMaker::GetPrimary(const G4Eve
 
   for (int i = 0 ; i<nvertex; i++) {
     G4PrimaryVertex* avertex = evt->GetPrimaryVertex(i);
-    if (avertex == 0) {
+    if (avertex == nullptr) {
        edm::LogInfo("CastorShowerLibraryMaker")
           << "CastorShowerLibraryMaker::GetPrimary ERROR: pointer to vertex = 0";
        continue;

@@ -59,7 +59,7 @@ analyze(edm::Event const& event, edm::EventSetup const& es) {
   // They are in the ParameterSet registry
   edm::pset::Registry* psetRegistry = edm::pset::Registry::instance();
   edm::ParameterSet const* pset = psetRegistry->getMapped(gtObjectMaps->namesParameterSetID());
-  if (pset == 0) {
+  if (pset == nullptr) {
     cms::Exception ex("L1GlobalTrigger");
     ex << "Could not find L1 trigger names ParameterSet in the registry";
     ex.addContext("Calling CompareToObjectMapRecord::analyze");

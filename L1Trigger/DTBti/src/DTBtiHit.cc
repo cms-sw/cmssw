@@ -89,7 +89,7 @@ DTBtiHit::DTBtiHit(const DTDigi* hitdigi, DTConfigBti* config) :
 DTBtiHit::DTBtiHit(int clockTime, DTConfigBti* config) :
   _config(config) {
   _clockTime = clockTime;
-  _hitdigi = 0;
+  _hitdigi = nullptr;
   _curTime = 4000;
 }
 

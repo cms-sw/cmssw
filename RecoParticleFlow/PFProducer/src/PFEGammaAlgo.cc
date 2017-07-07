@@ -605,9 +605,9 @@ namespace {
     RO.lateBrem = -1;
     RO.firstBrem = -1;
     RO.nBremsWithClusters = -1;    
-    const reco::PFBlockElementBrem *firstBrem = NULL, *lastBrem = NULL;
-    const reco::PFBlockElementCluster *bremCluster = NULL, *gsfCluster = NULL,
-      *kfCluster = NULL, *gsfCluster_noassc = NULL;
+    const reco::PFBlockElementBrem *firstBrem = nullptr, *lastBrem = nullptr;
+    const reco::PFBlockElementCluster *bremCluster = nullptr, *gsfCluster = nullptr,
+      *kfCluster = nullptr, *gsfCluster_noassc = nullptr;
     const reco::PFBlockRef& parent = RO.parentBlock;
     int nBremClusters = 0;
     constexpr float maxDist = 1e6;
@@ -715,7 +715,7 @@ PFEGammaAlgo(const PFEGammaAlgo::PFEGConfigInfo& cfg) :
   nVtx_(0.0),
   x0inner_(0.0), x0middle_(0.0), x0outer_(0.0),
   excluded_(0.0), Mustache_EtRatio_(0.0), Mustache_Et_out_(0.0),
-  channelStatus_(0)
+  channelStatus_(nullptr)
 {   
   //Material Map
   TFile *XO_File = new TFile(cfg_.X0_Map.c_str(),"READ");
@@ -1626,7 +1626,7 @@ linkRefinableObjectPrimaryKFsToSecondaryKFs(ProtoEGObject& RO) {
 void PFEGammaAlgo::
 linkRefinableObjectPrimaryGSFTrackToECAL(ProtoEGObject& RO) {
   if( !_splayedblock[reco::PFBlockElement::ECAL].size() ) {
-    RO.electronClusters.push_back(NULL);
+    RO.electronClusters.push_back(nullptr);
     return; 
   }
   auto ECALbegin = _splayedblock[reco::PFBlockElement::ECAL].begin();
@@ -2078,7 +2078,7 @@ calculate_ele_mva(const pfEGHelpers::HeavyObjectCache* hoc,
 		  reco::PFCandidateEGammaExtra& xtra) {
   if( !RO.primaryGSFs.size() ) return -2.0f;
   const PFGSFElement* gsfElement = RO.primaryGSFs.front().first;
-  const PFKFElement* kfElement = NULL;
+  const PFKFElement* kfElement = nullptr;
   if( RO.primaryKFs.size() ) kfElement = RO.primaryKFs.front().first;
   reco::GsfTrackRef RefGSF= gsfElement->GsftrackRef();
   reco::TrackRef RefKF;

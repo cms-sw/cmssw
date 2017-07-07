@@ -21,7 +21,7 @@ SiStripDetVOffBuilder::SiStripDetVOffBuilder(const edm::ParameterSet& pset, cons
   excludedDetIdListFile_(pset.getParameter< std::string >("ExcludedDetIdListFile")),
   highVoltageOnThreshold_(pset.getParameter<double>("HighVoltageOnThreshold"))
 { 
-  lastStoredCondObj.first = NULL;
+  lastStoredCondObj.first = nullptr;
   lastStoredCondObj.second = 0;
 
   edm::LogError("SiStripDetVOffBuilder") << "[SiStripDetVOffBuilder::SiStripDetVOffBuilder] constructor" << endl;
@@ -147,7 +147,7 @@ void SiStripDetVOffBuilder::BuildDetVOffObj()
 
   // check if there is already an object stored in the DB
   // This happens only if you are using STATUSCHANGE
-  if (lastStoredCondObj.first != NULL && lastStoredCondObj.second > 0) {
+  if (lastStoredCondObj.first != nullptr && lastStoredCondObj.second > 0) {
     modulesOff.push_back( lastStoredCondObj );
     saveIovTime = lastStoredCondObj.second;
     setPayloadStats(0, 0, 0);
@@ -169,7 +169,7 @@ void SiStripDetVOffBuilder::BuildDetVOffObj()
     else {iovtime = getCondTime((dStruct.detidV[i]).second);}
 
     // decide how to initialize modV
-    SiStripDetVOff *modV = 0;
+    SiStripDetVOff *modV = nullptr;
 
     // When using STATUSCHANGE they are equal only for the first
     // When using LASTVALUE they are equal only if the tmin was set to tsetmin
@@ -256,7 +256,7 @@ void SiStripDetVOffBuilder::BuildDetVOffObj()
     
     // store the object if it's a new object
     if (iovtime != saveIovTime) {
-      SiStripDetVOff * testV = 0;
+      SiStripDetVOff * testV = nullptr;
       if (!modulesOff.empty()) {testV = modulesOff.back().first;}
       if (modulesOff.empty() ||  !(*modV == *testV) ) {
         modulesOff.push_back( std::make_pair(modV,iovtime) );
@@ -277,7 +277,7 @@ void SiStripDetVOffBuilder::BuildDetVOffObj()
 
 
   // compare the first element and the last from previous transfer
-  if (lastStoredCondObj.first != NULL && lastStoredCondObj.second > 0) {
+  if (lastStoredCondObj.first != nullptr && lastStoredCondObj.second > 0) {
     if ( *(lastStoredCondObj.first) == *(modulesOff[0].first) ) {
       if ( modulesOff.size() == 1 ){
         // if no HV/LV transition was found in this period: update the last IOV to be tmax

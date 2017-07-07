@@ -48,13 +48,13 @@ TrajectoryManager::TrajectoryManager(FSimEvent* aSimEvent,
 				     const edm::ParameterSet& simHits,
 				     const edm::ParameterSet& decays) :
   mySimEvent(aSimEvent), 
-  _theGeometry(0),
-  _theFieldMap(0),
-  theMaterialEffects(0), 
-  myDecayEngine(0), 
-  theGeomTracker(0),
-  theGeomSearchTracker(0),
-  theLayerMap(56, static_cast<const DetLayer*>(0)), // reserve space for layers here
+  _theGeometry(nullptr),
+  _theFieldMap(nullptr),
+  theMaterialEffects(nullptr), 
+  myDecayEngine(nullptr), 
+  theGeomTracker(nullptr),
+  theGeomSearchTracker(nullptr),
+  theLayerMap(56, static_cast<const DetLayer*>(nullptr)), // reserve space for layers here
   theNegLayerOffset(27),
   //  myHistos(0),
   use_hardcoded(1)
@@ -860,7 +860,7 @@ TrajectoryManager::initializeLayerMap()
 			     << " pos " << i->surface().position();
     if (!i->sensitive()) continue;
 
-    if (cyl != 0) {
+    if (cyl != nullptr) {
       LogDebug("FastTracking") << " cylinder radius " << cyl->radius();
       bool found = false;
       for (auto
@@ -908,7 +908,7 @@ TrajectoryManager::initializeLayerMap()
   for (auto nl=negForwardLayers.begin();
        nl != negForwardLayers.end(); ++nl) {
     for (int i=0; i<=theNegLayerOffset; i++) {
-      if (theLayerMap[i] == 0) continue;
+      if (theLayerMap[i] == nullptr) continue;
       if ( fabs( (**nl).surface().position().z() +theLayerMap[i]-> surface().position().z()) < zTolerance) {
 	theLayerMap[i+theNegLayerOffset] = *nl;
 	break;

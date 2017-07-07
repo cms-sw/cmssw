@@ -348,7 +348,7 @@ void B2GDQM::analyzeJets(const Event& iEvent, const edm::EventSetup& iSetup) {
       // to access the PFJet information
       reco::PFJet const* pfjet = dynamic_cast<reco::PFJet const*>(&*jet);
 
-      if (pfjet != 0) {
+      if (pfjet != nullptr) {
         pfJet_chef[icoll]->Fill(pfjet->chargedHadronEnergyFraction());
         pfJet_nhef[icoll]->Fill(pfjet->neutralHadronEnergyFraction());
         pfJet_cemf[icoll]->Fill(pfjet->chargedEmEnergyFraction());
@@ -360,7 +360,7 @@ void B2GDQM::analyzeJets(const Event& iEvent, const edm::EventSetup& iSetup) {
       reco::BasicJet const* basicjet =
           dynamic_cast<reco::BasicJet const*>(&*jet);
 
-      if (basicjet != 0) {
+      if (basicjet != nullptr) {
         boostedJet_subjetN[icoll]->Fill(jet->numberOfDaughters());
 
         for (unsigned int ida = 0; ida < jet->numberOfDaughters(); ++ida) {

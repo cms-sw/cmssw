@@ -60,7 +60,7 @@ void CompareClusters::
 show( uint32_t id) {
   message << std::endl << "detId: " << id << std::endl;
   message << "Digis:\n" << printDigis(id);
-  edmNew::DetSet<SiStripCluster>::const_iterator c1(0), c2(0), end1(0), end2(0);
+  edmNew::DetSet<SiStripCluster>::const_iterator c1(nullptr), c2(nullptr), end1(nullptr), end2(nullptr);
   if( clusterHandle1->find(id) != clusterHandle1->end()) { c1 = clusterHandle1->find(id)->begin(); end1 = clusterHandle1->find(id)->end();}
   if( clusterHandle2->find(id) != clusterHandle2->end()) { c2 = clusterHandle2->find(id)->begin(); end2 = clusterHandle2->find(id)->end();}
   message << clusters1.label() << std::endl;   while( c1 != end1 ) message << printCluster(*c1++);

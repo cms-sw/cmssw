@@ -43,8 +43,8 @@ GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
   formatVersion_(iConfig.getParameter<unsigned>("unpackerVersion")),
   checkHeaders_(iConfig.getUntrackedParameter<bool>("checkHeaders",false)),
   verbose_(iConfig.getUntrackedParameter<bool>("verbose",false)),
-  formatTranslator_(0),
-  errors_(0),
+  formatTranslator_(nullptr),
+  errors_(nullptr),
   errorCounters_(MAX_ERR_CODE+1),  // initialise with the maximum error codes!
   unpackFailures_(0)
 {
@@ -335,7 +335,7 @@ void GctRawToDigi::addError(const unsigned code) {
   ++(errorCounters_.at(code));
   
   // store error in event if possible
-  if (errors_ != 0) {
+  if (errors_ != nullptr) {
     errors_->push_back(L1TriggerError(fedId_, code));
   }
   else LogDebug("GCT") << "Detected error (code=" << code << ") but no error collection available!";

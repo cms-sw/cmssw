@@ -158,7 +158,7 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
       }    
         else segm = dynamic_cast<const DTRecSegment2D*>((*rechit)->zSegment());
 
-      if(segm == 0) continue;
+      if(segm == nullptr) continue;
       if (!segm->specificRecHits().size()) continue;
 
       const GeomDet* geomDet = theTrackingGeometry->idToDet(segm->geographicalId());

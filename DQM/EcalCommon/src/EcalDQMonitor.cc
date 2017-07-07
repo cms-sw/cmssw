@@ -32,7 +32,7 @@ namespace ecaldqm
         if(verbosity_ > 0) edm::LogInfo("EcalDQM") << moduleName_ << ": Setting up " << name << std::endl;
         try{
           DQWorker* worker(WorkerFactoryStore::singleton()->getWorker(name, verbosity_, commonParams, workerParams.getUntrackedParameterSet(name)));
-          if(worker->onlineMode()) worker->setTime(time(0));
+          if(worker->onlineMode()) worker->setTime(time(nullptr));
           workers_.push_back(worker);
         }
         catch(std::exception&){
@@ -100,7 +100,7 @@ namespace ecaldqm
   EcalDQMonitor::ecaldqmBeginRun(edm::Run const& _run, edm::EventSetup const& _es)
   {
     executeOnWorkers_([&_run, &_es](DQWorker* worker){
-        if(worker->onlineMode()) worker->setTime(time(0));
+        if(worker->onlineMode()) worker->setTime(time(nullptr));
         worker->setRunNumber(_run.run());
         worker->beginRun(_run, _es);
       }, "beginRun");
@@ -112,7 +112,7 @@ namespace ecaldqm
   EcalDQMonitor::ecaldqmEndRun(edm::Run const& _run, edm::EventSetup const& _es)
   {
     executeOnWorkers_([&_run, &_es](DQWorker* worker){
-        if(worker->onlineMode()) worker->setTime(time(0));
+        if(worker->onlineMode()) worker->setTime(time(nullptr));
         worker->setRunNumber(_run.run());
         worker->endRun(_run, _es);
       }, "endRun");
@@ -124,7 +124,7 @@ namespace ecaldqm
   EcalDQMonitor::ecaldqmBeginLuminosityBlock(edm::LuminosityBlock const& _lumi, edm::EventSetup const& _es)
   {
     executeOnWorkers_([&_lumi, &_es](DQWorker* worker){
-        if(worker->onlineMode()) worker->setTime(time(0));
+        if(worker->onlineMode()) worker->setTime(time(nullptr));
         worker->setLumiNumber(_lumi.luminosityBlock());
         worker->beginLuminosityBlock(_lumi, _es);
       }, "beginLumi");
@@ -136,7 +136,7 @@ namespace ecaldqm
   EcalDQMonitor::ecaldqmEndLuminosityBlock(edm::LuminosityBlock const& _lumi, edm::EventSetup const& _es)
   {
     executeOnWorkers_([&_lumi, &_es](DQWorker* worker){
-        if(worker->onlineMode()) worker->setTime(time(0));
+        if(worker->onlineMode()) worker->setTime(time(nullptr));
         worker->setLumiNumber(_lumi.luminosityBlock());
         worker->endLuminosityBlock(_lumi, _es);
       }, "endLumi");

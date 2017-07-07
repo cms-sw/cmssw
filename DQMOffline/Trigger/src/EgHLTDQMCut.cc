@@ -9,7 +9,7 @@ bool EgTrigTagProbeCut::pass(const OffEle& theEle,const OffEvt& evt)const
 
   //new we check that there is another tag in the event (this electron may be a tag, we are not going to test this, all we care about is that another electron in the event is a tag)
   int nrTags=0;
-  const OffEle* tagEle=NULL;
+  const OffEle* tagEle=nullptr;
   const std::vector<OffEle>& eles = evt.eles();
   //we are looking for an *additional* tag
   for(size_t eleNr=0;eleNr<eles.size();eleNr++){
@@ -37,7 +37,7 @@ bool EgTrigTagProbeCut_New::pass(const OffEle& theEle,const OffEvt& evt)const
 
   //now we check that there is a WP80 tag electron that passes the first leg of the trigger(this electron may be a tag, we are not going to test this, all we care about is that another electron in the event is a tag)
   int nrTags=0;
-  const OffEle* tagEle=NULL;
+  const OffEle* tagEle=nullptr;
   const std::vector<OffEle>& eles = evt.eles();
   //we are looking for an *additional* tag
   for(size_t eleNr=0;eleNr<eles.size();eleNr++){
@@ -66,7 +66,7 @@ bool EgTrigTagProbeCut_NewPho::pass(const OffPho& thePho,const OffEvt& evt)const
 
   //now we check that there is a WP80 tag electron that passes the first leg of the trigger(this electron may be a tag, we are not going to test this, all we care about is that another electron in the event is a tag)
   int nrTags=0;
-  const OffPho* tagPho=NULL;
+  const OffPho* tagPho=nullptr;
   const std::vector<OffPho>& phos = evt.phos();
   //we are looking for an *additional* tag
   for(size_t phoNr=0;phoNr<phos.size();phoNr++){

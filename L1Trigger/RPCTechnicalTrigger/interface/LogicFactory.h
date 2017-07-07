@@ -42,7 +42,7 @@ public:
     
     if ( itr != m_associations.end() )  {
       return ( itr->second )();
-    } else return NULL; // handle error
+    } else return nullptr; // handle error
   }
   
 protected:

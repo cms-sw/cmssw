@@ -26,7 +26,7 @@ class HcalQIEData: public HcalCondObjectContainer<HcalQIECoder>
 {
  public:
 #ifndef HCAL_COND_SUPPRESS_DEFAULT
-  HcalQIEData():HcalCondObjectContainer<HcalQIECoder>(0) {setupShape();}
+  HcalQIEData():HcalCondObjectContainer<HcalQIECoder>(nullptr) {setupShape();}
 #endif
   // constructor, destructor, and all methods stay the same
   HcalQIEData(const HcalTopology* topo):HcalCondObjectContainer<HcalQIECoder>(topo) {setupShape();}

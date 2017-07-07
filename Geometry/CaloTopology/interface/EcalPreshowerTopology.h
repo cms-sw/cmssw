@@ -12,7 +12,7 @@ class EcalPreshowerTopology final : public CaloSubdetectorTopology {
 
  public:
   /// create a new Topology
-  EcalPreshowerTopology() : theGeom_(0) {};
+  EcalPreshowerTopology() : theGeom_(nullptr) {};
 
   /// virtual destructor
   virtual ~EcalPreshowerTopology() { }  

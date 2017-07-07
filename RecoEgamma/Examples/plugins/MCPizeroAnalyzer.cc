@@ -44,7 +44,7 @@ using namespace std;
 
 MCPizeroAnalyzer::MCPizeroAnalyzer( const edm::ParameterSet& pset )
    : fOutputFileName_( pset.getUntrackedParameter<string>("HistOutFile",std::string("TestConversions.root")) ),
-     fOutputFile_(0)
+     fOutputFile_(nullptr)
 {
 
 

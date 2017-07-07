@@ -25,7 +25,7 @@ MuRingForwardLayer::MuRingForwardLayer(const vector<const ForwardDetRing*>& ring
   RingedForwardLayer(false),
   theRings(rings),
   theComponents(theRings.begin(),theRings.end()),
-  theBinFinder(0),
+  theBinFinder(nullptr),
   isOverlapping(false) 
 {
 

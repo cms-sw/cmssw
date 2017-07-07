@@ -24,10 +24,10 @@ Toy EDAnalyzer for testing purposes only.
 
 namespace edmtest {
 
-  DTDeadUpdate::DTDeadUpdate(edm::ParameterSet const& p): dSum( 0 ) {
+  DTDeadUpdate::DTDeadUpdate(edm::ParameterSet const& p): dSum( nullptr ) {
   }
 
-  DTDeadUpdate::DTDeadUpdate(int i): dSum( 0 ) {
+  DTDeadUpdate::DTDeadUpdate(int i): dSum( nullptr ) {
   }
 
   DTDeadUpdate::~DTDeadUpdate() {
@@ -35,7 +35,7 @@ namespace edmtest {
 
   void DTDeadUpdate::analyze(const edm::Event& e,
                           const edm::EventSetup& context) {
-    if ( dSum == 0 ) dSum = new DTDeadFlag( "deadList" );
+    if ( dSum == nullptr ) dSum = new DTDeadFlag( "deadList" );
     using namespace edm::eventsetup;
     // Context is not used.
     std::cout <<" I AM IN RUN NUMBER "<<e.id().run() <<std::endl;

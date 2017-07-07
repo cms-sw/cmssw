@@ -19,7 +19,7 @@ class HcalPedestalWidths: public HcalCondObjectContainer<HcalPedestalWidth>
  public:
   //constructor definition: has to contain 
 #ifndef HCAL_COND_SUPPRESS_DEFAULT
-  HcalPedestalWidths():HcalCondObjectContainer<HcalPedestalWidth>(0), unitIsADC(false) {}
+  HcalPedestalWidths():HcalCondObjectContainer<HcalPedestalWidth>(nullptr), unitIsADC(false) {}
 #endif
   HcalPedestalWidths(const HcalTopology* topo):HcalCondObjectContainer<HcalPedestalWidth>(topo), unitIsADC(false) {}
   HcalPedestalWidths(const HcalTopology* topo,bool isADC):HcalCondObjectContainer<HcalPedestalWidth>(topo), unitIsADC(isADC) {}

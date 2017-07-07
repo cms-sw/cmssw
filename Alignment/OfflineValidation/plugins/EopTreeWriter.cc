@@ -291,7 +291,7 @@ EopTreeWriter::beginJob()
 void 
 EopTreeWriter::endJob() {
 
-  delete treeMemPtr_; treeMemPtr_ = 0;
+  delete treeMemPtr_; treeMemPtr_ = nullptr;
 
 }
 

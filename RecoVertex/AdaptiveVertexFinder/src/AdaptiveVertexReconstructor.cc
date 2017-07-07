@@ -86,7 +86,7 @@ void AdaptiveVertexReconstructor::erase (
 
 AdaptiveVertexReconstructor::AdaptiveVertexReconstructor(
     float primcut, float seccut, float min_weight, bool smoothing ) :
-  thePrimaryFitter ( 0 ), theSecondaryFitter ( 0 ),
+  thePrimaryFitter ( nullptr ), theSecondaryFitter ( nullptr ),
        theMinWeight( min_weight ), theWeightThreshold ( 0.001 )
 {
   setupFitters ( primcut, 256., 0.25, seccut, 256., 0.25, smoothing );
@@ -132,7 +132,7 @@ void AdaptiveVertexReconstructor::setupFitters ( float primcut,
 }
 
 AdaptiveVertexReconstructor::AdaptiveVertexReconstructor( const edm::ParameterSet & m )
-  : thePrimaryFitter(0), theSecondaryFitter(0), theMinWeight(0.5), theWeightThreshold ( 0.001 )
+  : thePrimaryFitter(nullptr), theSecondaryFitter(nullptr), theMinWeight(0.5), theWeightThreshold ( 0.001 )
 {
   float primcut = 2.0;
   float seccut = 6.0;

@@ -84,8 +84,8 @@ void ZdcHitReconstructor::beginRun(edm::Run const&r, edm::EventSetup const & es)
 }
 
 void ZdcHitReconstructor::endRun(edm::Run const&r, edm::EventSetup const & es){
-  delete myobject; myobject=0;
-  delete theTopology; theTopology=0;
+  delete myobject; myobject=nullptr;
+  delete theTopology; theTopology=nullptr;
 }
 void ZdcHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup)
 {

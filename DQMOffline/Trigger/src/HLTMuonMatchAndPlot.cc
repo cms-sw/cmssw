@@ -331,7 +331,7 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>   & allMuons,
       
 
       if (muon.pt() > cutMinPt_ && fabs(muon.eta()) < plotCuts_["maxEta"]) {
-        const Track * track = 0;
+        const Track * track = nullptr;
         if (muon.isTrackerMuon()) track = & * muon.innerTrack();
         else if (muon.isStandAloneMuon()) track = & * muon.outerTrack();
 	if (track) {
@@ -368,7 +368,7 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>   & allMuons,
 	  hists_["MR_massVsPtZ_denom"]->Fill(theProbe.pt());
           hists_["massVsVertexZ_denom"]->Fill(vertices->size());
 	  hists_["MR_massVsVertexZ_denom"]->Fill(vertices->size());
-	  const Track * track = 0;
+	  const Track * track = nullptr;
 	  if (theProbe.isTrackerMuon()) track = & * theProbe.innerTrack();
 	  else if (theProbe.isStandAloneMuon()) track = & * theProbe.outerTrack();
 	  if (track){
@@ -502,7 +502,7 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>   & allMuons,
   }
 
   if (dzPath && targetMuons.size() > 1 && passTriggerDZ){
-    const Track * track0 = 0;    const Track * track1 = 0;
+    const Track * track0 = nullptr;    const Track * track1 = nullptr;
     if (targetMuons.at(0).isTrackerMuon())       track0 = & * targetMuons.at(0).innerTrack();
     else if (targetMuons.at(0).isTrackerMuon())  track0 = & * targetMuons.at(0).outerTrack();
     if (targetMuons.at(1).isTrackerMuon())       track1 = & * targetMuons.at(1).innerTrack();
@@ -672,7 +672,7 @@ HLTMuonMatchAndPlot::selectedMuons(const MuonCollection & allMuons,
 
   MuonCollection reducedMuons;
   for (auto const& mu : allMuons){
-    const Track * track = 0;
+    const Track * track = nullptr;
     if (mu.isTrackerMuon()) track = & * mu.innerTrack();
     else if (mu.isStandAloneMuon()) track = & * mu.outerTrack();
     if (track && selector(mu) &&
@@ -727,7 +727,7 @@ void HLTMuonMatchAndPlot::book1D(DQMStore::IBooker & iBooker, string name,
    * case. */ 
 
   size_t nBins; 
-  float * edges = 0; 
+  float * edges = nullptr; 
   fillEdges(nBins, edges, binParams_[binningType]);
   hists_[name] = iBooker.book1D(name, title, nBins, edges);
   if (hists_[name])
@@ -754,11 +754,11 @@ HLTMuonMatchAndPlot::book2D(DQMStore::IBooker & iBooker, string name,
    * case. */ 
 
   size_t  nBinsX;
-  float * edgesX = 0;
+  float * edgesX = nullptr;
   fillEdges(nBinsX, edgesX, binParams_[binningTypeX]);
 
   size_t  nBinsY;
-  float * edgesY = 0;
+  float * edgesY = nullptr;
   fillEdges(nBinsY, edgesY, binParams_[binningTypeY]);
 
   hists_[name] = iBooker.book2D(name.c_str(), title.c_str(),

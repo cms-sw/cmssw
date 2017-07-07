@@ -35,7 +35,7 @@ class TGListBox;
 class FWGUIValidatingTextEntry : public TGTextEntry {
 
 public:
-   FWGUIValidatingTextEntry(const TGWindow *parent = 0, const char *text = 0, Int_t id = -1);
+   FWGUIValidatingTextEntry(const TGWindow *parent = nullptr, const char *text = nullptr, Int_t id = -1);
 
    virtual ~FWGUIValidatingTextEntry();
 

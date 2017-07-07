@@ -12,7 +12,7 @@ TkPhase2OTMeasurementDet::TkPhase2OTMeasurementDet( const GeomDet* gdet,
     MeasurementDet (gdet),
     theDetConditions(&conditions)
   {
-    if ( dynamic_cast<const PixelGeomDetUnit*>(gdet) == 0) {
+    if ( dynamic_cast<const PixelGeomDetUnit*>(gdet) == nullptr) {
       throw MeasurementDetException( "TkPhase2OTMeasurementDet constructed with a GeomDet which is not a PixelGeomDetUnit");
     }
   }
@@ -134,7 +134,7 @@ TkPhase2OTMeasurementDet::recHits( const TrajectoryStateOnSurface& ts, const Mea
   RecHitContainer result;
   if (isEmpty(data.phase2OTData())) return result;
   if (!isActive(data)) return result;
-  const Phase2TrackerCluster1D* begin=0;
+  const Phase2TrackerCluster1D* begin=nullptr;
   if (0 != data.phase2OTData().handle()->data().size()) {
      begin = &(data.phase2OTData().handle()->data().front());
   }

@@ -25,7 +25,7 @@ EcalEndcapSimHitsValidation::EcalEndcapSimHitsValidation(const edm::ParameterSet
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
  
   // get hold of back-end interface
-  dbe_ = 0;
+  dbe_ = nullptr;
   dbe_ = edm::Service<DQMStore>().operator->();           
   if ( dbe_ ) {
     if ( verbose_ ) { dbe_->setVerbose(1); } 
@@ -37,34 +37,34 @@ EcalEndcapSimHitsValidation::EcalEndcapSimHitsValidation(const edm::ParameterSet
   }
  
 
-  meEEzpHits_             = 0;
-  meEEzmHits_             = 0;
-  meEEzpCrystals_         = 0;
-  meEEzmCrystals_         = 0;
-  meEEzpOccupancy_        = 0;
-  meEEzmOccupancy_        = 0;
-  meEELongitudinalShower_ = 0;
-  meEEHitEnergy_          = 0;
-  meEEhitLog10Energy_       = 0;
-  meEEhitLog10EnergyNorm_   = 0;
-  meEEhitLog10Energy25Norm_ = 0;
-  meEEHitEnergy2_         = 0;
-  meEEcrystalEnergy_      = 0;
-  meEEcrystalEnergy2_     = 0;
+  meEEzpHits_             = nullptr;
+  meEEzmHits_             = nullptr;
+  meEEzpCrystals_         = nullptr;
+  meEEzmCrystals_         = nullptr;
+  meEEzpOccupancy_        = nullptr;
+  meEEzmOccupancy_        = nullptr;
+  meEELongitudinalShower_ = nullptr;
+  meEEHitEnergy_          = nullptr;
+  meEEhitLog10Energy_       = nullptr;
+  meEEhitLog10EnergyNorm_   = nullptr;
+  meEEhitLog10Energy25Norm_ = nullptr;
+  meEEHitEnergy2_         = nullptr;
+  meEEcrystalEnergy_      = nullptr;
+  meEEcrystalEnergy2_     = nullptr;
 
-  meEEe1_  = 0;  
-  meEEe4_  = 0;  
-  meEEe9_  = 0;  
-  meEEe16_ = 0; 
-  meEEe25_ = 0; 
+  meEEe1_  = nullptr;  
+  meEEe4_  = nullptr;  
+  meEEe9_  = nullptr;  
+  meEEe16_ = nullptr; 
+  meEEe25_ = nullptr; 
 
-  meEEe1oe4_   = 0;  
-  meEEe1oe9_   = 0;  
-  meEEe4oe9_   = 0;  
-  meEEe9oe16_  = 0;
-  meEEe1oe25_  = 0;  
-  meEEe9oe25_  = 0; 
-  meEEe16oe25_ = 0;
+  meEEe1oe4_   = nullptr;  
+  meEEe1oe9_   = nullptr;  
+  meEEe4oe9_   = nullptr;  
+  meEEe9oe16_  = nullptr;
+  meEEe1oe25_  = nullptr;  
+  meEEe9oe25_  = nullptr; 
+  meEEe16oe25_ = nullptr;
 
   myEntries = 0;
   for ( int myStep = 0; myStep<26; myStep++) { eRLength[myStep] = 0.0; }

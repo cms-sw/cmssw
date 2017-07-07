@@ -11,9 +11,9 @@ using namespace oracle::occi;
 
 CaliTempDat::CaliTempDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
 
   m_beta = 0;
   m_r25 = 0;

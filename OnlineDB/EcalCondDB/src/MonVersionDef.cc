@@ -8,8 +8,8 @@ using namespace oracle::occi;
 
 MonVersionDef::MonVersionDef()
 {
-  m_env = NULL;
-  m_conn = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
   m_ID = 0;
   m_monVer = "";
   m_desc = "";

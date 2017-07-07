@@ -28,7 +28,7 @@
 class FWTrackingParticleProxyBuilderFullFramework : public FWSimpleProxyBuilderTemplate<TrackingParticle>
 {
 public:
-   FWTrackingParticleProxyBuilderFullFramework( void ):m_assocList(0) {} 
+   FWTrackingParticleProxyBuilderFullFramework( void ):m_assocList(nullptr) {} 
    virtual ~FWTrackingParticleProxyBuilderFullFramework( void ) {}
 
    // virtual void setItem(const FWEventItem* iItem) override;
@@ -86,7 +86,7 @@ void FWTrackingParticleProxyBuilderFullFramework::build(const FWEventItem* iItem
       context().getTrackPropagator()->SetRnrReferences(true);
       */
    }
-   FWSimpleProxyBuilder::build(iItem, product, 0);
+   FWSimpleProxyBuilder::build(iItem, product, nullptr);
 }
 //______________________________________________________________________________
 void

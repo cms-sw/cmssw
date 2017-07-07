@@ -62,9 +62,9 @@ PFAlgo::PFAlgo()
     nSigmaHCAL_(1),
     algo_(1),
     debug_(false),
-    pfele_(0),
-    pfpho_(0),
-    pfegamma_(0),
+    pfele_(nullptr),
+    pfpho_(nullptr),
+    pfegamma_(nullptr),
     useVertices_(false)
 {}
 

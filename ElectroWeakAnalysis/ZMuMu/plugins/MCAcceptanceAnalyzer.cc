@@ -17,7 +17,7 @@ const Candidate * mcMuDaughter(const Candidate * c) {
     const Candidate * d = c->daughter(i);
     if(fabs(d->pdgId())==13) return d;
   }
-  return 0;
+  return nullptr;
 }
 
 struct ZSelector {                  // modify this selector in order to return an integer (0: no eta cut, 1: eta cut only, 2 eta && pt cut, 3: eta, pt and Mass cut, 4: mass cut on the denominator Z MC)

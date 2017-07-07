@@ -74,7 +74,7 @@ void OpticalObject::construct()
     exit(0);
     }*/
 
-  if( theParent != 0 ) { //----- OptO 'system' has no parent (and no affine frame)
+  if( theParent != nullptr ) { //----- OptO 'system' has no parent (and no affine frame)
     //---------- Read or copy Data
     if(!fcopyData) {
       if(ALIUtils::debug >=4) std::cout << "@@@@ Reading data of Optical Object " << name() << std::endl;
@@ -225,7 +225,7 @@ void OpticalObject::readCoordinates( const ALIstring& coor_type_read, const ALIs
   //----- If data is read from a 'report.out', it is always local and this is not needed
 
   //TODO: check that if only one entry of the three is read from 'report.out', the input file does not give global coordinates (it would cause havoc)
-  if( EntryMgr::getInstance()->findEntryByLongName( longName(), "" ) == 0 ) {
+  if( EntryMgr::getInstance()->findEntryByLongName( longName(), "" ) == nullptr ) {
     if(coor_type_read.size() == 7) {
       if(coor_type_read[6] == 'G' ) {
         if(ALIUtils::debug >= 5) std::cout << " coordinate global " << coor_type_read << std::endl;
@@ -315,7 +315,7 @@ void OpticalObject::fillCoordinateEntry( const ALIstring& coor_type, const std::
 {
 
   //---------- Select which type of entry to create
-  Entry* entry = 0;
+  Entry* entry = nullptr;
   if ( coor_type == ALIstring("centre") ) {
     entry = new EntryLengthAffCentre( coor_type );
   }else if ( coor_type == ALIstring("angles") ) {
@@ -1921,7 +1921,7 @@ double OpticalObject::addPii( double val )
 int OpticalObject::checkMatrixEquations( double angleX, double angleY, double angleZ, CLHEP::HepRotation* rot)
 {
   //-  std::cout << " cme " << angleX << " " << angleY << " " << angleZ << std::endl;
-  if( rot == 0 ) {
+  if( rot == nullptr ) {
     rot = new CLHEP::HepRotation();
     rot->rotateX( angleX );
     rot->rotateY( angleY );
@@ -2108,7 +2108,7 @@ void OpticalObject::constructSolidShape()
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void OpticalObject::constructFromOptAligInfo( const OpticalAlignInfo& oaInfo )
 {
-  if( theParent != 0 ) { //----- OptO 'system' has no parent (and no affine frame)
+  if( theParent != nullptr ) { //----- OptO 'system' has no parent (and no affine frame)
     //---------- Build Data
    //---------- See if there are extra entries and read them
     std::vector<OpticalAlignParam> exEnt = oaInfo.extraEntries_;

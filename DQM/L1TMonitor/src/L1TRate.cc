@@ -220,7 +220,7 @@ void L1TRate::endLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup co
   
   // Checking if all necessary quantities are defined for our calculations
   bool isDefRate,isDefLumi,isDefPrescaleIndex;
-  map<TString,double>* rates=0;
+  map<TString,double>* rates=nullptr;
   double               lumi=0;
   int                  prescalesIndex=0;
 

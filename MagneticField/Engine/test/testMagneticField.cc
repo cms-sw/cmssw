@@ -253,7 +253,7 @@ void testMagneticField::validateVsTOSCATable(string filename) {
   
 
   const MagVolume6Faces* vol = findMasterVolume(volNo, sector);
-  if (vol==0) {
+  if (vol==nullptr) {
     cout << "   ERROR: volume " << volNo << ":" << sector << "not found" << endl;
     return;
   }
@@ -474,7 +474,7 @@ const MagVolume6Faces* testMagneticField::findVolume(GlobalPoint& gp) {
   if (vbffield) {
     return (dynamic_cast<const MagVolume6Faces*>(vbffield->findVolume(gp)));
   }
-  return 0;
+  return nullptr;
 }
 
 
@@ -482,7 +482,7 @@ const MagVolume6Faces* testMagneticField::findVolume(GlobalPoint& gp) {
 const MagVolume6Faces* testMagneticField::findMasterVolume(int volume, int sector) {
   const MagGeometry* vbffield = (dynamic_cast<const VolumeBasedMagneticField*>(field))->field;
 
-  if (vbffield==0) return 0;
+  if (vbffield==nullptr) return nullptr;
 
   const vector<MagVolume6Faces const*>& bvol = vbffield->barrelVolumes();
   for (vector<MagVolume6Faces const*>::const_iterator i=bvol.begin();
@@ -500,7 +500,7 @@ const MagVolume6Faces* testMagneticField::findMasterVolume(int volume, int secto
     }
   }
 
-  return 0;
+  return nullptr;
 }
 
 

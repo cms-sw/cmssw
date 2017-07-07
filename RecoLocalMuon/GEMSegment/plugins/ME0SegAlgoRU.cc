@@ -72,7 +72,7 @@ ME0SegAlgoRU::ME0SegAlgoRU(const edm::ParameterSet& ps)
 			<< "maxTOFDiff          = " <<stdParameters.maxTOFDiff       << "\n"
 			<< std::endl;
 
-	theChamber=0;
+	theChamber=nullptr;
 
 }
 
@@ -422,7 +422,7 @@ bool ME0SegAlgoRU::hasHitOnLayer(const HitAndPositionPtrContainer& proto_segment
 }
 
 void ME0SegAlgoRU::compareProtoSegment(std::unique_ptr<MuonSegFit>& current_fit, HitAndPositionPtrContainer& current_proto_segment, const HitAndPosition& new_hit) const {
-	const HitAndPosition * old_hit = 0;
+	const HitAndPosition * old_hit = nullptr;
 	HitAndPositionPtrContainer new_proto_segment = current_proto_segment;
 
 	HitAndPositionPtrContainer::const_iterator it;
@@ -434,7 +434,7 @@ void ME0SegAlgoRU::compareProtoSegment(std::unique_ptr<MuonSegFit>& current_fit,
 			++it;
 		}
 	}
-	if(old_hit == 0) return;
+	if(old_hit == nullptr) return;
 	auto new_fit = addHit(new_proto_segment,new_hit);
 
 	//If on the same strip but different BX choose the closest

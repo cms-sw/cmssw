@@ -42,9 +42,9 @@ public:
     ecalET(0),
     hcalET(0),
     hcalFB(0),
-    ecalLUT(0),
-    hcalLUT(0),
-    hfLUT(0),
+    ecalLUT(nullptr),
+    hcalLUT(nullptr),
+    hfLUT(nullptr),
     towerData(0),
     fwVersion(fwv)
   {}

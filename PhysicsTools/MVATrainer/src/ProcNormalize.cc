@@ -426,7 +426,7 @@ bool ProcNormalize::load()
 				<< std::endl;
 		elem = static_cast<DOMElement*>(node);
 
-		PDF *pdf = 0;
+		PDF *pdf = nullptr;
 		switch(version) {
 		    case 1:
 			if (cur == pdfs.end())

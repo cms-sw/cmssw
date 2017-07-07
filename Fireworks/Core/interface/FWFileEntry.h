@@ -39,7 +39,7 @@ public:
       FWEventSelector*   m_selector;  // owned by navigator
       bool               m_needsUpdate;
       
-      Filter(FWEventSelector* s) : m_eventList(0), m_selector(s), m_needsUpdate(true) {}
+      Filter(FWEventSelector* s) : m_eventList(nullptr), m_selector(s), m_needsUpdate(true) {}
       ~Filter()
       {
          delete m_eventList;

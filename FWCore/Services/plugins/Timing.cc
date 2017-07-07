@@ -116,7 +116,7 @@ namespace edm {
     
     static double getTime() {
       struct timeval t;
-      if(gettimeofday(&t, 0) < 0)
+      if(gettimeofday(&t, nullptr) < 0)
         throw cms::Exception("SysCallFailed", "Failed call to gettimeofday");
       return static_cast<double>(t.tv_sec) + (static_cast<double>(t.tv_usec) * 1E-6);
     }

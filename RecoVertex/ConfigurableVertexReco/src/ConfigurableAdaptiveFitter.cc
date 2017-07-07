@@ -49,7 +49,7 @@ void ConfigurableAdaptiveFitter::configure(
   // GenericLinearizationPointFinder linpt ( kvf );
   KalmanVertexUpdator<5> updator;
   bool s=m.getParameter< bool >("smoothing");
-  VertexSmoother<5> * smoother=0;
+  VertexSmoother<5> * smoother=nullptr;
   if ( s )
   {
     smoother = new KalmanVertexSmoother ();

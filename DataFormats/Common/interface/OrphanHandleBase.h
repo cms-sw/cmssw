@@ -39,7 +39,7 @@ namespace edm {
     ~OrphanHandleBase() {}
 
     void clear() {
-      product_ = 0;
+      product_ = nullptr;
       id_ = ProductID();
     }
 

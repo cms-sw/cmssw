@@ -24,7 +24,7 @@ using namespace std;
 SiPixelDigiToRaw::SiPixelDigiToRaw( const edm::ParameterSet& pset ) :
   frameReverter_(nullptr),
   config_(pset),
-  hCPU(0), hDigi(0)
+  hCPU(nullptr), hDigi(nullptr)
 {
 
   tPixelDigi = consumes<edm::DetSetVector<PixelDigi> >(config_.getParameter<edm::InputTag>("InputLabel")); 

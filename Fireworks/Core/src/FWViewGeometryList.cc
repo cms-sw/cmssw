@@ -21,7 +21,7 @@
 
 FWViewGeometryList::FWViewGeometryList(const fireworks::Context& context, bool projected):
    m_context(context),
-   m_geom(0),
+   m_geom(nullptr),
    m_projected(projected)
 { 
    m_geom = context.getGeom();

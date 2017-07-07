@@ -62,10 +62,10 @@ ResidualRefitting::ResidualRefitting( const edm::ParameterSet & cfg ) :
   muonsNoTOBLayer5_			( cfg.getParameter<edm::InputTag>("muonsNoTOBLayer5"	) ),
   muonsNoTOBLayer6_			( cfg.getParameter<edm::InputTag>("muonsNoTOBLayer6"	) ),*/
   debug_				( cfg.getUntrackedParameter<bool>("doDebug"	) ),
-  outputFile_(0),
-  outputTree_(0),
-  outputBranch_(0),
-  theField(0)
+  outputFile_(nullptr),
+  outputTree_(nullptr),
+  outputBranch_(nullptr),
+  theField(nullptr)
 {
         eventInfo_.evtNum_ = 0;
         eventInfo_.evtNum_ = 0;

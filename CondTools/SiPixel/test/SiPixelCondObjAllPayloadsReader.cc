@@ -69,7 +69,7 @@ SiPixelCondObjAllPayloadsReader::analyze(const edm::Event& iEvent, const edm::Ev
 
     DetId detIdObject(detid);
     const PixelGeomDetUnit* _PixelGeomDetUnit = dynamic_cast<const PixelGeomDetUnit*>(tkgeom->idToDetUnit(DetId(detid)));
-    if (_PixelGeomDetUnit==0){
+    if (_PixelGeomDetUnit==nullptr){
       edm::LogError("SiPixelCondObjDisplay")<<"[SiPixelCondObjAllPayloadsReader::beginJob] the detID "<<detid<<" doesn't seem to belong to Tracker"<<std::endl; 
       continue;
     }

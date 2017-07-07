@@ -187,9 +187,9 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
     const L1GtConditionCategory cond0Categ = m_gtCorrelationTemplate->cond0Category();
     const L1GtConditionCategory cond1Categ = m_gtCorrelationTemplate->cond1Category();
 
-    const L1GtMuonTemplate* corrMuon = 0;
-    const L1GtCaloTemplate* corrCalo = 0;
-    const L1GtEnergySumTemplate* corrEnergySum = 0;
+    const L1GtMuonTemplate* corrMuon = nullptr;
+    const L1GtCaloTemplate* corrCalo = nullptr;
+    const L1GtEnergySumTemplate* corrEnergySum = nullptr;
 
     // FIXME copying is slow...
     CombinationsInCond cond0Comb;
@@ -399,11 +399,11 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
     (combinationsInCond()).clear();
 
     // pointers to objects
-    const std::vector<const L1MuGMTCand*>* candMuVec = 0;
-    const std::vector<const L1GctCand*>* candCaloVec = 0;
+    const std::vector<const L1MuGMTCand*>* candMuVec = nullptr;
+    const std::vector<const L1GctCand*>* candCaloVec = nullptr;
     //    only ETM and HTM  can appear in correlation conditions
-    const L1GctEtMiss* candETM = 0;
-    const L1GctHtMiss* candHTM = 0;
+    const L1GctEtMiss* candETM = nullptr;
+    const L1GctHtMiss* candHTM = nullptr;
 
     // make the conversions of the indices, depending on the combination of objects involved
     // (via pair index)

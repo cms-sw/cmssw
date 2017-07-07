@@ -76,7 +76,7 @@ template <class T>
 Evaluator * parse(const T & text) {
   typedef typename T::const_iterator Iterator;
   Parser<Iterator> parser;
-  Evaluator * evaluator = 0;
+  Evaluator * evaluator = nullptr;
 
   Iterator begin = text.begin();
   Iterator end   = text.end();
@@ -86,7 +86,7 @@ Evaluator * parse(const T & text) {
 
   if (not result or begin != end) {
     delete evaluator;
-    return 0;
+    return nullptr;
   }
 
   return evaluator;
@@ -95,7 +95,7 @@ Evaluator * parse(const T & text) {
 // overloaded interface for null-terminated strings
 inline Evaluator * parse(const char * text) {
   Parser<const char *> parser;
-  Evaluator * evaluator = 0;
+  Evaluator * evaluator = nullptr;
 
   const char * begin = text;
   const char * end   = text + strlen(text);
@@ -105,7 +105,7 @@ inline Evaluator * parse(const char * text) {
 
   if (not result or begin != end) {
     delete evaluator;
-    return 0;
+    return nullptr;
   }
 
   return evaluator;

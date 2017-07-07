@@ -80,7 +80,7 @@ class LHE2HepMCConverter : public edm::EDProducer {
 // constructors and destructor
 //
 LHE2HepMCConverter::LHE2HepMCConverter(const edm::ParameterSet& iConfig):
-_lheRunSrc(0)
+_lheRunSrc(nullptr)
 {
    //register your products
    produces<edm::HepMCProduct>("unsmeared");

@@ -26,7 +26,7 @@ RPCBxTest::RPCBxTest(const edm::ParameterSet& ps ){
   numberOfRings_ = ps.getUntrackedParameter<int>("NumberOfEndcapRings", 2);
 }
 
-RPCBxTest::~RPCBxTest(){ dbe_=0;}
+RPCBxTest::~RPCBxTest(){ dbe_=nullptr;}
 
 void RPCBxTest::beginJob(DQMStore *  dbe){
   edm::LogVerbatim ("rpcbxtest") << "[RPCBxTest]: Begin job ";
@@ -91,18 +91,18 @@ void RPCBxTest::beginRun(const edm::Run& r, const edm::EventSetup& c){
     if (w>-3 && w<3){//wheels
       histoName.str("");
       histoName<<"BX_Mean_Distribution_Wheel"<<w;     
-      me = 0;
+      me = nullptr;
       me = dbe_->get(globalFolder_ + histoName.str()) ;
-      if ( 0!=me ) {
+      if ( nullptr!=me ) {
 	dbe_->removeElement(me->getName());
       }
       BXMeanWheel[w+2] = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(), 10, -0.5, 9.5);
   
       histoName.str("");
       histoName<<"BX_RMS_Distribution_Wheel"<<w;     
-      me = 0;
+      me = nullptr;
       me = dbe_->get(globalFolder_ + histoName.str()) ;
-      if ( 0!=me){
+      if ( nullptr!=me){
 	dbe_->removeElement(me->getName());
       }
       BXRmsWheel[w+2] = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(), 50, -0.5, 4.5);
@@ -115,9 +115,9 @@ void RPCBxTest::beginRun(const edm::Run& r, const edm::EventSetup& c){
       
     histoName.str("");
     histoName<<"BX_Mean_Distribution_Disk"<<w;     
-    me = 0;
+    me = nullptr;
     me = dbe_->get(globalFolder_ + histoName.str()) ;
-    if ( 0!=me){
+    if ( nullptr!=me){
       dbe_->removeElement(me->getName());
     }
     BXMeanDisk[w+offset] = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),10, -0.5, 9.5);
@@ -125,9 +125,9 @@ void RPCBxTest::beginRun(const edm::Run& r, const edm::EventSetup& c){
    
     histoName.str("");
     histoName<<"BX_RMS_Distribution_Disk"<<w;    
-    me = 0;
+    me = nullptr;
     me = dbe_->get(globalFolder_ + histoName.str()) ;
-    if ( 0!=me){
+    if ( nullptr!=me){
       dbe_->removeElement(me->getName());
     }
     BXRmsDisk[w+offset] = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(), 50, -0.5, 4.5);
@@ -179,11 +179,11 @@ void  RPCBxTest::endRun(const edm::Run& r, const edm::EventSetup& c) {
   RPCDetId detId;
   TH1F * myTH1F;
 
-  MonitorElement * ENTRIES =NULL; 
-  MonitorElement * MEAN =NULL;  
-  MonitorElement * MEANRing =NULL;  
-  MonitorElement * RMS =NULL; 
-  MonitorElement * RMSRing =NULL;  
+  MonitorElement * ENTRIES =nullptr; 
+  MonitorElement * MEAN =nullptr;  
+  MonitorElement * MEANRing =nullptr;  
+  MonitorElement * RMS =nullptr; 
+  MonitorElement * RMSRing =nullptr;  
 
   for (unsigned int  i = 0 ; i<myBXMe_.size();i++){
 

@@ -22,7 +22,7 @@ void LMFRunIOV::initialize() {
   m_stringFields["subrun_type"] = "none";
   m_className = "LMFRunIOV";
   
-  _fabric = NULL;
+  _fabric = nullptr;
 }
 
 LMFRunIOV::LMFRunIOV() : LMFUnique()
@@ -48,7 +48,7 @@ LMFRunIOV::LMFRunIOV(const LMFRunIOV &r) {
 
 LMFRunIOV::~LMFRunIOV()
 {
-  if (_fabric != NULL) {
+  if (_fabric != nullptr) {
     delete _fabric;
   }
 }
@@ -85,7 +85,7 @@ LMFRunIOV& LMFRunIOV::setColor(int color_id)
 }
 
 void LMFRunIOV::checkFabric() {
-  if (_fabric == NULL) {
+  if (_fabric == nullptr) {
     _fabric = new LMFDefFabric(m_env, m_conn);
   }
 }
@@ -430,7 +430,7 @@ std::list<LMFRunIOV> LMFRunIOV::fetchLastBeforeSequence(const LMFSeqDat &s,
 LMFRunIOV& LMFRunIOV::operator=(const LMFRunIOV &r) {
   if (this != &r) {
     LMFUnique::operator=(r);
-    if (r._fabric != NULL) {
+    if (r._fabric != nullptr) {
       checkFabric();//      _fabric = new LMFDefFabric;
       if (m_debug) {
 	_fabric->debug();

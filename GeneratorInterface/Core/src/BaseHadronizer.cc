@@ -112,7 +112,7 @@ const std::vector<std::string> BaseHadronizer::theSharedResources;
     argStrs[2]=nevStream.str();
     argStrs[3]=randomStream.str();
     argStrs[4]=std::to_string(ncpu);
-    std::array<char*,6>args{ { &argStrs[0][0], &argStrs[1][0],&argStrs[2][0],&argStrs[3][0], &argStrs[4][0], NULL } };
+    std::array<char*,6>args{ { &argStrs[0][0], &argStrs[1][0],&argStrs[2][0],&argStrs[3][0], &argStrs[4][0], nullptr } };
     
     pid_t pid = fork();
 

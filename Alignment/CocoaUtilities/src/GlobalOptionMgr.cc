@@ -13,7 +13,7 @@
 #include "Alignment/CocoaUtilities/interface/ALIFileIn.h"
 #include <cstdlib>
 
-GlobalOptionMgr* GlobalOptionMgr::theInstance = 0;
+GlobalOptionMgr* GlobalOptionMgr::theInstance = nullptr;
 
 GlobalOptionMgr* GlobalOptionMgr::getInstance()
 {

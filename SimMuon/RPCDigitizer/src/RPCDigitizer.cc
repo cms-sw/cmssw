@@ -18,7 +18,7 @@ RPCDigitizer::RPCDigitizer(const edm::ParameterSet& config) {
 RPCDigitizer::~RPCDigitizer() {
   if( theRPCSim )
     delete theRPCSim;
-  theRPCSim = 0;
+  theRPCSim = nullptr;
 }
 
 void RPCDigitizer::doAction(MixCollection<PSimHit> & simHits, 
@@ -65,7 +65,7 @@ void RPCDigitizer::doAction(MixCollection<PSimHit> & simHits,
 }
 
 const RPCRoll * RPCDigitizer::findDet(int detId) const {
-  assert(theGeometry != 0);
+  assert(theGeometry != nullptr);
   const GeomDetUnit* detUnit = theGeometry->idToDetUnit(RPCDetId(detId));
   return dynamic_cast<const RPCRoll *>(detUnit);
 }

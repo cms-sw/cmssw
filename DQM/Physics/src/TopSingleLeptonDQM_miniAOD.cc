@@ -737,7 +737,7 @@ void TopSingleLeptonDQM_miniAOD::analyze(const edm::Event& event,
       if (type == "empty") {
         selection_[key].second->fill(event, setup);
       }
-      if (type == "muons" && MuonStep != 0) {
+      if (type == "muons" && MuonStep != nullptr) {
         if (MuonStep->select(event)) {
           ++passed;
 
@@ -746,7 +746,7 @@ void TopSingleLeptonDQM_miniAOD::analyze(const edm::Event& event,
           break;
       }
 
-      if (type == "elecs" && ElectronStep != 0) {
+      if (type == "elecs" && ElectronStep != nullptr) {
 
         if (ElectronStep->select(event)) {
           ++passed;
@@ -755,7 +755,7 @@ void TopSingleLeptonDQM_miniAOD::analyze(const edm::Event& event,
           break;
       }
 
-      if (type == "pvs" && PvStep != 0) {
+      if (type == "pvs" && PvStep != nullptr) {
         if (PvStep->selectVertex(event)) {
           ++passed;
           selection_[key].second->fill(event, setup);
@@ -765,7 +765,7 @@ void TopSingleLeptonDQM_miniAOD::analyze(const edm::Event& event,
 
       if (type == "jets") {
         nJetSteps++;
-        if (JetSteps[nJetSteps] != NULL) {
+        if (JetSteps[nJetSteps] != nullptr) {
           if (JetSteps[nJetSteps]->select(event, setup)) {
             ++passed;
             selection_[key].second->fill(event, setup);
@@ -774,7 +774,7 @@ void TopSingleLeptonDQM_miniAOD::analyze(const edm::Event& event,
         }
       }
 
-      if (type == "met" && METStep != 0) {
+      if (type == "met" && METStep != nullptr) {
         if (METStep->select(event)) {
           ++passed;
           selection_[key].second->fill(event, setup);

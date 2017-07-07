@@ -13,7 +13,7 @@ namespace gs {
         // See the note inside the "BinaryArchiveBase.hh" header
         // for the meaning of the "mode" argument
         MultiFileArchive(const char* basename, const char* mode,
-                         const char* annotation = 0,
+                         const char* annotation = nullptr,
                          unsigned typicalFileSizeInMB = 1000U,
                          unsigned dataFileBufferSize = 1048576U,
                          unsigned catalogFileBufferSize = 131072U);

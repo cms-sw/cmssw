@@ -274,7 +274,7 @@ std::vector<int> GenHFHadronMatcher::findHadronJets ( const reco::GenParticleCol
             if(!isHadron ( flavour_, (&**hadron) )) continue;
             if(hasHadronDaughter ( flavour_, (reco::Candidate*)(&**hadron) )) continue;
             // Scanning the chain starting from the hadron
-            int hadronIndex = analyzeMothers ( (reco::Candidate*)(&**hadron), topDaughterQId, topBarDaughterQId, hadMothersCand, hadMothersIndices, 0, -1 );
+            int hadronIndex = analyzeMothers ( (reco::Candidate*)(&**hadron), topDaughterQId, topBarDaughterQId, hadMothersCand, hadMothersIndices, nullptr, -1 );
             // Storing the index of the hadron to the list
             hadIndex.push_back ( hadronIndex );
             hadJetIndex.push_back ( jetIndex );  // Putting jet index to the result list
@@ -290,7 +290,7 @@ std::vector<int> GenHFHadronMatcher::findHadronJets ( const reco::GenParticleCol
             if(std::find(hadMothersCand.begin(), hadMothersCand.end(), thisParticle) != hadMothersCand.end()) continue;
             
             // Scanning the chain starting from the hadron
-            int hadronIndex = analyzeMothers ( thisParticle, topDaughterQId, topBarDaughterQId, hadMothersCand, hadMothersIndices, 0, -1 );
+            int hadronIndex = analyzeMothers ( thisParticle, topDaughterQId, topBarDaughterQId, hadMothersCand, hadMothersIndices, nullptr, -1 );
             // Storing the index of the hadron to the list
             hadIndex.push_back ( hadronIndex );
             hadJetIndex.push_back ( -1 );  // Jet index undefined

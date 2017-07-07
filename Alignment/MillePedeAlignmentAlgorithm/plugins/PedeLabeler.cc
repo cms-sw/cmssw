@@ -117,7 +117,7 @@ unsigned int PedeLabeler::alignableLabelFromLabel(unsigned int paramLabel) const
 Alignable* PedeLabeler::alignableFromLabel(unsigned int label) const
 {
   const unsigned int aliLabel = this->alignableLabelFromLabel(label);
-  if (aliLabel < theMinLabel) return 0; // error already given
+  if (aliLabel < theMinLabel) return nullptr; // error already given
   
   if (theIdToAlignableMap.empty()) const_cast<PedeLabeler*>(this)->buildReverseMap();
   IdToAlignableMap::const_iterator position = theIdToAlignableMap.find(aliLabel);
@@ -130,7 +130,7 @@ Alignable* PedeLabeler::alignableFromLabel(unsigned int label) const
       edm::LogError("LogicError") << "@SUB=PedeLabeler::alignableFromLabel"
 				  << "Alignable label " << aliLabel << " not in map.";
     }
-    return 0;
+    return nullptr;
   }
 }
 

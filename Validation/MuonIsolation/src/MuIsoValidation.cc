@@ -83,7 +83,7 @@ MuIsoValidation::MuIsoValidation(const edm::ParameterSet& ps)
   InitStatics();
   
   //Set up DAQ
-  dbe = 0;
+  dbe = nullptr;
   dbe = edm::Service<DQMStore>().operator->();
   subsystemname_ = iConfig.getUntrackedParameter<std::string>("subSystemFolder", "YourSubsystem") ;
   

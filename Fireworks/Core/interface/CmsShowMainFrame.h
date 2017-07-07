@@ -60,7 +60,7 @@ class CmsShowMainFrame : public TGMainFrame
 {
    friend class FWGUIManager;
 public:
-   CmsShowMainFrame(const TGWindow *p = 0,UInt_t w = 1,UInt_t h = 1,FWGUIManager *m = 0);
+   CmsShowMainFrame(const TGWindow *p = nullptr,UInt_t w = 1,UInt_t h = 1,FWGUIManager *m = nullptr);
    virtual ~CmsShowMainFrame();
 
    // ---------- const member functions ---------------------

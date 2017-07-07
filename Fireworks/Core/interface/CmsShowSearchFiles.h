@@ -37,7 +37,7 @@ class CmsShowSearchFiles : public TGTransientFrame {
 public:
 
    CmsShowSearchFiles (const char *filename,
-                       const char* windowname, const TGWindow* p = 0,
+                       const char* windowname, const TGWindow* p = nullptr,
                        UInt_t w = 1, UInt_t h = 1);
    virtual ~CmsShowSearchFiles();
 

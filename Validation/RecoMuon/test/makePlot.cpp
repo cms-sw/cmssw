@@ -154,8 +154,8 @@ void PlotManager::processCommand(istream& in)
 PlotManager::PlotManager(const string& srcFileName, const string& outFileName)
 {
   // Set default values
-  theSrcFile_ = 0;
-  theOutFile_ = 0;
+  theSrcFile_ = nullptr;
+  theOutFile_ = nullptr;
 
   isSetup_ = (setSrcFile(srcFileName) && setOutFile(outFileName));
 }
@@ -206,11 +206,11 @@ bool PlotManager::saveEfficiency(const string& histName, const string& histTitle
   TH1F* denoHist = dynamic_cast<TH1F*>(theSrcFile_->Get(denoHistName.c_str()));
   
   // Check validity of objects
-  if ( numeHist == 0 ) {
+  if ( numeHist == nullptr ) {
     cerr << "Cannot get object : " << numeHistName << endl;
     return false;
   }
-  if ( denoHist == 0 ) {
+  if ( denoHist == nullptr ) {
     cerr << "Cannot get object : " << denoHistName << endl;
     return false;
   }
@@ -286,7 +286,7 @@ bool PlotManager::saveBayesEfficiency(const string& graphName, const string& gra
   TH1F* denoHist = (TH1F*)(theSrcFile_->Get(denoHistName.c_str()));
   
   // Check validity of objects
-  if ( numeHist == 0 || denoHist == 0 ) {
+  if ( numeHist == nullptr || denoHist == nullptr ) {
     cerr << "Cannot get object : " << graphName << endl;
     return false;
   }
@@ -347,7 +347,7 @@ bool PlotManager::saveFakeRate(const string& histName, const string& histTitle,
   TH1F* denoHist = (TH1F*)(theSrcFile_->Get(denoHistName.c_str()));
   
   // Check validity of objects
-  if ( numeHist == 0 || denoHist == 0 ) {
+  if ( numeHist == nullptr || denoHist == nullptr ) {
     cerr << "Cannot get object : " << histName << endl;
     return false;
   }
@@ -422,7 +422,7 @@ bool PlotManager::saveResolution(const string& histName, const string& histTitle
   TH2F* srcHist = dynamic_cast<TH2F*>(theSrcFile_->Get(srcHistName.c_str()));
 
   // Check validity of objects
-  if ( srcHist == NULL ) {
+  if ( srcHist == nullptr ) {
     cerr << "Cannot get object : " << histName << endl;
     return false;
   }
@@ -502,7 +502,7 @@ bool PlotManager::dumpObject(const string& objName,
 
   TNamed* srcObj = dynamic_cast<TNamed*>(theSrcFile_->Get(srcObjName.c_str()));
 
-  if ( srcObj == NULL ) {
+  if ( srcObj == nullptr ) {
     cerr << "Cannot get object : " << srcObjName << endl;
     return false;
   }
@@ -531,13 +531,13 @@ TDirectory* mkdirs(TDirectory* dir, string path)
     if ( slashPos != string::npos ) {
       string newDirName = path.substr(0, slashPos);
       TDirectory* tmpDir = dir->GetDirectory(newDirName.c_str());
-      dir = (tmpDir == NULL) ? dir->mkdir(newDirName.c_str()) : tmpDir;
+      dir = (tmpDir == nullptr) ? dir->mkdir(newDirName.c_str()) : tmpDir;
 
       path.erase(0, slashPos+1);
     }
     else {
       TDirectory* tmpDir = dir->GetDirectory(path.c_str());
-      dir = (tmpDir == NULL) ? dir->mkdir(path.c_str()) : tmpDir;
+      dir = (tmpDir == nullptr) ? dir->mkdir(path.c_str()) : tmpDir;
       
       break;
     }

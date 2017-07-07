@@ -147,7 +147,7 @@ void TestDetSet::inserting() {
   // test error conditions
   try {
     detsets.insert(22,6);
-    CPPUNIT_ASSERT("insert did not throw"==0);
+    CPPUNIT_ASSERT("insert did not throw"==nullptr);
   }
   catch (edm::Exception const & err) {
     CPPUNIT_ASSERT(err.categoryCode()==edm::errors::InvalidReference);
@@ -234,7 +234,7 @@ void TestDetSet::filling() {
   // test error conditions
   try {
     FF ff1(detsets, 22);
-    CPPUNIT_ASSERT(" fast filler did not throw"==0);
+    CPPUNIT_ASSERT(" fast filler did not throw"==nullptr);
   }
   catch (edm::Exception const & err) {
     CPPUNIT_ASSERT(err.categoryCode()==edm::errors::InvalidReference);
@@ -243,7 +243,7 @@ void TestDetSet::filling() {
   try {
     FF ff1(detsets, 44);
     FF ff2(detsets, 45);
-    CPPUNIT_ASSERT(" fast filler did not throw"==0);
+    CPPUNIT_ASSERT(" fast filler did not throw"==nullptr);
   } catch (edm::Exception const &err) {
     CPPUNIT_ASSERT(err.categoryCode()==edm::errors::LogicError);
   }
@@ -307,7 +307,7 @@ void TestDetSet::fillingTS() {
   // test error conditions
   try {
     TSFF ff1(detsets, 22);
-    CPPUNIT_ASSERT(" fast filler did not throw"==0);
+    CPPUNIT_ASSERT(" fast filler did not throw"==nullptr);
   }
   catch (edm::Exception const & err) {
     CPPUNIT_ASSERT(err.categoryCode()==edm::errors::InvalidReference);
@@ -316,7 +316,7 @@ void TestDetSet::fillingTS() {
   try {
     TSFF ff1(detsets, 44);
     TSFF ff2(detsets, 45);
-    CPPUNIT_ASSERT(" fast filler did not throw"==0);
+    CPPUNIT_ASSERT(" fast filler did not throw"==nullptr);
   } catch (edm::Exception const &err) {
     CPPUNIT_ASSERT(err.categoryCode()==edm::errors::LogicError);
   }
@@ -360,7 +360,7 @@ namespace {
         if (ff.full()) { ff.abort(); aborted=true;}
         else { ntot+=n; }
       } catch (edmNew::CapacityExaustedException) { 
-         CPPUNIT_ASSERT("cannot be here"==0);
+         CPPUNIT_ASSERT("cannot be here"==nullptr);
       }
     }
 
@@ -423,7 +423,7 @@ void TestDetSet::iterator() {
     }
   }
   catch (edm::Exception const &) {
-    CPPUNIT_ASSERT("DetSetVector threw when not expected"==0);
+    CPPUNIT_ASSERT("DetSetVector threw when not expected"==nullptr);
   }
 
   try{
@@ -433,12 +433,12 @@ void TestDetSet::iterator() {
     //    CPPUNIT_ASSERT(p==detsets.end(true));
   }
   catch (edm::Exception const &) {
-    CPPUNIT_ASSERT("find thrown edm exception when not expected"==0);
+    CPPUNIT_ASSERT("find thrown edm exception when not expected"==nullptr);
 
   }
   try{
     detsets[44];
-    CPPUNIT_ASSERT("[] did not throw"==0);
+    CPPUNIT_ASSERT("[] did not throw"==nullptr);
   }
   catch (edm::Exception const & err) {
        CPPUNIT_ASSERT(err.categoryCode()==edm::errors::InvalidReference);
@@ -549,7 +549,7 @@ void TestDetSet::onDemand() {
 
   }
   catch (edm::Exception const &) {
-    CPPUNIT_ASSERT("DetSetVector threw when not expected"==0);
+    CPPUNIT_ASSERT("DetSetVector threw when not expected"==nullptr);
   }
   // no onDemand!
   int i=0;
@@ -577,12 +577,12 @@ void TestDetSet::onDemand() {
     CPPUNIT_ASSERT(p==detsets.end());
   }
   catch (edm::Exception const &) {
-    CPPUNIT_ASSERT("find thrown edm exception when not expected"==0);
+    CPPUNIT_ASSERT("find thrown edm exception when not expected"==nullptr);
 
   }
   try{
     detsets[22];
-    CPPUNIT_ASSERT("[] did not throw"==0);
+    CPPUNIT_ASSERT("[] did not throw"==nullptr);
   }
   catch (edm::Exception const & err) {
        CPPUNIT_ASSERT(err.categoryCode()==edm::errors::InvalidReference);
@@ -636,6 +636,6 @@ void TestDetSet::toRangeMap() {
   }
   catch (edm::Exception const & err) {
     std::cout << err.what() << std::endl;
-    CPPUNIT_ASSERT(err.what()==0);
+    CPPUNIT_ASSERT(err.what()==nullptr);
   }
 }

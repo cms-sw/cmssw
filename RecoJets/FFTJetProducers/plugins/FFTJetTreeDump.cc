@@ -76,7 +76,7 @@ private:
     template<class Ptr>
     void checkConfig(const Ptr& ptr, const char* message)
     {
-        if (ptr.get() == NULL)
+        if (ptr.get() == nullptr)
             throw cms::Exception("FFTJetBadConfig") << message << std::endl;
     }
 
@@ -117,7 +117,7 @@ private:
 // constructors and destructor
 //
 FFTJetTreeDump::FFTJetTreeDump(const edm::ParameterSet& ps)
-    : clusteringTree(0),
+    : clusteringTree(nullptr),
       treeLabel(ps.getParameter<edm::InputTag>("treeLabel")),
       outputPrefix(ps.getParameter<std::string>("outputPrefix")),
       etaMax(ps.getParameter<double>("etaMax")),

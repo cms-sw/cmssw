@@ -516,7 +516,7 @@ void HSCPValidator::makeSimDigiPlotsECAL(const edm::Event& iEvent)
   // 3) Match to digis
   int numMatchedSimHitsEventEB = 0;
   int numMatchedDigisEventEB = 0;
-  const PCaloHitContainer* phitsEB=0;
+  const PCaloHitContainer* phitsEB=nullptr;
   phitsEB = ebSimHits.product();
   for(SimTrackContainer::const_iterator simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack)
   {
@@ -597,7 +597,7 @@ void HSCPValidator::makeSimDigiPlotsECAL(const edm::Event& iEvent)
   // EE next
   int numMatchedSimHitsEventEE = 0;
   int numMatchedDigisEventEE = 0;
-  const PCaloHitContainer* phitsEE=0;
+  const PCaloHitContainer* phitsEE=nullptr;
   phitsEE = eeSimHits.product();
   for(SimTrackContainer::const_iterator simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack)
   {

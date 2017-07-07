@@ -77,7 +77,7 @@ PixelTemplateSmearerBase::process(TrackingRecHitProductPtr product) const
 
     const GeomDet* geomDet = getTrackerGeometry().idToDetUnit(product->getDetId());
     const PixelGeomDetUnit * pixelGeomDet = dynamic_cast< const PixelGeomDetUnit* >( geomDet );
-    if (pixelGeomDet == 0)
+    if (pixelGeomDet == nullptr)
     {
         throw cms::Exception("FastSimulation/TrackingRecHitProducer") << "The GeomDetUnit is not a PixelGeomDetUnit.  This should never happen!";
     }
@@ -124,9 +124,9 @@ PixelTemplateSmearerBase::process(TrackingRecHitProductPtr product) const
                     if ( merged )
                     {
                         // First, check if the other guy (j) is in some merge group already
-                        if ( mergeGroupByHit[j] != 0 ) 
+                        if ( mergeGroupByHit[j] != nullptr ) 
                         {
-                            if (mergeGroupByHit[i] == 0 ) 
+                            if (mergeGroupByHit[i] == nullptr ) 
                             {
                                 mergeGroupByHit[i] = mergeGroupByHit[j];
                                 mergeGroupByHit[i]->group.push_back(simHitIdPairs[i]);
@@ -166,7 +166,7 @@ PixelTemplateSmearerBase::process(TrackingRecHitProductPtr product) const
                         { 
                             // j is not merged.  Check if i is merged with another hit yet.
                             //
-                            if ( mergeGroupByHit[i] == 0 )
+                            if ( mergeGroupByHit[i] == nullptr )
                             {
                                 // This is the first time we realized i is merged with any
                                 // other hit.  Create a new merge group for i and j
@@ -198,7 +198,7 @@ PixelTemplateSmearerBase::process(TrackingRecHitProductPtr product) const
                 //    case, if mergeGroupByHit[i] is empty, then the hit is
                 //    unmerged.
                 //
-                if ( mergeGroupByHit[i] == 0 )
+                if ( mergeGroupByHit[i] == nullptr )
                 {
                     //--- Keep track of it.
                     listOfUnmergedHits.push_back( simHitIdPairs[i] );

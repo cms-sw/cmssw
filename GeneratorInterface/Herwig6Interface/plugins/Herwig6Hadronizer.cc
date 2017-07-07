@@ -270,7 +270,7 @@ bool Herwig6Hadronizer:: readSettings( int key )
 
    clear();
    const lhef::HEPRUP* heprup = lheRunInfo()->getHEPRUP();
-   externalPartons = ( heprup != 0 );
+   externalPartons = ( heprup != nullptr );
    
    if ( key == 0 && externalPartons ) return false;
    if ( key > 0 && !externalPartons ) return false;
@@ -455,7 +455,7 @@ bool Herwig6Hadronizer::initialize(const lhef::HEPRUP *heprup)
 {
 	clear();
 
-	externalPartons = (heprup != 0);
+	externalPartons = (heprup != nullptr);
 
 	std::ostringstream info;
 	info << "---------------------------------------------------\n"; 
@@ -777,30 +777,30 @@ void Herwig6Hadronizer::finalizeEvent()
 
   }
     
-  HepMC::GenParticle* incomingParton = NULL;
-  HepMC::GenParticle* targetParton = NULL;
+  HepMC::GenParticle* incomingParton = nullptr;
+  HepMC::GenParticle* targetParton = nullptr;
   
-  HepMC::GenParticle* incomingProton = NULL;
-  HepMC::GenParticle* targetProton = NULL;
+  HepMC::GenParticle* incomingProton = nullptr;
+  HepMC::GenParticle* targetProton = nullptr;
   
   // find incoming parton (first entry with IST=121)
   for(HepMC::GenEvent::particle_const_iterator it = event()->particles_begin(); 
-      (it != event()->particles_end() && incomingParton==NULL); it++)
+      (it != event()->particles_end() && incomingParton==nullptr); it++)
     if((*it)->status()==121) incomingParton = (*it);
   
   // find target parton (first entry with IST=122)
   for(HepMC::GenEvent::particle_const_iterator it = event()->particles_begin(); 
-      (it != event()->particles_end() && targetParton==NULL); it++)
+      (it != event()->particles_end() && targetParton==nullptr); it++)
     if((*it)->status()==122) targetParton = (*it);
   
   // find incoming Proton (first entry ID=2212, IST=101)
   for(HepMC::GenEvent::particle_const_iterator it = event()->particles_begin(); 
-      (it != event()->particles_end() && incomingProton==NULL); it++)
+      (it != event()->particles_end() && incomingProton==nullptr); it++)
     if((*it)->status()==101 && (*it)->pdg_id()==2212) incomingProton = (*it);
   
   // find target Proton (first entry ID=2212, IST=102)
   for(HepMC::GenEvent::particle_const_iterator it = event()->particles_begin(); 
-      (it != event()->particles_end() && targetProton==NULL); it++)
+      (it != event()->particles_end() && targetProton==nullptr); it++)
     if((*it)->status()==102 && (*it)->pdg_id()==2212) targetProton = (*it);
   
   // find hard scale Q (computed from colliding partons)
@@ -839,7 +839,7 @@ void Herwig6Hadronizer::finalizeEvent()
   }
   
   // add event weight & PDF information
-  if (lheRunInfo() != 0 && std::abs(lheRunInfo()->getHEPRUP()->IDWTUP) == 4)
+  if (lheRunInfo() != nullptr && std::abs(lheRunInfo()->getHEPRUP()->IDWTUP) == 4)
     // in LHE weighting mode 4 the weight is an xsec, so convert form HERWIG
     // to standard CMS unit "picobarn"
     event()->weights().push_back( 1.0e3 * hwevnt.EVWGT );
@@ -848,9 +848,9 @@ void Herwig6Hadronizer::finalizeEvent()
 
     
   // find final parton (first entry with IST=123)
-  HepMC::GenParticle* finalParton = NULL;
+  HepMC::GenParticle* finalParton = nullptr;
   for(HepMC::GenEvent::particle_const_iterator it = event()->particles_begin(); 
-      (it != event()->particles_end() && finalParton==NULL); it++)
+      (it != event()->particles_end() && finalParton==nullptr); it++)
     if((*it)->status()==123) finalParton = (*it);
   
   

@@ -253,7 +253,7 @@ void Defaults_Textrep::process_args (int argc, char** argv)
 
       // Found one. 
       string l;
-      if (strchr (argv[i], '=') != 0)
+      if (strchr (argv[i], '=') != nullptr)
         // It was of the form `--NAME=VALUE'.  Change to `NAME=VALUE'.
         l = argv[i] + 2;
       else if (argv[i][2] == 'n' && argv[i][3] == 'o') {

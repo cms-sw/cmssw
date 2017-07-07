@@ -47,7 +47,7 @@ linkPrefilter( const reco::PFBlockElement* elem1,
 double PreshowerAndECALLinker::
 testLink( const reco::PFBlockElement* elem1,
 	  const reco::PFBlockElement* elem2) const {  
-  const reco::PFBlockElementCluster *pselem(NULL), *ecalelem(NULL);
+  const reco::PFBlockElementCluster *pselem(nullptr), *ecalelem(nullptr);
   double dist(-1.0);
   if( elem1->type() < elem2->type() ) {
     pselem = static_cast<const reco::PFBlockElementCluster*>(elem1);

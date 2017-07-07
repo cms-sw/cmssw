@@ -481,7 +481,7 @@ void SiStripPartition::update( const SiStripConfigDb* const db ) {
     } else { // ---------- USE RUN NUMBER ----------
     
       // Retrieve TkRun object for given run (0 means "latest run")
-      TkRun* run = 0;
+      TkRun* run = nullptr;
       if ( !runNumber_ ) { run = df->getLastRun( partitionName_ ); }
       else { run = df->getRun( partitionName_, runNumber_ ); }
   

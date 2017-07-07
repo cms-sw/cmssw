@@ -6,7 +6,7 @@ namespace ecaldqm
 {
 
   MESetDet1D::MESetDet1D(std::string const& _fullPath, binning::ObjectType _otype, binning::BinningType _btype, MonitorElement::Kind _kind, binning::AxisSpecs const* _yaxis/* = 0*/) :
-    MESetEcal(_fullPath, _otype, _btype, _kind, 1, 0, _yaxis, 0)
+    MESetEcal(_fullPath, _otype, _btype, _kind, 1, nullptr, _yaxis, nullptr)
   {
     switch(kind_){
     case MonitorElement::DQM_KIND_TH1F:

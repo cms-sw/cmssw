@@ -193,7 +193,7 @@ std::unique_ptr<DetGeomDesc> TotemRPGeometryESModule::produceRealGD(const VeryFo
         << ">> TotemRPGeometryESModule::produceRealGD > Real geometry: No alignments applied.";
   }
 
-  DetGeomDesc* newGD = NULL;
+  DetGeomDesc* newGD = nullptr;
   ApplyAlignments(idealGD, alignments, newGD);
   return std::unique_ptr<DetGeomDesc>(newGD);
 }
@@ -224,7 +224,7 @@ std::unique_ptr<DetGeomDesc> TotemRPGeometryESModule::produceMisalignedGD(const 
         << ">> TotemRPGeometryESModule::produceMisalignedGD > Misaligned geometry: No alignments applied.";
   }
 
-  DetGeomDesc* newGD = NULL;
+  DetGeomDesc* newGD = nullptr;
   ApplyAlignments(idealGD, alignments, newGD);
   return std::unique_ptr<DetGeomDesc>(newGD);
 }

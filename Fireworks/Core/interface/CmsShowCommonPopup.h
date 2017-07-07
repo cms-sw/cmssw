@@ -26,7 +26,7 @@ class CmsShowCommonPopup : public TGTransientFrame,
                            public FWParameterSetterEditorBase
 {
 public:
-   CmsShowCommonPopup( CmsShowCommon*, const TGWindow* p = 0, UInt_t w = 1, UInt_t h = 1);
+   CmsShowCommonPopup( CmsShowCommon*, const TGWindow* p = nullptr, UInt_t w = 1, UInt_t h = 1);
    virtual ~CmsShowCommonPopup();
 
    // ---------- member functions ---------------------------

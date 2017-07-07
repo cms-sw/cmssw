@@ -19,7 +19,7 @@ namespace ecaldqm
     chi2ThresholdEE_(0.),
     energyThresholdEB_(0.),
     energyThresholdEE_(0.),
-    meTimeMapByLS(0)
+    meTimeMapByLS(nullptr)
   {
   }
 

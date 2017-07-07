@@ -98,7 +98,7 @@ int main(int argc, char* argv[])
       jetPhi_->Fill( (*jets)[i].phi() );
       // access tag infos
       reco::SecondaryVertexTagInfo const *svTagInfos = (*jets)[i].tagInfoSecondaryVertex("secondaryVertex");
-      if( svTagInfos != 0 ) {
+      if( svTagInfos != nullptr ) {
 	if( svTagInfos->nVertices() > 0 ){
 	  disc_->Fill( svTagInfos->flightDistance(0).value() );
 	}

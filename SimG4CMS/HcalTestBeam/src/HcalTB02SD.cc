@@ -37,7 +37,7 @@ HcalTB02SD::HcalTB02SD(G4String name, const DDCompactView & cpv,
 		       const SensitiveDetectorCatalog & clg,
 		       edm::ParameterSet const & p, 
 		       const SimTrackManager* manager) : 
-  CaloSD(name, cpv, clg, p, manager), numberingScheme(0) {
+  CaloSD(name, cpv, clg, p, manager), numberingScheme(nullptr) {
   
   edm::ParameterSet m_SD = p.getParameter<edm::ParameterSet>("HcalTB02SD");
   useBirk= m_SD.getUntrackedParameter<bool>("UseBirkLaw",false);
@@ -46,7 +46,7 @@ HcalTB02SD::HcalTB02SD(G4String name, const DDCompactView & cpv,
   birk3  = m_SD.getUntrackedParameter<double>("BirkC3",1.75);
   useWeight= true;
 
-  HcalTB02NumberingScheme* scheme=0;
+  HcalTB02NumberingScheme* scheme=nullptr;
   if      (name == "EcalHitsEB") {
     scheme = dynamic_cast<HcalTB02NumberingScheme*>(new HcalTB02XtalNumberingScheme());
     useBirk = false;
@@ -86,7 +86,7 @@ HcalTB02SD::~HcalTB02SD() {
  
 double HcalTB02SD::getEnergyDeposit(G4Step * aStep) {
   
-  if (aStep == NULL) {
+  if (aStep == nullptr) {
     return 0;
   } else {
     preStepPoint        = aStep->GetPreStepPoint();
@@ -105,11 +105,11 @@ double HcalTB02SD::getEnergyDeposit(G4Step * aStep) {
 }
 
 uint32_t HcalTB02SD::setDetUnitId(G4Step * aStep) { 
-  return (numberingScheme == 0 ? 0 : (uint32_t)(numberingScheme->getUnitID(aStep)));
+  return (numberingScheme == nullptr ? 0 : (uint32_t)(numberingScheme->getUnitID(aStep)));
 }
 
 void HcalTB02SD::setNumberingScheme(HcalTB02NumberingScheme* scheme) {
-  if (scheme != 0) {
+  if (scheme != nullptr) {
     edm::LogInfo("HcalTBSim") << "HcalTB02SD: updates numbering scheme for " 
 			      << GetName();
     if (numberingScheme) delete numberingScheme;

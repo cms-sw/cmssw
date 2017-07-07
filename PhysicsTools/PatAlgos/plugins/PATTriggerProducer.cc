@@ -213,7 +213,7 @@ void PATTriggerProducer::beginRun(const Run & iRun, const EventSetup & iSetup )
 
   // Initialize
   firstInRun_    = true;
-  l1PSet_        = 0;
+  l1PSet_        = nullptr;
   hltConfigInit_ = false;
 
   // Initialize process name
@@ -844,12 +844,12 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
       handleL1GlobalTriggerObjectMaps->consistencyCheck();
       if ( firstInRun_ ) {
         l1PSet_ = ( ParameterSet* )( pset::Registry::instance()->getMapped(handleL1GlobalTriggerObjectMaps->namesParameterSetID()) );
-        if (l1PSet_ == 0) {
+        if (l1PSet_ == nullptr) {
           LogError( "l1ObjectMap" ) << "ParameterSet registry not available\n"
                                     << "Skipping conditions for all L1 physics algorithm names in this run";
         }
       } else {
-        if (l1PSet_ == 0) {
+        if (l1PSet_ == nullptr) {
           LogInfo( "l1ObjectMap" ) << "ParameterSet registry not available\n"
                                    << "Skipping conditions for all L1 physics algorithm names in this event";
         }
@@ -907,7 +907,7 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
         triggerAlgo.setGtlResult( algorithmResult );
         // conditions in algorithm
         L1GlobalTriggerObjectMaps::ConditionsInAlgorithm conditions = handleL1GlobalTriggerObjectMaps->getConditionsInAlgorithm(bit);
-        if (l1PSet_ == 0) {
+        if (l1PSet_ == nullptr) {
           triggerAlgos->push_back( triggerAlgo );
           continue;
         }

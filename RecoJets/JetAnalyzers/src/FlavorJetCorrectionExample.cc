@@ -45,7 +45,7 @@ void FlavorJetCorrectionExample::analyze(const edm::Event& fEvent, const edm::Ev
   const JetCorrector* udsJetCorrector = JetCorrector::getJetCorrector (mUDSCorrectorName, fSetup);
   const JetCorrector* cQuarkJetCorrector = JetCorrector::getJetCorrector (mCCorrectorName, fSetup);
   const JetCorrector* bQuarkJetCorrector = JetCorrector::getJetCorrector (mBCorrectorName, fSetup);
-  const JetCorrector* corrector = 0;
+  const JetCorrector* corrector = nullptr;
   
   // get input jets (supposed to be MC corrected already)
   edm::Handle<CaloJetCollection> jets;                    

@@ -218,7 +218,7 @@ void DTChamberEfficiencyTask::analyze(const edm::Event& event, const edm::EventS
     const DTRecSegment4D& bestBotSeg= getBestSegment(segsBot);
 
     // Select one segment for the top chamber
-    DTRecSegment4D* pBestTopSeg=0;
+    DTRecSegment4D* pBestTopSeg=nullptr;
     if (nSegsTop>0)
       pBestTopSeg = const_cast<DTRecSegment4D*>(&getBestSegment(segsTop));
     //if top chamber is MB4 sector 10, consider also sector 14

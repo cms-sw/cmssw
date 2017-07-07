@@ -165,7 +165,7 @@ void CalibrationTask::checkAndSave(const uint16_t& calchan) {
     // Retrieve SCRATCH directory
     std::string scratch = "SCRATCH"; //@@ remove trailing slash!!!
     std::string dir = "";
-    if ( getenv(scratch.c_str()) != NULL ) {
+    if ( getenv(scratch.c_str()) != nullptr ) {
       dir = getenv(scratch.c_str());
     }
   

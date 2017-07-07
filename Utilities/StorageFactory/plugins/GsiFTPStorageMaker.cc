@@ -16,7 +16,7 @@ public:
     int            localfd = RemoteFile::local (f->tempDir(), temp);
     std::string    lurl = "file://" + temp;
     std::string    newurl ((proto == "sfn" ? "gsiftp" : proto) + ":" + path);
-    const char	   *ftpopts [] = { "globus-url-copy", newurl.c_str (), lurl.c_str (), 0 };
+    const char	   *ftpopts [] = { "globus-url-copy", newurl.c_str (), lurl.c_str (), nullptr };
     return RemoteFile::get (localfd, temp, (char **) ftpopts, mode);
   }
 };

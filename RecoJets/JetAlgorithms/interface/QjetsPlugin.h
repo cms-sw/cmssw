@@ -20,7 +20,7 @@ class QjetsPlugin: public fastjet::JetDefinition::Plugin{
     _exp_max(exp_max),
     _rigidity(rigidity),
     _truncation_fctr(truncation_fctr),
-    _rnEngine(0)
+    _rnEngine(nullptr)
       {};
   void SetRandSeed(unsigned int seed); /* In case you want reproducible behavior */
   void SetRNEngine(CLHEP::HepRandomEngine* rnEngine){

@@ -23,7 +23,7 @@
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaParPaths.h"
 
 extern void InitGui();
-VoidFuncPtr_t initfuncs[] = { InitGui, 0 };
+VoidFuncPtr_t initfuncs[] = { InitGui, nullptr };
 TROOT root("GUI","GUI test environnement", initfuncs);
 
 using namespace std;

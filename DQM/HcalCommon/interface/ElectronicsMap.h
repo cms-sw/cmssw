@@ -38,11 +38,11 @@ namespace hcaldqm
 		{
 			public:
 				ElectronicsMap() :
-					_emap(NULL)
+					_emap(nullptr)
 				{}
 				//	define how to use upon construction
 				ElectronicsMap(ElectronicsMapType etype) : 
-					_etype(etype), _emap(NULL)
+					_etype(etype), _emap(nullptr)
 				{}
 				~ElectronicsMap() {}
 

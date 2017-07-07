@@ -19,7 +19,7 @@ using namespace std;
 MagGeoBuilderFromDDD::eLayer::eLayer(handles::const_iterator begin,
 					handles::const_iterator end) :
   theVolumes(begin,end),
-  mlayer(0) 
+  mlayer(nullptr) 
 {
   //  bool debug=MagGeoBuilderFromDDD::debug;
 
@@ -45,7 +45,7 @@ MagGeoBuilderFromDDD::eLayer::~eLayer(){}
 // }
 
 MagELayer * MagGeoBuilderFromDDD::eLayer::buildMagELayer() const {
-  if (mlayer==0) {
+  if (mlayer==nullptr) {
     //FIXME not guaranteed that all volumes in layer have the same zmin
     // and zmax!
     double zmin = 1e19;

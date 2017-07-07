@@ -388,10 +388,10 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     iEvent.getByToken(tokenMuDTChambTh_[0],dtp_th_data_);
     iEvent.getByToken(tokenMuDTChambTh_[1],dtp_th_emul_);
   }
-  L1MuDTChambPhDigiCollection const* dtp_ph_data = 0; 
-  L1MuDTChambPhDigiCollection const* dtp_ph_emul = 0; 
-  L1MuDTChambThDigiCollection const* dtp_th_data = 0; 
-  L1MuDTChambThDigiCollection const* dtp_th_emul = 0; 
+  L1MuDTChambPhDigiCollection const* dtp_ph_data = nullptr; 
+  L1MuDTChambPhDigiCollection const* dtp_ph_emul = nullptr; 
+  L1MuDTChambThDigiCollection const* dtp_th_data = nullptr; 
+  L1MuDTChambThDigiCollection const* dtp_th_emul = nullptr; 
 
   if(dtp_ph_data_.isValid()) dtp_ph_data = dtp_ph_data_->getContainer();
   if(dtp_ph_emul_.isValid()) dtp_ph_emul = dtp_ph_emul_->getContainer();
@@ -401,8 +401,8 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // -- DTF [drift tube track finder]
   edm::Handle<L1MuDTTrackContainer>       dtf_trk_data_;
   edm::Handle<L1MuDTTrackContainer>       dtf_trk_emul_;
-  L1MuRegionalCandCollection const* dtf_trk_data = 0;
-  L1MuRegionalCandCollection const* dtf_trk_emul = 0;
+  L1MuRegionalCandCollection const* dtf_trk_data = nullptr;
+  L1MuRegionalCandCollection const* dtf_trk_emul = nullptr;
   if(m_doSys[DTF]) {
     iEvent.getByToken(tokenMuDTTrack_[0],dtf_trk_data_);
     iEvent.getByToken(tokenMuDTTrack_[1],dtf_trk_emul_);

@@ -9,7 +9,7 @@ int main(int argc, char* argv[]) {
   } else {
     long j;
     for (int i=1; i<argc; i++) {
-      j=strtol(argv[i],0,0);
+      j=strtol(argv[i],nullptr,0);
       std::cout << " '" << argv[i] << "' (" << "0x" << std::hex << j << std::dec << ", " << j << ") = " << HcalGenericDetId(j) << std::endl;
     }
   }

@@ -16,7 +16,7 @@ HcalTestNS::HcalTestNS(const edm::EventSetup* iSetup) {
     hcons_ = (HcalDDDRecConstants*)(&(*hdc));
   } else {
     edm::LogError("HcalSim") << "HcalTestNS : Cannot find HcalDDDRecConstant";
-    hcons_ = 0;
+    hcons_ = nullptr;
   }
 }
 

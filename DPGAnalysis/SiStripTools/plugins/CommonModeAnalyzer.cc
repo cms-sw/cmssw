@@ -136,7 +136,7 @@ CommonModeAnalyzer::CommonModeAnalyzer(const edm::ParameterSet& iConfig):
   m_cmvsorbitrun(),
   m_rhm(consumesCollector()),
   m_cacheIdDet(0),
-  m_detCabling(0)
+  m_detCabling(nullptr)
 {
    //now do what ever initialization is needed
 

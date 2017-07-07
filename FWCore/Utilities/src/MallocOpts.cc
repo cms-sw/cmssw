@@ -185,7 +185,7 @@ namespace edm
   bool MallocOptionSetter::retrieveFromEnv()
   {
     const char* par = getenv("CMSRUN_MALLOC_RESET");
-    if(par==0) return false; // leave quickly here
+    if(par==nullptr) return false; // leave quickly here
     std::string spar(par);
     bool rc = false;
       

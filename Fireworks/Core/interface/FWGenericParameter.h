@@ -34,7 +34,7 @@ public:
    typedef T value_type;
 
    FWGenericParameter() :
-      FWParameterBase(0, "invalid")
+      FWParameterBase(nullptr, "invalid")
    {}
 
    FWGenericParameter(FWParameterizable* iParent,

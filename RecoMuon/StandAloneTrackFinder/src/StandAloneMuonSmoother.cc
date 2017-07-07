@@ -45,7 +45,7 @@ StandAloneMuonSmoother::StandAloneMuonSmoother(const ParameterSet& par,
   theUpdator = new KFUpdator();
   
   // The Kalman smoother
-  theSmoother = 0 ;
+  theSmoother = nullptr ;
 		
 }
 

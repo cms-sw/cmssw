@@ -64,7 +64,7 @@ public:
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
-   const FWEventItem* add(const FWPhysicsObjectDesc& iItem,  const FWConfiguration* pbConf = 0);
+   const FWEventItem* add(const FWPhysicsObjectDesc& iItem,  const FWConfiguration* pbConf = nullptr);
    void clearItems();
 
    void newEvent(const edm::EventBase* iEvent);

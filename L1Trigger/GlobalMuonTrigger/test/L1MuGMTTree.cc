@@ -55,7 +55,7 @@ using namespace std;
 //----------------
 // Constructors --
 //----------------
-L1MuGMTTree::L1MuGMTTree(const edm::ParameterSet& ps) : m_file(0), m_tree(0) {
+L1MuGMTTree::L1MuGMTTree(const edm::ParameterSet& ps) : m_file(nullptr), m_tree(nullptr) {
   
   m_GMTInputTag = ps.getParameter<edm::InputTag>("GMTInputTag");
   m_GTEvmInputTag = ps.getParameter<edm::InputTag>("GTEvmInputTag");
@@ -103,7 +103,7 @@ void L1MuGMTTree::analyze(const edm::Event& e, const edm::EventSetup& es) {
 //  edm::LogVerbatim("GMTDump") << "run: " << runn << ", event: " << eventn << endl;
 
   // generetor block
-  HepMC::GenEvent const* genevent = NULL;
+  HepMC::GenEvent const* genevent = nullptr;
 
   if(m_GeneratorInputTag.label() != "none") {
     edm::Handle<edm::HepMCProduct> vtxSmeared_handle;

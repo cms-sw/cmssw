@@ -31,18 +31,18 @@
 
 class CaloDetIdAssociator: public DetIdAssociator{
  public:
-   CaloDetIdAssociator():DetIdAssociator(72, 70 ,0.087),geometry_(0){};
+   CaloDetIdAssociator():DetIdAssociator(72, 70 ,0.087),geometry_(nullptr){};
    CaloDetIdAssociator(const int nPhi, const int nEta, const double etaBinSize)
-     :DetIdAssociator(nPhi, nEta, etaBinSize),geometry_(0){};
+     :DetIdAssociator(nPhi, nEta, etaBinSize),geometry_(nullptr){};
 
    CaloDetIdAssociator(const edm::ParameterSet& pSet)
-     :DetIdAssociator(pSet.getParameter<int>("nPhi"),pSet.getParameter<int>("nEta"),pSet.getParameter<double>("etaBinSize")),geometry_(0){};
+     :DetIdAssociator(pSet.getParameter<int>("nPhi"),pSet.getParameter<int>("nEta"),pSet.getParameter<double>("etaBinSize")),geometry_(nullptr){};
    
    virtual void setGeometry(const CaloGeometry* ptr) { geometry_ = ptr; };
 
    virtual void setGeometry(const DetIdAssociatorRecord& iRecord) override;
 
-   virtual const GeomDet* getGeomDet(const DetId& id) const override { return 0; };
+   virtual const GeomDet* getGeomDet(const DetId& id) const override { return nullptr; };
 
    virtual const char* name() const override { return "CaloTowers"; }
 
@@ -63,7 +63,7 @@ class CaloDetIdAssociator: public DetIdAssociator{
 			       const GlobalPoint&, 
 			       const DetId& id,
 			       const double tolerance = -1,
-			       const SteppingHelixStateInfo* = 0 ) const override;
+			       const SteppingHelixStateInfo* = nullptr ) const override;
    const CaloGeometry* geometry_;
    std::vector<GlobalPoint> dummy_;
 };

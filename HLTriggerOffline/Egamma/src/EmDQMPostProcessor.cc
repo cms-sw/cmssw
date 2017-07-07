@@ -141,7 +141,7 @@ void EmDQMPostProcessor::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGette
       }
 
       TH1F* basehist = getHistogram(ibooker, igetter, ibooker.pwd() + "/" + baseName);
-      if (basehist == NULL)
+      if (basehist == nullptr)
 	{
 	  //edm::LogWarning("EmDQMPostProcessor") << "histogram " << (ibooker.pwd() + "/" + baseName) << " does not exist, skipping postfix '" << *postfix << "'";
           pop = true;
@@ -323,15 +323,15 @@ TProfile* EmDQMPostProcessor::dividehistos(DQMStore::IBooker & ibooker, DQMStore
   //std::cout << denomName << std::endl;
   TH1F* denom = getHistogram(ibooker,igetter, denomName);
 
-  if (num == NULL)
+  if (num == nullptr)
     edm::LogWarning("EmDQMPostProcessor") << "numerator histogram " << numName << " does not exist";
 
-  if (denom == NULL)
+  if (denom == nullptr)
     edm::LogWarning("EmDQMPostProcessor") << "denominator histogram " << denomName << " does not exist";
 
   // Check if histograms actually exist
 
-  if(!num || !denom) return 0;
+  if(!num || !denom) return nullptr;
 
   MonitorElement* meOut = ibooker.bookProfile(outName,titel,num->GetXaxis()->GetNbins(),num->GetXaxis()->GetXmin(),num->GetXaxis()->GetXmax(),0.,1.2);
   meOut->setEfficiencyFlag();
@@ -363,10 +363,10 @@ TH1F *
 EmDQMPostProcessor::getHistogram(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, const std::string &histoPath)
 {
   MonitorElement *monElement = igetter.get(histoPath);
-  if (monElement != NULL)
+  if (monElement != nullptr)
     return monElement->getTH1F();
   else
-    return NULL;
+    return nullptr;
 }
 
 //----------------------------------------------------------------------

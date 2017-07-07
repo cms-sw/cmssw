@@ -502,7 +502,7 @@ namespace edm {
                         ModuleCallingContext const* mcc) const {
 
     ProductData const* result = findProductByLabel(kindOfType, typeID, inputTag, consumer, sra, mcc);
-    if(result == 0) {
+    if(result == nullptr) {
       return BasicHandle(makeHandleExceptionFactory([=]()->std::shared_ptr<cms::Exception> {
         return makeNotFoundException("getByLabel", kindOfType, typeID, inputTag.label(), inputTag.instance(),
                                      appendCurrentProcessIfAlias(inputTag.process(), processConfiguration_->processName()));
@@ -522,7 +522,7 @@ namespace edm {
                         ModuleCallingContext const* mcc) const {
 
     ProductData const* result = findProductByLabel(kindOfType, typeID, label, instance, process,consumer, sra, mcc);
-    if(result == 0) {
+    if(result == nullptr) {
       return BasicHandle(makeHandleExceptionFactory([=]()->std::shared_ptr<cms::Exception> {
         return makeNotFoundException("getByLabel", kindOfType, typeID, label, instance, process);
       }));
@@ -540,7 +540,7 @@ namespace edm {
                         ModuleCallingContext const* mcc) const {
     assert(index !=ProductResolverIndexInvalid);
     auto& productResolver = productResolvers_[index];
-    assert(0!=productResolver.get());
+    assert(nullptr!=productResolver.get());
     auto resolution = productResolver->resolveProduct(*this, skipCurrentProcess, sra, mcc);
     if(resolution.isAmbiguous()) {
       ambiguous = true;
@@ -559,7 +559,7 @@ namespace edm {
                       bool skipCurrentProcess,
                       ModuleCallingContext const* mcc) const {
     auto const& productResolver = productResolvers_.at(index);
-    assert(0!=productResolver.get());
+    assert(nullptr!=productResolver.get());
     productResolver->prefetchAsync(task,*this, skipCurrentProcess,nullptr,mcc);
   }
 
@@ -695,7 +695,7 @@ namespace edm {
         throwAmbiguousException("findProductByLabel", typeID, inputTag.label(), inputTag.instance(),
                                 appendCurrentProcessIfAlias(inputTag.process(), processConfiguration_->processName()));
       } else if (index == ProductResolverIndexInvalid) {
-        return 0;
+        return nullptr;
       }
       inputTag.tryToCacheIndex(index, typeID, branchType(), &productRegistry());
     }
@@ -734,7 +734,7 @@ namespace edm {
     if(index == ProductResolverIndexAmbiguous) {
       throwAmbiguousException("findProductByLabel", typeID, label, instance, process);
     } else if (index == ProductResolverIndexInvalid) {
-      return 0;
+      return nullptr;
     }
     
     if(unlikely( consumer and (not consumer->registeredToConsume(index, false, branchType())))) {

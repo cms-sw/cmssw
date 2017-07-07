@@ -123,7 +123,7 @@ void
 FastTimerServiceClient::fillProcessSummaryPlots(DQMStore::IBooker & booker, DQMStore::IGetter & getter, std::string const & current_path) {
 
   MonitorElement * me = getter.get(current_path + "/event time_real");
-  if (me == 0)
+  if (me == nullptr)
     // no FastTimerService DQM information
     return;
 
@@ -228,7 +228,7 @@ FastTimerServiceClient::fillPathSummaryPlots(DQMStore::IBooker & booker, DQMStor
     MonitorElement * me_real_total   = getter.get( subsubdir + "/module_time_real_total" );
     MonitorElement * me_thread_total = getter.get( subsubdir + "/module_time_thread_total" );
 
-    if (me_counter == 0 or me_real_total == 0)
+    if (me_counter == nullptr or me_real_total == nullptr)
       continue;
 
     TH1D * counter      = me_counter   ->getTH1D();

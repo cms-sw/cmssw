@@ -159,7 +159,7 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
     // input data
     edm::Handle<FastTrackerRecHitCombinationCollection> recHitCombinations;
     e.getByToken(recHitCombinationsToken, recHitCombinations);
-    const std::vector<bool> * hitMasks = 0;
+    const std::vector<bool> * hitMasks = nullptr;
     if (!hitMasksToken.isUninitialized())
     {
         edm::Handle<std::vector<bool> > hitMasksHandle;
@@ -231,7 +231,7 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
                 fastTrackingUtilities::setRecHitCombinationIndex(seedHits,icomb);
 
 		// create the seed
-                seedCreator->init(region,es,0);
+                seedCreator->init(region,es,nullptr);
                 seedCreator->makeSeed(
                     *output,
                     SeedingHitSet(

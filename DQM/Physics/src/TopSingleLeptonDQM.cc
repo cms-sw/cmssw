@@ -521,7 +521,7 @@ void MonitorEnsemble::fill(const edm::Event& event,
     if (!event.getByToken(btagCSV_, btagCSV)) return;
   }
   // load jet corrector if configured such
-  const JetCorrector* corrector = 0;
+  const JetCorrector* corrector = nullptr;
   if (!jetCorrector_.empty()) {
     // check whether a jet correcto is in the event setup or not
     if (setup.find(edm::eventsetup::EventSetupRecordKey::makeKey<
@@ -825,7 +825,7 @@ void TopSingleLeptonDQM::analyze(const edm::Event& event,
       if (type == "empty") {
         selection_[key].second->fill(event, setup);
       }
-      if (type == "muons" && MuonStep != 0) {
+      if (type == "muons" && MuonStep != nullptr) {
         if (MuonStep->select(event)) {
           ++passed;
           //      cout<<"selected event! "<<selection_[key].second<<endl;
@@ -834,7 +834,7 @@ void TopSingleLeptonDQM::analyze(const edm::Event& event,
           break;
       }
       // cout<<" apply selection steps 2"<<endl;
-      if (type == "elecs" && ElectronStep != 0) {
+      if (type == "elecs" && ElectronStep != nullptr) {
         // cout<<"In electrons ..."<<endl;
         if (ElectronStep->select(event, "electron")) {
           ++passed;
@@ -843,7 +843,7 @@ void TopSingleLeptonDQM::analyze(const edm::Event& event,
           break;
       }
       // cout<<" apply selection steps 3"<<endl;
-      if (type == "pvs" && PvStep != 0) {
+      if (type == "pvs" && PvStep != nullptr) {
         if (PvStep->selectVertex(event)) {
           ++passed;
           selection_[key].second->fill(event, setup);
@@ -853,7 +853,7 @@ void TopSingleLeptonDQM::analyze(const edm::Event& event,
       // cout<<" apply selection steps 4"<<endl;
       if (type == "jets") {
         nJetSteps++;
-        if (JetSteps[nJetSteps] != NULL) {
+        if (JetSteps[nJetSteps] != nullptr) {
           if (JetSteps[nJetSteps]->select(event, setup)) {
             ++passed;
             selection_[key].second->fill(event, setup);
@@ -863,7 +863,7 @@ void TopSingleLeptonDQM::analyze(const edm::Event& event,
       }
       if (type == "jets/pf") {
         nPFJetSteps++;
-        if (PFJetSteps[nPFJetSteps] != NULL) {
+        if (PFJetSteps[nPFJetSteps] != nullptr) {
           if (PFJetSteps[nPFJetSteps]->select(event, setup)) {
             ++passed;
             selection_[key].second->fill(event, setup);
@@ -873,7 +873,7 @@ void TopSingleLeptonDQM::analyze(const edm::Event& event,
       }
       if (type == "jets/calo") {
         nCaloJetSteps++;
-        if (CaloJetSteps[nCaloJetSteps] != NULL) {
+        if (CaloJetSteps[nCaloJetSteps] != nullptr) {
           if (CaloJetSteps[nCaloJetSteps]->select(event, setup)) {
             ++passed;
             selection_[key].second->fill(event, setup);
@@ -881,7 +881,7 @@ void TopSingleLeptonDQM::analyze(const edm::Event& event,
             break;
         }
       }
-      if (type == "met" && METStep != 0) {
+      if (type == "met" && METStep != nullptr) {
         if (METStep->select(event)) {
           ++passed;
           selection_[key].second->fill(event, setup);

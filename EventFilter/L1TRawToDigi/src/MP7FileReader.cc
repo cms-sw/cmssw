@@ -198,7 +198,7 @@ uint64_t MP7FileReader::validStrToUint64(const std::string& token) {
     }
 
     uint64_t value = (uint64_t) (what[1] == "1") << 32;
-    value += std::stoul(what[2].str(), 0x0, 16);
+    value += std::stoul(what[2].str(), nullptr, 16);
     return value;
 }
 

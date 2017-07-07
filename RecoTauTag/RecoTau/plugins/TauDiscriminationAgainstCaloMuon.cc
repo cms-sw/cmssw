@@ -238,7 +238,7 @@ double compHcalEnergySum(const HBHERecHitCollection& hcalRecHits,
     const CaloCellGeometry* hbCellGeometry = hbGeometry->getGeometry(hcalRecHit->detid());
     const CaloCellGeometry* heCellGeometry = heGeometry->getGeometry(hcalRecHit->detid());
 
-    const GlobalPoint* cellPosition = 0;
+    const GlobalPoint* cellPosition = nullptr;
     if ( hbCellGeometry ) cellPosition = &(hbCellGeometry->getPosition());
     if ( heCellGeometry ) cellPosition = &(heCellGeometry->getPosition());
 

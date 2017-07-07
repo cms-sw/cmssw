@@ -712,14 +712,14 @@ AlignmentTrackSelector::checkPrescaledHits(const Tracks& tracks, const edm::Even
 
 	if (type == typeid(SiStripRecHit2D)) {	
 	  const SiStripRecHit2D* striphit=dynamic_cast<const  SiStripRecHit2D*>(hit); 
-	  if(striphit!=0){
+	  if(striphit!=nullptr){
 	    SiStripRecHit2D::ClusterRef stripclust(striphit->cluster());
 	    flag = flagMap[stripclust];
 	  }
 	}
 	else if(type == typeid(SiStripRecHit1D)){
 	  const SiStripRecHit1D* striphit = dynamic_cast<const SiStripRecHit1D*>(hit);
-	  if(striphit!=0){
+	  if(striphit!=nullptr){
 	    SiStripRecHit1D::ClusterRef stripclust(striphit->cluster());
 	    flag = flagMap[stripclust];
 	  }
@@ -735,7 +735,7 @@ AlignmentTrackSelector::checkPrescaledHits(const Tracks& tracks, const edm::Even
       }//end if hit in Strips
       else{ // test explicitely BPIX/FPIX
 	const SiPixelRecHit* pixelhit= dynamic_cast<const SiPixelRecHit*>(hit);
-	if(pixelhit!=0){
+	if(pixelhit!=nullptr){
 	  SiPixelRecHit::ClusterRef pixclust(pixelhit->cluster());
 	  flag = flagMap[pixclust];
 	}

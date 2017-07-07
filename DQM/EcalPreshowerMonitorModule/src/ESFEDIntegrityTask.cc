@@ -32,9 +32,9 @@ ESFEDIntegrityTask::ESFEDIntegrityTask(const ParameterSet& ps) {
   dccCollections_       = consumes<ESRawDataCollection>(ps.getParameter<InputTag>("ESDCCCollections"));
   FEDRawDataCollection_ = consumes<FEDRawDataCollection>(ps.getParameter<edm::InputTag>("FEDRawDataCollection"));
 
-  meESFedsEntries_  = 0;
-  meESFedsFatal_    = 0;
-  meESFedsNonFatal_ = 0;
+  meESFedsEntries_  = nullptr;
+  meESFedsFatal_    = nullptr;
+  meESFedsNonFatal_ = nullptr;
 
   ievt_ = 0;
   

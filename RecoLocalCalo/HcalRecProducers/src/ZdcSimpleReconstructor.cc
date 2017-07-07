@@ -49,7 +49,7 @@ void ZdcSimpleReconstructor::beginRun(edm::Run const&r, edm::EventSetup const & 
 }
 
 void ZdcSimpleReconstructor::endRun(edm::Run const&r, edm::EventSetup const & es){
-  delete myobject; myobject = 0;
+  delete myobject; myobject = nullptr;
 }
 void ZdcSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup)
 {

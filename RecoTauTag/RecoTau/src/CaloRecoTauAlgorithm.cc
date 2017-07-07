@@ -5,8 +5,8 @@
 
 using namespace reco;
 
-CaloRecoTauAlgorithm::CaloRecoTauAlgorithm() : TransientTrackBuilder_(0),MagneticField_(0),chargedpi_mass_(0.13957018){}  
-CaloRecoTauAlgorithm::CaloRecoTauAlgorithm(const edm::ParameterSet& iConfig) : TransientTrackBuilder_(0),MagneticField_(0),chargedpi_mass_(0.13957018){
+CaloRecoTauAlgorithm::CaloRecoTauAlgorithm() : TransientTrackBuilder_(nullptr),MagneticField_(nullptr),chargedpi_mass_(0.13957018){}  
+CaloRecoTauAlgorithm::CaloRecoTauAlgorithm(const edm::ParameterSet& iConfig) : TransientTrackBuilder_(nullptr),MagneticField_(nullptr),chargedpi_mass_(0.13957018){
   LeadTrack_minPt_                    = iConfig.getParameter<double>("LeadTrack_minPt");
   Track_minPt_                        = iConfig.getParameter<double>("Track_minPt");
   IsolationTrack_minPt_               = iConfig.getParameter<double>("IsolationTrack_minPt");
@@ -75,7 +75,7 @@ CaloTau CaloRecoTauAlgorithm::buildCaloTau(edm::Event& iEvent,const edm::EventSe
   if(myleadTk.isNonnull()){
     myCaloTau.setleadTrack(myleadTk);
     double myleadTkDZ=(*myleadTk).dz(myPV.position());
-    if(TransientTrackBuilder_!=0)
+    if(TransientTrackBuilder_!=nullptr)
     { 
       const TransientTrack myleadTransientTk=TransientTrackBuilder_->build(&(*myleadTk));
       GlobalVector myCaloJetdir((*myCaloJet).px(),(*myCaloJet).py(),(*myCaloJet).pz());
@@ -88,7 +88,7 @@ CaloTau CaloRecoTauAlgorithm::buildCaloTau(edm::Event& iEvent,const edm::EventSe
       myCaloTau_refInnerPosition_z=(*myleadTk).innerPosition().z(); 
     }
     
-    if(MagneticField_!=0){ 
+    if(MagneticField_!=nullptr){ 
       math::XYZPoint mypropagleadTrackECALSurfContactPoint=TauTagTools::propagTrackECALSurfContactPoint(MagneticField_,myleadTk);
       if(mypropagleadTrackECALSurfContactPoint.R()!=0.){
 	double myleadTrackHCAL3x3hottesthitDEta=0.;

@@ -23,7 +23,7 @@ MVAJetPuId::MVAJetPuId(const edm::ParameterSet & ps)
 	tmvaVariables_       = ps.getParameter<std::vector<std::string> >("tmvaVariables");
 	tmvaSpectators_      = ps.getParameter<std::vector<std::string> >("tmvaSpectators");
 	version_             = ps.getParameter<int>("version");
-	reader_              = 0;
+	reader_              = nullptr;
 	edm::ParameterSet jetConfig = ps.getParameter<edm::ParameterSet>("JetIdParams");
 	for(int i0 = 0; i0 < NWPs; i0++) { 
 		std::string lCutType                            = "Tight";
@@ -61,7 +61,7 @@ MVAJetPuId::MVAJetPuId(int version,
 	tmvaVariables_       = tmvaVariables;
 	version_             = version;
 
-	reader_              = 0;
+	reader_              = nullptr;
 
 	setup();
 }

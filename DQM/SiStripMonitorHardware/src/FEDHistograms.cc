@@ -809,7 +809,7 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore::IBooker & ibooker , std::st
   if (tkMapConfig_.enabled){
     tkmapFED_ = new TkHistoMap(topFolderName,"TkHMap_FractionOfBadChannels",0.,true);
   }
-  else tkmapFED_ = 0;
+  else tkmapFED_ = nullptr;
 
 }
 

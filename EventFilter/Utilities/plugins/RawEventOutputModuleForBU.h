@@ -191,18 +191,18 @@ void RawEventOutputModuleForBU<Consumer>::beginLuminosityBlock(edm::LuminosityBl
   //edm::Service<evf::EvFDaqDirector>()->updateBuLock(ls.id().luminosityBlock()+1);
   if(!firstLumi_){
     timeval now;
-    ::gettimeofday(&now,0);
+    ::gettimeofday(&now,nullptr);
     //long long elapsedusec = (now.tv_sec - startOfLastLumi.tv_sec)*1000000+now.tv_usec-startOfLastLumi.tv_usec;
 /*     std::cout << "(now.tv_sec - startOfLastLumi.tv_sec) " << now.tv_sec <<"-" << startOfLastLumi.tv_sec */
 /* 	      <<" (now.tv_usec-startOfLastLumi.tv_usec) " << now.tv_usec << "-" << startOfLastLumi.tv_usec << std::endl; */
 /*     std::cout << "elapsedusec " << elapsedusec << "  totevents " << totevents << "  size (GB)" << writtensize  */
 /* 	      << "  rate " << (writtensize-writtenSizeLast)/elapsedusec << " MB/s" <<std::endl; */
     writtenSizeLast=writtensize;
-    ::gettimeofday(&startOfLastLumi,0);
+    ::gettimeofday(&startOfLastLumi,nullptr);
     //edm::Service<evf::EvFDaqDirector>()->writeLsStatisticsBU(ls.id().luminosityBlock(), totevents, totsize, elapsedusec);
   }
   else
-    ::gettimeofday(&startOfLastLumi,0);
+    ::gettimeofday(&startOfLastLumi,nullptr);
   totevents = 0;
   totsize = 0LL;
   firstLumi_ = false;

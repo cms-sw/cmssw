@@ -290,7 +290,7 @@ TestOutliers::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       }
     } 
 
-    if (outtest.size()==0 || trackOut.get()==0 ) {//no out track found for the old track
+    if (outtest.size()==0 || trackOut.get()==nullptr ) {//no out track found for the old track
       if(recSimCollOld.find(trackOld) != recSimCollOld.end()){      
 	vector<pair<TrackingParticleRef, double> > tpOld;
 	tpOld = recSimCollOld[trackOld];
@@ -368,9 +368,9 @@ TestOutliers::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       }
     }
 
-    if (tprOut.get()!=0 || tprOld.get()!=0) { //at least one of the tracks has to be associated
+    if (tprOut.get()!=nullptr || tprOld.get()!=nullptr) { //at least one of the tracks has to be associated
 
-      tpr = tprOut.get()!=0 ? tprOut : tprOld;
+      tpr = tprOut.get()!=nullptr ? tprOut : tprOld;
 
       const SimTrack * assocTrack = &(*tpr->g4Track_begin());
       
@@ -445,7 +445,7 @@ TestOutliers::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	LogTrace("TestOutliers") << "deltahits=" << trackOld->numberOfValidHits()-trackOut->numberOfValidHits();		  
 	deltahits->Fill(trackOld->numberOfValidHits()-trackOut->numberOfValidHits());
 
-	if(tprOut.get()!=0 && tprOld.get()==0) { //out associated and old not: gained track
+	if(tprOut.get()!=nullptr && tprOld.get()==nullptr) { //out associated and old not: gained track
 	  if (tpOld.size()!=0 && tpOld.begin()->second<=0.5) {
 	    deltahitsAssocGained->Fill(trackOld->numberOfValidHits()-trackOut->numberOfValidHits());
 	    hitsPerTrackAssocGained->Fill(trackOut->numberOfValidHits());
@@ -455,7 +455,7 @@ TestOutliers::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	    hitsPerTrackAssocGained->Fill(trackOut->numberOfValidHits());
 	    LogTrace("TestOutliers") << "b) gained (assoc) track out #hits==" << trackOut->numberOfValidHits() << " old #hits=" << trackOld->numberOfValidHits();    
 	  }
-	} else if(tprOut.get()==0 && tprOld.get()!=0) { //old associated and out not: lost track
+	} else if(tprOut.get()==nullptr && tprOld.get()!=nullptr) { //old associated and out not: lost track
 	  LogTrace("TestOutliers") <<"old associated and out not! old has #hits=" << trackOld->numberOfValidHits() 
 				   << " and fraction=" << tpOld.begin()->second;
 	  if (tpOld.begin()->second>0.5) {      
@@ -730,8 +730,8 @@ TestOutliers::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 		const SiStripMatchedRecHit2D* tmp = dynamic_cast<const SiStripMatchedRecHit2D*>(&**itHit);
 		LogTrace("TestOutliers") << "tmp=" << tmp; 
 		LogTrace("TestOutliers") << "assSimHits.size()=" << assSimHits.size(); 
-		if ( (assSimHits.size()>1 && tmp==0) || 
-		     (assSimHits.size()>2 && tmp!=0) ) {
+		if ( (assSimHits.size()>1 && tmp==nullptr) || 
+		     (assSimHits.size()>2 && tmp!=nullptr) ) {
 		  //std::cout << "MERGED HIT" << std::endl;
 		  //LogTrace("TestOutliers") << "merged";		  
 		  mergedlayer->Fill(layerval);

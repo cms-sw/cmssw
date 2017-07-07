@@ -78,7 +78,7 @@ namespace edm {
       typedef value_type * pointer;
       typedef value_type & reference;
       typedef typename map_type::const_iterator::iterator_category iterator_category;
-      const_iterator(): map_(0) { }
+      const_iterator(): map_(nullptr) { }
       const_iterator(const self * map, typename map_type::const_iterator mi) :
 	map_(map), i(mi) { }
       const_iterator& operator++() { ++i; return *this; }

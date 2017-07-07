@@ -912,7 +912,7 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
       // get relevant Alignable
       Alignable* ali = aap.alignableFromAlignableDet(alidet);
     
-      if (ali!=0) {
+      if (ali!=nullptr) {
 
   const TrajectoryStateOnSurface & tsos=*itsos;
 
@@ -1378,7 +1378,7 @@ void HIPAlignmentAlgorithm::collector(void)
       HIPUserVariables* uvarnew = dynamic_cast<HIPUserVariables*>(*iuvarnew);
 			
       HIPUserVariables* uvar = uvarold->clone();
-      if (uvarnew!=0) {
+      if (uvarnew!=nullptr) {
       //edm::LogWarning("Alignment") << "[collector-job"<<ijob<<"]alignables:old_nhit:"<<(uvarold->nhit)<<" new_nhit:"<<(uvarnew->nhit);
 
         uvar->nhit = (uvarold->nhit)+(uvarnew->nhit);

@@ -88,7 +88,7 @@ HLTOverallSummary::HLTOverallSummary(const edm::ParameterSet& pset)
 {
 
   using namespace edm;
-  dbe_ = 0;
+  dbe_ = nullptr;
   dbe_ = edm::Service<DQMStore>().operator->();
   if (!dbe_) {
     LogInfo ("HLTMuonVal") << "Can't find DQMStore, no results will be saved"
@@ -173,7 +173,7 @@ HLTOverallSummary::endRun(const edm::Run& run, const edm::EventSetup& c)
   //============ Unpack information ==========
   
 
-  MonitorElement*  muonQualityBit = 0;
+  MonitorElement*  muonQualityBit = nullptr;
   muonQualityBit = dbe_->get("HLT_Muon");
 
   if (!muonQualityBit) {
@@ -184,7 +184,7 @@ HLTOverallSummary::endRun(const edm::Run& run, const edm::EventSetup& c)
       
   }
                       
-  MonitorElement*  eleQualityBit = 0;
+  MonitorElement*  eleQualityBit = nullptr;
   eleQualityBit = dbe_->get("HLT_Electron");
 
   if (!eleQualityBit) {
@@ -194,7 +194,7 @@ HLTOverallSummary::endRun(const edm::Run& run, const edm::EventSetup& c)
     eleQualityBit->Fill(defaultValueIfNotFound);      
   }
 
-  MonitorElement*  photonQualityBit = 0;
+  MonitorElement*  photonQualityBit = nullptr;
   photonQualityBit = dbe_->get("HLT_Photon");
 
   if (!photonQualityBit) {

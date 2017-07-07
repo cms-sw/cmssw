@@ -40,7 +40,7 @@ namespace sistrip {
     copyBufferHeader_(pset.getParameter<bool>("CopyBufferHeader")),
     mode_( fedReadoutModeFromString(pset.getParameter<std::string>( "FedReadoutMode" ))),
     rawdigi_( false ),
-    digiToRaw_(0),
+    digiToRaw_(nullptr),
     eventCounter_(0),
     rawDataTag_(pset.getParameter<edm::InputTag>("RawDataTag"))
   {

@@ -57,7 +57,7 @@ void RPCMonitorDigi::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const 
   //loop on geometry to book all MEs
   edm::LogInfo ("rpcmonitordigi") <<"[RPCMonitorDigi]: Booking histograms per roll. " ;
   for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
-    if(dynamic_cast< const RPCChamber* >( *it ) != 0 ){
+    if(dynamic_cast< const RPCChamber* >( *it ) != nullptr ){
       const RPCChamber* ch = dynamic_cast< const RPCChamber* >( *it ); 
       std::vector< const RPCRoll*> roles = (ch->rolls());
       if(useRollInfo_){
@@ -173,7 +173,7 @@ void RPCMonitorDigi::analyze(const edm::Event& event,const edm::EventSetup& setu
     if( NumberOfRecHitMuon_ && numMuons>0) { NumberOfRecHitMuon_->Fill( numRPCRecHit);}
 
     //Fill counter of RPC events with rechits associated in with a muon
-    if( muonRPCEvents_ != 0 && numRPCRecHit>0 )  {muonRPCEvents_->Fill(1);}
+    if( muonRPCEvents_ != nullptr && numRPCRecHit>0 )  {muonRPCEvents_->Fill(1);}
 
     //Perform client operation 
     this->performSourceOperation(rechitMuon, muonFolder_);
@@ -210,7 +210,7 @@ void RPCMonitorDigi::analyze(const edm::Event& event,const edm::EventSetup& setu
 
  
   //Fill counter for all RPC events 
-  if( noiseRPCEvents_ != 0 &&  !rechitNoise.empty())  {noiseRPCEvents_->Fill(1);}
+  if( noiseRPCEvents_ != nullptr &&  !rechitNoise.empty())  {noiseRPCEvents_->Fill(1);}
   //Perform client operation 
   this->performSourceOperation(rechitNoise, noiseFolder_);
 

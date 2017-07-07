@@ -94,7 +94,7 @@ struct GhostTrackVertexFinder::FinderInfo {
 		primaryVertex(primaryVertex), pred(ghostTrack.prediction()),
 		prior(ghostTrack.prior()), states(ghostTrack.states()),
 		beamSpot(beamSpot), hasBeamSpot(hasBeamSpot),
-		hasPrimaries(hasPrimaries), field(0) {}
+		hasPrimaries(hasPrimaries), field(nullptr) {}
 
 	const CachingVertex<5>			&primaryVertex;
 	GhostTrackPrediction			pred;

@@ -978,7 +978,7 @@ PrimaryVertexAnalyzer4PUSlimmed::getSimPVs(
       assert((**iTrack).eventId().bunchCrossing() == 0);
     }
     // TODO(rovere) maybe get rid of this old logic completely ... ?
-    simPrimaryVertex* vp = NULL;  // will become non-NULL if a vertex
+    simPrimaryVertex* vp = nullptr;  // will become non-NULL if a vertex
                                   // is found and then point to it
     for (std::vector<simPrimaryVertex>::iterator v0 = simpv.begin();
          v0 != simpv.end(); v0++) {

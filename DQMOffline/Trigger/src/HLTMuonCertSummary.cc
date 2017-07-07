@@ -201,11 +201,11 @@ HLTMuonCertSummary::dqmEndJob(DQMStore::IBooker & iBooker, DQMStore::IGetter & i
     if(verbose_) LogInfo ("HLTMuonVal")  << ">>> " << HistoName;        
     
 
-    MonitorElement * TestHist=0;
+    MonitorElement * TestHist=nullptr;
 
     TestHist = iGetter.get(HistoName);
 
-    bool validMe = TestHist!=0;
+    bool validMe = TestHist!=nullptr;
     if(verbose_)  LogInfo ("HLTMuonVal")  << " is valid? " << validMe << "\n";
     if(!validMe) continue;
 

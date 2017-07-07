@@ -9,7 +9,7 @@ namespace gs {
     class StringArchive : public AbsArchive
     {
     public:
-        inline StringArchive(const char* name=0) : AbsArchive(name) {}
+        inline StringArchive(const char* name=nullptr) : AbsArchive(name) {}
         virtual ~StringArchive() {}
 
         inline bool isOpen() const {return true;}
@@ -74,7 +74,7 @@ namespace gs {
             const unsigned long long itemLength)
         {
             return catalog_.makeEntry(record, compressCode, itemLength,
-                                      ItemLocation(lastpos_, 0));
+                                      ItemLocation(lastpos_, nullptr));
         }
 
         CharBuffer stream_;

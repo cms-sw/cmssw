@@ -199,10 +199,10 @@ FWSimTrackProxyBuilder::addParticlesToPdgDataBase( void )
 void
 FWSimTrackProxyBuilder::build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* )
 {
-   const edm::SimTrackContainer* collection = 0;
+   const edm::SimTrackContainer* collection = nullptr;
    iItem->get( collection );
 
-   if( 0 == collection )
+   if( nullptr == collection )
    {
       return;
    }

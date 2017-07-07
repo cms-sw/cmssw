@@ -151,7 +151,7 @@ public:
 
   //FE/Channel check: rate of channels with error (only considering connected channels)
   float fillNonFatalFEDErrors(const sistrip::FEDBuffer* aBuffer,
-			      const SiStripFedCabling* aCabling = 0);
+			      const SiStripFedCabling* aCabling = nullptr);
 
   //fill errors: define the order of importance.
   bool fillFEDErrors(const FEDRawData& aFedData,

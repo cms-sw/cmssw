@@ -450,7 +450,7 @@ Event::fillParameterSetRegistry() const {
 
   edm::FileFormatVersion fileFormatVersion;
   edm::FileFormatVersion *fftPtr = &fileFormatVersion;
-  if(meta->FindBranch(edm::poolNames::fileFormatVersionBranchName().c_str()) != 0) {
+  if(meta->FindBranch(edm::poolNames::fileFormatVersionBranchName().c_str()) != nullptr) {
     TBranch *fft = meta->GetBranch(edm::poolNames::fileFormatVersionBranchName().c_str());
     fft->SetAddress(&fftPtr);
     fft->GetEntry(0);
@@ -459,7 +459,7 @@ Event::fillParameterSetRegistry() const {
   typedef std::map<edm::ParameterSetID, edm::ParameterSetBlob> PsetMap;
   PsetMap psetMap;
   TTree* psetTree(nullptr);
-  if (meta->FindBranch(edm::poolNames::parameterSetMapBranchName().c_str()) != 0) {
+  if (meta->FindBranch(edm::poolNames::parameterSetMapBranchName().c_str()) != nullptr) {
     PsetMap *psetMapPtr = &psetMap;
     TBranch* b = meta->GetBranch(edm::poolNames::parameterSetMapBranchName().c_str());
     b->SetAddress(&psetMapPtr);

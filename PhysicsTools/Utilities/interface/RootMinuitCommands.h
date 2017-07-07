@@ -137,7 +137,7 @@ namespace fit {
     }
     FileInPath fileInPath(path, fileName);
     std::ifstream * file = fileInPath();
-    if(file==0 || !file->is_open())
+    if(file==nullptr || !file->is_open())
       throw edm::Exception(edm::errors::Configuration)
 	<< "RootMinuitCommands: can't open file: " << fileName 
 	<< " in path: " << path << "\n";

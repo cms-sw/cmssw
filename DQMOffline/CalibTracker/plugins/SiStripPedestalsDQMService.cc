@@ -16,7 +16,7 @@ SiStripPedestalsDQMService::SiStripPedestalsDQMService(const edm::ParameterSet& 
   iConfig_(iConfig),
   fp_(iConfig.getUntrackedParameter<edm::FileInPath>("file",edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat")))
 {
-  obj_ = 0;
+  obj_ = nullptr;
   edm::LogInfo("SiStripPedestalsDQMService") <<  "[SiStripPedestalsDQMService::SiStripPedestalsDQMService]";
 }
 
@@ -65,7 +65,7 @@ void SiStripPedestalsDQMService::readPedestals()
     // MonitorElement * mE = getModuleHistogram(it->first, "PedsPerStrip");
 
 
-    MonitorElement * mE = 0;
+    MonitorElement * mE = nullptr;
     std::string MEname("PedsPerStrip__det__"+boost::lexical_cast<string>(it->first));
     for( std::vector<MonitorElement*>::const_iterator MEit = MEs.begin();
          MEit != MEs.end(); ++MEit ) {
@@ -78,10 +78,10 @@ void SiStripPedestalsDQMService::readPedestals()
     // find( MEs.begin(), MEs.end(), "PedsPerStrip__det__"+boost::lexical_cast<string>(it->first), findMEbyName() );
     // MonitorElement * mE = *(find( MEs.begin(), MEs.end(), findMEbyName("PedsPerStrip__det__"+boost::lexical_cast<string>(it->first)) ));
 
-    if( mE != 0 ) {
+    if( mE != nullptr ) {
       TH1F* histo = mE->getTH1F();
 
-      if( histo != 0 ) {
+      if( histo != nullptr ) {
 
         // Read the pedestals from the histograms
         uint32_t nBinsX = histo->GetXaxis()->GetNbins();

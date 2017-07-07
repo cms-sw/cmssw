@@ -35,7 +35,7 @@ using namespace edm;
 struct deleter {
   void operator()(TH3F *&h) {
     delete h;
-    h = 0;
+    h = nullptr;
   }
 };
 
@@ -75,13 +75,13 @@ QcdLowPtDQM::QcdLowPtDQM(const ParameterSet &parameters)
                                                          false)),
       usePixelQ_(
           parameters.getUntrackedParameter<bool>("usePixelQualityWord", true)),
-      AlphaTracklets12_(0),
-      AlphaTracklets13_(0),
-      AlphaTracklets23_(0),
-      tgeo_(0),
-      repSumMap_(0),
-      repSummary_(0),
-      h2TrigCorr_(0) {
+      AlphaTracklets12_(nullptr),
+      AlphaTracklets13_(nullptr),
+      AlphaTracklets23_(nullptr),
+      tgeo_(nullptr),
+      repSumMap_(nullptr),
+      repSummary_(nullptr),
+      h2TrigCorr_(nullptr) {
   // Constructor.
 
   if (parameters.exists("hltTrgNames"))
@@ -1220,7 +1220,7 @@ void QcdLowPtDQM::yieldAlphaHistogram(int which) {
     AlphaTracklets12_ = new TH3F(
         "hAlphaTracklets12", "Alpha for tracklets12;#eta;#hits;vz [cm]",
         nEtaBin, EtaBins, nHitBin, HitBins, nVzBin, VzBins);
-    AlphaTracklets12_->SetDirectory(0);
+    AlphaTracklets12_->SetDirectory(nullptr);
 
     AlphaTracklets12_->SetBinContent(2, 1, 7, 3.55991);
     AlphaTracklets12_->SetBinContent(2, 1, 8, 2.40439);
@@ -2474,7 +2474,7 @@ void QcdLowPtDQM::yieldAlphaHistogram(int which) {
     AlphaTracklets13_ = new TH3F(
         "hAlphaTracklets13", "Alpha for tracklets13;#eta;#hits;vz [cm]",
         nEtaBin, EtaBins, nHitBin, HitBins, nVzBin, VzBins);
-    AlphaTracklets13_->SetDirectory(0);
+    AlphaTracklets13_->SetDirectory(nullptr);
 
     AlphaTracklets13_->SetBinContent(3, 1, 5, 3.29862);
     AlphaTracklets13_->SetBinContent(3, 1, 6, 2.40246);
@@ -3504,7 +3504,7 @@ void QcdLowPtDQM::yieldAlphaHistogram(int which) {
     AlphaTracklets23_ = new TH3F(
         "hAlphaTracklets23", "Alpha for tracklets23;#eta;#hits;vz [cm]",
         nEtaBin, EtaBins, nHitBin, HitBins, nVzBin, VzBins);
-    AlphaTracklets23_->SetDirectory(0);
+    AlphaTracklets23_->SetDirectory(nullptr);
 
     AlphaTracklets23_->SetBinContent(3, 1, 5, 3.38308);
     AlphaTracklets23_->SetBinContent(3, 1, 6, 2.34772);

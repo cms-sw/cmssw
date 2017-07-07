@@ -186,11 +186,11 @@ void MuonSeedValidator::analyze(const Event& event, const EventSetup& eventSetup
   //ESHandle<MagneticField> field;
   //eventSetup.get<IdealMagneticFieldRecord>().get(field);
 
-  H2DRecHit1 *histo1 = 0;   
-  H2DRecHit2 *histo2 = 0;   
-  H2DRecHit3 *histo3 = 0;   
-  H2DRecHit4 *histo4 = 0;   
-  H2DRecHit5 *histo5 = 0;   
+  H2DRecHit1 *histo1 = nullptr;   
+  H2DRecHit2 *histo2 = nullptr;   
+  H2DRecHit3 *histo3 = nullptr;   
+  H2DRecHit4 *histo4 = nullptr;   
+  H2DRecHit5 *histo5 = nullptr;   
  
   // Get sim track information  
   // return  theta_v, theta_p, phi_v, phi_p :  theta and phi of position and momentum 

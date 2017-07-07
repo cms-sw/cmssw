@@ -83,7 +83,7 @@ void SiStripHistoPlotter::makePlot(DQMStore* dqm_store, const PlotParameter& par
 	me->kind() == MonitorElement::DQM_KIND_TPROFILE ||
         me->kind() == MonitorElement::DQM_KIND_TPROFILE2D ) {
       TH1* histo = me->getTH1();
-      TH1F* tproject = 0;
+      TH1F* tproject = nullptr;
       if (dopt == "projection") {
 	getProjection(me, tproject);
 	if (tproject) tproject->Draw();
@@ -167,7 +167,7 @@ void SiStripHistoPlotter::fillNamedImageBuffer(TCanvas * c1, const std::string& 
 // in the imgdump destructor
   TImage *image = imgdump.GetImage();
 
-  if( image == NULL )
+  if( image == nullptr )
   {
    std::cout << "No TImage found for "
 	<< name

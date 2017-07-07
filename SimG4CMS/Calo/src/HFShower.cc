@@ -24,8 +24,8 @@
 #include<iostream>
 
 HFShower::HFShower(std::string & name, const DDCompactView & cpv, 
-		   edm::ParameterSet const & p, int chk) : cherenkov(0),
-                                                           fibre(0),
+		   edm::ParameterSet const & p, int chk) : cherenkov(nullptr),
+                                                           fibre(nullptr),
                                                            chkFibre(chk) {
 
   edm::ParameterSet m_HF = p.getParameter<edm::ParameterSet>("HFShower");

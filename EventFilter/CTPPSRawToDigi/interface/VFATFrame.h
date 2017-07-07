@@ -21,7 +21,7 @@ class VFATFrame
   public:
     typedef uint16_t word;
   public:
-    VFATFrame(const word* _data = NULL);
+    VFATFrame(const word* _data = nullptr);
 
     VFATFrame(const VFATFrame& copy)
     {

@@ -103,7 +103,7 @@ DeepFlavourJetTagsProducer::DeepFlavourJetTagsProducer(const edm::ParameterSet& 
 	nnconfig_(iConfig.getParameter<edm::FileInPath>("NNConfig")),
 	check_sv_for_defaults_(iConfig.getParameter<bool>("checkSVForDefaults")),
 	mean_padding_(iConfig.getParameter<bool>("meanPadding")),
-	neural_network_(NULL),
+	neural_network_(nullptr),
 	inputs_(),
 	outputs_(),
 	variables_()

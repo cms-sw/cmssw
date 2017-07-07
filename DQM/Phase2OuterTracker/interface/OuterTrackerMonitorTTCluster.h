@@ -28,26 +28,26 @@ public:
   virtual void beginRun(const edm::Run&, const edm::EventSetup&);
  
   // TTCluster stacks
-  MonitorElement* Cluster_IMem_Barrel = 0;
-  MonitorElement* Cluster_IMem_Endcap_Disc = 0;
-  MonitorElement* Cluster_IMem_Endcap_Ring = 0;
-  MonitorElement* Cluster_IMem_Endcap_Ring_Fw[5] = {0, 0, 0, 0, 0};
-  MonitorElement* Cluster_IMem_Endcap_Ring_Bw[5] = {0, 0, 0, 0, 0};
-  MonitorElement* Cluster_OMem_Barrel = 0;
-  MonitorElement* Cluster_OMem_Endcap_Disc = 0;
-  MonitorElement* Cluster_OMem_Endcap_Ring = 0;
-  MonitorElement* Cluster_OMem_Endcap_Ring_Fw[5] = {0, 0, 0, 0, 0};
-  MonitorElement* Cluster_OMem_Endcap_Ring_Bw[5] = {0, 0, 0, 0, 0};
-  MonitorElement* Cluster_W = 0;
-  MonitorElement* Cluster_Eta = 0;
+  MonitorElement* Cluster_IMem_Barrel = nullptr;
+  MonitorElement* Cluster_IMem_Endcap_Disc = nullptr;
+  MonitorElement* Cluster_IMem_Endcap_Ring = nullptr;
+  MonitorElement* Cluster_IMem_Endcap_Ring_Fw[5] = {nullptr, nullptr, nullptr, nullptr, nullptr};
+  MonitorElement* Cluster_IMem_Endcap_Ring_Bw[5] = {nullptr, nullptr, nullptr, nullptr, nullptr};
+  MonitorElement* Cluster_OMem_Barrel = nullptr;
+  MonitorElement* Cluster_OMem_Endcap_Disc = nullptr;
+  MonitorElement* Cluster_OMem_Endcap_Ring = nullptr;
+  MonitorElement* Cluster_OMem_Endcap_Ring_Fw[5] = {nullptr, nullptr, nullptr, nullptr, nullptr};
+  MonitorElement* Cluster_OMem_Endcap_Ring_Bw[5] = {nullptr, nullptr, nullptr, nullptr, nullptr};
+  MonitorElement* Cluster_W = nullptr;
+  MonitorElement* Cluster_Eta = nullptr;
   
-  MonitorElement* Cluster_Barrel_XY = 0;
-  MonitorElement* Cluster_Barrel_XY_Zoom = 0;
-  MonitorElement* Cluster_Endcap_Fw_XY = 0;
-  MonitorElement* Cluster_Endcap_Bw_XY = 0;
-  MonitorElement* Cluster_RZ = 0;
-  MonitorElement* Cluster_Endcap_Fw_RZ_Zoom = 0;
-  MonitorElement* Cluster_Endcap_Bw_RZ_Zoom = 0;
+  MonitorElement* Cluster_Barrel_XY = nullptr;
+  MonitorElement* Cluster_Barrel_XY_Zoom = nullptr;
+  MonitorElement* Cluster_Endcap_Fw_XY = nullptr;
+  MonitorElement* Cluster_Endcap_Bw_XY = nullptr;
+  MonitorElement* Cluster_RZ = nullptr;
+  MonitorElement* Cluster_Endcap_Fw_RZ_Zoom = nullptr;
+  MonitorElement* Cluster_Endcap_Bw_RZ_Zoom = nullptr;
 
  private:
   DQMStore* dqmStore_;

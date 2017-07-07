@@ -44,7 +44,7 @@ using namespace std;
 // Constructors --
 //----------------
 L1MuBMDataBuffer::L1MuBMDataBuffer(const L1MuBMSectorProcessor& sp) :
-        m_sp(sp), m_tsphi(0) {
+        m_sp(sp), m_tsphi(nullptr) {
 
 
   m_tsphi = new TSPhivector(38);
@@ -76,7 +76,7 @@ void L1MuBMDataBuffer::reset() {
   while ( iter != m_tsphi->end() ) {
     if ( *iter) {
       delete *iter;
-      *iter = 0;
+      *iter = nullptr;
     }
     iter++;
   }

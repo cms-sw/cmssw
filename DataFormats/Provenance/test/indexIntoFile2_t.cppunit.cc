@@ -448,5 +448,5 @@ void TestIndexIntoFile2::testAddEntryAndFixAndSort() {
   CPPUNIT_ASSERT(eventEntries.empty());
   CPPUNIT_ASSERT(indexIntoFile.runOrLumiIndexes().capacity() == 0);
   CPPUNIT_ASSERT(indexIntoFile.runOrLumiIndexes().empty());
-  CPPUNIT_ASSERT(indexIntoFile.transient_.eventFinder_.get() == 0);
+  CPPUNIT_ASSERT(indexIntoFile.transient_.eventFinder_.get() == nullptr);
 }

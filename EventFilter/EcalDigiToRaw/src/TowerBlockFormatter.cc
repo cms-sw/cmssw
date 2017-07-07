@@ -382,8 +382,8 @@ void TowerBlockFormatter::EndEvent(FEDRawDataCollection* productRawData) {
  FEDorder -> clear();
  delete FEDmap;
  delete FEDorder;
- FEDmap = 0;
- FEDorder = 0;
+ FEDmap = nullptr;
+ FEDorder = nullptr;
 
  debug_ = false;
 

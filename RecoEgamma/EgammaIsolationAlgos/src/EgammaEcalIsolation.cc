@@ -45,7 +45,7 @@ double EgammaEcalIsolation::getEcalEtSum(const reco::Candidate* candidate){
   // match the photon hybrid supercluster with those with Algo==0 (island)
   double delta1=1000.;
   double deltacur=1000.;
-  const reco::SuperCluster *matchedsupercluster=0;
+  const reco::SuperCluster *matchedsupercluster=nullptr;
   bool MATCHEDSC = false;
   
   for(reco::SuperClusterCollection::const_iterator scItr = superClusterCollection_->begin(); scItr != superClusterCollection_->end(); ++scItr){
@@ -68,7 +68,7 @@ double EgammaEcalIsolation::getEcalEtSum(const reco::Candidate* candidate){
     }
   }
 
-  const reco::BasicCluster *cluster= 0;
+  const reco::BasicCluster *cluster= nullptr;
   
   //loop over basic clusters
   for(reco::BasicClusterCollection::const_iterator cItr = basicClusterCollection_->begin(); cItr != basicClusterCollection_->end(); ++cItr){

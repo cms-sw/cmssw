@@ -264,7 +264,7 @@ template <typename Object, const char * label>
 class ExpressionVariable : public CachingVariable {
  public:
   ExpressionVariable(const CachingVariableFactoryArg& arg, edm::ConsumesCollector& iC) :
-    CachingVariable(std::string(label)+"ExpressionVariable",arg.n,arg.iConfig,iC) , f_(0), forder_(0) {
+    CachingVariable(std::string(label)+"ExpressionVariable",arg.n,arg.iConfig,iC) , f_(nullptr), forder_(nullptr) {
     srcTag_=edm::Service<InputTagDistributorService>()->retrieve("src",arg.iConfig);
     src_=iC.consumes<edm::View<Object> >(srcTag_);
     //old style constructor
@@ -280,13 +280,13 @@ class ExpressionVariable : public CachingVariable {
 	std::string order=arg.iConfig.getParameter<std::string>("order");
 	forder_ = new StringObjectFunction<Object>(order);
 	ss<<" after sorting according to: "<<order;
-      }else forder_ =0;
+      }else forder_ =nullptr;
 
       if (arg.iConfig.exists("selection")){
 	std::string selection=arg.iConfig.getParameter<std::string>("selection");
 	selector_ = new StringCutObjectSelector<Object>(selection);
 	ss<<" and selecting only: "<<selection;
-      }else selector_=0;
+      }else selector_=nullptr;
 
 
 

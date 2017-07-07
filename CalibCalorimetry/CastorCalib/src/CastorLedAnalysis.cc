@@ -19,7 +19,7 @@ CastorLedAnalysis::CastorLedAnalysis(const edm::ParameterSet& ps)
   // init
   evt=0;
   sample=0;
-  m_file=0;
+  m_file=nullptr;
   // output files
   for(int k=0;k<4;k++) state.push_back(true); // 4 cap-ids (do we care?)
   m_outputFileText = ps.getUntrackedParameter<string>("outputFileText", "");

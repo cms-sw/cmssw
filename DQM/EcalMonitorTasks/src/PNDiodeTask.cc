@@ -39,7 +39,7 @@ namespace ecaldqm {
   {
     if(_ids.size() == 0) return;
 
-    MESet* set(0);
+    MESet* set(nullptr);
 
     switch(_collection){
     case kMEMTowerIdErrors:

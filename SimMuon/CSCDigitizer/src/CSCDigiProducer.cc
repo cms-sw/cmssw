@@ -26,7 +26,7 @@
 
 CSCDigiProducer::CSCDigiProducer(const edm::ParameterSet& ps) 
 :  theDigitizer(ps),
-   theStripConditions(0)
+   theStripConditions(nullptr)
 {
   produces<CSCWireDigiCollection>("MuonCSCWireDigi");
   produces<CSCStripDigiCollection>("MuonCSCStripDigi");

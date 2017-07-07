@@ -64,7 +64,7 @@ void MaterialBudget::update(const BeginOfRun* ) {
 
   unsigned int kount=detNames.size();
   for (unsigned int ii=0; ii<kount; ++ii) 
-    logVolumes.push_back(0);
+    logVolumes.push_back(nullptr);
 
   for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
     for (unsigned int ii=0; ii<detNames.size(); ++ii) {
@@ -81,7 +81,7 @@ void MaterialBudget::update(const BeginOfRun* ) {
 				 << detNames.size() << " LV addresses";
   for (unsigned int ii=0; ii<detNames.size(); ++ii) {
     std::string name("Unknown");
-    if (logVolumes[ii] != 0)  name = logVolumes[ii]->GetName();
+    if (logVolumes[ii] != nullptr)  name = logVolumes[ii]->GetName();
     edm::LogInfo("MaterialBudget") << "LV[" << ii << "] : " << detNames[ii]
 				   << " Address " << logVolumes[ii] << " | " 
 				   << name;
@@ -265,7 +265,7 @@ void MaterialBudget::book(const edm::ParameterSet& m_p) {
 bool MaterialBudget::stopAfter(const G4Step* aStep) {
 
   G4ThreeVector hitPoint    = aStep->GetPreStepPoint()->GetPosition();
-  if (aStep->GetPostStepPoint() != 0) 
+  if (aStep->GetPostStepPoint() != nullptr) 
     hitPoint = aStep->GetPostStepPoint()->GetPosition();
   double rr    = hitPoint.perp();
   double zz    = std::abs(hitPoint.z());

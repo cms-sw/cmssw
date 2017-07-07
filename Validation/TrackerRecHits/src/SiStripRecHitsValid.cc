@@ -410,7 +410,7 @@ void SiStripRecHitsValid::rechitanalysis(SiStripRecHit2D const rechit,const Stri
 
     float mindist = std::numeric_limits<float>::max();
     float dist = std::numeric_limits<float>::max();
-    PSimHit const * closest = NULL;
+    PSimHit const * closest = nullptr;
  
     for(auto const &m : matched){
       dist = fabs(rechitpro.x - m.localPosition().x());
@@ -672,9 +672,9 @@ void SiStripRecHitsValid::createMEs(DQMStore::IBooker & ibooker,const edm::Event
 //------------------------------------------------------------------------------------------
 void SiStripRecHitsValid::createTotalMEs(DQMStore::IBooker & ibooker) 
 {
-  totalMEs.meNumTotrphi = 0;
-  totalMEs.meNumTotStereo = 0;
-  totalMEs.meNumTotMatched = 0;
+  totalMEs.meNumTotrphi = nullptr;
+  totalMEs.meNumTotStereo = nullptr;
+  totalMEs.meNumTotMatched = nullptr;
 
   //NumTotrphi
   if(switchNumTotrphi) {
@@ -699,15 +699,15 @@ void SiStripRecHitsValid::createLayerMEs(DQMStore::IBooker & ibooker,std::string
   SiStripHistoId hidmanager;
   LayerMEs layerMEs; 
 
-  layerMEs.meWclusrphi = 0;
-  layerMEs.meAdcrphi = 0;
-  layerMEs.mePosxrphi = 0;
-  layerMEs.meResolxrphi = 0;
-  layerMEs.meResrphi = 0;
-  layerMEs.mePullLFrphi = 0;
-  layerMEs.mePullMFrphi = 0;
-  layerMEs.meChi2rphi = 0;
-  layerMEs.meNsimHitrphi = 0;
+  layerMEs.meWclusrphi = nullptr;
+  layerMEs.meAdcrphi = nullptr;
+  layerMEs.mePosxrphi = nullptr;
+  layerMEs.meResolxrphi = nullptr;
+  layerMEs.meResrphi = nullptr;
+  layerMEs.mePullLFrphi = nullptr;
+  layerMEs.mePullMFrphi = nullptr;
+  layerMEs.meChi2rphi = nullptr;
+  layerMEs.meNsimHitrphi = nullptr;
 
   //Wclusrphi
   if(switchWclusrphi) {
@@ -764,23 +764,23 @@ void SiStripRecHitsValid::createStereoAndMatchedMEs(DQMStore::IBooker & ibooker,
   SiStripHistoId hidmanager;
   StereoAndMatchedMEs stereoandmatchedMEs; 
 
-  stereoandmatchedMEs.meWclusStereo = 0;
-  stereoandmatchedMEs.meAdcStereo = 0;
-  stereoandmatchedMEs.mePosxStereo = 0;
-  stereoandmatchedMEs.meResolxStereo = 0;
-  stereoandmatchedMEs.meResStereo = 0;
-  stereoandmatchedMEs.mePullLFStereo = 0;
-  stereoandmatchedMEs.mePullMFStereo = 0;
-  stereoandmatchedMEs.meChi2Stereo = 0;
-  stereoandmatchedMEs.meNsimHitStereo = 0;
-  stereoandmatchedMEs.mePosxMatched = 0;
-  stereoandmatchedMEs.mePosyMatched = 0;
-  stereoandmatchedMEs.meResolxMatched = 0;
-  stereoandmatchedMEs.meResolyMatched = 0;
-  stereoandmatchedMEs.meResxMatched = 0;
-  stereoandmatchedMEs.meResyMatched = 0;
-  stereoandmatchedMEs.meChi2Matched = 0;
-  stereoandmatchedMEs.meNsimHitMatched = 0;
+  stereoandmatchedMEs.meWclusStereo = nullptr;
+  stereoandmatchedMEs.meAdcStereo = nullptr;
+  stereoandmatchedMEs.mePosxStereo = nullptr;
+  stereoandmatchedMEs.meResolxStereo = nullptr;
+  stereoandmatchedMEs.meResStereo = nullptr;
+  stereoandmatchedMEs.mePullLFStereo = nullptr;
+  stereoandmatchedMEs.mePullMFStereo = nullptr;
+  stereoandmatchedMEs.meChi2Stereo = nullptr;
+  stereoandmatchedMEs.meNsimHitStereo = nullptr;
+  stereoandmatchedMEs.mePosxMatched = nullptr;
+  stereoandmatchedMEs.mePosyMatched = nullptr;
+  stereoandmatchedMEs.meResolxMatched = nullptr;
+  stereoandmatchedMEs.meResolyMatched = nullptr;
+  stereoandmatchedMEs.meResxMatched = nullptr;
+  stereoandmatchedMEs.meResyMatched = nullptr;
+  stereoandmatchedMEs.meChi2Matched = nullptr;
+  stereoandmatchedMEs.meNsimHitMatched = nullptr;
 
   //WclusStereo
   if(switchWclusStereo) {
@@ -875,15 +875,15 @@ void SiStripRecHitsValid::createStereoAndMatchedMEs(DQMStore::IBooker & ibooker,
 void SiStripRecHitsValid::createSubDetMEs(DQMStore::IBooker & ibooker,std::string label) {
 
   SubDetMEs subdetMEs;
-  subdetMEs.meNumrphi = 0;
-  subdetMEs.meBunchrphi = 0;
-  subdetMEs.meEventrphi = 0;
-  subdetMEs.meNumStereo = 0;
-  subdetMEs.meBunchStereo = 0;
-  subdetMEs.meEventStereo = 0;
-  subdetMEs.meNumMatched = 0;
-  subdetMEs.meBunchMatched = 0;
-  subdetMEs.meEventMatched = 0;
+  subdetMEs.meNumrphi = nullptr;
+  subdetMEs.meBunchrphi = nullptr;
+  subdetMEs.meEventrphi = nullptr;
+  subdetMEs.meNumStereo = nullptr;
+  subdetMEs.meBunchStereo = nullptr;
+  subdetMEs.meEventStereo = nullptr;
+  subdetMEs.meNumMatched = nullptr;
+  subdetMEs.meBunchMatched = nullptr;
+  subdetMEs.meEventMatched = nullptr;
 
   std::string HistoName;
   //Numrphi

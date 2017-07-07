@@ -19,7 +19,7 @@
 
 
 
-CocoaToDDLMgr* CocoaToDDLMgr::instance = 0;
+CocoaToDDLMgr* CocoaToDDLMgr::instance = nullptr;
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 CocoaToDDLMgr* CocoaToDDLMgr::getInstance()

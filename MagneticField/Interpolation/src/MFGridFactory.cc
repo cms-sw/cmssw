@@ -41,7 +41,7 @@ MFGrid* MFGridFactory::build(const string& name, const GloballyPositioned<float>
   default:
     cout << "ERROR Grid type unknown: " << gridType << endl;
     //    result = new GlobalGridWrapper(vol, name);
-    result = 0;
+    result = nullptr;
     break;
   }
   inFile.close();

@@ -126,7 +126,7 @@ bool SeedFromNuclearInteraction::construct() {
    // loop on all hits in theHits
    KFUpdator                 theUpdator;
 
-   const TrackingRecHit* hit = 0;
+   const TrackingRecHit* hit = nullptr;
 
    LogDebug("NuclearSeedGenerator") << "Seed ** initial state " << freeTS_->cartesianError().matrix();
 

@@ -72,7 +72,7 @@ public:
   typedef DDI::rep_type<N,pimpl_type>* prep_type;
   typedef std::pair<const N*,bool> def_type;
   
-  DDBase() : prep_(0) { }
+  DDBase() : prep_(nullptr) { }
   virtual ~DDBase() { /*never do this here: if (prep_) delete prep_;*/ }
       
   const N & name() const { return prep_->name(); }
@@ -112,7 +112,7 @@ public:
       return prep_ ?
 	std::make_pair(&(prep_->name()), bool(prep_->second))
 	:
-	std::make_pair((const N *)0,false);  
+	std::make_pair((const N *)nullptr,false);  
     } 
    
   //! true, if the  wrapped pointer is valid

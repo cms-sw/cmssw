@@ -130,7 +130,7 @@ EffPurFromHistos2D::EffPurFromHistos2D(const FlavourHistograms2D<double, double>
 
   // loop over flavours
   for (int iFlav = 0; iFlav < dimHistos; iFlav++) {
-    if (discrCfHistos[iFlav] == 0) continue;
+    if (discrCfHistos[iFlav] == nullptr) continue;
     discrNoCutHistos[iFlav]->SetXTitle("Discriminant A");
     discrNoCutHistos[iFlav]->GetXaxis()->SetTitleOffset(0.75);
     discrNoCutHistos[iFlav]->SetYTitle("Discriminant B");

@@ -143,7 +143,7 @@ class CBInputStream : public XERCES_CPP_NAMESPACE_QUALIFIER BinInputStream {
 	virtual XMLSize_t readBytes(XMLByte *const buf,
 				    const XMLSize_t size) override;
 
-        virtual const XMLCh* getContentType() const override { return 0; }
+        virtual const XMLCh* getContentType() const override { return nullptr; }
 
     private:
 	Reader		&reader;
@@ -163,7 +163,7 @@ class STLInputStream : public XERCES_CPP_NAMESPACE_QUALIFIER BinInputStream {
 	virtual XMLSize_t readBytes(XMLByte *const buf,
 				    const XMLSize_t size) override;
 
-        virtual const XMLCh* getContentType() const override { return 0; }
+        virtual const XMLCh* getContentType() const override { return nullptr; }
 
     private:
 	std::istream	&in;
@@ -183,7 +183,7 @@ class StorageInputStream :
 	virtual XMLSize_t readBytes(XMLByte *const buf,
 				    const XMLSize_t size) override;
 
-        virtual const XMLCh* getContentType() const override { return 0; }
+        virtual const XMLCh* getContentType() const override { return nullptr; }
 
     private:
 	StorageWrap	&in;

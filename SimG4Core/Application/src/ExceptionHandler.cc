@@ -13,11 +13,11 @@ using std::endl;
 using std::string;
 
 ExceptionHandler::ExceptionHandler(RunManager* rm) 
-  : fRunManager(rm),fRunManagerMT(0)
+  : fRunManager(rm),fRunManagerMT(nullptr)
 {}
 
 ExceptionHandler::ExceptionHandler(RunManagerMT* rm) 
-  : fRunManager(0),fRunManagerMT(rm)
+  : fRunManager(nullptr),fRunManagerMT(rm)
 {}
 
 ExceptionHandler::~ExceptionHandler() {}

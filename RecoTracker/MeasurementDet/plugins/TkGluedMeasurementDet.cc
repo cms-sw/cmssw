@@ -84,7 +84,7 @@ void TkGluedMeasurementDet::init(const MeasurementDet* monoDet,
   theStereoDet = dynamic_cast<const TkStripMeasurementDet *>(stereoDet);
   theTopology = tTopo;
   
-  if ((theMonoDet == 0) || (theStereoDet == 0)) {
+  if ((theMonoDet == nullptr) || (theStereoDet == nullptr)) {
     throw MeasurementDetException("TkGluedMeasurementDet ERROR: Trying to glue a det which is not a TkStripMeasurementDet");
   }
 }

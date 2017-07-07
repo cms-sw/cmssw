@@ -267,7 +267,7 @@ HITrackClusterRemover::cleanup(const edmNew::DetSetVector<T> &oldClusters, const
         if (outds.empty()) outds.abort(); // not write in an empty DSV
     }
 
-    if (oldRefs != 0) mergeOld(refs, *oldRefs);
+    if (oldRefs != nullptr) mergeOld(refs, *oldRefs);
     return output;
 }
 
@@ -518,12 +518,12 @@ HITrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
 
     if (doPixel_ && clusterWasteSolution_) {
         OrphanHandle<edmNew::DetSetVector<SiPixelCluster> > newPixels =
-          iEvent.put(cleanup(*pixelClusters, pixels, cri->pixelIndices(), mergeOld_ ? &oldRemovalInfo->pixelIndices() : 0));
+          iEvent.put(cleanup(*pixelClusters, pixels, cri->pixelIndices(), mergeOld_ ? &oldRemovalInfo->pixelIndices() : nullptr));
 //DBG// std::cout << "HITrackClusterRemover: Wrote pixel " << newPixels.id() << " from " << pixelSourceProdID << std::endl;
         cri->setNewPixelClusters(newPixels);
     }
     if (doStrip_ && clusterWasteSolution_) {
-        OrphanHandle<edmNew::DetSetVector<SiStripCluster> > newStrips = iEvent.put(cleanup(*stripClusters, strips, cri->stripIndices(), mergeOld_ ? &oldRemovalInfo->stripIndices() : 0));
+        OrphanHandle<edmNew::DetSetVector<SiStripCluster> > newStrips = iEvent.put(cleanup(*stripClusters, strips, cri->stripIndices(), mergeOld_ ? &oldRemovalInfo->stripIndices() : nullptr));
 //DBG// std::cout << "HITrackClusterRemover: Wrote strip " << newStrips.id() << " from " << stripSourceProdID << std::endl;
         cri->setNewStripClusters(newStrips);
     }

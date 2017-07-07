@@ -50,7 +50,7 @@ TEcnaParHistos::TEcnaParHistos(TEcnaObject* pObjectManager, const TString& SubDe
   pObjectManager->RegisterPointer("TEcnaParHistos", i_this);
 
   //............................ fEcal  => to be changed in fParEcal
-  fEcal = 0;
+  fEcal = nullptr;
   Long_t iParEcal = pObjectManager->GetPointerValue("TEcnaParEcal");
   if( iParEcal == 0 )
     {fEcal = new TEcnaParEcal(pObjectManager, SubDet.Data()); /*fCnew++*/}
@@ -58,7 +58,7 @@ TEcnaParHistos::TEcnaParHistos(TEcnaObject* pObjectManager, const TString& SubDe
     {fEcal = (TEcnaParEcal*)iParEcal;}
 
   //............................ fEcalNumbering
-  fEcalNumbering = 0;
+  fEcalNumbering = nullptr;
   Long_t iEcalNumbering = pObjectManager->GetPointerValue("TEcnaNumbering");
   if( iEcalNumbering == 0 )
     {fEcalNumbering = new TEcnaNumbering(pObjectManager, SubDet.Data()); /*fCnew++*/}
@@ -143,8 +143,8 @@ void TEcnaParHistos::SetEcalSubDetector(const TString& SubDet,
 {
  // Set Subdetector (EB or EE)
 
-  fEcal = 0;
-  if( pEcal == 0 )
+  fEcal = nullptr;
+  if( pEcal == nullptr )
     {fEcal = new TEcnaParEcal(SubDet.Data());     /*fCnew++*/ ;}
   else
     {fEcal = (TEcnaParEcal*)pEcal;}
@@ -153,8 +153,8 @@ void TEcnaParHistos::SetEcalSubDetector(const TString& SubDet,
   fFlagSubDet.Resize(MaxCar);
   fFlagSubDet = fEcal->GetEcalSubDetector();
 
-  fEcalNumbering = 0;
-  if( pEcalNumbering == 0 )
+  fEcalNumbering = nullptr;
+  if( pEcalNumbering == nullptr )
     {fEcalNumbering = new TEcnaNumbering(fFlagSubDet.Data(), fEcal);     /*fCnew++*/ ;}
   else
     {fEcalNumbering = (TEcnaNumbering*)pEcalNumbering;}
@@ -581,7 +581,7 @@ void TEcnaParHistos::SetViewHistoStyle(const TString& HistoType)
 // Set style parameters for histo view
 
   //......................... Palette
-  gStyle->SetPalette(1,0);  // default: rainbow spectrum
+  gStyle->SetPalette(1,nullptr);  // default: rainbow spectrum
 
   //............................... Date
   gStyle->SetOptDate(0);
@@ -1218,7 +1218,7 @@ TPaveText* TEcnaParHistos::SetPaveGeneralComment(const TString& comment)
     }
   else
     {
-      title_g1 = new TPaveText( 0, 0, 0, 0);  title_g1=0;  fCnewRoot++;
+      title_g1 = new TPaveText( 0, 0, 0, 0);  title_g1=nullptr;  fCnewRoot++;
     }
   return title_g1;
 }
@@ -1823,7 +1823,7 @@ TPaveText* TEcnaParHistos::SetPaveLVRB(const Int_t& SMNumber, const Int_t& SMtow
 
   if(fEcalNumbering->GetTowerLvrbType(SMtower) == "top")
     {
-      TText *t3 = 0;
+      TText *t3 = nullptr;
       if(fEcalNumbering->GetSMHalfBarrel(SMNumber) == "EB+")
 	{t3 =  com_bot_mid->AddText("       <=== LVRB       ");}
       if(fEcalNumbering->GetSMHalfBarrel(SMNumber) == "EB-")
@@ -1833,7 +1833,7 @@ TPaveText* TEcnaParHistos::SetPaveLVRB(const Int_t& SMNumber, const Int_t& SMtow
   
   if(fEcalNumbering->GetTowerLvrbType(SMtower) == "bottom")
     {
-      TText *t4 = 0;
+      TText *t4 = nullptr;
       if(fEcalNumbering->GetSMHalfBarrel(SMNumber) == "EB+")
 	{t4 = com_bot_mid->AddText("        LVRB ===>       ");}
       if(fEcalNumbering->GetSMHalfBarrel(SMNumber) == "EB-")
@@ -2063,7 +2063,7 @@ TPaveText* TEcnaParHistos::SetPaveCxyz(const Int_t& DeeNumber)
 
 TPaveText* TEcnaParHistos::SetPaveStex(const TString& chopt, const Int_t& StexNumber)
 {
-  TPaveText* pav_text = 0;
+  TPaveText* pav_text = nullptr;
 
   if( StexNumber > 0 )
     {
@@ -2085,7 +2085,7 @@ TPaveText* TEcnaParHistos::SetPaveStex(const TString& chopt, const Int_t& StexNu
 
 TPaveText* TEcnaParHistos::SetPaveStin(const Int_t& StinNumber, const Int_t& StexNumber)
 {
-  TPaveText* pav_text = 0;
+  TPaveText* pav_text = nullptr;
   if ( fFlagSubDet == "EB"){pav_text = SetPaveTower(StinNumber);}
   if ( fFlagSubDet == "EE"){pav_text = SetPaveSC(StinNumber, StexNumber);}
   return pav_text;
@@ -2093,7 +2093,7 @@ TPaveText* TEcnaParHistos::SetPaveStin(const Int_t& StinNumber, const Int_t& Ste
 
 TPaveText* TEcnaParHistos::SetPaveStinsXY(const Int_t& StexStin_X, const Int_t& StexStin_Y) 
 {
-  TPaveText* pav_text = 0;
+  TPaveText* pav_text = nullptr;
   if ( fFlagSubDet == "EB"){pav_text = SetPaveTowersXY(StexStin_X, StexStin_Y);}
   if ( fFlagSubDet == "EE"){pav_text = SetPaveSCsXY(StexStin_X, StexStin_Y);}
   return pav_text;

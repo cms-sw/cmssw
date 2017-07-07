@@ -254,7 +254,7 @@ TH1F* Fp420AnalysisHistManager::GetHisto(Int_t Number)
 {
         // Get a histogram from the array with index = Number
 
-        if (Number <= fHistArray->GetLast()  && fHistArray->At(Number) != (TObject*)0){
+        if (Number <= fHistArray->GetLast()  && fHistArray->At(Number) != (TObject*)nullptr){
 
                 return (TH1F*)(fHistArray->At(Number));
 
@@ -273,7 +273,7 @@ TH2F* Fp420AnalysisHistManager::GetHisto2(Int_t Number)
 {
         // Get a histogram from the array with index = Number
 
-        if (Number <= fHistArray->GetLast()  && fHistArray->At(Number) != (TObject*)0){
+        if (Number <= fHistArray->GetLast()  && fHistArray->At(Number) != (TObject*)nullptr){
 
                 return (TH2F*)(fHistArray->At(Number));
 
@@ -472,7 +472,7 @@ void FP420Test::update(const G4Step * aStep) {
   // track on aStep:                                                                                         !
   G4Track*     theTrack     = aStep->GetTrack();   
   TrackInformation* trkInfo = dynamic_cast<TrackInformation*> (theTrack->GetUserInformation());
-   if (trkInfo == 0) {
+   if (trkInfo == nullptr) {
      std::cout << "FP420Test on aStep: No trk info !!!! abort " << std::endl;
    } 
   G4int         id             = theTrack->GetTrackID();
@@ -833,7 +833,7 @@ void FP420Test::detectorLevel(const G4VTouchable* touch, int& level,
     for (int ii = 0; ii < level; ii++) {
       int i      = level - ii - 1;
       G4VPhysicalVolume* pv = touch->GetVolume(i);
-      if (pv != 0) 
+      if (pv != nullptr) 
         name[ii] = pv->GetName();
       else
         name[ii] = "Unknown";
@@ -856,7 +856,7 @@ void FP420Test::update(const EndOfEvent * evt) {
 
   //
   int trackID = 0;
-  G4PrimaryParticle* thePrim=0;
+  G4PrimaryParticle* thePrim=nullptr;
 
 
   // prim.vertex:
@@ -866,7 +866,7 @@ void FP420Test::update(const EndOfEvent * evt) {
 
   for (int i = 0 ; i<nvertex; i++) {
     G4PrimaryVertex* avertex = (*evt)()->GetPrimaryVertex(i);
-    if (avertex == 0)
+    if (avertex == nullptr)
       std::cout << "FP420Test  End Of Event ERR: pointer to vertex = 0"
       << std::endl;
     G4int npart = avertex->GetNumberOfParticle();
@@ -876,9 +876,9 @@ void FP420Test::update(const EndOfEvent * evt) {
       std::cout << "FP420Test End Of Event ERR: no NumberOfParticle" << std::endl;
 
   // find just primary track:                                                             track pointer: thePrim
-    if (thePrim==0) thePrim=avertex->GetPrimary(trackID);
+    if (thePrim==nullptr) thePrim=avertex->GetPrimary(trackID);
 
-    if (thePrim!=0) {
+    if (thePrim!=nullptr) {
       // primary vertex:
       G4double vx=0.,vy=0.,vz=0.;
       vx = avertex->GetX0();
@@ -895,7 +895,7 @@ void FP420Test::update(const EndOfEvent * evt) {
   // prim.vertex loop end
 
 //=========================== thePrim != 0 ================================================================================
-    if (thePrim != 0) {
+    if (thePrim != nullptr) {
 //      inline G4ParticleDefinition * GetG4code() const
 //      inline G4PrimaryParticle * GetNext() const
 //      inline G4PrimaryParticle * GetDaughter() const

@@ -10,19 +10,19 @@
 NavSurface* NavSurfaceBuilder::build( const Surface& surface) const
 {
   const Plane* plane = dynamic_cast<const Plane*>(&surface);
-  if (plane != 0) {
+  if (plane != nullptr) {
     return new NavPlane( plane);
   }
     
   const Cylinder* cylinder = dynamic_cast<const Cylinder*>(&surface);
-  if (cylinder != 0) {
+  if (cylinder != nullptr) {
     return new NavCylinder( cylinder);
   }
     
   const Cone* cone = dynamic_cast<const Cone*>(&surface);
-  if (cone != 0) {
+  if (cone != nullptr) {
     return new NavCone( cone);
   }
     
-  return 0;
+  return nullptr;
 }

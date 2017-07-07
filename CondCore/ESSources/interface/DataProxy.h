@@ -108,7 +108,7 @@ public:
   
   
   DataProxyWrapper(cond::persistency::Session& session,
-		   const std::string& tag, const std::string& ilabel, const char * source=0) :
+		   const std::string& tag, const std::string& ilabel, const char * source=nullptr) :
     cond::DataProxyWrapperBase(ilabel),
     m_source( source ? source : "" ),
     m_proxy(new PayProxy( source)), //'errorPolicy set to true: PayloadProxy should catch and re-throw ORA exceptions' still needed?
@@ -120,7 +120,7 @@ public:
   }
 
   // constructor from plugin...
-  explicit DataProxyWrapper(const char * source=0) : m_source (source ? source : "") {
+  explicit DataProxyWrapper(const char * source=nullptr) : m_source (source ? source : "") {
     //NOTE: We do this so that the type 'DataT' will get registered
     // when the plugin is dynamically loaded
     m_type = edm::eventsetup::DataKey::makeTypeTag<DataT>();
@@ -129,7 +129,7 @@ public:
   // late initialize (to allow to load ALL library first)
   virtual void lateInit(cond::persistency::Session& session, const std::string & tag, const boost::posix_time::ptime& snapshotTime,
 			std::string const & il, std::string const & cs) {
-    m_proxy.reset(new PayProxy(m_source.empty() ?  (const char *)(0) : m_source.c_str() ) );
+    m_proxy.reset(new PayProxy(m_source.empty() ?  (const char *)nullptr : m_source.c_str() ) );
     m_proxy->setUp( session );
     m_proxy->loadTag( tag, snapshotTime );
     m_edmProxy.reset(new DataProxy(m_proxy));

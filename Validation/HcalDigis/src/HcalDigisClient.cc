@@ -65,7 +65,7 @@ int HcalDigisClient::HcalDigisEndjob(const std::vector<MonitorElement*> &hcalMEs
     string strtmp;
 
 
-    MonitorElement * nevtot(0);
+    MonitorElement * nevtot(nullptr);
 
     std::vector<MonitorElement*> ieta_iphi_occupancy_maps;
     std::vector<std::string> depthID;
@@ -202,7 +202,7 @@ int HcalDigisClient::HcalDigisEndjob(const std::vector<MonitorElement*> &hcalMEs
 }
 
 MonitorElement* HcalDigisClient::monitor(std::string name) {
-    if (!msm_->count(name)) return NULL;
+    if (!msm_->count(name)) return nullptr;
     else return msm_->find(name)->second;
 }
 

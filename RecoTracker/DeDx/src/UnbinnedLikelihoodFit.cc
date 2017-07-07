@@ -30,8 +30,8 @@ void UnbinnedLL(Int_t&, Double_t*, Double_t &val, Double_t *par, Int_t) {
 UnbinnedLikelihoodFit::UnbinnedLikelihoodFit() {
   nparameters_ = 0;
   datasize_ = 0;
-  x_ = NULL;
-  min = NULL;
+  x_ = nullptr;
+  min = nullptr;
   tolerance_ = 0.01;
   maxIterations_ = 1000;
 }

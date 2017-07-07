@@ -162,7 +162,7 @@ void MuonAlignmentOutputXML::writeComponents(align::Alignables &alignables,
                                              const AlignableObjectId& objectIdProvider) const {
    align::Alignables::const_iterator ideal = ideals.begin();
    for (align::Alignables::const_iterator alignable = alignables.begin();  alignable != alignables.end();  ++alignable) {
-      if (m_survey  &&  (*alignable)->survey() == NULL) {
+      if (m_survey  &&  (*alignable)->survey() == nullptr) {
 	 throw cms::Exception("Alignment") << "SurveyDets must all be defined when writing to XML" << std::endl;
       } // now I can assume it's okay everywhere
 
@@ -302,7 +302,7 @@ void MuonAlignmentOutputXML::writeComponents(align::Alignables &alignables,
             }
 	 }
 
-	 else if (m_relativeto == 2  &&  (*alignable)->mother() != NULL) {
+	 else if (m_relativeto == 2  &&  (*alignable)->mother() != nullptr) {
 	    align::PositionType globalPosition = (*alignable)->mother()->globalPosition();
 	    align::RotationType globalRotation = (*alignable)->mother()->globalRotation();
 

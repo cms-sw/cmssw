@@ -96,13 +96,13 @@
 	      continue;
 
 	    TList *m_list = file_it.GetListOfKeys();
-	    if(m_list == 0) {
+	    if(m_list == nullptr) {
 	      return;
 	    }
 	    TKey *index = (TKey *)m_list->First();
-	    if(index == 0) {
+	    if(index == nullptr) {
 	    }
-	    if( index != 0 )
+	    if( index != nullptr )
 	    {
 	      do
 	      {
@@ -117,7 +117,7 @@
 		}
 		*(map[objectName]) += *mat;
 		index = (TKey*)m_list->After(index);
-	      } while(index != 0);
+	      } while(index != nullptr);
 	    }
 	    file_it.Close();    
 	  }
@@ -312,7 +312,7 @@
 		Alignable* ali=aap.alignableFromAlignableDet(alidet);
 	     
 		//To be sure that the ali is not null and that it's a DT segment 
-		if ( ali!=0 && (*ihit)->geographicalId().subdetId() == 1)
+		if ( ali!=nullptr && (*ihit)->geographicalId().subdetId() == 1)
 		{
 		  DTChamberId m_Chamber(det->geographicalId());
 		  //Station 4 does not contain Theta SL 

@@ -352,7 +352,7 @@ void AlignmentMonitorMuonSystemMap1D::processMuonResidualsFromTrack(MuonResidual
 
       m_counter_dt++;
 
-      if (id.station() < 4 && dt13 != NULL  &&  dt13->numHits() >= m_minDT13Hits && dt2 != NULL  &&  dt2->numHits() >= m_minDT2Hits && (dt2->chi2() / double(dt2->ndof())) < 2.0)
+      if (id.station() < 4 && dt13 != nullptr  &&  dt13->numHits() >= m_minDT13Hits && dt2 != nullptr  &&  dt2->numHits() >= m_minDT2Hits && (dt2->chi2() / double(dt2->ndof())) < 2.0)
       {
         m_counter_13numhits++;
 
@@ -394,7 +394,7 @@ void AlignmentMonitorMuonSystemMap1D::processMuonResidualsFromTrack(MuonResidual
         m_DTvsphi_station[id.station()-1][id.wheel()+2]->fill_dydz(charge, phi, resslope, chi2, dof);
       }
 
-      if (id.station() == 4 && dt13 != NULL  &&  dt13->numHits() >= m_minDT13Hits)
+      if (id.station() == 4 && dt13 != nullptr  &&  dt13->numHits() >= m_minDT13Hits)
       {
         m_counter_13numhits++;
 
@@ -428,7 +428,7 @@ void AlignmentMonitorMuonSystemMap1D::processMuonResidualsFromTrack(MuonResidual
 
       m_counter_csc++;
 
-      if (csc != NULL  &&  csc->numHits() >= m_minCSCHits)
+      if (csc != nullptr  &&  csc->numHits() >= m_minCSCHits)
       {
         m_counter_cscnumhits++;
 
@@ -499,7 +499,7 @@ void AlignmentMonitorMuonSystemMap1D::afterAlignment()
 AlignmentMonitorMuonSystemMap1D::MuonSystemMapPlot1D::MuonSystemMapPlot1D(std::string name, AlignmentMonitorMuonSystemMap1D *module, int bins, double low, double high, bool xy, bool add_1d)
    : m_name(name), m_bins(bins), m_xy(xy), m_1d(add_1d)
 {
-  m_x_2d = m_y_2d = m_dxdz_2d = m_dydz_2d = NULL;
+  m_x_2d = m_y_2d = m_dxdz_2d = m_dydz_2d = nullptr;
   std::stringstream name_x_2d, name_y_2d, name_dxdz_2d, name_dydz_2d;
   name_x_2d << m_name << "_x_2d";
   name_y_2d << m_name << "_y_2d";
@@ -514,7 +514,7 @@ AlignmentMonitorMuonSystemMap1D::MuonSystemMapPlot1D::MuonSystemMapPlot1D(std::s
   m_dxdz_2d = module->book2D("/iterN/", name_dxdz_2d.str().c_str(), "", m_bins, low, high, nbins, -window, window);
   if (m_xy) m_dydz_2d = module->book2D("/iterN/", name_dydz_2d.str().c_str(), "", m_bins, low, high, nbins, -window, window);
 
-  m_x_1d = NULL;
+  m_x_1d = nullptr;
   if (m_1d) {
     std::stringstream name_x_1d;//, name_y_1d, name_dxdz_1d, name_dydz_1d;
     name_x_1d << m_name << "_x_1d";

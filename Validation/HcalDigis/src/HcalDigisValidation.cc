@@ -1257,7 +1257,7 @@ void HcalDigisValidation::fillPf(std::string name, double X, double Y) {
 }
 
 MonitorElement* HcalDigisValidation::monitor(std::string name) {
-    if (!msm_->count(name)) return NULL;
+    if (!msm_->count(name)) return nullptr;
     else return msm_->find(name)->second;
 }
 

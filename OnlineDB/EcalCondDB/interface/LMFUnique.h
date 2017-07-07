@@ -22,8 +22,8 @@ class LMFUnique: public IUniqueDBObject {
 
   LMFUnique() { 
     _profiling = false;
-    m_env = NULL;
-    m_conn = NULL;
+    m_env = nullptr;
+    m_conn = nullptr;
     m_ID = 0;
     setClassName("LMFUnique"); nodebug(); 
   }

@@ -99,7 +99,7 @@ RPCTechnicalTrigger::RPCTechnicalTrigger(const edm::ParameterSet& iConfig) {
   m_maxTtuBoards = 3;
   m_maxBits = 5;
   m_hasConfig = false;
-  m_readConfig = NULL;
+  m_readConfig = nullptr;
   produces<L1GtTechnicalTriggerRecord>();
   consumes<RPCDigiCollection>(m_rpcDigiLabel);
   consumes<edm::DetSetVector<RPCDigiSimLink> >(edm::InputTag("simMuonRPCDigis", "RPCDigiSimLink",""));

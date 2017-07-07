@@ -79,7 +79,7 @@ public:
     minM13Cut_(minM13Cut),
     maxM13Cut_(maxM13Cut),
     optRrejectMin_(optRrejectMin),
-    engine_(0)
+    engine_(nullptr)
   {}
 
   /// returns a textual description of the tagger
@@ -140,7 +140,7 @@ class HEPTopTaggerV2Structure : public CompositeJetStructure, public TopTaggerBa
  public:
    /// ctor with pieces initialisation
    HEPTopTaggerV2Structure(const std::vector<PseudoJet>& pieces_in,
-                  const JetDefinition::Recombiner *recombiner = 0) : CompositeJetStructure(pieces_in, recombiner),
+                  const JetDefinition::Recombiner *recombiner = nullptr) : CompositeJetStructure(pieces_in, recombiner),
     _fj_mass(0.0),
     _fj_pt(0.0),
     _fj_eta(0.0),

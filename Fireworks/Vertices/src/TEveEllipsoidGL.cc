@@ -28,7 +28,7 @@
 
 //______________________________________________________________________________
 TEveEllipsoidGL::TEveEllipsoidGL() :
-   TGLObject(), fE(0)
+   TGLObject(), fE(nullptr)
 {
    // Constructor.
 
@@ -53,7 +53,7 @@ void TEveEllipsoidGL::SetBBox()
 }
 
 namespace {
-GLUquadric* quad = 0; // !!!! AMT check why TGLQuadric crashes on mac
+GLUquadric* quad = nullptr; // !!!! AMT check why TGLQuadric crashes on mac
 }
 
 //______________________________________________________________________________
@@ -116,7 +116,7 @@ void TEveEllipsoidGL::DirectDraw(TGLRnrCtx& /*rnrCtx*/) const
 
 //______________________________________________________________________________
 TEveEllipsoidProjectedGL::TEveEllipsoidProjectedGL() :
-   fM(0)
+   fM(nullptr)
 {
    // Constructor.
 
@@ -131,7 +131,7 @@ Bool_t TEveEllipsoidProjectedGL::SetModel(TObject* obj, const Option_t* /*opt*/)
 
    fM = SetModelDynCast<TEveEllipsoidProjected>(obj);
    fE = dynamic_cast<TEveEllipsoid*>(fM->GetProjectable());
-   return fE != 0;
+   return fE != nullptr;
 }
 
 //______________________________________________________________________________

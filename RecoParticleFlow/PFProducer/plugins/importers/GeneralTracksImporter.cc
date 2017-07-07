@@ -126,7 +126,7 @@ importToBlock( const edm::Event& e,
   }
   // now we actually insert tracks, again tagging muons along the way
   reco::PFRecTrackRef pftrackref;  
-  reco::PFBlockElementTrack* trkElem = NULL;
+  reco::PFBlockElementTrack* trkElem = nullptr;
   for( auto track = btrack;  track != etrack; ++track) {
     const unsigned idx = std::distance(btrack,track);
     // since we already set muon refs in the previously imported tracks,

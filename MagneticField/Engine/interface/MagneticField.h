@@ -24,7 +24,7 @@ class MagneticField
   /// Derived classes can implement cloning without ownership of the 
   /// underlying engines.
   virtual MagneticField* clone() const {
-    return 0;
+    return nullptr;
   }
   
   /// Field value ad specified global point, in Tesla

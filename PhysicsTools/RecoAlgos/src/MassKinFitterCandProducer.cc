@@ -7,7 +7,7 @@
 MassKinFitterCandProducer::MassKinFitterCandProducer(const edm::ParameterSet & cfg, CandMassKinFitter * f) :
   srcToken_(consumes<reco::CandidateCollection>(cfg.getParameter<edm::InputTag>("src"))),
   fitter_(f) {
-  if(f == 0) fitter_.reset(new CandMassKinFitter(cfg.getParameter<double>("mass")));
+  if(f == nullptr) fitter_.reset(new CandMassKinFitter(cfg.getParameter<double>("mass")));
   produces<reco::CandidateCollection>();
 }
 

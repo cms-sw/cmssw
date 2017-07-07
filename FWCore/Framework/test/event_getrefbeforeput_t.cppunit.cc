@@ -87,13 +87,13 @@ void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
 
      std::string label("this does not exist");
      edm::RefProd<edmtest::DummyProduct> ref = event.getRefBeforePut<edmtest::DummyProduct>(label);
-     CPPUNIT_ASSERT("Failed to throw required exception" == 0);
+     CPPUNIT_ASSERT("Failed to throw required exception" == nullptr);
   }
   catch (edm::Exception& x) {
     // nothing to do
   }
   catch (...) {
-    CPPUNIT_ASSERT("Threw wrong kind of exception" == 0);
+    CPPUNIT_ASSERT("Threw wrong kind of exception" == nullptr);
   }
 }
 
@@ -165,15 +165,15 @@ void testEventGetRefBeforePut::getRefTest() {
   }
   catch (cms::Exception& x) {
     std::cerr << x.explainSelf()<< std::endl;
-    CPPUNIT_ASSERT("Threw exception unexpectedly" == 0);
+    CPPUNIT_ASSERT("Threw exception unexpectedly" == nullptr);
   }
   catch(std::exception& x){
      std::cerr <<x.what()<<std::endl;
-     CPPUNIT_ASSERT("threw std::exception"==0);
+     CPPUNIT_ASSERT("threw std::exception"==nullptr);
   }
   catch (...) {
     std::cerr << "Unknown exception type\n";
-    CPPUNIT_ASSERT("Threw exception unexpectedly" == 0);
+    CPPUNIT_ASSERT("Threw exception unexpectedly" == nullptr);
   }
   CPPUNIT_ASSERT(refToProd->value == 10);
 }

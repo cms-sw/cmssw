@@ -46,7 +46,7 @@ void resetColors(const float(* iColors)[3], unsigned int iSize, unsigned int iSt
    
    TColor* c = static_cast<TColor*>(colorTable->At(iStart));
    unsigned int index = iStart;
-   if(0==c || c->GetNumber() != static_cast<int>(iStart)) {
+   if(nullptr==c || c->GetNumber() != static_cast<int>(iStart)) {
       TIter   next(colorTable);
       while( (c=static_cast<TColor*>( next() )) ) {
          if(c->GetNumber()==static_cast<int>(iStart)) {
@@ -55,7 +55,7 @@ void resetColors(const float(* iColors)[3], unsigned int iSize, unsigned int iSt
          }
       }
    }
-   assert(0!=c);
+   assert(nullptr!=c);
    
    for(unsigned int i = index; i< index+iSize; ++i,++iColors) {
       TColor* c = static_cast<TColor*> (colorTable->At(i));
@@ -342,7 +342,7 @@ FWColorManager::oldColorToIndex(Color_t iColor, int version) const
 
    if (version < 3)
    {
-      if(0==m_oldColorToIndexMap.get()) {
+      if(nullptr==m_oldColorToIndexMap.get()) {
          m_oldColorToIndexMap = std::make_shared<std::map<Color_t,Color_t> >();
          (*m_oldColorToIndexMap)[kRed]=kFWRed;
          (*m_oldColorToIndexMap)[kBlue]=kFWBlue;

@@ -54,7 +54,7 @@ CmsShowNavigator::CmsShowNavigator(const CmsShowMain &main):
    m_maxNumberOfFilesToChain(1),
 
    m_main(main),
-   m_guiFilter(0)
+   m_guiFilter(nullptr)
 {
    m_guiFilter = new FWGUIEventFilter(this);
    filterStateChanged_.connect(boost::bind(&FWGUIEventFilter::updateFilterStateLabel, m_guiFilter, _1));
@@ -73,7 +73,7 @@ bool
 CmsShowNavigator::openFile(const std::string& fileName)
 {
    fwLog(fwlog::kDebug) << "CmsShowNavigator::openFile [" << fileName << "]" << std::endl;
-   FWFileEntry* newFile = 0;
+   FWFileEntry* newFile = nullptr;
    try
    {
       newFile = new FWFileEntry(fileName, m_main.getVersionCheck());
@@ -120,7 +120,7 @@ bool
 CmsShowNavigator::appendFile(const std::string& fileName, bool checkFileQueueSize, bool live)
 {
    fwLog(fwlog::kDebug) << "CmsShowNavigator::appendFile [" << fileName << "]" << std::endl;
-   FWFileEntry* newFile  = 0;
+   FWFileEntry* newFile  = nullptr;
    try
    {
       newFile = new FWFileEntry(fileName, m_main.getVersionCheck());
@@ -615,7 +615,7 @@ CmsShowNavigator::applyFiltersFromGUI()
             }
             ++si; ++gi;
          }
-         else if ((*gi)->origSelector() == 0)
+         else if ((*gi)->origSelector() == nullptr)
          {
             addFilter((*gi)->guiSelector());
             (*gi)->setOrigSelector(m_selectors.back());
@@ -959,7 +959,7 @@ CmsShowNavigator::getProcessList() const
 const edm::EventBase* 
 CmsShowNavigator::getCurrentEvent() const
 {
-   return m_currentFile.isSet() ? (*m_currentFile)->event() : 0; 
+   return m_currentFile.isSet() ? (*m_currentFile)->event() : nullptr; 
 }
 
 const char*

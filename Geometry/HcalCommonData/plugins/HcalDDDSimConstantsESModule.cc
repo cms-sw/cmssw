@@ -48,7 +48,7 @@ private:
   HcalDDDSimConstants* hcalDDDConst_;
 };
 
-HcalDDDSimConstantsESModule::HcalDDDSimConstantsESModule(const edm::ParameterSet& iConfig) : hcalDDDConst_(0) {
+HcalDDDSimConstantsESModule::HcalDDDSimConstantsESModule(const edm::ParameterSet& iConfig) : hcalDDDConst_(nullptr) {
 #ifdef EDM_ML_DEBUG
   std::cout <<"constructing HcalDDDSimConstantsESModule" << std::endl;
 #endif
@@ -68,7 +68,7 @@ HcalDDDSimConstantsESModule::produce(const HcalSimNumberingRecord& iRecord) {
 #ifdef EDM_ML_DEBUG
   std::cout << "in HcalDDDSimConstantsESModule::produce" << std::endl;
 #endif
-  if (hcalDDDConst_ == 0) {
+  if (hcalDDDConst_ == nullptr) {
     edm::LogError("HCalGeom") << "HcalDDDSimConstantsESModule::produceHcalDDDSimConstants has NOT been initialized!";
     throw cms::Exception("DDException") << "HcalDDDSimConstantsESModule::Cannot produce HcalDDDSimConstnats";
   }
@@ -83,7 +83,7 @@ void HcalDDDSimConstantsESModule::initializeHcalDDDSimConstants(const HcalParame
 #ifdef EDM_ML_DEBUG
   std::cout << "in HcalDDDSimConstantsESModule::initializeHcalDDDSimConstants" << std::endl;
 #endif
-  if ( hcalDDDConst_ != 0 ) {
+  if ( hcalDDDConst_ != nullptr ) {
     delete hcalDDDConst_;
   }
   const HcalParameters* hpar = &(*parHandle);

@@ -69,7 +69,7 @@ namespace { // anonymous
 	        virtual XMLSize_t readBytes(XMLByte *const buf,
 					    const XMLSize_t size) override;
 	  
-	        virtual const XMLCh* getContentType() const override { return 0; }
+	        virtual const XMLCh* getContentType() const override { return nullptr; }
 
 	    private:
 	        std::istream    &in;
@@ -144,7 +144,7 @@ XMLDocument::XercesPlatform::~XercesPlatform()
 
 XMLDocument::XMLDocument(const std::string &fileName, bool write) :
 	platform(new XercesPlatform()), fileName(fileName),
-	write(write), impl(0), doc(0), rootNode(0)
+	write(write), impl(nullptr), doc(nullptr), rootNode(nullptr)
 {
 	if (write)
 		openForWrite(fileName);
@@ -163,7 +163,7 @@ XMLDocument::XMLDocument(const std::string &fileName, bool write) :
 XMLDocument::XMLDocument(const std::string &fileName,
                          const std::string &command) :
 	platform(new XercesPlatform()), fileName(fileName),
-	write(false), impl(0), doc(0), rootNode(0)
+	write(false), impl(nullptr), doc(nullptr), rootNode(nullptr)
 {
 	FILE *file = popen(command.c_str(), "r");
 	if (!file)
@@ -272,7 +272,7 @@ DOMDocument *XMLDocument::createDocument(const std::string &root)
 			<< "Document already exists in createDocument."
 			<< std::endl;
 
-	doc = impl->createDocument(0, XMLUniStr(root.c_str()), 0);
+	doc = impl->createDocument(nullptr, XMLUniStr(root.c_str()), nullptr);
 	rootNode = doc->getDocumentElement();
 
 	return doc;

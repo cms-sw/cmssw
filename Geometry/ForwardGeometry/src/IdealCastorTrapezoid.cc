@@ -116,7 +116,7 @@ IdealCastorTrapezoid::localCorners( Pt3DVec&        lc  ,
 				    Pt3D&           ref   )
 {
    assert( 8 == lc.size() ) ;
-   assert( 0 != pv ) ;
+   assert( nullptr != pv ) ;
    
    const CCGFloat dxl ( pv[0] ) ;
    const CCGFloat dxh ( pv[1] ) ;

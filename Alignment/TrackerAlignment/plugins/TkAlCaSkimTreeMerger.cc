@@ -75,9 +75,9 @@ TkAlCaSkimTreeMerger::TkAlCaSkimTreeMerger(const edm::ParameterSet &iConfig) :
   maxTEChits_=maxhitsSet_.getParameter<int32_t>("TECmaxhits");
   //anything you want to do for initializing
   std::cout<<"\n\n*** MAX N HITS = "<<maxhits_<<std::endl<<std::endl;
-  out_=0;
-  firsttree_=0;
-  ch_=0;
+  out_=nullptr;
+  firsttree_=nullptr;
+  ch_=nullptr;
 }
 
 

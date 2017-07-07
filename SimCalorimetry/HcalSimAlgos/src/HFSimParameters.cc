@@ -12,14 +12,14 @@ HFSimParameters::HFSimParameters(double simHitToPhotoelectrons, double photoelec
                                  double samplingFactor, double timePhase, bool syncPhase)
 : CaloSimParameters(simHitToPhotoelectrons, photoelectronsToAnalog, samplingFactor, timePhase,
                     6, 4, false, syncPhase),
-  theDbService(0),
+  theDbService(nullptr),
   theSamplingFactor( samplingFactor )
 {
 }
 
 HFSimParameters::HFSimParameters(const edm::ParameterSet & p)
 :  CaloSimParameters(p),
-   theDbService(0),
+   theDbService(nullptr),
    theSamplingFactor( p.getParameter<double>("samplingFactor") )
 {
 }
@@ -33,7 +33,7 @@ double HFSimParameters::photoelectronsToAnalog(const DetId & detId) const
 
 double HFSimParameters::fCtoGeV(const DetId & detId) const
 {
-  assert(theDbService != 0);
+  assert(theDbService != nullptr);
   HcalGenericDetId hcalGenDetId(detId);
   const HcalGain* gains = theDbService->getGain(hcalGenDetId);
   const HcalGainWidth* gwidths = theDbService->getGainWidth(hcalGenDetId);

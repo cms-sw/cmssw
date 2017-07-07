@@ -11,7 +11,7 @@
 using namespace std;
 using namespace edm;
 
-ESDigiToRaw::ESDigiToRaw(const edm::ParameterSet& ps) : ESDataFormatter_(0)
+ESDigiToRaw::ESDigiToRaw(const edm::ParameterSet& ps) : ESDataFormatter_(nullptr)
 {
   
   label_ = ps.getParameter<string>("Label");

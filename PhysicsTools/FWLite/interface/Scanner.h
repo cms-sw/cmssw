@@ -186,13 +186,13 @@ namespace fwlite {
                 // prep the machinery
                 helper::ScannerBase scanner(objType);
                 scanner.setIgnoreExceptions(ignoreExceptions_);
-                if (!scanner.addExpression(expr)) return 0;
+                if (!scanner.addExpression(expr)) return nullptr;
                 if (strlen(cut)) scanner.setCut(cut);
 
                 // check histo
-                if (hist == 0) {
+                if (hist == nullptr) {
                     std::cerr << "Method draw(expr, cut, drawopt, hist) cannot be called with null 'hist'. Use the other draw methods instead." << std::endl;
-                    return 0;
+                    return nullptr;
                 }
 
                 // fill histogram
@@ -224,9 +224,9 @@ namespace fwlite {
              *  - otherwise an automatically binned histogram will be used.
              *    in the last case, gEnv->GetValue("Hist.Binning.1D.x", 100) is used for the number of bins
              *  See draw(const char *expr, const char *cut, TString drawopt, TH1 *histo) for further documentation */
-            TH1 * draw(const char *expr, const char *cut = "", TString drawopt = "", const char *hname = "htemp", const TH1 *htemplate = 0) {
-                TH1 *hist = 0;
-                if (htemplate != 0) {
+            TH1 * draw(const char *expr, const char *cut = "", TString drawopt = "", const char *hname = "htemp", const TH1 *htemplate = nullptr) {
+                TH1 *hist = nullptr;
+                if (htemplate != nullptr) {
                     if ((strcmp(hname, "htemp") == 0) && (strcmp(hname,htemplate->GetName()) != 0)) htempDelete();
                     hist = (TH1*) hist->Clone(hname);
                 } else if (drawopt.Contains("SAME",TString::kIgnoreCase)) { 
@@ -234,7 +234,7 @@ namespace fwlite {
                 }
 
                 // if in the end we found no way to make "hist"
-                if (hist == 0) {
+                if (hist == nullptr) {
                     if (strcmp(hname, "htemp") == 0) htempDelete();
                     hist = new TH1F(hname, "", gEnv->GetValue("Hist.Binning.1D.x",100), 0, 0);
                     hist->SetCanExtend(TH1::kAllAxes);
@@ -280,14 +280,14 @@ namespace fwlite {
                 // prep the machinery
                 helper::ScannerBase scanner(objType);
                 scanner.setIgnoreExceptions(ignoreExceptions_);
-                if (!scanner.addExpression(xexpr.Data())) return 0;
-                if (!scanner.addExpression(yexpr.Data())) return 0;
+                if (!scanner.addExpression(xexpr.Data())) return nullptr;
+                if (!scanner.addExpression(yexpr.Data())) return nullptr;
                 if (strlen(cut)) scanner.setCut(cut);
 
                 // check histo
-                if (hist == 0) {
+                if (hist == nullptr) {
                     std::cerr << "Method drawProf(xexpr, yexpr, cut, drawopt, hist) cannot be called with null 'hist'. Use the other draw methods instead." << std::endl;
-                    return 0;
+                    return nullptr;
                 }
 
                 // fill histogram
@@ -309,9 +309,9 @@ namespace fwlite {
                 return hist;
             }
             /// Just like draw() except that it uses TProfile. Note that the order is (x,y) while in ROOT it's usually (y,x)!
-            TProfile * drawProf(TString xexpr, TString yexpr, const char *cut = "", TString drawopt = "", const char *hname = "htemp", TProfile *htemplate = 0) {
-                TProfile *hist = 0;
-                if (htemplate != 0) {
+            TProfile * drawProf(TString xexpr, TString yexpr, const char *cut = "", TString drawopt = "", const char *hname = "htemp", TProfile *htemplate = nullptr) {
+                TProfile *hist = nullptr;
+                if (htemplate != nullptr) {
                     if ((strcmp(hname, "htemp") == 0) && (strcmp(hname,htemplate->GetName() )!= 0)) htempDelete();
                     hist = (TProfile*) hist->Clone(hname);
                 } else if (drawopt.Contains("SAME",TString::kIgnoreCase)) { 
@@ -319,7 +319,7 @@ namespace fwlite {
                 }
 
                 // if in the end we found no way to make "hist"
-                if (hist == 0) {
+                if (hist == nullptr) {
                     if (strcmp(hname, "htemp") == 0) htempDelete();
                     hist = new TProfile(hname, "", gEnv->GetValue("Hist.Binning.1D.x",100), 0., 0.);
                     hist->SetCanExtend(TH1::kAllAxes);
@@ -345,14 +345,14 @@ namespace fwlite {
                 // prep the machinery
                 helper::ScannerBase scanner(objType);
                 scanner.setIgnoreExceptions(ignoreExceptions_);
-                if (!scanner.addExpression((const char *)xexpr)) return 0;
-                if (!scanner.addExpression((const char *)yexpr)) return 0;
+                if (!scanner.addExpression((const char *)xexpr)) return nullptr;
+                if (!scanner.addExpression((const char *)yexpr)) return nullptr;
                 if (strlen(cut)) scanner.setCut(cut);
 
                 // check histo
-                if (hist == 0) {
+                if (hist == nullptr) {
                     std::cerr << "Method draw2D(xexpr, yexpr, cut, drawopt, hist) cannot be called with null 'hist'. Use the other draw methods instead." << std::endl;
-                    return 0;
+                    return nullptr;
                 }
 
                 // fill histogram
@@ -375,9 +375,9 @@ namespace fwlite {
             }
             /// Just like draw() except that it uses TH2. Note that the order is (x,y) while in ROOT it's usually (y,x)!
             /// Note that automatical binning for TH2s is more expensive, as it requires to loop on the events twice!
-            TH2 * draw2D(TString xexpr, TString yexpr, const char *cut = "", TString drawopt = "", const char *hname = "htemp", TH2 *htemplate = 0) {
-                TH2 *hist = 0;
-                if (htemplate != 0) {
+            TH2 * draw2D(TString xexpr, TString yexpr, const char *cut = "", TString drawopt = "", const char *hname = "htemp", TH2 *htemplate = nullptr) {
+                TH2 *hist = nullptr;
+                if (htemplate != nullptr) {
                     if ((strcmp(hname, "htemp") == 0) && (strcmp(hname,htemplate->GetName()) != 0)) htempDelete();
                     hist = (TH2*) hist->Clone(hname);
                 } else if (drawopt.Contains("SAME",TString::kIgnoreCase)) { 
@@ -385,12 +385,12 @@ namespace fwlite {
                 }
 
                 // if in the end we found no way to make "hist"
-                if (hist == 0) {
+                if (hist == nullptr) {
                     // prep the machinery
                     helper::ScannerBase scanner(objType);
                     scanner.setIgnoreExceptions(ignoreExceptions_);
-                    if (!scanner.addExpression((const char *)xexpr)) return 0;
-                    if (!scanner.addExpression((const char *)yexpr)) return 0;
+                    if (!scanner.addExpression((const char *)xexpr)) return nullptr;
+                    if (!scanner.addExpression((const char *)yexpr)) return nullptr;
                     if (strlen(cut)) scanner.setCut(cut);
 
                     if (strcmp(hname, "htemp") == 0) htempDelete();
@@ -437,12 +437,12 @@ namespace fwlite {
                 // prep the machinery
                 helper::ScannerBase scanner(objType);
                 scanner.setIgnoreExceptions(ignoreExceptions_);
-                if (!scanner.addExpression((const char *)xexpr)) return 0;
-                if (!scanner.addExpression((const char *)yexpr)) return 0;
+                if (!scanner.addExpression((const char *)xexpr)) return nullptr;
+                if (!scanner.addExpression((const char *)yexpr)) return nullptr;
                 if (strlen(cut)) scanner.setCut(cut);
 
                 // make graph, if needed
-                if (graph == 0) {
+                if (graph == nullptr) {
                     graph = new TGraph();
                     graph->SetNameTitle("htemp", (strlen(cut) ? yexpr+":"+xexpr+"{"+cut+"}" : yexpr+":"+xexpr)); 
                 }
@@ -501,7 +501,7 @@ namespace fwlite {
                     }
                     if (!scanner.addExpression(ex.c_str())) {
                         std::cerr << "Filed to define real variable '" << lb << "', expr = '" << ex << "'" << std::endl;
-                        return 0;
+                        return nullptr;
                     }
                     // FIXME: I have to leave it dangling on the HEAP otherwise ROOT segfaults...
                     RooRealVar *var = new RooRealVar(lb.c_str(),lb.c_str(), 0.0);
@@ -517,7 +517,7 @@ namespace fwlite {
                     }
                     if (!scanner.addExtraCut(ex.c_str())) {
                         std::cerr << "Filed to define bool variable '" << lb << "', cut = '" << ex << "'" << std::endl;
-                        return 0;
+                        return nullptr;
                     }
                     RooCategory *cat = new RooCategory(lb.c_str(), lb.c_str());
                     cat->defineType("fail",0);
@@ -610,7 +610,7 @@ namespace fwlite {
             /// Get whatever histogram makes sense for a plot passing "SAME" in drawOpt, and call it hname
             /// Currently it won't work if the histogram of which we want to be "SAME" is not called "htemp"
             TH1 *getSameH1(const char *hname) {
-                if (gDirectory && gDirectory->Get("htemp") != 0 && 
+                if (gDirectory && gDirectory->Get("htemp") != nullptr && 
                         gDirectory->Get("htemp")->IsA()->InheritsFrom(TH1::Class())) {
                     TH1 *hist = (TH1*) ((TH1*) gDirectory->Get("htemp"))->Clone(hname);
                     hist->Reset();
@@ -619,14 +619,14 @@ namespace fwlite {
                     return hist;
                 } else {
                     std::cerr << "There is no 'htemp' histogram from which to 'SAME'." << std::endl;
-                    return 0;
+                    return nullptr;
                 }
             }
 
             /// Get whatever histogram makes sense for a plot passing "SAME" in drawOpt, and call it hname
             /// Currently it won't work if the histogram of which we want to be "SAME" is not called "htemp"
             TH2 *getSameH2(const char *hname) {
-                if (gDirectory && gDirectory->Get("htemp") != 0 && 
+                if (gDirectory && gDirectory->Get("htemp") != nullptr && 
                         gDirectory->Get("htemp")->IsA()->InheritsFrom(TH2::Class())) {
                     TH2 *hist = (TH2*) ((TH2*) gDirectory->Get("htemp"))->Clone(hname);
                     hist->Reset();
@@ -635,14 +635,14 @@ namespace fwlite {
                     return hist;
                 } else {
                     std::cerr << "There is no 'htemp' histogram from which to 'SAME'." << std::endl;
-                    return 0;
+                    return nullptr;
                 }
             }
 
             /// Get whatever histogram makes sense for a plot passing "SAME" in drawOpt, and call it hname
             /// Currently it won't work if the histogram of which we want to be "SAME" is not called "htemp"
             TProfile *getSameProf(const char *hname) {
-                if (gDirectory && gDirectory->Get("htemp") != 0 && 
+                if (gDirectory && gDirectory->Get("htemp") != nullptr && 
                         gDirectory->Get("htemp")->IsA()->InheritsFrom(TProfile::Class())) {
                     TProfile *hist = (TProfile*) ((TProfile*) gDirectory->Get("htemp"))->Clone(hname);
                     hist->Reset();
@@ -651,7 +651,7 @@ namespace fwlite {
                     return hist;
                 } else {
                     std::cerr << "There is no 'htemp' histogram from which to 'SAME'." << std::endl;
-                    return 0;
+                    return nullptr;
                 }
             }
 

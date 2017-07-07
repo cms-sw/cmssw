@@ -32,7 +32,7 @@ public:
 		      const TrajectoryStateUpdator& aUpdator,
 		      const MeasurementEstimator& aEstimator,
 		      const MultiTrajectoryStateMerger& aMerger,
-		      const DetLayerGeometry* detLayerGeometry=0);
+		      const DetLayerGeometry* detLayerGeometry=nullptr);
 
   virtual ~GsfTrajectoryFitter();
 

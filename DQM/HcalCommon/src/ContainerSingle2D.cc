@@ -6,9 +6,9 @@ namespace hcaldqm
 {
 	ContainerSingle2D::ContainerSingle2D()
 	{
-		_qx = NULL;
-		_qy = NULL;
-		_qz = NULL;
+		_qx = nullptr;
+		_qy = nullptr;
+		_qz = nullptr;
 	}
 
 	ContainerSingle2D::ContainerSingle2D(std::string const& folder,
@@ -41,15 +41,15 @@ namespace hcaldqm
 
 	ContainerSingle2D::~ContainerSingle2D()
 	{
-		if (_qx!=NULL)
+		if (_qx!=nullptr)
 			delete _qx;
-		if (_qy!=NULL)
+		if (_qy!=nullptr)
 			delete _qy;
-		if (_qz!=NULL)
+		if (_qz!=nullptr)
 			delete _qz;
-		_qx=NULL;
-		_qy=NULL;
-		_qz=NULL;
+		_qx=nullptr;
+		_qy=nullptr;
+		_qz=nullptr;
 	}
 
 	/* virtual */ void ContainerSingle2D::initialize(std::string const& folder,
