@@ -15,6 +15,13 @@ class HGCalTriggerNtupleGenTau : public HGCalTriggerNtupleBase
 
         virtual void initialize(TTree&, const edm::ParameterSet&, edm::ConsumesCollector&&) override final;
         virtual void fill(const edm::Event&, const edm::EventSetup& ) override final;
+        bool isStableLepton( const reco::Candidate * daughter );
+        bool isElectron( const reco::Candidate * daughter );
+        bool isMuon( const reco::Candidate * daughter );
+        bool isChargedPion( const reco::Candidate * daughter );
+        bool isNeutralPion( const reco::Candidate * daughter );
+        bool isIntermediateResonance( const reco::Candidate * daughter );
+        bool isGamma( const reco::Candidate * daughter );
 
     private:
         virtual void clear() override final;
@@ -88,6 +95,63 @@ initialize(TTree& tree, const edm::ParameterSet& conf, edm::ConsumesCollector&& 
 
 }
 
+
+bool HGCalTriggerNtupleGenTau::isChargedPion( const reco::Candidate * candidate ){
+    bool isChPi=false;
+    if(fabs(candidate->pdgId()) == 211 && candidate->status()==1){
+        isChPi=true;
+    }
+    return isChPi;
+}
+
+bool HGCalTriggerNtupleGenTau::isStableLepton( const reco::Candidate * candidate ){
+    bool isLept=false;
+    if( (fabs(candidate->pdgId()) == 11 || fabs(candidate->pdgId()) == 13) && candidate->status()==1){
+        isLept=true;
+    }
+    return isLept;
+}
+
+bool HGCalTriggerNtupleGenTau::isElectron( const reco::Candidate * candidate ){
+    bool isEle=false;
+    if( fabs(candidate->pdgId()) == 11){
+        isEle=true;
+    }
+    return isEle;
+}
+
+bool HGCalTriggerNtupleGenTau::isMuon( const reco::Candidate * candidate ){
+    bool isMu=false;
+    if( fabs(candidate->pdgId()) == 13){
+        isMu=true;
+    }
+    return isMu;
+}
+
+bool HGCalTriggerNtupleGenTau::isNeutralPion( const reco::Candidate * candidate ){
+    bool isPiZero=false;
+    if(fabs(candidate->pdgId()) == 111 && candidate->status()==2){
+        isPiZero=true;
+    }
+    return isPiZero;
+}
+
+bool HGCalTriggerNtupleGenTau::isGamma( const reco::Candidate * daughter ){
+    bool isGammaFromPiZero=false;
+    if(fabs(daughter->pdgId()) == 22 && daughter->status()==1){
+        isGammaFromPiZero=true;
+    }
+    return isGammaFromPiZero;
+}
+
+bool HGCalTriggerNtupleGenTau::isIntermediateResonance( const reco::Candidate * daughter){
+    bool isResonance=false;
+    if( fabs(daughter->pdgId()) == 213 || fabs(daughter->pdgId()) == 20213 || fabs(daughter->pdgId()) == 24 ){
+        isResonance=true;
+    }
+    return isResonance;
+}
+
 void
 HGCalTriggerNtupleGenTau::
 fill(const edm::Event& e, const edm::EventSetup& es)
@@ -129,125 +193,104 @@ fill(const edm::Event& e, const edm::EventSetup& es)
             /* loop over tau daughters */
             for(size_t j = 0; j < n; ++ j) {
                 const reco::Candidate * daughter = particle.daughter( j );                
-                 
-                if( ( fabs(daughter->pdgId()) == 11 || fabs(daughter->pdgId()) == 13 ) && daughter->status()==1){
-                    if( fabs(daughter->pdgId()) == 11){
+          
+                std::vector< LorentzVector > finalProd_p4;
+                std::vector< int > finalProd_id;
+
+                if( isStableLepton( daughter) ){
+                    if( isElectron( daughter) ){
                         n_ele++;
                     }
-                    else{
+                    else if( isMuon(daughter) ){
                         n_mu++;
                     }
-                    LorentzVector finalProd_p4 = daughter->p4();                      
-                    tau_p4vis+=finalProd_p4;
-                    tau_products_pt.emplace_back(finalProd_p4.Pt());
-                    tau_products_eta.emplace_back(finalProd_p4.Eta());
-                    tau_products_phi.emplace_back(finalProd_p4.Phi());
-                    tau_products_energy.emplace_back(finalProd_p4.E());
-                    tau_products_mass.emplace_back(finalProd_p4.M());                                    
-                    tau_products_id.emplace_back(daughter->pdgId());
+                    finalProd_p4.push_back(daughter->p4());       
+                    finalProd_id.push_back(daughter->pdgId());
+                    tau_p4vis+=(daughter->p4());
                 }        
                 
+                /* Here the selection of the decay product according to the Pythia8 decayTree */
                 if(isPythia8generator_){
-                    if( fabs(daughter->pdgId()) == 211 && daughter->status()==1){
+                    if( isChargedPion( daughter ) ){
                         n_pi++;
-                        LorentzVector finalProd_p4 = daughter->p4();                      
-                        tau_p4vis+=finalProd_p4;
-                        tau_products_pt.emplace_back(finalProd_p4.Pt());
-                        tau_products_eta.emplace_back(finalProd_p4.Eta());
-                        tau_products_phi.emplace_back(finalProd_p4.Phi());
-                        tau_products_energy.emplace_back(finalProd_p4.E());
-                        tau_products_mass.emplace_back(finalProd_p4.M());                                    
-                        tau_products_id.emplace_back(daughter->pdgId());
+                        finalProd_p4.push_back(daughter->p4());
+                        finalProd_id.push_back(daughter->pdgId());
+                        tau_p4vis+=(daughter->p4());
                     }                
-                    if( fabs(daughter->pdgId()) == 111 && daughter->status()==2 ){
+                    if( isNeutralPion( daughter ) ){
                         n_piZero++;
                         size_t nGamma = daughter->numberOfDaughters();
                         for(size_t ng=0; ng<nGamma; ++ng){
-                            const reco::Candidate * gamma = daughter->daughter( ng );                
-                            if( fabs(gamma->pdgId())==22 && gamma->status()==1 ){
+                            const reco::Candidate * gamma = daughter->daughter( ng );
+                            if( isGamma( gamma ) ){
                                 n_gamma++;
-                                LorentzVector finalProd_p4 = gamma->p4();                      
-                                tau_p4vis+=finalProd_p4;         
-                                tau_products_pt.emplace_back(finalProd_p4.Pt());
-                                tau_products_eta.emplace_back(finalProd_p4.Eta());
-                                tau_products_phi.emplace_back(finalProd_p4.Phi());
-                                tau_products_energy.emplace_back(finalProd_p4.E());
-                                tau_products_mass.emplace_back(finalProd_p4.M());
-                                tau_products_id.emplace_back(gamma->pdgId());    
+                                finalProd_p4.push_back(gamma->p4());
+                                finalProd_id.push_back(gamma->pdgId());
+                                tau_p4vis+=(gamma->p4());         
                             }
                         }              
                     }
                 }
+                
+                /* Here the selection of the decay product according to the Pythia6 decayTree */
                 else if(!isPythia8generator_){            
-                    if( fabs(daughter->pdgId()) == 211 || fabs(daughter->pdgId()) == 213 || fabs(daughter->pdgId()) == 20213 || fabs(daughter->pdgId()) == 24 ){
-                        size_t nn = daughter->numberOfDaughters();
-                        if(nn==0 && daughter->status()==1){
-                            if( fabs(daughter->pdgId()) == 211 && daughter->status()==1){
-                                n_pi++;
-                                LorentzVector finalProd_p4 = daughter->p4();                      
-                                tau_p4vis+=finalProd_p4;
-                                tau_products_pt.emplace_back(finalProd_p4.Pt());
-                                tau_products_eta.emplace_back(finalProd_p4.Eta());
-                                tau_products_phi.emplace_back(finalProd_p4.Phi());
-                                tau_products_energy.emplace_back(finalProd_p4.E());
-                                tau_products_mass.emplace_back(finalProd_p4.M());                                    
-                                tau_products_id.emplace_back(daughter->pdgId());
-                            }
-                            if( fabs(daughter->pdgId()) == 111 && daughter->status()==2 ){
-                                n_piZero++;
-                                size_t nGamma = daughter->numberOfDaughters();
-                                for(size_t ng=0; ng<nGamma; ++ng){
-                                    const reco::Candidate * gamma = daughter->daughter( ng );                
-                                    if( fabs(gamma->pdgId())==22 && gamma->status()==1 ){
-                                        n_gamma++;
-                                        LorentzVector finalProd_p4 = gamma->p4();                      
-                                        tau_p4vis+=finalProd_p4;         
-                                        tau_products_pt.emplace_back(finalProd_p4.Pt());
-                                        tau_products_eta.emplace_back(finalProd_p4.Eta());
-                                        tau_products_phi.emplace_back(finalProd_p4.Phi());
-                                        tau_products_energy.emplace_back(finalProd_p4.E());
-                                        tau_products_mass.emplace_back(finalProd_p4.M());
-                                        tau_products_id.emplace_back(gamma->pdgId());    
-                                    }
-                                }              
-                            }
-                        }
-                        else{
-                            for(size_t k = 0; k < nn; ++k) {
-                                const reco::Candidate * grandson = daughter->daughter( k );
-                                if( fabs(grandson->pdgId()) == 211 && grandson->status()==1 ){
-                                    n_pi++;
-                                    LorentzVector finalProd_p4 = grandson->p4();                      
-                                    tau_p4vis+=finalProd_p4;
-                                    tau_products_pt.emplace_back(finalProd_p4.Pt());
-                                    tau_products_eta.emplace_back(finalProd_p4.Eta());
-                                    tau_products_phi.emplace_back(finalProd_p4.Phi());
-                                    tau_products_energy.emplace_back(finalProd_p4.E());
-                                    tau_products_mass.emplace_back(finalProd_p4.M());
-                                    tau_products_id.emplace_back(grandson->pdgId());
-                                }
-                                if( fabs(grandson->pdgId()) == 111 && grandson->status()==2 ){
-                                    n_piZero++;
-                                    size_t nGamma = grandson->numberOfDaughters();
-                                    for(size_t ng=0; ng<nGamma; ++ng){
-                                        const reco::Candidate * gamma = grandson->daughter( ng );
-                                        if( fabs(gamma->pdgId())==22 && gamma->status()==1 ){
-                                            n_gamma++;
-                                            LorentzVector finalProd_p4 = gamma->p4();                      
-                                            tau_p4vis+=finalProd_p4; 
-                                            tau_products_pt.emplace_back(finalProd_p4.Pt());
-                                            tau_products_eta.emplace_back(finalProd_p4.Eta());
-                                            tau_products_phi.emplace_back(finalProd_p4.Phi());
-                                            tau_products_energy.emplace_back(finalProd_p4.E());
-                                            tau_products_mass.emplace_back(finalProd_p4.M());
-                                            tau_products_id.emplace_back(gamma->pdgId());
-                                        }
-                                    }
-                                }
-                            }                        
-                        }                    
+
+                    if( isChargedPion( daughter) ){
+                        n_pi++;
+                        finalProd_p4.push_back(daughter->p4());
+                        finalProd_id.push_back(daughter->pdgId());
+                        tau_p4vis+=(daughter->p4());
                     }
-                }  
+                    if( isNeutralPion( daughter ) ){
+                        n_piZero++;
+                        size_t nGamma = daughter->numberOfDaughters();
+                        for(size_t ng=0; ng<nGamma; ++ng){
+                            const reco::Candidate * gamma = daughter->daughter( ng );
+                            if( isGamma( gamma ) ){
+                                n_gamma++;
+                                finalProd_p4.push_back(gamma->p4());
+                                finalProd_id.push_back(gamma->pdgId());
+                                tau_p4vis+=(gamma->p4());         
+                            }
+                        }              
+                    }
+                    if( isIntermediateResonance( daughter ) ){
+                        size_t nn = daughter->numberOfDaughters();
+                        for(size_t k = 0; k < nn; ++k) {
+                            const reco::Candidate * grandson = daughter->daughter( k );
+                            if( isChargedPion( grandson ) ){
+                                n_pi++;
+                                finalProd_p4.push_back(grandson->p4());
+                                finalProd_id.push_back(grandson->pdgId());
+                                tau_p4vis+=(grandson->p4());         
+                            }
+                            if( isNeutralPion( grandson ) ){
+                                n_piZero++;
+                                size_t nGamma = grandson->numberOfDaughters();
+                                for(size_t ng=0; ng<nGamma; ++ng){
+                                    const reco::Candidate * gamma = grandson->daughter( ng );
+                                    if( isGamma( gamma ) ){
+                                        n_gamma++;
+                                        finalProd_p4.push_back(gamma->p4());
+                                        finalProd_id.push_back(gamma->pdgId());
+                                        tau_p4vis+=(gamma->p4());         
+                                    }
+                                }
+                            }                            
+                        }
+                    }
+                }
+
+                /* Fill daughter informations */
+                for(unsigned j=0; j<finalProd_p4.size(); ++j){
+                    tau_products_pt.emplace_back(finalProd_p4.at(j).Pt());
+                    tau_products_eta.emplace_back(finalProd_p4.at(j).Eta());
+                    tau_products_phi.emplace_back(finalProd_p4.at(j).Phi());
+                    tau_products_energy.emplace_back(finalProd_p4.at(j).E());
+                    tau_products_mass.emplace_back(finalProd_p4.at(j).M());                                    
+                    tau_products_id.emplace_back(finalProd_id.at(j));
+                }
+
             }/* end loop over daughters */
            
             /* assign the tau-variables */
@@ -267,11 +310,16 @@ fill(const edm::Event& e, const edm::EventSetup& es)
             gen_product_mass_.emplace_back(tau_products_mass);
             gen_product_id_.emplace_back(tau_products_id);
 
+            /* leptonic tau decays */
             if( n_pi == 0 && n_piZero == 0 && n_ele==1 ){ gen_tau_decayMode_.emplace_back(11); }
             else if( n_pi == 0 && n_piZero == 0 && n_mu==1 ){ gen_tau_decayMode_.emplace_back(13); }
+            /* 1-prong */
             else if( n_pi == 1 && n_piZero == 0 ){ gen_tau_decayMode_.emplace_back(0); }
+            /* 1-prong + pi0s */            
             else if( n_pi == 1 && n_piZero >= 1 ){ gen_tau_decayMode_.emplace_back(1); }
+            /* 3-prongs */
             else if( n_pi == 3 && n_piZero == 0 ){ gen_tau_decayMode_.emplace_back(4); }
+            /* 3-prongs + pi0s */
             else if( n_pi == 3 && n_piZero >= 1 ){ gen_tau_decayMode_.emplace_back(5); }
             else{ gen_tau_decayMode_.emplace_back(-1); } 
 
