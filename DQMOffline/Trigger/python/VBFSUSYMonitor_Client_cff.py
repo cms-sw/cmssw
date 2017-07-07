@@ -6,9 +6,7 @@ vbfsusyEfficiency = DQMEDHarvester("DQMGenericClient",
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
-        "effic_ht           'HT turnON;             PF HT [GeV]; efficiency'      ht_numerator           ht_denominator",
         "effic_ht_variable  'HT turnON;             PF HT [GeV]; efficiency'      ht_variable_numerator  ht_variable_denominator",
-        "effic_met          'MET turnON;            PF MET [GeV]; efficiency'     met_numerator          met_denominator",
         "effic_met_variable 'MET turnON;            PF MET [GeV]; efficiency'     met_variable_numerator met_variable_denominator",
         "effic_metPhi       'MET efficiency vs phi; PF MET phi [rad]; efficiency' metPhi_numerator       metPhi_denominator",
         "effic_jet1pt          'jet1 pT turnON;            PFJet1 pT [GeV]; efficiency'     jet1pt_numerator          jet1pt_denominator",
