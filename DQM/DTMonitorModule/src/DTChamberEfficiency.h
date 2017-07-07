@@ -92,11 +92,8 @@ void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const
   edm::EDGetTokenT<reco::TrackCollection> theTracksToken_;
 
   edm::InputTag labelRPCRecHits;
-  edm::InputTag labelGEMRecHits;
-  edm::InputTag labelME0RecHits;
   edm::InputTag thedt4DSegments;
   edm::InputTag thecscSegments;
-  edm::InputTag labelGEMHits;
 
   double theMaxChi2;
   double theNSigma;

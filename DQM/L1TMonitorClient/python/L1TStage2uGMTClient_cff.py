@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 # directory path shortening
 ugmtDqmDir = 'L1T/L1TStage2uGMT'
@@ -9,7 +10,7 @@ errHistNumStr = 'errorSummaryNum'
 errHistDenStr = 'errorSummaryDen'
 
 # Muons
-l1tStage2uGMTOutVsuGTInRatioClient = cms.EDAnalyzer("L1TStage2RatioClient",
+l1tStage2uGMTOutVsuGTInRatioClient = DQMEDHarvester("L1TStage2RatioClient",
     monitorDir = cms.untracked.string(ugmtDqmDir+'/uGMToutput_vs_uGTinput'),
     inputNum = cms.untracked.string(ugmtDqmDir+'/uGMToutput_vs_uGTinput/'+errHistNumStr),
     inputDen = cms.untracked.string(ugmtDqmDir+'/uGMToutput_vs_uGTinput/'+errHistDenStr),
@@ -55,6 +56,7 @@ l1tStage2BmtfOutVsuGMTInRatioClient.monitorDir = cms.untracked.string(ugmtDqmDir
 l1tStage2BmtfOutVsuGMTInRatioClient.inputNum = cms.untracked.string(ugmtDqmDir+'/BMTFoutput_vs_uGMTinput/'+errHistNumStr)
 l1tStage2BmtfOutVsuGMTInRatioClient.inputDen = cms.untracked.string(ugmtDqmDir+'/BMTFoutput_vs_uGMTinput/'+errHistDenStr)
 l1tStage2BmtfOutVsuGMTInRatioClient.ratioTitle = cms.untracked.string('Summary of mismatch rates between BMTF output muons and uGMT input muons from BMTF')
+l1tStage2BmtfOutVsuGMTInRatioClient.ignoreBin = cms.untracked.vint32(1)
 
 l1tStage2EmtfOutVsuGMTInRatioClient = l1tStage2uGMTOutVsuGTInRatioClient.clone()
 l1tStage2EmtfOutVsuGMTInRatioClient.monitorDir = cms.untracked.string(ugmtDqmDir+'/EMTFoutput_vs_uGMTinput')

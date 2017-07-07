@@ -1,3 +1,6 @@
+import collections
+import itertools
+
 import ROOT
 
 import Validation.RecoTrack.plotting.plotting as plotting
@@ -13,18 +16,21 @@ def applyStyle(h, color, markerStyle):
     h.SetLineColor(color)
     h.SetLineWidth(2)
 
-def draw(name, histos, styles, legendLabels=[],
-         xtitle=None, ytitle=None,
-         drawOpt="HIST",
-         legendDx=0, legendDy=0, legendDw=0, legendDh=0,
-         xmin=None, ymin=0, xmax=None, ymax=None, xlog=False, ylog=False,
-         xgrid=True, ygrid=True,
-         ratio=False, ratioYmin=0.5, ratioYmax=1.5, ratioYTitle=plotting._ratioYTitle
-        ):
+# https://stackoverflow.com/questions/6076270/python-lambda-function-in-list-comprehensions
+_defaultStyles = [(lambda c, m: (lambda h: applyStyle(h, c, m)))(color, ms) for color, ms in itertools.izip(plotting._plotStylesColor, plotting._plotStylesMarker)]
 
+_ratioFactor = 1.25
+
+def draw(name, histos, styles=_defaultStyles, legendLabels=[], **kwargs):
     width = 600
     height = 600
     ratioFactor = 1.25
+
+    args = {}
+    args.update(kwargs)
+    if not "ratioFactor" in args:
+        args["ratioFactor"] = _ratioFactor
+    ratio = args.get("ratio", False)
 
     if ratio:
         height = int(height*ratioFactor)
@@ -32,38 +38,7 @@ def draw(name, histos, styles, legendLabels=[],
     if ratio:
         plotting._modifyPadForRatio(c, ratioFactor)
 
-    bounds = plotting._findBounds(histos, ylog, xmin, xmax, ymin, ymax)
-    args = {"nrows": 1}
-    if ratio:
-        ratioBounds = (bounds[0], ratioYmin, bounds[2], ratioYmax)
-        frame = plotting.FrameRatio(c, bounds, ratioBounds, ratioFactor, ratioYTitle=ratioYTitle, **args)
-        #frame._frameRatio.GetYaxis().SetLabelSize(0.12)
-    else:
-        frame = plotting.Frame(c, bounds, **args)
-
-    if xtitle is not None:
-        frame.setXTitle(xtitle)
-    if ytitle is not None:
-        frame.setYTitle(ytitle)
-
-    frame.setLogx(xlog)
-    frame.setLogy(ylog)
-    frame.setGridx(xgrid)
-    frame.setGridy(ygrid)
-
-    if ratio:
-        frame._pad.cd()
-    for h, st in zip(histos, styles):
-        st(h)
-        h.Draw(drawOpt+" same")
-
-    ratios = None
-    if ratio:
-        frame._padRatio.cd()
-        ratios = plotting._calculateRatios(histos)
-        for r in ratios[1:]:
-            r.draw()
-        frame._pad.cd()
+    frame = drawSingle(c, histos, styles, **args)
 
     if len(legendLabels) > 0:
         if len(legendLabels) != len(histos):
@@ -100,3 +75,97 @@ def draw(name, histos, styles, legendLabels=[],
     c.RedrawAxis()
     c.SaveAs(name+".png")
     c.SaveAs(name+".pdf")
+
+
+def drawSingle(pad, histos, styles=_defaultStyles,
+               nrows=1,
+               xtitle=None, ytitle=None,
+               drawOpt="HIST",
+               legendDx=0, legendDy=0, legendDw=0, legendDh=0,
+               xmin=None, ymin=0, xmax=None, ymax=None, xlog=False, ylog=False,
+               xgrid=True, ygrid=True,
+               ratio=False, ratioYmin=0.5, ratioYmax=1.5, ratioYTitle=plotting._ratioYTitle, ratioFactor=1.25):
+
+    bounds = plotting._findBounds(histos, ylog, xmin, xmax, ymin, ymax)
+    if ratio:
+        ratioBounds = (bounds[0], ratioYmin, bounds[2], ratioYmax)
+        frame = plotting.FrameRatio(pad, bounds, ratioBounds, ratioFactor, ratioYTitle=ratioYTitle, nrows=nrows)
+        #frame._frameRatio.GetYaxis().SetLabelSize(0.12)
+    else:
+        frame = plotting.Frame(pad, bounds, nrows=nrows)
+
+    if xtitle is not None:
+        frame.setXTitle(xtitle)
+    if ytitle is not None:
+        frame.setYTitle(ytitle)
+
+    frame.setLogx(xlog)
+    frame.setLogy(ylog)
+    frame.setGridx(xgrid)
+    frame.setGridy(ygrid)
+
+    if ratio:
+        frame._pad.cd()
+    for i, h in enumerate(histos):
+        st = styles[i%len(styles)]
+        st(h)
+        h.Draw(drawOpt+" same")
+
+    ratios = None
+    if ratio:
+        frame._padRatio.cd()
+        ratios = plotting._calculateRatios(histos)
+        for r in ratios[1:]:
+            r.draw()
+        frame._pad.cd()
+
+    return frame
+
+
+def drawMany(name, histoDicts, styles=_defaultStyles, opts={}, ncolumns=4):
+    if len(histoDicts) == 0:
+        return
+
+    histoNames = histoDicts[0].keys()
+    ratio = False
+    ratioFactor = _ratioFactor
+    for opt in opts.itervalues():
+        if "ratio" in opt:
+            ratio = True
+        if "ratioFactor" in opt:
+            ratioFactor = max(ratioFactor, opt["ratioFactor"])
+
+    nhistos = len(histoNames)
+    nrows = int((nhistos+ncolumns-1)/ncolumns)
+
+    width = 500*ncolumns
+    height = 500*nrows
+    if ratio:
+        height = int(_ratioFactor*height)
+
+    canvas = plotting._createCanvas(name, width, height)
+    canvas.Divide(ncolumns, nrows)
+
+    histos = collections.defaultdict(list)
+
+    for d in histoDicts:
+        for n, h in d.iteritems():
+            histos[n].append(h)
+
+    for i, histoName in enumerate(histoNames):
+        pad = canvas.cd(i+1)
+
+        args = {}
+        args.update(opts.get(histoName, {}))
+        if "ratio" in args:
+            if not "ratioFactor" in args:
+                args["ratioFactor"] = _ratioFactor # use the default, not the max
+            plotting._modifyPadForRatio(pad, args["ratioFactor"])
+
+        frame = drawSingle(pad, histos[histoName], styles, nrows, **args)
+        frame._pad.cd()
+        frame._pad.Update()
+        frame._pad.RedrawAxis()
+
+    canvas.SaveAs(name+".png")
+    canvas.SaveAs(name+".pdf")

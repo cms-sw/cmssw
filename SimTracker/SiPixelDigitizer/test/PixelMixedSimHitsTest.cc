@@ -33,7 +33,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 // my includes
-//#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+//#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"

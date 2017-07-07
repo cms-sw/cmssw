@@ -19,6 +19,7 @@ from SimGeneral.TrackingAnalysis.trackingParticleNumberOfLayersProducer_cff impo
 from CommonTools.RecoAlgos.recoChargedRefCandidateToTrackRefProducer_cfi import recoChargedRefCandidateToTrackRefProducer as _recoChargedRefCandidateToTrackRefProducer
 
 import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
+import RecoTracker.IterativeTracking.iterativeTkUtils as _utils
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 
 ### First define the stuff for the standard validation sequence
@@ -210,31 +211,11 @@ for _eraName, _postfix, _era in _relevantEras:
 
 # MVA selectors
 def _getMVASelectors(postfix):
-    import RecoTracker.IterativeTracking.iterativeTk_cff as _iterativeTk_cff
+    mvaSel = _utils.getMVASelectors(postfix)
 
-    # assume naming convention that the iteration name (when first
-    # letter in lower case) is the selector name
     pset = cms.untracked.PSet()
-    for iterName, seqName in _cfg.iterationAlgos(postfix, includeSequenceName=True):
-        if hasattr(_iterativeTk_cff, iterName):
-            mod = getattr(_iterativeTk_cff, iterName)
-            seq = getattr(_iterativeTk_cff, seqName)
-
-            # Ignore iteration if the MVA selector module is not in the sequence
-            try:
-                seq.index(mod)
-            except:
-                continue
-
-            typeName = mod._TypedParameterizable__type
-            classifiers = []
-            if typeName == "ClassifierMerger":
-                classifiers = mod.inputClassifiers.value()
-            elif "TrackMVAClassifier" in typeName:
-                classifiers = [iterName]
-            if len(classifiers) > 0:
-                setattr(pset, iterName+"Tracks", cms.untracked.vstring(classifiers))
-
+    for iteration, (trackProducer, classifiers) in mvaSel.iteritems():
+        setattr(pset, trackProducer, cms.untracked.vstring(classifiers))
     return pset
 for _eraName, _postfix, _era in _relevantEras:
     locals()["_mvaSelectors"+_postfix] = _getMVASelectors(_postfix)

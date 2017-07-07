@@ -22,6 +22,7 @@
 
 // user include files
 #include <set>
+#include <vector>
 
 // forward declarations
 class TEveElement;

@@ -32,11 +32,13 @@ class PFEcalBarrelRecHitCreator :  public  PFRecHitCreatorBase {
   PFRecHitCreatorBase(iConfig,iC)
     {
       recHitToken_ = iC.consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("src"));
-      srFlagToken_ = iC.consumes<EBSrFlagCollection>(iConfig.getParameter<edm::InputTag>("srFlags"));
-      triggerTowerMap_ = 0;
+      auto srF = iConfig.getParameter<edm::InputTag>("srFlags");
+      if (not srF.label().empty())
+	srFlagToken_ = iC.consumes<EBSrFlagCollection>(srF);
+      triggerTowerMap_ = nullptr;
     }
     
-  void importRecHits(std::unique_ptr<reco::PFRecHitCollection>&out,std::unique_ptr<reco::PFRecHitCollection>& cleaned ,const edm::Event& iEvent,const edm::EventSetup& iSetup) {
+  void importRecHits(std::unique_ptr<reco::PFRecHitCollection>&out,std::unique_ptr<reco::PFRecHitCollection>& cleaned ,const edm::Event& iEvent,const edm::EventSetup& iSetup) override {
 
     beginEvent(iEvent,iSetup);
       
@@ -45,7 +47,11 @@ class PFEcalBarrelRecHitCreator :  public  PFRecHitCreatorBase {
     edm::ESHandle<CaloGeometry> geoHandle;
     iSetup.get<CaloGeometryRecord>().get(geoHandle);
   
-    iEvent.getByToken(srFlagToken_,srFlagHandle_);
+    bool useSrF = false;
+    if (not srFlagToken_.isUninitialized()){
+      iEvent.getByToken(srFlagToken_,srFlagHandle_);
+      useSrF = true;
+    }
 
     // get the ecal geometry
     const CaloSubdetectorGeometry *gTmp = 
@@ -58,7 +64,7 @@ class PFEcalBarrelRecHitCreator :  public  PFRecHitCreatorBase {
       const DetId& detid = erh.detid();
       auto energy = erh.energy();
       auto time = erh.time();
-      bool hi = isHighInterest(detid);
+      bool hi = (useSrF ? isHighInterest(detid) : true);
 
       const CaloCellGeometry * thisCell= ecalGeo->getGeometry(detid);
   
@@ -94,7 +100,7 @@ class PFEcalBarrelRecHitCreator :  public  PFRecHitCreatorBase {
     }
   }
 
-  void init(const edm::EventSetup &es) {
+  void init(const edm::EventSetup &es) override {
 
     edm::ESHandle<EcalTrigTowerConstituentsMap> hTriggerTowerMap;
     es.get<IdealGeometryRecord>().get(hTriggerTowerMap);
@@ -107,7 +113,7 @@ class PFEcalBarrelRecHitCreator :  public  PFRecHitCreatorBase {
 
   bool isHighInterest(const EBDetId& detid) {
     bool result=false;
-    EBSrFlagCollection::const_iterator srf = srFlagHandle_->find(readOutUnitOf(detid));
+    auto srf = srFlagHandle_->find(readOutUnitOf(detid));
     if(srf==srFlagHandle_->end()) return false;
     else result = ((srf->value() & ~EcalSrFlag::SRF_FORCED_MASK) == EcalSrFlag::SRF_FULL);
     return result;

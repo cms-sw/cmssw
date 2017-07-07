@@ -1,6 +1,6 @@
 #include "SimMuon/MCTruth/interface/MuonAssociatorByHitsHelper.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -1130,32 +1130,91 @@ void MuonAssociatorByHitsHelper::getMatchedIds
 	gem_detector_id << gemdetid;
 	if (valid_Hit) hitlog = hitlog+" -Muon GEM- detID = "+gem_detector_id.str();	  
 	else hitlog = hitlog+" *** INVALID ***"+" -Muon GEM- detID = "+gem_detector_id.str();	  
-	
-	iH++;
-	SimTrackIds = gemtruth.associateRecHit(*hitp);
-	
-	if (valid_Hit) {
-	  n_gem_valid++;
 
-	  if (!SimTrackIds.empty()) {
-	    n_gem_matched_valid++;
-	    //muon_matchedIds_valid[iH] = SimTrackIds;
-            muon_matchedIds_valid.push_back (new uint_SimHitIdpr_pair(iH,SimTrackIds));
+	const GEMRecHit * gemrechit = dynamic_cast<const GEMRecHit *>(hitp);
+	if (gemrechit){
+	  iH++;
+	  SimTrackIds = gemtruth.associateRecHit(gemrechit);
+	
+	  if (valid_Hit) {
+	    n_gem_valid++;
+
+	    if (!SimTrackIds.empty()) {
+	      n_gem_matched_valid++;
+	      //muon_matchedIds_valid[iH] = SimTrackIds;
+	      muon_matchedIds_valid.push_back (new uint_SimHitIdpr_pair(iH,SimTrackIds));
             
-	  }
-	} else {
-	  n_gem_INVALID++;
+	    }
+	  } else {
+	    n_gem_INVALID++;
 	  
-	  if (!SimTrackIds.empty()) {
-	    n_gem_matched_INVALID++;
-	    //muon_matchedIds_INVALID[iH] = SimTrackIds;
-            muon_matchedIds_INVALID.push_back (new uint_SimHitIdpr_pair(iH,SimTrackIds));
+	    if (!SimTrackIds.empty()) {
+	      n_gem_matched_INVALID++;
+	      //muon_matchedIds_INVALID[iH] = SimTrackIds;
+	      muon_matchedIds_INVALID.push_back (new uint_SimHitIdpr_pair(iH,SimTrackIds));
+	    }
 	  }
 	}
+	else {
+	  const GEMSegment * gemsegment = dynamic_cast<const GEMSegment *>(hitp);
+	  if (gemsegment) {
+	    
+	    std::vector<const TrackingRecHit *> componentHits = gemsegment->recHits();
+	    if (printRtS) edm::LogVerbatim("MuonAssociatorByHitsHelper")
+	      <<"\n\t this TrackingRecHit is a GEMSegment with "<<componentHits.size()<<" hits";
+	    
+	    std::vector<SimHitIdpr> i_SimTrackIds;
+	    int i_compHit = 0;
+
+	    for ( auto const & ithit : componentHits) {
+	      
+	      i_compHit++;
+	      
+	      const GEMRecHit * gemrechitseg = dynamic_cast<const GEMRecHit *>(ithit);
+	      
+	      i_SimTrackIds.clear();
+	      if (gemrechitseg) {
+		iH++;
+		i_SimTrackIds = gemtruth.associateRecHit(gemrechitseg);
+
+		if (valid_Hit) {
+		  // validity check is on the segment, but hits are counted one-by-one
+		  n_gem_valid++;
+
+		  if (!i_SimTrackIds.empty()) {
+		    n_gem_matched_valid++;
+		    //muon_matchedIds_valid[iH] =  i_SimTrackIds;
+                    muon_matchedIds_valid.push_back (new uint_SimHitIdpr_pair(iH,i_SimTrackIds));
+		  }
+		} else {
+		  n_gem_INVALID++;
+		  
+		  if (!i_SimTrackIds.empty()) {
+		    n_gem_matched_INVALID++;
+		    //muon_matchedIds_INVALID[iH] =  i_SimTrackIds;
+                    muon_matchedIds_INVALID.push_back (new uint_SimHitIdpr_pair(iH,i_SimTrackIds));
+		  }
+		}
+	      } else if (printRtS) edm::LogWarning("MuonAssociatorByHitsHelper")
+		<<"*** WARNING in MuonAssociatorByHitsHelper::getMatchedIds, null dynamic_cast of a GEM TrackingRecHit !";
+	      
+	      if (printRtS){
+		unsigned int i_detid = ithit->geographicalId().rawId();
+		GEMDetId i_gemdetid = GEMDetId(i_detid);
+
+		string i_hitlog = std::to_string(i_gemdetid);
+		i_hitlog = i_hitlog + write_matched_simtracks(i_SimTrackIds);
+		edm::LogVerbatim("MuonAssociatorByHitsHelper") << i_hitlog;
+	      }
+	      
+	      SimTrackIds.insert(SimTrackIds.end(),i_SimTrackIds.begin(),i_SimTrackIds.end());
+	    }	    
+	  }  // if (gemsegment)	  
           
-	
-      } else if (printRtS) edm::LogVerbatim("MuonAssociatorByHitsHelper")
-	<<"TrackingRecHit "<<iloop<<"  *** WARNING *** Unexpected Hit from Detector = "<<det;
+	} // if (gemrechit
+      }
+      else if (printRtS) edm::LogVerbatim("MuonAssociatorByHitsHelper")
+			   <<"TrackingRecHit "<<iloop<<"  *** WARNING *** Unexpected Hit from Detector = "<<det;
     }
     else continue;
     
