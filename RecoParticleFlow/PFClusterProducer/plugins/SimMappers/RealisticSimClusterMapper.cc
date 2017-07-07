@@ -24,7 +24,7 @@
 #define LOGERR(x) edm::LogError(x)
 #define LOGDRESSED(x) LogDebug(x)
 #endif
-#define FP_DEBUG
+
 void RealisticSimClusterMapper::updateEvent(const edm::Event& ev)
 {
     ev.getByToken(_simClusterToken, _simClusterH);
