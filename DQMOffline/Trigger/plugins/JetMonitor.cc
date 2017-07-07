@@ -7,124 +7,49 @@
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 
 
-// Define Phi Bin //
-double Jet_MAX_PHI = 3.2;
-int Jet_N_PHI = 64;
-MEbinning jet_phi_binning_{
-  Jet_N_PHI, -Jet_MAX_PHI, Jet_MAX_PHI
-};
-// Define Eta Bin //
-double Jet_MAX_ETA = 5;
-int Jet_N_ETA = 50;
-MEbinning jet_eta_binning_{
-  Jet_N_ETA, -Jet_MAX_ETA, Jet_MAX_ETA
-};
-// Define HEP17 for PHI 
-double Jet_MAX_PHI_HEP17 = -0.52;
-double Jet_MIN_PHI_HEP17 = -0.87;
-int N_PHI_HEP17 = 7;
-MEbinning phi_binning_hep17_{
-  N_PHI_HEP17, Jet_MIN_PHI_HEP17, Jet_MAX_PHI_HEP17
-};
-// Define HEP18 for PHI 
-double Jet_MAX_PHI_HEP18 = -0.17;
-double Jet_MIN_PHI_HEP18 = -0.52;
-int N_PHI_HEP18 = 7;
-MEbinning phi_binning_hep18_{
-  N_PHI_HEP18, Jet_MIN_PHI_HEP18, Jet_MAX_PHI_HEP18
-};
-// Define HEP17 for ETA 
-double Jet_MAX_ETA_HEP17 = 3.0;
-double Jet_MIN_ETA_HEP17 = 1.3;
-int N_ETA_HEP17 = 9;
-MEbinning eta_binning_hep17_{
-  N_ETA_HEP17, Jet_MIN_ETA_HEP17, Jet_MAX_ETA_HEP17
-};
-
-MEbinning eta_binning_hem17_{
-  N_ETA_HEP17, -Jet_MAX_ETA_HEP17, -Jet_MIN_ETA_HEP17
-};
 
 // -----------------------------
 //  constructors and destructor
 // -----------------------------
 
 JetMonitor::JetMonitor( const edm::ParameterSet& iConfig ):
-   metSelection_ ( iConfig.getParameter<std::string>("metSelection") )
-  , jetSelection_ ( iConfig.getParameter<std::string>("jetSelection") )
-  , calojetSelection_ ( iConfig.getParameter<std::string>("calojetSelection") )
-  , eleSelection_ ( iConfig.getParameter<std::string>("eleSelection") )
-  , muoSelection_ ( iConfig.getParameter<std::string>("muoSelection") ) 
+num_genTriggerEventFlag_ ( new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet"),consumesCollector(), *this))
+,den_genTriggerEventFlag_ ( new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("denGenericTriggerEventPSet"),consumesCollector(), *this))
 {
   folderName_            = iConfig.getParameter<std::string>("FolderName"); 
-  metToken_              = consumes<reco::PFMETCollection>        (iConfig.getParameter<edm::InputTag>("met")       );
-//  pfjetToken_            = mayConsume<reco::PFJetCollection>      (iConfig.getParameter<edm::InputTag>("pfjets")    ); 
-//  calojetToken_          = mayConsume<reco::CaloJetCollection>    (iConfig.getParameter<edm::InputTag>("calojets")    ); 
   jetSrc_  = mayConsume<edm::View<reco::Jet> >(iConfig.getParameter<edm::InputTag>("jetSrc"));//jet 
-  eleToken_              = mayConsume<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons") );
-  muoToken_              = mayConsume<reco::MuonCollection>       (iConfig.getParameter<edm::InputTag>("muons")     );     
   jetpT_variable_binning_  = iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("jetptBinning");
-  jetpT_binning           = getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("metPSet")    );
+  jetpT_binning           = getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("jetPSet")    );
   jetptThr_binning_      = getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("jetPtThrPSet")    );
   ls_binning_            = getHistoLSPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("lsPSet")     );
 
-  num_genTriggerEventFlag_ = new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet"),consumesCollector(), *this);
-  den_genTriggerEventFlag_ = new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("denGenericTriggerEventPSet"),consumesCollector(), *this);
 
-  njets_      = iConfig.getParameter<int>("njets" );
-  nelectrons_ = iConfig.getParameter<int>("nelectrons" );
-  nmuons_     = iConfig.getParameter<int>("nmuons" );
   ptcut_      = iConfig.getParameter<double>("ptcut" ); // for HLT Jet 
   isPFJetTrig    = iConfig.getParameter<bool>("ispfjettrg" );
   isCaloJetTrig  = iConfig.getParameter<bool>("iscalojettrg" );
 
-//  jetHEP18_EtaVsPhi_.numerator   = nullptr;
-//  jetHEP18_EtaVsPhi_.denominator = nullptr;
-
-  // test a_ME
-  AutoNullPtr(a_ME,sizeof(a_ME)/sizeof(a_ME[0]));
-  AutoNullPtr(a_ME_HB,sizeof(a_ME_HB)/sizeof(a_ME_HB[0]));
-  AutoNullPtr(a_ME_HE,sizeof(a_ME_HE)/sizeof(a_ME_HE[0]));
-  AutoNullPtr(a_ME_HF,sizeof(a_ME_HF)/sizeof(a_ME_HF[0]));
-  AutoNullPtr(a_ME_HE_p,sizeof(a_ME_HE_p)/sizeof(a_ME_HE_p[0]));
-  AutoNullPtr(a_ME_HE_m,sizeof(a_ME_HE_m)/sizeof(a_ME_HE_m[0]));
-  AutoNullPtr(a_ME_HEP17,sizeof(a_ME_HEP17)/sizeof(a_ME_HEP17[0]));
-  AutoNullPtr(a_ME_HEM17,sizeof(a_ME_HEM17)/sizeof(a_ME_HEM17[0]));
-  AutoNullPtr(a_ME_HEP18,sizeof(a_ME_HEP18)/sizeof(a_ME_HEP18[0]));
-
-  jetHEP17_AbsEtaVsPhi_.numerator   = nullptr;
-  jetHEP17_AbsEtaVsPhi_.denominator = nullptr;
-  jetHEM17_AbsEtaVsPhi_.numerator   = nullptr;
-  jetHEM17_AbsEtaVsPhi_.denominator = nullptr;
-
-  jetHEP17_AbsEta_.numerator   = nullptr;
-  jetHEP17_AbsEta_.denominator = nullptr;
-  jetHEM17_AbsEta_.numerator   = nullptr;
-  jetHEM17_AbsEta_.denominator = nullptr;
 
 }
 
 JetMonitor::~JetMonitor()
 {
-  if (num_genTriggerEventFlag_) delete num_genTriggerEventFlag_;
-  if (den_genTriggerEventFlag_) delete den_genTriggerEventFlag_;
 }
 
-MEbinning JetMonitor::getHistoPSet(edm::ParameterSet pset)
+JetMonitor::MEbinning JetMonitor::getHistoPSet(edm::ParameterSet pset)
 {
-  return MEbinning{
-    pset.getParameter<int32_t>("nbins"),
+  return JetMonitor::MEbinning{
+    pset.getParameter<unsigned int>("nbins"),
       pset.getParameter<double>("xmin"),
       pset.getParameter<double>("xmax"),
       };
 }
 
-MEbinning JetMonitor::getHistoLSPSet(edm::ParameterSet pset)
+JetMonitor::MEbinning JetMonitor::getHistoLSPSet(edm::ParameterSet pset)
 {
-  return MEbinning{
-    pset.getParameter<int32_t>("nbins"),
+  return JetMonitor::MEbinning{
+    pset.getParameter<unsigned int>("nbins"),
       0.,
-      double(pset.getParameter<int32_t>("nbins"))
+      double(pset.getParameter<unsigned int>("nbins"))
       };
 }
 
@@ -135,7 +60,7 @@ void JetMonitor::setMETitle(JetME& me, std::string titleX, std::string titleY)
   me.denominator->setAxisTitle(titleX,1);
   me.denominator->setAxisTitle(titleY,2);
 }
-void JetMonitor::bookME(DQMStore::IBooker &ibooker, JetME& me, std::string& histname, std::string& histtitle, int& nbins, double& min, double& max)
+void JetMonitor::bookME(DQMStore::IBooker &ibooker, JetME& me, std::string& histname, std::string& histtitle, unsigned int nbins, double min, double max)
 {
   me.numerator   = ibooker.book1D(histname+"_numerator",   histtitle+" (numerator)",   nbins, min, max);
   me.denominator = ibooker.book1D(histname+"_denominator", histtitle+" (denominator)", nbins, min, max);
@@ -148,12 +73,12 @@ void JetMonitor::bookME(DQMStore::IBooker &ibooker, JetME& me, std::string& hist
   me.numerator   = ibooker.book1D(histname+"_numerator",   histtitle+" (numerator)",   nbins, arr);
   me.denominator = ibooker.book1D(histname+"_denominator", histtitle+" (denominator)", nbins, arr);
 }
-void JetMonitor::bookME(DQMStore::IBooker &ibooker, JetME& me, std::string& histname, std::string& histtitle, int& nbinsX, double& xmin, double& xmax, double& ymin, double& ymax)
+void JetMonitor::bookME(DQMStore::IBooker &ibooker, JetME& me, std::string& histname, std::string& histtitle, int nbinsX, double xmin, double xmax, double ymin, double ymax)
 {
   me.numerator   = ibooker.bookProfile(histname+"_numerator",   histtitle+" (numerator)",   nbinsX, xmin, xmax, ymin, ymax);
   me.denominator = ibooker.bookProfile(histname+"_denominator", histtitle+" (denominator)", nbinsX, xmin, xmax, ymin, ymax);
 }
-void JetMonitor::bookME(DQMStore::IBooker &ibooker, JetME& me, std::string& histname, std::string& histtitle, int& nbinsX, double& xmin, double& xmax, int& nbinsY, double& ymin, double& ymax)
+void JetMonitor::bookME(DQMStore::IBooker &ibooker, JetME& me, std::string& histname, std::string& histtitle, int nbinsX, double xmin, double xmax, int nbinsY, double ymin, double ymax)
 {
   me.numerator   = ibooker.book2D(histname+"_numerator",   histtitle+" (numerator)",   nbinsX, xmin, xmax, nbinsY, ymin, ymax);
   me.denominator = ibooker.book2D(histname+"_denominator", histtitle+" (denominator)", nbinsX, xmin, xmax, nbinsY, ymin, ymax);
@@ -244,7 +169,8 @@ void JetMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
       return;
   }
   for ( edm::View<reco::Jet>::const_iterator ibegin = offjets->begin(), iend = offjets->end(), ijet = ibegin; ijet != iend; ++ijet ) {
-    if (ijet->pt()< 20) {continue;}
+    //if (ijet->pt()< 20) {continue;}
+    if (ijet->pt()< ptcut_) {continue;}
     v_jetpt.push_back(ijet->pt()); 
     v_jeteta.push_back(ijet->eta()); 
     v_jetphi.push_back(ijet->phi()); 
@@ -334,14 +260,14 @@ void JetMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 
 void JetMonitor::fillHistoPSetDescription(edm::ParameterSetDescription & pset)
 {
-  pset.add<int>   ( "nbins");
+  pset.add<unsigned int>   ( "nbins");
   pset.add<double>( "xmin" );
   pset.add<double>( "xmax" );
 }
 
 void JetMonitor::fillHistoLSPSetDescription(edm::ParameterSetDescription & pset)
 {
-  pset.add<int>   ( "nbins", 2500);
+  pset.add<unsigned int>   ( "nbins", 2500);
 }
 
 void JetMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
@@ -357,16 +283,9 @@ void JetMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   desc.add<edm::InputTag>( "muons",    edm::InputTag("muons") );
   desc.add<int>("njets",      0);
   desc.add<int>("nelectrons", 0);
-  desc.add<int>("nmuons",     0);
-  desc.add<double>("ptcut",   0);
-  desc.add<std::string>("metSelection", "pt > 0");
-  desc.add<std::string>("jetSelection", "pt > 20");
-  desc.add<std::string>("calojetSelection", "pt > 20");
-  desc.add<std::string>("eleSelection", "pt > 0");
-  desc.add<std::string>("muoSelection", "pt > 0");
+  desc.add<double>("ptcut",   20);
   desc.add<bool>("ispfjettrg",    true);
   desc.add<bool>("iscalojettrg",  false);
-  desc.add<bool>("isjetFrac", false);
 
   edm::ParameterSetDescription genericTriggerEventPSet;
   genericTriggerEventPSet.add<bool>("andOr");
@@ -386,11 +305,11 @@ void JetMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   desc.add<edm::ParameterSetDescription>("denGenericTriggerEventPSet", genericTriggerEventPSet);
 
   edm::ParameterSetDescription histoPSet;
-  edm::ParameterSetDescription metPSet;
+  edm::ParameterSetDescription jetPSet;
   edm::ParameterSetDescription jetPtThrPSet;
-  fillHistoPSetDescription(metPSet);
+  fillHistoPSetDescription(jetPSet);
   fillHistoPSetDescription(jetPtThrPSet);
-  histoPSet.add<edm::ParameterSetDescription>("metPSet", metPSet);  
+  histoPSet.add<edm::ParameterSetDescription>("jetPSet", jetPSet);  
   histoPSet.add<edm::ParameterSetDescription>("jetPtThrPSet", jetPtThrPSet);  
   std::vector<double> bins = {0.,20.,40.,60.,80.,90.,100.,110.,120.,130.,140.,150.,160.,170.,180.,190.,200.,220.,240.,260.,280.,300.,350.,400.,450.,1000.}; // Jet pT Binning
   histoPSet.add<std::vector<double> >("jetptBinning", bins);
@@ -413,14 +332,14 @@ bool JetMonitor::isBarrel(double eta){
 //------------------------------------------------------------------------//
 bool JetMonitor::isEndCapM(double eta){
   bool output = false;
-  if (fabs(eta) <= 3.0 && fabs(eta) > 1.3 && (eta/fabs(eta) < 0) ) output=true;
+  if (fabs(eta) <= 3.0 && fabs(eta) > 1.3 && (eta < 0) ) output=true;
   return output;
 }
 /// For Hcal Endcap Plus Area
 bool JetMonitor::isEndCapP(double eta){
   bool output = false;
   //if ( eta<=3.0 && eta >1.3) output=true;
-  if (fabs(eta) <= 3.0 && fabs(eta) > 1.3 && (eta/fabs(eta) > 0) ) output=true;
+  if (fabs(eta) <= 3.0 && fabs(eta) > 1.3 && (eta > 0) ) output=true;
   return output;
 }
 /// For Hcal Forward Plus Area
@@ -433,14 +352,14 @@ bool JetMonitor::isForward(double eta){
 bool JetMonitor::isHEP17(double eta, double phi){
   bool output = false;
   // phi -0.87 to -0.52 
-  if (fabs(eta) <= 3.0 && fabs(eta) > 1.3 && (eta/fabs(eta) > 0) &&
+  if (fabs(eta) <= 3.0 && fabs(eta) > 1.3 && (eta > 0) &&
       phi > -0.87 && phi <= -0.52 ) {output=true;}
   return output;
 }
 /// For Hcal HEM17 Area
 bool JetMonitor::isHEM17(double eta, double phi){
   bool output = false;
-  if (fabs(eta) <= 3.0 && fabs(eta) > 1.3 && (eta/fabs(eta) < 0) &&
+  if (fabs(eta) <= 3.0 && fabs(eta) > 1.3 && (eta < 0) &&
       phi > -0.87 && phi <= -0.52 ) {output=true;}
   return output;
 }
@@ -448,56 +367,18 @@ bool JetMonitor::isHEM17(double eta, double phi){
 bool JetMonitor::isHEP18(double eta, double phi){
   bool output = false;
   // phi -0.87 to -0.52 
-  if (fabs(eta) <= 3.0 && fabs(eta) > 1.3 && (eta/fabs(eta) > 0) &&
+  if (fabs(eta) <= 3.0 && fabs(eta) > 1.3 && (eta > 0) &&
       phi > -0.52 && phi <= -0.17 ) {output=true;}
   return output;
 
 }
-void JetMonitor::AutoNullPtr(JetME* a_me,const int len_){
+/*void JetMonitor::AutoNullPtr(JetME* a_me,const int len_){
    for (int i =0; i < len_; ++i)
    {
       a_me[i].denominator = nullptr;
       a_me[i].numerator = nullptr;
    }
-}
-void JetMonitor::FillME(std::vector<JetME> v_me,double pt_, double phi_, double eta_, int ls_,std::string denu){
-   std::vector<JetME> v_;
-   v_.clear();
-   v_ = v_me;
-   std::string DenoOrNume = "";
-   DenoOrNume = denu;
-/*   cout << "v_me size ? " << v_me.size() << endl;
-   cout << "pt : " << pt_ << " eta : "  << eta_ << " phi : " << phi_ << " ls : " << ls_ << endl; 
-   for (unsigned int i =0; i < v_me.size(); ++i){
-      std::cout << "v_me[" << i<< "] : " << v_me[i].denominator->getName()<< std::endl;
-   }*/ 
-   if (DenoOrNume == "denominator")
-   {
-      // index 0 = pt, 1 = ptThreshold , 2 = pt vs ls , 3 = phi, 4 = eta, 
-      // 5 = eta vs phi, 6 = eta vs pt , 7 = abs(eta) , 8 = abs(eta) vs phi 
-      
-      v_me[0].denominator->Fill(pt_);// pt
-      v_me[1].denominator->Fill(pt_);// jetpT Threshold binning for pt 
-      v_me[2].denominator->Fill(ls_,pt_);// pt vs ls
-      v_me[3].denominator->Fill(phi_);// phi 
-      v_me[4].denominator->Fill(eta_);// eta
-      v_me[5].denominator->Fill(eta_,phi_);// eta vs phi
-      v_me[6].denominator->Fill(eta_,pt_);// eta vs phi
-   }
-   else if (DenoOrNume == "numerator")
-   {
-      v_me[0].numerator->Fill(pt_);// pt 
-      v_me[1].numerator->Fill(pt_);// jetpT Threshold binning for pt 
-      v_me[2].numerator->Fill(ls_,pt_);// pt vs ls
-      v_me[3].numerator->Fill(phi_);// phi
-      v_me[4].numerator->Fill(eta_);// eat
-      v_me[5].numerator->Fill(eta_,phi_);// eta vs phi
-      v_me[6].numerator->Fill(eta_,pt_);// eta vs phi
-   }
-   else {
-      edm::LogWarning("JetMonitor") << "CHECK OUT denu option in FillME !!! DenoOrNume ? : " << DenoOrNume << std::endl;
-   }
-}
+}*/
 void JetMonitor::FillME(JetME* a_me,double pt_, double phi_, double eta_, int ls_,std::string denu){
    std::string isDeno = "";
    isDeno = denu;
