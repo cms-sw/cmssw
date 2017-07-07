@@ -14,8 +14,7 @@ import FWCore.ParameterSet.Config as cms
 #                       
 
 # DQM quality tests 
-# TODO: emulator QT
-#from DQM.L1TMonitorClient.L1TStage2EmulatorQualityTests_cff import *
+from DQM.L1TMonitorClient.L1TStage2EmulatorQualityTests_cff import *
 
 # Calo trigger layer2 client
 from DQM.L1TMonitorClient.L1TStage2CaloLayer2DEClient_cfi import *
@@ -33,8 +32,7 @@ from DQM.L1TMonitorClient.L1TStage2OMTFEmulatorClient_cff import *
 from DQM.L1TMonitorClient.L1TStage2EMTFEmulatorClient_cff import *
 
 # L1 emulator event info DQM client 
-# TODO: emulator summaryMap
-#from DQM.L1TMonitorClient.L1TStage2EmulatorEventInfoClient_cfi import *
+from DQM.L1TMonitorClient.L1TStage2EmulatorEventInfoClient_cfi import *
 
 
 #
@@ -48,11 +46,11 @@ l1TStage2EmulatorClients = cms.Sequence(
                       + l1tStage2BMTFEmulatorClient
                       + l1tStage2OMTFEmulatorClient
                       + l1tStage2EMTFEmulatorClient
-                        # l1tStage2EmulatorEventInfoClient 
+                      + l1tStage2EmulatorEventInfoClient 
                         )
 
 l1tStage2EmulatorMonitorClient = cms.Sequence(
-                        # l1TStage2EmulatorQualityTests +
+                        l1TStage2EmulatorQualityTests +
                         l1TStage2EmulatorClients
                         )
 

@@ -54,7 +54,7 @@ Basic2DGenericPFlowClusterizer(const edm::ParameterSet& conf) :
     _recHitEnergyNorms.emplace(_layerMap.find(det)->second,rhE_norm);
   }
   
-  _allCellsPosCalc.reset(NULL);
+  _allCellsPosCalc.reset(nullptr);
   if( conf.exists("allCellsPositionCalc") ) {
     const edm::ParameterSet& acConf = 
       conf.getParameterSet("allCellsPositionCalc");
@@ -65,7 +65,7 @@ Basic2DGenericPFlowClusterizer(const edm::ParameterSet& conf) :
     _allCellsPosCalc.reset(accalc);
   }
   // if necessary a third pos calc for convergence testing
-  _convergencePosCalc.reset(NULL);
+  _convergencePosCalc.reset(nullptr);
   if( conf.exists("positionCalcForConvergence") ) {
     const edm::ParameterSet& convConf = 
       conf.getParameterSet("positionCalcForConvergence");

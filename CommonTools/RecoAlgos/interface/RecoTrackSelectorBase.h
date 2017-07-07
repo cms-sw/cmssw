@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -10,7 +11,7 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-
+#include "DataFormats/Math/interface/deltaPhi.h"
 
 class RecoTrackSelectorBase {
 public:
@@ -19,6 +20,8 @@ public:
     ptMin_(cfg.getParameter<double>("ptMin")),
     minRapidity_(cfg.getParameter<double>("minRapidity")),
     maxRapidity_(cfg.getParameter<double>("maxRapidity")),
+    meanPhi_((cfg.getParameter<double>("minPhi")+cfg.getParameter<double>("maxPhi"))/2.),
+    rangePhi_((cfg.getParameter<double>("maxPhi")-cfg.getParameter<double>("minPhi"))/2.),
     tip_(cfg.getParameter<double>("tip")),
     lip_(cfg.getParameter<double>("lip")),
     maxChi2_(cfg.getParameter<double>("maxChi2")),
@@ -28,6 +31,18 @@ public:
     min3DLayer_(cfg.getParameter<int>("min3DLayer")),
     usePV_(cfg.getParameter<bool>("usePV")),
     bsSrcToken_(iC.consumes<reco::BeamSpot>(cfg.getParameter<edm::InputTag>("beamSpot"))) {
+      const auto minPhi = cfg.getParameter<double>("minPhi");
+      const auto maxPhi = cfg.getParameter<double>("maxPhi");
+      if(minPhi >= maxPhi) {
+        throw cms::Exception("Configuration") << "RecoTrackSelectorPhase: minPhi (" << minPhi << ") must be smaller than maxPhi (" << maxPhi << "). The range is constructed from minPhi to maxPhi around their average.";
+      }
+      if(minPhi >= M_PI) {
+        throw cms::Exception("Configuration") << "RecoTrackSelectorPhase: minPhi (" << minPhi << ") must be smaller than PI. The range is constructed from minPhi to maxPhi around their average.";
+      }
+      if(maxPhi <= -M_PI) {
+        throw cms::Exception("Configuration") << "RecoTrackSelectorPhase: maxPhi (" << maxPhi << ") must be larger than -PI. The range is constructed from minPhi to maxPhi around their average.";
+      }
+
       if (usePV_)
         vertexToken_ = iC.consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("vertexTag"));
       for(const std::string& quality: cfg.getParameter<std::vector<std::string> >("quality"))
@@ -79,6 +94,9 @@ public:
             return t.algoMask()[algo];
           }) == algorithmMask_.end()) algo_ok = false;
     }
+
+    const auto dphi = deltaPhi(t.phi(), meanPhi_);
+
     return
       (
        (algo_ok & quality_ok) &&
@@ -89,6 +107,7 @@ public:
        t.hitPattern().numberOfValidStripLayersWithMonoAndStereo() >= min3DLayer_ &&
        fabs(t.pt()) >= ptMin_ &&
        t.eta() >= minRapidity_ && t.eta() <= maxRapidity_ &&
+       dphi >= -rangePhi_ && dphi <= rangePhi_ &&
        fabs(t.dxy(vertex_)) <= tip_ &&
        fabs(t.dsz(vertex_)) <= lip_  &&
        t.normalizedChi2()<=maxChi2_
@@ -100,6 +119,8 @@ private:
   double ptMin_;
   double minRapidity_;
   double maxRapidity_;
+  double meanPhi_;
+  double rangePhi_;
   double tip_;
   double lip_;
   double maxChi2_;

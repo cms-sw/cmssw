@@ -5,6 +5,9 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+class DQMStore;
+class MonitorElement;
+
 class ESDataCertificationTask: public edm::EDAnalyzer{
 
  public:

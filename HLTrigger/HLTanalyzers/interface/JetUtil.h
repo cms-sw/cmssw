@@ -2,6 +2,7 @@
 #define JET_JETUTIL_H 1
 
 #include <cmath>
+#include <algorithm>
 
 class PtGreater {
   public:
@@ -46,7 +47,7 @@ static double radius(double eta1, double phi1,double eta2, double phi2){
   phi2=Phi_0_2pi(phi2);
  
   double dphi=Phi_0_2pi(phi1-phi2);
-  dphi = TMath::Min(dphi,TWOPI-dphi);
+  dphi = std::min(dphi,TWOPI-dphi);
   double deta = eta1-eta2;
  
   return sqrt(deta*deta+dphi*dphi);

@@ -9,14 +9,13 @@
 #include "RecoTracker/TransientTrackingRecHit/interface/ProjectedRecHit2D.h"
 #include "RecHitPropagator.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/InvalidTransientRecHit.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <memory>
 
 #include <typeinfo>
-
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 
 
 namespace {
@@ -74,13 +73,16 @@ TkGluedMeasurementDet::TkGluedMeasurementDet( const GluedGeomDet* gdet,
                                               const StripClusterParameterEstimator* cpe) :
   MeasurementDet(gdet), 
   theMatcher(matcher),  theCPE(cpe),
-  theMonoDet(nullptr), theStereoDet(nullptr)
+  theMonoDet(nullptr), theStereoDet(nullptr),
+  theTopology(nullptr)
 {}
 
 void TkGluedMeasurementDet::init(const MeasurementDet* monoDet,
-				 const MeasurementDet* stereoDet) {
+				 const MeasurementDet* stereoDet,
+                                 const TrackerTopology* tTopo) {
   theMonoDet = dynamic_cast<const TkStripMeasurementDet *>(monoDet);
   theStereoDet = dynamic_cast<const TkStripMeasurementDet *>(stereoDet);
+  theTopology = tTopo;
   
   if ((theMonoDet == 0) || (theStereoDet == 0)) {
     throw MeasurementDetException("TkGluedMeasurementDet ERROR: Trying to glue a det which is not a TkStripMeasurementDet");
@@ -134,7 +136,7 @@ bool TkGluedMeasurementDet::measurements( const TrajectoryStateOnSurface& stateO
    if (result.size()>oldSize) return true;
    
    auto id = geomDet().geographicalId().subdetId()-3;
-   auto l = TOBDetId(geomDet().geographicalId()).layer();
+   auto l = theTopology->tobLayer(geomDet().geographicalId());
    bool killHIP = (1==l) && (2==id); //TOB1
    killHIP &= stateOnThisDet.globalMomentum().perp2()>est.minPt2ForHitRecoveryInGluedDet();
    if (killHIP) {

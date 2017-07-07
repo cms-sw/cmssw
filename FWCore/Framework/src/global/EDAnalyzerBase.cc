@@ -178,16 +178,6 @@ namespace edm {
       //respondToCloseInputFile(fb);
     }
     
-    void
-    EDAnalyzerBase::doPreForkReleaseResources() {
-      preForkReleaseResources();
-    }
-    
-    void
-    EDAnalyzerBase::doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {
-      postForkReacquireResources(iChildIndex, iNumberOfChildren);
-    }
-    
     void EDAnalyzerBase::preallocStreams(unsigned int) {}
     void EDAnalyzerBase::doBeginStream_(StreamID id){}
     void EDAnalyzerBase::doEndStream_(StreamID id) {}

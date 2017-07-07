@@ -31,7 +31,7 @@
       targetClass="reco::HitPattern"
       target="hitPattern"
       version="[-11]"
-      include="utility,DataFormats/SiPixelDetId/interface/PXBDetId.h,DataFormats/SiPixelDetId/interface/PXFDetId.h,DataFormats/SiStripDetId/interface/TIBDetId.h,DataFormats/SiStripDetId/interface/TIDDetId.h,DataFormats/SiStripDetId/interface/TOBDetId.h,DataFormats/SiStripDetId/interface/TECDetId.h,DataFormats/MuonDetId/interface/DTLayerId.h,DataFormats/MuonDetId/interface/CSCDetId.h,DataFormats/MuonDetId/interface/RPCDetId.h"
+      include="utility,DataFormats/MuonDetId/interface/DTLayerId.h,DataFormats/MuonDetId/interface/CSCDetId.h,DataFormats/MuonDetId/interface/RPCDetId.h"
       >
       <![CDATA[
             using namespace reco;

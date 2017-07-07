@@ -3,7 +3,7 @@
 ///
 /// Description: Fill uGT external condition to allow testing stage 2 algos, e.g. Bptx
 ///
-/// 
+///
 /// \author: D. Puigh OSU
 ///
 
@@ -82,7 +82,7 @@ using namespace l1t;
     setBptxAND_ (iConfig.getParameter<bool>("setBptxAND")),
     setBptxPlus_ (iConfig.getParameter<bool>("setBptxPlus")),
     setBptxMinus_ (iConfig.getParameter<bool>("setBptxMinus")),
-    setBptxOR_ (iConfig.getParameter<bool>("setBptxOR")) 
+    setBptxOR_ (iConfig.getParameter<bool>("setBptxOR"))
   {
     // register what you produce
     produces<GlobalExtBlkBxCollection>();
@@ -112,18 +112,18 @@ using namespace l1t;
     // get / update the trigger menu from the EventSetup
     // local cache & check on cacheIdentifier
     unsigned long long l1GtMenuCacheID = iSetup.get<L1TUtmTriggerMenuRcd>().cacheIdentifier();
-    
+
     if (m_l1GtMenuCacheID != l1GtMenuCacheID) {
 
         edm::ESHandle<L1TUtmTriggerMenu> l1GtMenu;
         iSetup.get< L1TUtmTriggerMenuRcd>().get(l1GtMenu) ;
         const L1TUtmTriggerMenu* utml1GtMenu =  l1GtMenu.product();
-        
+
 	// Instantiate Parser
-        TriggerMenuParser gtParser = TriggerMenuParser();   
+        TriggerMenuParser gtParser = TriggerMenuParser();
 
 	std::map<std::string, unsigned int> extBitMap = gtParser.getExternalSignals(utml1GtMenu);
-	
+
 	m_l1GtMenuCacheID = l1GtMenuCacheID;
 	m_extBitMap = extBitMap;
     }
@@ -145,11 +145,23 @@ using namespace l1t;
     if( setBptxMinus_ && foundBptxMinus ) extCond_bx.setExternalDecision(m_extBitMap["BPTX_minus.v0"],true);
     if( setBptxOR_ && foundBptxOR ) extCond_bx.setExternalDecision(m_extBitMap["BPTX_plus_OR_minus.v0"],true);
 
+    //check for updated Bptx names as well
+    foundBptxAND = ( m_extBitMap.find("ZeroBias_BPTX_AND_VME")!=m_extBitMap.end() );
+    foundBptxPlus = ( m_extBitMap.find("BPTX_B1_VME")!=m_extBitMap.end() );
+    foundBptxMinus = ( m_extBitMap.find("BPTX_B2_VME")!=m_extBitMap.end() );
+    foundBptxOR = ( m_extBitMap.find("BPTX_OR_VME")!=m_extBitMap.end() );
+
+    // Fill in some external conditions for testing
+    if( setBptxAND_ && foundBptxAND ) extCond_bx.setExternalDecision(m_extBitMap["ZeroBias_BPTX_AND_VME"],true);
+    if( setBptxPlus_ && foundBptxPlus ) extCond_bx.setExternalDecision(m_extBitMap["BPTX_B1_VME"],true);
+    if( setBptxMinus_ && foundBptxMinus ) extCond_bx.setExternalDecision(m_extBitMap["BPTX_B2_VME"],true);
+    if( setBptxOR_ && foundBptxOR ) extCond_bx.setExternalDecision(m_extBitMap["BPTX_OR_VME"],true);
+
     // Fill Externals
     for( int iBx=bxFirst_; iBx<=bxLast_; iBx++ ){
       extCond->push_back(iBx, extCond_bx);
     }
-   
+
 
     iEvent.put(std::move(extCond));
 

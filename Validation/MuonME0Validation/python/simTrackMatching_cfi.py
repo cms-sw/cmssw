@@ -29,7 +29,7 @@ SimTrackMatching = cms.PSet(
     ),
     me0StripDigi = cms.PSet(
         verbose = cms.int32(0),
-        input = cms.InputTag("simMuonME0Digis"),
+        input = cms.InputTag("simMuonME0PseudoDigis"),
         minBX = cms.int32(-1),
         maxBX = cms.int32(1),
         matchDeltaStrip = cms.int32(1),

@@ -62,7 +62,6 @@ namespace edm {
     virtual void skip(int offset) override;
     virtual bool goToEvent_(EventID const& eventID) override;
     virtual void rewind_() override;
-    virtual void preForkReleaseResources() override;
     virtual bool randomAccess_() const override;
     virtual ProcessingController::ForwardState forwardState_() const override;
     virtual ProcessingController::ReverseState reverseState_() const override;

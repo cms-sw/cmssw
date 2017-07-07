@@ -17,7 +17,7 @@
 #include "CommonTools/Statistics/interface/LinearFit.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -29,6 +29,9 @@
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackBuilder.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackErrorParam.h"
 #include "DataFormats/GeometryVector/interface/Pi.h"
+
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "CommonTools/Utils/interface/DynArray.h"
 
@@ -90,8 +93,18 @@ namespace {
   }
 }
   
-PixelFitterByHelixProjections::PixelFitterByHelixProjections(const edm::EventSetup *es, const MagneticField *field):
-  theES(es), theField(field) {}
+PixelFitterByHelixProjections::PixelFitterByHelixProjections(const edm::EventSetup *es,
+							     const MagneticField *field,
+                                                             bool scaleErrorsForBPix1,
+                                                             float scaleFactor):
+  theES(es), theField(field),
+  thescaleErrorsForBPix1(scaleErrorsForBPix1), thescaleFactor(scaleFactor)
+{
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopo;
+  es->get<TrackerTopologyRcd>().get(tTopo);
+  theTopo = tTopo.product();
+}
 
 std::unique_ptr<reco::Track> PixelFitterByHelixProjections::run(
     const std::vector<const TrackingRecHit * > & hits,
@@ -141,12 +154,23 @@ std::unique_ptr<reco::Track> PixelFitterByHelixProjections::run(
   float valEta = std::asinh(valCotTheta);
   float valZip = zip(valTip, valPhi, curvature, points[0],points[1]);
 
+  // Rescale down the error to take into accont the fact that the
+  // inner pixel barrel layer for PhaseI is closer to the interaction
+  // point. The effective scale factor has been derived by checking
+  // that the pulls of the pixelVertices derived from the pixelTracks
+  // have the correct mean and sigma.
+  float errFactor = 1.;
+  if ( thescaleErrorsForBPix1
+       && (hits[0]->geographicalId().subdetId() == PixelSubdetector::PixelBarrel) &&
+       (theTopo->pxbLayer(hits[0]->geographicalId()) == 1))
+	errFactor = thescaleFactor;
+
   PixelTrackErrorParam param(valEta, valPt);
-  float errValPt  = param.errPt();
-  float errValCot = param.errCot();
-  float errValTip = param.errTip();
-  float errValPhi = param.errPhi();
-  float errValZip = param.errZip();
+  float errValPt  = errFactor*param.errPt();
+  float errValCot = errFactor*param.errCot();
+  float errValTip = errFactor*param.errTip();
+  float errValPhi = errFactor*param.errPhi();
+  float errValZip = errFactor*param.errZip();
 
 
   float chi2 = 0;

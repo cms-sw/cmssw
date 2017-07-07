@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
+#include "DataFormats/Math/interface/Point3D.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 

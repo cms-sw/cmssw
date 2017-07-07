@@ -42,10 +42,11 @@ public:
                                etaMin(et1), etaMax(et2) {}
   };
   struct HcalActiveLength {
-    int    ieta, depth;
+    int    ieta, depth, zside, stype;
     double eta, thick;
-    HcalActiveLength(int ie=0, int d=0, double et=0, 
-		     double t=0) : ieta(ie), depth(d), eta(et), thick(t) {}
+    HcalActiveLength(int ie=0, int d=0, int z=0, int s=0, double et=0, 
+		     double t=0) : ieta(ie), depth(d), zside(z), stype(s),
+                                   eta(et), thick(t) {}
   };
   struct HFCellParameters {
     int    ieta, depth, firstPhi, stepPhi, nPhi;
@@ -78,6 +79,7 @@ public:
 				    int idepth) const;
   std::vector<HFCellParameters>    getHFCellParameters() const;
   void                      getLayerDepth(int ieta, std::map<int,int>& layers) const;
+  int                       getLayerFront(int det, int eta, int phi, int depth) const;
   double                    getLayer0Wt(int det, int phi, int zside) const {return hcons.getLayer0Wt(det,phi,zside);}
   int                       getMaxDepth(const int type) const {return maxDepth[type];}
   int                       getMaxDepth(const int itype, const int ieta,
@@ -95,6 +97,8 @@ public:
   const std::vector<double> &      getPhiTableHF() const {return hpar->phitable;}
   int                       getPhiZOne(std::vector<std::pair<int,int> >& phiz) const;
   double                    getRZ(int subdet, int ieta, int depth) const;
+  double                    getRZ(int subdet, int ieta, int iphi, int depth) const;
+  double                    getRZ(int subdet, int layer) const;
   std::vector<HcalActiveLength>    getThickActive(const int type) const;
   int                       getTopoMode() const {return ((hpar->topologyMode)&0xFF);}
   int                       getTriggerMode() const {return (((hpar->topologyMode)>>8)&0xFF);}

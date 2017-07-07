@@ -32,6 +32,7 @@ class L1TStage2RatioClient: public DQMEDHarvester
     std::string ratioTitle_;
     std::string yAxisTitle_;
     bool binomialErr_;
+    std::vector<int> ignoreBin_;
 
     MonitorElement* ratioME_;
 };

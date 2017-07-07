@@ -3,6 +3,7 @@
 
 #include <iomanip>
 #include <sstream>
+#include <unistd.h>
 
 namespace fffnaming {
 

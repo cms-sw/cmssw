@@ -7,9 +7,11 @@
 #ifndef ADD_PrimitiveConverter_Neighbor
 #define ADD_PrimitiveConverter_Neighbor
 
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
 
 #include "L1Trigger/L1TMuonEndCap/interface/EmulatorClasses.h"
 #include "L1Trigger/L1TMuonEndCap/interface/PhThLUT_Neighbor.h"
+#include "L1Trigger/L1TMuon/interface/deprecate/MuonTriggerPrimitive.h"
 
 bool neighbor(int endcap,int sector,int SectIndex,int id,int sub,int station){
   
@@ -54,17 +56,17 @@ int ph_offsets_neighbor[5][10][3] =
    {{38,-99,-99}, {76,-99,-99}, {113,-99,-99}, {38,38,-99}, {57,57,-99}, 
     {76,76,-99}, {95,95,-99}, {113,113,-99}, {132,132,-99}, {1,20,20}}};//[station][id][phzvl look up #(-99 indicates invaled entry)]
 
-std::vector<ConvertedHit> PrimConv(std::vector<TriggerPrimitive> TriggPrim, int SectIndex){
+std::vector<ConvertedHit> PrimConv(std::vector<L1TMuon::TriggerPrimitive> TriggPrim, int SectIndex){
   
   //bool verbose = false;
   
   std::vector<ConvertedHit> ConvHits;
-  for(std::vector<TriggerPrimitive>::iterator C1 = TriggPrim.begin();C1 != TriggPrim.end();C1++){
+  for(std::vector<L1TMuon::TriggerPrimitive>::iterator C1 = TriggPrim.begin();C1 != TriggPrim.end();C1++){
     
     /////////////////////////////////////
     ///// get all input variables ///////
     /////////////////////////////////////
-    TriggerPrimitive C3 = *C1;
+    L1TMuon::TriggerPrimitive C3 = *C1;
     CSCDetId Det = C3.detId<CSCDetId>();
     
     int station = Det.station(), chamber = Det.chamber(), ring = Det.ring(), wire = C3.getCSCData().keywire;
@@ -472,7 +474,7 @@ std::vector<ConvertedHit> PrimConv(std::vector<TriggerPrimitive> TriggPrim, int 
 	Hit.SetValues(fph,th,ph_hit,phzvl,station,sub,Id,quality,pattern,wire,strip,BX);
 	Hit.SetTP(C3);
 	Hit.SetZhit(zhit);
-	Hit.SetZoneContribution(zonecontribution);
+	//Hit.SetZoneContribution(zonecontribution); Function doesn't exist in this class...
 	Hit.SetSectorIndex(SectIndex);
 	Hit.SetNeighbor(in);
 	

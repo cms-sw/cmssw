@@ -14,10 +14,14 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 		edm::InputTag("horeco"));
 	_tagHF = ps.getUntrackedParameter<edm::InputTag>("tagHF",
 		edm::InputTag("hfreco"));
+	_tagPreHF = ps.getUntrackedParameter<edm::InputTag>("tagPreHF",
+		edm::InputTag(""));
+	_hfPreRecHitsAvailable = ps.getUntrackedParameter<bool>("hfPreRecHitsAvailable", false);
 
 	_tokHBHE = consumes<HBHERecHitCollection>(_tagHBHE);
 	_tokHO = consumes<HORecHitCollection>(_tagHO);
 	_tokHF = consumes<HFRecHitCollection>(_tagHF);
+	_tokPreHF = consumes<HFPreRecHitCollection>(_tagPreHF);
 
 	_cutE_HBHE = ps.getUntrackedParameter<double>("cutE_HBHE", 5);
 	_cutE_HO = ps.getUntrackedParameter<double>("cutE_HO", 5);
@@ -51,6 +55,9 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 		vVME);
 	_filter_uTCA.initialize(filter::fFilter, hcaldqm::hashfunctions::fElectronics,
 		vuTCA);
+	std::vector<uint32_t> vhashHF; 
+	vhashHF.push_back(hcaldqm::hashfunctions::hash_did[hcaldqm::hashfunctions::fSubdet](HcalDetId(HcalForward, 29,1,1)));
+	_filter_HF.initialize(filter::fPreserver, hcaldqm::hashfunctions::fSubdet, vhashHF);
 
 	//	INITIALIZE FIRST
 	//	Energy
@@ -97,13 +104,30 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 	_cOccupancyvsLS_Subdet.initialize(_name, "OccupancyvsLS",
 		hcaldqm::hashfunctions::fSubdet,
 		new hcaldqm::quantity::LumiSection(_maxLS),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN_to3000),0);
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN_to8000),0);
 
 	_cOccupancyCut_depth.initialize(_name, "OccupancyCut",
 		hcaldqm::hashfunctions::fdepth,
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
+
+	if (_hfPreRecHitsAvailable) {
+		_cDAAsymmetryVsCharge_SubdetPM.initialize(_name, "ChargeVsAsymmetry", 
+			hcaldqm::hashfunctions::fSubdetPM,
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fDualAnodeAsymmetry), 
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_400000),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
+		_cDAAsymmetryMean_cut_depth.initialize(_name, "AsymmetryMean",
+			hcaldqm::hashfunctions::fdepth,
+			new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
+			new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fDualAnodeAsymmetry),0);
+		_cDAAsymmetry_cut_SubdetPM.initialize(_name, "Asymmetry",
+			hcaldqm::hashfunctions::fSubdetPM,
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fDualAnodeAsymmetry),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN), 0);
+	}
 
 	//	INITIALIZE HISTOGRAMS to be used only in Online
 	if (_ptype==fOnline)
@@ -164,7 +188,7 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 		_cOccupancyCutvsLS_Subdet.initialize(_name, "OccupancyCutvsLS",
 			hcaldqm::hashfunctions::fSubdet,
 			new hcaldqm::quantity::LumiSection(_maxLS),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN_to3000),0);
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN_to8000),0);
 	}
 
 	// FED-based plots
@@ -313,6 +337,12 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 		_cOccupancyCut_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
 	}
 
+	if (_hfPreRecHitsAvailable) {
+		_cDAAsymmetryVsCharge_SubdetPM.book(ib, _emap, _filter_HF, _subsystem);
+		_cDAAsymmetryMean_cut_depth.book(ib, _emap, _filter_HF, _subsystem);
+		_cDAAsymmetry_cut_SubdetPM.book(ib, _emap, _filter_HF, _subsystem);
+	}
+
 	//	BOOK HISTOGRAMS to be used only in Online
 	if (_ptype==fOnline)
 	{
@@ -398,6 +428,13 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 	if (!(e.getByToken(_tokHF, chf)))
 		_logger.dqmthrow("Collection HFRecHitCollection not available "
 			+ _tagHF.label() + " " + _tagHF.instance());
+
+	edm::Handle<HFPreRecHitCollection> cprehf;
+	if (_hfPreRecHitsAvailable) {
+		if (!(e.getByToken(_tokPreHF, cprehf)))
+			_logger.dqmthrow("Collection HFPreRecHitCollection not available "
+				+ _tagPreHF.label() + " " + _tagPreHF.instance());
+	}
 
 	//	extract some info per event
 	int bx = e.bunchCrossing();
@@ -489,12 +526,16 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 
 			//	ONLINE 
 			if (_ptype==fOnline) {
-				_cTimingCutvsLS_FED.fill(eid, _currentLS, timing);
+				if (rawid != 0) {
+					_cTimingCutvsLS_FED.fill(eid, _currentLS, timing);
+				}
 				_cTimingCut_depth.fill(did, timing);
 				//	^^^ONLINE
 			} else {
 				if (_ptype != fOffline) { // hidefed2crate
-					_cTimingCutvsLS_FED.fill(eid, _currentLS, timing);
+					if (rawid != 0) {
+						_cTimingCutvsLS_FED.fill(eid, _currentLS, timing);
+					}
 				}
 				_cTimingCut_depth.fill(did, timing);
 			}
@@ -779,6 +820,28 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 				_currentLS, nChsHFCut);
 		}
 		//	^^^ONLINE ONLY!
+	}
+
+	// Loop over HFPreRecHits to get charge and charge asymmetry
+	if (_hfPreRecHitsAvailable) {
+		for (HFPreRecHitCollection::const_iterator it=cprehf->begin();
+			it!=cprehf->end(); ++it)
+		{
+			HcalDetId did = it->id();
+			if (_filter_HF.filter(did)) {
+				continue;
+			}
+			std::pair<float, bool> chargeAsymmetry = it->chargeAsymmetry(0.);
+			std::pair<float, bool> chargeAsymmetryCut = it->chargeAsymmetry(20.);
+
+			if (chargeAsymmetry.second) {
+				_cDAAsymmetryVsCharge_SubdetPM.fill(did, chargeAsymmetry.first, it->charge());
+			}
+			if (chargeAsymmetryCut.second) {
+				_cDAAsymmetryMean_cut_depth.fill(did, chargeAsymmetryCut.first);
+				_cDAAsymmetry_cut_SubdetPM.fill(did, chargeAsymmetryCut.first);
+			}
+		}
 	}
 }
 
