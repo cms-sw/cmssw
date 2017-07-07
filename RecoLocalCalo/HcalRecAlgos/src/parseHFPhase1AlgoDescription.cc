@@ -30,6 +30,12 @@ parseHFPhase1AlgoDescription(const edm::ParameterSet& ps)
         const bool rejectAllFailures =
             ps.getParameter<bool>("rejectAllFailures");
 
+        float minChargeForUndershoot = -10000.f, minChargeForOvershoot = -10000.f;
+        if (ps.existsAs<double>("minChargeForUndershoot"))
+            minChargeForUndershoot = ps.getParameter<double>("minChargeForUndershoot");
+        if (ps.existsAs<double>("minChargeForOvershoot"))
+            minChargeForOvershoot = ps.getParameter<double>("minChargeForOvershoot");
+
         float energyWeights[2*HFAnodeStatus::N_POSSIBLE_STATES-1][2];
         const unsigned sz = sizeof(energyWeights)/sizeof(energyWeights[0][0]);
 
@@ -66,11 +72,13 @@ parseHFPhase1AlgoDescription(const edm::ParameterSet& ps)
                 algo = std::unique_ptr<AbsHFPhase1Algo>(
                     new HFSimpleTimeCheck(tlimits, energyWeights, soiPhase,
                                           timeShift, triseIfNoTDC, tfallIfNoTDC,
+                                          minChargeForUndershoot, minChargeForOvershoot,
                                           rejectAllFailures));
             else
                 algo = std::unique_ptr<AbsHFPhase1Algo>(
                     new HFFlexibleTimeCheck(tlimits, energyWeights, soiPhase,
                                             timeShift, triseIfNoTDC, tfallIfNoTDC,
+                                            minChargeForUndershoot, minChargeForOvershoot,
                                             rejectAllFailures));
         }
     }
