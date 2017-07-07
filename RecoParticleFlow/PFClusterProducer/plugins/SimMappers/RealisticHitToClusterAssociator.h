@@ -10,16 +10,19 @@
 
 namespace
 {
-//TODO: get number of layers per subdet from geometry
-float getDecayLength(unsigned int layer)
-{
-    if (layer <= 28)
-        return 2.f;
-    if (layer > 28 && layer <= 40)
-        return 1.5f;
-    if (layer > 40)
-        return 1.f;
 
+float getDecayLength(unsigned int layer, unsigned int fhOffset, unsigned int bhOffset)
+{
+    constexpr float eeDecayLengthInLayer = 2.f;
+    constexpr float fhDecayLengthInLayer = 1.5f;
+    constexpr float bhDecayLengthInLayer = 1.f;
+
+    if (layer <= fhOffset)
+        return eeDecayLengthInLayer;
+    if (layer > fhOffset && layer <= bhOffset)
+        return fhDecayLengthInLayer;
+    if (layer > bhOffset)
+        return bhDecayLengthInLayer;
     return 0.f;
 }
 }
@@ -52,10 +55,7 @@ class RealisticHitToClusterAssociator
 
         void insertHitPosition(float x, float y, float z, unsigned int hitIndex)
         {
-            hitPosition_[hitIndex] =
-            {
-                {   x,y,z}};
-
+            hitPosition_[hitIndex] = {{x,y,z}};
         }
 
         void insertLayerId(unsigned int layerId, unsigned int hitIndex)
@@ -66,7 +66,6 @@ class RealisticHitToClusterAssociator
         void insertHitEnergy(float energy, unsigned int hitIndex)
         {
             totalEnergy_[hitIndex] = energy;
-
         }
 
         void insertSimClusterIdAndFraction(unsigned int scIdx, float fraction,
@@ -90,7 +89,7 @@ class RealisticHitToClusterAssociator
             return std::sqrt(distanceSquared);
         }
 
-        void computeAssociation( float exclusiveFraction, bool useMCFractionsForExclEnergy)
+        void computeAssociation( float exclusiveFraction, bool useMCFractionsForExclEnergy, unsigned int fhOffset, unsigned int bhOffset)
         {
             //if more than exclusiveFraction of a hit's energy belongs to a cluster, that rechit is not counted as shared
             unsigned int numberOfHits = layerId_.size();
@@ -106,7 +105,7 @@ class RealisticHitToClusterAssociator
                 HitToRealisticSimCluster_[hitId].resize(numberOfClusters);
                 HitToRealisticEnergyFraction_[hitId].resize(numberOfClusters);
                 partialEnergies.resize(numberOfClusters,0.f);
-                float energyDecayLength = getDecayLength(layer);
+                float energyDecayLength = getDecayLength(layer, fhOffset, bhOffset);
                 float sumE = 0.f;
                 if(numberOfClusters == 1)
                 {
@@ -132,8 +131,7 @@ class RealisticHitToClusterAssociator
                         // partial energy is only needed to compute a fraction and it's not the energy assigned to the cluster
                         if(maxEnergyHitAtLayer_[simClusterId][layer]>0.f)
                         {
-                            partialEnergies[clId] = 0.0001f+ maxEnergyHitAtLayer_[simClusterId][layer] * std::exp(-distanceFromMaxHit_[hitId][clId]/energyDecayLength);
-
+                            partialEnergies[clId] = maxEnergyHitAtLayer_[simClusterId][layer] * std::exp(-distanceFromMaxHit_[hitId][clId]/energyDecayLength);
                         }
 
                         sumE += partialEnergies[clId];
@@ -157,19 +155,9 @@ class RealisticHitToClusterAssociator
                             // exclusive energy is increased. The exclusive energy will be needed to evaluate if
                             // a realistic cluster will be invisible, i.e. absorbed by other clusters
 
-                            if(useMCFractionsForExclEnergy)
-                            {
-                                if(MCEnergyFraction_[hitId][clId] >exclusiveFraction)
-                                {
-                                    RealisticSimClusters_[simClusterIndex].increaseExclusiveEnergy(assignedEnergy);
-                                }
-                            }
-                            else
-                            {
-                                if(assignedFraction > exclusiveFraction)
-                                {
-                                    RealisticSimClusters_[simClusterIndex].increaseExclusiveEnergy(assignedEnergy);
-                                }
+                            if( (useMCFractionsForExclEnergy and MCEnergyFraction_[hitId][clId] > exclusiveFraction) or
+                                    (!useMCFractionsForExclEnergy and assignedFraction > exclusiveFraction) ) {
+                              RealisticSimClusters_[simClusterIndex].increaseExclusiveEnergy(assignedEnergy);
                             }
                         }
                     }
