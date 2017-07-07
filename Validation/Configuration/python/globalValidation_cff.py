@@ -177,6 +177,8 @@ _phase2_globalValidation += me0SimValid
 _phase_1_globalValidation = globalValidation.copy()
 _phase_1_globalValidation += siPixelPhase1OfflineDQM_sourceV
 
+from Configuration.Eras.Modifier_run2_GEM_2017_MCTest_cff import run2_GEM_2017_MCTest
+run2_GEM_2017_MCTest.toReplaceWith( globalValidation, _run3_globalValidation )
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 run3_GEM.toReplaceWith( globalValidation, _run3_globalValidation )
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
