@@ -86,7 +86,7 @@ void RealisticSimClusterMapper::buildClusters(const edm::Handle<reco::PFRecHitCo
     }
     realisticAssociator.computeAssociation(_exclusiveFraction, _useMCFractionsForExclEnergy,_rhtools.lastLayerEE(), _rhtools.lastLayerFH() );
     realisticAssociator.findAndMergeInvisibleClusters(_invisibleFraction, _exclusiveFraction);
-    auto realisticClusters = std::move(realisticAssociator.realisticClusters());
+    const auto& realisticClusters = realisticAssociator.realisticClusters();
     unsigned int nClusters = realisticClusters.size();
     for (unsigned ic = 0; ic < nClusters; ++ic)
     {
@@ -97,7 +97,7 @@ void RealisticSimClusterMapper::buildClusters(const edm::Handle<reco::PFRecHitCo
             output.emplace_back();
             reco::PFCluster& back = output.back();
             edm::Ref < std::vector<reco::PFRecHit> > seed;
-            auto hitsIdsAndFractions = std::move(realisticClusters[ic].hitsIdsAndFractions());
+            const auto& hitsIdsAndFractions = realisticClusters[ic].hitsIdsAndFractions();
             for (const auto& idAndF : hitsIdsAndFractions)
             {
                 auto ref = makeRefhit(input, idAndF.first);
