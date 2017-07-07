@@ -264,7 +264,6 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
 
   LogDebug("TrackFitters") << "Found 1 trajectory with " << myTraj.foundHits() << " valid hits\n";
 
-  if (ret.foundHits() < minHits_) return Trajectory();
   return ret;
 }
 
