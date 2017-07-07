@@ -84,7 +84,7 @@ void RealisticSimClusterMapper::buildClusters(const edm::Handle<reco::PFRecHitCo
         }
 
     }
-    realisticAssociator.computeAssociation(_exclusiveFraction, _useMCFractionsForExclEnergy);
+    realisticAssociator.computeAssociation(_exclusiveFraction, _useMCFractionsForExclEnergy,_rhtools.lastLayerEE(), _rhtools.lastLayerFH() );
     realisticAssociator.findAndMergeInvisibleClusters(_invisibleFraction, _exclusiveFraction);
     auto realisticClusters = std::move(realisticAssociator.realisticClusters());
     unsigned int nClusters = realisticClusters.size();
