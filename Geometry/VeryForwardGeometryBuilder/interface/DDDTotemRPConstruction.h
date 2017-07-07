@@ -9,7 +9,7 @@
 #define Geometry_VeryForwardGeometryBuilder_DDDTotemRPConstruction
 
 #include "Geometry/VeryForwardGeometryBuilder/interface/DetGeomDesc.h"
-#include "Geometry/VeryForwardGeometryBuilder/interface/DDDTotemRPCommon.h"
+#include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSDDDNames.h"
 
 class DDCompactView;
 class DDFilteredView;
