@@ -26,97 +26,99 @@ namespace{
   //Offline electron definition
   bool IsGood(const reco::GsfElectron &el, const reco::Vertex::Point &pv_position,
               const reco::BeamSpot::Point &bs_position,
-              const edm::Handle<reco::ConversionCollection> &convs, double lep_counting_threshold){
-    const float dEtaIn = el.deltaEtaSuperClusterTrackAtVtx();
-    const float dPhiIn = el.deltaPhiSuperClusterTrackAtVtx();
-    const float sigmaietaieta = el.full5x5_sigmaIetaIeta();
-    const float hOverE = el.hcalOverEcal();
-    float d0 = 0.0, dz=0.0;
-    if(el.pt()<lep_counting_threshold) return false;
-    try{
-      d0=-(el.gsfTrack()->dxy(pv_position));
-      dz = el.gsfTrack()->dz(pv_position);
-    }catch(...){
-      edm::LogError("LepHTMonitor") << "Could not read electron.gsfTrack().\n";
-      return false;
-    }
-    float ooemoop = 1e30;
-    if(el.ecalEnergy()>0.0 && std::isfinite(el.ecalEnergy())){
-      ooemoop = fabs(1.0/el.ecalEnergy() - el.eSuperClusterOverP()/el.ecalEnergy());
-    }
+              const edm::Handle<reco::ConversionCollection> &convs, bool pass_id,
+	      const double lep_counting_threshold, const double lep_iso_cut, const double lep_eta_cut,  
+	      const double d0_cut_b, const double dz_cut_b,  const double d0_cut_e,  const double dz_cut_e){
+
+    //Electron ID
+    if(!pass_id) return false;
+
+    //pT
+    if(el.pt()<lep_counting_threshold || fabs(el.superCluster()->eta()) > lep_eta_cut) return false;
+
+    //Isolation
     const auto &iso = el.pfIsolationVariables();
     const float absiso = iso.sumChargedHadronPt
       + std::max(0.0, iso.sumNeutralHadronEt + iso.sumPhotonEt -0.5 * iso.sumPUPt);
     const float relisowithdb = absiso/el.pt();
-
+    if(relisowithdb>lep_iso_cut) return false; 
+    
+    //Conversion matching
     bool pass_conversion = false;
     if(convs.isValid()){
-      try{
-        pass_conversion = !ConversionTools::hasMatchedConversion(el, convs, bs_position);
-      }catch(...){
-        edm::LogError("LepHTMonitor") << "Electron conversion matching failed.\n";
-        return false;
-      }
+      pass_conversion = !ConversionTools::hasMatchedConversion(el, convs, bs_position);
+    }
+    else{
+      edm::LogError("LepHTMonitor") << "Electron conversion matching failed.\n";
+    }
+    if(!pass_conversion) return false;
+    
+
+    //Impact parameter
+    float d0 = 999., dz=999.;
+    if(el.gsfTrack().isNonnull()){
+      d0=-(el.gsfTrack()->dxy(pv_position));
+      dz = el.gsfTrack()->dz(pv_position);
+    }
+    else{
+      edm::LogError("LepHTMonitor") << "Could not read electron.gsfTrack().\n";
+      return false;
+    }
+    float etasc = el.superCluster()->eta();
+    if(fabs(etasc)>1.479){//Endcap 
+      if(fabs(d0)>d0_cut_e || fabs(dz)>dz_cut_e) return false;
+ 
+    }else{//Barrel
+      if(fabs(d0)>d0_cut_b || fabs(dz)>dz_cut_b) return false;
     }
 
-    float etasc = 0.0;
-    try{
-      etasc = el.superCluster()->eta();
-    }catch(...){
-      edm::LogError("LepHTMonitor") << "Could not read electron.superCluster().\n";
-      return false;
-    }
-    if(fabs(etasc)>2.5){
-      return false;
-    }else if(fabs(etasc)>1.479){
-      if(fabs(dEtaIn)>0.00733) return false;
-      if(fabs(dPhiIn)>0.114) return false;
-      if(sigmaietaieta>0.0283) return false;
-      if(hOverE>0.0678) return false;
-      if(fabs(d0)>0.0739) return false;
-      if(fabs(dz)>0.602) return false;
-      if(fabs(ooemoop)>0.0898) return false;
-      if(relisowithdb>0.1) return false;
-      if(!pass_conversion) return false;
-    }else{
-      if(fabs(dEtaIn)>0.0103) return false;
-      if(fabs(dPhiIn)>0.0336) return false;
-      if(sigmaietaieta>0.0101) return false;
-      if(hOverE>0.0876) return false;
-      if(fabs(d0)>0.0118) return false;
-      if(fabs(dz)>0.373) return false;
-      if(fabs(ooemoop)>0.0174) return false;
-      if(relisowithdb>0.1) return false;
-      if(!pass_conversion) return false;
-    }
     return true;
   }
 
   //Offline muon definition
-  bool IsGood(const reco::Muon &mu, const reco::Vertex::Point &pv_position, double lep_counting_threshold){
-    if(mu.pt()<lep_counting_threshold) return false;
+  bool IsGood(const reco::Muon &mu, const reco::Vertex::Point &pv_position,
+	      const double lep_counting_threshold, const double lep_iso_cut, const double lep_eta_cut,
+	      const double d0_cut, const double dz_cut){
+    //Muon pt and eta acceptance
+    if(mu.pt()<lep_counting_threshold || fabs(mu.eta())>lep_eta_cut) return false;
     try{
+      //Muon isolation
       const auto &iso = mu.pfIsolationR04();
       const float absiso = iso.sumChargedHadronPt
 	+ std::max(0.0, iso.sumNeutralHadronEt + iso.sumPhotonEt -0.5 * iso.sumPUPt);
       const float relisowithdb = absiso/mu.pt();
-      if(relisowithdb>0.2) return false;
+      if(relisowithdb>lep_iso_cut) return false;
     }catch(...){
       edm::LogWarning("LepHTMonitor") << "Could not read muon isolation.\n";
       return false;
     }
     try{
+      //Muon ID
       bool isMed =  muon::isMediumMuon(mu);
-      return isMed;
+      if(!isMed) return false;
     }catch(...){
       edm::LogWarning("LepHTMonitor") << "Could not read isMediumMuon().\n";
       return false;
     }
+    //Muon impact parameter
+    float d0 = 999., dz=999.;
+    try{
+      d0=fabs(mu.muonBestTrack()->dxy(pv_position));
+      dz=fabs(mu.muonBestTrack()->dz(pv_position));
+    }catch(...){
+      edm::LogWarning("LepHTMonitor") << "Could not read muon.muonBestTrack().\n";
+      return false;
+    }
+    if(d0>d0_cut || dz>dz_cut) return false;
+
+    return true;
   }
 }
 LepHTMonitor::LepHTMonitor(const edm::ParameterSet &ps):
   theElectronTag_(ps.getParameter<edm::InputTag>("electronCollection")),
-  theElectronCollection_(consumes<reco::GsfElectronCollection>(theElectronTag_)),
+  theElectronCollection_(consumes<edm::View<reco::GsfElectron> >(theElectronTag_)),
+  theElectronVIDTag_(ps.getParameter<edm::InputTag>("electronVID")),
+  theElectronVIDMap_(consumes<edm::ValueMap<bool> >(theElectronVIDTag_)),
   theMuonTag_(ps.getParameter<edm::InputTag>("muonCollection")),
   theMuonCollection_(consumes<reco::MuonCollection>(theMuonTag_)),
   thePfMETTag_(ps.getParameter<edm::InputTag>("pfMetCollection")),
@@ -147,9 +149,24 @@ LepHTMonitor::LepHTMonitor(const edm::ParameterSet &ps):
   nelsCut_(ps.getUntrackedParameter<double>("nels")),
   lep_pt_plateau_(ps.getUntrackedParameter<double>("leptonPtPlateau")),
   lep_counting_threshold_(ps.getUntrackedParameter<double>("leptonCountingThreshold")),
-
+  lep_iso_cut_(ps.getUntrackedParameter<double>("lepIsoCut")),
+  lep_eta_cut_(ps.getUntrackedParameter<double>("lepEtaCut")),
+  lep_d0_cut_b_(ps.getUntrackedParameter<double>("lep_d0_cut_b")),
+  lep_dz_cut_b_(ps.getUntrackedParameter<double>("lep_dz_cut_b")),
+  lep_d0_cut_e_(ps.getUntrackedParameter<double>("lep_d0_cut_e")),
+  lep_dz_cut_e_(ps.getUntrackedParameter<double>("lep_dz_cut_e")),
   ptbins_(ps.getParameter< std::vector<double> >("ptbins")),
   htbins_(ps.getParameter< std::vector<double> >("htbins")),
+
+  nbins_eta_(ps.getUntrackedParameter<int>("nbins_eta")),
+  nbins_phi_(ps.getUntrackedParameter<int>("nbins_phi")),
+  nbins_npv_(ps.getUntrackedParameter<int>("nbins_npv")),
+  etabins_min_(ps.getUntrackedParameter<double>("etabins_min")),
+  etabins_max_(ps.getUntrackedParameter<double>("etabins_max")),
+  phibins_min_(ps.getUntrackedParameter<double>("phibins_min")),
+  phibins_max_(ps.getUntrackedParameter<double>("phibins_max")),
+  npvbins_min_(ps.getUntrackedParameter<double>("npvbins_min")),
+  npvbins_max_(ps.getUntrackedParameter<double>("npvbins_max")),
 
   h_pfHTTurnOn_num_(nullptr),
   h_pfHTTurnOn_den_(nullptr),
@@ -169,9 +186,6 @@ LepHTMonitor::LepHTMonitor(const edm::ParameterSet &ps):
 LepHTMonitor::~LepHTMonitor(){
   edm::LogInfo("LepHTMonitor")
     << "Destructor LepHTMonitor::~LepHTMonitor\n";
-  if (num_genTriggerEventFlag_) delete num_genTriggerEventFlag_;
-  if (den_lep_genTriggerEventFlag_) delete den_lep_genTriggerEventFlag_;
-  if (den_HT_genTriggerEventFlag_) delete den_HT_genTriggerEventFlag_;
 }
 
 void LepHTMonitor::dqmBeginRun(const edm::Run &run, const edm::EventSetup &e){
@@ -220,16 +234,16 @@ void LepHTMonitor::bookHistograms(DQMStore::IBooker &ibooker,
   
   h_lepPtTurnOn_num_  = ibooker.book1D("lepPtTurnOn_num", ("Numerator;Offline "+lepton+" p_{T} [GeV];").c_str(),   f_ptbins.size()-1, f_ptbins.data());
   h_lepPtTurnOn_den_  = ibooker.book1D("lepPtTurnOn_den", ("Denominator;Offline "+lepton+" p_{T} [GeV];").c_str(), f_ptbins.size()-1, f_ptbins.data());
-  h_lepEtaTurnOn_num_ = ibooker.book1D("lepEtaTurnOn_num", "Numerator;Offline lepton #eta;", 10,-2.5,2.5);
-  h_lepEtaTurnOn_den_ = ibooker.book1D("lepEtaTurnOn_den", "Denominator;Offline lepton #eta;",10,-2.5,2.5);
-  h_lepPhiTurnOn_num_ = ibooker.book1D("lepPhiTurnOn_num", "Numerator;Offline lepton #phi;", 10,-3.142,3.142);
-  h_lepPhiTurnOn_den_ = ibooker.book1D("lepPhiTurnOn_den", "Denominator;Offline lepton #phi;", 10,-3.142,3.142);
+  h_lepEtaTurnOn_num_ = ibooker.book1D("lepEtaTurnOn_num", "Numerator;Offline lepton #eta;", nbins_eta_,etabins_min_,etabins_max_);
+  h_lepEtaTurnOn_den_ = ibooker.book1D("lepEtaTurnOn_den", "Denominator;Offline lepton #eta;", nbins_eta_,etabins_min_,etabins_max_);
+  h_lepPhiTurnOn_num_ = ibooker.book1D("lepPhiTurnOn_num", "Numerator;Offline lepton #phi;", nbins_phi_,phibins_min_,phibins_max_);
+  h_lepPhiTurnOn_den_ = ibooker.book1D("lepPhiTurnOn_den", "Denominator;Offline lepton #phi;", nbins_phi_,phibins_min_,phibins_max_);
 
-  h_lepEtaPhiTurnOn_num_ = ibooker.book2D("lepEtaPhiTurnOn_num", "Numerator;Offline lepton #eta;Offline lepton #phi;", 5,-2.5,2.5,5,-3.142,3.142);
-  h_lepEtaPhiTurnOn_den_ = ibooker.book2D("lepEtaPhiTurnOn_den", "Denominator;Offline lepton #eta;Offline lepton #phi;", 5,-2.5,2.5,5,-3.142,3.142);
+  h_lepEtaPhiTurnOn_num_ = ibooker.book2D("lepEtaPhiTurnOn_num", "Numerator;Offline lepton #eta;Offline lepton #phi;", nbins_eta_/2,etabins_min_,etabins_max_,nbins_phi_/2,phibins_min_,phibins_max_);
+  h_lepEtaPhiTurnOn_den_ = ibooker.book2D("lepEtaPhiTurnOn_den", "Denominator;Offline lepton #eta;Offline lepton #phi;", nbins_eta_/2,etabins_min_,etabins_max_,nbins_phi_/2,phibins_min_,phibins_max_);
 
-  h_NPVTurnOn_num_  = ibooker.book1D("NPVTurnOn_num", "Numerator;N_{PV};", 14,0,70);
-  h_NPVTurnOn_den_  = ibooker.book1D("NPVTurnOn_den", "Denominator;N_{PV};", 14,0,70);
+  h_NPVTurnOn_num_  = ibooker.book1D("NPVTurnOn_num", "Numerator;N_{PV};", nbins_npv_,npvbins_min_,npvbins_max_);
+  h_NPVTurnOn_den_  = ibooker.book1D("NPVTurnOn_den", "Denominator;N_{PV};", nbins_npv_,npvbins_min_,npvbins_max_);
 
   ibooker.cd();
 }
@@ -261,6 +275,17 @@ void LepHTMonitor::analyze(const edm::Event &e, const edm::EventSetup &eSetup){
         << "Invalid VertexCollection: " << theVertexCollectionTag_.label() << '\n';
     }
     else npv = VertexCollection->size();
+  }
+
+
+  //Get electron ID map
+  edm::Handle<edm::ValueMap<bool> > ele_id_decisions;
+  if(theElectronVIDTag_.label() != ""){
+    e.getByToken(theElectronVIDMap_ ,ele_id_decisions);
+    if(!ele_id_decisions.isValid()){
+      edm::LogWarning("LepHTMonitor")
+	<< "Invalid Electron VID map: " << theElectronVIDTag_.label() << '\n';
+    }
   }
 
   //Conversions
@@ -304,7 +329,7 @@ void LepHTMonitor::analyze(const edm::Event &e, const edm::EventSetup &eSetup){
   }
 
   //Electron
-  edm::Handle<reco::GsfElectronCollection> ElectronCollection;
+  edm::Handle<edm::View<reco::GsfElectron> > ElectronCollection;
   if(theElectronTag_.label() != ""){
     e.getByToken (theElectronCollection_, ElectronCollection);
     if( !ElectronCollection.isValid() ){
@@ -312,7 +337,7 @@ void LepHTMonitor::analyze(const edm::Event &e, const edm::EventSetup &eSetup){
         << "Invalid GsfElectronCollection: " << theElectronTag_.label() << '\n';
     }
   }
-
+  
   //Muon
   edm::Handle<reco::MuonCollection> MuonCollection;
   if(theMuonTag_.label() != ""){
@@ -357,21 +382,28 @@ void LepHTMonitor::analyze(const edm::Event &e, const edm::EventSetup &eSetup){
     //Try to find a reco electron
     if(ElectronCollection.isValid()
        && ConversionCollection.isValid()
-       && BeamSpot.isValid()){
+       && BeamSpot.isValid()
+       && ele_id_decisions.isValid()){
+      size_t index=0;
       for(const auto &electron: *ElectronCollection){
+	const auto el = ElectronCollection->ptrAt(index);
+	bool pass_id = (*ele_id_decisions)[el];
         if(IsGood(electron, VertexCollection->front().position(),
-                  BeamSpot->position(), ConversionCollection, lep_counting_threshold_)){
+                  BeamSpot->position(), ConversionCollection, pass_id,
+		  lep_counting_threshold_,lep_iso_cut_,lep_eta_cut_, 
+		  lep_d0_cut_b_, lep_dz_cut_b_, lep_d0_cut_e_, lep_dz_cut_e_)){
           if(electron.pt()>lep_max_pt) {lep_max_pt=electron.pt(); lep_eta=electron.eta();lep_phi=electron.phi();} 
 	  if(electron.pt()<min_ele_pt || min_ele_pt<0){ min_ele_pt=electron.pt(); trailing_ele_eta=electron.eta(); trailing_ele_phi=electron.phi();} 
 	  nels++;
         }
+	index++;
       }
     }
 
     //Try to find a reco muon
     if(MuonCollection.isValid()){
       for(const auto &muon: *MuonCollection){
-        if(IsGood(muon, VertexCollection->front().position(),lep_counting_threshold_)){
+        if(IsGood(muon, VertexCollection->front().position(),lep_counting_threshold_,lep_iso_cut_,lep_eta_cut_, lep_d0_cut_b_, lep_dz_cut_b_)){
           if(muon.pt()>lep_max_pt) {lep_max_pt=muon.pt(); lep_eta=muon.eta();lep_phi=muon.phi();} 
           if(muon.pt()<min_mu_pt || min_mu_pt<0) {min_mu_pt=muon.pt(); trailing_mu_eta=muon.eta(); trailing_mu_phi=muon.phi();} 
 	  nmus++;
