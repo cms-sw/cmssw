@@ -51,11 +51,8 @@ SiPixelAliPedeAlignmentProducer.algoConfig.pedeSteerer.options = cms.vstring(
 SiPixelAliPedeAlignmentProducer.algoConfig.minNumHits = 10
 SiPixelAliPedeAlignmentProducer.saveToDB = True
 
-dqmEnvSiPixelAli = cms.EDAnalyzer("DQMEventInfo",
-                                  subSystemFolder = cms.untracked.string('AlCaReco'),  
-                                  )
+
 
 ALCAHARVESTSiPixelAli = cms.Sequence(SiPixelAliMilleFileExtractor*
                                      SiPixelAliPedeAlignmentProducer*
-                                     SiPixelAliDQMModule*
-                                     dqmEnvSiPixelAli)
+                                     SiPixelAliDQMModule)

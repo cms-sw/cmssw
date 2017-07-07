@@ -388,11 +388,11 @@ void BeamMonitorBx::FitAndFill(const LuminosityBlock& lumiSeg,
       firstlumi_ = LSRange.first;
 
     if (resetFitNLumi_ > 0 ) {
-      char tmpTitle1[60];
+      char tmpTitle1[50];
       if ( countGoodFit_ > 1)
-	snprintf(tmpTitle1,sizeof(tmpTitle1),"%s %i %s %i %s"," [cm] (LS: ",firstlumi_," to ",LSRange.second,") [weighted average]");
+	sprintf(tmpTitle1,"%s %i %s %i %s"," [cm] (LS: ",firstlumi_," to ",LSRange.second,") [weighted average]");
       else
-	snprintf(tmpTitle1,sizeof(tmpTitle1),"%s","Need at least two fits to calculate weighted average");
+	sprintf(tmpTitle1,"%s","Need at least two fits to calculate weighted average");
       for (std::map<std::string,std::string>::const_iterator varName = varMap.begin();
 	   varName != varMap.end(); ++varName) {
 	TString tmpName = varName->first + "_all";

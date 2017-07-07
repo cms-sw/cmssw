@@ -55,6 +55,11 @@ namespace edm {
     eventPrincipal.fillEventPrincipal(eventAuxiliary, processHistoryRegistry());
   }
 
+  void
+  RawInputSource::preForkReleaseResources() {
+    closeFile(nullptr, false);
+  }
+
   InputSource::ItemType
   RawInputSource::getNextItemType() {
     if(state() == IsInvalid) {

@@ -30,8 +30,6 @@
 #include <fstream>
 #include <iomanip>
 #include <sstream>
-#include "boost/algorithm/string.hpp"
-
 
 namespace edm {
   PoolOutputModule::PoolOutputModule(ParameterSet const& pset) :
@@ -87,14 +85,6 @@ namespace edm {
       whyNotFastClonable_+= FileBlock::EventSelectionUsed;
     }
 
-    auto const& specialSplit {pset.getUntrackedParameterSetVector("overrideBranchesSplitLevel")};
-      
-    specialSplitLevelForBranches_.reserve(specialSplit.size());
-    for(auto const& s: specialSplit) {
-      specialSplitLevelForBranches_.emplace_back(s.getUntrackedParameter<std::string>("branch"),
-                                                 s.getUntrackedParameter<int>("splitLevel"));
-    }
-      
     // We don't use this next parameter, but we read it anyway because it is part
     // of the configuration of this module.  An external parser creates the
     // configuration by reading this source code.
@@ -165,17 +155,6 @@ namespace edm {
     return lh < rh;
   }
 
-  inline bool PoolOutputModule::SpecialSplitLevelForBranch::match( std::string const& iBranchName) const {
-    return std::regex_match(iBranchName,branch_);
-  }
-
-  std::regex PoolOutputModule::SpecialSplitLevelForBranch::convert( std::string const& iGlobBranchExpression) const {
-    std::string tmp(iGlobBranchExpression);
-    boost::replace_all(tmp, "*", ".*");
-    boost::replace_all(tmp, "?", ".");
-    return std::regex(tmp);
-  }
-  
   void PoolOutputModule::fillSelectedItemList(BranchType branchType, TTree* theInputTree) {
 
     SelectedProducts const& keptVector = keptProducts()[branchType];
@@ -207,11 +186,6 @@ namespace edm {
         basketSize = theBranch->GetBasketSize();
       } else {
         splitLevel = (prod.splitLevel() == BranchDescription::invalidSplitLevel ? splitLevel_ : prod.splitLevel());
-        for(auto const& b: specialSplitLevelForBranches_) {
-          if(b.match(prod.branchName())) {
-            splitLevel =b.splitLevel_;
-          }
-        }
         basketSize = (prod.basketSize() == BranchDescription::invalidBasketSize ? basketSize_ : prod.basketSize());
       }
       outputItemList.emplace_back(&prod, kept.second, splitLevel, basketSize);
@@ -260,6 +234,17 @@ namespace edm {
 
   void PoolOutputModule::respondToCloseInputFile(FileBlock const& fb) {
     if(rootOutputFile_) rootOutputFile_->respondToCloseInputFile(fb);
+  }
+
+  void PoolOutputModule::postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {
+    childIndex_ = iChildIndex;
+    while (iNumberOfChildren != 0) {
+      ++numberOfDigitsInIndex_;
+      iNumberOfChildren /= 10;
+    }
+    if (numberOfDigitsInIndex_ == 0) {
+      numberOfDigitsInIndex_ = 3; // Protect against zero iNumberOfChildren
+    }
   }
 
   PoolOutputModule::~PoolOutputModule() {
@@ -464,18 +449,11 @@ namespace edm {
                      "'DROPPED': Keep it for products produced in current process and all kept products. Drop it for dropped products produced in prior processes.\n"
                      "'PRIOR':   Keep it for products produced in current process. Drop it for products produced in prior processes.\n"
                      "'ALL':     Drop all of it.");
-    {
-      ParameterSetDescription dataSet;
-      dataSet.setAllowAnything();
-      desc.addUntracked<ParameterSetDescription>("dataset", dataSet)
-      ->setComment("PSet is only used by Data Operations and not by this module.");
-    }
-    {
-      ParameterSetDescription specialSplit;
-      specialSplit.addUntracked<std::string>("branch")->setComment("Name of branch needing a special split level. The name can contain wildcards '*' and '?'");
-      specialSplit.addUntracked<int>("splitLevel")->setComment("The special split level for the branch");
-      desc.addVPSetUntracked("overrideBranchesSplitLevel",specialSplit, std::vector<ParameterSet>());
-    }
+    ParameterSetDescription dataSet;
+    dataSet.setAllowAnything();
+    desc.addUntracked<ParameterSetDescription>("dataset", dataSet)
+     ->setComment("PSet is only used by Data Operations and not by this module.");
+
     OutputModule::fillDescription(desc);
   }
 

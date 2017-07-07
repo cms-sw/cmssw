@@ -66,7 +66,7 @@ class ExternalLHEProducer : public edm::one::EDProducer<edm::BeginRunProducer,
                                                         edm::EndRunProducer> {
 public:
   explicit ExternalLHEProducer(const edm::ParameterSet& iConfig);
-  virtual ~ExternalLHEProducer() override;
+  virtual ~ExternalLHEProducer();
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
@@ -81,7 +81,7 @@ private:
   void executeScript();
   std::unique_ptr<std::string> readOutput();
 
-  void nextEvent();
+  virtual void nextEvent();
   
   // ----------member data ---------------------------
   std::string scriptName_;
@@ -92,7 +92,7 @@ private:
   unsigned int nThreads_{1};
   std::string outputContents_;
 
-  std::unique_ptr<lhef::LHEReader>	reader_;
+  std::auto_ptr<lhef::LHEReader>		reader_;
   boost::shared_ptr<lhef::LHERunInfo>	runInfoLast;
   boost::shared_ptr<lhef::LHERunInfo>	runInfo;
   boost::shared_ptr<lhef::LHEEvent>	partonLevel;
@@ -267,7 +267,8 @@ ExternalLHEProducer::beginRunProduce(edm::Run& run, edm::EventSetup const& es)
 
   std::vector<std::string> infiles(1, outputFile_);
   unsigned int skip = 0;
-  reader_ = std::make_unique<lhef::LHEReader>(infiles, skip);
+  std::auto_ptr<lhef::LHEReader> thisRead(new lhef::LHEReader(infiles, skip));
+  reader_ = thisRead;
 
   nextEvent();
   if (runInfoLast) {
@@ -495,7 +496,6 @@ void ExternalLHEProducer::nextEvent()
   if (partonLevel)
     return;
 
-  if(not reader_) { return;}
   partonLevel = reader_->next();
   if (!partonLevel)
     return;

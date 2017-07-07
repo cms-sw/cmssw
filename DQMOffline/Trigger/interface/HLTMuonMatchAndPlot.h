@@ -70,8 +70,7 @@ class HLTMuonMatchAndPlot
   void beginRun(DQMStore::IBooker &, const edm::Run &, const edm::EventSetup &);
   void analyze(edm::Handle<reco::MuonCollection> &, edm::Handle<reco::BeamSpot> &, 
 	       edm::Handle<reco::VertexCollection> &, edm::Handle<trigger::TriggerEvent> &, 
-	       edm::Handle<edm::TriggerResults> &,
-	       const edm::TriggerNames&);
+	       edm::Handle<edm::TriggerResults> &);
   void endRun(const edm::Run &, const edm::EventSetup &);
 
   // Helper Methods

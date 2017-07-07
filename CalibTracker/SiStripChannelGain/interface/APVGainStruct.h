@@ -1,8 +1,6 @@
 #ifndef CALIBTRACKER_SISTRIPCHANNELGAIN_STAPVGAIN_H
 #define CALIBTRACKER_SISTRIPCHANNELGAIN_STAPVGAIN_H
 
-class TH1F;
-
 struct stAPVGain{
   unsigned int Index; 
   int          Bin;

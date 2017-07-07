@@ -104,9 +104,7 @@ private:
 	edm::ESHandle<Chi2MeasurementEstimatorBase>   estimator_;
 
 	/// Function to find seeds on a given layer
-	void findSeedsOnLayer(
-			      const TrackerTopology* tTopo,
-			      const GeometricSearchDet &layer,
+	void findSeedsOnLayer(const GeometricSearchDet &layer,
 			      const TrajectoryStateOnSurface &tsosAtIP,
 			      const Propagator& propagatorAlong,
 			      const Propagator& propagatorOpposite,
@@ -117,9 +115,7 @@ private:
 	double calculateSFFromL2(const reco::TrackRef track);
 
 	/// Function to find hits on layers and create seeds from updated TSOS
-	int makeSeedsFromHits(
-			const TrackerTopology* tTopo,
-			const GeometricSearchDet &layer,
+	int makeSeedsFromHits(const GeometricSearchDet &layer,
 			const TrajectoryStateOnSurface &state,
 			std::vector<TrajectorySeed> &out,
 			const Propagator& propagatorAlong,

@@ -1,11 +1,10 @@
 import FWCore.ParameterSet.Config as cms
-import CondTools.Ecal.db_credentials as auth
 
 process = cms.Process("ProcessOne")
-process.load("CondCore.CondDB.CondDB_cfi")
-#process.CondDB.connect = 'oracle://cms_orcoff_prep/CMS_CONDITIONS'
-#process.CondDB.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb/'
-process.CondDB.connect = 'sqlite_file:EcalPedestals_hlt.db'
+process.load("CondCore.DBCommon.CondDBCommon_cfi")
+#process.CondDBCommon.connect = 'oracle://cms_orcoff_prep/CMS_COND_ECAL'
+#process.CondDBCommon.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb/'
+process.CondDBCommon.connect = 'sqlite_file:DB.db'
 
 process.MessageLogger = cms.Service("MessageLogger",
   debugModules = cms.untracked.vstring('*'),
@@ -19,21 +18,19 @@ process.source = cms.Source("EmptyIOVSource",
   interval = cms.uint64(1)
 )
 
-db_service,db_user,db_pwd = auth.get_readOnly_db_credentials()
-
-#process.PoolDBESSource = cms.ESSource("PoolDBESSource",
-#  process.CondDB,
-#  timetype = cms.untracked.string('runnumber'),
-#  toGet = cms.VPSet(
-#    cms.PSet(
-#      record = cms.string('EcalPedestalsRcd'),
-#      tag = cms.string('EcalPedestals_hlt')
-#    )
-#  )
-#)
+process.PoolDBESSource = cms.ESSource("PoolDBESSource",
+  process.CondDBCommon,
+  timetype = cms.untracked.string('runnumber'),
+  toGet = cms.VPSet(
+    cms.PSet(
+      record = cms.string('EcalPedestalsRcd'),
+      tag = cms.string('EcalPedestals_hlt')
+    )
+  )
+)
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-  process.CondDB,
+  process.CondDBCommon,
   logconnect = cms.untracked.string('sqlite_file:DBLog.db'),
   timetype = cms.untracked.string('runnumber'),
   toPut = cms.VPSet(
@@ -49,22 +46,20 @@ process.Test1 = cms.EDAnalyzer("ExTestEcalPedestalsAnalyzer",
   record = cms.string('EcalPedestalsRcd'),
   loggingOn = cms.untracked.bool(True),
   Source = cms.PSet(
-#    GenTag = cms.string('GLOBAL'),
-    GenTag = cms.string('LOCAL'),
+    GenTag = cms.string('GLOBAL'),
     RunTag = cms.string('PEDESTAL'),
-#    RunTag = cms.string('COSMIC'),
-    firstRun = cms.string('240000'),
+#        RunTag = cms.string('COSMIC'),
+    firstRun = cms.string('238500'),
     lastRun = cms.string('100000000'),
-     LocationSource = cms.string('P5'),
-#    LocationSource = cms.string('File'),
-#    LocationSource = cms.string('Tree'),
-#    LocationSource = cms.string('Timestamp'),
-#    LocationSource = cms.string('2017'),
-        OnlineDBUser = cms.string(db_user),
-        debug = cms.bool(False),
-        OnlineDBPassword = cms.string(db_pwd),
-        OnlineDBSID = cms.string(db_service),
+    LocationSource = cms.string('P5'),
+    OnlineDBUser = cms.string('cms_ecal_r'),
+    OnlineDBPassword = cms.string('3c4l_r34d3r'),
+#        OnlineDBUser = cms.string('cms_ecal_conf'),
+#        OnlineDBPassword = cms.string('0r4cms_3c4lc0nf'),
+    debug = cms.bool(True),
     Location = cms.string('P5_Co'),
+#        OnlineDBSID = cms.string('INT2R_LB')
+    OnlineDBSID = cms.string('cms_omds_adg')
   )
 )
 

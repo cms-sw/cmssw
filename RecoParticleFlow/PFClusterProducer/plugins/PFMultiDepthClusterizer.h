@@ -11,17 +11,17 @@ class PFMultiDepthClusterizer final : public PFClusterBuilderBase {
  public:
   PFMultiDepthClusterizer(const edm::ParameterSet& conf);
     
-  ~PFMultiDepthClusterizer() override = default;
+  virtual ~PFMultiDepthClusterizer() {}
   PFMultiDepthClusterizer(const B2DGPF&) = delete;
   B2DGPF& operator=(const B2DGPF&) = delete;
 
-  void update(const edm::EventSetup& es) override { 
+  void update(const edm::EventSetup& es) { 
     _allCellsPosCalc->update(es);
   }
 
   void buildClusters(const reco::PFClusterCollection&,
 		     const std::vector<bool>&,
-		     reco::PFClusterCollection& outclus) override;
+		     reco::PFClusterCollection& outclus);
 
  private:  
   std::unique_ptr<PFCPositionCalculatorBase> _allCellsPosCalc;
@@ -39,7 +39,9 @@ class PFMultiDepthClusterizer final : public PFClusterBuilderBase {
       linkE_ =energy; 
     }
 
-    ~ClusterLink() = default;
+    ~ClusterLink() {
+
+    }
 
     unsigned int from() const {return from_;}
     unsigned int to() const {return to_;}

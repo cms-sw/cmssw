@@ -19,7 +19,6 @@
 #include "TEveScalableStraightLineSet.h"
 #include "TEveTrack.h"
 
-#include "Fireworks/Core/interface/FWProxyBuilderConfiguration.h"
 #include "Fireworks/Calo/interface/FWTauProxyBuilderBase.h"
 #include "Fireworks/Calo/interface/makeEveJetCone.h"
 #include "Fireworks/Core/interface/Context.h"
@@ -27,8 +26,6 @@
 #include "Fireworks/Core/interface/BuilderUtils.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWViewEnergyScale.h"
-#include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/interface/FWBeamSpot.h"
 
 #include "Fireworks/Tracks/interface/TrackUtils.h"
 
@@ -36,7 +33,6 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 
 
-static const std::string kTauApexBeamSpot("Place Apex In BeamSpot");
 FWTauProxyBuilderBase::FWTauProxyBuilderBase():
    m_minTheta(0),
    m_maxTheta(0)
@@ -47,15 +43,6 @@ FWTauProxyBuilderBase::~FWTauProxyBuilderBase()
 {
 }
 
-   
-void FWTauProxyBuilderBase::setItem(const FWEventItem* iItem)
-{FWProxyBuilderBase::setItem(iItem);
-      if (iItem) {
-      iItem->getConfig()->assertParam(kTauApexBeamSpot, false);
-      }
-
-}
-      
 void
 FWTauProxyBuilderBase::buildBaseTau( const reco::BaseTau& iTau, const reco::Jet* iJet, TEveElement* comp, FWViewType::EType type, const FWViewContext* vc)
 {
@@ -121,11 +108,6 @@ FWTauProxyBuilderBase::buildBaseTau( const reco::BaseTau& iTau, const reco::Jet*
    {
       // jet
       TEveJetCone* cone = fireworks::makeEveJetCone(*iJet, context());
-      if (item()->getConfig()->value<bool>(kTauApexBeamSpot))
-      {
-         FWBeamSpot* bs = context().getBeamSpot();
-         cone->SetApex(TEveVector(bs->x0(), bs->y0(), bs->z0()));
-      }
       const FWDisplayProperties &dp = item()->defaultDisplayProperties();
       cone->SetFillColor(dp.color());
       cone->SetLineColor(dp.color());

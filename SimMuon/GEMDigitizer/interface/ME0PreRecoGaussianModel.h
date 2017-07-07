@@ -50,7 +50,6 @@ private:
 
   double instLumi_;
   double rateFact_;
-  double referenceInstLumi_;
 
   // params for the simple pol6 model of neutral bkg for ME0:
   std::vector<double> neuBkg, eleBkg;

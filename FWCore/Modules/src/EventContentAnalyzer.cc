@@ -302,12 +302,8 @@ namespace edm {
      if(getData_) {
         callWhenNewProductsRegistered([this](edm::BranchDescription const& iBranch) {
            if(getModuleLabels_.empty()) {
-              const std::string kPathStatus("edm::PathStatus");
-              const std::string kEndPathStatus("edm::EndPathStatus");
-              if(iBranch.className() != kPathStatus && iBranch.className() != kEndPathStatus) {
-                 this->consumes(edm::TypeToGet{iBranch.unwrappedTypeID(),PRODUCT_TYPE},
-                                edm::InputTag{iBranch.moduleLabel(),iBranch.productInstanceName(),iBranch.processName()});
-              }
+              this->consumes(edm::TypeToGet{iBranch.unwrappedTypeID(),PRODUCT_TYPE},
+                             edm::InputTag{iBranch.moduleLabel(),iBranch.productInstanceName(),iBranch.processName()});
            } else {
               for (auto const& mod : this->getModuleLabels_) {
                  if (iBranch.moduleLabel() == mod) {
@@ -352,11 +348,7 @@ namespace edm {
      std::string startIndent = indentation_+verboseIndentation_;
      for(auto const& provenance : provenances) {
          std::string const& className = provenance->className();
-         const std::string kPathStatus("edm::PathStatus");
-         const std::string kEndPathStatus("edm::EndPathStatus");
-         if(className == kPathStatus || className == kEndPathStatus) {
-           continue;
-         }
+
          std::string const& friendlyName = provenance->friendlyClassName();
          //if(friendlyName.empty())  friendlyName = std::string("||");
 

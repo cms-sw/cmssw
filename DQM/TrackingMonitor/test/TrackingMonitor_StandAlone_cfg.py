@@ -76,6 +76,8 @@ process.TrackMon.beamSpot               = cms.InputTag("offlineBeamSpot")
 
 # properties
 process.TrackMon.AlgoName               = cms.string('GenTk')
+process.TrackMon.OutputFileName 	= cms.string('TrackingMonitor.root')
+process.TrackMon.OutputMEsInRootFile 	= cms.bool(True)
 
 process.TrackMon.FolderName             = cms.string('Track/GlobalParameters')
 process.TrackMon.BSFolderName           = cms.string('Track/BeamSpotParameters')

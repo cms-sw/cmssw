@@ -155,9 +155,8 @@ class WorkFlowRunner(Thread):
                 cmd+=closeCmd(istep,self.wf.nameId)            
                 retStep = 0
                 if istep>self.maxSteps:
-                   wf_stats = open("%s/wf_steps.txt" % self.wfDir,"a")
-                   wf_stats.write('step%s:%s\n' % (istep, cmd))
-                   wf_stats.close()
+                   p = Popen("echo 'step%s:%s' >> %s/wf_steps.txt" % (istep, cmd, self.wfDir), shell=True)
+                   os.waitpid(p.pid, 0)[1]
                 else: retStep = self.doCmd(cmd)
             
             self.retStep.append(retStep)

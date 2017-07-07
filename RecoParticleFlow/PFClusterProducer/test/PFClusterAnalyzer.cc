@@ -34,7 +34,7 @@ PFClusterAnalyzer::PFClusterAnalyzer(const edm::ParameterSet& iConfig) {
 
 
 
-PFClusterAnalyzer::~PFClusterAnalyzer() = default;
+PFClusterAnalyzer::~PFClusterAnalyzer() { }
 
 
 

@@ -4,6 +4,8 @@ Test of the statemachine classes.
 
 ----------------------------------------------------------------------*/  
 
+#include "FWCore/Framework/src/EPStates.h"
+#include "FWCore/Framework/interface/IEventProcessor.h"
 #include "FWCore/Framework/test/MockEventProcessor.h"
 
 #include <boost/program_options.hpp>
@@ -14,6 +16,7 @@ Test of the statemachine classes.
 
 
 int main(int argc, char* argv[]) try {
+  using namespace statemachine;
   std::cout << "Running test in statemachine_t.cc\n";
 
   // Handle the command line arguments
@@ -56,23 +59,43 @@ int main(int argc, char* argv[]) try {
 
   std::ofstream output(outputFile.c_str());
 
-  std::vector<bool> fileModes;
-  fileModes.push_back(true);
-  fileModes.push_back(false);
+  std::vector<FileMode> fileModes;
+  fileModes.push_back(NOMERGE);
+  fileModes.push_back(FULLMERGE);
 
-  for (auto mode: fileModes) {
+  std::vector<EmptyRunLumiMode> emptyRunLumiModes;
+  emptyRunLumiModes.push_back(handleEmptyRunsAndLumis);
+  emptyRunLumiModes.push_back(handleEmptyRuns);
+  emptyRunLumiModes.push_back(doNotHandleEmptyRunsAndLumis);
 
-    output << "\nMachine parameters:  ";
-    if (mode) output << "mode = NOMERGE";
-    else output << "mode = FULLMERGE";
+  for (size_t k = 0; k < fileModes.size(); ++k) {
+    FileMode fileMode = fileModes[k];
 
-    output << "\n";
+    for (size_t i = 0; i < emptyRunLumiModes.size(); ++i) {
+      EmptyRunLumiMode emptyRunLumiMode = emptyRunLumiModes[i];
+      output << "\nMachine parameters:  ";
+      if (fileMode == NOMERGE) output << "mode = NOMERGE";
+      else output << "mode = FULLMERGE";
 
-    edm::MockEventProcessor mockEventProcessor(mockData,
-                                               output,
-                                               mode);
+      output << "  emptyRunLumiMode = ";
+      if  (emptyRunLumiMode == handleEmptyRunsAndLumis) {
+        output << "handleEmptyRunsAndLumis";
+      }
+      else if  (emptyRunLumiMode == handleEmptyRuns) {
+        output << "handleEmptyRuns";
+      }
+      else if  (emptyRunLumiMode == doNotHandleEmptyRunsAndLumis) {
+        output << "doNotHandleEmptyRunsAndLumis";
+      }
+      output << "\n";
 
-    mockEventProcessor.runToCompletion();
+      edm::MockEventProcessor mockEventProcessor(mockData,
+                                                 output,
+                                                 fileMode,
+                                                 emptyRunLumiMode);
+
+      mockEventProcessor.runToCompletion();
+    }
   }
   return 0;
 } catch(std::exception const& e) {

@@ -31,9 +31,7 @@
 
 namespace edm {
   class EventPrincipal;
-  class EventSetup;
   class ModuleDescription;
-  class PathStatusInserter;
   class RunPrincipal;
   class LuminosityBlockPrincipal;
   class EarlyDeleteHelper;
@@ -94,9 +92,6 @@ namespace edm {
     
     void setEarlyDeleteHelpers(std::map<const Worker*,EarlyDeleteHelper*> const&);
 
-    void setPathStatusInserter(PathStatusInserter* pathStatusInserter,
-                               Worker* pathStatusInserterWorker);
-
   private:
 
     // If you define this be careful about the pointer in the
@@ -122,9 +117,8 @@ namespace edm {
     WaitingTaskList waitingTasks_;
     std::atomic<bool>* stopProcessingEvent_;
 
-    PathStatusInserter* pathStatusInserter_;
-    Worker* pathStatusInserterWorker_;
 
+    
     // Helper functions
     // nwrwue = numWorkersRunWithoutUnhandledException (really!)
     bool handleWorkerFailure(cms::Exception & e,
@@ -145,11 +139,8 @@ namespace edm {
     void updateCounters(bool succeed, bool isEvent);
     
     void finished(int iModuleIndex, bool iSucceeded, std::exception_ptr,
-                  StreamContext const*,
-                  EventPrincipal const& iEP,
-                  EventSetup const& iES,
-                  StreamID const& streamID);
-
+                  StreamContext const*);
+    
     void handleEarlyFinish(EventPrincipal const&);
     void handleEarlyFinish(RunPrincipal const&) {}
     void handleEarlyFinish(LuminosityBlockPrincipal const&) {}

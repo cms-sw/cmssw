@@ -78,6 +78,8 @@ DQMOffline_SecondStepPOGMC = cms.Sequence( dqmRefHistoRootFileGetter *
                                            DQMOffline_SecondStep_PrePOGMC *
                                            DQMMessageLoggerClientSeq )
 
+from DQMOffline.L1Trigger.L1TriggerDqmOffline_SecondStep_cff import *
+
 DQMHarvestCommon = cms.Sequence( dqmRefHistoRootFileGetter *
                                  DQMMessageLoggerClientSeq *
                                  dqmDcsInfoClient *
@@ -90,7 +92,7 @@ DQMHarvestCommon = cms.Sequence( dqmRefHistoRootFileGetter *
                                  alcaBeamMonitorClient *
                                  runTauEff *
                                  dqmFastTimerServiceClient *
-                                 l1TriggerDqmOfflineClient
+                                 DQMHarvestL1Trigger
                                 )
 DQMHarvestCommonSiStripZeroBias = cms.Sequence(dqmRefHistoRootFileGetter *
                                                DQMMessageLoggerClientSeq *

@@ -25,10 +25,10 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
-#include <cstring>
-#include <string>
-#include <vector>
-#include <cstdlib>
+#include<cstring>
+#include<string>
+#include<vector>
+#include<stdlib.h>
 #include <utility>
 #include <map>
 

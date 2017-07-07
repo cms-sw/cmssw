@@ -55,14 +55,14 @@ void GEMPadDigiClusterProducer::produce(edm::Event& e, const edm::EventSetup& ev
 
 void GEMPadDigiClusterProducer::buildClusters(const GEMPadDigiCollection &det_pads, GEMPadDigiClusterCollection &out_clusters)
 {
-  for (const auto& ch: geometry_->chambers()) {
+  for (auto ch: geometry_->chambers()) {
     unsigned int nClusters = 0;
-    for (const auto& part: ch->etaPartitions()) {
+    for (auto part: ch->etaPartitions()) {
       auto pads = det_pads.get(part->id());
       std::vector<uint16_t> cl;
       int startBX = 99;
       for (auto d = pads.first; d != pads.second; ++d) {
-        if (cl.empty()) {
+        if (cl.size() == 0) {
           cl.push_back((*d).pad());
         }
         else {

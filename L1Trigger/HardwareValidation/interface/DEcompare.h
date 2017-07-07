@@ -9,8 +9,6 @@
 
 /*\note specialization free*/
 
-#include <fstream>
-
 #include "L1Trigger/HardwareValidation/interface/DEtrait.h"
 #include "L1Trigger/HardwareValidation/interface/DEutils.h"
 

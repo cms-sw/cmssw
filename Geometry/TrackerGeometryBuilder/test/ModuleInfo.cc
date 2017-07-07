@@ -42,7 +42,12 @@
 
 #include "Geometry/TrackerNumberingBuilder/interface/CmsTrackerDebugNavigator.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
+#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TECDetId.h"
 #include "Geometry/TrackerNumberingBuilder/interface/CmsTrackerStringToEnum.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "DetectorDescription/Core/interface/DDRoot.h"
@@ -115,9 +120,6 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
   //first instance tracking geometry
   edm::ESHandle<TrackerGeometry> pDD;
   iSetup.get<TrackerDigiGeometryRecord> ().get (pDD);
-  edm::ESHandle<TrackerTopology> tTopo_handle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopo_handle);
-  const TrackerTopology* tTopo = tTopo_handle.product();
   //
   
   // counters
@@ -187,7 +189,6 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
   std::vector<GeometricDetExtra>::const_iterator gdei(rDDE->begin()), gdeEnd(rDDE->end());
   for(unsigned int i=0; i<modules.size();i++){
     unsigned int rawid = modules[i]->geographicalID().rawId();
-    DetId id(rawid);
     gdei = rDDE->begin();
     for (; gdei != gdeEnd; ++gdei) {
       if (gdei->geographicalId() == modules[i]->geographicalId()) break;
@@ -216,7 +217,7 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
     switch (subdetid) {
       
       // PXB
-    case PixelSubdetector::PixelBarrel:
+    case 1:
       {
 	pxbN++;
 	volume_pxb+=volume;
@@ -225,9 +226,10 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	std::string name = modules[i]->name().name();
 	if(name == "PixelBarrelActiveFull") pxb_fullN++;
 	if(name == "PixelBarrelActiveHalf") pxb_halfN++;
-	unsigned int theLayer  = tTopo->pxbLayer(id);
-	unsigned int theLadder = tTopo->pxbLadder(id);
-	unsigned int theModule = tTopo->pxbModule(id);
+	PXBDetId module(rawid);
+	unsigned int theLayer  = module.layer();
+	unsigned int theLadder = module.ladder();
+	unsigned int theModule = module.module();
 	
 	Output << " PXB" << "\t" << "Layer " << theLayer << " Ladder " << theLadder
 	       << "\t" << " module " << theModule << " " << name << "\t";
@@ -240,7 +242,7 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
       }
       
       // PXF
-    case PixelSubdetector::PixelEndcap:
+    case 2:
       {
 	pxfN++;
 	volume_pxf+=volume;
@@ -252,12 +254,13 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	if(name == "PixelForwardActive2x3") pxf_2x3N++;
 	if(name == "PixelForwardActive2x4") pxf_2x4N++;
 	if(name == "PixelForwardActive2x5") pxf_2x5N++;
-	unsigned int thePanel  = tTopo->pxfPanel(id);
-	unsigned int theDisk   = tTopo->pxfDisk(id);
-	unsigned int theBlade  = tTopo->pxfBlade(id);
-	unsigned int theModule = tTopo->pxfModule(id);
+	PXFDetId module(rawid);
+	unsigned int thePanel  = module.panel();
+	unsigned int theDisk   = module.disk();
+	unsigned int theBlade  = module.blade();
+	unsigned int theModule = module.module();
 	std::string side;
-	side = (tTopo->pxfSide(id) == 1 ) ? "-" : "+";
+	side = (module.side() == 1 ) ? "-" : "+";
 	Output << " PXF" << side << "\t" << "Disk " << theDisk << " Blade " << theBlade << " Panel " << thePanel
 	       << "\t" << " module " << theModule << "\t" << name << "\t";
 	if ( fromDDD_ && printDDD_ ) {
@@ -269,7 +272,7 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
       }
       
       // TIB
-    case StripSubdetector::TIB:
+    case 3:
       {
 	tibN++;
 	volume_tib+=volume;
@@ -279,9 +282,10 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	if(name == "TIBActiveRphi0") tib_L12_rphiN++;
 	if(name == "TIBActiveSter0") tib_L12_sterN++;
 	if(name == "TIBActiveRphi2") tib_L34_rphiN++;
-	unsigned int              theLayer  = tTopo->tibLayer(id);
-	std::vector<unsigned int> theString = tTopo->tibStringInfo(id);
-	unsigned int              theModule = tTopo->tibModule(id);
+	TIBDetId module(rawid);
+	unsigned int              theLayer  = module.layer();
+	std::vector<unsigned int> theString = module.string();
+	unsigned int              theModule = module.module();
 	std::string side;
 	std::string part;
 	side = (theString[0] == 1 ) ? "-" : "+";
@@ -299,7 +303,7 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
       }
       
       // TID
-    case StripSubdetector::TID:
+    case 4:
       {
 	tidN++;      
 	volume_tid+=volume;
@@ -311,14 +315,16 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	if(name == "TIDModule1RphiActive")   tid_r2_rphiN++;
 	if(name == "TIDModule1StereoActive") tid_r2_sterN++;
 	if(name == "TIDModule2RphiActive")   tid_r3_rphiN++;
-	unsigned int         theDisk   = tTopo->tidWheel(id);
-	unsigned int         theRing   = tTopo->tidRing(id);
+	TIDDetId module(rawid);
+	unsigned int         theDisk   = module.wheel();
+	unsigned int         theRing   = module.ring();
+	std::vector<unsigned int> theModule = module.module();
 	std::string side;
 	std::string part;
-	side = (tTopo->tidSide(id) == 1 ) ? "-" : "+";
-	part = (tTopo->tidOrder(id) == 1 ) ? "back" : "front";
+	side = (module.side() == 1 ) ? "-" : "+";
+	part = (theModule[0] == 1 ) ? "back" : "front";
 	Output << " TID" << side << "\t" << "Disk " << theDisk << " Ring " << theRing << " " << part
-	       << "\t" << " module " << tTopo->tidModule(id) << "\t" << name << "\t";
+	       << "\t" << " module " << theModule[1] << "\t" << name << "\t";
 	if ( fromDDD_ && printDDD_ ) {
 	  Output << "son of " << gdei->parents()[gdei->parents().size()-3].logicalPart().name();
 	} else {
@@ -329,7 +335,7 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
       }
       
       // TOB
-    case StripSubdetector::TOB:
+    case 5:
       {
 	tobN++;
 	volume_tob+=volume;
@@ -340,14 +346,16 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	if(name == "TOBActiveSter0") tob_L12_sterN++;
 	if(name == "TOBActiveRphi2") tob_L34_rphiN++;
 	if(name == "TOBActiveRphi4") tob_L56_rphiN++;
-	unsigned int              theLayer  = tTopo->tobLayer(id);
-	unsigned int              theModule = tTopo->tobModule(id);
+	TOBDetId module(rawid);
+	unsigned int              theLayer  = module.layer();
+	std::vector<unsigned int> theRod    = module.rod();
+	unsigned int              theModule = module.module();
 	std::string side;
 	std::string part;
-	side = (tTopo->tobSide(id) == 1 ) ? "-" : "+";
+	side = (theRod[0] == 1 ) ? "-" : "+";
 	
 	Output << " TOB" << side << "\t" << "Layer " << theLayer 
-	       << "\t" << "rod " << tTopo->tobRod(id) << " module " << theModule << "\t" << name << "\t" ;
+	       << "\t" << "rod " << theRod[1] << " module " << theModule << "\t" << name << "\t" ;
 	if ( fromDDD_ && printDDD_ ) {
 	  Output << "son of " << gdei->parents()[gdei->parents().size()-3].logicalPart().name();
 	} else {
@@ -358,7 +366,7 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
       }
       
       // TEC
-    case StripSubdetector::TEC:
+    case 6:
       {
 	tecN++;      
 	volume_tec+=volume;
@@ -375,14 +383,16 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	if(name == "TECModule4StereoActive") tec_r5_sterN++;
 	if(name == "TECModule5RphiActive")   tec_r6_rphiN++;
 	if(name == "TECModule6RphiActive")   tec_r7_rphiN++;
-	unsigned int              theWheel  = tTopo->tecWheel(id);
-	unsigned int              theModule = tTopo->tecModule(id);
-	unsigned int              theRing   = tTopo->tecRing(id);
+	TECDetId module(rawid);
+	unsigned int              theWheel  = module.wheel();
+	unsigned int              theModule = module.module();
+	std::vector<unsigned int> thePetal  = module.petal();
+	unsigned int              theRing   = module.ring();
 	std::string side;
 	std::string petal;
-	side  = (tTopo->tecSide(id) == 1 ) ? "-" : "+";
-	petal = (tTopo->tecOrder(id) == 1 ) ? "back" : "front";
-	Output << " TEC" << side << "\t" << "Wheel " << theWheel << " Petal " << tTopo->tecPetalNumber(id) << " " << petal << " Ring " << theRing << "\t"
+	side  = (module.side() == 1 ) ? "-" : "+";
+	petal = (thePetal[0] == 1 ) ? "back" : "front";
+	Output << " TEC" << side << "\t" << "Wheel " << theWheel << " Petal " << thePetal[1] << " " << petal << " Ring " << theRing << "\t"
 	       << "\t" << " module " << theModule << "\t" << name << "\t";
 	if ( fromDDD_ && printDDD_ ) {
 	  Output << "son of " << gdei->parents()[gdei->parents().size()-3].logicalPart().name();
@@ -392,10 +402,10 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	Output << " " << modules[i]->translation().X() << "   \t" << modules[i]->translation().Y() << "   \t" << modules[i]->translation().Z() << std::endl;
 	
 	// TEC output as Martin Weber's
-	int out_side  = (tTopo->tecSide(id) == 1 ) ? -1 : 1;
-	unsigned int out_disk = tTopo->tecWheel(id);
-	unsigned int out_sector = tTopo->tecPetalNumber(id);
-	int out_petal = (tTopo->tecOrder(id) == 1 ) ? 1 : -1;
+	int out_side  = (module.side() == 1 ) ? -1 : 1;
+	unsigned int out_disk = module.wheel();
+	unsigned int out_sector = thePetal[1];
+	int out_petal = (thePetal[0] == 1 ) ? 1 : -1;
 	// swap sector numbers for TEC-
 	if (out_side == -1) {
 	  // fine for back petals, substract 1 for front petals
@@ -403,7 +413,7 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	    out_sector = (out_sector+6) % 8 + 1;
 	  }
 	}
-	unsigned int out_ring = tTopo->tecRing(id);
+	unsigned int out_ring = module.ring();
 	int out_sensor = 0;
 	if(name == "TECModule0RphiActive")   out_sensor = -1;
 	if(name == "TECModule0StereoActive") out_sensor =  1;
@@ -419,7 +429,7 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	if (out_ring == 1 || out_ring == 2 || out_ring == 5) {
 	  // rings with stereo modules
 	  // create number odd by default
-	  out_module = 2*(tTopo->tecModule(id)-1)+1;
+	  out_module = 2*(module.module()-1)+1;
 	  if (out_sensor == 1) {
 	    // in even rings, stereo modules are the even ones
 	    if (out_ring == 2)
@@ -431,7 +441,7 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	      out_module += 1;
 	}
 	else {
-	  out_module = tTopo->tecModule(id);
+	  out_module = module.module();
 	}
 	double out_x = modules[i]->translation().X();
 	double out_y = modules[i]->translation().Y();

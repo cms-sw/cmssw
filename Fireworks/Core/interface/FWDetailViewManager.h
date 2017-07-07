@@ -19,7 +19,6 @@
 //
 #include <map>
 #include <string>
-#include <vector>
 
 class FWColorManager;
 class TEveCompositeFrameInMainFrame;

@@ -26,8 +26,6 @@
 #include "G4Step.hh"
 #include "G4LogicalVolumeStore.hh"
 #include "G4PhysicalVolumeStore.hh"
-#include "G4Track.hh"
-#include "G4TouchableHistory.hh"
 
 #include <vector>
 #include <string>
@@ -56,20 +54,14 @@ private:
   
   //void endOfEvent(edm::PassiveHitContainer &HGCEEAbsE);
   void endOfEvent(edm::PassiveHitContainer& hgcPH, unsigned int k);
-
-  typedef std::map<G4LogicalVolume*,std::pair<unsigned int,std::string>>::iterator volumeIterator;
   G4VPhysicalVolume * getTopPV();
-  volumeIterator      findLV(G4LogicalVolume * plv);
-  void storeInfo(const volumeIterator itr, G4LogicalVolume* plv, 
-		 unsigned int copy, double time, double energy);
+  std::map<G4LogicalVolume*,std::pair<unsigned int,std::string>>::iterator findLV(G4LogicalVolume * plv);
 
 private:
 
   std::vector<std::string> LVNames_;
   G4VPhysicalVolume       *topPV_; 
-  G4LogicalVolume         *topLV_;
   std::map<G4LogicalVolume*,std::pair<unsigned int,std::string>> mapLV_;
-  std::string              motherName_;
   
   // some private members for ananlysis 
   unsigned int              count_;                  

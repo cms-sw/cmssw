@@ -15,8 +15,8 @@
 #include<fstream>
 #include<string>
 #include<vector>
-#include<cstdlib>
-#include "FWCore/Framework/interface/EventSetup.h"
+#include<stdlib.h>
+#include <FWCore/Framework/interface/EventSetup.h>
 #include "SimMuon/RPCDigitizer/src/RPCSimSetUp.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

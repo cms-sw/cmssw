@@ -4,7 +4,7 @@
  */
 
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 
 GEMGeometry::GEMGeometry(){}
 

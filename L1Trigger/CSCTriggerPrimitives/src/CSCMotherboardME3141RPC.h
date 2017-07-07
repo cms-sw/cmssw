@@ -11,13 +11,8 @@
  *
  */
 
-#include "L1Trigger/CSCTriggerPrimitives/src/CSCMotherboard.h"
-#include "L1Trigger/CSCTriggerPrimitives/src/CSCUpgradeMotherboard.h"
-#include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
-
-typedef match<RPCDigi>   RPCDigiId;
-typedef matches<RPCDigi> RPCDigiIds;
-typedef matchesBX<RPCDigi> RPCDigiIdsBX;
+#include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboard.h>
+#include <DataFormats/RPCDigi/interface/RPCDigiCollection.h>
 
 class CSCGeometry;
 class CSCChamber;

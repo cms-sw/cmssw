@@ -297,7 +297,7 @@ namespace edm {
 
       checkForDuplicateProcessName(desc, processName);
 
-      if(desc.produced() && !desc.transient()) {
+      if(desc.produced()) {
         setProductProduced(desc.branchType());
       }
 

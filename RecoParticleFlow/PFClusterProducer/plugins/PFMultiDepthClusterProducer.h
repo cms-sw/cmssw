@@ -24,11 +24,11 @@ class PFMultiDepthClusterProducer : public edm::stream::EDProducer<> {
   typedef PFCPositionCalculatorBase PosCalc;
  public:    
   PFMultiDepthClusterProducer(const edm::ParameterSet&);
-  ~PFMultiDepthClusterProducer() override = default;
+  ~PFMultiDepthClusterProducer() { }
   
-  void beginLuminosityBlock(const edm::LuminosityBlock&, 
-				    const edm::EventSetup&) override;
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void beginLuminosityBlock(const edm::LuminosityBlock&, 
+				    const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&);
   
  private:
   // inputs

@@ -43,7 +43,6 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 

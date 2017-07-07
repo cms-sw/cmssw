@@ -59,12 +59,10 @@ void EcalUncalibRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions&
 
     std::unique_ptr<edm::ParameterDescriptionCases<std::string>> s;
     {
-      std::unique_ptr<EcalUncalibRecHitWorkerBaseClass> tmw(EcalUncalibRecHitFillDescriptionWorkerFactory::get()->create(itInfos->name_));
-      s = (itInfos->name_ >> edm::ParameterDescription<edm::ParameterSetDescription>("algoPSet", tmw->getAlgoDescription(), true));      
+      s = (itInfos->name_ >> edm::ParameterDescription<edm::ParameterSetDescription>("algoPSet", EcalUncalibRecHitFillDescriptionWorkerFactory::get()->create(itInfos->name_)->getAlgoDescription(), true));
     }
     for (++itInfos; itInfos != infos.end(); ++itInfos) {
-      std::unique_ptr<EcalUncalibRecHitWorkerBaseClass> tmw(EcalUncalibRecHitFillDescriptionWorkerFactory::get()->create(itInfos->name_));
-      s = (std::move(s) or itInfos->name_ >> edm::ParameterDescription<edm::ParameterSetDescription>("algoPSet", tmw->getAlgoDescription(), true));
+      s = (std::move(s) or itInfos->name_ >> edm::ParameterDescription<edm::ParameterSetDescription>("algoPSet", EcalUncalibRecHitFillDescriptionWorkerFactory::get()->create(itInfos->name_)->getAlgoDescription(), true));
     }
     desc.ifValue(edm::ParameterDescription<std::string>("algo", "EcalUncalibRecHitWorkerMultiFit", true), std::move(s));
     

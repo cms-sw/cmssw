@@ -3,8 +3,7 @@
 
 MuonSeedVPatternRecognition::MuonSeedVPatternRecognition(const edm::ParameterSet & pset)
 : enableDTMeasurement(pset.getParameter<bool>("EnableDTMeasurement")),
-  enableCSCMeasurement(pset.getParameter<bool>("EnableCSCMeasurement")),
-  enableME0Measurement(pset.getParameter<bool>("EnableME0Measurement"))
+  enableCSCMeasurement(pset.getParameter<bool>("EnableCSCMeasurement"))
 {
   if(enableDTMeasurement)
     // the name of the DT rec hits collection
@@ -13,8 +12,5 @@ MuonSeedVPatternRecognition::MuonSeedVPatternRecognition(const edm::ParameterSet
   if(enableCSCMeasurement)
     // the name of the CSC rec hits collection
     theCSCRecSegmentLabel = pset.getParameter<edm::InputTag>("CSCRecSegmentLabel");
-
-  if(enableME0Measurement)
-    theME0RecSegmentLabel = pset.getParameter<edm::InputTag>("ME0RecSegmentLabel");
 }
 

@@ -15,7 +15,7 @@
 PFMultiDepthClusterProducer::PFMultiDepthClusterProducer(const edm::ParameterSet& conf)
 {
   _clustersLabel = consumes<reco::PFClusterCollection>(conf.getParameter<edm::InputTag>("clustersSource")); 
-  _pfClusterBuilder.reset(nullptr);
+  _pfClusterBuilder.reset(NULL);
   const edm::ParameterSet& pfcConf = conf.getParameterSet("pfClusterBuilder");
   if( !pfcConf.empty() ) {
     const std::string& pfcName = pfcConf.getParameter<std::string>("algoName");

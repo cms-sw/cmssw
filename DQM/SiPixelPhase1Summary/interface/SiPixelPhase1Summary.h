@@ -62,13 +62,12 @@
        bool runOnEndJob_;
 
     private:
-       enum trendPlots { offline,fpix,bpix,layer1,layer2,layer3,layer4,ring1,ring2 };
+       enum trendPlots { offline,fpix,bpix };
        edm::ParameterSet conf_;
        edm::InputTag src_;
        bool firstLumi;
 
        std::map<std::string,MonitorElement*> summaryMap_;
-       MonitorElement * reportSummary; //Float value of the average of the ins in the grand summary
 
        std::map<std::string,std::string> summaryPlotName_;
 

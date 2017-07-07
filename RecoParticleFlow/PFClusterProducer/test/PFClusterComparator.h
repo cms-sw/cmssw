@@ -30,11 +30,11 @@ class PFClusterComparator : public edm::EDAnalyzer {
 
   explicit PFClusterComparator(const edm::ParameterSet&);
 
-  ~PFClusterComparator() override;
+  ~PFClusterComparator();
   
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
-  void beginRun(const edm::Run & r, const edm::EventSetup & c) override;
+  virtual void beginRun(const edm::Run & r, const edm::EventSetup & c);
 
  private:
   

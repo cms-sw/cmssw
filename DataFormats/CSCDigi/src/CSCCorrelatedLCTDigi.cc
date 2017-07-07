@@ -55,11 +55,6 @@ void CSCCorrelatedLCTDigi::clear() {
   cscID   = 0;
 }
 
-/// return the fractional strip
-float CSCCorrelatedLCTDigi::getFractionalStrip() const{
-  return 0.5f * (getStrip() + 1) - 0.25f;
-}
-
 /// Comparison
 bool CSCCorrelatedLCTDigi::operator==(const CSCCorrelatedLCTDigi &rhs) const {
   return ((trknmb == rhs.trknmb)   && (quality == rhs.quality) &&

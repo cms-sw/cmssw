@@ -24,7 +24,8 @@
 // user include files
 #include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include "Fireworks/Core/interface/FWSimpleProxyHelper.h"
-#include "Fireworks/Core/interface/FWEventItem.h"
+
+class FWEventItem;
 
 template <typename T>
 class FWProxyBuilderTemplate : public FWProxyBuilderBase

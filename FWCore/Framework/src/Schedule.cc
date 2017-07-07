@@ -17,13 +17,10 @@
 #include "FWCore/Framework/src/ModuleHolder.h"
 #include "FWCore/Framework/src/ModuleRegistry.h"
 #include "FWCore/Framework/src/TriggerResultInserter.h"
-#include "FWCore/Framework/src/PathStatusInserter.h"
-#include "FWCore/Framework/src/EndPathStatusInserter.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ConsumesInfo.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
@@ -44,9 +41,6 @@
 #include <sstream>
 
 namespace edm {
-
-  class Maker;
-
   namespace {
     using std::placeholders::_1;
 
@@ -101,57 +95,6 @@ namespace edm {
       return returnValue;
     }
 
-    template <typename T>
-    void
-    makePathStatusInserters(std::vector<edm::propagate_const<std::shared_ptr<T>>>& pathStatusInserters,
-                            std::vector<std::string> const& pathNames,
-                            PreallocationConfiguration const& iPrealloc,
-                            ProductRegistry& preg,
-                            std::shared_ptr<ActivityRegistry> areg,
-                            std::shared_ptr<ProcessConfiguration> processConfiguration,
-                            std::string const& moduleTypeName) {
-
-      ParameterSet pset;
-      pset.addParameter<std::string>("@module_type", moduleTypeName);
-      pset.addParameter<std::string>("@module_edm_type", "EDProducer");
-      pset.registerIt();
-
-      pathStatusInserters.reserve(pathNames.size());
-
-      for (auto const& pathName : pathNames) {
-
-        ModuleDescription md(pset.id(),
-                             moduleTypeName,
-                             pathName,
-                             processConfiguration.get(),
-                             ModuleDescription::getUniqueID());
-
-        areg->preModuleConstructionSignal_(md);
-        bool postCalled = false;
-
-        try {
-          maker::ModuleHolderT<T> holder(std::make_shared<T>(iPrealloc.numberOfStreams()),
-                                         static_cast<Maker const*>(nullptr));
-          holder.setModuleDescription(md);
-          holder.registerProductsAndCallbacks(&preg);
-          pathStatusInserters.emplace_back(holder.module());
-          postCalled = true;
-          // if exception then post will be called in the catch block
-          areg->postModuleConstructionSignal_(md);
-        }
-        catch (...) {
-          if(!postCalled) {
-            try {
-              areg->postModuleConstructionSignal_(md);
-            }
-            catch (...) {
-              // If post throws an exception ignore it because we are already handling another exception
-            }
-          }
-          throw;
-        }
-      }
-    }
 
     void
     checkAndInsertAlias(std::string const& friendlyClassName,
@@ -336,18 +279,14 @@ namespace edm {
 
       const unsigned int sizeBeforeOutputModules = labelsToBeDropped.size();
       for (auto const& modLabel: usedModuleLabels) {
-        // Do nothing for modules that do not have a ParameterSet. Modules of type
-        // PathStatusInserter and EndPathStatusInserter will not have a ParameterSet.
-        if (proc_pset.existsAs<ParameterSet>(modLabel)) {
-          edmType = proc_pset.getParameterSet(modLabel).getParameter<std::string>(moduleEdmType);
-          if (edmType == outputModule) {
-            outputModuleLabels.push_back(modLabel);
+        edmType = proc_pset.getParameterSet(modLabel).getParameter<std::string>(moduleEdmType);
+        if (edmType == outputModule) {
+          outputModuleLabels.push_back(modLabel);
+          labelsToBeDropped.push_back(modLabel);
+        }
+        if(edmType == edAnalyzer) {
+          if(modulesOnPaths.end()==modulesOnPaths.find(modLabel)) {
             labelsToBeDropped.push_back(modLabel);
-          }
-          if(edmType == edAnalyzer) {
-            if(modulesOnPaths.end()==modulesOnPaths.find(modLabel)) {
-              labelsToBeDropped.push_back(modLabel);
-            }
           }
         }
       }
@@ -431,7 +370,7 @@ namespace edm {
   // -----------------------------
 
   Schedule::Schedule(ParameterSet& proc_pset,
-                     service::TriggerNamesService const& tns,
+                     service::TriggerNamesService& tns,
                      ProductRegistry& preg,
                      BranchIDListHelper& branchIDListHelper,
                      ThinnedAssociationsHelper& thinnedAssociationsHelper,
@@ -447,34 +386,14 @@ namespace edm {
     moduleRegistry_(new ModuleRegistry()),
     all_output_communicators_(),
     preallocConfig_(prealloc),
-    pathNames_(&tns.getTrigPaths()),
-    endPathNames_(&tns.getEndPaths()),
     wantSummary_(tns.wantSummary()),
     endpathsAreActive_(true)
   {
-    makePathStatusInserters(pathStatusInserters_,
-                            *pathNames_,
-                            prealloc,
-                            preg,
-                            areg,
-                            processConfiguration,
-                            std::string("PathStatusInserter"));
-
-    makePathStatusInserters(endPathStatusInserters_,
-                            *endPathNames_,
-                            prealloc,
-                            preg,
-                            areg,
-                            processConfiguration,
-                            std::string("EndPathStatusInserter"));
-
     assert(0<prealloc.numberOfStreams());
     streamSchedules_.reserve(prealloc.numberOfStreams());
     for(unsigned int i=0; i<prealloc.numberOfStreams();++i) {
       streamSchedules_.emplace_back(std::make_shared<StreamSchedule>(
         resultsInserter(),
-        pathStatusInserters_,
-        endPathStatusInserters_,
         moduleRegistry(),
         proc_pset,tns,prealloc,preg,
         branchIDListHelper,actions,
@@ -509,8 +428,6 @@ namespace edm {
     // propagate_const<T> has no reset() function
     globalSchedule_ = std::make_unique<GlobalSchedule>(
       resultsInserter(),
-      pathStatusInserters_,
-      endPathStatusInserters_,
       moduleRegistry(),
       modulesToUse,
       proc_pset, preg, prealloc,
@@ -1040,9 +957,18 @@ namespace edm {
                                       EventPrincipal& ep,
                                       EventSetup const& es) {
     assert(iStreamID<streamSchedules_.size());
-    streamSchedules_[iStreamID]->processOneEventAsync(std::move(iTask),ep,es,pathStatusInserters_);
+    streamSchedules_[iStreamID]->processOneEventAsync(std::move(iTask),ep,es);
   }
   
+  void Schedule::preForkReleaseResources() {
+    using std::placeholders::_1;
+    for_all(allWorkers(), std::bind(&Worker::preForkReleaseResources, _1));
+  }
+  void Schedule::postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {
+    using std::placeholders::_1;
+    for_all(allWorkers(), std::bind(&Worker::postForkReacquireResources, _1, iChildIndex, iNumberOfChildren));
+  }
+
   bool Schedule::changeModule(std::string const& iLabel,
                               ParameterSet const& iPSet,
                               const ProductRegistry& iRegistry) {
@@ -1095,12 +1021,6 @@ namespace edm {
     return globalSchedule_->allWorkers();
   }
 
-  void Schedule::convertCurrentProcessAlias(std::string const& processName) {
-    for (auto const& worker : allWorkers()) {
-      worker->convertCurrentProcessAlias(processName);
-    }
-  }
-
   void
   Schedule::availablePaths(std::vector<std::string>& oLabelsToFill) const {
     streamSchedules_[0]->availablePaths(oLabelsToFill);
@@ -1108,13 +1028,12 @@ namespace edm {
 
   void
   Schedule::triggerPaths(std::vector<std::string>& oLabelsToFill) const {
-    oLabelsToFill = *pathNames_;
-
+    streamSchedules_[0]->triggerPaths(oLabelsToFill);
   }
 
   void
   Schedule::endPaths(std::vector<std::string>& oLabelsToFill) const {
-    oLabelsToFill = *endPathNames_;
+    streamSchedules_[0]->endPaths(oLabelsToFill);
   }
 
   void

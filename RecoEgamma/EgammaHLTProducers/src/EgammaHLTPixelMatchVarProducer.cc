@@ -1,7 +1,7 @@
 
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -24,6 +24,8 @@
 
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTPixelMatchParamObjects.h"
 
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h" 
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h" 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -98,14 +100,14 @@ private:
 };
 
 
-class EgammaHLTPixelMatchVarProducer : public edm::stream::EDProducer<> {
+class EgammaHLTPixelMatchVarProducer : public edm::global::EDProducer<> {
 public:
 
   explicit EgammaHLTPixelMatchVarProducer(const edm::ParameterSet&);
   ~EgammaHLTPixelMatchVarProducer();
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID sid, edm::Event&, const edm::EventSetup&) const override;
   std::array<float,4> calS2(const reco::ElectronSeed& seed,int charge)const;
 
 private: 
@@ -201,7 +203,7 @@ void EgammaHLTPixelMatchVarProducer::fillDescriptions(edm::ConfigurationDescript
   descriptions.add(("hltEgammaHLTPixelMatchVarProducer"), desc);  
 }
 
-void EgammaHLTPixelMatchVarProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
+void EgammaHLTPixelMatchVarProducer::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   
   // Get the HLT filtered objects
   edm::Handle<reco::RecoEcalCandidateCollection> recoEcalCandHandle;

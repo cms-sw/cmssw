@@ -28,7 +28,6 @@
 #include "FWCore/Framework/interface/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -50,12 +49,10 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 #include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DataFormats/SiStripDetId/interface/TECDetId.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "TH1F.h"
 //
@@ -128,9 +125,6 @@ OverlapProblemTSOSPositionFilter::filter(edm::Event& iEvent, const edm::EventSet
   
   Handle<TrajTrackAssociationCollection> ttac;
   iEvent.getByToken(m_ttacollToken,ttac);
-
-  edm::ESHandle<TrackerTopology> tTopo;
-  iSetup.get<TrackerTopologyRcd>().get(tTopo);
   
   for(TrajTrackAssociationCollection::const_iterator pair=ttac->begin();pair!=ttac->end();++pair) {
     
@@ -149,9 +143,10 @@ OverlapProblemTSOSPositionFilter::filter(edm::Event& iEvent, const edm::EventSet
 
       if(hit->geographicalId().det() != DetId::Tracker) continue;
       
-      if(hit->geographicalId().subdetId() != StripSubdetector::TEC) continue;
-
-      if(tTopo->tecRing(hit->geographicalId()) != 6) continue;
+      TECDetId det(hit->geographicalId());
+      if(det.subDetector() != SiStripDetId::TEC) continue;
+      
+      if(det.ring() != 6) continue;
 
       if(tsos.localPosition().y() < 6.) continue; 
 

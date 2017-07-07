@@ -1,43 +1,51 @@
-#include "Geometry/TrackerGeometryBuilder/interface/trackerHierarchy.h"
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
+#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TECDetId.h"
 
 #include<string>
 #include<vector>
 
-std::string trackerHierarchy(const TrackerTopology* tTopo, unsigned int rawid) {
+std::string trackerHierarchy(unsigned int rawid) {
   DetId id(rawid);
   int subdetid = id.subdetId();
   switch (subdetid) {
     
     // PXB
-  case PixelSubdetector::PixelBarrel:
+  case 1:
     {
-      char theLayer  = tTopo->pxbLayer(id);
-      char theLadder = tTopo->pxbLadder(id);
-      char theModule = tTopo->pxbModule(id);
+      PXBDetId module(rawid);
+      char theLayer  = module.layer();
+      char theLadder = module.ladder();
+      char theModule = module.module();
       char key[] = { 1, theLayer , theLadder, theModule};
       return std::string(key,4);
     }
     
     // P1XF
-  case PixelSubdetector::PixelEndcap:
+  case 2:
     {
-      char thePanel  = tTopo->pxfPanel(id);
-      char theDisk   = tTopo->pxfDisk(id);
-      char theBlade  = tTopo->pxfBlade(id);
-      char theModule = tTopo->pxfModule(id);
+      PXFDetId module(rawid);
+      char thePanel  = module.panel();
+      char theDisk   = module.disk();
+      char theBlade  = module.blade();
+      char theModule = module.module();
       char key[] = { 2,
-		     char(tTopo->pxfSide(id)),
+		     char(module.side()),
 		     thePanel , theDisk, 
 		     theBlade, theModule};
       return std::string(key,6);
     }
   
   // TIB
-  case StripSubdetector::TIB:
+  case 3:
     {
-      char            theLayer  = tTopo->tibLayer(id);
-      std::vector<unsigned int> theString = tTopo->tibStringInfo(id);
-      char             theModule = tTopo->tibModule(id);
+      TIBDetId module(rawid);
+      char            theLayer  = module.layer();
+      std::vector<unsigned int> theString = module.string();
+      char             theModule = module.module();
       //side = (theString[0] == 1 ) ? "-" : "+";
       //part = (theString[1] == 1 ) ? "int" : "ext";
       char key[] = { 3, 
@@ -46,64 +54,70 @@ std::string trackerHierarchy(const TrackerTopology* tTopo, unsigned int rawid) {
 		     char(theString[1]), 
 		     char(theString[2]), 
 		     theModule,
-		     char(tTopo->tibGlued(id) ? tTopo->tibIsStereo(id)+1 : 0)
+		     char(module.glued() ? module.stereo()+1 : 0)
       };
-      return std::string(key, tTopo->tibGlued(id) ? 7 : 6);
+      return std::string(key, module.glued() ? 7 : 6);
     }
     
     // TID
-  case StripSubdetector::TID:
+  case 4:
     {
-      unsigned int         theDisk   = tTopo->tidWheel(id);
-      unsigned int         theRing   = tTopo->tidRing(id);
-      // side = (tTopo->tidSide(id) == 1 ) ? "-" : "+";
-      // part = (tTopo->tidOrder(id) == 1 ) ? "back" : "front";
+      TIDDetId module(rawid);
+      unsigned int         theDisk   = module.wheel();
+      unsigned int         theRing   = module.ring();
+      std::vector<unsigned int> theModule = module.module();
+      // side = (module.side() == 1 ) ? "-" : "+";
+      // part = (theModule[0] == 1 ) ? "back" : "front";
       char key[] = { 4, 
-		     char(tTopo->tidSide(id)),
+		     char(module.side()),
 		     char(theDisk) , 
 		     char(theRing),
-		     char(tTopo->tidOrder(id)), 
-		     char(tTopo->tidModule(id)),
-		     char(tTopo->tidGlued(id) ? tTopo->tidIsStereo(id)+1 : 0)
+		     char(theModule[0]), 
+		     char(theModule[1]),
+		     char(module.glued() ? module.stereo()+1 : 0)
       };
-      return std::string(key,tTopo->tidGlued(id) ? 7 : 6);
+      return std::string(key,module.glued() ? 7 : 6);
     }
     
     // TOB
-  case StripSubdetector::TOB:
+  case 5:
     {
-      unsigned int              theLayer  = tTopo->tobLayer(id);
-      unsigned int              theModule = tTopo->tobModule(id);
-      //	side = (tTopo->side(id) == 1 ) ? "-" : "+";
+      TOBDetId module(rawid);
+      unsigned int              theLayer  = module.layer();
+      std::vector<unsigned int> theRod    = module.rod();
+      unsigned int              theModule = module.module();
+      //	side = (theRod[0] == 1 ) ? "-" : "+";
       char key[] = { 5, char(theLayer) , 
-		     char(tTopo->tobSide(id)), 
-		     char(tTopo->tobRod(id)), 
+		     char(theRod[0]), 
+		     char(theRod[1]), 
 		     char(theModule),
-		     char(tTopo->tobGlued(id) ? tTopo->tobIsStereo(id)+1 : 0)
+		     char(module.glued() ? module.stereo()+1 : 0)
       };
-      return std::string(key, tTopo->tobGlued(id) ?  6 : 5);
+      return std::string(key, module.glued() ?  6 : 5);
     }
     
     // TEC
-  case StripSubdetector::TEC:
+  case 6:
     {
-      unsigned int              theWheel  = tTopo->tecWheel(id);
-      unsigned int              theModule = tTopo->tecModule(id);
-      unsigned int              theRing   = tTopo->tecRing(id);
-      //	side  = (tTopo->tecSide(id) == 1 ) ? "-" : "+";
-      //	petal = (tTopo->tecOrder(id) == 1 ) ? "back" : "front";
-      // int out_side  = (tTopo->tecSide(id) == 1 ) ? -1 : 1;
+      TECDetId module(rawid);
+      unsigned int              theWheel  = module.wheel();
+      unsigned int              theModule = module.module();
+      std::vector<unsigned int> thePetal  = module.petal();
+      unsigned int              theRing   = module.ring();
+      //	side  = (module.side() == 1 ) ? "-" : "+";
+      //	petal = (thePetal[0] == 1 ) ? "back" : "front";
+      // int out_side  = (module.side() == 1 ) ? -1 : 1;
       
       char key[] = { 6, 
-		     char(tTopo->tecSide(id)),
+		     char(module.side()),
 		     char(theWheel),
-		     char(tTopo->tecOrder(id)), 
-		     char(tTopo->tecPetalNumber(id)),
+		     char(thePetal[0]), 
+		     char(thePetal[1]),
 		     char(theRing),
 		     char(theModule),
-		     char(tTopo->tecGlued(id) ? tTopo->tecIsStereo(id)+1 : 0)
+		     char(module.glued() ? module.stereo()+1 : 0)
       };
-      return std::string(key, tTopo->tecGlued(id) ? 8 : 7);
+      return std::string(key, module.glued() ? 8 : 7);
     }
   default:
     return std::string();

@@ -40,8 +40,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 
 // C++
@@ -117,11 +115,3 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
 }
 
   
-void MuonSeedGenerator::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
-   edm::ParameterSetDescription desc;
-   desc.setAllowAnything();
-   desc.add<bool>("EnableDTMeasurement",true);
-   desc.add<bool>("EnableCSCMeasurement",true);
-   desc.add<bool>("EnableME0Measurement",false);
-   descriptions.add("produceMuons", desc);
-}

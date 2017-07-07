@@ -30,13 +30,11 @@
 // ----------------------------------------------------------------------
 
 #include "FWCore/MessageService/interface/ELlimitsTable.h"
+#include "FWCore/MessageService/interface/ELset.h"
 
 #include "FWCore/MessageLogger/interface/ELstring.h"
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
 #include "FWCore/MessageLogger/interface/ELextendedID.h"
-
-#include <unordered_set>
-#include <string>
 
 namespace edm {       
 namespace service {       
@@ -118,9 +116,9 @@ protected:
   ELstring        indent;
   int		  lineLength;
   bool            ignoreMostModules;
-  std::unordered_set<std::string>  respondToThese;
+  ELset_string    respondToThese;
   bool            respondToMostModules;
-  std::unordered_set<std::string> ignoreThese;
+  ELset_string    ignoreThese;
 					// Fix $001 2/13/01 mf
 #ifndef DEFECT_NO_STATIC_CONST_INIT
   static const int defaultLineLength = 80;

@@ -129,7 +129,7 @@
 // general info 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h" 
-#include "Geometry/CommonDetUnit/interface/GeomDet.h" 
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h" 
 
 // helper files
 //#include <CLHEP/Vector/LorentzVector.h>

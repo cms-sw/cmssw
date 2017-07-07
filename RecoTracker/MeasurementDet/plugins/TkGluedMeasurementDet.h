@@ -21,8 +21,7 @@ public:
 
   TkGluedMeasurementDet( const GluedGeomDet* gdet,const SiStripRecHitMatcher* matcher, const StripClusterParameterEstimator* cpe);
   void init(const MeasurementDet* monoDet,
-	    const MeasurementDet* stereoDet,
-	    const TrackerTopology* tTopo);
+	    const MeasurementDet* stereoDet);
 
   virtual RecHitContainer recHits( const TrajectoryStateOnSurface&, const MeasurementTrackerEvent & data) const;
 
@@ -56,7 +55,6 @@ private:
   const StripClusterParameterEstimator* theCPE;
   const TkStripMeasurementDet*       theMonoDet;
   const TkStripMeasurementDet*       theStereoDet;
-  const TrackerTopology*             theTopology;
 
 
   template<typename Collector>

@@ -30,11 +30,12 @@ public:
   // Access to digi information - pixel sensors
   unsigned int row()     const { return channelToRow(theChannel); }
   unsigned int column()  const { return channelToColumn(theChannel); }
+  uint16_t packedPosition() const { return 0x7FFF & theChannel; }
   // Access to digi information - strip sensors
   unsigned int strip()   const { return row(); }
   unsigned int edge()    const { return column(); } // CD: any better name for that? 
   // Access to the (raw) channel number
-  unsigned int channel() const { return 0x7FFF & theChannel; }
+  unsigned int channel() const { return theChannel; }
   // Access Overthreshold bit
   bool overThreshold() const { return (otBit(theChannel) ? true : false); }
 
@@ -57,12 +58,12 @@ public:
 
 // Comparison operators
 inline bool operator<( const Phase2TrackerDigi& one, const Phase2TrackerDigi& other) {
-  return one.channel() < other.channel();
+  return one.packedPosition() < other.packedPosition();
 }
 
 // distance operators
 inline int operator-( const Phase2TrackerDigi& one, const Phase2TrackerDigi& other) {
-  return int(one.channel()) - int(other.channel());
+  return int(one.packedPosition()) - int(other.packedPosition());
 }
 
 

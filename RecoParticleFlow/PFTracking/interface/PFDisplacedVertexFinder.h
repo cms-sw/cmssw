@@ -75,12 +75,10 @@ class PFDisplacedVertexFinder {
   /// Sets parameters for track extrapolation and hits study
   void setEdmParameters( const MagneticField* magField,
 			 edm::ESHandle<GlobalTrackingGeometry> globTkGeomHandle,
-			 const TrackerTopology* tkerTopo,
-			 const TrackerGeometry* tkerGeom){
+			 edm::ESHandle<TrackerGeometry> tkerGeomHandle){ 
     magField_ = magField; 
     globTkGeomHandle_ = globTkGeomHandle;
-    tkerTopo_ = tkerTopo;
-    tkerGeom_ = tkerGeom;
+    tkerGeomHandle_ = tkerGeomHandle; 
   }
 
   void setTracksSelector(const edm::ParameterSet& ps){
@@ -183,8 +181,7 @@ class PFDisplacedVertexFinder {
   edm::ESHandle<GlobalTrackingGeometry> globTkGeomHandle_;
 
   /// doc? 
-  const TrackerTopology* tkerTopo_;
-  const TrackerGeometry* tkerGeom_;
+  edm::ESHandle<TrackerGeometry> tkerGeomHandle_;
 
   /// to be able to extrapolate tracks f
   const MagneticField* magField_;

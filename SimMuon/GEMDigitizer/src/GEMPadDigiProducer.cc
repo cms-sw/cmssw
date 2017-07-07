@@ -64,14 +64,15 @@ void GEMPadDigiProducer::buildPads(const GEMDigiCollection &det_digis, GEMPadDig
     for (auto d = digis.first; d != digis.second; ++d)
     {
       int pad_num = 1 + static_cast<int>( p->padOfStrip(d->strip()) );
-      proto_pads.emplace(pad_num, d->bx());
+      auto pad = std::make_pair(pad_num, d->bx());
+      proto_pads.insert(pad);
     }
   
     // in the future, do some dead-time handling
     // emulateDeadTime(proto_pads)
   
     // fill the output collections
-    for (const auto& d: proto_pads)
+    for (auto & d: proto_pads)
     {
       GEMPadDigi pad_digi(d.first, d.second);
       out_pads.insertDigi(p->id(), pad_digi);

@@ -162,7 +162,10 @@ void PFCTRecHitProducer::produce(edm::Event& iEvent,
   // create rechits
   typedef CaloTowerCollection::const_iterator ICT;
     
-  for(auto const & ct : *caloTowers) {
+  for(ICT ict=caloTowers->begin(); ict!=caloTowers->end();ict++) {
+    const CaloTower& ct = (*ict);
+	  
+	  
     // get the hadronic energy.
     
     // Mike: Just ask for the Hadronic part only now!
@@ -183,20 +186,20 @@ void PFCTRecHitProducer::produce(edm::Event& iEvent,
     //Loop on the calotower constituents and search for HCAL
     double dead = 0.;
     double alive = 0.;
-    for(auto hit : hits) {
-      if(hit.det()==DetId::Hcal) { 
+    for(unsigned int i=0;i< hits.size();++i) {
+      if(hits[i].det()==DetId::Hcal) { 
 	foundHCALConstituent = true;
-	detid = hit;
+	detid = hits[i];
 	if (theHcalTopology->withSpecialRBXHBHE() && 
 	    detid.subdet() == HcalEndcap) {
 	  detid = theHcalTopology->idFront(detid);
 	}
 	// An HCAL tower was found: Look for dead ECAL channels in the same CaloTower.
 	if ( ECAL_Compensate_ && energy > ECAL_Threshold_ ) {
-	  for(auto allConstituent : allConstituents) { 
-	    if ( allConstituent.det()==DetId::Ecal ) { 
+	  for(unsigned int j=0;j<allConstituents.size();++j) { 
+	    if ( allConstituents[j].det()==DetId::Ecal ) { 
 	      alive += 1.;
-	      auto chIt = theEcalChStatus->find(allConstituent);
+	      EcalChannelStatus::const_iterator chIt = theEcalChStatus->find(allConstituents[j]);
 	      unsigned int dbStatus = chIt != theEcalChStatus->end() ? chIt->getStatusCode() : 0;
 	      if ( dbStatus > ECAL_Dead_Code_ ) dead += 1.;
 	    }
@@ -212,15 +215,15 @@ void PFCTRecHitProducer::produce(edm::Event& iEvent,
     // In case of dead ECAL channel, rescale the HCAL energy...
     double rescaleFactor = alive > 0. ? 1. + ECAL_Compensation_*dead/alive : 1.;
 	  
-    reco::PFRecHit* pfrh = nullptr;
-    reco::PFRecHit* pfrhCleaned = nullptr;
+    reco::PFRecHit* pfrh = 0;
+    reco::PFRecHit* pfrhCleaned = 0;
     //---ab: need 2 rechits for the HF:
-    reco::PFRecHit* pfrhHFEM = nullptr;
-    reco::PFRecHit* pfrhHFHAD = nullptr;
-    reco::PFRecHit* pfrhHFEMCleaned = nullptr;
-    reco::PFRecHit* pfrhHFHADCleaned = nullptr;
-    reco::PFRecHit* pfrhHFEMCleaned29 = nullptr;
-    reco::PFRecHit* pfrhHFHADCleaned29 = nullptr;
+    reco::PFRecHit* pfrhHFEM = 0;
+    reco::PFRecHit* pfrhHFHAD = 0;
+    reco::PFRecHit* pfrhHFEMCleaned = 0;
+    reco::PFRecHit* pfrhHFHADCleaned = 0;
+    reco::PFRecHit* pfrhHFEMCleaned29 = 0;
+    reco::PFRecHit* pfrhHFHADCleaned29 = 0;
   
     if(foundHCALConstituent)
       {
@@ -290,8 +293,8 @@ void PFCTRecHitProducer::produce(edm::Event& iEvent,
 		HcalDetId theLongDetId (HcalForward, ieta, iphi, 1);
 		HcalDetId theShortDetId (HcalForward, ieta, iphi, 2);
 		typedef HFRecHitCollection::const_iterator iHF;
-		auto theLongHit = hfHandle->find(theLongDetId); 
-		auto theShortHit = hfHandle->find(theShortDetId); 
+		iHF theLongHit = hfHandle->find(theLongDetId); 
+		iHF theShortHit = hfHandle->find(theShortDetId); 
 		// 
 		double theLongHitEnergy = 0.;
 		double theShortHitEnergy = 0.;
@@ -504,8 +507,8 @@ void PFCTRecHitProducer::produce(edm::Event& iEvent,
 		  int ieta29 = ieta > 0 ? 29 : -29;
 		  HcalDetId theLongDetId29 (HcalForward, ieta29, iphi, 1);
 		  HcalDetId theShortDetId29 (HcalForward, ieta29, iphi, 2);
-		  auto theLongHit29 = hfHandle->find(theLongDetId29); 
-		  auto theShortHit29 = hfHandle->find(theShortDetId29); 
+		  iHF theLongHit29 = hfHandle->find(theLongDetId29); 
+		  iHF theShortHit29 = hfHandle->find(theShortDetId29); 
 		  // 
 		  double theLongHitEnergy29 = 0.;
 		  double theShortHitEnergy29 = 0.;
@@ -825,7 +828,7 @@ void PFCTRecHitProducer::produce(edm::Event& iEvent,
 
 }
 
-PFCTRecHitProducer::~PFCTRecHitProducer() = default;
+PFCTRecHitProducer::~PFCTRecHitProducer() {}
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
@@ -861,7 +864,7 @@ PFCTRecHitProducer::createHcalRecHit( const DetId& detid,
     edm::LogError("PFRecHitProducerHCAL")
       <<"warning detid "<<detid.rawId()<<" not found in layer "
       <<layer<<endl;
-    return nullptr;
+    return 0;
   }
     
   switch ( layer ) { 
@@ -877,7 +880,7 @@ PFCTRecHitProducer::createHcalRecHit( const DetId& detid,
     break;
   }
 
-  auto rh = 
+  reco::PFRecHit *rh = 
     new reco::PFRecHit(thisCell, newDetId.rawId(),  layer, energy);
  
   return rh;

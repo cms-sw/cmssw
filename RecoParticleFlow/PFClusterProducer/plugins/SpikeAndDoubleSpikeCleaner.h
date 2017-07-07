@@ -23,7 +23,7 @@ class SpikeAndDoubleSpikeCleaner : public RecHitTopologicalCleanerBase {
   SpikeAndDoubleSpikeCleaner& operator=(const SpikeAndDoubleSpikeCleaner&) = delete;
 
   void clean( const edm::Handle<reco::PFRecHitCollection>& input,
-	      std::vector<bool>& mask ) override;
+	      std::vector<bool>& mask );
 
  private:
   const std::unordered_map<std::string,int> _layerMap;

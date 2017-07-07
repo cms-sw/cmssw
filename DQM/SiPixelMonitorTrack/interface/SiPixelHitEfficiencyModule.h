@@ -25,8 +25,6 @@
 #include "DataFormats/TrajectoryState/interface/LocalTrajectoryParameters.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
-namespace edm { class EventSetup; }
-
 class SiPixelHitEfficiencyModule { 
   public:
     SiPixelHitEfficiencyModule();

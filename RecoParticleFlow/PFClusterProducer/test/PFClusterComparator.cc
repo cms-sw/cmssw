@@ -53,7 +53,7 @@ PFClusterComparator::PFClusterComparator(const edm::ParameterSet& iConfig) {
 
 
 
-PFClusterComparator::~PFClusterComparator() = default;
+PFClusterComparator::~PFClusterComparator() { }
 
 
 
@@ -86,14 +86,16 @@ void PFClusterComparator::analyze(const Event& iEvent,
   std::cout << std::flush << "---- COMPARING OLD TO NEW ----"
 	    << std::endl  << std::flush;
 
-  for(auto const & cluster : *pfClusters) {  
+  for( unsigned i=0; i<pfClusters->size(); i++ ) {  
+    const reco::PFCluster& cluster = pfClusters->at(i);   
     detId_count[cluster.seed().rawId()] += 1;
     log10E_old->Fill(std::log10(cluster.energy()));
     posX_old->Fill(std::abs(cluster.position().x()));
     posY_old->Fill(std::abs(cluster.position().y()));
     posZ_old->Fill(std::abs(cluster.position().z()));
     bool foundmatch = false;
-    for(auto const & clustercomp : *pfClustersCompare) {
+    for( unsigned k=0; k<pfClustersCompare->size(); ++k ) {
+      const reco::PFCluster& clustercomp = pfClustersCompare->at(k);      
       if( cluster.seed().rawId() == clustercomp.seed().rawId() ) {
 	foundmatch = true;
 	const double denergy = std::abs(cluster.energy() - 
@@ -171,13 +173,15 @@ void PFClusterComparator::analyze(const Event& iEvent,
   std::cout << std::flush << "---- COMPARING NEW TO OLD ----"
 	    << std::endl  << std::flush;
 
-  for(auto const & cluster : *pfClustersCompare) {     
+  for( unsigned i=0; i<pfClustersCompare->size(); i++ ) {     
+    const reco::PFCluster& cluster = pfClustersCompare->at(i);   
     log10E_new->Fill(std::log10(cluster.energy()));
     posX_new->Fill(std::abs(cluster.position().x()));
     posY_new->Fill(std::abs(cluster.position().y()));
     posZ_new->Fill(std::abs(cluster.position().z()));
     bool foundmatch = false;
-    for(auto const & clustercomp : *pfClusters) {
+    for( unsigned k=0; k<pfClusters->size(); ++k ) {
+      const reco::PFCluster& clustercomp = pfClusters->at(k);      
       if( cluster.seed() == clustercomp.seed() ) {
 	foundmatch = true;
 

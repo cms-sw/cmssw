@@ -71,6 +71,8 @@ namespace edm {
       virtual void endRun(edm::Run const&, edm::EventSetup const&) {}
       virtual void endStream(){}
 
+      virtual void preForkReleaseResources() {}
+      virtual void postForkReacquireResources(unsigned int /*iChildIndex*/, unsigned int /*iNumberOfChildren*/) {}
       virtual void registerThinnedAssociations(ProductRegistry const&,
                                                ThinnedAssociationsHelper&) { }
 

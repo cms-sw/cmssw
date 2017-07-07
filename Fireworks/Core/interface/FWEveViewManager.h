@@ -31,7 +31,6 @@
 // forward declarations
 class TEveCompund;
 class TEveScene;
-class TEveElement;
 class TEveWindowSlot;
 class FWViewBase;
 class FWEveView;

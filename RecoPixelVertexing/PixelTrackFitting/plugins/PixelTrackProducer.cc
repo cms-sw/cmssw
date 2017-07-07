@@ -39,7 +39,7 @@ void PixelTrackProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<std::string>("passLabel", "pixelTracks"); // What is this? It is not used anywhere in this code.
   PixelTrackReconstruction::fillDescriptions(desc);
 
-  descriptions.add("pixelTracks", desc);
+  descriptions.add("pixelTracksDefault", desc);
 }
 
 void PixelTrackProducer::produce(edm::Event& ev, const edm::EventSetup& es)

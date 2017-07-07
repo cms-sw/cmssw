@@ -3,7 +3,6 @@
 
 class TCanvas;
 class TGCompositeFrame;
-class TEveWindowSlot;
 
 #include "Fireworks/Core/interface/FWDetailView.h"
 

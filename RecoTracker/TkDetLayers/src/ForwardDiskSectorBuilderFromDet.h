@@ -4,6 +4,7 @@
 #include "BoundDiskSector.h"
 #include "DiskSectorBounds.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include <utility>
 #include <vector>

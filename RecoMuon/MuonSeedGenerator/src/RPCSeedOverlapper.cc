@@ -6,7 +6,7 @@
 
 #include "RecoMuon/MuonSeedGenerator/src/RPCSeedOverlapper.h"
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
-#include <Geometry/CommonDetUnit/interface/GeomDet.h>
+#include <Geometry/CommonDetUnit/interface/GeomDetUnit.h>
 
 using namespace std;
 using namespace edm;

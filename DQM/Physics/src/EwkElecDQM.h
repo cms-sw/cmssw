@@ -29,7 +29,6 @@ class MonitorElement;
 class EwkElecDQM : public DQMEDAnalyzer {
  public:
   EwkElecDQM(const edm::ParameterSet&);
-protected:
   //Book histograms
   void bookHistograms(DQMStore::IBooker &,
     edm::Run const &, edm::EventSetup const &) override;

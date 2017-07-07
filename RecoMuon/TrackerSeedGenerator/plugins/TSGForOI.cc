@@ -5,7 +5,7 @@
  */
 
 #include "RecoMuon/TrackerSeedGenerator/plugins/TSGForOI.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DataFormats/SiStripDetId/interface/TECDetId.h"
 
 #include <memory>
 
@@ -68,9 +68,6 @@ void TSGForOI::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::vector<BarrelDetLayer const*> const& tob = measurementTracker_->geometricSearchTracker()->tobLayers();
   std::vector<ForwardDetLayer const*> const& tecPositive = measurementTracker_->geometricSearchTracker()->posTecLayers();
   std::vector<ForwardDetLayer const*> const& tecNegative = measurementTracker_->geometricSearchTracker()->negTecLayers();
-  edm::ESHandle<TrackerTopology> tTopo_handle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopo_handle);
-  const TrackerTopology* tTopo = tTopo_handle.product();
 
   //	Get the suitable propagators:
   std::unique_ptr<Propagator> propagatorAlong = SetPropagationDirection(*propagatorAlong_,alongMomentum);
@@ -127,7 +124,7 @@ void TSGForOI::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       layerCount_ = 0;
       for (auto it=tob.rbegin(); it!=tob.rend(); ++it) {	//This goes from outermost to innermost layer
 	LogTrace("TSGForOI") << "TSGForOI::produce: looping in TOB layer " << layerCount_ << endl; 
-	findSeedsOnLayer(tTopo, **it, tsosAtIP,  *(propagatorAlong.get()), *(propagatorOpposite.get()), l2, out);
+	findSeedsOnLayer(**it, tsosAtIP,  *(propagatorAlong.get()), *(propagatorOpposite.get()), l2, out);
       }
     }
     
@@ -141,7 +138,7 @@ void TSGForOI::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       layerCount_ = 0;
       for (auto it=tecPositive.rbegin(); it!=tecPositive.rend(); ++it) {
 	LogTrace("TSGForOI") << "TSGForOI::produce: looping in TEC+ layer " << layerCount_ << endl; 
-	findSeedsOnLayer(tTopo, **it, tsosAtIP,  *(propagatorAlong.get()), *(propagatorOpposite.get()), l2, out);
+	findSeedsOnLayer(**it, tsosAtIP,  *(propagatorAlong.get()), *(propagatorOpposite.get()), l2, out);
       }
     }
 
@@ -150,7 +147,7 @@ void TSGForOI::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       layerCount_ = 0;
       for (auto it=tecNegative.rbegin(); it!=tecNegative.rend(); ++it) {
 	LogTrace("TSGForOI") << "TSGForOI::produce: looping in TEC- layer " << layerCount_ << endl; 
-	findSeedsOnLayer(tTopo, **it, tsosAtIP,  *(propagatorAlong.get()), *(propagatorOpposite.get()), l2, out);
+	findSeedsOnLayer(**it, tsosAtIP,  *(propagatorAlong.get()), *(propagatorOpposite.get()), l2, out);
       }
     }
 
@@ -163,9 +160,7 @@ void TSGForOI::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.put(std::move(result));
 }
 
-void TSGForOI::findSeedsOnLayer(
-				const TrackerTopology* tTopo,
-				const GeometricSearchDet &layer,
+void TSGForOI::findSeedsOnLayer(const GeometricSearchDet &layer,
 				const TrajectoryStateOnSurface &tsosAtIP,
 				const Propagator& propagatorAlong,
 				const Propagator& propagatorOpposite,
@@ -214,7 +209,7 @@ void TSGForOI::findSeedsOnLayer(
   // Hits:
   if (layerCount_>numOfLayersToTry_) return;
   LogTrace("TSGForOI") << "TSGForOI::findSeedsOnLayer: Start Hits" <<endl;  
-  if (makeSeedsFromHits(tTopo, layer, tsosAtIP, *out, propagatorAlong, *measurementTracker_, errorSFHits_))  ++layerCount_; 
+  if (makeSeedsFromHits(layer, tsosAtIP, *out, propagatorAlong, *measurementTracker_, errorSFHits_))  ++layerCount_; 
   numSeedsMade_=out->size();
 }
 
@@ -243,9 +238,7 @@ double TSGForOI::calculateSFFromL2(const reco::TrackRef track){
 }
 
 
-int TSGForOI::makeSeedsFromHits(
-				const TrackerTopology* tTopo,
-				const GeometricSearchDet &layer,
+int TSGForOI::makeSeedsFromHits(const GeometricSearchDet &layer,
 				const TrajectoryStateOnSurface &tsosAtIP,
 				std::vector<TrajectorySeed> &out,
 				const Propagator& propagatorAlong,
@@ -289,7 +282,8 @@ int TSGForOI::makeSeedsFromHits(
     if (useStereoLayersInTEC_) { 
       DetId detid = ((*it).recHit()->hit())->geographicalId();
       if (detid.subdetId() == StripSubdetector::TEC) {
-		if (!tTopo->tecIsStereo(detid.rawId())) break;  // try another layer
+	TECDetId myDet(detid.rawId());
+	if (!myDet.isStereo()) break;  //try another Layer 
       }
     }
     

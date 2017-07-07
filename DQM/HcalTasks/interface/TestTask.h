@@ -38,6 +38,7 @@ class TestTask : public hcaldqm::DQTask
 		hcaldqm::filter::HashFilter filter_Electronics;
 
 		//	Electronics Map
+		HcalElectronicsMap const *_emap;
 
 		//	hcaldqm::Containers
 		hcaldqm::Container1D		_cEnergy_Subdet;

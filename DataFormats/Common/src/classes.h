@@ -4,7 +4,6 @@
 #include "DataFormats/Common/interface/PtrVector.h"
 #include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Common/interface/CopyPolicy.h"
-#include "DataFormats/Common/interface/EndPathStatus.h"
 #include "DataFormats/Common/interface/HLTGlobalStatus.h"
 #include "DataFormats/Common/interface/HLTPathStatus.h"
 #include "DataFormats/Common/interface/OwnVector.h"

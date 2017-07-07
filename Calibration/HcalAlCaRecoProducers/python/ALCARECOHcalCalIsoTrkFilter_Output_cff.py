@@ -11,7 +11,6 @@ OutALCARECOHcalCalIsoTrkFilter_noDrop = cms.PSet(
     outputCommands = cms.untracked.vstring( 
         'keep *_hbhereco_*_*',
         'keep *_ecalRecHit_*_*',
-        'keep *_towerMaker_*_*',
         'keep *_offlineBeamSpot_*_*',
         'keep *_hltTriggerSummaryAOD_*_*',
         'keep *_TriggerResults_*_*',

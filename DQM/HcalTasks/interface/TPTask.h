@@ -46,10 +46,11 @@ class TPTask : public hcaldqm::DQTask
 		enum TPFlag
 		{
 			fEtMsm=0,
-			fDataMsn=1,
-			fEmulMsn=2,
-			fUnknownIds=3,
-			nTPFlag=4
+			fFGMsm=1,
+			fDataMsn=2,
+			fEmulMsn=3,
+			fUnknownIds=4,
+			nTPFlag=5
 		};
 
 		//	switches/cuts/etc...
@@ -64,6 +65,7 @@ class TPTask : public hcaldqm::DQTask
 		std::vector<uint32_t> _vhashFEDs;
 
 		//	emap
+		HcalElectronicsMap const* _emap;
 		hcaldqm::electronicsmap::ElectronicsMap _ehashmap;
 
 		//	Filters

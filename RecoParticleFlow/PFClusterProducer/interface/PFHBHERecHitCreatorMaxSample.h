@@ -39,10 +39,11 @@ class PFHBHERecHitCreatorMaxSample :  public  PFRecHitCreatorBase {
     }
 
 
-  ~PFHBHERecHitCreatorMaxSample() override = default;
+  ~PFHBHERecHitCreatorMaxSample() {
+  }
 
 
-    void importRecHits(std::unique_ptr<reco::PFRecHitCollection>&out,std::unique_ptr<reco::PFRecHitCollection>& cleaned ,const edm::Event& iEvent,const edm::EventSetup& iSetup) override {
+    void importRecHits(std::unique_ptr<reco::PFRecHitCollection>&out,std::unique_ptr<reco::PFRecHitCollection>& cleaned ,const edm::Event& iEvent,const edm::EventSetup& iSetup) {
 
       beginEvent(iEvent,iSetup);
 
@@ -164,7 +165,7 @@ class PFHBHERecHitCreatorMaxSample :  public  PFRecHitCreatorBase {
 
 	int depth = detid.depth();
 	
-	const CaloCellGeometry *thisCell=nullptr;
+	const CaloCellGeometry *thisCell=0;
 	PFLayer::Layer layer = PFLayer::HCAL_BARREL1;
 	switch(esd) {
 	case HcalBarrel:

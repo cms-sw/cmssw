@@ -29,12 +29,8 @@ def check_lumi_ranges(given_lumi_list , sub_range):
 
 def process_lumi(data):
   for lumi_info in data:
-    if type(lumi_info['lumi']) is list:
-      lumi_nums = lumi_info['lumi'][0]['number']
-      lumi_file = lumi_info['file'][0]['name']
-    else:
-      lumi_nums = lumi_info['lumi']['number']
-      lumi_file = lumi_info['file']['name']
+    lumi_nums = lumi_info['lumi'][0]['number']
+    lumi_file = lumi_info['file'][0]['name']
     if not type(lumi_nums[0]) is list: lumi_rang = [ [n,n] for n in lumi_nums ]
     else: lumi_rang = lumi_nums
     for sub_list in lumi_rang:

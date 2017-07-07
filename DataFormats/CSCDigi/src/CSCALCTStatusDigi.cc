@@ -8,7 +8,7 @@
 
 #include <ostream>
 #include <cstring>
-#include <cstdint>
+#include <stdint.h>
 
 CSCALCTStatusDigi::CSCALCTStatusDigi(const uint16_t * header, const uint16_t * trailer)
 {

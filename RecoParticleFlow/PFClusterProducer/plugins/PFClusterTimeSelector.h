@@ -18,12 +18,12 @@
 class PFClusterTimeSelector : public edm::stream::EDProducer<> {
  public:
   explicit PFClusterTimeSelector(const edm::ParameterSet&);
-  ~PFClusterTimeSelector() override;
+  ~PFClusterTimeSelector();
 
-  void beginRun(const edm::Run& run, const edm::EventSetup & es) override;
+  virtual void beginRun(const edm::Run& run, const edm::EventSetup & es);
   
   void produce(edm::Event& iEvent, 
-	       const edm::EventSetup& iSetup) override;
+	       const edm::EventSetup& iSetup);
 
 
  protected:

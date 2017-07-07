@@ -9,8 +9,8 @@
  *
  */
 
-#include "DataFormats/GEMDigi/interface/GEMPadDigi.h"
-#include <cstdint>
+#include <DataFormats/GEMDigi/interface/GEMPadDigi.h>
+#include <boost/cstdint.hpp>
 #include <iosfwd>
 
 class GEMCoPadDigi{

@@ -1,3 +1,4 @@
+<use   name="boost"/>
 <use   name="CondCore/CondDB"/>
 <use   name="CondCore/DBOutputService"/>
 <use   name="CondCore/PopCon"/>

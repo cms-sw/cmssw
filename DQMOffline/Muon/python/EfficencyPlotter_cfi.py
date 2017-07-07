@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-effPlotterLoose = DQMEDHarvester("EfficiencyPlotter",
+effPlotter_Loose = DQMEDHarvester("EfficiencyPlotter",
                                   folder = cms.string("Muons/EfficiencyAnalyzer"),
                                   phiMin = cms.double(-3.2),
                                   etaMin = cms.double(-2.5),
@@ -19,7 +19,7 @@ effPlotterLoose = DQMEDHarvester("EfficiencyPlotter",
                                   )
 
 
-effPlotterMedium = DQMEDHarvester("EfficiencyPlotter",
+effPlotter_Medium = DQMEDHarvester("EfficiencyPlotter",
                                    folder = cms.string("Muons/EfficiencyAnalyzer"),
                                    phiMin = cms.double(-3.2),
                                    etaMin = cms.double(-2.5),
@@ -37,7 +37,7 @@ effPlotterMedium = DQMEDHarvester("EfficiencyPlotter",
                                    )
 
 
-effPlotterTight = DQMEDHarvester("EfficiencyPlotter",
+effPlotter_Tight = DQMEDHarvester("EfficiencyPlotter",
                                   folder = cms.string("Muons/EfficiencyAnalyzer"),
                                   phiMin = cms.double(-3.2),
                                   etaMin = cms.double(-2.5),
@@ -53,7 +53,7 @@ effPlotterTight = DQMEDHarvester("EfficiencyPlotter",
                                   vtxMax = cms.double(40.5),
                                   MuonID = cms.string("Tight")
                                   )
-effPlotterLooseMiniAOD = DQMEDHarvester("EfficiencyPlotter",
+effPlotter_Loose_miniAOD = DQMEDHarvester("EfficiencyPlotter",
                                           folder = cms.string("Muons_miniAOD/EfficiencyAnalyzer"),
                                           phiMin = cms.double(-3.2),
                                           etaMin = cms.double(-2.5),
@@ -71,7 +71,7 @@ effPlotterLooseMiniAOD = DQMEDHarvester("EfficiencyPlotter",
                                           )
 
 
-effPlotterMediumMiniAOD = DQMEDHarvester("EfficiencyPlotter",
+effPlotter_Medium_miniAOD = DQMEDHarvester("EfficiencyPlotter",
                                            folder = cms.string("Muons_miniAOD/EfficiencyAnalyzer"),
                                            phiMin = cms.double(-3.2),
                                            etaMin = cms.double(-2.5),
@@ -89,7 +89,7 @@ effPlotterMediumMiniAOD = DQMEDHarvester("EfficiencyPlotter",
                                            )
 
 
-effPlotterTightMiniAOD = DQMEDHarvester("EfficiencyPlotter",
+effPlotter_Tight_miniAOD = DQMEDHarvester("EfficiencyPlotter",
                                           folder = cms.string("Muons_miniAOD/EfficiencyAnalyzer"),
                                           phiMin = cms.double(-3.2),
                                           etaMin = cms.double(-2.5),

@@ -13,7 +13,7 @@ class RBXAndHPDCleaner : public RecHitTopologicalCleanerBase {
   RBXAndHPDCleaner& operator=(const RBXAndHPDCleaner&) = delete;
 
   void clean( const edm::Handle<reco::PFRecHitCollection>& input,
-	      std::vector<bool>& mask ) override;
+	      std::vector<bool>& mask );
 
  private:  
   std::unordered_map<int,std::vector<unsigned> > _hpds, _rbxs;

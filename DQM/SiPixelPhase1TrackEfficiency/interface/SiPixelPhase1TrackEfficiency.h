@@ -29,9 +29,6 @@ class SiPixelPhase1TrackEfficiency : public SiPixelPhase1Base {
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > clustersToken_;
   edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
   edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
-
-  bool applyVertexCut_;
-  
 };
 
 #endif
