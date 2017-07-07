@@ -5,7 +5,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 # local track fitting
-from RecoCTPPS.PixelLocal.CTPPSPixelClusterProducer_cfi import ctppsPixelClusters
+from RecoCTPPS.PixelLocal.ctppsPixelClusters_cfi import ctppsPixelClusters
 
 ctppsPixelLocalReconstruction = cms.Sequence(
     ctppsPixelClusters
