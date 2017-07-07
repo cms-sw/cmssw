@@ -1,14 +1,13 @@
 // -*- C++ -*-
-//
+// 
 // Package:     SiPixelPhase1TrackClusters
-// Class:       SiPixelPhase1TrackClusters
+// Class  :     SiPixelPhase1TrackClusters
 //
 
 // Original Author: Marcel Schneider
 
-#include "DQM/SiPixelPhase1TrackClusters/interface/SiPixelPhase1TrackClusters.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "DQM/SiPixelPhase1Common/interface/SiPixelPhase1Base.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -18,10 +17,47 @@
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
-#include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+
+
+namespace {
+
+class SiPixelPhase1TrackClusters : public SiPixelPhase1Base {
+  enum {
+    ONTRACK_CHARGE,
+    ONTRACK_SIZE,
+    ONTRACK_NCLUSTERS,
+    ONTRACK_POSITION_B,
+    ONTRACK_POSITION_F,
+
+    OFFTRACK_CHARGE,
+    OFFTRACK_SIZE,
+    OFFTRACK_NCLUSTERS,
+    OFFTRACK_POSITION_B,
+    OFFTRACK_POSITION_F,
+
+    NTRACKS,
+    NTRACKS_VOLUME,
+    ONTRACK_SIZE_VS_ETA
+
+  };
+
+public:
+  explicit SiPixelPhase1TrackClusters(const edm::ParameterSet& conf);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+private:
+  edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > clustersToken_;
+  edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
+  edm::EDGetTokenT<reco::VertexCollection> offlinePrimaryVerticesToken_;
+
+  bool applyVertexCut_;
+};
+
 
 
 SiPixelPhase1TrackClusters::SiPixelPhase1TrackClusters(const edm::ParameterSet& iConfig) :
@@ -176,5 +212,8 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
   histo[OFFTRACK_NCLUSTERS].executePerEventHarvesting(&iEvent);
 }
 
+}// namespace
+
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SiPixelPhase1TrackClusters);
 
