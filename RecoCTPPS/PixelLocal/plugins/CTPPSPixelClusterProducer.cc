@@ -41,7 +41,7 @@ void CTPPSPixelClusterProducer::produce(edm::Event& iEvent, const edm::EventSetu
   edm::ESHandle<CTPPSPixelAnalysisMask> aMask;
 
   if(rpd->size())
-  iSetup.get<CTPPSPixelAnalysisMaskRcd>().get("RPix",aMask);
+    iSetup.get<CTPPSPixelAnalysisMaskRcd>().get(aMask);
   
   edm::DetSetVector<CTPPSPixelCluster>  output;
 
