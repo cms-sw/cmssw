@@ -298,10 +298,7 @@ KFTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
     }
   } // for loop
 
-    if (!retry){
-      if (ret.foundHits() < minHits_) return Trajectory();
-      return ret;
-    }
+    if (!retry) return ret;
   } while(true);
   
   return Trajectory(); 
