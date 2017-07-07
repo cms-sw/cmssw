@@ -6,7 +6,6 @@
 #include <cmath>
 #include <cfloat>
 #include "FWCore/Utilities/interface/Likely.h"
-#include "FWCore/Utilities/interface/isFinite.h"
 
 HelixArbitraryPlaneCrossing2Order::HelixArbitraryPlaneCrossing2Order(const PositionType& point,
 								     const DirectionType& direction,
@@ -167,6 +166,5 @@ HelixArbitraryPlaneCrossing2Order::solutionByDirection(const double dS1,
       path = propSign*s1;
     }
   }
-  if (edm::isNotFinite(path)) valid = false;
   return std::pair<bool,double>(valid,path);
 }

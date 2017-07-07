@@ -7,7 +7,7 @@ process.source = cms.Source("DQMRootSource",
 
 seq = cms.untracked.VEventID()
 
-process.check = cms.EDAnalyzer("RunLumiEventChecker",
+process.check = cms.EDAnalyzer("MulticoreRunLumiEventChecker",
                                eventSequence = seq)
 
 readRunElements = list()

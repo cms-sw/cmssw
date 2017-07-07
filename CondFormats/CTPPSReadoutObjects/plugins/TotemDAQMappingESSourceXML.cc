@@ -27,7 +27,6 @@
 #include "CondFormats/CTPPSReadoutObjects/interface/TotemDAQMapping.h"
 #include "CondFormats/CTPPSReadoutObjects/interface/TotemAnalysisMask.h"
 #include "CondFormats/CTPPSReadoutObjects/interface/TotemFramePosition.h"
-#include "Utilities/Xerces/interface/XercesStrUtils.h"
 
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/dom/DOM.hpp>
@@ -129,7 +128,7 @@ private:
   /// returns true iff the node is of the given name
   bool Test(xercesc::DOMNode *node, const std::string &name)
   {
-    return !(name.compare(cms::xerces::toString(node->getNodeName())));
+    return !(name.compare(xercesc::XMLString::transcode(node->getNodeName())));
   }
 
   /// determines node type
@@ -138,13 +137,13 @@ private:
   /// returns the content of the node
   string GetNodeContent(xercesc::DOMNode *parent)
   {
-    return string(cms::xerces::toString(parent->getTextContent()));
+    return string(xercesc::XMLString::transcode(parent->getTextContent()));
   }
 
   /// returns the value of the node
   string GetNodeValue(xercesc::DOMNode *node)
   {
-    return cms::xerces::toString(node->getNodeValue());
+    return string(xercesc::XMLString::transcode(node->getNodeValue()));
   }
 
   /// extracts VFAT's DAQ channel from XML attributes
@@ -296,7 +295,9 @@ edm::ESProducts< std::shared_ptr<TotemDAQMapping>, std::shared_ptr<TotemAnalysis
   }
   catch (const XMLException& toCatch)
   {
-    throw cms::Exception("TotemDAQMappingESSourceXML") << "An XMLException caught with message: " << cms::xerces::toString(toCatch.getMessage()) << ".\n";
+    char* message = XMLString::transcode(toCatch.getMessage());
+    throw cms::Exception("TotemDAQMappingESSourceXML") << "An XMLException caught with message: " << message << ".\n";
+    XMLString::release(&message);
   }
 
   // load mapping files
@@ -346,7 +347,7 @@ void TotemDAQMappingESSourceXML::ParseTreeRP(ParseType pType, xercesc::DOMNode *
   const std::shared_ptr<TotemAnalysisMask>& mask)
 {
 #ifdef DEBUG
-  printf(">> TotemDAQMappingESSourceXML::ParseTreeRP(%s, %u, %u)\n", cms::xerces::toString(parent->getNodeName()),
+  printf(">> TotemDAQMappingESSourceXML::ParseTreeRP(%s, %u, %u)\n", XMLString::transcode(parent->getNodeName()),
     parentType, parentID);
 #endif
 
@@ -361,7 +362,7 @@ void TotemDAQMappingESSourceXML::ParseTreeRP(ParseType pType, xercesc::DOMNode *
     NodeType type = GetNodeType(n);
 
 #ifdef DEBUG
-    printf("\tname = %s, type = %u\n", cms::xerces::toString(n->getNodeName()), type);
+    printf("\tname = %s, type = %u\n", XMLString::transcode(n->getNodeName()), type);
 #endif
 
     // structure control
@@ -382,8 +383,8 @@ void TotemDAQMappingESSourceXML::ParseTreeRP(ParseType pType, xercesc::DOMNode *
 
     if (expectedParentType != parentType)
     {
-      throw cms::Exception("TotemDAQMappingESSourceXML") << "Node " << cms::xerces::toString(n->getNodeName())
-        << " not allowed within " << cms::xerces::toString(parent->getNodeName()) << " block.\n";
+      throw cms::Exception("TotemDAQMappingESSourceXML") << "Node " << XMLString::transcode(n->getNodeName())
+        << " not allowed within " << XMLString::transcode(parent->getNodeName()) << " block.\n";
     }
 
     // parse tag attributes
@@ -396,30 +397,30 @@ void TotemDAQMappingESSourceXML::ParseTreeRP(ParseType pType, xercesc::DOMNode *
     {
       DOMNode *a = attr->item(j);
 
-      if (!strcmp(cms::xerces::toString(a->getNodeName()).c_str(), "id"))
+      if (!strcmp(XMLString::transcode(a->getNodeName()), "id"))
       {
-        sscanf(cms::xerces::toString(a->getNodeValue()).c_str(), "%u", &id);
+        sscanf(XMLString::transcode(a->getNodeValue()), "%u", &id);
         id_set = true;
       }
 
-      if (!strcmp(cms::xerces::toString(a->getNodeName()).c_str(), "hw_id"))
+      if (!strcmp(XMLString::transcode(a->getNodeName()), "hw_id"))
       {
-        sscanf(cms::xerces::toString(a->getNodeValue()).c_str(), "%x", &hw_id);
+        sscanf(XMLString::transcode(a->getNodeValue()), "%x", &hw_id);
         hw_id_set = true;
       }
 
-      if (!strcmp(cms::xerces::toString(a->getNodeName()).c_str(), "full_mask"))
-        fullMask = (strcmp(cms::xerces::toString(a->getNodeValue()).c_str(), "no") != 0);
+      if (!strcmp(XMLString::transcode(a->getNodeName()), "full_mask"))
+        fullMask = (strcmp(XMLString::transcode(a->getNodeValue()), "no") != 0);
     }
 
     // content control
     if (!id_set)
       throw cms::Exception("TotemDAQMappingESSourceXML::ParseTreeRP") << "id not given for element `"
-       << cms::xerces::toString(n->getNodeName()) << "'" << endl;
+       << XMLString::transcode(n->getNodeName()) << "'" << endl;
 
     if (!hw_id_set && type == nChip && pType == pMapping)
       throw cms::Exception("TotemDAQMappingESSourceXML::ParseTreeRP") << "hw_id not given for element `"
-       << cms::xerces::toString(n->getNodeName()) << "'" << endl;
+       << XMLString::transcode(n->getNodeName()) << "'" << endl;
 
     if (type == nRPPlane && id > 9)
       throw cms::Exception("TotemDAQMappingESSourceXML::ParseTreeRP") <<
@@ -481,7 +482,7 @@ void TotemDAQMappingESSourceXML::ParseTreeDiamond(ParseType pType, xercesc::DOMN
 {
 
 #ifdef DEBUG
-  printf(">> TotemDAQMappingESSourceXML::ParseTreeDiamond(%s, %u, %u)\n", cms::xerces::toString(parent->getNodeName()),
+  printf(">> TotemDAQMappingESSourceXML::ParseTreeDiamond(%s, %u, %u)\n", XMLString::transcode(parent->getNodeName()),
 	 parentType, parentID);
 #endif
 
@@ -495,7 +496,7 @@ void TotemDAQMappingESSourceXML::ParseTreeDiamond(ParseType pType, xercesc::DOMN
   
     NodeType type = GetNodeType(n);
 #ifdef DEBUG
-      printf("\tname = %s, type = %u\n", cms::xerces::toString(n->getNodeName()), type);
+      printf("\tname = %s, type = %u\n", XMLString::transcode(n->getNodeName()), type);
 #endif
 
       // structure control
@@ -515,8 +516,8 @@ void TotemDAQMappingESSourceXML::ParseTreeDiamond(ParseType pType, xercesc::DOMN
 
     if (expectedParentType != parentType)
     {
-      throw cms::Exception("TotemDAQMappingESSourceXML") << "Node " << cms::xerces::toString(n->getNodeName())
-        << " not allowed within " << cms::xerces::toString(parent->getNodeName()) << " block.\n";
+      throw cms::Exception("TotemDAQMappingESSourceXML") << "Node " << XMLString::transcode(n->getNodeName())
+        << " not allowed within " << XMLString::transcode(parent->getNodeName()) << " block.\n";
     }
 
     // parse tag attributes
@@ -528,15 +529,15 @@ void TotemDAQMappingESSourceXML::ParseTreeDiamond(ParseType pType, xercesc::DOMN
     {
       DOMNode *a = attr->item(j);
 
-      if (!strcmp(cms::xerces::toString(a->getNodeName()).c_str(), "id"))
+      if (!strcmp(XMLString::transcode(a->getNodeName()), "id"))
       {
-        sscanf(cms::xerces::toString(a->getNodeValue()).c_str(), "%u", &id);
+        sscanf(XMLString::transcode(a->getNodeValue()), "%u", &id);
 	id_set = true;
       }
 
-      if (!strcmp(cms::xerces::toString(a->getNodeName()).c_str(), "hw_id"))
+      if (!strcmp(XMLString::transcode(a->getNodeName()), "hw_id"))
       {
-        sscanf(cms::xerces::toString(a->getNodeValue()).c_str(), "%x", &hw_id);
+        sscanf(XMLString::transcode(a->getNodeValue()), "%x", &hw_id);
 	hw_id_set = true;
       }
 
@@ -545,12 +546,12 @@ void TotemDAQMappingESSourceXML::ParseTreeDiamond(ParseType pType, xercesc::DOMN
       // content control
     if (!id_set) 
       throw cms::Exception("TotemDAQMappingESSourceXML::ParseTreeDiamond") << "id not given for element `"
-									       << cms::xerces::toString(n->getNodeName()) << "'" << endl;
+									       << XMLString::transcode(n->getNodeName()) << "'" << endl;
 
 
     if (!hw_id_set && type == nDiamondCh && pType == pMapping)
       throw cms::Exception("TotemDAQMappingESSourceXML::ParseTreeDiamond") << "hw_id not given for element `"
-									     << cms::xerces::toString(n->getNodeName()) << "'" << endl;
+									     << XMLString::transcode(n->getNodeName()) << "'" << endl;
  
     if (type == nDiamondPlane && id > 3)
       throw cms::Exception("TotemDAQMappingESSourceXML::ParseTreeDiamond") <<
@@ -611,11 +612,11 @@ TotemFramePosition TotemDAQMappingESSourceXML::ChipFramePosition(xercesc::DOMNod
   for (unsigned int j = 0; j < attr->getLength(); j++)
   {
     DOMNode *a = attr->item(j);
-    if (fp.setXMLAttribute(cms::xerces::toString(a->getNodeName()), cms::xerces::toString(a->getNodeValue()), attributeFlag) > 1)
+    if (fp.setXMLAttribute(XMLString::transcode(a->getNodeName()), XMLString::transcode(a->getNodeValue()), attributeFlag) > 1)
     {
       throw cms::Exception("TotemDAQMappingESSourceXML") <<
-        "Unrecognized tag `" << cms::xerces::toString(a->getNodeName()) <<
-        "' or incompatible value `" << cms::xerces::toString(a->getNodeValue()) <<
+        "Unrecognized tag `" << XMLString::transcode(a->getNodeName()) <<
+        "' or incompatible value `" << XMLString::transcode(a->getNodeValue()) <<
         "'." << endl;
     }
   }
@@ -651,7 +652,7 @@ TotemDAQMappingESSourceXML::NodeType TotemDAQMappingESSourceXML::GetNodeType(xer
   if (Test(n, "trigger_vfat")) return nSkip;
 
   throw cms::Exception("TotemDAQMappingESSourceXML::GetNodeType") << "Unknown tag `"
-    << cms::xerces::toString(n->getNodeName()) << "'.\n";
+    << XMLString::transcode(n->getNodeName()) << "'.\n";
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -671,10 +672,10 @@ void TotemDAQMappingESSourceXML::GetChannels(xercesc::DOMNode *n, set<unsigned c
     {
       DOMNode *a = attr->item(j);
 
-      if (!strcmp(cms::xerces::toString(a->getNodeName()).c_str(), "id"))
+      if (!strcmp(XMLString::transcode(a->getNodeName()), "id"))
       {
         unsigned int id = 0;
-        sscanf(cms::xerces::toString(a->getNodeValue()).c_str(), "%u", &id);
+        sscanf(XMLString::transcode(a->getNodeValue()), "%u", &id);
         channels.insert(id);
         idSet = true;
         break;

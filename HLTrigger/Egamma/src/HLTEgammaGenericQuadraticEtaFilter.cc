@@ -89,6 +89,9 @@ HLTEgammaGenericQuadraticEtaFilter::HLTEgammaGenericQuadraticEtaFilter(const edm
         throw cms::Exception("ImproperBinning") << "absEtaLowEdges entries should be in increasing order. \n";
     }
   }
+
+  //register your products
+  produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 void

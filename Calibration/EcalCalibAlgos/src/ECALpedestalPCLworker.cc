@@ -128,10 +128,7 @@ ECALpedestalPCLworker::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
     
 
     for ( uint32_t i = 0 ; i< EBDetId::kSizeForDenseIndexing; ++i){
-
         
-        ibooker.setCurrentFolder(dqmDir_+"/EB/"+std::to_string(int(i/100)));
-
         std::string hname = "eb_" + std::to_string(i);
         DetId id = EBDetId::detIdFromDenseIndex(i);
         int centralBin = fixedBookingCenterBin_;
@@ -147,8 +144,6 @@ ECALpedestalPCLworker::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
     }
 
     for ( uint32_t i = 0 ; i< EEDetId::kSizeForDenseIndexing; ++i){
-
-        ibooker.setCurrentFolder(dqmDir_+"/EE/"+std::to_string(int(i/100)));
 
         std::string hname = "ee_" + std::to_string(i);
 

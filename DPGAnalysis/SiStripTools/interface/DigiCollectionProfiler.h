@@ -3,17 +3,19 @@
 
 #include <vector>
 #include "CommonTools/UtilAlgos/interface/DetIdSelector.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/DetSet.h"
-#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 
-#include "TH1.h"
-#include "TH2.h"
-#include "TProfile.h"
+class TH1F;
+class TProfile;
+class TH2F;
+
+namespace edm {
+  class ParameterSet;
+}
 
 template <class T>
 class DigiCollectionProfiler {

@@ -59,6 +59,7 @@ class UMNioTask : public hcaldqm::DQTask
 		double _lowHBHE, _lowHO, _lowHF;
 
 		//	emap
+		HcalElectronicsMap const* _emap;
 		hcaldqm::electronicsmap::ElectronicsMap _ehashmap;
 		hcaldqm::filter::HashFilter _filter_uTCA;
 		hcaldqm::filter::HashFilter _filter_VME;

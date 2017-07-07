@@ -25,9 +25,9 @@ template <typename DET,typename TOPO,bool ownsTopo=true>
 class PFRecHitCaloNavigator : public PFRecHitNavigatorBase {
  public:
 
- ~PFRecHitCaloNavigator() override { if(!ownsTopo) { topology_.release(); } }
+ virtual ~PFRecHitCaloNavigator() { if(!ownsTopo) { topology_.release(); } }
 
-  void associateNeighbours(reco::PFRecHit& hit,std::unique_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refProd) override {
+  void associateNeighbours(reco::PFRecHit& hit,std::unique_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refProd) {
       DetId detid( hit.detId() );
       
       CaloNavigator<DET> navigator(detid, topology_.get());

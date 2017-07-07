@@ -1,6 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-import CondTools.Ecal.conddb_init as conddb_init
-import CondTools.Ecal.db_credentials as auth
 
 process = cms.Process("ProcessOne")
 
@@ -19,23 +17,17 @@ process.source = cms.Source("EmptyIOVSource",
     interval = cms.uint64(1)
 )
 
-process.load("CondCore.CondDB.CondDB_cfi")
+process.load("CondCore.DBCommon.CondDBCommon_cfi")
 
-process.CondDB.connect = 'sqlite_file:EcalADCToGeV.db'
-
-process.CondDB.DBParameters.authenticationPath = ''
-
-process.CondDB.connect = conddb_init.options.destinationDatabase
-
-db_service,db_user,db_pwd = auth.get_readOnly_db_credentials()
+process.CondDBCommon.connect = 'sqlite_file:EcalADCToGeV.db'
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-  process.CondDB, 
+  process.CondDBCommon, 
   logconnect = cms.untracked.string('sqlite_file:log.db'),   
   toPut = cms.VPSet(
     cms.PSet(
       record = cms.string('EcalADCToGeVConstantRcd'),
-      tag = cms.string('EcalADCToGeV_test')
+      tag = cms.string('EcalADCToGeVConstant_V1_hlt')
     )
   )
 )
@@ -46,17 +38,8 @@ process.Test1 = cms.EDAnalyzer("ExTestEcalADCToGeVAnalyzer",
   IsDestDbCheckedInQueryLog=cms.untracked.bool(True),
   SinceAppendMode=cms.bool(True),
   Source=cms.PSet(
-    FileLowField = cms.string('ADCToGeV_Boff.xml'),
-    FileHighField = cms.string('ADCToGeV_Bon.xml'),
-    firstRun = cms.string('207149'),
-    lastRun = cms.string('10000000'),
-     OnlineDBSID = cms.string(db_service),
-     OnlineDBUser = cms.string(db_user),
-     OnlineDBPassword = cms.string( db_pwd ),
-    LocationSource = cms.string('P5'),
-    Location = cms.string('P5_Co'),
-    GenTag = cms.string('GLOBAL'),
-    RunType = cms.string('COSMICS')
+    InputFile = cms.string('ADCtoGeV_Bon.xml'),
+    firstRun = cms.string('98273'),
   )                            
 )
 

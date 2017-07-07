@@ -1,7 +1,6 @@
 #ifndef LMFSEXTUPLE_H
 #define LMFSEXTUPLE_H
 
-#include "OnlineDB/EcalCondDB/interface/Tm.h"
 
 /*
  Last updated by  Giovanni.Organtini@roma1.infn.it 2010

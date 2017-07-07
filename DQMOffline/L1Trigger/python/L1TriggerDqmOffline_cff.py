@@ -139,7 +139,9 @@ l1TriggerOnline = cms.Sequence(
 
 l1TriggerOffline = cms.Sequence(
     l1TriggerOnline *
-    dqmEnvL1TriggerReco
+    dqmEnvL1TriggerReco *
+    l1tStage2CaloLayer2OfflineDQM *
+    l1tEGammaOfflineDQM
 )
 
 #
@@ -150,7 +152,9 @@ l1TriggerEmulatorOnline = cms.Sequence(
                                 )
 
 l1TriggerEmulatorOffline = cms.Sequence(
-    l1TriggerEmulatorOnline 
+    l1TriggerEmulatorOnline *
+    l1tStage2CaloLayer2OfflineDQMEmu *
+    l1tEGammaOfflineDQMEmu
 )
 #
 
@@ -270,7 +274,6 @@ from DQMOffline.L1Trigger.L1TEfficiencyMuons_Offline_cfi import *
 
 from Configuration.StandardSequences.Eras import eras
 from DQM.L1TMonitor.L1TStage2_cff import *
-from DQMOffline.L1Trigger.L1TriggerDqmOffline_SecondStep_cff import *
 from DQMOffline.L1Trigger.L1TEfficiencyHarvesting_cfi import *
 
 stage2UnpackPath = cms.Sequence(
@@ -308,9 +311,7 @@ Stage2l1TriggerOnline = cms.Sequence(
                                 * l1tStage2OnlineDQM
                                 * dqmEnvL1T
                                )
-# Do not include the uGT online DQM module in the offline sequence
-# since the large 2D histograms cause crashes at the T0.
-l1tStage2OnlineDQM.remove(l1tStage2uGt)
+
 
 
 
@@ -353,8 +354,7 @@ Stage2l1TriggerDqmOffline = cms.Sequence(
 Stage2l1TriggerDqmOfflineClient = cms.Sequence(
                                 l1tStage2EmulatorMonitorClient *
                                 l1tStage2MonitorClient *
-                                DQMHarvestL1Trigger *
-                                l1tEfficiencyMuonsHarvesting
+                                l1tEfficiencyMuons_Harvesting
                                 )
 
 

@@ -42,7 +42,7 @@ class L1TUtmScale
     // ctor
     L1TUtmScale()
       : name_(), object_(), type_(), minimum_(), maximum_(),
-        step_(), n_bits_(), bins_(), version(0) { };
+        step_(), n_bits_(), bins_() { };
 
     // dtor
     virtual ~L1TUtmScale() { };

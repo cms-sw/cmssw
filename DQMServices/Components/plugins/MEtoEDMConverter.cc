@@ -12,7 +12,6 @@
 #include "DQMServices/Components/plugins/MEtoEDMConverter.h"
 #include "classlib/utils/StringList.h"
 #include "classlib/utils/StringOps.h"
-#include "DataFormats/Histograms/interface/DQMToken.h"
 
 using namespace lat;
 
@@ -79,9 +78,9 @@ MEtoEDMConverter::MEtoEDMConverter(const edm::ParameterSet & iPSet) :
   produces<MEtoEDM<long long>, edm::Transition::EndLuminosityBlock>(sName);
   produces<MEtoEDM<TString>, edm::Transition::EndLuminosityBlock>(sName);
 
-  consumesMany<DQMToken>();
+  iCount.clear();
 
-  static_assert(sizeof(int64_t) == sizeof(long long),"type int64_t is not the same length as long long");
+  assert(sizeof(int64_t) == sizeof(long long));
 
 }
 

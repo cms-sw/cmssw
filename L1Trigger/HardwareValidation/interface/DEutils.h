@@ -8,9 +8,6 @@
  *\date 07.04
  */
 
-#include <iomanip>
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "L1Trigger/HardwareValidation/interface/DEtrait.h"
 
 template <typename T> 

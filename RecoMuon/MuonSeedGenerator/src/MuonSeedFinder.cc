@@ -60,8 +60,9 @@ void MuonSeedFinder::seeds(const MuonTransientTrackingRecHit::MuonRecHitContaine
 
   unsigned int num_endcap = 0;
   for ( MuonRecHitContainer::const_iterator iter = hits.begin(); iter!= hits.end(); iter++ ){
-    if ( (*iter)->isCSC() || (*iter)->isME0() )
+    if ( (*iter)->isCSC() )
     {
+//std::cout << **iter << std::endl;
       theEndcap.add(*iter);
       theOverlap.add(*iter);
       ++num_endcap;

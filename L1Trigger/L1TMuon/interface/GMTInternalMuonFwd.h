@@ -3,8 +3,6 @@
 
 #include "DataFormats/L1Trigger/interface/BXVector.h"
 
-#include <memory>
-
 namespace l1t {
   class GMTInternalMuon;
   typedef std::vector<GMTInternalMuon> GMTInternalMuonCollection;

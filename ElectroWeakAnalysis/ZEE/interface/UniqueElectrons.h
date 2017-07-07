@@ -1,7 +1,3 @@
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-
-#include <vector>
-
 std::vector<reco::GsfElectronRef> uniqueElectronFinder(edm::Handle<reco::GsfElectronCollection>& pElectrons)
 {
 	const reco::GsfElectronCollection *electrons = pElectrons.product();

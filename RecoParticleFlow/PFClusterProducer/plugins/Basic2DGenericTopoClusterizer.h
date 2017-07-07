@@ -11,14 +11,14 @@ class Basic2DGenericTopoClusterizer : public InitialClusteringStepBase {
 				edm::ConsumesCollector& sumes) :
     InitialClusteringStepBase(conf,sumes),
     _useCornerCells(conf.getParameter<bool>("useCornerCells")) { }
-  ~Basic2DGenericTopoClusterizer() override = default;
+  virtual ~Basic2DGenericTopoClusterizer() {}
   Basic2DGenericTopoClusterizer(const B2DGT&) = delete;
   B2DGT& operator=(const B2DGT&) = delete;
 
   void buildClusters(const edm::Handle<reco::PFRecHitCollection>&,
 		     const std::vector<bool>&,
 		     const std::vector<bool>&, 
-		     reco::PFClusterCollection&) override;
+		     reco::PFClusterCollection&);
   
  private:  
   const bool _useCornerCells;

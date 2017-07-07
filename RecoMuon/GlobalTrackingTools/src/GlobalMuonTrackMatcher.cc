@@ -39,7 +39,7 @@
 #include "DataFormats/GeometrySurface/interface/TangentPlane.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 
 using namespace std;
 using namespace reco;

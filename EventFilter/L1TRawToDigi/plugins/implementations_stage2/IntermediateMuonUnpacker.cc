@@ -9,10 +9,6 @@
 
 namespace l1t {
    namespace stage2 {
-      IntermediateMuonUnpacker::IntermediateMuonUnpacker() : algoVersion_(0)
-      {
-      }
-
       bool
       IntermediateMuonUnpacker::unpack(const Block& block, UnpackerCollections *coll)
       {
@@ -106,8 +102,8 @@ namespace l1t {
                Muon mu;
 
                // The intermediate muons do not have coordinates estimated at the vertex in the RAW data
-               // The corresponding bits are set to zero
-               MuonRawDigiTranslator::fillMuon(mu, raw_data_00_31, raw_data_32_63, 1402, algoVersion_);
+               // Setting FW version to 0 makes the unpacker use the 2016 RAW format
+               MuonRawDigiTranslator::fillMuon(mu, raw_data_00_31, raw_data_32_63, 1402, 0);
 
                LogDebug("L1T") << "Mu" << nWord/2 << ": eta " << mu.hwEta() << " phi " << mu.hwPhi() << " pT " << mu.hwPt() << " iso " << mu.hwIso() << " qual " << mu.hwQual() << " charge " << mu.hwCharge() << " charge valid " << mu.hwChargeValid();
 

@@ -13,7 +13,6 @@ from PhysicsTools.PatAlgos.slimming.slimmedGenJets_cfi   import *
 from PhysicsTools.PatAlgos.slimming.slimmedElectrons_cfi import *
 from PhysicsTools.PatAlgos.slimming.slimmedMuons_cfi     import *
 from PhysicsTools.PatAlgos.slimming.slimmedPhotons_cfi   import *
-from PhysicsTools.PatAlgos.slimming.slimmedOOTPhotons_cff import *
 from PhysicsTools.PatAlgos.slimming.slimmedTaus_cfi      import *
 from PhysicsTools.PatAlgos.slimming.slimmedSecondaryVertices_cfi      import *
 from PhysicsTools.PatAlgos.slimming.slimmedMETs_cfi      import *
@@ -26,8 +25,8 @@ from HeavyFlavorAnalysis.Onia2MuMu.OniaPhotonConversionProducer_cfi import Photo
 
 slimmingTask = cms.Task(
     packedPFCandidatesTask,
-    lostTracks,
     isolatedTracks,
+    lostTracks,
     offlineSlimmedPrimaryVertices,
     primaryVertexAssociation,
     genParticlesTask,
@@ -40,7 +39,6 @@ slimmingTask = cms.Task(
     slimmedElectrons,
     slimmedMuons,
     slimmedPhotons,
-    slimmedOOTPhotons,
     slimmedTaus,
     slimmedSecondaryVertices,
     slimmedKshortVertices,

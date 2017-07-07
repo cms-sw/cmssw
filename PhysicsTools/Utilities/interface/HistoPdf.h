@@ -1,8 +1,5 @@
 #ifndef PhysicsTools_Utilities_HistoPdf_h
 #define PhysicsTools_Utilities_HistoPdf_h
-
-#include "FWCore/Utilities/interface/EDMException.h"
-
 #include <iostream>
 #include "TH1.h"
 

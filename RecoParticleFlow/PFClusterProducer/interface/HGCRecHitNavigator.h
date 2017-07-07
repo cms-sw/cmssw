@@ -14,7 +14,8 @@ template <ForwardSubdetector D1, typename hgcee,
           ForwardSubdetector D3, typename hgcheb>
 class HGCRecHitNavigator : public PFRecHitNavigatorBase {
  public:
-  HGCRecHitNavigator() = default;
+  HGCRecHitNavigator() {
+  }
 
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
     edm::ParameterSetDescription desc;

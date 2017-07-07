@@ -1,7 +1,3 @@
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-
-#include <vector>
-
 std::vector<reco::GsfElectronRef> electronSelector(const std::vector<reco::GsfElectronRef>& electrons,
 							const edm::Handle<trigger::TriggerEvent>& pHLT, const int filterId,
 							 const std::vector<double>& Cuts )

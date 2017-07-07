@@ -33,6 +33,7 @@ namespace edm {
     virtual void reset_();
     virtual void rewind_() override;
     virtual ItemType getNextItemType() override;
+    virtual void preForkReleaseResources() override;
     virtual void closeFile_() override final;
     virtual void genuineCloseFile() { }
 

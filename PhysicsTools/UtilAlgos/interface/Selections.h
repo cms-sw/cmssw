@@ -1,7 +1,6 @@
 #ifndef Selections_H
 #define Selections_H
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CommonTools/UtilAlgos/interface/EventSelector.h"
 #include <cstdlib>
 #include <iomanip>
@@ -131,14 +130,14 @@ class FilterOR : public Filter{
 
 
 //forward declaration for friendship
-class FilterSelections;
+class Selections;
 
-class FilterSelection : public Filter {
+class Selection : public Filter {
  public:
   typedef std::vector<SFilter>::iterator iterator;
-  friend class FilterSelections;
+  friend class Selections;
 
-  FilterSelection(std::string name, const edm::ParameterSet& iConfig) :
+  Selection(std::string name, const edm::ParameterSet& iConfig) :
     name_(name),
     ntuplize_(iConfig.getParameter<bool>("ntuplize")),
     makeContentPlots_(iConfig.getParameter<bool>("makeContentPlots")),
@@ -309,11 +308,11 @@ class FilterSelection : public Filter {
   std::string detailledPrintoutCategory_;
 };
 
-class FilterSelections {
+class Selections {
  public:
-  typedef std::vector<FilterSelection>::iterator iterator;
+  typedef std::vector<Selection>::iterator iterator;
 
-  FilterSelections(const edm::ParameterSet& iConfig, edm::ConsumesCollector && iC) :
+  Selections(const edm::ParameterSet& iConfig, edm::ConsumesCollector && iC) :
     filtersPSet_(iConfig.getParameter<edm::ParameterSet>("filters")),
     selectionPSet_(iConfig.getParameter<edm::ParameterSet>("selections"))
   {
@@ -334,7 +333,7 @@ class FilterSelections {
     for (unsigned int iS=0;iS!=nS;iS++){
       edm::ParameterSet pset=selectionPSet_.getParameter<edm::ParameterSet>(selectionNames[iS]);
       // JR-2014 : the filters are not expanded here
-      selections_.push_back(FilterSelection(selectionNames[iS],pset));
+      selections_.push_back(Selection(selectionNames[iS],pset));
       //      selections_.insert(std::make_pair(selectionNames[iS],Selection(selectionNames[iS],pset)));
       //keep track of list of filters for this selection for further dependency resolution
       selectionFilters[selectionNames[iS]]=pset.getParameter<std::vector<std::string> >("filterOrder");
@@ -383,12 +382,12 @@ class FilterSelections {
 
     //finally, configure the Selections
     //loop the selections instanciated
-    //    for (std::map<std::string, FilterSelection>::iterator sIt=selections_.begin();sIt!=selections_.end();++sIt)
+    //    for (std::map<std::string, Selection>::iterator sIt=selections_.begin();sIt!=selections_.end();++sIt)
     //      const std::string & sName=sIt->first;
-    //FilterSelection & selection =sIt->second;
-    for (std::vector<FilterSelection>::iterator sIt=selections_.begin();sIt!=selections_.end();++sIt){
+    //Selection & selection =sIt->second;
+    for (std::vector<Selection>::iterator sIt=selections_.begin();sIt!=selections_.end();++sIt){
       const std::string & sName=sIt->name();
-      FilterSelection & selection =*sIt;
+      Selection & selection =*sIt;
 
       //parse the vector of filterNames
       std::vector<std::string> & listOfFilters=selectionFilters[sName];
@@ -405,7 +404,7 @@ class FilterSelections {
 	    // JR-2014 include the selection here, directly !
 	    bool replaceBySelection=false;
 	    //find an existing selection that match that name
-	    for ( std::vector<FilterSelection>::iterator sit=selections_.begin(); sit!= selections_.end() ; ++sit){
+	    for ( std::vector<Selection>::iterator sit=selections_.begin(); sit!= selections_.end() ; ++sit){
 	      if (fOsName == sit->name_){
 		selection.filters_.push_back( SFilter(& (*sit), inverted));
 		replaceBySelection=true;
@@ -432,14 +431,14 @@ class FilterSelections {
   iterator end() { return selections_.end();}
 
   //print each selection
-  void print(){ for (std::vector<FilterSelection>::iterator sIt=selections_.begin();sIt!=selections_.end();++sIt) sIt->print();}
+  void print(){ for (std::vector<Selection>::iterator sIt=selections_.begin();sIt!=selections_.end();++sIt) sIt->print();}
 
  private:
   edm::ParameterSet filtersPSet_;
   std::map<std::string, Filter*> filters_; // the global collection of available filters to pick from
 
   edm::ParameterSet selectionPSet_;
-  std::vector<FilterSelection> selections_;
+  std::vector<Selection> selections_;
 };
 
 

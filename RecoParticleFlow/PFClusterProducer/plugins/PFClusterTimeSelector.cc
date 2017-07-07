@@ -72,7 +72,7 @@ void PFClusterTimeSelector::produce(edm::Event& iEvent,
 
 }
 
-PFClusterTimeSelector::~PFClusterTimeSelector() = default;
+PFClusterTimeSelector::~PFClusterTimeSelector() {}
 
 // ------------ method called once each job just before starting event loop  ------------
 void 

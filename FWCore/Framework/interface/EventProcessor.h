@@ -13,6 +13,7 @@ configured in the user's main() function, and is set running.
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/IEventProcessor.h"
 #include "FWCore/Framework/interface/InputSource.h"
 #include "FWCore/Framework/interface/PathsAndConsumesOfModules.h"
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
@@ -39,6 +40,11 @@ configured in the user's main() function, and is set running.
 #include <exception>
 #include <mutex>
 
+namespace statemachine {
+  class Machine;
+  class Run;
+}
+
 namespace edm {
 
   class ExceptionToActionTable;
@@ -56,25 +62,14 @@ namespace edm {
     class EventSetupsController;
   }
 
-  class EventProcessor {
+  class EventProcessor : public IEventProcessor {
   public:
-
-    // Status codes:
-    //   0     successful completion
-    //   1     exception of unknown type caught
-    //   2     everything else
-    //   3     signal received
-    //   4     input complete
-    //   5     call timed out
-    //   6     input count complete
-    enum StatusCode { epSuccess=0, epException=1, epOther=2, epSignal=3,
-      epInputComplete=4, epTimedOut=5, epCountComplete=6 };
 
     // The input string 'config' contains the entire contents of a  configuration file.
     // Also allows the attachement of pre-existing services specified  by 'token', and
     // the specification of services by name only (defaultServices and forcedServices).
     // 'defaultServices' are overridden by 'config'.
-    // 'forcedServices' the 'config'.
+    // 'forcedServices' override the 'config'.
     explicit EventProcessor(std::string const& config,
                             ServiceToken const& token = ServiceToken(),
                             serviceregistry::ServiceLegacy = serviceregistry::kOverlapIsError,
@@ -178,55 +173,53 @@ namespace edm {
     //                     requested by the argument
     //   epSuccess - all other cases
     //
-    StatusCode runToCompletion();
+    virtual StatusCode runToCompletion() override;
 
-    // The following functions are used by the code implementing
-    // transition handling.
+    // The following functions are used by the code implementing our
+    // boost statemachine
 
-    InputSource::ItemType nextTransitionType();
-    std::pair<edm::ProcessHistoryID, edm::RunNumber_t> nextRunID();
-    edm::LuminosityBlockNumber_t nextLuminosityBlockID();
-    
-    void readFile();
-    void closeInputFile(bool cleaningUpAfterException);
-    void openOutputFiles();
-    void closeOutputFiles();
+    virtual void readFile() override;
+    virtual void closeInputFile(bool cleaningUpAfterException) override;
+    virtual void openOutputFiles() override;
+    virtual void closeOutputFiles() override;
 
-    void respondToOpenInputFile();
-    void respondToCloseInputFile();
+    virtual void respondToOpenInputFile() override;
+    virtual void respondToCloseInputFile() override;
 
-    void startingNewLoop();
-    bool endOfLoop();
-    void rewindInput();
-    void prepareForNextLoop();
-    bool shouldWeCloseOutput() const;
+    virtual void startingNewLoop() override;
+    virtual bool endOfLoop() override;
+    virtual void rewindInput() override;
+    virtual void prepareForNextLoop() override;
+    virtual bool shouldWeCloseOutput() const override;
 
-    void doErrorStuff();
+    virtual void doErrorStuff() override;
 
-    void beginRun(ProcessHistoryID const& phid, RunNumber_t run);
-    void endRun(ProcessHistoryID const& phid, RunNumber_t run, bool cleaningUpAfterException);
+    virtual void beginRun(statemachine::Run const& run) override;
+    virtual void endRun(statemachine::Run const& run, bool cleaningUpAfterException) override;
 
-    void beginLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi);
-    void endLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi, bool cleaningUpAfterException);
+    virtual void beginLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi) override;
+    virtual void endLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi, bool cleaningUpAfterException) override;
 
-    std::pair<ProcessHistoryID,RunNumber_t> readRun();
-    std::pair<ProcessHistoryID,RunNumber_t> readAndMergeRun();
-    int readLuminosityBlock();
-    int readAndMergeLumi();
-    void writeRun(ProcessHistoryID const& phid, RunNumber_t run);
-    void deleteRunFromCache(ProcessHistoryID const& phid, RunNumber_t run);
-    void writeLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi);
-    void deleteLumiFromCache(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi);
+    virtual statemachine::Run readRun() override;
+    virtual statemachine::Run readAndMergeRun() override;
+    virtual int readLuminosityBlock() override;
+    virtual int readAndMergeLumi() override;
+    virtual void writeRun(statemachine::Run const& run) override;
+    virtual void deleteRunFromCache(statemachine::Run const& run) override;
+    virtual void writeLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi) override;
+    virtual void deleteLumiFromCache(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi) override;
 
-    bool shouldWeStop() const;
+    virtual void readAndProcessEvent() override;
+    virtual bool shouldWeStop() const override;
 
-    void setExceptionMessageFiles(std::string& message);
-    void setExceptionMessageRuns(std::string& message);
-    void setExceptionMessageLumis(std::string& message);
+    virtual void setExceptionMessageFiles(std::string& message) override;
+    virtual void setExceptionMessageRuns(std::string& message) override;
+    virtual void setExceptionMessageLumis(std::string& message) override;
 
-    bool setDeferredException(std::exception_ptr);
+    virtual bool alreadyHandlingException() const override;
 
-    InputSource::ItemType readAndProcessEvents();
+    //returns 'true' if this was a child and we should continue processing
+    bool forkProcess(std::string const& jobReportFile);
 
   private:
     //------------------------------------------------------------------
@@ -237,6 +230,13 @@ namespace edm {
               ServiceToken const& token,
               serviceregistry::ServiceLegacy);
 
+    void terminateMachine(std::unique_ptr<statemachine::Machine>);
+    std::unique_ptr<statemachine::Machine> createStateMachine();
+
+    void setupSignal();
+
+    void possiblyContinueAfterForkChildFailure();
+    
     bool readNextEventForStream(unsigned int iStreamIndex,
                                      std::atomic<bool>* finishedProcessingEvents);
 
@@ -300,13 +300,21 @@ namespace edm {
     PrincipalCache                                principalCache_;
     bool                                          beginJobCalled_;
     bool                                          shouldWeStop_;
-    bool                                          fileModeNoMerge_;
+    bool                                          stateMachineWasInErrorState_;
+    std::string                                   fileMode_;
+    std::string                                   emptyRunLumiMode_;
     std::string                                   exceptionMessageFiles_;
     std::string                                   exceptionMessageRuns_;
     std::string                                   exceptionMessageLumis_;
+    bool                                          alreadyHandlingException_;
     bool                                          forceLooperToEnd_;
     bool                                          looperBeginJobRun_;
     bool                                          forceESCacheClearOnNewRun_;
+
+    int                                           numberOfForkedChildren_;
+    unsigned int                                  numberOfSequentialEventsPerChild_;
+    bool                                          setCpuAffinity_;
+    bool                                          continueAfterChildFailure_;
     
     PreallocationConfiguration                    preallocations_;
     

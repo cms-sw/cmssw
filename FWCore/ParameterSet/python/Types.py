@@ -437,12 +437,6 @@ class InputTag(_ParameterTypeBase):
             when looking backwards in time for the data product.
         """
         return "@skipCurrentProcess"
-    @staticmethod
-    def currentProcess():
-        """When used as the process name this value will make the framework use the current process
-            as the process when looking for the data product.
-        """
-        return "@currentProcess"
     def configValue(self, options=PrintOptions()):
         result = self.__moduleLabel
         if self.__productInstance != "" or self.__processName != "":

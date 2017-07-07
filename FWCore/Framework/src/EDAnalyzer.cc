@@ -100,6 +100,16 @@ namespace edm {
     respondToCloseInputFile(fb);
   }
 
+  void 
+  EDAnalyzer::doPreForkReleaseResources() {
+    preForkReleaseResources();
+  }
+  
+  void 
+  EDAnalyzer::doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {
+    postForkReacquireResources(iChildIndex, iNumberOfChildren);
+  }
+   
   void
   EDAnalyzer::callWhenNewProductsRegistered(std::function<void(BranchDescription const&)> const& func) {
     callWhenNewProductsRegistered_ = func;

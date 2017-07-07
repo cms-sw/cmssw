@@ -20,9 +20,6 @@ hiJetCoreRegionalStepTrajectoryFilter.minPt = 10.0
 siPixelClusters.ptMin = cms.double(100)
 siPixelClusters.deltaRmax = cms.double(0.1)
 
-from RecoJets.JetAssociationProducers.trackExtrapolator_cfi import *
-trackExtrapolator.trackSrc = cms.InputTag("hiGeneralTracks")
-
 hiTracking_noRegitMu = cms.Sequence(
     hiBasicTracking
     *hiDetachedTripletStep
@@ -53,8 +50,6 @@ hiTracking = cms.Sequence(
     hiTracking_noRegitMu
     *hiRegitMuTrackingAndSta
     *hiGeneralTracks
-    *bestFinalHiVertex
-    *trackExtrapolator
     )
 
 hiTracking_wSplitting = cms.Sequence(
@@ -62,8 +57,6 @@ hiTracking_wSplitting = cms.Sequence(
     *hiJetCoreRegionalStep 
     *hiRegitMuTrackingAndSta
     *hiGeneralTracks
-    *bestFinalHiVertex
-    *trackExtrapolator
     )
 
 hiTracking_wSplitting_Phase1 = cms.Sequence(
@@ -71,8 +64,6 @@ hiTracking_wSplitting_Phase1 = cms.Sequence(
     *hiJetCoreRegionalStep 
     *hiRegitMuTrackingAndSta
     *hiGeneralTracks
-    *bestFinalHiVertex
-    *trackExtrapolator
     )
 
 hiTracking_wConformalPixel = cms.Sequence(

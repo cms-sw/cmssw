@@ -103,7 +103,11 @@ class HLTRegionalEcalResonanceFilter : public edm::stream::EDFilter<>
       void convxtalid(int & , int &);
       int diff_neta_s(int,int);
       int diff_nphi_s(int,int);
-            
+      
+      
+      static float DeltaPhi(float phi1, float phi2); 
+      static float GetDeltaR(float eta1, float eta2, float phi1, float phi2); 
+      
       // Input hits & clusters
       edm::InputTag barrelHits_;
       edm::InputTag endcapHits_;
@@ -131,14 +135,12 @@ class HLTRegionalEcalResonanceFilter : public edm::stream::EDFilter<>
       double selePtPairBarrel_region1_;
       double seleS4S9GammaBarrel_region1_;
       double seleIsoBarrel_region1_;
-      double seleNxtalBarrel_region1_;
 
       // EB region 2
       double selePtGammaBarrel_region2_; 
       double selePtPairBarrel_region2_;
       double seleS4S9GammaBarrel_region2_;
       double seleIsoBarrel_region2_;
-      double seleNxtalBarrel_region2_;
 
       double seleMinvMaxBarrel_;
       double seleMinvMinBarrel_;
@@ -167,7 +169,6 @@ class HLTRegionalEcalResonanceFilter : public edm::stream::EDFilter<>
       double selePtPairEndCap_region1_;
       double seleS4S9GammaEndCap_region1_;
       double seleIsoEndCap_region1_;
-      double seleNxtalEndCap_region1_;
 
       // EE region 2
       double region2_EndCap_;
@@ -175,7 +176,6 @@ class HLTRegionalEcalResonanceFilter : public edm::stream::EDFilter<>
       double selePtPairEndCap_region2_;
       double seleS4S9GammaEndCap_region2_;
       double seleIsoEndCap_region2_;
-      double seleNxtalEndCap_region2_;
 
       // EE region 3
       double selePtGammaEndCap_region3_; 
@@ -183,7 +183,6 @@ class HLTRegionalEcalResonanceFilter : public edm::stream::EDFilter<>
       double selePtPairMaxEndCap_region3_;
       double seleS4S9GammaEndCap_region3_;
       double seleIsoEndCap_region3_;
-      double seleNxtalEndCap_region3_;
 
       double seleMinvMaxEndCap_;
       double seleMinvMinEndCap_;

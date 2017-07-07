@@ -14,7 +14,7 @@ SUSY_HLT_InclusiveHT_800 = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   EtaThrJet = cms.untracked.double(3.0)
 )
 
-SUSYoHLToInclusiveHTo800oPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
+SUSY_HLT_InclusiveHT_800_POSTPROCESSING = DQMEDHarvester("DQMGenericClient",
   subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFHT800_v"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",
@@ -36,7 +36,7 @@ SUSY_HLT_InclusiveHT_900 = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   EtaThrJet = cms.untracked.double(3.0)
 )
 
-SUSYoHLToInclusiveHTo900oPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
+SUSY_HLT_InclusiveHT_900_POSTPROCESSING = DQMEDHarvester("DQMGenericClient",
   subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFHT900_v"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",
@@ -58,7 +58,7 @@ SUSY_HLT_InclusiveHT_aux125 = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   EtaThrJet = cms.untracked.double(3.0)
 )
 
-SUSYoHLToInclusiveHToAux125oPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
+SUSY_HLT_InclusiveHT_aux125_POSTPROCESSING = DQMEDHarvester("DQMGenericClient",
   subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFHT125_v"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",
@@ -80,7 +80,7 @@ SUSY_HLT_InclusiveHT_aux200 = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   EtaThrJet = cms.untracked.double(3.0)
 )
 
-SUSYoHLToInclusiveHToAux200oPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
+SUSY_HLT_InclusiveHT_aux200_POSTPROCESSING = DQMEDHarvester("DQMGenericClient",
   subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFHT200_v"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",
@@ -102,7 +102,7 @@ SUSY_HLT_InclusiveHT_aux250 = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   EtaThrJet = cms.untracked.double(3.0)
 )
 
-SUSYoHLToInclusiveHToAux250oPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
+SUSY_HLT_InclusiveHT_aux250_POSTPROCESSING = DQMEDHarvester("DQMGenericClient",
   subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFHT250_v"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",
@@ -124,7 +124,7 @@ SUSY_HLT_InclusiveHT_aux300 = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   EtaThrJet = cms.untracked.double(3.0)
 )
 
-SUSYoHLToInclusiveHToAux300oPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
+SUSY_HLT_InclusiveHT_aux300_POSTPROCESSING = DQMEDHarvester("DQMGenericClient",
   subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFHT300_v"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",
@@ -146,7 +146,7 @@ SUSY_HLT_InclusiveHT_aux350 = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   EtaThrJet = cms.untracked.double(3.0)
 )
 
-SUSYoHLToInclusiveHToAux350oPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
+SUSY_HLT_InclusiveHT_aux350_POSTPROCESSING = DQMEDHarvester("DQMGenericClient",
   subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFHT350_v"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",
@@ -168,7 +168,7 @@ SUSY_HLT_InclusiveHT_aux400 = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   EtaThrJet = cms.untracked.double(3.0)
 )
 
-SUSYoHLToInclusiveHToAux400oPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
+SUSY_HLT_InclusiveHT_aux400_POSTPROCESSING = DQMEDHarvester("DQMGenericClient",
   subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFHT400_v"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",
@@ -190,7 +190,7 @@ SUSY_HLT_InclusiveHT_aux475 = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   EtaThrJet = cms.untracked.double(3.0)
 )
 
-SUSYoHLToInclusiveHToAux475oPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
+SUSY_HLT_InclusiveHT_aux475_POSTPROCESSING = DQMEDHarvester("DQMGenericClient",
   subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFHT475_v"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",
@@ -212,7 +212,7 @@ SUSY_HLT_InclusiveHT_aux600 = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   EtaThrJet = cms.untracked.double(3.0)
 )
 
-SUSYoHLToInclusiveHToAux600oPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
+SUSY_HLT_InclusiveHT_aux600_POSTPROCESSING = DQMEDHarvester("DQMGenericClient",
   subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFHT600_v"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",
@@ -234,14 +234,14 @@ SUSY_HLT_InclusiveHT = cms.Sequence(SUSY_HLT_InclusiveHT_aux125 +
                                     SUSY_HLT_InclusiveHT_900
 )
 
-SUSY_HLT_InclusiveHT_POSTPROCESSING = cms.Sequence(SUSYoHLToInclusiveHToAux125oPOSTPROCESSING +
-                                                   SUSYoHLToInclusiveHToAux200oPOSTPROCESSING +
-                                                   SUSYoHLToInclusiveHToAux250oPOSTPROCESSING +
-                                                   SUSYoHLToInclusiveHToAux300oPOSTPROCESSING +
-                                                   SUSYoHLToInclusiveHToAux350oPOSTPROCESSING +
-                                                   SUSYoHLToInclusiveHToAux400oPOSTPROCESSING +
-                                                   SUSYoHLToInclusiveHToAux475oPOSTPROCESSING +
-                                                   SUSYoHLToInclusiveHToAux600oPOSTPROCESSING +
-                                                   SUSYoHLToInclusiveHTo800oPOSTPROCESSING +
-                                                   SUSYoHLToInclusiveHTo900oPOSTPROCESSING
+SUSY_HLT_InclusiveHT_POSTPROCESSING = cms.Sequence(SUSY_HLT_InclusiveHT_aux125_POSTPROCESSING +
+                                                   SUSY_HLT_InclusiveHT_aux200_POSTPROCESSING +
+                                                   SUSY_HLT_InclusiveHT_aux250_POSTPROCESSING +
+                                                   SUSY_HLT_InclusiveHT_aux300_POSTPROCESSING +
+                                                   SUSY_HLT_InclusiveHT_aux350_POSTPROCESSING +
+                                                   SUSY_HLT_InclusiveHT_aux400_POSTPROCESSING +
+                                                   SUSY_HLT_InclusiveHT_aux475_POSTPROCESSING +
+                                                   SUSY_HLT_InclusiveHT_aux600_POSTPROCESSING +
+                                                   SUSY_HLT_InclusiveHT_800_POSTPROCESSING +
+                                                   SUSY_HLT_InclusiveHT_900_POSTPROCESSING
 )

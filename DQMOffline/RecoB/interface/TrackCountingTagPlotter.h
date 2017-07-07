@@ -13,13 +13,14 @@ class TrackCountingTagPlotter : public BaseTagInfoPlotter {
 
  public:
 
-  TrackCountingTagPlotter(const std::string & tagName, const EtaPtBin & etaPtBin,
-               const edm::ParameterSet& pSet, 
-               unsigned int mc, bool willfinalize, DQMStore::IBooker & ibook);
+  TrackCountingTagPlotter (const std::string & tagName, const EtaPtBin & etaPtBin,
+			   const edm::ParameterSet& pSet, 
+			   const unsigned int& mc, const bool& willfinalize, DQMStore::IBooker & ibook);
 
-  ~TrackCountingTagPlotter ();
+  ~TrackCountingTagPlotter () ;
 
-  void analyzeTag (const reco::BaseTagInfo * baseTagInfo, double jec, int jetFlavour, float w/*=1*/);
+  void analyzeTag (const reco::BaseTagInfo * baseTagInfo, const double & jec, const int & jetFlavour);
+  void analyzeTag (const reco::BaseTagInfo * baseTagInfo, const double & jec, const int & jetFlavour, const float & w);
 
   virtual void finalize (DQMStore::IBooker & ibook_, DQMStore::IGetter & igetter_);
 
@@ -29,18 +30,18 @@ class TrackCountingTagPlotter : public BaseTagInfoPlotter {
 
  private:
   unsigned int mcPlots_;
-  int nBinEffPur_;
-  double startEffPur_; 
-  double endEffPur_; 
+  int	nBinEffPur_ ;
+  double startEffPur_ ; 
+  double endEffPur_ ; 
 
   bool willFinalize_;
 
-  std::vector< std::unique_ptr<FlavourHistograms<double>> > tkcntHistosSig3D;
-  std::vector< std::unique_ptr<FlavourHistograms<double>> > tkcntHistosSig2D;
-  std::unique_ptr<FlavourHistograms<int>> trkNbr3D, trkNbr2D;
+  FlavourHistograms<double> * tkcntHistosSig3D[5];
+  FlavourHistograms<double> * tkcntHistosSig2D[5];
+  FlavourHistograms<int> * trkNbr3D, * trkNbr2D;
   double lowerIPSBound, upperIPSBound;
 
-  std::vector< std::unique_ptr<EffPurFromHistos> > effPurFromHistos;
-};
+  EffPurFromHistos * effPurFromHistos[4] ;
+} ;
 
 #endif

@@ -22,7 +22,6 @@
 
 // user include files
 #include "Fireworks/Core/interface/FWSimpleProxyBuilder.h"
-#include "Fireworks/Core/interface/FWEventItem.h"
 
 // forward declarations
 

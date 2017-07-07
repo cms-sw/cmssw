@@ -38,7 +38,6 @@ namespace fireworks
 class Context;
 }
 
-
 class FWTauProxyBuilderBase : public FWProxyBuilderBase
 {
 public:
@@ -49,9 +48,7 @@ public:
    virtual bool havePerViewProduct(FWViewType::EType) const { return true; }
    virtual void scaleProduct(TEveElementList* parent, FWViewType::EType, const FWViewContext* vc);
    virtual void cleanLocal();
-   
-   virtual void setItem(const FWEventItem* iItem);
-   
+
 protected:
    float m_minTheta;
    float m_maxTheta;

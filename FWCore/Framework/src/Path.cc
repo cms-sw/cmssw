@@ -1,10 +1,7 @@
 
 #include "FWCore/Framework/src/Path.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
-#include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/Framework/src/EarlyDeleteHelper.h"
-#include "FWCore/Framework/src/PathStatusInserter.h"
-#include "FWCore/ServiceRegistry/interface/ParentContext.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -31,9 +28,7 @@ namespace edm {
     act_table_(&actions),
     workers_(workers),
     pathContext_(path_name, streamContext, bitpos, pathType),
-    stopProcessingEvent_(stopProcessingEvent),
-    pathStatusInserter_(nullptr),
-    pathStatusInserterWorker_(nullptr) {
+    stopProcessingEvent_(stopProcessingEvent){
 
     for (auto& workerInPath : workers_) {
       workerInPath.setPathContext(&pathContext_);
@@ -53,9 +48,7 @@ namespace edm {
     workers_(r.workers_),
     earlyDeleteHelpers_(r.earlyDeleteHelpers_),
     pathContext_(r.pathContext_),
-    stopProcessingEvent_(r.stopProcessingEvent_),
-    pathStatusInserter_(r.pathStatusInserter_),
-    pathStatusInserterWorker_(r.pathStatusInserterWorker_) {
+    stopProcessingEvent_(r.stopProcessingEvent_){
 
     for (auto& workerInPath : workers_) {
       workerInPath.setPathContext(&pathContext_);
@@ -192,13 +185,6 @@ namespace edm {
   }
 
   void
-  Path::setPathStatusInserter(PathStatusInserter* pathStatusInserter,
-                              Worker* pathStatusInserterWorker) {
-    pathStatusInserter_ = pathStatusInserter;
-    pathStatusInserterWorker_ = pathStatusInserterWorker;
-  }
-
-  void
   Path::handleEarlyFinish(EventPrincipal const& iEvent) {
     for(auto helper: earlyDeleteHelpers_) {
       helper->pathFinished(iEvent);
@@ -220,7 +206,7 @@ namespace edm {
     state_ = hlt::Ready;
     
     if(workers_.empty()) {
-      finished(-1, true, std::exception_ptr(), iStreamContext, iEP, iES, iStreamID);
+      finished(-1, true, std::exception_ptr(), iStreamContext);
       return;
     }
     
@@ -275,14 +261,11 @@ namespace edm {
       }
       handleEarlyFinish(iEP);
     }
-    finished(iModuleIndex, shouldContinue, finalException, iContext, iEP, iES, iID);
+    finished(iModuleIndex, shouldContinue, finalException, iContext);
   }
   
   void
-  Path::finished(int iModuleIndex, bool iSucceeded, std::exception_ptr iException, StreamContext const* iContext,
-                 EventPrincipal const& iEP,
-                 EventSetup const& iES,
-                 StreamID const& streamID) {
+  Path::finished(int iModuleIndex, bool iSucceeded, std::exception_ptr iException, StreamContext const* iContext) {
     
     if(not iException) {
       updateCounters(iSucceeded, true);
@@ -290,18 +273,6 @@ namespace edm {
     }
     try {
       HLTPathStatus status(state_, iModuleIndex);
-
-      if (pathStatusInserter_) { // pathStatusInserter is null for EndPaths
-        pathStatusInserter_->setPathStatus(streamID, status);
-      }
-      std::exception_ptr jException =
-        pathStatusInserterWorker_->runModuleDirectly<OccurrenceTraits<EventPrincipal,
-                                                                      BranchActionStreamBegin>>(
-          iEP, iES, streamID, ParentContext(iContext), iContext
-        );
-      if(jException && not iException) {
-        iException = jException;
-      }
       actReg_->postPathEventSignal_(*iContext, pathContext_, status);
     } catch(...) {
       if(not iException) {

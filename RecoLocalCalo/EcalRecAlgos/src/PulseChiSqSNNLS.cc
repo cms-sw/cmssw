@@ -242,7 +242,7 @@ bool PulseChiSqSNNLS::Minimize(const SampleMatrix &samplecov, const FullSampleMa
     
     if (iter>=_maxiters) {
       if (_maxiterwarnings) {
-        LogDebug("PulseChiSqSNNLS::Minimize") << "Max Iterations reached at iter " << iter;
+        edm::LogWarning("PulseChiSqSNNLS::Minimize") << "Max Iterations reached at iter " << iter <<  std::endl;
       }
       break;
     }    
@@ -352,7 +352,7 @@ bool PulseChiSqSNNLS::NNLS() {
       
       //worst case protection
       if (iter>=500) {
-        LogDebug("PulseChiSqSNNLS::NNLS()") << "Max Iterations reached at iter " << iter;
+        edm::LogWarning("PulseChiSqSNNLS::NNLS()") << "Max Iterations reached at iter " << iter <<  std::endl;
         break;
       }
       

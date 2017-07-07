@@ -67,10 +67,6 @@ namespace hcaldqm
 			//	Tags and corresponding Tokens
 			edm::InputTag		_tagRaw;
 			edm::EDGetTokenT<FEDRawDataCollection> _tokRaw;
-
-			// Conditions and emap
-			edm::ESHandle<HcalDbService> _dbService;
-			HcalElectronicsMap const* _emap;
 	};
 }
 

@@ -26,13 +26,14 @@ public:
 
   
 protected:
-  virtual void beginJob(void) override;
-  virtual std::shared_ptr<saverDetails::NoCache> globalBeginRun(const edm::Run &, const edm::EventSetup &) const override;
-  virtual std::shared_ptr<saverDetails::NoCache> globalBeginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) const override;
-  virtual void analyze(edm::StreamID, const edm::Event &e, const edm::EventSetup &) const override;
-  virtual void globalEndLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) const override;
-  virtual void globalEndRun(const edm::Run &, const edm::EventSetup &) const override;
-  virtual void endJob(void) override;
+  virtual void beginJob(void);
+  virtual std::shared_ptr<saverDetails::NoCache> globalBeginRun(const edm::Run &, const edm::EventSetup &) const;
+  virtual std::shared_ptr<saverDetails::NoCache> globalBeginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) const;
+  virtual void analyze(edm::StreamID, const edm::Event &e, const edm::EventSetup &) const;
+  virtual void globalEndLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) const;
+  virtual void globalEndRun(const edm::Run &, const edm::EventSetup &) const;
+  virtual void endJob(void);
+  virtual void postForkReacquireResources(unsigned int childIndex, unsigned int numberOfChildren);
 
 public:
   enum Convention

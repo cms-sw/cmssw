@@ -10,7 +10,7 @@
  *
  */
 
-#include <cstdint>
+#include <boost/cstdint.hpp>
 #include <iosfwd>
 #include <vector>
 

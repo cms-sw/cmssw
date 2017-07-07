@@ -50,7 +50,6 @@ the worker is reset().
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
-#include <atomic>
 #include <map>
 #include <memory>
 #include <sstream>
@@ -105,13 +104,6 @@ namespace edm {
                                   ParentContext const& parentContext,
                                   typename T::Context const* context);
 
-    template <typename T>
-    std::exception_ptr runModuleDirectly(typename T::MyPrincipal const& ep,
-                                         EventSetup const& es,
-                                         StreamID streamID,
-                                         ParentContext const& parentContext,
-                                         typename T::Context const* context);
-
     void callWhenDoneAsync(WaitingTask* task) {
       waitingTasks_.add(task);
     }
@@ -123,6 +115,8 @@ namespace edm {
     void respondToOpenInputFile(FileBlock const& fb) {implRespondToOpenInputFile(fb);}
     void respondToCloseInputFile(FileBlock const& fb) {implRespondToCloseInputFile(fb);}
 
+    void preForkReleaseResources() {implPreForkReleaseResources();}
+    void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {implPostForkReacquireResources(iChildIndex, iNumberOfChildren);}
     void registerThinnedAssociations(ProductRegistry const& registry, ThinnedAssociationsHelper& helper) { implRegisterThinnedAssociations(registry, helper); }
 
     void reset() {
@@ -152,8 +146,6 @@ namespace edm {
     virtual void modulesWhoseProductsAreConsumed(std::vector<ModuleDescription const*>& modules,
                                                  ProductRegistry const& preg,
                                                  std::map<std::string, ModuleDescription const*> const& labelsToDesc) const = 0;
-
-    virtual void convertCurrentProcessAlias(std::string const& processName) = 0;
 
     virtual std::vector<ConsumesInfo> consumesInfo() const = 0;
 
@@ -234,6 +226,9 @@ namespace edm {
     virtual void implRespondToOpenInputFile(FileBlock const& fb) = 0;
     virtual void implRespondToCloseInputFile(FileBlock const& fb) = 0;
 
+    virtual void implPreForkReleaseResources() = 0;
+    virtual void implPostForkReacquireResources(unsigned int iChildIndex,
+                                               unsigned int iNumberOfChildren) = 0;
     virtual void implRegisterThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&) = 0;
     
     virtual SerialTaskQueueChain* serializeRunModule() = 0;
@@ -308,12 +303,12 @@ namespace edm {
     }
     
     template<typename T>
-    std::exception_ptr runModuleAfterAsyncPrefetch(std::exception_ptr const * iEPtr,
-                                                   typename T::MyPrincipal const& ep,
-                                                   EventSetup const& es,
-                                                   StreamID streamID,
-                                                   ParentContext const& parentContext,
-                                                   typename T::Context const* context);
+    void runModuleAfterAsyncPrefetch(std::exception_ptr const * iEPtr,
+                                     typename T::MyPrincipal const& ep,
+                                     EventSetup const& es,
+                                     StreamID streamID,
+                                     ParentContext const& parentContext,
+                                     typename T::Context const* context);
         
     template< typename T>
     class RunModuleTask : public WaitingTask {
@@ -648,12 +643,12 @@ namespace edm {
   }
      
   template<typename T>
-  std::exception_ptr Worker::runModuleAfterAsyncPrefetch(std::exception_ptr const* iEPtr,
-                                                         typename T::MyPrincipal const& ep,
-                                                         EventSetup const& es,
-                                                         StreamID streamID,
-                                                         ParentContext const& parentContext,
-                                                         typename T::Context const* context) {
+  void Worker::runModuleAfterAsyncPrefetch(std::exception_ptr const* iEPtr,
+                                   typename T::MyPrincipal const& ep,
+                                   EventSetup const& es,
+                                   StreamID streamID,
+                                   ParentContext const& parentContext,
+                                   typename T::Context const* context) {
     std::exception_ptr exceptionPtr;
     if(iEPtr) {
       assert(*iEPtr);
@@ -673,7 +668,6 @@ namespace edm {
       }
     }
     waitingTasks_.doneWaiting(exceptionPtr);
-    return exceptionPtr;
   }
 
   template <typename T>
@@ -870,18 +864,6 @@ namespace edm {
     }
     
     return rc;
-  }
-
-  template <typename T>
-  std::exception_ptr Worker::runModuleDirectly(typename T::MyPrincipal const& ep,
-                                               EventSetup const& es,
-                                               StreamID streamID,
-                                               ParentContext const& parentContext,
-                                               typename T::Context const* context) {
-
-    timesVisited_.fetch_add(1,std::memory_order_relaxed);
-    std::exception_ptr const* prefetchingException = nullptr; // null because there was no prefetching to do
-    return runModuleAfterAsyncPrefetch<T>(prefetchingException, ep, es, streamID, parentContext, context);
   }
 }
 #endif

@@ -23,7 +23,6 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 
-namespace edm { class EventSetup; }
 
 class SiPixelTrackResidualModule { 
   public:

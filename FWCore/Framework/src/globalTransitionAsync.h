@@ -43,6 +43,7 @@ namespace edm {
     iSubProcess.doBeginRunAsync(std::move(iHolder),iPrincipal, iTS);
   }
   
+  /*Not implemented yet
   inline void subProcessDoGlobalEndTransitionAsync(WaitingTaskHolder iHolder, SubProcess& iSubProcess, LuminosityBlockPrincipal& iPrincipal, IOVSyncValue const& iTS, bool cleaningUpAfterException) {
     iSubProcess.doEndLuminosityBlockAsync(std::move(iHolder),iPrincipal, iTS,cleaningUpAfterException);
   }
@@ -50,6 +51,7 @@ namespace edm {
   inline void subProcessDoGlobalEndTransitionAsync(WaitingTaskHolder iHolder, SubProcess& iSubProcess, RunPrincipal& iPrincipal, IOVSyncValue const& iTS, bool cleaningUpAfterException) {
     iSubProcess.doEndRunAsync(std::move(iHolder), iPrincipal, iTS, cleaningUpAfterException);
   }
+   */
 
   template<typename Traits, typename P, typename SC >
   void beginGlobalTransitionAsync(WaitingTaskHolder iWait,

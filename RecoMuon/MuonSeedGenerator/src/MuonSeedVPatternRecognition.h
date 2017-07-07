@@ -25,17 +25,11 @@ protected:
   /// the name of the CSC rec hits collection
   edm::InputTag theCSCRecSegmentLabel;
 
-  /// the name of the ME0 rec hits collection
-  edm::InputTag theME0RecSegmentLabel;
-  
   ///Enable the DT measurement
   bool enableDTMeasurement;
 
   ///Enable the CSC measurement
   bool enableCSCMeasurement;
-
-  ///Enable the ME0 measurement
-  bool enableME0Measurement;
 
 };
 

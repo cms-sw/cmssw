@@ -30,6 +30,7 @@ namespace edm {
     
   private:
     virtual void willBeUsingThreads() = 0;
+    virtual void initializeThisThreadForUse() = 0;
     
     virtual void enableWarnings_() = 0;
     virtual void ignoreWarnings_() = 0;

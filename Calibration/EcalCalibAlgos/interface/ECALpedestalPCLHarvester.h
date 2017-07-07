@@ -40,9 +40,6 @@ class ECALpedestalPCLHarvester : public  DQMEDHarvester {
    private:
      
       virtual void dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::IGetter& igetter_) ;
-
-      void  dqmPlots(const EcalPedestals& newpeds, DQMStore::IBooker& ibooker);
-
       const EcalPedestals * currentPedestals_;
       const EcalChannelStatus * channelStatus_;
       bool  checkStatusCode(const DetId& id);
@@ -54,6 +51,4 @@ class ECALpedestalPCLHarvester : public  DQMEDHarvester {
       double nSigma_;             // threshold in sigmas to define a pedestal as changed
       double thresholdAnomalies_; // threshold (fraction of changed pedestals) to avoid creation of sqlite file 
       std::string dqmDir_;         // DQM directory where histograms are stored
-
-
 };

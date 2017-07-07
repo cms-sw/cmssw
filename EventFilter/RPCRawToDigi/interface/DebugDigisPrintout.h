@@ -1,7 +1,6 @@
 #ifndef EventFilter_RPCRawToDigi_debugDigisPrintout_h
 #define EventFilter_RPCRawToDigi_debugDigisPrintout_h
 
-#include <algorithm>
 #include <string>
 #include <sstream>
 #include <vector>

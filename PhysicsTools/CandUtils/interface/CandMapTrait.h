@@ -1,9 +1,5 @@
 #ifndef PhysicsTools_CandUtils_CandMapTrait_h
 #define PhysicsTools_CandUtils_CandMapTrait_h
-
-#include "DataFormats/Common/interface/AssociationMap.h"
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
-
 /* \class reco::helper::CandMapTrait<T>
  *
  * \author Luca Lista, INFN 

@@ -8,16 +8,21 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 // To convert detId to subdet/layer number.
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 
 #include <map>
 
 using namespace reco;
 using namespace std;
 
-void PFCheckHitPattern::init(const TrackerTopology* tkerTopo, const TrackerGeometry* tkerGeom) {
+void PFCheckHitPattern::init(edm::ESHandle<TrackerGeometry> tkerGeomHandle_) {
 
   //
   // Note min/max radius (z) of each barrel layer (endcap disk).
@@ -26,14 +31,13 @@ void PFCheckHitPattern::init(const TrackerTopology* tkerTopo, const TrackerGeome
   geomInitDone_ = true;
 
   // Get Tracker geometry
-  const TrackingGeometry::DetContainer& dets = tkerGeom->dets();
+  const TrackingGeometry::DetContainer& dets = tkerGeomHandle_->dets();
 
   // Loop over all modules in the Tracker.
   for (unsigned int i = 0; i < dets.size(); i++) {    
 
     // Get subdet and layer of this module
-    auto detId = dets[i]->geographicalId();
-    auto detInfo = DetInfo(detId.subdetId(), tkerTopo->layer(detId));
+    DetInfo detInfo = this->interpretDetId(dets[i]->geographicalId());
     uint32_t subDet = detInfo.first;
 
     // Note r (or z) of module if barrel (or endcap).
@@ -68,6 +72,26 @@ void PFCheckHitPattern::init(const TrackerTopology* tkerTopo, const TrackerGeome
 #endif
 }
 
+PFCheckHitPattern::DetInfo PFCheckHitPattern::interpretDetId(DetId detId) {
+  // Convert detId to a pair<uint32, uint32> consisting of the numbers used by HitPattern 
+  // to identify subdetector and layer number respectively.
+  if (detId.subdetId() == StripSubdetector::TIB) {
+    return DetInfo( detId.subdetId() , TIBDetId(detId).layer() );
+  } else if (detId.subdetId() == StripSubdetector::TOB) {
+    return DetInfo( detId.subdetId() , TOBDetId(detId).layer() );
+  } else if (detId.subdetId() == StripSubdetector::TID) {
+    return DetInfo( detId.subdetId() , TIDDetId(detId).wheel() );
+  } else if (detId.subdetId() == StripSubdetector::TEC) {
+    return DetInfo( detId.subdetId() , TECDetId(detId).wheel() );
+  } else if (detId.subdetId() == PixelSubdetector::PixelBarrel) {
+    return DetInfo( detId.subdetId() , PXBDetId(detId).layer() );
+  } else if (detId.subdetId() == PixelSubdetector::PixelEndcap) {
+    return DetInfo( detId.subdetId() , PXFDetId(detId).disk() );
+  } else {
+    throw cms::Exception("RecoParticleFlow", "Found DetId that is not in Tracker");
+  }   
+}
+
 bool PFCheckHitPattern::barrel(uint32_t subDet) {
   // Determines if given sub-detector is in the barrel.
   return (subDet == StripSubdetector::TIB || subDet == StripSubdetector::TOB ||
@@ -76,7 +100,7 @@ bool PFCheckHitPattern::barrel(uint32_t subDet) {
 
 
 pair< PFCheckHitPattern::PFTrackHitInfo, PFCheckHitPattern::PFTrackHitInfo> 
-PFCheckHitPattern::analyze(const TrackerTopology* tkerTopo, const TrackerGeometry* tkerGeom,
+PFCheckHitPattern::analyze(edm::ESHandle<TrackerGeometry> tkerGeomHandle_, 
 			   const TrackBaseRef track, const TransientVertex& vert) 
 {
 
@@ -86,7 +110,7 @@ PFCheckHitPattern::analyze(const TrackerTopology* tkerTopo, const TrackerGeometr
   // on track.
 
   // Initialise geometry info if not yet done.
-  if (!geomInitDone_) this->init(tkerTopo, tkerGeom);
+  if (!geomInitDone_) this->init(tkerGeomHandle_);
 
   // Get hit patterns of this track
   const reco::HitPattern& hp = track.get()->hitPattern();

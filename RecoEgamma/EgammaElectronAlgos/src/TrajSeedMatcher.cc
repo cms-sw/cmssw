@@ -30,21 +30,11 @@ TrajSeedMatcher::TrajSeedMatcher(const edm::ParameterSet& pset):
   detLayerGeomLabel_ = pset.getParameter<std::string>("detLayerGeom");
   const auto cutsPSets=pset.getParameter<std::vector<edm::ParameterSet> >("matchingCuts");
   for(const auto & cutPSet : cutsPSets){
-    int version=cutPSet.getParameter<int>("version");
-    switch(version){
-    case 1:
-      matchingCuts_.emplace_back(std::make_unique<MatchingCutsV1>(cutPSet));
-      break;
-    case 2:
-      matchingCuts_.emplace_back(std::make_unique<MatchingCutsV2>(cutPSet));
-      break;
-    default:
-      throw cms::Exception("InvalidConfig") <<" Error TrajSeedMatcher::TrajSeedMatcher pixel match cuts version "<<version<<" not recognised"<<std::endl;
-    }
+    matchingCuts_.push_back(MatchingCuts(cutPSet));
   }
  
   if(minNrHitsValidLayerBins_.size()+1!=minNrHits_.size()){  
-    throw cms::Exception("InvalidConfig")<<" TrajSeedMatcher::TrajSeedMatcher minNrHitsValidLayerBins should be 1 less than minNrHits when its "<<minNrHitsValidLayerBins_.size()<<" vs "<<minNrHits_.size();
+    throw cms::Exception("InvalidConfig")<<" minNrHitsValidLayerBins should be 1 less than minNrHits when its "<<minNrHitsValidLayerBins_.size()<<" vs "<<minNrHits_.size();
   }
 }
 
@@ -57,31 +47,19 @@ edm::ParameterSetDescription TrajSeedMatcher::makePSetDescription()
   desc.add<std::vector<int> >("minNrHitsValidLayerBins",{4});
   desc.add<std::vector<unsigned int> >("minNrHits",{2,3});
   
-  edm::ParameterSetDescription cutsDesc;
-  auto cutDescCases = 
-    1 >> 
-    (edm::ParameterDescription<double>("dPhiMax",0.04,true) and
-     edm::ParameterDescription<double>("dRZMax",0.09,true) and
-     edm::ParameterDescription<double>("dRZMaxLowEtThres",20.,true) and
-     edm::ParameterDescription<std::vector<double> >("dRZMaxLowEtEtaBins",std::vector<double>{1.,1.5},true) and
-     edm::ParameterDescription<std::vector<double> >("dRZMaxLowEt",std::vector<double>{0.09,0.15,0.09},true)) or
-    2 >> 
-    (edm::ParameterDescription<std::vector<double> >("dPhiMaxHighEt",{0.003},true) and
-     edm::ParameterDescription<std::vector<double> >("dPhiMaxHighEtThres",{0.0},true) and
-     edm::ParameterDescription<std::vector<double> >("dPhiMaxLowEtGrad",{0.0},true) and
-     edm::ParameterDescription<std::vector<double> >("dRZMaxHighEt",{0.005},true) and
-     edm::ParameterDescription<std::vector<double> >("dRZMaxHighEtThres",{30},true) and
-     edm::ParameterDescription<std::vector<double> >("dRZMaxLowEtGrad",{-0.002},true) and
-     edm::ParameterDescription<std::vector<double> >("etaBins",{},true));
-  cutsDesc.ifValue(edm::ParameterDescription<int>("version",1,true), std::move(cutDescCases));
 
+  edm::ParameterSetDescription cutsDesc;
+  cutsDesc.add<double>("dPhiMax",0.04);
+  cutsDesc.add<double>("dRZMax",0.09);
+  cutsDesc.add<double>("dRZMaxLowEtThres",20.);
+  cutsDesc.add<std::vector<double> >("dRZMaxLowEtEtaBins",std::vector<double>{1.,1.5});
+  cutsDesc.add<std::vector<double> >("dRZMaxLowEt",std::vector<double>{0.09,0.15,0.09});
   edm::ParameterSet defaults;
   defaults.addParameter<double>("dPhiMax",0.04);
   defaults.addParameter<double>("dRZMax",0.09);
   defaults.addParameter<double>("dRZMaxLowEtThres",0.09);
   defaults.addParameter<std::vector<double> >("dRZMaxLowEtEtaBins",std::vector<double>{1.,1.5});
   defaults.addParameter<std::vector<double> >("dRZMaxLowEt",std::vector<double>{0.09,0.09,0.09});
-  defaults.addParameter<int>("version",1);
   desc.addVPSet("matchingCuts",cutsDesc,std::vector<edm::ParameterSet>{defaults,defaults,defaults});
   return desc;
 }
@@ -111,8 +89,8 @@ TrajSeedMatcher::compatibleSeeds(const TrajectorySeedCollection& seeds, const Gl
   
   std::vector<SeedWithInfo> matchedSeeds;
   for(const auto& seed : seeds) {
-    std::vector<SCHitMatch> matchedHitsNeg = processSeed(seed,candPos,vprim,energy,-1);
-    std::vector<SCHitMatch> matchedHitsPos = processSeed(seed,candPos,vprim,energy,+1);
+    std::vector<HitInfo> matchedHitsNeg = processSeed(seed,candPos,vprim,energy,-1);
+    std::vector<HitInfo> matchedHitsPos = processSeed(seed,candPos,vprim,energy,+1);
     int nrValidLayersPos = 0;
     int nrValidLayersNeg = 0;
     if(matchedHitsNeg.size()>=2){
@@ -150,9 +128,9 @@ TrajSeedMatcher::compatibleSeeds(const TrajectorySeedCollection& seeds, const Gl
 //checks if the hits of the seed match within requested selection
 //matched hits are required to be consecutive, as soon as hit isnt matched,
 //the function returns, it doesnt allow skipping hits
-std::vector<TrajSeedMatcher::SCHitMatch>
+std::vector<TrajSeedMatcher::HitInfo>
 TrajSeedMatcher::processSeed(const TrajectorySeed& seed, const GlobalPoint& candPos,
-			     const GlobalPoint & vprim, const float energy, const int charge )
+			      const GlobalPoint & vprim, const float energy, const int charge )
 {
   const float candEta = candPos.eta();
   const float candEt = energy*std::sin(candPos.theta());
@@ -162,26 +140,24 @@ TrajSeedMatcher::processSeed(const TrajectorySeed& seed, const GlobalPoint& cand
   TrajectoryStateOnSurface initialTrajState(trajStateFromVtx,*bpb(trajStateFromVtx.position(), 
 								  trajStateFromVtx.momentum()));
  
-  std::vector<SCHitMatch> matchedHits;
-  SCHitMatch firstHit = matchFirstHit(seed,initialTrajState,vprim,*backwardPropagator_);
-  firstHit.setExtra(candEt,candEta,candPos.phi(),charge,1);
-  if(passesMatchSel(firstHit,0)){
+  std::vector<HitInfo> matchedHits;
+  HitInfo firstHit = matchFirstHit(seed,initialTrajState,vprim,*backwardPropagator_);
+  if(passesMatchSel(firstHit,0,candEt,candEta)){
     matchedHits.push_back(firstHit);
 
     //now we can figure out the z vertex
-    double zVertex = useRecoVertex_ ? vprim.z() : getZVtxFromExtrapolation(vprim,firstHit.hitPos(),candPos);
+    double zVertex = useRecoVertex_ ? vprim.z() : getZVtxFromExtrapolation(vprim,firstHit.pos(),candPos);
     GlobalPoint vertex(vprim.x(),vprim.y(),zVertex);
     
-    FreeTrajectoryState firstHitFreeTraj = FTSFromVertexToPointFactory::get(*magField_, firstHit.hitPos(), 
+    FreeTrajectoryState firstHitFreeTraj = FTSFromVertexToPointFactory::get(*magField_, firstHit.pos(), 
 									    vertex, energy, charge) ;
  
-    GlobalPoint prevHitPos = firstHit.hitPos();
+    GlobalPoint prevHitPos = firstHit.pos();
     for(size_t hitNr=1;hitNr<matchingCuts_.size() && hitNr<seed.nHits();hitNr++){
-      SCHitMatch hit = match2ndToNthHit(seed,firstHitFreeTraj,hitNr,prevHitPos,vertex,*forwardPropagator_);
-      hit.setExtra(candEt,candEta,candPos.phi(),charge,1);
-      if(passesMatchSel(hit,hitNr)){
+      HitInfo hit = match2ndToNthHit(seed,firstHitFreeTraj,hitNr,prevHitPos,vertex,*forwardPropagator_);
+      if(passesMatchSel(hit,hitNr,candEt,candEta)){
 	matchedHits.push_back(hit);
-	prevHitPos = hit.hitPos();
+	prevHitPos = hit.pos();
       }else break;
     }
   }
@@ -189,8 +165,8 @@ TrajSeedMatcher::processSeed(const TrajectorySeed& seed, const GlobalPoint& cand
 }
 
 // compute the z vertex from the candidate position and the found pixel hit
-float TrajSeedMatcher::getZVtxFromExtrapolation(const GlobalPoint& primeVtxPos, const GlobalPoint& hitPos,
-						const GlobalPoint& candPos)
+float TrajSeedMatcher::getZVtxFromExtrapolation(const GlobalPoint& primeVtxPos,const GlobalPoint& hitPos,
+						 const GlobalPoint& candPos)
 {
   auto sq = [](float x){return x*x;};
   auto calRDiff = [sq](const GlobalPoint& p1,const GlobalPoint& p2){
@@ -201,7 +177,7 @@ float TrajSeedMatcher::getZVtxFromExtrapolation(const GlobalPoint& primeVtxPos, 
   return hitPos.z() - r1Diff*(candPos.z()-hitPos.z())/r2Diff;
 }
 
-bool TrajSeedMatcher::passTrajPreSel(const GlobalPoint& hitPos, const GlobalPoint& candPos)const
+bool TrajSeedMatcher::passTrajPreSel(const GlobalPoint& hitPos,const GlobalPoint& candPos)const
 {
   float dt = hitPos.x()*candPos.x()+hitPos.y()*candPos.y();
   if (dt<0) return false;
@@ -209,9 +185,7 @@ bool TrajSeedMatcher::passTrajPreSel(const GlobalPoint& hitPos, const GlobalPoin
   return true;
 }
 
-const TrajectoryStateOnSurface& TrajSeedMatcher::getTrajStateFromVtx(const TrackingRecHit& hit,
-								     const TrajectoryStateOnSurface& initialState,
-								     const PropagatorWithMaterial& propagator)
+const TrajectoryStateOnSurface& TrajSeedMatcher::getTrajStateFromVtx(const TrackingRecHit& hit,const TrajectoryStateOnSurface& initialState,const PropagatorWithMaterial& propagator)
 {
   auto& trajStateFromVtxCache = initialState.charge()==1 ? trajStateFromVtxPosChargeCache_ :
                                                            trajStateFromVtxNegChargeCache_;
@@ -226,10 +200,7 @@ const TrajectoryStateOnSurface& TrajSeedMatcher::getTrajStateFromVtx(const Track
   }
 }
 
-const TrajectoryStateOnSurface& TrajSeedMatcher::getTrajStateFromPoint(const TrackingRecHit& hit,
-								       const FreeTrajectoryState& initialState,
-								       const GlobalPoint& point,
-								       const PropagatorWithMaterial& propagator)
+const TrajectoryStateOnSurface& TrajSeedMatcher::getTrajStateFromPoint(const TrackingRecHit& hit,const FreeTrajectoryState& initialState,const GlobalPoint& point,const PropagatorWithMaterial& propagator)
 {
   
   auto& trajStateFromPointCache = initialState.charge()==1 ? trajStateFromPointPosChargeCache_ :
@@ -245,39 +216,35 @@ const TrajectoryStateOnSurface& TrajSeedMatcher::getTrajStateFromPoint(const Tra
   }
 }
 
-TrajSeedMatcher::SCHitMatch TrajSeedMatcher::matchFirstHit(const TrajectorySeed& seed,
-							   const TrajectoryStateOnSurface& initialState,
-							   const GlobalPoint& vtxPos,
-							   const PropagatorWithMaterial& propagator)
+TrajSeedMatcher::HitInfo TrajSeedMatcher::matchFirstHit(const TrajectorySeed& seed,const TrajectoryStateOnSurface& initialState,const GlobalPoint& vtxPos,const PropagatorWithMaterial& propagator)
 {
   const TrajectorySeed::range& hits = seed.recHits();
   auto hitIt = hits.first;
 
   if(hitIt->isValid()){
     const TrajectoryStateOnSurface& trajStateFromVtx = getTrajStateFromVtx(*hitIt,initialState,propagator);
-    if(trajStateFromVtx.isValid()) return SCHitMatch(vtxPos,trajStateFromVtx,*hitIt);  
+    if(trajStateFromVtx.isValid()) return HitInfo(vtxPos,trajStateFromVtx,*hitIt);  
   }
-  return SCHitMatch();
+  return HitInfo();
 }
 
-TrajSeedMatcher::SCHitMatch TrajSeedMatcher::match2ndToNthHit(const TrajectorySeed& seed,
-							   const FreeTrajectoryState& initialState,
-							   const size_t hitNr,
-							   const GlobalPoint& prevHitPos,
-							   const GlobalPoint& vtxPos,
-							   const PropagatorWithMaterial& propagator)
+TrajSeedMatcher::HitInfo TrajSeedMatcher::match2ndToNthHit(const TrajectorySeed& seed,
+							     const FreeTrajectoryState& initialState,
+							     const size_t hitNr,
+							     const GlobalPoint& prevHitPos,
+							     const GlobalPoint& vtxPos,
+							     const PropagatorWithMaterial& propagator)
 {
   const TrajectorySeed::range& hits = seed.recHits();
   auto hitIt = hits.first+hitNr;
   
   if(hitIt->isValid()){
     const TrajectoryStateOnSurface& trajState = getTrajStateFromPoint(*hitIt,initialState,prevHitPos,propagator);
-    
     if(trajState.isValid()){
-      return SCHitMatch(vtxPos,trajState,*hitIt);  
+      return HitInfo(vtxPos,trajState,*hitIt);  
     }
   }
-  return SCHitMatch();
+  return HitInfo();
   
 }
 
@@ -289,30 +256,31 @@ void TrajSeedMatcher::clearCache()
   trajStateFromPointNegChargeCache_.clear();
 }
 
-bool TrajSeedMatcher::passesMatchSel(const TrajSeedMatcher::SCHitMatch& hit, const size_t hitNr)const
+bool TrajSeedMatcher::passesMatchSel(const TrajSeedMatcher::HitInfo& hit,const size_t hitNr,float scEt,float scEta)const
 {
   if(hitNr<matchingCuts_.size()){
-    return (*matchingCuts_[hitNr])(hit);
+    return matchingCuts_[hitNr](hit,scEt,scEta);
   }else{
     throw cms::Exception("LogicError") <<" Error, attempting to apply selection to hit "<<hitNr<<" but only cuts for "<<matchingCuts_.size()<<" defined";
   }
+  
 }
 
-int TrajSeedMatcher::getNrValidLayersAlongTraj(const SCHitMatch& hit1, const SCHitMatch& hit2,
+int TrajSeedMatcher::getNrValidLayersAlongTraj(const HitInfo& hit1,const HitInfo& hit2,
 						const GlobalPoint& candPos,
 						const GlobalPoint & vprim, 
 						const float energy, const int charge)
 {
-  double zVertex = useRecoVertex_ ? vprim.z() : getZVtxFromExtrapolation(vprim,hit1.hitPos(),candPos);
+  double zVertex = useRecoVertex_ ? vprim.z() : getZVtxFromExtrapolation(vprim,hit1.pos(),candPos);
   GlobalPoint vertex(vprim.x(),vprim.y(),zVertex);
   
-  FreeTrajectoryState firstHitFreeTraj = FTSFromVertexToPointFactory::get(*magField_,hit1.hitPos(), 
+  FreeTrajectoryState firstHitFreeTraj = FTSFromVertexToPointFactory::get(*magField_,hit1.pos(), 
 									  vertex, energy, charge);
-  const TrajectoryStateOnSurface& secondHitTraj = getTrajStateFromPoint(*hit2.hit(),firstHitFreeTraj,hit1.hitPos(),*forwardPropagator_);
+  const TrajectoryStateOnSurface& secondHitTraj = getTrajStateFromPoint(*hit2.hit(),firstHitFreeTraj,hit1.pos(),*forwardPropagator_);
   return getNrValidLayersAlongTraj(hit2.hit()->geographicalId(),secondHitTraj); 
 }
 
-int TrajSeedMatcher::getNrValidLayersAlongTraj(const DetId& hitId, const TrajectoryStateOnSurface& hitTrajState)const
+int TrajSeedMatcher::getNrValidLayersAlongTraj(const DetId& hitId,const TrajectoryStateOnSurface& hitTrajState)const
 {
   
   const DetLayer* detLayer = detLayerGeom_->idToLayer(hitId);
@@ -340,8 +308,8 @@ int TrajSeedMatcher::getNrValidLayersAlongTraj(const DetId& hitId, const Traject
   return nrValidLayers;
 }
 						 
-bool TrajSeedMatcher::layerHasValidHits(const DetLayer& layer, const TrajectoryStateOnSurface& hitSurState,
-					const Propagator& propToLayerFromState)const
+bool TrajSeedMatcher::layerHasValidHits(const DetLayer& layer,const TrajectoryStateOnSurface& hitSurState,
+					 const Propagator& propToLayerFromState)const
 {
   //FIXME: do not hardcode with werid magic numbers stolen from ancient tracking code
   //its taken from https://cmssdt.cern.ch/dxr/CMSSW/source/RecoTracker/TrackProducer/interface/TrackProducerBase.icc#165
@@ -368,15 +336,14 @@ size_t TrajSeedMatcher::getNrHitsRequired(const int nrValidLayers)const
   
 }
 
-TrajSeedMatcher::SCHitMatch::SCHitMatch(const GlobalPoint& vtxPos,
-					const TrajectoryStateOnSurface& trajState,
-					const TrackingRecHit& hit):
+TrajSeedMatcher::HitInfo::HitInfo(const GlobalPoint& vtxPos,
+				   const TrajectoryStateOnSurface& trajState,
+				   const TrackingRecHit& hit):
   detId_(hit.geographicalId()),
-  hitPos_(hit.globalPosition()),
-  hit_(&hit),
-  et_(0),eta_(0),phi_(0),charge_(0),nrClus_(0)
+  pos_(hit.globalPosition()),
+  hit_(&hit)
 {
-  EleRelPointPair pointPair(hitPos_,trajState.globalParameters().position(),vtxPos);
+  EleRelPointPair pointPair(pos_,trajState.globalParameters().position(),vtxPos);
   dRZ_ = detId_.subdetId()==PixelSubdetector::PixelBarrel ? pointPair.dZ() : pointPair.dPerp();
   dPhi_ = pointPair.dPhi();
 }
@@ -384,8 +351,8 @@ TrajSeedMatcher::SCHitMatch::SCHitMatch(const GlobalPoint& vtxPos,
 
 TrajSeedMatcher::SeedWithInfo::
 SeedWithInfo(const TrajectorySeed& seed,
-	     const std::vector<SCHitMatch>& posCharge,
-	     const std::vector<SCHitMatch>& negCharge,
+	     const std::vector<HitInfo>& posCharge,
+	     const std::vector<HitInfo>& negCharge,
 	     int nrValidLayers):
   seed_(seed),nrValidLayers_(nrValidLayers)
 {
@@ -407,7 +374,7 @@ SeedWithInfo(const TrajectorySeed& seed,
   }
 }
 
-TrajSeedMatcher::MatchingCutsV1::MatchingCutsV1(const edm::ParameterSet& pset):
+TrajSeedMatcher::MatchingCuts::MatchingCuts(const edm::ParameterSet& pset):
   dPhiMax_(pset.getParameter<double>("dPhiMax")),
   dRZMax_(pset.getParameter<double>("dRZMax")),
   dRZMaxLowEtThres_(pset.getParameter<double>("dRZMaxLowEtThres")),
@@ -419,17 +386,17 @@ TrajSeedMatcher::MatchingCutsV1::MatchingCutsV1(const edm::ParameterSet& pset):
   }
 }
 
-bool TrajSeedMatcher::MatchingCutsV1::operator()(const TrajSeedMatcher::SCHitMatch& scHitMatch)const
+bool TrajSeedMatcher::MatchingCuts::operator()(const TrajSeedMatcher::HitInfo& hit,const float scEt,const float scEta)const
 {
-  if(dPhiMax_>=0 && std::abs(scHitMatch.dPhi()) > dPhiMax_) return false;
+  if(dPhiMax_>=0 && std::abs(hit.dPhi()) > dPhiMax_) return false;
   
-  const float dRZMax = getDRZCutValue(scHitMatch.et(),scHitMatch.eta());
-  if(dRZMax_>=0 && std::abs(scHitMatch.dRZ()) > dRZMax) return false;
+  const float dRZMax = getDRZCutValue(scEt,scEta);
+  if(dRZMax_>=0 && std::abs(hit.dRZ()) > dRZMax) return false;
 	       
   return true;
 }
 
-float TrajSeedMatcher::MatchingCutsV1::getDRZCutValue(const float scEt, const float scEta)const
+float TrajSeedMatcher::MatchingCuts::getDRZCutValue(const float scEt,const float scEta)const
 {
   if(scEt>=dRZMaxLowEtThres_) return dRZMax_;
   else{
@@ -440,47 +407,3 @@ float TrajSeedMatcher::MatchingCutsV1::getDRZCutValue(const float scEt, const fl
     return dRZMaxLowEt_.back();
   }
 }
-
-TrajSeedMatcher::MatchingCutsV2::MatchingCutsV2(const edm::ParameterSet& pset):
-  dPhiHighEt_(pset.getParameter<std::vector<double> >("dPhiMaxHighEt")),
-  dPhiHighEtThres_(pset.getParameter<std::vector<double> >("dPhiMaxHighEtThres")),
-  dPhiLowEtGrad_(pset.getParameter<std::vector<double> >("dPhiMaxLowEtGrad")),
-  dRZHighEt_(pset.getParameter<std::vector<double> >("dRZMaxHighEt")),
-  dRZHighEtThres_(pset.getParameter<std::vector<double> >("dRZMaxHighEtThres")),
-  dRZLowEtGrad_(pset.getParameter<std::vector<double> >("dRZMaxLowEtGrad")),
-  etaBins_(pset.getParameter<std::vector<double> >("etaBins"))
-{
-  auto binSizeCheck = [](size_t sizeEtaBins,const std::vector<double>& vec,const std::string& name){
-    if(vec.size()!=sizeEtaBins+1){ 
-      throw cms::Exception("InvalidConfig")<<" when constructing TrajSeedMatcher::MatchingCutsV2 "<< name<<" has "<<vec.size()<<" bins, it should be equal to #bins of etaBins+1"<<sizeEtaBins+1;
-    }
-  };
-  binSizeCheck(etaBins_.size(),dPhiHighEt_,"dPhiMaxHighEt");
-  binSizeCheck(etaBins_.size(),dPhiHighEtThres_,"dPhiMaxHighEtThres");
-  binSizeCheck(etaBins_.size(),dPhiLowEtGrad_,"dPhiMaxLowEtGrad");
-  binSizeCheck(etaBins_.size(),dRZHighEt_,"dRZMaxHighEt");
-  binSizeCheck(etaBins_.size(),dRZHighEtThres_,"dRZMaxHighEtThres");
-  binSizeCheck(etaBins_.size(),dRZLowEtGrad_,"dRZMaxLowEtGrad");
-}
-
-bool TrajSeedMatcher::MatchingCutsV2::operator()(const TrajSeedMatcher::SCHitMatch& scHitMatch)const
-{
-  size_t binNr=getBinNr(scHitMatch.eta());
-  float dPhiMax = getCutValue(scHitMatch.et(),dPhiHighEt_[binNr],dPhiHighEtThres_[binNr],dPhiLowEtGrad_[binNr]); 
-  if(dPhiMax>=0 && std::abs(scHitMatch.dPhi()) > dPhiMax) return false;  
-  float dRZMax = getCutValue(scHitMatch.et(),dRZHighEt_[binNr],dRZHighEtThres_[binNr],dRZLowEtGrad_[binNr]);
-  if(dRZMax>=0 && std::abs(scHitMatch.dRZ()) > dRZMax) return false;
-  
-  return true;
-}
-
-//eta bins is exactly 1 smaller than the vectors which will be accessed by this bin nr
-size_t TrajSeedMatcher::MatchingCutsV2::getBinNr(float eta)const
-{
-  const float absEta = std::abs(eta);
-  for(size_t etaNr=0;etaNr<etaBins_.size();etaNr++){
-    if(absEta<etaBins_[etaNr]) return etaNr;
-  }
-  return etaBins_.size();
-}
-

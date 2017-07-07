@@ -243,7 +243,6 @@ SiStripGainsPCLHarvester::gainQualityMonitor(DQMStore::IBooker& ibooker_, const 
     double        NEntries     = APV->NEntries;
     double        PreviousGain = APV->PreviousGain;
 
-    if (SubDet<3) continue;  // avoid to loop over Pixel det id
 
     if (Gain!=1.) {
       std::vector<MonitorElement*> charge_histos = APVGain::FetchMonitor(new_charge_histos, DetId, tTopo_);
@@ -263,7 +262,7 @@ SiStripGainsPCLHarvester::gainQualityMonitor(DQMStore::IBooker& ibooker_, const 
     
 
     if (FitMPV<0.) {  // No fit of MPV
-       NoMPV->Fill(z,R);
+       if(SubDet>=3) NoMPV->Fill(z,R);
 
     } else {          // Fit of MPV
        if(FitMPV>0.) Gains->Fill(Gain);
@@ -514,7 +513,7 @@ SiStripGainsPCLHarvester::checkBookAPVColls(const edm::EventSetup& es){
     for(unsigned int i=0;i<Det.size();i++){  //Make two loop such that the Pixel information is added at the end --> make transition simpler
       DetId  Detid  = Det[i]->geographicalId();
       int    SubDet = Detid.subdetId();
-      if( SubDet == PixelSubdetector::PixelBarrel || SubDet == PixelSubdetector::PixelEndcap ){
+      if( SubDet == PixelSubdetector::PixelBarrel || PixelSubdetector::PixelEndcap ){
 	auto DetUnit     = dynamic_cast<const PixelGeomDetUnit*> (Det[i]);
 	if(!DetUnit) continue;
 	

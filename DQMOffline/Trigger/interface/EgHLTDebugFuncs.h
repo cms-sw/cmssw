@@ -16,9 +16,6 @@
 
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Event.h"
-
-#include <iostream>
-
 namespace egHLT {
   namespace debug {
     

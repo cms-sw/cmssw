@@ -18,13 +18,13 @@ class Basic2DGenericPFlowPositionCalc : public PFCPositionCalculatorBase {
     _minAllowedNorm(conf.getParameter<double>("minAllowedNormalization"))
 
   {  
-    _timeResolutionCalcBarrel.reset(nullptr);
+    _timeResolutionCalcBarrel.reset(NULL);
     if( conf.exists("timeResolutionCalcBarrel") ) {
       const edm::ParameterSet& timeResConf = 
         conf.getParameterSet("timeResolutionCalcBarrel");
         _timeResolutionCalcBarrel.reset(new CaloRecHitResolutionProvider(timeResConf));
     }
-    _timeResolutionCalcEndcap.reset(nullptr);
+    _timeResolutionCalcEndcap.reset(NULL);
     if( conf.exists("timeResolutionCalcEndcap") ) {
       const edm::ParameterSet& timeResConf = 
         conf.getParameterSet("timeResolutionCalcEndcap");
@@ -47,8 +47,8 @@ class Basic2DGenericPFlowPositionCalc : public PFCPositionCalculatorBase {
   Basic2DGenericPFlowPositionCalc(const Basic2DGenericPFlowPositionCalc&) = delete;
   Basic2DGenericPFlowPositionCalc& operator=(const Basic2DGenericPFlowPositionCalc&) = delete;
 
-  void calculateAndSetPosition(reco::PFCluster&) override;
-  void calculateAndSetPositions(reco::PFClusterCollection&) override;
+  void calculateAndSetPosition(reco::PFCluster&);
+  void calculateAndSetPositions(reco::PFClusterCollection&);
 
  private:
   const int _posCalcNCrystals;

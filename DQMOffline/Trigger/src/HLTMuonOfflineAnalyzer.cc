@@ -13,7 +13,6 @@
 #include <memory>
 #include <iostream>
 
-
 // user include files
 #include "DQMOffline/Trigger/interface/HLTMuonMatchAndPlotContainer.h"
 
@@ -144,11 +143,10 @@ HLTMuonOfflineAnalyzer::dqmBeginRun(const edm::Run & iRun,
   // Get the set of trigger paths we want to make plots for
   set<string> hltPaths;
   for (size_t i = 0; i < hltPathsToCheck_.size(); i++) {
-    for (size_t j = 0; j < hltConfig_.triggerNames().size(); j++){
-      if (hltConfig_.triggerNames()[j].find(hltPathsToCheck_[i]) != std::string::npos){
+    TPRegexp pattern(hltPathsToCheck_[i]);
+    for (size_t j = 0; j < hltConfig_.triggerNames().size(); j++)
+      if (TString(hltConfig_.triggerNames()[j]).Contains(pattern))
         hltPaths.insert(hltConfig_.triggerNames()[j]);
-      }
-    }
   }
   
   // Initialize the plotters

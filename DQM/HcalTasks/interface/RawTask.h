@@ -55,6 +55,7 @@ class RawTask : public hcaldqm::DQTask
 		};
 
 		//	emap
+		HcalElectronicsMap const* _emap;
 		hcaldqm::electronicsmap::ElectronicsMap _ehashmap;
 
 		//	physics vs calib processing switch

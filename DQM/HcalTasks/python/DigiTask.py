@@ -23,10 +23,17 @@ digiTask = cms.EDAnalyzer(
 	cutSumQ_HF = cms.untracked.double(20),
 
 	#	ratio thresholds
-	thresh_unifh = cms.untracked.double(0.2),
-
-	qie10InConditions = cms.untracked.bool(False),
+	thresh_unifh = cms.untracked.double(0.2)
 )
 
-from Configuration.StandardSequences.Eras import eras
-eras.run2_HF_2017.toModify(digiTask, qie10InConditions=cms.untracked.bool(True))
+
+
+
+
+
+
+
+
+
+
+

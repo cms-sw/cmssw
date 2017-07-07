@@ -9,7 +9,7 @@
  *
  */
 
-#include <cstdint>
+#include <boost/cstdint.hpp>
 #include <iosfwd>
 
 class ME0PadDigi{
