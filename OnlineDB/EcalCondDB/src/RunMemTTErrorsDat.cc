@@ -61,7 +61,7 @@ void RunMemTTErrorsDat::writeDB(const EcalLogicID* ecid, const RunMemTTErrorsDat
   try {
     m_writeStmt->setInt(1, iovID);
     m_writeStmt->setInt(2, logicID);
-    m_writeStmt->setString(3, ( boost::lexical_cast<std::string>(item->getErrorBits()) ).c_str());
+    m_writeStmt->setString(3, ( std::to_string(item->getErrorBits()) ).c_str());
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
     throw(std::runtime_error("RunMemTTErrorsDat::writeDB():  "+e.getMessage()));

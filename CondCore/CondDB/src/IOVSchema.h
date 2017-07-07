@@ -91,7 +91,7 @@ namespace cond {
 	  return "MIN("+SINCE::fullyQualifiedName()+")";	  
 	} 
 	static std::string group(){
-	  std::string sgroupSize = boost::lexical_cast<std::string>( cond::time::SINCE_GROUP_SIZE);
+	  std::string sgroupSize = std::to_string(cond::time::SINCE_GROUP_SIZE);
 	  return "CAST("+SINCE::fullyQualifiedName()+"/"+sgroupSize+" AS INT )*"+sgroupSize;
 	}
       };

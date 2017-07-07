@@ -127,7 +127,7 @@ int cond::EditTagUtilities::execute(){
 
   if( hasOptionValue("endOfValidity") ){
     cond::Time_t endOfValidity = getOptionValue<cond::Time_t>("endOfValidity");
-    changes.insert(std::make_pair("endOfValidity",std::make_pair(boost::lexical_cast<std::string>(editor.endOfValidity()),boost::lexical_cast<std::string>(endOfValidity))));
+    changes.insert(std::make_pair("endOfValidity",std::make_pair(std::to_string(editor.endOfValidity()),std::to_string(endOfValidity))));
     editor.setEndOfValidity( endOfValidity );
     change = true;
   }
