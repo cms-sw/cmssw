@@ -1073,6 +1073,10 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
     std::cout << "========================================================================" << std::endl;
     std::cout << "Counting the LCTs" << std::endl;
     std::cout << "========================================================================" << std::endl;
+  }else if (debug_gem_matching){
+    std::cout << "========================================================================" << std::endl;
+    std::cout << "No LCT is Built" << std::endl;
+    std::cout << "========================================================================" << std::endl;
   }
 
   // reduction of nLCTs per each BX
@@ -1087,14 +1091,16 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
         if (allLCTs1b[bx][mbx][i].isValid())
         {
           n1b++;
-	  if (infoV > 0) LogDebug("CSCMotherboard")
-	    << "1b LCT"<<i+1<<" "<<bx<<"/"<<cbx<<": "<<allLCTs1b[bx][mbx][i]<<std::endl;
+	  //if (infoV > 0) LogDebug("CSCMotherboard")
+          if (debug_gem_matching)
+	    std::cout << "ME1/b LCT"<<i+1<<" "<<bx<<"/"<<cbx<<": "<<allLCTs1b[bx][mbx][i]<<std::endl;
         }
         if (allLCTs1a[bx][mbx][i].isValid())
         {
           n1a++;
-	  if (infoV > 0) LogDebug("CSCMotherboard")
-	    << "1a LCT"<<i+1<<" "<<bx<<"/"<<cbx<<": "<<allLCTs1a[bx][mbx][i]<<std::endl;
+	  //if (infoV > 0) LogDebug("CSCMotherboard")
+          if (debug_gem_matching)
+	    std::cout << "ME1/a LCT"<<i+1<<" "<<bx<<"/"<<cbx<<": "<<allLCTs1a[bx][mbx][i]<<std::endl;
         }
       }
     if (infoV > 0 and n1a+n1b>0) LogDebug("CSCMotherboard")
@@ -1190,6 +1196,11 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
       n1a++;
       if (debug_gem_matching)
         std::cout << "1a LCT "<<n1a<<"  " << p <<std::endl;
+    }
+
+    if (debug_gem_matching){
+	std::cout << "Summarize LCTs, ME1b nLCT "<< n1b <<" ME1a nLCT "<< n1a << std::endl;
+	std::cout << "========================================================================" << std::endl;
     }
 
   //   if (infoV > 1) LogTrace("CSCMotherboardME11GEM")<<"clct_count E:"<<theEndcap<<"S:"<<theStation<<"R:"<<1<<"C:"
@@ -2018,16 +2029,13 @@ void CSCMotherboardME11GEM::printGEMTriggerPads(int bx_start, int bx_stop, bool 
   const bool hasPads(thePads.size()!=0);
 
   std::cout << "------------------------------------------------------------------------" << std::endl;
-  bool first = true;
+  if (!iscopad) std::cout << "* GEM trigger pads ["<< bx_start <<","<< bx_stop <<"]: " << std::endl;
+  else          std::cout << "* GEM trigger coincidence pads ["<< bx_start <<","<< bx_stop <<"]: " << std::endl;
+
   for (int bx = bx_start; bx <= bx_stop; bx++) {
     // print only the pads for the central BX
     if (bx!=lct_central_bx and iscopad) continue;
     std::vector<std::pair<unsigned int, GEMPadDigi> > in_pads = thePads[bx];
-    if (first) {
-      if (!iscopad) std::cout << "* GEM trigger pads: " << std::endl;
-      else          std::cout << "* GEM trigger coincidence pads: " << std::endl;
-    }
-    first = false;
     if (!iscopad) std::cout << "N(pads) BX " << bx << " : " << in_pads.size() << std::endl;
     else          std::cout << "N(copads) BX " << bx << " : " << in_pads.size() << std::endl;
     if (hasPads){

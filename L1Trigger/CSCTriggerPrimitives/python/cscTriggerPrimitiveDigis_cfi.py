@@ -370,7 +370,7 @@ me11tmbSLHCGEM = cms.PSet(
     maxME11LCTs = cms.uint32(2),
 
     ## run in debug mode
-    debugLUTs = cms.bool(True),
+    debugLUTs = cms.bool(False),
     debugMatching = cms.bool(True),
     debugGEMDphi = cms.bool(False),
 
@@ -429,7 +429,7 @@ me21tmbSLHCGEM = cms.PSet(
     maxME21LCTs = cms.uint32(2),
 
     ## run in debug mode
-    debugLUTs = cms.bool(True),
+    debugLUTs = cms.bool(False),
     debugMatching = cms.bool(True),
     debugGEMDphi = cms.bool(False),
 
