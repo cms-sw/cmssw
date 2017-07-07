@@ -73,6 +73,9 @@ public:
 					int& wafer, int& icell, 
 					int& celltyp) const;
   bool                waferInLayer(int wafer, int lay, bool reco) const;
+  int                 waferCount(const int type) const {return ((type == 0) ? waferMax_[2] : waferMax_[3]);}
+  int                 waferMax() const {return waferMax_[1];}
+  int                 waferMin() const {return waferMax_[0];}
   std::pair<double,double> waferPosition(int wafer, bool reco=true) const;
   int                 wafers() const;
   int                 wafers(int layer, int type) const;
@@ -111,6 +114,7 @@ private:
   std::array<uint32_t,2>          tot_layers_;
   Simrecovecs                     max_modules_layer_;
   std::map<int,HGCWaferParam>     waferLayer_;
+  std::array<int,4>               waferMax_;
 };
 
 #endif

@@ -4,6 +4,7 @@ import FWCore.ParameterSet.Config as cms
 simMuonME0PseudoReDigis = cms.EDProducer("ME0ReDigiProducer",
     inputCollection    =cms.string('simMuonME0PseudoDigis'),
     useCusGeoFor1PartGeo =cms.bool(True),   #Use custom strips and partitions for digitization for single partition geometry
+    usePads             =cms.bool(False),   #sets strip granularity to x2 coarser
     numberOfStrips     =cms.uint32(384), # If use custom: number of strips per partition                                             
     numberOfPartitions =cms.uint32(8),   # If use custom:  number of partitions per chamber                                           
     neutronAcceptance  =cms.double(2.0),   # fraction of neutron events to keep in event (>= 1 means no filtering)      
