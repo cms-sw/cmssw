@@ -279,16 +279,21 @@ void RawToDigiConverter::Run(const VFATFrameCollection &coll, const TotemDAQMapp
 
     if (record.status.isOK())
     {
+      record.frame->Print();
       const VFATFrame *fr = record.frame;
-      DiamondVFATFrame *diamondframe = (DiamondVFATFrame*) fr;
+      DiamondVFATFrame *diamondframeTmp = (DiamondVFATFrame*) fr;
+      DiamondVFATFrame diamondframe(*diamondframeTmp);
 
       // update Event Counter in status
       record.status.setEC(record.frame->getEC() & 0xFF);
 
       // create the digi
       DetSet<CTPPSDiamondDigi> &digiDetSet = digi.find_or_insert(detId);
-      digiDetSet.push_back(CTPPSDiamondDigi(diamondframe->getLeadingEdgeTime(),diamondframe->getTrailingEdgeTime(),diamondframe->getThresholdVoltage(),diamondframe->getMultihit(),diamondframe->getHptdcErrorFlag()));
+      digiDetSet.push_back(CTPPSDiamondDigi(diamondframe.getLeadingEdgeTime(),diamondframe.getTrailingEdgeTime(),diamondframe.getThresholdVoltage(),diamondframe.getMultihit(),diamondframe.getHptdcErrorFlag()));
     }
+//     else {
+//       record.frame->Print();
+//     }
 
     // save status
     DetSet<TotemVFATStatus> &statusDetSet = status.find_or_insert(detId);
