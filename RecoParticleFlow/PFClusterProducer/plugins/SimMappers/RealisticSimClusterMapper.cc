@@ -3,7 +3,7 @@
 // Date:   30/06/2017
 // Email: felice@cern.ch
 /////////////////////////
-
+#include <unordered_map>
 #include "RealisticSimClusterMapper.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
