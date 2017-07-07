@@ -76,9 +76,12 @@ namespace{
   }
 
   //Offline muon definition
-  bool IsGood(const reco::Muon &mu, const reco::Vertex::Point &pv_position,
+  bool IsGood(const reco::Muon &mu, const reco::Vertex &pv,
 	      const double lep_counting_threshold, const double lep_iso_cut, const double lep_eta_cut,
-	      const double d0_cut, const double dz_cut){
+	      const double d0_cut, const double dz_cut, int muonIDlevel){
+
+    const reco::Vertex::Point &pv_position = pv.position();
+
     //Muon pt and eta acceptance
     if(mu.pt()<lep_counting_threshold || fabs(mu.eta())>lep_eta_cut) return false;
     try{
@@ -94,8 +97,13 @@ namespace{
     }
     try{
       //Muon ID
-      bool isMed =  muon::isMediumMuon(mu);
-      if(!isMed) return false;
+      bool pass_id = false;
+      if(muonIDlevel == 1) pass_id = muon::isLooseMuon(mu);
+      else if(muonIDlevel == 3) pass_id = muon::isTightMuon(mu,pv);
+      else pass_id = muon::isMediumMuon(mu); 
+
+      if(!pass_id) return false;
+
     }catch(...){
       edm::LogWarning("LepHTMonitor") << "Could not read isMediumMuon().\n";
       return false;
@@ -139,6 +147,8 @@ LepHTMonitor::LepHTMonitor(const edm::ParameterSet &ps):
   den_HT_genTriggerEventFlag_(new GenericTriggerEventFlag(ps.getParameter<edm::ParameterSet>("den_HT_GenericTriggerEventPSet"),consumesCollector(), *this)),
 
   folderName_(ps.getParameter<std::string>("folderName")),
+
+  muonIDlevel_(ps.getUntrackedParameter<int>("muonIDlevel")),
 
   jetPtCut_(ps.getUntrackedParameter<double>("jetPtCut")),
   jetEtaCut_(ps.getUntrackedParameter<double>("jetEtaCut")),
@@ -403,7 +413,7 @@ void LepHTMonitor::analyze(const edm::Event &e, const edm::EventSetup &eSetup){
     //Try to find a reco muon
     if(MuonCollection.isValid()){
       for(const auto &muon: *MuonCollection){
-        if(IsGood(muon, VertexCollection->front().position(),lep_counting_threshold_,lep_iso_cut_,lep_eta_cut_, lep_d0_cut_b_, lep_dz_cut_b_)){
+        if(IsGood(muon, VertexCollection->front(),lep_counting_threshold_,lep_iso_cut_,lep_eta_cut_, lep_d0_cut_b_, lep_dz_cut_b_, muonIDlevel_)){
           if(muon.pt()>lep_max_pt) {lep_max_pt=muon.pt(); lep_eta=muon.eta();lep_phi=muon.phi();} 
           if(muon.pt()<min_mu_pt || min_mu_pt<0) {min_mu_pt=muon.pt(); trailing_mu_eta=muon.eta(); trailing_mu_phi=muon.phi();} 
 	  nmus++;
