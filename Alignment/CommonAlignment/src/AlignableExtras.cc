@@ -10,10 +10,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-// Geometry
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-
 // Alignment
 #include "Alignment/CommonAlignment/interface/AlignableBeamSpot.h"
 

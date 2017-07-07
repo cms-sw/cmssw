@@ -1,9 +1,7 @@
 #ifndef TkNavigation_SimpleNavigationSchool_H
 #define TkNavigation_SimpleNavigationSchool_H
 
-#include "TrackingTools/DetLayers/interface/NavigationSchool.h"
-#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
-
+#include "RecoTracker/TkNavigation/interface/TkNavigationSchool.h"
 #include <vector>
 
 class DetLayer;
@@ -17,12 +15,13 @@ class MagneticField;
 /** Concrete navigation school for the Tracker
  */
 
-class dso_hidden SimpleNavigationSchool : public NavigationSchool {
+class dso_hidden SimpleNavigationSchool : public TkNavigationSchool {
 public:
   
-  SimpleNavigationSchool() : theField(0),theTracker(0){};
-  SimpleNavigationSchool(const GeometricSearchTracker* theTracker,
-			 const MagneticField* field);
+  SimpleNavigationSchool(): TkNavigationSchool(nullptr,nullptr){}
+  SimpleNavigationSchool(const GeometricSearchTracker* tracker,
+			 const MagneticField* field) : 
+                         TkNavigationSchool(tracker,field) {init();}
   ~SimpleNavigationSchool(){cleanMemory();}
 
   // from base class
@@ -43,7 +42,7 @@ protected:
   FDLC theForwardLayers;  
   FDLC theRightLayers;
   FDLC theLeftLayers;
-  float theBarrelLength;
+  float theBarrelLength=0;
 
   typedef std::vector< SimpleBarrelNavigableLayer*>   BNLCType;
   typedef std::vector< SimpleForwardNavigableLayer*>  FNLCType;
@@ -75,10 +74,9 @@ protected:
 
   virtual void linkNextLayerInGroup( FDLI fli, const FDLC& group, FDLC& reachableFL);
 
-  const MagneticField* theField;
-  const GeometricSearchTracker* theTracker;
-
   void cleanMemory();
+private:
+  void init();
 };
 
 #endif // SimpleNavigationSchool_H

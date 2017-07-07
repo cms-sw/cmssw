@@ -43,7 +43,7 @@ SUSY_HLT_Ele15_HT600_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
                                               csvThreshold = cms.untracked.double(-1.0)
                                               )
 
-SUSY_HLT_Ele15_HT600_SingleLepton_POSTPROCESSING = DQMEDHarvester('DQMGenericClient',
+SUSYoHLToEle15oHT600oSingleLeptonPOSTPROCESSING = DQMEDHarvester('DQMGenericClient',
                                                              subDirs = cms.untracked.vstring('HLT/SUSYBSM/HLT_Ele15_IsoVVVL_PFHT600'),
                                                              efficiency = cms.vstring(
         "leptonTurnOn_eff ';Offline Electron p_{T} [GeV];#epsilon' leptonTurnOn_num leptonTurnOn_den",
@@ -93,7 +93,7 @@ SUSY_HLT_Ele15_HT400_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
                                               csvThreshold = cms.untracked.double(-1.0)
                                               )
 
-SUSY_HLT_Ele15_HT400_SingleLepton_POSTPROCESSING = DQMEDHarvester('DQMGenericClient',
+SUSYoHLToEle15oHT400oSingleLeptonPOSTPROCESSING = DQMEDHarvester('DQMGenericClient',
                                                              subDirs = cms.untracked.vstring('HLT/SUSYBSM/HLT_Ele15_IsoVVVL_PFHT400'),
                                                              efficiency = cms.vstring(
         "leptonTurnOn_eff ';Offline Electron p_{T} [GeV];#epsilon' leptonTurnOn_num leptonTurnOn_den",
@@ -143,7 +143,7 @@ SUSY_HLT_Ele50_HT400_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
                                               csvThreshold = cms.untracked.double(-1.0)
                                               )
 
-SUSY_HLT_Ele50_HT400_SingleLepton_POSTPROCESSING = DQMEDHarvester('DQMGenericClient',
+SUSYoHLToEle50oHT400oSingleLeptonPOSTPROCESSING = DQMEDHarvester('DQMGenericClient',
                                                              subDirs = cms.untracked.vstring('HLT/SUSYBSM/HLT_Ele50_IsoVVVL_PFHT400'),
                                                              efficiency = cms.vstring(
         "leptonTurnOn_eff ';Offline Electron p_{T} [GeV];#epsilon' leptonTurnOn_num leptonTurnOn_den",
@@ -163,7 +163,7 @@ SUSY_HLT_Ele_HT_SingleLepton = cms.Sequence( SUSY_HLT_Ele15_HT600_SingleLepton
                                              + SUSY_HLT_Ele50_HT400_SingleLepton
 )
 
-SUSY_HLT_Ele_HT_SingleLepton_POSTPROCESSING = cms.Sequence( SUSY_HLT_Ele15_HT600_SingleLepton_POSTPROCESSING
-                                                            + SUSY_HLT_Ele15_HT400_SingleLepton_POSTPROCESSING
-                                                            + SUSY_HLT_Ele50_HT400_SingleLepton_POSTPROCESSING
+SUSY_HLT_Ele_HT_SingleLepton_POSTPROCESSING = cms.Sequence( SUSYoHLToEle15oHT600oSingleLeptonPOSTPROCESSING
+                                                            + SUSYoHLToEle15oHT400oSingleLeptonPOSTPROCESSING
+                                                            + SUSYoHLToEle50oHT400oSingleLeptonPOSTPROCESSING
 )

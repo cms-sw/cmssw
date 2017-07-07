@@ -5,12 +5,13 @@
 
 #include "CondTools/L1TriggerExt/interface/L1ConfigOnlineProdBaseExt.h"
 #include "CondFormats/L1TObjects/interface/CaloParams.h"
-#include "CondFormats/DataRecord/interface/L1TCaloStage2ParamsRcd.h"
+#include "CondFormats/DataRecord/interface/L1TCaloParamsRcd.h"
 #include "CondFormats/DataRecord/interface/L1TCaloParamsO2ORcd.h"
 #include "L1Trigger/L1TCommon/interface/TriggerSystem.h"
 #include "L1Trigger/L1TCommon/interface/XmlConfigParser.h"
 #include "L1Trigger/L1TCommon/interface/ConvertToLUT.h"
-#include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
+//#include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
+#include "CaloParamsHelperO2O.h"
 #include "OnlineDBqueryHelper.h"
 
 #include "xercesc/util/PlatformUtils.hpp"
@@ -18,6 +19,12 @@ using namespace XERCES_CPP_NAMESPACE;
 
 class L1TCaloParamsOnlineProd : public L1ConfigOnlineProdBaseExt<L1TCaloParamsO2ORcd,l1t::CaloParams> {
 private:
+    unsigned int exclusiveLayer; // 0 - process calol1 and calol2, 1 - only calol1, 2 - only calol2
+
+    bool readCaloLayer1OnlineSettings(l1t::CaloParamsHelperO2O& paramsHelper, std::map<std::string, l1t::Parameter>& conf, std::map<std::string, 
+l1t::Mask>& );
+    bool readCaloLayer2OnlineSettings(l1t::CaloParamsHelperO2O& paramsHelper, std::map<std::string, l1t::Parameter>& conf, std::map<std::string, 
+l1t::Mask>& );
 public:
     virtual std::shared_ptr<l1t::CaloParams> newObject(const std::string& objectKey, const L1TCaloParamsO2ORcd& record) override ;
 
@@ -26,7 +33,8 @@ public:
 };
 
 bool
-readCaloLayer1OnlineSettings(l1t::CaloParamsHelper& paramsHelper, std::map<std::string, l1t::Parameter>& conf, std::map<std::string, l1t::Mask>& ) {
+L1TCaloParamsOnlineProd::readCaloLayer1OnlineSettings(l1t::CaloParamsHelperO2O& paramsHelper, std::map<std::string, l1t::Parameter>& conf, 
+std::map<std::string, l1t::Mask>& ) {
   const char * expectedParams[] = {
     "layer1ECalScaleFactors",
     "layer1HCalScaleFactors",
@@ -34,6 +42,11 @@ readCaloLayer1OnlineSettings(l1t::CaloParamsHelper& paramsHelper, std::map<std::
     "layer1ECalScaleETBins",
     "layer1HCalScaleETBins",
     "layer1HFScaleETBins"
+    // Optional params
+    //"layer1ECalScalePhiBins",
+    //"layer1HCalScalePhiBins",
+    //"layer1HFScalePhiBins",
+    //"layer1SecondStageLUT"
   };
   for (const auto param : expectedParams) {
     if ( conf.find(param) == conf.end() ) {
@@ -48,15 +61,22 @@ readCaloLayer1OnlineSettings(l1t::CaloParamsHelper& paramsHelper, std::map<std::
   paramsHelper.setLayer1ECalScaleETBins(conf["layer1ECalScaleETBins"].getVector<int>());
   paramsHelper.setLayer1HCalScaleETBins(conf["layer1HCalScaleETBins"].getVector<int>());
   paramsHelper.setLayer1HFScaleETBins  (conf["layer1HFScaleETBins"]  .getVector<int>());
-  paramsHelper.setLayer1ECalScalePhiBins(conf.find("layer1ECalScalePhiBins") != conf.end() ? conf["layer1ECalScalePhiBins"].getVector<unsigned int>() : std::vector<unsigned>(36,0));
-  paramsHelper.setLayer1HCalScalePhiBins(conf.find("layer1HCalScalePhiBins") != conf.end() ? conf["layer1HCalScalePhiBins"].getVector<unsigned int>() : std::vector<unsigned>(36,0));
-  paramsHelper.setLayer1HFScalePhiBins  (conf.find("layer1HFScalePhiBins") != conf.end() ? conf["layer1HFScalePhiBins"]  .getVector<unsigned int>() : std::vector<unsigned>(36,0));
+
+  if( conf.find("layer1ECalScalePhiBins") != conf.end() )
+      paramsHelper.setLayer1ECalScalePhiBins(conf["layer1ECalScalePhiBins"].getVector<unsigned int>()); // std::vector<unsigned>(36,0)
+  if( conf.find("layer1HCalScalePhiBins") != conf.end() )
+      paramsHelper.setLayer1HCalScalePhiBins(conf["layer1HCalScalePhiBins"].getVector<unsigned int>());
+  if( conf.find("layer1HFScalePhiBins") != conf.end() )
+      paramsHelper.setLayer1HFScalePhiBins  (conf["layer1HFScalePhiBins"]  .getVector<unsigned int>());
+  if( conf.find("layer1SecondStageLUT") != conf.end() )
+      paramsHelper.setLayer1HOverELUT( l1t::convertToLUT( conf["layer1SecondStageLUT"]  .getVector<unsigned int>()) );
 
   return true;
 }
 
 bool
-readCaloLayer2OnlineSettings(l1t::CaloParamsHelper& paramsHelper, std::map<std::string, l1t::Parameter>& conf, std::map<std::string, l1t::Mask>& ) {
+L1TCaloParamsOnlineProd::readCaloLayer2OnlineSettings(l1t::CaloParamsHelperO2O& paramsHelper, std::map<std::string, l1t::Parameter>& conf, 
+std::map<std::string, l1t::Mask>& ) {
   const char * expectedParams[] = {
     "leptonSeedThreshold",
     "leptonTowerThreshold",
@@ -75,19 +95,22 @@ readCaloLayer2OnlineSettings(l1t::CaloParamsHelper& paramsHelper, std::map<std::
     "egammaRelaxationThreshold",
     "egammaMaxEta",
     "egammaEnergyCalibLUT",
-    "egammaIsoLUT",
+    "egammaIsoLUT1",
+    "egammaIsoLUT2",
     "tauMaxEta",
     "tauEnergyCalibLUT",
     "tauIsoLUT1",
-    "tauIsoLUT2",
+///    "tauIsoLUT2",
     "towerCountThreshold",
     "towerCountMaxEta",
-    "ET_towerThreshold",
-    "MET_towerThreshold",
+    "ET_towerThresholdLUT",
+    "MET_towerThresholdLUT",
+    "ecalET_towerThresholdLUT",
     "jetBypassPileUpSub",
     "egammaBypassCuts",
     "egammaHOverECut_iEtaLT15",
-    "egammaHOverECut_iEtaGTEq15"
+    "egammaHOverECut_iEtaGTEq15",
+    "egammaBypassExtendedHOverE"
   };
   for (const auto param : expectedParams) {
     if ( conf.find(param) == conf.end() ) {
@@ -120,9 +143,9 @@ readCaloLayer2OnlineSettings(l1t::CaloParamsHelper& paramsHelper, std::map<std::
   etSumEtaMax.push_back(conf["HTMHT_maxJetEta"].getValue<int>());
   etSumEtaMax.push_back(conf["towerCountMaxEta"].getValue<int>());
   
-  etSumEtThresh.push_back(conf["ET_towerThreshold"].getValue<int>()/2); // ETT tower threshold
+  etSumEtThresh.push_back(0); //conf["ET_towerThreshold"].getValue<int>()/2); // ETT tower threshold
   etSumEtThresh.push_back(conf["HT_jetThreshold"].getValue<int>()/2);
-  etSumEtThresh.push_back(conf["MET_towerThreshold"].getValue<int>()/2); // ETM tower threshold
+  etSumEtThresh.push_back(0); //conf["MET_towerThreshold"].getValue<int>()/2); // ETM tower threshold
   etSumEtThresh.push_back(conf["MHT_jetThreshold"].getValue<int>()/2);
   etSumEtThresh.push_back(conf["ET_towerThreshold"].getValue<int>()/2);
 
@@ -132,29 +155,46 @@ readCaloLayer2OnlineSettings(l1t::CaloParamsHelper& paramsHelper, std::map<std::
   }
 
   paramsHelper.setJetCalibrationLUT ( l1t::convertToLUT( conf["jetEnergyCalibLUT"].getVector<uint32_t>() ) );
+
+  paramsHelper.setEtSumMetPUSLUT    ( l1t::convertToLUT( conf["MET_towerThresholdLUT"].getVector<int>() ) );
+  paramsHelper.setEtSumEttPUSLUT    ( l1t::convertToLUT( conf["ET_towerThresholdLUT"].getVector<int>() ) );
+  paramsHelper.setEtSumEcalSumPUSLUT( l1t::convertToLUT( conf["ecalET_towerThresholdLUT"].getVector<int>() ) );
+
   paramsHelper.setEtSumEttCalibrationLUT    ( l1t::convertToLUT( conf["ET_energyCalibLUT"].getVector<int>() ) );
   paramsHelper.setEtSumEcalSumCalibrationLUT( l1t::convertToLUT( conf["ecalET_energyCalibLUT"].getVector<int>() ) );
   paramsHelper.setEtSumXCalibrationLUT      ( l1t::convertToLUT( conf["METX_energyCalibLUT"].getVector<int>() ) );
+
   paramsHelper.setEgMaxPtHOverE((conf["egammaRelaxationThreshold"].getValue<int>())/2.);
   paramsHelper.setEgEtaCut((conf["egammaMaxEta"].getValue<int>()));
   paramsHelper.setEgCalibrationLUT  ( l1t::convertToLUT( conf["egammaEnergyCalibLUT"].getVector<int>() ) );
-  paramsHelper.setEgIsolationLUT    ( l1t::convertToLUT( conf["egammaIsoLUT"].getVector<int>() ) );
+  paramsHelper.setEgIsolationLUT    ( l1t::convertToLUT( conf["egammaIsoLUT1"].getVector<int>() ) );
+  paramsHelper.setEgIsolationLUT2   ( l1t::convertToLUT( conf["egammaIsoLUT2"].getVector<int>() ) );
 
   paramsHelper.setIsoTauEtaMax((conf["tauMaxEta"].getValue<int>()));
 
   paramsHelper.setTauCalibrationLUT( l1t::convertToLUT( conf["tauEnergyCalibLUT"].getVector<int>() ) );
   paramsHelper.setTauIsolationLUT  ( l1t::convertToLUT( conf["tauIsoLUT1"].getVector<int>() ) );
-  paramsHelper.setTauIsolationLUT2 ( l1t::convertToLUT( conf["tauIsoLUT2"].getVector<int>() ) );
+  if( conf.find("tauIsoLUT2") != conf.end() )
+    paramsHelper.setTauIsolationLUT2 ( l1t::convertToLUT( conf["tauIsoLUT2"].getVector<int>() ) );
+
+  paramsHelper.setEgBypassExtHOverE( conf["egammaBypassExtendedHOverE"].getValue<bool>() );
+
+  if( conf.find("P_TauTrimming_13to8.mif") != conf.end() )
+    paramsHelper.setTauTrimmingShapeVetoLUT( l1t::convertToLUT( conf["P_TauTrimming_13to8.mif"].getVector<int>() ) );
 
   return true;
 }
 
-L1TCaloParamsOnlineProd::L1TCaloParamsOnlineProd(const edm::ParameterSet& iConfig) : L1ConfigOnlineProdBaseExt<L1TCaloParamsO2ORcd,l1t::CaloParams>(iConfig) {}
+L1TCaloParamsOnlineProd::L1TCaloParamsOnlineProd(const edm::ParameterSet& iConfig) : 
+    L1ConfigOnlineProdBaseExt<L1TCaloParamsO2ORcd,l1t::CaloParams>(iConfig)
+{
+    exclusiveLayer = iConfig.getParameter<uint32_t>("exclusiveLayer");
+}
 
 std::shared_ptr<l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const std::string& objectKey, const L1TCaloParamsO2ORcd& record) {
     using namespace edm::es;
 
-    const L1TCaloStage2ParamsRcd& baseRcd = record.template getRecord< L1TCaloStage2ParamsRcd >() ;
+    const L1TCaloParamsRcd& baseRcd = record.template getRecord< L1TCaloParamsRcd >() ;
     edm::ESHandle< l1t::CaloParams > baseSettings ;
     baseRcd.get( baseSettings ) ;
 
@@ -167,43 +207,41 @@ std::shared_ptr<l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const std::s
     std::string tscKey = objectKey.substr(0, objectKey.find(":") );
     std::string  rsKey = objectKey.substr(   objectKey.find(":")+1, std::string::npos );
 
-    edm::LogInfo( "L1-O2O: L1TCaloParamsOnlineProd" ) << "Producing L1TCaloParamsOnlineProd with TSC key = " << tscKey << " and RS key = " << rsKey ;
+    edm::LogInfo( "L1-O2O: L1TCaloParamsOnlineProd" ) << "Producing L1TCaloParamsOnlineProd with TSC key = " << tscKey << " and RS key = " << rsKey 
+;
 
-    std::string calol1_top_key, calol1_algo_key, calol1_hw_key;
-    std::string calol1_hw_payload, calol1_algo_payload;
+    std::string calol1_top_key, calol1_algo_key;
+    std::string calol1_algo_payload;
     std::string calol2_top_key, calol2_algo_key, calol2_hw_key;
     std::string calol2_hw_payload;
     std::map<std::string,std::string> calol2_algo_payloads;  // key -> XML payload
     try {
+
         std::map<std::string,std::string> topKeys =
             l1t::OnlineDBqueryHelper::fetch( {"CALOL1_KEY","CALOL2_KEY"},
                                              "L1_TRG_CONF_KEYS",
                                              tscKey,
                                              m_omdsReader
                                            );
+
+      if( exclusiveLayer == 0 || exclusiveLayer == 1 ){
+
         calol1_top_key = topKeys["CALOL1_KEY"];
 
-        std::map<std::string,std::string> calol1_keys =
-            l1t::OnlineDBqueryHelper::fetch( {"ALGO","HW"},
-                                             "CALOL1_KEYS",
-                                             calol1_top_key,
-                                             m_omdsReader
-                                           );
-
-        calol1_hw_key = calol1_keys["HW"];
-        calol1_hw_payload = l1t::OnlineDBqueryHelper::fetch( {"CONF"},
-                                                             "CALOL1_CLOBS",
-                                                              calol1_hw_key,
-                                                              m_omdsReader
-                                                           ) ["CONF"];
-
-        calol1_algo_key = calol1_keys["ALGO"];
+        calol1_algo_key = l1t::OnlineDBqueryHelper::fetch( {"ALGO"},
+                                                           "CALOL1_KEYS",
+                                                           calol1_top_key,
+                                                           m_omdsReader
+                                                         ) ["ALGO"];
 
         calol1_algo_payload = l1t::OnlineDBqueryHelper::fetch( {"CONF"},
                                                                "CALOL1_CLOBS",
                                                                 calol1_algo_key,
                                                                 m_omdsReader
                                                              ) ["CONF"];
+      }
+
+      if( exclusiveLayer == 0 || exclusiveLayer == 2 ){
 
         calol2_top_key = topKeys["CALOL2_KEY"];
 
@@ -237,87 +275,52 @@ std::shared_ptr<l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const std::s
                                                  key.second,
                                                  m_omdsReader
                                                ) ["CONF"];
+      }
 
     } catch ( std::runtime_error &e ) {
         edm::LogError( "L1-O2O: L1TCaloParamsOnlineProd" ) << e.what();
         throw std::runtime_error("Broken key");
     }
 
-    // for debugging purposes dump the configs to local files
-    for(auto &conf : calol2_algo_payloads){ 
-        std::ofstream output(std::string("/tmp/").append(conf.first.substr(0,conf.first.find("/"))).append(".xml"));
-        output<<conf.second;
-        output.close();
-    }
-    { 
+    if( exclusiveLayer == 0 || exclusiveLayer == 2 ){
+        // for debugging purposes dump the configs to local files
+        for(auto &conf : calol2_algo_payloads){ 
+            std::ofstream output(std::string("/tmp/").append(conf.first.substr(0,conf.first.find("/"))).append(".xml"));
+            output<<conf.second;
+            output.close();
+        }
         std::ofstream output(std::string("/tmp/").append(calol2_hw_key.substr(0,calol2_hw_key.find("/"))).append(".xml"));
         output << calol2_hw_payload;
         output.close();
     }
+    if( exclusiveLayer == 0 || exclusiveLayer == 1 )
     { 
         std::ofstream output(std::string("/tmp/").append(calol1_algo_key.substr(0,calol1_algo_key.find("/"))).append(".xml"));
         output << calol1_algo_payload;
         output.close();
     }
 
+    l1t::CaloParamsHelperO2O m_params_helper( *(baseSettings.product()) );
 
+
+  if( exclusiveLayer == 0 || exclusiveLayer == 1 ){
     l1t::XmlConfigParser xmlReader1;
-    l1t::TriggerSystem calol1;
-
-if( true ){
-    xmlReader1.readDOMFromString( calol1_hw_payload );
-    xmlReader1.readRootElement  ( calol1, "calol1"  );
-} else {
-    // explicitly make the parser aware of the processors
-    calol1.addProcessor("CTP7_Phi0", "Layer1Processor","-2","-0");
-    calol1.addProcessor("CTP7_Phi1", "Layer1Processor","-2","-1");
-    calol1.addProcessor("CTP7_Phi2", "Layer1Processor","-2","-2");
-    calol1.addProcessor("CTP7_Phi3", "Layer1Processor","-2","-3");
-    calol1.addProcessor("CTP7_Phi4", "Layer1Processor","-2","-4");
-    calol1.addProcessor("CTP7_Phi5", "Layer1Processor","-2","-5");
-    calol1.addProcessor("CTP7_Phi6", "Layer1Processor","-2","-6");
-    calol1.addProcessor("CTP7_Phi7", "Layer1Processor","-2","-7");
-    calol1.addProcessor("CTP7_Phi8", "Layer1Processor","-2","-8");
-    calol1.addProcessor("CTP7_Phi9", "Layer1Processor","-2","-9");
-    calol1.addProcessor("CTP7_Phi10","Layer1Processor","-2","-10");
-    calol1.addProcessor("CTP7_Phi11","Layer1Processor","-2","-11");
-    calol1.addProcessor("CTP7_Phi12","Layer1Processor","-2","-12");
-    calol1.addProcessor("CTP7_Phi13","Layer1Processor","-2","-13");
-    calol1.addProcessor("CTP7_Phi14","Layer1Processor","-2","-14");
-    calol1.addProcessor("CTP7_Phi15","Layer1Processor","-2","-15");
-    calol1.addProcessor("CTP7_Phi16","Layer1Processor","-2","-16");
-}
-    calol1.addProcessor("defaultProc", "processors","-2","0");
-
-    //// the block of lines below allows to manage broken CaloL1 configurations
-    calol1.addProcessor("processor0", "processors","-1","-1");
-    calol1.addProcessor("processor1", "processors","-1","-2");
-    calol1.addProcessor("processor2", "processors","-1","-3");
-    calol1.addProcessor("processor3", "processors","-1","-4");
-    calol1.addProcessor("processor4", "processors","-1","-5");
-    calol1.addProcessor("processor5", "processors","-1","-6");
-    calol1.addProcessor("processor6", "processors","-1","-7");
-    calol1.addProcessor("processor7", "processors","-1","-8");
-    calol1.addProcessor("processor8", "processors","-1","-9");
-    calol1.addProcessor("processor9", "processors","-1","-10");
-    calol1.addProcessor("processor10", "processors","-1","-11");
-    calol1.addProcessor("processor11", "processors","-1","-12");
-    calol1.addProcessor("processor12", "processors","-1","-13");
-    calol1.addProcessor("processor13", "processors","-1","-14");
-    calol1.addProcessor("processor14", "processors","-1","-15");
-    calol1.addProcessor("processor15", "processors","-1","-16");
-    calol1.addProcessor("processor16", "processors","-1","-17");
-    calol1.addProcessor("processor17", "processors","-1","-18");
-    ////
-
     xmlReader1.readDOMFromString( calol1_algo_payload );
-    xmlReader1.readRootElement( calol1, "calol1" );
 
+    l1t::TriggerSystem calol1;
+    calol1.addProcessor("processors", "processors","-1","-1");
+    xmlReader1.readRootElement( calol1, "calol1" );
     calol1.setConfigured();
 
-    std::map<std::string, l1t::Parameter> calol1_conf = calol1.getParameters("defaultProc");
+    std::map<std::string, l1t::Parameter> calol1_conf = calol1.getParameters("processors");
     std::map<std::string, l1t::Mask>      calol1_rs   ;//= calol1.getMasks   ("processors");
 
+    if( !readCaloLayer1OnlineSettings(m_params_helper, calol1_conf, calol1_rs) )
+        throw std::runtime_error("Parsing error for CaloLayer1");
+  }
+
+
+  if( exclusiveLayer == 0 || exclusiveLayer == 2 ){
     l1t::TriggerSystem calol2;
 
     l1t::XmlConfigParser xmlReader2;
@@ -335,13 +338,11 @@ if( true ){
     // Perhaps layer 2 has to look at settings for demux and mp separately? // => No demux settings required
     std::map<std::string, l1t::Parameter> calol2_conf = calol2.getParameters("MP1");
     std::map<std::string, l1t::Mask>      calol2_rs   ;//= calol2.getMasks   ("processors");
-    
-    l1t::CaloParamsHelper m_params_helper( *(baseSettings.product()) );
 
-    if( !readCaloLayer1OnlineSettings(m_params_helper, calol1_conf, calol1_rs) )
-        throw std::runtime_error("Parsing error for CaloLayer1");
     if( !readCaloLayer2OnlineSettings(m_params_helper, calol2_conf, calol2_rs) )
         throw std::runtime_error("Parsing error for CaloLayer2");
+  }
+    
 
     std::shared_ptr< l1t::CaloParams > retval = std::make_shared< l1t::CaloParams >( m_params_helper ) ;
     return retval;
@@ -349,4 +350,5 @@ if( true ){
 
 //define this as a plug-in
 DEFINE_FWK_EVENTSETUP_MODULE(L1TCaloParamsOnlineProd);
+
 
