@@ -6,6 +6,7 @@ from copy import deepcopy
 ### Single Electron + HT triggers
 DQMOffline_Ele15_HT600 = cms.EDAnalyzer('LepHTMonitor',
                                               electronCollection = cms.InputTag('gedGsfElectrons'),
+                                              electronVID = cms.InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-Summer16-80X-V1-medium"),
                                               muonCollection = cms.InputTag(''),
                                               pfMetCollection = cms.InputTag('pfMet'),
                                               pfJetCollection = cms.InputTag('ak4PFJets'),
@@ -25,9 +26,24 @@ DQMOffline_Ele15_HT600 = cms.EDAnalyzer('LepHTMonitor',
                                               nmus = cms.untracked.double(0),
                                               leptonPtPlateau = cms.untracked.double(30.0), #defines plateau region for eta, phi distributions
                                               leptonCountingThreshold = cms.untracked.double(10.0), # min lepton pT for lepton counting
-                                              
+                                              lepIsoCut = cms.untracked.double(0.1), # max lepton reliso 
+                                              lepEtaCut = cms.untracked.double(2.5), # max abs(eta)
+                                              lep_d0_cut_b = cms.untracked.double(0.0118), #barrel
+                                              lep_dz_cut_b = cms.untracked.double(0.373),
+                                              lep_d0_cut_e = cms.untracked.double(0.0739), #endcap
+                                              lep_dz_cut_e = cms.untracked.double(0.602), 
+                                                                                           
                                               ptbins = cms.vdouble(0,5,10,20,30,40,50,75,100,125,160,200,250),
                                               htbins = cms.vdouble(0,50,100,150,200,250,300,350,400,450,500,600,750,1000,1500,2000),
+                                              nbins_eta = cms.untracked.int32(10),
+                                              nbins_phi = cms.untracked.int32(10),
+                                              nbins_npv = cms.untracked.int32(35),
+                                              etabins_min = cms.untracked.double(-2.5), 
+                                              etabins_max = cms.untracked.double(2.5), 
+                                              phibins_min = cms.untracked.double(-3.142), 
+                                              phibins_max = cms.untracked.double(3.142), 
+                                              npvbins_min = cms.untracked.double(0), 
+                                              npvbins_max = cms.untracked.double(70), 
                                                 
                                               numGenericTriggerEventPSet = cms.PSet(
                                                 andOr         = cms.bool( False ),
@@ -81,6 +97,11 @@ DQMOffline_Mu15_HT600.conversionCollection = cms.InputTag('')
 DQMOffline_Mu15_HT600.muonCollection = cms.InputTag('muons')
 DQMOffline_Mu15_HT600.nels = cms.untracked.double(0)
 DQMOffline_Mu15_HT600.nmus = cms.untracked.double(1)
+DQMOffline_Mu15_HT600.lepIsoCut = cms.untracked.double(0.2) 
+DQMOffline_Mu15_HT600.lepEtaCut = cms.untracked.double(2.4)
+DQMOffline_Mu15_HT600.lep_d0_cut_b = cms.untracked.double(0.2) #endcap parameter not used for muons 
+DQMOffline_Mu15_HT600.lep_dz_cut_b = cms.untracked.double(0.5)
+                                              
 DQMOffline_Mu15_HT600.folderName =  cms.string('HLT_Mu15_IsoVVVL_PFH600')
 DQMOffline_Mu15_HT600.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Mu15_IsoVVVL_PFHT600_v*")
 DQMOffline_Mu15_HT600.den_HT_GenericTriggerEventPSet.hltPaths = cms.vstring("HLT_IsoMu27_v*","HLT_IsoMu24_v*")
@@ -160,7 +181,12 @@ DQMOffline_LepHT_POSTPROCESSING = DQMEDHarvester("DQMGenericClient",
                                                              resolution = cms.vstring('')
                                                              )
 
-LepHTMonitor = cms.Sequence(  DQMOffline_Ele15_HT600
+
+
+from DQMOffline.Trigger.HLTEGTnPMonitor_cfi import egmGsfElectronIDsForDQM
+
+LepHTMonitor = cms.Sequence( egmGsfElectronIDsForDQM # Use of electron VID requires this module being executed first
+                            + DQMOffline_Ele15_HT600
                             + DQMOffline_Ele15_HT450
                             + DQMOffline_Ele50_HT450
                             + DQMOffline_Mu15_HT600

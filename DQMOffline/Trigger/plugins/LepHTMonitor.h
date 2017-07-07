@@ -10,6 +10,8 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
+#include "DataFormats/Common/interface/ValueMap.h"
+
 //Electron
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
@@ -66,7 +68,9 @@ protected:
 private:
   //variables from config file
   edm::InputTag theElectronTag_;
-  edm::EDGetTokenT<reco::GsfElectronCollection> theElectronCollection_;
+  edm::EDGetTokenT<edm::View<reco::GsfElectron> >theElectronCollection_;
+  edm::InputTag theElectronVIDTag_;
+  edm::EDGetTokenT<edm::ValueMap<bool> > theElectronVIDMap_;
   edm::InputTag theMuonTag_;
   edm::EDGetTokenT<reco::MuonCollection> theMuonCollection_;
   edm::InputTag thePfMETTag_;
@@ -82,9 +86,9 @@ private:
   edm::EDGetTokenT<reco::ConversionCollection> theConversionCollection_;
   edm::InputTag theBeamSpotTag_;
   edm::EDGetTokenT<reco::BeamSpot> theBeamSpot_;
-  GenericTriggerEventFlag* num_genTriggerEventFlag_;
-  GenericTriggerEventFlag* den_lep_genTriggerEventFlag_;
-  GenericTriggerEventFlag* den_HT_genTriggerEventFlag_;
+  std::unique_ptr<GenericTriggerEventFlag> num_genTriggerEventFlag_;
+  std::unique_ptr<GenericTriggerEventFlag> den_lep_genTriggerEventFlag_;
+  std::unique_ptr<GenericTriggerEventFlag> den_HT_genTriggerEventFlag_;
 
   std::string folderName_;
 
@@ -96,9 +100,26 @@ private:
   double nelsCut_;
   double lep_pt_plateau_;
   double lep_counting_threshold_;
-  
+  double lep_iso_cut_;
+  double lep_eta_cut_;
+  double lep_d0_cut_b_;
+  double lep_dz_cut_b_;
+  double lep_d0_cut_e_;
+  double lep_dz_cut_e_;
+
+
   std::vector<double> ptbins_;
   std::vector<double> htbins_;
+  int nbins_eta_;
+  int nbins_phi_;
+  int nbins_npv_;
+  float etabins_min_;
+  float etabins_max_;
+  float phibins_min_;
+  float phibins_max_;
+  float npvbins_min_;
+  float npvbins_max_;
+
 
   // Histograms
   MonitorElement* h_pfHTTurnOn_num_;
