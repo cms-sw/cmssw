@@ -47,12 +47,7 @@ int RawDataUnpacker::ProcessOptoRxFrame(const word *buf, unsigned int frameSize,
   // get OptoRx metadata
   unsigned long long head = buf[0];
   unsigned long long foot = buf[frameSize-1];
-  
-//   std::cout.width(16);
-//   for (uint i=0; i<frameSize; i+=1) {
-//     std::cout<<"OptoRxFrame:      "<< (unsigned long long) buf[i] /*<< "    " << (uint) buf[i+1] << "    " << (uint) buf[i+2] << "    " << (uint) buf[i+3]*/ << std::endl;
-//   }
-//   std::cout<<"OptoRxFrame:      " << std::endl;
+
 
   fedInfo.setHeader(head);
   fedInfo.setFooter(foot);
@@ -219,7 +214,6 @@ int RawDataUnpacker::ProcessVFATDataParallel(const uint16_t *buf, unsigned int O
 {
   // start counting processed words
   unsigned int wordsProcessed = 1;
-//   bool verbosity=true;
 
   // padding word? skip it
   if (buf[0] == 0xFFFF)
@@ -289,11 +283,8 @@ int RawDataUnpacker::ProcessVFATDataParallel(const uint16_t *buf, unsigned int O
   {
     wordsProcessed--;
     while ( (buf[wordsProcessed] & 0xFFF0)!= 0xF000 ) {
-//       std::cout<<"DiamFrame ###       "<<wordsProcessed<<"   "<<std::hex<<(uint) buf[wordsProcessed]<<std::endl;
       wordsProcessed++;
     }
-
-//     std::cout<<"DiamFrame ### Word processed: "<<wordsProcessed<<"     "<<std::hex<<(uint) buf[wordsProcessed-1]<<std::endl;
   }
 
   // process trailer
@@ -426,8 +417,6 @@ int RawDataUnpacker::ProcessVFATDataParallel(const uint16_t *buf, unsigned int O
   // save frame to output
   f.setPresenceFlags(presenceFlags);
   fc->Insert(fp, f);
-
-//     f.Print();
 
   return wordsProcessed;
 }
