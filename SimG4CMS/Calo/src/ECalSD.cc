@@ -66,6 +66,7 @@ ECalSD::ECalSD(G4String name, const DDCompactView & cpv,
   bool isItTB  = m_EC.getUntrackedParameter<bool>("TestBeam", false);
   bool nullNS  = m_EC.getUntrackedParameter<bool>("NullNumbering", false);
   storeRL      = m_EC.getUntrackedParameter<bool>("StoreRadLength", false);
+  scaleRL      = m_EC.getUntrackedParameter<double>("ScaleRadLength",100.0);
   
   ageingWithSlopeLY   = m_EC.getUntrackedParameter<bool>("AgeingWithSlopeLY", false);
   if(ageingWithSlopeLY) ageing.setLumies(p.getParameter<edm::ParameterSet>("ECalSD").getParameter<double>("DelivLuminosity"),
@@ -224,14 +225,13 @@ int ECalSD::getTrackID(G4Track* aTrack) {
 
 uint16_t ECalSD::getDepth(G4Step * aStep) {
   G4LogicalVolume* lv   = aStep->GetPreStepPoint()->GetTouchable()->GetVolume(0)->GetLogicalVolume();
-  uint16_t ret = 0;
-  if (any(useDepth1,lv))      ret = 1;
-  else if (any(useDepth2,lv)) ret = 2;
-  else if (storeRL) ret = getRadiationLength(aStep);
-#ifdef DebugLog
-  LogDebug("EcalSim") << "Volume " << lv->GetName() << " Depth " << ret;
-#endif
-  return ret;
+  if      (storeRL) {
+    return getRadiationLength(aStep);
+  } else {
+    if      (any(useDepth1,lv)) return 1;
+    else if (any(useDepth2,lv)) return 2;
+    else                        return 0;
+  }
 }
 
 uint16_t ECalSD::getRadiationLength(G4Step * aStep) {
@@ -244,10 +244,9 @@ uint16_t ECalSD::getRadiationLength(G4Step * aStep) {
     if (useWeight) {
       G4ThreeVector  localPoint = setToLocal(hitPoint->GetPosition(),
 					     hitPoint->GetTouchable());
-      double crlength = crystalLength(lv);
       double radl     = hitPoint->GetMaterial()->GetRadlen();
-      double detz     = (float)(0.5*crlength + localPoint.z());
-      thisX0 = (uint16_t)floor(detz/radl);   
+      double depth    = crystalDepth(lv,localPoint);
+      thisX0 = (uint16_t)floor(scaleRL*depth/radl);
     } 
   }
   return thisX0;
@@ -294,6 +293,9 @@ void ECalSD::initMap(G4String sd, const DDCompactView & cpv) {
     const std::string &matname = fv.logicalPart().material().name().name();
     const std::string &lvname = fv.logicalPart().name().name();
     G4LogicalVolume* lv = nameMap[lvname];
+    int ibec = (lvname.find("EFRY") == std::string::npos) ? 0 : 1;
+    int iref = (lvname.find("refl") == std::string::npos) ? 0 : 1;
+    int type = (ibec+iref == 1) ? 1 : -1;
     if (depth1Name != " ") {
       if (strncmp(lvname.c_str(), depth1Name.c_str(), 4) == 0) {
 	if (!any(useDepth1, lv)) {
@@ -346,10 +348,10 @@ void ECalSD::initMap(G4String sd, const DDCompactView & cpv) {
 #endif
 	  if (sol.shape() == ddtrap) {
 	    double dz = 2*paras[0];
-	    xtalLMap.insert(std::pair<G4LogicalVolume*,double>(lv,dz));
+	    xtalLMap.insert(std::pair<G4LogicalVolume*,double>(lv,dz*type));
 	    lv = nameMap[lvname + "_refl"];
 	    if (lv != 0)
-	      xtalLMap.insert(std::pair<G4LogicalVolume*,double>(lv,dz));
+	      xtalLMap.insert(std::pair<G4LogicalVolume*,double>(lv,-dz*type));
 	  }
 	}
       } else {
@@ -396,16 +398,14 @@ double ECalSD::curve_LY(G4Step* aStep) {
 					 stepPoint->GetTouchable());
 
   double crlength = crystalLength(lv);
+  double depth    = crystalDepth(lv,localPoint);
 
   if(ageingWithSlopeLY){
     //position along the crystal in mm from 0 to 230 (in EB)
-    double depth = 0.5 * crlength + localPoint.z();
-
     if (depth >= -0.1 || depth <= crlength+0.1)
       weight = ageing.calcLightCollectionEfficiencyWeighted(currentID.unitID(), depth/crlength);
-  }
-  else{
-    double dapd = 0.5 * crlength - localPoint.z();
+  } else {
+    double dapd = crlength - depth;
     if (dapd >= -0.1 || dapd <= crlength+0.1) {
       if (dapd <= 100.)
 	weight = 1.0 + slopeLY - dapd * 0.01 * slopeLY;
@@ -429,10 +429,18 @@ double ECalSD::curve_LY(G4Step* aStep) {
 
 double ECalSD::crystalLength(G4LogicalVolume* lv) {
 
-  double length= 230.;
-  std::map<G4LogicalVolume*,double>::const_iterator ite = xtalLMap.find(lv);
-  if (ite != xtalLMap.end()) length = ite->second;
+  auto ite = xtalLMap.find(lv);
+  double length = (ite == xtalLMap.end()) ? 230.0 : std::abs(ite->second);
   return length;
+}
+
+double ECalSD::crystalDepth(G4LogicalVolume* lv, 
+                            const G4ThreeVector& localPoint) {
+
+  auto ite = xtalLMap.find(lv);
+  double depth = (ite == xtalLMap.end()) ? 0 :
+    (std::abs(0.5*(ite->second)+localPoint.z()));
+  return depth;
 }
 
 void ECalSD::getBaseNumber(const G4Step* aStep) {
