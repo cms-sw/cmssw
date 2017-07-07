@@ -14,7 +14,6 @@
 
 #include <boost/foreach.hpp>
 #include <TLorentzVector.h>
-#include <TMath.h>
 
 #include "DQMOffline/Lumi/plugins/ZCounting.h"
 
@@ -251,7 +250,8 @@ void ZCounting::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       // Mass window
       TLorentzVector vDilep = vTag + vProbe;
-      if((vDilep.M() < MassMin_) || (vDilep.M() > MassMax_)) continue;
+      float dilepMass = vDilep.M();
+      if((dilepMass < MassMin_) || (dilepMass > MassMax_)) continue;
 
       bool isTagCentral   = false;
       bool isProbeCentral = false;
@@ -266,42 +266,42 @@ void ZCounting::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
           // Fill twice for each event, since both muons pass trigger 
           if(isTagCentral){
-            h_mass_HLT_pass_central->Fill(iEvent.luminosityBlock(), vDilep.M());
-            h_mass_SIT_pass_central->Fill(iEvent.luminosityBlock(), vDilep.M());
-            h_mass_Sta_pass_central->Fill(iEvent.luminosityBlock(), vDilep.M());
+            h_mass_HLT_pass_central->Fill(iEvent.luminosityBlock(), dilepMass);
+            h_mass_SIT_pass_central->Fill(iEvent.luminosityBlock(), dilepMass);
+            h_mass_Sta_pass_central->Fill(iEvent.luminosityBlock(), dilepMass);
           }
           else
           {
-            h_mass_HLT_pass_forward->Fill(iEvent.luminosityBlock(), vDilep.M());
-            h_mass_SIT_pass_forward->Fill(iEvent.luminosityBlock(), vDilep.M());
-            h_mass_Sta_pass_forward->Fill(iEvent.luminosityBlock(), vDilep.M());
+            h_mass_HLT_pass_forward->Fill(iEvent.luminosityBlock(), dilepMass);
+            h_mass_SIT_pass_forward->Fill(iEvent.luminosityBlock(), dilepMass);
+            h_mass_Sta_pass_forward->Fill(iEvent.luminosityBlock(), dilepMass);
           }
 
           if(isProbeCentral){
-            h_mass_HLT_pass_central->Fill(iEvent.luminosityBlock(), vDilep.M());
-            h_mass_SIT_pass_central->Fill(iEvent.luminosityBlock(), vDilep.M());
-            h_mass_Sta_pass_central->Fill(iEvent.luminosityBlock(), vDilep.M());
+            h_mass_HLT_pass_central->Fill(iEvent.luminosityBlock(), dilepMass);
+            h_mass_SIT_pass_central->Fill(iEvent.luminosityBlock(), dilepMass);
+            h_mass_Sta_pass_central->Fill(iEvent.luminosityBlock(), dilepMass);
           }
           else
           {
-            h_mass_HLT_pass_forward->Fill(iEvent.luminosityBlock(), vDilep.M());
-            h_mass_SIT_pass_forward->Fill(iEvent.luminosityBlock(), vDilep.M());
-            h_mass_Sta_pass_forward->Fill(iEvent.luminosityBlock(), vDilep.M());
+            h_mass_HLT_pass_forward->Fill(iEvent.luminosityBlock(), dilepMass);
+            h_mass_SIT_pass_forward->Fill(iEvent.luminosityBlock(), dilepMass);
+            h_mass_Sta_pass_forward->Fill(iEvent.luminosityBlock(), dilepMass);
           }
 
         }
         else{
           // category 1HLT: probe passing selection but not trigger
           if(isProbeCentral){
-            h_mass_HLT_fail_central->Fill(iEvent.luminosityBlock(), vDilep.M());
-            h_mass_SIT_pass_central->Fill(iEvent.luminosityBlock(), vDilep.M());
-            h_mass_Sta_pass_central->Fill(iEvent.luminosityBlock(), vDilep.M());
+            h_mass_HLT_fail_central->Fill(iEvent.luminosityBlock(), dilepMass);
+            h_mass_SIT_pass_central->Fill(iEvent.luminosityBlock(), dilepMass);
+            h_mass_Sta_pass_central->Fill(iEvent.luminosityBlock(), dilepMass);
           }
           else
           {
-            h_mass_HLT_fail_forward->Fill(iEvent.luminosityBlock(), vDilep.M());
-            h_mass_SIT_pass_forward->Fill(iEvent.luminosityBlock(), vDilep.M());
-            h_mass_Sta_pass_forward->Fill(iEvent.luminosityBlock(), vDilep.M());
+            h_mass_HLT_fail_forward->Fill(iEvent.luminosityBlock(), dilepMass);
+            h_mass_SIT_pass_forward->Fill(iEvent.luminosityBlock(), dilepMass);
+            h_mass_Sta_pass_forward->Fill(iEvent.luminosityBlock(), dilepMass);
           }
 
         }
@@ -311,33 +311,33 @@ void ZCounting::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       else if(itMu2.isGlobalMuon()){
         // category NoSel: probe is a GLB muon but failing selection 
         if(isProbeCentral){
-          h_mass_SIT_fail_central->Fill(iEvent.luminosityBlock(), vDilep.M());
-          h_mass_Sta_pass_central->Fill(iEvent.luminosityBlock(), vDilep.M());
+          h_mass_SIT_fail_central->Fill(iEvent.luminosityBlock(), dilepMass);
+          h_mass_Sta_pass_central->Fill(iEvent.luminosityBlock(), dilepMass);
         }
         else
         {
-          h_mass_SIT_fail_forward->Fill(iEvent.luminosityBlock(), vDilep.M());
-          h_mass_Sta_pass_forward->Fill(iEvent.luminosityBlock(), vDilep.M());
+          h_mass_SIT_fail_forward->Fill(iEvent.luminosityBlock(), dilepMass);
+          h_mass_Sta_pass_forward->Fill(iEvent.luminosityBlock(), dilepMass);
         }
       }
       else if(itMu2.isStandAloneMuon()){
         // category STA: probe is a STA muon
         if(isProbeCentral){
-          h_mass_Sta_fail_central->Fill(iEvent.luminosityBlock(), vDilep.M());
+          h_mass_Sta_fail_central->Fill(iEvent.luminosityBlock(), dilepMass);
         }
         else
         {
-          h_mass_Sta_fail_forward->Fill(iEvent.luminosityBlock(), vDilep.M());
+          h_mass_Sta_fail_forward->Fill(iEvent.luminosityBlock(), dilepMass);
         }
       }
       else if(itMu2.innerTrack()->hitPattern().trackerLayersWithMeasurement() >= 6 && itMu2.innerTrack()->hitPattern().numberOfValidPixelHits() >= 1){
         // cateogry Trk: probe is a tracker track
         if(isProbeCentral){
-          h_mass_Sta_fail_central->Fill(iEvent.luminosityBlock(), vDilep.M());
+          h_mass_Sta_fail_central->Fill(iEvent.luminosityBlock(), dilepMass);
         }
         else
         {
-          h_mass_Sta_fail_forward->Fill(iEvent.luminosityBlock(), vDilep.M());
+          h_mass_Sta_fail_forward->Fill(iEvent.luminosityBlock(), dilepMass);
         }
       }
 
@@ -369,14 +369,15 @@ void ZCounting::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       vTrack.SetPtEtaPhiM(pt2, eta2, phi2, MUON_MASS);
 
       TLorentzVector vDilep = vTag + vTrack;
-      if((vDilep.M() < MassMin_) || (vDilep.M() > MassMax_)) continue;
+      float dilepMass = vDilep.M();
+      if((dilepMass < MassMin_) || (dilepMass > MassMax_)) continue;
 
       bool isTrackCentral = false;
       if(fabs(eta2) > MUON_BOUND) isTrackCentral = true;
 
       if(itTrk.hitPattern().trackerLayersWithMeasurement() >= 6 && itTrk.hitPattern().numberOfValidPixelHits() >= 1){
-        if(isTrackCentral) h_mass_Sta_fail_central->Fill(iEvent.luminosityBlock(), vDilep.M());
-        else               h_mass_Sta_fail_forward->Fill(iEvent.luminosityBlock(), vDilep.M());
+        if(isTrackCentral) h_mass_Sta_fail_central->Fill(iEvent.luminosityBlock(), dilepMass);
+        else               h_mass_Sta_fail_forward->Fill(iEvent.luminosityBlock(), dilepMass);
       }
 
     }//End of probe loop over tracks
@@ -449,7 +450,7 @@ bool ZCounting::passMuonIso(const reco::Muon& muon, const MuonIsoTypes &isoType,
 {//Muon isolation selection, up-to-date with MUO POG recommendation
 
     if(isoType == TrackerIso && muon.isolationR03().sumPt < isoCut) return true;
-    else if(isoType == PFIso && muon.pfIsolationR04().sumChargedHadronPt + TMath::Max(0.,muon.pfIsolationR04().sumNeutralHadronEt + muon.pfIsolationR04().sumPhotonEt - 0.5*muon.pfIsolationR04().sumPUPt) < isoCut) return true;
+    else if(isoType == PFIso && muon.pfIsolationR04().sumChargedHadronPt + std::max(0.,muon.pfIsolationR04().sumNeutralHadronEt + muon.pfIsolationR04().sumPhotonEt - 0.5*muon.pfIsolationR04().sumPUPt) < isoCut) return true;
     else if(isoType == NoneIso) return true;
     else                        return false;
 }
