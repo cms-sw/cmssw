@@ -7,7 +7,7 @@
 
 #include "OnlineDB/EcalCondDB/interface/LMFColoredTable.h"
 
-#include <math.h>
+#include <cmath>
 
 /**
  *   LMF_CLS_XXXX_DAT interface

@@ -1,6 +1,6 @@
 #include <stdexcept>
 #include <string>
-#include <string.h>
+#include <cstring>
 #include <cstdlib>
 
 #include "OnlineDB/Oracle/interface/Oracle.h"

@@ -24,7 +24,7 @@
 #include <iomanip>
 #include <sstream>
 #include <string>
-#include <time.h>
+#include <ctime>
 
 
 namespace test{

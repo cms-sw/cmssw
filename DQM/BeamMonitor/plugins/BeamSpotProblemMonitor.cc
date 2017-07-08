@@ -31,7 +31,7 @@
 #include "DQMServices/Core/interface/QReport.h"
 
 #include <numeric>
-#include <math.h>
+#include <cmath>
 #include <TMath.h>
 #include <iostream>
 #include <TStyle.h>

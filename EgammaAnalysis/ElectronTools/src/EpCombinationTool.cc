@@ -2,7 +2,7 @@
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
 #include <TFile.h>
 #include <TSystem.h>
-#include <math.h>
+#include <cmath>
 #include <vector>
 #include <iostream>
 

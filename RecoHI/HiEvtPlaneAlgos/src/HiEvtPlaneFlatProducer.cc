@@ -43,7 +43,7 @@
 #include "RecoHI/HiEvtPlaneAlgos/interface/HiEvtPlaneFlatten.h"
 #include "TList.h"
 #include "TString.h"
-#include <time.h>
+#include <ctime>
 #include <cstdlib>
 
 #include "RecoHI/HiEvtPlaneAlgos/interface/HiEvtPlaneList.h"

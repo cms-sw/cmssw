@@ -1,6 +1,6 @@
 #include "DetectorDescription/Parser/src/DDLAlgorithm.h"
 
-#include <stddef.h>
+#include <cstddef>
 #include <map>
 #include <utility>
 

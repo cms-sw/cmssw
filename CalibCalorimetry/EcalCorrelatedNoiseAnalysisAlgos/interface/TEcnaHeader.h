@@ -13,7 +13,7 @@
 #include "TString.h"
 #include "TNamed.h"
 #include "Riostream.h"
-#include <time.h>
+#include <ctime>
 #include <TMath.h>
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaObject.h"

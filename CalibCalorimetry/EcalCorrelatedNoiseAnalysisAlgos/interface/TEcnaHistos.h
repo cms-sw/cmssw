@@ -7,7 +7,7 @@
 //#include <Riostream.h>
 #include <iostream>
 #include "TSystem.h"
-#include <time.h>
+#include <ctime>
 #include "TString.h"
 
 #include "TROOT.h"

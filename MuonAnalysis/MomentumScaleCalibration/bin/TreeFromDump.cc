@@ -4,7 +4,7 @@
 #include <sstream>
 #include <fstream>
 #include <iostream>
-#include <stdlib.h>
+#include <cstdlib>
 
 #include <TH1F.h>
 #include <TROOT.h>

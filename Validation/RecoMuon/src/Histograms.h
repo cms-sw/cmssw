@@ -19,7 +19,7 @@
 #include "DataFormats/GeometryVector/interface/Pi.h"
 #include <iostream>
 #include <vector>
-#include <math.h>
+#include <cmath>
 
 
 class HTrackVariables{

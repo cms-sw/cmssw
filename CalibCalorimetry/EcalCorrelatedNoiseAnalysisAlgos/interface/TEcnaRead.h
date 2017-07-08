@@ -1,8 +1,8 @@
 #ifndef   CL_TEcnaRead_H
 #define   CL_TEcnaRead_H
 
-#include <time.h>
-#include <math.h>
+#include <ctime>
+#include <cmath>
 
 #include "TSystem.h"
 #include "TObject.h"

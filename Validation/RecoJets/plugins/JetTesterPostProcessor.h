@@ -5,8 +5,8 @@
 
 // system include files
 #include <memory>
-#include <stdio.h>
-#include <math.h>
+#include <cstdio>
+#include <cmath>
 #include <sstream>
 
 // user include files

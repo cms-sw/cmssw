@@ -9,7 +9,7 @@
 #include <vector>
 #include <exception>
 #include <stdexcept> // out_of_range exception
-#include <time.h>
+#include <ctime>
 
 
 #define ull unsigned int 

@@ -10,7 +10,7 @@
 #include <vector>
 #include <fstream>
 #include <zlib.h>
-#include <stdio.h>
+#include <cstdio>
 #include <chrono>
 
 #include <boost/algorithm/string.hpp>

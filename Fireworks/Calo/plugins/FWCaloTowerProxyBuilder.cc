@@ -11,7 +11,7 @@
 //
 
 // system includes
-#include <math.h>
+#include <cmath>
 
 // user includes
 #include "TEveCaloData.h"

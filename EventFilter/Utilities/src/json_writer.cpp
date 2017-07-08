@@ -1,8 +1,8 @@
 #include "../interface/writer.h"
 #include <utility>
-#include <assert.h>
-#include <stdio.h>
-#include <string.h>
+#include <cassert>
+#include <cstdio>
+#include <cstring>
 #include <iostream>
 #include <sstream>
 #include <iomanip>

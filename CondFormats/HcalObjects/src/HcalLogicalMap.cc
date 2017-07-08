@@ -8,8 +8,8 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <stdio.h>
-#include <time.h>
+#include <cstdio>
+#include <ctime>
 #include <memory>
 
 using namespace std;

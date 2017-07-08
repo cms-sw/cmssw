@@ -13,7 +13,7 @@
 // system include files
 #include "TClass.h"
 #include "TROOT.h"
-#include <assert.h>
+#include <cassert>
 #include <iostream>
 #include <boost/bind.hpp>
 

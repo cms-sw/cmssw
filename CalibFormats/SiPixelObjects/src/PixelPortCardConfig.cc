@@ -14,7 +14,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <assert.h>
+#include <cassert>
 #include <stdexcept>
 #include <set>
 

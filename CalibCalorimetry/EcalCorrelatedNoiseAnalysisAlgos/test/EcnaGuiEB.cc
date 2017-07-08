@@ -14,7 +14,7 @@
 #include "TGClient.h"
 #include "TRint.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 #include "TSystem.h"
 #include "TObject.h"

@@ -1,7 +1,7 @@
 #include "CaloOnlineTools/HcalOnlineDb/interface/RooGKCounter.h"
 
 #include <iostream>
-#include <math.h>
+#include <cmath>
 #include <cstdio>
 using std::cout;
 using std::endl;

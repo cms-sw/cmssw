@@ -1,12 +1,12 @@
 #include "DTSpyHelper.h"
-#include <errno.h>
+#include <cerrno>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <string.h>
+#include <cstring>
 
 #ifdef __wasAPPLE__
 typedef int socklen_t;

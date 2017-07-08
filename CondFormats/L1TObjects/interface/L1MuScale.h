@@ -25,7 +25,7 @@
 #include <sstream>
 #include <iomanip>
 #include <vector>
-#include <math.h>
+#include <cmath>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/L1TObjects/interface/L1MuPacking.h"
 

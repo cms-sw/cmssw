@@ -17,7 +17,7 @@
 #include "CondFormats/DataRecord/interface/SiStripDeDxProton_3D_Rcd.h"
 
 #include <iostream>
-#include <stdio.h>
+#include <cstdio>
 #include <sys/time.h>
 
 

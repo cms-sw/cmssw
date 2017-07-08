@@ -1,4 +1,4 @@
-#include <stdlib.h>
+#include <cstdlib>
 
 #include <TH1F.h>
 #include <TROOT.h>

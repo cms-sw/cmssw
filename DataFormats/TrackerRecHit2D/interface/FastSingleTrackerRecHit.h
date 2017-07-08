@@ -2,7 +2,7 @@
 #define FastSingleTrackerRecHit_H
 
 #include "DataFormats/TrackerRecHit2D/interface/FastTrackerRecHit.h"
-#include "stdint.h"
+#include <cstdint>
 
 class FastSingleTrackerRecHit : public FastTrackerRecHit {
 

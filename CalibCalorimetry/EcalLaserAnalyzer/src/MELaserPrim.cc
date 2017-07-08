@@ -1,5 +1,5 @@
 #define MELaserPrim_cxx
-#include <assert.h>
+#include <cassert>
 #include "CalibCalorimetry/EcalLaserAnalyzer/interface/MELaserPrim.h"
 #include "CalibCalorimetry/EcalLaserAnalyzer/interface/MEGeom.h"
 #include <cassert>

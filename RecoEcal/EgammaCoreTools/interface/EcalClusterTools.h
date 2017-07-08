@@ -35,7 +35,7 @@
 #include "DataFormats/Math/interface/Vector3D.h"
 //includes for ShowerShape function to work
 #include <vector>
-#include <math.h>
+#include <cmath>
 #include <TMath.h>
 #include <TMatrixT.h>
 #include <TMatrixD.h>

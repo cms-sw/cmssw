@@ -19,7 +19,7 @@ Implementation:
 // system include files
 #include <memory>
 #include <iostream>
-#include <time.h>
+#include <ctime>
 #include <cmath>
 
 // user include files

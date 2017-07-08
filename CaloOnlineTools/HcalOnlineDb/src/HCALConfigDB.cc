@@ -5,7 +5,7 @@
 //
 
 #include <iostream>
-#include <string.h>
+#include <cstring>
 
 #ifdef HAVE_XDAQ
 #include <toolbox/string.h>

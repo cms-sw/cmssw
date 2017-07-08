@@ -1,6 +1,6 @@
 #include "DetectorDescription/Parser/src/DDDividedPolycone.h"
 
-#include <stddef.h>
+#include <cstddef>
 #include <iostream>
 #include <string>
 #include <utility>

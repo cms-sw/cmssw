@@ -51,7 +51,7 @@
 #include <iostream>
 //#include <sstream>
 #include <string>
-#include <stdlib.h>
+#include <cstdlib>
 #include <cstdio>
 
 //----------------------

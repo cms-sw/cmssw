@@ -35,7 +35,7 @@
 #include <memory>
 #include <iomanip>
 #include <sstream>
-#include <time.h>
+#include <ctime>
 
 #include <sys/types.h>
 #include <unistd.h>
@@ -45,7 +45,7 @@
 #include <sys/unistd.h>
 #include <sys/socket.h>
 #include <netdb.h>
-#include <stdio.h>
+#include <cstdio>
 
 
 using namespace sistrip;

@@ -14,8 +14,8 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <math.h>
-#include <stdio.h>
+#include <cmath>
+#include <cstdio>
 
 template < >
 bool PlotCompareUtility::compare<Plot2D>(HistoData *HD) {

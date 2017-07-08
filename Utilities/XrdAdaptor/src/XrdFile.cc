@@ -6,7 +6,7 @@
 #include <vector>
 #include <sstream>
 #include <iostream>
-#include <assert.h>
+#include <cassert>
 #include <chrono>
 
 using namespace XrdAdaptor;

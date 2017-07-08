@@ -3,7 +3,7 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
 #include <algorithm> // for "max"
 #include <iostream>
-#include <math.h>
+#include <cmath>
 
 
 

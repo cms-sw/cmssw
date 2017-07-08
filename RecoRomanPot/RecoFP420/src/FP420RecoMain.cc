@@ -19,7 +19,7 @@
 
 // #include "CLHEP/Vector/LorentzVector.h"
 // #include "CLHEP/Random/RandFlat.h"
-#include <math.h>
+#include <cmath>
 
 using namespace std;
 

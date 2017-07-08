@@ -2,7 +2,7 @@
 #define RecoEcal_EgammaClusterProducers_EgammaHLTIslandClusterProducer_h_
 
 #include <memory>
-#include <time.h>
+#include <ctime>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"

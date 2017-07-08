@@ -23,7 +23,7 @@
 
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 
-#include <stdlib.h> 
+#include <cstdlib> 
 
 namespace 
 {  

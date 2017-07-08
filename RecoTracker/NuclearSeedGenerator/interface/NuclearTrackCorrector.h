@@ -24,7 +24,7 @@
 // system include files
 #include <memory>
 #include <string>
-#include <stdio.h>
+#include <cstdio>
 
 // user include files
 

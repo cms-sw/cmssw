@@ -11,7 +11,7 @@
 // Created:     Sat Apr 24 15:18 CEST 2007
 //
 
-#include <string.h>
+#include <cstring>
 #include <cstddef>
 #include <cstring>
 

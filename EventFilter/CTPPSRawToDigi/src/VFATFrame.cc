@@ -10,7 +10,7 @@
 
 #include "EventFilter/CTPPSRawToDigi/interface/VFATFrame.h"
 
-#include <stdio.h>
+#include <cstdio>
 #include <cstring>
 
 //----------------------------------------------------------------------------------------------------

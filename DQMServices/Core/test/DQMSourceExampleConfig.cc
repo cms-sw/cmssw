@@ -35,7 +35,7 @@ Implementation:
 
 #include <TRandom.h> // this is just the random number generator
 
-#include <math.h>
+#include <cmath>
 #include <vector>
 #include <sstream>
 using std::cout; using std::endl; using std::string;

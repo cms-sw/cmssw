@@ -2,7 +2,7 @@
 #define RecoEcal_EgammaClusterProducers_Multi5x5ClusterProducer_h_
 
 #include <memory>
-#include <time.h>
+#include <ctime>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"

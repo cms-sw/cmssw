@@ -24,7 +24,7 @@
 #include "TPostScript.h"
 #include "TCanvas.h"
 
-#include <math.h>
+#include <cmath>
 #include <vector>
 #include <sstream>
 

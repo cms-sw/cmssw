@@ -1,7 +1,7 @@
 #ifndef CalibTracker_SiStripLorentzAngle_SiStripCalibLorentzAngle_h
 #define CalibTracker_SiStripLorentzAngle_SiStripCalibLorentzAngle_h
 
-#include <string.h>
+#include <cstring>
 #include <iostream>
 #include <map>
 #include "FWCore/Framework/interface/EDAnalyzer.h"

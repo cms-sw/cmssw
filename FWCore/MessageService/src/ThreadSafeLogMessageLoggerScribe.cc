@@ -28,7 +28,7 @@
 #include <cassert>
 #include <fstream>
 #include <string>
-#include <signal.h>
+#include <csignal>
 
 using std::cerr;
 

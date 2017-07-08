@@ -14,9 +14,9 @@
 #include <string>
 #include <sstream>
 #include <vector>
-#include <time.h>
+#include <ctime>
 #include <cstdlib>
-#include <limits.h>
+#include <climits>
 
 #include <TFile.h>
 #include <TTree.h>

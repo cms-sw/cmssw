@@ -19,7 +19,7 @@
 #include <CondFormats/DTObjects/interface/DTReadOutMapping.h>
 
 #include <iostream>
-#include <math.h>
+#include <cmath>
 
 using namespace std;
 using namespace edm;

@@ -48,12 +48,12 @@
 #include "base64.h"
 
 /* Get malloc. */
-#include <stdlib.h>
+#include <cstdlib>
 
 /* Get UCHAR_MAX. */
-#include <limits.h>
+#include <climits>
 
-#include <string.h>
+#include <cstring>
 
 /* C89 compliant way to cast 'char' to 'unsigned char'. */
 static inline unsigned char

@@ -1,4 +1,4 @@
-#include <assert.h>
+#include <cassert>
 #include <string>
 
 #include "DetectorDescription/Core/interface/DDTransform.h"

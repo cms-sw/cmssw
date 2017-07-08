@@ -2,9 +2,9 @@
 #include <iomanip>
 #include <string>
 #include <vector>
-#include <math.h>
-#include <stdlib.h>
-#include <stdint.h>
+#include <cmath>
+#include <cstdlib>
+#include <cstdint>
 
 #include "UCTTower.hh"
 #include "UCTLogging.hh"

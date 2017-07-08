@@ -1,6 +1,6 @@
 #include "DetectorDescription/Core/src/Ellipsoid.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <cmath>
 #include <iostream>
 

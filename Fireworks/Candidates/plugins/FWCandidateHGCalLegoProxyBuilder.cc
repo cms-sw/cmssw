@@ -16,7 +16,7 @@
 
 #include "Fireworks/Candidates/interface/FWLegoCandidate.h"
 
-#include <math.h>
+#include <cmath>
 
 //-----------------------------------------------------------------------------
 // FWCandidateHGCalLegoProxyBuilder

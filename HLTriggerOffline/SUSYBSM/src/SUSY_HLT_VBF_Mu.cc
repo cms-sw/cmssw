@@ -6,7 +6,7 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "HLTriggerOffline/SUSYBSM/interface/SUSY_HLT_VBF_Mu.h"
 #include "DataFormats/Math/interface/deltaR.h"
-#include <assert.h>
+#include <cassert>
 #include <cstdlib>
 #include "TLorentzVector.h"
 #include <string>
@@ -14,7 +14,7 @@
 #include <fstream>
 #include <sys/types.h>
 #include <regex.h>
-#include <stdio.h>
+#include <cstdio>
 
 SUSY_HLT_VBF_Mu::SUSY_HLT_VBF_Mu(const edm::ParameterSet& ps)
 {

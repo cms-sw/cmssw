@@ -47,7 +47,7 @@
 //#include "DataFormats/CSCDigi/interface/CSCEventFormatStatusDigi.h"
 //#include "DataFormats/CSCDigi/interface/CSCEventFormatStatusDigiCollection.h"
 
-#include <stdio.h>
+#include <cstdio>
 #include <iostream>
 
 using namespace std;

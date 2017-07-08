@@ -21,8 +21,8 @@
 
 #include <vector>
 #include <iostream>
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 #include <sstream>
 #include <iostream>
 #include <fstream>

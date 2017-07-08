@@ -29,7 +29,7 @@ Implementation:
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 /////
-#include <math.h>
+#include <cmath>
 
 #include "CLHEP/Random/RandGauss.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"

@@ -5,7 +5,7 @@
 #include "TCanvas.h"
 
 #include <iostream>
-#include <math.h>
+#include <cmath>
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"

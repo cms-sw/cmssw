@@ -1,6 +1,6 @@
 #include "CondCore/CondDB/interface/Cipher.h"
 #include "CondCore/CondDB/interface/Exception.h"
-#include <string.h>
+#include <cstring>
 // blowfish encryption
 #include "blowfish.h"
 // GNU base 64 encoding

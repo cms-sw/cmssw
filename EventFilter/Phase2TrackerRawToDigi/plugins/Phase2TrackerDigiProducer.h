@@ -14,7 +14,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "CondFormats/SiStripObjects/interface/Phase2TrackerCabling.h"
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
-#include <stdint.h>
+#include <cstdint>
 #include <iostream>
 #include <string>
 #include <vector>

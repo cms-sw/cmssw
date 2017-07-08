@@ -17,7 +17,7 @@
 #include "TrackingTools/TrackAssociator/interface/DetIdAssociator.h"
 
 #include "TDecompChol.h"
-#include <math.h>
+#include <cmath>
 
 
 MuonResidualsFromTrack::MuonResidualsFromTrack(const edm::EventSetup& iSetup,

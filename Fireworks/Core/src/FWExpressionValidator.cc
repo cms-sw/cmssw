@@ -11,7 +11,7 @@
 //
 
 // system include files
-#include <ctype.h>
+#include <cctype>
 #include <algorithm>
 
 #include "FWCore/Utilities/interface/BaseWithDict.h"

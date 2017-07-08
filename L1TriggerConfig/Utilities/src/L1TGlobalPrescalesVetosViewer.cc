@@ -31,7 +31,7 @@ public:
 };
 
 #include <openssl/sha.h>
-#include <math.h>
+#include <cmath>
 #include <iostream>
 using namespace std;
 

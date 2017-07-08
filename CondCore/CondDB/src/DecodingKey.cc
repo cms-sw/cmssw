@@ -4,7 +4,7 @@
 #include "CondCore/CondDB/interface/Cipher.h"
 //
 #include <sstream>
-#include <string.h>
+#include <cstring>
 #include <fstream>
 #include <vector>
 #include <pwd.h>

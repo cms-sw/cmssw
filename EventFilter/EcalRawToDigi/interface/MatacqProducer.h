@@ -11,7 +11,7 @@
 #    define _LARGEFILE64_SOURCE
 #  endif //_LARGEFILE64_SOURCE not defined
 #  define  _FILE_OFFSET_BITS 64 
-#  include <stdio.h>
+#  include <cstdio>
 #endif //USE_STORAGE_MANAGER defined
 
 
@@ -25,7 +25,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 #include <string>
-#include <inttypes.h>
+#include <cinttypes>
 #include <fstream>
 #include <memory>
 

@@ -6,7 +6,7 @@
 #include <vector>
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationDatabaseException.hh"
 #include "xercesc/dom/DOMDocument.hpp"
-#include <stdint.h>
+#include <cstdint>
 
 #ifdef HAVE_XDAQ
 #include "log4cplus/logger.h"

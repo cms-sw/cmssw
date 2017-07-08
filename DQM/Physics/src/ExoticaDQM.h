@@ -93,10 +93,10 @@
 #include <iostream>
 #include <iomanip>
 #include <fstream>
-#include <stdio.h>
+#include <cstdio>
 #include <string>
 #include <sstream>
-#include <math.h>
+#include <cmath>
 #include <vector>
 #include <map>
 

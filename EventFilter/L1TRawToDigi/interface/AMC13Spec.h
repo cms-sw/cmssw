@@ -3,7 +3,7 @@
 
 #include <memory>
 #include <vector>
-#include <stdint.h>
+#include <cstdint>
 
 #include "AMCSpec.h"
 

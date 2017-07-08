@@ -8,8 +8,8 @@
 # include "classlib/utils/Error.h"
 # include "classlib/utils/Time.h"
 # include <pthread.h>
-# include <stdint.h>
-# include <signal.h>
+# include <cstdint>
+# include <csignal>
 # include <iostream>
 # include <vector>
 # include <string>

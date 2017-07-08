@@ -27,7 +27,7 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-#include <stdio.h>
+#include <cstdio>
 
 class TGraph;
 class TFile;

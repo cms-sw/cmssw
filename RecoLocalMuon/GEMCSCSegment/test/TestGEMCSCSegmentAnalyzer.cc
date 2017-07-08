@@ -21,7 +21,7 @@
 #include <sstream>
 #include <iostream>
 #include <iomanip>
-#include <math.h>
+#include <cmath>
 
 // root include files
 #include "TFile.h"

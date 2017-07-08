@@ -8,8 +8,8 @@
 #include <sstream>
 #include <iostream>
 #include <fstream>
-#include <math.h>
-#include <time.h>
+#include <cmath>
+#include <ctime>
 #include "TTree.h"
 #include "TFile.h"
 

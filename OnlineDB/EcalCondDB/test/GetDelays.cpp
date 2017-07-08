@@ -2,9 +2,9 @@
 #include <iomanip>
 #include <string>
 #include <vector>
-#include <time.h>
+#include <ctime>
 #include <cstdlib>
-#include <limits.h>
+#include <climits>
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 
 using namespace std;

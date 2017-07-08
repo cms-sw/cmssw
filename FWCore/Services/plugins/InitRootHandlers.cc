@@ -24,7 +24,7 @@
 #include <thread>
 #include <sys/wait.h>
 #include <sstream>
-#include <string.h>
+#include <cstring>
 #include <poll.h>
 #include <atomic>
 

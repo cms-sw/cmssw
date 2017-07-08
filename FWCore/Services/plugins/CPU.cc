@@ -22,7 +22,7 @@
 #include <iostream>
 #include <sys/time.h>
 #include <sys/resource.h>
-#include <stdio.h>
+#include <cstdio>
 #include <string>
 #include <fstream>
 #include <sstream>
@@ -30,7 +30,7 @@
 
 #ifdef __linux__
 #include <sched.h>
-#include <errno.h>
+#include <cerrno>
 #endif
 
 namespace edm {

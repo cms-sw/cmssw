@@ -20,7 +20,7 @@
 
 #include <vector>
 #include "GBRTree2D.h"
-#include <stdio.h>
+#include <cstdio>
 
   class GBRForest2D {
 

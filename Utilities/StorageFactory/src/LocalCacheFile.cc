@@ -2,11 +2,11 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include <utility>
 #include <iostream>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 #include <unistd.h>
 #include <sys/mman.h>
-#include <errno.h>
+#include <cerrno>
 #include <sstream>
 
 static const IOOffset CHUNK_SIZE = 128*1024*1024;

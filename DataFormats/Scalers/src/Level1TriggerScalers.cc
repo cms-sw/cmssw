@@ -6,7 +6,7 @@
 #include "DataFormats/Scalers/interface/ScalersRaw.h"
 
 #include <iostream>
-#include <time.h>
+#include <ctime>
 #include <cstdio>
 
 Level1TriggerScalers::Level1TriggerScalers():

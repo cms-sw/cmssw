@@ -1,6 +1,6 @@
 
 #include "Alignment/CocoaUtilities/interface/ALIUtils.h"
-#include <assert.h>
+#include <cassert>
 #include "Alignment/CocoaModel/interface/Model.h"
 #include "Alignment/CocoaFit/interface/Fit.h"
 #include "Alignment/CocoaUtilities/interface/ALIFileOut.h"
@@ -8,7 +8,7 @@
 #include "Alignment/CocoaToDDL/interface/CocoaToDDLMgr.h"
 #include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
 
-#include <time.h>
+#include <ctime>
 
 int main( int argc, char** argv ) 
 {

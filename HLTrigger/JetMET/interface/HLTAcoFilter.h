@@ -9,7 +9,7 @@
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include <string>
-#include <string.h>
+#include <cstring>
 #include <cmath>
 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"

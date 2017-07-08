@@ -11,7 +11,7 @@
 //#include <stdlib.h>
 //#include <stdio.h>
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
-#include <math.h>
+#include <cmath>
 #else
 #include <math.h>
 #endif

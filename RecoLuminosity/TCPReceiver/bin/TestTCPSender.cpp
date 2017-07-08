@@ -7,7 +7,7 @@
 #include <iostream>
 #include <sys/socket.h>
 #include <arpa/inet.h>
-#include <signal.h>
+#include <csignal>
 #include <unistd.h>
 #include <cstring>
 #include <cstdlib>

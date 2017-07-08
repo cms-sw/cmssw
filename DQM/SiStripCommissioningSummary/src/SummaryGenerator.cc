@@ -5,7 +5,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <sstream>
-#include <math.h>
+#include <cmath>
 #include "TH2F.h"
 #include "TProfile.h"
 

@@ -1,5 +1,5 @@
 #include <iomanip>
-#include <string.h>
+#include <cstring>
 #include "sp_wrap.h"
 
 using namespace std;

@@ -1,7 +1,7 @@
 #ifndef __Validation_RecoParticleFlow_Comparator__
 #define __Validation_RecoParticleFlow_Comparator__
 
-#include <math.h>
+#include <cmath>
 
 #include <TLegend.h>
 #include <TFile.h>

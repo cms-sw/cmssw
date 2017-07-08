@@ -2,7 +2,7 @@
 #include "EventFilter/CSCTFRawToDigi/src/CSCTFEvent.h"
 
 #include <strings.h>
-#include <errno.h>
+#include <cerrno>
 #include <iostream>
 #include <cstdio>
 

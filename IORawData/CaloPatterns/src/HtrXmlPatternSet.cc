@@ -1,5 +1,5 @@
 #include "HtrXmlPatternSet.h"
-#include <math.h>
+#include <cmath>
 #include <iostream>
 
 ChannelPattern::ChannelPattern() {

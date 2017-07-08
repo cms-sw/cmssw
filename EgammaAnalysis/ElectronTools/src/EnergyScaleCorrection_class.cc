@@ -6,8 +6,8 @@
 #define NGENMAX 10000
 
 // for exit(0)
-#include <stdlib.h>
-#include <float.h> 
+#include <cstdlib>
+#include <cfloat> 
 // for setw
 #include <iomanip>
 //for istreamstring

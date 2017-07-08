@@ -19,7 +19,7 @@
 //---------------
 // C++ Headers --
 //---------------
-#include <ctype.h>
+#include <cctype>
 
 using namespace std;
 

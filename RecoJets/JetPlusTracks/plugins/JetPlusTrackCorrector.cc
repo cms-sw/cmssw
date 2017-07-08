@@ -12,7 +12,7 @@
 #include <fstream>
 #include <vector>
 #include <iomanip>
-#include <math.h>
+#include <cmath>
 
 using namespace std;
 using namespace jpt;

@@ -32,7 +32,7 @@
 #include <iostream>
 #include <sstream>
 #include <iomanip>
-#include <stdlib.h>
+#include <cstdlib>
 
 CastorShowerLibraryMaker::CastorShowerLibraryMaker(const edm::ParameterSet &p) : 
                              NPGParticle(0),DoHadSL(false),DoEmSL(false),DeActivatePhysicsProcess(false),

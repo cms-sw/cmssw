@@ -19,7 +19,7 @@
 
 // system include files
 #include <memory>
-#include <time.h>
+#include <ctime>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"

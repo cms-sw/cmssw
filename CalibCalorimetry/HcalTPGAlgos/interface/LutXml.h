@@ -22,7 +22,7 @@
 #include <map>
 #include "CalibCalorimetry/HcalTPGAlgos/interface/XMLDOMBlock.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
-#include <stdint.h>
+#include <cstdint>
 
 class LutXml : public XMLDOMBlock
 {

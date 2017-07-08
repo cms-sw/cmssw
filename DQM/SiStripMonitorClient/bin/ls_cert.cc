@@ -12,7 +12,7 @@
 #include <TPaveStats.h>
 #include <TText.h>
 #include <TLegend.h>
-#include <string.h>
+#include <cstring>
 #include <utility>
 #include <vector>
 #include <sstream>

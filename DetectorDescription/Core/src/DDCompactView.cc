@@ -1,6 +1,6 @@
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "DetectorDescription/Core/interface/DDRotationMatrix.h"
 #include "DetectorDescription/Core/interface/DDBase.h"

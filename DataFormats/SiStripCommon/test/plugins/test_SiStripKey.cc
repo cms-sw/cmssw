@@ -10,7 +10,7 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
-#include <time.h>
+#include <ctime>
 
 using namespace sistrip;
 

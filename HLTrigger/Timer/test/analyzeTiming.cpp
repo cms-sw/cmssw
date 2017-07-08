@@ -6,8 +6,8 @@
 
 #include <iostream>
 #include <string>
-#include <assert.h>
-#include <stdlib.h>
+#include <cassert>
+#include <cstdlib>
 
 // needed for timing studies
 #include "DataFormats/HLTReco/interface/ModuleTiming.h"

@@ -15,8 +15,8 @@
 #include <vector>
 #include <memory>
 #include <atomic>
-#include <stdint.h>
-#include <assert.h>
+#include <cstdint>
+#include <cassert>
 
 //synchronization level between streams/threads for atomic updates
 //#define ATOMIC_LEVEL 2 //assume postEvent and postLumi are not synchronized (each invocation can run in different thread)

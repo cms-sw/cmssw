@@ -5,7 +5,7 @@
 #include "TMath.h"
 #include <iostream>
 #include <sstream>
-#include <math.h>
+#include <cmath>
 
 using namespace std;
 

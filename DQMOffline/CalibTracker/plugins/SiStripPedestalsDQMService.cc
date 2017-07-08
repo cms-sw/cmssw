@@ -5,7 +5,7 @@
 #include <string>
 #include <sstream>
 #include <cctype>
-#include <time.h>
+#include <ctime>
 #include <boost/cstdint.hpp>
 
 using namespace std;

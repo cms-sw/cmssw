@@ -1,7 +1,7 @@
 #ifndef STORAGE_FACTORY_STORAGE_ACCOUNT_H
 # define STORAGE_FACTORY_STORAGE_ACCOUNT_H
 
-# include <stdint.h>
+# include <cstdint>
 # include <string>
 # include <chrono>
 # include <atomic>

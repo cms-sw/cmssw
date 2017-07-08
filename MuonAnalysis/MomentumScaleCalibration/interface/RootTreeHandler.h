@@ -7,7 +7,7 @@
 #include <MuonAnalysis/MomentumScaleCalibration/interface/GenMuonPair.h>
 #include <MuonAnalysis/MomentumScaleCalibration/interface/MuScleFitProvenance.h>
 #include <TH1F.h>
-#include <stdlib.h>
+#include <cstdlib>
 #include <vector>
 
 typedef std::vector<std::pair<lorentzVector,lorentzVector> > MuonPairVector;

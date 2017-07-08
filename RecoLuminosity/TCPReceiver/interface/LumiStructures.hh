@@ -9,7 +9,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <stdint.h>
+#include <cstdint>
 
 #define HCAL_HLX_MAX_BUNCHES 4096
 #define HCAL_HLX_MAX_HLXS 36

@@ -29,7 +29,7 @@
 #include <algorithm>
 #include <memory>
 #include <vector>
-#include <stdlib.h>
+#include <cstdlib>
 
 //
 // class decleration

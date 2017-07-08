@@ -40,7 +40,7 @@
 #include <cmath>
 #include <utility>  
 #include <iomanip>
-#include <math.h>
+#include <cmath>
 
 //----------------
 // Constructors --

@@ -11,7 +11,7 @@
 //
 
 // system include files
-#include <assert.h>
+#include <cassert>
 #include <stdexcept>
 #include <iostream>
 

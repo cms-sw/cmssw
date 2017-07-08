@@ -2,7 +2,7 @@
 #define RecoEcal_EgammaClusterProducers_CosmicClusterProducer_h_
 
 #include <memory>
-#include <time.h>
+#include <ctime>
 #include <vector> //TEMP JHAUPT 4-27
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"

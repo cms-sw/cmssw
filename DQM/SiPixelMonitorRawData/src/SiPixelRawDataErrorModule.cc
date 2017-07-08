@@ -8,7 +8,7 @@
 #include <memory>
 #include <string>
 #include <iostream>
-#include <stdlib.h>
+#include <cstdlib>
 #include <sstream>
  
 // Data Formats

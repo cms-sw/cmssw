@@ -3,7 +3,7 @@
 #include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
 
 #include <algorithm> // for "max"
-#include <math.h>
+#include <cmath>
 #include <TH1.h>
 #include <TF1.h>
 

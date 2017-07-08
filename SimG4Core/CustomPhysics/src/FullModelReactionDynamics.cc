@@ -54,7 +54,7 @@
 #include "Randomize.hh"
 #include <iostream>
 #include "G4HadReentrentException.hh"
-#include <signal.h>
+#include <csignal>
 #include "G4ParticleTable.hh"
 
 using namespace CLHEP;

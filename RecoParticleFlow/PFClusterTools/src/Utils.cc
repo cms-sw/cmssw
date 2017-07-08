@@ -1,7 +1,7 @@
 #include "RecoParticleFlow/PFClusterTools/interface/Utils.h"
 
-#include <stdio.h>
-#include <math.h>
+#include <cstdio>
+#include <cmath>
 #include <regex.h>
 #include <glob.h>
 

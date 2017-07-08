@@ -1,6 +1,6 @@
 #include "DetectorDescription/Parser/src/DDLCompositeMaterial.h"
 
-#include <stddef.h>
+#include <cstddef>
 #include <map>
 #include <utility>
 #include "DetectorDescription/Core/interface/DDMaterial.h"

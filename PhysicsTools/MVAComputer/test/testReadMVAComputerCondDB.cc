@@ -1,5 +1,5 @@
 #include <sys/time.h>
-#include <stdint.h>
+#include <cstdint>
 #include <iostream>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"

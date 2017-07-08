@@ -1,6 +1,6 @@
 #include <stdexcept>
 #include <sstream>
-#include <limits.h>
+#include <climits>
 #include "OnlineDB/EcalCondDB/interface/LMFSeqDat.h"
 #include "OnlineDB/EcalCondDB/interface/DateHandler.h"
 

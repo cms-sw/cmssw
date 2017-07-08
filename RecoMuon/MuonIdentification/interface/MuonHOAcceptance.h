@@ -1,7 +1,7 @@
 // -*- C++ -*-
 #include <vector>
 #include <list>
-#include <stdint.h>
+#include <cstdint>
 #include "FWCore/Framework/interface/EventSetup.h"
 
 class TMultiGraph;

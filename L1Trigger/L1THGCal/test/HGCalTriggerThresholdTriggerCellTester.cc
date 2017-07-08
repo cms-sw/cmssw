@@ -33,7 +33,7 @@
 #include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalTriggerCellThresholdCodecImpl.h"
 #include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalTriggerCellThresholdCodec.h"
 
-#include <stdlib.h> 
+#include <cstdlib> 
 #include <map> 
 #include "TH2.h"
 

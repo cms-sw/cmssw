@@ -4,7 +4,7 @@
 #include <sstream>
 #include <string>
 #include <memory>
-#include <assert.h>
+#include <cassert>
 
 #include "GeneratorInterface/Pythia8Interface/plugins/LHAupLesHouches.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

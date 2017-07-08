@@ -13,7 +13,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include <iostream>
-#include <stdlib.h>
+#include <cstdlib>
 
 namespace edm { class HepMCProduct; }
 

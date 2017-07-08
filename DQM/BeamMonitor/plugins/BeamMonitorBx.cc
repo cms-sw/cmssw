@@ -16,7 +16,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <numeric>
-#include <math.h>
+#include <cmath>
 #include <TMath.h>
 #include <iostream>
 #include <TStyle.h>

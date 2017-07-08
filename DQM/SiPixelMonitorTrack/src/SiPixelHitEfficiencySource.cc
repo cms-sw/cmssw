@@ -13,7 +13,7 @@
 
 #include <iostream>
 #include <map>
-#include <math.h>
+#include <cmath>
 #include <string>
 #include <vector>
 #include <utility>

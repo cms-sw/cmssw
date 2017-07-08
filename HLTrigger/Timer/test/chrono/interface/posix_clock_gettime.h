@@ -6,7 +6,7 @@
 
 // POSIX standard headers
 #include <unistd.h>
-#include <time.h>
+#include <ctime>
 
 // check available capabilities
 #if (defined(_POSIX_TIMERS) && (_POSIX_TIMERS >= 0))

@@ -13,7 +13,7 @@
 // system include files
 #include <iostream>
 #include <string>
-#include<time.h>
+#include<ctime>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/sax/HandlerBase.hpp>
 #include <xercesc/dom/DOM.hpp>

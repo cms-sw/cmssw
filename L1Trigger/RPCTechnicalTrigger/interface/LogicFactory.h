@@ -2,7 +2,7 @@
 #define LOGICFACTORY_H 1
 
 // Include files
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 #include <map>
 

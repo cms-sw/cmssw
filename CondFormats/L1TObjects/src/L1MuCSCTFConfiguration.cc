@@ -1,7 +1,7 @@
 #include "CondFormats/L1TObjects/interface/L1MuCSCTFConfiguration.h"
 #include <sstream>
 #include <iostream>
-#include <stdlib.h>
+#include <cstdlib>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 edm::ParameterSet L1MuCSCTFConfiguration::parameters(int sp) const {
