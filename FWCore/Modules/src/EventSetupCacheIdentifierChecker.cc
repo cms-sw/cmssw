@@ -150,7 +150,7 @@ EventSetupCacheIdentifierChecker::beginLuminosityBlock(edm::LuminosityBlock cons
 void
 EventSetupCacheIdentifierChecker::check(edm::EventSetup const& iSetup)
 {
-  if(0==m_recordKeysToExpectedCacheIdentifiers.size()) {
+  if(m_recordKeysToExpectedCacheIdentifiers.empty()) {
     initialize();
   }
   using namespace edm::eventsetup;

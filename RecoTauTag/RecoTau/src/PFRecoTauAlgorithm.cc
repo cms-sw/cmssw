@@ -201,7 +201,7 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef, c
       myPFTau.setsignalPFGammaCands(mySignalPFGammaCands);
 
       // Add charged objects to signal cone, and calculate charge
-      if(mySignalPFChargedHadrCands.size() != 0) {
+      if(!mySignalPFChargedHadrCands.empty()) {
          int mySignalPFChargedHadrCands_qsum=0;
          for(size_t i = 0; i < mySignalPFChargedHadrCands.size(); i++) {
             mySignalPFChargedHadrCands_qsum += mySignalPFChargedHadrCands[i]->charge();

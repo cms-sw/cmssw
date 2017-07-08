@@ -443,7 +443,7 @@ void ZMuMuPerformances::analyze(const Event& event, const EventSetup& setup) {
 
 
   // loop on ZMuMu
-  if (zMuMu->size() > 0 ) {
+  if (!zMuMu->empty() ) {
     event.getByToken(zMuMuMatchMapToken_, zMuMuMatchMap);
     event.getByToken(muonIsoToken_, muonIso);
     event.getByToken(muonMatchMapToken_, muonMatchMap);
@@ -772,7 +772,7 @@ void ZMuMuPerformances::analyze(const Event& event, const EventSetup& setup) {
   int taggedZ_index = -1; // index of Z with minimum DR respect to unMatched Sta
   int taggedMuon_index = -1; // index of Sta muon with minimum DR respect to unMatched track
   int n_ZMuTrackTagged_inEvent = 0;  // number of tagged Z in the event
-  if (zMuTrack->size() > 0 && zMuMu->size()==0) {           // check ZMuTrack just if no ZMuMu has been found in the event
+  if (!zMuTrack->empty() && zMuMu->empty()) {           // check ZMuTrack just if no ZMuMu has been found in the event
     event.getByToken(zMuTrackMatchMapToken_, zMuTrackMatchMap);
     for(unsigned int i = 0; i < zMuTrack->size(); ++i) { //loop on candidates
       const Candidate & zMuTrackCand = (*zMuTrack)[i]; //the candidate
@@ -910,7 +910,7 @@ void ZMuMuPerformances::analyze(const Event& event, const EventSetup& setup) {
   taggedZ_index = -1; // index of Z with minimum DR respect to unMatched Sta
   taggedMuon_index = -1; // index of Sta muon with minimum DR respect to unMatched track
   int n_ZMuStaTagged_inEvent = 0;  // number of tagged Z in the event
-  if (zMuStandAlone->size() > 0) {           // check ZMuSta just if no ZMuMu has been found in the event
+  if (!zMuStandAlone->empty()) {           // check ZMuSta just if no ZMuMu has been found in the event
     event.getByToken(zMuStandAloneMatchMapToken_, zMuStandAloneMatchMap);
     for(unsigned int i = 0; i < zMuStandAlone->size(); ++i) { //loop on candidates
       const Candidate & zMuStaCand = (*zMuStandAlone)[i]; //the candidate

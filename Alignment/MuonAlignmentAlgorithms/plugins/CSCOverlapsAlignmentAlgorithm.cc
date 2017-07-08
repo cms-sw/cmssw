@@ -209,7 +209,7 @@ void CSCOverlapsAlignmentAlgorithm::initialize(const edm::EventSetup& iSetup, Al
     (*residualsConstraint)->setZplane(&*cscGeometry);
   }
 
-  if (m_readTemporaryFiles.size() != 0) {
+  if (!m_readTemporaryFiles.empty()) {
     std::vector<std::ifstream*> input;
     for (std::vector<std::string>::const_iterator fileName = m_readTemporaryFiles.begin();  fileName != m_readTemporaryFiles.end();  ++fileName) {
       input.push_back(new std::ifstream(fileName->c_str()));

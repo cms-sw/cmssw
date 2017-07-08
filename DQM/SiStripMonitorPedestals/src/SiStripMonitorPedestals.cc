@@ -302,7 +302,7 @@ void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::Event
     // get iterators for digis belonging to one DetId, it is an iterator, i.e. one element of the vector      
     std::vector< edm::DetSet<SiStripRawDigi> >::const_iterator digis = digi_collection->find( detid );
     if (digis == digi_collection->end() ||
-        digis->data.size() == 0 || 
+        digis->data.empty() || 
         digis->data.size() > 768) {
       if (digis == digi_collection->end()) {
         edm::LogError("SiStripMonitorPedestals") << " SiStripMonitorPedestals::analyze: Event " <<  nEvTot_ 

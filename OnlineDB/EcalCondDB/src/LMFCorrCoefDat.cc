@@ -471,7 +471,7 @@ LMFCorrCoefDat::getCorrections(const Tm &t, const Tm &t2, int max) {
 	}
 	theMap[logic_id] = s;
 	// verify that the sequence of time is correct
-	if (ret.size() > 0) {
+	if (!ret.empty()) {
 	  checkTriplets(logic_id, s, ret[previousSeqId]); 
 	}
 	c++;

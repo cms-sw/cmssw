@@ -259,7 +259,7 @@ void IsoTrackCalibration::analyze(const edm::Event& iEvent,
   t_nVtx = recVtxs->size();
   h_nVtx->Fill(t_nVtx);
 
-  if (recVtxs->size()>0 && !((*recVtxs)[0].isFake())) {
+  if (!recVtxs->empty() && !((*recVtxs)[0].isFake())) {
     leadPV = math::XYZPoint( (*recVtxs)[0].x(),(*recVtxs)[0].y(), (*recVtxs)[0].z() );
   } else if (beamSpotH.isValid()) {
     leadPV = beamSpotH->position();

@@ -125,7 +125,7 @@ void MuIsolatorResultProducer<BT>::writeOutImpl(edm::Event& event, const CandMap
   typename edm::ValueMap<RT>::Filler filler(*outMap); 
 
   //! fill/insert of non-empty values only
-  if (candMapT.get().size()>0){
+  if (!candMapT.get().empty()){
     filler.insert(candMapT.handle(), resV.begin(), resV.end()); 
     filler.fill(); 
   }
@@ -358,7 +358,7 @@ MuIsolatorResultProducer<BT>::initAssociation(edm::Event& event, CandMap& candMa
     edm::Handle<reco::IsoDepositMap> depH;
     event.getByLabel(theDepositConfs[iMap].tag, depH);
     LogDebug(metname) <<"Got Deposits of size "<<depH->size();
-    if (depH->size()==0) continue;
+    if (depH->empty()) continue;
 
     //! WARNING: the input ValueMaps are better be for a single key product ID
     //! no effort is done (FIXME) for more complex cases

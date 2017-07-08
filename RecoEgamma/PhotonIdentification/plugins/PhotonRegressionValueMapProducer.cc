@@ -174,7 +174,7 @@ void PhotonRegressionValueMapProducer::produce(edm::Event& iEvent, const edm::Ev
                                                         ebrh, eerh, esrh );
   }
   
-  if( !isAOD && src->size() ) {
+  if( !isAOD && !src->empty() ) {
     edm::Ptr<pat::Photon> test(src->ptrAt(0));
     if( test.isNull() || !test.isAvailable() ) {
       throw cms::Exception("InvalidConfiguration")

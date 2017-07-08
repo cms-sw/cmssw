@@ -269,7 +269,7 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
   
   
   unsigned int count_primary = 0;
-  if(selGsfPFRecTracks.size() > 0) {
+  if(!selGsfPFRecTracks.empty()) {
     for(unsigned int ipfgsf=0; ipfgsf<selGsfPFRecTracks.size();ipfgsf++) {
       
       vector<unsigned int> secondaries(0);
@@ -305,7 +305,7 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	// A MODIFICATION HERE IMPLIES A MODIFICATION IN PFBLOCKALGO.CC/H
 	unsigned int primGsfIndex = selGsfPFRecTracks[ipfgsf].trackId();
 	vector<reco::GsfPFRecTrack> trueGsfPFRecTracks;
-	if(secondaries.size() > 0) {
+	if(!secondaries.empty()) {
 	  // loop on secondaries gsf tracks (from converted brems)
 	  for(unsigned int isecpfgsf=0; isecpfgsf<secondaries.size();isecpfgsf++) {
 	    
@@ -935,7 +935,7 @@ PFElecTkProducer::isSharingEcalEnergyWithEgSC(const reco::GsfPFRecTrack& nGsfPFR
 	}  
       } // END if anble preselection
     } // PFClusters Loop
-    if(vecPFClusters.size() > 0 ) {
+    if(!vecPFClusters.empty() ) {
       for(unsigned int pf = 0; pf < vecPFClusters.size(); pf++) {
 	bool isCommon = ClusterClusterMapping::overlap(vecPFClusters[pf],*scRef);
 	if(isCommon) {
@@ -1027,7 +1027,7 @@ PFElecTkProducer::isSharingEcalEnergyWithEgSC(const reco::GsfPFRecTrack& nGsfPFR
     }
 
 
-    if(nPFCluster.size() > 0 && iPFCluster.size() > 0) {
+    if(!nPFCluster.empty() && !iPFCluster.empty()) {
       for(unsigned int npf = 0; npf < nPFCluster.size(); npf++) {
 	for(unsigned int ipf = 0; ipf < iPFCluster.size(); ipf++) {
 	  bool isCommon = ClusterClusterMapping::overlap(nPFCluster[npf],iPFCluster[ipf]);

@@ -332,7 +332,7 @@ bool SiPixelCalibDigiProducer::checkPixel(uint32_t detid, short row, short col){
   
   
   edm::LogInfo("SiPixelCalibDigiProducer") << "Event" << iEventCounter_ << ",now in checkpixel() " << std::endl;
-  if(currentpattern_.size()==0)
+  if(currentpattern_.empty())
     setPattern();
   //  uint32_t iroc;
   uint32_t fedid = detid_to_fedid_[detid];

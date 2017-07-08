@@ -165,7 +165,7 @@ void DTKeyedConfigHandler::getNewObjects() {
          rhcMap.insert( std::pair<int,std::vector<DTConfigKey>*>( rhcId,
                         new std::vector<DTConfigKey> ) );
   }
-  if ( !runMap.size() ) std::cout << "no new run found" << std::endl;
+  if ( runMap.empty() ) std::cout << "no new run found" << std::endl;
 
   // =========== get ccb identifiers map
   std::cout << "retrieve CCB map" << std::endl;

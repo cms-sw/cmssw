@@ -421,7 +421,7 @@ int JetPartonMatcher::fillPhysicsDefinition( const Jet& theJet, WorkingVariables
     wv.theNearest3 = tempNearest;
 
     if(nInTheCone != 1) return -1; // rejected --> only one initialParton requested
-    if(theContaminations.size() == 0 ) return tempParticle; //no contamination
+    if(theContaminations.empty() ) return tempParticle; //no contamination
     int initialPartonFlavour = abs( (wv.particles->at(tempParticle).get()) ->pdgId() );
 
     vector<const Candidate *>::const_iterator itCont = theContaminations.begin();

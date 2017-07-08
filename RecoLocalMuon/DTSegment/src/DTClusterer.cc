@@ -95,7 +95,7 @@ void DTClusterer::produce(edm::Event& event, const edm::EventSetup& setup) {
     if(debug) cout << "Number of 1D-RecHit pairs " << pairs.size() << endl;
     vector<DTSLRecCluster> clus=buildClusters(sl, pairs);
     if(debug) cout << "Number of clusters build " << clus.size() << endl;
-    if (clus.size() > 0 )
+    if (!clus.empty() )
       clusters->put(sl->id(), clus.begin(), clus.end());
   }
   event.put(std::move(clusters));

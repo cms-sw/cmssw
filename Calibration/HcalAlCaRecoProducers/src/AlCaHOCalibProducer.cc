@@ -314,10 +314,10 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   if (m_cosmic) {
     iEvent.getByToken(tok_muonsCosmic_, cosmicmuon);
-    muonOK = (cosmicmuon.isValid() && cosmicmuon->size()>0);
+    muonOK = (cosmicmuon.isValid() && !cosmicmuon->empty());
   } else {
     iEvent.getByToken(tok_muons_,collisionmuon);
-    muonOK = (collisionmuon.isValid() && collisionmuon->size()>0);
+    muonOK = (collisionmuon.isValid() && !collisionmuon->empty());
 
     if (iEvent.isRealData()) {
       edm::Handle<reco::VertexCollection> primaryVertices;
@@ -712,8 +712,8 @@ void AlCaHOCalibProducer::fillHOStore(const reco::TrackRef& ncosm,
 	  edm::Handle<HBHERecHitCollection> hbheht;// iEvent.getByType(hbheht);
 	  iEvent.getByToken(tok_hbhe_,hbheht);
 	    
-	  if ((*hbheht).size()>0) {
-	    if(!(*hbheht).size()) throw (int)(*hbheht).size();
+	  if (!*hbheht.empty()) {
+	    if(*hbheht.empty()) throw (int)(*hbheht).size();
 	      
 	    for (HBHERecHitCollection::const_iterator jk=(*hbheht).begin(); jk!=(*hbheht).end(); jk++){
 	      HcalDetId id =(*jk).id();
@@ -761,7 +761,7 @@ void AlCaHOCalibProducer::fillHOStore(const reco::TrackRef& ncosm,
 	edm::Handle<HORecHitCollection> hoht;
 	iEvent.getByToken(tok_ho_,hoht);
 	  
-	if ((*hoht).size()>0) {
+	if (!*hoht.empty()) {
 	  for (HORecHitCollection::const_iterator jk=(*hoht).begin(); jk!=(*hoht).end(); jk++){
 	    HcalDetId id =(*jk).id();
 	    int tmpeta= id.ieta();

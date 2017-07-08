@@ -468,7 +468,7 @@ GenXSecAnalyzer::endJob() {
                                    << "GenXsecAnalyzer:" << "\n"
                                    << "------------------------------------";
  
-  if(!jetMatchEffStat_.size()) {
+  if(jetMatchEffStat_.empty()) {
     edm::LogPrint("GenXSecAnalyzer") << "------------------------------------" << "\n"
                                      << "Cross-section summary not available" << "\n"
                                      << "------------------------------------";

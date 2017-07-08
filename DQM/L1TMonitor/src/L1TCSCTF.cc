@@ -38,7 +38,7 @@ L1TCSCTF::L1TCSCTF(const ParameterSet& ps)
   if(verbose_) edm::LogInfo("DataNotFound") << "L1TCSCTF: constructor...." << endl;
 
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
-  if ( outputFile_.size() != 0 )
+  if ( !outputFile_.empty() )
     {
       edm::LogInfo("DataNotFound") << "L1T Monitoring histograms will be saved to " << outputFile_.c_str() << endl;
     }

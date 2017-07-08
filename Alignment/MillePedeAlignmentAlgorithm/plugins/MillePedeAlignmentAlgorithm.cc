@@ -216,12 +216,12 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
                                                            RunRangeSelectionVPSet);
 
   std::string labelerPlugin = "PedeLabeler";
-  if (RunRangeSelectionVPSet.size()>0) {
+  if (!RunRangeSelectionVPSet.empty()) {
     labelerPlugin = "RunRangeDependentPedeLabeler";
     if (pedeLabelerCfg.exists("plugin")) {
       std::string labelerPluginCfg = pedeLabelerCfg.getParameter<std::string>("plugin");
       if ((labelerPluginCfg!="PedeLabeler" && labelerPluginCfg!="RunRangeDependentPedeLabeler") ||
-          pedeLabelerCfg.getUntrackedParameter<edm::VParameterSet>("parameterInstances").size()>0) {
+          !pedeLabelerCfg.getUntrackedParameter<edm::VParameterSet>("parameterInstances").empty()) {
         throw cms::Exception("BadConfig")
           << "MillePedeAlignmentAlgorithm::initialize"
           << "both RunRangeSelection and generic labeler specified in config file. "
@@ -294,7 +294,7 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
         << "modes running mille.";
     }
     const std::string moniFile(theConfig.getUntrackedParameter<std::string>("monitorFile"));
-    if (moniFile.size()) theMonitor = std::make_unique<MillePedeMonitor>(tTopo, (theDir + moniFile).c_str());
+    if (!moniFile.empty()) theMonitor = std::make_unique<MillePedeMonitor>(tTopo, (theDir + moniFile).c_str());
 
     // Get trajectory factory. In case nothing found, FrameWork will throw...
     const edm::ParameterSet fctCfg(theConfig.getParameter<edm::ParameterSet>("TrajectoryFactory"));
@@ -482,7 +482,7 @@ std::vector<std::string> MillePedeAlignmentAlgorithm::getExistingFormattedFiles(
       }
     }
     // warning if unformatted (-> theNumber stays at 0) does not exist
-    if (theNumber == 0 && (files.size() == 0 || files.back() != plainFile)) {
+    if (theNumber == 0 && (files.empty() || files.back() != plainFile)) {
       edm::LogWarning("Alignment")
         << "The input file '" << plainFile << "' does not exist.";
     }
@@ -539,7 +539,7 @@ MillePedeAlignmentAlgorithm::addReferenceTrajectory(const edm::EventSetup &setup
 
 
     // GblTrajectory?
-    if (refTrajPtr->gblInput().size() > 0) {
+    if (!refTrajPtr->gblInput().empty()) {
       // by construction: number of GblPoints == number of recHits or == zero !!!
       unsigned int iHit = 0;
       unsigned int numPointsWithMeas = 0;
@@ -1081,7 +1081,7 @@ bool MillePedeAlignmentAlgorithm::readFromPede(const edm::ParameterSet &mprespse
   if (okRead && allEmpty) {
     if (numMatch) { // as many alignables with result as trying to align
       edm::LogInfo("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::readFromPede" << out.str();
-    } else if (alis.size()) { // dead module do not get hits and no pede result
+    } else if (!alis.empty()) { // dead module do not get hits and no pede result
       edm::LogWarning("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::readFromPede" << out.str();
     } else { // serious problem: no result read - and not all modules can be dead...
       edm::LogError("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::readFromPede" << out.str();

@@ -58,7 +58,7 @@ Generator::Generator(const ParameterSet & p) :
                     getParameter<bool>("PDGfilterSel");
     pdgFilter = (p.getParameter<edm::ParameterSet>("PDGselection")).
                     getParameter<std::vector< int > >("PDGfilter");
-    if(0 < pdgFilter.size()) { 
+    if(!pdgFilter.empty()) { 
       fPDGFilter = true; 
       for ( unsigned int ii = 0; ii < pdgFilter.size(); ++ii) {
 	if (pdgFilterSel) {
@@ -106,7 +106,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
     throw SimG4Exception("SimG4CoreGenerator: Corrupted Event - GenEvent with no vertex");
   }  
   
-  if (evt->weights().size() > 0) {
+  if (!evt->weights().empty()) {
 
     weight_ = evt->weights()[0] ;
     for (unsigned int iw=1; iw<evt->weights().size(); ++iw) {

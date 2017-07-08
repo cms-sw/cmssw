@@ -221,7 +221,7 @@ FastPrimaryVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const edm:
 
 
   float res=0;
-  if(zProjections.size() > 0)
+  if(!zProjections.empty())
   {
      res=*(left+(right-left)/2);
 //     std::cout << "RES " << res << std::endl;

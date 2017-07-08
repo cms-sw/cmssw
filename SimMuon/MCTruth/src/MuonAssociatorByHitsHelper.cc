@@ -327,7 +327,7 @@ MuonAssociatorByHitsHelper::associateRecoToSimIndices(const TrackHitsCollection 
     
   }    // loop over reco::Track
 
-  if (!tC.size()) 
+  if (tC.empty()) 
     edm::LogVerbatim("MuonAssociatorByHitsHelper")<<"0 reconstructed tracks (-->> 0 associated !)";
 
   for (IndexAssociation::iterator it = outputCollection.begin(), ed = outputCollection.end(); it != ed; ++it) {

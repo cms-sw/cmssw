@@ -86,7 +86,7 @@ namespace edm {
 
           if (object=="SimTrack") {
             InputTag tag;
-            if (tags.size()>0) tag=tags[0];
+            if (!tags.empty()) tag=tags[0];
             std::string label;
 
             branchesActivate(TypeID(typeid(std::vector<SimTrack>)).friendlyClassName(),std::string(""),tag,label);
@@ -103,7 +103,7 @@ namespace edm {
 
           } else if (object=="RecoTrack") {
             InputTag tag;
-            if (tags.size()>0) tag=tags[0];
+            if (!tags.empty()) tag=tags[0];
             std::string label;
 
             branchesActivate(TypeID(typeid(std::vector<reco::Track>)).friendlyClassName(),std::string(""),tag,label);
@@ -117,7 +117,7 @@ namespace edm {
 
           } else if (object=="SimVertex") {
             InputTag tag;
-            if (tags.size()>0) tag=tags[0];
+            if (!tags.empty()) tag=tags[0];
             std::string label;
 
             branchesActivate(TypeID(typeid(std::vector<SimVertex>)).friendlyClassName(),std::string(""),tag,label);
@@ -134,7 +134,7 @@ namespace edm {
 
           } else if (object=="HepMCProduct") {
             InputTag tag;
-            if (tags.size()>0) tag=tags[0];
+            if (!tags.empty()) tag=tags[0];
             std::string label;
 
             branchesActivate(TypeID(typeid(HepMCProduct)).friendlyClassName(),std::string(""),tag,label);

@@ -179,7 +179,7 @@ CmsShowModelPopup::fillModelPopup(const FWSelectionManager& iSelMgr)
    {
       m_modelLabel->SetText(item->modelName(id->index()).c_str());
       std::vector<std::string> viewChoices = m_detailViewManager->detailViewsFor(*id);
-      m_openDetailedViewButtons.front()->SetEnabled(viewChoices.size()>0);
+      m_openDetailedViewButtons.front()->SetEnabled(!viewChoices.empty());
       //be sure we show just the right number of buttons
       if(viewChoices.size() > m_openDetailedViewButtons.size()) 
       {

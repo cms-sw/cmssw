@@ -426,7 +426,7 @@ void testMultiAssociation::test(MultiRef const& assoc) {
   r2 = assoc.getValues(edm::Ref<CKey1>(handleK1, 1));
   r3 = assoc.getValues(edm::Ref<CKey1>(handleK1, 2));
   r4 = assoc.getValues(edm::Ref<CKey1>(handleK1, 3));
-  CPPUNIT_ASSERT(r1.size() == 0);
+  CPPUNIT_ASSERT(r1.empty());
   CPPUNIT_ASSERT(r2.size() == 1);
   CPPUNIT_ASSERT(r3.size() == 2);
   CPPUNIT_ASSERT(r4.size() == 3);

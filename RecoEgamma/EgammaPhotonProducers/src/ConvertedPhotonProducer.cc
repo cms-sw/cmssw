@@ -372,7 +372,7 @@ void ConvertedPhotonProducer::buildCollections ( edm::EventSetup const & es,
     const reco::Particle::LorentzVector  p4(momentum.x(), momentum.y(), momentum.z(), aClus->energy() );
     
     int nFound=0;    
-    if ( allPairs.size() ) {
+    if ( !allPairs.empty() ) {
 
       nFound=0;
 

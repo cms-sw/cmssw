@@ -96,7 +96,7 @@ void listbadmodule(std::string filename, std::string pclfilename) {
       TKey *key;
       while  ( (key = dynamic_cast<TKey*>(next())) ) {
         std::string sflag = key->GetName();
-        if (sflag.size() == 0) continue;
+        if (sflag.empty()) continue;
         nbad++;
       }
     }
@@ -135,7 +135,7 @@ void listbadmodule(std::string filename, std::string pclfilename) {
       
       while  ( (key = dynamic_cast<TKey*>(next())) ) {
 	std::string sflag = key->GetName();
-	if (sflag.size() == 0) continue;
+	if (sflag.empty()) continue;
 	std::string detid = sflag.substr(sflag.find("<")+1,9); 
 	size_t pos1 = sflag.find("/");
 	sflag = sflag.substr(sflag.find("<")+13,pos1-2);

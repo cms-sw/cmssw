@@ -461,7 +461,7 @@ HITrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
       iEvent.getByToken(tracks_,tracks);
 
       std::vector<Handle<edm::ValueMap<int> > > quals;
-      if ( overrideTrkQuals_.size() > 0) {
+      if ( !overrideTrkQuals_.empty()) {
 	quals.resize(1);
 	iEvent.getByToken(overrideTrkQuals_[0],quals[0]);
       }
@@ -469,7 +469,7 @@ HITrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
       for (const auto & track: *tracks) {
 	if (filterTracks_) {
 	  bool goodTk = true;
-	  if ( quals.size()!=0) {
+	  if ( !quals.empty()) {
 	    int qual=(*(quals[0])). get(it++);
 	    if ( qual < 0 ) {goodTk=false;}
 	    //note that this does not work for some trackquals (goodIterative  or undefQuality)

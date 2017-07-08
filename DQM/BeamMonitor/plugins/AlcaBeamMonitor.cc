@@ -359,7 +359,7 @@ void AlcaBeamMonitor::endLuminosityBlock(const LuminosityBlock& iLumi, const Eve
     }
     vertexResults.clear();
     for(vector<VertexCollection>::iterator itPV = vertices_.begin(); itPV != vertices_.end(); itPV++){
-      if(itPV->size() != 0){
+      if(!itPV->empty()){
     	for(VertexCollection::const_iterator pv = itPV->begin(); pv != itPV->end(); pv++) {
     	  if (pv->isFake() || pv->tracksSize()<10)  continue;
     	  if(*itV == "x"){										      
@@ -496,7 +496,7 @@ void AlcaBeamMonitor::endLuminosityBlock(const LuminosityBlock& iLumi, const Eve
         }
       }
       else if(itM->second == "Lumibased PrimaryVertex-DataBase"){
-        if(resultsMap.find("DB") != resultsMap.end() && vertexResults.size() != 0){
+        if(resultsMap.find("DB") != resultsMap.end() && !vertexResults.empty()){
 	  for(vector<pair<double,double> >::iterator itPV=vertexResults.begin(); itPV!=vertexResults.end(); itPV++){
             theValuesContainer_->Fill(position  ,(*itPV).first-resultsMap["DB"].first);//Value
           }
@@ -516,7 +516,7 @@ void AlcaBeamMonitor::endLuminosityBlock(const LuminosityBlock& iLumi, const Eve
         }
       }
       else if(itM->second == "Lumibased PrimaryVertex-Scalers"){
-        if(resultsMap.find("SC") != resultsMap.end() && vertexResults.size() != 0){
+        if(resultsMap.find("SC") != resultsMap.end() && !vertexResults.empty()){
           for(vector<pair<double,double> >::iterator itPV=vertexResults.begin(); itPV!=vertexResults.end(); itPV++){
             theValuesContainer_->Fill(position  ,(*itPV).first-resultsMap["SC"].first);//Value
           }

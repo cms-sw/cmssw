@@ -93,7 +93,7 @@ int read_runflag (std::string filename )
   while  ( ( key = dynamic_cast<TKey*> ( next() ) ) ) 
     {
       std::string svar = key->GetName();
-      if ( svar.size() == 0 ) continue;
+      if ( svar.empty() ) continue;
       
       if ( svar.find( "runIsComplete" ) != std::string::npos )
 	{

@@ -536,7 +536,7 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event& iEvent,
     validDigiEB = false;
   }  
   if (validDigiEB) {
-    if ( EcalDigiEB->size() == 0) isBarrel = false;
+    if ( EcalDigiEB->empty()) isBarrel = false;
     
     if (isBarrel) {
       
@@ -658,7 +658,7 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event& iEvent,
     validDigiEE = false;
   }  
   if (validDigiEE) {
-    if (EcalDigiEE->size() == 0) isEndCap = false;
+    if (EcalDigiEE->empty()) isEndCap = false;
     
     if (isEndCap) {
       
@@ -786,7 +786,7 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event& iEvent,
   validDigiES = false;
  
   if (validDigiES) {
-    if (EcalDigiES->size() == 0) isPreshower = false;
+    if (EcalDigiES->empty()) isPreshower = false;
     
     if (isPreshower) {
       

@@ -141,7 +141,7 @@ HSCPFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    if(!filterFlag) return true;
 
-   if(recoVertex.size()<1) return false;
+   if(recoVertex.empty()) return false;
 
    using reco::MuonCollection;
 

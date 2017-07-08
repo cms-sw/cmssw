@@ -103,14 +103,14 @@ class TtSemiEvtSolution {
   //-------------------------------------------  
   reco::Particle getFitHadt() const;
   reco::Particle getFitHadW() const;
-  pat::Particle getFitHadb() const { return (fitHadb_.size()>0 ? fitHadb_.front() : pat::Particle()); };
-  pat::Particle getFitHadp() const { return (fitHadp_.size()>0 ? fitHadp_.front() : pat::Particle()); };
-  pat::Particle getFitHadq() const { return (fitHadq_.size()>0 ? fitHadq_.front() : pat::Particle()); };
+  pat::Particle getFitHadb() const { return (!fitHadb_.empty() ? fitHadb_.front() : pat::Particle()); };
+  pat::Particle getFitHadp() const { return (!fitHadp_.empty() ? fitHadp_.front() : pat::Particle()); };
+  pat::Particle getFitHadq() const { return (!fitHadq_.empty() ? fitHadq_.front() : pat::Particle()); };
   reco::Particle getFitLept() const;      
   reco::Particle getFitLepW() const;
-  pat::Particle getFitLepb() const { return (fitLepb_.size()>0 ? fitLepb_.front() : pat::Particle()); };
-  pat::Particle getFitLepl() const { return (fitLepl_.size()>0 ? fitLepl_.front() : pat::Particle()); }; 
-  pat::Particle getFitLepn() const { return (fitLepn_.size()>0 ? fitLepn_.front() : pat::Particle()); };    
+  pat::Particle getFitLepb() const { return (!fitLepb_.empty() ? fitLepb_.front() : pat::Particle()); };
+  pat::Particle getFitLepl() const { return (!fitLepl_.empty() ? fitLepl_.front() : pat::Particle()); }; 
+  pat::Particle getFitLepn() const { return (!fitLepn_.empty() ? fitLepn_.front() : pat::Particle()); };    
 
   //-------------------------------------------
   // get the selected semileptonic decay chain 

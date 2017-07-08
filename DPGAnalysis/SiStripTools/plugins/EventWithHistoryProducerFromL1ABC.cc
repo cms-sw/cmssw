@@ -137,7 +137,7 @@ EventWithHistoryProducerFromL1ABC::produce(edm::Event& iEvent, const edm::EventS
 
      long long absbxoffset = orbitoffset*3564 + bxoffset;
 
-     if(_offsets.size()==0) {
+     if(_offsets.empty()) {
        _curroffset = absbxoffset;
        _curroffevent = iEvent.id().event();
        _offsets[iEvent.id().event()] = absbxoffset;

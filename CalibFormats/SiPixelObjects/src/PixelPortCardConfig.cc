@@ -419,7 +419,7 @@ PixelPortCardConfig::PixelPortCardConfig(std::string filename):
   //std::cout << __LINE__ << "]\t" << mthn 
   //          <<TKFECAddress_<<", "<<ringAddress_<<", "<<ccuAddress_<<", "<<channelAddress_<<", "<<i2cSpeed_<<std::endl;
   
-  assert( nameToAddress_.size() != 0 );
+  assert( !nameToAddress_.empty() );
   do {
       
     std::string settingName;
@@ -635,7 +635,7 @@ void PixelPortCardConfig::setDataBaseAOHGain(std::string settingName, unsigned i
 
 void PixelPortCardConfig::fillNameToAddress()
 {
-	if ( nameToAddress_.size() != 0 ) return;
+	if ( !nameToAddress_.empty() ) return;
 	
 	if ( type_ == "fpix" )
 	{

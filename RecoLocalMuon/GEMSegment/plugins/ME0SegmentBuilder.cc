@@ -72,7 +72,7 @@ void ME0SegmentBuilder::build(const ME0RecHitCollection* recHits, ME0SegmentColl
       LogDebug("ME0Segment|ME0") << "found " << segv.size() << " segments in chamber " << *chIt;
 
       // Add the segments to master collection
-      if(segv.size())
+      if(!segv.empty())
       oc.put(chId, segv.begin(), segv.end());
 
   }

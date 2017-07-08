@@ -31,7 +31,7 @@ TestPRegisterModule2::TestPRegisterModule2(edm::ParameterSet const&){
 
      std::vector<edm::StableProvenance const*>::const_iterator pd = plist.begin();
      
-     CPPUNIT_ASSERT(0 !=plist.size());
+     CPPUNIT_ASSERT(!plist.empty());
      CPPUNIT_ASSERT(2 ==plist.size());
      CPPUNIT_ASSERT(pd != plist.end());
      if(pd == plist.end()) return; // To silence Coverity

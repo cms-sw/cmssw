@@ -91,7 +91,7 @@ DeDxEstimatorProducer::~DeDxEstimatorProducer()
 // ------------ method called once each job just before starting event loop  ------------
 void  DeDxEstimatorProducer::beginRun(edm::Run const& run, const edm::EventSetup& iSetup)
 {
-   if(useCalibration && calibGains.size()==0){
+   if(useCalibration && calibGains.empty()){
       edm::ESHandle<TrackerGeometry> tkGeom;
       iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );
       m_off = tkGeom->offsetDU(GeomDetEnumerators::PixelBarrel); //index start at the first pixel

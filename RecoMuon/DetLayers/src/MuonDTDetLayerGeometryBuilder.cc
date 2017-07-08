@@ -44,7 +44,7 @@ MuonDTDetLayerGeometryBuilder::buildLayers(const DTGeometry& geo) {
         }
       }
       
-      if (geomDets.size()!=0) {
+      if (!geomDets.empty()) {
         precomputed_value_sort(geomDets.begin(), geomDets.end(), geomsort::DetZ());
         muDetRods.push_back(new MuDetRod(geomDets));
         LogTrace(metname) << "  New MuDetRod with " << geomDets.size()

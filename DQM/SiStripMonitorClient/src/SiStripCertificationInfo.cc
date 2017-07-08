@@ -92,7 +92,7 @@ void SiStripCertificationInfo::bookSiStripCertificationMEs() {
     dqmStore_->cd();
     std::string strip_dir = "";
     SiStripUtility::getTopFolderPath(dqmStore_, "SiStrip", strip_dir); 
-    if (strip_dir.size() > 0) dqmStore_->setCurrentFolder(strip_dir+"/EventInfo");
+    if (!strip_dir.empty()) dqmStore_->setCurrentFolder(strip_dir+"/EventInfo");
     else dqmStore_->setCurrentFolder("SiStrip/EventInfo"); 
 
     SiStripCertification = dqmStore_->bookFloat("CertificationSummary");  
@@ -113,7 +113,7 @@ void SiStripCertificationInfo::bookSiStripCertificationMEs() {
     SubDetMEs local_mes;
     std::string tag;
     dqmStore_->cd();
-    if (strip_dir.size() > 0) dqmStore_->setCurrentFolder(strip_dir+"/EventInfo/CertificationContents");
+    if (!strip_dir.empty()) dqmStore_->setCurrentFolder(strip_dir+"/EventInfo/CertificationContents");
     else dqmStore_->setCurrentFolder("SiStrip/EventInfo/CertificationContents");
     tag = "TIB";
     
@@ -159,7 +159,7 @@ void SiStripCertificationInfo::bookSiStripCertificationMEs() {
     SubDetMEsMap.insert(std::pair<std::string, SubDetMEs >(tag, local_mes));
     
     dqmStore_->cd();
-    if (strip_dir.size() > 0) dqmStore_->setCurrentFolder(strip_dir+"/EventInfo");
+    if (!strip_dir.empty()) dqmStore_->setCurrentFolder(strip_dir+"/EventInfo");
     
     sistripCertificationBooked_  = true;
     dqmStore_->cd();
@@ -319,7 +319,7 @@ void SiStripCertificationInfo::fillSiStripCertificationMEsAtLumi() {
   dqmStore_->cd();
   std::string strip_dir = "";
   SiStripUtility::getTopFolderPath(dqmStore_, "SiStrip", strip_dir);
-  if (strip_dir.size() == 0) strip_dir = "SiStrip";
+  if (strip_dir.empty()) strip_dir = "SiStrip";
 
   std::string full_path;
   float dcs_flag = 1.0;

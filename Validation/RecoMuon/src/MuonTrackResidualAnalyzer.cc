@@ -123,7 +123,7 @@ void MuonTrackResidualAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
 }
 
 void MuonTrackResidualAnalyzer::endRun(edm::Run const&, edm::EventSetup const&){
-  if ( out.size() != 0 && dbe_ ) dbe_->save(out);
+  if ( !out.empty() && dbe_ ) dbe_->save(out);
 }
 void MuonTrackResidualAnalyzer::analyze(const edm::Event & event, const edm::EventSetup& eventSetup){
   LogDebug("MuonTrackResidualAnalyzer")<<"Analyze";

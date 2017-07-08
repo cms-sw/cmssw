@@ -56,7 +56,7 @@ void Timer::showIntervals(std::ostream &os) {
 void Timer::showFetchInfo(std::ostream &os) {
     os << std::endl;
     os << "Serialization type: " << name << std::endl;
-    if (fetchTime.size() < 1) {
+    if (fetchTime.empty()) {
       os << "No fetch info available." << std::endl;
       return;
     }
@@ -74,7 +74,7 @@ void Timer::showFetchInfo(std::ostream &os) {
 void Timer::showDeserInfo(std::ostream &os) {
     os << std::endl;
     os << "Serialization type: " << name << std::endl;
-    if (deserTime.size() < 1) {
+    if (deserTime.empty()) {
       os << "No deserialization info available." << std::endl;
       return;
     }

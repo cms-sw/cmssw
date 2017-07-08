@@ -239,7 +239,7 @@ CosmicRateAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    edm::ESHandle<SiStripLatency> apvlat;
    iSetup.get<SiStripLatencyRcd>().get(apvlat);
 
-   if (tracks->size()>0) v_ntrk.push_back(tracks->size());
+   if (!tracks->empty()) v_ntrk.push_back(tracks->size());
 
    ntrk	= 0;
    for(TrackCollection::const_iterator itTrack1 = tracks->begin(); itTrack1 != tracks->end(); ++itTrack1)

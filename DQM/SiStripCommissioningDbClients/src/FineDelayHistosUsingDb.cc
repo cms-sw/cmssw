@@ -124,7 +124,7 @@ void FineDelayHistosUsingDb::uploadConfigurations() {
 
 void FineDelayHistosUsingDb::computeDelays() {
   // do nothing if delays_ map is already filled
-  if(delays_.size()>0) return;
+  if(!delays_.empty()) return;
 
   // the point from which track should originate
   float x = 0.; float y = 0.; float z = 0.;
@@ -134,7 +134,7 @@ void FineDelayHistosUsingDb::computeDelays() {
   
   // the reference parameters (best delay in ns, initial Latency)
   float bestDelay_ = 0.;
-  if(data().size()) {
+  if(!data().empty()) {
     Analyses::const_iterator iter = data().begin();
     bestDelay_ = dynamic_cast<SamplingAnalysis*>(iter->second)->maximum();
   }

@@ -100,7 +100,7 @@ PatTopSelectionAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
   // fill quantities for leading jets and jet multiplicity
   // jet pt is corrected up to L3Absolute
   fill("jetMult", jets->size());
-  if( jets->size()>0 ) fill("jet0Pt", (*jets)[0].pt());
+  if( !jets->empty() ) fill("jet0Pt", (*jets)[0].pt());
   if( jets->size()>1 ) fill("jet1Pt", (*jets)[1].pt());
   if( jets->size()>2 ) fill("jet2Pt", (*jets)[2].pt());
   if( jets->size()>3 ) fill("jet3Pt", (*jets)[3].pt());

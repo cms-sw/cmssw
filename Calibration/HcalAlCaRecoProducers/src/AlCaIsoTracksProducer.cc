@@ -281,7 +281,7 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, edm::EventSetup const& i
   iEvent.getByToken(tok_bs_, beamSpotH);
   math::XYZPoint leadPV(0,0,0);
   if (valid) {
-    if (recVtxs->size()>0 && !((*recVtxs)[0].isFake())) {
+    if (!recVtxs->empty() && !((*recVtxs)[0].isFake())) {
       leadPV = math::XYZPoint((*recVtxs)[0].x(),(*recVtxs)[0].y(),
 			      (*recVtxs)[0].z());
     } else if (beamSpotH.isValid()) {
@@ -352,7 +352,7 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, edm::EventSetup const& i
 				   << isotk->size() << " isolated tracks";
 #endif
     
-      if (isotk->size() > 0) {
+      if (!isotk->empty()) {
 	int  ntrin(0), ntrout(0);
 	for (reco::HcalIsolatedTrackCandidateCollection::const_iterator itr=isotk->begin(); itr!=isotk->end(); ++itr) {
 	  if (itr->p() > pTrackLow_ && itr->p() < pTrackHigh_) ntrin++;

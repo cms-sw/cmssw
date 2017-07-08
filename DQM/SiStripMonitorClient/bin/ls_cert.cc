@@ -497,7 +497,7 @@ string runnum_str( string filename )
 
 void Cleaning( vector<int> &LSlist)
 {
-  if ( LSlist.size() == 0 ) return;
+  if ( LSlist.empty() ) return;
 
   //cleaning: keep only 1st and last lumisection in the range
   int refLS = LSlist[0];

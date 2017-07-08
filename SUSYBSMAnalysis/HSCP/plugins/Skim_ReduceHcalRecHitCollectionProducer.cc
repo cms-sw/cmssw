@@ -156,7 +156,7 @@ ReduceHcalRecHitCollectionProducer::produce(edm::Event& iEvent, const edm::Event
 
            TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup, *itTrack, parameters_, TrackDetectorAssociator::InsideOut);
 
-          if(info.crossedHcalIds.size()>0){
+          if(!info.crossedHcalIds.empty()){
              //loop through hits in the cone
              for(std::vector<const HBHERecHit*>::const_iterator hit = info.hcalRecHits.begin();
                  hit != info.hcalRecHits.end(); ++hit)

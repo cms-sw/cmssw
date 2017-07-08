@@ -214,7 +214,7 @@ void ZMuMu_vtxAnalyzer::analyze(const Event& event, const EventSetup& setup) {
   bool zMuMu_found = false;
 
   // loop on ZMuMu
-  if (zMuMu->size() > 0 ) {
+  if (!zMuMu->empty() ) {
     event.getByToken(zMuMuMatchMapToken_, zMuMuMatchMap);
     for(unsigned int i = 0; i < zMuMu->size(); ++i) { //loop on candidates
       const Candidate & zMuMuCand = (*zMuMu)[i]; //the candidate
@@ -263,9 +263,9 @@ void ZMuMu_vtxAnalyzer::analyze(const Event& event, const EventSetup& setup) {
 
       bool trig0found = false;
       bool trig1found = false;
-      if( mu0HLTMatches.size()>0 )
+      if( !mu0HLTMatches.empty() )
 	trig0found = true;
-      if( mu1HLTMatches.size()>0 )
+      if( !mu1HLTMatches.empty() )
 	trig1found = true;
 
       // cynematical selection
@@ -309,7 +309,7 @@ void ZMuMu_vtxAnalyzer::analyze(const Event& event, const EventSetup& setup) {
 
   // loop on ZMuSta
   bool zMuSta_found = false;
-  if (!zMuMu_found && zMuStandAlone->size() > 0 ) {
+  if (!zMuMu_found && !zMuStandAlone->empty() ) {
     event.getByToken(zMuStandAloneMatchMapToken_, zMuStandAloneMatchMap);
     for(unsigned int i = 0; i < zMuStandAlone->size(); ++i) { //loop on candidates
       const Candidate & zMuStandAloneCand = (*zMuStandAlone)[i]; //the candidate
@@ -349,9 +349,9 @@ void ZMuMu_vtxAnalyzer::analyze(const Event& event, const EventSetup& setup) {
 
       bool trig0found = false;
       bool trig1found = false;
-      if( mu0HLTMatches.size()>0 )
+      if( !mu0HLTMatches.empty() )
 	trig0found = true;
-      if( mu1HLTMatches.size()>0 )
+      if( !mu1HLTMatches.empty() )
 	trig1found = true;
 
       // check the global muon ... trigger is required just on global muon
@@ -377,7 +377,7 @@ void ZMuMu_vtxAnalyzer::analyze(const Event& event, const EventSetup& setup) {
 
 
   // loop on ZMuTrack
-  if (!zMuMu_found && !zMuSta_found && zMuTrack->size() > 0 ) {
+  if (!zMuMu_found && !zMuSta_found && !zMuTrack->empty() ) {
     event.getByToken(zMuTrackMatchMapToken_, zMuTrackMatchMap);
     for(unsigned int i = 0; i < zMuTrack->size(); ++i) { //loop on candidates
       const Candidate & zMuTrackCand = (*zMuTrack)[i]; //the candidate
@@ -414,7 +414,7 @@ void ZMuMu_vtxAnalyzer::analyze(const Event& event, const EventSetup& setup) {
 	muonDau0.triggerObjectMatchesByPath( "HLT_Mu9" );
 
       bool trig0found = false;
-      if( mu0HLTMatches.size()>0 )
+      if( !mu0HLTMatches.empty() )
 	trig0found = true;
 
       // cynematical selection

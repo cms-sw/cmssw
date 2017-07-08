@@ -389,7 +389,7 @@ void TemplatedSecondaryVertexProducer<IPTI,VTX>::produce(edm::Event &event,
 
 	// ------------------------------------ SV clustering START --------------------------------------------
 	std::vector<std::vector<int> > clusteredSVs(trackIPTagInfos->size(),std::vector<int>());
-	if( useExternalSV && useSVClustering && trackIPTagInfos->size()>0 )
+	if( useExternalSV && useSVClustering && !trackIPTagInfos->empty() )
 	{
 	  // vector of constituents for reclustering jets and "ghost" SVs
 	  std::vector<fastjet::PseudoJet> fjInputs;
@@ -481,7 +481,7 @@ void TemplatedSecondaryVertexProducer<IPTI,VTX>::produce(edm::Event &event,
 	        continue;
 	      }
 	
-	      if( subjetIndices.at(i).size()==0 ) continue; // continue if the original jet does not have subjets assigned
+	      if( subjetIndices.at(i).empty() ) continue; // continue if the original jet does not have subjets assigned
 		
 	      // since the "ghosts" are extremely soft, the configuration and ordering of the reclustered and original fat jets should in principle stay the same
 	      if( ( std::abs( inclusiveJets.at(reclusteredIndices.at(i)).pt() - fatJetsHandle->at(i).pt() ) / fatJetsHandle->at(i).pt() ) > relPtTolerance )
@@ -580,7 +580,7 @@ void TemplatedSecondaryVertexProducer<IPTI,VTX>::produce(edm::Event &event,
 	  }
 	}
 	// case where fat jets are used to associate SVs to subjets but no SV clustering is performed
-	else if( useExternalSV && !useSVClustering && trackIPTagInfos->size()>0 && useFatJets )
+	else if( useExternalSV && !useSVClustering && !trackIPTagInfos->empty() && useFatJets )
 	{
 	  // match groomed and original fat jets
 	  std::vector<int> groomedIndices;
@@ -603,7 +603,7 @@ void TemplatedSecondaryVertexProducer<IPTI,VTX>::produce(edm::Event &event,
 	      continue;
 	    }
 
-	    if( subjetIndices.at(i).size()==0 ) continue; // continue if the original jet does not have subjets assigned
+	    if( subjetIndices.at(i).empty() ) continue; // continue if the original jet does not have subjets assigned
 
 	    // loop over SVs, associate them to fat jets based on dR cone and
 	    // then assign them to the closets subjet in dR
@@ -960,7 +960,7 @@ template <>
 typename TemplatedSecondaryVertexProducer<TrackIPTagInfo,reco::Vertex>::SecondaryVertex  
 TemplatedSecondaryVertexProducer<TrackIPTagInfo,reco::Vertex>::SVBuilder::operator () (const TransientVertex &sv) const
 {
-	if(sv.originalTracks().size()>0 && sv.originalTracks()[0].trackBaseRef().isNonnull())
+	if(!sv.originalTracks().empty() && sv.originalTracks()[0].trackBaseRef().isNonnull())
 		return SecondaryVertex(pv, sv, direction, withPVError);
 	else
 	{
@@ -973,7 +973,7 @@ template <>
 typename TemplatedSecondaryVertexProducer<CandIPTagInfo,reco::VertexCompositePtrCandidate>::SecondaryVertex
 TemplatedSecondaryVertexProducer<CandIPTagInfo,reco::VertexCompositePtrCandidate>::SVBuilder::operator () (const TransientVertex &sv) const
 {
-	if(sv.originalTracks().size()>0 && sv.originalTracks()[0].trackBaseRef().isNonnull())
+	if(!sv.originalTracks().empty() && sv.originalTracks()[0].trackBaseRef().isNonnull())
 	{
 		edm::LogError("UnexpectedInputs") << "Building from Tracks, should not happen!";
 		VertexCompositePtrCandidate vtxCompPtrCand;
@@ -1138,7 +1138,7 @@ void TemplatedSecondaryVertexProducer<IPTI,VTX>::matchSubjets(const std::vector<
          }
        }
 
-       if( subjetIndices.size() == 0 )
+       if( subjetIndices.empty() )
          edm::LogError("SubjetMatchingFailed") << "Matching subjets to original fat jets failed. Please check that the groomed fat jet and subjet collections belong to each other.";
 
        matchedIndices.push_back(subjetIndices);
@@ -1205,7 +1205,7 @@ void TemplatedSecondaryVertexProducer<IPTI,VTX>::matchSubjets(const edm::Handle<
            }
          }
 
-         if( subjetIndices.size() == 0 && nSubjets > 0)
+         if( subjetIndices.empty() && nSubjets > 0)
            edm::LogError("SubjetMatchingFailed") << "Matching subjets to fat jets failed. Please check that the fat jet and subjet collections belong to each other.";
 
          matchedIndices.push_back(subjetIndices);

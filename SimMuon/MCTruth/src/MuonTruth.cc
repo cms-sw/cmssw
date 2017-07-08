@@ -97,7 +97,7 @@ void MuonTruth::initEvent(const edm::Event& event, const edm::EventSetup& setup)
 
 float MuonTruth::muonFraction()
 {
-  if(theChargeMap.size() == 0) return 0.;
+  if(theChargeMap.empty()) return 0.;
 
   float muonCharge = 0.;
   for(std::map<SimHitIdpr, float>::const_iterator chargeMapItr = theChargeMap.begin();

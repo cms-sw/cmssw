@@ -152,7 +152,7 @@ bool HLTmmkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, 
   for (auto mucand1=mucands->begin(), endCand1=mucands->end(); mucand1!=endCand1; ++mucand1) {
 
   	if ( mucands->size()<2) break;
-  	if ( trkcands->size()<1) break;
+  	if ( trkcands->empty()) break;
 
   	TrackRef trk1 = mucand1->get<TrackRef>();
 	LogDebug("HLTDisplacedMumukFilter") << " 1st muon: q*pt= " << trk1->charge()*trk1->pt() << ", eta= " << trk1->eta() << ", hits= " << trk1->numberOfValidHits();

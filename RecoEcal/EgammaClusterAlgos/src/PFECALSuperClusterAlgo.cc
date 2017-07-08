@@ -261,7 +261,7 @@ loadAndSortPFClusters(const edm::Event &iEvent) {
         
     // protection for sim clusters
     if( cluster->caloID().detectors() == 0 && 
-	cluster->hitsAndFractions().size() == 0 ) continue;
+	cluster->hitsAndFractions().empty() ) continue;
 
     CalibratedClusterPtr calib_cluster(new CalibratedPFCluster(cluster));
     switch( cluster->layer() ) {

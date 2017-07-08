@@ -177,7 +177,7 @@ void MCElectronAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& )
   theSimVertices.insert(theSimVertices.end(),SimVtx->begin(),SimVtx->end());
   std::cout << " MCElectronAnalyzer This Event has " <<  theSimTracks.size() << " sim tracks " << std::endl;
   std::cout << " MCElectronAnalyzer This Event has " <<  theSimVertices.size() << " sim vertices " << std::endl;
-  if (  ! theSimTracks.size() ) std::cout << " Event number " << e.id() << " has NO sim tracks " << std::endl;
+  if (  theSimTracks.empty() ) std::cout << " Event number " << e.id() << " has NO sim tracks " << std::endl;
 
 
   std::vector<ElectronMCTruth> MCElectronctrons=theElectronMCTruthFinder_->find (theSimTracks,  theSimVertices);

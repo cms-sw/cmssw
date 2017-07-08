@@ -534,7 +534,7 @@ double HcalRecHitReflagger::GetThreshold(const double base, const std::vector<do
 double HcalRecHitReflagger::GetSlope(const int ieta, const std::vector<double>& params)
 {
   double slope=0;
-  if (abs(ieta)==40 && params.size()>0)
+  if (abs(ieta)==40 && !params.empty())
     slope= params[0];
   else if (abs(ieta)==41 && params.size()>1)
     slope= params[1];

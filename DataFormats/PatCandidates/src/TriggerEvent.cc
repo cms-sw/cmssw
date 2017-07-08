@@ -604,7 +604,7 @@ TriggerFilterRefVector TriggerEvent::pathModules( const std::string & namePath, 
 {
   TriggerFilterRefVector thePathFilters;
   if ( const TriggerPath * pathPtr = path( namePath ) ) {
-    if ( pathPtr->modules().size() > 0 ) {
+    if ( !pathPtr->modules().empty() ) {
       const unsigned onePastLastFilter = all ? pathPtr->modules().size() : pathPtr->lastActiveFilterSlot() + 1;
       for ( unsigned iM = 0; iM < onePastLastFilter; ++iM ) {
         const std::string labelFilter( pathPtr->modules().at( iM ) );

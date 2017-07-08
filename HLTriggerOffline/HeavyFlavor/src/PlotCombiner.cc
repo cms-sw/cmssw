@@ -62,7 +62,7 @@ void PlotCombiner::makePlot(const ParameterSet& pset, DQMStore::IBooker & ibooke
     histos.push_back( ME->getTH1() );
     labels.push_back( inputLabels[i] );
   }
-  if(histos.size()==0){
+  if(histos.empty()){
     return;
   }
   //figure out the output directory name

@@ -111,7 +111,7 @@ SimDigiDumper::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup 
   }
   else {
     EBdigis = EcalDigiEB.product();
-    if ( EcalDigiEB->size() == 0) isBarrel = false;
+    if ( EcalDigiEB->empty()) isBarrel = false;
     std::cout << "Ecal Barrel, digi multiplicity = " << EcalDigiEB->size() << std::endl;
 
     if (isBarrel) {
@@ -134,7 +134,7 @@ SimDigiDumper::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup 
   }
   else {
     EEdigis = EcalDigiEE.product();
-    if ( EcalDigiEE->size() == 0) isEndcap = false;
+    if ( EcalDigiEE->empty()) isEndcap = false;
     std::cout << "Ecal Endcap, digi multiplicity = " << EcalDigiEE->size() << std::endl;
 
     if (isEndcap) {
@@ -157,7 +157,7 @@ SimDigiDumper::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup 
   }
   else {
     ESdigis = EcalDigiES.product();
-    if ( EcalDigiES->size() == 0) isPreshower = false;
+    if ( EcalDigiES->empty()) isPreshower = false;
     std::cout << "Ecal Preshower, digi multiplicity = " << EcalDigiES->size() << std::endl;
 
     if (isPreshower) {
@@ -180,7 +180,7 @@ SimDigiDumper::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup 
   }
   else {
     HBHEdigis = hbhe.product();
-    if ( hbhe->size() == 0 ) isHBHE = false;
+    if ( hbhe->empty() ) isHBHE = false;
     std::cout << "HBHE, digi multiplicity = " << hbhe->size() << std::endl;
 
     if (isHBHE) {
@@ -206,7 +206,7 @@ SimDigiDumper::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup 
   }
   else {
     HOdigis = ho.product();
-    if ( ho->size() == 0 ) isHO = false;
+    if ( ho->empty() ) isHO = false;
     std::cout << "HO, digi multiplicity = " << ho->size() << std::endl;
 
     if (isHO) {
@@ -228,7 +228,7 @@ SimDigiDumper::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup 
   }
   else {
     HFdigis = hf.product();
-    if ( hf->size() == 0 ) isHF = false;
+    if ( hf->empty() ) isHF = false;
     std::cout << "HF, digi multiplicity = " << hf->size() << std::endl;
 
     if (isHF) {
@@ -250,7 +250,7 @@ SimDigiDumper::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup 
   }
   else {
     ZDCdigis = zdc.product();
-    if ( zdc->size() == 0 ) isZDC = false;
+    if ( zdc->empty() ) isZDC = false;
     std::cout << "ZDC, digi multiplicity = " << zdc->size() << std::endl;
 
     if (isZDC) {
@@ -270,7 +270,7 @@ SimDigiDumper::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup 
     std::cout << "Unable to find stripDigis in event!" << std::endl;
   }
   else {
-    if ( stripDigis->size() == 0 ) isStrip = false;
+    if ( stripDigis->empty() ) isStrip = false;
     std::cout << "Strip Tracker, digi multiplicity = " <<  stripDigis->size() << std::endl;
     if (isStrip) {
       edm::DetSetVector<SiStripDigi>::const_iterator DSViter;
@@ -309,7 +309,7 @@ SimDigiDumper::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup 
     std::cout << "Unable to find pixelDigis in event!" << std::endl;
   }
   else {
-    if ( pixelDigis->size() == 0 ) isPixel = false;
+    if ( pixelDigis->empty() ) isPixel = false;
     std::cout << "Pixel Tracker, digi multiplicity = " <<  pixelDigis->size() << std::endl;
 
     if (isPixel) {

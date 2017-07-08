@@ -266,7 +266,7 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
  
 
     // adding showering information   
-    if ( layers.size() < 2 && ShoweringSegments.size() > 0 ) {
+    if ( layers.size() < 2 && !ShoweringSegments.empty() ) {
        for (size_t i=0; i< ShoweringSegments.size(); i++) {
            if ( ShoweringLayers[i] > 0 ) {
               if ( ShoweringLayers[i] <= layers[ layers.size()-1] ) continue;
@@ -363,7 +363,7 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
     }
 
     // adding showering information   
-    if ( layers.size() < 2 && ShoweringSegments.size() > 0 ) {
+    if ( layers.size() < 2 && !ShoweringSegments.empty() ) {
        for (size_t i=0; i< ShoweringSegments.size(); i++) {
          if ( ShoweringLayers[i] > 0 ) {
             if ( ShoweringLayers[i] <= layers[ layers.size()-1] ) continue;
@@ -458,7 +458,7 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
     }
     
     // adding showering information   
-    if ( layers.size() < 2 && ShoweringSegments.size() > 0 ) {
+    if ( layers.size() < 2 && !ShoweringSegments.empty() ) {
        for (size_t i=0; i< ShoweringSegments.size(); i++) {
           if ( ShoweringLayers[i] > 0 ) {
              if ( ShoweringLayers[i] <= layers[ layers.size()-1] ) continue;
@@ -547,7 +547,7 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
 
 
     // adding showering information   
-    if ( layers.size() < 2 && ShoweringSegments.size() > 0 ) {
+    if ( layers.size() < 2 && !ShoweringSegments.empty() ) {
        for (size_t i=0; i< ShoweringSegments.size(); i++) {
            if ( ShoweringLayers[i] <= layers[ layers.size()-1] ) continue;
            protoTrack.push_back( ShoweringSegments[i] );
@@ -620,7 +620,7 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
     if ( showeringBefore )  NShowers++ ;
 
     // adding showering information   
-    if ( layers.size() < 2 && ShoweringSegments.size() > 0 ) {
+    if ( layers.size() < 2 && !ShoweringSegments.empty() ) {
        for (size_t i=0; i< ShoweringSegments.size(); i++) {
            if ( ShoweringLayers[i] <= layers[ layers.size()-1] ) continue;
            protoTrack.push_back( ShoweringSegments[i] );
@@ -686,7 +686,7 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
     if ( showeringBefore )  NShowers++ ;
 
     // adding showering information   
-    if ( layers.size() < 2 && ShoweringSegments.size() > 0 ) {
+    if ( layers.size() < 2 && !ShoweringSegments.empty() ) {
        for (size_t i=0; i< ShoweringSegments.size(); i++) {
            if ( ShoweringLayers[i] <= layers[ layers.size()-1] ) continue;
            protoTrack.push_back( ShoweringSegments[i] );
@@ -750,7 +750,7 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
 
 
     // adding showering information   
-    if ( layers.size() < 2 && ShoweringSegments.size() > 0 ) {
+    if ( layers.size() < 2 && !ShoweringSegments.empty() ) {
        for (size_t i=0; i< ShoweringSegments.size(); i++) {
            if ( ShoweringLayers[i] <= layers[ layers.size()-1] ) continue;
            protoTrack.push_back( ShoweringSegments[i] );
@@ -823,7 +823,7 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
 
 
     // adding showering information   
-    if ( layers.size() < 2 && ShoweringSegments.size() > 0 ) {
+    if ( layers.size() < 2 && !ShoweringSegments.empty() ) {
        for (size_t i=0; i< ShoweringSegments.size(); i++) {
            if ( ShoweringLayers[i] <= layers[ layers.size()-1] ) continue;
            protoTrack.push_back( ShoweringSegments[i] );
@@ -896,7 +896,7 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
 
   
     // adding showering information   
-    if ( layers.size() < 2 && ShoweringSegments.size() > 0 ) {
+    if ( layers.size() < 2 && !ShoweringSegments.empty() ) {
        for (size_t i=0; i< ShoweringSegments.size(); i++) {
            if ( ShoweringLayers[i] <= layers[ layers.size()-1] ) continue;
            protoTrack.push_back( ShoweringSegments[i] );
@@ -964,7 +964,7 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
   
 
     // adding showering information   
-    if ( layers.size() < 2 && ShoweringSegments.size() > 0 ) {
+    if ( layers.size() < 2 && !ShoweringSegments.empty() ) {
        for (size_t i=0; i< ShoweringSegments.size(); i++) {
            if ( ShoweringLayers[i] <= layers[ layers.size()-1] ) continue;
            protoTrack.push_back( ShoweringSegments[i] );
@@ -1028,7 +1028,7 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
   
 
     // adding showering information   
-    if ( layers.size() < 2 && ShoweringSegments.size() > 0 ) {
+    if ( layers.size() < 2 && !ShoweringSegments.empty() ) {
        for (size_t i=0; i< ShoweringSegments.size(); i++) {
            if ( ShoweringLayers[i] <= layers[ layers.size()-1] ) continue;
            protoTrack.push_back( ShoweringSegments[i] );

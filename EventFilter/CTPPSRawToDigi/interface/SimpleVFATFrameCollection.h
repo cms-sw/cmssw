@@ -43,7 +43,7 @@ class SimpleVFATFrameCollection : public VFATFrameCollection
 
     virtual bool Empty() const
     {
-      return (data.size() == 0);
+      return (data.empty());
     }
 
     void Insert(const TotemFramePosition &index, const VFATFrame &frame)

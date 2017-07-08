@@ -274,7 +274,7 @@ public:
 	  prim.setWhereClause("(LOGIC_ID = :I1 OR LOGIC_ID = :I2 OR LOGIC_ID = :I3)", channels); // selects only endcap primitives
 	  */
 	  prim.fetch();
-	  if (prim.getLogicIds().size() > 0) {
+	  if (!prim.getLogicIds().empty()) {
 	    LMFRunDat run_dat(econn);
 	    run_dat.setLMFRunIOV(*ri);
 	    /* uncomment the following to select only endcaps

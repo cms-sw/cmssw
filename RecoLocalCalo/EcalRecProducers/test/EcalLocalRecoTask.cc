@@ -49,7 +49,7 @@ EcalLocalRecoTask::EcalLocalRecoTask(const edm::ParameterSet& ps)
   
   cfToken_ = consumes<CrossingFrame<PCaloHit> > (edm::InputTag("mix","EcalHitsEB"));
 
-  if ( outputFile_.size() != 0 ) {
+  if ( !outputFile_.empty() ) {
     edm::LogInfo("EcalLocalRecoTaskInfo") << "histograms will be saved to '" << outputFile_.c_str() << "'";
   } else {
     edm::LogInfo("EcalLocalRecoTaskInfo") << "histograms will NOT be saved";
@@ -110,7 +110,7 @@ EcalLocalRecoTask::EcalLocalRecoTask(const edm::ParameterSet& ps)
 
 EcalLocalRecoTask::~EcalLocalRecoTask(){
  
-  if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
+  if ( !outputFile_.empty() && dbe_ ) dbe_->save(outputFile_);
 
 }
 

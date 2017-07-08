@@ -131,7 +131,7 @@ EcalSimpleProducer::EcalSimpleProducer(const edm::ParameterSet& pset):
   replaceAll(simHitFormula, "iphi0", "y");
   replaceAll(simHitFormula, "ievt0", "z");
   
-  if(formula.size()!=0){
+  if(!formula.empty()){
     formula_ = unique_ptr<TFormula>(new TFormula("f", formula.c_str()));
     Int_t err = formula_->Compile();
     if(err!=0){
@@ -140,7 +140,7 @@ EcalSimpleProducer::EcalSimpleProducer(const edm::ParameterSet& pset):
     produces<EBDigiCollection>();
     produces<EEDigiCollection>();
   }
-  if(tpFormula.size()!=0){
+  if(!tpFormula.empty()){
     tpFormula_ = unique_ptr<TFormula>(new TFormula("f", tpFormula.c_str()));
     Int_t err = tpFormula_->Compile();
     if(err!=0){
@@ -148,7 +148,7 @@ EcalSimpleProducer::EcalSimpleProducer(const edm::ParameterSet& pset):
     }
     produces<EcalTrigPrimDigiCollection>();
   }
-  if(simHitFormula.size()!=0){
+  if(!simHitFormula.empty()){
     simHitFormula_
       = unique_ptr<TFormula>(new TFormula("f", simHitFormula.c_str()));
     Int_t err = simHitFormula_->Compile();

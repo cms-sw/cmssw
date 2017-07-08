@@ -29,7 +29,7 @@ PFTauElecRejectionBenchmark::~PFTauElecRejectionBenchmark() {
 
 void PFTauElecRejectionBenchmark::write() {
    // Store the DAQ Histograms 
-  if (outputFile_.size() != 0) {
+  if (!outputFile_.empty()) {
     if (db_)
           db_->save(outputFile_.c_str());
     // use bare Root if no DQM (FWLite applications)

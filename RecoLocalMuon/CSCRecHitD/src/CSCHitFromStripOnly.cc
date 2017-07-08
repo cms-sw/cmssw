@@ -511,7 +511,7 @@ float CSCHitFromStripOnly::findHitOnStripPosition( const std::vector<CSCStripHit
   
   float strippos = -1.;
   
-  if ( data.size() < 1 ) return strippos;
+  if ( data.empty() ) return strippos;
   
   // biggestStrip is strip with largest pulse height
   // Use pointer subtraction

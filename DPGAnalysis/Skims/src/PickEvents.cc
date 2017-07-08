@@ -91,10 +91,10 @@ PickEvents::PickEvents(const edm::ParameterSet& iConfig)
   listrunevents_=listruneventstmp.fullPath();
 
   // sanity checks
-  if ( isRunLsBased_ && luminositySectionsBlockRanges_.size()==0 ) {
+  if ( isRunLsBased_ && luminositySectionsBlockRanges_.empty() ) {
     assert( "ERROR: selection based on run/Lumisection from json file, but LuminositySectionsBlockRange is emptpy." ==0 );
   }
-  if ( (!isRunLsBased_) && luminositySectionsBlockRanges_.size()>0 ) {
+  if ( (!isRunLsBased_) && !luminositySectionsBlockRanges_.empty() ) {
     assert( "ERROR: selection based on run/event from txt file, but LuminositySectionsBlockRange is not emptpy." ==0 );
   }
 

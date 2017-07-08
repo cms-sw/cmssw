@@ -70,7 +70,7 @@ public:
 
     void setDuplicateSegments(std::vector<CSCSegment*>& duplicates);
 
-    bool isME11a_duplicate() const { return (theDuplicateSegments.size() > 0 ? true : false); }
+    bool isME11a_duplicate() const { return (!theDuplicateSegments.empty() ? true : false); }
     // a copy of the duplicated segments (ME1/1a only) 
     const std::vector< CSCSegment> & duplicateSegments() const { return theDuplicateSegments; } 
     

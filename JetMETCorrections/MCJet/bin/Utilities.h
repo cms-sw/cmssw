@@ -248,7 +248,7 @@ bool CommandLine::check()
     }
   }
   
-  if (_unknowns.size()>0) {
+  if (!_unknowns.empty()) {
     result = false;
     std::cout<<"\nCommandLine WARNING: "<<_unknowns.size()
 	<<" the followingparameters *must* be provided:"<<std::endl;

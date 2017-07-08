@@ -325,7 +325,7 @@ void TrackerHitAnalyzer::endJob(){
   //and here we will do the profile
 
   //Save root file only in standalone mode
-  if ( runStandalone && fOutputFile.size() != 0 && fDBE ){ fDBE->save(fOutputFile);}
+  if ( runStandalone && !fOutputFile.empty() && fDBE ){ fDBE->save(fOutputFile);}
 }
 
 

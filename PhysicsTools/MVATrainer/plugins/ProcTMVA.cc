@@ -189,7 +189,7 @@ void ProcTMVA::configure(DOMElement *elem)
 		}
 	}
 
-	if (!methods.size())
+	if (methods.empty())
 		throw cms::Exception("ProcTMVA")
 			<< "Expected TMVA method in config section."
 			<< std::endl;

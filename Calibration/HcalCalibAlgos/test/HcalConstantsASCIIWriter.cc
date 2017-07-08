@@ -121,7 +121,7 @@ HcalConstantsASCIIWriter::analyze(const edm::Event& iEvent, const edm::EventSetu
 
 //    std::cout<<" Line size "<<line.size()<< " "<<line<< std::endl;
 
-      if(!line.size() || line[0]=='#') continue;
+      if(line.empty() || line[0]=='#') continue;
       std::istringstream linestream(line);
 
       linestream>>mysubd>>depth>>ieta>>iphi>>coradd>>corerr;

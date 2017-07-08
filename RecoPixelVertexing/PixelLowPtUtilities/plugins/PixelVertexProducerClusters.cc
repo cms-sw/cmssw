@@ -96,7 +96,7 @@ void PixelVertexProducerClusters::produce
 
   auto vertices = std::make_unique<reco::VertexCollection>();
 
-  if(thePixelHits->size() > 0)
+  if(!thePixelHits->empty())
   {
     vector<VertexHit> hits;
 

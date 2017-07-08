@@ -1493,7 +1493,7 @@ void CSCValidation::doEfficiencies(edm::Handle<CSCWireDigiCollection> wires, edm
   chamberTypes["ME3/2"] = 7.5;
   chamberTypes["ME4/1"] = 8.5;
 
-  if(theSeg.size()){
+  if(!theSeg.empty()){
     std::map <int , GlobalPoint> extrapolatedPoint;
     std::map <int , GlobalPoint>::iterator it;
     const CSCGeometry::ChamberContainer& ChamberContainer = cscGeom->chambers();

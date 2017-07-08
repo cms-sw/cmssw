@@ -102,7 +102,7 @@ bool ComphepSingletopFilter::filter(
         }
     }
 
-    bool process22 = (vgp_bsec.size() == 0);
+    bool process22 = (vgp_bsec.empty());
 
     GenVertex * gv = NULL;
     if (process22) {
@@ -140,7 +140,7 @@ bool ComphepSingletopFilter::filter(
         }
     }
 
-    if (vgp_bsec.size() == 0) {
+    if (vgp_bsec.empty()) {
         cerr << "ERROR: ComphepSingletopFilter: HepMC inconsistency" << endl;
         return false;
     }

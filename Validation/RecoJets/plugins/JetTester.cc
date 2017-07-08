@@ -910,7 +910,7 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
       for (GenJetCollection::const_iterator gjet=genJets->begin(); gjet!=genJets->end(); gjet++) {
         if (fabs(gjet->eta()) > 6.) continue;  // Out of the detector 
         if (gjet->pt() < mMatchGenPtThreshold) continue;
-        if (recoJets.size() <= 0) continue;
+        if (recoJets.empty()) continue;
         // pt response
         //------------------------------------------------------------
 	int iMatch    =   -1;

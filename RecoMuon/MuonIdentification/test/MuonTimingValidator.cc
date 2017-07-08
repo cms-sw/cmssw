@@ -140,7 +140,7 @@ MuonTimingValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   iEvent.getByToken(MuonTokens_,MuCollection);
   const reco::MuonCollection muonC = *(MuCollection.product());
-  if (!muonC.size()) return;
+  if (muonC.empty()) return;
 
   iEvent.getByToken(CombinedTimeTokens_,timeMap1);
   const reco::MuonTimeExtraMap & timeMapCmb = *timeMap1;

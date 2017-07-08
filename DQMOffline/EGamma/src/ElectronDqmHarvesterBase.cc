@@ -71,7 +71,7 @@ const std::string * ElectronDqmHarvesterBase::find( DQMStore::IGetter & iGetter,
          (histoName->find(name)==(lsize-nsize)) )
      { res.push_back(histoName) ; }
    }
-  if (res.size()==0)
+  if (res.empty())
    {
     std::ostringstream oss ;
     oss<<"Histogram "<<name<<" not found in "<<outputInternalPath_ ;

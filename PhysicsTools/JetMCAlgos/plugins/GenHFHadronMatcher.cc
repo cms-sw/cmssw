@@ -405,7 +405,7 @@ std::vector<int> GenHFHadronMatcher::findHadronJets ( const reco::GenParticleCol
 
         LastQuarkMotherIds.push_back ( LastQuarkMotherId );
 
-        if(LastQuarkMotherId.size()<1) {
+        if(LastQuarkMotherId.empty()) {
             hadronFlavour = 0;
         } else {
             int qIdx = LastQuarkId.at( lastQuarkIndices.at(hadNum) );
@@ -432,7 +432,7 @@ std::vector<int> GenHFHadronMatcher::findHadronJets ( const reco::GenParticleCol
         hadBHadronId.push_back(bHadronMotherId);
         
 
-        if(LastQuarkMotherId.size()>0) {
+        if(!LastQuarkMotherId.empty()) {
             std::set<int> checkedHadronIds;
             fixExtraSameFlavours(hadNum, hadIndex, hadMothers, hadMothersIndices, hadFromTopWeakDecay, LastQuarkIds, LastQuarkMotherIds, lastQuarkIndices, hadFlavour, checkedHadronIds, 0);
         }

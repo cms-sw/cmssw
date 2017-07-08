@@ -363,7 +363,7 @@ void BeamMonitorBx::FitAndFill(const LuminosityBlock& lumiSeg,
     BeamSpotMapBx bsmap = theBeamFitter->getBeamSpotMap();
     std::map<int,int> npvsmap = theBeamFitter->getNPVsperBX();
     edm::LogInfo("BX|BeamMonitorBx") << "Number of bx = " << bsmap.size() << endl;
-    if (bsmap.size() == 0) return;
+    if (bsmap.empty()) return;
     if (countBx_ < bsmap.size()) {
       countBx_ = bsmap.size();
       BookTables(countBx_,varMap,"");

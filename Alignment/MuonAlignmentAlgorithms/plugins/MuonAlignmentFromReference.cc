@@ -422,7 +422,7 @@ void MuonAlignmentFromReference::initialize(const edm::EventSetup& iSetup,
     std::vector<Alignable*> all_DT_chambers = alignableMuon->DTChambers();
     std::vector<Alignable*> all_CSC_chambers = alignableMuon->CSCChambers();
     std::vector<Alignable*> reference;
-    if (m_reference.size()) parseReference(reference, all_DT_chambers, all_CSC_chambers);
+    if (!m_reference.empty()) parseReference(reference, all_DT_chambers, all_CSC_chambers);
 
     alignmentParameterStore->setAlignmentPositionError(all_DT_chambers, 100000000., 0.);
     alignmentParameterStore->setAlignmentPositionError(all_CSC_chambers, 100000000., 0.);
@@ -751,7 +751,7 @@ void MuonAlignmentFromReference::terminate(const edm::EventSetup& iSetup)
     TStopwatch stop_watch;
 
     // collect temporary files
-    if (m_readTemporaryFiles.size() != 0) 
+    if (!m_readTemporaryFiles.empty()) 
     {
         stop_watch.Start();
         readTmpFiles();

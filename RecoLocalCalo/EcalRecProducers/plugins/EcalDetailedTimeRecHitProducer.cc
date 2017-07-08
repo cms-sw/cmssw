@@ -144,7 +144,7 @@ void EcalDetailedTimeRecHitProducer::produce(edm::Event& evt, const edm::EventSe
 		
 		if ( VertexHandle.isValid() )
 		  {
-		    if ((*VertexHandle).size()>0) //at least 1 vertex
+		    if (!*VertexHandle.empty()) //at least 1 vertex
 		      {
 			const reco::Vertex* myVertex= &(*VertexHandle)[0];
 			vertex.reset( new GlobalPoint(myVertex->x(),myVertex->y(),myVertex->z()) );
@@ -159,7 +159,7 @@ void EcalDetailedTimeRecHitProducer::produce(edm::Event& evt, const edm::EventSe
 		
 		if ( VertexHandle.isValid() )
 		  {
-		    if ((*VertexHandle).size()>0) //at least 1 vertex
+		    if (!*VertexHandle.empty()) //at least 1 vertex
 		      {
 			assert ((*VertexHandle)[0].vertexId() == 0);
 			const SimVertex* myVertex= &(*VertexHandle)[0];

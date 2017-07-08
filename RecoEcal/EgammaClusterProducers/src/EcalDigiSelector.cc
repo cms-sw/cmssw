@@ -107,7 +107,7 @@ void EcalDigiSelector::produce(edm::Event& evt, const edm::EventSetup& es)
 
   if (TotClus >= nclus_sel_ || meet_single_thresh){
 	
-    if (saveBarrelSuperClusters.size() > 0){
+    if (!saveBarrelSuperClusters.empty()){
       
 		
 	  edm::ESHandle<CaloTopology> pTopology;
@@ -169,7 +169,7 @@ void EcalDigiSelector::produce(edm::Event& evt, const edm::EventSetup& es)
     }//If barrel superclusters need saving.
     
     
-    if (saveEndcapSuperClusters.size() > 0){
+    if (!saveEndcapSuperClusters.empty()){
  
       edm::ESHandle<CaloTopology> pTopology;
       es.get<CaloTopologyRecord>().get(pTopology);

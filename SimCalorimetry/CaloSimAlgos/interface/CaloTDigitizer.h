@@ -95,7 +95,7 @@ public:
   /// Collects the digis
 
   void run(DigiCollection & output, CLHEP::HepRandomEngine* engine) {
-    assert(theDetIds->size() != 0);
+    assert(!theDetIds->empty());
 
     if(theNoiseSignalGenerator != 0) addNoiseSignals(engine);
 

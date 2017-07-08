@@ -555,7 +555,7 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
       // ... but add protection to not crash
       int obj0Index = -1;
 
-      if ((*it0Comb).size() > 0) {
+      if (!*it0Comb.empty()) {
         obj0Index = (*it0Comb)[0];
       } else {
         LogTrace("L1TGlobal")
@@ -854,7 +854,7 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
           // ... but add protection to not crash
           int obj2Index = -1;
 
-          if ((*it2Comb).size() > 0) {
+          if (!*it2Comb.empty()) {
             obj2Index = (*it2Comb)[0];
           } else {
             LogTrace("L1TGlobal")
@@ -1213,7 +1213,7 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
               // ... but add protection to not crash
               int obj1Index = -1;
 
-              if ((*it1Comb).size() > 0) {
+              if (!*it1Comb.empty()) {
                 obj1Index = (*it1Comb)[0];
               } else {
                 LogTrace("L1TGlobal")
@@ -1521,7 +1521,7 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
               // ... but add protection to not crash
               int obj2Index = -1;
 
-              if ((*it2Comb).size() > 0) {
+              if (!*it2Comb.empty()) {
                   obj2Index = (*it2Comb)[0];
               } else {
                 LogTrace("L1TGlobal")

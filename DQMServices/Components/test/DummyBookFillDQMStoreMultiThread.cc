@@ -51,7 +51,7 @@ class TH1FFiller : public FillerBase {
     }
     m_hist = m_element->getTH1F();
 
-    if (valuesToFill_.size() >0)
+    if (!valuesToFill_.empty())
       assert (valuesToFill_.size() == m_steps);
   }
 
@@ -62,7 +62,7 @@ class TH1FFiller : public FillerBase {
   }
 
   void fill() {
-    if (valuesToFill_.size() > 0) {
+    if (!valuesToFill_.empty()) {
       for (size_t i = 0; i < valuesToFill_.size(); ++i)
         for (size_t j = 0; j < valuesToFill_[i]; ++j)
           m_hist->Fill(i);
@@ -108,7 +108,7 @@ class TH2FFiller : public FillerBase {
     }
     m_hist = m_element->getTH2F();
 
-    if (valuesToFill_.size() >0)
+    if (!valuesToFill_.empty())
       assert (valuesToFill_.size() == m_steps);
   }
 
@@ -119,7 +119,7 @@ class TH2FFiller : public FillerBase {
   }
 
   void fill() {
-    if (valuesToFill_.size() > 0) {
+    if (!valuesToFill_.empty()) {
       for (size_t i = 0; i < valuesToFill_.size(); ++i)
         for (size_t j = 0; j < valuesToFill_[i]; ++j)
           m_hist->Fill(i, i);

@@ -115,11 +115,11 @@ TH1Store::write (TFile *filePtr,
    // Write out command line arguments.  Save information in directory
    // called provenance.
    TDirectory *dir = _createDir ("args", filePtr);
-   if (argsVec.size())
+   if (!argsVec.empty())
    {
       dir->WriteObject (&argsVec, "argsVec");
    }
-   if (inputFilesVec.size())
+   if (!inputFilesVec.empty())
    {
       dir->WriteObject (&inputFilesVec, "inputFiles");
    }

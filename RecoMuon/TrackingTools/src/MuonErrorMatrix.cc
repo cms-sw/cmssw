@@ -49,7 +49,7 @@ MuonErrorMatrix::MuonErrorMatrix(const edm::ParameterSet & iConfig):theD(0){
       maxPt = iConfig.getParameter<double>("maxPt");}
     else{
       xBins = iConfig.getParameter<std::vector<double> >("PtBins");
-      if (xBins.size()==0){edm::LogError( theCategory)<<"Npt=0 and no entries in the vector. I will do aseg fault soon.";}
+      if (xBins.empty()){edm::LogError( theCategory)<<"Npt=0 and no entries in the vector. I will do aseg fault soon.";}
       NPt = xBins.size()-1;
       xBinsArray = &(xBins.front());
       minPt = xBins.front();
@@ -61,7 +61,7 @@ MuonErrorMatrix::MuonErrorMatrix(const edm::ParameterSet & iConfig):theD(0){
       maxEta = iConfig.getParameter<double>("maxEta");}
     else{
       yBins = iConfig.getParameter<std::vector<double> >("EtaBins");
-      if (yBins.size()==0){edm::LogError( theCategory)<<"NEta=0 and no entries in the vector. I will do aseg fault soon.";}
+      if (yBins.empty()){edm::LogError( theCategory)<<"NEta=0 and no entries in the vector. I will do aseg fault soon.";}
       NEta = yBins.size()-1;
       yBinsArray = &(yBins.front());
       minPt = yBins.front();

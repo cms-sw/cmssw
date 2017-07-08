@@ -206,7 +206,7 @@ int DQMStoreStats::calcstats( int mode = DQMStoreStats::considerAllME ) {
     }
     
     // protection against ghost ME with empty paths
-    if( 0 == path.size() ) continue;
+    if( path.empty() ) continue;
 
     subsysStringEnd = path.find( '/', 0 );
     if( std::string::npos == subsysStringEnd ) subsysStringEnd = path.size(); // no subfolder
@@ -557,7 +557,7 @@ void DQMStoreStats::dumpMemoryProfile( void ) {
   }
 
   std::cout << "Approx. maximum total virtual memory size of job: ";
-  if( isOpenProcFileSuccessful_ && memoryHistoryVector_.size() ) {
+  if( isOpenProcFileSuccessful_ && !memoryHistoryVector_.empty() ) {
     std::cout << maxItem.second / 1000.
               << " MB (reached " << maxItem.first - startingTime_ << " sec. after constructor called)," << std::endl;
     std::cout << " memory history written to: " << rootOutputFileName.str() << " (" << memoryHistoryVector_.size() << " samples)" << std::endl;

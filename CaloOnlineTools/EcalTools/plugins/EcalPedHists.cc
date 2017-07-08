@@ -28,11 +28,11 @@ EcalPedHists::EcalPedHists(const edm::ParameterSet& ps) :
   listFEDs_ = ps.getUntrackedParameter<vector<int> >("listFEDs");
   listEBs_ = ps.getUntrackedParameter<vector<string> >("listEBs");
  
-  if(listFEDs_.size()==0)
+  if(listFEDs_.empty())
   {
     allFEDsSelected_ = false;
     //if "actual" EB id given, then convert to FEDid and put in listFEDs_
-    if(listEBs_.size() > 0)
+    if(!listEBs_.empty())
     {
       listFEDs_.clear();
       for(vector<string>::const_iterator itr = listEBs_.begin(); itr != listEBs_.end(); ++itr)

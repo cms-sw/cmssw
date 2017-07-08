@@ -167,7 +167,7 @@ class PFEGammaAlgo {
                           const reco::PFBlockRef&  blockRef,
                           std::vector< bool >&  active){
     RunPFEG(hoc,blockRef,active);
-    return (egCandidate_.size()>0);
+    return (!egCandidate_.empty());
   };
   
   //get PFCandidate collection

@@ -348,7 +348,7 @@ CentralityProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       if( daughter > (*recoVertices)[greatestvtx].tracksSize()) greatestvtx = i;
      }
 
-     if(recoVertices->size()>0){
+     if(!recoVertices->empty()){
       vx = (*recoVertices)[greatestvtx].position().x();
       vy = (*recoVertices)[greatestvtx].position().y();
       vz = (*recoVertices)[greatestvtx].position().z();

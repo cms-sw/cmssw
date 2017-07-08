@@ -390,7 +390,7 @@ void SegSelector::DTSimHitFit(ESHandle<DTGeometry> dtGeom){
          double N=0.0;
          if (i ==1) { sp=sp1;}
          if (i ==2) { sp=sp2;}
-         if ((i ==3)&&(sp2.size()> 0)) continue;
+         if ((i ==3)&&(!sp2.empty())) continue;
          if (i ==3) { sp=sp1;}
          for (std::vector<PSimHit>::const_iterator sh_i = sp.begin(); sh_i != sp.end(); ++sh_i)
          {

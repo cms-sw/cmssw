@@ -173,7 +173,7 @@ ResolutionCreator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
    else if(objectType_ == "met"){
      edm::Handle<std::vector<pat::MET> >  mets;
      iEvent.getByToken(metsToken_,mets);
-     if(mets->size()>=1) {
+     if(!mets->empty()) {
        if( genEvt->isSemiLeptonic() && genEvt->singleNeutrino() != 0 && ROOT::Math::VectorUtil::DeltaR(genEvt->singleNeutrino()->p4(), (*mets)[0].p4()) < minDR_) {
          //p4gen.push_back(new reco::Particle(0,genEvt->singleNeutrino()->p4(),math::XYZPoint()));
          //p4rec.push_back(new reco::Particle((pat::MET)((*mets)[0])));

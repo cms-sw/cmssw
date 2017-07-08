@@ -278,7 +278,7 @@ void CosmicMuonSeedGenerator::createSeeds(TrajectorySeedCollection& results,
 
   const std::string category = "Muon|RecoMuon|CosmicMuonSeedGenerator";
 
-  if (hits.size() == 0 || results.size() >= theMaxSeeds ) return;
+  if (hits.empty() || results.size() >= theMaxSeeds ) return;
   for (MuonRecHitContainer::const_iterator ihit = hits.begin(); ihit != hits.end(); ihit++) {
     const std::vector<TrajectorySeed>& sds = createSeed((*ihit),eSetup);
     LogTrace(category)<<"created seeds from rechit "<<sds.size();
@@ -294,7 +294,7 @@ void CosmicMuonSeedGenerator::createSeeds(TrajectorySeedCollection& results,
 
   const std::string category = "Muon|RecoMuon|CosmicMuonSeedGenerator";
 
-  if (hitpairs.size() == 0 || results.size() >= theMaxSeeds ) return;
+  if (hitpairs.empty() || results.size() >= theMaxSeeds ) return;
   for (CosmicMuonSeedGenerator::MuonRecHitPairVector::const_iterator ihitpair = hitpairs.begin(); ihitpair != hitpairs.end(); ihitpair++) {
     const std::vector<TrajectorySeed>& sds = createSeed((*ihitpair),eSetup);
     LogTrace(category)<<"created seeds from rechit "<<sds.size();

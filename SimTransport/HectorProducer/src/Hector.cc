@@ -239,7 +239,7 @@ void Hector::filterFP420(TRandom3* rootEngine){
   float x1_420;
   float y1_420;
   
-  if ( m_beamPart.size() && lengthfp420>0. ) {
+  if ( !m_beamPart.empty() && lengthfp420>0. ) {
     
     for (it = m_beamPart.begin(); it != m_beamPart.end(); ++it ) {
       line = (*it).first;
@@ -320,7 +320,7 @@ void Hector::filterZDC(TRandom3* rootEngine){
   bool is_stop_zdc = false;
   int direction;
   
-  if ( m_beamPart.size() && lengthzdc>0. ) {
+  if ( !m_beamPart.empty() && lengthzdc>0. ) {
     
     for (it = m_beamPart.begin(); it != m_beamPart.end(); ++it ) {
       line = (*it).first;
@@ -394,7 +394,7 @@ void Hector::filterD1(TRandom3* rootEngine){
   float x1_d1;
   float y1_d1;
   
-  if ( m_beamPart.size() && lengthd1>0.) {
+  if ( !m_beamPart.empty() && lengthd1>0.) {
     
     for (it = m_beamPart.begin(); it != m_beamPart.end(); ++it ) {
       line = (*it).first;

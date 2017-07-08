@@ -96,7 +96,7 @@ bool AlCaIsoTracksProducerFilter::filter(edm::Event& iEvent,
   
   //Find if the event passes one of the chosen triggers
   bool triggerSatisfied(false);
-  if (trigNames_.size() == 0) {
+  if (trigNames_.empty()) {
     triggerSatisfied = true;
   } else {
     edm::Handle<edm::TriggerResults> triggerResults;

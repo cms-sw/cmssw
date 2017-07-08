@@ -33,13 +33,13 @@ namespace {
          << ") chi2=" << vtx.totalChiSquared()
          << " ndf=" << vtx.degreesOfFreedom() << " hr="
          << vtx.hasRefittedTracks() << endl;
-    if ( vtx.originalTracks().size() && vtx.hasRefittedTracks() )
+    if ( !vtx.originalTracks().empty() && vtx.hasRefittedTracks() )
     {
       cout << "    `- 1st trk: ";
       reco::TransientTrack t = vtx.originalTracks()[0];
       TrajectoryStateOnSurface tsos = t.impactPointState();
       printTSOS ( tsos );
-      if ( vtx.refittedTracks().size() )
+      if ( !vtx.refittedTracks().empty() )
       {
         cout << "     `- 1st refttd: ";
         reco::TransientTrack t2 = vtx.refittedTracks()[0];
@@ -85,7 +85,7 @@ void CVRTest::discussPrimary( const edm::Event& iEvent ) const
 {
   edm::Handle<reco::VertexCollection> retColl;
   iEvent.getByLabel( vertexcoll_, retColl);
-  if ( retColl->size() )
+  if ( !retColl->empty() )
   {
     const reco::Vertex & vtx = *(retColl->begin());
     cout << "[CVRTest] persistent primary: " << vtx.x() << ", " << vtx.y()

@@ -495,7 +495,7 @@ TrajectoryManager::updateWithDaughters(ParticlePropagator& PP, int fsimi, Random
     const DaughterParticleList& daughters =  myDecayEngine->particleDaughters(PP, &random->theEngine());
 
     // Update the FSimEvent with an end vertex and with the daughters
-    if ( daughters.size() ) { 
+    if ( !daughters.empty() ) { 
       double distMin = 1E99;
       int theClosestChargedDaughterId = -1;
       DaughterParticleIterator daughter = daughters.begin();

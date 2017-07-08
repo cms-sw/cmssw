@@ -104,7 +104,7 @@ void DTRecSegment2DProducer::produce(edm::Event& event, const
     OwnVector<DTSLRecSegment2D> segs = theAlgo->reconstruct(sl, pairs);
     if(debug) cout << "Number of Reconstructed segments: " << segs.size() << endl;
 
-    if (segs.size() > 0 )
+    if (!segs.empty() )
       segments->put(SLId, segs.begin(),segs.end());
   }
   event.put(std::move(segments));

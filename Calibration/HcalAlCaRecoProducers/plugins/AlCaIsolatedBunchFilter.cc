@@ -107,7 +107,7 @@ bool AlCaIsolatedBunchFilter::filter(edm::Event& iEvent,
 			       << iEvent.bunchCrossing() << std::endl;
 #endif
   //Step1: Find if the event passes one of the chosen triggers
-  if ((trigIsoBunchNames_.size() == 0) && (trigJetNames_.size() == 0)) {
+  if ((trigIsoBunchNames_.empty()) && (trigJetNames_.empty())) {
     accept = true;
   } else {
     /////////////////////////////TriggerResults

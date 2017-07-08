@@ -226,7 +226,7 @@ std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & t
 
   // Get the vector of simHits associated with this rechit
 
-  if (!assocHitbySimTrack_ && simhitCFPos.size() > 0) {
+  if (!assocHitbySimTrack_ && !simhitCFPos.empty()) {
     // We use the indices to the simHit collections taken
     //  from the DigiSimLinks and returned in simhitCFPos.
     //  simhitCFPos[i] contains the full address of the ith simhit:

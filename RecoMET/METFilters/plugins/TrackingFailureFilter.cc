@@ -60,7 +60,7 @@ bool TrackingFailureFilter::filter(edm::StreamID, edm::Event & iEvent, const edm
     ht += j->pt();
   }
   double sumpt = 0;
-  if (vtxs->size() > 0) {
+  if (!vtxs->empty()) {
 //    const reco::Vertex * vtx = &((*vtxs)[0]);
     for (std::vector<reco::Track>::const_iterator tr = tracks->begin(); tr != tracks->end(); ++tr) {
       bool associateToPV = false;

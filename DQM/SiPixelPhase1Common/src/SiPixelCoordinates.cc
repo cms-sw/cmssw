@@ -416,7 +416,7 @@ int SiPixelCoordinates::roc(const DetId& detid, const std::pair<int, int>& pixel
   int roc = -9999;
   // Use the Fed Cabling Map if specified by the bool
   // or if using channel number too, or if it's the Phase 2 detector
-  if (phase_==2||channel_.size()) {
+  if (phase_==2||!channel_.empty()) {
     unsigned int fedId = fedid(detid);
     SiPixelFrameConverter converter(cablingMap_, fedId);
     sipixelobjects::DetectorIndex detector = { detid.rawId(), pixel.first, pixel.second };

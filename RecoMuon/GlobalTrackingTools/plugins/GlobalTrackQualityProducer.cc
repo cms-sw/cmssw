@@ -97,7 +97,7 @@ GlobalTrackQualityProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     double relative_muon_chi2 = 0.0;
     double relative_tracker_chi2 = 0.0;
     double glbTrackProbability = 0.0;
-    if(refitted.size()>0) {
+    if(!refitted.empty()) {
       thisKink = kink(refitted.front()) ;      
       std::pair<double,double> chi = newChi2(refitted.front());
       relative_muon_chi2 = chi.second; //normalized inside to /sum(muHits.dimension)

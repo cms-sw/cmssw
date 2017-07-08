@@ -377,7 +377,7 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
     }
     unsigned set( hltPrescaleTable.set() );
     if ( hltPrescaleTable.size() > 0 ) {
-      if ( hltPrescaleLabel_.size() > 0 ) {
+      if ( !hltPrescaleLabel_.empty() ) {
         bool foundPrescaleLabel( false );
         for ( unsigned iLabel = 0; iLabel <  hltPrescaleTable.labels().size(); ++iLabel ) {
           if ( hltPrescaleTable.labels().at( iLabel ) == hltPrescaleLabel_ ) {

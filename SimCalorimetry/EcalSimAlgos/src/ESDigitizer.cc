@@ -50,7 +50,7 @@ ESDigitizer::setGain( const int gain )
    else
    {
       assert( 0 != m_detIds &&
-	      0 != m_detIds->size() ) ; // detIds must already be set as we need size
+	      !m_detIds->empty() ) ; // detIds must already be set as we need size
 
       assert( 1 == gain ||
 	      2 == gain    ) ; // legal values
@@ -167,7 +167,7 @@ void
 ESDigitizer::run( ESDigiCollection& output, CLHEP::HepRandomEngine* engine )
 {
     assert( 0 != m_detIds         &&
-	    0 != m_detIds->size() &&
+	    !m_detIds->empty() &&
 	    ( !addNoise()         ||
 	      0 != m_ranGeneral ) ) ; // sanity check
 

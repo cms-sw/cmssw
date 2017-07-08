@@ -998,7 +998,7 @@ ZeeCalibration::duringLoop( const edm::Event& iEvent, const edm::EventSetup& iSe
     return kContinue;
   }
   
-  if (hits->size() == 0 && ehits->size() == 0){
+  if (hits->empty() && ehits->empty()){
     std::cout << "hits->size() == 0" << std::endl;   
     return kContinue;
   }  
@@ -1008,7 +1008,7 @@ ZeeCalibration::duringLoop( const edm::Event& iEvent, const edm::EventSetup& iSe
     return kContinue;
   }
   
-  if (electronCollection->size() == 0){
+  if (electronCollection->empty()){
     std::cout << "electronCollection->size() == 0" << std::endl;
     return kContinue;
   }
@@ -1105,7 +1105,7 @@ ZeeCalibration::duringLoop( const edm::Event& iEvent, const edm::EventSetup& iSe
   //
   h1_ZCandMult_->Fill(zeeCandidates.size());
   
-  if(zeeCandidates.size()==0 || myBestZ==-1 )
+  if(zeeCandidates.empty() || myBestZ==-1 )
     return kContinue;
       
   if (loopFlag_ == 0)

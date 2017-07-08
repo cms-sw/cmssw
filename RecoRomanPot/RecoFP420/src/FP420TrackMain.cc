@@ -201,7 +201,7 @@ void FP420TrackMain::run(edm::Handle<ClusterCollectionFP420> &input, TrackCollec
       //	 collector = finderParameters_->trackFinder3D(input); //
       // }// if ( trackMode
       
-      if (collector.size()>0){
+      if (!collector.empty()){
 	TrackCollectionFP420::Range inputRange;
 	inputRange.first = collector.begin();
 	inputRange.second = collector.end();

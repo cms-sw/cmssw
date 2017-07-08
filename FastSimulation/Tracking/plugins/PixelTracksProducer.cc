@@ -91,7 +91,7 @@ PixelTracksProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   e.getByToken(seedProducerToken,theSeeds);
 
   // No seed -> output an empty track collection
-  if(theSeeds->size() == 0) {
+  if(theSeeds->empty()) {
     e.put(std::move(tracks));
     e.put(std::move(recHits));
     e.put(std::move(trackExtras));

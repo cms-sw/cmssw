@@ -51,7 +51,7 @@ public:
       produces< JetValueMap >();
     }
 
-    if( valueLabels_.size()>0 || values_.size()>0 )
+    if( !valueLabels_.empty() || !values_.empty() )
     {
       if( valueLabels_.size()==values_.size() )
       {

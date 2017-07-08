@@ -76,7 +76,7 @@ SiPixelOfflineCalibAnalysisBase::analyze(const edm::Event& iEvent, const edm::Ev
      return;
    
    uint32_t runnumber=iEvent.id().run();
-   if(runnumbers_.size()==0)
+   if(runnumbers_.empty())
      runnumbers_.push_back(runnumber);
    else{
      bool foundnumber=false;

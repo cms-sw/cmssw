@@ -199,7 +199,7 @@ void FWMagField::checkFieldInfo(const edm::EventBase* event)
          edm::Handle< std::vector<DcsStatus> > dcsStatus;
          event->getByLabel(dcsTag, dcsStatus);
          
-         if (dcsStatus.isValid() && dcsStatus->size())
+         if (dcsStatus.isValid() && !dcsStatus->empty())
          {
             float sum = 0;
             for (std::vector<DcsStatus>::const_iterator i = dcsStatus->begin(); i <  dcsStatus->end(); ++i)

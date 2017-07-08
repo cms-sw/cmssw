@@ -155,7 +155,7 @@ void RPCMonitorDigi::analyze(const edm::Event& event,const edm::EventSetup& setu
 	  TrackingRecHit * tkRecHit = (*it)->clone();
 	  RPCRecHit* rpcRecHit = dynamic_cast<RPCRecHit*>(tkRecHit);
 	  int detId = (int)rpcRecHit->rpcId();
-	  if(rechitMuon.find(detId) == rechitMuon.end() || rechitMuon[detId].size() == 0){
+	  if(rechitMuon.find(detId) == rechitMuon.end() || rechitMuon[detId].empty()){
 	    std::vector<RPCRecHit>  myVect(1,*rpcRecHit );	  
 	    rechitMuon[detId]= myVect;
 	  }else {
@@ -197,7 +197,7 @@ void RPCMonitorDigi::analyze(const edm::Event& event,const edm::EventSetup& setu
     for (rpcRecHitIter = rpcHits->begin(); rpcRecHitIter != rpcHits->end() ; rpcRecHitIter++) {
       RPCRecHit rpcRecHit = (*rpcRecHitIter);
       int detId = (int)rpcRecHit.rpcId();
-      if(rechitNoise.find(detId) == rechitNoise.end() || rechitNoise[detId].size() == 0){
+      if(rechitNoise.find(detId) == rechitNoise.end() || rechitNoise[detId].empty()){
 	std::vector<RPCRecHit>  myVect(1,rpcRecHit );
 	rechitNoise[detId]= myVect;
       }else {
@@ -221,7 +221,7 @@ void RPCMonitorDigi::performSourceOperation(  std::map<RPCDetId , std::vector<RP
 
   edm::LogInfo ("rpcmonitordigi") <<"[RPCMonitorDigi]: Performing DQM source operations for "; 
   
-  if(recHitMap.size()==0) {return;} //if  
+  if(recHitMap.empty()) {return;} //if  
 
   std::map<std::string, std::map<std::string, MonitorElement*> >  meRollCollection ;
   std::map<std::string, MonitorElement*>   meWheelDisk ;

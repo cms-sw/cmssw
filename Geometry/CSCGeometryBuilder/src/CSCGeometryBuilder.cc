@@ -52,7 +52,7 @@ void CSCGeometryBuilder::build( std::shared_ptr<CSCGeometry> theGeometry
     // get the chamber type from existing info
     int chamberType = CSCChamberSpecs::whatChamberType( jstation, jring );
     size_t cs = 0;
-    assert ( cscpars.pChamberType.size() != 0 );
+    assert ( !cscpars.pChamberType.empty() );
     while (cs < cscpars.pChamberType.size() && chamberType != cscpars.pChamberType[cs]) {
       ++cs;
     }
@@ -161,10 +161,10 @@ void CSCGeometryBuilder::buildChamber (
     LogTrace(myName) << myName <<": CSCChamberSpecs::build requested for ME" << jstat << jring ;
      int chamberType = CSCChamberSpecs::whatChamberType( jstat, jring );
      const CSCChamberSpecs* aSpecs = theGeometry->findSpecs( chamberType );
-    if ( fupar.size() != 0 && aSpecs == 0 ) {
+    if ( !fupar.empty() && aSpecs == 0 ) {
       // make new one:
       aSpecs = theGeometry->buildSpecs (chamberType, fpar, fupar, wg);
-    } else if ( fupar.size() == 0 && aSpecs == 0 ) {
+    } else if ( fupar.empty() && aSpecs == 0 ) {
       edm::LogError(myName) << "SHOULD BE THROW? Error, wg and/or fupar size are 0 BUT this Chamber Spec has not been built!";
     }
 

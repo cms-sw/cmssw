@@ -45,7 +45,7 @@ LumiSummary::deadFrac() const {
   if(lumiversion_=="DIP"){
     return float(deadcount_)/float(bitzerocount_);
   }
-  if (l1data_.size()==0) return 1.0;
+  if (l1data_.empty()) return 1.0;
   if (bitzerocount_==0) return -1.0;
   return float(deadcount_)/float(bitzerocount_);
 }

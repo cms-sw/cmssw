@@ -52,7 +52,7 @@ SiPixelGenErrorDBObjectReader::analyze(const edm::Event& iEvent, const edm::Even
     std::vector<short> tempMapId;
     std::map<unsigned int,short> templMap=dbobject.getGenErrorIDs();
     for(std::map<unsigned int,short>::const_iterator it=templMap.begin(); it!=templMap.end();++it) {
-      if(tempMapId.size()==0) tempMapId.push_back(it->second);
+      if(tempMapId.empty()) tempMapId.push_back(it->second);
       for(unsigned int i=0; i<tempMapId.size();++i) {
 	if(tempMapId[i]==it->second) continue;
 	else if(i==tempMapId.size()-1) {

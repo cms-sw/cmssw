@@ -863,7 +863,7 @@ int FedRawDataInputSource::grabNextJsonFile(boost::filesystem::path const& jsonS
 	}
     }
     if (!success) {
-      if (dp.getData().size())
+      if (!dp.getData().empty())
 	data = dp.getData()[0];
       else
 	throw cms::Exception("FedRawDataInputSource::grabNextJsonFile") <<
@@ -1401,7 +1401,7 @@ long FedRawDataInputSource::initFileList()
               if (b.rfind("/")!=std::string::npos) b=b.substr(b.rfind("/"));
               return b > a;});
 
-  if (fileNames_.size()) {
+  if (!fileNames_.empty()) {
     //get run number from first file in the vector
     boost::filesystem::path fileName = fileNames_[0];
     std::string fileStem = fileName.stem().string();

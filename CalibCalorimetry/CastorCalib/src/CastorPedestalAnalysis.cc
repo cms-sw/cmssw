@@ -29,15 +29,15 @@ CastorPedestalAnalysis::CastorPedestalAnalysis(const edm::ParameterSet& ps)
 
 // user cfg parameters
   m_outputFileMean = ps.getUntrackedParameter<string>("outputFileMeans", "");
-  if ( m_outputFileMean.size() != 0 ) {
+  if ( !m_outputFileMean.empty() ) {
     cout << "Castor pedestal means will be saved to " << m_outputFileMean.c_str() << endl;
   } 
   m_outputFileWidth = ps.getUntrackedParameter<string>("outputFileWidths", "");
-  if ( m_outputFileWidth.size() != 0 ) {
+  if ( !m_outputFileWidth.empty() ) {
     cout << "Castor pedestal widths will be saved to " << m_outputFileWidth.c_str() << endl;
   } 
   m_outputFileROOT = ps.getUntrackedParameter<string>("outputFileHist", "");
-  if ( m_outputFileROOT.size() != 0 ) {
+  if ( !m_outputFileROOT.empty() ) {
     cout << "Castor pedestal histograms will be saved to " << m_outputFileROOT.c_str() << endl;
   } 
   m_nevtsample = ps.getUntrackedParameter<int>("nevtsample",0);
@@ -102,7 +102,7 @@ void CastorPedestalAnalysis::processEvent(const CastorDigiCollection& castor,
   m_shape = cond.getCastorShape();
   // HF
   try{
-    if(!castor.size()) throw (int)castor.size();
+    if(castor.empty()) throw (int)castor.size();
     for (CastorDigiCollection::const_iterator j=castor.begin(); j!=castor.end(); ++j){
       const CastorDataFrame digi = (const CastorDataFrame)(*j);
       m_coder = cond.getCastorCoder(digi.id());

@@ -139,13 +139,13 @@ inline PseudoJet CMSTopTagger::result(const PseudoJet & jet) const{
 
   // do the first splitting
   std::vector<PseudoJet> split0 = _split_once(jet, jet);
-  if (split0.size() == 0) return PseudoJet();
+  if (split0.empty()) return PseudoJet();
 
   // now try a second splitting on each of the resulting objects
   std::vector<PseudoJet> subjets;
   for (unsigned i = 0; i < 2; i++) {
     std::vector<PseudoJet> split1 = _split_once(split0[i], jet);
-    if (split1.size() > 0) {
+    if (!split1.empty()) {
       subjets.push_back(split1[0]);
       subjets.push_back(split1[1]);
     } else {

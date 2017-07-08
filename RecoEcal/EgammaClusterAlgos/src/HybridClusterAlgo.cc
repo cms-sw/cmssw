@@ -453,7 +453,7 @@ void HybridClusterAlgo::mainSearch(const EcalRecHitCollection* hits, const CaloS
 
 		// Make association so that superclusters can be made later.
 		// but only if some BasicClusters have been found...
-		if (thisseedClusters.size() > 0) 
+		if (!thisseedClusters.empty()) 
 		{
 			clustered_.insert(std::make_pair(clustercounter, thisseedClusters));
 			clustercounter++;

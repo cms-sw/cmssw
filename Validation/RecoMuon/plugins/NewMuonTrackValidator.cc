@@ -409,7 +409,7 @@ void NewMuonTrackValidator::analyze(const edm::Event& event, const edm::EventSet
 	int assoc_recoTrack_NValidHits = 0;
 	if(simRecColl.find(tpr) != simRecColl.end()) {
 	  auto const & rt = simRecColl[tpr];
-	  if (rt.size()!=0) {
+	  if (!rt.empty()) {
 	    RefToBase<Track> assoc_recoTrack = rt.begin()->first;
 	    edm::LogVerbatim("NewMuonTrackValidator")<<"-----------------------------associated Track #"<<assoc_recoTrack.key();
 	    TP_is_matched = true;
@@ -516,7 +516,7 @@ void NewMuonTrackValidator::analyze(const edm::Event& event, const edm::EventSet
 	  
 	  if(recSimColl.find(track) != recSimColl.end()) {
 	    tp = recSimColl[track];	
-	    if (tp.size() != 0) {
+	    if (!tp.empty()) {
 	      tpr = tp.begin()->first;	
 	      // RtS and StR must associate the same pair !
 	      if(simRecColl.find(tpr) != simRecColl.end()) {
@@ -545,7 +545,7 @@ void NewMuonTrackValidator::analyze(const edm::Event& event, const edm::EventSet
 	else {
 	  if(recSimColl.find(track) != recSimColl.end()){
 	    tp = recSimColl[track];
-	    if (tp.size()!=0) {
+	    if (!tp.empty()) {
 	      tpr = tp.begin()->first;
 	      Track_is_matched = true;
 	      at++;

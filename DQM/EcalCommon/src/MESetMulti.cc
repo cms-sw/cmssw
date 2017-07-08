@@ -52,7 +52,7 @@ namespace ecaldqm
     sets_(_orig.sets_.size(), 0),
     replCandidates_(_orig.replCandidates_)
   {
-    if(sets_.size() == 0) return;
+    if(sets_.empty()) return;
 
     for(unsigned iS(0); iS < sets_.size(); ++iS){
       if(!_orig.sets_[iS]) continue;

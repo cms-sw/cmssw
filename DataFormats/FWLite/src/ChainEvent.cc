@@ -62,7 +62,7 @@ ChainEvent::ChainEvent(std::vector<std::string> const& iFileNames):
   // total accumulated size (last enry + 1) at the end of last file
   accumulatedSize_.push_back(summedSize);
 
-  if (fileNames_.size() > 0)
+  if (!fileNames_.empty())
     switchToFile(0);
 }
 

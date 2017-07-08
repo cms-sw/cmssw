@@ -45,7 +45,7 @@ float LeptonVertexSignificance::calculate(const reco::Track & theTrack, const ed
   // lepton LR calculation should have nothing to do with event selection
   edm::Handle<reco::VertexCollection> vertexHandle;
   iEvent.getByToken(vertexToken_, vertexHandle);
-  if (vertexHandle.product()->size() == 0) return 0;
+  if (vertexHandle.product()->empty()) return 0;
   reco::Vertex theVertex = vertexHandle.product()->front();
   // calculate the track-vertex association significance
   reco::TransientTrack theTrTrack = theTrackBuilder_->build(&theTrack);

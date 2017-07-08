@@ -77,8 +77,8 @@ namespace pat {
       /// Checks, if a certain HLT path or L1 algorithm name is assigned
       bool hasPathOrAlgorithm( const std::string & name, bool pathLastFilterAccepted, bool pathL3FilterAccepted ) const;
       /// Check, if the usage indicator vectors have been filled
-      bool hasLastFilter() const { return ( pathLastFilterAccepted_.size() > 0 && pathLastFilterAccepted_.size() == pathNames_.size() ); };
-      bool hasL3Filter() const { return ( pathL3FilterAccepted_.size() > 0 && pathL3FilterAccepted_.size() == pathNames_.size() ); };
+      bool hasLastFilter() const { return ( !pathLastFilterAccepted_.empty() && pathLastFilterAccepted_.size() == pathNames_.size() ); };
+      bool hasL3Filter() const { return ( !pathL3FilterAccepted_.empty() && pathL3FilterAccepted_.size() == pathNames_.size() ); };
 
       /// Check if trigger names have been packed by calling packPathNames() and not yet unpacked
       bool checkIfPathsAreUnpacked(bool throwIfPacked=true) const ;

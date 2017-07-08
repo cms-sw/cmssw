@@ -213,7 +213,7 @@ APVCyclePhaseDebuggerFromL1TS::analyze(const edm::Event& iEvent, const edm::Even
 
   // offset computation
 
-  if(l1ts->size()>0) {
+  if(!l1ts->empty()) {
 
     if(_hlresync && *_hlresync) (*_hlresync)->Fill((*l1ts)[0].lastResync());
     if(_hlOC0 && *_hlOC0) (*_hlOC0)->Fill((*l1ts)[0].lastOrbitCounter0());

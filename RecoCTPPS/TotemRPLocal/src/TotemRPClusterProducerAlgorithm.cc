@@ -34,7 +34,7 @@ int TotemRPClusterProducerAlgorithm::buildClusters(unsigned int detId, const std
   strip_digi_set_.clear();
   strip_digi_set_.insert(digi.begin(), digi.end());
 
-  if (strip_digi_set_.size() == 0)
+  if (strip_digi_set_.empty())
     return 0;
     
   bool iter_beg=true;

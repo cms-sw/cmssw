@@ -176,7 +176,7 @@ void HeavyFlavorValidation::dqmBeginRun(const edm::Run& iRun, const edm::EventSe
 			break;
 		}
 	}
-	if(filterNamesLevels.size()==0){
+	if(filterNamesLevels.empty()){
 		LogDebug("HLTriggerOfflineHeavyFlavor")<<"Bad Trigger Path: "<<triggerPathName<<endl;
 		return;
 	}else{
@@ -286,7 +286,7 @@ void HeavyFlavorValidation::bookHistograms(DQMStore::IBooker & ibooker,
 }
 
 void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetup){
-  if(filterNamesLevels.size()==0){ 
+  if(filterNamesLevels.empty()){ 
     return;
   } 
 //access the containers and create LeafCandidate copies

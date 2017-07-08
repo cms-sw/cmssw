@@ -246,7 +246,7 @@ PixelFEDCard::PixelFEDCard(vector<vector<string> > &tableMat):PixelConfigBase(" 
   int size[3]   ;
   int indexsize = 0 ;   
   for(unsigned int r = 0 ; r < tableMat.size() ; r++){    //Goes to every row of the Matrix
-    if(tableMat[r].size() == 0)
+    if(tableMat[r].empty())
       {
 //        cout << __LINE__ << "]\t" << mthn << "__________________ NEW TABLE __________________"<< endl ;
         size[indexsize] = r ;

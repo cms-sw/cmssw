@@ -226,7 +226,7 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     //call the fitter
     std::vector<Trajectory> result = fit->fit(theTC->seed(), hits, theTSOS);
-    if (result.size()==0) continue;
+    if (result.empty()) continue;
     std::vector<TrajectoryMeasurement> vtm = result[0].measurements();
     double tchi2 = 0;
 
@@ -246,7 +246,7 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       LocalPoint rhitLPv = rhit->localPosition();
 
       std::vector<PSimHit> assSimHits = hitAssociator.associateHit(*(rhit->hit()));
-      if (assSimHits.size()==0) continue;
+      if (assSimHits.empty()) continue;
       PSimHit shit;
       for(std::vector<PSimHit>::const_iterator m=assSimHits.begin(); m<assSimHits.end(); m++){
 	if ((m->localPosition()-rhitLPv).mag()<delta) {
@@ -403,7 +403,7 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	CTTRHp tMonoHit = theBuilder->build(&m);
 	if (tMonoHit==0) continue;
 	vector<PSimHit> assMonoSimHits = hitAssociator.associateHit(*tMonoHit->hit());
-	if (assMonoSimHits.size()==0) continue;
+	if (assMonoSimHits.empty()) continue;
 	const PSimHit sMonoHit = *(assSimHits.begin());
 	const Surface * monoSurf = &( tMonoHit->det()->surface() );
 	if (monoSurf==0) continue;
@@ -498,7 +498,7 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  theBuilder->build(&s);
 	if (tStereoHit==0) continue;
 	vector<PSimHit> assStereoSimHits = hitAssociator.associateHit(*tStereoHit->hit());
-	if (assStereoSimHits.size()==0) continue;
+	if (assStereoSimHits.empty()) continue;
 	const PSimHit sStereoHit = *(assSimHits.begin());
 	const Surface * stereoSurf = &( tStereoHit->det()->surface() );
 	if (stereoSurf==0) continue;

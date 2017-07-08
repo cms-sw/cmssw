@@ -84,7 +84,7 @@ BVertexFilterT<VTX>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
  auto recoVertices = std::make_unique<std::vector<VTX>>();
 
- if(pvHandle->size()!=0) {
+ if(!pvHandle->empty()) {
    const reco::Vertex & primary = (*pvHandle.product())[0];
    const edm::View<VTX> & vertices = *svHandle.product();
 

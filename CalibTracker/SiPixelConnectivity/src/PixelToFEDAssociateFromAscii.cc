@@ -165,8 +165,8 @@ void PixelToFEDAssociateFromAscii::init(const string & cfg_name)
 void PixelToFEDAssociateFromAscii::send(
     pair<int,vector<Bdu> > & b, pair<int,vector<Edu> > & e)
 {
-  if (b.second.size() > 0) theBarrel.push_back(b);
-  if (e.second.size() > 0) theEndcap.push_back(e);
+  if (!b.second.empty()) theBarrel.push_back(b);
+  if (!e.second.empty()) theEndcap.push_back(e);
   b.second.clear();
   e.second.clear();
 }

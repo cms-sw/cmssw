@@ -240,7 +240,7 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
       badModules_file.close();
 	}
   }
-  if(badModules_list.size()) cout<<"Remove additionnal bad modules from the analysis: "<<endl;
+  if(!badModules_list.empty()) cout<<"Remove additionnal bad modules from the analysis: "<<endl;
   set<uint32_t>::iterator itBadMod;
   for (itBadMod=badModules_list.begin(); itBadMod!=badModules_list.end(); ++itBadMod) 
     cout<<" "<<*itBadMod<<endl;

@@ -230,7 +230,7 @@ void TestDetSet::fillSeq() {
     void fill(TSFF& ff) override {
       int n=ff.id()-20;
       CPPUNIT_ASSERT(n>=0);
-      CPPUNIT_ASSERT(ff.size()==0);
+      CPPUNIT_ASSERT(ff.empty());
       ff.push_back((100*n+3));
       CPPUNIT_ASSERT(ff.size()==1);
       CPPUNIT_ASSERT(ff[0]==100*n+3);

@@ -841,7 +841,7 @@ void HLTExoticaSubAnalysis::getNamesOfObjects(const edm::ParameterSet & anpset)
         _genSelectorMap[EVTColContainer::CALOJET] = 0 ;
     }
 
-    if (_recLabels.size() < 1) {
+    if (_recLabels.empty()) {
         edm::LogError("ExoticaValidation") << "HLTExoticaSubAnalysis::getNamesOfObjects, "
                                            << "Not included any object (recMuonLabel, recElecLabel, ...)  "
                                            << "in the analysis " << _analysisname;

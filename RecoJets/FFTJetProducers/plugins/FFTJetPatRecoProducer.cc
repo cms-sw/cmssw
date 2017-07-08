@@ -172,7 +172,7 @@ FFTJetPatRecoProducer::FFTJetPatRecoProducer(const edm::ParameterSet& ps)
 
     // Check if we want to write the grids into an external file
     const std::string externalGridFile(ps.getParameter<std::string>("externalGridFile"));
-    storeGridsExternally = externalGridFile.size() > 0;
+    storeGridsExternally = !externalGridFile.empty();
     if (storeGridsExternally)
     {
         externalGridStream.open(externalGridFile.c_str(), std::ios_base::out | 

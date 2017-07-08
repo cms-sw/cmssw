@@ -69,7 +69,7 @@ namespace ecaldqm
         ieta = EcalTrigTowerDetId(id).ieta();
       else{
         std::vector<DetId> ids(scConstituents(EcalScDetId(id)));
-        if(ids.size() == 0) continue;
+        if(ids.empty()) continue;
         ieta = getTrigTowerMap()->towerOf(ids[0]).ieta();
       }
 
@@ -105,7 +105,7 @@ namespace ecaldqm
         ieta = EcalTrigTowerDetId(id).ieta();
       else{
         std::vector<DetId> ids(scConstituents(EcalScDetId(id)));
-        if(ids.size() == 0) continue;
+        if(ids.empty()) continue;
         ieta = getTrigTowerMap()->towerOf(ids[0]).ieta();
       }
 

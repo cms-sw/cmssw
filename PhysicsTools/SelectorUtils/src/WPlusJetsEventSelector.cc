@@ -286,12 +286,12 @@ bool WPlusJetsEventSelector::operator() ( edm::EventBase const & event, pat::str
 	      );
 	  bool oneElectron =
 	    ( selectedElectrons_.size() == 1 &&
-	      selectedMuons_.size() == 0
+	      selectedMuons_.empty()
 	      );
 
 	  bool oneMuonMuVeto =
 	    ( selectedMuons_.size() == 1 &&
-	      looseMuons_.size() == 0
+	      looseMuons_.empty()
 	      );
 
 

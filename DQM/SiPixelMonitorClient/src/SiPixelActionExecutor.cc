@@ -490,7 +490,7 @@ void SiPixelActionExecutor::fillSummary(DQMStore::IBooker& iBooker, DQMStore::IG
 	}
       }
     }
-    if (sum_mes.size() == 0) {
+    if (sum_mes.empty()) {
       edm::LogInfo("SiPixelActionExecutor") << " Summary MEs can not be created" << "\n" ;
       return;
     }
@@ -806,7 +806,7 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore::IBooker& iBooker,
 	sum_mes.push_back(temp);
       }
     }
-    if (sum_mes.size() == 0) {
+    if (sum_mes.empty()) {
       edm::LogInfo("SiPixelActionExecutor") << " Summary MEs can not be created" << "\n" ;
       return;
     }

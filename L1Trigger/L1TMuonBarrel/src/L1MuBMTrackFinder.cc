@@ -165,7 +165,7 @@ void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
 // run the barrel Muon Trigger Track Finder
   edm::Handle<L1MuDTChambPhContainer> dttrig;
   e.getByToken(m_DTDigiToken,dttrig);
-  if ( dttrig->getContainer()->size() == 0 ) return;
+  if ( dttrig->getContainer()->empty() ) return;
 
   if ( L1MuBMTFConfig::Debug(2) ) cout << endl;
   if ( L1MuBMTFConfig::Debug(2) ) cout << "**** L1MuBMTrackFinder processing ------****" << endl;

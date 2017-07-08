@@ -934,7 +934,7 @@ TestGEMCSCSegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 	{ 	
 	  std::cout<<"GEM-CSC Segment with "<<gemcscs->gemRecHits().size()<<" GEM rechits and "<<gemcscs->cscSegment().specificRecHits().size()<<" CSC rechits"<<std::endl;
 	}
-      if(gemrhs_if.size()==0) continue;
+      if(gemrhs_if.empty()) continue;
       // if(gemrhs_if.size()!=0) continue;
 
       // --- some printout for debug -----------------------------------------------------------------------------------------------------------------------------------

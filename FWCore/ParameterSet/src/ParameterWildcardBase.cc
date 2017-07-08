@@ -47,14 +47,14 @@ namespace edm {
                         bool optional) const {
     validatedLabels.insert(matchingNames.begin(), matchingNames.end());
     if(criteria_ == RequireZeroOrMore) return;
-    if(criteria_ == RequireAtLeastOne && matchingNames.size() < 1U && !optional) {
+    if(criteria_ == RequireAtLeastOne && matchingNames.empty() && !optional) {
       throw Exception(errors::Configuration)
         << "Parameter wildcard of type \"" << parameterTypeEnumToString(type()) << "\" requires "
         << "at least one match\n"
         << "and there are no parameters in the configuration matching\n"
         << "that type.\n";
     } else if(criteria_ == RequireExactlyOne) {
-      if((matchingNames.size() < 1U && !optional) ||
+      if((matchingNames.empty() && !optional) ||
            matchingNames.size() > 1U) {
         throw Exception(errors::Configuration)
           << "Parameter wildcard of type \"" << parameterTypeEnumToString(type()) << "\" requires\n"

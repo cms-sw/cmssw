@@ -296,7 +296,7 @@ void PrimaryVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSet
     if (vx.isValid() && !vx.isFake()  && vx.ndof()>=ndof_) ++ng;
   nbgvtx->Fill(ng*1.);
 
-  if (scores.isValid() && (*scores).size()>0) {
+  if (scores.isValid() && !*scores.empty()) {
     auto pvScore = (*scores).get(0);
     score[1]->Fill(std::sqrt(pvScore));
     for (unsigned int i=1; i<(*scores).size(); ++i) 
@@ -304,7 +304,7 @@ void PrimaryVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSet
   }
 
   // fill PV tracks MEs (as now, for alignment)
-  if (recVtxs->size() > 0) {
+  if (!recVtxs->empty()) {
 
     vertexPlots  (recVtxs->front(), beamSpot, 1);
     pvTracksPlots(recVtxs->front());

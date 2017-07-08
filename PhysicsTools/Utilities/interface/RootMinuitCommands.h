@@ -29,13 +29,13 @@ namespace fit {
     std::vector<double> doubleArgs;
     void print(std::ostream& cout) const {
       cout << name;
-      if(stringArgs.size() > 0) {
+      if(!stringArgs.empty()) {
 	for(size_t i = 0; i != stringArgs.size(); ++i) {
 	  if(i != 0) cout << ",";
 	  cout << " \"" << stringArgs[i] << "\"";
 	}
       }
-      if(doubleArgs.size() > 0) {
+      if(!doubleArgs.empty()) {
 	for(size_t i = 0; i != doubleArgs.size(); ++i) {
 	  if(i != 0) cout << ",";
 	  cout << " " << doubleArgs[i];
@@ -148,7 +148,7 @@ namespace fit {
     bool commands = false;
     while(getline(*file, line)) {
       ++lineNumber_;
-      if(line.size()==0) continue;
+      if(line.empty()) continue;
       char last = *line.rbegin();
       if(!(last >= '0' && last <= 'z')) line.erase(line.end() - 1);
       boost::char_separator<char> sep(" ");

@@ -101,7 +101,7 @@ namespace edm {
     auto const runLookup = iRegistry.productLookup(InRun);
     auto const lumiLookup = iRegistry.productLookup(InLumi);
     auto const eventLookup = iRegistry.productLookup(InEvent);
-    if(allWorkers_.size()>0) {
+    if(!allWorkers_.empty()) {
       auto const& processName = allWorkers_[0]->description().processName();
       auto runModuleToIndicies = runLookup->indiciesForModulesInProcess(processName);
       auto lumiModuleToIndicies = lumiLookup->indiciesForModulesInProcess(processName);

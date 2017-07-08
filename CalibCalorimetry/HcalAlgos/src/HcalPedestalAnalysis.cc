@@ -33,15 +33,15 @@ HcalPedestalAnalysis::HcalPedestalAnalysis(const edm::ParameterSet& ps)
 
 // user cfg parameters
   m_outputFileMean = ps.getUntrackedParameter<string>("outputFileMeans", "");
-  if ( m_outputFileMean.size() != 0 ) {
+  if ( !m_outputFileMean.empty() ) {
     cout << "Hcal pedestal means will be saved to " << m_outputFileMean.c_str() << endl;
   } 
   m_outputFileWidth = ps.getUntrackedParameter<string>("outputFileWidths", "");
-  if ( m_outputFileWidth.size() != 0 ) {
+  if ( !m_outputFileWidth.empty() ) {
     cout << "Hcal pedestal widths will be saved to " << m_outputFileWidth.c_str() << endl;
   } 
   m_outputFileROOT = ps.getUntrackedParameter<string>("outputFileHist", "");
-  if ( m_outputFileROOT.size() != 0 ) {
+  if ( !m_outputFileROOT.empty() ) {
     cout << "Hcal pedestal histograms will be saved to " << m_outputFileROOT.c_str() << endl;
   } 
   m_nevtsample = ps.getUntrackedParameter<int>("nevtsample",0);
@@ -137,7 +137,7 @@ void HcalPedestalAnalysis::processEvent(const HBHEDigiCollection& hbhe,
   // Get data for every CAPID.
   // HBHE
   try{
-    if(!hbhe.size()) throw (int)hbhe.size();
+    if(hbhe.empty()) throw (int)hbhe.size();
     for (HBHEDigiCollection::const_iterator j=hbhe.begin(); j!=hbhe.end(); ++j){
       const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
       m_coder = cond.getHcalCoder(digi.id());
@@ -162,7 +162,7 @@ void HcalPedestalAnalysis::processEvent(const HBHEDigiCollection& hbhe,
   } 
   // HO
   try{
-    if(!ho.size()) throw (int)ho.size();
+    if(ho.empty()) throw (int)ho.size();
     for (HODigiCollection::const_iterator j=ho.begin(); j!=ho.end(); ++j){
       const HODataFrame digi = (const HODataFrame)(*j);
       m_coder = cond.getHcalCoder(digi.id());
@@ -183,7 +183,7 @@ void HcalPedestalAnalysis::processEvent(const HBHEDigiCollection& hbhe,
   } 
   // HF
   try{
-    if(!hf.size()) throw (int)hf.size();
+    if(hf.empty()) throw (int)hf.size();
     for (HFDigiCollection::const_iterator j=hf.begin(); j!=hf.end(); ++j){
       const HFDataFrame digi = (const HFDataFrame)(*j);
       m_coder = cond.getHcalCoder(digi.id());

@@ -360,7 +360,7 @@ void GEMSegmentAlgorithm::buildSegments(const GEMEnsemble& ensemble, const Ensem
   for (auto rh=rechits.begin(); rh!=rechits.end(); ++rh){
     bx += (*rh)->BunchX();
   }
-  if(rechits.size() != 0) bx=bx*1.0/(rechits.size());
+  if(!rechits.empty()) bx=bx*1.0/(rechits.size());
 
   // Calculate the central value and uncertainty of the segment time
   // if we want to study impact of 2-3ns time resolution on GEM Segment 

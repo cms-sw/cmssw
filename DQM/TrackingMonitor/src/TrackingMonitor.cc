@@ -709,7 +709,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     float lumi = -1.;
     edm::Handle<LumiScalersCollection> lumiScalers;
     iEvent.getByToken(lumiscalersToken_, lumiScalers);
-    if ( lumiScalers.isValid() && lumiScalers->size() ) {
+    if ( lumiScalers.isValid() && !lumiScalers->empty() ) {
       LumiScalersCollection::const_iterator scalit = lumiScalers->begin();
       lumi = scalit->instantLumi();
     } else 

@@ -43,7 +43,7 @@ SiStripFineDelayTLA::~SiStripFineDelayTLA()
 
 std::vector<std::pair< std::pair<DetId, LocalPoint> ,float> > SiStripFineDelayTLA::findtrackangle(const std::vector<Trajectory>& trajVec)
 {
-  if (trajVec.size()) {
+  if (!trajVec.empty()) {
   return findtrackangle(trajVec.front()); }
   std::vector<std::pair< std::pair<DetId, LocalPoint> ,float> > hitangleassociation;
   return hitangleassociation;

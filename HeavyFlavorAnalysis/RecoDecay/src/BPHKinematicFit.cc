@@ -237,7 +237,7 @@ const RefCountedKinematicTree& BPHKinematicFit::kinematicTree(
     compTree = kinFitter.fit( kc, compTree );
     if ( compTree->isEmpty() ) return kinTree;
     compTree->movePointerToTheTop();
-    if ( kTail.size() ) {
+    if ( !kTail.empty() ) {
       RefCountedKinematicParticle compPart = compTree->currentParticle();
       if ( !compPart->currentState().isValid() ) return kinTree;
       kTail.push_back( compPart );

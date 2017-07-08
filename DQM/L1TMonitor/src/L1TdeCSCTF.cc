@@ -47,7 +47,7 @@ L1TdeCSCTF::L1TdeCSCTF(ParameterSet const& pset) {
   ptLUTset = pset.getParameter<ParameterSet>("PTLUT");
 	
   outFile = pset.getUntrackedParameter<string>("outFile", "");
-  if( outFile.size() != 0 )
+  if( !outFile.empty() )
   {
       LogWarning("L1TdeCSCTF")
 	    << "L1T Monitoring histograms will be saved to " 

@@ -125,12 +125,12 @@ EcalSelectiveReadoutValidation::EcalSelectiveReadoutValidation(const ParameterSe
   //File to log SRP algorithem inconsistency
   srpAlgoErrorLogFileName_
     = ps.getUntrackedParameter<string>("srpAlgoErrorLogFile","");
-  logSrpAlgoErrors_ = (srpAlgoErrorLogFileName_.size()!=0);
+  logSrpAlgoErrors_ = (!srpAlgoErrorLogFileName_.empty());
 
   //File to log SRP decision application inconsistency
   srApplicationErrorLogFileName_
     = ps.getUntrackedParameter<string>("srApplicationErrorLogFile","");
-  logSrApplicationErrors_ = (srApplicationErrorLogFileName_.size()!=0);
+  logSrApplicationErrors_ = (!srApplicationErrorLogFileName_.empty());
 
   //FIR ZS weights
   configFirWeights(ps.getParameter<vector<double> >("dccWeights"));
@@ -138,7 +138,7 @@ EcalSelectiveReadoutValidation::EcalSelectiveReadoutValidation(const ParameterSe
   // DQM ROOT output
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
 
-  if(outputFile_.size() != 0){
+  if(!outputFile_.empty()){
     LogInfo("OutputInfo") << " Ecal Digi Task histograms will be saved to '"
 			  << outputFile_.c_str() << "'";
   } else{
@@ -194,8 +194,8 @@ void EcalSelectiveReadoutValidation::analyze(Event const & event,
   //retrieves event products:
   readAllCollections(event);
 
-  withEeSimHit_ = (eeSimHits_->size()!=0);
-  withEbSimHit_ = (ebSimHits_->size()!=0);
+  withEeSimHit_ = (!eeSimHits_->empty());
+  withEbSimHit_ = (!ebSimHits_->empty());
 
   if(ievt_<10){
     edm::LogInfo("EcalSrValid") << "Size of TP collection: " << tps_->size() << std::endl
@@ -244,10 +244,10 @@ void EcalSelectiveReadoutValidation::analyze(Event const & event,
   //TP
   analyzeTP(event, es);
 
-  if(ebComputedSrFlags_->size()){
+  if(!ebComputedSrFlags_->empty()){
     compareSrfColl(event, *ebSrFlags_, *ebComputedSrFlags_);
   }
-  if(eeComputedSrFlags_->size()){
+  if(!eeComputedSrFlags_->empty()){
     compareSrfColl(event, *eeSrFlags_, *eeComputedSrFlags_);
   }
   nDroppedFRO_ = 0;
@@ -1292,10 +1292,10 @@ void EcalSelectiveReadoutValidation::bookHistograms(DQMStore::IBooker &ibooker, 
       ++it){
     if(*it!=string("all")
        && availableHistList_.find(*it)==availableHistList_.end()){
-      s << (s.str().size()==0?"":", ") << *it;
+      s << (s.str().empty()?"":", ") << *it;
     }
   }
-  if(s.str().size()!=0){
+  if(!s.str().empty()){
     LogWarning("Configuration")
       << "Parameter 'histList' contains some unknown histogram(s). "
       "Check spelling. Following name were not found: "
@@ -1707,7 +1707,7 @@ EcalSelectiveReadoutValidation::readOutUnitOf(const EEDetId& xtalId) const{
   int iDccChan = EcalElecId.towerId();
   const bool ignoreSingle = true;
   const vector<EcalScDetId> id = elecMap_->getEcalScDetId(iDCC, iDccChan, ignoreSingle);
-  return id.size()>0?id[0]:EcalScDetId();
+  return !id.empty()?id[0]:EcalScDetId();
 }
 
 void

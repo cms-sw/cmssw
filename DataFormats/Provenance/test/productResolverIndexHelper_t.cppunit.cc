@@ -136,7 +136,7 @@ void TestProductResolverIndexHelper::testOneEntry() {
   
   {
     auto indexToModules = helper.indiciesForModulesInProcess("processNotHere");
-    CPPUNIT_ASSERT(indexToModules.size() == 0);
+    CPPUNIT_ASSERT(indexToModules.empty());
   }
 
 }

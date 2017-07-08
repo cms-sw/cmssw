@@ -52,7 +52,7 @@ FourVectorHLT::FourVectorHLT(const edm::ParameterSet& iConfig)
     float ptMax = filterconf->getUntrackedParameter<double>("ptMax");
     hltPaths_.push_back(PathInfo(me, objectType, ptMin, ptMax));
   }
-  if ( hltPaths_.size() && plotAll_) {
+  if ( !hltPaths_.empty() && plotAll_) {
     // these two ought to be mutually exclusive....
     LogWarning("Configuration") << "Using both plotAll and a list. "
       "list will be ignored." ;

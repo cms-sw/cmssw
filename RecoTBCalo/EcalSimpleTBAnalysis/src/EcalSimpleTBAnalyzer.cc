@@ -284,7 +284,7 @@ EcalSimpleTBAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& 
    if (!evtHeader)
      return;
 
-   if (hits->size() == 0)
+   if (hits->empty())
      return;
 
    if (evtHeader->tableIsMoving())

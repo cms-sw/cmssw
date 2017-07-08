@@ -1067,7 +1067,7 @@ EcalCosmicsHists::analyze(edm::Event const & iEvent, edm::EventSetup const & iSe
       //				  << " crossedEcalRecHits size: " << info.crossedEcalRecHits.size();
       numberofCrossedEcalIdsHist_->Fill(info.crossedEcalIds.size());
       tracks++;
-      if(info.crossedEcalIds.size()>0)
+      if(!info.crossedEcalIds.empty())
         trackDetIdMap.insert(std::pair<int,std::vector<DetId> > (tracks,info.crossedEcalIds));
     }      
     
@@ -1078,7 +1078,7 @@ EcalCosmicsHists::analyze(edm::Event const & iEvent, edm::EventSetup const & iSe
     edm::LogVerbatim("TrackAssociator") << "Matching cosmic clusters to tracks...";
     int numSeeds = seeds.size();
     int numTracks = trackDetIdMap.size();
-    while(seeds.size() > 0 && trackDetIdMap.size() > 0)
+    while(!seeds.empty() && !trackDetIdMap.empty())
     {
       double bestDr = 1000;
       double bestDPhi = 1000;
@@ -1194,7 +1194,7 @@ EcalCosmicsHists::analyze(edm::Event const & iEvent, edm::EventSetup const & iSe
       double phi    = clus->phi();
       double eta    = clus->eta();
       
-      if (recoTracksBarrel->size()==0) HighEnergy_0tracks_occu3D->Fill(phi,eta,energy);
+      if (recoTracksBarrel->empty()) HighEnergy_0tracks_occu3D->Fill(phi,eta,energy);
       if (recoTracksBarrel->size()==1) HighEnergy_1tracks_occu3D->Fill(phi,eta,energy);
       if (recoTracksBarrel->size()==2) HighEnergy_2tracks_occu3D->Fill(phi,eta,energy);
       
@@ -1210,7 +1210,7 @@ EcalCosmicsHists::analyze(edm::Event const & iEvent, edm::EventSetup const & iSe
 	  int ieta = ((EBDetId)(*detitr).first).ieta();
 	  int iphi = ((EBDetId)(*detitr).first).iphi();
 	  if (rechitenergy > minRecHitAmpEB_) {
-	    if (recoTracksBarrel->size()==0) HighEnergy_0tracks_occu3DXtal->Fill(iphi,ieta,rechitenergy);
+	    if (recoTracksBarrel->empty()) HighEnergy_0tracks_occu3DXtal->Fill(iphi,ieta,rechitenergy);
 	    if (recoTracksBarrel->size()==1) HighEnergy_1tracks_occu3DXtal->Fill(iphi,ieta,rechitenergy);
 	    if (recoTracksBarrel->size()==2) HighEnergy_2tracks_occu3DXtal->Fill(iphi,ieta,rechitenergy);
 	    

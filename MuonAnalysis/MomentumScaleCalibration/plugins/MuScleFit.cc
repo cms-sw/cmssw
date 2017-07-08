@@ -1430,7 +1430,7 @@ void MuScleFit::checkParameters() {
       (MuScleFitUtils::SmearType==4 && MuScleFitUtils::parSmear.size()!=6) ||
       (MuScleFitUtils::SmearType==5 && MuScleFitUtils::parSmear.size()!=7) ||
       (MuScleFitUtils::SmearType==6 && MuScleFitUtils::parSmear.size()!=16) ||
-      (MuScleFitUtils::SmearType==7 && MuScleFitUtils::parSmear.size()!=0) ||
+      (MuScleFitUtils::SmearType==7 && !MuScleFitUtils::parSmear.empty()) ||
       MuScleFitUtils::SmearType<0 || MuScleFitUtils::SmearType>7) {
     std::cout << "[MuScleFit-Constructor]: Wrong smear type or number of parameters: aborting!" << std::endl;
     abort();

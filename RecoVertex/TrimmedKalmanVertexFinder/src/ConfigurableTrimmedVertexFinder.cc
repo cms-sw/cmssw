@@ -84,7 +84,7 @@ std::vector<TransientVertex> ConfigurableTrimmedVertexFinder::vertexCandidates(
 
   while (true) {
 
-    float tkCompCut = (cand.size() == 0 ? 
+    float tkCompCut = (cand.empty() ? 
 		       theTrackCompatibilityToPV 
 		       : theTrackCompatibilityToSV);
 
@@ -94,7 +94,7 @@ std::vector<TransientVertex> ConfigurableTrimmedVertexFinder::vertexCandidates(
     //	 << theClusterFinder.trackCompatibilityCut() << std::endl;
 
     std::vector<TransientVertex> newVertices;
-    if ( cand.size() == 0 && use_spot )
+    if ( cand.empty() && use_spot )
     {
       newVertices = theClusterFinder.vertices(remain, spot );
     } else {

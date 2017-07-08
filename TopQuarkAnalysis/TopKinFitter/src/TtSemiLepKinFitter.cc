@@ -178,7 +178,7 @@ void TtSemiLepKinFitter::setupFitter()
   }
 
   // initialize helper class used to bring the resolutions into covariance matrices
-  if(udscResolutions_->size() &&  bResolutions_->size() && lepResolutions_->size() && metResolutions_->size())
+  if(!udscResolutions_->empty() &&  !bResolutions_->empty() && !lepResolutions_->empty() && !metResolutions_->empty())
     covM_ = new CovarianceMatrix(*udscResolutions_, *bResolutions_, *lepResolutions_, *metResolutions_,
 				 *jetEnergyResolutionScaleFactors_, *jetEnergyResolutionEtaBinning_);
   else

@@ -100,7 +100,7 @@ void BtoCharmDecayVertexMergerT<VTX>::produce(edm::Event &iEvent, const edm::Eve
   edm::Handle<reco::VertexCollection> PVcoll;
   iEvent.getByToken(token_primaryVertex, PVcoll);
 
-  if(PVcoll->size()!=0) {
+  if(!PVcoll->empty()) {
 
   const reco::VertexCollection pvc = *( PVcoll.product());
   pv = pvc[0];

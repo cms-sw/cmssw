@@ -311,7 +311,7 @@ ElectronTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   reco::Vertex dummy;
   const reco::Vertex *pv = &dummy;
-  if (thePrimaryVertexColl->size() != 0) {
+  if (!thePrimaryVertexColl->empty()) {
     pv = &*thePrimaryVertexColl->begin();
   } else { // create a dummy PV
     reco::Vertex::Error e;

@@ -34,12 +34,12 @@ class ConfigurableAxis {
       }
     }
   }
-  bool variableSize(){return vBins_.size()!=0;}
+  bool variableSize(){return !vBins_.empty();}
   unsigned int nBin(){if (variableSize()) return vBins_.size()-1;else return nBin_;}
   double Min(){if (variableSize()) return vBins_.front(); else return Min_;}
   double Max(){if (variableSize()) return vBins_.back(); else return Max_;}
   const std::string & Label(){ return Label_;}
-  const double * xBins(){ if (vBins_.size()!=0) return &(vBins_.front()); else return 0;}
+  const double * xBins(){ if (!vBins_.empty()) return &(vBins_.front()); else return 0;}
 
  private:
   std::vector<double> vBins_;
@@ -283,7 +283,7 @@ class SplittingConfigurableHisto : public ConfigurableHisto {
     //book the base histogram
     ConfigurableHisto::book(dir);
 
-    if (subHistoMap_.size()!=0){
+    if (!subHistoMap_.empty()){
       SubHistoMap::iterator i=subHistoMap_.begin();
       SubHistoMap::iterator i_end=subHistoMap_.end();
       for (;i!=i_end;++i){for (unsigned int h=0;h!=i->second.size();++h){ 
@@ -309,7 +309,7 @@ class SplittingConfigurableHisto : public ConfigurableHisto {
     //fill the base histogram
     ConfigurableHisto::fill(e);
     
-    if (subHistoMap_.size()!=0){
+    if (!subHistoMap_.empty()){
       SubHistoMap::iterator i=subHistoMap_.begin();
       SubHistoMap::iterator i_end=subHistoMap_.end();
       for (;i!=i_end;++i){
@@ -338,7 +338,7 @@ class SplittingConfigurableHisto : public ConfigurableHisto {
   }
 
   void complete(){
-    if (subHistoMap_.size()!=0){
+    if (!subHistoMap_.empty()){
       //fill up the stacks
       SubHistoMap::iterator i=subHistoMap_.begin();
       SubHistoMap::iterator i_end=subHistoMap_.end();
@@ -359,7 +359,7 @@ class SplittingConfigurableHisto : public ConfigurableHisto {
  private:
   SplittingConfigurableHisto(const SplittingConfigurableHisto & master) : ConfigurableHisto(master){
     splitter_ = master.splitter_;
-    if (master.subHistoMap_.size()!=0){
+    if (!master.subHistoMap_.empty()){
       SubHistoMap::const_iterator i=master.subHistoMap_.begin();
       SubHistoMap::const_iterator i_end=master.subHistoMap_.end();
       for (;i!=i_end;++i){

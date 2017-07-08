@@ -32,7 +32,7 @@ GBRTree::GBRTree(const TMVA::DecisionTree *tree, double scale, bool useyesnoleaf
   AddNode((TMVA::DecisionTreeNode*)tree->GetRoot(), scale, tree->DoRegression(), useyesnoleaf, adjustboundary);
 
   //special case, root node is terminal, create fake intermediate node at root
-  if (fCutIndices.size()==0) {
+  if (fCutIndices.empty()) {
     fCutIndices.push_back(0);
     fCutVals.push_back(0);
     fLeftIndices.push_back(0);

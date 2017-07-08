@@ -393,7 +393,7 @@ void testMagneticField::compareSectorTables(string file1) {
     off_t size = theStat.st_size;
     
 
-    if (p1.size()!= p2.size() || p1.size()==0) {
+    if (p1.size()!= p2.size() || p1.empty()) {
       cout << "ERROR: file size: " <<  p1.size() << " " << p2.size() << endl;
     }  
 

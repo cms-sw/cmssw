@@ -675,7 +675,7 @@ bool TCMETAlgo::isGoodTrack(const reco::TrackRef track)
   if( !( ( track->qualityMask() & cut ) == cut ) ) return false;
 
   bool isGoodAlgo = false;
-  if( trkAlgos_.size() == 0 ) isGoodAlgo = true;
+  if( trkAlgos_.empty() ) isGoodAlgo = true;
   for( unsigned int i = 0; i < trkAlgos_.size(); i++ )
     {
       if( track->algo() == trkAlgos_.at(i) ) isGoodAlgo = true;

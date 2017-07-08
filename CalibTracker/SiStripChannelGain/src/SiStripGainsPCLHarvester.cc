@@ -117,7 +117,7 @@ void SiStripGainsPCLHarvester::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::
   std::string DQM_dir = m_DQMdir;
    
   std::string stag =  *(std::find(dqm_tag_.begin(), dqm_tag_.end(),m_calibrationMode));
-  if(stag.size()!=0 && stag[0]!='_') stag.insert(0,1,'_');
+  if(!stag.empty() && stag[0]!='_') stag.insert(0,1,'_');
 
   std::string cvi      = DQM_dir + std::string("/Charge_Vs_Index") + stag;
      

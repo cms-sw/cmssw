@@ -152,7 +152,7 @@ void TPNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& es)
         std::vector<std::pair<TrackingParticleRef, double> > tp;
         if(recSimColl.find(track) != recSimColl.end()){
           tp = recSimColl[track];
-          if (tp.size()!=0) ++num_ass;
+          if (!tp.empty()) ++num_ass;
         }
       } 
       edm::LogVerbatim("TPNtuplizer") << "\n# Tracking particles selected and found = " << num_found << "\n";
@@ -175,7 +175,7 @@ void TPNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& es)
         int matched_hit = 0;
         if(simRecColl.find(tpr) != simRecColl.end()){
           rt = (std::vector<std::pair<RefToBase<Track>, double> >) simRecColl[tpr];
-          if (rt.size()!=0) {
+          if (!rt.empty()) {
             ats++;
             edm::LogVerbatim("TPNtuplizer") << "TrackingParticle #" << i << " selected #" << st 
                                             << " with pt=" << sqrt(tp->momentum().perp2()) 
@@ -205,7 +205,7 @@ void TPNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& es)
         std::vector<std::pair<TrackingParticleRef, double> > tp;
         if(recSimColl.find(track) != recSimColl.end()){
           tp = recSimColl[track];
-          if (tp.size()!=0) {
+          if (!tp.empty()) {
             at++;
             edm::LogVerbatim("TPNtuplizer") << "reco::Track #" << rT << " with pt=" << track->pt() 
                                             << " associated with quality:" << tp.begin()->second <<"\n";

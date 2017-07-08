@@ -36,7 +36,7 @@ void testSignal::connectTest()
 
 {
    edm::signalslot::Signal<void(int)> sig;
-   CPPUNIT_ASSERT(sig.slots().size()==0);
+   CPPUNIT_ASSERT(sig.slots().empty());
    
    int value1 = 0;
    sig.connect([&](int iValue)->void{ value1=iValue;});

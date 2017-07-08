@@ -686,7 +686,7 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
       uint32_t detid = (*iterDets);
 
       // Get SubDet label once
-      if (subdet_label.size() == 0) subdet_label = folder_organizer.getSubDetFolderAndTag(detid, tTopo).second;
+      if (subdet_label.empty()) subdet_label = folder_organizer.getSubDetFolderAndTag(detid, tTopo).second;
 
       // DetId and corresponding set of MEs
       ModMEs mod_single;

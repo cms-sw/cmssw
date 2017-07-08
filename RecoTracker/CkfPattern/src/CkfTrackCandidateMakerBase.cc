@@ -224,7 +224,7 @@ namespace cms{
     }
 
     // Step D: Invoke the building algorithm
-    if ((*collseed).size()>0){
+    if (!*collseed.empty()){
 
       unsigned int lastCleanResult=0;
       std::vector<Trajectory> rawResult;

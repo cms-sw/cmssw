@@ -125,7 +125,7 @@ FWTextTableCellRenderer::setJustify(Justify iJustify)
 UInt_t 
 FWTextTableCellRenderer::width() const
 {
-   if(m_data.size()) {
+   if(!m_data.empty()) {
       return m_font->TextWidth(m_data.c_str(),-1);// + 2*kTextBuffer;
    }
    return 0;

@@ -54,7 +54,7 @@ TauDQMHistEffProducer::TauDQMHistEffProducer(const edm::ParameterSet& cfg)
 
     typedef std::vector<std::string> vstring;
     vstring plotParameter = plotConfig.getParameter<vstring>("parameter");
-    if ( plotParameter.size() == 0 ) {
+    if ( plotParameter.empty() ) {
       cfgEntryPlot_.push_back(cfgEntryPlot(plotConfig));
     } else {
       std::string numerator = plotConfig.getParameter<std::string>("numerator");

@@ -164,7 +164,7 @@ void GlobalObjectMap::print(std::ostream& myCout) const
 
         myCout << "    ";
 
-        if ((*itVVV).size() == 0) {
+        if (*itVVV.empty()) {
             myCout << "(none)";
         } else {
 

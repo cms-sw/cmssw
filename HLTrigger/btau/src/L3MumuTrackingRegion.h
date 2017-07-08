@@ -72,7 +72,7 @@ public:
       ev.getByToken(theVertexToken,vertices);
       const reco::VertexCollection vertCollection = *(vertices.product());
       reco::VertexCollection::const_iterator ci = vertCollection.begin();
-      if (vertCollection.size()>0) {
+      if (!vertCollection.empty()) {
 	originz = ci->z();
       } else {
 	originz = theOriginZPos;

@@ -214,7 +214,7 @@ PFCand_AssoMapAlgos::SortPFCandAssociationMap(PFCandToVertexAssMap* pfcvertexass
 
 	}
 
-	while (vertexptsumvector.size()!=0){
+	while (!vertexptsumvector.empty()){
 
 	  VertexRef vertexref_highestpT;
 	  float highestpT = 0.;

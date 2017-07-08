@@ -37,7 +37,7 @@ namespace {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
 
-	  if (!payload->barrelItems().size()) return false;
+	  if (payload->barrelItems().empty()) return false;
 
 	  // looping over the EB channels, via the dense-index, mapped into EBDetId's
 	  for(int cellid = EBDetId::MIN_HASH;
@@ -75,7 +75,7 @@ namespace {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
 
-	  if (!payload->barrelItems().size()) return false;
+	  if (payload->barrelItems().empty()) return false;
 
 	  // looping over the EB channels, via the dense-index, mapped into EBDetId's
 	  for(int cellid = EBDetId::MIN_HASH;
@@ -110,7 +110,7 @@ namespace {
       for( auto const & iov : iovs ) {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
-	  if (!payload->barrelItems().size()) return false;
+	  if (payload->barrelItems().empty()) return false;
 	  // looping over the EB channels, via the dense-index, mapped into EBDetId's
 	  for(int cellid = EBDetId::MIN_HASH;
 	      cellid < EBDetId::kSizeForDenseIndexing;
@@ -157,7 +157,7 @@ namespace {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
 
-	  if (!payload->endcapItems().size()) return false;
+	  if (payload->endcapItems().empty()) return false;
 
 	  // looping over the EE channels
 	  for(int iz = -1; iz < 2; iz = iz + 2)   // -1 or +1
@@ -207,7 +207,7 @@ namespace {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
 
-	  if (!payload->endcapItems().size()) return false;
+	  if (payload->endcapItems().empty()) return false;
 
 	  // looping over the EE channels
 	  for(int iz = -1; iz < 2; iz = iz + 2)   // -1 or +1
@@ -254,7 +254,7 @@ namespace {
       for( auto const & iov : iovs ) {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
-	  if (!payload->endcapItems().size()) return false;
+	  if (payload->endcapItems().empty()) return false;
 
 	  // looping over the EE channels
 	  for(int iz = -1; iz < 2; iz = iz + 2)   // -1 or +1
@@ -288,7 +288,7 @@ namespace {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
 
-	  if (!payload->barrelItems().size()) return false;
+	  if (payload->barrelItems().empty()) return false;
 
 	  // looping over the EB channels, via the dense-index, mapped into EBDetId's
 	  for(int cellid = EBDetId::MIN_HASH;
@@ -326,7 +326,7 @@ namespace {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
 
-	  if (!payload->barrelItems().size()) return false;
+	  if (payload->barrelItems().empty()) return false;
 
 	  // looping over the EB channels, via the dense-index, mapped into EBDetId's
 	  for(int cellid = EBDetId::MIN_HASH;
@@ -361,7 +361,7 @@ namespace {
       for( auto const & iov : iovs ) {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
-	  if (!payload->barrelItems().size()) return false;
+	  if (payload->barrelItems().empty()) return false;
 	  // looping over the EB channels, via the dense-index, mapped into EBDetId's
 	  for(int cellid = EBDetId::MIN_HASH;
 	      cellid < EBDetId::kSizeForDenseIndexing;
@@ -408,7 +408,7 @@ namespace {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
 
-	  if (!payload->endcapItems().size()) return false;
+	  if (payload->endcapItems().empty()) return false;
 
 	  // looping over the EE channels
 	  for(int iz = -1; iz < 2; iz = iz + 2)   // -1 or +1
@@ -458,7 +458,7 @@ namespace {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
 
-	  if (!payload->endcapItems().size()) return false;
+	  if (payload->endcapItems().empty()) return false;
 
 	  // looping over the EE channels
 	  for(int iz = -1; iz < 2; iz = iz + 2)   // -1 or +1
@@ -505,7 +505,7 @@ namespace {
       for( auto const & iov : iovs ) {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
-	  if (!payload->endcapItems().size()) return false;
+	  if (payload->endcapItems().empty()) return false;
 
 	  // looping over the EE channels
 	  for(int iz = -1; iz < 2; iz = iz + 2)   // -1 or +1
@@ -554,7 +554,7 @@ namespace {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
 	  // looping over the EB channels, via the dense-index, mapped into EBDetId's
-	  if (!payload->barrelItems().size()) return false;
+	  if (payload->barrelItems().empty()) return false;
 	  for(int cellid = EBDetId::MIN_HASH;
 	      cellid < EBDetId::kSizeForDenseIndexing;
 	      ++cellid) {
@@ -597,7 +597,7 @@ namespace {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
 	  // looping over the EB channels, via the dense-index, mapped into EBDetId's
-	  if (!payload->barrelItems().size()) return false;
+	  if (payload->barrelItems().empty()) return false;
 	  for(int cellid = EBDetId::MIN_HASH;
 	      cellid < EBDetId::kSizeForDenseIndexing;
 	      ++cellid) {
@@ -636,7 +636,7 @@ namespace {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
 	  // looping over the EB channels, via the dense-index, mapped into EBDetId's
-	  if (!payload->barrelItems().size()) return false;
+	  if (payload->barrelItems().empty()) return false;
 	  for(int cellid = EBDetId::MIN_HASH;
 	      cellid < EBDetId::kSizeForDenseIndexing;
 	      ++cellid) {
@@ -685,7 +685,7 @@ namespace {
       for( auto const & iov : iovs ) {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
-	  if (!payload->endcapItems().size()) return false;
+	  if (payload->endcapItems().empty()) return false;
 
 	  // looping over the EE channels
 	  for(int iz = -1; iz < 2; iz = iz + 2)   // -1 or +1
@@ -738,7 +738,7 @@ namespace {
       for( auto const & iov : iovs ) {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
-	  if (!payload->endcapItems().size()) return false;
+	  if (payload->endcapItems().empty()) return false;
 
 	  // looping over the EE channels
 	  for(int iz = -1; iz < 2; iz = iz + 2)   // -1 or +1
@@ -789,7 +789,7 @@ namespace {
       for( auto const & iov : iovs ) {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
-	  if (!payload->endcapItems().size()) return false;
+	  if (payload->endcapItems().empty()) return false;
 
 	  // looping over the EE channels
 	  for(int iz = -1; iz < 2; iz = iz + 2)   // -1 or +1
@@ -835,7 +835,7 @@ namespace {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
 	  // looping over the EB channels, via the dense-index, mapped into EBDetId's
-	  if (!payload->barrelItems().size()) return false;
+	  if (payload->barrelItems().empty()) return false;
 	  for(int cellid = EBDetId::MIN_HASH;
 	      cellid < EBDetId::kSizeForDenseIndexing;
 	      ++cellid) {
@@ -876,7 +876,7 @@ namespace {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
 	  // looping over the EB channels, via the dense-index, mapped into EBDetId's
-	  if (!payload->barrelItems().size()) return false;
+	  if (payload->barrelItems().empty()) return false;
 	  for(int cellid = EBDetId::MIN_HASH;
 	      cellid < EBDetId::kSizeForDenseIndexing;
 	      ++cellid) {
@@ -913,7 +913,7 @@ namespace {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
 	  // looping over the EB channels, via the dense-index, mapped into EBDetId's
-	  if (!payload->barrelItems().size()) return false;
+	  if (payload->barrelItems().empty()) return false;
 	  for(int cellid = EBDetId::MIN_HASH;
 	      cellid < EBDetId::kSizeForDenseIndexing;
 	      ++cellid) {
@@ -960,7 +960,7 @@ namespace {
       for( auto const & iov : iovs ) {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
-	  if (!payload->endcapItems().size()) return false;
+	  if (payload->endcapItems().empty()) return false;
 
 	  // looping over the EE channels
 	  for(int iz = -1; iz < 2; iz = iz + 2)   // -1 or +1
@@ -1012,7 +1012,7 @@ namespace {
       for( auto const & iov : iovs ) {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
-	  if (!payload->endcapItems().size()) return false;
+	  if (payload->endcapItems().empty()) return false;
 
 	  // looping over the EE channels
 	  for(int iz = -1; iz < 2; iz = iz + 2)   // -1 or +1
@@ -1063,7 +1063,7 @@ namespace {
       for( auto const & iov : iovs ) {
 	std::shared_ptr<EcalPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
-	  if (!payload->endcapItems().size()) return false;
+	  if (payload->endcapItems().empty()) return false;
 
 	  // looping over the EE channels
 	  for(int iz = -1; iz < 2; iz = iz + 2)   // -1 or +1

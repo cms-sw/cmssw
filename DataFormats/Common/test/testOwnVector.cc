@@ -68,7 +68,7 @@ namespace test {
 
 void testOwnVector::checkAll() {
   edm::OwnVector<test::Dummy> v;
-  CPPUNIT_ASSERT(v.size() == 0);
+  CPPUNIT_ASSERT(v.empty());
   CPPUNIT_ASSERT(v.empty());
   bool deleted[4] = { false, false, false, false };
   v.push_back(new test::Dummy(0, deleted + 0));
@@ -105,7 +105,7 @@ void testOwnVector::checkAll() {
   CPPUNIT_ASSERT(!deleted[2]);
   CPPUNIT_ASSERT(!deleted[3]);
   v.clear();
-  CPPUNIT_ASSERT(v.size() == 0);
+  CPPUNIT_ASSERT(v.empty());
   CPPUNIT_ASSERT(v.empty());
   CPPUNIT_ASSERT(deleted[0]);
   CPPUNIT_ASSERT(deleted[1]);

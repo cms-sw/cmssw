@@ -414,7 +414,7 @@ FWCollectionSummaryWidget::itemChanged()
       disabled = alert_over(!m_backgroundIsWhite);
       m_stateButton->SetToolTipText(m_collection->errorMessage().c_str());
    } else {
-      if(m_collection->filterExpression().size()) {
+      if(!m_collection->filterExpression().empty()) {
          picture = filtered(!m_backgroundIsWhite);
          down = filtered_over(!m_backgroundIsWhite);
          disabled = filtered_over(!m_backgroundIsWhite);

@@ -145,7 +145,7 @@ void SiStripUtility::getDetectorStatusColor(int status, int& rval, int&gval, int
 //
 int SiStripUtility::getMEStatus(MonitorElement* me) {
   int status = 0; 
-  if (me->getQReports().size() == 0) {
+  if (me->getQReports().empty()) {
     status = 0;
   } else if (me->hasError()) {
     status = dqm::qstatus::ERROR;
@@ -181,7 +181,7 @@ void SiStripUtility::getModuleFolderList(DQMStore * dqm_store, std::vector<std::
 //
 int SiStripUtility::getMEStatus(MonitorElement* me, int& bad_channels) {
   int status = 0; 
-  if (me->getQReports().size() == 0) {
+  if (me->getQReports().empty()) {
     status       = 0;
     bad_channels = -1;
   } else {

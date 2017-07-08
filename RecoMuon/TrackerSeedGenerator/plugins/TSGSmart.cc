@@ -66,6 +66,6 @@ void TSGSmart::run(TrajectorySeedCollection &seeds,
     theMixedGenerator->run(seeds, region, ev, es);
   } else {
     theTripletGenerator->run(seeds, region, ev, es);
-    if(seeds.size() < 1) thePairGenerator->run(seeds, region, ev, es);
+    if(seeds.empty()) thePairGenerator->run(seeds, region, ev, es);
   }
 }

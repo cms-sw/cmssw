@@ -85,7 +85,7 @@ bool HSCParticleSelector::filter(edm::Event& iEvent, const edm::EventSetup& iSet
          }
       }
 
-      bool filterResult = !Filter_ || (Filter_ && output->size()>=1);
+      bool filterResult = !Filter_ || (Filter_ && !output->empty());
 
       iEvent.put(std::move(result));
 

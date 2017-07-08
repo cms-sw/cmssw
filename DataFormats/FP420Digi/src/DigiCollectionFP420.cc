@@ -52,7 +52,7 @@ void DigiCollectionFP420::put(Range input, unsigned int detID) {
   } //for
   
   // since we start from 0, then the last element will be size-1
-  if(container_.size() != 0) {
+  if(!container_.empty()) {
     inputRange.second = container_.size()-1;
   }
   else {

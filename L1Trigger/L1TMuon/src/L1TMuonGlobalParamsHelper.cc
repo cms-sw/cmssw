@@ -131,7 +131,7 @@ void L1TMuonGlobalParamsHelper::loadFromOnline(l1t::TriggerSystem& trgSys, const
   if (procId == "" ) {
     const std::map<std::string, std::string>& procRoleMap = trgSys.getProcToRoleAssignment();
     if (procRoleMap.size() != 1) {
-      if (procRoleMap.size() == 0) {
+      if (procRoleMap.empty()) {
         edm::LogError("uGMT config from online") << "No processor id found for uGMT HW configuration.";
       } else {
         edm::LogError("uGMT config from online") << "More than one processor id found for uGMT HW configuration.";

@@ -146,7 +146,7 @@ void MuScleFitMuonSelector::selectMuons(const edm::Event & event, std::vector<Mu
     }
     // Split them in independent collections if using muonType_ == -2, -3 or -4. Take them all if muonType_ == -1.
     std::vector<reco::Track> tracks;
-    if (collSelGG.size()){
+    if (!collSelGG.empty()){
       //CHECK THAT THEY ARE ORDERED BY PT !!!!!!!!!!!!!!!!!!!!!!!
       const pat::Muon* muon1 = dynamic_cast<const pat::Muon*>(collSelGG[0]->daughter("muon1"));
       const pat::Muon* muon2 = dynamic_cast<const pat::Muon*>(collSelGG[0]->daughter("muon2"));
@@ -157,7 +157,7 @@ void MuScleFitMuonSelector::selectMuons(const edm::Event & event, std::vector<Mu
         collMuSel.push_back(muon2);
       }
     }
-    else if (!collSelGG.size() && collSelGT.size()){
+    else if (collSelGG.empty() && !collSelGT.empty()){
       //CHECK THAT THEY ARE ORDERED BY PT !!!!!!!!!!!!!!!!!!!!!!!
       const pat::Muon* muon1 = dynamic_cast<const pat::Muon*>(collSelGT[0]->daughter("muon1"));
       const pat::Muon* muon2 = dynamic_cast<const pat::Muon*>(collSelGT[0]->daughter("muon2"));
@@ -168,7 +168,7 @@ void MuScleFitMuonSelector::selectMuons(const edm::Event & event, std::vector<Mu
         collMuSel.push_back(muon2);
       }
     }
-    else if (!collSelGG.size() && !collSelGT.size() && collSelTT.size()){
+    else if (collSelGG.empty() && collSelGT.empty() && !collSelTT.empty()){
       //CHECK THAT THEY ARE ORDERED BY PT !!!!!!!!!!!!!!!!!!!!!!!
       const pat::Muon* muon1 = dynamic_cast<const pat::Muon*>(collSelTT[0]->daughter("muon1"));
       const pat::Muon* muon2 = dynamic_cast<const pat::Muon*>(collSelTT[0]->daughter("muon2"));
@@ -179,7 +179,7 @@ void MuScleFitMuonSelector::selectMuons(const edm::Event & event, std::vector<Mu
         collMuSel.push_back(muon2);
       }
     }
-    if (tracks.size() != 2 && tracks.size() != 0){
+    if (tracks.size() != 2 && !tracks.empty()){
       std::cout<<"ERROR strange number of muons selected by onia cuts!"<<std::endl;
       abort();
     }

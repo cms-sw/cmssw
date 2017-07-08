@@ -29,6 +29,6 @@ void SiPixelPerformanceSummaryReader::analyze(const edm::Event& e, const edm::Ev
 
   SiPixelPerformanceSummary_->print();
   vector<uint32_t> allDetIds = SiPixelPerformanceSummary_->getAllDetIds();
-  if (allDetIds.size()>0) SiPixelPerformanceSummary_->print(allDetIds[0]);
+  if (!allDetIds.empty()) SiPixelPerformanceSummary_->print(allDetIds[0]);
   SiPixelPerformanceSummary_->printAll(); 
 }

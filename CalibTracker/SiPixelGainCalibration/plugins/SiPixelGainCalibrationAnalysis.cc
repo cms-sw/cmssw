@@ -432,7 +432,7 @@ SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelCalibD
 
     if(!savePixelHists_)
     return true;
-  if(detidfinder==listofdetids_.end() && listofdetids_.size()!=0)
+  if(detidfinder==listofdetids_.end() && !listofdetids_.empty())
     return true;
   if(makehistopersistent){
     std::ostringstream pixelinfo;

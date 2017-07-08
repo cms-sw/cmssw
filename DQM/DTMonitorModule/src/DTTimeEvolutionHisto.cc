@@ -129,7 +129,7 @@ void DTTimeEvolutionHisto::updateTimeSlot(int ls, int nEventsInLS) {
     }
 
 
-    if(nEventsInLastTimeSlot.size() > 0 && nEventsInLastTimeSlot.size()%theLSPrescale==0) { // update the value of the slot and reset the counters
+    if(!nEventsInLastTimeSlot.empty() && nEventsInLastTimeSlot.size()%theLSPrescale==0) { // update the value of the slot and reset the counters
       int firstLSinTimeSlot = nEventsInLastTimeSlot.begin()->first;
       int lastLSinTimeSlot  = nEventsInLastTimeSlot.rbegin()->first;
 

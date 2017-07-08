@@ -113,7 +113,7 @@ RPCTTUMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   bool hasDataTrigger = false;
   bool hasEmulatorTrigger = false;
 
-  if ( ttVec.size() <= 0 ) return;
+  if ( ttVec.empty() ) return;
   
   for ( bitsItr = m_ttBits.begin(); bitsItr != m_ttBits.end(); ++bitsItr ) {
     

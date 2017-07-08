@@ -111,7 +111,7 @@ RecoTauPiZeroStripPlugin::return_type RecoTauPiZeroStripPlugin::operator()(
   PFCandPtrList cands;
   cands.insert(cands.end(), candsVector.begin(), candsVector.end());
 
-  while (cands.size() > 0) {
+  while (!cands.empty()) {
     // Seed this new strip, and delete it from future strips
     PFCandidatePtr seed = cands.front();
     cands.pop_front();

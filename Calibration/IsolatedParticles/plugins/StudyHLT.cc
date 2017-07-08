@@ -295,7 +295,7 @@ void StudyHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) 
 	  h_HLTAccepts[nRun]->Fill(iHLT+1);
 	  h_HLTAccept->Fill(ipos);
 	}
-	if (trigNames_.size() < 1) {
+	if (trigNames_.empty()) {
 	  ok = true;
 	} else {
 	  for (unsigned int i=0; i<trigNames_.size(); ++i) {
@@ -377,7 +377,7 @@ void StudyHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) 
     h_goodPV->Fill(ngoodPV,tr_eventWeight);
     tr_goodPV   = ngoodPV;
     
-    if (puWeights_.size() > 0) {
+    if (!puWeights_.empty()) {
       int npbin = h_goodPV->FindBin(ngoodPV);
       if (npbin > 0 && npbin <= (int)(puWeights_.size())) 
 	tr_eventWeight *= puWeights_[npbin-1];
@@ -507,7 +507,7 @@ void StudyHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) 
       }
     }
     h_ntrk[1]->Fill(ntrk,tr_eventWeight);
-    if (tr_TrkPt.size() > 0 && doTree_) tree_->Fill();
+    if (!tr_TrkPt.empty() && doTree_) tree_->Fill();
   }
   firstEvent_ = false;
 }

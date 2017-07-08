@@ -340,10 +340,10 @@ void ZMuMuEfficiency::analyze(const Event& event, const EventSetup& setup) {
 	    h_muptGenPassed_->Fill(mupluspt);
 	    h_muptGenPassed_->Fill(muminuspt);
 
-	    if (zMuMu->size() > 0 ) {
+	    if (!zMuMu->empty() ) {
 	      n_zMuMufound_genZsele++;
 	    }
-	    else if (zMuStandAlone->size() > 0 ) {
+	    else if (!zMuStandAlone->empty() ) {
 		n_zMuStafound_genZsele++;
 	    }
 	    else {
@@ -360,7 +360,7 @@ void ZMuMuEfficiency::analyze(const Event& event, const EventSetup& setup) {
 
   //TRACK efficiency (conto numero di eventi Zmumu global e ZmuSta (ricorda che sono due campioni esclusivi)
 
-  if (zMuMu->size() > 0 ) {
+  if (!zMuMu->empty() ) {
     numberOfEventsWithZMuMufound++;
     event.getByToken(zMuMuMatchMapToken_, zMuMuMatchMap);
     event.getByToken(muonIsoToken_, muonIso);
@@ -421,7 +421,7 @@ void ZMuMuEfficiency::analyze(const Event& event, const EventSetup& setup) {
     }
   }
 
-  if (zMuStandAlone->size() > 0) {
+  if (!zMuStandAlone->empty()) {
     numberOfEventsWithZMuStafound++;
     event.getByToken(zMuStandAloneMatchMapToken_, zMuStandAloneMatchMap);
     event.getByToken(muonIsoToken_, muonIso);
@@ -472,7 +472,7 @@ void ZMuMuEfficiency::analyze(const Event& event, const EventSetup& setup) {
 
   //STANDALONE efficiency
 
-  if (zMuTrack->size() > 0) {
+  if (!zMuTrack->empty()) {
     event.getByToken(zMuTrackMatchMapToken_, zMuTrackMatchMap);
     event.getByToken(muonIsoToken_, muonIso);
     event.getByToken(trackIsoToken_, trackIso);

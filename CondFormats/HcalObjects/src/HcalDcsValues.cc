@@ -207,7 +207,7 @@ bool HcalDcsValues::subDetOk(DcsSet const& valList, int LS) const {
     }
     ++val;
   }
-  return (badIds.size()==0);
+  return (badIds.empty());
 }
 
 bool HcalDcsValues::sortList(DcsSet& valList) const {

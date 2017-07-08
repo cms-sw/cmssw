@@ -274,7 +274,7 @@ GlobalTrajectoryBuilderBase::build(const TrackCand& staCand,
   // choose the best global fit for this Standalone Muon based on the track probability
   CandidateContainer selectedResult;
   MuonCandidate* tmpCand = 0;
-  if ( refittedResult.size() > 0 ) tmpCand = *(refittedResult.begin());
+  if ( !refittedResult.empty() ) tmpCand = *(refittedResult.begin());
   double minProb = std::numeric_limits<double>::max();
 
   for (auto&& iter: refittedResult){

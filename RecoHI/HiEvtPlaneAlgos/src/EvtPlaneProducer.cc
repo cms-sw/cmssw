@@ -425,7 +425,7 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     double vzErr2 =0.0, vxyErr=0.0;
     math::XYZPoint vtxPoint(0.0,0.0,0.0);
-    if(vertex_.isValid() && vertex_->size()>0) {
+    if(vertex_.isValid() && !vertex_->empty()) {
 	    vtxPoint=vertex_->begin()->position();
 	    vzErr2= (vertex_->begin()->zError())*(vertex_->begin()->zError());
 	    vxyErr=vertex_->begin()->xError() * vertex_->begin()->yError();

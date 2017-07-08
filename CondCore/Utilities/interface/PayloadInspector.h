@@ -442,7 +442,7 @@ namespace cond {
       // to be used to fill the histogram!
       void fillWithValue( float value, float weight=1 ){
 	// ignoring underflow/overflows ( they can be easily added - the total entries as well  )
-        if( Base::m_plotData.size() && (value < m_max) && (value >= m_min) ){
+        if( !Base::m_plotData.empty() && (value < m_max) && (value >= m_min) ){
 	  size_t ibin = (value-m_min)/m_binSize;
 	  std::get<1>(Base::m_plotData[ibin])+=weight;
 	}
@@ -510,7 +510,7 @@ namespace cond {
       // to be used to fill the histogram!
       void fillWithValue( float xvalue, float yvalue, float weight=1 ){
 	// ignoring underflow/overflows ( they can be easily added - the total entries as well )
-	if( Base::m_plotData.size() && xvalue < m_xmax && xvalue >= m_xmin &&  yvalue < m_ymax && yvalue >= m_ymin ){
+	if( !Base::m_plotData.empty() && xvalue < m_xmax && xvalue >= m_xmin &&  yvalue < m_ymax && yvalue >= m_ymin ){
 	  size_t ixbin = (xvalue-m_xmin)/m_xbinSize;
 	  size_t iybin = (yvalue-m_ymin)/m_ybinSize;
 	  std::get<2>(Base::m_plotData[iybin*m_nxbins+ixbin])+=weight;

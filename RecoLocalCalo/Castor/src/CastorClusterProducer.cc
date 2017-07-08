@@ -160,7 +160,7 @@ void CastorClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 	
 	auto OutputClustersfromBasicJets = std::make_unique<CastorClusterCollection>();
 	
-	if (bjCollection->size()==0) LogDebug("CastorClusterProducer")<< "Warning: You are trying to run the Cluster algorithm with 0 input basicjets.";
+	if (bjCollection->empty()) LogDebug("CastorClusterProducer")<< "Warning: You are trying to run the Cluster algorithm with 0 input basicjets.";
    
    	for (unsigned i=0; i< bjCollection->size();i++) {
    		const BasicJet* bj = &(*bjCollection)[i];

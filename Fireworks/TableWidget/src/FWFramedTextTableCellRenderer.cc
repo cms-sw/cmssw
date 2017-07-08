@@ -108,7 +108,7 @@ FWFramedTextTableCellRenderer::setJustify(Justify iJustify)
 UInt_t 
 FWFramedTextTableCellRenderer::width() const
 {
-   if(m_data.size()) {
+   if(!m_data.empty()) {
       return m_font->TextWidth(m_data.c_str(),-1)+3;
    }
    return 0;

@@ -71,7 +71,7 @@ G4bool FiberSD::ProcessHits(G4Step * aStep, G4TouchableHistory*) {
   std::vector<HFShower::Hit> hits = theShower->getHits(aStep,true,zoffset);
 
   
-  if (hits.size() > 0) {
+  if (!hits.empty()) {
     std::vector<HFShowerPhoton> thePE;
     for (unsigned int i=0; i<hits.size(); i++) {
       //std::cout<<"hit position z "<<hits[i].position.z()<<std::endl;

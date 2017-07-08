@@ -44,7 +44,7 @@ EventContainer::EventContainer (optutl::CommandLineParser &parser,
 
    const optutl::CommandLineParser::SVec &secondaryInputFiles = 
       parser.stringVector ("secondaryInputFiles");
-   if (secondaryInputFiles.size())
+   if (!secondaryInputFiles.empty())
    {
       m_eventBasePtr = 
          new fwlite::MultiChainEvent( parser.stringVector ("inputFiles"), 

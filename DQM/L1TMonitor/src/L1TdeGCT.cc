@@ -21,7 +21,7 @@ L1TdeGCT::L1TdeGCT(const edm::ParameterSet& iConfig) {
   if(iConfig.getUntrackedParameter<bool> ("disableROOToutput", true))
     histFile_ = "";
 
-  if (histFile_.size()!=0) {
+  if (!histFile_.empty()) {
     edm::LogInfo("OutputRootFile") 
       << "L1TEmulator GCT specific histograms will be saved to " 
       << histFile_.c_str() 

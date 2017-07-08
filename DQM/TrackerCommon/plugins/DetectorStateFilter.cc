@@ -35,7 +35,7 @@ bool DetectorStateFilter::filter( edm::Event & evt, edm::EventSetup const& es) {
     edm::Handle<DcsStatusCollection> dcsStatus;
     evt.getByToken(dcsStatusLabel_, dcsStatus);
     if (dcsStatus.isValid()) {
-      if (detectorType_ == "pixel" && dcsStatus->size() > 0 ) {
+      if (detectorType_ == "pixel" && !dcsStatus->empty() ) {
 	  if ((*dcsStatus)[0].ready(DcsStatus::BPIX) && 
 	      (*dcsStatus)[0].ready(DcsStatus::FPIX)) {
 	detectorOn_ = true;
@@ -46,7 +46,7 @@ bool DetectorStateFilter::filter( edm::Event & evt, edm::EventSetup const& es) {
 				<< " DCS States : " << " BPix " << (*dcsStatus)[0].ready(DcsStatus::BPIX) 
 				<< " FPix " << (*dcsStatus)[0].ready(DcsStatus::FPIX)
 				<< " Detector State " << detectorOn_<<  std::endl;           
-      } else if (detectorType_ == "sistrip" && dcsStatus->size() > 0) {  
+      } else if (detectorType_ == "sistrip" && !dcsStatus->empty()) {  
 	if ((*dcsStatus)[0].ready(DcsStatus::TIBTID) &&
 	    (*dcsStatus)[0].ready(DcsStatus::TOB) &&   
 	    (*dcsStatus)[0].ready(DcsStatus::TECp) &&  

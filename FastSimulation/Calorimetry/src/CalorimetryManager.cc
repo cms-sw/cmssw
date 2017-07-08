@@ -172,7 +172,7 @@ CalorimetryManager::~CalorimetryManager()
 void CalorimetryManager::reconstruct(RandomEngineAndDistribution const* random)
 {
   
-  if(evtsToDebug_.size())
+  if(!evtsToDebug_.empty())
     {
       std::vector<unsigned int>::const_iterator itcheck=find(evtsToDebug_.begin(),evtsToDebug_.end(),mySimEvent->id().event());
       debug_=(itcheck!=evtsToDebug_.end());
@@ -356,7 +356,7 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack,
   } 
   
   // After the different protections, this shouldn't happen. 
-  if(thePart.size()==0) 
+  if(thePart.empty()) 
     { 
       if(myPreshower==NULL) return; 
       delete myPreshower; 

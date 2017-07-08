@@ -269,7 +269,7 @@ int SimTrackManager::idSavedTrack (int id) const
 
 void SimTrackManager::fillMotherList() 
 {
-  if ( ancestorList.size() > 0 && lastHist > ancestorList.size() ) {
+  if ( !ancestorList.empty() && lastHist > ancestorList.size() ) {
     lastHist = ancestorList.size();
     edm::LogError("SimTrackManager") 
       << " SimTrackManager::fillMotherList track index corrupted";
@@ -305,7 +305,7 @@ void SimTrackManager::fillMotherList()
 
 void SimTrackManager::cleanTracksWithHistory(){
 
-  if ((*m_trksForThisEvent).size() == 0 && idsave.size() == 0) { return; }
+  if (*m_trksForThisEvent.empty() && idsave.empty()) { return; }
 
 #ifdef DebugLog
   LogDebug("SimTrackManager") 

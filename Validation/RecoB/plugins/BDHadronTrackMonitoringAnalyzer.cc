@@ -134,7 +134,7 @@ void BDHadronTrackMonitoringAnalyzer::analyze(const edm::Event& iEvent, const ed
   edm::Handle<reco::VertexCollection> primaryVertex ;
   iEvent.getByToken(PrimaryVertexColl_,primaryVertex);
 
-  bool pvFound = (primaryVertex->size() != 0);
+  bool pvFound = (!primaryVertex->empty());
   if ( pvFound ) {
     pv = &(*primaryVertex->begin());
   }

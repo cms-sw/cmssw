@@ -108,7 +108,7 @@ void PixelVertexVal::analyze(
     cout << "simulated vertices: "<< simVtcs->size() << std::endl;
   }
 
-  bool hasPV = (simVtcs->size() > 0 );
+  bool hasPV = (!simVtcs->empty() );
   if (!hasPV) cout << "Event without PV!, skip"<<endl;
   float z_PV = hasPV ? (*simVtcs)[0].position().z() : 0.;
 

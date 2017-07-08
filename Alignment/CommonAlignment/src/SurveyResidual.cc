@@ -40,7 +40,7 @@ SurveyResidual::SurveyResidual(const Alignable& ali,
 
   findSisters(theMother, bias);
 
-  if (theSisters.size() == 0)
+  if (theSisters.empty())
   {
     throw cms::Exception("ConfigError")
       << "You are finding an unbiased residual of an alignable "

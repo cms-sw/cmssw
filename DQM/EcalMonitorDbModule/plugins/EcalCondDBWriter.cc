@@ -37,7 +37,7 @@ EcalCondDBWriter::EcalCondDBWriter(edm::ParameterSet const& _ps) :
 {
   std::vector<std::string> inputRootFiles(_ps.getUntrackedParameter<std::vector<std::string> >("inputRootFiles"));
 
-  if(inputRootFiles.size() == 0)
+  if(inputRootFiles.empty())
     throw cms::Exception("Configuration") << "No input ROOT file given";
 
   if(verbosity_ > 0) edm::LogInfo("EcalDQM") << "Initializing DQMStore from input ROOT files";

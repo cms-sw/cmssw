@@ -537,7 +537,7 @@ void HSCPValidator::makeSimDigiPlotsECAL(const edm::Event& iEvent)
         mySimHitsEB.push_back(*simHitItr);
       ++simHitItr;
     }
-    if(mySimHitsEB.size()==0)
+    if(mySimHitsEB.empty())
     {
       std::cout << "Could not find matching EB PCaloHits for SimTrack id: " << trackId << ".  Skipping this SimTrack" << std::endl;
       continue;
@@ -618,7 +618,7 @@ void HSCPValidator::makeSimDigiPlotsECAL(const edm::Event& iEvent)
         mySimHitsEE.push_back(*simHitItr);
       ++simHitItr;
     }
-    if(mySimHitsEE.size()==0)
+    if(mySimHitsEE.empty())
     {
       std::cout << "Could not find matching EE PCaloHits for SimTrack id: " << trackId << ".  Skipping this SimTrack" << std::endl;
       continue;

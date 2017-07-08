@@ -119,7 +119,7 @@ void HGCalBestChoiceCodecImpl::linearize(const std::vector<HGCDataFrame<HGCalDet
 void HGCalBestChoiceCodecImpl::triggerCellSums(const HGCalTriggerGeometryBase& geometry,  const std::vector<std::pair<HGCalDetId, uint32_t > >& linearized_dataframes, data_type& data)
 /*****************************************************************/
 {
-    if(linearized_dataframes.size()==0) return;
+    if(linearized_dataframes.empty()) return;
     std::map<HGCalDetId, uint32_t> payload;
     // sum energies in trigger cells
     for(const auto& frame : linearized_dataframes)

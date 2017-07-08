@@ -280,10 +280,10 @@ namespace cms
                                  linkcollector.data,
 				 tTopo,
                                  engine);
-        if(collector.data.size() > 0) {
+        if(!collector.data.empty()) {
           theDigiVector.push_back(std::move(collector));
         }
-        if(linkcollector.data.size() > 0) {
+        if(!linkcollector.data.empty()) {
           theDigiLinkVector.push_back(std::move(linkcollector));
         }
       }

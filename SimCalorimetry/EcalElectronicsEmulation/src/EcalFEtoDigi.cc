@@ -122,7 +122,7 @@ EcalFEtoDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
   ///in case no info was found for the event:need to create something
-  if(e_tpdigis->size()==0) {
+  if(e_tpdigis->empty()) {
     std::cout << "[EcalFEtoDigi] creating empty collection for the event!\n";
     EcalTriggerPrimitiveDigi *e_digi = new EcalTriggerPrimitiveDigi();
     e_tpdigis->push_back(*e_digi);

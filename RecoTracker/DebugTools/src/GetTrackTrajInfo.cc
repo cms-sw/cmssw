@@ -105,7 +105,7 @@ std::vector< GetTrackTrajInfo::Result > GetTrackTrajInfo::analyze(const edm::Eve
 	propagator.setPropagationDirection(along);
 	std::vector< GeometricSearchDet::DetWithState > detWithState = detLayer->compatibleDets(initTSOS, propagator, estimator);
 	// Check that at least one sensor was compatible with the track trajectory.
-	if(detWithState.size() > 0) {
+	if(!detWithState.empty()) {
 	  // Store track trajectory at this sensor.
 	  result.valid    = true;
 	  result.accurate = true;

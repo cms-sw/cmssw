@@ -89,7 +89,7 @@ void GenJetBCEnergyRatio::produce( StreamID, Event& iEvent, const EventSetup& iE
   JetBCEnergyRatioCollection * jtc1;
   JetBCEnergyRatioCollection * jtc2;
 
-  if (genjets.product()->size() > 0) {
+  if (!genjets.product()->empty()) {
     const JetRef jj = genjets->refAt(0);
     jtc1 = new JetBCEnergyRatioCollection(edm::makeRefToBaseProdFrom(jj, iEvent));
     jtc2 = new JetBCEnergyRatioCollection(edm::makeRefToBaseProdFrom(jj, iEvent));

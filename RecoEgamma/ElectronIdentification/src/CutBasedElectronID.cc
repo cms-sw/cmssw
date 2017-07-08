@@ -156,7 +156,7 @@ double CutBasedElectronID::cicSelection(const reco::GsfElectron* electron,
   if (version_ != "V01" or version_ != "V00") {
     edm::Handle<reco::VertexCollection> vtxH;
     e.getByToken(verticesCollection_, vtxH);
-    if (vtxH->size() != 0) {
+    if (!vtxH->empty()) {
       reco::VertexRef vtx(vtxH, 0);
       ip = fabs(electron->gsfTrack()->dxy(math::XYZPoint(vtx->x(),vtx->y(),vtx->z())));
     } else
@@ -509,7 +509,7 @@ double CutBasedElectronID::robustSelection(const reco::GsfElectron* electron ,
   if (version_ == "V05") {
     edm::Handle<reco::VertexCollection> vtxH;
     e.getByToken(verticesCollection_, vtxH);
-    if (vtxH->size() != 0) {
+    if (!vtxH->empty()) {
       reco::VertexRef vtx(vtxH, 0);
       ip = fabs(electron->gsfTrack()->dxy(math::XYZPoint(vtx->x(),vtx->y(),vtx->z())));
     } else

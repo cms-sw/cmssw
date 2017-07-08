@@ -152,7 +152,7 @@ void TrackingCertificationInfo::bookTrackingCertificationMEs(DQMStore::IBooker &
     std::string tracking_dir = "";
     TrackingUtility::getTopFolderPath(ibooker_,igetter_, TopFolderName_, tracking_dir);
 
-    if (tracking_dir.size() > 0 ) ibooker_.setCurrentFolder(tracking_dir+"/EventInfo");
+    if (!tracking_dir.empty() ) ibooker_.setCurrentFolder(tracking_dir+"/EventInfo");
     else ibooker_.setCurrentFolder(TopFolderName_+"/EventInfo");
 
     TrackingCertification = ibooker_.bookFloat("CertificationSummary");  
@@ -171,7 +171,7 @@ void TrackingCertificationInfo::bookTrackingCertificationMEs(DQMStore::IBooker &
     }
 
 
-    if (tracking_dir.size() > 0 ) ibooker_.setCurrentFolder(TopFolderName_+"/EventInfo/CertificationContents");
+    if (!tracking_dir.empty() ) ibooker_.setCurrentFolder(TopFolderName_+"/EventInfo/CertificationContents");
     else ibooker_.setCurrentFolder(TopFolderName_+"/EventInfo/CertificationContents");
 
     for (std::map<std::string, TrackingMEs>::iterator it = TrackingMEsMap.begin();
@@ -202,12 +202,12 @@ void TrackingCertificationInfo::bookTrackingCertificationMEsAtLumi(DQMStore::IBo
     std::string tracking_dir = "";
     TrackingUtility::getTopFolderPath(ibooker_,igetter_, TopFolderName_, tracking_dir);
 
-    if (tracking_dir.size() > 0 ) ibooker_.setCurrentFolder(tracking_dir+"/EventInfo");
+    if (!tracking_dir.empty() ) ibooker_.setCurrentFolder(tracking_dir+"/EventInfo");
     else ibooker_.setCurrentFolder(TopFolderName_+"/EventInfo");
 
     TrackingLSCertification = ibooker_.bookFloat("CertificationSummary");  
     
-    if (tracking_dir.size() > 0 ) ibooker_.setCurrentFolder(TopFolderName_+"/EventInfo/CertificationContents");
+    if (!tracking_dir.empty() ) ibooker_.setCurrentFolder(TopFolderName_+"/EventInfo/CertificationContents");
     else ibooker_.setCurrentFolder(TopFolderName_+"/EventInfo/CertificationContents");
 
     for (std::map<std::string, TrackingLSMEs>::iterator it = TrackingLSMEsMap.begin();

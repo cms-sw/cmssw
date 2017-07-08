@@ -239,7 +239,7 @@ void BeamSpotProblemMonitor::analyze(const Event& iEvent,
         ALARM_ON_  = false;
 
  
-   if (handleScaler->size()!=0)
+   if (!handleScaler->empty())
      {
       spotOnline = * ( handleScaler->begin() );
 

@@ -580,7 +580,7 @@ LocalFileSystem::findCachePath(const std::vector<std::string> &paths,
   }
 
   std::string warning_str = warningst.str();
-  if (warning_str.size())
+  if (!warning_str.empty())
   {
     warning_str = warning_str.substr(0, warning_str.size()-2);
   }

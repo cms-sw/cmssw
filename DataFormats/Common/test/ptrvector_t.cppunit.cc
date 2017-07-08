@@ -143,7 +143,7 @@ testPtrVector::check() {
 
   /// clearing, then pushing in Ptr with other product ID
   bv3.clear();
-  CPPUNIT_ASSERT(bv3.size() == 0);
+  CPPUNIT_ASSERT(bv3.empty());
   bv3.push_back(r2_0);
   CPPUNIT_ASSERT(bv3.size() == 1);
 }

@@ -1436,7 +1436,7 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
        */
       std::cout << "Line: " << "    " << alct_t1_coll[k] << " " << sign1 << " " << alct_common << " " <<
                 alct_common_wcnt1 << " " << alct_wcnt1_coll[k] << " " << alct_common_wcnt2 << " ";
-      if (alct_wcnt2_coll.size()>0)
+      if (!alct_wcnt2_coll.empty())
         {
           std::cout << alct_wcnt2_coll[k] << std::endl;
         }

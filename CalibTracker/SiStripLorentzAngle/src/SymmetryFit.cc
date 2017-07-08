@@ -124,7 +124,7 @@ float SymmetryFit::chi2_element(std::pair<unsigned,unsigned> range)
 int SymmetryFit::fit() {
 
   std::vector<double> p = pol2_from_pol3(chi2_);
-  if( !p.size() || 
+  if( p.empty() || 
       p[0] < chi2_->GetBinCenter(1) || 
       p[0] > chi2_->GetBinCenter(chi2_->GetNbinsX()))
     return 7;

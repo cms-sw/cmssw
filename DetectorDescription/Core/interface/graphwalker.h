@@ -85,7 +85,7 @@ graphwalker<N,E>::graphwalker(const graph<N,E> & g)
 {  // complexity = (no nodes) * (no edges)
    graph_.findRoots(root_);
    stack_.push_back(edge_range(root_.begin(),root_.end())); 
-   if (root_.size()) {
+   if (!root_.empty()) {
      queue_.push(root_[0]);
    }
 }

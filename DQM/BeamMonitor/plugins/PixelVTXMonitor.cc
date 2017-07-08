@@ -43,7 +43,7 @@ PixelVTXMonitor::~PixelVTXMonitor() {
 
 void PixelVTXMonitor::bookHistograms() {
   std::vector<std::string> hltPathsOfInterest = parameters_.getParameter<std::vector<std::string> > ("HLTPathsOfInterest");
-  if (hltPathsOfInterest.size()  == 0) return;
+  if (hltPathsOfInterest.empty()) return;
 
   const std::vector<std::string>& pathList = hltConfig_.triggerNames();
   std::vector<std::string> selectedPaths;
@@ -119,7 +119,7 @@ void PixelVTXMonitor::beginRun(edm::Run const& iRun, edm::EventSetup const& iSet
 
 }
 void PixelVTXMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)  {
-  if (!histoMap_.size()) return;
+  if (histoMap_.empty()) return;
 
   //Access Pixel Clusters
   edm::Handle< SiPixelClusterCollectionNew > siPixelClusters;

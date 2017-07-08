@@ -83,7 +83,7 @@ void DQMMessageLogger::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
   // BOOK THE HISTOGRAMS
   LogTrace(metname)<<"[DQMMessageLogger] Parameters initialization";
     
-  if(moduleMap.size()!=0){
+  if(!moduleMap.empty()){
     ibooker.setCurrentFolder(directoryName + "/Errors"); 
     modules_errors = ibooker.book1D("modules_errors", "Errors per module", moduleMap.size(), 0, moduleMap.size()); 
     ibooker.setCurrentFolder(directoryName + "/Warnings"); 
@@ -99,7 +99,7 @@ void DQMMessageLogger::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
       
   }
     
-  if(categoryMap.size()!=0){
+  if(!categoryMap.empty()){
     ibooker.setCurrentFolder(directoryName + "/Errors"); 
     categories_errors = ibooker.book1D("categories_errors", "Errors per category", categoryMap.size(), 0, categoryMap.size());
     ibooker.setCurrentFolder(directoryName +"/Warnings"); 
@@ -145,7 +145,7 @@ void DQMMessageLogger::analyze(const Event& iEvent, const EventSetup& iSetup) {
   
 
   // Find the total number of errors in iEvent
-  if(errors->size()==0){
+  if(errors->empty()){
     if(total_errors!=NULL){
       total_errors->Fill(0);
     }
@@ -178,7 +178,7 @@ void DQMMessageLogger::analyze(const Event& iEvent, const EventSetup& iSetup) {
     
     //cout << "Severity for error/warning: " << (*errors)[i].severity << " " <<(*errors)[i].module  << endl;
 
-    if(errors->size()>0){
+    if(!errors->empty()){
       // IF THIS IS AN ERROR on the ELseverityLevel SCALE, FILL ERROR HISTS
       if((*errors)[i].severity.getLevel() >= el.getLevel()){
 	if(categories_errors!=NULL){

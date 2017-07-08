@@ -132,7 +132,7 @@ std::string EcalPedestalsXMLTranslator::dumpXML(const EcalCondHeader& header,con
   DOMElement* root = doc->getDocumentElement();
 
   xuti::writeHeader(root,header);
-  if (!record.barrelItems().size()) return std::string();
+  if (record.barrelItems().empty()) return std::string();
   for(int cellid = EBDetId::MIN_HASH;
       cellid < EBDetId::kSizeForDenseIndexing;
       ++cellid) {
@@ -151,7 +151,7 @@ std::string EcalPedestalsXMLTranslator::dumpXML(const EcalCondHeader& header,con
     WriteNodeWithValue(cellnode,rms1_tag,record[rawid].rms_x1);
   }
 
-  if (!record.endcapItems().size()) return std::string();
+  if (record.endcapItems().empty()) return std::string();
   for(int cellid = 0;
 	cellid < EEDetId::kSizeForDenseIndexing;
 	++cellid) {

@@ -363,7 +363,7 @@ unsigned int RunRangeDependentPedeLabeler::buildRunRangeDependencyMap(AlignableT
        ++iter) {
     
     const std::vector<std::string> tempRunRanges = (*iter).getParameter<std::vector<std::string> >("RunRanges");
-    if (tempRunRanges.size()==0) {
+    if (tempRunRanges.empty()) {
       throw cms::Exception("BadConfig") << "@SUB=RunRangeDependentPedeLabeler::buildRunRangeDependencyMap\n"
 					<< "RunRanges empty\n";
     }

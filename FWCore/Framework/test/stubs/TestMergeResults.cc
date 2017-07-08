@@ -179,7 +179,7 @@ namespace edmtest {
     assert(!w_thingWithIsEqual.isMergeable());
     assert(w_thingWithIsEqual.hasIsProductEqual());
     
-    if(expectedDroppedEvent_.size() > 0) {
+    if(!expectedDroppedEvent_.empty()) {
       consumes<edmtest::ThingWithIsEqual>(edm::InputTag{"makeThingToBeDropped", "event", "PROD"});
       consumes<edmtest::ThingWithMerge>(edm::InputTag{"makeThingToBeDropped", "event", "PROD"});
 
@@ -268,7 +268,7 @@ namespace edmtest {
 
     if(verbose_) edm::LogInfo("TestMergeResults") << "analyze";
 
-    if(expectedDroppedEvent_.size() > 0) {
+    if(!expectedDroppedEvent_.empty()) {
       edm::InputTag tag("makeThingToBeDropped", "event", "PROD");
       e.getByLabel(tag, h_thingWithIsEqual);
       assert(h_thingWithIsEqual->a == expectedDroppedEvent_[0]);

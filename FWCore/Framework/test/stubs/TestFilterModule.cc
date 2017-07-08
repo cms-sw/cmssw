@@ -114,7 +114,7 @@ namespace edmtest
     Trig prod;
     e.getManyByType(prod);
 
-    if(prod.size() == 0) return;
+    if(prod.empty()) return;
     if(prod.size() > 1) {
       std::cerr << "More than one trigger result in the event, using first one"
 	   << std::endl;

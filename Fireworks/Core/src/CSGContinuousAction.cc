@@ -69,7 +69,7 @@ CSGContinuousAction::switchMode()
    if(!m_isRunning) {
       m_isRunning = true;
       CSGAction::globalEnable();
-      if(getToolBar() && m_runningImageFileName.size()) {
+      if(getToolBar() && !m_runningImageFileName.empty()) {
          getToolBar()->ChangeIcon(getToolBarData(),m_runningImageFileName.c_str());
       }
       if(0!=m_button) {
@@ -91,7 +91,7 @@ void
 CSGContinuousAction::stop()
 {
    m_isRunning=false;
-   if(getToolBar() && m_imageFileName.size()) {
+   if(getToolBar() && !m_imageFileName.empty()) {
       getToolBar()->ChangeIcon(getToolBarData(),m_imageFileName.c_str());
    }
    if(0!=m_button) {

@@ -149,7 +149,7 @@ void PlotCompareUtility::makePlots<Plot2D>(HistoData *HD) {
 
     // get the list of projections associated with this HistoData
     std::vector<HistoData> *proj = (axis == axisX) ? &projectionsX[HD] : &projectionsY[HD];
-    if (proj == NULL || proj->size() == 0) continue;
+    if (proj == NULL || proj->empty()) continue;
 
     // get the 2d histograms
     TH2F *hnew2d = (TH2F *)HD->getNewHisto();
@@ -334,7 +334,7 @@ void PlotCompareUtility::makeHTML<Plot2D>(HistoData *HD) {
 
     // get the list of projections associated with this HistoData
     std::vector<HistoData> *proj = (axis == axisX) ? &projectionsX[HD] : &projectionsY[HD];
-    if (proj == NULL || proj->size() == 0) continue; else pfDone[axis] = true;
+    if (proj == NULL || proj->empty()) continue; else pfDone[axis] = true;
 
     // setup some names, etc. for insertion into the HTML
     std::string gifNameProjections = Name + (axis == axisX ? "_Results_px.gif" : "_Results_py.gif");

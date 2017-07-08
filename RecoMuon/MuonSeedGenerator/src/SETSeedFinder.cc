@@ -62,7 +62,7 @@ SETSeedFinder::sortByLayer(MuonRecHitContainer & cluster) const
     //---- some hits could not belong to a track simultaneously - these will be in a
     //---- group; two hits from one and the same group will not go to the same track
   std::vector< MuonRecHitContainer > MuonRecHitContainer_perLayer;
-  if(cluster.size()){
+  if(!cluster.empty()){
     int iHit =0;
     MuonRecHitContainer hitsInThisLayer;
     hitsInThisLayer.push_back(cluster[iHit]);

@@ -238,7 +238,7 @@ void MaterialBudgetAction::update(const BeginOfTrack* trk)
 void MaterialBudgetAction::update(const G4Step* aStep)
 {
   //----- Check it is inside one of the volumes selected
-  if( theVolumeList.size() != 0 ) {
+  if( !theVolumeList.empty() ) {
     if( !CheckTouchableInSelectedVolumes( aStep->GetTrack()->GetTouchable() ) ) return;
   } 
 

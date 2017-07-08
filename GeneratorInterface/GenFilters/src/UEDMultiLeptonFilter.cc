@@ -369,7 +369,7 @@ UEDMultiLeptonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
         nSSdileptons++;
         if(SSDiLepFilter==1)return AcceptEvent();
         //Vetoed decays
-        if((leptonIDplus.size()==2 && leptonIDminus.size()==0) || (leptonIDplus.size()==0 && leptonIDminus.size()==2)){
+        if((leptonIDplus.size()==2 && leptonIDminus.empty()) || (leptonIDplus.empty() && leptonIDminus.size()==2)){
 
           int e=0;
           int mu=0;      

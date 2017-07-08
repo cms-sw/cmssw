@@ -64,7 +64,7 @@ void JetCorrectorDBWriter::beginJob()
       // create the parameter object from file 
       std::vector<std::string> sections;
       JetCorrectorParametersCollection::getSections(fip.fullPath(), sections );
-      if ( sections.size() == 0 ) {
+      if ( sections.empty() ) {
 	payload->push_back( i, JetCorrectorParameters(fip.fullPath(),"") );
       }
       else {

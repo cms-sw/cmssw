@@ -344,7 +344,7 @@ void LHEReader::XMLHandler::endElement(const XMLCh *const uri,
     }
     else if (name == "event" && 
 	mode == kEvent && 
-	(skipEvent || (xmlEventNodes.size() >= 1))) { // handling of weights in LHE file
+	(skipEvent || (!xmlEventNodes.empty()))) { // handling of weights in LHE file
 
       if (skipEvent)
       {
@@ -484,9 +484,9 @@ LHEReader::~LHEReader()
 
   boost::shared_ptr<LHEEvent> LHEReader::next(bool* newFileOpened)
   {
-    while(curDoc.get() || curIndex < fileURLs.size() || (fileURLs.size() == 0 && strName != "" ) ) {
+    while(curDoc.get() || curIndex < fileURLs.size() || (fileURLs.empty() && strName != "" ) ) {
       if (!curDoc.get()) {
-        if ( fileURLs.size() > 0 ) {
+        if ( !fileURLs.empty() ) {
           logFileAction("  Initiating request to open LHE file ", fileURLs[curIndex]);
           curSource.reset(new FileSource(fileURLs[curIndex]));
           logFileAction("  Successfully opened LHE file ", fileURLs[curIndex]);
@@ -568,7 +568,7 @@ LHEReader::~LHEReader()
 	lheevent->setNpLO(handler->npLO);
         lheevent->setNpNLO(handler->npNLO);
         //fill scales
-        if (handler->scales.size()>0) {
+        if (!handler->scales.empty()) {
           lheevent->setScales(handler->scales);
         }
         return lheevent;

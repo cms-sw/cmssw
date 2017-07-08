@@ -135,7 +135,7 @@ TkPhase2OTMeasurementDet::recHits( const TrajectoryStateOnSurface& ts, const Mea
   if (isEmpty(data.phase2OTData())) return result;
   if (!isActive(data)) return result;
   const Phase2TrackerCluster1D* begin=0;
-  if (0 != data.phase2OTData().handle()->data().size()) {
+  if (!data.phase2OTData().handle()->data().empty()) {
      begin = &(data.phase2OTData().handle()->data().front());
   }
   const detset & detSet = data.phase2OTData().detSet(index());

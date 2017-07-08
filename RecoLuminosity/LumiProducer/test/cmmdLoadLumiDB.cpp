@@ -176,7 +176,7 @@ int main(int argc, char** argv){
     if(vm.count("debug") ){
       debug=true;
     }
-    if(!without_lumi && lumipath.size()==0){
+    if(!without_lumi && lumipath.empty()){
       std::cerr <<"[Error] lumipath[L] option is required \n";
       std::cerr<<" please do "<<argv[0]<<" --help \n";
       return 1;

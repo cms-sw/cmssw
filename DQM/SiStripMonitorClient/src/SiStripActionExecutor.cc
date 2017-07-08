@@ -253,7 +253,7 @@ void SiStripActionExecutor::printShiftHistoParameters(DQMStore * dqm_store, std:
     for (std::vector<std::string>::iterator im = it->second.begin(); 
 	 im != it->second.end(); im++) {  
       std::string path_name = (*im);
-      if (path_name.size() == 0) continue;
+      if (path_name.empty()) continue;
       MonitorElement* me = dqm_store->get(path_name);
       std::ostringstream entry_str, mean_str, rms_str;
       entry_str << std::setprecision(2);

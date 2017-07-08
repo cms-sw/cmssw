@@ -84,16 +84,16 @@ ECalSD::ECalSD(G4String name, const DDCompactView & cpv,
   // Use of Weight
   useWeight= true;
   std::vector<double>      tempD = getDDDArray("EnergyWeight",sv);
-  if (tempD.size() > 0) { if (tempD[0] < 0.1) useWeight = false; }
+  if (!tempD.empty()) { if (tempD[0] < 0.1) useWeight = false; }
 #ifdef EDM_ML_DEBUG
   edm::LogInfo("EcalSim") << "ECalSD:: useWeight " << tempD.size() << ":" 
 			  << useWeight << std::endl;
 #endif
   std::vector<std::string> tempS = getStringArray("Depth1Name",sv);
-  if (tempS.size() > 0) depth1Name = tempS[0];
+  if (!tempS.empty()) depth1Name = tempS[0];
   else                  depth1Name = " ";
   tempS = getStringArray("Depth2Name",sv);
-  if (tempS.size() > 0) depth2Name = tempS[0];
+  if (!tempS.empty()) depth2Name = tempS[0];
   else                  depth2Name = " ";
 #ifdef EDM_ML_DEBUG
   edm::LogInfo("EcalSim") << "Names (Depth 1):" << depth1Name << " (Depth 2):" 

@@ -42,7 +42,7 @@ namespace {
 	std::shared_ptr<EcalChannelStatus> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
 	  // looping over the EB channels, via the dense-index, mapped into EBDetId's
-	  if (!payload->barrelItems().size()) return false;
+	  if (payload->barrelItems().empty()) return false;
 	  // set to -1 for ieta 0 (no crystal)
 	  for(int iphi = MIN_IPHI; iphi < MAX_IPHI+1; iphi++) fillWithValue(iphi, 0, -1);
 	  for(int cellid = EBDetId::MIN_HASH;
@@ -91,7 +91,7 @@ namespace {
       for ( auto const & iov: iovs) {
 	std::shared_ptr<EcalChannelStatus> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
-	  if (!payload->endcapItems().size()) return false;
+	  if (payload->endcapItems().empty()) return false;
 
 	  // set to -1 everywhwere
 	  for(int ix = IX_MIN; ix < 2.2*IX_MAX+1; ix++)

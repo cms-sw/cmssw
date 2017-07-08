@@ -85,13 +85,13 @@ MuonME0DetLayerGeometryBuilder::buildLayer(int endcap,
       }
     }
 
-    if (frontDets.size()!=0) {
+    if (!frontDets.empty()) {
       precomputed_value_sort(frontDets.begin(), frontDets.end(), geomsort::DetPhi());
       frontRings.push_back(new MuDetRing(frontDets));
       LogTrace(metname) << "New front ring with " << frontDets.size()
 			<< " chambers at z="<< frontRings.back()->position().z();
     }
-    if (backDets.size()!=0) {
+    if (!backDets.empty()) {
       precomputed_value_sort(backDets.begin(), backDets.end(), geomsort::DetPhi());
       backRings.push_back(new MuDetRing(backDets));
       LogTrace(metname) << "New back ring with " << backDets.size()
@@ -101,7 +101,7 @@ MuonME0DetLayerGeometryBuilder::buildLayer(int endcap,
   }
   
   LogTrace(metname) << "About to make a MuRingForwardLayer";
-  if(frontRings.size()!=0) result = new MuRingForwardLayer(frontRings);
+  if(!frontRings.empty()) result = new MuRingForwardLayer(frontRings);
   else result = 0;
   if(result != 0){
     LogTrace(metname) << "New MuRingForwardLayer with " << frontRings.size()

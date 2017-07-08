@@ -233,7 +233,7 @@ void
 DivisiveClusterizer1D<T>::insertTracks( std::vector< Cluster1D<T> >&  clusou,
                                       std::vector< Cluster1D<T> >&  cludest) const
 {
-    if (clusou.size() == 0)
+    if (clusou.empty())
         return;
     for ( typename std::vector< Cluster1D<T> >::const_iterator iclu = clusou.begin();
             iclu != clusou.end(); iclu++)

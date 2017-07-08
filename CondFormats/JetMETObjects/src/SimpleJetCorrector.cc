@@ -39,7 +39,7 @@ float SimpleJetCorrector::correction(const std::vector<float>& fX,const std::vec
   float tmp    = 0.0;
   float cor    = 0.0;
   int bin = -1;
-  bin = (fX.size()<=3 && fX.size()>0) ? mParameters.binIndexN(fX) : mParameters.binIndex(fX);
+  bin = (fX.size()<=3 && !fX.empty()) ? mParameters.binIndexN(fX) : mParameters.binIndex(fX);
   if (bin<0)
     return result;
   if (!mDoInterpolation)

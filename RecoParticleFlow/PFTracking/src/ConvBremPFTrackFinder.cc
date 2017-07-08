@@ -324,7 +324,7 @@ ConvBremPFTrackFinder::runConvBremFinder(const Handle<PFRecTrackCollection>& the
 	Vertex dummy;
 	const Vertex *pv = &dummy;
 	edm::Ref<VertexCollection> pvRef;
-	if (primaryVertex->size() != 0) {
+	if (!primaryVertex->empty()) {
 	  pv = &*primaryVertex->begin();
 	  // we always use the first vertex (at the moment)
 	  pvRef = edm::Ref<VertexCollection>(primaryVertex, 0);

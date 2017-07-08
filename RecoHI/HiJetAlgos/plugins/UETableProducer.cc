@@ -163,7 +163,7 @@ UETableProducer::endJob() {
   std::string line;
 
   while( std::getline( textTable_, line)){
-    if(!line.size() || line[0]=='#') {
+    if(line.empty() || line[0]=='#') {
       std::cout<<" continue "<<std::endl;
       continue;
     }

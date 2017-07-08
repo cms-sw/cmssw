@@ -391,7 +391,7 @@ DTBtiChip::nCellHit() const {
   int n=0;
   int i=0;
   for(i=0;i<9;i++) {
-    if( _digis[i].size() >0 ) n++;
+    if( !_digis[i].empty() ) n++;
   }
   if(config()->debug()>2) {
     cout << n << " cells with hits found:" << endl;

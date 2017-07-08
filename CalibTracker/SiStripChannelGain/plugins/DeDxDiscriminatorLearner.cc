@@ -73,7 +73,7 @@ void  DeDxDiscriminatorLearner::algoBeginJob(const edm::EventSetup& iSetup)
 {
    Charge_Vs_Path = new TH3F ("Charge_Vs_Path"     , "Charge_Vs_Path" , P_NBins, P_Min, P_Max, Path_NBins, Path_Min, Path_Max, Charge_NBins, Charge_Min, Charge_Max);
 
-   if(useCalibration && calibGains.size()==0){
+   if(useCalibration && calibGains.empty()){
       edm::ESHandle<TrackerGeometry> tkGeom;
       iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );
       m_off = tkGeom->offsetDU(GeomDetEnumerators::PixelBarrel); //index start at the first pixel

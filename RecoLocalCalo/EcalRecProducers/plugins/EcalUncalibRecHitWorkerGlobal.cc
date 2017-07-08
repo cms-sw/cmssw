@@ -161,7 +161,7 @@ double EcalUncalibRecHitWorkerGlobal::timeCorrection(
   double theCorrection = 0;
 
   // sanity check for arrays
-  if (amplitudeBins.size() == 0) {
+  if (amplitudeBins.empty()) {
     edm::LogError("EcalRecHitError")
         << "timeCorrAmplitudeBins is empty, forcing no time bias corrections.";
 

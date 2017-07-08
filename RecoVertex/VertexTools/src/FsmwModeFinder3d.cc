@@ -51,7 +51,7 @@ GlobalPoint FsmwModeFinder3d::operator() (
     std::vector < SimpleCluster > cresx = algo(vx).first;
     std::vector < SimpleCluster > cresy = algo(vy).first;
     std::vector < SimpleCluster > cresz = algo(vz).first;
-    assert ( cresx.size() && cresy.size() && cresz.size() );
+    assert ( !cresx.empty() && !cresy.empty() && !cresz.empty() );
 
     GlobalPoint ret ( cresx.begin()->position().value(),
                       cresy.begin()->position().value(),

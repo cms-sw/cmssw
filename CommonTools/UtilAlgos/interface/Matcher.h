@@ -106,7 +106,7 @@ namespace reco {
 	    if ( dist < distMin_ ) v.push_back( make_pair( m, dist ) );
 	  }
 	}
-	if ( v.size() > 0 ) {
+	if ( !v.empty() ) {
 	  size_t mMin = min_element( v.begin(), v.end(), helper::SortBySecond() )->first;
 	  typedef typename MatchMap::key_type key_type;
 	  typedef typename MatchMap::data_type data_type;

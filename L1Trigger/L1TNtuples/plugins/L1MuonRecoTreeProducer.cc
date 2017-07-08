@@ -537,7 +537,7 @@ L1MuonRecoTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup&
     if (imu->isTrackerMuon()) type=type+4;
     if (imu->isCaloMuon()) type=type+8;
 
-    bool isTIGHT = (vertex->size() > 0                                                &&
+    bool isTIGHT = (!vertex->empty()                                                &&
 		    imu->isGlobalMuon() && imu->globalTrack()->normalizedChi2() < 10. &&
 		    imu->globalTrack()->hitPattern().numberOfValidMuonHits() > 0      &&
 		    imu->numberOfMatchedStations() > 1                                && 

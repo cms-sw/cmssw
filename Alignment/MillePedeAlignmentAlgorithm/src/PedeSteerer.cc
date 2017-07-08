@@ -706,7 +706,7 @@ void PedeSteerer::buildSubSteer(AlignableTracker *aliTracker, AlignableMuon *ali
   }
   
   //construct the systematic geometry deformations
-  if((myConfig.getParameter<std::vector<edm::ParameterSet> >("constraints")).size() > 0) {
+  if(!myConfig.getParameter<std::vector<edm::ParameterSet> >("constraints").empty()) {
     PedeSteererWeakModeConstraints GeometryConstraints(aliTracker,
                                                        myLabels,
                                                        myConfig.getParameter<std::vector<edm::ParameterSet> >("constraints"),

@@ -91,7 +91,7 @@ void HLTTrackMETProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     int nj = 0;
     double sumet = 0., mhx = 0., mhy = 0.;
 
-    if (useJets && jets->size() > 0) {
+    if (useJets && !jets->empty()) {
         for(reco::JetView::const_iterator j = jets->begin(); j != jets->end(); ++j) {
             double pt = usePt_ ? j->pt() : j->et();
             double eta = j->eta();
@@ -107,7 +107,7 @@ void HLTTrackMETProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
             }
         }
 
-    } else if (useTracks_ && tracks->size() > 0) {
+    } else if (useTracks_ && !tracks->empty()) {
         for (auto const & j : *tracks) {
             double pt = j.pt();
             double px = j.px();
@@ -122,7 +122,7 @@ void HLTTrackMETProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
             }
         }
 
-    } else if (usePFRecTracks_ && pfRecTracks->size() > 0) {
+    } else if (usePFRecTracks_ && !pfRecTracks->empty()) {
         for (auto const & j : *pfRecTracks) {
             double pt = j.trackRef()->pt();
             double px = j.trackRef()->px();
@@ -137,7 +137,7 @@ void HLTTrackMETProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
             }
         }
 
-    } else if ((usePFCandidatesCharged_ || usePFCandidates_) && pfCandidates->size() > 0) {
+    } else if ((usePFCandidatesCharged_ || usePFCandidates_) && !pfCandidates->empty()) {
         for (auto const & j : *pfCandidates) {
             if (usePFCandidatesCharged_ && j.charge() == 0)  continue;
             double pt = j.pt();

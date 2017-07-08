@@ -205,7 +205,7 @@ APVCyclePhaseProducerFromL1TS::produce(edm::Event& iEvent, const edm::EventSetup
 
   long long orbitoffset = 0;
 
-  if(l1ts->size()>0) {
+  if(!l1ts->empty()) {
 
     if((*l1ts)[0].lastResync()!=0) {
       orbitoffset = _useEC0 ? (*l1ts)[0].lastEventCounter0() + _magicOffset : (*l1ts)[0].lastResync() + _magicOffset;

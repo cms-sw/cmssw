@@ -54,7 +54,7 @@ bool CompositeCandidate::overlap(const Candidate & c2) const {
 
 void CompositeCandidate::applyRoles() {
 
-  if (roles_.size() == 0)
+  if (roles_.empty())
     return;
 
   // Check if there are the same number of daughters and roles

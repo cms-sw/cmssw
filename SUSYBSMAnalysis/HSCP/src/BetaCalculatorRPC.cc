@@ -105,7 +105,7 @@ void BetaCalculatorRPC::algo(const std::vector<susybsm::RPCHit4D>& uHSCPRPCRecHi
     betavalue = 1.;
   }
 
-  if(HSCPRPCRecHits.size()==0){
+  if(HSCPRPCRecHits.empty()){
     //std::cout<<"Inside BetaCalculatorRPC \t WARINNG EMPTY RPC4DRecHits CONTAINER!!!"<<std::endl;
     betavalue = 1.;
   }

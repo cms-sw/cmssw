@@ -274,7 +274,7 @@ void RecAnalyzerHF::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
   }
 
   bool select(false);
-  if (trigbit_.size() > 0) {
+  if (!trigbit_.empty()) {
     edm::Handle<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord;
     iEvent.getByToken(tok_hltL1GtMap_, gtObjectMapRecord);
     if (gtObjectMapRecord.isValid()) {
@@ -296,9 +296,9 @@ void RecAnalyzerHF::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
 
   //event weight for FLAT sample and PU information
 
-  if (ignoreL1_ || ((trigbit_.size() > 0) && select)) {
+  if (ignoreL1_ || ((!trigbit_.empty()) && select)) {
     analyzeHcal(Hithf, 1, true);
-  } else if ((!ignoreL1_) && (trigbit_.size() == 0)) {
+  } else if ((!ignoreL1_) && (trigbit_.empty())) {
     edm::Handle<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord;
     iEvent.getByToken(tok_hltL1GtMap_, gtObjectMapRecord);
     if (gtObjectMapRecord.isValid()) {

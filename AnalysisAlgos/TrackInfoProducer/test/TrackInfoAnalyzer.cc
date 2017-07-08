@@ -66,7 +66,7 @@ class TrackInfoAnalyzer : public edm::EDAnalyzer {
       reco::TrackInfo::TrajectoryInfo::const_iterator iter;
       edm::LogInfo("TrackInfoAnalyzer") <<"N hits in the seed: "<<track->seed().nHits();
       edm::LogInfo("TrackInfoAnalyzer") <<"Starting state "<<track->seed().startingState().parameters().position();
-      if(track->trajStateMap().size()>0){
+      if(!track->trajStateMap().empty()){
       for(iter=track->trajStateMap().begin();iter!=track->trajStateMap().end();++iter){
 	edm::LogInfo("TrackInfoAnalyzer") <<"LocalMomentum: "<<(track->stateOnDet(Combined,(*iter).first)->parameters()).momentum();
 	edm::LogInfo("TrackInfoAnalyzer") <<"LocalPosition: "<<(track->stateOnDet(Combined,(*iter).first)->parameters()).position();

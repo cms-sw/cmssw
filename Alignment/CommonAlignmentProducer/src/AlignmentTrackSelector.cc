@@ -86,7 +86,7 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg, ed
   RorZofLastHitMax_( cfg.getParameter<std::vector<double> >( "RorZofLastHitMax" ) ),
   clusterValueMapTag_(cfg.getParameter<edm::InputTag>("hitPrescaleMapTag")),
   minPrescaledHits_( cfg.getParameter<int>("minPrescaledHits")),
-  applyPrescaledHitsFilter_(clusterValueMapTag_.encode().size() && minPrescaledHits_ > 0)
+  applyPrescaledHitsFilter_(!clusterValueMapTag_.encode().empty() && minPrescaledHits_ > 0)
 {
   if(applyIsolation_) {
     rphirecHitsToken_ = iC.consumes<SiStripRecHit2DCollection>(cfg.getParameter<edm::InputTag>("rphirecHits"));
@@ -100,7 +100,7 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg, ed
   //convert track quality from string to enum
   std::vector<std::string> trkQualityStrings(cfg.getParameter<std::vector<std::string> >("trackQualities"));
   std::string qualities;
-  if(trkQualityStrings.size()>0){
+  if(!trkQualityStrings.empty()){
     applyTrkQualityCheck_=true;
     for (unsigned int i = 0; i < trkQualityStrings.size(); ++i) {
       (qualities += trkQualityStrings[i]) += ", ";
@@ -110,7 +110,7 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg, ed
   else applyTrkQualityCheck_=false;
 
   std::vector<std::string> trkIterStrings(cfg.getParameter<std::vector<std::string> >("iterativeTrackingSteps"));
-  if(trkIterStrings.size()>0){
+  if(!trkIterStrings.empty()){
     applyIterStepCheck_=true;
     std::string tracksteps;
     for (unsigned int i = 0; i < trkIterStrings.size(); ++i) {
@@ -162,7 +162,7 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg, ed
 	<< "Max value of |nHitsinENDCAPplus - nHitsinENDCAPminus| = "
 	<< maxHitDiffEndcaps_;
 
-      if (trkQualityStrings.size()) {
+      if (!trkQualityStrings.empty()) {
 	edm::LogInfo("AlignmentTrackSelector")
 	  << "Select tracks with these qualities: " << qualities;
       }    
@@ -347,7 +347,7 @@ bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track *trackp, const 
       || minHitsinTECplus_ || minHitsinTECminus_
       || minHitsinFPIX_ || minHitsinBPIX_ || minHitsinPIX_ ||nHitMin2D_ || chargeCheck_
       || applyIsolation_ || (seedOnlyFromAbove_ == 1 || seedOnlyFromAbove_ == 2)
-      || RorZofFirstHitMin_.size() > 0 || RorZofFirstHitMax_.size() > 0 || RorZofLastHitMin_.size() > 0 || RorZofLastHitMax_.size() > 0 ) {
+      || !RorZofFirstHitMin_.empty() || !RorZofFirstHitMax_.empty() || !RorZofLastHitMin_.empty() || !RorZofLastHitMax_.empty() ) {
     // any detailed hit cut is active, so have to check
     
     int nhitinTIB = 0, nhitinTOB = 0, nhitinTID = 0;

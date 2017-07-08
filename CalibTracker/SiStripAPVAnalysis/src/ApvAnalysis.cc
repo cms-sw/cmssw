@@ -32,7 +32,7 @@ void ApvAnalysis::updateCalibration(edm::DetSet<SiStripRawDigi>& in) {
   if(theTkPedestalCalculator->status()->isUpdating()){
     nEventsForNoiseCalibration_++; 
 
-    if(theTkNoiseCalculator->noise().size() == 0) {
+    if(theTkNoiseCalculator->noise().empty()) {
       noise = theTkPedestalCalculator->rawNoise();
       theTkNoiseCalculator->setStripNoise(noise);
       theTkApvMask->calculateMask(noise);
@@ -48,7 +48,7 @@ void ApvAnalysis::updateCalibration(edm::DetSet<SiStripRawDigi>& in) {
       i++;
     }
     PedestalType tmp2 = theTkCommonModeCalculator->doIt(tmp);
-    if(tmp2.size() > 0) {
+    if(!tmp2.empty()) {
       theTkNoiseCalculator->updateNoise(tmp2);
     }   
     if(nEventsForNoiseCalibration_%eventsRequiredToUpdate_ == 1 && nEventsForNoiseCalibration_ >1)

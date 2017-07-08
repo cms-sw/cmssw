@@ -260,7 +260,7 @@ void RPCRecHitReader::analyze(const edm::Event & event, const edm::EventSetup& e
     }
   }
   
-  if(_mapTrig.size() == 0) return;
+  if(_mapTrig.empty()) return;
 
   char folder[128];
   sprintf(folder,"HistoXYFit_%llu",event.id().event());
@@ -276,7 +276,7 @@ void RPCRecHitReader::analyze(const edm::Event & event, const edm::EventSetup& e
   if(_mapTrig.size() > 4){
     
     _trigger++;
-    if(effX.size() > 0) _efficiencyBAD++;
+    if(!effX.empty()) _efficiencyBAD++;
     
     //-----------------------------------------------------
     //--------------- FIT SULLE TRACCE---------------------
@@ -297,7 +297,7 @@ void RPCRecHitReader::analyze(const edm::Event & event, const edm::EventSetup& e
 
       histoExpectedOcc->Fill(expStrip);
       
-      if(effX.size() > 0){
+      if(!effX.empty()){
 	_efficiencyGOOD++;    
 	
 	unsigned int k = 0;

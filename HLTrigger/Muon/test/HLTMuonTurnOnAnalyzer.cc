@@ -119,7 +119,7 @@ void HLTMuonTurnOnAnalyzer::analyze(const Event & event, const EventSetup& event
 
   const HepMC::GenEvent* evt = genProduct->GetEvent();
   HepMC::WeightContainer weights = evt->weights();
-  if ( weights.size() > 0 )  this_event_weight=weights[0];
+  if ( !weights.empty() )  this_event_weight=weights[0];
   theNumberOfEvents += this_event_weight;
 
   // Get the L1 collection

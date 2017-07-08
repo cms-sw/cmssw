@@ -74,7 +74,7 @@ const PSimHit* DTHitQualityUtils::findMuSimHit(const PSimHitContainer& hits) {
     if (abs((*hit).particleType())==13) muHits.push_back(&(*hit));
   }
 
-  if (muHits.size()==0)
+  if (muHits.empty())
     return 0; //FIXME: Throw of exception???
   else if (muHits.size()>1)
     if(debug)

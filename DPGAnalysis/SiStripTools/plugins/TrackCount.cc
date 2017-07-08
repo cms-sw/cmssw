@@ -351,7 +351,7 @@ TrackCount::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    m_nhptrk->Fill(nhptrk);
 
-   const double hpfrac = tracks->size() > 0 ? double(nhptrk)/double(tracks->size()) : 0.;
+   const double hpfrac = !tracks->empty() ? double(nhptrk)/double(tracks->size()) : 0.;
    m_hhpfrac->Fill(hpfrac);
    m_hsqsumptsq->Fill(sqrt(sumptsq));
 

@@ -137,7 +137,7 @@ namespace lumi{
       }
     }
     delete qPsindex;
-    if(psindexmap.size()==0){
+    if(psindexmap.empty()){
       srcsession->transaction().commit();
       delete srcsession;
       throw lumi::Exception("no psindex data found","retrieveData","HLTV32DB");

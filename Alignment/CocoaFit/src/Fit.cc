@@ -1653,7 +1653,7 @@ int Fit::CheckIfMeasIsProportionalToAnother( ALIuint measNo )
       }  
     }
     // check if not all columns have been deleted from columnsEqual
-    if( columnsEqual.size() != 0 ) {
+    if( !columnsEqual.empty() ) {
       if( ALIUtils::debug >= 3 ) std::cout << "CheckIfMeasIsProportionalToAnother " <<  measNo << " = " << jj << std::endl;
       measProp = jj;
       break;

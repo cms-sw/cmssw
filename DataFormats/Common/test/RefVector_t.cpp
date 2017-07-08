@@ -38,7 +38,7 @@ void TestRefVector::testIteration()
   product.push_back(2.0);
 
   refvec_t  refvec;
-  CPPUNIT_ASSERT(refvec.size() == 0);
+  CPPUNIT_ASSERT(refvec.empty());
   CPPUNIT_ASSERT(refvec.empty());
 
   ref_t    ref0(edm::ProductID(1, 1), &product[0], 0);

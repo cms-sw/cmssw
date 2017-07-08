@@ -138,7 +138,7 @@ void PFTauTransverseImpactParameters::produce(edm::Event& iEvent,const edm::Even
 	  }
 	}
       }
-      if(SV.size()>0){
+      if(!SV.empty()){
 	reco::Vertex::CovarianceMatrix cov;
 	reco::Vertex::Point v(SV.at(0)->x()-PV->x(),SV.at(0)->y()-PV->y(),SV.at(0)->z()-PV->z());
 	for(int i=0;i<reco::Vertex::dimension;i++){

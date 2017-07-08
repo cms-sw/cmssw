@@ -240,7 +240,7 @@ double HGCalImagingAlgo::calculateDistanceToHigher(std::vector<KDNode> &nd){
   int nearestHigher = -1;
 
 
-  if(rs.size()>0)
+  if(!rs.empty())
     maxdensity = nd[rs[0]].data.rho;
   else
     return maxdensity; // there are no hits

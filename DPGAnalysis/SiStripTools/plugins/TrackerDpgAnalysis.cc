@@ -656,7 +656,7 @@ TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    }
 
    // sanity check
-   if(!(trackCollection.size()>0 && trajectoryCollection.size()>0)) return;
+   if(!(!trackCollection.empty() && !trajectoryCollection.empty())) return;
 
    // build the reverse map tracks -> vertex
    std::vector<std::map<size_t,int> > trackVertices;
@@ -780,7 +780,7 @@ TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
        yPCA_ = itTrack->vertex().y();
        zPCA_ = itTrack->vertex().z();
        try { // only one track collection (at best) is connected to the main vertex
-         if(vertexColl.size()>0 && !vertexColl.begin()->isFake()) {
+         if(!vertexColl.empty() && !vertexColl.begin()->isFake()) {
            trkWeightpvtx_ =  vertexColl.begin()->trackWeight(itTrack);
          } else
 	   trkWeightpvtx_ = 0.;
@@ -1020,7 +1020,7 @@ TrackerDpgAnalysis::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup
        }
      }
    }
-   if(delayMap.size()) tmap.save(true, 0, 0, "delaymap.png");
+   if(!delayMap.empty()) tmap.save(true, 0, 0, "delaymap.png");
 
    // cabling II (DCU map)
    std::ifstream cablingFile(cablingFileName_.c_str());

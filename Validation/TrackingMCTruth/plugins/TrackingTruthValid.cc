@@ -184,6 +184,6 @@ void TrackingTruthValid::analyze(const edm::Event& event, const edm::EventSetup&
 
 void TrackingTruthValid::endJob(){ 
   //Only in standalone mode save local root file 
-  if (runStandalone &&  outputFile.size() != 0 && dbe_ ){dbe_->save(outputFile);}
+  if (runStandalone &&  !outputFile.empty() && dbe_ ){dbe_->save(outputFile);}
 
 } 

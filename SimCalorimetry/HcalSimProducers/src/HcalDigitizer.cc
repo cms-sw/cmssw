@@ -444,14 +444,14 @@ void HcalDigitizer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSet
   std::unique_ptr<ZDCDigiCollection> zdcResult(new ZDCDigiCollection());
   std::unique_ptr<QIE10DigiCollection> hfQIE10Result(
     new QIE10DigiCollection(
-      theHFQIE10DetIds.size()>0 ? 
+      !theHFQIE10DetIds.empty() ? 
       theParameterMap->simParameters(theHFQIE10DetIds[0]).readoutFrameSize() : 
       QIE10DigiCollection::MAXSAMPLES
     )
   );
   std::unique_ptr<QIE11DigiCollection> hbheQIE11Result(
     new QIE11DigiCollection(
-      theHBHEQIE11DetIds.size()>0 ? 
+      !theHBHEQIE11DetIds.empty() ? 
       ((HcalSiPMHitResponse *)theHBHESiPMResponse)->getReadoutFrameSize(theHBHEQIE11DetIds[0]) :
 //      theParameterMap->simParameters(theHBHEQIE11DetIds[0]).readoutFrameSize() : 
       QIE11DigiCollection::MAXSAMPLES
@@ -609,7 +609,7 @@ void  HcalDigitizer::updateGeometry(const edm::EventSetup & eventSetup) {
   theZDCDigitizer->setDetIds(zdcCells);
 
   //fill test hits collection if desired and empty
-  if(injectTestHits_ && injectedHits_.size()==0 && injectedHitsCells_.size()>0 && injectedHitsEnergy_.size()>0){
+  if(injectTestHits_ && injectedHits_.empty() && !injectedHitsCells_.empty() && !injectedHitsEnergy_.empty()){
     //make list of specified cells if desired
     std::vector<DetId> testCells;
     if(injectedHitsCells_.size()>=4){
@@ -641,7 +641,7 @@ void  HcalDigitizer::updateGeometry(const edm::EventSetup & eventSetup) {
 
 void HcalDigitizer::buildHFQIECells(const std::vector<DetId>& allCells, const edm::EventSetup & eventSetup) {
 	//if results are already cached, no need to look again
-	if(theHFQIE8DetIds.size()>0 || theHFQIE10DetIds.size()>0) return;
+	if(!theHFQIE8DetIds.empty() || !theHFQIE10DetIds.empty()) return;
 	
 	//get the QIETypes
 	edm::ESHandle<HcalQIETypes> q;
@@ -665,13 +665,13 @@ void HcalDigitizer::buildHFQIECells(const std::vector<DetId>& allCells, const ed
       }
     }
 	
-	if(theHFQIE8DetIds.size()>0) theHFDigitizer->setDetIds(theHFQIE8DetIds);
+	if(!theHFQIE8DetIds.empty()) theHFDigitizer->setDetIds(theHFQIE8DetIds);
 	else {
 		delete theHFDigitizer;
 		theHFDigitizer = NULL;
 	}
 	
-	if(theHFQIE10DetIds.size()>0) theHFQIE10Digitizer->setDetIds(theHFQIE10DetIds);
+	if(!theHFQIE10DetIds.empty()) theHFQIE10Digitizer->setDetIds(theHFQIE10DetIds);
 	else {
 		delete theHFQIE10Digitizer;
 		theHFQIE10Digitizer = NULL;
@@ -680,7 +680,7 @@ void HcalDigitizer::buildHFQIECells(const std::vector<DetId>& allCells, const ed
 
 void HcalDigitizer::buildHBHEQIECells(const std::vector<DetId>& allCells, const edm::EventSetup & eventSetup) {
 	//if results are already cached, no need to look again
-	if(theHBHEQIE8DetIds.size()>0 || theHBHEQIE11DetIds.size()>0) return;
+	if(!theHBHEQIE8DetIds.empty() || !theHBHEQIE11DetIds.empty()) return;
 	
 	//get the QIETypes
 	edm::ESHandle<HcalQIETypes> q;
@@ -706,19 +706,19 @@ void HcalDigitizer::buildHBHEQIECells(const std::vector<DetId>& allCells, const 
       }
     }
 	
-	if(theHBHEQIE8DetIds.size()>0) theHBHEDigitizer->setDetIds(theHBHEQIE8DetIds);
+	if(!theHBHEQIE8DetIds.empty()) theHBHEDigitizer->setDetIds(theHBHEQIE8DetIds);
 	else {
 		delete theHBHEDigitizer;
 		theHBHEDigitizer = NULL;
 	}
 	
-	if(theHBHEQIE11DetIds.size()>0) theHBHEQIE11Digitizer->setDetIds(theHBHEQIE11DetIds);
+	if(!theHBHEQIE11DetIds.empty()) theHBHEQIE11Digitizer->setDetIds(theHBHEQIE11DetIds);
 	else {
 		delete theHBHEQIE11Digitizer;
 		theHBHEQIE11Digitizer = NULL;
 	}
 	
-	if(theHBHEQIE8DetIds.size()>0 && theHBHEQIE11DetIds.size()>0){
+	if(!theHBHEQIE8DetIds.empty() && !theHBHEQIE11DetIds.empty()){
 		theHBHEHitFilter.setDetIds(theHBHEQIE8DetIds);
 		theHBHEQIE11HitFilter.setDetIds(theHBHEQIE11DetIds);
 	}
@@ -757,19 +757,19 @@ void HcalDigitizer::buildHOSiPMCells(const std::vector<DetId>& allCells, const e
       }
     }
 
-    if(theHOHPDDetIds.size()>0) theHODigitizer->setDetIds(theHOHPDDetIds);
+    if(!theHOHPDDetIds.empty()) theHODigitizer->setDetIds(theHOHPDDetIds);
     else {
       delete theHODigitizer;
       theHODigitizer = NULL;
     }
 	
-    if(theHOSiPMDetIds.size()>0) theHOSiPMDigitizer->setDetIds(theHOSiPMDetIds);
+    if(!theHOSiPMDetIds.empty()) theHOSiPMDigitizer->setDetIds(theHOSiPMDetIds);
     else {
       delete theHOSiPMDigitizer;
       theHOSiPMDigitizer = NULL;
     }
 	
-	if(theHOHPDDetIds.size()>0 && theHOSiPMDetIds.size()>0){
+	if(!theHOHPDDetIds.empty() && !theHOSiPMDetIds.empty()){
       theHOSiPMHitFilter.setDetIds(theHOSiPMDetIds);
       theHOHitFilter.setDetIds(theHOHPDDetIds);
     }

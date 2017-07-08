@@ -246,12 +246,12 @@ void SiStripDigitizer::finalizeEvent(edm::Event& iEvent, edm::EventSetup const& 
       theDigiAlgo->digitize(collectorZS,collectorRaw,collectorLink,sgd,
                             gainHandle,thresholdHandle,noiseHandle,pedestalHandle,theAffectedAPVvector,randomEngine(iEvent.streamID()));
       if(zeroSuppression){
-        if(collectorZS.data.size()>0){
+        if(!collectorZS.data.empty()){
           theDigiVector.push_back(collectorZS);
           if( !collectorLink.data.empty() ) pOutputDigiSimLink->insert(collectorLink);
         }
       }else{
-        if(collectorRaw.data.size()>0){
+        if(!collectorRaw.data.empty()){
           theRawDigiVector.push_back(collectorRaw);
           if( !collectorLink.data.empty() ) pOutputDigiSimLink->insert(collectorLink);
         }

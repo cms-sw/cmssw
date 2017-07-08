@@ -139,7 +139,7 @@ void VertexFitterResult::fill(const TransientVertex & recVertex,
 //       edm::LogError("TrackValidator") << e.what() << "\n";
     }
 
-    if(simFound.size() != 0) {
+    if(!simFound.empty()) {
       //OK, it was associated, so get the state on the same surface as the 'SimState'
       TrackingParticleRefVector::const_iterator simTrackI = 
 	find(simTrackV.begin(), simTrackV.end(), simFound[0].first);

@@ -88,7 +88,7 @@ namespace edmtest {
     }
 
     // Runs some tests on the TriggerNamesService
-    if(expected_trigger_paths_.size() > 0) {
+    if(!expected_trigger_paths_.empty()) {
 
       Strings triggernames;
       edm::Service<edm::service::TriggerNamesService> tns;
@@ -105,7 +105,7 @@ namespace edmtest {
       }
     }
 
-    if(expected_end_paths_.size() > 0) {
+    if(!expected_end_paths_.empty()) {
 
       Strings endnames;
       edm::Service<edm::service::TriggerNamesService> tns;
@@ -123,12 +123,12 @@ namespace edmtest {
     }
 
 
-    if(expected_trigger_previous_.size() > 0) {
+    if(!expected_trigger_previous_.empty()) {
       typedef std::vector<edm::Handle<edm::TriggerResults> > Trig;
       Trig prod;
       e.getManyByType(prod);
 
-      if(prod.size() == 0) {
+      if(prod.empty()) {
         throw cms::Exception("Test Failure") << "TestTriggerNames: "
              << "No TriggerResults object found, expected previous trigger results"
              << std::endl;
@@ -244,7 +244,7 @@ namespace edmtest {
     edm::InputTag tag("TriggerResults", "", "HLT");
     edm::Handle<edm::TriggerResults> hTriggerResults;
 
-    if(expectedTriggerResultsHLT_.size() > 0) {
+    if(!expectedTriggerResultsHLT_.empty()) {
       if(e.getByLabel(tag, hTriggerResults)) {
 
         edm::TriggerResultsByName resultsByNameHLT = e.triggerResultsByName(*hTriggerResults);

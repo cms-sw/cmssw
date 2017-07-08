@@ -150,7 +150,7 @@ void InOutConversionSeedFinder::fillClusterSeeds() const {
     // }
     
     
-    if ( myItr.size()==0 ) {
+    if ( myItr.empty() ) {
       //std::cout << "HORRENDOUS ERROR!  No meas on track!" << "\n";
     }      
     unsigned int ilayer;

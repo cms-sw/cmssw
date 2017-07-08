@@ -347,7 +347,7 @@ namespace ecaldqm
                 }
               } // Et match found
             } // iDigi
-            if(!matchedIndex.size()) matchedIndex.push_back(0); // no Et match found => no emul
+            if(matchedIndex.empty()) matchedIndex.push_back(0); // no Et match found => no emul
                         
             // Fill Real vs Emulated TP Et
             meRealvEmulEt.fill( ttid,realEt,(*tpItr)[2].compressedEt() ); // iDigi=2:in-time BX

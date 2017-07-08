@@ -158,7 +158,7 @@ TkMSParameterizationBuilder::produce(TkMSParameterizationRecord const& iRecord) 
 	      }
 	      if (debug) std::cout << il << (it->isBarrel() ? " Barrel" : " Forward") << " layer " << it->seqNum() << " SubDet " << it->subDetector()<< std::endl;
 	      auto const & detWithState = it->compatibleDets(tsos,ANprop,estimator);
-	      if(!detWithState.size()) { 
+	      if(detWithState.empty()) { 
 		if(debug) std::cout << "no det on this layer" << it->seqNum() << std::endl; 
 		continue;
 	      }
@@ -235,7 +235,7 @@ TkMSParameterizationBuilder::produce(TkMSParameterizationRecord const& iRecord) 
 	    }
 	    
 	    auto const & detWithState = layer0->compatibleDets(tsos0,ANprop,estimator);
-	    if(!detWithState.size()) {
+	    if(detWithState.empty()) {
 	      if(debug) std::cout << "no det on first layer" << layer0->seqNum() << std::endl;
 	      continue;
 	    }

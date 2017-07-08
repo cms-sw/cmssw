@@ -57,7 +57,7 @@ namespace spr{
 #endif
 
     unsigned int matchSimTrk=0;
-    if (trkOcc.size() > 0) {
+    if (!trkOcc.empty()) {
       unsigned int maxTrkOcc=0, idxMax=0;
       for(unsigned int j=0; j<trkOcc.size(); j++) {
 	if(trkOcc[j] > maxTrkOcc ) { maxTrkOcc = trkOcc[j]; idxMax = j; }

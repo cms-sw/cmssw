@@ -259,7 +259,7 @@ EventSetupRecord::fillRegisteredDataKeys(std::vector<DataKey>& oToFill) const
 void 
 EventSetupRecord::validate(const ComponentDescription* iDesc, const ESInputTag& iTag) const
 {
-   if(iDesc && iTag.module().size()) {
+   if(iDesc && !iTag.module().empty()) {
       bool matched = false;
       if(iDesc->label_.empty()) {
          matched = iDesc->type_ == iTag.module();

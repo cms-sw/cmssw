@@ -490,7 +490,7 @@ void QcdUeDQM::analyze(const Event &iEvent, const EventSetup &iSetup) {
     fillChargedJetSpectra(trkJets);
     //    fillCaloJetSpectra(calJets);
     fillUE_with_MaxpTtrack(selected_);
-    if (trkJets->size() > 0) fillUE_with_ChargedJets(selected_, trkJets);
+    if (!trkJets->empty()) fillUE_with_ChargedJets(selected_, trkJets);
     // if(calJets->size()>0)fillUE_with_CaloJets(selected_,calJets);
   }
 }
@@ -677,7 +677,7 @@ bool QcdUeDQM::trackSelection(const reco::Track &trk, const reco::BeamSpot *bs,
 
   // quality cut
   bool quality_ok = true;
-  if (quality_.size() != 0) {
+  if (!quality_.empty()) {
     quality_ok = false;
     for (unsigned int i = 0; i < quality_.size(); ++i) {
       if (trk.quality(quality_[i])) {
@@ -688,7 +688,7 @@ bool QcdUeDQM::trackSelection(const reco::Track &trk, const reco::BeamSpot *bs,
   }
   //-----
   bool algo_ok = true;
-  if (algorithm_.size() != 0) {
+  if (!algorithm_.empty()) {
     if (std::find(algorithm_.begin(), algorithm_.end(), trk.algo()) ==
         algorithm_.end())
       algo_ok = false;
@@ -753,7 +753,7 @@ bool QcdUeDQM::fillVtxPlots(const reco::BeamSpot *bs,
 //--------------------------------------------------------------------------------------------------
 void QcdUeDQM::fillpTMaxRelated(const std::vector<const reco::Track *> &track) {
   fill1D(hNgoodTrk_, track.size());
-  if (track.size() > 0) {
+  if (!track.empty()) {
     fill1D(hLeadingTrack_pTSpectrum_, track[0]->pt());
     fill1D(hLeadingTrack_phiSpectrum_, track[0]->phi());
     fill1D(hLeadingTrack_etaSpectrum_, track[0]->eta());
@@ -826,7 +826,7 @@ void QcdUeDQM::fillUE_with_MaxpTtrack(
   double pTSum900_TransReg = 0;
   double pTSum900_AwayReg = 0;
   double pTSum900_TowardReg = 0;
-  if (track.size() > 0) {
+  if (!track.empty()) {
     if (track[0]->pt() > 1.) {
       for (size_t i = 1; i < track.size(); i++) {
         double dphi =

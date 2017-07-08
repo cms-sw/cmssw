@@ -93,7 +93,7 @@ importToBlock( const edm::Event& e,
 	// if there is no displaced vertex reference  and it is marked
 	// as a conversion it's gotta be a converted brem
 	if( trkel->trackType(reco::PFBlockElement::T_FROM_GAMMACONV) &&
-	    cRef.size() == 0 && dvRef.isNull() && v0Ref.isNull() ) {
+	    cRef.empty() && dvRef.isNull() && v0Ref.isNull() ) {
 	  // if the Pt resolution is bad we kill this element
 	  if( !PFTrackAlgoTools::goodPtResolution( trkel->trackRef(), DPtovPtCut_, NHitCut_, useIterTracking_, debug_ ) ) {
 	    itr = elems.erase(itr);

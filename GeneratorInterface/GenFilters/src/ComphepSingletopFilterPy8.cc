@@ -222,7 +222,7 @@ vector<const GenParticle *> vgp_b_t;
     }
 
 
-bool process22 = (vgp_bsec.size() == 0); //if there is no aditional b-quark in primary vexrtes, then it is tq-process (2->2) 
+bool process22 = (vgp_bsec.empty()); //if there is no aditional b-quark in primary vexrtes, then it is tq-process (2->2) 
 
     if (process22) 
     {
@@ -312,7 +312,7 @@ cerr << "ERROR: ComphepSingletopFilterPy8: HepMC inconsistency (No add b vertex 
     }
 
 
-    if (vgp_bsec.size() == 0) 
+    if (vgp_bsec.empty()) 
     {
         cerr << "ERROR: ComphepSingletopFilterPy8: HepMC inconsistency (vgp_bsec.size() == 0)" << endl;
         return false;

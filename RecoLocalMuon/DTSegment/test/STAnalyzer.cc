@@ -249,7 +249,7 @@ void STAnalyzer::analyzeSATrack(const Event & event,
   histo2d("hNSAVsNSegs2D")->Fill(segs2d->size(),staTracks->size());
   histo2d("hNSAVsNSegs4D")->Fill(segs->size(),staTracks->size());
 
-  if (debug && staTracks->size() ) 
+  if (debug && !staTracks->empty() ) 
     cout << endl<<"R:E " << event.id().run() << ":" << event.id().event() << 
       " SA " << staTracks->size() << endl;
 

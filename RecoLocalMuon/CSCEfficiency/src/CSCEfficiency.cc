@@ -887,7 +887,7 @@ void CSCEfficiency::fillRechitsSegments_info(edm::Handle<CSCRecHit2DCollection> 
 	for(int iC=0;iC<NumCh;iC++){
 	  int numLayers = 0;
 	  for(int iL=0;iL<6;iL++){
-	    if(allRechits[iE][iS][iR][iC][iL].size()){
+	    if(!allRechits[iE][iS][iR][iC][iL].empty()){
 	      ++numLayers; 
 	    }
 	  }
@@ -1074,11 +1074,11 @@ bool CSCEfficiency::efficienciesPerChamber(CSCDetId & id, const CSCChamber* cscC
   }
 
   // Segments
-  bool firstCondition = allSegments[ec][st][rg][ch].size() ? true : false;
+  bool firstCondition = !allSegments[ec][st][rg][ch].empty() ? true : false;
   bool secondCondition = false;
   //---- ME1 is special as usual - ME1a and ME1b are actually one chamber
   if(secondRing>-1){
-    secondCondition = allSegments[ec][st][secondRing][ch].size() ? true : false;
+    secondCondition = !allSegments[ec][st][secondRing][ch].empty() ? true : false;
   }
   if(firstCondition || secondCondition){
     if(out){
@@ -1185,11 +1185,11 @@ bool CSCEfficiency::stripWire_Efficiencies(CSCDetId & id, FreeTrajectoryState &f
 	"size W = "<<allWG[id.endcap()-1][id.station()-1][id.ring()-1][id.chamber()-FirstCh][iLayer].size()<<std::endl;
 
     }
-    firstCondition = allStrips[ec][st][rg][ch][iLayer].size() ? true : false;
+    firstCondition = !allStrips[ec][st][rg][ch][iLayer].empty() ? true : false;
     //allSegments[ec][st][rg][ch].size() ? true : false;
     secondCondition = false;
     if(secondRing>-1){
-      secondCondition = allStrips[ec][st][secondRing][ch][iLayer].size() ? true : false;
+      secondCondition = !allStrips[ec][st][secondRing][ch][iLayer].empty() ? true : false;
     }
     if(firstCondition || secondCondition){
       ChHist[ec][st][rg][ch].EfficientStrips->Fill(iLayer+1);
@@ -1201,10 +1201,10 @@ bool CSCEfficiency::stripWire_Efficiencies(CSCDetId & id, FreeTrajectoryState &f
       }
     }
     // Wires
-    firstCondition = allWG[ec][st][rg][ch][iLayer].size() ? true : false;
+    firstCondition = !allWG[ec][st][rg][ch][iLayer].empty() ? true : false;
     secondCondition = false;
     if(secondRing>-1){
-      secondCondition = allWG[ec][st][secondRing][ch][iLayer].size() ? true : false;
+      secondCondition = !allWG[ec][st][secondRing][ch][iLayer].empty() ? true : false;
     }
     if(firstCondition || secondCondition){
       ChHist[ec][st][rg][ch].EfficientWireGroups->Fill(iLayer+1);
@@ -1250,11 +1250,11 @@ bool CSCEfficiency::recSimHitEfficiency(CSCDetId & id, FreeTrajectoryState &ftsC
   returnTypes(id, ec, st, rg, ch, secondRing);
   bool firstCondition, secondCondition;
   for(int iLayer=0; iLayer<6;iLayer++){
-    firstCondition = allSimhits[ec][st][rg][ch][iLayer].size() ? true : false;
+    firstCondition = !allSimhits[ec][st][rg][ch][iLayer].empty() ? true : false;
     secondCondition = false;
     int thisRing = rg;
     if(secondRing>-1){
-      secondCondition = allSimhits[ec][st][secondRing][ch][iLayer].size() ? true : false;
+      secondCondition = !allSimhits[ec][st][secondRing][ch][iLayer].empty() ? true : false;
       if(secondCondition){
 	thisRing = secondRing;
       }
@@ -1266,7 +1266,7 @@ bool CSCEfficiency::recSimHitEfficiency(CSCDetId & id, FreeTrajectoryState &ftsC
 	if(13 ==
 	   fabs(allSimhits[ec][st][thisRing][ch][iLayer][iSH].second)){
 	  ChHist[ec][st][rg][ch].SimSimhits->Fill(iLayer+1);
-	  if(allRechits[ec][st][thisRing][ch][iLayer].size()){
+	  if(!allRechits[ec][st][thisRing][ch][iLayer].empty()){
 	    ChHist[ec][st][rg][ch].SimRechits->Fill(iLayer+1);
 	  }
 	  break;
@@ -1302,11 +1302,11 @@ bool CSCEfficiency::recHitSegment_Efficiencies(CSCDetId & id, const CSCChamber* 
   // Rechits
   if(printalot) std::cout<<"RecHits eff"<<std::endl;
   for(int iLayer=0;iLayer<6;++iLayer){
-    firstCondition = allRechits[ec][st][rg][ch][iLayer].size() ? true : false;
+    firstCondition = !allRechits[ec][st][rg][ch][iLayer].empty() ? true : false;
     secondCondition = false;
     int thisRing = rg;
     if(secondRing>-1){
-      secondCondition = allRechits[ec][st][secondRing][ch][iLayer].size() ? true : false;
+      secondCondition = !allRechits[ec][st][secondRing][ch][iLayer].empty() ? true : false;
       if(secondCondition){
 	thisRing = secondRing;
       }
@@ -1336,12 +1336,12 @@ bool CSCEfficiency::recHitSegment_Efficiencies(CSCDetId & id, const CSCChamber* 
   GlobalVector globalDir;
   GlobalPoint globalPos;
  // Segments
-  firstCondition = allSegments[ec][st][rg][ch].size() ? true : false;
+  firstCondition = !allSegments[ec][st][rg][ch].empty() ? true : false;
   secondCondition = false;
   int secondSize = 0;
   int thisRing = rg;
   if(secondRing>-1){
-    secondCondition = allSegments[ec][st][secondRing][ch].size() ? true : false;
+    secondCondition = !allSegments[ec][st][secondRing][ch].empty() ? true : false;
     secondSize = allSegments[ec][st][secondRing][ch].size();
     if(secondCondition){
       thisRing = secondRing;
@@ -1368,10 +1368,10 @@ bool CSCEfficiency::recHitSegment_Efficiencies(CSCDetId & id, const CSCChamber* 
 	}
 	ChHist[ec][st][rg][ch].AllSingleHits->Fill(iLayer+1);
       }
-      firstCondition = allRechits[ec][st][rg][ch][iLayer].size() ? true : false;
+      firstCondition = !allRechits[ec][st][rg][ch][iLayer].empty() ? true : false;
       secondCondition = false;
       if(secondRing>-1){
-	secondCondition = allRechits[ec][st][secondRing][ch][iLayer].size() ? true : false;
+	secondCondition = !allRechits[ec][st][secondRing][ch][iLayer].empty() ? true : false;
       }
       float stripAngle = 99999.;
       std::vector<float> posXY(2);
@@ -1572,7 +1572,7 @@ bool CSCEfficiency::applyTrigger(edm::Handle<edm::TriggerResults> &hltR,
     }
   }
   else{
-    if(pointToTriggers.size()){
+    if(!pointToTriggers.empty()){
       if(printalot){
         std::cout<<"The following triggers will be required in the event: "<<std::endl;
         for(size_t imyT =0; imyT <pointToTriggers.size();++imyT){
@@ -1585,7 +1585,7 @@ bool CSCEfficiency::applyTrigger(edm::Handle<edm::TriggerResults> &hltR,
   }
 
   if (hltR.isValid()) {
-    if(!pointToTriggers.size()){
+    if(pointToTriggers.empty()){
       if(printalot){
         std::cout<<" No triggers specified in the configuration or all ignored - no trigger information will be considered"<<std::endl;
       }

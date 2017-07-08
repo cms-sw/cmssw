@@ -80,7 +80,7 @@ StandAloneMuonSmoother::SmoothingResult StandAloneMuonSmoother::smooth(const Tra
   
   vector<Trajectory> trajectoriesSM = smoother()->trajectories(inputTrajectory);
   
-  if(!trajectoriesSM.size()){
+  if(trajectoriesSM.empty()){
     LogTrace(metname) << "No Track smoothed!";
     return SmoothingResult(false,inputTrajectory); 
   }

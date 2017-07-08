@@ -362,7 +362,7 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent,
       }
     }
   }
-  if (hcalHot_.size() > 0) tree_->Fill();
+  if (!hcalHot_.empty()) tree_->Fill();
 }
 
 void HcalHBHEMuonSimAnalyzer::beginJob() {

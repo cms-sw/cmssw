@@ -190,7 +190,7 @@ std::vector<const TrackingRecHit*> GEMCSCSegAlgoRR::chainHitsToSegm(const CSCSeg
   const CSCChamber* cscChamber = cscLayer->chamber();
 
   // For non-empty GEM rechit vector
-  if(gemrechits.size()!=0)
+  if(!gemrechits.empty())
     {
       float Dphi_min_l1 = 999;
       float Dphi_min_l2 = 999;

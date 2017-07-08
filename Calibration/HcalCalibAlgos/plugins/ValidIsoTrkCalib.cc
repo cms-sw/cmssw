@@ -307,7 +307,7 @@ ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   //cout<<"Hello World. TrackCollectionSize: "<< isoPixelTracks->size()<<endl;
 
-if (isoPixelTracks->size()==0) return;
+if (isoPixelTracks->empty()) return;
   
 
 for (reco::TrackCollection::const_iterator trit=isoProdTracks->begin(); trit!=isoProdTracks->end(); trit++)

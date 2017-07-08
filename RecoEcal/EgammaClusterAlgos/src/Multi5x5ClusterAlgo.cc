@@ -193,7 +193,7 @@ void Multi5x5ClusterAlgo::mainSearch(const EcalRecHitCollection* hits,
 
         // If some crystals in the current vector then 
         // make them into a cluster 
-        if (current_v.size() > 0) 
+        if (!current_v.empty()) 
         {
             makeCluster(hits, geometry_p, geometryES_p, seedIt, usedButCanSeed);
         }

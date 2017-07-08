@@ -333,7 +333,7 @@ unsigned int MomentumDependentPedeLabeler::buildMomentumDependencyMap(AlignableT
        ++iter) {
 
     const std::vector<std::string> tempMomentumRanges = (*iter).getParameter<std::vector<std::string> >("momentumRanges");
-    if (tempMomentumRanges.size()==0) {
+    if (tempMomentumRanges.empty()) {
       throw cms::Exception("BadConfig") << "@SUB=MomentumDependentPedeLabeler::buildMomentumDependencyMap\n"
 					<< "MomentumRanges empty\n";
     }

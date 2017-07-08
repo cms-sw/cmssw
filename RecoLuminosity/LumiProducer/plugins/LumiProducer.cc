@@ -779,7 +779,7 @@ LumiProducer::fillLSCache(unsigned int luminum){
 	unsigned int* hltaccepts=(unsigned int*)::malloc(hltacceptblob.size());
 	std::memmove(hltaccepts,hltacceptblob_StartAddress,hltacceptblob.size()); 	
 	unsigned int nhltaccepts = sizeof(hltaccepts)/sizeof(unsigned int);
-        if(nhltaccepts > 0 && m_runcache.HLTPathNames.size() == 0){
+        if(nhltaccepts > 0 && m_runcache.HLTPathNames.empty()){
           edm::LogWarning("CorruptOrMissingHLTData")<<"Got "<<nhltaccepts
 <<" hltaccepts, but the run chache is empty. hltdata will  not be written";
             break;

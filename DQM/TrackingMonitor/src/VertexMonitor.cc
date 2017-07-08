@@ -137,7 +137,7 @@ VertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     FractionOfGoodPVtxVsPVtx      -> Fill( totalNumPV,     fracGoodPV        );
   }
 
-  if ( selpvHandle->size() ) {
+  if ( !selpvHandle->empty() ) {
     double sumpt    = 0;
     size_t ntracks  = 0;
     double chi2ndf  = 0.; 

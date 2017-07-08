@@ -278,7 +278,7 @@ void EcalDccWeightBuilder::sort(const std::vector<T>& a,
   bool changed = false;
   s.resize(a.size());
   for(unsigned i=0; i<a.size(); ++i) s[i] = i;
-  if(a.size() == 0) return;
+  if(a.empty()) return;
   do {
     changed = false;
     for(unsigned i = 0; i < a.size()-1; ++i){
@@ -393,7 +393,7 @@ double EcalDccWeightBuilder::intercalib(const DetId& detId){
 }
 
 void EcalDccWeightBuilder::writeWeightToAsciiFile(){
-  string fName = asciiOutputFileName_.size()!=0?
+  string fName = !asciiOutputFileName_.empty()?
     asciiOutputFileName_.c_str()
     :"dccWeights.txt";
   ofstream file(fName.c_str());
@@ -478,7 +478,7 @@ void EcalDccWeightBuilder::writeWeightToAsciiFile(){
   }
 }
 void EcalDccWeightBuilder::writeWeightToRootFile(){
-  string fName = rootOutputFileName_.size()!=0?
+  string fName = !rootOutputFileName_.empty()?
     rootOutputFileName_.c_str()
     :"dccWeights.root";
   TFile file(fName.c_str(), "RECREATE");

@@ -57,7 +57,7 @@ vector<DTSegmentCand*> DTSegmentCleaner::solveConflict(const std::vector<DTSegme
 
       DTSegmentCand::AssPointCont confHits=(*cand)->conflictingHitPairs(*(*cand2));
       
-      if (confHits.size()) {
+      if (!confHits.empty()) {
 	///treatment of LR ambiguity cases: 1 chooses the best chi2
 	///                                 2 chooses the smaller angle
 	///                                 3 keeps both candidates

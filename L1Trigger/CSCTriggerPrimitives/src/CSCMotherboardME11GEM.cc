@@ -411,7 +411,7 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
     if (debug_luts){
       LogDebug("CSCMotherboardME11GEM") << "me1b Det "<< me1bId<<" "<< me1bId.rawId() <<" " 
 					<< (isEven ? "Even":"odd") <<" chamber "<< me1bId.chamber()<<std::endl;
-      if (gemRollToEtaLimits_.size())
+      if (!gemRollToEtaLimits_.empty())
         for(auto p : gemRollToEtaLimits_) 
 	  LogDebug("CSCMotherboardME11GEM") << "pad "<< p.first << " min eta " << (p.second).first << " max eta " << (p.second).second << std::endl;
     }
@@ -499,8 +499,8 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
     retrieveGEMCoPads();
   }
   
-  const bool hasPads(pads_.size()!=0);
-  const bool hasCoPads(hasPads and coPads_.size()!=0);
+  const bool hasPads(!pads_.empty());
+  const bool hasCoPads(hasPads and !coPads_.empty());
   bool hasLCTs(false);
 
   // ALCT-centric matching
@@ -606,7 +606,7 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
           // find the best matching copad - first one 
           auto copads(matchingGEMPads(alct->bestALCT[bx_alct], coPads_[bx_gem], ME1B, true));             
           if (debug_gem_matching) std::cout << "\t++Number of matching GEM CoPads in BX " << bx_alct << " : "<< copads.size() << std::endl;
-          if (copads.size()==0) {
+          if (copads.empty()) {
             continue;
           }
           
@@ -714,7 +714,7 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
           // find the best matching copad - first one 
           auto copads(matchingGEMPads(alct->bestALCT[bx_alct], coPads_[bx_gem], ME1A, true));             
           if (debug_gem_matching) std::cout << "\t++Number of matching GEM CoPads in BX " << bx_alct << " : "<< copads.size() << std::endl;
-          if (copads.size()==0) {
+          if (copads.empty()) {
             continue;
           }
           
@@ -759,7 +759,7 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
     } // end of ALCT valid block 
     else {
       auto coPads(coPads_[bx_alct]);
-      if (runME11ILT_ and coPads.size()!=0) {
+      if (runME11ILT_ and !coPads.empty()) {
         // keep it simple for the time being, only consider the first copad
         const int bx_clct_start(bx_alct - match_trig_window_size/2);
         const int bx_clct_stop(bx_alct + match_trig_window_size/2);
@@ -1127,13 +1127,13 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11GEM::sortLCTsByQuality(enum 
             }
         }   
       else {
-        if (LCTs1a.size() and LCTs1b.size() and me==ME1A)
+        if (!LCTs1a.empty() and !LCTs1b.empty() and me==ME1A)
           LCTs_final.push_back(*LCTs1a.begin());
-        else if (LCTs1a.size() and LCTs1b.size() and me==ME1B)
+        else if (!LCTs1a.empty() and !LCTs1b.empty() and me==ME1B)
           LCTs_final.push_back(*LCTs1b.begin());
-        else if (LCTs1a.size() and LCTs1b.size()==0 and me==ME1A)
+        else if (!LCTs1a.empty() and LCTs1b.empty() and me==ME1A)
           LCTs_final.insert(LCTs_final.end(), LCTs1a.begin(), LCTs1a.end());
-        else if (LCTs1b.size() and LCTs1a.size()==0 and me==ME1B)
+        else if (!LCTs1b.empty() and LCTs1a.empty() and me==ME1B)
           LCTs_final.insert(LCTs_final.end(), LCTs1b.begin(), LCTs1b.end());
       }
     }
@@ -1209,13 +1209,13 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11GEM::sortLCTsByGEMDPhi(enum 
             }
         }
       else {
-        if (LCTs1a.size() and LCTs1b.size() and me==ME1A)
+        if (!LCTs1a.empty() and !LCTs1b.empty() and me==ME1A)
           LCTs_final.push_back(*LCTs1a.begin());
-        else if (LCTs1a.size() and LCTs1b.size() and me==ME1B)
+        else if (!LCTs1a.empty() and !LCTs1b.empty() and me==ME1B)
           LCTs_final.push_back(*LCTs1b.begin());
-        else if (LCTs1a.size() and LCTs1b.size()==0 and me==ME1A)
+        else if (!LCTs1a.empty() and LCTs1b.empty() and me==ME1A)
           LCTs_final.insert(LCTs_final.end(), LCTs1a.begin(), LCTs1a.end());
-        else if (LCTs1b.size() and LCTs1a.size()==0 and me==ME1B)
+        else if (!LCTs1b.empty() and LCTs1a.empty() and me==ME1B)
           LCTs_final.insert(LCTs_final.end(), LCTs1b.begin(), LCTs1b.end());
       }
     }
@@ -1836,7 +1836,7 @@ void CSCMotherboardME11GEM::printGEMTriggerPads(int bx_start, int bx_stop, bool 
 {
   // pads or copads?
   auto thePads(!iscopad ? pads_ : coPads_); 
-  const bool hasPads(thePads.size()!=0);
+  const bool hasPads(!thePads.empty());
   
   std::cout << "------------------------------------------------------------------------" << std::endl;
   bool first = true;

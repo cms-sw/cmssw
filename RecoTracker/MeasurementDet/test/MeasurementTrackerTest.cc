@@ -147,7 +147,7 @@ void MeasurementTrackerTest::analyze(const edm::Event& iEvent, const edm::EventS
    std::cout << "first layer " << (it->isBarrel() ? " Barrel" : " Forward") << " layer " << it->seqNum() << " SubDet " << it->subDetector()<< std::endl;
   }
   auto const & detWithState = layer->compatibleDets(tsos,ANprop,estimator);
-  if(!detWithState.size()) { std::cout << "no det on first layer" << std::endl; continue;}
+  if(detWithState.empty()) { std::cout << "no det on first layer" << std::endl; continue;}
   auto did = detWithState.front().first->geographicalId();
   std::cout << "arrived at " << int(did) << std::endl;
   tsos = detWithState.front().second;
@@ -171,7 +171,7 @@ void MeasurementTrackerTest::analyze(const edm::Event& iEvent, const edm::EventS
         }
     std::cout << il << (it->isBarrel() ? " Barrel" : " Forward") << " layer " << it->seqNum() << " SubDet " << it->subDetector()<< std::endl;
     auto const & detWithState = it->compatibleDets(tsos,ANprop,estimator);
-    if(!detWithState.size()) { std::cout << "no det on this layer" << std::endl; continue;}
+    if(detWithState.empty()) { std::cout << "no det on this layer" << std::endl; continue;}
     layer = it;
     auto did = detWithState.front().first->geographicalId();
     std::cout << "arrived at " << int(did) << std::endl;

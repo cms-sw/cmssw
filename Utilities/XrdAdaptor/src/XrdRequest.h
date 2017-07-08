@@ -44,7 +44,7 @@ public:
           m_iolist(iolist),
           m_manager(manager)
     {
-        if (m_iolist->size() && !m_size)
+        if (!m_iolist->empty() && !m_size)
         {
             for (IOPosBuffer const & buf : *m_iolist)
             {

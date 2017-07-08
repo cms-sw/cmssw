@@ -822,7 +822,7 @@ FWEveViewManager::haveViewForBit(int bit) const
 {
    for (int t = 0; t < FWViewType::kTypeSize; ++t)
    {
-      if ((bit & (1 << t)) && m_views[t].size())
+      if ((bit & (1 << t)) && !m_views[t].empty())
          return true;
    }
    // printf("have %d view for bit %d \n", haveView, bit);

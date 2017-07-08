@@ -48,9 +48,9 @@ void PSMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   ibooker.setCurrentFolder(currentFolder.c_str());
 
   std::vector<std::string> psLabels = psService_->getLvl1Labels();
-  int nbins   = ( psLabels.size() ? psLabels.size()         : ps_binning_.nbins );
-  double xmin = ( psLabels.size() ? 0.                      : ps_binning_.xmin  );
-  double xmax = ( psLabels.size() ? double(psLabels.size()) : ps_binning_.xmax  );
+  int nbins   = ( !psLabels.empty() ? psLabels.size()         : ps_binning_.nbins );
+  double xmin = ( !psLabels.empty() ? 0.                      : ps_binning_.xmin  );
+  double xmax = ( !psLabels.empty() ? double(psLabels.size()) : ps_binning_.xmax  );
 
   histname = "psColumnIndexVsLS"; histtitle = "PS column index vs LS";
   psColumnIndexVsLS_ = ibooker.book2D(histname, histtitle, 

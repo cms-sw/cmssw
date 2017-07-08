@@ -212,7 +212,7 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
 
     if (debug_luts){
       std::cout<<"csc id "<< csc_id <<" "<< csc_id.rawId() << (isEven ? " even" : " odd") << " chamber" << csc_id.chamber()<<std::endl;      
-      if (gemRollToEtaLimits_.size())
+      if (!gemRollToEtaLimits_.empty())
         for(auto p : gemRollToEtaLimits_) {
           std::cout << "pad "<< p.first << " min eta " << (p.second).first << " max eta " << (p.second).second << std::endl;
         }
@@ -279,8 +279,8 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
   int used_clct_mask[20];
   for (int c=0;c<20;++c) used_clct_mask[c]=0;
 
-  const bool hasPads(pads_.size()!=0);
-  const bool hasCoPads(hasPads and coPads_.size()!=0);
+  const bool hasPads(!pads_.empty());
+  const bool hasCoPads(hasPads and !coPads_.empty());
 
   // ALCT centric matching
   for (int bx_alct = 0; bx_alct < CSCAnodeLCTProcessor::MAX_ALCT_BINS; bx_alct++)
@@ -388,7 +388,7 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
           // find the best matching copad - first one 
           auto copads(matchingGEMPads(alct->bestALCT[bx_alct], coPads_[bx_gem], true));             
           if (debug_gem_matching) std::cout << "\t++Number of matching GEM CoPads in BX " << bx_alct << " : "<< copads.size() << std::endl;
-          if (copads.size()==0) {
+          if (copads.empty()) {
             continue;
           }
           
@@ -433,7 +433,7 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
     // at this point we have invalid ALCTs --> try GEM pad matching
     else{
       auto coPads(coPads_[bx_alct]);
-      if (runME21ILT_ and coPads.size() and buildLCTfromCLCTandGEM_) {
+      if (runME21ILT_ and !coPads.empty() and buildLCTfromCLCTandGEM_) {
         //const int bx_clct_start(bx_alct - match_trig_window_size/2);
         //const int bx_clct_stop(bx_alct + match_trig_window_size/2);
         
@@ -1005,7 +1005,7 @@ void CSCMotherboardME21GEM::printGEMTriggerPads(int bx_start, int bx_stop, bool 
 {
   // pads or copads?
   auto thePads(!iscopad ? pads_ : coPads_ );
-  const bool hasPads(thePads.size()!=0);
+  const bool hasPads(!thePads.empty());
   
   std::cout << "------------------------------------------------------------------------" << std::endl;
   bool first = true;

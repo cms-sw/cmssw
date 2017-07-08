@@ -61,7 +61,7 @@ string IsolatorByNominalEfficiency::findPath(const string&  fileName)
 MuIsoBaseIsolator::Result
 IsolatorByNominalEfficiency::result(const DepositContainer& deposits, const edm::Event*) const{
 
-  if (deposits.size()==0) {
+  if (deposits.empty()) {
     cout << "IsolatorByNominalEfficiency: no deposit" << endl;
     return Result(resultType()); //FIXME
   }
@@ -107,7 +107,7 @@ int IsolatorByNominalEfficiency::bestConeForEfficiencyIndex(float eff_thr) const
 
   //FIXME use upper_bound
   int best_cone;
-  if (coneForEfficiency.size() != 0) {
+  if (!coneForEfficiency.empty()) {
     best_cone = (--(coneForEfficiency.end()))->second;
   } else return 0;
 

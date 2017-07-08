@@ -31,7 +31,7 @@ PuppiPhoton::PuppiPhoton(const edm::ParameterSet& iConfig) {
   tokenPFCandidates_     = consumes<CandidateView>(iConfig.getParameter<edm::InputTag>("candName"));
   tokenPuppiCandidates_  = consumes<CandidateView>(iConfig.getParameter<edm::InputTag>("puppiCandName"));
   tokenPhotonCandidates_ = consumes<CandidateView>(iConfig.getParameter<edm::InputTag>("photonName"));
-  usePhotonId_           = (iConfig.getParameter<edm::InputTag>("photonId")).label().size() != 0;
+  usePhotonId_           = !(iConfig.getParameter<edm::InputTag>("photonId")).label().empty();
   if(usePhotonId_)
     tokenPhotonId_         = consumes<edm::ValueMap<bool>  >(iConfig.getParameter<edm::InputTag>("photonId"));
   runOnMiniAOD_          = iConfig.getParameter<bool>("runOnMiniAOD");

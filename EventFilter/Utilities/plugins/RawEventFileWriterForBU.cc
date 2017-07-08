@@ -285,7 +285,7 @@ void RawEventFileWriterForBU::stop()
 {
   if (lumiOpen_>lumiClosed_)  endOfLS(lumiOpen_);
   edm::LogInfo("RawEventFileWriterForBU") << "Writing EOR file!";
-  if (destinationDir_.size() > 0)
+  if (!destinationDir_.empty())
     {
       // create EoR file
       if (run_==-1) makeRunPrefix(destinationDir_);

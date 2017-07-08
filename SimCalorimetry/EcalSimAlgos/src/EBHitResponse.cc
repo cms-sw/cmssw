@@ -192,11 +192,11 @@ EBHitResponse::findIntercalibConstant( const DetId& detId,
 
 void 
 EBHitResponse::initializeHits() {
-   if( 0 != index().size() ) blankOutUsedSamples() ;
+   if( !index().empty() ) blankOutUsedSamples() ;
 
    const unsigned int bSize ( EBDetId::kSizeForDenseIndexing ) ;
 
-   if( 0 == m_apdNpeVec.size() )
+   if( m_apdNpeVec.empty() )
    {
       m_apdNpeVec  = std::vector<double>( bSize, (double)0.0 ) ;
       m_apdTimeVec = std::vector<double>( bSize, (double)0.0 ) ;
@@ -249,11 +249,11 @@ EBHitResponse::add( const PCaloHit& hit, CLHEP::HepRandomEngine* engine )
 void 
 EBHitResponse::run( MixCollection<PCaloHit>& hits, CLHEP::HepRandomEngine* engine )
 {
-   if( 0 != index().size() ) blankOutUsedSamples() ;
+   if( !index().empty() ) blankOutUsedSamples() ;
 
    const unsigned int bSize ( EBDetId::kSizeForDenseIndexing ) ;
 
-   if( 0 == m_apdNpeVec.size() ) 
+   if( m_apdNpeVec.empty() ) 
    {
       m_apdNpeVec  = std::vector<double>( bSize, (double)0.0 ) ;
       m_apdTimeVec = std::vector<double>( bSize, (double)0.0 ) ;

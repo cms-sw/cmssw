@@ -152,7 +152,7 @@ pat::PATUserDataMerger<ObjectType, Operation>::add(ObjectType & patObject,
     edm::Handle<typename Operation::product_type> userData;
 
     // Get the objects by label
-    if ( encoded.size() == 0 ) continue;
+    if ( encoded.empty() ) continue;
     iEvent.getByToken( *token_it, userData );
 
     edm::Ptr<reco::Candidate> recoObject = patObject.originalObjectRef();

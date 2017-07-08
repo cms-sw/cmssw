@@ -209,7 +209,7 @@ void CosmicClusterAlgo::mainSearch(	 const CaloSubdetectorGeometry *geometry_p,
 
       // If some crystals in the current vector then 
       // make them into a cluster 
-      if (current_v25.size() > 0) 
+      if (!current_v25.empty()) 
       {
 	makeCluster(geometry_p, geometryES_p, seedId);
       }

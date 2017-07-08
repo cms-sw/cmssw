@@ -56,7 +56,7 @@ ReducedRecHitCollectionProducer::produce (edm::Event& iEvent,
    using namespace edm;
    using namespace std;
 
-   if (interestingDetIdCollections_.size() < 1)
+   if (interestingDetIdCollections_.empty())
      {
        edm::LogError("ReducedRecHitCollectionProducer") << "VInputTag collections empty" ;
        return;

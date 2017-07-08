@@ -216,7 +216,7 @@ PFCandidate * PFCandidate::clone() const {
 void PFCandidate::addElementInBlock( const reco::PFBlockRef& blockref,
                                      unsigned elementIndex ) {
   //elementsInBlocks_.push_back( make_pair(blockref.key(), elementIndex) );
-  if (blocksStorage_.size()==0)
+  if (blocksStorage_.empty())
     blocksStorage_ =Blocks(blockref.id());
   blocksStorage_.push_back(blockref);
   elementsStorage_.push_back(elementIndex);

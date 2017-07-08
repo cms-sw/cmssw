@@ -168,7 +168,7 @@ void RPCRecHitProducer::produce(Event& event, const EventSetup& setup) {
     // Call the reconstruction algorithm    
     OwnVector<RPCRecHit> recHits = theAlgo->reconstruct(*roll, rpcId, range, mask);
     
-    if(recHits.size() > 0) //FIXME: is it really needed?
+    if(!recHits.empty()) //FIXME: is it really needed?
       recHitCollection->put(rpcId, recHits.begin(), recHits.end());
   }
 

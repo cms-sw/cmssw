@@ -700,7 +700,7 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   m_dumpFile << std::flush;
 
   //if collection is empty, add empty digi
-  if(m_dedigis.size()==0) {
+  if(m_dedigis.empty()) {
     if(verbose())
       std::cout << "\n [L1Comparator] adding empty collection to DErecord\n";
     m_dedigis.push_back(L1DataEmulDigi());

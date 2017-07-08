@@ -79,8 +79,8 @@ PositionCalc::Calculate_Location( const PositionCalc::HitsAndFractions& iDetIds 
       << "Calculate_Location() called uninitialized or wrong initialization.";
   }
   
-  if( 0 != iDetIds.size()   &&
-      0 != iRecHits->size()     ) {
+  if( !iDetIds.empty()   &&
+      !iRecHits->empty()     ) {
     
     HitsAndEnergies detIds; 
     detIds.reserve( iDetIds.size() ) ;

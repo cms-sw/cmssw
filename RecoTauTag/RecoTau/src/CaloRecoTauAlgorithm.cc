@@ -309,14 +309,14 @@ std::vector<CaloTowerDetId> CaloRecoTauAlgorithm::getCaloTowerneighbourDetIds(co
   std::vector<DetId> northDetIds=myCaloTowerTopology.north(myCaloTowerDetId);
   std::vector<DetId> westDetIds=myCaloTowerTopology.west(myCaloTowerDetId);
   std::vector<DetId> northwestDetIds,southwestDetIds;
-  if (westDetIds.size()>0){
+  if (!westDetIds.empty()){
     northwestDetIds=myCaloTowerTopology.north(westDetIds[0]);
     southwestDetIds=myCaloTowerTopology.south(westDetIds[(int)westDetIds.size()-1]);
   }
   std::vector<DetId> southDetIds=myCaloTowerTopology.south(myCaloTowerDetId);
   std::vector<DetId> eastDetIds=myCaloTowerTopology.east(myCaloTowerDetId);
   std::vector<DetId> northeastDetIds,southeastDetIds;
-  if (eastDetIds.size()>0){
+  if (!eastDetIds.empty()){
     northeastDetIds=myCaloTowerTopology.north(eastDetIds[0]);
     southeastDetIds=myCaloTowerTopology.south(eastDetIds[(int)eastDetIds.size()-1]);
   }

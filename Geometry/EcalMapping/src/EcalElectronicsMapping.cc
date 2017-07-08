@@ -865,7 +865,7 @@ std::vector<EcalScDetId> EcalElectronicsMapping::getEcalScDetId(int DCCid, int D
 		std::cout << "\n";
 	}
 	
-	if (xtals.size() == 0) throw cms::Exception("InvalidDetId") << 
+	if (xtals.empty()) throw cms::Exception("InvalidDetId") << 
 				       "EcalElectronicsMapping : can not create EcalScDetId for DCC " << DCCid << 
 				       " and DCC_Channel " << DCC_Channel << ".";
 	

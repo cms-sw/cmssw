@@ -811,7 +811,7 @@ Value::asBool() const
       return value_.string_  &&  value_.string_[0] != 0;
    case arrayValue:
    case objectValue:
-      return value_.map_->size() != 0;
+      return !value_.map_->empty();
    default:
       JSON_ASSERT_UNREACHABLE;
    }
@@ -859,10 +859,10 @@ Value::isConvertibleTo( ValueType other ) const
              || ( other == nullValue  &&  (!value_.string_  ||  value_.string_[0] == 0) );
    case arrayValue:
       return other == arrayValue
-             ||  ( other == nullValue  &&  value_.map_->size() == 0 );
+             ||  ( other == nullValue  &&  value_.map_->empty() );
    case objectValue:
       return other == objectValue
-             ||  ( other == nullValue  &&  value_.map_->size() == 0 );
+             ||  ( other == nullValue  &&  value_.map_->empty() );
    default:
       JSON_ASSERT_UNREACHABLE;
    }

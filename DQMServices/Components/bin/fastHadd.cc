@@ -362,7 +362,7 @@ int convertFile(const std::string &output_filename,
 }
 
 int dumpFiles(const std::vector<std::string> &filenames) {
-  assert(filenames.size() > 0);
+  assert(!filenames.empty());
   for (int i = 0, e = filenames.size(); i != e; ++i) {
     DEBUG(0, "Dumping file " << filenames[i] << std::endl);
     dqmstorepb::ROOTFilePB dqmstore_message;

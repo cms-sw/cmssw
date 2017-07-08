@@ -255,7 +255,7 @@ LMFSeqDat LMFSeqDat::fetchLast() {
 		  "WHERE SEQ_ID = "
 		  "(SELECT MAX(SEQ_ID) FROM CMS_ECAL_LASER_COND.LMF_SEQ_DAT)",
 		  "fetchLast");
-  if (m.size() > 0) {
+  if (!m.empty()) {
     ret = m.begin()->second;
   }
   return ret;

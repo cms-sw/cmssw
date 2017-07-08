@@ -178,18 +178,18 @@ DTBtiChip::computeEqs(){
   float TshiftB = 0;
   float TshiftC = 0;
   if(_thisStepUsedHit[3-1]==0){
-    if(_hits[3-1].size()==0 )
+    if(_hits[3-1].empty() )
       TshiftB = 0;
-    if(_hits[3-1].size()>0 && (*(_hits[3-1].begin()))->clockTime()<=-K0 )
+    if(!_hits[3-1].empty() && (*(_hits[3-1].begin()))->clockTime()<=-K0 )
       TshiftB = K0+1; 
   }
   else
    TshiftB = _thisStepUsedHit[3-1]->jtrig();  
 
   if(_thisStepUsedHit[2-1]==0){
-    if(_hits[2-1].size()==0 )
+    if(_hits[2-1].empty() )
       TshiftC = 0;
-    if(_hits[2-1].size()>0 && (*(_hits[2-1].begin()))->clockTime()<=-K0 )
+    if(!_hits[2-1].empty() && (*(_hits[2-1].begin()))->clockTime()<=-K0 )
       TshiftC = K0+1; 
   }
   else

@@ -75,7 +75,7 @@ void CMHistograms::fillHistograms(const std::vector<CMvalues>& aVec, float aTime
 
   }//loop on elements
 
-  if (aVec.size() > 0) {
+  if (!aVec.empty()) {
     lMean = lMean / (2*aVec.size());
     lPrevMean = lPrevMean / (2*aVec.size());
   }

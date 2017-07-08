@@ -210,7 +210,7 @@ void TrackTimeValueMapProducer::calculateTrackTimes( const edm::View<reco::Track
       if( track_tps != association.end() ) break;
     }
     if( track_tps != assocs.back().end() ) {
-      if( !track_tps->val.size() ) {
+      if( track_tps->val.empty() ) {
         tvals.push_back(flt_max);
       } else {        
         const std::pair<float,float> time_info = extractTrackVertexTime(track_tps->val);

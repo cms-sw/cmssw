@@ -759,7 +759,7 @@ Bool_t ZeeCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
     Double_t ele_tip_pv1 = -999999.;
     Double_t ele_tip_pv2 = -999999.;
 
-    if ( Vtx.size() >=1 ) {
+    if ( !Vtx.empty() ) {
         pv_x = Vtx[0].position().x();
         pv_y = Vtx[0].position().y();
         pv_z = Vtx[0].position().z();

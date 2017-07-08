@@ -390,7 +390,7 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
     event.getByLabel( pvSrc_, pvtxHandle_ );
 
     double zvtx = -999;
-    if ( pvtxHandle_->size() > 0 ) {
+    if ( !pvtxHandle_->empty() ) {
       zvtx = pvtxHandle_->at(0).z();
     } else {
       throw cms::Exception("InvalidInput") << " There needs to be at least one primary vertex in the event." << std::endl;
@@ -486,7 +486,7 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
     event.getByLabel( pvSrc_, pvtxHandle_ );
 
     double zvtx = -999;
-    if ( pvtxHandle_->size() > 0 ) {
+    if ( !pvtxHandle_->empty() ) {
       zvtx = pvtxHandle_->at(0).z();
     } else {
       throw cms::Exception("InvalidInput") << " There needs to be at least one primary vertex in the event." << std::endl;

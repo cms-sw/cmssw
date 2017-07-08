@@ -99,7 +99,7 @@ void PFRecoTauProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup
   iEvent.getByToken(PVProducer_,thePVs);
   const VertexCollection vertCollection=*(thePVs.product());
   Vertex thePV;
-  if(vertCollection.size()) thePV=*(vertCollection.begin());
+  if(!vertCollection.empty()) thePV=*(vertCollection.begin());
   else{
     Vertex::Error SimPVError;
     SimPVError(0,0)=smearedPVsigmaX_*smearedPVsigmaX_;

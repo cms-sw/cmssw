@@ -210,7 +210,7 @@ namespace evf {
 	fflush(fu_rw_lock_stream);
 	close(fu_readwritelock_fd_);
 
-        if (hltSourceDirectory_.size())
+        if (!hltSourceDirectory_.empty())
 	{
 	  struct stat buf;
 	  if (stat(hltSourceDirectory_.c_str(),&buf)==0) {
@@ -671,8 +671,8 @@ namespace evf {
     if (readEolsDefinition_) {
       //std::string def = boost::algorithm::trim(dp.getDefinition());
       std::string def = dp.getDefinition();
-      if (!def.size()) readEolsDefinition_=false;
-      while (def.size()) {
+      if (def.empty()) readEolsDefinition_=false;
+      while (!def.empty()) {
         std::string fullpath;
         if (def.find('/')==0)
           fullpath = def;
@@ -683,7 +683,7 @@ namespace evf {
           DataPointDefinition eolsDpd;
           std::string defLabel = "legend";
           DataPointDefinition::getDataPointDefinitionFor(fullpath, &eolsDpd,&defLabel);
-          if (eolsDpd.getNames().size()==0) {
+          if (eolsDpd.getNames().empty()) {
              //try with "data" label if "legend" format is not used
              eolsDpd = DataPointDefinition();
              defLabel="data";
@@ -931,7 +931,7 @@ namespace evf {
 
             Json::Value sDestsValue(Json::arrayValue);
 
-            if (!streamDestinations.size())
+            if (streamDestinations.empty())
               throw cms::Exception("EvFDaqDirector") << " Missing transter system destination(s) for -: "<< psKeyItr->first << ", mode:" << mode;
 
             for (auto & sdest:streamDestinations) {
@@ -1005,7 +1005,7 @@ namespace evf {
   void EvFDaqDirector::checkMergeTypePSet(edm::ProcessContext const& pc)
   {
     if (mergeTypePset_.empty()) return;
-    if(mergeTypeMap_.size()) return;
+    if(!mergeTypeMap_.empty()) return;
     edm::ParameterSet const& topPset = edm::getParameterSet(pc.parameterSetID());
     if (topPset.existsAs<edm::ParameterSet>(mergeTypePset_,true))
     {

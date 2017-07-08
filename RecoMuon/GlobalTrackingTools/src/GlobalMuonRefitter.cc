@@ -249,7 +249,7 @@ vector<Trajectory> GlobalMuonRefitter::refit(const reco::Track& globalTrack,
     // refit the full track with all muon hits
     vector <Trajectory> globalTraj = transform(globalTrack, track, allRecHits);
 
-    if (!globalTraj.size()) {
+    if (globalTraj.empty()) {
       LogTrace(theCategory) << "No trajectory from the TrackTransformer!" << endl;
       return vector<Trajectory>();
     }
@@ -290,7 +290,7 @@ vector<Trajectory> GlobalMuonRefitter::refit(const reco::Track& globalTrack,
     } 
 
 
-  if (outputTraj.size()) {
+  if (!outputTraj.empty()) {
     LogTrace(theCategory) << "Refitted pt: " << outputTraj.front().firstMeasurement().updatedState().globalParameters().momentum().perp() << endl;
     return outputTraj;
   } else {

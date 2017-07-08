@@ -233,7 +233,7 @@ APVCyclePhaseProducerFromL1ABC::produce(edm::Event& iEvent, const edm::EventSetu
 
     if(orbitoffset != _orbitoffsetSOR) phasechange = (orbitoffset*3564)%70;
 
-     if(_offsets.size()==0) {
+     if(_offsets.empty()) {
        _curroffset = absbxoffset;
        _curroffevent = iEvent.id().event();
        _offsets[iEvent.id().event()] = absbxoffset;

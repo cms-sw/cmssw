@@ -69,7 +69,7 @@ void HIBestVertexProducer::produce
   ev.getByToken(theAdaptiveVertexCollection, vc1);
   const reco::VertexCollection *vertices1 = vc1.product();
 
-  if(vertices1->size()==0)
+  if(vertices1->empty())
     LogError("HeavyIonVertexing") << "adaptive vertex collection is empty!" << endl;
 
 //** Final vertex collection if needed **//
@@ -79,7 +79,7 @@ void HIBestVertexProducer::produce
     edm::Handle<reco::VertexCollection> vc0;
     ev.getByToken(theFinalAdaptiveVertexCollection, vc0);
     const reco::VertexCollection *vertices0 = vc0.product();
-    if(vertices0->size()==0)
+    if(vertices0->empty())
       LogInfo("HeavyIonVertexing") << "final adaptive vertex collection is empty!" << endl;
 
   //if using final vertex and has a good vertex, use it
@@ -124,7 +124,7 @@ void HIBestVertexProducer::produce
       else
         LogError("HeavyIonVertexing") << "no beamspot found "  << endl;
 
-      if(vertices2->size() > 0) { 
+      if(!vertices2->empty()) { 
         
         reco::VertexCollection::const_iterator vertex2 = vertices2->begin();
         reco::Vertex::Error err;

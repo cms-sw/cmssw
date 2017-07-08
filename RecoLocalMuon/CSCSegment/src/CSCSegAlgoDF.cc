@@ -537,7 +537,7 @@ void CSCSegAlgoDF::flagHitsAsUsed(const ChamberHitContainer& rechitsInChamber) {
   // Don't reject hits marked as "nearby" for now.
   // So this is bypassed at all times for now !!!
   // Perhaps add back to speed up algorithm some more
-  if (closeHits.size() > 0) return;  
+  if (!closeHits.empty()) return;  
   for ( hi = closeHits.begin(); hi != closeHits.end(); ++hi ) {
     for ( iu = ib; iu != rechitsInChamber.end(); ++iu ) {
       if (*hi == *iu) usedHits[iu-ib] = true;

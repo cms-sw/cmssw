@@ -69,11 +69,11 @@ namespace reco {
     /// vector of references to  one leg Conversion's
     reco::ConversionRefVector conversionsOneLeg() const {return this->photonCore()->conversionsOneLeg() ;} 
     /// Bool flagging photons with a vector of refereces to conversions with size >0
-    bool hasConversionTracks() const { if (this->photonCore()->conversions().size() > 0 || this->photonCore()->conversionsOneLeg().size() > 0)  return true; else return false;}
+    bool hasConversionTracks() const { if (!this->photonCore()->conversions().empty() || !this->photonCore()->conversionsOneLeg().empty())  return true; else return false;}
     /// reference to electron Pixel seed 
     reco::ElectronSeedRefVector electronPixelSeeds() const {return this->photonCore()->electronPixelSeeds();}
     /// Bool flagging photons having a non-zero size vector of Ref to electornPixel seeds
-    bool hasPixelSeed() const { if ((this->photonCore()->electronPixelSeeds()).size() > 0 ) return true; else return false; }
+    bool hasPixelSeed() const { if (!this->photonCore()->electronPixelSeeds().empty() ) return true; else return false; }
     int conversionTrackProvenance(const edm::RefToBase<reco::Track>& convTrack) const;
 
  

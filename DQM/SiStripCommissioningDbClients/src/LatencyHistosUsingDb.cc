@@ -92,7 +92,7 @@ bool LatencyHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange devi
 				   SiStripConfigDb::FedDescriptionsRange feds ) {
   
   // Obtain the latency from the analysis object
-  if(!data().size() || !data().begin()->second->isValid() ) {
+  if(data().empty() || !data().begin()->second->isValid() ) {
     edm::LogVerbatim(mlDqmClient_) 
       << "[LatencyHistosUsingDb::" << __func__ << "]"
       << " Updated NO Latency settings. No analysis result available !" ;

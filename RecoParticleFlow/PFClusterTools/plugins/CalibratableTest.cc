@@ -79,7 +79,7 @@ void CalibratableTest::analyze(const edm::Event& event,
 	PFClusterCollection clustersEcal = **clustersEcal_;
 	PFClusterCollection clustersHcal = **clustersHcal_;
 
-	if (sims.size() == 0) {
+	if (sims.empty()) {
 		std::cout << "\tNo sim particles found!" << std::endl;
 		thisEventPasses_ = false;
 	}
@@ -118,7 +118,7 @@ void CalibratableTest::analyze(const edm::Event& event,
 		if (debug_ > 3)
 			std::cout << "\t\tFound candidates near sim, found "
 					<< matchingCands.size()<< " of them.\n";
-		if (matchingCands.size() == 0)
+		if (matchingCands.empty())
 			thisParticlePasses_ = false;
 		for (std::vector<unsigned>::const_iterator mcIt = matchingCands.begin(); mcIt
 				!= matchingCands.end(); ++mcIt) {
@@ -156,7 +156,7 @@ std::vector<unsigned> CalibratableTest::findPrimarySimParticles(
 		if (particleId != 211)
 			continue;
 		//TODO: ...particularly interacting pions?
-		if (theSim.daughterIds().size() > 0)
+		if (!theSim.daughterIds().empty())
 			continue;
 		answers.push_back(index);
 		++index;

@@ -50,7 +50,7 @@ void JetTracksAssociatorAtCaloFace::produce(edm::Event& fEvent, const edm::Event
   auto jetTracks = std::make_unique<reco::JetTracksAssociation::Container>(reco::JetRefBaseProd(jets_h));
 
   // Check to make sure we have inputs
-  if ( jets_h->size() == 0 ){
+  if ( jets_h->empty() ){
     // store output regardless the size of the inputs
     fEvent.put(std::move(jetTracks));
     return;

@@ -290,11 +290,11 @@ TestOutliers::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       }
     } 
 
-    if (outtest.size()==0 || trackOut.get()==0 ) {//no out track found for the old track
+    if (outtest.empty() || trackOut.get()==0 ) {//no out track found for the old track
       if(recSimCollOld.find(trackOld) != recSimCollOld.end()){      
 	vector<pair<TrackingParticleRef, double> > tpOld;
 	tpOld = recSimCollOld[trackOld];
-	if (tpOld.size()!=0) { 
+	if (!tpOld.empty()) { 
 	  LogTrace("TestOutliers") <<"no match: old associated and out lost! old has #hits=" << trackOld->numberOfValidHits() 
 				   << " and fraction=" << tpOld.begin()->second;
 	  if (tpOld.begin()->second>0.5) hitsPerTrackLost->Fill(trackOld->numberOfValidHits());
@@ -343,7 +343,7 @@ TestOutliers::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
     if(outAssoc) {//save the ids od the tp associate to the out track
       tpOut = recSimCollOut[trackOut];
-      if (tpOut.size()!=0) {
+      if (!tpOut.empty()) {
 	countOutA->Fill(1);
 	tprOut = tpOut.begin()->first;
 	fracOut = tpOut.begin()->second;
@@ -355,12 +355,12 @@ TestOutliers::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
     if(oldAssoc){//save the ids od the tp associate to the old track
       tpOld = recSimCollOld[trackOld];
-      if (tpOld.size()!=0) { 
+      if (!tpOld.empty()) { 
 	tprOld = tpOld.begin()->first;
 	// 	LogTrace("TestOutliers") <<"old associated and out not! old has #hits=" << trackOld->numberOfValidHits() 
 	// 				 << " and fraction=" << tpOld.begin()->second;
 	// 	if (tpOld.begin()->second>0.5) hitsPerTrackLost->Fill(trackOld->numberOfValidHits());//deve essere un plot diverso tipo LostAssoc
-	if (tpOut.size()==0) {
+	if (tpOut.empty()) {
 	  for (TrackingParticle::g4t_iterator g4T=tprOld->g4Track_begin(); g4T!=tprOld->g4Track_end(); ++g4T) {
 	    tpids.push_back(g4T->trackId());
 	  }
@@ -446,7 +446,7 @@ TestOutliers::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	deltahits->Fill(trackOld->numberOfValidHits()-trackOut->numberOfValidHits());
 
 	if(tprOut.get()!=0 && tprOld.get()==0) { //out associated and old not: gained track
-	  if (tpOld.size()!=0 && tpOld.begin()->second<=0.5) {
+	  if (!tpOld.empty() && tpOld.begin()->second<=0.5) {
 	    deltahitsAssocGained->Fill(trackOld->numberOfValidHits()-trackOut->numberOfValidHits());
 	    hitsPerTrackAssocGained->Fill(trackOut->numberOfValidHits());
 	    LogTrace("TestOutliers") << "a) gained (assoc) track out #hits==" << trackOut->numberOfValidHits() << " old #hits=" << trackOld->numberOfValidHits();    
@@ -612,7 +612,7 @@ TestOutliers::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	    std::vector<double> energyLossM;
 	    std::vector<double> energyLossS;
 	    std::vector<PSimHit> assSimHits = hitAssociator.associateHit(**itHit);
-	    if (assSimHits.size()==0) continue;
+	    if (assSimHits.empty()) continue;
 	    PSimHit shit;
 	    std::vector<unsigned int> trackIds;
 	    energyLossS.clear();

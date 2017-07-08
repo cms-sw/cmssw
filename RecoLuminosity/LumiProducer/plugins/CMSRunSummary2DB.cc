@@ -173,10 +173,10 @@ namespace lumi{
 	if(it->find("PHYS")==std::string::npos) continue;
 	amd=*it;
       }
-      if(amd.size()==0&&amodes.size()!=0){
+      if(amd.empty()&&!amodes.empty()){
 	amd=*(amodes.begin());
       }
-      if(amd.size()==0){
+      if(amd.empty()){
 	 amd=std::string("PROTPHYS");//last resort
       }
       //std::cout<<"amd "<<amd<<std::endl;
@@ -328,7 +328,7 @@ namespace lumi{
     runinfosession->transaction().commit();
     delete runinfosession;
     
-    if(csvsource.size()!=0){
+    if(!csvsource.empty()){
       parseFillCSV(csvsource,result);
     }else{
       result.fillscheme=std::string("");

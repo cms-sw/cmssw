@@ -214,7 +214,7 @@ bool AlCaIsoTracksFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSet
 
   //Step1: Find if the event passes one of the chosen triggers
   bool triggerSatisfied(false);
-  if (trigNames_.size() == 0) {
+  if (trigNames_.empty()) {
     triggerSatisfied = true;
   } else {
     trigger::TriggerEvent triggerEvent;
@@ -277,7 +277,7 @@ bool AlCaIsoTracksFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSet
     edm::Handle<reco::BeamSpot> beamSpotH;
     iEvent.getByToken(tok_bs_, beamSpotH);
     math::XYZPoint leadPV(0,0,0);
-    if (recVtxs->size()>0 && !((*recVtxs)[0].isFake())) {
+    if (!recVtxs->empty() && !((*recVtxs)[0].isFake())) {
       leadPV = math::XYZPoint((*recVtxs)[0].x(),(*recVtxs)[0].y(),
 			      (*recVtxs)[0].z());
     } else if (beamSpotH.isValid()) {

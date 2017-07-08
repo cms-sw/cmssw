@@ -434,7 +434,7 @@ void CastorShowerLibraryMaker::update(const EndOfEvent * evt) {
   if (verbosity) 
      std::cout << "CastorShowerLibraryMaker: End of Event: " << eventIndex << std::endl;
 // Get the pointer to the primary particle
-  if (thePrims.size() == 0) {
+  if (thePrims.empty()) {
      edm::LogInfo("CastorShowerLibraryMaker") << "No valid primary particle found. Skipping event" << std::endl;
      return;
   }

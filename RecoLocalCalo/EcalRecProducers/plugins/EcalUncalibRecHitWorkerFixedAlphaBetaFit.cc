@@ -91,7 +91,7 @@ EcalUncalibRecHitWorkerFixedAlphaBetaFit::setAlphaBeta(){
                         continue;
                 }
 
-                if (alphaBetaValues_[sm-1].size()==0){
+                if (alphaBetaValues_[sm-1].empty()){
                         alphaBetaValues_[sm-1].resize(1700,p);
                 }
                 alphaBetaValues_[sm-1][cry-1].first = a;    
@@ -164,7 +164,7 @@ EcalUncalibRecHitWorkerFixedAlphaBetaFit::run(const edm::Event& evt,
                 EBDetId ebDetId( detid );
                 double a, b;
                 if (useAlphaBetaArray_){
-                        if ( alphaBetaValues_[ ebDetId.ism()-1 ].size() != 0 ) {
+                        if ( !alphaBetaValues_[ ebDetId.ism()-1 ].empty() ) {
                                 a = alphaBetaValues_[ebDetId.ism()-1][ebDetId.ic()-1].first;
                                 b = alphaBetaValues_[ebDetId.ism()-1][ebDetId.ic()-1].second;
                                 if ( ( a == -1 ) && ( b == -1 ) ) {

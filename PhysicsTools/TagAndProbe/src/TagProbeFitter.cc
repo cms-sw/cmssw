@@ -249,7 +249,7 @@ string TagProbeFitter::calculateEfficiency(string dirName,const std::vector<stri
       data.addColumn( efficiencyCategory );
   }
   //setup the pdf category
-  RooMappedCategory pdfCategory("_pdfCategory_", "_pdfCategory_", allCats, (binToPDFmap.size()>0)?binToPDFmap[0].c_str():"all");
+  RooMappedCategory pdfCategory("_pdfCategory_", "_pdfCategory_", allCats, (!binToPDFmap.empty())?binToPDFmap[0].c_str():"all");
   for(unsigned int i = 1; i<binToPDFmap.size(); i+=2){
     pdfCategory.map(binToPDFmap[i].c_str(), binToPDFmap[i+1].c_str());
   }

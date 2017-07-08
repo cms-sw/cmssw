@@ -117,7 +117,7 @@ void LumiMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   float scal_lumi = -1.;
   edm::Handle<LumiScalersCollection> lumiScalers;
   iEvent.getByToken(lumiScalersToken_, lumiScalers);
-  if ( lumiScalers.isValid() && lumiScalers->size() ) {
+  if ( lumiScalers.isValid() && !lumiScalers->empty() ) {
     LumiScalersCollection::const_iterator scalit = lumiScalers->begin();
     scal_lumi = scalit->instantLumi();
   } else {

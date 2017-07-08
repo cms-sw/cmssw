@@ -264,7 +264,7 @@ double
 TrainInterceptor::intercept(const std::vector<double> *values) const
 {
 	if (values[targetIdx].size() != 1) {
-		if (values[targetIdx].size() == 0)
+		if (values[targetIdx].empty())
 			throw cms::Exception("MVATrainer")
 				<< "Trainer input lacks target variable."
 				<< std::endl;
@@ -701,7 +701,7 @@ std::string MVATrainer::trainFileName(const TrainProcessor *proc,
                                       const std::string &ext,
                                       const std::string &arg) const
 {
-	std::string arg_ = arg.size() > 0 ? ("_" + arg) : "";
+	std::string arg_ = !arg.empty() ? ("_" + arg) : "";
 	return stdStringPrintf(trainFileMask.c_str(),
 	                       (const char*)proc->getName(),
 	                       arg_.c_str(), ext.c_str());

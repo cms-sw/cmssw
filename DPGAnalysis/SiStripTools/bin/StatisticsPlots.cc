@@ -379,7 +379,7 @@ void StatisticsPlots(const char* fullname, const char* module, const char* label
     }
   }
 
-  if(runs.size()) {
+  if(!runs.empty()) {
     std::string plotfilename;
     plotfilename = outtrunk;
     plotfilename += dirname;

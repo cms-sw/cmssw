@@ -193,7 +193,7 @@ AdaptiveVertexFitter::vertex(const vector<RefCountedVertexTrack> & tracks) const
 CachingVertex<5>
 AdaptiveVertexFitter::vertex(const vector<RefCountedVertexTrack> & tracks, const reco::BeamSpot & spot ) const
 {
-  if ( tracks.size() < 1 )
+  if ( tracks.empty() )
   {
     LogError("RecoVertex|AdaptiveVertexFitter")
       << "Supplied no tracks. Vertex is invalid.";
@@ -234,7 +234,7 @@ CachingVertex<5>
 AdaptiveVertexFitter::vertex(const vector<reco::TransientTrack> & unstracks,
 			       const reco::BeamSpot& beamSpot) const
 {
-  if ( unstracks.size() < 1 )
+  if ( unstracks.empty() )
   {
     LogError("RecoVertex|AdaptiveVertexFitter")
       << "Supplied no tracks. Vertex is invalid.";
@@ -271,7 +271,7 @@ CachingVertex<5> AdaptiveVertexFitter::vertex(const vector<reco::TransientTrack>
                   const GlobalError& priorError) const
 
 {
-  if ( tracks.size() < 1 )
+  if ( tracks.empty() )
   {
     LogError("RecoVertex|AdaptiveVertexFitter")
       << "Supplied no tracks. Vertex is invalid.";
@@ -292,7 +292,7 @@ CachingVertex<5> AdaptiveVertexFitter::vertex(
                   const GlobalPoint& priorPos,
                   const GlobalError& priorError) const
 {
-  if ( tracks.size() < 1 )
+  if ( tracks.empty() )
   {
     LogError("RecoVertex|AdaptiveVertexFitter")
       << "Supplied no tracks. Vertex is invalid.";

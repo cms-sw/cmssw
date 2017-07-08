@@ -175,7 +175,7 @@ GlobalPoint CrossingPtBasedLinearizationPointFinder::useAllTracks(
 	 } // If sth goes wrong, we just dont add. Who cares?
         }
     }
-    if (! vgp.size() )
+    if (vgp.empty() )
     {
         return FallbackLinearizationPointFinder().getLinearizationPoint ( tracks );
     }
@@ -200,7 +200,7 @@ GlobalPoint CrossingPtBasedLinearizationPointFinder::useFullMatrix(
             vgp.push_back ( v );
         }
     }
-    if (! vgp.size() )
+    if (vgp.empty() )
     {
         return FallbackLinearizationPointFinder().getLinearizationPoint ( tracks );
     }
@@ -331,7 +331,7 @@ GlobalPoint CrossingPtBasedLinearizationPointFinder::getLinearizationPoint(
                 }
             }
         }
-        if (! vgp.size() )
+        if (vgp.empty() )
         {
             // no crossing points? Fallback to a crossingpoint-less lin pt finder!
             return FallbackLinearizationPointFinder().getLinearizationPoint ( tracks );

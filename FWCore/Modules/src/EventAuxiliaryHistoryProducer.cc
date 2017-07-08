@@ -36,7 +36,7 @@ namespace edm {
     EventAuxiliary aux(e.id(), "", e.time(), e.isRealData(), e.experimentType(),
                        e.bunchCrossing(), EventAuxiliary::invalidStoreNumber, e.orbitNumber()); 
   //EventAuxiliary const& aux = e.auxiliary(); // when available
-    if(history_.size() > 0) {
+    if(!history_.empty()) {
       if(history_.back().id().next(aux.luminosityBlock()) != aux.id()) history_.clear();
       if(history_.size() >= depth_) history_.pop_front();
     }

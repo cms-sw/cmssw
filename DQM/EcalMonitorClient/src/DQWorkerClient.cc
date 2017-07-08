@@ -185,7 +185,7 @@ namespace ecaldqm
         cryIds = scConstituents(EcalScDetId(towerId));
       }
 
-      if(cryIds.size() == 0) return;
+      if(cryIds.empty()) return;
 
       float mean(0.);
       float nValid(0.);

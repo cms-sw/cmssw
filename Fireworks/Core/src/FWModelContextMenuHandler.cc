@@ -190,7 +190,7 @@ FWModelContextMenuHandler::chosenItem(Int_t iChoice)
             assert(iChoice<kOpenObjectControllerMO);
             assert(m_selectionManager->selected().size()==1);
             std::vector<std::string> viewChoices = m_detailViewManager->detailViewsFor(*(m_selectionManager->selected().begin()));
-            assert(0!=viewChoices.size());
+            assert(!viewChoices.empty());
             m_detailViewManager->openDetailViewFor(*(m_selectionManager->selected().begin()),viewChoices[iChoice-kOpenDetailViewMO]) ;
          }
          break;
@@ -279,7 +279,7 @@ FWModelContextMenuHandler::showSelectedModelContext(Int_t iX, Int_t iY, FWViewCo
       }
       //add the detail view entries
       std::vector<std::string> viewChoices = m_detailViewManager->detailViewsFor(*(m_selectionManager->selected().begin()));
-      if(viewChoices.size()>0) {
+      if(!viewChoices.empty()) {
          if(m_nDetailViewEntries < viewChoices.size()) {
             for(unsigned int index = m_nDetailViewEntries;
                 index != viewChoices.size();

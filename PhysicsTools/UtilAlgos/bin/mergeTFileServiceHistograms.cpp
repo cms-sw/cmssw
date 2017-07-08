@@ -70,7 +70,7 @@ int main(int argc, char * argv[]) {
     return -1;
   }
 
-  if(fileNames.size()==0) {
+  if(fileNames.empty()) {
     cerr << "at least one file name must be specified with option -i" <<endl;
     return -1;
   }

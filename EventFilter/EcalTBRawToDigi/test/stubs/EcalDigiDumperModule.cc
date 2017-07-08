@@ -138,7 +138,7 @@ class EcalDigiDumperModule: public edm::EDAnalyzer{
     
     std::cout << "\n\n";
 
-    if(gainMem->size() && memErrors) {  
+    if(!gainMem->empty() && memErrors) {  
       std::cout << "\n\n^^^^^^^^^^^^^^^^^^ [EcalDigiDumperModule]  Size of collection of mem gain errors is: " << gainMem->size() << std::endl;
       std::cout << "                                  [EcalDigiDumperModule]  dumping the bit gain errors\n"  << std::endl;
       for (EcalElectronicsIdCollection::const_iterator errItr= gainMem->begin();
@@ -154,7 +154,7 @@ class EcalDigiDumperModule: public edm::EDAnalyzer{
       
 
         
-    if(MemId->size() && memErrors) {  
+    if(!MemId->empty() && memErrors) {  
       std::cout << "\n\n^^^^^^^^^^^^^^^^^^ [EcalDigiDumperModule]  Size of collection of mem tt_block_id errors is: " << MemId->size() << std::endl;
       std::cout << "                                  [EcalDigiDumperModule]  dumping the mem tt_block_idb errors\n"  << std::endl;
       for (EcalElectronicsIdCollection::const_iterator errItr= MemId->begin();

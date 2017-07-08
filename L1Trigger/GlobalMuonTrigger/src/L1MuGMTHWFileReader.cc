@@ -45,7 +45,7 @@ L1MuGMTHWFileReader::L1MuGMTHWFileReader(edm::ParameterSet const& ps,
 
   produces<L1CaloRegionCollection>();
 
-  if(!fileNames().size()) {
+  if(fileNames().empty()) {
     throw std::runtime_error("L1MuGMTHWFileReader: no input file");
   }
   edm::LogInfo("GMT_HWFileReader_info") << "opening file " << fileNames()[0];

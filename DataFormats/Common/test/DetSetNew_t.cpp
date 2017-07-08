@@ -89,7 +89,7 @@ void TestDetSet::default_ctor() {
   DSTV detsets(2);
   CPPUNIT_ASSERT(!detsets.onDemand());
   CPPUNIT_ASSERT(detsets.subdetId()==2);
-  CPPUNIT_ASSERT(detsets.size()==0);
+  CPPUNIT_ASSERT(detsets.empty());
   CPPUNIT_ASSERT(detsets.empty());
   CPPUNIT_ASSERT(detsets.dataSize()==0);
   detsets.resize(3,10);
@@ -112,7 +112,7 @@ void TestDetSet::default_ctor() {
   DSTV detsets2(3);
   detsets.swap(detsets2);
   CPPUNIT_ASSERT(detsets.subdetId()==3);
-  CPPUNIT_ASSERT(detsets.size()==0);
+  CPPUNIT_ASSERT(detsets.empty());
   CPPUNIT_ASSERT(detsets.dataSize()==0);
   CPPUNIT_ASSERT(detsets2.subdetId()==2);
   CPPUNIT_ASSERT(detsets2.size()==3);
@@ -329,7 +329,7 @@ namespace {
 
     void operator()(DST const & df) {
       if (df.id()>1000) {
-        CPPUNIT_ASSERT(df.size()==0);
+        CPPUNIT_ASSERT(df.empty());
         return; 
       }
       CPPUNIT_ASSERT(df.id()==20+n);
@@ -542,7 +542,7 @@ void TestDetSet::onDemand() {
     {
       DST df = detsets[1020];
       CPPUNIT_ASSERT(df.id()==1020);
-      CPPUNIT_ASSERT(df.size()==0);
+      CPPUNIT_ASSERT(df.empty());
       CPPUNIT_ASSERT(g.ntot==1+5);
       assert(g.aborted);
     }

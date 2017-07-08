@@ -697,12 +697,12 @@ ApeEstimatorSummary::calculateApe(){
      
      // Do the final calculations
      
-     if(v_weightAndResultsPerBinX.size()==0){
+     if(v_weightAndResultsPerBinX.empty()){
        edm::LogError("CalculateAPE")<<"NO error interval of sector "<<(*i_sector).first<<" has a valid x APE calculated,\n...so cannot set APE";
        continue;
      }
      
-     if((*i_sector).second.isPixel && v_weightAndResultsPerBinY.size()==0){
+     if((*i_sector).second.isPixel && v_weightAndResultsPerBinY.empty()){
        edm::LogError("CalculateAPE")<<"NO error interval of sector "<<(*i_sector).first<<" has a valid y APE calculated,\n...so cannot set APE";
        continue;
      }

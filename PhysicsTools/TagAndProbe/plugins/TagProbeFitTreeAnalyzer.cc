@@ -153,7 +153,7 @@ void TagProbeFitTreeAnalyzer::calculateEfficiency(string name, const edm::Parame
   if(pset.existsAs<vector<string> >("BinToPDFmap")){
     binToPDFmap = pset.getParameter<vector<string> >("BinToPDFmap");
   }
-  if((binToPDFmap.size() > 0) && (binToPDFmap.size()%2 == 0)){
+  if((!binToPDFmap.empty()) && (binToPDFmap.size()%2 == 0)){
     cout<<"BinToPDFmap must have odd size, first string is the default, followed by binRegExp - PDFname pairs!"<<endl;
     exit(2);
   }

@@ -96,7 +96,7 @@ TkPixelMeasurementDet::compHits( const TrajectoryStateOnSurface& ts, const Measu
   if (isEmpty(data.pixelData())== true ) return result;
   if (isActive(data) == false) return result;
   const SiPixelCluster* begin=0;
-  if (0 != data.pixelData().handle()->data().size()) {
+  if (!data.pixelData().handle()->data().empty()) {
      begin = &(data.pixelData().handle()->data().front());
   }
   const detset & detSet = data.pixelData().detSet(index());

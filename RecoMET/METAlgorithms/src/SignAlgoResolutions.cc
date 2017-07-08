@@ -338,7 +338,7 @@ double metsig::SignAlgoResolutions::EtFunction( const functionPars &x, const fun
 {
   if(par.size()<3)
     return 0.;
-  if(x.size()<1)
+  if(x.empty())
     return 0.;
   double et=x[0];
   if(et<=0.)

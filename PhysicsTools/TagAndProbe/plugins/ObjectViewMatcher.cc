@@ -123,7 +123,7 @@ void ObjectViewMatcher<T1, T2>::produce(edm::Event& iEvent,const edm::EventSetup
     edm::Handle<edm::View<T2> > objects;
     iEvent.getByToken(srcObjectsTokens_[iSrc],objects);
 
-    if(objects->size()==0) continue;
+    if(objects->empty()) continue;
 
     for (unsigned int iObject=0;iObject<candidates->size();iObject++) {
       const T1& candidate = candidates->at(iObject);

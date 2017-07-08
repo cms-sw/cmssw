@@ -316,7 +316,7 @@ void HIPAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup)
   edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm] Terminating";
 	
   // calculating survey residuals
-  if (theLevels.size() > 0 )
+  if (!theLevels.empty() )
     {
       edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm] Using survey constraint";
 		
@@ -439,7 +439,7 @@ void HIPAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup)
   delete theFile;
 	}
 	
-  if (theLevels.size() > 0){
+  if (!theLevels.empty()){
     theFile3->cd();
     theTree3->Write();
     delete theFile3;
@@ -1151,7 +1151,7 @@ void HIPAlignmentAlgorithm::bookRoot(void)
   theTree2->Branch("ObjId",  &m2_ObjId,   "ObjId/I");
 	
   // book survey-wise ROOT Tree only if survey is enabled
-  if (theLevels.size() > 0){
+  if (!theLevels.empty()){
 		
     edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm::bookRoot] Survey trees booked.";
     theFile3 = new TFile(ssurveyfile.c_str(),"update");

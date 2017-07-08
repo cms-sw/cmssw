@@ -61,7 +61,7 @@ ProbeTreeProducer::ProbeTreeProducer(const edm::ParameterSet& iConfig) :
   cut_(iConfig.existsAs<std::string>("cut") ? iConfig.getParameter<std::string>("cut") : ""),
   filter_(iConfig.existsAs<bool>("filter") ? iConfig.getParameter<bool>("filter") : false),
   sortDescendingBy_(iConfig.existsAs<std::string>("sortDescendingBy") ? iConfig.getParameter<std::string>("sortDescendingBy") : ""),
-  sortFunction_(sortDescendingBy_.size()>0 ? sortDescendingBy_ : "pt"), //need to pass a valid default
+  sortFunction_(!sortDescendingBy_.empty() ? sortDescendingBy_ : "pt"), //need to pass a valid default
   maxProbes_(iConfig.existsAs<int32_t>("maxProbes") ? iConfig.getParameter<int32_t>("maxProbes") : -1),
   probeFiller_(new tnp::BaseTreeFiller("probe_tree", iConfig, consumesCollector()))
 {
@@ -86,7 +86,7 @@ bool ProbeTreeProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
     }
   }
   // sort only if a function was provided
-  if(sortDescendingBy_.size()>0) sort(selectedProbes.begin(), selectedProbes.end(), boost::bind(&Pair::second, _1) > boost::bind(&Pair::second, _2));
+  if(!sortDescendingBy_.empty()) sort(selectedProbes.begin(), selectedProbes.end(), boost::bind(&Pair::second, _1) > boost::bind(&Pair::second, _2));
   // fill the first maxProbes_ into the tree
   for (size_t i = 0; i < (maxProbes_<0 ? selectedProbes.size() : std::min((size_t)maxProbes_, selectedProbes.size())); ++i){
     probeFiller_->fill(selectedProbes[i].first);

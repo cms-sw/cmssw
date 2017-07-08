@@ -303,7 +303,7 @@ void MuonsGrabber::writeDataForRelativeBX(int bx){
     } //half iteration
   } // lvl iteration
 
-  if (m_muons.size()!=0) {
+  if (!m_muons.empty()) {
      throw cms::Exception("RPCMuonsGrabber") << " There are still some muons in muons vec" << std::endl;
   
   }

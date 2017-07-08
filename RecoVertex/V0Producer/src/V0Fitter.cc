@@ -91,7 +91,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup,
 
    edm::Handle<reco::TrackCollection> theTrackHandle;
    iEvent.getByToken(token_tracks, theTrackHandle);
-   if (!theTrackHandle->size()) return;
+   if (theTrackHandle->empty()) return;
    const reco::TrackCollection* theTrackCollection = theTrackHandle.product();   
 
    edm::Handle<reco::BeamSpot> theBeamSpotHandle;

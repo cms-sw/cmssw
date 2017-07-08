@@ -161,7 +161,7 @@ void FP420RecoMain::run(edm::Handle<TrackCollectionFP420> &input, RecoCollection
     if (verbosity > 1) {
       std::cout << "FP420RecoMain: track rcollector.size=" << rcollector.size() << std::endl;
     }
-    if (rcollector.size()>0){
+    if (!rcollector.empty()){
       RecoCollectionFP420::Range rinputRange;
       rinputRange.first = rcollector.begin();
       rinputRange.second = rcollector.end();

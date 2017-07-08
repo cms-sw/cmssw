@@ -189,7 +189,7 @@ MuonResidualsFitter::~MuonResidualsFitter()
 void MuonResidualsFitter::fix(int parNum, bool dofix)
 {
   assert(0 <= parNum  &&  parNum < npar());
-  if (m_fixed.size() == 0) m_fixed.resize(npar(), false);
+  if (m_fixed.empty()) m_fixed.resize(npar(), false);
   m_fixed[parNum] = dofix;
 }
 
@@ -197,7 +197,7 @@ void MuonResidualsFitter::fix(int parNum, bool dofix)
 bool MuonResidualsFitter::fixed(int parNum)
 {
   assert(0 <= parNum  &&  parNum < npar());
-  if (m_fixed.size() == 0) return false;
+  if (m_fixed.empty()) return false;
   else return m_fixed[parNum];
 }
 

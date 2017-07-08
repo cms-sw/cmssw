@@ -395,7 +395,7 @@ void EcalSRCondTools::importSrpConfigFile(EcalSRSettings& sr, std::istream& f, b
     sErr << "Syntax Error in imported SRP system configuration file "
       /*<< filename <<*/ " line " << iLine << ".";
   }
-  if(sErr.str().size()!=0) throw cms::Exception("SyntaxError") << sErr.str();
+  if(!sErr.str().empty()) throw cms::Exception("SyntaxError") << sErr.str();
 }
 
 double EcalSRCondTools::normalizeWeights(int hwWeight){

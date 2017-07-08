@@ -72,7 +72,7 @@ public:
 
   bool operator()( const reco::Track & t) const {
     bool quality_ok = true;
-    if (quality_.size()!=0) {
+    if (!quality_.empty()) {
       quality_ok = false;
       for (unsigned int i = 0; i<quality_.size();++i) {
 	if (t.quality(quality_[i])){
@@ -83,7 +83,7 @@ public:
     }
 
     bool algo_ok = true;
-    if (algorithm_.size()!=0) {
+    if (!algorithm_.empty()) {
       if (std::find(algorithm_.begin(),algorithm_.end(),t.algo())==algorithm_.end()) algo_ok = false;
     }
     if (!originalAlgorithm_.empty() && algo_ok) {

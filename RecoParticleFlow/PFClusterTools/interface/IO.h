@@ -59,7 +59,7 @@ class IO {
   friend std::ostream& operator<<(std::ostream& out, IO& io);
 
   /// true if constructor went wrong
-  bool IsZombie() const {return !fAllLines.size();}
+  bool IsZombie() const {return fAllLines.empty();}
 
 #ifndef __CINT__
   /// reads a vector of T

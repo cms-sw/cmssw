@@ -97,7 +97,7 @@ namespace sistrip {
   {
     productToken_ = consumes<FEDRawDataCollection>(productLabel_);
 
-    if ((fed_ids_.size()==0)) {
+    if ((fed_ids_.empty())) {
       LogInfo(msgLb_) << "No FED IDs specified, so will try to unpack all FEDs with data" << std::endl;
       fed_ids_.reserve(FEDNumbering::MAXSiStripFEDID-FEDNumbering::MINSiStripFEDID+1);
       for ( uint32_t ifed = FEDNumbering::MINSiStripFEDID; ifed <= FEDNumbering::MAXSiStripFEDID; ifed++ ) {

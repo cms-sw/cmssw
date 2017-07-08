@@ -88,12 +88,12 @@ class TtHadEvtSolution {
   reco::Particle getFitHadtbar() const;
   reco::Particle getFitHadW_plus() const;
   reco::Particle getFitHadW_minus() const;
-  pat::Particle getFitHadb() const { return (fitHadb_.size()>0 ? fitHadb_.front() : pat::Particle()); };
-  pat::Particle getFitHadbbar() const { return (fitHadbbar_.size()>0 ? fitHadbbar_.front() : pat::Particle()); };
-  pat::Particle getFitHadp() const { return (fitHadp_.size()>0 ? fitHadp_.front() : pat::Particle()); };
-  pat::Particle getFitHadq() const { return (fitHadq_.size()>0 ? fitHadq_.front() : pat::Particle()); };
-  pat::Particle getFitHadj() const { return (fitHadj_.size()>0 ? fitHadj_.front() : pat::Particle()); };
-  pat::Particle getFitHadk() const { return (fitHadk_.size()>0 ? fitHadk_.front() : pat::Particle()); };
+  pat::Particle getFitHadb() const { return (!fitHadb_.empty() ? fitHadb_.front() : pat::Particle()); };
+  pat::Particle getFitHadbbar() const { return (!fitHadbbar_.empty() ? fitHadbbar_.front() : pat::Particle()); };
+  pat::Particle getFitHadp() const { return (!fitHadp_.empty() ? fitHadp_.front() : pat::Particle()); };
+  pat::Particle getFitHadq() const { return (!fitHadq_.empty() ? fitHadq_.front() : pat::Particle()); };
+  pat::Particle getFitHadj() const { return (!fitHadj_.empty() ? fitHadj_.front() : pat::Particle()); };
+  pat::Particle getFitHadk() const { return (!fitHadk_.empty() ? fitHadk_.front() : pat::Particle()); };
 
   //-------------------------------------------  
   // get the selected hadronic decay chain 

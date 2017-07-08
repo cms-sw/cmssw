@@ -104,7 +104,7 @@ void VertexConstraintProducer::produce(edm::Event& iEvent, const edm::EventSetup
   InputTag srcTag2 = iConfig_.getParameter<InputTag>("srcVtx");
   edm::Handle<reco::VertexCollection> primaryVertexHandle;
   iEvent.getByLabel(srcTag2,primaryVertexHandle);
-  if(primaryVertexHandle->size()>0){
+  if(!primaryVertexHandle->empty()){
   reco::Vertex pv;
     pv = primaryVertexHandle->front();
     for (reco::TrackCollection::const_iterator i=theTCollection->begin(); i!=theTCollection->end();i++) {

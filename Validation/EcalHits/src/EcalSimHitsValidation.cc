@@ -28,7 +28,7 @@ EcalSimHitsValidation::EcalSimHitsValidation(const edm::ParameterSet& ps):
   // DQM ROOT output
   outputFile_ = ps.getUntrackedParameter<std::string>("outputFile", "");
  
-  if ( outputFile_.size() != 0 ) {
+  if ( !outputFile_.empty() ) {
     edm::LogInfo("OutputInfo") << " Ecal SimHits Task histograms will be saved to " << outputFile_.c_str();
   } else {
     edm::LogInfo("OutputInfo") << " Ecal SimHits Task histograms will NOT be saved";
@@ -87,7 +87,7 @@ EcalSimHitsValidation::EcalSimHitsValidation(const edm::ParameterSet& ps):
 
 EcalSimHitsValidation::~EcalSimHitsValidation(){
  
-  if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
+  if ( !outputFile_.empty() && dbe_ ) dbe_->save(outputFile_);
 
 }
 

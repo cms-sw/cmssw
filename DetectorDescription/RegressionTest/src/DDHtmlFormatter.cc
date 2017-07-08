@@ -254,7 +254,7 @@ bool DDHtmlLpDetails::details(ostream & os, const DDName & nm)
         const vector<DDPartSelection> & ps = it->selection();
 	 vector<DDPartSelection>::const_iterator pit(ps.begin()), ped(ps.end());
 	 for (; pit != ped; ++pit) {
-	   if (pit->size()) {
+	   if (!pit->empty()) {
 	     lp_sp_t::instance()[pit->back().lp_].insert(*it);
 	   }
 	 }

@@ -412,7 +412,7 @@ StyledWriter::isMultineArray( const Value &value )
       const Value &childValue = value[index];
       isMultiLine = isMultiLine  ||
                      ( (childValue.isArray()  ||  childValue.isObject())  &&  
-                        childValue.size() > 0 );
+                        !childValue.empty() );
    }
    if ( !isMultiLine ) // check if line length > max line length
    {
@@ -688,7 +688,7 @@ StyledStreamWriter::isMultineArray( const Value &value )
       const Value &childValue = value[index];
       isMultiLine = isMultiLine  ||
                      ( (childValue.isArray()  ||  childValue.isObject())  &&  
-                        childValue.size() > 0 );
+                        !childValue.empty() );
    }
    if ( !isMultiLine ) // check if line length > max line length
    {

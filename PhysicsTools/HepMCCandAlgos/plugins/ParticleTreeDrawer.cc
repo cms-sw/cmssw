@@ -57,7 +57,7 @@ ParticleTreeDrawer::ParticleTreeDrawer( const ParameterSet & cfg ) :
 }
 
 bool ParticleTreeDrawer::accept( const reco::Candidate & c ) const {
-  if ( status_.size() == 0 ) return true;
+  if ( status_.empty() ) return true;
   return find( status_.begin(), status_.end(), c.status() ) != status_.end();
 }
 

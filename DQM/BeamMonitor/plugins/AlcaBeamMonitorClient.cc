@@ -131,7 +131,7 @@ void AlcaBeamMonitorClient::endLuminosityBlock(const LuminosityBlock& iLumi,
 //----------------------------------------------------------------------------------------------------------------------
 void AlcaBeamMonitorClient::endRun(const Run& iRun, const EventSetup& context) {
   // use this in case any LS is missing.
-  if (valuesMap_.size() == 0) {
+  if (valuesMap_.empty()) {
     LogInfo("AlcaBeamMonitorClient")
         << "The histogram "
         << monitorName_ +

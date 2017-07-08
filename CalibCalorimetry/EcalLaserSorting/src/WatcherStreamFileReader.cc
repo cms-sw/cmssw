@@ -173,7 +173,7 @@ WatcherStreamFileReader::WatcherStreamFileReader(edm::ParameterSet const& pset):
     //    fileListCmdBuf << "/bin/ls " << inputDir_ << " | egrep '(";
     fileListCmdBuf << "/bin/find " << inputDir_ << " -maxdepth 2 -print | egrep '(";
     //TODO: validate patternDir (see ;, &&, ||) and escape special character
-    if(filePatterns_.size()==0) throw cms::Exception("WacherSource", "filePatterns parameter is empty");
+    if(filePatterns_.empty()) throw cms::Exception("WacherSource", "filePatterns parameter is empty");
     char curDir[PATH_MAX>0?PATH_MAX:4096];
     if(getcwd(curDir, sizeof(curDir))==0){
       throw cms::Exception("WatcherSource")
@@ -258,7 +258,7 @@ edm::StreamerInputFile* WatcherStreamFileReader::getInputFile(){
     fileName_.assign("");
     
     //check if we have file in the queue, if not look for new files:
-    while(filesInQueue_.size()==0){
+    while(filesInQueue_.empty()){
       if(stat(tokenFile_.c_str(), &buf)!=0){ 
 	end_ = true; 
 	break;
@@ -276,7 +276,7 @@ edm::StreamerInputFile* WatcherStreamFileReader::getInputFile(){
 	  lineptr[len-1] = 0;
 	  string fileName;
 	  if(lineptr[0] != '/'){
-	    if(inputDir_.size()>0 && inputDir_[0] != '/'){//relative path
+	    if(!inputDir_.empty() && inputDir_[0] != '/'){//relative path
 	      fileName.assign(curDir_);
 	      fileName.append("/");
 	      fileName.append(inputDir_);
@@ -294,7 +294,7 @@ edm::StreamerInputFile* WatcherStreamFileReader::getInputFile(){
       }
       while(!feof(s)) fgetc(s);
       pclose(s);
-      if(filesInQueue_.size()==0){
+      if(filesInQueue_.empty()){
 	if(!waiting){
 	  cout << "[WatcherSource " << now() << "]" 
 	       << " No file found. Waiting for new file...\n";

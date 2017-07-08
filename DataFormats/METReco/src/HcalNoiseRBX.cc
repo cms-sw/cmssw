@@ -65,7 +65,7 @@ float HcalNoiseRBX::allChargeTotal(void) const
 float HcalNoiseRBX::allChargeHighest2TS(unsigned int firstts) const
 {
   float total=0;
-  for(unsigned int i=firstts; i<firstts+2 && allCharge_.size(); i++)
+  for(unsigned int i=firstts; i<firstts+2 && !allCharge_.empty(); i++)
     total += allCharge_[i];
   return total;
 }
@@ -73,7 +73,7 @@ float HcalNoiseRBX::allChargeHighest2TS(unsigned int firstts) const
 float HcalNoiseRBX::allChargeHighest3TS(unsigned int firstts) const
 {
   float total=0;
-  for(unsigned int i=firstts; i<firstts+3 && allCharge_.size(); i++)
+  for(unsigned int i=firstts; i<firstts+3 && !allCharge_.empty(); i++)
     total += allCharge_[i];
   return total;
 }

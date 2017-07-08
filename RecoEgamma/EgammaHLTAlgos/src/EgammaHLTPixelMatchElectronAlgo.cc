@@ -151,7 +151,7 @@ void EgammaHLTPixelMatchElectronAlgo::process(edm::Handle<TrackCollection> track
 
     // clean gsf tracks
     std::vector<unsigned int> flag(gsfTracksH->size(), 0);
-    if (gsfTracksH->size() == 0)
+    if (gsfTracksH->empty())
       return;
 
     for (unsigned int i=0; i<gsfTracksH->size()-1; ++i) {

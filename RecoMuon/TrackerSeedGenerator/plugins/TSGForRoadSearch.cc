@@ -159,7 +159,7 @@ void TSGForRoadSearch::makeSeeds_0(const reco::Track & muon, std::vector<Traject
   inLayer->compatibleDetsV(inner,*theProxyService->propagator(thePropagatorCompatibleName),*theChi2Estimator,compatible);
 
   //loop the parts until at least a compatible is found
-  while (compatible.size()==0) {
+  while (compatible.empty()) {
     switch ( GeomDetEnumerators::subDetGeom[inLayer->subDetector()] ) {
     case GeomDetEnumerators::PixelBarrel:
     case GeomDetEnumerators::PixelEndcap:
@@ -250,7 +250,7 @@ void TSGForRoadSearch::makeSeeds_3(const reco::Track & muon, std::vector<Traject
   inLayer->compatibleDetsV(outer,*theProxyService->propagator(thePropagatorCompatibleName),*theChi2Estimator,compatible);
 
   //loop the parts until at least a compatible is found
-  while (compatible.size()==0) {
+  while (compatible.empty()) {
     switch ( GeomDetEnumerators::subDetGeom[inLayer->subDetector()] ) {
     case GeomDetEnumerators::PixelBarrel:
     case GeomDetEnumerators::PixelEndcap:
@@ -352,7 +352,7 @@ void TSGForRoadSearch::makeSeeds_4(const reco::Track & muon, std::vector<Traject
   inLayer->compatibleDetsV(inner,*theProxyService->propagator(thePropagatorCompatibleName),*theChi2Estimator,compatible);
   
   //if none were found. you should do something more.
-  if (compatible.size()==0){
+  if (compatible.empty()){
     std::vector<const ForwardDetLayer*>::const_iterator pxlEnd = (z>0)? ppxlc.end() : npxlc.end();
     std::vector<const ForwardDetLayer*>::const_iterator tidEnd = (z>0)? ptidc.end() : ntidc.end();
     std::vector<const ForwardDetLayer*>::const_iterator tecEnd = (z>0)? ptecc.end() : ntecc.end();
@@ -363,7 +363,7 @@ void TSGForRoadSearch::makeSeeds_4(const reco::Track & muon, std::vector<Traject
     //go to first disk if not already in a disk situation
     if (!dynamic_cast<const ForwardDetLayer*>(inLayer)) layerIt =pxlBegin--;
     
-    while (compatible.size()==0) {
+    while (compatible.empty()) {
       switch ( GeomDetEnumerators::subDetGeom[(*layerIt)->subDetector()] ) {
       case GeomDetEnumerators::PixelEndcap:
 	{

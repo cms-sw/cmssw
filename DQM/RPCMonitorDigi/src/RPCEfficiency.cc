@@ -496,7 +496,7 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 			  
 			  std::set<RPCDetId> rollsForThisDT = rollstoreDT[DTStationIndex(0,dtWheel,dtSector,dtStation)]; //It should be always 4
 			  
-			  assert(rollsForThisDT.size()>=1);
+			  assert(!rollsForThisDT.empty());
 			  
 			  for (std::set<RPCDetId>::iterator iteraRoll=rollsForThisDT.begin();iteraRoll != rollsForThisDT.end(); iteraRoll++){
 			    const RPCRoll* rollasociated = rpcGeo->roll(*iteraRoll); //roll asociado a MB4

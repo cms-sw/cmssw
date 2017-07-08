@@ -49,7 +49,7 @@ MLP::MLP(unsigned int nIn, unsigned int nOut, const std::string layout_) :
 			<< std::endl;
 
 	std::vector<std::string> parsed = split(layout_, ':');
-	if (parsed.size() < 1)
+	if (parsed.empty())
 		throw cms::Exception("MLP")
 			<< "Invalid layout." << std::endl;
 

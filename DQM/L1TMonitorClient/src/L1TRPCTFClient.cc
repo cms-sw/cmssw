@@ -151,7 +151,7 @@ void L1TRPCTFClient::processHistograms(DQMStore::IGetter &igetter) {
          // for this MEs, get list of associated QTs
          std::vector<QReport *> Qtest_map = me->getQReports();
 
-         if (Qtest_map.size() > 0) {
+         if (!Qtest_map.empty()) {
            std::cout << "Test: " << full_path << std::endl;
            for (std::vector<QReport *>::const_iterator it = Qtest_map.begin();
                  it != Qtest_map.end();

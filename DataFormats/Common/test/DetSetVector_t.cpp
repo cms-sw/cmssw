@@ -270,7 +270,7 @@ void work() {
   coll_type c1;
   c1.post_insert();
   sanity_check(c1);
-  assert(c1.size() == 0);
+  assert(c1.empty());
   assert(c1.empty());
 
   coll_type c2(c1);
@@ -397,7 +397,7 @@ void work() {
     assert(newsize > oldsize);
     assert(newsize == (oldsize+1));
     assert(r.id == edm::det_id_type(17));
-    assert(r.data.size() == 0);
+    assert(r.data.empty());
     r.data.push_back(Value(10.1));
     r.data.push_back(Value(9.1));
     r.data.push_back(Value(4.0));
@@ -420,7 +420,7 @@ void work() {
     assert(v.size() == numDetSets);
     coll_type c3(v);
     c3.post_insert();
-    assert(v.size() == 0);
+    assert(v.empty());
     assert(c3.size() == numDetSets);
     sanity_check(c3);
 

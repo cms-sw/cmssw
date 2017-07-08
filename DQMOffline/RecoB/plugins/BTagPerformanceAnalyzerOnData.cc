@@ -29,9 +29,9 @@ BTagPerformanceAnalyzerOnData::BTagPerformanceAnalyzerOnData(const edm::Paramete
   jecMCToken = mayConsume<JetCorrector>(pSet.getParameter<edm::InputTag>( "JECsourceMC" ));
   jecDataToken = consumes<JetCorrector>(pSet.getParameter<edm::InputTag>( "JECsourceData" ));
   
-  if (etaRanges.size() == 0)
+  if (etaRanges.empty())
       etaRanges = { pSet.getParameter<double>("etaMin"), pSet.getParameter<double>("etaMax") };
-  if (ptRanges.size() == 0)
+  if (ptRanges.empty())
       ptRanges = { pSet.getParameter<double>("ptRecJetMin"), pSet.getParameter<double>("ptRecJetMax") };
   
   for (vector<edm::ParameterSet>::const_iterator iModule = moduleConfig.begin();

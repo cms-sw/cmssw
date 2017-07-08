@@ -68,7 +68,7 @@ BadGlobalMuonTagger::filter(edm::StreamID iID, edm::Event & iEvent, const edm::E
     std::vector<int> goodMuon;
 
     iEvent.getByToken(vtx_,  vtx);
-    assert(vtx->size() >= 1);
+    assert(!vtx->empty());
     const auto &PV = vtx->front().position();
  
     std::unique_ptr<edm::PtrVector<reco::Muon>> out(new edm::PtrVector<reco::Muon>());

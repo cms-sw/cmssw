@@ -334,7 +334,7 @@ std::unique_ptr<EcalTPGSpike> EcalTrigPrimESProducer::produceSpike(const EcalTPG
 
 void EcalTrigPrimESProducer::parseTextFile()
 {
-  if (mapXtal_.size() != 0) return ; // just parse the file once!
+  if (!mapXtal_.empty()) return ; // just parse the file once!
 
   uint32_t id ;
   std::string dataCard ;

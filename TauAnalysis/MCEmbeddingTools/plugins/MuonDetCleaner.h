@@ -133,7 +133,7 @@ template <typename T1, typename T2>
 void MuonDetCleaner<T1,T2>::fillVetoHits(const TrackingRecHit& rh, std::vector<uint32_t>* HitsList)
 {
     std::vector<const TrackingRecHit*> rh_components = rh.recHits();
-    if ( rh_components.size() == 0 ) {
+    if ( rh_components.empty() ) {
       HitsList->push_back(rh.rawId());
     } 
     else {

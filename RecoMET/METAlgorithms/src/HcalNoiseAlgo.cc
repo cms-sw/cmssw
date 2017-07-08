@@ -371,7 +371,7 @@ bool CommonHcalNoiseRBXData::CheckPassFilter(double Charge, double Discriminant,
    //    is greater or smaller than the cut value
    //
 
-   if(Cuts.size() == 0)   // safety check that there are some cuts defined
+   if(Cuts.empty())   // safety check that there are some cuts defined
       return true;
 
    if(Charge <= Cuts[0].first)   // too small to cut on

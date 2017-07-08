@@ -41,7 +41,7 @@ public:
 
     // check if there is a good primary vertex
 
-    if ( h_primVtx->size() < 1 ) return false;
+    if ( h_primVtx->empty() ) return false;
 
     // Loop over PV's and count those that pass
     int npv = 0;

@@ -9,7 +9,7 @@ void MultipleKinematicConstraint::addConstraint(KinematicConstraint * newConst) 
   
 std::pair<AlgebraicVector,AlgebraicVector> MultipleKinematicConstraint::value(const AlgebraicVector& exPoint) const
 {
- if(cts.size() == 0)throw VertexException("MultipleKinematicConstraint::value requested for empty constraint");
+ if(cts.empty())throw VertexException("MultipleKinematicConstraint::value requested for empty constraint");
  if(exPoint.num_row() ==0 ) throw VertexException("MultipleKinematicConstraint::value requested for zero Linearization point");
 
 //looking for total number of states, represented by this  point. 
@@ -38,7 +38,7 @@ std::pair<AlgebraicVector,AlgebraicVector> MultipleKinematicConstraint::value(co
  
 std::pair<AlgebraicMatrix, AlgebraicVector> MultipleKinematicConstraint::derivative(const AlgebraicVector& exPoint) const
 {
- if(cts.size() == 0) throw VertexException("MultipleKinematicConstraint::derivative requested for empty constraint");
+ if(cts.empty()) throw VertexException("MultipleKinematicConstraint::derivative requested for empty constraint");
  if(exPoint.num_row() ==0 ) throw VertexException("MultipleKinematicConstraint::value requested for zero Linearization point");
 
 //security check for extended cartesian parametrization 
@@ -69,7 +69,7 @@ std::pair<AlgebraicMatrix, AlgebraicVector> MultipleKinematicConstraint::derivat
 int MultipleKinematicConstraint::numberOfEquations() const
 {
  int ne = 0;
- if(cts.size() == 0) throw VertexException("MultipleKinematicConstraint::number of equations requested for empty constraint");
+ if(cts.empty()) throw VertexException("MultipleKinematicConstraint::number of equations requested for empty constraint");
  for(std::vector<KinematicConstraint *>::const_iterator i = cts.begin(); i != cts.end(); i++)
  {ne += (*i)->numberOfEquations();}
  return ne;
@@ -77,7 +77,7 @@ int MultipleKinematicConstraint::numberOfEquations() const
 
 std::pair<AlgebraicVector, AlgebraicVector> MultipleKinematicConstraint::value(const std::vector<RefCountedKinematicParticle> &par) const
 {
- if(cts.size() == 0) throw VertexException("MultipleKinematicConstraint::derivative requested for empty constraint");
+ if(cts.empty()) throw VertexException("MultipleKinematicConstraint::derivative requested for empty constraint");
  int nStates = par.size();
  AlgebraicVector param(7*nStates,0);
  int count = 1;
@@ -107,7 +107,7 @@ std::pair<AlgebraicVector, AlgebraicVector> MultipleKinematicConstraint::value(c
 
 std::pair<AlgebraicMatrix, AlgebraicVector> MultipleKinematicConstraint::derivative(const std::vector<RefCountedKinematicParticle> &par) const
 {
- if(cts.size() == 0) throw VertexException("MultipleKinematicConstraint::derivative requested for empty constraint");
+ if(cts.empty()) throw VertexException("MultipleKinematicConstraint::derivative requested for empty constraint");
  int nStates = par.size();
  AlgebraicVector param(7*nStates,0);
  
@@ -140,7 +140,7 @@ std::pair<AlgebraicMatrix, AlgebraicVector> MultipleKinematicConstraint::derivat
 AlgebraicVector MultipleKinematicConstraint::deviations(int nStates) const
 {
  AlgebraicVector dev(nStates*7,0);
- if(cts.size() == 0) throw VertexException("MultipleKinematicConstraint::deviations requested for empty constraint");
+ if(cts.empty()) throw VertexException("MultipleKinematicConstraint::deviations requested for empty constraint");
  for(std::vector<KinematicConstraint *>::const_iterator i = cts.begin(); i != cts.end(); i++)
  {
   AlgebraicVector dev_loc =(*i)->deviations(nStates);

@@ -96,7 +96,7 @@ class FilterOR : public Filter{
     bool OK=true;
     while( OK ){
       size_t orPos = filterORlistCopy.find("_OR_");
-      if (orPos == std::string::npos && filterORlistCopy.size()!=0){
+      if (orPos == std::string::npos && !filterORlistCopy.empty()){
 	size=filterORlistCopy.size();
 	OK=false;
       }

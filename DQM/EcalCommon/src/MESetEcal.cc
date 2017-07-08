@@ -241,7 +241,7 @@ namespace ecaldqm
     clear();
 
     std::vector<std::string> mePaths(generatePaths());
-    if(mePaths.size() == 0){
+    if(mePaths.empty()){
       if(_failedPath) _failedPath->clear();
       return false;
     }

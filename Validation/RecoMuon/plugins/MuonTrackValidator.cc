@@ -395,7 +395,7 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
 	std::vector<std::pair<RefToBase<Track>, double> > rt;
 	if(simRecColl.find(tpr) != simRecColl.end()){
 	  rt = (std::vector<std::pair<RefToBase<Track>, double> >) simRecColl[tpr];
-	  if (rt.size()!=0) {
+	  if (!rt.empty()) {
 	    RefToBase<Track> assoc_recoTrack = rt.begin()->first;
 	    edm::LogVerbatim("MuonTrackValidator")<<"-----------------------------associated Track #"<<assoc_recoTrack.key();
 	    TP_is_matched = true;
@@ -573,7 +573,7 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
 	  
 	  if(recSimColl.find(track) != recSimColl.end()) {
 	    tp = recSimColl[track];	
-	    if (tp.size() != 0) {
+	    if (!tp.empty()) {
 	      tpr = tp.begin()->first;	
 	      // RtS and StR must associate the same pair !
 	      if(simRecColl.find(tpr) != simRecColl.end()) {
@@ -603,7 +603,7 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
 	else {
 	  if(recSimColl.find(track) != recSimColl.end()){
 	    tp = recSimColl[track];
-	    if (tp.size()!=0) {
+	    if (!tp.empty()) {
 	      Track_is_matched = true;
 	      tpr = tp.begin()->first;
 	      at++;
@@ -961,7 +961,7 @@ void MuonTrackValidator::endRun(Run const&, EventSetup const&) {
     }
   }
   
-  if ( out.size() != 0 && dbe_ ) dbe_->save(out);
+  if ( !out.empty() && dbe_ ) dbe_->save(out);
 }
 
 void MuonTrackValidator::getRecoMomentum (const reco::Track& track,

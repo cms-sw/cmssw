@@ -105,7 +105,7 @@ MonitorElement* GEMBaseValidation::getSimpleZR(DQMStore::IBooker& ibooker, TStri
 }
 
 MonitorElement* GEMBaseValidation::getDCEta(DQMStore::IBooker& ibooker, const GEMStation* station, TString title, TString histname ) {
-  if( station->rings()[0]->superChambers().size() ==0) {
+  if( station->rings()[0]->superChambers().empty()) {
     LogDebug("MuonBaseValidation")<<"+++ Error! can not get superChambers. Skip "<<getSuffixTitle(station->region(), station->station())<<" on "<<histname<<"\n";
     return nullptr;
   }

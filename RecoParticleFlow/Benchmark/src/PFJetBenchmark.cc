@@ -47,7 +47,7 @@ PFJetBenchmark::~PFJetBenchmark() {
 
 void PFJetBenchmark::write() {
    // Store the DAQ Histograms 
-  if (outputFile_.size() != 0) {
+  if (!outputFile_.empty()) {
     if (dbe_)
           dbe_->save(outputFile_.c_str());
     // use bare Root if no DQM (FWLite applications)

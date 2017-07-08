@@ -189,7 +189,7 @@ EopTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    parameters_.useMuon = false;
 
    if(pixelInAlca)
-     if(isoPixelTracks->size()==0) return;
+     if(isoPixelTracks->empty()) return;
 
    for(reco::TrackCollection::const_iterator track = tracks->begin();track!=tracks->end();++track){
 

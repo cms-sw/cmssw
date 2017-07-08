@@ -144,8 +144,8 @@ ProduceIsolationMap::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup, *itTrack, parameters_, TrackDetectorAssociator::InsideOut);
 
 
-      if(info.ecalRecHits.size()>0){IsolationInfoColl[TkIndex].Set_ECAL_Energy(info.coneEnergy(IsolationConeDR_, TrackDetMatchInfo::EcalRecHits));}
-      if(info.hcalRecHits.size()>0){IsolationInfoColl[TkIndex].Set_HCAL_Energy(info.coneEnergy(IsolationConeDR_, TrackDetMatchInfo::HcalRecHits));}
+      if(!info.ecalRecHits.empty()){IsolationInfoColl[TkIndex].Set_ECAL_Energy(info.coneEnergy(IsolationConeDR_, TrackDetMatchInfo::EcalRecHits));}
+      if(!info.hcalRecHits.empty()){IsolationInfoColl[TkIndex].Set_HCAL_Energy(info.coneEnergy(IsolationConeDR_, TrackDetMatchInfo::HcalRecHits));}
 //      if(info.hcalRecHits.size()>0){IsolationInfoColl[TkIndex].Set_HCAL_Energy(info.hcalConeEnergy());}
 //      if(info.ecalRecHits.size()>0){IsolationInfoColl[TkIndex].Set_ECAL_Energy(info.ecalConeEnergy());}
 

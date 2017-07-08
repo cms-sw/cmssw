@@ -313,7 +313,7 @@ int SiStripDetVOffBuilder::findSetting(uint32_t id, const coral::TimeStamp& chan
   for (unsigned int i = 0; i < settingID.size(); i++) { if (settingID[i] == id) {locations.push_back((int)i);} }
 
   // simple cases
-  if (locations.size() == 0) {setting = -1;}
+  if (locations.empty()) {setting = -1;}
   else if (locations.size() == 1) {setting = locations[0];}
   // more than one entry for this channel
   // NB.  entries ordered by date!
@@ -339,7 +339,7 @@ int SiStripDetVOffBuilder::findSetting(std::string dpname, const coral::TimeStam
   for (unsigned int i = 0; i < settingDpname.size(); i++) { if (settingDpname[i] == dpname) {locations.push_back((int)i);} }
   
   // simple cases
-  if (locations.size() == 0) {setting = -1;}
+  if (locations.empty()) {setting = -1;}
   else if (locations.size() == 1) {setting = locations[0];}
   // more than one entry for this channel
   // NB.  entries ordered by date!

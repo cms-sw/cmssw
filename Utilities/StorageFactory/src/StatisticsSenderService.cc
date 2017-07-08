@@ -179,7 +179,7 @@ StatisticsSenderService::filePreCloseEvent(std::string const& lfn, bool usedFall
   }
 
   std::set<std::string> const * info = pSLC->statisticsInfo();
-  if (info && info->size() && (m_userdn != "unknown") && (
+  if (info && !info->empty() && (m_userdn != "unknown") && (
       (info->find("dn") == info->end()) ||
       (info->find("nodn") != info->end()))
      )

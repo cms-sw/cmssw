@@ -59,7 +59,7 @@ const std::vector<std::string> BaseHadronizer::theSharedResources;
   }
 
   void BaseHadronizer::randomizeIndex(edm::LuminosityBlock const& lumi, CLHEP::HepRandomEngine* rengine) {
-    if (randomInitWeights_.size()>0) {
+    if (!randomInitWeights_.empty()) {
       //randomly select from a list of provided configuration sets (for parameter scans)
       
       //seeds std 32-bit mersene twister with HepRandomEngine state plus run and lumi section numbers

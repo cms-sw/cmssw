@@ -57,7 +57,7 @@ public:
     // get the highest pt muon, require to have pt > minimum
     if( gotMuons ){
       if( !ignoreCut("Muon Pt") ){
-	if( muons->size() > 0 ){
+	if( !muons->empty() ){
 	  wMuon_ = &muons->at(0);
 	  if( wMuon_->pt() > cut("Muon Pt", double()) || ignoreCut("Muon Pt") ) 
 	    passCut(ret, "Muon Pt");

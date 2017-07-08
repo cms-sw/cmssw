@@ -181,7 +181,7 @@ selectPriVtxCompatibleWithTrack(const reco::Track& tk, std::vector<reco::Vertex>
       
     idx.push_back(std::pair<double,short>(fabs(_dz),count));
   }
-  if(idx.size()==0) {
+  if(idx.empty()) {
 #ifdef debugTSPFSLA
     ss << "no vertex selected " << std::endl; 
 #endif

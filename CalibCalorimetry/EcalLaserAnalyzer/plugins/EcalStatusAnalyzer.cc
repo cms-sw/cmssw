@@ -293,7 +293,7 @@ void EcalStatusAnalyzer::endJob() {
   std::ofstream statusFile(statusfile.c_str(), std::ofstream::out);
   
   
-  if(fedIDsLas.size()!=0 && fedIDsLas.size()==dccIDsLas.size()){
+  if(!fedIDsLas.empty() && fedIDsLas.size()==dccIDsLas.size()){
     
     statusFile <<"+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+="<<std::endl;
     statusFile <<"                LASER Events              "<<std::endl;
@@ -329,7 +329,7 @@ void EcalStatusAnalyzer::endJob() {
     }    
   }
   
-  if(fedIDsTP.size()!=0 && fedIDsTP.size()==dccIDsTP.size()){
+  if(!fedIDsTP.empty() && fedIDsTP.size()==dccIDsTP.size()){
     
     statusFile <<"+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+="<<std::endl;
     statusFile <<"             TESTPULSE Events            "<<std::endl;
@@ -350,7 +350,7 @@ void EcalStatusAnalyzer::endJob() {
     }     
   }
 
-  if(fedIDsPed.size()!=0 && fedIDsPed.size()==dccIDsPed.size()){
+  if(!fedIDsPed.empty() && fedIDsPed.size()==dccIDsPed.size()){
     
     statusFile <<"+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+="<<std::endl;
     statusFile <<"               PEDESTAL Events              "<<std::endl;

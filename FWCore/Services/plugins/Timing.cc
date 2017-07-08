@@ -151,7 +151,7 @@ namespace edm {
     static 
     double popStack() {
       auto& modStack = moduleTimeStack();
-      assert(modStack.size() > 0);
+      assert(!modStack.empty());
       double curr_module_time = modStack.back();
       modStack.pop_back();
       double t = getTime() - curr_module_time;

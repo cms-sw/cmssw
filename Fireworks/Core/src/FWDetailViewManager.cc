@@ -75,10 +75,10 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id, const std::string& i
    // find the right viewer for this item
    std::string typeName = edm::TypeWithDict(*(id.item()->modelType()->GetTypeInfo())).name();
    std::vector<std::string> viewerNames = findViewersFor(typeName);
-   if(0==viewerNames.size()) {
+   if(viewerNames.empty()) {
       fwLog(fwlog::kError) << "FWDetailViewManager: don't know what detailed view to "
          "use for object " << id.item()->name() << std::endl;
-      assert(0!=viewerNames.size());
+      assert(!viewerNames.empty());
    }
 
    //see if one of the names matches iViewName
@@ -91,7 +91,7 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id, const std::string& i
          break;
       }
    }
-   assert(match.size() != 0);
+   assert(!match.empty());
    FWDetailViewBase* detailView = FWDetailViewFactory::get()->create(match);
    assert(0!=detailView);
 

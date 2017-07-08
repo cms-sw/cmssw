@@ -189,7 +189,7 @@ void MuonTrackAnalyzer::endRun(DQMStore::IBooker & ibooker) {
     double eff = hRecoSeedInner->computeEfficiency(hSimTracks,ibooker);
     LogInfo("MuonTrackAnalyzer")<<" *Seed Efficiency* = "<< eff <<"%";
   }
-  if ( out.size() != 0 && dbe_ ) dbe_->save(out);
+  if ( !out.empty() && dbe_ ) dbe_->save(out);
 }
 void MuonTrackAnalyzer::analyze(const Event & event, const EventSetup& eventSetup){
   
@@ -254,7 +254,7 @@ void MuonTrackAnalyzer::tracksAnalysis(const Event & event, const EventSetup& ev
   LogTrace("MuonTrackAnalyzer")<<"Reconstructed tracks: " << tracks->size() << endl;
   hNumberOfTracks->Fill(tracks->size());
   
-  if(tracks->size()) numberOfRecTracks++;
+  if(!tracks->empty()) numberOfRecTracks++;
   
   // Loop over the Rec tracks
   for(reco::TrackCollection::const_iterator t = tracks->begin(); t != tracks->end(); ++t) {
@@ -508,7 +508,7 @@ TrajectoryStateOnSurface MuonTrackAnalyzer::getSeedTSOS(const TrajectorySeed& se
   detLayers = theService->muonNavigationSchool()->compatibleLayers(*initialLayer, *initialState.freeState(),detLayerOrder);
   
   TrajectoryStateOnSurface result = initialState;
-  if(detLayers.size()){
+  if(!detLayers.empty()){
     const DetLayer* finalLayer = detLayers.back();
     const TrajectoryStateOnSurface propagatedState = theService->propagator(theSeedPropagatorName)->propagate(initialState, finalLayer->surface());
     if(propagatedState.isValid())

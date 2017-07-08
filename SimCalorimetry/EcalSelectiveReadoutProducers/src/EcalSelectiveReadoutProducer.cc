@@ -316,7 +316,7 @@ void EcalSelectiveReadoutProducer::checkWeights(const edm::Event& evt,
 	"The last weights will be discarded.";
   }
 
-  if(weights.size()>0){
+  if(!weights.empty()){
     int iMaxWeight = 0;
     double maxWeight = weights[iMaxWeight];
     //looks for index of maximum weight

@@ -60,7 +60,7 @@ void TestSuite::beginJob() {
 }
 
 void TestSuite::endJob() {
-  if (filename_.size() != 0 && dbe_ ) dbe_->save(filename_);
+  if (!filename_.empty() && dbe_ ) dbe_->save(filename_);
 }
 
 

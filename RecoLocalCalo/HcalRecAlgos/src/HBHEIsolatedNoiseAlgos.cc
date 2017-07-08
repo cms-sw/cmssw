@@ -188,7 +188,7 @@ PhysicsTowerOrganizer::PhysicsTowerOrganizer(const edm::Event& iEvent,
     if(!objectvalidator.validTrack(*track)) continue;
     
     // get the point
-    if ( extrap->positions().size()==0 ) continue; 
+    if ( extrap->positions().empty() ) continue; 
     const GlobalPoint point(extrap->positions().front().x(),
 			    extrap->positions().front().y(),
  			    extrap->positions().front().z());
@@ -762,7 +762,7 @@ HBHEHitMapOrganizer::HBHEHitMapOrganizer(const edm::Handle<HBHERecHitCollection>
 	dihit.insert(hpdneighbors[0], tower2, neighbors2);
 	dihits_.push_back(dihit);
       }
-    } else if(hpdneighbors.size()==0) {
+    } else if(hpdneighbors.empty()) {
       
       // organize the monohits
       HBHEHitMap monohit;

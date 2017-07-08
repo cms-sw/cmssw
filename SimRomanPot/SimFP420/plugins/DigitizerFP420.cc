@@ -302,7 +302,7 @@ namespace cms
 	  inputRange.second = collector.end();
 	  output->putclear(inputRange,detID);
 	  */
-	  if (collector.size()>0){
+	  if (!collector.empty()){
 	    if(verbosity>0) {
 	      std::cout <<"         ============= DigitizerFP420:collector start!!!!!!!!!!!!!!" << std::endl;
 	    }
@@ -385,7 +385,7 @@ namespace cms
 		  //  std::sort(collector.begin(),collector.end());
 		std::cout <<" ===" << std::endl;
 		std::cout <<"======  collector size = " << collector.size() << std::endl;
-		if(collector.size()>0) {
+		if(!collector.empty()) {
 		  std::cout <<" iu = " << iu <<" sector = " << sector <<" zmodule = " << zmodule <<" zside = " << zside << "  det=" << det <<" layer = " << layer <<" orient = " << orient << std::endl;
 		  std::cout <<" ===" << std::endl;
 		}

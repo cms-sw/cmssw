@@ -209,11 +209,11 @@ CaloSamplesAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 			ntup.tof = theResponse->timeOfFlight(hid);
 		}
 		//get pulse info every time
-		if(ntup.signalTot.size()==0) ntup.signalTot.resize(iCS.size(),0.0);
+		if(ntup.signalTot.empty()) ntup.signalTot.resize(iCS.size(),0.0);
 		for(int i = 0; i < iCS.size(); ++i){
 			ntup.signalTot[i] += iCS[i];
 		}
-		if(ntup.signalTotPrecise.size()==0) ntup.signalTotPrecise.resize(iCS.preciseSize(),0.0);
+		if(ntup.signalTotPrecise.empty()) ntup.signalTotPrecise.resize(iCS.preciseSize(),0.0);
 		for(int i = 0; i < iCS.preciseSize(); ++i){
 			ntup.signalTotPrecise[i] += iCS.preciseAt(i);
 		}

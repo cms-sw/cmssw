@@ -380,7 +380,7 @@ DTBtiCard::runBTI() {
 
     // run DTBtiChip algorithm on all non-empty BTI
     for(int sl=1;sl<=3;sl++){
-      if(_btimap[sl-1].size()>0){
+      if(!_btimap[sl-1].empty()){
         BTI_iter pbti;
         for(pbti=_btimap[sl-1].begin(); pbti!=_btimap[sl-1].end(); pbti++) {
 	    DTBtiChip* bti = (*pbti).second; 

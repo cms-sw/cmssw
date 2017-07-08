@@ -290,9 +290,9 @@ namespace edm {
     indentation_(iConfig.getUntrackedParameter("indentation", std::string("++"))),
     verboseIndentation_(iConfig.getUntrackedParameter("verboseIndentation", std::string("  "))),
     moduleLabels_(iConfig.getUntrackedParameter("verboseForModuleLabels", std::vector<std::string>())),
-    verbose_(iConfig.getUntrackedParameter("verbose", false) || moduleLabels_.size()>0),
+    verbose_(iConfig.getUntrackedParameter("verbose", false) || !moduleLabels_.empty()),
     getModuleLabels_(iConfig.getUntrackedParameter("getDataForModuleLabels", std::vector<std::string>())),
-    getData_(iConfig.getUntrackedParameter("getData", false) || getModuleLabels_.size()>0),
+    getData_(iConfig.getUntrackedParameter("getData", false) || !getModuleLabels_.empty()),
     evno_(1),
     listContent_(iConfig.getUntrackedParameter("listContent", true))
   {

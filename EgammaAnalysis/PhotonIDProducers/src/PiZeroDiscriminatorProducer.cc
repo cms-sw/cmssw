@@ -218,7 +218,7 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
 	    }
           }
 
-          if(vout_stripE1.size() == 0 || vout_stripE2.size() == 0 ) {
+          if(vout_stripE1.empty() || vout_stripE2.empty() ) {
             if ( debugL_pi0 <= pDEBUG )
 	            cout  << " PiZeroDiscriminatorProducer: Attention!!!!!  Not Valid ES NN input Variables Return NNout = -1" << endl;
 	    Pi0Assocs_p->insert(Ref<PhotonCollection>(correctedPhotonHandle,iPho - corrPhoCollection.begin()), nnoutput);

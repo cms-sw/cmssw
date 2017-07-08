@@ -192,7 +192,7 @@ int RBCProcessRPCSimDigis::next() {
   if ( m_debug ) std::cout << "RBCProcessRPCSimDigis: DataSize: " << m_data.size() 
                            << " ndigis " << ndigis << std::endl;
   
-  if ( m_data.size() <= 0 ) return 0;
+  if ( m_data.empty() ) return 0;
   
   return 1;
   

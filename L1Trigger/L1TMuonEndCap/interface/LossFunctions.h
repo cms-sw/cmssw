@@ -86,7 +86,7 @@ class AbsoluteDeviation : public L1TLossFunction
   Double_t fit(std::vector<emtf::Event*>& v)
   {
     // The median of the residuals minimizes absolute deviation.
-    if(v.size()==0) return 0;
+    if(v.empty()) return 0;
     std::vector<Double_t> residuals(v.size());
     
     // Load the residuals into a vector. 

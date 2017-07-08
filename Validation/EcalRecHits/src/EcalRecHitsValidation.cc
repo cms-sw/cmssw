@@ -45,7 +45,7 @@ EcalRecHitsValidation::EcalRecHitsValidation(const ParameterSet& ps){
   // DQM ROOT output 
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
 
-  if ( outputFile_.size() != 0 ) {
+  if ( !outputFile_.empty() ) {
     LogInfo("OutputInfo") << " Ecal RecHits Task histograms will be saved to '" << outputFile_.c_str() << "'";
   } else {
     LogInfo("OutputInfo") << " Ecal RecHits Task histograms will NOT be saved";
@@ -424,7 +424,7 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
 	      EBDetId ttEBid = EBDetId(*dit);
 	      ttSimEnergy += ebSimMap[ttEBid.rawId()];
 	    }
-	    if( vid.size() != 0 ) ttSimEnergy = ttSimEnergy / vid.size();
+	    if( !vid.empty() ) ttSimEnergy = ttSimEnergy / vid.size();
 	  }
 	  if( meEBRecHitSimHitRatio13_ != 0 && sc == 13 && ttSimEnergy != 0 ) 
 	    meEBRecHitSimHitRatio13_->Fill(myRecHit->energy()/ttSimEnergy); 

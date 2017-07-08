@@ -379,7 +379,7 @@ void testmakepset::typesTest() {
    //std::cout <<"\""<<test.getParameter<std::vector<std::string> >("vs")[0]<<"\" \""<<test.getParameter<std::vector<std::string> >("vs")[1]<<"\" \""
    //<<test.getParameter<std::vector<std::string> >("vs")[2]<<"\""<<std::endl;
    vs = test.getParameter<std::vector<std::string> >("vs2");
-   CPPUNIT_ASSERT(vs.size() == 0);
+   CPPUNIT_ASSERT(vs.empty());
    vs = test.getParameter<std::vector<std::string> >("vs3");
    CPPUNIT_ASSERT(vs.size() == 1);
    CPPUNIT_ASSERT(vs[0] == "");
@@ -463,7 +463,7 @@ void testmakepset::typesTest() {
 
    std::vector<edm::ESInputTag> veinput1 = test.getParameter<std::vector<edm::ESInputTag> >("veinput1");
    std::vector<edm::ESInputTag> veinput2 = test.getParameter<std::vector<edm::ESInputTag> >("veinput2");
-   CPPUNIT_ASSERT(0 == veinput1.size());
+   CPPUNIT_ASSERT(veinput1.empty());
    CPPUNIT_ASSERT(2 == veinput2.size());
    CPPUNIT_ASSERT("" == veinput2[0].module());
    CPPUNIT_ASSERT("blah" == veinput2[0].data());

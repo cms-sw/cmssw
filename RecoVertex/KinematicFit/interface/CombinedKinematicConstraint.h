@@ -21,7 +21,7 @@ class CombinedKinematicConstraint : public MultiTrackKinematicConstraint{
 	
 public:
 	CombinedKinematicConstraint(const std::vector<MultiTrackKinematicConstraint* > &constraintVector):constraints(constraintVector){
-		if(constraints.size()<1) throw VertexException("CombinedKinematicConstraint::<1 constraints passed.");
+		if(constraints.empty()) throw VertexException("CombinedKinematicConstraint::<1 constraints passed.");
 	}
 	
 	/**

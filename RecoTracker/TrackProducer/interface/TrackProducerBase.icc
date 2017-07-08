@@ -226,7 +226,7 @@ TrackProducerBase<T>::setSecondHitPattern(Trajectory* traj, T& track,
 	        continue;
         }
         auto const & detWithState = it->compatibleDets(tsos,*localProp,estimator);
-        if(!detWithState.size()) continue;
+        if(detWithState.empty()) continue;
         DetId id = detWithState.front().first->geographicalId();
         MeasurementDetWithData measDet = measTk->idToDet(id);
         //if(measDet->isActive() && !measDet->hasBadComponents(detWithState.front().second)){

@@ -203,7 +203,7 @@ namespace cond {
 	}
 	m_data->change = false;
       }
-      if( m_data->iovBuffer.size() ) {
+      if( !m_data->iovBuffer.empty() ) {
 	std::sort(m_data->iovBuffer.begin(),m_data->iovBuffer.end(),iovSorter);
 	cond::Time_t l = std::get<0>(m_data->iovBuffer.front());
         //We do not allow for IOV updates (i.e. insertion in the past or overriding) on tags whose syncrosization is not "ANY" or "VALIDATION".

@@ -624,7 +624,7 @@ void PFElectronTranslator::createGsfElectrons(const reco::PFCandidateCollection 
       }
 
       // isolation
-      if( isolationValues.size() != 0 ) {
+      if( !isolationValues.empty() ) {
       	reco::GsfElectron::PflowIsolationVariables myPFIso;
       	myPFIso.sumChargedHadronPt=(*isolationValues[0])[CandidatePtr_[iGSF]];
       	myPFIso.sumPhotonEt=(*isolationValues[1])[CandidatePtr_[iGSF]];

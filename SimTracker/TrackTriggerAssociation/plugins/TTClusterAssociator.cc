@@ -33,7 +33,7 @@ void TTClusterAssociator< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent,
   std::map< std::pair< unsigned int, EncodedEventId >, edm::Ptr< TrackingParticle > > simTrackUniqueToTPMap;
   simTrackUniqueToTPMap.clear();
 
-  if ( TrackingParticleHandle->size() != 0 )
+  if ( !TrackingParticleHandle->empty() )
   {
     /// Loop over TrackingParticles
     unsigned int tpCnt = 0;

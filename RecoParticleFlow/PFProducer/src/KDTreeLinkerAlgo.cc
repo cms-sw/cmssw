@@ -17,7 +17,7 @@ void
 KDTreeLinkerAlgo::build(std::vector<KDTreeNodeInfo>	&eltList, 
 			const KDTreeBox			&region)
 {
-  if (eltList.size()) {
+  if (!eltList.empty()) {
     nodePoolSize_ = eltList.size() * 2 - 1;
     nodePool_ = new KDTreeNode[nodePoolSize_];
 

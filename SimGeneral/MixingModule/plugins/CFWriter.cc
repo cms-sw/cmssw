@@ -57,7 +57,7 @@ CFWriter::CFWriter(const edm::ParameterSet& iConfig)
       flagSimTrack_ = true;
       
       InputTag tag;
-      if (tags.size()>0) tag=tags[0];
+      if (!tags.empty()) tag=tags[0];
       std::string label;      
       branchesActivate(TypeID(typeid(std::vector<SimTrack>)).friendlyClassName(),std::string(""),tag,label);
       produces<PCrossingFrame<SimTrack> >(label);
@@ -70,7 +70,7 @@ CFWriter::CFWriter(const edm::ParameterSet& iConfig)
       flagSimVertex_ = true;
       
       InputTag tag;
-      if (tags.size()>0) tag=tags[0];
+      if (!tags.empty()) tag=tags[0];
       std::string label;             
       branchesActivate(TypeID(typeid(std::vector<SimVertex>)).friendlyClassName(),std::string(""),tag,label);
       produces<PCrossingFrame<SimVertex> >(label);
@@ -126,7 +126,7 @@ CFWriter::CFWriter(const edm::ParameterSet& iConfig)
       flagHepMCProduct_ = true;      
       
       InputTag tag;
-      if (tags.size()>0) tag=tags[0];
+      if (!tags.empty()) tag=tags[0];
       std::string label;
 
       branchesActivate(TypeID(typeid(HepMCProduct)).friendlyClassName(),std::string(""),tag,label);

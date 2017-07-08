@@ -204,7 +204,7 @@ void TrackingRecoMaterialAnalyser::analyze(const edm::Event& event,
 
   // Get Tracks
   event.getByToken(tracksToken_, tracks);
-  if (!tracks.isValid() || tracks->size() == 0) {
+  if (!tracks.isValid() || tracks->empty()) {
     LogInfo("TrackingRecoMaterialAnalyser") << "Invalid or empty track collection" << endl;
     return;
   }
@@ -226,7 +226,7 @@ void TrackingRecoMaterialAnalyser::analyze(const edm::Event& event,
   reco::Vertex::Point pv(beamSpot->position());
   if (usePV_) {
     event.getByToken(verticesToken_, vertices);
-    if (vertices.isValid() && vertices->size() != 0) {
+    if (vertices.isValid() && !vertices->empty()) {
       // Since we need to use eta and Z information from the tracks, in
       // order not to have the reco material distribution washed out due
       // to geometrical effects, we need to confine the PV to some small
@@ -274,7 +274,7 @@ void TrackingRecoMaterialAnalyser::analyze(const edm::Event& event,
     deltaPt_in_out_2d_->Fill(track.outerZ(), track.outerPosition().rho(), inner.rho() - outer.rho());
     P_vs_eta_2d_->Fill(track.eta(), track.p());
     vector<Trajectory> traj  = refitter_.transform(track);
-    if (traj.size() > 1 || traj.size() == 0)
+    if (traj.size() > 1 || traj.empty())
       continue;
     for (auto const &tm : traj.front().measurements()) {
       if (tm.recHit().get() &&

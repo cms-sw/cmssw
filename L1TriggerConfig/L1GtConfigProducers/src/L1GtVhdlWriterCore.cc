@@ -1811,7 +1811,7 @@ void L1GtVhdlWriterCore::initializeDeltaConditions()
 
         std::vector<L1GtObject> caloObjectsCp = caloObjects_;
 
-        while (caloObjectsCp.size()>0)
+        while (!caloObjectsCp.empty())
         {
             std::vector<L1GtObject>::iterator iter=caloObjectsCp.begin();
             L1GtObject firstPartner = (*iter);

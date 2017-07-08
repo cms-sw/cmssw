@@ -932,7 +932,7 @@ void Phase2TrackerDigitizerAlgorithm::digitize(const Phase2TrackerGeomDetUnit* p
   if (addNoise) add_noise(pixdet, theThresholdInE/theNoiseInElectrons);  // generate noise
   
   // Do only if needed
-  if (AddPixelInefficiency && theSignal.size() > 0) {
+  if (AddPixelInefficiency && !theSignal.empty()) {
     if (use_ineff_from_db_) 
       pixel_inefficiency_db(detID);
     else                    

@@ -107,7 +107,7 @@ void RegressionHelper::checkSetup(const edm::EventSetup & es) {
 
   // read weights from file - for debugging. Even if it is one single files, 4 files should b set in the vector
   if(!cfg_.ecalWeightsFromDB && !ecalRegressionInitialized_ &&
-     cfg_.ecalRegressionWeightFiles.size() ) {
+     !cfg_.ecalRegressionWeightFiles.empty() ) {
     TFile file0 (edm::FileInPath(cfg_.ecalRegressionWeightFiles[0].c_str()).fullPath().c_str());
     ecalRegBarrel_ = (const GBRForest*)file0.Get(cfg_.ecalRegressionWeightLabels[0].c_str());
     file0.Close();
@@ -124,7 +124,7 @@ void RegressionHelper::checkSetup(const edm::EventSetup & es) {
   }
   
   if(!cfg_.combinationWeightsFromDB && !combinationRegressionInitialized_ && 
-     cfg_.combinationRegressionWeightFiles.size() ) 
+     !cfg_.combinationRegressionWeightFiles.empty() ) 
     {
       TFile file0 (edm::FileInPath(cfg_.combinationRegressionWeightFiles[0].c_str()).fullPath().c_str());
       combinationReg_ = (const GBRForest*)file0.Get(cfg_.combinationRegressionWeightLabels[0].c_str());

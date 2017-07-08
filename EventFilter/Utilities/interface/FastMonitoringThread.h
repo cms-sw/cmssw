@@ -140,7 +140,7 @@ namespace evf{
     void resetFastMonitor(std::string const& microStateDefPath, std::string const& fastMicroStateDefPath) {
       std::string defGroup = "data";
       jsonMonitor_.reset(new jsoncollector::FastMonitor(microStateDefPath,defGroup,false));
-      if (fastMicroStateDefPath.size())
+      if (!fastMicroStateDefPath.empty())
         jsonMonitor_->addFastPathDefinition(fastMicroStateDefPath,defGroup,false);
     }
 

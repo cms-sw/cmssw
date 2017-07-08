@@ -212,7 +212,7 @@ int RBCProcessRPCDigis::next() {
     if ( m_debug ) (*wheelCounter).second->printSummary();
   }
   
-  if ( m_data.size() <= 0 ) return 0;
+  if ( m_data.empty() ) return 0;
   
   return 1;
   

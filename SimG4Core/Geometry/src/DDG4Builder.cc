@@ -124,7 +124,7 @@ DDGeometryReturnType DDG4Builder::BuildGeometry() {
     }
     G4LogicalVolume * g4LV = convertLV(ddLP);
     ++i;	
-    if (git->size()) {
+    if (!git->empty()) {
       // ask for children of ddLP  
       graph_type::edge_list::const_iterator cit  = git->begin();
       graph_type::edge_list::const_iterator cend = git->end();

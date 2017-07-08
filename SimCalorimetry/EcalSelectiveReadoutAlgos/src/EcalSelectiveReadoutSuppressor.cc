@@ -435,7 +435,7 @@ void EcalSelectiveReadoutSuppressor::setTtFlags(const EcalTrigPrimDigiCollection
 
 
 vector<int> EcalSelectiveReadoutSuppressor::getFIRWeigths() {
-  if(firWeights.size()==0){
+  if(firWeights.empty()){
     firWeights = vector<int>(nFIRTaps, 0); //default weight: 0;
     const static int maxWeight = 0xEFF; //weights coded on 11+1 signed bits
     for(unsigned i=0; i < min((size_t)nFIRTaps,weights.size()); ++i){ 

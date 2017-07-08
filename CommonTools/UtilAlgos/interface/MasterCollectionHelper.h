@@ -38,7 +38,7 @@ namespace helper {
     typedef edm::RefToBase<T> ref_type;
     explicit MasterCollection(const edm::Handle<edm::View<T> > & handle, edm::Event const& event) :
       handle_(handle) {
-      if(handle_->size() != 0) {
+      if(!handle_->empty()) {
         ref_ = edm::makeRefToBaseProdFrom(handle_->refAt(0), event);
       }
     }

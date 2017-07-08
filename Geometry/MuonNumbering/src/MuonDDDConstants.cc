@@ -56,7 +56,7 @@ int MuonDDDConstants::getValue( const std::string& name ) const {
 #ifdef LOCAL_DEBUG
   std::cout << "about to look for ... " << name << std::endl;
 #endif
-  if ( namesAndValues_.size() == 0 ) {
+  if ( namesAndValues_.empty() ) {
     std::cout << "MuonDDDConstants::getValue HAS NO VALUES!" << std::endl;
     throw cms::Exception("GeometryBuildFailure", "MuonDDDConstants does not have requested value for " + name);
   }

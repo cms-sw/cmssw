@@ -74,11 +74,11 @@ void SUSY_HLT_PhotonMET::analyze(edm::Event const& e, edm::EventSetup const& eSe
   }
 
   // use only events with leading photon in barrel
-  if (photonCollection->size()==0 || abs(photonCollection->begin()->superCluster()->eta()) > 1.4442) return;
+  if (photonCollection->empty() || abs(photonCollection->begin()->superCluster()->eta()) > 1.4442) return;
 
   // get reco photon and met
-  float const recoPhotonPt = photonCollection->size() ? photonCollection->begin()->et() : 0;
-  float const recoMET = pfMETCollection->size() ? pfMETCollection->begin()->et() : 0;
+  float const recoPhotonPt = !photonCollection->empty() ? photonCollection->begin()->et() : 0;
+  float const recoMET = !pfMETCollection->empty() ? pfMETCollection->begin()->et() : 0;
   h_recoPhotonPt->Fill(recoPhotonPt);
   h_recoMet->Fill(recoMET);
 

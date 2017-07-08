@@ -333,7 +333,7 @@ HepMC::GenEvent* TauolappInterface::decay( HepMC::GenEvent* evt ){
 	 BCodes.push_back( (*pitr)->barcode() );
        }
      }
-     if ( BCodes.size() > 0 ){
+     if ( !BCodes.empty() ){
        for ( size_t ibc=0; ibc<BCodes.size(); ibc++ ){
 	 HepMC::GenParticle* p1 = evt->barcode_to_particle( BCodes[ibc] );
 	 int nbc = p1->barcode() - 10000 + NPartBefore;

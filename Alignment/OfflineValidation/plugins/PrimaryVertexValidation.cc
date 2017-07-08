@@ -255,7 +255,7 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   std::sort( vsorted.begin(), vsorted.end(), PrimaryVertexValidation::vtxSort );
   
   // skip events with no PV, this should not happen
-  if( vsorted.size() == 0) return;
+  if( vsorted.empty()) return;
   // skip events failing vertex cut
   if( fabs(vsorted[0].z()) > vertexZMax_ ) return; 
   
@@ -287,7 +287,7 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   nOfflineVertices_ = nvvertex;
   h_nOfflineVertices->Fill(nvvertex);
 
-  if ( vsorted.size() && useTracksFromRecoVtx_ ) {
+  if ( !vsorted.empty() && useTracksFromRecoVtx_ ) {
    
     double sumpt    = 0;
     size_t ntracks  = 0;

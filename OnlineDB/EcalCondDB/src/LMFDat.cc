@@ -409,7 +409,7 @@ int LMFDat::writeDB()
   // write data on the database
   int ret = 0;
   std::map<int, std::vector<float> > data2write = fetchData();
-  if (data2write.size() > 0) {
+  if (!data2write.empty()) {
     this->checkConnection();
     bool ok = check();
     // write

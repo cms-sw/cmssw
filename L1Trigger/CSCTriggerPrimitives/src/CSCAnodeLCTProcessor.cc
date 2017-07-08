@@ -758,7 +758,7 @@ bool CSCAnodeLCTProcessor::pulseExtension(const std::vector<int> wire[CSCConstan
   for (i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++){
     digi_num = 0;
     for (i_wire = 0; i_wire < numWireGroups; i_wire++) {
-      if (wire[i_layer][i_wire].size() > 0) {
+      if (!wire[i_layer][i_wire].empty()) {
         std::vector<int> bx_times = wire[i_layer][i_wire];
         for (unsigned int i = 0; i < bx_times.size(); i++) {
           // Check that min and max times are within the allowed range.
@@ -1610,7 +1610,7 @@ void CSCAnodeLCTProcessor::dumpDigis(const std::vector<int> wire[CSCConstants::N
   for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
     strstrm << "\n";
     for (int i_wire = 0; i_wire < numWireGroups; i_wire++) {
-      if (wire[i_layer][i_wire].size() > 0) {
+      if (!wire[i_layer][i_wire].empty()) {
         std::vector<int> bx_times = wire[i_layer][i_wire];
         strstrm << std::hex << bx_times[0] << std::dec;
       }

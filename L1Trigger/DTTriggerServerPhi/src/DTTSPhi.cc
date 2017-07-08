@@ -408,7 +408,7 @@ DTTSPhi::runTSPhi() {
   }   // end loop on step  
   // debugging...
   if(config()->debug()){
-    if(_cache.size()>0){
+    if(!_cache.empty()){
       std::cout << "====================================================" << std::endl;
       std::cout << "                  Phi segments                     " << std::endl;
       std::vector<DTChambPhSegm>::const_iterator p;

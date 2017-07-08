@@ -49,7 +49,7 @@ extractNoiseGainQualityForDetId(uint32_t detId, const VPSet& digiset) {
   }
   setNoises(detId, detNoises);
   setGains(detId, detGains);
-  if(detBadStrips.size())
+  if(!detBadStrips.empty())
     quality->add(detId, std::make_pair(detBadStrips.begin(), detBadStrips.end()));  
 }
 

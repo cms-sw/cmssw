@@ -338,7 +338,7 @@ QualityCutsAnalyzer::LoopOverJetTracksAssociation(
     // use first pv of the collection
     reco::Vertex pv;
 
-    if (primaryVertexProducer_->size() != 0)
+    if (!primaryVertexProducer_->empty())
     {
         PrimaryVertexSorter pvs;
         std::vector<reco::Vertex> sortedList = pvs.sortedList(*(primaryVertexProducer_.product()));

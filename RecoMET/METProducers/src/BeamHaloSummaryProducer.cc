@@ -250,7 +250,7 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
   const std::vector<PhiWedge> MatchedEcalWedges = GlobalData.GetMatchedEcalPhiWedges();
 
   //Loose Id
-  if( MatchedEcalWedges.size() || MatchedHcalWedges.size() ) 
+  if( !MatchedEcalWedges.empty() || !MatchedHcalWedges.empty() ) 
     GlobalLooseId = true;
 
   //Tight Id

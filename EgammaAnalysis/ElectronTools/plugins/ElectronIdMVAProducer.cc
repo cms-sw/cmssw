@@ -116,7 +116,7 @@ bool ElectronIdMVAProducer::filter(edm::Event& iEvent, const edm::EventSetup& iS
   
   reco::Vertex dummy;
   const reco::Vertex *pv = &dummy;
-  if ( vertexCollection->size() != 0) {
+  if ( !vertexCollection->empty()) {
     pv = &*vertexCollection->begin();
   } else { // create a dummy PV
     reco::Vertex::Error e;

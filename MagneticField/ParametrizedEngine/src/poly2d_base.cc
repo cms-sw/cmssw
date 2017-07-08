@@ -49,7 +49,7 @@ std::set<poly2d_base*> poly2d_base::poly2d_base_set;
 poly2d_base::~poly2d_base()
 {
    poly2d_base_set.erase(poly2d_base_set.find(this));
-   if(poly2d_base_set.size()) { //some objects left
+   if(!poly2d_base_set.empty()) { //some objects left
       if (max_pwr >= NPwr) NPwr = GetMaxPow();
    } else {
       if (rz_pow) {
@@ -203,7 +203,7 @@ void poly2d_base::Collect()
 //_______________________________________________________________________________
 void poly2d_base::Print(std::ostream &out, const std::streamsize prec)
 {
-   if (!data.size()) {
+   if (data.empty()) {
       out << "\"poly2d_base\" object contains no terms." << std::endl;
       return;
    }

@@ -269,7 +269,7 @@ void PhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
   if( !pfCandidatesHandle.isValid() )
     iEvent.getByToken(pfCandidatesTokenMiniAOD_, pfCandidatesHandle);
 
-  if( !isAOD && src->size() ) {
+  if( !isAOD && !src->empty() ) {
     edm::Ptr<pat::Photon> test(src->ptrAt(0));
     if( test.isNull() || !test.isAvailable() ) {
       throw cms::Exception("InvalidConfiguration")
@@ -525,7 +525,7 @@ float PhotonIDValueMapProducer
     allIsolations.push_back(sum);
   }
 
-  if( allIsolations.size()>0 )
+  if( !allIsolations.empty() )
     worstIsolation = * std::max_element( allIsolations.begin(), allIsolations.end() );
   
   return worstIsolation;

@@ -140,7 +140,7 @@ void EcalPedOffset::analyze (Event const& event,
     barrelDigisFound = false;
   }
 
-  if(barrelDigis->size()==0) 
+  if(barrelDigis->empty()) 
   {
     edm::LogInfo("EcalPedOffset") << "Size of EBDigiCollection is zero;"
       << " not reading barrel digis";
@@ -158,7 +158,7 @@ void EcalPedOffset::analyze (Event const& event,
     endcapDigisFound = false;
   }
 
-  if(endcapDigis->size()==0) 
+  if(endcapDigis->empty()) 
   {
     edm::LogInfo("EcalPedOffset") << "Size of EEDigiCollection is zero;"
       << " not reading endcap digis";
@@ -305,7 +305,7 @@ void EcalPedOffset::writeDb ()
     DBconnection = new EcalCondDBInterface(m_dbName, m_dbUserName, m_dbPassword);
   } catch (std::runtime_error &e) {
     LogError("EcalPedOffset") << e.what();
-    if ( m_dbHostName.size() != 0 )
+    if ( !m_dbHostName.empty() )
     {
       try
       {
@@ -443,7 +443,7 @@ void EcalPedOffset::writeDb ()
   if ( DBconnection ) {
     try {
       LogDebug ("EcalPedOffset") << "Inserting dataset ... " << std::flush;
-      if ( DBdataset.size() != 0 ) DBconnection->insertDataSet (&DBdataset, &moniov);
+      if ( !DBdataset.empty() ) DBconnection->insertDataSet (&DBdataset, &moniov);
       LogDebug ("EcalPedOffset") << "done." ;
     } catch (std::runtime_error &e) {
       edm::LogError ("EcalPedOffset") << e.what ();

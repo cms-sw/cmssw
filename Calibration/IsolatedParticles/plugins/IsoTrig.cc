@@ -248,7 +248,7 @@ void IsoTrig::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   iEvent.getByToken(tok_recVtx_, recVtxs);  
   iEvent.getByToken(tok_bs_, beamSpotH);
-  if (recVtxs->size()>0 && !((*recVtxs)[0].isFake())) {
+  if (!recVtxs->empty() && !((*recVtxs)[0].isFake())) {
     leadPV = math::XYZPoint( (*recVtxs)[0].x(),(*recVtxs)[0].y(), (*recVtxs)[0].z() );
   } else if (beamSpotH.isValid()) {
     leadPV = beamSpotH->position();
@@ -405,8 +405,8 @@ void IsoTrig::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	    } else {
 	      if(doMipCutTree) studyMipCut(trkCollection, L2cands);
 	    }
-	    if (pixelTracksSources_.size()>0)
-	      if(doChgIsolTree && pixelTrackRefsHE.size()>0) chgIsolation(etaphi.first, etaphi.second, trkCollection, iEvent);
+	    if (!pixelTracksSources_.empty())
+	      if(doChgIsolTree && !pixelTrackRefsHE.empty()) chgIsolation(etaphi.first, etaphi.second, trkCollection, iEvent);
 	  }
 	  break;
 	}

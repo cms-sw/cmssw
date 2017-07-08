@@ -359,7 +359,7 @@ EventSetupProvider::finishConfiguration()
       itProvider->second->usePreferred(*preferredInfo);
       
       std::set<EventSetupRecordKey> records = itProvider->second->dependentRecords();
-      if(records.size() != 0) {
+      if(!records.empty()) {
          std::string missingRecords;
          std::vector<std::shared_ptr<EventSetupRecordProvider> > depProviders;
          depProviders.reserve(records.size());
@@ -371,7 +371,7 @@ EventSetupProvider::finishConfiguration()
             Providers::iterator itFound = providers_.find(*itRecord);
             if(itFound == providers_.end()) {
                foundAllProviders = false;
-               if(missingRecords.size() == 0) {
+               if(missingRecords.empty()) {
                  missingRecords = itRecord->name();
                } else {
                  missingRecords += ", ";

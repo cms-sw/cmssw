@@ -49,7 +49,7 @@ MP7FileReader::MP7FileReader(const std::string& path) : valid_(false), path_(pat
 
     LogDebug("L1T") << "# buffers " << buffers_.size();
 
-    if (buffers_.size() > 0) {
+    if (!buffers_.empty()) {
       LogDebug("L1T") << "# links " << buffers_.at(0).size();
       if (buffers_.at(0).size()>0) {
 	LogDebug("L1T") << "# frames " << buffers_.at(0).link(0).size();

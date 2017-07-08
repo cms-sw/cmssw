@@ -161,7 +161,7 @@ std::vector<ME0Segment> ME0SegAlgoRU::run(const ME0Chamber * chamber, const HitA
 		//displaced muons will not worry about it  later
 		//Iteration 2a: If we don't allow wide segments simply do displaced
 		// Or if we already found a segment simply skip to displaced
-		if(!allowWideSegments || segments.size()){
+		if(!allowWideSegments || !segments.empty()){
 			doDisplaced();
 			return segments;
 		}

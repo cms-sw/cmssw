@@ -112,10 +112,10 @@ int main(int argc, char* argv[]){
     stringstream s;
     for(int iCh=0; iCh<nChs; ++iCh){
       if(nEvts%oldEventCnt[iCh]){
-	s << (s.str().size()==0?"":", ") << iCh;
+	s << (s.str().empty()?"":", ") << iCh;
       }
     }
-    if(s.str().size()!=0)
+    if(!s.str().empty())
       cout << "Warning: ouput event count (2048) for channel"
 	   << (s.str().size()>1?"s":"") << " "
 	   << s.str()

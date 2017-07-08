@@ -166,7 +166,7 @@ SinglePhotonJetPlusHOFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
   edm::Handle<PFClusterCollection> hoht;
   iEvent.getByToken(tok_hoht_,hoht);
   if (hoht.isValid()) {
-    if ((*hoht).size()>0) {
+    if (!*hoht.empty()) {
       for (unsigned ijet = 0; ijet< jetdirection.size(); ijet++) {
 	
 	bool matched=false;

@@ -973,7 +973,7 @@ ME0MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   	if(recSimColl.find(track) != recSimColl.end()){
   	  tp = recSimColl[track];
 
-  	  if (tp.size()!=0) {
+  	  if (!tp.empty()) {
   	    tpr = tp.begin()->first;
 
   	    double assocChi2 = -(tp.begin()->second);
@@ -982,7 +982,7 @@ ME0MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
   	    if (  (simRecColl.find(tpr) != simRecColl.end())    ){
   	      std::vector<std::pair<RefToBase<Track>, double> > rt;
-  	      if  (simRecColl[tpr].size() > 0){
+  	      if  (!simRecColl[tpr].empty()){
   		rt=simRecColl[tpr];
   		RefToBase<Track> bestrecotrackforeff = rt.begin()->first;
   		//Only fill the efficiency histo if the track found matches up to a gen particle's best choice

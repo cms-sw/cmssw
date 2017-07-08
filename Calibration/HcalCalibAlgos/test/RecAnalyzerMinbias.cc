@@ -383,7 +383,7 @@ void RecAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup
   }
 
   bool select(false);
-  if (trigbit_.size() > 0) {
+  if (!trigbit_.empty()) {
     edm::Handle<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord;
     iEvent.getByToken(tok_hltL1GtMap_, gtObjectMapRecord);
     if (gtObjectMapRecord.isValid()) {
@@ -403,7 +403,7 @@ void RecAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup
     }
   }
 
-  if ((trigbit_.size() == 0) || select) myTree1_->Fill();
+  if ((trigbit_.empty()) || select) myTree1_->Fill();
 
   //event weight for FLAT sample and PU information
   double eventWeight = 1.0;
@@ -411,9 +411,9 @@ void RecAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup
   iEvent.getByToken(tok_ew_, genEventInfo);
   if (genEventInfo.isValid()) eventWeight = genEventInfo->weight();  
 
-  if (ignoreL1_ || ((trigbit_.size() > 0) && select)) {
+  if (ignoreL1_ || ((!trigbit_.empty()) && select)) {
     analyzeHcal(HithbheMB, HithfMB, 1, true, eventWeight);
-  } else if ((!ignoreL1_) && (trigbit_.size() == 0)) {
+  } else if ((!ignoreL1_) && (trigbit_.empty())) {
     edm::Handle<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord;
     iEvent.getByToken(tok_hltL1GtMap_, gtObjectMapRecord);
     if (gtObjectMapRecord.isValid()) {

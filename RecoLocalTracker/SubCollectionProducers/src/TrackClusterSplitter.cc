@@ -749,7 +749,7 @@ void TrackClusterSplitter::splitCluster<SiStripCluster> (const SiStripClusterWit
 		  for (size_t j=0; j<trackAmp[i].size(); ++j ) 
 		    clusterAmp += (float)(trackAmp[i])[j];
 		  
-		  if ( clusterAmp > 0.0 && firstStrip[i] != 9999 && trackAmp[i].size() > 0  ) 
+		  if ( clusterAmp > 0.0 && firstStrip[i] != 9999 && !trackAmp[i].empty()  ) 
 		    { 
 		      // gavril :  I think this should work
 		      output.push_back( newCluster[i] );

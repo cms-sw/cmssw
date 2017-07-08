@@ -1366,7 +1366,7 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
       const reco::TrackCollection *tracks = trackCollection.product();
       reco::TrackCollection::const_iterator tciter;
       
-      if ( tracks->size() > 0 )
+      if ( !tracks->empty() )
 	{
 	  // Loop on tracks
 	  for ( tciter=tracks->begin(); tciter!=tracks->end(); ++tciter)

@@ -403,7 +403,7 @@ std::vector<EcalSimPhotonMCTruth> ContainmentCorrectionAnalyzer::findMcTruth(std
 	} 	 
       } // loop over the SimTracks      
        
-      if ( trkFromConversion.size() > 0 ) {
+      if ( !trkFromConversion.empty() ) {
 	isAconversion=1;
 	nConv++;
 	convInd[iPho]=nConv;         

@@ -1201,7 +1201,7 @@ bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
             << "\nWarning: L1EtMissParticleCollection with input tag " << m_l1EtMissMETTag
             << "\nrequested in configuration, but not found in the event."
             << "\nNo ETM added to filterproduct." << std::endl;
-        } else if (l1EnergySums->size() == 0) {
+        } else if (l1EnergySums->empty()) {
             edm::LogWarning("HLTLevel1GTSeed")
             << "\nWarning: L1EtMissParticleCollection with input tag " << m_l1EtMissMETTag
             << "\nfound in the event but with 0 size." << "\nNo ETM added to filterproduct."
@@ -1229,7 +1229,7 @@ bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
             << "\nWarning: L1EtMissParticleCollection with input tag " << m_l1EtMissMETTag
             << "\nrequested in configuration, but not found in the event."
             << "\nNo ETT added to filterproduct." << std::endl;
-        } else if (l1EnergySums->size() == 0) {
+        } else if (l1EnergySums->empty()) {
             edm::LogWarning("HLTLevel1GTSeed")
             << "\nWarning: L1EtMissParticleCollection with input tag " << m_l1EtMissMETTag
             << "\nfound in the event but with 0 size." << "\nNo ETT added to filterproduct."
@@ -1258,7 +1258,7 @@ bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
             << "\nrequested in configuration, but not found in the event."
             << "\nNo HTT added to filterproduct." << std::endl;
 
-        } else if (l1EnergySums->size() == 0) {
+        } else if (l1EnergySums->empty()) {
             edm::LogWarning("HLTLevel1GTSeed")
             << "\nWarning: L1EtMissParticleCollection with input tag " << m_l1EtMissMHTTag
             << "\nfound in the event but with 0 size." << "\nNo HTT added to filterproduct."
@@ -1286,7 +1286,7 @@ bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
             << "\nrequested in configuration, but not found in the event."
             << "\nNo HTM added to filterproduct." << std::endl;
 
-        } else if (l1EnergySums->size() == 0) {
+        } else if (l1EnergySums->empty()) {
             edm::LogWarning("HLTLevel1GTSeed")
             << "\nWarning: L1EtMissParticleCollection with input tag " << m_l1EtMissMHTTag
             << "\nfound in the event but with 0 size." << "\nNo HTM added to filterproduct."
@@ -1696,7 +1696,7 @@ bool HLTLevel1GTSeed::seedsL1Extra(edm::Event & iEvent, trigger::TriggerFilterOb
                                         << "\nNo ETM added to filterproduct."
                                         << std::endl;
 
-                            } else if (l1EnergySums->size() == 0) {
+                            } else if (l1EnergySums->empty()) {
                                 edm::LogWarning("HLTLevel1GTSeed")
                                         << "\nWarning: L1EtMissParticleCollection with input tag "
                                         << m_l1EtMissMETTag
@@ -1743,7 +1743,7 @@ bool HLTLevel1GTSeed::seedsL1Extra(edm::Event & iEvent, trigger::TriggerFilterOb
                                         << "\nNo ETT added to filterproduct."
                                         << std::endl;
 
-                            } else if (l1EnergySums->size() == 0) {
+                            } else if (l1EnergySums->empty()) {
                                 edm::LogWarning("HLTLevel1GTSeed")
                                         << "\nWarning: L1EtMissParticleCollection with input tag "
                                         << m_l1EtMissMETTag
@@ -1790,7 +1790,7 @@ bool HLTLevel1GTSeed::seedsL1Extra(edm::Event & iEvent, trigger::TriggerFilterOb
                                         << "\nNo HTT added to filterproduct."
                                         << std::endl;
 
-                            } else if (l1EnergySums->size() == 0) {
+                            } else if (l1EnergySums->empty()) {
                                 edm::LogWarning("HLTLevel1GTSeed")
                                         << "\nWarning: L1EtMissParticleCollection with input tag "
                                         << m_l1EtMissMHTTag
@@ -1836,7 +1836,7 @@ bool HLTLevel1GTSeed::seedsL1Extra(edm::Event & iEvent, trigger::TriggerFilterOb
                                         << "\nNo HTM added to filterproduct."
                                         << std::endl;
 
-                            } else if (l1EnergySums->size() == 0) {
+                            } else if (l1EnergySums->empty()) {
                                 edm::LogWarning("HLTLevel1GTSeed")
                                         << "\nWarning: L1EtMissParticleCollection with input tag "
                                         << m_l1EtMissMHTTag

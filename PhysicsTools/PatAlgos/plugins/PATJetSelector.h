@@ -181,7 +181,7 @@ namespace pat {
 
 
       // put genEvt  in Event
-      bool pass = patJets->size() > 0;
+      bool pass = !patJets->empty();
       iEvent.put(std::move(patJets));
 
       if ( filter_ )

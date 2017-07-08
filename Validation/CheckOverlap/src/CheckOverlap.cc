@@ -32,7 +32,7 @@ CheckOverlap::~CheckOverlap() {}
   
 void CheckOverlap::update(const BeginOfRun * run) {
   
-  if (nodeNames.size() > 0) {
+  if (!nodeNames.empty()) {
     const G4LogicalVolumeStore * lvs = G4LogicalVolumeStore::GetInstance();
     G4cout << "CheckOverlap::update nLV= " << lvs->size() << G4endl; 
     std::vector<G4LogicalVolume *>::const_iterator lvcite;
@@ -53,7 +53,7 @@ void CheckOverlap::update(const BeginOfRun * run) {
     topLV.push_back(theTopPV->GetLogicalVolume());
   }
 
-  if (topLV.size() == 0) {
+  if (topLV.empty()) {
     G4cout << "No Top LV Found" << G4endl;
   } else {
     for (unsigned int ii=0; ii<topLV.size(); ++ii) {

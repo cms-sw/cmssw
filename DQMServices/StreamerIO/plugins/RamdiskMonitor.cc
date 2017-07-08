@@ -135,7 +135,7 @@ void RamdiskMonitor::analyzeFile(std::string fn, unsigned int run,
   using LumiEntry = dqmservices::DQMFileIterator::LumiEntry;
 
   // we are disabled, at least for this stream
-  if (streams_.size() == 0) return;
+  if (streams_.empty()) return;
 
   if (streams_.find(label) == streams_.end()) {
     edm::LogPrint("RamdiskMonitor") << "Stream not monitored [" << label

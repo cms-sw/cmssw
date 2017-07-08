@@ -254,7 +254,7 @@ void L2MuonSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 	detsWithStates = detLayer->compatibleDets(tsos, 
 						  *theService->propagator(thePropagatorName), 
 						  *theEstimator);   
-      if (detsWithStates.size()){
+      if (!detsWithStates.empty()){
 
 	TrajectoryStateOnSurface newTSOS = detsWithStates.front().second;
 	const GeomDet *newTSOSDet = detsWithStates.front().first;

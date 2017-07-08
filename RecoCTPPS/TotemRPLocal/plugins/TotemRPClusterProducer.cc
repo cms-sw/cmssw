@@ -77,7 +77,7 @@ void TotemRPClusterProducer::produce(edm::Event& e, const edm::EventSetup& es)
   DetSetVector<TotemRPCluster> output;
   
   // run clusterisation
-  if (input->size())
+  if (!input->empty())
     run(*input, output);
 
   // save output to event

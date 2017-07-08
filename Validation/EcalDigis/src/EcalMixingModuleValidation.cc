@@ -312,7 +312,7 @@ void EcalMixingModuleValidation::analyze(edm::Event const & e, edm::EventSetup c
   if (EcalDigiEB.isValid()) { 
     EBdigis = EcalDigiEB.product();
     LogDebug("DigiInfo") << "total # EBdigis: " << EBdigis->size() ;
-    if ( EBdigis->size() == 0 ) isBarrel = false;
+    if ( EBdigis->empty() ) isBarrel = false;
   } else {
     isBarrel = false; 
   }
@@ -322,7 +322,7 @@ void EcalMixingModuleValidation::analyze(edm::Event const & e, edm::EventSetup c
   if (EcalDigiEE.isValid()) {
     EEdigis = EcalDigiEE.product();
     LogDebug("DigiInfo") << "total # EEdigis: " << EEdigis->size() ;
-    if ( EEdigis->size() == 0 ) isEndcap = false;
+    if ( EEdigis->empty() ) isEndcap = false;
   } else {
     isEndcap = false; 
   }
@@ -332,7 +332,7 @@ void EcalMixingModuleValidation::analyze(edm::Event const & e, edm::EventSetup c
   if (EcalDigiES.isValid()) {
     ESdigis = EcalDigiES.product();
     LogDebug("DigiInfo") << "total # ESdigis: " << ESdigis->size() ;
-    if ( ESdigis->size() == 0 ) isPreshower = false;
+    if ( ESdigis->empty() ) isPreshower = false;
   } else {
     isPreshower = false; 
   }

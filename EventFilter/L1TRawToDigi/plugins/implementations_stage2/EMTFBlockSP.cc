@@ -167,7 +167,7 @@ namespace l1t {
 	Track_.set_endcap       ( ((res->at(iOut)).PtrEventHeader()->Endcap() == 1) ? 1 : -1 );
         Track_.set_sector_index ( (Track_.Endcap() == 1) ? Track_.Sector() - 1 : Track_.Sector() + 5 );
 
-	if ( (res->at(iOut)).PtrSPCollection()->size() > 0 )
+	if ( !(res->at(iOut)).PtrSPCollection()->empty() )
 	  if ( SP_.TBIN() == (res->at(iOut)).PtrSPCollection()->at( (res->at(iOut)).PtrSPCollection()->size() - 1 ).TBIN() )
 	    Track_.set_track_num( (res->at(iOut)).PtrSPCollection()->size() );
 	  else Track_.set_track_num( 0 );

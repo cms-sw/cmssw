@@ -845,7 +845,7 @@ void HLTHiggsSubAnalysis::bookobjects( const edm::ParameterSet & anpset, edm::Co
         _genSelectorMap[EVTColContainer::TRACK] = 0 ;
     }*/
 
-    if( _recLabels.size() < 1 )
+    if( _recLabels.empty() )
     {
         edm::LogError("HiggsValidation") << "HLTHiggsSubAnalysis::bookobjects, " 
         << "Not included any object (recMuonLabel, recElecLabel, ...)  "

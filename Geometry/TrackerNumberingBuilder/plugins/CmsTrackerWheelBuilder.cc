@@ -32,7 +32,7 @@ void CmsTrackerWheelBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g,
 void CmsTrackerWheelBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
        
-  if(comp.size()){
+  if(!comp.empty()){
     if(comp.front()->type()==GeometricDet::petal){
       GeometricDet::GeometricDetContainer compfw;
       GeometricDet::GeometricDetContainer compbw;

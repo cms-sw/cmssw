@@ -84,7 +84,7 @@ int main (int argc, char ** argv) {
     if ( fabs(j.rap()) < inputEtaMax )
       input_particles.push_back(fastjet::PseudoJet(px,py,pz,E)); 
   }
-  if (input_particles.size() == 0) break;
+  if (input_particles.empty()) break;
   iev++;
 
   // create a jet definition: 

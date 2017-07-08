@@ -107,7 +107,7 @@ public:
         outFile.exceptions(std::ofstream::failbit | std::ofstream::badbit);
         outFile.open(args.output);
         std::shared_ptr<std::ofstream> mapFile;
-        if(args.map_output.size()) {
+        if(!args.map_output.empty()) {
             mapFile = std::make_shared<std::ofstream>();
             mapFile->exceptions(std::ofstream::failbit | std::ofstream::badbit);
             mapFile->open(args.map_output);

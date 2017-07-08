@@ -153,7 +153,7 @@ namespace sistrip {
       lFrame.baseline += val;
     }
 
-    if (channelDigis.size()>0) lFrame.baseline = lFrame.baseline/channelDigis.size();
+    if (!channelDigis.empty()) lFrame.baseline = lFrame.baseline/channelDigis.size();
     lFrame.digitalLow = min;
     lFrame.digitalHigh = max;
 

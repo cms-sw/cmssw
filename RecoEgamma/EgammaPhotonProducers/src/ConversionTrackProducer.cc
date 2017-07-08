@@ -75,7 +75,7 @@ ConversionTrackProducer::ConversionTrackProducer(edm::ParameterSet const& conf) 
     std::map<reco::GsfTrackRef,edm::Ref<std::vector<Trajectory> > > gsftracktrajmap;
                                           
     if (useTrajectory) {
-      if (hTrks->size()>0) {
+      if (!hTrks->empty()) {
         if (dynamic_cast<const reco::GsfTrack*>(&hTrks->at(0))) {
           //fill map for gsf tracks
           e.getByToken(gsfTrajectories, hTTAssGsf);     
@@ -150,7 +150,7 @@ ConversionTrackProducer::ConversionTrackProducer(edm::ParameterSet const& conf) 
             
       //fill trajectory association if configured, using correct map depending on track type
       if (useTrajectory) {
-        if (gsftracktrajmap.size()) {
+        if (!gsftracktrajmap.empty()) {
           convTrack.setTrajRef(gsftracktrajmap.find(trackBaseRef.castTo<reco::GsfTrackRef>())->second);
         }
         else {

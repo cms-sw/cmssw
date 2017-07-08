@@ -711,7 +711,7 @@ DAClusterizerInZ::clusterize(const vector<reco::TransientTrack> & tracks)
   vector< TransientVertex > pv=vertices(tracks);
 
   if(verbose_){ cout << "# DAClusterizerInZ::clusterize   pv.size="<<pv.size() << endl;  }
-  if (pv.size()==0){ return clusters;}
+  if (pv.empty()){ return clusters;}
 
 
   // fill into clusters and merge

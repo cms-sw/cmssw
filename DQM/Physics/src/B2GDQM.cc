@@ -462,7 +462,7 @@ void B2GDQM::analyzeSemiMu(const Event& iEvent, const edm::EventSetup& iSetup) {
   bool validMuons = iEvent.getByToken(muonToken_, muonCollection);
 
   if (!validMuons) return;
-  if (muonCollection->size() < 1) return;
+  if (muonCollection->empty()) return;
   reco::Muon const& muon = muonCollection->at(0);
   if (!(*muonSelect_)(muon)) return;
 
@@ -539,7 +539,7 @@ void B2GDQM::analyzeSemiE(const Event& iEvent, const edm::EventSetup& iSetup) {
   bool validElectrons = iEvent.getByToken(electronToken_, electronCollection);
 
   if (!validElectrons) return;
-  if (electronCollection->size() < 1) return;
+  if (electronCollection->empty()) return;
   reco::GsfElectron const& electron = electronCollection->at(0);
   if (!(*elecSelect_)(electron)) return;
 

@@ -110,7 +110,7 @@ void HLTmumutkVtxProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
   Particle::LorentzVector p,p1,p2,p3;
 
   if ( mucands->size()  < 2 )   return;
-  if ( trkcands->size() < 1 )   return;
+  if ( trkcands->empty() )   return;
 
   RecoChargedCandidateCollection::const_iterator mucand1;
   RecoChargedCandidateCollection::const_iterator mucand2;

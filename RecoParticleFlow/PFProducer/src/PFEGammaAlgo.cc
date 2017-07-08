@@ -383,13 +383,13 @@ namespace {
 				  const PFEGammaAlgo::ProtoEGObject& RO2 ) {
     // also don't allow ROs where both have clusters
     // and GSF tracks to merge (10 Dec 2013)
-    if(RO1.primaryGSFs.size() && RO2.primaryGSFs.size()) {
+    if(!RO1.primaryGSFs.empty() && !RO2.primaryGSFs.empty()) {
       LOGDRESSED("isROLinkedByClusterOrTrack") 
 	<< "cannot merge, both have GSFs!" << std::endl;
       return false;
     }
     // don't allow EB/EE to mix (11 Sept 2013)
-    if( RO1.ecalclusters.size() && RO2.ecalclusters.size() ) {
+    if( !RO1.ecalclusters.empty() && !RO2.ecalclusters.empty() ) {
       if(RO1.ecalclusters.front().first->clusterRef()->layer() !=
 	 RO2.ecalclusters.front().first->clusterRef()->layer() ) {
 	LOGDRESSED("isROLinkedByClusterOrTrack") 
@@ -583,7 +583,7 @@ namespace {
   }
   bool addPFClusterToROSafe(const ClusterElement* cl,
 			    PFEGammaAlgo::ProtoEGObject& RO) {
-    if( !RO.ecalclusters.size() ) {
+    if( RO.ecalclusters.empty() ) {
       RO.ecalclusters.push_back(std::make_pair(cl,true));      
       return true;
     } else {
@@ -601,7 +601,7 @@ namespace {
   // sets the cluster best associated to the GSF track
   // leave it null if no GSF track
   void setROElectronCluster(PFEGammaAlgo::ProtoEGObject& RO) {
-    if( !RO.ecalclusters.size() ) return;
+    if( RO.ecalclusters.empty() ) return;
     RO.lateBrem = -1;
     RO.firstBrem = -1;
     RO.nBremsWithClusters = -1;    
@@ -771,13 +771,13 @@ EvaluateSingleLegMVA(const pfEGHelpers::HeavyObjectCache* hoc,
 			    hcalAssoTrack,  
 			    reco::PFBlockElement::HCAL,  
 			    reco::PFBlock::LINKTEST_ALL );  
-  if(ecalAssoTrack.size() > 0) {  
+  if(!ecalAssoTrack.empty()) {  
     for(std::multimap<double, unsigned int>::iterator itecal = ecalAssoTrack.begin();  
 	itecal != ecalAssoTrack.end(); ++itecal) {  
       linked_e=linked_e+elements[itecal->second].clusterRef()->energy();  
     }  
   }  
-  if(hcalAssoTrack.size() > 0) {  
+  if(!hcalAssoTrack.empty()) {  
     for(std::multimap<double, unsigned int>::iterator ithcal = hcalAssoTrack.begin();  
 	ithcal != hcalAssoTrack.end(); ++ithcal) {  
       linked_h=linked_h+elements[ithcal->second].clusterRef()->energy();  
@@ -1364,8 +1364,8 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
  removeOrLinkECALClustersToKFTracks() {
    typedef std::multimap<double, unsigned> MatchedMap;
    typedef const reco::PFBlockElementGsfTrack* GsfTrackElementPtr;
-   if( !_splayedblock[reco::PFBlockElement::ECAL].size() ||
-       !_splayedblock[reco::PFBlockElement::TRACK].size()   ) return;
+   if( _splayedblock[reco::PFBlockElement::ECAL].empty() ||
+       _splayedblock[reco::PFBlockElement::TRACK].empty()   ) return;
    MatchedMap matchedGSFs, matchedECALs;
    std::unordered_map<GsfTrackElementPtr,MatchedMap> gsf_ecal_cache;
    for( auto& kftrack : _splayedblock[reco::PFBlockElement::TRACK] ) {
@@ -1374,7 +1374,7 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
 				       matchedGSFs,
 				       reco::PFBlockElement::GSF,
 				       reco::PFBlock::LINKTEST_ALL);
-     if( !matchedGSFs.size() ) { // only run this if we aren't associated to GSF
+     if( matchedGSFs.empty() ) { // only run this if we aren't associated to GSF
        LesserByDistance closestTrackToECAL(_currentblock,_currentlinks,
 					   &kftrack);      
        auto ecalbegin = _splayedblock[reco::PFBlockElement::ECAL].begin();
@@ -1415,7 +1415,7 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
 	     MatchedMap().swap(matchedECALs);
 	   } 
 	   const MatchedMap& ecal_matches = gsf_ecal_cache[elemasgsf];	   
-	   if( ecal_matches.size() ) {
+	   if( !ecal_matches.empty() ) {
 	     if( ecal_matches.begin()->second == closestECAL.first->index() ) {
 	       gsflinked = true;
 	       break;
@@ -1484,7 +1484,7 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
        for( auto roToMerge = mergestart; roToMerge != nomerge; ++roToMerge) {
          //bugfix! L.Gray 14 Jan 2016 
          // -- check that the front is still mergeable!
-         if( thefront.ecalclusters.size() && roToMerge->ecalclusters.size() ) {
+         if( !thefront.ecalclusters.empty() && !roToMerge->ecalclusters.empty() ) {
            if( thefront.ecalclusters.front().first->clusterRef()->layer() !=   
                roToMerge->ecalclusters.front().first->clusterRef()->layer() ) {
              LOGWARN("PFEGammaAlgo::mergeROsByAnyLink") 
@@ -1554,7 +1554,7 @@ void PFEGammaAlgo::
 linkRefinableObjectGSFTracksToKFs(ProtoEGObject& RO) {
   constexpr reco::PFBlockElement::TrackType convType = 
     reco::PFBlockElement::T_FROM_GAMMACONV;
-  if( !_splayedblock[reco::PFBlockElement::TRACK].size() ) return;
+  if( _splayedblock[reco::PFBlockElement::TRACK].empty() ) return;
   auto KFbegin = _splayedblock[reco::PFBlockElement::TRACK].begin();
   auto KFend = _splayedblock[reco::PFBlockElement::TRACK].end();
   for( auto& gsfflagged : RO.primaryGSFs ) {
@@ -1591,7 +1591,7 @@ void PFEGammaAlgo::
 linkRefinableObjectPrimaryKFsToSecondaryKFs(ProtoEGObject& RO) {
   constexpr reco::PFBlockElement::TrackType convType = 
     reco::PFBlockElement::T_FROM_GAMMACONV;
-  if( !_splayedblock[reco::PFBlockElement::TRACK].size() ) return;
+  if( _splayedblock[reco::PFBlockElement::TRACK].empty() ) return;
   auto KFbegin = _splayedblock[reco::PFBlockElement::TRACK].begin();
   auto KFend = _splayedblock[reco::PFBlockElement::TRACK].end();
   for( auto& kfflagged : RO.primaryKFs ) {
@@ -1625,7 +1625,7 @@ linkRefinableObjectPrimaryKFsToSecondaryKFs(ProtoEGObject& RO) {
 // try to associate the tracks to cluster elements which are not used
 void PFEGammaAlgo::
 linkRefinableObjectPrimaryGSFTrackToECAL(ProtoEGObject& RO) {
-  if( !_splayedblock[reco::PFBlockElement::ECAL].size() ) {
+  if( _splayedblock[reco::PFBlockElement::ECAL].empty() ) {
     RO.electronClusters.push_back(NULL);
     return; 
   }
@@ -1679,7 +1679,7 @@ linkRefinableObjectPrimaryGSFTrackToECAL(ProtoEGObject& RO) {
 // try to associate the tracks to cluster elements which are not used
 void PFEGammaAlgo::
 linkRefinableObjectPrimaryGSFTrackToHCAL(ProtoEGObject& RO) {
-  if( !_splayedblock[reco::PFBlockElement::HCAL].size() ) return; 
+  if( _splayedblock[reco::PFBlockElement::HCAL].empty() ) return; 
   auto HCALbegin = _splayedblock[reco::PFBlockElement::HCAL].begin();
   auto HCALend = _splayedblock[reco::PFBlockElement::HCAL].end();
   for( auto& primgsf : RO.primaryGSFs ) {
@@ -1705,7 +1705,7 @@ linkRefinableObjectPrimaryGSFTrackToHCAL(ProtoEGObject& RO) {
 // try to associate the tracks to cluster elements which are not used
 void PFEGammaAlgo::
 linkRefinableObjectKFTracksToECAL(ProtoEGObject& RO) {
-  if( !_splayedblock[reco::PFBlockElement::ECAL].size() ) return;  
+  if( _splayedblock[reco::PFBlockElement::ECAL].empty() ) return;  
   for( auto& primkf : RO.primaryKFs ) linkKFTrackToECAL(primkf,RO);
   for( auto& secdkf : RO.secondaryKFs ) linkKFTrackToECAL(secdkf,RO);
 }
@@ -1768,7 +1768,7 @@ PFEGammaAlgo::linkKFTrackToECAL(const KFFlaggedElement& kfflagged,
 
 void PFEGammaAlgo::
 linkRefinableObjectBremTangentsToECAL(ProtoEGObject& RO) {
-  if( !RO.brems.size() ) return;
+  if( RO.brems.empty() ) return;
   int FirstBrem = -1;
   int TrajPos = -1;
   int lastBremTrajPos = -1;  
@@ -1946,23 +1946,23 @@ fillPFCandidates(const pfEGHelpers::HeavyObjectCache* hoc,
   egxs.reserve(ROs.size());
   refinedscs_.reserve(ROs.size());
   for( auto& RO : ROs ) {    
-    if( RO.ecalclusters.size() == 0  && 
+    if( RO.ecalclusters.empty()  && 
 	!cfg_.produceEGCandsWithNoSuperCluster ) continue;
     
     reco::PFCandidate cand;
     reco::PFCandidateEGammaExtra xtra;
-    if( RO.primaryGSFs.size() || RO.primaryKFs.size() ) {
+    if( !RO.primaryGSFs.empty() || !RO.primaryKFs.empty() ) {
       cand.setPdgId(-11); // anything with a primary track is an electron
     } else {
       cand.setPdgId(22); // anything with no primary track is a photon
     }    
-    if( RO.primaryKFs.size() ) {
+    if( !RO.primaryKFs.empty() ) {
       cand.setCharge(RO.primaryKFs[0].first->trackRef()->charge());
       xtra.setKfTrackRef(RO.primaryKFs[0].first->trackRef());
       cand.setTrackRef(RO.primaryKFs[0].first->trackRef());
       cand.addElementInBlock(_currentblock,RO.primaryKFs[0].first->index());
     }
-    if( RO.primaryGSFs.size() ) {        
+    if( !RO.primaryGSFs.empty() ) {        
       cand.setCharge(RO.primaryGSFs[0].first->GsftrackRef()->chargeMode());
       xtra.setGsfTrackRef(RO.primaryGSFs[0].first->GsftrackRef());
       cand.setGsfTrackRef(RO.primaryGSFs[0].first->GsftrackRef());
@@ -2047,7 +2047,7 @@ fillPFCandidates(const pfEGHelpers::HeavyObjectCache* hoc,
       cand.setPositionAtECALEntrance(ecalPOS_f);
       cand.setEcalEnergy(the_sc.rawEnergy(),the_sc.energy());
     } else if ( cfg_.produceEGCandsWithNoSuperCluster && 
-		RO.primaryGSFs.size() ) {
+		!RO.primaryGSFs.empty() ) {
       const PFGSFElement* gsf = RO.primaryGSFs[0].first;
       reco::GsfTrackRef gref = gsf->GsftrackRef();
       math::XYZTLorentzVector p4(gref->pxMode(),gref->pyMode(),
@@ -2055,7 +2055,7 @@ fillPFCandidates(const pfEGHelpers::HeavyObjectCache* hoc,
       cand.setP4(p4);      
       cand.setPositionAtECALEntrance(gsf->positionAtECALEntrance());
     } else if ( cfg_.produceEGCandsWithNoSuperCluster &&
-		RO.primaryKFs.size() ) {
+		!RO.primaryKFs.empty() ) {
       const PFKFElement* kf = RO.primaryKFs[0].first;
       reco::TrackRef kref = RO.primaryKFs[0].first->trackRef();
       math::XYZTLorentzVector p4(kref->px(),kref->py(),kref->pz(),kref->p());
@@ -2076,10 +2076,10 @@ float PFEGammaAlgo::
 calculate_ele_mva(const pfEGHelpers::HeavyObjectCache* hoc,
                   const PFEGammaAlgo::ProtoEGObject& RO,
 		  reco::PFCandidateEGammaExtra& xtra) {
-  if( !RO.primaryGSFs.size() ) return -2.0f;
+  if( RO.primaryGSFs.empty() ) return -2.0f;
   const PFGSFElement* gsfElement = RO.primaryGSFs.front().first;
   const PFKFElement* kfElement = NULL;
-  if( RO.primaryKFs.size() ) kfElement = RO.primaryKFs.front().first;
+  if( !RO.primaryKFs.empty() ) kfElement = RO.primaryKFs.front().first;
   reco::GsfTrackRef RefGSF= gsfElement->GsftrackRef();
   reco::TrackRef RefKF;
   constexpr float m_el = 0.000511;
@@ -2093,7 +2093,7 @@ calculate_ele_mva(const pfEGHelpers::HeavyObjectCache* hoc,
 					   const PFClusterFlaggedElement& b) 
 				{ return a + b.first->clusterRef()->energy(); }
 					     );
-  if( RO.primaryKFs.size() ) {
+  if( !RO.primaryKFs.empty() ) {
     RefKF = RO.primaryKFs.front().first->trackRef();
   }
   const double Eout_gsf = gsfElement->Pout().t();
@@ -2270,7 +2270,7 @@ void PFEGammaAlgo::fill_extra_info( const ProtoEGObject& RO,
 // both places...
 reco::SuperCluster PFEGammaAlgo::
 buildRefinedSuperCluster(const PFEGammaAlgo::ProtoEGObject& RO) {
-  if( !RO.ecalclusters.size() ) { 
+  if( RO.ecalclusters.empty() ) { 
     return reco::SuperCluster(0.0,math::XYZPoint(0,0,0));
   }
 	
@@ -2430,7 +2430,7 @@ buildRefinedSuperCluster(const PFEGammaAlgo::ProtoEGObject& RO) {
 void PFEGammaAlgo::
 unlinkRefinableObjectKFandECALWithBadEoverP(ProtoEGObject& RO) {  
   // this only means something for ROs with a primary GSF track
-  if( !RO.primaryGSFs.size() ) return;  
+  if( RO.primaryGSFs.empty() ) return;  
   // need energy sums to tell if we've added crap or not
   const double Pin_gsf = RO.primaryGSFs.front().first->GsftrackRef()->pMode();
   const double gsfOuterEta  = 

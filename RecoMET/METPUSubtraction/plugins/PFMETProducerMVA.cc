@@ -85,7 +85,7 @@ void PFMETProducerMVA::produce(edm::Event& evt, const edm::EventSetup& es)
   evt.getByToken(srcVertices_, vertices); 
   // take vertex with highest sum(trackPt) as the vertex of the "hard scatter" interaction
   // (= first entry in vertex collection)
-  const reco::Vertex* hardScatterVertex = ( vertices->size() >= 1 ) ?
+  const reco::Vertex* hardScatterVertex = ( !vertices->empty() ) ?
     &(vertices->front()) : nullptr;
   
   // get leptons

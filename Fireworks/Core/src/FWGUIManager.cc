@@ -849,7 +849,7 @@ FWGUIManager::promptForConfigurationFile(std::string &result, enum EFileDialogMo
    std::string name = fi.fFilename;
    // if the extension isn't already specified by hand, specify it now
    std::string ext = kFileTypes[fi.fFileTypeIdx + 1] + 1;
-   if (ext.size() != 0 && name.find(ext) == name.npos)
+   if (!ext.empty() && name.find(ext) == name.npos)
       name += ext;
    result = name;
    return true;
@@ -1319,7 +1319,7 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
       for(FWConfiguration::KeyValuesIt it = keyVals->begin(); it!= keyVals->end(); ++it)
       {
          float weight = atof((areaIt->second).valueForKey("weight")->value().c_str());
-         TEveWindowSlot* slot = ( m_viewMap.size() || (primSlot == 0) ) ? m_viewSecPack->NewSlotWithWeight(weight) : primSlot;
+         TEveWindowSlot* slot = ( !m_viewMap.empty() || (primSlot == 0) ) ? m_viewSecPack->NewSlotWithWeight(weight) : primSlot;
          std::string name = FWViewType::checkNameWithViewVersion(it->first, it->second.version());
          ViewMap_i lastViewIt = createView(name, slot);
          lastViewIt->second->setFrom(it->second);
@@ -1347,7 +1347,7 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
    {  // create views with same weight in old version
       for(FWConfiguration::KeyValuesIt it = keyVals->begin(); it!= keyVals->end(); ++it) {
          std::string name = FWViewType::checkNameWithViewVersion(it->first, it->second.version());       
-         createView(name, m_viewMap.size() ? m_viewSecPack->NewSlot() : primSlot); 	 
+         createView(name, !m_viewMap.empty() ? m_viewSecPack->NewSlot() : primSlot); 	 
 
          ViewMap_i lastViewIt = m_viewMap.end(); lastViewIt--;
          lastViewIt->second->setFrom(it->second);

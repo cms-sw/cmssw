@@ -222,7 +222,7 @@ void QcdLowPtDQM::bookHistograms(DQMStore::IBooker &iBooker,
                                      edm::Run const &,
                                      edm::EventSetup const &) {
   iBooker.setCurrentFolder("Physics/QcdLowPt");
-  if (hNhitsL1_.size()) return;  // histograms already booked
+  if (!hNhitsL1_.empty()) return;  // histograms already booked
 
   if (1) {
     iBooker.setCurrentFolder("Physics/EventInfo/");
@@ -901,7 +901,7 @@ void QcdLowPtDQM::fillPixelClusterInfos(const Event &iEvent, int which) {
 
   double vz = -999;
 
-  if (clusterVtxName_.size()) {  // get vertex from producer
+  if (!clusterVtxName_.empty()) {  // get vertex from producer
     Handle<reco::VertexCollection> hVertexCollection;
     if (!getProductSafe(clusterVtxName_, hVertexCollection, iEvent)) {
       CP(2) print(2, Form(
@@ -912,7 +912,7 @@ void QcdLowPtDQM::fillPixelClusterInfos(const Event &iEvent, int which) {
     }
 
     const reco::VertexCollection *vertices = hVertexCollection.product();
-    if (!vertices || vertices->size() == 0) return;
+    if (!vertices || vertices->empty()) return;
     reco::VertexCollection::const_iterator vertex = vertices->begin();
     vz = vertex->z();
   } else {  // calculate vertex from clusters
@@ -1027,7 +1027,7 @@ void QcdLowPtDQM::fillTracklets(
 
   if (!AlphaTracklets) return;
 
-  if (tracklets.size() == 0) return;
+  if (tracklets.empty()) return;
 
   // fill events per etabin per trigger bit
   for (size_t i = 0; i < eventpereta.size(); ++i) {

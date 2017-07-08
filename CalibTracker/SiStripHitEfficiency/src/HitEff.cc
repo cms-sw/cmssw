@@ -272,7 +272,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
   const   reco::TrackCollection *tracksCKF=trackCollectionCKF.product();
   if (DEBUG)  cout << "number ckf tracks found = " << tracksCKF->size() << endl;
   //if (tracksCKF->size() == 1 ){
-  if (tracksCKF->size() > 0 && tracksCKF->size()<100) {
+  if (!tracksCKF->empty() && tracksCKF->size()<100) {
     if (DEBUG)    cout << "starting checking good event with < 100 tracks" << endl;
 
     EventTrackCKF++;  
@@ -297,7 +297,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
     Handle<MuonCollection> muH;
     if(e.getByLabel("muonsWitht0Correction",muH)){
       const MuonCollection & muonsT0  =  *muH.product();
-      if(muonsT0.size()!=0) {
+      if(!muonsT0.empty()) {
 	MuonTime mt0 = muonsT0[0].time();
 	timeDT = mt0.timeAtIpInOut; 
 	timeDTErr = mt0.timeAtIpInOutErr;
@@ -517,7 +517,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 	    
 	    // RPhi RecHit Efficiency 
 	    
-	    if (input.size() > 0 ) {  
+	    if (!input.empty() ) {  
 	      if (DEBUG) cout << "Checking clusters with size = " << input.size() << endl;
 	      int nClusters = 0;
 	      std::vector< std::vector<float> > VCluster_info; //fill with X residual, X residual pull, local X, sig(X), local Y, sig(Y), StoN

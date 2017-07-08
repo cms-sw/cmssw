@@ -385,7 +385,7 @@ DTCombinatorialPatternReco::buildPointsCollection(vector<DTSegmentCand::AssPoint
     cout << "buildPointsCollection " << endl;
     cout << "points: " << points.size() << " NOLR: " << pointsNoLR.size()<< endl;
   }
-  if (pointsNoLR.size()>0) { // still unassociated points!
+  if (!pointsNoLR.empty()) { // still unassociated points!
     std::shared_ptr<DTHitPairForFit> unassHit = pointsNoLR.front();
     // try with the right
     if(debug)

@@ -53,7 +53,7 @@ void CastorLEDMonitor::processEvent( const CastorDigiCollection& castorDigis, co
   if(trigger_data->triggerWord()==6) LEDevent=true; 
 */
   
- if(castorDigis.size() <= 0) {
+ if(castorDigis.empty()) {
   if(fVerbosity > 0) 
  std::cout<<"CastorLEDMonitor::processEvent NO Castor Digis"<<std::endl;
   return;

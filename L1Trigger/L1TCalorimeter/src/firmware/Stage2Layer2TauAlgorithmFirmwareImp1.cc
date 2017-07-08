@@ -103,7 +103,7 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
             if (is3x3Maximum(towerS2E, towers, caloNav) && towerS2E.hwPt() >= seedThreshold)
                 sites.push_back(3);	    
           
-            if (sites.size() == 0) // no merging candidate
+            if (sites.empty()) // no merging candidate
             {
                 //math::PtEtaPhiMLorentzVector p4(calibPt, eta, phi, 0.);
                 math::PtEtaPhiMLorentzVector emptyP4;

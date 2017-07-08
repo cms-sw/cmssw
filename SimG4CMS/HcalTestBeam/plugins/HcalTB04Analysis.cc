@@ -334,7 +334,7 @@ void HcalTB04Analysis::update(const G4Step * aStep) {
       // Also watch for tertiary particles coming from 
       // short-lived secondaries from V1
       if (aTrack->GetCurrentStepNumber() == 1) {
-	if (shortLivedSecondaries.size() > 0) {
+	if (!shortLivedSecondaries.empty()) {
 	  int pid = parentID;
 	  std::vector<int>::iterator pos1= shortLivedSecondaries.begin();
 	  std::vector<int>::iterator pos2 = shortLivedSecondaries.end();

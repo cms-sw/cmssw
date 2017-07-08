@@ -22,7 +22,7 @@ FieldStepWatcher::FieldStepWatcher(const edm::ParameterSet &p) {
 }
 
 FieldStepWatcher::~FieldStepWatcher() {
-  if (dbe_ && outFile.size() > 0) dbe_->save(outFile);
+  if (dbe_ && !outFile.empty()) dbe_->save(outFile);
 }
 
 

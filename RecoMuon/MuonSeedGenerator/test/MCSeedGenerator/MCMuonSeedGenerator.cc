@@ -131,7 +131,7 @@ void MCMuonSeedGenerator2::produce(edm::Event& event, const edm::EventSetup& set
     
     vector<const PSimHit*> muonSimHits = mapIterator->second;
 
-    if(muonSimHits.size() < 1) continue;
+    if(muonSimHits.empty()) continue;
     
     stable_sort(muonSimHits.begin(),muonSimHits.end(),RadiusComparatorInOut(theService->trackingGeometry()));
     

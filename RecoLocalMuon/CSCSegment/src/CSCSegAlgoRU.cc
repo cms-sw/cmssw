@@ -232,7 +232,7 @@ std::vector<CSCSegment> CSCSegAlgoRU::buildSegments(const CSCChamber* aChamber, 
 	aState.proto_segment = best_proto_segment[j];
 	best_proto_segment[j].clear();
 	//SKIP empty proto-segments
-	if(aState.proto_segment.size() == 0) continue;
+	if(aState.proto_segment.empty()) continue;
 	updateParameters(aState);
 	// Create an actual CSCSegment - retrieve all info from the fit
 	CSCSegment temp(aState.sfit->hits(), aState.sfit->intercept(),

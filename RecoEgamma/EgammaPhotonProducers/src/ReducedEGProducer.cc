@@ -792,7 +792,7 @@ void ReducedEGProducer::relinkCaloClusters(reco::SuperCluster& superCluster,
       break;
     }
   }
-  if (clusters.size()) {
+  if (!clusters.empty()) {
     superCluster.setClusters(clusters);
   }
   
@@ -811,7 +811,7 @@ void ReducedEGProducer::relinkCaloClusters(reco::SuperCluster& superCluster,
       break;
     }
   }
-  if (esclusters.size()) {
+  if (!esclusters.empty()) {
     superCluster.setPreshowerClusters(esclusters);
   }
 }
@@ -847,7 +847,7 @@ void ReducedEGProducer::relinkConversions(reco::PhotonCore& photonCore,
       break;
     }
   }
-  if (outconvrefs.size()) {
+  if (!outconvrefs.empty()) {
     photonCore.setConversions(outconvrefs);
   }
 }

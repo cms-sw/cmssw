@@ -236,7 +236,7 @@ void Fourvec_Constrainer::mass_constraint (std::string s)
 //   s -           The constraint defining the mass.
 //
 {
-  assert (_mass_constraint.size() == 0);
+  assert (_mass_constraint.empty());
   _mass_constraint.push_back (Constraint (s));
 }
 
@@ -270,7 +270,7 @@ std::ostream& operator<< (std::ostream& s, const Fourvec_Constrainer& c)
   for (std::vector<Constraint>::size_type i=0; i < c._constraints.size(); i++)
     s << "  " << c._constraints[i] << "\n";
 
-  if (c._mass_constraint.size() > 0) {
+  if (!c._mass_constraint.empty()) {
     s << "Mass constraint:\n";
     s << c._mass_constraint[0] << "\n";
   }
@@ -1706,7 +1706,7 @@ void calculate_mass (Fourvec_Event& ev,
 //
 {
   // Don't do anything if the mass wasn't specified.
-  if (mass_constraint.size () == 0) {
+  if (mass_constraint.empty()) {
     m = 0;
     sigm = 0;
     return;

@@ -139,7 +139,7 @@ MagBLayer * MagGeoBuilderFromDDD::bLayer::buildMagBLayer() const {
   if (mlayer==0) {
 
     // If we have only one volume, do not build any MagBSector.
-    if (sectors.size()==0) {
+    if (sectors.empty()) {
       if (MagGeoBuilderFromDDD::debug && size!=0) {
 	std::cout << "ERROR: bLayer::buildMagBLayer, 0 sectors but "
 	     << size << " volumes" << std::endl;

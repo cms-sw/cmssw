@@ -167,7 +167,7 @@ TransientTrackingRecHit::ConstRecHitContainer MuonTransientTrackingRecHit::trans
   // the sub rec hit of this TransientRecHit
   std::vector<const TrackingRecHit*> ownRecHits = recHits();
 
-  if(ownRecHits.size() == 0){
+  if(ownRecHits.empty()){
     theSubTransientRecHits.push_back(TransientTrackingRecHit::RecHitPointer(clone()));
     return theSubTransientRecHits;
   }

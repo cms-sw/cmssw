@@ -168,9 +168,9 @@ EcalDisplaysByEvent::analyze(edm::Event const & iEvent, edm::EventSetup const & 
   
   bool hasEBdigis = false;
   bool hasEEdigis = false;
-  if(EBdigisHandle->size() > 0)
+  if(!EBdigisHandle->empty())
     hasEBdigis = true;
-  if(EEdigisHandle->size() > 0)
+  if(!EEdigisHandle->empty())
     hasEEdigis = true;
 
   // Produce the digi graphs

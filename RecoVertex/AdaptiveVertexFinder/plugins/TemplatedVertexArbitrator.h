@@ -92,7 +92,7 @@ void TemplatedVertexArbitrator<InputContainer,VTX>::produce(edm::Event &event, c
 	event.getByToken(token_primaryVertex, primaryVertices);
 
 	auto recoVertices = std::make_unique<Product>();
-	if(primaryVertices->size()!=0){ 
+	if(!primaryVertices->empty()){ 
 		const reco::Vertex &pv = (*primaryVertices)[0];
 
 		edm::Handle<InputContainer> tracks;

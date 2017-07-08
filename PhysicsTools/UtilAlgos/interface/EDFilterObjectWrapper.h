@@ -80,7 +80,7 @@ namespace edm {
 	}
       }
       // put objs in the event
-      bool pass = objsToPut->size() > 0;
+      bool pass = !objsToPut->empty();
       event.put(std::move(objsToPut));
       if ( doFilter_ )
 	return pass;

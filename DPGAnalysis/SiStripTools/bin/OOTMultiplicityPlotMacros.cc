@@ -180,7 +180,7 @@ std::vector<int> FillingScheme(TFile* ff, const char* path, const float thr) {
 	std::cout << "Number of entries " << bx->GetEntries() << " threshold " << thr/3564.*bx->GetEntries() << std::endl;
 	for(int i=1;i<bx->GetNbinsX()+1;++i) {
 	  if(bx->GetBinContent(i)>thr/3564.*bx->GetEntries()) {
-	    if(filledbx.size() && i == filledbx[filledbx.size()-1]+1) {
+	    if(!filledbx.empty() && i == filledbx[filledbx.size()-1]+1) {
 	      std::cout << "This is not a 50ns run ! " << std::endl;
 	      filledbx.clear();
 	      return filledbx;
@@ -211,7 +211,7 @@ std::vector<int> FillingSchemeFromProfile(TFile* ff, const char* path, const cha
 	std::cout << "Number of entries " << bx->GetEntries() << " threshold " << thr/3564.*bx->GetEntries() << std::endl;
 	for(int i=1;i<bx->GetNbinsX()+1;++i) {
 	  if(bx->GetBinEntries(i)>thr/3564.*bx->GetEntries()) {
-	    if(filledbx.size() && i == filledbx[filledbx.size()-1]+1) {
+	    if(!filledbx.empty() && i == filledbx[filledbx.size()-1]+1) {
 	      std::cout << "This is not a 50ns run ! " << std::endl;
 	      filledbx.clear();
 	      return filledbx;

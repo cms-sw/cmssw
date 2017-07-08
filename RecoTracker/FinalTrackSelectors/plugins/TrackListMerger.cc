@@ -381,7 +381,7 @@ TrackListMerger::~TrackListMerger() { }
 	e.getByToken(trackProducers_[j].tsel, trackSelColl);
       }
 
-      if ( 0<tC1->size() ){
+      if ( !tC1->empty() ){
 	unsigned int iC=0;
 	for (reco::TrackCollection::const_iterator track=tC1->begin(); track!=tC1->end(); track++){
 	  i++;

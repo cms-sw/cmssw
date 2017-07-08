@@ -2611,7 +2611,7 @@ L1ExtraParticleMapProd::evaluateDoubleExclusiveIsoEG(
    if ( inputRefs1.size() ==2 )
       {  // 2 iso EG
          decision=true;
-         if (inputRefs2.size()>0)
+         if (!inputRefs2.empty())
             {   // should veto if there are jets, with pt>thresh
                for( size_t j = 0 ; j < inputRefs2.size() ; ++j )
                   {

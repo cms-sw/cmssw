@@ -61,7 +61,7 @@ operator()(const reco::GsfElectronPtr& cand) const{
       _dxyCutValueEB : _dxyCutValueEE );
 
   const reco::VertexCollection& vtxs = *_vtxs;
-  const double dxy = ( vtxs.size() ? 
+  const double dxy = ( !vtxs.empty() ? 
 		       cand->gsfTrack()->dxy(vtxs[0].position()) : 
 		       cand->gsfTrack()->dxy() );
   return std::abs(dxy) < dxyCutValue;
@@ -70,7 +70,7 @@ operator()(const reco::GsfElectronPtr& cand) const{
 double GsfEleDxyCut::value(const reco::CandidatePtr& cand) const {
   reco::GsfElectronPtr ele(cand);
   const reco::VertexCollection& vtxs = *_vtxs;
-  const double dxy = ( vtxs.size() ? 
+  const double dxy = ( !vtxs.empty() ? 
 		       ele->gsfTrack()->dxy(vtxs[0].position()) : 
 		       ele->gsfTrack()->dxy() );
   return std::abs(dxy);

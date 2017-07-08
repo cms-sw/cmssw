@@ -53,7 +53,7 @@ std::vector<OpticalObject*> OpticalObjectMgr::findOptOs( const ALIstring& name, 
     }
   }
 
-  if( vopto.size() == 0 ) {
+  if( vopto.empty() ) {
     if( exists ) {
       std::cerr << "!!!! EXITING: OptO not found: " << name << std::endl;
       exit(1);

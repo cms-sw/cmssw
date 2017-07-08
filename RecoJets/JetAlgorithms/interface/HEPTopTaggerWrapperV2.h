@@ -171,7 +171,7 @@ class HEPTopTaggerV2Structure : public CompositeJetStructure, public TopTaggerBa
      
    // Return leading subjet in W
    inline PseudoJet  W1() const{
-     assert(W().pieces().size()>0);
+     assert(!W().pieces().empty());
      return W().pieces()[0];
    }
        

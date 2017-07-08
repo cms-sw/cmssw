@@ -289,7 +289,7 @@ bool TrackingVerboseAction::checkTrackingVerbose(const G4Track* aTrack) {
   if (trackNo >= fTVTrackMin && trackNo <= fTVTrackMax) {
     if ((trackNo-fTVTrackMin) % fTVTrackStep == 0) trackingVerboseThisTrack = true;
   }
-  if (trackingVerboseThisTrack && (fPdgIds.size()>0)) {
+  if (trackingVerboseThisTrack && (!fPdgIds.empty())) {
     int pdgId = aTrack->GetDefinition()->GetPDGEncoding();
     if (std::count(fPdgIds.begin(),fPdgIds.end(),pdgId) == 0) trackingVerboseThisTrack = false;
   }

@@ -315,7 +315,7 @@ EcalSimple2007H4TBAnalyzer::analyze( edm::Event const & iEvent, edm::EventSetup 
        return;
      }
 
-   if (hits->size() == 0)
+   if (hits->empty())
      {
        //       std::cout << "5" << std::endl;
        return;

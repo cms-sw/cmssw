@@ -597,7 +597,7 @@ uint16_t SiStripTrackerMapCreator::getDetectorFlagAndComment(DQMStore* dqm_store
       comment << "       ";
     }
   }
-  if(conns.size()==0) {	comment << "                     ";      }
+  if(conns.empty()) {	comment << "                     ";      }
   if(conns.size()==1) {	comment << "              ";      }
   if(conns.size()==2) {	comment << "       ";      }
     //  }

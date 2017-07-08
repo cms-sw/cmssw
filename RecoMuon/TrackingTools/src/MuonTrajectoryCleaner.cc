@@ -25,7 +25,7 @@ void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC, edm::Event& event,
   TrajectoryContainer::iterator iter, jter;
   Trajectory::DataContainer::const_iterator m1, m2;
 
-  if ( trajC.size() < 1 ) return;
+  if ( trajC.empty() ) return;
   
   LogTrace(metname) << "Number of trajectories in the container: " <<trajC.size()<< endl;
 

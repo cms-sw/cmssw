@@ -41,7 +41,7 @@ encode(const HGCalTriggerCellThresholdCodecImpl::data_type& data, const HGCalTri
       }
     std::vector<bool> result(nCellsInModule_ + dataLength_*size, 0);
     // No data: return vector of 0
-    if(data.payload.size()==0) return result;
+    if(data.payload.empty()) return result;
     // All trigger cells are in the same module
     // Loop on trigger cell ids in module and check if energy in the cell
     size_t index = 0; // index in module
@@ -159,7 +159,7 @@ void
 HGCalTriggerCellThresholdCodecImpl::
 triggerCellSums(const HGCalTriggerGeometryBase& geometry,  const std::vector<std::pair<HGCalDetId, uint32_t > >& linearized_dataframes, data_type& data)
 {
-    if(linearized_dataframes.size()==0) return;
+    if(linearized_dataframes.empty()) return;
     std::map<HGCalDetId, uint32_t> payload;
     // sum energies in trigger cells
     for(const auto& frame : linearized_dataframes)

@@ -38,7 +38,7 @@ bool SiTrackerMultiRecHit::sharesInput(const TrackingRecHit* other,
   }
   else{
     for(OwnVector<TrackingRecHit>::const_iterator hit=theHits.begin();hit!=theHits.end();++hit){
-      if(otherhits.size()!=0){ 
+      if(!otherhits.empty()){ 
 	for(vector<const TrackingRecHit*>::iterator otherhit=otherhits.begin();otherhit!=otherhits.end();++otherhit){
 	  if((hit)->sharesInput(*otherhit,some))return true;
 	}

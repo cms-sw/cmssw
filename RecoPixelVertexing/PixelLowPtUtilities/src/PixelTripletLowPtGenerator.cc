@@ -93,7 +93,7 @@ void PixelTripletLowPtGenerator::hitTriplets(
   OrderedHitPairs pairs; pairs.reserve(30000);
   thePairGenerator->hitPairs(region,pairs,ev,es, pairLayers);
 
-  if (pairs.size() == 0) return;
+  if (pairs.empty()) return;
 
   int size = thirdLayers.size();
 

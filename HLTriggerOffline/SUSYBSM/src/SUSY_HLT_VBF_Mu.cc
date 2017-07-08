@@ -248,7 +248,7 @@ void SUSY_HLT_VBF_Mu::analyze(edm::Event const& e, edm::EventSetup const& eSetup
   size_t filterIndexCaloMET = triggerSummary->filterIndex( triggerCaloMETFilter_ );
   if( filterIndexCaloMET  < triggerSummary->sizeFilters() ) {
     const trigger::Keys& keys = triggerSummary->filterKeys( filterIndexCaloMET );
-     if(keys.size() ) {
+     if(!keys.empty() ) {
       float met_h = triggerObjects[ keys[0] ].pt();
       h_triggerCaloMet->Fill(met_h);
      } 
@@ -260,7 +260,7 @@ void SUSY_HLT_VBF_Mu::analyze(edm::Event const& e, edm::EventSetup const& eSetup
   size_t filterIndexHt = triggerSummary->filterIndex( triggerHTFilter_ );
   if( filterIndexHt < triggerSummary->sizeFilters() ) {
     const trigger::Keys& keys = triggerSummary->filterKeys( filterIndexHt );
-    if( keys.size() ) {
+    if( !keys.empty() ) {
       float ht = triggerObjects[ keys[0] ].pt();
       h_ht->Fill( ht );
     }

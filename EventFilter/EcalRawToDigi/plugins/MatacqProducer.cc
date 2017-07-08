@@ -96,7 +96,7 @@ MatacqProducer::MatacqProducer(const edm::ParameterSet& params):
   
   gettimeofday(&timer_, 0);
 
-  if(timeLogFile_.size()>0){
+  if(!timeLogFile_.empty()){
     timeLog_.open(timeLogFile_.c_str());
     if(timeLog_.fail()){
       cout << "[LaserSorter " << now() << "] "
@@ -134,7 +134,7 @@ MatacqProducer::MatacqProducer(const edm::ParameterSet& params):
   }
   
   startTime_.tv_sec = startTime_.tv_usec = 0;
-  if(orbitOffsetFile_.size()>0){
+  if(!orbitOffsetFile_.empty()){
     doOrbitOffset_ = true;
     loadOrbitOffset();
   } else{
@@ -553,7 +553,7 @@ MatacqProducer::getMatacqFile(uint32_t runNumber, uint32_t orbitId,
     }
   }
 
-  if(fileNames_.size()==0) return false;
+  if(fileNames_.empty()) return false;
 
   const string runNumberFormat = "%08d{,_*}";
   string sRunNumber = str(boost::format(runNumberFormat) % runNumber);

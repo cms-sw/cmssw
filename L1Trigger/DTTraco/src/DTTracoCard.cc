@@ -242,7 +242,7 @@ DTTracoCard::runTRACO() {
   }
 
   // run TRACO algorithm on all non-empty TRACO
-  if(_tracomap.size()>0){
+  if(!_tracomap.empty()){
 
     if(debug()){
       std::cout << "====================================================" << std::endl;

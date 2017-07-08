@@ -327,7 +327,7 @@ void RunManager::initG4(const edm::EventSetup & es)
   }
   initializeUserActions();
   
-  if(0 < m_G4Commands.size()) {
+  if(!m_G4Commands.empty()) {
     G4cout << "RunManager: Requested UI commands: " << G4endl;
     for (unsigned it=0; it<m_G4Commands.size(); ++it) {
       G4cout << "    " << m_G4Commands[it] << G4endl;

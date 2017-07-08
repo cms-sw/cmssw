@@ -117,34 +117,34 @@ void MeasurementTrackerImpl::initialize(const TrackerTopology* trackerTopology)
   bool subIsOT = false;
 
   //if the TkGeometry has the subDet vector filled, the theDetMap is filled, otherwise nothing should happen
-  if(theTrackerGeom->detsPXB().size()!=0) {
+  if(!theTrackerGeom->detsPXB().empty()) {
     subIsPixel = GeomDetEnumerators::isTrackerPixel(theTrackerGeom->geomDetSubDetector(theTrackerGeom->detsPXB().front()->geographicalId().subdetId()));
     addDets(theTrackerGeom->detsPXB(), subIsPixel, subIsOT);
   }
 
-  if(theTrackerGeom->detsPXF().size()!=0) {
+  if(!theTrackerGeom->detsPXF().empty()) {
     subIsPixel = GeomDetEnumerators::isTrackerPixel(theTrackerGeom->geomDetSubDetector(theTrackerGeom->detsPXF().front()->geographicalId().subdetId()));
     addDets(theTrackerGeom->detsPXF(), subIsPixel, subIsOT);
   }
 
   subIsOT = true;
 
-  if(theTrackerGeom->detsTIB().size()!=0) {
+  if(!theTrackerGeom->detsTIB().empty()) {
     subIsPixel = GeomDetEnumerators::isTrackerPixel(theTrackerGeom->geomDetSubDetector(theTrackerGeom->detsTIB().front()->geographicalId().subdetId()));
     addDets(theTrackerGeom->detsTIB(), subIsPixel, subIsOT);
   }
 
-  if(theTrackerGeom->detsTID().size()!=0) {
+  if(!theTrackerGeom->detsTID().empty()) {
     subIsPixel = GeomDetEnumerators::isTrackerPixel(theTrackerGeom->geomDetSubDetector(theTrackerGeom->detsTID().front()->geographicalId().subdetId()));
     addDets(theTrackerGeom->detsTID(), subIsPixel, subIsOT);
   }
 
-  if(theTrackerGeom->detsTOB().size()!=0) {
+  if(!theTrackerGeom->detsTOB().empty()) {
     subIsPixel = GeomDetEnumerators::isTrackerPixel(theTrackerGeom->geomDetSubDetector(theTrackerGeom->detsTOB().front()->geographicalId().subdetId()));
     addDets(theTrackerGeom->detsTOB(), subIsPixel, subIsOT);
   }
 
-  if(theTrackerGeom->detsTEC().size()!=0) { 
+  if(!theTrackerGeom->detsTEC().empty()) { 
     subIsPixel = GeomDetEnumerators::isTrackerPixel(theTrackerGeom->geomDetSubDetector(theTrackerGeom->detsTEC().front()->geographicalId().subdetId()));
     addDets(theTrackerGeom->detsTEC(), subIsPixel, subIsOT);
   }

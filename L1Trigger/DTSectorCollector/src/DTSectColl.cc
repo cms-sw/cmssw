@@ -371,17 +371,17 @@ DTSectColl::runSectColl() {
  
   // debugging...
   if(config()->debug()){
-    if( DTSCPhCache::_cache.size()>0 || DTSCThCache::_cache.size()>0){
+    if( !DTSCPhCache::_cache.empty() || !DTSCThCache::_cache.empty()){
       std::cout << "====================================================" << std::endl;
       std::cout << "                  Sect Coll segments                      " << std::endl;
-	if (DTSCPhCache::_cache.size()>0){
+	if (!DTSCPhCache::_cache.empty()){
 	std:: cout << "                  ***Phi Segments***                      " << std:: endl;
 	std::vector<DTSectCollPhSegm>::const_iterator pph;
 	for(pph=DTSCPhCache::_cache.begin();pph<DTSCPhCache::_cache.end();pph++) {
 	  pph->print();
 	}
       }
-      if (DTSCThCache::_cache.size()>0){
+      if (!DTSCThCache::_cache.empty()){
 	std:: cout << "                  **Theta Segments**                      " << std:: endl;
 	std::vector<DTSectCollThSegm>::const_iterator pth;
 	for(pth=DTSCThCache::_cache.begin();pth<DTSCThCache::_cache.end();pth++) {

@@ -156,7 +156,7 @@ void LumiCalculator::beginRun(const edm::Run& run, const edm::EventSetup& c){
 	  continue;
 	}else{
 	  for(std::vector<std::string>::iterator i=seeds.begin();i!=seeds.end();++i){
-	    if(i->size()!=0 && showTrgInfo_)  *log_<<"\t\tseed: "<<*i<<"\n";
+	    if(!i->empty() && showTrgInfo_)  *log_<<"\t\tseed: "<<*i<<"\n";
 	    if(i==seeds.begin()){//for now we take the first one from OR
 		trgpathMmap_.insert(std::make_pair(hltname,*i));
 	    }
@@ -175,7 +175,7 @@ void LumiCalculator::beginRun(const edm::Run& run, const edm::EventSetup& c){
 	}else{
 	  for(std::vector<std::string>::iterator i=seeds.begin();
 	      i!=seeds.end();++i){
-	    if(i->size()!=0 && showTrgInfo_) *log_<<"\t\tseed: "<<*i<<"\n";
+	    if(!i->empty() && showTrgInfo_) *log_<<"\t\tseed: "<<*i<<"\n";
 	    if(i==seeds.begin()){//for now we take the first one 
 	      trgpathMmap_.insert(std::make_pair(hltname,*i));
 	    }

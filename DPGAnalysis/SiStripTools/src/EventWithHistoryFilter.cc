@@ -255,13 +255,13 @@ const bool EventWithHistoryFilter::isAPVPhaseNotNeeded() const {
 
 const bool EventWithHistoryFilter::isAPVModeNotNeeded() const {
 
-  return (m_apvmodes.size()==0) ;
+  return (m_apvmodes.empty()) ;
 
 }
 
 const bool EventWithHistoryFilter::isCutInactive(const std::vector<int>& range) const {
 
-  return ((range.size()==0 ||
+  return ((range.empty() ||
 	   (range.size()==1 && range[0]<0) ||
 	   (range.size()==2 && range[0]<0 && range[1]<0)));
 
@@ -269,7 +269,7 @@ const bool EventWithHistoryFilter::isCutInactive(const std::vector<int>& range) 
 
 const bool EventWithHistoryFilter::isInRange(const long long bx, const std::vector<int>& range, const bool extra) const {
 
-  bool cut1 = range.size()<1 || range[0]<0 || (extra && bx >= range[0]);
+  bool cut1 = range.empty() || range[0]<0 || (extra && bx >= range[0]);
   bool cut2 = range.size()<2 || range[1]<0 || (extra && bx <= range[1]);
 
   if(range.size()>=2 && range[0]>=0 && range[1]>=0 && (range[0] > range[1])) {
@@ -304,13 +304,13 @@ void EventWithHistoryFilter::printConfig(const edm::InputTag& historyTag, const 
     edm::LogVerbatim(msgcategory.c_str()) << "List of active cuts:";
     if(!isCutInactive(m_bxrange)) {
       edm::LogVerbatim(msgcategory.c_str()) << "......................";
-      if(m_bxrange.size()>=1) edm::LogVerbatim(msgcategory.c_str()) << "absoluteBX lower limit " << m_bxrange[0];
+      if(!m_bxrange.empty()) edm::LogVerbatim(msgcategory.c_str()) << "absoluteBX lower limit " << m_bxrange[0];
       if(m_bxrange.size()>=2) edm::LogVerbatim(msgcategory.c_str()) << "absoluteBX upper limit " << m_bxrange[1];
       edm::LogVerbatim(msgcategory.c_str()) << "......................";
     }
     if(!isCutInactive(m_bxrangelat)) {
       edm::LogVerbatim(msgcategory.c_str()) << "......................";
-      if(m_bxrangelat.size()>=1) edm::LogVerbatim(msgcategory.c_str()) << "absoluteBXLtcyAware lower limit "
+      if(!m_bxrangelat.empty()) edm::LogVerbatim(msgcategory.c_str()) << "absoluteBXLtcyAware lower limit "
 									<< m_bxrangelat[0];
       if(m_bxrangelat.size()>=2) edm::LogVerbatim(msgcategory.c_str()) << "absoluteBXLtcyAware upper limit "
 									<< m_bxrangelat[1];
@@ -319,7 +319,7 @@ void EventWithHistoryFilter::printConfig(const edm::InputTag& historyTag, const 
     if(!isCutInactive(m_bxcyclerange)) {
       edm::LogVerbatim(msgcategory.c_str()) << "......................";
       edm::LogVerbatim(msgcategory.c_str()) <<"absoluteBXinCycle partition: " << m_partition;
-      if(m_bxcyclerange.size()>=1) edm::LogVerbatim(msgcategory.c_str()) << "absoluteBXinCycle lower limit "
+      if(!m_bxcyclerange.empty()) edm::LogVerbatim(msgcategory.c_str()) << "absoluteBXinCycle lower limit "
 									<< m_bxcyclerange[0];
       if(m_bxcyclerange.size()>=2) edm::LogVerbatim(msgcategory.c_str()) << "absoluteBXinCycle upper limit "
 									<< m_bxcyclerange[1];
@@ -328,7 +328,7 @@ void EventWithHistoryFilter::printConfig(const edm::InputTag& historyTag, const 
     if(!isCutInactive(m_bxcyclerangelat)) {
       edm::LogVerbatim(msgcategory.c_str()) << "......................";
       edm::LogVerbatim(msgcategory.c_str()) <<"absoluteBXinCycleLtcyAware partition: " << m_partition;
-      if(m_bxcyclerangelat.size()>=1) edm::LogVerbatim(msgcategory.c_str()) << "absoluteBXinCycleLtcyAware lower limit "
+      if(!m_bxcyclerangelat.empty()) edm::LogVerbatim(msgcategory.c_str()) << "absoluteBXinCycleLtcyAware lower limit "
 										    << m_bxcyclerangelat[0];
       if(m_bxcyclerangelat.size()>=2) edm::LogVerbatim(msgcategory.c_str()) << "absoluteBXinCycleLtcyAware upper limit "
 										    << m_bxcyclerangelat[1];
@@ -336,13 +336,13 @@ void EventWithHistoryFilter::printConfig(const edm::InputTag& historyTag, const 
     }
     if(!isCutInactive(m_dbxrange)) {
       edm::LogVerbatim(msgcategory.c_str()) << "......................";
-      if(m_dbxrange.size()>=1) edm::LogVerbatim(msgcategory.c_str()) << "deltaBX lower limit " << m_dbxrange[0];
+      if(!m_dbxrange.empty()) edm::LogVerbatim(msgcategory.c_str()) << "deltaBX lower limit " << m_dbxrange[0];
       if(m_dbxrange.size()>=2) edm::LogVerbatim(msgcategory.c_str()) << "deltaBX upper limit " << m_dbxrange[1];
       edm::LogVerbatim(msgcategory.c_str()) << "......................";
     }
     if(!isCutInactive(m_dbxrangelat)) {
       edm::LogVerbatim(msgcategory.c_str()) << "......................";
-      if(m_dbxrangelat.size()>=1) edm::LogVerbatim(msgcategory.c_str()) << "deltaBXLtcyAware lower limit "
+      if(!m_dbxrangelat.empty()) edm::LogVerbatim(msgcategory.c_str()) << "deltaBXLtcyAware lower limit "
 								      << m_dbxrangelat[0];
       if(m_dbxrangelat.size()>=2) edm::LogVerbatim(msgcategory.c_str()) << "deltaBXLtcyAware upper limit "
 								      << m_dbxrangelat[1];
@@ -351,7 +351,7 @@ void EventWithHistoryFilter::printConfig(const edm::InputTag& historyTag, const 
     if(!isCutInactive(m_dbxcyclerange)) {
       edm::LogVerbatim(msgcategory.c_str()) << "......................";
       edm::LogVerbatim(msgcategory.c_str()) <<"deltaBXinCycle partition: " << m_partition;
-      if(m_dbxcyclerange.size()>=1) edm::LogVerbatim(msgcategory.c_str()) << "deltaBXinCycle lower limit "
+      if(!m_dbxcyclerange.empty()) edm::LogVerbatim(msgcategory.c_str()) << "deltaBXinCycle lower limit "
 								      << m_dbxcyclerange[0];
       if(m_dbxcyclerange.size()>=2) edm::LogVerbatim(msgcategory.c_str()) << "deltaBXinCycle upper limit "
 								      << m_dbxcyclerange[1];
@@ -360,7 +360,7 @@ void EventWithHistoryFilter::printConfig(const edm::InputTag& historyTag, const 
     if(!isCutInactive(m_dbxcyclerangelat)) {
       edm::LogVerbatim(msgcategory.c_str()) << "......................";
       edm::LogVerbatim(msgcategory.c_str()) <<"deltaBXinCycleLtcyAware partition: " << m_partition;
-      if(m_dbxcyclerangelat.size()>=1) edm::LogVerbatim(msgcategory.c_str()) << "deltaBXinCycleLtcyAware lower limit "
+      if(!m_dbxcyclerangelat.empty()) edm::LogVerbatim(msgcategory.c_str()) << "deltaBXinCycleLtcyAware lower limit "
 										  << m_dbxcyclerangelat[0];
       if(m_dbxcyclerangelat.size()>=2) edm::LogVerbatim(msgcategory.c_str()) << "deltaBXinCycleLtcyAware upper limit "
 										  << m_dbxcyclerangelat[1];
@@ -368,7 +368,7 @@ void EventWithHistoryFilter::printConfig(const edm::InputTag& historyTag, const 
     }
     if(!isCutInactive(m_dbxtrpltrange)) {
       edm::LogVerbatim(msgcategory.c_str()) << "......................";
-      if(m_dbxtrpltrange.size()>=1) edm::LogVerbatim(msgcategory.c_str()) << "TripletIsolation lower limit "
+      if(!m_dbxtrpltrange.empty()) edm::LogVerbatim(msgcategory.c_str()) << "TripletIsolation lower limit "
 									<< m_dbxtrpltrange[0];
       if(m_dbxtrpltrange.size()>=2) edm::LogVerbatim(msgcategory.c_str()) << "TripletIsolation upper limit "
 									<< m_dbxtrpltrange[1];
@@ -377,7 +377,7 @@ void EventWithHistoryFilter::printConfig(const edm::InputTag& historyTag, const 
     if(!isCutInactive(m_dbxgenericrange)) {
       edm::LogVerbatim(msgcategory.c_str()) << "......................";
       edm::LogVerbatim(msgcategory.c_str()) << "Generic DBX computed between n-" << m_dbxgenericfirst << " and n-"<<m_dbxgenericlast << " trigger";
-      if(m_dbxgenericrange.size()>=1) edm::LogVerbatim(msgcategory.c_str()) << "Generic DBX cut lower limit "
+      if(!m_dbxgenericrange.empty()) edm::LogVerbatim(msgcategory.c_str()) << "Generic DBX cut lower limit "
 									<< m_dbxgenericrange[0];
       if(m_dbxgenericrange.size()>=2) edm::LogVerbatim(msgcategory.c_str()) << "Generic DBX upper limit "
 									<< m_dbxgenericrange[1];

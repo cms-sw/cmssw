@@ -5,7 +5,7 @@
 std::pair<std::vector<RefCountedKinematicParticle>, std::vector<FreeTrajectoryState> > 
                     InputSort::sort(const std::vector<RefCountedKinematicParticle> &particles) const
 {
- if(particles.size()==0) throw VertexException("Sorting particles for vertex fitter::number of particles = 0");
+ if(particles.empty()) throw VertexException("Sorting particles for vertex fitter::number of particles = 0");
  std::vector<RefCountedKinematicParticle> sortedParticles;
  std::vector<FreeTrajectoryState> sortedStates;
 
@@ -27,7 +27,7 @@ std::pair<std::vector<RefCountedKinematicParticle>, std::vector<FreeTrajectorySt
 
 std::vector<RefCountedKinematicParticle> InputSort::sort(const std::vector<RefCountedKinematicTree> &trees) const
 {
- if(trees.size() ==0) throw VertexException("Input Sort::Zero vector of trees passed"); 
+ if(trees.empty()) throw VertexException("Input Sort::Zero vector of trees passed"); 
  std::vector<RefCountedKinematicParticle> res;
  for(std::vector<RefCountedKinematicTree>::const_iterator i = trees.begin(); i!=trees.end(); i++)
  {

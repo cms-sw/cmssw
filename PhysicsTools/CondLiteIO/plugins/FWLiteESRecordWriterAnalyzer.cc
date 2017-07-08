@@ -183,7 +183,7 @@ class FWLiteESRecordWriterAnalyzer : public edm::EDAnalyzer {
 FWLiteESRecordWriterAnalyzer::FWLiteESRecordWriterAnalyzer(const edm::ParameterSet& iConfig)
 {
    std::vector<std::string> names = iConfig.getParameterNamesForType<std::vector<edm::ParameterSet> >(false);
-   if (0 == names.size()) {
+   if (names.empty()) {
       throw edm::Exception(edm::errors::Configuration)<<"No VPSets were given in configuration";
    }
    for (std::vector<std::string>::const_iterator it = names.begin(), itEnd=names.end(); it != itEnd; ++it) {

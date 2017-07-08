@@ -546,7 +546,7 @@ void SimG4HcalValidation::jetAnalysis(PHcalValidInfoJets& product) {
 
   std::vector<double> enevec, etavec, phivec; 
 
-  if ((*result).size() > 0) {
+  if (!*result.empty()) {
 
     sort((*result).begin(),(*result).end()); 
 

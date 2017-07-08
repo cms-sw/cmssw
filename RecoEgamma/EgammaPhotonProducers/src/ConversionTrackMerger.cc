@@ -127,7 +127,7 @@
      }
    }
 
-   if ( (0<tC1.size())&&(0<tC2.size()) ){
+   if ( (!tC1.empty())&&(!tC2.empty()) ){
     i=-1;
     for (reco::ConversionTrackCollection::iterator track=tC1.begin(); track!=tC1.end(); ++track){
       i++; 
@@ -216,7 +216,7 @@
   //  output selected tracks - if any
   //
    
-   if ( 0<tC1.size() ){
+   if ( !tC1.empty() ){
      i=0;
      for (reco::ConversionTrackCollection::const_iterator track=tC1.begin(); track!=tC1.end(); 
 	  ++track, ++i){
@@ -232,7 +232,7 @@
    //Fill the trajectories, etc. for 1st collection
  
    
-   if ( 0<tC2.size() ){
+   if ( !tC2.empty() ){
     i=0;
     for (reco::ConversionTrackCollection::const_iterator track=tC2.begin(); track!=tC2.end();
 	 ++track, ++i){

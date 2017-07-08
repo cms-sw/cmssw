@@ -275,7 +275,7 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const SiStripFedCabli
    while(!LVfile.eof()) {
       LVfile >> modId1  >> dcuId >> psIdinfo >> psinfo;
       
-      if(detCabling && detCabling->getConnections(modId1).size()==0) continue;
+      if(detCabling && detCabling->getConnections(modId1).empty()) continue;
 
       //      int length=psinfo.length();
       std::string dcsinfo = psinfo.substr(39,1);

@@ -219,28 +219,28 @@ HcalCondObjectContainer<Item>::addValues(const Item& myItem) {
     if (fId.det()==DetId::Hcal) {
       switch (HcalSubdetector(fId.subdetId())) {
 	case HcalBarrel:
-	  if (!HBcontainer.size() ) initContainer(fId);
+	  if (HBcontainer.empty() ) initContainer(fId);
 	  if (index < HBcontainer.size()) cell = &(HBcontainer.at(index) );
 	  break;
 	case HcalEndcap:
-	  if (!HEcontainer.size() ) initContainer(fId);
+	  if (HEcontainer.empty() ) initContainer(fId);
 	  if (index < HEcontainer.size()) cell = &(HEcontainer.at(index) );
 	  break;
 	case HcalForward:
-	  if (!HFcontainer.size() ) initContainer(fId);
+	  if (HFcontainer.empty() ) initContainer(fId);
 	  if (index < HFcontainer.size()) cell = &(HFcontainer.at(index) );
 	  break;
 	case HcalOuter:
-	  if (!HOcontainer.size() ) initContainer(fId);
+	  if (HOcontainer.empty() ) initContainer(fId);
 	  if (index < HOcontainer.size()) cell = &(HOcontainer.at(index) );
 	  break;
 	case HcalTriggerTower:
-	  if (!HTcontainer.size() ) initContainer(fId);
+	  if (HTcontainer.empty() ) initContainer(fId);
 	  if (index < HTcontainer.size()) cell = &(HTcontainer.at(index) );
 	  break;  
 	case HcalOther:
 	  if (extractOther(fId)==HcalCalibration) {
-	    if (!CALIBcontainer.size() ) initContainer(fId);
+	    if (CALIBcontainer.empty() ) initContainer(fId);
 	    if (index < CALIBcontainer.size()) cell = &(CALIBcontainer.at(index) );  
 	  }
 	  break; 
@@ -249,10 +249,10 @@ HcalCondObjectContainer<Item>::addValues(const Item& myItem) {
       }
     } else if (fId.det()==DetId::Calo) {
       if (fId.subdetId()==HcalCastorDetId::SubdetectorId) {
-	if (!CASTORcontainer.size() ) initContainer(fId);
+	if (CASTORcontainer.empty() ) initContainer(fId);
 	if (index < CASTORcontainer.size()) cell = &(CASTORcontainer.at(index) );
       } else if (fId.subdetId()==HcalZDCDetId::SubdetectorId) {	
-	if (!ZDCcontainer.size() ) initContainer(fId);
+	if (ZDCcontainer.empty() ) initContainer(fId);
 	if (index < ZDCcontainer.size()) cell = &(ZDCcontainer.at(index) );
       }
     }

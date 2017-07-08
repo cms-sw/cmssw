@@ -56,8 +56,8 @@ CaloSamples& CaloSamples::operator+=(const CaloSamples & other) {
   for(i = 0; i < size_; ++i) {
     data_[i] += other.data_[i];
   }
-  if ( preciseData_.size() == 0 && other.preciseData_.size() > 0 ) resetPrecise();
-  if ( other.preciseData_.size() > 0 ) {
+  if ( preciseData_.empty() && !other.preciseData_.empty() ) resetPrecise();
+  if ( !other.preciseData_.empty() ) {
     for(i = 0; i < preciseSize_; ++i) {
       preciseData_[i] += other.preciseData_[i];
     }

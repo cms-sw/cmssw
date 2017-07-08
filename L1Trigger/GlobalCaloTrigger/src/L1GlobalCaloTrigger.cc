@@ -166,10 +166,10 @@ void L1GlobalCaloTrigger::bxSetup() {
   // Assume input data have been sorted by bunch crossing number
   if (m_bxRangeAuto) {
     // Find parameters defining the range of bunch crossings to be processed
-    int16_t firstBxEmCand = (m_allInputEmCands.size()==0 ? 0 : m_allInputEmCands.front().bx() );
-    int16_t firstBxRegion = (m_allInputRegions.size()==0 ? 0 : m_allInputRegions.front().bx() );
-    int16_t  lastBxEmCand = (m_allInputEmCands.size()==0 ? 0 : m_allInputEmCands.back().bx() );
-    int16_t  lastBxRegion = (m_allInputRegions.size()==0 ? 0 : m_allInputRegions.back().bx() );
+    int16_t firstBxEmCand = (m_allInputEmCands.empty() ? 0 : m_allInputEmCands.front().bx() );
+    int16_t firstBxRegion = (m_allInputRegions.empty() ? 0 : m_allInputRegions.front().bx() );
+    int16_t  lastBxEmCand = (m_allInputEmCands.empty() ? 0 : m_allInputEmCands.back().bx() );
+    int16_t  lastBxRegion = (m_allInputRegions.empty() ? 0 : m_allInputRegions.back().bx() );
     m_bxStart = std::min(firstBxEmCand, firstBxRegion);
     m_numOfBx = std::max( lastBxEmCand,  lastBxRegion) - m_bxStart + 1;
   } else {

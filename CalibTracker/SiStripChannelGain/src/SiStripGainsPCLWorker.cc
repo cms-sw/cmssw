@@ -499,7 +499,7 @@ SiStripGainsPCLWorker::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
   ibooker.setCurrentFolder(dqm_dir);
  
   std::string stag(tag);
-  if(stag.size()!=0 && stag[0]!='_') stag.insert(0,1,'_');
+  if(!stag.empty() && stag[0]!='_') stag.insert(0,1,'_');
   
   std::string cvi      = std::string("Charge_Vs_Index") + stag;
   std::string cvpTIB   = std::string("Charge_Vs_PathlengthTIB")   + stag;

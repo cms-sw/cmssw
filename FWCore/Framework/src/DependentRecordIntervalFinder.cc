@@ -80,7 +80,7 @@ DependentRecordIntervalFinder::setIntervalFor(const EventSetupRecordKey& iKey,
    
    //I am assuming that an invalidTime is always less then the first valid time
    assert(IOVSyncValue::invalidIOVSyncValue() < IOVSyncValue::beginOfTime());
-   if(providers_.size() == 0 && alternate_.get() == 0 ) {
+   if(providers_.empty() && alternate_.get() == 0 ) {
       oInterval = ValidityInterval::invalidInterval();
       return;
    }

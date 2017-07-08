@@ -1116,7 +1116,7 @@ GctErrorAnalyzer::checkCollections(const T &collection, const unsigned int &cons
     edm::LogWarning("DataNotFound") << " Could not find " << label << " label";
     return false;
   }
-  if(collection->size() % constraint != 0 || collection->size() == 0) {
+  if(collection->size() % constraint != 0 || collection->empty()) {
     edm::LogWarning("CollectionSizeError") << " " << label << " collection size is " << collection->size() << ", expected multiple of " << constraint;
     return false;
   }

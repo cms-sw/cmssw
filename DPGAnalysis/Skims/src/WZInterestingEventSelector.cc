@@ -271,7 +271,7 @@ WZInterestingEventSelector::filter(edm::Event& iEvent, const edm::EventSetup& iS
     }
 
   //W filt: Retain event also event with at least 1 good ele and some met
-  if (goodElectrons.size()>=1 &&  (pfMET->begin()->et()>metCut_))
+  if (!goodElectrons.empty() &&  (pfMET->begin()->et()>metCut_))
     {
       //interestingEvents_.push_back(thisEvent);
       return true;

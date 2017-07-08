@@ -111,7 +111,7 @@ void DTRecSegment2DExtendedProducer::produce(edm::Event& event, const
            ostream_iterator<DTSLRecSegment2D>(cout, "\n"));
     }
 
-    if (segs.size() > 0 )
+    if (!segs.empty() )
       segments->put(SLId, segs.begin(),segs.end());
   }
   event.put(std::move(segments));

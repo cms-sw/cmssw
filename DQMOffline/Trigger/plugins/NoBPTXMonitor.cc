@@ -264,7 +264,7 @@ void NoBPTXMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSe
   double jetE = -999;
   double jetEta = -999;
   double jetPhi = -999;
-  if(jets.size()>0){
+  if(!jets.empty()){
     jetE = jets[0].energy();
     jetEta = jets[0].eta();
     jetPhi = jets[0].phi();
@@ -281,7 +281,7 @@ void NoBPTXMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSe
   double muonPt = -999;
   double muonEta = -999;
   double muonPhi = -999;
-  if(muons.size()>0){
+  if(!muons.empty()){
     muonPt = muons[0].pt();
     muonEta = muons[0].eta();
     muonPhi = muons[0].phi();

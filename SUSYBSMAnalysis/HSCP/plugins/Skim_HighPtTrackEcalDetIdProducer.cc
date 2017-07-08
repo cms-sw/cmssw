@@ -133,9 +133,9 @@ HighPtTrackEcalDetIdProducer::produce(edm::Event& iEvent, const edm::EventSetup&
        ++itTrack) {
         if(itTrack->pt()>ptcut_){
            TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup, *itTrack, parameters_, TrackDetectorAssociator::InsideOut);
-           if(info.crossedEcalIds.size()==0) break;
+           if(info.crossedEcalIds.empty()) break;
 
-           if(info.crossedEcalIds.size()>0){
+           if(!info.crossedEcalIds.empty()){
               DetId centerId = info.crossedEcalIds.front();
 
               const CaloSubdetectorTopology* topology = caloTopology_->getSubdetectorTopology(DetId::Ecal,centerId.subdetId());

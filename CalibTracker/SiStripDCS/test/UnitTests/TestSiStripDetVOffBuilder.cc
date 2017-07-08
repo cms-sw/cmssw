@@ -79,7 +79,7 @@ public:
     object->coralInterface.reset( new SiStripCoralIface(object->onlineDbConnectionString,object->authenticationPath,false) );
     SiStripDetVOffBuilder::TimesAndValues tStruct;
     object->statusChange( object->lastStoredCondObj.second, tStruct );
-    CPPUNIT_ASSERT(tStruct.actualStatus.size() != 0);
+    CPPUNIT_ASSERT(!tStruct.actualStatus.empty());
   }
   void testBuildDetVOffObj()
   {

@@ -105,7 +105,7 @@ void gamma_radiative_analyzer::analyze(const Event& event, const EventSetup& set
   event.getByToken(zMuSaToken_, zMuSa);
   numOfEvent++;
   // ZMuMu
-  if (zMuMu->size() > 0 ) {
+  if (!zMuMu->empty() ) {
     event.getByToken(zMuMuMatchMapToken_, zMuMuMatchMap);
      for(unsigned int i = 0; i < zMuMu->size(); ++i) { //loop on candidates
 
@@ -171,7 +171,7 @@ void gamma_radiative_analyzer::analyze(const Event& event, const EventSetup& set
   }// end if ZMuMu size > 0
 
   // ZMuSa
-  if (zMuSa->size() > 0 ) {
+  if (!zMuSa->empty() ) {
     event.getByToken(zMuSaMatchMapToken_, zMuSaMatchMap);
      for(unsigned int i = 0; i < zMuSa->size(); ++i) { //loop on candidates
 
@@ -238,7 +238,7 @@ void gamma_radiative_analyzer::analyze(const Event& event, const EventSetup& set
 
 
   //ZMuTk
-  if (zMuTk->size() > 0 ) {
+  if (!zMuTk->empty() ) {
     event.getByToken(zMuTkMatchMapToken_, zMuTkMatchMap);
     for(unsigned int i = 0; i < zMuTk->size(); ++i) { //loop on candidates
       const Candidate & zMuTkCand = (*zMuTk)[i]; //the candidate

@@ -82,7 +82,7 @@ AlCaRecoTriggerBitsRcdRead::AlCaRecoTriggerBitsRcdRead(const edm::ParameterSet& 
   case kPython: fileName += ".py";    break;
   case kTwiki:  fileName += ".twiki"; break;
   }
-  if (fileName.size()) {
+  if (!fileName.empty()) {
     output_.reset(new std::ofstream(fileName.c_str()));
     if (!output_->good()) {
       edm::LogError("IOproblem") << "Could not open output file " << fileName << ".";

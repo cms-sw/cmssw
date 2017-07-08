@@ -72,7 +72,7 @@ void testAssociationMapFilterValues::checkOneToOne() {
   // Mostly check that it compiles
   edm::View<CVal> keepView;
   filtered = associationMapFilterValues(map, keepView);
-  CPPUNIT_ASSERT( filtered.size() == 0 );
+  CPPUNIT_ASSERT( filtered.empty() );
 }
 
 void testAssociationMapFilterValues::checkOneToMany() {
@@ -176,7 +176,7 @@ void testAssociationMapFilterValues::checkOneToMany() {
     Assoc map;
     edm::View<Base> keep;
     Assoc filtered = associationMapFilterValues(map, keep);
-    CPPUNIT_ASSERT( filtered.size() == 0 );
+    CPPUNIT_ASSERT( filtered.empty() );
   }
 }
 
@@ -310,6 +310,6 @@ void testAssociationMapFilterValues::checkOneToManyQuality() {
     Assoc map;
     edm::View<Base> keep;
     Assoc filtered = associationMapFilterValues(map, keep);
-    CPPUNIT_ASSERT( filtered.size() == 0 );
+    CPPUNIT_ASSERT( filtered.empty() );
   }
 }

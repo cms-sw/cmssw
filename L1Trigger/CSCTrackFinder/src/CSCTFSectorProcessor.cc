@@ -953,7 +953,7 @@ int CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stubs
   //   if there were no tracks from the core in this endcap/sector/bx
   CSCTriggerContainer<csc::L1Track> tracksFromSingles;
   for(int bx=0; bx<7; bx++)
-    if( myStubContainer[bx].get().size() ){ // VP in this bx
+    if( !myStubContainer[bx].get().empty() ){ // VP in this bx
       bool coreTrackExists = false;
       // tracks are not ordered to be accessible by bx => loop them all
       std::vector<csc::L1Track> tracks = l1_tracks.get();
@@ -1032,10 +1032,10 @@ int CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stubs
       }
     }
   std::vector<csc::L1Track> single_tracks = tracksFromSingles.get();
-  if( single_tracks.size() ) l1_tracks.push_many(single_tracks);
+  if( !single_tracks.empty() ) l1_tracks.push_many(single_tracks);
   // End of add-on for singles
 
-  return (l1_tracks.get().size() > 0);
+  return (!l1_tracks.get().empty());
 }
 
 // according to the firmware versions print some more information

@@ -1414,7 +1414,7 @@ float CompareToMedian::runTest(const MonitorElement *me){
     nbins+=binValues.size();
 
     //calculate median
-    if(binValues.size()>0){
+    if(!binValues.empty()){
       int medPos = (int)binValues.size()/2;
       nth_element(binValues.begin(),binValues.begin()+medPos,binValues.end());
       median = *(binValues.begin()+medPos);

@@ -244,7 +244,7 @@ void DQMExample_Step1::analyze(edm::Event const& e, edm::EventSetup const& eSetu
 	  ++nEle_HLT;
 	}
       
-      if( triggeredEle.size() >= 1 ) 
+      if( !triggeredEle.empty() ) 
 	ele1_HLT = &(triggeredEle.at(0));
     }
 

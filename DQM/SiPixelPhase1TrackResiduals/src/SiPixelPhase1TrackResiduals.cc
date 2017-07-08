@@ -36,7 +36,7 @@ void SiPixelPhase1TrackResiduals::analyze(const edm::Event& iEvent, const edm::E
   edm::Handle<reco::VertexCollection> vertices;
   iEvent.getByToken(offlinePrimaryVerticesToken_, vertices);
 
-  if (applyVertexCut_ && (!vertices.isValid() || vertices->size() == 0)) return;
+  if (applyVertexCut_ && (!vertices.isValid() || vertices->empty())) return;
   
   std::vector<TrackerValidationVariables::AVTrackStruct> vtracks;
 

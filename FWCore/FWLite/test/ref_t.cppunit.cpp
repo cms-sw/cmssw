@@ -136,7 +136,7 @@ static void checkMatch(const edmtest::OtherThingCollection* pOthers,
   CPPUNIT_ASSERT(pOthers->size() == pThings->size());
   
   //This test requires at least one entry
-  CPPUNIT_ASSERT(pOthers->size() > 0 );
+  CPPUNIT_ASSERT(!pOthers->empty() );
   const edm::View<edmtest::Thing>& view = *(pOthers->front().refToBaseProd);
   CPPUNIT_ASSERT(view.size() == pOthers->size());
 

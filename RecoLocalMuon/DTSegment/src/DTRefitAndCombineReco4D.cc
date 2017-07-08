@@ -96,15 +96,15 @@ DTRefitAndCombineReco4D::reconstruct(){
   bool hasZed=false;
 
   // has this chamber the Z-superlayer?
-  if (theSegments2DTheta.size()){
-    hasZed = theSegments2DTheta.size()>0;
+  if (!theSegments2DTheta.empty()){
+    hasZed = !theSegments2DTheta.empty();
     if (debug) cout << "There are " << theSegments2DTheta.size() << " Theta cand" << endl;
   } else {
     if (debug) cout << "No Theta SL" << endl;
   }
 
   // Now I want to build the concrete DTRecSegment4D.
-  if (resultPhi.size()) {
+  if (!resultPhi.empty()) {
     for (vector<DTChamberRecSegment2D>::const_iterator phi=resultPhi.begin();
          phi!=resultPhi.end(); ++phi) {
       

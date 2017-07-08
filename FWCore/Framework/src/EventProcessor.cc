@@ -193,7 +193,7 @@ namespace edm {
 
     std::vector<std::string> loopers = params.getParameter<std::vector<std::string> >("@all_loopers");
 
-    if(loopers.size() == 0) {
+    if(loopers.empty()) {
       return vLooper;
     }
 

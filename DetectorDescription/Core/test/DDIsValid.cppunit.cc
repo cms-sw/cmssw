@@ -111,7 +111,7 @@ namespace {
     
     // check whether the found logical-parts are also defined (i.e. have material, solid ...)
     // std::cout << "IsValid-Result " << nm << " :";
-    if (result.size()) {
+    if (!result.empty()) {
       std::vector<DDLogicalPart>::const_iterator lpit(result.begin()), lped(result.end());
       for (; lpit != lped; ++lpit) {
 	// std::cout << " " << std::string(lpit->name());

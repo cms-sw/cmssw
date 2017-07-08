@@ -137,7 +137,7 @@ void sptf::produce(edm::Event& ev, const edm::EventSetup& es)
 
 cout << "Tester size: " << tester.size() << endl;
 
-  if (tempTrack.getStubs().size() > 0 )
+  if (!tempTrack.getStubs().empty() )
   {
 
       std::cout << "CSCTP size: " << CSCTP.size() << std::endl;

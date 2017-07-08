@@ -221,7 +221,7 @@ void MuonRecoGeometryAnalyzer::testDTLayers(const MuonDetLayerGeometry* geo,cons
 	 << endl;
 
     vector<DetLayer::DetWithState> compDets = layer->compatibleDets(tsos,prop,*theEstimator);
-    if (compDets.size()) {
+    if (!compDets.empty()) {
       cout << "compatibleDets: " << compDets.size() << endl
 
 	   << "  final state pos: " << compDets.front().second.globalPosition() << endl 
@@ -276,7 +276,7 @@ void MuonRecoGeometryAnalyzer::testCSCLayers(const MuonDetLayerGeometry* geo,con
 	 << endl;
   
     vector<DetLayer::DetWithState> compDets = layer->compatibleDets(tsos,prop,*theEstimator);
-    if (compDets.size()) {
+    if (!compDets.empty()) {
       cout << "compatibleDets: " << compDets.size() << endl
 
 	   << "  final state pos: " << compDets.front().second.globalPosition() << endl 

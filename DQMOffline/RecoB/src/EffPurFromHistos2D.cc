@@ -353,7 +353,7 @@ void EffPurFromHistos2D::check() {
 void EffPurFromHistos2D::compute(DQMStore::IBooker & ibook, vector<double> fixedEff)
 {
 
-  if (!mcPlots_ || fixedEff.size()<1) {
+  if (!mcPlots_ || fixedEff.empty()) {
     return; 
   }
 

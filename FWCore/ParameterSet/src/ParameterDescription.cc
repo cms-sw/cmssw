@@ -318,11 +318,11 @@ namespace edm {
     if(partOfDefaultOfVPSet_) subsectionOffset = 1;
 
     if(hasDefault()) {
-      if(vPset_.size() == 0U) os << "The default VPSet is empty.\n";
+      if(vPset_.empty()) os << "The default VPSet is empty.\n";
       else if(vPset_.size() == 1U) os << "The default VPSet has 1 element.\n";
       else os << "The default VPSet has " << vPset_.size() << " elements.\n";
 
-      if(vPset_.size() > 0U) {
+      if(!vPset_.empty()) {
         for(unsigned i = 0; i < vPset_.size(); ++i) {
           printSpaces(os, indentation + DocFormatHelper::offsetSectionContent());
           os << "[" << (i) << "]: see Section " << dfh.section()
@@ -639,11 +639,11 @@ namespace edm {
       std::ios_base::fmtflags ff = os.flags(std::ios_base::dec);
       char oldFill = os.fill();
       os.width(0);
-      if(value_.size() == 0U && format == DOC) {
+      if(value_.empty() && format == DOC) {
         os << "empty";
       } else if(value_.size() == 1U && format == CFI) {
         writeValueInVector<T>(os, value_[0], format);
-      } else if(value_.size() >= 1U) {
+      } else if(!value_.empty()) {
         if(format == DOC) os << "(vector size = " << value_.size() << ")";
         if(format == CFI and value_.size() > 255U) os << " *(";
         os.fill(' ');

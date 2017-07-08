@@ -206,7 +206,7 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
       edm::LogInfo("HcalSim") << "HCalSD:  (" << i << ") " << pmtNames[i]
                               << " LV " << pmtLV[i];
     }
-    if (pmtNames.size() > 0) showerPMT = new HFShowerPMT (name, cpv, p);
+    if (!pmtNames.empty()) showerPMT = new HFShowerPMT (name, cpv, p);
   
     // HF Fibre bundles
     value     = "HFFibreBundleStraight";
@@ -249,7 +249,7 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
       edm::LogInfo("HcalSim") << "HCalSD:  (" << i << ") " << fibreNames[i]
                               << " LV " << fibre2LV[i];
     }
-    if (fibre1LV.size() > 0 || fibre2LV.size() > 0) 
+    if (!fibre1LV.empty() || !fibre2LV.empty()) 
       showerBundle = new HFShowerFibreBundle (name, cpv, p);
   }
 
@@ -869,7 +869,7 @@ void HCalSD::hitForFibre (G4Step* aStep, double weight) { // if not ParamShower
 			  << " of " << preStepPoint->GetKineticEnergy()/GeV 
 			  << " GeV in detector type " << det;
 #endif
-  if (hits.size() > 0) {
+  if (!hits.empty()) {
     for (unsigned int i=0; i<hits.size(); ++i) {
       G4ThreeVector hitPoint = hits[i].position;
       if (isItinFidVolume (hitPoint)) {

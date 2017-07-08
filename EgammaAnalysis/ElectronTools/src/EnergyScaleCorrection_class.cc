@@ -21,7 +21,7 @@ EnergyScaleCorrection_class::EnergyScaleCorrection_class(std::string correctionF
   smearingType_(ECALELF)
 {
   
-  if(correctionFileName.size() > 0) { 
+  if(!correctionFileName.empty()) { 
     std::string filename = correctionFileName+"_scales.dat";
     ReadFromFile(filename);
     if(scales.empty()) {
@@ -30,7 +30,7 @@ EnergyScaleCorrection_class::EnergyScaleCorrection_class(std::string correctionF
     }
   }
   
-  if(correctionFileName.size() > 0) { 
+  if(!correctionFileName.empty()) { 
     std::string filename = correctionFileName+"_smearings.dat";
     ReadSmearingFromFile(filename);
     if(smearings.empty()) {

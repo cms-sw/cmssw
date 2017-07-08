@@ -24,13 +24,13 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testIndexSet);
 void testIndexSet::test() {
   edm::IndexSet set;
   CPPUNIT_ASSERT(set.empty());
-  CPPUNIT_ASSERT(set.size() == 0);
+  CPPUNIT_ASSERT(set.empty());
   CPPUNIT_ASSERT(!set.has(0));
 
   set.reserve(10);
 
   CPPUNIT_ASSERT(set.empty());
-  CPPUNIT_ASSERT(set.size() == 0);
+  CPPUNIT_ASSERT(set.empty());
   CPPUNIT_ASSERT(!set.has(0));
 
   set.insert(0);
@@ -62,7 +62,7 @@ void testIndexSet::test() {
 
   set.clear();
   CPPUNIT_ASSERT(set.empty());
-  CPPUNIT_ASSERT(set.size() == 0);
+  CPPUNIT_ASSERT(set.empty());
   CPPUNIT_ASSERT(!set.has(0));
   CPPUNIT_ASSERT(!set.has(1));
   CPPUNIT_ASSERT(!set.has(2));

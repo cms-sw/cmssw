@@ -121,7 +121,7 @@ int RPCRecordFormatter::recordUnpack(
 
 
   std::vector<int> packStrips = event.recordCD().packedStrips();
-  if (packStrips.size() ==0) {
+  if (packStrips.empty()) {
     error = ReadoutError(eleIndex,ReadoutError::EmptyPackedStrips);
     if(counter) counter->addReadoutError(currentFED, error);
     return error.type();

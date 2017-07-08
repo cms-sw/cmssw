@@ -130,7 +130,7 @@ void TemplatedInclusiveVertexFinder<InputContainer,VTX>::produce(edm::Event &eve
 
 
         auto recoVertices = std::make_unique<Product>();
-        if(primaryVertices->size()!=0) {
+        if(!primaryVertices->empty()) {
      
 	const reco::Vertex &pv = (*primaryVertices)[0];
 	GlobalPoint ppv(pv.position().x(),pv.position().y(),pv.position().z());

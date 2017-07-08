@@ -73,7 +73,7 @@ HcalTB06BeamSD::HcalTB06BeamSD(G4String name, const DDCompactView & cpv,
     }
     dodet = fv2.next();
   }
-  if (matNames.size() > 0) {
+  if (!matNames.empty()) {
     matName = matNames[0];
     int occ = nocc[0];
     for (unsigned int i = 0; i < matNames.size(); i++) {

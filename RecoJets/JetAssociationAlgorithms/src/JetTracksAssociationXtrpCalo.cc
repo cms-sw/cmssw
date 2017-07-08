@@ -71,7 +71,7 @@ void JetTracksAssociationXtrpCalo::associateInputTracksToJet( reco::TrackRefVect
 	  xtrpEnd = fExtrapolations.end(), ixtrp = xtrpBegin;
 	ixtrp != xtrpEnd; ++ixtrp ) {
 	
-    if ( ixtrp->positions().size()==0 ) continue;
+    if ( ixtrp->positions().empty() ) continue;
     reco::TrackBase::Point const & point = ixtrp->positions().at(0);
     
     

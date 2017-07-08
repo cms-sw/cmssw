@@ -207,7 +207,7 @@ void CTPPSHector::filterCTPPS(TRandom3* rootEngine){
     float x1_ctpps;
     float y1_ctpps;
 
-    if ( m_beamPart.size() && lengthctpps>0. ) {
+    if ( !m_beamPart.empty() && lengthctpps>0. ) {
 
         for (it = m_beamPart.begin(); it != m_beamPart.end(); ++it ) {
             line = (*it).first;

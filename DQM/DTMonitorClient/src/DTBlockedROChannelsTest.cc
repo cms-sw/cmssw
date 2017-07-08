@@ -98,7 +98,7 @@ void DTBlockedROChannelsTest::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker,
 
   // book the summary histogram
 
-  if (wheelHitos.size()==0) { // this is an attempt to make these bookings only once!
+  if (wheelHitos.empty()) { // this is an attempt to make these bookings only once!
 
     ibooker.setCurrentFolder("DT/00-ROChannels");
     summaryHisto = ibooker.book2D("ROChannelSummary","Summary Blocked RO Channels",12,1,13,5,-2,3);
@@ -125,7 +125,7 @@ void DTBlockedROChannelsTest::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker,
 
   //FR moved here from beginRun
 
-  if (chamberMap.size() == 0) fillChamberMap(igetter, context);
+  if (chamberMap.empty()) fillChamberMap(igetter, context);
 
   //FR moved here from beginLuminosityBlock
   run = lumiSeg.run();

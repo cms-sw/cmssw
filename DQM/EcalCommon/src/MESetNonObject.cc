@@ -201,7 +201,7 @@ namespace ecaldqm
   {
     if(!active_) return;
 
-    if(mes_.size() == 0 || !mes_[0]) return;
+    if(mes_.empty() || !mes_[0]) return;
 
     switch(kind_) {
     case MonitorElement::DQM_KIND_REAL :
@@ -226,7 +226,7 @@ namespace ecaldqm
     if(!active_) return;
     if(kind_ == MonitorElement::DQM_KIND_REAL) return;
 
-    if(mes_.size() == 0 || !mes_[0]) return;
+    if(mes_.empty() || !mes_[0]) return;
 
     mes_[0]->setBinContent(_bin, _content);
   }
@@ -237,7 +237,7 @@ namespace ecaldqm
     if(!active_) return;
     if(kind_ == MonitorElement::DQM_KIND_REAL) return;
 
-    if(mes_.size() == 0 || !mes_[0]) return;
+    if(mes_.empty() || !mes_[0]) return;
 
     mes_[0]->setBinError(_bin, _error);
   }
@@ -248,7 +248,7 @@ namespace ecaldqm
     if(!active_) return;
     if(kind_ != MonitorElement::DQM_KIND_TPROFILE && kind_ != MonitorElement::DQM_KIND_TPROFILE2D) return;
 
-    if(mes_.size() == 0 || !mes_[0]) return;
+    if(mes_.empty() || !mes_[0]) return;
 
     mes_[0]->setBinEntries(_bin, _entries);
   }
@@ -259,7 +259,7 @@ namespace ecaldqm
     if(!active_) return 0.;
     if(kind_ == MonitorElement::DQM_KIND_REAL) return 0.;
 
-    if(mes_.size() == 0 || !mes_[0]) return 0.;
+    if(mes_.empty() || !mes_[0]) return 0.;
 
     return mes_[0]->getBinContent(_bin);
   }
@@ -270,7 +270,7 @@ namespace ecaldqm
     if(!active_) return 0.;
     if(kind_ == MonitorElement::DQM_KIND_REAL) return 0.;
 
-    if(mes_.size() == 0 || !mes_[0]) return 0.;
+    if(mes_.empty() || !mes_[0]) return 0.;
 
     return mes_[0]->getBinError(_bin);
   }
@@ -281,7 +281,7 @@ namespace ecaldqm
     if(!active_) return 0.;
     if(kind_ != MonitorElement::DQM_KIND_TPROFILE && kind_ != MonitorElement::DQM_KIND_TPROFILE2D) return 0.;
 
-    if(mes_.size() == 0 || !mes_[0]) return 0.;
+    if(mes_.empty() || !mes_[0]) return 0.;
 
     return mes_[0]->getBinEntries(_bin);
   }
@@ -291,7 +291,7 @@ namespace ecaldqm
   {
     if(!active_) return 0;
 
-    if(mes_.size() == 0 || !mes_[0]) return 0;
+    if(mes_.empty() || !mes_[0]) return 0;
 
     if(kind_ == MonitorElement::DQM_KIND_TH1F || kind_ == MonitorElement::DQM_KIND_TPROFILE)
       return mes_[0]->getTH1()->FindBin(_x);

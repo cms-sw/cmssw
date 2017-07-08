@@ -266,7 +266,7 @@ HLTMuonPlotter::analyze(const Event & iEvent, const EventSetup & iSetup)
         float eta = matches[j].candBase->eta();
         float phi = matches[j].candBase->phi();
         if (hasMatch[j]) { 
-          if (matchesInEtaRange.size() >= 1 && j == matchesInEtaRange[0])
+          if (!matchesInEtaRange.empty() && j == matchesInEtaRange[0])
             elements_[pre + "MaxPt1" + post]->Fill(pt);
           if (matchesInEtaRange.size() >= 2 && j == matchesInEtaRange[1])
             elements_[pre + "MaxPt2" + post]->Fill(pt);

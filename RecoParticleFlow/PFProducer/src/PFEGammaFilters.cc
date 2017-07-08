@@ -215,7 +215,7 @@ bool PFEGammaFilters::isElectronSafeForJetMET(const reco::GsfElectron & electron
 				  hcalKfElems,
 				  reco::PFBlockElement::HCAL,
 				  reco::PFBlock::LINKTEST_ALL );
-	if(hcalKfElems.size() > 0) {
+	if(!hcalKfElems.empty()) {
 	  itrackHcalLinked++;
 	}
 	if(debugSafeForJetMET) 

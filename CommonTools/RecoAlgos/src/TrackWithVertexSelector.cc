@@ -73,7 +73,7 @@ bool TrackWithVertexSelector::testTrack(const reco::TrackRef &tref) const {
 
 bool TrackWithVertexSelector::testVertices(const reco::Track& t, const reco::VertexCollection &vtxs) const {
   bool ok = false;
-  if (vtxs.size() > 0) {
+  if (!vtxs.empty()) {
     unsigned int tested = 1;
     for (reco::VertexCollection::const_iterator it = vtxs.begin(), ed = vtxs.end();
 	 it != ed; ++it) {
@@ -93,7 +93,7 @@ bool TrackWithVertexSelector::testVertices(const reco::TrackRef &tref, const rec
   const auto& t = *tref;
   const bool timeAvailable = timescoll_ != nullptr && timeresoscoll_ != nullptr;
   bool ok = false;
-  if (vtxs.size() > 0) {
+  if (!vtxs.empty()) {
     unsigned int tested = 1;
     for (reco::VertexCollection::const_iterator it = vtxs.begin(), ed = vtxs.end();
 	 it != ed; ++it) {

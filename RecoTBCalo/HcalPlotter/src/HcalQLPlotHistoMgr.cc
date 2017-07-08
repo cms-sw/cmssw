@@ -85,7 +85,7 @@ TH1* HcalQLPlotHistoMgr::GetAHistogram(const HcalCalibDetId& id,
   }
 
   std::string chanstring = id.cboxChannelString();
-  if (!chanstring.size()) {
+  if (chanstring.empty()) {
     chanstring = "Unknown";
     edm::LogInfo("HcalQLPlotHistoMgr::GetAHistogram") << "Unknown calibration channel " << id.cboxChannel();
   }

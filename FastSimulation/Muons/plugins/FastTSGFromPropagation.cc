@@ -123,7 +123,7 @@ void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const Tracki
 	   FreeTrajectoryState simtrack_trackerstate;
 	   for( unsigned icomb = 0;icomb < recHitCombinations->size();++icomb){
 	       const auto & recHitCombination = (*recHitCombinations)[icomb];
-	       if(recHitCombination.size() ==0)
+	       if(recHitCombination.empty())
 	         continue;
 	       int32_t simTrackId = recHitCombination.back()->simTrackId(0);
 	       const SimTrack & simtrack = (*simTracks)[simTrackId];
@@ -187,7 +187,7 @@ void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const Tracki
 
 	   for( unsigned icomb = 0;icomb < recHitCombinations->size();++icomb){
 	       const auto & recHitCombination = (*recHitCombinations)[icomb];
-	       if(recHitCombination.size() ==0)
+	       if(recHitCombination.empty())
 	         continue;
 	       int32_t simTrackId = recHitCombination.back()->simTrackId(0);
 	       const SimTrack & simtrack = (*simTracks)[simTrackId];

@@ -148,7 +148,7 @@ MuonCandidate::CandidateContainer GlobalCosmicMuonTrajectoryBuilder::trajectorie
    ( firstState1.globalPosition().y() > firstState2.globalPosition().y() )? firstState1 : firstState2;
 
     GlobalPoint front, back;
-    if(hits.size()>0){
+    if(!hits.empty()){
       front=hits.front()->globalPosition();
       back=hits.back()->globalPosition();
       if ( (front.perp()<130 && fabs(front.z())<300)|| (back.perp() <130 && fabs(back.z())<300)){

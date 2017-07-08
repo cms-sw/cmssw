@@ -178,7 +178,7 @@ void TauDiscriminationAgainstCaloMuon<TauType, TauDiscriminator>::beginEvent(con
   edm::Handle<reco::VertexCollection> vertices;
   evt.getByLabel(srcVertex_, vertices);
   eventVertexPosition_ = GlobalPoint(0., 0., 0.);
-  if ( vertices->size() >= 1 ) {
+  if ( !vertices->empty() ) {
     const reco::Vertex& thePrimaryEventVertex = (*vertices->begin());
     eventVertexPosition_ = GlobalPoint(thePrimaryEventVertex.x(), thePrimaryEventVertex.y(), thePrimaryEventVertex.z());
   }

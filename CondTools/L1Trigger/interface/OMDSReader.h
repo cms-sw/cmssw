@@ -63,7 +63,7 @@ namespace l1t
 	    { return m_columnNames ; }
 	  const std::vector< coral::AttributeList >& attributeLists() const
 	    { return m_attributeLists ; }
-	  bool queryFailed() const { return m_attributeLists.size() == 0 ; }
+	  bool queryFailed() const { return m_attributeLists.empty() ; }
 	  int numberRows() const { return m_attributeLists.size() ; }
 
 	  // Return value is false if variable is null.

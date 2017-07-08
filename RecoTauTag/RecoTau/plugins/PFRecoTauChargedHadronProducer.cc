@@ -157,7 +157,7 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
   std::unique_ptr<reco::PFJetChargedHadronAssociation> pfJetChargedHadronAssociations;
 
 
-  if ( pfJets.size() ) {
+  if ( !pfJets.empty() ) {
     edm::Handle<reco::PFJetCollection> pfJetCollectionHandle;
     evt.get(pfJets.id(), pfJetCollectionHandle);
     pfJetChargedHadronAssociations = std::make_unique<reco::PFJetChargedHadronAssociation>(reco::PFJetRefProd(pfJetCollectionHandle));
@@ -202,7 +202,7 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
     std::list<etaPhiPair> tracksInCleanCollection;
     std::set<reco::PFCandidatePtr> neutralPFCandsInCleanCollection;
 
-    while ( uncleanedChargedHadrons.size() >= 1 ) {
+    while ( !uncleanedChargedHadrons.empty() ) {
       
       // get next best ChargedHadron candidate
       std::auto_ptr<reco::PFRecoTauChargedHadron> nextChargedHadron(uncleanedChargedHadrons.pop_front().release());

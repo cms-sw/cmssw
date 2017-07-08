@@ -35,7 +35,7 @@ TauJetCorrFactorsProducer::TauJetCorrFactorsProducer(const edm::ParameterSet& cf
       }
     }
 
-    if ( payloadMapping.decayModes_.size() > 0 ) payloadMappings_.push_back(payloadMapping);
+    if ( !payloadMapping.decayModes_.empty() ) payloadMappings_.push_back(payloadMapping);
   }
 
   produces<TauJetCorrFactorsMap>();
@@ -84,7 +84,7 @@ TauJetCorrFactorsProducer::produce(edm::Event& evt, const edm::EventSetup& es)
     std::vector<TauJetCorrFactors::CorrectionFactor> jec;
     jec.push_back(std::make_pair(std::string("Uncorrected"), 1.0));
 
-    if ( levels_.size() == 0 )
+    if ( levels_.empty() )
       throw cms::Exception("No JECFactors")
 	<< "You request to create a jetCorrFactors object with no JEC Levels indicated. \n"
 	<< "This makes no sense, either you should correct this or drop the module from \n"

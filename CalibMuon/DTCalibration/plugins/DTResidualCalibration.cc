@@ -60,7 +60,7 @@ void DTResidualCalibration::beginRun(const edm::Run& run, const edm::EventSetup&
   dtGeom_ = dtGeomH.product();
 
   // Loop over all the chambers
-  if(histoMapTH1F_.size() == 0) { 	 
+  if(histoMapTH1F_.empty()) { 	 
      auto ch_it = dtGeom_->chambers().begin(); 	 
      auto ch_end = dtGeom_->chambers().end(); 	 
      for (; ch_it != ch_end; ++ch_it) { 	 

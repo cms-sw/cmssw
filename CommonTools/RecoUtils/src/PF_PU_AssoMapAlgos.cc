@@ -245,7 +245,7 @@ PF_PU_AssoMapAlgos::SortAssociationMap(TrackToVertexAssMap* trackvertexassInput)
 
 	}
 
-	while (vertexptsumvector.size()!=0){
+	while (!vertexptsumvector.empty()){
 
 	  VertexRef vertexref_highestpT;
 	  float highestpT = 0.;

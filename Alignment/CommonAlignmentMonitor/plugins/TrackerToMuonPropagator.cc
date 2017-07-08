@@ -230,7 +230,7 @@ TrackerToMuonPropagator::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       } // end loop over standAloneMuon hits
 	 
       // if it has any successful extrapolations, make them into a Trajectory
-      if (muonHits.size() > 0) {
+      if (!muonHits.empty()) {
 	 PTrajectoryStateOnDet const & PTraj = trajectoryStateTransform::persistentState(tracker_tsos, outerDetId.rawId());
 	 TrajectorySeed trajectorySeed(PTraj, muonHits, alongMomentum);
 	 Trajectory trajectory(trajectorySeed, alongMomentum);

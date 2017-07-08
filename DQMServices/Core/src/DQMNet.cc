@@ -135,7 +135,7 @@ DQMNet::waitForData(Peer *p, const std::string &name, const std::string &info, P
   // the other peer vanishes?  The current implementation stands a
   // chance for the waiter to wait indefinitely -- although we do
   // force terminate the wait after a while.
-  requestObjectData(owner, name.size() ? &name[0] : 0, name.size());
+  requestObjectData(owner, !name.empty() ? &name[0] : 0, name.size());
   WaitObject wo = { Time::current(), name, info, p };
   waiting_.push_back(wo);
   p->waiting++;

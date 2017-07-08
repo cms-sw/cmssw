@@ -89,7 +89,7 @@ bool SeedFinderSelector::pass(const std::vector<const FastTrackerRecHit *>& hits
     HitDoublets result(fhm,shm);
     HitPairGeneratorFromLayerPair::doublets(*trackingRegion_,*firstLayer,*secondLayer,fhm,shm,*eventSetup_,0,result);
     
-    if(result.size()==0)
+    if(result.empty())
     {
 	return false;
     }
@@ -111,13 +111,13 @@ bool SeedFinderSelector::pass(const std::vector<const FastTrackerRecHit *>& hits
 	{
 	    OrderedHitTriplets tripletresult;
 	    pixelTripletGenerator_->hitTriplets(*trackingRegion_,tripletresult,*eventSetup_,result,&thmp,thirdLayerDetLayer,1);
-	    return tripletresult.size()!=0;
+	    return !tripletresult.empty();
 	}
 	else if(multiHitGenerator_)
 	{
 	    OrderedMultiHits  tripletresult;
 	    multiHitGenerator_->hitTriplets(*trackingRegion_,tripletresult,*eventSetup_,result,&thmp,thirdLayerDetLayer,1);
-	    return tripletresult.size()!=0;
+	    return !tripletresult.empty();
 	}
 
     }

@@ -376,7 +376,7 @@ SiStripFineDelayHit::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    const reco::TrackCollection *tracks=trackCollection.product();
    edm::ESHandle<TrackerGeometry> tracker;
    iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
-   if (tracks->size()) {
+   if (!tracks->empty()) {
      anglefinder_->init(iEvent,iSetup);
      LogDebug("produce") << "Found " << tracks->size() << " tracks.";
      // look at the hits if one needs them

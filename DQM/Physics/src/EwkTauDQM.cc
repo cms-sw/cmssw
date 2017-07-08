@@ -252,7 +252,7 @@ void EwkElecTauHistManager::fillHistograms(const edm::Event& evt,
   if (readError) return;
 
   const reco::Vertex* theEventVertex =
-      (vertexCollection->size() > 0) ? &(vertexCollection->at(0)) : 0;
+      (!vertexCollection->empty()) ? &(vertexCollection->at(0)) : 0;
 
   //--- get beam-spot (expected vertex position) for the event
   edm::Handle<reco::BeamSpot> beamSpot;
@@ -412,7 +412,7 @@ void EwkElecTauHistManager::fillHistograms(const edm::Event& evt,
     cutFlowStatus = kPassedPreselection;
   }
   if (cutFlowStatus == kPassedPreselection &&
-      (isTriggered || hltPaths_.size() == 0)) {
+      (isTriggered || hltPaths_.empty())) {
     cutFlowStatus = kPassedTrigger;
   }
   if (cutFlowStatus == kPassedTrigger && passesElectronId(*theElectron)) {
@@ -718,7 +718,7 @@ void EwkMuTauHistManager::fillHistograms(const edm::Event& evt,
   if (readError) return;
 
   const reco::Vertex* theEventVertex =
-      (vertexCollection->size() > 0) ? &(vertexCollection->at(0)) : 0;
+      (!vertexCollection->empty()) ? &(vertexCollection->at(0)) : 0;
 
   //--- get beam-spot (expected vertex position) for the event
   edm::Handle<reco::BeamSpot> beamSpot;
@@ -874,7 +874,7 @@ void EwkMuTauHistManager::fillHistograms(const edm::Event& evt,
     cutFlowStatus = kPassedPreselection;
   }
   if (cutFlowStatus == kPassedPreselection &&
-      (isTriggered || hltPaths_.size() == 0)) {
+      (isTriggered || hltPaths_.empty())) {
     cutFlowStatus = kPassedTrigger;
   }
   if (cutFlowStatus == kPassedTrigger &&

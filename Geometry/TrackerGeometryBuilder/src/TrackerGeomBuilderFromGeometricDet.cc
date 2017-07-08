@@ -137,7 +137,7 @@ TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* gd, const PTracke
   // and finally the "empty" subdetectors (maybe it is not needed)
   for(unsigned int i=0;i<6;++i) {
     if(gdsubdetmap[i] == GeometricDet::unknown) {
-      if(dets[i].size()!=0) throw cms::Exception("NotEmptyUnknownSubDet") << "Subdetector " << i+1 << " is unknown but it is not empty: " << dets[i].size();
+      if(!dets[i].empty()) throw cms::Exception("NotEmptyUnknownSubDet") << "Subdetector " << i+1 << " is unknown but it is not empty: " << dets[i].size();
       buildSilicon(dets[i],tracker,GeomDetEnumerators::tkDetEnum[i+1], "barrel"); // "barrel" is used but it is irrelevant
     }
   }

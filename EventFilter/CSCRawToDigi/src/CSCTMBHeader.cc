@@ -142,7 +142,7 @@ void CSCTMBHeader::swapCLCTs(CSCCLCTDigi& digi1, CSCCLCTDigi& digi2)
 void CSCTMBHeader::add(const std::vector<CSCCLCTDigi> & digis)
 {
   // sort???
-  if(digis.size() > 0) { 
+  if(!digis.empty()) { 
 	addCLCT0(digis[0]); 
         
   }
@@ -152,7 +152,7 @@ void CSCTMBHeader::add(const std::vector<CSCCLCTDigi> & digis)
 void CSCTMBHeader::add(const std::vector<CSCCorrelatedLCTDigi> & digis)
 {
   // sort???
-  if(digis.size() > 0) addCorrelatedLCT0(digis[0]);
+  if(!digis.empty()) addCorrelatedLCT0(digis[0]);
   if(digis.size() > 1) addCorrelatedLCT1(digis[1]);
 }
 

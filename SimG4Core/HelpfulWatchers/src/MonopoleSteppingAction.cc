@@ -74,7 +74,7 @@ void MonopoleSteppingAction::update(const BeginOfRun* ) {
 void MonopoleSteppingAction::update(const BeginOfTrack * trk) {
 
   actOnTrack = false;
-  if (pdgCode.size() > 0) {
+  if (!pdgCode.empty()) {
     const G4Track * aTrack = (*trk)();
     int code = aTrack->GetDefinition()->GetPDGEncoding();
     if (std::count(pdgCode.begin(),pdgCode.end(),code) > 0) {

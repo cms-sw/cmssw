@@ -283,7 +283,7 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
       args.push_back(*iToken);
     }
 
-    if ( args.size() == 0 || args.size() > 2) {
+    if ( args.empty() || args.size() > 2) {
       LogInfo("DQMGenericClient") << "Wrong input to cdCmds\n";
       continue;
     }

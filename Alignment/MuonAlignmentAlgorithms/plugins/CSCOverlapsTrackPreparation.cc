@@ -166,7 +166,7 @@ CSCOverlapsTrackPreparation::produce(edm::Event& iEvent, const edm::EventSetup& 
     assert(transHits.size() == TSOSes.size());
 
     // build the trajectory
-    if (clonedHits.size() > 0) {
+    if (!clonedHits.empty()) {
       PTrajectoryStateOnDet const PTraj = trajectoryStateTransform::persistentState(*(TSOSes.begin()), clonedHits.begin()->geographicalId().rawId());
       TrajectorySeed trajectorySeed(PTraj, clonedHits, alongMomentum);
       Trajectory trajectory(trajectorySeed, alongMomentum);

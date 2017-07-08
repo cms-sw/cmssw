@@ -59,7 +59,7 @@ public:
   void setBlank() ; // keep id, presamples, size but zero out data
 
   /// get the size
-  int preciseSize() const { if ( preciseData_.size() ==0 ) return 0; return preciseSize_; }
+  int preciseSize() const { if ( preciseData_.empty() ) return 0; return preciseSize_; }
   int precisePresamples() const { return precisePresamples_; }
   float preciseDeltaT() const { return deltaTprecise_; }
 

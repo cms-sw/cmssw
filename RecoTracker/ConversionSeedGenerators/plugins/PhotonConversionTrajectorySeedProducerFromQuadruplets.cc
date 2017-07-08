@@ -40,7 +40,7 @@ void PhotonConversionTrajectorySeedProducerFromQuadruplets::produce(edm::Event& 
   auto result = std::make_unique<TrajectorySeedCollection>();  
   try{
     _theFinder->analyze(ev,es);
-    if(_theFinder->getTrajectorySeedCollection()->size())
+    if(!_theFinder->getTrajectorySeedCollection()->empty())
       result->insert(result->end(),
 		     _theFinder->getTrajectorySeedCollection()->begin(),
 		     _theFinder->getTrajectorySeedCollection()->end());

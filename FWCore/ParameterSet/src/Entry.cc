@@ -976,7 +976,7 @@ namespace edm {
            os <<  start<< *i;
            start = between;
          }
-         if (whole.size()) {
+         if (!whole.empty()) {
            os << std::endl;
          }
          os << "}";

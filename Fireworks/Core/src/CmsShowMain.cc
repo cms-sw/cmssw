@@ -247,7 +247,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
       m_inputFiles = vm[kInputFilesOpt].as< std::vector<std::string> >();
    }
 
-   if (!m_inputFiles.size())
+   if (m_inputFiles.empty())
       fwLog(fwlog::kInfo) << "No data file given." << std::endl;
    else if (m_inputFiles.size() == 1)
       fwLog(fwlog::kInfo) << "Input " << m_inputFiles.front() << std::endl;

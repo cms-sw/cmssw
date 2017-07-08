@@ -55,7 +55,7 @@ void SiStripSummaryCreator::setSummaryMENames(std::map<std::string, std::string>
 // -- Browse through the Folder Structure
 //
 void SiStripSummaryCreator::createSummary(DQMStore* dqm_store) {
-  if (summaryMEMap.size() == 0) return;
+  if (summaryMEMap.empty()) return;
   std::string currDir = dqm_store->pwd();
   std::vector<std::string> subdirs = dqm_store->getSubdirs();
   int nmod = 0;
@@ -83,7 +83,7 @@ void SiStripSummaryCreator::fillSummaryHistos(DQMStore* dqm_store) {
   std::string currDir = dqm_store->pwd();
   std::map<std::string, MonitorElement*> MEMap;
   std::vector<std::string> subdirs = dqm_store->getSubdirs();
-  if (subdirs.size() ==0) return;
+  if (subdirs.empty()) return;
   
 
   for (std::map<std::string,std::string>::const_iterator isum = summaryMEMap.begin();
@@ -132,7 +132,7 @@ void SiStripSummaryCreator::fillGrandSummaryHistos(DQMStore* dqm_store) {
       (dir_name.find("MechanicalView") == 0) ||
       (dir_name.find("FU") == 0) ) return;
   std::vector<std::string> subdirs = dqm_store->getSubdirs();
-  if (subdirs.size() == 0) return;;
+  if (subdirs.empty()) return;;
   for (std::map<std::string,std::string>::const_iterator isum = summaryMEMap.begin();
        isum != summaryMEMap.end(); isum++) {
     std::string name, summary_name;

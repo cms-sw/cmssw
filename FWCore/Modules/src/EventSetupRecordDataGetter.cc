@@ -129,7 +129,7 @@ private:
    
    void
    EventSetupRecordDataGetter::doGet(EventSetup const& iSetup) {  
-      if(0 == recordToDataKeys_.size()) {
+      if(recordToDataKeys_.empty()) {
          typedef std::vector<ParameterSet> Parameters;
          Parameters const& toGet = pSet_.getParameterSetVector("toGet");
          

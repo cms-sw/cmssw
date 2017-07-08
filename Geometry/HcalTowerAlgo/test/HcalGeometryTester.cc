@@ -173,7 +173,7 @@ void HcalGeometryTester::testTriggerGeometry(const HcalTopology& topology) {
     TowerDets endcapTowers = trigTowers.towerIds(endcapDet);
     std::cout << "Trigger Tower Size: Endcap " << endcapTowers.size() 
 	      << std::endl;
-    assert(endcapTowers.size() >=1);
+    assert(!endcapTowers.empty());
     for (unsigned int k=0; k<endcapTowers.size(); ++k)
       std::cout << "Tower[" << k << "] " << endcapTowers[k] << std::endl;
   }
@@ -181,7 +181,7 @@ void HcalGeometryTester::testTriggerGeometry(const HcalTopology& topology) {
     TowerDets forwardTowers1 = trigTowers.towerIds(forwardDet1);
     std::cout << "Trigger Tower Size: Forward1 " << forwardTowers1.size()
 	      << std::endl;
-    assert(forwardTowers1.size() >=1);
+    assert(!forwardTowers1.empty());
     for (unsigned int k=0; k<forwardTowers1.size(); ++k)
       std::cout << "Tower[" << k << "] " << forwardTowers1[k] << std::endl;
   }
@@ -189,7 +189,7 @@ void HcalGeometryTester::testTriggerGeometry(const HcalTopology& topology) {
     TowerDets forwardTowers2 = trigTowers.towerIds(forwardDet2);
     std::cout << "Trigger Tower Size: Forward2 " << forwardTowers2.size()
 	      << std::endl;
-    assert(forwardTowers2.size() >=1);
+    assert(!forwardTowers2.empty());
     for (unsigned int k=0; k<forwardTowers2.size(); ++k)
       std::cout << "Tower[" << k << "] " << forwardTowers2[k] << std::endl;
   }
@@ -197,7 +197,7 @@ void HcalGeometryTester::testTriggerGeometry(const HcalTopology& topology) {
     TowerDets forwardTowers3 = trigTowers.towerIds(forwardDet3);
     std::cout << "Trigger Tower Size: Forward3 " << forwardTowers3.size()
 	      << std::endl;
-    assert(forwardTowers3.size() >=1);
+    assert(!forwardTowers3.empty());
     for (unsigned int k=0; k<forwardTowers3.size(); ++k)
       std::cout << "Tower[" << k << "] " << forwardTowers3[k] << std::endl;
   }

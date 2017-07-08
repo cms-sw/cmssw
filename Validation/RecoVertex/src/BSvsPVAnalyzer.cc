@@ -125,7 +125,7 @@ BSvsPVAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   if(_firstOnly) {
     reco::VertexCollection firstpv;
-    if(pvcoll->size()) firstpv.push_back((*pvcoll)[0]);
+    if(!pvcoll->empty()) firstpv.push_back((*pvcoll)[0]);
     _bspvhm.fill(iEvent,firstpv,*bs);
   }
   else {

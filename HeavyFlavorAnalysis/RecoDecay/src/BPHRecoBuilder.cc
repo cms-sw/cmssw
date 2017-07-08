@@ -57,7 +57,7 @@ BPHRecoBuilder::~BPHRecoBuilder() {
   int m = srCompList.size();
   while ( m-- )
     delete srCompList[m];
-  while ( compCollectList.size() ) {
+  while ( !compCollectList.empty() ) {
     const vector<BPHRecoConstCandPtr>* cCollection = *compCollectList.begin();
     delete cCollection;
     compCollectList.erase( cCollection );

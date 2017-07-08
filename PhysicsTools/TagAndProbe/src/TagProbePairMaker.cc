@@ -59,7 +59,7 @@ tnp::TagProbePairMaker::run(const edm::Event &iEvent) const
     arbitrate(pairs);
   }
 
-  if (phiCutForTwoLeg_ && pairs.size() > 0) {
+  if (phiCutForTwoLeg_ && !pairs.empty()) {
     int eventNum = iEvent.id().event();
     std::cout << "Calling phiCutByEventNumber on eventNum=" << eventNum << std::endl;
     phiCutByEventNumber(pairs,eventNum);

@@ -170,7 +170,7 @@ namespace edm {
   
   bool FreshErrorsExist(unsigned int iStreamID) {
     assert(iStreamID<errorSummaryMaps.size());
-    return  errorSummaryMaps[iStreamID].size()>0;
+    return  !errorSummaryMaps[iStreamID].empty();
   }
   
   std::vector<ErrorSummaryEntry> LoggedErrorsSummary(unsigned int iStreamID) {

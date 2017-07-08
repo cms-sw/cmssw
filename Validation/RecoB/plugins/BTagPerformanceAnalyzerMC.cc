@@ -48,9 +48,9 @@ BTagPerformanceAnalyzerMC::BTagPerformanceAnalyzerMC(const edm::ParameterSet& pS
     default: electronPlots = false; muonPlots = false; tauPlots = false;
   }
 
-  if (etaRanges.size() == 0)
+  if (etaRanges.empty())
       etaRanges = { pSet.getParameter<double>("etaMin"), pSet.getParameter<double>("etaMax") };
-  if (ptRanges.size() == 0)
+  if (ptRanges.empty())
       ptRanges = { pSet.getParameter<double>("ptRecJetMin"), pSet.getParameter<double>("ptRecJetMax") };
   
   genToken = mayConsume<GenEventInfoProduct>(edm::InputTag("generator"));

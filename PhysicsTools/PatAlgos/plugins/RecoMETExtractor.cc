@@ -46,7 +46,7 @@ void RecoMETExtractor::produce(edm::StreamID streamID, edm::Event & iEvent,
 
   edm::Handle<std::vector<pat::MET> >  src;
   iEvent.getByToken(metSrcToken_, src);
-  if(src->size()==0) edm::LogError("RecoMETExtractor::produce") << "input reco MET collection is empty" ;
+  if(src->empty()) edm::LogError("RecoMETExtractor::produce") << "input reco MET collection is empty" ;
 
   std::vector<reco::MET> *metCol = new std::vector<reco::MET>();
   

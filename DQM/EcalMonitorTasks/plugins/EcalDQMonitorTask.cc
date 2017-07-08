@@ -159,7 +159,7 @@ EcalDQMonitorTask::analyze(edm::Event const& _evt, edm::EventSetup const& _es)
 {
   if(verbosity_ > 2) edm::LogInfo("EcalDQM") << moduleName_ << "::analyze: Run " << _evt.id().run() << " Lumisection " << _evt.id().luminosityBlock() << " Event " << _evt.id().event() << ": processed " << processedEvents_;
 
-  if(schedule_.size() == 0) return;
+  if(schedule_.empty()) return;
 
   std::set<ecaldqm::DQWorker*> enabledTasks;
 

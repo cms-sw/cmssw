@@ -384,7 +384,7 @@ void EvtGenInterface::init(){
     std::vector<int> tmpPIDs = fPSet->getParameter< std::vector<int> >("operates_on_particles");
     m_PDGs.clear();
     bool goodinput=false;
-    if(tmpPIDs.size()>0){ if(tmpPIDs.size()==1 && tmpPIDs[0]==0) goodinput=false;
+    if(!tmpPIDs.empty()){ if(tmpPIDs.size()==1 && tmpPIDs[0]==0) goodinput=false;
                           else goodinput=true;
                         }
     else{goodinput=false;}

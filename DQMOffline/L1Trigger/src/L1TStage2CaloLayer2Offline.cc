@@ -262,7 +262,7 @@ void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned in
     return;
   }
 
-  if (caloJets->size() == 0) {
+  if (caloJets->empty()) {
     LogDebug("L1TStage2CaloLayer2Offline") << "no calo jets found" << std::endl;
     return;
   }

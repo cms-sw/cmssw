@@ -180,7 +180,7 @@ initialize( const edm::ParameterSet& conf ) {
   }  
   const std::vector<edm::ParameterSet>& cutflow =
     conf.getParameterSetVector("cutFlow");  
-  if( cutflow.size() == 0 ) {
+  if( cutflow.empty() ) {
     throw cms::Exception("InvalidCutFlow")
       << "You have supplied a null/empty cutflow to VersionedIDSelector,"
       << " please add content to the cuflow and try again.";

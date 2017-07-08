@@ -36,7 +36,7 @@ void StripClusterFinder::DoAction(int LayerId, float *Cathodes)
   sort(thePulseHeightMap.begin(),thePulseHeightMap.end(),Sort());
   //===========================================================================
   
-  if(!thePulseHeightMap.size()) return;
+  if(thePulseHeightMap.empty()) return;
   SearchMax();
   SearchBorders();
   Match();
@@ -126,7 +126,7 @@ void StripClusterFinder::SearchBorders(void)
   //              SEARCHING PARAMETERS OF THE CLASTERS (LEFT DOWN & RIGHT UP)
   
   for(i=0;i<MEStripClusters.size();i++){
-    if(!MEStripClusters[i].localMax.size()) {
+    if(MEStripClusters[i].localMax.empty()) {
       std::cout<<"!!!Warning Cluster has'nt local Maxima"<<std::endl;
       continue;
     }
@@ -300,7 +300,7 @@ void StripClusterFinder::RefindMax(void)
     // kill local maximums rellated to noise, maximums with pulse height less then 10% of Global max of clust.
     //fing Global Max
     GlobalMax=0;
-    if(MEStripClusters[i].localMax.size()) {
+    if(!MEStripClusters[i].localMax.empty()) {
       //std::cout << "Cluster: " << i << " Number of local maximums before erase: " 
       //		<< MEStripClusters[i].localMax.size() << std::endl; 
       for(j=0;j<MEStripClusters[i].localMax.size();j++){
@@ -352,7 +352,7 @@ void StripClusterFinder::printClusters(void)
   std::cout << "====================================================================" << std::endl;	
   std::cout << "debug information from StripClusterFinder" << std::endl;	
   for(i=0;i<MEStripClusters.size();i++){
-    if(!MEStripClusters[i].localMax.size()) continue;
+    if(MEStripClusters[i].localMax.empty()) continue;
     std::cout << " Cluster: " << i+1 
 	      << " Number of local Maximums " <<  MEStripClusters[i].localMax.size() << std::endl;
     for(j=0;j<MEStripClusters[i].localMax.size();j++){

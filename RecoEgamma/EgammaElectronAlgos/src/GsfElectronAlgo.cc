@@ -1045,7 +1045,7 @@ void GsfElectronAlgo::addPflowInfo()
           found = true ;
 
 	  // Isolation Values
-        if( (eventData_->pfIsolationValues).size() != 0 )
+        if( !eventData_->pfIsolationValues.empty() )
         {
 	  reco::GsfElectronRef 
 		pfElectronRef(eventData_->pflowElectrons, pfIndex);
@@ -1071,7 +1071,7 @@ void GsfElectronAlgo::addPflowInfo()
 
      // Isolation Values
      // Retreive not found info from ed electrons
-   if( (eventData_->edIsolationValues).size() != 0 )
+   if( !eventData_->edIsolationValues.empty() )
    {
      edIndex = 0, edElectron = edElectrons->begin() ;
      while ((found == false)&&(edElectron != edElectrons->end()))

@@ -122,7 +122,7 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
   }
 
   // Sanity check scale factors exist
-  if ( useCalib && (ecalSF.size()==0 || hcalSF.size()==0 || hfSF.size()==0) ) {
+  if ( useCalib && (ecalSF.empty() || hcalSF.empty() || hfSF.empty()) ) {
     edm::LogError("L1TCaloLayer1FetchLUTs") << "Layer 1 calibrations requested (useCalib = True) but there are missing scale factors in CaloParams!  Please check conditions setup.";
     return false;
   }

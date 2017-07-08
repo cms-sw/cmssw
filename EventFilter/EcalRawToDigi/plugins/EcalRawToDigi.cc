@@ -102,7 +102,7 @@ EcalRawToDigi::EcalRawToDigi(edm::ParameterSet const& conf):
 
   //print the FEDs to unpack to the logger
   std::ostringstream loggerOutput_;
-  if(fedUnpackList_.size()!=0){
+  if(!fedUnpackList_.empty()){
     for (unsigned int i=0; i<fedUnpackList_.size(); i++) 
       loggerOutput_ << fedUnpackList_[i] << " ";
     edm::LogInfo("EcalRawToDigi") << "EcalRawToDigi will unpack FEDs ( " << loggerOutput_.str() << ")";

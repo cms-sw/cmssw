@@ -474,7 +474,7 @@ namespace l1t {
 
     }
 
-    if (thejets_poseta.size()) {
+    if (!thejets_poseta.empty()) {
       for (unsigned int i=0; i<thejets_poseta.size()-1; i++) {
         for (unsigned int j=i+1; j<thejets_poseta.size(); j++) {
           hsortMP_->Fill(thejets_poseta.at(i).hwPt()-thejets_poseta.at(j).hwPt());
@@ -482,7 +482,7 @@ namespace l1t {
       }
     }
 
-    if (thejets_negeta.size()) {
+    if (!thejets_negeta.empty()) {
       for (unsigned int i=0; i<thejets_negeta.size()-1; i++) {
         for (unsigned int j=i+1; j<thejets_negeta.size(); j++) {
           hsortMP_->Fill(thejets_negeta.at(i).hwPt()-thejets_negeta.at(j).hwPt());
@@ -615,7 +615,7 @@ namespace l1t {
 
     }
 
-    if (thejets.size()) {
+    if (!thejets.empty()) {
       for (unsigned int i=0; i<thejets.size()-1; i++) {
         for (unsigned int j=i+1; j<thejets.size(); j++) {
           hsort_->Fill(thejets.at(i).hwPt()-thejets.at(j).hwPt());

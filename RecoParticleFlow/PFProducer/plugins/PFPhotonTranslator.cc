@@ -189,7 +189,7 @@ void PFPhotonTranslator::produce(edm::Event& iEvent,
 
 	//std::cout << "nDoubleLegConv="<<cand.photonExtraRef()->conversionRef().size()<<std::endl;
 
-	if (cand.photonExtraRef()->conversionRef().size()>0){
+	if (!cand.photonExtraRef()->conversionRef().empty()){
 
 	  pfConv_.push_back(reco::ConversionRefVector());
 
@@ -208,7 +208,7 @@ void PFPhotonTranslator::produce(edm::Event& iEvent,
 	
 	//std::cout << "nSingleLegConv=" <<singleLegConvColl.size() << std::endl;
 
-	if (singleLegConvColl.size()>0){
+	if (!singleLegConvColl.empty()){
 
 	  pfSingleLegConv_.push_back(std::vector<reco::TrackRef>());
 	  pfSingleLegConvMva_.push_back(std::vector<float>());
@@ -896,7 +896,7 @@ void PFPhotonTranslator::createPhotons(reco::VertexCollection &vertexCollection,
       reco::PhotonCoreRef PCref(reco::PhotonCoreRef(photonCoresHandle, iphot));
 
       math::XYZPoint vtx(0.,0.,0.);
-      if (vertexCollection.size()>0) vtx = vertexCollection.begin()->position();
+      if (!vertexCollection.empty()) vtx = vertexCollection.begin()->position();
       //std::cout << "vtx made" << std::endl;
 
       math::XYZVector direction =  PCref->parentSuperCluster()->position() - vtx;

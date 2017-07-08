@@ -954,7 +954,7 @@ int HcalLutManager::createLinLutXmlFiles( std::string _tag, std::string _lin_fil
     lut_checksums_xml = new XMLDOMBlock( "CFGBrick", 1 );
   }
   
-  if ( _lin_file.size() != 0 ){
+  if ( !_lin_file.empty() ){
     addLutMap( xml, getLinearizationLutXmlFromAsciiMasterEmap( _lin_file, _tag, -1, split_by_crate ) );
   }
   writeLutXmlFiles( xml, _tag, split_by_crate );
@@ -973,11 +973,11 @@ int HcalLutManager::createAllLutXmlFiles( std::string _tag, std::string _lin_fil
     lut_checksums_xml = new XMLDOMBlock( "CFGBrick", 1 );
   }
   
-  if ( _lin_file.size() != 0 ){
+  if ( !_lin_file.empty() ){
     //addLutMap( xml, getLutXmlFromAsciiMaster( _lin_file, _tag, -1, split_by_crate ) );
     addLutMap( xml, getLinearizationLutXmlFromAsciiMasterEmap( _lin_file, _tag, -1, split_by_crate ) );
   }
-  if ( _comp_file.size() != 0 ){
+  if ( !_comp_file.empty() ){
     //std::cout << "DEBUG1!!!!" << std::endl;
     addLutMap( xml, getCompressionLutXmlFromAsciiMaster( _comp_file, _tag, -1, split_by_crate ) );
     //std::cout << "DEBUG2!!!!" << std::endl;
@@ -1038,7 +1038,7 @@ int HcalLutManager::createLutXmlFiles_HBEFFromCoder_HOFromAscii( std::string _ta
     lut_checksums_xml = new XMLDOMBlock( "CFGBrick", 1 );
   }
   
-  if ( _lin_file.size() != 0 ){
+  if ( !_lin_file.empty() ){
     const std::map<int, boost::shared_ptr<LutXml> > _lin_lut_ascii_xml = getLinearizationLutXmlFromAsciiMasterEmap( _lin_file, _tag, -1, split_by_crate );
     addLutMap( xml, _lin_lut_ascii_xml );
   }
@@ -1064,7 +1064,7 @@ int HcalLutManager::createLutXmlFiles_HBEFFromCoder_HOFromAscii( std::string _ta
     lut_checksums_xml = new XMLDOMBlock( "CFGBrick", 1 );
   }
   
-  if ( _lin_file.size() != 0 ){
+  if ( !_lin_file.empty() ){
     const std::map<int, boost::shared_ptr<LutXml> > _lin_lut_ascii_xml = getLinearizationLutXmlFromAsciiMasterEmap( _lin_file, _tag, -1, split_by_crate );
     addLutMap( xml, _lin_lut_ascii_xml );
   }
@@ -1092,7 +1092,7 @@ int HcalLutManager::createAllLutXmlFilesLinAsciiCompCoder( std::string _tag, std
     lut_checksums_xml = new XMLDOMBlock( "CFGBrick", 1 );
   }
   
-  if ( _lin_file.size() != 0 ){
+  if ( !_lin_file.empty() ){
     addLutMap( xml, getLutXmlFromAsciiMaster( _lin_file, _tag, -1, split_by_crate ) );
   }
   addLutMap( xml, getCompressionLutXmlFromCoder( _tag, split_by_crate ) );
@@ -1541,7 +1541,7 @@ int HcalLutManager::createLutXmlFiles_HBEFFromCoder_HOFromAscii_ZDC( std::string
     lut_checksums_xml = new XMLDOMBlock( "CFGBrick", 1 );
   }
   
-  if ( _lin_file.size() != 0 ){
+  if ( !_lin_file.empty() ){
     const std::map<int, boost::shared_ptr<LutXml> > _lin_lut_ascii_xml = getLinearizationLutXmlFromAsciiMasterEmap( _lin_file, _tag, -1, split_by_crate );
     addLutMap( xml, _lin_lut_ascii_xml );
   }
@@ -1614,7 +1614,7 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getZdcLutXml( std::str
 					       row->zdc_zside,
 					       row->zdc_channel);
       edm::LogInfo("HcalLutManager") << "***DEBUG: ZDC lut size: " << coder_lut.size();
-      if (coder_lut.size()!=0){
+      if (!coder_lut.empty()){
 	for (std::vector<int>::const_iterator _i=coder_lut.begin(); _i!=coder_lut.end();_i++){
 	  unsigned int _temp = (unsigned int)(*_i);
 	  //if (_temp!=0) std::cout << "DEBUG non-zero LUT!!!!!!!!!!!!!!!" << (*_i) << "     " << _temp << std::endl;

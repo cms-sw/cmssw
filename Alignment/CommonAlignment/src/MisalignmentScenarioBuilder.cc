@@ -108,7 +108,7 @@ void MisalignmentScenarioBuilder::decodeMovements_(const edm::ParameterSet &pSet
     // Apply movements to components
     std::vector<std::string> parameterSetNames;
     localParameters.getParameterSetNames( parameterSetNames, true );
-    if ( (*iter)->size() > 0 && parameterSetNames.size() > 0 )
+    if ( (*iter)->size() > 0 && !parameterSetNames.empty() )
       // Has components and remaining parameter sets
       this->decodeMovements_( localParameters, (*iter)->components() );
   }

@@ -291,7 +291,7 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
             return false;
       }
 
-      if(WMuNuCollection->size() < 1) {LogTrace("")<<"No WMuNu Candidates in the Event!"; return 0;}
+      if(WMuNuCollection->empty()) {LogTrace("")<<"No WMuNu Candidates in the Event!"; return 0;}
       if(WMuNuCollection->size() > 1) {LogTrace("")<<"This event contains more than one W Candidate";}
 
       // W->mu nu selection criteria

@@ -128,7 +128,7 @@ void MatchCandidateBenchmark::setup(DQMStore::IBooker& b, const edm::ParameterSe
 
   std::vector<double> ptBinsPS = parameterSet.getParameter< std::vector<double> >( "VariablePtBins" );
   pTRes_.resize(ptBinsPS.size()-1); BRpTRes_.resize(ptBinsPS.size()-1); ERpTRes_.resize(ptBinsPS.size()-1);
-  if (pTRes_.size() > 0) 
+  if (!pTRes_.empty()) 
     for (size_t i = 0; i < pTRes_.size(); i++) {
       pTRes_[i] = 0; BRpTRes_[i] = 0; ERpTRes_[i] = 0; } 
   

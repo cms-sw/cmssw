@@ -163,7 +163,7 @@ SimpleBarrelNavigableLayer::nextLayers( const FreeTrajectoryState& fts,
   LogDebug("SimpleBarrelNavigableLayer") << "goingIntoTheBarrel: " << goingIntoTheBarrel;
 
 
-  if unlikely(theSelfSearch && result.size()==0){
+  if unlikely(theSelfSearch && result.empty()){
     if (!goingIntoTheBarrel){     
       LogDebug("SimpleBarrelNavigableLayer")<<" state is not going toward the center of the barrel. not adding self search.";}
     else{

@@ -194,7 +194,7 @@ DTTSTheta::runDTTSTheta() {
 
   // debugging...
   if(config()->debug()){
-    if(_cache.size()>0){
+    if(!_cache.empty()){
       std::cout << "====================================================" << std::endl;
       std::cout << "                 Theta segments                     " << std::endl;
       std::vector<DTChambThSegm>::const_iterator p;

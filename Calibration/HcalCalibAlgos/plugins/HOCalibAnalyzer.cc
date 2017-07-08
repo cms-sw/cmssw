@@ -1025,7 +1025,7 @@ HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   if (m_allHOsignal) {
     edm::Handle<HORecHitCollection> hoht;
     iEvent.getByToken(tok_allho_,hoht); 
-    if (hoht.isValid() && (*hoht).size()>0) {
+    if (hoht.isValid() && !*hoht.empty()) {
       ho_entry->Fill(-1., -1.); //Count of total number of entries
       for (HORecHitCollection::const_iterator ij=(*hoht).begin(); ij!=(*hoht).end(); ij++){
 	HcalDetId id =(*ij).id();
@@ -1054,7 +1054,7 @@ HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   } catch ( cms::Exception &iEvent ) { isCosMu = false; } 
   if (Nevents%5000==1) edm::LogInfo("HOCalib") <<"nmuon event # "<<Nevents<<" Run # "<<iEvent.id().run()<<" Evt # "<<iEvent.id().event()<<" "<<ipass;
 
-  if (isCosMu && (*HOCalib).size() >0 ) { 
+  if (isCosMu && !*HOCalib.empty() ) { 
     nmuon = (*HOCalib).size();
     for (HOCalibVariableCollection::const_iterator hoC=(*HOCalib).begin(); hoC!=(*HOCalib).end(); hoC++){
       //      itrg1 = (*hoC).trig1;

@@ -116,7 +116,7 @@ namespace gs {
         {
             if (!annotationsMerged_)
             {
-                if (annotation_.size())
+                if (!annotation_.empty())
                     catalogAnnotations_.push_back(annotation_);
                 annotationsMerged_ = true;
             }

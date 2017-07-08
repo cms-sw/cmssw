@@ -86,7 +86,7 @@ void PFRecoTauTagInfoProducer::produce(edm::StreamID, edm::Event& iEvent, const 
   math::XYZPoint V(0,0,-1000.);
 
   Vertex thePV;
-  if(vertCollection.size() > 0) thePV =*(vertCollection.begin());
+  if(!vertCollection.empty()) thePV =*(vertCollection.begin());
 else{
     Vertex::Error SimPVError;
     SimPVError(0,0)=15.*15.;

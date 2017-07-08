@@ -106,7 +106,7 @@ bool VZeroFinder::checkTrackPair(const reco::Track& posTrack,
     GlobalVector momentum = momenta.first + momenta.second;
     float impact = -1.;
 
-    if(vertices->size() > 0)
+    if(!vertices->empty())
     {
       // Impact parameter of the mother wrt vertices, choose smallest
       for(reco::VertexCollection::const_iterator

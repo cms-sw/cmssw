@@ -50,7 +50,7 @@ PATJetUpdater::PATJetUpdater(const edm::ParameterSet& iConfig) :
         if ((pos !=  std::string::npos) && (pos != label.length() - 7)) {
             label.erase(pos+7); // trim a tail after "JetTags"
         }
-        if(it->instance().size()) {
+        if(!it->instance().empty()) {
             label = (label+std::string(":")+it->instance());
         }
         discriminatorLabels_.push_back(label);

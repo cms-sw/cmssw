@@ -38,7 +38,7 @@ EcalDigisValidation::EcalDigisValidation(const edm::ParameterSet& ps):
   // DQM ROOT output
   outputFile_ = ps.getUntrackedParameter<std::string>("outputFile", "");
  
-  if ( outputFile_.size() != 0 ) {
+  if ( !outputFile_.empty() ) {
     edm::LogInfo("OutputInfo") << " Ecal Digi Task histograms will be saved to '" << outputFile_.c_str() << "'";
   } else {
     edm::LogInfo("OutputInfo") << " Ecal Digi Task histograms will NOT be saved";
@@ -144,7 +144,7 @@ void EcalDigisValidation::analyze(edm::Event const & e, edm::EventSetup const & 
   if (EcalDigiEB.isValid()) {
     EBdigis = EcalDigiEB.product();
     LogDebug("DigiInfo") << "total # EBdigis: " << EBdigis->size() ;
-    if ( EBdigis->size() == 0 ) isBarrel = false;
+    if ( EBdigis->empty() ) isBarrel = false;
   } else {
     isBarrel = false; 
   }
@@ -154,7 +154,7 @@ void EcalDigisValidation::analyze(edm::Event const & e, edm::EventSetup const & 
   if (EcalDigiEE.isValid()) {  
     EEdigis = EcalDigiEE.product();
     LogDebug("DigiInfo") << "total # EEdigis: " << EEdigis->size() ;
-    if ( EEdigis->size() == 0 ) isEndcap = false;
+    if ( EEdigis->empty() ) isEndcap = false;
   } else {
     isEndcap = false; 
   }
@@ -164,7 +164,7 @@ void EcalDigisValidation::analyze(edm::Event const & e, edm::EventSetup const & 
   if (EcalDigiES.isValid()) {
     ESdigis = EcalDigiES.product();
     LogDebug("DigiInfo") << "total # ESdigis: " << ESdigis->size() ;
-    if ( ESdigis->size() == 0 ) isPreshower = false;
+    if ( ESdigis->empty() ) isPreshower = false;
   } else { 
     isPreshower = false; 
   }

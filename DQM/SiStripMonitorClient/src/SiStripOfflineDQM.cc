@@ -253,7 +253,7 @@ void SiStripOfflineDQM::endJob() {
 *
 */
 bool SiStripOfflineDQM::openInputFile() { 
-  if (inputFileName_.size() == 0) return false;
+  if (inputFileName_.empty()) return false;
   edm::LogInfo("OpenFile") <<  "SiStripOfflineDQM::openInputFile: Accessing root File" << inputFileName_;
   dqmStore_->open(inputFileName_, false); 
   return true;

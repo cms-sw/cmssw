@@ -241,7 +241,7 @@ void Herwig6Hadronizer::setSLHAFromHeader(
 			boost::split(tokens, line,
 			             boost::algorithm::is_space(),
 			             boost::token_compress_on);
-			if (!tokens.size())
+			if (tokens.empty())
 				continue;
 			block.clear();
 			if (tokens.size() < 2)

@@ -282,7 +282,7 @@ bool EcalElectronicsMapper::makeMapFromVectors( std::vector<int>& orderedFedUnpa
 
   // in case as non standard set of DCCId:FedId pairs was provided
   if ( orderedFedUnpackList.size() == orderedDCCIdList.size() &&
-       orderedFedUnpackList.size() > 0)
+       !orderedFedUnpackList.empty())
     {
       edm::LogInfo("EcalElectronicsMapper") << "DCCIdList/FedUnpackList lists given. Being loaded.";
       
@@ -318,7 +318,7 @@ std::ostream &operator<< (std::ostream& o, const EcalElectronicsMapper &aMapper_
   //print class information
   o << "---------------------------------------------------------";
 
-  if(aMapper_.pathToMapFile_.size() < 1){
+  if(aMapper_.pathToMapFile_.empty()){
     o << "No correct input for DCC map has been given yet...";
   }
   else{

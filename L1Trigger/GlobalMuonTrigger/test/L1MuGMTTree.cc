@@ -111,7 +111,7 @@ void L1MuGMTTree::analyze(const edm::Event& e, const edm::EventSetup& es) {
     genevent = vtxSmeared_handle.product()->GetEvent();
 
     weight = 1.;
-    if(genevent->weights().size() > 0) weight = genevent->weights()[0];
+    if(!genevent->weights().empty()) weight = genevent->weights()[0];
     pthat = genevent->event_scale();
   }
 

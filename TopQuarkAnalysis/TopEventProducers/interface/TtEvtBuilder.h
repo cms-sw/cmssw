@@ -155,7 +155,7 @@ TtEvtBuilder<C>::produce(edm::Event& evt, const edm::EventSetup& setup)
 
   // set genEvent (if available)
   edm::Handle<TtGenEvent> genEvt;
-  if ( genEvt_.label().size() > 0 )
+  if ( !genEvt_.label().empty() )
     if( evt.getByToken(genEvtToken_, genEvt) )
       ttEvent.setGenEvent(genEvt);
 

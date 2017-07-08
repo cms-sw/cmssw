@@ -525,7 +525,7 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
     // clear the map of # of digis per chamber: not needed anymore
     hitMap.clear();
 
-    if (syncNoisyChambers.size() != 0) {
+    if (!syncNoisyChambers.empty()) {
       LogVerbatim("DTDQM|DTMonitorModule|DTDigiTask") << "[DTDigiTask] Synch Noise in event: " << nevents;
       if(filterSyncNoise) LogVerbatim("DTDQM|DTMonitorModule|DTDigiTask") << "\tnoisy time-boxes and occupancy will not be filled!" << endl;
       syncNumTot++;

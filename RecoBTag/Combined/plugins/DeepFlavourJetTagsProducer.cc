@@ -144,7 +144,7 @@ DeepFlavourJetTagsProducer::DeepFlavourJetTagsProducer(const edm::ParameterSet& 
 		vector<string> tokens;
 		if (var.name != "Jet_JP" && var.name != "Jet_JBP" && var.name != "Jet_SoftMu" && var.name != "Jet_SoftEl"){boost::split(tokens,var.name,boost::is_any_of("_"));}
 		else {tokens.push_back(var.name);}
-		if(!tokens.size()) {
+		if(tokens.empty()) {
 			throw cms::Exception("RuntimeError") << "I could not parse properly " << input.name << " as input feature" << std::endl;
 		}
 		var.id = reco::getTaggingVariableName(tokens.at(0));
@@ -186,7 +186,7 @@ DeepFlavourJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 	vector< std::unique_ptr<JetTagCollection> > output_tags;
 	output_tags.reserve(outputs_.size());
 	for(size_t i=0; i<outputs_.size(); ++i) {
-		if(taginfos->size() > 0) {
+		if(!taginfos->empty()) {
 			edm::RefToBase<Jet> jj = taginfos->begin()->jet();
 			output_tags.push_back(
 				std::make_unique<JetTagCollection>(

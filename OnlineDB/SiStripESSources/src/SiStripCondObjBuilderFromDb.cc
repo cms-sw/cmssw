@@ -327,7 +327,7 @@ vector<uint32_t> SiStripCondObjBuilderFromDb::retrieveActiveDetIds(const SiStrip
  //build connections per DetId
 vector<const FedChannelConnection *> SiStripCondObjBuilderFromDb::buildConnections(const SiStripDetCabling& det_cabling, uint32_t det_id ){
   vector<const FedChannelConnection *> conns = det_cabling.getConnections(det_id);
-  if (conns.size()==0){
+  if (conns.empty()){
     edm::LogWarning(mlESSources_)
 	<< "SiStripCondObjBuilderFromDb::" << __func__ << "]"
 	<< " Unable to build condition object!"
@@ -583,7 +583,7 @@ void SiStripCondObjBuilderFromDb::storeThreshold(uint32_t det_id){
 /** */
 void SiStripCondObjBuilderFromDb::storeQuality(uint32_t det_id){
   // Insert quality values into Quality object
-    if (inputQuality.size()){
+    if (!inputQuality.empty()){
       quality_->compact(det_id,inputQuality);
       if ( !quality_->put(det_id, inputQuality ) ) {
 	std::cout
@@ -649,7 +649,7 @@ void SiStripCondObjBuilderFromDb::buildStripRelatedObjects( SiStripConfigDb* con
     const vector<const FedChannelConnection *>& conns=buildConnections(det_cabling, *det_id);
 
     vector<const FedChannelConnection *>::const_iterator ipair = conns.begin();
-    if(conns.size() ==0 ) continue;
+    if(conns.empty() ) continue;
 
     //retrieve number of APV pairs per detid
     nApvPairs=retrieveNumberAPVPairs(*det_id);

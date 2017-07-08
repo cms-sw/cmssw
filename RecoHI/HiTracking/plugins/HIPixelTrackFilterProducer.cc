@@ -74,7 +74,7 @@ void HIPixelTrackFilterProducer::produce(edm::StreamID, edm::Event& iEvent, cons
   iEvent.getByToken(theVertexCollectionToken, vc);
   const reco::VertexCollection *vertices = vc.product();
 
-  if(vertices->size()>0) {
+  if(!vertices->empty()) {
     edm::LogInfo("HeavyIonVertexing")
       << "[HIPixelTrackFilterProducer] Pixel track selection based on best vertex"
       << "\n   vz = " << vertices->begin()->z()

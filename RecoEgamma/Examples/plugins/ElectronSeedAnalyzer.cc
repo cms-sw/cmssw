@@ -391,7 +391,7 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
   //CC to be changed according to supercluster input
   e.getByLabel("correctedHybridSuperClusters", clusters);
   histnbclus_->Fill(clusters.product()->size());
-  if (clusters.product()->size()>0) histnrseeds_->Fill(elSeeds.product()->size());
+  if (!clusters.product()->empty()) histnrseeds_->Fill(elSeeds.product()->size());
   // get MC information
 
   edm::Handle<edm::HepMCProduct> HepMCEvt;

@@ -67,7 +67,7 @@ HcalDigisValidation::HcalDigisValidation(const edm::ParameterSet& iConfig) {
 
     msm_ = new std::map<std::string, MonitorElement*>();
 
-    if (outputFile_.size() != 0) edm::LogInfo("OutputInfo") << " Hcal Digi Task histograms will be saved to '" << outputFile_.c_str() << "'";
+    if (!outputFile_.empty()) edm::LogInfo("OutputInfo") << " Hcal Digi Task histograms will be saved to '" << outputFile_.c_str() << "'";
     else edm::LogInfo("OutputInfo") << " Hcal Digi Task histograms will NOT be saved";
 
 }

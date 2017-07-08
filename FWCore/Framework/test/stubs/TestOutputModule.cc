@@ -39,7 +39,7 @@ namespace {
  unsigned int packInOneByte = 4;
  unsigned int sizeOfPackage = 1 + 
            ((source.size()-1)/packInOneByte); //Two bits per HLT
- if (source.size() == 0) sizeOfPackage = 0;
+ if (source.empty()) sizeOfPackage = 0;
  
  package.resize(sizeOfPackage);
  memset(&package[0], 0x00, sizeOfPackage);

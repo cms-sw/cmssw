@@ -26,7 +26,7 @@ AlignableDet::AlignableDet( const GeomDet* geomDet, bool addComponents ) :
   }
 
   if (addComponents) {
-    if ( geomDet->components().size() == 0 ) { // Is a DetUnit
+    if ( geomDet->components().empty() ) { // Is a DetUnit
       throw cms::Exception("BadHierarchy") << "[AlignableDet] GeomDet with DetId " 
                                            << geomDet->geographicalId().rawId() 
                                            << " has no components, use AlignableDetUnit.\n";
@@ -69,7 +69,7 @@ void AlignableDet::update(const GeomDet* geomDet, bool updateComponents)
   }
 
   if (updateComponents) {
-    if (geomDet->components().size() == 0 ) { // Is a DetUnit
+    if (geomDet->components().empty() ) { // Is a DetUnit
       throw cms::Exception("BadHierarchy")
 	<< "[AlignableDet] GeomDet with DetId "
 	<< geomDet->geographicalId().rawId()

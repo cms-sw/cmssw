@@ -26,7 +26,7 @@ class UnbinnedFitDeDxEstimator: public BaseDeDxEstimator
  
   virtual std::pair<float,float> dedx(const reco::DeDxHitCollection & Hits){
     // if there is no hit, returns invalid.
-    if(Hits.size()==0) return std::make_pair(-1,-1);
+    if(Hits.empty()) return std::make_pair(-1,-1);
     // sets the initial parameters
     f1->SetParameters(3.0 , 0.3);
     // fills a temporary array and performs the fit

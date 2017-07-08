@@ -70,7 +70,7 @@ PixelLumiDQM::PixelLumiDQM(const edm::ParameterSet& iConfig):
     << "PixelLumiDQM storing pixel cluster quality check histograms? "
     << fIncludePixelQualCheckHistos;
 
-  if (!fDeadModules.size()) {
+  if (fDeadModules.empty()) {
     edm::LogInfo("Configuration")
       << "No pixel modules specified to be ignored";
   } else {
@@ -204,7 +204,7 @@ PixelLumiDQM::analyze(const edm::Event& iEvent,
     edm::Handle<edmNew::DetSetVector<SiPixelCluster> > pixelClusters;
     iEvent.getByToken(fPixelClusterLabel, pixelClusters);
     
-    bool filterDeadModules = (fDeadModules.size() > 0);
+    bool filterDeadModules = (!fDeadModules.empty());
     std::vector<uint32_t>::const_iterator deadModulesBegin = fDeadModules.begin();
     std::vector<uint32_t>::const_iterator deadModulesEnd = fDeadModules.end();
     

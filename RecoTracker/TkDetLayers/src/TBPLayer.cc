@@ -34,11 +34,11 @@ void TBPLayer::construct() {
   theInnerCylinder = cylinder( theInnerComps);
   theOuterCylinder = cylinder( theOuterComps);
 
-  if (theInnerComps.size())
+  if (!theInnerComps.empty())
     theInnerBinFinder = BinFinderType(theInnerComps.front()->position().phi(),
 				      theInnerComps.size());
 
-  if (theOuterComps.size())
+  if (!theOuterComps.empty())
     theOuterBinFinder = BinFinderType(theOuterComps.front()->position().phi(),
 				      theOuterComps.size());
   

@@ -79,7 +79,7 @@ void L2TauPixelIsoTagProducer::produce(edm::StreamID sid, edm::Event& ev, const 
   }
 
   // If primary vertex exists, calculate jets' isolation:
-  if(pv && jets.size())
+  if(pv && !jets.empty())
   {
     for (const auto & jet : jets)
     {

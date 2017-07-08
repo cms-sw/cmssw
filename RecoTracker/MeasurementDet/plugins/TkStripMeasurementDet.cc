@@ -216,7 +216,7 @@ TkStripMeasurementDet::simpleRecHits( const TrajectoryStateOnSurface& ts, const 
 
     const detset & detSet = data.stripData().detSet(index());
     unInitDynArray(AClusters::value_type,detSet.size(),clusters);
-    assert(clusters.size()==0);
+    assert(clusters.empty());
     for (auto const & ci : detSet) {
       if (isMasked(ci)) continue;
       if (accept(detSet.makeKeyOf(&ci), data.stripClustersToSkip()))

@@ -32,11 +32,11 @@ linkPrefilter( const reco::PFBlockElement* elem1,
   case reco::PFBlockElement::PS1:
   case reco::PFBlockElement::PS2:
     result = ( elem1->isMultilinksValide() && 
-	       elem1->getMultilinks().size() > 0 );    
+	       !elem1->getMultilinks().empty() );    
     break;
   case reco::PFBlockElement::ECAL:
     result = ( elem2->isMultilinksValide() && 
-	       elem2->getMultilinks().size() > 0 );
+	       !elem2->getMultilinks().empty() );
     break;
   default:
     break;

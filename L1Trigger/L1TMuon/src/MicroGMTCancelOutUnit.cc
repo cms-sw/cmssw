@@ -137,7 +137,7 @@ MicroGMTCancelOutUnit::setCancelOutBitsOverlapEndcap(GMTInternalWedges& omtfSect
 void
 MicroGMTCancelOutUnit::getCoordinateCancelBits(std::vector<std::shared_ptr<GMTInternalMuon>>& coll1, std::vector<std::shared_ptr<GMTInternalMuon>>& coll2)
 {
-  if (coll1.size() == 0 || coll2.size() == 0) {
+  if (coll1.empty() || coll2.empty()) {
     return;
   }
   tftype coll1TfType = (*coll1.begin())->trackFinderType();
@@ -193,7 +193,7 @@ MicroGMTCancelOutUnit::getCoordinateCancelBits(std::vector<std::shared_ptr<GMTIn
 void
 MicroGMTCancelOutUnit::getTrackAddrCancelBits(std::vector<std::shared_ptr<GMTInternalMuon>>& coll1, std::vector<std::shared_ptr<GMTInternalMuon>>& coll2)
 {
-  if (coll1.size() == 0 || coll2.size() == 0) {
+  if (coll1.empty() || coll2.empty()) {
     return;
   }
   // Address based cancel out is implemented for BMTF only

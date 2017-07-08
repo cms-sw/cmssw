@@ -65,7 +65,7 @@ make_and_fit_symmchi2(Book& book) {
       fit_hists.push_back(rmsv_w3);                 rmsv_w3->SetTitle("Width==3 RMS Variance;tan#theta_{t}-(dx/dz)_{reco}");
     }
 
-    if(!fit_hists.size()) continue;
+    if(fit_hists.empty()) continue;
     const unsigned bins = fit_hists[0]->GetNbinsX();
     const unsigned guess = fit_hists[0]->FindBin(0);
     const std::pair<unsigned,unsigned> range(guess-bins/30,guess+bins/30);

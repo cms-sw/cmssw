@@ -109,7 +109,7 @@ void RivetAnalyzer::analyze(const edm::Event& iEvent,const edm::EventSetup& iSet
     } 
 
     if ( _useExternalWeight ){
-      if (tmpGenEvtPtr->weights().size() == 0) {
+      if (tmpGenEvtPtr->weights().empty()) {
 	throw cms::Exception("RivetAnalyzer") << "Original weight container has 0 size ";
       }
       if (tmpGenEvtPtr->weights().size() > 1) {

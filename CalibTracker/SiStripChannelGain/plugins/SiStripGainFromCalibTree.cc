@@ -464,7 +464,7 @@ void SiStripGainFromCalibTree::bookDQMHistos(const char* dqm_dir, const char* ta
     }
 
     std::string stag(tag);
-    if(stag.size()!=0 && stag[0]!='_') stag.insert(0,1,'_');
+    if(!stag.empty() && stag[0]!='_') stag.insert(0,1,'_');
 
     std::string cvi      = std::string("Charge_Vs_Index") + stag;
     //std::string cviA     = std::string("Charge_Vs_Index_Absolute")  + stag;
@@ -824,7 +824,7 @@ void SiStripGainFromCalibTree::algoEndRun(const edm::Run& run, const edm::EventS
 
                 //collect statistics from DQM into the related monitored elements
                 std::string stag = m_calibrationMode;
-                if(stag.size()!=0 && stag[0]!='_') stag.insert(0,1,'_');
+                if(!stag.empty() && stag[0]!='_') stag.insert(0,1,'_');
  
                  
                 if (elepos==-1) {

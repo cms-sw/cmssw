@@ -139,7 +139,7 @@ void HLTRechitInRegionsProducer<T1>::produce(edm::Event& evt, const edm::EventSe
       }
       const EcalUncalibratedRecHitCollection* uncalibRecHits = urhcH[i].product();
       
-      if (uncalibRecHits->size() > 0) {
+      if (!uncalibRecHits->empty()) {
 	if ((*uncalibRecHits)[0].id().subdetId() == EcalBarrel) {
 	  geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
 	  topology = std::make_unique<EcalBarrelTopology>(geoHandle);
@@ -151,7 +151,7 @@ void HLTRechitInRegionsProducer<T1>::produce(edm::Event& evt, const edm::EventSe
 	  topology = std::make_unique<EcalPreshowerTopology>(geoHandle);
 	} else throw(std::runtime_error("\n\nProducer encountered invalied ecalhitcollection type.\n\n"));
 	
-	if(regions.size() != 0) {
+	if(!regions.empty()) {
 	  EcalUncalibratedRecHitCollection::const_iterator it;
 	  
 	  for (it = uncalibRecHits->begin(); it != uncalibRecHits->end(); it++){
@@ -184,7 +184,7 @@ void HLTRechitInRegionsProducer<T1>::produce(edm::Event& evt, const edm::EventSe
       }
       const EcalRecHitCollection* recHits = rhcH[i].product();
       
-      if (recHits->size() > 0) {
+      if (!recHits->empty()) {
 	if ((*recHits)[0].id().subdetId() == EcalBarrel) {
 	  geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
 	  topology = std::make_unique<EcalBarrelTopology>(geoHandle);
@@ -196,7 +196,7 @@ void HLTRechitInRegionsProducer<T1>::produce(edm::Event& evt, const edm::EventSe
 	  topology = std::make_unique<EcalPreshowerTopology>(geoHandle);
 	} else throw(std::runtime_error("\n\nProducer encountered invalied ecalhitcollection type.\n\n"));
 	
-	if(regions.size() != 0) {
+	if(!regions.empty()) {
 	  EcalRecHitCollection::const_iterator it;	
 	  for (it = recHits->begin(); it != recHits->end(); it++){
 	    const CaloCellGeometry & this_cell = *(*geometry_p).getGeometry(it->id());

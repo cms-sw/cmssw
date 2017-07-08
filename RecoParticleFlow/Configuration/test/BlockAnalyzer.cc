@@ -180,7 +180,7 @@ BlockAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
  
   vector<reco::PFBlock> theBlocks = *(thePFBlockCollection.product());
 
-  if (theBlocks.size() > 0) {
+  if (!theBlocks.empty()) {
     // loop over the pfblocks (for each event you have > 1 blocks)
     for (PFBlockCollection::const_iterator iBlock = theBlocks.begin();
 	 iBlock != theBlocks.end();
@@ -208,7 +208,7 @@ BlockAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 				      reco::PFBlock::LINKTEST_ALL );
 	  
 	  // loop over the ECAL clusters linked to the iEle 
-	  if(ecalAssoPFClusters.size() > 0) { 
+	  if(!ecalAssoPFClusters.empty()) { 
 	    // this just to get the first element (the closest)
 	    //	    unsigned int ecalTrack_index = ecalAssoPFClusters.begin()->second;
 
@@ -235,7 +235,7 @@ BlockAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 					 associatedTracks,
 					 reco::PFBlockElement::TRACK,
 					 reco::PFBlock::LINKTEST_ALL);
-	      if (associatedTracks.size()>0)
+	      if (!associatedTracks.empty())
 		{
 		  for(std::multimap<double, unsigned int>::iterator ittrack = associatedTracks.begin();
 		      ittrack != associatedTracks.end(); ++ittrack) {

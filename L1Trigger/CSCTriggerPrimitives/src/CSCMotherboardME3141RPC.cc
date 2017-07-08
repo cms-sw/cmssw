@@ -235,7 +235,7 @@ CSCMotherboardME3141RPC::run(const CSCWireDigiCollection* wiredc,
     
     if (debug_luts_){
       std::cout << "RPC det " <<rpc_id<<"  CSC det "<< csc_id << std::endl;
-      if (rpcRollToEtaLimits_.size()) {
+      if (!rpcRollToEtaLimits_.empty()) {
         for(auto p : rpcRollToEtaLimits_) {
           std::cout << "roll "<< p.first << " min eta " << (p.second).first << " max eta " << (p.second).second << std::endl;
         }
@@ -307,7 +307,7 @@ CSCMotherboardME3141RPC::run(const CSCWireDigiCollection* wiredc,
     retrieveRPCDigis(rpcDigis, rpc_id.rawId());
   }
 
-  const bool hasRPCDigis(rpcDigis_.size()!=0);
+  const bool hasRPCDigis(!rpcDigis_.empty());
   
   int used_clct_mask[20];
   for (int c=0;c<20;++c) used_clct_mask[c]=0;
@@ -403,7 +403,7 @@ CSCMotherboardME3141RPC::run(const CSCWireDigiCollection* wiredc,
           // find the best matching copad - first one 
           auto digis(matchingRPCDigis(alct->bestALCT[bx_alct], rpcDigis_[bx_rpc], true));             
           if (debug_rpc_matching_) std::cout << "\t++Number of matching RPC Digis in BX " << bx_alct << " : "<< digis.size() << std::endl;
-          if (digis.size()==0) continue;
+          if (digis.empty()) continue;
           
           correlateLCTsRPC(alct->bestALCT[bx_alct], alct->secondALCT[bx_alct],
                            digis.at(0).second, allLCTs[bx_alct][0][0], allLCTs[bx_alct][0][1]);
@@ -420,7 +420,7 @@ CSCMotherboardME3141RPC::run(const CSCWireDigiCollection* wiredc,
     }
     else{
       auto digis(rpcDigis_[bx_alct]);
-      if (runME3141ILT_ and digis.size() and buildLCTfromCLCTandRPC_) {
+      if (runME3141ILT_ and !digis.empty() and buildLCTfromCLCTandRPC_) {
         //const int bx_clct_start(bx_alct - match_trig_window_size/2);
         //const int bx_clct_stop(bx_alct + match_trig_window_size/2);
         // RPC-to-CLCT
@@ -603,7 +603,7 @@ void CSCMotherboardME3141RPC::printRPCTriggerDigis(int bx_start, int bx_stop)
     }
     first = false;
     std::cout << "N(digis) BX " << bx << " : " << in_strips.size() << std::endl;
-    if (rpcDigis_.size()!=0){
+    if (!rpcDigis_.empty()){
       for (auto digi : in_strips){
         auto roll_id(RPCDetId(digi.first));
         std::cout << "\tdetId " << digi.first << " " << roll_id << ", digi = " << digi.second.strip() << ", BX = " << digi.second.bx() + 6 << std::endl;
@@ -916,11 +916,11 @@ CSCCorrelatedLCTDigi CSCMotherboardME3141RPC::constructLCTsRPC(const CSCALCTDigi
   unsigned int pattern = encodePattern(cLCT.getPattern(), cLCT.getStripType());
   
   // LCT quality number
-  unsigned int quality = findQualityRPC(aLCT, cLCT, digis.size()!=0);
+  unsigned int quality = findQualityRPC(aLCT, cLCT, !digis.empty());
   
   // Bunch crossing: get it from cathode LCT if anode LCT is not there.
   int bx = aLCT.isValid() ? aLCT.getBX() : cLCT.getBX();
-  if (digis.size()!=0) bx = lct_central_bx + digis[0].second.bx(); // fix this!!!
+  if (!digis.empty()) bx = lct_central_bx + digis[0].second.bx(); // fix this!!!
   
   // construct correlated LCT; temporarily assign track number of 0.
   int trknmb = 0;

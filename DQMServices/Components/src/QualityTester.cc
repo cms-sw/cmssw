@@ -116,7 +116,7 @@ void QualityTester::performTests(void)
 
     bei->runQTests();
 
-    if (reportThreshold.size() != 0)
+    if (!reportThreshold.empty())
     {
       std::map< std::string, std::vector<std::string> > theAlarms
 	= qtHandler->checkDetailedQTStatus(bei);

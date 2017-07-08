@@ -115,7 +115,7 @@ void L1TEGammaOffline::fillElectrons(edm::Event const& e, const unsigned int nVe
     edm::LogError("L1TEGammaOffline") << "invalid collection: GSF electrons " << std::endl;
     return;
   }
-  if (gsfElectrons->size() == 0) {
+  if (gsfElectrons->empty()) {
     LogDebug("L1TEGammaOffline") << "empty collection: GSF electrons " << std::endl;
     return;
   }
@@ -367,7 +367,7 @@ void L1TEGammaOffline::fillPhotons(edm::Event const& e, const unsigned int nVert
     return;
   }
 
-  if(photons->size() ==0){
+  if(photons->empty()){
     LogDebug("L1TEGammaOffline") << "No photons found in event." << std::endl;
     return;
   }

@@ -186,7 +186,7 @@ TtFullHadKinFitter::setupFitter()
   }
 
   // initialize helper class used to bring the resolutions into covariance matrices
-  if(udscResolutions_->size() &&  bResolutions_->size())
+  if(!udscResolutions_->empty() &&  !bResolutions_->empty())
     covM_ = new CovarianceMatrix(*udscResolutions_, *bResolutions_,
 				 *jetEnergyResolutionScaleFactors_,
 				 *jetEnergyResolutionEtaBinning_);

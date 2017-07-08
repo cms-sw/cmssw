@@ -953,7 +953,7 @@ void MuonSeedValidator::SegOfRecSeed( Handle<TrajectorySeedCollection> rec_seeds
                 if (debug && scope) { cout <<"DId: "<< MB_Id <<endl; }
 
                 // find the sim-reco match case and store the difference
-                if ( sDT.size() ==0 ) {
+                if ( sDT.empty() ) {
                    geoID.push_back( pdid );
                    d_h.push_back( 999.0 );
                    d_f.push_back( 999.0 );
@@ -992,7 +992,7 @@ void MuonSeedValidator::SegOfRecSeed( Handle<TrajectorySeedCollection> rec_seeds
                 }*/
 
                 // find the sim-reco match case and store the difference
-                if ( sCSC.size() ==0 ) {
+                if ( sCSC.empty() ) {
                    geoID.push_back( pdid );
                    d_h.push_back( 999.0 );
                    d_f.push_back( 999.0 );

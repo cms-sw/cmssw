@@ -88,12 +88,12 @@ HLTHcalPhiSymFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup
     }
   }
 
-  if ((!phiSymHBHERecHitCollection->size() ) && (!phiSymHORecHitCollection->size()) && (!phiSymHFRecHitCollection->size())) return false;
+  if ((phiSymHBHERecHitCollection->empty() ) && (phiSymHORecHitCollection->empty()) && (phiSymHFRecHitCollection->empty())) return false;
 
   //Put selected information in the event
-  if (phiSymHBHERecHitCollection->size()>0) iEvent.put(std::move(phiSymHBHERecHitCollection), phiSymHBHEHits_);
-  if (phiSymHORecHitCollection->size()>0) iEvent.put(std::move(phiSymHORecHitCollection), phiSymHOHits_);
-  if (phiSymHFRecHitCollection->size()>0) iEvent.put(std::move(phiSymHFRecHitCollection), phiSymHFHits_);
+  if (!phiSymHBHERecHitCollection->empty()) iEvent.put(std::move(phiSymHBHERecHitCollection), phiSymHBHEHits_);
+  if (!phiSymHORecHitCollection->empty()) iEvent.put(std::move(phiSymHORecHitCollection), phiSymHOHits_);
+  if (!phiSymHFRecHitCollection->empty()) iEvent.put(std::move(phiSymHFRecHitCollection), phiSymHFHits_);
 
   return true;
 }

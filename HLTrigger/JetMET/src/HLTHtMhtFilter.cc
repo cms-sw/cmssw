@@ -29,7 +29,7 @@ HLTHtMhtFilter::HLTHtMhtFilter(const edm::ParameterSet & iConfig) : HLTFilter(iC
            htLabels_.size() == minMeff_.size() &&
            htLabels_.size() == meffSlope_.size() &&
            htLabels_.size() == mhtLabels_.size() ) ||
-        htLabels_.size() == 0 ) {
+        htLabels_.empty() ) {
         nOrs_ = (minHt_.size()     < nOrs_ ? minHt_.size()     : nOrs_);
         nOrs_ = (minMht_.size()    < nOrs_ ? minMht_.size()    : nOrs_);
         nOrs_ = (minMeff_.size()   < nOrs_ ? minMeff_.size()   : nOrs_);
@@ -79,12 +79,12 @@ bool HLTHtMhtFilter::hltFilter(edm::Event & iEvent, const edm::EventSetup & iSet
       edm::Handle<reco::METCollection> hht;
       iEvent.getByToken(m_theHtToken[i], hht);
       double ht = 0;
-      if (hht->size() > 0)  ht = hht->front().sumEt();
+      if (!hht->empty())  ht = hht->front().sumEt();
       
       edm::Handle<reco::METCollection> hmht;
       iEvent.getByToken(m_theMhtToken[i], hmht);
       double mht = 0;
-      if (hmht->size() > 0)  mht = hmht->front().pt();
+      if (!hmht->empty())  mht = hmht->front().pt();
       
       // Check if the event passes this cut set
       accept = accept || (ht > minHt_[i] && mht > minMht_[i] && sqrt(mht + meffSlope_[i]*ht) > minMeff_[i]);

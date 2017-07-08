@@ -85,7 +85,7 @@ namespace edm
          }
       }
       // For backward compatibility to very old data
-      if (triggerResults.getTriggerNames().size() > 0U) {
+      if (!triggerResults.getTriggerNames().empty()) {
 	 edm::ParameterSet fakePset;
          fakePset.addParameter<std::vector<std::string> >("@trigger_paths", triggerResults.getTriggerNames());
          fakePset.registerIt();

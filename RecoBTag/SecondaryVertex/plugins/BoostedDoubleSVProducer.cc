@@ -437,7 +437,7 @@ BoostedDoubleSVProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
                }
 
        }
-       else if (currentAxes.size() > 0)
+       else if (!currentAxes.empty())
        {
                tau1Kinematics = tau1Kinematics + vertexKinematic;
                if( tau1_flightDistance2dSig < 0 )

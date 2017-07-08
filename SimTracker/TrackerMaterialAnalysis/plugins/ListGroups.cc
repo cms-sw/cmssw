@@ -131,7 +131,7 @@ ListGroups::~ListGroups() {
   for (auto plot : m_plots)
     delete plot;
 
-  if (m_groups.size())
+  if (!m_groups.empty())
     for (auto g : m_groups)
       delete g;
 }

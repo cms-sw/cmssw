@@ -71,7 +71,7 @@ SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf )
 
   // regions
   if (config_.exists("Regions")) {
-    if(config_.getParameter<edm::ParameterSet>("Regions").getParameterNames().size() > 0)
+    if(!config_.getParameter<edm::ParameterSet>("Regions").getParameterNames().empty())
     {
       regions_ = new PixelUnpackingRegions(config_, consumesCollector());
     }

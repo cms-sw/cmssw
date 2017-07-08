@@ -301,7 +301,7 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
     falgo = true;
 
     if (! isMuon_ ) {
-      if (quality_.size()!=0) {
+      if (!quality_.empty()) {
           fquality = false;
           for (unsigned int i = 0; i<quality_.size();++i) {
               if(debug_) edm::LogInfo("BeamFitter") << "quality_[" << i << "] = " << track->qualityName(quality_[i]) << std::endl;
@@ -315,7 +315,7 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
 
       // Track algorithm
 
-      if (algorithm_.size()!=0) {
+      if (!algorithm_.empty()) {
 	if (std::find(algorithm_.begin(),algorithm_.end(),track->algo())==algorithm_.end())
 	  falgo = false;
       }
@@ -765,7 +765,7 @@ void BeamFitter::write2DB(){
 }
 
 void BeamFitter::runAllFitter() {
-  if(fBSvector.size()!=0){
+  if(!fBSvector.empty()){
     BSFitter *myalgo = new BSFitter( fBSvector );
     fbeamspot = myalgo->Fit_d0phi();
 

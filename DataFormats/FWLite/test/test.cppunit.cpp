@@ -99,7 +99,7 @@ static void checkMatch(const edmtest::OtherThingCollection* pOthers,
   CPPUNIT_ASSERT(pOthers->size() == pThings->size());
 
   //This test requires at least one entry
-  CPPUNIT_ASSERT(pOthers->size() > 0 );
+  CPPUNIT_ASSERT(!pOthers->empty() );
   const edm::View<edmtest::Thing>& view = *(pOthers->front().refToBaseProd);
   CPPUNIT_ASSERT(view.size() == pOthers->size());
   
@@ -173,7 +173,7 @@ void testRefInROOT::testEventBase()
          // Test that the get function that takes a ProductID works
          // by getting a ProductID from a Ref stored in the OtherThingCollection
          // and testing that one can retrieve the ThingCollection with it.
-         CPPUNIT_ASSERT(pOthers->size() > 0 );
+         CPPUNIT_ASSERT(!pOthers->empty() );
          edmtest::OtherThingCollection::const_iterator itOther = pOthers->begin();
          edm::ProductID thingProductID = itOther->ref.id();
          edm::Handle<edmtest::ThingCollection> thingCollectionHandle;
@@ -215,7 +215,7 @@ void testRefInROOT::testTo()
       edm::Handle<edmtest::ThingCollection> pThings;
       eventBase->getByLabel(tag,pThings);
       CPPUNIT_ASSERT(pThings.isValid());
-      CPPUNIT_ASSERT(0!=pThings->size());
+      CPPUNIT_ASSERT(!pThings->empty());
       CPPUNIT_ASSERT(3 == (*pThings)[0].a);
    }
    std::cout <<events.id()<<std::endl;
@@ -226,7 +226,7 @@ void testRefInROOT::testTo()
       edm::Handle<edmtest::ThingCollection> pThings;
       eventBase->getByLabel(tag,pThings);
       CPPUNIT_ASSERT(pThings.isValid());
-      CPPUNIT_ASSERT(0!=pThings->size());
+      CPPUNIT_ASSERT(!pThings->empty());
       CPPUNIT_ASSERT(2 == (*pThings)[0].a);
    }
    CPPUNIT_ASSERT(edm::EventID(1,1,1)==events.id());

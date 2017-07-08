@@ -204,7 +204,7 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
 
   // FIXME: Both volume ID and material ID are zeros, so this part is not executed leaving all
   // values as zeros. 
-  if(myMaterialBudgetCategorizer->x0fraction(materialName).size() > 0)
+  if(!myMaterialBudgetCategorizer->x0fraction(materialName).empty())
     {
       theSupportFractionMB     = myMaterialBudgetCategorizer->x0fraction(materialName).at(0);
       theSensitiveFractionMB   = myMaterialBudgetCategorizer->x0fraction(materialName).at(1);

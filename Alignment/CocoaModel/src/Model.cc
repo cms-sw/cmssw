@@ -124,7 +124,7 @@ void Model::readSystemDescription()
   while (!filein.eof()) {
 
     if( !filein.getWordsInLine(wordlist) ) break;  //----- Read line
-    assert( wordlist.size() != 0 );
+    assert( !wordlist.empty() );
 
     //----- checking
     if( ALIUtils::debug > 99) {
@@ -321,7 +321,7 @@ void Model::readSystemDescription()
         Model::OptODictionary().push_back(vstemp);
       } else {
         //----- First word is not 'object': add to previous OptO
-        if(OptODictionary().size() == 0) {
+        if(OptODictionary().empty()) {
 	  ALIFileIn::getInstance( Model::SDFName() ).ErrorInLine();
 	  std::cerr << "SYSTEM_TREE_DESCRIPTION section: FIRST LINE SHOULD START WITH 'object'" << std::endl;
           exit(2);
@@ -339,7 +339,7 @@ void Model::readSystemDescription()
         //------- Reorder theOptODictionary
         std::vector< std::vector<ALIstring> > OptODictionary2; 
         reorderOptODictionary( "system", OptODictionary2);
-        if(OptODictionary2.size() == 0) {
+        if(OptODictionary2.empty()) {
 	  std::cerr << "SYSTEM_TREE_DESCRIPTION section: no object 'system' found " << std::endl;
 	  exit(9);
 	}

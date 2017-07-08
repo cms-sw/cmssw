@@ -240,7 +240,7 @@ MuonErrorMatrixAnalyzer::analyze_from_pull(const edm::Event& iEvent, const edm::
 
     LogDebug(theCategory)<<"I have found: "<<tp.size()<<" tracking particle associated with this reco::Track.";
 
-    if(tp.size()!=0)
+    if(!tp.empty())
       {
 	//take the match with best quality
 	std::vector<std::pair<TrackingParticleRef,double> >::const_iterator vector_iterator = tp.begin();

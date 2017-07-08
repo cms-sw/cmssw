@@ -231,7 +231,7 @@ void FlavorHistoryProducer::produce( Event& evt, const EventSetup& )
 
   if ( verbose_ ) cout << "Making sisters" << endl;
   // First make sure nothing went terribly wrong:
-  if ( partonIndices.size() == progenitorIndices.size() && partonIndices.size() > 0 ) {
+  if ( partonIndices.size() == progenitorIndices.size() && !partonIndices.empty() ) {
     // Now loop over the candidates
     for ( unsigned int ii = 0; ii < partonIndices.size(); ++ii ) {
       // Get the iith particle

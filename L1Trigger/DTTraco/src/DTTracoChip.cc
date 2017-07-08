@@ -276,8 +276,8 @@ DTTracoChip::run() {
     }
 
     // skip if no cand. at this step
-    if(_innerCand[is-DTConfigTraco::NSTEPF].size()<1 &&
-       _outerCand[is-DTConfigTraco::NSTEPF].size()<1 ) 
+    if(_innerCand[is-DTConfigTraco::NSTEPF].empty() &&
+       _outerCand[is-DTConfigTraco::NSTEPF].empty() ) 
       continue;
 
     // Debugging...
@@ -384,7 +384,7 @@ DTTracoChip::run() {
     // Inhibit second track at previous bunch crossing
     if(config()->debug()==4)
       std::cout<<"Checking overlap I-II track..." <<std::endl;
-    if(_tracotrig[is-DTConfigTraco::NSTEPF].size()>0 && is>DTConfigTraco::NSTEPF
+    if(!_tracotrig[is-DTConfigTraco::NSTEPF].empty() && is>DTConfigTraco::NSTEPF
       && (_tracotrig[is-DTConfigTraco::NSTEPF])[0]->isFirst() ) {    //I track at bx
       if(nTrig(is-1)>0) {                                           //there is a track at bx-1
         if( !(trigger(is-1,1)->isFirst())  ||                       //trig 1 is II track
@@ -471,7 +471,7 @@ DTTracoCand*
 DTTracoChip::bestCand(int itk, std::vector<DTTracoCand> & tclist) {
 
   // Return if no candidates
-  if(tclist.size()<1) return 0;
+  if(tclist.empty()) return 0;
 
   // stl function: sort in Ktc ascending or descending order according 
   // to user request comparing by default with user-defined <
@@ -1178,7 +1178,7 @@ DTTracoChip::edgeBTI(int step, int io, int lr) const {
   //
   std::vector<DTTracoCand>::const_iterator p;
   if(io==1){
-    if(_innerCand[step-DTConfigTraco::NSTEPF].size()>0) {
+    if(!_innerCand[step-DTConfigTraco::NSTEPF].empty()) {
       // SV 24/IX/03 fix: only HTRIG accepted
       for(p=_innerCand[step-DTConfigTraco::NSTEPF].begin();
 	  p<_innerCand[step-DTConfigTraco::NSTEPF].end(); p++){
@@ -1189,7 +1189,7 @@ DTTracoChip::edgeBTI(int step, int io, int lr) const {
       }
     }
   } else {
-    if(_outerCand[step-DTConfigTraco::NSTEPF].size()>0) {
+    if(!_outerCand[step-DTConfigTraco::NSTEPF].empty()) {
       for(p=_outerCand[step-DTConfigTraco::NSTEPF].begin();
 	  p<_outerCand[step-DTConfigTraco::NSTEPF].end(); p++){
 	//SV: is the following correct???FIX if using _card to set _flag

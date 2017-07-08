@@ -205,7 +205,7 @@ void SubjetFilterAlgorithm::run(const std::vector<fastjet::PseudoJet>& fjInputs,
 	  double subJetArea=(doAreaFastjet_) ?
 	    ((fastjet::ClusterSequenceArea*)cs)->area(fjSubJets[iSub]) : 0.0;
 	  
-	  if (iSub<2||constituents.size()>0)
+	  if (iSub<2||!constituents.empty())
 	    subJets.push_back(CompoundPseudoSubJet(fjSubJets[iSub],
 						   subJetArea,
 						   constituents));

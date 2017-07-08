@@ -74,7 +74,7 @@ namespace reco {
 
       ::helper::MasterCollection<C1> master(src, evt);
       auto isolations = std::make_unique<OutputCollection>();
-      if(src->size()!= 0) {
+      if(!src->empty()) {
 	typename OutputCollection::Filler filler(*isolations);
 	vector<double> iso(master.size(),-1);
 	size_t i = 0;

@@ -13,7 +13,7 @@ const double infinity = 0.1;  // this is huge because all alignments are angles 
 CSCChamberFitter::CSCChamberFitter(const edm::ParameterSet &iConfig, std::vector<CSCPairResidualsConstraint*> &residualsConstraints) {
   m_name = iConfig.getParameter<std::string>("name");
   m_alignables = iConfig.getParameter<std::vector<std::string> >("alignables");
-  if (m_alignables.size() == 0) {
+  if (m_alignables.empty()) {
     throw cms::Exception("BadConfig") << "Fitter " << m_name << " has no alignables!" << std::endl;
   }
 

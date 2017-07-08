@@ -1085,7 +1085,7 @@ void JetTester_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSetu
       for (GenJetCollection::const_iterator gjet=genJets->begin(); gjet!=genJets->end(); gjet++) {
         if (fabs(gjet->eta()) > 6.) continue;  // Out of the detector 
         if (gjet->pt() < mMatchGenPtThreshold) continue;
-        if (recoJets.size() <= 0) continue;
+        if (recoJets.empty()) continue;
 
 	bool inBarrel = false; 
 	bool inEndcap = false; 

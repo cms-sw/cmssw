@@ -99,7 +99,7 @@ void L1TCaloParamsViewer::analyze(const edm::Event& iEvent, const edm::EventSetu
         if( printPUSParams ) cout<<"   "<<ceil(2*pusParams[i])<<endl;
     }
 
-    if( ptr1->regionPUSParams().size() )
+    if( !ptr1->regionPUSParams().empty() )
         cout << hash(pusParams, sizeof(float)*ptr1->regionPUSParams().size()) << endl;
     else cout<<endl;
 
@@ -181,7 +181,7 @@ void L1TCaloParamsViewer::analyze(const edm::Event& iEvent, const edm::EventSetu
     float egPUSParams[ptr1->egPUSParams().size()];
     for(unsigned int i=0; i<ptr1->egPUSParams().size(); i++) egPUSParams[i] = ptr1->egPUSParams()[i];
 
-    if( ptr1->egPUSParams().size() )
+    if( !ptr1->egPUSParams().empty() )
        cout << hash( egPUSParams, sizeof(float)*ptr1->egPUSParams().size() ) << endl;
     else cout<<endl;
 
@@ -189,7 +189,7 @@ void L1TCaloParamsViewer::analyze(const edm::Event& iEvent, const edm::EventSetu
     double egCalibrationParams[ptr1->egCalibrationParams().size()];
     for(unsigned int i=0; i<ptr1->egCalibrationParams().size(); i++) egCalibrationParams[i] = ptr1->egCalibrationParams()[i];
 
-    if( ptr1->egCalibrationParams().size() )
+    if( !ptr1->egCalibrationParams().empty() )
        cout << hash( egCalibrationParams, sizeof(double)*ptr1->egCalibrationParams().size() ) << endl;
     else cout<<endl;
 
@@ -259,7 +259,7 @@ void L1TCaloParamsViewer::analyze(const edm::Event& iEvent, const edm::EventSetu
     float tauPUSParams[ptr1->tauPUSParams().size()];
     for(unsigned int i=0; i<ptr1->tauPUSParams().size(); i++) tauPUSParams[i] = ptr1->tauPUSParams()[i];
 
-    if( ptr1->tauPUSParams().size() )
+    if( !ptr1->tauPUSParams().empty() )
         cout << hash( tauPUSParams, sizeof(float)*ptr1->tauPUSParams().size()  ) << endl;
     else cout<<endl;
 
@@ -273,7 +273,7 @@ void L1TCaloParamsViewer::analyze(const edm::Event& iEvent, const edm::EventSetu
     float jetCalibrationParams[ptr1->jetCalibrationParams().size()]; // deliberately drop double precision
     for(unsigned int i=0; i<ptr1->jetCalibrationParams().size(); i++) jetCalibrationParams[i] = ptr1->jetCalibrationParams()[i];
 
-    if( ptr1->jetCalibrationParams().size() ){
+    if( !ptr1->jetCalibrationParams().empty() ){
         cout << hash( jetCalibrationParams, sizeof(float)*ptr1->jetCalibrationParams().size() ) << endl;
         if( printJetCalibPar )
             for(unsigned int i=0; i<ptr1->jetCalibrationParams().size(); i++)

@@ -213,7 +213,7 @@ EcalDumpRaw::analyze(const edm::Event& event, const edm::EventSetup& es){
   ++iEvent_;
   eventId_ = event.id().event();
 
-  if(eventList_.size()!=0 && find(eventList_.begin(), eventList_.end(),
+  if(!eventList_.empty() && find(eventList_.begin(), eventList_.end(),
                                   eventId_) == eventList_.end()){
     cout << "Skipping event " << eventId_ << ".\n";
     return;
@@ -240,7 +240,7 @@ EcalDumpRaw::analyze(const edm::Event& event, const edm::EventSetup& es){
     event.getByToken(l1AcceptBunchCrossingCollectionToken_, l1aHist);
     if(!l1aHist.isValid()) {
       cout << "L1A history not found.\n";
-    } else if (l1aHist->size() == 0) {
+    } else if (l1aHist->empty()) {
       cout << "L1A history is empty.\n";
     } else{
       cout << "L1A history: \n";

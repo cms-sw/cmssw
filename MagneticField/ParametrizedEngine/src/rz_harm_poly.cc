@@ -180,7 +180,7 @@ rz_harm_poly rz_harm_poly::LadderUp()
       }
    }
    p_out.Collect();
-   if (p_out.data.size()) {
+   if (!p_out.data.empty()) {
       p_out.L = L;
       p_out.M = M+1;
       if (std::abs(p_out.M) > int(MaxM)) MaxM = std::abs(p_out.M);
@@ -218,7 +218,7 @@ rz_harm_poly rz_harm_poly::LadderDwn()
       }
    }
    p_out.Collect();
-   if (p_out.data.size()) {
+   if (!p_out.data.empty()) {
       p_out.L = L;
       p_out.M = M-1;
       if (std::abs(p_out.M) > int(MaxM)) MaxM = std::abs(p_out.M);

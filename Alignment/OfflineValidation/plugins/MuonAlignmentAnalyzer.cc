@@ -1559,7 +1559,7 @@ void MuonAlignmentAnalyzer::analyze(const edm::Event & event, const edm::EventSe
 
                 double candDeltaR= -999.0, dR;
                 int iCand=0;
-                if(simPar[0].size()>0){
+                if(!simPar[0].empty()){
                     for(unsigned int  iSim = 0; iSim <simPar[0].size(); iSim++) {
                         dR=deltaR(SAeta,SAphi,simPar[1][iSim],simPar[2][iSim]);
                         if(candDeltaR<0 || dR<candDeltaR) {
@@ -1646,7 +1646,7 @@ void MuonAlignmentAnalyzer::analyze(const edm::Event & event, const edm::EventSe
             if(GBrecPt && theDataType == "SimData"){ 
                 double candDeltaR= -999.0, dR;
                 int iCand=0;
-                if(simPar[0].size()>0){
+                if(!simPar[0].empty()){
                     for(unsigned int  iSim = 0; iSim <simPar[0].size(); iSim++) {
                         dR=deltaR(GBeta,GBphi,simPar[1][iSim],simPar[2][iSim]);
                         if(candDeltaR<0 || dR<candDeltaR) {

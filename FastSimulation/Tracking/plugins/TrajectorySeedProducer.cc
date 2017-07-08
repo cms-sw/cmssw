@@ -175,7 +175,7 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
     e.getByToken(trackingRegionToken, hregions);
     const auto& regions = *hregions;
     // and make sure there is at least one region
-    if(regions.size() == 0)
+    if(regions.empty())
     {
         e.put(std::move(output));
         return;

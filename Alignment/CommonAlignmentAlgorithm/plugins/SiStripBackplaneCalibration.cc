@@ -313,7 +313,7 @@ void SiStripBackplaneCalibration::beginOfJob(AlignableTracker *aliTracker,
                             << "\n N(merge files) = " << mergeFileNames_.size()
                             << "\n number of IOVs = " << moduleGroupSelector_->numIovs();
   
-  if (mergeFileNames_.size()) {
+  if (!mergeFileNames_.empty()) {
     edm::LogInfo("Alignment") << "@SUB=SiStripBackplaneCalibration"
                               << "First file to merge: " << mergeFileNames_[0];
   }

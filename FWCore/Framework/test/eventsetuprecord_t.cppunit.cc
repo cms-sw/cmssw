@@ -427,7 +427,7 @@ void testEventsetupRecord::introspectionTest()
 
   dummyRecord.clearProxies();
   dummyRecord.fillRegisteredDataKeys(keys);
-  CPPUNIT_ASSERT(0 == keys.size());
+  CPPUNIT_ASSERT(keys.empty());
 }
 
 void testEventsetupRecord::doGetExepTest()

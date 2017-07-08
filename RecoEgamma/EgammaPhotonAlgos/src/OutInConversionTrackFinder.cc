@@ -197,7 +197,7 @@ std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedC
 
 
   LogDebug("OutInConversionTrackFinder") << "OutInConversionTrackFinder  tmpO size " << tmpO.size() << " after filling " << "\n"; 
-  if ( tmpO.size() ) {
+  if ( !tmpO.empty() ) {
     std::vector<Trajectory>::iterator it=tmpO.begin();
     
     // only send out the two best tracks 

@@ -188,7 +188,7 @@ void ConfigurationDatabaseStandardXMLParser::parse(const std::string& xmlDocumen
   } catch (std::exception& ex) {
     XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,ex.what());
   }
-  if (theItems.size()==0) {
+  if (theItems.empty()) {
     XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,"No data found");
   } else if (theItems.size()>1) {
     XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,"Multiple items found");

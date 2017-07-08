@@ -118,7 +118,7 @@ LaserSorter::LaserSorter(const edm::ParameterSet& pset)
 
   fedRawDataCollectionToken_ = consumes<FEDRawDataCollection>(fedRawDataCollectionTag_);
   
-  if(outputListFile_.size()!=0){
+  if(!outputListFile_.empty()){
     outputList_.open(outputListFile_.c_str(), ios::app);
     if(outputList_.bad()){
       throw cms::Exception("FileOpen")
@@ -128,7 +128,7 @@ LaserSorter::LaserSorter(const edm::ParameterSet& pset)
     doOutputList_ = true;
   }
   
-  if(timeLogFile_.size()>0){
+  if(!timeLogFile_.empty()){
     timeLog_.open(timeLogFile_.c_str());
     if(timeLog_.fail()){
       cout << "[LaserSorter " << now() << "] "
@@ -260,7 +260,7 @@ LaserSorter::analyze(const edm::Event& event, const edm::EventSetup& es){
                           << ") found in trigger type is out of range.";
       ++stats_.nInvalidDccWeak;
       vector<int> ids = getFullyReadoutDccs(*rawdata);
-      if(ids.size()==0){
+      if(ids.empty()){
         if(verbosity_ && iNoFullReadoutDccError_ < maxFullReadoutDccError_){
           cout << " No fully read-out DCC found\n";
           ++iNoFullReadoutDccError_;
@@ -399,7 +399,7 @@ int LaserSorter::dcc2Lme(int dcc, int side){
       lmes.push_back(82);
     }
   }
-  return lmes.size()==0?-1:lmes[min(lmes.size(), (size_t)side)];
+  return lmes.empty()?-1:lmes[min(lmes.size(), (size_t)side)];
 }
 
 int LaserSorter::getOrbitFromDcc(const edm::Handle<FEDRawDataCollection>& rawdata) const{

@@ -150,7 +150,7 @@ void ClusterTPAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, co
 	  for (int icol = cluster.minPixelCol(); icol <= cluster.maxPixelCol(); ++icol) {
 	    uint32_t channel = PixelChannelIdentifier::pixelToChannel(irow, icol);
 	    std::vector<std::pair<uint32_t, EncodedEventId> > trkid(getSimTrackId<PixelDigiSimLink>(sipixelSimLinks, detId, channel));
-	    if (trkid.size()==0) continue; 
+	    if (trkid.empty()) continue; 
 	    simTkIds.insert(trkid.begin(),trkid.end());
 	  }
 	}
@@ -186,7 +186,7 @@ void ClusterTPAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, co
 	
 	for (int istr = first; istr < last; ++istr) {
 	  std::vector<std::pair<uint32_t, EncodedEventId> > trkid(getSimTrackId<StripDigiSimLink>(sistripSimLinks, detId, istr));
-	  if (trkid.size()==0) continue; 
+	  if (trkid.empty()) continue; 
 	  simTkIds.insert(trkid.begin(),trkid.end());
 	}
 	for (std::set<std::pair<uint32_t, EncodedEventId> >::const_iterator iset  = simTkIds.begin(); 
@@ -222,7 +222,7 @@ void ClusterTPAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, co
           for (unsigned int istr(0); istr < cluster.size(); ++istr) {
             uint32_t channel = Phase2TrackerDigi::pixelToChannel(cluster.firstRow() + istr, cluster.column());
             std::vector<std::pair<uint32_t, EncodedEventId> > trkid(getSimTrackId<PixelDigiSimLink>(siphase2OTSimLinks, detId, channel));
-            if (trkid.size()==0) continue;
+            if (trkid.empty()) continue;
             simTkIds.insert(trkid.begin(),trkid.end());
           }
     

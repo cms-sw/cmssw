@@ -97,7 +97,7 @@ BeamSpotRcdReader::BeamSpotRcdReader(const edm::ParameterSet& iConfig) :
   //now do what ever initialization is needed
   usesResource("TFileService");
   std::string fileName(iConfig.getUntrackedParameter<std::string>("rawFileName"));
-  if (fileName.size()) {
+  if (!fileName.empty()) {
     output_.reset(new std::ofstream(fileName.c_str()));
     if (!output_->good()) {
       edm::LogError("IOproblem") << "Could not open output file " << fileName << ".";

@@ -231,7 +231,7 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig) {
 		fjRangeDef_ = RangeDefPtr( new fastjet::RangeDefinition(rhoEtaMax_) );
 	} 
 
-	if( ( doFastJetNonUniform_ ) && ( puCenters_.size() == 0 ) ) 
+	if( ( doFastJetNonUniform_ ) && ( puCenters_.empty() ) ) 
 		throw cms::Exception("doFastJetNonUniform") << "Parameter puCenters for doFastJetNonUniform is not defined." << std::endl;
 
 	// make the "produces" statements
@@ -280,7 +280,7 @@ void VirtualJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetu
     LogDebug("VirtualJetProducer") << "Adding PV info\n";
     edm::Handle<reco::VertexCollection> pvCollection;
     iEvent.getByToken(input_vertex_token_ , pvCollection);
-    if (pvCollection->size()>0) vertex_=pvCollection->begin()->position();
+    if (!pvCollection->empty()) vertex_=pvCollection->begin()->position();
   }
 
   // For Pileup subtraction using offset correction:
@@ -303,7 +303,7 @@ void VirtualJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetu
   
   bool isView = iEvent.getByToken(input_candidateview_token_, inputsHandle);
   if ( isView ) {
-    if ( inputsHandle->size() == 0) {
+    if ( inputsHandle->empty()) {
       output( iEvent, iSetup );
       return;
     }
@@ -313,7 +313,7 @@ void VirtualJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetu
   } else {
     bool isPF = iEvent.getByToken(input_candidatefwdptr_token_, pfinputsHandleAsFwdPtr);
     if ( isPF ) {
-      if ( pfinputsHandleAsFwdPtr->size() == 0) {
+      if ( pfinputsHandleAsFwdPtr->empty()) {
 	output( iEvent, iSetup );
 	return;
       }
@@ -327,7 +327,7 @@ void VirtualJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetu
       }
     } else {
       iEvent.getByToken(input_packedcandidatefwdptr_token_, packedinputsHandleAsFwdPtr);
-      if ( packedinputsHandleAsFwdPtr->size() == 0) {
+      if ( packedinputsHandleAsFwdPtr->empty()) {
 	output( iEvent, iSetup );
 	return;
       }
@@ -576,7 +576,7 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
         dynamic_cast<fastjet::ClusterSequenceAreaBase const *> ( &*fjClusterSeq_ );
 
       if (clusterSequenceWithArea ==nullptr ){
-	if (fjJets_.size() > 0) {
+	if (!fjJets_.empty()) {
 	  throw cms::Exception("LogicError")<<"fjClusterSeq is not initialized while inputs are present\n ";
 	}
       } else {
@@ -607,7 +607,7 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
 	}
       */
       if (clusterSequenceWithArea ==nullptr ){
-	if (fjJets_.size() > 0) {
+	if (!fjJets_.empty()) {
 	  throw cms::Exception("LogicError")<<"fjClusterSeq is not initialized while inputs are present\n ";
 	}
       } else {

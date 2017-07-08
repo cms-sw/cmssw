@@ -79,7 +79,7 @@ void PrintGeomSummary::update(const BeginOfJob * job) {
     const DDLogicalPart & ddLP = gra.nodeData(git);
     addSolid(ddLP);
     ++i;
-    if (git->size()) {
+    if (!git->empty()) {
       // ask for children of ddLP  
       for (DDCompactView::graph_type::edge_list::const_iterator cit  = git->begin();
 	   cit != git->end(); ++cit) {

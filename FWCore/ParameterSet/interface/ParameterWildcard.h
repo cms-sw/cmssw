@@ -56,7 +56,7 @@ namespace edm {
 
       std::vector<std::string> parameterNames  = pset.getParameterNamesForType<T>(isTracked());
 
-      if (criteria() == RequireAtLeastOne) return parameterNames.size() >= 1U;
+      if (criteria() == RequireAtLeastOne) return !parameterNames.empty();
       return parameterNames.size() == 1U;
     }
 

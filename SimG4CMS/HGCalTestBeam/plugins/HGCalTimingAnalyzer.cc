@@ -99,7 +99,7 @@ HGCalTimingAnalyzer::HGCalTimingAnalyzer(const edm::ParameterSet& iConfig) {
   for (const auto& id : idBeams_) std::cout << " " << id;
   std::cout << std::endl;
 #endif
-  if (idBeams_.size() == 0) idBeams_.push_back(1001);
+  if (idBeams_.empty()) idBeams_.push_back(1001);
 
   edm::InputTag tmp0 = iConfig.getParameter<edm::InputTag>("GeneratorSrc");
   tok_hepMC_   = consumes<edm::HepMCProduct>(tmp0);

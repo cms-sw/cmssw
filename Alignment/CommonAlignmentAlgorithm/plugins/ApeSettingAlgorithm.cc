@@ -145,7 +145,7 @@ void ApeSettingAlgorithm::initialize(const edm::EventSetup &setup,
 	 {  DetId id(apeId);
 	 AlignableDetOrUnitPtr alidet(theAlignableNavigator->alignableFromDetId(id)); //NULL if none
 	 if (alidet)
-	   { if ((alidet->components().size()<1) || setComposites_) //the problem with glued dets...
+	   { if ((alidet->components().empty()) || setComposites_) //the problem with glued dets...
 	     { GlobalErrorExtended globErr;
 	     if (readLocalNotGlobal_)
 	       { AlgebraicSymMatrix33 as; 
@@ -200,7 +200,7 @@ void ApeSettingAlgorithm::terminate(const edm::EventSetup& iSetup)
     for (int i=0; i < theSize; ++i)
       { int id=	aliErr->m_alignError[i].rawId();
       AlignableDetOrUnitPtr alidet(theAlignableNavigator->alignableFromDetId(DetId(id))); //NULL if none
-      if (alidet && ((alidet->components().size()<1) || saveComposites_))
+      if (alidet && ((alidet->components().empty()) || saveComposites_))
 	{ apeSaveFile<<id;
 	CLHEP::HepSymMatrix sm = aliErr->m_alignError[i].matrix();
 	if (saveLocalNotGlobal_)

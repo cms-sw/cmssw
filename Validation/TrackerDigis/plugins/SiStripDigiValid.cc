@@ -332,7 +332,7 @@ void SiStripDigiValid::bookHistograms(DQMStore::IBooker & ibooker,const edm::Run
 }
 
 void SiStripDigiValid::endJob() {
-  if ( runStandalone && outputFile_.size() != 0 && dbe_ ){ dbe_->save(outputFile_);}
+  if ( runStandalone && !outputFile_.empty() && dbe_ ){ dbe_->save(outputFile_);}
 
 }
 

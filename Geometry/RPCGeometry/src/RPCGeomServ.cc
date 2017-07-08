@@ -19,7 +19,7 @@ RPCGeomServ::~RPCGeomServ( void )
 std::string 
 RPCGeomServ::name( void )
 {
-  if( _n.size() < 1 )
+  if( _n.empty() )
   {
     int station = _id->station();
     int region = _id->region();
@@ -121,7 +121,7 @@ RPCGeomServ::name( void )
 std::string 
 RPCGeomServ::chambername()
 {
-  if( _cn.size() < 1 )
+  if( _cn.empty() )
   {
     int station = _id->station();
     int region = _id->region();
@@ -207,7 +207,7 @@ RPCGeomServ::chambername()
 std::string 
 RPCGeomServ::shortname( void )
 {
-  if( _sn.size() < 1 )
+  if( _sn.empty() )
   {
     int station = _id->station();
     int region = _id->region();

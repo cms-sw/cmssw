@@ -273,7 +273,7 @@ CommandLineParser::printOptionValues()
    cout << "------------------------------------------------------------------" 
         << left << endl;
    // Print the integers next
-   if (m_integerMap.size())
+   if (!m_integerMap.empty())
    {
       cout << endl << "Integer options:" << endl;
    }
@@ -292,7 +292,7 @@ CommandLineParser::printOptionValues()
    } // for iter
 
    // Print the doubles next
-   if (m_doubleMap.size())
+   if (!m_doubleMap.empty())
    {
       cout << endl << "Double options:" << endl;
    }
@@ -311,7 +311,7 @@ CommandLineParser::printOptionValues()
    } // for iter
 
    // Print the bools first
-   if (m_boolMap.size())
+   if (!m_boolMap.empty())
    {
       cout << endl << "Bool options:" << endl;
    }
@@ -335,7 +335,7 @@ CommandLineParser::printOptionValues()
    } // for iter
 
    // Print the strings next
-   if (m_stringMap.size())
+   if (!m_stringMap.empty())
    {
       cout << endl << "String options:" << endl;
    }
@@ -355,7 +355,7 @@ CommandLineParser::printOptionValues()
    } // for iter
 
    // Integer Vec
-   if (m_integerVecMap.size())
+   if (!m_integerVecMap.empty())
    {
       cout << endl << "Integer Vector options:" << endl;
    }
@@ -375,7 +375,7 @@ CommandLineParser::printOptionValues()
    } // for iter
 
    // Double Vec
-   if (m_doubleVecMap.size())
+   if (!m_doubleVecMap.empty())
    {
       cout << endl << "Double Vector options:" << endl;
    }
@@ -395,7 +395,7 @@ CommandLineParser::printOptionValues()
    } // for iter
 
    // String Vec
-   if (m_stringVecMap.size())
+   if (!m_stringVecMap.empty())
    {
       cout << endl << "String Vector options:" << endl;
    } else {

@@ -92,7 +92,7 @@ namespace hcal {
 
     m_implementation->getLUTs(tag, crate, slot, LUTs);
 
-    if (LUTs.size()==0) {
+    if (LUTs.empty()) {
       XCEPT_RAISE(hcal::exception::ConfigurationItemNotFoundException,toolbox::toString("Not enough found (%d)",LUTs.size()));
     }
   }
@@ -115,7 +115,7 @@ namespace hcal {
 
     m_implementation->getPatterns(tag,crate,slot,patterns);
 
-    if (patterns.size()==0) {
+    if (patterns.empty()) {
       XCEPT_RAISE(hcal::exception::ConfigurationItemNotFoundException,toolbox::toString("Not found '$s',%d,%d",tag.c_str(),crate,slot));
     }
   }

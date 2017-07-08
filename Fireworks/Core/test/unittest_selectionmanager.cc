@@ -166,6 +166,6 @@ BOOST_AUTO_TEST_CASE( selectionmanager )
    item.select(2);
    BOOST_CHECK(sm.selected().size()==2);
    item.setEvent(0);
-   BOOST_CHECK(sm.selected().size()==0);
+   BOOST_CHECK(sm.selected().empty());
 }
 

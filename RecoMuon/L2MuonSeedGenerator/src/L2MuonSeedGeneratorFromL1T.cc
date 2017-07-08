@@ -298,7 +298,7 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
                               *theService->propagator(thePropagatorName), 
                               *theEstimator);   
 
-          if (detsWithStates.size() == 0 && barrel ) {
+          if (detsWithStates.empty() && barrel ) {
             // try again to propagate but using ME2 as reference
             tsos = theService->propagator(thePropagatorName)->propagate(state, ME2DetLayer->surface());
             detsWithStates = ME2DetLayer->compatibleDets(tsos, 
@@ -306,7 +306,7 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
                                            *theEstimator);   
           }
 
-          if (detsWithStates.size()){
+          if (!detsWithStates.empty()){
   
             TrajectoryStateOnSurface newTSOS = detsWithStates.front().second;
             const GeomDet *newTSOSDet = detsWithStates.front().first;

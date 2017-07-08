@@ -84,7 +84,7 @@ void HBHETimeProfileStatusBitSetter::hbheSetTimeFlagsFromDigi(HBHERecHitCollecti
 
 
     
-  if(RecHitIndex.size()>0)
+  if(!RecHitIndex.empty())
     {
       double FracInLeader=-1;
       //double Slope=0; // not currently used

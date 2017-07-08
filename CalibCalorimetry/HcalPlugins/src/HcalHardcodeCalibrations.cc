@@ -43,7 +43,7 @@ namespace {
 	      <<  maxDepthHB << ", " <<  maxDepthHE << std::endl;
 #endif
 
-    if (result.size () <= 0) {
+    if (result.empty()) {
       for (int eta = -HcalDetId::kHcalEtaMask2; 
            eta <= HcalDetId::kHcalEtaMask2; eta++) {
         for (int phi = 0; phi <= HcalDetId::kHcalPhiMask2; phi++) {

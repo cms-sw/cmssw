@@ -198,7 +198,7 @@ bool QTestConfigurationParser::monitorElementTestsMap(){
 		}
 	
 	
-		if(qualityTestList.size()) mapMonitorElementTests[linkName]=qualityTestList;
+		if(!qualityTestList.empty()) mapMonitorElementTests[linkName]=qualityTestList;
 	}///Loop on linkTagsNum
 
 	

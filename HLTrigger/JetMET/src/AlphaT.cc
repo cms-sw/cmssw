@@ -11,7 +11,7 @@ double AlphaT::value_(std::vector<bool> * jet_sign) const {
   }
 
   // check the size of the input collection
-  if (et_.size() == 0)
+  if (et_.empty())
     // empty jet collection, return AlphaT = 0
     return 0.;
 

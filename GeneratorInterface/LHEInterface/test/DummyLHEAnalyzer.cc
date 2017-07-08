@@ -62,7 +62,7 @@ private:
                 << std::setw(14) << std::fixed << (pup_[icount])[4] 
                 << std::endl;
     }
-    if( evt->weights().size() ) {
+    if( !evt->weights().empty() ) {
       std::cout << "weights:" << std::endl;
       for ( size_t iwgt = 0; iwgt < evt->weights().size(); ++iwgt ) {
 	const LHEEventProduct::WGT& wgt = evt->weights().at(iwgt);

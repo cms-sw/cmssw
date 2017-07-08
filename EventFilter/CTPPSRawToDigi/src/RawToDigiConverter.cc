@@ -303,7 +303,7 @@ void RawToDigiConverter::PrintSummaries() const
   // print error summary
   if (printErrorSummary)
   {
-    if (errorSummary.size() > 0)
+    if (!errorSummary.empty())
     {
       stringstream ees;
       for (const auto &vit : errorSummary)
@@ -323,7 +323,7 @@ void RawToDigiConverter::PrintSummaries() const
   // print summary of unknown frames (found in data but not in the mapping)
   if (printUnknownFrameSummary)
   {
-    if (unknownSummary.size() > 0)
+    if (!unknownSummary.empty())
     {
       stringstream ees;
       for (const auto &it : unknownSummary)

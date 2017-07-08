@@ -112,7 +112,7 @@ typedef edm::SortedCollection<Value,StrictWeakOrdering<Value> > scoll_type;
 void testSortedCollection::constructTest()
 {
   scoll_type c1;
-  CPPUNIT_ASSERT(c1.size() == 0);
+  CPPUNIT_ASSERT(c1.empty());
 
   scoll_type c2(20);
   CPPUNIT_ASSERT(c2.size() == 20);

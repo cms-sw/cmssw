@@ -352,7 +352,7 @@ bool CaloGeometryHelper::simplemove(DetId& cell, const CaloDirection& dir) const
   else if(cell.subdetId()==EcalEndcap)
     neighbours= EcalEndcapTopology_->getNeighbours(cell,dir);
   
-  if(neighbours.size()>0 && !neighbours[0].null())
+  if(!neighbours.empty() && !neighbours[0].null())
     {
       cell = neighbours[0];
       return true;

@@ -511,7 +511,7 @@ void HybridMinimizer::PrintResults() {
 const double * HybridMinimizer::X() const { 
    // return values at minimum 
    const std::vector<MinuitParameter> & paramsObj = fState.MinuitParameters();
-   if (paramsObj.size() == 0) return 0;
+   if (paramsObj.empty()) return 0;
    assert(fDim == paramsObj.size());
    // be careful for multiple calls of this function. I will redo an allocation here
    // only when size of vectors has changed (e.g. after a new minimization)
@@ -527,7 +527,7 @@ const double * HybridMinimizer::X() const {
 const double * HybridMinimizer::Errors() const { 
    // return error at minimum (set to zero for fixed and constant params)
    const std::vector<MinuitParameter> & paramsObj = fState.MinuitParameters();
-   if (paramsObj.size() == 0) return 0;
+   if (paramsObj.empty()) return 0;
    assert(fDim == paramsObj.size());
    // be careful for multiple calls of this function. I will redo an allocation here
    // only when size of vectors has changed (e.g. after a new minimization)

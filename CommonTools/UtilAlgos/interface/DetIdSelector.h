@@ -20,7 +20,7 @@ class DetIdSelector {
   bool isSelected(const unsigned int& rawid) const;
   bool operator()(const DetId& detid ) const;
   bool operator()(const unsigned int& rawid) const;
-  inline bool isValid() const { return m_selections.size()!=0;}
+  inline bool isValid() const { return !m_selections.empty();}
 
  private:
 

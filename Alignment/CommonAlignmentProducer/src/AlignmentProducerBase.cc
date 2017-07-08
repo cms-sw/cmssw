@@ -206,7 +206,7 @@ AlignmentProducerBase::processEvent(const edm::Event& event,
 
     // Run the alignment algorithm with its input
     const AliClusterValueMap* clusterValueMapPtr{nullptr};
-    if (clusterValueMapTag_.encode().size()) {
+    if (!clusterValueMapTag_.encode().empty()) {
       edm::Handle<AliClusterValueMap> clusterValueMap;
       getAliClusterValueMap(event, clusterValueMap);
       clusterValueMapPtr = &(*clusterValueMap);
@@ -266,7 +266,7 @@ AlignmentProducerBase::beginRunImpl(const edm::Run& run, const edm::EventSetup& 
 void
 AlignmentProducerBase::endRunImpl(const edm::Run& run, const edm::EventSetup& setup)
 {
-  if (tkLasBeamTag_.encode().size()) {
+  if (!tkLasBeamTag_.encode().empty()) {
     edm::Handle<TkFittedLasBeamCollection> lasBeams;
     edm::Handle<TsosVectorCollection> tsoses;
     getTkFittedLasBeamCollection(run, lasBeams);

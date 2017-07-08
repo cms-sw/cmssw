@@ -167,7 +167,7 @@ ALIint ALIFileIn::getWordsInLine(std::vector<ALIstring>& wordlist)
     // typedef istream_iterator<ALIstring, ptrdiff_t> ALIstring_iter;
     // copy(ALIstring_iter(istr_line), ALIstring_iter(), back_inserter(wordlist));
     
-    if ( wordlist.size() != 0 ) {
+    if ( !wordlist.empty() ) {
       if( (*(wordlist.end()-1)).compare("\\") == 0 ) {   //use '\' to mark continuing line  
 	wordlist.pop_back();
       } else {

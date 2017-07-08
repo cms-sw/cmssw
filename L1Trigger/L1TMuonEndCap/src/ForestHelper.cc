@@ -73,7 +73,7 @@ void ForestHelper::initializeFromXML(const char * dirname, const std::vector<int
 
   //cout << "DEBUG: starting initializeFromXML...\n";
 
-  assert(write_->forest_coll_.size() == 0);
+  assert(write_->forest_coll_.empty());
 
   for(int i =0; i < (int) modes.size(); i++){
     int mode = modes[i];

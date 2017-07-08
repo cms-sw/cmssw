@@ -33,7 +33,7 @@ encode(const HGCalTriggerCellBestChoiceCodecImpl::data_type& data, const HGCalTr
     // the selected trigger cells
     std::vector<bool> result(nCellsInModule_ + dataLength_*nData_, 0);
     // No data: return vector of 0
-    if(data.payload.size()==0) return result;
+    if(data.payload.empty()) return result;
     // All trigger cells are in the same module
     // Retrieve once the ordered list of trigger cells in this module
     uint32_t module = geometry.getModuleFromTriggerCell(data.payload.begin()->detId());
@@ -170,7 +170,7 @@ void
 HGCalTriggerCellBestChoiceCodecImpl::
 triggerCellSums(const HGCalTriggerGeometryBase& geometry,  const std::vector<std::pair<HGCalDetId, uint32_t > >& linearized_dataframes, data_type& data)
 {
-    if(linearized_dataframes.size()==0) return;
+    if(linearized_dataframes.empty()) return;
     std::map<HGCalDetId, uint32_t> payload;
     // sum energies in trigger cells
     for(const auto& frame : linearized_dataframes)

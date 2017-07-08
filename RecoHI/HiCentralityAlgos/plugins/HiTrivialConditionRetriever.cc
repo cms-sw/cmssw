@@ -82,7 +82,7 @@ HiTrivialConditionRetriever::produceTable( const HeavyIonRcd& ){
 
   int i = 0;
   while ( getline( in, line ) ) {
-    if ( !line.size() || line[0]=='#' ) { continue; }
+    if ( line.empty() || line[0]=='#' ) { continue; }
     CentralityTable::CBin thisBin;
     CT->m_table.push_back(thisBin);
     istringstream ss(line);

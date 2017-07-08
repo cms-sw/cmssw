@@ -406,7 +406,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
         // ... but add protection to not crash
         int obj0Index = -1;
 
-        if ((*it0Comb).size() > 0) {
+        if (!*it0Comb.empty()) {
             obj0Index = (*it0Comb)[0];
         } else {
             LogTrace("L1TGlobal")
@@ -693,7 +693,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
             // ... but add protection to not crash
             int obj1Index = -1;
 
-            if ((*it1Comb).size() > 0) {
+            if (!*it1Comb.empty()) {
                 obj1Index = (*it1Comb)[0];
             } else {
                 LogTrace("L1TGlobal")

@@ -71,7 +71,7 @@ EmptyESSource::setIntervalFor(eventsetup::EventSetupRecordKey const&,
                                ValidityInterval& oInterval) {
    oInterval = ValidityInterval::invalidInterval();
    //if no intervals given, fail immediately
-   if (setOfIOV_.size() == 0) {
+   if (setOfIOV_.empty()) {
       return;
    }
    

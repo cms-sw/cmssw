@@ -154,7 +154,7 @@ TMatrixD CovarianceMatrix::setupMatrix(const TLorentzVector& object, const Objec
 	CovM4(3,3) = pow(jetRes.d (pt, eta, res::HelperJet::kUds), 2);
 	return CovM4;
       case TopKinFitter::kEtEtaPhi : 
-	if(!binsUdsc_.size()){
+	if(binsUdsc_.empty()){
 	  CovM3(0,0) = pow(jetRes.et (pt, eta, res::HelperJet::kUds), 2);
 	  CovM3(0,0)*= pow(getEtaDependentScaleFactor(object)       , 2);
 	  CovM3(1,1) = pow(jetRes.eta(pt, eta, res::HelperJet::kUds), 2);
@@ -188,7 +188,7 @@ TMatrixD CovarianceMatrix::setupMatrix(const TLorentzVector& object, const Objec
 	CovM4(3,3) = pow(jetRes.d (pt, eta, res::HelperJet::kB), 2);
 	return CovM4;
       case TopKinFitter::kEtEtaPhi : 
-	if(!binsUdsc_.size()){
+	if(binsUdsc_.empty()){
 	  CovM3(0,0) = pow(jetRes.et (pt, eta, res::HelperJet::kB), 2);
 	  CovM3(0,0)*= pow(getEtaDependentScaleFactor(object)     , 2);
 	  CovM3(1,1) = pow(jetRes.eta(pt, eta, res::HelperJet::kB), 2);
@@ -221,7 +221,7 @@ TMatrixD CovarianceMatrix::setupMatrix(const TLorentzVector& object, const Objec
 	CovM3(2,2) = pow(muonRes.c (pt, eta), 2);
 	return CovM3;
       case TopKinFitter::kEtEtaPhi :
-	if(!binsLep_.size()){
+	if(binsLep_.empty()){
 	  CovM3(0,0) = pow(muonRes.et (pt, eta), 2);
 	  CovM3(1,1) = pow(muonRes.eta(pt, eta), 2); 
 	  CovM3(2,2) = pow(muonRes.phi(pt, eta), 2);
@@ -251,7 +251,7 @@ TMatrixD CovarianceMatrix::setupMatrix(const TLorentzVector& object, const Objec
 	CovM3(2,2) = pow(elecRes.c (pt, eta), 2);
 	return CovM3;
       case TopKinFitter::kEtEtaPhi :
-	if(!binsLep_.size()){
+	if(binsLep_.empty()){
 	  CovM3(0,0) = pow(elecRes.et (pt, eta), 2);
 	  CovM3(1,1) = pow(elecRes.eta(pt, eta), 2); 
 	  CovM3(2,2) = pow(elecRes.phi(pt, eta), 2);
@@ -281,7 +281,7 @@ TMatrixD CovarianceMatrix::setupMatrix(const TLorentzVector& object, const Objec
 	CovM3(2,2) = pow(metRes.c(pt), 2);
 	return CovM3;
       case TopKinFitter::kEtEtaPhi :
-	if(!binsMet_.size()){
+	if(binsMet_.empty()){
 	  CovM3(0,0) = pow(metRes.et(pt) , 2);
 	  CovM3(1,1) = pow(        9999. , 2);
 	  CovM3(2,2) = pow(metRes.phi(pt), 2);

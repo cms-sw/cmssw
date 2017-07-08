@@ -106,7 +106,7 @@ void rz_poly::SetON(int npoly)
 //_______________________________________________________________________________
 void rz_poly::Print()
 {
-   if (!data.size()) {
+   if (data.empty()) {
       cout << "The \"rz_poly\" object is NOT initialized!" << endl;
       return;
    }
@@ -151,7 +151,7 @@ rz_poly rz_poly::Diff(int nvar, bool keep_empty)
             v3x.push_back(v3);
          }
       }
-      if (v3x.size() || keep_empty) {
+      if (!v3x.empty() || keep_empty) {
          v3x.resize(v3x.size());
          p_out.data.push_back(v3x);
          tmp_mask[ind_tmp] = is_off[ip];

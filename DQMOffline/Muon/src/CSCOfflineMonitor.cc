@@ -992,7 +992,7 @@ void CSCOfflineMonitor::doSegments(edm::Handle<CSCSegmentCollection> cscSegments
 	bool modified = false;
 	std::vector<float>::iterator anodeMaxHit;
 	do {
-	  if (anodeTimes.size()==0) continue;
+	  if (anodeTimes.empty()) continue;
 	  timeAnode=0;
 	  anodeMaxDiff=0;
 	  modified=false;
@@ -1420,7 +1420,7 @@ void CSCOfflineMonitor::doEfficiencies(edm::Handle<CSCWireDigiCollection> wires,
   chamberTypes["ME4/1"] = 8.5;
   chamberTypes["ME4/2"] = 9.5;
 
-  if(theSeg.size()){
+  if(!theSeg.empty()){
 	std::map <int , GlobalPoint> extrapolatedPoint;
 	std::map <int , GlobalPoint>::iterator it;
 	const CSCGeometry::ChamberContainer& ChamberContainer = cscGeom->chambers();
@@ -1715,7 +1715,7 @@ void CSCOfflineMonitor::doBXMonitor(edm::Handle<CSCALCTDigiCollection> alcts, ed
  		if (goodTMB && goodALCT) { 
 		  const CSCTMBHeader *tmbHead = cscData[iCSC].tmbHeader();
 		  std::vector<CSCCLCTDigi> clcts = cscData[iCSC].tmbHeader()->CLCTDigis(layer.rawId());
-		  if (clcts.size()==0 || !(clcts[0].isValid()))
+		  if (clcts.empty() || !(clcts[0].isValid()))
 		continue;
 		  // Check if the CLCT was in ME11a (ring 4)
 		  if(layer.station()==1 && layer.ring() ==1 && clcts[0].getKeyStrip()>128){

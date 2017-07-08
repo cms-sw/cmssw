@@ -96,7 +96,7 @@ class testCombGenerator : public CppUnit::TestFixture {
        CPPUNIT_ASSERT(quadResults.size() == 1);
        // All should be in the combinatoric, none in the remainder
        CPPUNIT_ASSERT(quadResults[0].first.size() == 4);
-       CPPUNIT_ASSERT(quadResults[0].second.size() == 0);
+       CPPUNIT_ASSERT(quadResults[0].second.empty());
      };
 
      void testLessThanDesiredCollection() {
@@ -108,7 +108,7 @@ class testCombGenerator : public CppUnit::TestFixture {
        Generator tripletGen(toCombize.begin(), toCombize.end(), 3);
        VComboRemainder tripletResults = getAllCombinations(tripletGen);
        // Can't make any combos - 2 choose 3 doesn't make sense.
-       CPPUNIT_ASSERT(tripletResults.size() == 0);
+       CPPUNIT_ASSERT(tripletResults.empty());
      }
 
      void testEmptyCollection() {
@@ -123,7 +123,7 @@ class testCombGenerator : public CppUnit::TestFixture {
        Generator zeroGen(toCombize.begin(), toCombize.end(), 0);
        VComboRemainder zeroResults = getAllCombinations(zeroGen);
        CPPUNIT_ASSERT(zeroResults.size() == 1);
-       CPPUNIT_ASSERT(zeroResults[0].first.size() == 0);
+       CPPUNIT_ASSERT(zeroResults[0].first.empty());
        CPPUNIT_ASSERT(zeroResults[0].second.size() == 4);
      }
 

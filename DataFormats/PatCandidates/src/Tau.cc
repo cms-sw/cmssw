@@ -217,7 +217,7 @@ void Tau::setGenJet(const reco::GenJetRef& gj) {
 
 /// return the matched generated jet
 const reco::GenJet * Tau::genJet() const {
-  return (genJet_.size() > 0 ? &genJet_.front() : 0);
+  return (!genJet_.empty() ? &genJet_.front() : 0);
 }
 
 
@@ -438,7 +438,7 @@ void Tau::embedIsolationPFGammaCands() {
 
 reco::PFRecoTauChargedHadronRef Tau::leadTauChargedHadronCandidate() const {
   if(!isPFTau() ) throw cms::Exception("Type Error") << "Requesting content that is not stored in miniAOD.\n";
-  if ( pfSpecific().signalTauChargedHadronCandidates_.size() > 0 ) {
+  if ( !pfSpecific().signalTauChargedHadronCandidates_.empty() ) {
     return reco::PFRecoTauChargedHadronRef(&pfSpecific().signalTauChargedHadronCandidates_,0);
   } else {
     return reco::PFRecoTauChargedHadronRef();

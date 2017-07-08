@@ -229,7 +229,7 @@ bool CkfDebugger::analyseCompatibleMeasurements(const Trajectory& traj,
   //const PSimHit* correctHit = nextCorrectHit(traj, trajId);
   //if ( correctHit == 0) return true; // no more simhits on this track
   std::vector<const PSimHit*> correctHits = nextCorrectHits(traj, trajId);
-  if ( correctHits.size() == 0) return true; // no more simhits on this track
+  if ( correctHits.empty()) return true; // no more simhits on this track
 
   for (std::vector<const PSimHit*>::iterator corHit=correctHits.begin();corHit!=correctHits.end();corHit++){
     for (std::vector<TM>::const_iterator i=meas.begin(); i!=meas.end(); i++) {
@@ -472,7 +472,7 @@ bool CkfDebugger::correctTrajectory( const Trajectory& traj,unsigned int& trajId
   Trajectory::RecHitContainer hits = traj.recHits();
 
   std::vector<SimHitIdpr> currentTrackId = hitAssociator->associateHitId(*hits.front()->hit());
-  if (currentTrackId.size() == 0) return false;
+  if (currentTrackId.empty()) return false;
 
   for (Trajectory::RecHitContainer::const_iterator rh=hits.begin(); rh!=hits.end(); ++rh) {
 
@@ -517,7 +517,7 @@ int CkfDebugger::assocTrackId(CTTRHp rechit) const
   }
 
   std::vector<SimHitIdpr> ids = hitAssociator->associateHitId(*rechit->hit());
-  if (ids.size()!=0) {
+  if (!ids.empty()) {
     return ids[0].first;//FIXME if size>1!!
   }
   else {
@@ -992,7 +992,7 @@ double CkfDebugger::testSeed(CTTRHp recHit1, CTTRHp recHit2, TSOS state){
   const std::vector<PSimHit>& pSimHitVec1 = hitAssociator->associateHit(*recHit1->hit());
   const std::vector<PSimHit>& pSimHitVec2 = hitAssociator->associateHit(*recHit2->hit());
   
-  if ( pSimHitVec1.size()==0 || pSimHitVec2.size()==0 || hasDelta(&(*pSimHitVec1.begin())) || hasDelta(&(*pSimHitVec2.begin())) ) {
+  if ( pSimHitVec1.empty() || pSimHitVec2.empty() || hasDelta(&(*pSimHitVec1.begin())) || hasDelta(&(*pSimHitVec2.begin())) ) {
     edm::LogVerbatim("CkfDebugger") << "Seed has delta or problems" ;
     return -1;
   }
@@ -1004,7 +1004,7 @@ double CkfDebugger::testSeed(CTTRHp recHit1, CTTRHp recHit2, TSOS state){
   //   double stlp4 = state.localParameters().vector()[3];
   //   double stlp5 = state.localParameters().vector()[4];
 
-  if (pSimHitVec2.size()!=0) {
+  if (!pSimHitVec2.empty()) {
     const PSimHit& simHit = *pSimHitVec2.begin();
     
     double shlp1 = -1/simHit.momentumAtEntry().mag();

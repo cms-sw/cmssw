@@ -379,7 +379,7 @@ void L1MuGMTLUT::MakeSubClass(const char* fname, const char* template_file_h,
 
   // substitute in .h file
   string outfn (fname);
-  if (outfn.size() == 0) outfn = string("../interface/L1MuGMT") +  m_name + string("LUT.h");
+  if (outfn.empty()) outfn = string("../interface/L1MuGMT") +  m_name + string("LUT.h");
   ifstream of_check(outfn.c_str());
   if (! of_check.good() ) {
     ofstream of(outfn.c_str());
@@ -409,7 +409,7 @@ void L1MuGMTLUT::MakeSubClass(const char* fname, const char* template_file_h,
 
   // substitute in .cc file
   string outfn_cc (fname);
-  if (outfn_cc.size() == 0) outfn_cc = string("../interface/L1MuGMT") +  m_name + string("LUT.cc");
+  if (outfn_cc.empty()) outfn_cc = string("../interface/L1MuGMT") +  m_name + string("LUT.cc");
 
   ifstream of_cc_check( outfn_cc.c_str() );
   if (! of_cc_check.good() ) {

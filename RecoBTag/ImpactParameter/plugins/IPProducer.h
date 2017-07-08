@@ -256,7 +256,7 @@ IPProducer<Container,Base,Helper>::produce(edm::Event& iEvent, const edm::EventS
    reco::Vertex dummy;
    const reco::Vertex *pv = &dummy;
    edm::Ref<reco::VertexCollection> pvRef;
-   if (primaryVertex->size() != 0) {
+   if (!primaryVertex->empty()) {
      pv = &*primaryVertex->begin();
      // we always use the first vertex (at the moment)
      pvRef = edm::Ref<reco::VertexCollection>(primaryVertex, 0);

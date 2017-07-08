@@ -276,7 +276,7 @@ namespace {
 
     std::vector<int> selected1; for (unsigned int i=0; i<tC1.size(); ++i){selected1.push_back(1);}
 
-   if ( 0<tC1.size() ){
+   if ( !tC1.empty() ){
       i=-1;
       for (reco::TrackCollection::const_iterator track=tC1.begin(); track!=tC1.end(); track++){
         i++;
@@ -306,7 +306,7 @@ namespace {
 
     std::vector<int> selected2; for (unsigned int i=0; i<tC2.size(); ++i){selected2.push_back(1);}
 
-   if ( 0<tC2.size() ){
+   if ( !tC2.empty() ){
       i=-1;
       for (reco::TrackCollection::const_iterator track=tC2.begin(); track!=tC2.end(); track++){
         i++;
@@ -352,7 +352,7 @@ namespace {
      }
    }
 
-   if ( (0<tC1.size())&&(0<tC2.size()) ){
+   if ( (!tC1.empty())&&(!tC2.empty()) ){
     i=-1;
     for (reco::TrackCollection::const_iterator track=tC1.begin(); track!=tC1.end(); ++track){
       i++;
@@ -426,7 +426,7 @@ namespace {
    std::vector<edm::RefToBase<TrajectorySeed> > seedsRefs(tC1.size()+tC2.size());
    size_t current = 0;
 
-   if ( 0<tC1.size() ){
+   if ( !tC1.empty() ){
      i=0;
      for (reco::TrackCollection::const_iterator track=tC1.begin(); track!=tC1.end();
 	  ++track, ++current, ++i){
@@ -547,7 +547,7 @@ namespace {
 
    short offset = current; //save offset into trackRefs
 
-   if ( 0<tC2.size() ){
+   if ( !tC2.empty() ){
     i=0;
     for (reco::TrackCollection::const_iterator track=tC2.begin(); track!=tC2.end();
 	 ++track, ++current, ++i){

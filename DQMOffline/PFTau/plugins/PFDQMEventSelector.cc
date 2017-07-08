@@ -79,7 +79,7 @@ void PFDQMEventSelector::endJob() {
 // -- Open Input File
 //
 bool PFDQMEventSelector::openInputFile() { 
-  if (inputFileName_.size() == 0) return false;
+  if (inputFileName_.empty()) return false;
   edm::LogInfo("SiStripOfflineDQM") <<  "SiStripOfflineDQM::openInputFile: Accessing root File" << inputFileName_;
   dqmStore_->open(inputFileName_, false, "", "", DQMStore::StripRunDirs); 
   return true;

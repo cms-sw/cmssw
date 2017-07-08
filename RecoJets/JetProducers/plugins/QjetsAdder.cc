@@ -65,13 +65,13 @@ void QjetsAdder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
       //qjetsAlgo_.SetRandSeed(iEvent.id().event()*100 + (jetIt - jets->begin())*ntrial_ + ii );// set random seed for reprudcibility. We need a smarted scheme
       fastjet::ClusterSequence qjet_seq(constits, qjet_def);
       vector<fastjet::PseudoJet> inclusive_jets2 = sorted_by_pt(qjet_seq.inclusive_jets(cutoff_));
-      if (inclusive_jets2.size()>0){ // fill the massvalue only if the reclustering was successfull
+      if (!inclusive_jets2.empty()){ // fill the massvalue only if the reclustering was successfull
 	qjetmass.push_back(inclusive_jets2[0].m());
       }
 
     }//end loop on trials
 
-    if (qjetmass.size()<1) {//protection against dummy case
+    if (qjetmass.empty()) {//protection against dummy case
       QjetsVolatility.push_back(-1);
       continue;
     }

@@ -428,7 +428,7 @@ inline bool QcdUeDQM::getProductSafe(const std::string name,
   // get just one
   // product with the given name. If not, we return false.
 
-  if (name.size() == 0) return false;
+  if (name.empty()) return false;
 
   try {
     event.getByLabel(edm::InputTag(name), prod);

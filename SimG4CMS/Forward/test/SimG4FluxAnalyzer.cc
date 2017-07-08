@@ -159,7 +159,7 @@ void SimG4FluxAnalyzer::analyze(const edm::Event& iEvent,
   std::cout << "All flux compnents have " << detName_.size() << " entries" 
 	    << std::endl;
 #endif
-  if (detName_.size() > 0) tree_->Fill();
+  if (!detName_.empty()) tree_->Fill();
 
 }
   

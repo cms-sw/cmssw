@@ -88,7 +88,7 @@ public:
 
    virtual ~poly2d_base();
 
-   bool IsOn()    { return bool(data.size());}
+   bool IsOn()    { return bool(!data.empty());}
    bool IsRZSet() { return rz_set;}
 
    void Collect(); //Collect terms and remove zero terms

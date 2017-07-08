@@ -461,7 +461,7 @@ void SiStripPsuDetIdMap::printControlMap() {
 }
 
 std::vector< std::pair<uint32_t, std::string> > SiStripPsuDetIdMap::getDcuPsuMap() {
-  if (pgMap.size() != 0) { return pgMap; }
+  if (!pgMap.empty()) { return pgMap; }
   std::vector< std::pair<uint32_t, std::string> > emptyVec;
   return emptyVec;
 }

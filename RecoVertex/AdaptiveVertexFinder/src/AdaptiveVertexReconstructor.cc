@@ -51,7 +51,7 @@ TransientVertex AdaptiveVertexReconstructor::cleanUp ( const TransientVertex & o
       }
       origtrkiter++;
     }
-    if ( newrfs.size() ) ret.refittedTracks ( newrfs ); // copy refitted tracks
+    if ( !newrfs.empty() ) ret.refittedTracks ( newrfs ); // copy refitted tracks
   }
 
   if ( ret.refittedTracks().size() > ret.originalTracks().size() )
@@ -207,7 +207,7 @@ vector<TransientVertex> AdaptiveVertexReconstructor::vertices (
            */
       ctr++;
       const AdaptiveVertexFitter * fitter = theSecondaryFitter;
-      if ( ret.size() == 0 )
+      if ( ret.empty() )
       {
         fitter = thePrimaryFitter;
       };
@@ -217,12 +217,12 @@ vector<TransientVertex> AdaptiveVertexReconstructor::vertices (
       copy(remainingtrks.begin(), remainingtrks.end(), back_inserter(fittrks));
 
       TransientVertex tmpvtx;
-      if ( (ret.size() == 0) && has_primaries )
+      if ( (ret.empty()) && has_primaries )
       {
         // add the primaries to the fitted tracks.
         copy ( primaries.begin(), primaries.end(), back_inserter(fittrks) );
       }
-      if ( (ret.size() == 0) && usespot )
+      if ( (ret.empty()) && usespot )
       {
         tmpvtx=fitter->vertex ( fittrks, s );
       } else {

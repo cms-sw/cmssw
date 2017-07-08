@@ -222,7 +222,7 @@ FastTimerServiceClient::fillPathSummaryPlots(DQMStore::IBooker & booker, DQMStor
 
     getter.setCurrentFolder(subsubdir);
     std::vector<std::string> allmenames = getter.getMEs();
-    if ( allmenames.size() == 0 ) continue;
+    if ( allmenames.empty() ) continue;
 
     MonitorElement * me_counter      = getter.get( subsubdir + "/module_counter" );
     MonitorElement * me_real_total   = getter.get( subsubdir + "/module_time_real_total" );
@@ -369,7 +369,7 @@ FastTimerServiceClient::fillPlotsVsLumi(DQMStore::IBooker & booker, DQMStore::IG
       menames.push_back(m);
   }
   // if no MEs available, return
-  if ( menames.size() == 0 )
+  if ( menames.empty() )
     return;
 
   // get info for getting the lumi VS LS histogram

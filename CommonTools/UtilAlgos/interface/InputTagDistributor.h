@@ -83,7 +83,7 @@ class InputTagDistributorService{
 
   edm::InputTag retrieve(std::string src,const edm::ParameterSet & pset){
     //if used without setting any InputTag mapping
-    if (multipleInstance_.size()==0)
+    if (multipleInstance_.empty())
       return pset.getParameter<edm::InputTag>(src);
     
     // some mapping was setup

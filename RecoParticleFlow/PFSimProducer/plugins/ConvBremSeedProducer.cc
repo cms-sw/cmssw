@@ -193,7 +193,7 @@ ConvBremSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
        std::vector<DetWithState> compat 
 	 = tkLayer->compatibleDets( trajState, alongProp, est);
        vector <long int> temp;
-       if (compat.size()==0) continue;
+       if (compat.empty()) continue;
 
        for (std::vector<DetWithState>::const_iterator i=compat.begin(); i!=compat.end(); i++) {
 	      

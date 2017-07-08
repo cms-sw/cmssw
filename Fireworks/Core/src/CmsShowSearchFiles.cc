@@ -306,7 +306,7 @@ CmsShowSearchFiles::sendToWebBrowser(std::string& fileName)
       TUrl url(fileName.c_str());
       std::string buffer = readRemote(url.GetUrl());
 
-      if (buffer.size()) {
+      if (!buffer.empty()) {
          m_webFile->SetBaseUri(url.GetUrl());
          m_webFile->ParseText(const_cast<char*>(buffer.c_str()));
       }

@@ -90,7 +90,7 @@ namespace reco {
 	      if (dist < distMin_) v.push_back(make_pair(m, dist));
 	    }
 	  }
-	  if(v.size() > 0) {
+	  if(!v.empty()) {
 	    size_t idx = master.index(c);
 	    assert(idx < indices.size());
 	    indices[idx] = min_element(v.begin(), v.end(), helper::SortBySecond())->first;

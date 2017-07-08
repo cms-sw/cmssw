@@ -56,12 +56,12 @@ TestMapOfVectors::~TestMapOfVectors() {}
   
 void TestMapOfVectors::default_ctor(){
   MII m;
-  CPPUNIT_ASSERT(m.size()==0);
   CPPUNIT_ASSERT(m.empty());
-  CPPUNIT_ASSERT(m.m_keys.size()==0);
+  CPPUNIT_ASSERT(m.empty());
+  CPPUNIT_ASSERT(m.m_keys.empty());
   CPPUNIT_ASSERT(m.m_offsets.size()==1);
   CPPUNIT_ASSERT(m.m_offsets[0]==0);
-  CPPUNIT_ASSERT(m.m_data.size()==0);
+  CPPUNIT_ASSERT(m.m_data.empty());
 
 }
 

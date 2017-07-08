@@ -73,7 +73,7 @@ void
 KDTreeLinkerAlgo<DATA>::build(std::vector<KDTreeNodeInfo<DATA> >	&eltList, 
 			      const KDTreeBox				&region)
 {
-  if (eltList.size()) {
+  if (!eltList.empty()) {
     initialEltList = &eltList;
     
     size_t size = initialEltList->size();

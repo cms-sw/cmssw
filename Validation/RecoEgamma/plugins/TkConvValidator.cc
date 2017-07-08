@@ -1085,7 +1085,7 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	      trackV2 = (std::vector<std::pair<RefToBase<reco::Track>, double> >) q2[theConvTP_[0]];
 	      tp_2 = 0;
 	  }
-	  if (!(trackV1.size()&&trackV2.size()))
+	  if (!(!trackV1.empty()&&!trackV2.empty()))
 	      continue;
 	  if (tp_1 == tp_2) continue;
 
@@ -1439,11 +1439,11 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       try{
 	std::vector<std::pair<TrackingParticleRef, double> > tp1 = p1[tk1];
 	std::vector<std::pair<TrackingParticleRef, double> > tp2 = p2[tk2];
-	if (!(tp1.size()&&tp2.size())){
+	if (!(!tp1.empty()&&!tp2.empty())){
 	    tp1 = p1[tk2];
 	    tp2 = p2[tk1];
 	}
-	if (tp1.size()&&tp2.size()) {
+	if (!tp1.empty()&&!tp2.empty()) {
 	  TrackingParticleRef tpr1 = tp1.front().first;
 	  TrackingParticleRef tpr2 = tp2.front().first;
 	  if (abs(tpr1->pdgId())==11&&abs(tpr2->pdgId())==11&& tpr1->pdgId()*tpr2->pdgId()<0) {
@@ -1527,15 +1527,15 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
 
 
-          if ( (p1incl.size() && p2incl.size()) && (p1.size() || p2.size()) ) { // associated = true;
+          if ( (!p1incl.empty() && !p2incl.empty()) && (!p1.empty() || !p2.empty()) ) { // associated = true;
             try{
               std::vector<std::pair<TrackingParticleRef, double> > tp1 = p1incl[tk1];
               std::vector<std::pair<TrackingParticleRef, double> > tp2 = p2incl[tk2];
-              if (!(tp1.size()&&tp2.size())){
+              if (!(!tp1.empty()&&!tp2.empty())){
                   tp1 = p1[tk2];
                   tp2 = p2[tk1];
               }
-              if (tp1.size()&&tp2.size()) {
+              if (!tp1.empty()&&!tp2.empty()) {
                 TrackingParticleRef tpr1 = tp1.front().first;
                 TrackingParticleRef tpr2 = tp2.front().first;
                 if (abs(tpr1->pdgId())==11&&abs(tpr2->pdgId())==11 && tpr1->pdgId()*tpr2->pdgId()<0) {

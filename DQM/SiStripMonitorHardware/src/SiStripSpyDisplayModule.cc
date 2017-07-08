@@ -263,7 +263,7 @@ SiStripSpyDisplayModule::analyze(const edm::Event& iEvent, const edm::EventSetup
     TFileDirectory evdir = an_dir.mkdir( ev_dir_name.str() );
 
     //if there are no detIds, get them from the comparison digis...
-    if (detIDs_.size()==0) {
+    if (detIDs_.empty()) {
         //get the detIds of the modules in the zero-suppressed comparison
         if (!((inputCompZeroSuppressedDigiLabel_.label()=="") && (inputCompZeroSuppressedDigiLabel_.instance()==""))) {
             edm::Handle< edm::DetSetVector< SiStripDigi > > czs_digis;

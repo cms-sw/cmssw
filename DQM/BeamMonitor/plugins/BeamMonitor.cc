@@ -1036,7 +1036,7 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
 
    //---Fix for Cut Flow Table for Running average in a same way//the previous code  has problem for resetting!!!
    mapLSCF[countLumi_] = *theBeamFitter->getCutFlow();
-   if(StartAverage_ && mapLSCF.size()){
+   if(StartAverage_ && !mapLSCF.empty()){
      const TH1F& cutFlowToSubtract = mapLSCF.begin()->second;
      // Subtract the last cut flow from all of the others.
      std::map<int, TH1F>::iterator cf = mapLSCF.begin();

@@ -220,7 +220,7 @@ namespace evf{
                 }
                 fmt_.monlock_.unlock();
                 for (unsigned int i=0;i<nStreams_;i++) {
-                  if (CSVv[i].size())
+                  if (!CSVv[i].empty())
                     fmt_.jsonMonitor_->outputCSV(fastPathList_[i],CSVv[i]);
                 }
               }
@@ -228,7 +228,7 @@ namespace evf{
                 std::string CSV = fmt_.jsonMonitor_->getCSVString();
                 //release mutex before writing out fast path file
                 fmt_.monlock_.unlock();
-                if (CSV.size())
+                if (!CSV.empty())
                   fmt_.jsonMonitor_->outputCSV(fastPath_,CSV);
               }
             }

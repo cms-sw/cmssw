@@ -246,7 +246,7 @@ namespace sistrip {
 
       //zero suppress the digis
       fedEmulator_.zeroSuppress(cmSubtrDetSetData, zsDetSetData, algorithms_);
-      if (zsDetSetData.size()) zsData.push_back( zsDetSetData );
+      if (!zsDetSetData.empty()) zsData.push_back( zsDetSetData );
       
     }//loop on input channels
 

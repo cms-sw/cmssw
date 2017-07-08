@@ -161,7 +161,7 @@ MuRingForwardLayer::compatibleDets(const TrajectoryStateOnSurface& startingState
       nnextdet++;      
       vector<DetWithState> nextRodDets =
 	theRings[idet]->compatibleDets(tsos, prop, est);
-      if (nextRodDets.size()!=0) {
+      if (!nextRodDets.empty()) {
 	result.insert( result.end(), 
 		       nextRodDets.begin(), nextRodDets.end());
       } else {
@@ -185,7 +185,7 @@ MuRingForwardLayer::compatibleDets(const TrajectoryStateOnSurface& startingState
       nnextdet++;
       vector<DetWithState> nextRodDets =
 	theRings[idet]->compatibleDets(tsos, prop, est);
-      if (nextRodDets.size()!=0) {
+      if (!nextRodDets.empty()) {
 	result.insert( result.end(), 
 		       nextRodDets.begin(), nextRodDets.end());
       } else {

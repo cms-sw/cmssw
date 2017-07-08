@@ -345,7 +345,7 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
   iEvent.getByToken(tok_bs_, beamSpotH);
   math::XYZPoint leadPV(0,0,0);
   t_goodPV = t_nVtx = 0;
-  if (recVtxs.isValid() && recVtxs->size()>0) {
+  if (recVtxs.isValid() && !recVtxs->empty()) {
     t_nVtx = recVtxs->size();
     for (unsigned int k=0; k<recVtxs->size(); ++k) {
       if (!((*recVtxs)[k].isFake()) && ((*recVtxs)[k].ndof() > 4)) {
@@ -431,7 +431,7 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
 	for (unsigned int iHLT=0; iHLT<triggerResults->size(); iHLT++) {
 	  bool ok(false);
 	  int hlt    = triggerResults->accept(iHLT);
-	  if (trigNames_.size() > 0) {
+	  if (!trigNames_.empty()) {
 	    for (unsigned int i=0; i<trigNames_.size(); ++i) {
 	      if (triggerNames_[iHLT].find(trigNames_[i].c_str())!=std::string::npos) {
 		t_trgbits->at(i) = (hlt>0);
@@ -506,14 +506,14 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
 					 << mindRvec1 << " at Dr " << mindR1;
 #endif
 	  
-	    if (vecL1.size()>0) {
+	    if (!vecL1.empty()) {
 	      t_l1pt  = vecL1[0].pt();
 	      t_l1eta = vecL1[0].eta();
 	      t_l1phi = vecL1[0].phi();
 	    } else {
 	      t_l1pt  = t_l1eta = t_l1phi = 0;
 	    }
-	    if (vecL3.size()>0) {
+	    if (!vecL3.empty()) {
 	      t_l3pt  = vecL3[0].pt();
 	      t_l3eta = vecL3[0].eta();
 	      t_l3phi = vecL3[0].phi();
@@ -738,7 +738,7 @@ int HcalIsoTrkAnalyzer::fillTree(std::vector< math::XYZTLorentzVector>& vecL1,
 	t_mindR2  = dr;
       }
     }
-    t_mindR1 = (vecL1.size() > 0) ? dR(vecL1[0],v4) : 999;
+    t_mindR1 = (!vecL1.empty()) ? dR(vecL1[0],v4) : 999;
 #ifdef EDM_ML_DEBUG
     edm::LogInfo("HcalIsoTrack") << "Closest L3 object at dr :" 
 				 << t_mindR2 << " and from L1 " << t_mindR1;

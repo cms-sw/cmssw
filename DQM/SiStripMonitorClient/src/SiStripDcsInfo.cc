@@ -179,7 +179,7 @@ void SiStripDcsInfo::bookStatus() {
   if (!bookedStatus_) {
     std::string strip_dir = "";
     SiStripUtility::getTopFolderPath(dqmStore_, "SiStrip", strip_dir); 
-    if (strip_dir.size() > 0) dqmStore_->setCurrentFolder(strip_dir+"/EventInfo");
+    if (!strip_dir.empty()) dqmStore_->setCurrentFolder(strip_dir+"/EventInfo");
     else dqmStore_->setCurrentFolder("SiStrip/EventInfo");
        
     DcsFraction_= dqmStore_->bookFloat("DCSSummary");  
@@ -187,7 +187,7 @@ void SiStripDcsInfo::bookStatus() {
     DcsFraction_->setLumiFlag();
     
     dqmStore_->cd();
-    if (strip_dir.size() > 0)  dqmStore_->setCurrentFolder(strip_dir+"/EventInfo/DCSContents");
+    if (!strip_dir.empty())  dqmStore_->setCurrentFolder(strip_dir+"/EventInfo/DCSContents");
     else dqmStore_->setCurrentFolder("SiStrip/EventInfo/DCSContents"); 
     for (std::map<std::string,SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
       SubDetMEs local_mes;	

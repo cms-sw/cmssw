@@ -151,7 +151,7 @@ int CSCTMBData::TMBCRCcalc() {
     theTotalTMBData[i] = std::bitset<16>(theOriginalBuffer[line]);
     ++i;
   }
-  if ( theTotalTMBData.size() > 0 )   {
+  if ( !theTotalTMBData.empty() )   {
     std::bitset<22> CRC=calCRC22(theTotalTMBData);
     LogTrace("CSCTMBData|CSCRawToDigi") << " Test here " << CRC.to_ulong();
     return CRC.to_ulong();

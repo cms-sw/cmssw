@@ -81,7 +81,7 @@ float ClusterTools::getClusterHadronFraction(const reco::CaloCluster& clus) cons
 
 
 math::XYZPoint ClusterTools::getMultiClusterPosition(const reco::HGCalMultiCluster& clu) const {
-  if( clu.clusters().size() == 0 ) return math::XYZPoint();
+  if( clu.clusters().empty() ) return math::XYZPoint();
 
   double acc_x = 0.0;
   double acc_y = 0.0;

@@ -203,7 +203,7 @@ void ZJetsAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& )
   cleanedJets = LA.removeLeptonsFromJets(sortedJets, Evt);
 
   if(nisolep > 1) {
-    if(cleanedJets.size() > 0) icategories[3]++;
+    if(!cleanedJets.empty()) icategories[3]++;
     if(cleanedJets.size() > 1) icategories[4]++;
   }
 

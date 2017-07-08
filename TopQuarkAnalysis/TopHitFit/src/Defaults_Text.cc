@@ -218,7 +218,7 @@ void Defaults_Textrep::read_file (string file)
 //
 {
   // Just return if we weren't given a file.
-  if (file.size() == 0)
+  if (file.empty())
     return;
 
   ifstream f (file.c_str());
@@ -311,7 +311,7 @@ void Defaults_Textrep::doline (string l)
 {
   // Strip spaces from the line and ignore it if it's blank.
   l = strip (l);
-  if (l.size() == 0)
+  if (l.empty())
     return;
 
   // It must contain a `=' character.

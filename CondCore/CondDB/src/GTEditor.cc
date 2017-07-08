@@ -151,7 +151,7 @@ namespace cond {
 	}
 	m_data->change = false;  
       }
-      if( m_data->tagListBuffer.size() ) {
+      if( !m_data->tagListBuffer.empty() ) {
 	
 	// insert the new iovs
 	m_session->gtSchema().gtMapTable().insert( m_data->name, m_data->tagListBuffer );

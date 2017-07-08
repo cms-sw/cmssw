@@ -256,7 +256,7 @@ void MEtoMEComparitor::compare(const W& where,const std::string & instance){
     
   }
   
-  if (mapping.size()!=0){
+  if (!mapping.empty()){
     std::stringstream summary;
     summary<<" Summary :"
 	   <<"\n not matched : "<<nNoMatch

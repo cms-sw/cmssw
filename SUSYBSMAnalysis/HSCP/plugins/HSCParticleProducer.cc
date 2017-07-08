@@ -166,7 +166,7 @@ HSCParticleProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
         i--;
      }
   }
-  bool filterResult = !Filter_ || (Filter_ && hscp->size()>=1);
+  bool filterResult = !Filter_ || (Filter_ && !hscp->empty());
 
 
 

@@ -149,7 +149,7 @@ void HLTTauDQML1Plotter::analyze( const edm::Event& iEvent, const edm::EventSetu
             l1isotauEtaEffDenom_->Fill(iter->eta());
             l1isotauPhiEffDenom_->Fill(iter->phi());
         }
-	if(refC.met.size() > 0) l1etmEtEffDenom_->Fill(refC.met[0].pt());
+	if(!refC.met.empty()) l1etmEtEffDenom_->Fill(refC.met[0].pt());
     }
 
     //Analyze L1 Objects (Tau+Jets)
@@ -256,7 +256,7 @@ void HLTTauDQML1Plotter::analyze( const edm::Event& iEvent, const edm::EventSetu
     
     //Fill the Threshold Monitoring
     if(pathTaus.size() > 1) std::sort(pathTaus.begin(), pathTaus.end(), [](const LV& a, const LV& b) { return a.pt() > b.pt(); });
-    if ( pathTaus.size() > 0 ) {
+    if ( !pathTaus.empty() ) {
         firstTauEt_->Fill(pathTaus[0].pt());
         firstTauEta_->Fill(pathTaus[0].eta());
         firstTauPhi_->Fill(pathTaus[0].phi());
@@ -267,7 +267,7 @@ void HLTTauDQML1Plotter::analyze( const edm::Event& iEvent, const edm::EventSetu
         secondTauPhi_->Fill(pathTaus[1].phi());
     }
     if(pathIsoTaus.size() > 1) std::sort(pathIsoTaus.begin(), pathIsoTaus.end(), [](const LV& a, const LV& b) { return a.pt() > b.pt(); });
-    if ( pathIsoTaus.size() > 0 ) {
+    if ( !pathIsoTaus.empty() ) {
         firstIsoTauEt_->Fill(pathIsoTaus[0].pt());
         firstIsoTauEta_->Fill(pathIsoTaus[0].eta());
         firstIsoTauPhi_->Fill(pathIsoTaus[0].phi());   

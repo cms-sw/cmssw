@@ -108,7 +108,7 @@ MET& MET::operator=(MET const& iOther) {
 
 /// return the generated MET from neutrinos
 const reco::GenMET * MET::genMET() const {
-  return (genMET_.size() > 0 ? &genMET_.front() : 0 );
+  return (!genMET_.empty() ? &genMET_.front() : 0 );
 }
 
 /// method to set the generated MET
@@ -230,7 +230,7 @@ MET::Vector2 MET::shiftedP2(MET::METUncertainty shift, MET::METCorrectionLevel c
   //backward compatibility with 74X samples -> the only one
   // with uncertaintiesType1_/uncertaintiesRaw_ not empty
   //will be removed once 74X is not used anymore
-  if(uncertaintiesType1_.size()!=0 || uncertaintiesRaw_.size()!=0) {
+  if(!uncertaintiesType1_.empty() || !uncertaintiesRaw_.empty()) {
     if(cor!=MET::METCorrectionLevel::RawCalo) {
       vo = shiftedP2_74x(shift, cor);
     } else {
@@ -253,7 +253,7 @@ MET::Vector MET::shiftedP3(MET::METUncertainty shift, MET::METCorrectionLevel co
   //backward compatibility with 74X samples -> the only one
   // with uncertaintiesType1_/uncertaintiesRaw_ not empty
   //will be removed once 74X is not used anymore
-  if(uncertaintiesType1_.size()!=0 || uncertaintiesRaw_.size()!=0) {
+  if(!uncertaintiesType1_.empty() || !uncertaintiesRaw_.empty()) {
     if(cor!=MET::METCorrectionLevel::RawCalo) {
       vo = shiftedP3_74x(shift, cor);
     } else {
@@ -276,7 +276,7 @@ MET::LorentzVector MET::shiftedP4(METUncertainty shift, MET::METCorrectionLevel 
   //backward compatibility with 74X samples -> the only one
   // with uncertaintiesType1_/uncertaintiesRaw_ not empty
   //will be removed once 74X is not used anymore
-  if(uncertaintiesType1_.size()!=0 || uncertaintiesRaw_.size()!=0) {
+  if(!uncertaintiesType1_.empty() || !uncertaintiesRaw_.empty()) {
     if(cor!=MET::METCorrectionLevel::RawCalo) {
       vo = shiftedP4_74x(shift, cor);
     } else {
@@ -301,7 +301,7 @@ double MET::shiftedSumEt(MET::METUncertainty shift, MET::METCorrectionLevel cor)
   //backward compatibility with 74X samples -> the only one
   // with uncertaintiesType1_/uncertaintiesRaw_ not empty
   //will be removed once 74X is not used anymore
-  if(uncertaintiesType1_.size()!=0 || uncertaintiesRaw_.size()!=0) {
+  if(!uncertaintiesType1_.empty() || !uncertaintiesRaw_.empty()) {
     if(cor!=MET::METCorrectionLevel::RawCalo) {
       sumEto = shiftedSumEt_74x(shift, cor);
     } else {

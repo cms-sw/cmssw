@@ -163,7 +163,7 @@ std::string eventSetupComponent(char const* iType,
   std::ostringstream result;
   edm::ParameterSet const& pset = iProcessConfig.getParameterSet(iCompName);
   std::string name(pset.getParameter<std::string>("@module_label"));
-  if(0 == name.size()) {
+  if(name.empty()) {
     name = pset.getParameter<std::string>("@module_type");
   }
 
@@ -341,7 +341,7 @@ void HistoryNode::printTopLevelPSetsHistory(ParameterSetMap const& iPSM,
 
       std::vector<std::string> results;
       for(auto const& name: allNames){
-        if (name.size() == 0 || '@' == name[0] || namesToExclude.find(name)!=namesToExclude.end()) {
+        if (name.empty() || '@' == name[0] || namesToExclude.find(name)!=namesToExclude.end()) {
           continue;
         }
         std::string retValue = topLevelPSet(name,processConfig,itH.processName());

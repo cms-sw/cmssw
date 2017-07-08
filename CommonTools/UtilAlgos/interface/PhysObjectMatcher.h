@@ -148,7 +148,7 @@ namespace reco {
 	  }
 	}
 	// if match(es) found and no global ambiguity resolution requested
-	if ( matchPairs.size()>0 && !resolveByMatchQuality_ ) {
+	if ( !matchPairs.empty() && !resolveByMatchQuality_ ) {
 	  // look for and store best match
 	  size_t idx = master.index(c);
 	  assert(idx < indices.size());

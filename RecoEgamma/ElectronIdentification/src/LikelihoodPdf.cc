@@ -27,7 +27,7 @@ LikelihoodPdf::split(const std::map<std::string,float>& splitFractions,
   char buffer[100];
   //! use different a-priori probabilities and different PDFs 
   //! depending by category
-  if(splitFractions.size()>0 && splitPdf) {
+  if(!splitFractions.empty() && splitPdf) {
     std::map<std::string,float>::const_iterator splitCatItr;
     for(splitCatItr=splitFractions.begin();splitCatItr!=splitFractions.end();splitCatItr++) {
       snprintf(buffer, 100, "%s_%s_subdet%d_ptbin%d_%s",_name.c_str(),_species.c_str(),_ecalsubdet,_ptbin,splitCatItr->first.c_str());
@@ -37,7 +37,7 @@ LikelihoodPdf::split(const std::map<std::string,float>& splitFractions,
   }
 
   //! use different a-priori, but same PDFs for all categories
-  else if(splitFractions.size()>0) {
+  else if(!splitFractions.empty()) {
     std::map<std::string,float>::const_iterator splitCatItr;
     for(splitCatItr=splitFractions.begin();splitCatItr!=splitFractions.end();splitCatItr++) {
       snprintf(buffer, 100, "%s_%s_subdet%d_ptbin%d",_name.c_str(),_species.c_str(),_ecalsubdet,_ptbin);

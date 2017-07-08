@@ -346,15 +346,15 @@ void MuonSeedOrcaPatternRecognition::endcapPatterns(
   MuonRecHitContainer list13 = list23;
   MuonRecHitContainer list4 = list24;
 
-  if ( list21.size() == 0 )  {
+  if ( list21.empty() )  {
     list11 = list22; list5 = list21;
   }
 
-  if ( list24.size() < list23.size() && list24.size() > 0 )  {
+  if ( list24.size() < list23.size() && !list24.empty() )  {
     list13 = list24; list4 = list23;
   }
 
-  if ( list23.size() == 0 )  {
+  if ( list23.empty() )  {
     list13 = list24; list4 = list23;
   }
 
@@ -363,33 +363,33 @@ void MuonSeedOrcaPatternRecognition::endcapPatterns(
   MuonRecHitContainer list3 = list13;
 
 
-  if ( list12.size() == 0 )  {
+  if ( list12.empty() )  {
     list3 = list12;
-    if ( list11.size() <= list13.size() && list11.size() > 0 ) {
+    if ( list11.size() <= list13.size() && !list11.empty() ) {
       list1 = list11; list2 = list13;}
     else { list1 = list13; list2 = list11;}
   }
 
-  if ( list13.size() == 0 )  {
-    if ( list11.size() <= list12.size() && list11.size() > 0 ) {
+  if ( list13.empty() )  {
+    if ( list11.size() <= list12.size() && !list11.empty() ) {
       list1 = list11; list2 = list12;}
     else { list1 = list12; list2 = list11;}
   }
 
-  if ( list12.size() != 0 &&  list13.size() != 0 )  {
-    if ( list11.size()<=list12.size() && list11.size()<=list13.size() && list11.size()>0 ) {   // ME 1
+  if ( !list12.empty() &&  !list13.empty() )  {
+    if ( list11.size()<=list12.size() && list11.size()<=list13.size() && !list11.empty() ) {   // ME 1
       if ( list12.size() > list13.size() ) {
         list2 = list13; list3 = list12;}
     }
     else if ( list12.size() <= list13.size() ) {                                   //  start with ME 2
       list1 = list12;
-      if ( list11.size() <= list13.size() && list11.size() > 0 ) {
+      if ( list11.size() <= list13.size() && !list11.empty() ) {
         list2 = list11; list3 = list13;}
       else { list2 = list13; list3 = list11;}
     }
     else {                                                                         //  start with ME 3
       list1 = list13;
-      if ( list11.size() <= list12.size() && list11.size() > 0 ) {
+      if ( list11.size() <= list12.size() && !list11.empty() ) {
         list2 = list11; list3 = list12;}
       else { list2 = list12; list3 = list11;}
     }
@@ -403,7 +403,7 @@ void MuonSeedOrcaPatternRecognition::endcapPatterns(
 
   // creates list of compatible track segments
   for (MuonRecHitContainer::iterator iter = list1.begin(); iter!=list1.end(); iter++ ){
-    if ( (*iter)->recHits().size() < 4 && list3.size() > 0 ) continue; // 3p.tr-seg. are not so good for starting
+    if ( (*iter)->recHits().size() < 4 && !list3.empty() ) continue; // 3p.tr-seg. are not so good for starting
     
     MuonRecHitContainer seedSegments;
     seedSegments.push_back(*iter);

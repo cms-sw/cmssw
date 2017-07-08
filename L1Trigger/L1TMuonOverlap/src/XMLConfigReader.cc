@@ -127,7 +127,7 @@ void XMLConfigReader::readLUTs(std::vector<l1t::LUT*> luts,const L1TMuonOverlapP
 //////////////////////////////////////////////////
 unsigned int XMLConfigReader::getPatternsVersion() const{
 
-  if(!patternsFile.size()) return 0;
+  if(patternsFile.empty()) return 0;
 
   unsigned int version=0;
   XMLPlatformUtils::Initialize();

@@ -50,7 +50,7 @@ void RPCClusterSizeTest::clientOperation() {
   edm::LogVerbatim ("rpceventsummary") <<"[RPCClusterSizeTest]:Client Operation";
   
   //check some statements and prescale Factor
-  if(myClusterMe_.size()==0 || myDetIds_.size()==0)return;
+  if(myClusterMe_.empty() || myDetIds_.empty())return;
         
   MonitorElement * CLS   = NULL;  // ClusterSize in 1 bin, Roll vs Sector
   MonitorElement * CLSD  = NULL;  // ClusterSize in 1 bin, Distribution

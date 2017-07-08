@@ -159,7 +159,7 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
         else segm = dynamic_cast<const DTRecSegment2D*>((*rechit)->zSegment());
 
       if(segm == 0) continue;
-      if (!segm->specificRecHits().size()) continue;
+      if (segm->specificRecHits().empty()) continue;
 
       const GeomDet* geomDet = theTrackingGeometry->idToDet(segm->geographicalId());
       const std::vector<DTRecHit1D> hits1d = segm->specificRecHits();
@@ -283,7 +283,7 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
 	}
 
 	// a segment must have at least one left and one right hit
-	if ((!hitxl.size()) || (!hityl.size())) continue;
+	if ((hitxl.empty()) || (hityl.empty())) continue;
 
 	int segidx=0;
 	for (std::vector<TimeMeasurement>::const_iterator tm=seg.begin(); tm!=seg.end(); ++tm) {

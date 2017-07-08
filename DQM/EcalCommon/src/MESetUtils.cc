@@ -93,7 +93,7 @@ namespace ecaldqm
         
       edm::ParameterSet const& multiParams(_MEParam.getUntrackedParameterSet("multi"));
       VString replacementNames(multiParams.getParameterNames());
-      if(replacementNames.size() == 0)
+      if(replacementNames.empty())
         throw cms::Exception("InvalidConfiguration") << "0 multiplicity for MESet at " << path;
 
       MESetMulti::ReplCandidates candidates;
@@ -107,7 +107,7 @@ namespace ecaldqm
             reps.push_back(std::to_string(repInts[iR]));
         }
 
-        if(reps.size() == 0)
+        if(reps.empty())
           throw cms::Exception("InvalidConfiguration") << "0 multiplicity for MESet at " << path;
 
         candidates[replacementNames[iD]] = reps;

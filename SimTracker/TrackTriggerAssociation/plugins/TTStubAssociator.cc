@@ -52,7 +52,7 @@ void TTStubAssociator< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, co
 
     /// Loop over the input Stubs
 
-    if ( TTStubHandle->size() > 0 )
+    if ( !TTStubHandle->empty() )
     {
     for (auto gd=theTrackerGeom->dets().begin(); gd != theTrackerGeom->dets().end(); gd++) 
     {

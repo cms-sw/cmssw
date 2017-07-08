@@ -37,7 +37,7 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
     if( !rechitMask[seed] || !seedable[seed] || used[seed] ) continue;    
     temp.reset();
     buildTopoCluster(input,rechitMask,seed,used,temp);
-    if( temp.recHitFractions().size() ) output.push_back(temp);
+    if( !temp.recHitFractions().empty() ) output.push_back(temp);
   }
 }
 

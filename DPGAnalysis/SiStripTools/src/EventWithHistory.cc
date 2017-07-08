@@ -19,7 +19,7 @@ EventWithHistory::EventWithHistory(const edm::Event& event):
   TinyEvent(event), _prevse() { }
 
 EventWithHistory::EventWithHistory(const std::vector<edm::EventAuxiliary>& veaux):
-  TinyEvent((veaux.size()>0) ? veaux[veaux.size()-1]: TinyEvent()), _prevse() 
+  TinyEvent((!veaux.empty()) ? veaux[veaux.size()-1]: TinyEvent()), _prevse() 
 {
   for(std::vector<edm::EventAuxiliary>::const_reverse_iterator eaux=veaux.rbegin();eaux!=veaux.rend();eaux++) {
     if(eaux!=veaux.rbegin()) {
@@ -165,7 +165,7 @@ int EventWithHistory::add(const TinyEvent& se, const int idepth) {
   if(adepth==0) return 0;
   if(_prevse.size()>= adepth) return 0;
 
-  if(_prevse.size()==0) {
+  if(_prevse.empty()) {
     if((!isfuture && isNextOf(se)) || (isfuture && se.isNextOf(*this))) {
       _prevse.push_back(se);
       return 1;

@@ -154,8 +154,8 @@ DTCombinatorialPatternReco4D::reconstruct() {
   bool hasZed = false;
 
   // has this chamber the Z-superlayer?
-  if (theSegments2DTheta.size()){
-    hasZed = theSegments2DTheta.size() > 0;
+  if (!theSegments2DTheta.empty()){
+    hasZed = !theSegments2DTheta.empty();
     if (debug) cout << "There are " << theSegments2DTheta.size() << " Theta cand" << endl;
   } else {
     if (debug) cout << "No Theta SL" << endl;
@@ -163,7 +163,7 @@ DTCombinatorialPatternReco4D::reconstruct() {
 
   // Now I want to build the concrete DTRecSegment4D.
   if(debug) cout<<"Building of the concrete DTRecSegment4D"<<endl;
-  if (resultPhi.size()) {
+  if (!resultPhi.empty()) {
     for (vector<DTSegmentCand*>::const_iterator phi=resultPhi.begin();
          phi!=resultPhi.end(); ++phi) {
 
@@ -262,10 +262,10 @@ vector<DTSegmentCand*> DTCombinatorialPatternReco4D::buildPhiSuperSegmentsCandid
 
   DTSuperLayerId slId;
 
-  if(theHitsFromPhi1.size())
+  if(!theHitsFromPhi1.empty())
     slId = theHitsFromPhi1.front().wireId().superlayerId();
   else
-    if(theHitsFromPhi2.size())
+    if(!theHitsFromPhi2.empty())
       slId = theHitsFromPhi2.front().wireId().superlayerId();
     else{
       if(debug) cout<<"DTCombinatorialPatternReco4D::buildPhiSuperSegmentsCandidates: "
