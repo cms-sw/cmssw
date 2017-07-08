@@ -56,7 +56,7 @@ namespace edm {
         m_runSummaries.resize(1);
         m_lumiSummaries.resize(1);
         typename T::GlobalCache const* dummy=nullptr;
-        m_global.reset( impl::makeGlobal<T>(iPSet,dummy).release());
+        m_global = impl::makeGlobal<T>(iPSet,dummy);
       }
       ~EDAnalyzerAdaptor() {
       }
