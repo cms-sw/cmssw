@@ -146,7 +146,7 @@ namespace evf{
 
     void start(void (FastMonitoringService::*fp)(),FastMonitoringService *cp){
       assert(!m_thread);
-      m_thread = std::shared_ptr<std::thread>(new std::thread(fp,cp));
+      m_thread = std::make_shared<std::thread>(fp,cp);
     }
     void stop(){
       assert(m_thread);

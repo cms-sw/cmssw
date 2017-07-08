@@ -20,7 +20,7 @@ namespace l1t {
     ReturnType p;
 
     if (fwVersion >= 1) {
-      p = ReturnType(new MicroGMTAbsoluteIsolationCheckLUT(filename));
+      p = std::make_shared<l1t::MicroGMTAbsoluteIsolationCheckLUT>(filename);
     } else {
       LogError("MicroGMTAbsoluteIsolationCheckLUTFactory") << "Invalid firmware version requested: 0x" << std::hex << fwVersion << std::dec;
     }
@@ -32,7 +32,7 @@ namespace l1t {
     ReturnType p;
 
     if (fwVersion >= 1) {
-        p = ReturnType(new MicroGMTAbsoluteIsolationCheckLUT(lut));
+        p = std::make_shared<l1t::MicroGMTAbsoluteIsolationCheckLUT>(lut);
     } else {
         LogError("MicroGMTAbsoluteIsolationCheckLUTFactory") << "Invalid firmware version requested: 0x" << std::hex << fwVersion << std::dec;
     }

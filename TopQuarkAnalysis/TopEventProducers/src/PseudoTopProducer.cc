@@ -31,8 +31,8 @@ PseudoTopProducer::PseudoTopProducer(const edm::ParameterSet& pset):
 {
   const double leptonConeSize = pset.getParameter<double>("leptonConeSize");
   const double jetConeSize = pset.getParameter<double>("jetConeSize");
-  fjLepDef_ = std::shared_ptr<JetDef>(new JetDef(fastjet::antikt_algorithm, leptonConeSize));
-  fjJetDef_ = std::shared_ptr<JetDef>(new JetDef(fastjet::antikt_algorithm, jetConeSize));
+  fjLepDef_ = std::make_shared<JetDef>(fastjet::antikt_algorithm, leptonConeSize);
+  fjJetDef_ = std::make_shared<JetDef>(fastjet::antikt_algorithm, jetConeSize);
 
   genVertex_ = reco::Particle::Point(0,0,0);
 
