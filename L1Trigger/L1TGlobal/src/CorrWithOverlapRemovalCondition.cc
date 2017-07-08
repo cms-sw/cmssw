@@ -2122,10 +2122,14 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
             long long cosDeltaPhiLUT = m_gtScales->getLUT_DeltaPhi_Cos(lutName,deltaPhiFW);
             unsigned int precCosLUT = m_gtScales->getPrec_DeltaPhi_Cos(lutName);
 
-            long long coshDeltaEtaLUT = m_gtScales->getLUT_DeltaEta_Cosh(lutName,deltaEtaFW);
-            unsigned int precCoshLUT = m_gtScales->getPrec_DeltaEta_Cosh(lutName);
-            if(precCoshLUT - precCosLUT != 0) LogDebug("L1TGlobal") << "Warning: Cos and Cosh LUTs on different Precision" << std::endl;
-            if (corrPar.corrCutType & 0x10) coshDeltaEtaLUT=1*pow(10,precCosLUT);
+	    long long coshDeltaEtaLUT;
+	    if (corrPar.corrCutType & 0x10) {
+	      coshDeltaEtaLUT=1*pow(10,precCosLUT);
+	    }else{
+	      coshDeltaEtaLUT = m_gtScales->getLUT_DeltaEta_Cosh(lutName,deltaEtaFW);
+	      unsigned int precCoshLUT = m_gtScales->getPrec_DeltaEta_Cosh(lutName);
+	      if(precCoshLUT - precCosLUT != 0) LogDebug("L1TGlobal") << "Warning: Cos and Cosh LUTs on different Precision" << std::endl;
+	    }
 
             std::string lutName = lutObj0;
             lutName += "-ET";
