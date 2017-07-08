@@ -76,7 +76,7 @@ private:
   void RecordData(MuonIterator muon);//Fills Histograms with info from single muon
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
-  void MakeLogBinsForProfile(Double_t* bin_edges, const double min, const double max);
+  void MakeLogBinsForProfile(Double_t* bin_edges, double min, double max);
   void FillHistos();//Fills histograms with data
   void NormalizeHistos(); //Normalize to number of muons
   TH1* GetTH1FromMonitorElement(MonitorElement* me);

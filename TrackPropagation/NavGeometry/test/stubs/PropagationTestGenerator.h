@@ -23,11 +23,11 @@ public:
   virtual ~PropagationTestGenerator() {}
 
   /// Range of azimuthal angles for trajectory generation
-  virtual void setRangePhi(const float min, const float max);
+  virtual void setRangePhi(float min, float max);
   /// Range of pseudo-rapidities for trajectory generation
-  virtual void setRangeEta(const float, const float);
+  virtual void setRangeEta(float, float);
   /// Gaussian smearing of vertex
-  virtual void setVertexSmearing(const float, const float, const float);
+  virtual void setVertexSmearing(float, float, float);
 
   /// Returns curvature (transversal!).
   virtual ExtendedDouble transverseCurvature() const;
@@ -38,12 +38,12 @@ public:
    *  -(argument) and 0. Returns total pathlength from
    *  starting point after the step.
    */
-  virtual ExtendedDouble randomStepForward(const float);
+  virtual ExtendedDouble randomStepForward(float);
   /** Steps backward along the trajectory by a pathlength between
    *  -(argument) and 0. Returns total pathlength from
    *  starting point after the step.
    */
-  virtual ExtendedDouble randomStepBackward(const float);
+  virtual ExtendedDouble randomStepBackward(float);
 
   /// Returns current position (start or after last step).
   virtual GlobalPoint position() const;
@@ -63,7 +63,7 @@ protected:
    *  pathlength = argument.
    *  Return value = step size.
    */
-  virtual ExtendedDouble bidirectionalStep (const ExtendedDouble) =0;
+  virtual ExtendedDouble bidirectionalStep (ExtendedDouble) =0;
 
 protected:
   bool initialised;

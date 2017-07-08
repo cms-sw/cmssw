@@ -65,7 +65,7 @@ public:
   ClusterSummary();
   //nSelections is the number of selections that you want to have
   //It should be highest enum + 1
-  ClusterSummary(const int nSelections);
+  ClusterSummary(int nSelections);
   ~ClusterSummary() {}
   // copy ctor
   ClusterSummary(const ClusterSummary& src);

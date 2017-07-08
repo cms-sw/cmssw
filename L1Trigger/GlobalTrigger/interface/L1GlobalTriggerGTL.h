@@ -59,33 +59,33 @@ public:
     /// receive data from Global Muon Trigger
     void receiveGmtObjectData(
         edm::Event&,
-        const edm::InputTag&, const int iBxInEvent,
-        const bool receiveMu, const int nrL1Mu);
+        const edm::InputTag&, int iBxInEvent,
+        bool receiveMu, int nrL1Mu);
 
 
     /// initialize the class (mainly reserve)
-    void init(const int nrL1Mu, const int numberPhysTriggers);
+    void init(int nrL1Mu, int numberPhysTriggers);
 
     /// run the GTL
     void run(edm::Event& iEvent, const edm::EventSetup& evSetup,
-        const L1GlobalTriggerPSB* ptrGtPSB, const bool produceL1GtObjectMapRecord,
-        const int iBxInEvent, L1GlobalTriggerObjectMapRecord* gtObjectMapRecord,
-        const unsigned int numberPhysTriggers,
-        const int nrL1Mu,
-        const int nrL1NoIsoEG,
-        const int nrL1IsoEG,
-        const int nrL1CenJet,
-        const int nrL1ForJet,
-        const int nrL1TauJet,
-        const int nrL1JetCounts,
-        const int ifMuEtaNumberBits,
-        const int ifCaloEtaNumberBits);
+        const L1GlobalTriggerPSB* ptrGtPSB, bool produceL1GtObjectMapRecord,
+        int iBxInEvent, L1GlobalTriggerObjectMapRecord* gtObjectMapRecord,
+        unsigned int numberPhysTriggers,
+        int nrL1Mu,
+        int nrL1NoIsoEG,
+        int nrL1IsoEG,
+        int nrL1CenJet,
+        int nrL1ForJet,
+        int nrL1TauJet,
+        int nrL1JetCounts,
+        int ifMuEtaNumberBits,
+        int ifCaloEtaNumberBits);
 
     /// clear GTL
     void reset();
 
     /// print received Muon dataWord
-    void printGmtData(const int iBxInEvent) const;
+    void printGmtData(int iBxInEvent) const;
 
     /// return decision
     inline const std::bitset<L1GlobalTriggerReadoutSetup::NumberPhysTriggers>& getDecisionWord() const

@@ -92,7 +92,7 @@ private:
      */
     void tryAddingHitsToSegment(const ChamberHitContainer& rechitsInChamber,
         const BoolContainer& used, const LayerIndex& layerIndex,
-				const ChamberHitContainerCIt i1, const ChamberHitContainerCIt i2);
+				ChamberHitContainerCIt i1, ChamberHitContainerCIt i2);
 
     /**
      * Return true if segment is 'good'.

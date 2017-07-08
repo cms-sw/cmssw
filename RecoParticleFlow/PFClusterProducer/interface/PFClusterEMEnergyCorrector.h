@@ -58,7 +58,7 @@ class PFClusterEMEnergyCorrector {
   int bunchSpacingManual_;
         
   std::unique_ptr<PFEnergyCalibration> calibrator_;  
-  void getAssociatedPSEnergy(const size_t clusIdx, const reco::PFCluster::EEtoPSAssociation &assoc, float& e1, float& e2);
+  void getAssociatedPSEnergy(size_t clusIdx, const reco::PFCluster::EEtoPSAssociation &assoc, float& e1, float& e2);
 
   double meanlimlowEB_;
   double meanlimhighEB_;

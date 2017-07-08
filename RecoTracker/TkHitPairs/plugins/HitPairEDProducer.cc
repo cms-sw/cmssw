@@ -42,7 +42,7 @@ namespace {
 
     virtual void produces(edm::ProducerBase& producer) const = 0;
 
-    virtual void produce(const SeedingLayerSetsHits& layers, const edm::OwnVector<TrackingRegion>& regions, const bool clusterCheckOk,
+    virtual void produce(const SeedingLayerSetsHits& layers, const edm::OwnVector<TrackingRegion>& regions, bool clusterCheckOk,
                          edm::Event& iEvent, const edm::EventSetup& iSetup) = 0;
 
   protected:

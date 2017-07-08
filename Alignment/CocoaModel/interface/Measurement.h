@@ -28,7 +28,7 @@ class Measurement
 { 
 public:
   //----- Constructors / destructor
-  Measurement( const ALIint measdim, ALIstring& type, ALIstring& name );
+  Measurement( ALIint measdim, ALIstring& type, ALIstring& name );
   Measurement(){ };   
   virtual ~Measurement();
     
@@ -59,7 +59,7 @@ public:
   std::vector<ALIdouble> DerivativeRespectEntry( Entry* entry );
 
   // get the ':X' that determines how the behaviour of the OptO w.r.t. this Measurement
-  ALIstring getMeasuringBehaviour( const std::vector< OpticalObject* >::const_iterator vocite);
+  ALIstring getMeasuringBehaviour( std::vector< OpticalObject* >::const_iterator vocite);
 
  // Get the previous OptOs in the list of OptO that take part in this measurement
   const OpticalObject* getPreviousOptO( const OpticalObject* Popto ) const;

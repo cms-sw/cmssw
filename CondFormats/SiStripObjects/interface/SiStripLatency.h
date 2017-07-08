@@ -89,10 +89,10 @@ class SiStripLatency
    * if the compress method is not called, only the space used would be more than
    * needed.
    */
-  bool put( const uint32_t detId, const uint16_t apv, const uint16_t latency, const uint16_t mode );
-  uint16_t latency(const uint32_t detId, const uint16_t apv) const;
-  uint16_t mode(const uint32_t detId, const uint16_t apv) const;
-  std::pair<uint16_t, uint16_t> latencyAndMode(const uint32_t detId, const uint16_t apv) const;
+  bool put( uint32_t detId, uint16_t apv, uint16_t latency, uint16_t mode );
+  uint16_t latency(uint32_t detId, uint16_t apv) const;
+  uint16_t mode(uint32_t detId, uint16_t apv) const;
+  std::pair<uint16_t, uint16_t> latencyAndMode(uint32_t detId, uint16_t apv) const;
   inline std::vector<Latency> allLatencyAndModes() const { return latencies_; }
 
   /// Fills the passed vector with all the possible latencies in the Tracker

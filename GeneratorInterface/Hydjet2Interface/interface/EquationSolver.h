@@ -59,7 +59,7 @@ class NAEquationSolver {
       double GetIntervalLowerLimit(void) const {return fA;}
       double GetIntervalUpperLimit(void) const {return fB;}
 	
-      void SetIntervalLimits(const double Limit1, const double Limit2);
+      void SetIntervalLimits(double Limit1, double Limit2);
 
       double GetRoot(void) const {return fRoot;}	
 	

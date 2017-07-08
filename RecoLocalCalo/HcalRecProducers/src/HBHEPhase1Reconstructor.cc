@@ -352,7 +352,7 @@ private:
                      const HcalDbService& cond,
                      const HcalChannelQuality& qual,
                      const HcalSeverityLevelComputer& severity,
-                     const bool isRealData,
+                     bool isRealData,
                      HBHEChannelInfo* info,
                      HBHEChannelInfoCollection* infoColl,
                      HBHERecHitCollection* rechits);

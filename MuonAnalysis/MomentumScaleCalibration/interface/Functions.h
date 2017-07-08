@@ -43,7 +43,7 @@ struct ParameterSet
 template <class T>
 class scaleFunctionBase {
  public:
-  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const = 0;
+  virtual double scale(const double & pt, const double & eta, const double & phi, int chg, const T & parScale) const = 0;
   virtual ~scaleFunctionBase() = 0;
   /// This method is used to reset the scale parameters to neutral values (useful for iterations > 0)
   virtual void resetParameters(std::vector<double> * scaleVec) const {
@@ -52,7 +52,7 @@ class scaleFunctionBase {
     exit(1);
   }
   /// This method is used to differentiate parameters among the different functions
-  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const std::vector<int> & parScaleOrder, const int muonType) = 0;
+  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const std::vector<int> & parScaleOrder, int muonType) = 0;
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname,
 			     const T & parResol, const std::vector<int> & parResolOrder,
 			     const std::vector<double> & parStep,
@@ -487,10 +487,10 @@ public:
 
 
 /// Service to build the scale functor corresponding to the passed identifier
-scaleFunctionBase<double * > * scaleFunctionService( const int identifier );
+scaleFunctionBase<double * > * scaleFunctionService( int identifier );
 
 /// Service to build the scale functor corresponding to the passed identifier when receiving a std::vector<double>
-scaleFunctionBase<std::vector<double> > * scaleFunctionVecService( const int identifier );
+scaleFunctionBase<std::vector<double> > * scaleFunctionVecService( int identifier );
 
 // -------------- //
 // Smear functors //
@@ -656,7 +656,7 @@ class smearFunctionType7 : public smearFunctionBase
 };
 
 /// Service to build the smearing functor corresponding to the passed identifier
-smearFunctionBase * smearFunctionService( const int identifier );
+smearFunctionBase * smearFunctionService( int identifier );
 
 // // Defined globally...
 // static smearFunctionBase * smearFunctionArray[] = {
@@ -1100,10 +1100,10 @@ class resolutionFunctionType47 : public resolutionFunctionBase<T> {
 // ---------------------------------- //
 
 /// Service to build the resolution functor corresponding to the passed identifier
-resolutionFunctionBase<double *> * resolutionFunctionService( const int identifier );
+resolutionFunctionBase<double *> * resolutionFunctionService( int identifier );
 
 /// Service to build the resolution functor corresponding to the passed identifier when receiving a std::vector<double>
-resolutionFunctionBase<std::vector<double> > * resolutionFunctionVecService( const int identifier );
+resolutionFunctionBase<std::vector<double> > * resolutionFunctionVecService( int identifier );
 
 /**
  * Background functors. <br>
@@ -1144,7 +1144,7 @@ class backgroundFunctionBase {
   }
   virtual int parNum() const { return parNum_; }
   /// This method is used to differentiate parameters among the different functions
-  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const std::vector<double>::const_iterator & parBgrIt, const std::vector<int>::const_iterator & parBgrOrderIt, const int muonType) = 0;
+  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const std::vector<double>::const_iterator & parBgrIt, const std::vector<int>::const_iterator & parBgrOrderIt, int muonType) = 0;
   virtual TF1* functionForIntegral(const std::vector<double>::const_iterator & parBgrIt) const
   {
     functionForIntegral_ = new FunctionForIntegral(this, parBgrIt);
@@ -2011,7 +2011,7 @@ if( ((fabs(eta1) >= 1.25 && fabs(eta1) < 1.6) && (fabs(eta2) >= 1.6 && fabs(eta2
 };
 
 /// Service to build the background functor corresponding to the passed identifier
-backgroundFunctionBase * backgroundFunctionService( const int identifier, const double & lowerLimit, const double & upperLimit );
+backgroundFunctionBase * backgroundFunctionService( int identifier, const double & lowerLimit, const double & upperLimit );
 
 //Function Type 9
 

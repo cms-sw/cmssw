@@ -40,7 +40,7 @@ public:
     L1GtJetCountsCondition();
 
     ///     from base template condition (from event setup usually)
-    L1GtJetCountsCondition(const L1GtCondition*, const L1GlobalTriggerPSB*, const int nrL1JetCounts);
+    L1GtJetCountsCondition(const L1GtCondition*, const L1GlobalTriggerPSB*, int nrL1JetCounts);
 
     // copy constructor
     L1GtJetCountsCondition(const L1GtJetCountsCondition&);

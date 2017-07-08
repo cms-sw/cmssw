@@ -75,7 +75,7 @@ namespace npstat {
         inline unsigned interpolationDegree() const {return deg_;}
 
         /** Set interpolation degree (0, 1, or 3) */
-        void setInterpolationDegree(const unsigned deg);
+        void setInterpolationDegree(unsigned deg);
 
         //@{
         /** Retrieve the underlying HistoND object */

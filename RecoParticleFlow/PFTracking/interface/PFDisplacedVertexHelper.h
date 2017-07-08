@@ -38,7 +38,7 @@ class PFDisplacedVertexHelper {
 
   /// Select tracks tool
   bool isTrackSelected(const reco::Track& trk, 
-		       const reco::PFDisplacedVertex::VertexTrackType vertexTrackType) const;
+		       reco::PFDisplacedVertex::VertexTrackType vertexTrackType) const;
 
   /// Vertex identification tool
   reco::PFDisplacedVertex::VertexType identifyVertex(const reco::PFDisplacedVertex& v) const;

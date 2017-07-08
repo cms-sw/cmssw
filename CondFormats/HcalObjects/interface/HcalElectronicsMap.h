@@ -85,9 +85,9 @@ class HcalElectronicsMap {
   const HcalElectronicsId lookupTrigger(DetId fId) const;
 
   /// brief lookup the DetId and full electronics id associated with this partial (dcc/spigot/fiber/fiberchan) id
-  bool lookup(const HcalElectronicsId pId, HcalElectronicsId& eid, HcalGenericDetId& did) const;
+  bool lookup(HcalElectronicsId pId, HcalElectronicsId& eid, HcalGenericDetId& did) const;
   /// brief lookup the DetId and full electronics id associated with this partial (dcc/spigot/slb/slbchan) id
-  bool lookup(const HcalElectronicsId pId, HcalElectronicsId& eid, HcalTrigTowerDetId& did) const;
+  bool lookup(HcalElectronicsId pId, HcalElectronicsId& eid, HcalTrigTowerDetId& did) const;
 
   std::vector <HcalElectronicsId> allElectronicsId () const;
   std::vector <HcalElectronicsId> allElectronicsIdPrecision() const;

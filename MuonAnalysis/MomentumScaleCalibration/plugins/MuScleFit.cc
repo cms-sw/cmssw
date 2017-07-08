@@ -204,7 +204,7 @@ class MuScleFit: public edm::EDLooper, MuScleFitBase
   virtual void startingNewLoop( unsigned int iLoop ) override;
 
   virtual edm::EDLooper::Status endOfLoop( const edm::EventSetup& eventSetup, unsigned int iLoop ) override;
-  virtual void endOfFastLoop( const unsigned int iLoop );
+  virtual void endOfFastLoop( unsigned int iLoop );
 
   virtual edm::EDLooper::Status duringLoop( const edm::Event & event, const edm::EventSetup& eventSetup ) override;
   /**
@@ -229,7 +229,7 @@ class MuScleFit: public edm::EDLooper, MuScleFitBase
    * This version reads the events from a tree in the file specified in the cfg. The tree only contains one muon pair per event. This
    * means that no selection is performed and we use preselected muons.
    */
-  void selectMuons(const int maxEvents, const TString & treeFileName);
+  void selectMuons(int maxEvents, const TString & treeFileName);
 
   /// Template method used to fill the track collection starting from reco::muons or pat::muons
   template<typename T>
@@ -241,12 +241,12 @@ class MuScleFit: public edm::EDLooper, MuScleFitBase
   /// Check if two lorentzVector are near in deltaR
   bool checkDeltaR( reco::Particle::LorentzVector& genMu, reco::Particle::LorentzVector& recMu );
   /// Fill the reco vs gen and reco vs sim comparison histograms
-  void fillComparisonHistograms( const reco::Particle::LorentzVector & genMu, const reco::Particle::LorentzVector & recoMu, const std::string & inputName, const int charge );
+  void fillComparisonHistograms( const reco::Particle::LorentzVector & genMu, const reco::Particle::LorentzVector & recoMu, const std::string & inputName, int charge );
 
   /// Apply the smearing if needed using the function in MuScleFitUtils
   void applySmearing( reco::Particle::LorentzVector & mu );
   /// Apply the bias if needed using the function in MuScleFitUtils
-  void applyBias( reco::Particle::LorentzVector & mu, const int charge );
+  void applyBias( reco::Particle::LorentzVector & mu, int charge );
 
   /**
    * Simple method to check parameters consistency. It aborts the job if the parameters

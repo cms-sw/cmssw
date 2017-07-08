@@ -36,10 +36,10 @@ class GeometryConstraintConfigData {
   GeometryConstraintConfigData(const std::vector<double>& co,
                                const std::string& c,
                                const std::vector<std::pair<Alignable*,std::string> >& alisFile,
-                               const int sd,
+                               int sd,
                                const std::vector<Alignable*>& ex,
-                               const int instance,
-			       const bool downToLowestLevel
+                               int instance,
+			       bool downToLowestLevel
                                );
   const std::vector<double> coefficients_;
   const std::string constraintName_;
@@ -83,7 +83,7 @@ class PedeSteererWeakModeConstraints {
   void closeOutputfiles();
 
   // Checks whether lowleveldet is a daugther of HLS
-  bool checkMother(const Alignable * const lowleveldet, const Alignable * const HLS) const;
+  bool checkMother(const Alignable * lowleveldet, const Alignable * HLS) const;
 
   std::pair<align::GlobalPoint, align::GlobalPoint> getDoubleSensorPosition(const Alignable *ali) const;
 
@@ -91,19 +91,19 @@ class PedeSteererWeakModeConstraints {
 
   // The function for the geometry deformation is defined as f(x).
   // The methods returns x depending on the type of deformation
-  double getX(const int sysdeformation, const align::GlobalPoint &pos, const double phase) const;
+  double getX(int sysdeformation, const align::GlobalPoint &pos, double phase) const;
 
   double getX0(const std::pair<Alignable*, std::list<Alignable*> > &iHLS,
                const GeometryConstraintConfigData &it) const;
 
   // Calculates and returns the coefficient for alignment parameter iParameter
   // for an alignable at position pos.
-  double getCoefficient(const int sysdeformation,
+  double getCoefficient(int sysdeformation,
                         const align::GlobalPoint &pos,
-                        const GlobalPoint gUDirection,
-                        const GlobalPoint gVDirection,
-                        const GlobalPoint gWDirection,
-                        const int iParameter, const double &x0,
+                        GlobalPoint gUDirection,
+                        GlobalPoint gVDirection,
+                        GlobalPoint gWDirection,
+                        int iParameter, const double &x0,
                         const std::vector<double> &constraintparameters) const;
 
   //returns true if iParameter of Alignable is selected in configuration file

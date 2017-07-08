@@ -70,7 +70,7 @@ class TtFullLepHypothesis : public edm::EDProducer {
 			 const edm::Handle<std::vector<pat::Jet> >& jets,
 			 const edm::Handle<std::vector<pat::MET> >& mets,
 			 std::vector<int>& match,
-			 const unsigned int iComb) = 0;
+			 unsigned int iComb) = 0;
 
  protected:
   /// internal check whether the match information exists or not,

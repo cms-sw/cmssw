@@ -31,7 +31,7 @@ class XMLConfigReader{
   XMLConfigReader();
   ~XMLConfigReader();
 
-  void readConfig(const std::string fName);
+  void readConfig(std::string fName);
 
   void setConfigFile(const std::string & fName) {configFile = fName;}
 

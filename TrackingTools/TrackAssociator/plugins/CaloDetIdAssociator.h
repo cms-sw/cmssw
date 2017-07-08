@@ -62,7 +62,7 @@ class CaloDetIdAssociator: public DetIdAssociator{
    virtual bool crossedElement(const GlobalPoint&, 
 			       const GlobalPoint&, 
 			       const DetId& id,
-			       const double tolerance = -1,
+			       double tolerance = -1,
 			       const SteppingHelixStateInfo* = 0 ) const override;
    const CaloGeometry* geometry_;
    std::vector<GlobalPoint> dummy_;

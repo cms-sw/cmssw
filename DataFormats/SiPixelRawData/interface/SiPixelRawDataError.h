@@ -22,9 +22,9 @@ class SiPixelRawDataError {
     /// Default constructor
     SiPixelRawDataError();
     /// Constructor for 32-bit error word
-    SiPixelRawDataError(cms_uint32_t errorWord32, const int errorType, int fedId);
+    SiPixelRawDataError(cms_uint32_t errorWord32, int errorType, int fedId);
     /// Constructor with 64-bit error word and type included (header or trailer word)
-    SiPixelRawDataError(cms_uint64_t errorWord64, const int errorType, int fedId);
+    SiPixelRawDataError(cms_uint64_t errorWord64, int errorType, int fedId);
     /// Destructor
     ~SiPixelRawDataError();
 

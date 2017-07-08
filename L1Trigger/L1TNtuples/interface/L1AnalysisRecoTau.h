@@ -32,7 +32,7 @@ namespace L1Analysis
     //void Print(std::ostream &os = std::cout) const;
     void SetTau(const edm::Event& event,
 					   const edm::EventSetup& setup,
-		const edm::Handle<reco::PFTauCollection> taus, const edm::Handle<reco::PFTauDiscriminator> DMFindingOldTaus, const edm::Handle<reco::PFTauDiscriminator> DMFindingTaus, const edm::Handle<reco::PFTauDiscriminator> TightIsoTaus, const edm::Handle<reco::PFTauDiscriminator> TightRawIsoTaus, const edm::Handle<reco::PFTauDiscriminator> LooseIsoTaus, const edm::Handle<reco::PFTauDiscriminator> LooseAntiMuon, const edm::Handle<reco::PFTauDiscriminator> TightAntiMuon, const edm::Handle<reco::PFTauDiscriminator> VLooseAntiElectron, const edm::Handle<reco::PFTauDiscriminator> LooseAntiElectron, const edm::Handle<reco::PFTauDiscriminator> TightAntiElectron, unsigned maxTau);
+		edm::Handle<reco::PFTauCollection> taus, edm::Handle<reco::PFTauDiscriminator> DMFindingOldTaus, edm::Handle<reco::PFTauDiscriminator> DMFindingTaus, edm::Handle<reco::PFTauDiscriminator> TightIsoTaus, edm::Handle<reco::PFTauDiscriminator> TightRawIsoTaus, edm::Handle<reco::PFTauDiscriminator> LooseIsoTaus, edm::Handle<reco::PFTauDiscriminator> LooseAntiMuon, edm::Handle<reco::PFTauDiscriminator> TightAntiMuon, edm::Handle<reco::PFTauDiscriminator> VLooseAntiElectron, edm::Handle<reco::PFTauDiscriminator> LooseAntiElectron, edm::Handle<reco::PFTauDiscriminator> TightAntiElectron, unsigned maxTau);
 
       /*
 (const edm::Event& event,

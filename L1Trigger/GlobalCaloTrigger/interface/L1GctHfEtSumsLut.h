@@ -37,7 +37,7 @@ public:
   static const int NAddress, NData;
 
   /// Constructor for use with emulator - which type of Lut?
-  L1GctHfEtSumsLut(const L1GctHfEtSumsLut::hfLutType& type, const L1CaloEtScale* const scale);
+  L1GctHfEtSumsLut(const L1GctHfEtSumsLut::hfLutType& type, const L1CaloEtScale* scale);
   /// Constructor for use with emulator - which type of Lut?
   L1GctHfEtSumsLut(const L1GctHfEtSumsLut::hfLutType& type);
   /// Default constructor
@@ -69,7 +69,7 @@ public:
 protected:
   
 
-  virtual uint16_t value (const uint16_t lutAddress) const;
+  virtual uint16_t value (uint16_t lutAddress) const;
 
 private:
 

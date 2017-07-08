@@ -44,7 +44,7 @@ public:
     virtual ~L1GtVmeWriterCore();
 
     void writeVME(const std::vector<ConditionMap> &conditionMap,
-            const std::map<std::string,int>& cond2intMap, const L1GtVhdlTemplateFile& header,  const int spacesPerLevel=2);
+            const std::map<std::string,int>& cond2intMap, const L1GtVhdlTemplateFile& header,  int spacesPerLevel=2);
 
     /// opens a new xml tag 
     std::string openTag(const std::string &tag);
@@ -57,7 +57,7 @@ public:
 
     /// builds a address value block
     std::string vmeAddrValueBlock(const std::string &addr, const int &val,
-            const int &spaceLevel, const bool setMsb=false);
+            const int &spaceLevel, bool setMsb=false);
 
     /// conversion algorithm for condition index to hex value 
     /// used to calculate address values

@@ -44,8 +44,8 @@ public:
   dimuonHLTFilterCheck(const edm::ParameterSet& pset);
 private:
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
-  vector<int> nDimuonsByType(const Handle<CandidateView> d);
-  vector<int> nMuonsByType(const Handle<CandidateView> d);
+  vector<int> nDimuonsByType(Handle<CandidateView> d);
+  vector<int> nMuonsByType(Handle<CandidateView> d);
   virtual void endJob() override;
   EDGetTokenT<TriggerResults> triggerResultsToken;
   EDGetTokenT<CandidateView> tracksToken;

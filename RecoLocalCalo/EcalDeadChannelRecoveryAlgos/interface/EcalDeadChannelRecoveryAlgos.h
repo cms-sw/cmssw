@@ -12,7 +12,7 @@
 template <typename DetIdT> class EcalDeadChannelRecoveryAlgos {
  public:
   void setCaloTopology(const CaloTopology *topology);
-  EcalRecHit correct(const DetIdT id,
+  EcalRecHit correct(DetIdT id,
                      const EcalRecHitCollection &hit_collection,
                      std::string algo, double Sum8Cut, bool *AccFlag);
 

@@ -18,23 +18,23 @@ class HGCalTriggerGeometryHexImp2 : public HGCalTriggerGeometryBase
         virtual void initialize(const es_info& ) override final;
         virtual void reset() override final;
 
-        virtual unsigned getTriggerCellFromCell( const unsigned ) const override final;
-        virtual unsigned getModuleFromCell( const unsigned ) const override final;
-        virtual unsigned getModuleFromTriggerCell( const unsigned ) const override final;
+        virtual unsigned getTriggerCellFromCell( unsigned ) const override final;
+        virtual unsigned getModuleFromCell( unsigned ) const override final;
+        virtual unsigned getModuleFromTriggerCell( unsigned ) const override final;
 
-        virtual geom_set getCellsFromTriggerCell( const unsigned ) const override final;
-        virtual geom_set getCellsFromModule( const unsigned ) const override final;
-        virtual geom_set getTriggerCellsFromModule( const unsigned ) const override final;
+        virtual geom_set getCellsFromTriggerCell( unsigned ) const override final;
+        virtual geom_set getCellsFromModule( unsigned ) const override final;
+        virtual geom_set getTriggerCellsFromModule( unsigned ) const override final;
 
-        virtual geom_ordered_set getOrderedCellsFromModule( const unsigned ) const override final;
-        virtual geom_ordered_set getOrderedTriggerCellsFromModule( const unsigned ) const override final;
+        virtual geom_ordered_set getOrderedCellsFromModule( unsigned ) const override final;
+        virtual geom_ordered_set getOrderedTriggerCellsFromModule( unsigned ) const override final;
 
-        virtual geom_set getNeighborsFromTriggerCell( const unsigned ) const override final;
+        virtual geom_set getNeighborsFromTriggerCell( unsigned ) const override final;
 
-        virtual GlobalPoint getTriggerCellPosition(const unsigned ) const override final;
-        virtual GlobalPoint getModulePosition(const unsigned ) const override final;
+        virtual GlobalPoint getTriggerCellPosition(unsigned ) const override final;
+        virtual GlobalPoint getModulePosition(unsigned ) const override final;
 
-        virtual bool validTriggerCell( const unsigned ) const override final;
+        virtual bool validTriggerCell( unsigned ) const override final;
 
     private:
         edm::FileInPath l1tCellsMapping_;
@@ -79,7 +79,7 @@ class HGCalTriggerGeometryHexImp2 : public HGCalTriggerGeometryBase
         // returns transverse wafer type: -1=coarse, 1=fine, 0=undefined
         int detIdWaferType(unsigned subdet, short wafer) const;
         bool validCellId(unsigned subdet, unsigned cell_id) const;
-        bool validTriggerCellFromCells( const unsigned ) const;
+        bool validTriggerCellFromCells( unsigned ) const;
 };
 
 

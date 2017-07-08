@@ -41,7 +41,7 @@ public:
   void fillExpectedHfSums(const std::vector<RegionsVector>& inputRegions);
 
   /// Check the Ht summing algorithms
-  bool checkHfEtSums(const L1GlobalCaloTrigger* gct, const int numOfBx) const;
+  bool checkHfEtSums(const L1GlobalCaloTrigger* gct, int numOfBx) const;
 
 private:
 
@@ -56,8 +56,8 @@ private:
   std::vector<unsigned> m_expectedRing1BitCountPositiveEta;
   std::vector<unsigned> m_expectedRing1BitCountNegativeEta;
 
-  unsigned etSumLut (const unsigned expectedValue) const;
-  unsigned countLut (const unsigned expectedValue) const;
+  unsigned etSumLut (unsigned expectedValue) const;
+  unsigned countLut (unsigned expectedValue) const;
 
 };
 

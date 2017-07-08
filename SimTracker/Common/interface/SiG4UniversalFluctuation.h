@@ -31,11 +31,11 @@ public:
 
   // momentum in MeV/c, mass in MeV, tmax (delta cut) in MeV,
   // length in mm, meanLoss eloss in MeV.
-  double SampleFluctuations(const double momentum,
-                            const double mass,
+  double SampleFluctuations(double momentum,
+                            double mass,
                             double& tmax,
-                            const double length,
-                            const double meanLoss,
+                            double length,
+                            double meanLoss,
                             CLHEP::HepRandomEngine*);
    
 private:

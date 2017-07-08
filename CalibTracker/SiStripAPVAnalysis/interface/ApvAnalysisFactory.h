@@ -41,7 +41,7 @@ class ApvAnalysisFactory
 
   bool instantiateApvs(uint32_t det_id, int numberOfApvs);
 
-  ApvAnalysisVector getApvAnalysis( const uint32_t nDET_ID);
+  ApvAnalysisVector getApvAnalysis( uint32_t nDET_ID);
 
   void getPedestal(uint32_t det_id , int apvNumber,   ApvAnalysis::PedestalType& peds);
   void getPedestal(uint32_t det_id , ApvAnalysis::PedestalType& peds);

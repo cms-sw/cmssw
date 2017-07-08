@@ -36,7 +36,7 @@ class SiPixelFedFillerWordEventNumber  : public edm::EDProducer {
       unsigned int EventNum;
       
       // ============= member data =========================================
-      int PwordSlink64(uint64_t *, const int, uint32_t &);
+      int PwordSlink64(uint64_t *, int, uint32_t &);
       unsigned int CalibStatFillWord(unsigned int, int);
       unsigned int CalibStatFill; 
       std::vector<uint32_t>		      vecSaveFillerWords;

@@ -111,7 +111,7 @@ class BPHDecayMomentum {
   BPHDecayMomentum();
   BPHDecayMomentum( const std::map<std::string,Component>& daugMap );
   BPHDecayMomentum( const std::map<std::string,Component>& daugMap,
-                    const std::map<std::string,BPHRecoConstCandPtr> compMap );
+                    std::map<std::string,BPHRecoConstCandPtr> compMap );
 
   // get an object filled in the constructor
   // to be used in the creation of other bases of BPHRecoCandidate
@@ -166,7 +166,7 @@ class BPHDecayMomentum {
   // compute the total momentum of simple particles, produced
   // directly or in cascade decays
   virtual void sumMomentum(
-               const std::vector<const reco::Candidate*> dl ) const;
+               const std::vector<reco::Candidate*> dl ) const;
 
   // recursively fill the list of simple particles, produced
   // directly or in cascade decays

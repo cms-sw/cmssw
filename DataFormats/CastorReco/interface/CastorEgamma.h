@@ -21,7 +21,7 @@ namespace reco {
     CastorEgamma() : energycal_(0.) { }
 
     /// constructor from values
-    CastorEgamma(const double energycal, const CastorClusterRef& usedCluster);
+    CastorEgamma(double energycal, const CastorClusterRef& usedCluster);
 
     /// destructor
     virtual ~CastorEgamma();

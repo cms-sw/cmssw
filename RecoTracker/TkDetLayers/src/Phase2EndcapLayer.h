@@ -14,7 +14,7 @@
 #pragma GCC visibility push(hidden)
 class Phase2EndcapLayer final : public RingedForwardLayer {
  public:
-  Phase2EndcapLayer(std::vector<const Phase2EndcapRing*>& rings, const bool isOT)  __attribute__ ((cold));
+  Phase2EndcapLayer(std::vector<const Phase2EndcapRing*>& rings, bool isOT)  __attribute__ ((cold));
   ~Phase2EndcapLayer()  __attribute__ ((cold));
 
   // Default implementations would not properly manage memory

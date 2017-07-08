@@ -72,12 +72,12 @@ public:
                    unsigned int &Id, //id of the first run
                    const std::vector<edm::RunNumber_t> &range, //run range
                    const std::list<Alignable*> &selected_alis, //list of alignables for which a group is created
-                   const edm::RunNumber_t refrun //reference run number
+                   edm::RunNumber_t refrun //reference run number
                    );
   
   // Fill the container which is a map between the det id and the id of the group
   // to which the module belongs.
-  void fillDetIdMap(const unsigned int detid, const unsigned int groupid);
+  void fillDetIdMap(unsigned int detid, unsigned int groupid);
 
   // Array with run boundaries which is a combination
   // of all defined run ranges of all specified module groups.

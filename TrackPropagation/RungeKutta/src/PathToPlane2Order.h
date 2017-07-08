@@ -34,7 +34,7 @@ public:
 				       const Vector3D& position,
 				       const Vector3D& momentum,
 				       double charge,
-				       const PropagationDirection propDir = alongMomentum);
+				       PropagationDirection propDir = alongMomentum);
 
     std::pair<bool,double> operator()( const Plane& plane, 
 				       const GlobalPoint& position,

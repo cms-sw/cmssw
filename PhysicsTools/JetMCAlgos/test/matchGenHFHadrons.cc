@@ -31,19 +31,19 @@ class matchGenHFHadrons : public edm::EDAnalyzer {
     private:
         virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
         virtual void beginJob();
-        void bookHadronBranches(TTree* tree, const int flavour);
+        void bookHadronBranches(TTree* tree, int flavour);
         void clearEventVariables();
         void clearHadronVariables();
-        void fillHadronTree( TTree* tree, const int flavour, const reco::GenJetCollection& genJets,
+        void fillHadronTree( TTree* tree, int flavour, const reco::GenJetCollection& genJets,
                              const std::vector<int>& genHadIndex, const std::vector<int>& genHadJetIndex,
                              const std::vector<int>& genHadFlavour, const std::vector<int>& genHadFromTopWeakDecay,
                              const std::vector<reco::GenParticle>& genHadPlusMothers, const std::vector<std::vector<int> >& genHadPlusMothersIndices,
                              const std::vector<int>& genHadLeptonHadronIndex, const std::vector<int>& genHadLeptonViaTau,
                              const std::vector<int>& genHadBHadronId = std::vector<int>(0) );
         // A recursive function that scans through the particle chain to find a particle with specific pdgId or abs(pdgId)
-        void findAncestorParticles(const int startId, std::set<int>& resultIds, 
+        void findAncestorParticles(int startId, std::set<int>& resultIds, 
                                    const std::vector<reco::GenParticle>& genParticles, const std::vector<std::vector<int> >& motherIndices, 
-                                   const int endPdgId, const bool endPdgIdIsAbs = false, const int firstAnyLast = 0);
+                                   int endPdgId, bool endPdgIdIsAbs = false, int firstAnyLast = 0);
         
         
         // Jets configuration

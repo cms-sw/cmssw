@@ -55,7 +55,7 @@ namespace l1t {
     };
 
     CaloParamsHelper() { pnode_.resize(NUM_CALOPARAMNODES); }
-    CaloParamsHelper(const CaloParams);
+    CaloParamsHelper(CaloParams);
     ~CaloParamsHelper() {}
     
 

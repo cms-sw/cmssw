@@ -16,10 +16,10 @@ class PSSDigitizerAlgorithm :public Phase2TrackerDigitizerAlgorithm {
   
   // void initializeEvent();
   // run the algorithm to digitize a single det
-  void accumulateSimHits(const std::vector<PSimHit>::const_iterator inputBegin,
-                         const std::vector<PSimHit>::const_iterator inputEnd,
-                         const size_t inputBeginGlobalIndex,
-			 const unsigned int tofBin,
+  void accumulateSimHits(std::vector<PSimHit>::const_iterator inputBegin,
+                         std::vector<PSimHit>::const_iterator inputEnd,
+                         size_t inputBeginGlobalIndex,
+			 unsigned int tofBin,
                          const Phase2TrackerGeomDetUnit* pixdet,
                          const GlobalVector& bfield);
 };

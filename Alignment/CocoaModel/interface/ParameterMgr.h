@@ -19,10 +19,10 @@ class ParameterMgr {
 
  public:
   static ParameterMgr* getInstance();
-  ALIdouble getVal( const ALIstring& str, const ALIdouble dimensionFactor = 1. );
+  ALIdouble getVal( const ALIstring& str, ALIdouble dimensionFactor = 1. );
 
   void addParameter( const ALIstring& name, const ALIstring& valstr );
-  void setRandomSeed( const long seed );
+  void setRandomSeed( long seed );
   void addRandomGaussParameter( const ALIstring& name, const ALIstring& valMean, const ALIstring& valStdDev );
   void addRandomFlatParameter( const ALIstring& name, const ALIstring& valMean, const ALIstring& valInterval );
 

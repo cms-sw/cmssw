@@ -32,25 +32,25 @@ class L1GctInternHFData {
   /// destructor
   ~L1GctInternHFData();
 
-  static L1GctInternHFData fromConcRingSums(const uint16_t capBlock,
-					    const uint16_t capIndex,
-					    const int16_t bx,
-					    const uint32_t data);
+  static L1GctInternHFData fromConcRingSums(uint16_t capBlock,
+					    uint16_t capIndex,
+					    int16_t bx,
+					    uint32_t data);
   
-  static L1GctInternHFData fromConcBitCounts(const uint16_t capBlock,
-					     const uint16_t capIndex,
-					     const int16_t bx,
-					     const uint32_t data);
+  static L1GctInternHFData fromConcBitCounts(uint16_t capBlock,
+					     uint16_t capIndex,
+					     int16_t bx,
+					     uint32_t data);
   
-  static L1GctInternHFData fromWheelRingSums(const uint16_t capBlock,
-                                             const uint16_t capIndex,
-                                             const int16_t bx,
-                                             const uint32_t data);
+  static L1GctInternHFData fromWheelRingSums(uint16_t capBlock,
+                                             uint16_t capIndex,
+                                             int16_t bx,
+                                             uint32_t data);
   
-  static L1GctInternHFData fromWheelBitCounts(const uint16_t capBlock,
-                                              const uint16_t capIndex,
-                                              const int16_t bx,
-                                              const uint32_t data);
+  static L1GctInternHFData fromWheelBitCounts(uint16_t capBlock,
+                                              uint16_t capIndex,
+                                              int16_t bx,
+                                              uint32_t data);
 
   /// metadata
 
@@ -103,13 +103,13 @@ class L1GctInternHFData {
   void setType(L1GctInternHFDataType type) { type_ = type; }
 
   /// set value
-  void setValue(unsigned const i, uint16_t const val);
+  void setValue(unsigned i, uint16_t val);
 
   /// set the sum
-  void setEt(unsigned const i, uint16_t const et);
+  void setEt(unsigned i, uint16_t et);
 
   /// set the count
-  void setCount(unsigned const i, uint16_t const count);
+  void setCount(unsigned i, uint16_t count);
 
   void setData(uint32_t const data) { data_ = data; }
   

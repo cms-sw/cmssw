@@ -16,8 +16,8 @@
 class HcalCalibrationWidthsSet {
 public:
   HcalCalibrationWidthsSet();
-  const HcalCalibrationWidths& getCalibrationWidths(const DetId id) const;
-  void setCalibrationWidths(const DetId id, const HcalCalibrationWidths& ca);
+  const HcalCalibrationWidths& getCalibrationWidths(DetId id) const;
+  void setCalibrationWidths(DetId id, const HcalCalibrationWidths& ca);
   void clear();
   std::vector<DetId> getAllChannels() const;
 private:

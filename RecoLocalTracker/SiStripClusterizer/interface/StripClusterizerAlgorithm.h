@@ -84,7 +84,7 @@ class StripClusterizerAlgorithm {
 
   StripClusterizerAlgorithm() : qualityLabel(""), noise_cache_id(0), gain_cache_id(0), quality_cache_id(0) {}
 
-  Det findDetId(const uint32_t) const;
+  Det findDetId(uint32_t) const;
   bool isModuleBad(const uint32_t& id)  const { return qualityHandle->IsModuleBad( id ); }
   bool isModuleUsable(const uint32_t& id)  const { return qualityHandle->IsModuleUsable( id ); }
 

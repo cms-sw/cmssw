@@ -135,8 +135,8 @@ namespace npstat {
 
         //@{
         /** Shift both interval bounds by a constant */
-        Interval& operator+=(const Numeric value);
-        Interval& operator-=(const Numeric value);
+        Interval& operator+=(Numeric value);
+        Interval& operator-=(Numeric value);
         //@}
 
         /** Move the interval so that the midpoint ends up at 0 */

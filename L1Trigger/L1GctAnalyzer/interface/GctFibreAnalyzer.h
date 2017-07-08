@@ -40,10 +40,10 @@ class GctFibreAnalyzer : public edm::EDAnalyzer {
 
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
-  bool CheckFibreWord(const L1GctFibreWord fibre);
-  bool CheckForBC0(const L1GctFibreWord fibre);
-  void CheckLogicalID(const L1GctFibreWord fibre);
-  void CheckCounter(const L1GctFibreWord fibre);
+  bool CheckFibreWord(L1GctFibreWord fibre);
+  bool CheckForBC0(L1GctFibreWord fibre);
+  void CheckLogicalID(L1GctFibreWord fibre);
+  void CheckCounter(L1GctFibreWord fibre);
 
   edm::InputTag m_fibreSource;
   bool m_doLogicalID;

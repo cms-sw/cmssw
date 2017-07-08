@@ -81,8 +81,8 @@ public:
     /// for a L1 trigger object and a given quantity,
     /// return the real limits for a histogram given an arbitrary range
     const L1HistLimits& l1HistLimits(const L1GtObject& l1GtObject,
-            const std::string& quantity, const double histMinValue,
-            const double histMaxValue);
+            const std::string& quantity, double histMinValue,
+            double histMaxValue);
 
 
     /// for a L1 trigger object and a given quantity,

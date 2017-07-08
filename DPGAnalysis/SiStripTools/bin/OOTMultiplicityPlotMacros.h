@@ -10,10 +10,10 @@ class OOTSummary;
 
 OOTSummary* ComputeOOTFractionvsRun(TFile* ff, const char* itmodule, const char* ootmodule, const char* etmodule, const char* hname, OOTSummary* ootsumm=0);
 OOTSummary* ComputeOOTFractionvsFill(TFile* ff, const char* itmodule, const char* ootmodule, const char* etmodule, const char* hname, OOTSummary* ootsumm=0);
-OOTResult* ComputeOOTFraction(TFile* ff, const char* itmodule, const char* ootmodule, const char* etmodule, const int run, const char* hname, 
+OOTResult* ComputeOOTFraction(TFile* ff, const char* itmodule, const char* ootmodule, const char* etmodule, int run, const char* hname, 
 			      const bool& perFill=false);
-std::vector<int> FillingScheme(TFile* ff, const char* path, const float thr=0.);
-std::vector<int> FillingSchemeFromProfile(TFile* ff, const char* path, const char* hname, const float thr=0.);
+std::vector<int> FillingScheme(TFile* ff, const char* path, float thr=0.);
+std::vector<int> FillingSchemeFromProfile(TFile* ff, const char* path, const char* hname, float thr=0.);
 
 class OOTResult {
  public:

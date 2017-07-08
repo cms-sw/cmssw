@@ -332,17 +332,17 @@ public:
 
   /// Helper functions for the fetchInput() and process() methods
   /// fetch the protoJets from neighbour jetFinder
-  void fetchProtoJetsFromNeighbour(const fetchType ft);
+  void fetchProtoJetsFromNeighbour(fetchType ft);
   /// Sort the found jets. All jetFinders should call this in process().
   void sortJets();
   /// Fill the Et strip sums and Ht sum. All jetFinders should call this in process().
   void doEnergySums();
     
   /// Calculates total (raw) energy in a phi strip
-  etTotalType calcEtStrip(const UShort strip) const;
+  etTotalType calcEtStrip(UShort strip) const;
 
   /// Calculates total calibrated energy in jets (Ht) sum
-  etTotalType calcHtStrip(const UShort strip) const;
+  etTotalType calcHtStrip(UShort strip) const;
   
   /// Calculates scalar and vector sum of Et over input regions
   void doEtSums() ;

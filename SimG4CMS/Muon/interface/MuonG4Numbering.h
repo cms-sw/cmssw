@@ -34,10 +34,10 @@ class MuonG4Numbering {
   
  private:
 
-  const int getCopyNoLevel(const int);
-  const int getCopyNoSuperNo(const int);
-  const int getCopyNoBaseNo(const int);
-  const bool copyNoRelevant(const int);
+  const int getCopyNoLevel(int);
+  const int getCopyNoSuperNo(int);
+  const int getCopyNoBaseNo(int);
+  const bool copyNoRelevant(int);
 
   int theLevelPart;
   int theSuperPart;

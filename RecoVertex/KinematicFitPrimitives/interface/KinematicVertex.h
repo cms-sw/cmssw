@@ -35,14 +35,14 @@ public:
  * Constructor with vertex state, chi2 and ndf.
  * Previous state of the vertex pointer is set to 0.
  */
- KinematicVertex(const VertexState state, float totalChiSq, float degreesOfFr);
+ KinematicVertex(VertexState state, float totalChiSq, float degreesOfFr);
 
 /**
  * Constructor with previous (before constraint)
  * state of the vertex
  */
- KinematicVertex(const VertexState state,
-             const ReferenceCountingPointer<KinematicVertex> prVertex,
+ KinematicVertex(VertexState state,
+             ReferenceCountingPointer<KinematicVertex> prVertex,
                                     float totalChiSq, float degreesOfFr);
 
 /**
@@ -60,7 +60,7 @@ public:
  */
  bool operator==(const KinematicVertex& other) const;
 
- bool operator==(const ReferenceCountingPointer<KinematicVertex> other) const;
+ bool operator==(ReferenceCountingPointer<KinematicVertex> other) const;
 
 /**
  * comparison by adress operator

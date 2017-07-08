@@ -17,7 +17,7 @@ class Phase2EndcapRingBuilder {
   Phase2EndcapRingBuilder(){};
   Phase2EndcapRing* build(const GeometricDet* aPhase2EndcapRing,
 			    const TrackerGeometry* theGeomDetGeometry,
-			    const bool useBrothers = true) __attribute__ ((cold));
+			    bool useBrothers = true) __attribute__ ((cold));
 
   
 };

@@ -16,8 +16,8 @@ public:
    */
   IterativeHelixExtrapolatorToLine (const PositionType& point,
 				    const DirectionType& direction,
-				    const float curvature,
-				    const PropagationDirection propDir = anyDirection);
+				    float curvature,
+				    PropagationDirection propDir = anyDirection);
   // destructor
   virtual ~IterativeHelixExtrapolatorToLine() {}
 

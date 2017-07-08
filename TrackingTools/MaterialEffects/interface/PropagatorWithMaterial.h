@@ -35,8 +35,8 @@ public:
    *  default neglected), but assuming that the track Pt will never fall
    *  below ptMin.
    */
-  PropagatorWithMaterial (PropagationDirection dir, const float mass,
-			  const MagneticField * mf=0,const float maxDPhi=1.6,
+  PropagatorWithMaterial (PropagationDirection dir, float mass,
+			  const MagneticField * mf=0,float maxDPhi=1.6,
 			  bool useRungeKutta=false, float ptMin=-1.,bool useOldGeoPropLogic=true);
 
   virtual ~PropagatorWithMaterial();

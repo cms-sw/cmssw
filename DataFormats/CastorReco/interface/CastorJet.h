@@ -21,7 +21,7 @@ namespace reco {
     CastorJet() : energycal_(0.) { }
 
     /// constructor from values
-    CastorJet(const double energycal, const CastorClusterRef& usedCluster);
+    CastorJet(double energycal, const CastorClusterRef& usedCluster);
 
     /// destructor
     virtual ~CastorJet();

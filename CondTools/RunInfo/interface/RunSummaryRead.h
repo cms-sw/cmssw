@@ -19,7 +19,7 @@ public:
    virtual ~RunSummaryRead();
    void run();
 
-   RunSummary readData(const std::string & table, const std::string & column, const int r_number );
+   RunSummary readData(const std::string & table, const std::string & column, int r_number );
  
 private:
   std::string m_tableToRead;

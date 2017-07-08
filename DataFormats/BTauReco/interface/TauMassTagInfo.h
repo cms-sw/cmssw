@@ -32,7 +32,7 @@ namespace reco {
                                    double signal_cone, double cluster_track_cone, 
                                    double m_cut) const;
     
-    void  setIsolatedTauTag(const IsolatedTauTagInfoRef);
+    void  setIsolatedTauTag(IsolatedTauTagInfoRef);
     const IsolatedTauTagInfoRef& getIsolatedTauTag() const;
 
     void storeClusterTrackCollection(reco::BasicClusterRef clusterRef,float dr);

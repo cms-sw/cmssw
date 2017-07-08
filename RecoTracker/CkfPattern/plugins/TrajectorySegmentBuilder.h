@@ -66,7 +66,7 @@ public:
 
   /// new segments within layer
   //std::vector<Trajectory> segments (const TSOS startingState);
-  TempTrajectoryContainer segments (const TSOS startingState);
+  TempTrajectoryContainer segments (TSOS startingState);
 
 private:
   /// update of a trajectory with a hit

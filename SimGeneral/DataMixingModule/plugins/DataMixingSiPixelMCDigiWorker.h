@@ -66,7 +66,7 @@ namespace edm
 
       void putSiPixel(edm::Event &e, edm::EventSetup const& iSetup, std::vector<PileupSummaryInfo> &ps, int &bs) ;
       void addSiPixelSignals(const edm::Event &e); 
-      void addSiPixelPileups(const int bcr, const edm::EventPrincipal*,unsigned int EventId, ModuleCallingContext const*);
+      void addSiPixelPileups(int bcr, const edm::EventPrincipal*,unsigned int EventId, ModuleCallingContext const*);
 
       void setPileupInfo(const std::vector<PileupSummaryInfo> &ps, const int &bs); //this sets pu_scale
 

@@ -154,7 +154,7 @@ class KinematicTree : public ReferenceCounted
  * to the top of the tree if not 
  * found (false)
  */
- bool findParticle(const RefCountedKinematicParticle part) const;
+ bool findParticle(RefCountedKinematicParticle part) const;
  
 /**
  * Pointer goes to the particle
@@ -163,7 +163,7 @@ class KinematicTree : public ReferenceCounted
  * Or pointer stays at the top of teh tree
  * if search is unsuccessfull (false case). 
  */
- bool findDecayVertex(const RefCountedKinematicVertex vert) const;
+ bool findDecayVertex(RefCountedKinematicVertex vert) const;
  bool findDecayVertex(KinematicVertex * vert) const;
 
 /**

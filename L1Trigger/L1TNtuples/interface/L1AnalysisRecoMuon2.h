@@ -50,8 +50,8 @@ namespace L1Analysis
     //void Print(std::ostream &os = std::cout) const;
     void SetMuon(const edm::Event& event,
                  const edm::EventSetup& setup,
-                 const edm::Handle<reco::MuonCollection> muons,
-                 const edm::Handle<reco::VertexCollection> vertices,
+                 edm::Handle<reco::MuonCollection> muons,
+                 edm::Handle<reco::VertexCollection> vertices,
 		 double METx, double METy,
                  unsigned maxMuon);
 

@@ -50,8 +50,8 @@ private:
   EcalTrigTowerDetId         create_TTDetId (TCCinput);
   EcalTriggerPrimitiveSample create_TPSample(TCCinput, const edm::EventSetup&);
   EcalTriggerPrimitiveSample create_TPSampleTcp(TCCinput, const edm::EventSetup&);
-  int SMidToTCCid(const int) const;
-  void getLUT(unsigned int * lut, const int towerId,  const edm::EventSetup&) const ;
+  int SMidToTCCid(int) const;
+  void getLUT(unsigned int * lut, int towerId,  const edm::EventSetup&) const ;
 
   TCCInputData inputdata_[N_SM];
 

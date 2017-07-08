@@ -19,13 +19,13 @@ namespace reco {
     TransientTrackFromFTS(); 
 
     TransientTrackFromFTS(const FreeTrajectoryState & fts);
-    TransientTrackFromFTS(const FreeTrajectoryState & fts, const double time, const double dtime);
+    TransientTrackFromFTS(const FreeTrajectoryState & fts, double time, double dtime);
     
     TransientTrackFromFTS(const FreeTrajectoryState & fts,
 	const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry);
     TransientTrackFromFTS(const FreeTrajectoryState & fts,
-                          const double time,
-                          const double dtime, 
+                          double time,
+                          double dtime, 
                           const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry);
 
     TransientTrackFromFTS( const TransientTrackFromFTS & tt );

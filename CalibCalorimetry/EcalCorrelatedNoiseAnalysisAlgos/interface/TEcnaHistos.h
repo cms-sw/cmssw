@@ -1199,11 +1199,11 @@ class TEcnaHistos : public TObject {
   Int_t    SetHistoFrameYminYmaxFromMemo(TH1D*,   const TString&);
   Int_t    SetGraphFrameYminYmaxFromMemo(TGraph*, const TString&);
 
-  Double_t GetYminFromHistoFrameAndMarginValue(TH1D*, const Double_t);
-  Double_t GetYmaxFromHistoFrameAndMarginValue(TH1D*, const Double_t);
+  Double_t GetYminFromHistoFrameAndMarginValue(TH1D*, Double_t);
+  Double_t GetYmaxFromHistoFrameAndMarginValue(TH1D*, Double_t);
 
-  Double_t GetYminFromGraphFrameAndMarginValue(TGraph*, const Double_t);
-  Double_t GetYmaxFromGraphFrameAndMarginValue(TGraph*, const Double_t);
+  Double_t GetYminFromGraphFrameAndMarginValue(TGraph*, Double_t);
+  Double_t GetYmaxFromGraphFrameAndMarginValue(TGraph*, Double_t);
 
   //.................................. 1D and 2D histo min,max default values
   void SetAllYminYmaxMemoFromDefaultValues();

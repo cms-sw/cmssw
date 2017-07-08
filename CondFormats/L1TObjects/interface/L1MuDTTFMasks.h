@@ -50,21 +50,21 @@ class L1MuDTTFMasks {
     /// reset parameters to zero
     void reset();
 
-    void set_inrec_chdis_st1(int wh, int sc, const bool val);
+    void set_inrec_chdis_st1(int wh, int sc, bool val);
     bool get_inrec_chdis_st1(int wh, int sc) const;
-    void set_inrec_chdis_st2(int wh, int sc, const bool val);
+    void set_inrec_chdis_st2(int wh, int sc, bool val);
     bool get_inrec_chdis_st2(int wh, int sc) const;
-    void set_inrec_chdis_st3(int wh, int sc, const bool val);
+    void set_inrec_chdis_st3(int wh, int sc, bool val);
     bool get_inrec_chdis_st3(int wh, int sc) const;
-    void set_inrec_chdis_st4(int wh, int sc, const bool val);
+    void set_inrec_chdis_st4(int wh, int sc, bool val);
     bool get_inrec_chdis_st4(int wh, int sc) const;
-    void set_inrec_chdis_csc(int wh, int sc, const bool val);
+    void set_inrec_chdis_csc(int wh, int sc, bool val);
     bool get_inrec_chdis_csc(int wh, int sc) const;
-    void set_etsoc_chdis_st1(int wh, int sc, const bool val);
+    void set_etsoc_chdis_st1(int wh, int sc, bool val);
     bool get_etsoc_chdis_st1(int wh, int sc) const;
-    void set_etsoc_chdis_st2(int wh, int sc, const bool val);
+    void set_etsoc_chdis_st2(int wh, int sc, bool val);
     bool get_etsoc_chdis_st2(int wh, int sc) const;
-    void set_etsoc_chdis_st3(int wh, int sc, const bool val);
+    void set_etsoc_chdis_st3(int wh, int sc, bool val);
     bool get_etsoc_chdis_st3(int wh, int sc) const;
 
     void print() const;

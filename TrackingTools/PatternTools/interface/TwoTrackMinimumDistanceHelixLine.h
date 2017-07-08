@@ -31,7 +31,7 @@ public:
 
   bool calculate( const GlobalTrajectoryParameters &,
       const GlobalTrajectoryParameters &,
-      const float qual=.0001 ); // retval=true? error occured.
+      float qual=.0001 ); // retval=true? error occured.
 
   /**
    * Returns the PCA's on the two trajectories. The first point lies on the

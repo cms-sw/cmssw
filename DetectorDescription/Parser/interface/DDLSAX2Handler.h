@@ -63,13 +63,13 @@ class DDLSAX2Handler : public XERCES_CPP_NAMESPACE::DefaultHandler
   //  Handlers for the SAX ContentHandler interface
   // -----------------------------------------------------------------------
 
-  virtual void startElement(const XMLCh* const uri, const XMLCh* const localname,
-			    const XMLCh* const qname, const Attributes& attrs) override;
-  virtual void endElement(const XMLCh* const uri, const XMLCh* const localname,
-			  const XMLCh* const qname) override;
-  virtual void characters(const XMLCh* const chars, const XMLSize_t length) override;
-  virtual void comment (const XMLCh *const chars, const XMLSize_t length ) override;
-  virtual void ignorableWhitespace(const XMLCh* const chars, const XMLSize_t length) override;
+  virtual void startElement(const XMLCh* uri, const XMLCh* localname,
+			    const XMLCh* qname, const Attributes& attrs) override;
+  virtual void endElement(const XMLCh* uri, const XMLCh* localname,
+			  const XMLCh* qname) override;
+  virtual void characters(const XMLCh* chars, XMLSize_t length) override;
+  virtual void comment (const XMLCh *chars, XMLSize_t length ) override;
+  virtual void ignorableWhitespace(const XMLCh* chars, XMLSize_t length) override;
   virtual void resetDocument() override;
 
   // -----------------------------------------------------------------------

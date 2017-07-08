@@ -31,7 +31,7 @@ public:
   static const int NAddress, NData;
 
   /// Constructor for use with emulator
-  L1GctHtMissLut(const L1CaloEtScale* const scale, const double lsb);
+  L1GctHtMissLut(const L1CaloEtScale* scale, double lsb);
   /// Default constructor
   L1GctHtMissLut();
   /// Copy constructor
@@ -60,7 +60,7 @@ public:
 protected:
   
 
-  virtual uint16_t value (const uint16_t lutAddress) const;
+  virtual uint16_t value (uint16_t lutAddress) const;
 
 private:
 

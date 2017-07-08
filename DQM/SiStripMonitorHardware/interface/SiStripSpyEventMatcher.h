@@ -75,20 +75,20 @@ namespace sistrip {
       //set up the internal map of eventID, to apvAddress
       void initialize();
       //check if there is any data for an event. Returns NULL if not or a pointer to a list of matches if they exist
-      const SpyEventList* matchesForEvent(const uint32_t eventId, const uint8_t apvAddress) const;
+      const SpyEventList* matchesForEvent(uint32_t eventId, uint8_t apvAddress) const;
       //get data for matching FEDs (non-const because reading events from the source modifies it)
-      void getMatchedCollections(const uint32_t eventId, const uint8_t apvAddress, const SpyEventList* matchingEvents,
+      void getMatchedCollections(uint32_t eventId, uint8_t apvAddress, const SpyEventList* matchingEvents,
                                  const SiStripFedCabling& cabling, SpyDataCollections& collectionsToCreate);
       //helper for getMatchedCollections() 
-      void getCollections(const edm::EventPrincipal& event, const uint32_t eventId,
-                          const uint8_t apvAddress, const SiStripFedCabling& cabling,
+      void getCollections(const edm::EventPrincipal& event, uint32_t eventId,
+                          uint8_t apvAddress, const SiStripFedCabling& cabling,
                           MatchingOutput& matchingOutput);
 
     private:
       class EventKey
       {
         public:
-          EventKey(const uint32_t eventId, const uint8_t apvAddress);
+          EventKey(uint32_t eventId, uint8_t apvAddress);
           uint32_t eventId() const { return eventId_; }
           uint8_t apvAddress() const { return apvAddress_; }
           bool operator < (const EventKey& rhs) const;
@@ -103,7 +103,7 @@ namespace sistrip {
       {
         public:
           CountersWrapper(const Counters* theCounters);
-          CountersWrapper(Counters* theCounters, const bool takeOwnership);
+          CountersWrapper(Counters* theCounters, bool takeOwnership);
           ~CountersWrapper();
           const Counters::value_type operator [] (const size_t i) const { return (*pConst)[i]; };
           const Counters::value_type at(const size_t i) const { return pConst->at(i); };
@@ -123,9 +123,9 @@ namespace sistrip {
       std::unique_ptr<Source> constructSource(const edm::ParameterSet& sourceConfig);
       void addNextEventToMap(const edm::EventPrincipal& nextSpyEvent);
       template <class T> static const T* getProduct(const edm::EventPrincipal& event, const edm::InputTag& tag);
-      static CountersPtr getCounters(const edm::EventPrincipal& event, const edm::InputTag& tag, const bool mapKeyIsByFedID = true);
+      static CountersPtr getCounters(const edm::EventPrincipal& event, const edm::InputTag& tag, bool mapKeyIsByFedID = true);
       void operator()(const edm::EventPrincipal& event);
-      static void findMatchingFeds(const uint32_t eventId, const uint8_t apvAddress,
+      static void findMatchingFeds(uint32_t eventId, uint8_t apvAddress,
                                    CountersPtr totalEventCounters,
                                    CountersPtr l1aCounters,
                                    CountersPtr apvAddresses,

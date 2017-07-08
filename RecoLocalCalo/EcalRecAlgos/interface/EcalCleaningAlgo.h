@@ -49,7 +49,7 @@ private:
              | | |               */
   float e6e2 (const DetId& id, const EcalRecHitCollection& rhs);
 
-  float recHitE( const DetId id, 
+  float recHitE( DetId id, 
 		 const EcalRecHitCollection &recHits,
 		 bool  useTimingInfo);
   

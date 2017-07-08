@@ -69,45 +69,45 @@ public:
 	const edm::EDGetTokenT<BXVector<l1t::Tau>>&,
 	const edm::EDGetTokenT<BXVector<l1t::Jet>>&,
 	const edm::EDGetTokenT<BXVector<l1t::EtSum>>&,
-        const bool receiveEG, const int nrL1EG,
-	const bool receiveTau, const int nrL1Tau,	
-	const bool receiveJet, const int nrL1Jet,
-	const bool receiveEtSums);
+        bool receiveEG, int nrL1EG,
+	bool receiveTau, int nrL1Tau,	
+	bool receiveJet, int nrL1Jet,
+	bool receiveEtSums);
 
     void receiveMuonObjectData(
         edm::Event&,
         const edm::EDGetTokenT<BXVector<l1t::Muon> >&, 
-        const bool receiveMu, const int nrL1Mu);
+        bool receiveMu, int nrL1Mu);
 
     void receiveExternalData(
         edm::Event&,
         const edm::EDGetTokenT<BXVector<GlobalExtBlk> >&, 
-        const bool receiveExt);
+        bool receiveExt);
 
     /// initialize the class (mainly reserve)
-    void init(const int numberPhysTriggers, const int nrL1Mu, const int nrL1EG, const int nrL1Tau, const int nrL1Jet, 
+    void init(int numberPhysTriggers, int nrL1Mu, int nrL1EG, int nrL1Tau, int nrL1Jet, 
 	      int bxFirst, int bxLast);
 
     /// run the uGT GTL (Conditions and Algorithms)
     void runGTL(edm::Event& iEvent, const edm::EventSetup& evSetup, const TriggerMenu* m_l1GtMenu,
-        const bool produceL1GtObjectMapRecord,
-        const int iBxInEvent, std::unique_ptr<GlobalObjectMapRecord>& gtObjectMapRecord, //GTO
-        const unsigned int numberPhysTriggers,
-        const int nrL1Mu,
-        const int nrL1EG,
-        const int nrL1Tau,	
-        const int nrL1Jet);
+        bool produceL1GtObjectMapRecord,
+        int iBxInEvent, std::unique_ptr<GlobalObjectMapRecord>& gtObjectMapRecord, //GTO
+        unsigned int numberPhysTriggers,
+        int nrL1Mu,
+        int nrL1EG,
+        int nrL1Tau,	
+        int nrL1Jet);
 
     /// run the uGT FDL (Apply Prescales and Veto)
     void runFDL(edm::Event& iEvent, 
-        const int iBxInEvent,
-        const int totalBxInEvent,
-        const unsigned int numberPhysTriggers,
+        int iBxInEvent,
+        int totalBxInEvent,
+        unsigned int numberPhysTriggers,
         const std::vector<int>& prescaleFactorsAlgoTrig,
 	const std::vector<unsigned int>& triggerMaskAlgoTrig,
 	const std::vector<int>& triggerMaskVetoAlgoTrig,
-        const bool algorithmTriggersUnprescaled,
-        const bool algorithmTriggersUnmasked );
+        bool algorithmTriggersUnprescaled,
+        bool algorithmTriggersUnmasked );
 
 
      /// Fill the Daq Records
@@ -125,7 +125,7 @@ public:
     void resetExternal();
 
     /// print received Muon dataWord
-    void printGmtData(const int iBxInEvent) const;
+    void printGmtData(int iBxInEvent) const;
 
     /// return decision
     inline const std::bitset<GlobalAlgBlk::maxPhysicsTriggers>& getDecisionWord() const

@@ -55,15 +55,15 @@ public:
     /// converted index returned by reference
     /// method return true, if initial index within scale size
     /// otherwise (hardware error), return false
-    const bool convertPhiIndex(const unsigned int pairIndex,
-            const unsigned int positionPair, const unsigned int initialIndex,
+    const bool convertPhiIndex(unsigned int pairIndex,
+            unsigned int positionPair, unsigned int initialIndex,
             unsigned int& convertedIndex) const ;
 
     /// convert the eta index initialIndex for a L1GtObject object to common scale
     /// converted index returned by reference
     /// method return true, if initial index within scale size
     /// otherwise (hardware error), return false
-    const bool convertEtaIndex(const L1GtObject&, const unsigned int initialIndex,
+    const bool convertEtaIndex(const L1GtObject&, unsigned int initialIndex,
             unsigned int& convertedIndex) const;
 
     /// return the number of phi bins for a GT object
@@ -75,11 +75,11 @@ public:
 
     /// return the number of phi bins for a pair of GT objects, according to conversion rules,
     /// when the index of the pair is used
-    const unsigned int gtObjectNrBinsPhi(const unsigned int) const;
+    const unsigned int gtObjectNrBinsPhi(unsigned int) const;
 
     /// perform all scale conversions
     void convertL1Scales(const L1CaloGeometry*, const L1MuTriggerScales*,
-            const int, const int);
+            int, int);
 
     inline void setVerbosity(const int verbosity) {
         m_verbosity = verbosity;

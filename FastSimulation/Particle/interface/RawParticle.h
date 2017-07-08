@@ -51,13 +51,13 @@ public:
   /** Construct from a fourvector and a PID.
    *  The fourvector and PID are taken for the particle, the vertex is set to 0.
    */
-  RawParticle(const int id, 
+  RawParticle(int id, 
 	      const XYZTLorentzVector& p);
 
   /** Construct from a fourvector and a name.
    *  The fourvector and name are taken for the particle, the vertex is set to 0.
    */
-  RawParticle(const std::string name, 
+  RawParticle(std::string name, 
 	      const XYZTLorentzVector& p);
 
   /** Construct from 2 fourvectors.
@@ -83,13 +83,13 @@ public:
    *  This should be a standard HEP-PID number. It will be used to deduce the 
    *  name and the properties of the particle from a particle data table.
    */
-  void setID(const int id); 
+  void setID(int id); 
 
   /** Set identifier for this particle.
    *  This should be a standard HEP-PID name. It will be used to deduce the 
    *  particle properties from a particle data table.
    */
-  void setID(const std::string name); 
+  void setID(std::string name); 
 
   /** Set the status of this particle.
    *  The coding follows PYTHIAs convention:
@@ -104,7 +104,7 @@ public:
   void setCharge(float q);
 
   /// set the time of creation
-  void setT(const double t);
+  void setT(double t);
 
   ///  set the vertex
   void setVertex(const XYZTLorentzVector& vtx); 

@@ -4,7 +4,7 @@
 #include "DataFormats/Math/interface/approx_log.h"
 
 void oldMUcompute (const TrajectoryStateOnSurface& TSoS, 
-		   const PropagationDirection propDir, double mass, double ptmin);
+		   PropagationDirection propDir, double mass, double ptmin);
 
 //#define DBG_MSU
 

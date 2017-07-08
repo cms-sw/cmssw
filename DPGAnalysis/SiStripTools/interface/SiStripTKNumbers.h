@@ -12,16 +12,16 @@ class SiStripTKNumbers {
   SiStripTKNumbers();
 
   int  nmodules(const SiStripDetId& detid) const;
-  int  nmodules(const int id) const;
+  int  nmodules(int id) const;
 
   int  nfibres(const SiStripDetId& detid) const;
-  int  nfibres(const int id) const;
+  int  nfibres(int id) const;
 
   int  napvs(const SiStripDetId& detid) const;
-  int  napvs(const int id) const;
+  int  napvs(int id) const;
 
   int  nstrips(const SiStripDetId& detid) const;
-  int  nstrips(const int id) const;
+  int  nstrips(int id) const;
   
  private:
   

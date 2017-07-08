@@ -48,7 +48,7 @@ namespace sistrip {
     virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
     virtual void endJob() override;
 
-    void writeRunInFile(const unsigned int aRunNumber);
+    void writeRunInFile(unsigned int aRunNumber);
  
     //name of the output file containing the run numbers
     //of spy runs

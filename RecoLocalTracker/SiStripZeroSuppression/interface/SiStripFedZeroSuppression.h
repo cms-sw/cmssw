@@ -75,7 +75,7 @@ class SiStripFedZeroSuppression {
   std::vector<float>     highThrSN_, lowThrSN_; // thresholds as S/N
   std::vector<float>     noises_;
   
-  void fillThresholds_(const uint32_t detID, size_t size) ;
+  void fillThresholds_(uint32_t detID, size_t size) ;
   
 };
 #endif

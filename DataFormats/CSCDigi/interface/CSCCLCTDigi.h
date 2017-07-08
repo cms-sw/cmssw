@@ -17,9 +17,9 @@ class CSCCLCTDigi {
  public:
 
   /// Constructors
-  CSCCLCTDigi(const int valid, const int quality, const int pattern,
-	      const int striptype, const int bend, const int strip,
-	      const int cfeb, const int bx, const int trknmb = 0, const int fullbx=0);
+  CSCCLCTDigi(int valid, int quality, int pattern,
+	      int striptype, int bend, int strip,
+	      int cfeb, int bx, int trknmb = 0, int fullbx=0);
   /// default
   CSCCLCTDigi();
 

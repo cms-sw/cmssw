@@ -40,7 +40,7 @@ public:
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
-   void initStdGeoElements(const FWViewType::EType id);
+   void initStdGeoElements(FWViewType::EType id);
 
    void showPixelBarrel( bool );
    void showPixelEndcap( bool );

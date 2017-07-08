@@ -39,7 +39,7 @@ class HDetIdAssociator{
    // find DetIds arround given direction
    // idR is a number of the adjacent bins to retrieve 
    virtual std::set<DetId> getDetIdsCloseToAPoint(const GlobalPoint&, 
-						  const int idR = 0);
+						  int idR = 0);
    // dR is a cone radius in eta-phi
    virtual std::set<DetId> getDetIdsCloseToAPoint(const GlobalPoint& point,
 						  const double dR = 0)
@@ -54,7 +54,7 @@ class HDetIdAssociator{
    
    virtual std::set<DetId> getDetIdsInACone(const std::set<DetId>&,
 					    const std::vector<GlobalPoint>& trajectory,
-					    const double );
+					    double );
    virtual std::set<DetId> getCrossedDetIds(const std::set<DetId>&,
 					    const std::vector<GlobalPoint>& trajectory);
    virtual std::set<DetId> getMaxEDetId(const std::set<DetId>&,

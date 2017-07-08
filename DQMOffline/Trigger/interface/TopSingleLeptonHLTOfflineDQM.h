@@ -56,7 +56,7 @@ namespace HLTOfflineDQMTopSingleLepton {
       /// book histograms in subdirectory _directory_
       void book(DQMStore::IBooker& store_);
       /// fill monitor histograms with electronId and jetCorrections
-      void fill(const edm::Event& event, const edm::EventSetup& setup, const HLTConfigProvider& hltConfig, const std::vector<std::string> triggerPaths);
+      void fill(const edm::Event& event, const edm::EventSetup& setup, const HLTConfigProvider& hltConfig, std::vector<std::string> triggerPaths);
 
     private:
       /// deduce monitorPath from label, the label is expected

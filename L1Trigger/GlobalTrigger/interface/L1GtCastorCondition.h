@@ -39,7 +39,7 @@ public:
     L1GtCastorCondition();
 
     ///     from base template condition (from event setup usually)
-    L1GtCastorCondition(const L1GtCondition*, const bool result);
+    L1GtCastorCondition(const L1GtCondition*, bool result);
 
     // copy constructor
     L1GtCastorCondition(const L1GtCastorCondition&);

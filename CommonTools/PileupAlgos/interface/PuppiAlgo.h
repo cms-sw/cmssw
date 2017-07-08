@@ -13,7 +13,7 @@ public:
   //Computing Mean and RMS
   void   reset();
   void   fixAlgoEtaBin(int i_eta );
-  void   add(const fastjet::PseudoJet &iParticle,const double &iVal,const unsigned int iAlgo);
+  void   add(const fastjet::PseudoJet &iParticle,const double &iVal,unsigned int iAlgo);
   void   computeMedRMS(const unsigned int &iAlgo,const double &iPVFrac);
   //Get the Weight
   double compute(std::vector<double> const &iVals,double iChi2) const;

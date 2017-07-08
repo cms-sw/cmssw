@@ -51,7 +51,7 @@ public:
 						      const RecHitsSortedInPhi & innerHitsMap,
 						      const RecHitsSortedInPhi & outerHitsMap,
 						      const edm::EventSetup& iSetup,
-						      const unsigned int theMaxElement,
+						      unsigned int theMaxElement,
 						      HitDoublets & result);
 
   

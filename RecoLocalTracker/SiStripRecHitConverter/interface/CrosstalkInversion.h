@@ -12,16 +12,16 @@ namespace reco {
 
   class InverseCrosstalkMatrix {
   public:
-    InverseCrosstalkMatrix(const unsigned N, const float x);
-    float operator()(const unsigned i, const unsigned j) const;
+    InverseCrosstalkMatrix(unsigned N, float x);
+    float operator()(unsigned i, unsigned j) const;
     
   private:
-    float element(const unsigned, const unsigned) const;
+    float element(unsigned, unsigned) const;
     const unsigned N;
     const double sq, lambdaP, lambdaM, denominator;
     
   public:
-    static std::vector<stats_t<float> > unfold(const SiStripCluster& q, const float x);
+    static std::vector<stats_t<float> > unfold(const SiStripCluster& q, float x);
     
   };
 }

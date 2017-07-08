@@ -48,10 +48,10 @@ class HGCalTriggerGeomTester : public edm::EDAnalyzer
     private:
         void fillTriggerGeometry(const HGCalTriggerGeometryBase::es_info& );
         void checkConsistency(const HGCalTriggerGeometryBase::es_info& );
-        void setTreeModuleSize(const size_t n);
-        void setTreeModuleCellSize(const size_t n);
-        void setTreeTriggerCellSize(const size_t n);
-        void setTreeTriggerCellNeighborSize(const size_t n);
+        void setTreeModuleSize(size_t n);
+        void setTreeModuleCellSize(size_t n);
+        void setTreeTriggerCellSize(size_t n);
+        void setTreeTriggerCellNeighborSize(size_t n);
 
         edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry_;
         edm::Service<TFileService> fs_;

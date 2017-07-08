@@ -13,7 +13,7 @@ public:
   virtual ~FastTimeParametersFromDD() {}
 
   bool build(const DDCompactView*,  FastTimeParameters&, const std::string&,
-	     const int);
+	     int);
 private:
   std::vector<double> getDDDArray(const std::string &, const DDsvalues_type &);
 };

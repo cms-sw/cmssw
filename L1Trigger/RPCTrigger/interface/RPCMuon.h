@@ -18,7 +18,7 @@ public:
   RPCMuon();
 
   ///Constructor. All parameters are set.
-  RPCMuon(const RPCConst::l1RpcConeCrdnts coneCrdnts,
+  RPCMuon(RPCConst::l1RpcConeCrdnts coneCrdnts,
           int ptCode, int quality, int sign, int patternNum, unsigned short firedPlanes);
   
   ///Constructor.

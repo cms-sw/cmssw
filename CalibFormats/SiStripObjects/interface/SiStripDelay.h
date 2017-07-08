@@ -41,11 +41,11 @@ class SiStripDelay
     fillNewDelay(baseDelay, sumSign, recordLabelPair);
   }
 
-  void fillNewDelay(const SiStripBaseDelay& baseDelay, const int sumSign,
+  void fillNewDelay(const SiStripBaseDelay& baseDelay, int sumSign,
 		    const std::pair<std::string, std::string> & recordLabelPair);
 
   /// Return the delay combining all the baseDelays
-  float getDelay(const uint32_t detId) const;
+  float getDelay(uint32_t detId) const;
 
   /// Builds the boost::unordered_map
   bool makeDelay();

@@ -39,7 +39,7 @@ public:
     L1GtBptxCondition();
 
     ///     from base template condition (from event setup usually)
-    L1GtBptxCondition(const L1GtCondition*, const bool result);
+    L1GtBptxCondition(const L1GtCondition*, bool result);
 
     // copy constructor
     L1GtBptxCondition(const L1GtBptxCondition&);

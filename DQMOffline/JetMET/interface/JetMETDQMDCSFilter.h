@@ -25,7 +25,7 @@ class JetMETDQMDCSFilter {
 
  public:
   JetMETDQMDCSFilter( const edm::ParameterSet &, edm::ConsumesCollector&);
-  JetMETDQMDCSFilter( const std::string & detectorTypes, edm::ConsumesCollector&, const bool verbose = false, const bool alwaysPass = false );
+  JetMETDQMDCSFilter( const std::string & detectorTypes, edm::ConsumesCollector&, bool verbose = false, bool alwaysPass = false );
   ~JetMETDQMDCSFilter();
   bool filter(const edm::Event& evt, const edm::EventSetup& es);
   bool passPIX, passSiStrip, passECAL, passHBHE, passHF, passHO, passES, passMuon;

@@ -47,9 +47,9 @@ class TH2Analyzer : public TObject {
 
   void SetHisto( const TH2* h ) {hist2D_ = h;}
 
-  void Eval(const int rebinFactor);
-  void Eval(const int rebinFactor, const int binxmin, const int binxmax,
-	    const bool cst_binning);
+  void Eval(int rebinFactor);
+  void Eval(int rebinFactor, int binxmin, int binxmax,
+	    bool cst_binning);
   
   TH1D* Average() { return average_; }
   TH1D* RMS() { return RMS_; }
@@ -65,7 +65,7 @@ class TH2Analyzer : public TObject {
   void ProcessSlices(  const TH2D* histo );
 
   // no need for const, because i is copied
-  void ProcessSlice(const int i, TH1D* histo ) const;
+  void ProcessSlice(int i, TH1D* histo ) const;
 
   const TH2* hist2D_;
   TH2D*      rebinnedHist2D_;

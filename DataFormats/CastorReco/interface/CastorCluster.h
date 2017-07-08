@@ -29,8 +29,8 @@ namespace reco {
     depth_(0.), fhot_(0.), sigmaz_(0.) { }
 
     /// constructor from values
-    CastorCluster(const double energy, const ROOT::Math::XYZPoint& position, const double emEnergy, const double hadEnergy, const double fem, 
-		  const double width, const double depth, const double fhot, const double sigmaz, const CastorTowerRefVector& usedTowers);
+    CastorCluster(double energy, const ROOT::Math::XYZPoint& position, double emEnergy, double hadEnergy, double fem, 
+		  double width, double depth, double fhot, double sigmaz, const CastorTowerRefVector& usedTowers);
 
 
     /// destructor

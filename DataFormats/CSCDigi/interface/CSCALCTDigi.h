@@ -17,9 +17,9 @@ class CSCALCTDigi {
  public:
 
   /// Constructors
-  CSCALCTDigi(const int valid, const int quality, const int accel,
-	      const int patternb, const int keywire, const int bx,
-	      const int trknmb = 0);
+  CSCALCTDigi(int valid, int quality, int accel,
+	      int patternb, int keywire, int bx,
+	      int trknmb = 0);
   /// default
   CSCALCTDigi();
 

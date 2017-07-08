@@ -34,18 +34,18 @@ public:
   gctTestUsingLhcData();
   ~gctTestUsingLhcData();
 
-  std::vector<L1CaloRegion> loadEvent(const edm::Event& iEvent, const int16_t bx);
+  std::vector<L1CaloRegion> loadEvent(const edm::Event& iEvent, int16_t bx);
 
   void checkHwResults(const L1GlobalCaloTrigger* gct, const edm::Event& iEvent);
   void checkEmResults(const L1GlobalCaloTrigger* gct, const edm::Event& iEvent);
 
 private:
 
-  bool checkResults(const L1GlobalCaloTrigger* gct, const edm::Event& iEvent, const edm::InputTag tag);
+  bool checkResults(const L1GlobalCaloTrigger* gct, const edm::Event& iEvent, edm::InputTag tag);
 
-  bool checkJets   (const L1GlobalCaloTrigger* gct, const edm::Event& iEvent, const edm::InputTag tag);
-  bool checkEtSums (const L1GlobalCaloTrigger* gct, const edm::Event& iEvent, const edm::InputTag tag);
-  bool checkHtSums (const L1GlobalCaloTrigger* gct, const edm::Event& iEvent, const edm::InputTag tag);
+  bool checkJets   (const L1GlobalCaloTrigger* gct, const edm::Event& iEvent, edm::InputTag tag);
+  bool checkEtSums (const L1GlobalCaloTrigger* gct, const edm::Event& iEvent, edm::InputTag tag);
+  bool checkHtSums (const L1GlobalCaloTrigger* gct, const edm::Event& iEvent, edm::InputTag tag);
 
 };
 

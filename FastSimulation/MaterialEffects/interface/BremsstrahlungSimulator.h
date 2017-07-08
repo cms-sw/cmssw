@@ -55,9 +55,9 @@ class BremsstrahlungSimulator : public MaterialEffectsSimulator
   XYZTLorentzVector brem(ParticlePropagator& p, RandomEngineAndDistribution const*) const;
 
   /// A universal angular distribution - still from GEANT.
-  double gbteth(const double ener,
-		const double partm,
-		const double efrac,
+  double gbteth(double ener,
+		double partm,
+		double efrac,
                 RandomEngineAndDistribution const*) const;
 
 };

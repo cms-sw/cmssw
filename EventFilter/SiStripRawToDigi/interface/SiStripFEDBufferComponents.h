@@ -134,10 +134,10 @@ namespace sistrip {
   //
 
   //used by these classes
-  uint8_t internalFEDChannelNum(const uint8_t internalFEUnitNum, const uint8_t internalFEUnitChannelNum);
-  void printHex(const void* pointer, const size_t length, std::ostream& os);
+  uint8_t internalFEDChannelNum(uint8_t internalFEUnitNum, uint8_t internalFEUnitChannelNum);
+  void printHex(const void* pointer, size_t length, std::ostream& os);
   //calculate the CRC for a FED buffer
-  uint16_t calculateFEDBufferCRC(const uint8_t* buffer, const size_t lengthInBytes);
+  uint16_t calculateFEDBufferCRC(const uint8_t* buffer, size_t lengthInBytes);
   //to make enums printable
   std::ostream& operator<<(std::ostream& os, const FEDBufferFormat& value);
   std::ostream& operator<<(std::ostream& os, const FEDHeaderType& value);
@@ -162,11 +162,11 @@ namespace sistrip {
     {
     public:
       //convert strip/sample index in channel (ie 0-255) between physical and readout order
-      static uint8_t physicalOrderForStripInChannel(const uint8_t readoutOrderStripIndexInChannel);
-      static uint8_t readoutOrderForStripInChannel(const uint8_t physicalOrderStripIndexInChannel);
+      static uint8_t physicalOrderForStripInChannel(uint8_t readoutOrderStripIndexInChannel);
+      static uint8_t readoutOrderForStripInChannel(uint8_t physicalOrderStripIndexInChannel);
       //convert strip/sample index in APV (ie 0-127) between physical and readout order
-      static uint8_t physicalOrderForStripInAPV(const uint8_t readoutOrderStripIndexInAPV);
-      static uint8_t readoutOrderForStripInAPV(const uint8_t physicalOrderStripIndexInAPV);
+      static uint8_t physicalOrderForStripInAPV(uint8_t readoutOrderStripIndexInAPV);
+      static uint8_t readoutOrderForStripInAPV(uint8_t physicalOrderStripIndexInAPV);
     };
 
   //see http://cmsdoc.cern.ch/cms/TRIDAS/horizontal/RUWG/DAQ_IF_guide/DAQ_IF_guide.html
@@ -189,12 +189,12 @@ namespace sistrip {
       void print(std::ostream& os) const;
       //used by digi2Raw
       const uint8_t* data() const;
-      FEDDAQHeader& setEventType(const FEDDAQEventType evtType);
-      FEDDAQHeader& setL1ID(const uint32_t l1ID);
-      FEDDAQHeader& setBXID(const uint16_t bxID);
-      FEDDAQHeader& setSourceID(const uint16_t sourceID);
-      FEDDAQHeader(const uint32_t l1ID, const uint16_t bxID, const uint16_t sourceID, 
-                   const FEDDAQEventType evtType = DAQ_EVENT_TYPE_PHYSICS);
+      FEDDAQHeader& setEventType(FEDDAQEventType evtType);
+      FEDDAQHeader& setL1ID(uint32_t l1ID);
+      FEDDAQHeader& setBXID(uint16_t bxID);
+      FEDDAQHeader& setSourceID(uint16_t sourceID);
+      FEDDAQHeader(uint32_t l1ID, uint16_t bxID, uint16_t sourceID, 
+                   FEDDAQEventType evtType = DAQ_EVENT_TYPE_PHYSICS);
     private:
       uint8_t header_[8];
     };
@@ -228,16 +228,16 @@ namespace sistrip {
       void print(std::ostream& os) const;
       //used by digi2Raw
       const uint8_t* data() const;
-      FEDDAQTrailer& setEventLengthIn64BitWords(const uint32_t eventLengthIn64BitWords);
-      FEDDAQTrailer& setCRC(const uint16_t crc);
-      FEDDAQTrailer& setSLinkTransmissionErrorBit(const bool bitSet);
-      FEDDAQTrailer& setBadSourceIDBit(const bool bitSet);
-      FEDDAQTrailer& setSLinkCRCErrorBit(const bool bitSet);
-      FEDDAQTrailer& setEventStatusNibble(const uint8_t eventStatusNibble);
-      FEDDAQTrailer& setTTSBits(const FEDTTSBits ttsBits);
-      FEDDAQTrailer(const uint32_t eventLengthIn64BitWords, const uint16_t crc = 0, const FEDTTSBits ttsBits = TTS_READY,
-                    const bool slinkTransmissionError = false, const bool badFEDID = false, const bool slinkCRCError = false,
-                    const uint8_t eventStatusNibble = 0);
+      FEDDAQTrailer& setEventLengthIn64BitWords(uint32_t eventLengthIn64BitWords);
+      FEDDAQTrailer& setCRC(uint16_t crc);
+      FEDDAQTrailer& setSLinkTransmissionErrorBit(bool bitSet);
+      FEDDAQTrailer& setBadSourceIDBit(bool bitSet);
+      FEDDAQTrailer& setSLinkCRCErrorBit(bool bitSet);
+      FEDDAQTrailer& setEventStatusNibble(uint8_t eventStatusNibble);
+      FEDDAQTrailer& setTTSBits(FEDTTSBits ttsBits);
+      FEDDAQTrailer(uint32_t eventLengthIn64BitWords, uint16_t crc = 0, FEDTTSBits ttsBits = TTS_READY,
+                    bool slinkTransmissionError = false, bool badFEDID = false, bool slinkCRCError = false,
+                    uint8_t eventStatusNibble = 0);
     private:
       uint8_t trailer_[8];
     };
@@ -245,7 +245,7 @@ namespace sistrip {
   class FEDStatusRegister
     {
     public:
-      FEDStatusRegister(const uint16_t fedStatusRegister);
+      FEDStatusRegister(uint16_t fedStatusRegister);
       bool slinkFullFlag() const;
       bool trackerHeaderMonitorDataReadyFlag() const;
       bool qdrMemoryFullFlag() const;
@@ -256,28 +256,28 @@ namespace sistrip {
       bool l1aBxFIFOEmptyFlag() const;
       FEDBufferState qdrMemoryState() const;
       FEDBufferState l1aBxFIFOState() const;
-      bool feDataMissingFlag(const uint8_t internalFEUnitNum) const;
+      bool feDataMissingFlag(uint8_t internalFEUnitNum) const;
       void print(std::ostream& os) const;
       void printFlags(std::ostream& os) const;
       operator uint16_t () const;
       //used by digi2Raw
-      FEDStatusRegister& setSLinkFullFlag(const bool bitSet);
-      FEDStatusRegister& setTrackerHeaderMonitorDataReadyFlag(const bool bitSet);
-      FEDStatusRegister& setQDRMemoryBufferState(const FEDBufferState state);
-      FEDStatusRegister& setL1ABXFIFOBufferState(const FEDBufferState state);
-      FEDStatusRegister(const FEDBufferState qdrMemoryBufferState = BUFFER_STATE_UNSET,
-                        const FEDBufferState l1aBxFIFOBufferState = BUFFER_STATE_UNSET,
-                        const bool trackerHeaderMonitorDataReadyFlagSet = false,
-                        const bool slinkFullFlagSet = false);
+      FEDStatusRegister& setSLinkFullFlag(bool bitSet);
+      FEDStatusRegister& setTrackerHeaderMonitorDataReadyFlag(bool bitSet);
+      FEDStatusRegister& setQDRMemoryBufferState(FEDBufferState state);
+      FEDStatusRegister& setL1ABXFIFOBufferState(FEDBufferState state);
+      FEDStatusRegister(FEDBufferState qdrMemoryBufferState = BUFFER_STATE_UNSET,
+                        FEDBufferState l1aBxFIFOBufferState = BUFFER_STATE_UNSET,
+                        bool trackerHeaderMonitorDataReadyFlagSet = false,
+                        bool slinkFullFlagSet = false);
     private:
-      bool getBit(const uint8_t num) const;
-      void setBit(const uint8_t num, const bool bitSet);
-      void setQDRMemoryFullFlag(const bool bitSet);
-      void setQDRMemoryPartialFullFlag(const bool bitSet);
-      void setQDRMemoryEmptyFlag(const bool bitSet);
-      void setL1ABXFIFOFullFlag(const bool bitSet);
-      void setL1ABXFIFOPartialFullFlag(const bool bitSet);
-      void setL1ABXFIFOEmptyFlag(const bool bitSet);
+      bool getBit(uint8_t num) const;
+      void setBit(uint8_t num, bool bitSet);
+      void setQDRMemoryFullFlag(bool bitSet);
+      void setQDRMemoryPartialFullFlag(bool bitSet);
+      void setQDRMemoryEmptyFlag(bool bitSet);
+      void setL1ABXFIFOFullFlag(bool bitSet);
+      void setL1ABXFIFOPartialFullFlag(bool bitSet);
+      void setL1ABXFIFOEmptyFlag(bool bitSet);
       uint16_t data_;
     };
 
@@ -296,11 +296,11 @@ namespace sistrip {
       FEDLegacyReadoutMode legacyReadoutMode() const;
       uint8_t apveAddress() const;
       uint8_t apvAddressErrorRegister() const;
-      bool majorityAddressErrorForFEUnit(const uint8_t internalFEUnitNum) const;
+      bool majorityAddressErrorForFEUnit(uint8_t internalFEUnitNum) const;
       uint8_t feEnableRegister() const;
-      bool feEnabled(const uint8_t internalFEUnitNum) const;
+      bool feEnabled(uint8_t internalFEUnitNum) const;
       uint8_t feOverflowRegister() const;
-      bool feOverflow(const uint8_t internalFEUnitNum) const;
+      bool feOverflow(uint8_t internalFEUnitNum) const;
       uint16_t fedStatusRegisterWord() const;
       FEDStatusRegister fedStatusRegister() const;
       void print(std::ostream& os) const;
@@ -308,25 +308,25 @@ namespace sistrip {
       //returns ordered buffer (ie this may need to be swapped to get original order)
       const uint8_t* data() const;
       bool wasSwapped() const;
-      TrackerSpecialHeader& setBufferFormat(const FEDBufferFormat newBufferFormat);
-      TrackerSpecialHeader& setHeaderType(const FEDHeaderType headerType);
-      TrackerSpecialHeader& setReadoutMode(const FEDReadoutMode readoutMode);
-      TrackerSpecialHeader& setAPVEAddress(const uint8_t address);
-      TrackerSpecialHeader& setAPVEAddressErrorRegister(const uint8_t addressErrorRegister);
-      TrackerSpecialHeader& setAPVAddressErrorForFEUnit(const uint8_t internalFEUnitNum, const bool error);
-      TrackerSpecialHeader& setFEEnableRegister(const uint8_t feEnableRegister);
-      TrackerSpecialHeader& setFEEnableForFEUnit(const uint8_t internalFEUnitNum, const bool enabled);
-      TrackerSpecialHeader& setFEOverflowRegister(const uint8_t feOverflowRegister);
-      TrackerSpecialHeader& setFEOverflowForFEUnit(const uint8_t internalFEUnitNum, const bool overflow);
-      TrackerSpecialHeader& setFEDStatusRegister(const FEDStatusRegister fedStatusRegister);
-      TrackerSpecialHeader(const FEDBufferFormat bufferFormat, const FEDReadoutMode readoutMode, const FEDHeaderType headerType,
-                           const uint8_t address = 0x00, const uint8_t addressErrorRegister = 0x00,
-                           const uint8_t feEnableRegister = 0xFF, const uint8_t feOverflowRegister = 0x00,
-                           const FEDStatusRegister fedStatusRegister = FEDStatusRegister());
+      TrackerSpecialHeader& setBufferFormat(FEDBufferFormat newBufferFormat);
+      TrackerSpecialHeader& setHeaderType(FEDHeaderType headerType);
+      TrackerSpecialHeader& setReadoutMode(FEDReadoutMode readoutMode);
+      TrackerSpecialHeader& setAPVEAddress(uint8_t address);
+      TrackerSpecialHeader& setAPVEAddressErrorRegister(uint8_t addressErrorRegister);
+      TrackerSpecialHeader& setAPVAddressErrorForFEUnit(uint8_t internalFEUnitNum, bool error);
+      TrackerSpecialHeader& setFEEnableRegister(uint8_t feEnableRegister);
+      TrackerSpecialHeader& setFEEnableForFEUnit(uint8_t internalFEUnitNum, bool enabled);
+      TrackerSpecialHeader& setFEOverflowRegister(uint8_t feOverflowRegister);
+      TrackerSpecialHeader& setFEOverflowForFEUnit(uint8_t internalFEUnitNum, bool overflow);
+      TrackerSpecialHeader& setFEDStatusRegister(FEDStatusRegister fedStatusRegister);
+      TrackerSpecialHeader(FEDBufferFormat bufferFormat, FEDReadoutMode readoutMode, FEDHeaderType headerType,
+                           uint8_t address = 0x00, uint8_t addressErrorRegister = 0x00,
+                           uint8_t feEnableRegister = 0xFF, uint8_t feOverflowRegister = 0x00,
+                           FEDStatusRegister fedStatusRegister = FEDStatusRegister());
     private:
-      void setBufferFormatByte(const FEDBufferFormat newBufferFormat);
-      void setHeaderTypeNibble(const uint8_t value);
-      void setReadoutModeBits(const uint8_t value);
+      void setBufferFormatByte(FEDBufferFormat newBufferFormat);
+      void setHeaderTypeNibble(uint8_t value);
+      void setReadoutModeBits(uint8_t value);
       enum byteIndicies { FEDSTATUS=0, FEOVERFLOW=2, FEENABLE=3, ADDRESSERROR=4, APVEADDRESS=5, BUFFERTYPE=6, BUFFERFORMAT=7 };
       //copy of header, 32 bit word swapped if needed
       uint8_t specialHeader_[8];
@@ -337,7 +337,7 @@ namespace sistrip {
   class FEDBackendStatusRegister
     {
     public:
-      FEDBackendStatusRegister(const uint32_t backendStatusRegister);
+      FEDBackendStatusRegister(uint32_t backendStatusRegister);
       bool internalFreezeFlag() const;
       bool slinkDownFlag() const;
       bool slinkFullFlag() const;
@@ -355,37 +355,37 @@ namespace sistrip {
       void printFlags(std::ostream& os) const;
       operator uint32_t () const;
       //used by digi2Raw
-      FEDBackendStatusRegister& setInternalFreezeFlag(const bool bitSet);
-      FEDBackendStatusRegister& setSLinkDownFlag(const bool bitSet);
-      FEDBackendStatusRegister& setSLinkFullFlag(const bool bitSet);
-      FEDBackendStatusRegister& setBackpressureFlag(const bool bitSet);
-      FEDBackendStatusRegister& setTTCReadyFlag(const bool bitSet);
-      FEDBackendStatusRegister& setTrackerHeaderMonitorDataReadyFlag(const bool bitSet);
-      FEDBackendStatusRegister& setQDRMemoryState(const FEDBufferState state);
-      FEDBackendStatusRegister& setFrameAddressFIFOState(const FEDBufferState state);
-      FEDBackendStatusRegister& setTotalLengthFIFOState(const FEDBufferState state);
-      FEDBackendStatusRegister& setTrackerHeaderFIFOState(const FEDBufferState state);
-      FEDBackendStatusRegister& setL1ABXFIFOState(const FEDBufferState state);
-      FEDBackendStatusRegister& setFEEventLengthFIFOState(const FEDBufferState state);
-      FEDBackendStatusRegister& setFEFPGABufferState(const FEDBufferState state);
-      FEDBackendStatusRegister(const FEDBufferState qdrMemoryBufferState = BUFFER_STATE_UNSET,
-                               const FEDBufferState frameAddressFIFOBufferState = BUFFER_STATE_UNSET,
-                               const FEDBufferState totalLengthFIFOBufferState = BUFFER_STATE_UNSET,
-                               const FEDBufferState trackerHeaderFIFOBufferState = BUFFER_STATE_UNSET,
-                               const FEDBufferState l1aBxFIFOBufferState = BUFFER_STATE_UNSET,
-                               const FEDBufferState feEventLengthFIFOBufferState = BUFFER_STATE_UNSET,
-                               const FEDBufferState feFPGABufferState = BUFFER_STATE_UNSET,
-                               const bool backpressure = false, const bool slinkFull = false,
-                               const bool slinkDown = false, const bool internalFreeze = false,
-                               const bool trackerHeaderMonitorDataReady = false, const bool ttcReady = true);                               
+      FEDBackendStatusRegister& setInternalFreezeFlag(bool bitSet);
+      FEDBackendStatusRegister& setSLinkDownFlag(bool bitSet);
+      FEDBackendStatusRegister& setSLinkFullFlag(bool bitSet);
+      FEDBackendStatusRegister& setBackpressureFlag(bool bitSet);
+      FEDBackendStatusRegister& setTTCReadyFlag(bool bitSet);
+      FEDBackendStatusRegister& setTrackerHeaderMonitorDataReadyFlag(bool bitSet);
+      FEDBackendStatusRegister& setQDRMemoryState(FEDBufferState state);
+      FEDBackendStatusRegister& setFrameAddressFIFOState(FEDBufferState state);
+      FEDBackendStatusRegister& setTotalLengthFIFOState(FEDBufferState state);
+      FEDBackendStatusRegister& setTrackerHeaderFIFOState(FEDBufferState state);
+      FEDBackendStatusRegister& setL1ABXFIFOState(FEDBufferState state);
+      FEDBackendStatusRegister& setFEEventLengthFIFOState(FEDBufferState state);
+      FEDBackendStatusRegister& setFEFPGABufferState(FEDBufferState state);
+      FEDBackendStatusRegister(FEDBufferState qdrMemoryBufferState = BUFFER_STATE_UNSET,
+                               FEDBufferState frameAddressFIFOBufferState = BUFFER_STATE_UNSET,
+                               FEDBufferState totalLengthFIFOBufferState = BUFFER_STATE_UNSET,
+                               FEDBufferState trackerHeaderFIFOBufferState = BUFFER_STATE_UNSET,
+                               FEDBufferState l1aBxFIFOBufferState = BUFFER_STATE_UNSET,
+                               FEDBufferState feEventLengthFIFOBufferState = BUFFER_STATE_UNSET,
+                               FEDBufferState feFPGABufferState = BUFFER_STATE_UNSET,
+                               bool backpressure = false, bool slinkFull = false,
+                               bool slinkDown = false, bool internalFreeze = false,
+                               bool trackerHeaderMonitorDataReady = false, bool ttcReady = true);                               
     private:
-      bool getBit(const uint8_t num) const;
-      void setBit(const uint8_t num, const bool bitSet);
+      bool getBit(uint8_t num) const;
+      void setBit(uint8_t num, bool bitSet);
       //get the state of the buffer in position 'bufferPosition'
-      FEDBufferState getBufferState(const uint8_t bufferPosition) const;
+      FEDBufferState getBufferState(uint8_t bufferPosition) const;
       //set the state of the buffer in position 'bufferPosition' to state 'state'
-      void setBufferSate(const uint8_t bufferPosition, const FEDBufferState state);
-      void printFlagsForBuffer(const FEDBufferState bufferState, const std::string name, std::ostream& os) const;
+      void setBufferSate(uint8_t bufferPosition, FEDBufferState state);
+      void printFlagsForBuffer(FEDBufferState bufferState, std::string name, std::ostream& os) const;
       //constants marking order of flags in buffer
       //eg. bit offset for L1A/BX FIFO Partial full flag is STATE_OFFSET_PARTIAL_FULL+BUFFER_POSITION_L1ABX_FIFO
       //    bit offset for total length FIFO empty flag is STATE_OFFSET_EMPTY+BUFFER_POSITION_TOTAL_LENGTH_FIFO
@@ -407,33 +407,33 @@ namespace sistrip {
     {
     public:
       //factory function: allocates new FEDFEHeader derrivative of appropriate type
-      static std::auto_ptr<FEDFEHeader> newFEHeader(const FEDHeaderType headerType, const uint8_t* headerBuffer);
+      static std::auto_ptr<FEDFEHeader> newFEHeader(FEDHeaderType headerType, const uint8_t* headerBuffer);
       //used by digi2Raw
-      static std::auto_ptr<FEDFEHeader> newFEHeader(const FEDHeaderType headerType);
+      static std::auto_ptr<FEDFEHeader> newFEHeader(FEDHeaderType headerType);
       //create a buffer to use with digi2Raw
-      static std::auto_ptr<FEDFEHeader> newFEFakeHeader(const FEDHeaderType headerType);
+      static std::auto_ptr<FEDFEHeader> newFEFakeHeader(FEDHeaderType headerType);
       virtual ~FEDFEHeader();
       //the length of the header
       virtual size_t lengthInBytes() const = 0;
       //check that there are no errors indicated in which ever error bits are available in the header
       //check bits for both APVs on a channel
-      bool checkChannelStatusBits(const uint8_t internalFEUnitNum, const uint8_t internalFEUnitChannelNum) const;
-      virtual bool checkChannelStatusBits(const uint8_t internalFEDChannelNum) const = 0;
+      bool checkChannelStatusBits(uint8_t internalFEUnitNum, uint8_t internalFEUnitChannelNum) const;
+      virtual bool checkChannelStatusBits(uint8_t internalFEDChannelNum) const = 0;
       //check bits for one APV
-      bool checkStatusBits(const uint8_t internalFEUnitNum, const uint8_t internalFEUnitChannelNum, const uint8_t apvNum) const;
-      virtual bool checkStatusBits(const uint8_t internalFEDChannelNum, const uint8_t apvNum) const = 0;
+      bool checkStatusBits(uint8_t internalFEUnitNum, uint8_t internalFEUnitChannelNum, uint8_t apvNum) const;
+      virtual bool checkStatusBits(uint8_t internalFEDChannelNum, uint8_t apvNum) const = 0;
       virtual void print(std::ostream& os) const = 0;
       virtual FEDFEHeader* clone() const = 0;
       //used by digi2Raw
       virtual const uint8_t* data() const = 0;
-      virtual void setChannelStatus(const uint8_t internalFEDChannelNum, const FEDChannelStatus status) = 0;
-      virtual void setFEUnitMajorityAddress(const uint8_t internalFEUnitNum, const uint8_t address) = 0;
-      virtual void setBEStatusRegister(const FEDBackendStatusRegister beStatusRegister) = 0;
-      virtual void setDAQRegister(const uint32_t daqRegister) = 0;
-      virtual void setDAQRegister2(const uint32_t daqRegister2) = 0;
-      virtual void set32BitReservedRegister(const uint8_t internalFEUnitNum, const uint32_t reservedRegister) = 0;
-      virtual void setFEUnitLength(const uint8_t internalFEUnitNum, const uint16_t length) = 0;
-      void setChannelStatus(const uint8_t internalFEUnitNum, const uint8_t internalFEUnitChannelNum, const FEDChannelStatus status);
+      virtual void setChannelStatus(uint8_t internalFEDChannelNum, FEDChannelStatus status) = 0;
+      virtual void setFEUnitMajorityAddress(uint8_t internalFEUnitNum, uint8_t address) = 0;
+      virtual void setBEStatusRegister(FEDBackendStatusRegister beStatusRegister) = 0;
+      virtual void setDAQRegister(uint32_t daqRegister) = 0;
+      virtual void setDAQRegister2(uint32_t daqRegister2) = 0;
+      virtual void set32BitReservedRegister(uint8_t internalFEUnitNum, uint32_t reservedRegister) = 0;
+      virtual void setFEUnitLength(uint8_t internalFEUnitNum, uint16_t length) = 0;
+      void setChannelStatus(uint8_t internalFEUnitNum, uint8_t internalFEUnitChannelNum, FEDChannelStatus status);
     };
 
   class FEDAPVErrorHeader final : public FEDFEHeader
@@ -442,24 +442,24 @@ namespace sistrip {
       explicit FEDAPVErrorHeader(const uint8_t* headerBuffer);
       virtual ~FEDAPVErrorHeader();
       virtual size_t lengthInBytes() const;
-      virtual bool checkChannelStatusBits(const uint8_t internalFEDChannelNum) const;
-      virtual bool checkStatusBits(const uint8_t internalFEDChannelNum, const uint8_t apvNum) const;
+      virtual bool checkChannelStatusBits(uint8_t internalFEDChannelNum) const;
+      virtual bool checkStatusBits(uint8_t internalFEDChannelNum, uint8_t apvNum) const;
       virtual void print(std::ostream& os) const;
       virtual FEDAPVErrorHeader* clone() const;
       //used by digi2Raw
       virtual const uint8_t* data() const;
-      FEDAPVErrorHeader& setAPVStatusBit(const uint8_t internalFEDChannelNum, const uint8_t apvNum, const bool apvGood);
-      FEDAPVErrorHeader& setAPVStatusBit(const uint8_t internalFEUnitNum, const uint8_t internalFEUnitChannelNum, const uint8_t apvNum, const bool apvGood);
+      FEDAPVErrorHeader& setAPVStatusBit(uint8_t internalFEDChannelNum, uint8_t apvNum, bool apvGood);
+      FEDAPVErrorHeader& setAPVStatusBit(uint8_t internalFEUnitNum, uint8_t internalFEUnitChannelNum, uint8_t apvNum, bool apvGood);
       FEDAPVErrorHeader(const std::vector<bool>& apvsGood = std::vector<bool>(APVS_PER_FED,true));
       //Information which is not present in APVError mode is allowed to be set here so that the methods can be called on the base class without caring
       //if the values need to be set.
-      virtual void setChannelStatus(const uint8_t internalFEDChannelNum, const FEDChannelStatus status);
-      virtual void setFEUnitMajorityAddress(const uint8_t internalFEUnitNum, const uint8_t address);
-      virtual void setBEStatusRegister(const FEDBackendStatusRegister beStatusRegister);
-      virtual void setDAQRegister(const uint32_t daqRegister);
-      virtual void setDAQRegister2(const uint32_t daqRegister2);
-      virtual void set32BitReservedRegister(const uint8_t internalFEUnitNum, const uint32_t reservedRegister);
-      virtual void setFEUnitLength(const uint8_t internalFEUnitNum, const uint16_t length);
+      virtual void setChannelStatus(uint8_t internalFEDChannelNum, FEDChannelStatus status);
+      virtual void setFEUnitMajorityAddress(uint8_t internalFEUnitNum, uint8_t address);
+      virtual void setBEStatusRegister(FEDBackendStatusRegister beStatusRegister);
+      virtual void setDAQRegister(uint32_t daqRegister);
+      virtual void setDAQRegister2(uint32_t daqRegister2);
+      virtual void set32BitReservedRegister(uint8_t internalFEUnitNum, uint32_t reservedRegister);
+      virtual void setFEUnitLength(uint8_t internalFEUnitNum, uint16_t length);
     private:
       static const size_t APV_ERROR_HEADER_SIZE_IN_64BIT_WORDS = 3;
       static const size_t APV_ERROR_HEADER_SIZE_IN_BYTES = APV_ERROR_HEADER_SIZE_IN_64BIT_WORDS*8;
@@ -472,71 +472,71 @@ namespace sistrip {
       explicit FEDFullDebugHeader(const uint8_t* headerBuffer);
       virtual ~FEDFullDebugHeader();
       virtual size_t lengthInBytes() const;
-      virtual bool checkChannelStatusBits(const uint8_t internalFEDChannelNum) const;
-      virtual bool checkStatusBits(const uint8_t internalFEDChannelNum, const uint8_t apvNum) const;
+      virtual bool checkChannelStatusBits(uint8_t internalFEDChannelNum) const;
+      virtual bool checkStatusBits(uint8_t internalFEDChannelNum, uint8_t apvNum) const;
       virtual void print(std::ostream& os) const;
       virtual FEDFullDebugHeader* clone() const;
       
-      uint8_t feUnitMajorityAddress(const uint8_t internalFEUnitNum) const;
+      uint8_t feUnitMajorityAddress(uint8_t internalFEUnitNum) const;
       FEDBackendStatusRegister beStatusRegister() const;
       uint32_t daqRegister() const;
       uint32_t daqRegister2() const;
-      uint16_t feUnitLength(const uint8_t internalFEUnitNum) const;
-      bool fePresent(const uint8_t internalFEUnitNum) const;
+      uint16_t feUnitLength(uint8_t internalFEUnitNum) const;
+      bool fePresent(uint8_t internalFEUnitNum) const;
       
-      FEDChannelStatus getChannelStatus(const uint8_t internalFEDChannelNum) const;
-      FEDChannelStatus getChannelStatus(const uint8_t internalFEUnitNum, const uint8_t internalFEUnitChannelNum) const;
+      FEDChannelStatus getChannelStatus(uint8_t internalFEDChannelNum) const;
+      FEDChannelStatus getChannelStatus(uint8_t internalFEUnitNum, uint8_t internalFEUnitChannelNum) const;
       
       //These methods return true if there was an error of the appropriate type (ie if the error bit is 0).
       //They return false if the error could not occur due to a more general error.
       //was channel unlocked
-      bool unlocked(const uint8_t internalFEDChannelNum) const;
-      bool unlocked(const uint8_t internalFEUnitNum, const uint8_t internalFEUnitChannelNum) const;
+      bool unlocked(uint8_t internalFEDChannelNum) const;
+      bool unlocked(uint8_t internalFEUnitNum, uint8_t internalFEUnitChannelNum) const;
       //was channel out of sync if it was unlocked
-      bool outOfSync(const uint8_t internalFEDChannelNum) const;
-      bool outOfSync(const uint8_t internalFEUnitNum, const uint8_t internalFEUnitChannelNum) const;
+      bool outOfSync(uint8_t internalFEDChannelNum) const;
+      bool outOfSync(uint8_t internalFEUnitNum, uint8_t internalFEUnitChannelNum) const;
       //was there an internal APV error if it was in sync
-      bool apvError(const uint8_t internalFEDChannelNum, const uint8_t apvNum) const;
-      bool apvError(const uint8_t internalFEUnitNum, const uint8_t internalFEUnitChannelNum, const uint8_t apvNum) const;
+      bool apvError(uint8_t internalFEDChannelNum, uint8_t apvNum) const;
+      bool apvError(uint8_t internalFEUnitNum, uint8_t internalFEUnitChannelNum, uint8_t apvNum) const;
       //was the APV address wrong if it was in sync (does not depend on APV internal error bit)
-      bool apvAddressError(const uint8_t internalFEDChannelNum, const uint8_t apvNum) const;
-      bool apvAddressError(const uint8_t internalFEUnitNum, const uint8_t internalFEUnitChannelNum, const uint8_t apvNum) const;
+      bool apvAddressError(uint8_t internalFEDChannelNum, uint8_t apvNum) const;
+      bool apvAddressError(uint8_t internalFEUnitNum, uint8_t internalFEUnitChannelNum, uint8_t apvNum) const;
       
       //used by digi2Raw
       virtual const uint8_t* data() const;
-      virtual void setChannelStatus(const uint8_t internalFEDChannelNum, const FEDChannelStatus status);
-      virtual void setFEUnitMajorityAddress(const uint8_t internalFEUnitNum, const uint8_t address);
-      virtual void setBEStatusRegister(const FEDBackendStatusRegister beStatusRegister);
-      virtual void setDAQRegister(const uint32_t daqRegister);
-      virtual void setDAQRegister2(const uint32_t daqRegister2);
-      virtual void set32BitReservedRegister(const uint8_t internalFEUnitNum, const uint32_t reservedRegister);
-      virtual void setFEUnitLength(const uint8_t internalFEUnitNum, const uint16_t length);
+      virtual void setChannelStatus(uint8_t internalFEDChannelNum, FEDChannelStatus status);
+      virtual void setFEUnitMajorityAddress(uint8_t internalFEUnitNum, uint8_t address);
+      virtual void setBEStatusRegister(FEDBackendStatusRegister beStatusRegister);
+      virtual void setDAQRegister(uint32_t daqRegister);
+      virtual void setDAQRegister2(uint32_t daqRegister2);
+      virtual void set32BitReservedRegister(uint8_t internalFEUnitNum, uint32_t reservedRegister);
+      virtual void setFEUnitLength(uint8_t internalFEUnitNum, uint16_t length);
       static uint32_t get32BitWordFrom(const uint8_t* startOfWord);
-      const uint8_t* feWord(const uint8_t internalFEUnitNum) const;
-      uint8_t* feWord(const uint8_t internalFEUnitNum);
+      const uint8_t* feWord(uint8_t internalFEUnitNum) const;
+      uint8_t* feWord(uint8_t internalFEUnitNum);
       FEDFullDebugHeader(const std::vector<uint16_t>& feUnitLengths = std::vector<uint16_t>(FEUNITS_PER_FED,0),
                          const std::vector<uint8_t>& feMajorityAddresses = std::vector<uint8_t>(FEUNITS_PER_FED,0),
                          const std::vector<FEDChannelStatus>& channelStatus = std::vector<FEDChannelStatus>(FEDCH_PER_FED,CHANNEL_STATUS_NO_PROBLEMS),
-                         const FEDBackendStatusRegister beStatusRegister = FEDBackendStatusRegister(),
-                         const uint32_t daqRegister = 0, const uint32_t daqRegister2 = 0);
+                         FEDBackendStatusRegister beStatusRegister = FEDBackendStatusRegister(),
+                         uint32_t daqRegister = 0, uint32_t daqRegister2 = 0);
     private:
-      bool getBit(const uint8_t internalFEDChannelNum, const uint8_t bit) const;
-      static void set32BitWordAt(uint8_t* startOfWord, const uint32_t value);
-      void setBit(const uint8_t internalFEDChannelNum, const uint8_t bit, const bool value);
+      bool getBit(uint8_t internalFEDChannelNum, uint8_t bit) const;
+      static void set32BitWordAt(uint8_t* startOfWord, uint32_t value);
+      void setBit(uint8_t internalFEDChannelNum, uint8_t bit, bool value);
       
       //These methods return true if there was an error of the appropriate type (ie if the error bit is 0).
       //They ignore any previous errors which make the status bits meaningless and return the value of the bit anyway.
       //In general, the methods above which only return an error for the likely cause are more useful.
-      bool unlockedFromBit(const uint8_t internalFEDChannelNum) const;
-      bool outOfSyncFromBit(const uint8_t internalFEDChannelNum) const;
-      bool apvErrorFromBit(const uint8_t internalFEDChannelNum, const uint8_t apvNum) const;
-      bool apvAddressErrorFromBit(const uint8_t internalFEDChannelNum, const uint8_t apvNum) const;
+      bool unlockedFromBit(uint8_t internalFEDChannelNum) const;
+      bool outOfSyncFromBit(uint8_t internalFEDChannelNum) const;
+      bool apvErrorFromBit(uint8_t internalFEDChannelNum, uint8_t apvNum) const;
+      bool apvAddressErrorFromBit(uint8_t internalFEDChannelNum, uint8_t apvNum) const;
       
       //following methods set the bits to 1 (no error) if value is false
-      void setUnlocked(const uint8_t internalFEDChannelNum, const bool value);
-      void setOutOfSync(const uint8_t internalFEDChannelNum, const bool value);
-      void setAPVAddressError(const uint8_t internalFEDChannelNum, const uint8_t apvNum, const bool value);
-      void setAPVError(const uint8_t internalFEDChannelNum, const uint8_t apvNum, const bool value);
+      void setUnlocked(uint8_t internalFEDChannelNum, bool value);
+      void setOutOfSync(uint8_t internalFEDChannelNum, bool value);
+      void setAPVAddressError(uint8_t internalFEDChannelNum, uint8_t apvNum, bool value);
+      void setAPVError(uint8_t internalFEDChannelNum, uint8_t apvNum, bool value);
       static const size_t FULL_DEBUG_HEADER_SIZE_IN_64BIT_WORDS = FEUNITS_PER_FED*2;
       static const size_t FULL_DEBUG_HEADER_SIZE_IN_BYTES = FULL_DEBUG_HEADER_SIZE_IN_64BIT_WORDS*8;
       uint8_t header_[FULL_DEBUG_HEADER_SIZE_IN_BYTES];
@@ -546,13 +546,13 @@ namespace sistrip {
   class FEDChannel
     {
     public:
-      FEDChannel(const uint8_t*const data, const size_t offset, const uint16_t length);
+      FEDChannel(const uint8_t*data, size_t offset, uint16_t length);
       //gets length from first 2 bytes (assuming normal FED channel)
-      FEDChannel(const uint8_t*const data, const size_t offset);
+      FEDChannel(const uint8_t*data, size_t offset);
       uint16_t length() const;
       const uint8_t* data() const;
       size_t offset() const;
-      uint16_t cmMedian(const uint8_t apvIndex) const;
+      uint16_t cmMedian(uint8_t apvIndex) const;
       //third byte of channel data for normal FED channels
       uint8_t packetCode() const;
     private:
@@ -566,7 +566,7 @@ namespace sistrip {
   class FEDBufferBase
     {
     public:
-      FEDBufferBase(const uint8_t* fedBuffer, const size_t fedBufferSize, const bool allowUnrecognizedFormat = false);
+      FEDBufferBase(const uint8_t* fedBuffer, size_t fedBufferSize, bool allowUnrecognizedFormat = false);
       virtual ~FEDBufferBase();
       //dump buffer to stream
       void dump(std::ostream& os) const;
@@ -597,20 +597,20 @@ namespace sistrip {
       FEDHeaderType headerType() const;
       FEDLegacyReadoutMode legacyReadoutMode() const;
       FEDReadoutMode readoutMode() const;
-      uint8_t packetCode(bool legacy=false, const uint8_t internalFEDChannelNum=0) const;
+      uint8_t packetCode(bool legacy=false, uint8_t internalFEDChannelNum=0) const;
       uint8_t apveAddress() const;
-      bool majorityAddressErrorForFEUnit(const uint8_t internalFEUnitNum) const;
-      bool feEnabled(const uint8_t internalFEUnitNum) const;
+      bool majorityAddressErrorForFEUnit(uint8_t internalFEUnitNum) const;
+      bool feEnabled(uint8_t internalFEUnitNum) const;
       uint8_t nFEUnitsEnabled() const;
-      bool feOverflow(const uint8_t internalFEUnitNum) const;
+      bool feOverflow(uint8_t internalFEUnitNum) const;
       FEDStatusRegister fedStatusRegister() const;
       
       //check that channel has no errors
-      virtual bool channelGood(const uint8_t internalFEDChannelNum) const;
-      bool channelGood(const uint8_t internalFEUnitNum, const uint8_t internalChannelNum) const;
+      virtual bool channelGood(uint8_t internalFEDChannelNum) const;
+      bool channelGood(uint8_t internalFEUnitNum, uint8_t internalChannelNum) const;
       //return channel object for channel
-      const FEDChannel& channel(const uint8_t internalFEDChannelNum) const;
-      const FEDChannel& channel(const uint8_t internalFEUnitNum, const uint8_t internalChannelNum) const;
+      const FEDChannel& channel(uint8_t internalFEDChannelNum) const;
+      const FEDChannel& channel(uint8_t internalFEUnitNum, uint8_t internalChannelNum) const;
   
       //summary checks
       //check that tracker special header is valid (does not check for FE unit errors indicated in special header)
@@ -641,10 +641,10 @@ namespace sistrip {
     protected:
       const uint8_t* getPointerToDataAfterTrackerSpecialHeader() const;
       const uint8_t* getPointerToByteAfterEndOfPayload() const;
-      FEDBufferBase(const uint8_t* fedBuffer, const size_t fedBufferSize, const bool allowUnrecognizedFormat, const bool fillChannelVector);
+      FEDBufferBase(const uint8_t* fedBuffer, size_t fedBufferSize, bool allowUnrecognizedFormat, bool fillChannelVector);
       std::vector<FEDChannel> channels_;
     private:
-      void init(const uint8_t* fedBuffer, const size_t fedBufferSize, const bool allowUnrecognizedFormat);
+      void init(const uint8_t* fedBuffer, size_t fedBufferSize, bool allowUnrecognizedFormat);
       const uint8_t* originalBuffer_;
       const uint8_t* orderedBuffer_;
       const size_t bufferSize_;

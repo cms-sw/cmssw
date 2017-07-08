@@ -179,7 +179,7 @@ public:
     explicit MatchingCutsV1(const edm::ParameterSet& pset);
     bool operator()(const SCHitMatch& scHitMatch)const;
   private:
-    float getDRZCutValue(const float scEt, const float scEta)const;
+    float getDRZCutValue(float scEt, float scEta)const;
   private:
     const double dPhiMax_;
     const double dRZMax_;
@@ -214,14 +214,14 @@ public:
   
   std::vector<TrajSeedMatcher::SeedWithInfo>
   compatibleSeeds(const TrajectorySeedCollection& seeds, const GlobalPoint& candPos,
-		  const GlobalPoint & vprim, const float energy);
+		  const GlobalPoint & vprim, float energy);
 
   void setMeasTkEvtHandle(edm::Handle<MeasurementTrackerEvent> handle){measTkEvt_=std::move(handle);}
   
 private:
   
   std::vector<SCHitMatch> processSeed(const TrajectorySeed& seed, const GlobalPoint& candPos,
-				   const GlobalPoint & vprim, const float energy, const int charge );
+				   const GlobalPoint & vprim, float energy, int charge );
 
   static float getZVtxFromExtrapolation(const GlobalPoint& primeVtxPos, const GlobalPoint& hitPos,
 					const GlobalPoint& candPos);
@@ -235,7 +235,7 @@ private:
 
   TrajSeedMatcher::SCHitMatch match2ndToNthHit(const TrajectorySeed& seed,
 					       const FreeTrajectoryState& trajState,
-					       const size_t hitNr,	
+					       size_t hitNr,	
 					       const GlobalPoint& prevHitPos,
 					       const GlobalPoint& vtxPos,
 					       const PropagatorWithMaterial& propagator);
@@ -251,12 +251,12 @@ private:
 
   void clearCache();
 
-  bool passesMatchSel(const SCHitMatch& hit, const size_t hitNr)const;
+  bool passesMatchSel(const SCHitMatch& hit, size_t hitNr)const;
 
   int getNrValidLayersAlongTraj(const SCHitMatch& hit1, const SCHitMatch& hit2,
 				const GlobalPoint& candPos,
 				const GlobalPoint & vprim, 
-				const float energy, const int charge);
+				float energy, int charge);
 
   int getNrValidLayersAlongTraj(const DetId& hitId,
 				const TrajectoryStateOnSurface& hitTrajState)const;
@@ -264,7 +264,7 @@ private:
   bool layerHasValidHits(const DetLayer& layer,const TrajectoryStateOnSurface& hitSurState,
 			 const Propagator& propToLayerFromState)const;
   
-  size_t getNrHitsRequired(const int nrValidLayers)const;
+  size_t getNrHitsRequired(int nrValidLayers)const;
     
 private:
   static constexpr float kElectronMass_ = 0.000511;

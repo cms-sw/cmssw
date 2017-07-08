@@ -53,7 +53,7 @@ private:
   virtual void endJob() override;
 
   template <class T> 
-    void process( T const*, T const*, const int, const int);
+    void process( T const*, T const*, int, int);
   template <class T> 
     void process(const edm::Handle<T> data, const edm::Handle<T> emul, 
 		 const int sys, const int cid) {

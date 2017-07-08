@@ -39,8 +39,8 @@ public:
     L1GtTechnicalTrigger();
 
     L1GtTechnicalTrigger(const std::string& ttName,
-            const unsigned int ttBitNumber, const int ttBxInEvent,
-            const bool ttResult);
+            unsigned int ttBitNumber, int ttBxInEvent,
+            bool ttResult);
 
     /// copy constructor
     L1GtTechnicalTrigger(const L1GtTechnicalTrigger&);
@@ -83,9 +83,9 @@ public:
     }
 
     void setGtTechnicalTriggerName(const std::string& ttName);
-    void setGtTechnicalTriggerBitNumber(const unsigned int ttBitNumber);
-    void setBxInEvent(const int bxInEventValue);
-    void setGtTechnicalTriggerResult(const bool ttResult);
+    void setGtTechnicalTriggerBitNumber(unsigned int ttBitNumber);
+    void setBxInEvent(int bxInEventValue);
+    void setGtTechnicalTriggerResult(bool ttResult);
 
     // other methods
 

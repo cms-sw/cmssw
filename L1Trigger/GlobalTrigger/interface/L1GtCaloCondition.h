@@ -43,12 +43,12 @@ public:
 
     ///     from base template condition (from event setup usually)
     L1GtCaloCondition(const L1GtCondition*, const L1GlobalTriggerPSB*,
-            const int nrL1NoIsoEG,
-            const int nrL1IsoEG,
-            const int nrL1CenJet,
-            const int nrL1ForJet,
-            const int nrL1TauJet,
-            const int ifCaloEtaNumberBits);
+            int nrL1NoIsoEG,
+            int nrL1IsoEG,
+            int nrL1CenJet,
+            int nrL1ForJet,
+            int nrL1TauJet,
+            int ifCaloEtaNumberBits);
 
     // copy constructor
     L1GtCaloCondition(const L1GtCaloCondition&);
@@ -104,11 +104,11 @@ private:
     void copy(const L1GtCaloCondition& cp);
 
     /// load calo candidates
-    const L1GctCand* getCandidate(const int indexCand) const;
+    const L1GctCand* getCandidate(int indexCand) const;
 
     /// function to check a single object if it matches a condition
     const bool
-    checkObjectParameter(const int iCondition, const L1GctCand& cand) const;
+    checkObjectParameter(int iCondition, const L1GctCand& cand) const;
 
 private:
 

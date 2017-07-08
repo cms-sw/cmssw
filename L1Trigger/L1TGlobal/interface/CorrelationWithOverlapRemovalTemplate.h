@@ -50,7 +50,7 @@ public:
     ///   the index of second sub-condition in the cor* vector, the index of second sub-condition in the cor* vector
     CorrelationWithOverlapRemovalTemplate(const std::string&,
             const l1t::GtConditionCategory&, const l1t::GtConditionCategory&, const l1t::GtConditionCategory&,
-            const int, const int, const int);
+            int, int, int);
 
     /// copy constructor
     CorrelationWithOverlapRemovalTemplate( const CorrelationWithOverlapRemovalTemplate& );

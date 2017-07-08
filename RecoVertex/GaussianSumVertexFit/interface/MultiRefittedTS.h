@@ -110,7 +110,7 @@ public:
    */
 
   virtual ReferenceCountingPointer<RefittedTrackState<5> > stateWithNewWeight
-  	(const double newWeight) const;
+  	(double newWeight) const;
 
 
 private:

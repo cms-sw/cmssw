@@ -88,8 +88,8 @@ public:
 
   // Functions
   /// return the sim segments sCSC_v and sDT_v
-  std::vector<SimSegment> Sim_CSCSegments(int trkId, const edm::Handle<edm::PSimHitContainer> simHits, edm::ESHandle<CSCGeometry> cscGeom);
-  std::vector<SimSegment> Sim_DTSegments(int trkId, const edm::Handle<edm::PSimHitContainer> simHits, edm::ESHandle<DTGeometry> dtGeom);
+  std::vector<SimSegment> Sim_CSCSegments(int trkId, edm::Handle<edm::PSimHitContainer> simHits, edm::ESHandle<CSCGeometry> cscGeom);
+  std::vector<SimSegment> Sim_DTSegments(int trkId, edm::Handle<edm::PSimHitContainer> simHits, edm::ESHandle<DTGeometry> dtGeom);
   /// return the reco segments cscseg_V and dtseg_V which map to the sim segment
   std::vector<CSCSegment> Select_CSCSeg(edm::Handle<CSCSegmentCollection> cscSeg, edm::ESHandle<CSCGeometry> cscGeom, std::vector<SimSegment> simseg );
   std::vector<DTRecSegment4D> Select_DTSeg(edm::Handle<DTRecSegment4DCollection> dtSeg, edm::ESHandle<DTGeometry> dtGeom, std::vector<SimSegment> simseg );

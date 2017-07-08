@@ -32,7 +32,7 @@ class LASModuleProfile {
   LASModuleProfile& operator-=( const double[512] );
   LASModuleProfile& operator+=( const int[512] );
   LASModuleProfile& operator-=( const int[512] );
-  LASModuleProfile& operator/=( const double );
+  LASModuleProfile& operator/=( double );
 
  private:
   void Init( void );

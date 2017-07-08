@@ -46,12 +46,12 @@ CLHEP::HepMatrix * getSavedMatrix (const std::string & name) ;
 
 /** return the impact position of the electron over ECAL */
 HepGeom::Point3D<Float_t>  TBposition (const Float_t amplit[7][7], 
-                                       const Float_t beamEne,
-                                       const Float_t w0 = 4.0,
-                                       const Float_t x0 = 8.9, //mm
-                                       const Float_t a0 = 6.2,
-                                       const Float_t sideX = 24.06, //mm
-                                       const Float_t sideY = 22.02) ; //mm
+                                       Float_t beamEne,
+                                       Float_t w0 = 4.0,
+                                       Float_t x0 = 8.9, //mm
+                                       Float_t a0 = 6.2,
+                                       Float_t sideX = 24.06, //mm
+                                       Float_t sideY = 22.02) ; //mm
 
 /** get the energy in the 5x5 
 from the 7x7 array around the most energetic crystal*/

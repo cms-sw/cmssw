@@ -65,7 +65,7 @@ class TtFullHadHypothesis : public edm::EDProducer {
   virtual void buildHypo(edm::Event& event,
 			 const edm::Handle<std::vector<pat::Jet> >& jets,
 			 std::vector<int>& jetPartonAssociation,
-			 const unsigned int iComb) = 0;
+			 unsigned int iComb) = 0;
 
  protected:
   /// internal check whether the match information exists or not,

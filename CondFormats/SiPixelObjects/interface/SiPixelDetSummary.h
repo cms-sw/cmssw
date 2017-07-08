@@ -29,7 +29,7 @@ public:
   void add(const DetId &detid, const float &value);
   void add(const DetId &detid);
   
-  void print(std::stringstream &ss, const bool mean = true) const;
+  void print(std::stringstream &ss, bool mean = true) const;
   
   std::map<int, int> getCounts() { return fCountMap;  }
   

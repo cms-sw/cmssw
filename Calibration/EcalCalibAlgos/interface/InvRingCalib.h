@@ -54,7 +54,7 @@ class InvRingCalib : public edm::EDLooper {
   //!Prepares the EB regions;
   void RegPrepare ();
   //!Gives back in which region you are:
-  int EBRegId(const int) ;
+  int EBRegId(int) ;
   //!gives back in which region of the endcap you are.
   int EERegId ( int) ;
 

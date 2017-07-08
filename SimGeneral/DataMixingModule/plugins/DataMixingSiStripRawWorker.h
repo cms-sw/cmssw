@@ -50,7 +50,7 @@ namespace edm
 
       void putSiStrip(edm::Event &e) ;
       void addSiStripSignals(const edm::Event &e); 
-      void addSiStripPileups(const int bcr, const edm::EventPrincipal*,unsigned int EventId,
+      void addSiStripPileups(int bcr, const edm::EventPrincipal*,unsigned int EventId,
                              ModuleCallingContext const*);
 
 

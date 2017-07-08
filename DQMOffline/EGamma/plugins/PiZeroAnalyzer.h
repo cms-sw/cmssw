@@ -84,7 +84,7 @@ class PiZeroAnalyzer : public DQMEDAnalyzer
   virtual void analyze( const edm::Event&, const edm::EventSetup& ) override ;
  
  private:
-  void makePizero(const edm::EventSetup& es, const edm::Handle<EcalRecHitCollection> eb, const edm::Handle<EcalRecHitCollection> ee ); 
+  void makePizero(const edm::EventSetup& es, edm::Handle<EcalRecHitCollection> eb, edm::Handle<EcalRecHitCollection> ee ); 
 
   std::string fName_;
   unsigned int prescaleFactor_;

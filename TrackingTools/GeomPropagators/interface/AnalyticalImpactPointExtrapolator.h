@@ -37,12 +37,12 @@ public:
   TrajectoryStateOnSurface extrapolate (const FreeTrajectoryState& fts, 
 					const GlobalPoint& vtx) const;
   /// as above, but from TrajectoryStateOnSurface
-  TrajectoryStateOnSurface extrapolate (const TrajectoryStateOnSurface tsos, 
+  TrajectoryStateOnSurface extrapolate (TrajectoryStateOnSurface tsos, 
 				        const GlobalPoint& vtx) const;
 
 private:
   /// extrapolation of (multi) TSOS
-  TrajectoryStateOnSurface extrapolateFullState(const TrajectoryStateOnSurface tsos, 
+  TrajectoryStateOnSurface extrapolateFullState(TrajectoryStateOnSurface tsos, 
 						const GlobalPoint& vertex) const;
   /// extrapolation of (single) FTS
   TrajectoryStateOnSurface extrapolateSingleState(const FreeTrajectoryState& fts, 

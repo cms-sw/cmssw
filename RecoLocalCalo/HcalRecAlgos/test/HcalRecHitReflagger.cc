@@ -59,8 +59,8 @@ private:
   virtual void beginRun(const Run& r, const EventSetup& c) override;
 
   // Threshold function gets values from polynomial-parameterized functions
-  double GetThreshold(const int base, const std::vector<double>& params);
-  double GetThreshold(const double base, const std::vector<double>& params);
+  double GetThreshold(int base, const std::vector<double>& params);
+  double GetThreshold(double base, const std::vector<double>& params);
 
   // Perform a check of a rechit's S9/S1 value compared to a given threshold
   bool   CheckS9S1(const HFRecHit& hf); 
@@ -71,7 +71,7 @@ private:
   // Get S9S1, PET values
   double GetS9S1value(const HFRecHit& hf);
   double GetPETvalue(const HFRecHit& hf);
-  double GetSlope(const int ieta, const std::vector<double>& params); 
+  double GetSlope(int ieta, const std::vector<double>& params); 
 
   // ----------member data ---------------------------
   const HcalTopology* topo;

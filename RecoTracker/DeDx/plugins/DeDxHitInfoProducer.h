@@ -40,7 +40,7 @@ private:
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
   void   makeCalibrationMap(const TrackerGeometry& tkGeom);
-  void   processHit(const TrackingRecHit* recHit, const float trackMomentum, const float cosine, reco::DeDxHitInfo& hitDeDxInfo,  const LocalPoint& hitLocalPos);
+  void   processHit(const TrackingRecHit* recHit, float trackMomentum, float cosine, reco::DeDxHitInfo& hitDeDxInfo,  const LocalPoint& hitLocalPos);
 
   // ----------member data ---------------------------
 

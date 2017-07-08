@@ -69,62 +69,62 @@ public:
 public:
 
     /// initialize the class (mainly reserve)
-    void init(const int nrL1NoIsoEG, const int nrL1IsoEG,
-            const int nrL1CenJet, const int nrL1ForJet, const int nrL1TauJet,
-            const int numberTechnicalTriggers);
+    void init(int nrL1NoIsoEG, int nrL1IsoEG,
+            int nrL1CenJet, int nrL1ForJet, int nrL1TauJet,
+            int numberTechnicalTriggers);
 
     /// receive Global Calorimeter Trigger objects
     void receiveGctObjectData(
         edm::Event& iEvent,
-        const edm::InputTag& caloGctInputTag, const int iBxInEvent,
-        const bool receiveNoIsoEG, const int nrL1NoIsoEG,
-        const bool receiveIsoEG, const int nrL1IsoEG,
-        const bool receiveCenJet, const int nrL1CenJet,
-        const bool receiveForJet, const int nrL1ForJet,
-        const bool receiveTauJet, const int nrL1TauJet,
-        const bool receiveETM, const bool receiveETT, const bool receiveHTT, const bool receiveHTM,
-        const bool receiveJetCounts,
-        const bool receiveHfBitCounts,
-        const bool receiveHfRingEtSums);
+        const edm::InputTag& caloGctInputTag, int iBxInEvent,
+        bool receiveNoIsoEG, int nrL1NoIsoEG,
+        bool receiveIsoEG, int nrL1IsoEG,
+        bool receiveCenJet, int nrL1CenJet,
+        bool receiveForJet, int nrL1ForJet,
+        bool receiveTauJet, int nrL1TauJet,
+        bool receiveETM, bool receiveETT, bool receiveHTT, bool receiveHTM,
+        bool receiveJetCounts,
+        bool receiveHfBitCounts,
+        bool receiveHfRingEtSums);
 
     /// receive CASTOR objects
     void receiveCastorData(
-            edm::Event& iEvent, const edm::InputTag& castorInputTag, const int iBxInEvent,
-            const bool receiveCastor, const bool readFromPsb);
+            edm::Event& iEvent, const edm::InputTag& castorInputTag, int iBxInEvent,
+            bool receiveCastor, bool readFromPsb);
 
     /// receive BPTX objects
     void receiveBptxData(edm::Event& iEvent, const edm::InputTag& bptxInputTag,
-            const int iBxInEvent, const bool receiveBptx,
-            const bool readFromPsb);
+            int iBxInEvent, bool receiveBptx,
+            bool readFromPsb);
 
     /// receive External objects
     void receiveExternalData(edm::Event& iEvent,
             const std::vector<edm::InputTag>&  externalInputTags,
-            const int iBxInEvent,
-            const bool receiveExternal, const bool readFromPsb);
+            int iBxInEvent,
+            bool receiveExternal, bool readFromPsb);
 
     /// receive technical trigger
     void receiveTechnicalTriggers(edm::Event& iEvent,
             const std::vector<edm::InputTag>& technicalTriggersInputTags,
-            const int iBxInEvent,
-            const bool receiveTechTr, const int nrL1TechTr);
+            int iBxInEvent,
+            bool receiveTechTr, int nrL1TechTr);
 
     /// fill the content of active PSB boards
     void fillPsbBlock(
         edm::Event& iEvent,
         const boost::uint16_t& activeBoardsGtDaq,
-        const int recordLength0,
-        const int recordLength1,
-        const unsigned int altNrBxBoardDaq,
+        int recordLength0,
+        int recordLength1,
+        unsigned int altNrBxBoardDaq,
         const std::vector<L1GtBoard>& boardMaps,
-        const int iBxInEvent,
+        int iBxInEvent,
         L1GlobalTriggerReadoutRecord* gtDaqReadoutRecord);
 
     /// clear PSB
     void reset();
 
     /// print Global Calorimeter Trigger data
-    void printGctObjectData(const int iBxInEvent) const;
+    void printGctObjectData(int iBxInEvent) const;
 
     /// pointer to NoIsoEG data list
     inline const std::vector<const L1GctCand*>* getCandL1NoIsoEG() const

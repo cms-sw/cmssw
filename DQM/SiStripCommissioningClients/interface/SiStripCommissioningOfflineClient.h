@@ -41,7 +41,7 @@ class SiStripCommissioningOfflineClient : public edm::EDAnalyzer {
 
   virtual void createHistos( const edm::ParameterSet&, const edm::EventSetup& );
   virtual void uploadToConfigDb() {;}
-  virtual void setInputFiles( std::vector<std::string>&, const std::string, uint32_t, bool );
+  virtual void setInputFiles( std::vector<std::string>&, std::string, uint32_t, bool );
   
  protected:
 

@@ -18,7 +18,7 @@ class EcalSampleMask {
     EcalSampleMask();
 
     // construct from pre-organized binary words 
-    EcalSampleMask(const unsigned int ebmask, const unsigned int eemask);
+    EcalSampleMask(unsigned int ebmask, unsigned int eemask);
     // constructor from an ordered set of switches, one per sample 
     EcalSampleMask( const std::vector<unsigned int> &ebmask, const std::vector<unsigned int> &eemask);
 
@@ -35,9 +35,9 @@ class EcalSampleMask {
       s << "EcalSampleMask: EB " << sampleMaskEB_ << "; EE " << sampleMaskEE_ ;
     }
 
-    bool useSampleEB  (const int sampleId) const ;
-    bool useSampleEE  (const int sampleId) const ;
-    bool useSample    (const int sampleId, DetId &theCrystal) const;
+    bool useSampleEB  (int sampleId) const ;
+    bool useSampleEE  (int sampleId) const ;
+    bool useSample    (int sampleId, DetId &theCrystal) const;
 
   private:
     unsigned int sampleMaskEB_;

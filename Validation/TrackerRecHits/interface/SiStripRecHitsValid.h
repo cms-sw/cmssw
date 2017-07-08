@@ -215,8 +215,8 @@ class SiStripRecHitsValid : public DQMEDAnalyzer {
 //  std::vector<RecHitProperties> rechitmatched;
   RecHitProperties rechitpro;
 
-  void rechitanalysis(SiStripRecHit2D const rechit,const StripTopology &topol, TrackerHitAssociator& associate);
-  void rechitanalysis_matched(SiStripMatchedRecHit2D const rechit, const GluedGeomDet* gluedDet, TrackerHitAssociator& associate);
+  void rechitanalysis(SiStripRecHit2D rechit,const StripTopology &topol, TrackerHitAssociator& associate);
+  void rechitanalysis_matched(SiStripMatchedRecHit2D rechit, const GluedGeomDet* gluedDet, TrackerHitAssociator& associate);
   
   edm::EDGetTokenT<SiStripMatchedRecHit2DCollection> matchedRecHitsToken_;
   edm::EDGetTokenT<SiStripRecHit2DCollection> rphiRecHitsToken_;

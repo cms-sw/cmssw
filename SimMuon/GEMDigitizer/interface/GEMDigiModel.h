@@ -47,7 +47,7 @@ public:
   virtual void simulateNoise(const GEMEtaPartition*, CLHEP::HepRandomEngine* engine) = 0;
   
   virtual std::vector<std::pair<int,int> > 
-    simulateClustering(const GEMEtaPartition*, const PSimHit*, const int, CLHEP::HepRandomEngine* engine) = 0;
+    simulateClustering(const GEMEtaPartition*, const PSimHit*, int, CLHEP::HepRandomEngine* engine) = 0;
 
   void fillDigis(int rollDetId, GEMDigiCollection&);
 

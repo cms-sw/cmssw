@@ -128,25 +128,25 @@ namespace reco
     int subDet1()const{return subDet(0);}
     int subDet2()const{return subDet(1);}
     unsigned int hitsMask()const; 
-    void initTwoHitSeed(const unsigned char hitMask);
-    void setNegAttributes(const float dRZ2=std::numeric_limits<float>::infinity(),
-			  const float dPhi2=std::numeric_limits<float>::infinity(),
-			  const float dRZ1=std::numeric_limits<float>::infinity(),
-			  const float dPhi1=std::numeric_limits<float>::infinity());
-    void setPosAttributes(const float dRZ2=std::numeric_limits<float>::infinity(),
-			  const float dPhi2=std::numeric_limits<float>::infinity(),
-			  const float dRZ1=std::numeric_limits<float>::infinity(),
-			  const float dPhi1=std::numeric_limits<float>::infinity());
+    void initTwoHitSeed(unsigned char hitMask);
+    void setNegAttributes(float dRZ2=std::numeric_limits<float>::infinity(),
+			  float dPhi2=std::numeric_limits<float>::infinity(),
+			  float dRZ1=std::numeric_limits<float>::infinity(),
+			  float dPhi1=std::numeric_limits<float>::infinity());
+    void setPosAttributes(float dRZ2=std::numeric_limits<float>::infinity(),
+			  float dPhi2=std::numeric_limits<float>::infinity(),
+			  float dRZ1=std::numeric_limits<float>::infinity(),
+			  float dPhi1=std::numeric_limits<float>::infinity());
     
     //this is a backwards compatible function designed to 
     //convert old format ElectronSeeds to the new format
     //only public due to root io rules, not intended for any other use
     //also in theory not necessary to part of this class
-    static std::vector<PMVars> createHitInfo(const float dPhi1Pos,const float dPhi1Neg,
-					     const float dRZ1Pos,const float dRZ1Neg,
-					     const float dPhi2Pos,const float dPhi2Neg,
-					     const float dRZ2Pos,const float dRZ2Neg, 
-					     const char hitMask,const TrajectorySeed::range recHits);
+    static std::vector<PMVars> createHitInfo(float dPhi1Pos,float dPhi1Neg,
+					     float dRZ1Pos,float dRZ1Neg,
+					     float dPhi2Pos,float dPhi2Neg,
+					     float dRZ2Pos,float dRZ2Neg, 
+					     char hitMask,TrajectorySeed::range recHits);
   private:
     static float bestVal(float val1,float val2){return std::abs(val1)<std::abs(val2) ? val1 : val2;}
     template<typename T>

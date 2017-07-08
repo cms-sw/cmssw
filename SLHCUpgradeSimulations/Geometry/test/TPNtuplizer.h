@@ -36,10 +36,10 @@ class TPNtuplizer : public edm::EDAnalyzer
 
  protected:
 
-  void fillEvt(const int numtp, const int nseltp, const int nfdtp,
-               const int numtk, const int nasstk, const edm::Event& );
-  void fillTP(const int num, const int matched_hit, const float quality, 
-              const int selected, const TrackingParticle* tp );
+  void fillEvt(int numtp, int nseltp, int nfdtp,
+               int numtk, int nasstk, const edm::Event& );
+  void fillTP(int num, int matched_hit, float quality, 
+              int selected, const TrackingParticle* tp );
 
  private:
   edm::ParameterSet conf_;

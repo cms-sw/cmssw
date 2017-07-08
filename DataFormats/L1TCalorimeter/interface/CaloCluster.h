@@ -28,7 +28,7 @@ namespace l1t {
 
     public:
       CaloCluster(){}
-      CaloCluster( const LorentzVector p4,
+      CaloCluster( LorentzVector p4,
           int pt=0,
           int eta=0,
           int phi=0

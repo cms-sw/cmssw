@@ -64,7 +64,7 @@ private:
   virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
-  bool isBadRun(const unsigned int) const;
+  bool isBadRun(unsigned int) const;
   void printConfiguration(std::stringstream& ss) const;
   
       // ----------member data ---------------------------

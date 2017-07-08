@@ -39,7 +39,7 @@
 
                 explicit Block(const edm::ParameterSet & cfg) ;
                 private:
-                template<typename T> std::pair<T,T> p2p(const edm::ParameterSet & cfg, const std::string name);
+                template<typename T> std::pair<T,T> p2p(const edm::ParameterSet & cfg, std::string name);
             };
         public:
             /// constructor

@@ -338,7 +338,7 @@ private:
   bool _debug;
   double _qweight;
 
-  void UnclusterFatjets(const vector<fastjet::PseudoJet> & big_fatjets, vector<fastjet::PseudoJet> & small_fatjets, const ClusterSequence & cs, const double small_radius);
+  void UnclusterFatjets(const vector<fastjet::PseudoJet> & big_fatjets, vector<fastjet::PseudoJet> & small_fatjets, const ClusterSequence & cs, double small_radius);
 
 };
 //--------------------------------------------------------------------

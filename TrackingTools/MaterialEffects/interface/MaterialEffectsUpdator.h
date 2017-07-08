@@ -66,7 +66,7 @@ public:
    *    (momentum and covariance matrix are potentially affected.
    */
   virtual TrajectoryStateOnSurface updateState (const TrajectoryStateOnSurface& TSoS, 
-						const PropagationDirection propDir) const;
+						PropagationDirection propDir) const;
 
   /** Updates in place TrajectoryStateOnSurface with material effects
    *    (momentum and covariance matrix are potentially affected)
@@ -75,7 +75,7 @@ public:
    *  (just like 'updateState' can return the same TSOS)
    */
   virtual bool updateStateInPlace (TrajectoryStateOnSurface& TSoS, 
-				   const PropagationDirection propDir) const;
+				   PropagationDirection propDir) const;
 
 
 
@@ -88,7 +88,7 @@ public:
   virtual MaterialEffectsUpdator* clone()  const = 0;
 
   // here comes the actual computation of the values
-  virtual void compute (const TrajectoryStateOnSurface&, const PropagationDirection, Effect & effect) const = 0;
+  virtual void compute (const TrajectoryStateOnSurface&, PropagationDirection, Effect & effect) const = 0;
  
  private:
   float theMass;

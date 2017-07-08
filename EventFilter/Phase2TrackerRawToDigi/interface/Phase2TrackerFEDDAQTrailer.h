@@ -60,20 +60,20 @@ namespace Phase2Tracker {
 
       // setters
       void setEventLengthIn64BitWords(
-                                      const uint32_t eventLengthIn64BitWords);
-      void setCRC(const uint16_t crc);
-      void setSLinkTransmissionErrorBit(const bool bitSet);
-      void setBadSourceIDBit(const bool bitSet);
-      void setSLinkCRCErrorBit(const bool bitSet);
-      void setEventStatusNibble(const uint8_t eventStatusNibble);
-      void setTTSBits(const FEDTTSBits ttsBits);
-      FEDDAQTrailer(const uint32_t eventLengthIn64BitWords,
-                    const uint16_t crc = 0,
-                    const FEDTTSBits ttsBits = TTS_READY,
-                    const bool slinkTransmissionError = false,
-                    const bool badFEDID = false, 
-                    const bool slinkCRCError = false,
-                    const uint8_t eventStatusNibble = 0);
+                                      uint32_t eventLengthIn64BitWords);
+      void setCRC(uint16_t crc);
+      void setSLinkTransmissionErrorBit(bool bitSet);
+      void setBadSourceIDBit(bool bitSet);
+      void setSLinkCRCErrorBit(bool bitSet);
+      void setEventStatusNibble(uint8_t eventStatusNibble);
+      void setTTSBits(FEDTTSBits ttsBits);
+      FEDDAQTrailer(uint32_t eventLengthIn64BitWords,
+                    uint16_t crc = 0,
+                    FEDTTSBits ttsBits = TTS_READY,
+                    bool slinkTransmissionError = false,
+                    bool badFEDID = false, 
+                    bool slinkCRCError = false,
+                    uint8_t eventStatusNibble = 0);
     private:
       uint8_t trailer_[8];
 

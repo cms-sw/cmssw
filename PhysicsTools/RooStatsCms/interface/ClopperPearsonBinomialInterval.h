@@ -20,7 +20,7 @@
 
 class ClopperPearsonBinomialInterval : public BinomialInterval {
  public:
-  void calculate(const double successes, const double trials);
+  void calculate(double successes, double trials);
   const char* name() const { return "Clopper-Pearson"; }
 #if (defined (STANDALONE) or defined (__CINT__) )
 ClassDef(ClopperPearsonBinomialInterval,1)

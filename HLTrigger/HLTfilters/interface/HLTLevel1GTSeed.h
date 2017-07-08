@@ -69,7 +69,7 @@ public:
 private:
 
     /// get the vector of object types for a condition cndName on the GTL chip chipNumber
-    const std::vector<L1GtObject>* objectTypeVec(const int chipNumber, const std::string& cndName) const;
+    const std::vector<L1GtObject>* objectTypeVec(int chipNumber, const std::string& cndName) const;
 
     /// update the tokenNumber (holding the bit numbers) from m_l1AlgoLogicParser
     /// for a new L1 Trigger menu
@@ -78,7 +78,7 @@ private:
     /// update the tokenResult members from m_l1AlgoLogicParser
     /// for a new event
     void updateAlgoLogicParser(const std::vector<bool>& gtWord,
-            const std::vector<unsigned int>& triggerMask, const int physicsDaqPartition);
+            const std::vector<unsigned int>& triggerMask, int physicsDaqPartition);
 
     /// for seeding via technical triggers, convert the "name" to tokenNumber
     /// (seeding via bit numbers) - done once in constructor
@@ -94,7 +94,7 @@ private:
             trigger::TriggerFilterObjectWithRefs &,
             const L1GtTriggerMask *,
             const L1GlobalTriggerReadoutRecord *,
-            const int physicsDaqPartition);
+            int physicsDaqPartition);
 
     /// seeding is done ignoring if a L1 object fired or not
     /// if the event is selected at L1, fill all the L1 objects of types corresponding to the

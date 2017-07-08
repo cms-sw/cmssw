@@ -69,7 +69,7 @@ class RPCSeedPattern {
 
     void checkSimplePattern(const edm::EventSetup& eSetup);
     void checkSegmentAlgorithmSpecial(const edm::EventSetup& eSetup);
-    double extropolateStep(const GlobalPoint& startPosition, const GlobalVector& startMomentum, ConstMuonRecHitContainer::const_iterator iter, const int ClockwiseDirection, double& tracklength, const edm::EventSetup& eSetup);
+    double extropolateStep(const GlobalPoint& startPosition, const GlobalVector& startMomentum, ConstMuonRecHitContainer::const_iterator iter, int ClockwiseDirection, double& tracklength, const edm::EventSetup& eSetup);
     
     //void computeBestPt(double* pt, double* spt, double& ptmean0, double& sptmean0, unsigned int NumberofPt) const;
 

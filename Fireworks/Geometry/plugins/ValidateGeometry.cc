@@ -70,16 +70,16 @@ private:
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override;  
 
-  void validateRPCGeometry(const int regionNumber, 
+  void validateRPCGeometry(int regionNumber, 
                            const char* regionName);
 
   void validateDTChamberGeometry();
   void validateDTLayerGeometry();
 
-  void validateCSChamberGeometry(const int endcap,
+  void validateCSChamberGeometry(int endcap,
                                  const char* detname);
 
-  void validateCSCLayerGeometry(const int endcap,
+  void validateCSCLayerGeometry(int endcap,
                                 const char* detname);
 
   void validateCaloGeometry(DetId::Detector detector, int subdetector,

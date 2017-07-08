@@ -36,7 +36,7 @@ namespace sistrip {
       virtual bool filter(edm::Event& event, const edm::EventSetup& eventSetup) override;  
     private:
       void findL1IDandAPVAddress(const edm::Event& event, const SiStripFedCabling& cabling, uint32_t& l1ID, uint8_t& apvAddress) const;
-      void copyData(const uint32_t eventId, const uint8_t apvAddress, const SpyEventMatcher::SpyEventList* matches, edm::Event& event,
+      void copyData(uint32_t eventId, uint8_t apvAddress, const SpyEventMatcher::SpyEventList* matches, edm::Event& event,
                     const SiStripFedCabling& cabling) const;
       
       static const char* messageLabel_;

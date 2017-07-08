@@ -30,8 +30,8 @@ public:
 
 private:
   /// creation of new state with different weight
-  TrajectoryStateOnSurface setWeight (const TrajectoryStateOnSurface,
-				      const double) const;
+  TrajectoryStateOnSurface setWeight (TrajectoryStateOnSurface,
+				      double) const;
 
 private:
   // Single state propagator

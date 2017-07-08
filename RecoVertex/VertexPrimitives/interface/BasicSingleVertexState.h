@@ -27,20 +27,20 @@ public:
 
   // constructors with time (ignores off-diagonals in fit)
   BasicSingleVertexState(const GlobalPoint & pos, const GlobalError & posErr,
-                         const double time, const double timeError,
+                         double time, double timeError,
                          const double & weightInMix = 1.0);
   BasicSingleVertexState(const GlobalPoint & pos, const GlobalWeight & posWeight,
-                         const double time, const double timeWeight,
+                         double time, double timeWeight,
                          const double & weightInMix = 1.0);
   BasicSingleVertexState(const AlgebraicVector3 & weightTimesPosition, 
                          const GlobalWeight & posWeight,
-                         const double weightTimesTime, const double timeWeight,
+                         double weightTimesTime, double timeWeight,
                          const double & weightInMix = 1.0);
 
   // constructors with time, full cov
-  BasicSingleVertexState(const GlobalPoint & pos, const double time, 
+  BasicSingleVertexState(const GlobalPoint & pos, double time, 
                          const GlobalError & posTimeErr, const double & weightInMix = 1.0);
-  BasicSingleVertexState(const GlobalPoint & pos, const double time, 
+  BasicSingleVertexState(const GlobalPoint & pos, double time, 
                          const GlobalWeight & posTimeWeight, const double & weightInMix = 1.0);
   BasicSingleVertexState(const AlgebraicVector4 & weightTimesPosition,
                          const GlobalWeight & posTimeWeight,

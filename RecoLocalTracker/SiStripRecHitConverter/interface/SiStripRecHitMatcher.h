@@ -39,7 +39,7 @@ public:
   typedef std::pair<LocalPoint,LocalPoint>                  StripPosition; 
 
   SiStripRecHitMatcher(const edm::ParameterSet& conf);
-  SiStripRecHitMatcher(const double theScale);
+  SiStripRecHitMatcher(double theScale);
 
   bool preFilter() const { return preFilter_;}  
 

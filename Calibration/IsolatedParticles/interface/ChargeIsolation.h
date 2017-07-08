@@ -55,9 +55,9 @@ namespace spr{
   // Returns the maximum energy of a track within a NxN matrix around the
   // impact of a given track on the HCAL surface. It extrapolates all tracks
   // in the collection to the HCAL surface in order to do the tests
-  double chargeIsolationHcal(reco::TrackCollection::const_iterator trkItr, edm::Handle<reco::TrackCollection> trkCollection, const DetId ClosestCell, const HcalTopology* topology, const CaloSubdetectorGeometry* gHB, const MagneticField* bField, int ieta, int iphi, std::string& theTrackQuality, bool debug=false);
+  double chargeIsolationHcal(reco::TrackCollection::const_iterator trkItr, edm::Handle<reco::TrackCollection> trkCollection, DetId ClosestCell, const HcalTopology* topology, const CaloSubdetectorGeometry* gHB, const MagneticField* bField, int ieta, int iphi, std::string& theTrackQuality, bool debug=false);
 
-  bool chargeIsolation(const DetId anyCell, std::vector<DetId>& vdets) ;
+  bool chargeIsolation(DetId anyCell, std::vector<DetId>& vdets) ;
 
   // Returns the maximum energy of a track within a cone of radius *dR*
   // around the impact poiunt to the ECAL surface

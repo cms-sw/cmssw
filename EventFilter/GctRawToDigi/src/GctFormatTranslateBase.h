@@ -109,13 +109,13 @@ protected:
 
   /* Other general methods */
   /// Get a specific jet candandiate collection using the JetCandCategory enumeration.
-  L1GctJetCandCollection * const gctJets(const unsigned cat) const;
+  L1GctJetCandCollection * const gctJets(unsigned cat) const;
 
   /// Returns a raw 32-bit header word generated from the blockId, number of time samples, bunch-crossing and event IDs.
-  virtual uint32_t generateRawHeader(const uint32_t blockId,
-                                     const uint32_t nSamples,
-                                     const uint32_t bxId,
-                                     const uint32_t eventId) const = 0;
+  virtual uint32_t generateRawHeader(uint32_t blockId,
+                                     uint32_t nSamples,
+                                     uint32_t bxId,
+                                     uint32_t eventId) const = 0;
 
   /// Writes a raw block header into the raw data array for a given block ID and number of time-samples.
   /*! BxId and EventId values for the raw header are set via the setPackingBxId() and setPackingEventId() methods. */

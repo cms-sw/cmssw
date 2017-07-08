@@ -68,7 +68,7 @@ class EgammaHLTMulti5x5ClusterProducer : public edm::EDProducer {
 			  edm::EDGetTokenT<EcalRecHitCollection>& hitToken,
 			  const std::string& clusterCollection,
 			  const std::vector<EcalEtaPhiRegion>& regions,
-			  const reco::CaloID::Detectors detector);
+			  reco::CaloID::Detectors detector);
 
   void outputValidationInfo(reco::CaloClusterPtrVector &clusterPtrVector);
 

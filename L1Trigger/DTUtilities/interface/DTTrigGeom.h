@@ -143,7 +143,7 @@ class DTTrigGeom {
     \endverbatim
   */
     /// Local position in chamber of a BTI
-    LocalPoint localPosition(const DTBtiId) const;
+    LocalPoint localPosition(DTBtiId) const;
 
  /*!
     \verbatim
@@ -176,7 +176,7 @@ class DTTrigGeom {
    \endverbatim
    */
     /// Local position in chamber of a TRACO
-    LocalPoint localPosition(const DTTracoId) const;
+    LocalPoint localPosition(DTTracoId) const;
 
     /// CMS position of a BTI
     inline GlobalPoint CMSPosition(const DTBtiId obj) const { 

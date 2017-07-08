@@ -41,11 +41,11 @@ public:
    * \return The chi**2.
    */
 
-  virtual BDpair estimate(const CachingVertex<5> & vrt, const RefCountedVertexTrack track,
+  virtual BDpair estimate(const CachingVertex<5> & vrt, RefCountedVertexTrack track,
 			  unsigned int hint=UINT_MAX) const;
 
   virtual BDpair estimate(const CachingVertex<5> & v, 
-			  const RefCountedLinearizedTrackState track,
+			  RefCountedLinearizedTrackState track,
 			  unsigned int hint=UINT_MAX) const;
 
   virtual BDpair estimate(const reco::Vertex & vertex, 
@@ -59,8 +59,8 @@ public:
 
 private:
 
-  BDpair estimateFittedTrack(const CachingVertex<5> & v, const RefCountedVertexTrack track) const;
-  BDpair estimateNFittedTrack(const CachingVertex<5> & v, const RefCountedVertexTrack track) const;  
+  BDpair estimateFittedTrack(const CachingVertex<5> & v, RefCountedVertexTrack track) const;
+  BDpair estimateNFittedTrack(const CachingVertex<5> & v, RefCountedVertexTrack track) const;  
 
   GsfVertexUpdator updator;
 //   KalmanVertexTrackUpdator trackUpdator;

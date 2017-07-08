@@ -78,8 +78,8 @@ class DQMGenericClient : public DQMEDHarvester
                          const std::string& efficMETitle,
                          const std::string& recoMEName, 
                          const std::string& simMEName, 
-                         const EfficType type=EfficType::efficiency,
-                         const bool makeProfile = false);
+                         EfficType type=EfficType::efficiency,
+                         bool makeProfile = false);
   void computeResolution(DQMStore::IBooker& ibooker,
 			 DQMStore::IGetter& igetter,
 			 const std::string& startDir, 
@@ -119,7 +119,7 @@ class DQMGenericClient : public DQMEDHarvester
   std::vector<NormOption> normOptions_;
   std::vector<CDOption> cdOptions_;
 
-  void generic_eff (TH1 * denom, TH1 * numer, MonitorElement * efficiencyHist, const EfficType type=EfficType::efficiency);
+  void generic_eff (TH1 * denom, TH1 * numer, MonitorElement * efficiencyHist, EfficType type=EfficType::efficiency);
 
   void findAllSubdirectories (DQMStore::IBooker& ibooker,
 			      DQMStore::IGetter& igetter,

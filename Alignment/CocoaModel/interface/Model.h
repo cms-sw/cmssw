@@ -47,7 +47,7 @@ public:
 
   static cocoaStatus getCocoaStatus(){ return theCocoaStatus;}
   static void setCocoaStatus(const cocoaStatus cs ){ theCocoaStatus = cs; }
-  static std::string printCocoaStatus(const cocoaStatus cs);
+  static std::string printCocoaStatus(cocoaStatus cs);
 
   ///---------- Read the different sections of the SDF and act accordingly
   static void readSystemDescription();
@@ -260,10 +260,10 @@ private:
 
   static void saveParamFittedCorrelation( const ALIstring& opto_name1, const ALIstring& entry_name1, const ALIstring& opto_name2, const ALIstring& entry_name2);
 
-  static void recoverParamFittedSigma( const ALIstring& opto_name, const ALIstring& entry_name, const ALIuint position );
+  static void recoverParamFittedSigma( const ALIstring& opto_name, const ALIstring& entry_name, ALIuint position );
 
  public:
-  static ALIdouble getParamFittedSigmaVectorItem( const ALIuint position );
+  static ALIdouble getParamFittedSigmaVectorItem( ALIuint position );
   static FittedEntriesReader* getFittedEntriesReader(){
     return theFittedEntriesReader; }
 

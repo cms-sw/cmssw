@@ -25,7 +25,7 @@ public:
   }
   
   /// Computation: generates vectors of weights, means and standard deviations
-  virtual void compute (const TrajectoryStateOnSurface&, const PropagationDirection, Effect[]) const;
+  virtual void compute (const TrajectoryStateOnSurface&, PropagationDirection, Effect[]) const;
 
   virtual size_t size() const { return 2;}
   

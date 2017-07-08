@@ -73,27 +73,27 @@ namespace evf{
       std::string &buBaseRunOpenDir(){return bu_run_open_dir_;}
 
       std::string findCurrentRunDir(){ return dirManager_.findRunDir(run_);}
-      std::string getInputJsonFilePath(const unsigned int ls, const unsigned int index) const;
-      std::string getRawFilePath(const unsigned int ls, const unsigned int index) const;
-      std::string getOpenRawFilePath(const unsigned int ls, const unsigned int index) const;
-      std::string getOpenInputJsonFilePath(const unsigned int ls, const unsigned int index) const;
-      std::string getDatFilePath(const unsigned int ls, std::string const& stream) const;
-      std::string getOpenDatFilePath(const unsigned int ls, std::string const& stream) const;
-      std::string getOpenOutputJsonFilePath(const unsigned int ls, std::string const& stream) const;
-      std::string getOutputJsonFilePath(const unsigned int ls, std::string const& stream) const;
-      std::string getMergedDatFilePath(const unsigned int ls, std::string const& stream) const;
-      std::string getMergedDatChecksumFilePath(const unsigned int ls, std::string const& stream) const;
+      std::string getInputJsonFilePath(unsigned int ls, unsigned int index) const;
+      std::string getRawFilePath(unsigned int ls, unsigned int index) const;
+      std::string getOpenRawFilePath(unsigned int ls, unsigned int index) const;
+      std::string getOpenInputJsonFilePath(unsigned int ls, unsigned int index) const;
+      std::string getDatFilePath(unsigned int ls, std::string const& stream) const;
+      std::string getOpenDatFilePath(unsigned int ls, std::string const& stream) const;
+      std::string getOpenOutputJsonFilePath(unsigned int ls, std::string const& stream) const;
+      std::string getOutputJsonFilePath(unsigned int ls, std::string const& stream) const;
+      std::string getMergedDatFilePath(unsigned int ls, std::string const& stream) const;
+      std::string getMergedDatChecksumFilePath(unsigned int ls, std::string const& stream) const;
       std::string getOpenInitFilePath(std::string const& stream) const;
       std::string getInitFilePath(std::string const& stream) const;
-      std::string getOpenProtocolBufferHistogramFilePath(const unsigned int ls, std::string const& stream) const;
-      std::string getProtocolBufferHistogramFilePath(const unsigned int ls, std::string const& stream) const;
-      std::string getMergedProtocolBufferHistogramFilePath(const unsigned int ls, std::string const& stream) const;
-      std::string getOpenRootHistogramFilePath(const unsigned int ls, std::string const& stream) const;
-      std::string getRootHistogramFilePath(const unsigned int ls, std::string const& stream) const;
-      std::string getMergedRootHistogramFilePath(const unsigned int ls, std::string const& stream) const;
-      std::string getEoLSFilePathOnBU(const unsigned int ls) const;
-      std::string getEoLSFilePathOnFU(const unsigned int ls) const;
-      std::string getBoLSFilePathOnFU(const unsigned int ls) const;
+      std::string getOpenProtocolBufferHistogramFilePath(unsigned int ls, std::string const& stream) const;
+      std::string getProtocolBufferHistogramFilePath(unsigned int ls, std::string const& stream) const;
+      std::string getMergedProtocolBufferHistogramFilePath(unsigned int ls, std::string const& stream) const;
+      std::string getOpenRootHistogramFilePath(unsigned int ls, std::string const& stream) const;
+      std::string getRootHistogramFilePath(unsigned int ls, std::string const& stream) const;
+      std::string getMergedRootHistogramFilePath(unsigned int ls, std::string const& stream) const;
+      std::string getEoLSFilePathOnBU(unsigned int ls) const;
+      std::string getEoLSFilePathOnFU(unsigned int ls) const;
+      std::string getBoLSFilePathOnFU(unsigned int ls) const;
       std::string getEoRFilePath() const;
       std::string getEoRFilePathOnFU() const;
       std::string getRunOpenDirPath() const {return run_dir_ +"/open";}
@@ -134,11 +134,11 @@ namespace evf{
       //bool fulock();
       bool bumpFile(unsigned int& ls, unsigned int& index, std::string& nextFile, uint32_t& fsize, int maxLS);
       void openFULockfileStream(std::string& fuLockFilePath, bool create);
-      std::string inputFileNameStem(const unsigned int ls, const unsigned int index) const;
-      std::string outputFileNameStem(const unsigned int ls, std::string const& stream) const;
-      std::string mergedFileNameStem(const unsigned int ls, std::string const& stream) const;
+      std::string inputFileNameStem(unsigned int ls, unsigned int index) const;
+      std::string outputFileNameStem(unsigned int ls, std::string const& stream) const;
+      std::string mergedFileNameStem(unsigned int ls, std::string const& stream) const;
       std::string initFileName(std::string const& stream) const;
-      std::string eolsFileName(const unsigned int ls) const;
+      std::string eolsFileName(unsigned int ls) const;
       std::string eorFileName() const;
       int getNFilesFromEoLS(std::string BUEoLSFile);
 

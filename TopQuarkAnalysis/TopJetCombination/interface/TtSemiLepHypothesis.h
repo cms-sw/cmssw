@@ -78,7 +78,7 @@ class TtSemiLepHypothesis : public edm::EDProducer {
 			 const edm::Handle<std::vector<pat::MET> >& neutrino,
 			 const edm::Handle<std::vector<pat::Jet> >& jets,
 			 std::vector<int>& jetPartonAssociation,
-			 const unsigned int iComb) = 0;
+			 unsigned int iComb) = 0;
 
  protected:
   /// internal check whether the match information exists or not,

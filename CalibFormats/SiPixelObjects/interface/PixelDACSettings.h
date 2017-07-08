@@ -106,7 +106,7 @@ namespace pos{
 
     std::vector<PixelROCDACSettings> dacsettings_;
 
-    bool rocIsDisabled(const PixelDetectorConfig* detconfig, const PixelROCName rocname) const;
+    bool rocIsDisabled(const PixelDetectorConfig* detconfig, PixelROCName rocname) const;
 
   };
 }

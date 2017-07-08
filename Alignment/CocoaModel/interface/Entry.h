@@ -79,7 +79,7 @@ public:
   void setQuality( ALIuint qual ){ quality_ = qual; }
   void setFitPos( const ALIint fitpos ) { fitPos_ = fitpos; } 
   void setOptOCurrent( OpticalObject* opto ){ OptOCurrent_ = opto; }
-  void addFittedDisplacementToValue(const ALIdouble val);
+  void addFittedDisplacementToValue(ALIdouble val);
 
   void substractToHalfFittedDisplacementToValue();
 

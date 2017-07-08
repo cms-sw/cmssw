@@ -23,9 +23,9 @@
 class HSMLinearizationPointFinder : public CrossingPtBasedLinearizationPointFinder
 {
 public:
-  HSMLinearizationPointFinder( const signed int n_pairs = 10 );
+  HSMLinearizationPointFinder( signed int n_pairs = 10 );
   HSMLinearizationPointFinder( const RecTracksDistanceMatrix * m,
-      const signed int n_pairs = -1 );
+      signed int n_pairs = -1 );
 
   virtual HSMLinearizationPointFinder * clone() const;
 };

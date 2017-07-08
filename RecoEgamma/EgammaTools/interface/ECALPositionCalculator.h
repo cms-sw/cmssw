@@ -10,7 +10,7 @@ class ECALPositionCalculator
 {
    public:
       ECALPositionCalculator() { };
-      double ecalPhi(const MagneticField *magField, const math::XYZVector &momentum, const math::XYZPoint &vertex, const int charge);
+      double ecalPhi(const MagneticField *magField, const math::XYZVector &momentum, const math::XYZPoint &vertex, int charge);
       double ecalEta(const math::XYZVector &momentum, const math::XYZPoint &vertex);
    private:
 

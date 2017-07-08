@@ -34,7 +34,7 @@ protected:
   /// Clean the histograms map
   void clearHistoMap();
   /// Save the histograms map to file
-  void writeHistoMap( const unsigned int iLoop );
+  void writeHistoMap( unsigned int iLoop );
 
   /// Read probability distributions from a local root file.
   void readProbabilityDistributionsFromFile();

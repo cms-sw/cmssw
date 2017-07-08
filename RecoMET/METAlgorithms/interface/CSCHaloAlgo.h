@@ -93,7 +93,7 @@ class CSCHaloAlgo {
   CSCHaloAlgo();
   ~CSCHaloAlgo(){}
   reco::CSCHaloData Calculate(const CSCGeometry& TheCSCGeometry,edm::Handle<reco::MuonCollection>& TheCosmicMuons, 
-			      const edm::Handle<reco::MuonTimeExtraMap> TheCSCTimeMap,
+			      edm::Handle<reco::MuonTimeExtraMap> TheCSCTimeMap,
 			      edm::Handle<reco::MuonCollection>& TheMuons, edm::Handle<CSCSegmentCollection>& TheCSCSegments, 
 			      edm::Handle<CSCRecHit2DCollection>& TheCSCRecHits,edm::Handle < L1MuGMTReadoutCollection >& TheL1GMTReadout,
 			      edm::Handle<HBHERecHitCollection>& hbhehits,edm::Handle<EcalRecHitCollection>& ecalebhits,

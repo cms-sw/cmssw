@@ -104,7 +104,7 @@ namespace edm {
 
     void print(std::ostream& os) const;
 
-    bool anyProducts(BranchType const brType) const;
+    bool anyProducts(BranchType brType) const;
 
     std::shared_ptr<ProductResolverIndexHelper const> productLookup(BranchType branchType) const;
     std::shared_ptr<ProductResolverIndexHelper> productLookup(BranchType branchType);

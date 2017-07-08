@@ -18,22 +18,22 @@ class JetPartonMatching {
 
   JetPartonMatching(){};
   JetPartonMatching(const std::vector<const reco::Candidate*>&, const std::vector<reco::GenJet>&,
-		    const int, const bool, const bool, const double);
+		    int, bool, bool, double);
   JetPartonMatching(const std::vector<const reco::Candidate*>&, const std::vector<reco::CaloJet>&,
-		    const int, const bool, const bool, const double);
+		    int, bool, bool, double);
   JetPartonMatching(const std::vector<const reco::Candidate*>&, const std::vector<pat::Jet>&,
-		    const int, const bool, const bool, const double);
+		    int, bool, bool, double);
   JetPartonMatching(const std::vector<const reco::Candidate*>&, const std::vector<const reco::Candidate*>&,
-		    const int, const bool, const bool, const double);
+		    int, bool, bool, double);
   ~JetPartonMatching(){};	
   
   //matching meta information
   unsigned int getNumberOfAvailableCombinations() { return matching.size(); }
   int getNumberOfUnmatchedPartons(const unsigned int comb=0){ return (comb<numberOfUnmatchedPartons.size() ? (int)numberOfUnmatchedPartons[comb] : -1 ); }
-  int getMatchForParton(const unsigned int part, const unsigned int comb=0);
-  std::vector<int> getMatchesForPartons(const unsigned int comb=0);
-  double getDistanceForParton(const unsigned int part, const unsigned int comb=0);
-  double getSumDistances(const unsigned int comb=0);
+  int getMatchForParton(unsigned int part, unsigned int comb=0);
+  std::vector<int> getMatchesForPartons(unsigned int comb=0);
+  double getDistanceForParton(unsigned int part, unsigned int comb=0);
+  double getSumDistances(unsigned int comb=0);
 
   //matching quantities
   double getSumDeltaE (const unsigned int comb=0) { return (comb<sumDeltaE .size() ? sumDeltaE [comb] : -999.); }
@@ -47,7 +47,7 @@ class JetPartonMatching {
   void calculate();
   double distance(const math::XYZTLorentzVector&, const math::XYZTLorentzVector&);
   void matchingTotalMinDist();
-  void minSumDist_recursion(const unsigned int, std::vector<unsigned int>&, std::vector<bool>&, std::vector<std::pair<double, MatchingCollection> >&);
+  void minSumDist_recursion(unsigned int, std::vector<unsigned int>&, std::vector<bool>&, std::vector<std::pair<double, MatchingCollection> >&);
   void matchingMinSumDist();
   void matchingPtOrderedMinDist();
   void matchingUnambiguousOnly();

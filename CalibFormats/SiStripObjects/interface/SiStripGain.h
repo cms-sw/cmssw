@@ -77,9 +77,9 @@ class SiStripGain
    * NOTE that no protection is inside the method (because we want to keep it very light)
    * therefore it is the caller duty to check that the index is in the correct range.
    */
-  const SiStripApvGain::Range getRange(const uint32_t& detID, const uint32_t index) const;
-  float getStripGain(const uint16_t& strip, const SiStripApvGain::Range& range, const uint32_t index) const;
-  float getApvGain(const uint16_t& apv, const SiStripApvGain::Range& range, const uint32_t index) const;
+  const SiStripApvGain::Range getRange(const uint32_t& detID, uint32_t index) const;
+  float getStripGain(const uint16_t& strip, const SiStripApvGain::Range& range, uint32_t index) const;
+  float getApvGain(const uint16_t& apv, const SiStripApvGain::Range& range, uint32_t index) const;
 
   /// ATTENTION: we assume the detIds are the same as those from the first gain
   void getDetIds(std::vector<uint32_t>& DetIds_) const;

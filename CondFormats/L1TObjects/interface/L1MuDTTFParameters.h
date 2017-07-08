@@ -50,42 +50,42 @@ class L1MuDTTFParameters {
     /// reset parameters to zero
     void reset();
 
-    void set_inrec_qual_st1(int wh, int sc, const unsigned short int val);
+    void set_inrec_qual_st1(int wh, int sc, unsigned short int val);
     unsigned short int get_inrec_qual_st1(int wh, int sc) const;
-    void set_inrec_qual_st2(int wh, int sc, const unsigned short int val);
+    void set_inrec_qual_st2(int wh, int sc, unsigned short int val);
     unsigned short int get_inrec_qual_st2(int wh, int sc) const;
-    void set_inrec_qual_st3(int wh, int sc, const unsigned short int val);
+    void set_inrec_qual_st3(int wh, int sc, unsigned short int val);
     unsigned short int get_inrec_qual_st3(int wh, int sc) const;
-    void set_inrec_qual_st4(int wh, int sc, const unsigned short int val);
+    void set_inrec_qual_st4(int wh, int sc, unsigned short int val);
     unsigned short int get_inrec_qual_st4(int wh, int sc) const;
 
-    void set_soc_stdis_n(int wh, int sc, const unsigned short int val);
+    void set_soc_stdis_n(int wh, int sc, unsigned short int val);
     unsigned short int get_soc_stdis_n(int wh, int sc) const;
-    void set_soc_stdis_wl(int wh, int sc, const unsigned short int val);
+    void set_soc_stdis_wl(int wh, int sc, unsigned short int val);
     unsigned short int get_soc_stdis_wl(int wh, int sc) const;
-    void set_soc_stdis_wr(int wh, int sc, const unsigned short int val);
+    void set_soc_stdis_wr(int wh, int sc, unsigned short int val);
     unsigned short int get_soc_stdis_wr(int wh, int sc) const;
-    void set_soc_stdis_zl(int wh, int sc, const unsigned short int val);
+    void set_soc_stdis_zl(int wh, int sc, unsigned short int val);
     unsigned short int get_soc_stdis_zl(int wh, int sc) const;
-    void set_soc_stdis_zr(int wh, int sc, const unsigned short int val);
+    void set_soc_stdis_zr(int wh, int sc, unsigned short int val);
     unsigned short int get_soc_stdis_zr(int wh, int sc) const;
 
-    void set_soc_qcut_st1(int wh, int sc, const unsigned short int val);
+    void set_soc_qcut_st1(int wh, int sc, unsigned short int val);
     unsigned short int get_soc_qcut_st1(int wh, int sc) const;
-    void set_soc_qcut_st2(int wh, int sc, const unsigned short int val);
+    void set_soc_qcut_st2(int wh, int sc, unsigned short int val);
     unsigned short int get_soc_qcut_st2(int wh, int sc) const;
-    void set_soc_qcut_st4(int wh, int sc, const unsigned short int val);
+    void set_soc_qcut_st4(int wh, int sc, unsigned short int val);
     unsigned short int get_soc_qcut_st4(int wh, int sc) const;
-    void set_soc_qual_csc(int wh, int sc, const unsigned short int val);
+    void set_soc_qual_csc(int wh, int sc, unsigned short int val);
     unsigned short int get_soc_qual_csc(int wh, int sc) const;
 
-    void set_soc_run_21(int wh, int sc, const bool val);
+    void set_soc_run_21(int wh, int sc, bool val);
     bool get_soc_run_21(int wh, int sc) const;
-    void set_soc_nbx_del(int wh, int sc, const bool val);
+    void set_soc_nbx_del(int wh, int sc, bool val);
     bool get_soc_nbx_del(int wh, int sc) const;
-    void set_soc_csc_etacanc(int wh, int sc, const bool val);
+    void set_soc_csc_etacanc(int wh, int sc, bool val);
     bool get_soc_csc_etacanc(int wh, int sc) const;
-    void set_soc_openlut_extr(int wh, int sc, const bool val);
+    void set_soc_openlut_extr(int wh, int sc, bool val);
     bool get_soc_openlut_extr(int wh, int sc) const;
 
     void print() const;

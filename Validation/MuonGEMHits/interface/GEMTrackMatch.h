@@ -46,8 +46,8 @@ public:
   virtual ~GEMTrackMatch();
   virtual void analyze(const edm::Event& e, const edm::EventSetup&) = 0 ;
 
-  void buildLUT(const int maxChamberId);
-  std::pair<int,int> getClosestChambers(const int maxChamberId, int region, float phi);
+  void buildLUT(int maxChamberId);
+  std::pair<int,int> getClosestChambers(int maxChamberId, int region, float phi);
   std::pair<double, double> getEtaRangeForPhi( int station );
   bool isSimTrackGood(const SimTrack& );
   void setGeometry(const GEMGeometry& geom); 

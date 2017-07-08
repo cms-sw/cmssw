@@ -23,7 +23,7 @@ public:
 
   /// Convolution using the GsfMaterialEffectsUpdator
   TrajectoryStateOnSurface operator() (const TrajectoryStateOnSurface&,
-				       const PropagationDirection) const;
+				       PropagationDirection) const;
 
   /// Access to material effects updator
   inline const GsfMaterialEffectsUpdator& materialEffectsUpdator () const

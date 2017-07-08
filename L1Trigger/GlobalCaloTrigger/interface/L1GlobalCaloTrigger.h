@@ -62,7 +62,7 @@ public:
   typedef L1GctJetFinderBase::lutPtrVector lutPtrVector;
 
   /// construct the GCT
-  L1GlobalCaloTrigger(const L1GctJetLeafCard::jetFinderType jfType = L1GctJetLeafCard::hardwareJetFinder, unsigned jetLeafMask = 0);
+  L1GlobalCaloTrigger(L1GctJetLeafCard::jetFinderType jfType = L1GctJetLeafCard::hardwareJetFinder, unsigned jetLeafMask = 0);
 
   /// dismantle the GCT
   ~L1GlobalCaloTrigger();
@@ -77,31 +77,31 @@ public:
   /// Configuration options for the GCT
   ///
   /// Setup the jet finder parameters
-  void setJetFinderParams(const L1GctJetFinderParams* const jfpars);
+  void setJetFinderParams(const L1GctJetFinderParams* jfpars);
 
   /// setup the Jet Calibration Luts
   void setJetEtCalibrationLuts(const lutPtrVector& jfluts);
 
   /// setup the tau algorithm parameters
-  void setupTauAlgo(const bool useImprovedAlgo, const bool ignoreVetoBitsForIsolation);
+  void setupTauAlgo(bool useImprovedAlgo, bool ignoreVetoBitsForIsolation);
 
   /// setup scale for missing Ht
-  void setHtMissScale(const L1CaloEtScale* const scale);
+  void setHtMissScale(const L1CaloEtScale* scale);
 
   /// setup Hf sum LUTs
-  void setupHfSumLuts(const L1CaloEtScale* const scale);
+  void setupHfSumLuts(const L1CaloEtScale* scale);
 
   /// setup the input channel mask
-  void setChannelMask(const L1GctChannelMask* const mask); 
+  void setChannelMask(const L1GctChannelMask* mask); 
 
   ///=================================================================================================
   /// Multiple bunch operation
   ///
   /// set parameters for multiple bunch operation
   /// process crossings from (firstBx) to (lastBx) 
-  void setBxRange(const int firstBx, const int lastBx);
+  void setBxRange(int firstBx, int lastBx);
   /// process crossings from (-numOfBx) to (numOfBx) 
-  void setBxRangeSymmetric(const int numOfBx);
+  void setBxRangeSymmetric(int numOfBx);
   /// process all crossings present in the input (and only those crossings)
   void setBxRangeAutomatic();
 
@@ -125,8 +125,8 @@ public:
   void setRegion(const L1CaloRegion& region);
 
   /// construct a jet region and set it at the input to be processed
-  void setRegion(const unsigned et, const unsigned ieta, const unsigned iphi, 
-                 const bool overFlow=false, const bool fineGrain=true);
+  void setRegion(unsigned et, unsigned ieta, unsigned iphi, 
+                 bool overFlow=false, bool fineGrain=true);
 
   /// set an isolated EM candidate to be processed
   void setIsoEm(const L1CaloEmCand& em);
@@ -227,12 +227,12 @@ public:
   /// Setup bunch crossing range (depending on input data)
   void bxSetup();
   /// Partial reset for a new bunch crossing
-  void bxReset(const int bx);
+  void bxReset(int bx);
   /// Fill input data for a new bunch crossing
-  void fillEmCands(std::vector<L1CaloEmCand>::iterator& emc, const int bx);
-  void fillRegions(std::vector<L1CaloRegion>::iterator& rgn, const int bx);
+  void fillEmCands(std::vector<L1CaloEmCand>::iterator& emc, int bx);
+  void fillRegions(std::vector<L1CaloRegion>::iterator& rgn, int bx);
   /// Process a new bunch crossing
-  void bxProcess(const int bx);
+  void bxProcess(int bx);
 
   /// instantiate the hardware & algo objects and wire up the system
   void build(L1GctJetLeafCard::jetFinderType jfType, unsigned jetLeafMask);

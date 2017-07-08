@@ -23,7 +23,7 @@ public:
 
   bool calculate( const GlobalTrajectoryParameters &,
       const GlobalTrajectoryParameters &,
-      const float qual=.001 ); // retval=true? error occured.
+      float qual=.001 ); // retval=true? error occured.
 
   std::pair <GlobalPoint, GlobalPoint> points() const {
     if (!pointsUpdated) finalPoints();

@@ -295,9 +295,9 @@ private:
   }
 
   double deltaR(const reco::Jet* j1, const reco::Jet* j2);
-  double deltaR(const double eta1, const double phi1, const double eta2, const double phi2);
-  int getEtaPhi(const DetId id);
-  int getEtaPhi(const HcalDetId id);
+  double deltaR(double eta1, double phi1, double eta2, double phi2);
+  int getEtaPhi(DetId id);
+  int getEtaPhi(HcalDetId id);
 
   void clear_leadingPfJetVars();
   void copy_leadingPfJetVars_to_pfJet2();

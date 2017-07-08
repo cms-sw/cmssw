@@ -354,9 +354,9 @@ public:
     void resetHitPattern();
 
     ///Track algorithm
-    void setAlgorithm(const TrackAlgorithm a);
+    void setAlgorithm(TrackAlgorithm a);
    
-    void setOriginalAlgorithm(const TrackAlgorithm a);
+    void setOriginalAlgorithm(TrackAlgorithm a);
 
     void setAlgoMask(AlgoMask a) { algoMask_ = a;}
 
@@ -376,9 +376,9 @@ public:
     static TrackAlgorithm algoByName(const std::string &name);
 
     ///Track quality
-    bool quality(const TrackQuality) const;
+    bool quality(TrackQuality) const;
 
-    void setQuality(const TrackQuality);
+    void setQuality(TrackQuality);
 
     static std::string qualityName(TrackQuality);
 

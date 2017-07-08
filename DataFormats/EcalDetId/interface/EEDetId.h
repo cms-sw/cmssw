@@ -202,8 +202,8 @@ public:
   /** following are static member functions of the above two functions
    *  which take and return a DetId, returns DetId(0) if invalid 
    */
-  static DetId offsetBy( const DetId startId, int nrStepsX, int nrStepsY );
-  static DetId switchZSide( const DetId startId );
+  static DetId offsetBy( DetId startId, int nrStepsX, int nrStepsY );
+  static DetId switchZSide( DetId startId );
   
   /** Checks validity of a dense/hashed index
    * @param din dense/hashed index as returned by hashedIndex() or denseIndex()

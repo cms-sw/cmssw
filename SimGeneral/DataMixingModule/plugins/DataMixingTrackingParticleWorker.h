@@ -57,7 +57,7 @@ namespace edm
 
       void putTrackingParticle(edm::Event &e) ;
       void addTrackingParticleSignals(const edm::Event &e); 
-      void addTrackingParticlePileups(const int bcr, const edm::EventPrincipal*,unsigned int EventId,
+      void addTrackingParticlePileups(int bcr, const edm::EventPrincipal*,unsigned int EventId,
                           ModuleCallingContext const*);
 
     private:

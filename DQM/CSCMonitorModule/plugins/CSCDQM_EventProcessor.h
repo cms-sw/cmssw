@@ -118,11 +118,11 @@ namespace cscdqm {
 
     public:
 
-    EventProcessor(Configuration* const p_config);
+    EventProcessor(Configuration* p_config);
       
 #ifdef DQMGLOBAL
 
-    EventProcessor(Configuration* const p_config, const edm::InputTag& itag, edm::ConsumesCollector& coco);
+    EventProcessor(Configuration* p_config, const edm::InputTag& itag, edm::ConsumesCollector& coco);
 
 #endif
 
@@ -145,7 +145,7 @@ namespace cscdqm {
       bool processExaminer(const CSCDCCExaminer& binChecker); 
       bool processExaminer(const CSCDCCExaminer& binChecker, const CSCDCCFormatStatusDigi& digi);
       void processDDU(const CSCDDUEventData& data, const CSCDCCExaminer& binChecker);
-      void processCSC(const CSCEventData& data, const int dduID, const CSCDCCExaminer& binChecker);
+      void processCSC(const CSCEventData& data, int dduID, const CSCDCCExaminer& binChecker);
 
       void calcEMUFractionHisto(const HistoId& result, const HistoId& set, const HistoId& subset);
 
@@ -158,7 +158,7 @@ namespace cscdqm {
       void preProcessEvent();
 
       const bool getCSCFromMap(const unsigned int& crateId, const unsigned int& dmbId, unsigned int& cscType, unsigned int& cscPosition) const;
-      void setEmuEventDisplayBit(MonitorObject*& mo, const unsigned int x, const unsigned int y, const unsigned int bit);
+      void setEmuEventDisplayBit(MonitorObject*& mo, unsigned int x, unsigned int y, unsigned int bit);
       void resetEmuEventDisplays();
 
       /** Pointer to Global Configuration */

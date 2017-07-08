@@ -35,13 +35,13 @@ class MeasureLA : public edm::ESProducer {
   void summarize_module_muH_byLayer();
   void process_reports() const;
   template<class T>
-  void write_report_text(const std::string, const LA_Filler_Fitter::Method&, const std::map<T,LA_Filler_Fitter::Result>&) const;
-  void write_report_text_ms(const std::string, const LA_Filler_Fitter::Method ) const;
-  void write_report_plots(const std::string, const LA_Filler_Fitter::Method, const GRANULARITY) const;
+  void write_report_text(std::string, const LA_Filler_Fitter::Method&, const std::map<T,LA_Filler_Fitter::Result>&) const;
+  void write_report_text_ms(std::string, LA_Filler_Fitter::Method ) const;
+  void write_report_plots(std::string, LA_Filler_Fitter::Method, GRANULARITY) const;
 
-  void calibrate(const std::pair<unsigned,LA_Filler_Fitter::Method>, LA_Filler_Fitter::Result&) const;
-  static std::pair<unsigned,LA_Filler_Fitter::Method> calibration_key(const std::string layer, const LA_Filler_Fitter::Method);
-  static std::pair<unsigned,LA_Filler_Fitter::Method> calibration_key(const uint32_t detid, const LA_Filler_Fitter::Method);
+  void calibrate(std::pair<unsigned,LA_Filler_Fitter::Method>, LA_Filler_Fitter::Result&) const;
+  static std::pair<unsigned,LA_Filler_Fitter::Method> calibration_key(std::string layer, LA_Filler_Fitter::Method);
+  static std::pair<unsigned,LA_Filler_Fitter::Method> calibration_key(uint32_t detid, LA_Filler_Fitter::Method);
 
   const std::vector<std::string> inputFiles;
   const std::string inFileLocation;

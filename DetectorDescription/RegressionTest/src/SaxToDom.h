@@ -21,11 +21,11 @@ public:
   typedef XERCES_CPP_NAMESPACE::SAXParseException SAXParseException;
   SaxToDom();
   ~SaxToDom();
-  void startElement(const XMLCh* const uri, const XMLCh* const localname, const XMLCh* const qname, const Attributes& attrs);
+  void startElement(const XMLCh* uri, const XMLCh* localname, const XMLCh* qname, const Attributes& attrs);
   //void startElement(const XMLCh* const name, AttributeList& attributes);
-  void endElement(const XMLCh* const uri, 
-                            const XMLCh* const name, 
-			       const XMLCh* const qname);
+  void endElement(const XMLCh* uri, 
+                            const XMLCh* name, 
+			       const XMLCh* qname);
   const TinyDom & dom() const;
 
   // errors

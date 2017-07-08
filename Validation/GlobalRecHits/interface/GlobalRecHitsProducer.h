@@ -312,7 +312,7 @@ class GlobalRecHitsProducer : public edm::EDProducer
     findBestRecHit(const DTLayer* layer,
 		   DTWireId wireId,
 		   const std::vector<type>& recHits,
-		   const float simHitDist);
+		   float simHitDist);
   
   // Compute the distance from wire (cm) of a hits in a DTRecHit1DPair
   float recHitDistFromWire(const DTRecHit1DPair& hitPair, 

@@ -30,13 +30,13 @@ class BSvsPVHistogramMaker {
 
   ~BSvsPVHistogramMaker();
 
-  void book(const std::string dirname="");
-  void beginRun(const unsigned int nrun);
-  void fill(const unsigned int orbit, const int bx, const reco::VertexCollection& vertices, const reco::BeamSpot& bs);
+  void book(std::string dirname="");
+  void beginRun(unsigned int nrun);
+  void fill(unsigned int orbit, int bx, const reco::VertexCollection& vertices, const reco::BeamSpot& bs);
   void fill(const edm::Event& iEvent, const reco::VertexCollection& vertices, const reco::BeamSpot& bs);
 
-  double x(const reco::BeamSpot& bs, const double z) const;
-  double y(const reco::BeamSpot& bs, const double z) const;
+  double x(const reco::BeamSpot& bs, double z) const;
+  double y(const reco::BeamSpot& bs, double z) const;
 
  private:
 

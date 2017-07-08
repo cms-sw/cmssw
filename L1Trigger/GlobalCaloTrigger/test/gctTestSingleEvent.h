@@ -28,7 +28,7 @@ public:
   gctTestSingleEvent();
   ~gctTestSingleEvent();
 
-  std::vector<L1CaloRegion> loadEvent(const std::string &fileName, const int16_t bx);
+  std::vector<L1CaloRegion> loadEvent(const std::string &fileName, int16_t bx);
 
 private:
 

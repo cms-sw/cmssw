@@ -74,7 +74,7 @@ private:
   getPassingRefs(const edm::Handle<ObjCollType>& objCollHandle,
 		 const trigger::TriggerEvent& trigEvt,
 		 const std::vector<std::string>& filterNames, 
-		 const bool orFilters,
+		 bool orFilters,
 		 const edm::Handle<edm::ValueMap<bool> >& vidHandle,
 		 const VarRangeCutColl<ObjType>& rangeCuts);
 private:

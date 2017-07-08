@@ -22,7 +22,7 @@ public:
 /**
  * Constructor with mass to be used as constraint value 
  */
- MassKinematicConstraint(const ParticleMass& m, const float sigma);
+ MassKinematicConstraint(const ParticleMass& m, float sigma);
                                        
  
 /**

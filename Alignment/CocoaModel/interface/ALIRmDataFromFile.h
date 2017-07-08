@@ -20,10 +20,10 @@ public:
   ~ALIRmDataFromFile(){};
 
  // Access DATA MEMBERS
-  ALIbool setAngle( const ALIstring& coord, const ALIdouble val );
-  ALIbool setAngleX( const ALIdouble val );
-  ALIbool setAngleY( const ALIdouble val );
-  ALIbool setAngleZ( const ALIdouble val );
+  ALIbool setAngle( const ALIstring& coord, ALIdouble val );
+  ALIbool setAngleX( ALIdouble val );
+  ALIbool setAngleY( ALIdouble val );
+  ALIbool setAngleZ( ALIdouble val );
   void constructRm();
 
   ALIdouble angleX() const { return theAngleX; }

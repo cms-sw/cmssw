@@ -80,7 +80,7 @@ class HLTMuonMatchAndPlot
     fillMapFromPSet(std::map<std::string, T> &, const edm::ParameterSet&, std::string);
   template <class T1, class T2> std::vector<size_t> 
     matchByDeltaR(const std::vector<T1> &, const std::vector<T2> &, 
-                  const double maxDeltaR = NOMATCH);
+                  double maxDeltaR = NOMATCH);
   
  private:
 
@@ -98,7 +98,7 @@ class HLTMuonMatchAndPlot
     const trigger::TriggerObjectCollection &,
     const trigger::TriggerEvent &,
     bool hasTriggerCuts,
-    const StringCutObjectSelector<trigger::TriggerObject> triggerSelector);
+    StringCutObjectSelector<trigger::TriggerObject> triggerSelector);
  
   // Input from Configuration File
   std::string hltProcessName_;

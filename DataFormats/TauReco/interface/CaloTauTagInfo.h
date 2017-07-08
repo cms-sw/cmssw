@@ -25,10 +25,10 @@ namespace reco{
     
     //the reference to the CaloJet
     const CaloJetRef& calojetRef()const;
-    void setcalojetRef(const CaloJetRef);
+    void setcalojetRef(CaloJetRef);
 
     const JetBaseRef jetRef()const;
-    void setJetRef(const JetBaseRef);
+    void setJetRef(JetBaseRef);
 
     const std::vector<std::pair<math::XYZPoint,float> > positionAndEnergyECALRecHits()const;
     void setpositionAndEnergyECALRecHits(const std::vector<std::pair<math::XYZPoint,float> >&);

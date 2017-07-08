@@ -123,10 +123,10 @@ namespace cscdqm {
 
     public:
 
-      Dispatcher(Configuration* const p_config, MonitorObjectProvider* const p_provider);
+      Dispatcher(Configuration* p_config, MonitorObjectProvider* p_provider);
 
 #ifdef DQMGLOBAL
-      Dispatcher(Configuration* const p_config, MonitorObjectProvider* const p_provider,
+      Dispatcher(Configuration* p_config, MonitorObjectProvider* p_provider,
 		 const edm::InputTag& itag, edm::ConsumesCollector&& coco);
 #endif
 
@@ -149,7 +149,7 @@ namespace cscdqm {
     private:
 
       // Old content of ctor into separate function so it can be called by both ctors
-      void commonConstruct(Configuration* const p_config, MonitorObjectProvider* const p_provider);
+      void commonConstruct(Configuration* p_config, MonitorObjectProvider* p_provider);
 
       void updateFractionAndEfficiencyHistosAuto();
 

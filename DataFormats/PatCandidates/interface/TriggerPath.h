@@ -140,7 +140,7 @@ namespace pat {
       /// Get all L1 seeds
       const L1SeedCollection & l1Seeds() const { return l1Seeds_; };
       /// Get names of all L1 seeds with a certain decision
-      std::vector< std::string > l1Seeds( const bool decision ) const;
+      std::vector< std::string > l1Seeds( bool decision ) const;
       /// Get names of all succeeding L1 seeds
       std::vector< std::string > acceptedL1Seeds() const { return l1Seeds( true ); };
       /// Get names of all failing L1 seeds

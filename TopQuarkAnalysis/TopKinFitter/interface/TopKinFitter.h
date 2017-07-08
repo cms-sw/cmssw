@@ -23,8 +23,8 @@ class TopKinFitter {
 
  public:
   /// default constructor
-  explicit TopKinFitter(const int maxNrIter=200, const double maxDeltaS=5e-5, const double maxF=1e-4,
-			const double mW=80.4, const double mTop=173.);
+  explicit TopKinFitter(int maxNrIter=200, double maxDeltaS=5e-5, double maxF=1e-4,
+			double mW=80.4, double mTop=173.);
   /// default destructor
   ~TopKinFitter();
 

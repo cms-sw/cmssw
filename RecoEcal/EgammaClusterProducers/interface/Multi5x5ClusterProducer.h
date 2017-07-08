@@ -59,7 +59,7 @@ class Multi5x5ClusterProducer : public edm::stream::EDProducer<>
       void clusterizeECALPart(edm::Event &evt, const edm::EventSetup &es,
                               const edm::EDGetTokenT<EcalRecHitCollection>& token, 
                               const std::string& clusterCollection,
-                              const reco::CaloID::Detectors detector);
+                              reco::CaloID::Detectors detector);
 
       void outputValidationInfo(reco::CaloClusterPtrVector &clusterPtrVector);
 };

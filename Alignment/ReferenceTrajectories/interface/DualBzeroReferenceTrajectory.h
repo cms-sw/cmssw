@@ -59,7 +59,7 @@ protected:
   virtual ReferenceTrajectory* construct(const TrajectoryStateOnSurface &referenceTsos, 
 					 const ConstRecHitContainer &recHits,
 					 double mass, MaterialEffects materialEffects,
-					 const PropagationDirection propDir,
+					 PropagationDirection propDir,
 					 const MagneticField *magField,
 					 bool useBeamSpot,
 					 const reco::BeamSpot &beamSpot) const;

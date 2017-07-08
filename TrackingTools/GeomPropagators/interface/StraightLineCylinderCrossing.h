@@ -21,7 +21,7 @@ public:
    */
   StraightLineCylinderCrossing (const LocalPoint& startingPos,
 				const LocalVector& startingDir,
-				const PropagationDirection propDir=alongMomentum,
+				PropagationDirection propDir=alongMomentum,
 				double tolerance=0);
 
   /** Propagation status (true if valid) and (signed) path length 
@@ -38,7 +38,7 @@ public:
 
 private:
   /// Chooses the right solution w.r.t. the propagation direction.
-  std::pair<bool,double> chooseSolution (const double s1, const double s2) const;
+  std::pair<bool,double> chooseSolution (double s1, double s2) const;
 
 private:
   //

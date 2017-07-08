@@ -251,7 +251,7 @@ public:
 
    void setNumberOfHits( int numberOfHits );
    void setNumberOfTrackerHits( int numberOfTrackerHits );
-   void setNumberOfTrackerLayers( const int numberOfTrackerLayers );
+   void setNumberOfTrackerLayers( int numberOfTrackerLayers );
 private:
     int numberOfHits_; ///< @brief The total number of hits
     int numberOfTrackerHits_; ///< @brief The number of tracker only hits

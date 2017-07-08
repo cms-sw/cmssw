@@ -80,14 +80,14 @@ public:
     L1GtLogicParser(std::string& logicalExpressionVal);
 
     ///   from a logical and a numerical expression
-    L1GtLogicParser(const std::string logicalExpressionVal,
-                    const std::string numericalExpressionVal);
+    L1GtLogicParser(std::string logicalExpressionVal,
+                    std::string numericalExpressionVal);
 
     ///   from a logical and a numerical expression
     ///   no checks for correctness - use it only after the correctness was tested
     L1GtLogicParser(const std::string& logicalExpressionVal,
                     const std::string& numericalExpressionVal,
-                    const bool dummy);
+                    bool dummy);
 
     /// destructor
     virtual ~L1GtLogicParser();
@@ -128,7 +128,7 @@ public:
     int operandIndex(const std::string& operandNameVal) const;
 
     /// return the name of the (iOperand)th operand in the logical expression
-    std::string operandName(const int iOperand) const;
+    std::string operandName(int iOperand) const;
 
     /// return the result for an operand with name operandNameVal
     /// in the logical expression using the operand token vector
@@ -136,7 +136,7 @@ public:
 
     /// return the result for an operand with tokenNumberVal
     /// using the operand token vector
-    bool operandResult(const int tokenNumberVal) const;
+    bool operandResult(int tokenNumberVal) const;
 
     /// return the result for the logical expression
     /// require a proper operand token vector
@@ -148,7 +148,7 @@ public:
 
     /// return the result for an operand with index iOperand
     /// in the logical expression using a numerical expression
-    bool operandResultNumExp(const int iOperand) const;
+    bool operandResultNumExp(int iOperand) const;
 
     /// build from the RPN vector the operand token vector
     /// using a numerical expression

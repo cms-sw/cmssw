@@ -79,7 +79,7 @@ private:
 
     class DTRobBinsMap {
       public:
-        DTRobBinsMap(DQMStore::IGetter & igetter,const int fed, const int ros);
+        DTRobBinsMap(DQMStore::IGetter & igetter,int fed, int ros);
 
         DTRobBinsMap();
 

@@ -16,7 +16,7 @@ public:
   virtual ~CMSGDMLWriteStructure();
 
   virtual void AddExtension(xercesc::DOMElement* volumeElement,
-			    const G4LogicalVolume* const glv);
+			    const G4LogicalVolume* glv);
 
 
  private:

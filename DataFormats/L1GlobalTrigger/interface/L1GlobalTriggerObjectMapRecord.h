@@ -47,7 +47,7 @@ public:
     const L1GlobalTriggerObjectMap* getObjectMap(const std::string& algoNameVal) const;
     
     /// return the object map for the algorithm with bit number const int algoBitNumberVal
-    const L1GlobalTriggerObjectMap* getObjectMap(const int algoBitNumberVal) const;
+    const L1GlobalTriggerObjectMap* getObjectMap(int algoBitNumberVal) const;
 
     /// return all the combinations passing the requirements imposed in condition condNameVal
     /// from algorithm with name algoNameVal
@@ -57,7 +57,7 @@ public:
     /// return all the combinations passing the requirements imposed in condition condNameVal
     /// from algorithm with bit number algoBitNumberVal
     const CombinationsInCond* getCombinationsInCond(
-        const int algoBitNumberVal, const std::string& condNameVal) const;
+        int algoBitNumberVal, const std::string& condNameVal) const;
 
     /// return the result for the condition condNameVal
     /// from algorithm with name algoNameVal
@@ -65,7 +65,7 @@ public:
 
     /// return the result for the condition condNameVal
     /// from algorithm with bit number algoBitNumberVal
-    bool getConditionResult(const int algoBitNumberVal, const std::string& condNameVal) const;
+    bool getConditionResult(int algoBitNumberVal, const std::string& condNameVal) const;
 
 public:
 

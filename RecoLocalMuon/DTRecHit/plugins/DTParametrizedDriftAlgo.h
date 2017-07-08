@@ -79,7 +79,7 @@ class DTParametrizedDriftAlgo : public DTRecHitBaseAlgo {
   // Do the actual work.
   virtual bool compute(const DTLayer* layer,
 		       const DTWireId& wireId,
-		       const float digiTime,
+		       float digiTime,
 		       const float& angle,
 		       const GlobalPoint& globPos, 
 		       LocalPoint& leftPoint,
@@ -90,7 +90,7 @@ class DTParametrizedDriftAlgo : public DTRecHitBaseAlgo {
   // Interface to the method which does the actual work suited for 2nd and 3rd steps 
   virtual bool compute(const DTLayer* layer,
 		       const DTWireId& wireId,
-		       const float digiTime,
+		       float digiTime,
 		       const float& angle,
 		       const GlobalPoint& globPos, 
 		       DTRecHit1D& newHit1D,

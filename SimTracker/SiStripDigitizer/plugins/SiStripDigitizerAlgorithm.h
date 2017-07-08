@@ -69,8 +69,8 @@ class SiStripDigitizerAlgorithm {
   void initializeEvent(const edm::EventSetup& iSetup);
 
   //run the algorithm to digitize a single det
-  void accumulateSimHits(const std::vector<PSimHit>::const_iterator inputBegin,
-                         const std::vector<PSimHit>::const_iterator inputEnd,
+  void accumulateSimHits(std::vector<PSimHit>::const_iterator inputBegin,
+                         std::vector<PSimHit>::const_iterator inputEnd,
                          size_t inputBeginGlobalIndex,
 			 unsigned int tofBin,
                          const StripGeomDetUnit *stripdet,

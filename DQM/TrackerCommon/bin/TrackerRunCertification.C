@@ -117,7 +117,7 @@ void    writeOutput();
 void    displayHelp();
 TString RunNumber( const TString & pathFile );
 Int_t   FlagConvert( const TString & flag );
-TString FlagConvert( const Int_t flag );
+TString FlagConvert( Int_t flag );
 
 // Configurables
 map< TString, TString > sArguments;

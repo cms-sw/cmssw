@@ -43,7 +43,7 @@ namespace edm {
     ~PileUp();
 
     template<typename T>
-      void readPileUp(edm::EventID const& signal, std::vector<edm::SecondaryEventIDAndFileInfo>& ids, T eventOperator, int const NumPU, StreamID const&);
+      void readPileUp(edm::EventID const& signal, std::vector<edm::SecondaryEventIDAndFileInfo>& ids, T eventOperator, int NumPU, StreamID const&);
 
     template<typename T>
       void playPileUp(std::vector<edm::SecondaryEventIDAndFileInfo>::const_iterator begin, std::vector<edm::SecondaryEventIDAndFileInfo>::const_iterator end, std::vector<edm::SecondaryEventIDAndFileInfo>& ids, T eventOperator);

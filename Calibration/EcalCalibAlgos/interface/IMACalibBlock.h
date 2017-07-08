@@ -23,7 +23,7 @@ class IMACalibBlock : public VEcalCalibBlock
 {
   public :
     //! ctor
-    IMACalibBlock (const int) ;
+    IMACalibBlock (int) ;
     //! dtor
     ~IMACalibBlock () ;
     

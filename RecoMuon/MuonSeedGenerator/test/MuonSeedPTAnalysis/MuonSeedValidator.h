@@ -114,9 +114,9 @@ private:
   void SegOfRecSeed(edm::Handle<TrajectorySeedCollection> rec_seeds, int seed_idx);
 
   void StaTrackReader(edm::Handle<reco::TrackCollection> sta_trk, int sta_glb);
-  void SimInfo(const edm::Handle<edm::SimTrackContainer> simTracks,
-               const edm::Handle<edm::PSimHitContainer> dsimHits,
-               const edm::Handle<edm::PSimHitContainer> csimHits,
+  void SimInfo(edm::Handle<edm::SimTrackContainer> simTracks,
+               edm::Handle<edm::PSimHitContainer> dsimHits,
+               edm::Handle<edm::PSimHitContainer> csimHits,
                edm::ESHandle<DTGeometry> dtGeom,edm::ESHandle<CSCGeometry> cscGeom);
   int RecSegReader( edm::Handle<CSCSegmentCollection> cscSeg, edm::Handle<DTRecSegment4DCollection> dtSeg,
                     edm::ESHandle<CSCGeometry> cscGeom, edm::ESHandle<DTGeometry> dtGeom, 

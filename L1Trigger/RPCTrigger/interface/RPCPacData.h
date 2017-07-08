@@ -39,7 +39,7 @@ public:
    
   RPCPacData(const RPCPattern::RPCPatVec &patVec, const RPCPattern::TQualityVec &qualVec);
 
-  RPCPacData(const L1RPCConfig * patConf, const int tower, const int sector, const int segment);
+  RPCPacData(const L1RPCConfig * patConf, int tower, int sector, int segment);
   
   void init(const RPCPatternsParser& parser, const RPCConst::l1RpcConeCrdnts& coneCrdnts);
 
@@ -103,7 +103,7 @@ private:
   /** Adds pattern to m_TrackPatternsGroup or appropriate group
     * from m_EnergeticPatternsGroupList. If the appropriate TEPatternsGroup does
     * not exist, it is created.*/
-  void insertPatterns(const RPCPattern::RPCPatVec &pattern, const int tower = 99, const int sector = 99, const int segment = 99 );
+  void insertPatterns(const RPCPattern::RPCPatVec &pattern, int tower = 99, int sector = 99, int segment = 99 );
 
   /** Runs the "baselie" m_PAC algorithm. Compares the hits from cone with patterns
    * from m_TrackPatternsGroup. If many patterns fist to the hits (like usual),

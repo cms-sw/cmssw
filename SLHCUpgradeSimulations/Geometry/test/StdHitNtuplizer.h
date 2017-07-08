@@ -53,20 +53,20 @@ class StdHitNtuplizer : public edm::EDAnalyzer
  protected:
 
   void fillEvt(const edm::Event& );
-  void fillSRecHit(const int subid, SiStripRecHit2DCollection::DetSet::const_iterator pixeliter,
+  void fillSRecHit(int subid, SiStripRecHit2DCollection::DetSet::const_iterator pixeliter,
 		   const GeomDet* theGeom);
-  void fillSRecHit(const int subid, SiStripMatchedRecHit2DCollection::DetSet::const_iterator pixeliter,
+  void fillSRecHit(int subid, SiStripMatchedRecHit2DCollection::DetSet::const_iterator pixeliter,
 		   const GeomDet* theGeom);  
-  void fillSRecHit(const int subid, const FastTrackerRecHit & hit,
+  void fillSRecHit(int subid, const FastTrackerRecHit & hit,
 		   const GeomDet* theGeom);
   //void fillPRecHit(const int subid, SiPixelRecHitCollection::const_iterator pixeliter,
   //                 const GeomDet* PixGeom);
-  void fillPRecHit(const int subid, const int layer_num,
+  void fillPRecHit(int subid, int layer_num,
                    SiPixelRecHitCollection::DetSet::const_iterator pixeliter,
-                   const int num_simhit,
+                   int num_simhit,
                    std::vector<PSimHit>::const_iterator closest_simhit,
                    const GeomDet* PixGeom);
-  void fillPRecHit(const int subid, trackingRecHit_iterator pixeliter,
+  void fillPRecHit(int subid, trackingRecHit_iterator pixeliter,
                    const GeomDet* PixGeom);
 
  private:

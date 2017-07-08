@@ -27,7 +27,7 @@ public:
     static unsigned int const partition_data_offset_ = 0;
 
 public:
-    RPCLBRecord(std::uint32_t const record = 0x0);
+    RPCLBRecord(std::uint32_t record = 0x0);
     RPCLBRecord(unsigned int bcn
                 , bool bc0
                 , unsigned int link_board
@@ -37,7 +37,7 @@ public:
                 , unsigned int partition
                 , std::uint8_t data);
 
-    void set(std::uint32_t const record = 0x0);
+    void set(std::uint32_t record = 0x0);
     void reset();
 
     std::uint32_t const & getRecord() const;

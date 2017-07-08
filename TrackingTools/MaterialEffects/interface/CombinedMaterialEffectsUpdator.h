@@ -33,7 +33,7 @@ public:
     theELUpdator(mass) {}
 
   // here comes the actual computation of the values
-  virtual void compute (const TrajectoryStateOnSurface&, const PropagationDirection, Effect & effect) const;
+  virtual void compute (const TrajectoryStateOnSurface&, PropagationDirection, Effect & effect) const;
   
  private:
   // objects used for calculations of multiple scattering and energy loss

@@ -46,8 +46,8 @@ class EcalEleCalibLooper : public edm::EDLooper {
   private:
 
   //DS to divide in Regions
-  int EBRegionId (const int, const int) const;
-  int EERegionId (const int, const int) const;
+  int EBRegionId (int, int) const;
+  int EERegionId (int, int) const;
   //DS to define the regions for each cristal
   void EBRegionDefinition ();
   void EERegionDefinition ();
@@ -55,11 +55,11 @@ class EcalEleCalibLooper : public edm::EDLooper {
   double giveLimit (int);
 
   //DS checks if the values of ics and ips are in EE or not
-  int EEregionCheck (const int, const int) const;
-  int EBregionCheck (const int eta,const int phi) const;
+  int EEregionCheck (int, int) const;
+  int EBregionCheck (int eta,int phi) const;
 
   //!LP Change the coordinate system
-  int etaShifter (const int) const ;
+  int etaShifter (int) const ;
 
   private:
 

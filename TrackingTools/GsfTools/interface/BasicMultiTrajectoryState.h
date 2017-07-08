@@ -48,14 +48,14 @@ public:
   virtual void update( const LocalTrajectoryParameters& p,
                        const Surface& aSurface,
                        const MagneticField* field,
-                       const SurfaceSide side ) override;
+                       SurfaceSide side ) override;
 
   virtual void update(double weight,
                        const LocalTrajectoryParameters& p,
                        const LocalTrajectoryError& err,
                        const Surface& aSurface,
                        const MagneticField* field,
-                       const SurfaceSide side) override;
+                       SurfaceSide side) override;
 private:
 
   Components theStates;

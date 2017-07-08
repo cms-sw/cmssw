@@ -51,8 +51,8 @@ class JetTester : public DQMEDAnalyzer {
 
  private:
   
-  void fillMatchHists(const double GenEta,  const double GenPhi,  const double GenPt, const double GenMass,
-		      const double RecoEta, const double RecoPhi, const double RecoPt, const double RecoMass);
+  void fillMatchHists(double GenEta,  double GenPhi,  double GenPt, double GenMass,
+		      double RecoEta, double RecoPhi, double RecoPt, double RecoMass);
   
   edm::InputTag   mInputCollection;
   edm::InputTag   mInputGenCollection;

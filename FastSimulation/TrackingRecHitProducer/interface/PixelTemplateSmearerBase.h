@@ -95,7 +95,7 @@ class PixelTemplateSmearerBase:
             std::vector<TrackingRecHitProduct::SimHitIdPair> & unmergedHits,
 	        TrackingRecHitProductPtr product,
 	        const PixelGeomDetUnit * detUnit,
-	        const double boundX, const double boundY,
+	        double boundX, double boundY,
 	        RandomEngineAndDistribution const * random
         ) const;
         //--- Process all groups of merged hits.
@@ -103,7 +103,7 @@ class PixelTemplateSmearerBase:
             std::vector< MergeGroup* > & mergeGroups,
             TrackingRecHitProductPtr product,
             const PixelGeomDetUnit * detUnit,
-            const double boundX, const double boundY,
+            double boundX, double boundY,
             RandomEngineAndDistribution const * random
         ) const;
 
@@ -111,7 +111,7 @@ class PixelTemplateSmearerBase:
         //--- Process one umerged hit.
         FastSingleTrackerRecHit smearHit(
             const PSimHit& simHit, const PixelGeomDetUnit* detUnit, 
-            const double boundX, const double boundY,
+            double boundX, double boundY,
             RandomEngineAndDistribution const*) 
         const;
 
@@ -119,7 +119,7 @@ class PixelTemplateSmearerBase:
         FastSingleTrackerRecHit smearMergeGroup(
             MergeGroup* mg,
             const PixelGeomDetUnit * detUnit,
-            const double boundX, const double boundY,
+            double boundX, double boundY,
             const RandomEngineAndDistribution* random
         ) const;
 

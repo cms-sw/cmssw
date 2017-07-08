@@ -32,7 +32,7 @@ namespace fireworks
 
    void invertBox( std::vector<float> &corners );
    void addBox( const std::vector<float> &corners, TEveElement*,  FWProxyBuilderBase*);
-   void addCircle( double eta, double phi, double radius, const unsigned int nLineSegments, TEveElement* comp, FWProxyBuilderBase* pb );
+   void addCircle( double eta, double phi, double radius, unsigned int nLineSegments, TEveElement* comp, FWProxyBuilderBase* pb );
    void addDashedArrow( double phi, double size, TEveElement* comp, FWProxyBuilderBase* pb );
    void addDashedLine( double phi, double theta, double size, TEveElement* comp, FWProxyBuilderBase* pb );
    void addDoubleLines( double phi, TEveElement* comp, FWProxyBuilderBase* pb );

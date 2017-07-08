@@ -19,16 +19,16 @@ namespace GeomDetEnumerators {
 bool isBarrel(GeomDetEnumerators::SubDetector m);
 bool isEndcap(GeomDetEnumerators::SubDetector m);
 
-bool isTrackerPixel(const GeomDetEnumerators::SubDetector m);
-bool isTrackerStrip(const GeomDetEnumerators::SubDetector m);
-bool isTracker(const GeomDetEnumerators::SubDetector m);
-bool isDT(const GeomDetEnumerators::SubDetector m);
-bool isCSC(const GeomDetEnumerators::SubDetector m);
-bool isRPC(const GeomDetEnumerators::SubDetector m);
-bool isGEM(const GeomDetEnumerators::SubDetector m);
-bool isME0(const GeomDetEnumerators::SubDetector m);
-bool isMuon(const GeomDetEnumerators::SubDetector m);
-bool isTiming(const GeomDetEnumerators::SubDetector m);
+bool isTrackerPixel(GeomDetEnumerators::SubDetector m);
+bool isTrackerStrip(GeomDetEnumerators::SubDetector m);
+bool isTracker(GeomDetEnumerators::SubDetector m);
+bool isDT(GeomDetEnumerators::SubDetector m);
+bool isCSC(GeomDetEnumerators::SubDetector m);
+bool isRPC(GeomDetEnumerators::SubDetector m);
+bool isGEM(GeomDetEnumerators::SubDetector m);
+bool isME0(GeomDetEnumerators::SubDetector m);
+bool isMuon(GeomDetEnumerators::SubDetector m);
+bool isTiming(GeomDetEnumerators::SubDetector m);
  
 }
 

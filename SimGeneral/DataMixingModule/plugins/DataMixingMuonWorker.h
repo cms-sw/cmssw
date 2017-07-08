@@ -54,7 +54,7 @@ namespace edm
 
       void putMuon(edm::Event &e) ;
       void addMuonSignals(const edm::Event &e); 
-      void addMuonPileups(const int bcr, const edm::EventPrincipal*,unsigned int EventId, ModuleCallingContext const*);
+      void addMuonPileups(int bcr, const edm::EventPrincipal*,unsigned int EventId, ModuleCallingContext const*);
 
 
     private:

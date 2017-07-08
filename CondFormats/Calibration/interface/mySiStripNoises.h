@@ -37,7 +37,7 @@ class mySiStripNoises {
   typedef Registry::const_iterator                         RegistryIterator;
   typedef const std::vector<short>		           InputVector;
   
-  bool put(const uint32_t detID,InputVector & input);
+  bool put(uint32_t detID,InputVector & input);
   const Range getRange(const uint32_t& detID) const;
   void getDetIds(std::vector<uint32_t>& DetIds) const;
   float getNoise  (const uint16_t& strip, const Range& range) const;

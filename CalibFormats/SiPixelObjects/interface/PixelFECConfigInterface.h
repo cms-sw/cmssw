@@ -34,11 +34,11 @@ namespace pos{
 
     virtual void setMaskAndTrimAll(const PixelHdwAddress& theROC,
 				   const std::vector<unsigned char>& allPixels,
-				   const bool buffermode=false)=0;
+				   bool buffermode=false)=0;
 
     virtual void setDcolEnableAll(const PixelHdwAddress& theROC,
                                   unsigned char maskAndTrim,
-                                  const bool buffermode=false )=0;
+                                  bool buffermode=false )=0;
 
     //Generate the commands needed to set the trim and mask bits for all
     //pixels to the common value specified by maskAndTrim. 
@@ -49,7 +49,7 @@ namespace pos{
     //Generate the commands needed to set the DAC values for a ROC.
     virtual void setAllDAC(const PixelHdwAddress& theROC, 
 			   const std::vector<unsigned int>& dacs,
-			   const bool buffermode=false) = 0;
+			   bool buffermode=false) = 0;
 
     virtual int roctrimload(int mfec, int fecchannel, 
 			    int hubaddress, int portaddress, int rocid,
@@ -59,16 +59,16 @@ namespace pos{
                         int hubaddress, int portaddress, int rocid,
                         int mask, int trim)=0;
 
-    virtual int injectrstroc(const int mfec, const int bitstate)=0;
-    virtual int injecttrigger(const int mfec, const int bitstate)=0;
-    virtual int injectrsttbm(const int mfec, const int bitstate)=0;
-    virtual int injectrstcsr(const int mfec, const int bitstate)=0;
-    virtual int enablecallatency(const int mfec, const int bitstate)=0;
-    virtual int disableexttrigger(const int mfec, const int bitstate)=0;
-    virtual int loopnormtrigger(const int mfec, const int bitstate)=0;
-    virtual int loopcaltrigger(const int mfec, const int bitstate)=0;
-    virtual int callatencycount(const int mfec, const int latency)=0;
-    virtual int getversion(const int mfec, unsigned long *data)=0;
+    virtual int injectrstroc(int mfec, int bitstate)=0;
+    virtual int injecttrigger(int mfec, int bitstate)=0;
+    virtual int injectrsttbm(int mfec, int bitstate)=0;
+    virtual int injectrstcsr(int mfec, int bitstate)=0;
+    virtual int enablecallatency(int mfec, int bitstate)=0;
+    virtual int disableexttrigger(int mfec, int bitstate)=0;
+    virtual int loopnormtrigger(int mfec, int bitstate)=0;
+    virtual int loopcaltrigger(int mfec, int bitstate)=0;
+    virtual int callatencycount(int mfec, int latency)=0;
+    virtual int getversion(int mfec, unsigned long *data)=0;
     virtual int getversion(unsigned long *data)=0;
 
     virtual int progdac(int mfec, int fecchannel, 

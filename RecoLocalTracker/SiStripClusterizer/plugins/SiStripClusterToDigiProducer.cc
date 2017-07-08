@@ -38,7 +38,7 @@ private:
 
   void process(const ClusterCollection& input, std::vector<DetDigiCollection>& output_base);
   void initialize(const edm::EventSetup& es);
-  void setDetId(const uint32_t id); 
+  void setDetId(uint32_t id); 
   float gain(const uint16_t& strip)  const { return gainHandle->getStripGain( strip, gainRange ); }
   uint16_t applyGain(const uint16_t& strip,const uint16_t& adc );
 

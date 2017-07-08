@@ -17,7 +17,7 @@ class CordicXilinx
     // Returns angle in fixed point according to internalBits_ precision
     // The integer part is 3 bits (i.e. -4 to 3)
     // Valid input is -pi < angle < pi
-    int encodeAngle(const double angleFloat) const;
+    int encodeAngle(double angleFloat) const;
 
   private:
     const int inputBits_;

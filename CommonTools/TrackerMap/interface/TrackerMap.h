@@ -74,7 +74,7 @@ class TrackerMap {
   //TrackerMap(){TrackerMap(" ");};   //!< default constructor
   TrackerMap(std::string s=" ",int xsize1=340,int ysize1=200);
   TrackerMap(const edm::ParameterSet & iConfig);
-  TrackerMap(const edm::ParameterSet & iConfig,const SiStripFedCabling* tkFed,const TrackerTopology* const topology);
+  TrackerMap(const edm::ParameterSet & iConfig,const SiStripFedCabling* tkFed,const TrackerTopology* topology);
   ~TrackerMap();  //!< default destructor
   
   void build();

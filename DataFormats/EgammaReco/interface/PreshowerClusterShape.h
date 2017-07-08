@@ -21,7 +21,7 @@ namespace reco {
 
     /// constructor from strip energies
     PreshowerClusterShape(const std::vector<float>& stripEnergies, 
-                     const int plane);		    
+                     int plane);		    
 
     /// Copy contructor
     PreshowerClusterShape(const PreshowerClusterShape&);

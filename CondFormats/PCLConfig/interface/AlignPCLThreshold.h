@@ -72,8 +72,8 @@ public:
 
   bool hasExtraDOF()           const {return (m_extraDOF.size()>0);}
   unsigned int extraDOFSize()  const {return m_extraDOF.size();}
-  std::array<float,4> getExtraDOFCuts(const unsigned int i) const;
-  std::string getExtraDOFLabel(const unsigned int i) const;
+  std::array<float,4> getExtraDOFCuts(unsigned int i) const;
+  std::string getExtraDOFLabel(unsigned int i) const;
 
 private:
 

@@ -38,8 +38,8 @@ private:
 
   // NOTE: these parameters are not available via a public interface
   // from the geometry or topology so must be hard-coded.
-  double getYOfFirstWire(const int station, const int ring, const double length);
-  double getAverageWireSpacing(const int station, const int ring);
+  double getYOfFirstWire(int station, int ring, double length);
+  double getAverageWireSpacing(int station, int ring);
 };
        
 double

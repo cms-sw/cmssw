@@ -99,28 +99,28 @@ class HTrackAssociator {
    std::vector<EcalRecHit>  associateEcal( const edm::Event&,
 					   const edm::EventSetup&,
 					   const FreeTrajectoryState&,
-					   const double dR = -1 );
+					   double dR = -1 );
    
    /// associate ECAL only and return energy
    /// negative dR means only crossed elements
    double                   getEcalEnergy( const edm::Event&,
 					   const edm::EventSetup&,
 					   const FreeTrajectoryState&,
-					   const double dR = -1 );
+					   double dR = -1 );
    
    /// associate ECAL only and return RecHits
    /// negative dR means only crossed elements
    std::vector<CaloTower>   associateHcal( const edm::Event&,
 					   const edm::EventSetup&,
 					   const FreeTrajectoryState&,
-					   const double dR = -1 );
+					   double dR = -1 );
 
    /// associate ECAL only and return energy
    /// negative dR means only crossed elements
    double                   getHcalEnergy( const edm::Event&,
 					   const edm::EventSetup&,
 					   const FreeTrajectoryState&,
-					   const double dR = -1 );
+					   double dR = -1 );
    /// use a user configured propagator
    void setPropagator( Propagator* );
    
@@ -128,9 +128,9 @@ class HTrackAssociator {
    void useDefaultPropagator();
    
    /// specify names of EDProducts to use for different input data types
-   void addDataLabels( const std::string className,
-		       const std::string moduleLabel,
-		       const std::string productInstanceLabel = "");
+   void addDataLabels( std::string className,
+		       std::string moduleLabel,
+		       std::string productInstanceLabel = "");
    
    /// get FreeTrajectoryState from different track representations
    FreeTrajectoryState getFreeTrajectoryState( const edm::EventSetup&, 
@@ -144,29 +144,29 @@ class HTrackAssociator {
 			const edm::EventSetup&,
 			HTrackDetMatchInfo&, 
 			const FreeTrajectoryState&,
-			const int,
-			const double);
+			int,
+			double);
 
    void       fillHcal( const edm::Event&,
                         const edm::EventSetup&,
                         HTrackDetMatchInfo&,
                         const FreeTrajectoryState&,
-                        const int,
-                        const double);
+                        int,
+                        double);
 
    void fillHcalTowers( const edm::Event&,
 			const edm::EventSetup&,
 			HTrackDetMatchInfo&, 
 			const FreeTrajectoryState&,
-			const int,
-			const double);
+			int,
+			double);
    
    void fillCaloTowers( const edm::Event&,
 			const edm::EventSetup&,
 			HTrackDetMatchInfo&, 
 			const FreeTrajectoryState&,
-			const int,
-			const double);
+			int,
+			double);
    
    void           init( const edm::EventSetup&);
    

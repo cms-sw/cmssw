@@ -149,8 +149,8 @@ class JetFlavourClustering : public edm::stream::EDProducer<> {
       virtual void produce(edm::Event&, const edm::EventSetup&);
   
       void insertGhosts(const edm::Handle<reco::GenParticleRefVector>& particles,
-                        const double ghostRescaling,
-                        const bool isHadron, const bool isbHadron, const bool isParton, const bool isLepton,
+                        double ghostRescaling,
+                        bool isHadron, bool isbHadron, bool isParton, bool isLepton,
                         std::vector<fastjet::PseudoJet>& constituents);
 
       void matchReclusteredJets(const edm::Handle<edm::View<reco::Jet> >& jets,

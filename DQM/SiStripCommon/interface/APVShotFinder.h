@@ -15,9 +15,9 @@ namespace edm {
 class APVShotFinder {
 
  public:
-  APVShotFinder(const bool zs=true);
-  APVShotFinder(const edm::DetSet<SiStripDigi>& digis, const bool zs=true);
-  APVShotFinder(const edm::DetSetVector<SiStripDigi>& digicoll, const bool zs=true);
+  APVShotFinder(bool zs=true);
+  APVShotFinder(const edm::DetSet<SiStripDigi>& digis, bool zs=true);
+  APVShotFinder(const edm::DetSetVector<SiStripDigi>& digicoll, bool zs=true);
 
   void computeShots(const edm::DetSet<SiStripDigi>& digis);
   void computeShots(const edm::DetSetVector<SiStripDigi>& digicoll);

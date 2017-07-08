@@ -152,7 +152,7 @@ public:
   void ReportCall(const clang::CXXMemberCallExpr *CE);
   void ReportMember(const clang::MemberExpr *ME);
   void ReportCallReturn(const clang::ReturnStmt * RS);
-  void ReportCallArg(const clang::CXXMemberCallExpr *CE, const int i);
+  void ReportCallArg(const clang::CXXMemberCallExpr *CE, int i);
 };
 
 //===----------------------------------------------------------------------===//

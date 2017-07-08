@@ -85,11 +85,11 @@ class SiStripCondObjBuilderFromDb {
   /** Builds pedestals using FED descriptions and cabling info
       retrieved from configuration database. */
   void buildCondObj();
-  void buildStripRelatedObjects( SiStripConfigDb* const db,
+  void buildStripRelatedObjects( SiStripConfigDb* db,
 				 const SiStripDetCabling& det_cabling);
-  void buildAnalysisRelatedObjects( SiStripConfigDb* const db, const trackercon& tc);
-  void buildFECRelatedObjects( SiStripConfigDb* const db, const trackercon& tc);
-  void buildFEDRelatedObjects( SiStripConfigDb* const db, const trackercon& tc);
+  void buildAnalysisRelatedObjects( SiStripConfigDb* db, const trackercon& tc);
+  void buildFECRelatedObjects( SiStripConfigDb* db, const trackercon& tc);
+  void buildFEDRelatedObjects( SiStripConfigDb* db, const trackercon& tc);
 
 
   bool checkForCompatibility(std::stringstream& input,std::stringstream& output,std::string& label);
@@ -137,12 +137,12 @@ class SiStripCondObjBuilderFromDb {
   std::vector<uint32_t> skippedDetIds;
 
   //methods used by BuildStripRelatedObjects
-  bool setValuesApvLatency(SiStripLatency & latency_, SiStripConfigDb* const db, FedChannelConnection &ipair, uint32_t detid, uint16_t apvnr, SiStripConfigDb::DeviceDescriptionsRange apvs);
-  bool setValuesApvTiming(SiStripConfigDb* const db, FedChannelConnection &ipair);
+  bool setValuesApvLatency(SiStripLatency & latency_, SiStripConfigDb* db, FedChannelConnection &ipair, uint32_t detid, uint16_t apvnr, SiStripConfigDb::DeviceDescriptionsRange apvs);
+  bool setValuesApvTiming(SiStripConfigDb* db, FedChannelConnection &ipair);
   //  bool setValuesCabling(SiStripConfigDb* const db, FedChannelConnection &ipair, uint32_t detid);
   bool setValuesCabling(SiStripConfigDb::FedDescriptionsRange &descriptions, FedChannelConnection &ipair, uint32_t detid);
-  bool retrieveFedDescriptions(SiStripConfigDb* const db);
-  bool retrieveTimingAnalysisDescriptions( SiStripConfigDb* const db);
+  bool retrieveFedDescriptions(SiStripConfigDb* db);
+  bool retrieveTimingAnalysisDescriptions( SiStripConfigDb* db);
   vector<uint32_t> retrieveActiveDetIds(const SiStripDetCabling& det_cabling);
   vector<const FedChannelConnection *> buildConnections(const SiStripDetCabling& det_cabling, uint32_t det_id );
   uint16_t retrieveNumberAPVPairs(uint32_t det_id);

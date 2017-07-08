@@ -38,8 +38,8 @@ class SiPixelFolderOrganizer {
   void getModuleFolder(const uint32_t& rawdetid, std::string& path, bool isUpgrade);
 
   /// Set folder name for a FED (used in the case of errors without detId)
-  bool setFedFolder(const uint32_t FedId);
-  bool setFedFolder(DQMStore::IBooker&, const uint32_t FedId);
+  bool setFedFolder(uint32_t FedId);
+  bool setFedFolder(DQMStore::IBooker&, uint32_t FedId);
 
   
  private:

@@ -67,7 +67,7 @@ namespace sistrip {
     //check frame is valid
     static const bool isValid(const Frame & aFrame,
 			      const FrameQuality & aQuality,
-			      const uint16_t aExpectedPos);
+			      uint16_t aExpectedPos);
 
     //extract range, threshold and apvAddress
     static const uint16_t range(const Frame & aFrame);
@@ -78,21 +78,21 @@ namespace sistrip {
 
     //find position of the first header and trailer bit
     static const uint16_t findHeaderBits(const edm::DetSetVector<SiStripRawDigi>::detset & channelDigis,
-					 const uint16_t threshold);
+					 uint16_t threshold);
 
     static const uint16_t findTrailerBits(const edm::DetSetVector<SiStripRawDigi>::detset & channelDigis,
-					  const uint16_t threshold);
+					  uint16_t threshold);
 
     //find both APV addresses and error bits
     static const std::pair<bool,bool> 
       findAPVErrorBits(const edm::DetSetVector<SiStripRawDigi>::detset & channelDigis,
-		       const uint16_t threshold,
-		       const uint16_t aFirstBits);
+		       uint16_t threshold,
+		       uint16_t aFirstBits);
 
     static const std::pair<uint8_t,uint8_t> 
       findAPVAddresses(const edm::DetSetVector<SiStripRawDigi>::detset & channelDigis,
-		       const uint16_t threshold,
-		       const uint16_t aFirstBits);
+		       uint16_t threshold,
+		       uint16_t aFirstBits);
 
     static std::string print(const Frame & aFrame,
 			     std::string aErr);
@@ -102,7 +102,7 @@ namespace sistrip {
 			 uint16_t & aFedChannel);
 
     static std::pair<uint16_t,uint32_t> findMajorityValue(std::vector<uint16_t> & values,
-							  const uint16_t aFedId = 0);
+							  uint16_t aFedId = 0);
 
     static void fillFEDMajorities(const std::map<uint32_t,uint32_t>& channelValues, 
 				  std::vector<uint32_t> & fedMajoritiesToFill);

@@ -110,7 +110,7 @@ class DTBtiCard : public BTICache, public DTGeomSupplier {
  private:
 
     /// store digi's in DTBtiChip's
-    void loadBTI(const DTDigiCollection dtDigis);
+    void loadBTI(DTDigiCollection dtDigis);
 
     /// run DTBtiChip algorithm
     void runBTI();

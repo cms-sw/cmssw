@@ -35,8 +35,8 @@ public:
 		   const std::vector<double> & hitvtxY, 
 		   const std::vector<double> & hitvtxZ);
 
-  void fillhgcLayers(const double edepEE, const double edepHEF, 
-		     const double edepHEB, const std::vector<double> & eedep, 
+  void fillhgcLayers(double edepEE, double edepHEF, 
+		     double edepHEB, const std::vector<double> & eedep, 
 		     const std::vector<double> & hefdep,
 		     const std::vector<double> & hebdep);
 

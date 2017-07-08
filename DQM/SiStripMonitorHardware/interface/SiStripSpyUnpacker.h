@@ -34,7 +34,7 @@ namespace sistrip {
         typedef edm::DetSetVector<SiStripRawDigi> RawDigis;
         typedef std::vector<uint32_t> Counters;
     
-        SpyUnpacker(const bool allowIncompleteEvents); //!< Constructor.
+        SpyUnpacker(bool allowIncompleteEvents); //!< Constructor.
         ~SpyUnpacker();                                //!< Destructor.
     
         /*! \brief Creates the scope mode digis for the supplied FED IDs or detIds and stores event counters.

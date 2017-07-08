@@ -49,8 +49,8 @@ private:
    static unsigned   TASize;   //TrigArr size
    static trig_pair *TrigArr;  //Array with angular data
 
-   static void SetTrigArrSize(const unsigned N);
-   static void FillTrigArr   (const double phi);
+   static void SetTrigArrSize(unsigned N);
+   static void FillTrigArr   (double phi);
    
    void PrintLM(std::ostream &out = std::cout)
    {
@@ -63,7 +63,7 @@ public:
    static int      GetMaxM(); //return Max. M for the class
    static unsigned ParentCount() { return poly2d_base::Count();}
    static unsigned Count() { return Cnt;}
-   static void     SetPhi(const double phi);
+   static void     SetPhi(double phi);
    static void     SetPoint(const double r, const double z, const double phi)
    {
       poly2d_base::SetPoint(r, z); SetPhi(phi);
@@ -72,7 +72,7 @@ public:
    rz_harm_poly() : poly2d_base(), L(0), M(0) {++Cnt;} 
    rz_harm_poly(const poly2d_base &S) : poly2d_base(S), L(0), M(0) {++Cnt;}
    rz_harm_poly(const rz_harm_poly &S) : poly2d_base(S), L(S.L), M(S.M) {++Cnt;}
-   rz_harm_poly(const unsigned N);
+   rz_harm_poly(unsigned N);
    ~rz_harm_poly();
    
    bool IsPhiSet() { return phi_set;}
@@ -99,7 +99,7 @@ public:
    { PrintLM(out); poly2d_base::Print(out, prec);}
  
 
-   static void PrintTrigArr(std::ostream &out = std::cout, const std::streamsize prec = 5);
+   static void PrintTrigArr(std::ostream &out = std::cout, std::streamsize prec = 5);
 
 }; //class rz_harm_poly
 }

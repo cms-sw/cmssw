@@ -39,7 +39,7 @@ class EcalClusterEnergyCorrectionObjectSpecificBaseClass : public EcalClusterFun
                 
                 // compute the correction
                 virtual float getValue( const reco::BasicCluster &, const EcalRecHitCollection & ) const = 0;
-                virtual float getValue( const reco::SuperCluster &, const int mode ) const = 0;
+                virtual float getValue( const reco::SuperCluster &, int mode ) const = 0;
 		
 		//virtual float getValue( const reco::Photon &, const int mode) const = 0;
 		//virtual float getValue( const reco::GsfElectron &, const int mode) const;

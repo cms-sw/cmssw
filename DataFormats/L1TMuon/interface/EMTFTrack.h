@@ -31,7 +31,7 @@ namespace l1t {
 
     // float pi = 3.141592653589793238;
 
-    void ImportSP( const emtf::SP _SP, int _sector );
+    void ImportSP( emtf::SP _SP, int _sector );
     void ImportPtLUT( int _mode, unsigned long _address );
 
     void set_Hits(EMTFHitCollection bits)       { _Hits = bits;                numHits = _Hits.size(); }

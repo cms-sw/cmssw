@@ -191,7 +191,7 @@ namespace pat {
       const TriggerAlgorithmRef algorithmRef( const std::string & nameAlgorithm ) const;
       /// Get the name of a certain L1 algorithm in the event collection by bit number physics or technical (default) algorithms,
       /// returns empty string, if algorithm is not found
-      std::string nameAlgorithm( const unsigned bitAlgorithm, const bool techAlgorithm = true ) const;
+      std::string nameAlgorithm( unsigned bitAlgorithm, bool techAlgorithm = true ) const;
       /// Get the index of a certain L1 algorithm in the event collection by name,
       /// returns size of algorithm collection, if algorithm is not found
       unsigned indexAlgorithm( const std::string & nameAlgorithm ) const;

@@ -42,10 +42,10 @@ namespace gbl {
   /// Simple Vector based on std::vector<double>
   class VVector {
   public:
-    VVector(const unsigned int nRows = 0);
+    VVector(unsigned int nRows = 0);
     VVector(const VVector &aVector);
     virtual ~VVector();
-    void resize(const unsigned int nRows);
+    void resize(unsigned int nRows);
     VVector getVec(unsigned int len, unsigned int start = 0) const;
     void putVec(const VVector &aVector, unsigned int start = 0);
     inline double &operator()(unsigned int i);
@@ -62,10 +62,10 @@ namespace gbl {
   /// Simple Matrix based on std::vector<double>
   class VMatrix {
   public:
-    VMatrix(const unsigned int nRows = 0, const unsigned int nCols = 0);
+    VMatrix(unsigned int nRows = 0, unsigned int nCols = 0);
     VMatrix(const VMatrix &aMatrix);
     virtual ~VMatrix();
-    void resize(const unsigned int nRows, const unsigned int nCols);
+    void resize(unsigned int nRows, unsigned int nCols);
     VMatrix transpose() const;
     inline double &operator()(unsigned int i, unsigned int j);
     inline double operator()(unsigned int i, unsigned int j) const;
@@ -85,9 +85,9 @@ namespace gbl {
   /// Simple symmetric Matrix based on std::vector<double>
   class VSymMatrix {
   public:
-    VSymMatrix(const unsigned int nRows = 0);
+    VSymMatrix(unsigned int nRows = 0);
     virtual ~VSymMatrix();
-    void resize(const unsigned int nRows);
+    void resize(unsigned int nRows);
     unsigned int invert();
     inline double &operator()(unsigned int i, unsigned int j);
     inline double operator()(unsigned int i, unsigned int j) const;

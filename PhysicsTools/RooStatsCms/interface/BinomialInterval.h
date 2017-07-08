@@ -28,7 +28,7 @@ public:
 
   // Set alpha, type, and the cached values of kappa (the normal
   // quantile).
-  void init(const double alpha, const tail_type t=equal_tailed);
+  void init(double alpha, tail_type t=equal_tailed);
 
   virtual ~BinomialInterval() = default;
   // Methods which derived classes must implement.
@@ -36,7 +36,7 @@ public:
   // Calculate the interval given a number of successes and a number
   // of trials. (Successes/trials are doubles to having to cast to
   // double later anyway.)
-  virtual void calculate(const double successes, const double trials) = 0;
+  virtual void calculate(double successes, double trials) = 0;
 
   // Return a pretty name for the interval (e.g. "Feldman-Cousins").
   virtual const char* name() const = 0;
@@ -47,7 +47,7 @@ public:
   
   // Calculate and return the coverage probability given the true
   // binomial parameter rho and the number of trials.
-  double coverage_prob(const double rho, const int trials);
+  double coverage_prob(double rho, int trials);
 
   // Convenience methods to scan the parameter space. In each, the
   // pointers must point to already-allocated arrays of double, with
@@ -57,12 +57,12 @@ public:
 
   // Given ntot trials, scan rho in [0,1] with nrho points (so the
   // arrays must be allocated double[nrho]).
-  void scan_rho(const int ntot, const int nrho, double* rho, double* prob);
+  void scan_rho(int ntot, int nrho, double* rho, double* prob);
 
   // Given the true value of rho, scan over from ntot_min to ntot_max
   // trials (so the arrays must be allocated double[ntot_max -
   // ntot_min + 1]).
-  void scan_ntot(const double rho, const int ntot_min, const int ntot_max, double* ntot, double* prob);
+  void scan_ntot(double rho, int ntot_min, int ntot_max, double* ntot, double* prob);
 
   // Construct nrho acceptance sets in rho = [0,1] given ntot trials
   // and put the results in x_l and x_r. The arrays must be allocated
@@ -72,7 +72,7 @@ public:
   // Dump a table of intervals from trials_min to trials_max, with
   // successes = 0 to trials for each. The table is produced in a file
   // in the current directory, given the name of the interval.
-  void dump(const int trials_min, const int trials_max);
+  void dump(int trials_min, int trials_max);
 
   // Simple accessors.
   double alpha() const { return alpha_; }

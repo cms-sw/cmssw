@@ -50,7 +50,7 @@ namespace edm
 
       void putGeneralTrack(edm::Event &e) ;
       void addGeneralTrackSignals(const edm::Event &e); 
-      void addGeneralTrackPileups(const int bcr, const edm::EventPrincipal*,unsigned int EventId, ModuleCallingContext const*);
+      void addGeneralTrackPileups(int bcr, const edm::EventPrincipal*,unsigned int EventId, ModuleCallingContext const*);
 
 
     private:

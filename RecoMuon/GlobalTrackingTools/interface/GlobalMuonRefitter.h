@@ -78,19 +78,19 @@ class GlobalMuonRefitter {
     void setServices(const edm::EventSetup&);
 
     /// build combined trajectory from sta Track and tracker RecHits
-    std::vector<Trajectory> refit(const reco::Track& globalTrack, const int theMuonHitsOption, 
+    std::vector<Trajectory> refit(const reco::Track& globalTrack, int theMuonHitsOption, 
 				  const TrackerTopology *tTopo) const;
 
     /// build combined trajectory from subset of sta Track and tracker RecHits
     std::vector<Trajectory> refit(const reco::Track& globalTrack,
-				  const reco::TransientTrack track,
+				  reco::TransientTrack track,
 				  const TransientTrackingRecHit::ConstRecHitContainer& allRecHitsTemp,
-				  const int theMuonHitsOption,
+				  int theMuonHitsOption,
 				  const TrackerTopology *tTopo) const;
 
     /// refit the track with a new set of RecHits
     std::vector<Trajectory> transform(const reco::Track& newTrack,
-                                      const reco::TransientTrack track,
+                                      reco::TransientTrack track,
                                       const TransientTrackingRecHit::ConstRecHitContainer& recHitsForReFit) const;
     
     // get rid of selected station RecHits

@@ -175,37 +175,37 @@ public:
   ///
   ///Method converts pt [Gev/c] into pt bin number (0, 31).
   ///
-  static int iptFromPt(const double pt);
+  static int iptFromPt(double pt);
 
   ///
   ///Method converts pt bin number (0, 31) to pt [GeV/c].
   ///
-  static double ptFromIpt(const int ipt);
+  static double ptFromIpt(int ipt);
 
   ///
   ///Method converts from m_tower number to eta (gives center of m_tower).
   ///
-  static double etaFromTowerNum(const int atower);
+  static double etaFromTowerNum(int atower);
 
   ///
   ///Method converts from eta to trigger m_tower number.
   ///
-  static int   towerNumFromEta(const double eta);
+  static int   towerNumFromEta(double eta);
 
   ///
   ///Method converts from segment number (0, 144).
   ///obsolete
-  static double phiFromSegmentNum(const int iseg);
+  static double phiFromSegmentNum(int iseg);
 
   ///
   ///Method converts from logSegment (0..11) and logSector(0...11) .
   ///
-  static double phiFromLogSegSec(const int logSegment, const int logSector);
+  static double phiFromLogSegSec(int logSegment, int logSector);
 
   ///obsolete
   ///Method converts phi to segment number (0, 144).
   ///
-  static int segmentNumFromPhi(const double phi);
+  static int segmentNumFromPhi(double phi);
 
   /* obsolete
   ///

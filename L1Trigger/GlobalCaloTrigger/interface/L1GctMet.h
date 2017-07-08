@@ -32,8 +32,8 @@ class L1GctMet
     etMissPhiType phi;
   };
 
-  L1GctMet(const unsigned ex=0, const unsigned ey=0, const metAlgoType algo=cordicTranslate);
-  L1GctMet(const etComponentType& ex, const etComponentType& ey, const metAlgoType algo=cordicTranslate);
+  L1GctMet(unsigned ex=0, unsigned ey=0, metAlgoType algo=cordicTranslate);
+  L1GctMet(const etComponentType& ex, const etComponentType& ey, metAlgoType algo=cordicTranslate);
   ~L1GctMet();
 
   // return the missing Et as (magnitude, angle)
@@ -42,8 +42,8 @@ class L1GctMet
   // set and get the components
   void setComponents(const unsigned ex, const unsigned ey) { setExComponent(ex); setEyComponent(ey); }
   void setComponents(const etComponentType& ex, const etComponentType& ey) { setExComponent(ex); setEyComponent(ey); }
-  void setExComponent(const unsigned ex);
-  void setEyComponent(const unsigned ey);
+  void setExComponent(unsigned ex);
+  void setEyComponent(unsigned ey);
   void setExComponent(const etComponentType& ex) { m_exComponent = ex; }
   void setEyComponent(const etComponentType& ey) { m_eyComponent = ey; }
   etComponentType getExComponent() const { return m_exComponent; }
@@ -62,8 +62,8 @@ class L1GctMet
   const L1GctHtMissLut* getHtMissLut() const { return m_htMissLut; }
 
   // set and get the LUT parameters
-  void setEtScale(const L1CaloEtScale* const fn);
-  void setEtComponentLsb(const double lsb);
+  void setEtScale(const L1CaloEtScale* fn);
+  void setEtComponentLsb(double lsb);
 
   const L1CaloEtScale* etScale() const;
   const double componentLsb() const;
@@ -88,12 +88,12 @@ class L1GctMet
 
   L1GctHtMissLut* m_htMissLut;
 
-  etmiss_internal cordicTranslateAlgo (const int ex, const int ey, const bool of) const;
-  etmiss_internal useHtMissLutAlgo    (const int ex, const int ey, const bool of) const;
-  etmiss_internal oldGctAlgo          (const int ex, const int ey) const;
-  etmiss_internal floatingPointAlgo   (const int ex, const int ey) const;
+  etmiss_internal cordicTranslateAlgo (int ex, int ey, bool of) const;
+  etmiss_internal useHtMissLutAlgo    (int ex, int ey, bool of) const;
+  etmiss_internal oldGctAlgo          (int ex, int ey) const;
+  etmiss_internal floatingPointAlgo   (int ex, int ey) const;
 
-  int cordicShiftAndRoundBits (const int e, const unsigned nBits) const;
+  int cordicShiftAndRoundBits (int e, unsigned nBits) const;
 };
 
 #endif

@@ -25,7 +25,7 @@ public:
 			const TrackerTopology * tTopo, 
 			const TrackerGeometry * tracker, 
 			const Propagator& propagator,
-			const unsigned int mono = 0);
+			unsigned int mono = 0);
 
   double localX() const;
   double localY() const;

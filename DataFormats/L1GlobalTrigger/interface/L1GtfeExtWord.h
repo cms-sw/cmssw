@@ -80,7 +80,7 @@ public:
     /// LHC-BOB-ES-0001 (EDMS 638899)
 
     const cms_uint64_t gpsTime() const;
-    void setGpsTime(const cms_uint64_t);
+    void setGpsTime(cms_uint64_t);
 
     const cms_uint16_t bstMasterStatus() const;
     const cms_uint32_t turnCountNumber() const;
@@ -98,14 +98,14 @@ public:
 
     /// get/set BST block for index iB
     const cms_uint16_t bst(int iB) const;
-    void setBst(const cms_uint16_t bstVal, const int iB);
+    void setBst(cms_uint16_t bstVal, int iB);
 
     /// set the BST block for index iB from a 64-bits word
-    void setBst(const cms_uint64_t& word64, const int iB);
+    void setBst(const cms_uint64_t& word64, int iB);
 
     /// set the BST block in a 64-bits word, having the index iWord
     /// in the GTFE raw record
-    void setBstWord64(cms_uint64_t& word64, int iB, const int iWord);
+    void setBstWord64(cms_uint64_t& word64, int iB, int iWord);
 
 
     /// get/set hex message indicating the source of BST message
@@ -122,7 +122,7 @@ public:
 
     /// set hex message indicating the source of BST message in a 64-bits word,
     /// having the index iWord in the GTFE raw record
-    void setBstSourceWord64(cms_uint64_t& word64, const int iWord);
+    void setBstSourceWord64(cms_uint64_t& word64, int iWord);
 
 public:
 

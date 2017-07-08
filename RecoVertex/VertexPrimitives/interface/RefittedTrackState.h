@@ -83,7 +83,7 @@ public:
    */
 
   virtual ReferenceCountingPointer<RefittedTrackState> stateWithNewWeight
-  	(const double newWeight) const = 0;
+  	(double newWeight) const = 0;
 
   virtual std::vector< ReferenceCountingPointer<RefittedTrackState> > components() const = 0;
 

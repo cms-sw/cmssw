@@ -19,7 +19,7 @@ class SiStripCoralIface
 {
  public:	
   /** constructor */
-  SiStripCoralIface( std::string connectionString , std::string authenticationPath, const bool debug);
+  SiStripCoralIface( std::string connectionString , std::string authenticationPath, bool debug);
   /** destructor*/
   ~SiStripCoralIface();
   /** Method to retrieve information from status change table or lastValue table.  queryType defines which table is to be accessed.*/

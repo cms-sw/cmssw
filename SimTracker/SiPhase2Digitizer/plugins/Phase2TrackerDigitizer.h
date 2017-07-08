@@ -81,8 +81,8 @@ namespace cms
 
     void accumulatePixelHits(edm::Handle<std::vector<PSimHit> >, 
 			     size_t globalSimHitIndex,
-			     const unsigned int tofBin);   
-    void addPixelCollection(edm::Event& iEvent, const edm::EventSetup& iSetup, const bool ot_analog);
+			     unsigned int tofBin);   
+    void addPixelCollection(edm::Event& iEvent, const edm::EventSetup& iSetup, bool ot_analog);
     void addOuterTrackerCollection(edm::Event& iEvent, const edm::EventSetup& iSetup);
    
 

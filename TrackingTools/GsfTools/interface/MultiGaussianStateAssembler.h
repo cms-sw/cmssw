@@ -38,7 +38,7 @@ public:
   /** Returns the resulting MultiGaussianState 
    *  renormalised to specified weight.
    */
-  MultiState combinedState (const float weight);
+  MultiState combinedState (float weight);
 
 
 private:
@@ -56,7 +56,7 @@ private:
    *  with user-supplied total weight.
    */
 
-  MultiState reweightedCombinedState (const double) const;
+  MultiState reweightedCombinedState (double) const;
 
   /** Removes states with negligible weight (no renormalisation
    * of total weight!).

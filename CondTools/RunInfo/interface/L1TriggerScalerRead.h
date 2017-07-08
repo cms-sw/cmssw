@@ -21,7 +21,7 @@ public:
 
    void dropTable(const std::string & table );
    
-   std::vector<L1TriggerScaler::Lumi>  readData(const int r_number );
+   std::vector<L1TriggerScaler::Lumi>  readData(int r_number );
  
 private:
   std::string m_tableToDrop;  

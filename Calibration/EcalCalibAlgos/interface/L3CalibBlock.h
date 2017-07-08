@@ -25,8 +25,8 @@ class L3CalibBlock : public VEcalCalibBlock
 {
   public :
     //! ctor
-    L3CalibBlock (const int numberOfElements, 
-                  const int keventweight = 1) ;
+    L3CalibBlock (int numberOfElements, 
+                  int keventweight = 1) ;
     //! dtor
     ~L3CalibBlock () ;
     

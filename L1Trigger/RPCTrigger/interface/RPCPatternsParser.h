@@ -36,16 +36,16 @@ public:
   ~RPCPatternsParser();
 
   
-  void startElement(const XMLCh* const uri, const XMLCh* const localname, 
-                    const XMLCh* const qname, const XERCES_CPP_NAMESPACE::Attributes& attrs);
+  void startElement(const XMLCh* uri, const XMLCh* localname, 
+                    const XMLCh* qname, const XERCES_CPP_NAMESPACE::Attributes& attrs);
   
-  void endElement (const XMLCh* const uri, const XMLCh* const localname, const XMLCh* const qname);
+  void endElement (const XMLCh* uri, const XMLCh* localname, const XMLCh* qname);
 
   void parse(std::string fileName);
 
   const RPCPattern::RPCPatVec& getPatternsVec(const RPCConst::l1RpcConeCrdnts& coneCrds) const;
 
-  const RPCPattern::RPCPatVec& getPatternsVec(const int tower, const int sc, const int sg) const;
+  const RPCPattern::RPCPatVec& getPatternsVec(int tower, int sc, int sg) const;
 
   const RPCPattern::TQualityVec & getQualityVec() const{ //XXX - clean me!
     return m_QualityVec;

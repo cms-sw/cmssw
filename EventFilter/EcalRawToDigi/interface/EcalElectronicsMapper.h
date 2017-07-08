@@ -217,7 +217,7 @@ private:
 public:
   // check, does the given [FED (dcc), CCU (tower), VFE (strip)] belongs
   // to the list of VFEs with 'ghost' channels
-  bool isGhost(const int FED, const int CCU, const int VFE);
+  bool isGhost(int FED, int CCU, int VFE);
   
 private:
   void setupGhostMap();

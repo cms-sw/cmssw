@@ -32,7 +32,7 @@ class SiStripGainESProducerTemplate : public edm::ESProducer {
  private:
 
   SiStripGain* SiStripGainNormalizationFunction(const TDependentRecord& iRecord);
-  double getNFactor(const int apvGainIndex);
+  double getNFactor(int apvGainIndex);
 
   std::vector<edm::ParameterSet> apvGainLabels_;
   std::vector<std::pair<std::string, std::string> > apvgain_;

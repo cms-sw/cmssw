@@ -31,7 +31,7 @@ public:
     GEMCSCSegment() : theChi2(0.) {}
 	
     /// Constructor
-    GEMCSCSegment(const CSCSegment* csc_segment, const std::vector<const GEMRecHit*> gem_rhs, LocalPoint origin, LocalVector direction, AlgebraicSymMatrix errors, double chi2);
+    GEMCSCSegment(const CSCSegment* csc_segment, const std::vector<GEMRecHit*> gem_rhs, LocalPoint origin, LocalVector direction, AlgebraicSymMatrix errors, double chi2);
       
     /// Destructor
     virtual ~GEMCSCSegment();

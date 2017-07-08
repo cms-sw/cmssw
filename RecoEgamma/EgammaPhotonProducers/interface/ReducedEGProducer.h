@@ -61,7 +61,7 @@ class ReducedEGProducer : public edm::stream::EDProducer<> {
   void linkSuperCluster(const reco::SuperClusterRef& superCluster, 
 			std::map<reco::SuperClusterRef, unsigned int>& superClusterMap,
 			reco::SuperClusterCollection& superClusters,
-			const bool relink,
+			bool relink,
 			std::unordered_set<unsigned int>& superClusterFullRelinkMap);
 
   void linkConversions(const reco::ConversionRefVector& convrefs,

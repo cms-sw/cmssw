@@ -26,7 +26,7 @@ public:
   void simulateNoise(const GEMEtaPartition*, CLHEP::HepRandomEngine* engine) {}
 
   std::vector<std::pair<int,int> > 
-    simulateClustering(const GEMEtaPartition*, const PSimHit*, const int, CLHEP::HepRandomEngine* engine);
+    simulateClustering(const GEMEtaPartition*, const PSimHit*, int, CLHEP::HepRandomEngine* engine);
 
   void setup() {}
 

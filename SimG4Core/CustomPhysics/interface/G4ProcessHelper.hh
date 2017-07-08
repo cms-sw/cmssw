@@ -44,8 +44,8 @@ private:
 
   //static G4ProcessHelper* pinstance;
 
-  G4double Regge(const double boost);
-  G4double Pom(const double boost);
+  G4double Regge(double boost);
+  G4double Pom(double boost);
 
   G4double checkfraction;
   G4int n_22;

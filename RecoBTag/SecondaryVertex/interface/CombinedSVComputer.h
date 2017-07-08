@@ -60,12 +60,12 @@ class CombinedSVComputer {
 	
 	const reco::btag::TrackIPData &
 	threshTrack(const reco::CandIPTagInfo &trackIPTagInfo,
-	            const reco::btag::SortCriteria sort,
+	            reco::btag::SortCriteria sort,
 	            const reco::Jet &jet,
 	            const GlobalPoint &pv) const;
 	const reco::btag::TrackIPData &
 	threshTrack(const reco::TrackIPTagInfo &trackIPTagInfo,
-	            const reco::btag::SortCriteria sort,
+	            reco::btag::SortCriteria sort,
 	            const reco::Jet &jet,
 	            const GlobalPoint &pv) const;
 	template <class SVTI,class IPTI>

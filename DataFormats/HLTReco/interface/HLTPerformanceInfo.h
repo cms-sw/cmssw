@@ -200,8 +200,8 @@ public:
   const char* longestModuleTimeName() const;
   const char* longestModuleCPUTimeName() const;
 
-  double totalPathTime(const size_t path);
-  double totalPathCPUTime(const size_t path);
+  double totalPathTime(size_t path);
+  double totalPathCPUTime(size_t path);
 
   
   void setStatusOfModulesFromPath(const char* pathName);

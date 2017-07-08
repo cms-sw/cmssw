@@ -79,16 +79,16 @@ class EgammaHLTTrackIsolation
 
 
   /// Get number of tracks and Pt sum of tracks inside an isolation cone for electrons
-  std::pair<int,float> electronIsolation(const reco::Track * const tr, const reco::TrackCollection* isoTracks);
-  std::pair<int,float> electronIsolation(const reco::Track * const tr, const reco::ElectronCollection* allEle, const reco::TrackCollection* isoTracks);
-  std::pair<int,float> electronIsolation(const reco::Track * const tr, const reco::TrackCollection* isoTracks, GlobalPoint vertex);
+  std::pair<int,float> electronIsolation(const reco::Track * tr, const reco::TrackCollection* isoTracks);
+  std::pair<int,float> electronIsolation(const reco::Track * tr, const reco::ElectronCollection* allEle, const reco::TrackCollection* isoTracks);
+  std::pair<int,float> electronIsolation(const reco::Track * tr, const reco::TrackCollection* isoTracks, GlobalPoint vertex);
   
   /// Get number of tracks and Pt sum of tracks inside an isolation cone for photons
   /// set useVertex=true to use PhotonCandidate vertex from EgammaPhotonVtxFinder
   /// set useVertex=false to consider all tracks for isolation
-  std::pair<int,float> photonIsolation(const reco::RecoCandidate * const recocand, const reco::TrackCollection* isoTracks, bool useVertex);
-  std::pair<int,float> photonIsolation(const reco::RecoCandidate * const recocand, const reco::TrackCollection* isoTracks, GlobalPoint vertex);
-  std::pair<int,float> photonIsolation(const reco::RecoCandidate * const recocand, const reco::ElectronCollection* allEle, const reco::TrackCollection* isoTracks);  
+  std::pair<int,float> photonIsolation(const reco::RecoCandidate * recocand, const reco::TrackCollection* isoTracks, bool useVertex);
+  std::pair<int,float> photonIsolation(const reco::RecoCandidate * recocand, const reco::TrackCollection* isoTracks, GlobalPoint vertex);
+  std::pair<int,float> photonIsolation(const reco::RecoCandidate * recocand, const reco::ElectronCollection* allEle, const reco::TrackCollection* isoTracks);  
 
   /// Get number of tracks inside an isolation cone for electrons
   int electronTrackCount(const reco::Track * const tr, const reco::TrackCollection* isoTracks)

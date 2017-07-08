@@ -40,7 +40,7 @@ protected:
   bool saveFakeRate(const string& histName, const string& histTitle,
                     const string& numeHistName, const string& denoHistName);
   bool saveResolution(const string& histName, const string& histTitle, 
-                      const string& srcHistName, const char sliceDirection = 'Y');
+                      const string& srcHistName, char sliceDirection = 'Y');
   bool dumpObject(const string& objName, const string& objTitle, const string& srcObjName);
 
 protected:

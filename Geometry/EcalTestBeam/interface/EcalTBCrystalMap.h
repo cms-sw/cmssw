@@ -25,7 +25,7 @@ class EcalTBCrystalMap {
   ~EcalTBCrystalMap();
 
   int CrystalIndex(double thisEta, double thisPhi);
-  void findCrystalAngles(const int thisCrysIndex, double & thisEta, double & thisPhi);
+  void findCrystalAngles(int thisCrysIndex, double & thisEta, double & thisPhi);
 
   static const int NCRYSTAL = 1700;
   

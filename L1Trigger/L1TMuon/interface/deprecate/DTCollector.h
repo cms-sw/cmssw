@@ -30,12 +30,12 @@ namespace L1TMuon {
     TriggerPrimitive processDigis(const L1MuDTChambPhDigi&,
 				  const int &segment_number) const;
     TriggerPrimitive processDigis(const L1MuDTChambThDigi&,
-				  const int bti_group) const;
+				  int bti_group) const;
     TriggerPrimitive processDigis(const L1MuDTChambPhDigi&,
 				  const L1MuDTChambThDigi&,
-				  const int bti_group) const;    
+				  int bti_group) const;    
     int findBTIGroupForThetaDigi(const L1MuDTChambThDigi&,
-				 const int position) const;    
+				 int position) const;    
     const int bx_min, bx_max;
     std::unique_ptr<DTBunchCrossingCleaner> _bxc;
   };

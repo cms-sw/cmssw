@@ -10,7 +10,7 @@ namespace l1t {
     
   public:
     CaloStage1Cluster(){}
-    CaloStage1Cluster( const LorentzVector p4,
+    CaloStage1Cluster( LorentzVector p4,
 		       int pt=0,
 		       int eta=0,
 		       int phi=0,

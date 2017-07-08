@@ -101,7 +101,7 @@ class EcalShowerContainmentCorrections {
   /// Fill the correction coefficients for a given Ecal module
   /** Assume that corresponding  modules in different supermodules use
       the same coefficients*/
-  void fillCorrectionCoefficients(const int supermodule, const int module, 
+  void fillCorrectionCoefficients(int supermodule, int module, 
 				  const Coefficients&  coefficients);
 
 

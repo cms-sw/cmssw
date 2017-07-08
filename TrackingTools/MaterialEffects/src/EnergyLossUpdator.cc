@@ -12,7 +12,7 @@ oldComputeBetheBloch (const LocalVector& localP,
 void 
 oldComputeElectrons (const LocalVector& localP,
 		     const MediumProperties& materialConstants,
-		     const PropagationDirection propDir);
+		     PropagationDirection propDir);
 
 //
 // Computation of contribution of energy loss to momentum and covariance

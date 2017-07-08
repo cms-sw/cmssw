@@ -19,7 +19,7 @@ class TtFullHadHypGenMatch : public TtFullHadHypothesis  {
   virtual void buildHypo(edm::Event& evt,
 			 const edm::Handle<std::vector<pat::Jet> >& jets,
 			 std::vector<int>& match,
-			 const unsigned int iComb);
+			 unsigned int iComb);
 
  protected:
 

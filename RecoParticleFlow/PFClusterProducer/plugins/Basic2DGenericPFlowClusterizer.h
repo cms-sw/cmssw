@@ -42,8 +42,8 @@ class Basic2DGenericPFlowClusterizer : public PFClusterBuilderBase {
 
   void growPFClusters(const reco::PFCluster&,
 		      const std::vector<bool>&,
-		      const unsigned toleranceScaling,
-		      const unsigned iter,
+		      unsigned toleranceScaling,
+		      unsigned iter,
 		      double dist,
 		      reco::PFClusterCollection&) const;
   

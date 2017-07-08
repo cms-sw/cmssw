@@ -78,11 +78,11 @@ private:
 
   //booking
   void book(DQMStore::IBooker &, const TrackerTopology* tTopo);
-  void bookModMEs(DQMStore::IBooker &, const uint32_t );
-  void bookLayerMEs(DQMStore::IBooker &, const uint32_t, std::string&);
-  void bookRing(DQMStore::IBooker &, const uint32_t, std::string&);
+  void bookModMEs(DQMStore::IBooker &, uint32_t );
+  void bookLayerMEs(DQMStore::IBooker &, uint32_t, std::string&);
+  void bookRing(DQMStore::IBooker &, uint32_t, std::string&);
   MonitorElement* handleBookMEs(DQMStore::IBooker &, std::string&, std::string&, std::string&, std::string&);
-  void bookRingMEs(DQMStore::IBooker &, const uint32_t, std::string&);
+  void bookRingMEs(DQMStore::IBooker &, uint32_t, std::string&);
   void bookSubDetMEs(DQMStore::IBooker &, std::string& name);
   MonitorElement * bookME1D(DQMStore::IBooker & , const char*, const char*);
   MonitorElement * bookME2D(DQMStore::IBooker & , const char*, const char*);
@@ -120,10 +120,10 @@ private:
 	  const SiStripRecHit2D*                 hit2D,
 	  const SiStripRecHit1D*                 hit1D,
 	 	      LocalVector                      localMomentum,
-	  const bool                             track_ok);
+	  bool                             track_ok);
   bool clusterInfos(
     SiStripClusterInfo* cluster,
-    const uint32_t                        detid,
+    uint32_t                        detid,
     enum ClusterFlags                     flags,
     bool                                  track_ok,
     LocalVector                           LV,
@@ -154,7 +154,7 @@ private:
   inline void fillME(MonitorElement* ME,float value1,float value2,float value3){if (ME!=0)ME->Fill(value1,value2,value3);}
   inline void fillME(MonitorElement* ME,float value1,float value2,float value3,float value4){if (ME!=0)ME->Fill(value1,value2,value3,value4);}
 
-  Det2MEs findMEs(const TrackerTopology* tTopo, const uint32_t detid);
+  Det2MEs findMEs(const TrackerTopology* tTopo, uint32_t detid);
 
   // ----------member data ---------------------------
 private:

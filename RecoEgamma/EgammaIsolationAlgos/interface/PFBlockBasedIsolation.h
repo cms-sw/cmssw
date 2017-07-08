@@ -51,8 +51,8 @@ class PFBlockBasedIsolation{
   
 
     std::vector<reco::PFCandidateRef> calculate(math::XYZTLorentzVectorD p4,
-		 const reco::PFCandidateRef pfEGCand,
-		 const edm::Handle<reco::PFCandidateCollection> pfCandidateHandle);
+		 reco::PFCandidateRef pfEGCand,
+		 edm::Handle<reco::PFCandidateCollection> pfCandidateHandle);
 
 
 private:  

@@ -48,7 +48,7 @@ class TrackerSectorStruct{
 		       PNorResXVsVar(0), PProbXVsVar(0),
 		       PSigmaXHitVsVar(0), PSigmaXTrkVsVar(0), PSigmaXVsVar(0){};
     
-    inline void fillCorrHists(const TString, const TrackStruct::HitParameterStruct& hitParameterStruct, double variable);
+    inline void fillCorrHists(TString, const TrackStruct::HitParameterStruct& hitParameterStruct, double variable);
     inline void fillCorrHistsX(const TrackStruct::HitParameterStruct& hitParameterStruct, double variable);
     inline void fillCorrHistsY(const TrackStruct::HitParameterStruct& hitParameterStruct, double variable);
     

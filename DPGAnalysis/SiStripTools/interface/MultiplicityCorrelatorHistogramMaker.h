@@ -22,7 +22,7 @@ class MultiplicityCorrelatorHistogramMaker {
   ~MultiplicityCorrelatorHistogramMaker();
 
   void beginRun(const edm::Run& iRun);
-  void fill(const edm::Event& iEvent, const int xmult, const int ymult);
+  void fill(const edm::Event& iEvent, int xmult, int ymult);
 
  private:
 

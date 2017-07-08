@@ -113,7 +113,7 @@ class TrackDetMatchInfo {
    GlobalPoint getPosition( const DetId& );
    std::string dumpGeometry( const DetId& );
  private:
-   bool insideCone(const DetId&, const double);
+   bool insideCone(const DetId&, double);
    edm::ESHandle<CaloGeometry> caloGeometry;
 };
 #endif

@@ -52,7 +52,7 @@ public:
     // constructor
     TriggerMenu();
 
-    TriggerMenu(const std::string&, const unsigned int numberConditionChips,
+    TriggerMenu(const std::string&, unsigned int numberConditionChips,
             const std::vector<std::vector<MuonTemplate> >&,
             const std::vector<std::vector<CaloTemplate> >&,
             const std::vector<std::vector<EnergySumTemplate> >&,
@@ -102,7 +102,7 @@ public:
        return m_triggerMenuUUID;
     }
     
-    void setGtTriggerMenuUUID(const unsigned long uuid);
+    void setGtTriggerMenuUUID(unsigned long uuid);
 
 
     //
@@ -110,7 +110,7 @@ public:
         return m_triggerMenuImplementation;
     }
 
-    void setGtTriggerMenuImplementation(const unsigned long);
+    void setGtTriggerMenuImplementation(unsigned long);
 
     /// menu associated scale key
     inline const std::string& gtScaleDbKey() const {

@@ -78,7 +78,7 @@ private:
   void plotTotalEErrors(const edm::Handle<L1GctEtTotalCollection> &totalEtD, const edm::Handle<L1GctEtTotalCollection> &totalEtE, const edm::Handle<L1GctEtHadCollection> &totalHtD, const edm::Handle<L1GctEtHadCollection> &totalHtE, const edm::Handle<L1CaloRegionCollection> &caloRegions);
   void plotMissingEt(const edm::Handle<L1GctEtMissCollection> &missingEtD, const edm::Handle<L1GctEtMissCollection> &missingEtE);
   void plotMissingHt(const edm::Handle<L1GctHtMissCollection> &missingHtD, const edm::Handle<L1GctHtMissCollection> &missingHtE);
-  void plotMissingEErrors(const edm::Handle<L1GctEtMissCollection> &missingEtD, const edm::Handle<L1GctEtMissCollection> &missingEtE, const edm::Handle<L1GctHtMissCollection> &missingHtD, const edm::Handle<L1GctHtMissCollection> &missingHtE, edm::Handle<L1CaloRegionCollection> &caloRegions, const edm::Handle<L1GctInternJetDataCollection> &intjetsemu, const edm::Handle<L1GctInternHtMissCollection> intMissingHtD);
+  void plotMissingEErrors(const edm::Handle<L1GctEtMissCollection> &missingEtD, const edm::Handle<L1GctEtMissCollection> &missingEtE, const edm::Handle<L1GctHtMissCollection> &missingHtD, const edm::Handle<L1GctHtMissCollection> &missingHtE, edm::Handle<L1CaloRegionCollection> &caloRegions, const edm::Handle<L1GctInternJetDataCollection> &intjetsemu, edm::Handle<L1GctInternHtMissCollection> intMissingHtD);
   template<class T> bool checkCollections(const T &collection, const unsigned int &constraint, const std::string &label);
 
 public:

@@ -49,7 +49,7 @@ class  TotemRPIncludeAlignments : public edm::ESProducer, public edm::EventSetup
     virtual void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue&, edm::ValidityInterval&);
 
     /// merges an array of sequences to one
-    RPAlignmentCorrectionsDataSequence Merge(const std::vector<RPAlignmentCorrectionsDataSequence>) const;
+    RPAlignmentCorrectionsDataSequence Merge(std::vector<RPAlignmentCorrectionsDataSequence>) const;
 
     /// builds a sequence of corrections from provided sources and runs a few checks
     void PrepareSequence(const std::string &label, RPAlignmentCorrectionsDataSequence &seq, const std::vector<std::string> &files) const;

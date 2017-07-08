@@ -15,8 +15,8 @@ public:
    *  annealing ratio ( geometric annealing ).
    */
 
-  GeometricAnnealing( const double cutoff=3.0, const double T=256.0,
-     const double annealing_ratio=0.25 );
+  GeometricAnnealing( double cutoff=3.0, double T=256.0,
+     double annealing_ratio=0.25 );
 
   void anneal(); //< One annealing step. theT *= theRatio.
   void resetAnnealing(); //< theT = theT0.

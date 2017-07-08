@@ -25,9 +25,9 @@ enum TrackClass { T1234, T123, T124, T134, T234,
 std::ostream& operator<<( std::ostream& s, TrackClass tc);
 
 // convert TrackClass to bitmap
-const unsigned int tc2bitmap(const TrackClass tc);
+const unsigned int tc2bitmap(TrackClass tc);
 
 // convert TrackClass to graphical format
-const std::string tc2string(const TrackClass tc);
+const std::string tc2string(TrackClass tc);
 
 #endif

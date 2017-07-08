@@ -35,8 +35,8 @@ namespace reco {
     CastorTower() : energy_(0.), position_(ROOT::Math::XYZPoint(0.,0.,0.)), emEnergy_(0.), hadEnergy_(0.), fem_(0.), depth_(0.), fhot_(0.) { }
 
     // constructor from values
-    CastorTower(const double energy, const ROOT::Math::XYZPoint& position, const double emEnergy, const double hadEnergy, const double fem,
-		const double depth, const double fhot, const CastorRecHitRefs& usedRecHits);
+    CastorTower(double energy, const ROOT::Math::XYZPoint& position, double emEnergy, double hadEnergy, double fem,
+		double depth, double fhot, const CastorRecHitRefs& usedRecHits);
 
     /// destructor
     virtual ~CastorTower();

@@ -90,8 +90,8 @@ private:
   void bookEnergySumHistos(DQMStore::IBooker &);
   void bookJetHistos(DQMStore::IBooker &);
 
-  void fillEnergySums(edm::Event const& e, const unsigned int nVertex);
-  void fillJets(edm::Event const& e, const unsigned int nVertex);
+  void fillEnergySums(edm::Event const& e, unsigned int nVertex);
+  void fillJets(edm::Event const& e, unsigned int nVertex);
 
   //private variables
   math::XYZPoint PVPoint_;

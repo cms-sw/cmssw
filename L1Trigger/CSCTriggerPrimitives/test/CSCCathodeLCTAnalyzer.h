@@ -41,7 +41,7 @@ class CSCCathodeLCTAnalyzer
   void setGeometry(const CSCGeometry* geom);
 
   /** Returns phi position of a given strip. */
-  double getStripPhi(const CSCDetId& layerId, const float strip);
+  double getStripPhi(const CSCDetId& layerId, float strip);
 
   /** Turns on the debug flag for this class. */
   static void setDebug() {debug = true;}
@@ -62,7 +62,7 @@ class CSCCathodeLCTAnalyzer
   /* Find the list of ComparatorDigis belonging to this CLCT. */
   std::vector<CSCCathodeLayerInfo> lctDigis(const CSCCLCTDigi& clct,
        const CSCDetId& clctId, const CSCComparatorDigiCollection* compdc);
-  int preselectDigis(const int clct_bx, const CSCDetId& layerId,
+  int preselectDigis(int clct_bx, const CSCDetId& layerId,
 		     const CSCComparatorDigiCollection* compdc,
 		     std::vector<CSCComparatorDigi>& digiMap,
 		     int hfstripDigis[CSCConstants::NUM_HALF_STRIPS],

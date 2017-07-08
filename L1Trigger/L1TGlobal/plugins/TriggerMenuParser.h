@@ -268,7 +268,7 @@ public:
         return m_triggerMenuUUID;
     }
 
-    void setGtTriggerMenuUUID(const int);
+    void setGtTriggerMenuUUID(int);
 
     inline const std::string& gtTriggerMenuDate() const {
         return m_triggerMenuDate;
@@ -306,13 +306,13 @@ private:
 
     /// insertConditionIntoMap - safe insert of condition into condition map.
     /// if the condition name already exists, do not insert it and return false
-    bool insertConditionIntoMap(GlobalCondition& cond, const int chipNr);
+    bool insertConditionIntoMap(GlobalCondition& cond, int chipNr);
 
     /// insert an algorithm into algorithm map
     bool insertAlgorithmIntoMap(const GlobalAlgorithm& alg);
 
     template <typename T> std::string l1t2string( T );
-    int l1tstr2int( const std::string data );
+    int l1tstr2int( std::string data );
 
 
     /// parse scales
@@ -326,7 +326,7 @@ private:
 /*             const std::string& name, unsigned int chipNr = 0, */
 /*             const bool corrFlag = false); */
     bool parseMuon( tmeventsetup::esCondition condMu,
-            unsigned int chipNr = 0, const bool corrFlag = false);
+            unsigned int chipNr = 0, bool corrFlag = false);
 
     bool parseMuonCorr(const tmeventsetup::esObject* condMu,
              unsigned int chipNr = 0);
@@ -337,7 +337,7 @@ private:
 /*             const std::string& name, unsigned int chipNr = 0, */
 /*             const bool corrFlag = false); */
     bool parseCalo( tmeventsetup::esCondition condCalo,
-            unsigned int chipNr = 0, const bool corrFlag = false);
+            unsigned int chipNr = 0, bool corrFlag = false);
 
     bool parseCaloCorr(const tmeventsetup::esObject* corrCalo,
             unsigned int chipNr = 0);
@@ -348,7 +348,7 @@ private:
     /*         const bool corrFlag = false); */
 
     bool parseEnergySum( tmeventsetup::esCondition condEnergySums,
-            unsigned int chipNr = 0, const bool corrFlag = false);
+            unsigned int chipNr = 0, bool corrFlag = false);
 
 
     bool parseEnergySumCorr(const tmeventsetup::esObject* corrESum,

@@ -25,7 +25,7 @@ public:
 	* and CSCDetId + channel
 	*/
 	virtual float pedestal( const std::vector<float>& sca, 
-	   const CSCRecoConditions* cond=0, const CSCDetId id=0, int ichan=0 ) = 0;
+	   const CSCRecoConditions* cond=0, CSCDetId id=0, int ichan=0 ) = 0;
 private:
 	float defaultPed;
 };

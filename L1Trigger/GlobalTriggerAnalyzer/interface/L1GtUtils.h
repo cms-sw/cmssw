@@ -244,12 +244,12 @@ public:
     /// get all the run-constant quantities for L1 trigger and cache them
 
     ///    for use in beginRun(const edm::Run&, const edm::EventSetup&);
-    void getL1GtRunCache(const edm::Run&, const edm::EventSetup&, const bool,
-                         const bool);
+    void getL1GtRunCache(const edm::Run&, const edm::EventSetup&, bool,
+                         bool);
 
     ///    for use in analyze(const edm::Event&, const edm::EventSetup&)
-    void getL1GtRunCache(const edm::Event&, const edm::EventSetup&, const bool,
-                         const bool);
+    void getL1GtRunCache(const edm::Event&, const edm::EventSetup&, bool,
+                         bool);
 
     /// return the trigger "category" trigCategory
     ///    algorithm trigger alias or algorithm trigger name AlgorithmTrigger = 0,
@@ -371,7 +371,7 @@ private:
     /// return the trigger result given bit number and decision word
     /// errorCode != 0 if bit number greater than size of decision word
     /// print in debug mode a message in case of error
-    const bool trigResult(const DecisionWord& decWord, const int bitNumber,
+    const bool trigResult(const DecisionWord& decWord, int bitNumber,
             const std::string& nameAlgoTechTrig,
             const TriggerCategory& trigCategory, int& errorCode) const;
 

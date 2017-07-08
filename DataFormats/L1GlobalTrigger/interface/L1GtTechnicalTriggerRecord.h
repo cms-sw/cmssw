@@ -40,11 +40,11 @@ public:
 
     /// return the technical trigger for ttName and bxInEvent
     const L1GtTechnicalTrigger* getTechnicalTrigger(const std::string& ttName,
-            const int bxInEventVal) const;
+            int bxInEventVal) const;
 
     /// return the technical trigger for ttBitNumber and bxInEvent
-    const L1GtTechnicalTrigger* getTechnicalTrigger(const unsigned int ttBitNumber,
-            const int bxInEventVal) const;
+    const L1GtTechnicalTrigger* getTechnicalTrigger(unsigned int ttBitNumber,
+            int bxInEventVal) const;
 
 public:
 

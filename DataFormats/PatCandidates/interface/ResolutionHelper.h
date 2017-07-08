@@ -5,7 +5,7 @@
 
 namespace pat { namespace helper {
 namespace ResolutionHelper {
-    void   rescaleForKinFitter(const pat::CandKinResolution::Parametrization parametrization, 
+    void   rescaleForKinFitter(pat::CandKinResolution::Parametrization parametrization, 
                                AlgebraicSymMatrix44 &covariance, 
                                const math::XYZTLorentzVector &initialP4);
     double getResolEta(pat::CandKinResolution::Parametrization parametrization,

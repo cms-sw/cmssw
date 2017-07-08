@@ -45,7 +45,7 @@ public:
     GlobalAlgorithm(const std::string&, const std::string&);
 
     ///   name, logical expression and bit number
-    GlobalAlgorithm(const std::string&, const std::string&, const int);
+    GlobalAlgorithm(const std::string&, const std::string&, int);
 
     /// destructor
     virtual ~GlobalAlgorithm();
@@ -116,13 +116,13 @@ public:
 public:
 
     /// get the condition chip number the algorithm is located on
-    const int algoChipNumber(const int numberConditionChips,
-                         const int pinsOnConditionChip,
+    const int algoChipNumber(int numberConditionChips,
+                         int pinsOnConditionChip,
                          const std::vector<int>& orderConditionChip) const;
 
     /// get the output pin on the condition chip for the algorithm
-    const int algoOutputPin(const int numberConditionChips,
-                            const int pinsOnConditionChip,
+    const int algoOutputPin(int numberConditionChips,
+                            int pinsOnConditionChip,
                             const std::vector<int>& orderConditionChip) const;
 
     /// print condition

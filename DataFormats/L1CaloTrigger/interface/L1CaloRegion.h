@@ -65,44 +65,44 @@ public:
   // named ctors
 
   /// constructor HB/HE region from components
-  static L1CaloRegion makeHBHERegion(const unsigned et, 
-				     const bool overFlow, 
-				     const bool tauVeto, 
-				     const bool mip,
-				     const bool quiet, 
-				     const unsigned crate, 
-				     const unsigned card, 
-				     const unsigned rgn);
+  static L1CaloRegion makeHBHERegion(unsigned et, 
+				     bool overFlow, 
+				     bool tauVeto, 
+				     bool mip,
+				     bool quiet, 
+				     unsigned crate, 
+				     unsigned card, 
+				     unsigned rgn);
   
   /// construct HF region from components
-  static L1CaloRegion makeHFRegion(const unsigned et, 
-				   const bool fineGrain, 
-				   const unsigned crate, 
-				   const unsigned rgn);
+  static L1CaloRegion makeHFRegion(unsigned et, 
+				   bool fineGrain, 
+				   unsigned crate, 
+				   unsigned rgn);
   
   /// construct region from GCT indices
-  static L1CaloRegion makeRegionFromGctIndices(const unsigned et, 
-					       const bool overFlow, 
-					       const bool fineGrain, 
-					       const bool mip, 
-					       const bool quiet, 
-					       const unsigned ieta, 
-					       const unsigned iphi);
+  static L1CaloRegion makeRegionFromGctIndices(unsigned et, 
+					       bool overFlow, 
+					       bool fineGrain, 
+					       bool mip, 
+					       bool quiet, 
+					       unsigned ieta, 
+					       unsigned iphi);
   /// constructor from raw data and GCT indices for unpacking
-  static L1CaloRegion makeRegionFromUnpacker(const uint16_t data, 
-                                             const unsigned ieta, 
-                                             const unsigned iphi, 
-                                             const uint16_t block, 
-                                             const uint16_t index, 
-                                             const int16_t bx); 
+  static L1CaloRegion makeRegionFromUnpacker(uint16_t data, 
+                                             unsigned ieta, 
+                                             unsigned iphi, 
+                                             uint16_t block, 
+                                             uint16_t index, 
+                                             int16_t bx); 
   
   /// construct region for use in GCT internal jet-finding
-  static L1CaloRegion makeGctJetRegion(const unsigned et, 
-					    const bool overFlow, 
-					    const bool fineGrain,
-					    const unsigned ieta, 
-					    const unsigned iphi,
-					    const int16_t bx);
+  static L1CaloRegion makeGctJetRegion(unsigned et, 
+					    bool overFlow, 
+					    bool fineGrain,
+					    unsigned ieta, 
+					    unsigned iphi,
+					    int16_t bx);
 
   // get/set methods for the data
 

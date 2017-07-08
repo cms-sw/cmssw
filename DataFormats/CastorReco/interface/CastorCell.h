@@ -26,7 +26,7 @@ namespace reco {
     CastorCell() : energy_(0.), position_(ROOT::Math::XYZPoint(0.,0.,0.)) { }
 
     /// constructor from values
-    CastorCell(const double energy, const ROOT::Math::XYZPoint& position);
+    CastorCell(double energy, const ROOT::Math::XYZPoint& position);
 
     /// destructor
     virtual ~CastorCell();

@@ -45,45 +45,45 @@ class L1GctInternHtMiss
   /* Named Constructors */
 
   /// Named ctor for making missing Ht x-component object from unpacker raw data.
-  static L1GctInternHtMiss unpackerMissHtx(const uint16_t capBlock,
-                                           const uint16_t capIndex,
-                                           const int16_t bx,
-                                           const uint32_t data);
+  static L1GctInternHtMiss unpackerMissHtx(uint16_t capBlock,
+                                           uint16_t capIndex,
+                                           int16_t bx,
+                                           uint32_t data);
 
   /// Named ctor for making missing Ht y-component object from unpacker raw data.
-  static L1GctInternHtMiss unpackerMissHty(const uint16_t capBlock,
-                                           const uint16_t capIndex,
-                                           const int16_t bx,
-                                           const uint32_t data);
+  static L1GctInternHtMiss unpackerMissHty(uint16_t capBlock,
+                                           uint16_t capIndex,
+                                           int16_t bx,
+                                           uint32_t data);
 
   /// Named ctor for making missing Ht x & y components object from unpacker raw data (wheel input).  
-  static L1GctInternHtMiss unpackerMissHtxHty(const uint16_t capBlock,
-                                              const uint16_t capIndex,
-                                              const int16_t bx,
-                                              const uint32_t data);
+  static L1GctInternHtMiss unpackerMissHtxHty(uint16_t capBlock,
+                                              uint16_t capIndex,
+                                              int16_t bx,
+                                              uint32_t data);
 
 
   /// Named ctor for making missing Ht x & y components object from emulator (jetFinder output).  
-  static L1GctInternHtMiss emulatorJetMissHt(const int htx,
-					     const int hty,
-					     const bool overFlow,
-					     const int16_t bx);
+  static L1GctInternHtMiss emulatorJetMissHt(int htx,
+					     int hty,
+					     bool overFlow,
+					     int16_t bx);
 
   /// Named ctor for making missing Ht x & y components object from emulator (wheel input).  
-  static L1GctInternHtMiss emulatorMissHtxHty(const int htx,
-					      const int hty,
-					      const bool overFlow,
-					      const int16_t bx);
+  static L1GctInternHtMiss emulatorMissHtxHty(int htx,
+					      int hty,
+					      bool overFlow,
+					      int16_t bx);
 
   /// Named ctor for making missing Ht x component object from emulator  
-  static L1GctInternHtMiss emulatorMissHtx(const int htx,
-					   const bool overFlow,
-					   const int16_t bx);
+  static L1GctInternHtMiss emulatorMissHtx(int htx,
+					   bool overFlow,
+					   int16_t bx);
 
   /// Named ctor for making missing Ht y component object from emulator  
-  static L1GctInternHtMiss emulatorMissHty(const int hty,
-					   const bool overFlow,
-					   const int16_t bx);
+  static L1GctInternHtMiss emulatorMissHty(int hty,
+					   bool overFlow,
+					   int16_t bx);
 
 
   /* Metadata */
@@ -147,15 +147,15 @@ class L1GctInternHtMiss
   /* Private ctors and methods */
 
   /// Private constructor that the named ctors use.
-  L1GctInternHtMiss(const L1GctInternHtMissType type,
-                    const uint16_t capBlock,
-                    const uint16_t capIndex,
-                    const int16_t bx,
-                    const uint32_t data);
+  L1GctInternHtMiss(L1GctInternHtMissType type,
+                    uint16_t capBlock,
+                    uint16_t capIndex,
+                    int16_t bx,
+                    uint32_t data);
 
   /// Converts 14-bit two's complement numbers to 16-bit two's complement (i.e. an int16_t)
   /*! The input is the raw bits of the 14-bit two's complement in a 16-bit unsigned number. */
-  int16_t convert14BitTwosCompTo16Bit(const uint16_t data) const;
+  int16_t convert14BitTwosCompTo16Bit(uint16_t data) const;
 
 
   /* Private data */

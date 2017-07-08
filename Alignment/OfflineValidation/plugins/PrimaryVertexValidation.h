@@ -84,8 +84,8 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
   virtual void endJob();
   bool isBFieldConsistentWithMode(const edm::EventSetup& iSetup) const;
   bool isHit2D(const TrackingRecHit &hit) const;
-  bool hasFirstLayerPixelHits(const reco::TransientTrack track);
-  std::pair<bool,bool> pixelHitsCheck(const reco::TransientTrack track);
+  bool hasFirstLayerPixelHits(reco::TransientTrack track);
+  std::pair<bool,bool> pixelHitsCheck(reco::TransientTrack track);
   std::pair<Double_t,Double_t> getMedian(TH1F *histo);
   std::pair<Double_t,Double_t> getMAD(TH1F *histo);
   std::pair<std::pair<Double_t,Double_t>, std::pair<Double_t,Double_t> > fitResiduals(TH1 *hist);

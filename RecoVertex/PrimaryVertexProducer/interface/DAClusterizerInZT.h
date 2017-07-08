@@ -56,7 +56,7 @@ struct vertex_t{
 
 
   std::vector< TransientVertex >
-    vertices(const std::vector<reco::TransientTrack> & tracks, const int verbosity=0)const;
+    vertices(const std::vector<reco::TransientTrack> & tracks, int verbosity=0)const;
 
 
   std::vector<track_t> fill(const std::vector<reco::TransientTrack> & tracks)const;
@@ -69,16 +69,16 @@ struct vertex_t{
  double update(double beta,
                std::vector<track_t> & tks,
                std::vector<vertex_t> & y,
-               const double rho0 = 0.0 )const;
+               double rho0 = 0.0 )const;
 
-  void dump(const double beta, const std::vector<vertex_t> & y, const std::vector<track_t> & tks, const int verbosity=0) const;
+  void dump(double beta, const std::vector<vertex_t> & y, const std::vector<track_t> & tks, int verbosity=0) const;
   bool merge(std::vector<vertex_t> &,int ) const;
   bool merge(std::vector<vertex_t> &,double & ) const;
-  bool purge(std::vector<vertex_t> &, std::vector<track_t> & , double &, const double ) const;
+  bool purge(std::vector<vertex_t> &, std::vector<track_t> & , double &, double ) const;
 
   void splitAll( std::vector<vertex_t> & y ) const;
 
-  double beta0(const double betamax,
+  double beta0(double betamax,
 	       std::vector<track_t> & tks,
 	       std::vector<vertex_t> & y )const;
 

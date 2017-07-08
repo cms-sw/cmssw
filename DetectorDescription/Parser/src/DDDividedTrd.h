@@ -20,9 +20,9 @@ class DDDividedTrdX final : public DDDividedGeometryObject
 
     virtual void checkParametersValidity() override;
     virtual double getMaxParameter() const override;
-    virtual DDTranslation makeDDTranslation( const int copyNo ) const override;
-    virtual DDRotation makeDDRotation(const int copyNo ) const override;
-    virtual DDLogicalPart makeDDLogicalPart( const int copyNo ) const override;
+    virtual DDTranslation makeDDTranslation( int copyNo ) const override;
+    virtual DDRotation makeDDRotation(int copyNo ) const override;
+    virtual DDLogicalPart makeDDLogicalPart( int copyNo ) const override;
 };
 
 class DDDividedTrdY final : public DDDividedGeometryObject
@@ -33,9 +33,9 @@ class DDDividedTrdY final : public DDDividedGeometryObject
 
     virtual void checkParametersValidity() override;
     virtual double getMaxParameter() const override;
-    virtual DDTranslation makeDDTranslation( const int copyNo ) const override;
-    virtual DDRotation makeDDRotation(const int copyNo ) const override;
-    virtual DDLogicalPart makeDDLogicalPart( const int copyNo ) const override;
+    virtual DDTranslation makeDDTranslation( int copyNo ) const override;
+    virtual DDRotation makeDDRotation(int copyNo ) const override;
+    virtual DDLogicalPart makeDDLogicalPart( int copyNo ) const override;
 };
 
 class DDDividedTrdZ final : public DDDividedGeometryObject
@@ -46,9 +46,9 @@ class DDDividedTrdZ final : public DDDividedGeometryObject
 
     virtual void checkParametersValidity() override;
     virtual double getMaxParameter() const override;
-    virtual DDTranslation makeDDTranslation( const int copyNo ) const override;
-    virtual DDRotation makeDDRotation(const int copyNo ) const override;
-    virtual DDLogicalPart makeDDLogicalPart( const int copyNo ) const override;
+    virtual DDTranslation makeDDTranslation( int copyNo ) const override;
+    virtual DDRotation makeDDRotation(int copyNo ) const override;
+    virtual DDLogicalPart makeDDLogicalPart( int copyNo ) const override;
 };
 
 #endif

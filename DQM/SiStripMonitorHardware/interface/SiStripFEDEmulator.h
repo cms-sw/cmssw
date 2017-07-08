@@ -38,11 +38,11 @@ namespace sistrip {
     FEDEmulator();
     ~FEDEmulator();
 
-    void initialise(const bool byModule);
+    void initialise(bool byModule);
 
-    void initialiseModule(const uint32_t aDetId,
-			  const uint32_t aNPairs,
-			  const uint32_t aPair);
+    void initialiseModule(uint32_t aDetId,
+			  uint32_t aNPairs,
+			  uint32_t aPair);
 
     void retrievePedestals(const edm::ESHandle<SiStripPedestals> & aHandle);
     void retrieveNoises(const edm::ESHandle<SiStripNoises> & aHandle);
@@ -52,7 +52,7 @@ namespace sistrip {
 			   std::vector<SiStripProcessedRawDigi> & noiseDetSetData,
 			   std::vector<SiStripRawDigi> & pedSubtrDetSetData,
 			   std::vector<uint32_t> & medsDetSetData,
-			   const bool fillApvsForCM);
+			   bool fillApvsForCM);
 
     void subtractCM(const std::vector<SiStripRawDigi> & pedSubtrDetSetData,
 		    std::vector<SiStripRawDigi> & cmSubtrDetSetData);
@@ -61,7 +61,7 @@ namespace sistrip {
 		      edm::DetSet<SiStripDigi>    & zsDetSetData,
 		      const std::unique_ptr<SiStripRawProcessingAlgorithms> & algorithms);
 
-    uint32_t fedIndex(const uint16_t aFedChannel);
+    uint32_t fedIndex(uint16_t aFedChannel);
 
     void fillPeds(const edm::DetSetVector<SiStripRawDigi>::const_iterator & peds);
     void fillNoises(const edm::DetSetVector<SiStripProcessedRawDigi>::const_iterator & noise);

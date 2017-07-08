@@ -72,7 +72,7 @@ namespace reco {
     /// y coordinate of the beeam spot position at a given z value (it takes into account the dydz slope)
     double y(const double z) const { return y0() + dydz() * (z - z0()); }
     /// position of the beam spot at a given z value (it takes into account the dxdz and dydz slopes)
-    const Point position(const double z) const;
+    const Point position(double z) const;
     //    const Point position(const double z) const {Point pos(x(z),y(z),z);    return pos;}
 
 

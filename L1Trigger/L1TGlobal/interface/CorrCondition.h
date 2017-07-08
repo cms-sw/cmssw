@@ -64,7 +64,7 @@ public:
 public:
 
     /// the core function to check if the condition matches
-    const bool evaluateCondition(const int bxEval) const;
+    const bool evaluateCondition(int bxEval) const;
 
     /// print condition
      void print(std::ostream& myCout) const;
@@ -109,11 +109,11 @@ private:
     void copy(const CorrCondition& cp);
 
     /// load  candidates
-    const l1t::L1Candidate* getCandidate(const int bx, const int indexCand) const;
+    const l1t::L1Candidate* getCandidate(int bx, int indexCand) const;
 
     /// function to check a single object if it matches a condition
     const bool
-    checkObjectParameter(const int iCondition, const l1t::L1Candidate& cand) const;
+    checkObjectParameter(int iCondition, const l1t::L1Candidate& cand) const;
 
 private:
 

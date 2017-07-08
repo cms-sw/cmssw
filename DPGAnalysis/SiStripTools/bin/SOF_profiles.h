@@ -4,7 +4,7 @@
 class TCanvas;
 class TFile;
 
-TCanvas* printSOF(TFile* file, const int run, const int firstLS,const int zoom);
+TCanvas* printSOF(TFile* file, int run, int firstLS,int zoom);
 
 #endif // DPGAnalysis_SiStripTools_SOF_profiles_h
 

@@ -32,7 +32,7 @@ public:
    *    (momentum and covariance matrix are potentially affected.
    */
   virtual TrajectoryStateOnSurface updateState (const TrajectoryStateOnSurface& TSoS, 
-						const PropagationDirection propDir) const;
+						PropagationDirection propDir) const;
 
   /** Particle mass assigned at construction.
    */
@@ -43,7 +43,7 @@ public:
   virtual GsfMaterialEffectsUpdator* clone()  const = 0;
 
   // here comes the actual computation of the values
-  virtual void compute (const TrajectoryStateOnSurface&, const PropagationDirection, Effect effects[]) const = 0;
+  virtual void compute (const TrajectoryStateOnSurface&, PropagationDirection, Effect effects[]) const = 0;
 
   size_t size() const { return m_size;}
 protected:

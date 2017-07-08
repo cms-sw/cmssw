@@ -15,10 +15,10 @@
 class CSCSectorReceiverMiniLUT
 {
 public:
-  static lclphidat calcLocalPhiMini(unsigned theadd, const bool gangedME1a);
-  static global_eta_data calcGlobalEtaMEMini(unsigned short endcap, unsigned short sector, unsigned short station, unsigned short subsector, unsigned theadd, const bool gangedME1a);
-  static global_phi_data calcGlobalPhiMEMini(unsigned short endcap, unsigned short sector, unsigned short station, unsigned short subsector, unsigned theadd, const bool gangedME1a);
-  static global_phi_data calcGlobalPhiMBMini(unsigned short endcap, unsigned short sector, unsigned short subsector, unsigned theadd, const bool gangedME1a);
+  static lclphidat calcLocalPhiMini(unsigned theadd, bool gangedME1a);
+  static global_eta_data calcGlobalEtaMEMini(unsigned short endcap, unsigned short sector, unsigned short station, unsigned short subsector, unsigned theadd, bool gangedME1a);
+  static global_phi_data calcGlobalPhiMEMini(unsigned short endcap, unsigned short sector, unsigned short station, unsigned short subsector, unsigned theadd, bool gangedME1a);
+  static global_phi_data calcGlobalPhiMBMini(unsigned short endcap, unsigned short sector, unsigned short subsector, unsigned theadd, bool gangedME1a);
   
 private:
   static const float lcl_phi_param0[1<<4];

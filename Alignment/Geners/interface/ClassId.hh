@@ -396,7 +396,7 @@ namespace gs {
 
     template<class T>
     inline std::string template_class_name(const std::string& templateName,
-                                           const unsigned nInclude)
+                                           unsigned nInclude)
     {
         return template_class_name<T>(templateName.c_str(), nInclude);
     }
@@ -425,7 +425,7 @@ namespace gs {
 
     template<class T1, class T2>
     inline std::string template_class_name(const std::string& templateName,
-                                           const unsigned nInclude)
+                                           unsigned nInclude)
     {
         return template_class_name<T1,T2>(templateName.c_str(), nInclude);
     }

@@ -13,8 +13,8 @@
 class CastorCalibrationWidthsSet {
 public:
   CastorCalibrationWidthsSet();
-  const CastorCalibrationWidths& getCalibrationWidths(const DetId id) const;
-  void setCalibrationWidths(const DetId id, const CastorCalibrationWidths& ca);
+  const CastorCalibrationWidths& getCalibrationWidths(DetId id) const;
+  void setCalibrationWidths(DetId id, const CastorCalibrationWidths& ca);
   void sort();
   void clear();
 private:

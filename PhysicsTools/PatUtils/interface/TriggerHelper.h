@@ -53,13 +53,13 @@ namespace pat {
         TriggerObjectRef triggerMatchObject( const reco::CandidateBaseRef & candRef, const std::string & labelMatcher      , const edm::Event & event, const TriggerEvent & triggerEvent ) const;
         /// Get a reference to the trigger objects matched to a certain physics object given by a collection and index for a certain matcher module
         /// ... by resulting association
-        template< class C > TriggerObjectRef triggerMatchObject( const edm::Handle< C > & candCollHandle, const size_t iCand, const TriggerObjectMatch * matchResult, const edm::Event & event, const TriggerEvent & triggerEvent ) const;
+        template< class C > TriggerObjectRef triggerMatchObject( const edm::Handle< C > & candCollHandle, size_t iCand, const TriggerObjectMatch * matchResult, const edm::Event & event, const TriggerEvent & triggerEvent ) const;
         /// ... by matcher module label
-        template< class C > TriggerObjectRef triggerMatchObject( const edm::Handle< C > & candCollHandle, const size_t iCand, const std::string & labelMatcher      , const edm::Event & event, const TriggerEvent & triggerEvent ) const;
+        template< class C > TriggerObjectRef triggerMatchObject( const edm::Handle< C > & candCollHandle, size_t iCand, const std::string & labelMatcher      , const edm::Event & event, const TriggerEvent & triggerEvent ) const;
         /// Get a table of references to all trigger objects matched to a certain physics object given by a reference
         TriggerObjectMatchMap triggerMatchObjects( const reco::CandidateBaseRef & candRef, const edm::Event & event, const TriggerEvent & triggerEvent ) const;
         /// Get a table of references to all trigger objects matched to a certain physics object given by a collection and index
-        template< class C > TriggerObjectMatchMap triggerMatchObjects( const edm::Handle< C > & candCollHandle, const size_t iCand, const edm::Event & event, const TriggerEvent & triggerEvent ) const;
+        template< class C > TriggerObjectMatchMap triggerMatchObjects( const edm::Handle< C > & candCollHandle, size_t iCand, const edm::Event & event, const TriggerEvent & triggerEvent ) const;
         /// Get a vector of references to the phyics objects matched to a certain trigger object given by a reference for a certain matcher module
         /// ... by resulting association
         reco::CandidateBaseRefVector triggerMatchCandidates( const pat::TriggerObjectRef & objectRef, const TriggerObjectMatch * matchResult, const edm::Event & event, const TriggerEvent & triggerEvent ) const;
@@ -67,9 +67,9 @@ namespace pat {
         reco::CandidateBaseRefVector triggerMatchCandidates( const pat::TriggerObjectRef & objectRef, const std::string & labelMatcher      , const edm::Event & event, const TriggerEvent & triggerEvent ) const;
         /// Get a vector of references to the phyics objects matched to a certain trigger object given by a collection and index for a certain matcher module
         /// ... by resulting association
-        reco::CandidateBaseRefVector triggerMatchCandidates( const edm::Handle< TriggerObjectCollection > & trigCollHandle, const size_t iTrig, const TriggerObjectMatch * matchResult, const edm::Event & event, const TriggerEvent & triggerEvent ) const;
+        reco::CandidateBaseRefVector triggerMatchCandidates( const edm::Handle< TriggerObjectCollection > & trigCollHandle, size_t iTrig, const TriggerObjectMatch * matchResult, const edm::Event & event, const TriggerEvent & triggerEvent ) const;
         /// ... by matcher module label
-        reco::CandidateBaseRefVector triggerMatchCandidates( const edm::Handle< TriggerObjectCollection > & trigCollHandle, const size_t iTrig, const std::string & labelMatcher      , const edm::Event & event, const TriggerEvent & triggerEvent ) const;
+        reco::CandidateBaseRefVector triggerMatchCandidates( const edm::Handle< TriggerObjectCollection > & trigCollHandle, size_t iTrig, const std::string & labelMatcher      , const edm::Event & event, const TriggerEvent & triggerEvent ) const;
 
     };
 

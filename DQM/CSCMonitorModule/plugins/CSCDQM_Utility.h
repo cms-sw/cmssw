@@ -70,10 +70,10 @@ namespace cscdqm {
 
       static bool regexMatch(const std::string& expression, const std::string& message);
       static bool regexMatch(const TPRegexp& re_expression, const std::string& message);
-      static void regexReplace(const std::string& expression, std::string& message, const std::string replace = "");
-      static void regexReplace(const TPRegexp& re_expression, std::string& message, const std::string replace = "");
-      static std::string regexReplaceStr(const std::string& expression, const std::string& message, const std::string replace = "");
-      static std::string regexReplaceStr(const TPRegexp& re_expression, const std::string& message, const std::string replace = "");
+      static void regexReplace(const std::string& expression, std::string& message, std::string replace = "");
+      static void regexReplace(const TPRegexp& re_expression, std::string& message, std::string replace = "");
+      static std::string regexReplaceStr(const std::string& expression, const std::string& message, std::string replace = "");
+      static std::string regexReplaceStr(const TPRegexp& re_expression, const std::string& message, std::string replace = "");
 
       static int getCSCTypeBin(const std::string& cstr);
       static std::string getCSCTypeLabel(int endcap, int station, int ring);
@@ -83,10 +83,10 @@ namespace cscdqm {
       static uint32_t fastHash(const char* data, int len);
       static uint32_t fastHash(const char* data) { return fastHash(data, strlen(data)); }
 
-      static short  checkOccupancy(const unsigned int N, const unsigned int n, const double low_threshold, const double high_threshold, const double low_sigfail, const double high_sigfail);
-      static bool   checkError(const unsigned int N, const unsigned int n, const double threshold, const double sigfail);
-      static double SignificanceLevelLow(const unsigned int N, const unsigned int n, const double eps);
-      static double SignificanceLevelHigh(const unsigned int N, const unsigned int n);
+      static short  checkOccupancy(unsigned int N, unsigned int n, double low_threshold, double high_threshold, double low_sigfail, double high_sigfail);
+      static bool   checkError(unsigned int N, unsigned int n, double threshold, double sigfail);
+      static double SignificanceLevelLow(unsigned int N, unsigned int n, double eps);
+      static double SignificanceLevelHigh(unsigned int N, unsigned int n);
 
       static int getRUIfromDDUId(unsigned ddu_id);
 

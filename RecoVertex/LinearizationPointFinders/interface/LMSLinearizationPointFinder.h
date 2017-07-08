@@ -23,9 +23,9 @@
 class LMSLinearizationPointFinder : public CrossingPtBasedLinearizationPointFinder
 {
 public:
-  LMSLinearizationPointFinder( const signed int n_pairs = 10 );
+  LMSLinearizationPointFinder( signed int n_pairs = 10 );
   LMSLinearizationPointFinder( const RecTracksDistanceMatrix * m,
-      const signed int n_pairs = -1 );
+      signed int n_pairs = -1 );
 
   virtual LMSLinearizationPointFinder * clone() const;
 };

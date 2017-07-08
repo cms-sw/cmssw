@@ -123,7 +123,7 @@ namespace pat {
 			 const reco::CandidateBaseRef& baseRef,
 			 const GenAssociations& genMatches,
 			 const IsoDepositMaps& deposits,
-                         const bool pfId,
+                         bool pfId,
 			 const IsolationValueMaps& isolationValues,
                          const IsolationValueMaps& isolationValuesNoPFId) const;
 

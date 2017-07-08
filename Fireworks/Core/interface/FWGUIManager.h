@@ -172,7 +172,7 @@ public:
    void clearStatus();
    void eventChangedCallback();
    
-   CSGAction* getAction(const std::string name);
+   CSGAction* getAction(std::string name);
    
    void addData();
    void titleChanged(const char *title);

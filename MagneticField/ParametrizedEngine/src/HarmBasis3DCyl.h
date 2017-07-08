@@ -34,7 +34,7 @@ private:
    void Print(harm_poly_arr &B,std::ostream &out = std::cout);
    
 public:
-   HarmBasis3DCyl(const unsigned N = 18); //The only legal constructor
+   HarmBasis3DCyl(unsigned N = 18); //The only legal constructor
    virtual ~HarmBasis3DCyl();
 
    unsigned GetDim() { return Dim;}

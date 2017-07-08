@@ -98,13 +98,13 @@ class EBDetId : public DetId {
   /** following are static member functions of the above two functions
     * which take and return a DetId, returns DetId(0) if invalid 
     */
-  static DetId offsetBy( const DetId startId, int nrStepsEta, int nrStepsPhi );
-  static DetId switchZSide( const DetId startId );
+  static DetId offsetBy( DetId startId, int nrStepsEta, int nrStepsPhi );
+  static DetId switchZSide( DetId startId );
 
   /** return an approximate values of eta (~0.15% precise)
    */
   float approxEta() const { return ieta() * crystalUnitToEta; }
-  static float approxEta( const DetId id );
+  static float approxEta( DetId id );
 
   static bool validDenseIndex( uint32_t din ) { return ( din < kSizeForDenseIndexing ) ; }
 

@@ -145,7 +145,7 @@ protected:
 				     const std::vector<AlgebraicMatrix> &allLocalToCurv,
 				     const std::vector<double> &allSteps,
 				     const GlobalTrajectoryParameters &gtp,   
-				     const double minStep = 1.0);
+				     double minStep = 1.0);
   
   /** internal methods to add material effects using broken lines (fine version, local system)
    */

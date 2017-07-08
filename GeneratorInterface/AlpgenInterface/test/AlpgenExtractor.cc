@@ -27,7 +27,7 @@ private:
   virtual void beginRun(const edm::Run&, const edm::EventSetup&) ; 
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
-  void writeHeader(const std::vector<LHERunInfoProduct::Header>::const_iterator, const std::string) ;
+  void writeHeader(std::vector<LHERunInfoProduct::Header>::const_iterator, std::string) ;
       // ----------member data ---------------------------
   std::string unwParFile_;
   std::string wgtFile_;

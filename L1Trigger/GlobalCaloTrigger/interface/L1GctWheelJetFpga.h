@@ -153,7 +153,7 @@ private:
   /// Classifies jets into central, forward or tau.
   void classifyJets();
   /// Initialises all the jet vectors with jets of the correct type.
-  void setupJetsVectors(const int16_t bx);
+  void setupJetsVectors(int16_t bx);
 };
 
 std::ostream& operator << (std::ostream& os, const L1GctWheelJetFpga& fpga);

@@ -204,7 +204,7 @@ private:
    *   \return The fitted vertex
    */
   CachingVertex<N> fit(const std::vector<RefCountedVertexTrack> & tracks,
-  	const VertexState priorVertex, bool withPrior) const;
+  	VertexState priorVertex, bool withPrior) const;
 
   /**
    * Construct a container of VertexTrack from a set of RecTracks.
@@ -214,7 +214,7 @@ private:
    * \return The container of VertexTracks which are to be used in the next fit.
    */
   std::vector<RefCountedVertexTrack> linearizeTracks(const std::vector<reco::TransientTrack> & tracks,
-				  const VertexState state) const;
+				  VertexState state) const;
 
   /**
    * Construct new a container of VertexTrack with a new linearization point
@@ -228,7 +228,7 @@ private:
    */
   std::vector<RefCountedVertexTrack> reLinearizeTracks(
 				const std::vector<RefCountedVertexTrack> & tracks,
-				const VertexState state) const;
+				VertexState state) const;
 
 
   /**

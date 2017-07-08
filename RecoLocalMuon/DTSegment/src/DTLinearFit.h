@@ -46,7 +46,7 @@ class DTLinearFit{
              float& covsi) const;
 
     // General function for performing a 2, 3 or 4 parameter fit
-    void fitNpar( const int npar,
+    void fitNpar( int npar,
                   const std::vector<float>& xfit,
                   const std::vector<float>& yfit,
                   const std::vector<int>& lfit,
@@ -57,33 +57,33 @@ class DTLinearFit{
                   float& cminf,
                   float& vminf,
                   double& chi2fit,
-                  const bool debug) const; 
+                  bool debug) const; 
 
     // wrapper for the 3 parameter fit
     void fit3par( const std::vector<float>& xfit,
                            const std::vector<float>& yfit,
                            const std::vector<int>& lfit,
-                           const int nptfit,
+                           int nptfit,
                            const std::vector<float> & sigy, 
                            float& aminf,
                            float& bminf,
                            float& cminf,
                            double& chi2fit,
-                           const bool debug) const; 
+                           bool debug) const; 
 
 
     void fit4Var( const std::vector<float>& xfit,
                   const std::vector<float>& yfit,
                   const std::vector<int>& lfit,
                   const std::vector<double>& tfit,
-                  const int nptfit,
+                  int nptfit,
                   float& aminf,
                   float& bminf,
                   float& cminf,
                   float& vminf,
                   double& chi2fit,
-                  const bool vdrift_4parfit,
-                  const bool debug) const; 
+                  bool vdrift_4parfit,
+                  bool debug) const; 
 
   protected:
 

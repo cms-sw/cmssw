@@ -44,11 +44,11 @@ class CovarianceMatrix {
 
   /// return covariance matrix for a PAT object
   template <class T>
-    TMatrixD setupMatrix(const pat::PATObject<T>& object, const TopKinFitter::Param param, const std::string& resolutionProvider = "");
+    TMatrixD setupMatrix(const pat::PATObject<T>& object, TopKinFitter::Param param, const std::string& resolutionProvider = "");
   /// return covariance matrix for a plain 4-vector
-  TMatrixD setupMatrix(const TLorentzVector& object, const ObjectType objType, const TopKinFitter::Param param);
+  TMatrixD setupMatrix(const TLorentzVector& object, ObjectType objType, TopKinFitter::Param param);
   /// get resolution for a given component of an object
-  double getResolution(const TLorentzVector& object, const ObjectType objType, const std::string& whichResolution = "");
+  double getResolution(const TLorentzVector& object, ObjectType objType, const std::string& whichResolution = "");
   /// get resolution for a given PAT object
   template <class T>
     double getResolution(const pat::PATObject<T>& object, const std::string& whichResolution, const bool isBJet=false) {
@@ -68,7 +68,7 @@ class CovarianceMatrix {
 
   /// determine type for a given PAT object
   template <class T>
-    ObjectType getObjectType(const pat::PATObject<T>& object, const bool isBJet=false);
+    ObjectType getObjectType(const pat::PATObject<T>& object, bool isBJet=false);
   /// get eta dependent smear factor for a PAT object
   template <class T>
     double getEtaDependentScaleFactor(const pat::PATObject<T>& object);
@@ -78,7 +78,7 @@ class CovarianceMatrix {
 };
 
 template <class T>
-TMatrixD CovarianceMatrix::setupMatrix(const pat::PATObject<T>& object, const TopKinFitter::Param param, const std::string& resolutionProvider)
+TMatrixD CovarianceMatrix::setupMatrix(const pat::PATObject<T>& object, TopKinFitter::Param param, const std::string& resolutionProvider)
 {
   // This part is for pat objects with resolutions embedded
   if(object.hasKinResolution()) {

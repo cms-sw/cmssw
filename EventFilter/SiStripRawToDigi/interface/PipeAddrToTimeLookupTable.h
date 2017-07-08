@@ -88,8 +88,8 @@ namespace sistrip {
   {
   public:
     
-    static const uint8_t pipelineAddress(const uint8_t aTimeLocation);
-    static const uint8_t timeLocation(const uint8_t aPipelineAddress);
+    static const uint8_t pipelineAddress(uint8_t aTimeLocation);
+    static const uint8_t timeLocation(uint8_t aPipelineAddress);
 
   private:
  

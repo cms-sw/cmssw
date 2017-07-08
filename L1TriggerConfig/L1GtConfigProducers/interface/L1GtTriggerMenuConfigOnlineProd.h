@@ -61,7 +61,7 @@ public:
     virtual std::shared_ptr<L1GtTriggerMenu> newObject(const std::string& objectKey);
 
     /// initialize the class (mainly reserve/resize)
-    void init(const int numberConditionChips);
+    void init(int numberConditionChips);
 
 
 private:
@@ -157,7 +157,7 @@ private:
 
     /// return for an algorithm with bitNr the mapping between the integer index in logical expression
     /// and the condition name (FK)
-    const std::map<int, std::string> condIndexNameMap(const short bitNr) const;
+    const std::map<int, std::string> condIndexNameMap(short bitNr) const;
 
     /// convert a logical expression with indices to a logical expression with names
     std::string convertLogicalExpression(const std::string&, const std::map<int, std::string>&) const;

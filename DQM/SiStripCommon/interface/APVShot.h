@@ -11,10 +11,10 @@ class APVShot {
 
  public:
   APVShot();
-  APVShot(const bool zs=true);
-  APVShot(const std::vector<SiStripDigi>& digis, const DetId& detid, const bool zs=true);
+  APVShot(bool zs=true);
+  APVShot(const std::vector<SiStripDigi>& digis, const DetId& detid, bool zs=true);
 
-  void computeShot(const std::vector<SiStripDigi>& digis, const DetId& detid, const bool zs=true);
+  void computeShot(const std::vector<SiStripDigi>& digis, const DetId& detid, bool zs=true);
 
   const bool isGenuine() const;
   const int apvNumber() const;

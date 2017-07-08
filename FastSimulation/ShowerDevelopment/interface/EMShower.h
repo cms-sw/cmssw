@@ -37,8 +37,8 @@ class EMShower
 
   EMShower(RandomEngineAndDistribution const* engine,
            GammaFunctionGenerator* gamma,
-	   EMECALShowerParametrization* const myParam,
-	   std::vector<const RawParticle*>* const myPart,
+	   EMECALShowerParametrization* myParam,
+	   std::vector<const RawParticle*>* myPart,
 	   EcalHitMaker  * const myGrid=NULL,
 	   PreshowerHitMaker * const myPreshower=NULL,
 	   bool bFixedLength = false);
@@ -61,10 +61,10 @@ class EMShower
   void setGrid(EcalHitMaker * const myGrid) { theGrid=myGrid;}
 
   /// set the preshower address
-  void setPreshower(PreshowerHitMaker * const myPresh ) ;
+  void setPreshower(PreshowerHitMaker * myPresh ) ;
 
   /// set the HCAL address
-  void setHcal(HcalHitMaker * const myHcal);
+  void setHcal(HcalHitMaker * myHcal);
 
  private:
 

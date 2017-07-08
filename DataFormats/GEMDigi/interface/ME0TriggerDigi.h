@@ -16,10 +16,10 @@ class ME0TriggerDigi
  public:
   
   /// Constructors
-  ME0TriggerDigi(const int trknmb, const int quality,
-		 const int strip, const int partition, 
-		 const int pattern,
-		 const int bend, const int bx);
+  ME0TriggerDigi(int trknmb, int quality,
+		 int strip, int partition, 
+		 int pattern,
+		 int bend, int bx);
   
   /// default
   ME0TriggerDigi();                               

@@ -28,13 +28,13 @@ class VertexHistogramMaker {
 
   ~VertexHistogramMaker();
 
-  void book(const std::string dirname="");
+  void book(std::string dirname="");
   void beginRun(const edm::Run& iRun);
-  void fill(const edm::Event& iEvent, const reco::VertexCollection& vertices, const double weight=1.);
+  void fill(const edm::Event& iEvent, const reco::VertexCollection& vertices, double weight=1.);
 
  private:
 
-  void fill(const unsigned int orbit, const int bx, const float bxlumi, const reco::VertexCollection& vertices, const double weight=1.);
+  void fill(unsigned int orbit, int bx, float bxlumi, const reco::VertexCollection& vertices, double weight=1.);
 
   TFileDirectory* m_currdir;
   const unsigned int m_maxLS;

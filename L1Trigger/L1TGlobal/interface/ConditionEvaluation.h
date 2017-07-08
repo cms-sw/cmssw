@@ -75,7 +75,7 @@ public:
     }
 
     /// the core function to check if the condition matches
-    virtual const bool evaluateCondition(const int bxEval) const = 0;
+    virtual const bool evaluateCondition(int bxEval) const = 0;
 
     /// get numeric expression
     virtual std::string getNumericExpression() const {
@@ -114,30 +114,30 @@ protected:
 
     /// check if a index is in a given range 
     template<class Type1> const bool checkIndex( const Type1& indexLo, const Type1& indexHi,
-							const unsigned int index ) const;
+							unsigned int index ) const;
 
     /// check if a bit with a given number is set in a mask
-    template<class Type1> const bool checkBit(const Type1& mask, const unsigned int bitNumber) const;
+    template<class Type1> const bool checkBit(const Type1& mask, unsigned int bitNumber) const;
 
     /// check if a value is in a given range and outside of a veto range
-    template<class Type1> const bool checkRangeEta(const unsigned int bitNumber, 
+    template<class Type1> const bool checkRangeEta(unsigned int bitNumber, 
 						   const Type1& W1beginR, const Type1& W1endR, 
 						   const Type1& W2beginR, const Type1& W2endR,
-						   const unsigned int nEtaBits ) const;
+						   unsigned int nEtaBits ) const;
 
     /// check if a value is in a given range and outside of a veto range
-    template<class Type1> const bool checkRangePhi(const unsigned int bitNumber, 
+    template<class Type1> const bool checkRangePhi(unsigned int bitNumber, 
 						   const Type1& W1beginR, const Type1& W1endR, 
 						   const Type1& W2beginR, const Type1& W2endR ) const;
 
 
     /// check if a value is in a given range 
-    template<class Type1> const bool checkRangeDeltaEta(const unsigned int obj1Eta, const unsigned int obj2Eta, 
+    template<class Type1> const bool checkRangeDeltaEta(unsigned int obj1Eta, unsigned int obj2Eta, 
 							const Type1& lowerR, const Type1& upperR,
-							const unsigned int nEtaBits ) const;
+							unsigned int nEtaBits ) const;
 
     /// check if a value is in a given range 
-    template<class Type1> const bool checkRangeDeltaPhi(const unsigned int obj1Phi, const unsigned int obj2Phi,
+    template<class Type1> const bool checkRangeDeltaPhi(unsigned int obj1Phi, unsigned int obj2Phi,
 							const Type1& lowerR, const Type1& upperR ) const;
 
 

@@ -45,7 +45,7 @@ private:
 				  edm::EventSetup const& c) override;
   virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
   virtual void endJob() override;
-  std::vector<std::string> splitpathstr(const std::string& strValue,const std::string separator);
+  std::vector<std::string> splitpathstr(const std::string& strValue,std::string separator);
   HLTConfigProvider hltConfig_;
   std::multimap<std::string,std::string> trgpathMmap_;//key:hltpath,value:l1bit
   std::map<std::string,hltPerPathInfo> hltmap_;

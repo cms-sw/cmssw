@@ -46,7 +46,7 @@ namespace edm
 
       void putHcal(edm::Event &e) ;
       void addHcalSignals(const edm::Event &e); 
-      void addHcalPileups(const int bcr, const edm::EventPrincipal*,unsigned int EventId,
+      void addHcalPileups(int bcr, const edm::EventPrincipal*,unsigned int EventId,
                           ModuleCallingContext const*);
 
 

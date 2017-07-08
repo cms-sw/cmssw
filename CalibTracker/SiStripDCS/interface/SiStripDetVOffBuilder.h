@@ -62,15 +62,15 @@ class SiStripDetVOffBuilder
   void reduce( std::vector< std::pair<SiStripDetVOff*,cond::Time_t> >::iterator & it,
 	       std::vector< std::pair<SiStripDetVOff*,cond::Time_t> >::iterator & initialIt,
 	       std::vector< std::pair<SiStripDetVOff*,cond::Time_t> > & resultVec,
-	       const bool last = false);
+	       bool last = false);
 
-  void reduction(const uint32_t deltaTmin, const uint32_t maxIOVlength);
+  void reduction(uint32_t deltaTmin, uint32_t maxIOVlength);
 
   /// Removes IOVs as dictated by reduction
   void discardIOVs( std::vector< std::pair<SiStripDetVOff*,cond::Time_t> >::iterator & it,
                     std::vector< std::pair<SiStripDetVOff*,cond::Time_t> >::iterator & initialIt,
                     std::vector< std::pair<SiStripDetVOff*,cond::Time_t> > & resultVec,
-                    const bool last, const unsigned int first );
+                    bool last, unsigned int first );
   bool FileExists(std::string filename);
  private:
   // typedefs
@@ -167,8 +167,8 @@ class SiStripDetVOffBuilder
 
   void buildPSUdetIdMap(TimesAndValues & tStruct, DetIdListTimeAndStatus & dStruct);
 
-  void setPayloadStats(const uint32_t afterV, const uint32_t numAdded, const uint32_t numRemoved);
-  std::pair<int, int> extractDetIdVector(const unsigned int i, SiStripDetVOff * modV, DetIdListTimeAndStatus & detIdStruct);
+  void setPayloadStats(uint32_t afterV, uint32_t numAdded, uint32_t numRemoved);
+  std::pair<int, int> extractDetIdVector(unsigned int i, SiStripDetVOff * modV, DetIdListTimeAndStatus & detIdStruct);
 
   std::auto_ptr<SiStripCoralIface> coralInterface;
 

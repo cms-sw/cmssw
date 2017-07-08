@@ -13,7 +13,7 @@ namespace l1t {
     public:
        
       HGCalMulticluster(){}
-      HGCalMulticluster( const LorentzVector p4,
+      HGCalMulticluster( LorentzVector p4,
           int pt=0,
           int eta=0,
           int phi=0

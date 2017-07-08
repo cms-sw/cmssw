@@ -98,14 +98,14 @@ Time-to-Digital Converter (TDC).
     int V775(int index)  const {return V775_[index];}
 
     // Setter methods
-    void   setTimes (const double trigger_time,
-		     const double ttc_l1a_time,
-		     const double laser_flash,
-		     const double qie_phase,
-		     const double TOF1S_time,
-		     const double TOF1J_time,
-		     const double TOF2S_time,
-		     const double TOF2J_time);
+    void   setTimes (double trigger_time,
+		     double ttc_l1a_time,
+		     double laser_flash,
+		     double qie_phase,
+		     double TOF1S_time,
+		     double TOF1J_time,
+		     double TOF2S_time,
+		     double TOF2J_time);
 
     void   setHits  (const std::vector<double>& m1hits,
 		     const std::vector<double>& m2hits,

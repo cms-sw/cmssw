@@ -30,11 +30,11 @@ public:
     ~EcalBoundaryInfoCalculator();
 
     BoundaryInformation boundaryRecHits(const edm::Handle<EcalRecHitCollection>&, const EcalRecHit*,
-                                        const edm::ESHandle<CaloTopology> theCaloTopology, const edm::ESHandle<EcalChannelStatus> ecalStatus,
-                                        const edm::ESHandle<CaloGeometry> geometry) const;
+                                        edm::ESHandle<CaloTopology> theCaloTopology, edm::ESHandle<EcalChannelStatus> ecalStatus,
+                                        edm::ESHandle<CaloGeometry> geometry) const;
 
-    BoundaryInformation gapRecHits(const edm::Handle<EcalRecHitCollection>&, const EcalRecHit*, const edm::ESHandle<
-                                   CaloTopology> theCaloTopology, const edm::ESHandle<EcalChannelStatus> ecalStatus, const edm::ESHandle<
+    BoundaryInformation gapRecHits(const edm::Handle<EcalRecHitCollection>&, const EcalRecHit*, edm::ESHandle<
+                                   CaloTopology> theCaloTopology, edm::ESHandle<EcalChannelStatus> ecalStatus, edm::ESHandle<
                                    CaloGeometry> geometry) const;
 
     bool checkRecHitHasDeadNeighbour(const EcalRecHit& hit, const edm::ESHandle<EcalChannelStatus> ecalStatus, std::vector<
