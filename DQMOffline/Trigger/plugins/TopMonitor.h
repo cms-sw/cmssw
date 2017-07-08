@@ -137,6 +137,9 @@ private:
   std::vector<double> jetEta_variable_binning_;
   std::vector<double> muEta_variable_binning_;
   std::vector<double> eleEta_variable_binning_;
+   //george
+  std::vector<double> invMass_mumu_variable_binning_;
+  std::vector<double> MHT_variable_binning_;
 
   std::vector<double> HT_variable_binning_2D_;
   std::vector<double> jetPt_variable_binning_2D_;
@@ -179,6 +182,8 @@ private:
   //george
   METME invMass_mumu_;
   METME eventMHT_;  
+  METME invMass_mumu_variableBinning_;
+  METME eventMHT_variableBinning_;
 
   //BTV
   METME DeltaR_jet_Mu_;

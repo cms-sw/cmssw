@@ -56,10 +56,11 @@ double_soft_muon_mll.MHTdefinition    = cms.string('pt>30 & abs(eta)<2.4')
 double_soft_muon_mll.MHTcut            = cms.double(150)
 double_soft_muon_mll.metSelection      = cms.string('pt>150')
 # Binning
+double_soft_muon_mll.histoPSet.invMassVariableBinning      =cms.vdouble(8,12,15,20,25,30,35,40,45,47,50,60)
 
 # Triggers
 double_soft_muon_mll.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_DoubleMu3_DZ_PFMET50_PFMHT60_v*')
-double_soft_muon_mll.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_TripleMu_10_5_5_DZ_v*')
+double_soft_muon_mll.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Dimuon12_Upsilon_eta1p5_v*')
 
 #mht
 double_soft_muon_mhtpt = hltTOPmonitoring.clone()
@@ -74,12 +75,87 @@ double_soft_muon_mhtpt.metSelection     = cms.string('pt>150')
 double_soft_muon_mhtpt.invMassUppercut       = cms.double(50)
 double_soft_muon_mhtpt.invMassLowercut       = cms.double(10)
 # Binning
+double_soft_muon_mhtpt.histoPSet.MHTVariableBinning      =cms.vdouble(50,60,70,80,90,100,110,120,130,150,200,300)
 
 # Triggers
 double_soft_muon_mhtpt.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_DoubleMu3_DZ_PFMET50_PFMHT60_v*')
 double_soft_muon_mhtpt.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v*')
 
+#backup1
+#met
+double_soft_muon_backup_70_metpt = hltTOPmonitoring.clone()
+double_soft_muon_backup_70_metpt.FolderName   = cms.string('HLT/SUSY/SOS/Baclup70/MET/')
+# Selections
+double_soft_muon_backup_70_metpt.nmuons           = cms.uint32(2)
+double_soft_muon_backup_70_metpt.HTdefinition     = cms.string('pt>30 & abs(eta)<2.4')
+double_soft_muon_backup_70_metpt.HTcut            = cms.double(60)
+double_soft_muon_backup_70_metpt.muoSelection     =cms.string('pt>18 & abs(eta)<2.4')
+double_soft_muon_backup_70_metpt.MHTdefinition    = cms.string('pt>30 & abs(eta)<2.4')
+double_soft_muon_backup_70_metpt.MHTcut           = cms.double(150)
+double_soft_muon_backup_70_metpt.invMassUppercut       = cms.double(50)
+double_soft_muon_backup_70_metpt.invMassLowercut       = cms.double(10)
+# Binning
+double_soft_muon_backup_70_metpt.histoPSet.metPSet   =cms.PSet(nbins=cms.uint32(50),xmin=cms.double(50),xmax=cms.double(300) )
+# Triggers
+double_soft_muon_backup_70_metpt.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_DoubleMu3_DZ_PFMET70_PFMHT70_v*')
+double_soft_muon_backup_70_metpt.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v*')
 
+#mht
+double_soft_muon_backup_70_mhtpt = hltTOPmonitoring.clone()
+double_soft_muon_backup_70_mhtpt.FolderName   = cms.string('HLT/SUSY/SOS/backup70/MHT/')
+# Selections
+double_soft_muon_backup_70_mhtpt.nmuons           = cms.uint32(2)
+double_soft_muon_backup_70_mhtpt.HTdefinition     = cms.string('pt>30 & abs(eta)<2.4')
+double_soft_muon_backup_70_mhtpt.HTcut            = cms.double(60)
+double_soft_muon_backup_70_mhtpt.muoSelection     =cms.string('pt>18 & abs(eta)<2.0')
+double_soft_muon_backup_70_mhtpt.MHTdefinition    = cms.string('pt>30 & abs(eta)<2.4')
+double_soft_muon_backup_70_mhtpt.metSelection     = cms.string('pt>150')
+double_soft_muon_backup_70_mhtpt.invMassUppercut       = cms.double(50)
+double_soft_muon_backup_70_mhtpt.invMassLowercut       = cms.double(10)
+# Binning
+double_soft_muon_backup_70_mhtpt.histoPSet.MHTVariableBinning      =cms.vdouble(50,60,70,80,90,100,110,120,130,150,200,300)
+
+# Triggers
+double_soft_muon_backup_70_mhtpt.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_DoubleMu3_DZ_PFMET70_PFMHT70_v*')
+double_soft_muon_backup_70_mhtpt.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v*')
+
+#backup2
+#met
+double_soft_muon_backup_90_metpt = hltTOPmonitoring.clone()
+double_soft_muon_backup_90_metpt.FolderName   = cms.string('HLT/SUSY/SOS/Baclup90/MET/')
+# Selections
+double_soft_muon_backup_90_metpt.nmuons           = cms.uint32(2)
+double_soft_muon_backup_90_metpt.HTdefinition     = cms.string('pt>30 & abs(eta)<2.4')
+double_soft_muon_backup_90_metpt.HTcut            = cms.double(60)
+double_soft_muon_backup_90_metpt.muoSelection     =cms.string('pt>18 & abs(eta)<2.4')
+double_soft_muon_backup_90_metpt.MHTdefinition    = cms.string('pt>30 & abs(eta)<2.4')
+double_soft_muon_backup_90_metpt.MHTcut           = cms.double(150)
+double_soft_muon_backup_90_metpt.invMassUppercut       = cms.double(50)
+double_soft_muon_backup_90_metpt.invMassLowercut       = cms.double(10)
+# Binning
+double_soft_muon_backup_90_metpt.histoPSet.metPSet   =cms.PSet(nbins=cms.uint32(50),xmin=cms.double(50),xmax=cms.double(300) )
+# Triggers
+double_soft_muon_backup_90_metpt.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_DoubleMu3_DZ_PFMET90_PFMHT90_v*')
+double_soft_muon_backup_90_metpt.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v*')
+
+#mht
+double_soft_muon_backup_90_mhtpt = hltTOPmonitoring.clone()
+double_soft_muon_backup_90_mhtpt.FolderName   = cms.string('HLT/SUSY/SOS/backup90/MHT/')
+# Selections
+double_soft_muon_backup_90_mhtpt.nmuons           = cms.uint32(2)
+double_soft_muon_backup_90_mhtpt.HTdefinition     = cms.string('pt>30 & abs(eta)<2.4')
+double_soft_muon_backup_90_mhtpt.HTcut            = cms.double(60)
+double_soft_muon_backup_90_mhtpt.muoSelection     =cms.string('pt>18 & abs(eta)<2.0')
+double_soft_muon_backup_90_mhtpt.MHTdefinition    = cms.string('pt>30 & abs(eta)<2.4')
+double_soft_muon_backup_90_mhtpt.metSelection     = cms.string('pt>150')
+double_soft_muon_backup_90_mhtpt.invMassUppercut       = cms.double(50)
+double_soft_muon_backup_90_mhtpt.invMassLowercut       = cms.double(10)
+# Binning
+double_soft_muon_backup_90_mhtpt.histoPSet.MHTVariableBinning      =cms.vdouble(50,60,70,80,90,100,110,120,130,150,200,300)
+
+# Triggers
+double_soft_muon_backup_90_mhtpt.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_DoubleMu3_DZ_PFMET90_PFMHT90_v*')
+double_soft_muon_backup_90_mhtpt.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v*')
 
 susyMonitorHLT = cms.Sequence(
     susyHLTRazorMonitoring
@@ -87,4 +163,8 @@ susyMonitorHLT = cms.Sequence(
 +double_soft_muon_metpt
 +double_soft_muon_mhtpt
 +double_soft_muon_mll
++double_soft_muon_backup_70_metpt
++double_soft_muon_backup_70_mhtpt
++double_soft_muon_backup_90_metpt
++double_soft_muon_backup_90_mhtpt
 )
